@@ -1,6 +1,16 @@
-RtMidi - a set of C++ classes that provides a common API for realtime MIDI input/output across Linux (ALSA & JACK), Macintosh OS X (CoreMidi & JACK), and Windows (Multimedia Library).
+RtMidi - a set of C++ classes that provides a common API for realtime MIDI input/output across Linux (ALSA & JACK), Macintosh OS X (CoreMIDI & JACK), and Windows (Multimedia Library).
 
-By Gary P. Scavone, 2003-2017 (with help from many others!)
+By Gary P. Scavone, 2003-2019 (with help from many others!)
+
+v.4.0.0: (17 April 2019)
+- see git history for complete list of changes
+- updates to test programs to clarify port numbering
+- new C API wrapper
+- new functions to get API names
+- miscellaneous sysex fixes in Jack and ALSA
+- new setPortName() method (for Jack and ALSA)
+- new setClientName() method (for ALSA)
+- various build system updates and code efficiencies
 
 v.3.0.0: (31 August 2017)
 - see git history for complete list of changes
@@ -20,11 +30,11 @@ v2.1.1: (11 February 2016)
 
 v2.1.0: (30 March 2014)
 - renamed RtError class to RtMidiError and embedded it in RtMidi.h (and deleted RtError.h)
-- fix to CoreMidi implementation to support dynamic port changes
+- fix to CoreMIDI implementation to support dynamic port changes
 - removed global ALSA sequencer objects because they were not thread safe (Martin Koegler)
 - fix for ALSA timing ignore flag (Devin Anderson)
 - fix for ALSA incorrect use of snd_seq_create_port() function (Tobias Schlemmer)
-- fix for international character support in CoreMidi (Martin Finke)
+- fix for international character support in CoreMIDI (Martin Finke)
 - fix for unicode conversion in WinMM (Dan Wilcox)
 - added custom error hook that allows the client to capture an RtMidi error outside of the RtMidi code (Pavel Mogilevskiy)
 - added RtMidi::isPortOpen function (Pavel Mogilevskiy)

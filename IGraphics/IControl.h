@@ -580,7 +580,7 @@ public:
 protected:
   IBitmap mBitmap;
   IBlend mBlend;
-  IControl* mControl;
+  IControl* mControl = nullptr;
 };
 
 /** A base interface to be combined with IControl for vectorial controls "IVControls", in order for them to share a common style
@@ -1136,7 +1136,7 @@ protected:
   
   virtual void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx)
   {
-    IRECT fillRect = r.FracRect(mDirection, GetValue(chIdx));
+    IRECT fillRect = r.FracRect(mDirection, static_cast<float>(GetValue(chIdx)));
     
     g.FillRect(GetColor(kFG), fillRect); // TODO: shadows!
     
@@ -1301,7 +1301,7 @@ class ILambdaControl : public IControl
 {
 public:
   ILambdaControl(const IRECT& bounds, ILambdaDrawFunction drawFunc, int animationDuration = DEFAULT_ANIMATION_DURATION,
-    bool loopAnimation = false, bool startImmediately = false, int paramIdx = kNoParameter)
+    bool loopAnimation = false, bool startImmediately = false, int paramIdx = kNoParameter, bool ignoreMouse = false)
   : IControl(bounds, paramIdx, DefaultClickActionFunc)
   , mDrawFunc(drawFunc)
   , mLoopAnimation(loopAnimation)
@@ -1312,6 +1312,8 @@ public:
       SetAnimation(DefaultAnimationFunc);
       StartAnimation(mAnimationDuration);
     }
+    
+    mIgnoreMouse = ignoreMouse;
   }
   
   void Draw(IGraphics& g) override
@@ -1438,7 +1440,7 @@ public:
 
   void Draw(IGraphics& g) override;
   void OnInit() override;
-  void SetDisabled(bool disabled) override { mText.mFGColor.A = (disabled ? GRAYED_ALPHA : 1.0f) * 255; }
+  void SetDisabled(bool disabled) override { mText.mFGColor.A = static_cast<int>((disabled ? GRAYED_ALPHA : 1.0f) * 255.f); }
 
   virtual void SetStr(const char* str);
   virtual void SetStrFmt(int maxlen, const char* fmt, ...);

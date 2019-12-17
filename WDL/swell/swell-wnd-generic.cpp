@@ -660,15 +660,16 @@ void SetWindowPos(HWND hwnd, HWND zorder, int x, int y, int cx, int cy, int flag
     if (reposflag&3) 
     {
       hwnd->m_position = f;
-      if (reposflag&2) SendMessage(hwnd,WM_SIZE,0,0);
     }
 
     if (hwnd->m_oswindow && !hwnd->m_oswindow_fullscreen)
     {
       swell_oswindow_resize(hwnd->m_oswindow,reposflag,f);
+      if (reposflag&2) SendMessage(hwnd,WM_SIZE,0,0);
     }
     else
     {
+      if (reposflag&2) SendMessage(hwnd,WM_SIZE,0,0);
       InvalidateRect(hwnd->m_parent ? hwnd->m_parent : hwnd,NULL,FALSE);
     }
   }
@@ -2731,7 +2732,7 @@ forceMouseMove:
         const int osel1 = es && es->sel1 >= 0 && es->sel2 > es->sel1 ? es->sel1 : -1;
 
         int f = OnEditKeyDown(hwnd,msg,wParam,lParam, 
-            !!(hwnd->m_style&ES_WANTRETURN),
+            (hwnd->m_style&ES_WANTRETURN) && (hwnd->m_style&ES_MULTILINE),
             !!(hwnd->m_style&ES_MULTILINE),
             es,true);
         if (f)
@@ -4139,6 +4140,7 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
               lvs->m_capmode_data2 = subitem;
             }
 
+            if(hit < n)
             {
               NMLISTVIEW nm={{hwnd,hwnd->m_id,msg == WM_LBUTTONDBLCLK ? NM_DBLCLK : NM_CLICK},hit,subitem,0,0,0, {s_clickpt.x, s_clickpt.y }};
               SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
@@ -4646,7 +4648,7 @@ forceMouseMove:
                     SendMessage(hwnd->m_parent,WM_DRAWITEM,(WPARAM)hwnd->m_id,(LPARAM)&dis);
                   }
                 }
-                else if (str) 
+                else
                 {
                   if (ncols > 0)
                   {
@@ -4660,7 +4662,9 @@ forceMouseMove:
                     const int adj = (ar.right-ar.left)/16;
                     const int maxadj = SWELL_UI_SCALE(4);
                     ar.left += wdl_min(adj,maxadj);
-                    DrawText(ps.hdc,str,-1,&ar,DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+
+                    if(str)
+                      DrawText(ps.hdc,str,-1,&ar,DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
                   }
                 }
               }
@@ -7325,10 +7329,10 @@ int GetSystemMetrics(int p)
          SWELL_GetViewPort(&r, NULL, false);
          return p==SM_CXSCREEN ? r.right-r.left : r.bottom-r.top; 
       }
-    case SM_CXHSCROLL: return 16;
-    case SM_CYHSCROLL: return 16;
-    case SM_CXVSCROLL: return 16;
-    case SM_CYVSCROLL: return 16;
+    case SM_CXHSCROLL:
+    case SM_CYHSCROLL:
+    case SM_CXVSCROLL:
+    case SM_CYVSCROLL: return g_swell_ctheme.smscrollbar_width;
   }
   return 0;
 }
@@ -7462,6 +7466,7 @@ void TreeView_SelectItem(HWND hwnd, HTREEITEM item)
   {
     __rent++;
     NMTREEVIEW nm={{(HWND)hwnd,(UINT_PTR)hwnd->m_id,TVN_SELCHANGED},};
+    nm.itemNew.hItem = item;
     SendMessage(GetParent(hwnd),WM_NOTIFY,nm.hdr.idFrom,(LPARAM)&nm);
     __rent--;
   }

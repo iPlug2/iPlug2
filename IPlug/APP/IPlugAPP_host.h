@@ -248,6 +248,9 @@ private:
   std::vector<std::string> mMidiInputDevNames;
   std::vector<std::string> mMidiOutputDevNames;
   
+  WDL_PtrList<double> mInputBufPtrs;
+  WDL_PtrList<double> mOutputBufPtrs;
+
   friend class IPlugAPP;
 };
 

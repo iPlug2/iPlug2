@@ -27,7 +27,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics
 {
-  TRACE;
+  TRACE
 
   mGraphics = pGraphics;
   CGRect r = CGRectMake(0.f, 0.f, (float) pGraphics->WindowWidth(), (float) pGraphics->WindowHeight());
@@ -482,10 +482,3 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 #endif
 
-#if defined IGRAPHICS_NANOVG
-#include "IGraphicsNanoVG.cpp"
-#elif defined IGRAPHICS_SKIA
-#include "IGraphicsSkia.cpp"
-#else
-#error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
-#endif

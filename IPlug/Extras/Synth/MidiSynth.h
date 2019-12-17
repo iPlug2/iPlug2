@@ -79,14 +79,14 @@ public:
    * if you need to implement a tuning table for microtonal support
    * @param fn A function taking an integer key value and returning a double-precision
    *  pitch value, where 0.5 = 220Hz, 1.0 = 440 Hz, 2.0 = 880 Hz ("1v / octave"). */
-  void SetKeyToPitchFn(const std::function<double(int)>& fn)
+  void SetKeyToPitchFn(const std::function<float(int)>& fn)
   {
     mVoiceAllocator.SetKeyToPitchFunction(fn);
   }
 
   void SetNoteOffset(double offset)
   {
-    mVoiceAllocator.SetPitchOffset(offset);
+    mVoiceAllocator.SetPitchOffset(static_cast<float>(offset));
   }
 
   void SetNoteGlideTime(double t)

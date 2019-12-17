@@ -102,12 +102,12 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
       
       const float x = r.MW();
       const float y = r.MH();
-      const float rotate = pCaller->GetAnimationProgress() * PI;
+      const float rotate = static_cast<float>(pCaller->GetAnimationProgress() * PI);
       
       for(int index = 0, limit = 40; index < limit; ++index)
       {
-        float firstAngle = (index * 2 * PI) / limit;
-        float secondAngle = ((index + 1) * 2 * PI) / limit;
+        float firstAngle = (static_cast<float>(index) * 2.f * static_cast<float>(PI)) / limit;
+        float secondAngle = ((static_cast<float>(index) + 1) * 2.f * static_cast<float>(PI)) / limit;
         
         g.PathTriangle(x, y,
                        x + std::sin(firstAngle + rotate) * radius, y + std::cos(firstAngle + rotate) * radius,

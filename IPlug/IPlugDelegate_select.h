@@ -13,13 +13,9 @@
  * @brief Used for choosing an editor delegate @see IEditorDelegate
  */
 
-//#if defined PUGL_EDITOR_DELEGATE
-//  #include "PUGLEditorDelegate.h"
-//  using EDITOR_DELEGATE_CLASS = PUGLEditorDelegate;
-//#el
-#if defined UIKIT_EDITOR_DELEGATE
-  #include "IPlugUIKitEditorDelegate.h"
-  using EDITOR_DELEGATE_CLASS = UIKitEditorDelegate;
+#if defined COCOA_EDITOR_DELEGATE
+  #include "IPlugCocoaEditorDelegate.h"
+  using EDITOR_DELEGATE_CLASS = iplug::CocoaEditorDelegate;
 #elif defined WEBVIEW_EDITOR_DELEGATE
   #include "IPlugWebViewEditorDelegate.h"
   using EDITOR_DELEGATE_CLASS = iplug::WebViewEditorDelegate;

@@ -1,4 +1,5 @@
 #include <cmath>
+#include <map>
 
 #include "IGraphicsSkia.h"
 
@@ -39,6 +40,8 @@
 using namespace iplug;
 using namespace igraphics;
 
+extern std::map<std::string, MTLTexturePtr> gTextureMap;
+
 #pragma mark - Private Classes and Structs
 
 class IGraphicsSkia::Bitmap : public APIBitmap
@@ -47,7 +50,8 @@ public:
   Bitmap(GrContext* context, int width, int height, int scale, float drawScale);
   Bitmap(const char* path, double sourceScale);
   Bitmap(const void* pData, int size, double sourceScale);
-  
+  Bitmap(sk_sp<SkImage>, double sourceScale);
+
 private:
   SkiaDrawable mDrawable;
 };
@@ -80,6 +84,12 @@ IGraphicsSkia::Bitmap::Bitmap(const void* pData, int size, double sourceScale)
   mDrawable.mImage = SkImage::MakeFromEncoded(data);
   
   mDrawable.mIsSurface = false;
+  SetBitmap(&mDrawable, mDrawable.mImage->width(), mDrawable.mImage->height(), sourceScale, 1.f);
+}
+
+IGraphicsSkia::Bitmap::Bitmap(sk_sp<SkImage> image, double sourceScale)
+{
+  mDrawable.mImage = image;
   SetBitmap(&mDrawable, mDrawable.mImage->width(), mDrawable.mImage->height(), sourceScale, 1.f);
 }
 
@@ -229,6 +239,22 @@ bool IGraphicsSkia::BitmapExtSupported(const char* ext)
 
 APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
+#ifdef OS_IOS
+  if (location == EResourceLocation::kPreloadedTexture)
+  {
+    GrMtlTextureInfo textureInfo;
+    textureInfo.fTexture.retain((__bridge const void*)(gTextureMap[fileNameOrResID]));
+    id<MTLTexture> texture = (id<MTLTexture>) textureInfo.fTexture.get();
+    
+    MTLPixelFormat pixelFormat = texture.pixelFormat;
+    
+    auto grBackendTexture = GrBackendTexture(texture.width, texture.height, GrMipMapped::kNo, textureInfo);
+    
+    sk_sp<SkImage> image = SkImage::MakeFromTexture(mGrContext.get(), grBackendTexture, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, kOpaque_SkAlphaType, nullptr);
+    return new Bitmap(image, scale);
+  }
+  else
+#endif
 #ifdef OS_WIN
   if (location == EResourceLocation::kWinBinary)
   {

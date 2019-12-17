@@ -290,7 +290,7 @@ Steinberg::FUnknown* MakeController()
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
   IPlugVST3Controller::InstanceInfo info;
-  info.mOtherGUID = FUID(PROC_GUID1, PROC_GUID2, VST3_GUID3, VST3_GUID4);
+  info.mOtherGUID = Steinberg::FUID(PROC_GUID1, PROC_GUID2, VST3_GUID3, VST3_GUID4);
   //If you are trying to build a distributed VST3 plug-in and you hit an error here "no matching constructor...",
   //you need to replace all instances of PLUG_CLASS_NAME in your plug-in class, with the macro PLUG_CLASS_NAME
   return static_cast<Steinberg::Vst::IEditController*>(new PLUG_CLASS_NAME(info));

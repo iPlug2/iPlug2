@@ -50,7 +50,7 @@ IPlugAPIBase::~IPlugAPIBase()
     mTimer->Stop();
   }
 
-  TRACE;
+  TRACE
 }
 
 void IPlugAPIBase::OnHostRequestingImportantParameters(int count, WDL_TypedBuf<int>& results)
