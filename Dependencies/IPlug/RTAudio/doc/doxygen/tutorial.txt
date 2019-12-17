@@ -13,18 +13,21 @@ RtAudio is a set of C++ classes that provide a common API (Application Programmi
 
 RtAudio incorporates the concept of audio streams, which represent audio output (playback) and/or input (recording).  Available audio devices and their capabilities can be enumerated and then specified when opening a stream.  Where applicable, multiple API support can be compiled and a particular API specified when creating an RtAudio instance.  See the \ref apinotes section for information specific to each of the supported audio APIs.
 
-\section whatsnew Latest Updates (Version 5.0.0)
+\section whatsnew Latest Updates (Version 5.1.0)
 
-The version number has been bumped to 5.0.0 because of the past API change concerning the renaming of the RtError class to RtAudioError.  Changes in this release include:
+Changes in this release include:
 
-- WASAPI updates (thanks to Marcus Tomlinson)
-- minor exception semantic changes
+- new C API wrapper
+- new static functions to get API names
+- many WASAPI updates (thanks to Marcus Tomlinson)
 - miscellaneous build system updates
+- bug fix for stream ticking in CoreAudio if using two devices for duplex
+- ALSA stream handle bug fixes
 - see git history for complete list of changes
 
 \section download Download
 
-Latest Release (30 August 2017): <A href="http://www.music.mcgill.ca/~gary/rtaudio/release/rtaudio-5.0.0.tar.gz">Version 5.0.0</A>
+Latest Release (17 April 2019): <A href="http://www.music.mcgill.ca/~gary/rtaudio/release/rtaudio-5.1.0.tar.gz">Version 5.1.0</A>
 
 \section documentation Documentation Links
 

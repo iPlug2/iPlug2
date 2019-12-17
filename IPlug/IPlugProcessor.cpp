@@ -60,7 +60,7 @@ IPlugProcessor::IPlugProcessor(const Config& config, EAPI plugAPI)
 
 IPlugProcessor::~IPlugProcessor()
 {
-  TRACE;
+  TRACE
 
   mChannelData[ERoute::kInput].Empty(true);
   mChannelData[ERoute::kOutput].Empty(true);

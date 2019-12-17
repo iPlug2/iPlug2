@@ -11,13 +11,10 @@
 #pragma once
 #include "pluginterfaces/gui/iplugviewcontentscalesupport.h"
 
-using namespace Steinberg;
-using namespace Vst;
-
 /** IPlug VST3 View  */
 template <class T>
-class IPlugVST3View : public CPluginView
-                    , public IPlugViewContentScaleSupport
+class IPlugVST3View : public Steinberg::CPluginView
+                    , public Steinberg::IPlugViewContentScaleSupport
 {
 public:
   IPlugVST3View(T& owner)
@@ -34,70 +31,70 @@ public:
   IPlugVST3View(const IPlugVST3View&) = delete;
   IPlugVST3View& operator=(const IPlugVST3View&) = delete;
   
-  tresult PLUGIN_API isPlatformTypeSupported(FIDString type) override
+  Steinberg::tresult PLUGIN_API isPlatformTypeSupported(Steinberg::FIDString type) override
   {
     if (mOwner.HasUI()) // for no editor plugins
     {
 #ifdef OS_WIN
-      if (strcmp(type, kPlatformTypeHWND) == 0)
-        return kResultTrue;
+      if (strcmp(type, Steinberg::kPlatformTypeHWND) == 0)
+        return Steinberg::kResultTrue;
       
 #elif defined OS_MAC
-      if (strcmp (type, kPlatformTypeNSView) == 0)
-        return kResultTrue;
+      if (strcmp (type, Steinberg::kPlatformTypeNSView) == 0)
+        return Steinberg::kResultTrue;
 #endif
     }
     
-    return kResultFalse;
+    return Steinberg::kResultFalse;
   }
     
-  tresult PLUGIN_API onSize(ViewRect* pSize) override
+  Steinberg::tresult PLUGIN_API onSize(Steinberg::ViewRect* pSize) override
   {
-    TRACE;
+    TRACE
     
     if (pSize)
       rect = *pSize;
     
-    return kResultTrue;
+    return Steinberg::kResultTrue;
   }
   
-  tresult PLUGIN_API getSize(ViewRect* pSize) override
+  Steinberg::tresult PLUGIN_API getSize(Steinberg::ViewRect* pSize) override
   {
-    TRACE;
+    TRACE
     
     if (mOwner.HasUI())
     {
-      *pSize = ViewRect(0, 0, mOwner.GetEditorWidth(), mOwner.GetEditorHeight());
+      *pSize = Steinberg::ViewRect(0, 0, mOwner.GetEditorWidth(), mOwner.GetEditorHeight());
       
-      return kResultTrue;
+      return Steinberg::kResultTrue;
     }
     else
     {
-      return kResultFalse;
+      return Steinberg::kResultFalse;
     }
   }
   
-  tresult PLUGIN_API attached(void* pParent, FIDString type) override
+  Steinberg::tresult PLUGIN_API attached(void* pParent, Steinberg::FIDString type) override
   {
     if (mOwner.HasUI())
     {
       void* pView = nullptr;
 #ifdef OS_WIN
-      if (strcmp(type, kPlatformTypeHWND) == 0)
+      if (strcmp(type, Steinberg::kPlatformTypeHWND) == 0)
         pView = mOwner.OpenWindow(pParent);
 #elif defined OS_MAC
-      if (strcmp (type, kPlatformTypeNSView) == 0)
+      if (strcmp (type, Steinberg::kPlatformTypeNSView) == 0)
         pView = mOwner.OpenWindow(pParent);
       else // Carbon
-        return kResultFalse;
+        return Steinberg::kResultFalse;
 #endif
-      return kResultTrue;
+      return Steinberg::kResultTrue;
     }
     
-    return kResultFalse;
+    return Steinberg::kResultFalse;
   }
     
-  tresult PLUGIN_API removed() override
+  Steinberg::tresult PLUGIN_API removed() override
   {
     if (mOwner.HasUI())
       mOwner.CloseWindow();
@@ -105,14 +102,14 @@ public:
     return CPluginView::removed();
   }
 
-  tresult PLUGIN_API setContentScaleFactor(ScaleFactor factor) override
+  Steinberg::tresult PLUGIN_API setContentScaleFactor(ScaleFactor factor) override
   {
     mOwner.SetScreenScale(factor);
 
     return Steinberg::kResultOk;
   }
 
-  tresult PLUGIN_API queryInterface(const TUID _iid, void** obj) override
+  Steinberg::tresult PLUGIN_API queryInterface(const Steinberg::TUID _iid, void** obj) override
   {
     QUERY_INTERFACE(_iid, obj, IPlugViewContentScaleSupport::iid, IPlugViewContentScaleSupport)
     *obj = 0;
@@ -123,9 +120,9 @@ public:
 
   void resize(int w, int h)
   {
-    TRACE;
+    TRACE
     
-    ViewRect newSize = ViewRect(0, 0, w, h);
+    Steinberg::ViewRect newSize = Steinberg::ViewRect(0, 0, w, h);
     plugFrame->resizeView(this, &newSize);
   }
 

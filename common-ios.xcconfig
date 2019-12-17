@@ -3,7 +3,6 @@ CERTIFICATE_ID = Oliver Larkin
 DEVELOPMENT_TEAM = 686EDA2T8T // log in to developer.apple.com and see the end of the URL e.g. https://developer.apple.com/account/#/overview/686EDA2T8T
 
 // Which compiler to use
-//COMPILER = com.intel.compilers.icc.12_1_0
 COMPILER = com.apple.compilers.llvm.clang.1_0
 
 // which osx sdk to compile against - defaults to latest SDK available

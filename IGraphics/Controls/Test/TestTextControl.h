@@ -59,7 +59,7 @@ public:
 
     const char* types[] = { "Roboto-Regular", "Montserrat-LightItalic" };
 
-    mText = IText(size, IColor::GetRandomColor(), types[type], (EAlign) align, (EVAlign) valign);
+    mText = IText(static_cast<float>(size), IColor::GetRandomColor(), types[type], (EAlign) align, (EVAlign) valign);
   }
 
 private:

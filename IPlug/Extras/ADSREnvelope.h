@@ -58,11 +58,12 @@ private:
   bool mSustainEnabled = true; // when false env is AD only
   
   std::function<void()> mResetFunc = nullptr; // reset func
+  std::function<void()> mEndReleaseFunc = nullptr; // end release func
 
 public:
   /** Constructs an ADSREnvelope object 
   * @param name CString to identify the envelope in debug mode, when DEBUG_ENV=1 is set as a global preprocessor macro
-  * @param resetFunc A function to call when the envelope gets retriggered, called when the fade out ramp is at zero, usefule for example to reset an oscillator's phase
+  * @param resetFunc A function to call when the envelope gets retriggered, called when the fade out ramp is at zero, useful for example to reset an oscillator's phase
   * @param sustainEnabled if true the envelope is an ADSR envelope. If false, it's is an AD envelope (suitable for drums). */
   ADSREnvelope(const char* name = "", std::function<void()> resetFunc = nullptr, bool sustainEnabled = true)
   : mName(name)
@@ -186,6 +187,16 @@ public:
     mRetriggerReleaseIncr = CalcIncrFromTimeLinear(RETRIGGER_RELEASE_TIME, sr);
   }
 
+  /** Sets a function to call when the envelope gets retriggered, called when the fade out ramp is at zero, useful for example to reset an oscillator's phase
+   * WARNING: don't call this on the audio thread, std::function can malloc
+   * @param func the reset function, or nullptr for none */
+  void SetResetFunc(std::function<void()> func) { mResetFunc = func; }
+  
+  /** Sets a function to call when the envelope gets released, called when the ramp is at zero
+   * WARNING: don't call this on the audio thread, std::function can malloc
+   * @param func the release function, or nullptr for none */
+  void SetEndReleaseFunc(std::function<void()> func) { mEndReleaseFunc = func; }
+  
   /** Process the envelope, returning the value according to the current envelope stage
   * @param sustainLevel Since the sustain level could be changed during processing, it is supplied as an argument, so that it can be smoothed extenally if nessecary, to avoid discontinuities */
   inline T Process(T sustainLevel = 0.)
@@ -230,6 +241,9 @@ public:
         {
           mStage = kIdle;
           mEnvValue = 0.;
+          
+          if(mEndReleaseFunc)
+            mEndReleaseFunc();
         }
         result = mEnvValue * mReleaseLevel;
         break;
@@ -257,6 +271,8 @@ public:
           mEnvValue = 0.;
           mPrevResult = 0.;
           mReleaseLevel = 0.;
+          if(mEndReleaseFunc)
+            mEndReleaseFunc();
         }
         result = mEnvValue * mReleaseLevel;
         break;
@@ -269,6 +285,7 @@ public:
     mPrevOutput = (result * mLevel);
     return mPrevOutput;
   }
+
 private:
   inline T CalcIncrFromTimeLinear(T timeMS, T sr) const
   {
