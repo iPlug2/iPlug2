@@ -29,8 +29,8 @@ ifneq ($(IDEBUG),)
   CXXFLAGS += -g -D_DEBUG -O0
   LFLAGS += -g
 else
-  CFLAGS += -O2
-  CXXFLAGS += -O2
+  CFLAGS += -O2 -DRELEASE
+  CXXFLAGS += -O2 -DRELEASE
 endif
 
 # disable quite some warnings
@@ -196,7 +196,7 @@ $(_IDEPS_INSTALL_PATH)/lib/librtaudio.a:
 		@rm -rf $(_IDEPS_INSTALL_PATH)/tmp
 		@mkdir $(_IDEPS_INSTALL_PATH)/tmp
 		@cp -a $(_IDEPS_PATH)/IPlug/RTAudio/* $(_IDEPS_INSTALL_PATH)/tmp/
-		cd $(_IDEPS_INSTALL_PATH)/tmp && ./autogen.sh --no-configure && ./configure $(_RTAUDIO_CONFIG) && make
+		@cd $(_IDEPS_INSTALL_PATH)/tmp && ./autogen.sh --no-configure && ./configure $(_RTAUDIO_CONFIG) && make
 		@cp $(_IDEPS_INSTALL_PATH)/tmp/.libs/librtaudio.a $@
 		@rm -rf $(_IDEPS_INSTALL_PATH)/tmp
 
