@@ -11,6 +11,8 @@
 
 #include "GrContext.h"
 
+#include "IGraphicsSkia_src.cpp"
+
 #if defined OS_MAC || defined OS_IOS
   #include "SkCGUtils.h"
   #if defined IGRAPHICS_GL2
