@@ -106,6 +106,18 @@ else ifeq ($(ITARGET),VST3)
 
 	# VST3 SDK  We compile "in project" way.
 	_VST3_SDK_PATH := $(_IPLUG_DEPS_PATH)/VST3_SDK
+
+
+  # we need VST3 SDK before we can construct dependencies, so we can not do that as a rule
+  ifeq ($(widlcard $(_VST3_SDK_PATH)/public.sdk/source/vst3stdsdk.cpp),)
+    $(info "Downloading VST3 SDK ...")
+    $(info $(shell cd $(_IPLUG_DEPS_PATH) && rm -rf VST3_SDK && \
+       git clone https://github.com/steinbergmedia/vst3sdk.git VST3_SDK && cd VST3_SDK &&\
+       git submodule update --init pluginterfaces && \
+       git submodule update --init base && \
+       git submodule update --init public.sdk))
+  endif
+
 	# Prepend arbitrary file to dependencies (so it is checked before any compilation)
 	IPB_DEPS += $(_VST3_SDK_PATH)/public.sdk/source/vst3stdsdk.cpp $(IPB_DEPS)
 	IPINC_DIR += $(_VST3_SDK_PATH)
@@ -213,14 +225,5 @@ $(_IDEPS_INSTALL_PATH)/lib/librtmidi.a:
 		@rm -rf $(_IDEPS_INSTALL_PATH)/tmp
 
 else ifeq ($(ITARGET),VST3)
-
-# downloading VST3 SDK
-$(_VST3_SDK_PATH)/public.sdk/source/vst3stdsdk.cpp:
-		@echo "Downloading VST3 SDK ..."
-		@cd $(_IPLUG_DEPS_PATH) && rm -rf VST3_SDK
-		@cd $(_IPLUG_DEPS_PATH) && git clone https://github.com/steinbergmedia/vst3sdk.git VST3_SDK
-		@cd $(_IPLUG_DEPS_PATH)/VST3_SDK && git submodule update --init pluginterfaces
-		@cd $(_IPLUG_DEPS_PATH)/VST3_SDK && git submodule update --init base
-		@cd $(_IPLUG_DEPS_PATH)/VST3_SDK && git submodule update --init public.sdk
 
 endif
