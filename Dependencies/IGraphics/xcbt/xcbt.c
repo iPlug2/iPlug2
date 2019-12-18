@@ -1,8 +1,25 @@
 /*
+ * Copyright (C) Alexey Zhelezov, 2019 www.azslow.com
+ *
+ * This software is provided 'as-is', without any express or implied
+ * warranty.  In no event will the authors be held liable for any damages
+ * arising from the use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ * 1. The origin of this software must not be misrepresented; you must not
+ *    claim that you wrote the original software. If you use this software
+ *    in a product, an acknowledgment in the product documentation would be
+ *    appreciated but is not required.
+ * 2. Altered source versions must be plainly marked as such, and must not be
+ *    misrepresented as being the original software.
+ * 3. This notice may not be removed or altered from any source distribution.
+ */
+ 
+/*
  * XCB based toolkit.
- * 
- * AZ, 2019
- * 
  * 
  * MAYBE:
  *   glxSwapIntervalEXT
@@ -36,8 +53,12 @@
 #ifdef TRACE
 #undef TRACE
 #endif
-#define TRACE printf
 
+#ifdef _DEBUG
+#define TRACE printf
+#else
+#define TRACE(...)
+#endif
 
 struct _xcbt_window;
 
@@ -1243,17 +1264,28 @@ static int xcbt_embed_glib_set_x(xcbt_embed *pe, xcbt x){
 
 xcbt_embed *xcbt_embed_glib(){
   _xcbt_embed_glib *eg = (_xcbt_embed_glib *)calloc(1, sizeof(*eg));
+  void *h = NULL;
   eg->embed.dtor = xcbt_embed_glib_dtor;
   eg->embed.set_x = xcbt_embed_glib_set_x;
   eg->embed.set_timer = xcbt_embed_glib_set_timer;
   eg->embed.watch = xcbt_embed_glib_watch;
+
+  if(!(eg->g_io_channel_unix_new = dlsym(h, "g_io_channel_unix_new"))){
+    TRACE("INFO: compatible GLib is not found, attempt to load GLib\n");
+    h = dlopen("libglib-2.0.so", RTLD_LAZY);
+    if(h){
+      TRACE("INFO: GLib is loaded explicitly\n");
+    }
+  }
   
-  if(!(eg->g_io_channel_unix_new = dlsym(NULL, "g_io_channel_unix_new")) ||
-     !(eg->g_io_add_watch = dlsym(NULL, "g_io_add_watch")) ||
-     !(eg->g_io_channel_unref = dlsym(NULL, "g_io_channel_unref")) ||
-     !(eg->g_source_remove = dlsym(NULL, "g_source_remove")) ||
-     !(eg->g_timeout_add = dlsym(NULL, "g_timeout_add"))
+  if(!(eg->g_io_channel_unix_new = dlsym(h, "g_io_channel_unix_new")) ||
+     !(eg->g_io_add_watch = dlsym(h, "g_io_add_watch")) ||
+     !(eg->g_io_channel_unref = dlsym(h, "g_io_channel_unref")) ||
+     !(eg->g_source_remove = dlsym(h, "g_source_remove")) ||
+     !(eg->g_timeout_add = dlsym(h, "g_timeout_add"))
      ){
+    
+    TRACE("%p\n", eg->g_timeout_add);
     TRACE("FATAL: compatible GLib is not loaded\n");
     free(eg);
     return NULL;

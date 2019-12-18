@@ -1,197 +1,226 @@
-ROOT = ../..
-PROJECT_ROOT = .
-DEPS_PATH = $(ROOT)/Dependencies
-BUILT_LIBS_PATH = $(DEPS_PATH)/Build/linux
-BUILT_LIBS_INC_PATH = $(BUILT_LIBS_PATH)/include
-BUILT_LIBS_LIB_PATH = $(BUILT_LIBS_PATH)/lib
-WDL_PATH = $(ROOT)/WDL
-IPLUG_PATH = $(ROOT)/IPlug
-SWELL_PATH = $(WDL_PATH)/swell
-IGRAPHICS_PATH = $(ROOT)/IGraphics
-CONTROLS_PATH = $(IGRAPHICS_PATH)/Controls
-PLATFORMS_PATHROOT = ../..
-PROJECT_ROOT = .
-DEPS_PATH = $(ROOT)/Dependencies
-WAM_SDK_PATH = $(DEPS_PATH)/IPlug/WAM_SDK/wamsdk
-STB_PATH = $(DEPS_PATH)/IGraphics/STB
-WDL_PATH = $(ROOT)/WDL
-IPLUG_PATH = $(ROOT)/IPlug
-APP_PATH = $(IPLUG_PATH)/APP
-IVST3_PATH = $(IPLUG_PATH)/VST3
-SWELL_PATH = $(WDL_PATH)/swell
-IGRAPHICS_PATH = $(ROOT)/IGraphics
-CONTROLS_PATH = $(IGRAPHICS_PATH)/Controls
-PLATFORMS_PATH = $(IGRAPHICS_PATH)/Platforms
-DRAWING_PATH = $(IGRAPHICS_PATH)/Drawing
-IPLUG_EXTRAS_PATH = $(IPLUG_PATH)/Extras
-LICE_PATH = $(WDL_PATH)/lice
-NANOVG_PATH = $(DEPS_PATH)/IGraphics/NanoVG/src
-NANOSVG_PATH = $(DEPS_PATH)/IGraphics/NanoSVG/src
-RTAUDIO_PATH = $(DEPS_PATH)/IPlug/RTAudio
-RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
-VST3_SDK_PATH = $(DEPS_PATH)/IPlug/VST3_SDK
-XCBT_PATH = $(DEPS_PATH)/IGraphics/xcbt
-
-ifeq ($(IGRAPHICS_TYPE), IGRAPHICS_GL2)
-	GLAD_PATH = $(DEPS_PATH)/IGraphics/glad_GL2
-else ifeq ($(IGRAPHICS_TYPE), IGRAPHICS_GL3)
-	GLAD_PATH = $(DEPS_PATH)/IGraphics/glad_GL3
-endif
-GLAD_GLX_PATH = $(DEPS_PATH)/IGraphics/glad_GLX
-
-IPLUG_SRC := $(addprefix $(IPLUG_PATH)/, IPlugAPIBase.cpp IPlugParameter.cpp IPlugPluginBase.cpp IPlugProcessor.cpp IPlugPaths.cpp IPlugTimer.cpp)
-
-APP_SRC := $(addprefix $(APP_PATH)/, IPlugAPP.cpp IPlugAPP_main.cpp IPlugAPP_dialog.cpp IPlugAPP_host.cpp)
-
-IVST3_SRC := $(addprefix $(IVST3_PATH)/, IPlugVST3.cpp IPlugVST3_Controller.cpp IPlugVST3_Processor.cpp IPlugVST3_ProcessorBase.cpp IPlugVST3_RunLoop.cpp)
-
-VST3_SDK_SRC := $(addprefix $(VST3_SDK_PATH)/base/source/, fstring.cpp fobject.cpp updatehandler.cpp fdebug.cpp baseiids.cpp) 
-VST3_SDK_SRC += $(addprefix $(VST3_SDK_PATH)/base/thread/source/, flock.cpp)
-VST3_SDK_SRC += $(wildcard $(VST3_SDK_PATH)/pluginterfaces/base/*.cpp)
-VST3_SDK_SRC += $(wildcard $(VST3_SDK_PATH)/public.sdk/source/common/*.cpp)
-VST3_SDK_SRC += $(addprefix $(VST3_SDK_PATH)/public.sdk/source/vst/, vstaudioeffect.cpp vstcomponent.cpp vstcomponentbase.cpp vstinitiids.cpp vstsinglecomponenteffect.cpp vstparameters.cpp vstbus.cpp)
-VST3_SDK_SRC += $(addprefix $(VST3_SDK_PATH)/public.sdk/source/vst/hosting/, parameterchanges.cpp)
-VST3_SDK_SRC += $(addprefix $(VST3_SDK_PATH)/public.sdk/source/main/, pluginfactory.cpp linuxmain.cpp)
-
-CONTROLS_SRC := $(wildcard $(CONTROLS_PATH)/*.cpp)
-IGRAPHICS_SRC := $(addprefix $(IGRAPHICS_PATH)/, IGraphics.cpp IControl.cpp IGraphicsEditorDelegate.o) $(CONTROLS_SRC) $(PLATFORMS_PATH)/IGraphicsLinux.cpp
-
-RESFILES = resources/main.rc_mac_dlg resources/main.rc_mac_menu
-
-IPLUG_INC_PATHS = -I$(PROJECT_ROOT) \
--I$(WDL_PATH) \
--I$(SWELL_PATH) \
--I$(IPLUG_PATH) \
--I$(IPLUG_EXTRAS_PATH) \
--I$(IPLUG_WEB_PATH)
-
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) \
--I$(DRAWING_PATH) \
--I$(CONTROLS_PATH) \
--I$(PLATFORMS_PATH) \
--I$(NANOVG_PATH) \
--I$(NANOSVG_PATH) \
--I$(LICE_PATH) \
--I$(DEPS_PATH)/IPlug/SWELL \
--I$(GLAD_PATH)/include \
--I$(GLAD_PATH)/src \
--I$(GLAD_GLX_PATH)/include \
--I$(GLAD_GLX_PATH)/src \
--I$(XCBT_PATH)
-
-# AZ: CP from WDL/swell/Makefile
 #
-#   make SWELL_SUPPORT_GTK=1
-#     or make NOGDK=1
-#     or make DEBUG=1
-#   etc
-SWELL_SUPPORT_GTK = 1
-COMPILER=GCC
-ALLOW_WARNINGS = 1
+#==============================================================================
+#
+# This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+#
+# See LICENSE.txt for  more info.
+#
+# ==============================================================================
+#
 
-ARCH := $(shell uname -m)
-UNAME_S := $(shell uname -s)
+#### IPlug
+_IPLUG_PATH := $(IROOT)/IPlug
+_WDL_PATH := $(IROOT)/WDL
+_IDEPS_PATH := $(IROOT)/Dependencies
+_IDEPS_INSTALL_PATH := $(_IDEPS_PATH)/Build/Linux-$(IARCH)
+_IGRAPHICS_DEPS_PATH := $(_IDEPS_PATH)/IGraphics
+_IPLUG_DEPS_PATH := $(_IDEPS_PATH)/IPlug
 
-PKG_CONFIG = pkg-config
+IPSRC_DIR += $(_IPLUG_PATH) $(_WDL_PATH)
+IPINC_DIR += $(_IPLUG_PATH)/Extras
 
-CFLAGS = -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar
-DLL_EXT=.so
+CXXFLAGS += -Wall -std=c++14 -DNOMINMAX -fPIC -DPIC -pipe -fvisibility=hidden
+CFLAGS   += -Wall -fPIC -DPIC -pipe -fvisibility=hidden
+LIBS     += -lpthread -ldl
 
-ifeq ($(COMPILER),CLANG)
-  CC = clang
-  CXX = clang++
-endif
-
-ifeq ($(COMPILER),ICC)
-  CC = icc
-  CXX = icpc
-  CFLAGS += -D__PURE_SYS_C99_HEADERS__
+# add debug
+ifneq ($(IDEBUG),)
+  CFLAGS += -g -D_DEBUG -O0
+  CXXFLAGS += -g -D_DEBUG -O0
+  LFLAGS += -g
 else
-  CFLAGS +=  -Wno-unused-result
+  CFLAGS += -O2
+  CXXFLAGS += -O2
 endif
 
-ifndef ALLOW_WARNINGS
-  CFLAGS += -Werror
-endif
-ifndef DEPRECATED_WARNINGS
-  CFLAGS +=  -Wno-deprecated-declarations
-endif
-
-ifneq ($(filter arm%,$(ARCH)),)
-  CFLAGS += -fsigned-char -marm
-endif
-ifeq ($(ARCH),aarch64)
-  CFLAGS += -fsigned-char
-endif
+# disable quite some warnings
+CXXFLAGS += -Wno-multichar -Wno-unknown-pragmas -Wno-reorder -Wno-sign-compare -Wno-sequence-point
+CXXFLAGS += -Wno-unused-function -Wno-unused-variable -Wno-unused-result
+# WDL needs that
+CXXFLAGS += -Wno-strict-aliasing -Wno-strict-overflow -Wno-maybe-uninitialized
 
 
-ifdef DEBUG
-CFLAGS += -O0 -g -D_DEBUG
-else
-CFLAGS += -O2 -DNDEBUG
-  ifdef DEBUG_INFO
-    CFLAGS += -g
+# basis object
+_IPSRC := $(notdir $(wildcard $(_IPLUG_PATH)/*.cpp))
+IPT_DEPS += $(_IPSRC:%.cpp=%.o)
+
+# extras
+IPSRC_DIR += $(_IPLUG_PATH)/Extras $(_IPLUG_PATH)/Extras/Synth
+
+
+ifeq ($(ITARGET),APP)
+  CXXFLAGS += -DAPP_API -DIPLUG_DSP -DIPLUG_EDITOR
+	
+	# APP source
+  IPSRC_DIR += $(_IPLUG_PATH)/APP
+  IPT_DEPS += IPlugAPP.o IPlugAPP_dialog.o IPlugAPP_host.o IPlugAPP_main.o
+
+  # APP is using SWELL
+  _SWELL_PATH = $(_WDL_PATH)/swell
+  _SWELL_LIB_PATH = $(_IDEPS_INSTALL_PATH)/lib/libSwell.so
+  
+  # resource generation
+  _RESDIR  := $(IPBOD)/resources
+  IPSRC_DIR += $(_SWELL_PATH)
+  IPINC_DIR += $(_IPLUG_DEPS_PATH)/SWELL $(IPBOD)
+  IPBED += $(_RESDIR)
+  _RESFILE := $(_RESDIR)/main.rc_mac_dlg
+
+  # dynamically loading libSwell
+	CXXFLAGS += -DSWELL_PROVIDED_BY_APP
+  IPBSS += SWELL
+  CXXFLAGSE_SWELL := -DSWELL_LOAD_SWELL_DYLIB
+  IPT_DEPS += SWELL/swell-modstub-generic.o libSwell.so
+
+  # Check which audio backends we have in the system
+  _RTAUDIO_CONFIG :=
+  _RTAUDIO_LIBS :=
+  ifneq ($(wildcard /usr/include/alsa),)
+    _RTAUDIO_CONFIG += --with-alsa
+    _RTAUDIO_LIBS += -lasound
+  endif
+  ifneq ($(wildcard /usr/include/pulse),)
+    _RTAUDIO_CONFIG += --with-pulse
+    _RTAUDIO_LIBS += -lpulse-simple -lpulse
+  endif
+  ifneq ($(wildcard /usr/include/jack),)
+    _RTAUDIO_CONFIG += --with-jack
+    _RTAUDIO_LIBS += -ljack
+  endif
+	# RTAudio/RTMidi, includes directly from the source
+	IPINC_DIR += $(_IPLUG_DEPS_PATH)/RTAudio
+	IPINC_DIR += $(_IPLUG_DEPS_PATH)/RTMidi
+	# Libraries
+  LIBS +=  $(_IDEPS_INSTALL_PATH)/lib/librtaudio.a  $(_RTAUDIO_LIBS)
+  LIBS +=  $(_IDEPS_INSTALL_PATH)/lib/librtmidi.a
+  IPB_DEPS += $(_IDEPS_INSTALL_PATH)/lib/librtaudio.a $(_IDEPS_INSTALL_PATH)/lib/librtmidi.a
+	
+	
+else ifeq ($(ITARGET),VST3)
+  # TODO: set correct defines, f.e. for debug
+  CXXFLAGS += -DSMTG_OS_LINUX -DVST3_API -DIPLUG_DSP -DIPLUG_EDITOR
+
+  # VST3 source
+  IPSRC_DIR += $(_IPLUG_PATH)/VST3
+	IPT_DEPS += IPlugVST3.o IPlugVST3_Controller.o IPlugVST3_Processor.o IPlugVST3_ProcessorBase.o IPlugVST3_RunLoop.o
+
+	# VST3 SDK  We compile "in project" way.
+	_VST3_SDK_PATH := $(_IPLUG_DEPS_PATH)/VST3_SDK
+	# Prepend arbitrary file to dependencies (so it is checked before any compilation)
+	IPB_DEPS += $(_VST3_SDK_PATH)/public.sdk/source/vst3stdsdk.cpp $(IPB_DEPS)
+	IPINC_DIR += $(_VST3_SDK_PATH)
+	IPSRC_DIR += $(_VST3_SDK_PATH)/base/source $(_VST3_SDK_PATH)/base/thread/source $(_VST3_SDK_PATH)/pluginterfaces/base
+	IPSRC_DIR += $(_VST3_SDK_PATH)/public.sdk/source/common $(_VST3_SDK_PATH)/public.sdk/source/vst $(_VST3_SDK_PATH)/public.sdk/source/vst/hosting
+	IPSRC_DIR += $(_VST3_SDK_PATH)/public.sdk/source/vst/hosting $(_VST3_SDK_PATH)/public.sdk/source/main/
+	IPT_DEPS += fstring.o fobject.o updatehandler.o fdebug.o baseiids.o flock.o
+	_VST3_SRC_BASE := $(notdir $(wildcard $(_VST3_SDK_PATH)/pluginterfaces/base/*.cpp))
+	_VST3_SRC_COMMON := $(notdir $(wildcard $(_VST3_SDK_PATH)/public.sdk/source/common/*.cpp))
+	IPT_DEPS += $(_VST3_SRC_BASE:%.cpp=%.o) $(_VST3_SRC_COMMON:%.cpp=%.o)
+	IPT_DEPS += vstaudioeffect.o vstcomponent.o vstcomponentbase.o vstinitiids.o vstsinglecomponenteffect.o vstparameters.o vstbus.o
+	IPT_DEPS += parameterchanges.o pluginfactory.o linuxmain.o
+endif
+
+#### IGraphics is included even in case of IGRAPHICS == NO_IGRAPHICS
+_IGRAPHICS_PATH := $(IROOT)/IGraphics
+
+IPSRC_DIR += $(_IGRAPHICS_PATH)
+
+ifeq ($(IGRAPHICS),)
+	IGRAPHICS := NANOVG_GL2
+endif
+
+ifneq ($(IGRAPHICS),NO_IGRAPHICS)
+  IPSRC_DIR += $(_IGRAPHICS_PATH)/Platforms $(_IGRAPHICS_PATH)/Drawing $(_IGRAPHICS_PATH)/Controls
+  IPT_DEPS  += IGraphicsLinux.o
+
+	_IGSRC := $(notdir $(wildcard $(_IGRAPHICS_PATH)/*.cpp) $(wildcard $(_IGRAPHICS_PATH)/Controls/*.cpp))
+	IPT_DEPS += $(_IGSRC:%.cpp=%.o)
+
+	IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/STB
+
+  # XCBT (always with GL support at the moment)
+	_GLAD_PATH := $(_IGRAPHICS_DEPS_PATH)/glad_GL2
+	IPSRC_DIR += $(_GLAD_PATH)/src
+	IPINC_DIR += $(_GLAD_PATH)/include
+	_GLAD_GLX_PATH := $(_IGRAPHICS_DEPS_PATH)/glad_GLX
+	IPSRC_DIR += $(_GLAD_GLX_PATH)/src
+	IPINC_DIR += $(_GLAD_GLX_PATH)/include
+  IPSRC_DIR += $(_IGRAPHICS_DEPS_PATH)/xcbt
+  IPT_DEPS  += xcbt.o glad.o glad_glx.o
+  LIBS += -lxcb -lfontconfig
+
+  ifeq ($(IGRAPHICS),NANOVG_GL2)
+    IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoVG/src
+    IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoSVG/src
+		
+	  CXXFLAGS += -DIGRAPHICS_NANOVG -DIGRAPHICS_GL2
+	  
+	  # Not nice, but stb_ produce that and it is included directly
+	  CXXFLAGS += -Wno-misleading-indentation
+
   else
-    ifneq ($(COMPILER),CLANG)
-      CFLAGS += -s
-    endif
+    $(error FATAL: '$(IGRAPHICS)' graphics flaviour is not currently supported)
   endif
 endif
 
-SWELL_SRC = $(addprefix $(SWELL_PATH)/, swell.cpp swell-ini.cpp swell-miscdlg-generic.cpp swell-wnd-generic.cpp \
-             swell-menu-generic.cpp swell-kb-generic.cpp swell-dlg-generic.cpp \
-             swell-gdi-generic.cpp swell-misc-generic.cpp swell-gdi-lice.cpp \
-             swell-generic-headless.cpp swell-generic-gdk.cpp \
-             swell-appstub-generic.cpp swell-modstub-generic.cpp)
+# I do not want rules till the end, Makefile indentation bugs are displayed better then
+ifeq ($(ITARGET),APP)
 
-LICE_SRC = $(addprefix $(LICE_PATH)/, lice.cpp  lice_arc.cpp lice_colorspace.cpp lice_line.cpp lice_text.cpp \
-            lice_textnew.cpp lice_ico.cpp lice_bmp.cpp)
-LICE_SWELL_SRC = $(addprefix $(LICE_PATH)/, lice_colorspace.cpp)
+# AKA resouce file generation	
+$(_RESFILE): $(IP_ROOT)/resources/main.rc
+		@echo "Generating resource ..."
+		@cp $< $(IPBOD)/resources
+		php $(_SWELL_PATH)/mac_resgen.php $(IPBOD)/resources/$(notdir $<)
 
-LINKEXTRA =
+# and make it explicit dependency
+$(IPBOD)/IPlugAPP_main.o: $(_RESFILE)
 
-ifndef NOGDK
-  ifdef GDK2
-    CFLAGS += -DSWELL_TARGET_GDK=2 $(shell $(PKG_CONFIG) --cflags gdk-2.0)
-    ifndef PRELOAD_GDK
-      LINKEXTRA += $(shell $(PKG_CONFIG) --libs gdk-2.0)
-    else
-      LINKEXTRA += -lX11 -lXi
-      CFLAGS += -DSWELL_PRELOAD="libgdk-x11-2.0.so.0"
-    endif
-  else
-    ifdef SWELL_SUPPORT_GTK
-      CFLAGS += -DSWELL_TARGET_GDK=3 $(shell $(PKG_CONFIG) --cflags gtk+-3.0) -DSWELL_SUPPORT_GTK
-    else
-      CFLAGS += -DSWELL_TARGET_GDK=3 $(shell $(PKG_CONFIG) --cflags gdk-3.0)
-    endif
-    ifndef PRELOAD_GDK
-      ifdef SWELL_SUPPORT_GTK
-        LINKEXTRA += $(shell $(PKG_CONFIG) --libs gtk+-3.0)
-      else
-        LINKEXTRA += $(shell $(PKG_CONFIG) --libs gdk-3.0)
-      endif
-    else
-      ifdef SWELL_SUPPORT_GTK
-        CFLAGS += -DSWELL_PRELOAD="libgtk+-3.so.0"
-      else
-        CFLAGS += -DSWELL_PRELOAD="libgdk-3.so.0"
-      endif
-    endif
-  endif
-  LINKEXTRA += -lX11 -lXi
-  CFLAGS += -DSWELL_LICE_GDI
+# generating libSwell
+$(_SWELL_LIB_PATH):
+		@echo "Compiling SWELL ..."
+		@[ -e $(dir $@) ] || mkdir -p $(dir $@)
+		@cd $(_SWELL_PATH); make
+		@cp $(_SWELL_PATH)/libSwell.so $@
+		@cd $(_SWELL_PATH); make clean >/dev/null 2>/dev/null || true
 
-  ifndef NOFREETYPE
-    CFLAGS += -DSWELL_FREETYPE $(shell $(PKG_CONFIG) --cflags freetype2)
-    ifndef PRELOAD_GDK
-      LINKEXTRA += $(shell $(PKG_CONFIG) --libs freetype2)
-    endif
-    ifndef NOFONTCONFIG
-      CFLAGS += -DSWELL_FONTCONFIG
-      LINKEXTRA += -lfontconfig
-    endif
-  endif
+# copy libSwell
+$(IPBD)/libSwell.so: $(_SWELL_LIB_PATH)
+		@echo "Copy SWELL ..."
+		@cp $< $@
+
+# compiling RTAudio
+$(info $(_IDEPS_INSTALL_PATH)/lib/librtaudio.a)
+$(_IDEPS_INSTALL_PATH)/lib/librtaudio.a:
+		@echo "Compiling RTAudio ..."
+		@[ -e $(dir $@) ] || mkdir -p $(dir $@)
+		@rm -rf $(_IDEPS_INSTALL_PATH)/tmp
+		@mkdir $(_IDEPS_INSTALL_PATH)/tmp
+		@cp -a $(_IDEPS_PATH)/IPlug/RTAudio/* $(_IDEPS_INSTALL_PATH)/tmp/
+		cd $(_IDEPS_INSTALL_PATH)/tmp && ./autogen.sh --no-configure && ./configure $(_RTAUDIO_CONFIG) && make
+		@cp $(_IDEPS_INSTALL_PATH)/tmp/.libs/librtaudio.a $@
+		@rm -rf $(_IDEPS_INSTALL_PATH)/tmp
+
+# compiling RTMidi
+$(info $(_IDEPS_INSTALL_PATH)/lib/librtmidi.a)
+$(_IDEPS_INSTALL_PATH)/lib/librtmidi.a:
+		@echo "Compiling RTMidi ..."
+		@[ -e $(dir $@) ] || mkdir -p $(dir $@)
+		@rm -rf $(_IDEPS_INSTALL_PATH)/tmp
+		@mkdir $(_IDEPS_INSTALL_PATH)/tmp
+		@cp -a $(_IDEPS_PATH)/IPlug/RTMidi/* $(_IDEPS_INSTALL_PATH)/tmp/
+		@cd $(_IDEPS_INSTALL_PATH)/tmp && ./autogen.sh && make
+		@cp $(_IDEPS_INSTALL_PATH)/tmp/.libs/librtmidi.a $@
+		@rm -rf $(_IDEPS_INSTALL_PATH)/tmp
+
+else ifeq ($(ITARGET),VST3)
+
+# downloading VST3 SDK
+$(_VST3_SDK_PATH)/public.sdk/source/vst3stdsdk.cpp:
+		@echo "Downloading VST3 SDK ..."
+		@cd $(_IPLUG_DEPS_PATH) && rm -rf VST3_SDK
+		@cd $(_IPLUG_DEPS_PATH) && git clone https://github.com/steinbergmedia/vst3sdk.git VST3_SDK
+		@cd $(_IPLUG_DEPS_PATH)/VST3_SDK && git submodule update --init pluginterfaces
+		@cd $(_IPLUG_DEPS_PATH)/VST3_SDK && git submodule update --init base
+		@cd $(_IPLUG_DEPS_PATH)/VST3_SDK && git submodule update --init public.sdk
+
 endif
-
-LINKEXTRA +=  -lpthread -ldl

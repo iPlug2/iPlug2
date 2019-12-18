@@ -24,8 +24,9 @@
 #include <Shlobj.h>
 #include <Shlwapi.h>
 #elif defined OS_LINUX
-#include <swell.h>
 #include <dlfcn.h>
+#include <limits.h>
+#include <sys/stat.h>
 #endif
 
 BEGIN_IPLUG_NAMESPACE
@@ -316,9 +317,9 @@ static bool GetFileNameFor(void *code, char *path, int size)
 
 EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance, const char*)
 {
-  char path[MAX_PATH];
+  char path[PATH_MAX];
   
-  if (CStringHasContents(name) && GetFileNameFor(reinterpret_cast<void *>(GetFileNameFor), path, MAX_PATH))
+  if (CStringHasContents(name) && GetFileNameFor(reinterpret_cast<void *>(GetFileNameFor), path, PATH_MAX))
   {
     for (char *s = path + strlen(path) - 1; s >= path; --s)
     {
@@ -340,12 +341,21 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
       subdir = "img";
     }
 
-    result.SetFormatted(MAX_PATH, "%s%s%s%s%s", path, WDL_DIRCHAR_STR "resources" WDL_DIRCHAR_STR, subdir, WDL_DIRCHAR_STR, name);
+    result.SetFormatted(PATH_MAX, "%s%s%s%s%s", path, WDL_DIRCHAR_STR "resources" WDL_DIRCHAR_STR, subdir, WDL_DIRCHAR_STR, name);
     struct stat st;
     if (!stat(result.Get(), &st))
     {
       return EResourceLocation::kAbsolutePath;
     }
+#ifdef VST3_API
+    // VST3 bundle since 3.6.10
+    result.SetFormatted(PATH_MAX, "%s%s%s%s%s", path, WDL_DIRCHAR_STR ".." WDL_DIRCHAR_STR "Resources" WDL_DIRCHAR_STR, subdir, WDL_DIRCHAR_STR, name);
+    if (!stat(result.Get(), &st))
+    {
+      return EResourceLocation::kAbsolutePath;
+    }
+#endif
+    
   }
   return EResourceLocation::kNotFound;
 }
