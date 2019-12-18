@@ -169,10 +169,16 @@ jobs:
       rm *.log
       rm -r tmp
       mv ./src/skia/include ./skia_include_tmp
+      mv ./src/skia/experimental/svg/model ./skia_experimental_tmp
+      mv ./src/skia/src/core ./skia_src_core_tmp
+      mv ./src/skia/src/xml ./skia_src_xml_tmp
       rm -r src
       mkdir -p ./src/skia
       mv ./skia_include_tmp ./src/skia/include
-    displayName: Delete unwanted files
+      mv ./skia_experimental_tmp ./src/experimental/svg/model
+      mv ./skia_src_core_tmp ./src/src/core
+      mv ./skia_src_xml_tmp ./src/src/xml
+    displayName: Delete unwanted files / Slim skia src
 
   - task: PublishPipelineArtifact@0
     inputs:
