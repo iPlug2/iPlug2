@@ -1281,7 +1281,9 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
       return ISVG(nullptr); // return invalid SVG
     
     sk_sp<SkSVGDOM> svgDOM;
-    
+    bool success = false;
+    SkDOM xmlDom;
+
 #ifdef OS_WIN
     if (resourceFound == EResourceLocation::kWinBinary)
     {
@@ -1290,35 +1292,31 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 
       if (pResData)
       {
-        WDL_String svgStr{ static_cast<const char*>(pResData) };
-
-        pImage = nsvgParse(svgStr.Get(), units, dpi);
+        SkMemoryStream svgStream(pResData, size);
+        success = xmlDom.build(svgStream) != nullptr;
       }
-      else
-        return ISVG(nullptr); // return invalid SVG
     }
 #endif
 
     if (resourceFound == EResourceLocation::kAbsolutePath)
     {
       SkFILEStream svgStream(path.Get());
-      
-      if (!svgStream.isValid())
-        return ISVG(nullptr);
 
-      SkDOM xmlDom;
-      if (!xmlDom.build(svgStream))
-        return ISVG(nullptr);
-
-      svgDOM = SkSVGDOM::MakeFromDOM(xmlDom);
-      
-      if (!svgDOM)
-        return ISVG(nullptr);
-      
-      if(svgDOM->containerSize().width() == 0)
-        svgDOM->setContainerSize(SkSize::Make(800, 800));
+      if(svgStream.isValid())
+        success = xmlDom.build(svgStream) != nullptr;
     }
-    
+
+    if (success)
+      svgDOM = SkSVGDOM::MakeFromDOM(xmlDom);
+
+    success = svgDOM != nullptr;
+
+    if (!success)
+      return ISVG(nullptr); // return invalid SVG
+
+    if (svgDOM->containerSize().width() == 0)
+      svgDOM->setContainerSize(SkSize::Make(100, 100));
+
     pHolder = new SVGHolder(svgDOM);
     
     storage.Add(pHolder, path.Get());
@@ -1327,7 +1325,6 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
   return ISVG(pHolder->mSVGDom);
 }
 #else
-
 ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
   StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
