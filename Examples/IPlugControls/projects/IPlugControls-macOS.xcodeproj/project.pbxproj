@@ -221,15 +221,6 @@
 		4F8C10E620BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8C10DE20BA2796006320CD /* IGraphicsEditorDelegate.cpp */; };
 		4F8C10E720BA2796006320CD /* IGraphicsEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F8C10DF20BA2796006320CD /* IGraphicsEditorDelegate.h */; };
 		4F8D9707209EF5AC006E2A11 /* IPlugControls.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugControls.cpp */; };
-		4F8E8C9723A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8E8C9623A981CE00EA00C4 /* IGraphicsSkia_src.cpp */; };
-		4F8E8C9823A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8E8C9623A981CE00EA00C4 /* IGraphicsSkia_src.cpp */; };
-		4F8E8C9923A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8E8C9623A981CE00EA00C4 /* IGraphicsSkia_src.cpp */; };
-		4F8E8C9A23A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8E8C9623A981CE00EA00C4 /* IGraphicsSkia_src.cpp */; };
-		4F8E8C9B23A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8E8C9623A981CE00EA00C4 /* IGraphicsSkia_src.cpp */; };
-		4F8E8C9C23A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8E8C9623A981CE00EA00C4 /* IGraphicsSkia_src.cpp */; };
-		4F8E8C9D23A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8E8C9623A981CE00EA00C4 /* IGraphicsSkia_src.cpp */; };
-		4F8E8C9E23A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8E8C9623A981CE00EA00C4 /* IGraphicsSkia_src.cpp */; };
-		4F8E8C9F23A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8E8C9623A981CE00EA00C4 /* IGraphicsSkia_src.cpp */; };
 		4F9828B8140A9EB700F3FCC1 /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
 		4F9828C1140A9EB700F3FCC1 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
 		4F993F7223055C96000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
@@ -710,7 +701,6 @@
 		4F815916205D50EB00393585 /* vsttypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vsttypes.h; sourceTree = "<group>"; };
 		4F8C10DE20BA2796006320CD /* IGraphicsEditorDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsEditorDelegate.cpp; path = ../../../IGraphics/IGraphicsEditorDelegate.cpp; sourceTree = "<group>"; };
 		4F8C10DF20BA2796006320CD /* IGraphicsEditorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsEditorDelegate.h; path = ../../../IGraphics/IGraphicsEditorDelegate.h; sourceTree = "<group>"; };
-		4F8E8C9623A981CE00EA00C4 /* IGraphicsSkia_src.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsSkia_src.cpp; sourceTree = "<group>"; };
 		4F8F61A7202807B9003F2573 /* IPlugProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugProcessor.h; path = ../../../IPlug/IPlugProcessor.h; sourceTree = "<group>"; tabWidth = 2; };
 		4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugProcessor.cpp; path = ../../../IPlug/IPlugProcessor.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		4F9313232315CA1100DB2383 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
@@ -1009,7 +999,6 @@
 		4F03A54920A4621000EBDFFB /* Drawing */ = {
 			isa = PBXGroup;
 			children = (
-				4F8E8C9623A981CE00EA00C4 /* IGraphicsSkia_src.cpp */,
 				4FCDB64822C849D200698A4B /* IGraphicsSkia.cpp */,
 				4FCDB64922C849D200698A4B /* IGraphicsSkia.h */,
 				4F03A54A20A4621000EBDFFB /* IGraphicsLice.h */,
@@ -2289,7 +2278,6 @@
 				4FA9F80521F760C1004E6FE2 /* IGraphicsLice_src.mm in Sources */,
 				4FCE29D821D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F9A82F8213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
-				4F8E8C9823A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */,
 				4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */,
 				4F8C10E120BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
 				4F6369DE20A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
@@ -2309,7 +2297,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F78BE3222E7429B00AD537E /* IPlugAUv3Appex.m in Sources */,
-				4F8E8C9D23A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2320,7 +2307,6 @@
 				4F03A5AF20A4621100EBDFFB /* IGraphics.cpp in Sources */,
 				4F6369E020A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
 				4F6369EE20A466470022C370 /* IControl.cpp in Sources */,
-				4F8E8C9A23A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */,
 				4F1A528C205D916F00CF2908 /* IPlugAU.cpp in Sources */,
 				4F63697020A463090022C370 /* IControls.cpp in Sources */,
 				4FD52131202A5B9B00A4D22A /* IPlugAU_view_factory.mm in Sources */,
@@ -2349,7 +2335,6 @@
 			files = (
 				4F3EE1C2231438D000004786 /* IPlugProcessor.cpp in Sources */,
 				4F3EE1C3231438D000004786 /* RtMidi.cpp in Sources */,
-				4F8E8C9F23A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */,
 				4F3EE1C4231438D000004786 /* IGraphicsLice_src.mm in Sources */,
 				4F3EE1C5231438D000004786 /* IGraphicsNanoVG_src.m in Sources */,
 				4F3EE1C6231438D000004786 /* IControl.cpp in Sources */,
@@ -2406,7 +2391,6 @@
 				4F78BE1F22E7406D00AD537E /* IGraphics.cpp in Sources */,
 				4F78BE2022E7406D00AD537E /* IGraphicsEditorDelegate.cpp in Sources */,
 				4F78BE2122E7406D00AD537E /* IControl.cpp in Sources */,
-				4F8E8C9E23A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */,
 				4F78BE2222E7406D00AD537E /* IPlugAUAudioUnit.mm in Sources */,
 				4F78BE2322E7406D00AD537E /* IPlugAUv3.mm in Sources */,
 				4F78BE2422E7406D00AD537E /* IPlugAUViewController.mm in Sources */,
@@ -2425,7 +2409,6 @@
 				4F81597C205D50EB00393585 /* baseiids.cpp in Sources */,
 				4FDAC0EC207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				B8E22A0C220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */,
-				4F8E8C9923A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */,
 				4F3862F12014BBEC0009F402 /* IPlugControls.cpp in Sources */,
 				4F81591F205D50EB00393585 /* pluginfactory.cpp in Sources */,
 				4F63696F20A463090022C370 /* IControls.cpp in Sources */,
@@ -2451,6 +2434,7 @@
 				4F815986205D50EB00393585 /* flock.cpp in Sources */,
 				4FCE29D921D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F5F344320C0226200487201 /* IPlugPaths.mm in Sources */,
+				4F81598F205D51F000393585 /* vstbypassprocessor.cpp in Sources */,
 				4F81598A205D50EB00393585 /* ustring.cpp in Sources */,
 				4FA9F80F21F76177004E6FE2 /* IGraphicsAGG_src.mm in Sources */,
 				4F815980205D50EB00393585 /* fobject.cpp in Sources */,
@@ -2496,7 +2480,6 @@
 				4F1A5285205D914A00CF2908 /* IPlugAAX.cpp in Sources */,
 				4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */,
 				4FB1F59420E4B014004157C8 /* IGraphicsMac_view.mm in Sources */,
-				4F8E8C9B23A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */,
 				4F3862F32014BBEC0009F402 /* IPlugControls.cpp in Sources */,
 				4FCE29DB21D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4FB600231567CB0A0020189A /* IPlugParameter.cpp in Sources */,
@@ -2538,7 +2521,6 @@
 			files = (
 				B885CBC52304AE7300D73128 /* IPlugProcessor.cpp in Sources */,
 				4F10D3D9203A6719003EF82A /* RtMidi.cpp in Sources */,
-				4F8E8C9723A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */,
 				4FA9F80421F760C1004E6FE2 /* IGraphicsLice_src.mm in Sources */,
 				4F6369DD20A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
 				4F6369EB20A466470022C370 /* IControl.cpp in Sources */,
@@ -2595,7 +2577,6 @@
 				4FFBB91120863B0E00DDD0E7 /* fstring.cpp in Sources */,
 				4FFBB91320863B0E00DDD0E7 /* vstpresetfile.cpp in Sources */,
 				4FFBB91520863B0E00DDD0E7 /* timer.cpp in Sources */,
-				4F8E8C9C23A981CE00EA00C4 /* IGraphicsSkia_src.cpp in Sources */,
 				4FFBB91720863B0E00DDD0E7 /* funknown.cpp in Sources */,
 				4FFBB91820863B0E00DDD0E7 /* vstbus.cpp in Sources */,
 				4FFBB91920863B0E00DDD0E7 /* IPlugPluginBase.cpp in Sources */,
