@@ -59,11 +59,11 @@ jobs:
       cd ./Dependencies/Build
       rm *.log
       rm -r tmp
+      rm -r src/skia
       mv ./src/skia/include ./skia_include_tmp
       mv ./src/skia/experimental/svg/model ./skia_experimental_tmp
       mv ./src/skia/src/core ./skia_src_core_tmp
       mv ./src/skia/src/xml ./skia_src_xml_tmp
-      rm -r src
       mkdir -p ./src/skia
       mkdir -p ./src/skia/experimental/svg
       mkdir -p ./src/skia/src/
