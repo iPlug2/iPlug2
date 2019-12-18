@@ -1266,6 +1266,65 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 #endif
 }
 
+#ifdef IGRAPHICS_SKIA
+ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
+{
+  StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
+  SVGHolder* pHolder = storage.Find(fileName);
+  
+  if(!pHolder)
+  {
+    WDL_String path;
+    EResourceLocation resourceFound = LocateResource(fileName, "svg", path, GetBundleID(), GetWinModuleHandle(), GetSharedResourcesSubPath());
+    
+    if (resourceFound == EResourceLocation::kNotFound)
+      return ISVG(nullptr); // return invalid SVG
+    
+    sk_sp<SkSVGDOM> svgDOM;
+    bool success = false;
+    SkDOM xmlDom;
+
+#ifdef OS_WIN
+    if (resourceFound == EResourceLocation::kWinBinary)
+    {
+      int size = 0;
+      const void* pResData = LoadWinResource(path.Get(), "svg", size, GetWinModuleHandle());
+
+      if (pResData)
+      {
+        SkMemoryStream svgStream(pResData, size);
+        success = xmlDom.build(svgStream) != nullptr;
+      }
+    }
+#endif
+
+    if (resourceFound == EResourceLocation::kAbsolutePath)
+    {
+      SkFILEStream svgStream(path.Get());
+
+      if(svgStream.isValid())
+        success = xmlDom.build(svgStream) != nullptr;
+    }
+
+    if (success)
+      svgDOM = SkSVGDOM::MakeFromDOM(xmlDom);
+
+    success = svgDOM != nullptr;
+
+    if (!success)
+      return ISVG(nullptr); // return invalid SVG
+
+    if (svgDOM->containerSize().width() == 0)
+      svgDOM->setContainerSize(SkSize::Make(100, 100));
+
+    pHolder = new SVGHolder(svgDOM);
+    
+    storage.Add(pHolder, path.Get());
+  }
+  
+  return ISVG(pHolder->mSVGDom);
+}
+#else
 ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
   StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
@@ -1313,6 +1372,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 
   return ISVG(pHolder->mImage);
 }
+#endif
 
 IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {

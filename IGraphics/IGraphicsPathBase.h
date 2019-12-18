@@ -423,7 +423,7 @@ public:
     PathTransformSave();
     PathTransformTranslate(dest.L, dest.T);
     PathTransformScale(scale);
-    RenderNanoSVG(svg.mImage);
+    DoDrawSVG(svg);
     PathTransformRestore();
   }
   
@@ -477,9 +477,15 @@ private:
         return IColor(alpha, 0, 0, 0);
     }
   }
-
-  void RenderNanoSVG(NSVGimage* pImage)
+  
+  void DoDrawSVG(const ISVG& svg)
   {
+#ifdef IGRAPHICS_SKIA
+    SkCanvas* canvas = static_cast<SkCanvas*>(GetDrawContext());
+    svg.mSVGDom->render(canvas);
+#else
+    NSVGimage* pImage = svg.mImage;
+    
     assert(pImage != nullptr);
     
     for (NSVGshape* pShape = pImage->shapes; pShape; pShape = pShape->next)
@@ -570,6 +576,7 @@ private:
         PathStroke(GetSVGPattern(pShape->stroke, pShape->opacity), pShape->strokeWidth, options, nullptr);
       }
     }
+  #endif
   }
 
 protected:
