@@ -3,8 +3,8 @@ variables:
 
   #PLATFORMS
   build_web: true # build web audio module versions of projects
-  build_mac: true # build mac binaries
-  build_win: true # build windows binaries
+  build_mac: false # build mac binaries
+  build_win: false # build windows binaries
 
   #FORMATS
   build_app: true # build standalone app
@@ -20,7 +20,7 @@ variables:
   configuration: 'Release' # the configuration to build, e.g. 'Debug', 'Release', 'Tracer'
 
   publish_downloads: false # publish project binaries to publish_site github releases
-  publish_pages: false # publish web audio modules to github publish_site
+  publish_pages: true # publish web audio modules to github publish_site
   publish_docs: false # publish documentation to docs_site // NOT YET IMPLEMENTED
 
   publish_site: 'iPlug2/iPlug2.github.io'
