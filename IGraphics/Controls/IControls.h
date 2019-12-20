@@ -138,7 +138,6 @@ protected:
   IRECT mStartRect, mEndRect;
   IRECT mHandleBounds;
   EDirection mDirection;
-  IActionFunction mSecondaryActionFunc = EmptyClickActionFunc;
   EVShape mShape = EVShape::Rectangle;
 };
 

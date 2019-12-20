@@ -195,7 +195,6 @@ IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, int paramIdx, co
 IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool valueInButton, EDirection direction, int numStates, int initialState)
 : IVSwitchControl(bounds, nullptr, label, style, numStates, valueInButton)
 , mDirection(direction)
-, mSecondaryActionFunc(actionFunc)
 {
   SetValue((double) initialState);
   
@@ -216,6 +215,8 @@ IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, IActionFunction 
     },
     DEFAULT_ANIMATION_DURATION);
   });
+  
+  SetAnimationEndActionFunction(actionFunc);
 }
 
 void IVSlideSwitchControl::UpdateRects()
@@ -235,11 +236,8 @@ void IVSlideSwitchControl::OnResize()
 
 void IVSlideSwitchControl::OnEndAnimation()
 {
-  if(mSecondaryActionFunc)
-    mSecondaryActionFunc(this);
-  
   UpdateRects();
-  
+
   IControl::OnEndAnimation();
 }
 

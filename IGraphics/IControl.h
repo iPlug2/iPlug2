@@ -188,6 +188,10 @@ public:
    * actionfunc @see Action Functions */
   inline void SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; }
 
+  /** Set an Action Function to be called at the end of an animation.
+   * actionfunc @see Action Functions */
+  inline void SetAnimationEndActionFunction(IActionFunction actionFunc) { mAnimationEndActionFunc = actionFunc; }
+  
   /** Set a tooltip for the control
    * @param str CString tooltip to be displayed */
   inline void SetTooltip(const char* str) { mTooltip.Set(str); }
@@ -422,18 +426,11 @@ public:
    * @param scalar A scalar to speedup/slowdown mousing along the track */
   virtual void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1, float scalar = 1., double minClip = 0., double maxClip = 1.);
 
-  virtual void OnEndAnimation() // if you override this you must call the base implementation, to free mAnimationFunc
-  {
-    mAnimationFunc = nullptr;
-    SetDirty(false);
-  }
+  /* if you override this you must call the base implementation, to free mAnimationFunc */
+  virtual void OnEndAnimation();
   
   /** @param duration Duration in milliseconds for the animation  */
-  void StartAnimation(int duration)
-  {
-    mAnimationStartTime = std::chrono::high_resolution_clock::now();
-    mAnimationDuration = Milliseconds(duration);
-  }
+  void StartAnimation(int duration);
   
   /** Set the animation function
    * @param func A std::function conforming to IAnimationFunction */
@@ -444,18 +441,14 @@ public:
    * @param duration Duration in milliseconds for the animation  */
   void SetAnimation(IAnimationFunction func, int duration) { mAnimationFunc = func; StartAnimation(duration); }
 
+  /** /todo */
   IAnimationFunction GetAnimationFunction() { return mAnimationFunc; }
-  
+
+  /** /todo */
   IAnimationFunction GetActionFunction() { return mActionFunc; }
 
-  double GetAnimationProgress()
-  {
-    if(!mAnimationFunc)
-      return 0.;
-    
-    auto elapsed = Milliseconds(std::chrono::high_resolution_clock::now() - mAnimationStartTime);
-    return elapsed.count() / mAnimationDuration.count();
-  }
+  /** /todo */
+  double GetAnimationProgress() const;
   
 #if defined VST3_API || defined VST3C_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
@@ -525,6 +518,7 @@ private:
   IGEditorDelegate* mDelegate = nullptr;
   IGraphics* mGraphics = nullptr;
   IActionFunction mActionFunc = nullptr;
+  IActionFunction mAnimationEndActionFunc = nullptr;
   IAnimationFunction mAnimationFunc = nullptr;
   TimePoint mAnimationStartTime;
   Milliseconds mAnimationDuration;
