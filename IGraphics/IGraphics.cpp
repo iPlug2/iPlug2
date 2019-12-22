@@ -1315,7 +1315,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
       return ISVG(nullptr); // return invalid SVG
 
     if (svgDOM->containerSize().width() == 0)
-      svgDOM->setContainerSize(SkSize::Make(100, 100));
+      svgDOM->setContainerSize(SkSize::Make(1000, 1000)); //TODO: what should be done when no container size?
 
     pHolder = new SVGHolder(svgDOM);
     
