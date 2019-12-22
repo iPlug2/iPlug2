@@ -623,6 +623,8 @@ bool IGraphics::IsDirty(IRECTList& rects)
   if (mDisplayTickFunc)
     mDisplayTickFunc();
 
+  ForAllControlsFunc([](IControl& control) { control.Animate(); } );
+
   bool dirty = false;
     
   auto func = [&dirty, &rects](IControl& control)
