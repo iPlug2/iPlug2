@@ -360,15 +360,16 @@ public:
   /** Mark the control as dirty, i.e. it should be redrawn on the next display refresh
    * @param triggerAction If this is true and the control is linked to a parameter
    * notify the class implementing the IEditorDelegate interface that the parameter changed. If this control has an ActionFunction, that can also be triggered.
-   * NOTE: it is easy to forget that this method always sets the control dirty, the argument is about whether a consecutive action should be performed */
+   * NOTE: it is easy to forget that this method always sets the control dirty, the argument refers to whether a consecutive action should be performed */
   virtual void SetDirty(bool triggerAction = true, int valIdx = kNoValIdx);
 
   /* Set the control clean, i.e. Called by IGraphics draw loop after control has been drawn */
   virtual void SetClean() { mDirty = false; }
-  
-  /** Called at each display refresh by the IGraphics draw loop to determine if the control is marked as dirty. 
-   * This is not const, because it is typically  overridden and used to update something at the display refresh rate
-   * The default implementation executes a control's Animation Function, so if you override this you may want to call the base implementation, @see Animation Functions
+
+  /* Called at each display refresh by the IGraphics draw loop, triggers the control's AnimationFunc if it is set */
+  void Animate();
+
+  /** Called at each display refresh by the IGraphics draw loop, after IControl::Animate(), to determine if the control is marked as dirty. 
    * @return \c true if the control is marked dirty. */
   virtual bool IsDirty();
 

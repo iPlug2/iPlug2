@@ -212,12 +212,16 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
   }
 }
 
+void IControl::Animate()
+{
+  if (GetAnimationFunction())
+    mAnimationFunc(this);
+}
+
 bool IControl::IsDirty()
 {
-  if(GetAnimationFunction()) {
-    mAnimationFunc(this);
+  if (GetAnimationFunction())
     return true;
-  }
   
   return mDirty;
 }
