@@ -654,6 +654,15 @@ void IGraphicsLice::NeedsClipping()
     const int h = static_cast<int>(std::round(alignedBounds.H() * GetBackingPixelScale()));
     
     mClippingLayer = std::make_unique<ILayer>(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds, nullptr, IRECT());
+
+    // Copy background in case of addition
+      
+    const int sx = alignedBounds.L * GetScreenScale();
+    const int sy = alignedBounds.T * GetScreenScale();
+      
+    LICE_IBitmap *bitmap = mClippingLayer->GetAPIBitmap()->GetBitmap();
+    LICE_Blit(bitmap, mDrawBitmap.get(), 0, 0, sx, sy, w, h, 1.f, LICE_BLIT_MODE_COPY);
+      
     UpdateLayer();
   }
 }
