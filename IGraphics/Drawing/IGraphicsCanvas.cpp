@@ -415,11 +415,7 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
   StaticStorage<Font>::Accessor storage(sFontCache);
 
   if (storage.Find(fontID))
-  {
-    if (!font->IsSystem())
-      mCustomFonts.push_back(*font->GetDescriptor());
     return true;
-  }
 
   if (!font->IsSystem())
   {
@@ -427,34 +423,21 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
     
     if (data->IsValid())
     {
-      // Embed the font data in base64 format as CSS in the head of the html
-      WDL_TypedBuf<char> base64Encoded;
-      
-      if (!base64Encoded.ResizeOK(((data->GetSize() * 4) + 3) / 3 + 1))
-        return false;
-      
-      wdl_base64encode(data->Get(), base64Encoded.Get(), data->GetSize());
-      std::string htmlText("@font-face { font-family: '");
-      htmlText.append(fontID);
-      htmlText.append("'; src: url(data:font/ttf;base64,");
-      htmlText.append(base64Encoded.Get());
-      htmlText.append(") format('truetype'); }");
-      val document = val::global("document");
-      val documentHead = document["head"];
-      val css = document.call<val>("createElement", std::string("style"));
-      css.set("type", std::string("text/css"));
-      css.set("innerHTML", htmlText);
-      document["head"].call<void>("appendChild", css);
-      
+      // Load the font from data
+        
+      val fontData = val(typed_memory_view(data->GetSize(), data->Get()));
+      val fontFace = val::global("FontFace").new_(std::string(fontID), fontData);
+        
       FontDescriptor descriptor = font->GetDescriptor();
       const double ascenderRatio = data->GetAscender() / static_cast<double>(data->GetAscender() - data->GetDescender());
       const double EMRatio = data->GetHeightEMRatio();
       storage.Add(new Font({descriptor->first, descriptor->second}, ascenderRatio, EMRatio), fontID);
       
-      // Add to store and encourage to load by using the font immediately
+      // Add to store and request load immediately
       
-      mCustomFonts.push_back(*descriptor);
-      CompareFontMetrics(descriptor->second.Get(), descriptor->first.Get(), "monospace");
+      fontFace.call<val>("load");
+      val::global("document")["fonts"].call<void>("add", fontFace);
+      mLoadingFonts.push_back(fontFace);
         
       return true;
     }
@@ -480,13 +463,18 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
 
 bool IGraphicsCanvas::AssetsLoaded()
 {
-  for (auto it = mCustomFonts.begin(); it != mCustomFonts.end(); it++)
+  for (auto it = mLoadingFonts.begin(); it != mLoadingFonts.end(); it++)
   {
-    if (!FontExists(it->first.Get(), it->second.Get()))
+    std::string status = (*it)["status"].as<std::string>();
+      
+    if (status.compare("loaded"))
+    {
+      assert(status.compare("error") && "Font didn't load");
       return false;
+    }
   }
   
-  mCustomFonts.clear();
+  mLoadingFonts.clear();
     
   return true;
 }
