@@ -1149,11 +1149,15 @@ void IGraphicsWin::CloseWindow()
 #else
     KillTimer(mPlugWnd, IPLUG_TIMER_ID);
 #endif
-    ActivateGLContext();
-    OnViewDestroyed();
-    DeactivateGLContext();
 
 #ifdef IGRAPHICS_GL
+    ActivateGLContext();
+#endif
+
+    OnViewDestroyed();
+
+#ifdef IGRAPHICS_GL
+    DeactivateGLContext();
     DestroyGLContext();
 #endif
 
