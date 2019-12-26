@@ -1061,6 +1061,10 @@ void* IGraphicsWin::OpenWindow(void* pParent)
     }
 
     if (!ok) EnableTooltips(ok);
+
+#ifdef IGRAPHICS_GL
+    wglMakeCurrent(NULL, NULL);
+#endif
   }
 
   GetDelegate()->OnUIOpen();
@@ -1145,8 +1149,9 @@ void IGraphicsWin::CloseWindow()
 #else
     KillTimer(mPlugWnd, IPLUG_TIMER_ID);
 #endif
-
+    ActivateGLContext();
     OnViewDestroyed();
+    DeactivateGLContext();
 
 #ifdef IGRAPHICS_GL
     DestroyGLContext();
