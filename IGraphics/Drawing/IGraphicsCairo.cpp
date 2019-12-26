@@ -134,8 +134,6 @@ static inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case EBlend::Default:         // fall through
-    case EBlend::Clobber:         // fall through
     case EBlend::SourceOver:      return CAIRO_OPERATOR_OVER;
     case EBlend::SourceIn:        return CAIRO_OPERATOR_IN;
     case EBlend::SourceOut:       return CAIRO_OPERATOR_OUT;
@@ -146,6 +144,9 @@ static inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
     case EBlend::DestAtop:        return CAIRO_OPERATOR_DEST_ATOP;
     case EBlend::Add:             return CAIRO_OPERATOR_ADD;
     case EBlend::XOR:             return CAIRO_OPERATOR_XOR;
+    case EBlend::Default:         // fall through
+    case EBlend::Clobber:         // fall through
+    default:                      return CAIRO_OPERATOR_OVER;
   }
 }
 
