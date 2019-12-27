@@ -142,6 +142,11 @@ void IGraphicsMac::CloseWindow()
 #endif
     
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+      
+#ifdef IGRAPHICS_GL
+    [((IGRAPHICS_GLLAYER *)pView.layer).openGLContext makeCurrentContext];
+#endif
+      
     [pView removeAllToolTips];
     [pView killTimer];
     [pView removeFromSuperview];
