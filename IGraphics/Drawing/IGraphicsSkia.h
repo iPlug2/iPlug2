@@ -94,7 +94,6 @@ private:
   sk_sp<SkSurface> mScreenSurface;
   SkCanvas* mCanvas = nullptr;
   sk_sp<GrContext> mGrContext;
-  std::unique_ptr<GrBackendRenderTarget> mBackendRenderTarget;
   SkPath mMainPath;
   SkMatrix mMatrix;
 
