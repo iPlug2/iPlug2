@@ -132,8 +132,8 @@ public:
   /** @return The number of channel I/O configs derived from the channel io string*/
   int NIOConfigs() const { return mIOConfigs.GetSize(); }
 
-  /** @return Pointer to an IOConfig at idx. Can return nullptr if idx is invalid */
-  IOConfig* GetIOConfig(int idx) const { return mIOConfigs.Get(idx); }
+  /** @return const Pointer to an IOConfig at idx. Can return nullptr if idx is invalid */
+  const IOConfig* GetIOConfig(int idx) const { return mIOConfigs.Get(idx); }
 
   /** Used to determine the maximum number of input or output buses based on what was specified in the channel I/O config string
    * @param direction Return input or output bus count

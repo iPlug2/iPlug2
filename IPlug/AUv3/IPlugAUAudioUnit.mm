@@ -45,7 +45,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   
   for(auto configIdx = 0; configIdx < mPlug->NIOConfigs(); configIdx++)
   {
-    IOConfig* pConfig = mPlug->GetIOConfig(configIdx);
+    const IOConfig* pConfig = mPlug->GetIOConfig(configIdx);
     
     for(auto busIdx = 0; busIdx < pConfig->NBuses((ERoute) dir); busIdx++)
     {
@@ -80,7 +80,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 {
   for (int i = 0; i < mPlug->NIOConfigs(); i++)
   {
-    IOConfig* pIO = mPlug->GetIOConfig(i);
+    const IOConfig* pIO = mPlug->GetIOConfig(i);
     
     if(pIO->ContainsWildcard(ERoute::kInput))
       [pArray addObject: [NSNumber numberWithInt:-1]];

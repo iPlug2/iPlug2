@@ -405,7 +405,7 @@ UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement elem
       
       for(auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
       {
-        IOConfig* pConfig = GetIOConfig(configIdx);
+        const IOConfig* pConfig = GetIOConfig(configIdx);
         
         for(auto busIdx = 0; busIdx < pConfig->NBuses(dir); busIdx++)
         {
@@ -709,7 +709,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         AUChannelInfo* pChInfo = (AUChannelInfo*) pData;
         for (int i = 0; i < n; ++i, ++pChInfo)
         {
-          IOConfig* pIO = GetIOConfig(i);
+          const IOConfig* pIO = GetIOConfig(i);
           
           if(pIO->ContainsWildcard(ERoute::kInput))
              pChInfo->inChannels = -1;
