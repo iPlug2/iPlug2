@@ -29,6 +29,30 @@ jobs:
       platform: build_project-mac.yml
       graphics: $(graphics)
 
+- job: BUILD_IOS_PROJECTS
+  condition: and(eq(variables.build_deps, false), eq(variables.build_ios, true))
+  dependsOn: GET_SRC_TREE
+
+  strategy:
+    matrix:
+      NANOVG:
+        graphics: 'NANOVG'
+      SKIA:
+        graphics: 'SKIA'
+
+  pool:
+    vmImage: 'macos-10.13'
+
+  steps:
+  - checkout: none
+
+  - template: get_src_artifact.yml
+
+  - template: projects.yml
+    parameters:
+      platform: build_project-ios.yml
+      graphics: $(graphics)
+
 - job: BUILD_WIN_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_win, true))
   dependsOn:

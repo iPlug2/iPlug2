@@ -195,3 +195,43 @@ jobs:
       artifactName: 'IPLUG2_DEPS_MAC'
       targetPath: 'Dependencies/Build/'
     displayName: Publish Mac Dependencies Artifacts
+
+- job: BUILD_IOS_DEPS
+  dependsOn: GET_SRC_TREE
+  condition: and(eq(variables.build_deps, true), eq(variables.build_ios, true))
+
+  pool:
+    vmImage: 'macos-10.13'
+  steps:
+  - checkout: none
+
+  - template: get_src_artifact.yml
+
+  - bash: |
+      cd ./Dependencies/IGraphics
+      ./build-skia-ios.sh
+    displayName: Build Skia
+
+  - bash: |
+      cd ./Dependencies/Build
+      rm *.log
+      rm -r tmp
+      mv ./src/skia/include ./skia_include_tmp
+      mv ./src/skia/experimental/svg/model ./skia_experimental_tmp
+      mv ./src/skia/src/core ./skia_src_core_tmp
+      mv ./src/skia/src/xml ./skia_src_xml_tmp
+      rm -r src
+      mkdir -p ./src/skia
+      mkdir -p ./src/skia/experimental/svg
+      mkdir -p ./src/skia/src/
+      mv ./skia_include_tmp ./src/skia/include
+      mv ./skia_experimental_tmp ./src/skia/experimental/svg/model
+      mv ./skia_src_core_tmp ./src/skia/src/core
+      mv ./skia_src_xml_tmp ./src/skia/src/xml
+    displayName: slim SKIA src
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'IPLUG2_DEPS_IOS'
+      targetPath: 'Dependencies/Build/'
+    displayName: Publish iOS Dependencies Artifacts
