@@ -388,7 +388,7 @@ public:
   int GetTag() const { return mTag; }
   
   /** Specify whether this control wants to know about MIDI messages sent to the UI. See OnMIDIMsg() */
-  void SetWantsMidi(bool enable) { mWantsMidi = true; }
+  void SetWantsMidi(bool enable = true) { mWantsMidi = enable; }
 
   /** @return /c true if this control wants to know about MIDI messages send to the UI. See OnMIDIMsg() */
   bool GetWantsMidi() const { return mWantsMidi; }
