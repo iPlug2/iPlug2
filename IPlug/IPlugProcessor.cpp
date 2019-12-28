@@ -166,7 +166,7 @@ bool IPlugProcessor::LegalIO(int NInputChans, int NOutputChans) const
 
   for (auto i = 0; i < NIOConfigs() && !legal; ++i)
   {
-    const IOConfig* pIOConfig = GetIOConfig(i);
+    const IOConfig* pIO = GetIOConfig(i);
     legal = ((NInputChans < 0 || NInputChans == pIO->GetTotalNChannels(ERoute::kInput)) && (NOutputChans < 0 || NOutputChans == pIO->GetTotalNChannels(ERoute::kOutput)));
   }
 
