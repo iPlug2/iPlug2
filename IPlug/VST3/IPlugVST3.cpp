@@ -128,12 +128,12 @@ ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
   if (tag >= kBypassParam)
     return EditControllerEx1::getParamNormalized(tag);
   
-  return IPlugVST3ControllerBase::getParamNormalized(this, tag);
+  return IPlugVST3ControllerBase::GetParamNormalized(this, tag);
 }
 
 tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
 {
-  IPlugVST3ControllerBase::setParamNormalized(this, tag, value);
+  IPlugVST3ControllerBase::SetParamNormalized(this, tag, value);
   
   return EditControllerEx1::setParamNormalized(tag, value);
 }
