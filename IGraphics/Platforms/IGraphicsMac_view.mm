@@ -567,10 +567,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (CGContextRef) getCGContextRef
 {
-  CGContextRef pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-  NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
-  pCGC = (CGContextRef) [gc graphicsPort];
-  return pCGC;
+  CGContextRef pCGC = [NSGraphicsContext currentContext].CGContext;
+  return [NSGraphicsContext graphicsContextWithCGContext: pCGC flipped: YES].CGContext;
 }
 
 // not called for layer backed views
