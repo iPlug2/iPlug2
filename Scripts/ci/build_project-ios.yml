@@ -55,27 +55,14 @@ steps:
       args: '-xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-ios.xcconfig'
       configuration: 'Release'
       xcodeVersion: '10'
-    displayName: Build Xcode project 'iOS-APP with AUv3' Scheme
+    displayName: Build ${{parameters.name}}
 
   # - bash: |
-  #     rm -r $BUILD_ARTIFACTSTAGINGDIRECTORY
-  #     outputDir=$BUILD_ARTIFACTSTAGINGDIRECTORY/AU/${{parameters.name}}
-  #     mkdir -p $outputDir
-  #     cd ${{parameters.path}}/${{parameters.name}}/build-mac/
-  #     if [ -d ${{parameters.name}}.component ]; then
-  #       zip -r ../${{parameters.name}}_AU.zip ${{parameters.name}}.component; 
-  #       cd ..; 
-  #       cp ../../Scripts/validate_audiounit.sh .
-  #       zip -ur ${{parameters.name}}_AU.zip config.h validate_audiounit.sh
-  #       mv ${{parameters.name}}_AU.zip $outputDir
-  #     fi
-
   #   displayName: Organize AU artifact
   #   condition: eq(variables.build_auv2, True)
 
   # - task: PublishPipelineArtifact@0
   #   inputs:
-  #     artifactName: 'MAC_AU_${{parameters.artifactName}}'
+  #     artifactName: 'IOS_AU_${{parameters.artifactName}}'
   #     targetPath: '$(Build.ArtifactStagingDirectory)/AU/${{parameters.name}}'
   #   displayName: Publish ${{parameters.name}} AU
-  #   condition: eq(variables.build_auv2, True)
