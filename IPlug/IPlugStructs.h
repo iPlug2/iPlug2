@@ -446,7 +446,7 @@ struct IOConfig
    * @param direction /todo
    * @param index /todo
    * @return IBusInfo* /todo */
-  IBusInfo* GetBusInfo(ERoute direction, int index)
+  const IBusInfo* GetBusInfo(ERoute direction, int index) const
   {
     assert(index >= 0 && index < mBusInfo[direction].GetSize());
     return mBusInfo[direction].Get(index);
@@ -456,7 +456,7 @@ struct IOConfig
    * @param direction /todo
    * @param index /todo
    * @return int /todo */
-  int NChansOnBusSAFE(ERoute direction, int index)
+  int NChansOnBusSAFE(ERoute direction, int index) const
   {
     int NChans = 0;
     
@@ -469,7 +469,7 @@ struct IOConfig
   /** /todo  
    * @param direction /todo
    * @return int /todo */
-  int NBuses(ERoute direction)
+  int NBuses(ERoute direction) const
   {
     return mBusInfo[direction].GetSize();
   }
@@ -491,7 +491,7 @@ struct IOConfig
    * @param direction /todo
    * @return true /todo
    * @return false /todo */
-  bool ContainsWildcard(ERoute direction)
+  bool ContainsWildcard(ERoute direction) const
   {
     for(auto i = 0; i < mBusInfo[direction].GetSize(); i++)
     {

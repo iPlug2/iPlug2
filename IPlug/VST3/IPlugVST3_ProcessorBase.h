@@ -20,14 +20,14 @@
 
 // Custom bus type function (in global namespace)
 #ifdef CUSTOM_BUSTYPE_FUNC
-extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, iplug::ERoute dir, int busIdx, iplug::IOConfig* pConfig);
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, iplug::ERoute dir, int busIdx, const iplug::IOConfig* pConfig);
 #endif
 
 BEGIN_IPLUG_NAMESPACE
 
 // Default bus type function (in iplug namespace)
 #ifndef CUSTOM_BUSTYPE_FUNC
-uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig);
+uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, const IOConfig* pConfig);
 #endif
 
 /** Shared VST3 processor code */
@@ -45,7 +45,7 @@ public:
 //  {
     int configIdx = NIOConfigs() - 1;
     
-    IOConfig* pConfig = GetIOConfig(configIdx);
+    const IOConfig* pConfig = GetIOConfig(configIdx);
     
     assert(pConfig);
     for (auto busIdx = 0; busIdx < pConfig->NBuses(ERoute::kInput); busIdx++)
