@@ -88,11 +88,9 @@ tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
 
 tresult PLUGIN_API IPlugVST3::setProcessing(TBool state)
 {
-  TRACE
-  
-  SetProcessing((bool) state);
-  
-  return true;
+  Trace(TRACELOC, " state: %i", state);
+
+  return SetProcessing((bool) state) ? kResultOk : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
