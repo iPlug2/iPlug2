@@ -49,7 +49,7 @@ steps:
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.14'
+      sdk: 'iphoneos13.1'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-ios.xcodeproj'
       args: '-target App -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-ios.xcconfig'
       configuration: 'Release'
