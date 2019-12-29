@@ -51,10 +51,11 @@ steps:
     inputs:
       sdk: 'iphoneos'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-ios.xcodeproj'
-      args: '-target App -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-ios.xcconfig'
+      scheme: 'iOS-APP with AUv3'
+      args: '-xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-ios.xcconfig'
       configuration: 'Release'
       xcodeVersion: '10'
-    displayName: Build Xcode project APP Target
+    displayName: Build Xcode project 'iOS-APP with AUv3' Scheme
 
   # - bash: |
   #     rm -r $BUILD_ARTIFACTSTAGINGDIRECTORY
