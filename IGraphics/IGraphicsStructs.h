@@ -2029,7 +2029,6 @@ public:
   const IRECT& Bounds() const { return mRECT; }
   
 private:
-  APIBitmap* AccessAPIBitmap() { return mBitmap.get(); }
   
   std::unique_ptr<APIBitmap> mBitmap;
   IControl* mControl;
