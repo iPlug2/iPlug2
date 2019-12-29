@@ -2,9 +2,10 @@ variables:
   build_deps: false # set true to build optional dependencies, e.g. (Cairo, FAUST etc), if false, pre-built versions are downloaded
 
   #PLATFORMS
-  build_web: true # build web audio module versions of projects
-  build_mac: true # build mac binaries
-  build_win: true # build windows binaries
+  build_web: false # build web audio module versions of projects
+  build_mac: false # build mac binaries
+  build_win: false # build windows binaries
+  build_ios: true # build ios binaries
 
   #FORMATS
   build_app: true # build standalone app
@@ -44,7 +45,8 @@ jobs:
 
 # build_deps.yml
 # If build_deps == true, use the scripts in iPlug2/Dependencies to build the optional dependencies
-# Creates two artifacts IPLUG2_DEPS_MAC and IPLUG2_DEPS_WIN which are published on the releases page of the iPlug2 github
+# Creates three artifacts IPLUG2_DEPS_MAC, IPLUG2_DEPS_WIN, and IPLUG2_DEPS_IOS 
+# which are published on the releases page of the iPlug2 github
 # https://github.com/iPlug2/iPlug2/releases
 - template: Scripts/ci/build_deps.yml
 
