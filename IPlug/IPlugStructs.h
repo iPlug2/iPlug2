@@ -401,16 +401,13 @@ struct IChannelData
   TOUT** mData = nullptr; // If this is for an input channel, points into IPlugProcessor::mInData, if it's for an output channel points into IPlugProcessor::mOutData
   TIN* mIncomingData = nullptr;
   WDL_TypedBuf<TOUT> mScratchBuf;
-  WDL_String mLabel = WDL_String("");
+  WDL_String mLabel;
 };
 
 /** Used to manage information about a bus such as whether it's an input or output, channel count and if it has a label */
-struct IBusInfo
+class IBusInfo
 {
-  ERoute mDirection;
-  int mNChans;
-  WDL_String mLabel;
-  
+public:
   IBusInfo(ERoute direction, int nchans = 0, const char* label = "")
   : mDirection(direction)
   , mNChans(nchans)
@@ -420,6 +417,19 @@ struct IBusInfo
     else
       mLabel.Set(RoutingDirStrs[direction]);
   }
+
+  void SetLabel(const char* label) { mLabel.Set(label);  }
+
+  const char* GetLabel() const { return mLabel.Get(); }
+
+  int NChans() const { return mNChans; }
+
+  ERoute GetDirection() const { return mDirection; }
+
+private:
+  ERoute mDirection;
+  int mNChans;
+  WDL_String mLabel;
 };
 
 /** An IOConfig is used to store bus info for each input/output configuration defined in the channel io string */
@@ -461,7 +471,7 @@ struct IOConfig
     int NChans = 0;
     
     if(index >= 0 && index < mBusInfo[direction].GetSize())
-      NChans = mBusInfo[direction].Get(index)->mNChans;
+      NChans = mBusInfo[direction].Get(index)->NChans();
 
     return NChans;
   }
@@ -482,7 +492,7 @@ struct IOConfig
     int total = 0;
     
     for(int i = 0; i < mBusInfo[direction].GetSize(); i++)
-      total += mBusInfo[direction].Get(i)->mNChans;
+      total += mBusInfo[direction].Get(i)->NChans();
     
     return total;
   }
@@ -495,7 +505,7 @@ struct IOConfig
   {
     for(auto i = 0; i < mBusInfo[direction].GetSize(); i++)
     {
-      if(mBusInfo[direction].Get(i)->mNChans < 0)
+      if(mBusInfo[direction].Get(i)->NChans() < 0)
         return true;
     }
 

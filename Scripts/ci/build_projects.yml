@@ -7,12 +7,12 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      CAIRO:
-        graphics: 'CAIRO'
-      LICE:
-        graphics: 'LICE'
-      AGG:
-        graphics: 'AGG'
+      # CAIRO:
+      #   graphics: 'CAIRO'
+      # LICE:
+      #   graphics: 'LICE'
+      # AGG:
+      #   graphics: 'AGG'
       SKIA:
         graphics: 'SKIA'
 
@@ -64,12 +64,12 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      CAIRO:
-        graphics: 'CAIRO'
-      LICE:
-        graphics: 'LICE'
-      AGG:
-        graphics: 'AGG'
+      # CAIRO:
+      #   graphics: 'CAIRO'
+      # LICE:
+      #   graphics: 'LICE'
+      # AGG:
+      #   graphics: 'AGG'
       SKIA:
         graphics: 'SKIA'
 
@@ -81,11 +81,11 @@ jobs:
 
   - template: get_src_artifact.yml
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_AAX_LIB_WIN'
-      targetPath: 'Dependencies/IPlug/AAX_SDK/Libs/'
-    condition: eq(variables.build_aax, true)
+  # - task: DownloadPipelineArtifact@0
+  #   inputs:
+  #     artifactName: 'DEPS_AAX_LIB_WIN'
+  #     targetPath: 'Dependencies/IPlug/AAX_SDK/Libs/'
+  #   condition: eq(variables.build_aax, true)
 
   - template: projects.yml
     parameters:

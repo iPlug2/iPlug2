@@ -381,7 +381,7 @@
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h">
       <Filter>IGraphics\Drawing</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IGraphicsEditorDelegate.h">
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsEditorDelegate.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
   </ItemGroup>
