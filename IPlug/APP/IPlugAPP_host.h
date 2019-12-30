@@ -197,6 +197,7 @@ public:
   void ProbeAudioIO();
   void ProbeMidiIO();
   bool InitMidi();
+  void CloseAudio();
   bool InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_t iovs);
   bool AudioSettingsInStateAreEqual(AppState& os, AppState& ns);
   bool MIDISettingsInStateAreEqual(AppState& os, AppState& ns);
@@ -234,7 +235,8 @@ private:
   uint32_t mBufferSize = 512;
   uint32_t mBufIndex; // index for signal vector, loops from 0 to mSigVS
   bool mExiting = false;
-  bool mReadyToExit = false;
+  bool mAudioEnding = false;
+  bool mAudioDone = false;
 
   /** The index of the operating systems default input device, -1 if not detected */
   int32_t mDefaultInputDev = -1;

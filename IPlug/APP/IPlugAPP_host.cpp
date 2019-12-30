@@ -36,21 +36,13 @@ IPlugAPPHost::~IPlugAPPHost()
 {
   mExiting = true;
   
+  CloseAudio();
+  
   if(mMidiIn)
     mMidiIn->cancelCallback();
 
   if(mMidiOut)
     mMidiOut->closePort();
-  
-  if(mDAC)
-  {
-    if(mDAC->isStreamOpen())
-    {
-      while (!mReadyToExit)
-        Sleep(10);
-      mDAC->abortStream();
-    }
-  }
 }
 
 //static
@@ -372,13 +364,10 @@ bool IPlugAPPHost::MIDISettingsInStateAreEqual(AppState& os, AppState& ns)
 
 bool IPlugAPPHost::TryToChangeAudioDriverType()
 {
+  CloseAudio();
+  
   if (mDAC)
   {
-    if (mDAC->isStreamOpen())
-    {
-      mDAC->closeStream();
-    }
-
     mDAC = nullptr;
   }
 
@@ -559,12 +548,17 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
   return false;
 }
 
-bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_t iovs)
-{  
-  if (mDAC->isStreamOpen())
+void IPlugAPPHost::CloseAudio()
+{
+  if (mDAC && mDAC->isStreamOpen())
   {
     if (mDAC->isStreamRunning())
     {
+      mAudioEnding = true;
+    
+      while (!mAudioDone)
+        Sleep(10);
+      
       try
       {
         mDAC->abortStream();
@@ -574,9 +568,14 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
         e.printMessage();
       }
     }
-
+    
     mDAC->closeStream();
   }
+}
+
+bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_t iovs)
+{  
+  CloseAudio();
 
   RtAudio::StreamParameters iParams, oParams;
   iParams.deviceId = inId;
@@ -600,6 +599,8 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
   mSamplesElapsed = 0;
   mSampleRate = (double) sr;
   mVecWait = 0;
+  mAudioEnding = false;
+  mAudioDone = false;
   
   mIPlug->SetBlockSize(APP_SIGNAL_VECTOR_SIZE);
   mIPlug->SetSampleRate(mSampleRate);
@@ -693,12 +694,12 @@ int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_
   double* pOutputBufferD = static_cast<double*>(pOutputBuffer);
 
   bool startWait = _this->mVecWait >= APP_N_VECTOR_WAIT; // wait APP_N_VECTOR_WAIT * iovs before processing audio, to avoid clicks
-  bool doFade = _this->mVecWait == APP_N_VECTOR_WAIT || _this->mExiting;
+  bool doFade = _this->mVecWait == APP_N_VECTOR_WAIT || _this->mAudioEnding;
   
-  if (startWait && !_this->mReadyToExit)
+  if (startWait && !_this->mAudioDone)
   {
     if (doFade)
-      ApplyFades(pInputBufferD, nins, nFrames, _this->mExiting);
+      ApplyFades(pInputBufferD, nins, nFrames, _this->mAudioEnding);
     
     for (int i = 0; i < nFrames; i++)
     {
@@ -730,10 +731,10 @@ int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_
     }
     
     if (doFade)
-      ApplyFades(pOutputBufferD, nouts, nFrames, _this->mExiting);
+      ApplyFades(pOutputBufferD, nouts, nFrames, _this->mAudioEnding);
     
-    if (_this->mExiting)
-      _this->mReadyToExit = true;
+    if (_this->mAudioEnding)
+      _this->mAudioDone = true;
   }
   else
   {
