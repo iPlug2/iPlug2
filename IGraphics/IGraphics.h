@@ -1424,7 +1424,7 @@ protected:
    * @return bool* /todo */
   virtual bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) = 0;
 
-  /** /todo */
+  /** Specialized in IGraphicsCanvas drawing backend */
   virtual bool AssetsLoaded() { return true; }
     
   /** /todo */
