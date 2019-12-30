@@ -234,6 +234,7 @@ private:
   uint32_t mVecElapsed = 0;
   uint32_t mBufferSize = 512;
   uint32_t mBufIndex; // index for signal vector, loops from 0 to mSigVS
+  bool mExiting = false;
   
   /** The index of the operating systems default input device, -1 if not detected */
   int32_t mDefaultInputDev = -1;

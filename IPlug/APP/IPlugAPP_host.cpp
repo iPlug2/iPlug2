@@ -34,6 +34,8 @@ IPlugAPPHost::IPlugAPPHost()
 
 IPlugAPPHost::~IPlugAPPHost()
 {
+  mExiting = true;
+  
   if(mMidiIn)
     mMidiIn->cancelCallback();
 
@@ -601,7 +603,7 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
 
   try
   {
-    mDAC->openStream(&oParams, iParams.nChannels > 0 ? &iParams : nullptr, RTAUDIO_FLOAT64, sr, &mBufferSize, &AudioCallback, NULL, &options /*, &ErrorCallback */);
+    mDAC->openStream(&oParams, iParams.nChannels > 0 ? &iParams : nullptr, RTAUDIO_FLOAT64, sr, &mBufferSize, &AudioCallback, this, &options /*, &ErrorCallback */);
     
     for (int i = 0; i < iParams.nChannels; i++)
     {
@@ -659,15 +661,17 @@ bool IPlugAPPHost::InitMidi()
 // static
 int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_t nFrames, double streamTime, RtAudioStreamStatus status, void* pUserData)
 {
-  IPlugAPPHost* _this = sInstance.get();
-  
+  IPlugAPPHost* _this = (IPlugAPPHost*) pUserData;
+
   int nins = _this->GetPlug()->MaxNChannels(ERoute::kInput);
   int nouts = _this->GetPlug()->MaxNChannels(ERoute::kOutput);
   
   double* pInputBufferD = static_cast<double*>(pInputBuffer);
   double* pOutputBufferD = static_cast<double*>(pOutputBuffer);
 
-  if (_this->mVecElapsed > APP_N_VECTOR_WAIT ) // wait APP_N_VECTOR_WAIT * iovs before processing audio, to avoid clicks
+  bool startWait = _this->mVecElapsed > APP_N_VECTOR_WAIT; // wait APP_N_VECTOR_WAIT * iovs before processing audio, to avoid clicks
+  
+  if (startWait && !_this->mExiting )
   {
     for (int i=0; i<nFrames; i++)
     {
@@ -721,7 +725,7 @@ void IPlugAPPHost::MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, vo
 {
   IPlugAPPHost* _this = (IPlugAPPHost*) pUserData;
   
-  if (pMsg->size() == 0)
+  if (pMsg->size() == 0 || _this->mExiting)
     return;
   
   if (pMsg->size() > 3)
