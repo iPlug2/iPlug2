@@ -65,52 +65,15 @@ tresult PLUGIN_API IPlugVST3::terminate()
 
 tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* pInputBusArrangements, int32 numInBuses, SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses)
 {
-  Trace(TRACELOC, " numInBuses: %i\t numOutBuses: %i", numInBuses, numOutBuses);
+  TRACE
 
-  // disconnect all io pins, they will be reconnected in process
-  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
-  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), false);
-  
-  int maxNInBuses = MaxNBuses(ERoute::kInput);
-  int maxNOutBuses = MaxNBuses(ERoute::kOutput);
-
-  for(auto inBusIdx = 0; inBusIdx < maxNInBuses; inBusIdx++)
-  {
-    AudioBus* pBus = FCast<AudioBus>(audioInputs.at(inBusIdx));
-    int NInputsRequired = SpeakerArr::getChannelCount(pInputBusArrangements[inBusIdx]);
-    
-    // if existing input bus has a different number of channels to the input bus being connected
-    if (pBus && SpeakerArr::getChannelCount(pBus->getArrangement()) != NInputsRequired)
-    {
-      int flags = inBusIdx == 0 ? BusInfo::BusFlags::kDefaultActive : 0;
-      audioInputs.erase(std::remove(audioInputs.begin(), audioInputs.end(), pBus));
-      SpeakerArrangement arr = GetAPIBusTypeForChannelIOConfig(0 /*TODO: fix*/, ERoute::kInput, inBusIdx, GetIOConfig(0 /*TODO: fix*/));
-      addAudioInput(USTRING("Input"), arr, (BusTypes) inBusIdx > 0, flags);
-    }
-  }
-  
-  for(auto outBusIdx = 0; outBusIdx < maxNOutBuses; outBusIdx++)
-  {
-    AudioBus* pBus = FCast<AudioBus>(audioOutputs.at(outBusIdx));
-    int NOutputsRequired = SpeakerArr::getChannelCount(pOutputBusArrangements[outBusIdx]);
-    
-    // if existing output bus has a different number of channels to the input bus being connected
-    if (pBus && SpeakerArr::getChannelCount(pBus->getArrangement()) != NOutputsRequired)
-    {
-      int flags = outBusIdx == 0 ? BusInfo::BusFlags::kDefaultActive : 0;
-      audioOutputs.erase(std::remove(audioOutputs.begin(), audioOutputs.end(), pBus));
-      SpeakerArrangement arr = GetAPIBusTypeForChannelIOConfig(0 /*TODO: fix*/, ERoute::kOutput, outBusIdx, GetIOConfig(0 /*TODO: fix*/));
-      addAudioOutput(USTRING("Input"), arr, (BusTypes) outBusIdx > 0, flags);
-    }
-  }
-  
-//  SetBusArrangements(pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses);
+  SetBusArrangements(pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses);
   return kResultTrue;
 }
 
 tresult PLUGIN_API IPlugVST3::setActive(TBool state)
 {
-  Trace(TRACELOC, " state: %i", state);
+  TRACE
 
   OnActivate((bool) state);
   return SingleComponentEffect::setActive(state);
@@ -118,7 +81,7 @@ tresult PLUGIN_API IPlugVST3::setActive(TBool state)
 
 tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
 {
-  Trace(TRACELOC, " processMode: %i\t symbolicSampleSize: %i\t maxSamplesPerBlock: %i\t sampleRate: %f", newSetup.processMode, newSetup.symbolicSampleSize, newSetup.maxSamplesPerBlock, newSetup.sampleRate);
+  TRACE
 
   return SetupProcessing(newSetup, processSetup) ? kResultOk : kResultFalse;
 }
