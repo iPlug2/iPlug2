@@ -661,7 +661,7 @@ bool IPlugAPPHost::InitMidi()
   return true;
 }
 
-void ApplyFades(double *pBuffer, double constant, int nChans, int nFrames, bool down)
+void ApplyFades(double *pBuffer, int nChans, int nFrames, bool down)
 {
   for (int i = 0; i < nChans; i++)
   {
@@ -670,12 +670,12 @@ void ApplyFades(double *pBuffer, double constant, int nChans, int nFrames, bool 
     if (down)
     {
       for (int j = 0; j < nFrames; j++)
-        pIO[j] *= constant * ((double) (nFrames - (j + 1)) / (double) nFrames);
+        pIO[j] *= ((double) (nFrames - (j + 1)) / (double) nFrames);
     }
     else
     {
       for (int j = 0; j < nFrames; j++)
-        pIO[j] *= constant * ((double) j / (double) nFrames);
+        pIO[j] *= ((double) j / (double) nFrames);
     }
   }
 }
@@ -697,7 +697,7 @@ int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_
   if (startWait && !_this->mReadyToExit)
   {
     if (doFade)
-      ApplyFades(pInputBufferD, 1.0, nins, nFrames, _this->mExiting);
+      ApplyFades(pInputBufferD, nins, nFrames, _this->mExiting);
     
     for (int i = 0; i < nFrames; i++)
     {
@@ -719,12 +719,17 @@ int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_
 
         _this->mSamplesElapsed += APP_SIGNAL_VECTOR_SIZE;
       }
+      
+      for (int c = 0; c < nouts; c++)
+      {
+        pOutputBufferD[c * nFrames + i] *= APP_MULT;
+      }
 
       _this->mBufIndex++;
     }
     
     if (doFade)
-      ApplyFades(pOutputBufferD, APP_MULT, nouts, nFrames, _this->mExiting);
+      ApplyFades(pOutputBufferD, nouts, nFrames, _this->mExiting);
     
     if (_this->mExiting)
       _this->mReadyToExit = true;
