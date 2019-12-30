@@ -45,7 +45,11 @@ IPlugAPPHost::~IPlugAPPHost()
   if(mDAC)
   {
     if(mDAC->isStreamOpen())
+    {
+      while (!mReadyToExit)
+        Sleep(10);
       mDAC->abortStream();
+    }
   }
 }
 
@@ -594,7 +598,6 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
 
   mBufIndex = 0;
   mSamplesElapsed = 0;
-  mFadeMult = 0.;
   mSampleRate = (double) sr;
   
   mIPlug->SetBlockSize(APP_SIGNAL_VECTOR_SIZE);
@@ -658,6 +661,25 @@ bool IPlugAPPHost::InitMidi()
   return true;
 }
 
+void ApplyFades(double *pBuffer, double constant, int nChans, int nFrames, bool down)
+{
+  for (int i = 0; i < nChans; i++)
+  {
+    double *pIO = pBuffer + (i * nFrames);
+    
+    if (down)
+    {
+      for (int j = 0; j < nFrames; j++)
+        pIO[j] *= constant * ((double) (nFrames - (j + 1)) / (double) nFrames);
+    }
+    else
+    {
+      for (int j = 0; j < nFrames; j++)
+        pIO[j] *= constant * ((double) j / (double) nFrames);
+    }
+  }
+}
+
 // static
 int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_t nFrames, double streamTime, RtAudioStreamStatus status, void* pUserData)
 {
@@ -669,11 +691,15 @@ int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_
   double* pInputBufferD = static_cast<double*>(pInputBuffer);
   double* pOutputBufferD = static_cast<double*>(pOutputBuffer);
 
-  bool startWait = _this->mVecElapsed > APP_N_VECTOR_WAIT; // wait APP_N_VECTOR_WAIT * iovs before processing audio, to avoid clicks
+  bool startWait = _this->mVecWait >= APP_N_VECTOR_WAIT; // wait APP_N_VECTOR_WAIT * iovs before processing audio, to avoid clicks
+  bool doFade = _this->mVecWait == APP_N_VECTOR_WAIT || _this->mExiting;
   
-  if (startWait && !_this->mExiting )
+  if (startWait && !_this->mReadyToExit)
   {
-    for (int i=0; i<nFrames; i++)
+    if (doFade)
+      ApplyFades(pInputBufferD, 1.0, nins, nFrames, _this->mExiting);
+    
+    for (int i = 0; i < nFrames; i++)
     {
       _this->mBufIndex %= APP_SIGNAL_VECTOR_SIZE;
 
@@ -694,28 +720,21 @@ int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_
         _this->mSamplesElapsed += APP_SIGNAL_VECTOR_SIZE;
       }
 
-      // fade in
-      if (_this->mFadeMult < 1.)
-      {
-        _this->mFadeMult += (1. / nFrames);
-      }
-
-      pOutputBufferD[i] *= _this->mFadeMult;
-      pOutputBufferD[i + nFrames] *= _this->mFadeMult;
-
-      pOutputBufferD[i] *= APP_MULT;
-      pOutputBufferD[i + nFrames] *= APP_MULT;
-
       _this->mBufIndex++;
     }
+    
+    if (doFade)
+      ApplyFades(pOutputBufferD, APP_MULT, nouts, nFrames, _this->mExiting);
+    
+    if (_this->mExiting)
+      _this->mReadyToExit = true;
   }
   else
   {
-    int maxNouts = _this->GetPlug()->MaxNChannels(ERoute::kOutput);
-    memset(pOutputBufferD, 0, nFrames * maxNouts * sizeof(double));
+    memset(pOutputBufferD, 0, nFrames * nouts * sizeof(double));
   }
   
-  _this->mVecElapsed++;
+  _this->mVecWait = std::min(_this->mVecWait + 1, uint32_t(APP_N_VECTOR_WAIT + 1));
 
   return 0;
 }

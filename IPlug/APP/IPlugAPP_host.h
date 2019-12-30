@@ -228,14 +228,14 @@ private:
   /** When the audio driver is started the current state is copied here so that if OK is pressed after APPLY nothing is changed */
   AppState mActiveState;
   
-  double mFadeMult = 0.; // Fade multiplier
   double mSampleRate = 44100.;
   uint32_t mSamplesElapsed = 0;
-  uint32_t mVecElapsed = 0;
+  uint32_t mVecWait = 0;
   uint32_t mBufferSize = 512;
   uint32_t mBufIndex; // index for signal vector, loops from 0 to mSigVS
   bool mExiting = false;
-  
+  bool mReadyToExit = false;
+
   /** The index of the operating systems default input device, -1 if not detected */
   int32_t mDefaultInputDev = -1;
   /** The index of the operating systems default output device, -1 if not detected */
