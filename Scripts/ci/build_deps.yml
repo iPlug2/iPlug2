@@ -8,15 +8,15 @@ jobs:
 
   strategy:
     matrix:
-      x86_RELEASE:
-        buildPlatform: 'Win32'
-        buildConfiguration: 'Release'
+      # x86_RELEASE:
+      #   buildPlatform: 'Win32'
+      #   buildConfiguration: 'Release'
       x64_RELEASE:
         buildPlatform: 'x64'
         buildConfiguration: 'Release'
-      x86_DEBUG:
-        buildPlatform: 'Win32'
-        buildConfiguration: 'Debug'
+      # x86_DEBUG:
+      #   buildPlatform: 'Win32'
+      #   buildConfiguration: 'Debug'
       x64_DEBUG:
         buildPlatform: 'x64'
         buildConfiguration: 'Debug'
@@ -72,6 +72,7 @@ jobs:
       mv ./skia_src_core_tmp ./src/skia/src/core
       mv ./skia_src_xml_tmp ./src/skia/src/xml
     displayName: slim SKIA src
+    condition: eq(variables.buildPlatform, 'x64')
 
   - task: PublishPipelineArtifact@0
     inputs:
