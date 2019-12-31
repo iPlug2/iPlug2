@@ -451,6 +451,9 @@ public:
   /** /todo */
   double GetAnimationProgress() const;
   
+  /** /todo */
+  Milliseconds GetAnimationDuration() const { return mAnimationDuration; }
+    
 #if defined VST3_API || defined VST3C_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
