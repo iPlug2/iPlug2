@@ -594,7 +594,7 @@ protected:
     PathTransformRotate(text.mAngle);
   }
   
-  float GetBackingPixelScale() const override { return GetScreenScale() * GetDrawScale(); };
+  float GetBackingPixelScale() const override { return GetScreenScale() * GetDrawScale(); }
 
   IMatrix GetTransformMatrix() const { return mTransform; }
   
