@@ -64,8 +64,6 @@ public:
   int AlphaChannel() const override { return 3; }
   bool FlippedBitmap() const override { return false; }
 
-  void ReleaseBitmap(const IBitmap& bitmap) override { } // NO-OP
-  void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { } // NO-OP
   APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
 
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
