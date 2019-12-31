@@ -216,7 +216,7 @@ else
   cd "$SRC_DIR/skia"
   git checkout $SKIA_VERSION
   echo "Patching skia"
-  git apply --stat "$IGRAPHICS_DEPS_DIR/skia.patch" 
+  git apply "$IGRAPHICS_DEPS_DIR/skia.patch" 
   rm -r -f .git
   cd "$IGRAPHICS_DEPS_DIR"
 fi
