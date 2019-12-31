@@ -589,7 +589,7 @@ protected:
     IRECT rotated = rect;
     double tx, ty;
     
-    CalulateTextRotation(text, bounds, rotated, tx, ty);
+    CalculateTextRotation(text, bounds, rotated, tx, ty);
     PathTransformTranslate(static_cast<float>(tx), static_cast<float>(ty));
     PathTransformRotate(text.mAngle);
   }

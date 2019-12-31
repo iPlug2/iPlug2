@@ -1784,11 +1784,11 @@ void IGraphics::DoMeasureTextRotation(const IText& text, const IRECT& bounds, IR
 {
   double tx = 0.0, ty = 0.0;
   
-  CalulateTextRotation(text, bounds, rect, tx, ty);
+  CalculateTextRotation(text, bounds, rect, tx, ty);
   rect.Translate(static_cast<float>(tx), static_cast<float>(ty));
 }
 
-void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const
+void IGraphics::CalculateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const
 {
   if (!text.mAngle)
     return;
