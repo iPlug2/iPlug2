@@ -33,7 +33,7 @@ cc = "clang"
 cxx = "clang++"
 target_os = "ios"
 target_cpu = "arm64"
-extra_cflags = ["-miphoneos-version-min=13.0",
+extra_cflags = ["-miphoneos-version-min=12.1",
 "-I../../../src/skia/third_party/externals/expat/lib"]
 extra_cflags_c = ["-Wno-error"]
 '
@@ -76,7 +76,7 @@ mv ../../tmp/skia/iOS_arm64/libskparagraph.a ../../ios/lib/arm64
 # cxx = "clang++"
 # target_os = "ios"
 # target_cpu = "x64"
-# extra_cflags = ["-mios-simulator-version-min=13.0",
+# extra_cflags = ["-mios-simulator-version-min=12.1",
 # "-I../../../src/skia/third_party/externals/expat/lib"]
 # extra_cflags_c = ["-Wno-error"]
 # '
