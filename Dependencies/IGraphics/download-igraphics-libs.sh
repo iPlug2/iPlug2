@@ -16,7 +16,8 @@ PIXMAN_VERSION=pixman-0.34.0
 EXPAT_VERSION=expat-2.2.5
 PNG_VERSION=v1.6.35
 ZLIB_VERSION=zlib-1.2.11
-SKIA_VERSION=chrome/m80
+# SKIA_VERSION=chrome/m80
+SKIA_VERSION=master
 
 # URLs where tarballs of releases can be downloaded - no trailing slash
 #CAIRO tarball is compressed using xz which is not available on git-bash shell, so checkout tag via git
@@ -214,6 +215,8 @@ else
   git clone $SKIA_URL "$SRC_DIR/skia"
   cd "$SRC_DIR/skia"
   git checkout $SKIA_VERSION
+  echo "Patching skia"
+  git apply "$IGRAPHICS_DEPS_DIR/skia.patch" 
   rm -r -f .git
   cd "$IGRAPHICS_DEPS_DIR"
 fi

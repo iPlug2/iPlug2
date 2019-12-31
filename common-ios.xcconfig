@@ -14,7 +14,7 @@ CLANG_CXX_LIBRARY = libc++
 CLANG_WARN_DOCUMENTATION_COMMENTS = NO
 
 // the minimum OS to support
-IPHONEOS_DEPLOYMENT_TARGET = 11.0
+IPHONEOS_DEPLOYMENT_TARGET = 12.1
 
 SHARED_PRECOMPS_DIR = $(TARGET_BUILD_DIR)/PCH
 
@@ -78,8 +78,12 @@ IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(CONTROLS_PATH) $(PLATFORMS_PATH) $(DRA
 FAUST_INC_PATHS = /usr/local/include /usr/local/opt/include
 
 LIB_SKIA = $(BUILT_LIBS_LIB_PATH)/libskia.a
+LIB_SKOTTIE = $(BUILT_LIBS_LIB_PATH)/libskottie.a
+LIB_SKSG = $(BUILT_LIBS_LIB_PATH)/libsksg.a
+LIB_SKSHAPER = $(BUILT_LIBS_LIB_PATH)/libskshaper.a
+LIB_SKPARAGRAPH = $(BUILT_LIBS_LIB_PATH)/libskparagraph.a
 
-SKIA_LNK_FLAGS = $(LIB_SKIA)
+SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH)
 IGRAPHICS_LNK_FLAGS = $(SKIA_LNK_FLAGS)
 
 AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudioKit -framework Metal -framework MetalKit -framework QuartzCore -framework UIKit -framework CoreText -framework CoreGraphics

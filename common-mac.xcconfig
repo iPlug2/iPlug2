@@ -123,10 +123,16 @@ LIB_PNG = $(BUILT_LIBS_LIB_PATH)/libpng.a
 LIB_Z = $(BUILT_LIBS_LIB_PATH)/libz.a
 LIB_CIVET = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
 LIB_SKIA = $(BUILT_LIBS_LIB_PATH)/libskia.a
+LIB_SKOTTIE = $(BUILT_LIBS_LIB_PATH)/libskottie.a
+LIB_SKSG = $(BUILT_LIBS_LIB_PATH)/libsksg.a
+LIB_SKSHAPER = $(BUILT_LIBS_LIB_PATH)/libskshaper.a
+LIB_SKPARAGRAPH = $(BUILT_LIBS_LIB_PATH)/libskparagraph.a
+
+SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH)
 
 // you can optionally include this build setting, by adding it to EXTRA_LNK_FLAGS in your plug-ins xcconfig, in order to get all varieties of IGraphics support
 CAIRO_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_Z) //$(LIB_HB) $(LIB_HB_ICU) $(LIB_GF)
-SKIA_LNK_FLAGS = $(LIB_SKIA)
+SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH)
 LICE_LNK_FLAGS = $(LIB_PNG) $(LIB_Z)
 IGRAPHICS_LNK_FLAGS = $(SKIA_LNK_FLAGS) $(LICE_LNK_FLAGS) $(CAIRO_LNK_FLAGS)
 
