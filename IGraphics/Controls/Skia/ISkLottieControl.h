@@ -126,3 +126,6 @@ private:
   SkSize mAnimationSize;
   SkMatrix mMatrix;
 };
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
