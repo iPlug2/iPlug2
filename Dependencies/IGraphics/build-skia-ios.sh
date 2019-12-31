@@ -15,17 +15,20 @@ skia_use_system_libjpeg_turbo = false
 skia_use_system_libpng = false
 skia_use_system_zlib = false
 skia_use_system_expat = false
+skia_use_system_icu = false
+skia_use_system_harfbuzz = false
 skia_use_libwebp = false
 skia_use_xps = false
 skia_use_dng_sdk = false
 skia_use_expat = true
 skia_use_metal = true
-skia_use_icu = false
+skia_use_icu = true
 skia_use_sfntly = false
 skia_enable_skottie = true
 skia_enable_pdf = false
 skia_enable_particles = true
 skia_enable_gpu = true
+skia_enable_skparagraph = true
 cc = "clang"
 cxx = "clang++"
 target_os = "ios"
@@ -45,6 +48,7 @@ mv ../../tmp/skia/iOS_arm64/libskia.a ../../ios/lib/arm64
 mv ../../tmp/skia/iOS_arm64/libskottie.a ../../ios/lib/arm64
 mv ../../tmp/skia/iOS_arm64/libskshaper.a ../../ios/lib/arm64
 mv ../../tmp/skia/iOS_arm64/libsksg.a ../../ios/lib/arm64
+mv ../../tmp/skia/iOS_arm64/libskparagraph.a ../../ios/lib/arm64
 
 echo "Building for iOS simulator"
 
@@ -54,17 +58,20 @@ skia_use_system_libjpeg_turbo = false
 skia_use_system_libpng = false
 skia_use_system_zlib = false
 skia_use_system_expat = false
+skia_use_system_icu = false
+skia_use_system_harfbuzz = false
 skia_use_libwebp = false
 skia_use_xps = false
 skia_use_dng_sdk = false
 skia_use_expat = true
 skia_use_metal = true
-skia_use_icu = false
+skia_use_icu = true
 skia_use_sfntly = false
 skia_enable_skottie = true
 skia_enable_pdf = false
 skia_enable_particles = true
-skia_enable_gpu=true
+skia_enable_gpu = true
+skia_enable_skparagraph = true
 cc = "clang"
 cxx = "clang++"
 target_os = "ios"
@@ -84,3 +91,4 @@ mv ../../tmp/skia/iOS_x64/libskia.a ../../ios/lib/x64
 mv ../../tmp/skia/iOS_x64/libskottie.a ../../ios/lib/x64
 mv ../../tmp/skia/iOS_x64/libskshaper.a ../../ios/lib/x64
 mv ../../tmp/skia/iOS_x64/libsksg.a ../../ios/lib/x64
+mv ../../tmp/skia/iOS_x64/libskparagraph.a ../../ios/lib/x64
