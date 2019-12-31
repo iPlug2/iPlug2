@@ -1,13 +1,34 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #pragma once
+
+/**
+ * @file
+ * @copydoc ISkLottieControl
+ */
 
 #include "IControl.h"
 #include "SkMatrix.h"
 #include "modules/skottie/include/Skottie.h"
 
-class ILottieControl : public IControl
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+/** A control that hosts a Lottie animation, via Skia's Skottie module
+ * https://skia.org/user/modules/skottie
+ * @ingroup IControls */
+class ISkLottieControl : public IControl
 {
 public:
-  ILottieControl(const IRECT& bounds)
+  ISkLottieControl(const IRECT& bounds)
   : IControl(bounds)
   {
   }
