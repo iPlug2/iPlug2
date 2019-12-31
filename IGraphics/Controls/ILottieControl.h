@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IControl.h"
+#include "SkMatrix.h"
 #include "modules/skottie/include/Skottie.h"
 
 class ILottieControl : public IControl
@@ -9,22 +10,16 @@ public:
   ILottieControl(const IRECT& bounds)
   : IControl(bounds)
   {
-    SetAnimation([&](IControl* pCaller) {
-                    auto progress = pCaller->GetAnimationProgress();
-                    mAnimation->seekFrameTime(pCaller->GetAnimationDuration().count() / progress, nullptr);
-      
-                    if(progress > 1.f)
-                      pCaller->OnEndAnimation();
-                 });
   }
 
-  void Draw(IGraphics& g)
+  void Draw(IGraphics& g) override
   {
-    g.FillRect(COLOR_RED, mRECT);
+    g.FillRect(COLOR_BLACK, mRECT);
     
     SkCanvas* pCanvas = static_cast<SkCanvas*>(g.GetDrawContext());
     
-    DoDraw(SkSize::Make(mRECT.W(), mRECT.H()), pCanvas);
+    if(mAnimation)
+      DoDraw(SkSize::Make(mRECT.W(), mRECT.H()), pCanvas);
   }
   
   void DoDraw(SkSize size, SkCanvas* canvas)
@@ -47,17 +42,61 @@ public:
       mSize = size;
     }
     canvas->concat(mMatrix);
-    SkRect rect = {0, 0, mAnimationSize.width(), mAnimationSize.height()};
-    canvas->drawRect(rect, SkPaint(SkColors::kWhite));
     mAnimation->render(canvas);
   }
   
-  void Load(const void* data, size_t length)
+  void LoadFile(const char* path)
   {
     skottie::Animation::Builder builder;
-    mAnimation = builder.make((const char*)data, (size_t)length);
+    mAnimation = builder.makeFromFile(path);
+    mSize = {0, 0};
+  
+    if(mAnimation) {
+      mAnimationSize = mAnimation->size();
+    
+      SetActionFunction([&](IControl* pCaller) {
+          SetAnimation([&](IControl* pCaller) {
+                        auto progress = pCaller->GetAnimationProgress();
+                        mAnimation->seekFrameTime((pCaller->GetAnimationDuration().count() / 1000.) * progress, nullptr);
+          
+                        if(progress > 1.f)
+                          pCaller->OnEndAnimation();
+                     }, mAnimation->duration() * 1000.);
+        });
+    }
+    else {
+      mAnimationSize = {0, 0};
+    }
+  }
+  
+  void LoadData(const void* data, size_t length)
+  {
+    skottie::Animation::Builder builder;
+    mAnimation = builder.make((const char*) data, (size_t)length);
     mSize = {0, 0};
     mAnimationSize = mAnimation ? mAnimation->size() : SkSize{0, 0};
+
+    SetActionFunction([&](IControl* pCaller) {
+        SetAnimation([&](IControl* pCaller) {
+                      auto progress = pCaller->GetAnimationProgress();
+                      mAnimation->seekFrameTime((pCaller->GetAnimationDuration().count() / 1000.) * progress, nullptr);
+
+                      if(progress > 1.f)
+                        pCaller->OnEndAnimation();
+                   }, mAnimation->duration() * 1000.);
+      });
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    if(mod.S) {
+      WDL_String file;
+      WDL_String path {"~/Desktop"};
+      GetUI()->PromptForFile(file, path);
+      LoadFile(file.Get());
+    }
+    else
+      SetDirty(true);
   }
     
 private:

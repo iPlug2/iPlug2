@@ -22,7 +22,7 @@ skia_use_expat = true
 skia_use_metal = true
 skia_use_icu = false
 skia_use_sfntly = false
-skia_enable_skottie = false
+skia_enable_skottie = true
 skia_enable_pdf = false
 skia_enable_particles = true
 skia_enable_gpu = true
@@ -34,4 +34,12 @@ extra_cflags = ["-mmacosx-version-min=10.9"]
 extra_cflags_c = ["-Wno-error"]
 '
 ninja -C ../../tmp/skia/macOS_x64
+
+if [ ! -d ../../mac/lib ]; then
+  mkdir -p ../../mac/lib
+fi
+
 mv ../../tmp/skia/macOS_x64/libskia.a ../../mac/lib
+mv ../../tmp/skia/macOS_x64/libskottie.a ../../mac/lib
+mv ../../tmp/skia/macOS_x64/libskshaper.a ../../mac/lib
+mv ../../tmp/skia/macOS_x64/libsksg.a ../../mac/lib
