@@ -7,8 +7,8 @@
 BASEDIR=$(dirname $0)
 
 #here you can choose a target to build
-TARGET="All"
-#TARGET="APP"
+# TARGET="All"
+TARGET="APP"
 #TARGET="VST2"
 #TARGET="VST3"
 #TARGET="AU"
@@ -25,10 +25,10 @@ fi
 
 for file in * 
 do
-  if [ -d "$file/$file.xcodeproj" ]
+  if [ -d "$file/projects/$file-macOS.xcodeproj" ]
   then
-    echo "building $file/$file.xcodeproj $TARGET target"
-    xcodebuild -project "$file/$file.xcodeproj" -target $TARGET -configuration Release 2> ./build_errors.log
+    echo "building $file/projects/$file-macOS.xcodeproj $TARGET target"
+    xcodebuild -project "$file/projects/$file-macOS.xcodeproj" -target $TARGET -configuration Release 2> ./build_errors.log
 
     if [ -s build_errors.log ]
     then
