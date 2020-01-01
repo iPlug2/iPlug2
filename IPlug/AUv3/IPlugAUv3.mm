@@ -14,6 +14,10 @@
 #include "IPlugAUv3.h"
 #import "IPlugAUAudioUnit.h"
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 using namespace iplug;
 
 IPlugAUv3::IPlugAUv3(const InstanceInfo& instanceInfo, const Config& config)
