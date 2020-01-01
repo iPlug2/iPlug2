@@ -2,7 +2,7 @@
 #ifdef __APPLE__
   #define SWELL_DLG_SCALE_AUTOGEN 1.7
 #else
-  #define SWELL_DLG_SCALE_AUTOGEN 1.8
+  #define SWELL_DLG_SCALE_AUTOGEN 1.9
 #endif
 #endif
 #ifndef SWELL_DLG_FLAGS_AUTOGEN
