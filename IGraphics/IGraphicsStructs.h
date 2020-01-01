@@ -757,6 +757,13 @@ struct IRECT
     else if (y > B) y = B;
   }
   
+  /** Offsets the input IRECT based on the parent
+   * @param rhs IRECT to offset */
+  IRECT Inset(const IRECT& rhs) const
+  {
+    return IRECT(L + rhs.L, T + rhs.T, L + rhs.R, T + rhs.B);
+  }
+  
   /** /todo
    * The two rects cover exactly the area returned by Union()
    * @param rhs /todo
