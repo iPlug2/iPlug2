@@ -2076,7 +2076,7 @@
 						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
 					};
 					4FD16A0813B63081001D0217 = {
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.Mac = {
 								enabled = 0;
@@ -2551,7 +2551,6 @@
 				4F815986205D50EB00393585 /* flock.cpp in Sources */,
 				4FCE29D921D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F5F344320C0226200487201 /* IPlugPaths.mm in Sources */,
-				4F81598F205D51F000393585 /* vstbypassprocessor.cpp in Sources */,
 				4F81598A205D50EB00393585 /* ustring.cpp in Sources */,
 				4FA9F80F21F76177004E6FE2 /* IGraphicsAGG_src.mm in Sources */,
 				4F815980205D50EB00393585 /* fobject.cpp in Sources */,
@@ -3006,7 +3005,6 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "IPlugFaustDSP-macOS.entitlements";
-
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_HARDENED_RUNTIME = YES;
 				EXECUTABLE_EXTENSION = "";
@@ -3044,7 +3042,6 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "IPlugFaustDSP-macOS.entitlements";
-
 				COPY_PHASE_STRIP = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -3083,7 +3080,6 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_ENTITLEMENTS = "IPlugFaustDSP-macOS.entitlements";
-
 				COPY_PHASE_STRIP = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
@@ -3109,7 +3105,6 @@
 		4F3AE1DD12C0E5E2001FD7A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-
 				DEVELOPMENT_TEAM = "";
 				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3138,7 +3133,6 @@
 		4F3AE1DE12C0E5E2001FD7A4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-
 				DEVELOPMENT_TEAM = "";
 				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3167,7 +3161,6 @@
 		4F3AE1DF12C0E5E2001FD7A4 /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-
 				DEVELOPMENT_TEAM = "";
 				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3197,7 +3190,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugFaustDSP-macOS.entitlements";
-
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3224,7 +3216,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugFaustDSP-macOS.entitlements";
-
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3251,7 +3242,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugFaustDSP-macOS.entitlements";
-
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3287,7 +3277,6 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -3342,7 +3331,6 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -3399,7 +3387,6 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -3846,8 +3833,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugFaustDSP-macOS.entitlements";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3874,8 +3859,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugFaustDSP-macOS.entitlements";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3902,8 +3885,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugFaustDSP-macOS.entitlements";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
