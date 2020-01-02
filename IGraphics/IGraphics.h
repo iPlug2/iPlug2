@@ -1222,6 +1222,9 @@ public:
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
 
+  /** Remove controls from the control list with a particular tag.  */
+  void RemoveControlWithTag(int ctrlTag);
+  
   /** Remove controls from the control list above a particular index, (frees memory).  */
   void RemoveControls(int fromIdx);
   
