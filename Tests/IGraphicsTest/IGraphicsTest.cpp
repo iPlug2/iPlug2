@@ -20,7 +20,7 @@ enum EControlTags
 IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, 1))
 {
-  GetParam(kParamDummy)->InitGain("Dummy");
+  GetParam(kParamDummy)->InitPercentage("Dummy");
   
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
@@ -70,7 +70,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     pGraphics->LoadFont("Montserrat-LightItalic", MONTSERRAT_FN);
 
     IRECT bounds = pGraphics->GetBounds().GetPadded(-20.f);
-    auto testRect = bounds.FracRectHorizontal(0.8, true).GetCentredInside(480.f);
+    auto testRect = bounds.GetCentredInside(480.f);
 
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     
@@ -103,7 +103,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     
     auto chooseTestControl = [&, pGraphics, testRect](int idx) {
 
-      pGraphics->RemoveControls(pGraphics->NControls()-1);
+      pGraphics->RemoveControlWithTag(kCtrlTagTestControl);
       
       IControl* pNewControl;
       switch (idx) {
@@ -118,19 +118,18 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
         case 8: pNewControl = new TestDrawContextControl(testRect); break;
         case 9: pNewControl = new TestSVGControl(testRect, pGraphics->LoadSVG(TIGER_FN)); break;
         case 10: pNewControl = new TestImageControl(testRect, pGraphics->LoadBitmap(IPLUG_FN)); break;
-        case 11: pNewControl = new TestLayerControl(testRect); break;
-        case 12: pNewControl = new TestBlendControl(testRect, pGraphics->LoadBitmap(SMILEY_FN)); break;
+        case 11: pNewControl = new TestLayerControl(testRect, kParamDummy); break;
+        case 12: pNewControl = new TestBlendControl(testRect, pGraphics->LoadBitmap(SMILEY_FN), kParamDummy); break;
         case 13: pNewControl = new TestDropShadowControl(testRect, pGraphics->LoadSVG(ORBS_FN)); break;
         case 14: pNewControl = new TestCursorControl(testRect); break;
         case 15: pNewControl = new TestKeyboardControl(testRect); break;
         case 16: pNewControl = new TestShadowGradientControl(testRect); break;
         case 17: pNewControl = new TestFontControl(testRect); break;
-        case 18: pNewControl = new TestTextOrientationControl(testRect); break;
-        case 19: pNewControl = new TestTextSizeControl(testRect); break;
-        case 20: pNewControl = new TestMPSControl(testRect, pGraphics->LoadBitmap(SMILEY_FN)); break;
+        case 18: pNewControl = new TestTextOrientationControl(testRect, kParamDummy); break;
+        case 19: pNewControl = new TestTextSizeControl(testRect, kParamDummy); break;
+        case 20: pNewControl = new TestMPSControl(testRect, pGraphics->LoadBitmap(SMILEY_FN), kParamDummy); break;
         case 21: pNewControl = new TestGLControl(testRect); break;
-        case 22: pNewControl = new TestRawBitmapControl(testRect); break;
-        case 23:
+        case 22:
         {
           WDL_String path;
           // DesktopPath(path);
@@ -148,17 +147,21 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
       }
       
       pGraphics->AttachControl(pNewControl, kCtrlTagTestControl);
+      SendCurrentParamValuesFromDelegate();
     };
     
     pGraphics->AttachControl(new IVRadioButtonControl(bounds.FracRectHorizontal(0.2),
                                                       [pGraphics, chooseTestControl](IControl* pCaller) {
+                                                        SplashClickActionFunc(pCaller);
                                                         int selectedTest = dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx();
                                                         chooseTestControl(selectedTest);
                                                       },
                                                       testNames
                                                       ));
+    
+    pGraphics->AttachControl(new IVSliderControl(bounds.FracRectHorizontal(0.2, true).GetCentredInside(100, 200), kParamDummy, "Value"));
 
-    pGraphics->AttachControl(new GFXLabelControl(bounds.GetFromTRHC(125, 125).GetTranslated(25, -25)));
+    pGraphics->AttachControl(new GFXLabelControl(bounds.GetFromTRHC(200, 50)));//.GetTranslated(25, -25)));
     
     chooseTestControl(0);
   };

@@ -41,6 +41,8 @@ public:
 
   void Draw(IGraphics& g) override
   {
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
+
 #ifndef IGRAPHICS_NANOVG
     if(g.HasPathSupport())
     {

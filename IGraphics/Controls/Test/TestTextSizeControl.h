@@ -24,8 +24,9 @@ class TestTextSizeControl : public IKnobControlBase
   static const int size = 14;
     
 public:
-    TestTextSizeControl(const IRECT& bounds)
-  : IKnobControlBase(bounds), mCount(-1)
+    TestTextSizeControl(const IRECT& bounds, int paramIdx)
+  : IKnobControlBase(bounds, paramIdx)
+  , mCount(-1)
   {
     SetTooltip("TestTextSizeControl");
     mDblAsSingleClick = true;

@@ -29,8 +29,8 @@ class TestMPSControl : public IKnobControlBase
                      , public IBitmapBase
 {
 public:
-  TestMPSControl(const IRECT& bounds, const IBitmap& bitmap)
-  : IKnobControlBase(bounds)
+  TestMPSControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx)
+  : IKnobControlBase(bounds, paramIdx)
   , IBitmapBase(bitmap)
   {
     SetTooltip("TestMPSControl");
@@ -68,7 +68,7 @@ private:
 class TestMPSControl : public IControl
 {
 public:
-  TestMPSControl(IRECT rect, const IBitmap& bmp)
+  TestMPSControl(IRECT rect, const IBitmap& bmp, int paramIdx)
   : IControl(rect)
   {
     SetTooltip("TestMPSControl");

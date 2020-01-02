@@ -31,6 +31,8 @@ public:
 
   void Draw(IGraphics& g) override
   {
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
+
     if (g.HasPathSupport())
     {
       float cr = static_cast<float>(GetValue()) * (mRECT.H() / 2.f);
@@ -50,7 +52,14 @@ public:
     RandomiseGradient();
     SetDirty(false);
   }
+  
+  void OnResize() override
+  {
+    RandomiseGradient();
+  }
 
+private:
+  
   void RandomiseGradient()
   {
     //IPattern tmp(EPatternType::Linear);
@@ -73,6 +82,5 @@ public:
     mPattern = tmp;
   }
 
-private:
   IPattern mPattern = IPattern(EPatternType::Linear);
 };

@@ -33,7 +33,7 @@ public:
   {
     const char* words[] = { "there", "are many" , "possible", "ways", "to display text", "here" };
 
-    g.FillRect(COLOR_BLACK, mRECT);
+    g.FillRect(COLOR_WHITE, mRECT);
     g.DrawText(mText, words[mStringIndex], mRECT);
   }
 

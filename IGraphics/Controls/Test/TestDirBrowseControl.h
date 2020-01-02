@@ -16,6 +16,7 @@
  */
 
 #include "IControl.h"
+#include "IPlugPaths.h"
 
 /** Control to test IDirBrowseControlBase
  *   @ingroup TestControls */
