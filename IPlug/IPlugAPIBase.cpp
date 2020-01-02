@@ -208,9 +208,9 @@ void IPlugAPIBase::SendSysexMsgFromUI(const ISysEx& msg)
   EDITOR_DELEGATE_CLASS::SendSysexMsgFromUI(msg); // for remote editors
 }
 
-void IPlugAPIBase::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
+void IPlugAPIBase::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
-  OnMessage(messageTag, controlTag, dataSize, pData); // IPlugAPIBase implementation handles non distributed plug-ins - just call OnMessage() directly
+  OnMessage(msgTag, ctrlTag, dataSize, pData); // IPlugAPIBase implementation handles non distributed plug-ins - just call OnMessage() directly
   
-  EDITOR_DELEGATE_CLASS::SendArbitraryMsgFromUI(messageTag, controlTag, dataSize, pData);
+  EDITOR_DELEGATE_CLASS::SendArbitraryMsgFromUI(msgTag, ctrlTag, dataSize, pData);
 }

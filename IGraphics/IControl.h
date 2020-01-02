@@ -144,7 +144,7 @@ public:
   virtual void OnInit() {}
   
   /** Implement to receive messages sent to the control, see IEditorDelegate:SendControlMsgFromDelegate() */
-  virtual void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) {};
+  virtual void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) {};
   
   /** Implement to receive MIDI messages sent to the control if mWantsMidi == true, see IEditorDelegate:SendMidiMsgFromDelegate() */
   virtual void OnMidi(const IMidiMsg& msg) {};

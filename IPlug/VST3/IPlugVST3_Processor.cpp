@@ -107,7 +107,7 @@ tresult PLUGIN_API IPlugVST3Processor::getState(IBStream* pState)
 
 #pragma mark IEditorDelegate overrides
 
-void IPlugVST3Processor::SendControlValueFromDelegate(int controlTag, double normalizedValue)
+void IPlugVST3Processor::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -115,13 +115,13 @@ void IPlugVST3Processor::SendControlValueFromDelegate(int controlTag, double nor
     return;
   
   message->setMessageID("SCVFD");
-  message->getAttributes()->setInt("CT", controlTag);
+  message->getAttributes()->setInt("CT", ctrlTag);
   message->getAttributes()->setFloat("NV", normalizedValue);
   
   sendMessage(message);
 }
 
-void IPlugVST3Processor::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
+void IPlugVST3Processor::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -129,14 +129,14 @@ void IPlugVST3Processor::SendControlMsgFromDelegate(int controlTag, int messageT
     return;
   
   message->setMessageID("SCMFD");
-  message->getAttributes()->setInt("CT", controlTag);
-  message->getAttributes()->setInt("MT", messageTag);
+  message->getAttributes()->setInt("CT", ctrlTag);
+  message->getAttributes()->setInt("MT", msgTag);
   message->getAttributes()->setBinary("D", pData, dataSize);
   
   sendMessage(message);
 }
 
-void IPlugVST3Processor::SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData)
+void IPlugVST3Processor::SendArbitraryMsgFromDelegate(int msgTag, int dataSize, const void* pData)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -151,7 +151,7 @@ void IPlugVST3Processor::SendArbitraryMsgFromDelegate(int messageTag, int dataSi
   }
   
   message->setMessageID("SAMFD");
-  message->getAttributes()->setInt("MT", messageTag);
+  message->getAttributes()->setInt("MT", msgTag);
   message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);
 }
@@ -183,14 +183,14 @@ tresult PLUGIN_API IPlugVST3Processor::notify(IMessage* message)
   }
   else if (!strcmp(message->getMessageID(), "SAMFUI")) // message from UI
   {
-    int64 messageTag;
-    int64 controlTag;
+    int64 msgTag;
+    int64 ctrlTag;
 
-    if (message->getAttributes()->getInt("MT", messageTag) == kResultOk && message->getAttributes()->getInt("CT", controlTag) == kResultOk)
+    if (message->getAttributes()->getInt("MT", msgTag) == kResultOk && message->getAttributes()->getInt("CT", ctrlTag) == kResultOk)
     {
       if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
       {
-        if(OnMessage((int) messageTag, (int) controlTag, size, data))
+        if(OnMessage((int) msgTag, (int) ctrlTag, size, data))
         {
           return kResultOk;
         }

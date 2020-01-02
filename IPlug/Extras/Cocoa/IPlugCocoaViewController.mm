@@ -31,12 +31,12 @@ using namespace iplug;
   //NO-OP
 }
 
-- (void) sendControlValueFromDelegate: (int) controlTag : (double) normalizedValue
+- (void) sendControlValueFromDelegate: (int) ctrlTag : (double) normalizedValue
 {
   //NO-OP
 }
 
-- (void) sendControlMsgFromDelegate: (int) controlTag : (int) msgTag : (int) dataSize : (const void*) pData
+- (void) sendControlMsgFromDelegate: (int) ctrlTag : (int) msgTag : (int) dataSize : (const void*) pData
 {
   //NO-OP
 }

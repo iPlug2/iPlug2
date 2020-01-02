@@ -140,21 +140,21 @@ void WebViewEditorDelegate::CloseWindow()
   [(ScriptHandler*) mScriptHandler release];
 }
 
-void WebViewEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
+void WebViewEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
 {
   WDL_String str;
-  str.SetFormatted(50, "SCVFD(%i, %f)", controlTag, normalizedValue);
+  str.SetFormatted(50, "SCVFD(%i, %f)", ctrlTag, normalizedValue);
   EvaluateJavaScript(str.Get());
 }
 
-void WebViewEditorDelegate::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
+void WebViewEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData)
 {
   WDL_String str;
   WDL_TypedBuf<char> base64;
   int sizeOfBase64 = 4 * std::ceil(((double) dataSize/3.));
   base64.Resize(sizeOfBase64);
   wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.GetFast(), dataSize);
-  str.SetFormatted(50, "SCMFD(%i, %i, %i, %s)", controlTag, messageTag, dataSize, base64.GetFast());
+  str.SetFormatted(50, "SCMFD(%i, %i, %i, %s)", ctrlTag, msgTag, dataSize, base64.GetFast());
   EvaluateJavaScript(str.Get());
 }
 
@@ -165,14 +165,14 @@ void WebViewEditorDelegate::SendParameterValueFromDelegate(int paramIdx, double 
   EvaluateJavaScript(str.Get());
 }
 
-void WebViewEditorDelegate::SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData)
+void WebViewEditorDelegate::SendArbitraryMsgFromDelegate(int msgTag, int dataSize, const void* pData)
 {
   WDL_String str;
   WDL_TypedBuf<char> base64;
   int sizeOfBase64 = 4 * std::ceil(((double) dataSize/3.));
   base64.Resize(sizeOfBase64);
   wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.GetFast(), dataSize);
-  str.SetFormatted(50, "SAMFD(%i, %i, %s)", messageTag, dataSize, base64.GetFast());
+  str.SetFormatted(50, "SAMFD(%i, %i, %s)", msgTag, dataSize, base64.GetFast());
   EvaluateJavaScript(str.Get());
 }
 

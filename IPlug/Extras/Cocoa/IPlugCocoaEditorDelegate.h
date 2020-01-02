@@ -15,12 +15,12 @@ public:
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override;
   
-  bool OnMessage(int messageTag, int ctrlTag, int dataSize, const void* pData) override;
+  bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
   void OnParamChangeUI(int paramIdx, EParamSource source) override;
   void OnMidiMsgUI(const IMidiMsg& msg) override;
   void OnSysexMsgUI(const ISysEx& msg) override;
   void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override;
-  void SendControlMsgFromDelegate(int ctrlTag, int messageTag, int dataSize, const void* pData) override;
+  void SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
 protected:
   void* mViewController = nullptr;

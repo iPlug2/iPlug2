@@ -48,13 +48,13 @@ void IPlugWebView::OnReset()
   mGainSmoother.SetSmoothTime(20., sr);
 }
 
-bool IPlugWebView::OnMessage(int messageTag, int controlTag, int dataSize, const void* pData)
+bool IPlugWebView::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
-  if(messageTag == kMsgTagButton1)
+  if(msgTag == kMsgTagButton1)
     Resize(512, 335);
-  else if(messageTag == kMsgTagButton2)
+  else if(msgTag == kMsgTagButton2)
     Resize(1024, 335);
-  else if(messageTag == kMsgTagButton3)
+  else if(msgTag == kMsgTagButton3)
     Resize(1024, 768);
 
   return false;

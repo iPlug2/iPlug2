@@ -1184,18 +1184,18 @@ public:
   
   /** Attach an IControl to the graphics context and add it to the top of the control stack. The control is owned by the graphics context and will be deleted when the context is deleted.
    * @param pControl A pointer to an IControl to attach.
-   * @param controlTag An integer tag that you can use to identify the control
+   * @param ctrlTag An integer tag that you can use to identify the control
    * @param group A CString that you can use to address controlled by group
    * @return The index of the control (and the number of controls in the stack) */
-  IControl* AttachControl(IControl* pControl, int controlTag = kNoTag, const char* group = "");
+  IControl* AttachControl(IControl* pControl, int ctrlTag = kNoTag, const char* group = "");
 
   /** @param idx The index of the control to get
    * @return A pointer to the IControl object at idx or nullptr if not found */
   IControl* GetControl(int idx) { return mControls.Get(idx); }
 
-  /** @param controlTag The tag to look for
+  /** @param ctrlTag The tag to look for
    * @return A pointer to the IControl object with the tag of nullptr if not found */
-  IControl* GetControlWithTag(int controlTag);
+  IControl* GetControlWithTag(int ctrlTag);
   
   /** Get a pointer to the IControl that is currently captured i.e. during dragging
    * @return Pointer to currently captured control */

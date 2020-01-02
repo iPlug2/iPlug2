@@ -41,8 +41,8 @@ public:
   void SetScreenScale(double scale) final;
 
   //The rest should be final, but the WebSocketEditorDelegate needs to override them
-  void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
-  void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) override;
+  void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override;
+  void SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize = 0, const void* pData = nullptr) override;
   void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
   int SetEditorData(const IByteChunk& data, int startPos) override;

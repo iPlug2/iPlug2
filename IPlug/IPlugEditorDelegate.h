@@ -140,7 +140,7 @@ public:
   virtual void OnSysexMsgUI(const ISysEx& msg) {};
   
   /** This could be implemented in either DSP or EDITOR to receive a message from the other one */
-  virtual bool OnMessage(int messageTag, int controlTag, int dataSize, const void* pData) { return false; }
+  virtual bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) { return false; }
   
   /** This is called by API classes after restoring state and by IPluginBase::RestorePreset(). Typically used to update user interface, where multiple parameter values have changed.
    * If you need to do something when state is restored you can override it
@@ -163,28 +163,28 @@ public:
    * In IGraphics plug-ins, this method is used to update controls in the user interface from a class implementing IEditorDelegate, when the control is not linked to a parameter.
    * A typical use case would be a meter control.
    * In OnIdle() your plug-in would call this method to update the IControl's value.
-   * @param controlTag A tag for the control
+   * @param ctrlTag A tag for the control
    * @param normalizedValue The normalised value to set the control to. This will modify IControl::mValue; */
-  virtual void SendControlValueFromDelegate(int controlTag, double normalizedValue) {};
+  virtual void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) {};
   
   /** SendControlMsgFromDelegate (Abbreviation: SCMFD)
    * WARNING: should not be called on the realtime audio thread.
    * This method can be used to send opaque data from a class implementing IEditorDelegate to a specific control in the user interface.
    * The message can be handled in the destination control via IControl::OnMsgFromDelegate
-   * @param controlTag A unique tag to identify the control that is the destination of the message
-   * @param messageTag A unique tag to identify the message
+   * @param ctrlTag A unique tag to identify the control that is the destination of the message
+   * @param msgTag A unique tag to identify the message
    * @param dataSize The size in bytes of the data payload pointed to by pData. Note: if this is nonzero, pData must be valid.
    * @param pData Ptr to the opaque data payload for the message */
-  virtual void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) { OnMessage(messageTag, controlTag, dataSize, pData); }
+  virtual void SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize = 0, const void* pData = nullptr) { OnMessage(msgTag, ctrlTag, dataSize, pData); }
   
   /** SendArbitraryMsgFromDelegate (Abbreviation: SAMFD)
    * WARNING: should not be called on the realtime audio thread.
    * This method can be used to send opaque data from a class implementing IEditorDelegate to the IEditorDelegate connected to the user interface
    * The message can be handled at the destination via IEditorDelegate::OnMessage()
-   * @param messageTag A unique tag to identify the message
+   * @param msgTag A unique tag to identify the message
    * @param dataSize The size in bytes of the data payload pointed to by pData. Note: if this is nonzero, pData must be valid.
    * @param pData Ptr to the opaque data payload for the message */
-  virtual void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) { OnMessage(messageTag, kNoTag, dataSize, pData); }
+  virtual void SendArbitraryMsgFromDelegate(int msgTag, int dataSize = 0, const void* pData = nullptr) { OnMessage(msgTag, kNoTag, dataSize, pData); }
   
   /** SendMidiMsgFromDelegate (Abbreviation: SMMFD)
    * WARNING: should not be called on the realtime audio thread.
@@ -264,11 +264,11 @@ public:
   virtual void SendSysexMsgFromUI(const ISysEx& msg) {};
   
   /** SendArbitraryMsgFromUI (Abbreviation: SAMFUI)
-  * @param messageTag A unique tag to identify the message
-  * @param controlTag A unique tag to identify the control that sent the message, if desired
+  * @param msgTag A unique tag to identify the message
+  * @param ctrlTag A unique tag to identify the control that sent the message, if desired
   * @param dataSize The size in bytes of the data payload pointed to by pData. Note: if this is nonzero, pData must be valid.
   * @param pData Ptr to the opaque data payload for the message */
-  virtual void SendArbitraryMsgFromUI(int messageTag, int controlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) {};
+  virtual void SendArbitraryMsgFromUI(int msgTag, int ctrlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) {};
   
 #pragma mark -
   /** This method is needed, for remote editors to avoid a feedback loop */

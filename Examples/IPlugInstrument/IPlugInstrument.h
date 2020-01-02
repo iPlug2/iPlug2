@@ -19,7 +19,7 @@ enum EParams
 // will use EParams in IPlugInstrument_DSP.h
 #include "IPlugInstrument_DSP.h"
 
-enum ECtrlTags
+enum EControlTags
 {
   kCtrlTagMeter = 0,
   kCtrlTagKeyboard,

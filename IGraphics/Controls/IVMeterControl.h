@@ -56,8 +56,8 @@ public:
   class Sender
   {
   public:
-    Sender(int controlTag)
-    : mControlTag(controlTag)
+    Sender(int ctrlTag)
+    : mCtrlTag(ctrlTag)
     {
     }
 
@@ -96,12 +96,12 @@ public:
       {
         Data d;
         mQueue.Pop(d);
-        dlg.SendControlMsgFromDelegate(mControlTag, kUpdateMessage, sizeof(Data), (void*) &d);
+        dlg.SendControlMsgFromDelegate(mCtrlTag, kUpdateMessage, sizeof(Data), (void*) &d);
       }
     }
 
   private:
-    int mControlTag;
+    int mCtrlTag;
     bool mPrevAboveThreshold = true;
     IPlugQueue<Data> mQueue {QUEUE_SIZE};
   };
@@ -124,7 +124,7 @@ public:
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   //  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 
-  void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override
+  void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
     IByteStream stream(pData, dataSize);
 

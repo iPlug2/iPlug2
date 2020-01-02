@@ -68,19 +68,19 @@ void IPlugSwift::ProcessMidiMsg(const IMidiMsg& msg)
   }
 }
 
-bool IPlugSwift::OnMessage(int messageTag, int controlTag, int dataSize, const void* pData)
+bool IPlugSwift::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
-  if(messageTag == kMsgTagHello)
+  if(msgTag == kMsgTagHello)
   {
     DBGMSG("MsgTagHello received\n");
     return true;
   }
-  else if(messageTag == kMsgTagRestorePreset)
+  else if(msgTag == kMsgTagRestorePreset)
   {
-    RestorePreset(controlTag);
+    RestorePreset(ctrlTag);
   }
   
-  return CocoaEditorDelegate::OnMessage(messageTag, controlTag, dataSize, pData);
+  return CocoaEditorDelegate::OnMessage(msgTag, ctrlTag, dataSize, pData);
 }
 
 void IPlugSwift::OnParamChange(int paramIdx)
