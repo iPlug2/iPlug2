@@ -37,8 +37,8 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # SKIA:
-      #   graphics: 'SKIA'
+      SKIA:
+        graphics: 'SKIA'
 
   pool:
     vmImage: 'macos-10.14'

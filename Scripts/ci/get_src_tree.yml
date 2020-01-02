@@ -13,6 +13,7 @@ jobs:
   - bash: |
       cd ./Dependencies/
       ./download-prebuilt-libs.sh mac
+      ./download-prebuilt-libs.sh ios
       ./download-prebuilt-libs.sh win
     displayName: Download Prebuilt IGraphics Dependencies
     condition: eq(variables.build_deps, false)

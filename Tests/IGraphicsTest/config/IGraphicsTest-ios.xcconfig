@@ -50,3 +50,6 @@ GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
 
 // Flags to pass to compiler for all builds
 GCC_CFLAGS = -Wno-write-strings
+
+// Currently to link skia it is nessecary to disabled bitcode
+ENABLE_BITCODE = YES
