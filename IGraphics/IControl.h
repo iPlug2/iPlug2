@@ -728,9 +728,11 @@ public:
       return mStyle.roundness * (bounds.H() / 2.f);
   }
   
-  void DrawSplash(IGraphics& g)
+  void DrawSplash(IGraphics& g, const IRECT& clipRegion = IRECT())
   {
+    g.PathClipRegion(clipRegion);
     g.FillCircle(GetColor(kHL), mSplashX, mSplashY, mSplashRadius);
+    g.PathClipRegion(IRECT());
   }
   
   virtual void DrawBackGround(IGraphics& g, const IRECT& rect)
@@ -796,6 +798,9 @@ public:
     if(mouseOver)
       g.FillCircle(GetColor(kHL), cx, cy, radius * 0.8f);
     
+    if(pressed && mControl->GetAnimationFunction())
+      DrawSplash(g);
+    
     if(mStyle.drawFrame)
       g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mStyle.frameThickness);
   }
@@ -812,6 +817,9 @@ public:
 
     if(mouseOver)
       g.FillEllipse(GetColor(kHL), bounds);
+    
+    if(pressed && mControl->GetAnimationFunction())
+      DrawSplash(g, bounds);
     
     if(mStyle.drawFrame)
       g.DrawEllipse(GetColor(kFR), bounds, nullptr, mStyle.frameThickness);
@@ -848,8 +856,8 @@ public:
     if(mouseOver)
       g.FillRoundRect(GetColor(kHL), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
     
-    if(mControl->GetAnimationFunction())
-      DrawSplash(g);
+    if(pressed && mControl->GetAnimationFunction())
+      DrawSplash(g, handleBounds);
     
     if(mStyle.drawFrame)
       g.DrawRoundRect(GetColor(kFR), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR, 0, mStyle.frameThickness);
@@ -899,7 +907,7 @@ public:
     if (mouseOver)
       g.FillTriangle(GetColor(kHL), x1, y1, x2, y2, x3, y3);
     
-    if (mControl->GetAnimationFunction())
+    if(pressed && mControl->GetAnimationFunction())
       DrawSplash(g);
     
     if (mStyle.drawFrame)
