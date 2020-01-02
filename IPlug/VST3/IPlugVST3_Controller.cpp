@@ -179,19 +179,19 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
   {
     const void* data;
     Steinberg::int64 ctrlTag = kNoTag;
-    Steinberg::int64 messageTag = kNoTag;
+    Steinberg::int64 msgTag = kNoTag;
 
     if(message->getAttributes()->getInt("CT", ctrlTag) == kResultFalse)
       return kResultFalse;
     
-    if(message->getAttributes()->getInt("MT", messageTag) == kResultFalse)
+    if(message->getAttributes()->getInt("MT", msgTag) == kResultFalse)
       return kResultFalse;
 
     Steinberg::uint32 size;
     
     if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
     {
-      SendControlMsgFromDelegate((int) ctrlTag, (int) messageTag, size, data);
+      SendControlMsgFromDelegate((int) ctrlTag, (int) msgTag, size, data);
       return kResultOk;
     }
   }
@@ -254,7 +254,7 @@ void IPlugVST3Controller::SendSysexMsgFromUI(const ISysEx& msg)
   sendMessage(message);
 }
 
-void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int ctrlTag, int dataSize, const void* pData)
+void IPlugVST3Controller::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -269,7 +269,7 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int ctrlTag, in
   }
   
   message->setMessageID("SAMFUI");
-  message->getAttributes()->setInt("MT", messageTag);
+  message->getAttributes()->setInt("MT", msgTag);
   message->getAttributes()->setInt("CT", ctrlTag);
   message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);

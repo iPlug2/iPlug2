@@ -101,7 +101,7 @@ void IGEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normaliz
   }
 }
 
-void IGEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int messageTag, int dataSize, const void* pData)
+void IGEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData)
 {
   if(!mGraphics)
     return;
@@ -114,7 +114,7 @@ void IGEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int messageTag, i
       
       if (pControl->GetTag() == ctrlTag)
       {
-        pControl->OnMsgFromDelegate(messageTag, dataSize, pData);
+        pControl->OnMsgFromDelegate(msgTag, dataSize, pData);
       }
     }
   }

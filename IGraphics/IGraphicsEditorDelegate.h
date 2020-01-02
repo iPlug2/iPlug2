@@ -42,7 +42,7 @@ public:
 
   //The rest should be final, but the WebSocketEditorDelegate needs to override them
   void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override;
-  void SendControlMsgFromDelegate(int ctrlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) override;
+  void SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize = 0, const void* pData = nullptr) override;
   void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
   int SetEditorData(const IByteChunk& data, int startPos) override;

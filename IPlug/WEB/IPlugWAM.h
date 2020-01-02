@@ -52,9 +52,9 @@ public:
   
   //IEditorDelegate - these are overwritten because we need to use WAM messaging system
   void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override;
-  void SendControlMsgFromDelegate(int ctrlTag, int messageTag, int dataSize, const void* pData) override;
+  void SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
-  void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
+  void SendArbitraryMsgFromDelegate(int msgTag, int dataSize = 0, const void* pData = nullptr) override;
   
 private:
   int mBlockCounter = 0;

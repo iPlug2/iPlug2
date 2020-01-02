@@ -124,7 +124,7 @@ public:
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   //  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 
-  void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override
+  void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
     IByteStream stream(pData, dataSize);
 

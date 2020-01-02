@@ -34,7 +34,7 @@ public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void OnReset() override;
   void OnIdle() override;
-  bool OnMessage(int messageTag, int ctrlTag, int dataSize, const void* pData) override;
+  bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
   void OnParamChange(int paramIdx) override;
 
 private:

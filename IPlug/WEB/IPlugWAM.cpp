@@ -122,14 +122,14 @@ void IPlugWAM::onMessage(char* verb, char* res, void* pData, uint32_t size)
   {
     int pos = 0;
     IByteStream stream(pData, size);
-    int messageTag;
+    int msgTag;
     int ctrlTag;
     int dataSize;
-    pos = stream.Get(&messageTag, pos);
+    pos = stream.Get(&msgTag, pos);
     pos = stream.Get(&ctrlTag, pos);
     pos = stream.Get(&dataSize, pos);
     
-    OnMessage(messageTag, ctrlTag, dataSize, stream.GetData() + (sizeof(int) * 3));
+    OnMessage(msgTag, ctrlTag, dataSize, stream.GetData() + (sizeof(int) * 3));
   }
   else if(strcmp(verb, "SSMFUI") == 0)
   {
@@ -187,10 +187,10 @@ void IPlugWAM::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
   postMessage("SCVFD", propStr.Get(), dataStr.Get());
 }
 
-void IPlugWAM::SendControlMsgFromDelegate(int ctrlTag, int messageTag, int dataSize, const void* pData)
+void IPlugWAM::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData)
 {
   WDL_String propStr;
-  propStr.SetFormatted(16, "%i:%i", ctrlTag, messageTag);
+  propStr.SetFormatted(16, "%i:%i", ctrlTag, msgTag);
   
   // TODO: in the future this will be done via shared array buffer
   postMessage("SCMFD", propStr.Get(), pData, (uint32_t) dataSize);
@@ -207,10 +207,10 @@ void IPlugWAM::SendParameterValueFromDelegate(int paramIdx, double value, bool n
   postMessage("SPVFD", propStr.Get(), dataStr.Get());
 }
 
-void IPlugWAM::SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData)
+void IPlugWAM::SendArbitraryMsgFromDelegate(int msgTag, int dataSize, const void* pData)
 {
   WDL_String propStr;
-  propStr.SetFormatted(16, "%i", messageTag);
+  propStr.SetFormatted(16, "%i", msgTag);
   
   // TODO: in the future this will be done via shared array buffer
   postMessage("SAMFD", propStr.Get(), pData, (uint32_t) dataSize);

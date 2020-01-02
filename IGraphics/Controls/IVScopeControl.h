@@ -189,7 +189,7 @@ public:
     SetDirty(false);
   }
 
-  void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override
+  void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
     IByteStream stream(pData, dataSize);
 
