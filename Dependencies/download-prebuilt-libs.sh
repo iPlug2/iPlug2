@@ -13,6 +13,9 @@ if [ "$1" == "" ]; then
 elif [ "$1" == "mac" ]; then
   ZIP_FILE=IPLUG2_DEPS_MAC
   FOLDER=mac
+elif [ "$1" == "ios" ]; then
+  ZIP_FILE=IPLUG2_DEPS_IOS
+  FOLDER=ios
 elif [ "$1" == "win" ]; then
   ZIP_FILE=IPLUG2_DEPS_WIN
   FOLDER=win
