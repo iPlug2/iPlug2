@@ -13,6 +13,7 @@ Pre-built macOS dependencies can be downloaded here: [IPLUG2_DEPS_MAC.zip](https
 and should be extracted so it looks like this...
 
 ```
+iPlug2/Dependencies/Build/src/
 iPlug2/Dependencies/Build/mac/
 iPlug2/Dependencies/Build/mac/bin
 iPlug2/Dependencies/Build/mac/include
@@ -20,11 +21,27 @@ iPlug2/Dependencies/Build/mac/lib
 iPlug2/Dependencies/Build/mac/share
 ```
 
-IGraphics static libraries (Cairo, libpng etc) are built as universal binaries (containing i386 and x64 architectures) and are built with MACOSX_DEPLOYMENT_TARGET=10.7
+## iOS
 
-FAUST dependencies are built as x64 only with MACOSX_DEPLOYMENT_TARGET=10.11
+Pre-built iOS dependencies can be downloaded here: [IPLUG2_DEPS_IOS.zip](https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_IOS.zip)
+
+and should be extracted so it looks like this...
+
+```
+iPlug2/Dependencies/Build/src/
+iPlug2/Dependencies/Build/ios/lib/arm64
+iPlug2/Dependencies/Build/ios/lib/x86
+
+```
 
 ## Windows
 
 Pre-built Windows dependencies can be downloaded here: [IPLUG2_DEPS_WIN.zip](https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_WIN.zip)
 
+```
+iPlug2/Dependencies/Build/src/
+iPlug2/Dependencies/Build/win/Debug/x86
+iPlug2/Dependencies/Build/win/Release/x86
+iPlug2/Dependencies/Build/win/Debug/x64
+iPlug2/Dependencies/Build/win/Release/x64
+```
