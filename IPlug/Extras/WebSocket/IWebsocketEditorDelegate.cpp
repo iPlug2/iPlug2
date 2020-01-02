@@ -89,21 +89,20 @@ void IWebsocketEditorDelegate::SendSysexMsgFromUI(const ISysEx& msg)
   IGEditorDelegate::SendSysexMsgFromUI(msg);
 }
 
-void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
+void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int messageTag, int ctrlTag, int dataSize, const void* pData)
 {
   IByteChunk data;
   data.PutStr("SSMFD");
   data.Put(&messageTag);
-  data.Put(&controlTag);
+  data.Put(&ctrlTag);
   data.Put(&dataSize);
   data.PutBytes(pData, dataSize);
   
   // Server side UI edit, send to clients
   SendDataToConnection(-1, data.GetData(), data.Size());
   
-  IGEditorDelegate::SendArbitraryMsgFromUI(messageTag, controlTag, dataSize, pData);
+  IGEditorDelegate::SendArbitraryMsgFromUI(messageTag, ctrlTag, dataSize, pData);
 }
-
 
 //void IWebsocketEditorDelegate::BeginInformHostOfParamChangeFromUI(int paramIdx)
 //{
@@ -121,30 +120,30 @@ void IWebsocketEditorDelegate::SendParameterValueFromUI(int paramIdx, double val
 //  IGEditorDelegate::EndInformHostOfParamChangeFromUI(paramIdx);
 //}
 
-void IWebsocketEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
+void IWebsocketEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
 {
   IByteChunk data;
   data.PutStr("SCVFD");
-  data.Put(&controlTag);
+  data.Put(&ctrlTag);
   data.Put(&normalizedValue);
   
   SendDataToConnection(-1, data.GetData(), data.Size());
   
-  IGEditorDelegate::SendControlValueFromDelegate(controlTag, normalizedValue);
+  IGEditorDelegate::SendControlValueFromDelegate(ctrlTag, normalizedValue);
 }
 
-void IWebsocketEditorDelegate::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
+void IWebsocketEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int messageTag, int dataSize, const void* pData)
 {
   IByteChunk data;
   data.PutStr("SCMFD");
-  data.Put(&controlTag);
+  data.Put(&ctrlTag);
   data.Put(&messageTag);
   data.Put(&dataSize);
   data.PutBytes(pData, dataSize);
   
   SendDataToConnection(-1, data.GetData(), data.Size());
   
-  IGEditorDelegate::SendControlMsgFromDelegate(controlTag, messageTag, dataSize, pData);
+  IGEditorDelegate::SendControlMsgFromDelegate(ctrlTag, messageTag, dataSize, pData);
 }
 
 void IWebsocketEditorDelegate::SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData)

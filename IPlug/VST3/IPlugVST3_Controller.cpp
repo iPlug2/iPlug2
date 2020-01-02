@@ -163,25 +163,25 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
   
   if (!strcmp(message->getMessageID(), "SCVFD"))
   {
-    Steinberg::int64 controlTag = kNoTag;
+    Steinberg::int64 ctrlTag = kNoTag;
     double normalizedValue = 0.;
     
-    if(message->getAttributes()->getInt("CT", controlTag) == kResultFalse)
+    if(message->getAttributes()->getInt("CT", ctrlTag) == kResultFalse)
       return kResultFalse;
     
     if(message->getAttributes()->getFloat("NV", normalizedValue) == kResultFalse)
       return kResultFalse;
     
-    SendControlValueFromDelegate((int) controlTag, normalizedValue);
+    SendControlValueFromDelegate((int) ctrlTag, normalizedValue);
 
   }
   else if (!strcmp(message->getMessageID(), "SCMFD"))
   {
     const void* data;
-    Steinberg::int64 controlTag = kNoTag;
+    Steinberg::int64 ctrlTag = kNoTag;
     Steinberg::int64 messageTag = kNoTag;
 
-    if(message->getAttributes()->getInt("CT", controlTag) == kResultFalse)
+    if(message->getAttributes()->getInt("CT", ctrlTag) == kResultFalse)
       return kResultFalse;
     
     if(message->getAttributes()->getInt("MT", messageTag) == kResultFalse)
@@ -191,7 +191,7 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
     
     if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
     {
-      SendControlMsgFromDelegate((int) controlTag, (int) messageTag, size, data);
+      SendControlMsgFromDelegate((int) ctrlTag, (int) messageTag, size, data);
       return kResultOk;
     }
   }
@@ -254,7 +254,7 @@ void IPlugVST3Controller::SendSysexMsgFromUI(const ISysEx& msg)
   sendMessage(message);
 }
 
-void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
+void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int ctrlTag, int dataSize, const void* pData)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -270,7 +270,7 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int controlTag,
   
   message->setMessageID("SAMFUI");
   message->getAttributes()->setInt("MT", messageTag);
-  message->getAttributes()->setInt("CT", controlTag);
+  message->getAttributes()->setInt("CT", ctrlTag);
   message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);
 }

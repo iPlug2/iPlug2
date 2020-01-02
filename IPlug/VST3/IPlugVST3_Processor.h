@@ -59,8 +59,8 @@ public:
   Steinberg::tresult PLUGIN_API getState(Steinberg::IBStream* pState) override;
   
   // IEditorDelegate - these methods are overridden because we need to hook into VST3 messaging system
-  void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
-  void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
+  void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override;
+  void SendControlMsgFromDelegate(int ctrlTag, int messageTag, int dataSize, const void* pData) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override {} // NOOP in VST3 processor -> param change gets there via IPlugVST3Controller::setParamNormalized
   void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   

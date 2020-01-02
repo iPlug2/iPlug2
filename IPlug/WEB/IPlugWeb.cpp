@@ -100,13 +100,13 @@ void IPlugWeb::SendSysexMsgFromUI(const ISysEx& msg)
 // #endif
 }
 
-void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
+void IPlugWeb::SendArbitraryMsgFromUI(int messageTag, int ctrlTag, int dataSize, const void* pData)
 {
   mSAMFUIBuf.Resize(kNumSAMFUIBytes + dataSize);
   int pos = kNumMsgHeaderBytes;
 
   *((int*)(mSAMFUIBuf.GetData() + pos)) = messageTag; pos += sizeof(int);
-  *((int*)(mSAMFUIBuf.GetData() + pos)) = controlTag; pos += sizeof(int);
+  *((int*)(mSAMFUIBuf.GetData() + pos)) = ctrlTag; pos += sizeof(int);
   *((int*)(mSAMFUIBuf.GetData() + pos)) = dataSize; pos += sizeof(int);
 
   memcpy(mSAMFUIBuf.GetData() + pos, pData, dataSize);
@@ -133,15 +133,15 @@ static void _SendArbitraryMsgFromDelegate(int messageTag, int dataSize, uintptr_
   gPlug->SendArbitraryMsgFromDelegate(messageTag, dataSize, pDataPtr);
 }
 
-static void _SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, uintptr_t pData)
+static void _SendControlMsgFromDelegate(int ctrlTag, int messageTag, int dataSize, uintptr_t pData)
 {
   const uint8_t* pDataPtr = reinterpret_cast<uint8_t*>(pData); // embind doesn't allow us to pass raw pointers
-  gPlug->SendControlMsgFromDelegate(controlTag, messageTag, dataSize, pDataPtr);
+  gPlug->SendControlMsgFromDelegate(ctrlTag, messageTag, dataSize, pDataPtr);
 }
 
-static void _SendControlValueFromDelegate(int controlTag, double normalizedValue)
+static void _SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
 {
-  gPlug->SendControlValueFromDelegate(controlTag, normalizedValue);
+  gPlug->SendControlValueFromDelegate(ctrlTag, normalizedValue);
 }
 
 static void _SendParameterValueFromDelegate(int paramIdx, double normalizedValue)

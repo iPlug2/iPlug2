@@ -30,13 +30,13 @@ public:
   //IEditorDelegate
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(const ISysEx& msg) override;
-  void SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData) override;
+  void SendArbitraryMsgFromUI(int messageTag, int ctrlTag, int dataSize, const void* pData) override;
 //void BeginInformHostOfParamChangeFromUI(int paramIdx) override;
   void SendParameterValueFromUI(int paramIdx, double normalizedValue) override;
 //void EndInformHostOfParamChangeFromUI(int paramIdx) override;
 
-  void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
-  void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
+  void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override;
+  void SendControlMsgFromDelegate(int ctrlTag, int messageTag, int dataSize, const void* pData) override;
   void SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData) override;
   void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
   void SendSysexMsgFromDelegate(const ISysEx& msg) override;

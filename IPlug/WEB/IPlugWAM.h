@@ -51,8 +51,8 @@ public:
   bool SendSysEx(const ISysEx& msg) override { return false; }
   
   //IEditorDelegate - these are overwritten because we need to use WAM messaging system
-  void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
-  void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
+  void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override;
+  void SendControlMsgFromDelegate(int ctrlTag, int messageTag, int dataSize, const void* pData) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
   void SendArbitraryMsgFromDelegate(int messageTag, int dataSize = 0, const void* pData = nullptr) override;
   

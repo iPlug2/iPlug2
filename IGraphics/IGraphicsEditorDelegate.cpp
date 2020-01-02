@@ -82,18 +82,18 @@ int IGEditorDelegate::SetEditorData(const IByteChunk& data, int startPos)
   return endPos;
 }
 
-void IGEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
+void IGEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
 {
   if(!mGraphics)
     return;
 
-  if (controlTag > kNoTag)
+  if (ctrlTag > kNoTag)
   {
     for (auto c = 0; c < mGraphics->NControls(); c++)
     {
       IControl* pControl = mGraphics->GetControl(c);
       
-      if (pControl->GetTag() == controlTag)
+      if (pControl->GetTag() == ctrlTag)
       {
         pControl->SetValueFromDelegate(normalizedValue);
       }
@@ -101,18 +101,18 @@ void IGEditorDelegate::SendControlValueFromDelegate(int controlTag, double norma
   }
 }
 
-void IGEditorDelegate::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
+void IGEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int messageTag, int dataSize, const void* pData)
 {
   if(!mGraphics)
     return;
   
-  if (controlTag > kNoTag)
+  if (ctrlTag > kNoTag)
   {
     for (auto c = 0; c < mGraphics->NControls(); c++)
     {
       IControl* pControl = mGraphics->GetControl(c);
       
-      if (pControl->GetTag() == controlTag)
+      if (pControl->GetTag() == ctrlTag)
       {
         pControl->OnMsgFromDelegate(messageTag, dataSize, pData);
       }
