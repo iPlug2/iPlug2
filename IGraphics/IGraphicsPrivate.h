@@ -15,7 +15,9 @@
  * @{
  */
 
+#include <codecvt>
 #include <string>
+#include <memory>
 
 #include "mutex.h"
 #include "wdlstring.h"
@@ -23,7 +25,14 @@
 #include "ptrlist.h"
 #include "heapbuf.h"
 
-#include "nanosvg.h"
+#ifdef IGRAPHICS_SKIA
+  #include "experimental/svg/model/SkSVGDOM.h"
+  #include "include/core/SkCanvas.h"
+  #include "include/core/SkStream.h"
+  #include "src/xml/SkDOM.h"
+#else
+  #include "nanosvg.h"
+#endif
 
 #include "IPlugPlatform.h"
 
@@ -67,7 +76,6 @@
   #define FONT_DESCRIPTOR_TYPE CTFontDescriptorRef
 #elif defined OS_WIN
   #include "wingdi.h"
-  #include "Stringapiset.h"
   #define FONT_DESCRIPTOR_TYPE HFONT
 #elif defined OS_WEB
   #define FONT_DESCRIPTOR_TYPE std::pair<WDL_String, WDL_String>*
@@ -174,8 +182,8 @@ public:
       {
         mUnitsPerEM = GetUInt16(mHeadLocation + 18);
         mMacStyle = GetUInt16(mHeadLocation + 44);
-        mFamily = GetFontString(1);
-        mStyle = GetFontString(2);
+        mFamily = SearchFontString(1);
+        mStyle = SearchFontString(2);
         mAscender = GetSInt16(mHheaLocation + 4);
         mDescender = GetSInt16(mHheaLocation + 6);
         mLineGap = GetSInt16(mHheaLocation + 8);
@@ -183,7 +191,7 @@ public:
     }
   }
   
-  bool IsValid() const       { return mData && mHeadLocation && mNameLocation && mHheaLocation; }
+  bool IsValid() const      { return mData && mHeadLocation && mNameLocation && mHheaLocation; }
   
   const WDL_String& GetFamily() const   { return mFamily; }
   const WDL_String& GetStyle() const    { return mStyle; }
@@ -205,6 +213,9 @@ public:
   int16_t GetLineHeight() const  { return (mAscender - mDescender) + mLineGap; }
   
 private:
+    
+  enum class EStringID { Mac, Windows };
+    
   bool MatchTag(uint32_t loc, const char* tag)
   {
     return mData[loc+0] == tag[0] && mData[loc+1] == tag[1] && mData[loc+2] == tag[2] && mData[loc+3] == tag[3];
@@ -224,17 +235,35 @@ private:
     return 0;
   }
   
-  WDL_String GetFontString(int nameID)
+  WDL_String SearchFontString(int nameID)
   {
-#ifdef OS_WIN
+    WDL_String str = GetFontString(nameID, EStringID::Windows);
+    
+    if (str.GetLength())
+      return str;
+    
+    return GetFontString(nameID, EStringID::Mac);
+  }
+    
+  WDL_String GetFontString(int nameID, EStringID stringID)
+  {
+    // Default to windows values
+      
     int platformID = 3;
     int encodingID = 1;
     int languageID = 0x409;
-#else
-    int platformID = 1;
-    int encodingID = 0;
-    int languageID = 0;
-#endif
+      
+    switch (stringID)
+    {
+      case EStringID::Mac:
+        platformID = 1;
+        encodingID = 0;
+        languageID = 0;
+        break;
+            
+      case EStringID::Windows:
+        break;
+    }
     
     for (uint16_t i = 0; i < GetUInt16(mNameLocation + 2); ++i)
     {
@@ -246,22 +275,31 @@ private:
         uint32_t stringLocation = GetUInt16(mNameLocation + 4) + GetUInt16(loc + 10);
         uint16_t length = GetUInt16(loc + 8);
         
-#ifdef OS_WIN
-        WDL_TypedBuf<WCHAR> utf16;
-        WDL_TypedBuf<char> utf8;
-        
-        utf16.Resize(length / sizeof(WCHAR));
-        
-        for (int j = 0; j < length; j++)
-          utf16.Get()[j] = GetUInt16(mNameLocation + stringLocation + j * 2);
-        
-        int convertedLength = WideCharToMultiByte(CP_UTF8, 0, utf16.Get(), utf16.GetSize(), 0, 0, NULL, NULL);
-        utf8.Resize(convertedLength);
-        WideCharToMultiByte(CP_UTF8, 0, utf16.Get(), utf16.GetSize(), utf8.Get(), utf8.GetSize(), NULL, NULL);
-        return WDL_String(utf8.Get(), convertedLength);
-#else
-        return WDL_String((const char*)(mData + mNameLocation + stringLocation), length);
-#endif
+        switch (stringID)
+        {
+          case EStringID::Windows:
+          {
+            WDL_TypedBuf<char> utf8;
+            WDL_TypedBuf<char16_t> utf16;
+            utf8.Resize((length * 3) / 2);
+            utf16.Resize(length / sizeof(char16_t));
+            
+            for (int j = 0; j < length; j++)
+              utf16.Get()[j] = GetUInt16(mNameLocation + stringLocation + j * 2);
+            
+            std::codecvt_utf8_utf16<char16_t> conv;
+            const char16_t *a;
+            char *b;
+            mbstate_t mbs;
+            memset(&mbs, 0, sizeof(mbs));
+            conv.out(mbs, utf16.Get(), utf16.Get() + utf16.GetSize(), a, utf8.Get(), utf8.Get() + utf8.GetSize(), b);
+            
+            return WDL_String(utf8.Get(), (int) (b - utf8.Get()));
+          }
+            
+          case EStringID::Mac:
+             return WDL_String((const char*)(mData + mNameLocation + stringLocation), length);
+        }
       }
     }
     
@@ -398,12 +436,12 @@ protected:
       IFontInfo fontInfo(data, dataSize, idx);
       
       if (!fontInfo.IsValid())
-      return -1;
+        return -1;
       
       const WDL_String& style = fontInfo.GetStyle();
       
       if (style.GetLength() && (!styleName[0] || !strcmp(style.Get(), styleName)))
-      return idx;
+        return idx;
     }
   }
 
@@ -412,11 +450,28 @@ protected:
 
 using PlatformFontPtr = std::unique_ptr<PlatformFont>;
 
+#ifdef IGRAPHICS_SKIA
+struct SVGHolder
+{
+  SVGHolder(sk_sp<SkSVGDOM> svgDom)
+  : mSVGDom(svgDom)
+  {
+  }
+  
+  ~SVGHolder()
+  {
+    mSVGDom = nullptr;
+  }
+  
+  SVGHolder(const SVGHolder&) = delete;
+  SVGHolder& operator=(const SVGHolder&) = delete;
+  
+  sk_sp<SkSVGDOM> mSVGDom;
+};
+#else
 /** Used internally to manage SVG data*/
 struct SVGHolder
 {
-  NSVGimage* mImage = nullptr;
-  
   SVGHolder(NSVGimage* pImage)
   : mImage(pImage)
   {
@@ -432,7 +487,10 @@ struct SVGHolder
   
   SVGHolder(const SVGHolder&) = delete;
   SVGHolder& operator=(const SVGHolder&) = delete;
+  
+  NSVGimage* mImage = nullptr;
 };
+#endif
 
 /** Used internally to store data statically, making sure memory is not wasted when there are multiple plug-in instances loaded */
 template <class T>
@@ -567,6 +625,17 @@ private:
   WDL_Mutex mMutex;
   WDL_PtrList<DataKey> mDatas;
 };
+
+struct Vec2
+{
+  float x, y;
+  Vec2() = default;
+  Vec2(float x, float y) : x(x), y(y) {}
+  
+  Vec2 operator-(const Vec2 b) { return Vec2{x-b.x, y-b.y}; }
+  Vec2 operator+(const Vec2 b) { return Vec2{x+b.x, y+b.y}; }
+};
+
 
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE

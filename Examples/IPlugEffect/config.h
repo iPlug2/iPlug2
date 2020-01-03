@@ -13,6 +13,8 @@
 #define BUNDLE_MFR "AcmeInc"
 #define BUNDLE_DOMAIN "com"
 
+#define SHARED_RESOURCES_SUBPATH "IPlugEffect"
+
 #define PLUG_CHANNEL_IO "2-2"
 
 #define PLUG_LATENCY 0

@@ -58,22 +58,26 @@ public:
       IControl* pControl = GetUI()->GetControl(c);
       mMouseDownRECT = pControl->GetRECT();
       mMouseDownTargetRECT = pControl->GetTargetRECT();
-      mClickedOnControl = c;
       
-      if(GetHandleRect(mMouseDownRECT).Contains(x, y))
+      if(mod.A)
       {
-        mMouseClickedOnResizeHandle = true;
+        GetUI()->AttachControl(new PlaceHolder(mMouseDownRECT));
+        mClickedOnControl = GetUI()->NControls() - 1;
+        mMouseClickedOnResizeHandle = false;
       }
-      
-      //TODO: add control?
+      else
+      {
+        mClickedOnControl = c;
+        
+        if(GetHandleRect(mMouseDownRECT).Contains(x, y))
+        {
+          mMouseClickedOnResizeHandle = true;
+        }
+      }
     }
     else if(mod.R)
     {
-//      IPopupMenu menu;
-//      menu.AddItem("IBitmapControl");
-//      menu.AddItem("IVKnobControl");
-//      
-//      GetUI()->CreatePopupMenu(menu, x, y);
+      GetUI()->CreatePopupMenu(*this, mRightClickMenu, x, y);
     }
   }
   
@@ -156,6 +160,25 @@ public:
     }
   }
   
+  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override
+  {
+    if(pSelectedMenu)
+    {
+      auto idx = pSelectedMenu->GetChosenItemIdx();
+      float x, y;
+      GetUI()->GetMouseDownPoint(x, y);
+      IRECT b = IRECT(x, y, x + 100.f, y + 100.f);
+      
+      switch(idx)
+      {
+        case 0 : GetUI()->AttachControl(new PlaceHolder(b)); break;
+        case 1 : GetUI()->AttachControl(new IVKnobControl(b, nullptr)); break;
+        case 2 : GetUI()->AttachControl(new IVSliderControl(b, nullptr)); break;
+        default: break;
+      }
+    }
+  }
+  
   void Draw(IGraphics& g) override
   {
     g.DrawGrid(mGridColor, g.GetBounds(), mGridSize, mGridSize, &BLEND_25);
@@ -168,7 +191,7 @@ public:
       
       if(pControl->IsHidden())
         g.DrawDottedRect(COLOR_RED, cr);
-      else if(pControl->IsGrayed())
+      else if(pControl->IsDisabled())
         g.DrawDottedRect(COLOR_GREEN, cr);
       else
         g.DrawDottedRect(COLOR_BLUE, cr);
@@ -201,6 +224,7 @@ public:
   }
 
 private:
+  IPopupMenu mRightClickMenu {"Add an item", {"Add Place Holder", "Add IVKnobControl", "Add IVButtonControl"}};
   bool mMouseOversEnabled;
 //  bool mEditModeActive = false;
 //  bool mLiveEditingEnabled = false;

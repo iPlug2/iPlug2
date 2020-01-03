@@ -224,17 +224,17 @@
   {
     //create persistent data file system and synchronise
     EM_ASM(
-           var name = '/' + UTF8ToString($0) + '_data';
-           FS.mkdir(name);
-           FS.mount(IDBFS, {}, name);
+          //  var name = '/' + UTF8ToString($0) + '_data';
+          //  FS.mkdir(name);
+          //  FS.mount(IDBFS, {}, name);
 
-           Module.syncdone = 0;
-           FS.syncfs(true, function (err) {
-            assert(!err);
-            console.log("Synced from IDBFS...");
+          //  Module.syncdone = 0;
+          //  FS.syncfs(true, function (err) {
+          //   assert(!err);
+          //   console.log("Synced from IDBFS...");
             Module.syncdone = 1;
             ccall('iplug_fsready', 'v');
-          });
+          // });
         , PLUG_NAME);
 
     StartMainLoopTimer();
@@ -290,7 +290,7 @@ Steinberg::FUnknown* MakeController()
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
   IPlugVST3Controller::InstanceInfo info;
-  info.mOtherGUID = FUID(PROC_GUID1, PROC_GUID2, VST3_GUID3, VST3_GUID4);
+  info.mOtherGUID = Steinberg::FUID(PROC_GUID1, PROC_GUID2, VST3_GUID3, VST3_GUID4);
   //If you are trying to build a distributed VST3 plug-in and you hit an error here "no matching constructor...",
   //you need to replace all instances of PLUG_CLASS_NAME in your plug-in class, with the macro PLUG_CLASS_NAME
   return static_cast<Steinberg::Vst::IEditController*>(new PLUG_CLASS_NAME(info));

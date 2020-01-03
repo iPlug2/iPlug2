@@ -7,12 +7,12 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      CAIRO:
-        graphics: 'CAIRO'
-      LICE:
-        graphics: 'LICE'
-      AGG:
-        graphics: 'AGG'
+      # CAIRO:
+      #   graphics: 'CAIRO'
+      # LICE:
+      #   graphics: 'LICE'
+      # AGG:
+      #   graphics: 'AGG'
       SKIA:
         graphics: 'SKIA'
 
@@ -29,6 +29,30 @@ jobs:
       platform: build_project-mac.yml
       graphics: $(graphics)
 
+- job: BUILD_IOS_PROJECTS
+  condition: and(eq(variables.build_deps, false), eq(variables.build_ios, true))
+  dependsOn: GET_SRC_TREE
+
+  strategy:
+    matrix:
+      NANOVG:
+        graphics: 'NANOVG'
+      SKIA:
+        graphics: 'SKIA'
+
+  pool:
+    vmImage: 'macos-10.14'
+
+  steps:
+  - checkout: none
+
+  - template: get_src_artifact.yml
+
+  - template: projects.yml
+    parameters:
+      platform: build_project-ios.yml
+      graphics: $(graphics)
+
 - job: BUILD_WIN_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_win, true))
   dependsOn:
@@ -40,28 +64,28 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      CAIRO:
-        graphics: 'CAIRO'
-      LICE:
-        graphics: 'LICE'
-      AGG:
-        graphics: 'AGG'
+      # CAIRO:
+      #   graphics: 'CAIRO'
+      # LICE:
+      #   graphics: 'LICE'
+      # AGG:
+      #   graphics: 'AGG'
       SKIA:
         graphics: 'SKIA'
 
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'windows-2019'
 
   steps:
   - checkout: none
 
   - template: get_src_artifact.yml
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_AAX_LIB_WIN'
-      targetPath: 'Dependencies/IPlug/AAX_SDK/Libs/'
-    condition: eq(variables.build_aax, true)
+  # - task: DownloadPipelineArtifact@0
+  #   inputs:
+  #     artifactName: 'DEPS_AAX_LIB_WIN'
+  #     targetPath: 'Dependencies/IPlug/AAX_SDK/Libs/'
+  #   condition: eq(variables.build_aax, true)
 
   - template: projects.yml
     parameters:
@@ -88,8 +112,8 @@ jobs:
   - bash: |
       git clone https://github.com/emscripten-core/emsdk.git
       cd emsdk
-      ./emsdk install sdk-1.38.28-64bit
-      ./emsdk activate sdk-1.38.28-64bit
+      ./emsdk install 1.39.3 
+      ./emsdk activate 1.39.3
     displayName: Install emscripten
 
   - template: get_src_artifact.yml

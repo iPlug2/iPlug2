@@ -3,7 +3,8 @@
 #include "IPlugPlatform.h"
 #include "IGraphicsPathBase.h"
 
-#if defined IGRAPHICS_METAL
+// N.B. - this must be defined according to the skia build, not the iPlug build
+#if defined OS_MAC || defined OS_IOS
 #define SK_METAL
 #endif
 
@@ -40,17 +41,17 @@ public:
   void PathClose() override { mMainPath.close(); }
   void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding) override;
 
-  void PathMoveTo(float x, float y) override { mMainPath.moveTo(x, y); }
-  void PathLineTo(float x, float y) override { mMainPath.lineTo(x, y); }
+  void PathMoveTo(float x, float y) override { mMainPath.moveTo(mMatrix.mapXY(x, y)); }
+  void PathLineTo(float x, float y) override { mMainPath.lineTo(mMatrix.mapXY(x, y)); }
 
   void PathCubicBezierTo(float x1, float y1, float x2, float y2, float x3, float y3) override
   {
-    mMainPath.cubicTo({x1, y1}, {x2, y2}, {x3, y3});
+    mMainPath.cubicTo(mMatrix.mapXY(x1, y1), mMatrix.mapXY(x2, y2), mMatrix.mapXY(x3, y3));
   }
     
   void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) override
   {
-    mMainPath.quadTo({cx, cy}, {x2, y2});
+    mMainPath.quadTo(mMatrix.mapXY(cx, cy), mMatrix.mapXY(x2, y2));
   }
     
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
@@ -63,8 +64,6 @@ public:
   int AlphaChannel() const override { return 3; }
   bool FlippedBitmap() const override { return false; }
 
-  void ReleaseBitmap(const IBitmap& bitmap) override { } // NO-OP
-  void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { } // NO-OP
   APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
 
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
@@ -86,12 +85,15 @@ private:
 
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
+    
+  void RenderPath(SkPaint& paint);
+    
   sk_sp<SkSurface> mSurface;
   sk_sp<SkSurface> mScreenSurface;
   SkCanvas* mCanvas = nullptr;
   sk_sp<GrContext> mGrContext;
-  std::unique_ptr<GrBackendRenderTarget> mBackendRenderTarget;
   SkPath mMainPath;
+  SkMatrix mMatrix;
 
 #if defined OS_WIN && defined IGRAPHICS_CPU
   WDL_TypedBuf<uint8_t> mSurfaceMemory;

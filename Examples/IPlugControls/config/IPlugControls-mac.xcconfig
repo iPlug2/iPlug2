@@ -4,6 +4,7 @@
 // If you want to build your project "out of source", you can change IPLUG2_ROOT and the path to common-mac.xcconfig
 
 IPLUG2_ROOT = ../../..
+
 #include "../../../common-mac.xcconfig"
 
 //------------------------------

@@ -478,7 +478,7 @@
 				<key>CONCLUSION_ACTION</key>
 				<integer>0</integer>
 				<key>IDENTIFIER</key>
-				<string>com.OliLarkin.app.pkg.IPlugWebView</string>
+				<string>com.AcmeInc.app.pkg.IPlugWebView</string>
 				<key>NAME</key>
 				<string>Application</string>
 				<key>OVERWRITE_PERMISSIONS</key>
@@ -1014,7 +1014,7 @@
 				<key>CONCLUSION_ACTION</key>
 				<integer>0</integer>
 				<key>IDENTIFIER</key>
-				<string>com.OliLarkin.vst.pkg.IPlugWebView</string>
+				<string>com.AcmeInc.vst.pkg.IPlugWebView</string>
 				<key>LOCATION</key>
 				<integer>0</integer>
 				<key>NAME</key>
@@ -1554,7 +1554,7 @@
 				<key>CONCLUSION_ACTION</key>
 				<integer>0</integer>
 				<key>IDENTIFIER</key>
-				<string>com.OliLarkin.vst3.pkg.IPlugWebView</string>
+				<string>com.AcmeInc.vst3.pkg.IPlugWebView</string>
 				<key>LOCATION</key>
 				<integer>0</integer>
 				<key>NAME</key>
@@ -2094,7 +2094,7 @@
 				<key>CONCLUSION_ACTION</key>
 				<integer>0</integer>
 				<key>IDENTIFIER</key>
-				<string>com.OliLarkin.au.pkg.IPlugWebView</string>
+				<string>com.AcmeInc.au.pkg.IPlugWebView</string>
 				<key>LOCATION</key>
 				<integer>0</integer>
 				<key>NAME</key>
@@ -2634,7 +2634,7 @@
 				<key>CONCLUSION_ACTION</key>
 				<integer>0</integer>
 				<key>IDENTIFIER</key>
-				<string>com.OliLarkin.aax.pkg.IPlugWebView</string>
+				<string>com.AcmeInc.aax.pkg.IPlugWebView</string>
 				<key>LOCATION</key>
 				<integer>0</integer>
 				<key>NAME</key>

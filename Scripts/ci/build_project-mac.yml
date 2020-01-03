@@ -42,7 +42,7 @@ steps:
       if [ $graphics = "LICE" ]
       then
         cd ./${{parameters.path}}/${{parameters.name}}/config
-        sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_LICE/' ${{parameters.name}}-mac.xcconfig
+        sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_LICE SWELL_NO_METAL/' ${{parameters.name}}-mac.xcconfig
         sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{parameters.name}}-mac.xcconfig
       elif [ $graphics = "CAIRO" ]
       then
@@ -57,58 +57,58 @@ steps:
       elif [ $graphics = "SKIA" ]
       then
         cd ./${{parameters.path}}/${{parameters.name}}/config
-        sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_SKIA IGRAPHICS_GL2/' ${{parameters.name}}-mac.xcconfig
+        sed -i.bu 's/IGRAPHICS_NANOVG/IGRAPHICS_SKIA/' ${{parameters.name}}-mac.xcconfig
         sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{parameters.name}}-mac.xcconfig
       fi
     displayName: Set graphics string to ${{parameters.graphics}}
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.13'
+      sdk: 'macosx10.14'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target VST2 -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
-      xcodeVersion: '9'
+      xcodeVersion: '10'
     condition: eq(variables.build_vst2, True)
     displayName: Build Xcode project VST2 Scheme
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.13'
+      sdk: 'macosx10.14'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target VST3 -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
-      xcodeVersion: '9'
+      xcodeVersion: '10'
     condition: eq(variables.build_vst3, True)
     displayName: Build Xcode project VST3 Scheme
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.13'
+      sdk: 'macosx10.14'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target AAX -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: '${{parameters.configuration}}'
-      xcodeVersion: '9'
+      xcodeVersion: '10'
     condition: eq(variables.build_aax, True)
     displayName: Build Xcode project AAX Scheme
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.13'
+      sdk: 'macosx10.14'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target AU -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
-      xcodeVersion: '9'
+      xcodeVersion: '10'
     condition: eq(variables.build_auv2, True)
     displayName: Build Xcode project AUv2 Scheme
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.13'
+      sdk: 'macosx10.14'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target APP -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
-      xcodeVersion: '9'
+      xcodeVersion: '10'
       signingOption: 'manual'
       signingIdentity: $(APPLE_CERTIFICATE_SIGNING_IDENTITY)
 

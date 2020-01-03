@@ -14,6 +14,7 @@
 #define BUNDLE_DOMAIN "com"
 
 #define PLUG_CHANNEL_IO "0-0"
+#define SHARED_RESOURCES_SUBPATH "IPlugMidiEffect"
 
 #define PLUG_LATENCY 0
 #define PLUG_TYPE 2

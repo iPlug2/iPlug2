@@ -34,17 +34,15 @@ IPlugAPPHost::IPlugAPPHost()
 
 IPlugAPPHost::~IPlugAPPHost()
 {
+  mExiting = true;
+  
+  CloseAudio();
+  
   if(mMidiIn)
     mMidiIn->cancelCallback();
 
   if(mMidiOut)
     mMidiOut->closePort();
-  
-  if(mDAC)
-  {
-    if(mDAC->isStreamOpen())
-      mDAC->abortStream();
-  }
 }
 
 //static
@@ -366,13 +364,10 @@ bool IPlugAPPHost::MIDISettingsInStateAreEqual(AppState& os, AppState& ns)
 
 bool IPlugAPPHost::TryToChangeAudioDriverType()
 {
+  CloseAudio();
+  
   if (mDAC)
   {
-    if (mDAC->isStreamOpen())
-    {
-      mDAC->closeStream();
-    }
-
     mDAC = nullptr;
   }
 
@@ -553,12 +548,17 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
   return false;
 }
 
-bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_t iovs)
-{  
-  if (mDAC->isStreamOpen())
+void IPlugAPPHost::CloseAudio()
+{
+  if (mDAC && mDAC->isStreamOpen())
   {
     if (mDAC->isStreamRunning())
     {
+      mAudioEnding = true;
+    
+      while (!mAudioDone)
+        Sleep(10);
+      
       try
       {
         mDAC->abortStream();
@@ -568,22 +568,28 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
         e.printMessage();
       }
     }
-
+    
     mDAC->closeStream();
   }
+}
+
+bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_t iovs)
+{  
+  CloseAudio();
 
   RtAudio::StreamParameters iParams, oParams;
   iParams.deviceId = inId;
-  iParams.nChannels = 2; // TODO: flexible channel count
+  iParams.nChannels = GetPlug()->MaxNChannels(ERoute::kInput); // TODO: flexible channel count
   iParams.firstChannel = 0; // TODO: flexible channel count
 
   oParams.deviceId = outId;
-  oParams.nChannels = 2; // TODO: flexible channel count
+  oParams.nChannels = GetPlug()->MaxNChannels(ERoute::kOutput); // TODO: flexible channel count
   oParams.firstChannel = 0; // TODO: flexible channel count
 
   mBufferSize = iovs; // mBufferSize may get changed by stream
 
-  DBGMSG("\ntrying to start audio stream @ %i sr, %i buffersize\nindev = %i:%s\noutdev = %i:%s\n", sr, mBufferSize, inId, GetAudioDeviceName(inId).c_str(), outId, GetAudioDeviceName(outId).c_str());
+  DBGMSG("\ntrying to start audio stream @ %i sr, %i buffer size\nindev = %i:%s\noutdev = %i:%s\ninputs = %i\noutputs = %i\n",
+         sr, mBufferSize, inId, GetAudioDeviceName(inId).c_str(), outId, GetAudioDeviceName(outId).c_str(), iParams.nChannels, oParams.nChannels);
 
   RtAudio::StreamOptions options;
   options.flags = RTAUDIO_NONINTERLEAVED;
@@ -591,8 +597,10 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
 
   mBufIndex = 0;
   mSamplesElapsed = 0;
-  mFadeMult = 0.;
   mSampleRate = (double) sr;
+  mVecWait = 0;
+  mAudioEnding = false;
+  mAudioDone = false;
   
   mIPlug->SetBlockSize(APP_SIGNAL_VECTOR_SIZE);
   mIPlug->SetSampleRate(mSampleRate);
@@ -600,7 +608,18 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
 
   try
   {
-    mDAC->openStream(&oParams, &iParams, RTAUDIO_FLOAT64, sr, &mBufferSize, &AudioCallback, NULL, &options /*, &ErrorCallback */);
+    mDAC->openStream(&oParams, iParams.nChannels > 0 ? &iParams : nullptr, RTAUDIO_FLOAT64, sr, &mBufferSize, &AudioCallback, this, &options /*, &ErrorCallback */);
+    
+    for (int i = 0; i < iParams.nChannels; i++)
+    {
+      mInputBufPtrs.Add(nullptr); //will be set in callback
+    }
+    
+    for (int i = 0; i < oParams.nChannels; i++)
+    {
+      mOutputBufPtrs.Add(nullptr); //will be set in callback
+    }
+    
     mDAC->startStream();
 
     mActiveState = mState;
@@ -644,59 +663,85 @@ bool IPlugAPPHost::InitMidi()
   return true;
 }
 
+void ApplyFades(double *pBuffer, int nChans, int nFrames, bool down)
+{
+  for (int i = 0; i < nChans; i++)
+  {
+    double *pIO = pBuffer + (i * nFrames);
+    
+    if (down)
+    {
+      for (int j = 0; j < nFrames; j++)
+        pIO[j] *= ((double) (nFrames - (j + 1)) / (double) nFrames);
+    }
+    else
+    {
+      for (int j = 0; j < nFrames; j++)
+        pIO[j] *= ((double) j / (double) nFrames);
+    }
+  }
+}
+
 // static
 int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_t nFrames, double streamTime, RtAudioStreamStatus status, void* pUserData)
 {
-  if (status)
-    std::cout << "Stream underflow detected!" << std::endl;
+  IPlugAPPHost* _this = (IPlugAPPHost*) pUserData;
 
-  IPlugAPPHost* _this = sInstance.get();
-
+  int nins = _this->GetPlug()->MaxNChannels(ERoute::kInput);
+  int nouts = _this->GetPlug()->MaxNChannels(ERoute::kOutput);
+  
   double* pInputBufferD = static_cast<double*>(pInputBuffer);
   double* pOutputBufferD = static_cast<double*>(pOutputBuffer);
 
-  int inRightOffset = 0;
-
-//  if(!mState.mAudioInIsMono)
-    inRightOffset = nFrames;
-
-  if (_this->mVecElapsed > APP_N_VECTOR_WAIT ) // wait APP_N_VECTOR_WAIT * iovs before processing audio, to avoid clicks
+  bool startWait = _this->mVecWait >= APP_N_VECTOR_WAIT; // wait APP_N_VECTOR_WAIT * iovs before processing audio, to avoid clicks
+  bool doFade = _this->mVecWait == APP_N_VECTOR_WAIT || _this->mAudioEnding;
+  
+  if (startWait && !_this->mAudioDone)
   {
-    for (int i=0; i<nFrames; i++)
+    if (doFade)
+      ApplyFades(pInputBufferD, nins, nFrames, _this->mAudioEnding);
+    
+    for (int i = 0; i < nFrames; i++)
     {
       _this->mBufIndex %= APP_SIGNAL_VECTOR_SIZE;
 
       if (_this->mBufIndex == 0)
       {
-        double* inputs[2] = {pInputBufferD + i, pInputBufferD + inRightOffset + i};
-        double* outputs[2] = {pOutputBufferD + i, pOutputBufferD + nFrames + i};
-
-        _this->mIPlug->AppProcess(inputs, outputs, APP_SIGNAL_VECTOR_SIZE);
+        for (int c = 0; c < nins; c++)
+        {
+          _this->mInputBufPtrs.Set(c, (pInputBufferD + (c * nFrames)) + i);
+        }
+        
+        for (int c = 0; c < nouts; c++)
+        {
+          _this->mOutputBufPtrs.Set(c, (pOutputBufferD + (c * nFrames)) + i);
+        }
+        
+        _this->mIPlug->AppProcess(_this->mInputBufPtrs.GetList(), _this->mOutputBufPtrs.GetList(), APP_SIGNAL_VECTOR_SIZE);
 
         _this->mSamplesElapsed += APP_SIGNAL_VECTOR_SIZE;
       }
-
-      // fade in
-      if (_this->mFadeMult < 1.)
+      
+      for (int c = 0; c < nouts; c++)
       {
-        _this->mFadeMult += (1. / nFrames);
+        pOutputBufferD[c * nFrames + i] *= APP_MULT;
       }
-
-      pOutputBufferD[i] *= _this->mFadeMult;
-      pOutputBufferD[i + nFrames] *= _this->mFadeMult;
-
-      pOutputBufferD[i] *= APP_MULT;
-      pOutputBufferD[i + nFrames] *= APP_MULT;
 
       _this->mBufIndex++;
     }
+    
+    if (doFade)
+      ApplyFades(pOutputBufferD, nouts, nFrames, _this->mAudioEnding);
+    
+    if (_this->mAudioEnding)
+      _this->mAudioDone = true;
   }
   else
   {
-    memset(pOutputBufferD, 0, nFrames * APP_NUM_CHANNELS * sizeof(double));
+    memset(pOutputBufferD, 0, nFrames * nouts * sizeof(double));
   }
   
-  _this->mVecElapsed++;
+  _this->mVecWait = std::min(_this->mVecWait + 1, uint32_t(APP_N_VECTOR_WAIT + 1));
 
   return 0;
 }
@@ -706,7 +751,7 @@ void IPlugAPPHost::MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, vo
 {
   IPlugAPPHost* _this = (IPlugAPPHost*) pUserData;
   
-  if (pMsg->size() == 0)
+  if (pMsg->size() == 0 || _this->mExiting)
     return;
   
   if (pMsg->size() > 3)

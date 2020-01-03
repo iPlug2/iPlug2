@@ -39,15 +39,12 @@ BEGIN_IPLUG_NAMESPACE
 /** Used to pass various instance info to the API class, where needed */
 struct InstanceInfo {};
 
-using namespace Steinberg;
-using namespace Vst;
-
 /**  VST3 base class for a non-distributed IPlug VST3 plug-in
 *   @ingroup APIClasses */
 class IPlugVST3 : public IPlugAPIBase
                 , public IPlugVST3ProcessorBase
                 , public IPlugVST3ControllerBase
-                , public Vst::SingleComponentEffect
+                , public Steinberg::Vst::SingleComponentEffect
 {
 public:
   using ViewType = IPlugVST3View<IPlugVST3>;
@@ -70,42 +67,43 @@ public:
   void SetLatency(int samples) override;
   
   // AudioEffect
-  tresult PLUGIN_API initialize(FUnknown* context) override;
-  tresult PLUGIN_API terminate() override;
-  tresult PLUGIN_API setBusArrangements(Vst::SpeakerArrangement* pInputs, int32 numIns, Vst::SpeakerArrangement* pOutputs, int32 numOuts) override;
-  tresult PLUGIN_API setActive(TBool state) override;
-  tresult PLUGIN_API setupProcessing(Vst::ProcessSetup& newSetup) override;
-  tresult PLUGIN_API process(Vst::ProcessData& data) override;
-  tresult PLUGIN_API canProcessSampleSize(int32 symbolicSampleSize) override;
-  uint32 PLUGIN_API getLatencySamples() override { return GetLatency(); }
-  uint32 PLUGIN_API getTailSamples() override { return GetTailSize(); } //TODO - infinite tail
-  tresult PLUGIN_API setState(IBStream* pState) override;
-  tresult PLUGIN_API getState(IBStream* pState) override;
+  Steinberg::tresult PLUGIN_API initialize(FUnknown* context) override;
+  Steinberg::tresult PLUGIN_API terminate() override;
+  Steinberg::tresult PLUGIN_API setBusArrangements(Steinberg::Vst::SpeakerArrangement* pInputs, Steinberg::int32 numIns, Steinberg::Vst::SpeakerArrangement* pOutputs, Steinberg::int32 numOuts) override;
+  Steinberg::tresult PLUGIN_API setActive(Steinberg::TBool state) override;
+  Steinberg::tresult PLUGIN_API setupProcessing(Steinberg::Vst::ProcessSetup& newSetup) override;
+  Steinberg::tresult PLUGIN_API setProcessing (Steinberg::TBool state) override;
+  Steinberg::tresult PLUGIN_API process(Steinberg::Vst::ProcessData& data) override;
+  Steinberg::tresult PLUGIN_API canProcessSampleSize(Steinberg::int32 symbolicSampleSize) override;
+  Steinberg::uint32 PLUGIN_API getLatencySamples() override { return GetLatency(); }
+  Steinberg::uint32 PLUGIN_API getTailSamples() override { return GetTailSize(); } //TODO - infinite tail
+  Steinberg::tresult PLUGIN_API setState(Steinberg::IBStream* pState) override;
+  Steinberg::tresult PLUGIN_API getState(Steinberg::IBStream* pState) override;
     
   // IEditController
-  ParamValue PLUGIN_API getParamNormalized (ParamID tag) override;
-  tresult PLUGIN_API setParamNormalized(ParamID tag, ParamValue value) override;
-  IPlugView* PLUGIN_API createView(const char* name) override;
-  tresult PLUGIN_API setEditorState(IBStream* pState) override;
-  tresult PLUGIN_API getEditorState(IBStream* pState) override;
-  tresult PLUGIN_API setComponentState(IBStream *state) override;
+  Steinberg::Vst::ParamValue PLUGIN_API getParamNormalized (Steinberg::Vst::ParamID tag) override;
+  Steinberg::tresult PLUGIN_API setParamNormalized(Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value) override;
+  Steinberg::IPlugView* PLUGIN_API createView(const char* name) override;
+  Steinberg::tresult PLUGIN_API setEditorState(Steinberg::IBStream* pState) override;
+  Steinberg::tresult PLUGIN_API getEditorState(Steinberg::IBStream* pState) override;
+  Steinberg::tresult PLUGIN_API setComponentState(Steinberg::IBStream *state) override;
  
   // IUnitInfo
-  int32 PLUGIN_API getUnitCount() override;
-  tresult PLUGIN_API getUnitInfo(int32 unitIndex, Vst::UnitInfo& info) override;
-  int32 PLUGIN_API getProgramListCount() override;
-  tresult PLUGIN_API getProgramListInfo(int32 listIndex, Vst::ProgramListInfo& info) override;
-  tresult PLUGIN_API getProgramName(int32 listId, int32 programIndex, Vst::String128 name) override;
+  Steinberg::int32 PLUGIN_API getUnitCount() override;
+  Steinberg::tresult PLUGIN_API getUnitInfo(Steinberg::int32 unitIndex, Steinberg::Vst::UnitInfo& info) override;
+  Steinberg::int32 PLUGIN_API getProgramListCount() override;
+  Steinberg::tresult PLUGIN_API getProgramListInfo(Steinberg::int32 listIndex, Steinberg::Vst::ProgramListInfo& info) override;
+  Steinberg::tresult PLUGIN_API getProgramName(Steinberg::int32 listId, Steinberg::int32 programIndex, Steinberg::Vst::String128 name) override;
 
-  tresult PLUGIN_API getProgramInfo(int32 listId, int32 programIndex, Vst::CString attributeId, Vst::String128 attributeValue) override { return kNotImplemented; }
-  tresult PLUGIN_API hasProgramPitchNames(int32 listId, int32 programIndex) override { return kNotImplemented; }
-  tresult PLUGIN_API getProgramPitchName(int32 listId, int32 programIndex, int16 midiPitch, Vst::String128 name) override { return kNotImplemented; }
-  int32 PLUGIN_API getSelectedUnit() override { return Vst::kRootUnitId; }
-  tresult PLUGIN_API selectUnit(int32 unitId) override { return kNotImplemented; }
-  tresult PLUGIN_API getUnitByBus(Vst::MediaType type, Vst::BusDirection dir, int32 busIndex, int32 channel, int32& unitId) override { return kNotImplemented; }
-  tresult PLUGIN_API setUnitProgramData(int32 listOrUnitId, int32 programIndex, IBStream* data) override { return kNotImplemented; }
+  Steinberg::tresult PLUGIN_API getProgramInfo(Steinberg::int32 listId, Steinberg::int32 programIndex, Steinberg::Vst::CString attributeId, Steinberg::Vst::String128 attributeValue) override { return Steinberg::kNotImplemented; }
+  Steinberg::tresult PLUGIN_API hasProgramPitchNames(Steinberg::int32 listId, Steinberg::int32 programIndex) override { return Steinberg::kNotImplemented; }
+  Steinberg::tresult PLUGIN_API getProgramPitchName(Steinberg::int32 listId, Steinberg::int32 programIndex, Steinberg::int16 midiPitch, Steinberg::Vst::String128 name) override { return Steinberg::kNotImplemented; }
+  Steinberg::int32 PLUGIN_API getSelectedUnit() override { return Steinberg::Vst::kRootUnitId; }
+  Steinberg::tresult PLUGIN_API selectUnit(Steinberg::int32 unitId) override { return Steinberg::kNotImplemented; }
+  Steinberg::tresult PLUGIN_API getUnitByBus(Steinberg::Vst::MediaType type, Steinberg::Vst::BusDirection dir, Steinberg::int32 busIndex, Steinberg::int32 channel, Steinberg::int32& unitId) override { return Steinberg::kNotImplemented; }
+  Steinberg::tresult PLUGIN_API setUnitProgramData(Steinberg::int32 listOrUnitId, Steinberg::int32 programIndex, Steinberg::IBStream* data) override { return Steinberg::kNotImplemented; }
   
-  Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
+  Steinberg::Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   ViewType* GetView() { return mView; }
    
   // Interface    

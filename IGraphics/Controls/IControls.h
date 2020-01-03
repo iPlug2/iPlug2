@@ -138,7 +138,6 @@ protected:
   IRECT mStartRect, mEndRect;
   IRECT mHandleBounds;
   EDirection mDirection;
-  IActionFunction mSecondaryActionFunc = EmptyClickActionFunc;
   EVShape mShape = EVShape::Rectangle;
 };
 
@@ -166,6 +165,9 @@ public:
   virtual bool IsHit(float x, float y) const override;
   void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
 protected:
+  /** @return the index of the entry at the given point or -1 if no entry was hit */
+  virtual int GetButtonForPoint(float x, float y) const;
+
   int mMouseOverButton = -1;
   WDL_TypedBuf<IRECT> mButtons;
   WDL_PtrList<WDL_String> mTabLabels;
@@ -198,12 +200,10 @@ public:
   IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
   
   virtual void DrawWidget(IGraphics& g) override;
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
-  void OnMouseOut() override { mMouseOverButton = -1; }
-  void OnResize() override;
-  virtual bool IsHit(float x, float y) const override;
 protected:
+  /** @return the index of the clickable entry at the given point or -1 if no entry was hit */
+  int GetButtonForPoint(float x, float y) const override;
+
   float mButtonSize;
   bool mOnlyButtonsRespondToMouse = false;
 };
@@ -325,36 +325,37 @@ class IVPlotControl : public IControl
                     , public IVectorBase
 {
 public:
-    /** IVPlotControl passes values between 0 and 1 to this object, that are the plot normalized x values
-     */
+  /** IVPlotControl passes values between 0 and 1 to this object, that are the plot normalized x values */
   using IPlotFunc = std::function<double(double)>;
     
-    /** This struct specifies a plot function
-     * @param color The color of the function
-     * @param func A callable object that must contain the function to display
-     */
+  /** Groups a plot function and color
+   * @param color The color of the function
+   * @param func A callable object that must contain the function to display */
   struct Plot {
     IColor color;
     IPlotFunc func;
   };
   
-    /** Constructs a vector plot
-     * @param bounds The control's bounds
-     * @param funcs A function list reference containing the functions to display
-     * @param numPoints The number of points used to draw the functions
-     * @param label The label for the vector control, leave empty for no label
-     * @param style The styling of this vector control \see IVStyle
-     * @param shape The buttons shape \see IVShape
-     * @param min The minimum y axis plot value
-     * @param max The maximum y axis plot value
-     * @param useLayer A flag to draw the control layer */
+  /** Constructs an IVPlotControl
+   * @param bounds The control's bounds
+   * @param funcs A function list reference containing the functions to display
+   * @param numPoints The number of points used to draw the functions
+   * @param label The label for the vector control, leave empty for no label
+   * @param style The styling of this vector control \see IVStyle
+   * @param shape The buttons shape \see IVShape
+   * @param min The minimum y axis plot value
+   * @param max The maximum y axis plot value
+   * @param useLayer A flag to draw the control layer */
   IVPlotControl(const IRECT& bounds, const std::initializer_list<Plot>& funcs, int numPoints, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float min = -1., float max = 1., bool useLayer = false);
+  
   void Draw(IGraphics& g) override;
   void OnResize() override;
-    /** add a new function to the plot
-     * @param color The function color
-     * @param func A reference object containing the function implementation to display*/
+  
+  /** add a new function to the plot
+   * @param color The function color
+   * @param func A reference object containing the function implementation to display */
   void AddPlotFunc(const IColor& color, const IPlotFunc& func);
+  
 protected:
   ILayerPtr mLayer;
   std::vector<Plot> mPlots;
@@ -362,6 +363,25 @@ protected:
   float mMax;
   bool mUseLayer = true;
   std::vector<float> mPoints;
+};
+
+class IVGroupControl : public IControl
+                     , public IVectorBase
+{
+public:
+  IVGroupControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false));
+  
+  IVGroupControl(const char* labelAndGroupName, float innerPadding = 0.f, const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false));
+  
+  void Draw(IGraphics& g) override;
+  void DrawWidget(IGraphics& g) override;
+  void OnResize() override;
+  void OnInit() override;
+  
+  void SetBoundsBasedOnGroup(const char* groupName, float padding);
+protected:
+  WDL_String mGroupName;
+  float mInnerPadding = 0.f;
 };
 
 #pragma mark - SVG Vector Controls
@@ -380,7 +400,7 @@ public:
   {
     if (!g.CheckLayer(mLayer))
     {
-      g.StartLayer(mRECT);
+      g.StartLayer(this, mRECT);
       g.DrawSVG(mSVG, mRECT);
       mLayer = g.EndLayer();
     }
@@ -432,10 +452,10 @@ public:
     mBitmap = GetUI()->GetScaledBitmap(mBitmap);
   }
 
-  void GrayOut(bool gray) override
+  void SetDisabled(bool disable) override
   {
-    IBitmapBase::GrayOut(gray);
-    IControl::GrayOut(gray);
+    IBitmapBase::SetDisabled(disable);
+    IControl::SetDisabled(disable);
   }
 };
 
@@ -444,6 +464,11 @@ class IBSwitchControl : public ISwitchControlBase
                       , public IBitmapBase
 {
 public:
+  /** Constructs a bitmap switch control
+  * @param x The x position of the top left point in the control's bounds (width will be determined by bitmap's dimensions)
+  * @param y The y position of the top left point in the control's bounds (height will be determined by bitmap's dimensions)
+  * @param bitmap The bitmap resource for the control
+  * @param paramIdx The parameter index to link this control to */
   IBSwitchControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter)
   : ISwitchControlBase(IRECT(x, y, bitmap), paramIdx)
   , IBitmapBase(bitmap)
@@ -452,6 +477,10 @@ public:
     mDblAsSingleClick = true;
   }
 
+  /** Constructs a bitmap switch control
+  * @param bounds The control's bounds
+  * @param bitmap The bitmap resource for the control
+  * @param paramIdx The parameter index to link this control to */
   IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
   : ISwitchControlBase(bounds.GetCentredInside(bitmap), paramIdx)
   , IBitmapBase(bitmap)
@@ -462,7 +491,7 @@ public:
   
   virtual ~IBSwitchControl() {}
   void Draw(IGraphics& g) override { DrawBitmap(g); }
-  void GrayOut(bool gray) override { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  void SetDisabled(bool disable) override { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 };
@@ -488,7 +517,7 @@ public:
 
   virtual ~IBKnobControl() {}
   void Draw(IGraphics& g) override { DrawBitmap(g); }
-  void GrayOut(bool gray) override { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  void SetDisabled(bool disable) override { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
 };
 
@@ -525,7 +554,7 @@ public:
   void Draw(IGraphics& g) override;
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
   void OnResize() override { SetDirty(false); }
-  void GrayOut(bool gray) override  { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  void SetDisabled(bool disable) override  { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
   
   IRECT GetHandleBounds(double value = -1.0) const;
 };
@@ -555,7 +584,7 @@ public:
   }
 
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
-  void GrayOut(bool gray) override  { IBitmapBase::GrayOut(gray); IControl::GrayOut(gray); }
+  void SetDisabled(bool disable) override  { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
 
 protected:
   WDL_String mStr;

@@ -22,7 +22,7 @@ jobs:
         buildConfiguration: 'Debug'
 
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'windows-2019'
 
   steps:
   - checkout: none
@@ -34,136 +34,38 @@ jobs:
       solution: 'Dependencies/IGraphics/IGraphicsLibraries.sln'
       platform: '$(buildPlatform)'
       configuration: '$(buildConfiguration)'
-    displayName: Build Windows Dependencies
+    displayName: Build Windows Dependencies (except SKIA)
 
-  - bash: |
-      curl https://storage.googleapis.com/chrome-infra/depot_tools.zip --output depot_tools.zip
-      unzip depot_tools.zip -d depot_tools
-    displayName: (SKIA) Get Depot Tools
-
-  - powershell: |
-      Write-Host "##vso[task.setvariable variable=PATH;]$(Build.SourcesDirectory)\depot_tools;${env:PATH};";
-    displayName: (SKIA) Setup Depot Tools
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '2.7'
 
   - script: |
-      cd depot_tools
-      gclient
-    displayName: (SKIA) Setup Depot Tools 2
+      # curl -sSf -o rustup-init.exe https://win.rustup.rs
+      # rustup-init.exe -y --default-toolchain stable
+      # echo "##vso[task.setvariable variable=PATH;]%PATH%;%USERPROFILE%\.cargo\bin"
+      choco install llvm --version 9.0.0
+    condition: eq(variables.buildPlatform, 'x64')
+    displayName: Install LLVM
 
-  - powershell: |
-      cd Dependencies/Build/src/skia
-      python.bat tools/git-sync-deps
-    displayName: (SKIA) git sync deps
-
-# TODO: tidy this up!
-  # - powershell: |
-  #     cd Dependencies/Build/src/skia
-  #     bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
-  #     is_official_build=true
-  #     target_cpu=\"x86\"
-  #     skia_use_icu=false
-  #     skia_enable_pdf=false
-  #     skia_enable_gpu=true
-  #     skia_use_dng_sdk=false
-  #     skia_use_expat=true
-  #     skia_use_libwebp=false
-  #     skia_use_piex=false
-  #     skia_use_sfntly=false
-  #     skia_use_system_libjpeg_turbo=false
-  #     extra_cflags=[
-  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\libpng\",
-  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\libpng\",
-  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
-  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
-  #     \"/MTd\",]'
-  #   displayName: (SKIA) Configure with GN tool (Debug Win32)
-  #   condition: and(eq(variables.buildConfiguration, 'Debug'), eq(variables.buildPlatform, 'Win32'))
-    
-  # - powershell: |
-  #     cd Dependencies/Build/src/skia
-  #     bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
-  #     is_official_build=true
-  #     target_cpu=\"x86\"
-  #     skia_use_icu=false
-  #     skia_enable_pdf=false
-  #     skia_enable_gpu=true
-  #     skia_use_dng_sdk=false
-  #     skia_use_expat=true
-  #     skia_use_libwebp=false
-  #     skia_use_piex=false
-  #     skia_use_sfntly=false
-  #     skia_use_system_libjpeg_turbo=false
-  #     extra_cflags=[
-  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\libpng\",
-  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\libpng\",
-  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
-  #       \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
-  #     \"/MT\",]'
-  #   displayName: (SKIA) Configure with GN tool (Release Win32)
-  #   condition: and(eq(variables.buildConfiguration, 'Release'), eq(variables.buildPlatform, 'Win32'))
-
-  - powershell: |
-      cd Dependencies/Build/src/skia
-      bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
-      is_official_build=true
-      target_cpu=\"x64\"
-      skia_use_icu=false
-      skia_enable_pdf=false
-      skia_enable_gpu=true
-      skia_use_dng_sdk=false
-      skia_use_expat=true
-      skia_use_libwebp=false
-      skia_use_piex=false
-      skia_use_sfntly=false
-      skia_use_system_libjpeg_turbo=false
-      extra_cflags=[
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\libpng\",
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\libpng\",
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
-      \"/MTd\",]'
-    displayName: (SKIA) Configure with GN tool (Debug x64)
-    condition: and(eq(variables.buildConfiguration, 'Debug'), eq(variables.buildPlatform, 'x64'))
-    
-  - powershell: |
-      cd Dependencies/Build/src/skia
-      bin/gn gen $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION --args='
-      is_official_build=true
-      target_cpu=\"x64\"
-      skia_use_icu=false
-      skia_enable_pdf=false
-      skia_enable_gpu=true
-      skia_use_dng_sdk=false
-      skia_use_expat=true
-      skia_use_libwebp=false
-      skia_use_piex=false
-      skia_use_sfntly=false
-      skia_use_system_libjpeg_turbo=false
-      extra_cflags=[
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\libpng\",
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\libpng\",
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\zlib\",
-        \"-I$(Build.SourcesDirectory)\Dependencies\Build\src\skia\third_party\externals\expat\lib\",
-      \"/MT\",]'
-    displayName: (SKIA) Configure with GN tool (Release x64)
-    condition: and(eq(variables.buildConfiguration, 'Release'), eq(variables.buildPlatform, 'x64'))
-
-  - powershell: |
-      cd Dependencies/Build/src/skia
-      ninja -C $(Build.SourcesDirectory)/Dependencies/Build/tmp/skia/$env:BUILDCONFIGURATION
-    continueOnError: true
-    displayName: (SKIA) Build with NINJA
+  - bash: |
+      cd ./Dependencies/IGraphics
+      echo $(buildConfiguration)
+      ./build-skia-win.sh $(buildConfiguration)
+    condition: eq(variables.buildPlatform, 'x64')
+    displayName: Build SKIA
 
   - bash: |
       cd ./Dependencies/Build
-      mv ./tmp/skia/$BUILDCONFIGURATION/skia.lib ./win/x64/$BUILDCONFIGURATION/skia.lib
-      rm *.log
-      rm -r tmp
-      mv ./src/skia/include ./skia_include_tmp
+      ./../IGraphics/package-deps-src.sh
+    displayName: slim SKIA src
+    condition: eq(variables.buildPlatform, 'x64')
+
+  - bash: |
+      cd ./Dependencies/Build
       rm -r src/skia
-      mkdir -p ./src/skia
-      mv ./skia_include_tmp ./src/skia/include
-    displayName: (SKIA) Delete unwanted files
+    displayName: remove SKIA src
+    condition: eq(variables.buildPlatform, 'Win32')
 
   - task: PublishPipelineArtifact@0
     inputs:
@@ -238,6 +140,16 @@ jobs:
       ./build-skia-mac.sh
     displayName: Build Skia
 
+  # - bash: |
+  #     curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+  #     echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
+  #   displayName: Install Rust
+
+  # - bash: |
+  #     cd ./Dependencies/IGraphics
+  #     ./build-resvg-mac.sh
+  #   displayName: Build Resvg
+
   - bash: |
       cd $BUILD_SOURCESDIRECTORY
       wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
@@ -256,16 +168,38 @@ jobs:
 
   - bash: |
       cd ./Dependencies/Build
-      rm *.log
-      rm -r tmp
-      mv ./src/skia/include ./skia_include_tmp
-      rm -r src
-      mkdir -p ./src/skia
-      mv ./skia_include_tmp ./src/skia/include
-    displayName: Delete unwanted files
+      ./../IGraphics/package-deps-src.sh
+    displayName: slim SKIA src
 
   - task: PublishPipelineArtifact@0
     inputs:
       artifactName: 'IPLUG2_DEPS_MAC'
       targetPath: 'Dependencies/Build/'
     displayName: Publish Mac Dependencies Artifacts
+
+- job: BUILD_IOS_DEPS
+  dependsOn: GET_SRC_TREE
+  condition: and(eq(variables.build_deps, true), eq(variables.build_ios, true))
+
+  pool:
+    vmImage: 'macos-10.13'
+  steps:
+  - checkout: none
+
+  - template: get_src_artifact.yml
+
+  - bash: |
+      cd ./Dependencies/IGraphics
+      ./build-skia-ios.sh
+    displayName: Build Skia
+
+  - bash: |
+      cd ./Dependencies/Build
+      ./../IGraphics/package-deps-src.sh
+    displayName: slim SKIA src
+
+  - task: PublishPipelineArtifact@0
+    inputs:
+      artifactName: 'IPLUG2_DEPS_IOS'
+      targetPath: 'Dependencies/Build/'
+    displayName: Publish iOS Dependencies Artifacts

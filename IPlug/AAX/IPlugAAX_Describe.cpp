@@ -39,12 +39,12 @@ using namespace iplug;
  @param pConfig The config struct derived from the channel i/o string token, this already contains data but \todo
  @return an integer corresponding to one of the AAX_eStemFormat
  */
-static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
+static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, const IOConfig* pConfig)
 {
   assert(pConfig != nullptr);
   assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
   
-  int numChans = pConfig->GetBusInfo(dir, busIdx)->mNChans;
+  int numChans = pConfig->GetBusInfo(dir, busIdx)->NChans();
 
   switch (numChans)
   {
@@ -67,7 +67,7 @@ static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int b
   }
 }
 #else
-extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, iplug::ERoute dir, int busIdx, iplug::IOConfig* pConfig);
+extern uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, iplug::ERoute dir, int busIdx, const iplug::IOConfig* pConfig);
 #endif //CUSTOM_BUSTYPE_FUNC
 
 AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
@@ -133,7 +133,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   
   for (int configIdx = 0; configIdx < NIOConfigs; configIdx++)
   {
-    IOConfig* pConfig = channelIO.Get(configIdx);
+    const IOConfig* pConfig = channelIO.Get(configIdx);
     
     AAX_CTypeID typeId = aaxTypeIDs[configIdx]; // TODO: aaxTypeIDs must be the same size as NIOConfigs, can we assert somehow if not?
     

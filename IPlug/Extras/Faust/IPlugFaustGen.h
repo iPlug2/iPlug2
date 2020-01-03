@@ -16,7 +16,7 @@
 #define FAUST_BLOCK(class, member, file, nvoices, rate) Faust_##class member {#class, file, nvoices, rate}
 // if this file is not found, you need to run the code without FAUST_COMPILED defined and make sure to call CompileCPP();
 #include "FaustCode.hpp"
-using FaustGen = IPlugFaust; // not used, except for CompileCPP();
+using FaustGen = iplug::IPlugFaust; // not used, except for CompileCPP();
 #endif
 
 #ifndef FAUST_COMPILED
@@ -54,7 +54,7 @@ typedef time_t StatTime;
 static inline int GetStat(const char* path, StatType* pStatbuf)
 {
   wchar_t utf16str[MAX_PATH];
-  UTF8ToUTF16(utf16str, path, MAX_PATH);
+  iplug::UTF8ToUTF16(utf16str, path, MAX_PATH);
   return _wstat(utf16str, pStatbuf);
 }
 static inline StatTime GetModifiedTime(StatType &s) { return s.st_mtime; }

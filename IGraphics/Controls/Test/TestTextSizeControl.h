@@ -24,8 +24,9 @@ class TestTextSizeControl : public IKnobControlBase
   static const int size = 14;
     
 public:
-    TestTextSizeControl(const IRECT& bounds)
-  : IKnobControlBase(bounds), mCount(-1)
+    TestTextSizeControl(const IRECT& bounds, int paramIdx)
+  : IKnobControlBase(bounds, paramIdx)
+  , mCount(-1)
   {
     SetTooltip("TestTextSizeControl");
     mDblAsSingleClick = true;
@@ -36,7 +37,7 @@ public:
   void Draw(IGraphics& g) override
   {
     const char* str = "Some Text To Resize";
-    mText.mSize = GetValue() * 40. + 5.0;
+    mText.mSize = static_cast<float>(GetValue()) * 40.f + 5.f;
     
     g.FillRect(COLOR_WHITE, mRECT);
     g.DrawText(mText, str, mRECT);

@@ -41,8 +41,8 @@ public:
   void SetScreenScale(double scale) final;
 
   //The rest should be final, but the WebSocketEditorDelegate needs to override them
-  void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
-  void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize = 0, const void* pData = nullptr) override;
+  void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override;
+  void SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize = 0, const void* pData = nullptr) override;
   void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
   int SetEditorData(const IByteChunk& data, int startPos) override;
@@ -85,13 +85,13 @@ public:
   /** Override this method to serialize custom editor state data.
   * @param chunk The output bytechunk where data can be serialized
   * @return \c true if serialization was successful*/
-  virtual bool SerializeCustomEditorData(IByteChunk& chunk) const { TRACE; return true; }
+  virtual bool SerializeCustomEditorData(IByteChunk& chunk) const { TRACE return true; }
     
   /** Override this method to unserialize custom editor state data
   * @param chunk The incoming chunk containing the state data.
   * @param startPos The position in the chunk where the data starts
   * @return The new chunk position (endPos)*/
-  virtual int UnserializeCustomEditorData(const IByteChunk& chunk, int startPos) { TRACE; return startPos; }
+  virtual int UnserializeCustomEditorData(const IByteChunk& chunk, int startPos) { TRACE return startPos; }
     
 protected:
   std::function<IGraphics*()> mMakeGraphicsFunc = nullptr;

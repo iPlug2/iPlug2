@@ -134,8 +134,6 @@ static inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case EBlend::Default:         // fall through
-    case EBlend::Clobber:         // fall through
     case EBlend::SourceOver:      return CAIRO_OPERATOR_OVER;
     case EBlend::SourceIn:        return CAIRO_OPERATOR_IN;
     case EBlend::SourceOut:       return CAIRO_OPERATOR_OUT;
@@ -146,6 +144,9 @@ static inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
     case EBlend::DestAtop:        return CAIRO_OPERATOR_DEST_ATOP;
     case EBlend::Add:             return CAIRO_OPERATOR_ADD;
     case EBlend::XOR:             return CAIRO_OPERATOR_XOR;
+    case EBlend::Default:         // fall through
+    case EBlend::Clobber:         // fall through
+    default:                      return CAIRO_OPERATOR_OVER;
   }
 }
 
@@ -562,7 +563,7 @@ void IGraphicsCairo::DoDrawText(const IText& text, const char* str, const IRECT&
   {
     PathTransformSave();
     PathTransformReset();
-    StartLayer(measured);
+    StartLayer(nullptr, measured);
     cairo_set_source_rgba(mContext, c.R / 255.0, c.G / 255.0, c.B / 255.0, (BlendWeight(pBlend) * c.A) / 255.0);
     cairo_translate(mContext, x, y);
     cairo_show_glyphs(mContext, pGlyphs, numGlyphs);
@@ -580,9 +581,6 @@ void IGraphicsCairo::UpdateCairoContext()
 {
   if (mContext)
   {
-#ifdef OS_MAC
-    CGContextSaveGState((CGContextRef) GetPlatformContext());
-#endif
     cairo_destroy(mContext);
     mContext = nullptr;
   }

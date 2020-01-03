@@ -5,13 +5,14 @@ variables:
   build_web: true # build web audio module versions of projects
   build_mac: true # build mac binaries
   build_win: true # build windows binaries
+  build_ios: true # build ios binaries
 
   #FORMATS
   build_app: true # build standalone app
   build_vst3: true # build VST3 format plugins
   build_auv2: true # build AUv2 format plugins
-  build_aax: false # build AAX format plugins ( must have AAX_SDK secure file in azure pipeline )
-  build_vst2: false # build VST2 format plugins ( must have VST2_SDK secure file in azure pipeline )
+  build_aax: true # build AAX format plugins ( must have AAX_SDK secure file in azure pipeline )
+  build_vst2: true # build VST2 format plugins ( must have VST2_SDK secure file in azure pipeline )
 
   #TESTS
   test_projects: false # test plug-ins with pluginval, auval, vstvalidator
@@ -44,7 +45,8 @@ jobs:
 
 # build_deps.yml
 # If build_deps == true, use the scripts in iPlug2/Dependencies to build the optional dependencies
-# Creates two artifacts IPLUG2_DEPS_MAC and IPLUG2_DEPS_WIN which are published on the releases page of the iPlug2 github
+# Creates three artifacts IPLUG2_DEPS_MAC, IPLUG2_DEPS_WIN, and IPLUG2_DEPS_IOS 
+# which are published on the releases page of the iPlug2 github
 # https://github.com/iPlug2/iPlug2/releases
 - template: Scripts/ci/build_deps.yml
 

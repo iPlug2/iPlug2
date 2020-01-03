@@ -95,7 +95,7 @@ private:
   void SetCanvasSourcePattern(val& context, const IPattern& pattern, const IBlend* pBlend = nullptr);
   void SetCanvasBlendMode(val& context, const IBlend* pBlend);
     
-  std::vector<std::pair<WDL_String, WDL_String>> mCustomFonts;
+  std::vector<val> mLoadingFonts;
 
   static StaticStorage<Font> sFontCache;
 };

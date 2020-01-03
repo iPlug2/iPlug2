@@ -39,6 +39,7 @@
         e.preventDefault(); 
       };
 
+      document.addEventListener("keydown", function(event) { if(event.keyCode == 9) {event.preventDefault();}});
       document.addEventListener("touchmove", preventBehavior, {passive: false});
 
       function toggleFullScreen() {

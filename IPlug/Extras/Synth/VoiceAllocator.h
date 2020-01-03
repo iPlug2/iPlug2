@@ -111,7 +111,7 @@ public:
 
   void Clear();
 
-  void SetSampleRate(double r) { mSampleRate = r; CalcGlideTimesInSamples(); }
+  void SetSampleRateAndBlockSize(double sampleRate, int blockSize) { mSampleRate = sampleRate; CalcGlideTimesInSamples(); }
   void SetNoteGlideTime(double t) { mNoteGlideTime = t; CalcGlideTimesInSamples(); }
   void SetControlGlideTime(double t) { mControlGlideTime = t; CalcGlideTimesInSamples(); }
 
@@ -137,7 +137,7 @@ public:
    */
   void HardKillAllVoices();
 
-  void SetKeyToPitchFunction(const std::function<double(int)>& fn) {mKeyToPitchFn = fn;}
+  void SetKeyToPitchFunction(const std::function<float(int)>& fn) {mKeyToPitchFn = fn;}
 
   /** Send the event to the voices matching its address.
    */
@@ -179,7 +179,7 @@ private:
   std::vector<int> mHeldKeys; // The currently physically held keys on the keyboard
   std::vector<int> mSustainedNotes; // Any notes that are sustained, including those that are physically held
 
-  std::function<double(int)> mKeyToPitchFn;
+  std::function<float(int)> mKeyToPitchFn;
   double mPitchOffset{0.};
 
   double mNoteGlideTime{0.};

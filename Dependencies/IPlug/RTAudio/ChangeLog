@@ -1,0 +1,10 @@
+30.04.2018
+      * Additions and fixes for realtime operation: (Tim E. Real of MusE)
+        - Added realtime operation to Pulse driver.
+        - Fixed ALSA realtime support. Attributes are once again all set
+           in probeDeviceOpen().
+        - Fixed OSS realtime support. Same mods as done to ALSA driver.
+          OSS untested, but should work, it's the same code.
+        - A diagnostic message (streamed to cerr) in each of the callback
+           handlers informs the user if realtime is really running.
+

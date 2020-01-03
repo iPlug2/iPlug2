@@ -29,20 +29,20 @@ function setupWebSocket(onCompleted) {
         }
         //Send Control Message From Delegate
         else if(prefix == "SCVDD") {
-          var controlTag = dv.getInt32(pos, true); pos += 4;
+          var ctrlTag = dv.getInt32(pos, true); pos += 4;
           var value = dv.getFloat64(pos, true); pos += 8;
-          Module.SCVFD(controlTag, value);
+          Module.SCVFD(ctrlTag, value);
         }
         //Send Control Message From Delegate
         else if(prefix == "SCMFD") {
-          var controlTag = dv.getInt32(pos, true); pos += 4;
+          var ctrlTag = dv.getInt32(pos, true); pos += 4;
           var msgTag = dv.getInt32(pos, true); pos += 4;
           var dataSize = dv.getInt32(pos, true); pos += 4;
           var data = new Uint8Array(buf, pos, dataSize);
 
           const esbuf = Module._malloc(data.length);
           Module.HEAPU8.set(data, esbuf);
-          Module.SCMFD(controlTag, msgTag, data.length, esbuf);
+          Module.SCMFD(ctrlTag, msgTag, data.length, esbuf);
           Module._free(esbuf);
         }
         //Send Arbitrary Message From Delegate
@@ -53,7 +53,7 @@ function setupWebSocket(onCompleted) {
 
           const esbuf = Module._malloc(data.length);
           Module.HEAPU8.set(data, esbuf);
-          Module.SAMFD(controlTag, msgTag, data.length, esbuf);
+          Module.SAMFD(msgTag, data.length, esbuf);
           Module._free(esbuf);
         }
         //Send MIDI Message From Delegate
@@ -71,7 +71,7 @@ function setupWebSocket(onCompleted) {
 
           const esbuf = Module._malloc(data.length);
           Module.HEAPU8.set(data, esbuf);
-          Module.SSMFD(controlTag, msgTag, data.length, esbuf);
+          Module.SSMFD(msgTag, data.length, esbuf);
           Module._free(esbuf);
         }
     }

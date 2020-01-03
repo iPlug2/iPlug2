@@ -13,7 +13,7 @@
 #include "RtMidi.h"
 
 // Platform-dependent sleep routines.
-#if defined(__WINDOWS_MM__)
+#if defined(WIN32)
   #include <windows.h>
   #define SLEEP( milliseconds ) Sleep( (DWORD) milliseconds ) 
 #else // Unix variants
@@ -28,7 +28,7 @@ void usage( void ) {
   // Error function in case of incorrect command-line
   // argument specifications.
   std::cout << "\nusage: qmidiin <port>\n";
-  std::cout << "    where port = the device to use (default = 0).\n\n";
+  std::cout << "    where port = the device to use (first / default = 0).\n\n";
   exit( 0 );
 }
 

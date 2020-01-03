@@ -4,21 +4,40 @@ Many thanks to the following people for providing bug fixes and improvements:
 <UL>
 <LI>Stephen Sinclair (major code and repository support!)</LI>
 <LI>Stefan Arisona</LI>
+<LI>bejuryu</LI>
 <LI>Vincent B&eacute;nony</LI>
+<LI>Francesco Bertolaccini</LI>
+<LI>Benjamin Brown</LI>
+<LI>Claudio Cabral</LI>
+<LI>JP Cimalando</LI>
 <LI>Rasmus Ekman</LI>
 <LI>Anders Ervik</LI>
 <LI>Robin Davies (Windows DS and ASIO)</LI>
+<LI>Marcelo Fernandez</LI>
+<LI>Taylor Holberton</LI>
 <LI>Martin Koegler</LI>
 <LI>Dmitry Kostjuchenko</LI>
 <LI>Oliver Larkin</LI>
+<LI>Jakob Leben</LI>
 <LI>Antoine Lefebvre</LI>
 <LI>Carlos Luna</LI>
+<LI>Connor MacDonald</LI>
+<LI>Jasper Mackenzie</LI>
 <LI>Dominic Mazzoni</LI>
 <LI>Tristan Matthews</LI>
 <LI>Peter Meerwald (PulseAudio)</LI>
+<LI>Jaromir Mikes</LI>
+<LI>rehans</LI>
+<LI>Sebastian Reimers</LI>
+<LI>Ryan Schmidt</LI>
 <LI>Benjamin Schroeder</LI>
+<LI>sonoro1234</LI>
+<LI>terminator356</LI>
+<LI>Marcus Tomlinson (WASAPI)</LI>
 <LI>Ryan Williams (Windows non-MS compiler ASIO support)</LI>
 <LI>Ed Wildgoose (Linux ALSA and Jack)</LI>
+<LI>Serge Zaitsev</LI>
+<LI>Iohannes Zm&ouml;lnig</LI>
 
 </UL>
 

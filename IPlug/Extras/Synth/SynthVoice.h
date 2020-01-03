@@ -89,7 +89,7 @@ public:
 
   /** If you have members that need to update when the sample rate changes you can do that by overriding this method
    * @param sampleRate The new sample rate */
-  virtual void SetSampleRate(double sampleRate) {};
+  virtual void SetSampleRateAndBlockSize(double sampleRate, int blockSize) {};
 
   /** Implement this to allow picking a sound program from an integer index, as with MIDI
    * @param p The new program number */

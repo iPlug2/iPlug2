@@ -46,10 +46,11 @@ public:
    * @param bounds The control's bounds
    * @param label The label for the vector control, leave empty for no label
    * @param style The styling of this vector control \see IVStyle
+   * @param loParamIdx The parameter index for the first slider in the multislider. The total number of sliders/parameters covered depends on the template argument, and is contiguous from loParamIdx
    * @param direction The direction of the sliders
    * @param minTrackValue Defines the minimum value of each slider
    * @param maxTrackValue Defines the maximum value of each slider */
-  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir, float minTrackValue, float maxTrackValue)
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir, float minTrackValue, float maxTrackValue) //FIXME: float minTrackValue, float maxTrackValue?
   : IVTrackControlBase(bounds, label, style, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue)
   {
     mOuterPadding = 0.f;
@@ -92,7 +93,7 @@ public:
 
     if(direction == EDirection::Vertical)
     {
-      value = 1. - (y-bounds.T) / bounds.H();
+      value = 1.f - (y-bounds.T) / bounds.H();
       
       for(auto i = 0; i < nVals; i++)
       {
@@ -122,7 +123,7 @@ public:
     if (sliderTest > -1)
     {
       SetValue(mMinTrackValue + Clip(value, 0.f, 1.f) * (mMaxTrackValue - mMinTrackValue), sliderTest);
-      OnNewValue(sliderTest, GetValue(sliderTest));
+      OnNewValue(sliderTest, static_cast<float>(GetValue(sliderTest)));
 
       mSliderHit = sliderTest;
 
@@ -147,7 +148,7 @@ public:
           {
             float frac = (float)(i - lowBounds) / float(highBounds-lowBounds);
             SetValue(linearInterp(GetValue(lowBounds), GetValue(highBounds), frac), i);
-            OnNewValue(i, GetValue(i));
+            OnNewValue(i, static_cast<float>(GetValue(i)));
           }
         }
       }

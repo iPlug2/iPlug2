@@ -30,14 +30,14 @@ public:
     
   void Draw(IGraphics& g) override
   {
-    IPattern pattern = IPattern::CreateLinearGradient(mRECT.L + mRECT.W() / 2.0, mRECT.T + mRECT.H() / 2.0, mRECT.R, mRECT.B);
+    IPattern pattern = IPattern::CreateLinearGradient(mRECT.L + mRECT.W() / 2.f, mRECT.T + mRECT.H() / 2.f, mRECT.R, mRECT.B);
     pattern.AddStop(COLOR_BLACK, 0.f);
     pattern.AddStop(COLOR_WHITE, 1.f);
         
-    IShadow shadow(pattern, 0.0, mRECT.W() / 2.0, mRECT.H() / 2.0, 1.0, false);
-    IRECT bounds(mRECT.L, mRECT.T, mRECT.L + mRECT.W() / 2.0, mRECT.T + mRECT.H() / 2.0);
+    IShadow shadow(pattern, 0.f, mRECT.W() / 2.f, mRECT.H() / 2.f, 1.f, false);
+    IRECT bounds(mRECT.L, mRECT.T, mRECT.L + mRECT.W() / 2.f, mRECT.T + mRECT.H() / 2.f);
         
-    g.StartLayer(mRECT);
+    g.StartLayer(this, mRECT);
     g.FillRect(COLOR_WHITE, bounds);
     mLayer = g.EndLayer();
     g.ApplyLayerDropShadow(mLayer, shadow);

@@ -36,6 +36,10 @@ static double sFPS = 0.0;
 #define IPLUG_TIMER_ID 2
 #define IPLUG_WIN_MAX_WIDE_PATH 4096
 
+#define TOOLTIPWND_MAXWIDTH 250
+
+#define WM_VBLANK (WM_USER+1)
+
 #pragma mark - Private Classes and Structs
 
 // Fonts
@@ -48,7 +52,7 @@ public:
   {
     if (data)
     {
-      DWORD numFonts;
+      DWORD numFonts = 0;
       mFontHandle = AddFontMemResourceEx(data, resSize, NULL, &numFonts);
     }
   }
@@ -208,23 +212,126 @@ void IGraphicsWin::DestroyEditWindow()
  }
 }
 
+void IGraphicsWin::OnDisplayTimer(int vBlankCount)
+{
+#ifdef IGRAPHICS_VSYNC
+  // Check the message vblank with the current one to see if we are way behind. If so, then throw these away.
+  DWORD msgCount = vBlankCount;
+  DWORD curCount = mVBlankCount;
+
+  // skip until the actual vblank is at a certain number.
+  if (mVBlankSkipUntil != 0 && mVBlankSkipUntil > mVBlankCount)
+  {
+    return;
+  }
+
+  mVBlankSkipUntil = 0;
+
+  if (msgCount != curCount)
+  {
+    // we are late, just skip it until we can get a message soon after the vblank event.
+    // DBGMSG("vblank is late by %i frames.  Skipping.", (mVBlankCount - msgCount));
+    return;
+  }
+#endif
+
+  if (mParamEditWnd && mParamEditMsg != kNone)
+  {
+    switch (mParamEditMsg)
+    {
+      case kCommit:
+      {
+        char txt[MAX_WIN32_PARAM_LEN];
+        SendMessage(mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM)txt);
+        SetControlValueAfterTextEdit(txt);
+        DestroyEditWindow();
+        break;
+      }
+      case kCancel:
+        DestroyEditWindow();
+        break;
+    }
+
+    mParamEditMsg = kNone;
+
+    return; // TODO: check this!
+  }
+
+  // TODO: move this... listen to the right messages in windows for screen resolution changes, etc.
+  int scale = GetScaleForWindow(mPlugWnd);
+  if (scale != GetScreenScale())
+    SetScreenScale(scale);
+
+  // TODO: this is far too aggressive for slow drawing animations and data changing.  We need to
+  // gate the rate of updates to a certain percentage of the wall clock time.
+  IRECTList rects;
+  if (IsDirty(rects))
+  {
+    SetAllControlsClean();
+
+    for (int i = 0; i < rects.Size(); i++)
+    {
+      IRECT dirtyR = rects.Get(i);
+      dirtyR.Scale(GetDrawScale() * GetScreenScale());
+      dirtyR.PixelAlign();
+      RECT r = { (LONG)dirtyR.L, (LONG)dirtyR.T, (LONG)dirtyR.R, (LONG)dirtyR.B };
+      InvalidateRect(mPlugWnd, &r, FALSE);
+    }
+
+    if (mParamEditWnd)
+    {
+      IRECT notDirtyR = mEditRECT;
+      notDirtyR.Scale(GetDrawScale() * GetScreenScale());
+      notDirtyR.PixelAlign();
+      RECT r2 = { (LONG)notDirtyR.L, (LONG)notDirtyR.T, (LONG)notDirtyR.R, (LONG)notDirtyR.B };
+      ValidateRect(mPlugWnd, &r2); // make sure we dont redraw the edit box area
+      UpdateWindow(mPlugWnd);
+      mParamEditMsg = kUpdate;
+    }
+    else
+    {
+      // Force a redraw right now
+      UpdateWindow(mPlugWnd);
+
+#ifdef IGRAPHICS_VSYNC
+      // Check and see if we are still in this frame.
+      curCount = mVBlankCount;
+      if (msgCount != curCount)
+      {
+        // we are late, skip the next vblank to give us a breather.
+        mVBlankSkipUntil = curCount+1;
+        DBGMSG("vblank painting was late by %i frames.", (mVBlankSkipUntil - msgCount));
+      }
+#endif
+    }
+  }
+  return;
+}
+
 // static
 LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   if (msg == WM_CREATE)
   {
-    LPCREATESTRUCT lpcs = (LPCREATESTRUCT) lParam;
-    SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM) (lpcs->lpCreateParams));
-    int mSec = static_cast<int>(std::round(1000.0 / (sFPS)));
+    LPCREATESTRUCT lpcs = (LPCREATESTRUCT)lParam;
+    SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM)(lpcs->lpCreateParams));
+    IGraphicsWin* pGraphics = (IGraphicsWin*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+
+#ifdef IGRAPHICS_VSYNC // use VBLANK Thread
+    assert((pGraphics->FPS() == 60) && "If you want to run at frame rates other than 60FPS remove IGRAPHICS_VSYNC");
+    pGraphics->StartVBlankThread(hWnd);
+#else // use WM_TIMER -- its best to get below 16ms because the windows time quanta is slightly above 15ms.
+    int mSec = static_cast<int>(std::floorf(1000.0f / (pGraphics->FPS())));
+    if (mSec < 20) mSec = 15;
     SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL);
+#endif
+
     SetFocus(hWnd); // gets scroll wheel working straight away
     DragAcceptFiles(hWnd, true);
     return 0;
   }
 
   IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
-  char txt[MAX_WIN32_PARAM_LEN];
-  double v;
 
   if (!pGraphics || hWnd != pGraphics->mPlugWnd)
   {
@@ -242,73 +349,21 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   }
 
   pGraphics->CheckTabletInput(msg);
-  
+
   switch (msg)
   {
-    case WM_TIMER:
-    {
-      if (wParam == IPLUG_TIMER_ID)
-      {
-        if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg != kNone)
-        {
-          switch (pGraphics->mParamEditMsg)
-          {
-            case kCommit:
-            {
-              SendMessage(pGraphics->mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM) txt);
-              pGraphics->SetControlValueAfterTextEdit(txt);
-              pGraphics->DestroyEditWindow();
-            }
-            break;
-                  
-            case kCancel:
-            {
-              pGraphics->DestroyEditWindow();
-            }
-            break;
-          }
-          pGraphics->mParamEditMsg = kNone;
-          return 0; // TODO: check this!
-        }
-
-        int scale = GetScaleForWindow(pGraphics->mPlugWnd);
-        if (scale != pGraphics->GetScreenScale())
-          pGraphics->SetScreenScale(scale);
-
-        IRECTList rects;
-         
-        if (pGraphics->IsDirty(rects))
-        {
-          pGraphics->SetAllControlsClean();
-
-          for (int i = 0; i < rects.Size(); i++)
-          {
-            IRECT dirtyR = rects.Get(i);
-            dirtyR.Scale(pGraphics->GetDrawScale() * pGraphics->GetScreenScale());
-            dirtyR.PixelAlign();
-            RECT r = { (LONG)dirtyR.L, (LONG)dirtyR.T, (LONG)dirtyR.R, (LONG)dirtyR.B };
-
-            InvalidateRect(hWnd, &r, FALSE);
-          }
-
-          if (pGraphics->mParamEditWnd)
-          {
-            IRECT notDirtyR = pGraphics->mEditRECT;
-            notDirtyR.Scale(pGraphics->GetDrawScale() * pGraphics->GetScreenScale());
-            notDirtyR.PixelAlign();
-            RECT r2 = { (LONG) notDirtyR.L, (LONG) notDirtyR.T, (LONG) notDirtyR.R, (LONG) notDirtyR.B };
-            ValidateRect(hWnd, &r2); // make sure we dont redraw the edit box area
-            UpdateWindow(hWnd);
-            pGraphics->mParamEditMsg = kUpdate;
-          }
-          else
-          {
-            UpdateWindow(hWnd);
-          }
-        }
-      }
+    case WM_VBLANK:
+      pGraphics->OnDisplayTimer(wParam);
       return 0;
-    }
+
+    case WM_TIMER:
+      if (wParam == IPLUG_TIMER_ID)
+        pGraphics->OnDisplayTimer(0);
+
+      return 0;
+
+    case WM_ERASEBKGND:
+      return 0;
 
     case WM_RBUTTONDOWN:
     case WM_LBUTTONDOWN:
@@ -473,21 +528,15 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
       if ((regionType == COMPLEXREGION) || (regionType == SIMPLEREGION))
       {
-        #ifdef IGRAPHICS_GL
-        pGraphics->ActivateGLContext();
-        PAINTSTRUCT ps;
-        BeginPaint(hWnd, &ps); // TODO: BeginPaint/EndPaint and GetDC/ReleaseDC ? issues closing reaper without this
-        #endif
-
         IRECTList rects;
         const int bufferSize = sizeof(RECT) * 64;
         unsigned char stackBuffer[sizeof(RGNDATA) + bufferSize];
-        RGNDATA* regionData = (RGNDATA *) stackBuffer;
+        RGNDATA* regionData = (RGNDATA*)stackBuffer;
 
         if (regionType == COMPLEXREGION && GetRegionData(region, bufferSize, regionData))
         {
           for (int i = 0; i < regionData->rdh.nCount; i++)
-            addDrawRect(rects, *(((RECT*) regionData->Buffer) + i));
+            addDrawRect(rects, *(((RECT*)regionData->Buffer) + i));
         }
         else
         {
@@ -496,16 +545,34 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           addDrawRect(rects, r);
         }
 
+#if defined IGRAPHICS_GL //|| IGRAPHICS_D2D
+        PAINTSTRUCT ps;
+        BeginPaint(hWnd, &ps);
+#endif
+
+#ifdef IGRAPHICS_GL
+        pGraphics->ActivateGLContext();
+#endif
+
         pGraphics->Draw(rects);
 
         #ifdef IGRAPHICS_GL
         SwapBuffers((HDC) pGraphics->mPlatformContext);
         pGraphics->DeactivateGLContext();
-        EndPaint(hWnd, &ps);
         #endif
+
+#if defined IGRAPHICS_GL || IGRAPHICS_D2D
+        EndPaint(hWnd, &ps);
+#endif
       }
 
+      // For the D2D if we don't call endpaint, then you really need to call ValidateRect otherwise
+      // we are just going to get another WM_PAINT to handle.  Bad!  It also exibits the odd property
+      // that windows will be popped under the window.
+      ValidateRect(hWnd, 0);
+
       DeleteObject(region);
+
       return 0;
     }
 
@@ -750,6 +817,9 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
 
     RECT r = { 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale() };
     InvalidateRect(mPlugWnd, &r, FALSE);
+
+    // Fix white background while resizing
+    UpdateWindow(mPlugWnd);
   }
 }
 
@@ -945,8 +1015,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
     RegisterClass(&wndClass);
   }
 
-  sFPS = FPS();
-  mPlugWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE, x, y, w, h, mParentWnd, 0, mHInstance, this);
+  mPlugWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, x, y, w, h, mParentWnd, 0, mHInstance, this);
 
   HDC dc = GetDC(mPlugWnd);
   SetPlatformContext(dc);
@@ -978,7 +1047,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
     if (InitCommonControlsEx(&iccex))
     {
-      mTooltipWnd = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_NOPREFIX | TTS_ALWAYSTIP,
+      mTooltipWnd = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TTS_NOPREFIX | TTS_ALWAYSTIP,
                                    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, mPlugWnd, NULL, mHInstance, NULL);
       if (mTooltipWnd)
       {
@@ -986,11 +1055,16 @@ void* IGraphicsWin::OpenWindow(void* pParent)
         TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, TTF_IDISHWND | TTF_SUBCLASS, mPlugWnd, (UINT_PTR)mPlugWnd };
         ti.lpszText = (LPTSTR)NULL;
         SendMessage(mTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
+        SendMessage(mTooltipWnd, TTM_SETMAXTIPWIDTH, 0, TOOLTIPWND_MAXWIDTH);
         ok = true;
       }
     }
 
     if (!ok) EnableTooltips(ok);
+
+#ifdef IGRAPHICS_GL
+    wglMakeCurrent(NULL, NULL);
+#endif
   }
 
   GetDelegate()->OnUIOpen();
@@ -1070,9 +1144,20 @@ void IGraphicsWin::CloseWindow()
 {
   if (mPlugWnd)
   {
+#ifdef IGRAPHICS_VSYNC
+    StopVBlankThread();
+#else
+    KillTimer(mPlugWnd, IPLUG_TIMER_ID);
+#endif
+
+#ifdef IGRAPHICS_GL
+    ActivateGLContext();
+#endif
+
     OnViewDestroyed();
 
 #ifdef IGRAPHICS_GL
+    DeactivateGLContext();
     DestroyGLContext();
 #endif
 
@@ -1288,7 +1373,7 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   double scale = GetDrawScale() * GetScreenScale();
   IRECT scaledBounds = bounds.GetScaled(scale);
 
-  mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_VISIBLE | ES_MULTILINE | editStyle,
+  mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE | ES_MULTILINE | editStyle,
     scaledBounds.L, scaledBounds.T, scaledBounds.W()+1, scaledBounds.H()+1,
     mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
@@ -1559,7 +1644,7 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
   {
     WCHAR urlWide[IPLUG_WIN_MAX_WIDE_PATH];
     UTF8ToUTF16(urlWide, url, IPLUG_WIN_MAX_WIDE_PATH);
-    if ((int) ShellExecuteW(mPlugWnd, L"open", urlWide, 0, 0, SW_SHOWNORMAL) > MAX_INET_ERR_CODE)
+    if (ShellExecuteW(mPlugWnd, L"open", urlWide, 0, 0, SW_SHOWNORMAL) > HINSTANCE(32))
     {
       return true;
     }
@@ -1734,7 +1819,7 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
   int resSize = 0;
   WDL_String fullPath;
  
-  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), GetWinModuleHandle());
+  const EResourceLocation fontLocation = LocateResource(fileNameOrResID, "ttf", fullPath, GetBundleID(), GetWinModuleHandle(), nullptr);
 
   if (fontLocation == kNotFound)
     return nullptr;
@@ -1744,12 +1829,18 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
     case kAbsolutePath:
     {
       HANDLE file = CreateFile(fullPath.Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-      HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
-      pFontMem = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
-      pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
-      UnmapViewOfFile(pFontMem);
-      CloseHandle(mapping);
-      CloseHandle(file);
+      if (file)
+      {
+        HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
+        if (mapping)
+        {
+          pFontMem = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
+          pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
+          UnmapViewOfFile(pFontMem);
+          CloseHandle(mapping);
+        }
+        CloseHandle(file);
+      }
     }
     break;
     case kWinBinary:
@@ -1802,6 +1893,193 @@ void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
     hfontStorage.Add(new HFontHolder(hfont), fontID);
 }
 
+#ifdef IGRAPHICS_VSYNC
+DWORD WINAPI VBlankRun(LPVOID lpParam)
+{
+  IGraphicsWin* pGraphics = (IGraphicsWin*)lpParam;
+  return pGraphics->OnVBlankRun();
+}
+
+void IGraphicsWin::StartVBlankThread(HWND hWnd)
+{
+  mVBlankWindow = hWnd;
+  mVBlankShutdown = false;
+  DWORD threadId = 0;
+  mVBlankThread = ::CreateThread(NULL, 0, VBlankRun, this, 0, &threadId);
+}
+
+void IGraphicsWin::StopVBlankThread()
+{
+  if (mVBlankThread != INVALID_HANDLE_VALUE)
+  {
+    mVBlankShutdown = true;
+    ::WaitForSingleObject(mVBlankThread, 10000);
+    mVBlankThread = INVALID_HANDLE_VALUE;
+    mVBlankWindow = 0;
+  }
+}
+
+// Nasty kernel level definitions for wait for vblank.  Including the
+// proper include file requires "d3dkmthk.h" from the driver development
+// kit.  Instead we define the minimum needed to call the three methods we need.
+// and use LoadLibrary/GetProcAddress to accomplish the same thing.
+// See https://docs.microsoft.com/en-us/windows-hardware/drivers/ddi/d3dkmthk/
+//
+// Heres another link (rant) with a lot of good information about vsync on firefox
+// https://www.vsynctester.com/firefoxisbroken.html
+// https://bugs.chromium.org/p/chromium/issues/detail?id=467617
+
+// structs to use
+typedef UINT32 D3DKMT_HANDLE;
+typedef UINT D3DDDI_VIDEO_PRESENT_SOURCE_ID;
+typedef struct _D3DKMT_OPENADAPTERFROMHDC {
+  HDC                            hDc;
+  D3DKMT_HANDLE                  hAdapter;
+  LUID                           AdapterLuid;
+  D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
+} D3DKMT_OPENADAPTERFROMHDC;
+typedef struct _D3DKMT_CLOSEADAPTER {
+  D3DKMT_HANDLE hAdapter;
+} D3DKMT_CLOSEADAPTER;
+typedef struct _D3DKMT_WAITFORVERTICALBLANKEVENT {
+  D3DKMT_HANDLE                  hAdapter;
+  D3DKMT_HANDLE                  hDevice;
+  D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
+} D3DKMT_WAITFORVERTICALBLANKEVENT;
+
+// entry points
+typedef NTSTATUS(WINAPI* D3DKMTOpenAdapterFromHdc)(D3DKMT_OPENADAPTERFROMHDC* Arg1);
+typedef NTSTATUS(WINAPI* D3DKMTCloseAdapter)(const D3DKMT_CLOSEADAPTER* Arg1);
+typedef NTSTATUS(WINAPI* D3DKMTWaitForVerticalBlankEvent)(const D3DKMT_WAITFORVERTICALBLANKEVENT* Arg1);
+
+DWORD IGraphicsWin::OnVBlankRun()
+{
+  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
+
+  // TODO: get expected vsync value.  For now we will use a fallback
+  // of 60Hz
+  float rateFallback = 60.0f;
+  int rateMS = (int)(1000.0f / rateFallback);
+
+  // We need to try to load the module and entry points to wait on v blank.
+  // if anything fails, we try to gracefully fallback to sleeping for some
+  // number of milliseconds.
+  //
+  // TODO: handle low power modes
+
+  D3DKMTOpenAdapterFromHdc pOpen = nullptr;
+  D3DKMTCloseAdapter pClose = nullptr;
+  D3DKMTWaitForVerticalBlankEvent pWait = nullptr;
+  HINSTANCE hInst = LoadLibrary("gdi32.dll");
+  if (hInst != nullptr)
+  {
+    pOpen  = (D3DKMTOpenAdapterFromHdc)GetProcAddress((HMODULE)hInst, "D3DKMTOpenAdapterFromHdc");
+    pClose = (D3DKMTCloseAdapter)GetProcAddress((HMODULE)hInst, "D3DKMTCloseAdapter");
+    pWait  = (D3DKMTWaitForVerticalBlankEvent)GetProcAddress((HMODULE)hInst, "D3DKMTWaitForVerticalBlankEvent");
+  }
+
+  // if we don't get bindings to the methods we will fallback
+  // to a crummy sleep loop for now.  This is really just a last
+  // resort and not expected on modern hardware and Windows OS
+  // installs.
+  if (!pOpen || !pClose || !pWait)
+  {
+    while (mVBlankShutdown == false)
+    {
+      Sleep(rateMS);
+      VBlankNotify();
+    }
+  }
+  else
+  {
+    // we have a good set of functions to call.  We need to keep
+    // track of the adapter and reask for it if the device is lost.
+    bool adapterIsOpen = false;
+    DWORD adapterLastFailTime = 0;
+    _D3DKMT_WAITFORVERTICALBLANKEVENT we = { 0 };
+
+    while (mVBlankShutdown == false)
+    {
+      if (!adapterIsOpen)
+      {
+        // reacquire the adapter (at most once a second).
+        if (adapterLastFailTime < ::GetTickCount() - 1000)
+        {
+          // try to get adapter
+          D3DKMT_OPENADAPTERFROMHDC openAdapterData = { 0 };
+          HDC hDC = GetDC(mVBlankWindow);
+          openAdapterData.hDc = hDC;
+          NTSTATUS status = (*pOpen)(&openAdapterData);
+          if (status == S_OK)
+          {
+            // success, setup wait request parameters.
+            adapterLastFailTime = 0;
+            adapterIsOpen = true;
+            we.hAdapter = openAdapterData.hAdapter;
+            we.hDevice = 0;
+            we.VidPnSourceId = openAdapterData.VidPnSourceId;
+          }
+          else
+          {
+            // failed
+            adapterLastFailTime = ::GetTickCount();
+          }
+          DeleteDC(hDC);
+        }
+      }
+
+      if (adapterIsOpen)
+      {
+        // Finally we can wait on VBlank
+        NTSTATUS status = (*pWait)(&we);
+        if (status != S_OK)
+        {
+          // failed, close now and try again on the next pass.
+          _D3DKMT_CLOSEADAPTER ca;
+          ca.hAdapter = we.hAdapter;
+          (*pClose)(&ca);
+          adapterIsOpen = false;
+        }
+      }
+
+      // Temporary fallback for lost adapter or failed call.
+      if (!adapterIsOpen)
+      {
+        ::Sleep(rateMS);
+      }
+
+      // notify logic
+      VBlankNotify();
+    }
+
+    // cleanup adapter before leaving
+    if (adapterIsOpen)
+    {
+      _D3DKMT_CLOSEADAPTER ca;
+      ca.hAdapter = we.hAdapter;
+      (*pClose)(&ca);
+      adapterIsOpen = false;
+    }
+  }
+
+  // release module resource
+  if (hInst != nullptr)
+  {
+    FreeLibrary((HMODULE)hInst);
+    hInst = nullptr;
+  }
+
+  return 0;
+}
+
+void IGraphicsWin::VBlankNotify()
+{
+  mVBlankCount++;
+  ::PostMessage(mVBlankWindow, WM_VBLANK, mVBlankCount, 0);
+}
+#endif
+
+
 #ifndef NO_IGRAPHICS
 #if defined IGRAPHICS_AGG
   #include "IGraphicsAGG.cpp"
@@ -1821,6 +2099,8 @@ void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
 #endif
   #include "nanovg.c"
   #include "glad.c"
+#elif defined IGRAPHICS_D2D
+  #include "IGraphicsD2D.cpp"
 #else
   #error
 #endif

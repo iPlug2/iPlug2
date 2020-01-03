@@ -1,0 +1,48 @@
+diff --git a/BUILD.gn b/BUILD.gn
+index 03ceaf2adb928316a331616b5ff20c4bae2941aa..de4da3aac19906578017c790f3a4079d976f9892 100644
+--- a/BUILD.gn
++++ b/BUILD.gn
+@@ -1122,10 +1122,7 @@ group("modules") {
+     "modules/particles",
+     "modules/skottie",
+     "modules/skshaper",
+-  ]
+-  if (target_cpu == "wasm") {
+-    deps += [ "modules/skparagraph" ]
+-  }
++    "modules/skparagraph"]
+ }
+ 
+ # Targets guarded by skia_enable_tools may use //third_party freely.
+@@ -2503,19 +2500,3 @@ if (skia_enable_tools) {
+     ]
+   }
+ }
+-
+-if (is_ios && skia_use_metal && !skia_enable_flutter_defines) {
+-  group("minimal_ios_mtl_skia_app") {
+-    deps = [
+-      "experimental/minimal_ios_mtl_skia_app",
+-    ]
+-  }
+-}
+-
+-if (is_ios && !skia_enable_flutter_defines) {
+-  group("skottie_ios") {
+-    deps = [
+-      "tools/skottie_ios_app",
+-    ]
+-  }
+-}
+diff --git a/modules/skparagraph/BUILD.gn b/modules/skparagraph/BUILD.gn
+index 80b86e073a804406e3a0f81c0954622c1ceb0863..c296823a49bdcca1b329a9086ac54f2adf3556f1 100644
+--- a/modules/skparagraph/BUILD.gn
++++ b/modules/skparagraph/BUILD.gn
+@@ -18,6 +18,7 @@ if (skia_enable_skparagraph) {
+ 
+   component("skparagraph") {
+     import("skparagraph.gni")
++    complete_static_lib = false
+     public_configs = [ ":public_config" ]
+     public = skparagraph_public
+     if (skia_use_icu && skia_use_harfbuzz) {

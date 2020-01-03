@@ -141,7 +141,7 @@ IGraphicsNanoVG::Bitmap::~Bitmap()
 // Fonts
 static StaticStorage<IFontData> sFontCache;
 
-extern std::map<std::string, void*> gTextureMap;
+extern std::map<std::string, MTLTexturePtr> gTextureMap;
 
 // Retrieving pixels
 static void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
@@ -192,6 +192,8 @@ static inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
 
 static NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend)
 {
+  assert(pattern.NStops() > 0);
+  
   double s[2], e[2];
   
   NVGcolor icol = NanoVGColor(pattern.GetStop(0).mColor, pBlend);
@@ -299,11 +301,12 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
 APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
   int idx = 0;
-
+  int nvgImageFlags = 0;
+  
 #ifdef OS_IOS
   if (location == EResourceLocation::kPreloadedTexture)
   {
-    idx = mnvgCreateImageFromHandle(mVG, gTextureMap[fileNameOrResID], 0 /*flags*/);
+    idx = mnvgCreateImageFromHandle(mVG, gTextureMap[fileNameOrResID], nvgImageFlags);
   }
   else
 #endif
@@ -317,13 +320,13 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
     pResData = LoadWinResource(fileNameOrResID, ext, size, GetWinModuleHandle());
 
     if (pResData)
-      idx = nvgCreateImageMem(mVG, 0 /*flags*/, (unsigned char*)pResData, size);
+      idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pResData, size);
   }
   else
 #endif
   if (location == EResourceLocation::kAbsolutePath)
   {
-    idx = nvgCreateImage(mVG, fileNameOrResID, 0);
+    idx = nvgCreateImage(mVG, fileNameOrResID, nvgImageFlags);
   }
 
   return new Bitmap(mVG, fileNameOrResID, scale, idx, location == EResourceLocation::kPreloadedTexture);
@@ -387,7 +390,7 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     APIBitmap* shadowBitmap = CreateAPIBitmap(width, height, pBitmap->GetScale(), pBitmap->GetDrawScale());
     IBitmap tempLayerBitmap(shadowBitmap, 1, false);
     IBitmap maskBitmap(&maskRawBitmap, 1, false);
-    ILayer shadowLayer(shadowBitmap, layer->Bounds());
+    ILayer shadowLayer(shadowBitmap, layer->Bounds(), nullptr, IRECT());
     
     PathTransformSave();
     PushLayer(layer.get());
@@ -567,6 +570,11 @@ void IGraphicsNanoVG::PathQuadraticBezierTo(float cx, float cy, float x2, float 
   nvgQuadTo(mVG, cx, cy, x2, y2);
 }
 
+void IGraphicsNanoVG::PathSetWinding(bool clockwise)
+{
+  nvgPathWinding(mVG, clockwise ? NVG_CW : NVG_CCW);
+}
+
 IColor IGraphicsNanoVG::GetPoint(int x, int y)
 {
   return COLOR_BLACK; //TODO:
@@ -664,7 +672,22 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
 
 void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
-  nvgPathWinding(mVG, options.mFillRule == EFillRule::Winding ? NVG_CCW : NVG_CW);
+  switch(options.mFillRule)
+  {
+    // This concept of fill vs. even/odd winding does not really translate to nanovg.
+    // Instead the caller is responsible for settting winding correctly for each subpath
+    // based on whether it's a solid (NVG_CCW) or hole (NVG_CW).
+    case EFillRule::Winding:
+      nvgPathWinding(mVG, NVG_CCW);
+      break;
+    case EFillRule::EvenOdd:
+      nvgPathWinding(mVG, NVG_CW);
+      break;
+    case EFillRule::Preserve:
+      // don't set a winding rule for the path, to preserve individual windings on subpaths
+    default:
+      break;
+  }
   
   if (pattern.mType == EPatternType::Solid)
     nvgFillColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));

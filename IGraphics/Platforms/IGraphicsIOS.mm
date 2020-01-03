@@ -28,10 +28,10 @@ StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 #pragma mark -
 
-std::map<std::string, void*> gTextureMap;
+std::map<std::string, MTLTexturePtr> gTextureMap;
 
 IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
-: IGraphicsNanoVG(dlg, w, h, fps, scale)
+: IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
  
   if(!gTextureMap.size())
@@ -68,7 +68,7 @@ IGraphicsIOS::~IGraphicsIOS()
 
 void* IGraphicsIOS::OpenWindow(void* pParent)
 {
-  TRACE;
+  TRACE
   CloseWindow();
   IGRAPHICS_VIEW* view = (IGRAPHICS_VIEW*) [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   mView = view;
@@ -245,3 +245,11 @@ void IGraphicsIOS::LaunchBluetoothMidiDialog(float x, float y)
   NSDictionary* dic = @{@"x": @(x), @"y": @(y)};
   [[NSNotificationCenter defaultCenter] postNotificationName:@"LaunchBTMidiDialog" object:nil userInfo:dic];
 }
+
+#if defined IGRAPHICS_NANOVG
+  #include "IGraphicsNanoVG.cpp"
+#elif defined IGRAPHICS_SKIA
+  #include "IGraphicsSkia.cpp"
+#else
+  #error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
+#endif

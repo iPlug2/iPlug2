@@ -1,5 +1,5 @@
 # IPLUG2_ROOT should point to the top level IPLUG2 folder from the project folder
-# By default, that is three directories up from /Examples/IPlugEffect/config
+# By default, that is three directories up from /Examples/IPlugInstrument/config
 IPLUG2_ROOT = ../../..
 include ../../../common-web.mk
 

@@ -12,6 +12,8 @@
 #include "IPlugConstants.h"
 #include "IGraphicsConstants.h"
 
+#include <cmath>
+
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
@@ -46,8 +48,8 @@ inline T DegToRad(T degrees)
 static inline void RadialPoints(float angleDegrees, float cx, float cy, float rMin, float rMax, int nPoints, float data[][2])
 {
   const float angleRadians = DegToRad(angleDegrees - 90.f);
-  const float sinV = sinf(angleRadians);
-  const float cosV = cosf(angleRadians);
+  const float sinV = std::sin(angleRadians);
+  const float cosV = std::cos(angleRadians);
   
   for(auto i = 0; i < nPoints; i++)
   {
@@ -55,6 +57,20 @@ static inline void RadialPoints(float angleDegrees, float cx, float cy, float rM
     data[i][0] = (cx + r * cosV);
     data[i][1] = (cy + r * sinV);
   }
+}
+
+// Return the intersection of line(p0, p1) with line(p2, p3) as a fraction of the distance along (p2, p3).
+static float GetLineCrossing(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3)
+{
+  auto b = p2 - p0;
+  auto d = p1 - p0;
+  auto e = p3 - p2;
+  float m = d.x * e.y - d.y * e.x;
+  
+  float epsilon = 1e-8f;
+  if (std::abs(m) < epsilon)
+    return NAN;
+  return -(d.x * b.y - d.y * b.x) / m;
 }
 
 END_IGRAPHICS_NAMESPACE

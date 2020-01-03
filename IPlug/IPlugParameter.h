@@ -209,7 +209,7 @@ public:
    * @param maxVal /todo
    * @param flags /todo
    * @param group /todo */
-  void InitPitch(const char* name, int defaultVal = 60, int minVal = 0, int maxVal = 128, int flags = 0, const char* group = "");
+  void InitPitch(const char* name, int defaultVal = 60, int minVal = 0, int maxVal = 128, int flags = 0, const char* group = "", bool middleCisC4 = false);
   
   /** /todo 
    * @param name /todo
@@ -251,22 +251,22 @@ public:
    * @return double /todo */
   double StringToValue(const char* str) const;
 
-  /** /todo 
-   * @param value /todo
-   * @return double /todo */
+  /** Constrains the input value between \c mMin and \c mMax
+   * @param value The input value to constrain
+   * @return double The resulting constrained value */
   inline double Constrain(double value) const { return Clip((mFlags & kFlagStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
 
-  /** /todo 
-   * @param nonNormalizedValue /todo
-   * @return double /todo */
+  /** Convert a real value to normalized value for this parameter
+   * @param nonNormalizedValue The real input value
+   * @return The corresponding normalized value, for this parameter */
   inline double ToNormalized(double nonNormalizedValue) const
   {
     return Clip(mShape->ValueToNormalized(Constrain(nonNormalizedValue), *this), 0., 1.);
   }
 
-  /** /todo 
-   * @param normalizedValue /todo
-   * @return double /todo */
+  /** Convert a normalized value to real value for this parameter
+   * @param normalizedValue The normalized input value in the range 0. to 1.
+   * @return The corresponding real value, for this parameter */
   inline double FromNormalized(double normalizedValue) const
   {
     return Constrain(mShape->NormalizedToValue(normalizedValue, *this));
@@ -276,8 +276,8 @@ public:
    * @param value Value to be set. Will be stepped and clamped between \c mMin and \c mMax */
   void Set(double value) { mValue.store(Constrain(value)); }
 
-  /** /todo 
-   * @param normalizedValue /todo */
+  /** Sets the parameter value from a normalized range (usually coming from the linked IControl)
+   * @param normalizedValue The expected normalized value between 0. and 1. */
   void SetNormalized(double normalizedValue) { Set(FromNormalized(normalizedValue)); }
 
   /** /todo 

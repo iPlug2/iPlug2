@@ -23,8 +23,8 @@ class TestBlendControl : public IKnobControlBase
                        , public IBitmapBase
 {
 public:
-  TestBlendControl(const IRECT& bounds, const IBitmap& bitmap)
-  : IKnobControlBase(bounds)
+  TestBlendControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx)
+  : IKnobControlBase(bounds, paramIdx)
   , IBitmapBase(bitmap)
   {
     SetTooltip("TestBlendControl");
@@ -43,12 +43,12 @@ public:
     auto drawBlendPic = [this](IGraphics& g, IRECT r, EBlend blend, const char* name, float alpha)
     {
       IBlend blendMode { blend, alpha };
-      g.FillCircle(IColor(128, 255, 0, 0), r.MW(), r.MH(), r.W() / 2.0);
+      g.FillCircle(IColor(128, 255, 0, 0), r.MW(), r.MH(), r.W() / 2.f);
       g.DrawFittedBitmap(mBitmap, r, &blendMode);
       g.DrawText(mText, name, r);
     };
 
-    g.StartLayer(mRECT);
+    g.StartLayer(this, mRECT);
     drawBlendPic(g, nextCell(), EBlend::Default, "Default", alpha);
     drawBlendPic(g, nextCell(), EBlend::Clobber, "Clobber", alpha);
     drawBlendPic(g, nextCell(), EBlend::Add, "Add", alpha);

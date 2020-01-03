@@ -517,7 +517,7 @@ void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
     agg::pixel_wrapper* shadowSource = new agg::pixel_wrapper(mask.Get(), pPixMap->width(), pPixMap->height(), pPixMap->bpp(), pPixMap->row_bytes());
     APIBitmap* shadowBitmap = new Bitmap(shadowSource, pBitmap->GetScale(), pBitmap->GetDrawScale(), true);
     IBitmap bitmap(shadowBitmap, 1, false);
-    ILayer shadowLayer(shadowBitmap, layer->Bounds());
+    ILayer shadowLayer(shadowBitmap, layer->Bounds(), nullptr, IRECT());
       
     PathTransformSave();
     PushLayer(layer.get());

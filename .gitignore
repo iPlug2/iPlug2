@@ -10,6 +10,7 @@
 *.suo
 *.ncb
 *.vcproj.*
+*.vcxproj.user
 *.pkg
 *.dmg
 *.depend
@@ -40,5 +41,6 @@ Dependencies/Build/*
 Documentation/html
 Documentation/doxygen_warnings.txt
 Examples/build_errors.log
-IPlug/AUv3
 *Projects/*
+Examples/IPlugSwift/Pods
+PodFile.lock

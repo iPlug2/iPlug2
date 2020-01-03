@@ -23,7 +23,8 @@ StringElements = {
 "AAX_PLUG_MFR_STR",
 "AAX_PLUG_NAME_STR",
 "AAX_PLUG_CATEGORY_STR",
-"VST3_SUBCATEGORY"
+"VST3_SUBCATEGORY",
+"SHARED_RESOURCES_SUBPATH"
 }
 
 IntElements = {
@@ -110,8 +111,8 @@ def parse_xcconfig(configFile):
 
   xcconfig = {}
 
-  xcconfig['BASE_SDK_MAC'] = "macosx10.13"
-  xcconfig['MACOSX_DEPLOYMENT_TARGET'] = "10.7"
+  xcconfig['BASE_SDK_MAC'] = "macosx"
+  xcconfig['MACOSX_DEPLOYMENT_TARGET'] = "10.9"
 
   for line in fileinput.input(configFile, inplace=0):
     if not "//" in line:

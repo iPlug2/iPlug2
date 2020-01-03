@@ -26,6 +26,8 @@
 	<dict>
 		<key>NSExtensionAttributes</key>
 		<dict>
+			<key>AudioComponentBundle</key>
+			<string>com.AcmeInc.app.IGraphicsStressTest.AUv3Framework</string>
 			<key>AudioComponents</key>
 			<array>
 				<dict>

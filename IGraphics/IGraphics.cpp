@@ -116,6 +116,12 @@ void IGraphics::SetLayoutOnResize(bool layoutOnResize)
   mLayoutOnResize = layoutOnResize;
 }
 
+void IGraphics::RemoveControlWithTag(int ctrlTag)
+{
+  mControls.DeletePtr(GetControlWithTag(ctrlTag));
+  SetAllControlsDirty();
+}
+
 void IGraphics::RemoveControls(int fromIdx)
 {
   int idx = NControls()-1;
@@ -206,10 +212,10 @@ void IGraphics::AttachPanelBackground(const IPattern& color)
   mControls.Insert(0, pBG);
 }
 
-IControl* IGraphics::AttachControl(IControl* pControl, int controlTag, const char* group)
+IControl* IGraphics::AttachControl(IControl* pControl, int ctrlTag, const char* group)
 {
   pControl->SetDelegate(*GetDelegate());
-  pControl->SetTag(controlTag);
+  pControl->SetTag(ctrlTag);
   pControl->SetGroup(group);
   mControls.Add(pControl);
   return pControl;
@@ -272,12 +278,12 @@ void IGraphics::ShowFPSDisplay(bool enable)
   SetAllControlsDirty();
 }
 
-IControl* IGraphics::GetControlWithTag(int controlTag)
+IControl* IGraphics::GetControlWithTag(int ctrlTag)
 {
   for (auto c = 0; c < NControls(); c++)
   {
     IControl* pControl = GetControl(c);
-    if (pControl->GetTag() == controlTag)
+    if (pControl->GetTag() == ctrlTag)
     {
       return pControl;
     }
@@ -291,9 +297,9 @@ void IGraphics::HideControl(int paramIdx, bool hide)
   ForMatchingControls(&IControl::Hide, paramIdx, hide);
 }
 
-void IGraphics::GrayOutControl(int paramIdx, bool gray)
+void IGraphics::DisableControl(int paramIdx, bool disable)
 {
-  ForMatchingControls(&IControl::GrayOut, paramIdx, gray);
+  ForMatchingControls(&IControl::SetDisabled, paramIdx, disable);
 }
 
 void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func)
@@ -598,7 +604,7 @@ void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, float gridSiz
   // Vertical Lines grid
   if (gridSizeH > 1.f)
   {
-    for (float x = 0; x < bounds.W(); x += gridSizeH)
+    for (float x = gridSizeH; x < bounds.W(); x += gridSizeH)
     {
       DrawVerticalLine(color, bounds, x/bounds.W(), pBlend, thickness);
     }
@@ -606,7 +612,7 @@ void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, float gridSiz
     // Horizontal Lines grid
   if (gridSizeV > 1.f)
   {
-    for (float y = 0; y < bounds.H(); y += gridSizeV)
+    for (float y = gridSizeV; y < bounds.H(); y += gridSizeV)
     {
       DrawHorizontalLine(color, bounds, y/bounds.H(), pBlend, thickness);
     }
@@ -620,6 +626,11 @@ void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYP
 
 bool IGraphics::IsDirty(IRECTList& rects)
 {
+  if (mDisplayTickFunc)
+    mDisplayTickFunc();
+
+  ForAllControlsFunc([](IControl& control) { control.Animate(); } );
+
   bool dirty = false;
     
   auto func = [&dirty, &rects](IControl& control)
@@ -633,7 +644,7 @@ bool IGraphics::IsDirty(IRECTList& rects)
   };
     
   ForAllControlsFunc(func);
-  
+
 #ifdef USE_IDLE_CALLS
   if (dirty)
   {
@@ -1064,7 +1075,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
 #endif
         if (!pControl->IsHidden() && !pControl->GetIgnoreMouse())
         {
-          if ((!pControl->IsGrayed() || (mouseOver ? pControl->GetMOWhenGrayed() : pControl->GetMEWhenGrayed())))
+          if ((!pControl->IsDisabled() || (mouseOver ? pControl->GetMouseOverWhenDisabled() : pControl->GetMouseEventsWhenDisabled())))
           {
             if (pControl->IsHit(x, y))
             {
@@ -1207,7 +1218,7 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
 
 void IGraphics::OnGUIIdle()
 {
-  TRACE;
+  TRACE
 
   ForAllControls(&IControl::OnGUIIdle);
 }
@@ -1263,6 +1274,65 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 #endif
 }
 
+#ifdef IGRAPHICS_SKIA
+ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
+{
+  StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
+  SVGHolder* pHolder = storage.Find(fileName);
+  
+  if(!pHolder)
+  {
+    WDL_String path;
+    EResourceLocation resourceFound = LocateResource(fileName, "svg", path, GetBundleID(), GetWinModuleHandle(), GetSharedResourcesSubPath());
+    
+    if (resourceFound == EResourceLocation::kNotFound)
+      return ISVG(nullptr); // return invalid SVG
+    
+    sk_sp<SkSVGDOM> svgDOM;
+    bool success = false;
+    SkDOM xmlDom;
+
+#ifdef OS_WIN
+    if (resourceFound == EResourceLocation::kWinBinary)
+    {
+      int size = 0;
+      const void* pResData = LoadWinResource(path.Get(), "svg", size, GetWinModuleHandle());
+
+      if (pResData)
+      {
+        SkMemoryStream svgStream(pResData, size);
+        success = xmlDom.build(svgStream) != nullptr;
+      }
+    }
+#endif
+
+    if (resourceFound == EResourceLocation::kAbsolutePath)
+    {
+      SkFILEStream svgStream(path.Get());
+
+      if(svgStream.isValid())
+        success = xmlDom.build(svgStream) != nullptr;
+    }
+
+    if (success)
+      svgDOM = SkSVGDOM::MakeFromDOM(xmlDom);
+
+    success = svgDOM != nullptr;
+
+    if (!success)
+      return ISVG(nullptr); // return invalid SVG
+
+    if (svgDOM->containerSize().width() == 0)
+      svgDOM->setContainerSize(SkSize::Make(1000, 1000)); //TODO: what should be done when no container size?
+
+    pHolder = new SVGHolder(svgDOM);
+    
+    storage.Add(pHolder, path.Get());
+  }
+  
+  return ISVG(pHolder->mSVGDom);
+}
+#else
 ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
   StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
@@ -1271,7 +1341,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
   if(!pHolder)
   {
     WDL_String path;
-    EResourceLocation resourceFound = LocateResource(fileName, "svg", path, GetBundleID(), GetWinModuleHandle());
+    EResourceLocation resourceFound = LocateResource(fileName, "svg", path, GetBundleID(), GetWinModuleHandle(), GetSharedResourcesSubPath());
 
     if (resourceFound == EResourceLocation::kNotFound)
       return ISVG(nullptr); // return invalid SVG
@@ -1310,6 +1380,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 
   return ISVG(pHolder->mImage);
 }
+#endif
 
 IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {
@@ -1388,13 +1459,13 @@ void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int scale)
 {
   int screenScale = GetScreenScale();
-  double drawScale = GetDrawScale();
+  float drawScale = GetDrawScale();
 
   mScreenScale = scale;
   mDrawScale = inBitmap.GetDrawScale();
 
   IRECT bounds = IRECT(0, 0, inBitmap.W() / inBitmap.GetDrawScale(), inBitmap.H() / inBitmap.GetDrawScale());
-  StartLayer(bounds);
+  StartLayer(nullptr, bounds);
   DrawBitmap(inBitmap, bounds, 0, 0, nullptr);
   ILayerPtr layer = EndLayer();
   IBitmap bitmap = IBitmap(layer->mBitmap.release(), inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
@@ -1431,7 +1502,7 @@ EResourceLocation IGraphics::SearchImageResource(const char* name, const char* t
       fullName.SetFormatted((int) (strlen(name) + strlen("@2x")), "%s@%dx%s", baseName.Get(), sourceScale, ext.Get());
     }
 
-    EResourceLocation found = LocateResource(fullName.Get(), type, result, GetBundleID(), GetWinModuleHandle());
+    EResourceLocation found = LocateResource(fullName.Get(), type, result, GetBundleID(), GetWinModuleHandle(), GetSharedResourcesSubPath());
 
     if (found > EResourceLocation::kNotFound)
       return found;
@@ -1471,10 +1542,12 @@ void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IREC
   mInTextEntry = &control;
   mTextEntryValIdx = valIdx;
     
+  int paramIdx = valIdx > kNoValIdx  ? control.GetParamIdx(valIdx) : kNoParameter;
+
   if (mTextEntryControl)
-    mTextEntryControl->CreateTextEntry(control.GetParamIdx(valIdx), text, bounds, control.GetTextEntryLength(), str);
+    mTextEntryControl->CreateTextEntry(paramIdx, text, bounds, control.GetTextEntryLength(), str);
   else
-    CreatePlatformTextEntry(control.GetParamIdx(valIdx), text, bounds, control.GetTextEntryLength(), str);
+    CreatePlatformTextEntry(paramIdx, text, bounds, control.GetTextEntryLength(), str);
 }
 
 void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext)
@@ -1503,13 +1576,13 @@ void IGraphics::CreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT
   DoCreatePopupMenu(control, menu, bounds, valIdx, false);
 }
 
-void IGraphics::StartLayer(const IRECT& r)
+void IGraphics::StartLayer(IControl* pControl, const IRECT& r)
 {
   IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
   const int w = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.W())));
   const int h = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.H())));
 
-  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds));
+  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds, pControl, pControl ? pControl->GetRECT() : IRECT()));
 }
 
 void IGraphics::ResumeLayer(ILayerPtr& layer)
@@ -1560,6 +1633,13 @@ ILayer* IGraphics::PopLayer()
 bool IGraphics::CheckLayer(const ILayerPtr& layer)
 {
   const APIBitmap* pBitmap = layer ? layer->GetAPIBitmap() : nullptr;
+    
+  if (pBitmap && layer->mControl && layer->mControlRECT != layer->mControl->GetRECT())
+  {
+    layer->mControlRECT = layer->mControl->GetRECT();
+    layer->Invalidate();
+  }
+
   return pBitmap && !layer->mInvalid && pBitmap->GetDrawScale() == GetDrawScale() && pBitmap->GetScale() == GetScreenScale();
 }
 
@@ -1712,11 +1792,11 @@ void IGraphics::DoMeasureTextRotation(const IText& text, const IRECT& bounds, IR
 {
   double tx = 0.0, ty = 0.0;
   
-  CalulateTextRotation(text, bounds, rect, tx, ty);
-  rect.Translate(tx, ty);
+  CalculateTextRotation(text, bounds, rect, tx, ty);
+  rect.Translate(static_cast<float>(tx), static_cast<float>(ty));
 }
 
-void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const
+void IGraphics::CalculateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const
 {
   if (!text.mAngle)
     return;
@@ -1737,8 +1817,8 @@ void IGraphics::CalulateTextRotation(const IText& text, const IRECT& bounds, IRE
   m.TransformPoint(x2, y2);
   m.TransformPoint(x3, y3);
   
-  IRECT r1(std::min(x0, x3), std::min(y0, y3), std::max(x0, x3), std::max(y0, y3));
-  IRECT r2(std::min(x1, x2), std::min(y1, y2), std::max(x1, x2), std::max(y1, y2));
+  IRECT r1(static_cast<float>(std::min(x0, x3)), static_cast<float>(std::min(y0, y3)), static_cast<float>(std::max(x0, x3)), static_cast<float>(std::max(y0, y3)));
+  IRECT r2(static_cast<float>(std::min(x1, x2)), static_cast<float>(std::min(y1, y2)), static_cast<float>(std::max(x1, x2)), static_cast<float>(std::max(y1, y2)));
   rect = r1.Union(r2);
   
   switch (text.mAlign)

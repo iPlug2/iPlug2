@@ -121,7 +121,7 @@ public:
       AddItem(item);
   }
   
-  IPopupMenu(const char* rootTitle, const std::initializer_list<const char*>& items, IPopupFunction func)
+  IPopupMenu(const char* rootTitle, const std::initializer_list<const char*>& items, IPopupFunction func = nullptr)
   : mPrefix(0)
   , mCanMultiCheck(false)
   , mRootTitle(rootTitle)
