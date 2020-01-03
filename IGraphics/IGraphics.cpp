@@ -1298,6 +1298,21 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
         WDL_String svgStr{ static_cast<const char*>(pResData) };
 
         pImage = nsvgParse(svgStr.Get(), units, dpi);
+
+#ifdef IGRAPHICS_RESVG
+        opt.font_family = "Times New Roman";
+        opt.languages = "en";
+        opt.dpi = dpi;
+        int err = resvg_parse_tree_from_data(svgStr.Get(), svgStr.GetLength(), &opt, &pRenderTree);
+
+        if (err != RESVG_OK)
+        {
+          if (pImage)
+            nsvgDelete(pImage);
+
+          return ISVG(nullptr); // return invalid SVG
+        }
+#endif
       }
       else
         return ISVG(nullptr); // return invalid SVG
@@ -1312,7 +1327,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
         return ISVG(nullptr); // return invalid SVG
       
 #ifdef IGRAPHICS_RESVG
-//      opt.path = "/Users/oli/Desktop/Test.svg";
+      opt.path = path.Get();
       opt.font_family = "Times New Roman";
       opt.languages = "en";
       opt.dpi = dpi;
@@ -1717,11 +1732,15 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
 void IGraphics::RasterizeSVGToBitmap(const ISVG& svg, APIBitmap* pAPIBitmap, float x, float y)
 {
   StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
-  SVGHolder* pHolder = storage.Find(svg.mFileName.Get());
 
-  assert(pHolder);
-  
-  DoRasterizeSVGToAPIBitmap(pHolder, pAPIBitmap, x, y);
+  if (svg.IsValid())
+  {
+    SVGHolder* pHolder = storage.Find(svg.mFileName.Get());
+
+    assert(pHolder);
+
+    DoRasterizeSVGToAPIBitmap(pHolder, pAPIBitmap, x, y);
+  }
 }
 #endif
 
