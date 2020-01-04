@@ -60,7 +60,7 @@ private:
   
 IGraphicsSkia::Bitmap::Bitmap(GrContext* context, int width, int height, int scale, float drawScale)
 {
-#ifdef IGRAPHICS_GL
+#ifndef IGRAPHICS_CPU
   SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
   mDrawable.mSurface = SkSurface::MakeRenderTarget(context, SkBudgeted::kYes, info);
 #else
