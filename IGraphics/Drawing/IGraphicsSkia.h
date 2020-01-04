@@ -89,14 +89,17 @@ private:
   void RenderPath(SkPaint& paint);
     
   sk_sp<SkSurface> mSurface;
-  sk_sp<SkSurface> mScreenSurface;
   SkCanvas* mCanvas = nullptr;
-  sk_sp<GrContext> mGrContext;
   SkPath mMainPath;
   SkMatrix mMatrix;
 
 #if defined OS_WIN && defined IGRAPHICS_CPU
   WDL_TypedBuf<uint8_t> mSurfaceMemory;
+#endif
+  
+#ifndef IGRAPHICS_CPU
+  sk_sp<GrContext> mGrContext;
+  sk_sp<SkSurface> mScreenSurface;
 #endif
   
 #ifdef IGRAPHICS_METAL

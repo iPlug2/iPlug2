@@ -326,12 +326,12 @@ void IGraphicsSkia::DrawResize()
 
 void IGraphicsSkia::BeginFrame()
 {
-  int width = WindowWidth() * GetScreenScale();
-  int height = WindowHeight() * GetScreenScale();
-  
 #if defined IGRAPHICS_GL
   if (mGrContext.get())
   {
+    int width = WindowWidth() * GetScreenScale();
+    int height = WindowHeight() * GetScreenScale();
+    
     // Bind to the current main framebuffer
     int fbo = 0, samples = 0, stencilBits = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
@@ -350,6 +350,9 @@ void IGraphicsSkia::BeginFrame()
 #elif defined IGRAPHICS_METAL
   if (mGrContext.get())
   {
+    int width = WindowWidth() * GetScreenScale();
+    int height = WindowHeight() * GetScreenScale();
+    
     id<CAMetalDrawable> drawable = [(CAMetalLayer*) mMTLLayer nextDrawable];
     
     GrMtlTextureInfo fbInfo;
@@ -359,8 +362,8 @@ void IGraphicsSkia::BeginFrame()
     mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, nullptr, nullptr);
     
     mMTLDrawable = drawable;
+    assert(mScreenSurface);
   }
-  assert(mScreenSurface);
 #endif
 
   IGraphics::BeginFrame();
@@ -386,7 +389,7 @@ void IGraphicsSkia::EndFrame()
     HWND hWnd = (HWND) GetWindow();
     PAINTSTRUCT ps;
     HDC hdc = BeginPaint(hWnd, &ps);
-    StretchDIBits(hdc, 0, 0, w, h, 0, 0, w, h, bmpInfo->bmiColors, bmpInfo,  DIB_RGB_COLORS, SRCCOPY);
+    StretchDIBits(hdc, 0, 0, w, h, 0, 0, w, h, bmpInfo->bmiColors, bmpInfo, DIB_RGB_COLORS, SRCCOPY);
     ReleaseDC(hWnd, hdc);
     EndPaint(hWnd, &ps);
   #else
