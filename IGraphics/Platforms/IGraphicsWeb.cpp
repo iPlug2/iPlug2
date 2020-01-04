@@ -464,6 +464,34 @@ IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float s
   emscripten_set_keyup_callback("#window", this, 1, key_callback);
 }
 
+static EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
+  
+  val input = val::global("document").call<val>("getElementById", std::string("textEntry"));
+  std::string str = input["value"].as<std::string>();
+  val::global("document")["body"].call<void>("removeChild", input);
+  pGraphics->SetControlValueAfterTextEdit(str.c_str());
+  
+  return true;
+}
+
+static EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
+  
+  IKeyPress keyPress {pEvent->key, domVKToWinVK(pEvent->keyCode),
+    static_cast<bool>(pEvent->shiftKey),
+    static_cast<bool>(pEvent->ctrlKey),
+    static_cast<bool>(pEvent->altKey)};
+  
+  if (keyPress.VK == kVK_RETURN || keyPress.VK ==  kVK_TAB)
+    return complete_text_entry(0, nullptr, pUserData);
+  
+  return false;
+}
+
+
 IGraphicsWeb::~IGraphicsWeb()
 {
 }
@@ -603,6 +631,8 @@ EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption,
 
 void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)
 {
+  ReleaseMouseCapture();
+
   val inputEl = val::global("document").call<val>("createElement", std::string("input"));
   
   inputEl.call<void>("setAttribute", std::string("accept"), std::string(ext));
@@ -611,6 +641,8 @@ void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
 
 void IGraphicsWeb::PromptForDirectory(WDL_String& path)
 {
+  ReleaseMouseCapture();
+
   val inputEl = val::global("document").call<val>("createElement", std::string("input"));
 
   inputEl.call<void>("setAttribute", std::string("directory"));
@@ -620,6 +652,8 @@ void IGraphicsWeb::PromptForDirectory(WDL_String& path)
 
 bool IGraphicsWeb::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
+  ReleaseMouseCapture();
+
   gColorPickerHandlerFunc = func;
 
   val inputEl = val::global("document").call<val>("createElement", std::string("input"));
@@ -631,33 +665,6 @@ bool IGraphicsWeb::PromptForColor(IColor& color, const char* str, IColorPickerHa
   inputEl.call<void>("addEventListener", std::string("input"), val::module_property("color_picker_callback"), false);
   inputEl.call<void>("addEventListener", std::string("onChange"), val::module_property("color_picker_callback"), false);
 
-  return false;
-}
-
-static EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)
-{
-  IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
-  
-  val input = val::global("document").call<val>("getElementById", std::string("textEntry"));
-  std::string str = input["value"].as<std::string>();
-  val::global("document")["body"].call<void>("removeChild", input);
-  pGraphics->SetControlValueAfterTextEdit(str.c_str());
-  
-  return true;
-}
-
-static EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
-{
-  IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
-  
-  IKeyPress keyPress {pEvent->key, domVKToWinVK(pEvent->keyCode),
-    static_cast<bool>(pEvent->shiftKey),
-    static_cast<bool>(pEvent->ctrlKey),
-    static_cast<bool>(pEvent->altKey)};
-  
-  if (keyPress.VK == kVK_RETURN || keyPress.VK ==  kVK_TAB)
-    return complete_text_entry(0, nullptr, pUserData);
-  
   return false;
 }
 
