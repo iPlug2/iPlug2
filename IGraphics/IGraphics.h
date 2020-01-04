@@ -1488,7 +1488,6 @@ protected:
   
   /** @return float /todo */
   virtual float GetBackingPixelScale() const = 0;
-  
 #pragma mark -
 
 private:
