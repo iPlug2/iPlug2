@@ -1478,14 +1478,17 @@ struct IMouseMod
 {
   bool L, R, S, C, A;
 
+  uintptr_t touchIdx = 0;
+  float radius = 0.f;
+  
   /** /todo 
    * @param l /todo
    * @param r /todo
    * @param s /todo
    * @param c /todo
    * @param a /todo */
-  IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
-    : L(l), R(r), S(s), C(c), A(a) 
+  IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false, uintptr_t touchIdx = 0)
+    : L(l), R(r), S(s), C(c), A(a), touchIdx(touchIdx)
     {}
   
   /** /todo */
@@ -1496,7 +1499,19 @@ struct IMouseMod
 struct IMouseInfo
 {
   float x, y;
+  float dX, dY;
   IMouseMod ms;
+};
+
+struct IGestureInfo
+{
+  float x = 0.f;
+  float y = 0.f;
+  float scale = 0.f; // pinch,
+  float velocity = 0.f; // pinch, rotate
+  float angle = 0.f; // rotate,
+  EGestureState state = EGestureState::Unknown;
+  EGestureType type = EGestureType::Unknown;
 };
 
 /** Used to manage a list of rectangular areas and optimize them for drawing to the screen. */

@@ -161,6 +161,9 @@ enum class ECursor
   HELP
 };
 
+/** /todo */
+enum class ETouchEvent { Began, Moved, Ended, Cancelled, Invalid };
+
 // This enumeration must match win32 message box options
 enum EMsgBoxType
 {

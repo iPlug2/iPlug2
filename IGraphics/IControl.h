@@ -130,6 +130,12 @@ public:
 
   /** Implement this method to respond to a mouseout event on this control. Implementations should call base class, if you wish to use mMouseIsOver. */
   virtual void OnMouseOut();
+  
+  /** Implement this method to respond to a touch cancel event on this control.
+   * @param x The X coordinate of the mouse event
+   * @param y The Y coordinate of the mouse event
+   * @param mod A struct indicating which modifier keys are held for the event */
+  virtual void OnTouchCancelled(float x, float y, const IMouseMod& mod) {}
 
   /** Implement to do something when something was drag 'n dropped onto this control */
   virtual void OnDrop(const char* str) {};

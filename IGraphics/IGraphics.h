@@ -55,6 +55,7 @@
 
 #include <stack>
 #include <memory>
+#include <unordered_map>
 
 #ifdef FillRect
 #undef FillRect
@@ -1220,9 +1221,15 @@ public:
    * @return A pointer to the IControl object with the tag of nullptr if not found */
   IControl* GetControlWithTag(int ctrlTag);
   
-  /** Get a pointer to the IControl that is currently captured i.e. during dragging
-   * @return Pointer to currently captured control */
-  IControl* GetCapturedControl() { return mMouseCapture; }
+  /** Check to see if any control is captured */
+  bool ControlIsCaptured() const { return mCapturedMap.size() > 0; }
+  
+  /** Check to see if the control is allready captured
+   * @return \c true is the control is allready captured */
+  bool ControlIsCaptured(IControl* pControl) const
+  {
+    return std::find_if(std::begin(mCapturedMap), std::end(mCapturedMap), [pControl](auto&& press){  return press.second == pControl;}) != mCapturedMap.end();
+  }
 
   /* Get the first control in the control list, the background */
   IControl* GetBackgroundControl() { return GetControl(0);  }
@@ -1283,27 +1290,23 @@ private:
    * @param y /todo
    * @param capture /todo
    * @param mouseOver /todo
+   * @param touchIdx /todo
    * @return IControl* /todo */
-  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false);
+  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false, uintptr_t touchIdx = 0);
   
 #pragma mark - Event handling
 public:
-  /** @param x The X coordinate in the graphics context at which the mouse event occurred
-   * @param y The Y coordinate in the graphics context at which the mouse event occurred
-   * @param mod IMouseMod struct contain information about the modifiers held */
-  void OnMouseDown(float x, float y, const IMouseMod& mod);
+  /** */
+  void OnMouseDown(const std::vector<IMouseInfo>& points);
 
-  /** @param x The X coordinate in the graphics context at which the mouse event occurred
-   * @param y The Y coordinate in the graphics context at which the mouse event occurred
-   * @param mod IMouseMod struct contain information about the modifiers held */
-  void OnMouseUp(float x, float y, const IMouseMod& mod);
+  /** */
+  void OnMouseUp(const std::vector<IMouseInfo>& points);
 
-  /** @param x The X coordinate in the graphics context at which the mouse event occurred
-   * @param y The Y coordinate in the graphics context at which the mouse event occurred
-   * @param dX Delta X value \todo explain
-   * @param dY Delta Y value \todo explain
-   * @param mod IMouseMod struct contain information about the modifiers held */
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod);
+  /** */
+  void OnMouseDrag(const std::vector<IMouseInfo>& points);
+  
+  /** */
+  void OnTouchCancelled(const std::vector<IMouseInfo>& points);
 
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
    * @param y The Y coordinate in the graphics context at which the mouse event occurred
@@ -1541,7 +1544,8 @@ private:
   float mDrawScale = 1.f; // scale deviation from  default width and height i.e stretching the UI by dragging bottom right hand corner
 
   int mIdleTicks = 0;
-  IControl* mMouseCapture = nullptr;
+  
+  std::unordered_map<uintptr_t, IControl*> mCapturedMap; // associative array of touch id pointers to control pointers, the same control can be touched multiple times
   IControl* mMouseOver = nullptr;
   IControl* mInTextEntry = nullptr;
   IControl* mInPopupMenu = nullptr;
