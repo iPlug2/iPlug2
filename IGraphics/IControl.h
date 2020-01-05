@@ -18,6 +18,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <vector>
+#include <map>
 
 #if defined VST3_API || defined VST3C_API
 #undef stricmp

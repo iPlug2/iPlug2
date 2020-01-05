@@ -1503,16 +1503,16 @@ struct IMouseInfo
   IMouseMod ms;
 };
 
-struct IGestureInfo
-{
-  float x = 0.f;
-  float y = 0.f;
-  float scale = 0.f; // pinch,
-  float velocity = 0.f; // pinch, rotate
-  float angle = 0.f; // rotate,
-  EGestureState state = EGestureState::Unknown;
-  EGestureType type = EGestureType::Unknown;
-};
+//struct IGestureInfo
+//{
+//  float x = 0.f;
+//  float y = 0.f;
+//  float scale = 0.f; // pinch,
+//  float velocity = 0.f; // pinch, rotate
+//  float angle = 0.f; // rotate,
+//  EGestureState state = EGestureState::Unknown;
+//  EGestureType type = EGestureType::Unknown;
+//};
 
 /** Used to manage a list of rectangular areas and optimize them for drawing to the screen. */
 class IRECTList
