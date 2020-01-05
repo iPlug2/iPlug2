@@ -41,7 +41,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   self.layer.opaque = YES;
   self.layer.contentsScale = [UIScreen mainScreen].scale;
   
-//  self.multipleTouchEnabled = YES;
+  self.multipleTouchEnabled = NO;
   
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillBeHidden:) name:UIKeyboardWillHideNotification object:nil];

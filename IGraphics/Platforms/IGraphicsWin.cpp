@@ -1181,6 +1181,11 @@ void IGraphicsWin::CloseWindow()
   }
 }
 
+bool IGraphicsWin::PlatformSupportsMultiTouch() const
+{
+  return GetSystemMetrics(SM_DIGITIZER) & NID_MULTI_INPUT;
+}
+
 IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, IPopupMenu& baseMenu)
 {
   long oldIDx = offsetIdx;

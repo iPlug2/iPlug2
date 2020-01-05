@@ -79,6 +79,9 @@ public:
 
   bool GetTextFromClipboard(WDL_String& str) override;
   bool SetTextInClipboard(const WDL_String& str) override;
+
+  bool PlatformSupportsMultiTouch() const override;
+
   
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

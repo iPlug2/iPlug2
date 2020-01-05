@@ -1028,6 +1028,29 @@ public:
   /** @return true if resizing is in process */
   bool GetResizingInProcess() const { return mResizingInProcess; }
 
+  
+  /** Enable/disable multi touch, if platform supports it
+    * @return \c true if platform supports it
+  */
+  bool EnableMultiTouch(bool enable)
+  {
+    if (PlatformSupportsMultiTouch())
+    {
+      mEnableMultiTouch = enable;
+      return true;
+    }
+    else
+      mEnableMultiTouch = false;
+
+    return false;
+  }
+  
+  /** @return /c true if multi touch is enabled */
+  bool MultiTouchEnabled() const { return mEnableMultiTouch; }
+
+  /** @return /c true if the platform supports multi touch */
+  virtual bool PlatformSupportsMultiTouch() const { return false; }
+  
   /** @param enable Set \c true to enable tool tips when the user mouses over a control */
   void EnableTooltips(bool enable);
   
@@ -1542,6 +1565,7 @@ private:
   bool mShowAreaDrawn = false;
   bool mResizingInProcess = false;
   bool mLayoutOnResize = false;
+  bool mEnableMultiTouch = false;
   EUIResizerMode mGUISizeMode = EUIResizerMode::Scale;
   double mPrevTimestamp = 0.;
   IKeyHandlerFunc mKeyHandlerFunc = nullptr;

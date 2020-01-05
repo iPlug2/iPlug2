@@ -68,6 +68,8 @@ public:
   void PromptForDirectory(WDL_String& path) override;
   bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
+
+  bool PlatformSupportsMultiTouch() const override { return true; }
   
   //IGraphicsWeb
   static void OnMainLoopTimer();
