@@ -56,6 +56,13 @@ public:
     mTrackPadding = 1.f;
   }
   
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, EDirection dir, float minTrackValue, float maxTrackValue)//, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, label, style, params, dir, minTrackValue, maxTrackValue)
+  {
+    mDrawTrackFrame = false;
+    mTrackPadding = 1.f;
+  }
+  
   void Draw(IGraphics& g) override
   {
     DrawBackGround(g, mRECT);
@@ -164,19 +171,15 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    IRECT innerBounds = mRECT.GetPadded(-mOuterPadding);
-
     if (!mod.S)
       mPrevSliderHit = -1;
 
-    SnapToMouse(x, y, mDirection, innerBounds);
+    SnapToMouse(x, y, mDirection, mWidgetBounds);
   }
 
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
   {
-    IRECT innerBounds = mRECT.GetPadded(-mOuterPadding);
-
-    SnapToMouse(x, y, mDirection, innerBounds);
+    SnapToMouse(x, y, mDirection, mWidgetBounds);
   }
 
   //override to do something when an individual slider is dragged
