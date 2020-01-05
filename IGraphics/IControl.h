@@ -1007,6 +1007,7 @@ public:
   : IControl(bounds, paramIdx)
   , mDirection(direction)
   , mGearing(gearing)
+  , mActiveArea(bounds)
   {}
 
   void SetGearing(double gearing) { mGearing = gearing; }
@@ -1017,6 +1018,8 @@ public:
   void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
 
 protected:
+  /**This is the area of the control which will be used in OnMouseDrag, to determine the value. */
+  IRECT mActiveArea;
   EDirection mDirection;
   double mGearing;
   bool mMouseDown = false;
