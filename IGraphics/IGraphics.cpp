@@ -1128,7 +1128,7 @@ void IGraphics::OnDrop(const char* str, float x, float y)
 void IGraphics::ReleaseMouseCapture()
 {
   mCapturedMap.clear();
-  HideMouseCursor(false);
+//  HideMouseCursor(false); // TODO: mac crash on quit with "calling pure virtual function"
 }
 
 int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
