@@ -37,6 +37,12 @@ inline T DegToRad(T degrees)
   return static_cast<T>(iplug::PI) * (degrees / static_cast<T>(180.0));
 }
 
+template <typename T>
+inline T RadToDeg(T radians)
+{
+  return radians / static_cast<T>(iplug::PI) * static_cast<T>(180.0);
+}
+
 /** Calculate evenly distributed points on a radial line. NOTE: will crash if the nPoints and data array do not match size.
  * @param angleDegrees The angle to draw at in degrees clockwise where 0 is up
  * @param cx centre point x coordinate
