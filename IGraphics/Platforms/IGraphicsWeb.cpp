@@ -301,32 +301,32 @@ static EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent
 static EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
-  
-  IMouseMod modifiers(0, 0, pEvent->shiftKey, pEvent->ctrlKey, pEvent->altKey);
-  
-  double x = pEvent->canvasX;
-  double y = pEvent->canvasY;
 
-  x /= pGraphics->GetDrawScale();
-  y /= pGraphics->GetDrawScale();
+  IMouseInfo info;
+  info.x = pEvent->canvasX / pGraphics->GetDrawScale();
+  info.y = pEvent->canvasY / pGraphics->GetDrawScale();
+  info.dX = pEvent->movementX;
+  info.dY = pEvent->movementY;
+  info.ms = {pEvent->buttons == 1, pEvent->buttons == 2, static_cast<bool>(pEvent->shiftKey), static_cast<bool>(pEvent->ctrlKey), static_cast<bool>(pEvent->altKey)};
+  std::vector<IMouseInfo> list {info};
   
   switch (eventType)
   {
     case EMSCRIPTEN_EVENT_MOUSEUP:
-      pGraphics->OnMouseUp(x, y, modifiers);
+      pGraphics->OnMouseUp(list);
       emscripten_set_mousemove_callback("#window", pGraphics, 1, nullptr);
       emscripten_set_mouseup_callback("#window", pGraphics, 1, nullptr);
       break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
       if(pEvent->buttons != 0 && !pGraphics->IsInTextEntry())
-        pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
+        pGraphics->OnMouseDrag(list);
       break;
     default:
       break;
   }
   
-  pGraphics->mPrevX = x;
-  pGraphics->mPrevY = y;
+  pGraphics->mPrevX = info.x;
+  pGraphics->mPrevY = info.y;
     
   return true;
 }
@@ -335,13 +335,13 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent,
 {
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
   
-  IMouseMod modifiers(pEvent->buttons == 1, pEvent->buttons == 2, pEvent->shiftKey, pEvent->ctrlKey, pEvent->altKey);
-  
-  double x = pEvent->canvasX;
-  double y = pEvent->canvasY;
-  
-  x /= pGraphics->GetDrawScale();
-  y /= pGraphics->GetDrawScale();
+  IMouseInfo info;
+  info.x = pEvent->canvasX / pGraphics->GetDrawScale();
+  info.y = pEvent->canvasY / pGraphics->GetDrawScale();
+  info.dX = pEvent->movementX;
+  info.dY = pEvent->movementY;
+  info.ms = {pEvent->buttons == 1, pEvent->buttons == 2, static_cast<bool>(pEvent->shiftKey), static_cast<bool>(pEvent->ctrlKey), static_cast<bool>(pEvent->altKey)};
+  std::vector<IMouseInfo> list {info};
   
   switch (eventType)
   {
@@ -353,35 +353,35 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent,
       if (gFirstClick && timeDiff < 0.3)
       {
         gFirstClick = false;
-        pGraphics->OnMouseDblClick(x, y, modifiers);
+        pGraphics->OnMouseDblClick(info.x, info.y, info.ms);
       }
       else
       {
         gFirstClick = true;
-        pGraphics->OnMouseDown(x, y, modifiers);
+        pGraphics->OnMouseDown(list);
       }
         
       gPrevMouseDownTime = timestamp;
       
       break;
     }
-    case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(x, y, modifiers); break;
+    case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(list); break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
     {
       gFirstClick = false;
       
       if(pEvent->buttons == 0)
-        pGraphics->OnMouseOver(x, y, modifiers);
+        pGraphics->OnMouseOver(info.x, info.y, info.ms);
       else
       {
         if(!pGraphics->IsInTextEntry())
-          pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
+          pGraphics->OnMouseDrag(list);
       }
       break;
     }
     case EMSCRIPTEN_EVENT_MOUSEENTER:
       pGraphics->OnSetCursor();
-      pGraphics->OnMouseOver(x, y, modifiers);
+      pGraphics->OnMouseOver(info.x, info.y, info.ms);
       emscripten_set_mousemove_callback("#window", pGraphics, 1, nullptr);
       break;
     case EMSCRIPTEN_EVENT_MOUSELEAVE:
@@ -395,8 +395,8 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent,
       break;
   }
   
-  pGraphics->mPrevX = x;
-  pGraphics->mPrevY = y;
+  pGraphics->mPrevX = info.x;
+  pGraphics->mPrevY = info.y;
 
   return true;
 }
@@ -420,6 +420,49 @@ static EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent,
   }
   
   return true;
+}
+
+EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent* pEvent, void* pUserData)
+{
+  IGraphics* pGraphics = (IGraphics*) pUserData;
+  
+  std::vector<IMouseInfo> points;
+
+  for (auto i = 0; i < pEvent->numTouches; i++)
+  {
+    IMouseInfo info;
+    info.x = pEvent->touches[i].canvasX / pGraphics->GetDrawScale();
+    info.y = pEvent->touches[i].canvasY / pGraphics->GetDrawScale();
+//    info.dX = pEvent->movementX;
+//    info.dY = pEvent->movementY;
+    info.ms = {true,
+              false,
+              static_cast<bool>(pEvent->shiftKey),
+              static_cast<bool>(pEvent->ctrlKey),
+              static_cast<bool>(pEvent->altKey),
+              static_cast<uintptr_t>(pEvent->touches[i].identifier)
+    };
+    
+    points.push_back(info);
+  }
+  
+  switch (eventType)
+  {
+    case EMSCRIPTEN_EVENT_TOUCHSTART:
+      pGraphics->OnMouseDown(points);
+      return true;
+    case EMSCRIPTEN_EVENT_TOUCHEND:
+      pGraphics->OnMouseUp(points);
+      return true;
+    case EMSCRIPTEN_EVENT_TOUCHMOVE:
+      pGraphics->OnMouseDrag(points);
+      return true;
+//    case EMSCRIPTEN_EVENT_TOUCHCANCEL:
+//      e = ETouchEvent::Cancelled;
+//      break;
+    default:
+      return false;
+  }
 }
 
 IColorPickerHandlerFunc gColorPickerHandlerFunc = nullptr;
@@ -462,6 +505,10 @@ IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float s
   emscripten_set_wheel_callback("canvas", this, 1, wheel_callback);
   emscripten_set_keydown_callback("#window", this, 1, key_callback);
   emscripten_set_keyup_callback("#window", this, 1, key_callback);
+  emscripten_set_touchstart_callback("canvas", this, 1, touch_callback);
+  emscripten_set_touchend_callback("canvas", this, 1, touch_callback);
+  emscripten_set_touchmove_callback("canvas", this, 1, touch_callback);
+  emscripten_set_touchcancel_callback("canvas", this, 1, touch_callback);
 }
 
 static EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)
