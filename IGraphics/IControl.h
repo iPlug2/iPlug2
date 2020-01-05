@@ -1107,8 +1107,7 @@ public:
     int dir = static_cast<int>(mDirection); // 0 = horizontal, 1 = vertical
     for (int ch = 0; ch < nVals; ch++)
     {
-      mTrackBounds.Get()[ch] = bounds.GetPadded(-mOuterPadding).
-                                     SubRect(EDirection(!dir), nVals, ch).
+      mTrackBounds.Get()[ch] = bounds.SubRect(EDirection(!dir), nVals, ch).
                                      GetPadded(0, -mTrackPadding * (float) dir, -mTrackPadding * (float) !dir, -mTrackPadding);
     }
   }
@@ -1173,7 +1172,6 @@ protected:
   WDL_TypedBuf<IRECT> mTrackBounds;
   float mMinTrackValue;
   float mMaxTrackValue;
-  float mOuterPadding = 0.;
   float mTrackPadding = 0.;
   float mPeakSize = 1.;
   bool mDrawTrackFrame = true;
