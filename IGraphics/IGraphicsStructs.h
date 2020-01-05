@@ -55,8 +55,8 @@ void SplashAnimationFunc(IControl* pCaller);
 
 using MTLTexturePtr = void*;
 
-using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
 using Milliseconds = std::chrono::duration<double, std::chrono::milliseconds::period>;
+using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock, Milliseconds>;
 
 /** User-facing bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
  * IBitmap doesn't actually own the image data \see APIBitmap
@@ -378,7 +378,7 @@ struct IColor
     col.A = static_cast<int>(a * 255.f);
     return col;
   }
-
+  
   /** /todo 
    * @return int /todo */
   int GetLuminosity() const
