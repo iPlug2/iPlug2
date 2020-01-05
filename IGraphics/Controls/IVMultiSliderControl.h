@@ -37,7 +37,6 @@ public:
   IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, float minTrackValue = 0.f, float maxTrackValue = 1.f)
   : IVTrackControlBase(bounds, label, style, MAXNC, dir, minTrackValue, maxTrackValue)
   {
-    mOuterPadding = 0.f;
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
   }
@@ -53,7 +52,6 @@ public:
   IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir, float minTrackValue, float maxTrackValue) //FIXME: float minTrackValue, float maxTrackValue?
   : IVTrackControlBase(bounds, label, style, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue)
   {
-    mOuterPadding = 0.f;
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
   }
