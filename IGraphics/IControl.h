@@ -1011,6 +1011,82 @@ protected:
   WDL_String mValueStr;
 };
 
+/** A base class for controls that can do do multitouch */
+class IMultiTouchControlBase
+{
+public:
+  struct TrackedTouch
+  {
+    int index = 0;
+    float x = 0.f;
+    float y = 0.f;
+    float sx = 0.f;
+    float sy = 0.f;
+    float radius = 1.f;
+    TimePoint startTime;
+    
+    TrackedTouch(int index, float x, float y, float radius, TimePoint time)
+    : index(index), x(x), y(y), sx(x), sy(y), radius(radius), startTime(time)
+    {}
+    
+    TrackedTouch()
+    {}
+  };
+  
+  virtual void AddTouch(uintptr_t touchIdx, float x, float y, float radius)
+  {
+    mTrackedTouches.insert(std::make_pair(touchIdx, TrackedTouch(static_cast<int>(mTrackedTouches.size()), x, y, radius, std::chrono::high_resolution_clock::now())));
+  }
+  
+  virtual void ReleaseTouch(uintptr_t touchIdx)
+  {
+    mTrackedTouches.erase(touchIdx);
+  }
+  
+  virtual void UpdateTouch(uintptr_t touchIdx, float x, float y, float radius)
+  {
+    mTrackedTouches[touchIdx].x = x;
+    mTrackedTouches[touchIdx].y = y;
+    mTrackedTouches[touchIdx].radius = radius;
+  }
+  
+  void ClearAllTouches()
+  {
+    mTrackedTouches.clear();
+  }
+  
+  int NTrackedTouches() const
+  {
+    return (int) mTrackedTouches.size();
+  }
+  
+  TrackedTouch* GetTouch(int index)
+  {
+    auto itr = std::find_if(mTrackedTouches.begin(), mTrackedTouches.end(),
+    [index](auto element) {
+      return(element.second.index == index);
+    });
+
+    if(itr != mTrackedTouches.end())
+      return &itr->second;
+    else
+      return nullptr;
+  }
+  
+  TrackedTouch* GetTouchWithIdentifier(uintptr_t touchIdx)
+  {
+    auto itr = mTrackedTouches.find(touchIdx);
+    
+    if(itr != mTrackedTouches.end())
+      return &itr->second;
+    else
+      return nullptr;
+  }
+  
+protected:
+  std::map<uintptr_t, TrackedTouch> mTrackedTouches;
+};
+
 /** A base class for knob/dial controls, to handle mouse action and Sender. */
 class IKnobControlBase : public IControl
 {
