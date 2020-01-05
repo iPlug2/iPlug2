@@ -66,7 +66,7 @@ static inline void RadialPoints(float angleDegrees, float cx, float cy, float rM
 }
 
 // Return the intersection of line(p0, p1) with line(p2, p3) as a fraction of the distance along (p2, p3).
-static float GetLineCrossing(Vec2 p0, Vec2 p1, Vec2 p2, Vec2 p3)
+static float GetLineCrossing(IVec2 p0, IVec2 p1, IVec2 p2, IVec2 p3)
 {
   auto b = p2 - p0;
   auto d = p1 - p0;

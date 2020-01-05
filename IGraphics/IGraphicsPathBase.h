@@ -512,8 +512,8 @@ private:
         
         // Compute whether this path is a hole or a solid and set the winding direction accordingly.
         int crossings = 0;
-        Vec2 p0{pPath->pts[0], pPath->pts[1]};
-        Vec2 p1{pPath->bounds[0] - 1.0f, pPath->bounds[1] - 1.0f};
+        IVec2 p0{pPath->pts[0], pPath->pts[1]};
+        IVec2 p1{pPath->bounds[0] - 1.0f, pPath->bounds[1] - 1.0f};
         // Iterate all other paths
         for (NSVGpath *pPath2 = pShape->paths; pPath2; pPath2 = pPath2->next)
         {
@@ -526,9 +526,9 @@ private:
           {
             float *p = &pPath2->pts[2*i];
             // The previous point
-            Vec2 p2 {p[-2], p[-1]};
+            IVec2 p2 {p[-2], p[-1]};
             // The current point
-            Vec2 p3 = (i < pPath2->npts) ? Vec2{p[4], p[5]} : Vec2{pPath2->pts[0], pPath2->pts[1]};
+            IVec2 p3 = (i < pPath2->npts) ? IVec2{p[4], p[5]} : IVec2{pPath2->pts[0], pPath2->pts[1]};
             float crossing = GetLineCrossing(p0, p1, p2, p3);
             float crossing2 = GetLineCrossing(p2, p3, p0, p1);
             if (0.0 <= crossing && crossing < 1.0 && 0.0 <= crossing2)

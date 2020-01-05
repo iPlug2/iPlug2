@@ -35,7 +35,7 @@ class IGraphics;
 class IControl;
 class ILambdaControl;
 struct IRECT;
-struct Vec2;
+struct IVec2;
 struct IMouseInfo;
 struct IColor;
 
