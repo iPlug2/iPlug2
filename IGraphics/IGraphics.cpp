@@ -218,6 +218,7 @@ IControl* IGraphics::AttachControl(IControl* pControl, int ctrlTag, const char* 
   pControl->SetTag(ctrlTag);
   pControl->SetGroup(group);
   mControls.Add(pControl);
+  pControl->OnAttached();
   return pControl;
 }
 

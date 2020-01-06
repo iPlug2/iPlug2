@@ -140,8 +140,11 @@ public:
   /** Called when IControl is constructed or resized using SetRect(). NOTE: if you call SetDirty() in this method, you should call SetDirty(false) to avoid triggering parameter changes */
   virtual void OnResize() {}
   
-  /** Called after the control has been attached, and its delegate and graphics member variable set */
+  /** Called just prior to when the control is attached, after its delegate and graphics member variable set */
   virtual void OnInit() {}
+  
+  /** Called after the control has been attached, and its delegate and graphics member variable set. Use this method for controls that might need to attach sub controls that should be above their parent in the stack */
+  virtual void OnAttached() {}
   
   /** Implement to receive messages sent to the control, see IEditorDelegate:SendControlMsgFromDelegate() */
   virtual void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) {};
