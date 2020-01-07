@@ -18,6 +18,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <vector>
+#include <unordered_map>
 
 #if defined VST3_API || defined VST3C_API
 #undef stricmp
@@ -152,6 +153,9 @@ public:
   /** Implement to receive MIDI messages sent to the control if mWantsMidi == true, see IEditorDelegate:SendMidiMsgFromDelegate() */
   virtual void OnMidi(const IMidiMsg& msg) {};
 
+  /** @return true if supports this gesture */
+  virtual bool OnGesture(const IGestureInfo& info);
+  
   /** Called by default when the user right clicks a control. If IGRAPHICS_NO_CONTEXT_MENU is enabled as a preprocessor macro right clicking control will mean IControl::CreateContextMenu() and IControl::OnContextSelection() do not function on right clicking control. VST3 provides contextual menu support which is hard wired to right click controls by default. You can add custom items to the menu by implementing IControl::CreateContextMenu() and handle them in IControl::OnContextSelection(). In non-VST 3 hosts right clicking will still create the menu, but it will not feature entries added by the host. */
   virtual void CreateContextMenu(IPopupMenu& contextMenu) {}
   
@@ -395,7 +399,18 @@ public:
 
   /** @return /c true if this control wants to know about MIDI messages send to the UI. See OnMIDIMsg() */
   bool GetWantsMidi() const { return mWantsMidi; }
-
+  
+  /** Add a IGestureFunc that should be triggered in response to a certain type of gesture
+   * @param type The type of gesture to recognize on this control
+   * @param func the function to trigger */
+  IControl* AttachGestureRecognizer(EGestureType type, IGestureFunc func);
+  
+  /** @return /c true if this control supports multiple gestures */
+  bool GetWantsGestures() const { return mGestureFuncs.size() > 0 && !mAnimationFunc; }
+  
+  /** @return the last recognized gesture */
+  EGestureType GetLastGesture() const { return mLastGesture; }
+  
   /** Gets a pointer to the class implementing the IEditorDelegate interface that handles parameter changes from this IGraphics instance.
    * If you need to call other methods on that class, you can use static_cast<PLUG_CLASS_NAME>(GetDelegate();
    * @return The class implementing the IEditorDelegate interface that handles communication to/from from this IGraphics instance.*/
@@ -530,6 +545,8 @@ private:
   TimePoint mAnimationStartTime;
   Milliseconds mAnimationDuration;
   std::vector<ParamTuple> mVals { {kNoParameter, 0.} };
+  std::unordered_map<EGestureType, IGestureFunc> mGestureFuncs;
+  EGestureType mLastGesture = EGestureType::Unknown;
 };
 
 #pragma mark - Base Controls

@@ -88,6 +88,14 @@ enum class EAlign { Near, Center, Far };
 /** /todo */
 enum class EVAlign { Top, Middle, Bottom };
 
+/** Types of Gesture Recongnizer */
+enum class EGestureType { Unknown, DoubleTap, TripleTap, LongPress1, LongPress2, SwipeLeft, SwipeRight, SwipeUp, SwipeDown, Pinch, Rotate, Pan};
+
+static const char* kGestureTypeStrs[12] = { "Unknown", "DoubleTap", "TripleTap", "LongPress1", "LongPress2", "SwipeLeft", "SwipeRight", "SwipeUp", "SwipeDown", "Pinch", "Rotate", "Pan"};
+
+/** Distinguised gesture states */
+enum class EGestureState { Unknown, Began, InProcess, Ended };
+
 /** /todo */
 enum EVColor
 {

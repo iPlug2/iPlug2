@@ -38,6 +38,7 @@ struct IRECT;
 struct IVec2;
 struct IMouseInfo;
 struct IColor;
+struct IGestureInfo;
 
 using IActionFunction = std::function<void(IControl*)>;
 using IAnimationFunction = std::function<void(IControl*)>;
@@ -45,6 +46,7 @@ using ILambdaDrawFunction = std::function<void(ILambdaControl*, IGraphics&, IREC
 using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
 using IMsgBoxCompletionHanderFunc = std::function<void(EMsgBoxResult result)>;
 using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
+using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IDisplayTickFunc = std::function<void()>;
 
 void EmptyClickActionFunc(IControl* pCaller);
@@ -1499,6 +1501,18 @@ struct IMouseInfo
   IMouseMod ms;
 };
 
+/** Used to describe a particular gesture */
+struct IGestureInfo
+{
+  float x = 0.f;
+  float y = 0.f;
+  float scale = 0.f; // pinch,
+  float velocity = 0.f; // pinch, rotate
+  float angle = 0.f; // rotate,
+  EGestureState state = EGestureState::Unknown;
+  EGestureType type = EGestureType::Unknown;
+};
+
 /** Used to manage a list of rectangular areas and optimize them for drawing to the screen. */
 class IRECTList
 {
@@ -1572,6 +1586,21 @@ public:
       r.PixelAlign(scale);
       Set(i, r);
     }
+  }
+  
+  /** Find the first index of the rect that contains point x, y, if it exists
+   * @param x Horizontal position to check
+   * @param y Vertical position to check
+   * @return integer index of rect that contains point x,y or -1 if not found */
+  int Find(float x, float y) const
+  {
+    for (auto i = 0; i < Size(); i++)
+    {
+      if(Get(i).Contains(x, y))
+        return i;
+    }
+    
+    return -1;
   }
   
   /** /todo 
