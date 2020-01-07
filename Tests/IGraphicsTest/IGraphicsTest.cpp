@@ -97,7 +97,6 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     "TextSize",
     "MPSControl",
     "OpenGL",
-    "RawBitmap",
     "DirBrowse"
     };
     
