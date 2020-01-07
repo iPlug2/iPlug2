@@ -97,7 +97,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     "TextSize",
     "MPSControl",
     "OpenGL",
-    "RawBitmap",
+    "Gestures",
     "DirBrowse"
     };
     
@@ -129,7 +129,8 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
         case 19: pNewControl = new TestTextSizeControl(testRect, kParamDummy); break;
         case 20: pNewControl = new TestMPSControl(testRect, pGraphics->LoadBitmap(SMILEY_FN), kParamDummy); break;
         case 21: pNewControl = new TestGLControl(testRect); break;
-        case 22:
+        case 22: pNewControl = new TestGesturesControl(testRect); break;
+        case 23:
         {
           WDL_String path;
           // DesktopPath(path);

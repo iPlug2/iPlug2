@@ -626,14 +626,14 @@ private:
   WDL_PtrList<DataKey> mDatas;
 };
 
-struct Vec2
+struct IVec2
 {
   float x, y;
-  Vec2() = default;
-  Vec2(float x, float y) : x(x), y(y) {}
+  IVec2() = default;
+  IVec2(float x, float y) : x(x), y(y) {}
   
-  Vec2 operator-(const Vec2 b) { return Vec2{x-b.x, y-b.y}; }
-  Vec2 operator+(const Vec2 b) { return Vec2{x+b.x, y+b.y}; }
+  IVec2 operator-(const IVec2 b) { return IVec2{x-b.x, y-b.y}; }
+  IVec2 operator+(const IVec2 b) { return IVec2{x+b.x, y+b.y}; }
 };
 
 

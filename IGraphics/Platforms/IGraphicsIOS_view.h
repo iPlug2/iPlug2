@@ -53,7 +53,7 @@ using namespace igraphics;
 
 @end
 
-@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate, UIPopoverPresentationControllerDelegate>
+@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate, UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate>
 {
 @public
   IGraphicsIOS* mGraphics;
@@ -71,6 +71,15 @@ using namespace igraphics;
 - (void) endUserInput;
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
 - (void) getTouchXY: (CGPoint) pt x: (float*) pX y: (float*) pY;
+
+//gestures
+- (void) attachGestureRecognizer: (EGestureType) type;
+-(BOOL) gestureRecognizer:(UIGestureRecognizer*) gestureRecognizer shouldReceiveTouch:(UITouch*)touch;
+- (void) onTapGesture: (UITapGestureRecognizer*) recognizer;
+- (void) onLongPressGesture: (UILongPressGestureRecognizer*) recognizer;
+- (void) onSwipeGesture: (UISwipeGestureRecognizer*) recognizer;
+- (void) onPinchGesture: (UIPinchGestureRecognizer*) recognizer;
+- (void) onRotateGesture: (UIRotationGestureRecognizer*) recognizer;
 @property (readonly) CAMetalLayer* metalLayer;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 

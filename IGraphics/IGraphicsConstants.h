@@ -88,6 +88,14 @@ enum class EAlign { Near, Center, Far };
 /** /todo */
 enum class EVAlign { Top, Middle, Bottom };
 
+/** Types of Gesture Recongnizer */
+enum class EGestureType { Unknown, DoubleTap, TripleTap, LongPress1, LongPress2, SwipeLeft, SwipeRight, SwipeUp, SwipeDown, Pinch, Rotate, Pan};
+
+static const char* kGestureTypeStrs[12] = { "Unknown", "DoubleTap", "TripleTap", "LongPress1", "LongPress2", "SwipeLeft", "SwipeRight", "SwipeUp", "SwipeDown", "Pinch", "Rotate", "Pan"};
+
+/** Distinguised gesture states */
+enum class EGestureState { Unknown, Began, InProcess, Ended };
+
 /** /todo */
 enum EVColor
 {
@@ -100,7 +108,6 @@ enum EVColor
   kHL,        // highlight: mouse over or focus
   kSH,        // shadow
   kX1,        // extra1
-  kGR = kX1,  // greyed
   kX2,        // extra2
   kX3,        // extra3
   kNumDefaultVColors
@@ -114,7 +121,7 @@ static const char* kVColorStrs[kNumDefaultVColors] =
   "frame",
   "highlight",
   "shadow",
-  "extra1/greyed",
+  "extra1",
   "extra2",
   "extra3"
 };

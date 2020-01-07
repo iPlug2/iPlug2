@@ -571,6 +571,7 @@ void IVKnobControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 void IVKnobControl::OnResize()
 {
   SetTargetRECT(MakeRects(mRECT));
+  mActiveArea = mWidgetBounds;
   SetDirty(false);
 }
 

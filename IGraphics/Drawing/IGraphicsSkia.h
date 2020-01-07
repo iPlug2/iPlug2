@@ -56,7 +56,33 @@ public:
     
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
-  
+
+  //void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
+  //void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness) override;
+  //void DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend, float thickness) override;
+  //void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints, const IBlend* pBlend, float thickness) override;
+  //void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen) override;
+  //void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend, float thickness) override;
+  void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override;
+  void DrawRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend, float thickness) override;
+  //void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend, float thickness) override;
+  //void DrawConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend, float thickness) override;
+  void DrawArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend, float thickness) override;
+  void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend, float thickness) override;
+  //void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen) override;
+  void DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override;
+  //void DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend, float thickness) override;
+
+  //void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
+  void FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override;
+  void FillRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend) override;
+  //void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend) override;
+  //void FillConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend) override;
+  void FillArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend) override;
+  void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
+  void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override;
+  //void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend) override;
+
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mCanvas; }
 
@@ -89,14 +115,17 @@ private:
   void RenderPath(SkPaint& paint);
     
   sk_sp<SkSurface> mSurface;
-  sk_sp<SkSurface> mScreenSurface;
   SkCanvas* mCanvas = nullptr;
-  sk_sp<GrContext> mGrContext;
   SkPath mMainPath;
   SkMatrix mMatrix;
 
 #if defined OS_WIN && defined IGRAPHICS_CPU
   WDL_TypedBuf<uint8_t> mSurfaceMemory;
+#endif
+  
+#ifndef IGRAPHICS_CPU
+  sk_sp<GrContext> mGrContext;
+  sk_sp<SkSurface> mScreenSurface;
 #endif
   
 #ifdef IGRAPHICS_METAL

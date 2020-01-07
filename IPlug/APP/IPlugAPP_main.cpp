@@ -140,7 +140,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 #pragma mark - MAC
 #elif defined(OS_MAC)
 #import <Cocoa/Cocoa.h>
-#include <IPlugSWELL.h>
+#include "IPlugSWELL.h"
+#include "IPlugPaths.h"
+
 HWND gHWND;
 extern HMENU SWELL_app_stocksysmenu;
 
@@ -156,11 +158,11 @@ int main(int argc, char *argv[])
       NSLog(@"Registered audiounit app extension\n");
     else
       NSLog(@"Failed to register audiounit app extension\n");
-
-//    if(IsSandboxed())
-//      NSLog(@"SANDBOXED\n");
   }
 #endif
+  
+  if(AppIsSandboxed())
+    DBGMSG("App is sandboxed, file system access etc restricted!\n");
   
   return NSApplicationMain(argc,  (const char **) argv);
 }
