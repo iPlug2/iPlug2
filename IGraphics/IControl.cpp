@@ -300,6 +300,29 @@ void IControl::SetSize(float w, float h)
   SetTargetAndDrawRECTs({mRECT.L, mRECT.T, mRECT.L + w, mRECT.T + h});
 }
 
+IControl* IControl::AttachGestureRecognizer(EGestureType type, IGestureFunc func)
+{
+  mGestureFuncs.insert(std::make_pair(type, func));
+  
+  GetUI()->AttachGestureRecognizer(type); // this will crash if called in constructor
+  
+  return this; //for chaining
+}
+
+bool IControl::OnGesture(const IGestureInfo& info)
+{
+  auto itr = mGestureFuncs.find(info.type);
+  
+  if(itr != mGestureFuncs.end())
+  {
+    mLastGesture = info.type;
+    itr->second(this, info);
+    return true;
+  }
+  
+  return false;
+}
+
 void IControl::PromptUserInput(int valIdx)
 {
   if (valIdx > kNoValIdx && GetParamIdx(valIdx) > kNoParameter && !mDisablePrompt)

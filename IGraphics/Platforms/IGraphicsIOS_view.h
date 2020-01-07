@@ -43,7 +43,7 @@ END_IPLUG_NAMESPACE
 using namespace iplug;
 using namespace igraphics;
 
-@interface IGraphicsIOS_View : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate>
+@interface IGraphicsIOS_View : UIScrollView <UIGestureRecognizerDelegate, UITextFieldDelegate, UIScrollViewDelegate>
 {  
 @public
   IGraphicsIOS* mGraphics;
@@ -60,6 +60,15 @@ using namespace igraphics;
 - (void) endUserInput;
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
 - (void) getTouchXY: (CGPoint) pt x: (float*) pX y: (float*) pY;
+
+//gestures
+- (void) attachGestureRecognizer: (EGestureType) type;
+-(BOOL) gestureRecognizer:(UIGestureRecognizer*) gestureRecognizer shouldReceiveTouch:(UITouch*)touch;
+- (void) onTapGesture: (UITapGestureRecognizer*) recognizer;
+- (void) onLongPressGesture: (UILongPressGestureRecognizer*) recognizer;
+- (void) onSwipeGesture: (UISwipeGestureRecognizer*) recognizer;
+- (void) onPinchGesture: (UIPinchGestureRecognizer*) recognizer;
+- (void) onRotateGesture: (UIRotationGestureRecognizer*) recognizer;
 @property (readonly) CAMetalLayer* metalLayer;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 

@@ -1903,6 +1903,62 @@ void IGraphics::SetQwertyMidiKeyHandlerFunc(std::function<void(const IMidiMsg& m
   });
 }
 
+bool IGraphics::RespondsToGesture(float x, float y)
+{
+  IControl* pControl = GetMouseControl(x, y, false, false);
+
+  if(pControl && pControl->GetWantsGestures())
+    return true;
+  
+  if(mGestureRegions.Size() == 0)
+    return false;
+  else
+  {
+    int regionIdx = mGestureRegions.Find(x, y);
+    
+    if(regionIdx > -1)
+      return true;
+  }
+  
+  return false;
+}
+
+void IGraphics::OnGestureRecognized(const IGestureInfo& info)
+{
+  IControl* pControl = GetMouseControl(info.x, info.y, false, false);
+
+  if(pControl && pControl->GetWantsGestures())
+    pControl->OnGesture(info);
+  else
+  {
+    int regionIdx = mGestureRegions.Find(info.x, info.y);
+    
+    if(regionIdx > -1)
+      mGestureRegionFuncs.find(regionIdx)->second(nullptr, info);
+  }
+}
+
+void IGraphics::AttachGestureRecognizer(EGestureType type)
+{
+  if (std::find(std::begin(mRegisteredGestures), std::end(mRegisteredGestures), type) != std::end(mRegisteredGestures))
+  {
+    mRegisteredGestures.push_back(type);
+  }
+}
+
+void IGraphics::AttachGestureRecognizerToRegion(const IRECT& bounds, EGestureType type, IGestureFunc func)
+{
+  mGestureRegions.Add(bounds);
+  AttachGestureRecognizer(type);
+  mGestureRegionFuncs.insert(std::make_pair(mGestureRegions.Size()-1, func));
+}
+
+void IGraphics::ClearGestureRegions()
+{
+  mGestureRegions.Clear();
+  mGestureRegionFuncs.clear();
+}
+
 #ifdef IGRAPHICS_IMGUI
 void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc)
 {
