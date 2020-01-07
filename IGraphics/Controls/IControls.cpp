@@ -759,6 +759,7 @@ IVRangeSliderControl::IVRangeSliderControl(const IRECT& bounds, const std::initi
 , mTrackSize(trackSize)
 , mHandleSize(handleSize)
 {
+  mWantsMultiTouch = true;
 }
 
 void IVRangeSliderControl::Draw(IGraphics& g)
@@ -782,7 +783,7 @@ void IVRangeSliderControl::MakeTrackRects(const IRECT& bounds)
 
 void IVRangeSliderControl::DrawTrack(IGraphics& g, const IRECT& r, int chIdx)
 {
-  bool thisTrack = mMouseOverHandle == chIdx;
+  bool thisTrack = mHitHandle == chIdx;
   float angle = 0.f;
   
   if(mDirection == EDirection::Horizontal)
@@ -793,7 +794,7 @@ void IVRangeSliderControl::DrawTrack(IGraphics& g, const IRECT& r, int chIdx)
   DrawPressableTriangle(g, GetHandleBounds(chIdx), thisTrack && mMouseIsDown, thisTrack, angle);
 }
 
-IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx)
+IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx, bool hitTest)
 {
   IRECT filledTrack = mTrackBounds.Get()[trackIdx].FracRect(mDirection, (float) GetValue(trackIdx));
   float cx, cy;
@@ -804,9 +805,19 @@ IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx)
     cy = filledTrack.T;
     
     if(trackIdx % 2)
-      return IRECT(cx+mTrackSize, cy-mHandleSize, cx+(2.f*mHandleSize)+mTrackSize, cy+mHandleSize);
+    {
+      if(hitTest)
+        return IRECT(cx+mTrackSize, mWidgetBounds.T, mWidgetBounds.R, mWidgetBounds.B);
+      else
+        return IRECT(cx+mTrackSize, cy-mHandleSize, cx+(2.f*mHandleSize)+mTrackSize, cy+mHandleSize);
+    }
     else
-      return IRECT(cx-(2.f*mHandleSize), cy-mHandleSize, cx, cy+mHandleSize);
+    {
+      if(hitTest)
+        return IRECT(mWidgetBounds.L, mWidgetBounds.T, cx, mWidgetBounds.B);
+      else
+        return IRECT(cx-(2.f*mHandleSize), cy-mHandleSize, cx, cy+mHandleSize);
+    }
   }
   else
   {
@@ -814,11 +825,41 @@ IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx)
     cy = filledTrack.MH() + offset;
     
     if(trackIdx % 2)
-      return IRECT(cx-mHandleSize, cy-(2.f*mHandleSize), cx+mHandleSize, cy);
+    {
+      if(hitTest)
+        return IRECT(mWidgetBounds.L, mWidgetBounds.T, mWidgetBounds.R, cy);
+      else
+        return IRECT(cx-mHandleSize, cy-(2.f*mHandleSize), cx+mHandleSize, cy);
+    }
     else
-      return IRECT(cx-mHandleSize, cy+mTrackSize, cx+mHandleSize, cy+(2.f*mHandleSize)+mTrackSize);
+    {
+      if(hitTest)
+        return IRECT(mWidgetBounds.L, cy+mTrackSize, mWidgetBounds.R, mWidgetBounds.B);
+      else
+        return IRECT(cx-mHandleSize, cy+mTrackSize, cx+mHandleSize, cy+(2.f*mHandleSize)+mTrackSize);
+    }
   }
 }
+
+void IVRangeSliderControl::HitTestHandles(float x, float y)
+{
+  IRECT bounds;
+  int hitHandle = -1;
+  
+  for(int i=0;i<NVals();i++)
+  {
+    bounds = GetHandleBounds(i, true);
+    
+    if(bounds.Contains(x, y))
+    {
+      hitHandle = i;
+      break;
+    }
+  }
+  
+  mHitHandle = hitHandle;
+}
+
 
 void IVRangeSliderControl::DrawWidget(IGraphics& g)
 {
@@ -845,39 +886,26 @@ void IVRangeSliderControl::DrawWidget(IGraphics& g)
 
 void IVRangeSliderControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
-  IRECT bounds;
-  int hitHandle = -1;
-  
-  for(int i=0;i<NVals();i++)
-  {
-    bounds = GetHandleBounds(i);
-    if(bounds.Contains(x, y))
-    {
-      hitHandle = i;
-      break;
-    }
-  }
-  
-  mMouseOverHandle = hitHandle;
-  
+  HitTestHandles(x, y);
   IVTrackControlBase::OnMouseOver(x, y, mod);
   SetDirty(false);
 }
 
 void IVRangeSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
+  HitTestHandles(x, y);
   mMouseIsDown = true;
   OnMouseDrag(x, y, 0., 0., mod);
 }
 
 void IVRangeSliderControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
-  if(mMouseOverHandle == -1)
+  if(mHitHandle == -1)
     return;
   
-  auto minClip = mMouseOverHandle == 0 ? 0. : GetValue(mMouseOverHandle-1);
-  auto maxClip = mMouseOverHandle == NVals()-1 ? 1. : GetValue(mMouseOverHandle+1);
-  SnapToMouse(x, y, mDirection, mWidgetBounds, mMouseOverHandle, 1.f /*scalar*/, minClip, maxClip);
+  auto minClip = mHitHandle == 0 ? 0. : GetValue(mHitHandle-1);
+  auto maxClip = mHitHandle == NVals()-1 ? 1. : GetValue(mHitHandle+1);
+  SnapToMouse(x, y, mDirection, mWidgetBounds, mHitHandle, 1.f /*scalar*/, minClip, maxClip);
 }
 
 IVXYPadControl::IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label, const IVStyle& style, float handleRadius)

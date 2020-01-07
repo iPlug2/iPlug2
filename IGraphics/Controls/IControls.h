@@ -281,22 +281,23 @@ protected:
 class IVRangeSliderControl : public IVTrackControlBase
 {
 public:
-  IVRangeSliderControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+  IVRangeSliderControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 20.f, float trackSize = 2.f);
 
   void Draw(IGraphics& g) override;
   void DrawTrack(IGraphics& g, const IRECT& r, int chIdx) override;
   void DrawWidget(IGraphics& g) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
-  void OnMouseOut() override { mMouseOverHandle = -1; IVTrackControlBase::OnMouseOut(); }
+  void OnMouseOut() override { mHitHandle = -1; IVTrackControlBase::OnMouseOut(); }
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override { mMouseIsDown = false; }
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
 
 protected:
   void MakeTrackRects(const IRECT& bounds) override;
-  IRECT GetHandleBounds(int trackIdx);
+  IRECT GetHandleBounds(int trackIdx, bool hitTest = false);
+  void HitTestHandles(float x, float y);
   
-  int mMouseOverHandle = -1;
+  int mHitHandle = -1;
   float mTrackSize;
   float mHandleSize;
   bool mMouseIsDown = false;
