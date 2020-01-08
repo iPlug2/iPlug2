@@ -5,3 +5,4 @@
 #define PLUG_SHARED_RESOURCES 0
 
 #define ROBOTO_FN "Roboto-Regular.ttf"
+#define SHARED_RESOURCES_SUBPATH "IPlugReaperExtension"
