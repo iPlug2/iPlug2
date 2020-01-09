@@ -448,6 +448,9 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_LBUTTONDBLCLK:
     {
+      if (IsTouchEvent())
+        return 0;
+
       IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
       if (pGraphics->OnMouseDblClick(info.x, info.y, info.ms))
       {
