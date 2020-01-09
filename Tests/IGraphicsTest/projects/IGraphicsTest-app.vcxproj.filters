@@ -354,6 +354,9 @@
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h">
       <Filter>IGraphics\Drawing</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestMultiTouchControl.h">
+      <Filter>IGraphics\Controls\Test</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
