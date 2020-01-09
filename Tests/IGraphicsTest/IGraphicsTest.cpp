@@ -95,7 +95,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     "TextSize",
     "Metal Performance Shaders (NanoVG MTL only)",
     "OpenGL (NanoVG GL only)",
-//    "Gesture Recognizers (iOS only)",
+    "Gesture Recognizers (iOS only)",
     "MultiTouch (iOS/Windows only)",
     "DirBrowse"
     };
@@ -128,9 +128,9 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
         case 19: pNewControl = new TestTextSizeControl(testRect, kParamDummy); break;
         case 20: pNewControl = new TestMPSControl(testRect, pGraphics->LoadBitmap(SMILEY_FN), kParamDummy); break;
         case 21: pNewControl = new TestGLControl(testRect); break;
-//        case 22: pNewControl = new TestGesturesControl(testRect); break;
-        case 22: pNewControl = new TestMTControl(testRect); pNewControl->SetWantsMultiTouch(true); break;
-        case 23:
+        case 22: pNewControl = new TestGesturesControl(testRect); break;
+        case 23: pNewControl = new TestMTControl(testRect); pNewControl->SetWantsMultiTouch(true); break;
+        case 24:
         {
           WDL_String path;
           // DesktopPath(path);

@@ -55,6 +55,7 @@
 
 #include <stack>
 #include <memory>
+#include <vector>
 #include <unordered_map>
 
 #ifdef FillRect
@@ -1098,6 +1099,12 @@ public:
   
   /** /todo */
   void AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc = nullptr);
+  
+  /** Called by platform class to see if the point at x, y is linked to a gesture recognizer */
+  bool RespondsToGesture(float x, float y);
+  
+  /** Called by platform class when a gesture is recognized */
+  void OnGestureRecognized(const IGestureInfo& info);
 
   /** Returns a scaling factor for resizing parent windows via the host/plugin API
    * @return A scaling factor for resizing parent windows */
@@ -1429,8 +1436,22 @@ public:
    * @param fileNameOrResID A CString absolute path or resource ID
    * @return An ISVG representing the image */
   virtual ISVG LoadSVG(const char* fileNameOrResID, const char* units = "px", float dpi = 72.f);
+
+  /** Registers a gesture recognizer with the graphics context
+   * @param type The type of gesture recognizer */
+  virtual void AttachGestureRecognizer(EGestureType type); //TODO: should be protected?
   
+  /** Attach a gesture recognizer to a rectangular region of the GUI, i.e. not linked to an IControl
+   * @param bounds The area that should recognize the gesture
+   * @param type The type of gesture to recognize
+   * @param func The function to call when the gesture is recognized */
+  void AttachGestureRecognizerToRegion(const IRECT& bounds, EGestureType type, IGestureFunc func);
+  
+  /** Remove all gesture recognizers linked to regions */
+  void ClearGestureRegions();
+
 protected:
+
   /** /todo
    * @param fileNameOrResID /todo 
    * @param scale /todo
@@ -1545,6 +1566,10 @@ private:
 
   int mIdleTicks = 0;
   
+  std::vector<EGestureType> mRegisteredGestures; // All the types of gesture registered with the graphics context
+  IRECTList mGestureRegions; // Rectangular regions linked to gestures (excluding IControls)
+  std::unordered_map<int, IGestureFunc> mGestureRegionFuncs; // Map of gesture region index to gesture function
+  
   std::unordered_map<uintptr_t, IControl*> mCapturedMap; // associative array of touch id pointers to control pointers, the same control can be touched multiple times
   IControl* mMouseOver = nullptr;
   IControl* mInTextEntry = nullptr;
@@ -1589,7 +1614,7 @@ protected:
   friend class IGraphicsLiveEdit;
   friend class ICornerResizerControl;
   friend class ITextEntryControl;
-
+  
   std::stack<ILayer*> mLayers;
   
 #ifdef IGRAPHICS_IMGUI

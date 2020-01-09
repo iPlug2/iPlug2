@@ -58,6 +58,8 @@ public:
 
   void LaunchBluetoothMidiDialog(float x, float y);
   
+  void AttachGestureRecognizer(EGestureType type) override;
+  
   bool PlatformSupportsMultiTouch() const override { return true; }
   
 protected:
