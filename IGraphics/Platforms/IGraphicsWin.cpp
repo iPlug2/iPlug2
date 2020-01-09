@@ -157,9 +157,6 @@ static int GetScaleForWindow(HWND hWnd)
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
-  float oldX = mCursorX;
-  float oldY = mCursorY;
-
   IMouseInfo info;
   info.x = mCursorX = GET_X_LPARAM(lParam) / (GetDrawScale() * GetScreenScale());
   info.y = mCursorY = GET_Y_LPARAM(lParam) / (GetDrawScale() * GetScreenScale());
@@ -170,6 +167,7 @@ inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
     GetKeyState(VK_MENU) < 0
 #endif
   );
+
   return info;
 }
 
@@ -414,7 +412,14 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       }
       else if (GetCapture() == hWnd && !pGraphics->IsInTextEntry())
       {
+        float oldX = pGraphics->mCursorX;
+        float oldY = pGraphics->mCursorY;
+
         IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
+
+        info.dX = info.x - oldX;
+        info.dY = info.y - oldY;
+
         if (info.dX || info.dY)
         {
           std::vector<IMouseInfo> list{ info };
