@@ -18,7 +18,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <vector>
-#include <map>
+#include <unordered_map>
 
 #if defined VST3_API || defined VST3C_API
 #undef stricmp
@@ -1085,7 +1085,7 @@ public:
   }
   
 protected:
-  std::map<uintptr_t, TrackedTouch> mTrackedTouches;
+  std::unordered_map<uintptr_t, TrackedTouch> mTrackedTouches;
 };
 
 /** A base class for knob/dial controls, to handle mouse action and Sender. */
