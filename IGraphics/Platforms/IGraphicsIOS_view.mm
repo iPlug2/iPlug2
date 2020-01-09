@@ -124,7 +124,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  [[NSNotificationCenter defaultCenter] postNotificationName:@"click" object:indexPath];
+  [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (CGSize)preferredContentSize
