@@ -34,6 +34,7 @@ BEGIN_IGRAPHICS_NAMESPACE
 class IGraphics;
 class IControl;
 class ILambdaControl;
+class IPopupMenu;
 struct IRECT;
 struct IVec2;
 struct IMouseInfo;
@@ -47,6 +48,7 @@ using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
 using IMsgBoxCompletionHanderFunc = std::function<void(EMsgBoxResult result)>;
 using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
 using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
+using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
 using IDisplayTickFunc = std::function<void()>;
 
 void EmptyClickActionFunc(IControl* pCaller);
