@@ -36,7 +36,7 @@ target_os = "ios"
 target_cpu = "arm64"
 extra_cflags = ["-miphoneos-version-min=12.1",
 "-I../../../src/skia/third_party/externals/expat/lib",
-"-DENABLE_BITCODE=YES"]
+"-fembed-bitcode"]
 extra_cflags_c = ["-Wno-error"]
 '
 
