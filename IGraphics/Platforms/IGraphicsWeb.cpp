@@ -422,6 +422,33 @@ static EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent,
   return true;
 }
 
+static EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
+  
+  val input = val::global("document").call<val>("getElementById", std::string("textEntry"));
+  std::string str = input["value"].as<std::string>();
+  val::global("document")["body"].call<void>("removeChild", input);
+  pGraphics->SetControlValueAfterTextEdit(str.c_str());
+  
+  return true;
+}
+
+static EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
+  
+  IKeyPress keyPress {pEvent->key, domVKToWinVK(pEvent->keyCode),
+    static_cast<bool>(pEvent->shiftKey),
+    static_cast<bool>(pEvent->ctrlKey),
+    static_cast<bool>(pEvent->altKey)};
+  
+  if (keyPress.VK == kVK_RETURN || keyPress.VK ==  kVK_TAB)
+    return complete_text_entry(0, nullptr, pUserData);
+  
+  return false;
+}
+
 IColorPickerHandlerFunc gColorPickerHandlerFunc = nullptr;
 
 static void color_picker_callback(val e)
@@ -631,33 +658,6 @@ bool IGraphicsWeb::PromptForColor(IColor& color, const char* str, IColorPickerHa
   inputEl.call<void>("addEventListener", std::string("input"), val::module_property("color_picker_callback"), false);
   inputEl.call<void>("addEventListener", std::string("onChange"), val::module_property("color_picker_callback"), false);
 
-  return false;
-}
-
-static EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)
-{
-  IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
-  
-  val input = val::global("document").call<val>("getElementById", std::string("textEntry"));
-  std::string str = input["value"].as<std::string>();
-  val::global("document")["body"].call<void>("removeChild", input);
-  pGraphics->SetControlValueAfterTextEdit(str.c_str());
-  
-  return true;
-}
-
-static EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
-{
-  IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
-  
-  IKeyPress keyPress {pEvent->key, domVKToWinVK(pEvent->keyCode),
-    static_cast<bool>(pEvent->shiftKey),
-    static_cast<bool>(pEvent->ctrlKey),
-    static_cast<bool>(pEvent->altKey)};
-  
-  if (keyPress.VK == kVK_RETURN || keyPress.VK ==  kVK_TAB)
-    return complete_text_entry(0, nullptr, pUserData);
-  
   return false;
 }
 
