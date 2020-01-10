@@ -468,8 +468,14 @@ static void color_picker_callback(val e)
   }
 }
 
+static void file_dialog_callback(val e)
+{
+  // DBGMSG(e["files"].as<std::string>().c_str());
+}
+
 EMSCRIPTEN_BINDINGS(events) {
   function("color_picker_callback", color_picker_callback);
+  function("file_dialog_callback", file_dialog_callback);
 }
 
 #pragma mark -
@@ -630,23 +636,33 @@ EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption,
 
 void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)
 {
-  val inputEl = val::global("document").call<val>("createElement", std::string("input"));
+  //TODO
+  // val inputEl = val::global("document").call<val>("createElement", std::string("input"));
   
-  inputEl.call<void>("setAttribute", std::string("accept"), std::string(ext));
-  inputEl.call<void>("click");
+  // inputEl.call<void>("setAttribute", std::string("type"), std::string("file"));
+  // inputEl.call<void>("setAttribute", std::string("accept"), std::string(ext));
+  // inputEl.call<void>("click");
+  // inputEl.call<void>("addEventListener", std::string("input"), val::module_property("file_dialog_callback"), false);
+  // inputEl.call<void>("addEventListener", std::string("onChange"), val::module_property("file_dialog_callback"), false);
 }
 
 void IGraphicsWeb::PromptForDirectory(WDL_String& path)
 {
-  val inputEl = val::global("document").call<val>("createElement", std::string("input"));
+  //TODO
+  // val inputEl = val::global("document").call<val>("createElement", std::string("input"));
 
-  inputEl.call<void>("setAttribute", std::string("directory"));
-  inputEl.call<void>("setAttribute", std::string("webkitdirectory"));
-  inputEl.call<void>("click");
+  // inputEl.call<void>("setAttribute", std::string("type"), std::string("file"));
+  // inputEl.call<void>("setAttribute", std::string("directory"), true);
+  // inputEl.call<void>("setAttribute", std::string("webkitdirectory"), true);
+  // inputEl.call<void>("click");
+  // inputEl.call<void>("addEventListener", std::string("input"), val::module_property("file_dialog_callback"), false);
+  // inputEl.call<void>("addEventListener", std::string("onChange"), val::module_property("file_dialog_callback"), false);
 }
 
 bool IGraphicsWeb::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
+  ReleaseMouseCapture();
+
   gColorPickerHandlerFunc = func;
 
   val inputEl = val::global("document").call<val>("createElement", std::string("input"));
