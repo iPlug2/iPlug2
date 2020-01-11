@@ -626,6 +626,7 @@ void IGraphicsSkia::PathFill(const IPattern& pattern, const IFillOptions& option
     mMainPath.reset();
 }
 
+#ifdef IGRAPHICS_DRAWFILL_DIRECT
 void IGraphicsSkia::DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness)
 {
   auto paint = SkiaPaint(color, pBlend);
@@ -700,6 +701,7 @@ void IGraphicsSkia::FillEllipse(const IColor& color, const IRECT& bounds, const 
   paint.setStyle(SkPaint::Style::kFill_Style);
   mCanvas->drawOval(SkiaRect(bounds), paint);
 }
+#endif
 
 void IGraphicsSkia::RenderPath(SkPaint& paint)
 {

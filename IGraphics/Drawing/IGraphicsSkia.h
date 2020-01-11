@@ -57,6 +57,7 @@ public:
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
 
+#ifdef IGRAPHICS_DRAWFILL_DIRECT
   //void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
   //void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness) override;
   //void DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend, float thickness) override;
@@ -82,7 +83,8 @@ public:
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
   void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override;
   //void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend) override;
-
+#endif
+  
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mCanvas; }
 
