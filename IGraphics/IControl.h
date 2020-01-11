@@ -1037,7 +1037,7 @@ public:
   void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
   
 protected:
-  /** Get the area for which mouse deltas will be used to calculate the amount dragging changes the control value. This is usually the area that contains the knob handle, override if you control contains extra elements such as labels
+  /** Get the area for which mouse deltas will be used to calculate the amount dragging changes the control value. This is usually the area that contains the knob handle, can override if your control contains extra elements such as labels
    * @return IRECT The bounds over which mouse deltas will be used to calculate the amount dragging changes the control value */
   virtual IRECT GetKnobDragBounds() { return mTargetRECT; }
 
