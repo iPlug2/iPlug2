@@ -244,6 +244,8 @@ public:
   void OnInit() override;
 
 protected:
+  virtual IRECT GetKnobDragBounds() override;
+
   float mAngle1, mAngle2;
   float mAnchorAngle; // for bipolar arc
   bool mValueMouseOver = false;

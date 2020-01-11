@@ -502,6 +502,18 @@ void IVKnobControl::Draw(IGraphics& g)
   DrawValue(g, mValueMouseOver);
 }
 
+IRECT IVKnobControl::GetKnobDragBounds()
+{
+  IRECT r;
+  
+  if(mWidgetBounds.W() > mWidgetBounds.H())
+    r = mWidgetBounds.GetCentredInside(mWidgetBounds.H()/2.f, mWidgetBounds.H());
+  else
+    r = mWidgetBounds.GetCentredInside(mWidgetBounds.W(), mWidgetBounds.W()/2.f);
+  
+  return r;
+}
+
 void IVKnobControl::DrawWidget(IGraphics& g)
 {
   float radius;

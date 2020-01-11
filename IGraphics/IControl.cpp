@@ -729,11 +729,13 @@ bool IKnobControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
   double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
+  
+  IRECT dragBounds = GetKnobDragBounds();
 
   if (mDirection == EDirection::Vertical)
-    SetValue(GetValue() + (double)dY / (double)(mRECT.T - mRECT.B) / gearing);
+    SetValue(GetValue() + (double)dY / (double)(dragBounds.T - dragBounds.B) / gearing);
   else
-    SetValue(GetValue() + (double)dX / (double)(mRECT.R - mRECT.L) / gearing);
+    SetValue(GetValue() + (double)dX / (double)(dragBounds.R - dragBounds.L) / gearing);
 
   SetDirty();
 }
