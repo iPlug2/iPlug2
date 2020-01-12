@@ -1294,3 +1294,17 @@ void IBTextControl::Draw(IGraphics& g)
   g.DrawBitmapedText(mBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
 }
 
+ISVGButtonControl::ISVGButtonControl(const IRECT& bounds, IActionFunction aF, const ISVG& offImage, const ISVG& onImage)
+: IButtonControlBase(bounds, aF)
+, mOffSVG(offImage)
+, mOnSVG(onImage)
+{
+}
+
+void ISVGButtonControl::Draw(IGraphics& g)
+{
+  if (GetValue() > 0.5)
+    g.DrawSVG(mOnSVG, mRECT);
+  else
+    g.DrawSVG(mOffSVG, mRECT);
+}

@@ -385,6 +385,23 @@ private:
   float mEndAngle = 135.f;
 };
 
+/** A vector button/momentary switch control which shows two SVG states */
+class ISVGButtonControl : public IButtonControlBase
+{
+public:
+  /** Constructs a vector button control, with an action function
+   * @param bounds The control's bounds
+   * @param actionFunc An action function to execute when a button is clicked \see IActionFunction */
+  ISVGButtonControl(const IRECT& bounds, IActionFunction actionFunc, const ISVG& offImage, const ISVG& onImage);
+
+  void Draw(IGraphics& g) override;
+  //void OnResize() override;
+
+protected:
+  ISVG mOffSVG;
+  ISVG mOnSVG;
+};
+
 #pragma mark - Bitmap Controls
 
 /** A bitmap button/momentary switch control. */
