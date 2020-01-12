@@ -402,6 +402,22 @@ protected:
   ISVG mOnSVG;
 };
 
+/** A vector switch control. Which shows one of multiple SVG states. Click to cycle through states. */
+class ISVGSwitchControl : public ISwitchControlBase
+{
+public:
+  /** Constructs a SVG switch control
+  * @param bounds The control's bounds
+  * @param svgs A list of ISVGs for the control states
+  * @param paramIdx The parameter index to link this control to */
+  ISVGSwitchControl(const IRECT& bounds, const std::initializer_list<ISVG>& svgs, int paramIdx = kNoParameter, IActionFunction aF = nullptr);
+
+  void Draw(IGraphics& g);
+
+protected:
+  std::vector<ISVG> mSVGs;
+};
+
 #pragma mark - Bitmap Controls
 
 /** A bitmap button/momentary switch control. */

@@ -1124,6 +1124,21 @@ void IVGroupControl::SetBoundsBasedOnGroup(const char* groupName, float padding)
 
 #pragma mark - SVG CONTROLS
 
+ISVGButtonControl::ISVGButtonControl(const IRECT& bounds, IActionFunction aF, const ISVG& offImage, const ISVG& onImage)
+: IButtonControlBase(bounds, aF)
+, mOffSVG(offImage)
+, mOnSVG(onImage)
+{
+}
+
+void ISVGButtonControl::Draw(IGraphics& g)
+{
+  if (GetValue() > 0.5)
+    g.DrawSVG(mOnSVG, mRECT);
+  else
+    g.DrawSVG(mOffSVG, mRECT);
+}
+
 ISVGKnob::ISVGKnob(const IRECT& bounds, const ISVG& svg, int paramIdx)
   : IKnobControlBase(bounds, paramIdx)
   , mSVG(svg)
@@ -1282,17 +1297,13 @@ void IBTextControl::Draw(IGraphics& g)
   g.DrawBitmapedText(mBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
 }
 
-ISVGButtonControl::ISVGButtonControl(const IRECT& bounds, IActionFunction aF, const ISVG& offImage, const ISVG& onImage)
-: IButtonControlBase(bounds, aF)
-, mOffSVG(offImage)
-, mOnSVG(onImage)
+ISVGSwitchControl::ISVGSwitchControl(const IRECT& bounds, const std::initializer_list<ISVG>& svgs, int paramIdx, IActionFunction aF)
+: ISwitchControlBase(bounds, paramIdx, aF, svgs.size())
+, mSVGs(svgs)
 {
 }
 
-void ISVGButtonControl::Draw(IGraphics& g)
+void ISVGSwitchControl::Draw(IGraphics& g)
 {
-  if (GetValue() > 0.5)
-    g.DrawSVG(mOnSVG, mRECT);
-  else
-    g.DrawSVG(mOffSVG, mRECT);
+  g.DrawSVG(mSVGs[GetSelectedIdx()], mRECT);
 }
