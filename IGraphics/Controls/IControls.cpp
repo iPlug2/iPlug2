@@ -47,8 +47,8 @@ void IVLabelControl::Draw(IGraphics& g)
   }
 }
 
-IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool labelInButton, bool valueInButton, EVShape shape)
-: IButtonControlBase(bounds, actionFunc)
+IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool labelInButton, bool valueInButton, EVShape shape)
+: IButtonControlBase(bounds, aF)
 , IVectorBase(style, labelInButton, valueInButton)
 , mShape(shape)
 {
