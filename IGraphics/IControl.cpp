@@ -57,7 +57,9 @@ void SplashAnimationFunc(IControl* pCaller)
 };
 
 void EmptyClickActionFunc(IControl* pCaller) { };
+
 void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
+
 void SplashClickActionFunc(IControl* pCaller)
 {
   float x, y;
@@ -65,6 +67,7 @@ void SplashClickActionFunc(IControl* pCaller)
   dynamic_cast<IVectorBase*>(pCaller)->SetSplashPoint(x, y);
   pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION);
 }
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
@@ -659,6 +662,7 @@ void PlaceHolder::OnResize()
 IButtonControlBase::IButtonControlBase(const IRECT& bounds, IActionFunction actionFunc)
 : IControl(bounds, kNoParameter, actionFunc)
 {
+  mDblAsSingleClick = true;
 }
 
 void IButtonControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
