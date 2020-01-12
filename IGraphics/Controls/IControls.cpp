@@ -1134,14 +1134,7 @@ ISVGKnob::ISVGKnob(const IRECT& bounds, const ISVG& svg, int paramIdx)
 
 void ISVGKnob::Draw(IGraphics& g)
 {
-  if (!g.CheckLayer(mLayer))
-  {
-    g.StartLayer(this, mRECT);
-    g.DrawSVG(mSVG, mRECT);
-    mLayer = g.EndLayer();
-  }
-
-  g.DrawRotatedLayer(mLayer, mStartAngle + GetValue() * (mEndAngle - mStartAngle));
+  g.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), mStartAngle + GetValue() * (mEndAngle - mStartAngle));
 }
 
 void ISVGKnob::SetSVG(ISVG& svg)

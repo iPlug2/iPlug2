@@ -379,7 +379,6 @@ public:
   void SetSVG(ISVG& svg);
   
 private:
-  ILayerPtr mLayer;
   ISVG mSVG;
   float mStartAngle = -135.f;
   float mEndAngle = 135.f;
