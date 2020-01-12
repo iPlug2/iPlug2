@@ -27,6 +27,26 @@ const IColor IVKeyboardControl::DEFAULT_PK_COLOR = IColor(60, 0, 0, 0);
 const IColor IVKeyboardControl::DEFAULT_FR_COLOR = COLOR_BLACK;
 const IColor IVKeyboardControl::DEFAULT_HK_COLOR = COLOR_ORANGE;
 
+IVLabelControl::IVLabelControl(const IRECT& bounds, const char* label, const IVStyle& style)
+  : ITextControl(bounds, label)
+{
+  mText = style.labelText;
+  AttachIControl(this, label);
+}
+
+void IVLabelControl::Draw(IGraphics& g)
+{
+  g.FillRect(GetColor(kBG), mRECT);
+
+  if (mStr.GetLength())
+  {
+    if (mStyle.drawShadows)
+      g.DrawText(mText.WithFGColor(GetColor(kSH)), mStr.Get(), mRECT.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset));
+
+    g.DrawText(mText, mStr.Get(), mRECT);
+  }
+}
+
 IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool labelInButton, bool valueInButton, EVShape shape)
 : IButtonControlBase(bounds, actionFunc)
 , IVectorBase(style, labelInButton, valueInButton)
@@ -1102,7 +1122,81 @@ void IVGroupControl::SetBoundsBasedOnGroup(const char* groupName, float padding)
   OnResize();
 }
 
+#pragma mark - SVG CONTROLS
+
+ISVGKnob::ISVGKnob(const IRECT& bounds, const ISVG& svg, int paramIdx)
+  : IKnobControlBase(bounds, paramIdx)
+  , mSVG(svg)
+{
+}
+
+void ISVGKnob::Draw(IGraphics& g)
+{
+  if (!g.CheckLayer(mLayer))
+  {
+    g.StartLayer(this, mRECT);
+    g.DrawSVG(mSVG, mRECT);
+    mLayer = g.EndLayer();
+  }
+
+  g.DrawRotatedLayer(mLayer, mStartAngle + GetValue() * (mEndAngle - mStartAngle));
+}
+
+void ISVGKnob::SetSVG(ISVG& svg)
+{
+  mSVG = svg;
+  SetDirty(false);
+}
+
 #pragma mark - BITMAP CONTROLS
+
+IBButtonControl::IBButtonControl(float x, float y, const IBitmap& bitmap, IActionFunction actionFunc)
+  : IButtonControlBase(IRECT(x, y, bitmap), actionFunc)
+  , IBitmapBase(bitmap)
+{
+  AttachIControl(this);
+}
+
+IBButtonControl::IBButtonControl(const IRECT& bounds, const IBitmap& bitmap, IActionFunction actionFunc)
+  : IButtonControlBase(bounds.GetCentredInside(bitmap), actionFunc)
+  , IBitmapBase(bitmap)
+{
+  AttachIControl(this);
+}
+
+void IBButtonControl::SetDisabled(bool disable)
+{
+  IBitmapBase::SetDisabled(disable);
+  IControl::SetDisabled(disable);
+}
+
+
+/** Constructs a bitmap switch control
+* @param x The x position of the top left point in the control's bounds (width will be determined by bitmap's dimensions)
+* @param y The y position of the top left point in the control's bounds (height will be determined by bitmap's dimensions)
+* @param bitmap The bitmap resource for the control
+* @param paramIdx The parameter index to link this control to */
+
+IBSwitchControl::IBSwitchControl(float x, float y, const IBitmap& bitmap, int paramIdx)
+: ISwitchControlBase(IRECT(x, y, bitmap), paramIdx)
+, IBitmapBase(bitmap)
+{
+  AttachIControl(this);
+  mDblAsSingleClick = true;
+}
+
+/** Constructs a bitmap switch control
+* @param bounds The control's bounds
+* @param bitmap The bitmap resource for the control
+* @param paramIdx The parameter index to link this control to */
+
+IBSwitchControl::IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx)
+: ISwitchControlBase(bounds.GetCentredInside(bitmap), paramIdx)
+, IBitmapBase(bitmap)
+{
+  AttachIControl(this);
+  mDblAsSingleClick = true;
+}
 
 void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
@@ -1117,28 +1211,19 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IBSliderControl::IBSliderControl(const IRECT& bounds, int paramIdx, const IBitmap& bitmap, EDirection dir, bool onlyHandle)
-: ISliderControlBase(bounds, paramIdx, dir, onlyHandle)
-, IBitmapBase(bitmap)
-{
-  mTrack = bounds; // TODO: check
-  AttachIControl(this);
-}
+//IBSliderControl::IBSliderControl(const IRECT& bounds, int paramIdx, const IBitmap& bitmap, EDirection dir, bool onlyHandle)
+//: ISliderControlBase(bounds, paramIdx, dir, onlyHandle)
+//, IBitmapBase(bitmap)
+//{
+//  mTrack = bounds; // TODO: check
+//  AttachIControl(this);
+//}
 
 IBSliderControl::IBSliderControl(float x, float y, int len, int paramIdx, const IBitmap& bitmap, EDirection dir, bool onlyHandle)
-: ISliderControlBase(IRECT(x, y, x + bitmap.W(), y + len), paramIdx)
+: ISliderControlBase(IRECT(x, y, x + bitmap.W(), y + len), paramIdx, dir, onlyHandle)
 , IBitmapBase(bitmap)
+, mTrackLength(len)
 {
-  if (dir == EDirection::Vertical)
-  {
-    mRECT = mTargetRECT = IRECT(x, y, x + bitmap.W(), y + len);
-    mTrack = mRECT.GetPadded(0, -(float) bitmap.H(), 0, 0);
-  }
-  else
-  {
-    mRECT = mTargetRECT = IRECT(x, y, x + len, y + bitmap.H());
-    mTrack = mRECT.GetPadded(0, 0, -(float) bitmap.W(), 0);
-  }
   AttachIControl(this);
 }
 
@@ -1169,3 +1254,43 @@ IRECT IBSliderControl::GetHandleBounds(double value) const
   }
   return r;
 }
+
+void IBSliderControl::OnResize()
+{
+  if (mDirection == EDirection::Vertical)
+  {
+    mRECT = mTargetRECT = IRECT(mRECT.L, mRECT.T, mRECT.L + mBitmap.W(), mRECT.T + mTrackLength);
+    mTrack = mRECT.GetPadded(0, -(float)mBitmap.H(), 0, 0);
+  }
+  else
+  {
+    mRECT = mTargetRECT = IRECT(mRECT.L, mRECT.T, mRECT.L + mTrackLength, mRECT.T + mBitmap.H());
+    mTrack = mRECT.GetPadded(0, 0, -(float)mBitmap.W(), 0);
+  }
+
+  SetDirty(false);
+}
+
+void IBKnobRotaterControl::Draw(IGraphics& g)
+{
+  double angle = -130.0 + GetValue() * 260.0;
+  g.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle);
+}
+
+IBTextControl::IBTextControl(const IRECT& bounds, const IBitmap& bitmap, const IText& text, const char* str, int charWidth, int charHeight, int charOffset, bool multiLine, bool vCenter, EBlend blend)
+  : ITextControl(bounds, str, text)
+  , IBitmapBase(bitmap, blend)
+  , mCharWidth(charWidth)
+  , mCharHeight(charHeight)
+  , mCharOffset(charOffset)
+  , mMultiLine(multiLine)
+  , mVCentre(vCenter)
+{
+  mStr.Set(str);
+}
+
+void IBTextControl::Draw(IGraphics& g)
+{
+  g.DrawBitmapedText(mBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
+}
+

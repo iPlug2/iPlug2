@@ -38,25 +38,8 @@ class IVLabelControl : public ITextControl
                      , public IVectorBase
 {
 public:
-  IVLabelControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE)
-  : ITextControl(bounds, label)
-  {
-    mText = style.labelText;
-    AttachIControl(this, label);
-  }
-  
-  void Draw(IGraphics& g) override
-  {
-    g.FillRect(GetColor(kBG), mRECT);
-    
-    if (mStr.GetLength())
-    {
-      if(mStyle.drawShadows)
-        g.DrawText(mText.WithFGColor(GetColor(kSH)), mStr.Get(), mRECT.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset));
-      
-      g.DrawText(mText, mStr.Get(), mRECT);
-    }
-  }
+  IVLabelControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE);
+  void Draw(IGraphics& g) override;
 };
 
 /** A vector button/momentary switch control. */
@@ -78,7 +61,6 @@ public:
   virtual void DrawWidget(IGraphics& g) override;
   bool IsHit(float x, float y) const override;
   void OnResize() override;
-
   void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
 
 protected:
@@ -237,7 +219,6 @@ public:
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override { mValueMouseOver = false; IKnobControlBase::OnMouseOut(); }
 
-//  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override {  OnMouseDown(x, y, mod); }
   void OnResize() override;
   bool IsHit(float x, float y) const override;
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
@@ -392,29 +373,10 @@ protected:
 class ISVGKnob : public IKnobControlBase
 {
 public:
-  ISVGKnob(const IRECT& bounds, const ISVG& svg, int paramIdx = kNoParameter)
-  : IKnobControlBase(bounds, paramIdx)
-  , mSVG(svg)
-  {
-  }
+  ISVGKnob(const IRECT& bounds, const ISVG& svg, int paramIdx = kNoParameter);
   
-  void Draw(IGraphics& g) override
-  {
-    if (!g.CheckLayer(mLayer))
-    {
-      g.StartLayer(this, mRECT);
-      g.DrawSVG(mSVG, mRECT);
-      mLayer = g.EndLayer();
-    }
-    
-    g.DrawRotatedLayer(mLayer, mStartAngle + GetValue() * (mEndAngle - mStartAngle));
-  }
-  
-  void SetSVG(ISVG& svg)
-  {
-    mSVG = svg;
-    SetDirty(false);
-  }
+  void Draw(IGraphics& g) override;
+  void SetSVG(ISVG& svg);
   
 private:
   ILayerPtr mLayer;
@@ -430,35 +392,13 @@ class IBButtonControl : public IButtonControlBase
                       , public IBitmapBase
 {
 public:
-  IBButtonControl(float x, float y, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
-  : IButtonControlBase(IRECT(x, y, bitmap), actionFunc)
-  , IBitmapBase(bitmap)
-  {
-    AttachIControl(this);
-  }
+  IBButtonControl(float x, float y, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc);
 
-  IBButtonControl(const IRECT& bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc)
-  : IButtonControlBase(bounds.GetCentredInside(bitmap), actionFunc)
-  , IBitmapBase(bitmap)
-  {
-    AttachIControl(this);
-  }
+  IBButtonControl(const IRECT& bounds, const IBitmap& bitmap, IActionFunction actionFunc = DefaultClickActionFunc);
 
-  void Draw(IGraphics& g) override
-  {
-    DrawBitmap(g);
-  }
-
-  void OnRescale() override
-  {
-    mBitmap = GetUI()->GetScaledBitmap(mBitmap);
-  }
-
-  void SetDisabled(bool disable) override
-  {
-    IBitmapBase::SetDisabled(disable);
-    IControl::SetDisabled(disable);
-  }
+  void Draw(IGraphics& g) override  { DrawBitmap(g); }
+  void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
+  void SetDisabled(bool disable) override;
 };
 
 /** A bitmap switch control. Click to cycle through states. */
@@ -471,25 +411,13 @@ public:
   * @param y The y position of the top left point in the control's bounds (height will be determined by bitmap's dimensions)
   * @param bitmap The bitmap resource for the control
   * @param paramIdx The parameter index to link this control to */
-  IBSwitchControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter)
-  : ISwitchControlBase(IRECT(x, y, bitmap), paramIdx)
-  , IBitmapBase(bitmap)
-  {
-    AttachIControl(this);
-    mDblAsSingleClick = true;
-  }
+  IBSwitchControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter);
 
   /** Constructs a bitmap switch control
   * @param bounds The control's bounds
   * @param bitmap The bitmap resource for the control
   * @param paramIdx The parameter index to link this control to */
-  IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter)
-  : ISwitchControlBase(bounds.GetCentredInside(bitmap), paramIdx)
-  , IBitmapBase(bitmap)
-  {
-    AttachIControl(this);
-    mDblAsSingleClick = true;
-  }
+  IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter);
   
   virtual ~IBSwitchControl() {}
   void Draw(IGraphics& g) override { DrawBitmap(g); }
@@ -505,17 +433,11 @@ class IBKnobControl : public IKnobControlBase
 public:
   IBKnobControl(float x, float y, const IBitmap& bitmap, int paramIdx, EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING)
   : IKnobControlBase(IRECT(x, y, bitmap), paramIdx, direction, gearing)
-  , IBitmapBase(bitmap)
-  {
-    AttachIControl(this);
-  }
+  , IBitmapBase(bitmap)  { AttachIControl(this); }
 
   IBKnobControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx, EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING)
   : IKnobControlBase(bounds.GetCentredInside(bitmap), paramIdx, direction, gearing)
-  , IBitmapBase(bitmap)
-  {
-    AttachIControl(this);
-  }
+  , IBitmapBase(bitmap)  { AttachIControl(this); }
 
   virtual ~IBKnobControl() {}
   void Draw(IGraphics& g) override { DrawBitmap(g); }
@@ -534,12 +456,7 @@ public:
   : IBKnobControl(bounds.GetCentredInside(bitmap), bitmap, paramIdx) {}
 
   virtual ~IBKnobRotaterControl() {}
-
-  void Draw(IGraphics& g) override
-  {
-    double angle = -130.0 + GetValue() * 260.0;
-    g.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle);
-  }
+  void Draw(IGraphics& g) override;
 };
 
 /** A bitmap slider/fader control */
@@ -547,18 +464,20 @@ class IBSliderControl : public ISliderControlBase
                       , public IBitmapBase
 {
 public:
-  IBSliderControl(const IRECT& bounds, int paramIdx, const IBitmap& bitmap, EDirection dir = EDirection::Vertical, bool onlyHandle = false);
+  //IBSliderControl(const IRECT& bounds, int paramIdx, const IBitmap& bitmap, EDirection dir = EDirection::Vertical, bool onlyHandle = false);
 
   IBSliderControl(float x, float y, int len, int paramIdx, const IBitmap& bitmap, EDirection direction = EDirection::Vertical, bool onlyHandle = false);
-
   virtual ~IBSliderControl() {}
 
   void Draw(IGraphics& g) override;
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
-  void OnResize() override { SetDirty(false); }
+  void OnResize() override;
   void SetDisabled(bool disable) override  { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
   
   IRECT GetHandleBounds(double value = -1.0) const;
+
+protected:
+  int mTrackLength = 0;
 };
 
 /** A control to display text using a monospace bitmap font */
@@ -566,25 +485,10 @@ class IBTextControl : public ITextControl
                     , public IBitmapBase
 {
 public:
-  IBTextControl(const IRECT& bounds, const IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlend blend = EBlend::Default)
-  : ITextControl(bounds, str, text)
-  , IBitmapBase(bitmap, blend)
-  , mCharWidth(charWidth)
-  , mCharHeight(charHeight)
-  , mCharOffset(charOffset)
-  , mMultiLine(multiLine)
-  , mVCentre(vCenter)
-  {
-    mStr.Set(str);
-  }
-
+  IBTextControl(const IRECT& bounds, const IBitmap& bitmap, const IText& text = DEFAULT_TEXT, const char* str = "", int charWidth = 6, int charHeight = 12, int charOffset = 0, bool multiLine = false, bool vCenter = true, EBlend blend = EBlend::Default);
   virtual ~IBTextControl() {}
 
-  void Draw(IGraphics& g) override
-  {
-    g.DrawBitmapedText(mBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
-  }
-
+  void Draw(IGraphics& g) override;
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
   void SetDisabled(bool disable) override  { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
 
