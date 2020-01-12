@@ -95,8 +95,8 @@ IVSwitchControl::IVSwitchControl(const IRECT& bounds, int paramIdx, const char* 
   mDblAsSingleClick = true;
 }
 
-IVSwitchControl::IVSwitchControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, int numStates, bool valueInButton)
-: ISwitchControlBase(bounds, kNoParameter, actionFunc, numStates)
+IVSwitchControl::IVSwitchControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, int numStates, bool valueInButton)
+: ISwitchControlBase(bounds, kNoParameter, aF, numStates)
 , IVectorBase(style, false, valueInButton)
 {
   AttachIControl(this, label);
@@ -165,8 +165,8 @@ IVToggleControl::IVToggleControl(const IRECT& bounds, int paramIdx, const char* 
   //TODO: assert boolean?
 }
 
-IVToggleControl::IVToggleControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, const char* offText, const char* onText, bool initialState)
-: IVSwitchControl(bounds, actionFunc, label, style, 2, true)
+IVToggleControl::IVToggleControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, const char* offText, const char* onText, bool initialState)
+: IVSwitchControl(bounds, aF, label, style, 2, true)
 , mOnText(onText)
 , mOffText(offText)
 {
@@ -212,7 +212,7 @@ IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, int paramIdx, co
   });
 }
 
-IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool valueInButton, EDirection direction, int numStates, int initialState)
+IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueInButton, EDirection direction, int numStates, int initialState)
 : IVSwitchControl(bounds, nullptr, label, style, numStates, valueInButton)
 , mDirection(direction)
 {
@@ -236,7 +236,7 @@ IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, IActionFunction 
     DEFAULT_ANIMATION_DURATION);
   });
   
-  SetAnimationEndActionFunction(actionFunc);
+  SetAnimationEndActionFunction(aF);
 }
 
 void IVSlideSwitchControl::UpdateRects()
@@ -304,8 +304,8 @@ IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const 
   mText.mVAlign = EVAlign::Middle; //TODO?
 }
 
-IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
-: ISwitchControlBase(bounds, kNoParameter, actionFunc, static_cast<int>(options.size()))
+IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
+: ISwitchControlBase(bounds, kNoParameter, aF, static_cast<int>(options.size()))
 , IVectorBase(style)
 , mShape(shape)
 , mDirection(direction)
@@ -447,8 +447,8 @@ IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, co
   mText.mAlign = EAlign::Near; //TODO?
 }
 
-IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction actionFunc, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
-: IVTabSwitchControl(bounds, actionFunc, options, label, style, shape, direction)
+IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
+: IVTabSwitchControl(bounds, aF, options, label, style, shape, direction)
 , mButtonSize(buttonSize)
 {
   mText.mAlign = EAlign::Near; //TODO?
@@ -501,7 +501,7 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* labe
   AttachIControl(this, label);
 }
 
-IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool valueIsEditable, bool valueInWidget,  float a1, float a2, float aAnchor, EDirection direction, double gearing)
+IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, bool valueInWidget,  float a1, float a2, float aAnchor, EDirection direction, double gearing)
 : IKnobControlBase(bounds, kNoParameter, direction, gearing)
 , IVectorBase(style, false, valueInWidget)
 , mAngle1(a1)
@@ -510,7 +510,7 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction actionFunc, co
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
-  SetActionFunction(actionFunc);
+  SetActionFunction(aF);
   AttachIControl(this, label);
 }
 
@@ -650,8 +650,8 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* 
   AttachIControl(this, label);
 }
 
-IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction actionFunc, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, bool onlyHandle, float handleSize, float trackSize)
-: ISliderControlBase(bounds, actionFunc, dir, onlyHandle, handleSize)
+IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, bool onlyHandle, float handleSize, float trackSize)
+: ISliderControlBase(bounds, aF, dir, onlyHandle, handleSize)
 , IVectorBase(style)
 , mTrackSize(trackSize)
 {
@@ -1150,15 +1150,15 @@ void ISVGKnob::SetSVG(ISVG& svg)
 
 #pragma mark - BITMAP CONTROLS
 
-IBButtonControl::IBButtonControl(float x, float y, const IBitmap& bitmap, IActionFunction actionFunc)
-  : IButtonControlBase(IRECT(x, y, bitmap), actionFunc)
+IBButtonControl::IBButtonControl(float x, float y, const IBitmap& bitmap, IActionFunction aF)
+  : IButtonControlBase(IRECT(x, y, bitmap), aF)
   , IBitmapBase(bitmap)
 {
   AttachIControl(this);
 }
 
-IBButtonControl::IBButtonControl(const IRECT& bounds, const IBitmap& bitmap, IActionFunction actionFunc)
-  : IButtonControlBase(bounds.GetCentredInside(bitmap), actionFunc)
+IBButtonControl::IBButtonControl(const IRECT& bounds, const IBitmap& bitmap, IActionFunction aF)
+  : IButtonControlBase(bounds.GetCentredInside(bitmap), aF)
   , IBitmapBase(bitmap)
 {
   AttachIControl(this);
@@ -1170,13 +1170,6 @@ void IBButtonControl::SetDisabled(bool disable)
   IControl::SetDisabled(disable);
 }
 
-
-/** Constructs a bitmap switch control
-* @param x The x position of the top left point in the control's bounds (width will be determined by bitmap's dimensions)
-* @param y The y position of the top left point in the control's bounds (height will be determined by bitmap's dimensions)
-* @param bitmap The bitmap resource for the control
-* @param paramIdx The parameter index to link this control to */
-
 IBSwitchControl::IBSwitchControl(float x, float y, const IBitmap& bitmap, int paramIdx)
 : ISwitchControlBase(IRECT(x, y, bitmap), paramIdx)
 , IBitmapBase(bitmap)
@@ -1184,11 +1177,6 @@ IBSwitchControl::IBSwitchControl(float x, float y, const IBitmap& bitmap, int pa
   AttachIControl(this);
   mDblAsSingleClick = true;
 }
-
-/** Constructs a bitmap switch control
-* @param bounds The control's bounds
-* @param bitmap The bitmap resource for the control
-* @param paramIdx The parameter index to link this control to */
 
 IBSwitchControl::IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx)
 : ISwitchControlBase(bounds.GetCentredInside(bitmap), paramIdx)

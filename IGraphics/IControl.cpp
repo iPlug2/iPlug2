@@ -74,18 +74,18 @@ END_IPLUG_NAMESPACE
 using namespace iplug;
 using namespace igraphics;
 
-IControl::IControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, int paramIdx, IActionFunction aF)
 : mRECT(bounds)
 , mTargetRECT(bounds)
-, mActionFunc(actionFunc)
+, mActionFunc(aF)
 {
   mVals[0].idx = paramIdx;
 }
 
-IControl::IControl(const IRECT& bounds, const std::initializer_list<int>& params, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, const std::initializer_list<int>& params, IActionFunction aF)
 : mRECT(bounds)
 , mTargetRECT(bounds)
-, mActionFunc(actionFunc)
+, mActionFunc(aF)
 {
   mVals.clear();
   for (auto& paramIdx : params) {
@@ -93,10 +93,10 @@ IControl::IControl(const IRECT& bounds, const std::initializer_list<int>& params
   }
 }
 
-IControl::IControl(const IRECT& bounds, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, IActionFunction aF)
 : mRECT(bounds)
 , mTargetRECT(bounds)
-, mActionFunc(actionFunc)
+, mActionFunc(aF)
 {
 }
 
@@ -659,8 +659,8 @@ void PlaceHolder::OnResize()
   mHeightStr.SetFormatted(32, "%0.1f", mRECT.H());
 }
 
-IButtonControlBase::IButtonControlBase(const IRECT& bounds, IActionFunction actionFunc)
-: IControl(bounds, kNoParameter, actionFunc)
+IButtonControlBase::IButtonControlBase(const IRECT& bounds, IActionFunction aF)
+: IControl(bounds, kNoParameter, aF)
 {
   mDblAsSingleClick = true;
 }
@@ -677,10 +677,9 @@ void IButtonControlBase::OnEndAnimation()
   IControl::OnEndAnimation();
 }
 
-ISwitchControlBase::ISwitchControlBase(const IRECT& bounds, int paramIdx, IActionFunction actionFunc,
-  int numStates)
-  : IControl(bounds, paramIdx, actionFunc)
-  , mNumStates(numStates)
+ISwitchControlBase::ISwitchControlBase(const IRECT& bounds, int paramIdx, IActionFunction aF, int numStates)
+: IControl(bounds, paramIdx, aF)
+, mNumStates(numStates)
 {
   assert(mNumStates > 1);
 }
