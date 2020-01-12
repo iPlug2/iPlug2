@@ -54,7 +54,6 @@ IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction aF, const 
 {
   mText = style.valueText;
   AttachIControl(this, label);
-  mDblAsSingleClick = true;
 }
 
 void IVButtonControl::Draw(IGraphics& g)
@@ -91,8 +90,6 @@ IVSwitchControl::IVSwitchControl(const IRECT& bounds, int paramIdx, const char* 
   
   if(valueInButton)
     mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle;
-  
-  mDblAsSingleClick = true;
 }
 
 IVSwitchControl::IVSwitchControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, int numStates, bool valueInButton)
@@ -104,8 +101,6 @@ IVSwitchControl::IVSwitchControl(const IRECT& bounds, IActionFunction aF, const 
   
   if(valueInButton)
     mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle;
-
-  mDblAsSingleClick = true;
 }
 
 void IVSwitchControl::Draw(IGraphics& g)
@@ -298,7 +293,6 @@ IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const 
 , mDirection(direction)
 {
   AttachIControl(this, label);
-  mDblAsSingleClick = true;
   mText = style.valueText;
   mText.mAlign = EAlign::Center; //TODO?
   mText.mVAlign = EVAlign::Middle; //TODO?
@@ -311,7 +305,6 @@ IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, 
 , mDirection(direction)
 {
   AttachIControl(this, label);
-  mDblAsSingleClick = true;
   mText = style.valueText;
   mText.mAlign = mStyle.valueText.mAlign = EAlign::Center; //TODO?
   mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle; //TODO?
@@ -1190,7 +1183,6 @@ IBSwitchControl::IBSwitchControl(float x, float y, const IBitmap& bitmap, int pa
 , IBitmapBase(bitmap)
 {
   AttachIControl(this);
-  mDblAsSingleClick = true;
 }
 
 IBSwitchControl::IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx)
@@ -1198,7 +1190,6 @@ IBSwitchControl::IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int
 , IBitmapBase(bitmap)
 {
   AttachIControl(this);
-  mDblAsSingleClick = true;
 }
 
 void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)

@@ -682,6 +682,7 @@ ISwitchControlBase::ISwitchControlBase(const IRECT& bounds, int paramIdx, IActio
 , mNumStates(numStates)
 {
   assert(mNumStates > 1);
+  mDblAsSingleClick = true;
 }
 
 void ISwitchControlBase::OnInit()
