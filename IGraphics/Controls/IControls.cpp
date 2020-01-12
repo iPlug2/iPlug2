@@ -491,6 +491,7 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* labe
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
+  mHideCursorOnDrag = mStyle.hideCursor;
   AttachIControl(this, label);
 }
 
@@ -503,6 +504,7 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction aF, const char
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
+  mHideCursorOnDrag = mStyle.hideCursor;
   SetActionFunction(aF);
   AttachIControl(this, label);
 }
@@ -567,19 +569,14 @@ void IVKnobControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     PromptUserInput(mValueBounds);
   }
   else
-  {
-    if(mStyle.hideCursor)
-      GetUI()->HideMouseCursor(true, true);
-    
+  {    
     IKnobControlBase::OnMouseDown(x, y, mod);
   }
 }
 
+//TODO: needed?
 void IVKnobControl::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
-  if(mStyle.hideCursor)
-    GetUI()->HideMouseCursor(false);
-
   IKnobControlBase::OnMouseUp(x, y, mod);
 
   SetDirty(true);
@@ -640,6 +637,7 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* 
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
+  mHideCursorOnDrag = style.hideCursor;
   AttachIControl(this, label);
 }
 
@@ -650,6 +648,7 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const 
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
+  mHideCursorOnDrag = style.hideCursor;
   AttachIControl(this, label);
 }
 
@@ -704,19 +703,14 @@ void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     PromptUserInput(mValueBounds);
   }
   else
-  {
-    if(mStyle.hideCursor)
-      GetUI()->HideMouseCursor(true, false);
-    
+  { 
     ISliderControlBase::OnMouseDown(x, y, mod);
   }
 }
 
+//TODO: needed
 void IVSliderControl::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
-  if(mStyle.hideCursor)
-    GetUI()->HideMouseCursor(false);
-  
   ISliderControlBase::OnMouseUp(x, y, mod);
 
   SetDirty(true);
@@ -1133,8 +1127,8 @@ void ISVGButtonControl::Draw(IGraphics& g)
 }
 
 ISVGKnob::ISVGKnob(const IRECT& bounds, const ISVG& svg, int paramIdx)
-  : IKnobControlBase(bounds, paramIdx)
-  , mSVG(svg)
+: IKnobControlBase(bounds, paramIdx)
+, mSVG(svg)
 {
 }
 
