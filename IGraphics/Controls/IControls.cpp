@@ -1156,6 +1156,68 @@ void ISVGKnob::SetSVG(ISVG& svg)
   SetDirty(false);
 }
 
+ISVGSwitchControl::ISVGSwitchControl(const IRECT& bounds, const std::initializer_list<ISVG>& svgs, int paramIdx, IActionFunction aF)
+  : ISwitchControlBase(bounds, paramIdx, aF, svgs.size())
+  , mSVGs(svgs)
+{
+}
+
+void ISVGSwitchControl::Draw(IGraphics& g)
+{
+  g.DrawSVG(mSVGs[GetSelectedIdx()], mRECT);
+}
+
+ISVGSliderControl::ISVGSliderControl(const IRECT& bounds, const ISVG& handleSVG, const ISVG& trackSVG, int paramIdx, EDirection dir)
+: ISliderControlBase(bounds, paramIdx)
+, mHandleSVG(handleSVG)
+, mTrackSVG(trackSVG)
+{
+}
+
+void ISVGSliderControl::Draw(IGraphics& g)
+{
+  g.DrawSVG(mTrackSVG, mTrackSVGBounds);
+  g.DrawSVG(mHandleSVG, GetHandleBounds(GetValue()));
+}
+
+void ISVGSliderControl::OnResize()
+{
+  auto trackAspectRatio = mTrackSVG.W() / mTrackSVG.H();
+  auto handleAspectRatio = mHandleSVG.W() / mHandleSVG.H();
+  auto handleOverTrackHeight = mHandleSVG.H() / mTrackSVG.H();
+
+  mTrackSVGBounds = mRECT.GetCentredInside(mRECT.H() * trackAspectRatio, mRECT.H());
+
+  IRECT handleBoundsAtMidPoint = mRECT.GetCentredInside(mRECT.H() * handleAspectRatio * handleOverTrackHeight, mRECT.H() * handleOverTrackHeight);
+  mHandleBoundsAtMax = { handleBoundsAtMidPoint.L, mTrackSVGBounds.T, handleBoundsAtMidPoint.R, mTrackSVGBounds.T + handleBoundsAtMidPoint.H() };
+  mTrack = mTrackSVGBounds.GetPadded(0, -handleBoundsAtMidPoint.H(), 0, 0);
+
+  SetDirty(false);
+}
+
+IRECT ISVGSliderControl::GetHandleBounds(double value) const
+{
+  if (value < 0.0)
+    value = GetValue();
+
+  IRECT r = mHandleBoundsAtMax;
+
+  if (mDirection == EDirection::Vertical)
+  {
+    float offs = (1.f - (float) value) * mTrack.H();
+    r.T += offs;
+    r.B += offs;
+  }
+  else
+  {
+    float offs = (float) value * mTrack.W();
+    r.L += offs;
+    r.R += offs;
+  }
+
+  return r;
+}
+
 #pragma mark - BITMAP CONTROLS
 
 IBButtonControl::IBButtonControl(float x, float y, const IBitmap& bitmap, IActionFunction aF)
@@ -1286,15 +1348,4 @@ IBTextControl::IBTextControl(const IRECT& bounds, const IBitmap& bitmap, const I
 void IBTextControl::Draw(IGraphics& g)
 {
   g.DrawBitmapedText(mBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
-}
-
-ISVGSwitchControl::ISVGSwitchControl(const IRECT& bounds, const std::initializer_list<ISVG>& svgs, int paramIdx, IActionFunction aF)
-: ISwitchControlBase(bounds, paramIdx, aF, svgs.size())
-, mSVGs(svgs)
-{
-}
-
-void ISVGSwitchControl::Draw(IGraphics& g)
-{
-  g.DrawSVG(mSVGs[GetSelectedIdx()], mRECT);
 }

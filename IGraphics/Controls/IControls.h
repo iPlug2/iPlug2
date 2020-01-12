@@ -402,7 +402,7 @@ protected:
   ISVG mOnSVG;
 };
 
-/** A vector switch control. Which shows one of multiple SVG states. Click to cycle through states. */
+/** A vector switch control which shows one of multiple SVG states. Click to cycle through states. */
 class ISVGSwitchControl : public ISwitchControlBase
 {
 public:
@@ -416,6 +416,23 @@ public:
 
 protected:
   std::vector<ISVG> mSVGs;
+};
+
+class ISVGSliderControl : public ISliderControlBase
+{
+public:
+  ISVGSliderControl(const IRECT& bounds, const ISVG& handleSvg, const ISVG& trackSVG, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical);
+
+  void Draw(IGraphics& g);
+  void OnResize() override;
+
+protected:
+  IRECT GetHandleBounds(double value = -1.0) const;
+
+  IRECT mTrackSVGBounds;
+  IRECT mHandleBoundsAtMax;
+  ISVG mHandleSVG;
+  ISVG mTrackSVG;
 };
 
 #pragma mark - Bitmap Controls
