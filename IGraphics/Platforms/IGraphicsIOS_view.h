@@ -43,7 +43,7 @@ END_IPLUG_NAMESPACE
 using namespace iplug;
 using namespace igraphics;
 
-@interface IGRAPHICS_UITABLE_VIEWCONTROLLER : UIViewController<UITableViewDataSource, UITableViewDelegate>//UITableViewController
+@interface IGRAPHICS_UITABLEVC : UIViewController<UITableViewDataSource, UITableViewDelegate> // UITableViewController
 {
   IPopupMenu* mMenu;
 }
@@ -57,7 +57,7 @@ using namespace igraphics;
 {
 @public
   IGraphicsIOS* mGraphics;
-  IGRAPHICS_UITABLE_VIEWCONTROLLER* mMenuTableController;
+  IGRAPHICS_UITABLEVC* mMenuTableController;
   UINavigationController* mMenuNavigationController;
   UITextField* mTextField;
   int mTextFieldLength;

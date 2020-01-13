@@ -27,7 +27,7 @@
 
 extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
-@implementation IGRAPHICS_UITABLE_VIEWCONTROLLER
+@implementation IGRAPHICS_UITABLEVC
 
 - (void)viewDidLoad
 {
@@ -142,7 +142,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   if(pSubMenu)
   {
-    IGRAPHICS_UITABLE_VIEWCONTROLLER* newViewController = [[IGRAPHICS_UITABLE_VIEWCONTROLLER alloc] initWithIPopupMenu:pSubMenu];
+    IGRAPHICS_UITABLEVC* newViewController = [[IGRAPHICS_UITABLEVC alloc] initWithIPopupMenu:pSubMenu];
     [newViewController setTitle:[NSString stringWithUTF8String:CStringHasContents(pSubMenu->GetRootTitle()) ? pSubMenu->GetRootTitle() : pItem->GetText()]];
     [self.navigationController pushViewController:newViewController animated:YES];
     
@@ -427,7 +427,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (CGRect) bounds;
 {
-  mMenuTableController = [[IGRAPHICS_UITABLE_VIEWCONTROLLER alloc] initWithIPopupMenu:&menu];
+  mMenuTableController = [[IGRAPHICS_UITABLEVC alloc] initWithIPopupMenu:&menu];
   [mMenuTableController setTitle: [NSString stringWithUTF8String:menu.GetRootTitle()]];
 
   mMenuNavigationController = [[UINavigationController alloc] initWithRootViewController:mMenuTableController];
