@@ -23,7 +23,7 @@
 
 extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
-@implementation IGRAPHICS_POPOVER_VIEW_CONTROLLER
+@implementation IGRAPHICS_UITABLE_VIEWCONTROLLER
 
 - (void)viewDidLoad
 {
@@ -32,11 +32,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   self.tableView.dataSource = self;
   self.tableView.delegate = self;
   self.tableView.scrollEnabled = YES;
-  [self.view addSubview:self.tableView];
-
-//  self.tableView.tableHeaderView = [[UILabel alloc] ]
-//  [self.tableView registerClass:NewTableViewCell.class forCellReuseIdentifier:@"Cell"];
-
+  self.tableView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
   self.items = [[NSMutableArray alloc] init];
   
   int numItems = mMenu->NItems();
@@ -64,67 +60,92 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
       [elementTitle insertString:prefixString atIndex:0];
     }
 
-//    if (pMenuItem->GetSubmenu())
-//    {
-//      nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:nil keyEquivalent:@""];
-//      NSMenu* subMenu = [[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:pMenuItem->GetSubmenu() :pView];
-//      [self setSubmenu: subMenu forItem:nsMenuItem];
-//      [subMenu release];
-//    }
-//    else if (pMenuItem->GetIsSeparator())
-//      [self addItem:[NSMenuItem separatorItem]];
-//    else
-//    {
     [self.items addObject:elementTitle];
-
-//      if (pMenuItem->GetIsTitle ())
-//        [nsMenuItem setIndentationLevel:1];
-//
-//      if (pMenuItem->GetChecked())
-//        [nsMenuItem setState:NSOnState];
-//      else
-//        [nsMenuItem setState:NSOffState];
-//
-//      if (pMenuItem->GetEnabled())
-//        [nsMenuItem setEnabled:YES];
-//      else
-//        [nsMenuItem setEnabled:NO];
-//
-//    }
   }
+  
+  [self.view addSubview:self.tableView];
 }
 
-- (id) initWithIPopupMenu:(IPopupMenu&) menu
+- (id) initWithIPopupMenu:(IPopupMenu*) pMenu
 {
   self = [super init];
   
-  mMenu = &menu;
+  mMenu = pMenu;
   
   return self;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+- (NSInteger)tableView:(UITableView*) tableView numberOfRowsInSection:(NSInteger)section
+{
   return self.items.count;
 }
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+- (NSInteger)numberOfSectionsInTableView:(UITableView*) tableView
+{
   return 1;
 }
 
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+- (UITableViewCell *)tableView:(UITableView*) tableView cellForRowAtIndexPath:(NSIndexPath*) indexPath
 {
   static NSString *identifer = @"cell";
   UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifer];
-  if (cell == nil) {
+  
+  if (cell == nil)
+  {
     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifer];
   }
+  
+  int cellIndex = static_cast<int>(indexPath.row);
+  
   cell.textLabel.text = [NSString stringWithFormat:@"%@", self.items[indexPath.row]];
+  
+  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+  
+  if(pItem->GetChecked())
+    cell.accessoryType = UITableViewCellAccessoryCheckmark;
+  else
+    cell.accessoryType = pItem->GetSubmenu() ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
+//  cell.selectionStyle = UITableViewCellSelectionStyleBlue;
+  
+  if(!pItem->GetEnabled())
+  {
+    cell.userInteractionEnabled = NO;
+    cell.textLabel.enabled = NO;
+  }
+  
   return cell;
 }
+//
+//- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
+//{
+//
+//}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  [self dismissViewControllerAnimated:YES completion:nil];
+  int cellIndex = static_cast<int>(indexPath.row);
+
+  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+  IPopupMenu* pSubMenu = pItem->GetSubmenu();
+  
+  if(pSubMenu)
+  {
+    IGRAPHICS_UITABLE_VIEWCONTROLLER* newViewController = [[IGRAPHICS_UITABLE_VIEWCONTROLLER alloc] initWithIPopupMenu:pSubMenu];
+    [newViewController setTitle:[NSString stringWithUTF8String:CStringHasContents(pSubMenu->GetRootTitle()) ? pSubMenu->GetRootTitle() : pItem->GetText()]];
+    [self.navigationController pushViewController:newViewController animated:YES];
+    
+    return;
+  }
+
+  if(pItem->GetIsChoosable())
+  {
+    mMenu->SetChosenItemIdx(cellIndex);
+    
+    if(mMenu->GetFunction())
+      mMenu->ExecFunction();
+    
+    [self dismissViewControllerAnimated:YES completion:nil];
+  }
 }
 
 - (CGSize)preferredContentSize
@@ -396,15 +417,18 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (CGRect) bounds;
 {
-  mPopoverViewController = [[IGRAPHICS_POPOVER_VIEW_CONTROLLER alloc] initWithIPopupMenu:menu];
-  
-  mPopoverViewController.modalPresentationStyle = UIModalPresentationPopover;
-  mPopoverViewController.popoverPresentationController.sourceView = self;
-  mPopoverViewController.popoverPresentationController.sourceRect = bounds;
-//  mPopoverViewController.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionUp;
-  mPopoverViewController.popoverPresentationController.delegate = self;
-  
-  [self.window.rootViewController presentViewController:mPopoverViewController animated:YES completion:nil]; // TODO: linked to plugin view (e.g. can be covered by keyboard)
+  mMenuTableController = [[IGRAPHICS_UITABLE_VIEWCONTROLLER alloc] initWithIPopupMenu:&menu];
+  [mMenuTableController setTitle: [NSString stringWithUTF8String:menu.GetRootTitle()]];
+
+  mMenuNavigationController = [[UINavigationController alloc] initWithRootViewController:mMenuTableController];
+
+  mMenuNavigationController.modalPresentationStyle = UIModalPresentationPopover;
+  mMenuNavigationController.popoverPresentationController.sourceView = self;
+  mMenuNavigationController.popoverPresentationController.sourceRect = bounds;
+//  mMenuNavigationController.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionUp;
+  mMenuNavigationController.popoverPresentationController.delegate = self;
+
+  [self.window.rootViewController presentViewController:mMenuNavigationController animated:YES completion:nil];
   
   return nullptr;
 }

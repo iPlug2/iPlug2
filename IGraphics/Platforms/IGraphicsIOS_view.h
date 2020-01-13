@@ -43,13 +43,13 @@ END_IPLUG_NAMESPACE
 using namespace iplug;
 using namespace igraphics;
 
-@interface IGRAPHICS_POPOVER_VIEW_CONTROLLER : UIViewController<UITableViewDataSource, UITableViewDelegate>//UITableViewController
+@interface IGRAPHICS_UITABLE_VIEWCONTROLLER : UIViewController<UITableViewDataSource, UITableViewDelegate>//UITableViewController
 {
   IPopupMenu* mMenu;
 }
 @property (strong, nonatomic) UITableView* tableView;
 @property (strong, nonatomic) NSMutableArray* items;
-- (id) initWithIPopupMenu: (IPopupMenu&) menu;
+- (id) initWithIPopupMenu: (IPopupMenu*) pMenu;
 
 @end
 
@@ -57,7 +57,8 @@ using namespace igraphics;
 {
 @public
   IGraphicsIOS* mGraphics;
-  IGRAPHICS_POPOVER_VIEW_CONTROLLER* mPopoverViewController;
+  IGRAPHICS_UITABLE_VIEWCONTROLLER* mMenuTableController;
+  UINavigationController* mMenuNavigationController;
   UITextField* mTextField;
   int mTextFieldLength;
 }
