@@ -411,7 +411,7 @@ public:
   * @param paramIdx The parameter index to link this control to */
   ISVGSwitchControl(const IRECT& bounds, const std::initializer_list<ISVG>& svgs, int paramIdx = kNoParameter, IActionFunction aF = nullptr);
 
-  void Draw(IGraphics& g);
+  void Draw(IGraphics& g) override;
 
 protected:
   std::vector<ISVG> mSVGs;
@@ -422,7 +422,7 @@ class ISVGSliderControl : public ISliderControlBase
 public:
   ISVGSliderControl(const IRECT& bounds, const ISVG& handleSvg, const ISVG& trackSVG, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical);
 
-  void Draw(IGraphics& g);
+  void Draw(IGraphics& g) override;
   void OnResize() override;
 
 protected:
