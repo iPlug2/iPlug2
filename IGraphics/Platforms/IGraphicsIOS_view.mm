@@ -8,6 +8,10 @@
  ==============================================================================
 */
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 #import <QuartzCore/QuartzCore.h>
 #ifdef IGRAPHICS_IMGUI
 #import <Metal/Metal.h>
@@ -43,7 +47,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   {
     IPopupMenu::Item* pMenuItem = mMenu->GetItem(i);
 
-    elementTitle = [[[NSMutableString alloc] initWithCString:pMenuItem->GetText() encoding:NSUTF8StringEncoding] autorelease];
+    elementTitle = [[NSMutableString alloc] initWithCString:pMenuItem->GetText() encoding:NSUTF8StringEncoding];
 
     if (mMenu->GetPrefix())
     {
@@ -290,11 +294,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return (CAMetalLayer*) self.layer;
 }
 
-- (void)dealloc
+- (void)viewDidDisappear
 {
-  [_displayLink invalidate];
-  
-  [super dealloc];
+  [self.displayLink invalidate];
 }
 
 - (void)didMoveToSuperview
@@ -389,7 +391,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     
     if (pParam)
     {
-      NSMutableCharacterSet *characterSet = [[[NSMutableCharacterSet alloc] init] autorelease];
+      NSMutableCharacterSet *characterSet = [[NSMutableCharacterSet alloc] init];
       
       switch ( pParam->Type() )
       {
@@ -450,7 +452,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mTextFieldLength = length;
   
   CoreTextFontDescriptor* CTFontDescriptor = CoreTextHelpers::GetCTFontDescriptor(text, sFontDescriptorCache);
-  UIFontDescriptor* fontDescriptor = (UIFontDescriptor*) CTFontDescriptor->GetDescriptor();
+  UIFontDescriptor* fontDescriptor = (__bridge UIFontDescriptor*) CTFontDescriptor->GetDescriptor();
   UIFont* font = [UIFont fontWithDescriptor: fontDescriptor size: text.mSize * 0.75];
   [mTextField setFont: font];
   
@@ -498,7 +500,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   [self becomeFirstResponder];
   [mTextField setDelegate: nil];
-  [mTextField removeFromSuperview]; //releases
+  [mTextField removeFromSuperview];
   mTextField = nullptr;
 }
 
@@ -625,7 +627,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   gestureRecognizer.cancelsTouchesInView = YES;
   gestureRecognizer.delaysTouchesBegan = YES;
   [self addGestureRecognizer:gestureRecognizer];
-  [gestureRecognizer release];
 }
 
 - (void) onTapGesture: (UITapGestureRecognizer *) recognizer
