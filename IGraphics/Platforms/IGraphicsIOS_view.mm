@@ -47,14 +47,16 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
     if (mMenu->GetPrefix())
     {
-      NSString* prefixString = 0;
+      NSString* prefixString = nil;
 
       switch (mMenu->GetPrefix())
       {
-        case 0: prefixString = [NSString stringWithUTF8String:""]; break;
         case 1: prefixString = [NSString stringWithFormat:@"%1d: ", i+1]; break;
         case 2: prefixString = [NSString stringWithFormat:@"%02d: ", i+1]; break;
         case 3: prefixString = [NSString stringWithFormat:@"%03d: ", i+1]; break;
+        case 0:
+        default:
+          prefixString = [NSString stringWithUTF8String:""]; break;
       }
 
       [elementTitle insertString:prefixString atIndex:0];
@@ -105,8 +107,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     cell.accessoryType = UITableViewCellAccessoryCheckmark;
   else
     cell.accessoryType = pItem->GetSubmenu() ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
-//  cell.selectionStyle = UITableViewCellSelectionStyleBlue;
-  
+
   if(!pItem->GetEnabled())
   {
     cell.userInteractionEnabled = NO;
@@ -115,11 +116,18 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   return cell;
 }
-//
-//- (void)tableView:(UITableView *)tableView accessoryButtonTappedForRowWithIndexPath:(NSIndexPath *)indexPath
-//{
-//
-//}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  int cellIndex = static_cast<int>(indexPath.row);
+
+  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+
+  if(pItem->GetIsSeparator())
+    return 0.5f;
+  else
+    return self.tableView.rowHeight;
+}
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
