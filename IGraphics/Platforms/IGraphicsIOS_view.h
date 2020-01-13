@@ -46,10 +46,11 @@ using namespace igraphics;
 @interface IGRAPHICS_UITABLEVC : UIViewController<UITableViewDataSource, UITableViewDelegate> // UITableViewController
 {
   IPopupMenu* mMenu;
+  IGraphicsIOS* mGraphics;
 }
 @property (strong, nonatomic) UITableView* tableView;
 @property (strong, nonatomic) NSMutableArray* items;
-- (id) initWithIPopupMenu: (IPopupMenu*) pMenu;
+- (id) initWithIPopupMenuAndIGraphics: (IPopupMenu*) pMenu : (IGraphicsIOS*) pGraphics;
 
 @end
 
