@@ -1144,8 +1144,8 @@ void ISVGKnob::SetSVG(ISVG& svg)
 }
 
 ISVGSwitchControl::ISVGSwitchControl(const IRECT& bounds, const std::initializer_list<ISVG>& svgs, int paramIdx, IActionFunction aF)
-  : ISwitchControlBase(bounds, paramIdx, aF, svgs.size())
-  , mSVGs(svgs)
+: ISwitchControlBase(bounds, paramIdx, aF, static_cast<int>(svgs.size()))
+, mSVGs(svgs)
 {
 }
 
