@@ -1333,6 +1333,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
       {
         pImage = nsvgParseFromFile(path.Get(), units, dpi);
       }
+      #ifdef OS_WIN
       else if (resourceFound == EResourceLocation::kWinBinary)
       {
         int size = 0;
@@ -1344,7 +1345,8 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
           pImage = nsvgParse(svgStr.Get(), units, dpi);
         }
       }
-
+      #endif
+      
       assert(pImage);
 
       svgDOM->setContainerSize(SkSize::Make(pImage->width, pImage->height));
