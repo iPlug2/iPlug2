@@ -8,6 +8,10 @@
  ==============================================================================
 */
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 #import <QuartzCore/QuartzCore.h>
 #ifdef IGRAPHICS_IMGUI
 #import <Metal/Metal.h>
@@ -23,7 +27,162 @@
 
 extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
-@implementation IGraphicsIOS_View
+@implementation IGRAPHICS_UITABLEVC
+
+- (void)viewDidLoad
+{
+  [super viewDidLoad];
+  self.tableView = [[UITableView alloc] initWithFrame:self.view.frame];
+  self.tableView.dataSource = self;
+  self.tableView.delegate = self;
+  self.tableView.scrollEnabled = YES;
+  self.tableView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+  self.items = [[NSMutableArray alloc] init];
+  
+  int numItems = mMenu->NItems();
+
+  NSMutableString* elementTitle;
+  
+  for (int i = 0; i < numItems; ++i)
+  {
+    IPopupMenu::Item* pMenuItem = mMenu->GetItem(i);
+
+    elementTitle = [[NSMutableString alloc] initWithCString:pMenuItem->GetText() encoding:NSUTF8StringEncoding];
+
+    if (mMenu->GetPrefix())
+    {
+      NSString* prefixString = nil;
+
+      switch (mMenu->GetPrefix())
+      {
+        case 1: prefixString = [NSString stringWithFormat:@"%1d: ", i+1]; break;
+        case 2: prefixString = [NSString stringWithFormat:@"%02d: ", i+1]; break;
+        case 3: prefixString = [NSString stringWithFormat:@"%03d: ", i+1]; break;
+        case 0:
+        default:
+          prefixString = [NSString stringWithUTF8String:""]; break;
+      }
+
+      [elementTitle insertString:prefixString atIndex:0];
+    }
+
+    [self.items addObject:elementTitle];
+  }
+  
+  [self.view addSubview:self.tableView];
+}
+
+- (id) initWithIPopupMenuAndIGraphics:(IPopupMenu*) pMenu :(IGraphicsIOS*) pGraphics
+{
+  self = [super init];
+  
+  mGraphics = pGraphics;
+  mMenu = pMenu;
+  
+  return self;
+}
+
+- (NSInteger)tableView:(UITableView*) tableView numberOfRowsInSection:(NSInteger)section
+{
+  return self.items.count;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView*) tableView
+{
+  return 1;
+}
+
+- (UITableViewCell *)tableView:(UITableView*) tableView cellForRowAtIndexPath:(NSIndexPath*) indexPath
+{
+  static NSString *identifer = @"cell";
+  UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifer];
+  
+  if (cell == nil)
+  {
+    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifer];
+  }
+  
+  int cellIndex = static_cast<int>(indexPath.row);
+  
+  cell.textLabel.text = [NSString stringWithFormat:@"%@", self.items[indexPath.row]];
+  
+  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+  
+  if(pItem->GetChecked())
+    cell.accessoryType = UITableViewCellAccessoryCheckmark;
+  else
+    cell.accessoryType = pItem->GetSubmenu() ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
+
+  if(!pItem->GetEnabled())
+  {
+    cell.userInteractionEnabled = NO;
+    cell.textLabel.enabled = NO;
+  }
+  
+  return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  int cellIndex = static_cast<int>(indexPath.row);
+
+  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+
+  if(pItem->GetIsSeparator())
+    return 0.5f;
+  else
+    return self.tableView.rowHeight;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  int cellIndex = static_cast<int>(indexPath.row);
+
+  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+  IPopupMenu* pSubMenu = pItem->GetSubmenu();
+  
+  if(pSubMenu)
+  {
+    IGRAPHICS_UITABLEVC* newViewController = [[IGRAPHICS_UITABLEVC alloc] initWithIPopupMenuAndIGraphics: pSubMenu : mGraphics];
+    [newViewController setTitle:[NSString stringWithUTF8String:CStringHasContents(pSubMenu->GetRootTitle()) ? pSubMenu->GetRootTitle() : pItem->GetText()]];
+    [self.navigationController pushViewController:newViewController animated:YES];
+    
+    return;
+  }
+
+  if(pItem->GetIsChoosable())
+  {
+    mMenu->SetChosenItemIdx(cellIndex);
+    
+    if(mMenu->GetFunction())
+      mMenu->ExecFunction();
+    
+    mGraphics->SetControlValueAfterPopupMenu(mMenu);
+    
+    [self dismissViewControllerAnimated:YES completion:nil];
+  }
+}
+
+- (CGSize)preferredContentSize
+{
+  if (self.presentingViewController && self.tableView != nil)
+  {
+    CGSize tempSize = self.presentingViewController.view.bounds.size;
+    tempSize.width = 300;
+    CGSize size = [self.tableView sizeThatFits:tempSize];
+    return size;
+  } else {
+    return [super preferredContentSize];
+  }
+}
+
+- (void)setPreferredContentSize:(CGSize)preferredContentSize{
+  super.preferredContentSize = preferredContentSize;
+}
+
+@end
+
+@implementation IGRAPHICS_VIEW
 
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics
 {
@@ -138,11 +297,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return (CAMetalLayer*) self.layer;
 }
 
-- (void)dealloc
+- (void)viewDidDisappear
 {
-  [_displayLink invalidate];
-  
-  [super dealloc];
+  [self.displayLink invalidate];
 }
 
 - (void)didMoveToSuperview
@@ -237,7 +394,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     
     if (pParam)
     {
-      NSMutableCharacterSet *characterSet = [[[NSMutableCharacterSet alloc] init] autorelease];
+      NSMutableCharacterSet *characterSet = [[NSMutableCharacterSet alloc] init];
       
       switch ( pParam->Type() )
       {
@@ -261,8 +418,31 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return YES;
 }
 
-- (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (CGRect) bounds;
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
 {
+  return UIModalPresentationNone;
+}
+
+- (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
+{
+  return YES;
+}
+
+- (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (CGRect) bounds;
+{
+  mMenuTableController = [[IGRAPHICS_UITABLEVC alloc] initWithIPopupMenuAndIGraphics:&menu : mGraphics];
+  [mMenuTableController setTitle: [NSString stringWithUTF8String:menu.GetRootTitle()]];
+
+  mMenuNavigationController = [[UINavigationController alloc] initWithRootViewController:mMenuTableController];
+
+  mMenuNavigationController.modalPresentationStyle = UIModalPresentationPopover;
+  mMenuNavigationController.popoverPresentationController.sourceView = self;
+  mMenuNavigationController.popoverPresentationController.sourceRect = bounds;
+//  mMenuNavigationController.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionUp;
+  mMenuNavigationController.popoverPresentationController.delegate = self;
+
+  [self.window.rootViewController presentViewController:mMenuNavigationController animated:YES completion:nil];
+  
   return nullptr;
 }
 
@@ -275,7 +455,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mTextFieldLength = length;
   
   CoreTextFontDescriptor* CTFontDescriptor = CoreTextHelpers::GetCTFontDescriptor(text, sFontDescriptorCache);
-  UIFontDescriptor* fontDescriptor = (UIFontDescriptor*) CTFontDescriptor->GetDescriptor();
+  UIFontDescriptor* fontDescriptor = (__bridge UIFontDescriptor*) CTFontDescriptor->GetDescriptor();
   UIFont* font = [UIFont fontWithDescriptor: fontDescriptor size: text.mSize * 0.75];
   [mTextField setFont: font];
   
@@ -323,7 +503,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   [self becomeFirstResponder];
   [mTextField setDelegate: nil];
-  [mTextField removeFromSuperview]; //releases
+  [mTextField removeFromSuperview];
   mTextField = nullptr;
 }
 
@@ -450,7 +630,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   gestureRecognizer.cancelsTouchesInView = YES;
   gestureRecognizer.delaysTouchesBegan = YES;
   [self addGestureRecognizer:gestureRecognizer];
-  [gestureRecognizer release];
 }
 
 - (void) onTapGesture: (UITapGestureRecognizer *) recognizer
