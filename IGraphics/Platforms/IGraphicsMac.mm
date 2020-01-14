@@ -8,6 +8,10 @@
  ==============================================================================
 */
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 #include "IGraphicsMac.h"
 #import "IGraphicsMac_view.h"
 
@@ -101,16 +105,17 @@ void* IGraphicsMac::OpenWindow(void* pParent)
 {
   TRACE
   CloseWindow();
-  mView = (IGRAPHICS_VIEW*) [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
+  IGRAPHICS_VIEW* view = [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
+  mView = (__bridge void*) view;
   
 #ifndef IGRAPHICS_GL // with OpenGL, we don't get given the glcontext until later, ContextReady will get called elsewhere
-  IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
-  ContextReady([pView layer]);
+  IGRAPHICS_VIEW* pView = (__bridge IGRAPHICS_VIEW*) mView;
+  ContextReady((__bridge void*) [pView layer]);
 #endif
   
   if (pParent) // Cocoa VST host.
   {
-    [(NSView*) pParent addSubview: (IGRAPHICS_VIEW*) mView];
+    [(__bridge NSView*) pParent addSubview: (__bridge IGRAPHICS_VIEW*) mView];
   }
 
   return mView;
@@ -125,12 +130,11 @@ void IGraphicsMac::CloseWindow()
     {
       IGRAPHICS_IMGUIVIEW* pImGuiView = (IGRAPHICS_IMGUIVIEW*) mImGuiView;
       [pImGuiView removeFromSuperview];
-      [pImGuiView release];
       mImGuiView = nullptr;
     }
 #endif
     
-    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+    IGRAPHICS_VIEW* pView = (__bridge IGRAPHICS_VIEW*) mView;
       
 #ifdef IGRAPHICS_GL
     [((IGRAPHICS_GLLAYER *)pView.layer).openGLContext makeCurrentContext];
@@ -139,7 +143,6 @@ void IGraphicsMac::CloseWindow()
     [pView removeAllToolTips];
     [pView killTimer];
     [pView removeFromSuperview];
-    [pView release];
       
     mView = nullptr;
     OnViewDestroyed();
@@ -159,7 +162,7 @@ void IGraphicsMac::PlatformResize(bool parentHasResized)
 
     [NSAnimationContext beginGrouping]; // Prevent animated resizing
     [[NSAnimationContext currentContext] setDuration:0.0];
-    [(IGRAPHICS_VIEW*) mView setFrameSize: size ];
+    [(__bridge IGRAPHICS_VIEW*) mView setFrameSize: size ];
     
 #ifdef IGRAPHICS_IMGUI
     if(mImGuiView)
@@ -176,8 +179,8 @@ void IGraphicsMac::PointToScreen(float& x, float& y)
   {
     x *= GetDrawScale();
     y *= GetDrawScale();
-    NSWindow* pWindow = [(IGRAPHICS_VIEW*) mView window];
-    NSPoint wndpt = [(IGRAPHICS_VIEW*) mView convertPoint:NSMakePoint(x, y) toView:nil];
+    NSWindow* pWindow = [(__bridge IGRAPHICS_VIEW*) mView window];
+    NSPoint wndpt = [(__bridge IGRAPHICS_VIEW*) mView convertPoint:NSMakePoint(x, y) toView:nil];
     NSPoint pt = [pWindow convertRectToScreen: NSMakeRect(wndpt.x, wndpt.y, 0.0, 0.0)].origin;
       
     x = pt.x;
@@ -189,9 +192,9 @@ void IGraphicsMac::ScreenToPoint(float& x, float& y)
 {
   if (mView)
   {
-    NSWindow* pWindow = [(IGRAPHICS_VIEW*) mView window];
+    NSWindow* pWindow = [(__bridge IGRAPHICS_VIEW*) mView window];
     NSPoint wndpt = [pWindow convertRectFromScreen: NSMakeRect(x, y, 0.0, 0.0)].origin;
-    NSPoint pt = [(IGRAPHICS_VIEW*) mView convertPoint:NSMakePoint(wndpt.x, wndpt.y) fromView:nil];
+    NSPoint pt = [(__bridge IGRAPHICS_VIEW*) mView convertPoint:NSMakePoint(wndpt.x, wndpt.y) fromView:nil];
 
     x = pt.x / GetDrawScale();
     y = pt.y / GetDrawScale();
@@ -273,11 +276,11 @@ EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption,
   if (!str) str= "";
   if (!caption) caption= "";
   
-  NSString *msg = (NSString *) CFStringCreateWithCString(NULL,str,kCFStringEncodingUTF8);
-  NSString *cap = (NSString *) CFStringCreateWithCString(NULL,caption,kCFStringEncodingUTF8);
+  NSString *msg = (__bridge NSString *) CFStringCreateWithCString(NULL,str,kCFStringEncodingUTF8);
+  NSString *cap = (__bridge NSString *) CFStringCreateWithCString(NULL,caption,kCFStringEncodingUTF8);
  
-  msg = msg ? msg : (NSString *) CFStringCreateWithCString(NULL, str, kCFStringEncodingASCII);
-  cap = cap ? cap : (NSString *) CFStringCreateWithCString(NULL, caption, kCFStringEncodingASCII);
+  msg = msg ? msg : (__bridge NSString *) CFStringCreateWithCString(NULL, str, kCFStringEncodingASCII);
+  cap = cap ? cap : (__bridge NSString *) CFStringCreateWithCString(NULL, caption, kCFStringEncodingASCII);
   
   switch (type)
   {
@@ -303,9 +306,6 @@ EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption,
       break;
   }
   
-  [msg release];
-  [cap release];
-  
   if(completionHandler)
     completionHandler(static_cast<EMsgBoxResult>(result));
   
@@ -316,7 +316,7 @@ void IGraphicsMac::ForceEndUserEdit()
 {
   if (mView)
   {
-    [(IGRAPHICS_VIEW*) mView endUserInput];
+    [(__bridge IGRAPHICS_VIEW*) mView endUserInput];
   }
 }
 
@@ -327,7 +327,7 @@ void IGraphicsMac::UpdateTooltips()
 
   @autoreleasepool {
 
-  [(IGRAPHICS_VIEW*) mView removeAllToolTips];
+  [(__bridge IGRAPHICS_VIEW*) mView removeAllToolTips];
 
   if (GetPopupMenuControl() && GetPopupMenuControl()->GetState() > IPopupMenuControl::kCollapsed)
   {
@@ -341,7 +341,7 @@ void IGraphicsMac::UpdateTooltips()
       IRECT pR = control.GetTargetRECT();
       if (!pR.Empty())
       {
-        [(IGRAPHICS_VIEW*) mView registerToolTip: pR];
+        [(__bridge IGRAPHICS_VIEW*) mView registerToolTip: pR];
       }
     }
   };
@@ -509,7 +509,7 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir)
 bool IGraphicsMac::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
   if (mView)
-    return [(IGRAPHICS_VIEW*) mView promptForColor:color : func];
+    return [(__bridge IGRAPHICS_VIEW*) mView promptForColor:color : func];
 
   return false;
 }
@@ -521,7 +521,7 @@ IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
   if (mView)
   {
     NSRect areaRect = ToNSRect(this, bounds);
-    pReturnMenu = [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
+    pReturnMenu = [(__bridge IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
   }
 
   //synchronous
@@ -536,14 +536,14 @@ void IGraphicsMac::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   if (mView)
   {
     NSRect areaRect = ToNSRect(this, bounds);
-    [(IGRAPHICS_VIEW*) mView createTextEntry: paramIdx : text: str: length: areaRect];
+    [(__bridge IGRAPHICS_VIEW*) mView createTextEntry: paramIdx : text: str: length: areaRect];
   }
 }
 
 ECursor IGraphicsMac::SetMouseCursor(ECursor cursorType)
 {
   if (mView)
-    [(IGRAPHICS_VIEW*) mView setMouseCursor: cursorType];
+    [(__bridge IGRAPHICS_VIEW*) mView setMouseCursor: cursorType];
     
   return IGraphics::SetMouseCursor(cursorType);
 }
@@ -605,7 +605,7 @@ void IGraphicsMac::CreatePlatformImGui()
 #ifdef IGRAPHICS_IMGUI
   if(mView)
   {
-    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+    IGRAPHICS_VIEW* pView = (__bridge IGRAPHICS_VIEW*) mView;
     
     IGRAPHICS_IMGUIVIEW* pImGuiView = [[IGRAPHICS_IMGUIVIEW alloc] initWithIGraphicsView:pView];
     [pView addSubview: pImGuiView];
