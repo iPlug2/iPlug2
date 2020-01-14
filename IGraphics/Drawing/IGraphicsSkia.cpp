@@ -236,22 +236,22 @@ bool IGraphicsSkia::BitmapExtSupported(const char* ext)
 
 APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
-#ifdef OS_IOS
-  if (location == EResourceLocation::kPreloadedTexture)
-  {
-    GrMtlTextureInfo textureInfo;
-    textureInfo.fTexture.retain((__bridge const void*)(gTextureMap[fileNameOrResID]));
-    id<MTLTexture> texture = (id<MTLTexture>) textureInfo.fTexture.get();
-    
-    MTLPixelFormat pixelFormat = texture.pixelFormat;
-    
-    auto grBackendTexture = GrBackendTexture(texture.width, texture.height, GrMipMapped::kNo, textureInfo);
-    
-    sk_sp<SkImage> image = SkImage::MakeFromTexture(mGrContext.get(), grBackendTexture, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, kOpaque_SkAlphaType, nullptr);
-    return new Bitmap(image, scale);
-  }
-  else
-#endif
+//#ifdef OS_IOS
+//  if (location == EResourceLocation::kPreloadedTexture)
+//  {
+//    GrMtlTextureInfo textureInfo;
+//    textureInfo.fTexture.retain((__bridge void*)(gTextureMap[fileNameOrResID]));
+//    id<MTLTexture> texture = (__bridge id<MTLTexture>) textureInfo.fTexture.get();
+//
+//    MTLPixelFormat pixelFormat = texture.pixelFormat;
+//
+//    auto grBackendTexture = GrBackendTexture(texture.width, texture.height, GrMipMapped::kNo, textureInfo);
+//
+//    sk_sp<SkImage> image = SkImage::MakeFromTexture(mGrContext.get(), grBackendTexture, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, kOpaque_SkAlphaType, nullptr);
+//    return new Bitmap(image, scale);
+//  }
+//  else
+//#endif
 #ifdef OS_WIN
   if (location == EResourceLocation::kWinBinary)
   {
@@ -273,11 +273,11 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
   @autoreleasepool {
     id<MTLDevice> device = MTLCreateSystemDefaultDevice();
     id<MTLCommandQueue> commandQueue = [device newCommandQueue];
-    mGrContext = GrContext::MakeMetal(device, commandQueue);
-    mMTLDevice = device;
-    mMTLCommandQueue = commandQueue;
+    mGrContext = GrContext::MakeMetal((__bridge void*) device, (__bridge void*) commandQueue);
+    mMTLDevice = (__bridge void*) device;
+    mMTLCommandQueue = (__bridge void*) commandQueue;
     mMTLLayer = pContext;
-    ((CAMetalLayer*) pContext).device = device;
+    ((__bridge CAMetalLayer*) pContext).device = device;
   }
 #endif
     
@@ -353,7 +353,7 @@ void IGraphicsSkia::BeginFrame()
     int width = WindowWidth() * GetScreenScale();
     int height = WindowHeight() * GetScreenScale();
     
-    id<CAMetalDrawable> drawable = [(CAMetalLayer*) mMTLLayer nextDrawable];
+    id<CAMetalDrawable> drawable = [(__bridge CAMetalLayer*) mMTLLayer nextDrawable];
     
     GrMtlTextureInfo fbInfo;
     fbInfo.fTexture.retain((__bridge const void*)(drawable.texture));
@@ -361,7 +361,7 @@ void IGraphicsSkia::BeginFrame()
     
     mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, nullptr, nullptr);
     
-    mMTLDrawable = drawable;
+    mMTLDrawable = (__bridge void*) drawable;
     assert(mScreenSurface);
   }
 #endif
@@ -400,10 +400,10 @@ void IGraphicsSkia::EndFrame()
   mScreenSurface->getCanvas()->flush();
   
   #ifdef IGRAPHICS_METAL
-    id<MTLCommandBuffer> commandBuffer = [(id<MTLCommandQueue>) mMTLCommandQueue commandBuffer];
+    id<MTLCommandBuffer> commandBuffer = [(__bridge id<MTLCommandQueue>) mMTLCommandQueue commandBuffer];
     commandBuffer.label = @"Present";
   
-    [commandBuffer presentDrawable:(id<CAMetalDrawable>) mMTLDrawable];
+    [commandBuffer presentDrawable:(__bridge id<CAMetalDrawable>) mMTLDrawable];
     [commandBuffer commit];
   #endif
 #endif
