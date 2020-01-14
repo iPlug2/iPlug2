@@ -1003,7 +1003,8 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     pIPopupMenu->SetChosenItemIdx((int) chosenItemIdx);
     return pIPopupMenu;
   }
-  else return nullptr;
+  else
+    return nullptr;
 }
 
 - (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (NSRect) areaRect;
