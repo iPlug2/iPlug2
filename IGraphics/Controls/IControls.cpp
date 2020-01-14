@@ -1126,18 +1126,18 @@ void ISVGButtonControl::Draw(IGraphics& g)
     g.DrawSVG(mOffSVG, mRECT);
 }
 
-ISVGKnob::ISVGKnob(const IRECT& bounds, const ISVG& svg, int paramIdx)
+ISVGKnobControl::ISVGKnobControl(const IRECT& bounds, const ISVG& svg, int paramIdx)
 : IKnobControlBase(bounds, paramIdx)
 , mSVG(svg)
 {
 }
 
-void ISVGKnob::Draw(IGraphics& g)
+void ISVGKnobControl::Draw(IGraphics& g)
 {
   g.DrawRotatedSVG(mSVG, mRECT.MW(), mRECT.MH(), mRECT.W(), mRECT.H(), mStartAngle + GetValue() * (mEndAngle - mStartAngle));
 }
 
-void ISVGKnob::SetSVG(ISVG& svg)
+void ISVGKnobControl::SetSVG(ISVG& svg)
 {
   mSVG = svg;
   SetDirty(false);

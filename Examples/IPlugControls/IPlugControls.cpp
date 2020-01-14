@@ -115,8 +115,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       }, 100);
     }));
     
-    AddLabel("ISVGKnob");
-    pGraphics->AttachControl(new ISVGKnob(sameCell().GetCentredInside(100), knobSVG, kParamGain));
+    AddLabel("ISVGKnobControl");
+    pGraphics->AttachControl(new ISVGKnobControl(sameCell().GetCentredInside(100), knobSVG, kParamGain));
 
     auto button1action = [pGraphics](IControl* pCaller){
       SplashClickActionFunc(pCaller);

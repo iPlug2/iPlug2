@@ -370,10 +370,10 @@ protected:
 #pragma mark - SVG Vector Controls
 
 /** A vector knob/dial control which rotates an SVG image */
-class ISVGKnob : public IKnobControlBase
+class ISVGKnobControl : public IKnobControlBase
 {
 public:
-  ISVGKnob(const IRECT& bounds, const ISVG& svg, int paramIdx = kNoParameter);
+  ISVGKnobControl(const IRECT& bounds, const ISVG& svg, int paramIdx = kNoParameter);
   
   void Draw(IGraphics& g) override;
   void SetSVG(ISVG& svg);
