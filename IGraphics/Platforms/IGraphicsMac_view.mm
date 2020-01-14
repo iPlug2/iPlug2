@@ -8,6 +8,10 @@
  ==============================================================================
 */
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 #import <QuartzCore/QuartzCore.h>
 
 #ifdef IGRAPHICS_IMGUI
@@ -151,7 +155,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
 
 - (id)initWithIPopupMenuAndReciever:(IPopupMenu*)pMenu : (NSView*)pView
 {
-  [self initWithTitle: @""];
+  self = [self initWithTitle: @""];
 
   NSMenuItem* nsMenuItem;
   NSMutableString* nsMenuItemTitle;
@@ -164,7 +168,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
   {
     IPopupMenu::Item* pMenuItem = pMenu->GetItem(i);
 
-    nsMenuItemTitle = [[[NSMutableString alloc] initWithCString:pMenuItem->GetText() encoding:NSUTF8StringEncoding] autorelease];
+    nsMenuItemTitle = [[NSMutableString alloc] initWithCString:pMenuItem->GetText() encoding:NSUTF8StringEncoding];
 
     if (pMenu->GetPrefix())
     {
@@ -186,7 +190,6 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
       nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:nil keyEquivalent:@""];
       NSMenu* subMenu = [[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:pMenuItem->GetSubmenu() :pView];
       [self setSubmenu: subMenu forItem:nsMenuItem];
-      [subMenu release];
     }
     else if (pMenuItem->GetIsSeparator())
       [self addItem:[NSMenuItem separatorItem]];
@@ -302,11 +305,6 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
 
 
 @implementation IGRAPHICS_FORMATTER
-- (void) dealloc
-{
-  [filterCharacterSet release];
-  [super dealloc];
-}
 
 - (BOOL)isPartialStringValid:(NSString *)partialString newEditingString:(NSString **)newString errorDescription:(NSString **)error
 {
@@ -342,8 +340,6 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
 
 - (void) setAcceptableCharacterSet:(NSCharacterSet *) inCharacterSet
 {
-  [inCharacterSet retain];
-  [filterCharacterSet release];
   filterCharacterSet = inCharacterSet;
 }
 
@@ -401,7 +397,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
   [context makeCurrentContext];
   
   if(!mView->mGraphics->GetDrawContext())
-    mView->mGraphics->ContextReady(self);
+    mView->mGraphics->ContextReady((__bridge void*) self);
   
   return context;
 }
@@ -482,10 +478,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     [[NSColorPanel sharedColorPanel] close];
   
   mColorPickerFunc = nullptr;
-  [mMoveCursor release];
-  [mTrackingArea release];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
-  [super dealloc];
 }
 
 - (BOOL) isOpaque
@@ -660,7 +653,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     
   if (mTrackingArea != nil) {
       [self removeTrackingArea:mTrackingArea];
-    [mTrackingArea release];
   }
     
   int opts = (NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways);
@@ -860,7 +852,6 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     [cursorImage addRepresentation:rep];
     
     // release
-    [rep release];
     CGContextRelease(shadowContext);
     CGImageRelease(shadowCGImage);
   }
@@ -869,8 +860,6 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   cursor = [[NSCursor alloc] initWithImage:cursorImage hotSpot:NSMakePoint(hotX, hotY)];
   
   // release
-  [cursorImage release];
-  [fileImage release];
   CGColorRelease(shadowColor);
 }
 
@@ -986,8 +975,8 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
 - (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) bounds;
 {
-  IGRAPHICS_MENU_RCVR* pDummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:bounds] autorelease];
-  NSMenu* pNSMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:&menu : pDummyView] autorelease];
+  IGRAPHICS_MENU_RCVR* pDummyView = [[IGRAPHICS_MENU_RCVR alloc] initWithFrame:bounds];
+  NSMenu* pNSMenu = [[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:&menu : pDummyView];
   NSPoint wp = {bounds.origin.x, bounds.origin.y - 4};
 
   [pNSMenu popUpMenuPositioningItem:nil atLocation:wp inView:self];
@@ -1023,7 +1012,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   }
 
   CoreTextFontDescriptor* CTFontDescriptor = CoreTextHelpers::GetCTFontDescriptor(text, sFontDescriptorCache);
-  NSFontDescriptor* fontDescriptor = (NSFontDescriptor*) CTFontDescriptor->GetDescriptor();
+  NSFontDescriptor* fontDescriptor = (__bridge NSFontDescriptor*) CTFontDescriptor->GetDescriptor();
   NSFont* font = [NSFont fontWithDescriptor: fontDescriptor size: text.mSize * 0.75];
   [mTextFieldView setFont: font];
   
@@ -1063,10 +1052,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
         break;
     }
 
-    [mTextFieldView setFormatter:[[[IGRAPHICS_FORMATTER alloc] init] autorelease]];
+    [mTextFieldView setFormatter:[[IGRAPHICS_FORMATTER alloc] init]];
     [[mTextFieldView formatter] setAcceptableCharacterSet:characterSet];
     [[mTextFieldView formatter] setMaximumLength:length];
-    [characterSet release];
   }
 
   [[mTextFieldView cell] setLineBreakMode: NSLineBreakByTruncatingTail];
