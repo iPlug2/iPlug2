@@ -11,6 +11,9 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
   mFaustProcessor.Init();
   mFaustProcessor.CompileCPP();
   mFaustProcessor.SetAutoRecompile(true);
+  mFaustProcessor.SetCompileFunc([&](){
+    OnParamReset(EParamSource::kRecompile);
+  });
 #endif
   
 #if IPLUG_EDITOR
