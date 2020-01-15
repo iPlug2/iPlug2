@@ -1323,8 +1323,36 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     if (!success)
       return ISVG(nullptr); // return invalid SVG
 
+    // If an SVG doesn't have a container size, SKIA doesn't seem to have access to any meaningful size info.
+    // So use NanoSVG to get the size.
     if (svgDOM->containerSize().width() == 0)
-      svgDOM->setContainerSize(SkSize::Make(1000, 1000)); //TODO: what should be done when no container size?
+    {
+      NSVGimage* pImage;
+
+      if (resourceFound == EResourceLocation::kAbsolutePath)
+      {
+        pImage = nsvgParseFromFile(path.Get(), units, dpi);
+      }
+      #ifdef OS_WIN
+      else if (resourceFound == EResourceLocation::kWinBinary)
+      {
+        int size = 0;
+        const void* pResData = LoadWinResource(path.Get(), "svg", size, GetWinModuleHandle());
+
+        if (pResData)
+        {
+          WDL_String svgStr{ static_cast<const char*>(pResData) };
+          pImage = nsvgParse(svgStr.Get(), units, dpi);
+        }
+      }
+      #endif
+      
+      assert(pImage);
+
+      svgDOM->setContainerSize(SkSize::Make(pImage->width, pImage->height));
+
+      nsvgDelete(pImage);
+    }
 
     pHolder = new SVGHolder(svgDOM);
     

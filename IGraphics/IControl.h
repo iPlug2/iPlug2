@@ -1031,8 +1031,25 @@ public:
 
   void SetGearing(double gearing) { mGearing = gearing; }
   bool IsFineControl(const IMouseMod& mod, bool wheel) const;
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override { mMouseDown = true; }
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override { mMouseDown = false; }
+
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseDown = true;
+
+    if (mHideCursorOnDrag)
+      GetUI()->HideMouseCursor(true, true);
+
+    IControl::OnMouseDown(x, y, mod);
+  }
+
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseDown = false;
+
+    if (mHideCursorOnDrag)
+      GetUI()->HideMouseCursor(false);
+  }
+
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
   void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
   
@@ -1041,6 +1058,7 @@ protected:
    * @return IRECT The bounds over which mouse deltas will be used to calculate the amount dragging changes the control value */
   virtual IRECT GetKnobDragBounds() { return mTargetRECT; }
 
+  bool mHideCursorOnDrag = true;
   EDirection mDirection;
   double mGearing;
   bool mMouseDown = false;
@@ -1053,11 +1071,29 @@ public:
   ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 0.f);
   ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 0.f);
   
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override { mMouseDown = true; SnapToMouse(x, y, mDirection, mTrack); }
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override { mMouseDown = false; }
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseDown = true;
+    SnapToMouse(x, y, mDirection, mTrack);
+
+    if (mHideCursorOnDrag)
+      GetUI()->HideMouseCursor(true, false);
+
+    IControl::OnMouseDown(x, y, mod);
+  }
+
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseDown = false;
+
+    if (mHideCursorOnDrag)
+      GetUI()->HideMouseCursor(false);
+  }
+
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
   
 protected:
+  bool mHideCursorOnDrag = true;
   EDirection mDirection;
   IRECT mTrack;
   bool mOnlyHandle;
