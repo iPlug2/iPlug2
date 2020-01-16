@@ -318,18 +318,30 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
 }
 
-- (void)redraw:(CADisplayLink*) displayLink
+
+- (void)drawRect:(CGRect)rect
 {
   IRECTList rects;
   
   if(mGraphics)
   {
+    mGraphics->SetPlatformContext(UIGraphicsGetCurrentContext());
+    
     if (mGraphics->IsDirty(rects))
     {
       mGraphics->SetAllControlsClean();
       mGraphics->Draw(rects);
     }
   }
+}
+
+- (void)redraw:(CADisplayLink*) displayLink
+{
+#ifdef IGRAPHICS_CPU
+  [self setNeedsDisplay];
+#else
+  [self drawRect:CGRect()];
+#endif
 }
 
 - (BOOL) isOpaque
