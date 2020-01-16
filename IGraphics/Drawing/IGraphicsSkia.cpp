@@ -463,7 +463,7 @@ void IGraphicsSkia::PathArc(float cx, float cy, float r, float a1, float a2, EWi
     }
       
     arc.arcTo(SkRect::MakeLTRB(cx - r, cy - r, cx + r, cy + r), a1 - 90.f, sweep, false);
-    mMainPath.addPath(arc, mMatrix, SkPath::kExtend_AddPathMode);
+    mMainPath.addPath(arc, mMatrix, SkPath::kAppend_AddPathMode);
   }
 }
 
