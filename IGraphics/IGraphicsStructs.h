@@ -490,6 +490,13 @@ struct IFillOptions
 {
   EFillRule mFillRule { EFillRule::Winding };
   bool mPreserve { false };
+
+  IFillOptions(bool preserve = false, EFillRule fillRule = EFillRule::Winding)
+  : mPreserve(preserve)
+  , mFillRule(fillRule)
+  {
+  }
+   
 };
 
 /** Used to manage stroke behaviour for path based drawing back ends */
