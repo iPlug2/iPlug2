@@ -34,10 +34,12 @@ BEGIN_IGRAPHICS_NAMESPACE
 class IGraphics;
 class IControl;
 class ILambdaControl;
+class IPopupMenu;
 struct IRECT;
-struct Vec2;
+struct IVec2;
 struct IMouseInfo;
 struct IColor;
+struct IGestureInfo;
 
 using IActionFunction = std::function<void(IControl*)>;
 using IAnimationFunction = std::function<void(IControl*)>;
@@ -45,6 +47,9 @@ using ILambdaDrawFunction = std::function<void(ILambdaControl*, IGraphics&, IREC
 using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
 using IMsgBoxCompletionHanderFunc = std::function<void(EMsgBoxResult result)>;
 using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
+using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
+using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
+using IDisplayTickFunc = std::function<void()>;
 
 void EmptyClickActionFunc(IControl* pCaller);
 void DefaultClickActionFunc(IControl* pCaller);
@@ -54,8 +59,8 @@ void SplashAnimationFunc(IControl* pCaller);
 
 using MTLTexturePtr = void*;
 
-using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock>;
 using Milliseconds = std::chrono::duration<double, std::chrono::milliseconds::period>;
+using TimePoint = std::chrono::time_point<std::chrono::high_resolution_clock, Milliseconds>;
 
 /** User-facing bitmap abstraction that you use to manage bitmap data, independant of draw class/platform.
  * IBitmap doesn't actually own the image data \see APIBitmap
@@ -137,6 +142,39 @@ private:
 
 /** User-facing SVG abstraction that you use to manage SVG data
  * ISVG doesn't actually own the image data */
+
+#ifdef IGRAPHICS_SKIA
+struct ISVG
+{
+  ISVG(sk_sp<SkSVGDOM> svgDom)
+  : mSVGDom(svgDom)
+  {
+  }
+  
+  /** /todo */
+  float W() const
+  {
+    if (mSVGDom)
+      return mSVGDom->containerSize().width();
+    else
+      return 0;
+  }
+  
+  /** /todo */
+  float H() const
+  {
+    if (mSVGDom)
+      return mSVGDom->containerSize().height();
+    else
+      return 0;
+  }
+  
+  /** @return \true if the SVG has valid data */
+  inline bool IsValid() const { return mSVGDom != nullptr; }
+  
+  sk_sp<SkSVGDOM> mSVGDom;
+};
+#else
 struct ISVG
 {  
   ISVG(NSVGimage* pImage)
@@ -167,6 +205,7 @@ struct ISVG
   
   NSVGimage* mImage = nullptr;
 };
+#endif
 
 /** Used to manage color data, independent of draw class/platform. */
 struct IColor
@@ -343,7 +382,7 @@ struct IColor
     col.A = static_cast<int>(a * 255.f);
     return col;
   }
-
+  
   /** /todo 
    * @return int /todo */
   int GetLuminosity() const
@@ -381,6 +420,24 @@ const IColor COLOR_GREEN(255, 0, 255, 0);
 const IColor COLOR_BLUE(255, 0, 0, 255);
 const IColor COLOR_YELLOW(255, 255, 255, 0);
 const IColor COLOR_ORANGE(255, 255, 127, 0);
+const IColor COLOR_INDIGO(255, 75, 0, 130);
+const IColor COLOR_VIOLET(255, 148, 0, 211);
+
+static IColor GetRainbow(int colorIdx)
+{
+  switch (colorIdx) {
+    case 0: return COLOR_RED;
+    case 1: return COLOR_ORANGE;
+    case 2: return COLOR_YELLOW;
+    case 3: return COLOR_GREEN;
+    case 4: return COLOR_BLUE;
+    case 5: return COLOR_INDIGO;
+    case 6: return COLOR_VIOLET;
+    default:
+      assert(0);
+      return COLOR_WHITE;
+  }
+}
 
 const IColor DEFAULT_GRAPHICS_BGCOLOR = COLOR_GRAY;
 const IColor DEFAULT_BGCOLOR = COLOR_TRANSPARENT;
@@ -720,6 +777,13 @@ struct IRECT
 
     if (y < T) y = T;
     else if (y > B) y = B;
+  }
+  
+  /** Offsets the input IRECT based on the parent
+   * @param rhs IRECT to offset */
+  IRECT Inset(const IRECT& rhs) const
+  {
+    return IRECT(L + rhs.L, T + rhs.T, L + rhs.R, T + rhs.B);
   }
   
   /** /todo
@@ -1439,6 +1503,18 @@ struct IMouseInfo
   IMouseMod ms;
 };
 
+/** Used to describe a particular gesture */
+struct IGestureInfo
+{
+  float x = 0.f;
+  float y = 0.f;
+  float scale = 0.f; // pinch,
+  float velocity = 0.f; // pinch, rotate
+  float angle = 0.f; // rotate,
+  EGestureState state = EGestureState::Unknown;
+  EGestureType type = EGestureType::Unknown;
+};
+
 /** Used to manage a list of rectangular areas and optimize them for drawing to the screen. */
 class IRECTList
 {
@@ -1512,6 +1588,21 @@ public:
       r.PixelAlign(scale);
       Set(i, r);
     }
+  }
+  
+  /** Find the first index of the rect that contains point x, y, if it exists
+   * @param x Horizontal position to check
+   * @param y Vertical position to check
+   * @return integer index of rect that contains point x,y or -1 if not found */
+  int Find(float x, float y) const
+  {
+    for (auto i = 0; i < Size(); i++)
+    {
+      if(Get(i).Contains(x, y))
+        return i;
+    }
+    
+    return -1;
   }
   
   /** /todo 
@@ -1994,7 +2085,6 @@ public:
   const IRECT& Bounds() const { return mRECT; }
   
 private:
-  APIBitmap* AccessAPIBitmap() { return mBitmap.get(); }
   
   std::unique_ptr<APIBitmap> mBitmap;
   IControl* mControl;

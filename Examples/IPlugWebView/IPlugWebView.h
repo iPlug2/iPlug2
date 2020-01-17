@@ -21,7 +21,7 @@ enum EMsgTags
   kMsgTagButton3 = 2,
 };
 
-enum ECtrlTags
+enum EControlTags
 {
   kCtrlTagMeter = 0,
 };
@@ -34,7 +34,7 @@ public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void OnReset() override;
   void OnIdle() override;
-  bool OnMessage(int messageTag, int controlTag, int dataSize, const void* pData) override;
+  bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
   void OnParamChange(int paramIdx) override;
 
 private:

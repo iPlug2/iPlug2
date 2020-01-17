@@ -69,7 +69,7 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* pInputBusAr
 {
   TRACE
 
-  SetBusArrangments(pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses);
+  SetBusArrangements(pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses);
   return kResultTrue;
 }
 
@@ -90,11 +90,9 @@ tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
 
 tresult PLUGIN_API IPlugVST3::setProcessing(TBool state)
 {
-  TRACE
-  
-  SetProcessing((bool) state);
-  
-  return true;
+  Trace(TRACELOC, " state: %i", state);
+
+  return SetProcessing((bool) state) ? kResultOk : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
@@ -130,12 +128,12 @@ ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
   if (tag >= kBypassParam)
     return EditControllerEx1::getParamNormalized(tag);
   
-  return IPlugVST3ControllerBase::getParamNormalized(this, tag);
+  return IPlugVST3ControllerBase::GetParamNormalized(this, tag);
 }
 
 tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
 {
-  IPlugVST3ControllerBase::setParamNormalized(this, tag, value);
+  IPlugVST3ControllerBase::SetParamNormalized(this, tag, value);
   
   return EditControllerEx1::setParamNormalized(tag, value);
 }

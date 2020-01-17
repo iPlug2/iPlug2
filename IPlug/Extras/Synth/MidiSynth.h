@@ -175,7 +175,6 @@ private:
   void HandleRPN(IMidiMsg msg);
 
   // basic MIDI data
-
   VoiceAllocator mVoiceAllocator;
   uint16_t mUnisonVoices{1};
   IMidiQueue mMidiQueue;

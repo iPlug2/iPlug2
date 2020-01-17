@@ -18,12 +18,12 @@ using namespace Steinberg;
 using namespace Vst;
 
 #ifndef CUSTOM_BUSTYPE_FUNC
-uint64_t iplug::GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
+uint64_t iplug::GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, const IOConfig* pConfig)
 {
   assert(pConfig != nullptr);
   assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
   
-  int numChans = pConfig->GetBusInfo(dir, busIdx)->mNChans;
+  int numChans = pConfig->GetBusInfo(dir, busIdx)->NChans();
   
   switch (numChans)
   {
@@ -204,7 +204,7 @@ void IPlugVST3ProcessorBase::ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, S
   }
 }
 
-void IPlugVST3ProcessorBase::SetBusArrangments(SpeakerArrangement* pInputBusArrangements, int32 numInBuses, SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses)
+void IPlugVST3ProcessorBase::SetBusArrangements(SpeakerArrangement* pInputBusArrangements, int32 numInBuses, SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses)
 {
   // disconnect all io pins, they will be reconnected in process
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);

@@ -18,6 +18,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <vector>
+#include <unordered_map>
 
 #if defined VST3_API || defined VST3C_API
 #undef stricmp
@@ -140,15 +141,21 @@ public:
   /** Called when IControl is constructed or resized using SetRect(). NOTE: if you call SetDirty() in this method, you should call SetDirty(false) to avoid triggering parameter changes */
   virtual void OnResize() {}
   
-  /** Called after the control has been attached, and its delegate and graphics member variable set */
+  /** Called just prior to when the control is attached, after its delegate and graphics member variable set */
   virtual void OnInit() {}
   
+  /** Called after the control has been attached, and its delegate and graphics member variable set. Use this method for controls that might need to attach sub controls that should be above their parent in the stack */
+  virtual void OnAttached() {}
+  
   /** Implement to receive messages sent to the control, see IEditorDelegate:SendControlMsgFromDelegate() */
-  virtual void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) {};
+  virtual void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) {};
   
   /** Implement to receive MIDI messages sent to the control if mWantsMidi == true, see IEditorDelegate:SendMidiMsgFromDelegate() */
   virtual void OnMidi(const IMidiMsg& msg) {};
 
+  /** @return true if supports this gesture */
+  virtual bool OnGesture(const IGestureInfo& info);
+  
   /** Called by default when the user right clicks a control. If IGRAPHICS_NO_CONTEXT_MENU is enabled as a preprocessor macro right clicking control will mean IControl::CreateContextMenu() and IControl::OnContextSelection() do not function on right clicking control. VST3 provides contextual menu support which is hard wired to right click controls by default. You can add custom items to the menu by implementing IControl::CreateContextMenu() and handle them in IControl::OnContextSelection(). In non-VST 3 hosts right clicking will still create the menu, but it will not feature entries added by the host. */
   virtual void CreateContextMenu(IPopupMenu& contextMenu) {}
   
@@ -188,6 +195,10 @@ public:
    * actionfunc @see Action Functions */
   inline void SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; }
 
+  /** Set an Action Function to be called at the end of an animation.
+   * actionfunc @see Action Functions */
+  inline void SetAnimationEndActionFunction(IActionFunction actionFunc) { mAnimationEndActionFunc = actionFunc; }
+  
   /** Set a tooltip for the control
    * @param str CString tooltip to be displayed */
   inline void SetTooltip(const char* str) { mTooltip.Set(str); }
@@ -356,15 +367,16 @@ public:
   /** Mark the control as dirty, i.e. it should be redrawn on the next display refresh
    * @param triggerAction If this is true and the control is linked to a parameter
    * notify the class implementing the IEditorDelegate interface that the parameter changed. If this control has an ActionFunction, that can also be triggered.
-   * NOTE: it is easy to forget that this method always sets the control dirty, the argument is about whether a consecutive action should be performed */
+   * NOTE: it is easy to forget that this method always sets the control dirty, the argument refers to whether a consecutive action should be performed */
   virtual void SetDirty(bool triggerAction = true, int valIdx = kNoValIdx);
 
   /* Set the control clean, i.e. Called by IGraphics draw loop after control has been drawn */
   virtual void SetClean() { mDirty = false; }
-  
-  /** Called at each display refresh by the IGraphics draw loop to determine if the control is marked as dirty. 
-   * This is not const, because it is typically  overridden and used to update something at the display refresh rate
-   * The default implementation executes a control's Animation Function, so if you override this you may want to call the base implementation, @see Animation Functions
+
+  /* Called at each display refresh by the IGraphics draw loop, triggers the control's AnimationFunc if it is set */
+  void Animate();
+
+  /** Called at each display refresh by the IGraphics draw loop, after IControl::Animate(), to determine if the control is marked as dirty. 
    * @return \c true if the control is marked dirty. */
   virtual bool IsDirty();
 
@@ -383,11 +395,22 @@ public:
   int GetTag() const { return mTag; }
   
   /** Specify whether this control wants to know about MIDI messages sent to the UI. See OnMIDIMsg() */
-  void SetWantsMidi(bool enable) { mWantsMidi = true; }
+  void SetWantsMidi(bool enable = true) { mWantsMidi = enable; }
 
   /** @return /c true if this control wants to know about MIDI messages send to the UI. See OnMIDIMsg() */
   bool GetWantsMidi() const { return mWantsMidi; }
-
+  
+  /** Add a IGestureFunc that should be triggered in response to a certain type of gesture
+   * @param type The type of gesture to recognize on this control
+   * @param func the function to trigger */
+  IControl* AttachGestureRecognizer(EGestureType type, IGestureFunc func);
+  
+  /** @return /c true if this control supports multiple gestures */
+  bool GetWantsGestures() const { return mGestureFuncs.size() > 0 && !mAnimationFunc; }
+  
+  /** @return the last recognized gesture */
+  EGestureType GetLastGesture() const { return mLastGesture; }
+  
   /** Gets a pointer to the class implementing the IEditorDelegate interface that handles parameter changes from this IGraphics instance.
    * If you need to call other methods on that class, you can use static_cast<PLUG_CLASS_NAME>(GetDelegate();
    * @return The class implementing the IEditorDelegate interface that handles communication to/from from this IGraphics instance.*/
@@ -422,18 +445,11 @@ public:
    * @param scalar A scalar to speedup/slowdown mousing along the track */
   virtual void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1, float scalar = 1., double minClip = 0., double maxClip = 1.);
 
-  virtual void OnEndAnimation() // if you override this you must call the base implementation, to free mAnimationFunc
-  {
-    mAnimationFunc = nullptr;
-    SetDirty(false);
-  }
+  /* if you override this you must call the base implementation, to free mAnimationFunc */
+  virtual void OnEndAnimation();
   
   /** @param duration Duration in milliseconds for the animation  */
-  void StartAnimation(int duration)
-  {
-    mAnimationStartTime = std::chrono::high_resolution_clock::now();
-    mAnimationDuration = Milliseconds(duration);
-  }
+  void StartAnimation(int duration);
   
   /** Set the animation function
    * @param func A std::function conforming to IAnimationFunction */
@@ -444,19 +460,18 @@ public:
    * @param duration Duration in milliseconds for the animation  */
   void SetAnimation(IAnimationFunction func, int duration) { mAnimationFunc = func; StartAnimation(duration); }
 
+  /** /todo */
   IAnimationFunction GetAnimationFunction() { return mAnimationFunc; }
-  
+
+  /** /todo */
   IAnimationFunction GetActionFunction() { return mActionFunc; }
 
-  double GetAnimationProgress()
-  {
-    if(!mAnimationFunc)
-      return 0.;
-    
-    auto elapsed = Milliseconds(std::chrono::high_resolution_clock::now() - mAnimationStartTime);
-    return elapsed.count() / mAnimationDuration.count();
-  }
+  /** /todo */
+  double GetAnimationProgress() const;
   
+  /** /todo */
+  Milliseconds GetAnimationDuration() const { return mAnimationDuration; }
+    
 #if defined VST3_API || defined VST3C_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
@@ -525,10 +540,13 @@ private:
   IGEditorDelegate* mDelegate = nullptr;
   IGraphics* mGraphics = nullptr;
   IActionFunction mActionFunc = nullptr;
+  IActionFunction mAnimationEndActionFunc = nullptr;
   IAnimationFunction mAnimationFunc = nullptr;
   TimePoint mAnimationStartTime;
   Milliseconds mAnimationDuration;
   std::vector<ParamTuple> mVals { {kNoParameter, 0.} };
+  std::unordered_map<EGestureType, IGestureFunc> mGestureFuncs;
+  EGestureType mLastGesture = EGestureType::Unknown;
 };
 
 #pragma mark - Base Controls
@@ -730,9 +748,11 @@ public:
       return mStyle.roundness * (bounds.H() / 2.f);
   }
   
-  void DrawSplash(IGraphics& g)
+  void DrawSplash(IGraphics& g, const IRECT& clipRegion = IRECT())
   {
+    g.PathClipRegion(clipRegion);
     g.FillCircle(GetColor(kHL), mSplashX, mSplashY, mSplashRadius);
+    g.PathClipRegion(IRECT());
   }
   
   virtual void DrawBackGround(IGraphics& g, const IRECT& rect)
@@ -798,6 +818,9 @@ public:
     if(mouseOver)
       g.FillCircle(GetColor(kHL), cx, cy, radius * 0.8f);
     
+    if(pressed && mControl->GetAnimationFunction())
+      DrawSplash(g);
+    
     if(mStyle.drawFrame)
       g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mStyle.frameThickness);
   }
@@ -814,6 +837,9 @@ public:
 
     if(mouseOver)
       g.FillEllipse(GetColor(kHL), bounds);
+    
+    if(pressed && mControl->GetAnimationFunction())
+      DrawSplash(g, bounds);
     
     if(mStyle.drawFrame)
       g.DrawEllipse(GetColor(kFR), bounds, nullptr, mStyle.frameThickness);
@@ -850,8 +876,8 @@ public:
     if(mouseOver)
       g.FillRoundRect(GetColor(kHL), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
     
-    if(mControl->GetAnimationFunction())
-      DrawSplash(g);
+    if(pressed && mControl->GetAnimationFunction())
+      DrawSplash(g, handleBounds);
     
     if(mStyle.drawFrame)
       g.DrawRoundRect(GetColor(kFR), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR, 0, mStyle.frameThickness);
@@ -901,7 +927,7 @@ public:
     if (mouseOver)
       g.FillTriangle(GetColor(kHL), x1, y1, x2, y2, x3, y3);
     
-    if (mControl->GetAnimationFunction())
+    if(pressed && mControl->GetAnimationFunction())
       DrawSplash(g);
     
     if (mStyle.drawFrame)
@@ -1005,12 +1031,34 @@ public:
 
   void SetGearing(double gearing) { mGearing = gearing; }
   bool IsFineControl(const IMouseMod& mod, bool wheel) const;
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override { mMouseDown = true; }
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override { mMouseDown = false; }
+
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseDown = true;
+
+    if (mHideCursorOnDrag)
+      GetUI()->HideMouseCursor(true, true);
+
+    IControl::OnMouseDown(x, y, mod);
+  }
+
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseDown = false;
+
+    if (mHideCursorOnDrag)
+      GetUI()->HideMouseCursor(false);
+  }
+
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
   void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
-
+  
 protected:
+  /** Get the area for which mouse deltas will be used to calculate the amount dragging changes the control value. This is usually the area that contains the knob handle, can override if your control contains extra elements such as labels
+   * @return IRECT The bounds over which mouse deltas will be used to calculate the amount dragging changes the control value */
+  virtual IRECT GetKnobDragBounds() { return mTargetRECT; }
+
+  bool mHideCursorOnDrag = true;
   EDirection mDirection;
   double mGearing;
   bool mMouseDown = false;
@@ -1023,11 +1071,29 @@ public:
   ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 0.f);
   ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 0.f);
   
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override { mMouseDown = true; SnapToMouse(x, y, mDirection, mTrack); }
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override { mMouseDown = false; }
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseDown = true;
+    SnapToMouse(x, y, mDirection, mTrack);
+
+    if (mHideCursorOnDrag)
+      GetUI()->HideMouseCursor(true, false);
+
+    IControl::OnMouseDown(x, y, mod);
+  }
+
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseDown = false;
+
+    if (mHideCursorOnDrag)
+      GetUI()->HideMouseCursor(false);
+  }
+
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
   
 protected:
+  bool mHideCursorOnDrag = true;
   EDirection mDirection;
   IRECT mTrack;
   bool mOnlyHandle;
@@ -1101,8 +1167,7 @@ public:
     int dir = static_cast<int>(mDirection); // 0 = horizontal, 1 = vertical
     for (int ch = 0; ch < nVals; ch++)
     {
-      mTrackBounds.Get()[ch] = bounds.GetPadded(-mOuterPadding).
-                                     SubRect(EDirection(!dir), nVals, ch).
+      mTrackBounds.Get()[ch] = bounds.SubRect(EDirection(!dir), nVals, ch).
                                      GetPadded(0, -mTrackPadding * (float) dir, -mTrackPadding * (float) !dir, -mTrackPadding);
     }
   }
@@ -1167,7 +1232,6 @@ protected:
   WDL_TypedBuf<IRECT> mTrackBounds;
   float mMinTrackValue;
   float mMaxTrackValue;
-  float mOuterPadding = 0.;
   float mTrackPadding = 0.;
   float mPeakSize = 1.;
   bool mDrawTrackFrame = true;
@@ -1308,10 +1372,7 @@ public:
   , mAnimationDuration(animationDuration)
   {
     if (startImmediately)
-    {
-      SetAnimation(DefaultAnimationFunc);
-      StartAnimation(mAnimationDuration);
-    }
+      SetAnimation(DefaultAnimationFunc, mAnimationDuration);
     
     mIgnoreMouse = ignoreMouse;
   }
@@ -1335,13 +1396,12 @@ public:
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     mMouseInfo.x = x; mMouseInfo.y = y; mMouseInfo.ms = mod;
-    SetAnimation(DefaultAnimationFunc);
-    StartAnimation(mAnimationDuration);
+    SetAnimation(DefaultAnimationFunc, mAnimationDuration);
   }
   
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override { mMouseInfo.x = x; mMouseInfo.y = y; mMouseInfo.ms = mod; }
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { mMouseInfo.x = x; mMouseInfo.y = y; mMouseInfo.ms = mod; }
-  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override { mMouseInfo.x = x; mMouseInfo.y = y; mMouseInfo.ms = mod; }
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override { mMouseInfo.x = x; mMouseInfo.y = y; mMouseInfo.ms = mod; SetDirty(false); }
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { mMouseInfo.x = x; mMouseInfo.y = y; mMouseInfo.ms = mod; SetDirty(false); }
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override { mMouseInfo.x = x; mMouseInfo.y = y; mMouseInfo.ms = mod; SetDirty(false); }
   
   IMouseInfo GetMouseInfo() const { return mMouseInfo; }
 //  ILayerPtr GetLayer() const { return mLayer; }

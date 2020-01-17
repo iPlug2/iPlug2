@@ -2,6 +2,7 @@
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "IControls.h"
+#include "IPlugPaths.h"
 
 const int kNumPrograms = 1;
 
@@ -14,7 +15,7 @@ enum EParams
   kNumParams
 };
 
-enum ECtrlTags
+enum EControlTags
 {
   kCtrlTagDialogResult = 0,
   kCtrlTagVectorButton,
@@ -102,6 +103,9 @@ public:
       else
         g.DrawFittedBitmap(mBitmap, bmpRect);
     }
+    
+    if(AppIsSandboxed())
+      g.DrawText(IText(14, EVAlign::Middle), "App is sandboxed... filesystem restricted", mRECT);
     
     g.FillRect(COLOR_WHITE, labelRect);
     g.DrawText(mText, mLabel.Get(), labelRect);

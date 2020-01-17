@@ -1,0 +1,69 @@
+parameters:
+  name: ''
+  path: ''
+  graphics: 'NANOVG'
+  artifactName: ''
+  srcRepo: 'none'
+  srcBranch: 'master'
+
+steps:
+  # - task: InstallAppleCertificate@2
+  #   inputs:
+  #     certSecureFile: macos_certificate.p12
+  #     certPwd: $(CERT_PWD)
+
+  - ${{ if ne(parameters.srcRepo, 'none') }}:
+    - bash: |
+        echo srcRepo parameter = ${{ parameters.srcRepo }}
+        if [ ${{ parameters.srcRepo }} != none ]
+        then
+          if [ ! -d ./${{parameters.path}} ]
+          then
+            mkdir -p ./${{parameters.path}}
+          fi
+          cd ./${{parameters.path}}
+          git clone --recursive -b ${{ parameters.srcBranch }} ${{ parameters.srcRepo }} ${{parameters.name}}
+        else
+          echo no remote repo argument supplied, building local project ${{parameters.path}}/${{parameters.name}} ... 
+        fi
+      env:
+        GITHUB_PAT: $(GITHUB_PAT)
+      displayName: (Optionally) clone remote project repo
+
+  - bash: |
+      cd ./${{parameters.path}}/${{parameters.name}}/scripts
+      chmod +x *.sh # in-case executable bit was lost (e.g. project duplicated on windows)
+      chmod +x *.command
+      chmod +x *.py
+    displayName: Ensure scripts are executable
+
+  - bash: |
+      graphics=${{parameters.graphics}}
+      if [ $graphics = "SKIA" ]
+      then
+        cd ./${{parameters.path}}/${{parameters.name}}/config
+        sed -i.bu 's/IGRAPHICS_NANOVG/IGRAPHICS_SKIA/' ${{parameters.name}}-ios.xcconfig
+        sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{parameters.name}}-ios.xcconfig
+        # sed -i.bu 's/ENABLE_BITCODE = YES/ENABLE_BITCODE = NO/' ${{parameters.name}}-ios.xcconfig
+      fi
+    displayName: Set graphics string to ${{parameters.graphics}}
+
+  - task: Xcode@5
+    inputs:
+      sdk: 'iphoneos'
+      xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-ios.xcodeproj'
+      scheme: 'iOS-APP with AUv3'
+      args: '-xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-ios.xcconfig'
+      configuration: 'Release'
+      xcodeVersion: '10'
+    displayName: Build ${{parameters.name}}
+
+  # - bash: |
+  #   displayName: Organize AU artifact
+  #   condition: eq(variables.build_auv2, True)
+
+  # - task: PublishPipelineArtifact@0
+  #   inputs:
+  #     artifactName: 'IOS_AU_${{parameters.artifactName}}'
+  #     targetPath: '$(Build.ArtifactStagingDirectory)/AU/${{parameters.name}}'
+  #   displayName: Publish ${{parameters.name}} AU

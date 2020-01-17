@@ -31,8 +31,8 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    g.DrawRoundRect(COLOR_BLACK, mRECT, 5.);
-    
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
+
     const float value = static_cast<float>(GetValue());
 
     if (g.HasPathSupport())

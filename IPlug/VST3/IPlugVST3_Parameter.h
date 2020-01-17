@@ -61,14 +61,14 @@ public:
     return true;
   }
 
-  Steinberg::Vst::ParamValue toPlain(Steinberg::Vst::ParamValue valueNormalized) const override
+  Steinberg::Vst::ParamValue toPlain(Steinberg::Vst::ParamValue normValue) const override
   {
-    return mIPlugParam->FromNormalized(valueNormalized);
+    return mIPlugParam->FromNormalized(normValue);
   }
 
   Steinberg::Vst::ParamValue toNormalized(Steinberg::Vst::ParamValue plainValue) const override
   {
-    return mIPlugParam->ToNormalized(valueNormalized);
+    return mIPlugParam->ToNormalized(plainValue);
   }
 
   OBJ_METHODS(IPlugVST3Parameter, Parameter)

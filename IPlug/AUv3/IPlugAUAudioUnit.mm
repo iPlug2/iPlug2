@@ -6,6 +6,10 @@
 #include "IPlugAUv3.h"
 #include "AUv2/IPlugAU_ioconfig.h"
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 using namespace iplug;
 
 @interface IPlugAUAudioUnit ()
@@ -45,13 +49,13 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   
   for(auto configIdx = 0; configIdx < mPlug->NIOConfigs(); configIdx++)
   {
-    IOConfig* pConfig = mPlug->GetIOConfig(configIdx);
+    const IOConfig* pConfig = mPlug->GetIOConfig(configIdx);
     
     for(auto busIdx = 0; busIdx < pConfig->NBuses((ERoute) dir); busIdx++)
     {
       WDL_TypedBuf<uint64_t> busTypes;
       GetAPIBusTypeForChannelIOConfig(configIdx, (ERoute) dir, busIdx, pConfig, &busTypes);
-      //          DBGMSG("Found %i different tags for an %s bus with %i channels\n", busTypes.GetSize(), RoutingDirStrs[dir], pConfig->GetBusInfo(dir, busIdx)->mNChans);
+      //          DBGMSG("Found %i different tags for an %s bus with %i channels\n", busTypes.GetSize(), RoutingDirStrs[dir], pConfig->GetBusInfo(dir, busIdx)->NChans());
       
       for (auto tag = 0; tag < busTypes.GetSize(); tag++)
       {
@@ -80,7 +84,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 {
   for (int i = 0; i < mPlug->NIOConfigs(); i++)
   {
-    IOConfig* pIO = mPlug->GetIOConfig(i);
+    const IOConfig* pIO = mPlug->GetIOConfig(i);
     
     if(pIO->ContainsWildcard(ERoute::kInput))
       [pArray addObject: [NSNumber numberWithInt:-1]];

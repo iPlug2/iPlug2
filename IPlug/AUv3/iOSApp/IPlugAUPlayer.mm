@@ -11,6 +11,10 @@
 #import "IPlugAUPlayer.h"
 #include "config.h"
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 @implementation IPlugAUPlayer
 {
   AVAudioEngine* audioEngine;

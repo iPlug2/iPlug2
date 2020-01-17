@@ -19,7 +19,7 @@
     <AGG_PATH>$(IGRAPHICS_DEPS_PATH)\AGG\agg-2.4</AGG_PATH>
     <AGG_INC_PATHS>$(AGG_PATH)\include;$(AGG_PATH)\font_freetype;$(AGG_PATH)\include\util;$(AGG_PATH)\include\platform\win32;$(AGG_PATH)\src;$(AGG_PATH)\src\platform\win32</AGG_INC_PATHS>
     <SKIA_PATH>$(DEPS_PATH)\Build\src\skia</SKIA_PATH>
-    <SKIA_INC_PATHS>$(SKIA_PATH);$(SKIA_PATH)\include\core;$(SKIA_PATH)\include\effects;$(SKIA_PATH)\include\config;$(SKIA_PATH)\include\utils;$(SKIA_PATH)\include\gpu;</SKIA_INC_PATHS>
+    <SKIA_INC_PATHS>$(SKIA_PATH);$(SKIA_PATH)\include\core;$(SKIA_PATH)\include\effects;$(SKIA_PATH)\include\config;$(SKIA_PATH)\include\utils;$(SKIA_PATH)\include\gpu;$(SKIA_PATH)\experimental\svg\model</SKIA_INC_PATHS>
     <GLAD_GL2_PATHS>$(IGRAPHICS_DEPS_PATH)\glad_GL2\include;$(IGRAPHICS_DEPS_PATH)\glad_GL2\src</GLAD_GL2_PATHS>
     <GLAD_GL3_PATHS>$(IGRAPHICS_DEPS_PATH)\glad_GL3\include;$(IGRAPHICS_DEPS_PATH)\glad_GL3\src</GLAD_GL3_PATHS>
     <PNG_PATH>$(WDL_PATH)\libpng</PNG_PATH>

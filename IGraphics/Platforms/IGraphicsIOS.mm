@@ -8,6 +8,10 @@
  ==============================================================================
 */
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 #import <QuartzCore/QuartzCore.h>
 #import <MetalKit/MetalKit.h>
 
@@ -29,6 +33,7 @@ StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 #pragma mark -
 
 std::map<std::string, MTLTexturePtr> gTextureMap;
+NSArray<id<MTLTexture>>* gTextures;
 
 IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
@@ -48,16 +53,12 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
     NSError* pError = nil;
     NSDictionary* textureOptions = @{ MTKTextureLoaderOptionSRGB: [NSNumber numberWithBool:NO] };
 
-    NSArray<id<MTLTexture>>* textures = [textureLoader newTexturesWithContentsOfURLs:textureFiles options:textureOptions error:&pError];
-
-    for(int i=0; i < textures.count; i++)
+    gTextures = [textureLoader newTexturesWithContentsOfURLs:textureFiles options:textureOptions error:&pError];
+  
+    for(int i=0; i < gTextures.count; i++)
     {
-      gTextureMap.insert(std::make_pair([[[textureFiles[i] lastPathComponent] stringByDeletingPathExtension] cStringUsingEncoding:NSUTF8StringEncoding], textures[i]));
+      gTextureMap.insert(std::make_pair([[[textureFiles[i] lastPathComponent] stringByDeletingPathExtension] cStringUsingEncoding:NSUTF8StringEncoding], (__bridge void*) gTextures[i]));
     }
-    
-    DBGMSG("Loaded %i textures\n", (int) textures.count);
-    
-    [textureLoader release];
   }
 }
 
@@ -70,10 +71,10 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
 {
   TRACE
   CloseWindow();
-  IGraphicsIOS_View* view = (IGraphicsIOS_View*) [[IGraphicsIOS_View alloc] initWithIGraphics: this];
-  mView = view;
+  IGRAPHICS_VIEW* view = [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
+  mView = (__bridge void*) view;
   
-  OnViewInitialized([view layer]);
+  OnViewInitialized((__bridge void*) [view layer]);
   
   SetScreenScale([UIScreen mainScreen].scale);
   
@@ -82,7 +83,7 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
 
   if (pParent)
   {
-    [(UIView*) pParent addSubview: view];
+    [(__bridge UIView*) pParent addSubview: view];
   }
 
   return mView;
@@ -97,14 +98,12 @@ void IGraphicsIOS::CloseWindow()
     {
       IGRAPHICS_IMGUIVIEW* pImGuiView = (IGRAPHICS_IMGUIVIEW*) mImGuiView;
       [pImGuiView removeFromSuperview];
-      [pImGuiView release];
       mImGuiView = nullptr;
     }
 #endif
     
-    IGraphicsIOS_View* view = (IGraphicsIOS_View*) mView;
+    IGRAPHICS_VIEW* view = (__bridge IGRAPHICS_VIEW*)mView;
     [view removeFromSuperview];
-    [view release];
     mView = nullptr;
 
     OnViewDestroyed();
@@ -127,15 +126,21 @@ void IGraphicsIOS::PlatformResize(bool parentHasResized)
 EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
   ReleaseMouseCapture();
-  [(IGraphicsIOS_View*) mView showMessageBox:str :caption :type :completionHandler];
+  [(__bridge IGRAPHICS_VIEW*)mView showMessageBox:str :caption :type :completionHandler];
   return EMsgBoxResult::kNoResult; // we need to rely on completionHandler
+}
+
+void IGraphicsIOS::AttachGestureRecognizer(EGestureType type)
+{
+  IGraphics::AttachGestureRecognizer(type);
+  [(__bridge IGRAPHICS_VIEW*)mView attachGestureRecognizer:type];
 }
 
 void IGraphicsIOS::ForceEndUserEdit()
 {
   if (mView)
   {
-    [(IGraphicsIOS_View*) mView endUserInput];
+    [(__bridge IGRAPHICS_VIEW*)mView endUserInput];
   }
 }
 
@@ -164,7 +169,7 @@ IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
   if (mView)
   {
     CGRect areaRect = ToCGRect(this, bounds);
-    pReturnMenu = [(IGraphicsIOS_View*) mView createPopupMenu: menu: areaRect];
+    pReturnMenu = [(__bridge IGRAPHICS_VIEW*)mView createPopupMenu: menu: areaRect];
   }
   
   //synchronous
@@ -178,7 +183,7 @@ void IGraphicsIOS::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
 {
   ReleaseMouseCapture();
   CGRect areaRect = ToCGRect(this, bounds);
-  [(IGraphicsIOS_View*) mView createTextEntry: paramIdx : text: str: length: areaRect];
+  [(__bridge IGRAPHICS_VIEW*)mView createTextEntry: paramIdx : text: str: length: areaRect];
 }
 
 bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
@@ -215,7 +220,7 @@ void IGraphicsIOS::CreatePlatformImGui()
 #ifdef IGRAPHICS_IMGUI
   if(mView)
   {
-    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+    IGRAPHICS_VIEW* pView = (__bridge IGRAPHICS_VIEW*)mView;
     
     IGRAPHICS_IMGUIVIEW* pImGuiView = [[IGRAPHICS_IMGUIVIEW alloc] initWithIGraphicsView:pView];
     [pView addSubview: pImGuiView];

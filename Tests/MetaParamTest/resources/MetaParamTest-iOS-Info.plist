@@ -27,6 +27,8 @@
 	<string>public.app-category.music</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Needs Bluetooth MIDI</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Needs microphone access to process audio</string>
 	<key>UIBackgroundModes</key>

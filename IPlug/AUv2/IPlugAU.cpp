@@ -405,13 +405,13 @@ UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement elem
       
       for(auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
       {
-        IOConfig* pConfig = GetIOConfig(configIdx);
+        const IOConfig* pConfig = GetIOConfig(configIdx);
         
         for(auto busIdx = 0; busIdx < pConfig->NBuses(dir); busIdx++)
         {
           WDL_TypedBuf<uint64_t> busTypes;
           GetAPIBusTypeForChannelIOConfig(configIdx, dir, busIdx, pConfig, &busTypes);
-//          DBGMSG("Found %i different tags for an %s bus with %i channels\n", busTypes.GetSize(), RoutingDirStrs[dir], pConfig->GetBusInfo(dir, busIdx)->mNChans);
+//          DBGMSG("Found %i different tags for an %s bus with %i channels\n", busTypes.GetSize(), RoutingDirStrs[dir], pConfig->GetBusInfo(dir, busIdx)->NChans());
 
           for (auto tag = 0; tag < busTypes.GetSize(); tag++)
           {
@@ -709,7 +709,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         AUChannelInfo* pChInfo = (AUChannelInfo*) pData;
         for (int i = 0; i < n; ++i, ++pChInfo)
         {
-          IOConfig* pIO = GetIOConfig(i);
+          const IOConfig* pIO = GetIOConfig(i);
           
           if(pIO->ContainsWildcard(ERoute::kInput))
              pChInfo->inChannels = -1;

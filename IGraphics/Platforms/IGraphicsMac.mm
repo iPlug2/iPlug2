@@ -61,17 +61,6 @@ IGraphicsMac::~IGraphicsMac()
   CloseWindow();
 }
 
-bool IGraphicsMac::IsSandboxed()
-{
-  NSString* pHomeDir = NSHomeDirectory();
-
-  if ([pHomeDir containsString:@"Library/Containers/"])
-  {
-    return true;
-  }
-  return false;
-}
-
 PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
 {
   return CoreTextHelpers::LoadPlatformFont(fontID, fileNameOrResID, GetBundleID(), GetSharedResourcesSubPath());
@@ -142,6 +131,11 @@ void IGraphicsMac::CloseWindow()
 #endif
     
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+      
+#ifdef IGRAPHICS_GL
+    [((IGRAPHICS_GLLAYER *)pView.layer).openGLContext makeCurrentContext];
+#endif
+      
     [pView removeAllToolTips];
     [pView killTimer];
     [pView removeFromSuperview];

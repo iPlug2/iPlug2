@@ -14,7 +14,7 @@ public:
   
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void ProcessMidiMsg(const IMidiMsg& msg) override;
-  bool OnMessage(int messageTag, int controlTag, int dataSize, const void* pData) override;
+  bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
   void OnParamChange(int paramIdx) override;
   void OnIdle() override;
   

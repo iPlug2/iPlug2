@@ -161,8 +161,8 @@ void ITextEntryControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   
   if(mod.R)
   {
-    static IPopupMenu menu {"", {"Cut", "Copy", "Paste"}, [&](int indexInMenu, IPopupMenu::Item* itemChosen) {
-      switch (indexInMenu) {
+    static IPopupMenu menu {"", {"Cut", "Copy", "Paste"}, [&](IPopupMenu* pMenu) {
+      switch (pMenu->GetChosenItemIdx()) {
         case 0: Cut(); break;
         case 1: CopySelection(); break;
         case 2: Paste(); break;

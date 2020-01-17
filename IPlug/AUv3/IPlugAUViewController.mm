@@ -18,6 +18,10 @@
 #import "GenericUI.h"
 #endif
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 @interface IPlugAUViewController (AUAudioUnitFactory)
 @end
 

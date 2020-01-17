@@ -17,10 +17,10 @@ public:
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override;
   
-  void SendControlValueFromDelegate(int controlTag, double normalizedValue) override;
-  void SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData) override;
+  void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override;
+  void SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
-  void SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData) override;
+  void SendArbitraryMsgFromDelegate(int msgTag, int dataSize, const void* pData) override;
   void Resize(int width, int height);
 
   //WebViewEditorDelegate

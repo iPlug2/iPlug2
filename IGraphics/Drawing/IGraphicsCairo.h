@@ -37,6 +37,15 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
+/** Converts IBlend to a cairo_operator_t */
+cairo_operator_t CairoBlendMode(const IBlend* pBlend);
+
+/** Set the source color on a cairo context based on IColor */
+void CairoSetSourceColor(cairo_t* pContext, const IColor& color, const IBlend* pBlend = 0);
+
+/** Set the source pattern on a cairo context based on IPattern */
+void CairoSetSourcePattern(cairo_t* pContext, const IPattern& pattern, const IBlend* pBlend = 0);
+
 /** IGraphics draw class using Cairo
 *   @ingroup DrawClasses */
 class IGraphicsCairo : public IGraphicsPathBase
@@ -89,8 +98,6 @@ protected:
     
   void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
   void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
-
-  void SetCairoSourcePattern(cairo_t* context, const IPattern& pattern, const IBlend* pBlend);
   
 private:
     

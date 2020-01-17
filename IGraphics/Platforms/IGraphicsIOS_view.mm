@@ -8,6 +8,10 @@
  ==============================================================================
 */
 
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 #import <QuartzCore/QuartzCore.h>
 #ifdef IGRAPHICS_IMGUI
 #import <Metal/Metal.h>
@@ -23,7 +27,162 @@
 
 extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
-@implementation IGraphicsIOS_View
+@implementation IGRAPHICS_UITABLEVC
+
+- (void)viewDidLoad
+{
+  [super viewDidLoad];
+  self.tableView = [[UITableView alloc] initWithFrame:self.view.frame];
+  self.tableView.dataSource = self;
+  self.tableView.delegate = self;
+  self.tableView.scrollEnabled = YES;
+  self.tableView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+  self.items = [[NSMutableArray alloc] init];
+  
+  int numItems = mMenu->NItems();
+
+  NSMutableString* elementTitle;
+  
+  for (int i = 0; i < numItems; ++i)
+  {
+    IPopupMenu::Item* pMenuItem = mMenu->GetItem(i);
+
+    elementTitle = [[NSMutableString alloc] initWithCString:pMenuItem->GetText() encoding:NSUTF8StringEncoding];
+
+    if (mMenu->GetPrefix())
+    {
+      NSString* prefixString = nil;
+
+      switch (mMenu->GetPrefix())
+      {
+        case 1: prefixString = [NSString stringWithFormat:@"%1d: ", i+1]; break;
+        case 2: prefixString = [NSString stringWithFormat:@"%02d: ", i+1]; break;
+        case 3: prefixString = [NSString stringWithFormat:@"%03d: ", i+1]; break;
+        case 0:
+        default:
+          prefixString = [NSString stringWithUTF8String:""]; break;
+      }
+
+      [elementTitle insertString:prefixString atIndex:0];
+    }
+
+    [self.items addObject:elementTitle];
+  }
+  
+  [self.view addSubview:self.tableView];
+}
+
+- (id) initWithIPopupMenuAndIGraphics:(IPopupMenu*) pMenu :(IGraphicsIOS*) pGraphics
+{
+  self = [super init];
+  
+  mGraphics = pGraphics;
+  mMenu = pMenu;
+  
+  return self;
+}
+
+- (NSInteger)tableView:(UITableView*) tableView numberOfRowsInSection:(NSInteger)section
+{
+  return self.items.count;
+}
+
+- (NSInteger)numberOfSectionsInTableView:(UITableView*) tableView
+{
+  return 1;
+}
+
+- (UITableViewCell *)tableView:(UITableView*) tableView cellForRowAtIndexPath:(NSIndexPath*) indexPath
+{
+  static NSString *identifer = @"cell";
+  UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifer];
+  
+  if (cell == nil)
+  {
+    cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifer];
+  }
+  
+  int cellIndex = static_cast<int>(indexPath.row);
+  
+  cell.textLabel.text = [NSString stringWithFormat:@"%@", self.items[indexPath.row]];
+  
+  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+  
+  if(pItem->GetChecked())
+    cell.accessoryType = UITableViewCellAccessoryCheckmark;
+  else
+    cell.accessoryType = pItem->GetSubmenu() ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
+
+  if(!pItem->GetEnabled())
+  {
+    cell.userInteractionEnabled = NO;
+    cell.textLabel.enabled = NO;
+  }
+  
+  return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  int cellIndex = static_cast<int>(indexPath.row);
+
+  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+
+  if(pItem->GetIsSeparator())
+    return 0.5f;
+  else
+    return self.tableView.rowHeight;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  int cellIndex = static_cast<int>(indexPath.row);
+
+  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+  IPopupMenu* pSubMenu = pItem->GetSubmenu();
+  
+  if(pSubMenu)
+  {
+    IGRAPHICS_UITABLEVC* newViewController = [[IGRAPHICS_UITABLEVC alloc] initWithIPopupMenuAndIGraphics: pSubMenu : mGraphics];
+    [newViewController setTitle:[NSString stringWithUTF8String:CStringHasContents(pSubMenu->GetRootTitle()) ? pSubMenu->GetRootTitle() : pItem->GetText()]];
+    [self.navigationController pushViewController:newViewController animated:YES];
+    
+    return;
+  }
+
+  if(pItem->GetIsChoosable())
+  {
+    mMenu->SetChosenItemIdx(cellIndex);
+    
+    if(mMenu->GetFunction())
+      mMenu->ExecFunction();
+    
+    mGraphics->SetControlValueAfterPopupMenu(mMenu);
+    
+    [self dismissViewControllerAnimated:YES completion:nil];
+  }
+}
+
+- (CGSize)preferredContentSize
+{
+  if (self.presentingViewController && self.tableView != nil)
+  {
+    CGSize tempSize = self.presentingViewController.view.bounds.size;
+    tempSize.width = 300;
+    CGSize size = [self.tableView sizeThatFits:tempSize];
+    return size;
+  } else {
+    return [super preferredContentSize];
+  }
+}
+
+- (void)setPreferredContentSize:(CGSize)preferredContentSize{
+  super.preferredContentSize = preferredContentSize;
+}
+
+@end
+
+@implementation IGRAPHICS_VIEW
 
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics
 {
@@ -138,11 +297,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return (CAMetalLayer*) self.layer;
 }
 
-- (void)dealloc
+- (void)viewDidDisappear
 {
-  [_displayLink invalidate];
-  
-  [super dealloc];
+  [self.displayLink invalidate];
 }
 
 - (void)didMoveToSuperview
@@ -161,18 +318,30 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
 }
 
-- (void)redraw:(CADisplayLink*) displayLink
+
+- (void)drawRect:(CGRect)rect
 {
   IRECTList rects;
   
   if(mGraphics)
   {
+    mGraphics->SetPlatformContext(UIGraphicsGetCurrentContext());
+    
     if (mGraphics->IsDirty(rects))
     {
       mGraphics->SetAllControlsClean();
       mGraphics->Draw(rects);
     }
   }
+}
+
+- (void)redraw:(CADisplayLink*) displayLink
+{
+#ifdef IGRAPHICS_CPU
+  [self setNeedsDisplay];
+#else
+  [self drawRect:CGRect()];
+#endif
 }
 
 - (BOOL) isOpaque
@@ -237,7 +406,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     
     if (pParam)
     {
-      NSMutableCharacterSet *characterSet = [[[NSMutableCharacterSet alloc] init] autorelease];
+      NSMutableCharacterSet *characterSet = [[NSMutableCharacterSet alloc] init];
       
       switch ( pParam->Type() )
       {
@@ -261,8 +430,31 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return YES;
 }
 
-- (IPopupMenu*) createPopupMenu: (const IPopupMenu&) menu : (CGRect) bounds;
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
 {
+  return UIModalPresentationNone;
+}
+
+- (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
+{
+  return YES;
+}
+
+- (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (CGRect) bounds;
+{
+  mMenuTableController = [[IGRAPHICS_UITABLEVC alloc] initWithIPopupMenuAndIGraphics:&menu : mGraphics];
+  [mMenuTableController setTitle: [NSString stringWithUTF8String:menu.GetRootTitle()]];
+
+  mMenuNavigationController = [[UINavigationController alloc] initWithRootViewController:mMenuTableController];
+
+  mMenuNavigationController.modalPresentationStyle = UIModalPresentationPopover;
+  mMenuNavigationController.popoverPresentationController.sourceView = self;
+  mMenuNavigationController.popoverPresentationController.sourceRect = bounds;
+//  mMenuNavigationController.popoverPresentationController.permittedArrowDirections = UIPopoverArrowDirectionUp;
+  mMenuNavigationController.popoverPresentationController.delegate = self;
+
+  [self.window.rootViewController presentViewController:mMenuNavigationController animated:YES completion:nil];
+  
   return nullptr;
 }
 
@@ -275,7 +467,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mTextFieldLength = length;
   
   CoreTextFontDescriptor* CTFontDescriptor = CoreTextHelpers::GetCTFontDescriptor(text, sFontDescriptorCache);
-  UIFontDescriptor* fontDescriptor = (UIFontDescriptor*) CTFontDescriptor->GetDescriptor();
+  UIFontDescriptor* fontDescriptor = (__bridge UIFontDescriptor*) CTFontDescriptor->GetDescriptor();
   UIFont* font = [UIFont fontWithDescriptor: fontDescriptor size: text.mSize * 0.75];
   [mTextField setFont: font];
   
@@ -323,7 +515,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   [self becomeFirstResponder];
   [mTextField setDelegate: nil];
-  [mTextField removeFromSuperview]; //releases
+  [mTextField removeFromSuperview];
   mTextField = nullptr;
 }
 
@@ -385,6 +577,178 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
   
   [self.window.rootViewController presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void) attachGestureRecognizer: (EGestureType) type
+{
+  UIGestureRecognizer* gestureRecognizer;
+  
+  switch (type)
+  {
+    case EGestureType::DoubleTap:
+    case EGestureType::TripleTap:
+    {
+      gestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(onTapGesture:)];
+      [(UITapGestureRecognizer*) gestureRecognizer setNumberOfTapsRequired: type == EGestureType::DoubleTap ? 2 : 3];
+      [(UITapGestureRecognizer*) gestureRecognizer setNumberOfTouchesRequired:1];
+      break;
+    }
+    case EGestureType::LongPress1:
+    case EGestureType::LongPress2:
+    {
+      gestureRecognizer = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(onLongPressGesture:)];
+      [(UILongPressGestureRecognizer*) gestureRecognizer setNumberOfTouchesRequired: type == EGestureType::LongPress1 ? 1 : 2];
+      break;
+    }
+    case EGestureType::SwipeLeft:
+    {
+      gestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeGesture:)];
+      [(UISwipeGestureRecognizer*) gestureRecognizer setDirection:UISwipeGestureRecognizerDirectionLeft];
+      break;
+    }
+    case EGestureType::SwipeRight:
+    {
+      gestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeGesture:)];
+      [(UISwipeGestureRecognizer*) gestureRecognizer setDirection:UISwipeGestureRecognizerDirectionRight];
+      break;
+    }
+    case EGestureType::SwipeUp:
+    {
+      gestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeGesture:)];
+      [(UISwipeGestureRecognizer*) gestureRecognizer setDirection:UISwipeGestureRecognizerDirectionUp];
+      break;
+    }
+    case EGestureType::SwipeDown:
+    {
+      gestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeGesture:)];
+      [(UISwipeGestureRecognizer*) gestureRecognizer setDirection:UISwipeGestureRecognizerDirectionDown];
+      break;
+    }
+    case EGestureType::Pinch:
+    {
+      gestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(onPinchGesture:)];
+      break;
+    }
+    case EGestureType::Rotate:
+    {
+      gestureRecognizer = [[UIRotationGestureRecognizer alloc] initWithTarget:self action:@selector(onRotateGesture:)];
+      break;
+    }
+    default:
+      return;
+  }
+    
+  gestureRecognizer.delegate = self;
+  gestureRecognizer.cancelsTouchesInView = YES;
+  gestureRecognizer.delaysTouchesBegan = YES;
+  [self addGestureRecognizer:gestureRecognizer];
+}
+
+- (void) onTapGesture: (UITapGestureRecognizer *) recognizer
+{
+  CGPoint p = [recognizer locationInView:self];
+  auto ds = mGraphics->GetDrawScale();
+  IGestureInfo info;
+  info.x = p.x / ds;
+  info.y = p.y / ds;
+  info.type = recognizer.numberOfTapsRequired == 2 ? EGestureType::DoubleTap : EGestureType::TripleTap;
+  
+  mGraphics->OnGestureRecognized(info);
+}
+
+- (void) onLongPressGesture: (UILongPressGestureRecognizer*) recognizer
+{
+  CGPoint p = [recognizer locationInView:self];
+  auto ds = mGraphics->GetDrawScale();
+  IGestureInfo info;
+  info.x = p.x / ds;
+  info.y = p.y / ds;
+  if(recognizer.state == UIGestureRecognizerStateBegan)
+    info.state = EGestureState::Began;
+  else if(recognizer.state == UIGestureRecognizerStateChanged)
+    info.state = EGestureState::InProcess;
+  else if(recognizer.state == UIGestureRecognizerStateEnded)
+    info.state = EGestureState::Ended;
+  
+  info.type = recognizer.numberOfTouchesRequired == 1 ? EGestureType::LongPress1 : EGestureType::LongPress2;
+  
+  mGraphics->OnGestureRecognized(info);
+}
+
+- (void) onSwipeGesture: (UISwipeGestureRecognizer*) recognizer
+{
+  CGPoint p = [recognizer locationInView:self];
+  auto ds = mGraphics->GetDrawScale();
+  IGestureInfo info;
+  info.x = p.x / ds;
+  info.y = p.y / ds;
+
+  switch (recognizer.direction) {
+    case UISwipeGestureRecognizerDirectionLeft: info.type = EGestureType::SwipeLeft; break;
+    case UISwipeGestureRecognizerDirectionRight: info.type = EGestureType::SwipeRight; break;
+    case UISwipeGestureRecognizerDirectionUp: info.type = EGestureType::SwipeUp; break;
+    case UISwipeGestureRecognizerDirectionDown: info.type = EGestureType::SwipeDown; break;
+    default:
+      break;
+  }
+  
+  mGraphics->OnGestureRecognized(info);
+}
+
+- (void) onPinchGesture: (UIPinchGestureRecognizer*) recognizer
+{
+  CGPoint p = [recognizer locationInView:self];
+  auto ds = mGraphics->GetDrawScale();
+  IGestureInfo info;
+  info.x = p.x / ds;
+  info.y = p.y / ds;
+  info.velocity = recognizer.velocity;
+  info.scale = recognizer.scale;
+  
+  if(recognizer.state == UIGestureRecognizerStateBegan)
+    info.state = EGestureState::Began;
+  else if(recognizer.state == UIGestureRecognizerStateChanged)
+    info.state = EGestureState::InProcess;
+  else if(recognizer.state == UIGestureRecognizerStateEnded)
+    info.state = EGestureState::Ended;
+  
+  info.type = EGestureType::Pinch;
+  
+  mGraphics->OnGestureRecognized(info);
+}
+
+- (void) onRotateGesture: (UIRotationGestureRecognizer*) recognizer
+{
+  CGPoint p = [recognizer locationInView:self];
+  auto ds = mGraphics->GetDrawScale();
+  IGestureInfo info;
+  info.x = p.x / ds;
+  info.y = p.y / ds;
+  info.velocity = recognizer.velocity;
+  info.angle = RadToDeg(recognizer.rotation);
+  
+  if(recognizer.state == UIGestureRecognizerStateBegan)
+    info.state = EGestureState::Began;
+  else if(recognizer.state == UIGestureRecognizerStateChanged)
+    info.state = EGestureState::InProcess;
+  else if(recognizer.state == UIGestureRecognizerStateEnded)
+    info.state = EGestureState::Ended;
+  
+  info.type = EGestureType::Rotate;
+
+  mGraphics->OnGestureRecognized(info);
+}
+
+-(BOOL) gestureRecognizer:(UIGestureRecognizer*) gestureRecognizer shouldReceiveTouch:(UITouch*)touch
+{
+  CGPoint pos = [touch locationInView:touch.view];
+  
+  auto ds = mGraphics->GetDrawScale();
+
+  if(mGraphics->RespondsToGesture(pos.x / ds, pos.y / ds))
+    return TRUE;
+  else
+    return FALSE;
 }
 
 + (Class) layerClass

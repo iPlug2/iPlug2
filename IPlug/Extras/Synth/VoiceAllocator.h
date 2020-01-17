@@ -66,9 +66,7 @@ enum EVoiceAction
  * mAction is the type of property change.
  * mControllerNumber is the controller number to change if mAction is kController.
  * mValue is the new value associated with the change.
- * mSampleOffset is the number of samples into a processing buffer at which the change should occur.
- */
-
+ * mSampleOffset is the number of samples into a processing buffer at which the change should occur.*/
 struct VoiceInputEvent
 {
   VoiceAddress mAddress;
@@ -117,30 +115,24 @@ public:
 
   /** Add a synth voice to the allocator. We do not take ownership ot the voice.
    @param pv Pointer to the voice to add.
-   @param zone A zone can be specified to make multitimbral synths.
-   */
+   @param zone A zone can be specified to make multitimbral synths.*/
   void AddVoice(SynthVoice* pv, uint8_t zone);
 
-  /** Add a single event to the input queue for the current processing block.
-   */
+  /** Add a single event to the input queue for the current processing block. */
   void AddEvent(VoiceInputEvent e) { mInputQueue.Push(e); }
 
-  /** Process all input events and generate voice outputs.
-   */
+  /** Process all input events and generate voice outputs. */
   void ProcessEvents(int samples, int64_t sampleTime);
 
-  /** Turn all voice gates off, allowing any voice envelopes to finish.
-   */
+  /** Turn all voice gates off, allowing any voice envelopes to finish. */
   void SoftKillAllVoices();
 
-  /** Stop all voices from making sound immdiately.
-   */
+  /** Stop all voices from making sound immdiately. */
   void HardKillAllVoices();
 
   void SetKeyToPitchFunction(const std::function<float(int)>& fn) {mKeyToPitchFn = fn;}
 
-  /** Send the event to the voices matching its address.
-   */
+  /** Send the event to the voices matching its address.*/
   void SendEventToVoices(VoiceInputEvent event);
 
   void ProcessVoices(sample** inputs, sample** outputs, int nInputs, int nOutputs, int startIndex, int blockSize);

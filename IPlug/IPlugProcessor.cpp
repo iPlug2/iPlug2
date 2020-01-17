@@ -138,7 +138,7 @@ int IPlugProcessor::MaxNChannelsForBus(ERoute direction, int busIdx) const
   //find the maximum channel count for each input or output bus
   for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
   {
-    IOConfig* pIOConfig = mIOConfigs.Get(configIdx);
+    const IOConfig* pIOConfig = GetIOConfig(configIdx);
 
     for (int bus = 0; bus < maxNBuses; bus++)
       maxChansOnBuses.Get()[bus] = std::max(pIOConfig->NChansOnBusSAFE(direction, bus), maxChansOnBuses.Get()[bus]);
@@ -166,7 +166,7 @@ bool IPlugProcessor::LegalIO(int NInputChans, int NOutputChans) const
 
   for (auto i = 0; i < NIOConfigs() && !legal; ++i)
   {
-    IOConfig* pIO = mIOConfigs.Get(i);
+    const IOConfig* pIO = GetIOConfig(i);
     legal = ((NInputChans < 0 || NInputChans == pIO->GetTotalNChannels(ERoute::kInput)) && (NOutputChans < 0 || NOutputChans == pIO->GetTotalNChannels(ERoute::kOutput)));
   }
 

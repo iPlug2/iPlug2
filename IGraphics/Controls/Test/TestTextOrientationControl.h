@@ -24,8 +24,8 @@ class TestTextOrientationControl : public IKnobControlBase
   static const int size = 14;
     
 public:
-    TestTextOrientationControl(const IRECT& bounds)
-  : IKnobControlBase(bounds), mCount(-1)
+    TestTextOrientationControl(const IRECT& bounds, int paramIdx)
+  : IKnobControlBase(bounds, paramIdx), mCount(-1)
   {
     SetTooltip("TestTextOrientationControl");
     mDblAsSingleClick = true;

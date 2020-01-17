@@ -125,7 +125,7 @@ public:
      */
   }
   
-  Steinberg::Vst::ParamValue PLUGIN_API getParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParamID tag)
+  Steinberg::Vst::ParamValue PLUGIN_API GetParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParamID tag)
   {
     IParam* param = pPlug->GetParam(tag);
         
@@ -137,7 +137,7 @@ public:
     return 0.0;
   }
     
-  void PLUGIN_API setParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value)
+  void PLUGIN_API SetParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value)
   {
     if (tag >= kBypassParam)
     {

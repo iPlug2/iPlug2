@@ -224,17 +224,17 @@
   {
     //create persistent data file system and synchronise
     EM_ASM(
-           var name = '/' + UTF8ToString($0) + '_data';
-           FS.mkdir(name);
-           FS.mount(IDBFS, {}, name);
+          //  var name = '/' + UTF8ToString($0) + '_data';
+          //  FS.mkdir(name);
+          //  FS.mount(IDBFS, {}, name);
 
-           Module.syncdone = 0;
-           FS.syncfs(true, function (err) {
-            assert(!err);
-            console.log("Synced from IDBFS...");
+          //  Module.syncdone = 0;
+          //  FS.syncfs(true, function (err) {
+          //   assert(!err);
+          //   console.log("Synced from IDBFS...");
             Module.syncdone = 1;
             ccall('iplug_fsready', 'v');
-          });
+          // });
         , PLUG_NAME);
 
     StartMainLoopTimer();

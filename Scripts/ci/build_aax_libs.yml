@@ -1,45 +1,45 @@
-jobs:
-- job: BUILD_WIN_AAX_LIBS
-  condition: and(eq(variables.build_deps, false), eq(variables.build_win, true), eq(variables.build_aax, true))
-  pool:
-    vmImage: 'windows-2019'
+# jobs:
+# - job: BUILD_WIN_AAX_LIBS
+#   condition: and(eq(variables.build_deps, false), eq(variables.build_win, true), eq(variables.build_aax, true))
+#   pool:
+#     vmImage: 'windows-2019'
 
-  steps:
-  - checkout: none
+#   steps:
+#   - checkout: none
 
-  - task: DownloadSecureFile@1
-    inputs:
-      secureFile: "AAX_SDK.zip"
-    displayName: Download AAX SDK
+#   - task: DownloadSecureFile@1
+#     inputs:
+#       secureFile: "AAX_SDK.zip"
+#     displayName: Download AAX SDK
   
-  - task: ExtractFiles@1
-    inputs:
-      archiveFilePatterns: '$(Agent.TempDirectory)/*.zip'
-      destinationFolder: 'AAX_SDK'
-      cleanDestinationFolder: false
+#   - task: ExtractFiles@1
+#     inputs:
+#       archiveFilePatterns: '$(Agent.TempDirectory)/*.zip'
+#       destinationFolder: 'AAX_SDK'
+#       cleanDestinationFolder: false
 
-  - bash: |
-      mkdir -p ./Dependencies/IPlug/AAX_SDK
-      mv AAX_SDK/* ./Dependencies/IPlug/
+#   - bash: |
+#       mkdir -p ./Dependencies/IPlug/AAX_SDK
+#       mv AAX_SDK/* ./Dependencies/IPlug/
 
-  - task: VSBuild@1
-    inputs:
-      solution: 'Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/WinBuild/vs2017/AAXLibrary.sln'
-      vsVersion: '15.0'
-      platform: x64
-      configuration: Release
-    displayName: Compile AAX Library Visual Studio Solution x64
+#   - task: VSBuild@1
+#     inputs:
+#       solution: 'Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/WinBuild/vs2017/AAXLibrary.sln'
+#       vsVersion: '15.0'
+#       platform: x64
+#       configuration: Release
+#     displayName: Compile AAX Library Visual Studio Solution x64
 
-  - task: VSBuild@1
-    inputs:
-      solution: 'Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/WinBuild/vs2017/AAXLibrary.sln'
-      vsVersion: '15.0'
-      platform: Win32
-      configuration: Release
-    displayName: Compile AAX Library Visual Studio Solution Win32
+#   - task: VSBuild@1
+#     inputs:
+#       solution: 'Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/WinBuild/vs2017/AAXLibrary.sln'
+#       vsVersion: '15.0'
+#       platform: Win32
+#       configuration: Release
+#     displayName: Compile AAX Library Visual Studio Solution Win32
 
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_AAX_LIB_WIN'
-      targetPath: 'Dependencies/IPlug/AAX_SDK/Libs/'
-    displayName: Publish Windows AAX Libs
+#   - task: PublishPipelineArtifact@0
+#     inputs:
+#       artifactName: 'DEPS_AAX_LIB_WIN'
+#       targetPath: 'Dependencies/IPlug/AAX_SDK/Libs/'
+#     displayName: Publish Windows AAX Libs
