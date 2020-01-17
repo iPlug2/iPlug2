@@ -16,6 +16,21 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
+/** Converts IRECT to a SkRect */
+SkRect SkiaRect(const IRECT& r);
+
+/** Converts IBlend to a SkBlendMode */
+SkBlendMode SkiaBlendMode(const IBlend* pBlend);
+
+/** Converts IColor to a SkColor */
+SkColor SkiaColor(const IColor& color, const IBlend* pBlend);
+
+/** Get SkTileMode for IPattern */
+SkTileMode SkiaTileMode(const IPattern& pattern);
+
+/** Converts IPattern to SkPaint */
+SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend);
+
 /** IGraphics draw class using Skia
 *   @ingroup DrawClasses */
 class IGraphicsSkia : public IGraphicsPathBase
