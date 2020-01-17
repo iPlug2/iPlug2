@@ -35,6 +35,10 @@ void* IGEditorDelegate::OpenWindow(void* pParent)
   if(!mGraphics) {
     mIGraphicsTransient = true;
     mGraphics = std::unique_ptr<IGraphics>(CreateGraphics());
+    if (mGraphics && mMainLoop)
+    {
+      mGraphics->SetIntegration(mMainLoop);
+    }
   }
   
   if(mGraphics)
@@ -68,6 +72,15 @@ void IGEditorDelegate::SetScreenScale(double scale)
 {
   if (GetUI())
     mGraphics->SetScreenScale(static_cast<int>(std::round(scale)));
+}
+
+void IGEditorDelegate::SetIntegration(void *mainLoop)
+{
+  mMainLoop = mainLoop;
+  if(mGraphics)
+  {
+    mGraphics->SetIntegration(mainLoop);
+  }
 }
 
 int IGEditorDelegate::SetEditorData(const IByteChunk& data, int startPos)

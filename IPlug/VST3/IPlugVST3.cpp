@@ -30,7 +30,9 @@ IPlugVST3::IPlugVST3(const InstanceInfo& info, const Config& config)
 , IPlugVST3ProcessorBase(config, *this)
 , mView(nullptr)
 {
+#ifndef OS_LINUX
   CreateTimer();
+#endif
 }
 
 IPlugVST3::~IPlugVST3() {}
@@ -293,3 +295,4 @@ void IPlugVST3::SetLatency(int latency)
   FUnknownPtr<IComponentHandler>handler(componentHandler);
   handler->restartComponent(kLatencyChanged);
 }
+

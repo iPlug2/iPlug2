@@ -549,6 +549,8 @@ void IVKnobControl::OnMouseDown(float x, float y, const IMouseMod& mod)
       GetUI()->HideMouseCursor(true, true);
     
     IKnobControlBase::OnMouseDown(x, y, mod);
+
+    SetDirty(true); // AZ: it is drawn differently when the mouse is pressed, so it make sense ask to redraw
   }
 }
 

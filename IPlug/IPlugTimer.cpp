@@ -61,7 +61,7 @@ void Timer_impl::TimerProc(CFRunLoopTimerRef timer, void *info)
   itimer->mTimerFunc(*itimer);
 }
 
-#elif defined OS_WIN
+#elif defined OS_WIN || (defined OS_LINUX && defined APP_API)
 
 Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
 {

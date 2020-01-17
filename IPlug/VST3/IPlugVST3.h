@@ -111,7 +111,7 @@ public:
   DEFINE_INTERFACES
   END_DEFINE_INTERFACES(SingleComponentEffect)
   REFCOUNT_METHODS(SingleComponentEffect)
-    
+  
 private:
   ViewType* mView;
 };
