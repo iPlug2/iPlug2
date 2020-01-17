@@ -110,6 +110,7 @@ using namespace igraphics;
   IGRAPHICS_TEXTFIELD* mTextFieldView;
   NSCursor* mMoveCursor;
   float mPrevX, mPrevY;
+  bool mMouseOutDuringDrag;
   IRECTList mDirtyRects;
   IColorPickerHandlerFunc mColorPickerFunc;
 @public
