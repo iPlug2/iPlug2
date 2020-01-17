@@ -155,7 +155,10 @@ static void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int wid
 
 #pragma mark - Utilities
 
-static inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend)
 {
   NVGcolor c;
   c.r = (float) color.R / 255.0f;
@@ -165,11 +168,11 @@ static inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0
   return c;
 }
 
-static inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
+void NanoVGSetBlendMode(NVGcontext* pContext, const IBlend* pBlend)
 {
   if (!pBlend)
   {
-    nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
+    nvgGlobalCompositeOperation(pContext, NVG_SOURCE_OVER);
       return;
   }
   
@@ -177,20 +180,20 @@ static inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
   {
     case EBlend::Default:       // fall through
     case EBlend::Clobber:       // fall through
-    case EBlend::SourceOver:    nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);                break;
-    case EBlend::SourceIn:      nvgGlobalCompositeOperation(context, NVG_SOURCE_IN);                  break;
-    case EBlend::SourceOut:     nvgGlobalCompositeOperation(context, NVG_SOURCE_OUT);                 break;
-    case EBlend::SourceAtop:    nvgGlobalCompositeOperation(context, NVG_ATOP);                       break;
-    case EBlend::DestOver:      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);           break;
-    case EBlend::DestIn:        nvgGlobalCompositeOperation(context, NVG_DESTINATION_IN);             break;
-    case EBlend::DestOut:       nvgGlobalCompositeOperation(context, NVG_DESTINATION_OUT);            break;
-    case EBlend::DestAtop:      nvgGlobalCompositeOperation(context, NVG_DESTINATION_ATOP);           break;
-    case EBlend::Add:           nvgGlobalCompositeBlendFunc(context, NVG_SRC_ALPHA, NVG_DST_ALPHA);   break;
-    case EBlend::XOR:           nvgGlobalCompositeOperation(context, NVG_XOR);                        break;
+    case EBlend::SourceOver:    nvgGlobalCompositeOperation(pContext, NVG_SOURCE_OVER);                break;
+    case EBlend::SourceIn:      nvgGlobalCompositeOperation(pContext, NVG_SOURCE_IN);                  break;
+    case EBlend::SourceOut:     nvgGlobalCompositeOperation(pContext, NVG_SOURCE_OUT);                 break;
+    case EBlend::SourceAtop:    nvgGlobalCompositeOperation(pContext, NVG_ATOP);                       break;
+    case EBlend::DestOver:      nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_OVER);           break;
+    case EBlend::DestIn:        nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_IN);             break;
+    case EBlend::DestOut:       nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_OUT);            break;
+    case EBlend::DestAtop:      nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_ATOP);           break;
+    case EBlend::Add:           nvgGlobalCompositeBlendFunc(pContext, NVG_SRC_ALPHA, NVG_DST_ALPHA);   break;
+    case EBlend::XOR:           nvgGlobalCompositeOperation(pContext, NVG_XOR);                        break;
   }
 }
 
-static NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend)
+NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend)
 {
   assert(pattern.NStops() > 0);
   
@@ -214,6 +217,9 @@ static NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const
     return nvgLinearGradient(pContext, s[0], s[1], e[0], e[1], icol, ocol);
   }
 }
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 #pragma mark -
 

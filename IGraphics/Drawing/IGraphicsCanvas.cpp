@@ -72,12 +72,18 @@ StaticStorage<IGraphicsCanvas::Font> IGraphicsCanvas::sFontCache;
 
 #pragma mark - Utilities
 
-static std::string CanvasColor(const IColor& color, float alpha = 1.0)
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+std::string CanvasColor(const IColor& color, float alpha)
 {
   WDL_String str;
   str.SetFormatted(64, "rgba(%d, %d, %d, %lf)", color.R, color.G, color.B, alpha * color.A / 255.0);
   return str.Get();
 }
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 #pragma mark -
 
