@@ -68,6 +68,14 @@ void SplashClickActionFunc(IControl* pCaller)
   pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION);
 }
 
+void ShowBubbleActionFunc(IControl* pCaller)
+{
+  IRECT bounds = pCaller->GetRECT();
+  WDL_String display;
+  pCaller->GetParam()->GetDisplayForHostWithLabel(display);
+  pCaller->GetUI()->ShowBubbleControl(pCaller, bounds.R, bounds.MH(), display.Get());
+}
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
