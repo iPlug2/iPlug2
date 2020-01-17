@@ -56,7 +56,6 @@ public:
       auto progress = pCaller->GetAnimationProgress();
             
       if(progress > 1.) {
-        
         if(mState == kExpanding)
         {
           mBlend.mWeight = mOpacity;
@@ -108,12 +107,21 @@ public:
   //IControl
   void Draw(IGraphics& g) override
   {
-    DrawDropShadow(g);
+    //DrawDropShadow(g);
 
     IRECT r = mRECT.GetPadded(-mDropShadowSize);
-    
-    g.FillRoundRect(COLOR_WHITE, r, 5.f, &mBlend);
-    g.DrawRoundRect(COLOR_DARK_GRAY, r, 5.f, &mBlend, 2.f);
+    g.PathMoveTo(r.L, r.T + mRoundness);
+    g.PathArc(r.L + mRoundness, r.T + mRoundness, mRoundness, 270.f, 360.f);
+    g.PathArc(r.R - mRoundness, r.T + mRoundness, mRoundness, 0.f, 90.f);
+    g.PathArc(r.R - mRoundness, r.B - mRoundness, mRoundness, 90.f, 180.f);
+    g.PathArc(r.L + mRoundness, r.B - mRoundness, mRoundness, 180.f, 270.f);
+    g.PathLineTo(r.L, r.MH() + mCalloutSize/2.f);
+    g.PathLineTo(r.L - mCalloutSize, r.MH());
+    g.PathLineTo(r.L, r.MH() - mCalloutSize/2.f);
+    g.PathClose();
+
+    g.PathFill(COLOR_WHITE, true, &mBlend);
+    g.PathStroke(COLOR_BLACK, 2.f, IStrokeOptions(), &mBlend);
     g.DrawText(mText, mStr.Get(), r, &mBlend);
   }
   
@@ -177,6 +185,7 @@ protected:
   IBlend mBlend = { EBlend::Default, 0.f }; // blend for sub panels appearing
   float mRoundness = 5.f; // The roundness of the corners of the menu panel backgrounds
   float mDropShadowSize = 10.f; // The size in pixels of the drop shadow
+  float mCalloutSize = 10.f;
   float mOpacity = 0.95f; // The opacity of the menu panel backgrounds when fully faded in
   EPopupState mState = kCollapsed; // The state of the pop-up, mainly used for animation
 };
