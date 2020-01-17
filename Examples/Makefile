@@ -129,7 +129,7 @@ endef
 
 ## $(eval $(call target,<target suffix>))
 #
-# Make target creation rule (is .so : shared library, executable otherwise)
+# Make target creation rule (target endet with .so is a shared library, executable otherwise)
 define target =
 $(IPT$(1)): $(IPT_DEPS$(1))
 		@echo "Linking $(notdir $(IPT$(1))) ... "
@@ -165,7 +165,7 @@ endef
 
 ## $(eval $(call flags,<suffix>))
 #
-# Exlicitly define all flags defaults
+# Exlicitly define all flags when they are not yet set
 define flags =
   CFLAGS$(1) := $(if $(CFLAGS$(1)), $(CFLAGS$(1)), $(CFLAGS))
   CFLAGSE$(1) := $(if $(CFLAGSE$(1)), $(CFLAGSE$(1)), $(CFLAGSE))
@@ -186,7 +186,7 @@ endef
 
 ## $(eval $(call tprefix,<target suffix>))
 #
-# Prefix IPBD to targets and not object dependencies and IPOD to object dependencies
+# Prefix IPBD to targets and not object dependencies, IPOD to object dependencies
 define tprefix =
   IPT$(1) := $(IPBD)/$(IPT$(1))
   IPT_DEPS$(1) := $(addprefix $(IPBD)/,$(filter-out %.o,$(IPT_DEPS$(1)))) $(addprefix $(IPBOD)/,$(filter %.o,$(IPT_DEPS$(1))))
@@ -268,7 +268,6 @@ else ifeq ($(ITARGET),)
   override ITARGET := APP
 else ifeq ($(ITARGET),VST3)
 else ifeq ($(ITARGET),LV2)
-  $(error FATAL: not yet supported target '$(ITARGET)')
 else
   $(error FATAL: not supported target '$(ITARGET)' (supported are APP, VST3 and LV2, case sensitive))
 endif
@@ -300,18 +299,18 @@ else
   # We define a set of suffixes with IPBSS (project build suffixes), which can be empty (default)
   # A separate set of rules can be defined for these extra sets, object files will be generated
   # in a separate for the set directory. A target dependency can be constructed from different sets.
-  # Relevant options (f.e CFLAGS_EXTRA_<suffix>) can be defined, but assumed to be corresponding general options when not.
-  # Build and Target suffixes share names.
+  # Relevant options (f.e CFLAGSE_<suffix>) can be defined, but assumed to be corresponding general options when not.
+  # Build and Target suffixes share name space and so options.
   IPBSS :=
 
   # Project target (must be defined, relative to IPBD)
   IPT :=
-  # Project target dependencies (must be defined, object files relative to IPBOD, other directly)
+  # Project target dependencies (must be defined, object files should be relative to IPBOD, other files with complete path)
   IPT_DEPS :=
 
 	# We also can have several Targets, they are specified with Target Suffixes. 
   # For all of them  IPT_<suffix> and IPT_DEPS_<suffix> must be defined.
-  # Build and Target suffixes share option names.
+  # Build and Target suffixes share name space and so options.
   IPTSS :=
   
   # The list of extra directories, which can not be "deducted" automatically
@@ -353,7 +352,28 @@ else
     _SRC := $(wildcard *.cpp)
     IPT_DEPS += $(notdir $(_SRC:%.cpp=%.o))
 
-  else ifeq ($(ITARGET,LV2)
+  else ifeq ($(ITARGET),LV2)
+    # UI and CFG are separate targets
+    IPTSS += CFG
+    IPBSS += CFG
+    ifneq ($(IGRAPHICS),NO_IGRAPHICS)
+			IPTSS += UI
+			IPBSS += UI
+		endif
+
+    # DSP (default)
+    IPT := $(ICONF_PLUG_NAME).so
+
+	  # Configuration
+	  IPT_CFG := .obj/cfg
+
+    # UI
+    IPT_UI := $(ICONF_PLUG_NAME)_ui.so
+
+    # we assume all cpp files are relevant, but may have different compilation flags
+    _SRC := $(wildcard *.cpp)
+    IPT_DEPS += $(notdir $(_SRC:%.cpp=%.o))
+    
   endif
 endif
 

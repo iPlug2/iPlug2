@@ -28,3 +28,6 @@ FAUST dependencies are built as x64 only with MACOSX_DEPLOYMENT_TARGET=10.11
 
 Pre-built Windows dependencies can be downloaded here: [IPLUG2_DEPS_WIN.zip](https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_WIN.zip)
 
+## Linux
+
+Dependencies will be downloaded and compiled when required. iPlug2 HEAD downloads current HEAD of dependencies, so there can be some transient incompatibilities.

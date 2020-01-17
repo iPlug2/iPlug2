@@ -107,9 +107,8 @@ else ifeq ($(ITARGET),VST3)
 	# VST3 SDK  We compile "in project" way.
 	_VST3_SDK_PATH := $(_IPLUG_DEPS_PATH)/VST3_SDK
 
-
   # we need VST3 SDK before we can construct dependencies, so we can not do that as a rule
-  ifeq ($(widlcard $(_VST3_SDK_PATH)/public.sdk/source/vst3stdsdk.cpp),)
+  ifeq ($(wildcard $(_VST3_SDK_PATH)/public.sdk/source/vst3stdsdk.cpp),)
     $(info "Downloading VST3 SDK ...")
     $(info $(shell cd $(_IPLUG_DEPS_PATH) && rm -rf VST3_SDK && \
        git clone https://github.com/steinbergmedia/vst3sdk.git VST3_SDK && cd VST3_SDK &&\
@@ -130,6 +129,33 @@ else ifeq ($(ITARGET),VST3)
 	IPT_DEPS += $(_VST3_SRC_BASE:%.cpp=%.o) $(_VST3_SRC_COMMON:%.cpp=%.o)
 	IPT_DEPS += vstaudioeffect.o vstcomponent.o vstcomponentbase.o vstinitiids.o vstsinglecomponenteffect.o vstparameters.o vstbus.o
 	IPT_DEPS += parameterchanges.o pluginfactory.o linuxmain.o
+else ifeq ($(ITARGET),LV2)
+  CXXFLAGS += -DLV2_API
+
+	CXXFLAGSE     := -DIPLUG_DSP
+	CXXFLAGSE_CFG := -DIPLUG_DSP -DLV2_CFG
+  CXXFLAGSE_UI  := -DIPLUG_EDITOR
+
+  # IPlug LV2 source
+  IPSRC_DIR += $(_IPLUG_PATH)/LV2
+
+  # UI is compiled separately
+  IPT_DEPS_UI   := $(addprefix UI/, $(IPT_DEPS)) UI/IPlugLV2.o
+
+  IPT_DEPS_CFG  := $(addprefix CFG/, $(IPT_DEPS)) CFG/IPlugLV2.o CFG/IPlugLV2_cfg.o
+
+  # make ttl deps for DSP (only), "also" ttl is build in parallel with manifest
+  IPT_DEPS += IPlugLV2.o manifest.ttl
+
+	# LV2 source
+	_LV2_PATH := $(_IPLUG_DEPS_PATH)/LV2
+	IPINC_DIR += $(_LV2_PATH)
+  
+  # we need LV2 source before we can construct dependencies, so we can not do that as a rule
+  ifeq ($(wildcard $(_LV2_PATH)/waf),)
+    $(info "Downloading LV2 SDK ...")
+    $(info $(shell cd $(_IPLUG_DEPS_PATH) && rm -rf LV2 && git clone https://gitlab.com/lv2/lv2.git LV2))
+  endif
 endif
 
 #### IGraphics is included even in case of IGRAPHICS == NO_IGRAPHICS
@@ -142,11 +168,21 @@ ifeq ($(IGRAPHICS),)
 endif
 
 ifneq ($(IGRAPHICS),NO_IGRAPHICS)
+  # for LV2, graphics is in UI IPTSS
+  _TSX  :=
+  _TSXD :=
+  ifeq ($(ITARGET),LV2)
+    _TSX  := _UI
+    _TSXD := UI/
+    CXXFLAGSE += -DNO_IGRAPHICS -DLV2_WITH_UI
+    CXXFLAGSE_CFG += -DNO_IGRAPHICS -DLV2_WITH_UI
+  endif
+
   IPSRC_DIR += $(_IGRAPHICS_PATH)/Platforms $(_IGRAPHICS_PATH)/Drawing $(_IGRAPHICS_PATH)/Controls
-  IPT_DEPS  += IGraphicsLinux.o
+  IPT_DEPS$(_TSX)  += $(_TSXD)IGraphicsLinux.o
 
 	_IGSRC := $(notdir $(wildcard $(_IGRAPHICS_PATH)/*.cpp) $(wildcard $(_IGRAPHICS_PATH)/Controls/*.cpp))
-	IPT_DEPS += $(_IGSRC:%.cpp=%.o)
+	IPT_DEPS$(_TSX) += $(addprefix $(_TSXD), $(_IGSRC:%.cpp=%.o))
 
 	IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/STB
 
@@ -158,17 +194,17 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
 	IPSRC_DIR += $(_GLAD_GLX_PATH)/src
 	IPINC_DIR += $(_GLAD_GLX_PATH)/include
   IPSRC_DIR += $(_IGRAPHICS_DEPS_PATH)/xcbt
-  IPT_DEPS  += xcbt.o glad.o glad_glx.o
-  LIBS += -lxcb -lfontconfig
+  IPT_DEPS$(_TSX)  += $(_TSXD)xcbt.o $(_TSXD)glad.o $(_TSXD)glad_glx.o
+  LIBS$(_TSX) += -lxcb -lfontconfig
 
   ifeq ($(IGRAPHICS),NANOVG_GL2)
     IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoVG/src
     IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoSVG/src
 		
-	  CXXFLAGS += -DIGRAPHICS_NANOVG -DIGRAPHICS_GL2
+	  CXXFLAGSE$(_TSX) += -DIGRAPHICS_NANOVG -DIGRAPHICS_GL2
 	  
 	  # Not nice, but stb_ produce that and it is included directly
-	  CXXFLAGS += -Wno-misleading-indentation
+	  CXXFLAGSE$(_TSX) += -Wno-misleading-indentation
 
   else
     $(error FATAL: '$(IGRAPHICS)' graphics flaviour is not currently supported)
@@ -225,5 +261,11 @@ $(_IDEPS_INSTALL_PATH)/lib/librtmidi.a:
 		@rm -rf $(_IDEPS_INSTALL_PATH)/tmp
 
 else ifeq ($(ITARGET),VST3)
+
+else ifeq ($(ITARGET),LV2)
+
+$(IPBD)/manifest.ttl: $(IPBOD)/cfg
+		@echo "Generating ttl files ..."
+		@cd $(IPBD) && .obj/cfg
 
 endif

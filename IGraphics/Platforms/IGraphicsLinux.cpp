@@ -277,12 +277,32 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
     SetIntegration(xcbt_embed_glib());
   }
 #endif
+
   if(!mEmbed){
     DBGMSG("BUG: embed is not defined\n");
     return NULL;
   }
+
 #ifdef IGRAPHICS_GL
   mX = xcbt_connect(XCBT_USE_GL|XCBT_INIT_ATOMS);
+#else
+  mX = xcbt_connect(0);
+#endif
+
+#ifdef LV2_API
+  if (!xprt)
+  {
+    // LV2 UI is created without parent by default, it may be found and even required with ui:parent feature, but the documentation
+    // say that is not a good idea.
+    xcb_screen_t *si = xcbt_screen_info(mX, xcbt_default_screen(mX));
+    if (si)
+    {
+      xprt = si->root;
+    }
+  }
+#endif
+
+#ifdef IGRAPHICS_GL
 #ifdef IGRAPHICS_GL2
   mPlugWnd = xcbt_window_gl_create(mX, xprt, &r, 2, 1, 0);
 #elif defined IGRAPHICS_GL3
@@ -291,7 +311,6 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
   #error "Unsupported GL version"
 #endif
 #else
-  mX = xcbt_connect(0);
   mPlugWnd = xcbt_window_create(mX, xprt, &r);
 #endif
   if(!mX)
@@ -301,7 +320,7 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
 
   xcbt_window_set_handler(mPlugWnd, (xcbt_window_handler)WindowHandlerProxy, this, &mBaseWindowHandler, &mBaseWindowData);
 
-  if(!xcbt_embed_set(mX, mEmbed))
+  if(mEmbed && !xcbt_embed_set(mX, mEmbed))
   {
     DBGMSG("Could not embed into main event loop\n");
     xcbt_window_destroy(mPlugWnd);
@@ -326,6 +345,8 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
 #ifdef APP_API
   xcbt_window_map(mPlugWnd);
 #elif defined VST3_API
+  xcbt_window_set_xembed_info(mPlugWnd);
+#elif defined LV2_API
   xcbt_window_set_xembed_info(mPlugWnd);
 #else
   #error "Map or not to map... that is the question"

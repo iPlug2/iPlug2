@@ -430,6 +430,16 @@ int xcbt_embed_set(xcbt px, xcbt_embed *e);
  */
 xcbt_embed *xcbt_embed_glib();
 
+/**
+ * When UI thread can periodically call onIdle(), that can be used for main loop integration.
+ */
+xcbt_embed *xcbt_embed_idle();
+
+/**
+ * Shoud be all in onIdle.
+ * WARNING: it will produce unpredictable result if pe was not created by xcbt_embed_idle.
+ */
+void xcbt_embed_idle_cb(xcbt_embed *pe);
 
 #ifdef __cplusplus
 };

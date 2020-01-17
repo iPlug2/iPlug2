@@ -1239,8 +1239,8 @@ static void xcbt_embed_glib_dtor(xcbt_embed *pe){
         TRACE("XCBT:BUG: embed is still in use\n");
         xcbt_embed_glib_watch(pe, -1);
         xcbt_embed_glib_set_timer(pe, -1);
-        free(eg);
       }
+      free(eg);
     }
   }
 }
@@ -1294,4 +1294,62 @@ xcbt_embed *xcbt_embed_glib(){
   return &eg->embed;
 }
 
+///////////////////////////////////
+//
+// onIdle embedding
 
+typedef struct {
+  xcbt_embed embed;
+
+  xcbt x;
+} _xcbt_embed_idle;
+
+
+void xcbt_embed_idle_cb(xcbt_embed *pe){
+  _xcbt_embed_idle *ei = (_xcbt_embed_idle *)pe;
+  if(ei)
+    xcbt_process(ei->x);
+}
+
+static int xcbt_embed_idle_set_timer(xcbt_embed *pe, int msec){
+  return 1;
+}
+
+static int xcbt_embed_idle_watch(xcbt_embed *pe, int fd){
+  return 1;
+}
+
+static void xcbt_embed_idle_dtor(xcbt_embed *pe){
+  _xcbt_embed_idle *ei = (_xcbt_embed_idle *)pe;
+  if(ei){
+    if(ei->x){
+      TRACE("XCBT:BUG: embed is still in use\n");
+    } else {
+      free(ei);
+    }
+  }
+}
+
+static int xcbt_embed_idle_set_x(xcbt_embed *pe, xcbt x){
+  _xcbt_embed_idle *ei = (_xcbt_embed_idle *)pe;
+  if(ei){
+    if(!ei->x){
+      ei->x = x;
+      return 1;
+    } else if(!x){
+      ei->x = NULL;
+    } else {
+      TRACE("XCBT:BUG: embed is in use by other X\n");
+    }
+  }
+  return 0;
+}
+
+xcbt_embed *xcbt_embed_idle(){
+  _xcbt_embed_idle *ei = (_xcbt_embed_idle *)calloc(1, sizeof(*ei));
+  ei->embed.dtor = xcbt_embed_idle_dtor;
+  ei->embed.set_x = xcbt_embed_idle_set_x;
+  ei->embed.set_timer = xcbt_embed_idle_set_timer;
+  ei->embed.watch = xcbt_embed_idle_watch;
+  return &ei->embed;
+}
