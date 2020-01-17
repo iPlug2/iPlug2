@@ -1364,10 +1364,10 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
 
   switch ( text.mAlign )
   {
-    case EAlign::Near:   editStyle = ES_LEFT;   break;
-    case EAlign::Far:    editStyle = ES_RIGHT;  break;
+    case EAlign::Near:    editStyle = ES_LEFT;   break;
+    case EAlign::Far:     editStyle = ES_RIGHT;  break;
     case EAlign::Center:
-    default:                  editStyle = ES_CENTER; break;
+    default:              editStyle = ES_CENTER; break;
   }
 
   double scale = GetDrawScale() * GetScreenScale();
