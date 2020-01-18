@@ -179,7 +179,7 @@ protected:
     if (!g.CheckLayer(mShadowLayer))
     {
       g.StartLayer(this, mBubbleRect);
-      g.FillRoundRect(COLOR_BLACK, r, mRoundness);
+      g.FillRoundRect(COLOR_BLACK, mBubbleRect, mRoundness);
       mShadowLayer = g.EndLayer();
       g.ApplyLayerDropShadow(mShadowLayer, IShadow(COLOR_BLACK_DROP_SHADOW, 20.0, 0.0, yDrop, 1.0, true));
     }
