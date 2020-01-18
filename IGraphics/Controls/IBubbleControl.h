@@ -21,7 +21,7 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-/**
+/** A special control to draw contextual info as a slider etc is moved
  * If used in the main IControl stack, you probably want it to be the very last control that is added, so that it gets drawn on top.
  * @ingroup SpecialControls */
 class IBubbleControl : public IControl
@@ -45,8 +45,10 @@ public:
   };
 
   /** Create a new IBubbleControl */
-  IBubbleControl(const IText& text)
+  IBubbleControl(const IText& text = DEFAULT_TEXT.WithAlign(EAlign::Center), const IColor& fillColor = COLOR_WHITE, const IColor& strokeColor = COLOR_BLACK)
   : IControl(IRECT())
+  , mFillColor(fillColor)
+  , mStrokeColor(strokeColor)
   {
     mText = text;
     mHide = true;
@@ -63,9 +65,18 @@ public:
         }
         else if(mState == kExpanded)
         {
-          mBlend.mWeight = mOpacity;
-          mState = kCollapsing;
-          SetDirty(true); // triggers animation again
+          if(GetUI()->GetCapturedControl() == mPrevControl)
+          {
+            mState = kExpanded;
+            SetDirty(true); // triggers animation again
+          }
+          else
+          {
+            mBlend.mWeight = mOpacity;
+            mState = kCollapsing;
+            SetDirty(true); // triggers animation again
+          }
+            
           return; // don't remove animation
         }
         else if(mState == kCollapsing)
@@ -104,10 +115,9 @@ public:
   {
   }
 
-  //IControl
   void Draw(IGraphics& g) override
   {
-    //DrawDropShadow(g);
+    DrawDropShadow(g);
 
     IRECT r = mRECT.GetPadded(-mDropShadowSize);
     g.PathMoveTo(r.L, r.T + mRoundness);
@@ -120,8 +130,8 @@ public:
     g.PathLineTo(r.L, r.MH() - mCalloutSize/2.f);
     g.PathClose();
 
-    g.PathFill(COLOR_WHITE, true, &mBlend);
-    g.PathStroke(COLOR_BLACK, 2.f, IStrokeOptions(), &mBlend);
+    g.PathFill(mFillColor, true, &mBlend);
+    g.PathStroke(mStrokeColor, mStrokeThickness, IStrokeOptions(), &mBlend);
     g.DrawText(mText, mStr.Get(), r, &mBlend);
   }
   
@@ -160,14 +170,24 @@ public:
   #endif
   }
 
-  void ShowBubble(IControl* pCaller, float x, float y, const char* str)
+  void ShowBubble(IControl* pCaller, float x, float y, const char* str, IRECT minimumContentBounds)
   {
     mStr.Set(str);
-    IRECT strBounds;
-    GetUI()->MeasureText(mText, "100.00%", strBounds);
-    strBounds.Pad(mDropShadowSize + 5.f);
-    float halfHeight = strBounds.H() / 2.f;
-    mRECT = IRECT(x, y - halfHeight, x + strBounds.W(), y + halfHeight);
+    IRECT contentBounds;
+    GetUI()->MeasureText(mText, str, contentBounds);
+    
+    if (!minimumContentBounds.Empty())
+    {
+      if(minimumContentBounds.W() > contentBounds.W() || minimumContentBounds.H() > contentBounds.H())
+      {
+        contentBounds = minimumContentBounds;
+      }
+    }
+    
+    contentBounds.HPad(mHorizontalPadding);
+    contentBounds.Pad(mDropShadowSize);
+    const float halfHeight = contentBounds.H() / 2.f;
+    mRECT = IRECT(x, y - halfHeight, x + contentBounds.W(), y + halfHeight);
 
     if(mState == kCollapsed)
     {
@@ -175,9 +195,19 @@ public:
       mState = kExpanding;
       SetDirty(true);
     }
+    else
+    {
+      if(pCaller != mPrevControl)
+      {
+        GetUI()->SetAllControlsDirty();
+      }
+    }
+    
+    mPrevControl = pCaller;
   }
   
 protected:
+  IControl* mPrevControl = nullptr;
   #ifndef IGRAPHICS_NANOVG
   ILayerPtr mShadowLayer;
   #endif
@@ -187,6 +217,10 @@ protected:
   float mDropShadowSize = 10.f; // The size in pixels of the drop shadow
   float mCalloutSize = 10.f;
   float mOpacity = 0.95f; // The opacity of the menu panel backgrounds when fully faded in
+  float mStrokeThickness = 2.f;
+  float mHorizontalPadding = 5.f;
+  IColor mFillColor = COLOR_WHITE;
+  IColor mStrokeColor = COLOR_BLACK;
   EPopupState mState = kCollapsed; // The state of the pop-up, mainly used for animation
 };
 

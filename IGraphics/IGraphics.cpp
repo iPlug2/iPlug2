@@ -253,6 +253,17 @@ void IGraphics::AttachBubbleControl(const IText& text)
   }
 }
 
+void IGraphics::AttachBubbleControl(IBubbleControl* pControl)
+{
+  std::unique_ptr<IBubbleControl> control(pControl);
+
+  if (!mBubbleControl)
+  {
+    mBubbleControl.swap(control);
+    mBubbleControl->SetDelegate(*GetDelegate());
+  }
+}
+
 void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
 {
   if (!mPopupControl)
@@ -271,11 +282,13 @@ void IGraphics::AttachTextEntryControl()
   }
 }
 
-void IGraphics::ShowBubbleControl(IControl* pCaller, float x, float y, const char* str)
+void IGraphics::ShowBubbleControl(IControl* pCaller, float x, float y, const char* str, IRECT minimumContentBounds)
 {
+  assert(mBubbleControl && "No bubble control attached");
+  
   if(mBubbleControl)
   {
-    mBubbleControl->ShowBubble(pCaller, x, y, str);
+    mBubbleControl->ShowBubble(pCaller, x, y, str, minimumContentBounds);
   }
 }
 

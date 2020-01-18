@@ -1179,12 +1179,15 @@ public:
    @param text The text style to use for the menu
    @param bounds The area that the menu should occupy /todo check */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
-
+  
   /** Attach the default control to show text as a control changes*/
   void AttachBubbleControl(const IText& text = DEFAULT_TEXT);
+
+  /** Attach a custom control to show text as a control changes*/
+  void AttachBubbleControl(IBubbleControl* pControl);
   
-  /* /todo */
-  void ShowBubbleControl(IControl* pCaller, float x, float y, const char* str);
+  /* Called by controls to display text in the bubble control */
+  void ShowBubbleControl(IControl* pCaller, float x, float y, const char* str, IRECT minimumContentBounds = IRECT());
 
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */

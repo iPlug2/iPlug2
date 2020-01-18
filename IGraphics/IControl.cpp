@@ -70,10 +70,12 @@ void SplashClickActionFunc(IControl* pCaller)
 
 void ShowBubbleActionFunc(IControl* pCaller)
 {
+  IGraphics* pGraphics = pCaller->GetUI();
+  const IParam* pParam = pCaller->GetParam();
   IRECT bounds = pCaller->GetRECT();
   WDL_String display;
-  pCaller->GetParam()->GetDisplayForHostWithLabel(display);
-  pCaller->GetUI()->ShowBubbleControl(pCaller, bounds.R, bounds.MH(), display.Get());
+  pParam->GetDisplayForHostWithLabel(display);
+  pGraphics->ShowBubbleControl(pCaller, bounds.R, bounds.MH(), display.Get(), IRECT(0,0,50,30));
 }
 
 END_IGRAPHICS_NAMESPACE
