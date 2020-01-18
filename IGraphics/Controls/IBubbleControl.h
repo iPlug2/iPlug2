@@ -119,7 +119,7 @@ public:
   {
     IRECT r = mBubbleRect.GetPadded(-mDropShadowSize);
 
-    DrawDropShadow(g, r);
+    DrawDropShadow(g, r); // TODO: currently too slow with !nanovg
     DrawBubble(g, r);
     DrawContent(g, r);
   }
@@ -176,14 +176,14 @@ protected:
     nvgFill(vg);
     nvgBeginPath(vg); // Clear the paths
   #else
-    if (!g.CheckLayer(mShadowLayer))
-    {
-      g.StartLayer(this, mBubbleRect);
-      g.FillRoundRect(COLOR_BLACK, mBubbleRect, mRoundness);
-      mShadowLayer = g.EndLayer();
-      g.ApplyLayerDropShadow(mShadowLayer, IShadow(COLOR_BLACK_DROP_SHADOW, 20.0, 0.0, yDrop, 1.0, true));
-    }
-    g.DrawLayer(mShadowLayer, &mBlend);
+//    if (!g.CheckLayer(mShadowLayer))
+//    {
+//      g.StartLayer(this, mBubbleRect);
+//      g.FillRoundRect(COLOR_BLACK, r, mRoundness);
+//      mShadowLayer = g.EndLayer();
+//      g.ApplyLayerDropShadow(mShadowLayer, IShadow(COLOR_BLACK_DROP_SHADOW, 20.0, 0.0, yDrop, 1.0, true));
+//    }
+//    g.DrawLayer(mShadowLayer, &mBlend);
   #endif
   }
 
@@ -207,6 +207,11 @@ protected:
     mBubbleRect = IRECT(x, y - halfHeight, x + contentBounds.W(), y + halfHeight);
     
     SetRECT(mRECT.Union(mBubbleRect));
+
+//    #ifndef IGRAPHICS_NANOVG
+//    if(mShadowLayer)
+//      mShadowLayer->Invalidate();
+//    #endif
     
     if(mState == kCollapsed)
     {
@@ -226,12 +231,12 @@ protected:
   
 protected:
   friend class IGraphics;
-
+  
   IRECT mBubbleRect;
   IControl* mCaller = nullptr;
-  #ifndef IGRAPHICS_NANOVG
-  ILayerPtr mShadowLayer;
-  #endif
+//  #ifndef IGRAPHICS_NANOVG
+//  ILayerPtr mShadowLayer;
+//  #endif
   WDL_String mStr;
   IBlend mBlend = { EBlend::Default, 0.f }; // blend for sub panels appearing
   float mRoundness = 5.f; // The roundness of the corners of the menu panel backgrounds
