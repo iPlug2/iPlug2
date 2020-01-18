@@ -56,6 +56,7 @@ void DefaultClickActionFunc(IControl* pCaller);
 void DefaultAnimationFunc(IControl* pCaller);
 void SplashClickActionFunc(IControl* pCaller);
 void SplashAnimationFunc(IControl* pCaller);
+void ShowBubbleActionFunc(IControl* pCaller);
 
 using MTLTexturePtr = void*;
 
