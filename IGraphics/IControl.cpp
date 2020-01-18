@@ -75,7 +75,7 @@ void ShowBubbleActionFunc(IControl* pCaller)
   IRECT bounds = pCaller->GetRECT();
   WDL_String display;
   pParam->GetDisplayForHostWithLabel(display);
-  pGraphics->ShowBubbleControl(pCaller, bounds.R, bounds.MH(), display.Get());
+  pGraphics->ShowBubbleControl(pCaller, bounds.R, bounds.MH(), display.Get(), IRECT(0,0,50,30));
 }
 
 END_IGRAPHICS_NAMESPACE
