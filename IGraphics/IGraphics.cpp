@@ -282,13 +282,13 @@ void IGraphics::AttachTextEntryControl()
   }
 }
 
-void IGraphics::ShowBubbleControl(IControl* pCaller, float x, float y, const char* str, IRECT minimumContentBounds)
+void IGraphics::ShowBubbleControl(IControl* pCaller, float x, float y, const char* str, EDirection dir, IRECT minimumContentBounds)
 {
   assert(mBubbleControl && "No bubble control attached");
   
   if(mBubbleControl)
   {
-    mBubbleControl->ShowBubble(pCaller, x, y, str, minimumContentBounds);
+    mBubbleControl->ShowBubble(pCaller, x, y, str, dir, minimumContentBounds);
   }
 }
 

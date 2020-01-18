@@ -33,9 +33,7 @@ BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 void DefaultAnimationFunc(IControl* pCaller)
 {
-  auto progress = pCaller->GetAnimationProgress();
-  
-  if(progress > 1.)
+  if(pCaller->GetAnimationProgress() > 1.)
   {
     pCaller->OnEndAnimation();
     return;
@@ -68,14 +66,24 @@ void SplashClickActionFunc(IControl* pCaller)
   pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION);
 }
 
-void ShowBubbleActionFunc(IControl* pCaller)
+void ShowBubbleHorizontalActionFunc(IControl* pCaller)
 {
   IGraphics* pGraphics = pCaller->GetUI();
   const IParam* pParam = pCaller->GetParam();
   IRECT bounds = pCaller->GetRECT();
   WDL_String display;
   pParam->GetDisplayForHostWithLabel(display);
-  pGraphics->ShowBubbleControl(pCaller, bounds.R, bounds.MH(), display.Get(), IRECT(0,0,50,30));
+  pGraphics->ShowBubbleControl(pCaller, bounds.R, bounds.MH(), display.Get(), EDirection::Horizontal, IRECT(0,0,50,30));
+}
+
+void ShowBubbleVerticalActionFunc(IControl* pCaller)
+{
+  IGraphics* pGraphics = pCaller->GetUI();
+  const IParam* pParam = pCaller->GetParam();
+  IRECT bounds = pCaller->GetRECT();
+  WDL_String display;
+  pParam->GetDisplayForHostWithLabel(display);
+  pGraphics->ShowBubbleControl(pCaller, bounds.MW(), bounds.T, display.Get(), EDirection::Vertical, IRECT(0,0,50,30));
 }
 
 END_IGRAPHICS_NAMESPACE

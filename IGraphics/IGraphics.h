@@ -124,8 +124,9 @@ public:
   /** Draw a bitmap (raster) image to the graphics context, scaling the image to fit the bounds
    * @param bitmap The bitmap image to draw to the graphics context
    * @param bounds The rectangular region to draw the image in
+   * @param keepDimensions Should the bitmap be stretched to fill bounds, or should it maintain it's aspect
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
+  virtual void DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, bool keepDimensions = false, const IBlend* pBlend = 0) = 0;
   
   /** Draw a bitmap (raster) image to the graphics context with rotation
    * @param bitmap The bitmap image to draw to the graphics context
@@ -1187,7 +1188,7 @@ public:
   void AttachBubbleControl(IBubbleControl* pControl);
   
   /* Called by controls to display text in the bubble control */
-  void ShowBubbleControl(IControl* pCaller, float x, float y, const char* str, IRECT minimumContentBounds = IRECT());
+  void ShowBubbleControl(IControl* pCaller, float x, float y, const char* str, EDirection dir = EDirection::Horizontal, IRECT minimumContentBounds = IRECT());
 
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */
@@ -1239,6 +1240,9 @@ public:
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
 
+  /** Remove control from the control list */
+  void RemoveControl(IControl* pControl);
+  
   /** Remove controls from the control list with a particular tag.  */
   void RemoveControlWithTag(int ctrlTag);
   

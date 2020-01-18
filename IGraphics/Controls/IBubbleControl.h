@@ -46,12 +46,10 @@ public:
 
   /** Create a new IBubbleControl
    * @param text The IText style to use for the readout
-   * @param dir Whether the bubble should bubble out horizontally or vertically
    * @param fillColor The background color of the bubble
    * @param strokeColor The stroke color of the bubble */
-  IBubbleControl(const IText& text = DEFAULT_TEXT.WithAlign(EAlign::Center), EDirection dir = EDirection::Horizontal, const IColor& fillColor = COLOR_WHITE, const IColor& strokeColor = COLOR_BLACK)
+  IBubbleControl(const IText& text = DEFAULT_TEXT.WithAlign(EAlign::Center), const IColor& fillColor = COLOR_WHITE, const IColor& strokeColor = COLOR_BLACK)
   : IControl(IRECT())
-  , mDirection(dir)
   , mFillColor(fillColor)
   , mStrokeColor(strokeColor)
   {
@@ -149,54 +147,47 @@ protected:
   virtual void DrawBubble(IGraphics& g, const IRECT& r)
   {
     float halfCalloutSize = mCalloutSize/2.f;
+    
+    g.PathMoveTo(r.L, r.T + mRoundness);
+    g.PathArc(r.L + mRoundness, r.T + mRoundness, mRoundness, 270.f, 360.f);
+
     if(mArrowDir == kWest)
     {
-      g.PathMoveTo(r.L, r.T + mRoundness);
-      g.PathArc(r.L + mRoundness, r.T + mRoundness, mRoundness, 270.f, 360.f);
       g.PathArc(r.R - mRoundness, r.T + mRoundness, mRoundness, 0.f, 90.f);
       g.PathArc(r.R - mRoundness, r.B - mRoundness, mRoundness, 90.f, 180.f);
       g.PathArc(r.L + mRoundness, r.B - mRoundness, mRoundness, 180.f, 270.f);
       g.PathLineTo(r.L, r.MH() + halfCalloutSize);
       g.PathLineTo(r.L - mCalloutSize, r.MH());
       g.PathLineTo(r.L, r.MH() - halfCalloutSize);
-      g.PathClose();
     }
     else if(mArrowDir == kEast)
     {
-      g.PathMoveTo(r.L, r.T + mRoundness);
-      g.PathArc(r.L + mRoundness, r.T + mRoundness, mRoundness, 270.f, 360.f);
       g.PathArc(r.R - mRoundness, r.T + mRoundness, mRoundness, 0.f, 90.f);
       g.PathLineTo(r.R, r.MH() - halfCalloutSize);
       g.PathLineTo(r.R + mCalloutSize, r.MH());
       g.PathLineTo(r.R, r.MH() + halfCalloutSize);
       g.PathArc(r.R - mRoundness, r.B - mRoundness, mRoundness, 90.f, 180.f);
       g.PathArc(r.L + mRoundness, r.B - mRoundness, mRoundness, 180.f, 270.f);
-      g.PathClose();
     }
     else if(mArrowDir == kNorth)
     {
-      g.PathMoveTo(r.L, r.T + mRoundness);
-      g.PathArc(r.L + mRoundness, r.T + mRoundness, mRoundness, 270.f, 360.f);
       g.PathLineTo(r.MW() - halfCalloutSize, r.T);
       g.PathLineTo(r.MW(), r.T - mCalloutSize);
       g.PathLineTo(r.MW() + halfCalloutSize, r.T);
       g.PathArc(r.R - mRoundness, r.T + mRoundness, mRoundness, 0.f, 90.f);
       g.PathArc(r.R - mRoundness, r.B - mRoundness, mRoundness, 90.f, 180.f);
       g.PathArc(r.L + mRoundness, r.B - mRoundness, mRoundness, 180.f, 270.f);
-      g.PathClose();
     }
     else if(mArrowDir == kSouth)
     {
-      g.PathMoveTo(r.L, r.T + mRoundness);
-      g.PathArc(r.L + mRoundness, r.T + mRoundness, mRoundness, 270.f, 360.f);
       g.PathArc(r.R - mRoundness, r.T + mRoundness, mRoundness, 0.f, 90.f);
       g.PathArc(r.R - mRoundness, r.B - mRoundness, mRoundness, 90.f, 180.f);
       g.PathLineTo(r.MW() + halfCalloutSize, r.B);
       g.PathLineTo(r.MW(), r.B + mCalloutSize);
       g.PathLineTo(r.MW() - halfCalloutSize, r.B);
       g.PathArc(r.L + mRoundness, r.B - mRoundness, mRoundness, 180.f, 270.f);
-      g.PathClose();
     }
+    g.PathClose();
 
     g.PathFill(mFillColor, true, &mBlend);
     g.PathStroke(mStrokeColor, mStrokeThickness, IStrokeOptions(), &mBlend);
@@ -236,11 +227,12 @@ protected:
   #endif
   }
 
-  void ShowBubble(IControl* pCaller, float x, float y, const char* str, IRECT minimumContentBounds)
+  void ShowBubble(IControl* pCaller, float x, float y, const char* str, EDirection dir, IRECT minimumContentBounds)
   {
     if(mMaxBounds.W() == 0)
       mMaxBounds = GetUI()->GetBounds();
     
+    mDirection = dir;
     mStr.Set(str);
     IRECT contentBounds;
     GetUI()->MeasureText(mText, str, contentBounds);

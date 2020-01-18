@@ -51,12 +51,26 @@ using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
 using IDisplayTickFunc = std::function<void()>;
 
+/** A click action function that does nothing */
 void EmptyClickActionFunc(IControl* pCaller);
+
+/** A click action function that triggers the default animation function for DEFAULT_ANIMATION_DURATION */
 void DefaultClickActionFunc(IControl* pCaller);
+
+/** An animation function that just calls the caller control's OnEndAnimation() method at the end of the animation  */
 void DefaultAnimationFunc(IControl* pCaller);
+
+/** The splash click action function is used by IVControls to start SplashAnimationFunc */
 void SplashClickActionFunc(IControl* pCaller);
+
+/** The splash animation function is used by IVControls to animate the splash */
 void SplashAnimationFunc(IControl* pCaller);
-void ShowBubbleActionFunc(IControl* pCaller);
+
+/** Use with a param-linked control to popup the bubble control horizontally */
+void ShowBubbleHorizontalActionFunc(IControl* pCaller);
+
+/** Use with a param-linked control to popup the bubble control vertically */
+void ShowBubbleVerticalActionFunc(IControl* pCaller);
 
 using MTLTexturePtr = void*;
 
