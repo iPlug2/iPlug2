@@ -68,7 +68,7 @@ public:
         }
         else if(mState == kExpanded)
         {
-          if(GetUI()->GetCapturedControl() == mCaller)
+          if(GetUI()->ControlIsCaptured(mCaller))
           {
             mState = kExpanded;
             SetDirty(true); // triggers animation again
