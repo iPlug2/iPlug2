@@ -102,10 +102,12 @@ struct IGraphicsSkia::Font
 // Fonts
 StaticStorage<IGraphicsSkia::Font> IGraphicsSkia::sFontCache;
 
-#pragma mark -
+#pragma mark - Utility conversions
 
-// Utility conversions
-static inline SkColor SkiaColor(const IColor& color, const IBlend* pBlend)
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+SkColor SkiaColor(const IColor& color, const IBlend* pBlend)
 {
   if (pBlend)
     return SkColorSetARGB(Clip(static_cast<int>(pBlend->mWeight * color.A), 0, 255), color.R, color.G, color.B);
@@ -113,12 +115,12 @@ static inline SkColor SkiaColor(const IColor& color, const IBlend* pBlend)
     return SkColorSetARGB(color.A, color.R, color.G, color.B);
 }
 
-static inline SkRect SkiaRect(const IRECT& r)
+SkRect SkiaRect(const IRECT& r)
 {
   return SkRect::MakeLTRB(r.L, r.T, r.R, r.B);
 }
 
-static inline SkBlendMode SkiaBlendMode(const IBlend* pBlend)
+SkBlendMode SkiaBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
     return SkBlendMode::kSrcOver;
@@ -142,7 +144,7 @@ static inline SkBlendMode SkiaBlendMode(const IBlend* pBlend)
   return SkBlendMode::kClear;
 }
 
-static inline SkTileMode SkiaTileMode(const IPattern& pattern)
+SkTileMode SkiaTileMode(const IPattern& pattern)
 {
   switch (pattern.mExtend)
   {
@@ -155,7 +157,7 @@ static inline SkTileMode SkiaTileMode(const IPattern& pattern)
   return SkTileMode::kClamp;
 }
 
-static SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
+SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
 {
   SkPaint paint;
   paint.setAntiAlias(true);
@@ -209,6 +211,9 @@ static SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
     
   return paint;
 }
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 #pragma mark -
 

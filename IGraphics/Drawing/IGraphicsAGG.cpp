@@ -76,13 +76,15 @@ static const bool textKerning = true;
 static StaticStorage<IFontData> sFontCache;
 
 #pragma mark - Utilites
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
-static inline const agg::rgba8 AGGColor(const IColor& color, float opacity)
+agg::rgba8 AGGColor(const IColor& color, float opacity)
 {
   return agg::rgba8(color.R, color.G, color.B, (opacity * color.A));
 }
 
-static inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
+agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
     return agg::comp_op_src_over;
@@ -104,10 +106,13 @@ static inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
   }
 }
 
-static inline agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
+agg::cover_type AGGCover(const IBlend* pBlend)
 {
   return std::max(agg::cover_type(0), std::min(agg::cover_type(roundf(BlendWeight(pBlend) * 255.f)), agg::cover_type(255)));
 }
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 template <class PixelMapType>
 static agg::pixel_map* CreatePixmap(int w, int h)
