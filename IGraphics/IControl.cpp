@@ -33,9 +33,7 @@ BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 void DefaultAnimationFunc(IControl* pCaller)
 {
-  auto progress = pCaller->GetAnimationProgress();
-  
-  if(progress > 1.)
+  if(pCaller->GetAnimationProgress() > 1.)
   {
     pCaller->OnEndAnimation();
     return;
@@ -57,7 +55,9 @@ void SplashAnimationFunc(IControl* pCaller)
 };
 
 void EmptyClickActionFunc(IControl* pCaller) { };
+
 void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
+
 void SplashClickActionFunc(IControl* pCaller)
 {
   float x, y;
@@ -65,24 +65,45 @@ void SplashClickActionFunc(IControl* pCaller)
   dynamic_cast<IVectorBase*>(pCaller)->SetSplashPoint(x, y);
   pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION);
 }
+
+void ShowBubbleHorizontalActionFunc(IControl* pCaller)
+{
+  IGraphics* pGraphics = pCaller->GetUI();
+  const IParam* pParam = pCaller->GetParam();
+  IRECT bounds = pCaller->GetRECT();
+  WDL_String display;
+  pParam->GetDisplayForHostWithLabel(display);
+  pGraphics->ShowBubbleControl(pCaller, bounds.R, bounds.MH(), display.Get(), EDirection::Horizontal, IRECT(0,0,50,30));
+}
+
+void ShowBubbleVerticalActionFunc(IControl* pCaller)
+{
+  IGraphics* pGraphics = pCaller->GetUI();
+  const IParam* pParam = pCaller->GetParam();
+  IRECT bounds = pCaller->GetRECT();
+  WDL_String display;
+  pParam->GetDisplayForHostWithLabel(display);
+  pGraphics->ShowBubbleControl(pCaller, bounds.MW(), bounds.T, display.Get(), EDirection::Vertical, IRECT(0,0,50,30));
+}
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
 using namespace iplug;
 using namespace igraphics;
 
-IControl::IControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, int paramIdx, IActionFunction aF)
 : mRECT(bounds)
 , mTargetRECT(bounds)
-, mActionFunc(actionFunc)
+, mActionFunc(aF)
 {
   mVals[0].idx = paramIdx;
 }
 
-IControl::IControl(const IRECT& bounds, const std::initializer_list<int>& params, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, const std::initializer_list<int>& params, IActionFunction aF)
 : mRECT(bounds)
 , mTargetRECT(bounds)
-, mActionFunc(actionFunc)
+, mActionFunc(aF)
 {
   mVals.clear();
   for (auto& paramIdx : params) {
@@ -90,10 +111,10 @@ IControl::IControl(const IRECT& bounds, const std::initializer_list<int>& params
   }
 }
 
-IControl::IControl(const IRECT& bounds, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, IActionFunction aF)
 : mRECT(bounds)
 , mTargetRECT(bounds)
-, mActionFunc(actionFunc)
+, mActionFunc(aF)
 {
 }
 
@@ -656,9 +677,10 @@ void PlaceHolder::OnResize()
   mHeightStr.SetFormatted(32, "%0.1f", mRECT.H());
 }
 
-IButtonControlBase::IButtonControlBase(const IRECT& bounds, IActionFunction actionFunc)
-: IControl(bounds, kNoParameter, actionFunc)
+IButtonControlBase::IButtonControlBase(const IRECT& bounds, IActionFunction aF)
+: IControl(bounds, kNoParameter, aF)
 {
+  mDblAsSingleClick = true;
 }
 
 void IButtonControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -673,12 +695,12 @@ void IButtonControlBase::OnEndAnimation()
   IControl::OnEndAnimation();
 }
 
-ISwitchControlBase::ISwitchControlBase(const IRECT& bounds, int paramIdx, IActionFunction actionFunc,
-  int numStates)
-  : IControl(bounds, paramIdx, actionFunc)
-  , mNumStates(numStates)
+ISwitchControlBase::ISwitchControlBase(const IRECT& bounds, int paramIdx, IActionFunction aF, int numStates)
+: IControl(bounds, paramIdx, aF)
+, mNumStates(numStates)
 {
   assert(mNumStates > 1);
+  mDblAsSingleClick = true;
 }
 
 void ISwitchControlBase::OnInit()
@@ -729,11 +751,13 @@ bool IKnobControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
   double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
+  
+  IRECT dragBounds = GetKnobDragBounds();
 
   if (mDirection == EDirection::Vertical)
-    SetValue(GetValue() + (double)dY / (double)(mActiveArea.T - mActiveArea.B) / gearing);
+    SetValue(GetValue() + (double)dY / (double)(dragBounds.T - dragBounds.B) / gearing);
   else
-    SetValue(GetValue() + (double)dX / (double)(mActiveArea.R - mActiveArea.L) / gearing);
+    SetValue(GetValue() + (double)dX / (double)(dragBounds.R - dragBounds.L) / gearing);
 
   SetDirty();
 }

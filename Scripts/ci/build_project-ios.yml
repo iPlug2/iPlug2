@@ -44,7 +44,7 @@ steps:
         cd ./${{parameters.path}}/${{parameters.name}}/config
         sed -i.bu 's/IGRAPHICS_NANOVG/IGRAPHICS_SKIA/' ${{parameters.name}}-ios.xcconfig
         sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{parameters.name}}-ios.xcconfig
-        sed -i.bu 's/ENABLE_BITCODE = YES/ENABLE_BITCODE = NO/' ${{parameters.name}}-ios.xcconfig
+        # sed -i.bu 's/ENABLE_BITCODE = YES/ENABLE_BITCODE = NO/' ${{parameters.name}}-ios.xcconfig
       fi
     displayName: Set graphics string to ${{parameters.graphics}}
 

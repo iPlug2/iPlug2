@@ -133,8 +133,8 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
         case 0:
         {
           static IPopupMenu menu {"Test", {"DrawRect", "FillRect", "DrawRoundRect", "FillRoundRect", "DrawEllipse", "FillEllipse", "DrawArc", "FillArc", "DrawLine", "DrawDottedLine", "DrawFittedBitmap", "DrawSVG"},
-            [DoFunc](int indexInMenu, IPopupMenu::Item* itemChosen) {
-              DoFunc(EFunc::Set, indexInMenu);
+            [DoFunc](IPopupMenu* pMenu) {
+              DoFunc(EFunc::Set, pMenu->GetChosenItemIdx());
             }};
           
           pGraphics->CreatePopupMenu(*pCaller, menu, pCaller->GetRECT());

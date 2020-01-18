@@ -74,7 +74,7 @@ class IPopupMenuControl;
 class ITextEntryControl;
 class ICornerResizerControl;
 class IFPSDisplayControl;
-
+class IBubbleControl;
 
 /**  The lowest level base class of an IGraphics context */
 class IGraphics
@@ -124,8 +124,9 @@ public:
   /** Draw a bitmap (raster) image to the graphics context, scaling the image to fit the bounds
    * @param bitmap The bitmap image to draw to the graphics context
    * @param bounds The rectangular region to draw the image in
+   * @param keepDimensions Should the bitmap be stretched to fill bounds, or should it maintain it's aspect
    * @param pBlend Optional blend method, see IBlend documentation */
-  virtual void DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
+  virtual void DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, bool keepDimensions = false, const IBlend* pBlend = 0) = 0;
   
   /** Draw a bitmap (raster) image to the graphics context with rotation
    * @param bitmap The bitmap image to draw to the graphics context
@@ -1202,6 +1203,15 @@ public:
    @param text The text style to use for the menu
    @param bounds The area that the menu should occupy /todo check */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
+  
+  /** Attach the default control to show text as a control changes*/
+  void AttachBubbleControl(const IText& text = DEFAULT_TEXT);
+
+  /** Attach a custom control to show text as a control changes*/
+  void AttachBubbleControl(IBubbleControl* pControl);
+  
+  /* Called by controls to display text in the bubble control */
+  void ShowBubbleControl(IControl* pCaller, float x, float y, const char* str, EDirection dir = EDirection::Horizontal, IRECT minimumContentBounds = IRECT());
 
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */
@@ -1259,6 +1269,9 @@ public:
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
 
+  /** Remove control from the control list */
+  void RemoveControl(IControl* pControl);
+  
   /** Remove controls from the control list with a particular tag.  */
   void RemoveControlWithTag(int ctrlTag);
   
@@ -1548,6 +1561,7 @@ private:
 
   // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
   std::unique_ptr<ICornerResizerControl> mCornerResizer;
+  std::unique_ptr<IBubbleControl> mBubbleControl;
   std::unique_ptr<IPopupMenuControl> mPopupControl;
   std::unique_ptr<IFPSDisplayControl> mPerfDisplay;
   std::unique_ptr<ITextEntryControl> mTextEntryControl;

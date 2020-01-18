@@ -31,8 +31,8 @@
 		4FA61F8B22E89B3700A92C58 /* IGraphicsEditorDelegate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */; };
 		4FA61F8C22E89B3700A92C58 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6369E520A466320022C370 /* IControl.cpp */; };
 		4FA61F8D22E89B4300A92C58 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D6A2267CDBE0007B686 /* IGraphicsCoreText.mm */; };
-		4FA61F8E22E89B4300A92C58 /* IGraphicsIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F63698E20A463AF0022C370 /* IGraphicsIOS.mm */; };
-		4FA61F8F22E89B4300A92C58 /* IGraphicsIOS_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F63699120A463AF0022C370 /* IGraphicsIOS_view.mm */; };
+		4FA61F8E22E89B4300A92C58 /* IGraphicsIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F63698E20A463AF0022C370 /* IGraphicsIOS.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4FA61F8F22E89B4300A92C58 /* IGraphicsIOS_view.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F63699120A463AF0022C370 /* IGraphicsIOS_view.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FA61F9022E8A1F500A92C58 /* IGraphics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F63699420A463AF0022C370 /* IGraphics.cpp */; };
 		4FA61F9122E8A2A700A92C58 /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F8D7DCB224AE821002A1A2A /* IGraphicsNanoVG_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FA61F9222E8A2B500A92C58 /* IGraphicsStressTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF108720A1036200D3092F /* IGraphicsStressTest.cpp */; };
