@@ -65,7 +65,7 @@ public:
         }
         else if(mState == kExpanded)
         {
-          if(GetUI()->GetCapturedControl() == mPrevControl)
+          if(GetUI()->GetCapturedControl() == mCaller)
           {
             mState = kExpanded;
             SetDirty(true); // triggers animation again
@@ -114,12 +114,31 @@ public:
   virtual ~IBubbleControl()
   {
   }
-
+  
   void Draw(IGraphics& g) override
   {
-    DrawDropShadow(g);
+    IRECT r = mBubbleRect.GetPadded(-mDropShadowSize);
 
-    IRECT r = mRECT.GetPadded(-mDropShadowSize);
+    DrawDropShadow(g, r);
+    DrawBubble(g, r);
+    DrawContent(g, r);
+  }
+  
+  void ResetBounds()
+  {
+    SetTargetAndDrawRECTs(IRECT());
+    mBubbleRect = mRECT;
+    mCaller = nullptr;
+  }
+  
+protected:
+  virtual void DrawContent(IGraphics& g, const IRECT& r)
+  {
+    g.DrawText(mText, mStr.Get(), r, &mBlend);
+  }
+  
+  virtual void DrawBubble(IGraphics& g, const IRECT& r)
+  {
     g.PathMoveTo(r.L, r.T + mRoundness);
     g.PathArc(r.L + mRoundness, r.T + mRoundness, mRoundness, 270.f, 360.f);
     g.PathArc(r.R - mRoundness, r.T + mRoundness, mRoundness, 0.f, 90.f);
@@ -132,13 +151,11 @@ public:
 
     g.PathFill(mFillColor, true, &mBlend);
     g.PathStroke(mStrokeColor, mStrokeThickness, IStrokeOptions(), &mBlend);
-    g.DrawText(mText, mStr.Get(), r, &mBlend);
   }
   
-  void DrawDropShadow(IGraphics& g)
+  void DrawDropShadow(IGraphics& g, const IRECT& r)
   {
     const float yDrop = 2.0;
-    IRECT inner = mRECT.GetPadded(-mDropShadowSize);
 
   #ifdef IGRAPHICS_NANOVG
     auto NanoVGColor = [](const IColor& color, const IBlend* pBlend = nullptr) {
@@ -151,9 +168,9 @@ public:
     };
 
     NVGcontext* vg = (NVGcontext*) g.GetDrawContext();
-    NVGpaint shadowPaint = nvgBoxGradient(vg, inner.L, inner.T + yDrop, inner.W(), inner.H(), mRoundness * 2.f, 20.f, NanoVGColor(COLOR_BLACK_DROP_SHADOW, &mBlend), NanoVGColor(COLOR_TRANSPARENT));
+    NVGpaint shadowPaint = nvgBoxGradient(vg, r.L, r.T + yDrop, r.W(), r.H(), mRoundness * 2.f, 20.f, NanoVGColor(COLOR_BLACK_DROP_SHADOW, &mBlend), NanoVGColor(COLOR_TRANSPARENT));
     nvgBeginPath(vg);
-    nvgRect(vg, mRECT.L, mRECT.T, mRECT.W(), mRECT.H());
+    nvgRect(vg, mBubbleRect.L, mBubbleRect.T, mBubbleRect.W(), mBubbleRect.H());
     nvgFillPaint(vg, shadowPaint);
     nvgGlobalCompositeOperation(vg, NVG_SOURCE_OVER);
     nvgFill(vg);
@@ -161,8 +178,8 @@ public:
   #else
     if (!g.CheckLayer(mShadowLayer))
     {
-      g.StartLayer(this, mRECT);
-      g.FillRoundRect(COLOR_BLACK, inner, mRoundness);
+      g.StartLayer(this, mBubbleRect);
+      g.FillRoundRect(COLOR_BLACK, r, mRoundness);
       mShadowLayer = g.EndLayer();
       g.ApplyLayerDropShadow(mShadowLayer, IShadow(COLOR_BLACK_DROP_SHADOW, 20.0, 0.0, yDrop, 1.0, true));
     }
@@ -187,27 +204,31 @@ public:
     contentBounds.HPad(mHorizontalPadding);
     contentBounds.Pad(mDropShadowSize);
     const float halfHeight = contentBounds.H() / 2.f;
-    mRECT = IRECT(x, y - halfHeight, x + contentBounds.W(), y + halfHeight);
-
+    mBubbleRect = IRECT(x, y - halfHeight, x + contentBounds.W(), y + halfHeight);
+    
+    SetRECT(mRECT.Union(mBubbleRect));
+    
     if(mState == kCollapsed)
     {
       Hide(false);
       mState = kExpanding;
       SetDirty(true);
     }
-    else
+
+    if(pCaller != mCaller)
     {
-      if(pCaller != mPrevControl)
-      {
-        GetUI()->SetAllControlsDirty();
-      }
+      mRECT = mBubbleRect;
+      GetUI()->SetAllControlsDirty();
     }
     
-    mPrevControl = pCaller;
+    mCaller = pCaller;
   }
   
 protected:
-  IControl* mPrevControl = nullptr;
+  friend class IGraphics;
+
+  IRECT mBubbleRect;
+  IControl* mCaller = nullptr;
   #ifndef IGRAPHICS_NANOVG
   ILayerPtr mShadowLayer;
   #endif
