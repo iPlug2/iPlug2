@@ -1395,6 +1395,14 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM)mEditFont, 0);
   SendMessage(mParamEditWnd, EM_SETSEL, 0, -1);
 
+  if (text.mVAlign == EVAlign::Middle)
+  {
+    double size = text.mSize * scale;
+    double offset = (scaledBounds.H() - size) / 2.0;
+    RECT formatRect{0, offset, scaledBounds.W() + 1, scaledBounds.H() + 1};
+    SendMessage(mParamEditWnd, EM_SETRECT, 0, (LPARAM)&formatRect);
+  }
+
   SetFocus(mParamEditWnd);
 
   mDefEditProc = (WNDPROC) SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LONG_PTR) ParamEditProc);
