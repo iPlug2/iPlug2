@@ -98,7 +98,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     "MPSControl",
     "OpenGL",
     "Gestures",
-    "DirBrowse"
+    "FlexBox"
     };
     
     auto chooseTestControl = [&, pGraphics, testRect](int idx) {
@@ -130,21 +130,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
         case 20: pNewControl = new TestMPSControl(testRect, pGraphics->LoadBitmap(SMILEY_FN), kParamDummy); break;
         case 21: pNewControl = new TestGLControl(testRect); break;
         case 22: pNewControl = new TestGesturesControl(testRect); break;
-        case 23:
-        {
-          WDL_String path;
-          // DesktopPath(path);
-          path.Set(__FILE__);
-          path.remove_filepart();
-      #ifdef OS_WIN
-          path.Append("\\resources\\img\\");
-      #else
-          path.Append("/resources/img/");
-      #endif
-          pNewControl = new TestDirBrowseControl(testRect, "png", path.Get());
-          break;
-        }
-        default: return;
+        case 23: pNewControl = new TestFlexBoxControl(testRect); break;
       }
       
       pGraphics->AttachControl(pNewControl, kCtrlTagTestControl);
