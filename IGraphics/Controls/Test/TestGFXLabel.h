@@ -33,14 +33,14 @@ public:
     if (!g.CheckLayer(mLayer))
     {
       g.StartLayer(this, mRECT);
-#ifdef IGRAPHICS_NANOVG
-      static IText text {14, COLOR_WHITE, "Roboto-Regular", EAlign::Center, EVAlign::Middle, 0};
-#else
-      static IText text {24, COLOR_WHITE, "Roboto-Regular", EAlign::Center, EVAlign::Middle, 0};
-#endif
+//#ifdef IGRAPHICS_NANOVG
+//      static IText text {14, COLOR_WHITE, "Roboto-Regular", EAlign::Center, EVAlign::Middle, 0};
+//#else
+      static IText text {34, COLOR_WHITE, "Roboto-Regular", EAlign::Center, EVAlign::Top, 0};
+//#endif
       IRECT r = mRECT;
       g.MeasureText(text, g.GetDrawingAPIStr(), r);
-      r.Pad(50, 0, 50, 0);
+      r.Pad(20, 0, 20, 0);
       
       g.FillRect(COLOR_BLACK, r);
       
@@ -50,7 +50,8 @@ public:
       g.ApplyLayerDropShadow(mLayer, shadow);
     }
     
-    g.DrawRotatedLayer(mLayer, 45);
+    g.DrawLayer(mLayer);
+//    g.DrawRotatedLayer(mLayer, 45);
   }
   
 private:

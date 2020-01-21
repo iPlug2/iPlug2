@@ -209,7 +209,7 @@ public:
    * @param maxVal /todo
    * @param flags /todo
    * @param group /todo */
-  void InitPitch(const char* name, int defaultVal = 60, int minVal = 0, int maxVal = 128, int flags = 0, const char* group = "");
+  void InitPitch(const char* name, int defaultVal = 60, int minVal = 0, int maxVal = 128, int flags = 0, const char* group = "", bool middleCisC4 = false);
   
   /** /todo 
    * @param name /todo

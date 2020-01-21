@@ -37,6 +37,12 @@ inline T DegToRad(T degrees)
   return static_cast<T>(iplug::PI) * (degrees / static_cast<T>(180.0));
 }
 
+template <typename T>
+inline T RadToDeg(T radians)
+{
+  return radians / static_cast<T>(iplug::PI) * static_cast<T>(180.0);
+}
+
 /** Calculate evenly distributed points on a radial line. NOTE: will crash if the nPoints and data array do not match size.
  * @param angleDegrees The angle to draw at in degrees clockwise where 0 is up
  * @param cx centre point x coordinate
@@ -57,6 +63,20 @@ static inline void RadialPoints(float angleDegrees, float cx, float cy, float rM
     data[i][0] = (cx + r * cosV);
     data[i][1] = (cy + r * sinV);
   }
+}
+
+// Return the intersection of line(p0, p1) with line(p2, p3) as a fraction of the distance along (p2, p3).
+static float GetLineCrossing(IVec2 p0, IVec2 p1, IVec2 p2, IVec2 p3)
+{
+  auto b = p2 - p0;
+  auto d = p1 - p0;
+  auto e = p3 - p2;
+  float m = d.x * e.y - d.y * e.x;
+  
+  float epsilon = 1e-8f;
+  if (std::abs(m) < epsilon)
+    return NAN;
+  return -(d.x * b.y - d.y * b.x) / m;
 }
 
 END_IGRAPHICS_NAMESPACE

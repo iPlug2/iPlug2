@@ -19,7 +19,7 @@ enum EParams
 // will use EParams in IPlugInstrument_DSP.h
 #include "IPlugInstrument_DSP.h"
 
-enum ECtrlTags
+enum EControlTags
 {
   kCtrlTagMeter = 0,
   kCtrlTagKeyboard,
@@ -41,6 +41,9 @@ public:
   void OnReset() override;
   void OnParamChange(int paramIdx) override;
   void OnIdle() override;
+  bool OnKeyDown(const IKeyPress& key) override;
+  bool OnKeyUp(const IKeyPress& key) override;
+
 private:
   IPlugInstrumentDSP<sample> mDSP {16};
   IVMeterControl<1>::Sender mMeterSender {kCtrlTagMeter};

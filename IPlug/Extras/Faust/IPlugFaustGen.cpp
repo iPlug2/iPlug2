@@ -115,6 +115,8 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 
   llvm_dsp_factory* pFactory = createDSPFactoryFromString(name.Get(), mSourceCodeStr.Get(), N, argv, GetLLVMArchStr(), error, mOptimizationLevel);
 
+  assert(pFactory);
+
   if (pFactory)
   {
     // Update all instances
@@ -383,7 +385,7 @@ bool FaustGen::Factory::LoadFile(const char* file)
     return true;
   }
   
-  assert(0); // The FAUST_BLOCK file was not found // TODO: warning about codesign
+  assert(0 && "If you hit this assert it means the faust DSP file specificed in FAUST_BLOCK file was not found. This may be due to the app's sandbox.");
   
   return false;
 }

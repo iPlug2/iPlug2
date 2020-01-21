@@ -147,7 +147,7 @@ IGraphicsNanoVG::Bitmap::~Bitmap()
 // Fonts
 static StaticStorage<IFontData> sFontCache;
 
-extern std::map<std::string, void*> gTextureMap;
+extern std::map<std::string, MTLTexturePtr> gTextureMap;
 
 // Retrieving pixels
 static void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int width, int height, void* pData)
@@ -161,7 +161,10 @@ static void nvgReadPixels(NVGcontext* pContext, int image, int x, int y, int wid
 
 #pragma mark - Utilities
 
-static inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0)
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend)
 {
   NVGcolor c;
   c.r = (float) color.R / 255.0f;
@@ -171,11 +174,11 @@ static inline NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0
   return c;
 }
 
-static inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
+void NanoVGSetBlendMode(NVGcontext* pContext, const IBlend* pBlend)
 {
   if (!pBlend)
   {
-    nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);
+    nvgGlobalCompositeOperation(pContext, NVG_SOURCE_OVER);
       return;
   }
   
@@ -183,20 +186,20 @@ static inline void NanoVGSetBlendMode(NVGcontext* context, const IBlend* pBlend)
   {
     case EBlend::Default:       // fall through
     case EBlend::Clobber:       // fall through
-    case EBlend::SourceOver:    nvgGlobalCompositeOperation(context, NVG_SOURCE_OVER);                break;
-    case EBlend::SourceIn:      nvgGlobalCompositeOperation(context, NVG_SOURCE_IN);                  break;
-    case EBlend::SourceOut:     nvgGlobalCompositeOperation(context, NVG_SOURCE_OUT);                 break;
-    case EBlend::SourceAtop:    nvgGlobalCompositeOperation(context, NVG_ATOP);                       break;
-    case EBlend::DestOver:      nvgGlobalCompositeOperation(context, NVG_DESTINATION_OVER);           break;
-    case EBlend::DestIn:        nvgGlobalCompositeOperation(context, NVG_DESTINATION_IN);             break;
-    case EBlend::DestOut:       nvgGlobalCompositeOperation(context, NVG_DESTINATION_OUT);            break;
-    case EBlend::DestAtop:      nvgGlobalCompositeOperation(context, NVG_DESTINATION_ATOP);           break;
-    case EBlend::Add:           nvgGlobalCompositeBlendFunc(context, NVG_SRC_ALPHA, NVG_DST_ALPHA);   break;
-    case EBlend::XOR:           nvgGlobalCompositeOperation(context, NVG_XOR);                        break;
+    case EBlend::SourceOver:    nvgGlobalCompositeOperation(pContext, NVG_SOURCE_OVER);                break;
+    case EBlend::SourceIn:      nvgGlobalCompositeOperation(pContext, NVG_SOURCE_IN);                  break;
+    case EBlend::SourceOut:     nvgGlobalCompositeOperation(pContext, NVG_SOURCE_OUT);                 break;
+    case EBlend::SourceAtop:    nvgGlobalCompositeOperation(pContext, NVG_ATOP);                       break;
+    case EBlend::DestOver:      nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_OVER);           break;
+    case EBlend::DestIn:        nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_IN);             break;
+    case EBlend::DestOut:       nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_OUT);            break;
+    case EBlend::DestAtop:      nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_ATOP);           break;
+    case EBlend::Add:           nvgGlobalCompositeBlendFunc(pContext, NVG_SRC_ALPHA, NVG_DST_ALPHA);   break;
+    case EBlend::XOR:           nvgGlobalCompositeOperation(pContext, NVG_XOR);                        break;
   }
 }
 
-static NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend)
+NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend)
 {
   assert(pattern.NStops() > 0);
   
@@ -220,6 +223,9 @@ static NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const
     return nvgLinearGradient(pContext, s[0], s[1], e[0], e[1], icol, ocol);
   }
 }
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 #pragma mark -
 
@@ -576,6 +582,11 @@ void IGraphicsNanoVG::PathQuadraticBezierTo(float cx, float cy, float x2, float 
   nvgQuadTo(mVG, cx, cy, x2, y2);
 }
 
+void IGraphicsNanoVG::PathSetWinding(bool clockwise)
+{
+  nvgPathWinding(mVG, clockwise ? NVG_CW : NVG_CCW);
+}
+
 IColor IGraphicsNanoVG::GetPoint(int x, int y)
 {
   return COLOR_BLACK; //TODO:
@@ -673,7 +684,22 @@ void IGraphicsNanoVG::PathStroke(const IPattern& pattern, float thickness, const
 
 void IGraphicsNanoVG::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend)
 {
-  nvgPathWinding(mVG, options.mFillRule == EFillRule::Winding ? NVG_CCW : NVG_CW);
+  switch(options.mFillRule)
+  {
+    // This concept of fill vs. even/odd winding does not really translate to nanovg.
+    // Instead the caller is responsible for settting winding correctly for each subpath
+    // based on whether it's a solid (NVG_CCW) or hole (NVG_CW).
+    case EFillRule::Winding:
+      nvgPathWinding(mVG, NVG_CCW);
+      break;
+    case EFillRule::EvenOdd:
+      nvgPathWinding(mVG, NVG_CW);
+      break;
+    case EFillRule::Preserve:
+      // don't set a winding rule for the path, to preserve individual windings on subpaths
+    default:
+      break;
+  }
   
   if (pattern.mType == EPatternType::Solid)
     nvgFillColor(mVG, NanoVGColor(pattern.GetStop(0).mColor, pBlend));

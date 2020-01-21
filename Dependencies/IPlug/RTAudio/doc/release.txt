@@ -1,6 +1,15 @@
 RtAudio - a set of C++ classes that provide a common API for realtime audio input/output across Linux (native ALSA, JACK, PulseAudio, and OSS), Macintosh OS X (CoreAudio and JACK), and Windows (DirectSound, ASIO and WASAPI) operating systems.
 
-By Gary P. Scavone, 2001-2017.
+By Gary P. Scavone, 2001-2019.
+
+v.5.1.0: (17 April 2019)
+- see git history for complete list of changes
+- many WASAPI updates (thanks to Marcus Tomlinson)
+- miscellaneous build system updates
+- bug fix for stream ticking in OS-X if using two devices for duplex
+- ALSA stream handle bug fixes
+- new C API wrapper
+- new static functions to get API names
 
 v5.0.0: (30 August 2017)
 - see git history for complete list of changes

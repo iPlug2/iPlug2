@@ -53,8 +53,9 @@ struct ControlRamp
    * @param nFrames The number of samples to be written. */
   void Write(float* buffer, int startIdx, int nFrames)
   {
-    float val = startValue;
-    float dv = (endValue - startValue)/(transitionEnd - transitionStart);
+    float val = static_cast<float>(startValue);
+    float dv = static_cast<float>((endValue - startValue)/(transitionEnd - transitionStart));
+
     for(int i=startIdx; i<startIdx + transitionStart; ++i)
     {
       buffer[i] = val;

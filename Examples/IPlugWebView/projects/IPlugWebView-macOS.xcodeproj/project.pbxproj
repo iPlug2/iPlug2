@@ -145,7 +145,6 @@
 		4F81598C205D51CF00393585 /* vstsinglecomponenteffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815896205D50EB00393585 /* vstsinglecomponenteffect.cpp */; };
 		4F81598D205D51F000393585 /* vstaudioeffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F81587E205D50EA00393585 /* vstaudioeffect.cpp */; };
 		4F81598E205D51F000393585 /* vstbus.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815881205D50EA00393585 /* vstbus.cpp */; };
-		4F81598F205D51F000393585 /* vstbypassprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815883205D50EA00393585 /* vstbypassprocessor.cpp */; };
 		4F815990205D51F000393585 /* vstcomponent.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815885205D50EA00393585 /* vstcomponent.cpp */; };
 		4F815991205D51F000393585 /* vstcomponentbase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815887205D50EB00393585 /* vstcomponentbase.cpp */; };
 		4F815993205D51F000393585 /* vstnoteexpressiontypes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F81588E205D50EB00393585 /* vstnoteexpressiontypes.cpp */; };

@@ -29,13 +29,13 @@ AAX_CEffectParameters *AAX_CALLBACK IPlugAAX::Create()
 
 void AAX_CEffectGUI_IPLUG::CreateViewContents() 
 {
-  TRACE;
+  TRACE
   mPlug = dynamic_cast<IPlugAAX*>(GetEffectParameters());  
 }
 
 void AAX_CEffectGUI_IPLUG::CreateViewContainer()
 {
-  TRACE;
+  TRACE
   
   void* pWindow = GetViewContainerPtr();
   
@@ -120,7 +120,7 @@ IPlugAAX::~IPlugAAX()
 
 AAX_Result IPlugAAX::EffectInit()
 { 
-  TRACE;
+  TRACE
 
   if (GetHost() == kHostUninit)
     SetHost("ProTools", 0); // TODO:vendor version correct?
@@ -220,7 +220,7 @@ AAX_Result IPlugAAX::EffectInit()
 
 AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double iValue, AAX_EUpdateSource iSource)
 {
-  TRACE;
+  TRACE
   
   AAX_Result  result = AAX_SUCCESS;
   
@@ -236,11 +236,11 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double
   
   if ((paramIdx > kNoParameter) && (paramIdx < NParams())) 
   {
-    ENTER_PARAMS_MUTEX;
+    ENTER_PARAMS_MUTEX
     GetParam(paramIdx)->SetNormalized(iValue);
     SendParameterValueFromAPI(paramIdx, iValue, true);
     OnParamChange(paramIdx, kHost);
-    LEAVE_PARAMS_MUTEX;
+    LEAVE_PARAMS_MUTEX
   }
   
   // Now the control has changed
@@ -253,7 +253,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double
 
 void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
 {
-  TRACE;
+  TRACE
 
   // Get bypass parameter value
   bool bypass;
@@ -284,6 +284,12 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
   int32_t numSamples = *(pRenderInfo->mNumSamples);
   int32_t numInChannels = AAX_STEM_FORMAT_CHANNEL_COUNT(inFormat);
   int32_t numOutChannels = AAX_STEM_FORMAT_CHANNEL_COUNT(outFormat);
+
+  if (numSamples > GetBlockSize())
+  {
+    SetBlockSize(numSamples);
+    OnReset();
+  }
 
   SetChannelConnections(ERoute::kInput, 0, numInChannels, true);
   SetChannelConnections(ERoute::kInput, numInChannels, MaxNChannels(ERoute::kInput) - numInChannels, false);
@@ -331,7 +337,9 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
       ProcessMidiMsg(msg);
     }
     
+    ENTER_PARAMS_MUTEX
     ProcessBuffers(0.0f, numSamples);
+    LEAVE_PARAMS_MUTEX
   }
   
   // Midi Out
@@ -414,7 +422,7 @@ AAX_Result IPlugAAX::GetChunkIDFromIndex(int32_t index, AAX_CTypeID* pChunkID) c
 
 AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t* pSize) const
 {
-  TRACE;
+  TRACE
     
   if (chunkID == GetUniqueID())
   {
@@ -438,7 +446,7 @@ AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t* pSize) const
 
 AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk* pChunk) const
 {
-  TRACE;
+  TRACE
 
   if (chunkID == GetUniqueID())
   {
@@ -459,7 +467,7 @@ AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk* pChunk) con
 
 AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk* pChunk)
 {
-  TRACE;
+  TRACE
   // TODO: UI thread only?
   
   if (chunkID == GetUniqueID())
@@ -484,7 +492,7 @@ AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk* pChun
 
 AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk* pChunk, AAX_CBoolean* pIsEqual) const
 {
-  TRACE;
+  TRACE
 
   if (pChunk->fChunkID != GetUniqueID())
   {
@@ -499,19 +507,19 @@ AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk* pChunk, AAX_CBoo
 
 void IPlugAAX::BeginInformHostOfParamChange(int idx)
 {
-  TRACE;
+  TRACE
   TouchParameter(mParamIDs.Get(idx)->Get());
 }
 
 void IPlugAAX::InformHostOfParamChange(int idx, double normalizedValue)
 {
-  TRACE;
+  TRACE
   SetParameterNormalizedValue(mParamIDs.Get(idx)->Get(), normalizedValue);
 }
 
 void IPlugAAX::EndInformHostOfParamChange(int idx)
 {
-  TRACE;
+  TRACE
   ReleaseParameter(mParamIDs.Get(idx)->Get());
 }
 

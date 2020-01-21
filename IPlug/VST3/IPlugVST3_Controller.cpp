@@ -82,12 +82,12 @@ ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized(ParamID tag)
   if (tag >= kBypassParam)
     return EditControllerEx1::getParamNormalized(tag);
   
-  return IPlugVST3ControllerBase::getParamNormalized(this, tag);
+  return IPlugVST3ControllerBase::GetParamNormalized(this, tag);
 }
 
 tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
 {
-  IPlugVST3ControllerBase::setParamNormalized(this, tag, value);
+  IPlugVST3ControllerBase::SetParamNormalized(this, tag, value);
   
   return EditControllerEx1::setParamNormalized(tag, value);
 }
@@ -163,35 +163,35 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
   
   if (!strcmp(message->getMessageID(), "SCVFD"))
   {
-    Steinberg::int64 controlTag = kNoTag;
+    Steinberg::int64 ctrlTag = kNoTag;
     double normalizedValue = 0.;
     
-    if(message->getAttributes()->getInt("CT", controlTag) == kResultFalse)
+    if(message->getAttributes()->getInt("CT", ctrlTag) == kResultFalse)
       return kResultFalse;
     
     if(message->getAttributes()->getFloat("NV", normalizedValue) == kResultFalse)
       return kResultFalse;
     
-    SendControlValueFromDelegate((int) controlTag, normalizedValue);
+    SendControlValueFromDelegate((int) ctrlTag, normalizedValue);
 
   }
   else if (!strcmp(message->getMessageID(), "SCMFD"))
   {
     const void* data;
-    Steinberg::int64 controlTag = kNoTag;
-    Steinberg::int64 messageTag = kNoTag;
+    Steinberg::int64 ctrlTag = kNoTag;
+    Steinberg::int64 msgTag = kNoTag;
 
-    if(message->getAttributes()->getInt("CT", controlTag) == kResultFalse)
+    if(message->getAttributes()->getInt("CT", ctrlTag) == kResultFalse)
       return kResultFalse;
     
-    if(message->getAttributes()->getInt("MT", messageTag) == kResultFalse)
+    if(message->getAttributes()->getInt("MT", msgTag) == kResultFalse)
       return kResultFalse;
 
     Steinberg::uint32 size;
     
     if (message->getAttributes()->getBinary("D", data, size) == kResultOk)
     {
-      SendControlMsgFromDelegate((int) controlTag, (int) messageTag, size, data);
+      SendControlMsgFromDelegate((int) ctrlTag, (int) msgTag, size, data);
       return kResultOk;
     }
   }
@@ -254,7 +254,7 @@ void IPlugVST3Controller::SendSysexMsgFromUI(const ISysEx& msg)
   sendMessage(message);
 }
 
-void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
+void IPlugVST3Controller::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
   OPtr<IMessage> message = allocateMessage();
   
@@ -269,8 +269,8 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int messageTag, int controlTag,
   }
   
   message->setMessageID("SAMFUI");
-  message->getAttributes()->setInt("MT", messageTag);
-  message->getAttributes()->setInt("CT", controlTag);
+  message->getAttributes()->setInt("MT", msgTag);
+  message->getAttributes()->setInt("CT", ctrlTag);
   message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);
 }

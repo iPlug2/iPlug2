@@ -18,6 +18,15 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
+/** Converts IColor to agg::rgba8 */
+agg::rgba8 AGGColor(const IColor& color, float opacity);
+
+/** Converts IBlend to agg::comp_op_e */
+agg::comp_op_e AGGBlendMode(const IBlend* pBlend);
+
+/** Converts IBlend to agg::cover_type */
+agg::cover_type AGGCover(const IBlend* pBlend);
+
 /** IGraphics draw class using Antigrain Geometry
 *   @ingroup DrawClasses*/
 class IGraphicsAGG : public IGraphicsPathBase

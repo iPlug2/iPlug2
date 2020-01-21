@@ -79,7 +79,7 @@ public:
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mInitialFBO);
 
     nvgBindFramebuffer(mFBO);
-    nvgBeginFrame(vg, w, h, g.GetScreenScale());
+    nvgBeginFrame(vg, static_cast<float>(w), static_cast<float>(h), static_cast<float>(g.GetScreenScale()));
     GLint vp[4];
     glGetIntegerv(GL_VIEWPORT, vp);
 
@@ -94,7 +94,7 @@ public:
     
     nvgEndFrame(vg);
     glBindFramebuffer(GL_FRAMEBUFFER, mInitialFBO);
-    nvgBeginFrame(vg, g.WindowWidth(), g.WindowHeight(), g.GetScreenScale());
+    nvgBeginFrame(vg, static_cast<float>(g.WindowWidth()), static_cast<float>(g.WindowHeight()), static_cast<float>(g.GetScreenScale()));
 
     APIBitmap apibmp {mFBO->image, w, h, 1, 1.};
     IBitmap bmp {&apibmp, 1, false};

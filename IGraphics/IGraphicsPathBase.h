@@ -67,7 +67,7 @@ public:
     // Vertical Lines grid
     if (gridSizeH > 1.f)
     {
-      for (float x = bounds.L; x < bounds.R; x += gridSizeH)
+      for (float x = bounds.L + gridSizeH; x < bounds.R; x += gridSizeH)
       {
         PathMoveTo(x, bounds.T);
         PathLineTo(x, bounds.B);
@@ -76,7 +76,7 @@ public:
     // Horizontal Lines grid
     if (gridSizeV > 1.f)
     {
-      for (float y = bounds.T; y < bounds.B; y += gridSizeV)
+      for (float y = bounds.T + gridSizeV; y < bounds.B; y += gridSizeV)
       {
         PathMoveTo(bounds.L, y);
         PathLineTo(bounds.R, y);
@@ -423,7 +423,7 @@ public:
     PathTransformSave();
     PathTransformTranslate(dest.L, dest.T);
     PathTransformScale(scale);
-    RenderNanoSVG(svg.mImage);
+    DoDrawSVG(svg);
     PathTransformRestore();
   }
   
@@ -478,40 +478,73 @@ private:
     }
   }
   
-  void RenderNanoSVG(NSVGimage* pImage)
+  void DoDrawSVG(const ISVG& svg)
   {
+#ifdef IGRAPHICS_SKIA
+    SkCanvas* canvas = static_cast<SkCanvas*>(GetDrawContext());
+    svg.mSVGDom->render(canvas);
+#else
+    NSVGimage* pImage = svg.mImage;
+    
     assert(pImage != nullptr);
-
+    
     for (NSVGshape* pShape = pImage->shapes; pShape; pShape = pShape->next)
     {
       if (!(pShape->flags & NSVG_FLAGS_VISIBLE))
         continue;
       
+      // Build a new path for each shape
       PathClear();
-        
+      
+      // iterate subpaths in this shape
       for (NSVGpath* pPath = pShape->paths; pPath; pPath = pPath->next)
       {
         PathMoveTo(pPath->pts[0], pPath->pts[1]);
         
         for (int i = 1; i < pPath->npts; i += 3)
         {
-          float *p = pPath->pts + i * 2;
+          float *p = &pPath->pts[i*2];
           PathCubicBezierTo(p[0], p[1], p[2], p[3], p[4], p[5]);
         }
         
         if (pPath->closed)
           PathClose();
+        
+        // Compute whether this path is a hole or a solid and set the winding direction accordingly.
+        int crossings = 0;
+        IVec2 p0{pPath->pts[0], pPath->pts[1]};
+        IVec2 p1{pPath->bounds[0] - 1.0f, pPath->bounds[1] - 1.0f};
+        // Iterate all other paths
+        for (NSVGpath *pPath2 = pShape->paths; pPath2; pPath2 = pPath2->next)
+        {
+          if (pPath2 == pPath)
+            continue;
+          // Iterate all lines on the path
+          if (pPath2->npts < 4)
+            continue;
+          for (int i = 1; i < pPath2->npts + 3; i += 3)
+          {
+            float *p = &pPath2->pts[2*i];
+            // The previous point
+            IVec2 p2 {p[-2], p[-1]};
+            // The current point
+            IVec2 p3 = (i < pPath2->npts) ? IVec2{p[4], p[5]} : IVec2{pPath2->pts[0], pPath2->pts[1]};
+            float crossing = GetLineCrossing(p0, p1, p2, p3);
+            float crossing2 = GetLineCrossing(p2, p3, p0, p1);
+            if (0.0 <= crossing && crossing < 1.0 && 0.0 <= crossing2)
+            {
+              crossings++;
+            }
+          }
+        }
+        PathSetWinding(crossings % 2 != 0);
       }
       
-      // Fill
+      // Fill combined path using windings set in subpaths
       if (pShape->fill.type != NSVG_PAINT_NONE)
       {
         IFillOptions options;
-        
-        if (pShape->fillRule == NSVG_FILLRULE_EVENODD)
-          options.mFillRule = EFillRule::EvenOdd;
-        else
-          options.mFillRule = EFillRule::Winding;
+        options.mFillRule = EFillRule::Preserve;
         
         options.mPreserve = pShape->stroke.type != NSVG_PAINT_NONE;
         PathFill(GetSVGPattern(pShape->fill, pShape->opacity), options, nullptr);
@@ -543,8 +576,9 @@ private:
         PathStroke(GetSVGPattern(pShape->stroke, pShape->opacity), pShape->strokeWidth, options, nullptr);
       }
     }
+  #endif
   }
-  
+
 protected:
     
   void DoTextRotation(const IText& text, const IRECT& bounds, const IRECT& rect)
@@ -555,12 +589,12 @@ protected:
     IRECT rotated = rect;
     double tx, ty;
     
-    CalulateTextRotation(text, bounds, rotated, tx, ty);
-    PathTransformTranslate(tx, ty);
+    CalculateTextRotation(text, bounds, rotated, tx, ty);
+    PathTransformTranslate(static_cast<float>(tx), static_cast<float>(ty));
     PathTransformRotate(text.mAngle);
   }
   
-  float GetBackingPixelScale() const override { return GetScreenScale() * GetDrawScale(); };
+  float GetBackingPixelScale() const override { return GetScreenScale() * GetDrawScale(); }
 
   IMatrix GetTransformMatrix() const { return mTransform; }
   

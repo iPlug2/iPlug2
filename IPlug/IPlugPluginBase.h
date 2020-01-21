@@ -63,6 +63,10 @@ public:
   /** @return The host if it has been identified, see EHost enum for a list of possible hosts */
    EHost GetHost() const { return mHost; }
   
+  /** Get the host name as a CString
+   * @param str string into which to write the host name */
+  void GetHostStr(WDL_String& str) const { GetHostNameStr(GetHost(), str); }
+  
   /** Get the host version number as an integer
    * @param decimal \c true indicates decimal format = VVVVRRMM, otherwise hexadecimal 0xVVVVRRMM.
    * @return The host version number as an integer. */
@@ -139,14 +143,14 @@ public:
   /** Override this method to serialize custom state data, if your plugin does state chunks.
    * @param chunk The output bytechunk where data can be serialized
    * @return \c true if serialization was successful*/
-  virtual bool SerializeState(IByteChunk& chunk) const { TRACE; return SerializeParams(chunk); }
+  virtual bool SerializeState(IByteChunk& chunk) const { TRACE return SerializeParams(chunk); }
   
   /** Override this method to unserialize custom state data, if your plugin does state chunks.
    * Implementations should call UnserializeParams() after custom data is unserialized
    * @param chunk The incoming chunk containing the state data.
    * @param startPos The position in the chunk where the data starts
    * @return The new chunk position (endPos)*/
-  virtual int UnserializeState(const IByteChunk& chunk, int startPos) { TRACE; return UnserializeParams(chunk, startPos); }
+  virtual int UnserializeState(const IByteChunk& chunk, int startPos) { TRACE return UnserializeParams(chunk, startPos); }
   
   /** VST3 ONLY! - THIS IS ONLY INCLUDED FOR COMPATIBILITY - NOONE ELSE SHOULD NEED IT!
    * @param chunk The output bytechunk where data can be serialized.
@@ -171,65 +175,61 @@ public:
 #pragma mark - Preset Manipulation - NO-OPs
   
 #ifdef NO_PRESETS
-  /** Gets the number of factory presets. NOTE: some hosts don't like 0 presets, so even if you don't support factory presets, this method should return 1
-   * @return The number of factory presets */
   virtual int NPresets() const { return 1; }
-  
-  /** This method should update the current preset with current values
-   * NOTE: This is only relevant for VST2 plug-ins, which is the only format to have the notion of banks?
-   * @param name CString name of the modified preset */
   virtual void ModifyCurrentPreset(const char* name = 0) { };
-  
-  /** Restore a preset by index. This should also update mCurrentPresetIdx
-   * @param idx The index of the preset to restore
-   * @return \c true on success */
   virtual bool RestorePreset(int idx) { mCurrentPresetIdx = idx; return true; }
-  
-  /** Restore a preset by name
-   * @param CString name of the preset to restore
-   * @return \c true on success */
   virtual bool RestorePreset(const char* name) { return true; }
-  
-  /** Get the name a preset
-   * @param idx The index of the preset whose name to get
-   * @return CString preset name */
   virtual const char* GetPresetName(int idx) const { return "-"; }
   
 #else
   #pragma mark - Preset Manipulation - OPs - These methods are not included if you define NO_PRESETS
   
-  /** /todo 
-   * @param name /todo */
+  /** This method should update the current preset with current values
+   * NOTE: This is only relevant for VST2 plug-ins, which is the only format to have the notion of banks?
+   * @param name CString name of the modified preset */
   void ModifyCurrentPreset(const char* name = 0);
 
-  /**  @return int The number of "baked-in" factory presets */
+  /** Gets the number of factory presets. NOTE: some hosts don't like 0 presets, so even if you don't support factory presets, this method should return 1
+   * @return The number of factory presets */
   int NPresets() const { return mPresets.GetSize(); }
 
-  /** /todo 
-   * @param idx /todo
-   * @return true /todo
-   * @return false /todo */
+  /** Restore a preset by index. This should also update mCurrentPresetIdx
+   * @param idx The index of the preset to restore
+   * @return \c true on success */
   bool RestorePreset(int idx);
 
-  /** /todo 
-   * @param name /todo
-   * @return true /todo
-   * @return false /todo */
+  /** Restore a preset by name
+   * @param CString name of the preset to restore
+   * @return \c true on success */
   bool RestorePreset(const char* name);
 
-  /** /todo 
-   * @param idx /todo
-   * @return const char* /todo */
+  /** Get the name a preset
+   * @param idx The index of the preset whose name to get
+   * @return CString preset name */
   const char* GetPresetName(int idx) const;
+  
+  /** Copy source preset to preset at index
+  * @param pPresetSrc source preset
+  * @param dest_idx index of internal dest preset */
+  void CopyPreset(IPreset* pPresetSrc, int dest_idx, bool copyname = false)
+  {
+    IPreset* pPresetTgt = mPresets.Get(dest_idx);
+
+    pPresetTgt->mChunk.Clear();
+    pPresetTgt->mChunk.PutChunk(&pPresetSrc->mChunk);
+    pPresetTgt->mInitialized = true;
+    strncpy(pPresetTgt->mName, pPresetSrc->mName, MAX_PRESET_NAME_LEN - 1);
+  }
   
   /** /todo 
    * @param name /todo
    * @param nPresets /todo */
   void MakeDefaultPreset(const char* name = 0, int nPresets = 1);
 
-  /** usage: MakePreset(name, param1, param2, ..., paramN)
-   * @param name /todo
-   * @param ... /todo */
+  /** This method can be used from Plugin class to create a baked-in factory preset
+   * usage: MakePreset(name, param1, param2, ..., paramN)
+   * @param name The preset name
+   * @param ... The list of parameter values, ordered acording to paramIdx */
   void MakePreset(const char* name, ...);
 
   /** /todo
@@ -240,15 +240,15 @@ public:
    * @param ... /todo  */
   void MakePresetFromNamedParams(const char* name, int nParamsNamed, ...);
   
-  /** /todo 
-   * @param name /todo
-   * @param chunk /todo */
+  /** This method is primary called by chunk based plugins
+   * @param name The preset name
+   * @param chunk The block of memory to use */
   void MakePresetFromChunk(const char* name, IByteChunk& chunk);
 
-  /** /todo 
-   * @param name /todo
-   * @param blob /todo
-   * @param sizeOfChunk /todo */
+  /** This method makes a preset from a Binary large object (blob)
+   * @param name The preset name
+   * @param blob The binary string
+   * @param sizeOfChunk The binary string size */
   void MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk);
   
   /** /todo */
@@ -494,6 +494,8 @@ protected:
 #endif
 
 #ifdef PARAMS_MUTEX
+  friend class IPlugVST3ProcessorBase;
+protected:
   /** Lock when accessing mParams (including via GetParam) from the audio thread */
   WDL_Mutex mParams_mutex;
 #endif  

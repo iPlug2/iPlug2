@@ -50,7 +50,7 @@ IPlugAPIBase::~IPlugAPIBase()
     mTimer->Stop();
   }
 
-  TRACE;
+  TRACE
 }
 
 void IPlugAPIBase::OnHostRequestingImportantParameters(int count, WDL_TypedBuf<int>& results)
@@ -62,12 +62,10 @@ void IPlugAPIBase::OnHostRequestingImportantParameters(int count, WDL_TypedBuf<i
   }
 }
 
-#if not defined OS_LINUX || defined APP_API
 void IPlugAPIBase::CreateTimer()
 {
   mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&IPlugAPIBase::OnTimer, this, std::placeholders::_1), IDLE_TIMER_RATE));
 }
-#endif
 
 bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) const
 {
@@ -210,9 +208,9 @@ void IPlugAPIBase::SendSysexMsgFromUI(const ISysEx& msg)
   EDITOR_DELEGATE_CLASS::SendSysexMsgFromUI(msg); // for remote editors
 }
 
-void IPlugAPIBase::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
+void IPlugAPIBase::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
-  OnMessage(messageTag, controlTag, dataSize, pData); // IPlugAPIBase implementation handles non distributed plug-ins - just call OnMessage() directly
+  OnMessage(msgTag, ctrlTag, dataSize, pData); // IPlugAPIBase implementation handles non distributed plug-ins - just call OnMessage() directly
   
-  EDITOR_DELEGATE_CLASS::SendArbitraryMsgFromUI(messageTag, controlTag, dataSize, pData);
+  EDITOR_DELEGATE_CLASS::SendArbitraryMsgFromUI(msgTag, ctrlTag, dataSize, pData);
 }

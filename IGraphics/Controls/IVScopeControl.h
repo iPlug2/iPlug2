@@ -60,8 +60,8 @@ public:
   class Sender
   {
   public:
-    Sender(int controlTag)
-    : mControlTag(controlTag)
+    Sender(int ctrlTag)
+    : mCtrlTag(ctrlTag)
     {
     }
       
@@ -121,13 +121,13 @@ public:
       while(mQueue.ElementsAvailable())
       {
         mQueue.Pop(d);
-        dlg.SendControlMsgFromDelegate(mControlTag, kUpdateMessage, sizeof(Data), (void*) &d);
+        dlg.SendControlMsgFromDelegate(mCtrlTag, kUpdateMessage, sizeof(Data), (void*) &d);
       }
     }
 
   private:
     Data mBuf;
-    int mControlTag;
+    int mCtrlTag;
     int mBufCount = 0;
     IPlugQueue<Data> mQueue {QUEUE_SIZE};
     bool mPrevAboveThreshold = true;
@@ -189,7 +189,7 @@ public:
     SetDirty(false);
   }
 
-  void OnMsgFromDelegate(int messageTag, int dataSize, const void* pData) override
+  void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
     IByteStream stream(pData, dataSize);
 

@@ -31,54 +31,54 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    g.DrawRoundRect(COLOR_BLACK, mRECT, 5.);
-    
-    const double value = GetValue();
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
+
+    const float value = static_cast<float>(GetValue());
 
     if (g.HasPathSupport())
     {
-      double r0 = value * (mRECT.H() / 2.0);
-      float l = mRECT.L + mRECT.W() * 0.1;
-      float r = mRECT.L + mRECT.W() * 0.9;
-      float t = mRECT.T + mRECT.H() * 0.1;
-      float b = mRECT.T + mRECT.H() * 0.9;
-      float l0 = mRECT.L + mRECT.W() * 0.2;
-      float t0 = mRECT.T + mRECT.H() * 0.3;
-      float b0 = mRECT.T + mRECT.H() * 0.7;
-      float mx = mRECT.L + mRECT.W() * 0.43;
+      float r0 = value * (mRECT.H() / 2.f);
+      float l = mRECT.L + mRECT.W() * 0.1f;
+      float r = mRECT.L + mRECT.W() * 0.9f;
+      float t = mRECT.T + mRECT.H() * 0.1f;
+      float b = mRECT.T + mRECT.H() * 0.9f;
+      float l0 = mRECT.L + mRECT.W() * 0.2f;
+      float t0 = mRECT.T + mRECT.H() * 0.3f;
+      float b0 = mRECT.T + mRECT.H() * 0.7f;
+      float mx = mRECT.L + mRECT.W() * 0.43f;
       float my = mRECT.MH();
 
       if (mShape == 0)
       {
         g.PathCircle(mRECT.MW(), mRECT.MH(), r0);
-        g.PathCircle(mRECT.MW(), mRECT.MH(), r0 * 0.5);
+        g.PathCircle(mRECT.MW(), mRECT.MH(), r0 * 0.5f);
       }
       else if (mShape == 1)
       {
-        float pad1 = (mRECT.W() / 2.0) * (1.0 - GetValue());
-        float pad2 = (mRECT.H() / 2.0) * (1.0 - GetValue());
+        float pad1 = (mRECT.W() / 2.f) * (1.f - value);
+        float pad2 = (mRECT.H() / 2.f) * (1.f - value);
         IRECT size1 = mRECT.GetPadded(-pad1, -pad2, -pad1, -pad2);
-        pad1 = (size1.W() / 2.0) * (1.0 - GetValue());
-        pad2 = (size1.H() / 2.0) * (1.0 - GetValue());
+        pad1 = (size1.W() / 2.f) * (1.f - value);
+        pad2 = (size1.H() / 2.f) * (1.f - value);
         IRECT size2 = size1.GetPadded(-pad1, -pad2, -pad1, -pad2);
         g.PathRect(size1);
         g.PathRect(size2);
       }
       else if (mShape == 2)
       {
-        float pad1 = (mRECT.W() / 2.0) * (1.0 - GetValue());
-        float pad2 = (mRECT.H() / 2.0) * (1.0 - GetValue());
+        float pad1 = (mRECT.W() / 2.f) * (1.f - value);
+        float pad2 = (mRECT.H() / 2.f) * (1.f - value);
         IRECT size1 = mRECT.GetPadded(-pad1, -pad2, -pad1, -pad2);
-        pad1 = (size1.W() / 2.0) * (1.0 - GetValue());
-        pad2 = (size1.H() / 2.0) * (1.0 - GetValue());
+        pad1 = (size1.W() / 2.f) * (1.f - value);
+        pad2 = (size1.H() / 2.f) * (1.f - value);
         IRECT size2 = size1.GetPadded(-pad1, -pad2, -pad1, -pad2);
-        g.PathRoundRect(size1, size1.H() * 0.125);
-        g.PathRoundRect(size2, size2.H() * 0.125);
+        g.PathRoundRect(size1, size1.H() * 0.125f);
+        g.PathRoundRect(size2, size2.H() * 0.125f);
       }
       else if (mShape == 3)
       {
         g.PathMoveTo(mRECT.L, mRECT.B);
-        g.PathCubicBezierTo(mRECT.L + mRECT.W() * 0.125, mRECT.T + mRECT.H() * 0.725, mRECT.L + mRECT.W() * 0.25, mRECT.T + mRECT.H() * 0.35, mRECT.MW(), mRECT.MH());
+        g.PathCubicBezierTo(mRECT.L + mRECT.W() * 0.125f, mRECT.T + mRECT.H() * 0.725f, mRECT.L + mRECT.W() * 0.25f, mRECT.T + mRECT.H() * 0.35f, mRECT.MW(), mRECT.MH());
         g.PathLineTo(mRECT.MW(), mRECT.B);
         g.PathClose();
       }

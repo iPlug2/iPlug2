@@ -447,7 +447,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (id) initWithIGraphics: (IGraphicsMac*) pGraphics
 {
-  TRACE;
+  TRACE
 
   mGraphics = pGraphics;
   NSRect r = NSMakeRect(0.f, 0.f, (float) pGraphics->WindowWidth(), (float) pGraphics->WindowHeight());
@@ -477,7 +477,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 }
 
 - (void)dealloc
-{  
+{
+  if([NSColorPanel sharedColorPanelExists])
+    [[NSColorPanel sharedColorPanel] close];
+  
+  mColorPickerFunc = nullptr;
   [mMoveCursor release];
   [mTrackingArea release];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -548,7 +552,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   CGFloat newScale = [pWindow backingScaleFactor];
   
-  if (mGraphics->GetDrawContext() && newScale != mGraphics->GetScreenScale())
+  mGraphics->SetPlatformContext(nullptr);
+  
+  if (newScale != mGraphics->GetScreenScale())
     mGraphics->SetScreenScale(newScale);
 
 #if defined IGRAPHICS_GL
@@ -561,10 +567,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (CGContextRef) getCGContextRef
 {
-  CGContextRef pCGC = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-  NSGraphicsContext* gc = [NSGraphicsContext graphicsContextWithGraphicsPort: pCGC flipped: YES];
-  pCGC = (CGContextRef) [gc graphicsPort];
-  return pCGC;
+  CGContextRef pCGC = [NSGraphicsContext currentContext].CGContext;
+  return [NSGraphicsContext graphicsContextWithCGContext: pCGC flipped: YES].CGContext;
 }
 
 // not called for layer backed views
@@ -984,7 +988,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 {
   IGRAPHICS_MENU_RCVR* pDummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:bounds] autorelease];
   NSMenu* pNSMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:&menu : pDummyView] autorelease];
-  NSPoint wp = {bounds.origin.x, bounds.origin.y - 4};
+  NSPoint wp = {bounds.origin.x, bounds.origin.y + 4};
 
   [pNSMenu popUpMenuPositioningItem:nil atLocation:wp inView:self];
   
@@ -999,7 +1003,8 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     pIPopupMenu->SetChosenItemIdx((int) chosenItemIdx);
     return pIPopupMenu;
   }
-  else return nullptr;
+  else
+    return nullptr;
 }
 
 - (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (NSRect) areaRect;
@@ -1097,16 +1102,16 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
 - (BOOL) promptForColor: (IColor&) color : (IColorPickerHandlerFunc) func;
 {
-  NSColorPanel* colorPicker = [NSColorPanel sharedColorPanel];
+  NSColorPanel* colorPanel = [NSColorPanel sharedColorPanel];
   mColorPickerFunc = func;
 
-  [colorPicker setShowsAlpha:TRUE];
-  [colorPicker setColor:ToNSColor(color)];
-  [colorPicker setTarget:self];
-  [colorPicker setAction:@selector(onColorPicked:)];
-  [colorPicker orderFront:nil];
-  
-  return colorPicker != nil;
+  [colorPanel setTarget:self];
+  [colorPanel setShowsAlpha: TRUE];
+  [colorPanel setAction:@selector(onColorPicked:)];
+  [colorPanel setColor:ToNSColor(color)];
+  [colorPanel orderFront:nil];
+
+  return colorPanel != nil;
 }
 
 - (void) onColorPicked: (NSColorPanel*) colorPanel

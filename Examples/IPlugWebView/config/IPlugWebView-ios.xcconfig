@@ -15,9 +15,9 @@ BINARY_NAME = IPlugWebView
 
 // ------------------------------
 // HEADER AND LIBRARY SEARCH PATHS
-EXTRA_INC_PATHS = $(IGRAPHICS_INC_PATHS)
-EXTRA_LIB_PATHS = $(IGRAPHICS_LIB_PATHS)
-EXTRA_LNK_FLAGS = $(IGRAPHICS_LNK_FLAGS) -framework WebKit
+EXTRA_INC_PATHS = 
+EXTRA_LIB_PATHS = 
+EXTRA_LNK_FLAGS = -framework WebKit
 
 //------------------------------
 // PREPROCESSOR MACROS
@@ -51,3 +51,6 @@ GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
 
 // Flags to pass to compiler for all builds
 GCC_CFLAGS = -Wno-write-strings
+
+
+ENABLE_BITCODE = YES

@@ -13,34 +13,13 @@ jobs:
   - bash: |
       cd ./Dependencies/
       ./download-prebuilt-libs.sh mac
+      ./download-prebuilt-libs.sh ios
       ./download-prebuilt-libs.sh win
     displayName: Download Prebuilt IGraphics Dependencies
     condition: eq(variables.build_deps, false)
 
-  # - bash: |
-  #     cd $AGENT_TEMPDIRECTORY
-  #     wget https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_MAC.zip
-  #     wget https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_WIN.zip
-  #   displayName: Download IGraphics Dependencies BUILT
-  #   condition: eq(variables.build_deps, false)
-
-  # - task: ExtractFiles@1
-  #   inputs:
-  #     archiveFilePatterns: '$(Agent.TempDirectory)/IPLUG2_DEPS_*.zip'
-  #     destinationFolder: '$(Agent.TempDirectory)'
-  #     cleanDestinationFolder: false
-  #   condition: eq(variables.build_deps, false)
-
-  # # comment out this step if you don't have access to the secure files (VST2_SDK.zip, AAX_SDK.zip)
-  # - template: get_secure_files.yml
-
-  # - bash: |
-  #     mkdir ./Dependencies/Build
-  #     mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_MAC/* ./Dependencies/Build
-  #     rm -r ./Dependencies/Build/src #remove skia, have it allready
-  #     mv $AGENT_TEMPDIRECTORY/IPLUG2_DEPS_WIN/* ./Dependencies/Build
-  #   displayName: Move IGraphics Dependencies BUILT
-  #   condition: and(or(variables.build_mac, variables.build_win), eq(variables.build_deps, false))
+  # comment out this step if you don't have access to the secure files (VST2_SDK.zip, AAX_SDK.zip)
+  - template: get_secure_files.yml
 
   - bash: |
       cd ./Dependencies/IPlug

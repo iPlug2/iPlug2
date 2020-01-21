@@ -18,12 +18,12 @@ using namespace Steinberg;
 using namespace Vst;
 
 #ifndef CUSTOM_BUSTYPE_FUNC
-uint64_t iplug::GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, IOConfig* pConfig)
+uint64_t iplug::GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, const IOConfig* pConfig)
 {
   assert(pConfig != nullptr);
   assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
   
-  int numChans = pConfig->GetBusInfo(dir, busIdx)->mNChans;
+  int numChans = pConfig->GetBusInfo(dir, busIdx)->NChans();
   
   switch (numChans)
   {
@@ -204,7 +204,7 @@ void IPlugVST3ProcessorBase::ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, S
   }
 }
 
-void IPlugVST3ProcessorBase::SetBusArrangments(SpeakerArrangement* pInputBusArrangements, int32 numInBuses, SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses)
+void IPlugVST3ProcessorBase::SetBusArrangements(SpeakerArrangement* pInputBusArrangements, int32 numInBuses, SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses)
 {
   // disconnect all io pins, they will be reconnected in process
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
@@ -268,6 +268,14 @@ bool IPlugVST3ProcessorBase::SetupProcessing(const ProcessSetup& setup, ProcessS
   IPlugProcessor::SetBlockSize(setup.maxSamplesPerBlock); // TODO: should IPlugVST3Processor call SetBlockSize in construct unlike other APIs?
   mMidiOutputQueue.Resize(setup.maxSamplesPerBlock);
   OnReset();
+  
+  return true;
+}
+
+bool IPlugVST3ProcessorBase::SetProcessing(bool state)
+{
+  if (!state)
+    OnReset();
   
   return true;
 }
@@ -349,10 +357,14 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data)
             {
               if (idx >= 0 && idx < mPlug.NParams())
               {
-                ENTER_PARAMS_MUTEX;
+#ifdef PARAMS_MUTEX
+                mPlug.mParams_mutex.Enter();
+#endif
                 mPlug.GetParam(idx)->SetNormalized((double)value); // TODO: In VST3 non distributed the same parameter value is also set via IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
                 mPlug.OnParamChange(idx, kHost, offsetSamples);
-                LEAVE_PARAMS_MUTEX;
+#ifdef PARAMS_MUTEX
+                mPlug.mParams_mutex.Leave();
+#endif
               }
             }
               break;
@@ -419,10 +431,16 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
     }
     else
     {
+#ifdef PARAMS_MUTEX
+      mPlug.mParams_mutex.Enter();
+#endif
       if (sampleSize == kSample32)
         ProcessBuffers(0.f, data.numSamples); // single precision
       else
         ProcessBuffers(0.0, data.numSamples); // double precision
+#ifdef PARAMS_MUTEX
+      mPlug.mParams_mutex.Leave();
+#endif
     }
   }
 }

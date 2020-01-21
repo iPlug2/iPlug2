@@ -5,7 +5,7 @@
 enum EControlTags
 {
   kCtrlTagText = 0,
-  kNumControlTags
+  kNumCtrlTags
 };
 
 using namespace iplug;

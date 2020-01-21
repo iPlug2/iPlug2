@@ -75,35 +75,41 @@ StaticStorage<IGraphicsLice::FontInfo> IGraphicsLice::sFontInfoCache;
 
 #pragma mark - Utilites
 
-static inline LICE_pixel LiceColor(const IColor& color)
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+LICE_pixel LiceColor(const IColor& color)
 {
-    auto preMul = [](int color, int A) {return (color * (A + 1)) >> 8; };
-    return LICE_RGBA(preMul(color.R, color.A), preMul(color.G, color.A), preMul(color.B, color.A), color.A);
+  auto preMul = [](int color, int A) {return (color * (A + 1)) >> 8; };
+  return LICE_RGBA(preMul(color.R, color.A), preMul(color.G, color.A), preMul(color.B, color.A), color.A);
 }
 
-static inline LICE_pixel LiceColor(const IColor& color, const IBlend* pBlend)
+LICE_pixel LiceColor(const IColor& color, const IBlend* pBlend)
 {
-    int alpha = std::round(color.A * BlendWeight(pBlend));
-    return LICE_RGBA(color.R, color.G, color.B, alpha);
+  int alpha = std::round(color.A * BlendWeight(pBlend));
+  return LICE_RGBA(color.R, color.G, color.B, alpha);
 }
 
-static inline int LiceBlendMode(const IBlend* pBlend)
+int LiceBlendMode(const IBlend* pBlend)
 {
-    if (!pBlend)
+  if (!pBlend)
+  {
+    return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
+  }
+  switch (pBlend->mMethod)
+  {
+    case EBlend::Clobber:     return LICE_BLIT_MODE_COPY;
+    case EBlend::Add:         return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
+    case EBlend::Default:
+    default:
     {
-        return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
+      return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
     }
-    switch (pBlend->mMethod)
-    {
-        case EBlend::Clobber:     return LICE_BLIT_MODE_COPY;
-        case EBlend::Add:         return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
-        case EBlend::Default:
-        default:
-        {
-            return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
-        }
-    }
+  }
 }
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 #pragma mark - Pre-Multiplied Utilites
 
@@ -654,6 +660,15 @@ void IGraphicsLice::NeedsClipping()
     const int h = static_cast<int>(std::round(alignedBounds.H() * GetBackingPixelScale()));
     
     mClippingLayer = std::make_unique<ILayer>(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds, nullptr, IRECT());
+
+    // Copy background in case of addition
+      
+    const int sx = alignedBounds.L * GetScreenScale();
+    const int sy = alignedBounds.T * GetScreenScale();
+      
+    LICE_IBitmap *bitmap = mClippingLayer->GetAPIBitmap()->GetBitmap();
+    LICE_Blit(bitmap, mDrawBitmap.get(), 0, 0, sx, sy, w, h, 1.f, LICE_BLIT_MODE_COPY);
+      
     UpdateLayer();
   }
 }
@@ -954,7 +969,7 @@ void IGraphicsLice::EndFrame()
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
   
-  if (GetDrawScale() == 1.0)
+  if (!mScaleBitmap)
   {
     BitBlt(dc, 0, 0, Width() * GetScreenScale(), Height() * GetScreenScale(), mDrawBitmap->getDC(), 0, 0, SRCCOPY);
   }

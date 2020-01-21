@@ -10,7 +10,7 @@ enum EParams
   kNumParams
 };
 
-enum ECtrlTags
+enum EControlTags
 {
   kNumCtrlTags
 };

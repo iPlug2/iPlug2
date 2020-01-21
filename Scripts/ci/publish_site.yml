@@ -13,8 +13,10 @@ jobs:
 
   strategy:
     matrix:
-      NANOVG:
-        graphics: 'NANOVG'
+      SKIA:
+        graphics: 'SKIA'
+      # NANOVG:
+      #   graphics: 'NANOVG'
       # CAIRO:
       #   graphics: 'CAIRO'
       # LICE:

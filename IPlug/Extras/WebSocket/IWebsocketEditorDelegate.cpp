@@ -89,21 +89,20 @@ void IWebsocketEditorDelegate::SendSysexMsgFromUI(const ISysEx& msg)
   IGEditorDelegate::SendSysexMsgFromUI(msg);
 }
 
-void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int messageTag, int controlTag, int dataSize, const void* pData)
+void IWebsocketEditorDelegate::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
   IByteChunk data;
   data.PutStr("SSMFD");
-  data.Put(&messageTag);
-  data.Put(&controlTag);
+  data.Put(&msgTag);
+  data.Put(&ctrlTag);
   data.Put(&dataSize);
   data.PutBytes(pData, dataSize);
   
   // Server side UI edit, send to clients
   SendDataToConnection(-1, data.GetData(), data.Size());
   
-  IGEditorDelegate::SendArbitraryMsgFromUI(messageTag, controlTag, dataSize, pData);
+  IGEditorDelegate::SendArbitraryMsgFromUI(msgTag, ctrlTag, dataSize, pData);
 }
-
 
 //void IWebsocketEditorDelegate::BeginInformHostOfParamChangeFromUI(int paramIdx)
 //{
@@ -121,43 +120,43 @@ void IWebsocketEditorDelegate::SendParameterValueFromUI(int paramIdx, double val
 //  IGEditorDelegate::EndInformHostOfParamChangeFromUI(paramIdx);
 //}
 
-void IWebsocketEditorDelegate::SendControlValueFromDelegate(int controlTag, double normalizedValue)
+void IWebsocketEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
 {
   IByteChunk data;
   data.PutStr("SCVFD");
-  data.Put(&controlTag);
+  data.Put(&ctrlTag);
   data.Put(&normalizedValue);
   
   SendDataToConnection(-1, data.GetData(), data.Size());
   
-  IGEditorDelegate::SendControlValueFromDelegate(controlTag, normalizedValue);
+  IGEditorDelegate::SendControlValueFromDelegate(ctrlTag, normalizedValue);
 }
 
-void IWebsocketEditorDelegate::SendControlMsgFromDelegate(int controlTag, int messageTag, int dataSize, const void* pData)
+void IWebsocketEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData)
 {
   IByteChunk data;
   data.PutStr("SCMFD");
-  data.Put(&controlTag);
-  data.Put(&messageTag);
+  data.Put(&ctrlTag);
+  data.Put(&msgTag);
   data.Put(&dataSize);
   data.PutBytes(pData, dataSize);
   
   SendDataToConnection(-1, data.GetData(), data.Size());
   
-  IGEditorDelegate::SendControlMsgFromDelegate(controlTag, messageTag, dataSize, pData);
+  IGEditorDelegate::SendControlMsgFromDelegate(ctrlTag, msgTag, dataSize, pData);
 }
 
-void IWebsocketEditorDelegate::SendArbitraryMsgFromDelegate(int messageTag, int dataSize, const void* pData)
+void IWebsocketEditorDelegate::SendArbitraryMsgFromDelegate(int msgTag, int dataSize, const void* pData)
 {
   IByteChunk data;
   data.PutStr("SAMFD");
-  data.Put(&messageTag);
+  data.Put(&msgTag);
   data.Put(&dataSize);
   data.PutBytes(pData, dataSize);
   
   SendDataToConnection(-1, data.GetData(), data.Size());
   
-  IGEditorDelegate::SendArbitraryMsgFromDelegate(messageTag, dataSize, pData);
+  IGEditorDelegate::SendArbitraryMsgFromDelegate(msgTag, dataSize, pData);
 }
 
 void IWebsocketEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
@@ -192,12 +191,12 @@ void IWebsocketEditorDelegate::ProcessWebsocketQueue()
     ParamTupleCX p;
     mParamChangeFromClients.Pop(p);
     
-    ENTER_PARAMS_MUTEX;
+    ENTER_PARAMS_MUTEX
     IParam* pParam = GetParam(p.idx);
     
     if(pParam)
       pParam->SetNormalized(p.value);
-    LEAVE_PARAMS_MUTEX;
+    LEAVE_PARAMS_MUTEX
 
     OnParamChange(p.idx, kHost, -1);
     OnParamChangeUI(p.idx, kHost);

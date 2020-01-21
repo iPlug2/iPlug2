@@ -57,7 +57,9 @@ void SplashAnimationFunc(IControl* pCaller)
 };
 
 void EmptyClickActionFunc(IControl* pCaller) { };
+
 void DefaultClickActionFunc(IControl* pCaller) { pCaller->SetAnimation(DefaultAnimationFunc, DEFAULT_ANIMATION_DURATION); };
+
 void SplashClickActionFunc(IControl* pCaller)
 {
   float x, y;
@@ -65,24 +67,25 @@ void SplashClickActionFunc(IControl* pCaller)
   dynamic_cast<IVectorBase*>(pCaller)->SetSplashPoint(x, y);
   pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION);
 }
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
 using namespace iplug;
 using namespace igraphics;
 
-IControl::IControl(const IRECT& bounds, int paramIdx, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, int paramIdx, IActionFunction aF)
 : mRECT(bounds)
 , mTargetRECT(bounds)
-, mActionFunc(actionFunc)
+, mActionFunc(aF)
 {
   mVals[0].idx = paramIdx;
 }
 
-IControl::IControl(const IRECT& bounds, const std::initializer_list<int>& params, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, const std::initializer_list<int>& params, IActionFunction aF)
 : mRECT(bounds)
 , mTargetRECT(bounds)
-, mActionFunc(actionFunc)
+, mActionFunc(aF)
 {
   mVals.clear();
   for (auto& paramIdx : params) {
@@ -90,10 +93,10 @@ IControl::IControl(const IRECT& bounds, const std::initializer_list<int>& params
   }
 }
 
-IControl::IControl(const IRECT& bounds, IActionFunction actionFunc)
+IControl::IControl(const IRECT& bounds, IActionFunction aF)
 : mRECT(bounds)
 , mTargetRECT(bounds)
-, mActionFunc(actionFunc)
+, mActionFunc(aF)
 {
 }
 
@@ -212,12 +215,16 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
   }
 }
 
+void IControl::Animate()
+{
+  if (GetAnimationFunction())
+    mAnimationFunc(this);
+}
+
 bool IControl::IsDirty()
 {
-  if(GetAnimationFunction()) {
-    mAnimationFunc(this);
+  if (GetAnimationFunction())
     return true;
-  }
   
   return mDirty;
 }
@@ -228,9 +235,9 @@ void IControl::Hide(bool hide)
   SetDirty(false);
 }
 
-void IControl::GrayOut(bool gray)
+void IControl::SetDisabled(bool disable)
 {
-  mGrayed = gray;
+  mDisabled = disable;
   SetDirty(false);
 }
 
@@ -278,6 +285,45 @@ void IControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx)
   {
     SetValueFromUserInput(GetParam()->ToNormalized( (double) pSelectedMenu->GetChosenItemIdx()), valIdx);
   }
+}
+
+void IControl::SetPosition(float x, float y)
+{
+  if (x < 0.f) x = 0.f;
+  if (y < 0.f) y = 0.f;
+
+  SetTargetAndDrawRECTs({x, y, x + mRECT.W(), y + mRECT.H()});
+}
+
+void IControl::SetSize(float w, float h)
+{
+  if (w < 0.f) w = 0.f;
+  if (h < 0.f) h = 0.f;
+
+  SetTargetAndDrawRECTs({mRECT.L, mRECT.T, mRECT.L + w, mRECT.T + h});
+}
+
+IControl* IControl::AttachGestureRecognizer(EGestureType type, IGestureFunc func)
+{
+  mGestureFuncs.insert(std::make_pair(type, func));
+  
+  GetUI()->AttachGestureRecognizer(type); // this will crash if called in constructor
+  
+  return this; //for chaining
+}
+
+bool IControl::OnGesture(const IGestureInfo& info)
+{
+  auto itr = mGestureFuncs.find(info.type);
+  
+  if(itr != mGestureFuncs.end())
+  {
+    mLastGesture = info.type;
+    itr->second(this, info);
+    return true;
+  }
+  
+  return false;
 }
 
 void IControl::PromptUserInput(int valIdx)
@@ -363,6 +409,30 @@ void IControl::SnapToMouse(float x, float y, EDirection direction, const IRECT& 
   
   ForValIdx(valIdx, valFunc);
   SetDirty(true, valIdx);
+}
+
+void IControl::OnEndAnimation()
+{
+  mAnimationFunc = nullptr;
+  SetDirty(false);
+  
+  if(mAnimationEndActionFunc)
+    mAnimationEndActionFunc(this);
+}
+
+void IControl::StartAnimation(int duration)
+{
+  mAnimationStartTime = std::chrono::high_resolution_clock::now();
+  mAnimationDuration = Milliseconds(duration);
+}
+
+double IControl::GetAnimationProgress() const
+{
+  if(!mAnimationFunc)
+    return 0.;
+  
+  auto elapsed = Milliseconds(std::chrono::high_resolution_clock::now() - mAnimationStartTime);
+  return elapsed.count() / mAnimationDuration.count();
 }
 
 ITextControl::ITextControl(const IRECT& bounds, const char* str, const IText& text, const IColor& BGColor, bool setBoundsBasedOnStr)
@@ -589,9 +659,10 @@ void PlaceHolder::OnResize()
   mHeightStr.SetFormatted(32, "%0.1f", mRECT.H());
 }
 
-IButtonControlBase::IButtonControlBase(const IRECT& bounds, IActionFunction actionFunc)
-: IControl(bounds, kNoParameter, actionFunc)
+IButtonControlBase::IButtonControlBase(const IRECT& bounds, IActionFunction aF)
+: IControl(bounds, kNoParameter, aF)
 {
+  mDblAsSingleClick = true;
 }
 
 void IButtonControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -606,12 +677,12 @@ void IButtonControlBase::OnEndAnimation()
   IControl::OnEndAnimation();
 }
 
-ISwitchControlBase::ISwitchControlBase(const IRECT& bounds, int paramIdx, IActionFunction actionFunc,
-  int numStates)
-  : IControl(bounds, paramIdx, actionFunc)
-  , mNumStates(numStates)
+ISwitchControlBase::ISwitchControlBase(const IRECT& bounds, int paramIdx, IActionFunction aF, int numStates)
+: IControl(bounds, paramIdx, aF)
+, mNumStates(numStates)
 {
   assert(mNumStates > 1);
+  mDblAsSingleClick = true;
 }
 
 void ISwitchControlBase::OnInit()
@@ -662,11 +733,13 @@ bool IKnobControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
   double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
+  
+  IRECT dragBounds = GetKnobDragBounds();
 
   if (mDirection == EDirection::Vertical)
-    SetValue(GetValue() + (double)dY / (double)(mRECT.T - mRECT.B) / gearing);
+    SetValue(GetValue() + (double)dY / (double)(dragBounds.T - dragBounds.B) / gearing);
   else
-    SetValue(GetValue() + (double)dX / (double)(mRECT.R - mRECT.L) / gearing);
+    SetValue(GetValue() + (double)dX / (double)(dragBounds.R - dragBounds.L) / gearing);
 
   SetDirty();
 }

@@ -16,6 +16,7 @@
  * See here for visualizations: http://easings.net/
  */
 
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include "IPlugPlatform.h"
 

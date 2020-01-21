@@ -422,6 +422,33 @@ static EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent,
   return true;
 }
 
+static EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
+  
+  val input = val::global("document").call<val>("getElementById", std::string("textEntry"));
+  std::string str = input["value"].as<std::string>();
+  val::global("document")["body"].call<void>("removeChild", input);
+  pGraphics->SetControlValueAfterTextEdit(str.c_str());
+  
+  return true;
+}
+
+static EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
+  
+  IKeyPress keyPress {pEvent->key, domVKToWinVK(pEvent->keyCode),
+    static_cast<bool>(pEvent->shiftKey),
+    static_cast<bool>(pEvent->ctrlKey),
+    static_cast<bool>(pEvent->altKey)};
+  
+  if (keyPress.VK == kVK_RETURN || keyPress.VK ==  kVK_TAB)
+    return complete_text_entry(0, nullptr, pUserData);
+  
+  return false;
+}
+
 IColorPickerHandlerFunc gColorPickerHandlerFunc = nullptr;
 
 static void color_picker_callback(val e)
@@ -441,8 +468,14 @@ static void color_picker_callback(val e)
   }
 }
 
+static void file_dialog_callback(val e)
+{
+  // DBGMSG(e["files"].as<std::string>().c_str());
+}
+
 EMSCRIPTEN_BINDINGS(events) {
   function("color_picker_callback", color_picker_callback);
+  function("file_dialog_callback", file_dialog_callback);
 }
 
 #pragma mark -
@@ -603,23 +636,33 @@ EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption,
 
 void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)
 {
-  val inputEl = val::global("document").call<val>("createElement", std::string("input"));
+  //TODO
+  // val inputEl = val::global("document").call<val>("createElement", std::string("input"));
   
-  inputEl.call<void>("setAttribute", std::string("accept"), std::string(ext));
-  inputEl.call<void>("click");
+  // inputEl.call<void>("setAttribute", std::string("type"), std::string("file"));
+  // inputEl.call<void>("setAttribute", std::string("accept"), std::string(ext));
+  // inputEl.call<void>("click");
+  // inputEl.call<void>("addEventListener", std::string("input"), val::module_property("file_dialog_callback"), false);
+  // inputEl.call<void>("addEventListener", std::string("onChange"), val::module_property("file_dialog_callback"), false);
 }
 
 void IGraphicsWeb::PromptForDirectory(WDL_String& path)
 {
-  val inputEl = val::global("document").call<val>("createElement", std::string("input"));
+  //TODO
+  // val inputEl = val::global("document").call<val>("createElement", std::string("input"));
 
-  inputEl.call<void>("setAttribute", std::string("directory"));
-  inputEl.call<void>("setAttribute", std::string("webkitdirectory"));
-  inputEl.call<void>("click");
+  // inputEl.call<void>("setAttribute", std::string("type"), std::string("file"));
+  // inputEl.call<void>("setAttribute", std::string("directory"), true);
+  // inputEl.call<void>("setAttribute", std::string("webkitdirectory"), true);
+  // inputEl.call<void>("click");
+  // inputEl.call<void>("addEventListener", std::string("input"), val::module_property("file_dialog_callback"), false);
+  // inputEl.call<void>("addEventListener", std::string("onChange"), val::module_property("file_dialog_callback"), false);
 }
 
 bool IGraphicsWeb::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
+  ReleaseMouseCapture();
+
   gColorPickerHandlerFunc = func;
 
   val inputEl = val::global("document").call<val>("createElement", std::string("input"));
@@ -631,33 +674,6 @@ bool IGraphicsWeb::PromptForColor(IColor& color, const char* str, IColorPickerHa
   inputEl.call<void>("addEventListener", std::string("input"), val::module_property("color_picker_callback"), false);
   inputEl.call<void>("addEventListener", std::string("onChange"), val::module_property("color_picker_callback"), false);
 
-  return false;
-}
-
-static EM_BOOL complete_text_entry(int eventType, const EmscriptenFocusEvent* focusEvent, void* pUserData)
-{
-  IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
-  
-  val input = val::global("document").call<val>("getElementById", std::string("textEntry"));
-  std::string str = input["value"].as<std::string>();
-  val::global("document")["body"].call<void>("removeChild", input);
-  pGraphics->SetControlValueAfterTextEdit(str.c_str());
-  
-  return true;
-}
-
-static EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
-{
-  IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
-  
-  IKeyPress keyPress {pEvent->key, domVKToWinVK(pEvent->keyCode),
-    static_cast<bool>(pEvent->shiftKey),
-    static_cast<bool>(pEvent->ctrlKey),
-    static_cast<bool>(pEvent->altKey)};
-  
-  if (keyPress.VK == kVK_RETURN || keyPress.VK ==  kVK_TAB)
-    return complete_text_entry(0, nullptr, pUserData);
-  
   return false;
 }
 

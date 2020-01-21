@@ -64,6 +64,15 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
+/** Converts IColor to a NVGcolor */
+NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0);
+
+/** Set the NanoVG context blend based on IBlend */
+void NanoVGSetBlendMode(NVGcontext* pContext, const IBlend* pBlend);
+
+/** Converts IPattern to NVGpaint */
+NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend = 0);
+
 /** IGraphics draw class using NanoVG  
 *   @ingroup DrawClasses */
 class IGraphicsNanoVG : public IGraphicsPathBase
@@ -95,6 +104,7 @@ public:
   void PathLineTo(float x, float y) override;
   void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) override;
   void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) override;
+  void PathSetWinding(bool clockwise) override;
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
   

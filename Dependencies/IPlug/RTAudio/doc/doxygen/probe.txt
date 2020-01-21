@@ -45,7 +45,7 @@ The RtAudio::DeviceInfo structure is defined in RtAudio.h and provides a variety
     bool isDefaultOutput;                  // true if this is the default output device.
     bool isDefaultInput;                   // true if this is the default input device.
     std::vector<unsigned int> sampleRates; // Supported sample rates.
-    unsigned int preferredSampleRate;      // Preferred sample rate, eg. for WASAPI the system sample rate.
+    unsigned int preferredSampleRate;      // Preferred sample rate, e.g. for WASAPI the system sample rate.
     RtAudioFormat nativeFormats;           // Bit mask of supported data formats.
   };
 \endcode
@@ -54,18 +54,20 @@ The following data formats are defined and fully supported by RtAudio:
 
 \code
   typedef unsigned long RtAudioFormat;
-  static const RtAudioFormat  RTAUDIO_SINT8;   // Signed 8-bit integer
-  static const RtAudioFormat  RTAUDIO_SINT16;  // Signed 16-bit integer
-  static const RtAudioFormat  RTAUDIO_SINT24;  // Signed 24-bit integer (lower 3 bytes of 32-bit signed integer.)
-  static const RtAudioFormat  RTAUDIO_SINT32;  // Signed 32-bit integer
-  static const RtAudioFormat  RTAUDIO_FLOAT32; // 32-bit float normalized between +/- 1.0
-  static const RtAudioFormat  RTAUDIO_FLOAT64; // 64-bit double normalized between +/- 1.0
+  static const RtAudioFormat RTAUDIO_SINT8 = 0x1;    // 8-bit signed integer.
+  static const RtAudioFormat RTAUDIO_SINT16 = 0x2;   // 16-bit signed integer.
+  static const RtAudioFormat RTAUDIO_SINT24 = 0x4;   // 24-bit signed integer.
+  static const RtAudioFormat RTAUDIO_SINT32 = 0x8;   // 32-bit signed integer.
+  static const RtAudioFormat RTAUDIO_FLOAT32 = 0x10; // Normalized between plus/minus 1.0.
+  static const RtAudioFormat RTAUDIO_FLOAT64 = 0x20; // Normalized between plus/minus 1.0.
 \endcode
 
 The \c nativeFormats member of the RtAudio::DeviceInfo structure is a bit mask of the above formats which are natively supported by the device.  However, RtAudio will automatically provide format conversion if a particular format is not natively supported.  When the \c probed member of the RtAudio::DeviceInfo structure is false, the remaining structure members are undefined and the device is probably unusable.
 
 Some audio devices may require a minimum channel value greater than one.  RtAudio will provide automatic channel number compensation when the number of channels set by the user is less than that required by the device.  Channel compensation is <I>NOT</I> possible when the number of channels set by the user is greater than that supported by the device.
 
-It should be noted that the capabilities reported by a device driver or underlying audio API are not always accurate and/or may be dependent on a combination of device settings.  For this reason, RtAudio does not rely on the queried values when attempting to open a stream.
+Note that the device enumeration is system specific and will change if any devices are plugged or unplugged by the user. Thus, the device numbers should be verified immediately before opening a stream. As well, if a user unplugs a device while an open stream is using that device, the resulting stream behaviour will be undefined (a system error will likely be generated).
+
+Also, the capabilities reported by a device driver or underlying audio API are not always accurate and/or may be dependent on a combination of device settings.  For this reason, RtAudio does not rely on the queried values when attempting to open a stream.
 
 */

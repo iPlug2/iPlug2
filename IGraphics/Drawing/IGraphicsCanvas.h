@@ -22,6 +22,9 @@ using namespace emscripten;
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
+/** Convert IColor to std::string for Canvas */
+std::string CanvasColor(const IColor& color, float alpha = 1.0);
+
 /** IGraphics draw class HTML5 canvas
 * @ingroup DrawClasses */
 class IGraphicsCanvas : public IGraphicsPathBase
@@ -34,7 +37,7 @@ public:
   IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsCanvas();
 
-  const char* GetDrawingAPIStr() override { return "HTML5 Canvas"; }
+  const char* GetDrawingAPIStr() override { return "Canvas2D"; }
 
   void DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
 
@@ -95,7 +98,7 @@ private:
   void SetCanvasSourcePattern(val& context, const IPattern& pattern, const IBlend* pBlend = nullptr);
   void SetCanvasBlendMode(val& context, const IBlend* pBlend);
     
-  std::vector<std::pair<WDL_String, WDL_String>> mCustomFonts;
+  std::vector<val> mLoadingFonts;
 
   static StaticStorage<Font> sFontCache;
 };

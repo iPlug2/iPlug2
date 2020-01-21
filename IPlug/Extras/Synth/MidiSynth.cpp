@@ -80,13 +80,13 @@ VoiceInputEvent MidiSynth::MidiMessageToEventBasic(const IMidiMsg& msg)
     {
       event.mAction = kPitchBendAction;
       float bendRange = mChannelStates[event.mAddress.mChannel].pitchBendRange;
-      event.mValue = msg.PitchWheel() * bendRange / 12.f;
+      event.mValue = static_cast<float>(msg.PitchWheel()) * bendRange / 12.f;
       break;
     }
     case IMidiMsg::kControlChange:
     {
       event.mControllerNumber = msg.ControlChangeIdx();
-      event.mValue = msg.ControlChange(msg.ControlChangeIdx());
+      event.mValue = static_cast<float>(msg.ControlChange(msg.ControlChangeIdx()));
       switch(event.mControllerNumber)
       {
         // handle special controllers
@@ -148,7 +148,7 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
     {
       event.mAction = kPitchBendAction;
       float bendRange = mChannelStates[event.mAddress.mChannel].pitchBendRange;
-      event.mValue = msg.PitchWheel() * bendRange / 12.f;
+      event.mValue = static_cast<float>(msg.PitchWheel()) * bendRange / 12.f;
 
       pChannelDestValue = &(mChannelStates[event.mAddress.mChannel].pitchBend);
       masterChannelStoredValue = mChannelStates[MasterChannelFor(event.mAddress.mChannel)].pitchBend;
@@ -163,7 +163,7 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
     else if(isTimbre)
     {
       event.mAction = kTimbreAction;
-      event.mValue = msg.ControlChange(msg.ControlChangeIdx());
+      event.mValue = static_cast<float>(msg.ControlChange(msg.ControlChangeIdx()));
       pChannelDestValue = &(mChannelStates[event.mAddress.mChannel].timbre);
       masterChannelStoredValue = mChannelStates[MasterChannelFor(event.mAddress.mChannel)].timbre;
     }
@@ -243,7 +243,7 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
           event.mAction = kControllerAction;
           break;
       }
-      event.mValue = msg.ControlChange(msg.ControlChangeIdx());
+      event.mValue = static_cast<float>(msg.ControlChange(msg.ControlChangeIdx()));
       break;
     }
 
@@ -477,10 +477,10 @@ void MidiSynth::SetSampleRateAndBlockSize(double sampleRate, int blockSize)
 
   mSampleRate = sampleRate;
   mMidiQueue.Resize(blockSize);
-  mVoiceAllocator.SetSampleRate(sampleRate);
+  mVoiceAllocator.SetSampleRateAndBlockSize(sampleRate, blockSize);
 
   for(int v = 0; v < NVoices(); v++)
   {
-    GetVoice(v)->SetSampleRate(sampleRate);
+    GetVoice(v)->SetSampleRateAndBlockSize(sampleRate, blockSize);
   }
 }

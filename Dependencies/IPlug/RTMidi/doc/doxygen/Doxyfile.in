@@ -169,7 +169,7 @@ QT_AUTOBRIEF           = NO
 # The new default is to treat a multi-line C++ comment block as a detailed 
 # description. Set this tag to YES if you prefer the old behaviour instead.
 
-MULTILINE_CPP_IS_BRIEF = NO
+MULTILINE_CPP_IS_BRIEF = YES
 
 # If the INHERIT_DOCS tag is set to YES (the default) then an undocumented 
 # member inherits the documentation from any documented member that it 
@@ -317,7 +317,7 @@ INLINE_GROUPED_CLASSES = NO
 # structs, classes, and unions are shown on a separate page (for HTML and Man 
 # pages) or section (for LaTeX and RTF).
 
-INLINE_SIMPLE_STRUCTS  = NO
+INLINE_SIMPLE_STRUCTS  = YES
 
 # When TYPEDEF_HIDES_STRUCT is enabled, a typedef of a struct, union, or enum 
 # is documented as struct, union, or enum with the name of the typedef. So 
@@ -327,7 +327,7 @@ INLINE_SIMPLE_STRUCTS  = NO
 # be useful for C code in case the coding convention dictates that all compound 
 # types are typedef'ed and only the typedef is referenced, never the tag name.
 
-TYPEDEF_HIDES_STRUCT   = NO
+TYPEDEF_HIDES_STRUCT   = YES
 
 # The SYMBOL_CACHE_SIZE determines the size of the internal cache use to 
 # determine which symbols to keep in memory and which to flush to disk. 
@@ -668,8 +668,8 @@ WARN_LOGFILE           =
 # with spaces.
 
 INPUT                  = tutorial.txt \
-                         ../../RtMidi.h \
-                         ../../RtError.h
+                         @top_srcdir@/RtMidi.h \
+                         @top_srcdir@/rtmidi_c.h
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 

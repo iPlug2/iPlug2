@@ -3,7 +3,8 @@
 #include "IPlugPlatform.h"
 #include "IGraphicsPathBase.h"
 
-#if defined IGRAPHICS_METAL
+// N.B. - this must be defined according to the skia build, not the iPlug build
+#if defined OS_MAC || defined OS_IOS
 #define SK_METAL
 #endif
 
@@ -14,6 +15,21 @@
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
+
+/** Converts IRECT to a SkRect */
+SkRect SkiaRect(const IRECT& r);
+
+/** Converts IBlend to a SkBlendMode */
+SkBlendMode SkiaBlendMode(const IBlend* pBlend);
+
+/** Converts IColor to a SkColor */
+SkColor SkiaColor(const IColor& color, const IBlend* pBlend);
+
+/** Get SkTileMode for IPattern */
+SkTileMode SkiaTileMode(const IPattern& pattern);
+
+/** Converts IPattern to SkPaint */
+SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend);
 
 /** IGraphics draw class using Skia
 *   @ingroup DrawClasses */
@@ -55,6 +71,34 @@ public:
     
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
+
+#ifdef IGRAPHICS_DRAWFILL_DIRECT
+  //void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
+  //void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness) override;
+  //void DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend, float thickness) override;
+  //void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints, const IBlend* pBlend, float thickness) override;
+  //void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen) override;
+  //void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend, float thickness) override;
+  void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override;
+  void DrawRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend, float thickness) override;
+  //void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend, float thickness) override;
+  //void DrawConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend, float thickness) override;
+  void DrawArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend, float thickness) override;
+  void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend, float thickness) override;
+  //void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen) override;
+  void DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness) override;
+  //void DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend, float thickness) override;
+
+  //void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend) override;
+  void FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override;
+  void FillRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend) override;
+  //void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend) override;
+  //void FillConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend) override;
+  void FillArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend) override;
+  void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
+  void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override;
+  //void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend) override;
+#endif
   
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mCanvas; }
@@ -63,8 +107,6 @@ public:
   int AlphaChannel() const override { return 3; }
   bool FlippedBitmap() const override { return false; }
 
-  void ReleaseBitmap(const IBitmap& bitmap) override { } // NO-OP
-  void RetainBitmap(const IBitmap& bitmap, const char * cacheName) override { } // NO-OP
   APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
 
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
@@ -90,15 +132,17 @@ private:
   void RenderPath(SkPaint& paint);
     
   sk_sp<SkSurface> mSurface;
-  sk_sp<SkSurface> mScreenSurface;
   SkCanvas* mCanvas = nullptr;
-  sk_sp<GrContext> mGrContext;
-  std::unique_ptr<GrBackendRenderTarget> mBackendRenderTarget;
   SkPath mMainPath;
   SkMatrix mMatrix;
 
 #if defined OS_WIN && defined IGRAPHICS_CPU
   WDL_TypedBuf<uint8_t> mSurfaceMemory;
+#endif
+  
+#ifndef IGRAPHICS_CPU
+  sk_sp<GrContext> mGrContext;
+  sk_sp<SkSurface> mScreenSurface;
 #endif
   
 #ifdef IGRAPHICS_METAL

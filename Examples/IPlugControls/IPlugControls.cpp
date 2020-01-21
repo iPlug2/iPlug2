@@ -115,8 +115,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       }, 100);
     }));
     
-    AddLabel("ISVGKnob");
-    pGraphics->AttachControl(new ISVGKnob(sameCell().GetCentredInside(100), knobSVG, kParamGain));
+    AddLabel("ISVGKnobControl");
+    pGraphics->AttachControl(new ISVGKnobControl(sameCell().GetCentredInside(100), knobSVG, kParamGain));
 
     auto button1action = [pGraphics](IControl* pCaller){
       SplashClickActionFunc(pCaller);
@@ -138,7 +138,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 
     pGraphics->AttachControl(new IVButtonControl(nextCell().GetCentredInside(110.), [pGraphics](IControl* pCaller){
       SplashClickActionFunc(pCaller);
-      static IPopupMenu menu {"Menu", {"one", "two", "three"}, [pCaller](int indexInMenu, IPopupMenu::Item* itemChosen) {
+      static IPopupMenu menu {"Menu", {"one", "two", "three"}, [pCaller](IPopupMenu* pMenu) {
+          auto* itemChosen = pMenu->GetChosenItem();
           if(itemChosen)
             dynamic_cast<IVButtonControl*>(pCaller)->SetValueStr(itemChosen->GetText());
         }
@@ -271,10 +272,35 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       IPanelControl* pPanel = dynamic_cast<IPanelControl*>(pGraphics->GetBackgroundControl());
       IColor color = pPanel->GetPattern().GetStop(0).mColor;
       pGraphics->PromptForColor(color, "", [pCaller, pGraphics, pPanel](const IColor& result){
+        dynamic_cast<IVButtonControl*>(pCaller)->SetColor(kFG, result);
         pPanel->SetPattern(result);
       });
 
     }, "Background", style.WithColor(kFG, DEFAULT_GRAPHICS_BGCOLOR).WithDrawFrame(false).WithDrawShadows(false)));
+
+    nextCell();
+    toggle = 0;
+    
+    for(auto label : {"Disable"})
+    {
+      pGraphics->AttachControl(new IVToggleControl(sameCell().GetGridCell(toggle, 0, 5, 1), [pGraphics, toggle](IControl* pCaller){
+        SplashClickActionFunc(pCaller);
+        bool disable = pCaller->GetValue() > 0.5f;
+        pGraphics->ForStandardControlsFunc([pCaller, toggle, disable](IControl& control) {
+          
+          switch (toggle) {
+            case 0 :
+              if(&control != pCaller)
+                control.SetDisabled(disable); break;
+            default:
+              break;
+          }
+        });
+      }, label, style.WithValueText(forkAwesomeText.WithSize(12.f)).WithDrawFrame(false).WithDrawShadows(false), ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE));
+      
+      toggle++;
+    }
+    
   };
 #endif
 }
