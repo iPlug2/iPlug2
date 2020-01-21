@@ -669,7 +669,11 @@ bool IPlugAPPHost::InitMidi()
   }
 
   mMidiIn->setCallback(&MIDICallback, this);
+
+#if not defined OS_LINUX
+  // AZ: TODO: cryptically segfaulting here...
   mMidiIn->ignoreTypes(false, true, false );
+#endif
 
   return true;
 }

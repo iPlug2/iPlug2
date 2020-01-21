@@ -220,7 +220,7 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
       $(info $(shell cd $(_SKIA_PATH) && rm -rf .git && python2 tools/git-sync-deps))
     endif
     
-    IPINC_DIR += $(_SKIA_PATH) $(_SKIA_PATH)/include/core $(_SKIA_PATH)/include/effects $(_SKIA_PATH)/include/gpu
+    IPINC_DIR += $(_SKIA_PATH) $(_SKIA_PATH)/include/core $(_SKIA_PATH)/include/effects $(_SKIA_PATH)/include/gpu $(_SKIA_PATH)/experimental/svg/model
 
     CXXFLAGSE$(_TSX) += -DIGRAPHICS_SKIA -DIGRAPHICS_GL2
 		
@@ -228,7 +228,7 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
     IPB_DEPS$(_TSX) += $(_IDEPS_INSTALL_PATH)/skia/libskia.a
 
     # some extra libraries
-    LIBS$(_TSX) += -lfreetype -lGL
+    LIBS$(_TSX) += -lfreetype -lGL -lexpat
   else
     $(error FATAL: '$(IGRAPHICS)' graphics flaviour is not currently supported)
   endif
@@ -238,7 +238,7 @@ endif
 ifneq ($(_SKIA_PATH),)
 $(_IDEPS_INSTALL_PATH)/skia/libskia.a:
 		@echo "Compiling skia..."
-		@cd $(_SKIA_PATH) && ./bin/gn gen $(_IDEPS_INSTALL_PATH)/skia --args='is_official_build = true is_debug = false skia_use_system_libjpeg_turbo = false skia_use_system_libpng = false skia_use_system_zlib = false skia_use_libwebp = false skia_use_xps = false skia_use_dng_sdk = false skia_use_expat = false skia_use_icu = false skia_use_sfntly = false skia_enable_skottie = false skia_enable_pdf = false skia_enable_particles = true skia_enable_gpu = true cc = "clang" cxx = "clang++"'
+		@cd $(_SKIA_PATH) && ./bin/gn gen $(_IDEPS_INSTALL_PATH)/skia --args='is_official_build = true is_debug = false skia_use_system_libjpeg_turbo = false skia_use_system_libpng = false skia_use_system_zlib = false skia_use_libwebp = false skia_use_xps = false skia_use_dng_sdk = false skia_use_expat = true skia_use_icu = true skia_use_sfntly = false skia_enable_skottie = true skia_enable_pdf = false skia_enable_particles = true skia_enable_gpu = true skia_enable_skparagraph = true skia_enable_sksl_interpreter = true cc = "clang" cxx = "clang++"'
 		@cd $(_SKIA_PATH) && ninja -C  $(_IDEPS_INSTALL_PATH)/skia $(SKIA_NINJA_ARGS)
 endif
 
