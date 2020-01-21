@@ -152,11 +152,18 @@ void IPlugLV2DSP::deactivate()
 
 #ifdef IPLUG_EDITOR
 
-IPlugLV2Editor::IPlugLV2Editor(const InstanceInfo &info, const Config& config) : IPlugAPIBase(config, kAPILV2), IPlugProcessor(config, kAPILV2)
-  , mHostSupportIdle(false), mHostWidget(nullptr), mHostResize(nullptr)
+IPlugLV2Editor::IPlugLV2Editor(const InstanceInfo &info, const Config& config) : IPlugAPIBase(config, kAPILV2)
+, mHostSupportIdle(false), mHostWidget(nullptr), mHostResize(nullptr)
 { 
   Trace(TRACELOC, "%s", config.pluginName);
+
+  WDL_PtrList<IOConfig> IOConfigs;
+  int totalNInChans, totalNOutChans;
+  int totalNInBuses, totalNOutBuses;
+  IPlugProcessor::ParseChannelIOStr(config.channelIOStr, IOConfigs, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses);
   
+  mParameterPortOffset = totalNInChans + totalNOutChans;
+
   mEmbed = xcbt_embed_idle();
  
   mHostWrite      = info.write_function;
@@ -205,14 +212,12 @@ IPlugLV2Editor::~IPlugLV2Editor()
 
 void IPlugLV2Editor::InformHostOfParamChange(int idx, double normalizedValue)
 {
-  int nInputs = MaxNChannels(ERoute::kInput), nOutputs = MaxNChannels(ERoute::kOutput);
-
   // I use original (not normilized) value in LV2
   ENTER_PARAMS_MUTEX_STATIC;
   float value = GetParam(idx)->Value();
   LEAVE_PARAMS_MUTEX_STATIC;
   
-  uint32_t port_index = nInputs + nOutputs + idx;
+  uint32_t port_index = mParameterPortOffset + idx;
   
   if (mHostWrite)
   {
@@ -226,12 +231,11 @@ void IPlugLV2Editor::port_event(uint32_t port_index, uint32_t buffer_size, uint3
   if ((format == 0) && (buffer_size == sizeof(float)) && buffer)
   {
     float value = *((float *)buffer);
-    int nInputs = MaxNChannels(ERoute::kInput), nOutputs = MaxNChannels(ERoute::kOutput), nParams = NParams();
-    if (port_index >= (nInputs + nOutputs))
+    if (port_index >= mParameterPortOffset)
     {
-      int idx = port_index - nInputs - nOutputs;
+      int idx = port_index - mParameterPortOffset;
       // printf("  Param %d = %f\n", idx, value);
-      if (idx < nParams)
+      if (idx < NParams())
       {
         ENTER_PARAMS_MUTEX_STATIC;
         GetParam(idx)->Set(value);

@@ -8,8 +8,8 @@
  ==============================================================================
 */
 
-#ifndef __IPLUGAPI_H
-#define __IPLUGAPI_H
+#ifndef _IPLUGAPI_
+#define _IPLUGAPI_
 
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
@@ -42,7 +42,7 @@ struct InstanceInfo
 /**  LV2 processor base class for an IPlug plug-in
 *   @ingroup APIClasses */
 class IPlugLV2DSP : public IPlugAPIBase
-                , public IPlugProcessor
+                  , public IPlugProcessor
 {
 public:
   IPlugLV2DSP(const InstanceInfo& info, const Config& config);
@@ -100,7 +100,6 @@ struct InstanceInfo
 /**  LV2 editor base class for an IPlug plug-in
 *   @ingroup APIClasses */
 class IPlugLV2Editor : public IPlugAPIBase
-                , public IPlugProcessor // TODO: it is logical bug to have "processor" there, but I need the number of channels...
 {
 public:
   IPlugLV2Editor(const InstanceInfo& info, const Config& config);
@@ -115,9 +114,6 @@ public:
   bool EditorResizeFromDelegate(int viewWidth, int viewHeight) override;
   */
   
-  //IPlugProcessor
-  bool SendMidiMsg(const IMidiMsg& msg) override { return false; }
-
   LV2UI_Widget CreateUI(); // post constructor to create window
 
   //LV2 UI methods
@@ -128,6 +124,8 @@ public:
   bool EditorResizeFromUI(int viewWidth, int viewHeight) override;
   
 private:
+  int mParameterPortOffset;
+
   LV2UI_Write_Function   mHostWrite;
   LV2UI_Controller       mHostController;
   bool                   mHostSupportIdle;
