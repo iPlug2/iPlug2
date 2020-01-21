@@ -205,13 +205,43 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
 	  
 	  # Not nice, but stb_ produce that and it is included directly
 	  CXXFLAGSE$(_TSX) += -Wno-misleading-indentation
+	else ifeq ($(IGRAPHICS),SKIA_GL2)
+    IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoSVG/src
+    
+    _SKIA_PATH = $(_IGRAPHICS_DEPS_PATH)/skia
+    
+    ifeq ($(wildcard $(_SKIA_PATH)/include/core),)
+      $(info "Downloading SKIA ...")
+      $(info $(shell cd $(_IGRAPHICS_DEPS_PATH) && rm -rf skia && git clone https://skia.googlesource.com/skia.git))
+    endif
 
+    ifeq ($(wildcard $(_SKIA_PATH)/third_party/externals),)
+      $(info "Downloading SKIA externals ...")
+      $(info $(shell cd $(_SKIA_PATH) && rm -rf .git && python2 tools/git-sync-deps))
+    endif
+    
+    IPINC_DIR += $(_SKIA_PATH) $(_SKIA_PATH)/include/core $(_SKIA_PATH)/include/effects $(_SKIA_PATH)/include/gpu
+
+    CXXFLAGSE$(_TSX) += -DIGRAPHICS_SKIA -DIGRAPHICS_GL2
+		
+		LIBS$(_TSX) += $(_IDEPS_INSTALL_PATH)/skia/libskia.a
+    IPB_DEPS$(_TSX) += $(_IDEPS_INSTALL_PATH)/skia/libskia.a
+
+    # some extra libraries
+    LIBS$(_TSX) += -lfreetype -lGL
   else
     $(error FATAL: '$(IGRAPHICS)' graphics flaviour is not currently supported)
   endif
 endif
 
 # I do not want rules till the end, Makefile indentation bugs are displayed better then
+ifneq ($(_SKIA_PATH),)
+$(_IDEPS_INSTALL_PATH)/skia/libskia.a:
+		@echo "Compiling skia..."
+		@cd $(_SKIA_PATH) && ./bin/gn gen $(_IDEPS_INSTALL_PATH)/skia --args='is_official_build = true is_debug = false skia_use_system_libjpeg_turbo = false skia_use_system_libpng = false skia_use_system_zlib = false skia_use_libwebp = false skia_use_xps = false skia_use_dng_sdk = false skia_use_expat = false skia_use_icu = false skia_use_sfntly = false skia_enable_skottie = false skia_enable_pdf = false skia_enable_particles = true skia_enable_gpu = true cc = "clang" cxx = "clang++"'
+		@cd $(_SKIA_PATH) && ninja -C  $(_IDEPS_INSTALL_PATH)/skia $(SKIA_NINJA_ARGS)
+endif
+
 ifeq ($(ITARGET),APP)
 
 # AKA resouce file generation	
@@ -237,7 +267,6 @@ $(IPBD)/libSwell.so: $(_SWELL_LIB_PATH)
 		@cp $< $@
 
 # compiling RTAudio
-$(info $(_IDEPS_INSTALL_PATH)/lib/librtaudio.a)
 $(_IDEPS_INSTALL_PATH)/lib/librtaudio.a:
 		@echo "Compiling RTAudio ..."
 		@[ -e $(dir $@) ] || mkdir -p $(dir $@)
@@ -249,7 +278,6 @@ $(_IDEPS_INSTALL_PATH)/lib/librtaudio.a:
 		@rm -rf $(_IDEPS_INSTALL_PATH)/tmp
 
 # compiling RTMidi
-$(info $(_IDEPS_INSTALL_PATH)/lib/librtmidi.a)
 $(_IDEPS_INSTALL_PATH)/lib/librtmidi.a:
 		@echo "Compiling RTMidi ..."
 		@[ -e $(dir $@) ] || mkdir -p $(dir $@)

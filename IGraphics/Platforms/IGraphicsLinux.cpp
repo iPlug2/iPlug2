@@ -516,9 +516,6 @@ IGraphicsLinux::~IGraphicsLinux()
   #include "IGraphicsLice.cpp"
 #elif defined IGRAPHICS_SKIA
   #include "IGraphicsSkia.cpp"
-  #ifdef IGRAPHICS_GL
-    #include "glad.c"
-  #endif
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
 #ifdef IGRAPHICS_FREETYPE

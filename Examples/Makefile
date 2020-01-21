@@ -53,6 +53,7 @@
 
 ## Graphic engine (variation should match) IGRAPHICS:
 #   NANOVG_GL2 - NanoVG library with GL2 backend (default)
+#   SKIA_GL2   - SKIA with GL2
 #	IGRAPHICS := NANOVG_GL2
 
 ## Build directory

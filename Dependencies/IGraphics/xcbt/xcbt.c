@@ -239,8 +239,17 @@ static int xcbt_glad_glx_load(_xcbt *x){
     tried = 1;
 #ifdef USE_GLAD_GLX
     if(x && x->dpy){
-      dlopen("libGL.so", RTLD_NOW | RTLD_GLOBAL);
+      if(!dlopen("libGL.so.1", RTLD_NOW | RTLD_GLOBAL))
+        dlopen("libGL.so", RTLD_NOW | RTLD_GLOBAL);
       loaded = gladLoadGLX(x->dpy, x->def_screen) ? 1 : 0;
+#ifdef _DEBUG
+      if(loaded){
+        int major, minor;
+        if(glXQueryVersion && glXQueryVersion(x->dpy, &major, &minor)){
+          TRACE("GLX v%d.%d\n", major, minor);
+        }
+      }
+#endif
     }
 #else
     glXCreateContextAttribsARB = (glXCreateContextAttribsARBProc)
@@ -375,8 +384,10 @@ xcbt xcbt_connect(uint32_t flags){
   if(x){
     if(flags & XCBT_USE_GL){
       dlerror(); // clear errors
-      x->xlib = dlopen("libX11.so", RTLD_NOW | RTLD_GLOBAL);
-      x->xlib_xcb = dlopen("libX11-xcb.so", RTLD_NOW | RTLD_GLOBAL);
+      if(!(x->xlib = dlopen("libX11.so.6", RTLD_NOW | RTLD_GLOBAL)))
+        x->xlib = dlopen("libX11.so", RTLD_NOW | RTLD_GLOBAL);
+      if(!(x->xlib_xcb = dlopen("libX11-xcb.so.1", RTLD_NOW | RTLD_GLOBAL)))
+        x->xlib_xcb = dlopen("libX11-xcb.so", RTLD_NOW | RTLD_GLOBAL);
       if(x->xlib && x->xlib_xcb){
         if((*((void **)&x->XOpenDisplay) = dlsym(x->xlib, "XOpenDisplay")) &&
           (*((void **)&x->XCloseDisplay) = dlsym(x->xlib, "XCloseDisplay")) &&
@@ -454,7 +465,7 @@ static GLXFBConfig *xcbt_window_gl_choose_fbconfig(_xcbt_window *xw, int *fbc_be
     GLX_DEPTH_SIZE      , 24,
     GLX_STENCIL_SIZE    , 8,                // in case we want use stencil (requirement for NanoVG)
     GLX_DOUBLEBUFFER    , True,             // we want double buffer
-    //GLX_SAMPLE_BUFFERS  , 1,              // that is nice to have, but not critical
+    //GLX_SAMPLE_BUFFERS  , 1,              // that is nice to have, but not critical. GLX 1.3 could have GLX_ARB_MULTISAMPLE, otherwise had no such attributes.
     //GLX_SAMPLES         , 4,
     None
   };
@@ -472,21 +483,22 @@ static GLXFBConfig *xcbt_window_gl_choose_fbconfig(_xcbt_window *xw, int *fbc_be
     TRACE("Found %d usable FB configs, choosing best for MSAA\n", fbc_count);
     *fbc_best = -1;
     for(i=0; i < fbc_count; ++i){
-      if(glXGetFBConfigAttrib(dpy, fbc[i], GLX_SAMPLE_BUFFERS, &sb) == Success &&
-         glXGetFBConfigAttrib(dpy, fbc[i], GLX_SAMPLES       , &samples) == Success){
-         if(fbc_best < 0 || (sb && samples > samples_best)){
-           *fbc_best = i;
-           samples_best = samples;
-         }
+      if(glXGetFBConfigAttrib(dpy, fbc[i], GLX_SAMPLE_BUFFERS, &sb) == Success){
+        if(!sb || (glXGetFBConfigAttrib(dpy, fbc[i], GLX_SAMPLES, &samples) != Success))
+          samples = 0;
+        if(*fbc_best < 0 || (sb && samples > samples_best)){
+          *fbc_best = i;
+          samples_best = samples;
+        }
       }
     }
-    if(*fbc_best >= 0){
-      TRACE("  Using FB Config with %d samples\n", samples_best);
-      return fbc;
+    if(*fbc_best <= 0){
+      *fbc_best = 0;
+      TRACE("  Using FB Config without MSAA\n");
     } else {
-      TRACE("BUG: sutable FB Config(s) found, but could not be used\n");
+      TRACE("  Using FB Config with %d samples\n", samples_best);
     }
-    free(fbc);
+    return fbc;
   } else {
     TRACE("Not reasonable FB Configs found\n");
   }
@@ -1272,8 +1284,8 @@ xcbt_embed *xcbt_embed_glib(){
 
   if(!(eg->g_io_channel_unix_new = dlsym(h, "g_io_channel_unix_new"))){
     TRACE("INFO: compatible GLib is not found, attempt to load GLib\n");
-    h = dlopen("libglib-2.0.so", RTLD_LAZY);
-    if(h){
+    // I try to open the latest first, in hope it is used in the app...
+    if((h = dlopen("libglib-2.0.so", RTLD_LAZY)) || (h = dlopen("libglib-2.0.so.0", RTLD_LAZY))){
       TRACE("INFO: GLib is loaded explicitly\n");
     }
   }
