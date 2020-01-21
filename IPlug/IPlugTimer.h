@@ -26,7 +26,8 @@
 #include "mutex.h"
 
 #include "IPlugPlatform.h"
-#if not defined OS_LINUX || defined APP_API
+
+#if defined OS_LINUX && defined APP_API
 #include "swell.h"
 #endif
 
@@ -36,8 +37,8 @@
 
 BEGIN_IPLUG_NAMESPACE
 
-#if defined OS_WEB
-/** Base class for timer */
+#if defined OS_WEB || (defined OS_LINUX && !defined APP_API)
+/** Base class for dummy timer for OS WEB and linux !APP */
 struct Timer
 {
   Timer() = default;
@@ -64,9 +65,7 @@ struct Timer
   
   using ITimerFunction = std::function<void(Timer& t)>;
 
-#if not defined OS_LINUX || defined APP_API
   static Timer* Create(ITimerFunction func, uint32_t intervalMs);
-#endif
 
   virtual ~Timer() {};
   virtual void Stop() = 0;
@@ -106,7 +105,7 @@ private:
   uint32_t mIntervalMs;
 };
 #elif defined OS_LINUX
-// otherr API on Linux do not support unrelated timers
+// other API on Linux do not support unrelated timers
 #elif defined OS_WEB
 #else
   #error NOT IMPLEMENTED
