@@ -27,11 +27,17 @@ public:
   TestMTControl(IRECT bounds)
    : IControl(bounds)
   {
-//    SetWantsMultiTouch(true);
+    SetWantsMultiTouch(true);
   }
   
   void Draw(IGraphics& g) override
   {
+    std::vector<uintptr_t> touches;
+    g.GetTouches(this, touches);
+    WDL_String str;
+    str.SetFormatted(32, "NUM TOUCHES: %i", touches.size());
+    g.DrawText(IText(20), str.Get(), mRECT);
+
     g.DrawRect(COLOR_BLACK, mRECT);
     
     if (g.CheckLayer(mLayer))

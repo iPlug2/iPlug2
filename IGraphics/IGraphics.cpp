@@ -154,7 +154,6 @@ void IGraphics::RemoveAllControls()
   ClearMouseOver();
 
   mPopupControl = nullptr;
-  mBubbleControl = nullptr;
   mTextEntryControl = nullptr;
   mCornerResizer = nullptr;
   mPerfDisplay = nullptr;
@@ -163,6 +162,7 @@ void IGraphics::RemoveAllControls()
   mLiveEdit = nullptr;
 #endif
   
+  mBubbleControls.Empty(true);
   mControls.Empty(true);
 }
 
@@ -246,22 +246,14 @@ void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerM
 
 void IGraphics::AttachBubbleControl(const IText& text)
 {
-  if (!mBubbleControl)
-  {
-    mBubbleControl = std::make_unique<IBubbleControl>(text);
-    mBubbleControl->SetDelegate(*GetDelegate());
-  }
+  IBubbleControl* pControl = new IBubbleControl(text);
+  AttachBubbleControl(pControl);
 }
 
 void IGraphics::AttachBubbleControl(IBubbleControl* pControl)
 {
-  std::unique_ptr<IBubbleControl> control(pControl);
-
-  if (!mBubbleControl)
-  {
-    mBubbleControl.swap(control);
-    mBubbleControl->SetDelegate(*GetDelegate());
-  }
+  pControl->SetDelegate(*GetDelegate());
+  mBubbleControls.Add(pControl);
 }
 
 void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
@@ -284,12 +276,46 @@ void IGraphics::AttachTextEntryControl()
 
 void IGraphics::ShowBubbleControl(IControl* pCaller, float x, float y, const char* str, EDirection dir, IRECT minimumContentBounds)
 {
-  assert(mBubbleControl && "No bubble control attached");
+  assert(mBubbleControls.GetSize() && "No bubble controls attached");
   
-  if(mBubbleControl)
+  if(MultiTouchEnabled())
   {
-    mBubbleControl->ShowBubble(pCaller, x, y, str, dir, minimumContentBounds);
+    std::vector<uintptr_t> touchIdxsForCaller;
+    GetTouches(pCaller, touchIdxsForCaller);
+    std::vector<IBubbleControl*> availableBubbleControls;
+    int nBubbleControls = mBubbleControls.GetSize();
+    
+    if(touchIdxsForCaller.size() == 1)
+    {
+      uintptr_t touchIdx = touchIdxsForCaller[0];
+      // first search to see if this touch matches existing bubble controls
+      for(int i=0;i<nBubbleControls;i++)
+      {
+        IBubbleControl* pBubbleControl = mBubbleControls.Get(i);
+        if(pBubbleControl->mTouchIdx == touchIdx)
+        {
+          pBubbleControl->ShowBubble(pCaller, x, y, str, dir, minimumContentBounds, touchIdx);
+          return;
+        }
+        else
+          availableBubbleControls.push_back(pBubbleControl);
+      }
+      
+      if(availableBubbleControls.size())
+      {
+        // this works but why?
+        static int whichBubbleControl = 0;
+        availableBubbleControls[whichBubbleControl++]->ShowBubble(pCaller, x, y, str, dir, minimumContentBounds, touchIdx);
+        whichBubbleControl %= nBubbleControls;
+      }
+    }
+//    else
+//    {
+//      assert(0 && "multi-touch controls with bubble controls not yet supported!");
+//    }
   }
+  else
+    mBubbleControls.Get(0)->ShowBubble(pCaller, x, y, str, dir, minimumContentBounds);
 }
 
 void IGraphics::ShowFPSDisplay(bool enable)
@@ -391,8 +417,13 @@ void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
   if (mPopupControl)
     func(*mPopupControl);
   
-  if (mBubbleControl)
-    func(*mBubbleControl);
+  if (mBubbleControls.GetSize())
+  {
+    for(int i = 0;i<mBubbleControls.GetSize();i++)
+    {
+      func(*mBubbleControls.Get(i));
+    }
+  }
 }
 
 template<typename T, typename... Args>
