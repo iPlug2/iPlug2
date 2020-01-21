@@ -10,6 +10,7 @@
 		4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103420A0E55900D3092F /* IPlugProcessor.cpp */; };
 		4F10E7C020B17EDB00F5B09B /* IGraphicsTest-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IGraphicsTest-iOS-MainInterface.storyboard */; };
 		4F1115CF2296DA95000CFCBF /* IGraphicsTest-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IGraphicsTest-iOS-MainInterface.storyboard */; };
+		4F1C2D5523D731D20088AE84 /* IGraphicsFlexBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F1C2D5023D731CA0088AE84 /* IGraphicsFlexBox.cpp */; };
 		4F32AE7D231431BD00710734 /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA61F6E22E899B500A92C58 /* AUv3Framework.framework */; };
 		4F3E0F6A20A0BCD900A9C2BE /* IGraphicsTest-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IGraphicsTest-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
@@ -119,6 +120,12 @@
 /* Begin PBXFileReference section */
 		4F10E7BF20B17EDB00F5B09B /* IGraphicsTest-iOS-MainInterface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IGraphicsTest-iOS-MainInterface.storyboard"; path = "../resources/IGraphicsTest-iOS-MainInterface.storyboard"; sourceTree = "<group>"; };
 		4F10E7C520B189DD00F5B09B /* IGraphicsTest-iOS.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "IGraphicsTest-iOS.entitlements"; sourceTree = "<group>"; };
+		4F1C2D5023D731CA0088AE84 /* IGraphicsFlexBox.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsFlexBox.cpp; sourceTree = "<group>"; };
+		4F1C2D5123D731CA0088AE84 /* IGraphicsImGui_src.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsImGui_src.mm; sourceTree = "<group>"; };
+		4F1C2D5223D731CA0088AE84 /* IGraphicsFlexBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsFlexBox.h; sourceTree = "<group>"; };
+		4F1C2D5323D731CA0088AE84 /* IGraphicsImGui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsImGui.h; sourceTree = "<group>"; };
+		4F1C2D5423D731CA0088AE84 /* IGraphicsImGui.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsImGui.cpp; sourceTree = "<group>"; };
+		4F1C2D5623D731E40088AE84 /* TestFlexboxControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestFlexboxControl.h; sourceTree = "<group>"; };
 		4F2020F620A1B2B500F22200 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
 		4F2602DB2269F79200C7E97E /* tex */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tex; path = ../resources/tex; sourceTree = "<group>"; };
 		4F3E0F6420A0BC1C00A9C2BE /* IGraphicsTest-iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-iOS-Info.plist"; path = "../resources/IGraphicsTest-iOS-Info.plist"; sourceTree = "<group>"; };
@@ -330,6 +337,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4F1C2D4F23D731CA0088AE84 /* Extras */ = {
+			isa = PBXGroup;
+			children = (
+				4F1C2D5223D731CA0088AE84 /* IGraphicsFlexBox.h */,
+				4F1C2D5023D731CA0088AE84 /* IGraphicsFlexBox.cpp */,
+				4F1C2D5123D731CA0088AE84 /* IGraphicsImGui_src.mm */,
+				4F1C2D5323D731CA0088AE84 /* IGraphicsImGui.h */,
+				4F1C2D5423D731CA0088AE84 /* IGraphicsImGui.cpp */,
+			);
+			path = Extras;
+			sourceTree = "<group>";
+		};
 		4F3E0F9B20A0C64100A9C2BE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -343,6 +362,7 @@
 		4F63697420A463AF0022C370 /* IGraphics */ = {
 			isa = PBXGroup;
 			children = (
+				4F1C2D4F23D731CA0088AE84 /* Extras */,
 				4F63697520A463AF0022C370 /* Drawing */,
 				4F63698320A463AF0022C370 /* Platforms */,
 				4F63699620A463AF0022C370 /* Controls */,
@@ -574,6 +594,7 @@
 				4FE59A03232033F50012B628 /* TestMultiPathControl.h */,
 				4FE59A04232033F50012B628 /* TestMPSControl.mm */,
 				4FE59A05232033F50012B628 /* TestArcControl.h */,
+				4F1C2D5623D731E40088AE84 /* TestFlexboxControl.h */,
 				4FE59A06232033F50012B628 /* TestPolyControl.h */,
 			);
 			path = Test;
@@ -775,12 +796,12 @@
 				LastUpgradeCheck = 1030;
 				TargetAttributes = {
 					4FA61F6D22E899B500A92C58 = {
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						ProvisioningStyle = Automatic;
 					};
 					91236D0C1B08F42B00734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						LastSwiftMigration = 1010;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -796,7 +817,7 @@
 					};
 					91236D761B08F59300734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						LastSwiftMigration = 1010;
 					};
 				};
@@ -884,6 +905,7 @@
 				4FA61F9022E8A1F500A92C58 /* IGraphics.cpp in Sources */,
 				4FA61F7E22E89AFF00A92C58 /* IPlugPluginBase.cpp in Sources */,
 				4FA61F8C22E89B3700A92C58 /* IControl.cpp in Sources */,
+				4F1C2D5523D731D20088AE84 /* IGraphicsFlexBox.cpp in Sources */,
 				4FA61F8D22E89B4300A92C58 /* IGraphicsCoreText.mm in Sources */,
 				4FA61F8922E89B3700A92C58 /* IControls.cpp in Sources */,
 				4FA61F8222E89AFF00A92C58 /* IPlugTimer.cpp in Sources */,
