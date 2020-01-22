@@ -326,13 +326,19 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
     pResData = LoadWinResource(fileNameOrResID, ext, size, GetWinModuleHandle());
 
     if (pResData)
-      idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pResData, size);
+    {
+      ActivateGLContext(); // no-op on non WIN/GL
+      idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*) pResData, size);
+      DeactivateGLContext(); // no-op on non WIN/GL
+    }
   }
   else
 #endif
   if (location == EResourceLocation::kAbsolutePath)
   {
+    ActivateGLContext(); // no-op on non WIN/GL
     idx = nvgCreateImage(mVG, fileNameOrResID, nvgImageFlags);
+    DeactivateGLContext(); // no-op on non WIN/GL
   }
 
   return new Bitmap(mVG, fileNameOrResID, scale, idx, location == EResourceLocation::kPreloadedTexture);

@@ -864,6 +864,12 @@ public:
   virtual const char* GetBundleID() { return ""; }
 
 protected:
+  /* Implemented on Windows to store previously active GLContext and HDC for restoring, calls GetDC */
+  virtual void ActivateGLContext() {}; 
+
+  /* Implemented on Windows to restore previous GL context calls ReleaseDC */
+  virtual void DeactivateGLContext() {};
+
   /** /todo
    * @param control /todo
    * @param text /todo
