@@ -2096,6 +2096,7 @@ void IGraphicsWin::VBlankNotify()
   #include "IGraphicsNanoVG.cpp"
 #ifdef IGRAPHICS_FREETYPE
 #define FONS_USE_FREETYPE
+  #pragma comment(lib, "freetype.lib")
 #endif
   #include "nanovg.c"
   #include "glad.c"
