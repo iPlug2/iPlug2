@@ -56,8 +56,8 @@ ifeq ($(ITARGET),APP)
   IPT_DEPS += IPlugAPP.o IPlugAPP_dialog.o IPlugAPP_host.o IPlugAPP_main.o
 
   # APP is using SWELL
-  _SWELL_PATH = $(_WDL_PATH)/swell
-  _SWELL_LIB_PATH = $(_IDEPS_INSTALL_PATH)/lib/libSwell.so
+  _SWELL_PATH := $(_WDL_PATH)/swell
+  _SWELL_LIB_PATH := $(_IDEPS_INSTALL_PATH)/lib/libSwell.so
   
   # resource generation
   _RESDIR  := $(IPBOD)/resources
@@ -229,6 +229,31 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
 
     # some extra libraries
     LIBS$(_TSX) += -lfreetype -lGL -lexpat
+  else ifeq ($(IGRAPHICS),LICE)
+    IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoSVG/src
+
+		# LICE is using SWELL
+		_SWELL_PATH := $(_WDL_PATH)/swell
+    _LICE_PATH := $(_WDL_PATH)/lice
+    
+    IPINC_DIR += $(_LICE_PATH) $(_SWELL_PATH) $(_IPLUG_DEPS_PATH)/SWELL
+    
+    CXXFLAGSE$(_TSX) += -DIGRAPHICS_LICE
+    
+    LIBS$(_TSX) += -lpng
+    
+    ifneq ($(ITARGET),APP)
+      # parts of SWELL are needed for LICE
+      CXXFLAGSE$(_TSX) += -DSWELL_EXTRA_MINIMAL -DSWELL_LICE_GDI -DSWELL_FREETYPE
+      IPSRC_DIR += $(_SWELL_PATH)
+      # that is headless swell with freetype font engine
+      _SWELL_DEPS := swell-gdi-generic.o swell-wnd-generic.o swell-menu-generic.o swell-generic-headless.o swell-dlg-generic.o swell-gdi-lice.o swell.o swell-ini.o
+      _SWELL_DEPS := $(addprefix $(_TSXD), $(_SWELL_DEPS))
+      IPT_DEPS$(_TSX) += $(_SWELL_DEPS)
+      # freetype
+      IPINC_DIR += /usr/include/freetype2
+      LIBS$(_TSX) += -lfreetype -ldl -lpthread
+    endif
   else
     $(error FATAL: '$(IGRAPHICS)' graphics flaviour is not currently supported)
   endif

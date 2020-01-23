@@ -106,7 +106,6 @@ typedef struct {
   xcb_connection_t *(*XGetXCBConnection)(Display *dpy);
   void (*XSetEventQueueOwner)(Display *dpy, enum XEventQueueOwner owner);
   
-  
 } _xcbt;
 
 
@@ -135,6 +134,9 @@ typedef struct _xcbt_window {
   // for GL window
   GLXContext  ctx;
   GLXDrawable glwnd;
+  
+  // for all windows
+  xcb_gcontext_t gc; // simple context with B/W bg/fg, created when some context is needed
   
 } _xcbt_window;
 
@@ -438,6 +440,34 @@ xcbt xcbt_connect(uint32_t flags){
   return NULL;
 };
 
+/* For line alignment (so unsigned):
+ *    generic is ((x + (r - 1)) / r) * r;
+ *    power of 2 is (x + r - 1) & -r;
+ *     masked (m = r - 1) power of 2 is (x + m) & ~m;
+ */
+
+int xcbt_get_img_prop(xcbt px, unsigned depth, xcbt_img_prop *prop){
+  _xcbt *x = (_xcbt *)px;
+  if(x && prop){
+    const xcb_setup_t *setup = xcb_get_setup(x->conn);
+    if(setup){
+      int count = xcb_setup_pixmap_formats_length(setup), i;
+      xcb_format_iterator_t it;
+      for(it = xcb_setup_pixmap_formats_iterator(setup), i = 0; i < count; ++i, xcb_format_next(&it)){
+        if(it.data->depth == depth){
+          prop->depth = depth;
+          prop->bpp = it.data->bits_per_pixel;
+          prop->line_align = it.data->scanline_pad;
+          prop->byte_order = setup->image_byte_order;
+          return 1;
+        }
+      }
+    }
+  }
+  return 0;
+}
+
+
 /**
  * Choose GLX FB Config (for GL window)
  * 
@@ -631,6 +661,10 @@ void xcbt_window_destroy(xcbt_window pxw){
       xcb_free_colormap(conn, xw->cmap);
       xw->cmap = 0;
     }
+    if(xw->gc){
+      xcb_free_gc(conn, xw->gc);
+      xw->gc = 0;
+    }
     xcbt_window_unregister(xw);
     xw->uhandler(pxw, NULL, xw->udata);
     memset(xw, 0, sizeof(*xw));
@@ -749,6 +783,44 @@ xcbt_window xcbt_window_top_create(xcbt px, int screen, const char *title, const
   }
   return NULL;
 }
+
+
+xcbt_window xcbt_window_create(xcbt px, xcb_window_t prt, const xcbt_rect *pos){
+  _xcbt *x = (_xcbt *)px;
+  _xcbt_window *xw;
+  xcb_screen_t *si;
+  if(!x || !prt || !pos || (pos->w <= 0) || (pos->h <= 0)){
+    return NULL;
+  }
+  if((xw = (_xcbt_window *)calloc(1, sizeof(*xw)))){
+    xw->x = x;
+    xw->uhandler = (xcbt_window_handler)xcbt_window_default_handler;
+    xw->x_prt  = prt;
+    memcpy(&xw->pos, pos, sizeof(xcbt_rect));
+    xw->screen = xcbt_xcb_window_screen(x, prt);
+    if((xw->screen >= 0) && (si = xcbt_screen_info(px, xw->screen))){
+      uint32_t eventmask = 
+                  XCB_EVENT_MASK_EXPOSURE | // we want to know when we need to redraw
+                  XCB_EVENT_MASK_STRUCTURE_NOTIFY | // get varius notification messages like configure, reparent, etc.
+                  XCB_EVENT_MASK_PROPERTY_CHANGE | // useful when something will change our property
+                  XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE  |  // mouse clicks
+                  //XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE  |      // keyboard is questionable accordung to XEMBED
+                  XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW |   // mouse entering/leaving
+                  XCB_EVENT_MASK_POINTER_MOTION // mouse motion
+                  ;
+      uint32_t wa[] = { eventmask, 0, 0 };
+      xw->wnd = xcb_generate_id(x->conn);
+      xcb_create_window(x->conn, XCB_COPY_FROM_PARENT, xw->wnd, prt, pos->x, pos->y, pos->w, pos->h, 0,
+                        XCB_WINDOW_CLASS_INPUT_OUTPUT, si->root_visual, XCB_CW_EVENT_MASK, wa);
+      xcbt_window_register(xw);
+      TRACE("Window is created\n");
+      return (xcbt_window)xw;
+    }
+  }
+  xcbt_window_destroy((xcbt_window)xw);
+  return NULL;
+}
+
 
 void xcbt_window_set_xembed_info(xcbt_window pxw){
   uint32_t info[] = { 0, 0 }; // version 0, not mapped
@@ -1122,6 +1194,30 @@ xcb_gcontext_t xcbt_window_create_gc(xcbt_window pxw, uint32_t value_mask, const
   return 0;
 }
 
+static xcb_gcontext_t _xcbt_window_default_gc(_xcbt_window *xw){
+  if(xw){
+    if(xw->gc)
+      return xw->gc;
+    else {
+      xcb_screen_t *si = xcbt_screen_info((xcbt)xw->x, xw->screen);
+      if(si){
+        uint32_t value_list[2] = { si->white_pixel, si->black_pixel };
+        return xw->gc = xcbt_window_create_gc((xcbt_window)xw, XCB_GC_FOREGROUND | XCB_GC_BACKGROUND, value_list);
+      }
+    }
+  }
+  return 0;
+} 
+
+int xcbt_window_draw_img(xcbt_window pxw, unsigned depth, unsigned w, unsigned h, int x, int y, unsigned data_length, uint8_t *data){
+  _xcbt_window *xw = (_xcbt_window *)pxw;
+  if(xw){
+    xcb_put_image(xw->x->conn, XCB_IMAGE_FORMAT_Z_PIXMAP, xw->wnd, _xcbt_window_default_gc(xw), w, h, x, y, 0, depth, data_length, data);
+    return 1;
+  }
+  return 0;
+}
+  
 int xcbt_embed_set(xcbt px, xcbt_embed *e){
   _xcbt *x = (_xcbt *)px;
   if(!x)

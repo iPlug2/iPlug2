@@ -67,6 +67,19 @@ typedef struct xcbt_window_ {
 } *xcbt_window;
 
 /**
+ * Specify how image data should be prepared to be transferred directly into drawable.
+ */
+typedef struct xcbt_img_prop_ {
+  unsigned depth;       // color bits per pixel, f.e. RGB is 24
+  unsigned bpp;         // bits per pixel to store it, f.e. RGB is normally 32
+  unsigned line_align;  // line size IN BITS should be alinged to that number, f.e. RGB is normally 32
+  enum {
+    XCBT_LSB_FIRST = 0,
+    XCBT_MSB_FIRST
+  } byte_order;         // byte order, f.e. XCBT_LSB_FIRST with RGB means 0x000000ff on x86 is "blue".
+} xcbt_img_prop;
+
+/**
  * Event handler. If chained, user code is responsible for saving previous handler and user data
  * in the chain and call them when required.
  * 
@@ -151,6 +164,12 @@ void xcbt_disconnect(xcbt x);
  */
 int xcbt_sync(xcbt x);
 
+/**
+ * Fill properties for specified depth
+ * 
+ * Return not zero on success
+ */
+int xcbt_get_img_prop(xcbt px, unsigned depth, xcbt_img_prop *prop);
 
 /**
  * Return connection for window
@@ -251,6 +270,19 @@ xcbt_window xcbt_window_gl_create(xcbt x, xcb_window_t prt, const xcbt_rect *pos
 xcbt_window xcbt_window_top_create(xcbt x, int screen, const char *title, const xcbt_rect *pos);
 
 /**
+ * Create child window
+ * 
+ * Parameters:
+ *   screen - screen for this window
+ *   prt - parent window
+ *   pos - position within parent
+ * 
+ * Return:
+ *   created window or NULL
+ */
+xcbt_window xcbt_window_create(xcbt x, xcb_window_t prt, const xcbt_rect *pos);
+
+/**
  * Map (show) the window)
  * 
  * Parameters:
@@ -310,10 +342,16 @@ int xcbt_window_draw_stop(xcbt_window xw);
 /**
  * Get actual window client size
  * 
- * PArameters:
+ * Parameters:
  *  pr - client size (x and y will be 0)
  */
 void xcbt_window_get_client_size(xcbt_window xw, xcbt_rect *pr);
+
+/**
+ * Draw specifiend by <data> image with dimentions <w>x<h> at position <x>,<y> of the window.
+ * WARNING: data should be prepared according to xcbt_img_prop for specified depth, no checkes are done here
+ */
+int xcbt_window_draw_img(xcbt_window xw, unsigned depth, unsigned w, unsigned h, int x, int y, unsigned data_length, uint8_t *data);
 
 /**
  * Get screen information for specified screen

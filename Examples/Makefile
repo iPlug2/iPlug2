@@ -54,6 +54,7 @@
 ## Graphic engine (variation should match) IGRAPHICS:
 #   NANOVG_GL2 - NanoVG library with GL2 backend (default)
 #   SKIA_GL2   - SKIA with GL2
+#   LICE       - LICE
 #	IGRAPHICS := NANOVG_GL2
 
 ## Build directory
@@ -137,7 +138,7 @@ $(IPT$(1)): $(IPT_DEPS$(1))
 		@$(CXX) $(LFLAGS$(1)) $(LFLAGSE$(1))\
       $(if $(filter %.so,$(IPT$(1))),-shared,)\
       $$(filter %.o,$$^) -o $$@\
-      $(LIBS$(1)) $(LIBSE($1))
+      $(LIBS$(1)) $(LIBSE($1)) -Wl,-z,defs
 		@echo -----------------------------------------------------
 endef
 
