@@ -28,6 +28,33 @@
 	"description": "New IControl class"
 	},
 
+	"icontrolwithlayer": {
+		"prefix": "LayerIControl",
+		"body": [
+			"class ${1:MyNewControl} : public IControl",
+			"{", 
+			"public:", 
+			"\t$1(const IRECT& bounds)",
+			"\t: IControl(bounds)",
+			"\t{}",
+			"\t",
+			"\tvoid Draw(IGraphics& g) override",
+			"\t{",
+			"\t\tif(!g.CheckLayer(mLayer))",
+			"\t\t{",
+			"\t\t\tg.StartLayer(this, mRECT);",
+			"\t\t\tg.FillEllipse(COLOR_BLUE, mRECT);",
+			"\t\t\tmLayer = g.EndLayer();",
+			"\t\t}",
+			"\t}",
+			"\t",
+			"private:", 
+			"\tILayerPtr mLayer;", 
+			"};"
+		],
+		"description": "New IControl class with layer"
+		},
+
 	"skiacontrol": {
 		"prefix": "SkiaControl",
 		"body": [
@@ -40,7 +67,7 @@
 			"\t",
 			"\tvoid Draw(IGraphics& g) override",
 			"\t{",
-			"\t\tSkCanvas* canvas = dynamic_cast<SkCanvas*>(g.GetDrawContext());
+			"\t\tSkCanvas* canvas = dynamic_cast<SkCanvas*>(g.GetDrawContext());",
 			"\t}",
 			"\t",
 			// "\t//void OnMouseDown(float x, float y, const IMouseMod& mod) override {}",
