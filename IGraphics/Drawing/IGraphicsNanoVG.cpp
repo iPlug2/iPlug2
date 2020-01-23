@@ -247,13 +247,13 @@ const char* IGraphicsNanoVG::GetDrawingAPIStr()
     return "NanoVG | WebGL";
   #else
     #if defined IGRAPHICS_GL2
-      return "NanoVG | OpenGL2";
+      return "NanoVG | GL2";
     #elif defined IGRAPHICS_GL3
-      return "NanoVG | OpenGL3";
+      return "NanoVG | GL3";
     #elif defined IGRAPHICS_GLES2
-      return "NanoVG | OpenGLES2";
+      return "NanoVG | GLES2";
     #elif defined IGRAPHICS_GLES3
-      return "NanoVG | OpenGLES3";
+      return "NanoVG | GLES3";
     #endif
   #endif
 #endif
