@@ -814,12 +814,6 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
     {
       SetWindowPos(pGrandparent, 0, 0, 0, grandparentW + dw, grandparentH + dh, SETPOS_FLAGS);
     }
-
-    RECT r = { 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale() };
-    InvalidateRect(mPlugWnd, &r, FALSE);
-
-    // Fix white background while resizing
-    UpdateWindow(mPlugWnd);
   }
 }
 
