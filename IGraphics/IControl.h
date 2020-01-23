@@ -717,6 +717,7 @@ public:
   void SetRoundness(float roundness) { mStyle.roundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); }
   void SetDrawFrame(bool draw) { mStyle.drawFrame = draw; mControl->SetDirty(false); }
   void SetDrawShadows(bool draw) { mStyle.drawShadows = draw; mControl->SetDirty(false); }
+  void SetEmboss(bool emboss) { mStyle.emboss = emboss; mControl->SetDirty(false); }
   void SetShadowOffset(float offset) { mStyle.shadowOffset = offset; mControl->SetDirty(false); }
   void SetFrameThickness(float thickness) { mStyle.frameThickness = thickness; mControl->SetDirty(false); }
   void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
@@ -862,26 +863,92 @@ public:
     const float bottomLeftR = roundBottomLeft ? cR : 0.f;
     const float bottomRightR = roundBottomRight ? cR : 0.f;
 
+    IRECT centreBounds = handleBounds.GetPadded(-mStyle.shadowOffset);
+    IRECT shadowBounds = handleBounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset).GetReducedFromRight(mStyle.shadowOffset).GetReducedFromBottom(mStyle.shadowOffset);
+
+    // Pressed styles
     if (pressed)
-      g.FillRoundRect(GetColor(kPR), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
-    else
     {
-      //outer shadow
-      if (mStyle.drawShadows)
-        g.FillRoundRect(GetColor(kSH), handleBounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset), topLeftR, topRightR, bottomLeftR, bottomRightR);
-      
-      g.FillRoundRect(GetColor(kFG), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+      // Embossed style pressed
+      if (mStyle.drawShadows && mStyle.emboss)
+      {
+        // Fill background with pressed color and shade it
+        g.FillRoundRect(GetColor(kPR), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+        g.FillRoundRect(GetColor(kSH), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+
+        // Inverse shading for recessed look
+        g.FillRoundRect(GetColor(kFG), shadowBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+
+        // Fill in center with pressed color
+        g.FillRoundRect(GetColor(kPR), centreBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+      }
+
+      // Outer shadow style pressed
+      else if (mStyle.drawShadows && !mStyle.emboss)
+      {
+        // Offset the button to make it "move" when pressed (translate in-place in case we are drawing the frame later)
+        handleBounds.Translate(mStyle.shadowOffset, mStyle.shadowOffset);
+        g.FillRoundRect(GetColor(kPR), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+      }
+
+      // Plain style pressed
+      else
+      {
+        g.FillRoundRect(GetColor(kPR), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+      }
+
+      if (mControl->GetAnimationFunction())
+        DrawSplash(g, handleBounds);
     }
     
-    if(mouseOver)
-      g.FillRoundRect(GetColor(kHL), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
-    
-    if(pressed && mControl->GetAnimationFunction())
-      DrawSplash(g, handleBounds);
+    // Unpressed styles
+    else
+    {
+      // Embossed style unpressed
+      if (mStyle.drawShadows && mStyle.emboss)
+      {
+        // Positive light (NB: use the Pressed color for now, maybe change the name?
+        g.FillRoundRect(GetColor(kPR), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+
+        // Negative light
+        g.FillRoundRect(GetColor(kSH), shadowBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+
+        // Fill in foreground
+        g.FillRoundRect(GetColor(kFG), centreBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillRoundRect(GetColor(kHL), centreBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+      }
+
+      // Outer shadow style unpressed
+      else if (mStyle.drawShadows && !mStyle.emboss)
+      {
+        // Draw shadow
+        IRECT shadowBounds = handleBounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset);
+        g.FillRoundRect(GetColor(kSH), shadowBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+
+        // Fill in foreground
+        g.FillRoundRect(GetColor(kFG), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillRoundRect(GetColor(kHL), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+      }
+
+      // Plain style unpressed
+      else
+      {
+        g.FillRoundRect(GetColor(kFG), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+
+        if (mouseOver)
+          g.FillRoundRect(GetColor(kHL), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+      }
+    }
     
     if(mStyle.drawFrame)
       g.DrawRoundRect(GetColor(kFR), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR, 0, mStyle.frameThickness);
-    
+
     return handleBounds;
   }
   
