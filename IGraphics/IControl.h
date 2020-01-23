@@ -825,27 +825,103 @@ public:
     if(mStyle.drawFrame)
       g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mStyle.frameThickness);
   }
-  
+
+  // TODO(@drakfluga): HandleBounds don't work correctly, i.e. don't move pressed buttons when they're not casting shadows.
+  // Make embossed and shadowed drawing modes independent so the both can be used simultaneously.
+
   void DrawPressableEllipse(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
   {
-    if(!pressed && mStyle.drawShadows)
-      g.FillEllipse(GetColor(kSH), bounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset));
-   
-    if(pressed)
-      g.FillEllipse(GetColor(kON), bounds);
-    else
-      g.FillEllipse(GetColor(kFG), bounds);
+    IRECT handleBounds = GetAdjustedHandleBounds(bounds);
 
-    if(mouseOver)
-      g.FillEllipse(GetColor(kHL), bounds);
-    
-    if(pressed && mControl->GetAnimationFunction())
-      DrawSplash(g, bounds);
-    
-    if(mStyle.drawFrame)
-      g.DrawEllipse(GetColor(kFR), bounds, nullptr, mStyle.frameThickness);
+    IRECT centreBounds = handleBounds.GetPadded(-mStyle.shadowOffset);
+    IRECT shadowBounds = handleBounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset).GetReducedFromRight(mStyle.shadowOffset).GetReducedFromBottom(mStyle.shadowOffset);
+
+    // Pressed states
+    if (pressed)
+    {
+      // Embossed
+      if (mStyle.drawShadows && mStyle.emboss)
+      {
+        // Fill background with pressed color and shade it
+        g.FillEllipse(GetColor(kPR), handleBounds);
+        g.FillEllipse(GetColor(kSH), handleBounds);
+
+        // Inverse shading for recessed look
+        g.FillEllipse(GetColor(kFG), shadowBounds);
+
+        // Fill in center with pressed color
+        g.FillEllipse(GetColor(kPR), centreBounds);
+      }
+
+      // Shadowed
+      else if (mStyle.drawShadows)
+      {
+        // Offset the button to make it "move" when pressed (translate in-place in case we are drawing the frame later)
+        handleBounds.Translate(mStyle.shadowOffset, mStyle.shadowOffset);
+        g.FillEllipse(GetColor(kPR), handleBounds);
+      }
+
+      // Plain
+      else
+      {
+        g.FillEllipse(GetColor(kON), handleBounds);
+      }
+
+      if (mControl->GetAnimationFunction())
+        DrawSplash(g, handleBounds);
+    }
+
+    // Unpressed states
+    else
+    {
+      // Embossed
+      if (mStyle.drawShadows && mStyle.emboss)
+      {
+        // Positive light (NB: use the Pressed color for now, maybe change the name?
+        g.FillEllipse(GetColor(kPR), handleBounds);
+
+        // Negative light
+        g.FillEllipse(GetColor(kSH), shadowBounds);
+
+        // Fill in foreground
+        g.FillEllipse(GetColor(kFG), centreBounds);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillEllipse(GetColor(kHL), centreBounds);
+      }
+
+      // Shadowed
+      else if (mStyle.drawShadows)
+      {
+        // Draw shadow
+        IRECT shadowBounds = handleBounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset);
+        g.FillEllipse(GetColor(kSH), shadowBounds);
+
+        // Fill in foreground
+        g.FillEllipse(GetColor(kFG), handleBounds);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillEllipse(GetColor(kHL), handleBounds);
+      }
+
+      // Plain
+      else
+      {
+        g.FillEllipse(GetColor(kFG), handleBounds);
+
+        if (mouseOver)
+          g.FillEllipse(GetColor(kHL), handleBounds);
+      }
+    }
+
+    if (mStyle.drawFrame)
+      g.DrawEllipse(GetColor(kFR), handleBounds, nullptr, mStyle.frameThickness);
   }
-  
+
+  // TODO(@drakfluga): Can we make drawing code reusable for different shapes?
+
   /** /todo
    @param IGraphics&g /todo
    @param bounds /todo
