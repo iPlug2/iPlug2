@@ -146,9 +146,6 @@ cairo_operator_t CairoBlendMode(const IBlend* pBlend)
     case EBlend::DestAtop:        return CAIRO_OPERATOR_DEST_ATOP;
     case EBlend::Add:             return CAIRO_OPERATOR_ADD;
     case EBlend::XOR:             return CAIRO_OPERATOR_XOR;
-    case EBlend::Default:         // fall through
-    case EBlend::Clobber:         // fall through
-    default:                      return CAIRO_OPERATOR_OVER;
   }
 }
 

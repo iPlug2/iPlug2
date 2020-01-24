@@ -250,8 +250,6 @@ void IGraphicsCanvas::SetCanvasBlendMode(val& context, const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case EBlend::Default:       // fall through
-    case EBlend::Clobber:       // fall through
     case EBlend::SourceOver:    context.set("globalCompositeOperation", "source-over");        break;
     case EBlend::SourceIn:      context.set("globalCompositeOperation", "source-in");          break;
     case EBlend::SourceOut:     context.set("globalCompositeOperation", "source-out");         break;

@@ -127,8 +127,6 @@ SkBlendMode SkiaBlendMode(const IBlend* pBlend)
     
   switch (pBlend->mMethod)
   {
-    case EBlend::Default:         // fall through
-    case EBlend::Clobber:         // fall through
     case EBlend::SourceOver:      return SkBlendMode::kSrcOver;
     case EBlend::SourceIn:        return SkBlendMode::kSrcIn;
     case EBlend::SourceOut:       return SkBlendMode::kSrcOut;

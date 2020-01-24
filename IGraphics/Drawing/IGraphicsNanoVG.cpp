@@ -178,8 +178,6 @@ void NanoVGSetBlendMode(NVGcontext* pContext, const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case EBlend::Default:       // fall through
-    case EBlend::Clobber:       // fall through
     case EBlend::SourceOver:    nvgGlobalCompositeOperation(pContext, NVG_SOURCE_OVER);                break;
     case EBlend::SourceIn:      nvgGlobalCompositeOperation(pContext, NVG_SOURCE_IN);                  break;
     case EBlend::SourceOut:     nvgGlobalCompositeOperation(pContext, NVG_SOURCE_OUT);                 break;

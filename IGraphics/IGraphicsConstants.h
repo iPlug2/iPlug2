@@ -58,8 +58,6 @@ static constexpr int FONT_LEN = 64;
  */
 enum class EBlend
 {
-  Default,
-  Clobber,
   SourceOver,
   SourceIn,
   SourceOut,
@@ -70,7 +68,7 @@ enum class EBlend
   DestAtop,
   Add,
   XOR,
-  None = EBlend::Default
+  Default = SourceOver
 };
 
 /** /todo */

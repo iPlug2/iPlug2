@@ -91,8 +91,6 @@ agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case EBlend::Default:         // fall through
-    case EBlend::Clobber:         // fall through
     case EBlend::SourceOver:      return agg::comp_op_src_over;
     case EBlend::SourceIn:        return agg::comp_op_src_in;
     case EBlend::SourceOut:       return agg::comp_op_src_out;
