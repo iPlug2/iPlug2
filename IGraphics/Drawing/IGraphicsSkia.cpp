@@ -127,16 +127,16 @@ SkBlendMode SkiaBlendMode(const IBlend* pBlend)
     
   switch (pBlend->mMethod)
   {
-    case EBlend::SourceOver:      return SkBlendMode::kSrcOver;
-    case EBlend::SourceIn:        return SkBlendMode::kSrcIn;
-    case EBlend::SourceOut:       return SkBlendMode::kSrcOut;
-    case EBlend::SourceAtop:      return SkBlendMode::kSrcATop;
-    case EBlend::DestOver:        return SkBlendMode::kDstOver;
-    case EBlend::DestIn:          return SkBlendMode::kDstIn;
-    case EBlend::DestOut:         return SkBlendMode::kDstOut;
-    case EBlend::DestAtop:        return SkBlendMode::kDstATop;
-    case EBlend::Add:             return SkBlendMode::kPlus;
-    case EBlend::XOR:             return SkBlendMode::kXor;
+    case EBlend::SrcOver:      return SkBlendMode::kSrcOver;
+    case EBlend::SrcIn:        return SkBlendMode::kSrcIn;
+    case EBlend::SrcOut:       return SkBlendMode::kSrcOut;
+    case EBlend::SrcAtop:      return SkBlendMode::kSrcATop;
+    case EBlend::DstOver:      return SkBlendMode::kDstOver;
+    case EBlend::DstIn:        return SkBlendMode::kDstIn;
+    case EBlend::DstOut:       return SkBlendMode::kDstOut;
+    case EBlend::DstAtop:      return SkBlendMode::kDstATop;
+    case EBlend::Add:          return SkBlendMode::kPlus;
+    case EBlend::XOR:          return SkBlendMode::kXor;
   }
   
   return SkBlendMode::kClear;
