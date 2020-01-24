@@ -2,10 +2,12 @@
     "env": {
         "commonIncludePaths": [
             "${workspaceFolder}/**",
-            "${workspaceFolder}/../../WDL/**",
-            "${workspaceFolder}/../../IPlug/**",
-            "${workspaceFolder}/../../IGraphics/**",
-            "${workspaceFolder}/../../Dependencies/**"
+            "${workspaceFolder}/WDL/**",
+            "${workspaceFolder}/IPlug/**",
+            "${workspaceFolder}/IGraphics/**",
+            "${workspaceFolder}/Dependencies/IGraphics/glad_GL2/include/",
+            "${workspaceFolder}/Dependencies/IGraphics/NanoVG/src/",
+            "${workspaceFolder}/Dependencies/IGraphics/NanoSVG/src/"
         ],
         "commonDefs": [
             "APP_API",
