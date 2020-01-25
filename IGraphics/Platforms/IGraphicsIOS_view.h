@@ -74,6 +74,8 @@ using namespace igraphics;
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
 - (void) getTouchXY: (CGPoint) pt x: (float*) pX y: (float*) pY;
 
+- (void)presentationControllerDidDismiss: (UIPresentationController *) presentationController;
+
 //gestures
 - (void) attachGestureRecognizer: (EGestureType) type;
 -(BOOL) gestureRecognizer:(UIGestureRecognizer*) gestureRecognizer shouldReceiveTouch:(UITouch*)touch;

@@ -1628,8 +1628,11 @@ void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRE
   }
   else
   {
-    IPopupMenu* pReturnMenu = CreatePlatformPopupMenu(menu, bounds);
-    SetControlValueAfterPopupMenu(pReturnMenu);
+    bool isAsync = false;
+    IPopupMenu* pReturnMenu = CreatePlatformPopupMenu(menu, bounds, isAsync);
+    
+    if(!isAsync)
+      SetControlValueAfterPopupMenu(pReturnMenu);
   }
 }
 

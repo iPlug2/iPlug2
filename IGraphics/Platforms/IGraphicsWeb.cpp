@@ -734,7 +734,7 @@ void IGraphicsWeb::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   emscripten_set_keydown_callback("textEntry", this, 1, text_entry_keydown);
 }
 
-IPopupMenu* IGraphicsWeb::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
+IPopupMenu* IGraphicsWeb::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
 {
   return nullptr;
 }
