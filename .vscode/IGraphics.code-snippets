@@ -40,7 +40,7 @@
 			"\t",
 			"\tvoid Draw(IGraphics& g) override",
 			"\t{",
-			"\t\tSkCanvas* canvas = dynamic_cast<SkCanvas*>(g.GetDrawContext());
+			"\t\tSkCanvas* canvas = static_cast<SkCanvas*>(g.GetDrawContext());",
 			"\t}",
 			"\t",
 			// "\t//void OnMouseDown(float x, float y, const IMouseMod& mod) override {}",
@@ -236,7 +236,7 @@
 	"radialgradient": {
 		"prefix": "RadialGradientPattern",
 		"body": [
-			"const IPattern pattern = IPattern::CreateRadialGradient(b.MH(), b.MW(), b.W()/2.f, { {${1:COLOR_WHITE}, 0.f}, {${2:COLOR_BLACK}, 1.f} });"
+			"const IPattern pattern = IPattern::CreateRadialGradient(b.MW(), b.MH(), b.W()/2.f, { {${1:COLOR_WHITE}, 0.f}, {${2:COLOR_BLACK}, 1.f} });"
 		],
 		"description": "Init radial gradient IPattern"
 	},

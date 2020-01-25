@@ -57,7 +57,7 @@
 		"body": [
 			"GetParam(${1:kGain})->InitEnum(${2:\"label\"}, ${3:default}, {${4:\"One\"}, ${5:\"Two\"}, ${6:\"Three\"}});"// ${7:IParam::kFlagsNone}, ${8:\"group\"});"
 		],
-		"description": "Initialize Enumumerated List IParam"
+		"description": "Initialize Enumerated List IParam"
 	},
 
 	"initboolparam": {
