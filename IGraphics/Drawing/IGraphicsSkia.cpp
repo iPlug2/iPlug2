@@ -417,7 +417,6 @@ void IGraphicsSkia::EndFrame()
 void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   SkPaint p;
-  SkRect skrect;
   
   p.setFilterQuality(kHigh_SkFilterQuality);
   p.setBlendMode(SkiaBlendMode(pBlend));
@@ -430,8 +429,7 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
   double scale2 = bitmap.GetScale() * bitmap.GetDrawScale();
   
   mCanvas->save();
-  skrect.setLTRB(dest.L, dest.T, dest.R, dest.B);
-  mCanvas->clipRect(skrect);
+  mCanvas->clipRect(SkiaRect(dest));
   mCanvas->translate(dest.L, dest.T);
   mCanvas->scale(scale1, scale1);
   mCanvas->translate(-srcX * scale2, -srcY * scale2);
@@ -751,11 +749,9 @@ void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
 
 void IGraphicsSkia::SetClipRegion(const IRECT& r)
 {
-  SkRect skrect;
-  skrect.setLTRB(r.L, r.T, r.R, r.B);
   mCanvas->restore();
   mCanvas->save();
-  mCanvas->clipRect(skrect);
+  mCanvas->clipRect(SkiaRect(r));
 }
 
 APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale)
