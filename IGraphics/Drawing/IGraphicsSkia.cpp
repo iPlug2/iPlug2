@@ -239,9 +239,10 @@ bool IGraphicsSkia::BitmapExtSupported(const char* ext)
 
 APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
-//#ifdef OS_IOS
-//  if (location == EResourceLocation::kPreloadedTexture)
-//  {
+#ifdef OS_IOS
+  if (location == EResourceLocation::kPreloadedTexture)
+  {
+    assert(0 && "SKIA does not yet load KTX textures");
 //    GrMtlTextureInfo textureInfo;
 //    textureInfo.fTexture.retain((__bridge void*)(gTextureMap[fileNameOrResID]));
 //    id<MTLTexture> texture = (__bridge id<MTLTexture>) textureInfo.fTexture.get();
@@ -252,9 +253,9 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
 //
 //    sk_sp<SkImage> image = SkImage::MakeFromTexture(mGrContext.get(), grBackendTexture, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, kOpaque_SkAlphaType, nullptr);
 //    return new Bitmap(image, scale);
-//  }
-//  else
-//#endif
+  }
+  else
+#endif
 #ifdef OS_WIN
   if (location == EResourceLocation::kWinBinary)
   {
