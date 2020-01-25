@@ -28,6 +28,8 @@ class IControl;
 /** An editor delegate base class for a SOMETHING that uses IGraphics for it's UI */
 class IGEditorDelegate : public IEditorDelegate
 {
+  friend class IGraphics;
+    
 public:
   IGEditorDelegate(int nParams);
   ~IGEditorDelegate();
@@ -46,9 +48,6 @@ public:
   void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
   int SetEditorData(const IByteChunk& data, int startPos) override;
-
-  /** If you override this method you must call the parent! */
-  void OnUIOpen() override;
 
   /** Called to create the IGraphics instance for this editor. Default impl calls  mMakeGraphicsFunc */
   virtual IGraphics* CreateGraphics()
@@ -69,11 +68,6 @@ public:
   /** Get a pointer to the IGraphics context */
   IGraphics* GetUI() { return mGraphics.get(); };
 
-  /** Called from the UI to resize the editor via the plugin and store editor in the base.
-   & This calls through to EditorResizeFromUI after updating the data.
-   * @return \c true if the base API resized the window */
-  bool EditorResize();
-        
   /** Should be called when editor data changes */
   void EditorDataModified();
 
@@ -92,6 +86,8 @@ protected:
   std::function<IGraphics*()> mMakeGraphicsFunc = nullptr;
   std::function<void(IGraphics* pGraphics)> mLayoutFunc = nullptr;
 private:
+    
+  bool EditorResize();
   int UpdateData(const IByteChunk& data, int startPos);
 
   std::unique_ptr<IGraphics> mGraphics;

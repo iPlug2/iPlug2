@@ -24,17 +24,13 @@ IGEditorDelegate::~IGEditorDelegate()
 {
 }
 
-void IGEditorDelegate::OnUIOpen()
-{
-  IEditorDelegate::OnUIOpen();
-  UpdateData(GetEditorData(), 0);
-}
-
 void* IGEditorDelegate::OpenWindow(void* pParent)
 {
   if(!mGraphics)
   {
+    IByteChunk data(GetEditorData());
     mGraphics = std::unique_ptr<IGraphics>(CreateGraphics());
+    UpdateData(data, 0);
   }
   
   if(mGraphics)
