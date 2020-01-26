@@ -3,6 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <RTAUDIOMIDI_PATH>$(IPLUG_PATH)\APP\RTAudioMidi</RTAUDIOMIDI_PATH>
+    <IPLUG2_ROOT>$(ProjectDir)..\..\..</IPLUG2_ROOT>
     <WDL_PATH>$(IPLUG2_ROOT)\WDL</WDL_PATH>
     <LICE_PATH>$(WDL_PATH)\lice</LICE_PATH>
     <IPLUG_PATH>$(IPLUG2_ROOT)\IPlug</IPLUG_PATH>
@@ -48,6 +49,8 @@
     <APP_DEFS>APP_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;IPLUG_EDITOR=1;IPLUG_DSP=1</APP_DEFS>
     <VST2_DEFS>VST2_API;VST_FORCE_DEPRECATED;IPLUG_EDITOR=1;IPLUG_DSP=1</VST2_DEFS>
     <VST3_DEFS>VST3_API;IPLUG_EDITOR=1;IPLUG_DSP=1</VST3_DEFS>
+    <VST3P_DEFS>VST3P_API;IPLUG_EDITOR=0;IPLUG_DSP=1</VST3P_DEFS>
+    <VST3C_DEFS>VST3C_API;IPLUG_EDITOR=1;IPLUG_DSP=0</VST3C_DEFS>
     <DEBUG_DEFS>_DEBUG;</DEBUG_DEFS>
     <RELEASE_DEFS>NDEBUG;</RELEASE_DEFS>
     <TRACER_DEFS>TRACER_BUILD;NDEBUG;</TRACER_DEFS>
@@ -230,6 +233,12 @@
     </BuildMacro>
     <BuildMacro Include="VST3_DEFS">
       <Value>$(VST3_DEFS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VST3P_DEFS">
+      <Value>$(VST3P_DEFS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="VST3C_DEFS">
+      <Value>$(VST3C_DEFS)</Value>
     </BuildMacro>
     <BuildMacro Include="DEBUG_DEFS">
       <Value>$(DEBUG_DEFS)</Value>
