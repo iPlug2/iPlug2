@@ -41,13 +41,16 @@ public:
   void* OpenWindow(void* pHandle) final;
   void CloseWindow() final;
   void SetScreenScale(double scale) final;
-
+    
+  // Default serialization implementations (which serialize the size/scale) = override for custom behaviours
+  bool SerializeEditorData(IByteChunk& chunk) const override;
+  int UnserializeEditorData(const IByteChunk& chunk, int startPos) override;
+    
   //The rest should be final, but the WebSocketEditorDelegate needs to override them
   void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override;
   void SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize = 0, const void* pData = nullptr) override;
   void SendMidiMsgFromDelegate(const IMidiMsg& msg) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
-  int SetEditorData(const IByteChunk& data, int startPos) override;
 
   /** Called to create the IGraphics instance for this editor. Default impl calls  mMakeGraphicsFunc */
   virtual IGraphics* CreateGraphics()
@@ -68,19 +71,18 @@ public:
   /** Get a pointer to the IGraphics context */
   IGraphics* GetUI() { return mGraphics.get(); };
 
-  /** Should be called when editor data changes */
-  void EditorDataModified();
+  /** Serializes the size and scale of the IGraphics.
+   * @param chunk The output chunk to serialize to. Will append data if the chunk has already been started.
+   * @return \c true if the serialization was successful */
 
-  /** Override this method to serialize custom editor state data.
-  * @param chunk The output bytechunk where data can be serialized
-  * @return \c true if serialization was successful*/
-  virtual bool SerializeCustomEditorData(IByteChunk& chunk) const { TRACE return true; }
-    
-  /** Override this method to unserialize custom editor state data
-  * @param chunk The incoming chunk containing the state data.
-  * @param startPos The position in the chunk where the data starts
-  * @return The new chunk position (endPos)*/
-  virtual int UnserializeCustomEditorData(const IByteChunk& chunk, int startPos) { TRACE return startPos; }
+  bool SerializeEditorSize(IByteChunk& data) const;
+  
+  /** Unserializes the size and scale of the IGraphics.
+   * @param chunk The incoming chunk where data is stored to unserialize
+   * @param startPos The start position in the chunk where parameter values are stored
+   * @return The new chunk position (endPos) */
+
+  int UnserializeEditorSize(const IByteChunk& chunk, int startPos);
     
 protected:
   std::function<IGraphics*()> mMakeGraphicsFunc = nullptr;
@@ -88,9 +90,11 @@ protected:
 private:
     
   bool EditorResize();
-  int UpdateData(const IByteChunk& data, int startPos);
 
   std::unique_ptr<IGraphics> mGraphics;
+  int mLastWidth = 0;
+  int mLastHeight = 0;
+  float mLastScale = 0.f;
   bool mClosing = false; // used to prevent re-entrancy on closing
 };
 

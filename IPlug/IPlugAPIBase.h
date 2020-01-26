@@ -126,11 +126,6 @@ public:
    * returns a bool to indicate whether the DAW or plugin class has resized the host window */
   virtual bool EditorResizeFromDelegate(int width, int height);
   
-   /** Call this method from a delegate if you want to store arbitrary data about the editor (e.g. layout/scale info).
-   * If calling from a UI interaction use EditorDataChangedFromUI()
-   * When this is overridden in subclasses the subclass should call this in order to update member variables */
-   virtual void EditorDataChangedFromDelegate(const IByteChunk& data) { mEditorData = data; }
-    
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
   virtual void BeginInformHostOfParamChange(int paramIdx) {};
@@ -178,8 +173,6 @@ public:
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
   
   bool EditorResizeFromUI(int viewWidth, int viewHeight) override { return EditorResizeFromDelegate(viewWidth, viewHeight); }
-    
-  void EditorDataChangedFromUI(const IByteChunk& data) override { EditorDataChangedFromDelegate(data); }
   
   void SendParameterValueFromUI(int paramIdx, double normalisedValue) override
   {
