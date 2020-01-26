@@ -892,7 +892,7 @@ bool IPluginBase::LoadProgramFromFXP(const char* file)
         
         return true;
       }
-      else if (fxpMagic == 'FxCk') // Due to the big Endian-ness of FXP/FXB format we cannot call SerialiseParams()
+      else if (fxpMagic == 'FxCk') // Due to the big Endian-ness of FXP/FXB format we cannot call SerializeParams()
       {
         ENTER_PARAMS_MUTEX
         for (int i = 0; i< NParams(); i++)
@@ -985,7 +985,7 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
         InformHostOfProgramChange();
         return true;
       }
-      else if (fxbMagic == 'FxBk') // Due to the big Endian-ness of FXP/FXB format we cannot call SerialiseParams()
+      else if (fxbMagic == 'FxBk') // Due to the big Endian-ness of FXP/FXB format we cannot call SerializeParams()
       {
         int32_t chunkMagic;
         int32_t byteSize;
