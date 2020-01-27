@@ -28,7 +28,7 @@ struct IPlugVST3State
     
     IByteChunk::InitChunkWithIPlugVer(chunk);
     Steinberg::int32 toSaveBypass = pPlug->GetBypassed() ? 1 : 0;
-    pState->write(&toSaveBypass, sizeof (Steinberg::int32));
+    chunk.Put(&toSaveBypass);
     
     if (pPlug->SerializeState(chunk))
     {
@@ -47,25 +47,15 @@ struct IPlugVST3State
     TRACE
     
     IByteChunk chunk;
-    
-    const int bytesPerBlock = 128;
-    char buffer[bytesPerBlock];
-    
-    while(true)
-    {
-      Steinberg::int32 bytesRead = 0;
-      auto status = pState->read(buffer, (Steinberg::int32) bytesPerBlock, &bytesRead);
-      
-      if (bytesRead <= 0 || (status != Steinberg::kResultTrue && pPlug->GetHost() != kHostWaveLab))
-        break;
-      
-      chunk.PutBytes(buffer, bytesRead);
-    }
-    
+    int chunkSize = 0;
+    pState->read(&chunkSize, sizeof(int));
+    chunk.Resize(chunkSize);
+    pState->read(chunk.GetData(), chunk.Size());
+
     Steinberg::int32 savedBypass = 0;
     
     int pos = 0;
-    int version = IByteChunk::GetIPlugVerFromChunk(chunk, pos);
+    IByteChunk::GetIPlugVerFromChunk(chunk, pos);
     
     pState->seek(pos, Steinberg::IBStream::IStreamSeekMode::kIBSeekSet);
     
@@ -73,8 +63,10 @@ struct IPlugVST3State
     {
       return false;
     }
+    else
+      pos += sizeof (Steinberg::int32);
 
-    pos = pPlug->UnserializeState(chunk, 0);
+    pos = pPlug->UnserializeState(chunk, pos);
         
     IPlugVST3ControllerBase* pController = dynamic_cast<IPlugVST3ControllerBase*>(pPlug);
     
