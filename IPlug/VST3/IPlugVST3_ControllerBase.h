@@ -11,6 +11,7 @@
 #pragma once
 
 #include "pluginterfaces/base/ibstream.h"
+#include "public.sdk/source/vst/vsteditcontroller.h"
 
 #include "IPlugAPIBase.h"
 #include "IPlugVST3_Parameter.h"
@@ -28,37 +29,58 @@ public:
     
   void Initialize(IPlugAPIBase* pPlug, Steinberg::Vst::ParameterContainer& parameters, bool plugIsInstrument/*, bool midiIn*/)
   {
+    Steinberg::Vst::UnitInfo uinfo;
+    uinfo.id = Steinberg::Vst::kRootUnitId;
+    uinfo.parentUnitId = Steinberg::Vst::kNoParentUnitId;
+    Steinberg::UString unitNameSetter(uinfo.name, 128);
+    unitNameSetter.fromAscii("Root");
+    
+    Steinberg::Vst::UnitID unitID = Steinberg::Vst::kRootUnitId;
+    
     if (pPlug->NPresets())
+    {
+      uinfo.programListId = kPresetParam;
       parameters.addParameter(new IPlugVST3PresetParameter(pPlug->NPresets()));
+    }
+    else
+      uinfo.programListId = Steinberg::Vst::kNoProgramListId;
     
     if (!plugIsInstrument)
       parameters.addParameter(mBypassParameter = new IPlugVST3BypassParameter());
+
+    Steinberg::Vst::EditControllerEx1* pEditController = dynamic_cast<Steinberg::Vst::EditControllerEx1*>(pPlug);
     
+    pEditController->addUnit(new Steinberg::Vst::Unit(uinfo));
+
     for (int i = 0; i < pPlug->NParams(); i++)
     {
-      IParam *p = pPlug->GetParam(i);
+      IParam* pParam = pPlug->GetParam(i);
+      unitID = Steinberg::Vst::kRootUnitId; // reset unitID
+    
+      const char* paramGroupName = pParam->GetGroupForHost();
       
-      Steinberg::Vst::UnitID unitID = Steinberg::Vst::kRootUnitId;
-      
-      const char* paramGroupName = p->GetGroupForHost();
-      
-      if (CStringHasContents(paramGroupName))
+      if (CStringHasContents(paramGroupName)) // if the parameter has a group
       {
-        for (int j = 0; j < pPlug->NParamGroups(); j++)
+        for (int j = 0; j < pPlug->NParamGroups(); j++) // loop through previously added groups
         {
-          if (strcmp(paramGroupName, pPlug->GetParamGroupName(j)) == 0)
+          if (strcmp(paramGroupName, pPlug->GetParamGroupName(j)) == 0) // if group name found in existing groups
           {
-            unitID = j + 1;
+            unitID = j + 1; // increment unitID
           }
         }
         
-        if (unitID == Steinberg::Vst::kRootUnitId) // new unit, nothing found, so add it
+        if (unitID == Steinberg::Vst::kRootUnitId) // if unitID was still kRootUnitId, we found a new group, so add it and add the unit
         {
-          unitID = pPlug->AddParamGroup(paramGroupName);
+          unitID = pPlug->AddParamGroup(paramGroupName); // updates unitID
+          uinfo.id = unitID;
+          uinfo.parentUnitId = Steinberg::Vst::kRootUnitId;
+          uinfo.programListId = Steinberg::Vst::kNoProgramListId;
+          unitNameSetter.fromAscii(paramGroupName);
+          pEditController->addUnit (new Steinberg::Vst::Unit (uinfo));
         }
       }
       
-      Steinberg::Vst::Parameter* pVST3Parameter = new IPlugVST3Parameter(p, i, unitID);
+      Steinberg::Vst::Parameter* pVST3Parameter = new IPlugVST3Parameter(pParam, i, unitID);
       parameters.addParameter(pVST3Parameter);
     }
 
