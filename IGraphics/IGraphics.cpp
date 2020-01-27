@@ -1362,7 +1362,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     // So use NanoSVG to get the size.
     if (svgDOM->containerSize().width() == 0)
     {
-      NSVGimage* pImage;
+      NSVGimage* pImage = nullptr;
 
       if (resourceFound == EResourceLocation::kAbsolutePath)
       {
