@@ -69,6 +69,9 @@ IGraphicsSkia::Bitmap::Bitmap(sk_sp<SkSurface> surface, int width, int height, i
 IGraphicsSkia::Bitmap::Bitmap(const char* path, double sourceScale)
 {
   auto data = SkData::MakeFromFileName(path);
+  
+  assert(!data->isEmpty());
+  
   mDrawable.mImage = SkImage::MakeFromEncoded(data);
   
   mDrawable.mIsSurface = false;
