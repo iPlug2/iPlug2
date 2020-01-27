@@ -193,6 +193,16 @@ void IControl::SetValueToDefault(int valIdx)
   SetDirty(true, valIdx);
 }
 
+void IControl::setRenderPriority(const int priority, const bool doSort) {
+  const bool changed = priority != mRenderPriority;
+  mRenderPriority = priority;
+  IGraphics* g = GetUI();
+  if (g != nullptr && changed && doSort && priority != 0) {
+    GetUI()->RemoveControl(this, false);
+    GetUI()->AttachControl(this, mTag, mGroup.Get());
+  }
+}
+
 void IControl::SetDirty(bool triggerAction, int valIdx)
 {
   valIdx = (NVals() == 1) ? 0 : valIdx;

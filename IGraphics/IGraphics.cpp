@@ -234,6 +234,37 @@ IControl* IGraphics::AttachControl(IControl* pControl, int ctrlTag, const char* 
   pControl->SetTag(ctrlTag);
   pControl->SetGroup(group);
   mControls.Add(pControl);
+
+  WDL_PtrList<IControl> highPriority;
+  WDL_PtrList<IControl> lowPriority;
+  const int cCount = mControls.GetSize();
+  auto stackSortFunc = [](const IControl** a, const IControl** b) {
+    return (*a)->getRenderPriority() - (*b)->getRenderPriority();
+  };
+  for (int i = 0; i < cCount; i++) {
+    IControl* c = mControls.Get(i);
+    if (c == nullptr) {
+      return pControl;
+    }
+    const int prio = c->getRenderPriority();
+    if (prio > 0) {
+      highPriority.InsertSorted(c, stackSortFunc);
+    }
+    else if (prio < 0) {
+      lowPriority.InsertSorted(c, stackSortFunc);
+    }
+  }
+  for (int i = lowPriority.GetSize() - 1; i >= 0; i--) {
+    IControl* c = lowPriority.Get(i);
+    mControls.DeletePtr(c);
+    mControls.Insert(0, c);
+  }
+  for (int i = 0; i < highPriority.GetSize(); i++) {
+    IControl* c = highPriority.Get(i);
+    mControls.DeletePtr(c);
+    mControls.Add(c);
+  }
+
   pControl->OnAttached();
   return pControl;
 }

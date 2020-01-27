@@ -344,6 +344,15 @@ public:
   /** @return \c true if the control is disabled */
   bool IsDisabled() const { return mDisabled; }
 
+  /**
+   * Acts like a zIndex
+   * The higher the render priority the higher the element will end up on the render stack
+   * @param priority 0 = No preference, > 0 higher, < 0 lower
+   * @param doSort Will sort the render stack by removing and adding the control again */
+  void setRenderPriority(const int priority = 0, const bool doSort = false);
+
+  int getRenderPriority() const { return mRenderPriority; }
+
   /** Specify whether the control should respond to mouse overs when disabled
    * @param allow \c true if it should respond to mouse overs when disabled (false by default) */
   void SetMouseOverWhenDisabled(bool allow) { mMouseOverWhenDisabled = allow; }
@@ -508,6 +517,8 @@ protected:
   
   IText mText;
 
+  /** Affects in what order the IControls are drawn (0 won't care ). All other values push it to the top of the stack */
+  int mRenderPriority = 0;
   int mTextEntryLength = DEFAULT_TEXT_ENTRY_LEN;
   bool mDirty = true;
   bool mHide = false;
