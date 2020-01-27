@@ -36,14 +36,13 @@ IPlugVST3Controller::~IPlugVST3Controller()
 
 tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 {
-  if (EditControllerEx1::initialize(context) == kResultTrue)
+  if (EditControllerEx1::initialize(context) == kResultOk)
   {
     Initialize(this, parameters, mPlugIsInstrument);
-    
     IPlugVST3GetHost(this, context);
     OnHostIdentified();
 
-    return kResultTrue;
+    return kResultOk;
   }
 
   return kResultFalse;

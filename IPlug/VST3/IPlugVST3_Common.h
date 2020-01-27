@@ -26,24 +26,19 @@ struct IPlugVST3State
   {
     IByteChunk chunk;
     
-    // TODO: IPlugVer should be in chunk!
-    //  IByteChunk::GetIPlugVerFromChunk(chunk)
-    
-    if (pPlug->SerializeState(chunk))
-    {
-      /*
-       int chunkSize = chunk.Size();
-       void* data = (void*) &chunkSize;
-       state->write(data, (Steinberg::int32) sizeof(int));*/
-      pState->write(chunk.GetData(), chunk.Size());
-    }
-    else
-      return false;
-    
+    IByteChunk::InitChunkWithIPlugVer(chunk);
     Steinberg::int32 toSaveBypass = pPlug->GetBypassed() ? 1 : 0;
     pState->write(&toSaveBypass, sizeof (Steinberg::int32));
     
-    return true;
+    if (pPlug->SerializeState(chunk))
+    {
+      int chunkSize = chunk.Size();
+      pState->write(static_cast<void*>(&chunkSize), static_cast<int>(sizeof(int)));
+      pState->write(chunk.GetData(), chunkSize);
+      return true;
+    }
+    else
+      return false;
   };
   
   template <class T>
@@ -66,15 +61,21 @@ struct IPlugVST3State
       
       chunk.PutBytes(buffer, bytesRead);
     }
-    int pos = pPlug->UnserializeState(chunk,0);
     
     Steinberg::int32 savedBypass = 0;
     
-    pState->seek(pos,Steinberg::IBStream::IStreamSeekMode::kIBSeekSet);
-    if (pState->read (&savedBypass, sizeof (Steinberg::int32)) != Steinberg::kResultOk) {
+    int pos = 0;
+    int version = IByteChunk::GetIPlugVerFromChunk(chunk, pos);
+    
+    pState->seek(pos, Steinberg::IBStream::IStreamSeekMode::kIBSeekSet);
+    
+    if (pState->read(&savedBypass, sizeof (Steinberg::int32)) != Steinberg::kResultOk)
+    {
       return false;
     }
-    
+
+    pos = pPlug->UnserializeState(chunk, 0);
+        
     IPlugVST3ControllerBase* pController = dynamic_cast<IPlugVST3ControllerBase*>(pPlug);
     
     if(pController)
