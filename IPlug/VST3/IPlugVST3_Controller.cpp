@@ -66,14 +66,12 @@ tresult PLUGIN_API IPlugVST3Controller::setComponentState(IBStream* pState)
 
 tresult PLUGIN_API IPlugVST3Controller::setState(IBStream* pState)
 {
-  // Currently nothing to do here
-  return kResultOk;
+  return IPlugVST3State::SetVST3ControllerState(this, pState) ? kResultOk : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* pState)
 {
-// Currently nothing to do here
-  return kResultOk;
+  return IPlugVST3State::GetVST3ControllerState(this, pState) ? kResultOk : kResultFalse;
 }
 
 ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized(ParamID tag)

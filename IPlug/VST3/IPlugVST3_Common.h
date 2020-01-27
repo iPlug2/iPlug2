@@ -54,19 +54,19 @@ struct IPlugVST3State
 
     Steinberg::int32 savedBypass = 0;
     
-    int pos = 0;
-    IByteChunk::GetIPlugVerFromChunk(chunk, pos);
+    int readPos = 0;
+    IByteChunk::GetIPlugVerFromChunk(chunk, readPos);
     
-    pState->seek(pos, Steinberg::IBStream::IStreamSeekMode::kIBSeekSet);
+    pState->seek(readPos, Steinberg::IBStream::IStreamSeekMode::kIBSeekSet);
     
-    if (pState->read(&savedBypass, sizeof (Steinberg::int32)) != Steinberg::kResultOk)
+    if (pState->read(&savedBypass, sizeof(Steinberg::int32)) != Steinberg::kResultOk)
     {
       return false;
     }
     else
-      pos += sizeof (Steinberg::int32);
+      readPos += sizeof(Steinberg::int32);
 
-    pos = pPlug->UnserializeState(chunk, pos);
+    readPos = pPlug->UnserializeState(chunk, readPos);
         
     IPlugVST3ControllerBase* pController = dynamic_cast<IPlugVST3ControllerBase*>(pPlug);
     
@@ -77,6 +77,44 @@ struct IPlugVST3State
     }
     
     pPlug->OnRestoreState();
+    
+    return true;
+  }
+  
+  template <class T>
+  static bool GetVST3ControllerState(T* pPlug, Steinberg::IBStream* pState)
+  {
+    IPlugAPIBase* pAPIBase = dynamic_cast<IPlugAPIBase*>(pPlug);
+    
+    IByteChunk chunk;
+    IByteChunk::InitChunkWithIPlugVer(chunk);
+    
+    if (pAPIBase->SerializeVST3CtrlrState(chunk))
+    {
+      int chunkSize = chunk.Size();
+      pState->write(static_cast<void*>(&chunkSize), sizeof(int));
+      pState->write(chunk.GetData(), chunkSize);
+      
+      return true;
+    }
+    
+    return false;
+  }
+  
+  template <class T>
+  static bool SetVST3ControllerState(T* pPlug, Steinberg::IBStream* pState)
+  {
+    IPlugAPIBase* pAPIBase = dynamic_cast<IPlugAPIBase*>(pPlug);
+
+    IByteChunk chunk;
+    int chunkSize = 0;
+    pState->read(&chunkSize, sizeof(int));
+    chunk.Resize(chunkSize);
+    pState->read(chunk.GetData(), chunk.Size());
+    
+    int readPos = 0;
+    IByteChunk::GetIPlugVerFromChunk(chunk, readPos);
+    pAPIBase->UnserializeVST3CtrlrState(chunk, readPos);
     
     return true;
   }
