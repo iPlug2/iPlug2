@@ -877,12 +877,12 @@ protected:
    * @param str /todo */
   virtual void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) = 0;
   
-  /** /todo
-   * @param menu /todo
+  /** Calls the platform backend to create the platform popup menu
+   * @param menu The source IPopupMenu
    * @param bounds /todo
-   * @param pCaller /todo
-   * @return IPopupMenu* /todo */
-  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) = 0;
+   * @param isAsync This gets set true on platforms where popupmenu creation is asyncronous
+   * @return A ptr to the chosen IPopupMenu or nullptr in the case of async or dismissed menu */
+  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) = 0;
 
 #pragma mark - Base implementation
 public:

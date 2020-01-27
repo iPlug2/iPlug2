@@ -20,7 +20,7 @@ enum EControlTags
 IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, 1))
 {
-  GetParam(kParamDummy)->InitPercentage("Dummy");
+  GetParam(kParamDummy)->InitPercentage("Dummy", 100.f);
   
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
@@ -119,7 +119,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
         case 9: pNewControl = new TestSVGControl(testRect, pGraphics->LoadSVG(TIGER_FN)); break;
         case 10: pNewControl = new TestImageControl(testRect, pGraphics->LoadBitmap(IPLUG_FN)); break;
         case 11: pNewControl = new TestLayerControl(testRect, kParamDummy); break;
-        case 12: pNewControl = new TestBlendControl(testRect, pGraphics->LoadBitmap(SMILEY_FN), kParamDummy); break;
+        case 12: pNewControl = new TestBlendControl(testRect, pGraphics->LoadBitmap(SRC_FN), pGraphics->LoadBitmap(DST_FN), kParamDummy); break;
         case 13: pNewControl = new TestDropShadowControl(testRect, pGraphics->LoadSVG(ORBS_FN)); break;
         case 14: pNewControl = new TestCursorControl(testRect); break;
         case 15: pNewControl = new TestKeyboardControl(testRect); break;

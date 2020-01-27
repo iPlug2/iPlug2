@@ -162,14 +162,14 @@ bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHa
   return false;
 }
 
-IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
+IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
 {
   IPopupMenu* pReturnMenu = nullptr;
-  
+  isAsync = true;
   if (mView)
   {
     CGRect areaRect = ToCGRect(this, bounds);
-    pReturnMenu = [(__bridge IGRAPHICS_VIEW*)mView createPopupMenu: menu: areaRect];
+    pReturnMenu = [(__bridge IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
   }
   
   //synchronous
