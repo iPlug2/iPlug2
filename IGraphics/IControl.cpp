@@ -317,6 +317,14 @@ IControl* IControl::AttachGestureRecognizer(EGestureType type, IGestureFunc func
   return this; //for chaining
 }
 
+void IControl::OnDetached() {
+  mDelegate = nullptr;
+  mGraphics = nullptr;
+  mTag = kNoTag;
+  mGroup.SetLen(0, true);
+}
+
+
 bool IControl::OnGesture(const IGestureInfo& info)
 {
   auto itr = mGestureFuncs.find(info.type);

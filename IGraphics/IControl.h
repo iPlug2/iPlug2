@@ -146,6 +146,9 @@ public:
   
   /** Called after the control has been attached, and its delegate and graphics member variable set. Use this method for controls that might need to attach sub controls that should be above their parent in the stack */
   virtual void OnAttached() {}
+
+  /** Called right before the control is detached. Call base implementation! */
+  virtual void OnDetached();
   
   /** Implement to receive messages sent to the control, see IEditorDelegate:SendControlMsgFromDelegate() */
   virtual void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) {};

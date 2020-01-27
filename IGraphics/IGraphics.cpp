@@ -159,6 +159,11 @@ void IGraphics::RemoveControl(int paramIdx, bool pWantsDelete)
 {
   IControl* pControl = GetControl(paramIdx);
 
+  if (pControl == nullptr)
+    return;
+
+  pControl->OnDetached();
+
   if (pControl == mMouseCapture)
     mMouseCapture = nullptr;
 
@@ -171,7 +176,7 @@ void IGraphics::RemoveControl(int paramIdx, bool pWantsDelete)
   if (pControl == mInPopupMenu)
     mInPopupMenu = nullptr;
 
-  mControls.Delete(paramIdx, pWantsDelete);
+  mControls.DeletePtr(pControl, pWantsDelete);
   SetAllControlsDirty();
 }
 
