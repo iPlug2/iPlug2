@@ -897,6 +897,8 @@ int xcbt_window_draw_end(xcbt_window pxw){
           TRACE("XCBT:BUG: reseting context does not work\n");
         }
         */
+      } else {
+        xcb_flush(xw->x->conn);
       }
     } else {
       TRACE("XCBT:BUG: draw end without begin\n");

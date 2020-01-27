@@ -8,6 +8,49 @@
 # ==============================================================================
 #
 
+###
+# Sources for dependecies
+# _NEED_XXX should be set to download/build them
+
+_ZLIB_VERSION := 1.2.11
+_ZLIB_DIR     := zlib-$(_ZLIB_VERSION)
+_ZLIB_SRC     := $(_ZLIB_DIR).tar.gz
+_ZLIB_NET_SRC := https://www.zlib.net/$(_ZLIB_SRC)
+
+_LIBPNG_VERSION := 1.6.37
+_LIBPNG_NET_SRC :=  https://github.com/glennrp/libpng/archive/v$(_LIBPNG_VERSION).tar.gz
+
+# NOT READY
+_HARFBUZZ_VERSION := 2.6.4
+_HARFBUZZ_DIR := harfbuzz-$(_HARFBUZZ_VERSION)
+_HARFBUZZ_SRC := $(_HARFBUZZ_DIR).tar.xz
+_HARFBUZZ_NET_SRC := https://www.freedesktop.org/software/harfbuzz/release/$(_HARFBUZZ_SRC)
+
+_FONTCONFIG_VERSION := 2.13.1
+_FONTCONFIG_DIR := fontconfig-$(_FONTCONFIG_VERSION)
+_FONTCONFIG_SRC := $(_FONTCONFIG_DIR).tar.gz
+_FONTCONFIG_NET_SRC := https://www.freedesktop.org/software/fontconfig/release/$(_FONTCONFIG_SRC)
+
+_FREETYPE_VERSION := 2.10.1
+_FREETYPE_DIR     := freetype-$(_FREETYPE_VERSION)
+_FREETYPE_SRC     := $(_FREETYPE_DIR).tar.gz
+_FREETYPE_NET_SRC := https://download.savannah.gnu.org/releases/freetype/$(_FREETYPE_SRC)
+
+_PIXMAN_VERSION := 0.38.4
+_PIXMAN_DIR := pixman-$(_PIXMAN_VERSION)
+_PIXMAN_SRC := $(_PIXMAN_DIR).tar.gz
+_PIXMAN_NET_SRC := https://www.cairographics.org/releases/$(_PIXMAN_SRC)
+
+_EXPAT_VERSION := 2.2.9
+_EXPAT_DIR := expat-$(_EXPAT_VERSION)
+_EXPAT_SRC := $(_EXPAT_DIR).tar.gz
+_EXPAT_NET_SRC := https://github.com/libexpat/libexpat/releases/download/R_2_2_9/$(_EXPAT_SRC)
+
+_CAIRO_VERSION := 1.16.0
+_CAIRO_DIR := cairo-$(_CAIRO_VERSION)
+_CAIRO_SRC := $(_CAIRO_DIR).tar.xz
+_CAIRO_NET_SRC := https://www.cairographics.org/releases/$(_CAIRO_SRC)
+
 #### IPlug
 _IPLUG_PATH := $(IROOT)/IPlug
 _WDL_PATH := $(IROOT)/WDL
@@ -228,7 +271,7 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
     IPB_DEPS$(_TSX) += $(_IDEPS_INSTALL_PATH)/skia/libskia.a
 
     # some extra libraries
-    LIBS$(_TSX) += -lfreetype -lGL -lexpat
+    LIBS$(_TSX) += -lfreetype -lGL -lexpat -lz
   else ifeq ($(IGRAPHICS),LICE)
     IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoSVG/src
 
@@ -240,8 +283,9 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
     
     CXXFLAGSE$(_TSX) += -DIGRAPHICS_LICE
     
-    LIBS$(_TSX) += -lpng
-    
+    _NEED_LIBPNG := yes
+    LIBS$(_TSX) += -lpng -lz
+
     ifneq ($(ITARGET),APP)
       # parts of SWELL are needed for LICE
       CXXFLAGSE$(_TSX) += -DSWELL_EXTRA_MINIMAL -DSWELL_LICE_GDI -DSWELL_FREETYPE
@@ -254,10 +298,119 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
       IPINC_DIR += /usr/include/freetype2
       LIBS$(_TSX) += -lfreetype -ldl -lpthread
     endif
+  else ifeq ($(IGRAPHICS),CAIRO)
+    IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoSVG/src
+
+    $(info $(IPSRC_DIR))
+    _NEED_CAIRO := yes
+    IPINC_DIR += $(_IDEPS_INSTALL_PATH)/include
+
+    CXXFLAGSE$(_TSX) += -DIGRAPHICS_CAIRO
+    
+    LIBS$(_TSX) += -lcairo -lpixman-1 -lfreetype -lpng -lz -lxcb-shm -lxcb-render -lxcb
   else
     $(error FATAL: '$(IGRAPHICS)' graphics flaviour is not currently supported)
   endif
 endif
+
+# Downloading and installing dependencies which are not included into iPlug source tree
+
+# CAIRO
+ifneq ($(_NEED_CAIRO),)
+	_NEED_LIBPNG := yes
+	_NEED_FREETYPE := yes
+
+  _CAIRO_TARGET := lib/libcairo.a
+  _CAIRO_CFG := --disable-dependency-tracking --disable-shared  --disable-gtk-doc --disable-valgrind --enable-xlib=no --enable-xcb=yes --enable-xcb-shm=yes --enable-qt=no --enable-ft=yes --enable-fc=no
+	_CAIRO_CFG_ENV := CFLAGS='-O2 -fPIC'
+
+  $(eval $(call dep_dcmi,CAIRO,IGRAPHICS))
+endif
+
+# PIXMAN
+ifneq ($(_NEED_PIXMAN),)
+  _NEED_LIBPNG := yes
+
+  _PIXMAN_TARGET := lib/libpixman-1.a
+  _PIXMAN_CFG := --disable-shared --disable-gtk
+	_PIXMAN_CFG_ENV := CFLAGS='-O2 -fPIC'
+
+  $(eval $(call dep_dcmi,PIXMAN,IGRAPHICS))
+endif
+
+# FONTCONFIG
+# since configuration which make sense is system wide, I do not use local fontconfig
+ifneq ($(_NEED_FONTCONFIG),)
+  _NEED_EXPAT := yes
+
+  _FONTCONFIG_TARGET := lib/libft2.a
+  _FONTCONFIG_CFG := --disable-shared
+	_FONTCONFIG_CFG_ENV := CFLAGS='-O2 -fPIC'
+
+  $(eval $(call dep_dcmi,FONTCONFIG,IGRAPHICS))
+endif
+
+
+# FREETYPE
+ifneq ($(_NEED_FREETYPE),)
+  _NEED_ZLIB := yes
+  _NEED_LIBPNG := yes
+  IPINC_DIR += $(_IDEPS_INSTALL_PATH)/include/freetype2
+  $(info $(IPINC_DIR))
+  # _NEED_HARFBUZZ := no  #  at least for now 
+
+  _FREETYPE_TARGET := lib/libfreetype.a
+  _FREETYPE_CFG := --disable-shared --with-bzip2=no --with-harfbuzz=no
+	_FREETYPE_CFG_ENV := CFLAGS='-O2 -fPIC'
+
+  $(eval $(call dep_dcmi,FREETYPE,IGRAPHICS))
+endif
+
+
+# HARFBUZZ
+# Fail to compile and not used at the moment
+ifneq ($(_NEED_HARFBUZZ),)
+
+  _HARFBUZZ_TARGET := lib/libharfbuzz.a
+  _HARFBUZZ_CFG := --disable-dependency-tracking --disable-shared --disable-gtk-doc
+	_HARFBUZZ_CFG_ENV := CFLAGS='-O2 -fPIC'
+
+  $(eval $(call dep_dcmi,HARFBUZZ,IGRAPHICS))
+endif
+
+
+# libpng
+ifneq ($(_NEED_LIBPNG),)
+  _NEED_ZLIB := yes
+
+  _LIBPNG_TARGET := lib/libpng.a
+  _LIBPNG_DIR := libpng-$(_LIBPNG_VERSION)
+  _LIBPNG_SRC := $(_LIBPNG_DIR).tar.gz
+  _LIBPNG_CFG := --disable-shared 
+  _LIBPNG_CFG_ENV := CFLAGS='-I$(_IDEPS_INSTALL_PATH)/include -O2 -fPIC' LDFLAGS=-L$(_IDEPS_INSTALL_PATH)/lib
+
+  $(eval $(call dep_dcmi,LIBPNG,IGRAPHICS))
+endif
+
+# zlib
+ifneq ($(_NEED_ZLIB),)
+  _ZLIB_TARGET := lib/libz.a
+  _ZLIB_CFG := --static 
+	_ZLIB_CFG_ENV := CFLAGS='-O3 -fPIC'
+
+  $(eval $(call dep_dcmi,ZLIB,IGRAPHICS))
+endif
+
+
+# EXPAT
+ifneq ($(_NEED_EXPAT),)
+  _EXPAT_TARGET := lib/libexpat.a
+  _EXPAT_CFG := --disable-shared --without-xmlwf --without-examples --without-tests --disable-dependency-tracking
+	_EXPAT_CFG_ENV := CFLAGS='-O2 -fPIC'
+
+  $(eval $(call dep_dcmi,EXPAT,IGRAPHICS))
+endif
+
 
 # I do not want rules till the end, Makefile indentation bugs are displayed better then
 ifneq ($(_SKIA_PATH),)

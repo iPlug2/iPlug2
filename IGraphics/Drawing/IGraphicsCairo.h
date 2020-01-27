@@ -28,6 +28,10 @@
 
   #include "cairo/src/cairo.h"
   #include "cairo/src/cairo-win32.h"
+#elif defined OS_LINUX
+  #include "cairo/cairo.h"
+  #include "cairo/cairo-xcb.h"
+  #include "cairo/cairo-ft.h"
 #else
   #error NOT IMPLEMENTED
 #endif
@@ -117,6 +121,9 @@ private:
   cairo_surface_t* mSurface;
 
   static StaticStorage<Font> sFontCache;
+#ifdef OS_LINUX
+  FT_Library mFTLibrary;
+#endif
 };
 
 END_IGRAPHICS_NAMESPACE

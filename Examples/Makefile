@@ -202,6 +202,36 @@ define addflagtoall =
   $(foreach _sx,$(IPSS),$(if $($(1)_$(_sx)),$(1)_$(_sx) += $(2)))
 endef
 
+## $(eval $(call dep_dcmi,<pkg>,<subsystem>))
+#
+# Build build for dependency package using download/configure/make/make install sequence
+#   pkg - package name
+#   subsystem - IPLUG or IGRAPHICS
+#
+# The following variables must be defined:
+#   _<pkg>_TARGET   - target name in the install path
+#   _<pkg>_SRC      - source (XXX.YYY) file name
+#   _<pkg>_DIR      - the directory name when the source file is extracted
+#   _<pkg>_NET_SRC  - network source file URL
+#   _<pkg>_CFG      - options (apart from PREFIX) for configure (optional)
+#   _<pkg>_CFG_ENV  - environment for configure (optional)
+define dep_dcmi =
+
+IPB_INST_DEPS := $(_IDEPS_INSTALL_PATH)/$(_$(1)_TARGET) $(IPB_INST_DEPS)
+
+$(_$(2)_DEPS_PATH)/$(_$(1)_SRC):
+		@echo "Downloading $(1)... "
+		@cd $(_$(2)_DEPS_PATH) && curl -s -S -L $(_$(1)_NET_SRC) -o $(_$(1)_SRC)
+
+$(_IDEPS_INSTALL_PATH)/$(_$(1)_TARGET): $(_$(2)_DEPS_PATH)/$(_$(1)_SRC)
+		@echo "Compiling $(1)... "
+		@rm -rf $(_IDEPS_INSTALL_PATH)/tmp
+		@mkdir $(_IDEPS_INSTALL_PATH)/tmp
+		@cd $(_IDEPS_INSTALL_PATH)/tmp && tar $(if $(filter %.tar.gz,$(_$(1)_SRC)),xzf,$(if $(filter %.tar.xz,$(_$(1)_SRC)),xJf,)) $(_$(2)_DEPS_PATH)/$(_$(1)_SRC)
+		@cd $(_IDEPS_INSTALL_PATH)/tmp/$(_$(1)_DIR) && PKG_CONFIG_PATH=$(_IDEPS_INSTALL_PATH)/lib/pkgconfig $(_$(1)_CFG_ENV) ./configure --prefix=$(_IDEPS_INSTALL_PATH) $(_$(1)_CFG) && make && make install
+		#@rm -rf $(_IDEPS_INSTALL_PATH)/tmp
+endef
+
 ###################################################################
 
 
@@ -323,6 +353,9 @@ else
   # The list of extra pre-requisites, like dependency packages
   IPB_DEPS :=
   
+  # The list of dependecy packages installation rules
+  IPB_INST_DEPS :=
+
   ### Used during building, see later which of them are automatically defined
   #   from other when not set explicitly.
   #   xxE(xtra) flags are to make simple (base + something) options, especially
@@ -398,11 +431,15 @@ vpath %.cpp $(IPSRC_DIR)
 vpath %.c   $(IPSRC_DIR)
 
 IPINC_DIR += $(IPSRC_DIR)
+IPINC_DIR += $(_IDEPS_INSTALL_PATH)/include
 
 # add includes
 _INCS := $(addprefix -I,$(IPINC_DIR))
 $(eval $(call addflagtoall,CFLAGS,$(_INCS)))
 $(eval $(call addflagtoall,CXXFLAGS,$(_INCS)))
+# library dirs
+_LIBS := $(addprefix -L,$(_IDEPS_INSTALL_PATH)/lib)
+$(eval $(call addflagtoall,LFLAGS,$(_LIBS)))
 
 #
 # Check IPCONFIG is not changed, clean build directory otherwise
@@ -446,7 +483,7 @@ IPBED += $(dir $(IPT))  $(foreach _tsx,$(IPTSS),$(dir $(IPT_$(_tsx))))
 IPBED := $(sort $(IPBED))
 
 #### ITARGET rule
-$(ITARGET): $(IPBED) $(IPBD)/config.build $(IPBRD) $(IPB_DEPS) $(IPT_LIST)
+$(ITARGET): $(IPB_INST_DEPS) $(IPBED) $(IPBD)/config.build $(IPBRD) $(IPB_DEPS) $(IPT_LIST)
 
 ### IPCONFIG rule
 $(IPBD)/config.build:
