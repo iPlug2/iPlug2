@@ -128,24 +128,8 @@ void IGraphics::RemoveControls(int fromIdx)
   int idx = NControls()-1;
   while (idx >= fromIdx)
   {
-    IControl* pControl = GetControl(idx);
-    
-    if (pControl == mMouseCapture)
-      mMouseCapture = nullptr;
-
-    if (pControl == mMouseOver)
-      ClearMouseOver();
-
-    if (pControl == mInTextEntry)
-      mInTextEntry = nullptr;
-
-    if (pControl == mInPopupMenu)
-      mInPopupMenu = nullptr;
-    
-    mControls.Delete(idx--, true);
+    RemoveControl(idx--);
   }
-  
-  SetAllControlsDirty();
 }
 
 void IGraphics::RemoveAllControls()
@@ -164,6 +148,31 @@ void IGraphics::RemoveAllControls()
 #endif
   
   mControls.Empty(true);
+}
+
+void IGraphics::RemoveControl(IControl* pControl, bool pWantsDelete)
+{
+  return RemoveControl(mControls.Find(pControl), pWantsDelete);
+}
+
+void IGraphics::RemoveControl(int paramIdx, bool pWantsDelete)
+{
+  IControl* pControl = GetControl(paramIdx);
+
+  if (pControl == mMouseCapture)
+    mMouseCapture = nullptr;
+
+  if (pControl == mMouseOver)
+    ClearMouseOver();
+
+  if (pControl == mInTextEntry)
+    mInTextEntry = nullptr;
+
+  if (pControl == mInPopupMenu)
+    mInPopupMenu = nullptr;
+
+  mControls.Delete(paramIdx, pWantsDelete);
+  SetAllControlsDirty();
 }
 
 void IGraphics::SetControlValueAfterTextEdit(const char* str)

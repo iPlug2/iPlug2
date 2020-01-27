@@ -1245,8 +1245,6 @@ public:
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
 
-  /** Remove control from the control list */
-  void RemoveControl(IControl* pControl);
   
   /** Remove controls from the control list with a particular tag.  */
   void RemoveControlWithTag(int ctrlTag);
@@ -1256,6 +1254,17 @@ public:
   
   /** Removes all regular IControls from the control list, as well as special controls (frees memory). */
   void RemoveAllControls();
+
+  /** Remove control from the control list
+   * @param pControl The pointer to the control to be removed
+   * @param pWantsDelete will also delete the control object */
+  void RemoveControl(IControl* pControl, bool pWantsDelete = true);
+
+
+  /** Remove control from the control list at a given index
+   * @param paramIdx index of control to be removed
+   * @param pWantsDelete will also delete the control object */
+  void RemoveControl(int paramIdx, bool pWantsDelete = true);
   
   /** Hide controls linked to a specific parameter
    * @param paramIdx The parameter index
