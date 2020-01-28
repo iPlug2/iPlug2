@@ -267,6 +267,22 @@ struct IColor
     return n;
   }
   
+  /** @param o /todo */
+  void SetOpacity(double o)
+  {
+    A *= o;
+    A = std::min(A, 255);
+    A = std::max(A, 0);
+  }
+  
+  /** @param + /todo */
+  IColor GetWithOpacity(double o) const
+  {
+    IColor n = *this;
+    n.SetOpacity(o);
+    return n;
+  }
+  
   /** Get the color as a 3 float array
    * @param rgbf ptr to array of 3 floats */
   void GetRGBf(float* rgbf) const
