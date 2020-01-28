@@ -193,11 +193,12 @@ void IControl::SetValueToDefault(int valIdx)
   SetDirty(true, valIdx);
 }
 
-void IControl::setRenderPriority(const int priority, const bool doSort) {
-  const bool changed = priority != mRenderPriority;
+void IControl::SetRenderPriority(int priority, bool doSort)
+{
   mRenderPriority = priority;
-  IGraphics* g = GetUI();
-  if (g != nullptr && changed && doSort && priority != 0) {
+
+  if (doSort && priority != 0)
+  {
     GetUI()->RemoveControl(this, false);
     GetUI()->AttachControl(this, mTag, mGroup.Get());
   }
@@ -327,7 +328,8 @@ IControl* IControl::AttachGestureRecognizer(EGestureType type, IGestureFunc func
   return this; //for chaining
 }
 
-void IControl::OnDetached() {
+void IControl::OnDetached()
+{
   mDelegate = nullptr;
   mGraphics = nullptr;
   mTag = kNoTag;

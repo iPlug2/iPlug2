@@ -1257,14 +1257,16 @@ public:
 
   /** Remove control from the control list
    * @param pControl The pointer to the control to be removed
-   * @param pWantsDelete will also delete the control object */
-  void RemoveControl(IControl* pControl, bool pWantsDelete = true);
+   * @param pWantsDelete will also delete the control object
+   * @param pSetDirty Will trigger SetAllControlsDirty() */
+  void RemoveControl(IControl* pControl, bool pWantsDelete = true, bool pSetDirty = true);
 
 
   /** Remove control from the control list at a given index
    * @param paramIdx index of control to be removed
-   * @param pWantsDelete will also delete the control object */
-  void RemoveControl(int paramIdx, bool pWantsDelete = true);
+   * @param pWantsDelete will also delete the control object
+   * @param pSetDirty Will trigger SetAllControlsDirty() */
+  void RemoveControl(int paramIdx, bool pWantsDelete = true, bool pSetDirty = true);
   
   /** Hide controls linked to a specific parameter
    * @param paramIdx The parameter index

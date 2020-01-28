@@ -349,9 +349,9 @@ public:
    * The higher the render priority the higher the element will end up on the render stack
    * @param priority 0 = No preference, > 0 higher, < 0 lower
    * @param doSort Will sort the render stack by removing and adding the control again */
-  void setRenderPriority(const int priority = 0, const bool doSort = false);
+  void SetRenderPriority(int priority = 0, bool doSort = false);
 
-  int getRenderPriority() const { return mRenderPriority; }
+  int GetRenderPriority() const { return mRenderPriority; }
 
   /** Specify whether the control should respond to mouse overs when disabled
    * @param allow \c true if it should respond to mouse overs when disabled (false by default) */
