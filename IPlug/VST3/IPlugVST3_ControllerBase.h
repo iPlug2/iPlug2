@@ -32,6 +32,8 @@ public:
     
   void Initialize(IPlugAPIBase* pPlug, Steinberg::Vst::ParameterContainer& parameters, bool plugIsInstrument, bool midiIn)
   {
+    Steinberg::Vst::EditControllerEx1* pEditController = dynamic_cast<Steinberg::Vst::EditControllerEx1*>(pPlug);
+
     Steinberg::Vst::UnitInfo unitInfo;
     unitInfo.id = Steinberg::Vst::kRootUnitId;
     unitInfo.parentUnitId = Steinberg::Vst::kNoParentUnitId;
@@ -40,18 +42,42 @@ public:
     
     Steinberg::Vst::UnitID unitID = Steinberg::Vst::kRootUnitId;
     
+    #ifdef VST3_PRESET_LIST
     if (pPlug->NPresets())
     {
       unitInfo.programListId = kPresetParam;
       parameters.addParameter(new IPlugVST3PresetParameter(pPlug->NPresets()));
+      
+      Steinberg::Vst::ProgramListWithPitchNames* pList = new Steinberg::Vst::ProgramListWithPitchNames(STR16("Factory Presets"), 0 /* list id */, Steinberg::Vst::kRootUnitId);
+      
+      Steinberg::Vst::String128 programName;
+      Steinberg::Vst::String128 pitchName;
+
+      for (int programIdx=0; programIdx<pPlug->NPresets(); programIdx++)
+      {
+        Steinberg::UString(programName, str16BufferSize(Steinberg::Vst::String128)).assign(pPlug->GetPresetName(programIdx));
+        pList->addProgram (programName);
+        
+        //Set named notes. This could be different per-preset in VST3
+        for (int pitch = 0; pitch < 128; pitch++)
+        {
+          char pNoteText[32] = "";
+          if(pPlug->GetMidiNoteText(pitch, pNoteText))
+          {
+            Steinberg::UString(pitchName, str16BufferSize(Steinberg::Vst::String128)).assign(pNoteText);
+            pList->setPitchName(programIdx, pitch, pitchName);
+          }
+        }
+      }
+
+      pEditController->addProgramList(pList);
     }
     else
+    #endif
       unitInfo.programListId = Steinberg::Vst::kNoProgramListId;
     
     if (!plugIsInstrument)
       parameters.addParameter(mBypassParameter = new IPlugVST3BypassParameter());
-
-    Steinberg::Vst::EditControllerEx1* pEditController = dynamic_cast<Steinberg::Vst::EditControllerEx1*>(pPlug);
     
     pEditController->addUnit(new Steinberg::Vst::Unit(unitInfo));
 
