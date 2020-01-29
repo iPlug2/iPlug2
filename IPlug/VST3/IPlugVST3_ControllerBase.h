@@ -15,8 +15,9 @@
 
 #include "IPlugAPIBase.h"
 #include "IPlugVST3_Parameter.h"
-#include "IPlugMidi.h"
 #include "IPlugVST3_Defs.h"
+
+#include "IPlugMidi.h"
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -91,8 +92,7 @@ public:
 #if VST3_NUM_CC_CHANS > 0
     if (midiIn)
     {
-      pPlug->AddParamGroup(VST3_CC_UNITNAME);
-      unitInfo.id = unitID = pPlug->NParamGroups();
+      unitInfo.id = unitID = pEditController->getUnitCount() + 1;
       unitInfo.parentUnitId = Steinberg::Vst::kRootUnitId;
       unitInfo.programListId = Steinberg::Vst::kNoProgramListId;
       unitNameSetter.fromAscii(VST3_CC_UNITNAME);
@@ -107,8 +107,7 @@ public:
       {
         chanGroupStr.SetFormatted(32, "CH%i", chan + 1);
 
-        pPlug->AddParamGroup(chanGroupStr.Get());
-        unitInfo.id = unitID = pPlug->NParamGroups();
+        unitInfo.id = unitID = pEditController->getUnitCount() + 1;
         unitInfo.parentUnitId = midiCCsUnitID;
         unitInfo.programListId = Steinberg::Vst::kNoProgramListId;
         unitNameSetter.fromAscii(chanGroupStr.Get());
