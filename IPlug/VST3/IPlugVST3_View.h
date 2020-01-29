@@ -20,12 +20,10 @@ public:
   IPlugVST3View(T& owner)
   : mOwner(owner)
   {
-    mOwner.addRef();
   }
   
   ~IPlugVST3View()
   {
-    mOwner.release();
   }
   
   IPlugVST3View(const IPlugVST3View&) = delete;
@@ -109,15 +107,6 @@ public:
     return Steinberg::kResultOk;
   }
 
-  Steinberg::tresult PLUGIN_API queryInterface(const Steinberg::TUID _iid, void** obj) override
-  {
-    QUERY_INTERFACE(_iid, obj, IPlugViewContentScaleSupport::iid, IPlugViewContentScaleSupport)
-    *obj = 0;
-    return CPluginView::queryInterface(_iid, obj);
-  }
-
-  DELEGATE_REFCOUNT(Steinberg::CPluginView)
-
   void resize(int w, int h)
   {
     TRACE
@@ -125,6 +114,13 @@ public:
     Steinberg::ViewRect newSize = Steinberg::ViewRect(0, 0, w, h);
     plugFrame->resizeView(this, &newSize);
   }
+  
+  OBJ_METHODS(IPlugVST3View, CPluginView)
+  DEFINE_INTERFACES
+  DEF_INTERFACE(IPlugViewContentScaleSupport)
+  END_DEFINE_INTERFACES(CPluginView)
+  REFCOUNT_METHODS(CPluginView)
 
+private:
   T& mOwner;
 };
