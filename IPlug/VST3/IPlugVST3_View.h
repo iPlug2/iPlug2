@@ -13,12 +13,13 @@
 
 /** IPlug VST3 View  */
 template <class T>
-class IPlugVST3View : public Steinberg::CPluginView
+class IPlugVST3View : public Steinberg::Vst::EditorView
                     , public Steinberg::IPlugViewContentScaleSupport
 {
 public:
   IPlugVST3View(T& owner)
-  : mOwner(owner)
+  : EditorView(&owner, nullptr)
+  , mOwner(owner)
   {
   }
   
@@ -112,14 +113,17 @@ public:
     TRACE
     
     Steinberg::ViewRect newSize = Steinberg::ViewRect(0, 0, w, h);
-    plugFrame->resizeView(this, &newSize);
+
+    /* For some unknown reason plugFrame is sometime null */
+    if(plugFrame)
+      plugFrame->resizeView(this, &newSize);
   }
   
-  OBJ_METHODS(IPlugVST3View, CPluginView)
+  OBJ_METHODS(IPlugVST3View, Steinberg::Vst::EditorView)
   DEFINE_INTERFACES
   DEF_INTERFACE(IPlugViewContentScaleSupport)
-  END_DEFINE_INTERFACES(CPluginView)
-  REFCOUNT_METHODS(CPluginView)
+  END_DEFINE_INTERFACES(Steinberg::Vst::EditorView)
+  REFCOUNT_METHODS(Steinberg::Vst::EditorView)
 
 private:
   T& mOwner;
