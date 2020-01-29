@@ -64,8 +64,12 @@ public:
   // IEditControllerEx
   Steinberg::tresult PLUGIN_API getProgramName(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex, Steinberg::Vst::String128 name /*out*/) override;
   
-  DELEGATE_REFCOUNT(Steinberg::Vst::EditControllerEx1)
-  Steinberg::tresult PLUGIN_API queryInterface(const char* iid, void** obj) override;
+  // Interface
+  OBJ_METHODS(IPlugVST3Controller, EditControllerEx1)
+  DEFINE_INTERFACES
+  DEF_INTERFACE(IMidiMapping)
+  END_DEFINE_INTERFACES(EditControllerEx1)
+  REFCOUNT_METHODS(EditControllerEx1)
   
   // IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override { beginEdit(idx); }

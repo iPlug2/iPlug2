@@ -103,12 +103,6 @@ tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment(int32 busInd
   return kResultFalse;
 }
 
-tresult PLUGIN_API IPlugVST3Controller::queryInterface(const char* iid, void** obj)
-{
-  QUERY_INTERFACE(iid, obj, IMidiMapping::iid, IMidiMapping)
-  return EditControllerEx1::queryInterface(iid, obj);
-}
-
 #pragma mark IUnitInfo overrides
 
 tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int32 programIndex, String128 name /*out*/)
