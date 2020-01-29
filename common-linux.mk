@@ -301,13 +301,21 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
   else ifeq ($(IGRAPHICS),CAIRO)
     IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoSVG/src
 
-    $(info $(IPSRC_DIR))
     _NEED_CAIRO := yes
     IPINC_DIR += $(_IDEPS_INSTALL_PATH)/include
 
     CXXFLAGSE$(_TSX) += -DIGRAPHICS_CAIRO
     
     LIBS$(_TSX) += -lcairo -lpixman-1 -lfreetype -lpng -lz -lxcb-shm -lxcb-render -lxcb
+  else ifeq ($(IGRAPHICS),AGG)
+    IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoSVG/src
+
+		_NEED_FREETYPE := yes
+		_AGG_PATH := $(_IGRAPHICS_DEPS_PATH)/AGG/agg-2.4
+
+		IPINC_DIR += $(_AGG_PATH)/include $(_AGG_PATH)/src $(_AGG_PATH)/font_freetype
+		
+		CXXFLAGSE$(_TSX) += -DIGRAPHICS_AGG		
   else
     $(error FATAL: '$(IGRAPHICS)' graphics flaviour is not currently supported)
   endif

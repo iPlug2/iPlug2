@@ -33,6 +33,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 // for dynamic loading
 #include <dlfcn.h>
@@ -306,10 +307,13 @@ void xcbt_disconnect(xcbt px){
   _xcbt *x = (_xcbt *)px;
   if(x){
     xcbt_embed_set(px, NULL);
+    if(!xcb_connection_has_error(x->conn))
+      xcbt_sync(px);  // TODO: wait till all known windows get XCB_DESTROY_NOTIFY }
     if(x->dpy){
       x->XCloseDisplay(x->dpy);
       x->XSetErrorHandler(x->xlibOldErrorHandler); // warning... it is global...
     } else {
+      //TRACE("XCBT %p is Disconnected\n", x->conn);
       xcb_disconnect(x->conn);
     }
     if(x->xlib){
@@ -342,6 +346,14 @@ int xcbt_sync(xcbt px){
   return 0;
 }
 
+void xcbt_sync_dbg(xcbt px){
+  xcbt_sync(px);
+  for(int i =0; i<100; ++i){
+    xcbt_process(px);
+    usleep(1000);
+  }
+}
+
 /*
  * Ignore XLib errors for now
  */
@@ -364,7 +376,7 @@ static void xcbt_load_atoms(_xcbt *x){
     xcb_intern_atom_cookie_t ck[XCBT_COMMON_ATOMS_COUNT];
     xcb_intern_atom_reply_t *ar;
     int i;
-    TRACE("Loading atoms\n");
+    //TRACE("Loading atoms\n");
     for(i = 0; i < XCBT_COMMON_ATOMS_COUNT; ++i){
       ck[i] = xcb_intern_atom(x->conn, 0, strlen(common_atom_names[i]), common_atom_names[i]);
     }
@@ -372,7 +384,7 @@ static void xcbt_load_atoms(_xcbt *x){
       ar = xcb_intern_atom_reply(x->conn, ck[i], NULL);
       if(ar){
         x->catoms[i] = ar->atom;
-        TRACE(" [%d] %s: 0x%x\n", i, common_atom_names[i], ar->atom);
+        //TRACE(" [%d] %s: 0x%x\n", i, common_atom_names[i], ar->atom);
       } else {
         TRACE("ERROR: could not get atom '%s'\n", common_atom_names[i]);
         x->catoms[i] = 0;
@@ -404,7 +416,7 @@ xcbt xcbt_connect(uint32_t flags){
               if(xcbt_glad_glx_load(x)){
                 if((flags & XCBT_INIT_ATOMS))
                   xcbt_load_atoms(x);
-                TRACE("Xlib/XCB FD: %d\n", xcb_get_file_descriptor(x->conn));
+                TRACE("INFO: Xlib/XCB FD: %d\n", xcb_get_file_descriptor(x->conn));
                 return (xcbt)x;
               } else {
                 TRACE("Could not load GLX\n");
@@ -427,10 +439,11 @@ xcbt xcbt_connect(uint32_t flags){
       x->dpy = NULL; // close XLib display, even if we manage to open it
     }
     if((x->conn = xcb_connect(NULL, &x->def_screen)) && (x->def_screen >= 0)){
-      TRACE("XCB only\n");
+      TRACE("INFO: XCB only\n");
       if((flags & XCBT_INIT_ATOMS)){
         xcbt_load_atoms(x);
       }
+      //TRACE("XCBT %p is Connected\n", x->conn);
       return (xcbt)x;
     } else {
       TRACE("Could not open X connection\n");
@@ -451,9 +464,8 @@ int xcbt_get_img_prop(xcbt px, unsigned depth, xcbt_img_prop *prop){
   if(x && prop){
     const xcb_setup_t *setup = xcb_get_setup(x->conn);
     if(setup){
-      int count = xcb_setup_pixmap_formats_length(setup), i;
-      xcb_format_iterator_t it;
-      for(it = xcb_setup_pixmap_formats_iterator(setup), i = 0; i < count; ++i, xcb_format_next(&it)){
+      xcb_format_iterator_t it = xcb_setup_pixmap_formats_iterator(setup);
+      while(it.rem){
         if(it.data->depth == depth){
           prop->depth = depth;
           prop->bpp = it.data->bits_per_pixel;
@@ -461,6 +473,7 @@ int xcbt_get_img_prop(xcbt px, unsigned depth, xcbt_img_prop *prop){
           prop->byte_order = setup->image_byte_order;
           return 1;
         }
+        xcb_format_next(&it);
       }
     }
   }
@@ -809,12 +822,19 @@ xcbt_window xcbt_window_create(xcbt px, xcb_window_t prt, const xcbt_rect *pos){
                   XCB_EVENT_MASK_POINTER_MOTION // mouse motion
                   ;
       uint32_t wa[] = { eventmask, 0, 0 };
-      xw->wnd = xcb_generate_id(x->conn);
-      xcb_create_window(x->conn, XCB_COPY_FROM_PARENT, xw->wnd, prt, pos->x, pos->y, pos->w, pos->h, 0,
-                        XCB_WINDOW_CLASS_INPUT_OUTPUT, si->root_visual, XCB_CW_EVENT_MASK, wa);
-      xcbt_window_register(xw);
-      TRACE("Window is created\n");
-      return (xcbt_window)xw;
+      xcb_visualtype_t *vt = xcbt_visual_type(px, si->root_visual);
+      if(vt && (vt->_class == XCB_VISUAL_CLASS_TRUE_COLOR) && (vt->red_mask == 0xff0000) && (vt->green_mask == 0xff00) && (vt->blue_mask == 0xff)){
+        xw->wnd = xcb_generate_id(x->conn);
+        wa[1] = xw->cmap = xcb_generate_id(x->conn); // it works without, but at least not in REAPER when switching effects...
+        xcb_create_colormap(x->conn, XCB_COLORMAP_ALLOC_NONE, xw->cmap, prt, si->root_visual);
+        xcb_create_window(x->conn, XCB_COPY_FROM_PARENT, xw->wnd, /* si->root */ prt, pos->x, pos->y, pos->w, pos->h, 0,
+                          XCB_WINDOW_CLASS_INPUT_OUTPUT, si->root_visual, XCB_CW_EVENT_MASK | XCB_CW_COLORMAP, wa);
+        xcbt_window_register(xw);
+        TRACE("INFO: A window is created with 24bit RGB visual\n");
+        return (xcbt_window)xw;
+      } else {
+        TRACE("NOT IMPLEMENTED: screen visual is not 24bit RGB, not supported\n");
+      }
     }
   }
   xcbt_window_destroy((xcbt_window)xw);
@@ -952,6 +972,25 @@ xcb_screen_t *xcbt_screen_info(xcbt px, int screen){
   return NULL;
 }
 
+xcb_visualtype_t *xcbt_visual_type(xcbt px, xcb_visualid_t vid){
+  _xcbt *x = (_xcbt *)px;
+  if(x){
+    xcb_screen_iterator_t sit = xcb_setup_roots_iterator(xcb_get_setup(x->conn));
+    for(; sit.rem; xcb_screen_next(&sit)){
+      xcb_depth_iterator_t dit = xcb_screen_allowed_depths_iterator(sit.data);
+      for(; dit.rem; xcb_depth_next(&dit)){
+        xcb_visualtype_iterator_t vit = xcb_depth_visuals_iterator(dit.data);
+        for(; vit.rem; xcb_visualtype_next(&vit)){
+          if(vid == vit.data->visual_id){
+            return vit.data;
+          }
+        }
+      }
+    }
+  }
+  return NULL;
+}
+
 int xcbt_window_set_handler(xcbt_window pxw, xcbt_window_handler new_handler, void *new_data, xcbt_window_handler *old_handler, void **old_data){
   _xcbt_window *xw = (_xcbt_window *)pxw;
   if(xw && new_handler && old_handler && old_data){
@@ -979,7 +1018,13 @@ int xcbt_window_wait_map(xcbt_window pxw){
   }
   return xw->xmapped;
 }
-  
+
+/*
+ * Event 0 is an error, print details  
+ */
+static void _xcbt_event_process_error(_xcbt *x, xcb_value_error_t *err) {
+	TRACE("XCB ERROR:: code %d, sequence %d, value %d, opcode %d:%d\n", err->error_code, err->sequence, err->bad_value, err->minor_opcode, err->major_opcode);
+}
 
 /*
  * Some events are for windows, other not...
@@ -988,6 +1033,10 @@ static void xcbt_event_process(_xcbt *x, xcb_generic_event_t *evt){
   xcb_window_t wnd;
   _xcbt_window *xw = x->windows;
   switch(evt->response_type & ~0x80){
+    case 0:
+      _xcbt_event_process_error(x, (xcb_value_error_t *)evt);
+      free(evt);
+      return;
     case XCB_MAP_NOTIFY:
     case XCB_UNMAP_NOTIFY:
     case XCB_EXPOSE:
@@ -1064,7 +1113,7 @@ int xcbt_process(xcbt px){
   if(x){
     xcb_flush(x->conn);
     while((evt = xcb_poll_for_event(x->conn))){
-      //printf("- %x\n", evt->response_type);
+      //printf("%p- %x (%d)\n", x->conn, evt->response_type, xcb_get_file_descriptor(x->conn));
       xcbt_event_process(x, evt);
     }
     msec = _xcbt_process_timers(x);

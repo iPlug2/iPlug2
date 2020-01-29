@@ -58,12 +58,8 @@ void IGraphicsLinux::Paint()
   void *ctx = xcbt_window_draw_begin(mPlugWnd);
 
   if(ctx){
-    SetPlatformContext(ctx);
-
     Draw(rects);
-    
     xcbt_window_draw_end(mPlugWnd);
-    SetPlatformContext(nullptr);
   }
 }
 
@@ -71,10 +67,8 @@ void IGraphicsLinux::DrawResize()
 {
   void *ctx = xcbt_window_draw_begin(mPlugWnd);
   if(ctx){
-    SetPlatformContext(ctx);
     IGRAPHICS_DRAW_CLASS::DrawResize();
-    if(xcbt_window_draw_stop(mPlugWnd))
-      SetPlatformContext(nullptr); // WARNING: in CAN BE reentrant!!! (f.e. it is called from SetScreenScale during initialization)
+    xcbt_window_draw_stop(mPlugWnd); // WARNING: in CAN BE reentrant!!! (f.e. it is called from SetScreenScale during initialization)
   }
   // WARNING: IPlug call it on resize, but at the end. When should we call Paint() ?
   // In Windows version "Update window" is called from PlatformResize, so BEFORE DrawResize...
@@ -311,6 +305,7 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
   #error "Unsupported GL version"
 #endif
 #else
+
   mPlugWnd = xcbt_window_create(mX, xprt, &r);
 #endif
   if(!mX)
@@ -329,7 +324,7 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
     mX = NULL;
     return NULL;
   }
-  
+
   if(xcbt_window_draw_begin(mPlugWnd))
   {  // GL context set
     OnViewInitialized( nullptr );
@@ -342,6 +337,8 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
     xcbt_window_draw_stop(mPlugWnd);
   }
 
+  xcbt_timer_set(mX, IPLUG_TIMER_ID, 20, (xcbt_timer_cb)TimerHandlerProxy, this);
+
 #ifdef APP_API
   xcbt_window_map(mPlugWnd);
 #elif defined VST3_API
@@ -351,11 +348,7 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
 #else
   #error "Map or not to map... that is the question"
 #endif
-
-  xcbt_timer_set(mX, IPLUG_TIMER_ID, 20, (xcbt_timer_cb)TimerHandlerProxy, this);
-
   xcbt_sync(mX); // make sure everything is ready before reporting it is
-
   return reinterpret_cast<void *>(xcbt_window_xwnd(mPlugWnd));
 }
 
@@ -364,6 +357,8 @@ void IGraphicsLinux::CloseWindow()
   if (mPlugWnd)
   {
     OnViewDestroyed();
+
+    SetPlatformContext(nullptr); // I do not set it, but Cairo does...
 
     xcbt_window_destroy(mPlugWnd);
     mPlugWnd = NULL;

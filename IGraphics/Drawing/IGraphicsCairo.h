@@ -120,9 +120,36 @@ private:
   cairo_t* mContext;
   cairo_surface_t* mSurface;
 
-  static StaticStorage<Font> sFontCache;
 #ifdef OS_LINUX
-  FT_Library mFTLibrary;
+  // MAYBE: FT Face is not thread safe and comes from FT Library instance... 
+  //        but font data can be cached and FT Library just need locks during FT Face creation
+  // This implementation assume one instance GUI is not multi-threaded
+  class FreetypeFontCache
+  {
+    public:
+      Font *Find(const char *fontID) const;
+      void  Add(Font *font, const char *fontID);
+      FT_Library Library() { return mFTLibrary; }
+      
+      FreetypeFontCache()
+      {
+        FT_Init_FreeType(&mFTLibrary);
+      }
+      
+      ~FreetypeFontCache();
+      
+    private:
+      struct Item
+      {
+        WDL_String            mFontID;
+        std::unique_ptr<Font> mFont;
+      };
+      FT_Library mFTLibrary;
+      WDL_PtrList<Item> mFonts;
+  };
+  FreetypeFontCache mFontCache;
+#else
+  static StaticStorage<Font> sFontCache;
 #endif
 };
 

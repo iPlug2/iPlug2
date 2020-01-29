@@ -164,6 +164,12 @@ void xcbt_disconnect(xcbt x);
  */
 int xcbt_sync(xcbt x);
 
+/*
+ * For debugging only. Sync and process incoming events for ~100ms
+ */
+void xcbt_sync_dbg(xcbt px);
+
+
 /**
  * Fill properties for specified depth
  * 
@@ -360,6 +366,12 @@ int xcbt_window_draw_img(xcbt_window xw, unsigned depth, unsigned w, unsigned h,
  *   screen information (connection live time, should not be freed) or NULL
  */
 xcb_screen_t *xcbt_screen_info(xcbt px, int screen);
+
+/**
+ * Get visual type for specified visual id
+ * 
+ */
+xcb_visualtype_t *xcbt_visual_type(xcbt px, xcb_visualid_t vid);
 
 /**
  * Set event handler and user data, old hander and user data are returned
