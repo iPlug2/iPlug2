@@ -199,7 +199,7 @@ void IControl::SetRenderPriority(int priority, bool doSort)
 
   if (doSort && priority != 0)
   {
-    GetUI()->RemoveControl(this, false);
+    GetUI()->DetachControl(this);
     GetUI()->AttachControl(this, mTag, mGroup.Get());
   }
 }

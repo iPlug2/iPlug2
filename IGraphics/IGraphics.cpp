@@ -119,7 +119,7 @@ void IGraphics::SetLayoutOnResize(bool layoutOnResize)
 
 void IGraphics::RemoveControlWithTag(int ctrlTag)
 {
-  RemoveControl(GetControlWithTag(ctrlTag), false, true);
+  RemoveControl(GetControlWithTag(ctrlTag));
 }
 
 void IGraphics::RemoveControls(int fromIdx)
@@ -127,9 +127,8 @@ void IGraphics::RemoveControls(int fromIdx)
   int idx = NControls()-1;
   while (idx >= fromIdx)
   {
-    RemoveControl(idx--, true, false);
+    RemoveControl(idx--);
   }
-  SetAllControlsDirty();
 }
 
 void IGraphics::RemoveAllControls()
@@ -150,36 +149,16 @@ void IGraphics::RemoveAllControls()
   RemoveControls(0);
 }
 
-void IGraphics::RemoveControl(IControl* pControl, bool pWantsDelete, bool pSetDirty)
+void IGraphics::RemoveControl(IControl* pControl)
 {
-  return RemoveControl(mControls.Find(pControl), pWantsDelete);
+  DetachControl(pControl);
+  delete pControl;
 }
 
-void IGraphics::RemoveControl(int paramIdx, bool pWantsDelete, bool pSetDirty)
+void IGraphics::RemoveControl(int controlIndex)
 {
-  IControl* pControl = GetControl(paramIdx);
+  RemoveControl(GetControl(controlIndex));
 
-  if (pControl == nullptr)
-    return;
-
-  pControl->OnDetached();
-
-  if (pControl == mMouseCapture)
-    mMouseCapture = nullptr;
-
-  if (pControl == mMouseOver)
-    ClearMouseOver();
-
-  if (pControl == mInTextEntry)
-    mInTextEntry = nullptr;
-
-  if (pControl == mInPopupMenu)
-    mInPopupMenu = nullptr;
-
-  mControls.DeletePtr(pControl, pWantsDelete);
-
-  if (pSetDirty)
-    SetAllControlsDirty();
 }
 
 void IGraphics::SetControlValueAfterTextEdit(const char* str)
@@ -272,6 +251,40 @@ IControl* IGraphics::AttachControl(IControl* pControl, int ctrlTag, const char* 
 
   pControl->OnAttached();
   return pControl;
+}
+
+void IGraphics::DetachControlWithTag(int ctrlTag)
+{
+  DetachControl(GetControlWithTag(ctrlTag));
+}
+
+void IGraphics::DetachControl(int controlIndex)
+{
+  DetachControl(GetControl(controlIndex));
+}
+
+void IGraphics::DetachControl(IControl* pControl)
+{
+  if (pControl == nullptr)
+    return;
+
+  pControl->OnDetached();
+
+  if (pControl == mMouseCapture)
+    mMouseCapture = nullptr;
+
+  if (pControl == mMouseOver)
+    ClearMouseOver();
+
+  if (pControl == mInTextEntry)
+    mInTextEntry = nullptr;
+
+  if (pControl == mInPopupMenu)
+    mInPopupMenu = nullptr;
+
+  mControls.DeletePtr(pControl);
+
+  SetAllControlsDirty();
 }
 
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)

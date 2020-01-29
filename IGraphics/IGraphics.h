@@ -1212,6 +1212,18 @@ public:
    * @return The index of the control (and the number of controls in the stack) */
   IControl* AttachControl(IControl* pControl, int ctrlTag = kNoTag, const char* group = "");
 
+
+  /** Detach control from the control list with a particular tag. */
+  void DetachControlWithTag(int ctrlTag);
+
+  /** Remove control from the control list at a given index (will not destroy the object) and redraws all controls
+   * @param controlIndex index of control to be detached */
+  void DetachControl(int controlIndex);
+
+  /** Remove control from the control list at a given index (will not destroy the object) and redraws all controls
+   * @param pControl control to be detached */
+  void DetachControl(IControl* pControl);
+
   /** @param idx The index of the control to get
    * @return A pointer to the IControl object at idx or nullptr if not found */
   IControl* GetControl(int idx) { return mControls.Get(idx); }
@@ -1255,18 +1267,14 @@ public:
   /** Removes all regular IControls from the control list, as well as special controls (frees memory). */
   void RemoveAllControls();
 
-  /** Remove control from the control list
-   * @param pControl The pointer to the control to be removed
-   * @param pWantsDelete will also delete the control object
-   * @param pSetDirty Will trigger SetAllControlsDirty() */
-  void RemoveControl(IControl* pControl, bool pWantsDelete = true, bool pSetDirty = true);
+  /** Remove control from the control list (Frees memory) and redraws all controls
+   * @param pControl The pointer to the control to be removed */
+  void RemoveControl(IControl* pControl);
 
 
-  /** Remove control from the control list at a given index
-   * @param paramIdx index of control to be removed
-   * @param pWantsDelete will also delete the control object
-   * @param pSetDirty Will trigger SetAllControlsDirty() */
-  void RemoveControl(int paramIdx, bool pWantsDelete = true, bool pSetDirty = true);
+  /** Remove control from the control list at a given index (Frees memory) and redraws all controls
+   * @param controlIndex index of control to be removed */
+  void RemoveControl(int controlIndex);
   
   /** Hide controls linked to a specific parameter
    * @param paramIdx The parameter index
