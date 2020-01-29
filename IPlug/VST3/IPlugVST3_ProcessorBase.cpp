@@ -356,7 +356,9 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data)
 #ifdef PARAMS_MUTEX
                 mPlug.mParams_mutex.Enter();
 #endif
-                mPlug.GetParam(idx)->SetNormalized((double)value); // TODO: In VST3 non distributed the same parameter value is also set via IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
+                mPlug.GetParam(idx)->SetNormalized(value);
+              
+                // In VST3 non distributed the same parameter value is also set via IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
                 mPlug.OnParamChange(idx, kHost, offsetSamples);
 #ifdef PARAMS_MUTEX
                 mPlug.mParams_mutex.Leave();
