@@ -814,12 +814,6 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
     {
       SetWindowPos(pGrandparent, 0, 0, 0, grandparentW + dw, grandparentH + dh, SETPOS_FLAGS);
     }
-
-    RECT r = { 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale() };
-    InvalidateRect(mPlugWnd, &r, FALSE);
-
-    // Fix white background while resizing
-    UpdateWindow(mPlugWnd);
   }
 }
 
@@ -1297,7 +1291,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
   return hMenu;
 }
 
-IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
+IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
 {
   long offsetIdx = 0;
   HMENU hMenu = CreateMenu(menu, &offsetIdx);
@@ -2096,6 +2090,7 @@ void IGraphicsWin::VBlankNotify()
   #include "IGraphicsNanoVG.cpp"
 #ifdef IGRAPHICS_FREETYPE
 #define FONS_USE_FREETYPE
+  #pragma comment(lib, "freetype.lib")
 #endif
   #include "nanovg.c"
   #include "glad.c"

@@ -795,6 +795,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics->SetAllControlsDirty();
 }
 
+- (void)presentationControllerDidDismiss: (UIPresentationController *) presentationController
+{
+  mGraphics->SetControlValueAfterPopupMenu(nullptr);
+}
+
 @end
 
 #ifdef IGRAPHICS_IMGUI

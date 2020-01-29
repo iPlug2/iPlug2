@@ -250,10 +250,10 @@ void PluginPath(WDL_String& path, PluginIDType bundleID)
 void BundleResourcePath(WDL_String& path, PluginIDType bundleID)
 {
   NSBundle* pBundle = [NSBundle mainBundle];
-  
-  if([[pBundle bundleIdentifier] containsString:@"AUv3"])
-    pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
-  
+    
+  if(IsAuv3AppExtension())
+    pBundle = [NSBundle bundleWithPath: [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent]];
+
   path.Set([[pBundle resourcePath] UTF8String]);
 }
 

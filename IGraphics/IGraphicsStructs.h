@@ -51,11 +51,26 @@ using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
 using IDisplayTickFunc = std::function<void()>;
 
+/** A click action function that does nothing */
 void EmptyClickActionFunc(IControl* pCaller);
+
+/** A click action function that triggers the default animation function for DEFAULT_ANIMATION_DURATION */
 void DefaultClickActionFunc(IControl* pCaller);
+
+/** An animation function that just calls the caller control's OnEndAnimation() method at the end of the animation  */
 void DefaultAnimationFunc(IControl* pCaller);
+
+/** The splash click action function is used by IVControls to start SplashAnimationFunc */
 void SplashClickActionFunc(IControl* pCaller);
+
+/** The splash animation function is used by IVControls to animate the splash */
 void SplashAnimationFunc(IControl* pCaller);
+
+/** Use with a param-linked control to popup the bubble control horizontally */
+void ShowBubbleHorizontalActionFunc(IControl* pCaller);
+
+/** Use with a param-linked control to popup the bubble control vertically */
+void ShowBubbleVerticalActionFunc(IControl* pCaller);
 
 using MTLTexturePtr = void*;
 
@@ -490,6 +505,13 @@ struct IFillOptions
 {
   EFillRule mFillRule { EFillRule::Winding };
   bool mPreserve { false };
+
+  IFillOptions(bool preserve = false, EFillRule fillRule = EFillRule::Winding)
+  : mPreserve(preserve)
+  , mFillRule(fillRule)
+  {
+  }
+   
 };
 
 /** Used to manage stroke behaviour for path based drawing back ends */
@@ -593,21 +615,23 @@ struct IText
   /** /todo 
     * @param size /todo
     * @param valign /todo */
-  IText(float size, EVAlign valign)
+  IText(float size, EVAlign valign, const IColor& color = DEFAULT_TEXT_FGCOLOR)
   : IText()
   {
     mSize = size;
     mVAlign = valign;
+    mFGColor = color;
   }
   
   /** /todo 
    * @param size /todo
    * @param align /todo */
-  IText(float size, EAlign align)
+  IText(float size, EAlign align, const IColor& color = DEFAULT_TEXT_FGCOLOR)
   : IText()
   {
     mSize = size;
     mAlign = align;
+    mFGColor = color;
   }
   
   IText(float size, const char* font)
@@ -1338,8 +1362,8 @@ struct IRECT
    * @param y /todo */
   void GetRandomPoint(float& x, float& y) const
   {
-    const float r1 = static_cast<float>(std::rand()/(RAND_MAX+1.f));
-    const float r2 = static_cast<float>(std::rand()/(RAND_MAX+1.f));
+    const float r1 = static_cast<float>(std::rand()/(static_cast<float>(RAND_MAX)+1.f));
+    const float r2 = static_cast<float>(std::rand()/(static_cast<float>(RAND_MAX)+1.f));
 
     x = L + r1 * W();
     y = T + r2 * H();

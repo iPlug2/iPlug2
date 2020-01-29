@@ -34,6 +34,7 @@ using VST3_API_BASE = iplug::IPlugVST3Controller;
 #include "ICornerResizerControl.h"
 #include "IPopupMenuControl.h"
 #include "ITextEntryControl.h"
+#include "IBubbleControl.h"
 
 using namespace iplug;
 using namespace igraphics;
@@ -153,6 +154,7 @@ void IGraphics::RemoveAllControls()
   ClearMouseOver();
 
   mPopupControl = nullptr;
+  mBubbleControl = nullptr;
   mTextEntryControl = nullptr;
   mCornerResizer = nullptr;
   mPerfDisplay = nullptr;
@@ -200,7 +202,7 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
 void IGraphics::AttachBackground(const char* name)
 {
   IBitmap bg = LoadBitmap(name, 1, false);
-  IControl* pBG = new IBitmapControl(0, 0, bg, kNoParameter, EBlend::Clobber);
+  IControl* pBG = new IBitmapControl(0, 0, bg, kNoParameter, EBlend::Default);
   pBG->SetDelegate(*GetDelegate());
   mControls.Insert(0, pBG);
 }
@@ -242,6 +244,26 @@ void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerM
   }
 }
 
+void IGraphics::AttachBubbleControl(const IText& text)
+{
+  if (!mBubbleControl)
+  {
+    mBubbleControl = std::make_unique<IBubbleControl>(text);
+    mBubbleControl->SetDelegate(*GetDelegate());
+  }
+}
+
+void IGraphics::AttachBubbleControl(IBubbleControl* pControl)
+{
+  std::unique_ptr<IBubbleControl> control(pControl);
+
+  if (!mBubbleControl)
+  {
+    mBubbleControl.swap(control);
+    mBubbleControl->SetDelegate(*GetDelegate());
+  }
+}
+
 void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
 {
   if (!mPopupControl)
@@ -257,6 +279,16 @@ void IGraphics::AttachTextEntryControl()
   {
     mTextEntryControl = std::make_unique<ITextEntryControl>();
     mTextEntryControl->SetDelegate(*GetDelegate());
+  }
+}
+
+void IGraphics::ShowBubbleControl(IControl* pCaller, float x, float y, const char* str, EDirection dir, IRECT minimumContentBounds)
+{
+  assert(mBubbleControl && "No bubble control attached");
+  
+  if(mBubbleControl)
+  {
+    mBubbleControl->ShowBubble(pCaller, x, y, str, dir, minimumContentBounds);
   }
 }
 
@@ -358,6 +390,9 @@ void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
   
   if (mPopupControl)
     func(*mPopupControl);
+  
+  if (mBubbleControl)
+    func(*mBubbleControl);
 }
 
 template<typename T, typename... Args>
@@ -1327,7 +1362,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     // So use NanoSVG to get the size.
     if (svgDOM->containerSize().width() == 0)
     {
-      NSVGimage* pImage;
+      NSVGimage* pImage = nullptr;
 
       if (resourceFound == EResourceLocation::kAbsolutePath)
       {
@@ -1593,8 +1628,11 @@ void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRE
   }
   else
   {
-    IPopupMenu* pReturnMenu = CreatePlatformPopupMenu(menu, bounds);
-    SetControlValueAfterPopupMenu(pReturnMenu);
+    bool isAsync = false;
+    IPopupMenu* pReturnMenu = CreatePlatformPopupMenu(menu, bounds, isAsync);
+    
+    if(!isAsync)
+      SetControlValueAfterPopupMenu(pReturnMenu);
   }
 }
 

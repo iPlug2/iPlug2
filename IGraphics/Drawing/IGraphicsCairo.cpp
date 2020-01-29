@@ -136,19 +136,16 @@ cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case EBlend::SourceOver:      return CAIRO_OPERATOR_OVER;
-    case EBlend::SourceIn:        return CAIRO_OPERATOR_IN;
-    case EBlend::SourceOut:       return CAIRO_OPERATOR_OUT;
-    case EBlend::SourceAtop:      return CAIRO_OPERATOR_ATOP;
-    case EBlend::DestOver:        return CAIRO_OPERATOR_DEST_OVER;
-    case EBlend::DestIn:          return CAIRO_OPERATOR_DEST_IN;
-    case EBlend::DestOut:         return CAIRO_OPERATOR_DEST_OUT;
-    case EBlend::DestAtop:        return CAIRO_OPERATOR_DEST_ATOP;
-    case EBlend::Add:             return CAIRO_OPERATOR_ADD;
-    case EBlend::XOR:             return CAIRO_OPERATOR_XOR;
-    case EBlend::Default:         // fall through
-    case EBlend::Clobber:         // fall through
-    default:                      return CAIRO_OPERATOR_OVER;
+    case EBlend::SrcOver:      return CAIRO_OPERATOR_OVER;
+    case EBlend::SrcIn:        return CAIRO_OPERATOR_IN;
+    case EBlend::SrcOut:       return CAIRO_OPERATOR_OUT;
+    case EBlend::SrcAtop:      return CAIRO_OPERATOR_ATOP;
+    case EBlend::DstOver:      return CAIRO_OPERATOR_DEST_OVER;
+    case EBlend::DstIn:        return CAIRO_OPERATOR_DEST_IN;
+    case EBlend::DstOut:       return CAIRO_OPERATOR_DEST_OUT;
+    case EBlend::DstAtop:      return CAIRO_OPERATOR_DEST_ATOP;
+    case EBlend::Add:          return CAIRO_OPERATOR_ADD;
+    case EBlend::XOR:          return CAIRO_OPERATOR_XOR;
   }
 }
 

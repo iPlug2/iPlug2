@@ -97,9 +97,8 @@ public:
   virtual void DrawSeparator(IGraphics& g, const IRECT& bounds, IBlend* pBlend);
 
   /** Call this to create a pop-up menu
-   @param menu Reference to a menu from which to populate this user interface control. NOTE: this object should not be a temporary, otherwise when the menu returns asynchronously, it may not exist.
-   @param anchorArea The pop-up menu opens adjacent to this area, but won't occupy it. At the moment, the menu is always below or right of that region.
-   @param pCaller The IControl that called this method, and will receive the call back after menu selection */
+   * @param menu Reference to a menu from which to populate this user interface control. NOTE: this object should not be a temporary, otherwise when the menu returns asynchronously, it may not exist.
+   * @param anchorArea The pop-up menu opens adjacent to this area, but won't occupy it. At the moment, the menu is always below or right of that region. */
   void CreatePopupMenu(IPopupMenu& menu, const IRECT& anchorArea);
 
   /** @return \true if the pop-up is fully expanded */

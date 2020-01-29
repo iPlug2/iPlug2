@@ -74,7 +74,7 @@ class IPopupMenuControl;
 class ITextEntryControl;
 class ICornerResizerControl;
 class IFPSDisplayControl;
-
+class IBubbleControl;
 
 /**  The lowest level base class of an IGraphics context */
 class IGraphics
@@ -864,6 +864,12 @@ public:
   virtual const char* GetBundleID() { return ""; }
 
 protected:
+  /* Implemented on Windows to store previously active GLContext and HDC for restoring, calls GetDC */
+  virtual void ActivateGLContext() {}; 
+
+  /* Implemented on Windows to restore previous GL context calls ReleaseDC */
+  virtual void DeactivateGLContext() {};
+
   /** /todo
    * @param control /todo
    * @param text /todo
@@ -871,12 +877,12 @@ protected:
    * @param str /todo */
   virtual void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) = 0;
   
-  /** /todo
-   * @param menu /todo
+  /** Calls the platform backend to create the platform popup menu
+   * @param menu The source IPopupMenu
    * @param bounds /todo
-   * @param pCaller /todo
-   * @return IPopupMenu* /todo */
-  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) = 0;
+   * @param isAsync This gets set true on platforms where popupmenu creation is asyncronous
+   * @return A ptr to the chosen IPopupMenu or nullptr in the case of async or dismissed menu */
+  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) = 0;
 
 #pragma mark - Base implementation
 public:
@@ -1179,6 +1185,15 @@ public:
    @param text The text style to use for the menu
    @param bounds The area that the menu should occupy /todo check */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
+  
+  /** Attach the default control to show text as a control changes*/
+  void AttachBubbleControl(const IText& text = DEFAULT_TEXT);
+
+  /** Attach a custom control to show text as a control changes*/
+  void AttachBubbleControl(IBubbleControl* pControl);
+  
+  /* Called by controls to display text in the bubble control */
+  void ShowBubbleControl(IControl* pCaller, float x, float y, const char* str, EDirection dir = EDirection::Horizontal, IRECT minimumContentBounds = IRECT());
 
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */
@@ -1230,6 +1245,9 @@ public:
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
 
+  /** Remove control from the control list */
+  void RemoveControl(IControl* pControl);
+  
   /** Remove controls from the control list with a particular tag.  */
   void RemoveControlWithTag(int ctrlTag);
   
@@ -1523,6 +1541,7 @@ private:
 
   // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
   std::unique_ptr<ICornerResizerControl> mCornerResizer;
+  std::unique_ptr<IBubbleControl> mBubbleControl;
   std::unique_ptr<IPopupMenuControl> mPopupControl;
   std::unique_ptr<IFPSDisplayControl> mPerfDisplay;
   std::unique_ptr<ITextEntryControl> mTextEntryControl;

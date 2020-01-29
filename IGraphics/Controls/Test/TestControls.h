@@ -39,3 +39,4 @@
 #include "TestMPSControl.h"
 #include "TestBezierControl.h"
 #include "TestGesturesControl.h"
+#include "TestFlexBoxControl.h"

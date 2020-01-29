@@ -253,12 +253,12 @@ void IPluginBase::RandomiseParamValues()
 
 void IPluginBase::RandomiseParamValues(int startIdx, int endIdx)
 {
-  ForParamInRange(startIdx, endIdx, [&](int paramIdx, IParam& param) { param.SetNormalized( static_cast<float>(std::rand()/(RAND_MAX+1.f)) ); });
+  ForParamInRange(startIdx, endIdx, [&](int paramIdx, IParam& param) { param.SetNormalized( static_cast<float>(std::rand()/(static_cast<float>(RAND_MAX)+1.f)) ); });
 }
 
 void IPluginBase::RandomiseParamValues(const char *paramGroup)
 {
-  ForParamInGroup(paramGroup, [&](int paramIdx, IParam& param) { param.SetNormalized( static_cast<float>(std::rand()/(RAND_MAX+1.f)) ); });
+  ForParamInGroup(paramGroup, [&](int paramIdx, IParam& param) { param.SetNormalized( static_cast<float>(std::rand()/(static_cast<float>(RAND_MAX)+1.f)) ); });
 }
 
 void IPluginBase::PrintParamValues()

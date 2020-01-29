@@ -178,18 +178,16 @@ void NanoVGSetBlendMode(NVGcontext* pContext, const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case EBlend::Default:       // fall through
-    case EBlend::Clobber:       // fall through
-    case EBlend::SourceOver:    nvgGlobalCompositeOperation(pContext, NVG_SOURCE_OVER);                break;
-    case EBlend::SourceIn:      nvgGlobalCompositeOperation(pContext, NVG_SOURCE_IN);                  break;
-    case EBlend::SourceOut:     nvgGlobalCompositeOperation(pContext, NVG_SOURCE_OUT);                 break;
-    case EBlend::SourceAtop:    nvgGlobalCompositeOperation(pContext, NVG_ATOP);                       break;
-    case EBlend::DestOver:      nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_OVER);           break;
-    case EBlend::DestIn:        nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_IN);             break;
-    case EBlend::DestOut:       nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_OUT);            break;
-    case EBlend::DestAtop:      nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_ATOP);           break;
-    case EBlend::Add:           nvgGlobalCompositeBlendFunc(pContext, NVG_SRC_ALPHA, NVG_DST_ALPHA);   break;
-    case EBlend::XOR:           nvgGlobalCompositeOperation(pContext, NVG_XOR);                        break;
+    case EBlend::SrcOver:    nvgGlobalCompositeOperation(pContext, NVG_SOURCE_OVER);                break;
+    case EBlend::SrcIn:      nvgGlobalCompositeOperation(pContext, NVG_SOURCE_IN);                  break;
+    case EBlend::SrcOut:     nvgGlobalCompositeOperation(pContext, NVG_SOURCE_OUT);                 break;
+    case EBlend::SrcAtop:    nvgGlobalCompositeOperation(pContext, NVG_ATOP);                       break;
+    case EBlend::DstOver:    nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_OVER);           break;
+    case EBlend::DstIn:      nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_IN);             break;
+    case EBlend::DstOut:     nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_OUT);            break;
+    case EBlend::DstAtop:    nvgGlobalCompositeOperation(pContext, NVG_DESTINATION_ATOP);           break;
+    case EBlend::Add:        nvgGlobalCompositeBlendFunc(pContext, NVG_SRC_ALPHA, NVG_DST_ALPHA);   break;
+    case EBlend::XOR:        nvgGlobalCompositeOperation(pContext, NVG_XOR);                        break;
   }
 }
 
@@ -247,13 +245,13 @@ const char* IGraphicsNanoVG::GetDrawingAPIStr()
     return "NanoVG | WebGL";
   #else
     #if defined IGRAPHICS_GL2
-      return "NanoVG | OpenGL2";
+      return "NanoVG | GL2";
     #elif defined IGRAPHICS_GL3
-      return "NanoVG | OpenGL3";
+      return "NanoVG | GL3";
     #elif defined IGRAPHICS_GLES2
-      return "NanoVG | OpenGLES2";
+      return "NanoVG | GLES2";
     #elif defined IGRAPHICS_GLES3
-      return "NanoVG | OpenGLES3";
+      return "NanoVG | GLES3";
     #endif
   #endif
 #endif
@@ -326,13 +324,19 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
     pResData = LoadWinResource(fileNameOrResID, ext, size, GetWinModuleHandle());
 
     if (pResData)
-      idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pResData, size);
+    {
+      ActivateGLContext(); // no-op on non WIN/GL
+      idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*) pResData, size);
+      DeactivateGLContext(); // no-op on non WIN/GL
+    }
   }
   else
 #endif
   if (location == EResourceLocation::kAbsolutePath)
   {
+    ActivateGLContext(); // no-op on non WIN/GL
     idx = nvgCreateImage(mVG, fileNameOrResID, nvgImageFlags);
+    DeactivateGLContext(); // no-op on non WIN/GL
   }
 
   return new Bitmap(mVG, fileNameOrResID, scale, idx, location == EResourceLocation::kPreloadedTexture);
@@ -402,12 +406,12 @@ void IGraphicsNanoVG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
     PushLayer(layer.get());
     PushLayer(&shadowLayer);
     DrawBitmap(maskBitmap, bounds, 0, 0, nullptr);
-    IBlend blend1(EBlend::SourceIn, 1.0);
+    IBlend blend1(EBlend::SrcIn, 1.0);
     PathRect(layer->Bounds());
     PathTransformTranslate(-shadow.mXOffset, -shadow.mYOffset);
     PathFill(shadow.mPattern, IFillOptions(), &blend1);
     PopLayer();
-    IBlend blend2(EBlend::DestOver, shadow.mOpacity);
+    IBlend blend2(EBlend::DstOver, shadow.mOpacity);
     bounds.Translate(shadow.mXOffset, shadow.mYOffset);
     DrawBitmap(tempLayerBitmap, bounds, 0, 0, &blend2);
     PopLayer();
