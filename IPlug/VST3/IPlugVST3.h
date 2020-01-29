@@ -26,6 +26,7 @@
 #include "pluginterfaces/vst/ivstprocesscontext.h"
 #include "pluginterfaces/vst/vsttypes.h"
 #include "pluginterfaces/vst/ivstcontextmenu.h"
+#include "pluginterfaces/vst/ivstchannelcontextinfo.h"
 
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
@@ -46,6 +47,7 @@ class IPlugVST3 : public IPlugAPIBase
                 , public IPlugVST3ControllerBase
                 , public Steinberg::Vst::SingleComponentEffect
                 , public Steinberg::Vst::IMidiMapping
+                , public Steinberg::Vst::ChannelContext::IInfoListener
 {
 public:
   using ViewType = IPlugVST3View<IPlugVST3>;
@@ -82,7 +84,7 @@ public:
   Steinberg::tresult PLUGIN_API getState(Steinberg::IBStream* pState) override;
     
   // IEditController
-  Steinberg::Vst::ParamValue PLUGIN_API getParamNormalized (Steinberg::Vst::ParamID tag) override;
+  Steinberg::Vst::ParamValue PLUGIN_API getParamNormalized(Steinberg::Vst::ParamID tag) override;
   Steinberg::tresult PLUGIN_API setParamNormalized(Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value) override;
   Steinberg::IPlugView* PLUGIN_API createView(const char* name) override;
   Steinberg::tresult PLUGIN_API setEditorState(Steinberg::IBStream* pState) override;
@@ -92,13 +94,17 @@ public:
   // IMidiMapping
   Steinberg::tresult PLUGIN_API getMidiControllerAssignment(Steinberg::int32 busIndex, Steinberg::int16 channel, Steinberg::Vst::CtrlNumber midiCCNumber, Steinberg::Vst::ParamID& tag) override;
   
+  // IInfoListener
+  Steinberg::tresult PLUGIN_API setChannelContextInfos(Steinberg::Vst::IAttributeList* list) override;
+  
   Steinberg::Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   ViewType* GetView() { return mView; }
    
   // Interface    
   OBJ_METHODS(IPlugVST3, SingleComponentEffect)
   DEFINE_INTERFACES
-  DEF_INTERFACE(IMidiMapping)
+    DEF_INTERFACE(IMidiMapping)
+    DEF_INTERFACE(IInfoListener)
   END_DEFINE_INTERFACES(SingleComponentEffect)
   REFCOUNT_METHODS(SingleComponentEffect)
 
