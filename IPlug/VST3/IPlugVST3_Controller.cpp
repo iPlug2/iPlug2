@@ -24,6 +24,7 @@ using namespace Vst;
 IPlugVST3Controller::IPlugVST3Controller(const InstanceInfo& info, const Config& config)
 : IPlugAPIBase(config, kAPIVST3)
 , mPlugIsInstrument(config.plugType == kInstrument)
+, mDoesMidiIn(config.plugDoesMidiIn)
 , mProcessorGUID(info.mOtherGUID)
 {
 }
@@ -38,8 +39,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 {
   if (EditControllerEx1::initialize(context) == kResultTrue)
   {
-    Initialize(this, parameters, mPlugIsInstrument);
-    
+    Initialize(this, parameters, mPlugIsInstrument, mDoesMidiIn);
     IPlugVST3GetHost(this, context);
     OnHostIdentified();
 
@@ -92,13 +92,13 @@ tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamVal
   return EditControllerEx1::setParamNormalized(tag, value);
 }
 
-tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment(int32 busIndex, int16 midiChannel, CtrlNumber midiControllerNumber, ParamID& tag)
+tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment(int32 busIndex, int16 midiChannel, CtrlNumber midiCCNumber, ParamID& tag)
 {
-//  if (busIndex == 0)
-//  {
-//    tag = kMIDICCParamStartIdx + (midiChannel * kCountCtrlNumber) + midiControllerNumber;
-//    return kResultTrue;
-//  }
+  if (busIndex == 0)
+  {
+    tag = kMIDICCParamStartIdx + (midiChannel * kCountCtrlNumber) + midiCCNumber;
+    return kResultTrue;
+  }
 
   return kResultFalse;
 }

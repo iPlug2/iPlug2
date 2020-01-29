@@ -15,6 +15,8 @@
 
 #include "IPlugAPIBase.h"
 #include "IPlugVST3_Parameter.h"
+#include "IPlugMidi.h"
+#include "IPlugVST3_Defs.h"
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -27,30 +29,30 @@ public:
   IPlugVST3ControllerBase(const IPlugVST3ControllerBase&) = delete;
   IPlugVST3ControllerBase& operator=(const IPlugVST3ControllerBase&) = delete;
     
-  void Initialize(IPlugAPIBase* pPlug, Steinberg::Vst::ParameterContainer& parameters, bool plugIsInstrument/*, bool midiIn*/)
+  void Initialize(IPlugAPIBase* pPlug, Steinberg::Vst::ParameterContainer& parameters, bool plugIsInstrument, bool midiIn)
   {
-    Steinberg::Vst::UnitInfo uinfo;
-    uinfo.id = Steinberg::Vst::kRootUnitId;
-    uinfo.parentUnitId = Steinberg::Vst::kNoParentUnitId;
-    Steinberg::UString unitNameSetter(uinfo.name, 128);
+    Steinberg::Vst::UnitInfo unitInfo;
+    unitInfo.id = Steinberg::Vst::kRootUnitId;
+    unitInfo.parentUnitId = Steinberg::Vst::kNoParentUnitId;
+    Steinberg::UString unitNameSetter(unitInfo.name, 128);
     unitNameSetter.fromAscii("Root");
     
     Steinberg::Vst::UnitID unitID = Steinberg::Vst::kRootUnitId;
     
     if (pPlug->NPresets())
     {
-      uinfo.programListId = kPresetParam;
+      unitInfo.programListId = kPresetParam;
       parameters.addParameter(new IPlugVST3PresetParameter(pPlug->NPresets()));
     }
     else
-      uinfo.programListId = Steinberg::Vst::kNoProgramListId;
+      unitInfo.programListId = Steinberg::Vst::kNoProgramListId;
     
     if (!plugIsInstrument)
       parameters.addParameter(mBypassParameter = new IPlugVST3BypassParameter());
 
     Steinberg::Vst::EditControllerEx1* pEditController = dynamic_cast<Steinberg::Vst::EditControllerEx1*>(pPlug);
     
-    pEditController->addUnit(new Steinberg::Vst::Unit(uinfo));
+    pEditController->addUnit(new Steinberg::Vst::Unit(unitInfo));
 
     for (int i = 0; i < pPlug->NParams(); i++)
     {
@@ -72,11 +74,11 @@ public:
         if (unitID == Steinberg::Vst::kRootUnitId) // if unitID was still kRootUnitId, we found a new group, so add it and add the unit
         {
           unitID = pPlug->AddParamGroup(paramGroupName); // updates unitID
-          uinfo.id = unitID;
-          uinfo.parentUnitId = Steinberg::Vst::kRootUnitId;
-          uinfo.programListId = Steinberg::Vst::kNoProgramListId;
+          unitInfo.id = unitID;
+          unitInfo.parentUnitId = Steinberg::Vst::kRootUnitId;
+          unitInfo.programListId = Steinberg::Vst::kNoProgramListId;
           unitNameSetter.fromAscii(paramGroupName);
-          pEditController->addUnit (new Steinberg::Vst::Unit (uinfo));
+          pEditController->addUnit (new Steinberg::Vst::Unit (unitInfo));
         }
       }
       
@@ -84,67 +86,46 @@ public:
       parameters.addParameter(pVST3Parameter);
     }
 
-//    if (midiIn)
-//    {
-//      mParamGroups.Add("MIDI Controllers");
-//      uinfo.id = unitID = mParamGroups.GetSize();
-//      uinfo.parentUnitId = kRootUnitId;
-//      uinfo.programListId = kNoProgramListId;
-//      name.fromAscii("MIDI Controllers");
-//      addUnit(new Unit(uinfo));
-//
-//      Steinberg::Vst::ParamID midiSteinberg::Vst::ParamIDx = kMIDICCParamStartIdx;
-//      UnitID midiControllersID = unitID;
-//
-//      char buf[32];
-//
-//      for (int chan = 0; chan < NUM_CC_CHANS_TO_ADD; chan++)
-//      {
-//        sprintf(buf, "Ch %i", chan+1);
-//
-//        mParamGroups.Add(buf);
-//        uinfo.id = unitID = mParamGroups.GetSize();
-//        uinfo.parentUnitId = midiControllersID;
-//        uinfo.programListId = kNoProgramListId;
-//        name.fromAscii(buf);
-//        addUnit(new Unit(uinfo));
-//
-//        for (int i = 0; i < 128; i++)
-//        {
-//          name.fromAscii(ControlStr(i));
-//          parameters.addParameter(name, STR16(""), 0, 0, 0, midiSteinberg::Vst::ParamIDx++, unitID);
-//        }
-//
-//        parameters.addParameter(STR16("Channel Aftertouch"), STR16(""), 0, 0, 0, midiSteinberg::Vst::ParamIDx++, unitID);
-//        parameters.addParameter(STR16("Pitch Bend"), STR16(""), 0, 0.5, 0, midiSteinberg::Vst::ParamIDx++, unitID);
-//      }
-//    }
-     /*
-     if (NPresets())
-     {
-     ProgramListWithPitchNames* list = new ProgramListWithPitchNames(String("Factory Presets"), kPresetParam, kRootUnitId);
-     
-     for (int i = 0; i< NPresets(); i++)
-     {
-     list->addProgram(String(GetPresetName(i)));
-     }
-     
-     //      char noteName[128];
-     
-     // TODO: GetMidiNote ? !
-     
-     //      for (int i = 0; i< 128; i++)
-     //      {
-     //        if (MidiNoteName(i, noteName))
-     //        {
-     //          name.fromAscii(noteName);
-     //          list->setPitchName(0, i, name); // TODO: this will only set it for the first preset!
-     //        }
-     //      }
-     
-     addProgramList(list);
-     }
-     */
+    assert(VST3_NUM_CC_CHANS <= VST3_NUM_MIDI_IN_CHANS && "VST3_NUM_CC_CHANS must be less than or equal to VST3_NUM_MIDI_IN_CHANS");
+    
+#if VST3_NUM_CC_CHANS > 0
+    if (midiIn)
+    {
+      pPlug->AddParamGroup(VST3_CC_UNITNAME);
+      unitInfo.id = unitID = pPlug->NParamGroups();
+      unitInfo.parentUnitId = Steinberg::Vst::kRootUnitId;
+      unitInfo.programListId = Steinberg::Vst::kNoProgramListId;
+      unitNameSetter.fromAscii(VST3_CC_UNITNAME);
+      pEditController->addUnit(new Steinberg::Vst::Unit(unitInfo));
+
+      Steinberg::Vst::ParamID paramIdx = kMIDICCParamStartIdx;
+
+      WDL_String chanGroupStr;
+      Steinberg::Vst::UnitID midiCCsUnitID = unitID;
+
+      for (int chan = 0; chan < VST3_NUM_CC_CHANS; chan++)
+      {
+        chanGroupStr.SetFormatted(32, "CH%i", chan + 1);
+
+        pPlug->AddParamGroup(chanGroupStr.Get());
+        unitInfo.id = unitID = pPlug->NParamGroups();
+        unitInfo.parentUnitId = midiCCsUnitID;
+        unitInfo.programListId = Steinberg::Vst::kNoProgramListId;
+        unitNameSetter.fromAscii(chanGroupStr.Get());
+        pEditController->addUnit(new Steinberg::Vst::Unit(unitInfo));
+        // add 128 MIDI CCs
+        Steinberg::Vst::String128 paramName;
+        for (int i = 0; i < 128; i++)
+        {
+          Steinberg::UString(paramName, str16BufferSize(Steinberg::Vst::String128)).assign(IMidiMsg::CCNameStr(i));
+          parameters.addParameter(paramName, STR16(""), 0, 0, 0, paramIdx++, unitID);
+        }
+
+        parameters.addParameter(STR16("Channel Aftertouch"), STR16(""), 0, 0, 0, paramIdx++, unitID);
+        parameters.addParameter(STR16("Pitch Bend"), STR16(""), 0, 0.5, 0, paramIdx++, unitID);
+      }
+    }
+#endif
   }
   
   Steinberg::Vst::ParamValue PLUGIN_API GetParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParamID tag)
