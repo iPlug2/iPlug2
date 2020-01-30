@@ -245,25 +245,23 @@ struct IColor
    * @param alpha */
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
 
-  /**  @param c /todo */
-  void AddContrast(double c)
+  /** Add Contrast to the color
+   * @param c Contrast value in the range 0.f-1.f */
+  void AddContrast(float c)
   {
-    const int mod = int(c * 255.);
+    const int mod = static_cast<int>(Clip(c, 0.f, 1.f) * 255.f);
     R = std::min(R += mod, 255);
     G = std::min(G += mod, 255);
     B = std::min(B += mod, 255);
   }
 
-  /** /todo 
-   * @param c /todo
-   * @return IColor /todo */
-  IColor GetContrasted(double c) const
+  /** Returns a new contrasted IColor based on this one
+   * @param c Contrast value in the range 0.f-1.f
+   * @return IColor new Color */
+  IColor WithContrast(float c) const
   {
-    const int mod = int(c * 255.);
     IColor n = *this;
-    n.R = std::min(n.R += mod, 255);
-    n.G = std::min(n.G += mod, 255);
-    n.B = std::min(n.B += mod, 255);
+    n.AddContrast(c);
     return n;
   }
   
