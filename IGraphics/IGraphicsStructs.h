@@ -363,16 +363,15 @@ struct IColor
     }
   }
   
-  /** /todo 
-   * @param h /todo
-   * @param s /todo
-   * @param l /todo
-   * @param a /todo
-   * @return IColor /todo */
+  /** Create an IColor from Hue Saturation and Luminance values
+  * @param h hue value in the range 0.f-1.f
+  * @param s saturation value in the range 0.f-1.f
+  * @param l luminance value in the range 0.f-1.f
+  * @param a alpha value in the range 0.f-1.f
+  * @return The new IColor */
   static IColor GetFromHSLA(float h, float s, float l, float a = 1.)
   {
-    auto hue = [](float h, float m1, float m2)
-    {
+    auto hue = [](float h, float m1, float m2) {
       if (h < 0) h += 1;
       if (h > 1) h -= 1;
       if (h < 1.0f / 6.0f)
@@ -397,7 +396,41 @@ struct IColor
     col.A = static_cast<int>(a * 255.f);
     return col;
   }
-  
+
+  /** Get the Hue, Saturation and Luminance of the color
+  * @param h hue value to set, output in the range 0.f-1.f
+  * @param s saturation value to set, output in the range 0.f-1.f
+  * @param l luminance value to set, output in the range 0.f-1.f
+  * @param a alpha value to set, output in the range 0.f-1.f */
+  void GetHSLA(float& h, float& s, float& l, float& a) const
+  {  
+    const float fR = R / 255.f;
+    const float fG = G / 255.f;
+    const float fB = B / 255.f;
+    a = A / 255.f;
+      
+    const float fMin = std::min(fR, std::min(fG, fB));
+    const float fMax = std::max(fR, std::max(fG, fB));
+    const float fDiff = fMax - fMin;
+    const float fSum = fMax + fMin;
+
+    l = 50.f * fSum;
+      
+    if (fMin == fMax) { s = 0.f; h = 0.f; l /= 100.f; return; }
+    else if (l < 50.f) { s = 100.f * fDiff / fSum; }
+    else { s = 100.f * fDiff / (2.f - fDiff); }
+      
+    if (fMax == fR) { h = 60.f * (fG - fB) / fDiff; }
+    if (fMax == fG) { h = 60.f * (fB - fR) / fDiff + 120.f; }
+    if (fMax == fB) { h = 60.f * (fR - fG) / fDiff + 240.f; }
+
+    if (h < 0.f) { h = h + 360.f; }
+    
+    h /= 360.f;
+    s /= 100.f;
+    l /= 100.f;
+  }
+
   /** /todo 
    * @return int /todo */
   int GetLuminosity() const
