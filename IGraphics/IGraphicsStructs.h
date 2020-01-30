@@ -245,8 +245,25 @@ struct IColor
    * @param alpha */
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
 
+  /** Set the color's opacity/alpha component with a float
+  * @param alpha float in the range 0. to 1. */
+  void SetOpacity(float alpha)
+  {
+    A = static_cast<int>(Clip(alpha, 0.f, 1.f) * 255.f);
+  }
+
+  /** Returns a new IColor with a different opacity
+  * @param alpha float in the range 0. to 1.
+  * @return IColor new Color */
+  IColor WithOpacity(float alpha) const
+  {
+    IColor n = *this;
+    n.SetOpacity(alpha);
+    return n;
+  }
+
   /** Add Contrast to the color
-   * @param c Contrast value in the range 0.f-1.f */
+   * @param c Contrast value in the range 0. to 1. */
   void AddContrast(float c)
   {
     const int mod = static_cast<int>(Clip(c, 0.f, 1.f) * 255.f);
@@ -256,7 +273,7 @@ struct IColor
   }
 
   /** Returns a new contrasted IColor based on this one
-   * @param c Contrast value in the range 0.f-1.f
+   * @param c Contrast value in the range 0. to 1.
    * @return IColor new Color */
   IColor WithContrast(float c) const
   {
@@ -285,10 +302,10 @@ struct IColor
   }
 
   /** Get the Hue, Saturation and Luminance of the color
-* @param h hue value to set, output in the range 0.f-1.f
-* @param s saturation value to set, output in the range 0.f-1.f
-* @param l luminance value to set, output in the range 0.f-1.f
-* @param a alpha value to set, output in the range 0.f-1.f */
+* @param h hue value to set, output in the range 0. to 1. 
+* @param s saturation value to set, output in the range 0. to 1. 
+* @param l luminance value to set, output in the range 0. to 1. 
+* @param a alpha value to set, output in the range 0. to 1. */
   void GetHSLA(float& h, float& s, float& l, float& a) const
   {
     const float fR = R / 255.f;
