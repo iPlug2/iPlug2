@@ -26,8 +26,6 @@ variables:
 
   publish_site: 'iPlug2/iPlug2.github.io'
   docs_site: 'iPlug2/docs'
-  publish_email: olilarkin@googlemail.com
-  publish_user: olilarkin
 
 trigger:
 - master
