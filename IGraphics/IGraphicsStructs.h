@@ -369,7 +369,7 @@ struct IColor
   * @param l luminance value in the range 0.f-1.f
   * @param a alpha value in the range 0.f-1.f
   * @return The new IColor */
-  static IColor GetFromHSLA(float h, float s, float l, float a = 1.)
+  static IColor FromHSLA(float h, float s, float l, float a = 1.f)
   {
     auto hue = [](float h, float m1, float m2) {
       if (h < 0) h += 1;
