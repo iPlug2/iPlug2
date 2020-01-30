@@ -285,6 +285,49 @@ struct IColor
     rgbaf[2] = B / 255.f;
     rgbaf[3] = A / 255.f;
   }
+
+  /** Get the Hue, Saturation and Luminance of the color
+* @param h hue value to set, output in the range 0.f-1.f
+* @param s saturation value to set, output in the range 0.f-1.f
+* @param l luminance value to set, output in the range 0.f-1.f
+* @param a alpha value to set, output in the range 0.f-1.f */
+  void GetHSLA(float& h, float& s, float& l, float& a) const
+  {
+    const float fR = R / 255.f;
+    const float fG = G / 255.f;
+    const float fB = B / 255.f;
+    a = A / 255.f;
+
+    const float fMin = std::min(fR, std::min(fG, fB));
+    const float fMax = std::max(fR, std::max(fG, fB));
+    const float fDiff = fMax - fMin;
+    const float fSum = fMax + fMin;
+
+    l = 50.f * fSum;
+
+    if (fMin == fMax) { s = 0.f; h = 0.f; l /= 100.f; return; }
+    else if (l < 50.f) { s = 100.f * fDiff / fSum; }
+    else { s = 100.f * fDiff / (2.f - fDiff); }
+
+    if (fMax == fR) { h = 60.f * (fG - fB) / fDiff; }
+    if (fMax == fG) { h = 60.f * (fB - fR) / fDiff + 120.f; }
+    if (fMax == fB) { h = 60.f * (fR - fG) / fDiff + 240.f; }
+
+    if (h < 0.f) { h = h + 360.f; }
+
+    h /= 360.f;
+    s /= 100.f;
+    l /= 100.f;
+  }
+
+  /** /todo
+   * @return int /todo */
+  int GetLuminosity() const
+  {
+    int min = R < G ? (R < B ? R : B) : (G < B ? G : B);
+    int max = R > G ? (R > B ? R : B) : (G > B ? G : B);
+    return (min + max) / 2;
+  };
   
   /** /todo 
    * @param randomAlpha /todo
@@ -397,55 +440,12 @@ struct IColor
     return col;
   }
 
-  /** Get the Hue, Saturation and Luminance of the color
-  * @param h hue value to set, output in the range 0.f-1.f
-  * @param s saturation value to set, output in the range 0.f-1.f
-  * @param l luminance value to set, output in the range 0.f-1.f
-  * @param a alpha value to set, output in the range 0.f-1.f */
-  void GetHSLA(float& h, float& s, float& l, float& a) const
-  {  
-    const float fR = R / 255.f;
-    const float fG = G / 255.f;
-    const float fB = B / 255.f;
-    a = A / 255.f;
-      
-    const float fMin = std::min(fR, std::min(fG, fB));
-    const float fMax = std::max(fR, std::max(fG, fB));
-    const float fDiff = fMax - fMin;
-    const float fSum = fMax + fMin;
-
-    l = 50.f * fSum;
-      
-    if (fMin == fMax) { s = 0.f; h = 0.f; l /= 100.f; return; }
-    else if (l < 50.f) { s = 100.f * fDiff / fSum; }
-    else { s = 100.f * fDiff / (2.f - fDiff); }
-      
-    if (fMax == fR) { h = 60.f * (fG - fB) / fDiff; }
-    if (fMax == fG) { h = 60.f * (fB - fR) / fDiff + 120.f; }
-    if (fMax == fB) { h = 60.f * (fR - fG) / fDiff + 240.f; }
-
-    if (h < 0.f) { h = h + 360.f; }
-    
-    h /= 360.f;
-    s /= 100.f;
-    l /= 100.f;
-  }
-
-  /** /todo 
-   * @return int /todo */
-  int GetLuminosity() const
-  {
-    int min = R < G ? (R < B ? R : B) : (G < B ? G : B);
-    int max = R > G ? (R > B ? R : B) : (G > B ? G : B);
-    return (min + max) / 2;
-  };
-  
   /** /todo 
    * @param start /todo
    * @param dest /todo
    * @param result /todo
    * @param progress /todo */
-  static void LinearInterpolateBetween(const IColor& start, const IColor& dest, IColor& result, float progress)
+  static void LinearInterpolateBetween(const IColor& start, const IColor& dest, IColor& result, float progress) const
   {
     result.A = start.A + static_cast<int>(progress * static_cast<float>(dest.A -  start.A));
     result.R = start.R + static_cast<int>(progress * static_cast<float>(dest.R -  start.R));
