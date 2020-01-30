@@ -243,6 +243,9 @@ IGraphicsCairo::IGraphicsCairo(IGEditorDelegate& dlg, int w, int h, int fps, flo
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 , mSurface(nullptr)
 , mContext(nullptr)
+#ifdef OS_LINUX
+, mWindowSurface(nullptr)
+#endif
 {
   DBGMSG("IGraphics Cairo @ %i FPS\n", fps);
 
@@ -647,14 +650,19 @@ void IGraphicsCairo::UpdateCairoMainSurface(cairo_surface_t* pSurface)
 {
   if (mSurface)
   {
-    cairo_device_t *dev = cairo_surface_get_device(mSurface);
-    cairo_device_reference(dev); // without bugs destroying surface should kill it
-    //printf("Before destroy surface: %d %d\n", cairo_device_get_reference_count (dev), cairo_surface_get_reference_count (mSurface));
     cairo_surface_destroy(mSurface);
-    //printf("After destroy surface: %d %d\n", cairo_device_get_reference_count (dev), cairo_surface_get_reference_count (mSurface));
     mSurface = nullptr;
-    
-    cairo_device_finish(dev); // HACK to forget XCB connection
+#ifdef OS_LINUX
+    if (mWindowSurface)
+    {
+      cairo_device_t *dev = cairo_surface_get_device(mWindowSurface);
+      cairo_device_reference(dev); // without bugs destroying surface should kill it
+      cairo_surface_destroy(mWindowSurface);
+      //printf("After destroy surface: %d %d\n", cairo_device_get_reference_count (dev), cairo_surface_get_reference_count (mWindowSurface));
+      mWindowSurface = nullptr;
+      cairo_device_finish(dev); // HACK to forget XCB connection
+    }
+#endif
   }
   
   if (pSurface)
@@ -681,10 +689,12 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
     xcbt_window xw = (xcbt_window)GetWindow();
     // TODO: AZ... find real visual, check for errors 
     xcb_screen_t *si = xcbt_screen_info(xcbt_window_x(xw), xcbt_window_screen(xw));
-    mSurface = cairo_xcb_surface_create(xcbt_window_conn(xw), xcbt_window_xwnd(xw), xcbt_visual_type(xcbt_window_x(xw),si->root_visual), WindowWidth(), WindowHeight());
-    //dev = cairo_surface_get_device(mSurface);
+    mWindowSurface = cairo_xcb_surface_create(xcbt_window_conn(xw), xcbt_window_xwnd(xw), xcbt_visual_type(xcbt_window_x(xw),si->root_visual), WindowWidth(), WindowHeight());
+    //dev = cairo_surface_get_device(mWindowSurface);
     //printf("XCB device references: %d\n", cairo_device_get_reference_count (dev));
-    cairo_surface_set_device_scale(mSurface, GetDrawScale(), GetDrawScale());
+    cairo_surface_set_device_scale(mWindowSurface, GetDrawScale(), GetDrawScale());
+    
+    mSurface = cairo_surface_create_similar_image(mWindowSurface, CAIRO_FORMAT_RGB24, WindowWidth(), WindowHeight());
 #else
   #error NOT IMPLEMENTED
 #endif
@@ -714,7 +724,17 @@ void IGraphicsCairo::EndFrame()
   BitBlt(dc, 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), cdc, 0, 0, SRCCOPY);
   EndPaint(hWnd, &ps);
 #elif defined OS_LINUX
-  cairo_surface_flush(mSurface);
+  if (mSurface && mWindowSurface)
+  {
+    cairo_surface_flush(mSurface);
+    auto cr = cairo_create(mWindowSurface);
+    cairo_set_source_surface(cr, mSurface, 0, 0);
+    cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+    cairo_paint(cr);
+    cairo_destroy(cr);
+    
+    cairo_surface_flush(mWindowSurface);
+  }
 #else
 #error NOT IMPLEMENTED
 #endif

@@ -148,6 +148,7 @@ private:
       WDL_PtrList<Item> mFonts;
   };
   FreetypeFontCache mFontCache;
+  cairo_surface_t* mWindowSurface;
 #else
   static StaticStorage<Font> sFontCache;
 #endif
