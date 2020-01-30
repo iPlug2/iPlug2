@@ -313,9 +313,11 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
 		_NEED_FREETYPE := yes
 		_AGG_PATH := $(_IGRAPHICS_DEPS_PATH)/AGG/agg-2.4
 
-		IPINC_DIR += $(_AGG_PATH)/include $(_AGG_PATH)/src $(_AGG_PATH)/font_freetype
+		IPINC_DIR += $(_AGG_PATH)/include  $(_AGG_PATH)/include/platform/linux $(_AGG_PATH)/src $(_AGG_PATH)/src/platform/linux $(_AGG_PATH)/font_freetype
 		
 		CXXFLAGSE$(_TSX) += -DIGRAPHICS_AGG		
+
+    LIBS$(_TSX) += -lfreetype -lpng -lz -lxcb
   else
     $(error FATAL: '$(IGRAPHICS)' graphics flaviour is not currently supported)
   endif
