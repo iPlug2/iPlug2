@@ -460,7 +460,7 @@ struct IColor
    * @param dest /todo
    * @param result /todo
    * @param progress /todo */
-  static void LinearInterpolateBetween(const IColor& start, const IColor& dest, IColor& result, float progress) const
+  static void LinearInterpolateBetween(const IColor& start, const IColor& dest, IColor& result, float progress)
   {
     result.A = start.A + static_cast<int>(progress * static_cast<float>(dest.A -  start.A));
     result.R = start.R + static_cast<int>(progress * static_cast<float>(dest.R -  start.R));
