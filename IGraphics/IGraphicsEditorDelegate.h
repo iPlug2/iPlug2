@@ -74,14 +74,12 @@ public:
   /** Serializes the size and scale of the IGraphics.
    * @param chunk The output chunk to serialize to. Will append data if the chunk has already been started.
    * @return \c true if the serialization was successful */
-
   bool SerializeEditorSize(IByteChunk& data) const;
   
   /** Unserializes the size and scale of the IGraphics.
    * @param chunk The incoming chunk where data is stored to unserialize
    * @param startPos The start position in the chunk where parameter values are stored
    * @return The new chunk position (endPos) */
-
   int UnserializeEditorSize(const IByteChunk& chunk, int startPos);
     
 protected:

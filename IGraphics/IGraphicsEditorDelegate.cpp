@@ -183,7 +183,7 @@ int IGEditorDelegate::UnserializeEditorSize(const IByteChunk& data, int startPos
   if (GetUI())
   {
     if (width && height && scale)
-        GetUI()->Resize(width, height, scale);
+      GetUI()->Resize(width, height, scale);
   }
   else
   {
@@ -197,10 +197,10 @@ int IGEditorDelegate::UnserializeEditorSize(const IByteChunk& data, int startPos
 
 bool IGEditorDelegate::SerializeEditorData(IByteChunk& chunk) const
 {
-    return SerializeEditorSize(chunk);
+  return SerializeEditorSize(chunk);
 }
 
 int IGEditorDelegate::UnserializeEditorData(const IByteChunk& chunk, int startPos)
 {
-    return UnserializeEditorSize(chunk, startPos);
+  return UnserializeEditorSize(chunk, startPos);
 }
