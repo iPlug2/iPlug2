@@ -63,6 +63,7 @@ jobs:
     displayName: Clone website repo
     env:
       GITHUB_PAT: $(GITHUB_PAT)
+      PUBLISH_USER: $(PUBLISH_USER)
 
   - template: projects.yml
     parameters:

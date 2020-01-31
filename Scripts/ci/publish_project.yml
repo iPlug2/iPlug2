@@ -23,7 +23,10 @@ steps:
       git commit -m "publish via pipeline"
       git push origin master
     displayName: Publish ${{parameters.platformStr}}_${{parameters.name}}_${{parameters.graphics}} to github pages
-    
+    env:
+      PUBLISH_EMAIL: $(PUBLISH_EMAIL)
+      PUBLISH_USER: $(PUBLISH_USER)
+
 - ${{ if or(eq(parameters.platformStr, 'MAC'), eq(parameters.platformStr, 'WIN')) }}:
   - template: publish_project-ghrelease.yml
     parameters: 
