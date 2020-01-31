@@ -149,16 +149,18 @@ void IGraphics::RemoveAllControls()
   RemoveControls(0);
 }
 
-void IGraphics::RemoveControl(IControl* pControl)
+bool IGraphics::RemoveControl(IControl* pControl)
 {
-  DetachControl(pControl);
-  delete pControl;
+  bool success = DetachControl(pControl);
+  if (success)
+    delete pControl;
+
+  return success;
 }
 
-void IGraphics::RemoveControl(int controlIndex)
+bool IGraphics::RemoveControl(int controlIndex)
 {
-  RemoveControl(GetControl(controlIndex));
-
+  return RemoveControl(GetControl(controlIndex));
 }
 
 void IGraphics::SetControlValueAfterTextEdit(const char* str)
@@ -258,15 +260,15 @@ void IGraphics::DetachControlWithTag(int ctrlTag)
   DetachControl(GetControlWithTag(ctrlTag));
 }
 
-void IGraphics::DetachControl(int controlIndex)
+bool IGraphics::DetachControl(int controlIndex)
 {
-  DetachControl(GetControl(controlIndex));
+  return DetachControl(GetControl(controlIndex));
 }
 
-void IGraphics::DetachControl(IControl* pControl)
+bool IGraphics::DetachControl(IControl* pControl)
 {
-  if (pControl == nullptr)
-    return;
+  if (pControl == nullptr || mControls.Find(pControl) == -1)
+    return false;
 
   pControl->OnDetached();
 
@@ -285,6 +287,7 @@ void IGraphics::DetachControl(IControl* pControl)
   mControls.DeletePtr(pControl);
 
   SetAllControlsDirty();
+  return true;
 }
 
 void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize)

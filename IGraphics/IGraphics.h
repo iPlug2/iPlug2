@@ -1217,12 +1217,14 @@ public:
   void DetachControlWithTag(int ctrlTag);
 
   /** Remove control from the control list at a given index (will not destroy the object) and redraws all controls
-   * @param controlIndex index of control to be detached */
-  void DetachControl(int controlIndex);
+   * @param controlIndex index of control to be detached
+   * @return Whether the controlIndex was valid and the control detached */
+  bool DetachControl(int controlIndex);
 
   /** Remove control from the control list at a given index (will not destroy the object) and redraws all controls
-   * @param pControl control to be detached */
-  void DetachControl(IControl* pControl);
+   * @param pControl control to be detached
+   * @return Whether the pControl was attached to the UI and could be detached */
+  bool DetachControl(IControl* pControl);
 
   /** @param idx The index of the control to get
    * @return A pointer to the IControl object at idx or nullptr if not found */
@@ -1268,13 +1270,15 @@ public:
   void RemoveAllControls();
 
   /** Remove control from the control list (Frees memory) and redraws all controls
-   * @param pControl The pointer to the control to be removed */
-  void RemoveControl(IControl* pControl);
+   * @param pControl The pointer to the control to be removed
+   * @return Whether the control was valid and could be detached and destroyed */
+  bool RemoveControl(IControl* pControl);
 
 
   /** Remove control from the control list at a given index (Frees memory) and redraws all controls
-   * @param controlIndex index of control to be removed */
-  void RemoveControl(int controlIndex);
+   * @param controlIndex index of control to be removed
+   * @return Whether the controlIndex was valid and the control could be detached and destroyed */
+  bool RemoveControl(int controlIndex);
   
   /** Hide controls linked to a specific parameter
    * @param paramIdx The parameter index
