@@ -827,7 +827,7 @@ xcbt_window xcbt_window_create(xcbt px, xcb_window_t prt, const xcbt_rect *pos){
         xw->wnd = xcb_generate_id(x->conn);
         wa[1] = xw->cmap = xcb_generate_id(x->conn); // it works without, but at least not in REAPER when switching effects...
         xcb_create_colormap(x->conn, XCB_COLORMAP_ALLOC_NONE, xw->cmap, prt, si->root_visual);
-        xcb_create_window(x->conn, XCB_COPY_FROM_PARENT, xw->wnd, /* si->root */ prt, pos->x, pos->y, pos->w, pos->h, 0,
+        xcb_create_window(x->conn, XCB_COPY_FROM_PARENT, xw->wnd, prt , pos->x, pos->y, pos->w, pos->h, 0,
                           XCB_WINDOW_CLASS_INPUT_OUTPUT, si->root_visual, XCB_CW_EVENT_MASK | XCB_CW_COLORMAP, wa);
         xcbt_window_register(xw);
         TRACE("INFO: A window is created with 24bit RGB visual\n");
@@ -835,7 +835,9 @@ xcbt_window xcbt_window_create(xcbt px, xcb_window_t prt, const xcbt_rect *pos){
       } else {
         TRACE("NOT IMPLEMENTED: screen visual is not 24bit RGB, not supported\n");
       }
-    }
+    } else {
+      TRACE("ERROR: problems with suggested parent window 0x%x\n", prt);
+    } 
   }
   xcbt_window_destroy((xcbt_window)xw);
   return NULL;

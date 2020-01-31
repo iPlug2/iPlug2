@@ -282,6 +282,10 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
 #else
   mX = xcbt_connect(0);
 #endif
+  if (!mX)
+  {
+    return NULL;
+  }
 
 #ifdef LV2_API
   if (!xprt)
@@ -296,6 +300,8 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
   }
 #endif
 
+  // NOTE: In case plug-in report REAPER extension in REAPER, pParent is NOT XID (SWELL HWND? I have not checked yet)
+
 #ifdef IGRAPHICS_GL
 #ifdef IGRAPHICS_GL2
   mPlugWnd = xcbt_window_gl_create(mX, xprt, &r, 2, 1, 0);
@@ -308,8 +314,10 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
 
   mPlugWnd = xcbt_window_create(mX, xprt, &r);
 #endif
-  if(!mX)
+  if (!mPlugWnd)
   {
+    xcbt_disconnect(mX);
+    mX = NULL;
     return NULL;
   }
 
@@ -341,6 +349,8 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
 
 #ifdef APP_API
   xcbt_window_map(mPlugWnd);
+#elif defined VST2_API
+  xcbt_window_set_xembed_info(mPlugWnd);
 #elif defined VST3_API
   xcbt_window_set_xembed_info(mPlugWnd);
 #elif defined LV2_API
