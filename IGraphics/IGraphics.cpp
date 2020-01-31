@@ -1270,7 +1270,7 @@ void IGraphics::OnResizeGesture(float x, float y)
   }
   else
   {
-    Resize((int) x, (int) y, GetDrawScale());
+    Resize(static_cast<int>(x), static_cast<int>(y), GetDrawScale());
   }
 }
 
