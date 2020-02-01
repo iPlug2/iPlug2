@@ -120,11 +120,10 @@ public:
   /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugAPIBases, for specific functionality, such as printing UI details. */
   virtual void PrintDebugInfo() const;
 
-  /** Call this method from a delegate in order to resize the plugin window.
-   * If calling from a UI interaction use EditorResizeFromUI()
+  /** TODO: describe me and how you shouldn't call me
    * When this is overridden in subclasses the subclass should call this in order to update the member variables
    * returns a bool to indicate whether the DAW or plugin class has resized the host window */
-  virtual bool EditorResizeFromDelegate(int width, int height);
+  virtual bool EditorResize(int width, int height);
   
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
@@ -172,7 +171,7 @@ public:
   
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
   
-  bool EditorResizeFromUI(int viewWidth, int viewHeight) override { return EditorResizeFromDelegate(viewWidth, viewHeight); }
+  bool EditorResizeFromUI(int viewWidth, int viewHeight) override { return EditorResize(viewWidth, viewHeight); }
   
   void SendParameterValueFromUI(int paramIdx, double normalisedValue) override
   {

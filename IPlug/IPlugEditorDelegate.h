@@ -243,7 +243,7 @@ public:
    * @param paramIdx The index of the parameter that is changing value */
   virtual void EndInformHostOfParamChangeFromUI(int paramIdx) = 0;
   
-  /** If the editor changes UI dimensions we need to call into the plug-in API to  resize the window in the plugin
+  /** If the editor changes UI dimensions, e.g. from clicking a button to choose a size or dragging a corner resizer, it needs to call into the plug-in API to resize the window in the plugin
    * returns a bool to indicate whether the DAW or plugin class has resized the host window */
   virtual bool EditorResizeFromUI(int viewWidth, int viewHeight) { return false; }
     
