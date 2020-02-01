@@ -120,19 +120,6 @@ public:
   /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugAPIBases, for specific functionality, such as printing UI details. */
   virtual void PrintDebugInfo() const;
 
-  /** TODO: describe me and how you shouldn't call me
-   * When this is overridden in subclasses the subclass should call this in order to update the member variables
-   * returns a bool to indicate whether the DAW or plugin class has resized the host window */
-  virtual bool EditorResize(int width, int height);
-  
-  /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
-   * @param paramIdx The parameter that is being changed */
-  virtual void BeginInformHostOfParamChange(int paramIdx) {};
-
-  /** Implemented by the API class, called by the UI (or by a delegate) at the end of a parameter change gesture
-   * @param paramIdx The parameter that is being changed */
-  virtual void EndInformHostOfParamChange(int paramIdx) {};
-
   /** SetParameterValue is called from the UI in the middle of a parameter change gesture (possibly via delegate) in order to update a parameter's value.
    * It will update mParams[paramIdx], call InformHostOfParamChange and IPlugAPIBase::OnParamChange();
    * @param paramIdx The index of the parameter that changed
@@ -198,6 +185,18 @@ public:
   void CreateTimer();
   
 private:
+  /** Implementations call into the APIs resize hooks
+   * returns a bool to indicate whether the DAW or plugin class has resized the host window */
+  virtual bool EditorResize(int width, int height);
+  
+  /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
+   * @param paramIdx The parameter that is being changed */
+  virtual void BeginInformHostOfParamChange(int paramIdx) {};
+
+  /** Implemented by the API class, called by the UI (or by a delegate) at the end of a parameter change gesture
+   * @param paramIdx The parameter that is being changed */
+  virtual void EndInformHostOfParamChange(int paramIdx) {};
+
   /** Implemented by the API class, called by the UI via SetParameterValue() with the value of a parameter change gesture
    * @param paramIdx The parameter that is being changed
    * @param normalizedValue The new normalised value of the parameter being changed */

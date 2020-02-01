@@ -275,7 +275,8 @@ public:
   virtual void DeferSysexMsg(const ISysEx& msg) {};
 
 #pragma mark - Editor resizing
-  
+  void SetEditorSize(int width, int height) { mEditorWidth = width; mEditorHeight = height; }
+
   /** @return The width of the plug-in editor in pixels */
   int GetEditorWidth() const { return mEditorWidth; }
   
@@ -293,18 +294,18 @@ public:
    * @return The new chunk position (endPos) */
   virtual int UnserializeEditorState(const IByteChunk& chunk, int startPos)  { return startPos; }
   
-
   /** Can be used by a host API to inform the editor of screen scale changes
    *@param scale The new screen scale*/
   virtual void SetScreenScale(double scale) {}
 
 protected:
+  /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to MakeConfig() in the plug-in class implementation constructor */
+  WDL_PtrList<IParam> mParams;
+private:
   /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist. */
   int mEditorWidth = 0;
   /** The height of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist */
   int mEditorHeight = 0;
-  /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to MakeConfig() in the plug-in class implementation constructor */
-  WDL_PtrList<IParam> mParams;
 };
 
 END_IPLUG_NAMESPACE
