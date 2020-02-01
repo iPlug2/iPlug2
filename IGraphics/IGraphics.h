@@ -363,26 +363,27 @@ public:
   /** @return A CString representing the Drawing API in use e.g. "LICE" */
   virtual const char* GetDrawingAPIStr() = 0;
   
-  /** /todo 
-   * @param srcbitmap /todo
-   * @param cacheName /todo
-   * @param targetScale /todo
-   * @return IBitmap /todo */
-  virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
+  /** Returns a new IBitmap, an integer scaled version of the input, and adds it to the cache
+   * @param inbitmap The source bitmap to be scaled
+   * @param cacheName The name by which this bitmap is identified int the cache (along with targetScale)
+   * @param targetScale An integer scale factor of the new bitmap
+   * @return IBitmap The new IBitmap that has been added to the cache */
+  virtual IBitmap ScaleBitmap(const IBitmap& inBitmap, const char* cacheName, int targetScale);
 
-  /** /todo 
-   * @param bitmap /todo
-   * @param cacheName /todo */
+  /** Adds an IBitmap to the cache/static storage
+   * @param bitmap The bitmap to cache
+   * @param cacheName The name by which this bitmap is identified int the cache */
   virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
 
-  /** /todo 
-   * @param bitmap /todo */
+  /** Releases an IBitmap from the cache/static storage
+   * @param bitmap The bitmap to release  */
   virtual void ReleaseBitmap(const IBitmap& bitmap);
 
-  /** /todo 
-   * @param src /todo
-   * @return IBitmap /todo */
-  IBitmap GetScaledBitmap(IBitmap& src);
+  /** Get a version of the input bitmap from the cache that corresponds to the current screen scale
+   * For example, when IControl::OnRescale() is called bitmap-based IControls can load in 
+   * @param inBitmap The source bitmap to find a scaled version of
+   * @return IBitmap The scaled bitmap */
+  IBitmap GetScaledBitmap(IBitmap& inBitmap);
   
   /** Checks a file extension and reports whether this drawing API supports loading that extension */
   virtual bool BitmapExtSupported(const char* ext) = 0;
@@ -1453,12 +1454,12 @@ protected:
    * @return APIBitmap* /todo */
   virtual APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) = 0;
 
-  /** /todo
-   * @param width /todo
-   * @param height /todo
-   * @param scale /todo
+  /** Creates a new API bitmap, either in memory or as a GPU texture
+   * @param width The desired width
+   * @param height The desired height
+   * @param scale The scale in relation to 1:1 pixels
    * @param drawScale /todo
-   * @return APIBitmap* /todo */
+   * @return APIBitmap* The new API Bitmap */
   virtual APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) = 0;
 
   /** /todo
