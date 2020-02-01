@@ -472,37 +472,52 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       return DLGC_WANTALLKEYS;
     case WM_KEYDOWN:
     case WM_KEYUP:
+    case WM_SYSKEYDOWN:
+    case WM_SYSKEYUP:
     {
       POINT p;
       GetCursorPos(&p);
       ScreenToClient(hWnd, &p);
 
-      BYTE keyboardState[256] = {};
-      GetKeyboardState(keyboardState);
-      const int keyboardScanCode = (lParam >> 16) & 0x00ff;
-      WORD character = 0;
-      const int len = ToAscii(wParam, keyboardScanCode, keyboardState, &character, 0);
-      // TODO: should get unicode?
       bool handle = false;
 
-      // send when len is 0 because wParam might be something like VK_LEFT or VK_HOME, etc.
-      if (len == 0 || len == 1)
-      {
-        char str[2];
-        str[0] = static_cast<char>(character);
-        str[1] = '\0';
-          
-        IKeyPress keyPress{ str, static_cast<int>(wParam),
-                            static_cast<bool>(GetKeyState(VK_SHIFT) & 0x8000),
-                            static_cast<bool>(GetKeyState(VK_CONTROL) & 0x8000),
-                            static_cast<bool>(GetKeyState(VK_MENU) & 0x8000) };
-
+      //Handling Modifier Keys
+      if (static_cast<int>(wParam) == kVK_MENU || static_cast<int>(wParam) == kVK_SHIFT || static_cast<int>(wParam) == kVK_CONTROL) {
+        int flag = 0;
+        if ((GetKeyState(VK_SHIFT) & 0x8000)) flag |= kFSHIFT;
+        if ((GetKeyState(VK_CONTROL) & 0x8000)) flag |= kFCONTROL;
+        if ((GetKeyState(VK_MENU) & 0x8000)) flag |= kFALT;
         double scale = pGraphics->GetDrawScale() * pGraphics->GetScreenScale();
+        handle = pGraphics->OnModifierKeysChange(p.x / scale, p.y / scale, flag);
+      }
+      else {
+        BYTE keyboardState[256] = {};
+        GetKeyboardState(keyboardState);
+        const int keyboardScanCode = (lParam >> 16) & 0x00ff;
+        WORD character = 0;
+        const int len = ToAscii(wParam, keyboardScanCode, keyboardState, &character, 0);
+        // TODO: should get unicode?
 
-        if(msg == WM_KEYDOWN)
-          handle = pGraphics->OnKeyDown(p.x / scale, p.y / scale, keyPress);
-        else
-          handle = pGraphics->OnKeyUp(p.x / scale, p.y / scale, keyPress);
+
+        // send when len is 0 because wParam might be something like VK_LEFT or VK_HOME, etc.
+        if (len == 0 || len == 1)
+        {
+          char str[2];
+          str[0] = static_cast<char>(character);
+          str[1] = '\0';
+
+          IKeyPress keyPress{ str, static_cast<int>(wParam),
+                              static_cast<bool>(GetKeyState(VK_SHIFT) & 0x8000),
+                              static_cast<bool>(GetKeyState(VK_CONTROL) & 0x8000),
+                              static_cast<bool>(GetKeyState(VK_MENU) & 0x8000) };
+
+          double scale = pGraphics->GetDrawScale() * pGraphics->GetScreenScale();
+
+          if (msg == WM_KEYDOWN)
+            handle = pGraphics->OnKeyDown(p.x / scale, p.y / scale, keyPress);
+          else
+            handle = pGraphics->OnKeyUp(p.x / scale, p.y / scale, keyPress);
+        }
       }
 
       if (!handle)

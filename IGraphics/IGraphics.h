@@ -1332,6 +1332,10 @@ public:
    * @return \c true if handled \todo check this */
   bool OnKeyUp(float x, float y, const IKeyPress& key);
   
+  bool OnModifierKeysChange(float x, float y, int flag);
+    
+  bool GetModifierKeyPressed(int key);
+    
   /** @param x The X coordinate in the graphics context at which to draw
    * @param y The Y coordinate in the graphics context at which to draw
    * @param mod IMouseMod struct contain information about the modifiers held
@@ -1572,6 +1576,7 @@ private:
   int mTextEntryValIdx = kNoValIdx;
   int mPopupMenuValIdx = kNoValIdx;
   int mMouseOverIdx = -1;
+  int mModifierKeys = 0;
   float mMouseDownX = -1.f;
   float mMouseDownY = -1.f;
   float mMinScale;
