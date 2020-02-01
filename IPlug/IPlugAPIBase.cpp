@@ -32,8 +32,7 @@ IPlugAPIBase::IPlugAPIBase(Config c, EAPI plugAPI)
   mProductName.Set(c.productName, MAX_PLUGIN_NAME_LEN);
   mMfrName.Set(c.mfrName, MAX_PLUGIN_NAME_LEN);
   mHasUI = c.plugHasUI;
-  mEditorWidth = c.plugWidth;
-  mEditorHeight = c.plugHeight;
+  SetEditorSize(c.plugWidth, c.plugHeight);
   mStateChunks = c.plugDoesChunks;
   mAPI = plugAPI;
   mBundleID.Set(c.bundleID);
@@ -86,11 +85,9 @@ bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) con
   return isEqual;
 }
 
-bool IPlugAPIBase::EditorResizeFromDelegate(int width, int height)
+bool IPlugAPIBase::EditorResize(int viewWidth, int viewHeight)
 {
-  mEditorWidth = width;
-  mEditorHeight = height;
-
+  SetEditorSize(viewWidth, viewHeight);
   return false;
 }
 

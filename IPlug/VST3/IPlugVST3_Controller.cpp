@@ -128,14 +128,14 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 //  }
 //}
 
-bool IPlugVST3Controller::EditorResizeFromDelegate(int viewWidth, int viewHeight)
+bool IPlugVST3Controller::EditorResize(int viewWidth, int viewHeight)
 {
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
       mView->resize(viewWidth, viewHeight);
  
-    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
+    SetEditorSize(viewWidth, viewHeight);
   }
   
   return true;

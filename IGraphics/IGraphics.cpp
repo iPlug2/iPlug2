@@ -79,7 +79,7 @@ IGraphics::~IGraphics()
 void IGraphics::SetScreenScale(int scale)
 {
   mScreenScale = scale;
-  PlatformResize(GetDelegate()->EditorResize());
+  PlatformResize(GetDelegate()->EditorResizeFromUI(WindowWidth() * GetPlatformWindowScale(), WindowHeight() * GetPlatformWindowScale()));
   ForAllControls(&IControl::OnRescale);
   SetAllControlsDirty();
   DrawResize();
@@ -103,7 +103,7 @@ void IGraphics::Resize(int w, int h, float scale)
   if (mCornerResizer)
     mCornerResizer->OnRescale();
 
-  PlatformResize(GetDelegate()->EditorResize());
+  PlatformResize(GetDelegate()->EditorResizeFromUI(WindowWidth() * GetPlatformWindowScale(), WindowHeight() * GetPlatformWindowScale()));
   ForAllControls(&IControl::OnResize);
   SetAllControlsDirty();
   DrawResize();
@@ -1270,7 +1270,7 @@ void IGraphics::OnResizeGesture(float x, float y)
   }
   else
   {
-    Resize((int) x, (int) y, GetDrawScale());
+    Resize(static_cast<int>(x), static_cast<int>(y), GetDrawScale());
   }
 }
 

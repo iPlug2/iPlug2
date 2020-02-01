@@ -59,7 +59,7 @@ public:
   void EndInformHostOfParamChange(int idx) override;
   void InformHostOfProgramChange() override {}
   void InformHostOfParameterDetailsChange() override;
-  bool EditorResizeFromDelegate(int viewWidth, int viewHeight) override;
+  bool EditorResize(int viewWidth, int viewHeight) override;
 
   // IEditorDelegate
   void DirtyParametersFromUI() override;
