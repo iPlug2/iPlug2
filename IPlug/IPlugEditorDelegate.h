@@ -282,16 +282,16 @@ public:
   /** @return The height of the plug-in editor in pixels */
   int GetEditorHeight() const { return mEditorHeight; }
   
-  /** Serializes the editor data (such as scale) into a binary chunk.
+  /** Serializes the editor state (such as scale) into a binary chunk.
    * @param chunk The output chunk to serialize to. Will append data if the chunk has already been started.
    * @return \c true if the serialization was successful */
-  virtual bool SerializeEditorData(IByteChunk& chunk) const { return true; }
+  virtual bool SerializeEditorState(IByteChunk& chunk) const { return true; }
   
-  /** Unserializes editor data (such as scale).
+  /** Unserializes editor state (such as scale).
    * @param chunk The incoming chunk where editor data is stored to unserialize
    * @param startPos The start position in the chunk where parameter values are stored
    * @return The new chunk position (endPos) */
-  virtual int UnserializeEditorData(const IByteChunk& chunk, int startPos)  { return startPos; }
+  virtual int UnserializeEditorState(const IByteChunk& chunk, int startPos)  { return startPos; }
   
 
   /** Can be used by a host API to inform the editor of screen scale changes

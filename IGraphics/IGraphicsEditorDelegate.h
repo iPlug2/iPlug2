@@ -43,8 +43,8 @@ public:
   void SetScreenScale(double scale) final;
     
   // Default serialization implementations (which serialize the size/scale) = override for custom behaviours
-  bool SerializeEditorData(IByteChunk& chunk) const override;
-  int UnserializeEditorData(const IByteChunk& chunk, int startPos) override;
+  bool SerializeEditorState(IByteChunk& chunk) const override;
+  int UnserializeEditorState(const IByteChunk& chunk, int startPos) override;
     
   //The rest should be final, but the WebSocketEditorDelegate needs to override them
   void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override;

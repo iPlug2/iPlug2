@@ -456,10 +456,12 @@ void IGraphicsNanoVG::DrawResize()
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
   if (mVG)
+  {
     mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), 0);
   
-  if (mMainFrameBuffer == nullptr)
-    DBGMSG("Could not init FBO.\n");
+    if (mMainFrameBuffer == nullptr)
+      DBGMSG("Could not init FBO.\n");
+  }
 }
 
 void IGraphicsNanoVG::BeginFrame()
