@@ -1532,13 +1532,13 @@ IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int sc
   StartLayer(nullptr, bounds);
   DrawBitmap(inBitmap, bounds, 0, 0, nullptr);
   ILayerPtr layer = EndLayer();
-  IBitmap bitmap = IBitmap(layer->mBitmap.release(), inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
-  RetainBitmap(bitmap, name);
+  IBitmap outBitmap = IBitmap(layer->mBitmap.release(), inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
+  RetainBitmap(outBitmap, name);
 
   mScreenScale = screenScale;
   mDrawScale = drawScale;
     
-  return bitmap;
+  return outBitmap;
 }
 
 inline void IGraphics::SearchNextScale(int& sourceScale, int targetScale)
@@ -1643,9 +1643,10 @@ void IGraphics::CreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT
 
 void IGraphics::StartLayer(IControl* pControl, const IRECT& r)
 {
-  IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
-  const int w = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.W())));
-  const int h = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.H())));
+  auto pixelBackingScale = GetBackingPixelScale();
+  IRECT alignedBounds = r.GetPixelAligned(pixelBackingScale);
+  const int w = static_cast<int>(std::ceil(pixelBackingScale * std::ceil(alignedBounds.W())));
+  const int h = static_cast<int>(std::ceil(pixelBackingScale * std::ceil(alignedBounds.H())));
 
   PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds, pControl, pControl ? pControl->GetRECT() : IRECT()));
 }
@@ -1655,11 +1656,11 @@ void IGraphics::ResumeLayer(ILayerPtr& layer)
   ILayerPtr ownedLayer;
     
   ownedLayer.swap(layer);
-  ILayer* ownerlessLayer = ownedLayer.release();
+  ILayer* pOwnerlessLayer = ownedLayer.release();
     
-  if (ownerlessLayer)
+  if (pOwnerlessLayer)
   {
-    PushLayer(ownerlessLayer);
+    PushLayer(pOwnerlessLayer);
   }
 }
 
@@ -1668,12 +1669,12 @@ ILayerPtr IGraphics::EndLayer()
   return ILayerPtr(PopLayer());
 }
 
-void IGraphics::PushLayer(ILayer *layer)
+void IGraphics::PushLayer(ILayer* pLayer)
 {
-  mLayers.push(layer);
+  mLayers.push(pLayer);
   UpdateLayer();
   PathTransformReset();
-  PathClipRegion(layer->Bounds());
+  PathClipRegion(pLayer->Bounds());
   PathClear();
 }
 

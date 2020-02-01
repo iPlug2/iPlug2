@@ -89,12 +89,12 @@ public:
    @param framesAreHorizontal framesAreHorizontal \c true if the frames are positioned horizontally
    @param name Resource name for the bitmap */
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
-    : mAPIBitmap(pAPIBitmap)
-    , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
-    , mH(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
-    , mN(n)
-    , mFramesAreHorizontal(framesAreHorizontal)
-    , mResourceName(name, (int) strlen(name))
+  : mAPIBitmap(pAPIBitmap)
+  , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
+  , mH(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
+  , mN(n)
+  , mFramesAreHorizontal(framesAreHorizontal)
+  , mResourceName(name, static_cast<int>(strlen(name)))
   {
   }
 
