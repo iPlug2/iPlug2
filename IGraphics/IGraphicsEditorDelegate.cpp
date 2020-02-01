@@ -195,12 +195,12 @@ int IGEditorDelegate::UnserializeEditorSize(const IByteChunk& data, int startPos
   return startPos;
 }
 
-bool IGEditorDelegate::SerializeEditorData(IByteChunk& chunk) const
+bool IGEditorDelegate::SerializeEditorState(IByteChunk& chunk) const
 {
   return SerializeEditorSize(chunk);
 }
 
-int IGEditorDelegate::UnserializeEditorData(const IByteChunk& chunk, int startPos)
+int IGEditorDelegate::UnserializeEditorState(const IByteChunk& chunk, int startPos)
 {
   return UnserializeEditorSize(chunk, startPos);
 }
