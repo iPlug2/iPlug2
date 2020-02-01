@@ -24,17 +24,13 @@ IGEditorDelegate::~IGEditorDelegate()
 {
 }
 
-void IGEditorDelegate::OnUIOpen()
-{
-  IEditorDelegate::OnUIOpen();
-  UpdateData(GetEditorData(), 0);
-}
-
 void* IGEditorDelegate::OpenWindow(void* pParent)
 {
   if(!mGraphics)
   {
     mGraphics = std::unique_ptr<IGraphics>(CreateGraphics());
+    if (mLastWidth && mLastHeight && mLastScale)
+      GetUI()->Resize(mLastWidth, mLastHeight, mLastScale);
   }
   
   if(mGraphics)
@@ -52,6 +48,9 @@ void IGEditorDelegate::CloseWindow()
   
     if (mGraphics)
     {
+      mLastWidth = mGraphics->Width();
+      mLastHeight = mGraphics->Height();
+      mLastScale = mGraphics->GetDrawScale();
       mGraphics->CloseWindow();
       mGraphics = nullptr;
     }
@@ -64,18 +63,6 @@ void IGEditorDelegate::SetScreenScale(double scale)
 {
   if (GetUI())
     mGraphics->SetScreenScale(static_cast<int>(std::round(scale)));
-}
-
-int IGEditorDelegate::SetEditorData(const IByteChunk& data, int startPos)
-{
-  int endPos = UpdateData(data, startPos);
-
-  mEditorData.Clear();
-    
-  if (endPos > 0)
-   mEditorData.PutBytes(data.GetData() +  startPos, endPos - startPos);
-    
-  return endPos;
 }
 
 void IGEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
@@ -162,44 +149,52 @@ void IGEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
   IEditorDelegate::SendMidiMsgFromDelegate(msg);
 }
 
-bool IGEditorDelegate::EditorResize()
+bool IGEditorDelegate::SerializeEditorSize(IByteChunk& data) const
 {
-  int scale = mGraphics->GetPlatformWindowScale();
-  EditorDataModified();
-  return EditorResizeFromUI(mGraphics->WindowWidth() * scale, mGraphics->WindowHeight() * scale);
+  bool savedOK = true;
+    
+  int width = mGraphics ? mGraphics->Width() : mLastWidth;
+  int height = mGraphics ? mGraphics->Height() : mLastHeight;
+  float scale = mGraphics ? mGraphics->GetDrawScale() : mLastScale;
+    
+  savedOK &= data.Put(&width);
+  savedOK &= data.Put(&height);
+  savedOK &= data.Put(&scale);
+    
+  return savedOK;
 }
 
-void IGEditorDelegate::EditorDataModified()
+int IGEditorDelegate::UnserializeEditorSize(const IByteChunk& data, int startPos)
 {
-  IByteChunk data;
+  int width = 0;
+  int height = 0;
+  float scale = 0.f;
     
-  int width = mGraphics->Width();
-  int height = mGraphics->Height();
-  float scale = mGraphics->GetDrawScale();
-    
-  data.Put(&width);
-  data.Put(&height);
-  data.Put(&scale);
-    
-  SerializeCustomEditorData(data);
-    
-  EditorDataChangedFromUI(data);
-}
-
-int IGEditorDelegate::UpdateData(const IByteChunk& data, int startPos)
-{
-  int width = GetEditorWidth();
-  int height = GetEditorHeight();
-  float scale = 1.f;
-    
-  // Recall size data (if not present use the defaults above)
   startPos = data.Get(&width, startPos);
   startPos = data.Get(&height, startPos);
   startPos = data.Get(&scale, startPos);
     
-  // This may resize the editor
-  if (startPos > 0 && GetUI())
-    GetUI()->Resize(width, height, scale);
+  if (GetUI())
+  {
+    if (width && height && scale)
+      GetUI()->Resize(width, height, scale);
+  }
+  else
+  {
+    mLastWidth = width;
+    mLastHeight = height;
+    mLastScale = scale;
+  }
     
-  return UnserializeCustomEditorData(data, startPos);
+  return startPos;
+}
+
+bool IGEditorDelegate::SerializeEditorState(IByteChunk& chunk) const
+{
+  return SerializeEditorSize(chunk);
+}
+
+int IGEditorDelegate::UnserializeEditorState(const IByteChunk& chunk, int startPos)
+{
+  return UnserializeEditorSize(chunk, startPos);
 }

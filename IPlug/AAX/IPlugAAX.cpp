@@ -523,7 +523,7 @@ void IPlugAAX::EndInformHostOfParamChange(int idx)
   ReleaseParameter(mParamIDs.Get(idx)->Get());
 }
 
-bool IPlugAAX::EditorResizeFromDelegate(int viewWidth, int viewHeight)
+bool IPlugAAX::EditorResize(int viewWidth, int viewHeight)
 {
   if (HasUI())
   {
@@ -536,7 +536,7 @@ bool IPlugAAX::EditorResizeFromDelegate(int viewWidth, int viewHeight)
     if (pViewInterface && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
       pViewInterface->GetViewContainer()->SetViewSize(oEffectViewSize);
 
-    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
+    SetEditorSize(viewWidth, viewHeight);
   }
   
   return true;
