@@ -149,12 +149,6 @@ void IGEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
   IEditorDelegate::SendMidiMsgFromDelegate(msg);
 }
 
-bool IGEditorDelegate::EditorResize()
-{
-  int scale = mGraphics->GetPlatformWindowScale();
-  return EditorResizeFromUI(mGraphics->WindowWidth() * scale, mGraphics->WindowHeight() * scale);
-}
-
 bool IGEditorDelegate::SerializeEditorSize(IByteChunk& data) const
 {
   bool savedOK = true;

@@ -86,8 +86,6 @@ protected:
   std::function<IGraphics*()> mMakeGraphicsFunc = nullptr;
   std::function<void(IGraphics* pGraphics)> mLayoutFunc = nullptr;
 private:
-  bool EditorResize();
-
   std::unique_ptr<IGraphics> mGraphics;
   int mLastWidth = 0;
   int mLastHeight = 0;
