@@ -1282,7 +1282,7 @@ public:
 
   void AddPath(const char* path, const char* label);
 
-  void SetUpMenu();
+  void SetupMenu();
 
 //  void GetSelectedItemLabel(WDL_String& label);
 //  void GetSelectedItemPath(WDL_String& path);

@@ -98,7 +98,7 @@ public:
   void SetPath(const char* path)
   {
     AddPath(path, "");
-    SetUpMenu();
+    SetupMenu();
   }
 
 private:

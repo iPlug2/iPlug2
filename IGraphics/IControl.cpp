@@ -793,7 +793,7 @@ void IDirBrowseControlBase::CollectSortedItems(IPopupMenu* pMenu)
   }
 }
 
-void IDirBrowseControlBase::SetUpMenu()
+void IDirBrowseControlBase::SetupMenu()
 {
   mFiles.Empty(true);
   mItems.Empty(false);
