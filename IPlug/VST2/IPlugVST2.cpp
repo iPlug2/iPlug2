@@ -501,7 +501,8 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         }
         else
         {
-          savedOK = _this->SerializeState(chunk);
+          savedOK &= _this->SerializeState(chunk);
+          savedOK &= _this->SerializeEditorState(chunk);
         }
 
         if (savedOK && chunk.Size())
@@ -531,6 +532,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         else
         {
           pos = _this->UnserializeState(chunk, pos);
+          pos = _this->UnserializeEditorState(chunk, pos);
           _this->ModifyCurrentPreset();
         }
 

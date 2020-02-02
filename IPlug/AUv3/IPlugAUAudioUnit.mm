@@ -697,6 +697,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   [pDict setValue:pProcessorData forKey:@"Processor State"];
   [pDict setValue:pControllerData forKey:@"Controller State"];
   mPlug->SerializeState();
+  //TODO: revise this inline with VST3
   mPlug->SerializeVST3CtrlrState();
 #else
   [pDict setValue:[NSNumber numberWithInt: mPlug->GetPluginVersion(false)] forKey:[NSString stringWithUTF8String: kAUPresetVersionKey]];
@@ -708,6 +709,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   IByteChunk chunk;
 //  IByteChunk::InitChunkWithIPlugVer(chunk);
   mPlug->SerializeState(chunk);
+  mPlug->SerializeEditorState(chunk);
   NSMutableData* pData = [[NSMutableData alloc] init];
   [pData replaceBytesInRange:NSMakeRange (0, chunk.Size()) withBytes:chunk.GetData()];
   [pDict setValue:pData forKey:[NSString stringWithUTF8String: kAUPresetDataKey]];
@@ -726,6 +728,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   int pos = 0;
 //  IByteChunk::GetIPlugVerFromChunk(chunk, pos);
   mPlug->UnserializeState(chunk, pos);
+  mPlug->UnserializeEditorState(chunk, pos);
+    //TODO: Why is there no call to OnRestoreState?
 #endif
   
 //  [super setFullState: newFullState]; // this hangs auval
