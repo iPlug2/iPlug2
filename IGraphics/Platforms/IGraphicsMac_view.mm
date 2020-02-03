@@ -683,7 +683,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   if (mGraphics)
   {
-    if (!mGraphics->GetCapturedControl())
+    if (!mGraphics->ControlIsCaptured())
     {
       mGraphics->OnMouseOut();
     }
