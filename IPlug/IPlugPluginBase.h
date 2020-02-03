@@ -129,17 +129,6 @@ public:
    * @return The new chunk position (endPos) */
   int UnserializeParams(const IByteChunk& chunk, int startPos);
     
-  /** Serializes the editor data (such as scale) into a binary chunk.
-   * @param chunk The output chunk to serialize to. Will append data if the chunk has already been started.
-   * @return \c true if the serialization was successful */
-  bool SerializeEditorData(IByteChunk& chunk) const;
-    
-  /** Unserializes editor data (such as scale) into a byte chunk into the plugin.
-   * @param chunk The incoming chunk where editor data stored to unserialize
-   * @param startPos The start position in the chunk where parameter values are stored
-   * @return The new chunk position (endPos) */
-  int UnserializeEditorData(const IByteChunk& chunk, int startPos);
-  
   /** Override this method to serialize custom state data, if your plugin does state chunks.
    * @param chunk The output bytechunk where data can be serialized
    * @return \c true if serialization was successful*/

@@ -135,7 +135,7 @@ public:
   /** Implement to do something when something was drag 'n dropped onto this control */
   virtual void OnDrop(const char* str) {};
 
-  /** Implement to do something when graphics is scaled globally (e.g. moves to high DPI screen) */
+  /** Implement to do something when graphics is scaled globally (e.g. moves to different DPI screen) */
   virtual void OnRescale() {}
 
   /** Called when IControl is constructed or resized using SetRect(). NOTE: if you call SetDirty() in this method, you should call SetDirty(false) to avoid triggering parameter changes */
@@ -1282,7 +1282,7 @@ public:
 
   void AddPath(const char* path, const char* label);
 
-  void SetUpMenu();
+  void SetupMenu();
 
 //  void GetSelectedItemLabel(WDL_String& label);
 //  void GetSelectedItemPath(WDL_String& path);
@@ -1438,8 +1438,7 @@ public:
 
   void Draw(IGraphics& g) override { DrawBitmap(g); }
 
-  /** Implement to do something when graphics is scaled globally (e.g. moves to high DPI screen),
-   *  if you override this make sure you call the parent method in order to rescale mBitmap */
+  /** If you override this make sure you call the parent method in order to rescale mBitmap */
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
   void SetDisabled(bool disable) override { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
 };

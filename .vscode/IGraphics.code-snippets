@@ -28,6 +28,33 @@
 	"description": "New IControl class"
 	},
 
+	"icontrolwithlayer": {
+		"prefix": "LayerIControl",
+		"body": [
+			"class ${1:MyNewControl} : public IControl",
+			"{", 
+			"public:", 
+			"\t$1(const IRECT& bounds)",
+			"\t: IControl(bounds)",
+			"\t{}",
+			"\t",
+			"\tvoid Draw(IGraphics& g) override",
+			"\t{",
+			"\t\tif(!g.CheckLayer(mLayer))",
+			"\t\t{",
+			"\t\t\tg.StartLayer(this, mRECT);",
+			"\t\t\tg.FillEllipse(COLOR_BLUE, mRECT);",
+			"\t\t\tmLayer = g.EndLayer();",
+			"\t\t}",
+			"\t}",
+			"\t",
+			"private:", 
+			"\tILayerPtr mLayer;", 
+			"};"
+		],
+		"description": "New IControl class with layer"
+		},
+
 	"skiacontrol": {
 		"prefix": "SkiaControl",
 		"body": [
@@ -247,12 +274,23 @@
 			"pGraphics->AttachControl(new ILambdaControl(bounds,",
 			"\t[](ILambdaControl* pCaller, IGraphics& g, IRECT& rect) {",
 			"\t",
-			"\tg.FillRect(COLOR_RED, rect);",
+			"\t\tg.FillRect(COLOR_RED, rect);",
 			"\t",
 			"}, DEFAULT_ANIMATION_DURATION, false /*loop*/, false /*start immediately*/));",
 		],
 		"description": "Attach an ILambdaControl"
 	},
-  
+
+	"attachivbutton": {
+		"prefix": "AttachIVButtonControl",
+		"body": [
+			"pGraphics->AttachControl(new IVButtonControl(bounds, SplashClickActionFunc,",
+			"\t\"${1:Press Me}\", DEFAULT_STYLE.WithColor(kFG, ${2:COLOR_WHITE}).WithLabelText({15.f, EVAlign::Middle})))->SetAnimationEndActionFunction(",
+			"\t[](IControl* pCaller) {",
+			"\t\t${3:DBGMSG(\"button clicked\")};",
+			"});",
+		],
+		"description": "Attach an IVButtonControl"
+	},
   }
   

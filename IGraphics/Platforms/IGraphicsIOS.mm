@@ -25,6 +25,19 @@
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+void GetScreenDimensions(int& width, int& height)
+{
+  CGRect bounds = [[UIScreen mainScreen] bounds];
+  width = bounds.size.width;
+  height = bounds.size.height;
+}
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
 using namespace iplug;
 using namespace igraphics;
 
