@@ -453,6 +453,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   NSRect r = NSMakeRect(0.f, 0.f, (float) pGraphics->WindowWidth(), (float) pGraphics->WindowHeight());
   self = [super initWithFrame:r];
   
+  mMouseOutDuringDrag = false;
+    
 #if defined IGRAPHICS_NANOVG || defined IGRAPHICS_SKIA
   if (!self.wantsLayer) {
     #if defined IGRAPHICS_METAL
@@ -670,12 +672,26 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void) mouseEntered: (NSEvent *)event
 {
-  mGraphics->OnSetCursor();
+  mMouseOutDuringDrag = false;
+  if (mGraphics)
+  {
+    mGraphics->OnSetCursor();
+  }
 }
 
 - (void) mouseExited: (NSEvent *)event
 {
-  mGraphics->OnMouseOut();
+  if (mGraphics)
+  {
+    if (!mGraphics->GetCapturedControl())
+    {
+      mGraphics->OnMouseOut();
+    }
+    else
+    {
+      mMouseOutDuringDrag = true;
+    }
+  }
 }
 
 - (void) mouseDown: (NSEvent*) pEvent
@@ -702,6 +718,12 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   {
     std::vector<IMouseInfo> list {info};
     mGraphics->OnMouseUp(list);
+
+    if (mMouseOutDuringDrag)
+    {
+      mGraphics->OnMouseOut();
+      mMouseOutDuringDrag = false;
+    }
   }
 }
 

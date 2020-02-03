@@ -73,6 +73,8 @@ using namespace igraphics;
 - (void) endUserInput;
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
 
+- (void)presentationControllerDidDismiss: (UIPresentationController *) presentationController;
+
 //gestures
 - (void) attachGestureRecognizer: (EGestureType) type;
 -(BOOL) gestureRecognizer:(UIGestureRecognizer*) gestureRecognizer shouldReceiveTouch:(UITouch*)touch;

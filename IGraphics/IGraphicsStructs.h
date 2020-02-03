@@ -89,12 +89,12 @@ public:
    @param framesAreHorizontal framesAreHorizontal \c true if the frames are positioned horizontally
    @param name Resource name for the bitmap */
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
-    : mAPIBitmap(pAPIBitmap)
-    , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
-    , mH(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
-    , mN(n)
-    , mFramesAreHorizontal(framesAreHorizontal)
-    , mResourceName(name, (int) strlen(name))
+  : mAPIBitmap(pAPIBitmap)
+  , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
+  , mH(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
+  , mN(n)
+  , mFramesAreHorizontal(framesAreHorizontal)
+  , mResourceName(name, static_cast<int>(strlen(name)))
   {
   }
 
@@ -245,25 +245,40 @@ struct IColor
    * @param alpha */
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
 
-  /**  @param c /todo */
-  void AddContrast(double c)
+  /** Set the color's opacity/alpha component with a float
+  * @param alpha float in the range 0. to 1. */
+  void SetOpacity(float alpha)
   {
-    const int mod = int(c * 255.);
+    A = static_cast<int>(Clip(alpha, 0.f, 1.f) * 255.f);
+  }
+
+  /** Returns a new IColor with a different opacity
+  * @param alpha float in the range 0. to 1.
+  * @return IColor new Color */
+  IColor WithOpacity(float alpha) const
+  {
+    IColor n = *this;
+    n.SetOpacity(alpha);
+    return n;
+  }
+
+  /** Add Contrast to the color
+   * @param c Contrast value in the range 0. to 1. */
+  void AddContrast(float c)
+  {
+    const int mod = static_cast<int>(Clip(c, 0.f, 1.f) * 255.f);
     R = std::min(R += mod, 255);
     G = std::min(G += mod, 255);
     B = std::min(B += mod, 255);
   }
 
-  /** /todo 
-   * @param c /todo
-   * @return IColor /todo */
-  IColor GetContrasted(double c) const
+  /** Returns a new contrasted IColor based on this one
+   * @param c Contrast value in the range 0. to 1.
+   * @return IColor new Color */
+  IColor WithContrast(float c) const
   {
-    const int mod = int(c * 255.);
     IColor n = *this;
-    n.R = std::min(n.R += mod, 255);
-    n.G = std::min(n.G += mod, 255);
-    n.B = std::min(n.B += mod, 255);
+    n.AddContrast(c);
     return n;
   }
   
@@ -285,6 +300,49 @@ struct IColor
     rgbaf[2] = B / 255.f;
     rgbaf[3] = A / 255.f;
   }
+
+  /** Get the Hue, Saturation and Luminance of the color
+* @param h hue value to set, output in the range 0. to 1. 
+* @param s saturation value to set, output in the range 0. to 1. 
+* @param l luminance value to set, output in the range 0. to 1. 
+* @param a alpha value to set, output in the range 0. to 1. */
+  void GetHSLA(float& h, float& s, float& l, float& a) const
+  {
+    const float fR = R / 255.f;
+    const float fG = G / 255.f;
+    const float fB = B / 255.f;
+    a = A / 255.f;
+
+    const float fMin = std::min(fR, std::min(fG, fB));
+    const float fMax = std::max(fR, std::max(fG, fB));
+    const float fDiff = fMax - fMin;
+    const float fSum = fMax + fMin;
+
+    l = 50.f * fSum;
+
+    if (fMin == fMax) { s = 0.f; h = 0.f; l /= 100.f; return; }
+    else if (l < 50.f) { s = 100.f * fDiff / fSum; }
+    else { s = 100.f * fDiff / (2.f - fDiff); }
+
+    if (fMax == fR) { h = 60.f * (fG - fB) / fDiff; }
+    if (fMax == fG) { h = 60.f * (fB - fR) / fDiff + 120.f; }
+    if (fMax == fB) { h = 60.f * (fR - fG) / fDiff + 240.f; }
+
+    if (h < 0.f) { h = h + 360.f; }
+
+    h /= 360.f;
+    s /= 100.f;
+    l /= 100.f;
+  }
+
+  /** /todo
+   * @return int /todo */
+  int GetLuminosity() const
+  {
+    int min = R < G ? (R < B ? R : B) : (G < B ? G : B);
+    int max = R > G ? (R > B ? R : B) : (G > B ? G : B);
+    return (min + max) / 2;
+  };
   
   /** /todo 
    * @param randomAlpha /todo
@@ -363,16 +421,15 @@ struct IColor
     }
   }
   
-  /** /todo 
-   * @param h /todo
-   * @param s /todo
-   * @param l /todo
-   * @param a /todo
-   * @return IColor /todo */
-  static IColor GetFromHSLA(float h, float s, float l, float a = 1.)
+  /** Create an IColor from Hue Saturation and Luminance values
+  * @param h hue value in the range 0.f-1.f
+  * @param s saturation value in the range 0.f-1.f
+  * @param l luminance value in the range 0.f-1.f
+  * @param a alpha value in the range 0.f-1.f
+  * @return The new IColor */
+  static IColor FromHSLA(float h, float s, float l, float a = 1.f)
   {
-    auto hue = [](float h, float m1, float m2)
-    {
+    auto hue = [](float h, float m1, float m2) {
       if (h < 0) h += 1;
       if (h > 1) h -= 1;
       if (h < 1.0f / 6.0f)
@@ -397,16 +454,7 @@ struct IColor
     col.A = static_cast<int>(a * 255.f);
     return col;
   }
-  
-  /** /todo 
-   * @return int /todo */
-  int GetLuminosity() const
-  {
-    int min = R < G ? (R < B ? R : B) : (G < B ? G : B);
-    int max = R > G ? (R > B ? R : B) : (G > B ? G : B);
-    return (min + max) / 2;
-  };
-  
+
   /** /todo 
    * @param start /todo
    * @param dest /todo
@@ -615,21 +663,23 @@ struct IText
   /** /todo 
     * @param size /todo
     * @param valign /todo */
-  IText(float size, EVAlign valign)
+  IText(float size, EVAlign valign, const IColor& color = DEFAULT_TEXT_FGCOLOR)
   : IText()
   {
     mSize = size;
     mVAlign = valign;
+    mFGColor = color;
   }
   
   /** /todo 
    * @param size /todo
    * @param align /todo */
-  IText(float size, EAlign align)
+  IText(float size, EAlign align, const IColor& color = DEFAULT_TEXT_FGCOLOR)
   : IText()
   {
     mSize = size;
     mAlign = align;
+    mFGColor = color;
   }
   
   IText(float size, const char* font)
@@ -1360,8 +1410,8 @@ struct IRECT
    * @param y /todo */
   void GetRandomPoint(float& x, float& y) const
   {
-    const float r1 = static_cast<float>(std::rand()/(RAND_MAX+1.f));
-    const float r2 = static_cast<float>(std::rand()/(RAND_MAX+1.f));
+    const float r1 = static_cast<float>(std::rand()/(static_cast<float>(RAND_MAX)+1.f));
+    const float r2 = static_cast<float>(std::rand()/(static_cast<float>(RAND_MAX)+1.f));
 
     x = L + r1 * W();
     y = T + r2 * H();

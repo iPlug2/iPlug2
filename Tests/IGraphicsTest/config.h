@@ -56,3 +56,5 @@
 #define ORBS_FN "orbs.svg"
 #define SMILEY_FN "smiley.png"
 #define IPLUG_FN "iplug.png"
+#define SRC_FN "src.png"
+#define DST_FN "dst.png"
