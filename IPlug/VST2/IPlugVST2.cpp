@@ -197,7 +197,7 @@ void IPlugVST2::InformHostOfProgramChange()
   mHostCallback(&mAEffect, audioMasterUpdateDisplay, 0, 0, 0, 0.0f);
 }
 
-bool IPlugVST2::EditorResizeFromDelegate(int viewWidth, int viewHeight)
+bool IPlugVST2::EditorResize(int viewWidth, int viewHeight)
 {
   bool resized = false;
 
@@ -212,7 +212,7 @@ bool IPlugVST2::EditorResizeFromDelegate(int viewWidth, int viewHeight)
       resized = mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
     }
     
-    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
+    SetEditorSize(viewWidth, viewHeight);
   }
 
   return resized;

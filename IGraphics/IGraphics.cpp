@@ -79,7 +79,7 @@ IGraphics::~IGraphics()
 void IGraphics::SetScreenScale(int scale)
 {
   mScreenScale = scale;
-  PlatformResize(GetDelegate()->EditorResize());
+  PlatformResize(GetDelegate()->EditorResizeFromUI(WindowWidth() * GetPlatformWindowScale(), WindowHeight() * GetPlatformWindowScale()));
   ForAllControls(&IControl::OnRescale);
   SetAllControlsDirty();
   DrawResize();
@@ -103,7 +103,7 @@ void IGraphics::Resize(int w, int h, float scale)
   if (mCornerResizer)
     mCornerResizer->OnRescale();
 
-  PlatformResize(GetDelegate()->EditorResize());
+  PlatformResize(GetDelegate()->EditorResizeFromUI(WindowWidth() * GetPlatformWindowScale(), WindowHeight() * GetPlatformWindowScale()));
   ForAllControls(&IControl::OnResize);
   SetAllControlsDirty();
   DrawResize();
@@ -202,7 +202,7 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
 void IGraphics::AttachBackground(const char* name)
 {
   IBitmap bg = LoadBitmap(name, 1, false);
-  IControl* pBG = new IBitmapControl(0, 0, bg, kNoParameter, EBlend::Clobber);
+  IControl* pBG = new IBitmapControl(0, 0, bg, kNoParameter, EBlend::Default);
   pBG->SetDelegate(*GetDelegate());
   mControls.Insert(0, pBG);
 }
@@ -960,13 +960,7 @@ void IGraphics::OnMouseUp(const std::vector<IMouseInfo>& points)
 
   if (mResizingInProcess)
   {
-    mResizingInProcess = false;
-    if (GetResizerMode() == EUIResizerMode::Scale)
-    {
-      // If scaling up we may want to load in high DPI bitmaps if scale > 1.
-      ForAllControls(&IControl::OnRescale);
-      SetAllControlsDirty();
-    }
+    EndDragResize();
   }
   
 #ifdef IGRAPHICS_IMGUI
@@ -1049,7 +1043,7 @@ void IGraphics::OnMouseDrag(const std::vector<IMouseInfo>& points)
 //        x, y, dX, dY, mod.L, mod.R, mod.S, mod.C, mod.A);
 
   if (mResizingInProcess && points.size() == 1)
-    OnResizeGesture(points[0].x, points[0].y);
+    OnDragResize(points[0].x, points[0].y);
   else if (ControlIsCaptured())
   {
     for (auto& point : points)
@@ -1381,7 +1375,7 @@ void IGraphics::OnGUIIdle()
   ForAllControls(&IControl::OnGUIIdle);
 }
 
-void IGraphics::OnResizeGesture(float x, float y)
+void IGraphics::OnDragResize(float x, float y)
 {
   if(mGUISizeMode == EUIResizerMode::Scale)
   {
@@ -1392,7 +1386,7 @@ void IGraphics::OnResizeGesture(float x, float y)
   }
   else
   {
-    Resize((int) x, (int) y, GetDrawScale());
+    Resize(static_cast<int>(x), static_cast<int>(y), GetDrawScale());
   }
 }
 
@@ -1484,7 +1478,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     // So use NanoSVG to get the size.
     if (svgDOM->containerSize().width() == 0)
     {
-      NSVGimage* pImage;
+      NSVGimage* pImage = nullptr;
 
       if (resourceFound == EResourceLocation::kAbsolutePath)
       {
@@ -1654,13 +1648,13 @@ IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int sc
   StartLayer(nullptr, bounds);
   DrawBitmap(inBitmap, bounds, 0, 0, nullptr);
   ILayerPtr layer = EndLayer();
-  IBitmap bitmap = IBitmap(layer->mBitmap.release(), inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
-  RetainBitmap(bitmap, name);
+  IBitmap outBitmap = IBitmap(layer->mBitmap.release(), inBitmap.N(), inBitmap.GetFramesAreHorizontal(), name);
+  RetainBitmap(outBitmap, name);
 
   mScreenScale = screenScale;
   mDrawScale = drawScale;
     
-  return bitmap;
+  return outBitmap;
 }
 
 inline void IGraphics::SearchNextScale(int& sourceScale, int targetScale)
@@ -1750,8 +1744,11 @@ void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRE
   }
   else
   {
-    IPopupMenu* pReturnMenu = CreatePlatformPopupMenu(menu, bounds);
-    SetControlValueAfterPopupMenu(pReturnMenu);
+    bool isAsync = false;
+    IPopupMenu* pReturnMenu = CreatePlatformPopupMenu(menu, bounds, isAsync);
+    
+    if(!isAsync)
+      SetControlValueAfterPopupMenu(pReturnMenu);
   }
 }
 
@@ -1760,11 +1757,24 @@ void IGraphics::CreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT
   DoCreatePopupMenu(control, menu, bounds, valIdx, false);
 }
 
+void IGraphics::EndDragResize()
+{
+  mResizingInProcess = false;
+  
+  if (GetResizerMode() == EUIResizerMode::Scale)
+  {
+    // If scaling up we may want to load in high DPI bitmaps if scale > 1.
+    ForAllControls(&IControl::OnRescale);
+    SetAllControlsDirty();
+  }
+}
+
 void IGraphics::StartLayer(IControl* pControl, const IRECT& r)
 {
-  IRECT alignedBounds = r.GetPixelAligned(GetBackingPixelScale());
-  const int w = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.W())));
-  const int h = static_cast<int>(std::ceil(GetBackingPixelScale() * std::ceil(alignedBounds.H())));
+  auto pixelBackingScale = GetBackingPixelScale();
+  IRECT alignedBounds = r.GetPixelAligned(pixelBackingScale);
+  const int w = static_cast<int>(std::ceil(pixelBackingScale * std::ceil(alignedBounds.W())));
+  const int h = static_cast<int>(std::ceil(pixelBackingScale * std::ceil(alignedBounds.H())));
 
   PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds, pControl, pControl ? pControl->GetRECT() : IRECT()));
 }
@@ -1774,11 +1784,11 @@ void IGraphics::ResumeLayer(ILayerPtr& layer)
   ILayerPtr ownedLayer;
     
   ownedLayer.swap(layer);
-  ILayer* ownerlessLayer = ownedLayer.release();
+  ILayer* pOwnerlessLayer = ownedLayer.release();
     
-  if (ownerlessLayer)
+  if (pOwnerlessLayer)
   {
-    PushLayer(ownerlessLayer);
+    PushLayer(pOwnerlessLayer);
   }
 }
 
@@ -1787,12 +1797,12 @@ ILayerPtr IGraphics::EndLayer()
   return ILayerPtr(PopLayer());
 }
 
-void IGraphics::PushLayer(ILayer *layer)
+void IGraphics::PushLayer(ILayer* pLayer)
 {
-  mLayers.push(layer);
+  mLayers.push(pLayer);
   UpdateLayer();
   PathTransformReset();
-  PathClipRegion(layer->Bounds());
+  PathClipRegion(pLayer->Bounds());
   PathClear();
 }
 

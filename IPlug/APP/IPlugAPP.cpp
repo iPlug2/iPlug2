@@ -35,7 +35,7 @@ IPlugAPP::IPlugAPP(const InstanceInfo& info, const Config& config)
   CreateTimer();
 }
 
-bool IPlugAPP::EditorResizeFromDelegate(int viewWidth, int viewHeight)
+bool IPlugAPP::EditorResize(int viewWidth, int viewHeight)
 {
   bool parentResized = false;
     
@@ -48,7 +48,7 @@ bool IPlugAPP::EditorResizeFromDelegate(int viewWidth, int viewHeight)
     SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - TITLEBAR_BODGE, viewWidth, viewHeight + TITLEBAR_BODGE, 0);
     parentResized = true;
     #endif
-    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
+    SetEditorSize(viewWidth, viewHeight);
   }
   
   return parentResized;

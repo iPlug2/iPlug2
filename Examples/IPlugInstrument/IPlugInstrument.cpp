@@ -36,6 +36,13 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     pGraphics->AttachControl(new IVSliderControl(sliders.GetGridCell(3, 1, 4).GetMidHPadded(30.), kParamRelease, "Release"));
     pGraphics->AttachControl(new IVMeterControl<1>(controls.GetFromRight(100).GetPadded(-30), ""), kCtrlTagMeter);
     
+    pGraphics->AttachControl(new IVButtonControl(controls.GetFromBottom(30).GetMidHPadded(100), SplashClickActionFunc,
+      "Show/Hide Keyboard", DEFAULT_STYLE.WithColor(kFG, COLOR_WHITE).WithLabelText({15.f, EVAlign::Middle})))->SetAnimationEndActionFunction(
+      [pGraphics](IControl* pCaller) {
+        static bool hide = false;
+        pGraphics->GetControlWithTag(kCtrlTagKeyboard)->Hide(hide = !hide);
+        pGraphics->Resize(PLUG_WIDTH, hide ? PLUG_HEIGHT / 2 : PLUG_HEIGHT, pGraphics->GetDrawScale());
+    });
 #ifdef OS_IOS
     if(!IsAuv3AppExtension())
     {

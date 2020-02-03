@@ -28,7 +28,8 @@ const IColor IVKeyboardControl::DEFAULT_FR_COLOR = COLOR_BLACK;
 const IColor IVKeyboardControl::DEFAULT_HK_COLOR = COLOR_ORANGE;
 
 IVLabelControl::IVLabelControl(const IRECT& bounds, const char* label, const IVStyle& style)
-  : ITextControl(bounds, label)
+: ITextControl(bounds, label)
+, IVectorBase(style)
 {
   mText = style.labelText;
   AttachIControl(this, label);
@@ -36,7 +37,7 @@ IVLabelControl::IVLabelControl(const IRECT& bounds, const char* label, const IVS
 
 void IVLabelControl::Draw(IGraphics& g)
 {
-  g.FillRect(GetColor(kBG), mRECT);
+  DrawBackGround(g, mRECT);
 
   if (mStr.GetLength())
   {
@@ -45,6 +46,9 @@ void IVLabelControl::Draw(IGraphics& g)
 
     g.DrawText(mText, mStr.Get(), mRECT);
   }
+
+  if (mStyle.drawFrame)
+    g.DrawRect(GetColor(kFR), mRECT, nullptr, mStyle.frameThickness);
 }
 
 IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool labelInButton, bool valueInButton, EVShape shape)

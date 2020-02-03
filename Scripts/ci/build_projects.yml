@@ -17,7 +17,7 @@ jobs:
         graphics: 'SKIA'
 
   pool:
-    vmImage: 'macos-10.13'
+    vmImage: 'macos-10.14'
 
   steps:
   - checkout: none

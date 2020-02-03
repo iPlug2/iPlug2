@@ -91,18 +91,16 @@ agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case EBlend::Default:         // fall through
-    case EBlend::Clobber:         // fall through
-    case EBlend::SourceOver:      return agg::comp_op_src_over;
-    case EBlend::SourceIn:        return agg::comp_op_src_in;
-    case EBlend::SourceOut:       return agg::comp_op_src_out;
-    case EBlend::SourceAtop:      return agg::comp_op_src_atop;
-    case EBlend::DestOver:        return agg::comp_op_dst_over;
-    case EBlend::DestIn:          return agg::comp_op_dst_in;
-    case EBlend::DestOut:         return agg::comp_op_dst_out;
-    case EBlend::DestAtop:        return agg::comp_op_dst_atop;
-    case EBlend::Add:             return agg::comp_op_plus;
-    case EBlend::XOR:             return agg::comp_op_xor;
+    case EBlend::SrcOver:      return agg::comp_op_src_over;
+    case EBlend::SrcIn:        return agg::comp_op_src_in;
+    case EBlend::SrcOut:       return agg::comp_op_src_out;
+    case EBlend::SrcAtop:      return agg::comp_op_src_atop;
+    case EBlend::DstOver:      return agg::comp_op_dst_over;
+    case EBlend::DstIn:        return agg::comp_op_dst_in;
+    case EBlend::DstOut:       return agg::comp_op_dst_out;
+    case EBlend::DstAtop:      return agg::comp_op_dst_atop;
+    case EBlend::Add:          return agg::comp_op_plus;
+    case EBlend::XOR:          return agg::comp_op_xor;
   }
 }
 
@@ -528,11 +526,11 @@ void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
     PushLayer(layer.get());
     PushLayer(&shadowLayer);
     PathRect(layer->Bounds());
-    IBlend blend1(EBlend::SourceIn, 1.0);
+    IBlend blend1(EBlend::SrcIn, 1.0);
     PathTransformTranslate(-shadow.mXOffset, -shadow.mYOffset);
     PathFill(shadow.mPattern, IFillOptions(), &blend1);
     PopLayer();
-    IBlend blend2(EBlend::DestOver, shadow.mOpacity);
+    IBlend blend2(EBlend::DstOver, shadow.mOpacity);
     bounds.Translate(shadow.mXOffset, shadow.mYOffset);
     DrawBitmap(bitmap, bounds, 0, 0, &blend2);
     PopLayer();

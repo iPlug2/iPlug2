@@ -35,7 +35,7 @@ public:
     
     for (int i=0; i<nstops; i++) {
       float pos = (1.f/(float) nstops) * i;
-      mPattern.AddStop(IColor::GetFromHSLA(pos, 1., 0.5), pos);
+      mPattern.AddStop(IColor::FromHSLA(pos, 1., 0.5), pos);
     }
   }
 

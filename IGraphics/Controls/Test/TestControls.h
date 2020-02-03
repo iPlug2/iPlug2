@@ -40,3 +40,4 @@
 #include "TestBezierControl.h"
 #include "TestMultiTouchControl.h"
 #include "TestGesturesControl.h"
+#include "TestFlexBoxControl.h"
