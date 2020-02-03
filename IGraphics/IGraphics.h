@@ -1123,9 +1123,11 @@ private:
    * @param valIdx The value index for the control value that the prompt relates to */
   void DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext);
   
-protected:
-  /** /todo */
-  void StartResizeGesture() { mResizingInProcess = true; };
+  /** Called by ICornerResizer when drag resize commences */
+  void StartDragResize() { mResizingInProcess = true; }
+  
+  /** Called when drag resize ends */
+  void EndDragResize();
   
 #pragma mark - Control management
 public:
@@ -1353,8 +1355,8 @@ public:
   /** \todo */
   void OnGUIIdle();
   
-  /** \todo */
-  void OnResizeGesture(float x, float y);
+  /** Called by ICornerReszierControl as the corner is dragged to resize */
+  void OnDragResize(float x, float y);
 
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
   void HandleMouseOver(bool enable) { mHandleMouseOver = enable; }
