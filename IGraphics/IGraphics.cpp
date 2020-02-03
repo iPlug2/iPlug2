@@ -905,13 +905,7 @@ void IGraphics::OnMouseUp(float x, float y, const IMouseMod& mod)
 
   if (mResizingInProcess)
   {
-    mResizingInProcess = false;
-    if (GetResizerMode() == EUIResizerMode::Scale)
-    {
-      // If scaling up we may want to load in high DPI bitmaps if scale > 1.
-      ForAllControls(&IControl::OnRescale);
-      SetAllControlsDirty();
-    }
+    EndDragResize();
   }
   
 #ifdef IGRAPHICS_IMGUI
@@ -970,7 +964,7 @@ void IGraphics::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMo
 
   if (mResizingInProcess)
   {
-    OnResizeGesture(x, y);
+    OnDragResize(x, y);
   }
   else if (mMouseCapture && (dX != 0 || dY != 0))
   {
@@ -1259,7 +1253,7 @@ void IGraphics::OnGUIIdle()
   ForAllControls(&IControl::OnGUIIdle);
 }
 
-void IGraphics::OnResizeGesture(float x, float y)
+void IGraphics::OnDragResize(float x, float y)
 {
   if(mGUISizeMode == EUIResizerMode::Scale)
   {
@@ -1639,6 +1633,18 @@ void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRE
 void IGraphics::CreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx)
 {
   DoCreatePopupMenu(control, menu, bounds, valIdx, false);
+}
+
+void IGraphics::EndDragResize()
+{
+  mResizingInProcess = false;
+  
+  if (GetResizerMode() == EUIResizerMode::Scale)
+  {
+    // If scaling up we may want to load in high DPI bitmaps if scale > 1.
+    ForAllControls(&IControl::OnRescale);
+    SetAllControlsDirty();
+  }
 }
 
 void IGraphics::StartLayer(IControl* pControl, const IRECT& r)
