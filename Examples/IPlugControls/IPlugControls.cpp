@@ -118,7 +118,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     AddLabel("ISVGKnobControl");
     pGraphics->AttachControl(new ISVGKnobControl(sameCell().GetCentredInside(100), knobSVG, kParamGain));
 
-    auto button1action = [pGraphics](IControl* pCaller){
+    auto button1action = [pGraphics](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
       pGraphics->ShowMessageBox("Message Title", "Message", kMB_YESNO, [&](EMsgBoxResult result) {
                                                       WDL_String str;
@@ -209,7 +209,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
             default: break;
           }
         });
-      }, label, style, true, EDirection::Horizontal));
+      }, label, style, true, EDirection::Horizontal))->SetValue(slider == 0 ? 1.f : 0.f);
       
       slider++;
     }
