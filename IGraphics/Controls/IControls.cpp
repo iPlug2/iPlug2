@@ -718,7 +718,6 @@ void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   }
 }
 
-//TODO: needed
 void IVSliderControl::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
   ISliderControlBase::OnMouseUp(x, y, mod);
@@ -732,6 +731,7 @@ void IVSliderControl::OnMouseOver(float x, float y, const IMouseMod& mod)
     mValueMouseOver = mValueBounds.Contains(x,y);
   
   ISliderControlBase::OnMouseOver(x, y, mod);
+  SetDirty(false);
 }
 
 void IVSliderControl::OnResize()
