@@ -1505,7 +1505,8 @@ struct IRECT
    * @return IRECT /todo */
   IRECT GetCentredInside(float w, float h = 0.f) const
   {
-    assert(w > 0.f);
+    if (w <= 0.f)
+      return *this; // TODO: warning?
     
     if(h <= 0.f)
       h = w;
