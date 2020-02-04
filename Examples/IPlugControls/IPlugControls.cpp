@@ -25,7 +25,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     }
     
 //    pGraphics->EnableLiveEdit(true);
-    pGraphics->HandleMouseOver(true);
+    pGraphics->EnableMouseOver(true);
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->EnableTooltips(true);

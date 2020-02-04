@@ -41,12 +41,12 @@ public:
   
   ~IGraphicsLiveEdit()
   {
-    GetUI()->HandleMouseOver(mMouseOversEnabled); // Set it back to what it was
+    GetUI()->EnableMouseOver(mMouseOversEnabled); // Set it back to what it was
   }
   
   void OnInit() override
   {
-    GetUI()->HandleMouseOver(true);
+    GetUI()->EnableMouseOver(true);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
