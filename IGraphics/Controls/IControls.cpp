@@ -535,35 +535,39 @@ IRECT IVKnobControl::GetKnobDragBounds()
 
 void IVKnobControl::DrawWidget(IGraphics& g)
 {
-  float radius;
+  float widgetRadius; // The radius out to the indicator track arc
   
   if(mWidgetBounds.W() > mWidgetBounds.H())
-    radius = (mWidgetBounds.H()/2.f /*TODO: fix bodge*/);
+    widgetRadius = (mWidgetBounds.H()/2.f);
   else
-    radius = (mWidgetBounds.W()/2.f /*TODO: fix bodge*/);
+    widgetRadius = (mWidgetBounds.W()/2.f);
   
   const float cx = mWidgetBounds.MW(), cy = mWidgetBounds.MH();
   
+  widgetRadius -= (mIndicatorTrackThickness/2.f);
+
   if(!IsDisabled())
   {
-    /*TODO: constants! */
-    const float v = mAngle1 + ((float) GetValue() * (mAngle2 - mAngle1));
-    
-    g.DrawArc(GetColor(kX1), cx, cy, (radius * 0.8f) + 3.f, v >= mAnchorAngle ? mAnchorAngle : mAnchorAngle - (mAnchorAngle-v), v >= mAnchorAngle ? v : mAnchorAngle, 0, 2.f);
-    
-    DrawPressableCircle(g, mWidgetBounds, radius * 0.8f, false/*mMouseDown*/, mMouseIsOver & !mValueMouseOver);
-    
-    g.DrawCircle(GetColor(kHL), cx, cy, radius * 0.7f);
-
-    if(mMouseDown)
-      g.FillCircle(GetColor(kON), cx, cy, radius * 0.7f);
-    
-    g.DrawRadialLine(GetColor(kFR), cx, cy, v, 0.6f * radius, 0.8f * radius, 0, mStyle.frameThickness >= 1.f ? mStyle.frameThickness : 1.f);
+    IRECT knobHandleBounds = mWidgetBounds.GetCentredInside((widgetRadius - mIndicatorTrackToHandleDistance) * 2.f );
+    const float angle = mAngle1 + (static_cast<float>(GetValue()) * (mAngle2 - mAngle1));
+    DrawIndicatorTrack(g, angle, cx, cy, widgetRadius);
+    DrawPressableEllipse(g, knobHandleBounds, mMouseDown, mMouseIsOver);
+    DrawPointer(g, angle, cx, cy, knobHandleBounds.W() / 2.f);
   }
   else
   {
-    g.FillCircle(GetColor(kOFF), cx, cy, radius);
+    g.FillCircle(GetColor(kOFF), cx, cy, widgetRadius);
   }
+}
+
+void IVKnobControl::DrawIndicatorTrack(IGraphics& g, float angle, float cx, float cy, float radius)
+{
+  g.DrawArc(GetColor(kX1), cx, cy, radius, angle >= mAnchorAngle ? mAnchorAngle : mAnchorAngle - (mAnchorAngle - angle), angle >= mAnchorAngle ? angle : mAnchorAngle, 0, mIndicatorTrackThickness);
+}
+
+void IVKnobControl::DrawPointer(IGraphics& g, float angle, float cx, float cy, float radius)
+{
+  g.DrawRadialLine(GetColor(kFR), cx, cy, angle, mInnerPointerFrac * radius, mOuterPointerFrac * radius, 0, mPointerThickness);
 }
 
 void IVKnobControl::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -576,13 +580,13 @@ void IVKnobControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   {    
     IKnobControlBase::OnMouseDown(x, y, mod);
   }
+
+  SetDirty(false);
 }
 
-//TODO: needed?
 void IVKnobControl::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
   IKnobControlBase::OnMouseUp(x, y, mod);
-
   SetDirty(true);
 }
 
@@ -592,6 +596,8 @@ void IVKnobControl::OnMouseOver(float x, float y, const IMouseMod& mod)
     mValueMouseOver = mValueBounds.Contains(x,y);
   
   IKnobControlBase::OnMouseOver(x, y, mod);
+
+  SetDirty(false);
 }
 
 void IVKnobControl::OnResize()

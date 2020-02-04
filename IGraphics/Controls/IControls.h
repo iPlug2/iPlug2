@@ -213,6 +213,8 @@ public:
 
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
+  virtual void DrawIndicatorTrack(IGraphics& g, float angle, float cx, float cy, float radius);
+  virtual void DrawPointer(IGraphics& g, float angle, float cx, float cy, float radius);
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
@@ -227,6 +229,10 @@ public:
 protected:
   virtual IRECT GetKnobDragBounds() override;
 
+  float mIndicatorTrackToHandleDistance = 4.f;
+  float mInnerPointerFrac = 0.1f;
+  float mOuterPointerFrac = 1.f;
+  float mPointerThickness = 2.5f;
   float mAngle1, mAngle2;
   float mAnchorAngle; // for bipolar arc
   bool mValueMouseOver = false;

@@ -802,29 +802,7 @@ public:
         break;
     }
   }
-  
-  void DrawPressableCircle(IGraphics&g, const IRECT& bounds, float radius, bool pressed, bool mouseOver)
-  {
-    const float cx = bounds.MW(), cy = bounds.MH();
-    
-    if(!pressed && mStyle.drawShadows)
-      g.FillCircle(GetColor(kSH), cx + mStyle.shadowOffset, cy + mStyle.shadowOffset, radius);
-    
-//    if(pressed)
-//      g.DrawCircle(GetColor(kON), cx, cy, radius * 0.9f, 0, mStyle.frameThickness);
-//    else
-    g.FillCircle(GetColor(kFG), cx, cy, radius);
 
-    if(mouseOver)
-      g.FillCircle(GetColor(kHL), cx, cy, radius * 0.8f);
-    
-    if(pressed && mControl->GetAnimationFunction())
-      DrawSplash(g);
-    
-    if(mStyle.drawFrame)
-      g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mStyle.frameThickness);
-  }
-  
   void DrawPressableEllipse(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
   {
     if(!pressed && mStyle.drawShadows)
@@ -836,7 +814,7 @@ public:
       g.FillEllipse(GetColor(kFG), bounds);
 
     if(mouseOver)
-      g.FillEllipse(GetColor(kHL), bounds);
+      g.FillEllipse(GetColor(kHL), bounds.GetScaledAboutCentre(mInnerSurfaceFrac));
     
     if(pressed && mControl->GetAnimationFunction())
       DrawSplash(g, bounds);
@@ -1012,6 +990,8 @@ protected:
   float mSplashX = 0.f;
   float mSplashY = 0.f;
   float mMaxSplashRadius = 50.f;
+  float mIndicatorTrackThickness = 2.f;
+  float mInnerSurfaceFrac = 0.8f; // the fraction of the widget handle that is the "cap" of the button/knob
   IRECT mWidgetBounds; // The knob/slider/button
   IRECT mLabelBounds; // A piece of text above the control
   IRECT mValueBounds; // Text below the contol, usually displaying the value of a parameter
