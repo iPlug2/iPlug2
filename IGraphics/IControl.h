@@ -717,6 +717,7 @@ public:
   void SetRoundness(float roundness) { mStyle.roundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); }
   void SetDrawFrame(bool draw) { mStyle.drawFrame = draw; mControl->SetDirty(false); }
   void SetDrawShadows(bool draw) { mStyle.drawShadows = draw; mControl->SetDirty(false); }
+  void SetEmboss(bool draw) { mStyle.emboss = draw; mControl->SetDirty(false); }
   void SetShadowOffset(float offset) { mStyle.shadowOffset = offset; mControl->SetDirty(false); }
   void SetFrameThickness(float thickness) { mStyle.frameThickness = thickness; mControl->SetDirty(false); }
   void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
