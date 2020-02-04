@@ -807,22 +807,65 @@ public:
 
   void DrawPressableEllipse(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
   {
-    if(!pressed && mStyle.drawShadows)
-      g.FillEllipse(GetColor(kSH), bounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset));
-   
-    if(pressed)
-      g.FillEllipse(GetColor(kON), bounds);
-    else
-      g.FillEllipse(GetColor(kFG), bounds);
+    IRECT handleBounds = bounds;
+    IRECT centreBounds = bounds.GetPadded(-mStyle.shadowOffset);
+    IRECT shadowBounds = bounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset);
 
-    if(mouseOver)
-      g.FillEllipse(GetColor(kHL), bounds.GetScaledAboutCentre(mInnerSurfaceFrac));
+    if(!pressed && mStyle.drawShadows)
+      g.FillEllipse(GetColor(kSH), shadowBounds);
+   
+    if (pressed)
+    {
+      if (mStyle.emboss)
+      {
+        shadowBounds.ReduceFromRight(mStyle.shadowOffset);
+        shadowBounds.ReduceFromBottom(mStyle.shadowOffset);
+        // Fill background with pressed color and shade it
+        g.FillEllipse(GetColor(kPR), bounds);
+        g.FillEllipse(GetColor(kSH), bounds);
+
+        // Inverse shading for recessed look - shadowBounds = inner shadow
+        g.FillEllipse(GetColor(kFG), shadowBounds);
+
+        // Fill in center with pressed color
+        g.FillEllipse(GetColor(kPR), centreBounds);
+      }
+      else
+        g.FillEllipse(GetColor(kPR), handleBounds);
+    }
+    else
+    {
+      // Embossed style unpressed
+      if (mStyle.emboss)
+      {
+        // Positive light TODO: use thes kPR color for now, maybe change the name?
+        g.FillEllipse(GetColor(kPR), bounds);
+
+        // Negative light TODO: clip this?
+        g.FillEllipse(GetColor(kSH), shadowBounds);
+
+        // Fill in foreground
+        g.FillEllipse(GetColor(kFG), centreBounds);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillEllipse(GetColor(kHL), centreBounds);
+      }
+      else
+      {
+        g.FillEllipse(GetColor(kFG), handleBounds);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillEllipse(GetColor(kHL), handleBounds);
+      }
+    }
     
     if(pressed && mControl->GetAnimationFunction())
-      DrawSplash(g, bounds);
+      DrawSplash(g, handleBounds);
     
     if(mStyle.drawFrame)
-      g.DrawEllipse(GetColor(kFR), bounds, nullptr, mStyle.frameThickness);
+      g.DrawEllipse(GetColor(kFR), handleBounds, nullptr, mStyle.frameThickness);
   }
   
   /** /todo
@@ -876,10 +919,10 @@ public:
       // Embossed style unpressed
       if (mStyle.emboss)
       {
-        // Positive light (TODO: use the Pressed color for now, maybe change the name?
+        // Positive light TODO: use thes kPR color for now, maybe change the name?
         g.FillRoundRect(GetColor(kPR), handleBounds, tlr, trr, blr, brr);
 
-        // Negative light
+        // Negative light TODO: clip this?
         g.FillRoundRect(GetColor(kSH), shadowBounds, tlr, trr, blr, brr);
 
         // Fill in foreground
@@ -890,12 +933,14 @@ public:
           g.FillRoundRect(GetColor(kHL), centreBounds, tlr, trr, blr, brr);
       }
       else
+      {
         g.FillRoundRect(GetColor(kFG), handleBounds, tlr, trr, blr, brr);
-      
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillRoundRect(GetColor(kHL), handleBounds, tlr, trr, blr, brr);
+      }
     }
-    
-    if(mouseOver)
-      g.FillRoundRect(GetColor(kHL), handleBounds, tlr, trr, blr, brr);
     
     if(pressed && mControl->GetAnimationFunction())
       DrawSplash(g, handleBounds);
@@ -1034,7 +1079,6 @@ protected:
   float mSplashY = 0.f;
   float mMaxSplashRadius = 50.f;
   float mIndicatorTrackThickness = 2.f;
-  float mInnerSurfaceFrac = 0.8f; // the fraction of the widget handle that is the "cap" of the button/knob
   IRECT mWidgetBounds; // The knob/slider/button
   IRECT mLabelBounds; // A piece of text above the control
   IRECT mValueBounds; // Text below the contol, usually displaying the value of a parameter
