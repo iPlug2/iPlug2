@@ -1368,18 +1368,25 @@ struct IRECT
     R = x + (hw * scale);
     B = y + (hh * scale);
   }
+
+  /** /todo
+   * @param scale /todo
+   * @return IRECT /todo */
+  IRECT GetScaled(float scale) const
+  {
+    IRECT r = *this;
+    r.Scale(scale);
+    return r;
+  }
   
   /** /todo 
    * @param scale /todo
    * @return IRECT /todo */
-  IRECT GetScaledAboutCentre(float scale)
+  IRECT GetScaledAboutCentre(float scale) const
   {
-    const float x = MW();
-    const float y = MH();
-    const float hw = W() / 2.f;
-    const float hh = H() / 2.f;
-    
-    return IRECT(x - (hw * scale), y - (hh * scale), x + (hw * scale), y + (hh * scale));
+    IRECT r = *this;
+    r.ScaleAboutCentre(scale);
+    return r;
   }
   
   /** /todo 
@@ -1393,16 +1400,6 @@ struct IRECT
     result.T = start.T + progress * (dest.T -  start.T);
     result.R = start.R + progress * (dest.R -  start.R);
     result.B = start.B + progress * (dest.B -  start.B);
-  }
-
-  /** /todo 
-   * @param scale /todo
-   * @return IRECT /todo */
-  IRECT GetScaled(float scale) const
-  {
-    IRECT r = *this;
-    r.Scale(scale);
-    return r;
   }
 
   /** /todo 
