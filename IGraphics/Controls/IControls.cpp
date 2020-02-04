@@ -644,24 +644,24 @@ void IVKnobControl::OnInit()
 IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, bool onlyHandle, float handleSize, float trackSize)
 : ISliderControlBase(bounds, paramIdx, dir, onlyHandle, handleSize)
 , IVectorBase(style)
-, mTrackSize(trackSize)
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
   mHideCursorOnDrag = style.hideCursor;
   mShape = EVShape::Ellipse;
+  mIndicatorTrackThickness = trackSize;
   AttachIControl(this, label);
 }
 
 IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, bool onlyHandle, float handleSize, float trackSize)
 : ISliderControlBase(bounds, aF, dir, onlyHandle, handleSize)
 , IVectorBase(style)
-, mTrackSize(trackSize)
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
   mHideCursorOnDrag = style.hideCursor;
   mShape = EVShape::Ellipse;
+  mIndicatorTrackThickness = trackSize;
   AttachIControl(this, label);
 }
 
@@ -742,9 +742,9 @@ void IVSliderControl::OnResize()
   SetTargetRECT(MakeRects(mRECT));
   
   if(mDirection == EDirection::Vertical)
-    mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidHPadded(mTrackSize);
+    mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidHPadded(mIndicatorTrackThickness);
   else
-    mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidVPadded(mTrackSize);
+    mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidVPadded(mIndicatorTrackThickness);
 
   SetDirty(false);
 }

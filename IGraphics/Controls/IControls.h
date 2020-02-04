@@ -255,7 +255,6 @@ public:
   void OnInit() override;
 
 protected:
-  float mTrackSize;
   bool mValueMouseOver = false;
 };
 
