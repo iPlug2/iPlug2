@@ -1029,7 +1029,7 @@ public:
       if(CStringHasContents(mValueStr.Get()))
         mControl->GetUI()->MeasureText(mStyle.valueText, mValueStr.Get(), textRect);
 
-      const float valueDisplayWidth = textRect.W() * 0.5f;
+      const float valueDisplayWidth = textRect.W() * mValueDisplayFrac;
 
       switch (mStyle.valueText.mVAlign)
       {
@@ -1079,6 +1079,7 @@ protected:
   float mSplashY = 0.f;
   float mMaxSplashRadius = 50.f;
   float mIndicatorTrackThickness = 2.f;
+  float mValueDisplayFrac = 0.66f; // the fraction of the control width for the text entry
   IRECT mWidgetBounds; // The knob/slider/button
   IRECT mLabelBounds; // A piece of text above the control
   IRECT mValueBounds; // Text below the contol, usually displaying the value of a parameter
