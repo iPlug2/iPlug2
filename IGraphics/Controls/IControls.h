@@ -61,10 +61,6 @@ public:
   virtual void DrawWidget(IGraphics& g) override;
   bool IsHit(float x, float y) const override;
   void OnResize() override;
-  void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
-
-protected:
-  EVShape mShape;
 };
 
 /** A vector switch control. Click to cycle through states. */
@@ -121,7 +117,6 @@ protected:
   IRECT mStartRect, mEndRect;
   IRECT mHandleBounds;
   EDirection mDirection;
-  EVShape mShape = EVShape::Rectangle;
 };
 
 /** A vector "tab" multi switch control. Click tabs to cycle through states. */
@@ -146,7 +141,6 @@ public:
   void OnMouseOut() override { mMouseOverButton = -1; ISwitchControlBase::OnMouseOut(); SetDirty(false); }
   void OnResize() override;
   virtual bool IsHit(float x, float y) const override;
-  void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
 protected:
   /** @return the index of the entry at the given point or -1 if no entry was hit */
   virtual int GetButtonForPoint(float x, float y) const;
@@ -155,7 +149,6 @@ protected:
   WDL_TypedBuf<IRECT> mButtons;
   WDL_PtrList<WDL_String> mTabLabels;
   EDirection mDirection;
-  EVShape mShape;
 };
 
 class IVRadioButtonControl : public IVTabSwitchControl
@@ -260,12 +253,10 @@ public:
   void OnResize() override;
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
   void OnInit() override;
-  void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
 
 protected:
   float mTrackSize;
   bool mValueMouseOver = false;
-  EVShape mShape = EVShape::Ellipse;
 };
 
 class IVRangeSliderControl : public IVTrackControlBase
@@ -290,7 +281,6 @@ protected:
   float mTrackSize;
   float mHandleSize;
   bool mMouseIsDown = false;
-  EVShape mShape = EVShape::Ellipse;
 };
 
 class IVXYPadControl : public IControl

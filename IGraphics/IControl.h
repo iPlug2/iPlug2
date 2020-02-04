@@ -722,7 +722,8 @@ public:
   void SetFrameThickness(float thickness) { mStyle.frameThickness = thickness; mControl->SetDirty(false); }
   void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
   void SetSplashPoint(float x, float y) { mSplashX = x; mSplashY = y; }
-  
+  void SetShape(EVShape shape) { mShape = shape; mControl->SetDirty(false); }
+
   void SetStyle(const IVStyle& style)
   {
     mStyle = style;
@@ -1039,6 +1040,7 @@ protected:
   IRECT mValueBounds; // Text below the contol, usually displaying the value of a parameter
   WDL_String mLabelStr;
   WDL_String mValueStr;
+  EVShape mShape = EVShape::Rectangle;
 };
 
 /** A base class for knob/dial controls, to handle mouse action and Sender. */

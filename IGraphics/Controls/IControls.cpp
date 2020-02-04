@@ -54,9 +54,9 @@ void IVLabelControl::Draw(IGraphics& g)
 IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool labelInButton, bool valueInButton, EVShape shape)
 : IButtonControlBase(bounds, aF)
 , IVectorBase(style, labelInButton, valueInButton)
-, mShape(shape)
 {
   mText = style.valueText;
+  mShape = shape;
   AttachIControl(this, label);
 }
 
@@ -86,8 +86,8 @@ bool IVButtonControl::IsHit(float x, float y) const
 }
 
 IVSwitchControl::IVSwitchControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueInButton)
-  : ISwitchControlBase(bounds, paramIdx, SplashClickActionFunc)
-  , IVectorBase(style, false, valueInButton)
+: ISwitchControlBase(bounds, paramIdx, SplashClickActionFunc)
+, IVectorBase(style, false, valueInButton)
 {
   AttachIControl(this, label);
   mText = style.valueText;
@@ -117,7 +117,7 @@ void IVSwitchControl::Draw(IGraphics& g)
 
 void IVSwitchControl::DrawWidget(IGraphics& g)
 {
-  DrawPressableRectangle(g, mWidgetBounds, mMouseDown, mMouseIsOver);
+  DrawHandle(g, mShape, mWidgetBounds, mMouseDown, mMouseIsOver);
 }
 
 void IVSwitchControl::SetDirty(bool push, int valIdx)
@@ -174,7 +174,7 @@ IVToggleControl::IVToggleControl(const IRECT& bounds, IActionFunction aF, const 
 
 void IVToggleControl::DrawWidget(IGraphics& g)
 {
-  DrawPressableRectangle(g, mWidgetBounds, GetValue() > 0.5, mMouseIsOver);
+  DrawHandle(g, mShape, mWidgetBounds, GetValue() > 0.5, mMouseIsOver);
 }
 
 void IVToggleControl::DrawValue(IGraphics& g, bool mouseOver)
@@ -293,27 +293,28 @@ void IVSlideSwitchControl::SetDirty(bool push, int valIdx)
 IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
 : ISwitchControlBase(bounds, paramIdx, SplashClickActionFunc)
 , IVectorBase(style)
-, mShape(shape)
 , mDirection(direction)
 {
   AttachIControl(this, label);
   mText = style.valueText;
   mText.mAlign = EAlign::Center; //TODO?
   mText.mVAlign = EVAlign::Middle; //TODO?
+  mShape = shape;
 }
 
 IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
 : ISwitchControlBase(bounds, kNoParameter, aF, static_cast<int>(options.size()))
 , IVectorBase(style)
-, mShape(shape)
 , mDirection(direction)
 {
   AttachIControl(this, label);
   mText = style.valueText;
   mText.mAlign = mStyle.valueText.mAlign = EAlign::Center; //TODO?
   mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle; //TODO?
-  
-  for (auto& option : options) {
+  mShape = shape;
+
+  for (auto& option : options)
+  {
     mTabLabels.Add(new WDL_String(option));
   }
 }
@@ -648,6 +649,7 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* 
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
   mHideCursorOnDrag = style.hideCursor;
+  mShape = EVShape::Ellipse;
   AttachIControl(this, label);
 }
 
@@ -659,6 +661,7 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const 
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
   mHideCursorOnDrag = style.hideCursor;
+  mShape = EVShape::Ellipse;
   AttachIControl(this, label);
 }
 
