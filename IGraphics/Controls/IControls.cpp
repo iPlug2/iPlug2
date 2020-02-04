@@ -1113,6 +1113,97 @@ void IVGroupControl::SetBoundsBasedOnGroup(const char* groupName, float padding)
   OnResize();
 }
 
+IVColorSwatchControl::IVColorSwatchControl(const IRECT& bounds, const IVColorSpec& spec, ECellLayout layout)
+: IControl(bounds)
+, IVectorBase(DEFAULT_STYLE.WithColors(spec))
+, mLayout(layout)
+{
+  AttachIControl(this, "");
+  mCellRects.Resize(mColors.GetSize());
+}
+
+void IVColorSwatchControl::Draw(IGraphics& g)
+{
+  g.FillRect(COLOR_WHITE, mRECT);
+  
+  for (int i=0; i<mColors.GetSize(); i++)
+  {
+    g.FillRect(GetColor(i), mCellRects.Get()[i]);
+    g.DrawRect(i == mCellOver ? COLOR_GRAY : COLOR_DARK_GRAY, mCellRects.Get()[i].GetPadded(0.5f));
+  }
+}
+
+void IVColorSwatchControl::OnResize()
+{
+  int rows, columns;
+  
+  if(mLayout == ECellLayout::kGrid)
+  {
+    rows = 3;
+    columns = 3;
+  }
+  else if (mLayout == ECellLayout::kHorizontal)
+  {
+    rows = 1;
+    columns = 9;
+  }
+  else if (mLayout == ECellLayout::kVertical)
+  {
+    rows = 9;
+    columns = 1;
+  }
+  
+  for (int i=0; i<mColors.GetSize(); i++)
+  {
+    mCellRects.Get()[i] = mRECT.GetGridCell(i, rows, columns).GetPadded(-1);
+  }
+}
+
+void IVColorSwatchControl::OnMouseOver(float x, float y, const IMouseMod& mod)
+{
+  for (int i=0; i<mColors.GetSize(); i++)
+  {
+    if(mCellRects.Get()[i].Contains(x, y))
+    {
+      mCellOver = i;
+      SetDirty();
+      return;
+    }
+  }
+  
+  mCellOver = -1;
+  SetDirty();
+}
+
+void IVColorSwatchControl::OnMouseOut()
+{
+  mCellOver = -1;
+  SetDirty();
+}
+
+void IVColorSwatchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  int cellClicked=-1;
+  
+  for (int i=0; i<mColors.GetSize(); i++)
+  {
+    if(mCellRects.Get()[i].Contains(x, y))
+    {
+      cellClicked = i;
+      break;
+    }
+  }
+  
+  if(cellClicked > -1)
+  {
+    mCellClicked = cellClicked;
+    IColor c = GetColor(mCellClicked);
+    GetUI()->PromptForColor(c, "Choose a color", [&](const IColor& result) {
+      SetColor(mCellClicked, result);
+    });
+  }
+}
+
 #pragma mark - SVG CONTROLS
 
 ISVGButtonControl::ISVGButtonControl(const IRECT& bounds, IActionFunction aF, const ISVG& offImage, const ISVG& onImage)

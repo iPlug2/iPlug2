@@ -515,7 +515,7 @@ protected:
   bool mMouseEventsWhenDisabled = false;
   bool mIgnoreMouse = false;
   bool mWantsMidi = false;
-  /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
+  /** if mGraphics::mEnableMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
   WDL_String mTooltip;
 

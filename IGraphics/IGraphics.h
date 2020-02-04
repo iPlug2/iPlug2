@@ -1359,13 +1359,13 @@ public:
   void OnDragResize(float x, float y);
 
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
-  void HandleMouseOver(bool enable) { mHandleMouseOver = enable; }
+  void EnableMouseOver(bool enable) { mEnableMouseOver = enable; }
 
   /** Used to tell the graphics context to stop tracking mouse interaction with a control \todo internal only? */
   void ReleaseMouseCapture();
 
   /** @return \c true if the context can handle mouse overs */
-  bool CanHandleMouseOver() const { return mHandleMouseOver; }
+  bool CanEnableMouseOver() const { return mEnableMouseOver; }
 
   /** @return An integer representing the control index in IGraphics::mControls which the mouse is over, or -1 if it is not */
   inline int GetMouseOver() const { return mMouseOverIdx; }
@@ -1584,7 +1584,7 @@ private:
   int mMinHeight;
   int mMaxHeight;
   int mLastClickedParam = kNoParameter;
-  bool mHandleMouseOver = false;
+  bool mEnableMouseOver = false;
   bool mStrict = false;
   bool mEnableTooltips = false;
   bool mShowControlBounds = false;
