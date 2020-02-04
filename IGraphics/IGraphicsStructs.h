@@ -1373,18 +1373,25 @@ struct IRECT
     R = x + (hw * scale);
     B = y + (hh * scale);
   }
+
+  /** /todo
+   * @param scale /todo
+   * @return IRECT /todo */
+  IRECT GetScaled(float scale) const
+  {
+    IRECT r = *this;
+    r.Scale(scale);
+    return r;
+  }
   
   /** /todo 
    * @param scale /todo
    * @return IRECT /todo */
-  IRECT GetScaledAboutCentre(float scale)
+  IRECT GetScaledAboutCentre(float scale) const
   {
-    const float x = MW();
-    const float y = MH();
-    const float hw = W() / 2.f;
-    const float hh = H() / 2.f;
-    
-    return IRECT(x - (hw * scale), y - (hh * scale), x + (hw * scale), y + (hh * scale));
+    IRECT r = *this;
+    r.ScaleAboutCentre(scale);
+    return r;
   }
   
   /** /todo 
@@ -1398,16 +1405,6 @@ struct IRECT
     result.T = start.T + progress * (dest.T -  start.T);
     result.R = start.R + progress * (dest.R -  start.R);
     result.B = start.B + progress * (dest.B -  start.B);
-  }
-
-  /** /todo 
-   * @param scale /todo
-   * @return IRECT /todo */
-  IRECT GetScaled(float scale) const
-  {
-    IRECT r = *this;
-    r.Scale(scale);
-    return r;
   }
 
   /** /todo 
@@ -1513,7 +1510,8 @@ struct IRECT
    * @return IRECT /todo */
   IRECT GetCentredInside(float w, float h = 0.f) const
   {
-    assert(w > 0.f);
+    if (w <= 0.f)
+      return *this; // TODO: warning?
     
     if(h <= 0.f)
       h = w;
@@ -2283,6 +2281,7 @@ static constexpr bool DEFAULT_SHOW_VALUE = true;
 static constexpr bool DEFAULT_SHOW_LABEL = true;
 static constexpr bool DEFAULT_DRAW_FRAME = true;
 static constexpr bool DEFAULT_DRAW_SHADOWS = true;
+static constexpr bool DEFAULT_EMBOSS = false;
 static constexpr float DEFAULT_ROUNDNESS = 0.f;
 static constexpr float DEFAULT_FRAME_THICKNESS = 1.f;
 static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
@@ -2298,6 +2297,7 @@ struct IVStyle
   bool showValue = DEFAULT_SHOW_VALUE;
   bool drawFrame = DEFAULT_DRAW_FRAME;
   bool drawShadows = DEFAULT_DRAW_SHADOWS;
+  bool emboss = DEFAULT_EMBOSS;
   float roundness = DEFAULT_ROUNDNESS;
   float frameThickness = DEFAULT_FRAME_THICKNESS;
   float shadowOffset = DEFAULT_SHADOW_OFFSET;
@@ -2315,6 +2315,7 @@ struct IVStyle
           bool hideCursor = DEFAULT_HIDE_CURSOR,
           bool drawFrame = DEFAULT_DRAW_FRAME,
           bool drawShadows = DEFAULT_DRAW_SHADOWS,
+          bool emboss = DEFAULT_EMBOSS,
           float roundness = DEFAULT_ROUNDNESS,
           float frameThickness = DEFAULT_FRAME_THICKNESS,
           float shadowOffset = DEFAULT_SHADOW_OFFSET,
@@ -2328,6 +2329,7 @@ struct IVStyle
   , hideCursor(hideCursor)
   , drawFrame(drawFrame)
   , drawShadows(drawShadows)
+  , emboss(emboss)
   , roundness(roundness)
   , frameThickness(frameThickness)
   , shadowOffset(shadowOffset)

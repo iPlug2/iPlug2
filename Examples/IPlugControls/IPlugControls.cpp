@@ -25,7 +25,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     }
     
 //    pGraphics->EnableLiveEdit(true);
-    pGraphics->HandleMouseOver(true);
+    pGraphics->EnableMouseOver(true);
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->EnableTooltips(true);
@@ -118,7 +118,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     AddLabel("ISVGKnobControl");
     pGraphics->AttachControl(new ISVGKnobControl(sameCell().GetCentredInside(100), knobSVG, kParamGain));
 
-    auto button1action = [pGraphics](IControl* pCaller){
+    auto button1action = [pGraphics](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
       pGraphics->ShowMessageBox("Message Title", "Message", kMB_YESNO, [&](EMsgBoxResult result) {
                                                       WDL_String str;
@@ -209,7 +209,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
             default: break;
           }
         });
-      }, label, style, true, EDirection::Horizontal));
+      }, label, style, true, EDirection::Horizontal))->SetValue(slider == 0 ? 1.f : 0.f);
       
       slider++;
     }
@@ -218,7 +218,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     
     int toggle = 0;
     
-    for(auto label : {"Draw Frame", "Draw Shadows", "Show Label", "Show Value"})
+    for(auto label : {"Draw Frame", "Draw Shadows", "Emboss", "Show Label", "Show Value"})
     {
       pGraphics->AttachControl(new IVToggleControl(sameCell().GetGridCell(toggle, 0, 5, 1), [pGraphics, toggle](IControl* pCaller){
         SplashClickActionFunc(pCaller);
@@ -230,12 +230,13 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
           switch (toggle) {
             case 0 : vcontrol.SetDrawFrame(val); break;
             case 1 : vcontrol.SetDrawShadows(val); break;
-            case 2 : vcontrol.SetShowLabel(val); break;
-            case 3 : vcontrol.SetShowValue(val); break;
+            case 2 : vcontrol.SetEmboss(val); break;
+            case 3 : vcontrol.SetShowLabel(val); break;
+            case 4 : vcontrol.SetShowValue(val); break;
             default: break;
           }
         });
-      }, label, style.WithValueText(forkAwesomeText.WithSize(12.f)).WithDrawFrame(false).WithDrawShadows(false), ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, true));
+      }, label, style.WithValueText(forkAwesomeText.WithSize(12.f)).WithDrawFrame(false).WithDrawShadows(false), ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, toggle == 2 ? false : true));
       
       toggle++;
     }
@@ -243,11 +244,10 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IVRadioButtonControl(nextCell(), [pGraphics](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
       EVShape shape = (EVShape) dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx();
-      dynamic_cast<IVButtonControl*>(pGraphics->GetControlWithTag(kCtrlTagVectorButton))->SetShape(shape);
-      dynamic_cast<IVTabSwitchControl*>(pGraphics->GetControlWithTag(kCtrlTagTabSwitch))->SetShape(shape);
-      dynamic_cast<IVSliderControl*>(pGraphics->GetControlWithTag(kCtrlTagVectorSlider))->SetShape(shape);
-      dynamic_cast<IVRadioButtonControl*>(pGraphics->GetControlWithTag(kCtrlTagRadioButton))->SetShape(shape);
-
+      pGraphics->ForControlInGroup("vcontrols", [pCaller, shape](IControl& control) {
+        IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
+        vcontrol.SetShape(shape);
+        });
     }, {"Rect", "Ellipse", "Triangle", "EndsRounded", "AllRounded"}, "Shape", style, EVShape::Ellipse, EDirection::Vertical, 10.f), kNoTag);
     
     wideCell = nextCell().Union(nextCell()).Union(nextCell());

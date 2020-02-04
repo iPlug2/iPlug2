@@ -1092,7 +1092,7 @@ void IGraphics::ReleaseMouseCapture()
 
 int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
 {
-  if (!mouseOver || mHandleMouseOver)
+  if (!mouseOver || mEnableMouseOver)
   {
     // Search from front to back
     for (auto c = NControls() - 1; c >= (mouseOver ? 1 : 0); --c)
@@ -1278,7 +1278,7 @@ IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 void IGraphics::EnableTooltips(bool enable)
 {
   mEnableTooltips = enable;
-  if (enable) mHandleMouseOver = true;
+  if (enable) mEnableMouseOver = true;
 }
 
 void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
@@ -1288,7 +1288,7 @@ void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
   {
     if (!mLiveEdit)
     {
-      mLiveEdit = std::make_unique<IGraphicsLiveEdit>(mHandleMouseOver/*, file, gridsize*/);
+      mLiveEdit = std::make_unique<IGraphicsLiveEdit>(mEnableMouseOver/*, file, gridsize*/);
       mLiveEdit->SetDelegate(*GetDelegate());
     }
   }

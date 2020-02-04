@@ -515,7 +515,7 @@ protected:
   bool mMouseEventsWhenDisabled = false;
   bool mIgnoreMouse = false;
   bool mWantsMidi = false;
-  /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
+  /** if mGraphics::mEnableMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
   WDL_String mTooltip;
 
@@ -717,11 +717,13 @@ public:
   void SetRoundness(float roundness) { mStyle.roundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); }
   void SetDrawFrame(bool draw) { mStyle.drawFrame = draw; mControl->SetDirty(false); }
   void SetDrawShadows(bool draw) { mStyle.drawShadows = draw; mControl->SetDirty(false); }
+  void SetEmboss(bool draw) { mStyle.emboss = draw; mControl->SetDirty(false); }
   void SetShadowOffset(float offset) { mStyle.shadowOffset = offset; mControl->SetDirty(false); }
   void SetFrameThickness(float thickness) { mStyle.frameThickness = thickness; mControl->SetDirty(false); }
   void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
   void SetSplashPoint(float x, float y) { mSplashX = x; mSplashY = y; }
-  
+  void SetShape(EVShape shape) { mShape = shape; mControl->SetDirty(false); }
+
   void SetStyle(const IVStyle& style)
   {
     mStyle = style;
@@ -802,47 +804,68 @@ public:
         break;
     }
   }
-  
-  void DrawPressableCircle(IGraphics&g, const IRECT& bounds, float radius, bool pressed, bool mouseOver)
-  {
-    const float cx = bounds.MW(), cy = bounds.MH();
-    
-    if(!pressed && mStyle.drawShadows)
-      g.FillCircle(GetColor(kSH), cx + mStyle.shadowOffset, cy + mStyle.shadowOffset, radius);
-    
-//    if(pressed)
-//      g.DrawCircle(GetColor(kON), cx, cy, radius * 0.9f, 0, mStyle.frameThickness);
-//    else
-    g.FillCircle(GetColor(kFG), cx, cy, radius);
 
-    if(mouseOver)
-      g.FillCircle(GetColor(kHL), cx, cy, radius * 0.8f);
-    
-    if(pressed && mControl->GetAnimationFunction())
-      DrawSplash(g);
-    
-    if(mStyle.drawFrame)
-      g.DrawCircle(GetColor(kFR), cx, cy, radius, 0, mStyle.frameThickness);
-  }
-  
   void DrawPressableEllipse(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
   {
-    if(!pressed && mStyle.drawShadows)
-      g.FillEllipse(GetColor(kSH), bounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset));
-   
-    if(pressed)
-      g.FillEllipse(GetColor(kON), bounds);
-    else
-      g.FillEllipse(GetColor(kFG), bounds);
+    IRECT handleBounds = bounds;
+    IRECT centreBounds = bounds.GetPadded(-mStyle.shadowOffset);
+    IRECT shadowBounds = bounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset);
 
-    if(mouseOver)
-      g.FillEllipse(GetColor(kHL), bounds);
+    if(!pressed && mStyle.drawShadows)
+      g.FillEllipse(GetColor(kSH), shadowBounds);
+   
+    if (pressed)
+    {
+      if (mStyle.emboss)
+      {
+        shadowBounds.ReduceFromRight(mStyle.shadowOffset);
+        shadowBounds.ReduceFromBottom(mStyle.shadowOffset);
+        // Fill background with pressed color and shade it
+        g.FillEllipse(GetColor(kPR), bounds);
+        g.FillEllipse(GetColor(kSH), bounds);
+
+        // Inverse shading for recessed look - shadowBounds = inner shadow
+        g.FillEllipse(GetColor(kFG), shadowBounds);
+
+        // Fill in center with pressed color
+        g.FillEllipse(GetColor(kPR), centreBounds);
+      }
+      else
+        g.FillEllipse(GetColor(kPR), handleBounds);
+    }
+    else
+    {
+      // Embossed style unpressed
+      if (mStyle.emboss)
+      {
+        // Positive light TODO: use thes kPR color for now, maybe change the name?
+        g.FillEllipse(GetColor(kPR), bounds);
+
+        // Negative light TODO: clip this?
+        g.FillEllipse(GetColor(kSH), shadowBounds);
+
+        // Fill in foreground
+        g.FillEllipse(GetColor(kFG), centreBounds);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillEllipse(GetColor(kHL), centreBounds);
+      }
+      else
+      {
+        g.FillEllipse(GetColor(kFG), handleBounds);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillEllipse(GetColor(kHL), handleBounds);
+      }
+    }
     
     if(pressed && mControl->GetAnimationFunction())
-      DrawSplash(g, bounds);
+      DrawSplash(g, handleBounds);
     
     if(mStyle.drawFrame)
-      g.DrawEllipse(GetColor(kFR), bounds, nullptr, mStyle.frameThickness);
+      g.DrawEllipse(GetColor(kFR), handleBounds, nullptr, mStyle.frameThickness);
   }
   
   /** /todo
@@ -852,35 +875,78 @@ public:
    @param mouseOver /todo
    @return /todo */
   IRECT DrawPressableRectangle(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver,
-                               bool roundTopLeft = true, bool roundTopRight = true, bool roundBottomLeft = true, bool roundBottomRight = true)
+                               bool rtl = true, bool rtr = true, bool rbl = true, bool rbr = true)
   {
     IRECT handleBounds = GetAdjustedHandleBounds(bounds);
+    IRECT centreBounds = handleBounds.GetPadded(-mStyle.shadowOffset);
+    IRECT shadowBounds = handleBounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset);
+
     float cR = GetRoundedCornerRadius(handleBounds);
-        
-    const float topLeftR = roundTopLeft ? cR : 0.f;
-    const float topRightR = roundTopRight ? cR : 0.f;
-    const float bottomLeftR = roundBottomLeft ? cR : 0.f;
-    const float bottomRightR = roundBottomRight ? cR : 0.f;
+
+    const float tlr = rtl ? cR : 0.f;
+    const float trr = rtr ? cR : 0.f;
+    const float blr = rbl ? cR : 0.f;
+    const float brr = rbr ? cR : 0.f;
 
     if (pressed)
-      g.FillRoundRect(GetColor(kPR), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+    {
+      shadowBounds.ReduceFromRight(mStyle.shadowOffset);
+      shadowBounds.ReduceFromBottom(mStyle.shadowOffset);
+
+      if (mStyle.emboss)
+      {
+        // Fill background with pressed color and shade it
+        g.FillRoundRect(GetColor(kPR), handleBounds, tlr, trr, blr, brr);
+        g.FillRoundRect(GetColor(kSH), handleBounds, tlr, trr, blr, brr);
+
+        // Inverse shading for recessed look - shadowBounds = inner shadow
+        g.FillRoundRect(GetColor(kFG), shadowBounds, tlr, trr, blr, brr);
+
+        // Fill in center with pressed color
+        g.FillRoundRect(GetColor(kPR), centreBounds, tlr, trr, blr, brr);
+      }
+      else
+      {
+        g.FillRoundRect(GetColor(kPR), handleBounds, tlr, trr, blr, brr);
+      }
+    }
     else
     {
       //outer shadow
       if (mStyle.drawShadows)
-        g.FillRoundRect(GetColor(kSH), handleBounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset), topLeftR, topRightR, bottomLeftR, bottomRightR);
-      
-      g.FillRoundRect(GetColor(kFG), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+        g.FillRoundRect(GetColor(kSH), shadowBounds, tlr, trr, blr, brr);
+
+      // Embossed style unpressed
+      if (mStyle.emboss)
+      {
+        // Positive light TODO: use thes kPR color for now, maybe change the name?
+        g.FillRoundRect(GetColor(kPR), handleBounds, tlr, trr, blr, brr);
+
+        // Negative light TODO: clip this?
+        g.FillRoundRect(GetColor(kSH), shadowBounds, tlr, trr, blr, brr);
+
+        // Fill in foreground
+        g.FillRoundRect(GetColor(kFG), centreBounds, tlr, trr, blr, brr);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillRoundRect(GetColor(kHL), centreBounds, tlr, trr, blr, brr);
+      }
+      else
+      {
+        g.FillRoundRect(GetColor(kFG), handleBounds, tlr, trr, blr, brr);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillRoundRect(GetColor(kHL), handleBounds, tlr, trr, blr, brr);
+      }
     }
-    
-    if(mouseOver)
-      g.FillRoundRect(GetColor(kHL), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
     
     if(pressed && mControl->GetAnimationFunction())
       DrawSplash(g, handleBounds);
     
     if(mStyle.drawFrame)
-      g.DrawRoundRect(GetColor(kFR), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR, 0, mStyle.frameThickness);
+      g.DrawRoundRect(GetColor(kFR), handleBounds, tlr, trr, blr, brr, 0, mStyle.frameThickness);
     
     return handleBounds;
   }
@@ -963,7 +1029,7 @@ public:
       if(CStringHasContents(mValueStr.Get()))
         mControl->GetUI()->MeasureText(mStyle.valueText, mValueStr.Get(), textRect);
 
-      const float valueDisplayWidth = textRect.W() * 0.5f;
+      const float valueDisplayWidth = textRect.W() * mValueDisplayFrac;
 
       switch (mStyle.valueText.mVAlign)
       {
@@ -1012,11 +1078,14 @@ protected:
   float mSplashX = 0.f;
   float mSplashY = 0.f;
   float mMaxSplashRadius = 50.f;
+  float mIndicatorTrackThickness = 2.f;
+  float mValueDisplayFrac = 0.66f; // the fraction of the control width for the text entry
   IRECT mWidgetBounds; // The knob/slider/button
   IRECT mLabelBounds; // A piece of text above the control
   IRECT mValueBounds; // Text below the contol, usually displaying the value of a parameter
   WDL_String mLabelStr;
   WDL_String mValueStr;
+  EVShape mShape = EVShape::Rectangle;
 };
 
 /** A base class for knob/dial controls, to handle mouse action and Sender. */
