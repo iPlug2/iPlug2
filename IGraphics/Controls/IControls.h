@@ -367,6 +367,26 @@ protected:
   float mInnerPadding = 0.f;
 };
 
+class IVColorSwatchControl : public IControl
+                           , public IVectorBase
+{
+public:
+  enum class ECellLayout { kGrid, kHorizontal, kVertical };
+  
+  IVColorSwatchControl(const IRECT& bounds, const IVColorSpec& spec = DEFAULT_COLOR_SPEC, ECellLayout layout = ECellLayout::kGrid);
+  void Draw(IGraphics& g) override;
+  void OnResize() override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  
+private:
+  int mCellOver = -1;
+  int mCellClicked = -1;
+  ECellLayout mLayout = ECellLayout::kVertical;
+  WDL_TypedBuf<IRECT> mCellRects;
+};
+
 #pragma mark - SVG Vector Controls
 
 /** A vector knob/dial control which rotates an SVG image */
