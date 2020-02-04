@@ -742,6 +742,11 @@ struct IRECT
     B = T + (float) bitmap.FH();
   }
 
+  static IRECT MakeXYWH(float l, float t, float w, float h)
+  {
+    return IRECT(l, t, l+w, t+h);
+  }
+  
   /** @return true */
   bool Empty() const
   {
