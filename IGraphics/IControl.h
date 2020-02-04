@@ -831,35 +831,76 @@ public:
    @param mouseOver /todo
    @return /todo */
   IRECT DrawPressableRectangle(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver,
-                               bool roundTopLeft = true, bool roundTopRight = true, bool roundBottomLeft = true, bool roundBottomRight = true)
+                               bool rtl = true, bool rtr = true, bool rbl = true, bool rbr = true)
   {
     IRECT handleBounds = GetAdjustedHandleBounds(bounds);
+    IRECT centreBounds = handleBounds.GetPadded(-mStyle.shadowOffset);
+    IRECT shadowBounds = handleBounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset);
+
     float cR = GetRoundedCornerRadius(handleBounds);
-        
-    const float topLeftR = roundTopLeft ? cR : 0.f;
-    const float topRightR = roundTopRight ? cR : 0.f;
-    const float bottomLeftR = roundBottomLeft ? cR : 0.f;
-    const float bottomRightR = roundBottomRight ? cR : 0.f;
+
+    const float tlr = rtl ? cR : 0.f;
+    const float trr = rtr ? cR : 0.f;
+    const float blr = rbl ? cR : 0.f;
+    const float brr = rbr ? cR : 0.f;
 
     if (pressed)
-      g.FillRoundRect(GetColor(kPR), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+    {
+      shadowBounds.ReduceFromRight(mStyle.shadowOffset);
+      shadowBounds.ReduceFromBottom(mStyle.shadowOffset);
+
+      if (mStyle.emboss)
+      {
+        // Fill background with pressed color and shade it
+        g.FillRoundRect(GetColor(kPR), handleBounds, tlr, trr, blr, brr);
+        g.FillRoundRect(GetColor(kSH), handleBounds, tlr, trr, blr, brr);
+
+        // Inverse shading for recessed look - shadowBounds = inner shadow
+        g.FillRoundRect(GetColor(kFG), shadowBounds, tlr, trr, blr, brr);
+
+        // Fill in center with pressed color
+        g.FillRoundRect(GetColor(kPR), centreBounds, tlr, trr, blr, brr);
+      }
+      else
+      {
+        g.FillRoundRect(GetColor(kPR), handleBounds, tlr, trr, blr, brr);
+      }
+    }
     else
     {
       //outer shadow
       if (mStyle.drawShadows)
-        g.FillRoundRect(GetColor(kSH), handleBounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset), topLeftR, topRightR, bottomLeftR, bottomRightR);
+        g.FillRoundRect(GetColor(kSH), shadowBounds, tlr, trr, blr, brr);
+
+      // Embossed style unpressed
+      if (mStyle.emboss)
+      {
+        // Positive light (TODO: use the Pressed color for now, maybe change the name?
+        g.FillRoundRect(GetColor(kPR), handleBounds, tlr, trr, blr, brr);
+
+        // Negative light
+        g.FillRoundRect(GetColor(kSH), shadowBounds, tlr, trr, blr, brr);
+
+        // Fill in foreground
+        g.FillRoundRect(GetColor(kFG), centreBounds, tlr, trr, blr, brr);
+
+        // Shade when hovered
+        if (mouseOver)
+          g.FillRoundRect(GetColor(kHL), centreBounds, tlr, trr, blr, brr);
+      }
+      else
+        g.FillRoundRect(GetColor(kFG), handleBounds, tlr, trr, blr, brr);
       
-      g.FillRoundRect(GetColor(kFG), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
     }
     
     if(mouseOver)
-      g.FillRoundRect(GetColor(kHL), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR);
+      g.FillRoundRect(GetColor(kHL), handleBounds, tlr, trr, blr, brr);
     
     if(pressed && mControl->GetAnimationFunction())
       DrawSplash(g, handleBounds);
     
     if(mStyle.drawFrame)
-      g.DrawRoundRect(GetColor(kFR), handleBounds, topLeftR, topRightR, bottomLeftR, bottomRightR, 0, mStyle.frameThickness);
+      g.DrawRoundRect(GetColor(kFR), handleBounds, tlr, trr, blr, brr, 0, mStyle.frameThickness);
     
     return handleBounds;
   }
