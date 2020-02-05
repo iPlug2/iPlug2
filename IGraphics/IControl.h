@@ -584,8 +584,8 @@ public:
       i = 1 + int(0.5 + mControl->GetValue() * (double) (mBitmap.N() - 1));
       i = Clip(i, 1, mBitmap.N());
     }
-    
-    g.DrawBitmap(mBitmap, mControl->GetRECT(), i, &mControl->GetBlend());
+    IBlend blend = mControl->GetBlend();
+    g.DrawBitmap(mBitmap, mControl->GetRECT(), i, &blend);
   }
 
 protected:
@@ -753,7 +753,8 @@ public:
   
   virtual void DrawBackGround(IGraphics& g, const IRECT& rect)
   {
-    g.FillRect(GetColor(kBG), rect);
+    IBlend blend = mControl->GetBlend();
+    g.FillRect(GetColor(kBG), rect, &blend);
   }
   
   virtual void DrawWidget(IGraphics& g)
@@ -763,8 +764,11 @@ public:
   
   virtual void DrawLabel(IGraphics& g)
   {
-    if(mLabelBounds.H() && mStyle.showLabel)
-      g.DrawText(mStyle.labelText, mLabelStr.Get(), mLabelBounds, &mControl->GetBlend());
+    if (mLabelBounds.H() && mStyle.showLabel)
+    {
+      IBlend blend = mControl->GetBlend();
+      g.DrawText(mStyle.labelText, mLabelStr.Get(), mLabelBounds, &blend);
+    }
   }
   
   virtual void DrawValue(IGraphics& g, bool mouseOver)
@@ -772,8 +776,11 @@ public:
     if(mouseOver)
       g.FillRect(COLOR_TRANSLUCENT, mValueBounds);
     
-    if(mStyle.showValue)
-      g.DrawText(mStyle.valueText, mValueStr.Get(), mValueBounds, &mControl->GetBlend());
+    if (mStyle.showValue)
+    {
+      IBlend blend = mControl->GetBlend();
+      g.DrawText(mStyle.valueText, mValueStr.Get(), mValueBounds, &blend);
+    }
   }
   
   void DrawHandle(IGraphics& g, EVShape shape, const IRECT& bounds, bool pressed, bool mouseOver, bool disabled)
