@@ -996,21 +996,29 @@ void IVPlotControl::Draw(IGraphics& g)
 {
   DrawBackGround(g, mRECT);
   DrawLabel(g);
-  
+
+  float hdiv = mWidgetBounds.W() / static_cast<float>(mHorizontalDivisions);
+  float vdiv = mWidgetBounds.H() / static_cast<float>(mVerticalDivisions + 2);
+
+  IRECT plotsRECT = mWidgetBounds.GetVPadded(-vdiv);
+
   auto drawFunc = [&](){
-    g.DrawGrid(GetColor(kSH), mWidgetBounds, 8.f, 8.f);
+    g.DrawGrid(GetColor(kSH), mWidgetBounds, hdiv, vdiv);
         
     for (int p=0; p<mPlots.size(); p++)
     {
-      for (int i=0; i< mPoints.size(); i++)
+      for (int i=0; i<mPoints.size(); i++)
       {
-        auto v = mPlots[p].func(((float)i/(mPoints.size() -1.f)));
+        auto v = mPlots[p].func((static_cast<float>(i)/static_cast<float>(mPoints.size() - 1)));
         v = (v - mMin) / (mMax-mMin);
         mPoints[i] = static_cast<float>(v);
       }
       
-      g.DrawData(mPlots[p].color, mWidgetBounds, mPoints.data(), (int) mPoints.size(), nullptr, nullptr, mStyle.frameThickness);
+      g.DrawData(mPlots[p].color, plotsRECT, mPoints.data(), static_cast<int>(mPoints.size()), nullptr, nullptr, mIndicatorTrackThickness);
     }
+
+    if (mStyle.drawFrame)
+      g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
   };
   
   if(mUseLayer)

@@ -180,7 +180,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
                                                             {COLOR_BLUE, [](double x){ return std::cos(x * 6.2);} },
                                                             {COLOR_GREEN, [](double x){ return x > 0.5;} }
 
-                                                            }, 32, "IVPlotControl", style.WithFrameThickness(3.f)), kNoTag, "vcontrols");
+                                                            }, 32, "IVPlotControl", style), kNoTag, "vcontrols");
     
 #pragma mark -
     cellIdx = 31;

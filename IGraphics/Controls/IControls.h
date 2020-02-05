@@ -341,6 +341,9 @@ protected:
   float mMin;
   float mMax;
   bool mUseLayer = true;
+  int mHorizontalDivisions = 10;
+  int mVerticalDivisions = 10; // allways + 2 when drawing
+  
   std::vector<float> mPoints;
 };
 
