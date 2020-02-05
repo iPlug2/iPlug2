@@ -443,7 +443,8 @@ EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent* pEvent, void* 
               static_cast<uintptr_t>(pEvent->touches[i].identifier)
     };
     
-    points.push_back(info);
+    if(pEvent->isChanged)
+      points.push_back(info);
   }
   
   switch (eventType)
