@@ -1429,7 +1429,7 @@ void IBSliderControl::OnResize()
 void IBKnobRotaterControl::Draw(IGraphics& g)
 {
   double angle = -130.0 + GetValue() * 260.0;
-  g.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle);
+  g.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle, 0, &mBlend);
 }
 
 IBTextControl::IBTextControl(const IRECT& bounds, const IBitmap& bitmap, const IText& text, const char* str, int charWidth, int charHeight, int charOffset, bool multiLine, bool vCenter, EBlend blend)
