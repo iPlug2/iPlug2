@@ -35,7 +35,7 @@ public:
     std::vector<uintptr_t> touches;
     g.GetTouches(this, touches);
     WDL_String str;
-    str.SetFormatted(32, "NUM TOUCHES: %i", touches.size());
+    str.SetFormatted(32, "NUM TOUCHES: %i", static_cast<int>(touches.size()));
     g.DrawText(IText(20), str.Get(), mRECT);
 
     g.DrawRect(COLOR_BLACK, mRECT);
