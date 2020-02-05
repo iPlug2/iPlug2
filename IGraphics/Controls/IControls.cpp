@@ -385,7 +385,7 @@ void IVTabSwitchControl::DrawWidget(IGraphics& g)
     
     if (mTabLabels.Get(i))
     {
-      g.DrawText(mText, mTabLabels.Get(i)->Get(), r, &mBlend);
+      g.DrawText(mStyle.valueText, mTabLabels.Get(i)->Get(), r, &mBlend);
     }
   }
 }
@@ -1125,28 +1125,47 @@ void IVGroupControl::SetBoundsBasedOnGroup(const char* groupName, float padding)
   OnResize();
 }
 
-IVColorSwatchControl::IVColorSwatchControl(const IRECT& bounds, const IVColorSpec& spec, ECellLayout layout)
+IVColorSwatchControl::IVColorSwatchControl(const IRECT& bounds, const char* label, ColorChosenFunc func, const IVStyle& style, ECellLayout layout,
+  const std::initializer_list<int>& colorIDs, const std::initializer_list<const char*>& labelsForIDs)
 : IControl(bounds)
-, IVectorBase(DEFAULT_STYLE.WithColors(spec))
+, IVectorBase(style)
 , mLayout(layout)
+, mColorIdForCells(colorIDs)
+, mColorChosenFunc(func)
 {
-  AttachIControl(this, "");
-  mCellRects.Resize(mColors.GetSize());
+  AttachIControl(this, label);
+  mCellRects.Resize(mColorIdForCells.size());
+  mText.mAlign = EAlign::Far;
+
+  for (int i=0;i<colorIDs.size();i++)
+  {
+    mLabels.Add(new WDL_String(labelsForIDs.begin()[i]));
+  }
 }
 
 void IVColorSwatchControl::Draw(IGraphics& g)
 {
-  g.FillRect(COLOR_WHITE, mRECT);
-  
-  for (int i=0; i<mColors.GetSize(); i++)
+  //DrawBackGround(g, mRECT);
+  DrawWidget(g);
+  DrawLabel(g);
+  //DrawValue(g, false);
+}
+
+void IVColorSwatchControl::DrawWidget(IGraphics& g)
+{  
+  for (int i=0; i< mColorIdForCells.size(); i++)
   {
-    g.FillRect(GetColor(i), mCellRects.Get()[i]);
-    g.DrawRect(i == mCellOver ? COLOR_GRAY : COLOR_DARK_GRAY, mCellRects.Get()[i].GetPadded(0.5f));
+    IRECT r = mCellRects.Get()[i];
+    g.FillRect(GetColor(mColorIdForCells[i]), r.FracRectHorizontal(0.25, true), &mBlend);
+    g.DrawRect(i == mCellOver ? COLOR_GRAY : COLOR_DARK_GRAY, r.FracRectHorizontal(0.25, true).GetPadded(0.5f), &mBlend);
+    g.DrawText(mText, mLabels.Get(i)->Get(), r.FracRectHorizontal(0.7, false), &mBlend);
   }
 }
 
 void IVColorSwatchControl::OnResize()
 {
+  SetTargetRECT(MakeRects(mRECT, true));
+
   int rows, columns;
   
   if(mLayout == ECellLayout::kGrid)
@@ -1157,18 +1176,20 @@ void IVColorSwatchControl::OnResize()
   else if (mLayout == ECellLayout::kHorizontal)
   {
     rows = 1;
-    columns = 9;
+    columns = mColorIdForCells.size();
   }
   else if (mLayout == ECellLayout::kVertical)
   {
-    rows = 9;
+    rows = mColorIdForCells.size();
     columns = 1;
   }
   
-  for (int i=0; i<mColors.GetSize(); i++)
+  for (int i=0; i< mColorIdForCells.size(); i++)
   {
-    mCellRects.Get()[i] = mRECT.GetGridCell(i, rows, columns).GetPadded(-1);
+    mCellRects.Get()[i] = mWidgetBounds.GetGridCell(i, rows, columns).GetPadded(-2);
   }
+
+  SetDirty(false);
 }
 
 void IVColorSwatchControl::OnMouseOver(float x, float y, const IMouseMod& mod)
@@ -1212,6 +1233,8 @@ void IVColorSwatchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     IColor c = GetColor(mCellClicked);
     GetUI()->PromptForColor(c, "Choose a color", [&](const IColor& result) {
       SetColor(mCellClicked, result);
+      if(mColorChosenFunc)
+        mColorChosenFunc(mCellClicked, c);
     });
   }
 }

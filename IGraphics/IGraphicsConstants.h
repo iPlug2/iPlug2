@@ -111,9 +111,9 @@ enum EVColor
 
 static const char* kVColorStrs[kNumDefaultVColors] =
 {
-  "background",
-  "foreground/off states",
-  "pressed/on states",
+  "bg",
+  "fg/off ",
+  "pressed/on",
   "frame",
   "highlight",
   "shadow",

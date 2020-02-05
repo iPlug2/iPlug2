@@ -372,18 +372,27 @@ class IVColorSwatchControl : public IControl
 public:
   enum class ECellLayout { kGrid, kHorizontal, kVertical };
   
-  IVColorSwatchControl(const IRECT& bounds, const IVColorSpec& spec = DEFAULT_COLOR_SPEC, ECellLayout layout = ECellLayout::kGrid);
+  using ColorChosenFunc = std::function<void(int, IColor)>;
+
+  IVColorSwatchControl(const IRECT& bounds, const char* label = "", ColorChosenFunc func = nullptr, const IVStyle& spec = DEFAULT_STYLE, ECellLayout layout = ECellLayout::kGrid,
+    const std::initializer_list<int>& colorIDs = { kBG, kFG, kPR, kFR, kHL, kSH, kX1, kX2, kX3 },
+    const std::initializer_list<const char*>& labelsForIDs = { kVColorStrs[kBG],kVColorStrs[kFG],kVColorStrs[kPR],kVColorStrs[kFR],kVColorStrs[kHL],kVColorStrs[kSH],kVColorStrs[kX1],kVColorStrs[kX2],kVColorStrs[kX3] });
   void Draw(IGraphics& g) override;
-  void OnResize() override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  
+  void OnResize() override;
+
+  void DrawWidget(IGraphics& g) override;
+
 private:
+  ColorChosenFunc mColorChosenFunc = nullptr;
   int mCellOver = -1;
   int mCellClicked = -1;
   ECellLayout mLayout = ECellLayout::kVertical;
   WDL_TypedBuf<IRECT> mCellRects;
+  WDL_PtrList<WDL_String> mLabels;
+  std::vector<int> mColorIdForCells;
 };
 
 #pragma mark - SVG Vector Controls

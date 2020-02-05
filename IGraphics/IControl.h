@@ -722,6 +722,8 @@ public:
     mColors.Resize(kNumDefaultVColors); // TODO?
     SetColors(style.colorSpec);
   }
+
+  IVStyle GetStyle() const { return mStyle; }
   
   IRECT GetAdjustedHandleBounds(IRECT handleBounds) const
   {

@@ -160,17 +160,10 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IVMultiSliderControl<4>(nextCell(), "IVMultiSliderControl", style), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVMeterControl<2>(nextCell(), "IVMeterControl", style), kCtrlTagMeter, "vcontrols");
     pGraphics->AttachControl(new IVScopeControl<2>(nextCell(), "IVScopeControl", style.WithColor(kFG, COLOR_BLACK)), kCtrlTagScope, "vcontrols");
-//    pGraphics->AttachControl(new IVCustomControl(nextCell(), "IVCustomControl", style), kNoTag, "vcontrols");
     
     IRECT wideCell;
-#ifndef OS_WEB
-    wideCell = nextCell().Union(nextCell());
-    pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "File Browser (IDirBrowseControlBase) demo", style.labelText));
-    pGraphics->AttachControl(new FileBrowser(wideCell.GetReducedFromTop(20.f)));
-#else
     nextCell();
     nextCell();
-#endif
     wideCell = nextCell().Union(nextCell()).Union(nextCell()).Union(nextCell());
     pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "IVKeyboardControl", style.labelText));
     pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72), kNoTag);
@@ -249,34 +242,44 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
         vcontrol.SetShape(shape);
         });
     }, {"Rect", "Ellipse", "Triangle", "EndsRounded", "AllRounded"}, "Shape", style, EVShape::Ellipse, EDirection::Vertical, 10.f), kNoTag);
-    
-    wideCell = nextCell().Union(nextCell()).Union(nextCell());
-    for(int colorIdx = 0; colorIdx < kNumDefaultVColors; colorIdx++)
-    {
-      IRECT r = wideCell.GetGridCell(colorIdx, 3, 3);
-      pGraphics->AttachControl(new IVButtonControl(r, [pGraphics, colorIdx](IControl* pCaller){
-        SplashClickActionFunc(pCaller);
-        IColor currentColor = dynamic_cast<IVButtonControl*>(pCaller)->GetColor(kFG);
-        pGraphics->PromptForColor(currentColor, "", [pCaller, pGraphics, colorIdx](const IColor& result) {
-          dynamic_cast<IVButtonControl*>(pCaller)->SetColor(kFG, result);
-          pGraphics->ForControlInGroup("vcontrols", [pCaller, colorIdx, result](IControl& control) {
-            dynamic_cast<IVectorBase&>(control).SetColor(colorIdx, result);
-          });
-        });
-      }, kVColorStrs[colorIdx], style.WithColor(kFG, DEFAULT_COLOR_SPEC.mColors[colorIdx]).WithDrawFrame(false).WithDrawShadows(false)));
-    }
-    
-    pGraphics->AttachControl(new IVButtonControl(nextCell(), [pGraphics](IControl* pCaller) {
-      SplashClickActionFunc(pCaller);
-      
-      IPanelControl* pPanel = dynamic_cast<IPanelControl*>(pGraphics->GetBackgroundControl());
-      IColor color = pPanel->GetPattern().GetStop(0).mColor;
-      pGraphics->PromptForColor(color, "", [pCaller, pGraphics, pPanel](const IColor& result){
-        dynamic_cast<IVButtonControl*>(pCaller)->SetColor(kFG, result);
-        pPanel->SetPattern(result);
-      });
 
-    }, "Background", style.WithColor(kFG, DEFAULT_GRAPHICS_BGCOLOR).WithDrawFrame(false).WithDrawShadows(false)));
+    auto setColors = [pGraphics](int cell, IColor color) {
+      pGraphics->ForControlInGroup("vcontrols", [cell, color](IControl& control) {
+        dynamic_cast<IVectorBase&>(control).SetColor(cell, color);
+        });
+    };
+
+    pGraphics->AttachControl(new IVColorSwatchControl(nextCell(), "ColorSpec", setColors, style, IVColorSwatchControl::ECellLayout::kVertical));
+
+    auto setBGColor = [pGraphics](int cell, IColor color) {
+      dynamic_cast<IPanelControl*>(pGraphics->GetBackgroundControl())->SetPattern(color);
+    };
+
+    pGraphics->AttachControl(new IVColorSwatchControl(nextCell().SubRectVertical(3, 0), "", setBGColor, style.WithColors({COLOR_GRAY}), IVColorSwatchControl::ECellLayout::kVertical, {kBG}, { "Background" }));
+
+    auto setLabelTextColor = [pGraphics](int cell, IColor color) {
+      pGraphics->ForControlInGroup("vcontrols", [cell, color](IControl& control) {
+        IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
+        IVStyle currentStyle = vcontrol.GetStyle();
+        IText currentLabelText = currentStyle.labelText;
+        vcontrol.SetStyle(currentStyle.WithLabelText(currentLabelText.WithFGColor(color)));
+        control.SetDirty(false);
+        });
+    };
+
+    pGraphics->AttachControl(new IVColorSwatchControl(sameCell().SubRectVertical(3, 1), "", setLabelTextColor, style.WithColor(kBG, DEFAULT_TEXT_FGCOLOR), IVColorSwatchControl::ECellLayout::kVertical, { kBG }, { "Label Text" }));
+
+    auto setValueTextColor = [pGraphics](int cell, IColor color) {
+      pGraphics->ForControlInGroup("vcontrols", [cell, color](IControl& control) {
+        IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
+        IVStyle currentStyle = vcontrol.GetStyle();
+        IText currentValueText = currentStyle.valueText;
+        vcontrol.SetStyle(currentStyle.WithValueText(currentValueText.WithFGColor(color)));
+        control.SetDirty(false);
+        });
+    };
+
+    pGraphics->AttachControl(new IVColorSwatchControl(sameCell().SubRectVertical(3, 2), "", setValueTextColor, style.WithColor(kBG, DEFAULT_TEXT_FGCOLOR), IVColorSwatchControl::ECellLayout::kVertical, { kBG }, { "Value Text" }));
 
     nextCell();
     toggle = 0;
