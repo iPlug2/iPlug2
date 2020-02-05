@@ -2200,22 +2200,10 @@ struct IShadow
   bool mDrawForeground = true;
 };
 
-/** Contains a set of colors used to theme IVControls */
+/** Contains a set of 9 colors used to theme IVControls */
 struct IVColorSpec
 {
   IColor mColors[kNumDefaultVColors];
-  
-  void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
-                 const IColor FGColor = DEFAULT_FGCOLOR,
-                 const IColor PRColor = DEFAULT_PRCOLOR,
-                 const IColor FRColor = DEFAULT_FRCOLOR,
-                 const IColor HLColor = DEFAULT_HLCOLOR,
-                 const IColor SHColor = DEFAULT_SHCOLOR,
-                 const IColor X1Color = DEFAULT_X1COLOR,
-                 const IColor X2Color = DEFAULT_X2COLOR,
-                 const IColor X3Color = DEFAULT_X3COLOR)
-  {
-  }
   
   const IColor& GetColor(EVColor color) const
   {
@@ -2239,20 +2227,12 @@ struct IVColorSpec
         return COLOR_TRANSPARENT;
     };
   }
-  
+
   IVColorSpec()
   {
-    mColors[kBG] = DEFAULT_BGCOLOR; // Background
-    mColors[kFG] = DEFAULT_FGCOLOR; // Foreground
-    mColors[kPR] = DEFAULT_PRCOLOR; // Pressed
-    mColors[kFR] = DEFAULT_FRCOLOR; // Frame
-    mColors[kHL] = DEFAULT_HLCOLOR; // Highlight
-    mColors[kSH] = DEFAULT_SHCOLOR; // Shadow
-    mColors[kX1] = DEFAULT_X1COLOR; // Extra 1
-    mColors[kX2] = DEFAULT_X2COLOR; // Extra 2
-    mColors[kX3] = DEFAULT_X3COLOR; // Extra 3
+    ResetColors();
   }
-  
+
   IVColorSpec(const std::initializer_list<IColor>& colors)
   {
     assert(colors.size() <= kNumDefaultVColors);
@@ -2270,8 +2250,14 @@ struct IVColorSpec
     }
   }
   
-  /** /todo  */
-  void ResetColors() { SetColors(); }
+  /** Reset the colors to the defaults  */
+  void ResetColors()
+  {
+    for (int i =0; i < kNumDefaultVColors; i++)
+    {
+      mColors[i] = GetDefaultColor((EVColor) i);
+    }
+  }
 };
 
 const IVColorSpec DEFAULT_COLOR_SPEC = IVColorSpec();
