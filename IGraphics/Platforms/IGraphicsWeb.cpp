@@ -457,9 +457,9 @@ EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent* pEvent, void* 
     case EMSCRIPTEN_EVENT_TOUCHMOVE:
       pGraphics->OnMouseDrag(points);
       return true;
-//    case EMSCRIPTEN_EVENT_TOUCHCANCEL:
-//      e = ETouchEvent::Cancelled;
-//      break;
+   case EMSCRIPTEN_EVENT_TOUCHCANCEL:
+      pGraphics->OnTouchCancelled(points);
+      return true;
     default:
       return false;
   }
