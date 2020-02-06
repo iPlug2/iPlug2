@@ -284,6 +284,13 @@ public:
    * @param txt An IText struct with the desired formatting */
   void SetText(const IText& txt) { mText = txt; }
 
+  /** Set the Blend for this control. This can be used differently by different controls, or not at all.
+   *  By default it is used to change the opacity of controls when they are disabled */
+  void SetBlend(const IBlend& blend) { mBlend = blend; }
+
+  /** Get the Blend for this control */
+  IBlend GetBlend() const { return mBlend; }
+
   /** Get the max number of characters that are allowed in text entry 
    * @return int The max number of characters allowed in text entry */
   int GetTextEntryLength() const { return mTextEntryLength; }
@@ -340,7 +347,7 @@ public:
   /** @return \c true if the control is hidden. */
   bool IsHidden() const { return mHide; }
 
-  /** Sets disabled mode for the control
+  /** Sets disabled mode for the control, the default implementation modifies the mBlend member
    * @param disable \c true for disabled */
   virtual void SetDisabled(bool disable);
   
@@ -516,7 +523,7 @@ protected:
   WDL_String mGroup;
   
   IText mText;
-
+  IBlend mBlend;
   int mTextEntryLength = DEFAULT_TEXT_ENTRY_LEN;
   bool mDirty = true;
   bool mHide = false;
@@ -569,32 +576,18 @@ private:
  * @{
  */
 
-/** A base interface, to be combined with IControl for bitmap-based controls "IBControls", managing an IBitmap and IBlend */
+/** A base interface, to be combined with IControl for bitmap-based controls "IBControls", managing an IBitmap */
 class IBitmapBase
 {
 public:
-  IBitmapBase(const IBitmap& bitmap, EBlend blend = EBlend::Default)
+  IBitmapBase(const IBitmap& bitmap)
   : mBitmap(bitmap)
-  , mBlend(blend)
   {
   }
   
   virtual ~IBitmapBase() {}
   
-  void AttachIControl(IControl* pControl)
-  {
-    mControl = pControl;
-  }
-  
-  void SetDisabled(bool disable)
-  {
-    mBlend.mWeight = (disable ? GRAYED_ALPHA : 1.0f);
-  }
-  
-  void SetBlend(const IBlend& blend)
-  {
-    mBlend = blend;
-  }
+  void AttachIControl(IControl* pControl) { mControl = pControl; }
   
   void DrawBitmap(IGraphics& g)
   {
@@ -604,13 +597,12 @@ public:
       i = 1 + int(0.5 + mControl->GetValue() * (double) (mBitmap.N() - 1));
       i = Clip(i, 1, mBitmap.N());
     }
-    
-    g.DrawBitmap(mBitmap, mControl->GetRECT(), i, &mBlend);
+    IBlend blend = mControl->GetBlend();
+    g.DrawBitmap(mBitmap, mControl->GetRECT(), i, &blend);
   }
 
 protected:
   IBitmap mBitmap;
-  IBlend mBlend;
   IControl* mControl = nullptr;
 };
 
@@ -743,6 +735,8 @@ public:
     mColors.Resize(kNumDefaultVColors); // TODO?
     SetColors(style.colorSpec);
   }
+
+  IVStyle GetStyle() const { return mStyle; }
   
   IRECT GetAdjustedHandleBounds(IRECT handleBounds) const
   {
@@ -772,7 +766,8 @@ public:
   
   virtual void DrawBackGround(IGraphics& g, const IRECT& rect)
   {
-    g.FillRect(GetColor(kBG), rect);
+    IBlend blend = mControl->GetBlend();
+    g.FillRect(GetColor(kBG), rect, &blend);
   }
   
   virtual void DrawWidget(IGraphics& g)
@@ -782,8 +777,11 @@ public:
   
   virtual void DrawLabel(IGraphics& g)
   {
-    if(mLabelBounds.H() && mStyle.showLabel)
-      g.DrawText(mStyle.labelText, mLabelStr.Get(), mLabelBounds);
+    if (mLabelBounds.H() && mStyle.showLabel)
+    {
+      IBlend blend = mControl->GetBlend();
+      g.DrawText(mStyle.labelText, mLabelStr.Get(), mLabelBounds, &blend);
+    }
   }
   
   virtual void DrawValue(IGraphics& g, bool mouseOver)
@@ -791,40 +789,45 @@ public:
     if(mouseOver)
       g.FillRect(COLOR_TRANSLUCENT, mValueBounds);
     
-    if(mStyle.showValue)
-      g.DrawText(mStyle.valueText, mValueStr.Get(), mValueBounds);
+    if (mStyle.showValue)
+    {
+      IBlend blend = mControl->GetBlend();
+      g.DrawText(mStyle.valueText, mValueStr.Get(), mValueBounds, &blend);
+    }
   }
   
-  void DrawHandle(IGraphics& g, EVShape shape, const IRECT& bounds, bool pressed, bool mouseOver)
+  void DrawHandle(IGraphics& g, EVShape shape, const IRECT& bounds, bool pressed, bool mouseOver, bool disabled)
   {
     switch (shape)
     {
-      case EVShape::Ellipse:
-        DrawPressableEllipse(g, bounds, pressed, mouseOver);
-        break;
-      case EVShape::Rectangle:
-        DrawPressableRectangle(g, bounds, pressed, mouseOver);
-        break;
-      case EVShape::Triangle:
-        DrawPressableTriangle(g, bounds, pressed, mouseOver, mStyle.angle);
-        break;
-      case EVShape::EndsRounded:
-        DrawPressableRectangle(g, bounds, pressed, mouseOver, true, true, false, false);
-        break;
-      case EVShape::AllRounded:
-        DrawPressableRectangle(g, bounds, pressed, mouseOver, true, true, true, true);
-      default:
-        break;
+    case EVShape::Ellipse:
+      DrawPressableEllipse(g, bounds, pressed, mouseOver, disabled);
+      break;
+    case EVShape::Rectangle:
+      DrawPressableRectangle(g, bounds, pressed, mouseOver, disabled);
+      break;
+    case EVShape::Triangle:
+      DrawPressableTriangle(g, bounds, pressed, mouseOver, mStyle.angle, disabled);
+      break;
+    case EVShape::EndsRounded:
+      DrawPressableRectangle(g, bounds, pressed, mouseOver, disabled, true, true, false, false);
+      break;
+    case EVShape::AllRounded:
+      DrawPressableRectangle(g, bounds, pressed, mouseOver, disabled, true, true, true, true);
+    default:
+      break;
     }
   }
 
-  void DrawPressableEllipse(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver)
+  void DrawPressableEllipse(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver, bool disabled)
   {
     IRECT handleBounds = bounds;
     IRECT centreBounds = bounds.GetPadded(-mStyle.shadowOffset);
     IRECT shadowBounds = bounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset);
-
-    if(!pressed && mStyle.drawShadows)
+    const IBlend blend = mControl->GetBlend();
+    const float contrast = disabled ? -GRAYED_ALPHA : 0.f;
+    
+    if(!pressed && !disabled && mStyle.drawShadows)
       g.FillEllipse(GetColor(kSH), shadowBounds);
    
     if (pressed)
@@ -834,17 +837,17 @@ public:
         shadowBounds.ReduceFromRight(mStyle.shadowOffset);
         shadowBounds.ReduceFromBottom(mStyle.shadowOffset);
         // Fill background with pressed color and shade it
-        g.FillEllipse(GetColor(kPR), bounds);
-        g.FillEllipse(GetColor(kSH), bounds);
+        g.FillEllipse(GetColor(kPR), bounds, &blend);
+        g.FillEllipse(GetColor(kSH), bounds, &blend);
 
         // Inverse shading for recessed look - shadowBounds = inner shadow
-        g.FillEllipse(GetColor(kFG), shadowBounds);
+        g.FillEllipse(GetColor(kFG).WithContrast(contrast), shadowBounds/*, &blend*/);
 
         // Fill in center with pressed color
-        g.FillEllipse(GetColor(kPR), centreBounds);
+        g.FillEllipse(GetColor(kPR).WithContrast(contrast), centreBounds/*, &blend*/);
       }
       else
-        g.FillEllipse(GetColor(kPR), handleBounds);
+        g.FillEllipse(GetColor(kPR).WithContrast(contrast), handleBounds/*, &blend*/);
     }
     else
     {
@@ -852,25 +855,25 @@ public:
       if (mStyle.emboss)
       {
         // Positive light TODO: use thes kPR color for now, maybe change the name?
-        g.FillEllipse(GetColor(kPR), bounds);
+        g.FillEllipse(GetColor(kPR).WithContrast(contrast), bounds/*, &blend*/);
 
         // Negative light TODO: clip this?
-        g.FillEllipse(GetColor(kSH), shadowBounds);
+        g.FillEllipse(GetColor(kSH).WithContrast(contrast), shadowBounds/*, &blend*/);
 
         // Fill in foreground
-        g.FillEllipse(GetColor(kFG), centreBounds);
+        g.FillEllipse(GetColor(kFG).WithContrast(contrast), centreBounds/*, &blend*/);
 
         // Shade when hovered
         if (mouseOver)
-          g.FillEllipse(GetColor(kHL), centreBounds);
+          g.FillEllipse(GetColor(kHL), centreBounds, &blend);
       }
       else
       {
-        g.FillEllipse(GetColor(kFG), handleBounds);
+        g.FillEllipse(GetColor(kFG).WithContrast(contrast), handleBounds/*, &blend*/);
 
         // Shade when hovered
         if (mouseOver)
-          g.FillEllipse(GetColor(kHL), handleBounds);
+          g.FillEllipse(GetColor(kHL), handleBounds, &blend);
       }
     }
     
@@ -878,7 +881,7 @@ public:
       DrawSplash(g, handleBounds);
     
     if(mStyle.drawFrame)
-      g.DrawEllipse(GetColor(kFR), handleBounds, nullptr, mStyle.frameThickness);
+      g.DrawEllipse(GetColor(kFR), handleBounds, &blend, mStyle.frameThickness);
   }
   
   /** /todo
@@ -887,13 +890,14 @@ public:
    @param pressed /todo
    @param mouseOver /todo
    @return /todo */
-  IRECT DrawPressableRectangle(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver,
+  IRECT DrawPressableRectangle(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver, bool disabled,
                                bool rtl = true, bool rtr = true, bool rbl = true, bool rbr = true)
   {
     IRECT handleBounds = GetAdjustedHandleBounds(bounds);
     IRECT centreBounds = handleBounds.GetPadded(-mStyle.shadowOffset);
     IRECT shadowBounds = handleBounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset);
-
+    const IBlend blend = mControl->GetBlend();
+    const float contrast = disabled ? -GRAYED_ALPHA : 0.f;
     float cR = GetRoundedCornerRadius(handleBounds);
 
     const float tlr = rtl ? cR : 0.f;
@@ -909,49 +913,49 @@ public:
       if (mStyle.emboss)
       {
         // Fill background with pressed color and shade it
-        g.FillRoundRect(GetColor(kPR), handleBounds, tlr, trr, blr, brr);
-        g.FillRoundRect(GetColor(kSH), handleBounds, tlr, trr, blr, brr);
+        g.FillRoundRect(GetColor(kPR), handleBounds, tlr, trr, blr, brr, &blend);
+        g.FillRoundRect(GetColor(kSH), handleBounds, tlr, trr, blr, brr, &blend);
 
         // Inverse shading for recessed look - shadowBounds = inner shadow
-        g.FillRoundRect(GetColor(kFG), shadowBounds, tlr, trr, blr, brr);
+        g.FillRoundRect(GetColor(kFG).WithContrast(contrast), shadowBounds, tlr, trr, blr, brr/*, &blend*/);
 
         // Fill in center with pressed color
-        g.FillRoundRect(GetColor(kPR), centreBounds, tlr, trr, blr, brr);
+        g.FillRoundRect(GetColor(kPR), centreBounds, tlr, trr, blr, brr, &blend);
       }
       else
       {
-        g.FillRoundRect(GetColor(kPR), handleBounds, tlr, trr, blr, brr);
+        g.FillRoundRect(GetColor(kPR).WithContrast(contrast), handleBounds, tlr, trr, blr, brr/*, &blend*/);
       }
     }
     else
     {
       //outer shadow
       if (mStyle.drawShadows)
-        g.FillRoundRect(GetColor(kSH), shadowBounds, tlr, trr, blr, brr);
+        g.FillRoundRect(GetColor(kSH), shadowBounds, tlr, trr, blr, brr, &blend);
 
       // Embossed style unpressed
       if (mStyle.emboss)
       {
         // Positive light TODO: use thes kPR color for now, maybe change the name?
-        g.FillRoundRect(GetColor(kPR), handleBounds, tlr, trr, blr, brr);
+        g.FillRoundRect(GetColor(kPR).WithContrast(contrast), handleBounds, tlr, trr, blr, brr/*, &blend*/);
 
         // Negative light TODO: clip this?
-        g.FillRoundRect(GetColor(kSH), shadowBounds, tlr, trr, blr, brr);
+        g.FillRoundRect(GetColor(kSH).WithContrast(contrast), shadowBounds, tlr, trr, blr, brr/*, &blend*/);
 
         // Fill in foreground
-        g.FillRoundRect(GetColor(kFG), centreBounds, tlr, trr, blr, brr);
+        g.FillRoundRect(GetColor(kFG).WithContrast(contrast), centreBounds, tlr, trr, blr, brr/*, &blend*/);
 
         // Shade when hovered
         if (mouseOver)
-          g.FillRoundRect(GetColor(kHL), centreBounds, tlr, trr, blr, brr);
+          g.FillRoundRect(GetColor(kHL), centreBounds, tlr, trr, blr, brr, &blend);
       }
       else
       {
-        g.FillRoundRect(GetColor(kFG), handleBounds, tlr, trr, blr, brr);
+        g.FillRoundRect(GetColor(kFG).WithContrast(contrast), handleBounds, tlr, trr, blr, brr/*, &blend*/);
 
         // Shade when hovered
         if (mouseOver)
-          g.FillRoundRect(GetColor(kHL), handleBounds, tlr, trr, blr, brr);
+          g.FillRoundRect(GetColor(kHL), handleBounds, tlr, trr, blr, brr, &blend);
       }
     }
     
@@ -959,7 +963,7 @@ public:
       DrawSplash(g, handleBounds);
     
     if(mStyle.drawFrame)
-      g.DrawRoundRect(GetColor(kFR), handleBounds, tlr, trr, blr, brr, 0, mStyle.frameThickness);
+      g.DrawRoundRect(GetColor(kFR), handleBounds, tlr, trr, blr, brr, &blend, mStyle.frameThickness);
     
     return handleBounds;
   }
@@ -969,7 +973,7 @@ public:
    * @param bounds Where to draw the button
    * @param pressed Whether to draw the button pressed or unpressed
    * @param mouseOver Whether mouse is currently hovering on control */
-  IRECT DrawPressableTriangle(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver, float angle)
+  IRECT DrawPressableTriangle(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver, float angle, bool disabled)
   {
     float x1, x2, x3, y1, y2, y3;
     
@@ -991,26 +995,31 @@ public:
     y2 = centered.MW() * s + centered.T * c + yT;
     x3 = centered.R * c - centered.B * s + xT;
     y3 = centered.R * s + centered.B * c + yT;
-    
+
+    const IBlend blend = mControl->GetBlend();
+    const float contrast = disabled ? -GRAYED_ALPHA : 0.f;
+
     if (pressed)
-      g.FillTriangle(GetColor(kPR), x1, y1, x2, y2, x3, y3);
+      g.FillTriangle(GetColor(kPR).WithContrast(contrast), x1, y1, x2, y2, x3, y3/*, &blend*/);
     else
     {
       //outer shadow
       if (mStyle.drawShadows)
-        g.FillTriangle(GetColor(kSH), x1 + mStyle.shadowOffset, y1 + mStyle.shadowOffset, x2 + mStyle.shadowOffset, y2 + mStyle.shadowOffset, x3 + mStyle.shadowOffset, y3 + mStyle.shadowOffset);
+        g.FillTriangle(GetColor(kSH), x1 + mStyle.shadowOffset, y1 + mStyle.shadowOffset,
+                                      x2 + mStyle.shadowOffset, y2 + mStyle.shadowOffset,
+                                      x3 + mStyle.shadowOffset, y3 + mStyle.shadowOffset, &blend);
       
-      g.FillTriangle(GetColor(kFG), x1, y1, x2, y2, x3, y3);
+      g.FillTriangle(GetColor(kFG).WithContrast(contrast), x1, y1, x2, y2, x3, y3/*, &blend*/);
     }
     
     if (mouseOver)
-      g.FillTriangle(GetColor(kHL), x1, y1, x2, y2, x3, y3);
+      g.FillTriangle(GetColor(kHL), x1, y1, x2, y2, x3, y3, &blend);
     
     if(pressed && mControl->GetAnimationFunction())
       DrawSplash(g);
     
     if (mStyle.drawFrame)
-      g.DrawTriangle(GetColor(kFR), x1, y1, x2, y2, x3, y3, 0, mStyle.frameThickness);
+      g.DrawTriangle(GetColor(kFR), x1, y1, x2, y2, x3, y3, &blend, mStyle.frameThickness);
     
     return handleBounds;
   }
@@ -1349,19 +1358,19 @@ protected:
     DrawTrackHandle(g, r, chIdx);
     
     if(mStyle.drawFrame && mDrawTrackFrame)
-      g.DrawRect(GetColor(kFR), r, nullptr, mStyle.frameThickness);
+      g.DrawRect(GetColor(kFR), r, &mBlend, mStyle.frameThickness);
   }
   
   virtual void DrawTrackBG(IGraphics& g, const IRECT& r, int chIdx)
   {
-    g.FillRect(kBG, r);
+    g.FillRect(kBG, r, &mBlend);
   }
   
   virtual void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx)
   {
     IRECT fillRect = r.FracRect(mDirection, static_cast<float>(GetValue(chIdx)));
     
-    g.FillRect(GetColor(kFG), fillRect); // TODO: shadows!
+    g.FillRect(GetColor(kFG), fillRect, &mBlend); // TODO: shadows!
     
     IRECT peakRect;
     
@@ -1375,7 +1384,7 @@ protected:
   
   virtual void DrawPeak(IGraphics& g, const IRECT& r, int chIdx)
   {
-    g.FillRect(GetColor(kFR), r);
+    g.FillRect(GetColor(kFR), r, &mBlend);
   }
   
   virtual void OnResize() override
@@ -1580,16 +1589,18 @@ public:
    * @param bitmap Image to be drawn */
   IBitmapControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlend blend = EBlend::Default)
   : IControl(IRECT(x, y, bitmap), paramIdx)
-  , IBitmapBase(bitmap, blend)
+  , IBitmapBase(bitmap)
   {
     AttachIControl(this);
+    mBlend = blend;
   }
   
   IBitmapControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter, EBlend blend = EBlend::Default)
   : IControl(bounds, paramIdx)
-  , IBitmapBase(bitmap, blend)
+  , IBitmapBase(bitmap)
   {
     AttachIControl(this);
+    mBlend = blend;
   }
   
   virtual ~IBitmapControl() {}
@@ -1598,7 +1609,6 @@ public:
 
   /** If you override this make sure you call the parent method in order to rescale mBitmap */
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
-  void SetDisabled(bool disable) override { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
 };
 
 /** A basic control to draw an SVG image to the screen. Optionally, cache SVG to an ILayer. */
@@ -1606,9 +1616,9 @@ class ISVGControl : public IControl
 {
 public:
   ISVGControl(const IRECT& bounds, const ISVG& svg, bool useLayer = false)
-    : IControl(bounds)
-    , mSVG(svg)
-    , mUseLayer(useLayer)
+  : IControl(bounds)
+  , mSVG(svg)
+  , mUseLayer(useLayer)
   {}
 
   virtual ~ISVGControl() {}
@@ -1624,10 +1634,10 @@ public:
         mLayer = g.EndLayer();
       }
 
-      g.DrawLayer(mLayer);
+      g.DrawLayer(mLayer, &mBlend);
     }
     else
-      g.DrawSVG(mSVG, mRECT);
+      g.DrawSVG(mSVG, mRECT, &mBlend);
   }
   
   void SetSVG(const ISVG& svg)

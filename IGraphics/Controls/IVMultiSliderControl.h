@@ -70,7 +70,7 @@ public:
     DrawLabel(g);
     
     if(mStyle.drawFrame)
-      g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
+      g.DrawRect(GetColor(kFR), mWidgetBounds, &mBlend, mStyle.frameThickness);
   }
 
   int GetValIdxForPos(float x, float y) const override

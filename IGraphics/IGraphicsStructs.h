@@ -262,23 +262,23 @@ struct IColor
     return n;
   }
 
-  /** Add Contrast to the color
-   * @param c Contrast value in the range 0. to 1. */
-  void AddContrast(float c)
+  /** Contrast the color
+   * @param c Contrast value in the range -1.f to 1.f */
+  void Contrast(float c)
   {
-    const int mod = static_cast<int>(Clip(c, 0.f, 1.f) * 255.f);
-    R = std::min(R += mod, 255);
-    G = std::min(G += mod, 255);
-    B = std::min(B += mod, 255);
+    const int mod = static_cast<int>(c * 255.f);
+    R = Clip(R += mod, 0, 255);
+    G = Clip(G += mod, 0, 255);
+    B = Clip(B += mod, 0, 255);
   }
 
   /** Returns a new contrasted IColor based on this one
-   * @param c Contrast value in the range 0. to 1.
+   * @param c Contrast value in the range -1. to 1.
    * @return IColor new Color */
   IColor WithContrast(float c) const
   {
     IColor n = *this;
-    n.AddContrast(c);
+    n.Contrast(c);
     return n;
   }
   
@@ -2204,22 +2204,10 @@ struct IShadow
   bool mDrawForeground = true;
 };
 
-/** Contains a set of colors used to theme IVControls */
+/** Contains a set of 9 colors used to theme IVControls */
 struct IVColorSpec
 {
   IColor mColors[kNumDefaultVColors];
-  
-  void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
-                 const IColor FGColor = DEFAULT_FGCOLOR,
-                 const IColor PRColor = DEFAULT_PRCOLOR,
-                 const IColor FRColor = DEFAULT_FRCOLOR,
-                 const IColor HLColor = DEFAULT_HLCOLOR,
-                 const IColor SHColor = DEFAULT_SHCOLOR,
-                 const IColor X1Color = DEFAULT_X1COLOR,
-                 const IColor X2Color = DEFAULT_X2COLOR,
-                 const IColor X3Color = DEFAULT_X3COLOR)
-  {
-  }
   
   const IColor& GetColor(EVColor color) const
   {
@@ -2243,20 +2231,12 @@ struct IVColorSpec
         return COLOR_TRANSPARENT;
     };
   }
-  
+
   IVColorSpec()
   {
-    mColors[kBG] = DEFAULT_BGCOLOR; // Background
-    mColors[kFG] = DEFAULT_FGCOLOR; // Foreground
-    mColors[kPR] = DEFAULT_PRCOLOR; // Pressed
-    mColors[kFR] = DEFAULT_FRCOLOR; // Frame
-    mColors[kHL] = DEFAULT_HLCOLOR; // Highlight
-    mColors[kSH] = DEFAULT_SHCOLOR; // Shadow
-    mColors[kX1] = DEFAULT_X1COLOR; // Extra 1
-    mColors[kX2] = DEFAULT_X2COLOR; // Extra 2
-    mColors[kX3] = DEFAULT_X3COLOR; // Extra 3
+    ResetColors();
   }
-  
+
   IVColorSpec(const std::initializer_list<IColor>& colors)
   {
     assert(colors.size() <= kNumDefaultVColors);
@@ -2274,8 +2254,14 @@ struct IVColorSpec
     }
   }
   
-  /** /todo  */
-  void ResetColors() { SetColors(); }
+  /** Reset the colors to the defaults  */
+  void ResetColors()
+  {
+    for (int i =0; i < kNumDefaultVColors; i++)
+    {
+      mColors[i] = GetDefaultColor((EVColor) i);
+    }
+  }
 };
 
 const IVColorSpec DEFAULT_COLOR_SPEC = IVColorSpec();
@@ -2360,6 +2346,7 @@ struct IVStyle
   IVStyle WithDrawFrame(bool v) const { IVStyle newStyle = *this; newStyle.drawFrame = v; return newStyle; }
   IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = v; return newStyle; }
   IVStyle WithAngle(float v) const { IVStyle newStyle = *this; newStyle.angle = v; return newStyle; }
+  IVStyle WithEmboss(bool v) const { IVStyle newStyle = *this; newStyle.emboss = v; return newStyle; }
 };
 
 const IVStyle DEFAULT_STYLE = IVStyle();

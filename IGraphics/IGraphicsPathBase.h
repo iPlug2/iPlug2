@@ -423,7 +423,7 @@ public:
     PathTransformSave();
     PathTransformTranslate(dest.L, dest.T);
     PathTransformScale(scale);
-    DoDrawSVG(svg);
+    DoDrawSVG(svg, pBlend);
     PathTransformRestore();
   }
   
@@ -478,11 +478,11 @@ private:
     }
   }
   
-  void DoDrawSVG(const ISVG& svg)
+  void DoDrawSVG(const ISVG& svg, const IBlend* pBlend = nullptr)
   {
 #ifdef IGRAPHICS_SKIA
     SkCanvas* canvas = static_cast<SkCanvas*>(GetDrawContext());
-    svg.mSVGDom->render(canvas);
+    svg.mSVGDom->render(canvas); //TODO: blend
 #else
     NSVGimage* pImage = svg.mImage;
     
@@ -547,7 +547,7 @@ private:
         options.mFillRule = EFillRule::Preserve;
         
         options.mPreserve = pShape->stroke.type != NSVG_PAINT_NONE;
-        PathFill(GetSVGPattern(pShape->fill, pShape->opacity), options, nullptr);
+        PathFill(GetSVGPattern(pShape->fill, pShape->opacity), options, pBlend);
       }
       
       // Stroke
@@ -573,7 +573,7 @@ private:
         
         options.mDash.SetDash(pShape->strokeDashArray, pShape->strokeDashOffset, pShape->strokeDashCount);
         
-        PathStroke(GetSVGPattern(pShape->stroke, pShape->opacity), pShape->strokeWidth, options, nullptr);
+        PathStroke(GetSVGPattern(pShape->stroke, pShape->opacity), pShape->strokeWidth, options, pBlend);
       }
     }
   #endif

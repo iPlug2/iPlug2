@@ -341,6 +341,9 @@ protected:
   float mMin;
   float mMax;
   bool mUseLayer = true;
+  int mHorizontalDivisions = 10;
+  int mVerticalDivisions = 10; // allways + 2 when drawing
+  
   std::vector<float> mPoints;
 };
 
@@ -348,19 +351,24 @@ class IVGroupControl : public IControl
                      , public IVectorBase
 {
 public:
-  IVGroupControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false));
+  IVGroupControl(const IRECT& bounds, const char* label = "", float labelOffset = 10.f, const IVStyle& style = DEFAULT_STYLE);
   
-  IVGroupControl(const char* labelAndGroupName, float innerPadding = 0.f, const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false));
+  IVGroupControl(const char* label, const char* groupName, float padL = 0.f, float padT = 0.f, float padR = 0.f, float padB = 0.f, const IVStyle& style = DEFAULT_STYLE);
   
   void Draw(IGraphics& g) override;
   void DrawWidget(IGraphics& g) override;
   void OnResize() override;
   void OnInit() override;
   
-  void SetBoundsBasedOnGroup(const char* groupName, float padding);
+  void SetBoundsBasedOnGroup(const char* groupName, float padL, float padT, float padR, float padB);
 protected:
   WDL_String mGroupName;
-  float mInnerPadding = 0.f;
+  float mPadL = 0.f;
+  float mPadT = 0.f;
+  float mPadR = 0.f;
+  float mPadB = 0.f;
+  float mLabelOffset = 10.f;
+  float mLabelPadding = 10.f;
 };
 
 class IVColorSwatchControl : public IControl
@@ -369,18 +377,26 @@ class IVColorSwatchControl : public IControl
 public:
   enum class ECellLayout { kGrid, kHorizontal, kVertical };
   
-  IVColorSwatchControl(const IRECT& bounds, const IVColorSpec& spec = DEFAULT_COLOR_SPEC, ECellLayout layout = ECellLayout::kGrid);
+  using ColorChosenFunc = std::function<void(int, IColor)>;
+
+  IVColorSwatchControl(const IRECT& bounds, const char* label = "", ColorChosenFunc func = nullptr, const IVStyle& spec = DEFAULT_STYLE, ECellLayout layout = ECellLayout::kGrid,
+    const std::initializer_list<int>& colorIDs = { kBG, kFG, kPR, kFR, kHL, kSH, kX1, kX2, kX3 },
+    const std::initializer_list<const char*>& labelsForIDs = { kVColorStrs[kBG],kVColorStrs[kFG],kVColorStrs[kPR],kVColorStrs[kFR],kVColorStrs[kHL],kVColorStrs[kSH],kVColorStrs[kX1],kVColorStrs[kX2],kVColorStrs[kX3] });
   void Draw(IGraphics& g) override;
-  void OnResize() override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  
+  void OnResize() override;
+
+  void DrawWidget(IGraphics& g) override;
+
 private:
+  ColorChosenFunc mColorChosenFunc = nullptr;
   int mCellOver = -1;
-  int mCellClicked = -1;
   ECellLayout mLayout = ECellLayout::kVertical;
   WDL_TypedBuf<IRECT> mCellRects;
+  WDL_PtrList<WDL_String> mLabels;
+  std::vector<int> mColorIdForCells;
 };
 
 #pragma mark - SVG Vector Controls
@@ -463,7 +479,6 @@ public:
 
   void Draw(IGraphics& g) override  { DrawBitmap(g); }
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
-  void SetDisabled(bool disable) override;
 };
 
 /** A bitmap switch control. Click to cycle through states. */
@@ -486,7 +501,6 @@ public:
   
   virtual ~IBSwitchControl() {}
   void Draw(IGraphics& g) override { DrawBitmap(g); }
-  void SetDisabled(bool disable) override { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 };
@@ -506,7 +520,6 @@ public:
 
   virtual ~IBKnobControl() {}
   void Draw(IGraphics& g) override { DrawBitmap(g); }
-  void SetDisabled(bool disable) override { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
 };
 
@@ -537,7 +550,6 @@ public:
   void Draw(IGraphics& g) override;
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
   void OnResize() override;
-  void SetDisabled(bool disable) override  { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
   
   IRECT GetHandleBounds(double value = -1.0) const;
 
@@ -555,7 +567,6 @@ public:
 
   void Draw(IGraphics& g) override;
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
-  void SetDisabled(bool disable) override  { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
 
 protected:
   WDL_String mStr;
