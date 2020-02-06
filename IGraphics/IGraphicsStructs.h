@@ -262,23 +262,23 @@ struct IColor
     return n;
   }
 
-  /** Add Contrast to the color
-   * @param c Contrast value in the range 0. to 1. */
-  void AddContrast(float c)
+  /** Contrast the color
+   * @param c Contrast value in the range -1.f to 1.f */
+  void Contrast(float c)
   {
-    const int mod = static_cast<int>(Clip(c, 0.f, 1.f) * 255.f);
-    R = std::min(R += mod, 255);
-    G = std::min(G += mod, 255);
-    B = std::min(B += mod, 255);
+    const int mod = static_cast<int>(c * 255.f);
+    R = Clip(R += mod, 0, 255);
+    G = Clip(G += mod, 0, 255);
+    B = Clip(B += mod, 0, 255);
   }
 
   /** Returns a new contrasted IColor based on this one
-   * @param c Contrast value in the range 0. to 1.
+   * @param c Contrast value in the range -1. to 1.
    * @return IColor new Color */
   IColor WithContrast(float c) const
   {
     IColor n = *this;
-    n.AddContrast(c);
+    n.Contrast(c);
     return n;
   }
   
