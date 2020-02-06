@@ -1134,7 +1134,7 @@ IVColorSwatchControl::IVColorSwatchControl(const IRECT& bounds, const char* labe
 , mColorChosenFunc(func)
 {
   AttachIControl(this, label);
-  mCellRects.Resize(mColorIdForCells.size());
+  mCellRects.Resize(static_cast<int>(mColorIdForCells.size()));
   mText.mAlign = EAlign::Far;
 
   for (int i=0;i<colorIDs.size();i++)
@@ -1176,11 +1176,11 @@ void IVColorSwatchControl::OnResize()
   else if (mLayout == ECellLayout::kHorizontal)
   {
     rows = 1;
-    columns = mColorIdForCells.size();
+    columns = static_cast<int>(mColorIdForCells.size());
   }
   else if (mLayout == ECellLayout::kVertical)
   {
-    rows = mColorIdForCells.size();
+    rows = static_cast<int>(mColorIdForCells.size());
     columns = 1;
   }
   
