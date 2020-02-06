@@ -1234,7 +1234,7 @@ void IVColorSwatchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     GetUI()->PromptForColor(c, "Choose a color", [&](const IColor& result) {
       SetColor(mCellClicked, result);
       if(mColorChosenFunc)
-        mColorChosenFunc(mCellClicked, c);
+        mColorChosenFunc(mCellClicked, result);
     });
   }
 }
