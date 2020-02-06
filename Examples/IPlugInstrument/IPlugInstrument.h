@@ -16,8 +16,10 @@ enum EParams
   kNumParams
 };
 
+#if IPLUG_DSP
 // will use EParams in IPlugInstrument_DSP.h
 #include "IPlugInstrument_DSP.h"
+#endif
 
 enum EControlTags
 {
