@@ -1239,12 +1239,10 @@ void IVColorSwatchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   
   if(cellClicked > -1)
   {
-    mCellClicked = cellClicked;
-    IColor c = GetColor(mCellClicked);
-    GetUI()->PromptForColor(c, "Choose a color", [&](const IColor& result) {
-      SetColor(mCellClicked, result);
+    GetUI()->PromptForColor(mColors.Get()[cellClicked], "Choose a color", [this, cellClicked](IColor result) {
+      SetColor(cellClicked, result);
       if(mColorChosenFunc)
-        mColorChosenFunc(mCellClicked, result);
+        mColorChosenFunc(cellClicked, result);
     });
   }
 }

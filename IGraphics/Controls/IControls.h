@@ -393,7 +393,6 @@ public:
 private:
   ColorChosenFunc mColorChosenFunc = nullptr;
   int mCellOver = -1;
-  int mCellClicked = -1;
   ECellLayout mLayout = ECellLayout::kVertical;
   WDL_TypedBuf<IRECT> mCellRects;
   WDL_PtrList<WDL_String> mLabels;
