@@ -811,9 +811,10 @@ public:
     IRECT handleBounds = bounds;
     IRECT centreBounds = bounds.GetPadded(-mStyle.shadowOffset);
     IRECT shadowBounds = bounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset);
-    IBlend blend = mControl->GetBlend();
-
-    if(!pressed && mStyle.drawShadows)
+    const IBlend blend = mControl->GetBlend();
+    const float contrast = disabled ? -GRAYED_ALPHA : 0.f;
+    
+    if(!pressed && !disabled && mStyle.drawShadows)
       g.FillEllipse(GetColor(kSH), shadowBounds);
    
     if (pressed)
@@ -827,13 +828,13 @@ public:
         g.FillEllipse(GetColor(kSH), bounds, &blend);
 
         // Inverse shading for recessed look - shadowBounds = inner shadow
-        g.FillEllipse(GetColor(kFG), shadowBounds, &blend);
+        g.FillEllipse(GetColor(kFG).WithContrast(contrast), shadowBounds/*, &blend*/);
 
         // Fill in center with pressed color
-        g.FillEllipse(GetColor(kPR), centreBounds, &blend);
+        g.FillEllipse(GetColor(kPR).WithContrast(contrast), centreBounds/*, &blend*/);
       }
       else
-        g.FillEllipse(GetColor(kPR), handleBounds, &blend);
+        g.FillEllipse(GetColor(kPR).WithContrast(contrast), handleBounds/*, &blend*/);
     }
     else
     {
@@ -841,13 +842,13 @@ public:
       if (mStyle.emboss)
       {
         // Positive light TODO: use thes kPR color for now, maybe change the name?
-        g.FillEllipse(GetColor(kPR), bounds, &blend);
+        g.FillEllipse(GetColor(kPR).WithContrast(contrast), bounds/*, &blend*/);
 
         // Negative light TODO: clip this?
-        g.FillEllipse(GetColor(kSH), shadowBounds, &blend);
+        g.FillEllipse(GetColor(kSH).WithContrast(contrast), shadowBounds/*, &blend*/);
 
         // Fill in foreground
-        g.FillEllipse(GetColor(kFG), centreBounds, &blend);
+        g.FillEllipse(GetColor(kFG).WithContrast(contrast), centreBounds/*, &blend*/);
 
         // Shade when hovered
         if (mouseOver)
@@ -855,7 +856,7 @@ public:
       }
       else
       {
-        g.FillEllipse(GetColor(kFG), handleBounds, &blend);
+        g.FillEllipse(GetColor(kFG).WithContrast(contrast), handleBounds/*, &blend*/);
 
         // Shade when hovered
         if (mouseOver)
@@ -882,8 +883,8 @@ public:
     IRECT handleBounds = GetAdjustedHandleBounds(bounds);
     IRECT centreBounds = handleBounds.GetPadded(-mStyle.shadowOffset);
     IRECT shadowBounds = handleBounds.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset);
-    IBlend blend = mControl->GetBlend();
-
+    const IBlend blend = mControl->GetBlend();
+    const float contrast = disabled ? -GRAYED_ALPHA : 0.f;
     float cR = GetRoundedCornerRadius(handleBounds);
 
     const float tlr = rtl ? cR : 0.f;
@@ -903,14 +904,14 @@ public:
         g.FillRoundRect(GetColor(kSH), handleBounds, tlr, trr, blr, brr, &blend);
 
         // Inverse shading for recessed look - shadowBounds = inner shadow
-        g.FillRoundRect(GetColor(kFG), shadowBounds, tlr, trr, blr, brr, &blend);
+        g.FillRoundRect(GetColor(kFG).WithContrast(contrast), shadowBounds, tlr, trr, blr, brr/*, &blend*/);
 
         // Fill in center with pressed color
         g.FillRoundRect(GetColor(kPR), centreBounds, tlr, trr, blr, brr, &blend);
       }
       else
       {
-        g.FillRoundRect(GetColor(kPR), handleBounds, tlr, trr, blr, brr, &blend);
+        g.FillRoundRect(GetColor(kPR).WithContrast(contrast), handleBounds, tlr, trr, blr, brr/*, &blend*/);
       }
     }
     else
@@ -923,13 +924,13 @@ public:
       if (mStyle.emboss)
       {
         // Positive light TODO: use thes kPR color for now, maybe change the name?
-        g.FillRoundRect(GetColor(kPR), handleBounds, tlr, trr, blr, brr, &blend);
+        g.FillRoundRect(GetColor(kPR).WithContrast(contrast), handleBounds, tlr, trr, blr, brr/*, &blend*/);
 
         // Negative light TODO: clip this?
-        g.FillRoundRect(GetColor(kSH), shadowBounds, tlr, trr, blr, brr, &blend);
+        g.FillRoundRect(GetColor(kSH).WithContrast(contrast), shadowBounds, tlr, trr, blr, brr/*, &blend*/);
 
         // Fill in foreground
-        g.FillRoundRect(GetColor(kFG), centreBounds, tlr, trr, blr, brr, &blend);
+        g.FillRoundRect(GetColor(kFG).WithContrast(contrast), centreBounds, tlr, trr, blr, brr/*, &blend*/);
 
         // Shade when hovered
         if (mouseOver)
@@ -937,7 +938,7 @@ public:
       }
       else
       {
-        g.FillRoundRect(GetColor(kFG), handleBounds, tlr, trr, blr, brr, &blend);
+        g.FillRoundRect(GetColor(kFG).WithContrast(contrast), handleBounds, tlr, trr, blr, brr/*, &blend*/);
 
         // Shade when hovered
         if (mouseOver)
@@ -982,10 +983,11 @@ public:
     x3 = centered.R * c - centered.B * s + xT;
     y3 = centered.R * s + centered.B * c + yT;
 
-    IBlend blend = mControl->GetBlend();
+    const IBlend blend = mControl->GetBlend();
+    const float contrast = disabled ? -GRAYED_ALPHA : 0.f;
 
     if (pressed)
-      g.FillTriangle(GetColor(kPR), x1, y1, x2, y2, x3, y3, &blend);
+      g.FillTriangle(GetColor(kPR).WithContrast(contrast), x1, y1, x2, y2, x3, y3/*, &blend*/);
     else
     {
       //outer shadow
@@ -994,7 +996,7 @@ public:
                                       x2 + mStyle.shadowOffset, y2 + mStyle.shadowOffset,
                                       x3 + mStyle.shadowOffset, y3 + mStyle.shadowOffset, &blend);
       
-      g.FillTriangle(GetColor(kFG), x1, y1, x2, y2, x3, y3, &blend);
+      g.FillTriangle(GetColor(kFG).WithContrast(contrast), x1, y1, x2, y2, x3, y3/*, &blend*/);
     }
     
     if (mouseOver)

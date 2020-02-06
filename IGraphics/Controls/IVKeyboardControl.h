@@ -209,10 +209,10 @@ public:
   {
     if(mRoundedKeys)
     {
-      g.FillRoundRect(color, bounds, 0., 0., mRoundness, mRoundness, &mBlend);
+      g.FillRoundRect(color, bounds, 0., 0., mRoundness, mRoundness/*, &blend*/);
     }
     else
-      g.FillRect(color, bounds, &mBlend);
+      g.FillRect(color, bounds/*, &blend*/);
   }
 
   void Draw(IGraphics& g) override
@@ -280,7 +280,7 @@ public:
           shadowBounds.R = shadowBounds.L + w;
           DrawKey(g, shadowBounds, shadowColor);
         }
-        DrawKey(g, keyBounds, i == mHighlight ? mHK_COLOR : mBK_COLOR);
+        DrawKey(g, keyBounds, (i == mHighlight ? mHK_COLOR : mBK_COLOR.WithContrast(IsDisabled() ? GRAYED_ALPHA : 0.f)));
 
         if (GetKeyIsPressed(i))
         {
