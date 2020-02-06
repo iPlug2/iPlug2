@@ -86,23 +86,25 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
   
     
     AddLabel("ITextControl");
-    pGraphics->AttachControl(new ITextControl(sameCell().GetMidVPadded(20.f), "Result...", DEFAULT_TEXT, COLOR_LIGHT_GRAY), kCtrlTagDialogResult);
+    pGraphics->AttachControl(new ITextControl(sameCell().GetMidVPadded(20.f), "Result...", DEFAULT_TEXT, COLOR_LIGHT_GRAY), kCtrlTagDialogResult, "misccontrols");
     
     AddLabel("ITextToggleControl");
-    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 0, 3, 3), nullptr, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, forkAwesomeText));
-    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 1, 3, 3), nullptr, ICON_FK_CIRCLE_O, ICON_FK_CHECK_CIRCLE, forkAwesomeText));
-    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 2, 3, 3), nullptr, ICON_FK_PLUS_SQUARE, ICON_FK_MINUS_SQUARE, forkAwesomeText));
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 0, 3, 3), nullptr, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, forkAwesomeText), kNoTag, "misccontrols");
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 1, 3, 3), nullptr, ICON_FK_CIRCLE_O, ICON_FK_CHECK_CIRCLE, forkAwesomeText), kNoTag, "misccontrols");
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 2, 3, 3), nullptr, ICON_FK_PLUS_SQUARE, ICON_FK_MINUS_SQUARE, forkAwesomeText), kNoTag, "misccontrols");
 
     AddLabel("ICaptionControl");
-    pGraphics->AttachControl(new ICaptionControl(sameCell().FracRectVertical(0.5, true).GetMidVPadded(10.f), kParamGain, IText(24.f), DEFAULT_FGCOLOR, false));
-    pGraphics->AttachControl(new ICaptionControl(sameCell().FracRectVertical(0.5, false).GetMidVPadded(10.f), kParamMode, IText(24.f), DEFAULT_FGCOLOR, false));
+    pGraphics->AttachControl(new ICaptionControl(sameCell().FracRectVertical(0.5, true).GetMidVPadded(10.f), kParamGain, IText(24.f), DEFAULT_FGCOLOR, false), kNoTag, "misccontrols");
+    pGraphics->AttachControl(new ICaptionControl(sameCell().FracRectVertical(0.5, false).GetMidVPadded(10.f), kParamMode, IText(24.f), DEFAULT_FGCOLOR, false), kNoTag, "misccontrols");
+    
+    pGraphics->AttachControl(new IVGroupControl("Misc Controls", "misccontrols", 5.f, 35.f, 10.f, 15.f));
 
     AddLabel("IBKnobControl");
-    pGraphics->AttachControl(new IBKnobControl(sameCell().GetPadded(-5.), bitmap1, kParamGain));
+    pGraphics->AttachControl(new IBKnobControl(sameCell().GetPadded(-5.), bitmap1, kParamGain), kNoTag, "bcontrols");
     AddLabel("IBKnobRotaterControl");
-    pGraphics->AttachControl(new IBKnobRotaterControl(sameCell().GetPadded(-5.), bitmap2, kParamGain));
+    pGraphics->AttachControl(new IBKnobRotaterControl(sameCell().GetPadded(-5.), bitmap2, kParamGain), kNoTag, "bcontrols");
     AddLabel("IBSwitchControl");
-    pGraphics->AttachControl(new IBSwitchControl(sameCell(), switchBitmap));
+    pGraphics->AttachControl(new IBSwitchControl(sameCell(), switchBitmap), kNoTag, "bcontrols");
     AddLabel("IBButtonControl");
     pGraphics->AttachControl(new IBButtonControl(sameCell(), buttonBitmap, [](IControl* pCaller) {
       pCaller->SetAnimation([](IControl* pCaller){
@@ -113,10 +115,12 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
         }
         pCaller->SetValue(Clip(progress + .5, 0., 1.));
       }, 100);
-    }));
+    }), kNoTag, "bcontrols");
+    
+    pGraphics->AttachControl(new IVGroupControl("Bitmap Controls", "bcontrols", 10.f, 30.f, 10.f, 10.f));
     
     AddLabel("ISVGKnobControl");
-    pGraphics->AttachControl(new ISVGKnobControl(sameCell().GetCentredInside(100), knobSVG, kParamGain));
+    pGraphics->AttachControl(new ISVGKnobControl(sameCell().GetCentredInside(100), knobSVG, kParamGain), kNoTag, "svgcontrols");
 
     auto button1action = [pGraphics](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
@@ -126,6 +130,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
                                                       dynamic_cast<ITextControl*>(pGraphics->GetControlWithTag(kCtrlTagDialogResult))->SetStr(str.Get());
                                                     });
     };
+    
+    pGraphics->AttachControl(new IVGroupControl("SVG Controls", "svgcontrols", 10.f, 30.f, 10.f, 10.f));
 
     pGraphics->AttachControl(new IVKnobControl(nextCell().GetCentredInside(110.), kParamGain, "IVKnobControl", style, true), kNoTag, "vcontrols");
 //    pGraphics->AttachControl(new IVKnobSwitchControl(nextCell().GetCentredInside(110.), kParamMode, "IVKnobSwitchControl", style), kNoTag, "vcontrols");
@@ -175,6 +181,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 
                                                             }, 32, "IVPlotControl", style), kNoTag, "vcontrols");
     
+    pGraphics->AttachControl(new IVGroupControl("Vector Controls", "vcontrols", 10.f, 30.f, 10.f, 10.f));
+
 #pragma mark -
     cellIdx = 31;
     
