@@ -728,7 +728,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   float prevX = mPrevX;
   float prevY = mPrevY;
   IMouseInfo info = [self getMouseLeft:pEvent];
-  if (mGraphics && !mGraphics->IsInTextEntry())
+  if (mGraphics && !mGraphics->IsInPlatformTextEntry())
     mGraphics->OnMouseDrag(info.x, info.y, info.x - prevX, info.y - prevY, info.ms);
 }
 
