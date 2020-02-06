@@ -314,8 +314,8 @@ static EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent*
   {
     case EMSCRIPTEN_EVENT_MOUSEUP:
       pGraphics->OnMouseUp(x, y, modifiers);
-      emscripten_set_mousemove_callback("EMSCRIPTEN_EVENT_TARGET_WINDOW", pGraphics, 1, nullptr);
-      emscripten_set_mouseup_callback("EMSCRIPTEN_EVENT_TARGET_WINDOW", pGraphics, 1, nullptr);
+      emscripten_set_mousemove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, pGraphics, 1, nullptr);
+      emscripten_set_mouseup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, pGraphics, 1, nullptr);
       break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
       if(pEvent->buttons != 0 && !pGraphics->IsInTextEntry())
@@ -382,13 +382,13 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent,
     case EMSCRIPTEN_EVENT_MOUSEENTER:
       pGraphics->OnSetCursor();
       pGraphics->OnMouseOver(x, y, modifiers);
-      emscripten_set_mousemove_callback("EMSCRIPTEN_EVENT_TARGET_WINDOW", pGraphics, 1, nullptr);
+      emscripten_set_mousemove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, pGraphics, 1, nullptr);
       break;
     case EMSCRIPTEN_EVENT_MOUSELEAVE:
       if(pEvent->buttons != 0)
       {
-        emscripten_set_mousemove_callback("EMSCRIPTEN_EVENT_TARGET_WINDOW", pGraphics, 1, outside_mouse_callback);
-        emscripten_set_mouseup_callback("EMSCRIPTEN_EVENT_TARGET_WINDOW", pGraphics, 1, outside_mouse_callback);
+        emscripten_set_mousemove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, pGraphics, 1, outside_mouse_callback);
+        emscripten_set_mouseup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, pGraphics, 1, outside_mouse_callback);
       }
       pGraphics->OnMouseOut(); break;
     default:
