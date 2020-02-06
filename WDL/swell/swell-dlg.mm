@@ -379,6 +379,8 @@ void SWELL_DoDialogColorUpdates(HWND hwnd, DLGPROC d, bool isUpdate)
             }
             else
             {
+              if ([ch isKindOfClass:[SWELL_TextField class]])
+                ((SWELL_TextField *)ch)->m_ctlcolor_set = true;
               [(NSTextField*)ch setTextColor:staticFg]; 
             }
           }
@@ -806,7 +808,11 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
 }
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification
 {
-  NSTableView *sender=[aNotification object];
+  extern int swell_ignore_listview_changes;
+  if (!swell_ignore_listview_changes)
+  {
+      swell_ignore_listview_changes++;
+      NSTableView *sender=[aNotification object];
       if ([sender respondsToSelector:@selector(getSwellNotificationMode)] && [(SWELL_ListView*)sender getSwellNotificationMode])
       {
         if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,(int)[sender tag] | (LBN_SELCHANGE<<16),(LPARAM)sender);
@@ -815,8 +821,9 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
       {
         NMLISTVIEW nmhdr={{(HWND)sender,(UINT_PTR)[sender tag],LVN_ITEMCHANGED},(int)[sender selectedRow],0};
         if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_NOTIFY,(int)[sender tag],(LPARAM)&nmhdr);
-        
       }
+      swell_ignore_listview_changes--;
+  }
 }
 
 - (void)tableView:(NSTableView *)tableView didClickTableColumn:(NSTableColumn *)tableColumn
