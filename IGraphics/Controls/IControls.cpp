@@ -1046,21 +1046,25 @@ void IVPlotControl::AddPlotFunc(const IColor& color, const IPlotFunc& func)
   SetDirty(false);
 }
 
-IVGroupControl::IVGroupControl(const IRECT& bounds, const char* label, const IVStyle& style)
+IVGroupControl::IVGroupControl(const IRECT& bounds, const char* label, float labelOffset, const IVStyle& style)
 : IControl(bounds)
 , IVectorBase(style)
+, mLabelOffset(labelOffset)
 {
   AttachIControl(this, label);
   mIgnoreMouse = true;
 }
 
-IVGroupControl::IVGroupControl(const char* labelAndGroupName, float innerPadding, const IVStyle& style)
+IVGroupControl::IVGroupControl(const char* label, const char* groupName, float padL, float padT, float padR, float padB, const IVStyle& style)
 : IControl(IRECT())
 , IVectorBase(style)
-, mGroupName(labelAndGroupName)
-, mInnerPadding(innerPadding)
+, mGroupName(groupName)
+, mPadL(padL)
+, mPadT(padT)
+, mPadR(padR)
+, mPadB(padB)
 {
-  AttachIControl(this, labelAndGroupName);
+  AttachIControl(this, label);
   mIgnoreMouse = true;
 }
 
@@ -1068,11 +1072,15 @@ void IVGroupControl::OnInit()
 {
   if(mGroupName.GetLength())
   {
-    SetBoundsBasedOnGroup(mGroupName.Get(), mInnerPadding);
+    SetBoundsBasedOnGroup(mGroupName.Get(), mPadL, mPadT, mPadR, mPadB);
   }
 }
 void IVGroupControl::Draw(IGraphics& g)
 {
+//  const float cr = GetRoundedCornerRadius(mWidgetBounds);
+//  g.FillRoundRect(GetColor(kBG), mWidgetBounds, cr);
+//  g.FillRect(GetColor(kBG), mLabelBounds);
+
   DrawWidget(g);
   DrawLabel(g);
 }
@@ -1083,9 +1091,9 @@ void IVGroupControl::DrawWidget(IGraphics& g)
   const float ft = mStyle.frameThickness;
   const float hft = ft/2.f;
   
-  int nPaths = mStyle.drawShadows ? 2 : 1;
+  int nPaths = /*mStyle.drawShadows ? 2 :*/ 1;
   
-  auto b = mWidgetBounds.GetPadded(mStyle.drawShadows ? -mStyle.shadowOffset : 0.f);
+  auto b = mWidgetBounds.GetPadded(/*mStyle.drawShadows ? -mStyle.shadowOffset :*/ 0.f);
   
   auto labelR = mLabelBounds.Empty() ? mRECT.MW() : mLabelBounds.R;
   auto labelL = mLabelBounds.Empty() ? mRECT.MW() : mLabelBounds.L;
@@ -1100,27 +1108,29 @@ void IVGroupControl::DrawWidget(IGraphics& g)
     g.PathArc(b.L + cr + hft - offset, b.B - cr - hft - offset, cr, 180.f, 270.f);
     g.PathArc(b.L + cr + hft - offset, b.T + cr + hft - offset, cr, 270.f, 360.f);
     g.PathLineTo(labelL, b.T + hft - offset);
-    g.PathStroke(GetColor(i == 0 ? kSH : kFG), ft);
+    g.PathStroke(mStyle.drawShadows ? GetColor(i == 0 ? kSH : kFR) : GetColor(kFR), ft);
   }
 }
 
 void IVGroupControl::OnResize()
 {
   SetTargetRECT(MakeRects(mRECT));
+  mLabelBounds.HPad(mLabelPadding);
   mWidgetBounds.Alter(0, -(mLabelBounds.H()/2.f) - (mStyle.frameThickness/2.f), 0, 0);
+  const float cr = GetRoundedCornerRadius(mWidgetBounds);
+  mLabelBounds.Translate(mRECT.L - mLabelBounds.L + mStyle.frameThickness + mLabelOffset + cr, 0.f);
   SetDirty(false);
 }
 
-void IVGroupControl::SetBoundsBasedOnGroup(const char* groupName, float padding)
+void IVGroupControl::SetBoundsBasedOnGroup(const char* groupName, float padL, float padT, float padR, float padB)
 {
   mGroupName.Set(groupName);
-  mInnerPadding = padding;
   
   IRECT unionRect;
-  
   GetUI()->ForControlInGroup(mGroupName.Get(), [&unionRect](IControl& control) { unionRect = unionRect.Union(control.GetRECT()); });
-  
-  mRECT = unionRect.GetPadded((mLabelBounds.H()/2.f) + mInnerPadding);
+  float halfLabelHeight = mLabelBounds.H()/2.f;
+  unionRect.GetVPadded(halfLabelHeight);
+  mRECT = unionRect.GetPadded(padL, padT, padR, padB);
   
   OnResize();
 }

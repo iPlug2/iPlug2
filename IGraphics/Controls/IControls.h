@@ -351,19 +351,24 @@ class IVGroupControl : public IControl
                      , public IVectorBase
 {
 public:
-  IVGroupControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false));
+  IVGroupControl(const IRECT& bounds, const char* label = "", float labelOffset = 10.f, const IVStyle& style = DEFAULT_STYLE);
   
-  IVGroupControl(const char* labelAndGroupName, float innerPadding = 0.f, const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false));
+  IVGroupControl(const char* label, const char* groupName, float padL = 0.f, float padT = 0.f, float padR = 0.f, float padB = 0.f, const IVStyle& style = DEFAULT_STYLE);
   
   void Draw(IGraphics& g) override;
   void DrawWidget(IGraphics& g) override;
   void OnResize() override;
   void OnInit() override;
   
-  void SetBoundsBasedOnGroup(const char* groupName, float padding);
+  void SetBoundsBasedOnGroup(const char* groupName, float padL, float padT, float padR, float padB);
 protected:
   WDL_String mGroupName;
-  float mInnerPadding = 0.f;
+  float mPadL = 0.f;
+  float mPadT = 0.f;
+  float mPadR = 0.f;
+  float mPadB = 0.f;
+  float mLabelOffset = 10.f;
+  float mLabelPadding = 10.f;
 };
 
 class IVColorSwatchControl : public IControl
