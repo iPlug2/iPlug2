@@ -25,6 +25,19 @@
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+void GetScreenDimensions(int& width, int& height)
+{
+  CGRect bounds = [[UIScreen mainScreen] bounds];
+  width = bounds.size.width;
+  height = bounds.size.height;
+}
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
 using namespace iplug;
 using namespace igraphics;
 
@@ -162,14 +175,14 @@ bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHa
   return false;
 }
 
-IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
+IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
 {
   IPopupMenu* pReturnMenu = nullptr;
-  
+  isAsync = true;
   if (mView)
   {
     CGRect areaRect = ToCGRect(this, bounds);
-    pReturnMenu = [(__bridge IGRAPHICS_VIEW*)mView createPopupMenu: menu: areaRect];
+    pReturnMenu = [(__bridge IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
   }
   
   //synchronous

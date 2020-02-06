@@ -10,32 +10,17 @@
 
 #include <cmath>
 #include <cstring>
+#define WDL_NO_SUPPORT_UTF8
 #include "dirscan.h"
 
 #include "IControl.h"
 #include "IPlugParameter.h"
 
-// avoid some UNICODE issues with VST3 SDK and WDL dirscan
-#if defined VST3_API && defined OS_WIN
-  #ifdef FindFirstFile
-    #undef FindFirstFile
-    #undef FindNextFile
-    #undef WIN32_FIND_DATA
-    #undef PWIN32_FIND_DATA
-    #define FindFirstFile FindFirstFileA
-    #define FindNextFile FindNextFileA
-    #define WIN32_FIND_DATA WIN32_FIND_DATAA
-    #define LPWIN32_FIND_DATA LPWIN32_FIND_DATAA
-  #endif
-#endif
-
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 void DefaultAnimationFunc(IControl* pCaller)
 {
-  auto progress = pCaller->GetAnimationProgress();
-  
-  if(progress > 1.)
+  if(pCaller->GetAnimationProgress() > 1.)
   {
     pCaller->OnEndAnimation();
     return;
@@ -66,6 +51,26 @@ void SplashClickActionFunc(IControl* pCaller)
   pCaller->GetUI()->GetMouseDownPoint(x, y);
   dynamic_cast<IVectorBase*>(pCaller)->SetSplashPoint(x, y);
   pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION);
+}
+
+void ShowBubbleHorizontalActionFunc(IControl* pCaller)
+{
+  IGraphics* pGraphics = pCaller->GetUI();
+  const IParam* pParam = pCaller->GetParam();
+  IRECT bounds = pCaller->GetRECT();
+  WDL_String display;
+  pParam->GetDisplayForHostWithLabel(display);
+  pGraphics->ShowBubbleControl(pCaller, bounds.R, bounds.MH(), display.Get(), EDirection::Horizontal, IRECT(0,0,50,30));
+}
+
+void ShowBubbleVerticalActionFunc(IControl* pCaller)
+{
+  IGraphics* pGraphics = pCaller->GetUI();
+  const IParam* pParam = pCaller->GetParam();
+  IRECT bounds = pCaller->GetRECT();
+  WDL_String display;
+  pParam->GetDisplayForHostWithLabel(display);
+  pGraphics->ShowBubbleControl(pCaller, bounds.MW(), bounds.T, display.Get(), EDirection::Vertical, IRECT(0,0,50,30));
 }
 
 END_IGRAPHICS_NAMESPACE
@@ -237,6 +242,7 @@ void IControl::Hide(bool hide)
 
 void IControl::SetDisabled(bool disable)
 {
+  mBlend.mWeight = (disable ? GRAYED_ALPHA : 1.0f);
   mDisabled = disable;
   SetDirty(false);
 }
@@ -788,7 +794,7 @@ void IDirBrowseControlBase::CollectSortedItems(IPopupMenu* pMenu)
   }
 }
 
-void IDirBrowseControlBase::SetUpMenu()
+void IDirBrowseControlBase::SetupMenu()
 {
   mFiles.Empty(true);
   mItems.Empty(false);

@@ -243,13 +243,10 @@ public:
    * @param paramIdx The index of the parameter that is changing value */
   virtual void EndInformHostOfParamChangeFromUI(int paramIdx) = 0;
   
-  /** If the editor changes UI dimensions we need to call into the plug-in API to  resize the window in the plugin
+  /** If the editor changes UI dimensions, e.g. from clicking a button to choose a size or dragging a corner resizer, it needs to call into the plug-in API to resize the window in the plugin
    * returns a bool to indicate whether the DAW or plugin class has resized the host window */
   virtual bool EditorResizeFromUI(int viewWidth, int viewHeight) { return false; }
     
-  /** If the editor changes arbitrary data (such as layout/scale) this is called to store data into the plugin*/
-  virtual void EditorDataChangedFromUI(const IByteChunk& data) {}
-
   /** SendMidiMsgFromUI (Abbreviation: SMMFUI)
    * This method should be used  when  sending a MIDI message from the UI. For example clicking on a key in a virtual keyboard.
    * Eventually the MIDI message can be handled in IPlugProcessor::ProcessMidiMsg(), from where it can be used to trigger sound and or forwarded to the API's MIDI output.
@@ -278,35 +275,37 @@ public:
   virtual void DeferSysexMsg(const ISysEx& msg) {};
 
 #pragma mark - Editor resizing
-  
+  void SetEditorSize(int width, int height) { mEditorWidth = width; mEditorHeight = height; }
+
   /** @return The width of the plug-in editor in pixels */
   int GetEditorWidth() const { return mEditorWidth; }
   
   /** @return The height of the plug-in editor in pixels */
   int GetEditorHeight() const { return mEditorHeight; }
   
-  /** @return An IByteChunk with any arbitrary data that the editor wishes to store  */
-  const IByteChunk& GetEditorData() const { return mEditorData; }
+  /** Serializes the editor state (such as scale) into a binary chunk.
+   * @param chunk The output chunk to serialize to. Will append data if the chunk has already been started.
+   * @return \c true if the serialization was successful */
+  virtual bool SerializeEditorState(IByteChunk& chunk) const { return true; }
   
-  /** This method should be called to set and unserialize editor data from the plugin
-   * @param data A IByteChunk containing the new data
-   * @param startPos Starting point in the chunk
-   * @return The new chunk position (endPos)*/
-  virtual int SetEditorData(const IByteChunk& data, int startPos) { return startPos; }
-
+  /** Unserializes editor state (such as scale).
+   * @param chunk The incoming chunk where editor data is stored to unserialize
+   * @param startPos The start position in the chunk where parameter values are stored
+   * @return The new chunk position (endPos) */
+  virtual int UnserializeEditorState(const IByteChunk& chunk, int startPos)  { return startPos; }
+  
   /** Can be used by a host API to inform the editor of screen scale changes
    *@param scale The new screen scale*/
   virtual void SetScreenScale(double scale) {}
 
 protected:
+  /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to MakeConfig() in the plug-in class implementation constructor */
+  WDL_PtrList<IParam> mParams;
+private:
   /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist. */
   int mEditorWidth = 0;
   /** The height of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist */
   int mEditorHeight = 0;
-  /** Any arbitrary data that the editor need to store (e.g. scale etc.) */
-  IByteChunk mEditorData;
-  /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to MakeConfig() in the plug-in class implementation constructor */
-  WDL_PtrList<IParam> mParams;
 };
 
 END_IPLUG_NAMESPACE

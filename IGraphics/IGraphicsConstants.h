@@ -53,24 +53,20 @@ const char* const DEFAULT_FONT = "Roboto-Regular";
 static constexpr float DEFAULT_TEXT_SIZE = 14.f;
 static constexpr int FONT_LEN = 64;
 
-/** @enum EType Blend type
- * \todo This could use some documentation
- */
+/** @enum EBlend Porter-Duff blend mode/compositing operators */
 enum class EBlend
 {
-  Default,
-  Clobber,
-  SourceOver,
-  SourceIn,
-  SourceOut,
-  SourceAtop,
-  DestOver,
-  DestIn,
-  DestOut,
-  DestAtop,
+  SrcOver,
+  SrcIn,
+  SrcOut,
+  SrcAtop,
+  DstOver,
+  DstIn,
+  DstOut,
+  DstAtop,
   Add,
   XOR,
-  None = EBlend::Default
+  Default = SrcOver
 };
 
 /** /todo */
@@ -115,9 +111,9 @@ enum EVColor
 
 static const char* kVColorStrs[kNumDefaultVColors] =
 {
-  "background",
-  "foreground/off states",
-  "pressed/on states",
+  "bg",
+  "fg/off ",
+  "pressed/on",
   "frame",
   "highlight",
   "shadow",

@@ -87,7 +87,7 @@ public:
   DWORD OnVBlankRun();
 
 protected:
-  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) override;
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
 
   void SetTooltip(const char* tooltip);
@@ -120,8 +120,8 @@ private:
 #ifdef IGRAPHICS_GL
   void CreateGLContext(); // OpenGL context management - TODO: RAII instead ?
   void DestroyGLContext();
-  void ActivateGLContext(); // Captures previously active GLContext and HDC for restoring, Gets DC
-  void DeactivateGLContext(); // Restores previous GL context and Releases DC
+  void ActivateGLContext() override;
+  void DeactivateGLContext() override;
   HGLRC mHGLRC = nullptr;
   HGLRC mStartHGLRC = nullptr;
   HDC mStartHDC = nullptr;

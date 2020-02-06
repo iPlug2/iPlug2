@@ -68,7 +68,7 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
     return false;
   });
   
-  pGraphics->HandleMouseOver(false);
+  pGraphics->EnableMouseOver(false);
   pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
   pGraphics->AttachPanelBackground(COLOR_GRAY);
   pGraphics->AttachControl(new ILambdaControl(bounds, [&](ILambdaControl* pCaller, IGraphics& g, IRECT& r) {

@@ -209,10 +209,10 @@ public:
   {
     if(mRoundedKeys)
     {
-      g.FillRoundRect(color, bounds, 0., 0., mRoundness, mRoundness);
+      g.FillRoundRect(color, bounds, 0., 0., mRoundness, mRoundness/*, &blend*/);
     }
     else
-      g.FillRect(color, bounds);
+      g.FillRect(color, bounds/*, &blend*/);
   }
 
   void Draw(IGraphics& g) override
@@ -243,17 +243,17 @@ public:
             shadowBounds.R = shadowBounds.L + 0.35f * shadowBounds.W();
             
             if(!mRoundedKeys)
-              g.FillRect(shadowColor, shadowBounds);
+              g.FillRect(shadowColor, shadowBounds, &mBlend);
             else {
-              g.FillRoundRect(shadowColor, shadowBounds, 0., 0., mRoundness, mRoundness); // this one looks strange with rounded corners
+              g.FillRoundRect(shadowColor, shadowBounds, 0., 0., mRoundness, mRoundness, &mBlend); // this one looks strange with rounded corners
             }
           }
         }
         if (mDrawFrame && i != 0)
         { // only draw the left border if it doesn't overlay mRECT left border
-          g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, mRECT.B, nullptr, mFrameThickness);
+          g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, mRECT.B, &mBlend, mFrameThickness);
           if (i == NKeys() - 2 && IsBlackKey(NKeys() - 1))
-            g.DrawLine(mFR_COLOR, kL + mWKWidth, mRECT.T, kL + mWKWidth, mRECT.B, nullptr, mFrameThickness);
+            g.DrawLine(mFR_COLOR, kL + mWKWidth, mRECT.T, kL + mWKWidth, mRECT.B, &mBlend, mFrameThickness);
         }
       }
     }
@@ -280,31 +280,31 @@ public:
           shadowBounds.R = shadowBounds.L + w;
           DrawKey(g, shadowBounds, shadowColor);
         }
-        DrawKey(g, keyBounds, i == mHighlight ? mHK_COLOR : mBK_COLOR);
+        DrawKey(g, keyBounds, (i == mHighlight ? mHK_COLOR : mBK_COLOR.WithContrast(IsDisabled() ? GRAYED_ALPHA : 0.f)));
 
         if (GetKeyIsPressed(i))
         {
           // draw pressed black key
           IColor cBP = mPK_COLOR;
           cBP.A = (int) mBKAlpha;
-          g.FillRect(cBP, keyBounds);
+          g.FillRect(cBP, keyBounds, &mBlend);
         }
 
         if(!mRoundedKeys)
         {
           // draw l, r and bottom if they don't overlay the mRECT borders
           if (mBKHeightRatio != 1.0)
-            g.DrawLine(mFR_COLOR, kL, BKBottom, kL + BKWidth, BKBottom);
+            g.DrawLine(mFR_COLOR, kL, BKBottom, kL + BKWidth, BKBottom, &mBlend);
           if (i > 0)
-            g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, BKBottom);
+            g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, BKBottom, &mBlend);
           if (i != NKeys() - 1)
-            g.DrawLine(mFR_COLOR, kL + BKWidth, mRECT.T, kL + BKWidth, BKBottom);
+            g.DrawLine(mFR_COLOR, kL + BKWidth, mRECT.T, kL + BKWidth, BKBottom, &mBlend);
         }
       }
     }
 
     if (mDrawFrame)
-      g.DrawRect(mFR_COLOR, mRECT, nullptr, mFrameThickness);
+      g.DrawRect(mFR_COLOR, mRECT, &mBlend, mFrameThickness);
 
     if (mShowNoteAndVel)
     {
@@ -326,9 +326,9 @@ public:
           r.L -= e;
           r.R -= e;
         }
-        g.FillRect(mWK_COLOR, r);
-        g.DrawRect(mFR_COLOR, r);
-        g.DrawText(mText, t.Get(), r);
+        g.FillRect(mWK_COLOR, r, &mBlend);
+        g.DrawRect(mFR_COLOR, r, &mBlend);
+        g.DrawText(mText, t.Get(), r, &mBlend);
       }
     }
 
@@ -340,7 +340,7 @@ public:
     //ti.SetFormatted(16, "mBAlpha: %d", mBAlpha);
     IText txt(20, COLOR_RED);
     IRECT tr(mRECT.L + 20, mRECT.B - 20, mRECT.L + 160, mRECT.B);
-    g.DrawText(txt, ti.Get(), tr);
+    g.DrawText(txt, ti.Get(), tr, &mBlend);
 #endif
   }
 

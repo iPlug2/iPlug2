@@ -69,6 +69,9 @@ IGraphicsSkia::Bitmap::Bitmap(sk_sp<SkSurface> surface, int width, int height, i
 IGraphicsSkia::Bitmap::Bitmap(const char* path, double sourceScale)
 {
   auto data = SkData::MakeFromFileName(path);
+  
+  assert(!data->isEmpty());
+  
   mDrawable.mImage = SkImage::MakeFromEncoded(data);
   
   mDrawable.mIsSurface = false;
@@ -102,10 +105,12 @@ struct IGraphicsSkia::Font
 // Fonts
 StaticStorage<IGraphicsSkia::Font> IGraphicsSkia::sFontCache;
 
-#pragma mark -
+#pragma mark - Utility conversions
 
-// Utility conversions
-static inline SkColor SkiaColor(const IColor& color, const IBlend* pBlend)
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+SkColor SkiaColor(const IColor& color, const IBlend* pBlend)
 {
   if (pBlend)
     return SkColorSetARGB(Clip(static_cast<int>(pBlend->mWeight * color.A), 0, 255), color.R, color.G, color.B);
@@ -113,36 +118,34 @@ static inline SkColor SkiaColor(const IColor& color, const IBlend* pBlend)
     return SkColorSetARGB(color.A, color.R, color.G, color.B);
 }
 
-static inline SkRect SkiaRect(const IRECT& r)
+SkRect SkiaRect(const IRECT& r)
 {
   return SkRect::MakeLTRB(r.L, r.T, r.R, r.B);
 }
 
-static inline SkBlendMode SkiaBlendMode(const IBlend* pBlend)
+SkBlendMode SkiaBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
     return SkBlendMode::kSrcOver;
     
   switch (pBlend->mMethod)
   {
-    case EBlend::Default:         // fall through
-    case EBlend::Clobber:         // fall through
-    case EBlend::SourceOver:      return SkBlendMode::kSrcOver;
-    case EBlend::SourceIn:        return SkBlendMode::kSrcIn;
-    case EBlend::SourceOut:       return SkBlendMode::kSrcOut;
-    case EBlend::SourceAtop:      return SkBlendMode::kSrcATop;
-    case EBlend::DestOver:        return SkBlendMode::kDstOver;
-    case EBlend::DestIn:          return SkBlendMode::kDstIn;
-    case EBlend::DestOut:         return SkBlendMode::kDstOut;
-    case EBlend::DestAtop:        return SkBlendMode::kDstATop;
-    case EBlend::Add:             return SkBlendMode::kPlus;
-    case EBlend::XOR:             return SkBlendMode::kXor;
+    case EBlend::SrcOver:      return SkBlendMode::kSrcOver;
+    case EBlend::SrcIn:        return SkBlendMode::kSrcIn;
+    case EBlend::SrcOut:       return SkBlendMode::kSrcOut;
+    case EBlend::SrcAtop:      return SkBlendMode::kSrcATop;
+    case EBlend::DstOver:      return SkBlendMode::kDstOver;
+    case EBlend::DstIn:        return SkBlendMode::kDstIn;
+    case EBlend::DstOut:       return SkBlendMode::kDstOut;
+    case EBlend::DstAtop:      return SkBlendMode::kDstATop;
+    case EBlend::Add:          return SkBlendMode::kPlus;
+    case EBlend::XOR:          return SkBlendMode::kXor;
   }
   
   return SkBlendMode::kClear;
 }
 
-static inline SkTileMode SkiaTileMode(const IPattern& pattern)
+SkTileMode SkiaTileMode(const IPattern& pattern)
 {
   switch (pattern.mExtend)
   {
@@ -155,7 +158,7 @@ static inline SkTileMode SkiaTileMode(const IPattern& pattern)
   return SkTileMode::kClamp;
 }
 
-static SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
+SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
 {
   SkPaint paint;
   paint.setAntiAlias(true);
@@ -210,6 +213,9 @@ static SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
   return paint;
 }
 
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
+
 #pragma mark -
 
 IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
@@ -239,6 +245,7 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
 //#ifdef OS_IOS
 //  if (location == EResourceLocation::kPreloadedTexture)
 //  {
+//    assert(0 && "SKIA does not yet load KTX textures");
 //    GrMtlTextureInfo textureInfo;
 //    textureInfo.fTexture.retain((__bridge void*)(gTextureMap[fileNameOrResID]));
 //    id<MTLTexture> texture = (__bridge id<MTLTexture>) textureInfo.fTexture.get();
@@ -256,7 +263,7 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   if (location == EResourceLocation::kWinBinary)
   {
     int size = 0;
-    const void* pData = LoadWinResource(fileNameOrResID, "png", size, GetWinModuleHandle());
+    const void* pData = LoadWinResource(fileNameOrResID, ext, size, GetWinModuleHandle());
     return new Bitmap(pData, size, scale);
   }
   else
@@ -412,7 +419,6 @@ void IGraphicsSkia::EndFrame()
 void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   SkPaint p;
-  SkRect skrect;
   
   p.setFilterQuality(kHigh_SkFilterQuality);
   p.setBlendMode(SkiaBlendMode(pBlend));
@@ -425,8 +431,7 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
   double scale2 = bitmap.GetScale() * bitmap.GetDrawScale();
   
   mCanvas->save();
-  skrect.setLTRB(dest.L, dest.T, dest.R, dest.B);
-  mCanvas->clipRect(skrect);
+  mCanvas->clipRect(SkiaRect(dest));
   mCanvas->translate(dest.L, dest.T);
   mCanvas->scale(scale1, scale1);
   mCanvas->translate(-srcX * scale2, -srcY * scale2);
@@ -746,11 +751,9 @@ void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
 
 void IGraphicsSkia::SetClipRegion(const IRECT& r)
 {
-  SkRect skrect;
-  skrect.setLTRB(r.L, r.T, r.R, r.B);
   mCanvas->restore();
   mCanvas->save();
-  mCanvas->clipRect(skrect);
+  mCanvas->clipRect(SkiaRect(r));
 }
 
 APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale)

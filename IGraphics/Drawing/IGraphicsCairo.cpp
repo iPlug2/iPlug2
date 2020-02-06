@@ -126,7 +126,9 @@ StaticStorage<IGraphicsCairo::Font> IGraphicsCairo::sFontCache;
 
 #pragma mark - Utilites
 
-static inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+cairo_operator_t CairoBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
   {
@@ -134,21 +136,73 @@ static inline cairo_operator_t CairoBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case EBlend::SourceOver:      return CAIRO_OPERATOR_OVER;
-    case EBlend::SourceIn:        return CAIRO_OPERATOR_IN;
-    case EBlend::SourceOut:       return CAIRO_OPERATOR_OUT;
-    case EBlend::SourceAtop:      return CAIRO_OPERATOR_ATOP;
-    case EBlend::DestOver:        return CAIRO_OPERATOR_DEST_OVER;
-    case EBlend::DestIn:          return CAIRO_OPERATOR_DEST_IN;
-    case EBlend::DestOut:         return CAIRO_OPERATOR_DEST_OUT;
-    case EBlend::DestAtop:        return CAIRO_OPERATOR_DEST_ATOP;
-    case EBlend::Add:             return CAIRO_OPERATOR_ADD;
-    case EBlend::XOR:             return CAIRO_OPERATOR_XOR;
-    case EBlend::Default:         // fall through
-    case EBlend::Clobber:         // fall through
-    default:                      return CAIRO_OPERATOR_OVER;
+    case EBlend::SrcOver:      return CAIRO_OPERATOR_OVER;
+    case EBlend::SrcIn:        return CAIRO_OPERATOR_IN;
+    case EBlend::SrcOut:       return CAIRO_OPERATOR_OUT;
+    case EBlend::SrcAtop:      return CAIRO_OPERATOR_ATOP;
+    case EBlend::DstOver:      return CAIRO_OPERATOR_DEST_OVER;
+    case EBlend::DstIn:        return CAIRO_OPERATOR_DEST_IN;
+    case EBlend::DstOut:       return CAIRO_OPERATOR_DEST_OUT;
+    case EBlend::DstAtop:      return CAIRO_OPERATOR_DEST_ATOP;
+    case EBlend::Add:          return CAIRO_OPERATOR_ADD;
+    case EBlend::XOR:          return CAIRO_OPERATOR_XOR;
   }
 }
+
+void CairoSetSourceColor(cairo_t* pContext, const IColor& color, const IBlend* pBlend)
+{
+  cairo_set_source_rgba(pContext, color.R / 255.0, color.G / 255.0, color.B / 255.0, (BlendWeight(pBlend) * color.A) / 255.0);
+}
+
+void CairoSetSourcePattern(cairo_t* pContext, const IPattern& pattern, const IBlend* pBlend)
+{
+  cairo_set_operator(pContext, CairoBlendMode(pBlend));
+
+  switch (pattern.mType)
+  {
+    case EPatternType::Solid:
+    {
+      CairoSetSourceColor(pContext, pattern.GetStop(0).mColor);
+    }
+    break;
+
+    case EPatternType::Linear:
+    case EPatternType::Radial:
+    {
+      cairo_pattern_t* cairoPattern;
+      cairo_matrix_t matrix;
+      const IMatrix& m = pattern.mTransform;
+
+      if (pattern.mType == EPatternType::Linear)
+        cairoPattern = cairo_pattern_create_linear(0.0, 0.0, 0.0, 1.0);
+      else
+        cairoPattern = cairo_pattern_create_radial(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+
+      switch (pattern.mExtend)
+      {
+      case EPatternExtend::None:      cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_NONE);      break;
+      case EPatternExtend::Pad:       cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_PAD);       break;
+      case EPatternExtend::Reflect:   cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REFLECT);   break;
+      case EPatternExtend::Repeat:    cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REPEAT);    break;
+      }
+
+      for (int i = 0; i < pattern.NStops(); i++)
+      {
+        const IColorStop& stop = pattern.GetStop(i);
+        cairo_pattern_add_color_stop_rgba(cairoPattern, stop.mOffset, stop.mColor.R / 255.0, stop.mColor.G / 255.0, stop.mColor.B / 255.0, (BlendWeight(pBlend) * stop.mColor.A) / 255.0);
+      }
+
+      cairo_matrix_init(&matrix, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
+      cairo_pattern_set_matrix(cairoPattern, &matrix);
+      cairo_set_source(pContext, cairoPattern);
+      cairo_pattern_destroy(cairoPattern);
+    }
+    break;
+  }
+}
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 #pragma mark -
 
@@ -280,7 +334,7 @@ void IGraphicsCairo::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, cons
     
     IBlend blend(EBlend::Default, shadow.mOpacity);
     cairo_translate(pContext, -layer->Bounds().L, -layer->Bounds().T);
-    SetCairoSourcePattern(pContext, shadow.mPattern, &blend);
+    CairoSetSourcePattern(pContext, shadow.mPattern, &blend);
     cairo_identity_matrix(pContext);
     cairo_set_operator(pContext, shadow.mDrawForeground ? CAIRO_OPERATOR_DEST_OVER : CAIRO_OPERATOR_SOURCE);
     cairo_translate(pContext, shadow.mXOffset, shadow.mYOffset);
@@ -373,7 +427,7 @@ void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const 
   cairo_set_dash(mContext, dashArray, options.mDash.GetCount(), options.mDash.GetOffset());
   cairo_set_line_width(mContext, thickness);
 
-  SetCairoSourcePattern(mContext, pattern, pBlend);
+  CairoSetSourcePattern(mContext, pattern, pBlend);
   if (options.mPreserve)
     cairo_stroke_preserve(mContext);
   else
@@ -383,59 +437,11 @@ void IGraphicsCairo::PathStroke(const IPattern& pattern, float thickness, const 
 void IGraphicsCairo::PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) 
 {
   cairo_set_fill_rule(mContext, options.mFillRule == EFillRule::EvenOdd ? CAIRO_FILL_RULE_EVEN_ODD : CAIRO_FILL_RULE_WINDING);
-  SetCairoSourcePattern(mContext, pattern, pBlend);
+  CairoSetSourcePattern(mContext, pattern, pBlend);
   if (options.mPreserve)
     cairo_fill_preserve(mContext);
   else
     cairo_fill(mContext);
-}
-
-void IGraphicsCairo::SetCairoSourcePattern(cairo_t* context, const IPattern& pattern, const IBlend* pBlend)
-{
-  cairo_set_operator(context, CairoBlendMode(pBlend));
-  
-  switch (pattern.mType)
-  {
-    case EPatternType::Solid:
-    {
-      const IColor &color = pattern.GetStop(0).mColor;
-      cairo_set_source_rgba(context, color.R / 255.0, color.G / 255.0, color.B / 255.0, (BlendWeight(pBlend) * color.A) / 255.0);
-    }
-    break;
-      
-    case EPatternType::Linear:
-    case EPatternType::Radial:
-    {
-      cairo_pattern_t* cairoPattern;
-      cairo_matrix_t matrix;
-      const IMatrix& m = pattern.mTransform;
-      
-      if (pattern.mType == EPatternType::Linear)
-        cairoPattern = cairo_pattern_create_linear(0.0, 0.0, 0.0, 1.0);
-      else
-        cairoPattern = cairo_pattern_create_radial(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
-      
-      switch (pattern.mExtend)
-      {
-        case EPatternExtend::None:      cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_NONE);      break;
-        case EPatternExtend::Pad:       cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_PAD);       break;
-        case EPatternExtend::Reflect:   cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REFLECT);   break;
-        case EPatternExtend::Repeat:    cairo_pattern_set_extend(cairoPattern, CAIRO_EXTEND_REPEAT);    break;
-      }
-      
-      for (int i = 0; i < pattern.NStops(); i++)
-      {
-        const IColorStop& stop = pattern.GetStop(i);
-        cairo_pattern_add_color_stop_rgba(cairoPattern, stop.mOffset, stop.mColor.R / 255.0, stop.mColor.G / 255.0, stop.mColor.B / 255.0, (BlendWeight(pBlend) * stop.mColor.A) / 255.0);
-      }
-      
-      cairo_matrix_init(&matrix, m.mXX, m.mYX, m.mXY, m.mYY, m.mTX, m.mTY);
-      cairo_pattern_set_matrix(cairoPattern, &matrix);
-      cairo_set_source(context, cairoPattern);
-      cairo_pattern_destroy(cairoPattern);
-    }
-    break;
-  }
 }
 
 IColor IGraphicsCairo::GetPoint(int x, int y)
@@ -555,7 +561,7 @@ void IGraphicsCairo::DoDrawText(const IText& text, const char* str, const IRECT&
   if (useNativeTransforms)
   {
     DoTextRotation(text, bounds, measured);
-    cairo_set_source_rgba(mContext, c.R / 255.0, c.G / 255.0, c.B / 255.0, (BlendWeight(pBlend) * c.A) / 255.0);
+    CairoSetSourceColor(mContext, c, pBlend);
     cairo_translate(mContext, x, y);
     cairo_show_glyphs(mContext, pGlyphs, numGlyphs);
   }
@@ -564,7 +570,7 @@ void IGraphicsCairo::DoDrawText(const IText& text, const char* str, const IRECT&
     PathTransformSave();
     PathTransformReset();
     StartLayer(nullptr, measured);
-    cairo_set_source_rgba(mContext, c.R / 255.0, c.G / 255.0, c.B / 255.0, (BlendWeight(pBlend) * c.A) / 255.0);
+    CairoSetSourceColor(mContext, c, pBlend);
     cairo_translate(mContext, x, y);
     cairo_show_glyphs(mContext, pGlyphs, numGlyphs);
     ILayerPtr layer = EndLayer();

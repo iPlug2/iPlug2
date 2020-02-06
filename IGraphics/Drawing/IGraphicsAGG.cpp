@@ -76,38 +76,41 @@ static const bool textKerning = true;
 static StaticStorage<IFontData> sFontCache;
 
 #pragma mark - Utilites
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
 
-static inline const agg::rgba8 AGGColor(const IColor& color, float opacity)
+agg::rgba8 AGGColor(const IColor& color, float opacity)
 {
   return agg::rgba8(color.R, color.G, color.B, (opacity * color.A));
 }
 
-static inline agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
+agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
 {
   if (!pBlend)
     return agg::comp_op_src_over;
   
   switch (pBlend->mMethod)
   {
-    case EBlend::Default:         // fall through
-    case EBlend::Clobber:         // fall through
-    case EBlend::SourceOver:      return agg::comp_op_src_over;
-    case EBlend::SourceIn:        return agg::comp_op_src_in;
-    case EBlend::SourceOut:       return agg::comp_op_src_out;
-    case EBlend::SourceAtop:      return agg::comp_op_src_atop;
-    case EBlend::DestOver:        return agg::comp_op_dst_over;
-    case EBlend::DestIn:          return agg::comp_op_dst_in;
-    case EBlend::DestOut:         return agg::comp_op_dst_out;
-    case EBlend::DestAtop:        return agg::comp_op_dst_atop;
-    case EBlend::Add:             return agg::comp_op_plus;
-    case EBlend::XOR:             return agg::comp_op_xor;
+    case EBlend::SrcOver:      return agg::comp_op_src_over;
+    case EBlend::SrcIn:        return agg::comp_op_src_in;
+    case EBlend::SrcOut:       return agg::comp_op_src_out;
+    case EBlend::SrcAtop:      return agg::comp_op_src_atop;
+    case EBlend::DstOver:      return agg::comp_op_dst_over;
+    case EBlend::DstIn:        return agg::comp_op_dst_in;
+    case EBlend::DstOut:       return agg::comp_op_dst_out;
+    case EBlend::DstAtop:      return agg::comp_op_dst_atop;
+    case EBlend::Add:          return agg::comp_op_plus;
+    case EBlend::XOR:          return agg::comp_op_xor;
   }
 }
 
-static inline agg::cover_type AGGCover(const IBlend* pBlend = nullptr)
+agg::cover_type AGGCover(const IBlend* pBlend)
 {
   return std::max(agg::cover_type(0), std::min(agg::cover_type(roundf(BlendWeight(pBlend) * 255.f)), agg::cover_type(255)));
 }
+
+END_IGRAPHICS_NAMESPACE
+END_IPLUG_NAMESPACE
 
 template <class PixelMapType>
 static agg::pixel_map* CreatePixmap(int w, int h)
@@ -523,11 +526,11 @@ void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
     PushLayer(layer.get());
     PushLayer(&shadowLayer);
     PathRect(layer->Bounds());
-    IBlend blend1(EBlend::SourceIn, 1.0);
+    IBlend blend1(EBlend::SrcIn, 1.0);
     PathTransformTranslate(-shadow.mXOffset, -shadow.mYOffset);
     PathFill(shadow.mPattern, IFillOptions(), &blend1);
     PopLayer();
-    IBlend blend2(EBlend::DestOver, shadow.mOpacity);
+    IBlend blend2(EBlend::DstOver, shadow.mOpacity);
     bounds.Translate(shadow.mXOffset, shadow.mYOffset);
     DrawBitmap(bitmap, bounds, 0, 0, &blend2);
     PopLayer();
