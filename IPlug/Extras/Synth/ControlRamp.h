@@ -89,7 +89,7 @@ public:
   ControlRampProcessor(const ControlRampProcessor&) = delete;
   ControlRampProcessor& operator=(const ControlRampProcessor&) = delete;
   ControlRampProcessor(ControlRampProcessor&&) = default;
-  ControlRampProcessor& operator=(ControlRampProcessor&&) = default;
+  ControlRampProcessor& operator=(ControlRampProcessor&&) = delete;
     
   // process the glide and write changes to the output ramp.
   void Process(int blockSize)
