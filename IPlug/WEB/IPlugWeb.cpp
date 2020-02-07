@@ -118,7 +118,12 @@ void IPlugWeb::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int dataSize, con
   }, (int) mSAMFUIBuf.GetData(), mSAMFUIBuf.Size());
 #else
   EM_ASM({
-    window[Module.UTF8ToString($0)].sendMessage('SAMFUI', "", Module.HEAPU8.slice($1, $1 + $2).buffer);
+    if(typeof window[Module.UTF8ToString($0)] === 'undefined' ) {
+      console.log("warning - SAMFUI called before controller exists");
+    }
+    else { 
+      window[Module.UTF8ToString($0)].sendMessage('SAMFUI', "", Module.HEAPU8.slice($1, $1 + $2).buffer);
+    }
   }, mWAMCtrlrJSObjectName.Get(), (int) mSAMFUIBuf.GetData() + kNumMsgHeaderBytes, mSAMFUIBuf.Size() - kNumMsgHeaderBytes); // Non websocket doesn't need "SAMFUI" bytes at beginning
 #endif
 }

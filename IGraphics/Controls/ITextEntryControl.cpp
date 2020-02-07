@@ -133,7 +133,7 @@ bool ITextEntryControl::CallSTB(Proc proc)
   auto oldState = mEditState;
   proc();
   
-  if(memcmp (&oldState, &mEditState, sizeof (STB_TexteditState)) != 0)
+  if(memcmp(&oldState, &mEditState, sizeof (STB_TexteditState)) != 0)
   {
     OnStateChanged(); //TODO:
     return true;
@@ -153,10 +153,8 @@ void ITextEntryControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   if(mod.L)
   {
     CallSTB ([&]() {
-      stb_textedit_click(this, &mEditState, x - mRECT.L, y - mRECT.T);
+      stb_textedit_click(this, &mEditState, x, y);
     });
-    
-    SetDirty(true);
   }
   
   if(mod.R)
@@ -180,11 +178,9 @@ void ITextEntryControl::OnMouseDrag(float x, float y, float dX, float dY, const 
 {
   if (mod.L)
   {
-    CallSTB ([&]() {
-      stb_textedit_drag(this, &mEditState, x - mRECT.L, y - mRECT.T);
+    CallSTB([&]() {
+      stb_textedit_drag(this, &mEditState, x, y);
     });
-
-    SetDirty(true);
   }
 }
 
@@ -201,7 +197,7 @@ void ITextEntryControl::OnMouseUp(float x, float y, const IMouseMod& mod)
   if (mod.L)
   {
     CallSTB([&]() {
-      stb_textedit_drag(this, &mEditState, x - mRECT.L, y - mRECT.T);
+      stb_textedit_drag(this, &mEditState, x, y);
     });
 
     SetDirty(true);
@@ -404,13 +400,13 @@ void ITextEntryControl::Layout(StbTexteditRow* row, ITextEntryControl* _this, in
   {
     case EAlign::Near:
     {
-      row->x0 = _this->GetRECT().L + 1; 
+      row->x0 = _this->GetRECT().L;
       row->x1 = row->x0 + textWidth;
       break;
     }
     case EAlign::Center:
     {
-      row->x0 = roundf(_this->GetRECT().MW() - (textWidth * 0.5f));
+      row->x0 = _this->GetRECT().MW() - (textWidth * 0.5f);
       row->x1 = row->x0 + textWidth;
       break;
     }

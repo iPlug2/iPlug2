@@ -70,7 +70,7 @@ MetaParamTest::MetaParamTest(const InstanceInfo& info)
   GetParam(kParamEnum2)->SetDisplayText(2, "Hearts");
   GetParam(kParamEnum2)->SetDisplayText(3, "Clubs");
   
-#if IPLUG_EDITOR // All UI methods and member variables should be within an IPLUG_EDITOR guard, should you want distributed UI
+#if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
   };
@@ -123,14 +123,9 @@ MetaParamTest::MetaParamTest(const InstanceInfo& info)
         }
       });
     });
-
-    
   };
 #endif
 }
-
-#if IPLUG_EDITOR
-#endif
 
 #if IPLUG_DSP
 void MetaParamTest::ProcessBlock(sample** inputs, sample** outputs, int nFrames)

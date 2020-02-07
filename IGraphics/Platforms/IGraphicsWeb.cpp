@@ -303,8 +303,9 @@ static EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent*
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
 
   IMouseInfo info;
-  info.x = pEvent->canvasX / pGraphics->GetDrawScale();
-  info.y = pEvent->canvasY / pGraphics->GetDrawScale();
+  val rect = GetCanvas().call<val>("getBoundingClientRect");
+  info.x = (pEvent->targetX - rect["left"].as<double>()) / pGraphics->GetDrawScale();
+  info.y = (pEvent->targetY - rect["top"].as<double>()) / pGraphics->GetDrawScale();
   info.dX = pEvent->movementX;
   info.dY = pEvent->movementY;
   info.ms = {pEvent->buttons == 1, pEvent->buttons == 2, static_cast<bool>(pEvent->shiftKey), static_cast<bool>(pEvent->ctrlKey), static_cast<bool>(pEvent->altKey)};
@@ -314,11 +315,11 @@ static EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent*
   {
     case EMSCRIPTEN_EVENT_MOUSEUP:
       pGraphics->OnMouseUp(list);
-      emscripten_set_mousemove_callback("#window", pGraphics, 1, nullptr);
-      emscripten_set_mouseup_callback("#window", pGraphics, 1, nullptr);
+      emscripten_set_mousemove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, pGraphics, 1, nullptr);
+      emscripten_set_mouseup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, pGraphics, 1, nullptr);
       break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
-      if(pEvent->buttons != 0 && !pGraphics->IsInTextEntry())
+      if(pEvent->buttons != 0 && !pGraphics->IsInPlatformTextEntry())
         pGraphics->OnMouseDrag(list);
       break;
     default:
@@ -336,8 +337,8 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent,
   IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
   
   IMouseInfo info;
-  info.x = pEvent->canvasX / pGraphics->GetDrawScale();
-  info.y = pEvent->canvasY / pGraphics->GetDrawScale();
+  info.x = pEvent->targetX / pGraphics->GetDrawScale();
+  info.y = pEvent->targetY / pGraphics->GetDrawScale();
   info.dX = pEvent->movementX;
   info.dY = pEvent->movementY;
   info.ms = {pEvent->buttons == 1, pEvent->buttons == 2, static_cast<bool>(pEvent->shiftKey), static_cast<bool>(pEvent->ctrlKey), static_cast<bool>(pEvent->altKey)};
@@ -374,7 +375,7 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent,
         pGraphics->OnMouseOver(info.x, info.y, info.ms);
       else
       {
-        if(!pGraphics->IsInTextEntry())
+        if(!pGraphics->IsInPlatformTextEntry())
           pGraphics->OnMouseDrag(list);
       }
       break;
@@ -382,13 +383,13 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent,
     case EMSCRIPTEN_EVENT_MOUSEENTER:
       pGraphics->OnSetCursor();
       pGraphics->OnMouseOver(info.x, info.y, info.ms);
-      emscripten_set_mousemove_callback("#window", pGraphics, 1, nullptr);
+      emscripten_set_mousemove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, pGraphics, 1, nullptr);
       break;
     case EMSCRIPTEN_EVENT_MOUSELEAVE:
       if(pEvent->buttons != 0)
       {
-        emscripten_set_mousemove_callback("#window", pGraphics, 1, outside_mouse_callback);
-        emscripten_set_mouseup_callback("#window", pGraphics, 1, outside_mouse_callback);
+        emscripten_set_mousemove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, pGraphics, 1, outside_mouse_callback);
+        emscripten_set_mouseup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, pGraphics, 1, outside_mouse_callback);
       }
       pGraphics->OnMouseOut(); break;
     default:
@@ -531,18 +532,18 @@ IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float s
   
   DBGMSG("Preloaded %i images\n", keys["length"].as<int>());
   
-  emscripten_set_mousedown_callback("canvas", this, 1, mouse_callback);
-  emscripten_set_mouseup_callback("canvas", this, 1, mouse_callback);
-  emscripten_set_mousemove_callback("canvas", this, 1, mouse_callback);
-  emscripten_set_mouseenter_callback("canvas", this, 1, mouse_callback);
-  emscripten_set_mouseleave_callback("canvas", this, 1, mouse_callback);
-  emscripten_set_wheel_callback("canvas", this, 1, wheel_callback);
-  emscripten_set_keydown_callback("#window", this, 1, key_callback);
-  emscripten_set_keyup_callback("#window", this, 1, key_callback);
-  emscripten_set_touchstart_callback("canvas", this, 1, touch_callback);
-  emscripten_set_touchend_callback("canvas", this, 1, touch_callback);
-  emscripten_set_touchmove_callback("canvas", this, 1, touch_callback);
-  emscripten_set_touchcancel_callback("canvas", this, 1, touch_callback);
+  emscripten_set_mousedown_callback("#canvas", this, 1, mouse_callback);
+  emscripten_set_mouseup_callback("#canvas", this, 1, mouse_callback);
+  emscripten_set_mousemove_callback("#canvas", this, 1, mouse_callback);
+  emscripten_set_mouseenter_callback("#canvas", this, 1, mouse_callback);
+  emscripten_set_mouseleave_callback("#canvas", this, 1, mouse_callback);
+  emscripten_set_wheel_callback("#canvas", this, 1, wheel_callback);
+  emscripten_set_keydown_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, 1, key_callback);
+  emscripten_set_keyup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, 1, key_callback);
+  emscripten_set_touchstart_callback("#canvas", this, 1, touch_callback);
+  emscripten_set_touchend_callback("#canvas", this, 1, touch_callback);
+  emscripten_set_touchmove_callback("#canvas", this, 1, touch_callback);
+  emscripten_set_touchcancel_callback("#canvas", this, 1, touch_callback);
 }
 
 IGraphicsWeb::~IGraphicsWeb()
@@ -577,9 +578,9 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
   if (hide)
   {
     if (lock)
-      emscripten_request_pointerlock("canvas", EM_FALSE);
+      emscripten_request_pointerlock("#canvas", EM_FALSE);
     else
-      emscripten_hide_mouse();
+      val::global("document")["body"]["style"].set("cursor", "none");
     
     mCursorLock = lock;
   }

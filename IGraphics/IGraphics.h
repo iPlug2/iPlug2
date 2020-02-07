@@ -1022,8 +1022,8 @@ public:
   /** @return Get a persistant IPopupMenu (remember to clear it before use) */
   IPopupMenu& GetPromptMenu() { return mPromptPopupMenu; }
   
-  /** @return True if text entry in progress */
-  bool IsInTextEntry() { return mInTextEntry != nullptr; }
+  /** @return True if a platform text entry in is progress */
+  bool IsInPlatformTextEntry() { return mInTextEntry != nullptr && !mTextEntryControl; }
   
   /** @return Ptr to the control that launched the text entry */
   IControl* GetControlInTextEntry() { return mInTextEntry; }

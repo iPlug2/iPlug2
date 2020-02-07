@@ -269,15 +269,13 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
   if (mIsEditingOrSelecting == NO)
   {
     // Get our ideal size for current text
-    NSSize textSize = [self cellSizeForBounds:theRect];
+    NSSize textSize = [self cellSize];
     
     // Center that in the proposed rect
     float heightDelta = newRect.size.height - textSize.height;
-    if (heightDelta > 0)
-    {
-      newRect.size.height -= heightDelta;
-      newRect.origin.y += (heightDelta / 2);
-    }
+    
+    newRect.size.height -= heightDelta;
+    newRect.origin.y += (heightDelta / 2);
   }
   
   return newRect;
@@ -733,7 +731,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   float prevX = mPrevX;
   float prevY = mPrevY;
   IMouseInfo info = [self getMouseLeft:pEvent];
-  if (mGraphics && !mGraphics->IsInTextEntry())
+  if (mGraphics && !mGraphics->IsInPlatformTextEntry())
   {
     info.dX = info.x - prevX;
     info.dY = info.y - prevY;
@@ -1065,8 +1063,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   }
 
   CoreTextFontDescriptor* CTFontDescriptor = CoreTextHelpers::GetCTFontDescriptor(text, sFontDescriptorCache);
+  double ratio = CTFontDescriptor->GetEMRatio() * mGraphics->GetDrawScale();
   NSFontDescriptor* fontDescriptor = (NSFontDescriptor*) CTFontDescriptor->GetDescriptor();
-  NSFont* font = [NSFont fontWithDescriptor: fontDescriptor size: text.mSize * 0.75];
+  NSFont* font = [NSFont fontWithDescriptor: fontDescriptor size: text.mSize * ratio];
   [mTextFieldView setFont: font];
   
   switch (text.mAlign)
