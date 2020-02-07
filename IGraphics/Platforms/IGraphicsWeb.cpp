@@ -432,8 +432,8 @@ EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent* pEvent, void* 
   for (auto i = 0; i < pEvent->numTouches; i++)
   {
     IMouseInfo info;
-    info.x = pEvent->touches[i].canvasX / pGraphics->GetDrawScale();
-    info.y = pEvent->touches[i].canvasY / pGraphics->GetDrawScale();
+    info.x = pEvent->touches[i].targetX / pGraphics->GetDrawScale();
+    info.y = pEvent->touches[i].targetY / pGraphics->GetDrawScale();
 //    info.dX = pEvent->movementX;
 //    info.dY = pEvent->movementY;
     info.ms = {true,
