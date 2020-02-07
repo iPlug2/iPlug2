@@ -14,6 +14,7 @@
 #include "pluginterfaces/base/ibstream.h"
 #include "pluginterfaces/vst/ivstparameterchanges.h"
 #include "pluginterfaces/vst/ivstevents.h"
+#include "pluginterfaces/vst/ivstmidicontrollers.h"
 
 #include "IPlugVST3.h"
 
@@ -44,7 +45,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
   if (SingleComponentEffect::initialize(context) == kResultOk)
   {
     IPlugVST3ProcessorBase::Initialize(this);
-    IPlugVST3ControllerBase::Initialize(this, parameters, IsInstrument());
+    IPlugVST3ControllerBase::Initialize(this, parameters, IsInstrument(), DoesMIDIIn());
 
     IPlugVST3GetHost(this, context);
     OnHostIdentified();
@@ -165,76 +166,16 @@ tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* pState)
   return kResultOk;
 }
 
-#pragma mark IUnitInfo overrides
+#pragma mark IMidiMapping overrides
 
-int32 PLUGIN_API IPlugVST3::getUnitCount()
+tresult PLUGIN_API IPlugVST3::getMidiControllerAssignment(int32 busIndex, int16 midiChannel, CtrlNumber midiCCNumber, ParamID& tag)
 {
-  TRACE
-
-  return NParamGroups() + 1;
-}
-
-tresult PLUGIN_API IPlugVST3::getUnitInfo(int32 unitIndex, UnitInfo& info)
-{
-  TRACE
-
-  if (unitIndex == 0)
+  if (busIndex == 0)
   {
-    info.id = kRootUnitId;
-    info.parentUnitId = kNoParentUnitId;
-    UString name(info.name, 128);
-    name.fromAscii("Root Unit");
-#ifdef VST3_PRESET_LIST
-    info.programListId = kPresetParam;
-#else
-    info.programListId = kNoProgramListId;
-#endif
-    return kResultTrue;
-  }
-  else if (unitIndex > 0 && NParamGroups())
-  {
-    info.id = unitIndex;
-    info.parentUnitId = kRootUnitId;
-    info.programListId = kNoProgramListId;
-
-    UString name(info.name, 128);
-    name.fromAscii(GetParamGroupName(unitIndex-1));
-
+    tag = kMIDICCParamStartIdx + (midiChannel * kCountCtrlNumber) + midiCCNumber;
     return kResultTrue;
   }
 
-  return kResultFalse;
-}
-
-int32 PLUGIN_API IPlugVST3::getProgramListCount()
-{
-#ifdef VST3_PRESET_LIST
-  return (NPresets() > 0);
-#else
-  return 0;
-#endif
-}
-
-tresult PLUGIN_API IPlugVST3::getProgramListInfo(int32 listIndex, ProgramListInfo& info /*out*/)
-{
-  if (listIndex == 0)
-  {
-    info.id = kPresetParam;
-    info.programCount = (int32) NPresets();
-    UString name(info.name, 128);
-    name.fromAscii("Factory Presets");
-    return kResultTrue;
-  }
-  return kResultFalse;
-}
-
-tresult PLUGIN_API IPlugVST3::getProgramName(ProgramListID listId, int32 programIndex, String128 name /*out*/)
-{
-  if (listId == kPresetParam)
-  {
-    Steinberg::UString(name, 128).fromAscii(GetPresetName(programIndex));
-    return kResultTrue;
-  }
   return kResultFalse;
 }
 
@@ -264,14 +205,14 @@ void IPlugVST3::InformHostOfParameterDetailsChange()
   handler->restartComponent(kParamTitlesChanged);
 }
 
-bool IPlugVST3::EditorResizeFromDelegate(int viewWidth, int viewHeight)
+bool IPlugVST3::EditorResize(int viewWidth, int viewHeight)
 {
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
       mView->resize(viewWidth, viewHeight);
 
-    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
+    SetEditorSize(viewWidth, viewHeight);
   }
   
   return true;

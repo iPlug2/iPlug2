@@ -139,16 +139,6 @@ int IPluginBase::UnserializeParams(const IByteChunk& chunk, int startPos)
   return pos;
 }
 
-bool IPluginBase::SerializeEditorData(IByteChunk& chunk) const
-{
-  return chunk.PutChunk(&GetEditorData()) > 0;
-}
-
-int IPluginBase::UnserializeEditorData(const IByteChunk& chunk, int startPos)
-{
-  return SetEditorData(chunk, startPos);
-}
-
 void IPluginBase::InitParamRange(int startIdx, int endIdx, int countStart, const char* nameFmtStr, double defaultVal, double minVal, double maxVal, double step, const char *label, int flags, const char *group, const IParam::Shape& shape, IParam::EParamUnit unit, IParam::DisplayFunc displayFunc)
 {
   WDL_String nameStr;
@@ -253,12 +243,12 @@ void IPluginBase::RandomiseParamValues()
 
 void IPluginBase::RandomiseParamValues(int startIdx, int endIdx)
 {
-  ForParamInRange(startIdx, endIdx, [&](int paramIdx, IParam& param) { param.SetNormalized( static_cast<float>(std::rand()/(RAND_MAX+1.f)) ); });
+  ForParamInRange(startIdx, endIdx, [&](int paramIdx, IParam& param) { param.SetNormalized( static_cast<float>(std::rand()/(static_cast<float>(RAND_MAX)+1.f)) ); });
 }
 
 void IPluginBase::RandomiseParamValues(const char *paramGroup)
 {
-  ForParamInGroup(paramGroup, [&](int paramIdx, IParam& param) { param.SetNormalized( static_cast<float>(std::rand()/(RAND_MAX+1.f)) ); });
+  ForParamInGroup(paramGroup, [&](int paramIdx, IParam& param) { param.SetNormalized( static_cast<float>(std::rand()/(static_cast<float>(RAND_MAX)+1.f)) ); });
 }
 
 void IPluginBase::PrintParamValues()
@@ -892,7 +882,7 @@ bool IPluginBase::LoadProgramFromFXP(const char* file)
         
         return true;
       }
-      else if (fxpMagic == 'FxCk') // Due to the big Endian-ness of FXP/FXB format we cannot call SerialiseParams()
+      else if (fxpMagic == 'FxCk') // Due to the big Endian-ness of FXP/FXB format we cannot call SerializeParams()
       {
         ENTER_PARAMS_MUTEX
         for (int i = 0; i< NParams(); i++)
@@ -985,7 +975,7 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
         InformHostOfProgramChange();
         return true;
       }
-      else if (fxbMagic == 'FxBk') // Due to the big Endian-ness of FXP/FXB format we cannot call SerialiseParams()
+      else if (fxbMagic == 'FxBk') // Due to the big Endian-ness of FXP/FXB format we cannot call SerializeParams()
       {
         int32_t chunkMagic;
         int32_t byteSize;

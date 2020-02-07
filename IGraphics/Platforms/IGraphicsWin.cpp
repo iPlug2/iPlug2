@@ -157,9 +157,6 @@ static int GetScaleForWindow(HWND hWnd)
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
-  float oldX = mCursorX;
-  float oldY = mCursorY;
-
   IMouseInfo info;
   info.x = mCursorX = GET_X_LPARAM(lParam) / (GetDrawScale() * GetScreenScale());
   info.y = mCursorY = GET_Y_LPARAM(lParam) / (GetDrawScale() * GetScreenScale());
@@ -170,6 +167,7 @@ inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
     GetKeyState(VK_MENU) < 0
 #endif
   );
+
   return info;
 }
 
@@ -412,9 +410,16 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           TrackMouseEvent(&eventTrack);
         }
       }
-      else if (GetCapture() == hWnd && !pGraphics->IsInTextEntry())
+      else if (GetCapture() == hWnd && !pGraphics->IsInPlatformTextEntry())
       {
+        float oldX = pGraphics->mCursorX;
+        float oldY = pGraphics->mCursorY;
+
         IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
+
+        info.dX = info.x - oldX;
+        info.dY = info.y - oldY;
+
         if (info.dX || info.dY)
         {
           std::vector<IMouseInfo> list{ info };
@@ -448,6 +453,9 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_LBUTTONDBLCLK:
     {
+      if (IsTouchEvent())
+        return 0;
+
       IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
       if (pGraphics->OnMouseDblClick(info.x, info.y, info.ms))
       {
@@ -889,12 +897,6 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
     {
       SetWindowPos(pGrandparent, 0, 0, 0, grandparentW + dw, grandparentH + dh, SETPOS_FLAGS);
     }
-
-    RECT r = { 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale() };
-    InvalidateRect(mPlugWnd, &r, FALSE);
-
-    // Fix white background while resizing
-    UpdateWindow(mPlugWnd);
   }
 }
 
@@ -1382,7 +1384,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
   return hMenu;
 }
 
-IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
+IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
 {
   long offsetIdx = 0;
   HMENU hMenu = CreateMenu(menu, &offsetIdx);
@@ -1449,10 +1451,10 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
 
   switch ( text.mAlign )
   {
-    case EAlign::Near:   editStyle = ES_LEFT;   break;
-    case EAlign::Far:    editStyle = ES_RIGHT;  break;
+    case EAlign::Near:    editStyle = ES_LEFT;   break;
+    case EAlign::Far:     editStyle = ES_RIGHT;  break;
     case EAlign::Center:
-    default:                  editStyle = ES_CENTER; break;
+    default:              editStyle = ES_CENTER; break;
   }
 
   double scale = GetDrawScale() * GetScreenScale();
@@ -1479,6 +1481,14 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) length, 0);
   SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM)mEditFont, 0);
   SendMessage(mParamEditWnd, EM_SETSEL, 0, -1);
+
+  if (text.mVAlign == EVAlign::Middle)
+  {
+    double size = text.mSize * scale;
+    double offset = (scaledBounds.H() - size) / 2.0;
+    RECT formatRect{0, offset, scaledBounds.W() + 1, scaledBounds.H() + 1};
+    SendMessage(mParamEditWnd, EM_SETRECT, 0, (LPARAM)&formatRect);
+  }
 
   SetFocus(mParamEditWnd);
 
@@ -2181,6 +2191,7 @@ void IGraphicsWin::VBlankNotify()
   #include "IGraphicsNanoVG.cpp"
 #ifdef IGRAPHICS_FREETYPE
 #define FONS_USE_FREETYPE
+  #pragma comment(lib, "freetype.lib")
 #endif
   #include "nanovg.c"
   #include "glad.c"

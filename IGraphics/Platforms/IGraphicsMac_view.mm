@@ -269,15 +269,13 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
   if (mIsEditingOrSelecting == NO)
   {
     // Get our ideal size for current text
-    NSSize textSize = [self cellSizeForBounds:theRect];
+    NSSize textSize = [self cellSize];
     
     // Center that in the proposed rect
     float heightDelta = newRect.size.height - textSize.height;
-    if (heightDelta > 0)
-    {
-      newRect.size.height -= heightDelta;
-      newRect.origin.y += (heightDelta / 2);
-    }
+    
+    newRect.size.height -= heightDelta;
+    newRect.origin.y += (heightDelta / 2);
   }
   
   return newRect;
@@ -453,6 +451,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   NSRect r = NSMakeRect(0.f, 0.f, (float) pGraphics->WindowWidth(), (float) pGraphics->WindowHeight());
   self = [super initWithFrame:r];
   
+  mMouseOutDuringDrag = false;
+    
 #if defined IGRAPHICS_NANOVG || defined IGRAPHICS_SKIA
   if (!self.wantsLayer) {
     #if defined IGRAPHICS_METAL
@@ -670,12 +670,26 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void) mouseEntered: (NSEvent *)event
 {
-  mGraphics->OnSetCursor();
+  mMouseOutDuringDrag = false;
+  if (mGraphics)
+  {
+    mGraphics->OnSetCursor();
+  }
 }
 
 - (void) mouseExited: (NSEvent *)event
 {
-  mGraphics->OnMouseOut();
+  if (mGraphics)
+  {
+    if (!mGraphics->ControlIsCaptured())
+    {
+      mGraphics->OnMouseOut();
+    }
+    else
+    {
+      mMouseOutDuringDrag = true;
+    }
+  }
 }
 
 - (void) mouseDown: (NSEvent*) pEvent
@@ -702,6 +716,12 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   {
     std::vector<IMouseInfo> list {info};
     mGraphics->OnMouseUp(list);
+
+    if (mMouseOutDuringDrag)
+    {
+      mGraphics->OnMouseOut();
+      mMouseOutDuringDrag = false;
+    }
   }
 }
 
@@ -711,7 +731,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   float prevX = mPrevX;
   float prevY = mPrevY;
   IMouseInfo info = [self getMouseLeft:pEvent];
-  if (mGraphics && !mGraphics->IsInTextEntry())
+  if (mGraphics && !mGraphics->IsInPlatformTextEntry())
   {
     info.dX = info.x - prevX;
     info.dY = info.y - prevY;
@@ -1008,7 +1028,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 {
   IGRAPHICS_MENU_RCVR* pDummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:bounds] autorelease];
   NSMenu* pNSMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:&menu : pDummyView] autorelease];
-  NSPoint wp = {bounds.origin.x, bounds.origin.y - 4};
+  NSPoint wp = {bounds.origin.x, bounds.origin.y + 4};
 
   [pNSMenu popUpMenuPositioningItem:nil atLocation:wp inView:self];
   
@@ -1023,7 +1043,8 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     pIPopupMenu->SetChosenItemIdx((int) chosenItemIdx);
     return pIPopupMenu;
   }
-  else return nullptr;
+  else
+    return nullptr;
 }
 
 - (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (NSRect) areaRect;
@@ -1042,8 +1063,9 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   }
 
   CoreTextFontDescriptor* CTFontDescriptor = CoreTextHelpers::GetCTFontDescriptor(text, sFontDescriptorCache);
+  double ratio = CTFontDescriptor->GetEMRatio() * mGraphics->GetDrawScale();
   NSFontDescriptor* fontDescriptor = (NSFontDescriptor*) CTFontDescriptor->GetDescriptor();
-  NSFont* font = [NSFont fontWithDescriptor: fontDescriptor size: text.mSize * 0.75];
+  NSFont* font = [NSFont fontWithDescriptor: fontDescriptor size: text.mSize * ratio];
   [mTextFieldView setFont: font];
   
   switch (text.mAlign)

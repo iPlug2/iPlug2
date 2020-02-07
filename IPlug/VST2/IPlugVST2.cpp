@@ -197,7 +197,7 @@ void IPlugVST2::InformHostOfProgramChange()
   mHostCallback(&mAEffect, audioMasterUpdateDisplay, 0, 0, 0, 0.0f);
 }
 
-bool IPlugVST2::EditorResizeFromDelegate(int viewWidth, int viewHeight)
+bool IPlugVST2::EditorResize(int viewWidth, int viewHeight)
 {
   bool resized = false;
 
@@ -212,7 +212,7 @@ bool IPlugVST2::EditorResizeFromDelegate(int viewWidth, int viewHeight)
       resized = mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
     }
     
-    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
+    SetEditorSize(viewWidth, viewHeight);
   }
 
   return resized;
@@ -634,15 +634,26 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       VstSpeakerArrangement* pInputArr = (VstSpeakerArrangement*) value;
       VstSpeakerArrangement* pOutputArr = (VstSpeakerArrangement*) ptr;
+
       if (pInputArr)
       {
         int n = pInputArr->numChannels;
+
+        // For a mono-in plug-in in Reaper reject effSetSpeakerArrangement passed due to wantsChannelCountNotifications
+        if (n > _this->mAEffect.numInputs)
+          return 0;
+
         _this->SetChannelConnections(ERoute::kInput, 0, n, true);
         _this->SetChannelConnections(ERoute::kInput, n, _this->MaxNChannels(ERoute::kInput) - n, false);
       }
       if (pOutputArr)
       {
         int n = pOutputArr->numChannels;
+
+        // For a mono-out plug-in in Reaper reject effSetSpeakerArrangement passed due to wantsChannelCountNotifications
+        if (n > _this->mAEffect.numOutputs)
+          return 0;
+
         _this->SetChannelConnections(ERoute::kOutput, 0, n, true);
         _this->SetChannelConnections(ERoute::kOutput, n, _this->MaxNChannels(ERoute::kOutput) - n, false);
       }

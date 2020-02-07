@@ -16,6 +16,21 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
+/** Converts IRECT to a SkRect */
+SkRect SkiaRect(const IRECT& r);
+
+/** Converts IBlend to a SkBlendMode */
+SkBlendMode SkiaBlendMode(const IBlend* pBlend);
+
+/** Converts IColor to a SkColor */
+SkColor SkiaColor(const IColor& color, const IBlend* pBlend);
+
+/** Get SkTileMode for IPattern */
+SkTileMode SkiaTileMode(const IPattern& pattern);
+
+/** Converts IPattern to SkPaint */
+SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend);
+
 /** IGraphics draw class using Skia
 *   @ingroup DrawClasses */
 class IGraphicsSkia : public IGraphicsPathBase
@@ -57,6 +72,7 @@ public:
   void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
 
+#ifdef IGRAPHICS_DRAWFILL_DIRECT
   //void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend) override;
   //void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness) override;
   //void DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend, float thickness) override;
@@ -82,7 +98,8 @@ public:
   void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend) override;
   void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override;
   //void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend) override;
-
+#endif
+  
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mCanvas; }
 

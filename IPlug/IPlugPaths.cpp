@@ -243,7 +243,7 @@ void AppSupportPath(WDL_String& path, bool isSystem)
   path.Set("Settings");
 }
 
-void SandboxSafeAppSupportPath(WDL_String& path)
+void SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID)
 {
   path.Set("Settings");
 }

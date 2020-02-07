@@ -64,6 +64,15 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
+/** Converts IColor to a NVGcolor */
+NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0);
+
+/** Set the NanoVG context blend based on IBlend */
+void NanoVGSetBlendMode(NVGcontext* pContext, const IBlend* pBlend);
+
+/** Converts IPattern to NVGpaint */
+NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend* pBlend = 0);
+
 /** IGraphics draw class using NanoVG  
 *   @ingroup DrawClasses */
 class IGraphicsNanoVG : public IGraphicsPathBase

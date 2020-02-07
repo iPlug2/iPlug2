@@ -20,7 +20,7 @@ enum EControlTags
 IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, 1))
 {
-  GetParam(kParamDummy)->InitPercentage("Dummy");
+  GetParam(kParamDummy)->InitPercentage("Dummy", 100.f);
   
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
@@ -40,7 +40,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     }
     
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
-    pGraphics->HandleMouseOver(true);
+    pGraphics->EnableMouseOver(true);
     pGraphics->EnableTooltips(true);
     pGraphics->EnableMultiTouch(true);
     
@@ -68,7 +68,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     pGraphics->LoadFont("Montserrat-LightItalic", MONTSERRAT_FN);
 
     IRECT bounds = pGraphics->GetBounds().GetPadded(-20.f);
-    auto testRect = bounds.GetFromTop(480.f).GetCentredInside(480.f);
+    auto testRect = bounds.GetFromTop(240.f).GetCentredInside(240.f);
 
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     
@@ -95,9 +95,9 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     "TextSize",
     "Metal Performance Shaders (NanoVG MTL only)",
     "OpenGL (NanoVG GL only)",
-//    "Gesture Recognizers (iOS only)",
+    "Gesture Recognizers (iOS only)",
     "MultiTouch (iOS/Windows only)",
-    "DirBrowse"
+    "FlexBox"
     };
     
     auto chooseTestControl = [&, pGraphics, testRect](int idx) {
@@ -118,7 +118,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
         case 9: pNewControl = new TestSVGControl(testRect, pGraphics->LoadSVG(TIGER_FN)); break;
         case 10: pNewControl = new TestImageControl(testRect, pGraphics->LoadBitmap(IPLUG_FN)); break;
         case 11: pNewControl = new TestLayerControl(testRect, kParamDummy); break;
-        case 12: pNewControl = new TestBlendControl(testRect, pGraphics->LoadBitmap(SMILEY_FN), kParamDummy); break;
+        case 12: pNewControl = new TestBlendControl(testRect, pGraphics->LoadBitmap(SRC_FN), pGraphics->LoadBitmap(DST_FN), kParamDummy); break;
         case 13: pNewControl = new TestDropShadowControl(testRect, pGraphics->LoadSVG(ORBS_FN)); break;
         case 14: pNewControl = new TestCursorControl(testRect); break;
         case 15: pNewControl = new TestKeyboardControl(testRect); break;
@@ -128,23 +128,10 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
         case 19: pNewControl = new TestTextSizeControl(testRect, kParamDummy); break;
         case 20: pNewControl = new TestMPSControl(testRect, pGraphics->LoadBitmap(SMILEY_FN), kParamDummy); break;
         case 21: pNewControl = new TestGLControl(testRect); break;
-//        case 22: pNewControl = new TestGesturesControl(testRect); break;
-        case 22: pNewControl = new TestMTControl(testRect); pNewControl->SetWantsMultiTouch(true); break;
-        case 23:
-        {
-          WDL_String path;
-          // DesktopPath(path);
-          path.Set(__FILE__);
-          path.remove_filepart();
-      #ifdef OS_WIN
-          path.Append("\\resources\\img\\");
-      #else
-          path.Append("/resources/img/");
-      #endif
-          pNewControl = new TestDirBrowseControl(testRect, "png", path.Get());
-          break;
-        }
-        default: return;
+        case 22: pNewControl = new TestGesturesControl(testRect); break;
+        case 23: pNewControl = new TestMTControl(testRect); pNewControl->SetWantsMultiTouch(true); break;
+        case 24: pNewControl = new TestFlexBoxControl(testRect); break;
+
       }
       
       pGraphics->AttachControl(pNewControl, kCtrlTagTestControl);
@@ -162,7 +149,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     
     pGraphics->AttachControl(new IVSliderControl(bounds.FracRectHorizontal(0.2, true).GetCentredInside(100, 200), kParamDummy, "Value"));
 
-    pGraphics->AttachControl(new GFXLabelControl(bounds.GetFromTRHC(200, 50)));//.GetTranslated(25, -25)));
+//    pGraphics->AttachControl(new GFXLabelControl(bounds.GetFromTRHC(230, 50)));//.GetTranslated(25, -25)));
     
     chooseTestControl(0);
   };

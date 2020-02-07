@@ -1,5 +1,5 @@
 # iPlug 2
-### C++ audio plug-in framework for desktop, mobile and web
+### C++ audio plug-in framework for desktop, mobile(iPadOS) and web
 
 [![Build Status](https://dev.azure.com/iplug2/iplug2/_apis/build/status/iPlug2?branchName=master)](https://dev.azure.com/iplug2/iplug2/_build/latest?definitionId=2?branchName=master)
 
@@ -16,7 +16,7 @@ You can discuss iPlug 2 on the [WDL forum](http://forum.cockos.com/forumdisplay.
 
 We welcome any help with bug fixes, features or documentation. 
 
-**NOTE: THIS IS NOT YET PRODUCTION READY - zero commercial/free plug-ins are shipping with iPlug 2 - there are many bugs still to fix and a few features to add!** 
+**NOTE: We don't yet consider iPlug2 to be "production ready" since the we (the main devs) didn't ship our products with it yet, but it's nearly there.** Read more [here](https://github.com/iPlug2/iPlug2/wiki/04_FAQ)
 
 You may like to check out the [Web Audio Module version of VirtualCZ](https://virtualcz.io/) which has been made using iPlug 2. 
 
