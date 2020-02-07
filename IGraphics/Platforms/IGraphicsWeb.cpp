@@ -322,7 +322,7 @@ static EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent*
       emscripten_set_mouseup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, pGraphics, 1, nullptr);
       break;
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
-      if(pEvent->buttons != 0 && !pGraphics->IsInTextEntry())
+      if(pEvent->buttons != 0 && !pGraphics->IsInPlatformTextEntry())
         pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
       break;
     default:
@@ -378,7 +378,7 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent,
         pGraphics->OnMouseOver(x, y, modifiers);
       else
       {
-        if(!pGraphics->IsInTextEntry())
+        if(!pGraphics->IsInPlatformTextEntry())
           pGraphics->OnMouseDrag(x, y, pEvent->movementX, pEvent->movementY, modifiers);
       }
       break;
