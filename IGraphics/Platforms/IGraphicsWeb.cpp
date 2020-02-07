@@ -306,7 +306,11 @@ static EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent*
   
   double x = pEvent->targetX;
   double y = pEvent->targetY;
-
+  
+  val rect = GetCanvas().call<val>("getBoundingClientRect");
+  x -= rect["left"].as<double>();
+  y -= rect["top"].as<double>();
+  
   x /= pGraphics->GetDrawScale();
   y /= pGraphics->GetDrawScale();
   
