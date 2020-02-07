@@ -18,7 +18,7 @@ class IPlugEffect : public Plugin
 public:
   IPlugEffect(const InstanceInfo& info);
 
-#if IPLUG_DSP // All DSP methods and member variables should be within an IPLUG_DSP guard, should you want distributed UI
+#if IPLUG_DSP // http://bit.ly/2S64BDd
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
 #endif
 };
