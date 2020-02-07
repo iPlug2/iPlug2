@@ -531,7 +531,7 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
     if (lock)
       emscripten_request_pointerlock("#canvas", EM_FALSE);
     else
-      emscripten_hide_mouse();
+      val::global("document")["body"]["style"].set("cursor", "none");
     
     mCursorLock = lock;
   }
