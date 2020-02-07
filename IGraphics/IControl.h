@@ -1134,13 +1134,24 @@ public:
   
   virtual void AddTouch(ITouchID touchID, float x, float y, float radius)
   {
-    int newTouchIndex = 
+    int touchIndex = 0;
+    for (int i = 0; i < MAX_TOUCHES; i++)
+    {
+      if (mTouchStatus[i] == false)
+      {
+        touchIndex = i;
+        mTouchStatus[i] = true;
+        break;
+      }
+    }
 
-    mTrackedTouches.insert(std::make_pair(touchID, TrackedTouch(static_cast<int>(mTrackedTouches.size()), x, y, radius, std::chrono::high_resolution_clock::now())));
+    if(NTrackedTouches() < MAX_TOUCHES)
+      mTrackedTouches.insert(std::make_pair(touchID, TrackedTouch(touchIndex, x, y, radius, std::chrono::high_resolution_clock::now())));
   }
   
   virtual void ReleaseTouch(ITouchID touchID)
   {
+    mTouchStatus[GetTouchWithIdentifier(touchID)->index] = false;
     mTrackedTouches.erase(touchID);
   }
   
@@ -1154,11 +1165,12 @@ public:
   void ClearAllTouches()
   {
     mTrackedTouches.clear();
+    memset(mTouchStatus, 0, MAX_TOUCHES * sizeof(bool));
   }
   
   int NTrackedTouches() const
   {
-    return (int) mTrackedTouches.size();
+    return static_cast<int>(mTrackedTouches.size());
   }
   
   TrackedTouch* GetTouch(int index)
@@ -1185,7 +1197,9 @@ public:
   }
   
 protected:
+  static constexpr int MAX_TOUCHES = 10;
   std::unordered_map<ITouchID, TrackedTouch> mTrackedTouches;
+  bool mTouchStatus[MAX_TOUCHES] = { 0 };
 };
 
 /** A base class for knob/dial controls, to handle mouse action and Sender. */
