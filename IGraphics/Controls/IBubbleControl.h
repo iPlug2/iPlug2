@@ -265,7 +265,7 @@ protected:
         const float shiftLeft = mBubbleRect.R-controlBounds.L;
         mBubbleRect.Translate(-shiftLeft, 0.f);
         mArrowDir = EArrowDir::kEast;
-      }
+      } 
       else
         mArrowDir = EArrowDir::kWest;
     }
