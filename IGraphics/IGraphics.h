@@ -1326,9 +1326,9 @@ private:
    * @param y /todo
    * @param capture /todo
    * @param mouseOver /todo
-   * @param touchIdx /todo
+   * @param touchID /todo
    * @return IControl* /todo */
-  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false, uintptr_t touchIdx = 0);
+  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false, ITouchID touchID = 0);
   
 #pragma mark - Event handling
 public:

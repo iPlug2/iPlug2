@@ -1132,21 +1132,23 @@ public:
     {}
   };
   
-  virtual void AddTouch(uintptr_t touchIdx, float x, float y, float radius)
+  virtual void AddTouch(ITouchID touchID, float x, float y, float radius)
   {
-    mTrackedTouches.insert(std::make_pair(touchIdx, TrackedTouch(static_cast<int>(mTrackedTouches.size()), x, y, radius, std::chrono::high_resolution_clock::now())));
+    int newTouchIndex = 
+
+    mTrackedTouches.insert(std::make_pair(touchID, TrackedTouch(static_cast<int>(mTrackedTouches.size()), x, y, radius, std::chrono::high_resolution_clock::now())));
   }
   
-  virtual void ReleaseTouch(uintptr_t touchIdx)
+  virtual void ReleaseTouch(ITouchID touchID)
   {
-    mTrackedTouches.erase(touchIdx);
+    mTrackedTouches.erase(touchID);
   }
   
-  virtual void UpdateTouch(uintptr_t touchIdx, float x, float y, float radius)
+  virtual void UpdateTouch(ITouchID touchID, float x, float y, float radius)
   {
-    mTrackedTouches[touchIdx].x = x;
-    mTrackedTouches[touchIdx].y = y;
-    mTrackedTouches[touchIdx].radius = radius;
+    mTrackedTouches[touchID].x = x;
+    mTrackedTouches[touchID].y = y;
+    mTrackedTouches[touchID].radius = radius;
   }
   
   void ClearAllTouches()
@@ -1172,9 +1174,9 @@ public:
       return nullptr;
   }
   
-  TrackedTouch* GetTouchWithIdentifier(uintptr_t touchIdx)
+  TrackedTouch* GetTouchWithIdentifier(ITouchID touchID)
   {
-    auto itr = mTrackedTouches.find(touchIdx);
+    auto itr = mTrackedTouches.find(touchID);
     
     if(itr != mTrackedTouches.end())
       return &itr->second;
@@ -1183,7 +1185,7 @@ public:
   }
   
 protected:
-  std::unordered_map<uintptr_t, TrackedTouch> mTrackedTouches;
+  std::unordered_map<ITouchID, TrackedTouch> mTrackedTouches;
 };
 
 /** A base class for knob/dial controls, to handle mouse action and Sender. */
