@@ -1257,7 +1257,7 @@ public:
   }
 
   /** Populate a vector  with the touch idxs active on pControl */
-  void GetTouches(IControl* pControl, std::vector<uintptr_t>& touchesOnThisControl) const
+  void GetTouches(IControl* pControl, std::vector<ITouchID>& touchesOnThisControl) const
   {
     for (auto i = mCapturedMap.begin(), j = mCapturedMap.end(); i != j; ++i)
       if (i->second == pControl)
@@ -1599,7 +1599,7 @@ private:
   std::vector<EGestureType> mRegisteredGestures; // All the types of gesture registered with the graphics context
   IRECTList mGestureRegions; // Rectangular regions linked to gestures (excluding IControls)
   std::unordered_map<int, IGestureFunc> mGestureRegionFuncs; // Map of gesture region index to gesture function
-  std::unordered_map<uintptr_t, IControl*> mCapturedMap; // associative array of touch id pointers to control pointers, the same control can be touched multiple times
+  std::unordered_map<ITouchID, IControl*> mCapturedMap; // associative array of touch ids to control pointers, the same control can be touched multiple times
   IControl* mMouseOver = nullptr;
   IControl* mInTextEntry = nullptr;
   IControl* mInPopupMenu = nullptr;

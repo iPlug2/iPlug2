@@ -280,7 +280,7 @@ void IGraphics::ShowBubbleControl(IControl* pCaller, float x, float y, const cha
   
   if(MultiTouchEnabled())
   {
-    std::vector<uintptr_t> touchIDsForCaller;
+    std::vector<ITouchID> touchIDsForCaller;
     GetTouches(pCaller, touchIDsForCaller);
     std::vector<IBubbleControl*> availableBubbleControls;
     int nBubbleControls = mBubbleControls.GetSize();

@@ -32,7 +32,7 @@ public:
   
   void Draw(IGraphics& g) override
   {
-    std::vector<uintptr_t> touches;
+    std::vector<ITouchID> touches;
     g.GetTouches(this, touches);
     WDL_String str;
     str.SetFormatted(32, "NUM TOUCHES: %i", static_cast<int>(touches.size()));

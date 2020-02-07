@@ -444,7 +444,7 @@ EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent* pEvent, void* 
               static_cast<bool>(pEvent->shiftKey),
               static_cast<bool>(pEvent->ctrlKey),
               static_cast<bool>(pEvent->altKey),
-              static_cast<uintptr_t>(pEvent->touches[i].identifier)
+              static_cast<ITouchID>(pEvent->touches[i].identifier)
     };
     
     if(pEvent->touches[i].isChanged)
