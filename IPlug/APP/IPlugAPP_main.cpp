@@ -268,7 +268,7 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
       MSG* pMSG = (MSG*) parm1;
       NSView* pContentView = (NSView*) pMSG->hwnd;
       NSEvent* pEvent = (NSEvent*) parm2;
-      int etype = [pEvent type];
+      int etype = (int) [pEvent type];
           
       bool textField = [pContentView isKindOfClass:[NSText class]];
           

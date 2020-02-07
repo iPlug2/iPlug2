@@ -284,7 +284,7 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
     int sourceScale = 0;
     EResourceLocation resourceFound = SearchImageResource(name, ext, fullPathOrResourceID, targetScale, sourceScale);
 
-    bool bitmapTypeSupported = BitmapExtSupported(ext); // KTX textures pass this test (since ext is png)
+    bool bitmapTypeSupported = BitmapExtSupported(ext); // KTX textures pass this test (if ext is .ktx.png)
     
     if(resourceFound == EResourceLocation::kNotFound || !bitmapTypeSupported)
     {
@@ -456,10 +456,12 @@ void IGraphicsNanoVG::DrawResize()
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
   if (mVG)
+  {
     mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), 0);
   
-  if (mMainFrameBuffer == nullptr)
-    DBGMSG("Could not init FBO.\n");
+    if (mMainFrameBuffer == nullptr)
+      DBGMSG("Could not init FBO.\n");
+  }
 }
 
 void IGraphicsNanoVG::BeginFrame()

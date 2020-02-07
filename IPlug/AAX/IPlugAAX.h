@@ -89,7 +89,7 @@ public:
   
   void InformHostOfProgramChange() override { }; //NA
   
-  bool EditorResizeFromDelegate(int viewWidth, int viewHeight) override;
+  bool EditorResize(int viewWidth, int viewHeight) override;
   
   //IPlug Processor Overrides
   void SetLatency(int samples) override;

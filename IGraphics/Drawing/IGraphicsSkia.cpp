@@ -263,7 +263,7 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   if (location == EResourceLocation::kWinBinary)
   {
     int size = 0;
-    const void* pData = LoadWinResource(fileNameOrResID, "png", size, GetWinModuleHandle());
+    const void* pData = LoadWinResource(fileNameOrResID, ext, size, GetWinModuleHandle());
     return new Bitmap(pData, size, scale);
   }
   else

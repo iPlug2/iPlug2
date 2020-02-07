@@ -274,12 +274,23 @@
 			"pGraphics->AttachControl(new ILambdaControl(bounds,",
 			"\t[](ILambdaControl* pCaller, IGraphics& g, IRECT& rect) {",
 			"\t",
-			"\tg.FillRect(COLOR_RED, rect);",
+			"\t\tg.FillRect(COLOR_RED, rect);",
 			"\t",
 			"}, DEFAULT_ANIMATION_DURATION, false /*loop*/, false /*start immediately*/));",
 		],
 		"description": "Attach an ILambdaControl"
 	},
-  
+
+	"attachivbutton": {
+		"prefix": "AttachIVButtonControl",
+		"body": [
+			"pGraphics->AttachControl(new IVButtonControl(bounds, SplashClickActionFunc,",
+			"\t\"${1:Press Me}\", DEFAULT_STYLE.WithColor(kFG, ${2:COLOR_WHITE}).WithLabelText({15.f, EVAlign::Middle})))->SetAnimationEndActionFunction(",
+			"\t[](IControl* pCaller) {",
+			"\t\t${3:DBGMSG(\"button clicked\")};",
+			"});",
+		],
+		"description": "Attach an IVButtonControl"
+	},
   }
   

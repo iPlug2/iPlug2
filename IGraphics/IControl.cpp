@@ -242,6 +242,7 @@ void IControl::Hide(bool hide)
 
 void IControl::SetDisabled(bool disable)
 {
+  mBlend.mWeight = (disable ? GRAYED_ALPHA : 1.0f);
   mDisabled = disable;
   SetDirty(false);
 }
@@ -793,7 +794,7 @@ void IDirBrowseControlBase::CollectSortedItems(IPopupMenu* pMenu)
   }
 }
 
-void IDirBrowseControlBase::SetUpMenu()
+void IDirBrowseControlBase::SetupMenu()
 {
   mFiles.Empty(true);
   mItems.Empty(false);

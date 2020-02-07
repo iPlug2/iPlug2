@@ -15,6 +15,8 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
+extern void GetScreenDimensions(int& width, int& height);
+
 /** IGraphics platform class for IOS
 *   @ingroup PlatformClasses */
 class IGraphicsIOS final : public IGRAPHICS_DRAW_CLASS

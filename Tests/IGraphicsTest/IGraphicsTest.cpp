@@ -40,7 +40,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     }
     
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
-    pGraphics->HandleMouseOver(true);
+    pGraphics->EnableMouseOver(true);
     pGraphics->EnableTooltips(true);
     
     pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key, bool isUp)

@@ -61,10 +61,6 @@ public:
   virtual void DrawWidget(IGraphics& g) override;
   bool IsHit(float x, float y) const override;
   void OnResize() override;
-  void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
-
-protected:
-  EVShape mShape;
 };
 
 /** A vector switch control. Click to cycle through states. */
@@ -75,9 +71,10 @@ public:
   IVSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueInButton = true);
   
   IVSwitchControl(const IRECT& bounds, IActionFunction aF = SplashClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, int numStates = 2, bool valueInButton = true);
-  
+
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
+  void OnMouseOut() override { ISwitchControlBase::OnMouseOut(); SetDirty(false); }
   bool IsHit(float x, float y) const override;
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
   void OnResize() override;
@@ -120,7 +117,6 @@ protected:
   IRECT mStartRect, mEndRect;
   IRECT mHandleBounds;
   EDirection mDirection;
-  EVShape mShape = EVShape::Rectangle;
 };
 
 /** A vector "tab" multi switch control. Click tabs to cycle through states. */
@@ -142,10 +138,9 @@ public:
   virtual void DrawButton(IGraphics& g, const IRECT& bounds, bool pressed, bool mouseOver, ETabSegment segment);
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
-  void OnMouseOut() override { mMouseOverButton = -1; }
+  void OnMouseOut() override { mMouseOverButton = -1; ISwitchControlBase::OnMouseOut(); SetDirty(false); }
   void OnResize() override;
   virtual bool IsHit(float x, float y) const override;
-  void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
 protected:
   /** @return the index of the entry at the given point or -1 if no entry was hit */
   virtual int GetButtonForPoint(float x, float y) const;
@@ -154,7 +149,6 @@ protected:
   WDL_TypedBuf<IRECT> mButtons;
   WDL_PtrList<WDL_String> mTabLabels;
   EDirection mDirection;
-  EVShape mShape;
 };
 
 class IVRadioButtonControl : public IVTabSwitchControl
@@ -213,6 +207,8 @@ public:
 
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
+  virtual void DrawIndicatorTrack(IGraphics& g, float angle, float cx, float cy, float radius);
+  virtual void DrawPointer(IGraphics& g, float angle, float cx, float cy, float radius);
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
@@ -227,6 +223,10 @@ public:
 protected:
   virtual IRECT GetKnobDragBounds() override;
 
+  float mIndicatorTrackToHandleDistance = 4.f;
+  float mInnerPointerFrac = 0.1f;
+  float mOuterPointerFrac = 1.f;
+  float mPointerThickness = 2.5f;
   float mAngle1, mAngle2;
   float mAnchorAngle; // for bipolar arc
   bool mValueMouseOver = false;
@@ -253,12 +253,9 @@ public:
   void OnResize() override;
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
   void OnInit() override;
-  void SetShape(EVShape shape) { mShape = shape; SetDirty(false); }
 
 protected:
-  float mTrackSize;
   bool mValueMouseOver = false;
-  EVShape mShape = EVShape::Ellipse;
 };
 
 class IVRangeSliderControl : public IVTrackControlBase
@@ -283,7 +280,6 @@ protected:
   float mTrackSize;
   float mHandleSize;
   bool mMouseIsDown = false;
-  EVShape mShape = EVShape::Ellipse;
 };
 
 class IVXYPadControl : public IControl
@@ -345,6 +341,9 @@ protected:
   float mMin;
   float mMax;
   bool mUseLayer = true;
+  int mHorizontalDivisions = 10;
+  int mVerticalDivisions = 10; // allways + 2 when drawing
+  
   std::vector<float> mPoints;
 };
 
@@ -352,19 +351,52 @@ class IVGroupControl : public IControl
                      , public IVectorBase
 {
 public:
-  IVGroupControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false));
+  IVGroupControl(const IRECT& bounds, const char* label = "", float labelOffset = 10.f, const IVStyle& style = DEFAULT_STYLE);
   
-  IVGroupControl(const char* labelAndGroupName, float innerPadding = 0.f, const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false));
+  IVGroupControl(const char* label, const char* groupName, float padL = 0.f, float padT = 0.f, float padR = 0.f, float padB = 0.f, const IVStyle& style = DEFAULT_STYLE);
   
   void Draw(IGraphics& g) override;
   void DrawWidget(IGraphics& g) override;
   void OnResize() override;
   void OnInit() override;
   
-  void SetBoundsBasedOnGroup(const char* groupName, float padding);
+  void SetBoundsBasedOnGroup(const char* groupName, float padL, float padT, float padR, float padB);
 protected:
   WDL_String mGroupName;
-  float mInnerPadding = 0.f;
+  float mPadL = 0.f;
+  float mPadT = 0.f;
+  float mPadR = 0.f;
+  float mPadB = 0.f;
+  float mLabelOffset = 10.f;
+  float mLabelPadding = 10.f;
+};
+
+class IVColorSwatchControl : public IControl
+                           , public IVectorBase
+{
+public:
+  enum class ECellLayout { kGrid, kHorizontal, kVertical };
+  
+  using ColorChosenFunc = std::function<void(int, IColor)>;
+
+  IVColorSwatchControl(const IRECT& bounds, const char* label = "", ColorChosenFunc func = nullptr, const IVStyle& spec = DEFAULT_STYLE, ECellLayout layout = ECellLayout::kGrid,
+    const std::initializer_list<int>& colorIDs = { kBG, kFG, kPR, kFR, kHL, kSH, kX1, kX2, kX3 },
+    const std::initializer_list<const char*>& labelsForIDs = { kVColorStrs[kBG],kVColorStrs[kFG],kVColorStrs[kPR],kVColorStrs[kFR],kVColorStrs[kHL],kVColorStrs[kSH],kVColorStrs[kX1],kVColorStrs[kX2],kVColorStrs[kX3] });
+  void Draw(IGraphics& g) override;
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnResize() override;
+
+  void DrawWidget(IGraphics& g) override;
+
+private:
+  ColorChosenFunc mColorChosenFunc = nullptr;
+  int mCellOver = -1;
+  ECellLayout mLayout = ECellLayout::kVertical;
+  WDL_TypedBuf<IRECT> mCellRects;
+  WDL_PtrList<WDL_String> mLabels;
+  std::vector<int> mColorIdForCells;
 };
 
 #pragma mark - SVG Vector Controls
@@ -447,7 +479,6 @@ public:
 
   void Draw(IGraphics& g) override  { DrawBitmap(g); }
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
-  void SetDisabled(bool disable) override;
 };
 
 /** A bitmap switch control. Click to cycle through states. */
@@ -470,7 +501,6 @@ public:
   
   virtual ~IBSwitchControl() {}
   void Draw(IGraphics& g) override { DrawBitmap(g); }
-  void SetDisabled(bool disable) override { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
 };
@@ -490,7 +520,6 @@ public:
 
   virtual ~IBKnobControl() {}
   void Draw(IGraphics& g) override { DrawBitmap(g); }
-  void SetDisabled(bool disable) override { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
 };
 
@@ -521,7 +550,6 @@ public:
   void Draw(IGraphics& g) override;
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
   void OnResize() override;
-  void SetDisabled(bool disable) override  { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
   
   IRECT GetHandleBounds(double value = -1.0) const;
 
@@ -539,7 +567,6 @@ public:
 
   void Draw(IGraphics& g) override;
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
-  void SetDisabled(bool disable) override  { IBitmapBase::SetDisabled(disable); IControl::SetDisabled(disable); }
 
 protected:
   WDL_String mStr;

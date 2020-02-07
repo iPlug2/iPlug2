@@ -1,3 +1,5 @@
+*This project is not actively maintained.*
+
 Nano SVG
 ==========
 

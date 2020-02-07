@@ -282,11 +282,6 @@ void INIPath(WDL_String& path, const char* pluginName)
   path.Set("");
 }
 
-bool IsAuv3AppExtension()
-{
-  return ([[[NSBundle mainBundle] bundleIdentifier] containsString:@"AUv3"]);
-}
-
 bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* bundleID)
 {
   @autoreleasepool
@@ -357,6 +352,11 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 bool AppIsSandboxed()
 {
   return true;
+}
+
+bool IsAuv3AppExtension()
+{
+  return ([[[NSBundle mainBundle] bundleIdentifier] containsString:@"AUv3"]);
 }
 
 #endif

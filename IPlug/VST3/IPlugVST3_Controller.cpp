@@ -24,6 +24,7 @@ using namespace Vst;
 IPlugVST3Controller::IPlugVST3Controller(const InstanceInfo& info, const Config& config)
 : IPlugAPIBase(config, kAPIVST3)
 , mPlugIsInstrument(config.plugType == kInstrument)
+, mDoesMidiIn(config.plugDoesMidiIn)
 , mProcessorGUID(info.mOtherGUID)
 {
 }
@@ -38,8 +39,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 {
   if (EditControllerEx1::initialize(context) == kResultTrue)
   {
-    Initialize(this, parameters, mPlugIsInstrument);
-    
+    Initialize(this, parameters, mPlugIsInstrument, mDoesMidiIn);
     IPlugVST3GetHost(this, context);
     OnHostIdentified();
 
@@ -92,21 +92,15 @@ tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamVal
   return EditControllerEx1::setParamNormalized(tag, value);
 }
 
-tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment(int32 busIndex, int16 midiChannel, CtrlNumber midiControllerNumber, ParamID& tag)
+tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment(int32 busIndex, int16 midiChannel, CtrlNumber midiCCNumber, ParamID& tag)
 {
-//  if (busIndex == 0)
-//  {
-//    tag = kMIDICCParamStartIdx + (midiChannel * kCountCtrlNumber) + midiControllerNumber;
-//    return kResultTrue;
-//  }
+  if (busIndex == 0)
+  {
+    tag = kMIDICCParamStartIdx + (midiChannel * kCountCtrlNumber) + midiCCNumber;
+    return kResultTrue;
+  }
 
   return kResultFalse;
-}
-
-tresult PLUGIN_API IPlugVST3Controller::queryInterface(const char* iid, void** obj)
-{
-  QUERY_INTERFACE(iid, obj, IMidiMapping::iid, IMidiMapping)
-  return EditControllerEx1::queryInterface(iid, obj);
 }
 
 #pragma mark IUnitInfo overrides
@@ -134,14 +128,14 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 //  }
 //}
 
-bool IPlugVST3Controller::EditorResizeFromDelegate(int viewWidth, int viewHeight)
+bool IPlugVST3Controller::EditorResize(int viewWidth, int viewHeight)
 {
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
       mView->resize(viewWidth, viewHeight);
  
-    IPlugAPIBase::EditorResizeFromDelegate(viewWidth, viewHeight);
+    SetEditorSize(viewWidth, viewHeight);
   }
   
   return true;
