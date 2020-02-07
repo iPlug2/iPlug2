@@ -68,7 +68,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     pGraphics->LoadFont("Montserrat-LightItalic", MONTSERRAT_FN);
 
     IRECT bounds = pGraphics->GetBounds().GetPadded(-20.f);
-    auto testRect = bounds.GetFromTop(240.f).GetCentredInside(240.f);
+    auto testRect = bounds.GetFromTop(480.f).GetCentredInside(480.f);
 
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     
@@ -149,7 +149,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     
     pGraphics->AttachControl(new IVSliderControl(bounds.FracRectHorizontal(0.2, true).GetCentredInside(100, 200), kParamDummy, "Value"));
 
-//    pGraphics->AttachControl(new GFXLabelControl(bounds.GetFromTRHC(230, 50)));//.GetTranslated(25, -25)));
+    pGraphics->AttachControl(new GFXLabelControl(bounds.GetFromTRHC(230, 50)));//.GetTranslated(25, -25)));
     
     chooseTestControl(0);
   };
