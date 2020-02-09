@@ -46,8 +46,8 @@ bool IPlugAPP::EditorResize(int viewWidth, int viewHeight)
     RECT r;
     GetWindowRect(gHWND, &r);
     SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - TITLEBAR_BODGE, viewWidth, viewHeight + TITLEBAR_BODGE, 0);
-    parentResized = true;
     #endif
+    parentResized = true;
     SetEditorSize(viewWidth, viewHeight);
   }
   
