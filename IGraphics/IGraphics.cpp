@@ -1645,6 +1645,8 @@ void IGraphics::EndDragResize()
     ForAllControls(&IControl::OnRescale);
     SetAllControlsDirty();
   }
+
+  DrawResize();
 }
 
 void IGraphics::StartLayer(IControl* pControl, const IRECT& r)

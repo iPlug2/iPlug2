@@ -452,15 +452,18 @@ void IGraphicsNanoVG::OnViewDestroyed()
 
 void IGraphicsNanoVG::DrawResize()
 {
-  if (mMainFrameBuffer != nullptr)
-    nvgDeleteFramebuffer(mMainFrameBuffer);
-  
-  if (mVG)
+  if (!GetResizingInProcess())
   {
-    mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), 0);
-  
-    if (mMainFrameBuffer == nullptr)
-      DBGMSG("Could not init FBO.\n");
+    if (mMainFrameBuffer != nullptr)
+      nvgDeleteFramebuffer(mMainFrameBuffer);
+
+    if (mVG)
+    {
+      mMainFrameBuffer = nvgCreateFramebuffer(mVG, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), 0);
+
+      if (mMainFrameBuffer == nullptr)
+        DBGMSG("Could not init FBO.\n");
+    }
   }
 }
 
