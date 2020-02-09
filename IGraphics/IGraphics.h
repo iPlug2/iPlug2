@@ -1128,10 +1128,9 @@ private:
   
   /** Called when drag resize ends */
   void EndDragResize();
-  
+
 #pragma mark - Control management
 public:
-  
   /** /todo
    * @param func /todo */
   void ForAllControlsFunc(std::function<void(IControl& control)> func);
@@ -1355,7 +1354,7 @@ public:
   /** \todo */
   void OnGUIIdle();
   
-  /** Called by ICornerReszierControl as the corner is dragged to resize */
+  /** Called by ICornerResizerControl as the corner is dragged to resize */
   void OnDragResize(float x, float y);
 
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
