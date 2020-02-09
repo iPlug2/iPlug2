@@ -90,6 +90,9 @@ public:
   
   /** If you are not using IGraphics you can if you need to free resources etc when the window closes. Call base implementation. */
   virtual void CloseWindow() { OnUIClose(); }
+
+  /** Called by app wrappers when the OS window scaling buttons/resizers are used */
+  virtual void OnParentWindowResize(int width, int height) {}
   
 #pragma mark - Methods you may want to override...
   /** Override this method to do something before the UI is opened. You must call the base implementation to make sure controls linked to parameters get updated correctly. */

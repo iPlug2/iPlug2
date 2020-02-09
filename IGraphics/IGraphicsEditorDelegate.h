@@ -40,6 +40,7 @@ public:
   //IEditorDelegate
   void* OpenWindow(void* pHandle) final;
   void CloseWindow() final;
+  void OnParentWindowResize(int width, int height);
   void SetScreenScale(double scale) final;
     
   // Default serialization implementations (which serialize the size/scale) = override for custom behaviours

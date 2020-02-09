@@ -540,17 +540,20 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
   switch (uMsg)
   {
     case WM_INITDIALOG:
+    {
       gHWND = hwndDlg;
+      IPlugAPP* pPlug = pAppHost->GetPlug();
 
-      if(!pAppHost->OpenWindow(gHWND))
+      if (!pAppHost->OpenWindow(gHWND))
         DBGMSG("couldn't attach gui\n");
 
-      width = pAppHost->GetPlug()->GetEditorWidth();
-      height = pAppHost->GetPlug()->GetEditorHeight();
+      width = pPlug->GetEditorWidth();
+      height = pPlug->GetEditorHeight();
       ClientResize(hwndDlg, width, height);
 
-      ShowWindow(hwndDlg,SW_SHOW);
+      ShowWindow(hwndDlg, SW_SHOW);
       return 1;
+    }
     case WM_DESTROY:
       pAppHost->CloseWindow();
       gHWND = NULL;
@@ -686,6 +689,34 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 #endif
       }
       return 0;
+    case WM_SIZE:
+    {
+      IPlugAPP* pPlug = pAppHost->GetPlug();
+
+      switch (LOWORD(wParam))
+      {
+      //case SIZE_MAXHIDE:
+      case SIZE_RESTORED:
+      case SIZE_MAXIMIZED:
+      {
+        int width = LOWORD(lParam);
+        int height = HIWORD(lParam);
+        if (width > 0 && height > 0)
+        {
+          pPlug->OnParentWindowResize(width, height);
+          return 1;
+        }
+      }
+      //case SIZE_MAXSHOW:
+      //case SIZE_MINIMIZED:
+      default:
+        return 0;
+      }
+    }
+    case WM_SIZING:
+    {
+      return 0;
+    }
   }
   return 0;
 }
