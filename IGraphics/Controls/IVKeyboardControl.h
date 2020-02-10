@@ -19,6 +19,8 @@
 #include "IControl.h"
 #include "IPlugMidi.h"
 
+#include <map>
+
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
@@ -62,8 +64,8 @@ class IVKeyboardControl : public IControl , public IMultiTouchControlBase
     {
       mPointerDown = true;
       //parent sets this one dirty
-      mParent->AddTouch(mod.touchIdx, x, y, mod.radius);
-      mParent->SetHit(mod.touchIdx, this);
+      mParent->AddTouch(mod.touchID, x, y, mod.radius);
+      mParent->SetHit(mod.touchID, this);
       SnapToMouse(x, y, EDirection::Vertical, mRECT, 1); // use val #1 for height
     }
     
@@ -71,17 +73,17 @@ class IVKeyboardControl : public IControl , public IMultiTouchControlBase
     {
       mPointerDown = false;
 
-      mParent->ReleaseTouch(mod.touchIdx);
-      mParent->ClearHitIfMovedOffkey(mod.touchIdx, nullptr);
+      mParent->ReleaseTouch(mod.touchID);
+      mParent->ClearHitIfMovedOffkey(mod.touchID, nullptr);
     }
     
     void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
     {
-      mParent->UpdateTouch(mod.touchIdx, x, y, mod.radius);
-      mParent->HitMoved(mod.touchIdx, this);
+      mParent->UpdateTouch(mod.touchID, x, y, mod.radius);
+      mParent->HitMoved(mod.touchID, this);
       
       SnapToMouse(x, y, EDirection::Vertical, mRECT, 1); // use val #1 for height
-      mParent->SendCtrl1(mod.touchIdx, GetValue(1));
+      mParent->SendCtrl1(mod.touchID, GetValue(1));
     }
     
     void OnTouchCancelled(float x, float y, const IMouseMod& mod) override
@@ -166,25 +168,25 @@ public:
   }
 
   /** Sets a keys state to on, if its not allready, storing an ptr to the keycontrol in a map, keyed by the touch identifier
-   * @param touchIdx The touch identifier
+   * @param touchID The touch identifier
    * @param pKey ptr to the key being set on */
-  void SetHit(uintptr_t touchIdx, KeyControl* pKey)
+  void SetHit(ITouchID touchId, KeyControl* pKey)
   {
     if(pKey->GetValue() < 0.5)
     {
       pKey->SetValue(1.);
       pKey->SetDirty(false);
-      mTouchPrevouslyHit[touchIdx] = pKey;
+      mTouchPrevouslyHit[touchId] = pKey;
       SendMidiNoteMsg(pKey->GetIdx(), 127);
     }
   }
   
   /** Clears key previously linked to a touch identifier
-   * @param touchIdx The touch identifier
+   * @param touchID The touch identifier
    * @param pKey ptr to the key being set on */
-  void ClearHitIfMovedOffkey(uintptr_t touchIdx, KeyControl* pKey)
+  void ClearHitIfMovedOffkey(ITouchID touchId, KeyControl* pKey)
   {
-    auto itr = mTouchPrevouslyHit.find(touchIdx);
+    auto itr = mTouchPrevouslyHit.find(touchId);
     
     //if we found the touch
     if(itr != mTouchPrevouslyHit.end())
@@ -196,17 +198,17 @@ public:
         pPrevKey->SetValue(0.);
         pPrevKey->SetDirty(false);
         SendMidiNoteMsg(pPrevKey->GetIdx(), 0);
-        mTouchPrevouslyHit[touchIdx] = pKey;
+        mTouchPrevouslyHit[touchId] = pKey;
       }
     }
   }
   
   /** Update when touch changes location, if touch moves to new key, make sure old key sends a note-off and new key sends a note-on
-   * @param touchIdx The touch identifier
+   * @param touchID The touch identifier
    * @param pKey ptr to the key being set on */
-  void HitMoved(uintptr_t touchIdx, KeyControl* pKey)
+  void HitMoved(ITouchID touchId, KeyControl* pKey)
   {
-    TrackedTouch* pTouch = GetTouchWithIdentifier(touchIdx);
+    TrackedTouch* pTouch = GetTouchWithIdentifier(touchId);
 
     if(pTouch)
     {
@@ -285,8 +287,7 @@ public:
     //    SetDirty(false);
   }
   
-  /**
-   * @param min The minimum note the keyboard should display
+  /** @param min The minimum note the keyboard should display
    * @param max The maximum note the keyboard should display */
   void SetNoteRange(int min, int max)
   {
@@ -333,9 +334,9 @@ public:
     }
   }
 
-  void SendCtrl1(uintptr_t touchIdx, double value)
+  void SendCtrl1(ITouchID touchID, double value)
   {
-    auto touch = GetTouchWithIdentifier(touchIdx);
+    auto touch = GetTouchWithIdentifier(touchID);
     
     IMidiMsg msg;
     msg.MakePitchWheelMsg(value, touch->index + 1);
@@ -349,7 +350,7 @@ protected:
   bool mKeysAreContiguous = false;
   int mMinNote, mMaxNote;
   ILayerPtr mLayer;
-  std::map<uintptr_t, KeyControl*> mTouchPrevouslyHit; // assoc array linking touch IDs to KeyControl last hit by that touches x,y
+  std::map<ITouchID, KeyControl*> mTouchPrevouslyHit; // assoc array linking touch IDs to KeyControl last hit by that touches x,y
 };
 
 END_IGRAPHICS_NAMESPACE
