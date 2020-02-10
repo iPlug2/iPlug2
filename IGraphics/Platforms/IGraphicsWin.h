@@ -167,7 +167,6 @@ private:
   static StaticStorage<HFontHolder> sHFontCache;
 
   std::unordered_map<ITouchID, IMouseInfo> mDeltaCapture; // associative array of touch id pointers to IMouseInfo structs, so that we can get deltas
-
 };
 
 END_IGRAPHICS_NAMESPACE
