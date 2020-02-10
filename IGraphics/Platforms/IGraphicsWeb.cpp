@@ -426,27 +426,32 @@ static EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent,
 EM_BOOL touch_callback(int eventType, const EmscriptenTouchEvent* pEvent, void* pUserData)
 {
   IGraphics* pGraphics = (IGraphics*) pUserData;
-  
+  const float drawScale = pGraphics->GetDrawScale();
+
   std::vector<IMouseInfo> points;
 
+  static EmscriptenTouchPoint previousTouches[32];
+  
   for (auto i = 0; i < pEvent->numTouches; i++)
   {
     IMouseInfo info;
-    info.x = pEvent->touches[i].targetX / pGraphics->GetDrawScale();
-    info.y = pEvent->touches[i].targetY / pGraphics->GetDrawScale();
-//    info.dX = pEvent->movementX;
-//    info.dY = pEvent->movementY;
+    info.x = pEvent->touches[i].targetX / drawScale;
+    info.y = pEvent->touches[i].targetY / drawScale;
+    info.dX = info.x - (previousTouches[i].targetX / drawScale);
+    info.dY = info.y - (previousTouches[i].targetY / drawScale);
     info.ms = {true,
               false,
               static_cast<bool>(pEvent->shiftKey),
               static_cast<bool>(pEvent->ctrlKey),
               static_cast<bool>(pEvent->altKey),
-              static_cast<uintptr_t>(pEvent->touches[i].identifier)
+              static_cast<ITouchID>(pEvent->touches[i].identifier)
     };
     
     if(pEvent->touches[i].isChanged)
       points.push_back(info);
   }
+
+  memcpy(previousTouches, pEvent->touches, sizeof(previousTouches));
   
   switch (eventType)
   {

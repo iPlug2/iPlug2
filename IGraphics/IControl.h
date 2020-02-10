@@ -1132,31 +1132,45 @@ public:
     {}
   };
   
-  virtual void AddTouch(uintptr_t touchIdx, float x, float y, float radius)
+  virtual void AddTouch(ITouchID touchID, float x, float y, float radius)
   {
-    mTrackedTouches.insert(std::make_pair(touchIdx, TrackedTouch(static_cast<int>(mTrackedTouches.size()), x, y, radius, std::chrono::high_resolution_clock::now())));
+    int touchIndex = 0;
+    for (int i = 0; i < MAX_TOUCHES; i++)
+    {
+      if (mTouchStatus[i] == false)
+      {
+        touchIndex = i;
+        mTouchStatus[i] = true;
+        break;
+      }
+    }
+
+    if(NTrackedTouches() < MAX_TOUCHES)
+      mTrackedTouches.insert(std::make_pair(touchID, TrackedTouch(touchIndex, x, y, radius, std::chrono::high_resolution_clock::now())));
   }
   
-  virtual void ReleaseTouch(uintptr_t touchIdx)
+  virtual void ReleaseTouch(ITouchID touchID)
   {
-    mTrackedTouches.erase(touchIdx);
+    mTouchStatus[GetTouchWithIdentifier(touchID)->index] = false;
+    mTrackedTouches.erase(touchID);
   }
   
-  virtual void UpdateTouch(uintptr_t touchIdx, float x, float y, float radius)
+  virtual void UpdateTouch(ITouchID touchID, float x, float y, float radius)
   {
-    mTrackedTouches[touchIdx].x = x;
-    mTrackedTouches[touchIdx].y = y;
-    mTrackedTouches[touchIdx].radius = radius;
+    mTrackedTouches[touchID].x = x;
+    mTrackedTouches[touchID].y = y;
+    mTrackedTouches[touchID].radius = radius;
   }
   
   void ClearAllTouches()
   {
     mTrackedTouches.clear();
+    memset(mTouchStatus, 0, MAX_TOUCHES * sizeof(bool));
   }
   
   int NTrackedTouches() const
   {
-    return (int) mTrackedTouches.size();
+    return static_cast<int>(mTrackedTouches.size());
   }
   
   TrackedTouch* GetTouch(int index)
@@ -1172,9 +1186,9 @@ public:
       return nullptr;
   }
   
-  TrackedTouch* GetTouchWithIdentifier(uintptr_t touchIdx)
+  TrackedTouch* GetTouchWithIdentifier(ITouchID touchID)
   {
-    auto itr = mTrackedTouches.find(touchIdx);
+    auto itr = mTrackedTouches.find(touchID);
     
     if(itr != mTrackedTouches.end())
       return &itr->second;
@@ -1183,7 +1197,9 @@ public:
   }
   
 protected:
-  std::unordered_map<uintptr_t, TrackedTouch> mTrackedTouches;
+  static constexpr int MAX_TOUCHES = 10;
+  std::unordered_map<ITouchID, TrackedTouch> mTrackedTouches;
+  bool mTouchStatus[MAX_TOUCHES] = { 0 };
 };
 
 /** A base class for knob/dial controls, to handle mouse action and Sender. */

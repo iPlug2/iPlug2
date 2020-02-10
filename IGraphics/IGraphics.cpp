@@ -280,21 +280,21 @@ void IGraphics::ShowBubbleControl(IControl* pCaller, float x, float y, const cha
   
   if(MultiTouchEnabled())
   {
-    std::vector<uintptr_t> touchIdxsForCaller;
-    GetTouches(pCaller, touchIdxsForCaller);
+    std::vector<ITouchID> touchIDsForCaller;
+    GetTouches(pCaller, touchIDsForCaller);
     std::vector<IBubbleControl*> availableBubbleControls;
     int nBubbleControls = mBubbleControls.GetSize();
     
-    if(touchIdxsForCaller.size() == 1)
+    if(touchIDsForCaller.size() == 1)
     {
-      uintptr_t touchIdx = touchIdxsForCaller[0];
+      ITouchID touchID = touchIDsForCaller[0];
       // first search to see if this touch matches existing bubble controls
       for(int i=0;i<nBubbleControls;i++)
       {
         IBubbleControl* pBubbleControl = mBubbleControls.Get(i);
-        if(pBubbleControl->mTouchIdx == touchIdx)
+        if(pBubbleControl->mTouchId == touchID)
         {
-          pBubbleControl->ShowBubble(pCaller, x, y, str, dir, minimumContentBounds, touchIdx);
+          pBubbleControl->ShowBubble(pCaller, x, y, str, dir, minimumContentBounds, touchID);
           return;
         }
         else
@@ -305,7 +305,7 @@ void IGraphics::ShowBubbleControl(IControl* pCaller, float x, float y, const cha
       {
         // this works but why?
         static int whichBubbleControl = 0;
-        availableBubbleControls[whichBubbleControl++]->ShowBubble(pCaller, x, y, str, dir, minimumContentBounds, touchIdx);
+        availableBubbleControls[whichBubbleControl++]->ShowBubble(pCaller, x, y, str, dir, minimumContentBounds, touchID);
         whichBubbleControl %= nBubbleControls;
       }
     }
@@ -860,7 +860,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
     float y = point.y;
     const IMouseMod& mod = point.ms;
     
-    IControl* pCapturedControl = GetMouseControl(x, y, true, false, mod.touchIdx);
+    IControl* pCapturedControl = GetMouseControl(x, y, true, false, mod.touchID);
     
     if (pCapturedControl)
     {
@@ -937,7 +937,7 @@ void IGraphics::OnMouseUp(const std::vector<IMouseInfo>& points)
       float x = point.x;
       float y = point.y;
       const IMouseMod& mod = point.ms;
-      auto itr = mCapturedMap.find(mod.touchIdx);
+      auto itr = mCapturedMap.find(mod.touchID);
       
       if(itr != mCapturedMap.end())
       {
@@ -986,13 +986,13 @@ void IGraphics::OnTouchCancelled(const std::vector<IMouseInfo>& points)
       float y = point.y;
       const IMouseMod& mod = point.ms;
       
-      auto itr = mCapturedMap.find(mod.touchIdx);
+      auto itr = mCapturedMap.find(mod.touchID);
       
       if(itr != mCapturedMap.end())
       {
         IControl* pCapturedControl = itr->second;
         pCapturedControl->OnTouchCancelled(x, y, mod);
-        mCapturedMap.erase(mod.touchIdx); // remove from captured list
+        mCapturedMap.erase(mod.touchID); // remove from captured list
         
         //        DBGMSG("DEL - NCONTROLS captured = %lu\n", mCapturedMap.size());
       }
@@ -1054,7 +1054,7 @@ void IGraphics::OnMouseDrag(const std::vector<IMouseInfo>& points)
       float dY = point.dY;
       IMouseMod mod = point.ms;
       
-      auto itr = mCapturedMap.find(mod.touchIdx);
+      auto itr = mCapturedMap.find(mod.touchID);
       
       if(itr != mCapturedMap.end())
       {
@@ -1228,11 +1228,11 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
   return -1;
 }
 
-IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseOver, uintptr_t touchIdx)
+IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseOver, ITouchID touchID)
 {
   IControl* pControl = nullptr;
 
-  auto itr = mCapturedMap.find(touchIdx);
+  auto itr = mCapturedMap.find(touchID);
   
   if(ControlIsCaptured() && itr != mCapturedMap.end())
   {
@@ -1277,7 +1277,7 @@ IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseO
         return nullptr;
     }
     
-    mCapturedMap.insert(std::make_pair(touchIdx, pControl));
+    mCapturedMap.insert(std::make_pair(touchID, pControl));
     
 //    DBGMSG("ADD - NCONTROLS captured = %lu\n", mCapturedMap.size());
   }

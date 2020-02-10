@@ -227,13 +227,13 @@ protected:
   #endif
   }
 
-  void ShowBubble(IControl* pCaller, float x, float y, const char* str, EDirection dir, IRECT minimumContentBounds, uintptr_t touchIdx = 0)
+  void ShowBubble(IControl* pCaller, float x, float y, const char* str, EDirection dir, IRECT minimumContentBounds, ITouchID touchID = 0)
   {
     if(mMaxBounds.W() == 0)
       mMaxBounds = GetUI()->GetBounds();
     
     mDirection = dir;
-    mTouchIdx = touchIdx;
+    mTouchId = touchID;
     
     mStr.Set(str);
     IRECT contentBounds;
@@ -265,7 +265,7 @@ protected:
         const float shiftLeft = mBubbleRect.R-controlBounds.L;
         mBubbleRect.Translate(-shiftLeft, 0.f);
         mArrowDir = EArrowDir::kEast;
-      }
+      } 
       else
         mArrowDir = EArrowDir::kWest;
     }
@@ -310,7 +310,7 @@ protected:
 protected:
   friend class IGraphics;
   
-  uintptr_t mTouchIdx = 0;
+  ITouchID mTouchId = 0;
   EDirection mDirection = EDirection::Horizontal;
   IRECT mMaxBounds; // if view is only showing a part of the graphics context, we need to know because menus can't go there
   IRECT mBubbleRect;

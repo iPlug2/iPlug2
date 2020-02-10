@@ -32,7 +32,7 @@ public:
   
   void Draw(IGraphics& g) override
   {
-    std::vector<uintptr_t> touches;
+    std::vector<ITouchID> touches;
     g.GetTouches(this, touches);
     WDL_String str;
     str.SetFormatted(32, "NUM TOUCHES: %i", static_cast<int>(touches.size()));
@@ -70,12 +70,12 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    AddTouch(mod.touchIdx, x, y, mod.radius);
+    AddTouch(mod.touchID, x, y, mod.radius);
   }
 
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
-    ReleaseTouch(mod.touchIdx);
+    ReleaseTouch(mod.touchID);
     
     if(NTrackedTouches() == 0)
     {
@@ -92,7 +92,7 @@ public:
   
   void OnMouseDrag(float x, float y, float dx, float dy, const IMouseMod& mod) override
   {
-    UpdateTouch(mod.touchIdx, x, y, mod.radius);
+    UpdateTouch(mod.touchID, x, y, mod.radius);
     SetDirty(true);
   }
 

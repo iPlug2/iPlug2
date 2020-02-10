@@ -517,21 +517,21 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             e.ms.radius = pTI->cxContact;
           }
 
-          e.ms.touchIdx = static_cast<uintptr_t>(pTI->dwID);
+          e.ms.touchID = static_cast<ITouchID>(pTI->dwID);
 
           if (pTI->dwFlags & TOUCHEVENTF_DOWN)
           {
             downlist.push_back(e);
-            pGraphics->mDeltaCapture.insert(std::make_pair(e.ms.touchIdx, e));
+            pGraphics->mDeltaCapture.insert(std::make_pair(e.ms.touchID, e));
           }
           else if (pTI->dwFlags & TOUCHEVENTF_UP)
           {
-            pGraphics->mDeltaCapture.erase(e.ms.touchIdx);
+            pGraphics->mDeltaCapture.erase(e.ms.touchID);
             uplist.push_back(e);
           }
           else if (pTI->dwFlags & TOUCHEVENTF_MOVE)
           {
-            IMouseInfo previous = pGraphics->mDeltaCapture.find(e.ms.touchIdx)->second;
+            IMouseInfo previous = pGraphics->mDeltaCapture.find(e.ms.touchID)->second;
             e.dX = e.x - previous.x;
             e.dY = e.y - previous.y;
             movelist.push_back(e);
