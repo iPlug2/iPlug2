@@ -250,7 +250,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     
     point.ms.L = true;
     point.ms.touchID = reinterpret_cast<ITouchID>(pTouch);
-    point.ms.radius = [pTouch majorRadius];
+    point.ms.touchRadius = [pTouch majorRadius];
   
     point.x = pos.x / ds;
     point.y = pos.y / ds;

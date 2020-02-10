@@ -1559,7 +1559,7 @@ struct IMouseMod
   bool L, R, S, C, A;
 
   ITouchID touchID = 0;
-  float radius = 0.f;
+  float touchRadius = 0.f;
   
   /** /todo 
    * @param l /todo
