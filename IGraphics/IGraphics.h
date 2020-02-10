@@ -1249,8 +1249,8 @@ public:
   /** Check to see if any control is captured */
   bool ControlIsCaptured() const { return mCapturedMap.size() > 0; }
   
-  /** Check to see if the control is allready captured
-   * @return \c true is the control is allready captured */
+  /** Check to see if the control is already captured
+   * @return \c true is the control is already captured */
   bool ControlIsCaptured(IControl* pControl) const
   {
     return std::find_if(std::begin(mCapturedMap), std::end(mCapturedMap), [pControl](auto&& press) { return press.second == pControl; }) != mCapturedMap.end();
