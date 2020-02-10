@@ -70,7 +70,7 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    AddTouch(mod.touchID, x, y, mod.radius);
+    AddTouch(mod.touchID, x, y, mod.touchRadius);
   }
 
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
@@ -92,7 +92,7 @@ public:
   
   void OnMouseDrag(float x, float y, float dx, float dy, const IMouseMod& mod) override
   {
-    UpdateTouch(mod.touchID, x, y, mod.radius);
+    UpdateTouch(mod.touchID, x, y, mod.touchRadius);
     SetDirty(true);
   }
 
