@@ -64,6 +64,8 @@ public:
   {
     mVoicesAreActive = active;
   }
+  
+  void InitBasicMPE() { SetMPEZones(0, 16); }
 
   void SetPolyMode(VoiceAllocator::EPolyMode mode)
   {
@@ -153,19 +155,18 @@ private:
   // MPE helper functions
   const int kMPELowerZoneMasterChannel = 0;
   const int kMPEUpperZoneMasterChannel = 15;
-  inline bool isMasterChannel(int c) { return ((c == 0)||(c == 15)); }
-  bool isInLowerZone(int c) { return ((c > 0)&&(c < mMPELowerZoneChannels)); }
-  bool isInUpperZone(int c) { return ((c < 15)&&(c > 15 - mMPEUpperZoneChannels)); }
-  int MasterChannelFor(int memberChan) { return isInUpperZone(memberChan) ? kMPEUpperZoneMasterChannel : kMPELowerZoneMasterChannel; }
-  int MasterZoneFor(int memberChan) { return isInUpperZone(memberChan) ? 1 : 0; }
+  inline bool IsMasterChannel(int c) const { return ((c == 0)||(c == 15)); }
+  bool IsInLowerZone(int c) const { return ((c > 0)&&(c < mMPELowerZoneChannels)); }
+  bool IsInUpperZone(int c) const { return ((c < 15)&&(c > 15 - mMPEUpperZoneChannels)); }
+  int MasterChannelFor(int memberChan) const { return IsInUpperZone(memberChan) ? kMPEUpperZoneMasterChannel : kMPELowerZoneMasterChannel; }
+  int MasterZoneFor(int memberChan) const { return IsInUpperZone(memberChan) ? 1 : 0; }
 
   // handy functions for writing loops on lower and upper Zone member channels
-  int lowerZoneStart() { return 1; }
-  int lowerZoneEnd() { return mMPELowerZoneChannels - 1; }
-  int upperZoneStart() {  return 15 - mMPEUpperZoneChannels; }
-  int upperZoneEnd() { return 15; }
+  int LowerZoneStart() const { return 1; }
+  int LowerZoneEnd() const { return mMPELowerZoneChannels - 1; }
+  int UpperZoneStart() const {  return 15 - mMPEUpperZoneChannels; }
+  int UpperZoneEnd() const { return 15; }
 
-  void InitMPE();
   void SetMPEZones(int channel, int nChans);
   void SetChannelPitchBendRange(int channel, int range);
 
