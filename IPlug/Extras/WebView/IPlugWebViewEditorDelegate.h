@@ -1,12 +1,22 @@
+ /*
+ ==============================================================================
+ 
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+ 
+ See LICENSE.txt for  more info.
+ 
+ ==============================================================================
+*/
+
 #pragma once
 
 #include "IPlugEditorDelegate.h"
 #include <functional>
 
-/** This EditorDelegate allows using WKWebKitView for an iPlug user interface on macOS/iOS... */
 
 BEGIN_IPLUG_NAMESPACE
 
+/** This EditorDelegate allows using WKWebKitView for an iPlug user interface on macOS/iOS... */
 class WebViewEditorDelegate : public IEditorDelegate
 {
 public:
