@@ -1256,7 +1256,7 @@ public:
     return std::find_if(std::begin(mCapturedMap), std::end(mCapturedMap), [pControl](auto&& press) { return press.second == pControl; }) != mCapturedMap.end();
   }
 
-  /** Populate a vector  with the touch idxs active on pControl */
+  /** Populate a vector with the touchIDs active on pControl */
   void GetTouches(IControl* pControl, std::vector<ITouchID>& touchesOnThisControl) const
   {
     for (auto i = mCapturedMap.begin(), j = mCapturedMap.end(); i != j; ++i)
