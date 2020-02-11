@@ -1,3 +1,17 @@
+ /*
+ ==============================================================================
+ 
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+ 
+ See LICENSE.txt for  more info.
+ 
+ ==============================================================================
+*/
+
+#if !__has_feature(objc_arc)
+#error This file must be compiled with Arc. Use -fobjc-arc flag
+#endif
+
 #include "IPlugWebViewEditorDelegate.h"
 #import <WebKit/WebKit.h>
 #include "config.h"
@@ -92,9 +106,9 @@ void* WebViewEditorDelegate::OpenWindow(void* pParent)
   VIEW* parentView = (VIEW*) pParent;
   
   WKWebViewConfiguration* webConfig = [[WKWebViewConfiguration alloc] init];
-  WKPreferences* preferences = [[[WKPreferences alloc] init] autorelease];
+  WKPreferences* preferences = [[WKPreferences alloc] init];
   
-  WKUserContentController* controller = [[[WKUserContentController alloc] init] autorelease];
+  WKUserContentController* controller = [[WKUserContentController alloc] init];
   webConfig.userContentController = controller;
 
   ScriptHandler* scriptHandler = [[ScriptHandler alloc] initWithWebViewEditorDelegate: this];
@@ -135,9 +149,9 @@ void* WebViewEditorDelegate::OpenWindow(void* pParent)
 
 void WebViewEditorDelegate::CloseWindow()
 {
-  [(WKWebViewConfiguration*) mWebConfig release];
-  [(WKWebView*) mWKWebView release];
-  [(ScriptHandler*) mScriptHandler release];
+  [(WKWebViewConfiguration*) mWebConfig];
+  [(WKWebView*) mWKWebView];
+  [(ScriptHandler*) mScriptHandler];
 }
 
 void WebViewEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
@@ -187,7 +201,7 @@ void WebViewEditorDelegate::LoadURL(const char* url)
   WKWebView* webView = (WKWebView*) mWKWebView;
   
   NSURL* nsurl = [NSURL URLWithString:[NSString stringWithUTF8String:url] relativeToURL:nil];
-  NSURLRequest* req = [[[NSURLRequest alloc] initWithURL:nsurl] autorelease];
+  NSURLRequest* req = [[NSURLRequest alloc] initWithURL:nsurl];
   [webView loadRequest:req];
 }
 
