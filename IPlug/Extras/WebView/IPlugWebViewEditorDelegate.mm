@@ -103,7 +103,7 @@ WebViewEditorDelegate::~WebViewEditorDelegate()
 
 void* WebViewEditorDelegate::OpenWindow(void* pParent)
 {
-  VIEW* parentView = (VIEW*) pParent;
+  VIEW* parentView = (__bridge VIEW*) pParent;
   
   WKWebViewConfiguration* webConfig = [[WKWebViewConfiguration alloc] init];
   WKPreferences* preferences = [[WKPreferences alloc] init];
@@ -137,21 +137,21 @@ void* WebViewEditorDelegate::OpenWindow(void* pParent)
 //#endif
 //  [parentView setAutoresizesSubviews:YES];
   
-  mWebConfig = webConfig;
-  mWKWebView = webView;
-  mScriptHandler = scriptHandler;
+  mWebConfig = (__bridge void*) webConfig;
+  mWKWebView = (__bridge void*) webView;
+  mScriptHandler = (__bridge void*) scriptHandler;
   
   if(mEditorInitFunc)
     mEditorInitFunc();
   
-  return webView;
+  return (__bridge void*) webView;
 }
 
 void WebViewEditorDelegate::CloseWindow()
 {
-  [(WKWebViewConfiguration*) mWebConfig];
-  [(WKWebView*) mWKWebView];
-  [(ScriptHandler*) mScriptHandler];
+  mWKWebView = nullptr;
+  mWKWebView = nullptr;
+  mScriptHandler = nullptr;
 }
 
 void WebViewEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
@@ -192,13 +192,13 @@ void WebViewEditorDelegate::SendArbitraryMsgFromDelegate(int msgTag, int dataSiz
 
 void WebViewEditorDelegate::LoadHTML(const WDL_String& html)
 {
-  WKWebView* webView = (WKWebView*) mWKWebView;
+  WKWebView* webView = (__bridge WKWebView*) mWKWebView;
   [webView loadHTMLString:[NSString stringWithUTF8String:html.Get()] baseURL:nil];
 }
 
 void WebViewEditorDelegate::LoadURL(const char* url)
 {
-  WKWebView* webView = (WKWebView*) mWKWebView;
+  WKWebView* webView = (__bridge WKWebView*) mWKWebView;
   
   NSURL* nsurl = [NSURL URLWithString:[NSString stringWithUTF8String:url] relativeToURL:nil];
   NSURLRequest* req = [[NSURLRequest alloc] initWithURL:nsurl];
@@ -208,7 +208,7 @@ void WebViewEditorDelegate::LoadURL(const char* url)
 void WebViewEditorDelegate::LoadFileFromBundle(const char* fileName)
 {
   IPluginBase* pPlug = dynamic_cast<IPluginBase*>(this);
-  WKWebView* webView = (WKWebView*) mWKWebView;
+  WKWebView* webView = (__bridge WKWebView*) mWKWebView;
 
   WDL_String fullPath;
   WDL_String fileNameWeb("web/");
@@ -228,7 +228,7 @@ void WebViewEditorDelegate::LoadFileFromBundle(const char* fileName)
 
 void WebViewEditorDelegate::EvaluateJavaScript(const char* scriptStr)
 {
-  WKWebView* webView = (WKWebView*) mWKWebView;
+  WKWebView* webView = (__bridge WKWebView*) mWKWebView;
   
   if (![webView isLoading]) {
     [webView evaluateJavaScript:[NSString stringWithUTF8String:scriptStr] completionHandler:^(NSString *result, NSError *error)
@@ -242,7 +242,7 @@ void WebViewEditorDelegate::EvaluateJavaScript(const char* scriptStr)
 void WebViewEditorDelegate::EnableScroll(bool enable)
 {
 #ifdef OS_IOS
-  WKWebView* webView = (WKWebView*) mWKWebView;
+  WKWebView* webView = (__bridge WKWebView*) mWKWebView;
   [webView.scrollView setScrollEnabled:enable];
 #endif
 }
@@ -251,7 +251,7 @@ void WebViewEditorDelegate::Resize(int width, int height)
 {
 //  [NSAnimationContext beginGrouping]; // Prevent animated resizing
 //  [[NSAnimationContext currentContext] setDuration:0.0];
-  [(WKWebView*) mWKWebView setFrame: MAKERECT(0.f, 0.f, (float) width, (float) height) ];
+  [(__bridge WKWebView*) mWKWebView setFrame: MAKERECT(0.f, 0.f, (float) width, (float) height) ];
 //  [NSAnimationContext endGrouping];
   EditorResizeFromUI(width, height);
 }
