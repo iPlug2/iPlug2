@@ -510,11 +510,11 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           e.y = static_cast<float>(pt.y) / pGraphics->GetDrawScale();
           e.dX = 0.f;
           e.dY = 0.f;
-          e.ms.radius = 0;// TODO?
+          e.ms.touchRadius = 0;// TODO?
 
           if (pTI->dwMask & TOUCHINPUTMASKF_CONTACTAREA)
           {
-            e.ms.radius = pTI->cxContact;
+            e.ms.touchRadius = pTI->cxContact;
           }
 
           e.ms.touchID = static_cast<ITouchID>(pTI->dwID);

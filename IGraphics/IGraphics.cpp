@@ -1271,9 +1271,9 @@ IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseO
   {
     if(MultiTouchEnabled())
     {
-      bool allreadyCaptured = ControlIsCaptured(pControl);
+      bool alreadyCaptured = ControlIsCaptured(pControl);
 
-      if (allreadyCaptured && !pControl->GetWantsMultiTouch())
+      if (alreadyCaptured && !pControl->GetWantsMultiTouch())
         return nullptr;
     }
     

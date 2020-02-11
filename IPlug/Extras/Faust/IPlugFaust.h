@@ -290,7 +290,7 @@ protected:
       mMap.Insert(mParams.Get(p)->GetNameForHost(), mZones.Get(p)); // insert will overwrite keys with the same name
     }
     
-    if(mIPlugParamStartIdx > -1 && mPlug != nullptr) // if we've allready linked parameters
+    if(mIPlugParamStartIdx > -1 && mPlug != nullptr) // if we've already linked parameters
     {
       CreateIPlugParameters(mPlug, mIPlugParamStartIdx);
     }
