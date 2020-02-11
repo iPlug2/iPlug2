@@ -253,7 +253,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 
     auto setColors = [pGraphics](int cell, IColor color) {
       pGraphics->ForControlInGroup("vcontrols", [cell, color](IControl& control) {
-        dynamic_cast<IVectorBase&>(control).SetColor(cell, color);
+        dynamic_cast<IVectorBase&>(control).SetColor(static_cast<EVColor>(cell), color);
         });
     };
 

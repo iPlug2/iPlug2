@@ -598,19 +598,6 @@ protected:
 class IVectorBase
 {
 public:
-  IVectorBase(const IColor* pBGColor = &DEFAULT_BGCOLOR,
-              const IColor* pFGColor = &DEFAULT_FGCOLOR,
-              const IColor* pPRColor = &DEFAULT_PRCOLOR,
-              const IColor* pFRColor = &DEFAULT_FRCOLOR,
-              const IColor* pHLColor = &DEFAULT_HLCOLOR,
-              const IColor* pSHColor = &DEFAULT_SHCOLOR,
-              const IColor* pX1Color = &DEFAULT_X1COLOR,
-              const IColor* pX2Color = &DEFAULT_X2COLOR,
-              const IColor* pX3Color = &DEFAULT_X3COLOR)
-  {
-    AddColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pSHColor, pX1Color, pX2Color, pX3Color);
-  }
-
   IVectorBase(const IVStyle& style, bool labelInWidget = false, bool valueInWidget = false)
   : mLabelInWidget(labelInWidget)
   , mValueInWidget(valueInWidget)
@@ -623,81 +610,21 @@ public:
     mControl = pControl;
     mLabelStr.Set(label);
   }
-  
-  void AddColor(const IColor& color)
-  {
-    mColors.Add(color);
-  }
-  
-  void AddColors(const IColor* pBGColor = 0,
-                 const IColor* pFGColor = 0,
-                 const IColor* pPRColor = 0,
-                 const IColor* pFRColor = 0,
-                 const IColor* pHLColor = 0,
-                 const IColor* pSHColor = 0,
-                 const IColor* pX1Color = 0,
-                 const IColor* pX2Color = 0,
-                 const IColor* pX3Color = 0)
-  {
-    if(pBGColor) AddColor(*pBGColor);
-    if(pFGColor) AddColor(*pFGColor);
-    if(pPRColor) AddColor(*pPRColor);
-    if(pFRColor) AddColor(*pFRColor);
-    if(pHLColor) AddColor(*pHLColor);
-    if(pSHColor) AddColor(*pSHColor);
-    if(pX1Color) AddColor(*pX1Color);
-    if(pX2Color) AddColor(*pX2Color);
-    if(pX3Color) AddColor(*pX3Color);
-  }
 
-  void SetColor(int colorIdx, const IColor& color)
+  void SetColor(EVColor colorIdx, const IColor& color)
   {
-    if(colorIdx < mColors.GetSize())
-      mColors.Get()[colorIdx] = color;
-    
+    mStyle.colorSpec.mColors[static_cast<int>(colorIdx)] = color;
     mControl->SetDirty(false);
-  }
-  
-  void SetColors(const IColor& BGColor,
-                 const IColor& FGColor,
-                 const IColor& PRColor,
-                 const IColor& FRColor,
-                 const IColor& HLColor,
-                 const IColor& SHColor,
-                 const IColor& X1Color,
-                 const IColor& X2Color,
-                 const IColor& X3Color)
-  {
-    mColors.Get()[kBG] = BGColor;
-    mColors.Get()[kFG] = FGColor;
-    mColors.Get()[kPR] = PRColor;
-    mColors.Get()[kFR] = FRColor;
-    mColors.Get()[kHL] = HLColor;
-    mColors.Get()[kSH] = SHColor;
-    mColors.Get()[kX1] = X1Color;
-    mColors.Get()[kX2] = X2Color;
-    mColors.Get()[kX3] = X3Color;
   }
 
   void SetColors(const IVColorSpec& spec)
   {
-    SetColors(spec.GetColor(kBG),
-              spec.GetColor(kFG),
-              spec.GetColor(kPR),
-              spec.GetColor(kFR),
-              spec.GetColor(kHL),
-              spec.GetColor(kSH),
-              spec.GetColor(kX1),
-              spec.GetColor(kX2),
-              spec.GetColor(kX3));
+    mStyle.colorSpec = spec;
   }
 
-  const IColor& GetColor(int colorIdx) const
+  const IColor& GetColor(EVColor color) const
   {
-    if(colorIdx < mColors.GetSize())
-      return mColors.Get()[colorIdx];
-    else
-      return mColors.Get()[0];
+    return mStyle.colorSpec.GetColor(color);
   }
   
   void SetLabelStr(const char* label) { mLabelStr.Set(label); mControl->SetDirty(false); }
@@ -719,7 +646,6 @@ public:
   void SetStyle(const IVStyle& style)
   {
     mStyle = style;
-    mColors.Resize(kNumDefaultVColors); // TODO?
     SetColors(style.colorSpec);
   }
 
@@ -1079,7 +1005,6 @@ public:
   
 protected:
   IControl* mControl = nullptr;
-  WDL_TypedBuf<IColor> mColors;
   IVStyle mStyle;
   bool mLabelInWidget = false;
   bool mValueInWidget = false;

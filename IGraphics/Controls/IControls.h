@@ -380,7 +380,7 @@ public:
   using ColorChosenFunc = std::function<void(int, IColor)>;
 
   IVColorSwatchControl(const IRECT& bounds, const char* label = "", ColorChosenFunc func = nullptr, const IVStyle& spec = DEFAULT_STYLE, ECellLayout layout = ECellLayout::kGrid,
-    const std::initializer_list<int>& colorIDs = { kBG, kFG, kPR, kFR, kHL, kSH, kX1, kX2, kX3 },
+    const std::initializer_list<EVColor>& colorIDs = { kBG, kFG, kPR, kFR, kHL, kSH, kX1, kX2, kX3 },
     const std::initializer_list<const char*>& labelsForIDs = { kVColorStrs[kBG],kVColorStrs[kFG],kVColorStrs[kPR],kVColorStrs[kFR],kVColorStrs[kHL],kVColorStrs[kSH],kVColorStrs[kX1],kVColorStrs[kX2],kVColorStrs[kX3] });
   void Draw(IGraphics& g) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
@@ -396,7 +396,7 @@ private:
   ECellLayout mLayout = ECellLayout::kVertical;
   WDL_TypedBuf<IRECT> mCellRects;
   WDL_PtrList<WDL_String> mLabels;
-  std::vector<int> mColorIdForCells;
+  std::vector<EVColor> mColorIdForCells;
 };
 
 #pragma mark - SVG Vector Controls

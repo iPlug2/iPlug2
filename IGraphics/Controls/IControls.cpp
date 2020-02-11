@@ -1136,7 +1136,7 @@ void IVGroupControl::SetBoundsBasedOnGroup(const char* groupName, float padL, fl
 }
 
 IVColorSwatchControl::IVColorSwatchControl(const IRECT& bounds, const char* label, ColorChosenFunc func, const IVStyle& style, ECellLayout layout,
-  const std::initializer_list<int>& colorIDs, const std::initializer_list<const char*>& labelsForIDs)
+  const std::initializer_list<EVColor>& colorIDs, const std::initializer_list<const char*>& labelsForIDs)
 : IControl(bounds)
 , IVectorBase(style)
 , mLayout(layout)
@@ -1204,7 +1204,7 @@ void IVColorSwatchControl::OnResize()
 
 void IVColorSwatchControl::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
-  for (int i=0; i<mColors.GetSize(); i++)
+  for (int i=0; i<mColorIdForCells.size(); i++)
   {
     if(mCellRects.Get()[i].Contains(x, y))
     {
@@ -1228,7 +1228,7 @@ void IVColorSwatchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   int cellClicked=-1;
   
-  for (int i=0; i<mColors.GetSize(); i++)
+  for (int i=0; i<mColorIdForCells.size(); i++)
   {
     if(mCellRects.Get()[i].Contains(x, y))
     {
@@ -1239,8 +1239,10 @@ void IVColorSwatchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   
   if(cellClicked > -1)
   {
-    GetUI()->PromptForColor(mColors.Get()[cellClicked], "Choose a color", [this, cellClicked](IColor result) {
-      SetColor(cellClicked, result);
+    EVColor vColorClicked = static_cast<EVColor>(cellClicked);
+    IColor color = GetColor(static_cast<EVColor>(cellClicked));
+    GetUI()->PromptForColor(color, "Choose a color", [this, cellClicked, vColorClicked](IColor result) {
+      SetColor(vColorClicked, result);
       if(mColorChosenFunc)
         mColorChosenFunc(cellClicked, result);
     });
