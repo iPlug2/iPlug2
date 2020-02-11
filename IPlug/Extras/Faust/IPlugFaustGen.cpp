@@ -115,6 +115,9 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 
   llvm_dsp_factory* pFactory = createDSPFactoryFromString(name.Get(), mSourceCodeStr.Get(), N, argv, GetLLVMArchStr(), error, mOptimizationLevel);
 
+  if(error.length())
+    DBGMSG("%s\n", error.c_str());
+  
   assert(pFactory);
 
   if (pFactory)
