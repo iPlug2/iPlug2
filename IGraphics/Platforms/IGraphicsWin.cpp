@@ -167,19 +167,7 @@ inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
     GetKeyState(VK_MENU) < 0
 #endif
   );
-  return info;
-}
 
-inline IMouseInfo IGraphicsWin::GetMouseInfoDeltas(float& dX, float& dY, LPARAM lParam, WPARAM wParam)
-{
-  float oldX = mCursorX;
-  float oldY = mCursorY;
-  
-  IMouseInfo info = GetMouseInfo(lParam, wParam);
-
-  dX = info.x - oldX;
-  dY = info.y - oldY;
-  
   return info;
 }
 
@@ -347,6 +335,13 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     return DefWindowProc(hWnd, msg, wParam, lParam);
   }
+  
+  auto IsTouchEvent = []() {
+    const LONG_PTR c_SIGNATURE_MASK = 0xFFFFFF00;
+    const LONG_PTR c_MOUSEEVENTF_FROMTOUCH = 0xFF515700;
+    LONG_PTR extraInfo = GetMessageExtraInfo();
+    return ((extraInfo & c_SIGNATURE_MASK) == c_MOUSEEVENTF_FROMTOUCH);
+  };
 
   pGraphics->CheckTabletInput(msg);
 
@@ -369,6 +364,9 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
     {
+      if (IsTouchEvent())
+        return 0;
+
       pGraphics->HideTooltip();
       if (pGraphics->mParamEditWnd)
       {
@@ -378,7 +376,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       SetFocus(hWnd); // Added to get keyboard focus again when user clicks in window
       SetCapture(hWnd);
       IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
-      pGraphics->OnMouseDown(info.x, info.y, info.ms);
+      std::vector<IMouseInfo> list{ info };
+      pGraphics->OnMouseDown(list);
       return 0;
     }
     case WM_SETCURSOR:
@@ -388,6 +387,9 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_MOUSEMOVE:
     {
+      if (IsTouchEvent())
+        return 0;
+
       if (!(wParam & (MK_LBUTTON | MK_RBUTTON)))
       {
         IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
@@ -410,11 +412,18 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       }
       else if (GetCapture() == hWnd && !pGraphics->IsInPlatformTextEntry())
       {
-        float dX, dY;
-        IMouseInfo info = pGraphics->GetMouseInfoDeltas(dX, dY, lParam, wParam);
-        if (dX || dY)
+        float oldX = pGraphics->mCursorX;
+        float oldY = pGraphics->mCursorY;
+
+        IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
+
+        info.dX = info.x - oldX;
+        info.dY = info.y - oldY;
+
+        if (info.dX || info.dY)
         {
-          pGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+          std::vector<IMouseInfo> list{ info };
+          pGraphics->OnMouseDrag(list);
           if (pGraphics->MouseCursorIsLocked())
             pGraphics->MoveMouseCursor(pGraphics->mHiddenCursorX, pGraphics->mHiddenCursorY);
         }
@@ -438,11 +447,15 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     {
       ReleaseCapture();
       IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
-      pGraphics->OnMouseUp(info.x, info.y, info.ms);
+      std::vector<IMouseInfo> list{ info };
+      pGraphics->OnMouseUp(list);
       return 0;
     }
     case WM_LBUTTONDBLCLK:
     {
+      if (IsTouchEvent())
+        return 0;
+
       IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
       if (pGraphics->OnMouseDblClick(info.x, info.y, info.ms))
       {
@@ -467,6 +480,76 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         pGraphics->OnMouseWheel(info.x - (r.left / scale), info.y - (r.top / scale), info.ms, d);
         return 0;
       }
+    }
+    case WM_TOUCH:
+    {
+      UINT nTouches = LOWORD(wParam);
+
+      if (nTouches > 0)
+      {
+        WDL_TypedBuf<TOUCHINPUT> touches;
+        touches.Resize(nTouches);
+        HTOUCHINPUT hTouchInput = (HTOUCHINPUT) lParam;
+        std::vector<IMouseInfo> downlist;
+        std::vector<IMouseInfo> uplist;
+        std::vector<IMouseInfo> movelist;
+
+        GetTouchInputInfo(hTouchInput, nTouches, touches.Get(), sizeof(TOUCHINPUT));
+
+        for (int i = 0; i < nTouches; i++)
+        {
+          TOUCHINPUT* pTI = touches.Get() +i;
+
+          POINT pt;
+          pt.x = TOUCH_COORD_TO_PIXEL(pTI->x);
+          pt.y = TOUCH_COORD_TO_PIXEL(pTI->y);
+          ScreenToClient(pGraphics->mPlugWnd, &pt);
+
+          IMouseInfo e;
+          e.x = static_cast<float>(pt.x) / pGraphics->GetDrawScale();
+          e.y = static_cast<float>(pt.y) / pGraphics->GetDrawScale();
+          e.dX = 0.f;
+          e.dY = 0.f;
+          e.ms.touchRadius = 0;// TODO?
+
+          if (pTI->dwMask & TOUCHINPUTMASKF_CONTACTAREA)
+          {
+            e.ms.touchRadius = pTI->cxContact;
+          }
+
+          e.ms.touchID = static_cast<ITouchID>(pTI->dwID);
+
+          if (pTI->dwFlags & TOUCHEVENTF_DOWN)
+          {
+            downlist.push_back(e);
+            pGraphics->mDeltaCapture.insert(std::make_pair(e.ms.touchID, e));
+          }
+          else if (pTI->dwFlags & TOUCHEVENTF_UP)
+          {
+            pGraphics->mDeltaCapture.erase(e.ms.touchID);
+            uplist.push_back(e);
+          }
+          else if (pTI->dwFlags & TOUCHEVENTF_MOVE)
+          {
+            IMouseInfo previous = pGraphics->mDeltaCapture.find(e.ms.touchID)->second;
+            e.dX = e.x - previous.x;
+            e.dY = e.y - previous.y;
+            movelist.push_back(e);
+          }
+        }
+
+        if (downlist.size())
+          pGraphics->OnMouseDown(downlist);
+
+        if (uplist.size())
+          pGraphics->OnMouseUp(uplist);
+
+        if (movelist.size())
+          pGraphics->OnMouseDrag(movelist);
+
+        CloseTouchInputHandle(hTouchInput);
+      }
+      return 0;
     }
     case WM_GETDLGCODE:
       return DLGC_WANTALLKEYS;
@@ -1025,6 +1108,11 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   GetDelegate()->LayoutUI(this);
 
+  if (MultiTouchEnabled() && GetSystemMetrics(SM_DIGITIZER) & NID_MULTI_INPUT)
+  {
+    RegisterTouchWindow(mPlugWnd, 0);
+  }
+
   if (!mPlugWnd && --nWndClassReg == 0)
   {
     UnregisterClass(wndClassName, mHInstance);
@@ -1173,6 +1261,11 @@ void IGraphicsWin::CloseWindow()
       UnregisterClass(wndClassName, mHInstance);
     }
   }
+}
+
+bool IGraphicsWin::PlatformSupportsMultiTouch() const
+{
+  return GetSystemMetrics(SM_DIGITIZER) & NID_MULTI_INPUT;
 }
 
 IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, IPopupMenu& baseMenu)

@@ -79,6 +79,9 @@ public:
 
   bool GetTextFromClipboard(WDL_String& str) override;
   bool SetTextInClipboard(const WDL_String& str) override;
+
+  bool PlatformSupportsMultiTouch() const override;
+
   
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -162,6 +165,8 @@ private:
     
   static StaticStorage<InstalledFont> sPlatformFontCache;
   static StaticStorage<HFontHolder> sHFontCache;
+
+  std::unordered_map<ITouchID, IMouseInfo> mDeltaCapture; // associative array of touch id pointers to IMouseInfo structs, so that we can get deltas
 };
 
 END_IGRAPHICS_NAMESPACE

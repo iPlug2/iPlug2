@@ -297,6 +297,7 @@
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestLayerControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestMPSControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestMultiPathControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestMultiTouchControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestPolyControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestRotatingMaskControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestShadowGradientControl.h" />
