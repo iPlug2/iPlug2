@@ -785,7 +785,7 @@ IVRangeSliderControl::IVRangeSliderControl(const IRECT& bounds, const std::initi
 , mTrackSize(trackSize)
 , mHandleSize(handleSize)
 {
-  mWantsMultiTouch = true;
+  SetWantsMultiTouch(true);
 }
 
 void IVRangeSliderControl::Draw(IGraphics& g)
