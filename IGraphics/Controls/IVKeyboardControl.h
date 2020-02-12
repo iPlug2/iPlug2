@@ -28,7 +28,8 @@ class IVKeyboardControl : public IControl , public IMultiTouchControlBase
 {
   enum class GlideMode { Glissando, Pitch };
   enum class KeyLayoutMode { Contiguous, Piano };
-
+  enum EValIDs { kGate = 0, kHeight, kRadius };
+  
   static const IColor DEFAULT_BK_COLOR;
   static const IColor DEFAULT_WK_COLOR;
   static const IColor DEFAULT_PK_COLOR;
@@ -50,11 +51,11 @@ class IVKeyboardControl : public IControl , public IMultiTouchControlBase
     
     void Draw(IGraphics& g) override
     {
-      g.FillRect(GetValue(0) > 0.5 ? COLOR_BLACK : COLOR_WHITE, mRECT);
+      g.FillRect(GetValue(EValIDs::kGate) > 0.5 ? COLOR_BLACK : COLOR_WHITE, mRECT);
       g.DrawLine(COLOR_BLACK, mRECT.R-1, mRECT.T, mRECT.R-1, mRECT.B);
       
       if(mPointerDown)
-        g.DrawHorizontalLine(COLOR_RED, mRECT, GetValue(1));
+        g.DrawHorizontalLine(COLOR_RED, mRECT, GetValue(EValIDs::kHeight));
       WDL_String str;
       str.SetFormatted(3, "%i", mIdx);
       g.DrawText(mText, str.Get(), mRECT);
@@ -64,9 +65,9 @@ class IVKeyboardControl : public IControl , public IMultiTouchControlBase
     {
       mPointerDown = true;
       //parent sets this one dirty
-      mParent->AddTouch(mod.touchID, x, y, mod.radius);
+      mParent->AddTouch(mod.touchID, x, y, mod.touchRadius);
       mParent->SetHit(mod.touchID, this);
-      SnapToMouse(x, y, EDirection::Vertical, mRECT, 1); // use val #1 for height
+      SnapToMouse(x, y, EDirection::Vertical, mRECT, EValIDs::kHeight);
     }
     
     void OnMouseUp(float x, float y, const IMouseMod& mod) override
@@ -79,11 +80,14 @@ class IVKeyboardControl : public IControl , public IMultiTouchControlBase
     
     void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
     {
-      mParent->UpdateTouch(mod.touchID, x, y, mod.radius);
-      mParent->HitMoved(mod.touchID, this);
-      
-      SnapToMouse(x, y, EDirection::Vertical, mRECT, 1); // use val #1 for height
-      mParent->SendCtrl1(mod.touchID, GetValue(1));
+      if(mParent->GetMPEEnabled())
+      {
+        mParent->UpdateTouch(mod.touchID, x, y, mod.touchRadius);
+        mParent->HitMoved(mod.touchID, this);
+        
+        SnapToMouse(x, y, EDirection::Vertical, mRECT, EValIDs::kHeight);
+        mParent->SendCtrl1(mod.touchID, GetValue(EValIDs::kHeight));
+      }
     }
     
     void OnTouchCancelled(float x, float y, const IMouseMod& mod) override
@@ -146,7 +150,7 @@ public:
   
   void OnAttached() override
   {
-    CreateHighlights();
+//    CreateHighlights();
   }
   
   void Draw(IGraphics& g) override
@@ -172,12 +176,12 @@ public:
    * @param pKey ptr to the key being set on */
   void SetHit(ITouchID touchId, KeyControl* pKey)
   {
-    if(pKey->GetValue() < 0.5)
+    if(pKey->GetValue(EValIDs::kGate) < 0.5)
     {
-      pKey->SetValue(1.);
+      pKey->SetValue(1., EValIDs::kGate);
       pKey->SetDirty(false);
       mTouchPrevouslyHit[touchId] = pKey;
-      SendMidiNoteMsg(pKey->GetIdx(), 127);
+      SendMidiNoteMsg(pKey->GetIdx(), 1 + static_cast<int>(pKey->GetValue(EValIDs::kHeight) * 126));
     }
   }
   
@@ -270,7 +274,6 @@ public:
     }
   }
   
-  
   /** Sets a note state, if the keyboard contains that note
    * @param note MIDI pitch to toggle
    * @param on If the note should be on */
@@ -328,9 +331,9 @@ public:
     
     for(int i=0; i< numWhiteKeys;i++)
     {
-      KeyControl* newKeyControl = new KeyControl(mRECT.GetGridCell(i, 1, numWhiteKeys), i, false, this);
-      pGraphics->AttachControl(newKeyControl);
-      mKeyControls.Add(newKeyControl);
+      KeyControl* pNewKeyControl = new KeyControl(mRECT.GetGridCell(i, 1, numWhiteKeys), i, false, this);
+      pGraphics->AttachControl(pNewKeyControl);
+      mKeyControls.Add(pNewKeyControl);
     }
   }
 
@@ -339,11 +342,22 @@ public:
     auto touch = GetTouchWithIdentifier(touchID);
     
     IMidiMsg msg;
-    msg.MakePitchWheelMsg(value, touch->index + 1);
+    msg.MakePitchWheelMsg(value, touch->index);
     GetDelegate()->SendMidiMsgFromUI(msg);
   }
   
+  void EnableMPE(bool enable)
+  {
+    mMPEMode = enable;
+  }
+  
+  bool GetMPEEnabled() const
+  {
+    return mMPEMode;
+  }
+  
 protected:
+  bool mMPEMode = false;
   WDL_PtrList<KeyControl> mKeyControls;
   WDL_PtrList<HighlightControl> mHighlightControls;
   IPanelControl* mBackGroundControl;
