@@ -21,11 +21,13 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->EnableMouseOver(true);
+    pGraphics->EnableMultiTouch(true);
+
 //    pGraphics->EnableLiveEdit(true);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
-    const IRECT b = pGraphics->GetBounds();
+    const IRECT b = pGraphics->GetBounds().GetPadded(-10.f);
     pGraphics->AttachControl(new IVKeyboardControl(IRECT(10, 335, PLUG_WIDTH-10, PLUG_HEIGHT-10)), kCtrlTagKeyboard);
-    pGraphics->AttachControl(new IVMultiSliderControl<4>(b.GetGridCell(0, 2, 2).GetPadded(-30), "", DEFAULT_STYLE, kParamAttack, EDirection::Vertical, 0.f, 1.f));
+//    pGraphics->AttachControl(new IVMultiSliderControl<4>(b.GetGridCell(0, 2, 2).GetPadded(-30), "", DEFAULT_STYLE, kParamAttack, EDirection::Vertical, 0.f, 1.f));
     const IRECT controls = b.GetGridCell(1, 2, 2);
     pGraphics->AttachControl(new IVKnobControl(controls.GetGridCell(0, 2, 6).GetCentredInside(90), kParamGain, "Gain"));
     pGraphics->AttachControl(new IVKnobControl(controls.GetGridCell(1, 2, 6).GetCentredInside(90), kParamNoteGlideTime, "Glide"));
@@ -36,13 +38,22 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     pGraphics->AttachControl(new IVSliderControl(sliders.GetGridCell(3, 1, 4).GetMidHPadded(30.), kParamRelease, "Release"));
     pGraphics->AttachControl(new IVMeterControl<1>(controls.GetFromRight(100).GetPadded(-30), ""), kCtrlTagMeter);
     
-    pGraphics->AttachControl(new IVButtonControl(controls.GetFromBottom(30).GetMidHPadded(100), SplashClickActionFunc,
-      "Show/Hide Keyboard", DEFAULT_STYLE.WithColor(kFG, COLOR_WHITE).WithLabelText({15.f, EVAlign::Middle})))->SetAnimationEndActionFunction(
+//    pGraphics->AttachControl(new IVButtonControl(controls.GetFromBottom(30).GetMidHPadded(100), SplashClickActionFunc,
+//      "Show/Hide Keyboard", DEFAULT_STYLE.WithColor(kFG, COLOR_WHITE).WithLabelText({15.f, EVAlign::Middle})))->SetAnimationEndActionFunction(
+//      [pGraphics](IControl* pCaller) {
+//        static bool hide = false;
+//        pGraphics->GetControlWithTag(kCtrlTagKeyboard)->Hide(hide = !hide);
+//        pGraphics->Resize(PLUG_WIDTH, hide ? PLUG_HEIGHT / 2 : PLUG_HEIGHT, pGraphics->GetDrawScale());
+//    });
+
+    pGraphics->AttachControl(new IVToggleControl(controls.GetFromBottom(30).GetMidHPadded(100), SplashClickActionFunc,
+      "Enable MPE", DEFAULT_STYLE.WithColor(kFG, COLOR_WHITE).WithLabelText({15.f, EVAlign::Middle})))->SetAnimationEndActionFunction(
       [pGraphics](IControl* pCaller) {
-        static bool hide = false;
-        pGraphics->GetControlWithTag(kCtrlTagKeyboard)->Hide(hide = !hide);
-        pGraphics->Resize(PLUG_WIDTH, hide ? PLUG_HEIGHT / 2 : PLUG_HEIGHT, pGraphics->GetDrawScale());
+        bool status = pCaller->GetValue() > 0.5;
+        pGraphics->GetDelegate()->SendArbitraryMsgFromUI(kMsgTagEnableMPE, kNoTag, sizeof(bool), &status);
+        dynamic_cast<IVKeyboardControl*>(pGraphics->GetControlWithTag(kCtrlTagKeyboard))->EnableMPE(status);
     });
+
 #ifdef OS_IOS
     if(!IsAuv3AppExtension())
     {
@@ -53,9 +64,9 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     }
 #endif
     
-    pGraphics->SetQwertyMidiKeyHandlerFunc([pGraphics](const IMidiMsg& msg) {
-                                              dynamic_cast<IVKeyboardControl*>(pGraphics->GetControlWithTag(kCtrlTagKeyboard))->SetNoteFromMidi(msg.NoteNumber(), msg.StatusMsg() == IMidiMsg::kNoteOn);
-                                           });
+//    pGraphics->SetQwertyMidiKeyHandlerFunc([pGraphics](const IMidiMsg& msg) {
+//                                              dynamic_cast<IVKeyboardControl*>(pGraphics->GetControlWithTag(kCtrlTagKeyboard))->SetNoteFromMidi(msg.NoteNumber(), msg.StatusMsg() == IMidiMsg::kNoteOn);
+//                                           });
   };
 #endif
 }
@@ -103,6 +114,7 @@ void IPlugInstrument::ProcessMidiMsg(const IMidiMsg& msg)
   
   int status = msg.StatusMsg();
   
+  
   switch (status)
   {
     case IMidiMsg::kNoteOn:
@@ -127,5 +139,24 @@ handle:
 void IPlugInstrument::OnParamChange(int paramIdx)
 {
   mDSP.SetParam(paramIdx, GetParam(paramIdx)->Value());
+}
+
+bool IPlugInstrument::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
+{
+  if(msgTag == kMsgTagEnableMPE)
+  {
+    if(dataSize == sizeof(bool))
+    {
+      bool status = *reinterpret_cast<const bool*>(pData);
+      
+      if(status)
+      {
+        mDSP.mSynth.InitBasicMPE();
+        return true;
+      }
+    }
+  }
+  
+  return false;
 }
 #endif

@@ -21,11 +21,18 @@ enum EParams
 #include "IPlugInstrument_DSP.h"
 #endif
 
-enum EControlTags
+enum ECtrlTags
 {
   kCtrlTagMeter = 0,
+  kCtrlTagLED,
   kCtrlTagKeyboard,
   kNumCtrlTags
+};
+
+enum EMsgTags
+{
+  kMsgTagEnableMPE = 0,
+  kNumMsgTags
 };
 
 using namespace iplug;
@@ -45,6 +52,7 @@ public:
   void OnIdle() override;
   bool OnKeyDown(const IKeyPress& key) override;
   bool OnKeyUp(const IKeyPress& key) override;
+  bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
 
 private:
   IPlugInstrumentDSP<sample> mDSP {16};
