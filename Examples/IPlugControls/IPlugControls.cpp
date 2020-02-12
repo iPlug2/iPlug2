@@ -26,9 +26,11 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     
 //    pGraphics->EnableLiveEdit(true);
     pGraphics->EnableMouseOver(true);
+    pGraphics->EnableMultiTouch(true);
+    pGraphics->EnableTooltips(true);
+
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
-    pGraphics->EnableTooltips(true);
     pGraphics->AttachTextEntryControl();
     pGraphics->AttachPopupMenuControl(DEFAULT_LABEL_TEXT);
     

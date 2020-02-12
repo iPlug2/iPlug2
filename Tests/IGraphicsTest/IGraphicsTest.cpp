@@ -38,11 +38,12 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
       
       return;
     }
-    
-    pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
+
     pGraphics->EnableMouseOver(true);
     pGraphics->EnableTooltips(true);
     pGraphics->EnableMultiTouch(true);
+    
+    pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
     
     pGraphics->SetKeyHandlerFunc([&](const IKeyPress& key, bool isUp) {
       if(!isUp) {
