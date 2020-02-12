@@ -93,7 +93,7 @@ void IGraphics::Resize(int w, int h, float scale)
   
   if (w == Width() && h == Height() && scale == GetDrawScale()) return;
   
-  DBGMSG("resize %i, resize %i, scale %f\n", w, h, scale);
+  //DBGMSG("resize %i, resize %i, scale %f\n", w, h, scale);
   ReleaseMouseCapture();
 
   mDrawScale = scale;
