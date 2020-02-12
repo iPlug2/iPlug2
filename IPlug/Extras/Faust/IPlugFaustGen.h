@@ -141,7 +141,7 @@ class FaustGen : public IPlugFaust
     llvm_dsp_factory* CreateFactoryFromBitCode();
     llvm_dsp_factory* CreateFactoryFromSourceCode();
     
-    /** If DSP allready exists will return it, otherwise create it
+    /** If DSP already exists will return it, otherwise create it
      * @return pointer to the DSP instance */
     ::dsp* GetDSP(int maxInputs, int maxOutputs);
 

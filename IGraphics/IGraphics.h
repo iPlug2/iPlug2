@@ -1037,6 +1037,29 @@ public:
   /** @return true if resizing is in process */
   bool GetResizingInProcess() const { return mResizingInProcess; }
 
+  
+  /** Enable/disable multi touch, if platform supports it
+    * @return \c true if platform supports it
+  */
+  bool EnableMultiTouch(bool enable)
+  {
+    if (PlatformSupportsMultiTouch())
+    {
+      mEnableMultiTouch = enable;
+      return true;
+    }
+    else
+      mEnableMultiTouch = false;
+
+    return false;
+  }
+  
+  /** @return /c true if multi touch is enabled */
+  bool MultiTouchEnabled() const { return mEnableMultiTouch; }
+
+  /** @return /c true if the platform supports multi touch */
+  virtual bool PlatformSupportsMultiTouch() const { return false; }
+  
   /** @param enable Set \c true to enable tool tips when the user mouses over a control */
   void EnableTooltips(bool enable);
   
@@ -1222,10 +1245,24 @@ public:
    * @return A pointer to the IControl object with the tag of nullptr if not found */
   IControl* GetControlWithTag(int ctrlTag);
   
-  /** Get a pointer to the IControl that is currently captured i.e. during dragging
-   * @return Pointer to currently captured control */
-  IControl* GetCapturedControl() { return mMouseCapture; }
+  /** Check to see if any control is captured */
+  bool ControlIsCaptured() const { return mCapturedMap.size() > 0; }
+  
+  /** Check to see if the control is already captured
+   * @return \c true is the control is already captured */
+  bool ControlIsCaptured(IControl* pControl) const
+  {
+    return std::find_if(std::begin(mCapturedMap), std::end(mCapturedMap), [pControl](auto&& press) { return press.second == pControl; }) != mCapturedMap.end();
+  }
 
+  /** Populate a vector with the touchIDs active on pControl */
+  void GetTouches(IControl* pControl, std::vector<ITouchID>& touchesOnThisControl) const
+  {
+    for (auto i = mCapturedMap.begin(), j = mCapturedMap.end(); i != j; ++i)
+      if (i->second == pControl)
+        touchesOnThisControl.push_back(i->first);
+  }
+  
   /* Get the first control in the control list, the background */
   IControl* GetBackgroundControl() { return GetControl(0);  }
   
@@ -1288,27 +1325,23 @@ private:
    * @param y /todo
    * @param capture /todo
    * @param mouseOver /todo
+   * @param touchID /todo
    * @return IControl* /todo */
-  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false);
+  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false, ITouchID touchID = 0);
   
 #pragma mark - Event handling
 public:
-  /** @param x The X coordinate in the graphics context at which the mouse event occurred
-   * @param y The Y coordinate in the graphics context at which the mouse event occurred
-   * @param mod IMouseMod struct contain information about the modifiers held */
-  void OnMouseDown(float x, float y, const IMouseMod& mod);
+  /** */
+  void OnMouseDown(const std::vector<IMouseInfo>& points);
 
-  /** @param x The X coordinate in the graphics context at which the mouse event occurred
-   * @param y The Y coordinate in the graphics context at which the mouse event occurred
-   * @param mod IMouseMod struct contain information about the modifiers held */
-  void OnMouseUp(float x, float y, const IMouseMod& mod);
+  /** */
+  void OnMouseUp(const std::vector<IMouseInfo>& points);
 
-  /** @param x The X coordinate in the graphics context at which the mouse event occurred
-   * @param y The Y coordinate in the graphics context at which the mouse event occurred
-   * @param dX Delta X value \todo explain
-   * @param dY Delta Y value \todo explain
-   * @param mod IMouseMod struct contain information about the modifiers held */
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod);
+  /** */
+  void OnMouseDrag(const std::vector<IMouseInfo>& points);
+  
+  /** */
+  void OnTouchCancelled(const std::vector<IMouseInfo>& points);
 
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
    * @param y The Y coordinate in the graphics context at which the mouse event occurred
@@ -1543,7 +1576,7 @@ private:
 
   // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
   std::unique_ptr<ICornerResizerControl> mCornerResizer;
-  std::unique_ptr<IBubbleControl> mBubbleControl;
+  WDL_PtrList<IBubbleControl> mBubbleControls;
   std::unique_ptr<IPopupMenuControl> mPopupControl;
   std::unique_ptr<IFPSDisplayControl> mPerfDisplay;
   std::unique_ptr<ITextEntryControl> mTextEntryControl;
@@ -1565,8 +1598,7 @@ private:
   std::vector<EGestureType> mRegisteredGestures; // All the types of gesture registered with the graphics context
   IRECTList mGestureRegions; // Rectangular regions linked to gestures (excluding IControls)
   std::unordered_map<int, IGestureFunc> mGestureRegionFuncs; // Map of gesture region index to gesture function
-  
-  IControl* mMouseCapture = nullptr;
+  std::unordered_map<ITouchID, IControl*> mCapturedMap; // associative array of touch ids to control pointers, the same control can be touched multiple times
   IControl* mMouseOver = nullptr;
   IControl* mInTextEntry = nullptr;
   IControl* mInPopupMenu = nullptr;
@@ -1590,6 +1622,7 @@ private:
   bool mShowAreaDrawn = false;
   bool mResizingInProcess = false;
   bool mLayoutOnResize = false;
+  bool mEnableMultiTouch = false;
   EUIResizerMode mGUISizeMode = EUIResizerMode::Scale;
   double mPrevTimestamp = 0.;
   IKeyHandlerFunc mKeyHandlerFunc = nullptr;

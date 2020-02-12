@@ -93,6 +93,8 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   
   GetDelegate()->LayoutUI(this);
   GetDelegate()->OnUIOpen();
+  
+  [view setMultipleTouchEnabled:MultiTouchEnabled()];
 
   if (pParent)
   {
