@@ -474,7 +474,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       {
         IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
         float d = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
-        float scale = pGraphics->GetDrawScale() * pGraphics->GetScreenScale();
+        const float scale = static_cast<float>(pGraphics->GetDrawScale() * pGraphics->GetScreenScale());
         RECT r;
         GetWindowRect(hWnd, &r);
         pGraphics->OnMouseWheel(info.x - (r.left / scale), info.y - (r.top / scale), info.ms, d);
@@ -493,6 +493,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         std::vector<IMouseInfo> downlist;
         std::vector<IMouseInfo> uplist;
         std::vector<IMouseInfo> movelist;
+        const float scale = static_cast<float>(pGraphics->GetDrawScale() * pGraphics->GetScreenScale());
 
         GetTouchInputInfo(hTouchInput, nTouches, touches.Get(), sizeof(TOUCHINPUT));
 
@@ -505,36 +506,37 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           pt.y = TOUCH_COORD_TO_PIXEL(pTI->y);
           ScreenToClient(pGraphics->mPlugWnd, &pt);
 
-          IMouseInfo e;
-          e.x = static_cast<float>(pt.x) / pGraphics->GetDrawScale();
-          e.y = static_cast<float>(pt.y) / pGraphics->GetDrawScale();
-          e.dX = 0.f;
-          e.dY = 0.f;
-          e.ms.touchRadius = 0;// TODO?
+          IMouseInfo info;
+          info.x = static_cast<float>(pt.x) / scale;
+          info.y = static_cast<float>(pt.y) / scale;
+          info.dX = 0.f;
+          info.dY = 0.f;
+          info.ms.touchRadius = 0;
 
           if (pTI->dwMask & TOUCHINPUTMASKF_CONTACTAREA)
           {
-            e.ms.touchRadius = pTI->cxContact;
+            info.ms.touchRadius = pTI->cxContact;
           }
 
-          e.ms.touchID = static_cast<ITouchID>(pTI->dwID);
+          info.ms.touchID = static_cast<ITouchID>(pTI->dwID);
 
           if (pTI->dwFlags & TOUCHEVENTF_DOWN)
           {
-            downlist.push_back(e);
-            pGraphics->mDeltaCapture.insert(std::make_pair(e.ms.touchID, e));
+            downlist.push_back(info);
+            pGraphics->mDeltaCapture.insert(std::make_pair(info.ms.touchID, info));
           }
           else if (pTI->dwFlags & TOUCHEVENTF_UP)
           {
-            pGraphics->mDeltaCapture.erase(e.ms.touchID);
-            uplist.push_back(e);
+            pGraphics->mDeltaCapture.erase(info.ms.touchID);
+            uplist.push_back(info);
           }
           else if (pTI->dwFlags & TOUCHEVENTF_MOVE)
           {
-            IMouseInfo previous = pGraphics->mDeltaCapture.find(e.ms.touchID)->second;
-            e.dX = e.x - previous.x;
-            e.dY = e.y - previous.y;
-            movelist.push_back(e);
+            IMouseInfo previous = pGraphics->mDeltaCapture.find(info.ms.touchID)->second;
+            info.dX = info.x - previous.x;
+            info.dY = info.y - previous.y;
+            movelist.push_back(info);
+            pGraphics->mDeltaCapture[info.ms.touchID] = info;
           }
         }
 
@@ -580,7 +582,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
                             static_cast<bool>(GetKeyState(VK_CONTROL) & 0x8000),
                             static_cast<bool>(GetKeyState(VK_MENU) & 0x8000) };
 
-        double scale = pGraphics->GetDrawScale() * pGraphics->GetScreenScale();
+        const float scale = static_cast<float>(pGraphics->GetDrawScale() * pGraphics->GetScreenScale());
 
         if(msg == WM_KEYDOWN)
           handle = pGraphics->OnKeyDown(p.x / scale, p.y / scale, keyPress);
@@ -599,9 +601,11 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_PAINT:
     {
-      auto addDrawRect = [pGraphics](IRECTList& rects, RECT r) {
+      const float scale = static_cast<float>(pGraphics->GetDrawScale() * pGraphics->GetScreenScale());
+
+      auto addDrawRect = [pGraphics, scale](IRECTList& rects, RECT r) {
         IRECT ir(r.left, r.top, r.right, r.bottom);
-        ir.Scale(1.f / (pGraphics->GetDrawScale() * pGraphics->GetScreenScale()));
+        ir.Scale(scale);
         ir.PixelAlign();
         rects.Add(ir);
       };
