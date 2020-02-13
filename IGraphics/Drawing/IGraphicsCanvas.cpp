@@ -116,6 +116,7 @@ void IGraphicsCanvas::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int
   context.call<void>("clip");
   context.call<void>("drawImage", img, srcX * bs, srcY * bs, sr.W(), sr.H(), bounds.L, bounds.T, bounds.W(), bounds.H());
   GetContext().call<void>("restore");
+  PathClear();
 }
 
 void IGraphicsCanvas::PathClear()
