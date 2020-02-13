@@ -221,8 +221,13 @@ END_IPLUG_NAMESPACE
 IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
-  DBGMSG("IGraphics Skia @ %i FPS\n", fps);
-  
+#if defined IGRAPHICS_CPU
+  DBGMSG("IGraphics Skia CPU @ %i FPS\n", fps);
+#elif defined IGRAPHICS_METAL
+  DBGMSG("IGraphics Skia METAL @ %i FPS\n", fps);
+#elif defined IGRAPHICS_GL
+  DBGMSG("IGraphics Skia GL @ %i FPS\n", fps);
+#endif
   StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Retain();
 }
