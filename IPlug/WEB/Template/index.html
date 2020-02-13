@@ -111,33 +111,36 @@
       function initMidiComboBox (isOutput, element) {
         let combo = document.querySelector(element);
         combo.options.length = 0;
-        navigator.requestMIDIAccess().then((midiIF) => {
-          if(isOutput) {
-            for (let output of midiIF.outputs.values()) {
-              let option = new Option(output.name);
-              option.port = output;
-              combo.appendChild(option);
+        
+        if (navigator.requestMIDIAccess) {
+          navigator.requestMIDIAccess().then((midiIF) => {
+            if(isOutput) {
+              for (let output of midiIF.outputs.values()) {
+                let option = new Option(output.name);
+                option.port = output;
+                combo.appendChild(option);
+              }
+
+              combo.onchange = e => {
+                NAME_PLACEHOLDER_WAM.midiOut = e.target.options[e.target.selectedIndex].port;
+              }
+            } else {
+              for (let input of midiIF.inputs.values()) {
+                let option = new Option(input.name);
+                option.port = input;
+                combo.appendChild(option);
+              }
+
+              combo.onchange = e => {
+                NAME_PLACEHOLDER_WAM.midiIn = e.target.options[e.target.selectedIndex].port;
+              }
             }
 
-            combo.onchange = e => {
-              NAME_PLACEHOLDER_WAM.midiOut = e.target.options[e.target.selectedIndex].port;
-            }
-          } else {
-            for (let input of midiIF.inputs.values()) {
-              let option = new Option(input.name);
-              option.port = input;
-              combo.appendChild(option);
-            }
-
-            combo.onchange = e => {
-              NAME_PLACEHOLDER_WAM.midiIn = e.target.options[e.target.selectedIndex].port;
-            }
-          }
-
-          if (combo.options.length > 0)
-            combo.onchange({ target:combo });
-        })
-        combo.removeAttribute("disabled");
+            if (combo.options.length > 0)
+              combo.onchange({ target:combo });
+          })
+          combo.removeAttribute("disabled");
+        }
       }
 
       //https://www.mattmontag.com/web/unlock-web-audio-in-safari-for-ios-and-macos
