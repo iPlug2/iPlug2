@@ -65,9 +65,9 @@ class IVKeyboardControl : public IControl , public IMultiTouchControlBase
     {
       mPointerDown = true;
       //parent sets this one dirty
+      SnapToMouse(x, y, EDirection::Vertical, mRECT, EValIDs::kHeight);
       mParent->AddTouch(mod.touchID, x, y, mod.touchRadius);
       mParent->SetHit(mod.touchID, this);
-      SnapToMouse(x, y, EDirection::Vertical, mRECT, EValIDs::kHeight);
     }
     
     void OnMouseUp(float x, float y, const IMouseMod& mod) override
@@ -75,19 +75,16 @@ class IVKeyboardControl : public IControl , public IMultiTouchControlBase
       mPointerDown = false;
 
       mParent->ReleaseTouch(mod.touchID);
-      mParent->ClearHitIfMovedOffkey(mod.touchID, nullptr);
+      mParent->ClearHitIfMovedOffKey(mod.touchID, nullptr);
     }
     
     void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
     {
-      if(mParent->GetMPEEnabled())
-      {
-        mParent->UpdateTouch(mod.touchID, x, y, mod.touchRadius);
-        mParent->HitMoved(mod.touchID, this);
-        
-        SnapToMouse(x, y, EDirection::Vertical, mRECT, EValIDs::kHeight);
-        mParent->SendCtrl1(mod.touchID, GetValue(EValIDs::kHeight));
-      }
+      mParent->UpdateTouch(mod.touchID, x, y, mod.touchRadius);
+      mParent->HitMoved(mod.touchID, this);
+      
+      SnapToMouse(x, y, EDirection::Vertical, mRECT, EValIDs::kHeight);
+      mParent->SendCtrl1(mod.touchID, GetValue(EValIDs::kHeight));
     }
     
     void OnTouchCancelled(float x, float y, const IMouseMod& mod) override
@@ -188,7 +185,7 @@ public:
   /** Clears key previously linked to a touch identifier
    * @param touchID The touch identifier
    * @param pKey ptr to the key being set on */
-  void ClearHitIfMovedOffkey(ITouchID touchId, KeyControl* pKey)
+  void ClearHitIfMovedOffKey(ITouchID touchId, KeyControl* pKey)
   {
     auto itr = mTouchPrevouslyHit.find(touchId);
     
@@ -199,7 +196,7 @@ public:
       
       if(pPrevKey != pKey)
       {
-        pPrevKey->SetValue(0.);
+        pPrevKey->SetValue(0., EValIDs::kGate);
         pPrevKey->SetDirty(false);
         SendMidiNoteMsg(pPrevKey->GetIdx(), 0);
         mTouchPrevouslyHit[touchId] = pKey;
@@ -230,16 +227,16 @@ public:
           pTestKey->SetDirty();
       }
     }
-//      ClearHitIfMovedOffkey(idx, pKey);
+
+//    ClearHitIfMovedOffKey(touchId, pKey);
 //
-//      for(int i=0;i<mKeyControls.GetSize();i++)
+//    for(int i=0;i<mKeyControls.GetSize();i++)
+//    {
+//      KeyControl* pTestKey = mKeyControls.Get(i);
+//
+//      if(pTestKey->IsHit(pTouch->x, pTouch->y))
 //      {
-//        KeyControl* pTestKey = mKeyControls.Get(i);
-//
-//        if(pTestKey->IsHit(pTouch->x, pTouch->y))
-//        {
-//          SetHit(idx, pTestKey);
-//        }
+//        SetHit(touchId, pTestKey);
 //      }
 //    }
   }
@@ -313,10 +310,10 @@ public:
   {
     IGraphics* pGraphics = GetUI();
     
-    for(int i=0;i<10;i++)
+    for(int i=0;i<MAX_TOUCHES;i++)
     {
       HighlightControl* pNewHightlightControl = new HighlightControl(mRECT.GetCentredInside(10), this, GetRainbow(i%7));
-      pNewHightlightControl->Hide(true);
+//      pNewHightlightControl->Hide(true);
       pGraphics->AttachControl(pNewHightlightControl);
       mHighlightControls.Add(pNewHightlightControl);
     }
