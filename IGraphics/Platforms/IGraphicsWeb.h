@@ -68,6 +68,8 @@ public:
   void PromptForDirectory(WDL_String& path) override;
   bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
+
+  bool PlatformSupportsMultiTouch() const override { return true; }
   
   //IGraphicsWeb
   static void OnMainLoopTimer();
@@ -75,7 +77,7 @@ public:
   double mPrevY = 0.;
   
 protected:
-  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) override;
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
     
 private:

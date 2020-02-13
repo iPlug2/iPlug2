@@ -118,7 +118,7 @@ public:
     DrawLabel(g);
 
     if(mStyle.drawFrame)
-      g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
+      g.DrawRect(GetColor(kFR), mWidgetBounds, &mBlend, mStyle.frameThickness);
   }
 
   //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
@@ -126,21 +126,24 @@ public:
 
   void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
-    IByteStream stream(pData, dataSize);
-
-    int pos = 0;
-    Data data;
-    pos = stream.Get(&data.nchans, pos);
-
-    while(pos < stream.Size())
+    if (!IsDisabled())
     {
-      for (auto i = 0; i < data.nchans; i++) {
-        pos = stream.Get(&data.vals[i], pos);
-        SetValue(Clip(data.vals[i], 0.f, 1.f), i);
-      }
-    }
+      IByteStream stream(pData, dataSize);
 
-    SetDirty(false);
+      int pos = 0;
+      Data data;
+      pos = stream.Get(&data.nchans, pos);
+
+      while (pos < stream.Size())
+      {
+        for (auto i = 0; i < data.nchans; i++) {
+          pos = stream.Get(&data.vals[i], pos);
+          SetValue(Clip(data.vals[i], 0.f, 1.f), i);
+        }
+      }
+
+      SetDirty(false);
+    }
   }
 };
 

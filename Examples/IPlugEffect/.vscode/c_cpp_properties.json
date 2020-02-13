@@ -1,34 +1,48 @@
 {
+    "env": {
+        "commonIncludePaths": [
+            "${workspaceFolder}/**",
+            "${workspaceFolder}/../../WDL/**",
+            "${workspaceFolder}/../../IPlug/**",
+            "${workspaceFolder}/../../IGraphics/**",
+            "${workspaceFolder}/../../Dependencies/**"
+        ],
+        "commonDefs": [
+            "APP_API",
+            "IPLUG_DSP=1",
+            "IPLUG_EDITOR=1",
+            "IGRAPHICS_NANOVG",
+            "NOMINMAX"
+        ]
+      },
     "configurations": [
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/**",
-                "${workspaceFolder}/../../WDL/**",
-                "${workspaceFolder}/../../IPlug/**",
-                "${workspaceFolder}/../../IGraphics/**",
-                "${workspaceFolder}/../../Dependencies/IPlug/**",
-                "${workspaceFolder}/../../Dependencies/IGraphics/**",
-                "${workspaceFolder}/../../Dependencies/Extras/**",
+                "${commonIncludePaths}",
                 "${workspaceFolder}/../../Dependencies/Build/mac/include/**"
             ],
             "defines": [
+                "${commonDefs}",
                 "OS_MAC",
-                "APP_API",
-                "IPLUG_DSP=1",
-                "IPLUG_EDITOR=1",
-                "IGRAPHICS_NANOVG",
-                "IGRAPHICS_METAL,",
-                "NOMINMAX"
+                "IGRAPHICS_METAL"
             ],
             "macFrameworkPath": [
                 "/System/Library/Frameworks",
                 "/Library/Frameworks"
             ],
-            "compilerPath": "/usr/bin/clang",
-            "cStandard": "c11",
-            "cppStandard": "c++11",
-            "intelliSenseMode": "clang-x64"
+            "cppStandard": "c++14"
+        },
+        {
+            "name": "Win32",
+            "includePath": [
+                "${commonIncludePaths}"
+            ],
+            "defines": [
+                "${commonDefs}",
+                "OS_WIN",
+                "IGRAPHICS_GL2"
+            ]
         }
     ],
     "version": 4

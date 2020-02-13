@@ -62,19 +62,17 @@ BUILT_LIBS_LIB_PATH = $(BUILT_LIBS_PATH)/lib
 SCRIPTS_PATH = $(IPLUG2_ROOT)/Scripts
 WDL_PATH = $(IPLUG2_ROOT)/WDL
 SWELL_PATH = $(WDL_PATH)/swell
-SWELL_FOR_IPLUG_PATH = $(DEPS_PATH)/IPlug/SWELL
 IPLUG_PATH = $(IPLUG2_ROOT)/IPlug
 RTAUDIO_PATH = $(DEPS_PATH)/IPlug/RTAudio
 RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
 
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
-YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga/yoga
 IMGUI_PATH = $(DEPS_PATH)/IGraphics/imgui
 
 //faust is linked as a dynamic library
 FAUST_LIB_PATHS = $(BUILT_LIBS_LIB_PATH)
 FAUST_INC_PATHS = $(BUILT_LIBS_INC_PATH)
-FAUST_DEFS = SWELL_COMPILED //FAUST_EXE=\"$(BUILT_LIBS_PATH)/bin/faust\" DEFAULT_FAUST_LIBRARY_PATH=\"$(BUILT_LIBS_PATH)/share/faust\"
+FAUST_DEFS = SWELL_COMPILED //FAUST_EXE=\"$(BUILT_LIBS_PATH)/bin/faust\" FAUST_LIBRARY_PATH=\"$(BUILT_LIBS_PATH)/share/faust\"
 FAUST_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/libfaust.dylib
 
 CIVETWEB_INC_PATHS = $(BUILT_LIBS_INC_PATH)
@@ -106,12 +104,14 @@ AGG_INC_PATHS = $(AGG_PATH)/include $(AGG_PATH)/font_freetype $(AGG_PATH)/includ
 STB_PATH = $(DEPS_PATH)/IGraphics/STB
 FT_PATH = $(BUILT_LIBS_INC_PATH)/freetype2
 SKIA_PATH = $(DEPS_PATH)/Build/src/skia
+YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga
 
 SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu $(SKIA_PATH)/experimental/svg/model
 
-//HB_PATH = /usr/local/Cellar/harfbuzz/1.8.7/include/harfbuzz
+YOGA_INC_PATHS = $(YOGA_PATH) $(YOGA_PATH)/yoga
+
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_INC_PATHS) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH) $(IMGUI_INC_PATHS) $(SKIA_INC_PATHS)
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_INC_PATHS) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH) $(IMGUI_INC_PATHS) $(SKIA_INC_PATHS) $(YOGA_INC_PATHS)
 
 // *****  LINKER/LIBRARY INCLUDE PATHS AND LINKER FLAGS
 
@@ -127,8 +127,11 @@ LIB_SKOTTIE = $(BUILT_LIBS_LIB_PATH)/libskottie.a
 LIB_SKSG = $(BUILT_LIBS_LIB_PATH)/libsksg.a
 LIB_SKSHAPER = $(BUILT_LIBS_LIB_PATH)/libskshaper.a
 LIB_SKPARAGRAPH = $(BUILT_LIBS_LIB_PATH)/libskparagraph.a
+//LIB_YOGA = $(BUILT_LIBS_LIB_PATH)/libyoga.a
 
 SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH)
+
+//YOGA_LNK_FLAGS = $(LIB_YOGA)
 
 // you can optionally include this build setting, by adding it to EXTRA_LNK_FLAGS in your plug-ins xcconfig, in order to get all varieties of IGraphics support
 CAIRO_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_Z) //$(LIB_HB) $(LIB_HB_ICU) $(LIB_GF)

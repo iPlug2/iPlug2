@@ -69,7 +69,7 @@ public:
   
   void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
-    if(msgTag == kUpdateMessage && dataSize == sizeof(T))
+    if(msgTag == kUpdateMessage && dataSize == sizeof(T) && !IsDisabled())
     {
       WDL_String str;
       T* pTypedData = (T*) pData;

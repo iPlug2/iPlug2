@@ -514,7 +514,7 @@ bool IGraphicsMac::PromptForColor(IColor& color, const char* str, IColorPickerHa
   return false;
 }
 
-IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds)
+IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
 {
   IPopupMenu* pReturnMenu = nullptr;
 

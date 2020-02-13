@@ -57,4 +57,4 @@ GCC_CFLAGS = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 //-mavx
 //GCC_FAST_MATH = YES
 
 // uncomment this to enable codesigning - necessary for AUv3 delivery
-//CODE_SIGN_IDENTITY=Mac Developer
+CODE_SIGN_IDENTITY=//Mac Developer

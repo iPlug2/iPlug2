@@ -17,7 +17,7 @@ jobs:
         graphics: 'SKIA'
 
   pool:
-    vmImage: 'macos-10.13'
+    vmImage: 'macos-10.14'
 
   steps:
   - checkout: none
@@ -112,8 +112,8 @@ jobs:
   - bash: |
       git clone https://github.com/emscripten-core/emsdk.git
       cd emsdk
-      ./emsdk install 1.39.3 
-      ./emsdk activate 1.39.3
+      ./emsdk install latest 
+      ./emsdk activate latest
     displayName: Install emscripten
 
   - template: get_src_artifact.yml
