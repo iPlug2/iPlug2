@@ -39,8 +39,8 @@ static void *kvoParameterValue = &kvoParameterValue;
     _valueSlider.translatesAutoresizingMaskIntoConstraints = NO;
     _valueSlider.minimumValue = parameter.minValue;
     _valueSlider.maximumValue = parameter.maxValue;
-    _valueSlider.maximumTrackTintColor = UIColor.systemBlueColor;
-    _valueSlider.minimumTrackTintColor = UIColor.systemBlueColor;
+    _valueSlider.maximumTrackTintColor = UIColor.blackColor;
+    _valueSlider.minimumTrackTintColor = UIColor.blackColor;
 
     _valueTextField = [[UITextField alloc] init];
     _valueTextField.translatesAutoresizingMaskIntoConstraints = NO;
