@@ -1511,8 +1511,7 @@ struct IRECT
    * @return IRECT /todo */
   IRECT GetCentredInside(float w, float h = 0.f) const
   {
-    if (w <= 0.f)
-      return *this; // TODO: warning?
+    w = std::max(w, 1.f);
     
     if(h <= 0.f)
       h = w;
