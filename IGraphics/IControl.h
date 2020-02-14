@@ -653,7 +653,7 @@ public:
   void SetShadowOffset(float offset) { mStyle.shadowOffset = offset; mControl->SetDirty(false); }
   void SetFrameThickness(float thickness) { mStyle.frameThickness = thickness; mControl->SetDirty(false); }
   void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
-  void SetSplashPoint(float x, float y) { mSplashX = x; mSplashY = y; }
+  void SetSplashPoint(float x, float y) { mSplashPoint.x = x; mSplashPoint.y = y; }
   void SetShape(EVShape shape) { mShape = shape; mControl->SetDirty(false); }
 
   void SetStyle(const IVStyle& style)
@@ -686,7 +686,7 @@ public:
   void DrawSplash(IGraphics& g, const IRECT& clipRegion = IRECT())
   {
     g.PathClipRegion(clipRegion);
-    g.FillCircle(GetColor(kHL), mSplashX, mSplashY, mSplashRadius);
+    g.FillCircle(GetColor(kHL), mSplashPoint.x, mSplashPoint.y, mSplashRadius);
     g.PathClipRegion(IRECT());
   }
   
@@ -1018,12 +1018,11 @@ public:
   
 protected:
   IControl* mControl = nullptr;
-  IVStyle mStyle;
-  bool mLabelInWidget = false;
-  bool mValueInWidget = false;
-  float mSplashRadius = 0.f;
-  float mSplashX = 0.f;
-  float mSplashY = 0.f;
+  IVStyle mStyle; // IVStyle that defines certain common properties of an IVControl
+  bool mLabelInWidget = false; // Should the Label text be displayed inside the widget
+  bool mValueInWidget = false; // Should the Value text be displayed inside the widget
+  float mSplashRadius = 0.f; // Modified during the default SplashClickAnimationFunc to specify the radius of the splash
+  IVec2 mSplashPoint = {0.f, 0.f}; // Set at the start of the SplashClickActionFunc to set the position of the splash
   float mMaxSplashRadius = 50.f;
   float mIndicatorTrackThickness = 2.f;
   float mValueDisplayFrac = 0.66f; // the fraction of the control width for the text entry
