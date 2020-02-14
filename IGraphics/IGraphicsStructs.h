@@ -2208,7 +2208,7 @@ struct IShadow
 /** Contains a set of 9 colors used to theme IVControls */
 struct IVColorSpec
 {
-  IColor mColors[kNumDefaultVColors];
+  IColor mColors[kNumVColors];
   
   const IColor& GetColor(EVColor color) const
   {
@@ -2220,8 +2220,8 @@ struct IVColorSpec
     switch(idx)
     {
       case kBG: return DEFAULT_BGCOLOR; // Background
-      case kFG: return DEFAULT_FGCOLOR; // Foreground
-      case kPR: return DEFAULT_PRCOLOR; // Pressed
+      case kFG: return DEFAULT_FGCOLOR; // OFF/Foreground
+      case kPR: return DEFAULT_PRCOLOR; // ON/Pressed
       case kFR: return DEFAULT_FRCOLOR; // Frame
       case kHL: return DEFAULT_HLCOLOR; // Highlight
       case kSH: return DEFAULT_SHCOLOR; // Shadow
@@ -2240,7 +2240,7 @@ struct IVColorSpec
 
   IVColorSpec(const std::initializer_list<IColor>& colors)
   {
-    assert(colors.size() <= kNumDefaultVColors);
+    assert(colors.size() <= kNumVColors);
     
     int i = 0;
     
@@ -2249,7 +2249,7 @@ struct IVColorSpec
       mColors[i++] = c;
     }
     
-    for(;i < kNumDefaultVColors; i++)
+    for(;i < kNumVColors; i++)
     {
       mColors[i] = GetDefaultColor((EVColor) i);
     }
@@ -2258,7 +2258,7 @@ struct IVColorSpec
   /** Reset the colors to the defaults  */
   void ResetColors()
   {
-    for (int i =0; i < kNumDefaultVColors; i++)
+    for (int i =0; i < kNumVColors; i++)
     {
       mColors[i] = GetDefaultColor((EVColor) i);
     }

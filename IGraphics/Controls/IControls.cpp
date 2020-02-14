@@ -1241,7 +1241,7 @@ void IVColorSwatchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   if(cellClicked > -1)
   {
     EVColor vColorClicked = static_cast<EVColor>(cellClicked);
-    IColor color = GetColor(static_cast<EVColor>(cellClicked));
+    IColor color = GetColor(vColorClicked);
     GetUI()->PromptForColor(color, "Choose a color", [this, cellClicked, vColorClicked](IColor result) {
       SetColor(vColorClicked, result);
       if(mColorChosenFunc)
