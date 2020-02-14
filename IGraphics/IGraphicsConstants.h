@@ -95,13 +95,13 @@ enum class EGestureState { Unknown, Began, InProcess, Ended };
 /** EVColors are 9 color indices that are used by IVControls and make up an IVColorSpec */
 enum EVColor
 {
-  kBG = 0,         // background: Transparent by default
+  kBG = 0,         // background: transparent by default
   kFG, kOFF = kFG, // foreground/OFF states
   kPR, kON = kPR,  // pressed/ON states
-  kFR,             // frame: the stroke around a button or borders
-  kHL,             // highlight: mouse over
+  kFR,             // frame: the stroke around a button or knob handle, or border around the outside of the control
+  kHL,             // highlight: mouse over and splash click animation
   kSH,             // shadow
-  kX1,             // extra1
+  kX1,             // extra1: typically used for indicator tracks on knobs and sliders
   kX2,             // extra2
   kX3,             // extra3
   kNumVColors
