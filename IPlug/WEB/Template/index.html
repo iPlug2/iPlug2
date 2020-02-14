@@ -25,6 +25,7 @@
         <div id="status">downloading...</div>
       </div>
       <div id="wam" hidden=true>
+        <div id="wamheader">NAME_PLACEHOLDER WAM</div>
         <canvas class="pluginArea" id="canvas" oncontextmenu="event.preventDefault()"></canvas>
       </div>
     <script type='text/javascript'>
@@ -35,12 +36,45 @@
         document.getElementById('buttons').style.display = 'none';
       }
 
-      function preventBehavior(e) {
-        e.preventDefault(); 
-      };
+      document.addEventListener("keydown", function(e) { if(e.keyCode == 9) {e.preventDefault(); }});
+      document.addEventListener("touchmove", function(e) { e.preventDefault(); }, {passive: false});
 
-      document.addEventListener("keydown", function(event) { if(event.keyCode == 9) {event.preventDefault();}});
-      document.addEventListener("touchmove", preventBehavior, {passive: false});
+      // drag WAM element, from https://www.w3schools.com/howto/howto_js_draggable.asp
+      dragElement(document.getElementById("wam"));
+
+      function dragElement(elmnt) {
+        var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        if (document.getElementById(elmnt.id + "header")) {
+          document.getElementById(elmnt.id + "header").onmousedown = dragMouseDown;
+        } else {
+          elmnt.onmousedown = dragMouseDown;
+        }
+
+        function dragMouseDown(e) {
+          e = e || window.event;
+          e.preventDefault();
+          pos3 = e.clientX;
+          pos4 = e.clientY;
+          document.onmouseup = closeDragElement;
+          document.onmousemove = elementDrag;
+        }
+
+        function elementDrag(e) {
+          e = e || window.event;
+          e.preventDefault();
+          pos1 = pos3 - e.clientX;
+          pos2 = pos4 - e.clientY;
+          pos3 = e.clientX;
+          pos4 = e.clientY;
+          elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+          elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+        }
+
+        function closeDragElement() {
+          document.onmouseup = null;
+          document.onmousemove = null;
+        }
+      }
 
       function toggleFullScreen() {
         if ((document.fullScreenElement && document.fullScreenElement !== null) ||
@@ -66,33 +100,36 @@
       function initMidiComboBox (isOutput, element) {
         let combo = document.querySelector(element);
         combo.options.length = 0;
-        navigator.requestMIDIAccess().then((midiIF) => {
-          if(isOutput) {
-            for (let output of midiIF.outputs.values()) {
-              let option = new Option(output.name);
-              option.port = output;
-              combo.appendChild(option);
+        
+        if (navigator.requestMIDIAccess) {
+          navigator.requestMIDIAccess().then((midiIF) => {
+            if(isOutput) {
+              for (let output of midiIF.outputs.values()) {
+                let option = new Option(output.name);
+                option.port = output;
+                combo.appendChild(option);
+              }
+
+              combo.onchange = e => {
+                NAME_PLACEHOLDER_WAM.midiOut = e.target.options[e.target.selectedIndex].port;
+              }
+            } else {
+              for (let input of midiIF.inputs.values()) {
+                let option = new Option(input.name);
+                option.port = input;
+                combo.appendChild(option);
+              }
+
+              combo.onchange = e => {
+                NAME_PLACEHOLDER_WAM.midiIn = e.target.options[e.target.selectedIndex].port;
+              }
             }
 
-            combo.onchange = e => {
-              NAME_PLACEHOLDER_WAM.midiOut = e.target.options[e.target.selectedIndex].port;
-            }
-          } else {
-            for (let input of midiIF.inputs.values()) {
-              let option = new Option(input.name);
-              option.port = input;
-              combo.appendChild(option);
-            }
-
-            combo.onchange = e => {
-              NAME_PLACEHOLDER_WAM.midiIn = e.target.options[e.target.selectedIndex].port;
-            }
-          }
-
-          if (combo.options.length > 0)
-            combo.onchange({ target:combo });
-        })
-        combo.removeAttribute("disabled");
+            if (combo.options.length > 0)
+              combo.onchange({ target:combo });
+          })
+          combo.removeAttribute("disabled");
+        }
       }
 
       //https://www.mattmontag.com/web/unlock-web-audio-in-safari-for-ios-and-macos
@@ -107,7 +144,8 @@
 
       function connectToOutput(wam, actx) {
         NAME_PLACEHOLDER_WAM.connect(actx.destination);
-
+        document.getElementById("wam").style.left = ((window.innerWidth/2) - (parseInt(document.getElementById("canvas").style.width) / 2)) + "px";
+        document.getElementById("wam").style.top = ((window.innerHeight/2) - (parseInt(document.getElementById("canvas").style.height) / 2)) + "px";
         document.getElementById('wam').hidden = false;
         document.getElementById('startWebAudioButton').setAttribute("disabled", "true");
         initMidiComboBox(false, "#midiInSelect");

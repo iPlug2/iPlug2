@@ -50,8 +50,8 @@ const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
   json.Append("]\n}");
 
   //TODO: correct place? - do we need a WAM reset message?
-  OnReset();
   OnParamReset(kReset);
+  OnReset();
 
   return json.Get();
 }

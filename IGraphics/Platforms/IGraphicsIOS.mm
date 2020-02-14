@@ -8,10 +8,6 @@
  ==============================================================================
 */
 
-#if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
-#endif
-
 #import <QuartzCore/QuartzCore.h>
 #import <MetalKit/MetalKit.h>
 
@@ -52,27 +48,35 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
  
+#ifdef IGRAPHICS_METAL
   if(!gTextureMap.size())
   {
-    MTKTextureLoader* textureLoader = [[MTKTextureLoader alloc] initWithDevice:MTLCreateSystemDefaultDevice()];
-
     NSBundle* pBundle = [NSBundle mainBundle];
-   
+
     if(IsAuv3AppExtension())
       pBundle = [NSBundle bundleWithPath: [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent]];
     
-    NSArray<NSURL*>* textureFiles = [pBundle URLsForResourcesWithExtension:@"ktx" subdirectory:@""];
-
-    NSError* pError = nil;
-    NSDictionary* textureOptions = @{ MTKTextureLoaderOptionSRGB: [NSNumber numberWithBool:NO] };
-
-    gTextures = [textureLoader newTexturesWithContentsOfURLs:textureFiles options:textureOptions error:&pError];
-  
-    for(int i=0; i < gTextures.count; i++)
+    NSArray<NSURL*>* pTextureFiles = [pBundle URLsForResourcesWithExtension:@"ktx" subdirectory:@""];
+    
+    if ([pTextureFiles count])
     {
-      gTextureMap.insert(std::make_pair([[[textureFiles[i] lastPathComponent] stringByDeletingPathExtension] cStringUsingEncoding:NSUTF8StringEncoding], (__bridge void*) gTextures[i]));
+      MTKTextureLoader* textureLoader = [[MTKTextureLoader alloc] initWithDevice:MTLCreateSystemDefaultDevice()];
+      
+      NSError* pError = nil;
+      NSDictionary* textureOptions = @{ MTKTextureLoaderOptionSRGB: [NSNumber numberWithBool:NO] };
+
+      gTextures = [textureLoader newTexturesWithContentsOfURLs:pTextureFiles options:textureOptions error:&pError];
+    
+      for(int i=0; i < gTextures.count; i++)
+      {
+        gTextureMap.insert(std::make_pair([[[pTextureFiles[i] lastPathComponent] stringByDeletingPathExtension] cStringUsingEncoding:NSUTF8StringEncoding], (MTLTexturePtr) gTextures[i]));
+      }
+    
+      [textureLoader release];
+      textureLoader = nil;
     }
   }
+#endif
 }
 
 IGraphicsIOS::~IGraphicsIOS()
@@ -85,18 +89,20 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   TRACE
   CloseWindow();
   IGRAPHICS_VIEW* view = [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
-  mView = (__bridge void*) view;
+  mView = (void*) view;
   
-  OnViewInitialized((__bridge void*) [view layer]);
+  OnViewInitialized((void*) [view layer]);
   
   SetScreenScale([UIScreen mainScreen].scale);
   
   GetDelegate()->LayoutUI(this);
   GetDelegate()->OnUIOpen();
+  
+  [view setMultipleTouchEnabled:MultiTouchEnabled()];
 
   if (pParent)
   {
-    [(__bridge UIView*) pParent addSubview: view];
+    [(UIView*) pParent addSubview: view];
   }
 
   return mView;
@@ -111,12 +117,14 @@ void IGraphicsIOS::CloseWindow()
     {
       IGRAPHICS_IMGUIVIEW* pImGuiView = (IGRAPHICS_IMGUIVIEW*) mImGuiView;
       [pImGuiView removeFromSuperview];
+      [pImGuiView release];
       mImGuiView = nullptr;
     }
 #endif
     
-    IGRAPHICS_VIEW* view = (__bridge IGRAPHICS_VIEW*)mView;
-    [view removeFromSuperview];
+    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+    [pView removeFromSuperview];
+    [pView release];
     mView = nullptr;
 
     OnViewDestroyed();
@@ -139,21 +147,21 @@ void IGraphicsIOS::PlatformResize(bool parentHasResized)
 EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
   ReleaseMouseCapture();
-  [(__bridge IGRAPHICS_VIEW*)mView showMessageBox:str :caption :type :completionHandler];
+  [(IGRAPHICS_VIEW*) mView showMessageBox:str :caption :type :completionHandler];
   return EMsgBoxResult::kNoResult; // we need to rely on completionHandler
 }
 
 void IGraphicsIOS::AttachGestureRecognizer(EGestureType type)
 {
   IGraphics::AttachGestureRecognizer(type);
-  [(__bridge IGRAPHICS_VIEW*)mView attachGestureRecognizer:type];
+  [(IGRAPHICS_VIEW*) mView attachGestureRecognizer:type];
 }
 
 void IGraphicsIOS::ForceEndUserEdit()
 {
   if (mView)
   {
-    [(__bridge IGRAPHICS_VIEW*)mView endUserInput];
+    [(IGRAPHICS_VIEW*) mView endUserInput];
   }
 }
 
@@ -182,7 +190,7 @@ IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
   if (mView)
   {
     CGRect areaRect = ToCGRect(this, bounds);
-    pReturnMenu = [(__bridge IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
+    pReturnMenu = [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
   }
   
   //synchronous
@@ -196,7 +204,7 @@ void IGraphicsIOS::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
 {
   ReleaseMouseCapture();
   CGRect areaRect = ToCGRect(this, bounds);
-  [(__bridge IGRAPHICS_VIEW*)mView createTextEntry: paramIdx : text: str: length: areaRect];
+  [(IGRAPHICS_VIEW*) mView createTextEntry: paramIdx : text: str: length: areaRect];
 }
 
 bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
@@ -233,7 +241,7 @@ void IGraphicsIOS::CreatePlatformImGui()
 #ifdef IGRAPHICS_IMGUI
   if(mView)
   {
-    IGRAPHICS_VIEW* pView = (__bridge IGRAPHICS_VIEW*)mView;
+    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
     
     IGRAPHICS_IMGUIVIEW* pImGuiView = [[IGRAPHICS_IMGUIVIEW alloc] initWithIGraphicsView:pView];
     [pView addSubview: pImGuiView];

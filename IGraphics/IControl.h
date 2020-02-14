@@ -131,6 +131,12 @@ public:
 
   /** Implement this method to respond to a mouseout event on this control. Implementations should call base class, if you wish to use mMouseIsOver. */
   virtual void OnMouseOut();
+  
+  /** Implement this method to respond to a touch cancel event on this control.
+   * @param x The X coordinate of the mouse event
+   * @param y The Y coordinate of the mouse event
+   * @param mod A struct indicating which modifier keys are held for the event */
+  virtual void OnTouchCancelled(float x, float y, const IMouseMod& mod) {}
 
   /** Implement to do something when something was drag 'n dropped onto this control */
   virtual void OnDrop(const char* str) {};
@@ -406,6 +412,12 @@ public:
 
   /** @return /c true if this control wants to know about MIDI messages send to the UI. See OnMIDIMsg() */
   bool GetWantsMidi() const { return mWantsMidi; }
+
+  /** Specify whether this control supports multiple touches */
+  void SetWantsMultiTouch(bool enable = true) { mWantsMultiTouch = enable; }
+  
+  /** @return /c true if this control supports multiple touches */
+  bool GetWantsMultiTouch() const { return mWantsMultiTouch; }
   
   /** Add a IGestureFunc that should be triggered in response to a certain type of gesture
    * @param type The type of gesture to recognize on this control
@@ -522,7 +534,8 @@ protected:
   bool mMouseEventsWhenDisabled = false;
   bool mIgnoreMouse = false;
   bool mWantsMidi = false;
-  /** if mGraphics::mEnableMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
+  bool mWantsMultiTouch = false;
+  /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
   WDL_String mTooltip;
 
@@ -1020,6 +1033,98 @@ protected:
   WDL_String mLabelStr;
   WDL_String mValueStr;
   EVShape mShape = EVShape::Rectangle;
+};
+
+/** A base class for controls that can do do multitouch */
+class IMultiTouchControlBase
+{
+public:
+  struct TrackedTouch
+  {
+    int index = 0;
+    float x = 0.f;
+    float y = 0.f;
+    float sx = 0.f;
+    float sy = 0.f;
+    float radius = 1.f;
+    TimePoint startTime;
+    
+    TrackedTouch(int index, float x, float y, float radius, TimePoint time)
+    : index(index), x(x), y(y), sx(x), sy(y), radius(radius), startTime(time)
+    {}
+    
+    TrackedTouch()
+    {}
+  };
+  
+  virtual void AddTouch(ITouchID touchID, float x, float y, float radius)
+  {
+    int touchIndex = 0;
+    for (int i = 0; i < MAX_TOUCHES; i++)
+    {
+      if (mTouchStatus[i] == false)
+      {
+        touchIndex = i;
+        mTouchStatus[i] = true;
+        break;
+      }
+    }
+
+    if(NTrackedTouches() < MAX_TOUCHES)
+      mTrackedTouches.insert(std::make_pair(touchID, TrackedTouch(touchIndex, x, y, radius, std::chrono::high_resolution_clock::now())));
+  }
+  
+  virtual void ReleaseTouch(ITouchID touchID)
+  {
+    mTouchStatus[GetTouchWithIdentifier(touchID)->index] = false;
+    mTrackedTouches.erase(touchID);
+  }
+  
+  virtual void UpdateTouch(ITouchID touchID, float x, float y, float radius)
+  {
+    mTrackedTouches[touchID].x = x;
+    mTrackedTouches[touchID].y = y;
+    mTrackedTouches[touchID].radius = radius;
+  }
+  
+  void ClearAllTouches()
+  {
+    mTrackedTouches.clear();
+    memset(mTouchStatus, 0, MAX_TOUCHES * sizeof(bool));
+  }
+  
+  int NTrackedTouches() const
+  {
+    return static_cast<int>(mTrackedTouches.size());
+  }
+  
+  TrackedTouch* GetTouch(int index)
+  {
+    auto itr = std::find_if(mTrackedTouches.begin(), mTrackedTouches.end(),
+    [index](auto element) {
+      return(element.second.index == index);
+    });
+
+    if(itr != mTrackedTouches.end())
+      return &itr->second;
+    else
+      return nullptr;
+  }
+  
+  TrackedTouch* GetTouchWithIdentifier(ITouchID touchID)
+  {
+    auto itr = mTrackedTouches.find(touchID);
+    
+    if(itr != mTrackedTouches.end())
+      return &itr->second;
+    else
+      return nullptr;
+  }
+  
+protected:
+  static constexpr int MAX_TOUCHES = 10;
+  std::unordered_map<ITouchID, TrackedTouch> mTrackedTouches;
+  bool mTouchStatus[MAX_TOUCHES] = { 0 };
 };
 
 /** A base class for knob/dial controls, to handle mouse action and Sender. */

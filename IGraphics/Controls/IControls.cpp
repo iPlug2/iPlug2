@@ -1176,7 +1176,8 @@ void IVColorSwatchControl::OnResize()
 {
   SetTargetRECT(MakeRects(mRECT, true));
 
-  int rows, columns;
+  int rows = 3;
+  int columns = 3;
   
   if(mLayout == ECellLayout::kGrid)
   {

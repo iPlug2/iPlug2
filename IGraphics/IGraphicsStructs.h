@@ -50,6 +50,7 @@ using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
 using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
 using IDisplayTickFunc = std::function<void()>;
+using ITouchID = uintptr_t;
 
 /** A click action function that does nothing */
 void EmptyClickActionFunc(IControl* pCaller);
@@ -1557,14 +1558,18 @@ struct IMouseMod
 {
   bool L, R, S, C, A;
 
+  ITouchID touchID = 0;
+  float touchRadius = 0.f;
+  
   /** /todo 
    * @param l /todo
    * @param r /todo
    * @param s /todo
    * @param c /todo
-   * @param a /todo */
-  IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
-    : L(l), R(r), S(s), C(c), A(a) 
+   * @param a /todo
+   * @pararm touch /todo */
+  IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false, ITouchID touch = 0)
+    : L(l), R(r), S(s), C(c), A(a), touchID(touch)
     {}
   
   /** /todo */
@@ -1575,6 +1580,7 @@ struct IMouseMod
 struct IMouseInfo
 {
   float x, y;
+  float dX, dY;
   IMouseMod ms;
 };
 

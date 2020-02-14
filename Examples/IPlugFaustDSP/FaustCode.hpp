@@ -256,7 +256,7 @@ class Faust_Faust1 : public IPlugFaust
 {
 public:
 	Faust_Faust1(const char* name, const char* inputDSPFile = 0, int nVoices = 1, int rate = 1,
-						const char* outputCPPFile = 0, const char* drawPath = 0, const char* libraryPath = DEFAULT_FAUST_LIBRARY_PATH)
+						const char* outputCPPFile = 0, const char* drawPath = 0, const char* libraryPath = FAUST_LIBRARY_PATH)
 	: IPlugFaust(name, nVoices)
 	{
 	}

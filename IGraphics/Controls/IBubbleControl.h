@@ -68,7 +68,7 @@ public:
         }
         else if(mState == kExpanded)
         {
-          if(GetUI()->GetCapturedControl() == mCaller)
+          if(GetUI()->ControlIsCaptured(mCaller))
           {
             mState = kExpanded;
             SetDirty(true); // triggers animation again
@@ -227,12 +227,14 @@ protected:
   #endif
   }
 
-  void ShowBubble(IControl* pCaller, float x, float y, const char* str, EDirection dir, IRECT minimumContentBounds)
+  void ShowBubble(IControl* pCaller, float x, float y, const char* str, EDirection dir, IRECT minimumContentBounds, ITouchID touchID = 0)
   {
     if(mMaxBounds.W() == 0)
       mMaxBounds = GetUI()->GetBounds();
     
     mDirection = dir;
+    mTouchId = touchID;
+    
     mStr.Set(str);
     IRECT contentBounds;
     GetUI()->MeasureText(mText, str, contentBounds);
@@ -263,7 +265,7 @@ protected:
         const float shiftLeft = mBubbleRect.R-controlBounds.L;
         mBubbleRect.Translate(-shiftLeft, 0.f);
         mArrowDir = EArrowDir::kEast;
-      }
+      } 
       else
         mArrowDir = EArrowDir::kWest;
     }
@@ -308,6 +310,7 @@ protected:
 protected:
   friend class IGraphics;
   
+  ITouchID mTouchId = 0;
   EDirection mDirection = EDirection::Horizontal;
   IRECT mMaxBounds; // if view is only showing a part of the graphics context, we need to know because menus can't go there
   IRECT mBubbleRect;
