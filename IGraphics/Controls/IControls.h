@@ -237,9 +237,9 @@ class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
 {
 public:
-  IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+  IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, float handleSize = 8.f, float trackSize = 2.f);
   
-  IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+  IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, float handleSize = 8.f, float trackSize = 2.f);
 
   virtual ~IVSliderControl() {}
   void Draw(IGraphics& g) override;
@@ -541,9 +541,10 @@ class IBSliderControl : public ISliderControlBase
                       , public IBitmapBase
 {
 public:
-  //IBSliderControl(const IRECT& bounds, int paramIdx, const IBitmap& bitmap, EDirection dir = EDirection::Vertical, bool onlyHandle = false);
+  IBSliderControl(float x, float y, float trackLength, const IBitmap& handleBitmap, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical);
 
-  IBSliderControl(float x, float y, int len, int paramIdx, const IBitmap& bitmap, EDirection direction = EDirection::Vertical, bool onlyHandle = false);
+  IBSliderControl(const IRECT& bounds, const IBitmap& handleBitmap, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical);
+
   virtual ~IBSliderControl() {}
 
   void Draw(IGraphics& g) override;
@@ -551,9 +552,6 @@ public:
   void OnResize() override;
   
   IRECT GetHandleBounds(double value = -1.0) const;
-
-protected:
-  int mTrackLength = 0;
 };
 
 /** A control to display text using a monospace bitmap font */

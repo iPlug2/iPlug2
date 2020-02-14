@@ -638,8 +638,8 @@ void IVKnobControl::OnInit()
   }
 }
 
-IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, bool onlyHandle, float handleSize, float trackSize)
-: ISliderControlBase(bounds, paramIdx, dir, onlyHandle, handleSize)
+IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, float handleSize, float trackSize)
+: ISliderControlBase(bounds, paramIdx, dir, handleSize)
 , IVectorBase(style)
 {
   DisablePrompt(!valueIsEditable);
@@ -650,8 +650,8 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* 
   AttachIControl(this, label);
 }
 
-IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, bool onlyHandle, float handleSize, float trackSize)
-: ISliderControlBase(bounds, aF, dir, onlyHandle, handleSize)
+IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, float handleSize, float trackSize)
+: ISliderControlBase(bounds, aF, dir, handleSize)
 , IVectorBase(style)
 {
   DisablePrompt(!valueIsEditable);
@@ -683,7 +683,7 @@ void IVSliderControl::DrawWidget(IGraphics& g)
 {
   IRECT filledTrack = mTrack.FracRect(mDirection, (float) GetValue());
 
-  if(!mOnlyHandle)
+  if(mIndicatorTrackSize > 0.f)
     DrawTrack(g, filledTrack);
   
   float cx, cy;
@@ -701,9 +701,11 @@ void IVSliderControl::DrawWidget(IGraphics& g)
     cy = filledTrack.MH() + offset;
   }
   
-  IRECT handleBounds = IRECT(cx-mHandleSize, cy-mHandleSize, cx+mHandleSize, cy+mHandleSize);
-
-  DrawHandle(g, mShape, handleBounds, mMouseDown, mMouseIsOver, IsDisabled());
+  if(mHandleSize > 0.f)
+  {
+    IRECT handleBounds = IRECT(cx-mHandleSize, cy-mHandleSize, cx+mHandleSize, cy+mHandleSize);
+    DrawHandle(g, mShape, handleBounds, mMouseDown, mMouseIsOver, IsDisabled());
+  }
 }
 
 void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -1391,18 +1393,20 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-//IBSliderControl::IBSliderControl(const IRECT& bounds, int paramIdx, const IBitmap& bitmap, EDirection dir, bool onlyHandle)
-//: ISliderControlBase(bounds, paramIdx, dir, onlyHandle)
-//, IBitmapBase(bitmap)
-//{
-//  mTrack = bounds; // TODO: check
-//  AttachIControl(this);
-//}
-
-IBSliderControl::IBSliderControl(float x, float y, int len, int paramIdx, const IBitmap& bitmap, EDirection dir, bool onlyHandle)
-: ISliderControlBase(IRECT(x, y, x + bitmap.W(), y + len), paramIdx, dir, onlyHandle)
+IBSliderControl::IBSliderControl(float x, float y, float trackLength, const IBitmap& bitmap, int paramIdx, EDirection dir)
+: ISliderControlBase(IRECT::MakeXYWH(x, y,
+                                     dir == EDirection::Vertical ? bitmap.W() : trackLength,
+                                     dir == EDirection::Vertical ? trackLength : bitmap.H()),
+                     paramIdx, dir,
+                     dir == EDirection::Vertical ? bitmap.H() : bitmap.W())
 , IBitmapBase(bitmap)
-, mTrackLength(len)
+{
+  AttachIControl(this);
+}
+
+IBSliderControl::IBSliderControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx, EDirection dir)
+: ISliderControlBase(bounds, paramIdx, dir, dir == EDirection::Vertical ? bitmap.H() : bitmap.W())
+, IBitmapBase(bitmap)
 {
   AttachIControl(this);
 }
@@ -1418,7 +1422,7 @@ IRECT IBSliderControl::GetHandleBounds(double value) const
   if (value < 0.0)
     value = GetValue();
   
-  IRECT r(mRECT.L, mRECT.T, mRECT.L + mBitmap.W(), mRECT.T + mBitmap.H());
+  IRECT r(mTrack.L, mTrack.T, mTrack.L + mBitmap.W(), mTrack.T + mBitmap.H());
 
   if (mDirection == EDirection::Vertical)
   {
@@ -1439,13 +1443,13 @@ void IBSliderControl::OnResize()
 {
   if (mDirection == EDirection::Vertical)
   {
-    mRECT = mTargetRECT = IRECT(mRECT.L, mRECT.T, mRECT.L + mBitmap.W(), mRECT.T + mTrackLength);
-    mTrack = mRECT.GetPadded(0, -(float)mBitmap.H(), 0, 0);
+    float halfWidth = static_cast<float>(mBitmap.W())/2.f;
+    mTrack = IRECT(mRECT.MW()-halfWidth, mRECT.T, mRECT.MW() + halfWidth, mRECT.B - static_cast<float>(mBitmap.H()));
   }
   else
   {
-    mRECT = mTargetRECT = IRECT(mRECT.L, mRECT.T, mRECT.L + mTrackLength, mRECT.T + mBitmap.H());
-    mTrack = mRECT.GetPadded(0, 0, -(float)mBitmap.W(), 0);
+    float halfHeight = static_cast<float>(mBitmap.H())/2.f;
+    mTrack = IRECT(mRECT.L, mRECT.MH()-halfHeight, mRECT.R - static_cast<float>(mBitmap.W()), mRECT.MH()+halfHeight);
   }
 
   SetDirty(false);

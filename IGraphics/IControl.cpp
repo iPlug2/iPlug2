@@ -888,18 +888,16 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
     menuToAddTo.RemoveEmptySubmenus();
 }
 
-ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, bool onlyHandle, float handleSize)
+ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, float handleSize)
 : IControl(bounds, paramIdx)
 , mDirection(dir)
-, mOnlyHandle(onlyHandle)
+, mHandleSize(handleSize)
 {
-  handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
 }
 
- ISliderControlBase::ISliderControlBase(const IRECT& bounds, IActionFunction aF, EDirection dir, bool onlyHandle, float handleSize)
+ ISliderControlBase::ISliderControlBase(const IRECT& bounds, IActionFunction aF, EDirection dir, float handleSize)
 : IControl(bounds, aF)
 , mDirection(dir)
-, mOnlyHandle(onlyHandle)
+, mHandleSize(handleSize)
 {
-  handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
 }

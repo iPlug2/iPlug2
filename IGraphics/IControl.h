@@ -1175,8 +1175,8 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 0.f);
-  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = EDirection::Vertical, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, float handleSize = 0.f);
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
@@ -1203,7 +1203,6 @@ protected:
   bool mHideCursorOnDrag = true;
   EDirection mDirection;
   IRECT mTrack;
-  bool mOnlyHandle;
   float mHandleSize;
   bool mMouseDown = false;
 };
