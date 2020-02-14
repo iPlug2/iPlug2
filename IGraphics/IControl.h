@@ -1024,7 +1024,7 @@ protected:
   float mSplashRadius = 0.f; // Modified during the default SplashClickAnimationFunc to specify the radius of the splash
   IVec2 mSplashPoint = {0.f, 0.f}; // Set at the start of the SplashClickActionFunc to set the position of the splash
   float mMaxSplashRadius = 50.f;
-  float mIndicatorTrackThickness = 2.f;
+  float mIndicatorTrackSize = 2.f;
   float mValueDisplayFrac = 0.66f; // the fraction of the control width for the text entry
   IRECT mWidgetBounds; // The knob/slider/button
   IRECT mLabelBounds; // A piece of text above the control
