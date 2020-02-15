@@ -33,6 +33,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->AttachTextEntryControl();
     pGraphics->AttachPopupMenuControl(DEFAULT_LABEL_TEXT);
+    pGraphics->AttachBubbleControl();
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
     
@@ -311,17 +312,23 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     nextCell();
     toggle = 0;
     
-    for(auto label : {"Disable"})
+    for(auto label : {"Disable", "Show Bubble"})
     {
       pGraphics->AttachControl(new IVToggleControl(sameCell().GetGridCell(toggle, 0, 5, 1), [pGraphics, toggle](IControl* pCaller){
         SplashClickActionFunc(pCaller);
-        bool disable = pCaller->GetValue() > 0.5f;
-        pGraphics->ForStandardControlsFunc([pCaller, toggle, disable](IControl& control) {
+        bool state = pCaller->GetValue() > 0.5f;
+        pGraphics->ForStandardControlsFunc([pCaller, toggle, state](IControl& control) {
           
           switch (toggle) {
             case 0 :
               if(&control != pCaller)
-                control.SetDisabled(disable); break;
+                control.SetDisabled(state); break;
+            case 1 :
+              if(&control != pCaller)
+              {
+                if(control.GetParamIdx() == kParamGain)
+                  control.SetActionFunction(state ? ShowBubbleHorizontalActionFunc : nullptr); break;
+              }
             default:
               break;
           }
