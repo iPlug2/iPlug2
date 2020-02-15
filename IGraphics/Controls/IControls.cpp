@@ -1383,7 +1383,7 @@ IBSwitchControl::IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int
 void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   if (mBitmap.N() > 1)
-    SetValue(GetValue() + 1.0 / (double)(mBitmap.N() - 1));
+    SetValue(GetValue() + 1.0 / static_cast<double>(mBitmap.N() - 1));
   else
     SetValue(GetValue() + 1.0);
 
@@ -1393,28 +1393,32 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IBSliderControl::IBSliderControl(float x, float y, float trackLength, const IBitmap& bitmap, int paramIdx, EDirection dir)
+IBSliderControl::IBSliderControl(float x, float y, float trackLength, const IBitmap& handleBitmap, const IBitmap& trackBitmap, int paramIdx, EDirection dir)
 : ISliderControlBase(IRECT::MakeXYWH(x, y,
-                                     dir == EDirection::Vertical ? bitmap.W() : trackLength,
-                                     dir == EDirection::Vertical ? trackLength : bitmap.H()),
+                                     dir == EDirection::Vertical ? handleBitmap.W() : trackLength,
+                                     dir == EDirection::Vertical ? trackLength : handleBitmap.H()),
                      paramIdx, dir,
-                     dir == EDirection::Vertical ? bitmap.H() : bitmap.W())
-, IBitmapBase(bitmap)
+                     dir == EDirection::Vertical ? handleBitmap.H() : handleBitmap.W())
+, IBitmapBase(handleBitmap)
+, mTrackBitmap(trackBitmap)
 {
   AttachIControl(this);
 }
 
-IBSliderControl::IBSliderControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx, EDirection dir)
-: ISliderControlBase(bounds, paramIdx, dir, dir == EDirection::Vertical ? bitmap.H() : bitmap.W())
-, IBitmapBase(bitmap)
+IBSliderControl::IBSliderControl(const IRECT& bounds, const IBitmap& handleBitmap, const IBitmap& trackBitmap, int paramIdx, EDirection dir)
+: ISliderControlBase(bounds, paramIdx, dir, dir == EDirection::Vertical ? handleBitmap.H() : handleBitmap.W())
+, IBitmapBase(handleBitmap)
+, mTrackBitmap(trackBitmap)
 {
   AttachIControl(this);
 }
 
 void IBSliderControl::Draw(IGraphics& g)
 {
-  IRECT r = GetHandleBounds();
-  g.DrawBitmap(mBitmap, r, 1, &mBlend);
+  if(mTrackBitmap.IsValid())
+    g.DrawBitmap(mTrackBitmap, mRECT.GetCentredInside(IRECT(0, 0, mTrackBitmap)), 0, 0, &mBlend);
+  
+  g.DrawBitmap(mBitmap, GetHandleBounds(), 1, &mBlend);
 }
 
 IRECT IBSliderControl::GetHandleBounds(double value) const
@@ -1422,20 +1426,13 @@ IRECT IBSliderControl::GetHandleBounds(double value) const
   if (value < 0.0)
     value = GetValue();
   
-  IRECT r(mTrack.L, mTrack.T, mTrack.L + mBitmap.W(), mTrack.T + mBitmap.H());
+  IRECT r(mTrack.L, mTrack.T, mBitmap);
 
   if (mDirection == EDirection::Vertical)
-  {
-    float offs = (1.f - (float) value) * mTrack.H();
-    r.T += offs;
-    r.B += offs;
-  }
+    r.Translate(0.f, (1.f - static_cast<float>(value)) * (mTrack.H() - static_cast<float>(mBitmap.H())));
   else
-  {
-    float offs = (float) value * mTrack.W();
-    r.L += offs;
-    r.R += offs;
-  }
+    r.Translate(static_cast<float>(value) * (mTrack.W() - static_cast<float>(mBitmap.W())), 0.f);
+  
   return r;
 }
 
@@ -1443,13 +1440,23 @@ void IBSliderControl::OnResize()
 {
   if (mDirection == EDirection::Vertical)
   {
-    float halfWidth = static_cast<float>(mBitmap.W())/2.f;
-    mTrack = IRECT(mRECT.MW()-halfWidth, mRECT.T, mRECT.MW() + halfWidth, mRECT.B - static_cast<float>(mBitmap.H()));
+    if(mTrackBitmap.IsValid())
+      mTrack = mRECT.GetCentredInside(IRECT(0, 0, mTrackBitmap));
+    else
+    {
+      const float halfWidth = static_cast<float>(mBitmap.W()) / 2.f;
+      mTrack = mRECT.GetMidHPadded(halfWidth);
+    }
   }
   else
   {
-    float halfHeight = static_cast<float>(mBitmap.H())/2.f;
-    mTrack = IRECT(mRECT.L, mRECT.MH()-halfHeight, mRECT.R - static_cast<float>(mBitmap.W()), mRECT.MH()+halfHeight);
+    if(mTrackBitmap.IsValid())
+      mTrack = mRECT.GetCentredInside(IRECT(0, 0, mTrackBitmap));
+    else
+    {
+      const float halfHeight = static_cast<float>(mBitmap.H()) / 2.f;
+      mTrack = mRECT.GetMidVPadded(halfHeight);
+    }
   }
 
   SetDirty(false);
@@ -1457,7 +1464,7 @@ void IBSliderControl::OnResize()
 
 void IBKnobRotaterControl::Draw(IGraphics& g)
 {
-  double angle = -130.0 + GetValue() * 260.0;
+  const double angle = -130.0 + GetValue() * 260.0;
   g.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle, 0, &mBlend);
 }
 

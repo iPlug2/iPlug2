@@ -541,9 +541,9 @@ class IBSliderControl : public ISliderControlBase
                       , public IBitmapBase
 {
 public:
-  IBSliderControl(float x, float y, float trackLength, const IBitmap& handleBitmap, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical);
+  IBSliderControl(float x, float y, float trackLength, const IBitmap& handleBitmap, const IBitmap& trackBitmap = IBitmap(), int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical);
 
-  IBSliderControl(const IRECT& bounds, const IBitmap& handleBitmap, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical);
+  IBSliderControl(const IRECT& bounds, const IBitmap& handleBitmap, const IBitmap& trackBitmap = IBitmap(), int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical);
 
   virtual ~IBSliderControl() {}
 
@@ -552,6 +552,9 @@ public:
   void OnResize() override;
   
   IRECT GetHandleBounds(double value = -1.0) const;
+
+protected:
+  IBitmap mTrackBitmap;
 };
 
 /** A control to display text using a monospace bitmap font */
