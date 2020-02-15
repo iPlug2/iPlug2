@@ -554,7 +554,7 @@ void IVKnobControl::DrawWidget(IGraphics& g)
   IRECT knobHandleBounds = mWidgetBounds.GetCentredInside((widgetRadius - mIndicatorTrackToHandleDistance) * 2.f );
   const float angle = mAngle1 + (static_cast<float>(GetValue()) * (mAngle2 - mAngle1));
   DrawIndicatorTrack(g, angle, cx, cy, widgetRadius);
-  DrawHandle(g, mShape, knobHandleBounds, mMouseDown, mMouseIsOver, IsDisabled());
+  DrawHandle(g, /*mShape*/ EVShape::Ellipse, knobHandleBounds, mMouseDown, mMouseIsOver, IsDisabled());
   DrawPointer(g, angle, cx, cy, knobHandleBounds.W() / 2.f);
 }
 
