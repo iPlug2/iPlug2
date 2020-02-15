@@ -371,6 +371,39 @@ protected:
   float mLabelPadding = 10.f;
 };
 
+/** A panel control which can be styled with emboss etc. **/
+class IVPanelControl : public IControl
+                     , public IVectorBase
+{
+public:
+  IVPanelControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE.WithColor(kFG, COLOR_TRANSLUCENT).WithEmboss(true))
+  : IControl(bounds)
+  , IVectorBase(style)
+  {
+    mIgnoreMouse = true;
+    AttachIControl(this, label);
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    DrawBackGround(g, mRECT);
+    DrawWidget(g);
+    DrawLabel(g);
+    DrawValue(g, mMouseIsOver);
+  }
+  
+  void DrawWidget(IGraphics& g) override
+  {
+    DrawPressableRectangle(g, mWidgetBounds, false, false, false);
+  }
+  
+  void OnResize() override
+  {
+    SetTargetRECT(MakeRects(mRECT));
+  }
+};
+
+/** A control to show a colour swatch of up to 9 colous. **/
 class IVColorSwatchControl : public IControl
                            , public IVectorBase
 {
