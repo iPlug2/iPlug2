@@ -638,8 +638,8 @@ void IVKnobControl::OnInit()
   }
 }
 
-IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, float handleSize, float trackSize)
-: ISliderControlBase(bounds, paramIdx, dir, handleSize)
+IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, double gearing, float handleSize, float trackSize)
+: ISliderControlBase(bounds, paramIdx, dir, gearing, handleSize)
 , IVectorBase(style)
 {
   DisablePrompt(!valueIsEditable);
@@ -650,8 +650,8 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* 
   AttachIControl(this, label);
 }
 
-IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, float handleSize, float trackSize)
-: ISliderControlBase(bounds, aF, dir, handleSize)
+IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, double gearing, float handleSize, float trackSize)
+: ISliderControlBase(bounds, aF, dir, gearing, handleSize)
 , IVectorBase(style)
 {
   DisablePrompt(!valueIsEditable);
@@ -723,7 +723,6 @@ void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 void IVSliderControl::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
   ISliderControlBase::OnMouseUp(x, y, mod);
-
   SetDirty(true);
 }
 
@@ -907,7 +906,7 @@ void IVRangeSliderControl::OnMouseDrag(float x, float y, float dX, float dY, con
   
   auto minClip = mMouseOverHandle == 0 ? 0. : GetValue(mMouseOverHandle-1);
   auto maxClip = mMouseOverHandle == NVals()-1 ? 1. : GetValue(mMouseOverHandle+1);
-  SnapToMouse(x, y, mDirection, mWidgetBounds, mMouseOverHandle, 1.f /*scalar*/, minClip, maxClip);
+  SnapToMouse(x, y, mDirection, mWidgetBounds, mMouseOverHandle, minClip, maxClip);
 }
 
 IVXYPadControl::IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label, const IVStyle& style, float handleRadius)
@@ -1299,8 +1298,8 @@ void ISVGSwitchControl::Draw(IGraphics& g)
   g.DrawSVG(mSVGs[GetSelectedIdx()], mRECT, &mBlend);
 }
 
-ISVGSliderControl::ISVGSliderControl(const IRECT& bounds, const ISVG& handleSVG, const ISVG& trackSVG, int paramIdx, EDirection dir)
-: ISliderControlBase(bounds, paramIdx)
+ISVGSliderControl::ISVGSliderControl(const IRECT& bounds, const ISVG& handleSVG, const ISVG& trackSVG, int paramIdx, EDirection dir, double gearing)
+: ISliderControlBase(bounds, paramIdx, dir, gearing)
 , mHandleSVG(handleSVG)
 , mTrackSVG(trackSVG)
 {
@@ -1393,11 +1392,11 @@ void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   SetDirty();
 }
 
-IBSliderControl::IBSliderControl(float x, float y, float trackLength, const IBitmap& handleBitmap, const IBitmap& trackBitmap, int paramIdx, EDirection dir)
+IBSliderControl::IBSliderControl(float x, float y, float trackLength, const IBitmap& handleBitmap, const IBitmap& trackBitmap, int paramIdx, EDirection dir, double gearing)
 : ISliderControlBase(IRECT::MakeXYWH(x, y,
                                      dir == EDirection::Vertical ? handleBitmap.W() : trackLength,
                                      dir == EDirection::Vertical ? trackLength : handleBitmap.H()),
-                     paramIdx, dir,
+                     paramIdx, dir, gearing,
                      dir == EDirection::Vertical ? handleBitmap.H() : handleBitmap.W())
 , IBitmapBase(handleBitmap)
 , mTrackBitmap(trackBitmap)
@@ -1405,8 +1404,8 @@ IBSliderControl::IBSliderControl(float x, float y, float trackLength, const IBit
   AttachIControl(this);
 }
 
-IBSliderControl::IBSliderControl(const IRECT& bounds, const IBitmap& handleBitmap, const IBitmap& trackBitmap, int paramIdx, EDirection dir)
-: ISliderControlBase(bounds, paramIdx, dir, dir == EDirection::Vertical ? handleBitmap.H() : handleBitmap.W())
+IBSliderControl::IBSliderControl(const IRECT& bounds, const IBitmap& handleBitmap, const IBitmap& trackBitmap, int paramIdx, EDirection dir, double gearing)
+: ISliderControlBase(bounds, paramIdx, dir, gearing, dir == EDirection::Vertical ? handleBitmap.H() : handleBitmap.W())
 , IBitmapBase(handleBitmap)
 , mTrackBitmap(trackBitmap)
 {

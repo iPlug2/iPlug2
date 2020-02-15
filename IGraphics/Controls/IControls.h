@@ -237,9 +237,9 @@ class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
 {
 public:
-  IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, float handleSize = 8.f, float trackSize = 2.f);
+  IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 8.f, float trackSize = 2.f);
   
-  IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, float handleSize = 8.f, float trackSize = 2.f);
+  IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 8.f, float trackSize = 2.f);
 
   virtual ~IVSliderControl() {}
   void Draw(IGraphics& g) override;
@@ -451,7 +451,7 @@ protected:
 class ISVGSliderControl : public ISliderControlBase
 {
 public:
-  ISVGSliderControl(const IRECT& bounds, const ISVG& handleSvg, const ISVG& trackSVG, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical);
+  ISVGSliderControl(const IRECT& bounds, const ISVG& handleSvg, const ISVG& trackSVG, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   void Draw(IGraphics& g) override;
   void OnResize() override;
@@ -541,9 +541,9 @@ class IBSliderControl : public ISliderControlBase
                       , public IBitmapBase
 {
 public:
-  IBSliderControl(float x, float y, float trackLength, const IBitmap& handleBitmap, const IBitmap& trackBitmap = IBitmap(), int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical);
+  IBSliderControl(float x, float y, float trackLength, const IBitmap& handleBitmap, const IBitmap& trackBitmap = IBitmap(), int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
-  IBSliderControl(const IRECT& bounds, const IBitmap& handleBitmap, const IBitmap& trackBitmap = IBitmap(), int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical);
+  IBSliderControl(const IRECT& bounds, const IBitmap& handleBitmap, const IBitmap& trackBitmap = IBitmap(), int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   virtual ~IBSliderControl() {}
 

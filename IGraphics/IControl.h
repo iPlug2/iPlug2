@@ -460,9 +460,8 @@ public:
    * @param y The Y coordinate for snapping
    * @param direction The direction of the control's travel- horizontal or vertical fader
    * @param bounds The area in which the track of e.g. a slider should be snapped
-   * @param valIdx /todo
-   * @param scalar A scalar to speedup/slowdown mousing along the track */
-  virtual void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1, float scalar = 1., double minClip = 0., double maxClip = 1.);
+   * @param valIdx /todo */
+  virtual void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1, double minClip = 0., double maxClip = 1.);
 
   /* if you override this you must call the base implementation, to free mAnimationFunc */
   virtual void OnEndAnimation();
@@ -1137,6 +1136,7 @@ public:
   {}
 
   void SetGearing(double gearing) { mGearing = gearing; }
+  
   bool IsFineControl(const IMouseMod& mod, bool wheel) const;
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -1175,35 +1175,22 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = EDirection::Vertical, float handleSize = 0.f);
-  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = EDirection::Vertical, float gearing = DEFAULT_GEARING, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, float gearing = DEFAULT_GEARING, float handleSize = 0.f);
   
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override
-  {
-    mMouseDown = true;
-    SnapToMouse(x, y, mDirection, mTrackBounds);
-
-    if (mHideCursorOnDrag)
-      GetUI()->HideMouseCursor(true, false);
-
-    IControl::OnMouseDown(x, y, mod);
-  }
-
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override
-  {
-    mMouseDown = false;
-
-    if (mHideCursorOnDrag)
-      GetUI()->HideMouseCursor(false);
-  }
-
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrackBounds); }
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  
+  void SetGearing(double gearing) { mGearing = gearing; }
+  bool IsFineControl(const IMouseMod& mod, bool wheel) const;
   
 protected:
   bool mHideCursorOnDrag = true;
   EDirection mDirection;
   IRECT mTrackBounds;
   float mHandleSize;
+  float mGearing;
   bool mMouseDown = false;
 };
 
