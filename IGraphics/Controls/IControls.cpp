@@ -672,16 +672,16 @@ void IVSliderControl::Draw(IGraphics& g)
 
 void IVSliderControl::DrawTrack(IGraphics& g, const IRECT& filledArea)
 {
-  g.FillRect(GetColor(kSH), mTrack, &mBlend);
+  g.FillRect(GetColor(kSH), mTrackBounds, &mBlend);
   g.FillRect(GetColor(kX1), filledArea, &mBlend);
   
   if(mStyle.drawFrame)
-    g.DrawRect(GetColor(kFR), mTrack, &mBlend, mStyle.frameThickness);
+    g.DrawRect(GetColor(kFR), mTrackBounds, &mBlend, mStyle.frameThickness);
 }
 
 void IVSliderControl::DrawWidget(IGraphics& g)
 {
-  IRECT filledTrack = mTrack.FracRect(mDirection, (float) GetValue());
+  IRECT filledTrack = mTrackBounds.FracRect(mDirection, (float) GetValue());
 
   if(mTrackSize > 0.f)
     DrawTrack(g, filledTrack);
@@ -741,9 +741,9 @@ void IVSliderControl::OnResize()
   SetTargetRECT(MakeRects(mRECT));
   
   if(mDirection == EDirection::Vertical)
-    mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidHPadded(mTrackSize);
+    mTrackBounds = mWidgetBounds.GetPadded(-mHandleSize).GetMidHPadded(mTrackSize);
   else
-    mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidVPadded(mTrackSize);
+    mTrackBounds = mWidgetBounds.GetPadded(-mHandleSize).GetMidVPadded(mTrackSize);
 
   SetDirty(false);
 }
@@ -1322,7 +1322,7 @@ void ISVGSliderControl::OnResize()
 
   IRECT handleBoundsAtMidPoint = mRECT.GetCentredInside(mRECT.H() * handleAspectRatio * handleOverTrackHeight, mRECT.H() * handleOverTrackHeight);
   mHandleBoundsAtMax = { handleBoundsAtMidPoint.L, mTrackSVGBounds.T, handleBoundsAtMidPoint.R, mTrackSVGBounds.T + handleBoundsAtMidPoint.H() };
-  mTrack = mTrackSVGBounds.GetPadded(0, -handleBoundsAtMidPoint.H(), 0, 0);
+  mTrackBounds = mTrackSVGBounds.GetPadded(0, -handleBoundsAtMidPoint.H(), 0, 0);
 
   SetDirty(false);
 }
@@ -1336,13 +1336,13 @@ IRECT ISVGSliderControl::GetHandleBounds(double value) const
 
   if (mDirection == EDirection::Vertical)
   {
-    float offs = (1.f - (float) value) * mTrack.H();
+    float offs = (1.f - (float) value) * mTrackBounds.H();
     r.T += offs;
     r.B += offs;
   }
   else
   {
-    float offs = (float) value * mTrack.W();
+    float offs = (float) value * mTrackBounds.W();
     r.L += offs;
     r.R += offs;
   }
@@ -1426,12 +1426,12 @@ IRECT IBSliderControl::GetHandleBounds(double value) const
   if (value < 0.0)
     value = GetValue();
   
-  IRECT r(mTrack.L, mTrack.T, mBitmap);
+  IRECT r(mTrackBounds.L, mTrackBounds.T, mBitmap);
 
   if (mDirection == EDirection::Vertical)
-    r.Translate(0.f, (1.f - static_cast<float>(value)) * (mTrack.H() - static_cast<float>(mBitmap.H())));
+    r.Translate(0.f, (1.f - static_cast<float>(value)) * (mTrackBounds.H() - static_cast<float>(mBitmap.H())));
   else
-    r.Translate(static_cast<float>(value) * (mTrack.W() - static_cast<float>(mBitmap.W())), 0.f);
+    r.Translate(static_cast<float>(value) * (mTrackBounds.W() - static_cast<float>(mBitmap.W())), 0.f);
   
   return r;
 }
@@ -1441,21 +1441,21 @@ void IBSliderControl::OnResize()
   if (mDirection == EDirection::Vertical)
   {
     if(mTrackBitmap.IsValid())
-      mTrack = mRECT.GetCentredInside(IRECT(0, 0, mTrackBitmap));
+      mTrackBounds = mRECT.GetCentredInside(IRECT(0, 0, mTrackBitmap));
     else
     {
       const float halfWidth = static_cast<float>(mBitmap.W()) / 2.f;
-      mTrack = mRECT.GetMidHPadded(halfWidth);
+      mTrackBounds = mRECT.GetMidHPadded(halfWidth);
     }
   }
   else
   {
     if(mTrackBitmap.IsValid())
-      mTrack = mRECT.GetCentredInside(IRECT(0, 0, mTrackBitmap));
+      mTrackBounds = mRECT.GetCentredInside(IRECT(0, 0, mTrackBitmap));
     else
     {
       const float halfHeight = static_cast<float>(mBitmap.H()) / 2.f;
-      mTrack = mRECT.GetMidVPadded(halfHeight);
+      mTrackBounds = mRECT.GetMidVPadded(halfHeight);
     }
   }
 

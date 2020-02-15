@@ -1181,7 +1181,7 @@ public:
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     mMouseDown = true;
-    SnapToMouse(x, y, mDirection, mTrack);
+    SnapToMouse(x, y, mDirection, mTrackBounds);
 
     if (mHideCursorOnDrag)
       GetUI()->HideMouseCursor(true, false);
@@ -1197,12 +1197,12 @@ public:
       GetUI()->HideMouseCursor(false);
   }
 
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrackBounds); }
   
 protected:
   bool mHideCursorOnDrag = true;
   EDirection mDirection;
-  IRECT mTrack;
+  IRECT mTrackBounds;
   float mHandleSize;
   bool mMouseDown = false;
 };
