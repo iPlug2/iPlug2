@@ -223,7 +223,7 @@ public:
 protected:
   virtual IRECT GetKnobDragBounds() override;
 
-  float mIndicatorTrackToHandleDistance = 4.f;
+  float mTrackToHandleDistance = 4.f;
   float mInnerPointerFrac = 0.1f;
   float mOuterPointerFrac = 1.f;
   float mPointerThickness = 2.5f;

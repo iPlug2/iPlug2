@@ -498,7 +498,7 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* labe
   mText = style.valueText;
   mHideCursorOnDrag = mStyle.hideCursor;
   mShape = EVShape::Ellipse;
-  mIndicatorTrackSize = trackSize;
+  mTrackSize = trackSize;
   AttachIControl(this, label);
 }
 
@@ -513,7 +513,7 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction aF, const char
   mText = style.valueText;
   mHideCursorOnDrag = mStyle.hideCursor;
   mShape = EVShape::Ellipse;
-  mIndicatorTrackSize = trackSize;
+  mTrackSize = trackSize;
   SetActionFunction(aF);
   AttachIControl(this, label);
 }
@@ -549,9 +549,9 @@ void IVKnobControl::DrawWidget(IGraphics& g)
   
   const float cx = mWidgetBounds.MW(), cy = mWidgetBounds.MH();
   
-  widgetRadius -= (mIndicatorTrackSize/2.f);
+  widgetRadius -= (mTrackSize/2.f);
 
-  IRECT knobHandleBounds = mWidgetBounds.GetCentredInside((widgetRadius - mIndicatorTrackToHandleDistance) * 2.f );
+  IRECT knobHandleBounds = mWidgetBounds.GetCentredInside((widgetRadius - mTrackToHandleDistance) * 2.f );
   const float angle = mAngle1 + (static_cast<float>(GetValue()) * (mAngle2 - mAngle1));
   DrawIndicatorTrack(g, angle, cx, cy, widgetRadius);
   DrawHandle(g, /*mShape*/ EVShape::Ellipse, knobHandleBounds, mMouseDown, mMouseIsOver, IsDisabled());
@@ -560,7 +560,7 @@ void IVKnobControl::DrawWidget(IGraphics& g)
 
 void IVKnobControl::DrawIndicatorTrack(IGraphics& g, float angle, float cx, float cy, float radius)
 {
-  g.DrawArc(GetColor(kX1), cx, cy, radius, angle >= mAnchorAngle ? mAnchorAngle : mAnchorAngle - (mAnchorAngle - angle), angle >= mAnchorAngle ? angle : mAnchorAngle, &mBlend, mIndicatorTrackSize);
+  g.DrawArc(GetColor(kX1), cx, cy, radius, angle >= mAnchorAngle ? mAnchorAngle : mAnchorAngle - (mAnchorAngle - angle), angle >= mAnchorAngle ? angle : mAnchorAngle, &mBlend, mTrackSize);
 }
 
 void IVKnobControl::DrawPointer(IGraphics& g, float angle, float cx, float cy, float radius)
@@ -646,7 +646,7 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* 
   mText = style.valueText;
   mHideCursorOnDrag = style.hideCursor;
   mShape = EVShape::Ellipse;
-  mIndicatorTrackSize = trackSize;
+  mTrackSize = trackSize;
   AttachIControl(this, label);
 }
 
@@ -658,7 +658,7 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const 
   mText = style.valueText;
   mHideCursorOnDrag = style.hideCursor;
   mShape = EVShape::Ellipse;
-  mIndicatorTrackSize = trackSize;
+  mTrackSize = trackSize;
   AttachIControl(this, label);
 }
 
@@ -683,7 +683,7 @@ void IVSliderControl::DrawWidget(IGraphics& g)
 {
   IRECT filledTrack = mTrack.FracRect(mDirection, (float) GetValue());
 
-  if(mIndicatorTrackSize > 0.f)
+  if(mTrackSize > 0.f)
     DrawTrack(g, filledTrack);
   
   float cx, cy;
@@ -741,9 +741,9 @@ void IVSliderControl::OnResize()
   SetTargetRECT(MakeRects(mRECT));
   
   if(mDirection == EDirection::Vertical)
-    mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidHPadded(mIndicatorTrackSize);
+    mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidHPadded(mTrackSize);
   else
-    mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidVPadded(mIndicatorTrackSize);
+    mTrack = mWidgetBounds.GetPadded(-mHandleSize).GetMidVPadded(mTrackSize);
 
   SetDirty(false);
 }
@@ -788,7 +788,7 @@ IVRangeSliderControl::IVRangeSliderControl(const IRECT& bounds, const std::initi
 : IVTrackControlBase(bounds, label, style, params, dir, 0, 1.)
 , mHandleSize(handleSize)
 {
-  mIndicatorTrackSize = trackSize;
+  mTrackSize = trackSize;
 }
 
 void IVRangeSliderControl::Draw(IGraphics& g)
@@ -804,9 +804,9 @@ void IVRangeSliderControl::MakeTrackRects(const IRECT& bounds)
   for (int ch = 0; ch < NVals(); ch++)
   {
     if(mDirection == EDirection::Vertical)
-      mTrackBounds.Get()[ch] = bounds.GetPadded(-mHandleSize).GetMidHPadded(mIndicatorTrackSize);
+      mTrackBounds.Get()[ch] = bounds.GetPadded(-mHandleSize).GetMidHPadded(mTrackSize);
     else
-      mTrackBounds.Get()[ch] = bounds.GetPadded(-mHandleSize).GetMidVPadded(mIndicatorTrackSize);
+      mTrackBounds.Get()[ch] = bounds.GetPadded(-mHandleSize).GetMidVPadded(mTrackSize);
   }
 }
 
@@ -834,7 +834,7 @@ IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx)
     cy = filledTrack.T;
     
     if(trackIdx % 2)
-      return IRECT(cx+mIndicatorTrackSize, cy-mHandleSize, cx+(2.f*mHandleSize)+mIndicatorTrackSize, cy+mHandleSize);
+      return IRECT(cx+mTrackSize, cy-mHandleSize, cx+(2.f*mHandleSize)+mTrackSize, cy+mHandleSize);
     else
       return IRECT(cx-(2.f*mHandleSize), cy-mHandleSize, cx, cy+mHandleSize);
   }
@@ -846,7 +846,7 @@ IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx)
     if(trackIdx % 2)
       return IRECT(cx-mHandleSize, cy-(2.f*mHandleSize), cx+mHandleSize, cy);
     else
-      return IRECT(cx-mHandleSize, cy+mIndicatorTrackSize, cx+mHandleSize, cy+(2.f*mHandleSize)+mIndicatorTrackSize);
+      return IRECT(cx-mHandleSize, cy+mTrackSize, cx+mHandleSize, cy+(2.f*mHandleSize)+mTrackSize);
   }
 }
 
@@ -1013,7 +1013,7 @@ void IVPlotControl::Draw(IGraphics& g)
         mPoints[i] = static_cast<float>(v);
       }
       
-      g.DrawData(mPlots[p].color, plotsRECT, mPoints.data(), static_cast<int>(mPoints.size()), nullptr, &mBlend, mIndicatorTrackSize);
+      g.DrawData(mPlots[p].color, plotsRECT, mPoints.data(), static_cast<int>(mPoints.size()), nullptr, &mBlend, mTrackSize);
     }
 
     if (mStyle.drawFrame)
