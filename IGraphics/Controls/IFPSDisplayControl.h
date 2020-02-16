@@ -40,6 +40,7 @@ public:
 
   IFPSDisplayControl(const IRECT& bounds, EStyle style = EStyle::kFPS, const char* label = "Frame Time")
   : IControl(bounds)
+  , IVectorBase(DEFAULT_STYLE)
   , mStyle(style)
   , mNameLabel(label)
   {

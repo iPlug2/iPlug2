@@ -179,7 +179,7 @@ public:
         g.PathLineTo(r.L + xHi, r.MH() - yHi);
       }
       
-      g.PathStroke(GetColor(kFG), mIndicatorTrackThickness, IStrokeOptions(), &mBlend);
+      g.PathStroke(GetColor(kFG), mTrackSize, IStrokeOptions(), &mBlend);
     }
   }
   

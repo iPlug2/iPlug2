@@ -195,14 +195,14 @@ public:
                 const IVStyle& style = DEFAULT_STYLE,
                 bool valueIsEditable = false, bool valueInWidget = false,
                 float a1 = -135.f, float a2 = 135.f, float aAnchor = -135.f,
-                EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING);
+                EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING, float trackSize = 2.f);
 
   IVKnobControl(const IRECT& bounds, IActionFunction aF,
                 const char* label = "",
                 const IVStyle& style = DEFAULT_STYLE,
                 bool valueIsEditable = false, bool valueInWidget = false,
                 float a1 = -135.f, float a2 = 135.f, float aAnchor = -135.f,
-                EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING);
+                EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING, float trackSize = 2.f);
 
   virtual ~IVKnobControl() {}
 
@@ -224,7 +224,7 @@ public:
 protected:
   virtual IRECT GetKnobDragBounds() override;
 
-  float mIndicatorTrackToHandleDistance = 4.f;
+  float mTrackToHandleDistance = 4.f;
   float mInnerPointerFrac = 0.1f;
   float mOuterPointerFrac = 1.f;
   float mPointerThickness = 2.5f;
@@ -238,9 +238,9 @@ class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
 {
 public:
-  IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+  IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 8.f, float trackSize = 2.f);
   
-  IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 8.f, float trackSize = 2.f);
+  IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 8.f, float trackSize = 2.f);
 
   virtual ~IVSliderControl() {}
   void Draw(IGraphics& g) override;
@@ -278,7 +278,6 @@ protected:
   IRECT GetHandleBounds(int trackIdx);
   
   int mMouseOverHandle = -1;
-  float mTrackSize;
   float mHandleSize;
   bool mMouseIsDown = false;
 };
@@ -381,7 +380,7 @@ public:
   using ColorChosenFunc = std::function<void(int, IColor)>;
 
   IVColorSwatchControl(const IRECT& bounds, const char* label = "", ColorChosenFunc func = nullptr, const IVStyle& spec = DEFAULT_STYLE, ECellLayout layout = ECellLayout::kGrid,
-    const std::initializer_list<int>& colorIDs = { kBG, kFG, kPR, kFR, kHL, kSH, kX1, kX2, kX3 },
+    const std::initializer_list<EVColor>& colorIDs = { kBG, kFG, kPR, kFR, kHL, kSH, kX1, kX2, kX3 },
     const std::initializer_list<const char*>& labelsForIDs = { kVColorStrs[kBG],kVColorStrs[kFG],kVColorStrs[kPR],kVColorStrs[kFR],kVColorStrs[kHL],kVColorStrs[kSH],kVColorStrs[kX1],kVColorStrs[kX2],kVColorStrs[kX3] });
   void Draw(IGraphics& g) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
@@ -397,7 +396,7 @@ private:
   ECellLayout mLayout = ECellLayout::kVertical;
   WDL_TypedBuf<IRECT> mCellRects;
   WDL_PtrList<WDL_String> mLabels;
-  std::vector<int> mColorIdForCells;
+  std::vector<EVColor> mColorIdForCells;
 };
 
 #pragma mark - SVG Vector Controls
@@ -453,7 +452,7 @@ protected:
 class ISVGSliderControl : public ISliderControlBase
 {
 public:
-  ISVGSliderControl(const IRECT& bounds, const ISVG& handleSvg, const ISVG& trackSVG, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical);
+  ISVGSliderControl(const IRECT& bounds, const ISVG& handleSvg, const ISVG& trackSVG, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   void Draw(IGraphics& g) override;
   void OnResize() override;
@@ -543,9 +542,10 @@ class IBSliderControl : public ISliderControlBase
                       , public IBitmapBase
 {
 public:
-  //IBSliderControl(const IRECT& bounds, int paramIdx, const IBitmap& bitmap, EDirection dir = EDirection::Vertical, bool onlyHandle = false);
+  IBSliderControl(float x, float y, float trackLength, const IBitmap& handleBitmap, const IBitmap& trackBitmap = IBitmap(), int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
-  IBSliderControl(float x, float y, int len, int paramIdx, const IBitmap& bitmap, EDirection direction = EDirection::Vertical, bool onlyHandle = false);
+  IBSliderControl(const IRECT& bounds, const IBitmap& handleBitmap, const IBitmap& trackBitmap = IBitmap(), int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING);
+
   virtual ~IBSliderControl() {}
 
   void Draw(IGraphics& g) override;
@@ -555,7 +555,7 @@ public:
   IRECT GetHandleBounds(double value = -1.0) const;
 
 protected:
-  int mTrackLength = 0;
+  IBitmap mTrackBitmap;
 };
 
 /** A control to display text using a monospace bitmap font */
@@ -578,6 +578,9 @@ protected:
 
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
+
+#include "IVPresetManagerControl.h"
+#include "IVNumberBoxControl.h"
 
 /**@}*/
 
