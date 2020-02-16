@@ -203,7 +203,6 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 
     #pragma mark IVControl panel -
 
-#pragma mark -
     cellIdx = 31;
     
     nextCell();

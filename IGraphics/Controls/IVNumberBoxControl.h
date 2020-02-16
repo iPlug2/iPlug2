@@ -53,6 +53,9 @@ public:
   void Draw(IGraphics& g) override
   {
     DrawLabel(g);
+    
+    if(mMouseIsOver)
+      g.FillRect(GetColor(kHL), mTextReadout->GetRECT());
   }
   
   void OnResize() override
@@ -84,12 +87,18 @@ public:
   
   void OnMouseDown(float x, float y, const IMouseMod &mod) override
   {
+    if (mHideCursorOnDrag)
+      GetUI()->HideMouseCursor(true, true);
+
     if(GetParam())
       GetDelegate()->BeginInformHostOfParamChangeFromUI(GetParamIdx());
   }
   
   void OnMouseUp(float x, float y, const IMouseMod &mod) override
   {
+    if (mHideCursorOnDrag)
+      GetUI()->HideMouseCursor(false);
+    
     if(GetParam())
       GetDelegate()->EndInformHostOfParamChangeFromUI(GetParamIdx());
   }
@@ -103,7 +112,8 @@ public:
   
   void OnMouseDblClick(float x, float y, const IMouseMod &mod) override
   {
-    GetUI()->CreateTextEntry(*this, mText, mTextReadout->GetRECT(), mTextReadout->GetStr());
+    if(mTextReadout->GetRECT().Contains(x, y))
+      GetUI()->CreateTextEntry(*this, mText, mTextReadout->GetRECT(), mTextReadout->GetStr());
   }
   
   void OnTextEntryCompletion(const char* str, int valIdx) override
@@ -171,6 +181,7 @@ protected:
   double mMinValue;
   double mMaxValue;
   double mRealValue = 0.f;
+  bool mHideCursorOnDrag = true;
 };
 
 END_IGRAPHICS_NAMESPACE
