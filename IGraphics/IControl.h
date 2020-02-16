@@ -1590,6 +1590,7 @@ public:
   virtual void SetStr(const char* str);
   virtual void SetStrFmt(int maxlen, const char* fmt, ...);
   virtual void ClearStr() { SetStr(""); }
+  const char* GetStr() const { return mStr.Get(); }
   
   void SetBoundsBasedOnStr();
   
