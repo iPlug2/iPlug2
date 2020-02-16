@@ -478,10 +478,10 @@ void ITextControl::SetStrFmt(int maxlen, const char* fmt, ...)
 
 void ITextControl::Draw(IGraphics& g)
 {
-  g.FillRect(mBGColor, mRECT);
+  g.FillRect(mBGColor, mRECT, &mBlend);
   
   if (mStr.GetLength())
-    g.DrawText(mText, mStr.Get(), mRECT);
+    g.DrawText(mText, mStr.Get(), mRECT, &mBlend);
 }
 
 void ITextControl::SetBoundsBasedOnStr()
@@ -504,17 +504,17 @@ IURLControl::IURLControl(const IRECT& bounds, const char* str, const char* urlSt
 
 void IURLControl::Draw(IGraphics& g)
 {
-  g.FillRect(mBGColor, mRECT);
+  g.FillRect(mBGColor, mRECT, &mBlend);
   
   if(mMouseIsOver)
     mText.mFGColor = mMOColor;
   else
     mText.mFGColor = mClicked ? mCLColor : mOriginalColor;
   
-  g.DrawLine(mText.mFGColor, mRECT.L, mRECT.B, mRECT.R, mRECT.B);
+  g.DrawLine(mText.mFGColor, mRECT.L, mRECT.B, mRECT.R, mRECT.B, &mBlend);
   
   if (mStr.GetLength())
-    g.DrawText(mText, mStr.Get(), mRECT);
+    g.DrawText(mText, mStr.Get(), mRECT, &mBlend);
 }
 
 void IURLControl::OnMouseDown(float x, float y, const IMouseMod& mod)

@@ -297,8 +297,8 @@ IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const 
 {
   AttachIControl(this, label);
   mText = style.valueText;
-  mText.mAlign = EAlign::Center; //TODO?
-  mText.mVAlign = EVAlign::Middle; //TODO?
+  mText.mAlign = mStyle.valueText.mAlign = EAlign::Center;
+  mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle;
   mShape = shape;
 }
 
@@ -309,8 +309,8 @@ IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, 
 {
   AttachIControl(this, label);
   mText = style.valueText;
-  mText.mAlign = mStyle.valueText.mAlign = EAlign::Center; //TODO?
-  mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle; //TODO?
+  mText.mAlign = mStyle.valueText.mAlign = EAlign::Center;
+  mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle;
   mShape = shape;
 
   for (auto& option : options)
@@ -439,17 +439,21 @@ void IVTabSwitchControl::OnResize()
 }
 
 IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
-: IVTabSwitchControl(bounds, paramIdx, label, style.WithValueText(style.valueText.WithAlign(EAlign::Near).WithVAlign(EVAlign::Middle)), shape, direction)
+: IVTabSwitchControl(bounds, paramIdx, label, style, shape, direction)
 , mButtonSize(buttonSize)
 {
   mButtonAreaWidth = buttonSize * 3.f;
+  mText.mAlign = mStyle.valueText.mAlign = EAlign::Near;
+  mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle;
 }
 
 IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
-: IVTabSwitchControl(bounds, aF, options, label, style.WithValueText(style.valueText.WithAlign(EAlign::Near).WithVAlign(EVAlign::Middle)), shape, direction)
+: IVTabSwitchControl(bounds, aF, options, label, style, shape, direction)
 , mButtonSize(buttonSize)
 {
   mButtonAreaWidth = buttonSize * 3.f;
+  mText.mAlign = mStyle.valueText.mAlign = EAlign::Near;
+  mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle;
 }
 
 void IVRadioButtonControl::DrawWidget(IGraphics& g)
@@ -1170,7 +1174,7 @@ void IVColorSwatchControl::DrawWidget(IGraphics& g)
     IRECT r = mCellRects.Get()[i];
     g.FillRect(GetColor(mColorIdForCells[i]), r.FracRectHorizontal(0.25, true), &mBlend);
     g.DrawRect(i == mCellOver ? COLOR_GRAY : COLOR_DARK_GRAY, r.FracRectHorizontal(0.25, true).GetPadded(0.5f), &mBlend);
-    g.DrawText(mText, mLabels.Get(i)->Get(), r.FracRectHorizontal(0.7f, false), &mBlend);
+    g.DrawText(mStyle.valueText, mLabels.Get(i)->Get(), r.FracRectHorizontal(0.7f, false), &mBlend);
   }
 }
 
