@@ -41,14 +41,14 @@ void IVLabelControl::Draw(IGraphics& g)
 
   if (mStr.GetLength())
   {
-    if (mStyle.drawShadows)
-      g.DrawText(mText.WithFGColor(GetColor(kSH)), mStr.Get(), mRECT.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset));
+    if (mStyle.drawShadows && !IsDisabled())
+      g.DrawText(mStyle.labelText.WithFGColor(GetColor(kSH)), mStr.Get(), mRECT.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset), &mBlend);
 
-    g.DrawText(mText, mStr.Get(), mRECT);
+    g.DrawText(mStyle.labelText, mStr.Get(), mRECT, &mBlend);
   }
 
   if (mStyle.drawFrame)
-    g.DrawRect(GetColor(kFR), mRECT, nullptr, mStyle.frameThickness);
+    g.DrawRect(GetColor(kFR), mRECT, &mBlend, mStyle.frameThickness);
 }
 
 IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool labelInButton, bool valueInButton, EVShape shape)
