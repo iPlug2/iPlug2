@@ -94,7 +94,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     "Font",
     "TextOrientation",
     "TextSize",
-    "Metal Performance Shaders (NanoVG MTL only)",
+    "MPS (NanoVG MTL only)",
     "OpenGL (NanoVG GL only)",
     "Gesture Recognizers (iOS only)",
     "MultiTouch (iOS/Windows only)",

@@ -35,7 +35,7 @@ public:
   , mMaxValue(maxValue)
   , mRealValue(defaultValue)
   {
-    assert(defaultValue > minValue && defaultValue < maxValue);
+    assert(defaultValue >= minValue && defaultValue <= maxValue);
     
     AttachIControl(this, label);
   }

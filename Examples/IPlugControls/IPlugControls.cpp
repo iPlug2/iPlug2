@@ -320,7 +320,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
         });
     };
     
-    pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 3), kNoParameter, setLabelTextSize, "Label Text Size", style));
+    pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 3), kNoParameter, setLabelTextSize, "Label Text Size", style, (double) style.labelText.mSize, 12., 100.));
     
     auto setValueTextSize = [pGraphics](IControl* pCaller) {
       float newSize = (float) dynamic_cast<IVNumberBoxControl*>(pCaller)->GetRealValue();
@@ -333,7 +333,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
         });
     };
     
-    pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 4), kNoParameter, setValueTextSize, "Value Text Size", style, 24., 12., 100.));
+    pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 4), kNoParameter, setValueTextSize, "Value Text Size", style, (double) style.valueText.mSize, 12., 100.));
 
     nextCell();
     toggle = 0;
