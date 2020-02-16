@@ -283,7 +283,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       dynamic_cast<IPanelControl*>(pGraphics->GetBackgroundControl())->SetPattern(color);
     };
 
-    pGraphics->AttachControl(new IVColorSwatchControl(nextCell().SubRectVertical(3, 0), "", setBGColor, style.WithColors({COLOR_GRAY}), IVColorSwatchControl::ECellLayout::kVertical, {kBG}, { "Background" }));
+    pGraphics->AttachControl(new IVColorSwatchControl(nextCell().SubRectVertical(5, 0), "", setBGColor, style.WithColors({COLOR_GRAY}), IVColorSwatchControl::ECellLayout::kVertical, {kBG}, { "Background" }));
 
     auto setLabelTextColor = [pGraphics](int cell, IColor color) {
       pGraphics->ForControlInGroup("vcontrols", [cell, color](IControl& control) {
@@ -294,20 +294,46 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
         control.SetDirty(false);
         });
     };
-
-    pGraphics->AttachControl(new IVColorSwatchControl(sameCell().SubRectVertical(3, 1), "", setLabelTextColor, style.WithColor(kBG, DEFAULT_TEXT_FGCOLOR), IVColorSwatchControl::ECellLayout::kVertical, { kBG }, { "Label Text" }));
+    
+    pGraphics->AttachControl(new IVColorSwatchControl(sameCell().SubRectVertical(5, 1), "", setLabelTextColor, style.WithColor(kBG, DEFAULT_TEXT_FGCOLOR), IVColorSwatchControl::ECellLayout::kVertical, { kBG }, { "Label Text" }));
 
     auto setValueTextColor = [pGraphics](int cell, IColor color) {
-      pGraphics->ForControlInGroup("vcontrols", [cell, color](IControl& control) {
+         pGraphics->ForControlInGroup("vcontrols", [cell, color](IControl& control) {
+           IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
+           IVStyle currentStyle = vcontrol.GetStyle();
+           IText currentValueText = currentStyle.valueText;
+           vcontrol.SetStyle(currentStyle.WithValueText(currentValueText.WithFGColor(color)));
+           control.SetDirty(false);
+           });
+       };
+
+    pGraphics->AttachControl(new IVColorSwatchControl(sameCell().SubRectVertical(5, 2), "", setValueTextColor, style.WithColor(kBG, DEFAULT_TEXT_FGCOLOR), IVColorSwatchControl::ECellLayout::kVertical, { kBG }, { "Value Text" }));
+    
+    auto setLabelTextSize = [pGraphics](IControl* pCaller) {
+      float newSize = (float) dynamic_cast<IVNumberBoxControl*>(pCaller)->GetRealValue();
+      pGraphics->ForControlInGroup("vcontrols", [newSize](IControl& control) {
         IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
         IVStyle currentStyle = vcontrol.GetStyle();
-        IText currentValueText = currentStyle.valueText;
-        vcontrol.SetStyle(currentStyle.WithValueText(currentValueText.WithFGColor(color)));
+        IText currentLabelText = currentStyle.labelText;
+        vcontrol.SetStyle(currentStyle.WithLabelText(currentLabelText.WithSize(newSize)));
         control.SetDirty(false);
         });
     };
-
-    pGraphics->AttachControl(new IVColorSwatchControl(sameCell().SubRectVertical(3, 2), "", setValueTextColor, style.WithColor(kBG, DEFAULT_TEXT_FGCOLOR), IVColorSwatchControl::ECellLayout::kVertical, { kBG }, { "Value Text" }));
+    
+    pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 3), kNoParameter, setLabelTextSize, "Label Text Size", style));
+    
+    auto setValueTextSize = [pGraphics](IControl* pCaller) {
+      float newSize = (float) dynamic_cast<IVNumberBoxControl*>(pCaller)->GetRealValue();
+      pGraphics->ForControlInGroup("vcontrols", [newSize](IControl& control) {
+        IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
+        IVStyle currentStyle = vcontrol.GetStyle();
+        IText currentValueText = currentStyle.valueText;
+        vcontrol.SetStyle(currentStyle.WithValueText(currentValueText.WithSize(newSize)));
+        control.SetDirty(false);
+        });
+    };
+    
+    pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 4), kNoParameter, setValueTextSize, "Value Text Size", style, 24., 12., 100.));
 
     nextCell();
     toggle = 0;
