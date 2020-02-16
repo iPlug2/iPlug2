@@ -897,7 +897,8 @@ public:
   /** Called by the platform IGraphics class when moving to a new screen to set DPI
    * @param scale The scale of the display, typically 2 on a macOS retina screen */
   void SetScreenScale(int scale);
-  
+
+  /** Called by some platform IGraphics classes in order to translate the graphics context, in response to e.g. iOS onscreen keyboard appearing */
   void SetTranslation(float x, float y) { mXTranslation = x; mYTranslation = y; }
   
   /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty.
@@ -945,7 +946,7 @@ public:
   void SetControlValueAfterTextEdit(const char* str);
     
   /** Called by PopupMenuControl in order to update a control with a new value after returning from the non-blocking menu. The base class has a record of the control, so it is not needed here.
-   * @param pReturnMenu The new value as a CString */
+   * @param pMenu The menu that was clicked */
   void SetControlValueAfterPopupMenu(IPopupMenu* pMenu);
     
   /** /todo 
@@ -979,7 +980,8 @@ public:
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */
   void SetStrictDrawing(bool strict);
-  
+
+  /* Enables layout on resize. This means IGEditorDelegate:LayoutUI() will be called when the GUI is resized */
   void SetLayoutOnResize(bool layoutOnResize);
 
   /** Gets the width of the graphics context
@@ -1041,10 +1043,8 @@ public:
   /** @return true if resizing is in process */
   bool GetResizingInProcess() const { return mResizingInProcess; }
 
-  
   /** Enable/disable multi touch, if platform supports it
-    * @return \c true if platform supports it
-  */
+    * @return \c true if platform supports it */
   bool EnableMultiTouch(bool enable)
   {
     if (PlatformSupportsMultiTouch())
