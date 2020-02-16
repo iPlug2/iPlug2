@@ -443,6 +443,7 @@ IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, co
 , mButtonSize(buttonSize)
 {
   mText.mAlign = EAlign::Near; //TODO?
+  mButtonAreaWidth = buttonSize * 3.f;
 }
 
 IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
@@ -450,6 +451,7 @@ IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction 
 , mButtonSize(buttonSize)
 {
   mText.mAlign = EAlign::Near; //TODO?
+  mButtonAreaWidth = buttonSize * 3.f;
 }
 
 void IVRadioButtonControl::DrawWidget(IGraphics& g)
@@ -460,11 +462,11 @@ void IVRadioButtonControl::DrawWidget(IGraphics& g)
   {
     IRECT r = mButtons.Get()[i];
     
-    DrawButton(g, r.FracRectHorizontal(0.25).GetCentredInside(mButtonSize), i == hit, mMouseOverButton == i, ETabSegment::Mid);
+    DrawButton(g, r.GetFromLeft(mButtonAreaWidth).GetCentredInside(mButtonSize), i == hit, mMouseOverButton == i, ETabSegment::Mid);
     
     if (mTabLabels.Get(i))
     {
-      r = r.FracRectHorizontal(0.7f, true);
+      r = r.GetFromRight(r.W() - mButtonAreaWidth);
       i == hit ? mText.mFGColor = GetColor(kON) : mText.mFGColor = mStyle.valueText.mFGColor;
       g.DrawText(mText, mTabLabels.Get(i)->Get(), r, &mBlend);
     }
@@ -477,7 +479,7 @@ int IVRadioButtonControl::GetButtonForPoint(float x, float y) const
   {
     for (int i = 0; i < mNumStates; i++)
     {
-      if (mButtons.Get()[i].FracRectHorizontal(0.25f).Contains(x, y))
+      if (mButtons.Get()[i].GetFromLeft(mButtonAreaWidth).Contains(x, y))
         return i;
     }
     
@@ -1168,7 +1170,7 @@ void IVColorSwatchControl::DrawWidget(IGraphics& g)
     IRECT r = mCellRects.Get()[i];
     g.FillRect(GetColor(mColorIdForCells[i]), r.FracRectHorizontal(0.25, true), &mBlend);
     g.DrawRect(i == mCellOver ? COLOR_GRAY : COLOR_DARK_GRAY, r.FracRectHorizontal(0.25, true).GetPadded(0.5f), &mBlend);
-    g.DrawText(mText, mLabels.Get(i)->Get(), r.FracRectHorizontal(0.7, false), &mBlend);
+    g.DrawText(mText, mLabels.Get(i)->Get(), r.FracRectHorizontal(0.7f, false), &mBlend);
   }
 }
 
@@ -1176,7 +1178,8 @@ void IVColorSwatchControl::OnResize()
 {
   SetTargetRECT(MakeRects(mRECT, true));
 
-  int rows, columns;
+  int rows = 3;
+  int columns = 3;
   
   if(mLayout == ECellLayout::kGrid)
   {

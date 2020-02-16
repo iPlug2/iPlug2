@@ -162,7 +162,7 @@ public:
    * @param shape The buttons shape \see IVShape
    * @param direction The direction of the buttons
    * @param buttonSize The size of the buttons */
-  IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
+  IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 10.f);
 
   /** Constructs a vector radio button control, with an action function (no parameter)
    * @param bounds The control's bounds
@@ -173,7 +173,7 @@ public:
    * @param shape The buttons shape \see IVShape
    * @param direction The direction of the buttons
    * @param buttonSize The size of the buttons */
-  IVRadioButtonControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 20.f);
+  IVRadioButtonControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 10.f);
   
   virtual void DrawWidget(IGraphics& g) override;
 protected:
@@ -181,6 +181,7 @@ protected:
   int GetButtonForPoint(float x, float y) const override;
 
   float mButtonSize;
+  float mButtonAreaWidth;
   bool mOnlyButtonsRespondToMouse = false;
 };
 
