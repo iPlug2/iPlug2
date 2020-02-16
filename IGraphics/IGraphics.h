@@ -1010,6 +1010,10 @@ public:
     * @return The scale factor of the display on which this graphics context is currently located */
   int GetScreenScale() const { return mScreenScale; }
 
+  /** Gets the combined screen and display scaling factor
+  * @return The draw scale * screen scale */
+  float GetTotalScale() const { return static_cast<float>(mDrawScale * static_cast<float>(mScreenScale)); }
+
   /** Gets the nearest backing pixel aligned rect to the input IRECT
     * @param r The IRECT to snap
     * @return The IRECT nearest to the input IRECT that is aligned exactly to backing pixels */

@@ -10,6 +10,10 @@
 
 #import <QuartzCore/QuartzCore.h>
 
+#if defined IGRAPHICS_METAL
+#import <Metal/Metal.h>
+#endif
+
 #ifdef IGRAPHICS_IMGUI
 #import <Metal/Metal.h>
 #include "imgui.h"
@@ -458,6 +462,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     #if defined IGRAPHICS_METAL
     self.layer = [CAMetalLayer new];
     [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
+    ((CAMetalLayer*) self.layer).device = MTLCreateSystemDefaultDevice();
     #elif defined IGRAPHICS_GL
     self.layer = [[IGRAPHICS_GLLAYER alloc] initWithIGraphicsView:self];
     self.wantsBestResolutionOpenGLSurface = YES;
