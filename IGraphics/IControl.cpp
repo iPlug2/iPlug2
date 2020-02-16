@@ -932,6 +932,14 @@ void ISliderControlBase::OnMouseDrag(float x, float y, float dX, float dY, const
   SetDirty(true);
 }
 
+void ISliderControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
+{
+  double gearing = IsFineControl(mod, true) ? 0.001 : 0.01;
+
+  SetValue(GetValue() + gearing * d);
+  SetDirty();
+}
+
 bool ISliderControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 {
 #ifdef PROTOOLS

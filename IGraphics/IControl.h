@@ -1135,10 +1135,6 @@ public:
   , mGearing(gearing)
   {}
 
-  void SetGearing(double gearing) { mGearing = gearing; }
-  
-  bool IsFineControl(const IMouseMod& mod, bool wheel) const;
-
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     mMouseDown = true;
@@ -1160,6 +1156,9 @@ public:
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
   void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
   
+  void SetGearing(double gearing) { mGearing = gearing; }
+  bool IsFineControl(const IMouseMod& mod, bool wheel) const;
+
 protected:
   /** Get the area for which mouse deltas will be used to calculate the amount dragging changes the control value. This is usually the area that contains the knob handle, can override if your control contains extra elements such as labels
    * @return IRECT The bounds over which mouse deltas will be used to calculate the amount dragging changes the control value */
@@ -1181,7 +1180,8 @@ public:
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
-  
+  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
+
   void SetGearing(double gearing) { mGearing = gearing; }
   bool IsFineControl(const IMouseMod& mod, bool wheel) const;
   
