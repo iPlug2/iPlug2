@@ -439,17 +439,15 @@ void IVTabSwitchControl::OnResize()
 }
 
 IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
-: IVTabSwitchControl(bounds, paramIdx, label, style, shape, direction)
+: IVTabSwitchControl(bounds, paramIdx, label, style.WithValueText(style.valueText.WithAlign(EAlign::Near).WithVAlign(EVAlign::Middle)), shape, direction)
 , mButtonSize(buttonSize)
 {
-  mText.mAlign = EAlign::Near; //TODO?
 }
 
 IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
-: IVTabSwitchControl(bounds, aF, options, label, style, shape, direction)
+: IVTabSwitchControl(bounds, aF, options, label, style.WithValueText(style.valueText.WithAlign(EAlign::Near).WithVAlign(EVAlign::Middle)), shape, direction)
 , mButtonSize(buttonSize)
 {
-  mText.mAlign = EAlign::Near; //TODO?
 }
 
 void IVRadioButtonControl::DrawWidget(IGraphics& g)
@@ -465,8 +463,7 @@ void IVRadioButtonControl::DrawWidget(IGraphics& g)
     if (mTabLabels.Get(i))
     {
       r = r.FracRectHorizontal(0.7f, true);
-      i == hit ? mText.mFGColor = GetColor(kON) : mText.mFGColor = mStyle.valueText.mFGColor;
-      g.DrawText(mText, mTabLabels.Get(i)->Get(), r, &mBlend);
+      g.DrawText(mStyle.valueText.WithFGColor(i == hit ? GetColor(kON) : GetColor(kX1)), mTabLabels.Get(i)->Get(), r, &mBlend);
     }
   }
 }
