@@ -522,7 +522,7 @@ void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IR
   assert(pFont && "No font found - did you forget to load it?");
 
   font.setTypeface(pFont->mTypeface);
-  font.setHinting(SkFontHinting::kNone);
+  font.setHinting(SkFontHinting::kSlight);
   font.setForceAutoHinting(false);
   font.setSubpixel(true);
   font.setSize(text.mSize * pFont->mData->GetHeightEMRatio());
