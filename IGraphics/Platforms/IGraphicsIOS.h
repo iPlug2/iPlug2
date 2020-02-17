@@ -15,6 +15,8 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
+extern void GetScreenDimensions(int& width, int& height);
+
 /** IGraphics platform class for IOS
 *   @ingroup PlatformClasses */
 class IGraphicsIOS final : public IGRAPHICS_DRAW_CLASS
@@ -59,6 +61,9 @@ public:
   void LaunchBluetoothMidiDialog(float x, float y);
   
   void AttachGestureRecognizer(EGestureType type) override;
+  
+  bool PlatformSupportsMultiTouch() const override { return true; }
+  
 protected:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;

@@ -32,8 +32,7 @@ IPlugAPIBase::IPlugAPIBase(Config c, EAPI plugAPI)
   mProductName.Set(c.productName, MAX_PLUGIN_NAME_LEN);
   mMfrName.Set(c.mfrName, MAX_PLUGIN_NAME_LEN);
   mHasUI = c.plugHasUI;
-  mEditorWidth = c.plugWidth;
-  mEditorHeight = c.plugHeight;
+  SetEditorSize(c.plugWidth, c.plugHeight);
   mStateChunks = c.plugDoesChunks;
   mAPI = plugAPI;
   mBundleID.Set(c.bundleID);
@@ -86,11 +85,9 @@ bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) con
   return isEqual;
 }
 
-bool IPlugAPIBase::EditorResizeFromDelegate(int width, int height)
+bool IPlugAPIBase::EditorResize(int viewWidth, int viewHeight)
 {
-  mEditorWidth = width;
-  mEditorHeight = height;
-
+  SetEditorSize(viewWidth, viewHeight);
   return false;
 }
 
@@ -151,8 +148,8 @@ void IPlugAPIBase::OnTimer(Timer& t)
 {
   if(HasUI())
   {
-    // in distributed VST 3, parameter changes are managed by the host
-  #if !defined VST3C_API && !defined VST3P_API
+    // in distributed VST3, parameter changes are managed by the host
+  #if !defined VST3C_API && !defined VST3P_API // && !defined VST3_API
     while(mParamChangeFromProcessor.ElementsAvailable())
     {
       ParamTuple p;
@@ -176,7 +173,7 @@ void IPlugAPIBase::OnTimer(Timer& t)
   #endif
     
     // Midi messages from the processor to the controller, are sent as IMessages and SendMidiMsgFromDelegate gets triggered on the other side's notify
-  #if defined VST3P_API
+  #if defined VST3P_API // || defined VST3_API
     while (mMidiMsgsFromProcessor.ElementsAvailable())
     {
       IMidiMsg msg;

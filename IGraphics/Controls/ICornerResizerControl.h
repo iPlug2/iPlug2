@@ -43,7 +43,7 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    StartResizeGesture();
+    GetUI()->StartDragResize();
   }
     
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override
@@ -73,14 +73,6 @@ public:
     mMouseOver = false;
     IControl::OnMouseOut();
   }
-
-protected:
-    
-  void StartResizeGesture()
-  {
-    GetUI()->StartResizeGesture();
-  }
-    
 private:
   float mSize;
   bool mMouseOver = false;

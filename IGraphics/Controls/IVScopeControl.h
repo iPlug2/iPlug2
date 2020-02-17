@@ -151,12 +151,12 @@ public:
     DrawLabel(g);
     
     if(mStyle.drawFrame)
-      g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
+      g.DrawRect(GetColor(kFR), mWidgetBounds, &mBlend, mStyle.frameThickness);
   }
 
   void DrawWidget(IGraphics& g) override
   {
-    g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5, nullptr, mStyle.frameThickness);
+    g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5, &mBlend, mStyle.frameThickness);
     
     IRECT r = mWidgetBounds.GetPadded(-mPadding);
 
@@ -179,7 +179,7 @@ public:
         g.PathLineTo(r.L + xHi, r.MH() - yHi);
       }
       
-      g.PathStroke(GetColor(kFG), 1.0);
+      g.PathStroke(GetColor(kFG), mTrackSize, IStrokeOptions(), &mBlend);
     }
   }
   
@@ -191,20 +191,23 @@ public:
 
   void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
-    IByteStream stream(pData, dataSize);
-
-    int pos = stream.Get(&mBuf.nchans, 0);
-
-    while(pos < stream.Size())
+    if (!IsDisabled())
     {
-      for (auto ch = 0; ch < mBuf.nchans; ch++) {
-        for (auto s = 0; s < MAXBUF; s++) {
-          pos = stream.Get(&mBuf.vals[ch][s], pos);
+      IByteStream stream(pData, dataSize);
+
+      int pos = stream.Get(&mBuf.nchans, 0);
+
+      while (pos < stream.Size())
+      {
+        for (auto ch = 0; ch < mBuf.nchans; ch++) {
+          for (auto s = 0; s < MAXBUF; s++) {
+            pos = stream.Get(&mBuf.vals[ch][s], pos);
+          }
         }
       }
-    }
 
-    SetDirty(false);
+      SetDirty(false);
+    }
   }
 
 private:

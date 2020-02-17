@@ -38,16 +38,16 @@ public:
 
     int cell = 0;
     auto nextCell = [&]() {
-      return mRECT.GetGridCell(cell++, 4, 4);
+      return mRECT.GetGridCell(cell++, 4, 4).GetPadded(-5.f);
     };
 
     auto drawBlendPic = [this](IGraphics& g, IRECT r, EBlend blend, const char* name, float alpha)
     {
-      g.DrawText(mText, name, r.GetFromTop(10.f));
       IBlend blendMode { blend, alpha };
-      g.DrawFittedBitmap(mDst, r.GetCentredInside(100.f));
-      g.DrawFittedBitmap(mSrc, r.GetCentredInside(100.f), &blendMode);
-      g.DrawRect(COLOR_BLACK, r.GetPadded(-15.f), nullptr, 2.f);
+      g.DrawFittedBitmap(mDst, r.GetPadded(-2.f));
+      g.DrawFittedBitmap(mSrc, r.GetPadded(-2.f), &blendMode);
+      g.DrawRect(COLOR_BLACK, r, nullptr, 1.f);
+      g.DrawText(mText, name, r.GetFromTop(10.f));
     };
 
     g.StartLayer(this, mRECT);

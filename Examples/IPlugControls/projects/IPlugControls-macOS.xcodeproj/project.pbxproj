@@ -320,7 +320,6 @@
 		4FFBB91920863B0E00DDD0E7 /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
 		4FFBB91A20863B0E00DDD0E7 /* macmain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8157E8205D50EA00393585 /* macmain.cpp */; };
 		4FFBB91B20863B0E00DDD0E7 /* flock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158DB205D50EB00393585 /* flock.cpp */; };
-		4FFBB91C20863B0E00DDD0E7 /* vstbypassprocessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815883205D50EA00393585 /* vstbypassprocessor.cpp */; };
 		4FFBB91D20863B0E00DDD0E7 /* ustring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158F7205D50EB00393585 /* ustring.cpp */; };
 		4FFBB91E20863B0E00DDD0E7 /* fobject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158C9205D50EB00393585 /* fobject.cpp */; };
 		4FFBB91F20863B0E00DDD0E7 /* vstparameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F815890205D50EB00393585 /* vstparameters.cpp */; };
@@ -597,7 +596,6 @@
 		4F815880205D50EA00393585 /* vstaudioprocessoralgo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstaudioprocessoralgo.h; sourceTree = "<group>"; };
 		4F815881205D50EA00393585 /* vstbus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstbus.cpp; sourceTree = "<group>"; };
 		4F815882205D50EA00393585 /* vstbus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstbus.h; sourceTree = "<group>"; };
-		4F815883205D50EA00393585 /* vstbypassprocessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstbypassprocessor.cpp; sourceTree = "<group>"; };
 		4F815884205D50EA00393585 /* vstbypassprocessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstbypassprocessor.h; sourceTree = "<group>"; };
 		4F815885205D50EA00393585 /* vstcomponent.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vstcomponent.cpp; sourceTree = "<group>"; };
 		4F815886205D50EB00393585 /* vstcomponent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vstcomponent.h; sourceTree = "<group>"; };
@@ -1380,7 +1378,6 @@
 				4F815880205D50EA00393585 /* vstaudioprocessoralgo.h */,
 				4F815881205D50EA00393585 /* vstbus.cpp */,
 				4F815882205D50EA00393585 /* vstbus.h */,
-				4F815883205D50EA00393585 /* vstbypassprocessor.cpp */,
 				4F815884205D50EA00393585 /* vstbypassprocessor.h */,
 				4F815885205D50EA00393585 /* vstcomponent.cpp */,
 				4F815886205D50EB00393585 /* vstcomponent.h */,
@@ -2434,7 +2431,6 @@
 				4F815986205D50EB00393585 /* flock.cpp in Sources */,
 				4FCE29D921D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F5F344320C0226200487201 /* IPlugPaths.mm in Sources */,
-				4F81598F205D51F000393585 /* vstbypassprocessor.cpp in Sources */,
 				4F81598A205D50EB00393585 /* ustring.cpp in Sources */,
 				4FA9F80F21F76177004E6FE2 /* IGraphicsAGG_src.mm in Sources */,
 				4F815980205D50EB00393585 /* fobject.cpp in Sources */,
@@ -2582,7 +2578,6 @@
 				4FFBB91920863B0E00DDD0E7 /* IPlugPluginBase.cpp in Sources */,
 				4FFBB91A20863B0E00DDD0E7 /* macmain.cpp in Sources */,
 				4FFBB91B20863B0E00DDD0E7 /* flock.cpp in Sources */,
-				4FFBB91C20863B0E00DDD0E7 /* vstbypassprocessor.cpp in Sources */,
 				4FFBB91D20863B0E00DDD0E7 /* ustring.cpp in Sources */,
 				4FFBB91E20863B0E00DDD0E7 /* fobject.cpp in Sources */,
 				4FFBB91F20863B0E00DDD0E7 /* vstparameters.cpp in Sources */,

@@ -50,6 +50,7 @@ using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
 using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
 using IDisplayTickFunc = std::function<void()>;
+using ITouchID = uintptr_t;
 
 /** A click action function that does nothing */
 void EmptyClickActionFunc(IControl* pCaller);
@@ -89,12 +90,12 @@ public:
    @param framesAreHorizontal framesAreHorizontal \c true if the frames are positioned horizontally
    @param name Resource name for the bitmap */
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
-    : mAPIBitmap(pAPIBitmap)
-    , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
-    , mH(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
-    , mN(n)
-    , mFramesAreHorizontal(framesAreHorizontal)
-    , mResourceName(name, (int) strlen(name))
+  : mAPIBitmap(pAPIBitmap)
+  , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
+  , mH(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
+  , mN(n)
+  , mFramesAreHorizontal(framesAreHorizontal)
+  , mResourceName(name, static_cast<int>(strlen(name)))
   {
   }
 
@@ -245,25 +246,40 @@ struct IColor
    * @param alpha */
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
 
-  /**  @param c /todo */
-  void AddContrast(double c)
+  /** Set the color's opacity/alpha component with a float
+  * @param alpha float in the range 0. to 1. */
+  void SetOpacity(float alpha)
   {
-    const int mod = int(c * 255.);
-    R = std::min(R += mod, 255);
-    G = std::min(G += mod, 255);
-    B = std::min(B += mod, 255);
+    A = static_cast<int>(Clip(alpha, 0.f, 1.f) * 255.f);
   }
 
-  /** /todo 
-   * @param c /todo
-   * @return IColor /todo */
-  IColor GetContrasted(double c) const
+  /** Returns a new IColor with a different opacity
+  * @param alpha float in the range 0. to 1.
+  * @return IColor new Color */
+  IColor WithOpacity(float alpha) const
   {
-    const int mod = int(c * 255.);
     IColor n = *this;
-    n.R = std::min(n.R += mod, 255);
-    n.G = std::min(n.G += mod, 255);
-    n.B = std::min(n.B += mod, 255);
+    n.SetOpacity(alpha);
+    return n;
+  }
+
+  /** Contrast the color
+   * @param c Contrast value in the range -1.f to 1.f */
+  void Contrast(float c)
+  {
+    const int mod = static_cast<int>(c * 255.f);
+    R = Clip(R += mod, 0, 255);
+    G = Clip(G += mod, 0, 255);
+    B = Clip(B += mod, 0, 255);
+  }
+
+  /** Returns a new contrasted IColor based on this one
+   * @param c Contrast value in the range -1. to 1.
+   * @return IColor new Color */
+  IColor WithContrast(float c) const
+  {
+    IColor n = *this;
+    n.Contrast(c);
     return n;
   }
   
@@ -285,6 +301,49 @@ struct IColor
     rgbaf[2] = B / 255.f;
     rgbaf[3] = A / 255.f;
   }
+
+  /** Get the Hue, Saturation and Luminance of the color
+* @param h hue value to set, output in the range 0. to 1. 
+* @param s saturation value to set, output in the range 0. to 1. 
+* @param l luminance value to set, output in the range 0. to 1. 
+* @param a alpha value to set, output in the range 0. to 1. */
+  void GetHSLA(float& h, float& s, float& l, float& a) const
+  {
+    const float fR = R / 255.f;
+    const float fG = G / 255.f;
+    const float fB = B / 255.f;
+    a = A / 255.f;
+
+    const float fMin = std::min(fR, std::min(fG, fB));
+    const float fMax = std::max(fR, std::max(fG, fB));
+    const float fDiff = fMax - fMin;
+    const float fSum = fMax + fMin;
+
+    l = 50.f * fSum;
+
+    if (fMin == fMax) { s = 0.f; h = 0.f; l /= 100.f; return; }
+    else if (l < 50.f) { s = 100.f * fDiff / fSum; }
+    else { s = 100.f * fDiff / (2.f - fDiff); }
+
+    if (fMax == fR) { h = 60.f * (fG - fB) / fDiff; }
+    if (fMax == fG) { h = 60.f * (fB - fR) / fDiff + 120.f; }
+    if (fMax == fB) { h = 60.f * (fR - fG) / fDiff + 240.f; }
+
+    if (h < 0.f) { h = h + 360.f; }
+
+    h /= 360.f;
+    s /= 100.f;
+    l /= 100.f;
+  }
+
+  /** /todo
+   * @return int /todo */
+  int GetLuminosity() const
+  {
+    int min = R < G ? (R < B ? R : B) : (G < B ? G : B);
+    int max = R > G ? (R > B ? R : B) : (G > B ? G : B);
+    return (min + max) / 2;
+  };
   
   /** /todo 
    * @param randomAlpha /todo
@@ -363,16 +422,15 @@ struct IColor
     }
   }
   
-  /** /todo 
-   * @param h /todo
-   * @param s /todo
-   * @param l /todo
-   * @param a /todo
-   * @return IColor /todo */
-  static IColor GetFromHSLA(float h, float s, float l, float a = 1.)
+  /** Create an IColor from Hue Saturation and Luminance values
+  * @param h hue value in the range 0.f-1.f
+  * @param s saturation value in the range 0.f-1.f
+  * @param l luminance value in the range 0.f-1.f
+  * @param a alpha value in the range 0.f-1.f
+  * @return The new IColor */
+  static IColor FromHSLA(float h, float s, float l, float a = 1.f)
   {
-    auto hue = [](float h, float m1, float m2)
-    {
+    auto hue = [](float h, float m1, float m2) {
       if (h < 0) h += 1;
       if (h > 1) h -= 1;
       if (h < 1.0f / 6.0f)
@@ -397,16 +455,7 @@ struct IColor
     col.A = static_cast<int>(a * 255.f);
     return col;
   }
-  
-  /** /todo 
-   * @return int /todo */
-  int GetLuminosity() const
-  {
-    int min = R < G ? (R < B ? R : B) : (G < B ? G : B);
-    int max = R > G ? (R > B ? R : B) : (G > B ? G : B);
-    return (min + max) / 2;
-  };
-  
+
   /** /todo 
    * @param start /todo
    * @param dest /todo
@@ -694,6 +743,11 @@ struct IRECT
     B = T + (float) bitmap.FH();
   }
 
+  static IRECT MakeXYWH(float l, float t, float w, float h)
+  {
+    return IRECT(l, t, l+w, t+h);
+  }
+  
   /** @return true */
   bool Empty() const
   {
@@ -1320,18 +1374,25 @@ struct IRECT
     R = x + (hw * scale);
     B = y + (hh * scale);
   }
+
+  /** /todo
+   * @param scale /todo
+   * @return IRECT /todo */
+  IRECT GetScaled(float scale) const
+  {
+    IRECT r = *this;
+    r.Scale(scale);
+    return r;
+  }
   
   /** /todo 
    * @param scale /todo
    * @return IRECT /todo */
-  IRECT GetScaledAboutCentre(float scale)
+  IRECT GetScaledAboutCentre(float scale) const
   {
-    const float x = MW();
-    const float y = MH();
-    const float hw = W() / 2.f;
-    const float hh = H() / 2.f;
-    
-    return IRECT(x - (hw * scale), y - (hh * scale), x + (hw * scale), y + (hh * scale));
+    IRECT r = *this;
+    r.ScaleAboutCentre(scale);
+    return r;
   }
   
   /** /todo 
@@ -1345,16 +1406,6 @@ struct IRECT
     result.T = start.T + progress * (dest.T -  start.T);
     result.R = start.R + progress * (dest.R -  start.R);
     result.B = start.B + progress * (dest.B -  start.B);
-  }
-
-  /** /todo 
-   * @param scale /todo
-   * @return IRECT /todo */
-  IRECT GetScaled(float scale) const
-  {
-    IRECT r = *this;
-    r.Scale(scale);
-    return r;
   }
 
   /** /todo 
@@ -1460,7 +1511,7 @@ struct IRECT
    * @return IRECT /todo */
   IRECT GetCentredInside(float w, float h = 0.f) const
   {
-    assert(w > 0.f);
+    w = std::max(w, 1.f);
     
     if(h <= 0.f)
       h = w;
@@ -1506,14 +1557,18 @@ struct IMouseMod
 {
   bool L, R, S, C, A;
 
+  ITouchID touchID = 0;
+  float touchRadius = 0.f;
+  
   /** /todo 
    * @param l /todo
    * @param r /todo
    * @param s /todo
    * @param c /todo
-   * @param a /todo */
-  IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
-    : L(l), R(r), S(s), C(c), A(a) 
+   * @param a /todo
+   * @pararm touch /todo */
+  IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false, ITouchID touch = 0)
+    : L(l), R(r), S(s), C(c), A(a), touchID(touch)
     {}
   
   /** /todo */
@@ -1524,6 +1579,7 @@ struct IMouseMod
 struct IMouseInfo
 {
   float x, y;
+  float dX, dY;
   IMouseMod ms;
 };
 
@@ -2149,22 +2205,10 @@ struct IShadow
   bool mDrawForeground = true;
 };
 
-/** Contains a set of colors used to theme IVControls */
+/** Contains a set of 9 colors used to theme IVControls */
 struct IVColorSpec
 {
-  IColor mColors[kNumDefaultVColors];
-  
-  void SetColors(const IColor BGColor = DEFAULT_BGCOLOR,
-                 const IColor FGColor = DEFAULT_FGCOLOR,
-                 const IColor PRColor = DEFAULT_PRCOLOR,
-                 const IColor FRColor = DEFAULT_FRCOLOR,
-                 const IColor HLColor = DEFAULT_HLCOLOR,
-                 const IColor SHColor = DEFAULT_SHCOLOR,
-                 const IColor X1Color = DEFAULT_X1COLOR,
-                 const IColor X2Color = DEFAULT_X2COLOR,
-                 const IColor X3Color = DEFAULT_X3COLOR)
-  {
-  }
+  IColor mColors[kNumVColors];
   
   const IColor& GetColor(EVColor color) const
   {
@@ -2176,8 +2220,8 @@ struct IVColorSpec
     switch(idx)
     {
       case kBG: return DEFAULT_BGCOLOR; // Background
-      case kFG: return DEFAULT_FGCOLOR; // Foreground
-      case kPR: return DEFAULT_PRCOLOR; // Pressed
+      case kFG: return DEFAULT_FGCOLOR; // OFF/Foreground
+      case kPR: return DEFAULT_PRCOLOR; // ON/Pressed
       case kFR: return DEFAULT_FRCOLOR; // Frame
       case kHL: return DEFAULT_HLCOLOR; // Highlight
       case kSH: return DEFAULT_SHCOLOR; // Shadow
@@ -2188,23 +2232,15 @@ struct IVColorSpec
         return COLOR_TRANSPARENT;
     };
   }
-  
+
   IVColorSpec()
   {
-    mColors[kBG] = DEFAULT_BGCOLOR; // Background
-    mColors[kFG] = DEFAULT_FGCOLOR; // Foreground
-    mColors[kPR] = DEFAULT_PRCOLOR; // Pressed
-    mColors[kFR] = DEFAULT_FRCOLOR; // Frame
-    mColors[kHL] = DEFAULT_HLCOLOR; // Highlight
-    mColors[kSH] = DEFAULT_SHCOLOR; // Shadow
-    mColors[kX1] = DEFAULT_X1COLOR; // Extra 1
-    mColors[kX2] = DEFAULT_X2COLOR; // Extra 2
-    mColors[kX3] = DEFAULT_X3COLOR; // Extra 3
+    ResetColors();
   }
-  
+
   IVColorSpec(const std::initializer_list<IColor>& colors)
   {
-    assert(colors.size() <= kNumDefaultVColors);
+    assert(colors.size() <= kNumVColors);
     
     int i = 0;
     
@@ -2213,14 +2249,20 @@ struct IVColorSpec
       mColors[i++] = c;
     }
     
-    for(;i < kNumDefaultVColors; i++)
+    for(;i < kNumVColors; i++)
     {
       mColors[i] = GetDefaultColor((EVColor) i);
     }
   }
   
-  /** /todo  */
-  void ResetColors() { SetColors(); }
+  /** Reset the colors to the defaults  */
+  void ResetColors()
+  {
+    for (int i =0; i < kNumVColors; i++)
+    {
+      mColors[i] = GetDefaultColor((EVColor) i);
+    }
+  }
 };
 
 const IVColorSpec DEFAULT_COLOR_SPEC = IVColorSpec();
@@ -2230,6 +2272,7 @@ static constexpr bool DEFAULT_SHOW_VALUE = true;
 static constexpr bool DEFAULT_SHOW_LABEL = true;
 static constexpr bool DEFAULT_DRAW_FRAME = true;
 static constexpr bool DEFAULT_DRAW_SHADOWS = true;
+static constexpr bool DEFAULT_EMBOSS = false;
 static constexpr float DEFAULT_ROUNDNESS = 0.f;
 static constexpr float DEFAULT_FRAME_THICKNESS = 1.f;
 static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
@@ -2245,6 +2288,7 @@ struct IVStyle
   bool showValue = DEFAULT_SHOW_VALUE;
   bool drawFrame = DEFAULT_DRAW_FRAME;
   bool drawShadows = DEFAULT_DRAW_SHADOWS;
+  bool emboss = DEFAULT_EMBOSS;
   float roundness = DEFAULT_ROUNDNESS;
   float frameThickness = DEFAULT_FRAME_THICKNESS;
   float shadowOffset = DEFAULT_SHADOW_OFFSET;
@@ -2262,6 +2306,7 @@ struct IVStyle
           bool hideCursor = DEFAULT_HIDE_CURSOR,
           bool drawFrame = DEFAULT_DRAW_FRAME,
           bool drawShadows = DEFAULT_DRAW_SHADOWS,
+          bool emboss = DEFAULT_EMBOSS,
           float roundness = DEFAULT_ROUNDNESS,
           float frameThickness = DEFAULT_FRAME_THICKNESS,
           float shadowOffset = DEFAULT_SHADOW_OFFSET,
@@ -2275,6 +2320,7 @@ struct IVStyle
   , hideCursor(hideCursor)
   , drawFrame(drawFrame)
   , drawShadows(drawShadows)
+  , emboss(emboss)
   , roundness(roundness)
   , frameThickness(frameThickness)
   , shadowOffset(shadowOffset)
@@ -2288,8 +2334,8 @@ struct IVStyle
   {
   }
   
-  IVStyle WithShowLabel(bool show) const { IVStyle newStyle = *this; newStyle.showLabel = show; return newStyle; }
-  IVStyle WithShowValue(bool show) const { IVStyle newStyle = *this; newStyle.showValue = show; return newStyle; }
+  IVStyle WithShowLabel(bool show = true) const { IVStyle newStyle = *this; newStyle.showLabel = show; return newStyle; }
+  IVStyle WithShowValue(bool show = true) const { IVStyle newStyle = *this; newStyle.showValue = show; return newStyle; }
   IVStyle WithLabelText(const IText& text) const { IVStyle newStyle = *this; newStyle.labelText = text; return newStyle;}
   IVStyle WithValueText(const IText& text) const { IVStyle newStyle = *this; newStyle.valueText = text; return newStyle; }
   IVStyle WithColor(EVColor idx, IColor color) const { IVStyle newStyle = *this; newStyle.colorSpec.mColors[idx] = color; return newStyle; }
@@ -2297,10 +2343,11 @@ struct IVStyle
   IVStyle WithRoundness(float r) const { IVStyle newStyle = *this; newStyle.roundness = r; return newStyle; }
   IVStyle WithFrameThickness(float t) const { IVStyle newStyle = *this; newStyle.frameThickness = t; return newStyle; }
   IVStyle WithShadowOffset(float t) const { IVStyle newStyle = *this; newStyle.shadowOffset = t; return newStyle; }
-  IVStyle WithDrawShadows(bool v) const { IVStyle newStyle = *this; newStyle.drawShadows = v; return newStyle; }
-  IVStyle WithDrawFrame(bool v) const { IVStyle newStyle = *this; newStyle.drawFrame = v; return newStyle; }
+  IVStyle WithDrawShadows(bool v = true) const { IVStyle newStyle = *this; newStyle.drawShadows = v; return newStyle; }
+  IVStyle WithDrawFrame(bool v = true) const { IVStyle newStyle = *this; newStyle.drawFrame = v; return newStyle; }
   IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = v; return newStyle; }
   IVStyle WithAngle(float v) const { IVStyle newStyle = *this; newStyle.angle = v; return newStyle; }
+  IVStyle WithEmboss(bool v = true) const { IVStyle newStyle = *this; newStyle.emboss = v; return newStyle; }
 };
 
 const IVStyle DEFAULT_STYLE = IVStyle();
