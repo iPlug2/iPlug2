@@ -38,8 +38,8 @@ public:
           return;
         }
 
-        IRECT::LinearInterpolateBetween(mStartRect, mEndRect, mDrawnRect, EaseQuadraticIn(progress));
-        IColor::LinearInterpolateBetween(mStartColor, mEndColor, mDrawnColor, progress);
+        mDrawnRect = IRECT::LinearInterpolateBetween(mStartRect, mEndRect, EaseQuadraticIn(progress));
+        mDrawnColor = IColor::LinearInterpolateBetween(mStartColor, mEndColor, progress);
       },
       1000);
     });

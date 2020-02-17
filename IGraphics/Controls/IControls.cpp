@@ -197,7 +197,7 @@ IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, int paramIdx, co
     SetAnimation([&](IControl* pCaller) {
       auto progress = pCaller->GetAnimationProgress();
       
-      IRECT::LinearInterpolateBetween(mStartRect, mEndRect, mHandleBounds, static_cast<float>(progress));
+      mHandleBounds = IRECT::LinearInterpolateBetween(mStartRect, mEndRect, static_cast<float>(progress));
 
       if(mValueInWidget)
         mValueBounds = mHandleBounds;
@@ -221,7 +221,7 @@ IVSlideSwitchControl::IVSlideSwitchControl(const IRECT& bounds, IActionFunction 
     SetAnimation([&](IControl* pCaller) {
       auto progress = pCaller->GetAnimationProgress();
       
-      IRECT::LinearInterpolateBetween(mStartRect, mEndRect, mHandleBounds, static_cast<float>(progress));
+      mHandleBounds = IRECT::LinearInterpolateBetween(mStartRect, mEndRect, static_cast<float>(progress));
       
       if(mValueInWidget)
         mValueBounds = mHandleBounds;

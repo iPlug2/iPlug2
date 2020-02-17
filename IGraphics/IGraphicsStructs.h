@@ -459,14 +459,15 @@ struct IColor
   /** /todo 
    * @param start /todo
    * @param dest /todo
-   * @param result /todo
    * @param progress /todo */
-  static void LinearInterpolateBetween(const IColor& start, const IColor& dest, IColor& result, float progress)
+  static IColor LinearInterpolateBetween(const IColor& start, const IColor& dest, float progress)
   {
+    IColor result;
     result.A = start.A + static_cast<int>(progress * static_cast<float>(dest.A -  start.A));
     result.R = start.R + static_cast<int>(progress * static_cast<float>(dest.R -  start.R));
     result.G = start.G + static_cast<int>(progress * static_cast<float>(dest.G -  start.G));
     result.B = start.B + static_cast<int>(progress * static_cast<float>(dest.B -  start.B));
+    return result;
   }
 };
 
@@ -1399,14 +1400,16 @@ struct IRECT
   /** /todo 
    * @param start /todo
    * @param dest /todo
-   * @param result /todo
-   * @param progress /todo */
-  static void LinearInterpolateBetween(const IRECT& start, const IRECT& dest, IRECT& result, float progress)
+   * @param progress /todo
+   * @return IRECT /todo */
+  static IRECT LinearInterpolateBetween(const IRECT& start, const IRECT& dest, float progress)
   {
+    IRECT result;
     result.L = start.L + progress * (dest.L -  start.L);
     result.T = start.T + progress * (dest.T -  start.T);
     result.R = start.R + progress * (dest.R -  start.R);
     result.B = start.B + progress * (dest.B -  start.B);
+    return result;
   }
 
   /** /todo 
