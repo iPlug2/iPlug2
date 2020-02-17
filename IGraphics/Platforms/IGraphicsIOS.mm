@@ -209,6 +209,23 @@ void IGraphicsIOS::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
 
 bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
 {
+  NSURL* pNSURL = nullptr;
+  if (strstr(url, "http"))
+    pNSURL = [NSURL URLWithString:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
+  else
+    pNSURL = [NSURL fileURLWithPath:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
+
+  if (pNSURL)
+  {
+    UIResponder* pResponder = (UIResponder*) mView;
+    while(pResponder) {
+      if ([pResponder respondsToSelector: @selector(openURL:)])
+        [pResponder performSelector: @selector(openURL:) withObject: pNSURL];
+
+      pResponder = [pResponder nextResponder];
+    }
+    return true;
+  }
   return false;
 }
 
