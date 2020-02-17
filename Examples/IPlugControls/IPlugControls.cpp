@@ -347,10 +347,9 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
         IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
         IText newText = vcontrol.GetStyle().labelText.WithSize(newSize);
         vcontrol.SetStyle(vcontrol.GetStyle().WithLabelText(newText));
-        control.SetText(newText);
         control.OnResize();
         control.SetDirty(false);
-        });
+      });
     };
     
     pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 3), kNoParameter, setLabelTextSize, "Label Text Size", style, (double) style.labelText.mSize, 12., 100.));
@@ -364,11 +363,55 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
         control.SetText(newText);
         control.OnResize();
         control.SetDirty(false);
-        });
+      });
     };
     
     pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 4), kNoParameter, setValueTextSize, "Value Text Size", style, (double) style.valueText.mSize, 12., 100.));
 
+    auto promptLabelFont = [pGraphics](IControl* pCaller) {
+      WDL_String fileName;
+      WDL_String path;
+      pGraphics->PromptForFile(fileName, path, EFileAction::Open, "ttf");
+      
+      if(fileName.GetLength())
+      {
+        if(pGraphics->LoadFont(fileName.get_filepart(), fileName.Get()))
+        {
+          pGraphics->ForControlInGroup("vcontrols", [fileName](IControl& control) {
+            IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
+            IText newText = vcontrol.GetStyle().labelText.WithFont(fileName.get_filepart());
+            vcontrol.SetStyle(vcontrol.GetStyle().WithLabelText(newText));
+            control.OnResize();
+            control.SetDirty(false);
+          });
+        }
+      }
+    };
+    
+    pGraphics->AttachControl(new IVButtonControl(nextCell().SubRectVertical(3, 0).FracRectHorizontal(0.5), SplashClickActionFunc, "Label Font...", style))->SetAnimationEndActionFunction(promptLabelFont);
+    
+    auto promptValueFont = [pGraphics](IControl* pCaller) {
+      WDL_String fileName;
+      WDL_String path;
+      pGraphics->PromptForFile(fileName, path, EFileAction::Open, "ttf");
+      
+      if(fileName.GetLength())
+      {
+        if(pGraphics->LoadFont(fileName.get_filepart(), fileName.Get()))
+        {
+          pGraphics->ForControlInGroup("vcontrols", [fileName](IControl& control) {
+            IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
+            IText newText = vcontrol.GetStyle().valueText.WithFont(fileName.get_filepart());
+            vcontrol.SetStyle(vcontrol.GetStyle().WithValueText(newText));
+            control.OnResize();
+            control.SetText(newText);
+            control.SetDirty(false);
+          });
+        }
+      }
+    };
+    
+    pGraphics->AttachControl(new IVButtonControl(sameCell().SubRectVertical(3, 0).FracRectHorizontal(0.5, true), SplashClickActionFunc, "Value Font...", style))->SetAnimationEndActionFunction(promptValueFont);
   };
 #endif
 }
