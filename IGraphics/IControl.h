@@ -655,7 +655,7 @@ public:
   void SetSplashPoint(float x, float y) { mSplashPoint.x = x; mSplashPoint.y = y; }
   void SetShape(EVShape shape) { mShape = shape; mControl->SetDirty(false); }
 
-  void SetStyle(const IVStyle& style)
+  virtual void SetStyle(const IVStyle& style)
   {
     mStyle = style;
     SetColors(style.colorSpec);

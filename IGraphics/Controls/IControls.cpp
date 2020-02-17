@@ -31,7 +31,7 @@ IVLabelControl::IVLabelControl(const IRECT& bounds, const char* label, const IVS
 : ITextControl(bounds, label)
 , IVectorBase(style)
 {
-  mText = style.labelText;
+  mText = style.valueText;
   AttachIControl(this, label);
 }
 
@@ -42,9 +42,9 @@ void IVLabelControl::Draw(IGraphics& g)
   if (mStr.GetLength())
   {
     if (mStyle.drawShadows && !IsDisabled())
-      g.DrawText(mStyle.labelText.WithFGColor(GetColor(kSH)), mStr.Get(), mRECT.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset), &mBlend);
+      g.DrawText(mStyle.valueText.WithFGColor(GetColor(kSH)), mStr.Get(), mRECT.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset), &mBlend);
 
-    g.DrawText(mStyle.labelText, mStr.Get(), mRECT, &mBlend);
+    g.DrawText(mStyle.valueText, mStr.Get(), mRECT, &mBlend);
   }
 
   if (mStyle.drawFrame)

@@ -29,7 +29,8 @@ class IVNumberBoxControl : public IControl
 public:
   IVNumberBoxControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr, const char* label = "", const IVStyle& style = DEFAULT_STYLE, double defaultValue = 50.f, double minValue = 1.f, double maxValue = 100.f, const char* fmtStr = "%0.0f")
   : IControl(bounds, paramIdx, actionFunc)
-  , IVectorBase(style.WithDrawShadows(false).WithLabelText(style.labelText.WithVAlign(EVAlign::Middle)))
+  , IVectorBase(style.WithDrawShadows(false)
+                .WithValueText(style.valueText.WithVAlign(EVAlign::Middle)))
   , mFmtStr(fmtStr)
   , mMinValue(minValue)
   , mMaxValue(maxValue)
@@ -130,7 +131,7 @@ public:
     OnValueChanged();
   }
   
-  virtual void SetValueFromDelegate(double value, int valIdx = 0) override
+  void SetValueFromDelegate(double value, int valIdx = 0) override
   {
     if(GetParam())
     {
@@ -140,7 +141,26 @@ public:
     
     IControl::SetValueFromDelegate(value, valIdx);
   }
-
+  
+  void SetValueFromUserInput(double value, int valIdx = 0) override
+  {
+    if(GetParam())
+    {
+      mRealValue = GetParam()->FromNormalized(value);
+      OnValueChanged(true);
+    }
+    
+    IControl::SetValueFromUserInput(value, valIdx);
+  }
+  
+  void SetStyle(const IVStyle& style) override
+  {
+    IVectorBase::SetStyle(style);
+    mTextReadout->SetStyle(style);
+    mIncButton->SetStyle(style);
+    mDecButton->SetStyle(style);
+  }
+  
   bool IsFineControl(const IMouseMod& mod, bool wheel) const
   {
     #ifdef PROTOOLS
@@ -154,16 +174,16 @@ public:
     #endif
   }
   
-  void OnValueChanged(bool fromDelegate = false)
+  void OnValueChanged(bool preventAction = false)
   {
     mRealValue = Clip(mRealValue, mMinValue, mMaxValue);
     
     mTextReadout->SetStrFmt(32, mFmtStr.Get(), mRealValue);
     
-    if(!fromDelegate && GetParam())
+    if(!preventAction && GetParam())
       SetValue(GetParam()->ToNormalized(mRealValue));
     
-    SetDirty(!fromDelegate);
+    SetDirty(!preventAction);
   }
   
   double GetRealValue() const { return mRealValue; }
