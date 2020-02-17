@@ -460,9 +460,8 @@ public:
    * @param y The Y coordinate for snapping
    * @param direction The direction of the control's travel- horizontal or vertical fader
    * @param bounds The area in which the track of e.g. a slider should be snapped
-   * @param valIdx /todo
-   * @param scalar A scalar to speedup/slowdown mousing along the track */
-  virtual void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1, float scalar = 1., double minClip = 0., double maxClip = 1.);
+   * @param valIdx /todo */
+  virtual void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1, double minClip = 0., double maxClip = 1.);
 
   /* if you override this you must call the base implementation, to free mAnimationFunc */
   virtual void OnEndAnimation();
@@ -598,7 +597,7 @@ public:
       i = Clip(i, 1, mBitmap.N());
     }
     IBlend blend = mControl->GetBlend();
-    g.DrawBitmap(mBitmap, mControl->GetRECT(), i, &blend);
+    g.DrawBitmap(mBitmap, mControl->GetRECT().GetCentredInside(IRECT(0, 0, mBitmap)), i, &blend);
   }
 
 protected:
@@ -611,19 +610,6 @@ protected:
 class IVectorBase
 {
 public:
-  IVectorBase(const IColor* pBGColor = &DEFAULT_BGCOLOR,
-              const IColor* pFGColor = &DEFAULT_FGCOLOR,
-              const IColor* pPRColor = &DEFAULT_PRCOLOR,
-              const IColor* pFRColor = &DEFAULT_FRCOLOR,
-              const IColor* pHLColor = &DEFAULT_HLCOLOR,
-              const IColor* pSHColor = &DEFAULT_SHCOLOR,
-              const IColor* pX1Color = &DEFAULT_X1COLOR,
-              const IColor* pX2Color = &DEFAULT_X2COLOR,
-              const IColor* pX3Color = &DEFAULT_X3COLOR)
-  {
-    AddColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pSHColor, pX1Color, pX2Color, pX3Color);
-  }
-
   IVectorBase(const IVStyle& style, bool labelInWidget = false, bool valueInWidget = false)
   : mLabelInWidget(labelInWidget)
   , mValueInWidget(valueInWidget)
@@ -636,81 +622,21 @@ public:
     mControl = pControl;
     mLabelStr.Set(label);
   }
-  
-  void AddColor(const IColor& color)
-  {
-    mColors.Add(color);
-  }
-  
-  void AddColors(const IColor* pBGColor = 0,
-                 const IColor* pFGColor = 0,
-                 const IColor* pPRColor = 0,
-                 const IColor* pFRColor = 0,
-                 const IColor* pHLColor = 0,
-                 const IColor* pSHColor = 0,
-                 const IColor* pX1Color = 0,
-                 const IColor* pX2Color = 0,
-                 const IColor* pX3Color = 0)
-  {
-    if(pBGColor) AddColor(*pBGColor);
-    if(pFGColor) AddColor(*pFGColor);
-    if(pPRColor) AddColor(*pPRColor);
-    if(pFRColor) AddColor(*pFRColor);
-    if(pHLColor) AddColor(*pHLColor);
-    if(pSHColor) AddColor(*pSHColor);
-    if(pX1Color) AddColor(*pX1Color);
-    if(pX2Color) AddColor(*pX2Color);
-    if(pX3Color) AddColor(*pX3Color);
-  }
 
-  void SetColor(int colorIdx, const IColor& color)
+  void SetColor(EVColor colorIdx, const IColor& color)
   {
-    if(colorIdx < mColors.GetSize())
-      mColors.Get()[colorIdx] = color;
-    
+    mStyle.colorSpec.mColors[static_cast<int>(colorIdx)] = color;
     mControl->SetDirty(false);
-  }
-  
-  void SetColors(const IColor& BGColor,
-                 const IColor& FGColor,
-                 const IColor& PRColor,
-                 const IColor& FRColor,
-                 const IColor& HLColor,
-                 const IColor& SHColor,
-                 const IColor& X1Color,
-                 const IColor& X2Color,
-                 const IColor& X3Color)
-  {
-    mColors.Get()[kBG] = BGColor;
-    mColors.Get()[kFG] = FGColor;
-    mColors.Get()[kPR] = PRColor;
-    mColors.Get()[kFR] = FRColor;
-    mColors.Get()[kHL] = HLColor;
-    mColors.Get()[kSH] = SHColor;
-    mColors.Get()[kX1] = X1Color;
-    mColors.Get()[kX2] = X2Color;
-    mColors.Get()[kX3] = X3Color;
   }
 
   void SetColors(const IVColorSpec& spec)
   {
-    SetColors(spec.GetColor(kBG),
-              spec.GetColor(kFG),
-              spec.GetColor(kPR),
-              spec.GetColor(kFR),
-              spec.GetColor(kHL),
-              spec.GetColor(kSH),
-              spec.GetColor(kX1),
-              spec.GetColor(kX2),
-              spec.GetColor(kX3));
+    mStyle.colorSpec = spec;
   }
 
-  const IColor& GetColor(int colorIdx) const
+  const IColor& GetColor(EVColor color) const
   {
-    if(colorIdx < mColors.GetSize())
-      return mColors.Get()[colorIdx];
-    else
-      return mColors.Get()[0];
+    return mStyle.colorSpec.GetColor(color);
   }
   
   void SetLabelStr(const char* label) { mLabelStr.Set(label); mControl->SetDirty(false); }
@@ -726,13 +652,12 @@ public:
   void SetShadowOffset(float offset) { mStyle.shadowOffset = offset; mControl->SetDirty(false); }
   void SetFrameThickness(float thickness) { mStyle.frameThickness = thickness; mControl->SetDirty(false); }
   void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
-  void SetSplashPoint(float x, float y) { mSplashX = x; mSplashY = y; }
+  void SetSplashPoint(float x, float y) { mSplashPoint.x = x; mSplashPoint.y = y; }
   void SetShape(EVShape shape) { mShape = shape; mControl->SetDirty(false); }
 
-  void SetStyle(const IVStyle& style)
+  virtual void SetStyle(const IVStyle& style)
   {
     mStyle = style;
-    mColors.Resize(kNumDefaultVColors); // TODO?
     SetColors(style.colorSpec);
   }
 
@@ -760,7 +685,7 @@ public:
   void DrawSplash(IGraphics& g, const IRECT& clipRegion = IRECT())
   {
     g.PathClipRegion(clipRegion);
-    g.FillCircle(GetColor(kHL), mSplashX, mSplashY, mSplashRadius);
+    g.FillCircle(GetColor(kHL), mSplashPoint.x, mSplashPoint.y, mSplashRadius);
     g.PathClipRegion(IRECT());
   }
   
@@ -1092,15 +1017,13 @@ public:
   
 protected:
   IControl* mControl = nullptr;
-  WDL_TypedBuf<IColor> mColors;
-  IVStyle mStyle;
-  bool mLabelInWidget = false;
-  bool mValueInWidget = false;
-  float mSplashRadius = 0.f;
-  float mSplashX = 0.f;
-  float mSplashY = 0.f;
+  IVStyle mStyle; // IVStyle that defines certain common properties of an IVControl
+  bool mLabelInWidget = false; // Should the Label text be displayed inside the widget
+  bool mValueInWidget = false; // Should the Value text be displayed inside the widget
+  float mSplashRadius = 0.f; // Modified during the default SplashClickAnimationFunc to specify the radius of the splash
+  IVec2 mSplashPoint = {0.f, 0.f}; // Set at the start of the SplashClickActionFunc to set the position of the splash
   float mMaxSplashRadius = 50.f;
-  float mIndicatorTrackThickness = 2.f;
+  float mTrackSize = 2.f;
   float mValueDisplayFrac = 0.66f; // the fraction of the control width for the text entry
   IRECT mWidgetBounds; // The knob/slider/button
   IRECT mLabelBounds; // A piece of text above the control
@@ -1212,9 +1135,6 @@ public:
   , mGearing(gearing)
   {}
 
-  void SetGearing(double gearing) { mGearing = gearing; }
-  bool IsFineControl(const IMouseMod& mod, bool wheel) const;
-
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     mMouseDown = true;
@@ -1236,6 +1156,9 @@ public:
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
   void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
   
+  void SetGearing(double gearing) { mGearing = gearing; }
+  bool IsFineControl(const IMouseMod& mod, bool wheel) const;
+
 protected:
   /** Get the area for which mouse deltas will be used to calculate the amount dragging changes the control value. This is usually the area that contains the knob handle, can override if your control contains extra elements such as labels
    * @return IRECT The bounds over which mouse deltas will be used to calculate the amount dragging changes the control value */
@@ -1251,36 +1174,23 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 0.f);
-  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = EDirection::Vertical, float gearing = DEFAULT_GEARING, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, float gearing = DEFAULT_GEARING, float handleSize = 0.f);
   
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override
-  {
-    mMouseDown = true;
-    SnapToMouse(x, y, mDirection, mTrack);
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
 
-    if (mHideCursorOnDrag)
-      GetUI()->HideMouseCursor(true, false);
-
-    IControl::OnMouseDown(x, y, mod);
-  }
-
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override
-  {
-    mMouseDown = false;
-
-    if (mHideCursorOnDrag)
-      GetUI()->HideMouseCursor(false);
-  }
-
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
+  void SetGearing(double gearing) { mGearing = gearing; }
+  bool IsFineControl(const IMouseMod& mod, bool wheel) const;
   
 protected:
   bool mHideCursorOnDrag = true;
   EDirection mDirection;
-  IRECT mTrack;
-  bool mOnlyHandle;
+  IRECT mTrackBounds;
   float mHandleSize;
+  float mGearing;
   bool mMouseDown = false;
 };
 
@@ -1675,11 +1585,11 @@ public:
 
   void Draw(IGraphics& g) override;
   void OnInit() override;
-  void SetDisabled(bool disabled) override { mText.mFGColor.A = static_cast<int>((disabled ? GRAYED_ALPHA : 1.0f) * 255.f); }
 
   virtual void SetStr(const char* str);
   virtual void SetStrFmt(int maxlen, const char* fmt, ...);
   virtual void ClearStr() { SetStr(""); }
+  const char* GetStr() const { return mStr.Get(); }
   
   void SetBoundsBasedOnStr();
   

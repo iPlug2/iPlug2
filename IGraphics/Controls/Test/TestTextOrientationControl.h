@@ -21,7 +21,7 @@
  *   @ingroup TestControls */
 class TestTextOrientationControl : public IKnobControlBase
 {
-  static const int size = 14;
+  static const int size = 36;
     
 public:
     TestTextOrientationControl(const IRECT& bounds, int paramIdx)
