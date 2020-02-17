@@ -1149,9 +1149,11 @@ IVColorSwatchControl::IVColorSwatchControl(const IRECT& bounds, const char* labe
 , mColorIdForCells(colorIDs)
 , mColorChosenFunc(func)
 {
+  assert(colorIDs.size() == labelsForIDs.size());
+  
   AttachIControl(this, label);
   mCellRects.Resize(static_cast<int>(mColorIdForCells.size()));
-  mText.mAlign = EAlign::Far;
+  mText.mAlign = mStyle.valueText.mAlign = EAlign::Far;
 
   for (int i=0;i<colorIDs.size();i++)
   {
@@ -1161,20 +1163,22 @@ IVColorSwatchControl::IVColorSwatchControl(const IRECT& bounds, const char* labe
 
 void IVColorSwatchControl::Draw(IGraphics& g)
 {
-  //DrawBackGround(g, mRECT);
   DrawWidget(g);
   DrawLabel(g);
-  //DrawValue(g, false);
 }
 
 void IVColorSwatchControl::DrawWidget(IGraphics& g)
 {  
   for (int i=0; i< mColorIdForCells.size(); i++)
   {
+    WDL_String* pStr = mLabels.Get(i);
     IRECT r = mCellRects.Get()[i];
-    g.FillRect(GetColor(mColorIdForCells[i]), r.FracRectHorizontal(0.25, true), &mBlend);
-    g.DrawRect(i == mCellOver ? COLOR_GRAY : COLOR_DARK_GRAY, r.FracRectHorizontal(0.25, true).GetPadded(0.5f), &mBlend);
-    g.DrawText(mStyle.valueText, mLabels.Get(i)->Get(), r.FracRectHorizontal(0.7f, false), &mBlend);
+    IRECT buttonBounds = r.FracRectHorizontal(pStr->GetLength() ? 0.25f : 1.f, true);
+    g.FillRect(GetColor(mColorIdForCells[i]), buttonBounds, &mBlend);
+    g.DrawRect(i == mCellOver ? COLOR_GRAY : COLOR_DARK_GRAY, buttonBounds.GetPadded(0.5f), &mBlend);
+    
+    if(pStr->GetLength())
+      g.DrawText(mStyle.valueText, mLabels.Get(i)->Get(), r.FracRectHorizontal(0.7f, false), &mBlend);
   }
 }
 
@@ -1246,7 +1250,7 @@ void IVColorSwatchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   
   if(cellClicked > -1)
   {
-    EVColor vColorClicked = static_cast<EVColor>(cellClicked);
+    EVColor vColorClicked = mColorIdForCells[cellClicked];
     IColor color = GetColor(vColorClicked);
     GetUI()->PromptForColor(color, "Choose a color", [this, cellClicked, vColorClicked](IColor result) {
       SetColor(vColorClicked, result);
