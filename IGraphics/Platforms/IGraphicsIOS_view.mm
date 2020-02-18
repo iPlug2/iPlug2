@@ -368,6 +368,10 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   [self.displayLink invalidate];
   self.displayLink = nil;
+  mTextField = nil;
+  mGraphics = nil;
+  mMenuTableController = nil;
+  mMenuNavigationController = nil;
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField reason:(UITextFieldDidEndEditingReason)reason
