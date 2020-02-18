@@ -318,7 +318,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
 }
 
-
 - (void)drawRect:(CGRect)rect
 {
   IRECTList rects;

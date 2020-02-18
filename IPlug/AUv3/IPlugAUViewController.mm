@@ -27,9 +27,11 @@
 
 @implementation IPlugAUViewController
 
-- (id)init {
+- (id) init
+{
 #if PLUG_HAS_UI
-  self = [super initWithNibName:@"IPlugAUViewController" bundle:[NSBundle bundleForClass:NSClassFromString(@"IPlugAUViewController")]];
+  self = [super initWithNibName:@"IPlugAUViewController"
+                         bundle:[NSBundle bundleForClass:NSClassFromString(@"IPlugAUViewController")]];
 #else
   self = [super init];
 #endif
@@ -39,7 +41,6 @@
 
 - (AUAudioUnit*) createAudioUnitWithComponentDescription:(AudioComponentDescription) desc error:(NSError **)error
 {
-  TRACE
   self.audioUnit = [[IPlugAUAudioUnit alloc] initWithComponentDescription:desc error:error];
 
   return self.audioUnit;
@@ -47,7 +48,7 @@
 
 - (AUAudioUnit*) getAudioUnit
 {
-  return _audioUnit;
+  return self.audioUnit;
 }
 
 - (void) audioUnitInitialized
@@ -55,9 +56,8 @@
   //No-op
 }
 
-- (void)setAudioUnit:(IPlugAUAudioUnit*) audioUnit
+- (void) setAudioUnit:(IPlugAUAudioUnit*) audioUnit
 {
-  TRACE
   _audioUnit = audioUnit;
   [self audioUnitInitialized];
 }
@@ -72,14 +72,13 @@
     self.view = [[GenericUI alloc] initWithAUPlugin:self.audioUnit];
 #endif
   
-  int viewWidth = (int) [_audioUnit width];
-  int viewHeight = (int) [_audioUnit height];
+  int viewWidth = (int) [self.audioUnit width];
+  int viewHeight = (int) [self.audioUnit height];
   self.preferredContentSize = CGSizeMake (viewWidth, viewHeight);
 }
 
 - (void) viewDidLoad
 {
-  TRACE
   [super viewDidLoad];
   
 #ifdef OS_MAC
@@ -89,7 +88,6 @@
 
 - (void) viewDidLayoutSubviews
 {
-  TRACE
 }
 
 #ifdef OS_IOS
@@ -98,17 +96,18 @@
   TRACE
   [super viewWillAppear:animated];
   
-  if(_audioUnit)
+  if(self.audioUnit)
     [self doOpenUI];
 }
 
 - (void) viewDidDisappear:(BOOL)animated
 {
-  TRACE
   [super viewDidDisappear:animated];
   
-  if(_audioUnit)
-    [_audioUnit closeWindow];
+  if(self.audioUnit)
+  {
+    [self.audioUnit closeWindow];
+  }
 }
 #else // MAC_OS
 - (void) viewWillAppear:(BOOL)animated
@@ -116,8 +115,8 @@
 }
 #endif
 
-#else // PLUG_HAS_UI
-- (void)beginRequestWithExtensionContext:(nonnull NSExtensionContext *)context {
+#else // !PLUG_HAS_UI
+- (void) beginRequestWithExtensionContext:(nonnull NSExtensionContext *)context {
 }
 #endif
 
