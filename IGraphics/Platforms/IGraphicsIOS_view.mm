@@ -302,11 +302,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return (CAMetalLayer*) self.layer;
 }
 
-- (void)viewDidDisappear
-{
-  [self.displayLink invalidate];
-}
-
 - (void)didMoveToSuperview
 {
   [super didMoveToSuperview];
