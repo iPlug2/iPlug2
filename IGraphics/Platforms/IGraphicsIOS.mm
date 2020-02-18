@@ -72,6 +72,8 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
         gTextureMap.insert(std::make_pair([[[pTextureFiles[i] lastPathComponent] stringByDeletingPathExtension] cStringUsingEncoding:NSUTF8StringEncoding], (MTLTexturePtr) gTextures[i]));
       }
     
+      DBGMSG("Preloaded %i textures", (int) [pTextureFiles count]);
+    
       [textureLoader release];
       textureLoader = nil;
     }
