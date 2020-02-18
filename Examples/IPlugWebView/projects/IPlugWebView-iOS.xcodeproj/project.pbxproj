@@ -10,7 +10,7 @@
 		4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103420A0E55900D3092F /* IPlugProcessor.cpp */; };
 		4F10E7C020B17EDB00F5B09B /* IPlugWebView-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugWebView-iOS-MainInterface.storyboard */; };
 		4F1115CF2296DA95000CFCBF /* IPlugWebView-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugWebView-iOS-MainInterface.storyboard */; };
-		4F11D43723201FF9003E1647 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F11D43523201FF9003E1647 /* IPlugWebViewEditorDelegate.mm */; };
+		4F11D43723201FF9003E1647 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F11D43523201FF9003E1647 /* IPlugWebViewEditorDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F11D43823201FF9003E1647 /* IPlugWebViewEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F11D43623201FF9003E1647 /* IPlugWebViewEditorDelegate.h */; };
 		4F11D43D2320294F003E1647 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E58231440C8000045E7 /* web */; };
 		4F32AE7D231431BD00710734 /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA61F6E22E899B500A92C58 /* AUv3Framework.framework */; };
@@ -515,12 +515,12 @@
 				LastUpgradeCheck = 1030;
 				TargetAttributes = {
 					4FA61F6D22E899B500A92C58 = {
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						ProvisioningStyle = Automatic;
 					};
 					91236D0C1B08F42B00734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						LastSwiftMigration = 1010;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -536,7 +536,7 @@
 					};
 					91236D761B08F59300734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						LastSwiftMigration = 1010;
 					};
 				};

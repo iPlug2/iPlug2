@@ -224,6 +224,7 @@
 			"\tDEFAULT_HIDE_CURSOR,          // hide cursor",
 			"\tDEFAULT_DRAW_FRAME,           // draw frame",
 			"\tDEFAULT_DRAW_SHADOWS,         // draw shadows",
+			"\tDEFAULT_EMBOSS,               // emboss",
 			"\tDEFAULT_ROUNDNESS,            // roundness",
 			"\tDEFAULT_FRAME_THICKNESS,      // frame thickness",
 			"\tDEFAULT_SHADOW_OFFSET,        // shadow offset",
@@ -292,5 +293,14 @@
 		],
 		"description": "Attach an IVButtonControl"
 	},
+
+	"attachprettyivslider": {
+		"prefix": "AttachIVSliderControl",
+		"body": [
+			"pGraphics->AttachControl(new IVSliderControl(b.GetCentredInside(30,100), [](IControl* pCaller){",
+			"\tdynamic_cast<IVSliderControl*>(pCaller)->SetColor(kX1, IColor::LinearInterpolateBetween(COLOR_RED, COLOR_ORANGE, pCaller->GetValue())); },",
+			"\t\"\", DEFAULT_STYLE, false, EDirection::Vertical, DEFAULT_GEARING, 0.f, 15.f));",
+		],
+		"description": "Attach an AttachIVSliderControl"
+	},
   }
-  

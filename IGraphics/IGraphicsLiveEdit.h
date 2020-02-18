@@ -154,7 +154,7 @@ public:
       pControl->SetRECT(r);
       pControl->SetTargetRECT(r);
       
-      DBGMSG("%i, %i, %i, %i\n", (int) r.L, (int) r.T, (int) r.R, (int) r.B);
+//      DBGMSG("%i, %i, %i, %i\n", (int) r.L, (int) r.T, (int) r.R, (int) r.B);
       
       GetUI()->SetAllControlsDirty();
     }
@@ -181,14 +181,14 @@ public:
   
   void Draw(IGraphics& g) override
   {
-    g.DrawGrid(mGridColor, g.GetBounds(), mGridSize, mGridSize, &BLEND_25);
+    IBlend b {EBlend::Add, 0.25f};
+    g.DrawGrid(mGridColor, g.GetBounds(), mGridSize, mGridSize, &b);
     
     for(int i = 1; i < g.NControls(); i++)
     {
       IControl* pControl = g.GetControl(i);
       IRECT cr = pControl->GetRECT();
-      
-      
+
       if(pControl->IsHidden())
         g.DrawDottedRect(COLOR_RED, cr);
       else if(pControl->IsDisabled())
@@ -233,7 +233,7 @@ private:
   WDL_String mPathToSourceFile;
   WDL_String mErrorMessage;
 
-  IColor mGridColor = COLOR_GRAY;
+  IColor mGridColor = COLOR_WHITE;
   IColor mRectColor = COLOR_WHITE;
   static const int RESIZE_HANDLE_SIZE = 10;
 

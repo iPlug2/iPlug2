@@ -50,6 +50,7 @@ using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
 using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
 using IDisplayTickFunc = std::function<void()>;
+using ITouchID = uintptr_t;
 
 /** A click action function that does nothing */
 void EmptyClickActionFunc(IControl* pCaller);
@@ -458,14 +459,15 @@ struct IColor
   /** /todo 
    * @param start /todo
    * @param dest /todo
-   * @param result /todo
    * @param progress /todo */
-  static void LinearInterpolateBetween(const IColor& start, const IColor& dest, IColor& result, float progress)
+  static IColor LinearInterpolateBetween(const IColor& start, const IColor& dest, float progress)
   {
+    IColor result;
     result.A = start.A + static_cast<int>(progress * static_cast<float>(dest.A -  start.A));
     result.R = start.R + static_cast<int>(progress * static_cast<float>(dest.R -  start.R));
     result.G = start.G + static_cast<int>(progress * static_cast<float>(dest.G -  start.G));
     result.B = start.B + static_cast<int>(progress * static_cast<float>(dest.B -  start.B));
+    return result;
   }
 };
 
@@ -695,7 +697,8 @@ struct IText
   IText WithVAlign(EVAlign valign) const { IText newText = *this; newText.mVAlign = valign; return newText; }
   IText WithSize(float size) const { IText newText = *this; newText.mSize = size; return newText; }
   IText WithAngle(float v) const { IText newText = *this; newText.mAngle = v; return newText; }
-
+  IText WithFont(const char* font) const { IText newText = *this; strcpy(newText.mFont, (font ? font : DEFAULT_FONT));; return newText; }
+  
   char mFont[FONT_LEN];
   float mSize;
   IColor mFGColor;
@@ -1397,14 +1400,16 @@ struct IRECT
   /** /todo 
    * @param start /todo
    * @param dest /todo
-   * @param result /todo
-   * @param progress /todo */
-  static void LinearInterpolateBetween(const IRECT& start, const IRECT& dest, IRECT& result, float progress)
+   * @param progress /todo
+   * @return IRECT /todo */
+  static IRECT LinearInterpolateBetween(const IRECT& start, const IRECT& dest, float progress)
   {
+    IRECT result;
     result.L = start.L + progress * (dest.L -  start.L);
     result.T = start.T + progress * (dest.T -  start.T);
     result.R = start.R + progress * (dest.R -  start.R);
     result.B = start.B + progress * (dest.B -  start.B);
+    return result;
   }
 
   /** /todo 
@@ -1510,8 +1515,7 @@ struct IRECT
    * @return IRECT /todo */
   IRECT GetCentredInside(float w, float h = 0.f) const
   {
-    if (w <= 0.f)
-      return *this; // TODO: warning?
+    w = std::max(w, 1.f);
     
     if(h <= 0.f)
       h = w;
@@ -1557,14 +1561,18 @@ struct IMouseMod
 {
   bool L, R, S, C, A;
 
+  ITouchID touchID = 0;
+  float touchRadius = 0.f;
+  
   /** /todo 
    * @param l /todo
    * @param r /todo
    * @param s /todo
    * @param c /todo
-   * @param a /todo */
-  IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
-    : L(l), R(r), S(s), C(c), A(a) 
+   * @param a /todo
+   * @pararm touch /todo */
+  IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false, ITouchID touch = 0)
+    : L(l), R(r), S(s), C(c), A(a), touchID(touch)
     {}
   
   /** /todo */
@@ -1575,6 +1583,7 @@ struct IMouseMod
 struct IMouseInfo
 {
   float x, y;
+  float dX, dY;
   IMouseMod ms;
 };
 
@@ -2203,7 +2212,7 @@ struct IShadow
 /** Contains a set of 9 colors used to theme IVControls */
 struct IVColorSpec
 {
-  IColor mColors[kNumDefaultVColors];
+  IColor mColors[kNumVColors];
   
   const IColor& GetColor(EVColor color) const
   {
@@ -2215,8 +2224,8 @@ struct IVColorSpec
     switch(idx)
     {
       case kBG: return DEFAULT_BGCOLOR; // Background
-      case kFG: return DEFAULT_FGCOLOR; // Foreground
-      case kPR: return DEFAULT_PRCOLOR; // Pressed
+      case kFG: return DEFAULT_FGCOLOR; // OFF/Foreground
+      case kPR: return DEFAULT_PRCOLOR; // ON/Pressed
       case kFR: return DEFAULT_FRCOLOR; // Frame
       case kHL: return DEFAULT_HLCOLOR; // Highlight
       case kSH: return DEFAULT_SHCOLOR; // Shadow
@@ -2235,7 +2244,7 @@ struct IVColorSpec
 
   IVColorSpec(const std::initializer_list<IColor>& colors)
   {
-    assert(colors.size() <= kNumDefaultVColors);
+    assert(colors.size() <= kNumVColors);
     
     int i = 0;
     
@@ -2244,7 +2253,7 @@ struct IVColorSpec
       mColors[i++] = c;
     }
     
-    for(;i < kNumDefaultVColors; i++)
+    for(;i < kNumVColors; i++)
     {
       mColors[i] = GetDefaultColor((EVColor) i);
     }
@@ -2253,7 +2262,7 @@ struct IVColorSpec
   /** Reset the colors to the defaults  */
   void ResetColors()
   {
-    for (int i =0; i < kNumDefaultVColors; i++)
+    for (int i =0; i < kNumVColors; i++)
     {
       mColors[i] = GetDefaultColor((EVColor) i);
     }
@@ -2329,8 +2338,8 @@ struct IVStyle
   {
   }
   
-  IVStyle WithShowLabel(bool show) const { IVStyle newStyle = *this; newStyle.showLabel = show; return newStyle; }
-  IVStyle WithShowValue(bool show) const { IVStyle newStyle = *this; newStyle.showValue = show; return newStyle; }
+  IVStyle WithShowLabel(bool show = true) const { IVStyle newStyle = *this; newStyle.showLabel = show; return newStyle; }
+  IVStyle WithShowValue(bool show = true) const { IVStyle newStyle = *this; newStyle.showValue = show; return newStyle; }
   IVStyle WithLabelText(const IText& text) const { IVStyle newStyle = *this; newStyle.labelText = text; return newStyle;}
   IVStyle WithValueText(const IText& text) const { IVStyle newStyle = *this; newStyle.valueText = text; return newStyle; }
   IVStyle WithColor(EVColor idx, IColor color) const { IVStyle newStyle = *this; newStyle.colorSpec.mColors[idx] = color; return newStyle; }
@@ -2338,11 +2347,11 @@ struct IVStyle
   IVStyle WithRoundness(float r) const { IVStyle newStyle = *this; newStyle.roundness = r; return newStyle; }
   IVStyle WithFrameThickness(float t) const { IVStyle newStyle = *this; newStyle.frameThickness = t; return newStyle; }
   IVStyle WithShadowOffset(float t) const { IVStyle newStyle = *this; newStyle.shadowOffset = t; return newStyle; }
-  IVStyle WithDrawShadows(bool v) const { IVStyle newStyle = *this; newStyle.drawShadows = v; return newStyle; }
-  IVStyle WithDrawFrame(bool v) const { IVStyle newStyle = *this; newStyle.drawFrame = v; return newStyle; }
+  IVStyle WithDrawShadows(bool v = true) const { IVStyle newStyle = *this; newStyle.drawShadows = v; return newStyle; }
+  IVStyle WithDrawFrame(bool v = true) const { IVStyle newStyle = *this; newStyle.drawFrame = v; return newStyle; }
   IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = v; return newStyle; }
   IVStyle WithAngle(float v) const { IVStyle newStyle = *this; newStyle.angle = v; return newStyle; }
-  IVStyle WithEmboss(bool v) const { IVStyle newStyle = *this; newStyle.emboss = v; return newStyle; }
+  IVStyle WithEmboss(bool v = true) const { IVStyle newStyle = *this; newStyle.emboss = v; return newStyle; }
 };
 
 const IVStyle DEFAULT_STYLE = IVStyle();

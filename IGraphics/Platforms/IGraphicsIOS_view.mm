@@ -200,7 +200,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   self.layer.opaque = YES;
   self.layer.contentsScale = [UIScreen mainScreen].scale;
   
-//  self.multipleTouchEnabled = YES;
+  self.multipleTouchEnabled = NO;
   
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillBeHidden:) name:UIKeyboardWillHideNotification object:nil];
@@ -230,66 +230,71 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   #endif
 }
 
-- (void) getTouchXY: (CGPoint) pt x: (float*) pX y: (float*) pY
+- (void) onTouchEvent:(ETouchEvent)eventType withTouches:(NSSet*)touches withEvent:(UIEvent*)event
 {
-  if (mGraphics)
+  if(mGraphics == nullptr) //TODO: why?
+    return;
+  
+  NSEnumerator* pEnumerator = [[event allTouches] objectEnumerator];
+  UITouch* pTouch;
+  
+  std::vector<IMouseInfo> points;
+
+  while ((pTouch = [pEnumerator nextObject]))
   {
-    *pX = pt.x / mGraphics->GetDrawScale();
-    *pY = pt.y / mGraphics->GetDrawScale();
+    CGPoint pos = [pTouch locationInView:pTouch.view];
+    
+    IMouseInfo point;
+    
+    auto ds = mGraphics->GetDrawScale();
+    
+    point.ms.L = true;
+    point.ms.touchID = reinterpret_cast<ITouchID>(pTouch);
+    point.ms.touchRadius = [pTouch majorRadius];
+  
+    point.x = pos.x / ds;
+    point.y = pos.y / ds;
+    CGPoint posPrev = [pTouch previousLocationInView: self];
+    point.dX = (pos.x - posPrev.x) / ds;
+    point.dY = (pos.y - posPrev.y) / ds;
+    
+    if([touches containsObject:pTouch])
+      points.push_back(point);
   }
+
+//  DBGMSG("%lu\n", points[0].ms.idx);
+  
+  if(eventType == ETouchEvent::Began)
+    mGraphics->OnMouseDown(points);
+  
+  if(eventType == ETouchEvent::Moved)
+    mGraphics->OnMouseDrag(points);
+  
+  if(eventType == ETouchEvent::Ended)
+    mGraphics->OnMouseUp(points);
+  
+  if(eventType == ETouchEvent::Cancelled)
+    mGraphics->OnTouchCancelled(points);
 }
 
-- (void) touchesBegan: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
+- (void) touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event
 {
-  if(mTextField)
-    [self endUserInput];
-  
-  UITouch* pTouch = [pTouches anyObject];
-  CGPoint pt = [pTouch locationInView: self];
-
-  IMouseInfo info;
-  info.ms.L = true;
-  [self getTouchXY:pt x:&info.x y:&info.y];
-  
-  if(mGraphics)
-    mGraphics->OnMouseDown(info.x, info.y, info.ms);
+  [self onTouchEvent:ETouchEvent::Began withTouches:touches withEvent:event];
 }
 
-- (void) touchesMoved: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
+- (void) touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event
 {
-  UITouch* pTouch = [pTouches anyObject];
-
-  CGPoint pt = [pTouch locationInView: self];
-  CGPoint ptPrev = [pTouch previousLocationInView: self];
-
-  IMouseInfo info;
-  [self getTouchXY:pt x:&info.x y:&info.y];
-  float prevX, prevY;
-  [self getTouchXY:ptPrev x:&prevX y:&prevY];
-
-  float dX = info.x - prevX;
-  float dY = info.y - prevY;
-  
-  if(mGraphics)
-    mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+  [self onTouchEvent:ETouchEvent::Moved withTouches:touches withEvent:event];
 }
 
-- (void) touchesEnded: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
+- (void) touchesEnded:(NSSet*)touches withEvent:(UIEvent*)event
 {
-  UITouch* pTouch = [pTouches anyObject];
-
-  CGPoint pt = [pTouch locationInView: self];
-  
-  IMouseInfo info;
-  [self getTouchXY:pt x:&info.x y:&info.y];
-  
-  if(mGraphics)
-    mGraphics->OnMouseUp(info.x, info.y, info.ms);
+  [self onTouchEvent:ETouchEvent::Ended withTouches:touches withEvent:event];
 }
 
-- (void) touchesCancelled: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
+- (void) touchesCancelled:(NSSet*)touches withEvent:(UIEvent*)event
 {
-  //  [self pTouchesEnded: pTouches withEvent: event];
+  [self onTouchEvent:ETouchEvent::Cancelled withTouches:touches withEvent:event];
 }
 
 - (CAMetalLayer*) metalLayer

@@ -897,7 +897,8 @@ public:
   /** Called by the platform IGraphics class when moving to a new screen to set DPI
    * @param scale The scale of the display, typically 2 on a macOS retina screen */
   void SetScreenScale(int scale);
-  
+
+  /** Called by some platform IGraphics classes in order to translate the graphics context, in response to e.g. iOS onscreen keyboard appearing */
   void SetTranslation(float x, float y) { mXTranslation = x; mYTranslation = y; }
   
   /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty.
@@ -945,7 +946,7 @@ public:
   void SetControlValueAfterTextEdit(const char* str);
     
   /** Called by PopupMenuControl in order to update a control with a new value after returning from the non-blocking menu. The base class has a record of the control, so it is not needed here.
-   * @param pReturnMenu The new value as a CString */
+   * @param pMenu The menu that was clicked */
   void SetControlValueAfterPopupMenu(IPopupMenu* pMenu);
     
   /** /todo 
@@ -979,7 +980,8 @@ public:
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */
   void SetStrictDrawing(bool strict);
-  
+
+  /* Enables layout on resize. This means IGEditorDelegate:LayoutUI() will be called when the GUI is resized */
   void SetLayoutOnResize(bool layoutOnResize);
 
   /** Gets the width of the graphics context
@@ -1010,6 +1012,10 @@ public:
     * @return The scale factor of the display on which this graphics context is currently located */
   int GetScreenScale() const { return mScreenScale; }
 
+  /** Gets the combined screen and display scaling factor
+  * @return The draw scale * screen scale */
+  float GetTotalScale() const { return static_cast<float>(mDrawScale * static_cast<float>(mScreenScale)); }
+
   /** Gets the nearest backing pixel aligned rect to the input IRECT
     * @param r The IRECT to snap
     * @return The IRECT nearest to the input IRECT that is aligned exactly to backing pixels */
@@ -1037,6 +1043,27 @@ public:
   /** @return true if resizing is in process */
   bool GetResizingInProcess() const { return mResizingInProcess; }
 
+  /** Enable/disable multi touch, if platform supports it
+    * @return \c true if platform supports it */
+  bool EnableMultiTouch(bool enable)
+  {
+    if (PlatformSupportsMultiTouch())
+    {
+      mEnableMultiTouch = enable;
+      return true;
+    }
+    else
+      mEnableMultiTouch = false;
+
+    return false;
+  }
+  
+  /** @return /c true if multi touch is enabled */
+  bool MultiTouchEnabled() const { return mEnableMultiTouch; }
+
+  /** @return /c true if the platform supports multi touch */
+  virtual bool PlatformSupportsMultiTouch() const { return false; }
+  
   /** @param enable Set \c true to enable tool tips when the user mouses over a control */
   void EnableTooltips(bool enable);
   
@@ -1128,10 +1155,9 @@ private:
   
   /** Called when drag resize ends */
   void EndDragResize();
-  
+
 #pragma mark - Control management
 public:
-  
   /** /todo
    * @param func /todo */
   void ForAllControlsFunc(std::function<void(IControl& control)> func);
@@ -1223,10 +1249,24 @@ public:
    * @return A pointer to the IControl object with the tag of nullptr if not found */
   IControl* GetControlWithTag(int ctrlTag);
   
-  /** Get a pointer to the IControl that is currently captured i.e. during dragging
-   * @return Pointer to currently captured control */
-  IControl* GetCapturedControl() { return mMouseCapture; }
+  /** Check to see if any control is captured */
+  bool ControlIsCaptured() const { return mCapturedMap.size() > 0; }
+  
+  /** Check to see if the control is already captured
+   * @return \c true is the control is already captured */
+  bool ControlIsCaptured(IControl* pControl) const
+  {
+    return std::find_if(std::begin(mCapturedMap), std::end(mCapturedMap), [pControl](auto&& press) { return press.second == pControl; }) != mCapturedMap.end();
+  }
 
+  /** Populate a vector with the touchIDs active on pControl */
+  void GetTouches(IControl* pControl, std::vector<ITouchID>& touchesOnThisControl) const
+  {
+    for (auto i = mCapturedMap.begin(), j = mCapturedMap.end(); i != j; ++i)
+      if (i->second == pControl)
+        touchesOnThisControl.push_back(i->first);
+  }
+  
   /* Get the first control in the control list, the background */
   IControl* GetBackgroundControl() { return GetControl(0);  }
   
@@ -1289,27 +1329,23 @@ private:
    * @param y /todo
    * @param capture /todo
    * @param mouseOver /todo
+   * @param touchID /todo
    * @return IControl* /todo */
-  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false);
+  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false, ITouchID touchID = 0);
   
 #pragma mark - Event handling
 public:
-  /** @param x The X coordinate in the graphics context at which the mouse event occurred
-   * @param y The Y coordinate in the graphics context at which the mouse event occurred
-   * @param mod IMouseMod struct contain information about the modifiers held */
-  void OnMouseDown(float x, float y, const IMouseMod& mod);
+  /** */
+  void OnMouseDown(const std::vector<IMouseInfo>& points);
 
-  /** @param x The X coordinate in the graphics context at which the mouse event occurred
-   * @param y The Y coordinate in the graphics context at which the mouse event occurred
-   * @param mod IMouseMod struct contain information about the modifiers held */
-  void OnMouseUp(float x, float y, const IMouseMod& mod);
+  /** */
+  void OnMouseUp(const std::vector<IMouseInfo>& points);
 
-  /** @param x The X coordinate in the graphics context at which the mouse event occurred
-   * @param y The Y coordinate in the graphics context at which the mouse event occurred
-   * @param dX Delta X value \todo explain
-   * @param dY Delta Y value \todo explain
-   * @param mod IMouseMod struct contain information about the modifiers held */
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod);
+  /** */
+  void OnMouseDrag(const std::vector<IMouseInfo>& points);
+  
+  /** */
+  void OnTouchCancelled(const std::vector<IMouseInfo>& points);
 
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
    * @param y The Y coordinate in the graphics context at which the mouse event occurred
@@ -1355,7 +1391,7 @@ public:
   /** \todo */
   void OnGUIIdle();
   
-  /** Called by ICornerReszierControl as the corner is dragged to resize */
+  /** Called by ICornerResizerControl as the corner is dragged to resize */
   void OnDragResize(float x, float y);
 
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
@@ -1544,7 +1580,7 @@ private:
 
   // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
   std::unique_ptr<ICornerResizerControl> mCornerResizer;
-  std::unique_ptr<IBubbleControl> mBubbleControl;
+  WDL_PtrList<IBubbleControl> mBubbleControls;
   std::unique_ptr<IPopupMenuControl> mPopupControl;
   std::unique_ptr<IFPSDisplayControl> mPerfDisplay;
   std::unique_ptr<ITextEntryControl> mTextEntryControl;
@@ -1566,8 +1602,7 @@ private:
   std::vector<EGestureType> mRegisteredGestures; // All the types of gesture registered with the graphics context
   IRECTList mGestureRegions; // Rectangular regions linked to gestures (excluding IControls)
   std::unordered_map<int, IGestureFunc> mGestureRegionFuncs; // Map of gesture region index to gesture function
-  
-  IControl* mMouseCapture = nullptr;
+  std::unordered_map<ITouchID, IControl*> mCapturedMap; // associative array of touch ids to control pointers, the same control can be touched multiple times
   IControl* mMouseOver = nullptr;
   IControl* mInTextEntry = nullptr;
   IControl* mInPopupMenu = nullptr;
@@ -1591,6 +1626,7 @@ private:
   bool mShowAreaDrawn = false;
   bool mResizingInProcess = false;
   bool mLayoutOnResize = false;
+  bool mEnableMultiTouch = false;
   EUIResizerMode mGUISizeMode = EUIResizerMode::Scale;
   double mPrevTimestamp = 0.;
   IKeyHandlerFunc mKeyHandlerFunc = nullptr;
