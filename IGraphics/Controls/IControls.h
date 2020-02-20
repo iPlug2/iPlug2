@@ -606,7 +606,6 @@ public:
   void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
 
 protected:
-  WDL_String mStr;
   int mCharWidth, mCharHeight, mCharOffset;
   bool mMultiLine;
   bool mVCentre;

@@ -1475,15 +1475,14 @@ void IBKnobRotaterControl::Draw(IGraphics& g)
 }
 
 IBTextControl::IBTextControl(const IRECT& bounds, const IBitmap& bitmap, const IText& text, const char* str, int charWidth, int charHeight, int charOffset, bool multiLine, bool vCenter, EBlend blend)
-  : ITextControl(bounds, str, text)
-  , IBitmapBase(bitmap)
-  , mCharWidth(charWidth)
-  , mCharHeight(charHeight)
-  , mCharOffset(charOffset)
-  , mMultiLine(multiLine)
-  , mVCentre(vCenter)
+: ITextControl(bounds, str, text)
+, IBitmapBase(bitmap)
+, mCharWidth(charWidth)
+, mCharHeight(charHeight)
+, mCharOffset(charOffset)
+, mMultiLine(multiLine)
+, mVCentre(vCenter)
 {
-  mStr.Set(str);
   mBlend = blend;
 }
 

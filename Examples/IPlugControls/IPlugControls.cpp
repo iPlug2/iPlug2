@@ -47,6 +47,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     const IBitmap buttonBitmap = pGraphics->LoadBitmap(PNGBUTTON_FN, 10);
     const IBitmap sliderHandleBitmap = pGraphics->LoadBitmap(PNGSLIDERHANDLE_FN);
     const IBitmap sliderTrackBitmap = pGraphics->LoadBitmap(PNGSLIDERTRACK_FN);
+    const IBitmap bitmapText = pGraphics->LoadBitmap(PNGTEXT_FN, 95, true);
     const ISVG sliderHandleSVG = pGraphics->LoadSVG(SVGSLIDERHANDLE_FN);
     const ISVG sliderTrackSVG = pGraphics->LoadSVG(SVGSLIDERTRACK_FN);
 
@@ -115,10 +116,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IBKnobControl(sameCell().GetPadded(-5.), knobBitmap, kParamGain), kNoTag, "bcontrols");
     AddLabel("IBKnobRotaterControl");
     pGraphics->AttachControl(new IBKnobRotaterControl(sameCell().GetPadded(-5.), knobRotateBitmap, kParamGain), kNoTag, "bcontrols");
-    AddLabel("IBSwitchControl");
-    pGraphics->AttachControl(new IBSwitchControl(sameCell(), switchBitmap), kNoTag, "bcontrols");
     AddLabel("IBButtonControl");
-    pGraphics->AttachControl(new IBButtonControl(sameCell(), buttonBitmap, [](IControl* pCaller) {
+    pGraphics->AttachControl(new IBButtonControl(sameCell().FracRectVertical(0.6f, true), buttonBitmap, [](IControl* pCaller) {
       pCaller->SetAnimation([](IControl* pCaller){
         auto progress = pCaller->GetAnimationProgress();
         if(progress > 1.) {
@@ -128,10 +127,14 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
         pCaller->SetValue(Clip(progress + .5, 0., 1.));
       }, 100);
     }), kNoTag, "bcontrols");
+//    AddLabel("IBSwitchControl");
+    pGraphics->AttachControl(new ITextControl(sameCell().FracRectVertical(0.5f, false).GetFromTop(20.f), "IBSwitchControl", style.labelText));
+    pGraphics->AttachControl(new IBSwitchControl(sameCell().FracRectVertical(0.5f, false), switchBitmap), kNoTag, "bcontrols");
     AddLabel("IBSliderControl");
     pGraphics->AttachControl(new IBSliderControl(sameCell().GetCentredInside(sliderHandleBitmap.W(), 100.f), sliderHandleBitmap, sliderTrackBitmap, kParamGain, EDirection::Vertical), kNoTag, "bcontrols");
     //pGraphics->AttachControl(new IVGroupControl("Bitmap Controls", "bcontrols", 10.f, 30.f, 30.f, 10.f));
-    
+    AddLabel("IBTextControl");
+    pGraphics->AttachControl(new IBTextControl(sameCell(), bitmapText, DEFAULT_LABEL_TEXT, "HELLO", 10, 16, 0, false));
 #pragma mark ISVGControls -
     
     AddLabel("ISVGKnobControl");

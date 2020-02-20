@@ -65,3 +65,5 @@
 #define SVGKNOBROTATE_FN "vector-knob.svg"
 #define PNGSLIDERHANDLE_FN "slider-handle.png"
 #define PNGSLIDERTRACK_FN "slider-track.png"
+#define PNGTEXT_FN "font.png"
+#define PNGTEXT_2X_FN "font@2x.png"
