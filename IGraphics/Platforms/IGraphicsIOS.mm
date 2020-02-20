@@ -93,7 +93,7 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   IGRAPHICS_VIEW* view = [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   mView = (void*) view;
   
-  OnViewInitialized((void*) [view layer]);
+  OnViewInitialized((void*) [view metalLayer]);
   
   SetScreenScale([UIScreen mainScreen].scale);
   

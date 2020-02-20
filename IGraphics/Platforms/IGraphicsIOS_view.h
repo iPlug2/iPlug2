@@ -61,6 +61,7 @@ using namespace igraphics;
   IGRAPHICS_UITABLEVC* mMenuTableController;
   UINavigationController* mMenuNavigationController;
   UITextField* mTextField;
+  CAMetalLayer* mMTLLayer;
   int mTextFieldLength;
 }
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics;
