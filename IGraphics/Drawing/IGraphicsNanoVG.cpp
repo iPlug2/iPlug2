@@ -780,10 +780,7 @@ void IGraphicsNanoVG::PathTransformSetMatrix(const IMatrix& m)
 
 void IGraphicsNanoVG::SetClipRegion(const IRECT& r)
 {
-  if (!r.Empty())
-    nvgScissor(mVG, r.L, r.T, r.W(), r.H());
-  else
-    nvgResetScissor(mVG);
+  nvgScissor(mVG, r.L, r.T, r.W(), r.H());
 }
 
 void IGraphicsNanoVG::DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen)

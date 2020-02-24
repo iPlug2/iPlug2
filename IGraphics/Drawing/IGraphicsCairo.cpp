@@ -713,10 +713,7 @@ void IGraphicsCairo::SetClipRegion(const IRECT& r)
     return;
     
   cairo_reset_clip(mContext);
-  if (!r.Empty())
-  {
-    cairo_new_path(mContext);
-    cairo_rectangle(mContext, r.L, r.T, r.W(), r.H());
-    cairo_clip(mContext);
-  }
+  cairo_new_path(mContext);
+  cairo_rectangle(mContext, r.L, r.T, r.W(), r.H());
+  cairo_clip(mContext);
 }
