@@ -108,7 +108,7 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   ContextReady([pView layer]);
 #endif
   
-  if (pParent) // Cocoa VST host.
+  if (pParent)
   {
     [(NSView*) pParent addSubview: (IGRAPHICS_VIEW*) mView];
   }
