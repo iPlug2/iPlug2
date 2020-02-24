@@ -191,7 +191,7 @@ private:
     void SetPath(VertexSourceType& path)
     {
       // Clip
-      IRECT clip = mGraphics.mClipRECT.Empty() ? mGraphics.GetBounds() : mGraphics.mClipRECT;
+      IRECT clip = mGraphics.mClipRECT;
       clip.Translate(mGraphics.XTranslate(), mGraphics.YTranslate());
       clip.Scale(mGraphics.GetBackingPixelScale());
       mRasterizer.clip_box(clip.L, clip.T, clip.R, clip.B);
