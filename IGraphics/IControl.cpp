@@ -297,8 +297,12 @@ void IControl::SetPosition(float x, float y)
 {
   if (x < 0.f) x = 0.f;
   if (y < 0.f) y = 0.f;
-
-  SetTargetAndDrawRECTs({x, y, x + mRECT.W(), y + mRECT.H()});
+ 
+  float tX = x + (mTargetRECT.L - mRECT.L);
+  float tY = y + (mTargetRECT.T - mRECT.T);
+    
+  SetRECT({x, y, x + mRECT.W(), y + mRECT.H()});
+  SetTargetRECT({tX, tY, tX + mTargetRECT.W(), tY + mTargetRECT.H()});
 }
 
 void IControl::SetSize(float w, float h)

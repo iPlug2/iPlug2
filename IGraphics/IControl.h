@@ -319,15 +319,15 @@ public:
    * @param bounds The control's new draw and target bounds within the graphics context */
   void SetTargetAndDrawRECTs(const IRECT& bounds) { mRECT = mTargetRECT = bounds; mMouseIsOver = false; OnResize(); }
 
-  /** Set the position of the control, preserving the width and height of the draw rect and target area
+  /** Set the position of the control, preserving the width and height. This may need to be overriden if you maintain custom positioning data in your control
    * @param x the new x coordinate of the top left corner of the control
    * @param y the new y coordinate of the top left corner of the control */
-  void SetPosition(float x, float y);
+  virtual void SetPosition(float x, float y);
 
-  /** Set the size of the control, preserving the width and height of the draw rect and target area
+  /** Set the size of the control, preserving the current position. This may need to be overriden if you maintain custom positioning data in your control, or if your TargetRECT is not the same as the main RECT.
    * @param w the new width of the control
    * @param h the new height of the control */
-  void SetSize(float w, float h);
+  virtual void SetSize(float w, float h);
 
   /** Used internally by the AAX wrapper view interface to set the control parmeter highlight 
    * @param isHighlighted /c true if the control should be highlighted 
