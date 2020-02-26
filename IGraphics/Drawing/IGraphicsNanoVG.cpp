@@ -226,7 +226,7 @@ IGraphicsNanoVG::IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, f
 {
   DBGMSG("IGraphics NanoVG @ %i FPS\n", fps);
   StaticStorage<IFontData>::Accessor storage(sFontCache);
-  storage.Release();
+  storage.Retain();
 }
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
