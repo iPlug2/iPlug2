@@ -88,6 +88,7 @@ const char* vk_to_string(int vk_code)
     case kVK_NUMLOCK:              return "VK_NUMLOCK";
     case kVK_SCROLL:               return "VK_SCROLL";
     case kVK_RETURN|0x8000:        return "ENTER";
+    case kVK_LWIN:                 return "VK_LWIN";
     default:                      return "Unknown VK code";
   }
 }

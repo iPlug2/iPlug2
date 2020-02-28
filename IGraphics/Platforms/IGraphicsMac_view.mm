@@ -96,7 +96,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
   int rawcode = [pEvent keyCode];
   
   code = MacKeyCodeToVK(rawcode);
-  if (code == kVK_NONE)
+  if (code == kVK_NONE && [pEvent type] != NSEventType::NSEventTypeFlagsChanged)
   {
     NSString *str = NULL;
     
@@ -847,6 +847,32 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   if (!handle)
   {
     [[self nextResponder] keyUp:pEvent];
+  }
+}
+
+- (void) flagsChanged:(NSEvent*) pEvent
+{
+  int flag = 0;
+  int code = MacKeyEventToVK(pEvent, flag);
+  
+  if(flag & kFSHIFT)
+    code = kVK_SHIFT;
+  else if(flag & kFCONTROL)
+    code = kVK_CONTROL;
+  else if(flag & kFALT)
+    code = kVK_MENU;
+  else if(flag & kFLWIN)
+    code = kVK_LWIN;
+  
+  IKeyPress keyPress {"", code, static_cast<bool>(flag & kFSHIFT),
+                                static_cast<bool>(flag & kFCONTROL),
+                                static_cast<bool>(flag & kFALT)};
+  
+  bool handle = mGraphics->OnKeyDown(mPrevX, mPrevY, keyPress);
+  
+  if (!handle)
+  {
+    [[self nextResponder] flagsChanged:pEvent];
   }
 }
 
