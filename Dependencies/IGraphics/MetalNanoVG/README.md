@@ -3,10 +3,16 @@ MetalNanoVG
 
 MetalNanoVG is the native [Metal](https://developer.apple.com/metal/) port of [NanoVG](https://github.com/memononen/nanovg) that tries to get the most out of Apple's Graphics APIs.
 
+### Donation
+If you found this project useful, please consider donating to show your support ❤️ 
+
+[![Donate](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3366Q3AVUJLTQ)
+
 Precautions
 ===========
 
- * Works only on [macOS 10.11+](https://support.apple.com/en-us/HT205073), tvOS 9.0+ and [iOS 8.0+](https://developer.apple.com/library/content/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/DeviceCompatibilityMatrix/DeviceCompatibilityMatrix.html#//apple_ref/doc/uid/TP40013599-CH17-SW1) (simulator is not supported).
+ * Works only on [macOS 10.11+](https://support.apple.com/en-us/HT205073), tvOS 9.0+ and [iOS 8.0+](https://developer.apple.com/library/content/documentation/DeviceInformation/Reference/iOSDeviceCompatibility/DeviceCompatibilityMatrix/DeviceCompatibilityMatrix.html#//apple_ref/doc/uid/TP40013599-CH17-SW1).
+ * Simulator support is available since iOS 13 and requires Xcode 11+ running on macOS 10.15+.
  * Not all Apple hardwares are supported even if meets the OS requirement.
  * [ARC](https://en.wikipedia.org/wiki/Automatic_Reference_Counting) is required.
 

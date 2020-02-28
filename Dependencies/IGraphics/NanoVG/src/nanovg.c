@@ -337,7 +337,7 @@ error:
 
 NVGparams* nvgInternalParams(NVGcontext* ctx)
 {
-	return &ctx->params;
+    return &ctx->params;
 }
 
 void nvgDeleteInternal(NVGcontext* ctx)
@@ -1989,13 +1989,13 @@ void nvgBezierTo(NVGcontext* ctx, float c1x, float c1y, float c2x, float c2y, fl
 
 void nvgQuadTo(NVGcontext* ctx, float cx, float cy, float x, float y)
 {
-	float x0 = ctx->commandx;
-	float y0 = ctx->commandy;
-	float vals[] = { NVG_BEZIERTO,
-		x0 + 2.0f/3.0f*(cx - x0), y0 + 2.0f/3.0f*(cy - y0),
-		x + 2.0f/3.0f*(cx - x), y + 2.0f/3.0f*(cy - y),
-		x, y };
-	nvg__appendCommands(ctx, vals, NVG_COUNTOF(vals));
+    float x0 = ctx->commandx;
+    float y0 = ctx->commandy;
+    float vals[] = { NVG_BEZIERTO,
+        x0 + 2.0f/3.0f*(cx - x0), y0 + 2.0f/3.0f*(cy - y0),
+        x + 2.0f/3.0f*(cx - x), y + 2.0f/3.0f*(cy - y),
+        x, y };
+    nvg__appendCommands(ctx, vals, NVG_COUNTOF(vals));
 }
 
 void nvgArcTo(NVGcontext* ctx, float x1, float y1, float x2, float y2, float radius)
@@ -2287,24 +2287,24 @@ void nvgStroke(NVGcontext* ctx)
 }
 
 // Add fonts
-int nvgCreateFont(NVGcontext* ctx, const char* name, const char* path)
+int nvgCreateFont(NVGcontext* ctx, const char* name, const char* filename)
 {
-	return nvgCreateFontFace(ctx, name, path, 0);
+	return fonsAddFont(ctx->fs, name, filename, 0);
 }
 
-int nvgCreateFontFace(NVGcontext* ctx, const char* name, const char* path, int faceIdx)
+int nvgCreateFontAtIndex(NVGcontext* ctx, const char* name, const char* filename, const int fontIndex)
 {
-	return fonsAddFont(ctx->fs, name, path, faceIdx);
+	return fonsAddFont(ctx->fs, name, filename, fontIndex);
 }
 
 int nvgCreateFontMem(NVGcontext* ctx, const char* name, unsigned char* data, int ndata, int freeData)
 {
-	return nvgCreateFontFaceMem(ctx, name, data, ndata, 0, freeData);
+	return fonsAddFontMem(ctx->fs, name, data, ndata, freeData, 0);
 }
 
-int nvgCreateFontFaceMem(NVGcontext* ctx, const char* name, unsigned char* data, int ndata, int faceIdx, int freeData)
+int nvgCreateFontMemAtIndex(NVGcontext* ctx, const char* name, unsigned char* data, int ndata, int freeData, const int fontIndex)
 {
-	return fonsAddFontMem(ctx->fs, name, data, ndata, faceIdx, freeData);
+	return fonsAddFontMem(ctx->fs, name, data, ndata, freeData, fontIndex);
 }
 
 int nvgFindFont(NVGcontext* ctx, const char* name)
@@ -2323,6 +2323,16 @@ int nvgAddFallbackFontId(NVGcontext* ctx, int baseFont, int fallbackFont)
 int nvgAddFallbackFont(NVGcontext* ctx, const char* baseFont, const char* fallbackFont)
 {
 	return nvgAddFallbackFontId(ctx, nvgFindFont(ctx, baseFont), nvgFindFont(ctx, fallbackFont));
+}
+
+void nvgResetFallbackFontsId(NVGcontext* ctx, int baseFont)
+{
+	fonsResetFallbackFont(ctx->fs, baseFont);
+}
+
+void nvgResetFallbackFonts(NVGcontext* ctx, const char* baseFont)
+{
+	nvgResetFallbackFontsId(ctx, nvgFindFont(ctx, baseFont));
 }
 
 // State setting
