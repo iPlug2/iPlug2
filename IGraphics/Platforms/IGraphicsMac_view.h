@@ -22,19 +22,23 @@ BEGIN_IGRAPHICS_NAMESPACE
 
 inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
 {
-  float scale = pGraphics->GetDrawScale();
-  float x = floor(bounds.L * scale);
-  float y = floor(bounds.T * scale);
-  float x2 = ceil(bounds.R * scale);
-  float y2 = ceil(bounds.B * scale);
+  const float scale = pGraphics->GetDrawScale();
+  const float x = floor(bounds.L * scale);
+  const float y = floor(bounds.T * scale);
+  const float x2 = ceil(bounds.R * scale);
+  const float y2 = ceil(bounds.B * scale);
     
   return NSMakeRect(x, y, x2 - x, y2 - y);
 }
 
-inline IRECT ToIRECT(IGraphics* pGraphics, const NSRect* pR)
+inline IRECT ToIRECT(IGraphics* pGraphics, const NSRect* pNSRect)
 {
-  float scale = 1.f/pGraphics->GetDrawScale();
-  float x = pR->origin.x, y = pR->origin.y, w = pR->size.width, h = pR->size.height;
+  const float scale = 1.f/pGraphics->GetDrawScale();
+  const float x = pNSRect->origin.x;
+  const float y = pNSRect->origin.y;
+  const float w = pNSRect->size.width;
+  const float h = pNSRect->size.height;
+  
   return IRECT(x * scale, y * scale, (x + w) * scale, (y + h) * scale);
 }
 
@@ -59,12 +63,12 @@ END_IPLUG_NAMESPACE
 // based on code by Scott Gruby http://blog.gruby.com/2008/03/30/filtering-nstextfield-take-2/
 @interface IGRAPHICS_FORMATTER : NSFormatter
 {
-  NSCharacterSet *filterCharacterSet;
+  NSCharacterSet* filterCharacterSet;
   int maxLength;
   int maxValue;
 }
 
-- (void) setAcceptableCharacterSet:(NSCharacterSet *) inCharacterSet;
+- (void) setAcceptableCharacterSet: (NSCharacterSet*) pCharacterSet;
 - (void) setMaximumLength:(int) inLength;
 - (void) setMaximumValue:(int) inValue;
 
@@ -84,7 +88,7 @@ using namespace igraphics;
 {
   IPopupMenu* mIPopupMenu;
 }
-- (id) initWithIPopupMenuAndReciever:(IPopupMenu*)pMenu : (NSView*)pView;
+- (id) initWithIPopupMenuAndReciever: (IPopupMenu*) pMenu : (NSView*) pView;
 - (IPopupMenu*) iPopupMenu;
 @end
 
@@ -121,18 +125,18 @@ using namespace igraphics;
 - (BOOL) acceptsFirstResponder;
 - (BOOL) acceptsFirstMouse: (NSEvent*) pEvent;
 - (void) viewDidMoveToWindow;
-- (void) viewDidChangeBackingProperties:(NSNotification *) notification;
+- (void) viewDidChangeBackingProperties: (NSNotification*) pNotification;
 - (void) drawRect: (NSRect) bounds;
 - (void) render;
 - (void) onTimer: (NSTimer*) pTimer;
 - (void) killTimer;
 //mouse
-- (void) getMouseXY: (NSEvent*) pEvent x: (float&) pX y: (float&) pY;
+- (void) getMouseXY: (NSEvent*) pEvent : (float&) x : (float&) y;
 - (IMouseInfo) getMouseLeft: (NSEvent*) pEvent;
 - (IMouseInfo) getMouseRight: (NSEvent*) pEvent;
 - (void) updateTrackingAreas;
-- (void) mouseEntered:(NSEvent *)event;
-- (void) mouseExited:(NSEvent *)event;
+- (void) mouseEntered:(NSEvent*) pEvent;
+- (void) mouseExited:(NSEvent*) pEvent;
 - (void) mouseDown: (NSEvent*) pEvent;
 - (void) mouseUp: (NSEvent*) pEvent;
 - (void) mouseDragged: (NSEvent*) pEvent;
@@ -141,17 +145,18 @@ using namespace igraphics;
 - (void) rightMouseDragged: (NSEvent*) pEvent;
 - (void) mouseMoved: (NSEvent*) pEvent;
 - (void) scrollWheel: (NSEvent*) pEvent;
-- (void) keyDown: (NSEvent *)pEvent;
+- (void) keyDown: (NSEvent*) pEvent;
+- (void) keyUp: (NSEvent*) pEvent;
 //text entry
 - (void) removeFromSuperview;
-- (void) controlTextDidEndEditing: (NSNotification*) aNotification;
+- (void) controlTextDidEndEditing: (NSNotification*) pNotification;
 - (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (NSRect) areaRect;
 - (void) endUserInput;
 //pop-up menu
 - (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) bounds;
 //color picker
 - (BOOL) promptForColor: (IColor&) color : (IColorPickerHandlerFunc) func;
-- (void) onColorPicked: (NSColorPanel*) colorPanel;
+- (void) onColorPicked: (NSColorPanel*) pColorPanel;
 
 //tooltip
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData;
