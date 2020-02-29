@@ -1404,7 +1404,7 @@ IBSliderControl::IBSliderControl(float x, float y, float trackLength, const IBit
                                      dir == EDirection::Vertical ? handleBitmap.W() : trackLength,
                                      dir == EDirection::Vertical ? trackLength : handleBitmap.H()),
                      paramIdx, dir, gearing,
-                     dir == EDirection::Vertical ? handleBitmap.H() : handleBitmap.W())
+                     float(dir == EDirection::Vertical ? handleBitmap.H() : handleBitmap.W()))
 , IBitmapBase(handleBitmap)
 , mTrackBitmap(trackBitmap)
 {
@@ -1412,7 +1412,7 @@ IBSliderControl::IBSliderControl(float x, float y, float trackLength, const IBit
 }
 
 IBSliderControl::IBSliderControl(const IRECT& bounds, const IBitmap& handleBitmap, const IBitmap& trackBitmap, int paramIdx, EDirection dir, double gearing)
-: ISliderControlBase(bounds, paramIdx, dir, gearing, dir == EDirection::Vertical ? handleBitmap.H() : handleBitmap.W())
+: ISliderControlBase(bounds, paramIdx, dir, gearing, float(dir == EDirection::Vertical ? handleBitmap.H() : handleBitmap.W()))
 , IBitmapBase(handleBitmap)
 , mTrackBitmap(trackBitmap)
 {

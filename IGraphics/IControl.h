@@ -1174,8 +1174,8 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = EDirection::Vertical, float gearing = DEFAULT_GEARING, float handleSize = 0.f);
-  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, float gearing = DEFAULT_GEARING, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 0.f);
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
@@ -1190,7 +1190,7 @@ protected:
   EDirection mDirection;
   IRECT mTrackBounds;
   float mHandleSize;
-  float mGearing;
+  double mGearing;
   bool mMouseDown = false;
 };
 

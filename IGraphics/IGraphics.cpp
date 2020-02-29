@@ -11,6 +11,7 @@
 #include "IGraphics.h"
 
 #define NANOSVG_IMPLEMENTATION
+#pragma warning(disable:4244) // float conversion
 #include "nanosvg.h"
 
 #if defined VST3_API
