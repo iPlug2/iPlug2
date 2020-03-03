@@ -12,7 +12,7 @@ You can check the [conference paper](https://github.com/iPlug2/iPlug2/raw/master
 
 MAC: https://github.com/grame-cncm/faust/releases/download/2.14.4/Faust-2.14.4.dmg
 
-WIN (last known working version): https://github.com/grame-cncm/faust/releases/download/2.15.11/Faust-2.15.11-win64.exe
+WIN: https://github.com/grame-cncm/faust/releases/download/2.15.11/Faust-2.15.11-win64.exe
 
 * iPlug2 project preprocessor directives are set in the .xcconfig and .props files that reside in the /config folder of a project.
 
