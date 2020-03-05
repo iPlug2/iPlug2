@@ -675,11 +675,11 @@ void IVSliderControl::Draw(IGraphics& g)
 
 void IVSliderControl::DrawTrack(IGraphics& g, const IRECT& filledArea)
 {
-  g.FillRect(GetColor(kSH), mTrackBounds, &mBlend);
-  g.FillRect(GetColor(kX1), filledArea, &mBlend);
+  g.FillRoundRect(GetColor(kSH), mTrackBounds, mStyle.roundness, &mBlend);
+  g.FillRoundRect(GetColor(kX1), filledArea, mStyle.roundness, &mBlend);
   
   if(mStyle.drawFrame)
-    g.DrawRect(GetColor(kFR), mTrackBounds, &mBlend, mStyle.frameThickness);
+    g.DrawRoundRect(GetColor(kFR), mTrackBounds, mStyle.roundness, &mBlend, mStyle.frameThickness);
 }
 
 void IVSliderControl::DrawWidget(IGraphics& g)
