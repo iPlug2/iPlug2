@@ -1553,6 +1553,50 @@ struct IRECT
       return H();
   }
   
+  /**
+   * Vertically align the IRECT to the one given as reference
+   * @param IRECT the IRECT to use as reference
+   * @param EVAlign the aglignment requested, middle, top, bottom
+   */
+  IRECT GetVAligned(const IRECT& sr, EVAlign align) const
+  {
+    IRECT r;
+    switch (align) {
+      case EVAlign::Top:
+        r = IRECT(L, sr.T, R, sr.T+H());
+        break;
+      case EVAlign::Bottom:
+        r = IRECT(L, sr.B-H(), R, sr.B);
+        break;
+      case EVAlign::Middle:
+        r = IRECT(L,sr.T+(sr.H()*.5)-(H()*.5),R,sr.T+(sr.H()*.5)-(H()*.5)+H());
+        break;
+    }
+    return r;
+  }
+  
+  /**
+   * Horizontally align the IRECT to the one given as reference
+   * @param IRECT the IRECT to use as reference
+   * @param EVAlign the aglignment requested, center, near, far
+   */
+  IRECT GetHAligned(const IRECT& sr, EAlign align) const
+  {
+    IRECT r;
+    switch (align) {
+      case EAlign::Near:
+        r = IRECT(sr.L, T, sr.L+W(), B);
+        break;
+      case EAlign::Far:
+        r = IRECT(sr.R-W(), T, sr.R, B);
+        break;
+      case EAlign::Center:
+        r = IRECT(sr.L+(sr.W()*.5)-(W()*.5),T,sr.L+(sr.W()*.5)-(W()*.5)+W(), B);
+        break;
+    }
+    return r;
+  }
+  
   void DBGPrint() { DBGMSG("L: %f, T: %f, R: %f, B: %f,: W: %f, H: %f\n", L, T, R, B, W(), H()); }
 };
 
