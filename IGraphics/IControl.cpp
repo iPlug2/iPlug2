@@ -932,12 +932,12 @@ void ISliderControlBase::OnMouseDrag(float x, float y, float dX, float dY, const
   }
   else
   {
-  double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
-  
-  if (mDirection == EDirection::Vertical)
-    SetValue(GetValue() + (static_cast<double>(dY) / static_cast<double>(mTrackBounds.T - mTrackBounds.B) / gearing));
-  else
-    SetValue(GetValue() + (static_cast<double>(dX) / static_cast<double>(mTrackBounds.R - mTrackBounds.L) / gearing));
+    double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
+    
+    if (mDirection == EDirection::Vertical)
+      SetValue(GetValue() + (static_cast<double>(dY) / static_cast<double>(mTrackBounds.T - mTrackBounds.B) / gearing));
+    else
+      SetValue(GetValue() + (static_cast<double>(dX) / static_cast<double>(mTrackBounds.R - mTrackBounds.L) / gearing));
   }
   
   SetDirty(true);
