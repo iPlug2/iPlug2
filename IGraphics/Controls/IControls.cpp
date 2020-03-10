@@ -641,9 +641,10 @@ void IVKnobControl::OnInit()
   }
 }
 
-IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, double gearing, float handleSize, float trackSize)
+IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, double gearing, float handleSize, float trackSize, bool handleInsideTrack)
 : ISliderControlBase(bounds, paramIdx, dir, gearing, handleSize)
 , IVectorBase(style)
+, mHandleInsideTrack(handleInsideTrack)
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
@@ -653,9 +654,10 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* 
   AttachIControl(this, label);
 }
 
-IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, double gearing, float handleSize, float trackSize)
+IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, double gearing, float handleSize, float trackSize, bool handleInsideTrack)
 : ISliderControlBase(bounds, aF, dir, gearing, handleSize)
 , IVectorBase(style)
+, mHandleInsideTrack(handleInsideTrack)
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
@@ -675,11 +677,16 @@ void IVSliderControl::Draw(IGraphics& g)
 
 void IVSliderControl::DrawTrack(IGraphics& g, const IRECT& filledArea)
 {
-  g.FillRect(GetColor(kSH), mTrackBounds, &mBlend);
-  g.FillRect(GetColor(kX1), filledArea, &mBlend);
+  const float extra = mHandleInsideTrack ? mHandleSize : 0.f;
+  const IRECT adjustedTrackBounds = mDirection == EDirection::Vertical ? mTrackBounds.GetVPadded(extra) : mTrackBounds.GetHPadded(extra);
+  const IRECT adjustedFillBounds = mDirection == EDirection::Vertical ? filledArea.GetVPadded(extra) : filledArea.GetHPadded(extra);
+  const float cr = GetRoundedCornerRadius(mTrackBounds);
+  
+  g.FillRoundRect(GetColor(kSH), adjustedTrackBounds, cr, &mBlend);
+  g.FillRoundRect(GetColor(kX1), adjustedFillBounds, cr, &mBlend);
   
   if(mStyle.drawFrame)
-    g.DrawRect(GetColor(kFR), mTrackBounds, &mBlend, mStyle.frameThickness);
+    g.DrawRoundRect(GetColor(kFR), adjustedTrackBounds, cr, &mBlend, mStyle.frameThickness);
 }
 
 void IVSliderControl::DrawWidget(IGraphics& g)
