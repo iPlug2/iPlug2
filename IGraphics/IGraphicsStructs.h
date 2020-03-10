@@ -1543,6 +1543,45 @@ struct IRECT
     return r;
   }
   
+  /** Vertically align this rect to the reference IRECT
+   * @param sr the source IRECT to use as reference
+   * @param align the vertical alignment */
+  void VAlignTo(const IRECT& sr, EVAlign align)
+  {
+    const float height = H();
+    switch (align)
+    {
+      case EVAlign::Top: T = sr.T; B = sr.T + height; break;
+      case EVAlign::Bottom: T = sr.B - height; B = sr.B; break;
+      case EVAlign::Middle: T = sr.T + (sr.H() * 0.5f) - (height * 0.5f); B = sr.T + (sr.H() * 0.5f) - (height * 0.5f) + height; break;
+    }
+  }
+  
+  /** Horizontally align this rect to the reference IRECT
+  * @param sr the IRECT to use as reference
+  * @param align the horizontal alignment */
+  void HAlignTo(const IRECT& sr, EAlign align)
+  {
+    const float width = W();
+    switch (align)
+    {
+      case EAlign::Near: L = sr.L; R = sr.L + width; break;
+      case EAlign::Far: L = sr.R - width; R = sr.R; break;
+      case EAlign::Center: L = sr.L + (sr.W() * 0.5f) - (width * 0.5f); R = sr.L + (sr.W() * 0.5f) - (width * 0.5f) + width; break;
+    }
+  }
+
+  /** Get a rectangle the same dimensions as this one, vertically aligned to the reference IRECT
+  * @param sr the source IRECT to use as reference
+  * @param align the vertical alignment
+  * @return the new rectangle */
+  IRECT GetVAlignedTo(const IRECT& sr, EVAlign align) const
+  {
+    IRECT result = *this;
+    result.VAlignTo(sr, align);
+    return result;
+  }
+  
   /** /todo 
    * @return float /todo */
   float GetLengthOfShortestSide() const
@@ -1551,6 +1590,17 @@ struct IRECT
        return W();
     else
       return H();
+  }
+    
+  /** Get a rectangle the same dimensions as this one, horizontally aligned to the reference IRECT
+  * @param sr the IRECT to use as reference
+  * @param align the horizontal alignment
+  * @return the new rectangle */
+  IRECT GetHAlignedTo(const IRECT& sr, EAlign align) const
+  {
+    IRECT result = *this;
+    result.HAlignTo(sr, align);
+    return result;
   }
   
   void DBGPrint() { DBGMSG("L: %f, T: %f, R: %f, B: %f,: W: %f, H: %f\n", L, T, R, B, W(), H()); }
