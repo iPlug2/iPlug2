@@ -774,9 +774,9 @@ public:
   virtual bool GetTextFromClipboard(WDL_String& str) = 0;
 
   /** Set text in the clipboard
-   * @param str A WDL_String that will be used to set the current text in the clipboard
+   * @param str A CString that will be used to set the current text in the clipboard
    * @return /c true on success */
-  virtual bool SetTextInClipboard(const WDL_String& str) = 0;
+  virtual bool SetTextInClipboard(const char* str) = 0;
 
   /** Call this if you modify control tool tips at runtime. \todo explain */
   virtual void UpdateTooltips() = 0;
