@@ -25,7 +25,6 @@
 #include "IPlugMidi.h"
 #include "IPlugLogger.h"
 
-#include "IPlugQueue.h"
 #include "SynthVoice.h"
 #include "VoiceAllocator.h"
 
