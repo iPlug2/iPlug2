@@ -34,6 +34,13 @@ struct ISenderData
   
   ISenderData() {}
   
+  ISenderData(int ctrlTag, int nChans, int chanOffset)
+  : ctrlTag(ctrlTag)
+  , nChans(nChans)
+  , chanOffset(chanOffset)
+  {
+  }
+  
   ISenderData(int ctrlTag, const std::array<T, MAXNC>& vals, int nChans = MAXNC, int chanOffset = 0)
   : ctrlTag(ctrlTag)
   , nChans(nChans)
@@ -51,7 +58,7 @@ public:
   static constexpr int kUpdateMessage = 0;
 
   /** Pushes a data element onto the queue. This can be called on the realtime audio thread. */
-  void ProcessData(const ISenderData<MAXNC, T>& d)
+  void PushData(const ISenderData<MAXNC, T>& d)
   {
     mQueue.Push(d);
   }
@@ -68,7 +75,7 @@ public:
     }
   }
 
-protected:
+private:
   IPlugQueue<ISenderData<MAXNC, T>> mQueue {QUEUE_SIZE};
 };
 
@@ -80,11 +87,8 @@ public:
   /** Queue peaks from sample buffers into the sender, checking the data is over the required threshold. This can be called on the realtime audio thread. */
   void ProcessBlock(sample** inputs, int nFrames, int ctrlTag, int nChans = MAXNC, int chanOffset = 0)
   {
-    ISenderData<MAXNC, float> d;
-    d.ctrlTag = ctrlTag;
-    d.nChans = nChans;
-    d.chanOffset = chanOffset;
-    
+    ISenderData<MAXNC, float> d {ctrlTag, nChans, chanOffset};
+
     for (auto s = 0; s < nFrames; s++)
     {
       for (auto c = chanOffset; c < (chanOffset + nChans); c++)
@@ -102,7 +106,7 @@ public:
     }
 
     if(sum > SENDER_THRESHOLD)
-      ISender<MAXNC, QUEUE_SIZE, float>::mQueue.Push(d);
+      ISender<MAXNC, QUEUE_SIZE, float>::PushData(d);
   }
 };
 
@@ -130,7 +134,7 @@ public:
           mBuffer.ctrlTag = ctrlTag;
           mBuffer.nChans = nChans;
           mBuffer.chanOffset = chanOffset;
-          ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF>>::mQueue.Push(mBuffer);
+          ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF>>::PushData(mBuffer);
         }
         
         mBufCount = 0;

@@ -86,7 +86,7 @@ void IPlugInstrument::ProcessBlock(sample** inputs, sample** outputs, int nFrame
 {
   mDSP.ProcessBlock(nullptr, outputs, 2, nFrames, mTimeInfo.mPPQPos, mTimeInfo.mTransportIsRunning);
   mMeterSender.ProcessBlock(outputs, nFrames, kCtrlTagMeter);
-  mLFOVisSender.ProcessData({kCtrlTagLFOVis, {float(mDSP.mLFO.GetLastOutput())}});
+  mLFOVisSender.PushData({kCtrlTagLFOVis, {float(mDSP.mLFO.GetLastOutput())}});
 }
 
 void IPlugInstrument::OnIdle()
