@@ -39,7 +39,7 @@ public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void OnIdle() override;
 private:
-  IVScopeControl<2>::Sender mScopeSender { kCtrlTagScope };
-  IVMeterControl<2>::Sender mMeterSender { kCtrlTagMeter };
+  IBufferSender<2> mScopeSender;
+  IPeakSender<2> mMeterSender;
 #endif
 };

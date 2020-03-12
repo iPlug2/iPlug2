@@ -15,6 +15,7 @@
  */
 
 #include "IControl.h"
+#include "ISender.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -110,6 +111,21 @@ public:
     
     g.PathStroke(IPattern::CreateLinearGradient(mPlotBounds, mDirection, {{COLOR_TRANSPARENT, 0.f}, {GetColor(kX1), 1.f}}), mStrokeThickness, IStrokeOptions(), &mBlend);
   }
+  
+  void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
+  {
+    if (!IsDisabled() && msgTag == ISender<>::kUpdateMessage)
+    {
+      IByteStream stream(pData, dataSize);
+
+      int pos = 0;
+      ISenderData<1> d;
+      pos = stream.Get(&d, pos);
+      Update(d.vals[0]);
+      SetDirty(false);
+    }
+  }
+  
 private:
   std::vector<float> mBuffer;
   float mLoValue = 0.f;

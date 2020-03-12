@@ -98,7 +98,8 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     "OpenGL (NanoVG GL only)",
     "Gesture Recognizers (iOS only)",
     "MultiTouch (iOS/Windows only)",
-    "FlexBox"
+    "FlexBox",
+    "Mask"
     };
     
     auto chooseTestControl = [&, pGraphics, testRect](int idx) {
@@ -132,6 +133,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
         case 22: pNewControl = new TestGesturesControl(testRect); break;
         case 23: pNewControl = new TestMTControl(testRect); pNewControl->SetWantsMultiTouch(true); break;
         case 24: pNewControl = new TestFlexBoxControl(testRect); break;
+        case 25: pNewControl = new TestMaskControl(testRect, pGraphics->LoadBitmap(SMILEY_FN)); break;
 
       }
       

@@ -46,7 +46,7 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
 void IPlugFaustDSP::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   mFaustProcessor.ProcessBlock(inputs, outputs, nFrames);
-  mScopeSender.ProcessBlock(outputs, nFrames);
+  mScopeSender.ProcessBlock(outputs, nFrames, kCtrlTagScope);
 }
 
 void IPlugFaustDSP::OnReset()

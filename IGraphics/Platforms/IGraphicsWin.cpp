@@ -1823,18 +1823,18 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
   return numChars;
 }
 
-bool IGraphicsWin::SetTextInClipboard(const WDL_String& str)
+bool IGraphicsWin::SetTextInClipboard(const char* str)
 {
   if (!OpenClipboard(mMainWnd))
     return false;
 
   EmptyClipboard();
 
-  const int len = str.GetLength();
+  const int len = strlen(str);
   if (len > 0)
   {
     // figure out how much memory we need for the wide version of this string
-    int wchar_len = MultiByteToWideChar(CP_UTF8, 0, str.Get(), -1, NULL, 0);
+    int wchar_len = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
 
     // allocate global memory object for the text
     HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, wchar_len*sizeof(WCHAR));
@@ -1846,7 +1846,7 @@ bool IGraphicsWin::SetTextInClipboard(const WDL_String& str)
 
     // lock the handle and copy the string into the buffer
     LPWSTR lpstrCopy = (LPWSTR)GlobalLock(hglbCopy);
-    MultiByteToWideChar(CP_UTF8, 0, str.Get(), -1, lpstrCopy, wchar_len);
+    MultiByteToWideChar(CP_UTF8, 0, str, -1, lpstrCopy, wchar_len);
     GlobalUnlock(hglbCopy);
 
     // place the handle on the clipboard

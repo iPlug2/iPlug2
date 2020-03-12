@@ -329,7 +329,7 @@ void ITextEntryControl::CopySelection()
     const int end = std::max(mEditState.select_start, mEditState.select_end);
     WDL_String selection;
     selection.Set(mEditString.Get() + start, end - start);
-    GetUI()->SetTextInClipboard(selection);
+    GetUI()->SetTextInClipboard(selection.Get());
   }
 }
 

@@ -62,7 +62,7 @@ public:
   static int GetUserOSVersion();
 
   bool GetTextFromClipboard(WDL_String& str) override;
-  bool SetTextInClipboard(const WDL_String& str) override;
+  bool SetTextInClipboard(const char* str) override;
 
   void MeasureText(const IText& text, const char* str, IRECT& bounds) const override;
 

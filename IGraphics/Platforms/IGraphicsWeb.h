@@ -60,7 +60,7 @@ public:
   void* GetWindow() override { return nullptr; } // TODO:
   bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
   bool GetTextFromClipboard(WDL_String& str) override;
-  bool SetTextInClipboard(const WDL_String& str) override { return false; } // TODO
+  bool SetTextInClipboard(const char* str) override { return false; } // TODO
   void UpdateTooltips() override {} // TODO:
   EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
   
