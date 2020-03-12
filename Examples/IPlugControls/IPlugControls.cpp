@@ -439,8 +439,8 @@ void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     outputs[1][s] = sin(phase2 += phaseIncr2);
   }
   
-  mScopeSender.ProcessBlock(outputs, nFrames);
-  mMeterSender.ProcessBlock(outputs, nFrames);
+  mScopeSender.ProcessBlock(outputs, nFrames, kCtrlTagScope);
+  mMeterSender.ProcessBlock(outputs, nFrames, kCtrlTagMeter);
 
   for (int s = 0; s < nFrames; s++) {
     outputs[0][s] = 0.;
