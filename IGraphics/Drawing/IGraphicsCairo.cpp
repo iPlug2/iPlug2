@@ -162,7 +162,7 @@ void CairoSetSourcePattern(cairo_t* pContext, const IPattern& pattern, const IBl
   {
     case EPatternType::Solid:
     {
-      CairoSetSourceColor(pContext, pattern.GetStop(0).mColor);
+      CairoSetSourceColor(pContext, pattern.GetStop(0).mColor, pBlend);
     }
     break;
 
