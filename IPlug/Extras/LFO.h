@@ -114,10 +114,9 @@ public:
   {
     T oneOverQNScalar = 1./mQNScalar;
     T phase = IOscillator<T>::mPhase;
-    T tempoHz = tempo/60.;
     
     if(mRateMode == ERateMode::kBPM && !transportIsRunning)
-      IOscillator<T>::SetFreqCPS(tempoHz);
+      IOscillator<T>::SetFreqCPS(tempo/60.);
     
     T phaseIncr = IOscillator<T>::mPhaseIncr;
 
@@ -186,14 +185,14 @@ private:
   
   inline T DoProcess(T phase)
   {
-    auto triangle         = [](T phase){ return (2. * (1. - std::abs((WrapPhase(phase + 0.25) * 2.) -1.))) - 1.; };
-    auto triangleUnipolar = [](T phase){ return 1. - std::abs((phase * 2.) - 1. ); };
-    auto square           = [](T phase){ return std::copysign(1., phase - 0.5); };
-    auto squareUnipolar   = [](T phase){ return std::copysign(0.5, phase - 0.5) + 0.5; };
-    auto rampup           = [](T phase){ return (phase * 2.) - 1.; };
-    auto rampupUnipolar   = [](T phase){ return phase; };
-    auto rampdown         = [](T phase){ return ((1. - phase) * 2.) - 1.; };
-    auto rampdownUnipolar = [](T phase){ return 1. - phase; };
+    auto triangle         = [](T x){ return (2. * (1. - std::abs((WrapPhase(x + 0.25) * 2.) -1.))) - 1.; };
+    auto triangleUnipolar = [](T x){ return 1. - std::abs((x * 2.) - 1. ); };
+    auto square           = [](T x){ return std::copysign(1., x - 0.5); };
+    auto squareUnipolar   = [](T x){ return std::copysign(0.5, x - 0.5) + 0.5; };
+    auto rampup           = [](T x){ return (x * 2.) - 1.; };
+    auto rampupUnipolar   = [](T x){ return x; };
+    auto rampdown         = [](T x){ return ((1. - x) * 2.) - 1.; };
+    auto rampdownUnipolar = [](T x){ return 1. - x; };
     
     T output = 0.;
     
