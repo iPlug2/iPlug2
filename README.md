@@ -11,7 +11,7 @@ iPlug 2 targets the VST2, VST3, AUv2, AUv3, AAX (Native) and the [Web Audio Modu
 
 iPlug 2 includes support for [the FAUST programming language](http://faust.grame.fr), and the libfaust JIT compiler. It was the winner of the 2018 FAUST award.
 
-You can discuss iPlug 2 on the [WDL forum](http://forum.cockos.com/forumdisplay.php?f=32
+You can discuss iPlug 2 on the [iPlug2 forum](https://iplug2.discourse.group
 ) or on the [iPlug user's slack channel.](https://join.slack.com/t/iplug-users/shared_invite/enQtNDIyNjk0NDY2ODAwLWE4Zjc1MTk3NWQzMDRlY2YyOTllMWQyMDY2YjRjMjBmYTMwYzBiMTIwNDM0YWY0MmM5NTBmYWJmMjBkYzRkZDc)
 
 We welcome any help with bug fixes, features or documentation. 
