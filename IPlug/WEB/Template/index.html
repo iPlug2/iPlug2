@@ -142,8 +142,7 @@
         function clean() { events.forEach(e => b.removeEventListener(e, unlock)); }
       }
 
-      function connectToOutput(wam, actx) {
-        NAME_PLACEHOLDER_WAM.connect(actx.destination);
+      function connectionsDone() {
         document.getElementById("wam").style.left = ((window.innerWidth/2) - (parseInt(document.getElementById("canvas").style.width) / 2)) + "px";
         document.getElementById("wam").style.top = ((window.innerHeight/2) - (parseInt(document.getElementById("canvas").style.height) / 2)) + "px";
         document.getElementById('wam').hidden = false;
@@ -183,15 +182,18 @@
                     navigator.mediaDevices.getUserMedia(constraints)
                     .then((stream) => {
                       let audioSource = actx.createMediaStreamSource(stream);
-                      audioSource.connect(NAME_PLACEHOLDER_WAM);
-                      connectToOutput(NAME_PLACEHOLDER_WAM, actx);
+                      audioSource.connect(NAME_PLACEHOLDER_WAM); // connect audioSource to WAM inputs
+                      NAME_PLACEHOLDER_WAM.connect(actx.destination); // connect WAM output to speakers
+                      connectionsDone();
                     })
                     .catch((err) => {
                       console.log('Error initializing user media stream: ' + err);
                     });
                   }
-                  else
-                    connectToOutput(NAME_PLACEHOLDER_WAM, actx); // instrument
+                  else {
+                    NAME_PLACEHOLDER_WAM.connect(actx.destination); // connect WAM output to speakers
+                    connectionsDone();
+                  }
                 }
                 else {
                   console.log('NAME_PLACEHOLDER_WAM is undefined');
