@@ -200,10 +200,17 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
   mInPopupMenu = nullptr;
 }
 
-void IGraphics::AttachBackground(const char* name)
+void IGraphics::AttachBackground(const char* fileName)
 {
-  IBitmap bg = LoadBitmap(name, 1, false);
+  IBitmap bg = LoadBitmap(fileName, 1, false);
   IControl* pBG = new IBitmapControl(0, 0, bg, kNoParameter, EBlend::Default);
+  pBG->SetDelegate(*GetDelegate());
+  mControls.Insert(0, pBG);
+}
+
+void IGraphics::AttachSVGBackground(const char* fileName)
+{
+  IControl* pBG = new ISVGControl(GetBounds(), LoadSVG(fileName), true);
   pBG->SetDelegate(*GetDelegate());
   mControls.Insert(0, pBG);
 }

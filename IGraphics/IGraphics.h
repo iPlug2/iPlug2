@@ -1194,9 +1194,13 @@ public:
   void ForControlInGroup(const char* group, std::function<void(IControl& control)> func);
   
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
-   * @param fileName CString fileName resource id for the bitmap image \todo check this */
+   * @param fileName CString fileName resource id for the bitmap image */
   void AttachBackground(const char* fileName);
 
+  /** Attach an ISVGControl as the lowest IControl in the control stack to be the background for the graphics context
+   * @param fileName CString fileName resource id for the SVG image */
+  void AttachSVGBackground(const char* fileName);
+  
   /** Attach an IPanelControl as the lowest IControl in the control stack to fill the background with a solid color
    * @param color The color to fill the panel with */
   void AttachPanelBackground(const IPattern& color);
