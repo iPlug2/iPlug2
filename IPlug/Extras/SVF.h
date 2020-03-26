@@ -16,6 +16,8 @@
  * - http://www.cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
  */
 
+#include <complex>
+
 #include "IPlugPlatform.h"
 
 BEGIN_IPLUG_NAMESPACE
