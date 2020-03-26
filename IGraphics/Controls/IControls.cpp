@@ -641,9 +641,10 @@ void IVKnobControl::OnInit()
   }
 }
 
-IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, double gearing, float handleSize, float trackSize)
+IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, double gearing, float handleSize, float trackSize, bool handleInsideTrack)
 : ISliderControlBase(bounds, paramIdx, dir, gearing, handleSize)
 , IVectorBase(style)
+, mHandleInsideTrack(handleInsideTrack)
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
@@ -653,9 +654,10 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* 
   AttachIControl(this, label);
 }
 
-IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, double gearing, float handleSize, float trackSize)
+IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, double gearing, float handleSize, float trackSize, bool handleInsideTrack)
 : ISliderControlBase(bounds, aF, dir, gearing, handleSize)
 , IVectorBase(style)
+, mHandleInsideTrack(handleInsideTrack)
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
@@ -675,11 +677,16 @@ void IVSliderControl::Draw(IGraphics& g)
 
 void IVSliderControl::DrawTrack(IGraphics& g, const IRECT& filledArea)
 {
-  g.FillRect(GetColor(kSH), mTrackBounds, &mBlend);
-  g.FillRect(GetColor(kX1), filledArea, &mBlend);
+  const float extra = mHandleInsideTrack ? mHandleSize : 0.f;
+  const IRECT adjustedTrackBounds = mDirection == EDirection::Vertical ? mTrackBounds.GetVPadded(extra) : mTrackBounds.GetHPadded(extra);
+  const IRECT adjustedFillBounds = mDirection == EDirection::Vertical ? filledArea.GetVPadded(extra) : filledArea.GetHPadded(extra);
+  const float cr = GetRoundedCornerRadius(mTrackBounds);
+  
+  g.FillRoundRect(GetColor(kSH), adjustedTrackBounds, cr, &mBlend);
+  g.FillRoundRect(GetColor(kX1), adjustedFillBounds, cr, &mBlend);
   
   if(mStyle.drawFrame)
-    g.DrawRect(GetColor(kFR), mTrackBounds, &mBlend, mStyle.frameThickness);
+    g.DrawRoundRect(GetColor(kFR), adjustedTrackBounds, cr, &mBlend, mStyle.frameThickness);
 }
 
 void IVSliderControl::DrawWidget(IGraphics& g)
@@ -1404,7 +1411,7 @@ IBSliderControl::IBSliderControl(float x, float y, float trackLength, const IBit
                                      dir == EDirection::Vertical ? handleBitmap.W() : trackLength,
                                      dir == EDirection::Vertical ? trackLength : handleBitmap.H()),
                      paramIdx, dir, gearing,
-                     dir == EDirection::Vertical ? handleBitmap.H() : handleBitmap.W())
+                     float(dir == EDirection::Vertical ? handleBitmap.H() : handleBitmap.W()))
 , IBitmapBase(handleBitmap)
 , mTrackBitmap(trackBitmap)
 {
@@ -1412,7 +1419,7 @@ IBSliderControl::IBSliderControl(float x, float y, float trackLength, const IBit
 }
 
 IBSliderControl::IBSliderControl(const IRECT& bounds, const IBitmap& handleBitmap, const IBitmap& trackBitmap, int paramIdx, EDirection dir, double gearing)
-: ISliderControlBase(bounds, paramIdx, dir, gearing, dir == EDirection::Vertical ? handleBitmap.H() : handleBitmap.W())
+: ISliderControlBase(bounds, paramIdx, dir, gearing, float(dir == EDirection::Vertical ? handleBitmap.H() : handleBitmap.W()))
 , IBitmapBase(handleBitmap)
 , mTrackBitmap(trackBitmap)
 {
@@ -1475,15 +1482,14 @@ void IBKnobRotaterControl::Draw(IGraphics& g)
 }
 
 IBTextControl::IBTextControl(const IRECT& bounds, const IBitmap& bitmap, const IText& text, const char* str, int charWidth, int charHeight, int charOffset, bool multiLine, bool vCenter, EBlend blend)
-  : ITextControl(bounds, str, text)
-  , IBitmapBase(bitmap)
-  , mCharWidth(charWidth)
-  , mCharHeight(charHeight)
-  , mCharOffset(charOffset)
-  , mMultiLine(multiLine)
-  , mVCentre(vCenter)
+: ITextControl(bounds, str, text)
+, IBitmapBase(bitmap)
+, mCharWidth(charWidth)
+, mCharHeight(charHeight)
+, mCharOffset(charOffset)
+, mMultiLine(multiLine)
+, mVCentre(vCenter)
 {
-  mStr.Set(str);
   mBlend = blend;
 }
 

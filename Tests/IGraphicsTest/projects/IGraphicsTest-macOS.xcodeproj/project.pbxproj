@@ -515,6 +515,7 @@
 		4F23BA1413B647E50097A67E /* IGraphicsTest-macOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-macOS-Info.plist"; path = "../resources/IGraphicsTest-macOS-Info.plist"; sourceTree = "<group>"; };
 		4F23BA1513B647E50097A67E /* IGraphicsTest-VST2-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-VST2-Info.plist"; path = "../resources/IGraphicsTest-VST2-Info.plist"; sourceTree = "<group>"; };
 		4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAPP_dialog.cpp; path = ../../../IPlug/APP/IPlugAPP_dialog.cpp; sourceTree = "<group>"; tabWidth = 2; };
+		4F3439452417A99C00960500 /* TestMaskControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestMaskControl.h; sourceTree = "<group>"; };
 		4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPluginBase.cpp; path = ../../../IPlug/IPlugPluginBase.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		4F35DEAC207E5C5A00867D8F /* IPlugPluginBase.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugPluginBase.h; path = ../../../IPlug/IPlugPluginBase.h; sourceTree = "<group>"; tabWidth = 2; };
 		4F3862ED2014BBEC0009F402 /* IGraphicsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsTest.cpp; path = ../IGraphicsTest.cpp; sourceTree = "<group>"; };
@@ -1715,6 +1716,7 @@
 		4FE599C9232032390012B628 /* Test */ = {
 			isa = PBXGroup;
 			children = (
+				4F3439452417A99C00960500 /* TestMaskControl.h */,
 				4F1C2D3E23D72FF60088AE84 /* TestFlexBoxControl.h */,
 				4FE599CA232032390012B628 /* TestGLControl.h */,
 				4FE599CB232032390012B628 /* TestCursorControl.h */,

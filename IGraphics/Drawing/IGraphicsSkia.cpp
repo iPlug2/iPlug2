@@ -68,9 +68,9 @@ IGraphicsSkia::Bitmap::Bitmap(sk_sp<SkSurface> surface, int width, int height, i
 
 IGraphicsSkia::Bitmap::Bitmap(const char* path, double sourceScale)
 {
-  auto data = SkData::MakeFromFileName(path);
+  sk_sp<SkData> data = SkData::MakeFromFileName(path);
   
-  assert(!data->isEmpty());
+  assert(data && "Unable to load file at path");
   
   mDrawable.mImage = SkImage::MakeFromEncoded(data);
   
@@ -299,6 +299,9 @@ void IGraphicsSkia::OnViewDestroyed()
 {
 #if defined IGRAPHICS_METAL
   [(id<MTLCommandQueue>) mMTLCommandQueue release];
+  mMTLCommandQueue = nullptr;
+  mMTLLayer = nullptr;
+  mMTLDevice = nullptr;
 #endif
 }
 

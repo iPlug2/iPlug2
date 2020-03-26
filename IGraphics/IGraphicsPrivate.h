@@ -621,7 +621,7 @@ private:
       Clear();
   }
     
-  int mCount;
+  int mCount = 0;
   WDL_Mutex mMutex;
   WDL_PtrList<DataKey> mDatas;
 };

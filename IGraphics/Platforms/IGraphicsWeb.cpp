@@ -582,18 +582,22 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
 {
   if (hide)
   {
+#ifdef IGRAPHICS_WEB_POINTERLOCK
     if (lock)
       emscripten_request_pointerlock("#canvas", EM_FALSE);
     else
+#endif
       val::global("document")["body"]["style"].set("cursor", "none");
     
     mCursorLock = lock;
   }
   else
   {
+#ifdef IGRAPHICS_WEB_POINTERLOCK
     if (mCursorLock)
       emscripten_exit_pointerlock();
     else
+#endif
       OnSetCursor();
       
     mCursorLock = false;

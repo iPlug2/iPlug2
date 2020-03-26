@@ -108,7 +108,7 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   ContextReady([pView layer]);
 #endif
   
-  if (pParent) // Cocoa VST host.
+  if (pParent)
   {
     [(NSView*) pParent addSubview: (IGRAPHICS_VIEW*) mView];
   }
@@ -593,9 +593,9 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
   }
 }
 
-bool IGraphicsMac::SetTextInClipboard(const WDL_String& str)
+bool IGraphicsMac::SetTextInClipboard(const char* str)
 {
-  NSString* pTextForClipboard = [NSString stringWithUTF8String:str.Get()];
+  NSString* pTextForClipboard = [NSString stringWithUTF8String:str];
   [[NSPasteboard generalPasteboard] clearContents];
   return [[NSPasteboard generalPasteboard] setString:pTextForClipboard forType:NSStringPboardType];
 }

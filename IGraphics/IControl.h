@@ -319,15 +319,15 @@ public:
    * @param bounds The control's new draw and target bounds within the graphics context */
   void SetTargetAndDrawRECTs(const IRECT& bounds) { mRECT = mTargetRECT = bounds; mMouseIsOver = false; OnResize(); }
 
-  /** Set the position of the control, preserving the width and height of the draw rect and target area
+  /** Set the position of the control, preserving the width and height. This may need to be overriden if you maintain custom positioning data in your control
    * @param x the new x coordinate of the top left corner of the control
    * @param y the new y coordinate of the top left corner of the control */
-  void SetPosition(float x, float y);
+  virtual void SetPosition(float x, float y);
 
-  /** Set the size of the control, preserving the width and height of the draw rect and target area
+  /** Set the size of the control, preserving the current position. This may need to be overriden if you maintain custom positioning data in your control, or if your TargetRECT is not the same as the main RECT.
    * @param w the new width of the control
    * @param h the new height of the control */
-  void SetSize(float w, float h);
+  virtual void SetSize(float w, float h);
 
   /** Used internally by the AAX wrapper view interface to set the control parmeter highlight 
    * @param isHighlighted /c true if the control should be highlighted 
@@ -1174,8 +1174,8 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = EDirection::Vertical, float gearing = DEFAULT_GEARING, float handleSize = 0.f);
-  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, float gearing = DEFAULT_GEARING, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 0.f);
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
@@ -1190,7 +1190,7 @@ protected:
   EDirection mDirection;
   IRECT mTrackBounds;
   float mHandleSize;
-  float mGearing;
+  double mGearing;
   bool mMouseDown = false;
 };
 

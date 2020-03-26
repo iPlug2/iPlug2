@@ -297,8 +297,12 @@ void IControl::SetPosition(float x, float y)
 {
   if (x < 0.f) x = 0.f;
   if (y < 0.f) y = 0.f;
-
-  SetTargetAndDrawRECTs({x, y, x + mRECT.W(), y + mRECT.H()});
+ 
+  float tX = x + (mTargetRECT.L - mRECT.L);
+  float tY = y + (mTargetRECT.T - mRECT.T);
+    
+  SetRECT({x, y, x + mRECT.W(), y + mRECT.H()});
+  SetTargetRECT({tX, tY, tX + mTargetRECT.W(), tY + mTargetRECT.H()});
 }
 
 void IControl::SetSize(float w, float h)
@@ -885,7 +889,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
     menuToAddTo.RemoveEmptySubmenus();
 }
 
-ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, float gearing, float handleSize)
+ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, double gearing, float handleSize)
 : IControl(bounds, paramIdx)
 , mDirection(dir)
 , mHandleSize(handleSize)
@@ -893,7 +897,7 @@ ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirec
 {
 }
 
- ISliderControlBase::ISliderControlBase(const IRECT& bounds, IActionFunction aF, EDirection dir, float gearing, float handleSize)
+ ISliderControlBase::ISliderControlBase(const IRECT& bounds, IActionFunction aF, EDirection dir, double gearing, float handleSize)
 : IControl(bounds, aF)
 , mDirection(dir)
 , mHandleSize(handleSize)
@@ -928,12 +932,12 @@ void ISliderControlBase::OnMouseDrag(float x, float y, float dX, float dY, const
   }
   else
   {
-  double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
-  
-  if (mDirection == EDirection::Vertical)
-    SetValue(GetValue() + (static_cast<double>(dY) / static_cast<double>(mTrackBounds.T - mTrackBounds.B) / gearing));
-  else
-    SetValue(GetValue() + (static_cast<double>(dX) / static_cast<double>(mTrackBounds.R - mTrackBounds.L) / gearing));
+    double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
+    
+    if (mDirection == EDirection::Vertical)
+      SetValue(GetValue() + (static_cast<double>(dY) / static_cast<double>(mTrackBounds.T - mTrackBounds.B) / gearing));
+    else
+      SetValue(GetValue() + (static_cast<double>(dX) / static_cast<double>(mTrackBounds.R - mTrackBounds.L) / gearing));
   }
   
   SetDirty(true);

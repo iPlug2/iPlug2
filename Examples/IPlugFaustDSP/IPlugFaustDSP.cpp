@@ -11,9 +11,11 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
   mFaustProcessor.Init();
   mFaustProcessor.CompileCPP();
   mFaustProcessor.SetAutoRecompile(true);
+#ifndef FAUST_COMPILED
   mFaustProcessor.SetCompileFunc([&](){
     OnParamReset(EParamSource::kRecompile);
   });
+#endif
 #endif
   
 #if IPLUG_EDITOR
@@ -44,7 +46,7 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
 void IPlugFaustDSP::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   mFaustProcessor.ProcessBlock(inputs, outputs, nFrames);
-  mScopeSender.ProcessBlock(outputs, nFrames);
+  mScopeSender.ProcessBlock(outputs, nFrames, kCtrlTagScope);
 }
 
 void IPlugFaustDSP::OnReset()
