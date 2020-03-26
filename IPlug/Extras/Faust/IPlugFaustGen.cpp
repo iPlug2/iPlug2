@@ -118,7 +118,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   if(error.length())
     DBGMSG("%s\n", error.c_str());
   
-  assert(pFactory);
+  assert(pFactory != nullptr);
 
   if (pFactory)
   {

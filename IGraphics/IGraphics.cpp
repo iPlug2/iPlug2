@@ -848,7 +848,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
     if(mCornerResizer.get() != nullptr)
       cornerResizer = pControl == mCornerResizer.get();
 
-    if(!cornerResizer && mImGuiRenderer.get()->OnMouseDown(x, y, mod))
+    if(!cornerResizer && mImGuiRenderer.get()->OnMouseDown(points[0].x, points[0].y, points[0].ms))
     {
       ReleaseMouseCapture();
       return;
@@ -974,7 +974,7 @@ void IGraphics::OnMouseUp(const std::vector<IMouseInfo>& points)
 #ifdef IGRAPHICS_IMGUI
   if(mImGuiRenderer && points.size() == 1)
   {
-    if(mImGuiRenderer.get()->OnMouseUp(point[0].x, point[0].y, point[0].ms))
+    if(mImGuiRenderer.get()->OnMouseUp(points[0].x, points[0].y, points[0].ms))
     {
       ReleaseMouseCapture();
       return;
