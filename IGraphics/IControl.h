@@ -721,7 +721,7 @@ public:
     }
   }
   
-  void DrawHandle(IGraphics& g, EVShape shape, const IRECT& bounds, bool pressed, bool mouseOver, bool disabled)
+  virtual void DrawPressableShape(IGraphics& g, EVShape shape, const IRECT& bounds, bool pressed, bool mouseOver, bool disabled)
   {
     switch (shape)
     {

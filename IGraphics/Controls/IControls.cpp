@@ -71,7 +71,7 @@ void IVButtonControl::Draw(IGraphics& g)
 void IVButtonControl::DrawWidget(IGraphics& g)
 {
   bool pressed = (bool)GetValue();
-  DrawHandle(g, mShape, mWidgetBounds, pressed, mMouseIsOver, IsDisabled());
+  DrawPressableShape(g, mShape, mWidgetBounds, pressed, mMouseIsOver, IsDisabled());
 }
 
 void IVButtonControl::OnResize()
@@ -117,7 +117,7 @@ void IVSwitchControl::Draw(IGraphics& g)
 
 void IVSwitchControl::DrawWidget(IGraphics& g)
 {
-  DrawHandle(g, mShape, mWidgetBounds, mMouseDown, mMouseIsOver, IsDisabled());
+  DrawPressableShape(g, mShape, mWidgetBounds, mMouseDown, mMouseIsOver, IsDisabled());
 }
 
 void IVSwitchControl::SetDirty(bool push, int valIdx)
@@ -174,7 +174,7 @@ IVToggleControl::IVToggleControl(const IRECT& bounds, IActionFunction aF, const 
 
 void IVToggleControl::DrawWidget(IGraphics& g)
 {
-  DrawHandle(g, mShape, mWidgetBounds, GetValue() > 0.5, mMouseIsOver, IsDisabled());
+  DrawPressableShape(g, mShape, mWidgetBounds, GetValue() > 0.5, mMouseIsOver, IsDisabled());
 }
 
 void IVToggleControl::DrawValue(IGraphics& g, bool mouseOver)
@@ -273,7 +273,7 @@ void IVSlideSwitchControl::Draw(IGraphics& g)
 void IVSlideSwitchControl::DrawWidget(IGraphics& g)
 {
   DrawTrack(g, mWidgetBounds);
-  DrawHandle(g, mShape, mHandleBounds, mMouseDown, mMouseIsOver, IsDisabled());
+  DrawPressableShape(g, mShape, mHandleBounds, mMouseDown, mMouseIsOver, IsDisabled());
 }
 
 void IVSlideSwitchControl::DrawTrack(IGraphics& g, const IRECT& filledArea)
@@ -361,7 +361,7 @@ void IVTabSwitchControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed, 
         DrawPressableRectangle(g, r, pressed, mouseOver, IsDisabled(), false, true, false, true);
       break;
     default:
-      DrawHandle(g, mShape, r, pressed, mouseOver, IsDisabled());
+      DrawPressableShape(g, mShape, r, pressed, mouseOver, IsDisabled());
       break;
   }
 }
@@ -557,7 +557,7 @@ void IVKnobControl::DrawWidget(IGraphics& g)
   IRECT knobHandleBounds = mWidgetBounds.GetCentredInside((widgetRadius - mTrackToHandleDistance) * 2.f );
   const float angle = mAngle1 + (static_cast<float>(GetValue()) * (mAngle2 - mAngle1));
   DrawIndicatorTrack(g, angle, cx, cy, widgetRadius);
-  DrawHandle(g, /*mShape*/ EVShape::Ellipse, knobHandleBounds, mMouseDown, mMouseIsOver, IsDisabled());
+  DrawPressableShape(g, /*mShape*/ EVShape::Ellipse, knobHandleBounds, mMouseDown, mMouseIsOver, IsDisabled());
   DrawPointer(g, angle, cx, cy, knobHandleBounds.W() / 2.f);
 }
 
@@ -713,9 +713,13 @@ void IVSliderControl::DrawWidget(IGraphics& g)
   
   if(mHandleSize > 0.f)
   {
-    IRECT handleBounds = IRECT(cx-mHandleSize, cy-mHandleSize, cx+mHandleSize, cy+mHandleSize);
-    DrawHandle(g, mShape, handleBounds, mMouseDown, mMouseIsOver, IsDisabled());
+    DrawHandle(g, {cx-mHandleSize, cy-mHandleSize, cx+mHandleSize, cy+mHandleSize});
   }
+}
+
+void IVSliderControl::DrawHandle(IGraphics& g, const IRECT& bounds)
+{
+  DrawPressableShape(g, mShape, bounds, mMouseDown, mMouseIsOver, IsDisabled());
 }
 
 void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -924,6 +928,7 @@ IVXYPadControl::IVXYPadControl(const IRECT& bounds, const std::initializer_list<
 , IVectorBase(style)
 , mHandleRadius(handleRadius)
 {
+  mShape = EVShape::Ellipse;
   AttachIControl(this, label);
 }
 
@@ -940,13 +945,29 @@ void IVXYPadControl::Draw(IGraphics& g)
 
 void IVXYPadControl::DrawWidget(IGraphics& g)
 {
-  float xpos = static_cast<float>(GetValue(0)) * mWidgetBounds.W();
-  float ypos = static_cast<float>(GetValue(1)) * mWidgetBounds.H();
+  DrawTrack(g);
   
+  const IRECT trackBounds = mWidgetBounds.GetPadded(mTrackClipsHandle ? 0 : -mHandleRadius);
+
+  const float xpos = static_cast<float>(GetValue(0)) * trackBounds.W();
+  const float ypos = static_cast<float>(GetValue(1)) * trackBounds.H();
+  const IRECT handleBounds = IRECT(trackBounds.L + xpos-mHandleRadius, trackBounds.B - ypos-mHandleRadius, trackBounds.L + xpos+mHandleRadius,  trackBounds.B -ypos+mHandleRadius);
+  
+  DrawHandle(g, trackBounds, handleBounds);
+}
+
+void IVXYPadControl::DrawHandle(IGraphics& g, const IRECT& trackBounds, const IRECT& handleBounds)
+{
+  if(mTrackClipsHandle)
+    g.PathClipRegion(trackBounds.GetPadded(-0.5f * mStyle.frameThickness));
+  
+  DrawPressableShape(g, mShape, handleBounds, mMouseDown, mMouseIsOver, IsDisabled());
+}
+
+void IVXYPadControl::DrawTrack(IGraphics& g)
+{
   g.DrawVerticalLine(GetColor(kSH), mWidgetBounds, 0.5);
   g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5);
-  g.PathClipRegion(mWidgetBounds.GetPadded(-0.5f * mStyle.frameThickness));
-  DrawPressableEllipse(g, IRECT(mWidgetBounds.L + xpos-mHandleRadius, mWidgetBounds.B - ypos-mHandleRadius, mWidgetBounds.L + xpos+mHandleRadius,  mWidgetBounds.B -ypos+mHandleRadius), mMouseDown, mMouseIsOver, IsDisabled());
 }
 
 void IVXYPadControl::OnMouseDown(float x, float y, const IMouseMod& mod)

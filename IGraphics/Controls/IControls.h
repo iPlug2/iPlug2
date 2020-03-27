@@ -246,6 +246,8 @@ public:
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
   virtual void DrawTrack(IGraphics& g, const IRECT& filledArea);
+  virtual void DrawHandle(IGraphics& g, const IRECT& bounds);
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
@@ -291,6 +293,8 @@ public:
 
   void Draw(IGraphics& g) override;
   void DrawWidget(IGraphics& g) override;
+  virtual void DrawHandle(IGraphics& g, const IRECT& trackBounds, const IRECT& handleBounds);
+  virtual void DrawTrack(IGraphics& g);
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
@@ -298,6 +302,7 @@ public:
 protected:
   float mHandleRadius;
   bool mMouseDown = false;
+  bool mTrackClipsHandle = true;
 };
 
 /** a vector plot to display functions and waveforms **/
