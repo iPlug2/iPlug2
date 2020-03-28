@@ -290,7 +290,7 @@ void IVSlideSwitchControl::SetDirty(bool push, int valIdx)
     UpdateRects();
 }
 
-IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
+IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
 : ISwitchControlBase(bounds, paramIdx, SplashClickActionFunc)
 , IVectorBase(style)
 , mDirection(direction)
@@ -300,6 +300,11 @@ IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const 
   mText.mAlign = mStyle.valueText.mAlign = EAlign::Center;
   mText.mVAlign = mStyle.valueText.mVAlign = EVAlign::Middle;
   mShape = shape;
+
+  for (auto& option : options)
+  {
+    mTabLabels.Add(new WDL_String(option));
+  }
 }
 
 IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
@@ -325,7 +330,7 @@ void IVTabSwitchControl::OnInit()
   
   const IParam* pParam = GetParam();
   
-  if(pParam)
+  if(pParam && mTabLabels.GetSize() == 0) // don't add param display text based labels if allready added via ctor
   {
     for (int i = 0; i < mNumStates; i++)
     {
@@ -438,8 +443,8 @@ void IVTabSwitchControl::OnResize()
   SetDirty(false);
 }
 
-IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
-: IVTabSwitchControl(bounds, paramIdx, label, style, shape, direction)
+IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
+: IVTabSwitchControl(bounds, paramIdx, options, label, style, shape, direction)
 , mButtonSize(buttonSize)
 {
   mButtonAreaWidth = buttonSize * 3.f;

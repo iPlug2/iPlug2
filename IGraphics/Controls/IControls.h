@@ -126,8 +126,24 @@ class IVTabSwitchControl : public ISwitchControlBase
 public:
   enum class ETabSegment { Start, Mid, End };
 
-  IVTabSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
-  
+ /** Constructs a vector tab switch control, linked to a parameter
+ * @param bounds The control's bounds
+ * @param paramIdx The parameter index to link this control to
+ * @param options An initializer list of CStrings for the button labels to override the parameter display text labels. Supply an empty {} list if you don't want to do that.
+ * @param label The IVControl label CString
+ * @param style The styling of this vector control \see IVStyle
+ * @param shape The buttons shape \see IVShape
+ * @param direction The direction of the buttons */
+  IVTabSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const std::initializer_list<const char*>& options = {}, const char* label = "", const IVStyle & style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
+
+  /** Constructs a vector tab switch control, with an action function (no parameter)
+  * @param bounds The control's bounds
+  * @param actionFunc An action function to execute when a button is clicked \see IActionFunction
+  * @param options An initializer list of CStrings for the button labels. The size of the list decides the number of buttons.
+  * @param label The IVControl label CString
+  * @param style The styling of this vector control \see IVStyle
+  * @param shape The buttons shape \see IVShape
+  * @param direction The direction of the buttons */
   IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
   
   virtual ~IVTabSwitchControl() { mTabLabels.Empty(true); }
@@ -157,12 +173,12 @@ public:
   /** Constructs a vector radio button control, linked to a parameter
    * @param bounds The control's bounds
    * @param paramIdx The parameter index to link this control to
-   * @param label The label for the vector control, leave empty for no label
+   * @param options An initializer list of CStrings for the button labels to override the parameter display text labels. Supply an empty {} list if you don't want to do that.
    * @param style The styling of this vector control \see IVStyle
    * @param shape The buttons shape \see IVShape
    * @param direction The direction of the buttons
    * @param buttonSize The size of the buttons */
-  IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 10.f);
+  IVRadioButtonControl(const IRECT& bounds, int paramIdx = kNoParameter, const std::initializer_list<const char*>& options = {}, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 10.f);
 
   /** Constructs a vector radio button control, with an action function (no parameter)
    * @param bounds The control's bounds
