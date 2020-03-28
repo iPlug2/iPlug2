@@ -27,13 +27,14 @@ class IVDisplayControl : public IControl
 public:
   static constexpr int MAX_BUFFER_SIZE = 2048;
   
-  IVDisplayControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, float lo = 0., float hi = 1.f, float defaultVal = 0., uint32_t bufferSize = 100)
+  IVDisplayControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, float lo = 0., float hi = 1.f, float defaultVal = 0., uint32_t bufferSize = 100, float strokeThickness = 2.f)
   : IControl(bounds)
   , IVectorBase(style)
   , mLoValue(lo)
   , mHiValue(hi)
   , mBuffer(bufferSize, defaultVal)
   , mDirection(dir)
+  , mStrokeThickness(strokeThickness)
   {
     assert(bufferSize > 0 && bufferSize < MAX_BUFFER_SIZE);
 
