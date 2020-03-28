@@ -202,8 +202,7 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
 
 void IGraphics::AttachBackground(const char* fileName)
 {
-  IBitmap bg = LoadBitmap(fileName, 1, false);
-  IControl* pBG = new IBitmapControl(0, 0, bg, kNoParameter, EBlend::Default);
+  IControl* pBG = new IBitmapControl(0, 0, LoadBitmap(fileName, 1, false), kNoParameter, EBlend::Default);
   pBG->SetDelegate(*GetDelegate());
   mControls.Insert(0, pBG);
 }
