@@ -484,7 +484,7 @@ void ITextControl::Draw(IGraphics& g)
 {
   g.FillRect(mBGColor, mRECT, &mBlend);
   
-  if (mStr.GetLength())
+  if (mStr.GetLength() && g.GetControlInTextEntry() != this)
     g.DrawText(mText, mStr.Get(), mRECT, &mBlend);
 }
 
