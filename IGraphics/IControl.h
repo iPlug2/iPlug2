@@ -1672,6 +1672,8 @@ public:
   void OnResize() override;
 protected:
   bool mShowParamLabel;
+  IColor mTriangleColor = COLOR_BLACK;
+  IColor mTriangleMouseOverColor = COLOR_WHITE;
   IRECT mTri;
 };
 
