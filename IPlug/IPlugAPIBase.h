@@ -84,12 +84,12 @@ public:
    * @param height The selected height */
   virtual void OnHostSelectedViewConfiguration(int width, int height) {}
 
-  /** KeyDown handler for VST2, in order to get keystrokes from certain hosts 
+  /** KeyDown handler, in order to get keystrokes from certain hosts/plugin formats that send key press messages through the plug-in API
    * @param key Information about the key that was pressed
    * @return \c true if the key was handled by the plug-in */
   virtual bool OnKeyDown(const IKeyPress& key) { return false; }
 
-  /** KeyDown handler for VST2, in order to get keystrokes from certain hosts
+  /** KeyDown handler, in order to get keystrokes from certain hosts/plugin formats that send key press messages through the plug-in API
    * @param key Information about the key that was released
    * @return \c true if the key was handled by the plug-in */
   virtual bool OnKeyUp(const IKeyPress& key) { return false; }

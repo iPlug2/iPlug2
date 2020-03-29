@@ -10,6 +10,9 @@
 
 #pragma once
 #include "pluginterfaces/gui/iplugviewcontentscalesupport.h"
+#include "keycodes.h"
+
+#include "IPlugStructs.h"
 
 /** IPlug VST3 View  */
 template <class T>
@@ -116,6 +119,42 @@ public:
     return CPluginView::queryInterface(_iid, obj);
   }
 
+  static iplug::IKeyPress translateKeyMessage (Steinberg::char16 key, Steinberg::int16 keyMsg, Steinberg::int16 modifiers)
+  {
+    char character = 0;
+    
+    if (key == 0)
+    {
+      key = Steinberg::VirtualKeyCodeToChar((Steinberg::uint8) keyMsg);
+    }
+    
+    if (key)
+    {
+      Steinberg::String keyStr(STR (" "));
+      keyStr.setChar16(0, key);
+      keyStr.toMultiByte(Steinberg::kCP_Utf8);
+      if (keyStr.length() == 1)
+      {
+        character = keyStr.getChar8 (0);
+      }
+    }
+    
+    iplug::IKeyPress keyPress {&character, keyMsg, static_cast<bool>(modifiers & Steinberg::kShiftKey),
+                                                   static_cast<bool>(modifiers & Steinberg::kControlKey),
+                                                   static_cast<bool>(modifiers & Steinberg::kAlternateKey)};
+    return keyPress;
+  }
+  
+  Steinberg::tresult PLUGIN_API onKeyDown (Steinberg::char16 key, Steinberg::int16 keyMsg, Steinberg::int16 modifiers) override
+  {
+    return mOwner.OnKeyDown(translateKeyMessage(key, keyMsg, modifiers)) ? Steinberg::kResultTrue : Steinberg::kResultFalse;
+  }
+  
+  Steinberg::tresult PLUGIN_API onKeyUp (Steinberg::char16 key, Steinberg::int16 keyMsg, Steinberg::int16 modifiers) override
+  {
+    return mOwner.OnKeyUp(translateKeyMessage(key, keyMsg, modifiers)) ? Steinberg::kResultTrue : Steinberg::kResultFalse;
+  }
+  
   DELEGATE_REFCOUNT(Steinberg::CPluginView)
 
   void resize(int w, int h)
