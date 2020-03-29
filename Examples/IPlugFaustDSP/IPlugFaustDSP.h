@@ -23,7 +23,7 @@ const int kNumParams = 4;
 using namespace iplug;
 using namespace igraphics;
 
-class IPlugFaustDSP : public Plugin
+class IPlugFaustDSP final : public Plugin
 {
 public:
   IPlugFaustDSP(const InstanceInfo& info);
