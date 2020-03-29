@@ -186,14 +186,12 @@ public:
    * @param g The graphics context to which this control belongs. */
   virtual void DrawPTHighlight(IGraphics& g);
 
-  /** Call this method in response to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu,
-   * if the control is linked to a parameter (mParamIdx > kNoParameter)
+  /** Call this method in response to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu, if the control is linked to a parameter (mParamIdx > kNoParameter)
    * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
   void PromptUserInput(int valIdx = 0);
   
-  /** Create a text entry box so the user can enter a value, or pop up a pop-up menu,
-   * if the control is linked to a parameter (mParamIdx > kNoParameter), specifying the bounds
-   * @param bounds The rectangle for the text entry. Pop-up menu's will appear below the rectangle. /todo check
+  /** Create a text entry box so the user can enter a value, or pop up a pop-up menu, if the control is linked to a parameter (mParamIdx > kNoParameter) specifying the bounds
+   * @param bounds The rectangle for the text entry. Pop-up menu's will appear below the rectangle.
    * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
   void PromptUserInput(const IRECT& bounds, int valIdx = 0);
   
