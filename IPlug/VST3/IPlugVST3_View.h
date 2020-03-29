@@ -10,7 +10,7 @@
 
 #pragma once
 #include "pluginterfaces/gui/iplugviewcontentscalesupport.h"
-#include "keycodes.h"
+#include "pluginterfaces/base/keycodes.h"
 
 #include "IPlugStructs.h"
 
