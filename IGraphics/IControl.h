@@ -1599,6 +1599,27 @@ protected:
   bool mSetBoundsBasedOnStr = false;
 };
 
+/** A basic control to display some editable text */
+class IEditableTextControl : public ITextControl
+{
+public:
+  IEditableTextControl(const IRECT& bounds, const char* str, const IText& text)
+  : ITextControl(bounds, str, text)
+  {
+    mIgnoreMouse = false;
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    GetUI()->CreateTextEntry(*this, mText, mRECT, GetStr());
+  }
+  
+  void OnTextEntryCompletion(const char* str, int valIdx) override
+  {
+    SetStr(str);
+  }
+};
+
 class IURLControl : public ITextControl
 {
 public:
