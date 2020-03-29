@@ -370,6 +370,9 @@ public:
   
   /** @return \c true if the control ignores mouse events */
   bool GetIgnoreMouse() const { return mIgnoreMouse; }
+  
+  /** @return \c true if the control should show parameter labels in text entry prompts */
+  bool GetPromptShowsParamLabel() const { return mPromptShowsParamLabel; }
 
   /** Hit test the control. Override this method if you want the control to be hit only if a visible part of it is hit, or whatever.
    * @param x The X coordinate within the control to test 
@@ -534,6 +537,7 @@ protected:
   bool mIgnoreMouse = false;
   bool mWantsMidi = false;
   bool mWantsMultiTouch = false;
+  bool mPromptShowsParamLabel = true;
   /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
   WDL_String mTooltip;
