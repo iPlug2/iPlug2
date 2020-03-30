@@ -95,26 +95,6 @@ void IPlugInstrument::OnIdle()
   mLFOVisSender.TransmitData(*this);
 }
 
-bool IPlugInstrument::OnKeyDown(const IKeyPress& key)
-{
-#ifndef NO_IGRAPHICS
-  if (GetUI())
-    return GetUI()->OnKeyDown(0, 0, key);
-  else
-#endif
-    return false;
-}
-
-bool IPlugInstrument::OnKeyUp(const IKeyPress& key)
-{
-#ifndef NO_IGRAPHICS
-  if (GetUI())
-    return GetUI()->OnKeyUp(0, 0, key);
-  else
-#endif
-    return false;
-}
-
 void IPlugInstrument::OnReset()
 {
   mDSP.Reset(GetSampleRate(), GetBlockSize());

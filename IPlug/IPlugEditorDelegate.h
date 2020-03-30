@@ -147,6 +147,16 @@ public:
    * If you override this method you should call this parent, or implement the same functionality in order to get controls to update, when state is restored. */
   virtual void OnRestoreState() { SendCurrentParamValuesFromDelegate(); };
   
+  /** KeyDown handler, in order to get keystrokes from certain hosts/plugin formats that send key press messages through the plug-in API, rather than the view
+   * @param key Information about the key that was pressed
+   * @return \c true if the key was handled by the plug-in */
+  virtual bool OnKeyDown(const IKeyPress& key) { return false; }
+
+  /** KeyDown handler, in order to get keystrokes from certain hosts/plugin formats that send key press messages through the plug-in API rather than the view
+   * @param key Information about the key that was released
+   * @return \c true if the key was handled by the plug-in */
+  virtual bool OnKeyUp(const IKeyPress& key) { return false; }
+  
 #pragma mark - Methods for sending values TO the user interface
   /** Loops through all parameters, calling SendParameterValueFromDelegate() with the current value of the parameter
    *  This is important when modifying groups of parameters, restoring state and opening the UI, in order to update it with the latest values*/

@@ -198,3 +198,31 @@ int IGEditorDelegate::UnserializeEditorState(const IByteChunk& chunk, int startP
 {
   return UnserializeEditorSize(chunk, startPos);
 }
+
+bool IGEditorDelegate::OnKeyDown(const IKeyPress& key)
+{
+  IGraphics* pGraphics = GetUI();
+  
+  if (pGraphics)
+  {
+    float x, y;
+    pGraphics->GetMouseLocation(x, y);
+    return pGraphics->OnKeyDown(x, y, key);
+  }
+  else
+    return false;
+}
+
+bool IGEditorDelegate::OnKeyUp(const IKeyPress& key)
+{
+  IGraphics* pGraphics = GetUI();
+
+  if (pGraphics)
+  {
+    float x, y;
+    pGraphics->GetMouseLocation(x, y);
+    return pGraphics->OnKeyUp(x, y, key);
+  }
+  else
+    return false;
+}
