@@ -730,6 +730,11 @@ private:
 
 public:
 #pragma mark - Platform implementation
+  /** Get the x, y position in the graphics context of the mouse cursor
+   * @param x Where the X position will be stored
+   * @param y Where the Y position will be stored */
+  virtual void GetMouseLocation(float& x, float&y) const = 0;
+  
   /** Call to hide the mouse cursor 
    * @param hide /todo
    * @param lock /todo */

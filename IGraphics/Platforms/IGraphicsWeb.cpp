@@ -630,6 +630,12 @@ ECursor IGraphicsWeb::SetMouseCursor(ECursor cursorType)
   return IGraphics::SetMouseCursor(cursorType);
 }
 
+void IGraphicsWeb::GetMouseLocation(float& x, float&y) const
+{
+  x = mPrevX;
+  y = mPrevY;
+}
+
 //static
 void IGraphicsWeb::OnMainLoopTimer()
 {
