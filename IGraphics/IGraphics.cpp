@@ -488,7 +488,7 @@ void IGraphics::UpdatePeers(IControl* pCaller, int callerValIdx) // TODO: this c
 void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds, int valIdx)
 {
   assert(valIdx > kNoValIdx);
-    
+  
   const IParam* pParam = control.GetParam(valIdx);
 
   if(pParam)
@@ -521,6 +521,13 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds, int valI
     else // type == IParam::kTypeInt || type == IParam::kTypeDouble
     {
       pParam->GetDisplayForHost(currentText, false);
+      
+      if(control.GetPromptShowsParamLabel())
+      {
+        currentText.Append(" ");
+        currentText.Append(pParam->GetLabelForHost());
+      }
+      
       CreateTextEntry(control, control.GetText(), bounds, currentText.Get(), valIdx);
     }
   }
@@ -1735,6 +1742,8 @@ void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IREC
     mTextEntryControl->CreateTextEntry(paramIdx, text, bounds, control.GetTextEntryLength(), str);
   else
     CreatePlatformTextEntry(paramIdx, text, bounds, control.GetTextEntryLength(), str);
+  
+  mInTextEntry->SetDirty(false);
 }
 
 void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext)
