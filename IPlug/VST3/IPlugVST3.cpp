@@ -67,9 +67,8 @@ tresult PLUGIN_API IPlugVST3::terminate()
 tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* pInputBusArrangements, int32 numInBuses, SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses)
 {
   TRACE
-
-  SetBusArrangements(pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses);
-  return kResultTrue;
+ 
+  return IPlugVST3ProcessorBase::SetBusArrangements(this, pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses) ? kResultTrue : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::setActive(TBool state)

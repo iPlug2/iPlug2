@@ -200,51 +200,6 @@ void IPlugVST3ProcessorBase::ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, S
   }
 }
 
-void IPlugVST3ProcessorBase::SetBusArrangements(SpeakerArrangement* pInputBusArrangements, int32 numInBuses, SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses)
-{
-  // disconnect all io pins, they will be reconnected in process
-  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
-  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), false);
-  
-  //TODO: setBusArrangements !!!
-  //const int maxNInputChans = MaxNBuses(ERoute::kInput);
-  //const int NInputChannelCountOnBuses[maxNInputChans];
-  //memset(NInputChannelCountOnBuses, 0, MaxNBuses(ERoute::kInput) * sizeof(int));
-  
-  //const int maxNOutputChans = MaxNBuses(ERoute::kOutput);
-  //const int NOutputChannelCountOnBuses[maxNOutputChans];
-  //memset(NOutputChannelCountOnBuses, 0, MaxNBuses(ERoute::kOutput) * sizeof(int));
-  //
-  //  for(auto busIdx = 0; busIdx < numIns; busIdx++)
-  //  {
-  //    AudioBus* pBus = FCast<AudioBus>(audioInputs.at(busIdx));
-  //    const int NInputsRequired = SpeakerArr::getChannelCount(inputs[busIdx]);
-  //    // if existing input bus has a different number of channels to the input bus being connected
-  //    if (pBus && SpeakerArr::getChannelCount(pBus->getArrangement()) != NInputsRequired)
-  //    {
-  //      int flags = 0;
-  //      busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
-  //      audioInputs.erase(std::remove(audioInputs.begin(), audioInputs.end(), pBus));
-  //      addAudioInput(USTRING("Input"), (SpeakerArrangement) GetAPIBusTypeForChannelIOConfig(-1, -1, NInputsRequired), (BusTypes) busIdx > 0, flags);
-  //
-  //    }
-  //  }
-  //
-  //  for(auto busIdx = 0; busIdx < numOuts; busIdx++)
-  //  {
-  //    AudioBus* pBus = FCast<AudioBus>(audioOutputs.at(busIdx));
-  //    const int NOutputsRequired = SpeakerArr::getChannelCount(outputs[busIdx]);
-  //    // if existing input bus has a different number of channels to the input bus being connected
-  //    if (pBus && SpeakerArr::getChannelCount(pBus->getArrangement()) != NOutputsRequired)
-  //    {
-  //      int flags = 0;
-  //      busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
-  //      audioOutputs.erase(std::remove(audioOutputs.begin(), audioOutputs.end(), pBus));
-  //      addAudioOutput(USTRING("Output"), (SpeakerArrangement) GetAPIBusTypeForChannelIOConfig(-1, -1, NOutputsRequired), (BusTypes) busIdx > 0, flags);
-  //    }
-  //  }
-}
-
 void IPlugVST3ProcessorBase::AttachBuffers(ERoute direction, int idx, int n, AudioBusBuffers& pBus, int nFrames, int32 sampleSize)
 {
   if (sampleSize == kSample32)
