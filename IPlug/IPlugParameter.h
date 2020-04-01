@@ -335,13 +335,13 @@ public:
   /** /todo 
    * @param display /todo
    * @param withDisplayText /todo */
-  void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue.load(), false, display, withDisplayText); }
+  void GetDisplay(WDL_String& display, bool withDisplayText = true) const { GetDisplay(mValue.load(), false, display, withDisplayText); }
 
-  void GetDisplayForHostWithLabel(WDL_String& display, bool withDisplayText = true) const
+  void GetDisplayWithLabel(WDL_String& display, bool withDisplayText = true) const
   {
-    GetDisplayForHost(mValue.load(), false, display, withDisplayText);
+    GetDisplay(mValue.load(), false, display, withDisplayText);
     display.Append(" ");
-    display.Append(GetLabelForHost());
+    display.Append(GetLabel());
   }
   
   /** /todo 
@@ -349,19 +349,19 @@ public:
    * @param normalized /todo
    * @param display /todo
    * @param withDisplayText /todo */
-  void GetDisplayForHost(double value, bool normalized, WDL_String& display, bool withDisplayText = true) const;
+  void GetDisplay(double value, bool normalized, WDL_String& display, bool withDisplayText = true) const;
 
   /** /todo 
    * @return const char* /todo */
-  const char* GetNameForHost() const;
+  const char* GetName() const;
 
   /** /todo 
    * @return const char* /todo */
-  const char* GetLabelForHost() const;
+  const char* GetLabel() const;
 
   /** /todo 
    * @return const char* /todo */
-  const char* GetGroupForHost() const;
+  const char* GetGroup() const;
 
   /** /todo 
    * @return const char* /todo */

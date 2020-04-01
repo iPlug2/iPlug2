@@ -40,7 +40,7 @@ struct FourValues : public IControl
     {
       WDL_String str;
       IRECT r = GetRect(num);
-      GetParam(num)->GetDisplayForHost(str);
+      GetParam(num)->GetDisplay(str);
       g.DrawText(mText, str.Get(), r);
     };
     
