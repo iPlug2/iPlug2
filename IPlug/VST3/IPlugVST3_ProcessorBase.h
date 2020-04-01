@@ -40,6 +40,8 @@ public:
   template <class T>
   void Initialize(T* pPlug)
   {
+    using namespace Steinberg::Vst;
+
     Steinberg::Vst::String128 tmpStringBuf;
     
 //  for(auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
@@ -53,18 +55,18 @@ public:
     {
       uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kInput, busIdx, pConfig);
       
-      int flags = 0; //busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
+      int flags = 0; //busIdx == 0 ? flags = BusInfo::BusFlags::kDefaultActive : flags = 0;
       Steinberg::UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kInput, busIdx)->GetLabel(), 128);
-      pPlug->addAudioInput(tmpStringBuf, busType, (Steinberg::Vst::BusTypes) busIdx > 0, flags);
+      pPlug->addAudioInput(tmpStringBuf, busType, (BusTypes) busIdx > 0, flags);
     }
     
     for (auto busIdx = 0; busIdx < pConfig->NBuses(ERoute::kOutput); busIdx++)
     {
       uint64_t busType = GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kOutput, busIdx, pConfig);
       
-      int flags = 0; //busIdx == 0 ? flags = Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : flags = 0;
+      int flags = 0; //busIdx == 0 ? flags = BusInfo::BusFlags::kDefaultActive : flags = 0;
       Steinberg::UString(tmpStringBuf, 128).fromAscii(pConfig->GetBusInfo(ERoute::kOutput, busIdx)->GetLabel(), 128);
-      pPlug->addAudioOutput(tmpStringBuf, busType, (Steinberg::Vst::BusTypes) busIdx > 0, flags);
+      pPlug->addAudioOutput(tmpStringBuf, busType, (BusTypes) busIdx > 0, flags);
     }
 //  }
 
@@ -90,40 +92,45 @@ public:
   template <class T>
   bool SetBusArrangements(T* pPlug, Steinberg::Vst::SpeakerArrangement* pInputBusArrangements, Steinberg::int32 numInBuses, Steinberg::Vst::SpeakerArrangement* pOutputBusArrangements, Steinberg::int32 numOutBuses)
   {
+    using namespace Steinberg::Vst;
+
     // disconnect all io pins, they will be reconnected in process
     SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
     SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), false);
-    
+        
     int maxNInBuses = MaxNBuses(ERoute::kInput);
     int maxNOutBuses = MaxNBuses(ERoute::kOutput);
     
+    if(numInBuses > maxNInBuses || numOutBuses > maxNOutBuses)
+      return false;
+    
     for(auto inBusIdx = 0; inBusIdx < maxNInBuses; inBusIdx++)
     {
-      Steinberg::Vst::AudioBus* pBus = pPlug->getAudioInput(inBusIdx);
-      int NInputsRequired = Steinberg::Vst::SpeakerArr::getChannelCount(pInputBusArrangements[inBusIdx]);
+      AudioBus* pBus = pPlug->getAudioInput(inBusIdx);
+      int NInputsRequired = SpeakerArr::getChannelCount(pInputBusArrangements[inBusIdx]);
 
       // if existing input bus has a different number of channels to the input bus being connected
-      if (pBus && Steinberg::Vst::SpeakerArr::getChannelCount(pBus->getArrangement()) != NInputsRequired)
+      if (pBus && SpeakerArr::getChannelCount(pBus->getArrangement()) != NInputsRequired)
       {
         pPlug->removeAudioInputBus(pBus);
-        int flags = inBusIdx == 0 ? Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : 0;
-        Steinberg::Vst::SpeakerArrangement arr = GetAPIBusTypeForChannelIOConfig(0 /*TODO: fix*/, ERoute::kInput, inBusIdx, GetIOConfig(0 /*TODO: fix*/));
-        pPlug->addAudioInput(USTRING("Input"), arr, (Steinberg::Vst::BusTypes) inBusIdx > 0, flags);
+        int flags = inBusIdx == 0 ? BusInfo::BusFlags::kDefaultActive : 0;
+        SpeakerArrangement arr = GetAPIBusTypeForChannelIOConfig(0 /*TODO: fix*/, ERoute::kInput, inBusIdx, GetIOConfig(0 /*TODO: fix*/));
+        pPlug->addAudioInput(USTRING("Input"), arr, (BusTypes) inBusIdx > 0, flags);
       }
     }
     
     for(auto outBusIdx = 0; outBusIdx < maxNOutBuses; outBusIdx++)
     {
-      Steinberg::Vst::AudioBus* pBus = pPlug->getAudioOutput(outBusIdx);
-      int NOutputsRequired = Steinberg::Vst::SpeakerArr::getChannelCount(pOutputBusArrangements[outBusIdx]);
+      AudioBus* pBus = pPlug->getAudioOutput(outBusIdx);
+      int NOutputsRequired = SpeakerArr::getChannelCount(pOutputBusArrangements[outBusIdx]);
 
       // if existing output bus has a different number of channels to the input bus being connected
-      if (pBus && Steinberg::Vst::SpeakerArr::getChannelCount(pBus->getArrangement()) != NOutputsRequired)
+      if (pBus && SpeakerArr::getChannelCount(pBus->getArrangement()) != NOutputsRequired)
       {
-        int flags = outBusIdx == 0 ? Steinberg::Vst::BusInfo::BusFlags::kDefaultActive : 0;
         pPlug->removeAudioOutputBus(pBus);
-        Steinberg::Vst::SpeakerArrangement arr = GetAPIBusTypeForChannelIOConfig(0 /*TODO: fix*/, ERoute::kOutput, outBusIdx, GetIOConfig(0 /*TODO: fix*/));
-        pPlug->addAudioOutput(USTRING("Output"), arr, (Steinberg::Vst::BusTypes) outBusIdx > 0, flags);
+        int flags = outBusIdx == 0 ? BusInfo::BusFlags::kDefaultActive : 0;
+        SpeakerArrangement arr = GetAPIBusTypeForChannelIOConfig(0 /*TODO: fix*/, ERoute::kOutput, outBusIdx, GetIOConfig(0 /*TODO: fix*/));
+        pPlug->addAudioOutput(USTRING("Output"), arr, (BusTypes) outBusIdx > 0, flags);
       }
     }
     
