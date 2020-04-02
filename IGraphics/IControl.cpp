@@ -520,7 +520,34 @@ void IURLControl::Draw(IGraphics& g)
     IRECT textDims;
     g.MeasureText(mText, mStr.Get(), textDims);
     
-    g.DrawLine(mText.mFGColor, mRECT.MW() + textDims.L, mRECT.MH() + textDims.B, mRECT.MW() + textDims.R, mRECT.MH() + textDims.B, &mBlend);
+    float linePosY = 0.f;
+    float linePosL = 0.f;
+    float linePosR = 0.f;
+
+    if(mText.mVAlign == EVAlign::Middle)
+      linePosY = mRECT.MH() + textDims.B;
+    else if(mText.mVAlign == EVAlign::Bottom)
+      linePosY = mRECT.B;
+    else if(mText.mVAlign == EVAlign::Top)
+      linePosY = mRECT.T - textDims.H();
+    
+    if(mText.mAlign == EAlign::Center)
+    {
+      linePosL = mRECT.MW() + textDims.L;
+      linePosR = mRECT.MW() + textDims.R;
+    }
+    else if(mText.mAlign == EAlign::Near)
+    {
+      linePosL = mRECT.L;
+      linePosR = mRECT.L + textDims.W();
+    }
+    else if(mText.mAlign == EAlign::Far)
+    {
+      linePosL = mRECT.R - textDims.W();
+      linePosR = mRECT.R;
+    }
+
+    g.DrawLine(mText.mFGColor, linePosL, linePosY, linePosR, linePosY, &mBlend);
     g.DrawText(mText, mStr.Get(), mRECT, &mBlend);
   }
 }
