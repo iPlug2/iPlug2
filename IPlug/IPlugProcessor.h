@@ -182,7 +182,7 @@ public:
   bool HasSidechainInput() const { return MaxNBuses(ERoute::kInput) > 1; }
 
   /** @return The number of channels and the side-chain input \todo this will change */
-  int NSidechainChannels() const { return 1; } // TODO: this needs to be more flexible, based on channel I/O
+  int NSidechainChannels() const { return 2; } // TODO: this needs to be more flexible, based on channel I/O
 
   /** This is called by IPlugVST in order to limit a plug-in to stereo I/O for certain picky hosts \todo may no longer be relevant*/
   void LimitToStereoIO();//TODO: this should be updated
