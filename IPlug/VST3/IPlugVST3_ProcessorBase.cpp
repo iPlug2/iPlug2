@@ -349,6 +349,8 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
 {
   int32 sampleSize = setup.symbolicSampleSize;
   
+  const int MOVE_ME_NSIDECHAINCHANNELS = 2;
+  
   if (sampleSize == kSample32 || sampleSize == kSample64)
   {
     if (data.numInputs)
@@ -369,11 +371,11 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
           }
           
           SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
-          SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - NSidechainChannels(), false);
+          SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - MOVE_ME_NSIDECHAINCHANNELS, false);
         }
         
-        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[0], data.numSamples, sampleSize);
-        AttachBuffers(ERoute::kInput, NSidechainChannels(), MaxNChannels(ERoute::kInput) - NSidechainChannels(), data.inputs[1], data.numSamples, sampleSize);
+        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput) - MOVE_ME_NSIDECHAINCHANNELS, data.inputs[0], data.numSamples, sampleSize);
+        AttachBuffers(ERoute::kInput, MOVE_ME_NSIDECHAINCHANNELS, MaxNChannels(ERoute::kInput) - MOVE_ME_NSIDECHAINCHANNELS, data.inputs[1], data.numSamples, sampleSize);
       }
       else
       {
