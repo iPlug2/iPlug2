@@ -6,6 +6,8 @@ labels: ''
 assignees: ''
 
 ---
+**CHECK**
+Is this an issue or just a question? If it's just a question, then post on the [forum](https://iplug2.discourse.group), or ask on slack, don't pollute our issue tracker.
 
 **Describe the bug**
 A clear and concise description of what the bug is.

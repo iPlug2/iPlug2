@@ -48,6 +48,8 @@ public:
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
   ECursor SetMouseCursor(ECursor cursorType) override;
+  
+  void GetMouseLocation(float& x, float&y) const override;
 
   EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
 
@@ -78,7 +80,7 @@ public:
   const char* GetPlatformAPIStr() override { return "win32"; };
 
   bool GetTextFromClipboard(WDL_String& str) override;
-  bool SetTextInClipboard(const WDL_String& str) override;
+  bool SetTextInClipboard(const char* str) override;
 
   bool PlatformSupportsMultiTouch() const override;
 

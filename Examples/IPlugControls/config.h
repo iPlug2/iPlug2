@@ -60,10 +60,12 @@
 #define PNGKNOBROTATE_2X_FN "knob-rotate@2x.png"
 #define PNGSWITCH_FN "switch.png"
 #define PNGBUTTON_FN "button.png"
-#define SVGSLIDERHANDLE_FN "slider-handle.svg"
-#define SVGSLIDERTRACK_FN "slider-track.svg"
-#define SVGKNOBROTATE_FN "vector-knob.svg"
 #define PNGSLIDERHANDLE_FN "slider-handle.png"
 #define PNGSLIDERTRACK_FN "slider-track.png"
 #define PNGTEXT_FN "font.png"
 #define PNGTEXT_2X_FN "font@2x.png"
+
+#define SVGSLIDERHANDLE_FN "slider-handle.svg"
+#define SVGSLIDERTRACK_FN "slider-track.svg"
+#define SVGKNOBROTATE_FN "vector-knob.svg"
+

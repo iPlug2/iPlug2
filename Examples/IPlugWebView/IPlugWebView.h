@@ -26,7 +26,7 @@ enum EControlTags
   kCtrlTagMeter = 0,
 };
 
-class IPlugWebView : public Plugin
+class IPlugWebView final : public Plugin
 {
 public:
   IPlugWebView(const InstanceInfo& info);

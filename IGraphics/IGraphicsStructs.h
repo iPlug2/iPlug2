@@ -549,6 +549,8 @@ const IBlend BLEND_25 = IBlend(EBlend::Default, 0.25f);
 const IBlend BLEND_10 = IBlend(EBlend::Default, 0.1f);
 const IBlend BLEND_05 = IBlend(EBlend::Default, 0.05f);
 const IBlend BLEND_01 = IBlend(EBlend::Default, 0.01f);
+const IBlend BLEND_DST_IN = IBlend(EBlend::DstIn, 1.f);
+const IBlend BLEND_DST_OVER = IBlend(EBlend::DstOver, 1.f);
 
 /** Used to manage fill behaviour for path based drawing back ends */
 struct IFillOptions
@@ -1543,6 +1545,45 @@ struct IRECT
     return r;
   }
   
+  /** Vertically align this rect to the reference IRECT
+   * @param sr the source IRECT to use as reference
+   * @param align the vertical alignment */
+  void VAlignTo(const IRECT& sr, EVAlign align)
+  {
+    const float height = H();
+    switch (align)
+    {
+      case EVAlign::Top: T = sr.T; B = sr.T + height; break;
+      case EVAlign::Bottom: T = sr.B - height; B = sr.B; break;
+      case EVAlign::Middle: T = sr.T + (sr.H() * 0.5f) - (height * 0.5f); B = sr.T + (sr.H() * 0.5f) - (height * 0.5f) + height; break;
+    }
+  }
+  
+  /** Horizontally align this rect to the reference IRECT
+  * @param sr the IRECT to use as reference
+  * @param align the horizontal alignment */
+  void HAlignTo(const IRECT& sr, EAlign align)
+  {
+    const float width = W();
+    switch (align)
+    {
+      case EAlign::Near: L = sr.L; R = sr.L + width; break;
+      case EAlign::Far: L = sr.R - width; R = sr.R; break;
+      case EAlign::Center: L = sr.L + (sr.W() * 0.5f) - (width * 0.5f); R = sr.L + (sr.W() * 0.5f) - (width * 0.5f) + width; break;
+    }
+  }
+
+  /** Get a rectangle the same dimensions as this one, vertically aligned to the reference IRECT
+  * @param sr the source IRECT to use as reference
+  * @param align the vertical alignment
+  * @return the new rectangle */
+  IRECT GetVAlignedTo(const IRECT& sr, EVAlign align) const
+  {
+    IRECT result = *this;
+    result.VAlignTo(sr, align);
+    return result;
+  }
+  
   /** /todo 
    * @return float /todo */
   float GetLengthOfShortestSide() const
@@ -1551,6 +1592,17 @@ struct IRECT
        return W();
     else
       return H();
+  }
+    
+  /** Get a rectangle the same dimensions as this one, horizontally aligned to the reference IRECT
+  * @param sr the IRECT to use as reference
+  * @param align the horizontal alignment
+  * @return the new rectangle */
+  IRECT GetHAlignedTo(const IRECT& sr, EAlign align) const
+  {
+    IRECT result = *this;
+    result.HAlignTo(sr, align);
+    return result;
   }
   
   void DBGPrint() { DBGMSG("L: %f, T: %f, R: %f, B: %f,: W: %f, H: %f\n", L, T, R, B, W(), H()); }
@@ -2344,13 +2396,13 @@ struct IVStyle
   IVStyle WithValueText(const IText& text) const { IVStyle newStyle = *this; newStyle.valueText = text; return newStyle; }
   IVStyle WithColor(EVColor idx, IColor color) const { IVStyle newStyle = *this; newStyle.colorSpec.mColors[idx] = color; return newStyle; }
   IVStyle WithColors(IVColorSpec spec) const { IVStyle newStyle = *this; newStyle.colorSpec = spec; return newStyle; }
-  IVStyle WithRoundness(float r) const { IVStyle newStyle = *this; newStyle.roundness = r; return newStyle; }
-  IVStyle WithFrameThickness(float t) const { IVStyle newStyle = *this; newStyle.frameThickness = t; return newStyle; }
-  IVStyle WithShadowOffset(float t) const { IVStyle newStyle = *this; newStyle.shadowOffset = t; return newStyle; }
+  IVStyle WithRoundness(float v) const { IVStyle newStyle = *this; newStyle.roundness = Clip(v, 0.f, 1.f); return newStyle; }
+  IVStyle WithFrameThickness(float v) const { IVStyle newStyle = *this; newStyle.frameThickness = v; return newStyle; }
+  IVStyle WithShadowOffset(float v) const { IVStyle newStyle = *this; newStyle.shadowOffset = v; return newStyle; }
   IVStyle WithDrawShadows(bool v = true) const { IVStyle newStyle = *this; newStyle.drawShadows = v; return newStyle; }
   IVStyle WithDrawFrame(bool v = true) const { IVStyle newStyle = *this; newStyle.drawFrame = v; return newStyle; }
-  IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = v; return newStyle; }
-  IVStyle WithAngle(float v) const { IVStyle newStyle = *this; newStyle.angle = v; return newStyle; }
+  IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = Clip(v, 0.f, 1.f); return newStyle; }
+  IVStyle WithAngle(float v) const { IVStyle newStyle = *this; newStyle.angle = Clip(v, 0.f, 360.f); return newStyle; }
   IVStyle WithEmboss(bool v = true) const { IVStyle newStyle = *this; newStyle.emboss = v; return newStyle; }
 };
 

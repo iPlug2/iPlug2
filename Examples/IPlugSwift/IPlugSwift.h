@@ -7,7 +7,7 @@
 
 using namespace iplug;
 
-class IPlugSwift : public Plugin
+class IPlugSwift final : public Plugin
 {
 public:
   IPlugSwift(const InstanceInfo& info);

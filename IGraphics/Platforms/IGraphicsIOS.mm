@@ -250,7 +250,7 @@ bool IGraphicsIOS::GetTextFromClipboard(WDL_String& str)
   return false;
 }
 
-bool IGraphicsIOS::SetTextInClipboard(const WDL_String& str)
+bool IGraphicsIOS::SetTextInClipboard(const char* str)
 {
   return false;
 }

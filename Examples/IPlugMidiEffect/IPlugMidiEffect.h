@@ -18,7 +18,7 @@ enum EControlTags
 using namespace iplug;
 using namespace igraphics;
 
-class IPlugMidiEffect : public Plugin
+class IPlugMidiEffect final : public Plugin
 {
 public:
   IPlugMidiEffect(const InstanceInfo& info);

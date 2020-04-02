@@ -11,6 +11,7 @@
 #include "IGraphics.h"
 
 #define NANOSVG_IMPLEMENTATION
+#pragma warning(disable:4244) // float conversion
 #include "nanosvg.h"
 
 #if defined VST3_API
@@ -199,10 +200,16 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
   mInPopupMenu = nullptr;
 }
 
-void IGraphics::AttachBackground(const char* name)
+void IGraphics::AttachBackground(const char* fileName)
 {
-  IBitmap bg = LoadBitmap(name, 1, false);
-  IControl* pBG = new IBitmapControl(0, 0, bg, kNoParameter, EBlend::Default);
+  IControl* pBG = new IBitmapControl(0, 0, LoadBitmap(fileName, 1, false), kNoParameter, EBlend::Default);
+  pBG->SetDelegate(*GetDelegate());
+  mControls.Insert(0, pBG);
+}
+
+void IGraphics::AttachSVGBackground(const char* fileName)
+{
+  IControl* pBG = new ISVGControl(GetBounds(), LoadSVG(fileName), true);
   pBG->SetDelegate(*GetDelegate());
   mControls.Insert(0, pBG);
 }
@@ -481,7 +488,7 @@ void IGraphics::UpdatePeers(IControl* pCaller, int callerValIdx) // TODO: this c
 void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds, int valIdx)
 {
   assert(valIdx > kNoValIdx);
-    
+  
   const IParam* pParam = control.GetParam(valIdx);
 
   if(pParam)
@@ -514,6 +521,13 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds, int valI
     else // type == IParam::kTypeInt || type == IParam::kTypeDouble
     {
       pParam->GetDisplayForHost(currentText, false);
+      
+      if(control.GetPromptShowsParamLabel())
+      {
+        currentText.Append(" ");
+        currentText.Append(pParam->GetLabelForHost());
+      }
+      
       CreateTextEntry(control, control.GetText(), bounds, currentText.Get(), valIdx);
     }
   }
@@ -840,7 +854,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
     if(mCornerResizer.get() != nullptr)
       cornerResizer = pControl == mCornerResizer.get();
 
-    if(!cornerResizer && mImGuiRenderer.get()->OnMouseDown(x, y, mod))
+    if(!cornerResizer && mImGuiRenderer.get()->OnMouseDown(points[0].x, points[0].y, points[0].ms))
     {
       ReleaseMouseCapture();
       return;
@@ -966,7 +980,7 @@ void IGraphics::OnMouseUp(const std::vector<IMouseInfo>& points)
 #ifdef IGRAPHICS_IMGUI
   if(mImGuiRenderer && points.size() == 1)
   {
-    if(mImGuiRenderer.get()->OnMouseUp(point[0].x, point[0].y, point[0].ms))
+    if(mImGuiRenderer.get()->OnMouseUp(points[0].x, points[0].y, points[0].ms))
     {
       ReleaseMouseCapture();
       return;
@@ -1728,6 +1742,8 @@ void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IREC
     mTextEntryControl->CreateTextEntry(paramIdx, text, bounds, control.GetTextEntryLength(), str);
   else
     CreatePlatformTextEntry(paramIdx, text, bounds, control.GetTextEntryLength(), str);
+  
+  mInTextEntry->SetDirty(false);
 }
 
 void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext)
