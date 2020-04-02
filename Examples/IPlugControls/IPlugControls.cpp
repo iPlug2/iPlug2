@@ -95,9 +95,11 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 #pragma mark MiscControls -
     
     AddLabel("ITextControl");
-    pGraphics->AttachControl(new ITextControl(sameCell().SubRectVertical(3, 1), "Result...", DEFAULT_TEXT, COLOR_LIGHT_GRAY), kCtrlTagDialogResult, "misccontrols");
+    pGraphics->AttachControl(new ITextControl(sameCell().SubRectVertical(4, 1).GetMidVPadded(10.f), "Result...", DEFAULT_TEXT, COLOR_LIGHT_GRAY), kCtrlTagDialogResult, "misccontrols");
     
-    pGraphics->AttachControl(new IURLControl(sameCell().SubRectVertical(3, 2).GetMidVPadded(10.f), "https://iplug2.github.io", "https://iplug2.github.io", DEFAULT_TEXT), kNoTag, "misccontrols");
+    pGraphics->AttachControl(new IURLControl(sameCell().SubRectVertical(4, 2).GetMidVPadded(10.f), "IURLControl", "https://iplug2.github.io", DEFAULT_TEXT), kNoTag, "misccontrols");
+
+    pGraphics->AttachControl(new IEditableTextControl(sameCell().SubRectVertical(4, 3).GetMidVPadded(10.f), "IEditableTextControl", DEFAULT_TEXT), kNoTag, "misccontrols");
     
     AddLabel("ITextToggleControl");
     pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 0, 3, 3), nullptr, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, forkAwesomeText), kNoTag, "misccontrols");

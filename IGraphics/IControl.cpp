@@ -515,10 +515,14 @@ void IURLControl::Draw(IGraphics& g)
   else
     mText.mFGColor = mClicked ? mCLColor : mOriginalColor;
   
-  g.DrawLine(mText.mFGColor, mRECT.L, mRECT.B, mRECT.R, mRECT.B, &mBlend);
-  
   if (mStr.GetLength())
+  {
+    IRECT textDims;
+    g.MeasureText(mText, mStr.Get(), textDims);
+    
+    g.DrawLine(mText.mFGColor, mRECT.MW() + textDims.L, mRECT.MH() + textDims.B, mRECT.MW() + textDims.R, mRECT.MH() + textDims.B, &mBlend);
     g.DrawText(mText, mStr.Get(), mRECT, &mBlend);
+  }
 }
 
 void IURLControl::OnMouseDown(float x, float y, const IMouseMod& mod)
