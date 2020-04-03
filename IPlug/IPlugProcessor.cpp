@@ -114,7 +114,7 @@ double IPlugProcessor::GetSamplesPerBeat() const
 
 #pragma mark -
 
-int IPlugProcessor::MaxNBuses(ERoute direction, int* pConfigWithTheMostBuses) const
+int IPlugProcessor::MaxNBuses(ERoute direction, int* pConfigIdxWithTheMostBuses) const
 {
   int maxNBuses = 0;
   int configWithMostBuses = 0;
@@ -130,10 +130,44 @@ int IPlugProcessor::MaxNBuses(ERoute direction, int* pConfigWithTheMostBuses) co
     }
   }
   
-  if(pConfigWithTheMostBuses)
-    *pConfigWithTheMostBuses = configWithMostBuses;
+  if(pConfigIdxWithTheMostBuses)
+    *pConfigIdxWithTheMostBuses = configWithMostBuses;
 
   return maxNBuses;
+}
+
+int IPlugProcessor::GetIOConfigWithChanCounts(std::vector<int>& inputBuses, std::vector<int>& outputBuses)
+{
+  int nInputBuses = static_cast<int>(inputBuses.size());
+  int nOutputBuses = static_cast<int>(outputBuses.size());
+
+  for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
+  {
+    const IOConfig* pConfig = GetIOConfig(configIdx);
+    
+    if(pConfig->NBuses(ERoute::kInput) == nInputBuses && pConfig->NBuses(ERoute::kOutput) == nOutputBuses)
+    {
+      bool match = true;
+      
+      for (int inputBusIdx = 0; inputBusIdx < nInputBuses; inputBusIdx++)
+      {
+        match &= inputBuses[inputBusIdx] == pConfig->GetBusInfo(ERoute::kInput, inputBusIdx)->NChans();
+      }
+      
+      if(match)
+      {
+        for (int outputBusIdx = 0; outputBusIdx < nOutputBuses; outputBusIdx++)
+        {
+          match &= outputBuses[outputBusIdx] == pConfig->GetBusInfo(ERoute::kOutput, outputBusIdx)->NChans();
+        }
+      }
+      
+      if(match)
+        return configIdx;
+    }
+  }
+  
+  return -1;
 }
 
 int IPlugProcessor::MaxNChannelsForBus(ERoute direction, int busIdx) const
@@ -239,7 +273,15 @@ int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& 
 
       if(NChanOnBus)
       {
-        pConfig->AddBusInfo(busDir, NChanOnBus, RoutingDirStrs[busDir]);
+        WDL_String label;
+        if(NBuses == 0)
+          label.Append("Main ");
+        else
+          label.Append("Aux ");
+
+        label.Append(RoutingDirStrs[busDir]);
+        
+        pConfig->AddBusInfo(busDir, NChanOnBus, label.Get());
         NBuses++;
       }
       else if(NBuses > 0)

@@ -17,6 +17,7 @@
 #include <cstdio>
 #include <cassert>
 #include <memory>
+#include <vector>
 
 #include "ptrlist.h"
 
@@ -135,11 +136,14 @@ public:
   /** @return const Pointer to an IOConfig at idx. Can return nullptr if idx is invalid */
   const IOConfig* GetIOConfig(int idx) const { return mIOConfigs.Get(idx); }
 
+  /** @return Index of IOConfig that matches input and output bus vectors. Can return -1 if not found */
+  int GetIOConfigWithChanCounts(std::vector<int>& inputBuses, std::vector<int>& outputBuses);
+  
   /** Used to determine the maximum number of input or output buses based on what was specified in the channel I/O config string
    * @param direction Return input or output bus count
    * @param pConfigWithTheMostBuses Optional ptr to report the index of the config with the max bus count
    * @return The maximum bus count across all channel I/O configs */
-  int MaxNBuses(ERoute direction, int* pConfigWithTheMostBuses = nullptr) const;
+  int MaxNBuses(ERoute direction, int* pConfigIdxWithTheMostBuses = nullptr) const;
 
   /** For a given input or output bus what is the maximum possible number of channels
    * @param direction Return input or output bus count
