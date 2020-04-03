@@ -114,14 +114,24 @@ double IPlugProcessor::GetSamplesPerBeat() const
 
 #pragma mark -
 
-int IPlugProcessor::MaxNBuses(ERoute direction) const
+int IPlugProcessor::MaxNBuses(ERoute direction, int* pConfigWithTheMostBuses) const
 {
   int maxNBuses = 0;
-  //find the maximum channel count for each input or output bus
+  int configWithMostBuses = 0;
+
   for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
   {
-    maxNBuses = std::max(mIOConfigs.Get(configIdx)->NBuses(direction), maxNBuses);
+    int nBuses = mIOConfigs.Get(configIdx)->NBuses(direction);
+    
+    if(nBuses > maxNBuses)
+    {
+      maxNBuses = nBuses;
+      configWithMostBuses = configIdx;
+    }
   }
+  
+  if(pConfigWithTheMostBuses)
+    *pConfigWithTheMostBuses = configWithMostBuses;
 
   return maxNBuses;
 }
