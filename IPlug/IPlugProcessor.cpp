@@ -272,7 +272,7 @@ int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& 
     char* pOStr = strtok(NULL, "-");   // Output buses part of string
 
     WDL_String* thisIOStr  = new WDL_String();
-    thisIOStr->SetFormatted(10, "%s-%s", pIStr, pOStr);
+    thisIOStr->SetFormatted(256, "%s-%s", pIStr, pOStr);
 
     for (auto str = 0; str < IOStrlist.GetSize(); str++)
     {
