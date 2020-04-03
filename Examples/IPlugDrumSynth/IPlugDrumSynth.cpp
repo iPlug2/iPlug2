@@ -20,7 +20,7 @@ public:
   void Draw(IGraphics& g) override
   {
 //    g.FillRect(mFlash ? COLOR_WHITE : COLOR_BLACK, mRECT);
-    DrawHandle(g, EVShape::AllRounded, mRECT, mFlash, mMouseIsOver, false);
+    DrawPressableShape(g, EVShape::AllRounded, mRECT, mFlash, mMouseIsOver, false);
     mFlash = false;
   }
   
