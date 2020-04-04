@@ -93,15 +93,19 @@ public:
       return true;
     }
     
-    void SetChecked(bool state)
+    void SetEnabled(bool state) { SetFlag(kDisabled, !state); }
+    void SetChecked(bool state) { SetFlag(kChecked, state); }
+    void SetTitle(bool state) {SetFlag(kTitle, state); }
+
+  protected:
+    void SetFlag(Flags flag, bool state)
     {
       if (state)
-        mFlags |= kChecked;
+        mFlags |= flag;
       else
-        mFlags &= ~kChecked;
+        mFlags &= ~flag;
     }
-    
-  protected:
+
     WDL_String mText;
     std::unique_ptr<IPopupMenu> mSubmenu;
     int mFlags;
