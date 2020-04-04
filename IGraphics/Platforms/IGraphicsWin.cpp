@@ -1371,27 +1371,27 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
       //if (nItems < 160 && pMenu->getNbItemsPerColumn () > 0 && inc && !(inc % _menu->getNbItemsPerColumn ()))
       //  flags |= MF_MENUBARBREAK;
 
+      if (pMenuItem->GetEnabled())
+        flags |= MF_ENABLED;
+      else
+        flags |= MF_GRAYED;
+      if (pMenuItem->GetIsTitle())
+        flags |= MF_DISABLED;
+      if (pMenuItem->GetChecked())
+        flags |= MF_CHECKED;
+      else
+        flags |= MF_UNCHECKED;
+
       if (pMenuItem->GetSubmenu())
       {
         HMENU submenu = CreateMenu(*pMenuItem->GetSubmenu(), pOffsetIdx);
         if (submenu)
         {
-          AppendMenu(hMenu, flags|MF_POPUP|MF_ENABLED, (UINT_PTR)submenu, (const TCHAR*)entryText.Get());
+          AppendMenu(hMenu, flags|MF_POPUP, (UINT_PTR)submenu, (const TCHAR*)entryText.Get());
         }
       }
       else
       {
-        if (pMenuItem->GetEnabled())
-          flags |= MF_ENABLED;
-        else
-          flags |= MF_GRAYED;
-        if (pMenuItem->GetIsTitle())
-          flags |= MF_DISABLED;
-        if (pMenuItem->GetChecked())
-          flags |= MF_CHECKED;
-        else
-          flags |= MF_UNCHECKED;
-
         AppendMenu(hMenu, flags, offset + inc, entryText.Get());
       }
     }
