@@ -39,7 +39,7 @@ enum EControlTags
 using namespace iplug;
 using namespace igraphics;
 
-class IPlugInstrument : public Plugin
+class IPlugInstrument final : public Plugin
 {
 public:
   IPlugInstrument(const InstanceInfo& info);
@@ -51,8 +51,6 @@ public:
   void OnReset() override;
   void OnParamChange(int paramIdx) override;
   void OnIdle() override;
-  bool OnKeyDown(const IKeyPress& key) override;
-  bool OnKeyUp(const IKeyPress& key) override;
 
 private:
   IPlugInstrumentDSP<sample> mDSP {16};

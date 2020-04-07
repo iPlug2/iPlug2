@@ -77,13 +77,13 @@ tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* pState)
   return kResultOk;
 }
 
-ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized(ParamID tag)
-{
-  if (tag >= kBypassParam)
-    return EditControllerEx1::getParamNormalized(tag);
-  
-  return IPlugVST3ControllerBase::GetParamNormalized(this, tag);
-}
+//ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized(ParamID tag)
+//{
+//  if (tag >= kBypassParam)
+//    return EditControllerEx1::getParamNormalized(tag);
+//  
+//  return IPlugVST3ControllerBase::GetParamNormalized(this, tag);
+//}
 
 tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
 {

@@ -16,6 +16,8 @@
  * - http://www.cytomic.com/files/dsp/SvfLinearTrapOptimised2.pdf
  */
 
+#include <complex>
+
 #include "IPlugPlatform.h"
 
 BEGIN_IPLUG_NAMESPACE
@@ -47,10 +49,50 @@ public:
     UpdateCoefficients();
   }
 
+  static double PlotResponse(double freqCPS, double Q, EMode mode, double x, double gain = 0., double minHz = 1., double maxHz = 20000)
+  {
+    using cdouble = std::complex<double>;
+
+    const double g = freqCPS;
+    const double k = 1.0 / Q;
+    const double A = std::pow(10., gain / 40.);
+
+    static double minLogHz = std::log10(minHz);
+    static double maxLogHz = std::log10(maxHz);
+    static const cdouble _1j = std::sqrt(cdouble(-1, 0));
+
+    const double w = std::pow(10., (x * (maxLogHz - minLogHz)) + minHz);
+    const cdouble s = _1j * w;
+    cdouble result;
+
+    switch (mode)
+    {
+      case kLowPass: result = g * g / (g * g + g * k * s + s * s); break;
+      case kBandPass: result = g * s / (g * g + g * k * s + s * s); break;
+      case kHighPass: result = s * s / (g * g + g * k * s + s * s); break;
+      // case kNotch: result = (g * g) + (s * s) / (g * g + g * k * s + s * s); break;
+      case kPeak: result = (g - s) * (g + s) / (g * g + g * k * s + s * s); break;
+      // case kBell:  result = A * (1. + A * k * s + (s * s)) / A + k * s + A * (s * s); break;
+      // case kLowPassShelf: result = A * (A + std::sqrt(A) * k * s + (s * s)) / 1. + std::sqrt(A) * k * s + A * (s * s); break;
+      // case kHighPassShelf: result = A * (1. + std::sqrt(A) * k * s + A * (s * s)) / A + std::sqrt(A) * k * s + (s * s); break;
+      default: return 0.;
+    }
+
+    const double magnitude = 20. * std::log10(std::abs(std::real(result)));
+
+    //DBGMSG("%f\n", magnitude);
+
+    return magnitude;
+  }
+
   void SetFreqCPS(double freqCPS) { mNewState.freq = Clip(freqCPS, 10, 20000.); }
+
   void SetQ(double Q) { mNewState.Q = Clip(Q, 0.1, 100.); }
+
   void SetGain(double gainDB) { mNewState.gain = Clip(gainDB, -36, 36.); }
+
   void SetMode(EMode mode) { mNewState.mode = mode; }
+  
   void SetSampleRate(double sampleRate) { mNewState.sampleRate = sampleRate; }
 
   void ProcessBlock(T** inputs, T** outputs, int nChans, int nFrames)

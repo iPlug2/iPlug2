@@ -484,7 +484,7 @@ void ITextControl::Draw(IGraphics& g)
 {
   g.FillRect(mBGColor, mRECT, &mBlend);
   
-  if (mStr.GetLength())
+  if (mStr.GetLength() && g.GetControlInTextEntry() != this)
     g.DrawText(mText, mStr.Get(), mRECT, &mBlend);
 }
 
@@ -515,10 +515,41 @@ void IURLControl::Draw(IGraphics& g)
   else
     mText.mFGColor = mClicked ? mCLColor : mOriginalColor;
   
-  g.DrawLine(mText.mFGColor, mRECT.L, mRECT.B, mRECT.R, mRECT.B, &mBlend);
-  
   if (mStr.GetLength())
+  {
+    IRECT textDims;
+    g.MeasureText(mText, mStr.Get(), textDims);
+    
+    float linePosY = 0.f;
+    float linePosL = 0.f;
+    float linePosR = 0.f;
+
+    if(mText.mVAlign == EVAlign::Middle)
+      linePosY = mRECT.MH() + textDims.B;
+    else if(mText.mVAlign == EVAlign::Bottom)
+      linePosY = mRECT.B;
+    else if(mText.mVAlign == EVAlign::Top)
+      linePosY = mRECT.T - textDims.H();
+    
+    if(mText.mAlign == EAlign::Center)
+    {
+      linePosL = mRECT.MW() + textDims.L;
+      linePosR = mRECT.MW() + textDims.R;
+    }
+    else if(mText.mAlign == EAlign::Near)
+    {
+      linePosL = mRECT.L;
+      linePosR = mRECT.L + textDims.W();
+    }
+    else if(mText.mAlign == EAlign::Far)
+    {
+      linePosL = mRECT.R - textDims.W();
+      linePosR = mRECT.R;
+    }
+
+    g.DrawLine(mText.mFGColor, linePosL, linePosY, linePosR, linePosY, &mBlend);
     g.DrawText(mText, mStr.Get(), mRECT, &mBlend);
+  }
 }
 
 void IURLControl::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -605,8 +636,9 @@ void ICaptionControl::Draw(IGraphics& g)
 
   ITextControl::Draw(g);
   
-  if(mTri.W() > 0.f) {
-    g.FillTriangle(COLOR_DARK_GRAY, mTri.L, mTri.T, mTri.R, mTri.T, mTri.MW(), mTri.B, GetMouseIsOver() ? 0 : &BLEND_50);
+  if(mTri.W() > 0.f)
+  {
+    g.FillTriangle(mMouseIsOver ? mTriangleMouseOverColor : mTriangleColor, mTri.L, mTri.T, mTri.R, mTri.T, mTri.MW(), mTri.B, GetMouseIsOver() ? 0 : &BLEND_50);
   }
 }
 

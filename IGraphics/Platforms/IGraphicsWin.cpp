@@ -950,12 +950,12 @@ void IGraphicsWin::MoveMouseCursor(float x, float y)
   p.x = std::round(x * scale);
   p.y = std::round(y * scale);
   
-  ::ClientToScreen((HWND)GetWindow(), &p);
+  ::ClientToScreen(mPlugWnd, &p);
   
   if (SetCursorPos(p.x, p.y))
   {
     GetCursorPos(&p);
-    ScreenToClient((HWND)GetWindow(), &p);
+    ScreenToClient(mPlugWnd, &p);
     
     mCursorX = p.x / scale;
     mCursorY = p.y / scale;
@@ -999,6 +999,18 @@ ECursor IGraphicsWin::SetMouseCursor(ECursor cursorType)
 bool IGraphicsWin::MouseCursorIsLocked()
 {
   return mCursorLock;
+}
+
+void IGraphicsWin::GetMouseLocation(float& x, float&y) const
+{
+  POINT p;
+  GetCursorPos(&p);
+  ScreenToClient(mPlugWnd, &p);
+
+  const float scale = GetTotalScale();
+
+  x = p.x / scale;
+  y = p.y / scale;
 }
 
 #ifdef IGRAPHICS_GL

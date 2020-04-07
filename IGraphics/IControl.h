@@ -186,14 +186,12 @@ public:
    * @param g The graphics context to which this control belongs. */
   virtual void DrawPTHighlight(IGraphics& g);
 
-  /** Call this method in response to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu,
-   * if the control is linked to a parameter (mParamIdx > kNoParameter)
+  /** Call this method in response to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu, if the control is linked to a parameter (mParamIdx > kNoParameter)
    * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
   void PromptUserInput(int valIdx = 0);
   
-  /** Create a text entry box so the user can enter a value, or pop up a pop-up menu,
-   * if the control is linked to a parameter (mParamIdx > kNoParameter), specifying the bounds
-   * @param bounds The rectangle for the text entry. Pop-up menu's will appear below the rectangle. /todo check
+  /** Create a text entry box so the user can enter a value, or pop up a pop-up menu, if the control is linked to a parameter (mParamIdx > kNoParameter) specifying the bounds
+   * @param bounds The rectangle for the text entry. Pop-up menu's will appear below the rectangle.
    * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
   void PromptUserInput(const IRECT& bounds, int valIdx = 0);
   
@@ -370,7 +368,13 @@ public:
   
   /** @return \c true if the control ignores mouse events */
   bool GetIgnoreMouse() const { return mIgnoreMouse; }
+  
+  /** @return \c true if the control should show parameter labels/units e.g. "Hz" in text entry prompts */
+  bool GetPromptShowsParamLabel() const { return mPromptShowsParamLabel; }
 
+  /** Set if the control should show parameter labels/units e.g. "Hz" in text entry prompts */
+  void SetPromptShowsParamLabel(bool enable) { mPromptShowsParamLabel = enable; }
+  
   /** Hit test the control. Override this method if you want the control to be hit only if a visible part of it is hit, or whatever.
    * @param x The X coordinate within the control to test 
    * @param y The y coordinate within the control to test
@@ -534,6 +538,7 @@ protected:
   bool mIgnoreMouse = false;
   bool mWantsMidi = false;
   bool mWantsMultiTouch = false;
+  bool mPromptShowsParamLabel = false;
   /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
   WDL_String mTooltip;
@@ -721,7 +726,7 @@ public:
     }
   }
   
-  void DrawHandle(IGraphics& g, EVShape shape, const IRECT& bounds, bool pressed, bool mouseOver, bool disabled)
+  virtual void DrawPressableShape(IGraphics& g, EVShape shape, const IRECT& bounds, bool pressed, bool mouseOver, bool disabled)
   {
     switch (shape)
     {
@@ -1599,6 +1604,27 @@ protected:
   bool mSetBoundsBasedOnStr = false;
 };
 
+/** A basic control to display some editable text */
+class IEditableTextControl : public ITextControl
+{
+public:
+  IEditableTextControl(const IRECT& bounds, const char* str, const IText& text)
+  : ITextControl(bounds, str, text)
+  {
+    mIgnoreMouse = false;
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    GetUI()->CreateTextEntry(*this, mText, mRECT, GetStr());
+  }
+  
+  void OnTextEntryCompletion(const char* str, int valIdx) override
+  {
+    SetStr(str);
+  }
+};
+
 class IURLControl : public ITextControl
 {
 public:
@@ -1646,6 +1672,8 @@ public:
   void OnResize() override;
 protected:
   bool mShowParamLabel;
+  IColor mTriangleColor = COLOR_BLACK;
+  IColor mTriangleMouseOverColor = COLOR_WHITE;
   IRECT mTri;
 };
 

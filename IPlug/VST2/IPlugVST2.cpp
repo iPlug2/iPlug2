@@ -24,7 +24,8 @@ static int VSTSpkrArrType(int nchan)
   return kSpeakerArrUserDefined;
 }
 
-static int AsciiToVK(int ascii) {
+static int AsciiToVK(int ascii)
+{
 #ifdef OS_WIN
   HKL layout = GetKeyboardLayout(0);
   return VkKeyScanExA((CHAR)ascii, layout);

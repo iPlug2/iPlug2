@@ -44,8 +44,7 @@ APP_DEFS = APP_API __MACOSX_CORE__ IPLUG_EDITOR=1 IPLUG_DSP=1 SWELL_COMPILED// _
 // Where the SDKs etc. are located in relation to the plug-in Xcode project (which is in the projects subfolder of an IPlug project)
 
 // the top level iPlug2 folder e.g. where this common-mac.xcconfig is
-// should be specified in the project's xcconfig
-//IPLUG2_ROOT should be 
+// should be specified in the project's xcconfig with a build settng IPLUG2_ROOT
 
 PROJECT_ROOT = $(SRCROOT)/..
 

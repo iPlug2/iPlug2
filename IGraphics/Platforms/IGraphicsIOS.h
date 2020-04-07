@@ -32,6 +32,8 @@ public:
   bool WindowIsOpen() override;
   void PlatformResize(bool parentHasResized) override;
 
+  void GetMouseLocation(float& x, float&y) const override { /* NO-OP */ };
+
   EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
   void ForceEndUserEdit() override;
 

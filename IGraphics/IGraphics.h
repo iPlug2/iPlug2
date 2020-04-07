@@ -730,6 +730,11 @@ private:
 
 public:
 #pragma mark - Platform implementation
+  /** Get the x, y position in the graphics context of the mouse cursor
+   * @param x Where the X position will be stored
+   * @param y Where the Y position will be stored */
+  virtual void GetMouseLocation(float& x, float&y) const = 0;
+  
   /** Call to hide the mouse cursor 
    * @param hide /todo
    * @param lock /todo */
@@ -1194,9 +1199,13 @@ public:
   void ForControlInGroup(const char* group, std::function<void(IControl& control)> func);
   
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
-   * @param fileName CString fileName resource id for the bitmap image \todo check this */
+   * @param fileName CString fileName resource id for the bitmap image */
   void AttachBackground(const char* fileName);
 
+  /** Attach an ISVGControl as the lowest IControl in the control stack to be the background for the graphics context
+   * @param fileName CString fileName resource id for the SVG image */
+  void AttachSVGBackground(const char* fileName);
+  
   /** Attach an IPanelControl as the lowest IControl in the control stack to fill the background with a solid color
    * @param color The color to fill the panel with */
   void AttachPanelBackground(const IPattern& color);

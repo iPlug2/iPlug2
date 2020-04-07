@@ -30,7 +30,7 @@ enum EControlTags
 using namespace iplug;
 using namespace igraphics;
 
-class IPlugControls : public Plugin
+class IPlugControls final : public Plugin
 {
 public:
   IPlugControls(const InstanceInfo& info);
