@@ -1491,6 +1491,9 @@ public:
   /** Remove all gesture recognizers linked to regions */
   void ClearGestureRegions();
 
+  /** Adds a dirty region for this draw frame */
+  void PushDirtyRegion(const IRECT& r);
+
 protected:
 
   /** /todo
@@ -1608,6 +1611,7 @@ private:
 
   int mIdleTicks = 0;
   
+  IRECTList mExtraDirtyRegions;
   std::vector<EGestureType> mRegisteredGestures; // All the types of gesture registered with the graphics context
   IRECTList mGestureRegions; // Rectangular regions linked to gestures (excluding IControls)
   std::unordered_map<int, IGestureFunc> mGestureRegionFuncs; // Map of gesture region index to gesture function

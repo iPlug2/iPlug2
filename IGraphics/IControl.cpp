@@ -105,6 +105,25 @@ IControl::IControl(const IRECT& bounds, IActionFunction aF)
 {
 }
 
+void IControl::SetRECT(const IRECT& bounds)
+{
+  GetUI()->PushDirtyRegion(GetRECT()); // first push existing bounds
+  mRECT = bounds;
+  mMouseIsOver = false;
+  OnResize();
+  GetUI()->PushDirtyRegion(GetRECT()); // now push new bounds
+}
+
+//TODO: D.R.Y
+void IControl::SetTargetAndDrawRECTs(const IRECT& bounds)
+{
+  GetUI()->PushDirtyRegion(GetRECT()); // first push existing bounds
+  mRECT = mTargetRECT = bounds;
+  mMouseIsOver = false;
+  OnResize();
+  GetUI()->PushDirtyRegion(GetRECT()); // now push new bounds
+}
+
 int IControl::GetParamIdx(int valIdx) const
 {
   assert(valIdx > kNoValIdx && valIdx < NVals());

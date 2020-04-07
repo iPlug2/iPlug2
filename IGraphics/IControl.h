@@ -303,7 +303,7 @@ public:
 
   /** Set the rectangular draw area for this control, within the graphics context
    * @param bounds The control's bounds */
-  void SetRECT(const IRECT& bounds) { mRECT = bounds; mMouseIsOver = false; OnResize(); }
+  void SetRECT(const IRECT& bounds);
   
   /** Get the rectangular mouse tracking target area, within the graphics context for this control
    * @return The control's target bounds within the graphics context */
@@ -315,7 +315,7 @@ public:
   
   /** Set BOTH the draw rect and the target area, within the graphics context for this control
    * @param bounds The control's new draw and target bounds within the graphics context */
-  void SetTargetAndDrawRECTs(const IRECT& bounds) { mRECT = mTargetRECT = bounds; mMouseIsOver = false; OnResize(); }
+  void SetTargetAndDrawRECTs(const IRECT& bounds);
 
   /** Set the position of the control, preserving the width and height. This may need to be overriden if you maintain custom positioning data in your control
    * @param x the new x coordinate of the top left corner of the control

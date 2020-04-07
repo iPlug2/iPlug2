@@ -746,6 +746,17 @@ bool IGraphics::IsDirty(IRECTList& rects)
     return true;
   }
 #endif
+  
+  if(mExtraDirtyRegions.Size())
+  {
+    for(int i =0; i <mExtraDirtyRegions.Size();i++)
+    {
+      rects.Add(mExtraDirtyRegions.Get(i));
+    }
+    
+    mExtraDirtyRegions.Clear();
+    dirty = true;
+  }
 
   return dirty;
 }
@@ -2168,6 +2179,11 @@ void IGraphics::ClearGestureRegions()
 {
   mGestureRegions.Clear();
   mGestureRegionFuncs.clear();
+}
+
+void IGraphics::PushDirtyRegion(const IRECT& r)
+{
+  mExtraDirtyRegions.Add(r.GetPadded(0.75f));
 }
 
 #ifdef IGRAPHICS_IMGUI
