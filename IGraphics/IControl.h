@@ -482,17 +482,21 @@ public:
    * @param duration Duration in milliseconds for the animation  */
   void SetAnimation(IAnimationFunction func, int duration) { mAnimationFunc = func; StartAnimation(duration); }
 
-  /** /todo */
+  /** Get the control's animation function, if it exists */
   IAnimationFunction GetAnimationFunction() { return mAnimationFunc; }
 
-  /** /todo */
+  /** Get the control's action function, if it exists */
   IAnimationFunction GetActionFunction() { return mActionFunc; }
 
-  /** /todo */
+  /** Get the progress in a control's animation, in the range 0-1 */
   double GetAnimationProgress() const;
   
-  /** /todo */
+  /** Get the duration of animations applied to the control */
   Milliseconds GetAnimationDuration() const { return mAnimationDuration; }
+
+  /** Helper function to dynamic cast an IControl to a subclass */
+  template <class T>
+  T* As() { return dynamic_cast<T*>(this); }
     
 #if defined VST3_API || defined VST3C_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
