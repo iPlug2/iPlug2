@@ -230,9 +230,11 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
     {
       case kCommit:
       {
-        char txt[MAX_WIN32_PARAM_LEN];
-        SendMessage(mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM)txt);
-        SetControlValueAfterTextEdit(txt);
+        WCHAR wtxt[MAX_WIN32_PARAM_LEN];
+        WDL_String tempUTF8;
+        SendMessageW(mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM)wtxt);
+        UTF16ToUTF8(tempUTF8, wtxt);
+        SetControlValueAfterTextEdit(tempUTF8.Get());
         DestroyEditWindow();
         break;
       }
@@ -1473,7 +1475,10 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   const float scale = GetTotalScale();
   IRECT scaledBounds = bounds.GetScaled(scale);
 
-  mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE | ES_MULTILINE | editStyle,
+  WCHAR strWide[MAX_PARAM_DISPLAY_LEN];
+  UTF8ToUTF16(strWide, str, MAX_PARAM_DISPLAY_LEN);
+
+  mParamEditWnd = CreateWindowW(L"EDIT", strWide, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE | ES_MULTILINE | editStyle,
     scaledBounds.L, scaledBounds.T, scaledBounds.W()+1, scaledBounds.H()+1,
     mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
