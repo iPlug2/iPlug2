@@ -201,6 +201,22 @@ void IGraphicsWin::DestroyEditWindow()
  }
 }
 
+static std::string WinUnicodeToUTF8(const std::wstring &unicodeStr)
+{
+  int size = WideCharToMultiByte(CP_UTF8,0,unicodeStr.data(),(int)unicodeStr.size(),NULL,0,NULL,NULL);
+  std::string utf8Str(size,0);
+  WideCharToMultiByte(CP_UTF8,0,unicodeStr.data(),(int)unicodeStr.size(),&utf8Str[0],size,NULL,NULL);
+  return utf8Str;
+}
+
+static std::wstring WinUTF8ToUnicode(const std::string &utf8Str)
+{
+    int size = MultiByteToWideChar(CP_UTF8,0,utf8Str.data(),(int)utf8Str.size(),NULL,0);
+    std::wstring unicodeStr(size,0);
+    MultiByteToWideChar(CP_UTF8,0,utf8Str.data(),(int)utf8Str.size(),&unicodeStr[0],size);
+    return unicodeStr;
+}
+
 void IGraphicsWin::OnDisplayTimer(int vBlankCount)
 {
 #ifdef IGRAPHICS_VSYNC
@@ -231,8 +247,9 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
       case kCommit:
       {
         char txt[MAX_WIN32_PARAM_LEN];
-        SendMessage(mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM)txt);
-        SetControlValueAfterTextEdit(txt);
+        SendMessageW(mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM)txt);
+        std::string utf8Str = WinUnicodeToUTF8((wchar_t*)txt);
+        SetControlValueAfterTextEdit(utf8Str.c_str());
         DestroyEditWindow();
         break;
       }
@@ -1381,16 +1398,16 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
       }
       else
       {
-        if (pMenuItem->GetEnabled())
-          flags |= MF_ENABLED;
-        else
-          flags |= MF_GRAYED;
-        if (pMenuItem->GetIsTitle())
-          flags |= MF_DISABLED;
-        if (pMenuItem->GetChecked())
-          flags |= MF_CHECKED;
-        else
-          flags |= MF_UNCHECKED;
+      if (pMenuItem->GetEnabled())
+        flags |= MF_ENABLED;
+      else
+        flags |= MF_GRAYED;
+      if (pMenuItem->GetIsTitle())
+        flags |= MF_DISABLED;
+      if (pMenuItem->GetChecked())
+        flags |= MF_CHECKED;
+      else
+        flags |= MF_UNCHECKED;
 
         AppendMenu(hMenu, flags, offset + inc, entryText.Get());
       }
@@ -1473,7 +1490,8 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   const float scale = GetTotalScale();
   IRECT scaledBounds = bounds.GetScaled(scale);
 
-  mParamEditWnd = CreateWindow("EDIT", str, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE | ES_MULTILINE | editStyle,
+  std::wstring unicodeStr = WinUTF8ToUnicode(str);
+  mParamEditWnd = CreateWindowW(L"EDIT", unicodeStr.c_str(), ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE | ES_MULTILINE | editStyle,
     scaledBounds.L, scaledBounds.T, scaledBounds.W()+1, scaledBounds.H()+1,
     mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
