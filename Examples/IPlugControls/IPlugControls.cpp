@@ -47,6 +47,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     const IBitmap buttonBitmap = pGraphics->LoadBitmap(PNGBUTTON_FN, 10);
     const IBitmap sliderHandleBitmap = pGraphics->LoadBitmap(PNGSLIDERHANDLE_FN);
     const IBitmap sliderTrackBitmap = pGraphics->LoadBitmap(PNGSLIDERTRACK_FN);
+    const IBitmap bitmapText = pGraphics->LoadBitmap(PNGTEXT_FN, 95, true);
     const ISVG sliderHandleSVG = pGraphics->LoadSVG(SVGSLIDERHANDLE_FN);
     const ISVG sliderTrackSVG = pGraphics->LoadSVG(SVGSLIDERTRACK_FN);
 
@@ -94,9 +95,11 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 #pragma mark MiscControls -
     
     AddLabel("ITextControl");
-    pGraphics->AttachControl(new ITextControl(sameCell().SubRectVertical(3, 1), "Result...", DEFAULT_TEXT, COLOR_LIGHT_GRAY), kCtrlTagDialogResult, "misccontrols");
+    pGraphics->AttachControl(new ITextControl(sameCell().SubRectVertical(4, 1).GetMidVPadded(10.f), "Result...", DEFAULT_TEXT, COLOR_LIGHT_GRAY), kCtrlTagDialogResult, "misccontrols");
     
-    pGraphics->AttachControl(new IURLControl(sameCell().SubRectVertical(3, 2).GetMidVPadded(10.f), "https://iplug2.github.io", "https://iplug2.github.io", DEFAULT_TEXT), kNoTag, "misccontrols");
+    pGraphics->AttachControl(new IURLControl(sameCell().SubRectVertical(4, 2).GetMidVPadded(10.f), "IURLControl", "https://iplug2.github.io", DEFAULT_TEXT), kNoTag, "misccontrols");
+
+    pGraphics->AttachControl(new IEditableTextControl(sameCell().SubRectVertical(4, 3).GetMidVPadded(10.f), "IEditableTextControl", DEFAULT_TEXT), kNoTag, "misccontrols");
     
     AddLabel("ITextToggleControl");
     pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 0, 3, 3), nullptr, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, forkAwesomeText), kNoTag, "misccontrols");
@@ -115,10 +118,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IBKnobControl(sameCell().GetPadded(-5.), knobBitmap, kParamGain), kNoTag, "bcontrols");
     AddLabel("IBKnobRotaterControl");
     pGraphics->AttachControl(new IBKnobRotaterControl(sameCell().GetPadded(-5.), knobRotateBitmap, kParamGain), kNoTag, "bcontrols");
-    AddLabel("IBSwitchControl");
-    pGraphics->AttachControl(new IBSwitchControl(sameCell(), switchBitmap), kNoTag, "bcontrols");
     AddLabel("IBButtonControl");
-    pGraphics->AttachControl(new IBButtonControl(sameCell(), buttonBitmap, [](IControl* pCaller) {
+    pGraphics->AttachControl(new IBButtonControl(sameCell().FracRectVertical(0.6f, true), buttonBitmap, [](IControl* pCaller) {
       pCaller->SetAnimation([](IControl* pCaller){
         auto progress = pCaller->GetAnimationProgress();
         if(progress > 1.) {
@@ -128,10 +129,14 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
         pCaller->SetValue(Clip(progress + .5, 0., 1.));
       }, 100);
     }), kNoTag, "bcontrols");
+//    AddLabel("IBSwitchControl");
+    pGraphics->AttachControl(new ITextControl(sameCell().FracRectVertical(0.5f, false).GetFromTop(20.f), "IBSwitchControl", style.labelText));
+    pGraphics->AttachControl(new IBSwitchControl(sameCell().FracRectVertical(0.5f, false), switchBitmap), kNoTag, "bcontrols");
     AddLabel("IBSliderControl");
     pGraphics->AttachControl(new IBSliderControl(sameCell().GetCentredInside(sliderHandleBitmap.W(), 100.f), sliderHandleBitmap, sliderTrackBitmap, kParamGain, EDirection::Vertical), kNoTag, "bcontrols");
     //pGraphics->AttachControl(new IVGroupControl("Bitmap Controls", "bcontrols", 10.f, 30.f, 30.f, 10.f));
-    
+    AddLabel("IBTextControl");
+    pGraphics->AttachControl(new IBTextControl(sameCell(), bitmapText, DEFAULT_LABEL_TEXT, "HELLO", 10, 16, 0, false));
 #pragma mark ISVGControls -
     
     AddLabel("ISVGKnobControl");
@@ -145,7 +150,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 
     pGraphics->AttachControl(new IVKnobControl(nextCell().GetCentredInside(110.), kParamGain, "IVKnobControl", style, true), kNoTag, "vcontrols");
     
-    pGraphics->AttachControl(new IVSliderControl(nextCell(), kParamGain, "IVSliderControl", style, true), kCtrlTagVectorSlider, "vcontrols");
+    pGraphics->AttachControl(new IVSliderControl(nextCell(), kParamGain, "IVSliderControl", style.WithRoundness(1.f), true, EDirection::Vertical, DEFAULT_GEARING, 6.f, 6.f, true), kCtrlTagVectorSlider, "vcontrols");
     pGraphics->AttachControl(new IVSliderControl(nextCell().SubRectVertical(3, 0), kParamGain, "IVSliderControl H", style, true, EDirection::Horizontal), kCtrlTagVectorSlider, "vcontrols");
     pGraphics->AttachControl(new IVRangeSliderControl(sameCell().SubRectVertical(3, 1), {kParamFreq1, kParamFreq2}, "IVRangeSliderControl", style, EDirection::Horizontal, true, 8.f, 2.f), kNoTag, "vcontrols");
 
@@ -179,7 +184,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     
     pGraphics->AttachControl(new IVSwitchControl(nextCell().SubRectVertical(3, 0), kParamMode, "IVSwitchControl", style.WithValueText(IText(24.f, EAlign::Center))), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVToggleControl(sameCell().SubRectVertical(3, 1), SplashClickActionFunc, "IVToggleControl", style.WithValueText(forkAwesomeText), "", ICON_FK_CHECK), kNoTag, "vcontrols");
-    pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), kParamMode, "IVRadioButtonControl", style, EVShape::Ellipse, EDirection::Vertical, 10.f), kCtrlTagRadioButton, "vcontrols");
+    pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), kParamMode, {}, "IVRadioButtonControl", style, EVShape::Ellipse, EDirection::Vertical, 10.f), kCtrlTagRadioButton, "vcontrols");
     pGraphics->AttachControl(new IVTabSwitchControl(nextCell().SubRectVertical(3, 0), SplashClickActionFunc, {ICON_FAU_FILTER_LOWPASS, ICON_FAU_FILTER_BANDPASS, ICON_FAU_FILTER_HIGHPASS}, "IVTabSwitchControl", style.WithValueText(fontaudioText), EVShape::EndsRounded), kCtrlTagTabSwitch, "vcontrols");
     pGraphics->AttachControl(new IVSlideSwitchControl(sameCell().SubRectVertical(3, 1), kParamMode, "IVSlideSwitchControl", style, true), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kParamFreq1, kParamFreq2}, "IVXYPadControl", style), kNoTag, "vcontrols");
@@ -436,8 +441,8 @@ void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     outputs[1][s] = sin(phase2 += phaseIncr2);
   }
   
-  mScopeSender.ProcessBlock(outputs, nFrames);
-  mMeterSender.ProcessBlock(outputs, nFrames);
+  mScopeSender.ProcessBlock(outputs, nFrames, kCtrlTagScope);
+  mMeterSender.ProcessBlock(outputs, nFrames, kCtrlTagMeter);
 
   for (int s = 0; s < nFrames; s++) {
     outputs[0][s] = 0.;

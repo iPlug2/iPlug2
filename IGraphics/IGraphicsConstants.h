@@ -53,6 +53,8 @@ const char* const DEFAULT_FONT = "Roboto-Regular";
 static constexpr float DEFAULT_TEXT_SIZE = 14.f;
 static constexpr int FONT_LEN = 64;
 
+static const float SENDER_THRESHOLD = (float) DBToAmp(-90.);
+
 /** @enum EBlend Porter-Duff blend mode/compositing operators */
 enum class EBlend
 {

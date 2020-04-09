@@ -274,7 +274,7 @@ bool CheckTransform(const agg::trans_affine& mtx)
 void IGraphicsAGG::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
 {
   bool preMultiplied = static_cast<Bitmap*>(bitmap.GetAPIBitmap())->IsPreMultiplied();
-  IRECT bounds = mClipRECT.Empty() ? dest : mClipRECT.Intersect(dest);
+  IRECT bounds = mClipRECT.Intersect(dest);
   bounds.Scale(GetBackingPixelScale());
 
   APIBitmap* pAPIBitmap = dynamic_cast<Bitmap*>(bitmap.GetAPIBitmap());

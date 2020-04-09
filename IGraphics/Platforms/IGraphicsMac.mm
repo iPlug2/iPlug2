@@ -108,7 +108,7 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   ContextReady([pView layer]);
 #endif
   
-  if (pParent) // Cocoa VST host.
+  if (pParent)
   {
     [(NSView*) pParent addSubview: (IGRAPHICS_VIEW*) mView];
   }
@@ -170,7 +170,7 @@ void IGraphicsMac::PlatformResize(bool parentHasResized)
   }  
 }
 
-void IGraphicsMac::PointToScreen(float& x, float& y)
+void IGraphicsMac::PointToScreen(float& x, float& y) const
 {
   if (mView)
   {
@@ -185,7 +185,7 @@ void IGraphicsMac::PointToScreen(float& x, float& y)
   }
 }
 
-void IGraphicsMac::ScreenToPoint(float& x, float& y)
+void IGraphicsMac::ScreenToPoint(float& x, float& y) const
 {
   if (mView)
   {
@@ -262,6 +262,17 @@ void IGraphicsMac::StoreCursorPosition()
   
   // Convert to IGraphics coordinates
   ScreenToPoint(mCursorX, mCursorY);
+}
+
+void IGraphicsMac::GetMouseLocation(float& x, float&y) const
+{
+  // Get position in screen coordinates
+  NSPoint mouse = [NSEvent mouseLocation];
+  x = mouse.x;
+  y = mouse.y;
+  
+  // Convert to IGraphics coordinates
+  ScreenToPoint(x, y);
 }
 
 EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
@@ -593,9 +604,9 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
   }
 }
 
-bool IGraphicsMac::SetTextInClipboard(const WDL_String& str)
+bool IGraphicsMac::SetTextInClipboard(const char* str)
 {
-  NSString* pTextForClipboard = [NSString stringWithUTF8String:str.Get()];
+  NSString* pTextForClipboard = [NSString stringWithUTF8String:str];
   [[NSPasteboard generalPasteboard] clearContents];
   return [[NSPasteboard generalPasteboard] setString:pTextForClipboard forType:NSStringPboardType];
 }

@@ -84,12 +84,14 @@ def main():
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['type'] = COMPONENT_TYPE
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['version'] = config['PLUG_VERSION_INT']
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['sandboxSafe'] = True
-  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'] = [{}]
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'] = ["",""]
 
   if config['PLUG_TYPE'] == 1:
     auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'][0] = "Synth"
   else:
     auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'][0] = "Effects"
+
+  auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'][1] = "size:{" + str(config['PLUG_WIDTH']) + "," + str(config['PLUG_HEIGHT']) + "}"
 
   plistlib.writePlist(auv3, plistpath)
 

@@ -13,8 +13,8 @@
 #endif
 
 #import <QuartzCore/QuartzCore.h>
-#ifdef IGRAPHICS_IMGUI
 #import <Metal/Metal.h>
+#ifdef IGRAPHICS_IMGUI
 #include "imgui.h"
 #import "imgui_impl_metal.h"
 #endif
@@ -197,8 +197,15 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   self.delegate = self;
   self.scrollEnabled = NO;
   
-  self.layer.opaque = YES;
-  self.layer.contentsScale = [UIScreen mainScreen].scale;
+#ifdef IGRAPHICS_METAL
+  mMTLLayer = [[CAMetalLayer alloc] init];
+  mMTLLayer.device = MTLCreateSystemDefaultDevice();
+  mMTLLayer.framebufferOnly = YES;
+  mMTLLayer.frame = self.layer.frame;
+  mMTLLayer.opaque = YES;
+  mMTLLayer.contentsScale = [UIScreen mainScreen].scale;
+  [self.layer addSublayer: mMTLLayer];
+#endif
   
   self.multipleTouchEnabled = NO;
   
@@ -225,8 +232,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   // Since drawable size is in pixels, we need to multiply by the scale to move from points to pixels
   drawableSize.width *= scale;
   drawableSize.height *= scale;
-  
-  self.metalLayer.drawableSize = drawableSize;
+    
+  mMTLLayer.drawableSize = drawableSize;
   #endif
 }
 
@@ -299,12 +306,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (CAMetalLayer*) metalLayer
 {
-  return (CAMetalLayer*) self.layer;
-}
-
-- (void)viewDidDisappear
-{
-  [self.displayLink invalidate];
+  return mMTLLayer;
 }
 
 - (void)didMoveToSuperview
@@ -322,7 +324,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     self.displayLink = nil;
   }
 }
-
 
 - (void)drawRect:(CGRect)rect
 {
@@ -368,6 +369,12 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   [self.displayLink invalidate];
   self.displayLink = nil;
+  mTextField = nil;
+  mGraphics = nil;
+  mMenuTableController = nil;
+  mMenuNavigationController = nil;
+  [mMTLLayer removeFromSuperlayer];
+  mMTLLayer = nil;
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField reason:(UITextFieldDidEndEditingReason)reason
@@ -756,15 +763,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     return FALSE;
 }
 
-+ (Class) layerClass
-{
-#ifdef IGRAPHICS_METAL
-  return [CAMetalLayer class];
-#else
-  return [CALayer class];
-#endif
-}
-
 - (void)keyboardWillShow:(NSNotification*) notification
 {
   NSDictionary* info = [notification userInfo];
@@ -817,7 +815,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   mView = pView;
   self = [super initWithFrame:[pView frame] device: MTLCreateSystemDefaultDevice()];
-  if(self) {
+  
+  if(self)
+  {
     _commandQueue = [self.device newCommandQueue];
     self.layer.opaque = NO;
   }

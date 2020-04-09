@@ -297,8 +297,12 @@ void IControl::SetPosition(float x, float y)
 {
   if (x < 0.f) x = 0.f;
   if (y < 0.f) y = 0.f;
-
-  SetTargetAndDrawRECTs({x, y, x + mRECT.W(), y + mRECT.H()});
+ 
+  float tX = x + (mTargetRECT.L - mRECT.L);
+  float tY = y + (mTargetRECT.T - mRECT.T);
+    
+  SetRECT({x, y, x + mRECT.W(), y + mRECT.H()});
+  SetTargetRECT({tX, tY, tX + mTargetRECT.W(), tY + mTargetRECT.H()});
 }
 
 void IControl::SetSize(float w, float h)
@@ -480,7 +484,7 @@ void ITextControl::Draw(IGraphics& g)
 {
   g.FillRect(mBGColor, mRECT, &mBlend);
   
-  if (mStr.GetLength())
+  if (mStr.GetLength() && g.GetControlInTextEntry() != this)
     g.DrawText(mText, mStr.Get(), mRECT, &mBlend);
 }
 
@@ -511,10 +515,41 @@ void IURLControl::Draw(IGraphics& g)
   else
     mText.mFGColor = mClicked ? mCLColor : mOriginalColor;
   
-  g.DrawLine(mText.mFGColor, mRECT.L, mRECT.B, mRECT.R, mRECT.B, &mBlend);
-  
   if (mStr.GetLength())
+  {
+    IRECT textDims;
+    g.MeasureText(mText, mStr.Get(), textDims);
+    
+    float linePosY = 0.f;
+    float linePosL = 0.f;
+    float linePosR = 0.f;
+
+    if(mText.mVAlign == EVAlign::Middle)
+      linePosY = mRECT.MH() + textDims.B;
+    else if(mText.mVAlign == EVAlign::Bottom)
+      linePosY = mRECT.B;
+    else if(mText.mVAlign == EVAlign::Top)
+      linePosY = mRECT.T - textDims.H();
+    
+    if(mText.mAlign == EAlign::Center)
+    {
+      linePosL = mRECT.MW() + textDims.L;
+      linePosR = mRECT.MW() + textDims.R;
+    }
+    else if(mText.mAlign == EAlign::Near)
+    {
+      linePosL = mRECT.L;
+      linePosR = mRECT.L + textDims.W();
+    }
+    else if(mText.mAlign == EAlign::Far)
+    {
+      linePosL = mRECT.R - textDims.W();
+      linePosR = mRECT.R;
+    }
+
+    g.DrawLine(mText.mFGColor, linePosL, linePosY, linePosR, linePosY, &mBlend);
     g.DrawText(mText, mStr.Get(), mRECT, &mBlend);
+  }
 }
 
 void IURLControl::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -601,8 +636,9 @@ void ICaptionControl::Draw(IGraphics& g)
 
   ITextControl::Draw(g);
   
-  if(mTri.W() > 0.f) {
-    g.FillTriangle(COLOR_DARK_GRAY, mTri.L, mTri.T, mTri.R, mTri.T, mTri.MW(), mTri.B, GetMouseIsOver() ? 0 : &BLEND_50);
+  if(mTri.W() > 0.f)
+  {
+    g.FillTriangle(mMouseIsOver ? mTriangleMouseOverColor : mTriangleColor, mTri.L, mTri.T, mTri.R, mTri.T, mTri.MW(), mTri.B, GetMouseIsOver() ? 0 : &BLEND_50);
   }
 }
 
@@ -885,7 +921,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
     menuToAddTo.RemoveEmptySubmenus();
 }
 
-ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, float gearing, float handleSize)
+ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, double gearing, float handleSize)
 : IControl(bounds, paramIdx)
 , mDirection(dir)
 , mHandleSize(handleSize)
@@ -893,7 +929,7 @@ ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirec
 {
 }
 
- ISliderControlBase::ISliderControlBase(const IRECT& bounds, IActionFunction aF, EDirection dir, float gearing, float handleSize)
+ ISliderControlBase::ISliderControlBase(const IRECT& bounds, IActionFunction aF, EDirection dir, double gearing, float handleSize)
 : IControl(bounds, aF)
 , mDirection(dir)
 , mHandleSize(handleSize)
@@ -928,12 +964,12 @@ void ISliderControlBase::OnMouseDrag(float x, float y, float dX, float dY, const
   }
   else
   {
-  double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
-  
-  if (mDirection == EDirection::Vertical)
-    SetValue(GetValue() + (static_cast<double>(dY) / static_cast<double>(mTrackBounds.T - mTrackBounds.B) / gearing));
-  else
-    SetValue(GetValue() + (static_cast<double>(dX) / static_cast<double>(mTrackBounds.R - mTrackBounds.L) / gearing));
+    double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
+    
+    if (mDirection == EDirection::Vertical)
+      SetValue(GetValue() + (static_cast<double>(dY) / static_cast<double>(mTrackBounds.T - mTrackBounds.B) / gearing));
+    else
+      SetValue(GetValue() + (static_cast<double>(dX) / static_cast<double>(mTrackBounds.R - mTrackBounds.L) / gearing));
   }
   
   SetDirty(true);

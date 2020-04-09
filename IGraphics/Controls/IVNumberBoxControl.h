@@ -66,7 +66,7 @@ public:
     if(mIncButton && mDecButton)
     {
       IRECT sections = mWidgetBounds;
-      mTextReadout->SetTargetAndDrawRECTs(sections.ReduceFromLeft(sections.W() * 0.75));
+      mTextReadout->SetTargetAndDrawRECTs(sections.ReduceFromLeft(sections.W() * 0.75f));
       sections.Pad(-1.f, 1.f, 0.f, 1.f);
       mIncButton->SetTargetAndDrawRECTs(sections.FracRectVertical(0.5f, true));
       mDecButton->SetTargetAndDrawRECTs(sections.FracRectVertical(0.5f, false));
@@ -77,7 +77,7 @@ public:
   void OnAttached() override
   {
     IRECT sections = mWidgetBounds;
-    GetUI()->AttachControl(mTextReadout = new IVLabelControl(sections.ReduceFromLeft(sections.W() * 0.75), "0", mStyle.WithDrawFrame(true)));
+    GetUI()->AttachControl(mTextReadout = new IVLabelControl(sections.ReduceFromLeft(sections.W() * 0.75f), "0", mStyle.WithDrawFrame(true)));
     
     mTextReadout->SetStrFmt(32, mFmtStr.Get(), mRealValue);
     

@@ -122,13 +122,15 @@ tresult PLUGIN_API IPlugVST3::getState(IBStream* pState)
 }
 
 #pragma mark IEditController overrides
-ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
-{
-  if (tag >= kBypassParam)
-    return EditControllerEx1::getParamNormalized(tag);
-  
-  return IPlugVST3ControllerBase::GetParamNormalized(this, tag);
-}
+
+//https://github.com/iPlug2/iPlug2/issues/488
+//ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
+//{
+//  if (tag >= kBypassParam)
+//    return EditControllerEx1::getParamNormalized(tag);
+//
+//  return IPlugVST3ControllerBase::GetParamNormalized(this, tag);
+//}
 
 tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
 {
