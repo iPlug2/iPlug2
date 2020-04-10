@@ -1144,24 +1144,8 @@ public:
   , mGearing(gearing)
   {}
 
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override
-  {
-    mMouseDown = true;
-
-    if (mHideCursorOnDrag)
-      GetUI()->HideMouseCursor(true, true);
-
-    IControl::OnMouseDown(x, y, mod);
-  }
-
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override
-  {
-    mMouseDown = false;
-
-    if (mHideCursorOnDrag)
-      GetUI()->HideMouseCursor(false);
-  }
-
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
   void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
   
@@ -1177,6 +1161,7 @@ protected:
   EDirection mDirection;
   double mGearing;
   bool mMouseDown = false;
+  double mMouseDragValue;
 };
 
 /** A base class for slider/fader controls, to handle mouse action and Sender. */
@@ -1201,6 +1186,7 @@ protected:
   float mHandleSize;
   double mGearing;
   bool mMouseDown = false;
+  double mMouseDragValue;
 };
 
 /** A base class for mult-strip/track controls, such as multi-sliders, meters */
