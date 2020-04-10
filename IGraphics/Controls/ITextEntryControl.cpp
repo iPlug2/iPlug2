@@ -270,7 +270,12 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
     default:
     {
       // validate input based on param type
-      const IParam* pParam = GetUI()->GetControlInTextEntry()->GetParam();
+      IControl* pControlInTextEntry = GetUI()->GetControlInTextEntry();
+      
+      if(!pControlInTextEntry)
+        return false;
+      
+      const IParam* pParam = pControlInTextEntry->GetParam();
 
       if(pParam)
       {
@@ -361,8 +366,10 @@ void ITextEntryControl::Cut()
 
 void ITextEntryControl::SelectAll()
 {
-  mEditState.select_start = 0;
-  mEditState.select_end = static_cast<int>(mEditString.length());
+  CallSTB([&]() {
+    mEditState.select_start = 0;
+    mEditState.select_end = static_cast<int>(mEditString.length());
+  });
 }
 
 //static
@@ -546,11 +553,10 @@ void ITextEntryControl::CommitEdit()
 void ITextEntryControl::SetStr(const char* str)
 {
   mCharWidths.Resize(0, false);
+  mEditString = StringConvert{}.from_bytes(std::string(str));
 
   if (mEditState.select_start != mEditState.select_end)
   {
     SelectAll();
   }
-
-  mEditString = StringConvert{}.from_bytes(std::string(str));
 }
