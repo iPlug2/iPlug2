@@ -1010,7 +1010,6 @@ void ISliderControlBase::OnResize()
 void ISliderControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   mMouseDown = true;
-  mMouseDragValue = GetValue();
   
   if(GetParam())
   {
@@ -1019,6 +1018,8 @@ void ISliderControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
   }
   else
     SnapToMouse(x, y, mDirection, mTrackBounds);
+
+  mMouseDragValue = GetValue();
 
   if (mHideCursorOnDrag)
     GetUI()->HideMouseCursor(true, true);
