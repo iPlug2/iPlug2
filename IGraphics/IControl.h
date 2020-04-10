@@ -217,6 +217,7 @@ public:
   int GetParamIdx(int valIdx = 0) const;
   
   /** Set the index of a parameter that the control is linked to
+   * If you are calling this "manually" to reuse a control for multiple parameters, you probably want to call IEditorDelegate::SendCurrentParamValuesFromDelegate() afterward, to update the control values
    * @param paramIdx Parameter index, or kNoParameter if there is no parameter linked with this control at valIdx
    * @param valIdx An index to choose which of the controls vals to set */
   void SetParamIdx(int paramIdx, int valIdx = 0);
@@ -1282,6 +1283,57 @@ public:
     {
       DrawTrack(g, mTrackBounds.Get()[ch], ch);
     }
+  }
+  
+  /** Update the parameters based on a parameter group name.
+   * You probably want to call IEditorDelegate::SendCurrentParamValuesFromDelegate() after this, to update the control values */
+  void SetParamsByGroup(const char* paramGroup)
+  {
+    int nParams = GetDelegate()->NParams();
+    std::vector<int> paramIdsForGroup;
+    
+    for (auto p = 0; p < nParams; p++)
+    {
+      IParam* pParam = GetDelegate()->GetParam(p);
+      
+      if(strcmp(pParam->GetGroupForHost(), paramGroup) == 0)
+      {
+        paramIdsForGroup.push_back(p);
+      }
+    }
+    
+    mTrackBounds.Resize(0);
+    
+    int nParamsInGroup = static_cast<int>(paramIdsForGroup.size());
+        
+    SetNVals(nParamsInGroup);
+  
+    int valIdx = 0;
+    for (auto param : paramIdsForGroup)
+    {
+      SetParamIdx(param, valIdx++);
+      mTrackBounds.Add(IRECT());
+    }
+    
+    OnResize();
+  }
+  
+  /** Update the parameters based on a parameter group name.
+   * You probably want to call IEditorDelegate::SendCurrentParamValuesFromDelegate() after this, to update the control values */
+  void SetParams(std::initializer_list<int> paramIds)
+  {
+    mTrackBounds.Resize(0);
+
+    SetNVals(static_cast<int>(paramIds.size()));
+  
+    int valIdx = 0;
+    for (auto param : paramIds)
+    {
+      SetParamIdx(param, valIdx++);
+      mTrackBounds.Add(IRECT());
+    }
+    
+    OnResize();
   }
   
   //void SetAllTrackData(float val) { memset(mTrackData.Get(), (int) Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
