@@ -443,6 +443,11 @@ void IVTabSwitchControl::OnResize()
   SetDirty(false);
 }
 
+const char* IVTabSwitchControl::GetSelectedLabelStr() const
+{
+  return mTabLabels.Get(GetSelectedIdx())->Get();
+}
+
 IVRadioButtonControl::IVRadioButtonControl(const IRECT& bounds, int paramIdx, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction, float buttonSize)
 : IVTabSwitchControl(bounds, paramIdx, options, label, style, shape, direction)
 , mButtonSize(buttonSize)
