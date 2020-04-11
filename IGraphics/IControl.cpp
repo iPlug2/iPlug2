@@ -644,7 +644,8 @@ void ICaptionControl::Draw(IGraphics& g)
 
 void ICaptionControl::OnResize()
 {
-  if(GetParam()->Type() == IParam::kTypeEnum)
+  const IParam* param = GetParam();
+  if(param != NULL && param->Type() == IParam::kTypeEnum)
   {
     mTri = mRECT.FracRectHorizontal(0.2f, true).GetCentredInside(IRECT(0, 0, 8, 5)); //TODO: This seems rubbish
   }
