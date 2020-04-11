@@ -3,11 +3,14 @@
 
 #include "IGraphicsSkia.h"
 
+#pragma warning( push )
+#pragma warning( disable : 4244 )
 #include "SkDashPathEffect.h"
 #include "SkGradientShader.h"
 #include "SkFont.h"
 #include "SkFontMetrics.h"
 #include "SkTypeface.h"
+#pragma warning( pop )
 
 #include "GrContext.h"
 
