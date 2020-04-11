@@ -195,9 +195,9 @@ protected:
   
   void DrawDropShadow(IGraphics& g, const IRECT& r)
   {
+  #ifdef IGRAPHICS_NANOVG
     const float yDrop = 2.0;
 
-  #ifdef IGRAPHICS_NANOVG
     auto NanoVGColor = [](const IColor& color, const IBlend* pBlend = nullptr) {
       NVGcolor c;
       c.r = (float) color.R / 255.0f;
