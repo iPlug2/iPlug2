@@ -8,10 +8,13 @@
 #define SK_METAL
 #endif
 
+#pragma warning( push )
+#pragma warning( disable : 4244 )
 #include "SkSurface.h"
 #include "SkPath.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
+#pragma warning( pop )
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
