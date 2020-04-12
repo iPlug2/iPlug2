@@ -348,7 +348,7 @@ public:
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
    * @param bounds after calling the method this IRECT will be updated with the rectangular region the text will occupy */
-  virtual void MeasureText(const IText& text, const char* str, IRECT& bounds) const;
+  virtual float MeasureText(const IText& text, const char* str, IRECT& bounds) const;
 
   /** Get the color of a point in the graphics context. On a 1:1 screen this corresponds to a pixel. \todo check this
    * @param x The X coordinate in the graphics context of the pixel
@@ -1549,8 +1549,8 @@ protected:
    * @param text /todo
    * @param str /todo
    * @param bounds /todo
-   * @param pBlend /todo */
-  virtual void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const = 0;
+   * @return The width of the text */
+  virtual float DoMeasureText(const IText& text, const char* str, IRECT& bounds) const = 0;
     
   /** /todo
    * @param text /todo

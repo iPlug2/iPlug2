@@ -8,10 +8,13 @@
 #define SK_METAL
 #endif
 
+#pragma warning( push )
+#pragma warning( disable : 4244 )
 #include "SkSurface.h"
 #include "SkPath.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
+#pragma warning( pop )
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -116,7 +119,7 @@ public:
     
 protected:
     
-  void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+  float DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
   void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
   bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
