@@ -36,7 +36,7 @@
 BEGIN_IPLUG_NAMESPACE
 
 #ifdef NDEBUG
-  #define DBGMSG(...)
+  #define DBGMSG(...) do {} while(false)
 #else
   #if defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB) || defined(OS_IOS)
     #define DBGMSG(...) printf(__VA_ARGS__)
@@ -65,7 +65,7 @@ BEGIN_IPLUG_NAMESPACE
 
 #ifdef OS_WIN
 #ifdef NDEBUG
-#define DBGMSG(...)
+#define DBGMSG(...) do {} while(false)
 #else
   #ifdef OutputDebugString
     #undef OutputDebugString
