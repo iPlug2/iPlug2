@@ -36,7 +36,7 @@
 BEGIN_IPLUG_NAMESPACE
 
 #ifdef NDEBUG
-  #define DBGMSG(...) while(0) {} // should be optimized away
+  #define DBGMSG(...) do {} while(0)// should be optimized away
 #else
   #if defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB) || defined(OS_IOS)
     #define DBGMSG(...) printf(__VA_ARGS__)
