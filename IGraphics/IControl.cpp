@@ -811,7 +811,7 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
     if (range > 0.)
     {
       double l, h;
-      pParam->GetBounds(l,h);
+      pParam->GetBounds(l, h);
 
       v = l + mMouseDragValue * range;
       v = v - std::fmod(v, pParam->GetStep());
