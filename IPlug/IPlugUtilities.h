@@ -50,6 +50,13 @@ BEGIN_IPLUG_NAMESPACE
 template <typename T>
 T Clip(T x, T lo, T hi) { return std::min(std::max(x, lo), hi); }
 
+/** Linear interpolate between values \p a and \p b
+* @param a Low value
+* @param b High value
+* @param f Value betweeen 0-1 for interpolation */
+template <typename T>
+inline T Lerp(T a, T b, T f) { return ((b - a) * f + a); }
+
 static inline bool CStringHasContents(const char* str) { return str && str[0] != '\0'; }
 
 #define MAKE_QUOTE(str) #str
