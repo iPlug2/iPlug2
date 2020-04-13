@@ -1195,9 +1195,10 @@ class IVTrackControlBase : public IControl
                          , public IVectorBase
 {
 public:
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, const char* trackNames = 0, ...)
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int maxNTracks = 1, int nSteps = 0, EDirection dir = EDirection::Horizontal)
   : IControl(bounds)
   , IVectorBase(style)
+  , mNSteps(nSteps)
   , mDirection(dir)
   {
     SetNVals(maxNTracks);
@@ -1211,9 +1212,10 @@ public:
     AttachIControl(this, label);
   }
 
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, const char* trackNames = 0, ...)
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamIdx, int maxNTracks = 1, int nSteps = 0, EDirection dir = EDirection::Horizontal)
   : IControl(bounds)
   , IVectorBase(style)
+  , mNSteps(nSteps)
   , mDirection(dir)
   {
     SetNVals(maxNTracks);
@@ -1221,15 +1223,16 @@ public:
     
     for (int i = 0; i < maxNTracks; i++)
     {
-      SetParamIdx(lowParamidx+i, i);
+      SetParamIdx(lowParamIdx+i, i);
     }
 
     AttachIControl(this, label);
   }
   
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, EDirection dir = EDirection::Horizontal, const char* trackNames = 0, ...)
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, int nSteps = 0, EDirection dir = EDirection::Horizontal)
   : IControl(bounds)
   , IVectorBase(style)
+  , mNSteps(nSteps)
   , mDirection(dir)
   {
     int maxNTracks = static_cast<int>(params.size());
@@ -1274,26 +1277,13 @@ public:
       }
     }
 
-    int nParamInGroup = static_cast<int>(paramIdsForGroup.size());
-    
-    SetNVals(nParamInGroup);
-    mTrackBounds.Resize(nParamInGroup);
-
-    int valIdx = 0;
-    for (auto param : paramIdsForGroup)
-    {
-      SetParamIdx(param, valIdx++);
-    }
-    
-    OnResize();
+    SetParams(paramIdsForGroup);
   }
   
   /** Update the parameters based on a parameter group name.
    * You probably want to call IEditorDelegate::SendCurrentParamValuesFromDelegate() after this, to update the control values */
-  void SetParams(std::initializer_list<int> paramIds)
+  void SetParams(const std::vector<int>& paramIds)
   {
-    mTrackBounds.Resize(0);
-
     int nParams = static_cast<int>(paramIds.size());
     SetNVals(nParams);
     mTrackBounds.Resize(nParams);
@@ -1304,12 +1294,14 @@ public:
       SetParamIdx(param, valIdx++);
     }
     
-    OnResize();
+    const IParam* pFirstParam = GetParam(0);
+    SetNSteps(pFirstParam->GetStepped() ? pFirstParam->GetRange() / pFirstParam->GetStep() : 0); // calls OnResize()
   }
   
   void SetBaseValue(double value) { mBaseValue = value; OnResize(); }
   void SetTrackPadding(double value) { mTrackPadding = value; OnResize(); }
   void SetPeakSize(double value) { mPeakSize = value; OnResize(); }
+  void SetNSteps(int nSteps) { mNSteps = nSteps; OnResize(); }
 
 protected:
   virtual void DrawBG(IGraphics& g, const IRECT& r)
@@ -1322,6 +1314,14 @@ protected:
         g.DrawVerticalLine(GetColor(kSH), r, mBaseValue);
       else
         g.DrawHorizontalLine(GetColor(kSH), r, mBaseValue);
+    }
+    
+    for(int i = 0; i< mStepBounds.GetSize() - 1; i++)
+    {
+      if(mDirection == EDirection::Horizontal)
+        g.DrawVerticalLine(GetColor(kSH), mStepBounds.Get()[i].R, r.T, r.B);
+      else
+        g.DrawHorizontalLine(GetColor(kSH), mStepBounds.Get()[i].B, r.L, r.R);
     }
   }
   
@@ -1355,6 +1355,14 @@ protected:
     
     assert(fillRect.W() >= 0.);
     assert(fillRect.H() >= 0.);
+    
+    if(mStepBounds.GetSize())
+    {
+      int step = GetStepIdxForPos(fillRect.L, fillRect.T + 1); // plus one to put inside cross axis box
+
+      if (step > -1)
+        fillRect.B = mStepBounds.Get()[step].B;
+    }
     
     DrawTrackHandle(g, fillRect, chIdx, trackPos > mBaseValue);
     
@@ -1405,6 +1413,7 @@ protected:
   {
     SetTargetRECT(MakeRects(mRECT));
     MakeTrackRects(mWidgetBounds);
+    MakeStepRects(mWidgetBounds, mNSteps);
     SetDirty(false);
   }
 
@@ -1422,6 +1431,21 @@ protected:
 
     return kNoValIdx;
   }
+  
+  int GetStepIdxForPos(float x, float y) const
+  {
+    int nSteps = mStepBounds.GetSize();
+    
+    for (auto v = 0; v < nSteps; v++)
+    {
+      if (mStepBounds.Get()[v].ContainsEdge(x, y))
+      {
+        return v;
+      }
+    }
+
+    return -1;
+  }
 
   virtual void MakeTrackRects(const IRECT& bounds)
   {
@@ -1433,10 +1457,23 @@ protected:
                                      GetPadded(0, -mTrackPadding * (float) dir, -mTrackPadding * (float) !dir, -mTrackPadding);
     }
   }
+  
+  virtual void MakeStepRects(const IRECT& bounds, int nSteps)
+  {
+    int dir = static_cast<int>(mDirection);
+    mStepBounds.Resize(nSteps);
+    
+    for (int step = 0; step < nSteps; step++)
+    {
+      mStepBounds.Get()[step] = bounds.SubRect(EDirection(dir), nSteps, step);
+    }
+  }
+  
 protected:
   EDirection mDirection = EDirection::Vertical;
   WDL_TypedBuf<IRECT> mTrackBounds;
-  WDL_TypedBuf<IRECT> mCrossAxisStepBounds;
+  WDL_TypedBuf<IRECT> mStepBounds;
+  int mNSteps = 0;
   float mTrackPadding = 0.;
   float mPeakSize = 1.;
   double mBaseValue = 0.; // 0-1 value to represent the mid-point, i.e. for displaying bipolar data

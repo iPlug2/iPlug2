@@ -29,8 +29,8 @@ template <int MAXNC = 1>
 class IVMeterControl : public IVTrackControlBase
 {
 public:
-  IVMeterControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, const char* trackNames = 0, ...)
-  : IVTrackControlBase(bounds, label, style, MAXNC, dir, trackNames)
+  IVMeterControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical)
+  : IVTrackControlBase(bounds, label, style, MAXNC, 0, dir)
   {
   }
 

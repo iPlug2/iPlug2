@@ -32,8 +32,8 @@ public:
      * @param label The label for the vector control, leave empty for no label
      * @param style The styling of this vector control \see IVStyle
      * @param direction The direction of the sliders */
-  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical)
-  : IVTrackControlBase(bounds, label, style, MAXNC, dir)
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, int nSteps = 0, EDirection dir = EDirection::Vertical)
+  : IVTrackControlBase(bounds, label, style, MAXNC, nSteps, dir)
   {
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
@@ -45,15 +45,15 @@ public:
    * @param style The styling of this vector control \see IVStyle
    * @param loParamIdx The parameter index for the first slider in the multislider. The total number of sliders/parameters covered depends on the template argument, and is contiguous from loParamIdx
    * @param direction The direction of the sliders */
-  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir)
-  : IVTrackControlBase(bounds, label, style, loParamIdx, MAXNC, dir)
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, int nSteps, EDirection dir)
+  : IVTrackControlBase(bounds, label, style, loParamIdx, MAXNC, nSteps, dir)
   {
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
   }
   
-  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, EDirection dir)//, const char* trackNames = 0, ...)
-  : IVTrackControlBase(bounds, label, style, params, dir)
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, int nSteps, EDirection dir)
+  : IVTrackControlBase(bounds, label, style, params, nSteps, dir)
   {
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
@@ -76,9 +76,16 @@ public:
 
     double value = 0.;
     int sliderTest = -1;
-
+    
+    int step = GetStepIdxForPos(x, y);
+        
     if(direction == EDirection::Vertical)
     {
+      if(step > -1)
+      {
+        y = mStepBounds.Get()[step].T;
+      }
+      
       value = 1.f - (y-bounds.T) / bounds.H();
       
       for(auto i = 0; i < nVals; i++)
@@ -92,6 +99,11 @@ public:
     }
     else
     {
+      if(step > -1)
+      {
+        x = mStepBounds.Get()[step].L;
+      }
+      
       value = (x-bounds.L) / bounds.W();
       
       for(auto i = 0; i < nVals; i++)
@@ -104,7 +116,8 @@ public:
       }
     }
     
-    value = std::round( value / mGrain ) * mGrain;
+    //TODO:: disable round when stepped?
+    value = std::round(value / mGrain) * mGrain;
     
     if (sliderTest > -1)
     {
@@ -113,32 +126,32 @@ public:
 
       mSliderHit = sliderTest;
 
-      if (mPrevSliderHit != -1)
-      {
-        if (abs(mPrevSliderHit - mSliderHit) > 1 /*|| shiftClicked*/)
-        {
-          int lowBounds, highBounds;
-
-          if (mPrevSliderHit < mSliderHit)
-          {
-            lowBounds = mPrevSliderHit;
-            highBounds = mSliderHit;
-          }
-          else
-          {
-            lowBounds = mSliderHit;
-            highBounds = mPrevSliderHit;
-          }
-
-          for (auto i = lowBounds; i < highBounds; i++)
-          {
-            double frac = (double)(i - lowBounds) / double(highBounds-lowBounds);
-            SetValue(iplug::Lerp(GetValue(lowBounds), GetValue(highBounds), frac), i);
-            OnNewValue(i, GetValue(i));
-          }
-        }
-      }
-      mPrevSliderHit = mSliderHit;
+//      if (mPrevSliderHit != -1)
+//      {
+//        if (abs(mPrevSliderHit - mSliderHit) > 1 /*|| shiftClicked*/)
+//        {
+//          int lowBounds, highBounds;
+//
+//          if (mPrevSliderHit < mSliderHit)
+//          {
+//            lowBounds = mPrevSliderHit;
+//            highBounds = mSliderHit;
+//          }
+//          else
+//          {
+//            lowBounds = mSliderHit;
+//            highBounds = mPrevSliderHit;
+//          }
+//
+//          for (auto i = lowBounds; i < highBounds; i++)
+//          {
+//            double frac = (double)(i - lowBounds) / double(highBounds-lowBounds);
+//            SetValue(iplug::Lerp(GetValue(lowBounds), GetValue(highBounds), frac), i);
+//            OnNewValue(i, GetValue(i));
+//          }
+//        }
+//      }
+//      mPrevSliderHit = mSliderHit;
     }
     else
     {
@@ -164,6 +177,11 @@ public:
   //override to do something when an individual slider is dragged
   virtual void OnNewValue(int trackIdx, double val) {}
 
+  void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue) override
+  {
+    g.DrawText(IText(30), "X", r);
+  }
+  
 protected:
   int mPrevSliderHit = -1;
   int mSliderHit = -1;
