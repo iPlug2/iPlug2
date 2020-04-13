@@ -26,7 +26,8 @@ template <int MAXNC = 1>
 class IVMultiSliderControl : public IVTrackControlBase
 {
 public:
-
+  static constexpr int kMsgTagSetHighlight = 0;
+  
   /** Constructs a vector multi slider control that is not linked to parameters
      * @param bounds The control's bounds
      * @param label The label for the vector control, leave empty for no label
@@ -127,7 +128,8 @@ public:
       OnNewValue(sliderTest, GetValue(sliderTest));
 
       mSliderHit = sliderTest;
-
+      mMouseOverTrack = mSliderHit;
+      
       if (noSteps && mPrevSliderHit != -1) // disable LERP when steps
       {
         if (abs(mPrevSliderHit - mSliderHit) > 1 /*|| shiftClicked*/)
@@ -203,8 +205,12 @@ public:
   virtual void OnNewValue(int trackIdx, double val) {}
 
   void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue) override
+  void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
-    g.DrawText(IText(30), "X", r);
+    if (!IsDisabled() && msgTag == kMsgTagSetHighlight && dataSize == sizeof(int))
+    {
+      SetHighlightedTrack(*reinterpret_cast<const int*>(pData));
+    }
   }
   
 protected:

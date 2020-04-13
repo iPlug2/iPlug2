@@ -1247,6 +1247,18 @@ public:
     
     AttachIControl(this, label);
   }
+  
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseOverTrack = GetValIdxForPos(x, y);
+    SetDirty(false);
+  }
+  
+  void OnMouseOut() override
+  {
+    mMouseOverTrack = -1;
+    SetDirty(false);
+  }
 
   void DrawWidget(IGraphics& g) override
   {
@@ -1302,7 +1314,8 @@ public:
   void SetTrackPadding(double value) { mTrackPadding = value; OnResize(); }
   void SetPeakSize(double value) { mPeakSize = value; OnResize(); }
   void SetNSteps(int nSteps) { mNSteps = nSteps; OnResize(); }
-
+  void SetHighlightedTrack(int highlightIdx) { mHighlightedTrack = highlightIdx; SetDirty(false); }
+  
 protected:
   virtual void DrawBG(IGraphics& g, const IRECT& r)
   {
@@ -1481,6 +1494,8 @@ protected:
   int mNSteps = 0;
   float mTrackPadding = 0.;
   float mPeakSize = 1.;
+  int mHighlightedTrack = -1; // Highlight a single track, e.g. for step sequencer
+  int mMouseOverTrack = -1;
   double mBaseValue = 0.; // 0-1 value to represent the mid-point, i.e. for displaying bipolar data
   bool mDrawTrackFrame = true;
 };
