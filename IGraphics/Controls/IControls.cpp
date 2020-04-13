@@ -957,7 +957,7 @@ void IVRangeSliderControl::OnMouseDrag(float x, float y, float dX, float dY, con
   
   auto minClip = mHitHandle == 0 ? 0. : GetValue(mHitHandle-1);
   auto maxClip = mHitHandle == NVals()-1 ? 1. : GetValue(mHitHandle+1);
-  SnapToMouse(x, y, mDirection, mWidgetBounds, mHitHandle, 1.f /*scalar*/, minClip, maxClip);
+  SnapToMouse(x, y, mDirection, mWidgetBounds, mHitHandle, minClip, maxClip);
 }
 
 IVXYPadControl::IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label, const IVStyle& style, float handleRadius)
