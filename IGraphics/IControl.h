@@ -1316,7 +1316,7 @@ protected:
         g.DrawHorizontalLine(GetColor(kSH), r, mBaseValue);
     }
     
-    for(int i = 0; i< mStepBounds.GetSize() - 1; i++)
+    for(int i = 0; i < mStepBounds.GetSize(); i++)
     {
       if(mDirection == EDirection::Horizontal)
         g.DrawVerticalLine(GetColor(kSH), mStepBounds.Get()[i].R, r.T, r.B);
@@ -1470,7 +1470,7 @@ protected:
     
     for (int step = 0; step < nSteps; step++)
     {
-      mStepBounds.Get()[step] = bounds.SubRect(EDirection(dir), nSteps, step);
+      mStepBounds.Get()[step] = bounds.SubRect(EDirection(dir), nSteps, nSteps - 1 - step);
     }
   }
   

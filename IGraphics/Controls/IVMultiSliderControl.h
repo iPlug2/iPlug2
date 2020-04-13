@@ -116,8 +116,10 @@ public:
       }
     }
     
-    //TODO:: disable round when stepped?
-    value = std::round(value / mGrain) * mGrain;
+    const bool noSteps = mStepBounds.GetSize() == 0;
+    
+    if(noSteps)
+       value = std::round(value / mGrain) * mGrain;
     
     if (sliderTest > -1)
     {
@@ -126,32 +128,32 @@ public:
 
       mSliderHit = sliderTest;
 
-//      if (mPrevSliderHit != -1)
-//      {
-//        if (abs(mPrevSliderHit - mSliderHit) > 1 /*|| shiftClicked*/)
-//        {
-//          int lowBounds, highBounds;
-//
-//          if (mPrevSliderHit < mSliderHit)
-//          {
-//            lowBounds = mPrevSliderHit;
-//            highBounds = mSliderHit;
-//          }
-//          else
-//          {
-//            lowBounds = mSliderHit;
-//            highBounds = mPrevSliderHit;
-//          }
-//
-//          for (auto i = lowBounds; i < highBounds; i++)
-//          {
-//            double frac = (double)(i - lowBounds) / double(highBounds-lowBounds);
-//            SetValue(iplug::Lerp(GetValue(lowBounds), GetValue(highBounds), frac), i);
-//            OnNewValue(i, GetValue(i));
-//          }
-//        }
-//      }
-//      mPrevSliderHit = mSliderHit;
+      if (noSteps && mPrevSliderHit != -1) // disable LERP when steps
+      {
+        if (abs(mPrevSliderHit - mSliderHit) > 1 /*|| shiftClicked*/)
+        {
+          int lowBounds, highBounds;
+
+          if (mPrevSliderHit < mSliderHit)
+          {
+            lowBounds = mPrevSliderHit;
+            highBounds = mSliderHit;
+          }
+          else
+          {
+            lowBounds = mSliderHit;
+            highBounds = mPrevSliderHit;
+          }
+
+          for (auto i = lowBounds; i < highBounds; i++)
+          {
+            double frac = (double)(i - lowBounds) / double(highBounds-lowBounds);
+            SetValue(iplug::Lerp(GetValue(lowBounds), GetValue(highBounds), frac), i);
+            OnNewValue(i, GetValue(i));
+          }
+        }
+      }
+      mPrevSliderHit = mSliderHit;
     }
     else
     {
@@ -163,10 +165,33 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
+    if(mStepBounds.GetSize() && mPrevSliderHit != -1)
+    {
+      int ch = GetValIdxForPos(x, y);
+      
+      if(ch > -1)
+      {
+        int step = GetStepIdxForPos(x, y);
+        
+        if(step > -1)
+        {
+          float y = mStepBounds.Get()[step].T;
+          double valueAtStep = 1.f - (y-mWidgetBounds.T) / mWidgetBounds.H();
+
+          if(GetValue(ch) == valueAtStep)
+          {
+            SetValue(0., ch);
+            SetDirty(true);
+            return;
+          }
+        }
+      }
+    }
+
     if (!mod.S)
       mPrevSliderHit = -1;
-
-    SnapToMouse(x, y, mDirection, mWidgetBounds);
+      
+    SnapToMouse(x, y, mDirection, mWidgetBounds);    
   }
 
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
