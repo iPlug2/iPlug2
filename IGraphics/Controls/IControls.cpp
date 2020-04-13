@@ -808,7 +808,7 @@ void IVSliderControl::OnInit()
 }
 
 IVRangeSliderControl::IVRangeSliderControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label, const IVStyle& style, EDirection dir, bool onlyHandle, float handleSize, float trackSize)
-: IVTrackControlBase(bounds, label, style, params, dir, 0, 1.)
+: IVTrackControlBase(bounds, label, style, params, dir)
 , mHandleSize(handleSize)
 {
   mTrackSize = trackSize;

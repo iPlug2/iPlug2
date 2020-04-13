@@ -1195,11 +1195,9 @@ class IVTrackControlBase : public IControl
                          , public IVectorBase
 {
 public:
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, const char* trackNames = 0, ...)
   : IControl(bounds)
   , IVectorBase(style)
-  , mMinTrackValue(minTrackValue)
-  , mMaxTrackValue(maxTrackValue)
   , mDirection(dir)
   {
     SetNVals(maxNTracks);
@@ -1213,11 +1211,9 @@ public:
     AttachIControl(this, label);
   }
 
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, const char* trackNames = 0, ...)
   : IControl(bounds)
   , IVectorBase(style)
-  , mMinTrackValue(minTrackValue)
-  , mMaxTrackValue(maxTrackValue)
   , mDirection(dir)
   {
     SetNVals(maxNTracks);
@@ -1231,11 +1227,9 @@ public:
     AttachIControl(this, label);
   }
   
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, EDirection dir = EDirection::Horizontal, const char* trackNames = 0, ...)
   : IControl(bounds)
   , IVectorBase(style)
-  , mMinTrackValue(minTrackValue)
-  , mMaxTrackValue(maxTrackValue)
   , mDirection(dir)
   {
     SetNVals(static_cast<int>(params.size()));
@@ -1321,8 +1315,7 @@ public:
     
     OnResize();
   }
-  
-  //void SetAllTrackData(float val) { memset(mTrackData.Get(), (int) Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
+
 protected:
   
   virtual void DrawTrack(IGraphics& g, const IRECT& r, int chIdx)
@@ -1370,8 +1363,6 @@ protected:
 protected:
   EDirection mDirection = EDirection::Vertical;
   WDL_TypedBuf<IRECT> mTrackBounds;
-  float mMinTrackValue;
-  float mMaxTrackValue;
   float mTrackPadding = 0.;
   float mPeakSize = 1.;
   bool mDrawTrackFrame = true;

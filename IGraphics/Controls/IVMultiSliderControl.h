@@ -31,11 +31,9 @@ public:
      * @param bounds The control's bounds
      * @param label The label for the vector control, leave empty for no label
      * @param style The styling of this vector control \see IVStyle
-     * @param direction The direction of the sliders
-     * @param minTrackValue Defines the minimum value of each slider
-     * @param maxTrackValue Defines the maximum value of each slider */
-  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, float minTrackValue = 0.f, float maxTrackValue = 1.f)
-  : IVTrackControlBase(bounds, label, style, MAXNC, dir, minTrackValue, maxTrackValue)
+     * @param direction The direction of the sliders */
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical)
+  : IVTrackControlBase(bounds, label, style, MAXNC, dir)
   {
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
@@ -46,18 +44,16 @@ public:
    * @param label The label for the vector control, leave empty for no label
    * @param style The styling of this vector control \see IVStyle
    * @param loParamIdx The parameter index for the first slider in the multislider. The total number of sliders/parameters covered depends on the template argument, and is contiguous from loParamIdx
-   * @param direction The direction of the sliders
-   * @param minTrackValue Defines the minimum value of each slider
-   * @param maxTrackValue Defines the maximum value of each slider */
-  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir, float minTrackValue, float maxTrackValue) //FIXME: float minTrackValue, float maxTrackValue?
-  : IVTrackControlBase(bounds, label, style, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue)
+   * @param direction The direction of the sliders */
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir)
+  : IVTrackControlBase(bounds, label, style, loParamIdx, MAXNC, dir)
   {
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
   }
   
-  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, EDirection dir, float minTrackValue, float maxTrackValue)//, const char* trackNames = 0, ...)
-  : IVTrackControlBase(bounds, label, style, params, dir, minTrackValue, maxTrackValue)
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, EDirection dir)//, const char* trackNames = 0, ...)
+  : IVTrackControlBase(bounds, label, style, params, dir)
   {
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
@@ -127,7 +123,7 @@ public:
     
     if (sliderTest > -1)
     {
-      SetValue(mMinTrackValue + Clip(value, 0.f, 1.f) * (mMaxTrackValue - mMinTrackValue), sliderTest);
+      SetValue(Clip(value, 0.f, 1.f), sliderTest);
       OnNewValue(sliderTest, GetValue(sliderTest));
 
       mSliderHit = sliderTest;
