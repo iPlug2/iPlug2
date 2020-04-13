@@ -1362,28 +1362,33 @@ protected:
 
       if (step > -1)
         fillRect.B = mStepBounds.Get()[step].B;
-    }
-    
-    DrawTrackHandle(g, fillRect, chIdx, trackPos > mBaseValue);
-    
-    IRECT peakRect;
-    
-    if(mDirection == EDirection::Vertical)
-    {
-      peakRect = IRECT(fillRect.L,
-                       trackPos < mBaseValue ? fillRect.B : fillRect.T,
-                       fillRect.R,
-                       trackPos < mBaseValue ? fillRect.B - mPeakSize: fillRect.T + mPeakSize);
+      
+      if(GetValue(chIdx) > 0.)
+        DrawTrackHandle(g, fillRect, chIdx, trackPos > mBaseValue);
     }
     else
     {
-      peakRect = IRECT(trackPos < mBaseValue ? fillRect.L + mPeakSize : fillRect.R - mPeakSize,
-                       fillRect.T,
-                       trackPos < mBaseValue ? fillRect.L : fillRect.R,
-                       fillRect.B);
+      DrawTrackHandle(g, fillRect, chIdx, trackPos > mBaseValue);
+      
+      IRECT peakRect;
+      
+      if(mDirection == EDirection::Vertical)
+      {
+        peakRect = IRECT(fillRect.L,
+                         trackPos < mBaseValue ? fillRect.B : fillRect.T,
+                         fillRect.R,
+                         trackPos < mBaseValue ? fillRect.B - mPeakSize: fillRect.T + mPeakSize);
+      }
+      else
+      {
+        peakRect = IRECT(trackPos < mBaseValue ? fillRect.L + mPeakSize : fillRect.R - mPeakSize,
+                         fillRect.T,
+                         trackPos < mBaseValue ? fillRect.L : fillRect.R,
+                         fillRect.B);
+      }
+      
+      DrawPeak(g, peakRect, chIdx, trackPos > mBaseValue);
     }
-    
-    DrawPeak(g, peakRect, chIdx, trackPos > mBaseValue);
 
     if(mStyle.drawFrame && mDrawTrackFrame)
       g.DrawRect(GetColor(kFR), r, &mBlend, mStyle.frameThickness);
