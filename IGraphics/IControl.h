@@ -1201,11 +1201,11 @@ public:
   , mDirection(dir)
   {
     SetNVals(maxNTracks);
+    mTrackBounds.Resize(maxNTracks);
 
     for (int i=0; i<maxNTracks; i++)
     {
       SetParamIdx(kNoParameter, i);
-      mTrackBounds.Add(IRECT());
     }
     
     AttachIControl(this, label);
@@ -1217,11 +1217,11 @@ public:
   , mDirection(dir)
   {
     SetNVals(maxNTracks);
-
+    mTrackBounds.Resize(maxNTracks);
+    
     for (int i = 0; i < maxNTracks; i++)
     {
       SetParamIdx(lowParamidx+i, i);
-      mTrackBounds.Add(IRECT());
     }
 
     AttachIControl(this, label);
@@ -1232,32 +1232,24 @@ public:
   , IVectorBase(style)
   , mDirection(dir)
   {
-    SetNVals(static_cast<int>(params.size()));
-  
+    int maxNTracks = static_cast<int>(params.size());
+    SetNVals(maxNTracks);
+    mTrackBounds.Resize(maxNTracks);
+
     int valIdx = 0;
     for (auto param : params)
     {
       SetParamIdx(param, valIdx++);
-      mTrackBounds.Add(IRECT());
     }
     
     AttachIControl(this, label);
   }
-  
-  virtual void MakeTrackRects(const IRECT& bounds)
-  {
-    int nVals = NVals();
-    int dir = static_cast<int>(mDirection); // 0 = horizontal, 1 = vertical
-    for (int ch = 0; ch < nVals; ch++)
-    {
-      mTrackBounds.Get()[ch] = bounds.SubRect(EDirection(!dir), nVals, ch).
-                                     GetPadded(0, -mTrackPadding * (float) dir, -mTrackPadding * (float) !dir, -mTrackPadding);
-    }
-  }
-  
+
   void DrawWidget(IGraphics& g) override
   {
-    int nVals = NVals();
+    DrawBG(g, mWidgetBounds);
+    
+    const int nVals = NVals();
     
     for (int ch = 0; ch < nVals; ch++)
     {
@@ -1281,18 +1273,16 @@ public:
         paramIdsForGroup.push_back(p);
       }
     }
+
+    int nParamInGroup = static_cast<int>(paramIdsForGroup.size());
     
-    mTrackBounds.Resize(0);
-    
-    int nParamsInGroup = static_cast<int>(paramIdsForGroup.size());
-        
-    SetNVals(nParamsInGroup);
-  
+    SetNVals(nParamInGroup);
+    mTrackBounds.Resize(nParamInGroup);
+
     int valIdx = 0;
     for (auto param : paramIdsForGroup)
     {
       SetParamIdx(param, valIdx++);
-      mTrackBounds.Add(IRECT());
     }
     
     OnResize();
@@ -1304,51 +1294,109 @@ public:
   {
     mTrackBounds.Resize(0);
 
-    SetNVals(static_cast<int>(paramIds.size()));
-  
+    int nParams = static_cast<int>(paramIds.size());
+    SetNVals(nParams);
+    mTrackBounds.Resize(nParams);
+
     int valIdx = 0;
     for (auto param : paramIds)
     {
       SetParamIdx(param, valIdx++);
-      mTrackBounds.Add(IRECT());
     }
     
     OnResize();
   }
+  
+  void SetBaseValue(double value) { mBaseValue = value; OnResize(); }
+  void SetTrackPadding(double value) { mTrackPadding = value; OnResize(); }
+  void SetPeakSize(double value) { mPeakSize = value; OnResize(); }
 
 protected:
+  virtual void DrawBG(IGraphics& g, const IRECT& r)
+  {
+    g.FillRect(kBG, r, &mBlend);
+    
+    if(mBaseValue > 0.)
+    {
+      if(mDirection == EDirection::Horizontal)
+        g.DrawVerticalLine(GetColor(kSH), r, mBaseValue);
+      else
+        g.DrawHorizontalLine(GetColor(kSH), r, mBaseValue);
+    }
+  }
   
   virtual void DrawTrack(IGraphics& g, const IRECT& r, int chIdx)
   {
     DrawTrackBG(g, r, chIdx);
-    DrawTrackHandle(g, r, chIdx);
     
+    const float trackPos = static_cast<float>(GetValue(chIdx));
+    
+    IRECT fillRect;
+    
+    if(mBaseValue > 0.)
+    {
+      if(mDirection == EDirection::Vertical)
+      {
+        fillRect = IRECT(r.L,
+                         trackPos < mBaseValue ? r.B - r.H() * mBaseValue : r.B - r.H() * trackPos,
+                         r.R,
+                         trackPos < mBaseValue ? r.B - r.H() * trackPos : r.B - r.H() * mBaseValue);
+      }
+      else
+      {
+        fillRect = IRECT(trackPos < mBaseValue ? r.L + r.W() * trackPos : r.L + r.W() * mBaseValue,
+                         r.T,
+                         trackPos < mBaseValue ? r.L + r.W() * mBaseValue : r.L + r.W() * trackPos,
+                         r.B);
+      }
+    }
+    else
+      fillRect = r.FracRect(mDirection, trackPos);
+    
+    assert(fillRect.W() >= 0.);
+    assert(fillRect.H() >= 0.);
+    
+    DrawTrackHandle(g, fillRect, chIdx, trackPos > mBaseValue);
+    
+    IRECT peakRect;
+    
+    if(mDirection == EDirection::Vertical)
+    {
+      peakRect = IRECT(fillRect.L,
+                       trackPos < mBaseValue ? fillRect.B : fillRect.T,
+                       fillRect.R,
+                       trackPos < mBaseValue ? fillRect.B - mPeakSize: fillRect.T + mPeakSize);
+    }
+    else
+    {
+      peakRect = IRECT(trackPos < mBaseValue ? fillRect.L + mPeakSize : fillRect.R - mPeakSize,
+                       fillRect.T,
+                       trackPos < mBaseValue ? fillRect.L : fillRect.R,
+                       fillRect.B);
+    }
+    
+    DrawPeak(g, peakRect, chIdx, trackPos > mBaseValue);
+
     if(mStyle.drawFrame && mDrawTrackFrame)
       g.DrawRect(GetColor(kFR), r, &mBlend, mStyle.frameThickness);
   }
   
   virtual void DrawTrackBG(IGraphics& g, const IRECT& r, int chIdx)
   {
-    g.FillRect(kBG, r, &mBlend);
+    //NO-OP
   }
   
-  virtual void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx)
+  /** Draw the main body of the track
+   * @param g The IGraphics context
+   * @param r The bounds of the track handle, which may be centered around mBaseValue, if mBaseValue > 0.
+   * @param chIdx channel index
+   * @param aboveBaseValue true if the handle channel value is above the base value */
+  virtual void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue)
   {
-    IRECT fillRect = r.FracRect(mDirection, static_cast<float>(GetValue(chIdx)));
-    
-    g.FillRect(GetColor(kFG), fillRect, &mBlend); // TODO: shadows!
-    
-    IRECT peakRect;
-    
-    if(mDirection == EDirection::Vertical)
-      peakRect = IRECT(fillRect.L, fillRect.T, fillRect.R, fillRect.T + mPeakSize);
-    else
-      peakRect = IRECT(fillRect.R - mPeakSize, fillRect.T, fillRect.R, fillRect.B);
-    
-    DrawPeak(g, peakRect, chIdx);
+    g.FillRect(GetColor(kFG), r, &mBlend);
   }
   
-  virtual void DrawPeak(IGraphics& g, const IRECT& r, int chIdx)
+  virtual void DrawPeak(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue)
   {
     g.FillRect(GetColor(kFR), r, &mBlend);
   }
@@ -1359,12 +1407,39 @@ protected:
     MakeTrackRects(mWidgetBounds);
     SetDirty(false);
   }
-  
+
+  int GetValIdxForPos(float x, float y) const override
+  {
+    int nVals = NVals();
+    
+    for (auto v = 0; v < nVals; v++)
+    {
+      if (mTrackBounds.Get()[v].Contains(x, y))
+      {
+        return v;
+      }
+    }
+
+    return kNoValIdx;
+  }
+
+  virtual void MakeTrackRects(const IRECT& bounds)
+  {
+    int nVals = NVals();
+    int dir = static_cast<int>(mDirection); // 0 = horizontal, 1 = vertical
+    for (int ch = 0; ch < nVals; ch++)
+    {
+      mTrackBounds.Get()[ch] = bounds.SubRect(EDirection(!dir), nVals, ch).
+                                     GetPadded(0, -mTrackPadding * (float) dir, -mTrackPadding * (float) !dir, -mTrackPadding);
+    }
+  }
 protected:
   EDirection mDirection = EDirection::Vertical;
   WDL_TypedBuf<IRECT> mTrackBounds;
+  WDL_TypedBuf<IRECT> mCrossAxisStepBounds;
   float mTrackPadding = 0.;
   float mPeakSize = 1.;
+  double mBaseValue = 0.; // 0-1 value to represent the mid-point, i.e. for displaying bipolar data
   bool mDrawTrackFrame = true;
 };
 

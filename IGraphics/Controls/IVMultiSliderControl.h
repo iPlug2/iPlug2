@@ -69,27 +69,12 @@ public:
       g.DrawRect(GetColor(kFR), mWidgetBounds, &mBlend, mStyle.frameThickness);
   }
 
-  int GetValIdxForPos(float x, float y) const override
-  {
-    int nVals = NVals();
-    
-    for (auto v = 0; v < nVals; v++)
-    {
-      if (mTrackBounds.Get()[v].Contains(x, y))
-      {
-        return v;
-      }
-    }
-
-    return kNoValIdx;
-  }
-
   void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1 /* TODO:: not used*/, double minClip = 0., double maxClip = 1.) override
   {
     bounds.Constrain(x, y);
     int nVals = NVals();
 
-    float value = 0.;
+    double value = 0.;
     int sliderTest = -1;
 
     if(direction == EDirection::Vertical)
@@ -123,7 +108,7 @@ public:
     
     if (sliderTest > -1)
     {
-      SetValue(Clip(value, 0.f, 1.f), sliderTest);
+      SetValue(Clip(value, 0., 1.), sliderTest);
       OnNewValue(sliderTest, GetValue(sliderTest));
 
       mSliderHit = sliderTest;
@@ -182,7 +167,7 @@ public:
 protected:
   int mPrevSliderHit = -1;
   int mSliderHit = -1;
-  float mGrain = 0.001f;
+  double mGrain = 0.001;
 };
 
 END_IGRAPHICS_NAMESPACE
