@@ -82,7 +82,10 @@ public:
   Steinberg::tresult PLUGIN_API getState(Steinberg::IBStream* pState) override;
     
   // IEditController
-  Steinberg::Vst::ParamValue PLUGIN_API getParamNormalized (Steinberg::Vst::ParamID tag) override;
+  
+  
+  //https://github.com/iPlug2/iPlug2/issues/488
+  //Steinberg::Vst::ParamValue PLUGIN_API getParamNormalized (Steinberg::Vst::ParamID tag) override;
   Steinberg::tresult PLUGIN_API setParamNormalized(Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value) override;
   Steinberg::IPlugView* PLUGIN_API createView(const char* name) override;
   Steinberg::tresult PLUGIN_API setEditorState(Steinberg::IBStream* pState) override;

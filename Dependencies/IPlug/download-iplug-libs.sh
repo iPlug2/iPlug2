@@ -11,3 +11,4 @@ cd VST3_SDK
 git submodule update --init pluginterfaces
 git submodule update --init base
 git submodule update --init public.sdk
+git submodule update --init doc

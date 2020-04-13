@@ -37,9 +37,6 @@ public:
   
   bool EditorResizeFromUI(int viewWidth, int viewHeight) override;
 
-  /** If the editor changes arbitrary data (such as layout/scale) this is called to store data into the plugin*/
-  void EditorDataChangedFromUI(const IByteChunk& data) override {}
-
   /** /todo */
   virtual void OnIdle() {}; // NO-OP
   

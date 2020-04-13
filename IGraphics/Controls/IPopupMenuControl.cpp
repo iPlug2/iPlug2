@@ -145,6 +145,7 @@ void IPopupMenuControl::Draw(IGraphics& g)
           else
             DrawCellBackground(g, *pCellRect, pMenuItem, sel, &pMenuPanel->mBlend);
 
+          //TODO: Title indent?
           DrawCellText(g, *pCellRect, pMenuItem, sel, &pMenuPanel->mBlend);
           
           if(pMenuItem->GetChecked())

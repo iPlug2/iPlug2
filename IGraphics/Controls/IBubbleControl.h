@@ -120,7 +120,7 @@ public:
   
   void Draw(IGraphics& g) override
   {
-    IRECT r = mBubbleRect.GetPadded(-mDropShadowSize);
+    IRECT r = mBubbleBounds.GetPadded(-mDropShadowSize);
 
     DrawDropShadow(g, r); // TODO: currently too slow with !nanovg
     DrawBubble(g, r);
@@ -131,7 +131,7 @@ public:
   void ResetBounds()
   {
     SetTargetAndDrawRECTs(IRECT());
-    mBubbleRect = mRECT;
+    mBubbleBounds = mRECT;
     mCaller = nullptr;
   }
   
@@ -195,9 +195,9 @@ protected:
   
   void DrawDropShadow(IGraphics& g, const IRECT& r)
   {
+  #ifdef IGRAPHICS_NANOVG
     const float yDrop = 2.0;
 
-  #ifdef IGRAPHICS_NANOVG
     auto NanoVGColor = [](const IColor& color, const IBlend* pBlend = nullptr) {
       NVGcolor c;
       c.r = (float) color.R / 255.0f;
@@ -210,7 +210,7 @@ protected:
     NVGcontext* vg = (NVGcontext*) g.GetDrawContext();
     NVGpaint shadowPaint = nvgBoxGradient(vg, r.L, r.T + yDrop, r.W(), r.H(), mRoundness * 2.f, 20.f, NanoVGColor(COLOR_BLACK_DROP_SHADOW, &mBlend), NanoVGColor(COLOR_TRANSPARENT));
     nvgBeginPath(vg);
-    nvgRect(vg, mBubbleRect.L, mBubbleRect.T, mBubbleRect.W(), mBubbleRect.H());
+    nvgRect(vg, mBubbleBounds.L, mBubbleBounds.T, mBubbleBounds.W(), mBubbleBounds.H());
     nvgFillPaint(vg, shadowPaint);
     nvgGlobalCompositeOperation(vg, NVG_SOURCE_OVER);
     nvgFill(vg);
@@ -218,7 +218,7 @@ protected:
   #else
 //    if (!g.CheckLayer(mShadowLayer))
 //    {
-//      g.StartLayer(this, mBubbleRect);
+//      g.StartLayer(this, mBubbleBounds);
 //      g.FillRoundRect(COLOR_BLACK, r, mRoundness);
 //      mShadowLayer = g.EndLayer();
 //      g.ApplyLayerDropShadow(mShadowLayer, IShadow(COLOR_BLACK_DROP_SHADOW, 20.0, 0.0, yDrop, 1.0, true));
@@ -252,7 +252,7 @@ protected:
     const float halfHeight = contentBounds.H() / 2.f;
     const float halfWidth = contentBounds.W() / 2.f;
 
-    mBubbleRect = IRECT(x, y - halfHeight, x + contentBounds.W(), y + halfHeight);
+    mBubbleBounds = IRECT(x, y - halfHeight, x + contentBounds.W(), y + halfHeight);
     IRECT controlBounds = pCaller->GetRECT();
 
     if(mDirection == EDirection::Horizontal)
@@ -260,10 +260,10 @@ protected:
       const float maxR = mMaxBounds.R - mHorizontalPadding - mDropShadowSize;
       
       // check if it's gone off the right hand side
-      if(mBubbleRect.R > maxR)
+      if(mBubbleBounds.R > maxR)
       {
-        const float shiftLeft = mBubbleRect.R-controlBounds.L;
-        mBubbleRect.Translate(-shiftLeft, 0.f);
+        const float shiftLeft = mBubbleBounds.R-controlBounds.L;
+        mBubbleBounds.Translate(-shiftLeft, 0.f);
         mArrowDir = EArrowDir::kEast;
       } 
       else
@@ -271,20 +271,20 @@ protected:
     }
     else
     {
-      mBubbleRect.Translate(-halfWidth, -halfHeight);
+      mBubbleBounds.Translate(-halfWidth, -halfHeight);
 
       // check if it's gone off the top
-      if(mBubbleRect.T < mMaxBounds.T)
+      if(mBubbleBounds.T < mMaxBounds.T)
       {
         mArrowDir = EArrowDir::kNorth;
-        const float shiftDown = mBubbleRect.H() + controlBounds.H();
-        mBubbleRect.Translate(0.f, shiftDown);
+        const float shiftDown = mBubbleBounds.H() + controlBounds.H();
+        mBubbleBounds.Translate(0.f, shiftDown);
       }
       else
         mArrowDir = EArrowDir::kSouth;
     }
       
-    SetRECT(mRECT.Union(mBubbleRect));
+    SetRECT(mRECT.Union(mBubbleBounds));
 
 //    #ifndef IGRAPHICS_NANOVG
 //    if(mShadowLayer)
@@ -300,7 +300,7 @@ protected:
 
     if(pCaller != mCaller)
     {
-      mRECT = mBubbleRect;
+      mRECT = mBubbleBounds;
       GetUI()->SetAllControlsDirty();
     }
     
@@ -313,7 +313,7 @@ protected:
   ITouchID mTouchId = 0;
   EDirection mDirection = EDirection::Horizontal;
   IRECT mMaxBounds; // if view is only showing a part of the graphics context, we need to know because menus can't go there
-  IRECT mBubbleRect;
+  IRECT mBubbleBounds;
   IControl* mCaller = nullptr;
   EArrowDir mArrowDir = EArrowDir::kWest;
 //  #ifndef IGRAPHICS_NANOVG

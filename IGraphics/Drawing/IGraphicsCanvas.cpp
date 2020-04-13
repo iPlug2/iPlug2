@@ -299,12 +299,13 @@ void IGraphicsCanvas::PrepareAndMeasureText(const IText& text, const char* str, 
   r = IRECT((float) x, (float) (y - ascender), (float) (x + textWidth), (float) (y + textHeight - ascender));
 }
 
-void IGraphicsCanvas::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+float IGraphicsCanvas::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   IRECT r = bounds;
   double x, y;
   PrepareAndMeasureText(text, str, bounds, x, y);
   DoMeasureTextRotation(text, r, bounds);
+  return bounds.W();
 }
 
 void IGraphicsCanvas::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
@@ -335,13 +336,10 @@ void IGraphicsCanvas::SetClipRegion(const IRECT& r)
   val context = GetContext();
   context.call<void>("restore");
   context.call<void>("save");
-  if (!r.Empty())
-  {
-    context.call<void>("beginPath");
-    context.call<void>("rect", r.L, r.T, r.W(), r.H());
-    context.call<void>("clip");
-    context.call<void>("beginPath");
-  }
+  context.call<void>("beginPath");
+  context.call<void>("rect", r.L, r.T, r.W(), r.H());
+  context.call<void>("clip");
+  context.call<void>("beginPath");
 }
 
 bool IGraphicsCanvas::BitmapExtSupported(const char* ext)

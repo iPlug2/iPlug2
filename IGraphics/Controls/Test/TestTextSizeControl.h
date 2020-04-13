@@ -37,7 +37,7 @@ public:
   void Draw(IGraphics& g) override
   {
     const char* str = "Some Text To Resize";
-    mText.mSize = static_cast<float>(GetValue()) * 40.f + 5.f;
+    mText.mSize = static_cast<float>(GetValue()) * 100.f + 12.f;
     
     g.FillRect(COLOR_WHITE, mRECT);
     g.DrawText(mText, str, mRECT);

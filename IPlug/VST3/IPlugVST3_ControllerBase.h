@@ -153,17 +153,18 @@ public:
 #endif
   }
   
-  Steinberg::Vst::ParamValue PLUGIN_API GetParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParamID tag)
-  {
-    IParam* param = pPlug->GetParam(tag);
-        
-    if (param)
-    {
-      return param->GetNormalized();
-    }
-        
-    return 0.0;
-  }
+//  https://github.com/iPlug2/iPlug2/issues/488
+//  Steinberg::Vst::ParamValue PLUGIN_API GetParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParamID tag)
+//  {
+//    IParam* pParam = pPlug->GetParam(tag);
+//
+//    if (pParam)
+//    {
+//      return pParam->GetNormalized();
+//    }
+//
+//    return 0.0;
+//  }
     
   void PLUGIN_API SetParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value)
   {

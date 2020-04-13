@@ -41,6 +41,9 @@ public:
   void* OpenWindow(void* pHandle) final;
   void CloseWindow() final;
   void SetScreenScale(double scale) final;
+  
+  bool OnKeyDown(const IKeyPress& key) override;
+  bool OnKeyUp(const IKeyPress& key) override;
     
   // Default serialization implementations (which serialize the size/scale) = override for custom behaviours
   bool SerializeEditorState(IByteChunk& chunk) const override;

@@ -178,12 +178,10 @@ struct IMidiMsg
   }
   
   /** /todo
-   * 
    * @param idx /todo
    * @param value range [0, 1] /todo
    * @param channel /todo
-   * @param offset /todo
-   */
+   * @param offset /todo */
   void MakeControlChangeMsg(EControlChangeMsg idx, double value, int channel = 0, int offset = 0)
   {
     Clear();
@@ -192,7 +190,16 @@ struct IMidiMsg
     mData2 = (int) (value * 127.0);
     mOffset = offset;
   }
-  
+
+  /** /todo */
+  void MakeProgramChange(int program, int channel = 0, int offset = 0)
+  {
+    Clear();
+    mStatus = channel | (kProgramChange << 4);
+    mData1 = program;
+    mOffset = offset;
+  }
+
   /** /todo  
    * @param pressure /todo
    * @param offset /todo

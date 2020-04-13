@@ -118,7 +118,7 @@ public:
   /** @return The number of samples elapsed since start of project timeline. */
   double GetSamplePos() const { return mTimeInfo.mSamplePos; }
 
-  /** @return The Tempo in beats per minute */
+  /** @return The tempo in beats per minute */
   double GetTempo() const { return mTimeInfo.mTempo; }
 
   /** @return The number of samples in a beat */

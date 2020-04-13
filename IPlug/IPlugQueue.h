@@ -18,6 +18,8 @@
 #include <atomic>
 #include <cstddef>
 
+#include "heapbuf.h"
+
 BEGIN_IPLUG_NAMESPACE
 
 /** A lock-free SPSC queue used to transfer data between threads

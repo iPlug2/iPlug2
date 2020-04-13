@@ -5,7 +5,7 @@
 using namespace iplug;
 using namespace igraphics;
 
-class IGraphicsTest : public Plugin
+class IGraphicsTest final : public Plugin
 {
 public:
   IGraphicsTest(const InstanceInfo& info);

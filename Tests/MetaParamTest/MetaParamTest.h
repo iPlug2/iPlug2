@@ -29,7 +29,7 @@ enum EControlTags
 using namespace iplug;
 using namespace igraphics;
 
-class MetaParamTest : public Plugin
+class MetaParamTest final : public Plugin
 {
 public:
   MetaParamTest(const InstanceInfo& info);

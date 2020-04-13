@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
-#include "IVMeterControl.h"
+#include "IControls.h"
 
 const int kNumPrograms = 1;
 
@@ -13,6 +13,11 @@ enum EParams
   kParamDecay,
   kParamSustain,
   kParamRelease,
+  kParamLFOShape,
+  kParamLFORateHz,
+  kParamLFORateTempo,
+  kParamLFORateMode,
+  kParamLFODepth,
   kNumParams
 };
 
@@ -24,7 +29,9 @@ enum EParams
 enum ECtrlTags
 {
   kCtrlTagMeter = 0,
-  kCtrlTagLED,
+  kCtrlTagLFOVis,
+  kCtrlTagScope,
+  kCtrlTagRTText,
   kCtrlTagKeyboard,
   kNumCtrlTags
 };
@@ -38,7 +45,7 @@ enum EMsgTags
 using namespace iplug;
 using namespace igraphics;
 
-class IPlugInstrument : public Plugin
+class IPlugInstrument final : public Plugin
 {
 public:
   IPlugInstrument(const InstanceInfo& info);
@@ -50,12 +57,10 @@ public:
   void OnReset() override;
   void OnParamChange(int paramIdx) override;
   void OnIdle() override;
-  bool OnKeyDown(const IKeyPress& key) override;
-  bool OnKeyUp(const IKeyPress& key) override;
-  bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
 
 private:
   IPlugInstrumentDSP<sample> mDSP {16};
-  IVMeterControl<1>::Sender mMeterSender {kCtrlTagMeter};
+  IPeakSender<2> mMeterSender;
+  ISender<1> mLFOVisSender;
 #endif
 };
