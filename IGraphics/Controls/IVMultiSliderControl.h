@@ -116,10 +116,8 @@ public:
         }
       }
     }
-    
-    const bool noSteps = mStepBounds.GetSize() == 0;
-    
-    if(noSteps)
+        
+    if(!GetStepped())
        value = std::round(value / mGrain) * mGrain;
     
     if (sliderTest > -1)
@@ -130,7 +128,7 @@ public:
       mSliderHit = sliderTest;
       mMouseOverTrack = mSliderHit;
       
-      if (noSteps && mPrevSliderHit != -1) // disable LERP when steps
+      if (!GetStepped() && mPrevSliderHit != -1) // LERP disabled when stepped
       {
         if (abs(mPrevSliderHit - mSliderHit) > 1 /*|| shiftClicked*/)
         {
@@ -167,7 +165,8 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    if(mStepBounds.GetSize() && !mZeroValueStepHasBounds && mPrevSliderHit != -1)
+    // This allows single clicking to remove a step entry when !mZeroValueStepHasBounds
+    if(GetStepped() && !mZeroValueStepHasBounds && mPrevSliderHit != -1)
     {
       int ch = GetValIdxForPos(x, y);
       

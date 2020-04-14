@@ -1381,7 +1381,7 @@ protected:
     
     if(stepped)
     {
-      int step = GetStepIdxForPos(fillRect.L, fillRect.T + 1); // plus one to put inside cross axis box
+      int step = GetStepIdxForPos(fillRect.L, fillRect.T + 1);
 
       if (step > -1)
         fillRect.B = mStepBounds.Get()[step].B;
