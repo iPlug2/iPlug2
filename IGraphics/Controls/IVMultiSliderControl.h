@@ -167,7 +167,7 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    if(mStepBounds.GetSize() && mPrevSliderHit != -1)
+    if(mStepBounds.GetSize() && !mZeroValueStepHasBounds && mPrevSliderHit != -1)
     {
       int ch = GetValIdxForPos(x, y);
       

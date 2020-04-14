@@ -1307,7 +1307,9 @@ public:
     }
     
     const IParam* pFirstParam = GetParam(0);
-    SetNSteps(pFirstParam->GetStepped() ? pFirstParam->GetRange() / pFirstParam->GetStep() : 0); // calls OnResize()
+    const int range = pFirstParam->GetRange() / pFirstParam->GetStep();
+    mZeroValueStepHasBounds = !(range == 1);
+    SetNSteps(pFirstParam->GetStepped() ? range : 0); // calls OnResize()
   }
   
   void SetBaseValue(double value) { mBaseValue = value; OnResize(); }
@@ -1343,6 +1345,7 @@ protected:
     DrawTrackBG(g, r, chIdx);
     
     const float trackPos = static_cast<float>(GetValue(chIdx));
+    const bool stepped = GetStepped();
     
     IRECT fillRect;
     
@@ -1364,20 +1367,32 @@ protected:
       }
     }
     else
+    {
       fillRect = r.FracRect(mDirection, trackPos);
+      
+      if(stepped && mZeroValueStepHasBounds && trackPos == 0.f)
+      {
+        fillRect.T = mStepBounds.Get()[0].T;
+      }
+    }
     
     assert(fillRect.W() >= 0.);
     assert(fillRect.H() >= 0.);
     
-    if(mStepBounds.GetSize())
+    if(stepped)
     {
       int step = GetStepIdxForPos(fillRect.L, fillRect.T + 1); // plus one to put inside cross axis box
 
       if (step > -1)
         fillRect.B = mStepBounds.Get()[step].B;
       
-      if(GetValue(chIdx) > 0.)
+      if(mZeroValueStepHasBounds)
         DrawTrackHandle(g, fillRect, chIdx, trackPos > mBaseValue);
+      else
+      {
+        if(GetValue(chIdx) > 0.)
+          DrawTrackHandle(g, fillRect, chIdx, trackPos > mBaseValue);
+      }
     }
     else
     {
@@ -1420,6 +1435,9 @@ protected:
   virtual void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue)
   {
     g.FillRect(GetColor(kFG), r, &mBlend);
+    
+    if(chIdx == mMouseOverTrack)
+      g.FillRect(GetColor(kHL), r, &mBlend);
   }
   
   virtual void DrawPeak(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue)
@@ -1478,13 +1496,26 @@ protected:
   
   virtual void MakeStepRects(const IRECT& bounds, int nSteps)
   {
-    int dir = static_cast<int>(mDirection);
-    mStepBounds.Resize(nSteps);
-    
-    for (int step = 0; step < nSteps; step++)
+    if(nSteps)
     {
-      mStepBounds.Get()[step] = bounds.SubRect(EDirection(dir), nSteps, nSteps - 1 - step);
+      int dir = static_cast<int>(mDirection);
+      
+      nSteps += (int) mZeroValueStepHasBounds;
+      
+      mStepBounds.Resize(nSteps);
+      
+      for (int step = 0; step < nSteps; step++)
+      {
+        mStepBounds.Get()[step] = bounds.SubRect(EDirection(dir), nSteps, nSteps - 1 - step);
+      }
     }
+    else
+      mStepBounds.Resize(0);
+  }
+  
+  bool GetStepped() const
+  {
+    return mStepBounds.GetSize() > 0;
   }
   
 protected:
@@ -1498,6 +1529,7 @@ protected:
   int mMouseOverTrack = -1;
   double mBaseValue = 0.; // 0-1 value to represent the mid-point, i.e. for displaying bipolar data
   bool mDrawTrackFrame = true;
+  bool mZeroValueStepHasBounds = true;
 };
 
 /** A base class for buttons/momentary switches - cannot be linked to parameters.
