@@ -14,7 +14,7 @@ projectpath = os.path.abspath(os.path.join(scriptpath, os.pardir))
 
 IPLUG2_ROOT = "../../.."
 
-sys.path.insert(0, os.path.join(os.getcwd(), IPLUG2_ROOT + '/scripts'))
+sys.path.insert(0, os.path.join(os.getcwd(), IPLUG2_ROOT + '/Scripts'))
 
 from parse_config import parse_config, parse_xcconfig
 
@@ -22,21 +22,21 @@ def main():
   if(len(sys.argv) == 2):
      if(sys.argv[1] == "app"):
        print "Copying resources ..."
-     
+
        dst = os.environ["TARGET_BUILD_DIR"] + "/" + os.environ["UNLOCALIZED_RESOURCES_FOLDER_PATH"]
-          
+
        if os.path.exists(projectpath + "/resources/img/"):
          imgs = os.listdir(projectpath + "/resources/img/")
          for img in imgs:
            print "copying " + img + " to " + dst
            shutil.copy(projectpath + "/resources/img/" + img, dst)
-     
+
        if os.path.exists(projectpath + "/resources/fonts/"):
          fonts = os.listdir(projectpath + "/resources/fonts/")
          for font in fonts:
            print "copying " + font + " to " + dst
            shutil.copy(projectpath + "/resources/fonts/" + font, dst)
-           
+
   config = parse_config(projectpath)
   xcconfig = parse_xcconfig(os.path.join(os.getcwd(), IPLUG2_ROOT +  '/common-ios.xcconfig'))
 
@@ -90,7 +90,7 @@ def main():
     auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'][0] = "Synth"
   else:
     auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'][0] = "Effects"
-    
+
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'][1] = "size:{" + str(config['PLUG_WIDTH']) + "," + str(config['PLUG_HEIGHT']) + "}"
 
   plistlib.writePlist(auv3, plistpath)

@@ -7,16 +7,16 @@ projectpath = os.path.abspath(os.path.join(scriptpath, os.pardir))
 
 IPLUG2_ROOT = "../../.."
 
-sys.path.insert(0, os.path.join(os.getcwd(), IPLUG2_ROOT + '/scripts'))
+sys.path.insert(0, os.path.join(os.getcwd(), IPLUG2_ROOT + '/Scripts'))
 
 from parse_config import parse_config
 
 def main():
   print("not modifying rc file");
   # config = parse_config(projectpath)
-  
+
   # rc = open(projectpath + "/resources/main.rc", "w")
-  
+
   # rc.write("\n")
   # rc.write("/////////////////////////////////////////////////////////////////////////////\n")
   # rc.write("// Version\n")
@@ -48,7 +48,7 @@ def main():
   # rc.write('            VALUE "OriginalFilename", "' + config['BUNDLE_NAME'] + '.aaxplugin"\0\n')
   # rc.write("#elif defined APP_API\n")
   # rc.write('            VALUE "OriginalFilename", "' + config['BUNDLE_NAME'] + '.exe"\0\n')
-  # rc.write("#endif\n")  
+  # rc.write("#endif\n")
   # rc.write('            VALUE "FileDescription", "' + config['PLUG_NAME'] + '"\0\n')
   # rc.write('            VALUE "InternalName", "' + config['PLUG_NAME'] + '"\0\n')
   # rc.write('            VALUE "ProductName", "' + config['PLUG_NAME'] + '"\0\n')
