@@ -157,7 +157,11 @@ public:
   void OnMouseOut() override { mMouseOverButton = -1; ISwitchControlBase::OnMouseOut(); SetDirty(false); }
   void OnResize() override;
   virtual bool IsHit(float x, float y) const override;
+  
+  /** returns the label string on the selected tab */
+  const char* GetSelectedLabelStr() const;
 protected:
+  
   /** @return the index of the entry at the given point or -1 if no entry was hit */
   virtual int GetButtonForPoint(float x, float y) const;
 

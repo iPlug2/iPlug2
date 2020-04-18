@@ -624,12 +624,14 @@ void IGraphicsNanoVG::PrepareAndMeasureText(const IText& text, const char* str, 
   r = IRECT(fbounds[0], fbounds[1], fbounds[2], fbounds[3]);
 }
 
-void IGraphicsNanoVG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+float IGraphicsNanoVG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   IRECT r = bounds;
   double x, y;
   PrepareAndMeasureText(text, str, bounds, x, y);
   DoMeasureTextRotation(text, r, bounds);
+  
+  return bounds.W();
 }
 
 void IGraphicsNanoVG::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
