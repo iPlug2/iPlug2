@@ -1057,14 +1057,14 @@ struct IRECT
     return vrect.SubRectHorizontal(nColumns, col);
   }
   
-  /** Get a subrect (by index) of this IRECT which is a cell in a grid of size (nRows * nColumns)
+  /** Get a subrect (by index) of this IRECT which is a cell (or union of nCells sequential cells on same row/column) in a grid of size (nRows * nColumns)
    * @param cellIndex Index of the desired cell in the cell grid
    * @param nRows Number of rows in the cell grid
    * @param nColumns Number of columns in the cell grid
    * @param dir Desired direction of indexing, by row (EDirection::Horizontal) or by column (EDirection::Vertical)
-   * @param nNumCells Number of desired continues cells in a row or column
+   * @param nCells Number of desired sequential cells to join (on same row/column)
    * @return IRECT The resulting subrect */
-  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection dir = EDirection::Horizontal, int nNumCells = 1) const
+  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection dir = EDirection::Horizontal, int nCells = 1) const
   {
     assert(cellIndex <= nRows * nColumns); // not enough cells !
 
@@ -1081,7 +1081,7 @@ struct IRECT
             const IRECT vrect = SubRectVertical(nRows, row);
             IRECT rect = vrect.SubRectHorizontal(nColumns, col);
 
-            for (int n = 1; n < nNumCells && (col + n) < nColumns; n++)
+            for (int n = 1; n < nCells && (col + n) < nColumns; n++)
             {
               rect = rect.Union(vrect.SubRectHorizontal(nColumns, col + n));
             }
@@ -1103,7 +1103,7 @@ struct IRECT
             const IRECT hrect = SubRectHorizontal(nColumns, col);
             IRECT rect = hrect.SubRectVertical(nRows, row);;
 
-            for (int n = 1; n < nNumCells && (row + n) < nRows; n++)
+            for (int n = 1; n < nCells && (row + n) < nRows; n++)
             {
               rect = rect.Union(hrect.SubRectVertical(nRows, row + n));
             }
