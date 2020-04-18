@@ -430,7 +430,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           pGraphics->OnMouseDrag(list);
           if (pGraphics->MouseCursorIsLocked())
             pGraphics->MoveMouseCursor(pGraphics->mHiddenCursorX, pGraphics->mHiddenCursorY);
-          pGraphics->OnDisplayTimer(0,true);
+          if (pGraphics->mResizingInProcess)
+          {
+            pGraphics->OnDisplayTimer(0,true);
+          }
         }
       }
 

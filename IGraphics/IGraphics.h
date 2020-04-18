@@ -1633,7 +1633,6 @@ private:
   bool mEnableTooltips = false;
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;
-  bool mResizingInProcess = false;
   bool mLayoutOnResize = false;
   bool mEnableMultiTouch = false;
   EUIResizerMode mGUISizeMode = EUIResizerMode::Scale;
@@ -1644,6 +1643,7 @@ private:
 protected:
   IGEditorDelegate* mDelegate;
   void* mPlatformContext = nullptr;
+  bool mResizingInProcess = false;
   bool mCursorHidden = false;
   bool mCursorLock = false;
   bool mTabletInput = false;
