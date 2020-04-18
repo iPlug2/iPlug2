@@ -225,6 +225,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h">
       <Filter>IPlug</Filter>
     </ClInclude>
+    <ClInclude Include="..\IPlugChunks_controls.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="IPlug">

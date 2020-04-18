@@ -536,6 +536,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h" />
     <ClInclude Include="..\config.h" />
     <ClInclude Include="..\IPlugChunks.h" />
+    <ClInclude Include="..\IPlugChunks_controls.h" />
     <ClInclude Include="..\resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
