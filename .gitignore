@@ -41,7 +41,8 @@ Dependencies/Build/*
 Documentation/html
 Documentation/doxygen_warnings.txt
 Examples/build_errors.log
-*Projects*
+Projects**
+!Examples/*/projects
 Examples/IPlugSwift/Pods
 PodFile.lock
 */*/.vscode/ipch
