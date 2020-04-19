@@ -75,6 +75,7 @@ private:
   double mGain;
   unsigned long mCount, mPrevCount;
   bool mUIJustOpened;
+  EAPI mAPI;
 #endif
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   MultiSliderControlV *mMSlider;

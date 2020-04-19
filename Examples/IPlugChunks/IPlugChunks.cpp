@@ -19,6 +19,8 @@ IPlugChunks::IPlugChunks(const InstanceInfo& info)
 , mGain(1.0)
 , mUIJustOpened(false)
 {
+  mAPI = GetAPI();
+
   for (int i = 0; i < NUM_SLIDERS; i++)
   {
     mSteps[i] = 0.5;
@@ -158,8 +160,8 @@ void IPlugChunks::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
       count = 0;
     }
     
-    if (count != prevcount)
-    {//if (GetGUI())
+    if ((count != prevcount) && (mAPI != EAPI::kAPIAPP))
+    {
       if (GetUI())
       {
         mMSlider->SetHighlight(count);
