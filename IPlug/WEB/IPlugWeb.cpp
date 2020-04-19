@@ -33,6 +33,8 @@ IPlugWeb::IPlugWeb(const InstanceInfo& info, const Config& config)
   mSAMFUIBuf.Resize(kNumSAMFUIBytes); memcpy(mSAMFUIBuf.GetData(), "SAMFUI", kNumMsgHeaderBytes);
 
   mWAMCtrlrJSObjectName.SetFormatted(32, "%s_WAM", GetPluginName());
+
+  CreateTimer();
 }
 
 void IPlugWeb::SendParameterValueFromUI(int paramIdx, double value)

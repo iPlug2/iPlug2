@@ -9,7 +9,7 @@ projectpath = os.path.abspath(os.path.join(scriptpath, os.pardir))
 
 IPLUG2_ROOT = "../../.."
 
-sys.path.insert(0, os.path.join(os.getcwd(), IPLUG2_ROOT + '/scripts'))
+sys.path.insert(0, os.path.join(os.getcwd(), IPLUG2_ROOT + '/Scripts'))
 
 from parse_config import parse_config, parse_xcconfig
 

@@ -20,6 +20,11 @@
 #include "nanovg.h"
 #endif
 
+// TODO: drop shadow on non-nanovg backends too slow
+#ifndef ENABLE_SHADOW
+  #define ENABLE_SHADOW 0
+#endif
+
 using namespace iplug;
 using namespace igraphics;
 
@@ -306,7 +311,7 @@ void IPopupMenuControl::DrawPanelShadow(IGraphics& g, MenuPanel* panel)
   nvgGlobalCompositeOperation(vg, NVG_SOURCE_OVER);
   nvgFill(vg);
   nvgBeginPath(vg); // Clear the paths
-#else
+#elif ENABLE_SHADOW
   if (!g.CheckLayer(panel->mShadowLayer))
   {
     g.StartLayer(this, panel->mRECT);
