@@ -10,7 +10,7 @@ using namespace igraphics;
 #endif
 
 
-#define MAXSLIDERS 512
+//#define MAXSLIDERS 512
 
 class MultiSliderControlV: public IControl
 {
@@ -37,6 +37,7 @@ public:
     float sliderWidth = floor((float) mRECT.W() / (float) mNumSliders);
     
     mSteps = new double[mNumSliders]();
+    mSliderBounds = new IRECT*[mNumSliders];
     
     for(int i=0; i<mNumSliders; i++)
     {
@@ -51,12 +52,13 @@ public:
   
   ~MultiSliderControlV()
   {
-    if (mSteps) delete[] mSteps;
-    
-    for(int i=0; i<mNumSliders; i++)
+    for (int i = 0; i < mNumSliders; i++)
     {
-      delete mSliderBounds[i];
+      if (mSliderBounds[i]) delete[] mSliderBounds[i];
     }
+    if (mSliderBounds) delete[] mSliderBounds;
+
+    if (mSteps) delete[] mSteps;
   }
   
   void Draw(IGraphics& g)
@@ -158,7 +160,7 @@ private:
   int mSliderThatChanged;
   double *mSteps;
   double mGrain;
-  IRECT *mSliderBounds[MAXSLIDERS];
+  IRECT** mSliderBounds;
   int mHighlighted;
   int mParamIdx;
 };
@@ -335,6 +337,14 @@ public:
   {
     mTextEntryLength = MAX_PRESET_NAME_LEN - 3;
     mText = Text;
+    pSubMenu1 = nullptr;
+    pSubMenu2 = nullptr;
+    pSubMenu3 = nullptr;
+    pSubMenu4 = nullptr;
+    pSubMenu5 = nullptr;
+    pSubMenu6 = nullptr;
+    pSubMenu7 = nullptr;
+    pSubMenu8 = nullptr;
   }
   
   ~IPresetMenu() {}
