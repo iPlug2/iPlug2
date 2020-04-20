@@ -1370,8 +1370,8 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
       }
 
       flags = MF_STRING;
-      //if (nItems < 160 && pMenu->getNbItemsPerColumn () > 0 && inc && !(inc % _menu->getNbItemsPerColumn ()))
-      //  flags |= MF_MENUBARBREAK;
+      if (nItems < 160 && menu.NItemsPerColumn() > 0 && inc && !(inc % menu.NItemsPerColumn()))
+        flags |= MF_MENUBARBREAK;
 
       if (pMenuItem->GetEnabled())
         flags |= MF_ENABLED;
