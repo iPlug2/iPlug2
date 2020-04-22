@@ -241,6 +241,10 @@ public:
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
   void OnInit() override;
 
+  void SetInnerPointerFrac(float frac) { mInnerPointerFrac = frac; }
+  void SetOuterPointerFrac(float frac) { mOuterPointerFrac = frac; }
+  void SetPointerThickness(float thickness) { mPointerThickness = thickness; }
+
 protected:
   virtual IRECT GetKnobDragBounds() override;
 

@@ -1058,7 +1058,7 @@ void IGraphics::OnMouseDrag(const std::vector<IMouseInfo>& points)
 
   if (mResizingInProcess && points.size() == 1)
     OnDragResize(points[0].x, points[0].y);
-  else if (ControlIsCaptured())
+  else if (ControlIsCaptured() && !GetControlInTextEntry())
   {
     for (auto& point : points)
     {
