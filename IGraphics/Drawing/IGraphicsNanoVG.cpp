@@ -168,6 +168,11 @@ NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend)
   return c;
 }
 
+void NanoVGRect(NVGcontext* pContext, const IRECT& r)
+{
+  nvgRect(pContext, r.L, r.T, r.W(), r.H());
+}
+
 void NanoVGSetBlendMode(NVGcontext* pContext, const IBlend* pBlend)
 {
   if (!pBlend)
