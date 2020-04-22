@@ -487,7 +487,7 @@ public:
   IAnimationFunction GetAnimationFunction() { return mAnimationFunc; }
 
   /** Get the control's action function, if it exists */
-  IAnimationFunction GetActionFunction() { return mActionFunc; }
+  IActionFunction GetActionFunction() { return mActionFunc; }
 
   /** Get the progress in a control's animation, in the range 0-1 */
   double GetAnimationProgress() const;
