@@ -712,6 +712,11 @@ protected:
   int mHighlight = -1;
 };
 
+#ifdef IGRAPHICS_NANOVG
+extern NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend);
+extern void NanoVGRect(NVGcontext* pContext, const IRECT& r);
+#endif
+
 class PitchBenderControl : public ISliderControlBase
 {
 public:
@@ -735,7 +740,7 @@ public:
     const float yDrop = 2.0;
     IRECT inner = handleBounds.GetPadded(5.f);
     NVGcontext* vg = (NVGcontext*) g.GetDrawContext();
-    NVGpaint shadowPaint = nvgBoxGradient(vg, inner.L, inner.T + yDrop, inner.W(), inner.H(), 0.f, 20.f, NanoVGColor(COLOR_BLACK_DROP_SHADOW, nullptr), NanoVGColor(COLOR_TRANSPARENT));
+    NVGpaint shadowPaint = nvgBoxGradient(vg, inner.L, inner.T + yDrop, inner.W(), inner.H(), 0.f, 20.f, NanoVGColor(COLOR_BLACK_DROP_SHADOW, nullptr), NanoVGColor(COLOR_TRANSPARENT, nullptr));
     nvgBeginPath(vg);
     NanoVGRect(vg, inner);
     nvgFillPaint(vg, shadowPaint);
