@@ -1665,7 +1665,7 @@ protected:
 class IEditableTextControl : public ITextControl
 {
 public:
-  IEditableTextControl(const IRECT& bounds, const char* str, const IText& text)
+  IEditableTextControl(const IRECT& bounds, const char* str, const IText& text = DEFAULT_TEXT)
   : ITextControl(bounds, str, text)
   {
     mIgnoreMouse = false;
