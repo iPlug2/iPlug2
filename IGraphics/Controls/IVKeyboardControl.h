@@ -712,5 +712,105 @@ protected:
   int mHighlight = -1;
 };
 
+class PitchBenderControl : public ISliderControlBase
+{
+public:
+  PitchBenderControl(const IRECT& bounds)
+  : ISliderControlBase(bounds, kNoParameter, EDirection::Vertical, DEFAULT_GEARING, 40.f)
+  {
+    SetValue(0.5);
+    SetWantsMidi(true);
+    SetActionFunction([](IControl* pControl){
+      IMidiMsg msg;
+      msg.MakePitchWheelMsg((pControl->GetValue() * 2.) - 1.);
+      pControl->GetDelegate()->SendMidiMsgFromUI(msg);
+    });
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    IRECT handleBounds = mRECT.GetPadded(-10.f);
+    
+#ifdef IGRAPHICS_NANOVG
+    const float yDrop = 2.0;
+    IRECT inner = handleBounds.GetPadded(5.f);
+    NVGcontext* vg = (NVGcontext*) g.GetDrawContext();
+    NVGpaint shadowPaint = nvgBoxGradient(vg, inner.L, inner.T + yDrop, inner.W(), inner.H(), 0.f, 20.f, NanoVGColor(COLOR_BLACK_DROP_SHADOW, nullptr), NanoVGColor(COLOR_TRANSPARENT));
+    nvgBeginPath(vg);
+    NanoVGRect(vg, inner);
+    nvgFillPaint(vg, shadowPaint);
+    nvgGlobalCompositeOperation(vg, NVG_SOURCE_OVER);
+    nvgFill(vg);
+    nvgBeginPath(vg); // Clear the paths
+#endif
+    
+    if(!g.CheckLayer(mLayer))
+    {
+      const IRECT layerRect = handleBounds.GetMidVPadded(handleBounds.H());
+      g.StartLayer(this, layerRect);
+      g.DrawGrid(COLOR_DARK_GRAY, layerRect, 0.f, mHandleSize/2.f, nullptr, 2.f);
+      mLayer = g.EndLayer();
+    }
+    
+    // NanoVG only has 2 stop gradients
+    IRECT r = handleBounds.FracRectVertical(0.5, true);
+    g.PathRect(r);
+    g.PathFill(IPattern::CreateLinearGradient(r, EDirection::Vertical, {{COLOR_BLACK, 0.f},{COLOR_MID_GRAY, 1.f}}));
+    r = handleBounds.FracRectVertical(0.51, false);
+    g.PathRect(r);
+    g.PathFill(IPattern::CreateLinearGradient(r, EDirection::Vertical, {{COLOR_MID_GRAY, 0.f},{COLOR_BLACK, 1.f}}));
+
+    const float value = GetValue();
+    
+    const float y = (handleBounds.H() - mHandleSize) * value;
+    
+    g.DrawBitmap(mLayer->GetBitmap(), handleBounds, 0, (int) y);
+  
+    const IRECT cutoutBounds = handleBounds.GetFromBottom(mHandleSize).GetTranslated(0, -y);
+    g.PathRect(cutoutBounds);
+    g.PathFill(IPattern::CreateLinearGradient(cutoutBounds, EDirection::Vertical,
+    {
+      {COLOR_BLACK.WithContrast(iplug::Lerp(0.f, 0.25f, std::fabs(value-0.5f) * 2.f)), 0.f},
+      {COLOR_DARK_GRAY, 0.5f},
+//      {COLOR_DARK_GRAY.WithContrast(iplug::Lerp(0.75f, 0.f, std::fabs(value-0.5f) * 2.f)), 1.f}
+    }));
+    
+    g.DrawRect(COLOR_BLACK, cutoutBounds);
+    g.DrawRect(COLOR_BLACK, handleBounds);
+  }
+  
+  void OnMidi(const IMidiMsg& msg) override
+  {
+    if(msg.StatusMsg() == IMidiMsg::kPitchWheel)
+    {
+      SetValue((msg.PitchWheel() + 1.) * 0.5);
+      SetDirty(false);
+    }
+  }
+  
+  void OnMouseWheel(float x, float y, const IMouseMod &mod, float d) override
+  {
+    /* NO-OP */
+  }
+  
+  void OnMouseUp(float x, float y, const IMouseMod &mod) override
+  {
+    double startValue = GetValue();
+    SetAnimation([startValue](IControl* pCaller) {
+      pCaller->SetValue(iplug::Lerp(startValue, 0.5, Clip(pCaller->GetAnimationProgress(), 0., 1.)));
+      if(pCaller->GetAnimationProgress() > 1.) {
+        pCaller->SetDirty(true);
+        pCaller->OnEndAnimation();
+        return;
+      }
+    }, 50);
+    
+    ISliderControlBase::OnMouseUp(x, y, mod);
+  }
+  
+private:
+  ILayerPtr mLayer;
+};
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
