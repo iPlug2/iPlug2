@@ -110,8 +110,8 @@ IVSwitchControl::IVSwitchControl(const IRECT& bounds, IActionFunction aF, const 
 void IVSwitchControl::Draw(IGraphics& g)
 {
   DrawBackGround(g, mRECT);
-  DrawWidget(g);
   DrawLabel(g);
+  DrawWidget(g);
   DrawValue(g, false);
 }
 
@@ -534,8 +534,8 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction aF, const char
 void IVKnobControl::Draw(IGraphics& g)
 {
   DrawBackGround(g, mRECT);
-  DrawWidget(g);
   DrawLabel(g);
+  DrawWidget(g);
   DrawValue(g, mValueMouseOver);
 }
 
@@ -680,8 +680,8 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const 
 void IVSliderControl::Draw(IGraphics& g)
 {
   DrawBackGround(g, mRECT);
-  DrawWidget(g);
   DrawLabel(g);
+  DrawWidget(g);
   DrawValue(g, mValueMouseOver);
 }
 
@@ -817,8 +817,8 @@ IVRangeSliderControl::IVRangeSliderControl(const IRECT& bounds, const std::initi
 void IVRangeSliderControl::Draw(IGraphics& g)
 {
   DrawBackGround(g, mRECT);
-  DrawWidget(g);
   DrawLabel(g);
+  DrawWidget(g);
 //  DrawValue(g, mValueMouseOver);
 }
 
@@ -1124,9 +1124,8 @@ void IVGroupControl::Draw(IGraphics& g)
 //  const float cr = GetRoundedCornerRadius(mWidgetBounds);
 //  g.FillRoundRect(GetColor(kBG), mWidgetBounds, cr);
 //  g.FillRect(GetColor(kBG), mLabelBounds);
-
-  DrawWidget(g);
   DrawLabel(g);
+  DrawWidget(g);
 }
 
 void IVGroupControl::DrawWidget(IGraphics& g)
