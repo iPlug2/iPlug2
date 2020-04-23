@@ -21,6 +21,10 @@
   #define ENABLE_SHADOW 0
 #endif
 
+#ifdef IGRAPHICS_NANOVG
+#include "nanovg.h"
+#endif
+
 using namespace iplug;
 using namespace igraphics;
 
@@ -290,11 +294,19 @@ void IPopupMenuControl::DrawPanelShadow(IGraphics& g, MenuPanel* panel)
   IRECT inner = panel->mRECT.GetPadded(-mDropShadowSize);
     
 #ifdef IGRAPHICS_NANOVG
+  auto NanoVGColor = [](const IColor& color, const IBlend* pBlend = nullptr) {
+    NVGcolor c;
+    c.r = (float)color.R / 255.0f;
+    c.g = (float)color.G / 255.0f;
+    c.b = (float)color.B / 255.0f;
+    c.a = (BlendWeight(pBlend) * color.A) / 255.0f;
+    return c;
+  };
+
   NVGcontext* vg = (NVGcontext*) g.GetDrawContext();
   NVGpaint shadowPaint = nvgBoxGradient(vg, inner.L, inner.T + yDrop, inner.W(), inner.H(), mRoundness * 2.f, 20.f, NanoVGColor(COLOR_BLACK_DROP_SHADOW, &panel->mBlend), NanoVGColor(COLOR_TRANSPARENT, nullptr));
   nvgBeginPath(vg);
   nvgRect(vg, panel->mRECT.L, panel->mRECT.T, panel->mRECT.W(), panel->mRECT.H());
-//  NanoVGRect(vg, panel->mRECT);
   nvgFillPaint(vg, shadowPaint);
   nvgGlobalCompositeOperation(vg, NVG_SOURCE_OVER);
   nvgFill(vg);

@@ -761,11 +761,11 @@ public:
     IRECT r = handleBounds.FracRectVertical(0.5, true);
     g.PathRect(r);
     g.PathFill(IPattern::CreateLinearGradient(r, EDirection::Vertical, {{COLOR_BLACK, 0.f},{COLOR_MID_GRAY, 1.f}}));
-    r = handleBounds.FracRectVertical(0.51, false);
+    r = handleBounds.FracRectVertical(0.51f, false);
     g.PathRect(r);
     g.PathFill(IPattern::CreateLinearGradient(r, EDirection::Vertical, {{COLOR_MID_GRAY, 0.f},{COLOR_BLACK, 1.f}}));
 
-    const float value = GetValue();
+    const float value = static_cast<float>(GetValue());
     
     const float y = (handleBounds.H() - mHandleSize) * value;
     

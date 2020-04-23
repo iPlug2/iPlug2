@@ -21,12 +21,6 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-#ifdef IGRAPHICS_NANOVG
-#include "nanovg.h"
-extern NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend);
-//extern void NanoVGRect(NVGcontext* pContext, const IRECT& r);
-#endif
-
 /** A base control for a pop-up menu/drop-down list that stays within the bounds of the IGraphics context.
  * This is mainly used as a special control that lives outside the main IGraphics control stack.
  * For replacing generic menus this can be added with IGraphics::AttachPopupMenu().
