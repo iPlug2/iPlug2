@@ -23,7 +23,7 @@ BEGIN_IPLUG_NAMESPACE
 
 #define LFO_SHAPE_VALIST "Triangle", "Square", "Ramp Up", "Ramp Down"
 
-template<typename T = float>
+template<typename T = double>
 class LFO : public IOscillator<T>
 {
 public:
