@@ -815,7 +815,7 @@ public:
   
   void OnMouseDown(float x, float y, const IMouseMod &mod) override
   {
-    if(mod.R)
+    if(mod.R && mCC == IMidiMsg::EControlChangeMsg::kNoCC)
     {
       IPopupMenu m {"Set Pitchbend Range", {"1 semitone", "2 semitones", "Fifth", "Octave"},
         [this](IPopupMenu* pSelectedMenu) {
