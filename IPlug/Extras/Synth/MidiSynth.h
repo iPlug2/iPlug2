@@ -39,6 +39,7 @@ class MidiSynth
 public:
   /** This defines the size in samples of a single block of processing that will be done by the synth. */
   static constexpr int kDefaultBlockSize = 32;
+  static constexpr int kDefaultPitchBendRange = 12;
 
 #pragma mark - MidiSynth class
 
@@ -64,7 +65,24 @@ public:
     mVoicesAreActive = active;
   }
   
-  void InitBasicMPE() { SetMPEZones(0, 16); }
+  void InitBasicMPE()
+  {
+    SetMPEZones(0, 16);
+  }
+  
+  /** Set the pitch bend range for non-MPE mode */
+  void SetPitchBendRange(int pitchBendRange)
+  {
+    mNonMPEPitchBendRange = pitchBendRange;
+    
+    if(!mMPEMode)
+    {
+      for(int i=0; i<16; ++i)
+      {
+        mChannelStates[i].pitchBendRange = pitchBendRange;
+      }
+    }
+  }
 
   void SetPolyMode(VoiceAllocator::EPolyMode mode)
   {
@@ -185,7 +203,8 @@ private:
   int64_t mSampleTime{0};
   double mSampleRate = DEFAULT_SAMPLE_RATE;
   bool mVoicesAreActive = false;
-
+  int mNonMPEPitchBendRange = kDefaultPitchBendRange;
+  
   // the synth will startup in basic MIDI mode. When an MPE Zone setup message is received, MPE mode is entered.
   // To leave MPE mode, use RPNs to set all MPE zone channel counts to 0 as per the MPE spec.
   bool mMPEMode{false};
