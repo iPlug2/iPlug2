@@ -846,7 +846,7 @@ public:
       GetUI()->CreatePopupMenu(*this, m, x, y);
     }
     else
-      ISliderControlBase::OnMouseUp(x, y, mod);
+      ISliderControlBase::OnMouseDown(x, y, mod);
   }
   
   void OnMouseUp(float x, float y, const IMouseMod &mod) override
