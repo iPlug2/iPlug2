@@ -714,19 +714,20 @@ protected:
 
 /** Vectorial "wheel" control for pitchbender/modwheel
 * @ingroup IControls */
-class WheelControl : public ISliderControlBase
+class IWheelControl : public ISliderControlBase
 {
   static constexpr int kSpringAnimationTime = 50;
   static constexpr int kNumRungs = 10;
-
 public:
-  
+  static constexpr int kMessageTagSetPitchBendRange = 0;
+
   /** Create a WheelControl
    * @param bounds The control's bounds
    * @param cc A Midi CC to link, defaults to kNoCC which is interpreted as pitch bend */
-  WheelControl(const IRECT& bounds, IMidiMsg::EControlChangeMsg cc = IMidiMsg::EControlChangeMsg::kNoCC)
+  IWheelControl(const IRECT& bounds, IMidiMsg::EControlChangeMsg cc = IMidiMsg::EControlChangeMsg::kNoCC, int initBendRange = 12)
   : ISliderControlBase(bounds, kNoParameter, EDirection::Vertical, DEFAULT_GEARING, 40.f)
   , mCC(cc)
+  , mPitchBendRange(initBendRange)
   {
     SetValue(cc == IMidiMsg::EControlChangeMsg::kNoCC ? 0.5 : 0.);
     SetWantsMidi(true);
@@ -812,6 +813,42 @@ public:
     /* NO-OP */
   }
   
+  void OnMouseDown(float x, float y, const IMouseMod &mod) override
+  {
+    if(mod.R)
+    {
+      IPopupMenu m {"Set Pitchbend Range", {"1 semitone", "2 semitones", "Fifth", "Octave"},
+        [this](IPopupMenu* pSelectedMenu) {
+          if(pSelectedMenu) {
+            switch (pSelectedMenu->GetChosenItemIdx()) {
+              case 0: mPitchBendRange = 1; break;
+              case 1: mPitchBendRange = 2; break;
+              case 2: mPitchBendRange = 7; break;
+              case 3:
+              default:
+                mPitchBendRange = 12; break;
+            }
+            
+            GetDelegate()->SendArbitraryMsgFromUI(kMessageTagSetPitchBendRange, GetTag(), sizeof(int), &mPitchBendRange);
+          }
+        }
+      };
+      
+      switch (mPitchBendRange) {
+        case 1: m.CheckItemAlone(0); break;
+        case 2: m.CheckItemAlone(1); break;
+        case 7: m.CheckItemAlone(2); break;
+        case 12: m.CheckItemAlone(3); break;
+        default:
+          break;
+      }
+      
+      GetUI()->CreatePopupMenu(*this, m, x, y);
+    }
+    else
+      ISliderControlBase::OnMouseUp(x, y, mod);
+  }
+  
   void OnMouseUp(float x, float y, const IMouseMod &mod) override
   {
     if(mCC == IMidiMsg::EControlChangeMsg::kNoCC) // pitchbend
@@ -831,6 +868,7 @@ public:
   }
   
 private:
+  int mPitchBendRange;
   IMidiMsg::EControlChangeMsg mCC;
   ILayerPtr mLayer;
 };
