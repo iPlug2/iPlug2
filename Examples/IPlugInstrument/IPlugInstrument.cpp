@@ -32,7 +32,7 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT b = pGraphics->GetBounds().GetPadded(-20.f);
     const IRECT lfoPanel = b.GetFromLeft(300.f).GetFromTop(200.f);
-    IRECT keyboardBounds = b.GetFromBottom(335);
+    IRECT keyboardBounds = b.GetFromBottom(300);
     IRECT wheelsBounds = keyboardBounds.ReduceFromLeft(100.f).GetPadded(-10.f);
     pGraphics->AttachControl(new IVKeyboardControl(keyboardBounds), kCtrlTagKeyboard);
     pGraphics->AttachControl(new IWheelControl(wheelsBounds.FracRectHorizontal(0.5)), kCtrlTagBender);
@@ -61,7 +61,7 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     
     pGraphics->AttachControl(new IVGroupControl("LFO", "LFO", 10.f, 20.f, 10.f, 10.f));
     
-    pGraphics->AttachControl(new IVButtonControl(controls.GetFromBottom(30).GetMidHPadded(100), SplashClickActionFunc,
+    pGraphics->AttachControl(new IVButtonControl(keyboardBounds.GetFromTRHC(200, 30).GetTranslated(0, -30), SplashClickActionFunc,
       "Show/Hide Keyboard", DEFAULT_STYLE.WithColor(kFG, COLOR_WHITE).WithLabelText({15.f, EVAlign::Middle})))->SetAnimationEndActionFunction(
       [pGraphics](IControl* pCaller) {
         static bool hide = false;
