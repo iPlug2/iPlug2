@@ -89,7 +89,7 @@ public:
     // this is called by the VoiceAllocator to set generic control values.
     void SetControl(int controlNumber, float value) override
     {
-      DBGMSG("setting control %i to value %f\n", controlNumber, value);
+      //TODO:
     }
 
   public:
