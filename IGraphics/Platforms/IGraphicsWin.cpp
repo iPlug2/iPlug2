@@ -201,7 +201,7 @@ void IGraphicsWin::DestroyEditWindow()
  }
 }
 
-void IGraphicsWin::OnDisplayTimer(int vBlankCount)
+void IGraphicsWin::OnDisplayTimer(int vBlankCount, bool forceDraw)
 {
 #ifdef IGRAPHICS_VSYNC
   // Check the message vblank with the current one to see if we are way behind. If so, then throw these away.
@@ -209,14 +209,14 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
   DWORD curCount = mVBlankCount;
 
   // skip until the actual vblank is at a certain number.
-  if (mVBlankSkipUntil != 0 && mVBlankSkipUntil > mVBlankCount)
+  if (mVBlankSkipUntil != 0 && mVBlankSkipUntil > mVBlankCount && !forceDraw)
   {
     return;
   }
 
   mVBlankSkipUntil = 0;
 
-  if (msgCount != curCount)
+  if (msgCount != curCount && !forceDraw)
   {
     // we are late, just skip it until we can get a message soon after the vblank event.
     // DBGMSG("vblank is late by %i frames.  Skipping.", (mVBlankCount - msgCount));
@@ -430,6 +430,10 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           pGraphics->OnMouseDrag(list);
           if (pGraphics->MouseCursorIsLocked())
             pGraphics->MoveMouseCursor(pGraphics->mHiddenCursorX, pGraphics->mHiddenCursorY);
+          if (pGraphics->mResizingInProcess)
+          {
+            pGraphics->OnDisplayTimer(0,true);
+          }
         }
       }
 

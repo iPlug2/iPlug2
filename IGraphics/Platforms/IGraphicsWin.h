@@ -103,7 +103,7 @@ private:
 
   /** Called either in response to WM_TIMER tick or user message WM_VBLANK, triggered by VSYNC thread
     * @param vBlankCount will allow redraws to get paced by the vblank message. Passing 0 is a WM_TIMER fallback. */
-  void OnDisplayTimer(int vBlankCount = 0);
+  void OnDisplayTimer(int vBlankCount = 0, bool forceDraw = false);
 
   enum EParamEditMsg
   {
