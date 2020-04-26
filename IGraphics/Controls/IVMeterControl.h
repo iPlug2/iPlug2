@@ -56,7 +56,7 @@ public:
 
       for (auto c = d.chanOffset; c < (d.chanOffset + d.nChans); c++)
       {
-        float ampValue = AmpToDB<float>(d.vals[c]);
+        float ampValue = static_cast<float>(AmpToDB(d.vals[c]));
         SetValue(Clip((ampValue + 90.f)/100.f, 0.f, 1.f), c); // TODO: tmp DB conversion to be improved
       }
 
