@@ -28,6 +28,10 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     pGraphics->EnableMouseOver(true);
     pGraphics->EnableMultiTouch(true);
     
+#ifdef OS_WEB
+    pGraphics->AttachPopupMenuControl();
+#endif
+
 //    pGraphics->EnableLiveEdit(true);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT b = pGraphics->GetBounds().GetPadded(-20.f);
