@@ -729,6 +729,11 @@ public:
   , mCC(cc)
   , mPitchBendRange(initBendRange)
   {
+    mMenu.AddItem("1 semitone");
+    mMenu.AddItem("2 semitones");
+    mMenu.AddItem("Fifth");
+    mMenu.AddItem("Octave");
+
     SetValue(cc == IMidiMsg::EControlChangeMsg::kNoCC ? 0.5 : 0.);
     SetWantsMidi(true);
     SetActionFunction([cc](IControl* pControl){
@@ -812,38 +817,40 @@ public:
   {
     /* NO-OP */
   }
+
+  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int) override
+  {
+    if(pSelectedMenu) 
+    {
+      switch (pSelectedMenu->GetChosenItemIdx()) 
+      {
+        case 0: mPitchBendRange = 1; break;
+        case 1: mPitchBendRange = 2; break;
+        case 2: mPitchBendRange = 7; break;
+        case 3:
+        default:
+          mPitchBendRange = 12; break;
+      }
+      
+      GetDelegate()->SendArbitraryMsgFromUI(kMessageTagSetPitchBendRange, GetTag(), sizeof(int), &mPitchBendRange);
+    }
+  }
   
   void OnMouseDown(float x, float y, const IMouseMod &mod) override
   {
     if(mod.R && mCC == IMidiMsg::EControlChangeMsg::kNoCC)
     {
-      IPopupMenu m {"Set Pitchbend Range", {"1 semitone", "2 semitones", "Fifth", "Octave"},
-        [this](IPopupMenu* pSelectedMenu) {
-          if(pSelectedMenu) {
-            switch (pSelectedMenu->GetChosenItemIdx()) {
-              case 0: mPitchBendRange = 1; break;
-              case 1: mPitchBendRange = 2; break;
-              case 2: mPitchBendRange = 7; break;
-              case 3:
-              default:
-                mPitchBendRange = 12; break;
-            }
-            
-            GetDelegate()->SendArbitraryMsgFromUI(kMessageTagSetPitchBendRange, GetTag(), sizeof(int), &mPitchBendRange);
-          }
-        }
-      };
-      
-      switch (mPitchBendRange) {
-        case 1: m.CheckItemAlone(0); break;
-        case 2: m.CheckItemAlone(1); break;
-        case 7: m.CheckItemAlone(2); break;
-        case 12: m.CheckItemAlone(3); break;
+      switch (mPitchBendRange) 
+      {
+        case 1: mMenu.CheckItemAlone(0); break;
+        case 2: mMenu.CheckItemAlone(1); break;
+        case 7: mMenu.CheckItemAlone(2); break;
+        case 12: mMenu.CheckItemAlone(3); break;
         default:
           break;
       }
       
-      GetUI()->CreatePopupMenu(*this, m, x, y);
+      GetUI()->CreatePopupMenu(*this, mMenu, x, y);
     }
     else
       ISliderControlBase::OnMouseDown(x, y, mod);
@@ -868,6 +875,7 @@ public:
   }
   
 private:
+  IPopupMenu mMenu;
   int mPitchBendRange;
   IMidiMsg::EControlChangeMsg mCC;
   ILayerPtr mLayer;
