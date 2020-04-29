@@ -142,7 +142,6 @@ private:
   HFONT mEditFont = nullptr;
   DWORD mPID = 0;
 
-#ifdef IGRAPHICS_VSYNC
   void StartVBlankThread(HWND hWnd);
   void StopVBlankThread();
   void VBlankNotify();
@@ -151,8 +150,8 @@ private:
   HANDLE mVBlankThread = INVALID_HANDLE_VALUE; //ID of thread.
   volatile DWORD mVBlankCount = 0; // running count of vblank events since the start of the window.
   int mVBlankSkipUntil = 0; // support for skipping vblank notification if the last callback took  too long.  This helps keep the message pump clear in the case of overload.
-#endif
-
+  bool mVSYNCEnabled = false;
+  
   const IParam* mEditParam = nullptr;
   IText mEditText;
   IRECT mEditRECT;
