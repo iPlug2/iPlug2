@@ -308,6 +308,10 @@ public:
   /** Set the parameters label after creation. WARNING: if this is called after the host has queried plugin parameters, the host may display the label as it was previously
    * @param label /todo */
   void SetLabel(const char* label) { strcpy(mLabel, label); }
+  
+  /** Set the function to translate display values
+   * @param func  /todo */
+  void SetDisplayFunc(DisplayFunc func) { mDisplayFunction = func; }
 
   /** Gets a readable value of the parameter
    * @return Current value of the parameter */

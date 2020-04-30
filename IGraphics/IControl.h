@@ -186,14 +186,12 @@ public:
    * @param g The graphics context to which this control belongs. */
   virtual void DrawPTHighlight(IGraphics& g);
 
-  /** Call this method in response to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu,
-   * if the control is linked to a parameter (mParamIdx > kNoParameter)
+  /** Call this method in response to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu, if the control is linked to a parameter (mParamIdx > kNoParameter)
    * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
   void PromptUserInput(int valIdx = 0);
   
-  /** Create a text entry box so the user can enter a value, or pop up a pop-up menu,
-   * if the control is linked to a parameter (mParamIdx > kNoParameter), specifying the bounds
-   * @param bounds The rectangle for the text entry. Pop-up menu's will appear below the rectangle. /todo check
+  /** Create a text entry box so the user can enter a value, or pop up a pop-up menu, if the control is linked to a parameter (mParamIdx > kNoParameter) specifying the bounds
+   * @param bounds The rectangle for the text entry. Pop-up menu's will appear below the rectangle.
    * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
   void PromptUserInput(const IRECT& bounds, int valIdx = 0);
   
@@ -219,6 +217,7 @@ public:
   int GetParamIdx(int valIdx = 0) const;
   
   /** Set the index of a parameter that the control is linked to
+   * If you are calling this "manually" to reuse a control for multiple parameters, you probably want to call IEditorDelegate::SendCurrentParamValuesFromDelegate() afterward, to update the control values
    * @param paramIdx Parameter index, or kNoParameter if there is no parameter linked with this control at valIdx
    * @param valIdx An index to choose which of the controls vals to set */
   void SetParamIdx(int paramIdx, int valIdx = 0);
@@ -370,7 +369,13 @@ public:
   
   /** @return \c true if the control ignores mouse events */
   bool GetIgnoreMouse() const { return mIgnoreMouse; }
+  
+  /** @return \c true if the control should show parameter labels/units e.g. "Hz" in text entry prompts */
+  bool GetPromptShowsParamLabel() const { return mPromptShowsParamLabel; }
 
+  /** Set if the control should show parameter labels/units e.g. "Hz" in text entry prompts */
+  void SetPromptShowsParamLabel(bool enable) { mPromptShowsParamLabel = enable; }
+  
   /** Hit test the control. Override this method if you want the control to be hit only if a visible part of it is hit, or whatever.
    * @param x The X coordinate within the control to test 
    * @param y The y coordinate within the control to test
@@ -478,17 +483,21 @@ public:
    * @param duration Duration in milliseconds for the animation  */
   void SetAnimation(IAnimationFunction func, int duration) { mAnimationFunc = func; StartAnimation(duration); }
 
-  /** /todo */
+  /** Get the control's animation function, if it exists */
   IAnimationFunction GetAnimationFunction() { return mAnimationFunc; }
 
-  /** /todo */
-  IAnimationFunction GetActionFunction() { return mActionFunc; }
+  /** Get the control's action function, if it exists */
+  IActionFunction GetActionFunction() { return mActionFunc; }
 
-  /** /todo */
+  /** Get the progress in a control's animation, in the range 0-1 */
   double GetAnimationProgress() const;
   
-  /** /todo */
+  /** Get the duration of animations applied to the control */
   Milliseconds GetAnimationDuration() const { return mAnimationDuration; }
+
+  /** Helper function to dynamic cast an IControl to a subclass */
+  template <class T>
+  T* As() { return dynamic_cast<T*>(this); }
     
 #if defined VST3_API || defined VST3C_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
@@ -534,6 +543,7 @@ protected:
   bool mIgnoreMouse = false;
   bool mWantsMidi = false;
   bool mWantsMultiTouch = false;
+  bool mPromptShowsParamLabel = false;
   /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
   WDL_String mTooltip;
@@ -669,7 +679,7 @@ public:
       handleBounds.Pad(- 0.5f * mStyle.frameThickness);
     
     if (mStyle.drawShadows)
-      handleBounds.Alter(0, 0, -mStyle.shadowOffset, -mStyle.shadowOffset);
+      handleBounds.Alter(mStyle.shadowOffset, 0, -mStyle.shadowOffset, -mStyle.shadowOffset);
     
     return handleBounds;
   }
@@ -721,7 +731,7 @@ public:
     }
   }
   
-  void DrawHandle(IGraphics& g, EVShape shape, const IRECT& bounds, bool pressed, bool mouseOver, bool disabled)
+  virtual void DrawPressableShape(IGraphics& g, EVShape shape, const IRECT& bounds, bool pressed, bool mouseOver, bool disabled)
   {
     switch (shape)
     {
@@ -1174,9 +1184,10 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = EDirection::Vertical, float gearing = DEFAULT_GEARING, float handleSize = 0.f);
-  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, float gearing = DEFAULT_GEARING, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 0.f);
   
+  void OnResize() override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
@@ -1190,7 +1201,7 @@ protected:
   EDirection mDirection;
   IRECT mTrackBounds;
   float mHandleSize;
-  float mGearing;
+  double mGearing;
   bool mMouseDown = false;
 };
 
@@ -1273,6 +1284,57 @@ public:
     {
       DrawTrack(g, mTrackBounds.Get()[ch], ch);
     }
+  }
+  
+  /** Update the parameters based on a parameter group name.
+   * You probably want to call IEditorDelegate::SendCurrentParamValuesFromDelegate() after this, to update the control values */
+  void SetParamsByGroup(const char* paramGroup)
+  {
+    int nParams = GetDelegate()->NParams();
+    std::vector<int> paramIdsForGroup;
+    
+    for (auto p = 0; p < nParams; p++)
+    {
+      IParam* pParam = GetDelegate()->GetParam(p);
+      
+      if(strcmp(pParam->GetGroupForHost(), paramGroup) == 0)
+      {
+        paramIdsForGroup.push_back(p);
+      }
+    }
+    
+    mTrackBounds.Resize(0);
+    
+    int nParamsInGroup = static_cast<int>(paramIdsForGroup.size());
+        
+    SetNVals(nParamsInGroup);
+  
+    int valIdx = 0;
+    for (auto param : paramIdsForGroup)
+    {
+      SetParamIdx(param, valIdx++);
+      mTrackBounds.Add(IRECT());
+    }
+    
+    OnResize();
+  }
+  
+  /** Update the parameters based on a parameter group name.
+   * You probably want to call IEditorDelegate::SendCurrentParamValuesFromDelegate() after this, to update the control values */
+  void SetParams(std::initializer_list<int> paramIds)
+  {
+    mTrackBounds.Resize(0);
+
+    SetNVals(static_cast<int>(paramIds.size()));
+  
+    int valIdx = 0;
+    for (auto param : paramIds)
+    {
+      SetParamIdx(param, valIdx++);
+      mTrackBounds.Add(IRECT());
+    }
+    
+    OnResize();
   }
   
   //void SetAllTrackData(float val) { memset(mTrackData.Get(), (int) Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
@@ -1599,6 +1661,27 @@ protected:
   bool mSetBoundsBasedOnStr = false;
 };
 
+/** A basic control to display some editable text */
+class IEditableTextControl : public ITextControl
+{
+public:
+  IEditableTextControl(const IRECT& bounds, const char* str, const IText& text = DEFAULT_TEXT)
+  : ITextControl(bounds, str, text)
+  {
+    mIgnoreMouse = false;
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    GetUI()->CreateTextEntry(*this, mText, mRECT, GetStr());
+  }
+  
+  void OnTextEntryCompletion(const char* str, int valIdx) override
+  {
+    SetStr(str);
+  }
+};
+
 class IURLControl : public ITextControl
 {
 public:
@@ -1646,6 +1729,8 @@ public:
   void OnResize() override;
 protected:
   bool mShowParamLabel;
+  IColor mTriangleColor = COLOR_BLACK;
+  IColor mTriangleMouseOverColor = COLOR_WHITE;
   IRECT mTri;
 };
 

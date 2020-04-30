@@ -13,7 +13,7 @@ enum EParams
 using namespace iplug;
 using namespace igraphics;
 
-class IPlugEffect : public Plugin
+class IPlugEffect final : public Plugin
 {
 public:
   IPlugEffect(const InstanceInfo& info);

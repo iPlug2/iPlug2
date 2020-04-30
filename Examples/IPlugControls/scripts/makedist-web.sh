@@ -180,8 +180,7 @@ cd $PROJECT_ROOT/build-web
 
 # print payload
 echo payload:
-find . -maxdepth 2 -mindepth 1 -exec du -hs {} \;
-du -hc
+find . -maxdepth 2 -mindepth 1 -name .git -type d \! -prune -o \! -name .DS_Store -type f -exec du -hs {} \;
 
 # launch emrun
 if [ "$LAUNCH_EMRUN" -eq "1" ]; then

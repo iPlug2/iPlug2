@@ -128,7 +128,7 @@ public:
     if (sliderTest > -1)
     {
       SetValue(mMinTrackValue + Clip(value, 0.f, 1.f) * (mMaxTrackValue - mMinTrackValue), sliderTest);
-      OnNewValue(sliderTest, static_cast<float>(GetValue(sliderTest)));
+      OnNewValue(sliderTest, GetValue(sliderTest));
 
       mSliderHit = sliderTest;
 
@@ -151,9 +151,9 @@ public:
 
           for (auto i = lowBounds; i < highBounds; i++)
           {
-            float frac = (float)(i - lowBounds) / float(highBounds-lowBounds);
-            SetValue(linearInterp(GetValue(lowBounds), GetValue(highBounds), frac), i);
-            OnNewValue(i, static_cast<float>(GetValue(i)));
+            double frac = (double)(i - lowBounds) / double(highBounds-lowBounds);
+            SetValue(iplug::Lerp(GetValue(lowBounds), GetValue(highBounds), frac), i);
+            OnNewValue(i, GetValue(i));
           }
         }
       }
@@ -181,16 +181,12 @@ public:
   }
 
   //override to do something when an individual slider is dragged
-  virtual void OnNewValue(int trackIdx, float val) {}
+  virtual void OnNewValue(int trackIdx, double val) {}
 
 protected:
   int mPrevSliderHit = -1;
   int mSliderHit = -1;
   float mGrain = 0.001f;
-    
-private:
-    
-  inline double linearInterp(double a, double b, double f) const { return ((b - a) * f + a); }
 };
 
 END_IGRAPHICS_NAMESPACE

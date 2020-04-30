@@ -76,15 +76,15 @@ void IGraphicsMac::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
   CoreTextHelpers::CachePlatformFont(fontID, font, sFontDescriptorCache);
 }
 
-void IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds) const
+float IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
 #ifdef IGRAPHICS_LICE
   @autoreleasepool
   {
-    IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
+    return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
   }
 #else
-  IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
+  return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
 #endif
 }
 
@@ -170,7 +170,7 @@ void IGraphicsMac::PlatformResize(bool parentHasResized)
   }  
 }
 
-void IGraphicsMac::PointToScreen(float& x, float& y)
+void IGraphicsMac::PointToScreen(float& x, float& y) const
 {
   if (mView)
   {
@@ -185,7 +185,7 @@ void IGraphicsMac::PointToScreen(float& x, float& y)
   }
 }
 
-void IGraphicsMac::ScreenToPoint(float& x, float& y)
+void IGraphicsMac::ScreenToPoint(float& x, float& y) const
 {
   if (mView)
   {
@@ -262,6 +262,17 @@ void IGraphicsMac::StoreCursorPosition()
   
   // Convert to IGraphics coordinates
   ScreenToPoint(mCursorX, mCursorY);
+}
+
+void IGraphicsMac::GetMouseLocation(float& x, float&y) const
+{
+  // Get position in screen coordinates
+  NSPoint mouse = [NSEvent mouseLocation];
+  x = mouse.x;
+  y = mouse.y;
+  
+  // Convert to IGraphics coordinates
+  ScreenToPoint(x, y);
 }
 
 EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
@@ -593,9 +604,9 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
   }
 }
 
-bool IGraphicsMac::SetTextInClipboard(const WDL_String& str)
+bool IGraphicsMac::SetTextInClipboard(const char* str)
 {
-  NSString* pTextForClipboard = [NSString stringWithUTF8String:str.Get()];
+  NSString* pTextForClipboard = [NSString stringWithUTF8String:str];
   [[NSPasteboard generalPasteboard] clearContents];
   return [[NSPasteboard generalPasteboard] setString:pTextForClipboard forType:NSStringPboardType];
 }

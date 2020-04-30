@@ -34,6 +34,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 {
   try
   {
+#ifndef APP_ALLOW_MULTIPLE_INSTANCES
     HANDLE hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, BUNDLE_NAME); // BUNDLE_NAME used because it won't have spaces in it
     
     if (!hMutex)
@@ -44,7 +45,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       SetForegroundWindow(hWnd);
       return 0; // should return 1?
     }
-    
+#endif
     gHINSTANCE = hInstance;
     
     InitCommonControls();
@@ -129,7 +130,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     if (gHWND)
       DestroyWindow(gHWND);
     
+#ifndef APP_ALLOW_MULTIPLE_INSTANCES
     ReleaseMutex(hMutex);
+#endif
   }
   catch(...)
   {

@@ -447,7 +447,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return UIModalPresentationNone;
 }
 
-- (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
+- (BOOL)presentationControllerShouldDismiss:(UIPopoverPresentationController *)popoverPresentationController
 {
   return YES;
 }

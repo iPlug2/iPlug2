@@ -11,7 +11,7 @@
 #include "pluginterfaces/vst/ivstparameterchanges.h"
 #include "pluginterfaces/vst/vstspeaker.h"
 #include "pluginterfaces/vst/ivstmidicontrollers.h"
-
+#include "public.sdk/source/vst/vsteventshelper.h"
 #include "IPlugVST3_ProcessorBase.h"
 
 using namespace iplug;
@@ -128,55 +128,62 @@ void IPlugVST3ProcessorBase::ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, S
     while (!mMidiOutputQueue.Empty())
     {
       IMidiMsg& msg = mMidiOutputQueue.Peek();
-      
+
       if (msg.StatusMsg() == IMidiMsg::kNoteOn)
       {
-        toAdd.type = Event::kNoteOnEvent;
+        Helpers::init(toAdd, Event::kNoteOnEvent, 0 /*bus id*/, msg.mOffset);
+
         toAdd.noteOn.channel = msg.Channel();
         toAdd.noteOn.pitch = msg.NoteNumber();
         toAdd.noteOn.tuning = 0.;
         toAdd.noteOn.velocity = (float) msg.Velocity() * (1.f / 127.f);
-        toAdd.noteOn.length = -1;
-        toAdd.noteOn.noteId = -1; // TODO ?
-        toAdd.sampleOffset = msg.mOffset;
         pOutputEvents->addEvent(toAdd);
       }
       else if (msg.StatusMsg() == IMidiMsg::kNoteOff)
       {
-        toAdd.type = Event::kNoteOffEvent;
+        Helpers::init(toAdd, Event::kNoteOffEvent, 0 /*bus id*/, msg.mOffset);
+
         toAdd.noteOff.channel = msg.Channel();
         toAdd.noteOff.pitch = msg.NoteNumber();
         toAdd.noteOff.velocity = (float) msg.Velocity() * (1.f / 127.f);
-        toAdd.noteOff.noteId = -1; // TODO ?
-        toAdd.sampleOffset = msg.mOffset;
         pOutputEvents->addEvent(toAdd);
       }
       else if (msg.StatusMsg() == IMidiMsg::kPolyAftertouch)
+      { 
+        Helpers::initLegacyMIDICCOutEvent(toAdd, ControllerNumbers::kCtrlPolyPressure, msg.Channel(), msg.mData1, msg.mData2);
+        toAdd.sampleOffset = msg.mOffset;
+        pOutputEvents->addEvent(toAdd);
+      }
+      else if (msg.StatusMsg() == IMidiMsg::kChannelAftertouch)
       {
-        toAdd.type = Event::kPolyPressureEvent;
-        toAdd.polyPressure.channel = msg.Channel();
-        toAdd.polyPressure.pitch = msg.NoteNumber();
-        toAdd.polyPressure.pressure = (float) msg.PolyAfterTouch() * (1.f / 127.f);
-        toAdd.polyPressure.noteId = -1; // TODO ?
+        Helpers::initLegacyMIDICCOutEvent(toAdd, ControllerNumbers::kAfterTouch, msg.Channel(), msg.mData1, msg.mData2);
+        toAdd.sampleOffset = msg.mOffset;
+        pOutputEvents->addEvent(toAdd);
+      }
+      else if (msg.StatusMsg() == IMidiMsg::kProgramChange)
+      {
+        Helpers::initLegacyMIDICCOutEvent(toAdd, ControllerNumbers::kCtrlProgramChange, msg.Channel(), msg.Program(), 0);
         toAdd.sampleOffset = msg.mOffset;
         pOutputEvents->addEvent(toAdd);
       }
       else if (msg.StatusMsg() == IMidiMsg::kControlChange)
       {
-        toAdd.type = Event::kLegacyMIDICCOutEvent;
-        toAdd.midiCCOut.channel = msg.Channel();
-        toAdd.midiCCOut.controlNumber = msg.mData1;
-        toAdd.midiCCOut.value = msg.mData2;
-        toAdd.midiCCOut.value2 = 0;
+        Helpers::initLegacyMIDICCOutEvent(toAdd, msg.mData1, msg.Channel(), msg.mData2, 0 /* value2?*/);
+        toAdd.sampleOffset = msg.mOffset;
+        pOutputEvents->addEvent(toAdd);
       }
       else if (msg.StatusMsg() == IMidiMsg::kPitchWheel)
       {
         toAdd.type = Event::kLegacyMIDICCOutEvent;
         toAdd.midiCCOut.channel = msg.Channel();
-        toAdd.midiCCOut.value = msg.mData1;
-        toAdd.midiCCOut.value = msg.mData2;
+        toAdd.sampleOffset = msg.mOffset;
+        toAdd.midiCCOut.controlNumber = ControllerNumbers::kPitchBend;
+        int16 tmp = static_cast<int16> (msg.PitchWheel() * 0x3FFF);
+        toAdd.midiCCOut.value = (tmp & 0x7F);
+        toAdd.midiCCOut.value2 = ((tmp >> 7) & 0x7F);
+        pOutputEvents->addEvent(toAdd);
       }
-      
+
       mMidiOutputQueue.Remove();
     }
   }
@@ -317,7 +324,7 @@ void IPlugVST3ProcessorBase::PrepareProcessContext(ProcessData& data, ProcessSet
   SetRenderingOffline(offline);
 }
 
-void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data)
+void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data, IPlugQueue<IMidiMsg>& fromProcessor)
 {
   IParameterChanges* paramChanges = data.inputParameterChanges;
   
@@ -379,6 +386,7 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data)
                 else
                   msg.MakeControlChangeMsg((IMidiMsg::EControlChangeMsg) ctrlr, value, channel, offsetSamples);
 
+                fromProcessor.Push(msg);
                 ProcessMidiMsg(msg);
               }
             }
@@ -463,7 +471,7 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
 void IPlugVST3ProcessorBase::Process(ProcessData& data, ProcessSetup& setup, const BusList& ins, const BusList& outs, IPlugQueue<IMidiMsg>& fromEditor, IPlugQueue<IMidiMsg>& fromProcessor, IPlugQueue<SysExData>& sysExFromEditor, SysExData& sysExBuf)
 {
   PrepareProcessContext(data, setup);
-  ProcessParameterChanges(data);
+  ProcessParameterChanges(data, fromProcessor);
   
   if (DoesMIDIIn())
   {

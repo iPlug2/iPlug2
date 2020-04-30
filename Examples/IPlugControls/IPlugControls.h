@@ -30,7 +30,7 @@ enum EControlTags
 using namespace iplug;
 using namespace igraphics;
 
-class IPlugControls : public Plugin
+class IPlugControls final : public Plugin
 {
 public:
   IPlugControls(const InstanceInfo& info);
@@ -39,7 +39,7 @@ public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void OnIdle() override;
 private:
-  IVScopeControl<2>::Sender mScopeSender { kCtrlTagScope };
-  IVMeterControl<2>::Sender mMeterSender { kCtrlTagMeter };
+  IBufferSender<2> mScopeSender;
+  IPeakSender<2> mMeterSender;
 #endif
 };
