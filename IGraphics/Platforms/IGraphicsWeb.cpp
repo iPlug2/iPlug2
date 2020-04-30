@@ -292,13 +292,11 @@ static EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent
   {
     case EMSCRIPTEN_EVENT_KEYDOWN:
     {
-      pGraphicsWeb->OnKeyDown(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, keyPress);
-      break;
+      return pGraphicsWeb->OnKeyDown(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, keyPress);
     }
     case EMSCRIPTEN_EVENT_KEYUP:
     {
-      pGraphicsWeb->OnKeyUp(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, keyPress);
-      break;
+      return pGraphicsWeb->OnKeyUp(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, keyPress);
     }
     default:
       break;
