@@ -2347,7 +2347,7 @@ static constexpr float DEFAULT_FRAME_THICKNESS = 1.f;
 static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
 static constexpr float DEFAULT_WIDGET_FRAC = 1.f;
 static constexpr float DEFAULT_WIDGET_ANGLE = 0.f;
-const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Top};
+const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 4.f, EVAlign::Top};
 const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Bottom};
 
 struct IVStyle
