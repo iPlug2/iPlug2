@@ -2477,7 +2477,7 @@ static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
 static constexpr float DEFAULT_WIDGET_FRAC = 1.f;
 static constexpr float DEFAULT_WIDGET_ANGLE = 0.f;
 static constexpr EOrientation DEFAULT_LABEL_ORIENTATION = EOrientation::North;
-const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Top};
+const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 4.0f, EVAlign::Top};
 const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Bottom};
 
 /** A struct encapsulating a set of properties used to configure IVControls */
