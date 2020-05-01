@@ -170,7 +170,7 @@ tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* pState)
 
 tresult PLUGIN_API IPlugVST3::getMidiControllerAssignment(int32 busIndex, int16 midiChannel, CtrlNumber midiCCNumber, ParamID& tag)
 {
-  if (busIndex == 0)
+  if (busIndex == 0 && midiChannel < VST3_NUM_CC_CHANS)
   {
     tag = kMIDICCParamStartIdx + (midiChannel * kCountCtrlNumber) + midiCCNumber;
     return kResultTrue;
