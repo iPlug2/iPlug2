@@ -487,7 +487,7 @@ public:
   IAnimationFunction GetAnimationFunction() { return mAnimationFunc; }
 
   /** Get the control's action function, if it exists */
-  IAnimationFunction GetActionFunction() { return mActionFunc; }
+  IActionFunction GetActionFunction() { return mActionFunc; }
 
   /** Get the progress in a control's animation, in the range 0-1 */
   double GetAnimationProgress() const;
@@ -679,7 +679,7 @@ public:
       handleBounds.Pad(- 0.5f * mStyle.frameThickness);
     
     if (mStyle.drawShadows)
-      handleBounds.Alter(0, 0, -mStyle.shadowOffset, -mStyle.shadowOffset);
+      handleBounds.Alter(mStyle.shadowOffset, 0, -mStyle.shadowOffset, -mStyle.shadowOffset);
     
     return handleBounds;
   }
@@ -1172,6 +1172,7 @@ public:
   ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 0.f);
   ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 0.f);
   
+  void OnResize() override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
@@ -1805,7 +1806,7 @@ protected:
 class IEditableTextControl : public ITextControl
 {
 public:
-  IEditableTextControl(const IRECT& bounds, const char* str, const IText& text)
+  IEditableTextControl(const IRECT& bounds, const char* str, const IText& text = DEFAULT_TEXT)
   : ITextControl(bounds, str, text)
   {
     mIgnoreMouse = false;

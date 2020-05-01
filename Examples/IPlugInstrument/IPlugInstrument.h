@@ -33,6 +33,7 @@ enum EControlTags
   kCtrlTagScope,
   kCtrlTagRTText,
   kCtrlTagKeyboard,
+  kCtrlTagBender,
   kNumCtrlTags
 };
 
@@ -51,6 +52,7 @@ public:
   void OnReset() override;
   void OnParamChange(int paramIdx) override;
   void OnIdle() override;
+  bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
 
 private:
   IPlugInstrumentDSP<sample> mDSP {16};

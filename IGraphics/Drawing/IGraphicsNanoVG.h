@@ -67,6 +67,9 @@ BEGIN_IGRAPHICS_NAMESPACE
 /** Converts IColor to a NVGcolor */
 NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0);
 
+/** Helper to call nvgRect */
+void NanoVGRect(NVGcontext* pContext, const IRECT& r);
+
 /** Set the NanoVG context blend based on IBlend */
 void NanoVGSetBlendMode(NVGcontext* pContext, const IBlend* pBlend);
 

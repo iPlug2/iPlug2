@@ -107,9 +107,7 @@ public:
         g.PathLineTo(vx, vy);
       }
     }
-    
-    g.PathClipRegion();
-    
+        
     g.PathStroke(IPattern::CreateLinearGradient(mPlotBounds, mDirection, {{COLOR_TRANSPARENT, 0.f}, {GetColor(kX1), 1.f}}), mStrokeThickness, IStrokeOptions(), &mBlend);
   }
   

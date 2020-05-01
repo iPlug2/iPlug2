@@ -324,7 +324,7 @@ void IPlugVST3ProcessorBase::PrepareProcessContext(ProcessData& data, ProcessSet
   SetRenderingOffline(offline);
 }
 
-void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data)
+void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data, IPlugQueue<IMidiMsg>& fromProcessor)
 {
   IParameterChanges* paramChanges = data.inputParameterChanges;
   
@@ -386,6 +386,7 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data)
                 else
                   msg.MakeControlChangeMsg((IMidiMsg::EControlChangeMsg) ctrlr, value, channel, offsetSamples);
 
+                fromProcessor.Push(msg);
                 ProcessMidiMsg(msg);
               }
             }
@@ -470,7 +471,7 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
 void IPlugVST3ProcessorBase::Process(ProcessData& data, ProcessSetup& setup, const BusList& ins, const BusList& outs, IPlugQueue<IMidiMsg>& fromEditor, IPlugQueue<IMidiMsg>& fromProcessor, IPlugQueue<SysExData>& sysExFromEditor, SysExData& sysExBuf)
 {
   PrepareProcessContext(data, setup);
-  ProcessParameterChanges(data);
+  ProcessParameterChanges(data, fromProcessor);
   
   if (DoesMIDIIn())
   {
