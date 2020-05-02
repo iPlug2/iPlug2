@@ -189,33 +189,32 @@ Steinberg::tresult PLUGIN_API IPlugVST3::setChannelContextInfos(Steinberg::Vst::
   if (pList)
   {
     // optional we can ask for the Channel Name Length
-    int64 length = 0;
+    int64 length;
     if (pList->getInt(ChannelContext::kChannelNameLengthKey, length) == kResultTrue)
     {
+      // get the Channel Name where we, as Plug-in, are instantiated
+      std::vector<TChar> name(length+1);
+      if (pList->getString(ChannelContext::kChannelNameKey, name.data(), length+1) == kResultTrue)
+      {
+        Steinberg::String str(name.data());
+        str.toMultiByte(kCP_Utf8);
+        mChannelName.Set(str);
+      }
     }
     
-    // get the Channel Name where we, as Plug-in, are instantiated
-    std::vector<TChar> name(length+1);
-    if (pList->getString(ChannelContext::kChannelNameKey, name.data(), length+1) == kResultTrue)
-    {
-      Steinberg::String str(name.data());
-      str.toMultiByte(kCP_Utf8);
-      mChannelName.Set(str);
-    }
-
     // get the channel uid Namespace Length
     if (pList->getInt(ChannelContext::kChannelUIDLengthKey, length) == kResultTrue)
     {
+      // get the Channel UID
+      std::vector<TChar> name(length+1);
+      if (pList->getString(ChannelContext::kChannelUIDKey, name.data(), length+1) == kResultTrue)
+      {
+        Steinberg::String str(name.data());
+        str.toMultiByte(kCP_Utf8);
+        mChannelUID.Set(str);
+      }
     }
 
-    // get the Channel UID
-    name = std::vector<TChar>(length+1);
-    if (pList->getString(ChannelContext::kChannelUIDKey, name.data(), length+1) == kResultTrue)
-    {
-      Steinberg::String str(name.data());
-      str.toMultiByte(kCP_Utf8);
-      mChannelUID.Set(str);
-    }
     
     // get Channel Index
     int64 index;
@@ -238,19 +237,18 @@ Steinberg::tresult PLUGIN_API IPlugVST3::setChannelContextInfos(Steinberg::Vst::
     }
   
     // get the channel Index Namespace Length
-    length = 0;
     if (pList->getInt(ChannelContext::kChannelIndexNamespaceLengthKey, length) == kResultTrue)
     {
+      // get the channel Index Namespace
+      std::vector<TChar> name(length+1);
+      if (pList->getString(ChannelContext::kChannelIndexNamespaceKey, name.data(), length+1) == kResultTrue)
+      {
+        Steinberg::String str(name.data());
+        str.toMultiByte(kCP_Utf8);
+        mChannelNamespace.Set(str);
+      }
     }
     
-    // get the channel Index Namespace
-    name = std::vector<TChar>(length+1);
-    if (pList->getString(ChannelContext::kChannelIndexNamespaceKey, name.data(), length+1) == kResultTrue)
-    {
-      Steinberg::String str(name.data());
-      str.toMultiByte(kCP_Utf8);
-      mChannelNamespace.Set(str);
-    }
 
     // get Plug-in Channel Location
     int64 location;
