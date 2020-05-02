@@ -61,6 +61,7 @@ using namespace igraphics;
   IGRAPHICS_UITABLEVC* mMenuTableController;
   UINavigationController* mMenuNavigationController;
   UITextField* mTextField;
+  CAMetalLayer* mMTLLayer;
   int mTextFieldLength;
 }
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics;
@@ -72,7 +73,6 @@ using namespace igraphics;
 - (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect;
 - (void) endUserInput;
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
-- (void) getTouchXY: (CGPoint) pt x: (float*) pX y: (float*) pY;
 
 - (void)presentationControllerDidDismiss: (UIPresentationController *) presentationController;
 

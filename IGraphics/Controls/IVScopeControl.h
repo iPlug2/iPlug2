@@ -17,122 +17,19 @@
  */
 
 #include "IControl.h"
+#include "ISender.h"
 #include "IPlugStructs.h"
-#include "IPlugQueue.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
 /** Vectorial multichannel capable oscilloscope control
  * @ingroup IControls */
-template <int MAXNC = 1, int MAXBUF = 128, int QUEUE_SIZE = 1024>
+template <int MAXNC = 1, int MAXBUF = 128>
 class IVScopeControl : public IControl
                      , public IVectorBase
 {
 public:
-  static constexpr int kUpdateMessage = 0;
-
-  /* Data packet */
-  struct Data
-  {
-    int nchans = MAXNC;
-    float vals[MAXNC][MAXBUF] = {};
-
-    bool AboveThreshold()
-    {
-      static const float threshold = (float) DBToAmp(-90.);
-
-      float sum = 0.f;
-
-      for(auto c = 0; c < MAXNC; c++)
-      {
-        for(auto s = 0; s < MAXBUF; s++)
-        {
-          sum += vals[c][s];
-        }
-      }
-
-      return std::abs(sum) > threshold;
-    }
-  };
-
-  /** Used on the DSP side in order to queue sample values and transfer data to low priority thread. */
-  class Sender
-  {
-  public:
-    Sender(int ctrlTag)
-    : mCtrlTag(ctrlTag)
-    {
-    }
-      
-  /** add an array of multichannel sample data, one for each channel to the queue. Will crash if size of inputs < MAXNC
-   * @param inputs data to visualize **/
-    void Process(sample* inputs)
-    {
-      if(mBufCount == MAXBUF)
-      {
-        if(mPrevAboveThreshold)
-          mQueue.Push(mBuf); // TODO: expensive?
-        
-        mPrevAboveThreshold = mBuf.AboveThreshold();
-        
-        mBufCount = 0;
-      }
-      
-      for (auto c = 0; c < MAXNC; c++)
-      {
-        mBuf.vals[c][mBufCount] = (float) inputs[c];
-      }
-      
-      mBufCount++;
-    }
-
-  /** add a block of multichannel sample data to the queue. Will crash if size of inputs < MAXNC
-   * @param inputs data to visualize, typically multichannel non interleaved audio samples
-   * @param nFrames number of frames to process **/
-    void ProcessBlock(sample** inputs, int nFrames)
-    {
-      for (auto s = 0; s < nFrames; s++)
-      {
-        if(mBufCount == MAXBUF)
-        {
-          if(mPrevAboveThreshold)
-            mQueue.Push(mBuf); // TODO: expensive?
-
-          mPrevAboveThreshold = mBuf.AboveThreshold();
-
-          mBufCount = 0;
-        }
-
-        for (auto c = 0; c < MAXNC; c++)
-        {
-          mBuf.vals[c][mBufCount] = (float) inputs[c][s];
-        }
-
-        mBufCount++;
-      }
-    }
-
-    /** Sends data in the queue via IEditorDelegate. This must be called on the main thread - typically in MyPlugin::OnIdle() */
-    void TransmitData(IEditorDelegate& dlg)
-    {
-      Data d;
-
-      while(mQueue.ElementsAvailable())
-      {
-        mQueue.Pop(d);
-        dlg.SendControlMsgFromDelegate(mCtrlTag, kUpdateMessage, sizeof(Data), (void*) &d);
-      }
-    }
-
-  private:
-    Data mBuf;
-    int mCtrlTag;
-    int mBufCount = 0;
-    IPlugQueue<Data> mQueue {QUEUE_SIZE};
-    bool mPrevAboveThreshold = true;
-  };
-
   /** Constructs an IVScopeControl 
    * @param bounds The rectangular area that the control occupies
    * @param label A CString to label the control
@@ -151,12 +48,12 @@ public:
     DrawLabel(g);
     
     if(mStyle.drawFrame)
-      g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
+      g.DrawRect(GetColor(kFR), mWidgetBounds, &mBlend, mStyle.frameThickness);
   }
 
   void DrawWidget(IGraphics& g) override
   {
-    g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5, nullptr, mStyle.frameThickness);
+    g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5, &mBlend, mStyle.frameThickness);
     
     IRECT r = mWidgetBounds.GetPadded(-mPadding);
 
@@ -164,7 +61,7 @@ public:
 
     float xPerData = r.W() / (float) MAXBUF;
 
-    for (int c = 0; c < mBuf.nchans; c++)
+    for (int c = 0; c < mBuf.nChans; c++)
     {
       float xHi = 0.f;
       float yHi = mBuf.vals[c][0] * maxY;
@@ -179,7 +76,7 @@ public:
         g.PathLineTo(r.L + xHi, r.MH() - yHi);
       }
       
-      g.PathStroke(GetColor(kFG), 1.0);
+      g.PathStroke(GetColor(kFG), mTrackSize, IStrokeOptions(), &mBlend);
     }
   }
   
@@ -191,24 +88,19 @@ public:
 
   void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
-    IByteStream stream(pData, dataSize);
-
-    int pos = stream.Get(&mBuf.nchans, 0);
-
-    while(pos < stream.Size())
+    if (!IsDisabled() && msgTag == ISender<>::kUpdateMessage)
     {
-      for (auto ch = 0; ch < mBuf.nchans; ch++) {
-        for (auto s = 0; s < MAXBUF; s++) {
-          pos = stream.Get(&mBuf.vals[ch][s], pos);
-        }
-      }
-    }
+      IByteStream stream(pData, dataSize);
 
-    SetDirty(false);
+      int pos = 0;
+      pos = stream.Get(&mBuf, pos);
+
+      SetDirty(false);
+    }
   }
 
 private:
-  Data mBuf;
+  ISenderData<MAXNC, std::array<float, MAXBUF>> mBuf;
   float mPadding = 2.f;
 };
 

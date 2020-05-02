@@ -348,7 +348,7 @@ public:
    * @param text An IText struct containing font and text properties and layout info
    * @param str The text string to draw in the graphics context
    * @param bounds after calling the method this IRECT will be updated with the rectangular region the text will occupy */
-  virtual void MeasureText(const IText& text, const char* str, IRECT& bounds) const;
+  virtual float MeasureText(const IText& text, const char* str, IRECT& bounds) const;
 
   /** Get the color of a point in the graphics context. On a 1:1 screen this corresponds to a pixel. \todo check this
    * @param x The X coordinate in the graphics context of the pixel
@@ -363,26 +363,27 @@ public:
   /** @return A CString representing the Drawing API in use e.g. "LICE" */
   virtual const char* GetDrawingAPIStr() = 0;
   
-  /** /todo 
-   * @param srcbitmap /todo
-   * @param cacheName /todo
-   * @param targetScale /todo
-   * @return IBitmap /todo */
-  virtual IBitmap ScaleBitmap(const IBitmap& srcbitmap, const char* cacheName, int targetScale);
+  /** Returns a new IBitmap, an integer scaled version of the input, and adds it to the cache
+   * @param inbitmap The source bitmap to be scaled
+   * @param cacheName The name by which this bitmap is identified int the cache (along with targetScale)
+   * @param targetScale An integer scale factor of the new bitmap
+   * @return IBitmap The new IBitmap that has been added to the cache */
+  virtual IBitmap ScaleBitmap(const IBitmap& inBitmap, const char* cacheName, int targetScale);
 
-  /** /todo 
-   * @param bitmap /todo
-   * @param cacheName /todo */
+  /** Adds an IBitmap to the cache/static storage
+   * @param bitmap The bitmap to cache
+   * @param cacheName The name by which this bitmap is identified int the cache */
   virtual void RetainBitmap(const IBitmap& bitmap, const char* cacheName);
 
-  /** /todo 
-   * @param bitmap /todo */
+  /** Releases an IBitmap from the cache/static storage
+   * @param bitmap The bitmap to release  */
   virtual void ReleaseBitmap(const IBitmap& bitmap);
 
-  /** /todo 
-   * @param src /todo
-   * @return IBitmap /todo */
-  IBitmap GetScaledBitmap(IBitmap& src);
+  /** Get a version of the input bitmap from the cache that corresponds to the current screen scale
+   * For example, when IControl::OnRescale() is called bitmap-based IControls can load in 
+   * @param inBitmap The source bitmap to find a scaled version of
+   * @return IBitmap The scaled bitmap */
+  IBitmap GetScaledBitmap(IBitmap& inBitmap);
   
   /** Checks a file extension and reports whether this drawing API supports loading that extension */
   virtual bool BitmapExtSupported(const char* ext) = 0;
@@ -729,6 +730,11 @@ private:
 
 public:
 #pragma mark - Platform implementation
+  /** Get the x, y position in the graphics context of the mouse cursor
+   * @param x Where the X position will be stored
+   * @param y Where the Y position will be stored */
+  virtual void GetMouseLocation(float& x, float&y) const = 0;
+  
   /** Call to hide the mouse cursor 
    * @param hide /todo
    * @param lock /todo */
@@ -773,9 +779,9 @@ public:
   virtual bool GetTextFromClipboard(WDL_String& str) = 0;
 
   /** Set text in the clipboard
-   * @param str A WDL_String that will be used to set the current text in the clipboard
+   * @param str A CString that will be used to set the current text in the clipboard
    * @return /c true on success */
-  virtual bool SetTextInClipboard(const WDL_String& str) = 0;
+  virtual bool SetTextInClipboard(const char* str) = 0;
 
   /** Call this if you modify control tool tips at runtime. \todo explain */
   virtual void UpdateTooltips() = 0;
@@ -896,7 +902,8 @@ public:
   /** Called by the platform IGraphics class when moving to a new screen to set DPI
    * @param scale The scale of the display, typically 2 on a macOS retina screen */
   void SetScreenScale(int scale);
-  
+
+  /** Called by some platform IGraphics classes in order to translate the graphics context, in response to e.g. iOS onscreen keyboard appearing */
   void SetTranslation(float x, float y) { mXTranslation = x; mYTranslation = y; }
   
   /** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty.
@@ -944,7 +951,7 @@ public:
   void SetControlValueAfterTextEdit(const char* str);
     
   /** Called by PopupMenuControl in order to update a control with a new value after returning from the non-blocking menu. The base class has a record of the control, so it is not needed here.
-   * @param pReturnMenu The new value as a CString */
+   * @param pMenu The menu that was clicked */
   void SetControlValueAfterPopupMenu(IPopupMenu* pMenu);
     
   /** /todo 
@@ -978,7 +985,8 @@ public:
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */
   void SetStrictDrawing(bool strict);
-  
+
+  /* Enables layout on resize. This means IGEditorDelegate:LayoutUI() will be called when the GUI is resized */
   void SetLayoutOnResize(bool layoutOnResize);
 
   /** Gets the width of the graphics context
@@ -991,11 +999,11 @@ public:
 
   /** Gets the width of the graphics context including scaling (not display scaling!)
    * @return A whole number representing the width of the graphics context with scaling in pixels on a 1:1 screen */
-  int WindowWidth() const { return int((float) mWidth * mDrawScale); }
+  int WindowWidth() const { return static_cast<int>(static_cast<float>(mWidth) * mDrawScale); }
 
   /** Gets the height of the graphics context including scaling (not display scaling!)
    * @return A whole number representing the height of the graphics context with scaling in pixels on a 1:1 screen */
-  int WindowHeight() const { return int((float) mHeight * mDrawScale); }
+  int WindowHeight() const { return static_cast<int>(static_cast<float>(mHeight) * mDrawScale); }
 
   /** Gets the drawing frame rate
    * @return A whole number representing the desired frame rate at which the graphics context is redrawn. NOTE: the actual frame rate might be different */
@@ -1009,6 +1017,10 @@ public:
     * @return The scale factor of the display on which this graphics context is currently located */
   int GetScreenScale() const { return mScreenScale; }
 
+  /** Gets the combined screen and display scaling factor
+  * @return The draw scale * screen scale */
+  float GetTotalScale() const { return static_cast<float>(mDrawScale * static_cast<float>(mScreenScale)); }
+
   /** Gets the nearest backing pixel aligned rect to the input IRECT
     * @param r The IRECT to snap
     * @return The IRECT nearest to the input IRECT that is aligned exactly to backing pixels */
@@ -1021,8 +1033,8 @@ public:
   /** @return Get a persistant IPopupMenu (remember to clear it before use) */
   IPopupMenu& GetPromptMenu() { return mPromptPopupMenu; }
   
-  /** @return True if text entry in progress */
-  bool IsInTextEntry() { return mInTextEntry != nullptr; }
+  /** @return True if a platform text entry in is progress */
+  bool IsInPlatformTextEntry() { return mInTextEntry != nullptr && !mTextEntryControl; }
   
   /** @return Ptr to the control that launched the text entry */
   IControl* GetControlInTextEntry() { return mInTextEntry; }
@@ -1036,6 +1048,27 @@ public:
   /** @return true if resizing is in process */
   bool GetResizingInProcess() const { return mResizingInProcess; }
 
+  /** Enable/disable multi touch, if platform supports it
+    * @return \c true if platform supports it */
+  bool EnableMultiTouch(bool enable)
+  {
+    if (PlatformSupportsMultiTouch())
+    {
+      mEnableMultiTouch = enable;
+      return true;
+    }
+    else
+      mEnableMultiTouch = false;
+
+    return false;
+  }
+  
+  /** @return /c true if multi touch is enabled */
+  bool MultiTouchEnabled() const { return mEnableMultiTouch; }
+
+  /** @return /c true if the platform supports multi touch */
+  virtual bool PlatformSupportsMultiTouch() const { return false; }
+  
   /** @param enable Set \c true to enable tool tips when the user mouses over a control */
   void EnableTooltips(bool enable);
   
@@ -1122,13 +1155,14 @@ private:
    * @param valIdx The value index for the control value that the prompt relates to */
   void DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext);
   
-protected:
-  /** /todo */
-  void StartResizeGesture() { mResizingInProcess = true; };
+  /** Called by ICornerResizer when drag resize commences */
+  void StartDragResize() { mResizingInProcess = true; }
   
+  /** Called when drag resize ends */
+  void EndDragResize();
+
 #pragma mark - Control management
 public:
-  
   /** /todo
    * @param func /todo */
   void ForAllControlsFunc(std::function<void(IControl& control)> func);
@@ -1165,9 +1199,13 @@ public:
   void ForControlInGroup(const char* group, std::function<void(IControl& control)> func);
   
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
-   * @param fileName CString fileName resource id for the bitmap image \todo check this */
+   * @param fileName CString fileName resource id for the bitmap image */
   void AttachBackground(const char* fileName);
 
+  /** Attach an ISVGControl as the lowest IControl in the control stack to be the background for the graphics context
+   * @param fileName CString fileName resource id for the SVG image */
+  void AttachSVGBackground(const char* fileName);
+  
   /** Attach an IPanelControl as the lowest IControl in the control stack to fill the background with a solid color
    * @param color The color to fill the panel with */
   void AttachPanelBackground(const IPattern& color);
@@ -1220,10 +1258,24 @@ public:
    * @return A pointer to the IControl object with the tag of nullptr if not found */
   IControl* GetControlWithTag(int ctrlTag);
   
-  /** Get a pointer to the IControl that is currently captured i.e. during dragging
-   * @return Pointer to currently captured control */
-  IControl* GetCapturedControl() { return mMouseCapture; }
+  /** Check to see if any control is captured */
+  bool ControlIsCaptured() const { return mCapturedMap.size() > 0; }
+  
+  /** Check to see if the control is already captured
+   * @return \c true is the control is already captured */
+  bool ControlIsCaptured(IControl* pControl) const
+  {
+    return std::find_if(std::begin(mCapturedMap), std::end(mCapturedMap), [pControl](auto&& press) { return press.second == pControl; }) != mCapturedMap.end();
+  }
 
+  /** Populate a vector with the touchIDs active on pControl */
+  void GetTouches(IControl* pControl, std::vector<ITouchID>& touchesOnThisControl) const
+  {
+    for (auto i = mCapturedMap.begin(), j = mCapturedMap.end(); i != j; ++i)
+      if (i->second == pControl)
+        touchesOnThisControl.push_back(i->first);
+  }
+  
   /* Get the first control in the control list, the background */
   IControl* GetBackgroundControl() { return GetControl(0);  }
   
@@ -1286,27 +1338,23 @@ private:
    * @param y /todo
    * @param capture /todo
    * @param mouseOver /todo
+   * @param touchID /todo
    * @return IControl* /todo */
-  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false);
+  IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false, ITouchID touchID = 0);
   
 #pragma mark - Event handling
 public:
-  /** @param x The X coordinate in the graphics context at which the mouse event occurred
-   * @param y The Y coordinate in the graphics context at which the mouse event occurred
-   * @param mod IMouseMod struct contain information about the modifiers held */
-  void OnMouseDown(float x, float y, const IMouseMod& mod);
+  /** */
+  void OnMouseDown(const std::vector<IMouseInfo>& points);
 
-  /** @param x The X coordinate in the graphics context at which the mouse event occurred
-   * @param y The Y coordinate in the graphics context at which the mouse event occurred
-   * @param mod IMouseMod struct contain information about the modifiers held */
-  void OnMouseUp(float x, float y, const IMouseMod& mod);
+  /** */
+  void OnMouseUp(const std::vector<IMouseInfo>& points);
 
-  /** @param x The X coordinate in the graphics context at which the mouse event occurred
-   * @param y The Y coordinate in the graphics context at which the mouse event occurred
-   * @param dX Delta X value \todo explain
-   * @param dY Delta Y value \todo explain
-   * @param mod IMouseMod struct contain information about the modifiers held */
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod);
+  /** */
+  void OnMouseDrag(const std::vector<IMouseInfo>& points);
+  
+  /** */
+  void OnTouchCancelled(const std::vector<IMouseInfo>& points);
 
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
    * @param y The Y coordinate in the graphics context at which the mouse event occurred
@@ -1352,17 +1400,17 @@ public:
   /** \todo */
   void OnGUIIdle();
   
-  /** \todo */
-  void OnResizeGesture(float x, float y);
+  /** Called by ICornerResizerControl as the corner is dragged to resize */
+  void OnDragResize(float x, float y);
 
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
-  void HandleMouseOver(bool enable) { mHandleMouseOver = enable; }
+  void EnableMouseOver(bool enable) { mEnableMouseOver = enable; }
 
   /** Used to tell the graphics context to stop tracking mouse interaction with a control \todo internal only? */
   void ReleaseMouseCapture();
 
   /** @return \c true if the context can handle mouse overs */
-  bool CanHandleMouseOver() const { return mHandleMouseOver; }
+  bool CanEnableMouseOver() const { return mEnableMouseOver; }
 
   /** @return An integer representing the control index in IGraphics::mControls which the mouse is over, or -1 if it is not */
   inline int GetMouseOver() const { return mMouseOverIdx; }
@@ -1453,12 +1501,12 @@ protected:
    * @return APIBitmap* /todo */
   virtual APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) = 0;
 
-  /** /todo
-   * @param width /todo
-   * @param height /todo
-   * @param scale /todo
+  /** Creates a new API bitmap, either in memory or as a GPU texture
+   * @param width The desired width
+   * @param height The desired height
+   * @param scale The scale in relation to 1:1 pixels
    * @param drawScale /todo
-   * @return APIBitmap* /todo */
+   * @return APIBitmap* The new API Bitmap */
   virtual APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) = 0;
 
   /** /todo
@@ -1501,8 +1549,8 @@ protected:
    * @param text /todo
    * @param str /todo
    * @param bounds /todo
-   * @param pBlend /todo */
-  virtual void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const = 0;
+   * @return The width of the text */
+  virtual float DoMeasureText(const IText& text, const char* str, IRECT& bounds) const = 0;
     
   /** /todo
    * @param text /todo
@@ -1541,7 +1589,7 @@ private:
 
   // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
   std::unique_ptr<ICornerResizerControl> mCornerResizer;
-  std::unique_ptr<IBubbleControl> mBubbleControl;
+  WDL_PtrList<IBubbleControl> mBubbleControls;
   std::unique_ptr<IPopupMenuControl> mPopupControl;
   std::unique_ptr<IFPSDisplayControl> mPerfDisplay;
   std::unique_ptr<ITextEntryControl> mTextEntryControl;
@@ -1563,8 +1611,7 @@ private:
   std::vector<EGestureType> mRegisteredGestures; // All the types of gesture registered with the graphics context
   IRECTList mGestureRegions; // Rectangular regions linked to gestures (excluding IControls)
   std::unordered_map<int, IGestureFunc> mGestureRegionFuncs; // Map of gesture region index to gesture function
-  
-  IControl* mMouseCapture = nullptr;
+  std::unordered_map<ITouchID, IControl*> mCapturedMap; // associative array of touch ids to control pointers, the same control can be touched multiple times
   IControl* mMouseOver = nullptr;
   IControl* mInTextEntry = nullptr;
   IControl* mInPopupMenu = nullptr;
@@ -1581,13 +1628,14 @@ private:
   int mMinHeight;
   int mMaxHeight;
   int mLastClickedParam = kNoParameter;
-  bool mHandleMouseOver = false;
+  bool mEnableMouseOver = false;
   bool mStrict = false;
   bool mEnableTooltips = false;
   bool mShowControlBounds = false;
   bool mShowAreaDrawn = false;
   bool mResizingInProcess = false;
   bool mLayoutOnResize = false;
+  bool mEnableMultiTouch = false;
   EUIResizerMode mGUISizeMode = EUIResizerMode::Scale;
   double mPrevTimestamp = 0.;
   IKeyHandlerFunc mKeyHandlerFunc = nullptr;

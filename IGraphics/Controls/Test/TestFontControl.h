@@ -21,7 +21,7 @@
  *   @ingroup TestControls */
 class TestFontControl : public IControl
 {
-  static const int size = 20;
+  static const int size = 36;
     
 public:
     TestFontControl(const IRECT& bounds)

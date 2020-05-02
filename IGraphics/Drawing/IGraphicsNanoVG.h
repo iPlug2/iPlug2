@@ -67,6 +67,9 @@ BEGIN_IGRAPHICS_NAMESPACE
 /** Converts IColor to a NVGcolor */
 NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0);
 
+/** Helper to call nvgRect */
+void NanoVGRect(NVGcontext* pContext, const IRECT& r);
+
 /** Set the NanoVG context blend based on IBlend */
 void NanoVGSetBlendMode(NVGcontext* pContext, const IBlend* pBlend);
 
@@ -138,7 +141,7 @@ protected:
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
-  void DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
+  float DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
   void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
 
 private:

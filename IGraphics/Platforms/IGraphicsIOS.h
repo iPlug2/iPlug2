@@ -15,6 +15,8 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
+extern void GetScreenDimensions(int& width, int& height);
+
 /** IGraphics platform class for IOS
 *   @ingroup PlatformClasses */
 class IGraphicsIOS final : public IGRAPHICS_DRAW_CLASS
@@ -29,6 +31,8 @@ public:
   void CloseWindow() override;
   bool WindowIsOpen() override;
   void PlatformResize(bool parentHasResized) override;
+
+  void GetMouseLocation(float& x, float&y) const override { /* NO-OP */ };
 
   EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
   void ForceEndUserEdit() override;
@@ -52,13 +56,16 @@ public:
   static int GetUserOSVersion();
   
   bool GetTextFromClipboard(WDL_String& str) override;
-  bool SetTextInClipboard(const WDL_String& str) override;
+  bool SetTextInClipboard(const char* str) override;
 
   void CreatePlatformImGui() override;
 
   void LaunchBluetoothMidiDialog(float x, float y);
   
   void AttachGestureRecognizer(EGestureType type) override;
+  
+  bool PlatformSupportsMultiTouch() const override { return true; }
+  
 protected:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;

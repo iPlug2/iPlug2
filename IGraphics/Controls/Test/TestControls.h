@@ -38,5 +38,7 @@
 #include "TestGFXLabel.h"
 #include "TestMPSControl.h"
 #include "TestBezierControl.h"
+#include "TestMultiTouchControl.h"
 #include "TestGesturesControl.h"
 #include "TestFlexBoxControl.h"
+#include "TestMaskControl.h"

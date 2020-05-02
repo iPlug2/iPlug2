@@ -1,3 +1,13 @@
+ /*
+ ==============================================================================
+ 
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+ 
+ See LICENSE.txt for  more info.
+ 
+ ==============================================================================
+*/
+
 #import "GenericUI.h"
 
 #if !__has_feature(objc_arc)
@@ -19,18 +29,27 @@ static void *kvoParameterValue = &kvoParameterValue;
     _parameter = parameter;
     
     _nameLabel = [self pv_labelWithText:[parameter.displayName stringByAppendingString:@":"] alignment:NSTextAlignmentRight];
+    _nameLabel.textColor = UIColor.blackColor;
     _minValueLabel = [self pv_labelWithText:[NSString stringWithFormat:@"%.0f", parameter.minValue] alignment:NSTextAlignmentRight];
+    _minValueLabel.textColor = UIColor.blackColor;
     _maxValueLabel = [self pv_labelWithText:[NSString stringWithFormat:@"%.0f", parameter.maxValue] alignment:NSTextAlignmentLeft];
-    
+    _maxValueLabel.textColor = UIColor.blackColor;
+
     _valueSlider = [[UISlider alloc] init];
     _valueSlider.translatesAutoresizingMaskIntoConstraints = NO;
     _valueSlider.minimumValue = parameter.minValue;
     _valueSlider.maximumValue = parameter.maxValue;
-    
+    _valueSlider.maximumTrackTintColor = UIColor.blackColor;
+    _valueSlider.minimumTrackTintColor = UIColor.blackColor;
+
     _valueTextField = [[UITextField alloc] init];
     _valueTextField.translatesAutoresizingMaskIntoConstraints = NO;
     _valueTextField.borderStyle = UITextBorderStyleRoundedRect;
+    _valueTextField.background = nil;
     _valueTextField.text = [self stringWithValue:parameter.minValue];
+    _valueTextField.backgroundColor = UIColor.lightGrayColor;
+    _valueTextField.textColor = UIColor.blackColor;
+    
     CGFloat width = [_valueTextField systemLayoutSizeFittingSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)].width;
     _valueTextField.text = [self stringWithValue:parameter.maxValue];
     width = MAX(width, [_valueTextField systemLayoutSizeFittingSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)].width);
@@ -86,7 +105,8 @@ static void *kvoParameterValue = &kvoParameterValue;
   return [NSString stringWithFormat:@"%.4f", value];
 }
 
-- (void)dealloc {
+- (void)dealloc
+{
   [_parameter removeObserver:self forKeyPath:@"value" context:kvoParameterValue];
 }
 
@@ -109,6 +129,10 @@ static void *kvoParameterValue = &kvoParameterValue;
 {
   if (self = [super init])
   {
+    self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.autoresizesSubviews = YES;
+    self.backgroundColor = UIColor.whiteColor;
+    
     UIStackView* rootStack = [[UIStackView alloc] init];
     rootStack.translatesAutoresizingMaskIntoConstraints = NO;
     [self addSubview:rootStack];

@@ -25,11 +25,11 @@
 
 #include "Oversampler.h"
 
-#ifndef DEFAULT_FAUST_LIBRARY_PATH
+#ifndef FAUST_LIBRARY_PATH
   #if defined OS_MAC || defined OS_LINUX
-    #define DEFAULT_FAUST_LIBRARY_PATH "/usr/local/share/faust/"
+    #define FAUST_LIBRARY_PATH "/usr/local/share/faust/"
   #else
-   #define DEFAULT_FAUST_LIBRARY_PATH "C:\\Program Files\\Faust\\share\\faust"
+   #define FAUST_LIBRARY_PATH "C:\\Program Files\\Faust\\share\\faust"
   #endif
 #endif
 
@@ -290,7 +290,7 @@ protected:
       mMap.Insert(mParams.Get(p)->GetNameForHost(), mZones.Get(p)); // insert will overwrite keys with the same name
     }
     
-    if(mIPlugParamStartIdx > -1 && mPlug != nullptr) // if we've allready linked parameters
+    if(mIPlugParamStartIdx > -1 && mPlug != nullptr) // if we've already linked parameters
     {
       CreateIPlugParameters(mPlug, mIPlugParamStartIdx);
     }

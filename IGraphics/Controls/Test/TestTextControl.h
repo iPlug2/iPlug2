@@ -51,7 +51,7 @@ public:
 
   void Randomise()
   {
-    int size = (std::rand() % 100) + 5;
+    int size = (std::rand() % 200) + 12;
     int align = (std::rand() % 3);
     int valign = (std::rand() % 3);
     int type = (std::rand() % 2);

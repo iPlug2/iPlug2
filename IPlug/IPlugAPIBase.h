@@ -84,16 +84,6 @@ public:
    * @param height The selected height */
   virtual void OnHostSelectedViewConfiguration(int width, int height) {}
 
-  /** KeyDown handler for VST2, in order to get keystrokes from certain hosts 
-   * @param key Information about the key that was pressed
-   * @return \c true if the key was handled by the plug-in */
-  virtual bool OnKeyDown(const IKeyPress& key) { return false; }
-
-  /** KeyDown handler for VST2, in order to get keystrokes from certain hosts
-   * @param key Information about the key that was released
-   * @return \c true if the key was handled by the plug-in */
-  virtual bool OnKeyUp(const IKeyPress& key) { return false; }
-
   /** Override this method to provide custom text linked to MIDI note numbers in API classes that support that (VST2)
    * Typically this might be used for a drum machine plug-in, in order to label a certainty "kick drum" etc.
    * @param noteNumber MIDI note to get the textual description for
@@ -119,25 +109,6 @@ public:
 #pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugAPIBase.cpp
   /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugAPIBases, for specific functionality, such as printing UI details. */
   virtual void PrintDebugInfo() const;
-
-  /** Call this method from a delegate in order to resize the plugin window.
-   * If calling from a UI interaction use EditorResizeFromUI()
-   * When this is overridden in subclasses the subclass should call this in order to update the member variables
-   * returns a bool to indicate whether the DAW or plugin class has resized the host window */
-  virtual bool EditorResizeFromDelegate(int width, int height);
-  
-   /** Call this method from a delegate if you want to store arbitrary data about the editor (e.g. layout/scale info).
-   * If calling from a UI interaction use EditorDataChangedFromUI()
-   * When this is overridden in subclasses the subclass should call this in order to update member variables */
-   virtual void EditorDataChangedFromDelegate(const IByteChunk& data) { mEditorData = data; }
-    
-  /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
-   * @param paramIdx The parameter that is being changed */
-  virtual void BeginInformHostOfParamChange(int paramIdx) {};
-
-  /** Implemented by the API class, called by the UI (or by a delegate) at the end of a parameter change gesture
-   * @param paramIdx The parameter that is being changed */
-  virtual void EndInformHostOfParamChange(int paramIdx) {};
 
   /** SetParameterValue is called from the UI in the middle of a parameter change gesture (possibly via delegate) in order to update a parameter's value.
    * It will update mParams[paramIdx], call InformHostOfParamChange and IPlugAPIBase::OnParamChange();
@@ -177,9 +148,7 @@ public:
   
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
   
-  bool EditorResizeFromUI(int viewWidth, int viewHeight) override { return EditorResizeFromDelegate(viewWidth, viewHeight); }
-    
-  void EditorDataChangedFromUI(const IByteChunk& data) override { EditorDataChangedFromDelegate(data); }
+  bool EditorResizeFromUI(int viewWidth, int viewHeight) override { return EditorResize(viewWidth, viewHeight); }
   
   void SendParameterValueFromUI(int paramIdx, double normalisedValue) override
   {
@@ -206,6 +175,18 @@ public:
   void CreateTimer();
   
 private:
+  /** Implementations call into the APIs resize hooks
+   * returns a bool to indicate whether the DAW or plugin class has resized the host window */
+  virtual bool EditorResize(int width, int height);
+  
+  /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
+   * @param paramIdx The parameter that is being changed */
+  virtual void BeginInformHostOfParamChange(int paramIdx) {};
+
+  /** Implemented by the API class, called by the UI (or by a delegate) at the end of a parameter change gesture
+   * @param paramIdx The parameter that is being changed */
+  virtual void EndInformHostOfParamChange(int paramIdx) {};
+
   /** Implemented by the API class, called by the UI via SetParameterValue() with the value of a parameter change gesture
    * @param paramIdx The parameter that is being changed
    * @param normalizedValue The new normalised value of the parameter being changed */

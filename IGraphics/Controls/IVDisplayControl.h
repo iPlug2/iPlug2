@@ -15,6 +15,7 @@
  */
 
 #include "IControl.h"
+#include "ISender.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -26,13 +27,14 @@ class IVDisplayControl : public IControl
 public:
   static constexpr int MAX_BUFFER_SIZE = 2048;
   
-  IVDisplayControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, float lo = 0., float hi = 1.f, float defaultVal = 0., uint32_t bufferSize = 100)
+  IVDisplayControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, float lo = 0., float hi = 1.f, float defaultVal = 0., uint32_t bufferSize = 100, float strokeThickness = 2.f)
   : IControl(bounds)
   , IVectorBase(style)
   , mLoValue(lo)
   , mHiValue(hi)
   , mBuffer(bufferSize, defaultVal)
   , mDirection(dir)
+  , mStrokeThickness(strokeThickness)
   {
     assert(bufferSize > 0 && bufferSize < MAX_BUFFER_SIZE);
 
@@ -65,7 +67,7 @@ public:
     DrawLabel(g);
     
     if(mStyle.drawFrame)
-      g.DrawRect(GetColor(kFR), mWidgetBounds, nullptr, mStyle.frameThickness);
+      g.DrawRect(GetColor(kFR), mWidgetBounds, &mBlend, mStyle.frameThickness);
   }
 
   void DrawWidget(IGraphics& g) override
@@ -105,11 +107,24 @@ public:
         g.PathLineTo(vx, vy);
       }
     }
-    
-    g.PathClipRegion();
-    
-    g.PathStroke(IPattern::CreateLinearGradient(mPlotBounds, mDirection, {{COLOR_TRANSPARENT, 0.f}, {GetColor(kX1), 1.f}}), mStrokeThickness);
+        
+    g.PathStroke(IPattern::CreateLinearGradient(mPlotBounds, mDirection, {{COLOR_TRANSPARENT, 0.f}, {GetColor(kX1), 1.f}}), mStrokeThickness, IStrokeOptions(), &mBlend);
   }
+  
+  void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
+  {
+    if (!IsDisabled() && msgTag == ISender<>::kUpdateMessage)
+    {
+      IByteStream stream(pData, dataSize);
+
+      int pos = 0;
+      ISenderData<1> d;
+      pos = stream.Get(&d, pos);
+      Update(d.vals[0]);
+      SetDirty(false);
+    }
+  }
+  
 private:
   std::vector<float> mBuffer;
   float mLoValue = 0.f;
