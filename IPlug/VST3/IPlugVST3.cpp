@@ -30,6 +30,9 @@ IPlugVST3::IPlugVST3(const InstanceInfo& info, const Config& config)
 : IPlugAPIBase(config, kAPIVST3)
 , IPlugVST3ProcessorBase(config, *this)
 , mView(nullptr)
+, mChannelIndex(0)
+, mChannelColor(0)
+, mChannelNamespaceIndex(0)
 {
   CreateTimer();
 }
@@ -189,54 +192,63 @@ Steinberg::tresult PLUGIN_API IPlugVST3::setChannelContextInfos(Steinberg::Vst::
     int64 length;
     if (pList->getInt(ChannelContext::kChannelNameLengthKey, length) == kResultTrue)
     {
+      // get the Channel Name where we, as Plug-in, are instantiated
+      std::vector<TChar> name(length+1);
+      if (pList->getString(ChannelContext::kChannelNameKey, name.data(), length+1) == kResultTrue)
+      {
+        Steinberg::String str(name.data());
+        str.toMultiByte(kCP_Utf8);
+        mChannelName.Set(str);
+      }
     }
     
-    // get the Channel Name where we, as Plug-in, are instantiated
-    String128 name;
-    if (pList->getString(ChannelContext::kChannelNameKey, name, sizeof (name)) == kResultTrue)
+    // get the channel uid Namespace Length
+    if (pList->getInt(ChannelContext::kChannelUIDLengthKey, length) == kResultTrue)
     {
+      // get the Channel UID
+      std::vector<TChar> name(length+1);
+      if (pList->getString(ChannelContext::kChannelUIDKey, name.data(), length+1) == kResultTrue)
+      {
+        Steinberg::String str(name.data());
+        str.toMultiByte(kCP_Utf8);
+        mChannelUID.Set(str);
+      }
     }
 
-    // get the Channel UID
-    if (pList->getString(ChannelContext::kChannelUIDKey, name, sizeof (name)) == kResultTrue)
-    {
-    }
     
     // get Channel Index
     int64 index;
     if (pList->getInt(ChannelContext::kChannelIndexKey, index) == kResultTrue)
     {
+      mChannelIndex = index;
     }
     
     // get the Channel Color
     int64 color;
     if (pList->getInt(ChannelContext::kChannelColorKey, color) == kResultTrue)
     {
-      uint32 channelColor = (uint32)color;
-      String str;
-      str.printf ("%x%x%x%x", ChannelContext::GetAlpha (channelColor),
-      ChannelContext::GetRed (channelColor),
-      ChannelContext::GetGreen (channelColor),
-      ChannelContext::GetBlue (channelColor));
-      String128 string128;
-      Steinberg::UString (string128, 128).fromAscii (str);
+      mChannelColor = (uint32)color;
     }
 
     // get Channel Index Namespace Order of the current used index namespace
     if (pList->getInt(ChannelContext::kChannelIndexNamespaceOrderKey, index) == kResultTrue)
     {
+      mChannelNamespaceIndex = index;
     }
   
     // get the channel Index Namespace Length
     if (pList->getInt(ChannelContext::kChannelIndexNamespaceLengthKey, length) == kResultTrue)
     {
+      // get the channel Index Namespace
+      std::vector<TChar> name(length+1);
+      if (pList->getString(ChannelContext::kChannelIndexNamespaceKey, name.data(), length+1) == kResultTrue)
+      {
+        Steinberg::String str(name.data());
+        str.toMultiByte(kCP_Utf8);
+        mChannelNamespace.Set(str);
+      }
     }
     
-    // get the channel Index Namespace
-    String128 namespaceName;
-    if (pList->getString(ChannelContext::kChannelIndexNamespaceKey, namespaceName, sizeof (namespaceName)) == kResultTrue)
-    {
-    }
 
     // get Plug-in Channel Location
     int64 location;
