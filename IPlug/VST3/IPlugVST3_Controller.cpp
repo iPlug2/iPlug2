@@ -27,6 +27,7 @@ IPlugVST3Controller::IPlugVST3Controller(const InstanceInfo& info, const Config&
 , mDoesMidiIn(config.plugDoesMidiIn)
 , mProcessorGUID(info.mOtherGUID)
 {
+  CreateTimer();
 }
 
 IPlugVST3Controller::~IPlugVST3Controller()
@@ -127,6 +128,15 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 //    notifyProgramListChange(kPresetParam, mCurrentPresetIdx);
 //  }
 //}
+
+#pragma mark IInfoListener overrides
+
+Steinberg::tresult PLUGIN_API IPlugVST3Controller::setChannelContextInfos(Steinberg::Vst::IAttributeList* pList)
+{
+  return IPlugVST3ControllerBase::SetChannelContextInfos(pList) ? kResultTrue : kResultFalse;
+}
+
+#pragma mark -
 
 bool IPlugVST3Controller::EditorResize(int viewWidth, int viewHeight)
 {

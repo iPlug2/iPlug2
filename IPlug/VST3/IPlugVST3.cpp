@@ -179,6 +179,13 @@ tresult PLUGIN_API IPlugVST3::getMidiControllerAssignment(int32 busIndex, int16 
   return kResultFalse;
 }
 
+#pragma mark IInfoListener overrides
+
+Steinberg::tresult PLUGIN_API IPlugVST3::setChannelContextInfos(Steinberg::Vst::IAttributeList* pList)
+{
+  return IPlugVST3ControllerBase::SetChannelContextInfos(pList) ? kResultTrue : kResultFalse;
+}
+
 #pragma mark IPlugAPIBase overrides
 
 void IPlugVST3::BeginInformHostOfParamChange(int idx)
