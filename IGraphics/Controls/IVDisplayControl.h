@@ -12,6 +12,8 @@
 
 /**
  * @file
+ * @ingroup IControls
+ * @copydoc IVDisplayControl
  */
 
 #include "IControl.h"
@@ -20,7 +22,7 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-/**  */
+/** A control to display a rolling graphics of historical values */
 class IVDisplayControl : public IControl
                        , public IVectorBase
 {
