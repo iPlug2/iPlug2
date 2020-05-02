@@ -27,6 +27,7 @@ IPlugVST3Controller::IPlugVST3Controller(const InstanceInfo& info, const Config&
 , mDoesMidiIn(config.plugDoesMidiIn)
 , mProcessorGUID(info.mOtherGUID)
 {
+  CreateTimer();
 }
 
 IPlugVST3Controller::~IPlugVST3Controller()
