@@ -97,7 +97,6 @@ public:
   // IInfoListener
   Steinberg::tresult PLUGIN_API setChannelContextInfos(Steinberg::Vst::IAttributeList* list) override;
 
-
   /** Get the color of the track that the plug-in is inserted on */
   virtual void GetTrackColor(int& r, int& g, int& b) override { r = (mChannelColor>>16)&0xff; g = (mChannelColor>>8)&0xff; b = mChannelColor&0xff; };
 
@@ -126,12 +125,6 @@ public:
 
 private:
   ViewType* mView;
-  WDL_String mChannelName;
-  int mChannelIndex;
-  unsigned int mChannelColor;
-  WDL_String mChannelNamespace;
-  int mChannelNamespaceIndex;
-  WDL_String mChannelUID;
 };
 
 IPlugVST3* MakePlug(const InstanceInfo& info);

@@ -30,9 +30,6 @@ IPlugVST3::IPlugVST3(const InstanceInfo& info, const Config& config)
 : IPlugAPIBase(config, kAPIVST3)
 , IPlugVST3ProcessorBase(config, *this)
 , mView(nullptr)
-, mChannelIndex(0)
-, mChannelColor(0)
-, mChannelNamespaceIndex(0)
 {
   CreateTimer();
 }

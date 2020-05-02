@@ -201,6 +201,14 @@ public:
   
 public:
   IPlugVST3BypassParameter* mBypassParameter = nullptr;
+
+  // ChannelContext::IInfoListener
+  WDL_String mChannelName;
+  WDL_String mChannelNamespace;
+  WDL_String mChannelUID;
+  int mChannelNamespaceIndex = 0;
+  int mChannelIndex = 0;
+  unsigned int mChannelColor = 0;
 };
 
 END_IPLUG_NAMESPACE
