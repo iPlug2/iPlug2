@@ -128,6 +128,15 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 //  }
 //}
 
+#pragma mark IInfoListener overrides
+
+Steinberg::tresult PLUGIN_API IPlugVST3::setChannelContextInfos(Steinberg::Vst::IAttributeList* pList)
+{
+  return IPlugVST3ControllerBase::SetChannelContextInfos(pList) ? kResultTrue : kResultFalse;
+}
+
+#pragma mark -
+
 bool IPlugVST3Controller::EditorResize(int viewWidth, int viewHeight)
 {
   if (HasUI())
