@@ -76,7 +76,7 @@ Timer_impl::Timer_impl(ITimerFunction func, uint32_t intervalMs)
 , mIntervalMs(intervalMs)
 
 {
-  ID = SetTimer(0, 0, intervalMs, TimerProc);
+  ID = SetTimer(0, 0, intervalMs, TimerProc); //TODO: timer ID correct?
   
   if (ID)
   {
@@ -116,5 +116,31 @@ void CALLBACK Timer_impl::TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
     }
   }
 }
+#elif defined OS_WEB
+Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
+{
+  return new Timer_impl(func, intervalMs);
+}
 
+Timer_impl::Timer_impl(ITimerFunction func, uint32_t intervalMs)
+: mTimerFunc(func)
+{
+  ID = emscripten_set_interval(TimerProc, intervalMs, this);
+}
+
+Timer_impl::~Timer_impl()
+{
+  Stop();
+}
+
+void Timer_impl::Stop()
+{
+  emscripten_clear_interval(ID);
+}
+
+void Timer_impl::TimerProc(void* userData)
+{
+  Timer_impl* itimer = (Timer_impl*) userData;
+  itimer->mTimerFunc(*itimer);
+}
 #endif

@@ -105,9 +105,13 @@ public:
       sum += d.vals[c];
     }
 
-    if(sum > SENDER_THRESHOLD)
+    if(sum > SENDER_THRESHOLD || mPreviousSum > SENDER_THRESHOLD)
       ISender<MAXNC, QUEUE_SIZE, float>::PushData(d);
+
+    mPreviousSum = sum;
   }
+private:
+  float mPreviousSum = 1.f;
 };
 
 /** IBufferSender is a utility class which can be used to defer buffer data for sending to the GUI */
@@ -128,15 +132,16 @@ public:
           sum += mRunningSum[c];
           mRunningSum[c] = 0.f;
         }
-        
-        if(sum > SENDER_THRESHOLD)
+
+        if (sum > SENDER_THRESHOLD || mPreviousSum > SENDER_THRESHOLD)
         {
           mBuffer.ctrlTag = ctrlTag;
           mBuffer.nChans = nChans;
           mBuffer.chanOffset = chanOffset;
           ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF>>::PushData(mBuffer);
         }
-        
+
+        mPreviousSum = sum;
         mBufCount = 0;
       }
       
@@ -153,6 +158,7 @@ protected:
   ISenderData<MAXNC, std::array<float, MAXBUF>> mBuffer;
   int mBufCount = 0;
   std::array<float, MAXNC> mRunningSum {0.};
+  float mPreviousSum = 1.f;
 };
 
 END_IPLUG_NAMESPACE

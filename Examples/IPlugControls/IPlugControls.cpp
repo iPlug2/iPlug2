@@ -171,7 +171,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       static IPopupMenu menu {"Menu", {"one", "two", "three"}, [pCaller](IPopupMenu* pMenu) {
           auto* itemChosen = pMenu->GetChosenItem();
           if(itemChosen)
-            dynamic_cast<IVButtonControl*>(pCaller)->SetValueStr(itemChosen->GetText());
+            pCaller->As<IVButtonControl>()->SetValueStr(itemChosen->GetText());
         }
       };
       
@@ -180,7 +180,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       pGraphics->CreatePopupMenu(*pCaller, menu, x, y);
       
     }, "", style.WithValueText(IText(24.f, EVAlign::Middle)), false, true), kNoTag, "vcontrols");
-    dynamic_cast<IVButtonControl*>(pGraphics->GetControl(pGraphics->NControls()-1))->SetValueStr("one");
+    pGraphics->GetControl(pGraphics->NControls()-1)->As<IVButtonControl>()->SetValueStr("one");
     
     pGraphics->AttachControl(new IVSwitchControl(nextCell().SubRectVertical(3, 0), kParamMode, "IVSwitchControl", style.WithValueText(IText(24.f, EAlign::Center))), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVToggleControl(sameCell().SubRectVertical(3, 1), SplashClickActionFunc, "IVToggleControl", style.WithValueText(forkAwesomeText), "", ICON_FK_CHECK), kNoTag, "vcontrols");
@@ -301,7 +301,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 
     pGraphics->AttachControl(new IVRadioButtonControl(nextCell(), [pGraphics](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
-      EVShape shape = (EVShape) dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx();
+      EVShape shape = (EVShape) pCaller->As<IVRadioButtonControl>()->GetSelectedIdx();
       pGraphics->ForControlInGroup("vcontrols", [pCaller, shape](IControl& control) {
         IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
         vcontrol.SetShape(shape);
@@ -317,7 +317,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IVColorSwatchControl(nextCell(), "ColorSpec", setColors, style, IVColorSwatchControl::ECellLayout::kVertical));
 
     auto setBGColor = [pGraphics](int cell, IColor color) {
-      dynamic_cast<IPanelControl*>(pGraphics->GetBackgroundControl())->SetPattern(color);
+      pGraphics->GetBackgroundControl()->As<IPanelControl>()->SetPattern(color);
     };
 
     pGraphics->AttachControl(new IVColorSwatchControl(nextCell().SubRectVertical(5, 0), "", setBGColor, style.WithColors({COLOR_GRAY}), IVColorSwatchControl::ECellLayout::kVertical, {kBG}, { "Background" }));
@@ -347,7 +347,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IVColorSwatchControl(sameCell().SubRectVertical(5, 2), "", setValueTextColor, style.WithColor(kBG, DEFAULT_TEXT_FGCOLOR), IVColorSwatchControl::ECellLayout::kVertical, { kBG }, { "Value Text" }));
     
     auto setLabelTextSize = [pGraphics](IControl* pCaller) {
-      float newSize = (float) dynamic_cast<IVNumberBoxControl*>(pCaller)->GetRealValue();
+      float newSize = (float) pCaller->As<IVNumberBoxControl>()->GetRealValue();
       pGraphics->ForControlInGroup("vcontrols", [newSize](IControl& control) {
         IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
         IText newText = vcontrol.GetStyle().labelText.WithSize(newSize);
@@ -360,7 +360,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 3), kNoParameter, setLabelTextSize, "Label Text Size", style, (double) style.labelText.mSize, 12., 100.));
     
     auto setValueTextSize = [pGraphics](IControl* pCaller) {
-      float newSize = (float) dynamic_cast<IVNumberBoxControl*>(pCaller)->GetRealValue();
+      float newSize = (float) pCaller->As<IVNumberBoxControl>()->GetRealValue();
       pGraphics->ForControlInGroup("vcontrols", [newSize](IControl& control) {
         IVectorBase& vcontrol = dynamic_cast<IVectorBase&>(control);
         IText newText = vcontrol.GetStyle().valueText.WithSize(newSize);

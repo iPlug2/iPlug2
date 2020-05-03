@@ -712,5 +712,174 @@ protected:
   int mHighlight = -1;
 };
 
+/** Vectorial "wheel" control for pitchbender/modwheel
+* @ingroup IControls */
+class IWheelControl : public ISliderControlBase
+{
+  static constexpr int kSpringAnimationTime = 50;
+  static constexpr int kNumRungs = 10;
+public:
+  static constexpr int kMessageTagSetPitchBendRange = 0;
+
+  /** Create a WheelControl
+   * @param bounds The control's bounds
+   * @param cc A Midi CC to link, defaults to kNoCC which is interpreted as pitch bend */
+  IWheelControl(const IRECT& bounds, IMidiMsg::EControlChangeMsg cc = IMidiMsg::EControlChangeMsg::kNoCC, int initBendRange = 12)
+  : ISliderControlBase(bounds, kNoParameter, EDirection::Vertical, DEFAULT_GEARING, 40.f)
+  , mCC(cc)
+  , mPitchBendRange(initBendRange)
+  {
+    mMenu.AddItem("1 semitone");
+    mMenu.AddItem("2 semitones");
+    mMenu.AddItem("Fifth");
+    mMenu.AddItem("Octave");
+
+    SetValue(cc == IMidiMsg::EControlChangeMsg::kNoCC ? 0.5 : 0.);
+    SetWantsMidi(true);
+    SetActionFunction([cc](IControl* pControl){
+      IMidiMsg msg;
+      if(cc == IMidiMsg::EControlChangeMsg::kNoCC) // pitchbend
+        msg.MakePitchWheelMsg((pControl->GetValue() * 2.) - 1.);
+      else
+        msg.MakeControlChangeMsg(cc, pControl->GetValue());
+      
+      pControl->GetDelegate()->SendMidiMsgFromUI(msg);
+    });
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    IRECT handleBounds = mRECT.GetPadded(-10.f);
+    const float stepSize = handleBounds.H() / (float) kNumRungs;
+    g.FillRoundRect(DEFAULT_SHCOLOR, mRECT.GetPadded(-5.f));
+    
+    if(!g.CheckLayer(mLayer))
+    {
+      const IRECT layerRect = handleBounds.GetMidVPadded(handleBounds.H() + stepSize);
+      
+      if(layerRect.W() > 0 && layerRect.H() > 0)
+      {
+        g.StartLayer(this, layerRect);
+        g.DrawGrid(COLOR_BLACK.WithOpacity(0.5f), layerRect, 0.f, stepSize, nullptr, 2.f);
+        mLayer = g.EndLayer();
+      }
+    }
+    
+    // NanoVG only has 2 stop gradients
+    IRECT r = handleBounds.FracRectVertical(0.5, true);
+    g.PathRect(r);
+    g.PathFill(IPattern::CreateLinearGradient(r, EDirection::Vertical, {{COLOR_BLACK, 0.f},{COLOR_MID_GRAY, 1.f}}));
+    r = handleBounds.FracRectVertical(0.51f, false); // slight overlap
+    g.PathRect(r);
+    g.PathFill(IPattern::CreateLinearGradient(r, EDirection::Vertical, {{COLOR_MID_GRAY, 0.f},{COLOR_BLACK, 1.f}}));
+
+    const float value = static_cast<float>(GetValue());
+    const float y = (handleBounds.H() - (stepSize)) * value;
+    const float triangleRamp = std::fabs(value-0.5f) * 2.f;
+    
+    g.DrawBitmap(mLayer->GetBitmap(), handleBounds, 0, (int) y);
+  
+    const IRECT cutoutBounds = handleBounds.GetFromBottom(stepSize).GetTranslated(0, -y);
+    g.PathRect(cutoutBounds);
+    g.PathFill(IPattern::CreateLinearGradient(cutoutBounds, EDirection::Vertical,
+    {
+      //TODO: this can be improved
+      {COLOR_BLACK.WithContrast(iplug::Lerp(0.f, 0.5f, triangleRamp)), 0.f},
+      {COLOR_BLACK.WithContrast(iplug::Lerp(0.5f, 0.f, triangleRamp)), 1.f}
+    }));
+    
+    g.DrawVerticalLine(COLOR_BLACK, cutoutBounds, 0.f);
+    g.DrawVerticalLine(COLOR_BLACK, cutoutBounds, 1.f);
+    g.DrawRect(COLOR_BLACK, handleBounds);
+  }
+  
+  void OnMidi(const IMidiMsg& msg) override
+  {
+    if(mCC == IMidiMsg::EControlChangeMsg::kNoCC)
+    {
+      if(msg.StatusMsg() == IMidiMsg::kPitchWheel)
+      {
+        SetValue((msg.PitchWheel() + 1.) * 0.5);
+        SetDirty(false);
+      }
+    }
+    else
+    {
+      if(msg.ControlChangeIdx() == mCC)
+      {
+        SetValue(msg.ControlChange(mCC));
+        SetDirty(false);
+      }
+    }
+  }
+  
+  void OnMouseWheel(float x, float y, const IMouseMod &mod, float d) override
+  {
+    /* NO-OP */
+  }
+
+  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int) override
+  {
+    if(pSelectedMenu) 
+    {
+      switch (pSelectedMenu->GetChosenItemIdx()) 
+      {
+        case 0: mPitchBendRange = 1; break;
+        case 1: mPitchBendRange = 2; break;
+        case 2: mPitchBendRange = 7; break;
+        case 3:
+        default:
+          mPitchBendRange = 12; break;
+      }
+      
+      GetDelegate()->SendArbitraryMsgFromUI(kMessageTagSetPitchBendRange, GetTag(), sizeof(int), &mPitchBendRange);
+    }
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod &mod) override
+  {
+    if(mod.R && mCC == IMidiMsg::EControlChangeMsg::kNoCC)
+    {
+      switch (mPitchBendRange) 
+      {
+        case 1: mMenu.CheckItemAlone(0); break;
+        case 2: mMenu.CheckItemAlone(1); break;
+        case 7: mMenu.CheckItemAlone(2); break;
+        case 12: mMenu.CheckItemAlone(3); break;
+        default:
+          break;
+      }
+      
+      GetUI()->CreatePopupMenu(*this, mMenu, x, y);
+    }
+    else
+      ISliderControlBase::OnMouseDown(x, y, mod);
+  }
+  
+  void OnMouseUp(float x, float y, const IMouseMod &mod) override
+  {
+    if(mCC == IMidiMsg::EControlChangeMsg::kNoCC) // pitchbend
+    {
+      double startValue = GetValue();
+      SetAnimation([startValue](IControl* pCaller) {
+        pCaller->SetValue(iplug::Lerp(startValue, 0.5, Clip(pCaller->GetAnimationProgress(), 0., 1.)));
+        if(pCaller->GetAnimationProgress() > 1.) {
+          pCaller->SetDirty(true);
+          pCaller->OnEndAnimation();
+          return;
+        }
+      }, kSpringAnimationTime);
+    }
+    
+    ISliderControlBase::OnMouseUp(x, y, mod);
+  }
+  
+private:
+  IPopupMenu mMenu;
+  int mPitchBendRange;
+  IMidiMsg::EControlChangeMsg mCC;
+  ILayerPtr mLayer;
+};
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE

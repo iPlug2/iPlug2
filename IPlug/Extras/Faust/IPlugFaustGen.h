@@ -180,9 +180,9 @@ class FaustGen : public IPlugFaust
         items.AddUnsorted(key, value);
       }
 
-      const std::string get(const char* key, const char* default)
+      const std::string get(const char* key, const char* value)
       {
-        return items.Get(key, default);
+        return items.Get(key, value);
       }
 
       WDL_StringKeyedArray<const char*> items;

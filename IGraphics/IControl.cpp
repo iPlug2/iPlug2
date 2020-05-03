@@ -644,7 +644,8 @@ void ICaptionControl::Draw(IGraphics& g)
 
 void ICaptionControl::OnResize()
 {
-  if(GetParam()->Type() == IParam::kTypeEnum)
+  const IParam* pParam = GetParam();
+  if(pParam && pParam->Type() == IParam::kTypeEnum)
   {
     mTri = mRECT.FracRectHorizontal(0.2f, true).GetCentredInside(IRECT(0, 0, 8, 5)); //TODO: This seems rubbish
   }
@@ -935,6 +936,13 @@ ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirec
 , mHandleSize(handleSize)
 , mGearing(gearing)
 {
+}
+
+void ISliderControlBase::OnResize()
+{
+  SetTargetRECT(mRECT);
+  mTrackBounds = mRECT;
+  SetDirty(false);
 }
 
 void ISliderControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)

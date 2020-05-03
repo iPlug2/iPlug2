@@ -529,7 +529,7 @@ void IGraphicsCairo::PrepareAndMeasureText(const IText& text, const char* str, I
     cairo_destroy(context);
 }
 
-void IGraphicsCairo::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+float IGraphicsCairo::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   IRECT r = bounds;
   cairo_glyph_t* pGlyphs;
@@ -538,6 +538,7 @@ void IGraphicsCairo::DoMeasureText(const IText& text, const char* str, IRECT& bo
   PrepareAndMeasureText(text, str, bounds, x, y, pGlyphs, numGlyphs);
   DoMeasureTextRotation(text, r, bounds);
   cairo_glyph_free(pGlyphs);
+  return bounds.W();
 }
 
 void IGraphicsCairo::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)

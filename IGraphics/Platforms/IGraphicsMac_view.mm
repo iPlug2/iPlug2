@@ -186,34 +186,29 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
       [nsMenuItemTitle insertString:prefixString atIndex:0];
     }
 
-    if (pMenuItem->GetSubmenu())
+    if (pMenuItem->GetIsSeparator())
+    {
+      [self addItem:[NSMenuItem separatorItem]];
+    }
+    else if (pMenuItem->GetSubmenu())
     {
       nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:nil keyEquivalent:@""];
       NSMenu* subMenu = [[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:pMenuItem->GetSubmenu() :pView];
       [self setSubmenu: subMenu forItem:nsMenuItem];
       [subMenu release];
     }
-    else if (pMenuItem->GetIsSeparator())
-      [self addItem:[NSMenuItem separatorItem]];
     else
     {
       nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:@selector(onMenuSelection:) keyEquivalent:@""];
       
       [nsMenuItem setTarget:pView];
-      
-      if (pMenuItem->GetIsTitle ())
-        [nsMenuItem setIndentationLevel:1];
-
-      if (pMenuItem->GetChecked())
-        [nsMenuItem setState:NSOnState];
-      else
-        [nsMenuItem setState:NSOffState];
-
-      if (pMenuItem->GetEnabled())
-        [nsMenuItem setEnabled:YES];
-      else
-        [nsMenuItem setEnabled:NO];
-
+    }
+    
+    if (!pMenuItem->GetIsSeparator())
+    {
+      [nsMenuItem setIndentationLevel:pMenuItem->GetIsTitle() ? 1 : 0 ];
+      [nsMenuItem setEnabled:pMenuItem->GetEnabled() ? YES : NO];
+      [nsMenuItem setState:pMenuItem->GetChecked() ? NSOnState : NSOffState];
     }
   }
 

@@ -9,7 +9,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IPlugSwiftAppExtension</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.AcmeInc.app.IPlugSwift.AUv3</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -44,6 +44,7 @@
 					<key>tags</key>
 					<array>
 						<string>Synth</string>
+						<string>size:{1024,335}</string>
 					</array>
 					<key>type</key>
 					<string>aumu</string>

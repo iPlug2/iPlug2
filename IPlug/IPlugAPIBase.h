@@ -117,11 +117,20 @@ public:
   void SetParameterValue(int paramIdx, double normalizedValue);
   
   /** Get the color of the track that the plug-in is inserted on */
-  virtual void GetTrackColor(int& r, int& g, int& b) {};
+  virtual void GetTrackColor(int& r, int& g, int& b) { r = 0; g = 0; b = 0; };
 
   /** Get the name of the track that the plug-in is inserted on */
   virtual void GetTrackName(WDL_String& str) {};
-  
+
+  /** Get the index of the track that the plug-in is inserted on */
+  virtual int GetTrackIndex() { return 0; };
+
+  /** Get the namespace of the track that the plug-in is inserted on */
+  virtual void GetTrackNamespace(WDL_String& str) {};
+
+  /** Get the namespace index of the track that the plug-in is inserted on */
+  virtual int GetTrackNamespaceIndex() { return 0; };
+
   /** /todo */
   virtual void DirtyParametersFromUI() override;
 

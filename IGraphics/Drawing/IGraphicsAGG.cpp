@@ -620,12 +620,13 @@ void IGraphicsAGG::PrepareAndMeasureText(const IText& text, const char* str, IRE
   r = IRECT((float) x, (float) y - ascender, (float) (x + textWidth), (float) (y + textHeight - ascender));
 }
 
-void IGraphicsAGG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+float IGraphicsAGG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   IRECT r = bounds;
   double x, y;
   PrepareAndMeasureText(text, str, bounds, x, y);
   DoMeasureTextRotation(text, r, bounds);
+  return bounds.W();
 }
 
 void IGraphicsAGG::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)

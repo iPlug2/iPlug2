@@ -13,14 +13,14 @@
 /**
  * @file
  * @copydoc TestGLControl
+ * @ingroup TestControls
  */
 
 #include "IControl.h"
 #include "IGraphics_select.h"
 
 #ifdef IGRAPHICS_NANOVG
- /** Control to test Drawing in 3D in supporting backends
-  *   @ingroup TestControls */
+/** Control to test Drawing in using OpenGL in supporting backends */
 class TestGLControl : public IControl
 {
 public:
@@ -204,6 +204,7 @@ private:
 };
 
 #else
+/** Control to test Drawing in using OpenGL in supporting backends */
 class TestGLControl : public IControl
 {
 public:

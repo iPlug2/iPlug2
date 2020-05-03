@@ -399,6 +399,10 @@
     <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h">
       <Filter>IPlug</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\ISender.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\IPlugInstrument_DSP.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
