@@ -65,7 +65,7 @@ def main():
   plistpath = projectpath + "/resources/" + config['BUNDLE_NAME'] + "-iOS-AUv3-Info.plist"
   auv3 = plistlib.readPlist(plistpath)
   auv3['CFBundleExecutable'] = config['BUNDLE_NAME'] + "AppExtension"
-  auv3['CFBundleIdentifier'] = config['BUNDLE_DOMAIN'] + "." + config['BUNDLE_MFR'] + ".app." + config['BUNDLE_NAME'] + ".AUv3"
+  auv3['CFBundleIdentifier'] = "$(PRODUCT_BUNDLE_IDENTIFIER)"
   auv3['CFBundleName'] = config['BUNDLE_NAME'] + "AppExtension"
   auv3['CFBundleDisplayName'] = config['BUNDLE_NAME'] + "AppExtension"
   auv3['CFBundleVersion'] = CFBundleVersion
@@ -101,7 +101,7 @@ def main():
   plistpath = projectpath + "/resources/" + config['BUNDLE_NAME'] + "-iOS-Info.plist"
   iOSapp = plistlib.readPlist(plistpath)
   iOSapp['CFBundleExecutable'] = config['BUNDLE_NAME']
-  iOSapp['CFBundleIdentifier'] = config['BUNDLE_DOMAIN'] + "." + config['BUNDLE_MFR'] + ".app." + config['BUNDLE_NAME']
+  iOSapp['CFBundleIdentifier'] = "$(PRODUCT_BUNDLE_IDENTIFIER)"
   iOSapp['CFBundleName'] = config['BUNDLE_NAME']
   iOSapp['CFBundleVersion'] = CFBundleVersion
   iOSapp['CFBundleShortVersionString'] = CFBundleVersion

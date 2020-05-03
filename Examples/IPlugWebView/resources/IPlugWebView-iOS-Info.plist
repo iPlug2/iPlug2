@@ -7,10 +7,9 @@
 	<key>CFBundleExecutable</key>
 	<string>IPlugWebView</string>
 	<key>CFBundleIcons</key>
-	<dict>
-	</dict>
+	<dict/>
 	<key>CFBundleIdentifier</key>
-	<string>com.AcmeInc.app.IPlugWebView</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
