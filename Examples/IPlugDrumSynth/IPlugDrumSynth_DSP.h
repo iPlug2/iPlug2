@@ -4,7 +4,7 @@
 #include "ADSREnvelope.h"
 #include <vector>
 
-static constexpr int kNumDrums = 9;
+static constexpr int kNumDrums = 4;
 static constexpr double kStartFreq = 300.; //Hz
 static constexpr double kFreqDiff = 100.; //Hz
 static constexpr double kPitchEnvRange = 100.; //Hz
@@ -86,15 +86,33 @@ public:
         mMidiQueue.Remove();
       }
 
-      outputs[0][s] = 0.;
-      
-      for(int d=0;d<kNumDrums;d++)
+      if(mMultiOut)
       {
-        if(mDrums[d].IsActive())
-          outputs[0][s] += mDrums[d].Process();
+        int channel=0;
+        for(int d=0;d<kNumDrums;d++)
+        {
+          outputs[channel][s] = 0.;
+
+          if(mDrums[d].IsActive())
+            outputs[channel][s] = mDrums[d].Process();
+          
+          outputs[channel + 1][s] = outputs[channel][s];
+
+          channel += 2;
+        }
       }
-      
-      outputs[1][s] = outputs[0][s];
+      else
+      {
+        outputs[0][s] = 0.;
+        
+        for(int d=0;d<kNumDrums;d++)
+        {
+          if(mDrums[d].IsActive())
+            outputs[0][s] += mDrums[d].Process();
+        }
+        
+        outputs[1][s] = outputs[0][s];
+      }
     }
     mMidiQueue.Flush(nFrames);
   }
@@ -104,7 +122,13 @@ public:
     mMidiQueue.Add(msg);
   }
   
+  void SetMultiOut(bool multiOut)
+  {
+    mMultiOut = multiOut;
+  }
+  
 private:
+  bool mMultiOut = false;
   std::vector<DrumVoice> mDrums;
   IMidiQueue mMidiQueue;
 };

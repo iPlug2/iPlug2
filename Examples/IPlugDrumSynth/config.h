@@ -13,8 +13,13 @@
 #define BUNDLE_MFR "AcmeInc"
 #define BUNDLE_DOMAIN "com"
 
-//#define PLUG_CHANNEL_IO "0-2.2.2.2"
-#define PLUG_CHANNEL_IO "0-2"
+#define PLUG_CHANNEL_IO " \
+0-2 \
+0-2.2 \
+0-2.2.2 \
+0-2.2.2.2"
+
+//#define PLUG_CHANNEL_IO "0-2"
 
 #define PLUG_LATENCY 0
 #define PLUG_TYPE 1
@@ -27,6 +32,7 @@
 #define PLUG_HEIGHT 335
 #define PLUG_FPS 60
 #define PLUG_SHARED_RESOURCES 0
+#define SHARED_RESOURCES_SUBPATH "IPlugDrumSynth"
 
 #define AUV2_ENTRY IPlugDrumSynth_Entry
 #define AUV2_ENTRY_STR "IPlugDrumSynth_Entry"

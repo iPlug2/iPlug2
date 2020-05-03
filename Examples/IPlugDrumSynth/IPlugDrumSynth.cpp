@@ -55,7 +55,7 @@ IPlugDrumSynth::IPlugDrumSynth(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPrograms))
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
-
+  GetParam(kParamMultiOuts)->InitBool("Multi-outs", false);
 #if IPLUG_EDITOR // All UI methods and member variables should be within an IPLUG_EDITOR guard, should you want distributed UI
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
@@ -69,12 +69,23 @@ IPlugDrumSynth::IPlugDrumSynth(const InstanceInfo& info)
 //    pGraphics->ShowFPSDisplay(true);
 //    pGraphics->EnableLiveEdit(true);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
-    const IRECT b = pGraphics->GetBounds().GetPadded(-5);
+    IRECT b = pGraphics->GetBounds().GetPadded(-5);
+    const IRECT buttons = b.ReduceFromTop(50.f);
+    const IRECT pads = b.GetPadded(-5.f);
     
+    pGraphics->AttachControl(new IVToggleControl(buttons.GetGridCell(0, 1, 4), kParamMultiOuts));
+    pGraphics->AttachControl(new IVMeterControl<8>(buttons.GetGridCell(1, 1, 4, EDirection::Horizontal, 3), ""), kCtrlTagMeter);
     IVStyle style = DEFAULT_STYLE.WithRoundness(0.1f).WithFrameThickness(3.f);
     for (int i=0; i<kNumDrums; i++) {
-      pGraphics->AttachControl(new DrumPadControl(b.GetGridCell(i, 3, 3).GetPadded(-10.f), style, 60 + i), i /* controlTag */);
+      IRECT cell = pads.GetGridCell(i, 2, 2);
+      pGraphics->AttachControl(new DrumPadControl(cell, style, 60 + i), i /* controlTag */);
     }
+    
+//    for (int i = 0; i < 8; i++)
+//    {
+//      pGraphics->AttachControl(new ITextToggleControl(b.GetFromBottom(20.).GetGridCell(i, 1, 8), kNoParameter, "O", "X"));
+//    }
+    
   };
 #endif
 }
@@ -109,6 +120,13 @@ void IPlugDrumSynth::ProcessBlock(sample** inputs, sample** outputs, int nFrames
       outputs[c][s] = outputs[c][s] * gain;
     }
   }
+  
+  mSender.ProcessBlock(outputs, nFrames, kCtrlTagMeter);
+}
+
+void IPlugDrumSynth::OnIdle()
+{
+  mSender.TransmitData(*this);
 }
 
 void IPlugDrumSynth::OnReset()
@@ -142,6 +160,9 @@ void IPlugDrumSynth::OnParamChange(int paramIdx)
 {
   switch (paramIdx)
   {
+    case kParamMultiOuts:
+      mDSP.SetMultiOut(GetParam(paramIdx)->Bool());
+      break;
     default:
       break;
   }
