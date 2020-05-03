@@ -10,6 +10,7 @@
 
 #include "IPlugAPP.h"
 #include "IPlugAPP_host.h"
+#include "IGraphics.h"
 
 #if defined OS_MAC || defined OS_LINUX
 #include <IPlugSWELL.h>
@@ -35,9 +36,21 @@ IPlugAPP::IPlugAPP(const InstanceInfo& info, const Config& config)
   CreateTimer();
 }
 
+void IPlugAPP::WindowResize(int width, int height)
+{
+  igraphics::IGraphics* pGraphics = GetUI();
+
+  m_parentResized = true;
+  if(pGraphics && pGraphics->GetResizerMode() == igraphics::EUIResizerMode::Size)
+  {
+    pGraphics->Resize(width,height,pGraphics->GetDrawScale());
+  }
+  m_parentResized = false;
+}
+
 bool IPlugAPP::EditorResize(int viewWidth, int viewHeight)
 {
-  bool parentResized = false;
+  bool parentResized = m_parentResized;
     
   if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
   {
