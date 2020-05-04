@@ -873,7 +873,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           {
             if (element == 0 || element == 1)
             {
-              *(CFStringRef *)pData = MakeCFString("input");
+              *(CFStringRef *) pData = MakeCFString(element == 0 ? "input" : "sidechain");
               return noErr;
             }
             else
@@ -882,7 +882,9 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           case kAudioUnitScope_Output:
           {
             //TODO: live 5.1 crash?
-            *(CFStringRef *)pData = MakeCFString("output");
+            WDL_String str;
+            str.SetFormatted(32, "output %i", element);
+            *(CFStringRef *)pData = MakeCFString(str.Get());
             return noErr;
           }
           default:
