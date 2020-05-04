@@ -1657,7 +1657,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
       
       assert(nConnected > -1);
       _this->SetChannelConnections(ERoute::kOutput, startChannelIdx, nConnected, true);
-      _this->SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right handle channel on a single stereo bus
+      _this->SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right hand channel on a single stereo bus
       pOutBus->mConnected = true;
     }
 
@@ -1788,22 +1788,30 @@ IPlugAU::IPlugAU(const InstanceInfo& info, const Config& config)
   PtrListInitialize(&mInBusConnections, maxNIBuses);
   PtrListInitialize(&mInBuses, maxNIBuses);
   
+  int chansSoFar = 0;
+  
   for (auto bus = 0; bus < maxNIBuses; bus++)
   {
     BusChannels* pInBus = mInBuses.Get(bus);
     pInBus->mNHostChannels = -1;
-    pInBus->mPlugChannelStartIdx = 0;
+    pInBus->mPlugChannelStartIdx = chansSoFar;
     pInBus->mNPlugChannels = std::abs(MaxNChannelsForBus(ERoute::kInput, bus));
+    
+    chansSoFar += pInBus->mNPlugChannels;
   }
   
   PtrListInitialize(&mOutBuses, maxNOBuses);
+  
+  chansSoFar = 0;
   
   for (auto bus = 0; bus < maxNOBuses; bus++)
   {
     BusChannels* pOutBus = mOutBuses.Get(bus);
     pOutBus->mNHostChannels = -1;
-    pOutBus->mPlugChannelStartIdx = 0;
+    pOutBus->mPlugChannelStartIdx = chansSoFar;
     pOutBus->mNPlugChannels = std::abs(MaxNChannelsForBus(ERoute::kOutput, bus));
+    
+    chansSoFar += pOutBus->mNPlugChannels;
   }
 
   AssessInputConnections();
