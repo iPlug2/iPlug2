@@ -415,7 +415,7 @@ UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement elem
 
           for (auto tag = 0; tag < busTypes.GetSize(); tag++)
           {
-            if(foundTags.Find(busTypes.Get()[tag] == -1))
+            if(foundTags.Find(busTypes.Get()[tag]) == -1)
                foundTags.Add(busTypes.Get()[tag]);
           }
         }
@@ -428,7 +428,7 @@ UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement elem
           tags[v] = (AudioChannelLayoutTag) foundTags.Get()[v];
         }
         
-        DBGMSG("Adding %i tags\n", foundTags.GetSize());
+//        DBGMSG("Adding %i tags\n", foundTags.GetSize());
         
         return 1; // success
       }
