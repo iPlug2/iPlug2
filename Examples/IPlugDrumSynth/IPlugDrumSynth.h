@@ -15,7 +15,11 @@ enum EParams
 
 enum ECtrlTags
 {
-  kCtrlTagMeter = 0,
+  kCtrlTagPad1 = 0,
+  kCtrlTagPad2,
+  kCtrlTagPad3,
+  kCtrlTagPad4,
+  kCtrlTagMeter,
   kNumCtrlTags
 };
 
