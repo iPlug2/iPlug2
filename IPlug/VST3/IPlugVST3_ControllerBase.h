@@ -213,7 +213,7 @@ public:
       {
         // get the channel name where we, as plug-in, are instantiated
         std::vector<TChar> name(length + 1);
-        if (pList->getString(ChannelContext::kChannelNameKey, name.data(), length + 1) == kResultTrue)
+        if (pList->getString(ChannelContext::kChannelNameKey, name.data(), static_cast<Steinberg::uint32>(length + 1)) == kResultTrue)
         {
           Steinberg::String str(name.data());
           str.toMultiByte(kCP_Utf8);
@@ -226,7 +226,7 @@ public:
       {
         // get the channel UID
         std::vector<TChar> name(length + 1);
-        if (pList->getString(ChannelContext::kChannelUIDKey, name.data(), length + 1) == kResultTrue)
+        if (pList->getString(ChannelContext::kChannelUIDKey, name.data(), static_cast<Steinberg::uint32>(length + 1)) == kResultTrue)
         {
           Steinberg::String str(name.data());
           str.toMultiByte(kCP_Utf8);
@@ -238,7 +238,7 @@ public:
       int64 index;
       if (pList->getInt(ChannelContext::kChannelIndexKey, index) == kResultTrue)
       {
-        mChannelIndex = index;
+        mChannelIndex = static_cast<int>(index);
       }
 
       // get the channel color
@@ -251,7 +251,7 @@ public:
       // get channel index namespace order of the current used index namespace
       if (pList->getInt(ChannelContext::kChannelIndexNamespaceOrderKey, index) == kResultTrue)
       {
-        mChannelNamespaceIndex = index;
+        mChannelNamespaceIndex = static_cast<int>(index);
       }
 
       // get the channel index namespace length
@@ -259,7 +259,7 @@ public:
       {
         // get the channel index namespace
         std::vector<TChar> name(length + 1);
-        if (pList->getString(ChannelContext::kChannelIndexNamespaceKey, name.data(), length + 1) == kResultTrue)
+        if (pList->getString(ChannelContext::kChannelIndexNamespaceKey, name.data(), static_cast<Steinberg::uint32>(length + 1)) == kResultTrue)
         {
           Steinberg::String str(name.data());
           str.toMultiByte(kCP_Utf8);
