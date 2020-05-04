@@ -68,7 +68,7 @@ steps:
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target VST2 -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
-      xcodeVersion: '10'
+      xcodeVersion: 'Default'
     condition: eq(variables.build_vst2, True)
     displayName: Build Xcode project VST2 Scheme
 
@@ -78,7 +78,7 @@ steps:
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target VST3 -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
-      xcodeVersion: '10'
+      xcodeVersion: 'Default'
     condition: eq(variables.build_vst3, True)
     displayName: Build Xcode project VST3 Scheme
 
@@ -88,7 +88,7 @@ steps:
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target AAX -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: '${{parameters.configuration}}'
-      xcodeVersion: '10'
+      xcodeVersion: 'Default'
     condition: eq(variables.build_aax, True)
     displayName: Build Xcode project AAX Scheme
 
@@ -98,7 +98,7 @@ steps:
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target AU -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
-      xcodeVersion: '10'
+      xcodeVersion: 'Default'
     condition: eq(variables.build_auv2, True)
     displayName: Build Xcode project AUv2 Scheme
 
@@ -108,7 +108,7 @@ steps:
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target APP -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
-      xcodeVersion: '10'
+      xcodeVersion: 'Default'
       signingOption: 'manual'
       signingIdentity: $(APPLE_CERTIFICATE_SIGNING_IDENTITY)
 
