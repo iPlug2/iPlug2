@@ -478,7 +478,7 @@ void IVRadioButtonControl::DrawWidget(IGraphics& g)
     
     if (mTabLabels.Get(i))
     {
-      r = r.GetFromRight(r.W() - mButtonAreaWidth);
+      r = r.GetFromRight(r.W() - mButtonAreaWidth).GetReducedFromBottom(mStyle.shadowOffset);
       g.DrawText(mStyle.valueText.WithFGColor(i == hit ? GetColor(kON) : GetColor(kX1)), mTabLabels.Get(i)->Get(), r, &mBlend);
     }
   }
