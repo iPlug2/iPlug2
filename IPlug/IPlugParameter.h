@@ -340,8 +340,12 @@ public:
   void GetDisplayForHostWithLabel(WDL_String& display, bool withDisplayText = true) const
   {
     GetDisplayForHost(mValue.load(), false, display, withDisplayText);
-    display.Append(" ");
-    display.Append(GetLabelForHost());
+    const char* hostlabel = GetLabelForHost();
+    if (CStringHasContents(hostlabel))
+    {
+      display.Append(" ");
+      display.Append(hostlabel);
+    }
   }
   
   /** /todo 
