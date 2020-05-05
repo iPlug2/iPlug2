@@ -141,7 +141,7 @@ public:
   
   /** Used to determine the maximum number of input or output buses based on what was specified in the channel I/O config string
    * @param direction Return input or output bus count
-   * @param pConfigWithTheMostBuses Optional ptr to report the index of the config with the max bus count
+   * @param pConfigIdxWithTheMostBuses Optional ptr to report the index of the config with the max bus count, if multiple configs have the same buscount, this should report the one with the higher channel count
    * @return The maximum bus count across all channel I/O configs */
   int MaxNBuses(ERoute direction, int* pConfigIdxWithTheMostBuses = nullptr) const;
 

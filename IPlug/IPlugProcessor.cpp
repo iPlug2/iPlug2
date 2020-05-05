@@ -121,9 +121,10 @@ int IPlugProcessor::MaxNBuses(ERoute direction, int* pConfigIdxWithTheMostBuses)
 
   for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
   {
-    int nBuses = mIOConfigs.Get(configIdx)->NBuses(direction);
+    IOConfig* pIConfig = mIOConfigs.Get(configIdx);
+    int nBuses = pIConfig->NBuses(direction);
     
-    if(nBuses > maxNBuses)
+    if(nBuses >= maxNBuses)
     {
       maxNBuses = nBuses;
       configWithMostBuses = configIdx;
