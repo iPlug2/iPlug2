@@ -886,7 +886,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           {
             //TODO: live 5.1 crash?
             WDL_String str;
-            str.SetFormatted(32, "output %i", element);
+            element == 0 ? str.Set("output") : str.SetFormatted(32, "output %i", element + 1);
             *(CFStringRef *)pData = MakeCFString(str.Get());
             return noErr;
           }
