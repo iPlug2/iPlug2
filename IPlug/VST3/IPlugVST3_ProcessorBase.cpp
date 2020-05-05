@@ -248,14 +248,6 @@ bool IPlugVST3ProcessorBase::CanProcessSampleSize(int32 symbolicSampleSize)
   }
 }
 
-static bool IsBusActive(const BusList& list, int32 idx)
-{
-  bool exists = false;
-  if (idx < static_cast<int32> (list.size()))
-    exists = static_cast<bool>(list.at(idx));
-  return exists;
-}
-
 void IPlugVST3ProcessorBase::PrepareProcessContext(ProcessData& data, ProcessSetup& setup)
 {
   ITimeInfo timeInfo;
@@ -356,19 +348,20 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data, IPlugQue
 void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup, const BusList& ins, const BusList& outs)
 {
   int32 sampleSize = setup.symbolicSampleSize;
-  
-  const int MOVE_ME_NSIDECHAINCHANNELS = 2;
-  
+    
   if (sampleSize == kSample32 || sampleSize == kSample64)
   {
     if (data.numInputs)
     {
+      SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
+
       if (HasSidechainInput())
       {
-        if (IsBusActive(ins, 1)) // Sidechain is active
+        if (ins[1].get()->isActive()) // Sidechain is active
         {
           mSidechainActive = true;
-          SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
+          SetChannelConnections(ERoute::kInput, 0, data.inputs[0].numChannels, true);
+          SetChannelConnections(ERoute::kInput, MaxNChannelsForBus(ERoute::kInput, 1), data.inputs[1].numChannels, true);
         }
         else
         {
@@ -378,25 +371,26 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
             mSidechainActive = false;
           }
           
-          SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
-          SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - MOVE_ME_NSIDECHAINCHANNELS, false);
+          SetChannelConnections(ERoute::kInput, 0, data.inputs[0].numChannels, true);
         }
         
-        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput) - MOVE_ME_NSIDECHAINCHANNELS, data.inputs[0], data.numSamples, sampleSize);
-        AttachBuffers(ERoute::kInput, MOVE_ME_NSIDECHAINCHANNELS, MaxNChannels(ERoute::kInput) - MOVE_ME_NSIDECHAINCHANNELS, data.inputs[1], data.numSamples, sampleSize);
+        AttachBuffers(ERoute::kInput, 0, data.inputs[0].numChannels, data.inputs[0], data.numSamples, sampleSize);
+        
+        if(mSidechainActive)
+          AttachBuffers(ERoute::kInput, MaxNChannelsForBus(ERoute::kInput, 1), data.inputs[1].numChannels, data.inputs[1], data.numSamples, sampleSize);
       }
       else
       {
+        SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
         SetChannelConnections(ERoute::kInput, 0, data.inputs[0].numChannels, true);
-        SetChannelConnections(ERoute::kInput, data.inputs[0].numChannels, MaxNChannels(ERoute::kInput) - data.inputs[0].numChannels, false);
-        AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), data.inputs[0], data.numSamples, sampleSize);
+        AttachBuffers(ERoute::kInput, 0, data.inputs[0].numChannels, data.inputs[0], data.numSamples, sampleSize);
       }
     }
     
     for (int outBus = 0, chanOffset = 0; outBus < data.numOutputs; outBus++)
     {
       int busChannels = data.outputs[outBus].numChannels;
-      SetChannelConnections(ERoute::kOutput, chanOffset, busChannels, IsBusActive(outs, outBus));
+      SetChannelConnections(ERoute::kOutput, chanOffset, busChannels, outs[outBus].get()->isActive());
       SetChannelConnections(ERoute::kOutput, chanOffset + busChannels, MaxNChannels(ERoute::kOutput) - (chanOffset + busChannels), false);
       AttachBuffers(ERoute::kOutput, chanOffset, busChannels, data.outputs[outBus], data.numSamples, sampleSize);
       chanOffset += busChannels;
