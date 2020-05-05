@@ -409,14 +409,17 @@ UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement elem
         
         for(auto busIdx = 0; busIdx < pConfig->NBuses(dir); busIdx++)
         {
-          WDL_TypedBuf<uint64_t> busTypes;
-          GetAPIBusTypeForChannelIOConfig(configIdx, dir, busIdx, pConfig, &busTypes);
-//          DBGMSG("Found %i different tags for an %s bus with %i channels\n", busTypes.GetSize(), RoutingDirStrs[dir], pConfig->GetBusInfo(dir, busIdx)->NChans());
-
-          for (auto tag = 0; tag < busTypes.GetSize(); tag++)
+          if(busIdx == element)
           {
-            if(foundTags.Find(busTypes.Get()[tag]) == -1)
-               foundTags.Add(busTypes.Get()[tag]);
+            WDL_TypedBuf<uint64_t> busTypes;
+            GetAPIBusTypeForChannelIOConfig(configIdx, dir, busIdx, pConfig, &busTypes);
+  //          DBGMSG("Found %i different tags for an %s bus with %i channels\n", busTypes.GetSize(), RoutingDirStrs[dir], pConfig->GetBusInfo(dir, busIdx)->NChans());
+
+            for (auto tag = 0; tag < busTypes.GetSize(); tag++)
+            {
+              if(foundTags.Find(busTypes.Get()[tag]) == -1)
+                 foundTags.Add(busTypes.Get()[tag]);
+            }
           }
         }
       }
