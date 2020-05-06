@@ -18,10 +18,12 @@
 #define PLUG_CHANNEL_IO "\
 1-1 \
 1.1-1 \
+1.2-1 \
 1.2-2 \
+2.1-1 \
+2.1-2 \
 2-2 \
-2.2-2 \
-2.1-1"
+2.2-2"
 
 #define PLUG_LATENCY 0
 #define PLUG_TYPE 0
