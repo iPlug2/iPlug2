@@ -177,8 +177,8 @@ int IPlugProcessor::MaxNChannelsForBus(ERoute direction, int busIdx) const
     return -1;
 
   const int maxNBuses = MaxNBuses(direction);
-  WDL_TypedBuf<int> maxChansOnBuses;
-  maxChansOnBuses.Resize(maxNBuses);
+  std::vector<int> maxChansOnBuses;
+  maxChansOnBuses.reserve(maxNBuses);
 
   //find the maximum channel count for each input or output bus
   for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
@@ -186,10 +186,10 @@ int IPlugProcessor::MaxNChannelsForBus(ERoute direction, int busIdx) const
     const IOConfig* pIOConfig = GetIOConfig(configIdx);
 
     for (int bus = 0; bus < maxNBuses; bus++)
-      maxChansOnBuses.Get()[bus] = std::max(pIOConfig->NChansOnBusSAFE(direction, bus), maxChansOnBuses.Get()[bus]);
+      maxChansOnBuses[bus] = std::max(pIOConfig->NChansOnBusSAFE(direction, bus), maxChansOnBuses[bus]);
   }
 
-  return maxChansOnBuses.Get()[busIdx];
+  return maxChansOnBuses[busIdx];
 }
 
 int IPlugProcessor::NChannelsConnected(ERoute direction) const
