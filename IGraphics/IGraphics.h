@@ -66,6 +66,10 @@
 #undef DrawText
 #endif
 
+#ifdef LoadBitmap
+#undef LoadBitmap
+#endif
+
 BEGIN_IPLUG_NAMESPACE
 class IParam;
 BEGIN_IGRAPHICS_NAMESPACE
