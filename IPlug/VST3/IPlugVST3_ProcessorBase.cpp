@@ -355,13 +355,13 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
     {
       SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
 
-      if (HasSidechainInput())
+      if (ins.size() > 1)
       {
         if (ins[1].get()->isActive()) // Sidechain is active
         {
           mSidechainActive = true;
           SetChannelConnections(ERoute::kInput, 0, data.inputs[0].numChannels, true);
-          SetChannelConnections(ERoute::kInput, MaxNChannelsForBus(ERoute::kInput, 1), data.inputs[1].numChannels, true);
+          SetChannelConnections(ERoute::kInput, MaxNChannelsForBus(ERoute::kInput, 0), data.inputs[1].numChannels, true); // TODO: MaxNChannelsForBus is not RT safe
         }
         else
         {
@@ -377,7 +377,7 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
         AttachBuffers(ERoute::kInput, 0, data.inputs[0].numChannels, data.inputs[0], data.numSamples, sampleSize);
         
         if(mSidechainActive)
-          AttachBuffers(ERoute::kInput, MaxNChannelsForBus(ERoute::kInput, 1), data.inputs[1].numChannels, data.inputs[1], data.numSamples, sampleSize);
+          AttachBuffers(ERoute::kInput, MaxNChannelsForBus(ERoute::kInput, 0), data.inputs[1].numChannels, data.inputs[1], data.numSamples, sampleSize); // TODO: MaxNChannelsForBus is not RT safe
       }
       else
       {
