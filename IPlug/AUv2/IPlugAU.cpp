@@ -1642,9 +1642,9 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
             return r;   // Something went wrong upstream.
           }
 
-          for (int i = 0, chIdx = pInBus->mPlugChannelStartIdx; i < pInBus->mNHostChannels; ++i, ++chIdx)
+          for (int c = 0, chIdx = pInBus->mPlugChannelStartIdx; c < pInBus->mNHostChannels; ++c, ++chIdx)
           {
-            _this->AttachBuffers(ERoute::kInput, chIdx, 1, (AudioSampleType**) &(pInBufList->mBuffers[i].mData), nFrames);
+            _this->AttachBuffers(ERoute::kInput, chIdx, 1, (AudioSampleType**) &(pInBufList->mBuffers[c].mData), nFrames);
           }
         }
       }
@@ -1666,12 +1666,12 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
       pOutBus->mConnected = true;
     }
 
-    for (int i = 0, chIdx = pOutBus->mPlugChannelStartIdx; i < pOutBufList->mNumberBuffers; ++i, ++chIdx)
+    for (int c = 0, chIdx = pOutBus->mPlugChannelStartIdx; c < pOutBufList->mNumberBuffers; ++c, ++chIdx)
     {
-      if (!(pOutBufList->mBuffers[i].mData)) // Downstream unit didn't give us buffers.
-        pOutBufList->mBuffers[i].mData = _this->mOutScratchBuf.Get() + chIdx * nFrames;
+      if (!(pOutBufList->mBuffers[c].mData)) // Downstream unit didn't give us buffers.
+        pOutBufList->mBuffers[c].mData = _this->mOutScratchBuf.Get() + chIdx * nFrames;
 
-      _this->AttachBuffers(ERoute::kOutput, chIdx, 1, (AudioSampleType**) &(pOutBufList->mBuffers[i].mData), nFrames);
+      _this->AttachBuffers(ERoute::kOutput, chIdx, 1, (AudioSampleType**) &(pOutBufList->mBuffers[c].mData), nFrames);
     }
 
     for(int i = 0; i < _this->mOutBuses.GetSize(); i++)
