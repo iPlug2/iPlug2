@@ -14,12 +14,12 @@ using namespace iplug;
 
 AAX_Result AAX_CIPlugParameters::ResetFieldData(AAX_CFieldIndex iFieldIndex, void * oData, uint32_t iDataSize) const  //override from CEffectParameters.
 {   
-  //If this is the IPlugparameters field, let's initialize it to our this pointer.
+  //If this is the IPlugParameters field, let's initialize it to our this pointer.
   if (iFieldIndex == AAX_FIELD_INDEX(AAX_SIPlugRenderInfo, mPrivateData))
   {       
     //Make sure everything is at least initialized to 0.
     AAX_ASSERT(iDataSize == sizeof(AAX_SIPlugPrivateData));
-    memset(oData, iDataSize, 0);
+    memset(oData, 0, iDataSize);
 
     //Set all of the private data variables.
     AAX_SIPlugPrivateData* privateData = static_cast <AAX_SIPlugPrivateData*> (oData);
