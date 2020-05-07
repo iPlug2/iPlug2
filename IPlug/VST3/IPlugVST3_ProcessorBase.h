@@ -187,6 +187,7 @@ public:
   bool SendMidiMsg(const IMidiMsg& msg) override;
 
 private:
+  int mMaxNChansForMainInputBus = 0;
   IPlugAPIBase& mPlug;
   Steinberg::Vst::ProcessContext mProcessContext;
   IMidiQueue mMidiOutputQueue;

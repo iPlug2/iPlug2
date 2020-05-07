@@ -55,6 +55,9 @@ IPlugVST3ProcessorBase::IPlugVST3ProcessorBase(Config c, IPlugAPIBase& plug)
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
   
+  mMaxNChansForMainInputBus = MaxNChannelsForBus(ERoute::kInput, 0);
+
+  
   if (MaxNChannels(ERoute::kInput))
   {
     mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
@@ -226,7 +229,7 @@ bool IPlugVST3ProcessorBase::SetupProcessing(const ProcessSetup& setup, ProcessS
   IPlugProcessor::SetBlockSize(setup.maxSamplesPerBlock); // TODO: should IPlugVST3Processor call SetBlockSize in construct unlike other APIs?
   mMidiOutputQueue.Resize(setup.maxSamplesPerBlock);
   OnReset();
-  
+    
   return true;
 }
 
@@ -361,7 +364,7 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
         {
           mSidechainActive = true;
           SetChannelConnections(ERoute::kInput, 0, data.inputs[0].numChannels, true);
-          SetChannelConnections(ERoute::kInput, MaxNChannelsForBus(ERoute::kInput, 0), data.inputs[1].numChannels, true); // TODO: MaxNChannelsForBus is not RT safe
+          SetChannelConnections(ERoute::kInput, mMaxNChansForMainInputBus, data.inputs[1].numChannels, true);
         }
         else
         {
@@ -377,7 +380,7 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
         AttachBuffers(ERoute::kInput, 0, data.inputs[0].numChannels, data.inputs[0], data.numSamples, sampleSize);
         
         if(mSidechainActive)
-          AttachBuffers(ERoute::kInput, MaxNChannelsForBus(ERoute::kInput, 0), data.inputs[1].numChannels, data.inputs[1], data.numSamples, sampleSize); // TODO: MaxNChannelsForBus is not RT safe
+          AttachBuffers(ERoute::kInput, mMaxNChansForMainInputBus, data.inputs[1].numChannels, data.inputs[1], data.numSamples, sampleSize);
       }
       else
       {
