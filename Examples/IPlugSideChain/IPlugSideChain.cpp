@@ -78,6 +78,29 @@ void IPlugSideChain::ProcessBlock(sample** inputs, sample** outputs, int nFrames
     }
   }
   
+  /*
+    
+     Logic has an long-standing bug where if no sidechain is selected, the same buffers that are sent to the first bus, are sent to the sidechain bus
+     https://forum.juce.com/t/sidechain-is-not-silent-as-expected-au-logic-x-10-2-2/17068/8
+     https://lists.apple.com/archives/coreaudio-api/2012/Feb/msg00127.html
+   
+     Imperfect hack around it here. Probably a better solution is to have an enable sidechain button in the plug-in UI, in addition to the host sidechain routing.
+  */
+  
+  if(GetHost() == kHostLogic)
+  {
+    if((inputs[0][0] == inputs[2][0]) &&
+       (inputs[0][nFrames / 2] == inputs[2][nFrames / 2]) &&
+       (inputs[0][nFrames - 1] == inputs[2][nFrames - 1]))
+    {
+      memset(inputs[2], 0, nFrames * sizeof(sample));
+      memset(inputs[3], 0, nFrames * sizeof(sample));
+      
+      mInputChansConnected[2] = false;
+      mInputChansConnected[3] = false;
+    }
+  }
+  
   mInputPeakSender.ProcessBlock(inputs, nFrames, kCtrlTagInputMeter, 4, 0);
   mOutputPeakSender.ProcessBlock(outputs, nFrames, kCtrlTagOutputMeter, 2, 0);
 }

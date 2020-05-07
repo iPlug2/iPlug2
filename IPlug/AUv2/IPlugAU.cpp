@@ -1637,6 +1637,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
             default:
               break;
           }
+          
           if (r != noErr)
           {
             return r;   // Something went wrong upstream.
