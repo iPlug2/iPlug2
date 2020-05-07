@@ -222,7 +222,7 @@ int IPlugProcessor::MaxNChannelsForBus(ERoute direction, int busIdx) const
       maxChansOnBuses[bus] = std::max(pIOConfig->NChansOnBusSAFE(direction, bus), maxChansOnBuses[bus]);
   }
 
-  return maxChansOnBuses[busIdx];
+  return maxChansOnBuses.size() > 0 ? maxChansOnBuses[busIdx] : 0;
 }
 
 int IPlugProcessor::NChannelsConnected(ERoute direction) const
