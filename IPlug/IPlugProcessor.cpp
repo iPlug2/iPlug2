@@ -114,6 +114,39 @@ double IPlugProcessor::GetSamplesPerBeat() const
 
 #pragma mark -
 
+void IPlugProcessor::GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const
+{
+  if(direction == ERoute::kInput)
+  {
+    if(nBuses == 1)
+    {
+      str.Set("Input");
+    }
+    else if(nBuses == 2)
+    {
+      if(busIdx == 0)
+        str.Set("Main");
+      else
+        str.Set("Aux");
+    }
+    else
+    {
+      str.SetFormatted(MAX_BUS_NAME_LEN, "Input %i", busIdx);
+    }
+  }
+  else
+  {
+    if(nBuses == 1)
+    {
+      str.Set("Output");
+    }
+    else
+    {
+      str.SetFormatted(MAX_BUS_NAME_LEN, "Output %i", busIdx);
+    }
+  }
+}
+
 int IPlugProcessor::MaxNBuses(ERoute direction, int* pConfigIdxWithTheMostBuses) const
 {
   int maxNBuses = 0;
@@ -274,15 +307,7 @@ int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& 
 
       if(NChanOnBus)
       {
-        WDL_String label;
-        if(NBuses == 0)
-          label.Append("Main ");
-        else
-          label.Append("Aux ");
-
-        label.Append(RoutingDirStrs[busDir]);
-        
-        pConfig->AddBusInfo(busDir, NChanOnBus, label.Get());
+        pConfig->AddBusInfo(busDir, NChanOnBus);
         NBuses++;
       }
       else if(NBuses > 0)
@@ -371,6 +396,27 @@ int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& 
   DBGMSG("END IPLUG CHANNEL IO PARSER --------------------------------------------------\n");
 
   return IOConfigIndex;
+}
+
+int IPlugProcessor::GetAUPluginType() const
+{
+  if (mPlugType == EIPlugPluginType::kEffect)
+  {
+    if (DoesMIDIIn())
+      return 'aumf';
+    else
+      return 'aufx';
+  }
+  else if (mPlugType == EIPlugPluginType::kInstrument)
+  {
+    return 'aumu';
+  }
+  else if (mPlugType == EIPlugPluginType::kMIDIEffect)
+  {
+    return 'aumi';
+  }
+  else
+    return 'aufx';
 }
 
 #pragma mark -

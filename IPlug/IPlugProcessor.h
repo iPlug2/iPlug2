@@ -130,6 +130,14 @@ public:
   void GetTimeSig(int& numerator, int& denominator) const { numerator = mTimeInfo.mNumerator; denominator = mTimeInfo.mDenominator; }
 
 #pragma mark -
+  
+  /** Get the name for a particular bus
+   * @param direction Input or outputbus
+   * @param busIdx The index of the bus
+   * @param nBuses The total number of busses for this direction
+   * @param str String to fill with the bus name */
+  virtual void GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const;
+  
   /** @return The number of channel I/O configs derived from the channel io string*/
   int NIOConfigs() const { return mIOConfigs.GetSize(); }
 
@@ -195,28 +203,8 @@ public:
   /** @return \c true if the plug-in was configured as an MFX at compile time */
   bool IsMidiEffect() const { return mPlugType == EIPlugPluginType::kMIDIEffect; }
   
-  /** /todo 
-   * @return int /todo */
-  int GetAUPluginType() const
-  {
-    if (mPlugType == EIPlugPluginType::kEffect)
-    {
-      if (DoesMIDIIn())
-        return 'aumf';
-      else
-        return 'aufx';
-    }
-    else if (mPlugType == EIPlugPluginType::kInstrument)
-    {
-      return 'aumu';
-    }
-    else if (mPlugType == EIPlugPluginType::kMIDIEffect)
-    {
-      return 'aumi';
-    }
-    else
-      return 'aufx';
-  }
+  /** @return int The 4Char identifier for the type of audiounit plugin, e.g. 'aufx' for an effect audiounit */
+  int GetAUPluginType() const;
 
   /** @return \c true if the plug-in was configured to receive midi at compile time */
   bool DoesMIDIIn() const { return mDoesMIDIIn; }

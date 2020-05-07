@@ -47,6 +47,12 @@ void IPlugSideChain::OnIdle()
   }
 }
 
+void IPlugSideChain::GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const
+{
+  //could customize bus names here
+  IPlugProcessor::GetBusName(direction, busIdx, nBuses, str);
+}
+
 void IPlugSideChain::OnActivate(bool enable)
 {
   mSendUpdate = true;

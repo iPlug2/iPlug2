@@ -870,13 +870,18 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       *pWriteable = false;
       if (pData)
       {
+        const int nIn = MaxNBuses(kInput);
+        const int nOut = MaxNBuses(kOutput);
+          
         switch(scope)
         {
           case kAudioUnitScope_Input:
           {
-            if (element == 0 || element == 1)
+            if (element < nIn)
             {
-              *(CFStringRef *) pData = MakeCFString(element == 0 ? "input" : "sidechain");
+              WDL_String busName;
+              GetBusName(ERoute::kInput, (int) element, nIn, busName);
+              *(CFStringRef*) pData = MakeCFString(busName.Get());
               return noErr;
             }
             else
@@ -884,11 +889,16 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           }
           case kAudioUnitScope_Output:
           {
-            //TODO: live 5.1 crash?
-            WDL_String str;
-            element == 0 ? str.Set("output") : str.SetFormatted(32, "output %i", element + 1);
-            *(CFStringRef *)pData = MakeCFString(str.Get());
-            return noErr;
+            if (element < nOut)
+            {
+              //TODO: live 5.1 crash?
+              WDL_String busName;
+              GetBusName(ERoute::kOutput, (int) element, nOut, busName);
+              *(CFStringRef*) pData = MakeCFString(busName.Get());
+              return noErr;
+            }
+            else
+              return kAudioUnitErr_InvalidElement;
           }
           default:
             return kAudioUnitErr_InvalidScope;

@@ -57,7 +57,6 @@ IPlugVST3ProcessorBase::IPlugVST3ProcessorBase(Config c, IPlugAPIBase& plug)
   
   mMaxNChansForMainInputBus = MaxNChannelsForBus(ERoute::kInput, 0);
 
-  
   if (MaxNChannels(ERoute::kInput))
   {
     mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));

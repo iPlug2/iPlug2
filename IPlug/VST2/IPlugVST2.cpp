@@ -596,7 +596,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         if (_this->GetChannelLabel(ERoute::kInput, idx).GetLength())
           sprintf(pp->label, "%s", _this->GetChannelLabel(ERoute::kInput, idx).Get());
         else
-          sprintf(pp->label, "Input %d", idx + 1);
+          sprintf(pp->label, "Input %d", idx + 1); // TODO: GetBusLabel()?
 
         return 1;
       }
@@ -615,7 +615,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         if (_this->GetChannelLabel(ERoute::kOutput, idx).GetLength())
           sprintf(pp->label, "%s", _this->GetChannelLabel(ERoute::kOutput, idx).Get());
         else
-          sprintf(pp->label, "Output %d", idx + 1);
+          sprintf(pp->label, "Output %d", idx + 1); // TODO: GetBusLabel()?
 
         return 1;
       }
