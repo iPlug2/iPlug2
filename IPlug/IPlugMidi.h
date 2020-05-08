@@ -48,6 +48,7 @@ struct IMidiMsg
   /** /todo */
   enum EControlChangeMsg
   {
+    kNoCC = -1,
     kModWheel = 1,
     kBreathController = 2,
     kUndefined003 = 3,

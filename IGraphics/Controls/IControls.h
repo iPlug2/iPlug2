@@ -34,6 +34,8 @@ BEGIN_IGRAPHICS_NAMESPACE
  */
 
 #pragma mark - Vector Controls
+
+/** A vector label control that can display text with a shadow */
 class IVLabelControl : public ITextControl
                      , public IVectorBase
 {
@@ -96,7 +98,7 @@ protected:
   WDL_String mOnText;
 };
 
-/** /todo. */
+/** A switch with a slide animation when clicked */
 class IVSlideSwitchControl : public IVSwitchControl
 {
 public:
@@ -171,6 +173,7 @@ protected:
   EDirection mDirection;
 };
 
+/** A vector "radio buttons" switch control */
 class IVRadioButtonControl : public IVTabSwitchControl
 {
 public:
@@ -286,6 +289,7 @@ protected:
   bool mValueMouseOver = false;
 };
 
+/** A vector range slider control, with two handles */
 class IVRangeSliderControl : public IVTrackControlBase
 {
 public:
@@ -309,6 +313,7 @@ protected:
   bool mMouseIsDown = false;
 };
 
+/** A vector XY Pad slider control */
 class IVXYPadControl : public IControl
                      , public IVectorBase
 {
@@ -377,6 +382,7 @@ protected:
   std::vector<float> mPoints;
 };
 
+/** A control to draw a rectangle around a named IControl group **/
 class IVGroupControl : public IControl
                      , public IVectorBase
 {
@@ -515,9 +521,17 @@ protected:
   std::vector<ISVG> mSVGs;
 };
 
+/** A Slider control with and SVG for track and handle */
 class ISVGSliderControl : public ISliderControlBase
 {
 public:
+  /** Constructs an ISVGSliderControl
+  * @param bounds The control's bounds
+  * @param handleSvg An ISVG for the handle part that moves
+  * @param handleSvg An ISVG for the track background
+  * @param paramIdx The parameter index to link this control to 
+  * @param dir The direction of the slider movement 
+  * @param gearing /todo */
   ISVGSliderControl(const IRECT& bounds, const ISVG& handleSvg, const ISVG& trackSVG, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   void Draw(IGraphics& g) override;

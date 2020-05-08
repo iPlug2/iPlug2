@@ -304,7 +304,11 @@ public:
    * @param value /todo
    * @param str /todo */
   void SetDisplayText(double value, const char* str);
-  
+
+  /** Set the parameters display precision
+ * @param precision The display precision in digits*/
+  void SetDisplayPrecision(int precision);
+
   /** Set the parameters label after creation. WARNING: if this is called after the host has queried plugin parameters, the host may display the label as it was previously
    * @param label /todo */
   void SetLabel(const char* label) { strcpy(mLabel, label); }
@@ -340,8 +344,12 @@ public:
   void GetDisplayForHostWithLabel(WDL_String& display, bool withDisplayText = true) const
   {
     GetDisplayForHost(mValue.load(), false, display, withDisplayText);
-    display.Append(" ");
-    display.Append(GetLabelForHost());
+    const char* hostlabel = GetLabelForHost();
+    if (CStringHasContents(hostlabel))
+    {
+      display.Append(" ");
+      display.Append(hostlabel);
+    }
   }
   
   /** /todo 

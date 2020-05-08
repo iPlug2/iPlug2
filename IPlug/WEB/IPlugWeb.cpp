@@ -33,8 +33,6 @@ IPlugWeb::IPlugWeb(const InstanceInfo& info, const Config& config)
   mSAMFUIBuf.Resize(kNumSAMFUIBytes); memcpy(mSAMFUIBuf.GetData(), "SAMFUI", kNumMsgHeaderBytes);
 
   mWAMCtrlrJSObjectName.SetFormatted(32, "%s_WAM", GetPluginName());
-
-  CreateTimer();
 }
 
 void IPlugWeb::SendParameterValueFromUI(int paramIdx, double value)
@@ -130,6 +128,18 @@ void IPlugWeb::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int dataSize, con
 #endif
 }
 
+void IPlugWeb::SendDSPIdleTick()
+{
+  EM_ASM({
+    if(typeof window[Module.UTF8ToString($0)] === 'undefined' ) {
+      console.log("warning - SendDSPIdleTick called before controller exists");
+    }
+    else {
+      window[Module.UTF8ToString($0)].sendMessage("TICK", "", 0.);
+    }
+  }, mWAMCtrlrJSObjectName.Get());
+}
+
 extern std::unique_ptr<IPlugWeb> gPlug;
 
 // could probably do this without these extra functions
@@ -169,6 +179,11 @@ static void _SendSysexMsgFromDelegate(int dataSize, uintptr_t pData)
   gPlug->SendSysexMsgFromDelegate(msg);
 }
 
+static void _StartIdleTimer()
+{
+  gPlug->CreateTimer();
+}
+
 EMSCRIPTEN_BINDINGS(IPlugWeb) {
   function("SPVFD", &_SendParameterValueFromDelegate);
   function("SAMFD", &_SendArbitraryMsgFromDelegate);
@@ -176,4 +191,5 @@ EMSCRIPTEN_BINDINGS(IPlugWeb) {
   function("SCVFD", &_SendControlValueFromDelegate);
   function("SMMFD", &_SendMidiMsgFromDelegate);
   function("SSMFD", &_SendSysexMsgFromDelegate);
+  function("StartIdleTimer", &_StartIdleTimer);
 }

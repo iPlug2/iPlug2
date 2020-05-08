@@ -1057,13 +1057,14 @@ struct IRECT
     return vrect.SubRectHorizontal(nColumns, col);
   }
   
-  /** Get a subrect (by index) of this IRECT which is a cell in a grid of size (nRows * nColumns)
+  /** Get a subrect (by index) of this IRECT which is a cell (or union of nCells sequential cells on same row/column) in a grid of size (nRows * nColumns)
    * @param cellIndex Index of the desired cell in the cell grid
    * @param nRows Number of rows in the cell grid
    * @param nColumns Number of columns in the cell grid
    * @param dir Desired direction of indexing, by row (EDirection::Horizontal) or by column (EDirection::Vertical)
+   * @param nCells Number of desired sequential cells to join (on same row/column)
    * @return IRECT The resulting subrect */
-  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection dir = EDirection::Horizontal) const
+  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection dir = EDirection::Horizontal, int nCells = 1) const
   {
     assert(cellIndex <= nRows * nColumns); // not enough cells !
 
@@ -1078,7 +1079,13 @@ struct IRECT
           if(cell == cellIndex)
           {
             const IRECT vrect = SubRectVertical(nRows, row);
-            return vrect.SubRectHorizontal(nColumns, col);
+            IRECT rect = vrect.SubRectHorizontal(nColumns, col);
+
+            for (int n = 1; n < nCells && (col + n) < nColumns; n++)
+            {
+              rect = rect.Union(vrect.SubRectHorizontal(nColumns, col + n));
+            }
+            return rect;
           }
 
           cell++;
@@ -1094,7 +1101,13 @@ struct IRECT
           if(cell == cellIndex)
           {
             const IRECT hrect = SubRectHorizontal(nColumns, col);
-            return hrect.SubRectVertical(nRows, row);
+            IRECT rect = hrect.SubRectVertical(nRows, row);;
+
+            for (int n = 1; n < nCells && (row + n) < nRows; n++)
+            {
+              rect = rect.Union(hrect.SubRectVertical(nRows, row + n));
+            }
+            return rect;
           }
           
           cell++;
@@ -2337,6 +2350,7 @@ static constexpr float DEFAULT_WIDGET_ANGLE = 0.f;
 const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Top};
 const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Bottom};
 
+/** A struct encapsulating a set of properties used to configure IVControls */
 struct IVStyle
 {
   bool hideCursor = DEFAULT_HIDE_CURSOR;
