@@ -1,2 +1,2 @@
 # IPlugDrumSynth
-A basic MPE capable synthesier plug-in with IGraphics GUI
+A drum synthesiser example with multiple output buses.

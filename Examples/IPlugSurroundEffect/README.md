@@ -1,2 +1,2 @@
 # IPlugSurroundEffect
-A basic volume control effect plug-in with IGraphics GUI
+A multichannel volume control effect plug-in that should work on different surround buses.
