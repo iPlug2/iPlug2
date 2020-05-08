@@ -37,6 +37,8 @@ public:
   
 #if IPLUG_DSP // All DSP methods and member variables should be within an IPLUG_DSP guard, should you want distributed UI
 public:
+  void GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const override;
+
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnReset() override;

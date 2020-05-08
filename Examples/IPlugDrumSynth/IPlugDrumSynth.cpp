@@ -108,6 +108,25 @@ void IPlugDrumSynth::OnMidiMsgUI(const IMidiMsg& msg)
 #endif
 
 #if IPLUG_DSP
+void IPlugDrumSynth::GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const
+{
+  if (direction == ERoute::kOutput)
+  {
+    if(busIdx == 0)
+      str.Set("Blip");
+    else if(busIdx == 1)
+      str.Set("Bloop");
+    else if(busIdx == 2)
+      str.Set("Blop");
+    else if(busIdx == 3)
+      str.Set("Blaap");
+    
+    return;
+  }
+  
+  str.Set("");
+}
+
 void IPlugDrumSynth::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   const double gain = GetParam(kParamGain)->Value() / 100.;
