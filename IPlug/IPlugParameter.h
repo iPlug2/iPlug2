@@ -43,12 +43,18 @@ public:
   /** Flags to determine characteristics of the parameter */
   enum EFlags
   {
+    /** No flags */
     kFlagsNone            = 0,
-    kFlagCannotAutomate   = 0x1, /** Indicates that the parameter is not automatable */
-    kFlagStepped          = 0x2, /** Indicates that the parameter ???  */
-    kFlagNegateDisplay    = 0x4, /** Indicates that the parameter should be displayed as a negative value */
-    kFlagSignDisplay      = 0x8, /** Indicates that the parameter should be displayed as a signed value */
-    kFlagMeta             = 0x10, /** Indicates that the parameter may influence the state of other parameters */
+     /** Indicates that the parameter is not automatable */
+    kFlagCannotAutomate   = 0x1,
+    /** Indicates that the parameter is stepped  */
+    kFlagStepped          = 0x2,
+    /** Indicates that the parameter should be displayed as a negative value */
+    kFlagNegateDisplay    = 0x4,
+    /** Indicates that the parameter should be displayed as a signed value */
+    kFlagSignDisplay      = 0x8,
+    /** Indicates that the parameter may influence the state of other parameters */
+    kFlagMeta             = 0x10,
   };
   
   using DisplayFunc = std::function<void(double, WDL_String&)>;
