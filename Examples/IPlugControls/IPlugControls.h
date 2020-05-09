@@ -24,6 +24,9 @@ enum EControlTags
   kCtrlTagRadioButton,
   kCtrlTagScope,
   kCtrlTagMeter,
+  kCtrlTagRTText,
+  kCtrlTagRedLED,
+  kCtrlTagGreenLED,
   kCtrlTags
 };
 
@@ -41,5 +44,7 @@ public:
 private:
   IBufferSender<2> mScopeSender;
   IPeakSender<2> mMeterSender;
+  ISender<1> mRTTextSender;
+  ISenderData<1> mLastOutputData = { kCtrlTagRTText, 1, 0 };
 #endif
 };

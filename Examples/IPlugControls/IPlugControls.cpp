@@ -70,7 +70,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       IText(12.f, EAlign::Center) // Label text
     };
     
-    const IText forkAwesomeText {20.f, "ForkAwesome"};
+    const IText forkAwesomeText {16.f, "ForkAwesome"};
     const IText bigLabel {24, COLOR_WHITE, "Roboto-Regular", EAlign::Near, EVAlign::Top, 0};
     const IText fontaudioText {32.f, "Fontaudio"};
 
@@ -102,9 +102,11 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IEditableTextControl(sameCell().SubRectVertical(4, 3).GetMidVPadded(10.f), "IEditableTextControl", DEFAULT_TEXT), kNoTag, "misccontrols");
     
     AddLabel("ITextToggleControl");
-    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 0, 3, 3), nullptr, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, forkAwesomeText), kNoTag, "misccontrols");
-    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 1, 3, 3), nullptr, ICON_FK_CIRCLE_O, ICON_FK_CHECK_CIRCLE, forkAwesomeText), kNoTag, "misccontrols");
-    pGraphics->AttachControl(new ITextToggleControl(sameCell().GetGridCell(1, 2, 3, 3), nullptr, ICON_FK_PLUS_SQUARE, ICON_FK_MINUS_SQUARE, forkAwesomeText), kNoTag, "misccontrols");
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().SubRectVertical(4, 1).GetGridCell(1, 0, 3, 3), nullptr, ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE, forkAwesomeText), kNoTag, "misccontrols");
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().SubRectVertical(4, 1).GetGridCell(1, 1, 3, 3), nullptr, ICON_FK_CIRCLE_O, ICON_FK_CHECK_CIRCLE, forkAwesomeText), kNoTag, "misccontrols");
+    pGraphics->AttachControl(new ITextToggleControl(sameCell().SubRectVertical(4, 1).GetGridCell(1, 2, 3, 3), nullptr, ICON_FK_PLUS_SQUARE, ICON_FK_MINUS_SQUARE, forkAwesomeText), kNoTag, "misccontrols");
+
+    pGraphics->AttachControl(new IRTTextControl<1, float>(sameCell().SubRectVertical(4, 2), "IRTTextControl: %0.2f", ":", "IRTTextControl"), kCtrlTagRTText);
 
     AddLabel("ICaptionControl");
     pGraphics->AttachControl(new ICaptionControl(sameCell().SubRectVertical(4, 1).GetMidVPadded(10.f), kParamGain, IText(24.f), DEFAULT_FGCOLOR, false), kNoTag, "misccontrols");
@@ -133,7 +135,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new ITextControl(sameCell().FracRectVertical(0.5f, false).GetFromTop(20.f), "IBSwitchControl", style.labelText));
     pGraphics->AttachControl(new IBSwitchControl(sameCell().FracRectVertical(0.5f, false), switchBitmap), kNoTag, "bcontrols");
     AddLabel("IBSliderControl");
-    pGraphics->AttachControl(new IBSliderControl(sameCell().GetCentredInside(sliderHandleBitmap.W(), 100.f), sliderHandleBitmap, sliderTrackBitmap, kParamGain, EDirection::Vertical), kNoTag, "bcontrols");
+    pGraphics->AttachControl(new IBSliderControl(sameCell().GetCentredInside((float) sliderHandleBitmap.W(), 100.f), sliderHandleBitmap, sliderTrackBitmap, kParamGain, EDirection::Vertical), kNoTag, "bcontrols");
     //pGraphics->AttachControl(new IVGroupControl("Bitmap Controls", "bcontrols", 10.f, 30.f, 30.f, 10.f));
     AddLabel("IBTextControl");
     pGraphics->AttachControl(new IBTextControl(sameCell(), bitmapText, DEFAULT_LABEL_TEXT, "HELLO", 10, 16, 0, false));
@@ -199,11 +201,16 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
                                                             {COLOR_GREEN, [](double x){ return x > 0.5;} }
 
                                                             }, 32, "IVPlotControl", style), kNoTag, "vcontrols");
-    
+
+    AddLabel("ILEDControl");
+    pGraphics->AttachControl(new ILEDControl(sameCell().GetCentredInside(20.f,20.f), 0.), kCtrlTagRedLED);
+    //pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).FracRectHorizontal(0.5, false), 0.3333f), kCtrlTagGreenLED);
+
     IRECT wideCell;
     nextCell();
     wideCell = nextCell().Union(nextCell()).Union(nextCell()).Union(nextCell());
     pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "IVKeyboardControl", style.labelText));
+    pGraphics->AttachControl(new IWheelControl(wideCell.GetFromLeft(25.f).GetMidVPadded(40.f)));
     pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72), kNoTag);
 
     //pGraphics->AttachControl(new IVGroupControl("Vector Controls", "vcontrols", 10.f, 30.f, 10.f, 10.f));
@@ -392,7 +399,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       }
     };
     
-    pGraphics->AttachControl(new IVButtonControl(nextCell().SubRectVertical(3, 0).FracRectHorizontal(0.5), SplashClickActionFunc, "Label Font...", style))->SetAnimationEndActionFunction(promptLabelFont);
+    pGraphics->AttachControl(new IVButtonControl(nextCell().SubRectVertical(5, 1), SplashClickActionFunc, "Choose label font...", style))->SetAnimationEndActionFunction(promptLabelFont);
     
     auto promptValueFont = [pGraphics](IControl* pCaller) {
       WDL_String fileName;
@@ -415,7 +422,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       }
     };
     
-    pGraphics->AttachControl(new IVButtonControl(sameCell().SubRectVertical(3, 0).FracRectHorizontal(0.5, true), SplashClickActionFunc, "Value Font...", style))->SetAnimationEndActionFunction(promptValueFont);
+    pGraphics->AttachControl(new IVButtonControl(sameCell().SubRectVertical(5, 2), SplashClickActionFunc, "Choose value font...", style))->SetAnimationEndActionFunction(promptValueFont);
   };
 #endif
 }
@@ -425,6 +432,10 @@ void IPlugControls::OnIdle()
 {
   mScopeSender.TransmitData(*this);
   mMeterSender.TransmitData(*this);
+  mRTTextSender.TransmitData(*this);
+
+  SendControlValueFromDelegate(kCtrlTagRedLED, std::fabs(mLastOutputData.vals[0]));
+  //SendControlValueFromDelegate(kCtrlTagGreenLED, mLastOutputData.vals[0]);
 }
 
 void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
@@ -442,6 +453,10 @@ void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   
   mScopeSender.ProcessBlock(outputs, nFrames, kCtrlTagScope);
   mMeterSender.ProcessBlock(outputs, nFrames, kCtrlTagMeter);
+
+  mLastOutputData.vals[0] = (float) outputs[0][0]; // just take first value in block
+
+  mRTTextSender.PushData(mLastOutputData);
 
   for (int s = 0; s < nFrames; s++) {
     outputs[0][s] = 0.;
