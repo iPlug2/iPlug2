@@ -12,6 +12,8 @@ In the meantime, you can read two academic papers that we wrote about the projec
 
 2 - Web Audio Conference (WAC2018) [PAPER](https://github.com/iPlug2/iPlug2/raw/master/Documentation/Papers/WAC2018.pdf) | [VIDEO](https://youtu.be/DDrgW4Qyz8Y)
 
+If you want to contribute, be sure to read @ref codingstyle.md
+
 <!--
 ## Introduction
 
