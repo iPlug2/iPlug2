@@ -116,7 +116,7 @@ INPUT                  = . \
                          ../IPlug \
                          ../IGraphics
 
-USE_MDFILE_AS_MAINPAGE = ./README.md
+USE_MDFILE_AS_MAINPAGE = ./index.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          =
 RECURSIVE              = YES
