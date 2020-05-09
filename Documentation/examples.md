@@ -9,7 +9,7 @@ Visual Studio 2019+ and Xcode 10+, which are both available for free are support
 @par
 Although Visual Studio and Xcode required to build IPlug plug-ins, projects are setup in such a way that you may easily use your favourite text editor and call build scripts, to build the binaries (although then you lack the debugger functionality of the IDE).
 
-@section examples List of examples included
+@subsection examples List of examples included
 The following projects are included:
 
 Example                  | Description
@@ -24,31 +24,50 @@ Example                  | Description
 **IPlugWebView**         | An example (macOS/iOS only) that uses an embedded WebKit view
 
 @note There are included scripts `buildall-mac.sh` and `buildall-win.bat` to quickly build all examples.
-@todo Add pretty pictures here
 
-@section duplicate Using duplicate.py
+@section duplicate Creating a new project using duplicate.py
 
 These examples all serve as templates, which can be duplicated to form the start of your project. To create a new project, use `duplicate.py`.
 
     duplicate.py [inputprojectname] [outputprojectname] [manufacturername] (outputpath)
 
-@todo Explain the command line parameters
-@note If you're using Windows, you will need to install Python (both version 2 and 3 should be fine) and set it up so you can run it from the command line.
-@par
-See http://www.voidspace.org.uk/python/articles/command_line.shtml for help. This involves adding the Python folder (e.g. C:\Python27\) to your %PATH% environment variable.
+@param inputprojectname Name of the source project to duplicate from
+@param outputprojectname Name of the project to be created
+@param manufacturername /todo
+@param outputpath /todo
 
-@warning This script was not designed to be foolproof - please think carefully about what you choose for a project name.
+E.g. `duplicate.py IPlugEffect MyNewPlugin OliLarkin`
+@todo Explain the command line parameters
+@note If you're using Windows, you will need to install Python (either version 2 or 3 should be fine) and set it up so you can run it from the command line.
 @par
+See http://www.voidspace.org.uk/python/articles/command_line.shtml for help. This involves adding the Python folder (e.g. C:\Python27\) to your `PATH` environment variable.
+
+@warning You MUST open MyNewPlugin/config.h and change PLUG_UNIQUE_ID and PLUG_MFR_ID otherwise you may have conflicting plug-ins
+@par
+This script was not designed to be foolproof - please think carefully about what you choose for a project name.
 It's best to stick to standard characters in your project names - avoid spaces, numbers and dots.
 
 @section IPlugEffect
+![Screenshot](../img/example_iplugeffect.png)
+
 @section IPlugInstrument
+![Screenshot](../img/example_ipluginstrument.png)
+
 @section IPlugControls
+![Screenshot](../img/example_iplugcontrols.png)
+
 @section IPlugFaustDSP
+@todo Build this and add a pretty picture
 
 @section IPlugMidiEffect
+![Screenshot](../img/example_iplugmidieffect.png)
 @note Only AudioUnits really have a notion of a MIDI effect.
 
 @section IPlugReaperExtension
-@section IPlugSwitft
+@todo Build this and add a pretty picture
+
+@section IPlugSwift
+@todo Build this and add a pretty picture
+
 @section IPlugWebView
+@todo Build this and add a pretty picture
