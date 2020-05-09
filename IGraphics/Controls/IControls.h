@@ -35,12 +35,12 @@ BEGIN_IGRAPHICS_NAMESPACE
 
 #pragma mark - Vector Controls
 
-/** A vector label control that can display text with a shadow */
+/** A vector label control that can display text with a shadow. Uses the IVStyle "value" text for the label. */
 class IVLabelControl : public ITextControl
                      , public IVectorBase
 {
 public:
-  IVLabelControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE);
+  IVLabelControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE.WithDrawFrame(false).WithColor(kSH, COLOR_BLACK).WithShadowOffset(1).WithValueText(DEFAULT_VALUE_TEXT.WithSize(20.f).WithFGColor(COLOR_WHITE)));
   void Draw(IGraphics& g) override;
 };
 
