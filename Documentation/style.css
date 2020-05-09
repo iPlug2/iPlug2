@@ -3,13 +3,39 @@
     display: none !important;
 }
 
+#projectlogo {
+    vertical-align: middle;
+    padding: 10px;
+}
+#projectlogo img {
+    width: 55px;
+}
+
 /* Layout tweaks */
-/*
+
+div.summary {
+    float: none;
+    padding: 0;
+    width: 100%;
+    text-align: center;
+}
+
+div.ingroups {
+    width: 100%;
+    text-align: center;
+}
+
 div.contents {
     max-width: 980px;
     text-align: justify;
     margin: 15px auto 0 auto;
+    padding: 1em;
 }
+
+div.header {
+    background-image: none;
+}
+
 div.header, div#titlearea table {
     margin: auto;
     text-align: center;
@@ -23,7 +49,11 @@ body, table, div, p, dl {
     font: 400 15px/22px sans-serif;
     line-height: 1.5;
 }
- */
+
+.toc {
+    border-radius: 0 !important;
+    margin-left: 25px !important;
+}
 
 /* Code snippet readability */
 div.line {
