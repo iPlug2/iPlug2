@@ -115,6 +115,7 @@ WARN_LOGFILE           = doxygen_warnings.txt
 INPUT                  = . \
                          ../IPlug \
                          ../IGraphics
+
 USE_MDFILE_AS_MAINPAGE = ./README.md
 INPUT_ENCODING         = UTF-8
 FILE_PATTERNS          =

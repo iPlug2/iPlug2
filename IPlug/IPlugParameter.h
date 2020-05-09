@@ -268,7 +268,7 @@ public:
 
   /** Constrains the input value between \c mMin and \c mMax
    * @param value The input value to constrain
-   * @return double The resulting constrained value */
+   * @return @b double The resulting constrained value */
   inline double Constrain(double value) const { return Clip((mFlags & kFlagStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
 
   /** Convert a real value to normalized value for this parameter
@@ -324,7 +324,7 @@ public:
   void SetDisplayFunc(DisplayFunc func) { mDisplayFunction = func; }
 
   /** Gets a readable value of the parameter
-   * @return double Current value of the parameter */
+   * @return @b double Current value of the parameter */
   double Value() const { return mValue.load(); }
 
   /** Returns the parameter's value as a boolean
@@ -335,7 +335,7 @@ public:
   int Int() const { return static_cast<int>(mValue.load()); }
   
   /** Gain based on parameter's current value in dB
-   * @return Gain calculated as an approximation of
+   * @return @b double Gain calculated as an approximation of
    * \f$ 10^{\frac{x}{20}} \f$
    * @see #IAMP_DB
    */
