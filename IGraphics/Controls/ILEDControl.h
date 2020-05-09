@@ -17,8 +17,7 @@
  */
 
 #include "IControl.h"
-#include "IPlugQueue.h"
-#include "IPlugStructs.h"
+#include "Easing.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -36,8 +35,30 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    g.FillEllipse(IColor::FromHSLA(mHue, 1.f, static_cast<float>(GetValue()) + 0.01f), mRECT, nullptr);
-    g.DrawEllipse(COLOR_BLACK, mRECT, nullptr, 1.f);
+    const float v = static_cast<float>(GetValue() * 0.65f);
+    const IColor c = IColor::FromHSLA(mHue, 1.f, v);
+    IRECT innerPart = mRECT.GetCentredInside(mRECT.W()/2.f);
+    IRECT flare = innerPart.GetScaledAboutCentre(1.f + v);
+    g.FillEllipse(c, innerPart, nullptr);
+    g.DrawEllipse(COLOR_BLACK, innerPart, nullptr, 1.f);
+    g.PathEllipse(flare);
+    IBlend b = {EBlend::Default, v};
+    g.PathFill(IPattern::CreateRadialGradient(mRECT.MW(), mRECT.MH(), mRECT.W()/2.f, {{c, 0.f}, {COLOR_TRANSPARENT, 1.f}}), {}, &b);
+  }
+  
+  void TriggerWithDecay(int decayTimeMs)
+  {
+    SetAnimation([](IControl* pControl){
+      auto progress = pControl->GetAnimationProgress();
+      
+      if(progress > 1.f) {
+        pControl->OnEndAnimation();
+        return;
+      }
+      
+      pControl->SetValue(EaseCubicIn(1. -progress));
+      
+    }, decayTimeMs);
   }
 
 private:

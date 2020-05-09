@@ -9,8 +9,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   GetParam(kParamMode)->InitEnum("Mode", 0, 4, "", IParam::kFlagsNone, "", "one", "two", "three", "four");
-  GetParam(kParamFreq1)->InitDouble("Freq 1 - X", 0.5, 0., 2, 0.01, "Hz");
-  GetParam(kParamFreq2)->InitDouble("Freq 2 - Y", 0.5, 0., 2, 0.01, "Hz");
+  GetParam(kParamFreq1)->InitDouble("Freq 1 - X", 0.5, 0.001, 10., 0.01, "Hz", IParam::kFlagsNone, "", IParam::ShapePowCurve(1.));
+  GetParam(kParamFreq2)->InitDouble("Freq 2 - Y", 0.5, 0.001, 10., 0.01, "Hz", IParam::kFlagsNone, "", IParam::ShapePowCurve(1.));
 
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
@@ -193,6 +193,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IVMultiSliderControl<4>(nextCell(), "IVMultiSliderControl", style), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVMeterControl<2>(nextCell(), "IVMeterControl", style), kCtrlTagMeter, "vcontrols");
     pGraphics->AttachControl(new IVScopeControl<2>(nextCell(), "IVScopeControl", style.WithColor(kFG, COLOR_BLACK)), kCtrlTagScope, "vcontrols");
+    pGraphics->AttachControl(new IVDisplayControl(nextCell(), "IVDisplayControl", style, EDirection::Horizontal, -1., 1., 0., 512), kCtrlTagDisplay, "vcontrols");
     pGraphics->AttachControl(new IVLabelControl(nextCell().SubRectVertical(3, 0).GetMidVPadded(10.f), "IVLabelControl"), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVColorSwatchControl(sameCell().SubRectVertical(3, 1), "IVColorSwatchControl", [](int, IColor){}, style, IVColorSwatchControl::ECellLayout::kHorizontal, {kX1, kX2, kX3}, {"", "", ""}), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(3, 2), kParamGain, nullptr, "IVNumberBoxControl", style), kNoTag, "vcontrols");
@@ -202,16 +203,19 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 
                                                             }, 32, "IVPlotControl", style), kNoTag, "vcontrols");
 
-    AddLabel("ILEDControl");
-    pGraphics->AttachControl(new ILEDControl(sameCell().GetCentredInside(20.f,20.f), 0.), kCtrlTagRedLED);
-    //pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).FracRectHorizontal(0.5, false), 0.3333f), kCtrlTagGreenLED);
-
     IRECT wideCell;
-    nextCell();
     wideCell = nextCell().Union(nextCell()).Union(nextCell()).Union(nextCell());
     pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "IVKeyboardControl", style.labelText));
     pGraphics->AttachControl(new IWheelControl(wideCell.GetFromLeft(25.f).GetMidVPadded(40.f)));
-    pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72), kNoTag);
+    pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72), kNoTag)->SetActionFunction([this](IControl* pControl){
+      this->FlashBlueLED();
+    });
+    
+    AddLabel("ILEDControl");
+    pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 0).GetCentredInside(20.f), 0.), kCtrlTagRedLED);
+    pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 1).GetCentredInside(20.f), 0.3333f), kCtrlTagGreenLED);
+    pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 2).GetCentredInside(20.f), 0.5f), kCtrlTagBlueLED);
+
 
     //pGraphics->AttachControl(new IVGroupControl("Vector Controls", "vcontrols", 10.f, 30.f, 10.f, 10.f));
 
@@ -427,21 +431,44 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 #endif
 }
 
+#if IPLUG_EDITOR
+void IPlugControls::FlashBlueLED()
+{
+  GetUI()->GetControlWithTag(kCtrlTagBlueLED)->As<ILEDControl>()->TriggerWithDecay(1000);
+}
+
+void IPlugControls::OnMidiMsgUI(const IMidiMsg& msg)
+{
+  if(GetUI())
+  {
+    switch (msg.StatusMsg()) {
+      case iplug::IMidiMsg::kNoteOn:
+        FlashBlueLED();
+        break;
+      default:
+        break;
+    }
+  }
+}
+#endif
+
 #if IPLUG_DSP
 void IPlugControls::OnIdle()
 {
   mScopeSender.TransmitData(*this);
   mMeterSender.TransmitData(*this);
   mRTTextSender.TransmitData(*this);
+  mDisplaySender.TransmitData(*this);
 
-  SendControlValueFromDelegate(kCtrlTagRedLED, std::fabs(mLastOutputData.vals[0]));
-  //SendControlValueFromDelegate(kCtrlTagGreenLED, mLastOutputData.vals[0]);
+  float val = std::fabs(mLastOutputData.vals[0]);
+  SendControlValueFromDelegate(kCtrlTagRedLED, std::copysign(val, mLastOutputData.vals[0]));
+  SendControlValueFromDelegate(kCtrlTagGreenLED, std::copysign(val, -mLastOutputData.vals[0]));
 }
 
 void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-  const double phaseIncr1 = GetParam(kParamFreq1)->Value() * 0.00001;
-  const double phaseIncr2 = GetParam(kParamFreq2)->Value() * 0.00001;
+  const double phaseIncr1 = (1. / GetSampleRate()) * GetParam(kParamFreq1)->Value();
+  const double phaseIncr2 = (1. / GetSampleRate()) * GetParam(kParamFreq2)->Value();
 
   for (int s = 0; s < nFrames; s++) {
     static double phase1 = 0.;
@@ -451,6 +478,7 @@ void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     outputs[1][s] = sin(phase2 += phaseIncr2);
   }
   
+  mDisplaySender.ProcessBlock(outputs, nFrames, kCtrlTagDisplay);
   mScopeSender.ProcessBlock(outputs, nFrames, kCtrlTagScope);
   mMeterSender.ProcessBlock(outputs, nFrames, kCtrlTagMeter);
 
