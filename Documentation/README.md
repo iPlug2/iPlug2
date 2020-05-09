@@ -2,7 +2,7 @@
 
 This is the home of documentation for iPlug 2, which is a work in progress. The [iPlug 2 Wiki](https://github.com/iPlug2/iPlug2/wiki) includes some more high-level information, that may move here eventually.
 
-If you're viewing this as a markdown file on github, you can see the doxygen version [here](https://iplug2.github.io/iPlug2/).
+If you're viewing this as a markdown file on GitHub, you can see the doxygen version [here](https://iplug2.github.io/iPlug2/).
 
 In the future, this will include some tutorials and guides, but for now it's just the doxygen docs for the classes. Most classes and files have been entered, but many methods are not yet documented, or are documented with out of date information. 
 
