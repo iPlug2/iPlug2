@@ -632,6 +632,7 @@ private:
   WDL_PtrList<DataKey> mDatas;
 };
 
+/** Encapsulate an xy point in one struct */
 struct IVec2
 {
   float x, y;

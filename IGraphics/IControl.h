@@ -1823,6 +1823,7 @@ public:
   }
 };
 
+/** A control to show a clickable URL, that changes colour after clicking */
 class IURLControl : public ITextControl
 {
 public:
@@ -1840,6 +1841,7 @@ protected:
   bool mClicked = false;
 };
 
+/** A control to toggle between two text strings on click */
 class ITextToggleControl : public ITextControl
 {
 public:

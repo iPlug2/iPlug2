@@ -34,7 +34,7 @@ cc = "clang"
 cxx = "clang++"
 target_os = "ios"
 target_cpu = "arm64"
-extra_cflags = ["-miphoneos-version-min=12.1",
+extra_cflags = ["-miphoneos-version-min=13",
 "-I../../../src/skia/third_party/externals/expat/lib",
 "-fembed-bitcode"]
 extra_cflags_c = ["-Wno-error"]
@@ -79,7 +79,7 @@ cc = "clang"
 cxx = "clang++"
 target_os = "ios"
 target_cpu = "x64"
-extra_cflags = ["-miphoneos-version-min=12.1",
+extra_cflags = ["-miphoneos-version-min=13",
 "-I../../../src/skia/third_party/externals/expat/lib",
 "-fembed-bitcode"]
 extra_cflags_c = ["-Wno-error"]

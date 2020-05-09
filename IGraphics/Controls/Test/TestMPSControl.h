@@ -65,6 +65,7 @@ private:
 };
 
 #else
+/** Control to test IGraphicsNanoVG with Metal Performance Shaders */
 class TestMPSControl : public IControl
 {
 public:
