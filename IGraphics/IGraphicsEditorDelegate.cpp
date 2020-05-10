@@ -29,6 +29,9 @@ void* IGEditorDelegate::OpenWindow(void* pParent)
   if(!mGraphics)
   {
     mGraphics = std::unique_ptr<IGraphics>(CreateGraphics());
+    if (mLastWidth && mLastHeight && mLastScale)
+      GetUI()->Resize(mLastWidth, mLastHeight, mLastScale);
+    
     if (mGraphics && mMainLoop)
     {
       mGraphics->SetIntegration(mMainLoop);

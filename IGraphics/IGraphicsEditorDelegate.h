@@ -43,6 +43,13 @@ public:
   void SetScreenScale(double scale) final;
   void SetIntegration(void *mainLoop) final;
 
+  bool OnKeyDown(const IKeyPress& key) override;
+  bool OnKeyUp(const IKeyPress& key) override;
+    
+  // Default serialization implementations (which serialize the size/scale) = override for custom behaviours
+  bool SerializeEditorState(IByteChunk& chunk) const override;
+  int UnserializeEditorState(const IByteChunk& chunk, int startPos) override;
+    
   //The rest should be final, but the WebSocketEditorDelegate needs to override them
   void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override;
   void SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize = 0, const void* pData = nullptr) override;
