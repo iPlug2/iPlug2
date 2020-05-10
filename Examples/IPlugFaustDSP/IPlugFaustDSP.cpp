@@ -57,7 +57,7 @@ void IPlugFaustDSP::OnReset()
 
 void IPlugFaustDSP::OnParamChange(int paramIdx)
 {
-  mFaustProcessor.SetParameterValueNormalised(paramIdx, GetParam(paramIdx)->Value());
+  mFaustProcessor.SetParameterValueNormalised(paramIdx, GetParam(paramIdx)->GetNormalized());
 }
 
 void IPlugFaustDSP::OnIdle()
