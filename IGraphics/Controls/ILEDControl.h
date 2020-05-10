@@ -32,6 +32,13 @@ public:
   , mHue(hue)
   {
   }
+  
+  ILEDControl(const IRECT& bounds, const IColor& color)
+  : IControl(bounds)
+  {
+    float s,l,a;
+    color.GetHSLA(mHue, s, l, a);
+  }
 
   void Draw(IGraphics& g) override
   {

@@ -215,8 +215,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     });
     
     AddLabel("ILEDControl");
-    pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 0).GetCentredInside(20.f), 0.), kCtrlTagRedLED);
-    pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 1).GetCentredInside(20.f), 0.3333f), kCtrlTagGreenLED);
+    pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 0).GetCentredInside(20.f), COLOR_RED), kCtrlTagRedLED);
+    pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 1).GetCentredInside(20.f), COLOR_GREEN), kCtrlTagGreenLED);
     pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 2).GetCentredInside(20.f), 0.5f), kCtrlTagBlueLED);
 
 
