@@ -138,7 +138,17 @@ ifeq ($(ITARGET),APP)
   LIBS +=  $(_IDEPS_INSTALL_PATH)/lib/librtmidi.a
   IPB_DEPS += $(_IDEPS_INSTALL_PATH)/lib/librtaudio.a $(_IDEPS_INSTALL_PATH)/lib/librtmidi.a
 	
-	
+else ifeq ($(ITARGET),VST2)
+  # TODO: set correct defines, f.e. for debug
+  CXXFLAGS += -DSMTG_OS_LINUX -DVST2_API -DIPLUG_DSP -DIPLUG_EDITOR
+
+  # VST2 source
+  IPSRC_DIR += $(_IPLUG_PATH)/VST2
+	IPT_DEPS += IPlugVST2.o
+
+	# VST2 SDK, see README in this folder
+	IPINC_DIR += $(_IPLUG_DEPS_PATH)/VST2_SDK
+
 else ifeq ($(ITARGET),VST3)
   # TODO: set correct defines, f.e. for debug
   CXXFLAGS += -DSMTG_OS_LINUX -DVST3_API -DIPLUG_DSP -DIPLUG_EDITOR
@@ -211,7 +221,7 @@ ifeq ($(IGRAPHICS),)
 endif
 
 ifneq ($(IGRAPHICS),NO_IGRAPHICS)
-  # for LV2, graphics is in UI IPTSS
+  # graphics is in UI IPTSS for LV2
   _TSX  :=
   _TSXD :=
   ifeq ($(ITARGET),LV2)
@@ -219,6 +229,26 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
     _TSXD := UI/
     CXXFLAGSE += -DNO_IGRAPHICS -DLV2_WITH_UI
     CXXFLAGSE_CFG += -DNO_IGRAPHICS -DLV2_WITH_UI
+  endif
+
+  ifeq ($(IGRAPHICS),NANOVG_GL2)
+    _GL_VERSION := GL2
+    CXXFLAGSE$(_TSX) += -DIGRAPHICS_GL2
+    _IGRAPHICS := NANOVG
+  else ifeq ($(IGRAPHICS),NANOVG_GL3)
+    _GL_VERSION := GL3
+    CXXFLAGSE$(_TSX) += -DIGRAPHICS_GL3
+    _IGRAPHICS := NANOVG
+  else ifeq ($(IGRAPHICS),SKIA_GL2)
+    _GL_VERSION := GL2
+    CXXFLAGSE$(_TSX) += -DIGRAPHICS_GL2
+    _IGRAPHICS := SKIA
+  else ifeq ($(IGRAPHICS),SKIA_GL3)
+    _GL_VERSION := GL3
+    CXXFLAGSE$(_TSX) += -DIGRAPHICS_GL3
+    _IGRAPHICS := SKIA
+  else
+    _IGRAPHICS := $(IGRAPHICS)
   endif
 
   IPSRC_DIR += $(_IGRAPHICS_PATH)/Platforms $(_IGRAPHICS_PATH)/Drawing $(_IGRAPHICS_PATH)/Controls
@@ -230,7 +260,11 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
 	IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/STB
 
   # XCBT (always with GL support at the moment)
-	_GLAD_PATH := $(_IGRAPHICS_DEPS_PATH)/glad_GL2
+  ifeq ($(_GL_VERSION),GL3)
+    _GLAD_PATH := $(_IGRAPHICS_DEPS_PATH)/glad_GL3
+  else
+	  _GLAD_PATH := $(_IGRAPHICS_DEPS_PATH)/glad_GL2
+  endif
 	IPSRC_DIR += $(_GLAD_PATH)/src
 	IPINC_DIR += $(_GLAD_PATH)/include
 	_GLAD_GLX_PATH := $(_IGRAPHICS_DEPS_PATH)/glad_GLX
@@ -240,15 +274,15 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
   IPT_DEPS$(_TSX)  += $(_TSXD)xcbt.o $(_TSXD)glad.o $(_TSXD)glad_glx.o
   LIBS$(_TSX) += -lxcb -lfontconfig
 
-  ifeq ($(IGRAPHICS),NANOVG_GL2)
+  ifeq ($(_IGRAPHICS),NANOVG)
     IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoVG/src
     IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoSVG/src
 		
-	  CXXFLAGSE$(_TSX) += -DIGRAPHICS_NANOVG -DIGRAPHICS_GL2
+	  CXXFLAGSE$(_TSX) += -DIGRAPHICS_NANOVG
 	  
 	  # Not nice, but stb_ produce that and it is included directly
 	  CXXFLAGSE$(_TSX) += -Wno-misleading-indentation
-	else ifeq ($(IGRAPHICS),SKIA_GL2)
+	else ifeq ($(_IGRAPHICS),SKIA)
     IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoSVG/src
     
     _SKIA_PATH = $(_IGRAPHICS_DEPS_PATH)/skia
@@ -265,14 +299,14 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
     
     IPINC_DIR += $(_SKIA_PATH) $(_SKIA_PATH)/include/core $(_SKIA_PATH)/include/effects $(_SKIA_PATH)/include/gpu $(_SKIA_PATH)/experimental/svg/model
 
-    CXXFLAGSE$(_TSX) += -DIGRAPHICS_SKIA -DIGRAPHICS_GL2
+    CXXFLAGSE$(_TSX) += -DIGRAPHICS_SKIA
 		
 		LIBS$(_TSX) += $(_IDEPS_INSTALL_PATH)/skia/libskia.a
     IPB_DEPS$(_TSX) += $(_IDEPS_INSTALL_PATH)/skia/libskia.a
 
     # some extra libraries
     LIBS$(_TSX) += -lfreetype -lGL -lexpat -lz
-  else ifeq ($(IGRAPHICS),LICE)
+  else ifeq ($(_IGRAPHICS),LICE)
     IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoSVG/src
 
 		# LICE is using SWELL
@@ -298,7 +332,7 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
       IPINC_DIR += /usr/include/freetype2
       LIBS$(_TSX) += -lfreetype -ldl -lpthread
     endif
-  else ifeq ($(IGRAPHICS),CAIRO)
+  else ifeq ($(_IGRAPHICS),CAIRO)
     IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoSVG/src
 
     _NEED_CAIRO := yes
@@ -307,7 +341,7 @@ ifneq ($(IGRAPHICS),NO_IGRAPHICS)
     CXXFLAGSE$(_TSX) += -DIGRAPHICS_CAIRO
     
     LIBS$(_TSX) += -lcairo -lpixman-1 -lfreetype -lpng -lz -lxcb-shm -lxcb-render -lxcb
-  else ifeq ($(IGRAPHICS),AGG)
+  else ifeq ($(_IGRAPHICS),AGG)
     IPINC_DIR += $(_IGRAPHICS_DEPS_PATH)/NanoSVG/src
 
 		_NEED_FREETYPE := yes

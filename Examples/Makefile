@@ -22,7 +22,7 @@
 #
 # Generic iPlug 2 plug-in makefile for Linux
 #  * target can be specified as an argument to make or as compile time setting ITARGET (see later),
-#        f.e. make APP [VST3|LV2|clean]
+#        f.e. make APP [VST2|VST3|LV2|clean]
 #  * particular target can be cleaned, without cleaning other targets
 #        f.e. make IOP=CLEAN APP
 #  * compile time settings can be specified as (exported) environment variables, in make command line or in makefile
@@ -42,6 +42,7 @@
 
 ## Plug-in incarnation ITARGET: 
 #   APP - standalone application (default)
+#   VST2
 #   VST3
 #   LV2
 #	ITARGET := APP
@@ -51,10 +52,14 @@
 #   CLEAN - clean specified target (only, other targets will not be cleaned)
 #	IOP := BUILD
 
-## Graphic engine (variation should match) IGRAPHICS:
+## Graphic engine IGRAPHICS:
 #   NANOVG_GL2 - NanoVG library with GL2 backend (default)
+#   NANOVG_GL3 - NanoVG library with GL3 backend
 #   SKIA_GL2   - SKIA with GL2
+#   SKIA_GL3   - SKIA with GL3
 #   LICE       - LICE
+#   CAIRO      - CAIRO (raster rendering)
+#   AGG        - AGG
 #	IGRAPHICS := NANOVG_GL2
 
 ## Build directory
@@ -292,12 +297,13 @@ $(call define_var,IBUILD,../Build/Linux-$(IARCH)$(IDEBUG)/$(ICONF_PLUG_NAME))
 ifneq ($(MAKECMDGOALS),)
   override ITARGET := $(MAKECMDGOALS)
 endif
-ifeq ($(ITARGET),clean)
+ifeq ($(ITARGET),CLEAN)
   override IOP := CLEAN
   ITARGET_TYPE_STR := build directory
 else ifeq ($(ITARGET),APP)
 else ifeq ($(ITARGET),)
   override ITARGET := APP
+else ifeq ($(ITARGET),VST2)
 else ifeq ($(ITARGET),VST3)
 else ifeq ($(ITARGET),LV2)
 else
@@ -387,6 +393,12 @@ else
     _SRC := $(wildcard *.cpp)
     IPT_DEPS += $(notdir $(_SRC:%.cpp=%.o))
 
+  else ifeq ($(ITARGET),VST2)
+    IPT := $(ICONF_PLUG_NAME).so
+
+    # we assume all cpp files are relevant
+    _SRC := $(wildcard *.cpp)
+    IPT_DEPS += $(notdir $(_SRC:%.cpp=%.o))
   else ifeq ($(ITARGET),LV2)
     # UI and CFG are separate targets
     IPTSS += CFG
