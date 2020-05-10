@@ -98,9 +98,8 @@ int LiceBlendMode(const IBlend* pBlend)
   }
   switch (pBlend->mMethod)
   {
-    case EBlend::Clobber:     return LICE_BLIT_MODE_COPY;
-    case EBlend::Add:         return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
-    case EBlend::Default:
+    case EBlend::Add: return LICE_BLIT_MODE_ADD | LICE_BLIT_USE_ALPHA;
+    case EBlend::SrcOver:
     default:
     {
       return LICE_BLIT_MODE_COPY | LICE_BLIT_USE_ALPHA;
@@ -573,12 +572,13 @@ void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IR
   r = IRECT(x, y, x + textWidth, y + textHeight);
 }
 
-void IGraphicsLice::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+float IGraphicsLice::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   IRECT r = bounds;
   LICE_IFont* pFont;
   PrepareAndMeasureText(text, str, bounds, pFont);
   DoMeasureTextRotation(text, r, bounds);
+  return bounds.W();
 }
 
 void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)

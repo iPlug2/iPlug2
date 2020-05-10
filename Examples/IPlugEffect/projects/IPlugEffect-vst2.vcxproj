@@ -278,6 +278,7 @@
     <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_src.h" />
     <ClInclude Include="..\..\..\IGraphics\IGraphics_select.h" />
+    <ClInclude Include="..\..\..\IGraphics\ISender.h" />
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsLinux.h" />
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsMac.h" />
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsMac_view.h" />
@@ -291,6 +292,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugPaths.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugStructs.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugTimer.h" />

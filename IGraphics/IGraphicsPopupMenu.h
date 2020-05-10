@@ -93,15 +93,19 @@ public:
       return true;
     }
     
-    void SetChecked(bool state)
+    void SetEnabled(bool state) { SetFlag(kDisabled, !state); }
+    void SetChecked(bool state) { SetFlag(kChecked, state); }
+    void SetTitle(bool state) {SetFlag(kTitle, state); }
+
+  protected:
+    void SetFlag(Flags flag, bool state)
     {
       if (state)
-        mFlags |= kChecked;
+        mFlags |= flag;
       else
-        mFlags &= ~kChecked;
+        mFlags &= ~flag;
     }
-    
-  protected:
+
     WDL_String mText;
     std::unique_ptr<IPopupMenu> mSubmenu;
     int mFlags;
@@ -210,6 +214,8 @@ public:
   void SetChosenItemIdx(int index) { mChosenItemIdx = index; };
   int GetChosenItemIdx() const { return mChosenItemIdx; }
   int NItems() const { return mMenuItems.GetSize(); }
+  int NItemsPerColumn() const { return mNItemsPerColumn; }
+  void SetNItemsPerColumn(int nItemsPerColumn) { mNItemsPerColumn = nItemsPerColumn; }
   int GetPrefix() const { return mPrefix; }
   bool GetCanMultiCheck() const { return mCanMultiCheck; }
 
@@ -250,7 +256,7 @@ public:
   }
   
   void SetMultiCheck(bool multicheck) { mCanMultiCheck = multicheck; }
-  
+
   void Clear(bool resetEverything = true)
   {
     if(resetEverything)
@@ -318,6 +324,7 @@ public:
   }
   
 private:
+  int mNItemsPerColumn = 0; // Windows can divide popup menu into columns
   int mPrefix; // 0 = no prefix, 1 = numbers no leading zeros, 2 = 1 lz, 3 = 2lz
   int mChosenItemIdx = -1;
   bool mCanMultiCheck; // multicheck = 0 doesn't actually prohibit multichecking, you should do that in your code, by calling CheckItemAlone instead of CheckItem

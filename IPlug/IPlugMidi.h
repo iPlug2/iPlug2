@@ -48,6 +48,7 @@ struct IMidiMsg
   /** /todo */
   enum EControlChangeMsg
   {
+    kNoCC = -1,
     kModWheel = 1,
     kBreathController = 2,
     kUndefined003 = 3,
@@ -178,12 +179,10 @@ struct IMidiMsg
   }
   
   /** /todo
-   * 
    * @param idx /todo
    * @param value range [0, 1] /todo
    * @param channel /todo
-   * @param offset /todo
-   */
+   * @param offset /todo */
   void MakeControlChangeMsg(EControlChangeMsg idx, double value, int channel = 0, int offset = 0)
   {
     Clear();
@@ -192,7 +191,16 @@ struct IMidiMsg
     mData2 = (int) (value * 127.0);
     mOffset = offset;
   }
-  
+
+  /** /todo */
+  void MakeProgramChange(int program, int channel = 0, int offset = 0)
+  {
+    Clear();
+    mStatus = channel | (kProgramChange << 4);
+    mData1 = program;
+    mOffset = offset;
+  }
+
   /** /todo  
    * @param pressure /todo
    * @param offset /todo
@@ -345,7 +353,7 @@ struct IMidiMsg
   /** /todo  
    * @param msg /todo
    * @return const char* /todo */
-  const char* StatusMsgStr(EStatusMsg msg) const
+  static const char* StatusMsgStr(EStatusMsg msg)
   {
     switch (msg)
     {
@@ -361,6 +369,142 @@ struct IMidiMsg
     };
   }
   
+  static const char* CCNameStr(int idx)
+  {
+    static const char* ccNameStrs[128] =
+    {
+      "BankSel.MSB",
+      "Modulation",
+      "BreathCtrl",
+      "Contr. 3",
+      "Foot Ctrl",
+      "Porta.Time",
+      "DataEntMSB",
+      "MainVolume",
+      "Balance",
+      "Contr. 9",
+      "Pan",
+      "Expression",
+      "FXControl1",
+      "FXControl2",
+      "Contr. 14",
+      "Contr. 15",
+      "Gen.Purp.1",
+      "Gen.Purp.2",
+      "Gen.Purp.3",
+      "Gen.Purp.4",
+      "Contr. 20",
+      "Contr. 21",
+      "Contr. 22",
+      "Contr. 23",
+      "Contr. 24",
+      "Contr. 25",
+      "Contr. 26",
+      "Contr. 27",
+      "Contr. 28",
+      "Contr. 29",
+      "Contr. 30",
+      "Contr. 31",
+      "BankSel.LSB",
+      "Modul. LSB",
+      "BrthCt LSB",
+      "Contr. 35",
+      "FootCt LSB",
+      "Port.T LSB",
+      "DataEntLSB",
+      "MainVolLSB",
+      "BalanceLSB",
+      "Contr. 41",
+      "Pan LSB",
+      "Expr. LSB",
+      "Contr. 44",
+      "Contr. 45",
+      "Contr. 46",
+      "Contr. 47",
+      "Gen.P.1LSB",
+      "Gen.P.2LSB",
+      "Gen.P.3LSB",
+      "Gen.P.4LSB",
+      "Contr. 52",
+      "Contr. 53",
+      "Contr. 54",
+      "Contr. 55",
+      "Contr. 56",
+      "Contr. 57",
+      "Contr. 58",
+      "Contr. 59",
+      "Contr. 60",
+      "Contr. 61",
+      "Contr. 62",
+      "Contr. 63",
+      "Damper Ped",
+      "Porta. Ped",
+      "Sostenuto ",
+      "Soft Pedal",
+      "Legato Sw",
+      "Hold 2",
+      "SoundCont 1",
+      "SoundCont 2",
+      "SoundCont 3",
+      "SoundCont 4",
+      "SoundCont 5",
+      "SoundCont 6",
+      "SoundCont 7",
+      "SoundCont 8",
+      "SoundCont 9",
+      "SoundCont 10",
+      "Gen.Purp.5",
+      "Gen.Purp.6",
+      "Gen.Purp.7",
+      "Gen.Purp.8",
+      "Portamento",
+      "Contr. 85",
+      "Contr. 86",
+      "Contr. 87",
+      "Contr. 88",
+      "Contr. 89",
+      "Contr. 90",
+      "FX 1 Depth",
+      "FX 2 Depth",
+      "FX 3 Depth",
+      "FX 4 Depth",
+      "FX 5 Depth",
+      "Data Incr",
+      "Data Decr",
+      "Non-RegLSB",
+      "Non-RegMSB",
+      "Reg LSB",
+      "Reg MSB",
+      "Contr. 102",
+      "Contr. 103",
+      "Contr. 104",
+      "Contr. 105",
+      "Contr. 106",
+      "Contr. 107",
+      "Contr. 108",
+      "Contr. 109",
+      "Contr. 110",
+      "Contr. 111",
+      "Contr. 112",
+      "Contr. 113",
+      "Contr. 114",
+      "Contr. 115",
+      "Contr. 116",
+      "Contr. 117",
+      "Contr. 118",
+      "Contr. 119",
+      "Contr. 120",
+      "Reset Ctrl",
+      "Local Ctrl",
+      "AllNoteOff",
+      "OmniModOff",
+      "OmniModeOn",
+      "MonoModeOn",
+      "PolyModeOn"
+    };
+    
+    return ccNameStrs[idx];
+  }
   /** /todo */
   void LogMsg()
   {

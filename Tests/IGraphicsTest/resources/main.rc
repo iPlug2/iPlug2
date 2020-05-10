@@ -154,6 +154,8 @@ BEGIN
     "ROBOTO_FN TTF ROBOTO_FN\r\n"
     "MONTSERRAT_FN TTF MONTSERRAT_FN\r\n"
     "SMILEY_FN PNG SMILEY_FN\r\n"
+    "SRC_FN PNG SRC_FN\r\n"
+    "DST_FN PNG DST_FN\r\n"
     "\r\n"
     "\0"
 END
@@ -241,6 +243,7 @@ ROBOTO_FN TTF ROBOTO_FN
 MONTSERRAT_FN TTF MONTSERRAT_FN
 SMILEY_FN PNG SMILEY_FN
 IPLUG_FN PNG IPLUG_FN
-
+SRC_FN PNG SRC_FN
+DST_FN PNG DST_FN
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED

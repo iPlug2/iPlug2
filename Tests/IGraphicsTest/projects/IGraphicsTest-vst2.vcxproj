@@ -258,6 +258,32 @@
     <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVMultiSliderControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVScopeControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestAnimationControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestArcControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestBezierControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestBlendControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestColorControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestControls.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestCursorControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestDirBrowseControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestDrawContextControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestDropShadowControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestFontControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestGFXLabel.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestGLControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestGradientControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestImageControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestKeyboardControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestLayerControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestMultiPathControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestMultiTouchControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestPolyControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestShadowGradientControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestSizeControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestSVGControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestTextControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestTextOrientationControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestTextSizeControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.h" />
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsAGG_src.h" />
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsCairo.h" />
@@ -265,6 +291,7 @@
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsLice_src.h" />
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.h" />
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h" />
+    <ClInclude Include="..\..\..\IGraphics\Extras\IGraphicsFlexBox.h" />
     <ClInclude Include="..\..\..\IGraphics\IControl.h" />
     <ClInclude Include="..\..\..\IGraphics\IGraphics.h" />
     <ClInclude Include="..\..\..\IGraphics\IGraphicsConstants.h" />
@@ -278,6 +305,7 @@
     <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_src.h" />
     <ClInclude Include="..\..\..\IGraphics\IGraphics_select.h" />
+    <ClInclude Include="..\..\..\IGraphics\ISender.h" />
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsLinux.h" />
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsMac.h" />
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsMac_view.h" />
@@ -291,6 +319,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugPaths.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugStructs.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugTimer.h" />
@@ -361,6 +390,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Extras\IGraphicsFlexBox.cpp" />
     <ClCompile Include="..\..\..\IGraphics\IControl.cpp" />
     <ClCompile Include="..\..\..\IGraphics\IGraphics.cpp" />
     <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp" />

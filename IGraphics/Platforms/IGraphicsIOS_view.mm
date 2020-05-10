@@ -13,8 +13,8 @@
 #endif
 
 #import <QuartzCore/QuartzCore.h>
-#ifdef IGRAPHICS_IMGUI
 #import <Metal/Metal.h>
+#ifdef IGRAPHICS_IMGUI
 #include "imgui.h"
 #import "imgui_impl_metal.h"
 #endif
@@ -197,10 +197,17 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   self.delegate = self;
   self.scrollEnabled = NO;
   
-  self.layer.opaque = YES;
-  self.layer.contentsScale = [UIScreen mainScreen].scale;
+#ifdef IGRAPHICS_METAL
+  mMTLLayer = [[CAMetalLayer alloc] init];
+  mMTLLayer.device = MTLCreateSystemDefaultDevice();
+  mMTLLayer.framebufferOnly = YES;
+  mMTLLayer.frame = self.layer.frame;
+  mMTLLayer.opaque = YES;
+  mMTLLayer.contentsScale = [UIScreen mainScreen].scale;
+  [self.layer addSublayer: mMTLLayer];
+#endif
   
-//  self.multipleTouchEnabled = YES;
+  self.multipleTouchEnabled = NO;
   
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillBeHidden:) name:UIKeyboardWillHideNotification object:nil];
@@ -225,81 +232,81 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   // Since drawable size is in pixels, we need to multiply by the scale to move from points to pixels
   drawableSize.width *= scale;
   drawableSize.height *= scale;
-  
-  self.metalLayer.drawableSize = drawableSize;
+    
+  mMTLLayer.drawableSize = drawableSize;
   #endif
 }
 
-- (void) getTouchXY: (CGPoint) pt x: (float*) pX y: (float*) pY
+- (void) onTouchEvent:(ETouchEvent)eventType withTouches:(NSSet*)touches withEvent:(UIEvent*)event
 {
-  if (mGraphics)
+  if(mGraphics == nullptr) //TODO: why?
+    return;
+  
+  NSEnumerator* pEnumerator = [[event allTouches] objectEnumerator];
+  UITouch* pTouch;
+  
+  std::vector<IMouseInfo> points;
+
+  while ((pTouch = [pEnumerator nextObject]))
   {
-    *pX = pt.x / mGraphics->GetDrawScale();
-    *pY = pt.y / mGraphics->GetDrawScale();
+    CGPoint pos = [pTouch locationInView:pTouch.view];
+    
+    IMouseInfo point;
+    
+    auto ds = mGraphics->GetDrawScale();
+    
+    point.ms.L = true;
+    point.ms.touchID = reinterpret_cast<ITouchID>(pTouch);
+    point.ms.touchRadius = [pTouch majorRadius];
+  
+    point.x = pos.x / ds;
+    point.y = pos.y / ds;
+    CGPoint posPrev = [pTouch previousLocationInView: self];
+    point.dX = (pos.x - posPrev.x) / ds;
+    point.dY = (pos.y - posPrev.y) / ds;
+    
+    if([touches containsObject:pTouch])
+      points.push_back(point);
   }
+
+//  DBGMSG("%lu\n", points[0].ms.idx);
+  
+  if(eventType == ETouchEvent::Began)
+    mGraphics->OnMouseDown(points);
+  
+  if(eventType == ETouchEvent::Moved)
+    mGraphics->OnMouseDrag(points);
+  
+  if(eventType == ETouchEvent::Ended)
+    mGraphics->OnMouseUp(points);
+  
+  if(eventType == ETouchEvent::Cancelled)
+    mGraphics->OnTouchCancelled(points);
 }
 
-- (void) touchesBegan: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
+- (void) touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event
 {
-  if(mTextField)
-    [self endUserInput];
-  
-  UITouch* pTouch = [pTouches anyObject];
-  CGPoint pt = [pTouch locationInView: self];
-
-  IMouseInfo info;
-  info.ms.L = true;
-  [self getTouchXY:pt x:&info.x y:&info.y];
-  
-  if(mGraphics)
-    mGraphics->OnMouseDown(info.x, info.y, info.ms);
+  [self onTouchEvent:ETouchEvent::Began withTouches:touches withEvent:event];
 }
 
-- (void) touchesMoved: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
+- (void) touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event
 {
-  UITouch* pTouch = [pTouches anyObject];
-
-  CGPoint pt = [pTouch locationInView: self];
-  CGPoint ptPrev = [pTouch previousLocationInView: self];
-
-  IMouseInfo info;
-  [self getTouchXY:pt x:&info.x y:&info.y];
-  float prevX, prevY;
-  [self getTouchXY:ptPrev x:&prevX y:&prevY];
-
-  float dX = info.x - prevX;
-  float dY = info.y - prevY;
-  
-  if(mGraphics)
-    mGraphics->OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+  [self onTouchEvent:ETouchEvent::Moved withTouches:touches withEvent:event];
 }
 
-- (void) touchesEnded: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
+- (void) touchesEnded:(NSSet*)touches withEvent:(UIEvent*)event
 {
-  UITouch* pTouch = [pTouches anyObject];
-
-  CGPoint pt = [pTouch locationInView: self];
-  
-  IMouseInfo info;
-  [self getTouchXY:pt x:&info.x y:&info.y];
-  
-  if(mGraphics)
-    mGraphics->OnMouseUp(info.x, info.y, info.ms);
+  [self onTouchEvent:ETouchEvent::Ended withTouches:touches withEvent:event];
 }
 
-- (void) touchesCancelled: (NSSet*) pTouches withEvent: (UIEvent*) pEvent
+- (void) touchesCancelled:(NSSet*)touches withEvent:(UIEvent*)event
 {
-  //  [self pTouchesEnded: pTouches withEvent: event];
+  [self onTouchEvent:ETouchEvent::Cancelled withTouches:touches withEvent:event];
 }
 
 - (CAMetalLayer*) metalLayer
 {
-  return (CAMetalLayer*) self.layer;
-}
-
-- (void)viewDidDisappear
-{
-  [self.displayLink invalidate];
+  return mMTLLayer;
 }
 
 - (void)didMoveToSuperview
@@ -317,7 +324,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     self.displayLink = nil;
   }
 }
-
 
 - (void)drawRect:(CGRect)rect
 {
@@ -363,6 +369,12 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   [self.displayLink invalidate];
   self.displayLink = nil;
+  mTextField = nil;
+  mGraphics = nil;
+  mMenuTableController = nil;
+  mMenuNavigationController = nil;
+  [mMTLLayer removeFromSuperlayer];
+  mMTLLayer = nil;
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField reason:(UITextFieldDidEndEditingReason)reason
@@ -435,7 +447,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return UIModalPresentationNone;
 }
 
-- (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
+- (BOOL)presentationControllerShouldDismiss:(UIPopoverPresentationController *)popoverPresentationController
 {
   return YES;
 }
@@ -751,15 +763,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     return FALSE;
 }
 
-+ (Class) layerClass
-{
-#ifdef IGRAPHICS_METAL
-  return [CAMetalLayer class];
-#else
-  return [CALayer class];
-#endif
-}
-
 - (void)keyboardWillShow:(NSNotification*) notification
 {
   NSDictionary* info = [notification userInfo];
@@ -795,6 +798,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics->SetAllControlsDirty();
 }
 
+- (void)presentationControllerDidDismiss: (UIPresentationController *) presentationController
+{
+  mGraphics->SetControlValueAfterPopupMenu(nullptr);
+}
+
 @end
 
 #ifdef IGRAPHICS_IMGUI
@@ -807,7 +815,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   mView = pView;
   self = [super initWithFrame:[pView frame] device: MTLCreateSystemDefaultDevice()];
-  if(self) {
+  
+  if(self)
+  {
     _commandQueue = [self.device newCommandQueue];
     self.layer.opaque = NO;
   }

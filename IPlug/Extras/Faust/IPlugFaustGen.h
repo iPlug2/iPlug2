@@ -141,7 +141,7 @@ class FaustGen : public IPlugFaust
     llvm_dsp_factory* CreateFactoryFromBitCode();
     llvm_dsp_factory* CreateFactoryFromSourceCode();
     
-    /** If DSP allready exists will return it, otherwise create it
+    /** If DSP already exists will return it, otherwise create it
      * @return pointer to the DSP instance */
     ::dsp* GetDSP(int maxInputs, int maxOutputs);
 
@@ -167,31 +167,25 @@ class FaustGen : public IPlugFaust
     void AddLibraryPath(const char* libraryPath);
     void AddCompileOption(const char* key, const char* value = "");
   private:
-    struct FMeta : public Meta, public std::map<std::string, std::string>
+    struct FMeta : public Meta
     {
-      void declare(const char *key, const char *value)
+      void declare(const char* key, const char* value) override
       {
-//        DBGMSG("FaustGen: metadata:\n");
+        DBGMSG("FaustGen: metadata:\n");
 
-//        if ((strcmp("name", key) == 0) || (strcmp("author", key) == 0))
-//        {
-//          DBGMSG("\t\tkey:%s : %s\n", key, value);
-//        }
-
-        (*this)[key] = value;
+        if ((strcmp("name", key) == 0) || (strcmp("author", key) == 0))
+        {
+          DBGMSG("\t\tkey:%s : %s\n", key, value);
+        }
+        items.AddUnsorted(key, value);
       }
 
-      const std::string get(const char *key, const char *def)
+      const std::string get(const char* key, const char* value)
       {
-        if (this->find(key) != this->end())
-        {
-          return (*this)[key];
-        }
-        else
-        {
-          return def;
-        }
+        return items.Get(key, value);
       }
+
+      WDL_StringKeyedArray<const char*> items;
     };
 
   private:
@@ -221,7 +215,7 @@ class FaustGen : public IPlugFaust
 public:
 
   FaustGen(const char* name, const char* inputDSPFile = 0, int nVoices = 1, int rate = 1,
-           const char* outputCPPFile = 0, const char* drawPath = 0, const char* libraryPath = DEFAULT_FAUST_LIBRARY_PATH);
+           const char* outputCPPFile = 0, const char* drawPath = 0, const char* libraryPath = FAUST_LIBRARY_PATH);
 
   ~FaustGen();
 

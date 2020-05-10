@@ -49,7 +49,8 @@ jobs:
     and
     (
       in(dependencies.BUILD_WEB_PROJECTS.result, 'Succeeded'),
-      eq(variables.publish_pages, true)
+      eq(variables.publish_pages, true),
+      ne(variables['Build.Reason'], 'PullRequest')
     )
 
   pool:
@@ -63,6 +64,7 @@ jobs:
     displayName: Clone website repo
     env:
       GITHUB_PAT: $(GITHUB_PAT)
+      PUBLISH_USER: $(PUBLISH_USER)
 
   - template: projects.yml
     parameters:

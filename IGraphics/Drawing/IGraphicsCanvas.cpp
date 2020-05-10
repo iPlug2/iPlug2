@@ -116,6 +116,7 @@ void IGraphicsCanvas::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int
   context.call<void>("clip");
   context.call<void>("drawImage", img, srcX * bs, srcY * bs, sr.W(), sr.H(), bounds.L, bounds.T, bounds.W(), bounds.H());
   GetContext().call<void>("restore");
+  PathClear();
 }
 
 void IGraphicsCanvas::PathClear()
@@ -250,18 +251,16 @@ void IGraphicsCanvas::SetCanvasBlendMode(val& context, const IBlend* pBlend)
   
   switch (pBlend->mMethod)
   {
-    case EBlend::Default:       // fall through
-    case EBlend::Clobber:       // fall through
-    case EBlend::SourceOver:    context.set("globalCompositeOperation", "source-over");        break;
-    case EBlend::SourceIn:      context.set("globalCompositeOperation", "source-in");          break;
-    case EBlend::SourceOut:     context.set("globalCompositeOperation", "source-out");         break;
-    case EBlend::SourceAtop:    context.set("globalCompositeOperation", "source-atop");        break;
-    case EBlend::DestOver:      context.set("globalCompositeOperation", "destination-over");   break;
-    case EBlend::DestIn:        context.set("globalCompositeOperation", "destination-in");     break;
-    case EBlend::DestOut:       context.set("globalCompositeOperation", "destination-out");    break;
-    case EBlend::DestAtop:      context.set("globalCompositeOperation", "destination-atop");   break;
-    case EBlend::Add:           context.set("globalCompositeOperation", "lighter");            break;
-    case EBlend::XOR:           context.set("globalCompositeOperation", "xor");                break;
+    case EBlend::SrcOver:    context.set("globalCompositeOperation", "source-over");        break;
+    case EBlend::SrcIn:      context.set("globalCompositeOperation", "source-in");          break;
+    case EBlend::SrcOut:     context.set("globalCompositeOperation", "source-out");         break;
+    case EBlend::SrcAtop:    context.set("globalCompositeOperation", "source-atop");        break;
+    case EBlend::DstOver:    context.set("globalCompositeOperation", "destination-over");   break;
+    case EBlend::DstIn:      context.set("globalCompositeOperation", "destination-in");     break;
+    case EBlend::DstOut:     context.set("globalCompositeOperation", "destination-out");    break;
+    case EBlend::DstAtop:    context.set("globalCompositeOperation", "destination-atop");   break;
+    case EBlend::Add:        context.set("globalCompositeOperation", "lighter");            break;
+    case EBlend::XOR:        context.set("globalCompositeOperation", "xor");                break;
   }
 }
 
@@ -300,12 +299,13 @@ void IGraphicsCanvas::PrepareAndMeasureText(const IText& text, const char* str, 
   r = IRECT((float) x, (float) (y - ascender), (float) (x + textWidth), (float) (y + textHeight - ascender));
 }
 
-void IGraphicsCanvas::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+float IGraphicsCanvas::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   IRECT r = bounds;
   double x, y;
   PrepareAndMeasureText(text, str, bounds, x, y);
   DoMeasureTextRotation(text, r, bounds);
+  return bounds.W();
 }
 
 void IGraphicsCanvas::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
@@ -336,13 +336,10 @@ void IGraphicsCanvas::SetClipRegion(const IRECT& r)
   val context = GetContext();
   context.call<void>("restore");
   context.call<void>("save");
-  if (!r.Empty())
-  {
-    context.call<void>("beginPath");
-    context.call<void>("rect", r.L, r.T, r.W(), r.H());
-    context.call<void>("clip");
-    context.call<void>("beginPath");
-  }
+  context.call<void>("beginPath");
+  context.call<void>("rect", r.L, r.T, r.W(), r.H());
+  context.call<void>("clip");
+  context.call<void>("beginPath");
 }
 
 bool IGraphicsCanvas::BitmapExtSupported(const char* ext)
@@ -536,7 +533,7 @@ void IGraphicsCanvas::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, con
       pixelData.set(i, in[i]);
     
     localContext.call<void>("putImageData", imageData, 0, 0);
-    IBlend blend(EBlend::SourceIn, shadow.mOpacity);
+    IBlend blend(EBlend::SrcIn, shadow.mOpacity);
     localContext.call<void>("rect", 0, 0, width, height);
     localContext.call<void>("scale", scale, scale);
     localContext.call<void>("translate", -(layer->Bounds().L + shadow.mXOffset), -(layer->Bounds().T + shadow.mYOffset));

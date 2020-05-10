@@ -50,7 +50,7 @@ enum EIPlugPluginType
 
 enum EVST3ParamIDs
 {
-#ifndef IPLUG1_COMPATIBILITY
+#ifdef IPLUG1_COMPATIBILITY
   kBypassParam = 'bpas',
   kPresetParam = 'prst',
   kMIDICCParamStartIdx

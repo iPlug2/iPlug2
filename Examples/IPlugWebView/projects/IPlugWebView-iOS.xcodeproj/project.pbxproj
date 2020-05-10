@@ -10,7 +10,7 @@
 		4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103420A0E55900D3092F /* IPlugProcessor.cpp */; };
 		4F10E7C020B17EDB00F5B09B /* IPlugWebView-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugWebView-iOS-MainInterface.storyboard */; };
 		4F1115CF2296DA95000CFCBF /* IPlugWebView-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugWebView-iOS-MainInterface.storyboard */; };
-		4F11D43723201FF9003E1647 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F11D43523201FF9003E1647 /* IPlugWebViewEditorDelegate.mm */; };
+		4F11D43723201FF9003E1647 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F11D43523201FF9003E1647 /* IPlugWebViewEditorDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F11D43823201FF9003E1647 /* IPlugWebViewEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F11D43623201FF9003E1647 /* IPlugWebViewEditorDelegate.h */; };
 		4F11D43D2320294F003E1647 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E58231440C8000045E7 /* web */; };
 		4F32AE7D231431BD00710734 /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA61F6E22E899B500A92C58 /* AUv3Framework.framework */; };
@@ -512,15 +512,15 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 1030;
+				LastUpgradeCheck = 1130;
 				TargetAttributes = {
 					4FA61F6D22E899B500A92C58 = {
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						ProvisioningStyle = Automatic;
 					};
 					91236D0C1B08F42B00734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						LastSwiftMigration = 1010;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -536,7 +536,7 @@
 					};
 					91236D761B08F59300734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						LastSwiftMigration = 1010;
 					};
 				};
@@ -710,7 +710,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IPlugWebView.AUv3Framework;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugWebView.AUv3Framework;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -762,7 +762,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IPlugWebView.AUv3Framework;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugWebView.AUv3Framework;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -813,7 +813,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugWebViewApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugWebView;
 				PRODUCT_NAME = IPlugWebView;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -859,7 +859,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugWebView-iOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugWebViewApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugWebView;
 				PRODUCT_NAME = IPlugWebView;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
@@ -908,7 +908,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugWebViewApp.IPlugWebViewAppExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugWebView.AUv3;
 				PRODUCT_NAME = IPlugWebViewAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -953,7 +953,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugWebView-iOS-AUv3-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugWebViewApp.IPlugWebViewAppExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugWebView.AUv3;
 				PRODUCT_NAME = IPlugWebViewAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;

@@ -117,6 +117,19 @@ void IParam::InitEnum(const char* name, int defaultVal, int nEnums, const char* 
   }
 }
 
+void IParam::InitEnum(const char* name, int defaultVal, const std::initializer_list<const char*>& listItems, int flags, const char* group)
+{
+  if (mType == kTypeNone) mType = kTypeEnum;
+
+  InitInt(name, defaultVal, 0, static_cast<int>(listItems.size()) - 1, "", flags | kFlagStepped, group);
+
+  int idx = 0;
+  for (auto& item : listItems)
+  {
+    SetDisplayText(idx++, item);
+  }
+}
+
 void IParam::InitInt(const char* name, int defaultVal, int minVal, int maxVal, const char* label, int flags, const char* group)
 {
   if (mType == kTypeNone) mType = kTypeInt;
@@ -239,6 +252,11 @@ void IParam::SetDisplayText(double value, const char* str)
   DisplayText* pDT = mDisplayTexts.Get() + n;
   pDT->mValue = value;
   strcpy(pDT->mText, str);
+}
+
+void IParam::SetDisplayPrecision(int precision)
+{
+  mDisplayPrecision = precision;
 }
 
 void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText) const

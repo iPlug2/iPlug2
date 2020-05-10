@@ -1331,7 +1331,7 @@ error:
 
 static void mtlnvg__renderTriangles(
     void* uptr, NVGpaint* paint, NVGcompositeOperationState compositeOperation,
-    NVGscissor* scissor, const NVGvertex* verts, int nverts) {
+    NVGscissor* scissor, const NVGvertex* verts, int nverts, float fringe) {
   MNVGcontext* mtl = (__bridge MNVGcontext*)uptr;
   MNVGcall* call = mtlnvg__allocCall(mtl);
   MNVGfragUniforms* frag;
@@ -1354,7 +1354,7 @@ static void mtlnvg__renderTriangles(
   call->uniformOffset = mtlnvg__allocFragUniforms(mtl, 1);
   if (call->uniformOffset == -1) goto error;
   frag = mtlnvg__fragUniformPtr(mtl.buffers, call->uniformOffset);
-  mtlnvg__convertPaint(mtl, frag, paint, scissor, 1.0f, 1.0f, -1.0f);
+  mtlnvg__convertPaint(mtl, frag, paint, scissor, 1.0f, fringe, -1.0f);
   frag->type = MNVG_SHADER_IMG;
 
   return;

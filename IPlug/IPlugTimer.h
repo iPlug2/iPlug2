@@ -33,29 +33,12 @@
 
 #if defined OS_MAC || defined OS_IOS
 #include <CoreFoundation/CoreFoundation.h>
+#elif defined OS_WEB
+#include <emscripten/html5.h>
 #endif
 
 BEGIN_IPLUG_NAMESPACE
 
-#if defined OS_WEB || (defined OS_LINUX && !defined APP_API)
-/** Base class for dummy timer for OS WEB and linux !APP */
-struct Timer
-{
-  Timer() = default;
-  Timer(const Timer&) = delete;
-  Timer& operator=(const Timer&) = delete;
-  
-  using ITimerFunction = std::function<void(Timer& t)>;
-
-  static Timer* Create(ITimerFunction func, uint32_t intervalMs)
-  {
-    return new Timer();
-  }
-  void Stop()
-  {
-  }
-};
-#else
 /** Base class for timer */
 struct Timer
 {
@@ -70,7 +53,6 @@ struct Timer
   virtual ~Timer() {};
   virtual void Stop() = 0;
 };
-#endif
 
 #if defined OS_MAC || defined OS_IOS
 
@@ -107,7 +89,19 @@ private:
 #elif defined OS_LINUX
 // other API on Linux do not support unrelated timers
 #elif defined OS_WEB
-#else
+class Timer_impl : public Timer
+{
+public:
+  Timer_impl(ITimerFunction func, uint32_t intervalMs);
+  ~Timer_impl();
+  void Stop() override;
+  static void TimerProc(void *userData);
+  
+private:
+  long ID = 0;
+  ITimerFunction mTimerFunc;
+};
+#elif
   #error NOT IMPLEMENTED
 #endif
 

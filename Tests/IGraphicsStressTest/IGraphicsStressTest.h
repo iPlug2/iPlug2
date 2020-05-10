@@ -22,7 +22,7 @@ enum EControlTags
 using namespace iplug;
 using namespace igraphics;
 
-class IGraphicsStressTest : public Plugin
+class IGraphicsStressTest final : public Plugin
 {
 public:
   IGraphicsStressTest(const InstanceInfo& info);
