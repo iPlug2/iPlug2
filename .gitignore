@@ -45,3 +45,4 @@ Examples/build_errors.log
 Examples/IPlugSwift/Pods
 PodFile.lock
 */*/.vscode/ipch
+Examples/Build

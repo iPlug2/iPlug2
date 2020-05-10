@@ -59,7 +59,7 @@ public:
 
   static int GetUserOSVersion();
   bool GetTextFromClipboard(WDL_String& str) override { return false; } // TODO
-  bool SetTextInClipboard(const WDL_String& str) override { return false; } // TODO
+  bool SetTextInClipboard(const char* str) override { return false; } // TODO
 
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
@@ -82,9 +82,14 @@ protected:
   void ShowTooltip() {} // TODO
   void HideTooltip() {} // TODO
 
-  IPopupMenu *CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds) override { return nullptr; } // TODO
+  IPopupMenu *CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) override { return nullptr; } // TODO
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override { } // TODO
 
+  virtual void GetMouseLocation(float& x, float&y) const
+  {
+    //TODO:
+  }
+  
 private:
 
   xcbt         mX = NULL;

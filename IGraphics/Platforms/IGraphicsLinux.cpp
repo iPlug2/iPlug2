@@ -143,6 +143,7 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t *evt){
               if ((bp->time - mLastLeftClickStamp) < 500) // MAYBE: somehow find user settings
               {
                 IMouseInfo info = GetMouseInfo(bp->event_x, bp->event_y, bp->state | XCB_BUTTON_MASK_1); // convert button to state mask
+
                 if (OnMouseDblClick(info.x, info.y, info.ms))
                 {
                   // TODO: SetCapture(hWnd);
@@ -167,7 +168,8 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t *evt){
           if((bp->detail == 1) || (bp->detail == 3)){ // left/right
             uint16_t state = bp->state | (0x80<<bp->detail); // merge state before with pressed button
             IMouseInfo info = GetMouseInfo(bp->event_x, bp->event_y, state); // convert button to state mask
-            OnMouseDown(info.x, info.y, info.ms);
+            std::vector<IMouseInfo> list{ info };
+            OnMouseDown(list);
           } else if((bp->detail == 4) || (bp->detail == 5)){ // wheel
             IMouseInfo info = GetMouseInfo(bp->event_x, bp->event_y, bp->state);
             OnMouseWheel(info.x, info.y, info.ms, bp->detail == 4 ? 1. : -1);
@@ -182,7 +184,8 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t *evt){
           if((br->detail == 1) || (br->detail == 3)){ // we do not process other buttons, at least not yet
             uint16_t state = br->state & ~(0x80<<br->detail); // merge state before with released button
             IMouseInfo info = GetMouseInfo(br->event_x, br->event_y, state); // convert button to state mask
-            OnMouseUp(info.x, info.y, info.ms);
+            std::vector<IMouseInfo> list{ info };
+            OnMouseUp(list);
           }
           xcbt_flush(mX);
           break;
@@ -204,10 +207,14 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t *evt){
 
             } else {
               float dX, dY;
-              IMouseInfo info = GetMouseInfoDeltas(dX, dY, mn->event_x, mn->event_y, mn->state);
+              IMouseInfo info = GetMouseInfoDeltas(dX, dY, mn->event_x, mn->event_y, mn->state); //TODO: clean this up
               if (dX || dY)
               {
-                OnMouseDrag(info.x, info.y, dX, dY, info.ms);
+                info.dX = dX;
+                info.dY = dY;
+                std::vector<IMouseInfo> list{ info };
+
+                OnMouseDrag(list);
                 /* TODO:
                 if (MouseCursorIsLocked())
                   MoveMouseCursor(pGraphics->mHiddenCursorX, pGraphics->mHiddenCursorY);
