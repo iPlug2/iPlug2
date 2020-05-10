@@ -1364,11 +1364,25 @@ void ISVGSliderControl::OnResize()
   auto handleAspectRatio = mHandleSVG.W() / mHandleSVG.H();
   auto handleOverTrackHeight = mHandleSVG.H() / mTrackSVG.H();
 
-  mTrackSVGBounds = mRECT.GetCentredInside(mRECT.H() * trackAspectRatio, mRECT.H());
+  IRECT handleBoundsAtMidPoint;
+  
+  if (mDirection == EDirection::Vertical)
+  {
+    mTrackSVGBounds = mRECT.GetCentredInside(mRECT.H() * trackAspectRatio, mRECT.H());
 
-  IRECT handleBoundsAtMidPoint = mRECT.GetCentredInside(mRECT.H() * handleAspectRatio * handleOverTrackHeight, mRECT.H() * handleOverTrackHeight);
-  mHandleBoundsAtMax = { handleBoundsAtMidPoint.L, mTrackSVGBounds.T, handleBoundsAtMidPoint.R, mTrackSVGBounds.T + handleBoundsAtMidPoint.H() };
-  mTrackBounds = mTrackSVGBounds.GetPadded(0, -handleBoundsAtMidPoint.H(), 0, 0);
+    handleBoundsAtMidPoint = mRECT.GetCentredInside(mRECT.H() * handleAspectRatio * handleOverTrackHeight, mRECT.H() * handleOverTrackHeight);
+    mHandleBoundsAtMax = { handleBoundsAtMidPoint.L, mTrackSVGBounds.T, handleBoundsAtMidPoint.R, mTrackSVGBounds.T + handleBoundsAtMidPoint.H() };
+    mTrackBounds = mTrackSVGBounds.GetPadded(0, -handleBoundsAtMidPoint.H(), 0, 0);
+  }
+  else
+  {
+    mTrackSVGBounds = mRECT.GetCentredInside(mRECT.W(), mRECT.W() / trackAspectRatio);
+    auto handleHeight = mTrackSVGBounds.H() * handleOverTrackHeight;
+    handleBoundsAtMidPoint = mRECT.GetCentredInside(handleHeight * handleAspectRatio, handleHeight);
+    auto halfHeight = handleBoundsAtMidPoint.H() / 2.f;
+    mHandleBoundsAtMax = { mTrackSVGBounds.R - handleBoundsAtMidPoint.W(), mTrackSVGBounds.MH() - halfHeight, mTrackSVGBounds.R, mTrackSVGBounds.MH() + halfHeight };
+    mTrackBounds = mTrackSVGBounds.GetPadded(-handleBoundsAtMidPoint.W(), 0, 0, 0);
+  }
 
   SetDirty(false);
 }
@@ -1388,9 +1402,9 @@ IRECT ISVGSliderControl::GetHandleBounds(double value) const
   }
   else
   {
-    float offs = (float) value * mTrackBounds.W();
-    r.L += offs;
-    r.R += offs;
+    float offs = (1.f - (float) value) * mTrackBounds.W();
+    r.L -= offs;
+    r.R -= offs;
   }
 
   return r;

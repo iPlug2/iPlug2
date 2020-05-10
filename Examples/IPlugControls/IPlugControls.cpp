@@ -50,7 +50,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     const IBitmap bitmapText = pGraphics->LoadBitmap(PNGTEXT_FN, 95, true);
     const ISVG sliderHandleSVG = pGraphics->LoadSVG(SVGSLIDERHANDLE_FN);
     const ISVG sliderTrackSVG = pGraphics->LoadSVG(SVGSLIDERTRACK_FN);
-
+    const ISVG hsliderHandleSVG = pGraphics->LoadSVG(SVGHSLIDERHANDLE_FN);
+    const ISVG hsliderTrackSVG = pGraphics->LoadSVG(SVGHSLIDERTRACK_FN);
     const ISVG knobSVG = pGraphics->LoadSVG(SVGKNOBROTATE_FN);
     
     const IVStyle style {
@@ -145,7 +146,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new ISVGKnobControl(sameCell().GetCentredInside(100), knobSVG, kParamGain), kNoTag, "svgcontrols");
     
     AddLabel("ISVGSliderControl");
-    pGraphics->AttachControl(new ISVGSliderControl(sameCell().GetCentredInside(30, 100), sliderHandleSVG, sliderTrackSVG, kParamGain), kNoTag, "svgcontrols");
+    pGraphics->AttachControl(new ISVGSliderControl(sameCell().GetCentredInside(30, 100), sliderHandleSVG, sliderTrackSVG, kParamGain, EDirection::Vertical), kNoTag, "svgcontrols");
+
     //pGraphics->AttachControl(new IVGroupControl("SVG Controls", "svgcontrols", 10.f, 30.f, 10.f, 10.f));
 
 #pragma mark IVControls -
@@ -155,7 +157,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IVSliderControl(nextCell(), kParamGain, "IVSliderControl", style.WithRoundness(1.f), true, EDirection::Vertical, DEFAULT_GEARING, 6.f, 6.f, true), kCtrlTagVectorSlider, "vcontrols");
     pGraphics->AttachControl(new IVSliderControl(nextCell().SubRectVertical(3, 0), kParamGain, "IVSliderControl H", style, true, EDirection::Horizontal), kCtrlTagVectorSlider, "vcontrols");
     pGraphics->AttachControl(new IVRangeSliderControl(sameCell().SubRectVertical(3, 1), {kParamFreq1, kParamFreq2}, "IVRangeSliderControl", style, EDirection::Horizontal, true, 8.f, 2.f), kNoTag, "vcontrols");
-
+    pGraphics->AttachControl(new ISVGSliderControl(sameCell().SubRectVertical(3, 2), hsliderHandleSVG, hsliderTrackSVG, kParamGain, EDirection::Horizontal), kNoTag, "svgcontrols")->SetTooltip("ISVGSlider H");
+    
     auto button1action = [pGraphics](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
       pGraphics->ShowMessageBox("Message Title", "Message", kMB_YESNO, [&](EMsgBoxResult result) {
