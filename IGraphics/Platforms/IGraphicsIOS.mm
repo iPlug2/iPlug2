@@ -31,6 +31,19 @@ void GetScreenDimensions(int& width, int& height)
   height = bounds.size.height;
 }
 
+float GetScaleForScreen(int plugHeight)
+{
+  float scale = 1.f;
+  int width, height;
+  GetScreenDimensions(width, height);
+  if(height > width)
+    scale = (float) width / (float) plugHeight;
+  else
+    scale = (float) height / (float) plugHeight;
+  
+  return scale;
+}
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 

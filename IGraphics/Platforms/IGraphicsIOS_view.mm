@@ -864,8 +864,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void) getLastTouchLocation: (float&) x : (float&) y
 {
-  x = mPrevX;
-  y = mPrevY;
+  const float scale = mGraphics->GetDrawScale();
+  x = mPrevX * scale;
+  y = mPrevY * scale;
 }
 
 @end
