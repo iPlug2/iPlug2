@@ -172,6 +172,11 @@ const char* IGraphicsIOS::GetPlatformAPIStr()
   return "iOS";
 }
 
+void IGraphicsIOS::GetMouseLocation(float& x, float&y) const
+{
+  [(IGRAPHICS_VIEW*) mView getLastTouchLocation: x : y];
+}
+
 void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext)
 {
 }
@@ -182,6 +187,7 @@ void IGraphicsIOS::PromptForDirectory(WDL_String& dir)
 
 bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
+  [(IGRAPHICS_VIEW*) mView promptForColor: color: str: func];
   return false;
 }
 
