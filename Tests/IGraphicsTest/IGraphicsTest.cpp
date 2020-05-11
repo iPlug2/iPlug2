@@ -106,7 +106,8 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
 
       pGraphics->RemoveControlWithTag(kCtrlTagTestControl);
       
-      IControl* pNewControl;
+      IControl* pNewControl = nullptr;
+      
       switch (idx) {
         case 0: pNewControl = new TestGradientControl(testRect, kParamDummy); break;
         case 1: pNewControl = new TestColorControl(testRect); break;
@@ -137,7 +138,9 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
 
       }
       
-      pGraphics->AttachControl(pNewControl, kCtrlTagTestControl);
+      if(pNewControl)
+        pGraphics->AttachControl(pNewControl, kCtrlTagTestControl);
+      
       SendCurrentParamValuesFromDelegate();
     };
     
