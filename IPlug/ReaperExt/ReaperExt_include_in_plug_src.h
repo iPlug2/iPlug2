@@ -19,6 +19,7 @@ std::unique_ptr<PLUG_CLASS_NAME> gPlug;
 RECT gPrevBounds;
 int gErrorCount = 0;
 
+/** Helper struct for registering Reaper Actions */
 struct ReaperAction
 {
   int* pToggle = nullptr;

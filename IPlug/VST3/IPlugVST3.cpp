@@ -122,15 +122,13 @@ tresult PLUGIN_API IPlugVST3::getState(IBStream* pState)
 }
 
 #pragma mark IEditController overrides
-
-//https://github.com/iPlug2/iPlug2/issues/488
-//ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
-//{
-//  if (tag >= kBypassParam)
-//    return EditControllerEx1::getParamNormalized(tag);
-//
-//  return IPlugVST3ControllerBase::GetParamNormalized(this, tag);
-//}
+ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
+{
+  if (tag >= kBypassParam)
+    return EditControllerEx1::getParamNormalized(tag);
+  
+  return IPlugVST3ControllerBase::GetParamNormalized(this, tag);
+}
 
 tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
 {
@@ -172,13 +170,20 @@ tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* pState)
 
 tresult PLUGIN_API IPlugVST3::getMidiControllerAssignment(int32 busIndex, int16 midiChannel, CtrlNumber midiCCNumber, ParamID& tag)
 {
-  if (busIndex == 0)
+  if (busIndex == 0 && midiChannel < VST3_NUM_CC_CHANS)
   {
     tag = kMIDICCParamStartIdx + (midiChannel * kCountCtrlNumber) + midiCCNumber;
     return kResultTrue;
   }
 
   return kResultFalse;
+}
+
+#pragma mark IInfoListener overrides
+
+Steinberg::tresult PLUGIN_API IPlugVST3::setChannelContextInfos(Steinberg::Vst::IAttributeList* pList)
+{
+  return IPlugVST3ControllerBase::SetChannelContextInfos(pList) ? kResultTrue : kResultFalse;
 }
 
 #pragma mark IPlugAPIBase overrides

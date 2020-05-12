@@ -110,8 +110,8 @@ IVSwitchControl::IVSwitchControl(const IRECT& bounds, IActionFunction aF, const 
 void IVSwitchControl::Draw(IGraphics& g)
 {
   DrawBackGround(g, mRECT);
-  DrawWidget(g);
   DrawLabel(g);
+  DrawWidget(g);
   DrawValue(g, false);
 }
 
@@ -534,8 +534,8 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction aF, const char
 void IVKnobControl::Draw(IGraphics& g)
 {
   DrawBackGround(g, mRECT);
-  DrawWidget(g);
   DrawLabel(g);
+  DrawWidget(g);
   DrawValue(g, mValueMouseOver);
 }
 
@@ -573,7 +573,10 @@ void IVKnobControl::DrawWidget(IGraphics& g)
 
 void IVKnobControl::DrawIndicatorTrack(IGraphics& g, float angle, float cx, float cy, float radius)
 {
-  g.DrawArc(GetColor(kX1), cx, cy, radius, angle >= mAnchorAngle ? mAnchorAngle : mAnchorAngle - (mAnchorAngle - angle), angle >= mAnchorAngle ? angle : mAnchorAngle, &mBlend, mTrackSize);
+  if (mTrackSize > 0.f)
+  {
+    g.DrawArc(GetColor(kX1), cx, cy, radius, angle >= mAnchorAngle ? mAnchorAngle : mAnchorAngle - (mAnchorAngle - angle), angle >= mAnchorAngle ? angle : mAnchorAngle, &mBlend, mTrackSize);
+  }
 }
 
 void IVKnobControl::DrawPointer(IGraphics& g, float angle, float cx, float cy, float radius)
@@ -680,8 +683,8 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const 
 void IVSliderControl::Draw(IGraphics& g)
 {
   DrawBackGround(g, mRECT);
-  DrawWidget(g);
   DrawLabel(g);
+  DrawWidget(g);
   DrawValue(g, mValueMouseOver);
 }
 
@@ -817,8 +820,8 @@ IVRangeSliderControl::IVRangeSliderControl(const IRECT& bounds, const std::initi
 void IVRangeSliderControl::Draw(IGraphics& g)
 {
   DrawBackGround(g, mRECT);
-  DrawWidget(g);
   DrawLabel(g);
+  DrawWidget(g);
 //  DrawValue(g, mValueMouseOver);
 }
 
@@ -1151,9 +1154,8 @@ void IVGroupControl::Draw(IGraphics& g)
 //  const float cr = GetRoundedCornerRadius(mWidgetBounds);
 //  g.FillRoundRect(GetColor(kBG), mWidgetBounds, cr);
 //  g.FillRect(GetColor(kBG), mLabelBounds);
-
-  DrawWidget(g);
   DrawLabel(g);
+  DrawWidget(g);
 }
 
 void IVGroupControl::DrawWidget(IGraphics& g)
@@ -1389,11 +1391,25 @@ void ISVGSliderControl::OnResize()
   auto handleAspectRatio = mHandleSVG.W() / mHandleSVG.H();
   auto handleOverTrackHeight = mHandleSVG.H() / mTrackSVG.H();
 
-  mTrackSVGBounds = mRECT.GetCentredInside(mRECT.H() * trackAspectRatio, mRECT.H());
+  IRECT handleBoundsAtMidPoint;
+  
+  if (mDirection == EDirection::Vertical)
+  {
+    mTrackSVGBounds = mRECT.GetCentredInside(mRECT.H() * trackAspectRatio, mRECT.H());
 
-  IRECT handleBoundsAtMidPoint = mRECT.GetCentredInside(mRECT.H() * handleAspectRatio * handleOverTrackHeight, mRECT.H() * handleOverTrackHeight);
-  mHandleBoundsAtMax = { handleBoundsAtMidPoint.L, mTrackSVGBounds.T, handleBoundsAtMidPoint.R, mTrackSVGBounds.T + handleBoundsAtMidPoint.H() };
-  mTrackBounds = mTrackSVGBounds.GetPadded(0, -handleBoundsAtMidPoint.H(), 0, 0);
+    handleBoundsAtMidPoint = mRECT.GetCentredInside(mRECT.H() * handleAspectRatio * handleOverTrackHeight, mRECT.H() * handleOverTrackHeight);
+    mHandleBoundsAtMax = { handleBoundsAtMidPoint.L, mTrackSVGBounds.T, handleBoundsAtMidPoint.R, mTrackSVGBounds.T + handleBoundsAtMidPoint.H() };
+    mTrackBounds = mTrackSVGBounds.GetPadded(0, -handleBoundsAtMidPoint.H(), 0, 0);
+  }
+  else
+  {
+    mTrackSVGBounds = mRECT.GetCentredInside(mRECT.W(), mRECT.W() / trackAspectRatio);
+    auto handleHeight = mTrackSVGBounds.H() * handleOverTrackHeight;
+    handleBoundsAtMidPoint = mRECT.GetCentredInside(handleHeight * handleAspectRatio, handleHeight);
+    auto halfHeight = handleBoundsAtMidPoint.H() / 2.f;
+    mHandleBoundsAtMax = { mTrackSVGBounds.R - handleBoundsAtMidPoint.W(), mTrackSVGBounds.MH() - halfHeight, mTrackSVGBounds.R, mTrackSVGBounds.MH() + halfHeight };
+    mTrackBounds = mTrackSVGBounds.GetPadded(-handleBoundsAtMidPoint.W(), 0, 0, 0);
+  }
 
   SetDirty(false);
 }
@@ -1413,9 +1429,9 @@ IRECT ISVGSliderControl::GetHandleBounds(double value) const
   }
   else
   {
-    float offs = (float) value * mTrackBounds.W();
-    r.L += offs;
-    r.R += offs;
+    float offs = (1.f - (float) value) * mTrackBounds.W();
+    r.L -= offs;
+    r.R -= offs;
   }
 
   return r;

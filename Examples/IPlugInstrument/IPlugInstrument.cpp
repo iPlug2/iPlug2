@@ -19,7 +19,7 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_HEIGHT));
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
@@ -27,12 +27,20 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->EnableMouseOver(true);
     pGraphics->EnableMultiTouch(true);
+    
+#ifdef OS_WEB
+    pGraphics->AttachPopupMenuControl();
+#endif
 
 //    pGraphics->EnableLiveEdit(true);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT b = pGraphics->GetBounds().GetPadded(-20.f);
     const IRECT lfoPanel = b.GetFromLeft(300.f).GetFromTop(200.f);
-    pGraphics->AttachControl(new IVKeyboardControl(IRECT(10, 335, PLUG_WIDTH-10, PLUG_HEIGHT-10)), kCtrlTagKeyboard);
+    IRECT keyboardBounds = b.GetFromBottom(300);
+    IRECT wheelsBounds = keyboardBounds.ReduceFromLeft(100.f).GetPadded(-10.f);
+    pGraphics->AttachControl(new IVKeyboardControl(keyboardBounds), kCtrlTagKeyboard);
+    pGraphics->AttachControl(new IWheelControl(wheelsBounds.FracRectHorizontal(0.5)), kCtrlTagBender);
+    pGraphics->AttachControl(new IWheelControl(wheelsBounds.FracRectHorizontal(0.5, true), IMidiMsg::EControlChangeMsg::kModWheel));
 //    pGraphics->AttachControl(new IVMultiSliderControl<4>(b.GetGridCell(0, 2, 2).GetPadded(-30), "", DEFAULT_STYLE, kParamAttack, EDirection::Vertical, 0.f, 1.f));
     const IRECT controls = b.GetGridCell(1, 2, 2);
     pGraphics->AttachControl(new IVKnobControl(controls.GetGridCell(0, 2, 6).GetCentredInside(90), kParamGain, "Gain"));
@@ -144,7 +152,12 @@ void IPlugInstrument::OnParamChange(int paramIdx)
 
 bool IPlugInstrument::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
-  if(msgTag == kMsgTagEnableMPE)
+  if(ctrlTag == kCtrlTagBender && msgTag == IWheelControl::kMessageTagSetPitchBendRange)
+  {
+    const int bendRange = *static_cast<const int*>(pData);
+    mDSP.mSynth.SetPitchBendRange(bendRange);
+  }
+  else if(msgTag == kMsgTagEnableMPE)
   {
     if(dataSize == sizeof(bool))
     {

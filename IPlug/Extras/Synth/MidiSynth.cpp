@@ -16,7 +16,6 @@ MidiSynth::MidiSynth(VoiceAllocator::EPolyMode mode, int blockSize)
 : mBlockSize(blockSize)
 {
   SetPolyMode(mode);
-  const int kPitchBendDefault = 7;
 
   for(int i=0; i<128; i++)
   {
@@ -28,7 +27,7 @@ MidiSynth::MidiSynth(VoiceAllocator::EPolyMode mode, int blockSize)
   for(int i=0; i<16; ++i)
   {
     mChannelStates[i] = ChannelState{0};
-    mChannelStates[i].pitchBendRange = kPitchBendDefault;
+    mChannelStates[i].pitchBendRange = kDefaultPitchBendRange;
   }
 }
 
@@ -300,6 +299,8 @@ void MidiSynth::SetMPEZones(int channel, int nChans)
       SetChannelPitchBendRange(kMPEUpperZoneMasterChannel - 1, 48);
     }
   }
+  else
+    SetPitchBendRange(mNonMPEPitchBendRange);
   
   std::cout << "MPE mode: " << (mMPEMode ? "ON" : "OFF") << "\n";
   std::cout << "MPE channels: \n    lo: " << mMPELowerZoneChannels << " hi " << mMPEUpperZoneChannels << "\n";

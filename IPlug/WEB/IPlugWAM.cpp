@@ -52,6 +52,7 @@ const char* IPlugWAM::init(uint32_t bufsize, uint32_t sr, void* pDesc)
   //TODO: correct place? - do we need a WAM reset message?
   OnParamReset(kReset);
   OnReset();
+  postMessage("StartIdleTimer", nullptr, nullptr);
 
   return json.Get();
 }
@@ -68,35 +69,34 @@ void IPlugWAM::onProcess(WAM::AudioBus* pAudio, void* pData)
   ENTER_PARAMS_MUTEX
   ProcessBuffers((float) 0.0f, blockSize);
   LEAVE_PARAMS_MUTEX
-  
-  //emulate IPlugAPIBase::OnTimer - should be called on the main thread - how to do that in audio worklet processor?
-  if(mBlockCounter == 0)
+}
+
+void IPlugWAM::OnEditorIdleTick()
+{
+  while(mParamChangeFromProcessor.ElementsAvailable())
   {
-    while(mParamChangeFromProcessor.ElementsAvailable())
-    {
-      ParamTuple p;
-      mParamChangeFromProcessor.Pop(p);
-      SendParameterValueFromDelegate(p.idx, p.value, false);
-    }
-    
-    while (mMidiMsgsFromProcessor.ElementsAvailable())
-    {
-      IMidiMsg msg;
-      mMidiMsgsFromProcessor.Pop(msg);
-      SendMidiMsgFromDelegate(msg);
-    }
-        
-    OnIdle();
-    
-    mBlockCounter = 8; // 8 * 128 samples = 23ms @ 44100 sr
+    ParamTuple p;
+    mParamChangeFromProcessor.Pop(p);
+    SendParameterValueFromDelegate(p.idx, p.value, false);
   }
-  
-  mBlockCounter--;
+
+  while (mMidiMsgsFromProcessor.ElementsAvailable())
+  {
+    IMidiMsg msg;
+    mMidiMsgsFromProcessor.Pop(msg);
+    SendMidiMsgFromDelegate(msg);
+  }
+
+  OnIdle();
 }
 
 void IPlugWAM::onMessage(char* verb, char* res, double data)
 {
-  if(strcmp(verb, "SMMFUI") == 0)
+  if(strcmp(verb, "TICK") == 0)
+  {
+    OnEditorIdleTick();
+  }
+  else if(strcmp(verb, "SMMFUI") == 0)
   {
     uint8_t data[3];
     char* pChar = strtok(res, ":");

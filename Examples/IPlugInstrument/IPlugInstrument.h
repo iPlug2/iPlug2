@@ -33,6 +33,7 @@ enum ECtrlTags
   kCtrlTagScope,
   kCtrlTagRTText,
   kCtrlTagKeyboard,
+  kCtrlTagBender,
   kNumCtrlTags
 };
 

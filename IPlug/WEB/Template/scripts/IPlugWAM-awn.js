@@ -9,16 +9,7 @@ class NAME_PLACEHOLDERController extends WAMController
     if (options.outputChannelCount === undefined)   options.outputChannelCount = [2];
     if (options.processorOptions.inputChannelCount === undefined) options.processorOptions = {inputChannelCount:[]};
 
-    if( navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ){
-      console.log("Firefox detected: SPN buffersize = 512")
-      options.buflenSPN = 512
-    }
-
-    if( navigator.userAgent.toLowerCase().indexOf('firefox') > -1 ){
-      console.log("Firefox detected: SPN buffersize = 512")
-      options.buflenSPN = 512
-    }
-
+    options.buflenSPN = 1024;
     super(actx, "NAME_PLACEHOLDER", options);
   }
 
@@ -78,5 +69,9 @@ class NAME_PLACEHOLDERController extends WAMController
       Module.SSMFD(parseInt(msg.prop), data.length, buffer);
       Module._free(buffer);
     }
+    else if(msg.verb == "StartIdleTimer") {
+      Module.StartIdleTimer();
+    }
+
   }
 }

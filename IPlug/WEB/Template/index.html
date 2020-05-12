@@ -170,19 +170,29 @@
               
               let inputBuses = [MAXNINPUTS_PLACEHOLDER];
               let outputBuses = [MAXNOUTPUTS_PLACEHOLDER];
-              let options = {numberOfInputs: inputBuses.length, numberOfOutputs: outputBuses.length, outputChannelCount: outputBuses, processorOptions: {inputChannelCount: inputBuses}};
+              let options = {numberOfInputs: inputBuses.length, inputChannelCount: inputBuses, 
+                             numberOfOutputs: outputBuses.length, outputChannelCount: outputBuses,
+                             processorOptions: {inputChannelCount: inputBuses}};
 
               NAME_PLACEHOLDERController.importScripts(actx).then(() => {
                 NAME_PLACEHOLDER_WAM = new NAME_PLACEHOLDERController(actx, options);
 
                 if(NAME_PLACEHOLDER_WAM !== undefined) {
 
-                  if(NAME_PLACEHOLDER_WAM.numberOfInputs > 0) {
+                  let NInputs = AWPF.isAudioWorkletPolyfilled ? NAME_PLACEHOLDER_WAM.input.numberOfInputs : NAME_PLACEHOLDER_WAM.numberOfInputs;
+                  
+                  if(NInputs > 0) {
                     var constraints = { audio: true, video:false }
                     navigator.mediaDevices.getUserMedia(constraints)
                     .then((stream) => {
                       let audioSource = actx.createMediaStreamSource(stream);
-                      audioSource.connect(NAME_PLACEHOLDER_WAM); // connect audioSource to WAM inputs
+
+                      // connect audioSource to WAM inputs
+                      if(AWPF.isAudioWorkletPolyfilled)
+                        audioSource.connect(NAME_PLACEHOLDER_WAM.input)
+                      else
+                        audioSource.connect(NAME_PLACEHOLDER_WAM);
+
                       NAME_PLACEHOLDER_WAM.connect(actx.destination); // connect WAM output to speakers
                       connectionsDone();
                     })
@@ -190,7 +200,8 @@
                       console.log('Error initializing user media stream: ' + err);
                     });
                   }
-                  else {
+                  else 
+                  {
                     NAME_PLACEHOLDER_WAM.connect(actx.destination); // connect WAM output to speakers
                     connectionsDone();
                   }

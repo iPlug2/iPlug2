@@ -938,6 +938,13 @@ ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirec
 {
 }
 
+void ISliderControlBase::OnResize()
+{
+  SetTargetRECT(mRECT);
+  mTrackBounds = mRECT;
+  SetDirty(false);
+}
+
 void ISliderControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   mMouseDown = true;

@@ -16,7 +16,8 @@ enum EControlTags
   kCtrlTagButton2,
   kCtrlTagButton3,
   kCtrlTagButton4,
-  kCtrlTagButton5
+  kCtrlTagButton5,
+  kCtrlTagButton6
 };
 
 using namespace iplug;

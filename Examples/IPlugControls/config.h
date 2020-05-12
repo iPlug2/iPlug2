@@ -68,4 +68,6 @@
 #define SVGSLIDERHANDLE_FN "slider-handle.svg"
 #define SVGSLIDERTRACK_FN "slider-track.svg"
 #define SVGKNOBROTATE_FN "vector-knob.svg"
+#define SVGHSLIDERHANDLE_FN "hslider-handle.svg"
+#define SVGHSLIDERTRACK_FN "hslider-track.svg"
 

@@ -176,7 +176,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
 }
 
-- (void)setPreferredContentSize:(CGSize)preferredContentSize{
+- (void)setPreferredContentSize:(CGSize)preferredContentSize
+{
   super.preferredContentSize = preferredContentSize;
 }
 
@@ -211,6 +212,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillBeHidden:) name:UIKeyboardWillHideNotification object:nil];
+  
+  mColorPickerHandlerFunc = nullptr;
   
   return self;
 }
@@ -266,7 +269,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     point.dY = (pos.y - posPrev.y) / ds;
     
     if([touches containsObject:pTouch])
+    {
+      mPrevX = point.x;
+      mPrevY = point.y;
       points.push_back(point);
+    }
   }
 
 //  DBGMSG("%lu\n", points[0].ms.idx);
@@ -447,7 +454,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return UIModalPresentationNone;
 }
 
-- (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popoverPresentationController
+- (BOOL)presentationControllerShouldDismiss:(UIPopoverPresentationController *)popoverPresentationController
 {
   return YES;
 }
@@ -589,6 +596,43 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
   
   [self.window.rootViewController presentViewController:alertController animated:YES completion:nil];
+}
+
+- (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func
+{
+  MSColorSelectionViewController* colorSelectionController = [[MSColorSelectionViewController alloc] init];
+  UINavigationController *navCtrl = [[UINavigationController alloc] initWithRootViewController:colorSelectionController];
+
+  UIUserInterfaceIdiom idiom = [[UIDevice currentDevice] userInterfaceIdiom];
+  
+  if(idiom == UIUserInterfaceIdiomPad)
+  {
+    navCtrl.modalPresentationStyle = UIModalPresentationPopover;
+  }
+  else
+  {
+    navCtrl.modalPresentationStyle = UIModalPresentationPageSheet;
+  }
+  
+  navCtrl.popoverPresentationController.delegate = self;
+  navCtrl.popoverPresentationController.sourceView = self;
+  
+  float x, y;
+  mGraphics->GetMouseLocation(x, y);
+  navCtrl.popoverPresentationController.sourceRect = CGRectMake(x, y, 1, 1);
+  navCtrl.preferredContentSize = [colorSelectionController.view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
+
+  colorSelectionController.delegate = self;
+  colorSelectionController.color = ToUIColor(color);
+  
+  UIBarButtonItem *doneBtn = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", ) style:UIBarButtonItemStyleDone target:self action:@selector(dismissColorPicker:)];
+  colorSelectionController.navigationItem.rightBarButtonItem = doneBtn;
+
+  mColorPickerHandlerFunc = func;
+  
+  [self.window.rootViewController presentViewController:navCtrl animated:YES completion:nil];
+  
+  return false;
 }
 
 - (void) attachGestureRecognizer: (EGestureType) type
@@ -801,6 +845,28 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 - (void)presentationControllerDidDismiss: (UIPresentationController *) presentationController
 {
   mGraphics->SetControlValueAfterPopupMenu(nullptr);
+}
+
+- (void)colorViewController:(MSColorSelectionViewController*) colorViewCntroller didChangeColor:(UIColor*) color
+{
+  if(mColorPickerHandlerFunc)
+  {
+    IColor c = FromUIColor(color);
+    mColorPickerHandlerFunc(c);
+  }
+}
+
+- (void) dismissColorPicker:(id) sender
+{
+  mColorPickerHandlerFunc = nullptr;
+  [self.window.rootViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void) getLastTouchLocation: (float&) x : (float&) y
+{
+  const float scale = mGraphics->GetDrawScale();
+  x = mPrevX * scale;
+  y = mPrevY * scale;
 }
 
 @end

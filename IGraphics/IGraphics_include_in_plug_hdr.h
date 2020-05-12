@@ -62,6 +62,10 @@
   #include "IGraphicsWeb.h"
 #endif
 
+#ifndef OS_IOS
+float GetScaleForScreen(int height) { return 1.f; }
+#endif
+
 #endif // NO_IGRAPHICS
 
 #endif //__IGRAPHICS_HDR_INC__

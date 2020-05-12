@@ -222,8 +222,8 @@ public:
   
   static iplug::IKeyPress translateKeyMessage (Steinberg::char16 key, Steinberg::int16 keyMsg, Steinberg::int16 modifiers)
   {
-    char character = 0;
-    
+    WDL_String str;
+
     if (key == 0)
     {
       key = Steinberg::VirtualKeyCodeToChar((Steinberg::uint8) keyMsg);
@@ -236,13 +236,13 @@ public:
       keyStr.toMultiByte(Steinberg::kCP_Utf8);
       if (keyStr.length() == 1)
       {
-        character = keyStr.getChar8 (0);
+        str.Set(keyStr.text8());
       }
     }
 
-    iplug::IKeyPress keyPress {&character, VSTKeyCodeToVK(keyMsg, character),
+    iplug::IKeyPress keyPress { str.Get(), VSTKeyCodeToVK(keyMsg, str.Get()[0]),
       static_cast<bool>(modifiers & Steinberg::kShiftKey),
-      static_cast<bool>(modifiers & Steinberg::kControlKey),
+      static_cast<bool>(modifiers & Steinberg::kCommandKey),
       static_cast<bool>(modifiers & Steinberg::kAlternateKey)};
     
     return keyPress;

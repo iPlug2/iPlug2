@@ -254,6 +254,11 @@ void IParam::SetDisplayText(double value, const char* str)
   strcpy(pDT->mText, str);
 }
 
+void IParam::SetDisplayPrecision(int precision)
+{
+  mDisplayPrecision = precision;
+}
+
 void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText) const
 {
   if (normalized) value = FromNormalized(value);

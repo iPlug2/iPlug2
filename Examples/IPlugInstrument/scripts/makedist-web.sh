@@ -152,8 +152,10 @@ else
   MAXNINPUTS=$(python $IPLUG2_ROOT/Scripts/parse_iostr.py "$PROJECT_ROOT" inputs)
   MAXNOUTPUTS=$(python $IPLUG2_ROOT/Scripts/parse_iostr.py "$PROJECT_ROOT" outputs)
 
-  if [ $MAXNINPUTS -eq "0" ]; then MAXNINPUTS=""; fi
-
+  if [ $MAXNINPUTS -eq "0" ]; then 
+    MAXNINPUTS="";
+    sed -i.bak '181,203d' index.html; # hack to remove GetUserMedia() from code, and allow WKWebKitView usage for instruments
+  fi
   sed -i.bak s/"MAXNINPUTS_PLACEHOLDER"/"$MAXNINPUTS"/g index.html;
   sed -i.bak s/"MAXNOUTPUTS_PLACEHOLDER"/"$MAXNOUTPUTS"/g index.html;
 fi
