@@ -572,7 +572,7 @@
 			};
 			buildConfigurationList = 91D3DA0F1B023C03008FFFBB /* Build configuration list for PBXProject "IPlugSwift-iOS" */;
 			compatibilityVersion = "Xcode 6.3";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				English,
