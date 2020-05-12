@@ -50,7 +50,7 @@ public:
   void OnIdle() override;
 private:
   IBufferSender<2> mScopeSender;
-  IBufferSender<1, 1024> mDisplaySender;
+  IBufferSender<1> mDisplaySender;
   IPeakSender<2> mMeterSender;
   ISender<1> mRTTextSender;
   ISenderData<1> mLastOutputData = { kCtrlTagRTText, 1, 0 };

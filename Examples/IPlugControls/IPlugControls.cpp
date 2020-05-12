@@ -14,7 +14,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_HEIGHT));
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
@@ -32,7 +32,10 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->AttachTextEntryControl();
+    
+#ifndef OS_IOS
     pGraphics->AttachPopupMenuControl(DEFAULT_LABEL_TEXT);
+#endif
     pGraphics->AttachBubbleControl();
     
     IRECT b = pGraphics->GetBounds().GetPadded(-5);
@@ -50,7 +53,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     const IBitmap bitmapText = pGraphics->LoadBitmap(PNGTEXT_FN, 95, true);
     const ISVG sliderHandleSVG = pGraphics->LoadSVG(SVGSLIDERHANDLE_FN);
     const ISVG sliderTrackSVG = pGraphics->LoadSVG(SVGSLIDERTRACK_FN);
-
+    const ISVG hsliderHandleSVG = pGraphics->LoadSVG(SVGHSLIDERHANDLE_FN);
+    const ISVG hsliderTrackSVG = pGraphics->LoadSVG(SVGHSLIDERTRACK_FN);
     const ISVG knobSVG = pGraphics->LoadSVG(SVGKNOBROTATE_FN);
     
     const IVStyle style {
@@ -145,7 +149,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new ISVGKnobControl(sameCell().GetCentredInside(100), knobSVG, kParamGain), kNoTag, "svgcontrols");
     
     AddLabel("ISVGSliderControl");
-    pGraphics->AttachControl(new ISVGSliderControl(sameCell().GetCentredInside(30, 100), sliderHandleSVG, sliderTrackSVG, kParamGain), kNoTag, "svgcontrols");
+    pGraphics->AttachControl(new ISVGSliderControl(sameCell().GetCentredInside(30, 100), sliderHandleSVG, sliderTrackSVG, kParamGain, EDirection::Vertical), kNoTag, "svgcontrols");
+
     //pGraphics->AttachControl(new IVGroupControl("SVG Controls", "svgcontrols", 10.f, 30.f, 10.f, 10.f));
 
 #pragma mark IVControls -
@@ -155,7 +160,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IVSliderControl(nextCell(), kParamGain, "IVSliderControl", style.WithRoundness(1.f), true, EDirection::Vertical, DEFAULT_GEARING, 6.f, 6.f, true), kCtrlTagVectorSlider, "vcontrols");
     pGraphics->AttachControl(new IVSliderControl(nextCell().SubRectVertical(3, 0), kParamGain, "IVSliderControl H", style, true, EDirection::Horizontal), kCtrlTagVectorSlider, "vcontrols");
     pGraphics->AttachControl(new IVRangeSliderControl(sameCell().SubRectVertical(3, 1), {kParamFreq1, kParamFreq2}, "IVRangeSliderControl", style, EDirection::Horizontal, true, 8.f, 2.f), kNoTag, "vcontrols");
-
+    pGraphics->AttachControl(new ISVGSliderControl(sameCell().SubRectVertical(3, 2), hsliderHandleSVG, hsliderTrackSVG, kParamGain, EDirection::Horizontal), kNoTag, "svgcontrols")->SetTooltip("ISVGSlider H");
+    
     auto button1action = [pGraphics](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
       pGraphics->ShowMessageBox("Message Title", "Message", kMB_YESNO, [&](EMsgBoxResult result) {
@@ -212,8 +218,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     });
     
     AddLabel("ILEDControl");
-    pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 0).GetCentredInside(20.f), 0.), kCtrlTagRedLED);
-    pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 1).GetCentredInside(20.f), 0.3333f), kCtrlTagGreenLED);
+    pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 0).GetCentredInside(20.f), COLOR_RED), kCtrlTagRedLED);
+    pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 1).GetCentredInside(20.f), COLOR_GREEN), kCtrlTagGreenLED);
     pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 2).GetCentredInside(20.f), 0.5f), kCtrlTagBlueLED);
 
 
