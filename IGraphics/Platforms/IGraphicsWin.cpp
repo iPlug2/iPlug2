@@ -1158,7 +1158,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
     if (InitCommonControlsEx(&iccex))
     {
-      mTooltipWnd = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TTS_NOPREFIX | TTS_ALWAYSTIP,
+      mTooltipWnd = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TTS_NOPREFIX | TTS_ALWAYSTIP | TTS_BALLOON,
                                    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, mPlugWnd, NULL, mHInstance, NULL);
       if (mTooltipWnd)
       {
@@ -1167,6 +1167,10 @@ void* IGraphicsWin::OpenWindow(void* pParent)
         ti.lpszText = (LPTSTR)NULL;
         SendMessage(mTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
         SendMessage(mTooltipWnd, TTM_SETMAXTIPWIDTH, 0, TOOLTIPWND_MAXWIDTH);
+        COLORREF col = RGB(50, 50, 50);
+        SendMessage(mTooltipWnd, TTM_SETTIPBKCOLOR, col, 0);
+        col = RGB(200, 200, 200);
+        SendMessage(mTooltipWnd, TTM_SETTIPTEXTCOLOR, col, 0);
         ok = true;
       }
     }
