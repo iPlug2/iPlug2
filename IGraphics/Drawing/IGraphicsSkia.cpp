@@ -3,11 +3,14 @@
 
 #include "IGraphicsSkia.h"
 
+#pragma warning( push )
+#pragma warning( disable : 4244 )
 #include "SkDashPathEffect.h"
 #include "SkGradientShader.h"
 #include "SkFont.h"
 #include "SkFontMetrics.h"
 #include "SkTypeface.h"
+#pragma warning( pop )
 
 #include "GrContext.h"
 
@@ -68,9 +71,9 @@ IGraphicsSkia::Bitmap::Bitmap(sk_sp<SkSurface> surface, int width, int height, i
 
 IGraphicsSkia::Bitmap::Bitmap(const char* path, double sourceScale)
 {
-  auto data = SkData::MakeFromFileName(path);
+  sk_sp<SkData> data = SkData::MakeFromFileName(path);
   
-  assert(!data->isEmpty());
+  assert(data && "Unable to load file at path");
   
   mDrawable.mImage = SkImage::MakeFromEncoded(data);
   
@@ -221,6 +224,8 @@ END_IPLUG_NAMESPACE
 IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 {
+  mMainPath.setIsVolatile(true);
+  
 #if defined IGRAPHICS_CPU
   DBGMSG("IGraphics Skia CPU @ %i FPS\n", fps);
 #elif defined IGRAPHICS_METAL
@@ -299,6 +304,9 @@ void IGraphicsSkia::OnViewDestroyed()
 {
 #if defined IGRAPHICS_METAL
   [(id<MTLCommandQueue>) mMTLCommandQueue release];
+  mMTLCommandQueue = nullptr;
+  mMTLLayer = nullptr;
+  mMTLDevice = nullptr;
 #endif
 }
 
@@ -428,6 +436,7 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
   SkPaint p;
   
   p.setFilterQuality(kHigh_SkFilterQuality);
+  p.setAntiAlias(true);
   p.setBlendMode(SkiaBlendMode(pBlend));
   if (pBlend)
     p.setAlpha(Clip(static_cast<int>(pBlend->mWeight * 255), 0, 255));
@@ -454,6 +463,8 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
 void IGraphicsSkia::PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding)
 {
   SkPath arc;
+  arc.setIsVolatile(true);
+  
   float sweep = (a2 - a1);
 
   if (sweep >= 360.f || sweep <= -360.f)
@@ -522,7 +533,7 @@ void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IR
   assert(pFont && "No font found - did you forget to load it?");
 
   font.setTypeface(pFont->mTypeface);
-  font.setHinting(SkFontHinting::kNone);
+  font.setHinting(SkFontHinting::kSlight);
   font.setForceAutoHinting(false);
   font.setSubpixel(true);
   font.setSize(text.mSize * pFont->mData->GetHeightEMRatio());
@@ -552,7 +563,7 @@ void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IR
   r = IRECT((float) x, (float) y + ascender, (float) (x + textWidth), (float) (y + ascender + textHeight));
 }
 
-void IGraphicsSkia::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+float IGraphicsSkia::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   SkFont font;
 
@@ -560,6 +571,7 @@ void IGraphicsSkia::DoMeasureText(const IText& text, const char* str, IRECT& bou
   double x, y;
   PrepareAndMeasureText(text, str, bounds, x, y, font);
   DoMeasureTextRotation(text, r, bounds);
+  return bounds.W();
 }
 
 void IGraphicsSkia::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
@@ -722,6 +734,7 @@ void IGraphicsSkia::RenderPath(SkPaint& paint)
   if (!mMatrix.isIdentity() && mMatrix.invert(&invMatrix))
   {
     SkPath path;
+    path.setIsVolatile(true);
     mMainPath.transform(invMatrix, &path);
     mCanvas->drawPath(path, paint);
   }

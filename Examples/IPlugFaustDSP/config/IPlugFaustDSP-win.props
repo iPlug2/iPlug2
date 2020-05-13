@@ -3,8 +3,8 @@
   <PropertyGroup Label="UserMacros">
     <IPLUG2_ROOT>$(ProjectDir)..\..\..</IPLUG2_ROOT>
     <BINARY_NAME>IPlugFaustDSP</BINARY_NAME>
-    <EXTRA_ALL_DEFS>IGRAPHICS_NANOVG;IGRAPHICS_GL2;DSP_FILE="C:\\Users\\Oliver Larkin\\Dev\\iPlug2\\Examples\\IPlugFaustDSP\\IPlugFaustDSP.dsp"</EXTRA_ALL_DEFS>
-    <EXTRA_DEBUG_DEFS />
+    <EXTRA_ALL_DEFS>IGRAPHICS_NANOVG;IGRAPHICS_GL2</EXTRA_ALL_DEFS>
+    <EXTRA_DEBUG_DEFS>DSP_FILE="C:\\Users\\Oli\\Dev\\iPlug2\\Examples\\IPlugFaustDSP\\IPlugFaustDSP.dsp"</EXTRA_DEBUG_DEFS>
     <EXTRA_RELEASE_DEFS>FAUST_COMPILED</EXTRA_RELEASE_DEFS>
     <EXTRA_TRACER_DEFS />
     <PDB_FILE>$(SolutionDir)build-win\pdbs\$(TargetName)_$(Platform).pdb</PDB_FILE>

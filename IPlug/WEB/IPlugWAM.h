@@ -57,7 +57,8 @@ public:
   void SendArbitraryMsgFromDelegate(int msgTag, int dataSize = 0, const void* pData = nullptr) override;
   
 private:
-  int mBlockCounter = 0;
+  /** Called repeatedly to emulate IPlugAPIBase::OnTimer() */
+  void OnEditorIdleTick();
 };
 
 IPlugWAM* MakePlug(const InstanceInfo& info);

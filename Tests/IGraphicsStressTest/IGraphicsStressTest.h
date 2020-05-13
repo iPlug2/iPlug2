@@ -16,13 +16,14 @@ enum EControlTags
   kCtrlTagButton2,
   kCtrlTagButton3,
   kCtrlTagButton4,
-  kCtrlTagButton5
+  kCtrlTagButton5,
+  kCtrlTagButton6
 };
 
 using namespace iplug;
 using namespace igraphics;
 
-class IGraphicsStressTest : public Plugin
+class IGraphicsStressTest final : public Plugin
 {
 public:
   IGraphicsStressTest(const InstanceInfo& info);

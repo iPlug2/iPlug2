@@ -2,7 +2,6 @@
   <ImportGroup Label="PropertySheets"/>
   <PropertyGroup Label="UserMacros">
     <RTAUDIOMIDI_PATH>$(IPLUG_PATH)\APP\RTAudioMidi</RTAUDIOMIDI_PATH>
-    <IPLUG2_ROOT>$(ProjectDir)..\..\..</IPLUG2_ROOT>
     <WDL_PATH>$(IPLUG2_ROOT)\WDL</WDL_PATH>
     <LICE_PATH>$(WDL_PATH)\lice</LICE_PATH>
     <IPLUG_PATH>$(IPLUG2_ROOT)\IPlug</IPLUG_PATH>
@@ -81,6 +80,7 @@
       <DisableSpecificWarnings>4996;4250;4018;4267;4068;</DisableSpecificWarnings>
       <AdditionalIncludeDirectories>$(WDL_PATH);$(IPLUG_PATH);$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>

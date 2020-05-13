@@ -84,16 +84,6 @@ public:
    * @param height The selected height */
   virtual void OnHostSelectedViewConfiguration(int width, int height) {}
 
-  /** KeyDown handler for VST2, in order to get keystrokes from certain hosts 
-   * @param key Information about the key that was pressed
-   * @return \c true if the key was handled by the plug-in */
-  virtual bool OnKeyDown(const IKeyPress& key) { return false; }
-
-  /** KeyDown handler for VST2, in order to get keystrokes from certain hosts
-   * @param key Information about the key that was released
-   * @return \c true if the key was handled by the plug-in */
-  virtual bool OnKeyUp(const IKeyPress& key) { return false; }
-
   /** Override this method to provide custom text linked to MIDI note numbers in API classes that support that (VST2)
    * Typically this might be used for a drum machine plug-in, in order to label a certainty "kick drum" etc.
    * @param noteNumber MIDI note to get the textual description for
@@ -127,11 +117,20 @@ public:
   void SetParameterValue(int paramIdx, double normalizedValue);
   
   /** Get the color of the track that the plug-in is inserted on */
-  virtual void GetTrackColor(int& r, int& g, int& b) {};
+  virtual void GetTrackColor(int& r, int& g, int& b) { r = 0; g = 0; b = 0; };
 
   /** Get the name of the track that the plug-in is inserted on */
   virtual void GetTrackName(WDL_String& str) {};
-  
+
+  /** Get the index of the track that the plug-in is inserted on */
+  virtual int GetTrackIndex() { return 0; };
+
+  /** Get the namespace of the track that the plug-in is inserted on */
+  virtual void GetTrackNamespace(WDL_String& str) {};
+
+  /** Get the namespace index of the track that the plug-in is inserted on */
+  virtual int GetTrackNamespaceIndex() { return 0; };
+
   /** /todo */
   virtual void DirtyParametersFromUI() override;
 

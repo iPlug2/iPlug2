@@ -11,6 +11,7 @@
 #include "IGraphics.h"
 
 #define NANOSVG_IMPLEMENTATION
+#pragma warning(disable:4244) // float conversion
 #include "nanosvg.h"
 
 #if defined VST3_API
@@ -117,6 +118,12 @@ void IGraphics::SetLayoutOnResize(bool layoutOnResize)
   mLayoutOnResize = layoutOnResize;
 }
 
+void IGraphics::RemoveControl(IControl* pControl)
+{
+  mControls.DeletePtr(pControl);
+  SetAllControlsDirty();
+}
+
 void IGraphics::RemoveControlWithTag(int ctrlTag)
 {
   mControls.DeletePtr(GetControlWithTag(ctrlTag));
@@ -158,7 +165,7 @@ void IGraphics::RemoveAllControls()
   mCornerResizer = nullptr;
   mPerfDisplay = nullptr;
     
-#if !defined(NDEBUG)
+#ifndef NDEBUG
   mLiveEdit = nullptr;
 #endif
   
@@ -199,10 +206,16 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
   mInPopupMenu = nullptr;
 }
 
-void IGraphics::AttachBackground(const char* name)
+void IGraphics::AttachBackground(const char* fileName)
 {
-  IBitmap bg = LoadBitmap(name, 1, false);
-  IControl* pBG = new IBitmapControl(0, 0, bg, kNoParameter, EBlend::Default);
+  IControl* pBG = new IBitmapControl(0, 0, LoadBitmap(fileName, 1, false), kNoParameter, EBlend::Default);
+  pBG->SetDelegate(*GetDelegate());
+  mControls.Insert(0, pBG);
+}
+
+void IGraphics::AttachSVGBackground(const char* fileName)
+{
+  IControl* pBG = new ISVGControl(GetBounds(), LoadSVG(fileName), true);
   pBG->SetDelegate(*GetDelegate());
   mControls.Insert(0, pBG);
 }
@@ -403,7 +416,7 @@ void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
   if (mPerfDisplay)
     func(*mPerfDisplay);
   
-#if !defined(NDEBUG)
+#ifndef NDEBUG
   if (mLiveEdit)
     func(*mLiveEdit);
 #endif
@@ -481,7 +494,7 @@ void IGraphics::UpdatePeers(IControl* pCaller, int callerValIdx) // TODO: this c
 void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds, int valIdx)
 {
   assert(valIdx > kNoValIdx);
-    
+  
   const IParam* pParam = control.GetParam(valIdx);
 
   if(pParam)
@@ -514,6 +527,13 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds, int valI
     else // type == IParam::kTypeInt || type == IParam::kTypeDouble
     {
       pParam->GetDisplayForHost(currentText, false);
+      
+      if(control.GetPromptShowsParamLabel())
+      {
+        currentText.Append(" ");
+        currentText.Append(pParam->GetLabelForHost());
+      }
+      
       CreateTextEntry(control, control.GetText(), bounds, currentText.Get(), valIdx);
     }
   }
@@ -527,12 +547,12 @@ void IGraphics::DrawText(const IText& text, const char* str, const IRECT& bounds
   DoDrawText(text, str, bounds, pBlend);
 }
 
-void IGraphics::MeasureText(const IText& text, const char* str, IRECT& bounds) const
+float IGraphics::MeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   if (!str || str[0] == '\0')
-    return;
+    return 0.f;
     
-  DoMeasureText(text, str, bounds);
+  return DoMeasureText(text, str, bounds);
 }
 
 void IGraphics::DrawText(const IText& text, const char* str, float x, float y, const IBlend* pBlend)
@@ -725,7 +745,7 @@ bool IGraphics::IsDirty(IRECTList& rects)
 #endif
 
   //TODO: for GL backends, having an ImGui on top currently requires repainting everything on each frame
-#if defined IGRAPHICS_IMGUI && (defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3)
+#if defined IGRAPHICS_IMGUI && defined IGRAPHICS_GL
   if (mImGuiRenderer && mImGuiRenderer->GetDrawFunc())
   {
     rects.Add(GetBounds());
@@ -840,7 +860,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
     if(mCornerResizer.get() != nullptr)
       cornerResizer = pControl == mCornerResizer.get();
 
-    if(!cornerResizer && mImGuiRenderer.get()->OnMouseDown(x, y, mod))
+    if(!cornerResizer && mImGuiRenderer->OnMouseDown(points[0].x, points[0].y, points[0].ms))
     {
       ReleaseMouseCapture();
       return;
@@ -966,7 +986,7 @@ void IGraphics::OnMouseUp(const std::vector<IMouseInfo>& points)
 #ifdef IGRAPHICS_IMGUI
   if(mImGuiRenderer && points.size() == 1)
   {
-    if(mImGuiRenderer.get()->OnMouseUp(point[0].x, point[0].y, point[0].ms))
+    if(mImGuiRenderer->OnMouseUp(points[0].x, points[0].y, points[0].ms))
     {
       ReleaseMouseCapture();
       return;
@@ -1007,7 +1027,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   
 #ifdef IGRAPHICS_IMGUI
   if(mImGuiRenderer)
-    mImGuiRenderer.get()->OnMouseMove(x, y, mod);
+    mImGuiRenderer->OnMouseMove(x, y, mod);
 #endif
   
   // N.B. GetMouseControl handles which controls can receive mouseovers
@@ -1044,7 +1064,7 @@ void IGraphics::OnMouseDrag(const std::vector<IMouseInfo>& points)
 
   if (mResizingInProcess && points.size() == 1)
     OnDragResize(points[0].x, points[0].y);
-  else if (ControlIsCaptured())
+  else if (ControlIsCaptured() && !GetControlInTextEntry())
   {
     for (auto& point : points)
     {
@@ -1069,7 +1089,7 @@ void IGraphics::OnMouseDrag(const std::vector<IMouseInfo>& points)
   }
 #ifdef IGRAPHICS_IMGUI
   else if(mImGuiRenderer && points.size() == 1)
-    mImGuiRenderer.get()->OnMouseMove(points[0].x, points[0].y, points[0].ms);
+    mImGuiRenderer->OnMouseMove(points[0].x, points[0].y, points[0].ms);
 #endif
 }
 
@@ -1081,7 +1101,7 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 #ifdef IGRAPHICS_IMGUI
   if(mImGuiRenderer)
   {
-    mImGuiRenderer.get()->OnMouseDown(x, y, mod);
+    mImGuiRenderer->OnMouseDown(x, y, mod);
     return true;
   }
 #endif
@@ -1114,7 +1134,7 @@ void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 #ifdef IGRAPHICS_IMGUI
     if(mImGuiRenderer)
     {
-      mImGuiRenderer.get()->OnMouseWheel(x, y, mod, d);
+      mImGuiRenderer->OnMouseWheel(x, y, mod, d);
       return;
     }
 #endif
@@ -1134,7 +1154,7 @@ bool IGraphics::OnKeyDown(float x, float y, const IKeyPress& key)
 #ifdef IGRAPHICS_IMGUI
   if(mImGuiRenderer)
   {
-    handled = mImGuiRenderer.get()->OnKeyDown(x, y, key);
+    handled = mImGuiRenderer->OnKeyDown(x, y, key);
     
     if(handled)
       return true;
@@ -1162,7 +1182,7 @@ bool IGraphics::OnKeyUp(float x, float y, const IKeyPress& key)
 #ifdef IGRAPHICS_IMGUI
   if(mImGuiRenderer)
   {
-    handled = mImGuiRenderer.get()->OnKeyUp(x, y, key);
+    handled = mImGuiRenderer->OnKeyUp(x, y, key);
     
     if(handled)
       return true;
@@ -1201,7 +1221,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
     {
       IControl* pControl = GetControl(c);
 
-#if _DEBUG
+#ifndef NDEBUG
       if(!mLiveEdit)
       {
 #endif
@@ -1215,7 +1235,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
             }
           }
         }
-#if _DEBUG
+#ifndef NDEBUG
       }
       else if (pControl->GetRECT().Contains(x, y))
       {
@@ -1405,7 +1425,7 @@ void IGraphics::EnableTooltips(bool enable)
 
 void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 {
-#if defined(_DEBUG)
+#ifndef NDEBUG
   if (enable)
   {
     if (!mLiveEdit)
@@ -1728,6 +1748,8 @@ void IGraphics::CreateTextEntry(IControl& control, const IText& text, const IREC
     mTextEntryControl->CreateTextEntry(paramIdx, text, bounds, control.GetTextEntryLength(), str);
   else
     CreatePlatformTextEntry(paramIdx, text, bounds, control.GetTextEntryLength(), str);
+  
+  mInTextEntry->SetDirty(false);
 }
 
 void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx, bool isContext)
@@ -2159,7 +2181,7 @@ void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::funct
 {
   mImGuiRenderer = std::make_unique<ImGuiRenderer>(this, drawFunc, setupFunc);
   
-#if !defined IGRAPHICS_GL2 && !defined IGRAPHICS_GL3 // TODO: IGRAPHICS_GL!
+#if !defined IGRAPHICS_GL
   CreatePlatformImGui();
 #endif
 }

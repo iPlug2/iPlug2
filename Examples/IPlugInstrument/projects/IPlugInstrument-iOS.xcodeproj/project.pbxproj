@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F0BA48124698EF100DB93AC /* IGraphicsIOS_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0BA48024698EF000DB93AC /* IGraphicsIOS_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103420A0E55900D3092F /* IPlugProcessor.cpp */; };
 		4F10E7C020B17EDB00F5B09B /* IPlugInstrument-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugInstrument-iOS-MainInterface.storyboard */; };
 		4F1115CF2296DA95000CFCBF /* IPlugInstrument-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugInstrument-iOS-MainInterface.storyboard */; };
@@ -91,6 +92,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4F0BA48024698EF000DB93AC /* IGraphicsIOS_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsIOS_src.m; sourceTree = "<group>"; };
 		4F10E7BF20B17EDB00F5B09B /* IPlugInstrument-iOS-MainInterface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugInstrument-iOS-MainInterface.storyboard"; path = "../resources/IPlugInstrument-iOS-MainInterface.storyboard"; sourceTree = "<group>"; };
 		4F10E7C520B189DD00F5B09B /* IPlugInstrument-iOS.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "IPlugInstrument-iOS.entitlements"; sourceTree = "<group>"; };
 		4F11D40623201452003E1647 /* IPlugInstrument_DSP.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugInstrument_DSP.h; path = ../IPlugInstrument_DSP.h; sourceTree = "<group>"; };
@@ -352,6 +354,7 @@
 				4F63698F20A463AF0022C370 /* IGraphicsWin.cpp */,
 				4F63699020A463AF0022C370 /* IGraphicsIOS.h */,
 				4F63698E20A463AF0022C370 /* IGraphicsIOS.mm */,
+				4F0BA48024698EF000DB93AC /* IGraphicsIOS_src.m */,
 				4F63698420A463AF0022C370 /* IGraphicsIOS_view.h */,
 				4F63699120A463AF0022C370 /* IGraphicsIOS_view.mm */,
 			);
@@ -657,7 +660,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 1030;
+				LastUpgradeCheck = 1200;
 				TargetAttributes = {
 					4FA61F6D22E899B500A92C58 = {
 						DevelopmentTeam = 686EDA2T8T;
@@ -688,10 +691,9 @@
 			};
 			buildConfigurationList = 91D3DA0F1B023C03008FFFBB /* Build configuration list for PBXProject "IPlugInstrument-iOS" */;
 			compatibilityVersion = "Xcode 6.3";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
 				Base,
 			);
@@ -766,8 +768,9 @@
 				4FA61F8422E89B2000A92C58 /* GenericUI.mm in Sources */,
 				4FA61F8622E89B2000A92C58 /* IPlugAUv3.mm in Sources */,
 				4FA61F8522E89B2000A92C58 /* IPlugAUAudioUnit.mm in Sources */,
-				4FA61F8E22E89B4300A92C58 /* IGraphicsIOS.mm in Sources */,
 				4FA61F8F22E89B4300A92C58 /* IGraphicsIOS_view.mm in Sources */,
+				4F0BA48124698EF100DB93AC /* IGraphicsIOS_src.m in Sources */,
+				4FA61F8E22E89B4300A92C58 /* IGraphicsIOS.mm in Sources */,
 				4FA61F9022E8A1F500A92C58 /* IGraphics.cpp in Sources */,
 				4FA61F7E22E89AFF00A92C58 /* IPlugPluginBase.cpp in Sources */,
 				4FA61F8C22E89B3700A92C58 /* IControl.cpp in Sources */,
@@ -839,7 +842,7 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -865,7 +868,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IPlugInstrument.AUv3Framework;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugInstrument.AUv3Framework;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -890,7 +893,7 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -917,7 +920,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IPlugInstrument.AUv3Framework;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugInstrument.AUv3Framework;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -968,12 +971,12 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugInstrumentApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugInstrument;
 				PRODUCT_NAME = IPlugInstrument;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1014,12 +1017,12 @@
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugInstrument-iOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugInstrumentApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugInstrument;
 				PRODUCT_NAME = IPlugInstrument;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -1063,7 +1066,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugInstrumentApp.IPlugInstrumentAppExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugInstrument.AUv3;
 				PRODUCT_NAME = IPlugInstrumentAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1108,7 +1111,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugInstrument-iOS-AUv3-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugInstrumentApp.IPlugInstrumentAppExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugInstrument.AUv3;
 				PRODUCT_NAME = IPlugInstrumentAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;

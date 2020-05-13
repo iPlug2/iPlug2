@@ -31,6 +31,19 @@ void GetScreenDimensions(int& width, int& height)
   height = bounds.size.height;
 }
 
+float GetScaleForScreen(int plugHeight)
+{
+  float scale = 1.f;
+  int width, height;
+  GetScreenDimensions(width, height);
+  if(height > width)
+    scale = (float) width / (float) plugHeight;
+  else
+    scale = (float) height / (float) plugHeight;
+  
+  return scale;
+}
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
@@ -72,6 +85,8 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
         gTextureMap.insert(std::make_pair([[[pTextureFiles[i] lastPathComponent] stringByDeletingPathExtension] cStringUsingEncoding:NSUTF8StringEncoding], (MTLTexturePtr) gTextures[i]));
       }
     
+      DBGMSG("Preloaded %i textures", (int) [pTextureFiles count]);
+    
       [textureLoader release];
       textureLoader = nil;
     }
@@ -91,7 +106,7 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   IGRAPHICS_VIEW* view = [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   mView = (void*) view;
   
-  OnViewInitialized((void*) [view layer]);
+  OnViewInitialized((void*) [view metalLayer]);
   
   SetScreenScale([UIScreen mainScreen].scale);
   
@@ -170,6 +185,11 @@ const char* IGraphicsIOS::GetPlatformAPIStr()
   return "iOS";
 }
 
+void IGraphicsIOS::GetMouseLocation(float& x, float&y) const
+{
+  [(IGRAPHICS_VIEW*) mView getLastTouchLocation: x : y];
+}
+
 void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext)
 {
 }
@@ -180,6 +200,7 @@ void IGraphicsIOS::PromptForDirectory(WDL_String& dir)
 
 bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
+  [(IGRAPHICS_VIEW*) mView promptForColor: color: str: func];
   return false;
 }
 
@@ -209,6 +230,23 @@ void IGraphicsIOS::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
 
 bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
 {
+  NSURL* pNSURL = nullptr;
+  if (strstr(url, "http"))
+    pNSURL = [NSURL URLWithString:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
+  else
+    pNSURL = [NSURL fileURLWithPath:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
+
+  if (pNSURL)
+  {
+    UIResponder* pResponder = (UIResponder*) mView;
+    while(pResponder) {
+      if ([pResponder respondsToSelector: @selector(openURL:)])
+        [pResponder performSelector: @selector(openURL:) withObject: pNSURL];
+
+      pResponder = [pResponder nextResponder];
+    }
+    return true;
+  }
   return false;
 }
 
@@ -231,7 +269,7 @@ bool IGraphicsIOS::GetTextFromClipboard(WDL_String& str)
   return false;
 }
 
-bool IGraphicsIOS::SetTextInClipboard(const WDL_String& str)
+bool IGraphicsIOS::SetTextInClipboard(const char* str)
 {
   return false;
 }

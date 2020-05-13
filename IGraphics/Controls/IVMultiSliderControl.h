@@ -88,7 +88,7 @@ public:
     return kNoValIdx;
   }
 
-  void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1 /* TODO:: not used*/, float scalar = 1.f, double minClip = 0., double maxClip = 1.) override
+  void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1 /* TODO:: not used*/, double minClip = 0., double maxClip = 1.) override
   {
     bounds.Constrain(x, y);
     int nVals = NVals();
@@ -128,7 +128,7 @@ public:
     if (sliderTest > -1)
     {
       SetValue(mMinTrackValue + Clip(value, 0.f, 1.f) * (mMaxTrackValue - mMinTrackValue), sliderTest);
-      OnNewValue(sliderTest, static_cast<float>(GetValue(sliderTest)));
+      OnNewValue(sliderTest, GetValue(sliderTest));
 
       mSliderHit = sliderTest;
 
@@ -151,9 +151,9 @@ public:
 
           for (auto i = lowBounds; i < highBounds; i++)
           {
-            float frac = (float)(i - lowBounds) / float(highBounds-lowBounds);
-            SetValue(linearInterp(GetValue(lowBounds), GetValue(highBounds), frac), i);
-            OnNewValue(i, static_cast<float>(GetValue(i)));
+            double frac = (double)(i - lowBounds) / double(highBounds-lowBounds);
+            SetValue(iplug::Lerp(GetValue(lowBounds), GetValue(highBounds), frac), i);
+            OnNewValue(i, GetValue(i));
           }
         }
       }
@@ -166,8 +166,6 @@ public:
 
     SetDirty(true); // will send all param vals parameter value to delegate
   }
-
-  //  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
@@ -183,16 +181,12 @@ public:
   }
 
   //override to do something when an individual slider is dragged
-  virtual void OnNewValue(int trackIdx, float val) {}
+  virtual void OnNewValue(int trackIdx, double val) {}
 
 protected:
   int mPrevSliderHit = -1;
   int mSliderHit = -1;
   float mGrain = 0.001f;
-    
-private:
-    
-  inline double linearInterp(double a, double b, double f) const { return ((b - a) * f + a); }
 };
 
 END_IGRAPHICS_NAMESPACE

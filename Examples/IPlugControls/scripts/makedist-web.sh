@@ -152,8 +152,10 @@ else
   MAXNINPUTS=$(python $IPLUG2_ROOT/Scripts/parse_iostr.py "$PROJECT_ROOT" inputs)
   MAXNOUTPUTS=$(python $IPLUG2_ROOT/Scripts/parse_iostr.py "$PROJECT_ROOT" outputs)
 
-  if [ $MAXNINPUTS -eq "0" ]; then MAXNINPUTS=""; fi
-
+  if [ $MAXNINPUTS -eq "0" ]; then 
+    MAXNINPUTS="";
+    sed -i.bak '181,203d' index.html; # hack to remove GetUserMedia() from code, and allow WKWebKitView usage for instruments
+  fi
   sed -i.bak s/"MAXNINPUTS_PLACEHOLDER"/"$MAXNINPUTS"/g index.html;
   sed -i.bak s/"MAXNOUTPUTS_PLACEHOLDER"/"$MAXNOUTPUTS"/g index.html;
 fi
@@ -180,8 +182,7 @@ cd $PROJECT_ROOT/build-web
 
 # print payload
 echo payload:
-find . -maxdepth 2 -mindepth 1 -exec du -hs {} \;
-du -hc
+find . -maxdepth 2 -mindepth 1 -name .git -type d \! -prune -o \! -name .DS_Store -type f -exec du -hs {} \;
 
 # launch emrun
 if [ "$LAUNCH_EMRUN" -eq "1" ]; then

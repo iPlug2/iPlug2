@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F0BA48B246994DF00DB93AC /* IGraphicsIOS_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0BA48A246994DF00DB93AC /* IGraphicsIOS_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103420A0E55900D3092F /* IPlugProcessor.cpp */; };
 		4F10E7C020B17EDB00F5B09B /* IGraphicsTest-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IGraphicsTest-iOS-MainInterface.storyboard */; };
 		4F1115CF2296DA95000CFCBF /* IGraphicsTest-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IGraphicsTest-iOS-MainInterface.storyboard */; };
@@ -118,6 +119,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4F0BA48A246994DF00DB93AC /* IGraphicsIOS_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsIOS_src.m; sourceTree = "<group>"; };
 		4F10E7BF20B17EDB00F5B09B /* IGraphicsTest-iOS-MainInterface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IGraphicsTest-iOS-MainInterface.storyboard"; path = "../resources/IGraphicsTest-iOS-MainInterface.storyboard"; sourceTree = "<group>"; };
 		4F10E7C520B189DD00F5B09B /* IGraphicsTest-iOS.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "IGraphicsTest-iOS.entitlements"; sourceTree = "<group>"; };
 		4F1C2D5023D731CA0088AE84 /* IGraphicsFlexBox.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsFlexBox.cpp; sourceTree = "<group>"; };
@@ -425,6 +427,7 @@
 				4F63698F20A463AF0022C370 /* IGraphicsWin.cpp */,
 				4F63699020A463AF0022C370 /* IGraphicsIOS.h */,
 				4F63698E20A463AF0022C370 /* IGraphicsIOS.mm */,
+				4F0BA48A246994DF00DB93AC /* IGraphicsIOS_src.m */,
 				4F63698420A463AF0022C370 /* IGraphicsIOS_view.h */,
 				4F63699120A463AF0022C370 /* IGraphicsIOS_view.mm */,
 			);
@@ -793,7 +796,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 0730;
-				LastUpgradeCheck = 1030;
+				LastUpgradeCheck = 1200;
 				TargetAttributes = {
 					4FA61F6D22E899B500A92C58 = {
 						DevelopmentTeam = 686EDA2T8T;
@@ -824,7 +827,7 @@
 			};
 			buildConfigurationList = 91D3DA0F1B023C03008FFFBB /* Build configuration list for PBXProject "IGraphicsTest-iOS" */;
 			compatibilityVersion = "Xcode 6.3";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				English,
@@ -902,6 +905,8 @@
 				4FA61F8422E89B2000A92C58 /* GenericUI.mm in Sources */,
 				4FA61F8622E89B2000A92C58 /* IPlugAUv3.mm in Sources */,
 				4FA61F8522E89B2000A92C58 /* IPlugAUAudioUnit.mm in Sources */,
+				4FA61F8F22E89B4300A92C58 /* IGraphicsIOS_view.mm in Sources */,
+				4F0BA48B246994DF00DB93AC /* IGraphicsIOS_src.m in Sources */,
 				4FA61F9022E8A1F500A92C58 /* IGraphics.cpp in Sources */,
 				4FA61F7E22E89AFF00A92C58 /* IPlugPluginBase.cpp in Sources */,
 				4FA61F8C22E89B3700A92C58 /* IControl.cpp in Sources */,
@@ -915,7 +920,6 @@
 				4FA61F8B22E89B3700A92C58 /* IGraphicsEditorDelegate.cpp in Sources */,
 				4FA61F8322E89AFF00A92C58 /* IPlugPaths.mm in Sources */,
 				4FA61F8122E89AFF00A92C58 /* IPlugParameter.cpp in Sources */,
-				4FA61F8F22E89B4300A92C58 /* IGraphicsIOS_view.mm in Sources */,
 				4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */,
 				4FA61F7F22E89AFF00A92C58 /* IPlugAPIBase.cpp in Sources */,
 				4FA61F9222E8A2B500A92C58 /* IGraphicsTest.cpp in Sources */,
@@ -975,7 +979,7 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1001,7 +1005,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IGraphicsTest.AUv3Framework;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IGraphicsTest.AUv3Framework;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1026,7 +1030,7 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
@@ -1053,7 +1057,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IGraphicsTest.AUv3Framework;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IGraphicsTest.AUv3Framework;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1104,12 +1108,12 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IGraphicsTestApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IGraphicsTest;
 				PRODUCT_NAME = IGraphicsTest;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -1150,12 +1154,12 @@
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IGraphicsTest-iOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IGraphicsTestApp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IGraphicsTest;
 				PRODUCT_NAME = IGraphicsTest;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 4.2;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -1199,7 +1203,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IGraphicsTestApp.IGraphicsTestAppExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IGraphicsTest.AUv3;
 				PRODUCT_NAME = IGraphicsTestAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1244,7 +1248,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IGraphicsTest-iOS-AUv3-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IGraphicsTestApp.IGraphicsTestAppExtension;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IGraphicsTest.AUv3;
 				PRODUCT_NAME = IGraphicsTestAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;

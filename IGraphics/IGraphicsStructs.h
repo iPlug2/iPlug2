@@ -459,14 +459,15 @@ struct IColor
   /** /todo 
    * @param start /todo
    * @param dest /todo
-   * @param result /todo
    * @param progress /todo */
-  static void LinearInterpolateBetween(const IColor& start, const IColor& dest, IColor& result, float progress)
+  static IColor LinearInterpolateBetween(const IColor& start, const IColor& dest, float progress)
   {
+    IColor result;
     result.A = start.A + static_cast<int>(progress * static_cast<float>(dest.A -  start.A));
     result.R = start.R + static_cast<int>(progress * static_cast<float>(dest.R -  start.R));
     result.G = start.G + static_cast<int>(progress * static_cast<float>(dest.G -  start.G));
     result.B = start.B + static_cast<int>(progress * static_cast<float>(dest.B -  start.B));
+    return result;
   }
 };
 
@@ -548,6 +549,8 @@ const IBlend BLEND_25 = IBlend(EBlend::Default, 0.25f);
 const IBlend BLEND_10 = IBlend(EBlend::Default, 0.1f);
 const IBlend BLEND_05 = IBlend(EBlend::Default, 0.05f);
 const IBlend BLEND_01 = IBlend(EBlend::Default, 0.01f);
+const IBlend BLEND_DST_IN = IBlend(EBlend::DstIn, 1.f);
+const IBlend BLEND_DST_OVER = IBlend(EBlend::DstOver, 1.f);
 
 /** Used to manage fill behaviour for path based drawing back ends */
 struct IFillOptions
@@ -696,7 +699,8 @@ struct IText
   IText WithVAlign(EVAlign valign) const { IText newText = *this; newText.mVAlign = valign; return newText; }
   IText WithSize(float size) const { IText newText = *this; newText.mSize = size; return newText; }
   IText WithAngle(float v) const { IText newText = *this; newText.mAngle = v; return newText; }
-
+  IText WithFont(const char* font) const { IText newText = *this; strcpy(newText.mFont, (font ? font : DEFAULT_FONT));; return newText; }
+  
   char mFont[FONT_LEN];
   float mSize;
   IColor mFGColor;
@@ -1053,13 +1057,14 @@ struct IRECT
     return vrect.SubRectHorizontal(nColumns, col);
   }
   
-  /** Get a subrect (by index) of this IRECT which is a cell in a grid of size (nRows * nColumns)
+  /** Get a subrect (by index) of this IRECT which is a cell (or union of nCells sequential cells on same row/column) in a grid of size (nRows * nColumns)
    * @param cellIndex Index of the desired cell in the cell grid
    * @param nRows Number of rows in the cell grid
    * @param nColumns Number of columns in the cell grid
    * @param dir Desired direction of indexing, by row (EDirection::Horizontal) or by column (EDirection::Vertical)
+   * @param nCells Number of desired sequential cells to join (on same row/column)
    * @return IRECT The resulting subrect */
-  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection dir = EDirection::Horizontal) const
+  inline IRECT GetGridCell(int cellIndex, int nRows, int nColumns, EDirection dir = EDirection::Horizontal, int nCells = 1) const
   {
     assert(cellIndex <= nRows * nColumns); // not enough cells !
 
@@ -1074,7 +1079,13 @@ struct IRECT
           if(cell == cellIndex)
           {
             const IRECT vrect = SubRectVertical(nRows, row);
-            return vrect.SubRectHorizontal(nColumns, col);
+            IRECT rect = vrect.SubRectHorizontal(nColumns, col);
+
+            for (int n = 1; n < nCells && (col + n) < nColumns; n++)
+            {
+              rect = rect.Union(vrect.SubRectHorizontal(nColumns, col + n));
+            }
+            return rect;
           }
 
           cell++;
@@ -1090,7 +1101,13 @@ struct IRECT
           if(cell == cellIndex)
           {
             const IRECT hrect = SubRectHorizontal(nColumns, col);
-            return hrect.SubRectVertical(nRows, row);
+            IRECT rect = hrect.SubRectVertical(nRows, row);;
+
+            for (int n = 1; n < nCells && (row + n) < nRows; n++)
+            {
+              rect = rect.Union(hrect.SubRectVertical(nRows, row + n));
+            }
+            return rect;
           }
           
           cell++;
@@ -1398,14 +1415,16 @@ struct IRECT
   /** /todo 
    * @param start /todo
    * @param dest /todo
-   * @param result /todo
-   * @param progress /todo */
-  static void LinearInterpolateBetween(const IRECT& start, const IRECT& dest, IRECT& result, float progress)
+   * @param progress /todo
+   * @return IRECT /todo */
+  static IRECT LinearInterpolateBetween(const IRECT& start, const IRECT& dest, float progress)
   {
+    IRECT result;
     result.L = start.L + progress * (dest.L -  start.L);
     result.T = start.T + progress * (dest.T -  start.T);
     result.R = start.R + progress * (dest.R -  start.R);
     result.B = start.B + progress * (dest.B -  start.B);
+    return result;
   }
 
   /** /todo 
@@ -1511,8 +1530,7 @@ struct IRECT
    * @return IRECT /todo */
   IRECT GetCentredInside(float w, float h = 0.f) const
   {
-    if (w <= 0.f)
-      return *this; // TODO: warning?
+    w = std::max(w, 1.f);
     
     if(h <= 0.f)
       h = w;
@@ -1540,6 +1558,45 @@ struct IRECT
     return r;
   }
   
+  /** Vertically align this rect to the reference IRECT
+   * @param sr the source IRECT to use as reference
+   * @param align the vertical alignment */
+  void VAlignTo(const IRECT& sr, EVAlign align)
+  {
+    const float height = H();
+    switch (align)
+    {
+      case EVAlign::Top: T = sr.T; B = sr.T + height; break;
+      case EVAlign::Bottom: T = sr.B - height; B = sr.B; break;
+      case EVAlign::Middle: T = sr.T + (sr.H() * 0.5f) - (height * 0.5f); B = sr.T + (sr.H() * 0.5f) - (height * 0.5f) + height; break;
+    }
+  }
+  
+  /** Horizontally align this rect to the reference IRECT
+  * @param sr the IRECT to use as reference
+  * @param align the horizontal alignment */
+  void HAlignTo(const IRECT& sr, EAlign align)
+  {
+    const float width = W();
+    switch (align)
+    {
+      case EAlign::Near: L = sr.L; R = sr.L + width; break;
+      case EAlign::Far: L = sr.R - width; R = sr.R; break;
+      case EAlign::Center: L = sr.L + (sr.W() * 0.5f) - (width * 0.5f); R = sr.L + (sr.W() * 0.5f) - (width * 0.5f) + width; break;
+    }
+  }
+
+  /** Get a rectangle the same dimensions as this one, vertically aligned to the reference IRECT
+  * @param sr the source IRECT to use as reference
+  * @param align the vertical alignment
+  * @return the new rectangle */
+  IRECT GetVAlignedTo(const IRECT& sr, EVAlign align) const
+  {
+    IRECT result = *this;
+    result.VAlignTo(sr, align);
+    return result;
+  }
+  
   /** /todo 
    * @return float /todo */
   float GetLengthOfShortestSide() const
@@ -1548,6 +1605,17 @@ struct IRECT
        return W();
     else
       return H();
+  }
+    
+  /** Get a rectangle the same dimensions as this one, horizontally aligned to the reference IRECT
+  * @param sr the IRECT to use as reference
+  * @param align the horizontal alignment
+  * @return the new rectangle */
+  IRECT GetHAlignedTo(const IRECT& sr, EAlign align) const
+  {
+    IRECT result = *this;
+    result.HAlignTo(sr, align);
+    return result;
   }
   
   void DBGPrint() { DBGMSG("L: %f, T: %f, R: %f, B: %f,: W: %f, H: %f\n", L, T, R, B, W(), H()); }
@@ -2209,7 +2277,7 @@ struct IShadow
 /** Contains a set of 9 colors used to theme IVControls */
 struct IVColorSpec
 {
-  IColor mColors[kNumDefaultVColors];
+  IColor mColors[kNumVColors];
   
   const IColor& GetColor(EVColor color) const
   {
@@ -2221,8 +2289,8 @@ struct IVColorSpec
     switch(idx)
     {
       case kBG: return DEFAULT_BGCOLOR; // Background
-      case kFG: return DEFAULT_FGCOLOR; // Foreground
-      case kPR: return DEFAULT_PRCOLOR; // Pressed
+      case kFG: return DEFAULT_FGCOLOR; // OFF/Foreground
+      case kPR: return DEFAULT_PRCOLOR; // ON/Pressed
       case kFR: return DEFAULT_FRCOLOR; // Frame
       case kHL: return DEFAULT_HLCOLOR; // Highlight
       case kSH: return DEFAULT_SHCOLOR; // Shadow
@@ -2241,7 +2309,7 @@ struct IVColorSpec
 
   IVColorSpec(const std::initializer_list<IColor>& colors)
   {
-    assert(colors.size() <= kNumDefaultVColors);
+    assert(colors.size() <= kNumVColors);
     
     int i = 0;
     
@@ -2250,7 +2318,7 @@ struct IVColorSpec
       mColors[i++] = c;
     }
     
-    for(;i < kNumDefaultVColors; i++)
+    for(;i < kNumVColors; i++)
     {
       mColors[i] = GetDefaultColor((EVColor) i);
     }
@@ -2259,7 +2327,7 @@ struct IVColorSpec
   /** Reset the colors to the defaults  */
   void ResetColors()
   {
-    for (int i =0; i < kNumDefaultVColors; i++)
+    for (int i =0; i < kNumVColors; i++)
     {
       mColors[i] = GetDefaultColor((EVColor) i);
     }
@@ -2282,6 +2350,7 @@ static constexpr float DEFAULT_WIDGET_ANGLE = 0.f;
 const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Top};
 const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Bottom};
 
+/** A struct encapsulating a set of properties used to configure IVControls */
 struct IVStyle
 {
   bool hideCursor = DEFAULT_HIDE_CURSOR;
@@ -2335,20 +2404,20 @@ struct IVStyle
   {
   }
   
-  IVStyle WithShowLabel(bool show) const { IVStyle newStyle = *this; newStyle.showLabel = show; return newStyle; }
-  IVStyle WithShowValue(bool show) const { IVStyle newStyle = *this; newStyle.showValue = show; return newStyle; }
+  IVStyle WithShowLabel(bool show = true) const { IVStyle newStyle = *this; newStyle.showLabel = show; return newStyle; }
+  IVStyle WithShowValue(bool show = true) const { IVStyle newStyle = *this; newStyle.showValue = show; return newStyle; }
   IVStyle WithLabelText(const IText& text) const { IVStyle newStyle = *this; newStyle.labelText = text; return newStyle;}
   IVStyle WithValueText(const IText& text) const { IVStyle newStyle = *this; newStyle.valueText = text; return newStyle; }
   IVStyle WithColor(EVColor idx, IColor color) const { IVStyle newStyle = *this; newStyle.colorSpec.mColors[idx] = color; return newStyle; }
   IVStyle WithColors(IVColorSpec spec) const { IVStyle newStyle = *this; newStyle.colorSpec = spec; return newStyle; }
-  IVStyle WithRoundness(float r) const { IVStyle newStyle = *this; newStyle.roundness = r; return newStyle; }
-  IVStyle WithFrameThickness(float t) const { IVStyle newStyle = *this; newStyle.frameThickness = t; return newStyle; }
-  IVStyle WithShadowOffset(float t) const { IVStyle newStyle = *this; newStyle.shadowOffset = t; return newStyle; }
-  IVStyle WithDrawShadows(bool v) const { IVStyle newStyle = *this; newStyle.drawShadows = v; return newStyle; }
-  IVStyle WithDrawFrame(bool v) const { IVStyle newStyle = *this; newStyle.drawFrame = v; return newStyle; }
-  IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = v; return newStyle; }
-  IVStyle WithAngle(float v) const { IVStyle newStyle = *this; newStyle.angle = v; return newStyle; }
-  IVStyle WithEmboss(bool v) const { IVStyle newStyle = *this; newStyle.emboss = v; return newStyle; }
+  IVStyle WithRoundness(float v) const { IVStyle newStyle = *this; newStyle.roundness = Clip(v, 0.f, 1.f); return newStyle; }
+  IVStyle WithFrameThickness(float v) const { IVStyle newStyle = *this; newStyle.frameThickness = v; return newStyle; }
+  IVStyle WithShadowOffset(float v) const { IVStyle newStyle = *this; newStyle.shadowOffset = v; return newStyle; }
+  IVStyle WithDrawShadows(bool v = true) const { IVStyle newStyle = *this; newStyle.drawShadows = v; return newStyle; }
+  IVStyle WithDrawFrame(bool v = true) const { IVStyle newStyle = *this; newStyle.drawFrame = v; return newStyle; }
+  IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = Clip(v, 0.f, 1.f); return newStyle; }
+  IVStyle WithAngle(float v) const { IVStyle newStyle = *this; newStyle.angle = Clip(v, 0.f, 360.f); return newStyle; }
+  IVStyle WithEmboss(bool v = true) const { IVStyle newStyle = *this; newStyle.emboss = v; return newStyle; }
 };
 
 const IVStyle DEFAULT_STYLE = IVStyle();

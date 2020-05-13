@@ -272,24 +272,31 @@ static int domVKToWinVK(int dom_vk_code)
 static EM_BOOL key_callback(int eventType, const EmscriptenKeyboardEvent* pEvent, void* pUserData)
 {
   IGraphicsWeb* pGraphicsWeb = (IGraphicsWeb*) pUserData;
-  
-  IKeyPress keyPress {pEvent->key,
+
+  int VK = domVKToWinVK(pEvent->keyCode);
+  WDL_String keyUTF8;
+
+  // filter utf8 for non ascii keys
+  if((VK >= kVK_0 && VK <= kVK_Z) || VK == kVK_NONE)
+    keyUTF8.Set(pEvent->key);
+  else
+    keyUTF8.Set("");
+
+  IKeyPress keyPress {keyUTF8.Get(),
                       domVKToWinVK(pEvent->keyCode),
                       static_cast<bool>(pEvent->shiftKey),
-                      static_cast<bool>(pEvent->ctrlKey),
+                      static_cast<bool>(pEvent->ctrlKey || pEvent->metaKey),
                       static_cast<bool>(pEvent->altKey)};
   
   switch (eventType)
   {
     case EMSCRIPTEN_EVENT_KEYDOWN:
     {
-      pGraphicsWeb->OnKeyDown(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, keyPress);
-      break;
+      return pGraphicsWeb->OnKeyDown(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, keyPress);
     }
     case EMSCRIPTEN_EVENT_KEYUP:
     {
-      pGraphicsWeb->OnKeyUp(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, keyPress);
-      break;
+      return pGraphicsWeb->OnKeyUp(pGraphicsWeb->mPrevX, pGraphicsWeb->mPrevY, keyPress);
     }
     default:
       break;
@@ -341,9 +348,13 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent,
   info.y = pEvent->targetY / pGraphics->GetDrawScale();
   info.dX = pEvent->movementX;
   info.dY = pEvent->movementY;
-  info.ms = {pEvent->buttons == 1, pEvent->buttons == 2, static_cast<bool>(pEvent->shiftKey), static_cast<bool>(pEvent->ctrlKey), static_cast<bool>(pEvent->altKey)};
-  std::vector<IMouseInfo> list {info};
+  info.ms = {pEvent->buttons == 1,
+             pEvent->buttons == 2,
+             static_cast<bool>(pEvent->shiftKey),
+             static_cast<bool>(pEvent->ctrlKey),
+             static_cast<bool>(pEvent->altKey)};
   
+  std::vector<IMouseInfo> list {info};
   switch (eventType)
   {
     case EMSCRIPTEN_EVENT_MOUSEDOWN:
@@ -582,18 +593,22 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
 {
   if (hide)
   {
+#ifdef IGRAPHICS_WEB_POINTERLOCK
     if (lock)
       emscripten_request_pointerlock("#canvas", EM_FALSE);
     else
+#endif
       val::global("document")["body"]["style"].set("cursor", "none");
     
     mCursorLock = lock;
   }
   else
   {
+#ifdef IGRAPHICS_WEB_POINTERLOCK
     if (mCursorLock)
       emscripten_exit_pointerlock();
     else
+#endif
       OnSetCursor();
       
     mCursorLock = false;
@@ -626,6 +641,12 @@ ECursor IGraphicsWeb::SetMouseCursor(ECursor cursorType)
   return IGraphics::SetMouseCursor(cursorType);
 }
 
+void IGraphicsWeb::GetMouseLocation(float& x, float&y) const
+{
+  x = mPrevX;
+  y = mPrevY;
+}
+
 //static
 void IGraphicsWeb::OnMainLoopTimer()
 {
@@ -640,7 +661,12 @@ void IGraphicsWeb::OnMainLoopTimer()
   {
     gGraphics->SetScreenScale(screenScale);
   }
-  
+
+ #ifdef IGRAPHICS_IMGUI
+  if(gGraphics->mImGuiRenderer)
+    gGraphics->mImGuiRenderer->DoFrame();
+#endif
+
   if (gGraphics->IsDirty(rects))
   {
     gGraphics->SetAllControlsClean();

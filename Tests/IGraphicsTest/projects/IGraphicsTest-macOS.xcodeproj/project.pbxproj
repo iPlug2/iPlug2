@@ -515,6 +515,7 @@
 		4F23BA1413B647E50097A67E /* IGraphicsTest-macOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-macOS-Info.plist"; path = "../resources/IGraphicsTest-macOS-Info.plist"; sourceTree = "<group>"; };
 		4F23BA1513B647E50097A67E /* IGraphicsTest-VST2-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-VST2-Info.plist"; path = "../resources/IGraphicsTest-VST2-Info.plist"; sourceTree = "<group>"; };
 		4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAPP_dialog.cpp; path = ../../../IPlug/APP/IPlugAPP_dialog.cpp; sourceTree = "<group>"; tabWidth = 2; };
+		4F3439452417A99C00960500 /* TestMaskControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestMaskControl.h; sourceTree = "<group>"; };
 		4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPluginBase.cpp; path = ../../../IPlug/IPlugPluginBase.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		4F35DEAC207E5C5A00867D8F /* IPlugPluginBase.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugPluginBase.h; path = ../../../IPlug/IPlugPluginBase.h; sourceTree = "<group>"; tabWidth = 2; };
 		4F3862ED2014BBEC0009F402 /* IGraphicsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsTest.cpp; path = ../IGraphicsTest.cpp; sourceTree = "<group>"; };
@@ -602,7 +603,7 @@
 		4F78D90513B63BA50032E0F3 /* IPlugMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugMidi.h; path = ../../../IPlug/IPlugMidi.h; sourceTree = SOURCE_ROOT; tabWidth = 2; };
 		4F78DB5F13B6462B0032E0F3 /* IGraphicsTest.component */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IGraphicsTest.component; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F7E6F2920DEC3DE00A5F641 /* favicon.ico */ = {isa = PBXFileReference; lastKnownFileType = image.ico; path = favicon.ico; sourceTree = "<group>"; };
-		4F7E6F2B20DEC3DE00A5F641 /* IPlugWAM-standalone.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = "IPlugWAM-standalone.html"; sourceTree = "<group>"; };
+		4F7E6F2B20DEC3DE00A5F641 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		4F7E6F2D20DEC3DE00A5F641 /* IPlugWAM-awp.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "IPlugWAM-awp.js"; sourceTree = "<group>"; };
 		4F7E6F2F20DEC3DE00A5F641 /* IPlugWAM-awn.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "IPlugWAM-awn.js"; sourceTree = "<group>"; };
 		4F8157DD205D50EA00393585 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
@@ -1356,7 +1357,7 @@
 			isa = PBXGroup;
 			children = (
 				4F7E6F2920DEC3DE00A5F641 /* favicon.ico */,
-				4F7E6F2B20DEC3DE00A5F641 /* IPlugWAM-standalone.html */,
+				4F7E6F2B20DEC3DE00A5F641 /* index.html */,
 				4F7E6F2C20DEC3DE00A5F641 /* scripts */,
 			);
 			name = Template;
@@ -1715,6 +1716,7 @@
 		4FE599C9232032390012B628 /* Test */ = {
 			isa = PBXGroup;
 			children = (
+				4F3439452417A99C00960500 /* TestMaskControl.h */,
 				4F1C2D3E23D72FF60088AE84 /* TestFlexBoxControl.h */,
 				4FE599CA232032390012B628 /* TestGLControl.h */,
 				4FE599CB232032390012B628 /* TestCursorControl.h */,
@@ -2015,7 +2017,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1030;
+				LastUpgradeCheck = 1200;
 				TargetAttributes = {
 					4F20EEC8132C69FE0030E34C = {
 						DevelopmentTeam = 686EDA2T8T;
@@ -2078,13 +2080,13 @@
 			};
 			buildConfigurationList = 1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "IGraphicsTest-macOS" */;
 			compatibilityVersion = "Xcode 6.3";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 1;
 			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
+				en,
+				ja,
+				fr,
+				de,
 				Base,
 			);
 			mainGroup = 089C166AFE841209C02AAC07 /* IPlugExample */;
@@ -3010,7 +3012,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.standalone.IGraphicsTest.AUv3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IGraphicsTest.AUv3;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -3048,7 +3050,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.standalone.IGraphicsTest.AUv3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IGraphicsTest.AUv3;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -3086,7 +3088,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.standalone.IGraphicsTest.AUv3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IGraphicsTest.AUv3;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
@@ -3197,7 +3199,7 @@
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.app.${BINARY_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
@@ -3223,7 +3225,7 @@
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.app.${BINARY_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
@@ -3249,7 +3251,7 @@
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.app.${BINARY_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
@@ -3840,7 +3842,7 @@
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.app.${BINARY_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
@@ -3866,7 +3868,7 @@
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.app.${BINARY_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
@@ -3892,7 +3894,7 @@
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.standalone.${BINARY_NAME}";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.app.${BINARY_NAME}";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;

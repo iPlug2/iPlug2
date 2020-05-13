@@ -186,14 +186,12 @@ public:
    * @param g The graphics context to which this control belongs. */
   virtual void DrawPTHighlight(IGraphics& g);
 
-  /** Call this method in response to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu,
-   * if the control is linked to a parameter (mParamIdx > kNoParameter)
+  /** Call this method in response to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu, if the control is linked to a parameter (mParamIdx > kNoParameter)
    * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
   void PromptUserInput(int valIdx = 0);
   
-  /** Create a text entry box so the user can enter a value, or pop up a pop-up menu,
-   * if the control is linked to a parameter (mParamIdx > kNoParameter), specifying the bounds
-   * @param bounds The rectangle for the text entry. Pop-up menu's will appear below the rectangle. /todo check
+  /** Create a text entry box so the user can enter a value, or pop up a pop-up menu, if the control is linked to a parameter (mParamIdx > kNoParameter) specifying the bounds
+   * @param bounds The rectangle for the text entry. Pop-up menu's will appear below the rectangle.
    * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
   void PromptUserInput(const IRECT& bounds, int valIdx = 0);
   
@@ -219,6 +217,7 @@ public:
   int GetParamIdx(int valIdx = 0) const;
   
   /** Set the index of a parameter that the control is linked to
+   * If you are calling this "manually" to reuse a control for multiple parameters, you probably want to call IEditorDelegate::SendCurrentParamValuesFromDelegate() afterward, to update the control values
    * @param paramIdx Parameter index, or kNoParameter if there is no parameter linked with this control at valIdx
    * @param valIdx An index to choose which of the controls vals to set */
   void SetParamIdx(int paramIdx, int valIdx = 0);
@@ -319,15 +318,15 @@ public:
    * @param bounds The control's new draw and target bounds within the graphics context */
   void SetTargetAndDrawRECTs(const IRECT& bounds) { mRECT = mTargetRECT = bounds; mMouseIsOver = false; OnResize(); }
 
-  /** Set the position of the control, preserving the width and height of the draw rect and target area
+  /** Set the position of the control, preserving the width and height. This may need to be overriden if you maintain custom positioning data in your control
    * @param x the new x coordinate of the top left corner of the control
    * @param y the new y coordinate of the top left corner of the control */
-  void SetPosition(float x, float y);
+  virtual void SetPosition(float x, float y);
 
-  /** Set the size of the control, preserving the width and height of the draw rect and target area
+  /** Set the size of the control, preserving the current position. This may need to be overriden if you maintain custom positioning data in your control, or if your TargetRECT is not the same as the main RECT.
    * @param w the new width of the control
    * @param h the new height of the control */
-  void SetSize(float w, float h);
+  virtual void SetSize(float w, float h);
 
   /** Used internally by the AAX wrapper view interface to set the control parmeter highlight 
    * @param isHighlighted /c true if the control should be highlighted 
@@ -370,7 +369,13 @@ public:
   
   /** @return \c true if the control ignores mouse events */
   bool GetIgnoreMouse() const { return mIgnoreMouse; }
+  
+  /** @return \c true if the control should show parameter labels/units e.g. "Hz" in text entry prompts */
+  bool GetPromptShowsParamLabel() const { return mPromptShowsParamLabel; }
 
+  /** Set if the control should show parameter labels/units e.g. "Hz" in text entry prompts */
+  void SetPromptShowsParamLabel(bool enable) { mPromptShowsParamLabel = enable; }
+  
   /** Hit test the control. Override this method if you want the control to be hit only if a visible part of it is hit, or whatever.
    * @param x The X coordinate within the control to test 
    * @param y The y coordinate within the control to test
@@ -460,9 +465,8 @@ public:
    * @param y The Y coordinate for snapping
    * @param direction The direction of the control's travel- horizontal or vertical fader
    * @param bounds The area in which the track of e.g. a slider should be snapped
-   * @param valIdx /todo
-   * @param scalar A scalar to speedup/slowdown mousing along the track */
-  virtual void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1, float scalar = 1., double minClip = 0., double maxClip = 1.);
+   * @param valIdx /todo */
+  virtual void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1, double minClip = 0., double maxClip = 1.);
 
   /* if you override this you must call the base implementation, to free mAnimationFunc */
   virtual void OnEndAnimation();
@@ -479,17 +483,21 @@ public:
    * @param duration Duration in milliseconds for the animation  */
   void SetAnimation(IAnimationFunction func, int duration) { mAnimationFunc = func; StartAnimation(duration); }
 
-  /** /todo */
+  /** Get the control's animation function, if it exists */
   IAnimationFunction GetAnimationFunction() { return mAnimationFunc; }
 
-  /** /todo */
-  IAnimationFunction GetActionFunction() { return mActionFunc; }
+  /** Get the control's action function, if it exists */
+  IActionFunction GetActionFunction() { return mActionFunc; }
 
-  /** /todo */
+  /** Get the progress in a control's animation, in the range 0-1 */
   double GetAnimationProgress() const;
   
-  /** /todo */
+  /** Get the duration of animations applied to the control */
   Milliseconds GetAnimationDuration() const { return mAnimationDuration; }
+
+  /** Helper function to dynamic cast an IControl to a subclass */
+  template <class T>
+  T* As() { return dynamic_cast<T*>(this); }
     
 #if defined VST3_API || defined VST3C_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
@@ -535,6 +543,7 @@ protected:
   bool mIgnoreMouse = false;
   bool mWantsMidi = false;
   bool mWantsMultiTouch = false;
+  bool mPromptShowsParamLabel = false;
   /** if mGraphics::mHandleMouseOver = true, this will be true when the mouse is over control. If you need finer grained control of mouseovers, you can override OnMouseOver() and OnMouseOut() */
   bool mMouseIsOver = false;
   WDL_String mTooltip;
@@ -598,7 +607,7 @@ public:
       i = Clip(i, 1, mBitmap.N());
     }
     IBlend blend = mControl->GetBlend();
-    g.DrawBitmap(mBitmap, mControl->GetRECT(), i, &blend);
+    g.DrawBitmap(mBitmap, mControl->GetRECT().GetCentredInside(IRECT(0, 0, mBitmap)), i, &blend);
   }
 
 protected:
@@ -611,19 +620,6 @@ protected:
 class IVectorBase
 {
 public:
-  IVectorBase(const IColor* pBGColor = &DEFAULT_BGCOLOR,
-              const IColor* pFGColor = &DEFAULT_FGCOLOR,
-              const IColor* pPRColor = &DEFAULT_PRCOLOR,
-              const IColor* pFRColor = &DEFAULT_FRCOLOR,
-              const IColor* pHLColor = &DEFAULT_HLCOLOR,
-              const IColor* pSHColor = &DEFAULT_SHCOLOR,
-              const IColor* pX1Color = &DEFAULT_X1COLOR,
-              const IColor* pX2Color = &DEFAULT_X2COLOR,
-              const IColor* pX3Color = &DEFAULT_X3COLOR)
-  {
-    AddColors(pBGColor, pFGColor, pPRColor, pFRColor, pHLColor, pSHColor, pX1Color, pX2Color, pX3Color);
-  }
-
   IVectorBase(const IVStyle& style, bool labelInWidget = false, bool valueInWidget = false)
   : mLabelInWidget(labelInWidget)
   , mValueInWidget(valueInWidget)
@@ -636,81 +632,21 @@ public:
     mControl = pControl;
     mLabelStr.Set(label);
   }
-  
-  void AddColor(const IColor& color)
-  {
-    mColors.Add(color);
-  }
-  
-  void AddColors(const IColor* pBGColor = 0,
-                 const IColor* pFGColor = 0,
-                 const IColor* pPRColor = 0,
-                 const IColor* pFRColor = 0,
-                 const IColor* pHLColor = 0,
-                 const IColor* pSHColor = 0,
-                 const IColor* pX1Color = 0,
-                 const IColor* pX2Color = 0,
-                 const IColor* pX3Color = 0)
-  {
-    if(pBGColor) AddColor(*pBGColor);
-    if(pFGColor) AddColor(*pFGColor);
-    if(pPRColor) AddColor(*pPRColor);
-    if(pFRColor) AddColor(*pFRColor);
-    if(pHLColor) AddColor(*pHLColor);
-    if(pSHColor) AddColor(*pSHColor);
-    if(pX1Color) AddColor(*pX1Color);
-    if(pX2Color) AddColor(*pX2Color);
-    if(pX3Color) AddColor(*pX3Color);
-  }
 
-  void SetColor(int colorIdx, const IColor& color)
+  void SetColor(EVColor colorIdx, const IColor& color)
   {
-    if(colorIdx < mColors.GetSize())
-      mColors.Get()[colorIdx] = color;
-    
+    mStyle.colorSpec.mColors[static_cast<int>(colorIdx)] = color;
     mControl->SetDirty(false);
-  }
-  
-  void SetColors(const IColor& BGColor,
-                 const IColor& FGColor,
-                 const IColor& PRColor,
-                 const IColor& FRColor,
-                 const IColor& HLColor,
-                 const IColor& SHColor,
-                 const IColor& X1Color,
-                 const IColor& X2Color,
-                 const IColor& X3Color)
-  {
-    mColors.Get()[kBG] = BGColor;
-    mColors.Get()[kFG] = FGColor;
-    mColors.Get()[kPR] = PRColor;
-    mColors.Get()[kFR] = FRColor;
-    mColors.Get()[kHL] = HLColor;
-    mColors.Get()[kSH] = SHColor;
-    mColors.Get()[kX1] = X1Color;
-    mColors.Get()[kX2] = X2Color;
-    mColors.Get()[kX3] = X3Color;
   }
 
   void SetColors(const IVColorSpec& spec)
   {
-    SetColors(spec.GetColor(kBG),
-              spec.GetColor(kFG),
-              spec.GetColor(kPR),
-              spec.GetColor(kFR),
-              spec.GetColor(kHL),
-              spec.GetColor(kSH),
-              spec.GetColor(kX1),
-              spec.GetColor(kX2),
-              spec.GetColor(kX3));
+    mStyle.colorSpec = spec;
   }
 
-  const IColor& GetColor(int colorIdx) const
+  const IColor& GetColor(EVColor color) const
   {
-    if(colorIdx < mColors.GetSize())
-      return mColors.Get()[colorIdx];
-    else
-      return mColors.Get()[0];
+    return mStyle.colorSpec.GetColor(color);
   }
   
   void SetLabelStr(const char* label) { mLabelStr.Set(label); mControl->SetDirty(false); }
@@ -726,13 +662,12 @@ public:
   void SetShadowOffset(float offset) { mStyle.shadowOffset = offset; mControl->SetDirty(false); }
   void SetFrameThickness(float thickness) { mStyle.frameThickness = thickness; mControl->SetDirty(false); }
   void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
-  void SetSplashPoint(float x, float y) { mSplashX = x; mSplashY = y; }
+  void SetSplashPoint(float x, float y) { mSplashPoint.x = x; mSplashPoint.y = y; }
   void SetShape(EVShape shape) { mShape = shape; mControl->SetDirty(false); }
 
-  void SetStyle(const IVStyle& style)
+  virtual void SetStyle(const IVStyle& style)
   {
     mStyle = style;
-    mColors.Resize(kNumDefaultVColors); // TODO?
     SetColors(style.colorSpec);
   }
 
@@ -744,7 +679,7 @@ public:
       handleBounds.Pad(- 0.5f * mStyle.frameThickness);
     
     if (mStyle.drawShadows)
-      handleBounds.Alter(0, 0, -mStyle.shadowOffset, -mStyle.shadowOffset);
+      handleBounds.Alter(mStyle.shadowOffset, 0, -mStyle.shadowOffset, -mStyle.shadowOffset);
     
     return handleBounds;
   }
@@ -760,7 +695,7 @@ public:
   void DrawSplash(IGraphics& g, const IRECT& clipRegion = IRECT())
   {
     g.PathClipRegion(clipRegion);
-    g.FillCircle(GetColor(kHL), mSplashX, mSplashY, mSplashRadius);
+    g.FillCircle(GetColor(kHL), mSplashPoint.x, mSplashPoint.y, mSplashRadius);
     g.PathClipRegion(IRECT());
   }
   
@@ -796,7 +731,7 @@ public:
     }
   }
   
-  void DrawHandle(IGraphics& g, EVShape shape, const IRECT& bounds, bool pressed, bool mouseOver, bool disabled)
+  virtual void DrawPressableShape(IGraphics& g, EVShape shape, const IRECT& bounds, bool pressed, bool mouseOver, bool disabled)
   {
     switch (shape)
     {
@@ -1092,15 +1027,13 @@ public:
   
 protected:
   IControl* mControl = nullptr;
-  WDL_TypedBuf<IColor> mColors;
-  IVStyle mStyle;
-  bool mLabelInWidget = false;
-  bool mValueInWidget = false;
-  float mSplashRadius = 0.f;
-  float mSplashX = 0.f;
-  float mSplashY = 0.f;
+  IVStyle mStyle; // IVStyle that defines certain common properties of an IVControl
+  bool mLabelInWidget = false; // Should the Label text be displayed inside the widget
+  bool mValueInWidget = false; // Should the Value text be displayed inside the widget
+  float mSplashRadius = 0.f; // Modified during the default SplashClickAnimationFunc to specify the radius of the splash
+  IVec2 mSplashPoint = {0.f, 0.f}; // Set at the start of the SplashClickActionFunc to set the position of the splash
   float mMaxSplashRadius = 50.f;
-  float mIndicatorTrackThickness = 2.f;
+  float mTrackSize = 2.f;
   float mValueDisplayFrac = 0.66f; // the fraction of the control width for the text entry
   IRECT mWidgetBounds; // The knob/slider/button
   IRECT mLabelBounds; // A piece of text above the control
@@ -1212,9 +1145,6 @@ public:
   , mGearing(gearing)
   {}
 
-  void SetGearing(double gearing) { mGearing = gearing; }
-  bool IsFineControl(const IMouseMod& mod, bool wheel) const;
-
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     mMouseDown = true;
@@ -1236,6 +1166,9 @@ public:
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
   void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
   
+  void SetGearing(double gearing) { mGearing = gearing; }
+  bool IsFineControl(const IMouseMod& mod, bool wheel) const;
+
 protected:
   /** Get the area for which mouse deltas will be used to calculate the amount dragging changes the control value. This is usually the area that contains the knob handle, can override if your control contains extra elements such as labels
    * @return IRECT The bounds over which mouse deltas will be used to calculate the amount dragging changes the control value */
@@ -1251,36 +1184,24 @@ protected:
 class ISliderControlBase : public IControl
 {
 public:
-  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter,  EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 0.f);
-  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 0.f);
+  ISliderControlBase(const IRECT& bounds, IActionFunction aF = nullptr, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 0.f);
   
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override
-  {
-    mMouseDown = true;
-    SnapToMouse(x, y, mDirection, mTrack);
+  void OnResize() override;
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override;
 
-    if (mHideCursorOnDrag)
-      GetUI()->HideMouseCursor(true, false);
-
-    IControl::OnMouseDown(x, y, mod);
-  }
-
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override
-  {
-    mMouseDown = false;
-
-    if (mHideCursorOnDrag)
-      GetUI()->HideMouseCursor(false);
-  }
-
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { SnapToMouse(x, y, mDirection, mTrack); }
+  void SetGearing(double gearing) { mGearing = gearing; }
+  bool IsFineControl(const IMouseMod& mod, bool wheel) const;
   
 protected:
   bool mHideCursorOnDrag = true;
   EDirection mDirection;
-  IRECT mTrack;
-  bool mOnlyHandle;
+  IRECT mTrackBounds;
   float mHandleSize;
+  double mGearing;
   bool mMouseDown = false;
 };
 
@@ -1363,6 +1284,57 @@ public:
     {
       DrawTrack(g, mTrackBounds.Get()[ch], ch);
     }
+  }
+  
+  /** Update the parameters based on a parameter group name.
+   * You probably want to call IEditorDelegate::SendCurrentParamValuesFromDelegate() after this, to update the control values */
+  void SetParamsByGroup(const char* paramGroup)
+  {
+    int nParams = GetDelegate()->NParams();
+    std::vector<int> paramIdsForGroup;
+    
+    for (auto p = 0; p < nParams; p++)
+    {
+      IParam* pParam = GetDelegate()->GetParam(p);
+      
+      if(strcmp(pParam->GetGroupForHost(), paramGroup) == 0)
+      {
+        paramIdsForGroup.push_back(p);
+      }
+    }
+    
+    mTrackBounds.Resize(0);
+    
+    int nParamsInGroup = static_cast<int>(paramIdsForGroup.size());
+        
+    SetNVals(nParamsInGroup);
+  
+    int valIdx = 0;
+    for (auto param : paramIdsForGroup)
+    {
+      SetParamIdx(param, valIdx++);
+      mTrackBounds.Add(IRECT());
+    }
+    
+    OnResize();
+  }
+  
+  /** Update the parameters based on a parameter group name.
+   * You probably want to call IEditorDelegate::SendCurrentParamValuesFromDelegate() after this, to update the control values */
+  void SetParams(std::initializer_list<int> paramIds)
+  {
+    mTrackBounds.Resize(0);
+
+    SetNVals(static_cast<int>(paramIds.size()));
+  
+    int valIdx = 0;
+    for (auto param : paramIds)
+    {
+      SetParamIdx(param, valIdx++);
+      mTrackBounds.Add(IRECT());
+    }
+    
+    OnResize();
   }
   
   //void SetAllTrackData(float val) { memset(mTrackData.Get(), (int) Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
@@ -1675,11 +1647,11 @@ public:
 
   void Draw(IGraphics& g) override;
   void OnInit() override;
-  void SetDisabled(bool disabled) override { mText.mFGColor.A = static_cast<int>((disabled ? GRAYED_ALPHA : 1.0f) * 255.f); }
 
   virtual void SetStr(const char* str);
   virtual void SetStrFmt(int maxlen, const char* fmt, ...);
   virtual void ClearStr() { SetStr(""); }
+  const char* GetStr() const { return mStr.Get(); }
   
   void SetBoundsBasedOnStr();
   
@@ -1689,6 +1661,28 @@ protected:
   bool mSetBoundsBasedOnStr = false;
 };
 
+/** A basic control to display some editable text */
+class IEditableTextControl : public ITextControl
+{
+public:
+  IEditableTextControl(const IRECT& bounds, const char* str, const IText& text = DEFAULT_TEXT)
+  : ITextControl(bounds, str, text)
+  {
+    mIgnoreMouse = false;
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    GetUI()->CreateTextEntry(*this, mText, mRECT, GetStr());
+  }
+  
+  void OnTextEntryCompletion(const char* str, int valIdx) override
+  {
+    SetStr(str);
+  }
+};
+
+/** A control to show a clickable URL, that changes colour after clicking */
 class IURLControl : public ITextControl
 {
 public:
@@ -1706,6 +1700,7 @@ protected:
   bool mClicked = false;
 };
 
+/** A control to toggle between two text strings on click */
 class ITextToggleControl : public ITextControl
 {
 public:
@@ -1736,6 +1731,8 @@ public:
   void OnResize() override;
 protected:
   bool mShowParamLabel;
+  IColor mTriangleColor = COLOR_BLACK;
+  IColor mTriangleMouseOverColor = COLOR_WHITE;
   IRECT mTri;
 };
 
