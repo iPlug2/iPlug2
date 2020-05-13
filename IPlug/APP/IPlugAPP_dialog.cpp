@@ -699,23 +699,16 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       case SIZE_RESTORED:
       case SIZE_MAXIMIZED:
       {
-        int width = LOWORD(lParam);
-        int height = HIWORD(lParam);
-        if (width > 0 && height > 0)
-        {
-          pPlug->OnParentWindowResize(width, height);
-          return 1;
-        }
+        RECT r;
+        GetClientRect(hwndDlg, &r);
+        pPlug->OnParentWindowResize(r.right, r.bottom);
+        return 1;
       }
       //case SIZE_MAXSHOW:
       //case SIZE_MINIMIZED:
       default:
         return 0;
       }
-    }
-    case WM_SIZING:
-    {
-      return 0;
     }
   }
   return 0;

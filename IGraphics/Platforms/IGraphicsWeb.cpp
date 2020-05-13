@@ -510,6 +510,20 @@ static EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* 
   return false;
 }
 
+static EM_BOOL uievent_callback(int eventType, const EmscriptenUiEvent* pEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
+
+  if (eventType == EMSCRIPTEN_EVENT_RESIZE)
+  {
+    pGraphics->GetDelegate()->OnParentWindowResize(pEvent->windowInnerWidth, pEvent->windowInnerHeight);
+
+    return true;
+  }
+  
+  return false;
+}
+
 IColorPickerHandlerFunc gColorPickerHandlerFunc = nullptr;
 
 static void color_picker_callback(val e)
@@ -560,6 +574,7 @@ IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float s
   emscripten_set_touchend_callback("#canvas", this, 1, touch_callback);
   emscripten_set_touchmove_callback("#canvas", this, 1, touch_callback);
   emscripten_set_touchcancel_callback("#canvas", this, 1, touch_callback);
+  emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, 1, uievent_callback);
 }
 
 IGraphicsWeb::~IGraphicsWeb()

@@ -40,7 +40,6 @@ public:
   //IEditorDelegate
   void* OpenWindow(void* pHandle) final;
   void CloseWindow() final;
-  void OnParentWindowResize(int width, int height);
   void SetScreenScale(double scale) final;
   
   bool OnKeyDown(const IKeyPress& key) override;

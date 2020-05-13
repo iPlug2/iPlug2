@@ -59,11 +59,6 @@ void IGEditorDelegate::CloseWindow()
   }
 }
 
-void IGEditorDelegate::OnParentWindowResize(int width, int height)
-{
-  mGraphics->Resize(width, height, 1.); // TODO: for scaling override the method?
-}
-
 void IGEditorDelegate::SetScreenScale(double scale)
 {
   if (GetUI())

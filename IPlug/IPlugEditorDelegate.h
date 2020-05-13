@@ -92,7 +92,7 @@ public:
   virtual void CloseWindow() { OnUIClose(); }
 
   /** Called by app wrappers when the OS window scaling buttons/resizers are used */
-  virtual void OnParentWindowResize(int width, int height) {}
+  virtual void OnParentWindowResize(int width, int height) { /* NO-OP*/ }
   
 #pragma mark - Methods you may want to override...
   /** Override this method to do something before the UI is opened. You must call the base implementation to make sure controls linked to parameters get updated correctly. */
