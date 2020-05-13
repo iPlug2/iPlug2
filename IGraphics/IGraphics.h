@@ -983,8 +983,9 @@ public:
   /** \todo detailed description of how this works
    * @param w New width in pixels
    * @param h New height in pixels
-   * @param scale New scale ratio */
-  void Resize(int w, int h, float scale);
+   * @param scale New scale ratio
+   * @param platformResizeOK If this is being called from a platform resizer (e.g. OS maximse button), platformResizeOK should be false, to avoid feedback */
+  void Resize(int w, int h, float scale, bool platformResizeOK = true);
   
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */
