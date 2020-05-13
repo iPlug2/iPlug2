@@ -745,7 +745,7 @@ bool IGraphics::IsDirty(IRECTList& rects)
 #endif
 
   //TODO: for GL backends, having an ImGui on top currently requires repainting everything on each frame
-#if defined IGRAPHICS_IMGUI && (defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3)
+#if defined IGRAPHICS_IMGUI && defined IGRAPHICS_GL
   if (mImGuiRenderer && mImGuiRenderer->GetDrawFunc())
   {
     rects.Add(GetBounds());
@@ -2181,7 +2181,7 @@ void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::funct
 {
   mImGuiRenderer = std::make_unique<ImGuiRenderer>(this, drawFunc, setupFunc);
   
-#if !defined IGRAPHICS_GL2 && !defined IGRAPHICS_GL3 // TODO: IGRAPHICS_GL!
+#if !defined IGRAPHICS_GL
   CreatePlatformImGui();
 #endif
 }
