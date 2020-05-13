@@ -661,7 +661,12 @@ void IGraphicsWeb::OnMainLoopTimer()
   {
     gGraphics->SetScreenScale(screenScale);
   }
-  
+
+ #ifdef IGRAPHICS_IMGUI
+  if(gGraphics->mImGuiRenderer)
+    gGraphics->mImGuiRenderer->DoFrame();
+#endif
+
   if (gGraphics->IsDirty(rects))
   {
     gGraphics->SetAllControlsClean();
