@@ -107,7 +107,13 @@ using namespace igraphics;
 - (bool) becomeFirstResponder;
 @end
 
-@interface IGRAPHICS_VIEW : NSView <NSTextFieldDelegate/*, WKScriptMessageHandler*/>
+#ifdef IGRAPHICS_GL
+#define VIEW_BASE NSOpenGLView
+#else
+#define VIEW_BASE NSView
+#endif
+
+@interface IGRAPHICS_VIEW : VIEW_BASE <NSTextFieldDelegate/*, WKScriptMessageHandler*/>
 {
   CVDisplayLinkRef displayLink;
   NSTrackingArea* mTrackingArea;
@@ -165,14 +171,6 @@ using namespace igraphics;
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender;
 //
 - (void) setMouseCursor: (ECursor) cursorType;
-@end
-
-@interface IGRAPHICS_GLLAYER : NSOpenGLLayer
-{
-  IGRAPHICS_VIEW* mView;
-}
-
-- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
 @end
 
 #ifdef IGRAPHICS_IMGUI

@@ -377,67 +377,6 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
 }
 @end
 
-@implementation IGRAPHICS_GLLAYER
-
-- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
-{
-  mView = pView;
-  
-  self = [super init];
-  if ( self != nil )
-  {
-    self.needsDisplayOnBoundsChange = YES;
-    self.asynchronous = NO;
-  }
-  
-  return self;
-}
-
-- (NSOpenGLContext*) openGLContextForPixelFormat:(NSOpenGLPixelFormat*) pixelFormat
-{
-  NSOpenGLContext* context = [super openGLContextForPixelFormat: pixelFormat];
-  
-  [context makeCurrentContext];
-  
-  if(!mView->mGraphics->GetDrawContext())
-    mView->mGraphics->ContextReady(self);
-  
-  return context;
-}
-
-- (NSOpenGLPixelFormat*) openGLPixelFormatForDisplayMask: (uint32_t) mask
-{
-  NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
-  #if defined IGRAPHICS_GL3
-    profile = (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core;
-  #endif
-  
-  const NSOpenGLPixelFormatAttribute kAttributes[] =  {
-    NSOpenGLPFAAccelerated,
-    NSOpenGLPFANoRecovery,
-    NSOpenGLPFADoubleBuffer,
-    NSOpenGLPFAAlphaSize, 8,
-    NSOpenGLPFAColorSize, 24,
-    NSOpenGLPFADepthSize, 0,
-    NSOpenGLPFAStencilSize, 8,
-    NSOpenGLPFAOpenGLProfile, profile,
-    (NSOpenGLPixelFormatAttribute) 0
-  };
-
-  return [[NSOpenGLPixelFormat alloc] initWithAttributes:kAttributes];
-}
-
-//- (BOOL)canDrawInOpenGLContext:(NSOpenGLContext *)context pixelFormat:(NSOpenGLPixelFormat *)pixelFormat forLayerTime:(CFTimeInterval)timeInterval displayTime:(const CVTimeStamp *)timeStamp
-//{
-//}
-
-- (void) drawInOpenGLContext: (NSOpenGLContext*) context pixelFormat: (NSOpenGLPixelFormat*) pixelFormat forLayerTime: (CFTimeInterval) timeInterval displayTime: (const CVTimeStamp*) timeStamp
-{
-  [mView render];
-}
-
-@end
-
 #pragma mark -
 
 extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
@@ -462,7 +401,41 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
     ((CAMetalLayer*) self.layer).device = MTLCreateSystemDefaultDevice();
     #elif defined IGRAPHICS_GL
-    self.layer = [[IGRAPHICS_GLLAYER alloc] initWithIGraphicsView:self];
+    
+    NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
+    #if defined IGRAPHICS_GL3
+    profile = (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core;
+    #endif
+    
+    const NSOpenGLPixelFormatAttribute attrs[] =  {
+      NSOpenGLPFAAccelerated,
+      NSOpenGLPFANoRecovery,
+      NSOpenGLPFADoubleBuffer,
+      NSOpenGLPFAAlphaSize, 8,
+      NSOpenGLPFAColorSize, 24,
+      NSOpenGLPFADepthSize, 0,
+      NSOpenGLPFAStencilSize, 8,
+      NSOpenGLPFAOpenGLProfile, profile,
+      (NSOpenGLPixelFormatAttribute) 0
+    };
+    
+    NSOpenGLPixelFormat *pf = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
+    assert(pf);
+       
+    NSOpenGLContext* context = [[NSOpenGLContext alloc] initWithFormat:pf shareContext:nil];
+    assert(context);
+    
+  #ifdef DEBUG
+    // When we're using a CoreProfile context, crash if we call a legacy OpenGL function
+    // This will make it much more obvious where and when such a function call is made so
+    // that we can remove such calls.
+    // Without this we'd simply get GL_INVALID_OPERATION error for calling legacy functions
+    // but it would be more difficult to see where that function was called.
+    CGLEnable([context CGLContextObj], kCGLCECrashOnRemovedFunctions);
+  #endif
+  
+    self.pixelFormat = pf;
+    self.openGLContext = context;
     self.wantsBestResolutionOpenGLSurface = YES;
     #endif
     self.layer.opaque = YES;
@@ -471,13 +444,36 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 #endif
   
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
-
-  CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
-  CVDisplayLinkSetOutputCallback(displayLink, &displayLinkCallback, self);
-  CVDisplayLinkStart(displayLink);
+  
+  
+  #if !defined IGRAPHICS_GL
+  [self setTimer];
+  #endif
   
   return self;
 }
+
+#ifdef IGRAPHICS_GL
+- (void) prepareOpenGL
+{
+  [super prepareOpenGL];
+  
+  // Make all the OpenGL calls to setup rendering
+  //  and build the necessary rendering objects
+  // The reshape function may have changed the thread to which our OpenGL
+  // context is attached before prepareOpenGL and initGL are called.  So call
+  // makeCurrentContext to ensure that our OpenGL context current to this
+  // thread (i.e. makeCurrentContext directs all OpenGL calls on this thread
+  // to [self openGLContext])
+  [[self openGLContext] makeCurrentContext];
+  
+  // Synchronize buffer swaps with vertical refresh rate
+  GLint swapInt = 1;
+  [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
+  
+  [self setTimer];
+}
+#endif
 
 static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* now, const CVTimeStamp* outputTime, CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext)
 {
@@ -485,6 +481,18 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
       [(IGRAPHICS_VIEW*) displayLinkContext render];
   });
   return kCVReturnSuccess;
+}
+
+- (void) setTimer
+{
+  CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
+  CVDisplayLinkSetOutputCallback(displayLink, &displayLinkCallback, self);
+  #ifdef IGRAPHICS_GL
+  CGLContextObj cglContext = [[self openGLContext] CGLContextObj];
+  CGLPixelFormatObj cglPixelFormat = [[self pixelFormat] CGLPixelFormatObj];
+  CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, cglContext, cglPixelFormat);
+  #endif
+  CVDisplayLinkStart(displayLink);
 }
 
 - (void) killTimer
@@ -593,6 +601,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 // not called for layer backed views
 - (void) drawRect: (NSRect) bounds
 {
+  #if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL
   if (mGraphics)
   {
     if (!mGraphics->GetPlatformContext())
@@ -611,6 +620,9 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
       mGraphics->Draw(drawRects);
     }
   }
+  #else
+  mGraphics->Draw(mDirtyRects);
+  #endif
 }
 
 - (void) render
@@ -625,8 +637,14 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
       for (int i = 0; i < mDirtyRects.Size(); i++)
         [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
     #else
+    #ifdef IGRAPHICS_GL
+      [[self openGLContext] makeCurrentContext];
+    #endif
       // so just draw on each frame, if something is dirty
       mGraphics->Draw(mDirtyRects);
+    #endif
+    #ifdef IGRAPHICS_GL
+      CGLFlushDrawable([[self openGLContext] CGLContextObj]);
     #endif
   }
 }
@@ -1027,7 +1045,6 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   mGraphics->SetAllControlsDirty();
 
   [self endUserInput ];
-  [self setNeedsDisplay: YES];
 }
 
 - (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) bounds;
