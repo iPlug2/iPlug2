@@ -59,8 +59,12 @@
   #include "IGraphicsWeb.h"
 #endif
 
+//TODO: move this
 #ifndef OS_IOS
-float GetScaleForScreen(int height) { return 1.f; }
+/** Helper to find a draw scale factor to scale the plug-in UI to fit in the platform-supplied area
+ * @param height The original height of the UI.
+ * @return A scaling factor that can be supplied when calling MakeGraphics() */
+static float GetScaleForScreen(int height) { return 1.f; }
 #endif
 
 #endif // NO_IGRAPHICS
