@@ -109,8 +109,8 @@ using namespace igraphics;
 
 @interface IGRAPHICS_VIEW : NSView <NSTextFieldDelegate/*, WKScriptMessageHandler*/>
 {
+  CVDisplayLinkRef displayLink;
   NSTrackingArea* mTrackingArea;
-  NSTimer* mTimer;
   IGRAPHICS_TEXTFIELD* mTextFieldView;
   NSCursor* mMoveCursor;
   float mPrevX, mPrevY;
@@ -128,7 +128,6 @@ using namespace igraphics;
 - (void) viewDidChangeBackingProperties: (NSNotification*) pNotification;
 - (void) drawRect: (NSRect) bounds;
 - (void) render;
-- (void) onTimer: (NSTimer*) pTimer;
 - (void) killTimer;
 //mouse
 - (void) getMouseXY: (NSEvent*) pEvent : (float&) x : (float&) y;

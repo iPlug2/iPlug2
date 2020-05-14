@@ -472,11 +472,26 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
 
-  double sec = 1.0 / (double) pGraphics->FPS();
-  mTimer = [NSTimer timerWithTimeInterval:sec target:self selector:@selector(onTimer:) userInfo:nil repeats:YES];
-  [[NSRunLoop currentRunLoop] addTimer: mTimer forMode: (NSString*) kCFRunLoopCommonModes];
-
+  CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
+  CVDisplayLinkSetOutputCallback(displayLink, &displayLinkCallback, self);
+  CVDisplayLinkStart(displayLink);
+  
   return self;
+}
+
+static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* now, const CVTimeStamp* outputTime, CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext)
+{
+  dispatch_async(dispatch_get_main_queue(), ^{
+      [(IGRAPHICS_VIEW*) displayLinkContext render];
+  });
+  return kCVReturnSuccess;
+}
+
+- (void) killTimer
+{
+  CVDisplayLinkStop(displayLink);
+  CVDisplayLinkRelease(displayLink);
+  displayLink = nil;
 }
 
 - (void) dealloc
@@ -490,6 +505,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [super dealloc];
 }
+
 
 - (BOOL) isOpaque
 {
@@ -599,28 +615,19 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void) render
 {
-#if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL // for layer-backed views setNeedsDisplayInRect/drawRect is not called
-  for (int i = 0; i < mDirtyRects.Size(); i++)
-    [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
-#else
-  // so just draw on each frame, if something is dirty
-  mGraphics->Draw(mDirtyRects);
-#endif
-}
-
-- (void) onTimer: (NSTimer*) pTimer
-{
   mDirtyRects.Clear();
   
   if (mGraphics->IsDirty(mDirtyRects))
   {
     mGraphics->SetAllControlsClean();
       
-#ifdef IGRAPHICS_GL
-    [self.layer setNeedsDisplay];
-#else
-    [self render];
-#endif
+    #if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL // for layer-backed views setNeedsDisplayInRect/drawRect is not called
+      for (int i = 0; i < mDirtyRects.Size(); i++)
+        [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
+    #else
+      // so just draw on each frame, if something is dirty
+      mGraphics->Draw(mDirtyRects);
+    #endif
   }
 }
 
@@ -998,12 +1005,6 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
     pCursor = [NSCursor arrowCursor];
 
   [pCursor set];
-}
-
-- (void) killTimer
-{
-  [mTimer invalidate];
-  mTimer = 0;
 }
 
 - (void) removeFromSuperview
