@@ -130,7 +130,7 @@ void IGraphicsMac::CloseWindow()
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
       
 #ifdef IGRAPHICS_GL
-    [pView openGLContext makeCurrentContext];
+    [[pView openGLContext] makeCurrentContext];
 #endif
       
     [pView removeAllToolTips];

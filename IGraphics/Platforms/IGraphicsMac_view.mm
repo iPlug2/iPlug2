@@ -431,7 +431,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     // that we can remove such calls.
     // Without this we'd simply get GL_INVALID_OPERATION error for calling legacy functions
     // but it would be more difficult to see where that function was called.
-    CGLEnable([context CGLContextObj], kCGLCECrashOnRemovedFunctions);
+//    CGLEnable([context CGLContextObj], kCGLCECrashOnRemovedFunctions); //SKIA_GL2 will crash
   #endif
   
     self.pixelFormat = pf;
@@ -444,7 +444,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 #endif
   
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
-  
   
   #if !defined IGRAPHICS_GL
   [self setTimer];
@@ -620,7 +619,8 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
       mGraphics->Draw(drawRects);
     }
   }
-  #else
+  #else // this gets called on resize
+  //TODO: set GL context/flush?
   mGraphics->Draw(mDirtyRects);
   #endif
 }
@@ -644,7 +644,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
       mGraphics->Draw(mDirtyRects);
     #endif
     #ifdef IGRAPHICS_GL
-      CGLFlushDrawable([[self openGLContext] CGLContextObj]);
+    [[self openGLContext] flushBuffer];
     #endif
   }
 }
