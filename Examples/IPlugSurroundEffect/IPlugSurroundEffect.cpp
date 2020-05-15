@@ -2,6 +2,27 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 
+uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, iplug::ERoute dir, int busIdx, const iplug::IOConfig* pConfig)
+{
+  assert(pConfig != nullptr);
+  assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
+  
+  int numChans = pConfig->GetBusInfo(dir, busIdx)->NChans();
+
+#ifdef AAX_API
+  switch (numChans)
+  {
+    case 0: return AAX_eStemFormat_None;
+    case 1: return AAX_eStemFormat_Mono;
+    case 2: return AAX_eStemFormat_Stereo;
+    case 6: return AAX_eStemFormat_5_1;
+    case 8: return AAX_eStemFormat_7_1_DTS;
+    default: return AAX_eStemFormat_None;
+  }
+#endif
+  
+}
+
 IPlugSurroundEffect::IPlugSurroundEffect(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPrograms))
 {
