@@ -426,11 +426,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     assert(context);
     
   #ifdef DEBUG
-    // When we're using a CoreProfile context, crash if we call a legacy OpenGL function
-    // This will make it much more obvious where and when such a function call is made so
-    // that we can remove such calls.
-    // Without this we'd simply get GL_INVALID_OPERATION error for calling legacy functions
-    // but it would be more difficult to see where that function was called.
 //    CGLEnable([context CGLContextObj], kCGLCECrashOnRemovedFunctions); //SKIA_GL2 will crash
   #endif
   
@@ -440,6 +435,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     #endif
     self.layer.opaque = YES;
     self.wantsLayer = YES;
+    self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
   }
 #endif
   
@@ -457,13 +453,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   [super prepareOpenGL];
   
-  // Make all the OpenGL calls to setup rendering
-  //  and build the necessary rendering objects
-  // The reshape function may have changed the thread to which our OpenGL
-  // context is attached before prepareOpenGL and initGL are called.  So call
-  // makeCurrentContext to ensure that our OpenGL context current to this
-  // thread (i.e. makeCurrentContext directs all OpenGL calls on this thread
-  // to [self openGLContext])
   [[self openGLContext] makeCurrentContext];
   
   // Synchronize buffer swaps with vertical refresh rate
@@ -476,27 +465,51 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* now, const CVTimeStamp* outputTime, CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext)
 {
-  dispatch_async(dispatch_get_main_queue(), ^{
-      [(IGRAPHICS_VIEW*) displayLinkContext render];
-  });
+  dispatch_source_t source = (dispatch_source_t) displayLinkContext;
+  dispatch_source_merge_data(source, 1);
+  
   return kCVReturnSuccess;
 }
 
 - (void) setTimer
 {
-  CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
-  CVDisplayLinkSetOutputCallback(displayLink, &displayLinkCallback, self);
+  displaySource = dispatch_source_create(DISPATCH_SOURCE_TYPE_DATA_ADD, 0, 0, dispatch_get_main_queue());
+  dispatch_source_set_event_handler(displaySource, ^(){
+    [self render];
+  });
+  dispatch_resume(displaySource);
+
+  CVReturn cvReturn;
+
+  cvReturn = CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
+  
+  assert(cvReturn == kCVReturnSuccess);
+
+  cvReturn = CVDisplayLinkSetOutputCallback(displayLink, &displayLinkCallback, (void*) displaySource);
+  assert(cvReturn == kCVReturnSuccess);
+
   #ifdef IGRAPHICS_GL
   CGLContextObj cglContext = [[self openGLContext] CGLContextObj];
   CGLPixelFormatObj cglPixelFormat = [[self pixelFormat] CGLPixelFormatObj];
   CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, cglContext, cglPixelFormat);
   #endif
+  
+  CGDirectDisplayID viewDisplayID =
+      (CGDirectDisplayID) [self.window.screen.deviceDescription[@"NSScreenNumber"] unsignedIntegerValue];;
+
+  cvReturn = CVDisplayLinkSetCurrentCGDisplay(displayLink, viewDisplayID);
+
+  assert(cvReturn == kCVReturnSuccess);
+  
   CVDisplayLinkStart(displayLink);
 }
 
 - (void) killTimer
 {
   CVDisplayLinkStop(displayLink);
+  
+  dispatch_source_cancel(displaySource);
+  
   CVDisplayLinkRelease(displayLink);
   displayLink = nil;
 }
@@ -621,7 +634,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   }
   #else // this gets called on resize
   //TODO: set GL context/flush?
-  mGraphics->Draw(mDirtyRects);
+  //mGraphics->Draw(mDirtyRects);
   #endif
 }
 
