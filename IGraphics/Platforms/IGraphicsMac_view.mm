@@ -393,13 +393,14 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   mMouseOutDuringDrag = false;
     
-#if defined IGRAPHICS_NANOVG || defined IGRAPHICS_SKIA
-  if (!self.wantsLayer)
+#if defined IGRAPHICS_METAL || defined IGRAPHICS_GL
+//  if (!self.wantsLayer)
   {
     #if defined IGRAPHICS_METAL
     self.layer = [CAMetalLayer new];
     [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
     ((CAMetalLayer*) self.layer).device = MTLCreateSystemDefaultDevice();
+    
     #elif defined IGRAPHICS_GL
     
     NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
@@ -432,12 +433,12 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     self.pixelFormat = pf;
     self.openGLContext = context;
     self.wantsBestResolutionOpenGLSurface = YES;
-    #endif
+    #endif // IGRAPHICS_GL
     self.layer.opaque = YES;
     self.wantsLayer = YES;
     self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
   }
-#endif
+#endif // IGRAPHICS_METAL || IGRAPHICS_GL
   
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
   
@@ -507,9 +508,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 - (void) killTimer
 {
   CVDisplayLinkStop(displayLink);
-  
   dispatch_source_cancel(displaySource);
-  
   CVDisplayLinkRelease(displayLink);
   displayLink = nil;
 }
