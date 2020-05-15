@@ -88,22 +88,22 @@ float IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bound
 #endif
 }
 
-void IGraphicsMac::ContextReady(void* pLayer)
-{
-  OnViewInitialized(pLayer);
-  SetScreenScale([[NSScreen mainScreen] backingScaleFactor]);
-  GetDelegate()->LayoutUI(this);
-  UpdateTooltips();
-  GetDelegate()->OnUIOpen();
-}
-
 void* IGraphicsMac::OpenWindow(void* pParent)
 {
   TRACE
   CloseWindow();
   IGRAPHICS_VIEW* pView = [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   mView = (void*) pView;
-  ContextReady([pView layer]);
+    
+#ifdef IGRAPHICS_GL
+  [[pView openGLContext] makeCurrentContext];
+#endif
+    
+  OnViewInitialized([pView layer]);
+  SetScreenScale([[NSScreen mainScreen] backingScaleFactor]);
+  GetDelegate()->LayoutUI(this);
+  UpdateTooltips();
+  GetDelegate()->OnUIOpen();
   
   if (pParent)
   {
