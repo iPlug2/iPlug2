@@ -80,7 +80,8 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
 
   WDL_String subStr;
 
-  char *plugNameStr = AAX_PLUG_NAME_STR;
+  WDL_String fullPlugNameStr {AAX_PLUG_NAME_STR};
+  char *plugNameStr = fullPlugNameStr.Get();
     
   while (plugNameStr)
   {
