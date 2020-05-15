@@ -474,19 +474,19 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
 - (void) setTimer
 {
-  displaySource = dispatch_source_create(DISPATCH_SOURCE_TYPE_DATA_ADD, 0, 0, dispatch_get_main_queue());
-  dispatch_source_set_event_handler(displaySource, ^(){
+  mDisplaySource = dispatch_source_create(DISPATCH_SOURCE_TYPE_DATA_ADD, 0, 0, dispatch_get_main_queue());
+  dispatch_source_set_event_handler(mDisplaySource, ^(){
     [self render];
   });
-  dispatch_resume(displaySource);
+  dispatch_resume(mDisplaySource);
 
   CVReturn cvReturn;
 
-  cvReturn = CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
+  cvReturn = CVDisplayLinkCreateWithActiveCGDisplays(&mDisplayLink);
   
   assert(cvReturn == kCVReturnSuccess);
 
-  cvReturn = CVDisplayLinkSetOutputCallback(displayLink, &displayLinkCallback, (void*) displaySource);
+  cvReturn = CVDisplayLinkSetOutputCallback(mDisplayLink, &displayLinkCallback, (void*) mDisplaySource);
   assert(cvReturn == kCVReturnSuccess);
 
   #ifdef IGRAPHICS_GL
@@ -498,19 +498,19 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   CGDirectDisplayID viewDisplayID =
       (CGDirectDisplayID) [self.window.screen.deviceDescription[@"NSScreenNumber"] unsignedIntegerValue];;
 
-  cvReturn = CVDisplayLinkSetCurrentCGDisplay(displayLink, viewDisplayID);
+  cvReturn = CVDisplayLinkSetCurrentCGDisplay(mDisplayLink, viewDisplayID);
 
   assert(cvReturn == kCVReturnSuccess);
   
-  CVDisplayLinkStart(displayLink);
+  CVDisplayLinkStart(mDisplayLink);
 }
 
 - (void) killTimer
 {
-  CVDisplayLinkStop(displayLink);
-  dispatch_source_cancel(displaySource);
-  CVDisplayLinkRelease(displayLink);
-  displayLink = nil;
+  CVDisplayLinkStop(mDisplayLink);
+  dispatch_source_cancel(mDisplaySource);
+  CVDisplayLinkRelease(mDisplayLink);
+  mDisplayLink = nil;
 }
 
 - (void) dealloc

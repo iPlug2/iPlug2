@@ -115,8 +115,8 @@ using namespace igraphics;
 
 @interface IGRAPHICS_VIEW : VIEW_BASE <NSTextFieldDelegate/*, WKScriptMessageHandler*/>
 {
-  CVDisplayLinkRef displayLink;
-  dispatch_source_t displaySource;
+  CVDisplayLinkRef mDisplayLink;
+  dispatch_source_t mDisplaySource;
   NSTrackingArea* mTrackingArea;
   IGRAPHICS_TEXTFIELD* mTextFieldView;
   NSCursor* mMoveCursor;
