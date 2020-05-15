@@ -137,7 +137,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
     
     AAX_CTypeID typeId = aaxTypeIDs[configIdx]; // TODO: aaxTypeIDs must be the same size as NIOConfigs, can we assert somehow if not?
     
-    // Describe the algorithm and effect specifics using the CInstrumentParameters convenience layer.  (Native Only)
+    // Describe the algorithm and effect specifics using the CInstrumentParameters convenience layer. (Native Only)
     AAX_SIPlugSetupInfo setupInfo;
     if(PLUG_TYPE == 1 && pConfig->GetTotalNChannels(kInput) == 0) {
       // For some reason in protools instruments need to have input buses if not defined set input chan count the same as output
@@ -151,7 +151,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
     setupInfo.mProductID = PLUG_UNIQUE_ID;
     setupInfo.mPluginID = typeId;
     #if AAX_DOES_AUDIOSUITE
-    setupInfo.mAudioSuiteID = aaxTypeIDsAudioSuite[configIdx];
+    setupInfo.mAudiosuiteID = aaxTypeIDsAudioSuite[configIdx];
     #endif
     setupInfo.mCanBypass = true;
     setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI_IN;

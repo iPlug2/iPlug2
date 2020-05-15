@@ -100,7 +100,7 @@ public:
   //AAX_CIPlugParameters Overrides
   static AAX_CEffectParameters *AAX_CALLBACK Create();
   AAX_Result EffectInit() override;
-  void RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo) override;
+  void RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo, const TParamValPair* inSynchronizedParamValues[], int32_t inNumSynchronizedParamValues) override;
   
   //AAX_CEffectParameters Overrides
   AAX_Result GetChunkIDFromIndex(int32_t index, AAX_CTypeID* pChunkID) const override;
