@@ -661,7 +661,7 @@ void IGraphicsWeb::OnMainLoopTimer()
   {
     gGraphics->SetScreenScale(screenScale);
   }
-  
+
   if (gGraphics->IsDirty(rects))
   {
     gGraphics->SetAllControlsClean();

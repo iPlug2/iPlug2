@@ -1667,9 +1667,9 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     // if this bus is not connected OR the number of buffers that the host has given are not equal to the number the bus expects
     if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != pOutBufList->mNumberBuffers)
     {
-      int startChannelIdx = pOutBus->mPlugChannelStartIdx;
-      int nConnected = std::min<int>(pOutBus->mNHostChannels, pOutBufList->mNumberBuffers);
-      int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
+      const int startChannelIdx = pOutBus->mPlugChannelStartIdx;
+      const int nConnected = std::max(pOutBus->mNHostChannels, static_cast<int>(pOutBufList->mNumberBuffers));
+      const int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
       
       assert(nConnected > -1);
       _this->SetChannelConnections(ERoute::kOutput, startChannelIdx, nConnected, true);
