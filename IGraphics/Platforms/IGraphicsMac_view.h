@@ -117,6 +117,8 @@ using namespace igraphics;
 {
   CVDisplayLinkRef mDisplayLink;
   dispatch_source_t mDisplaySource;
+  NSTimer* mTimer;
+  
   NSTrackingArea* mTrackingArea;
   IGRAPHICS_TEXTFIELD* mTextFieldView;
   NSCursor* mMoveCursor;
@@ -136,6 +138,7 @@ using namespace igraphics;
 - (void) drawRect: (NSRect) bounds;
 - (void) render;
 - (void) killTimer;
+- (void) onTimer: (NSTimer*) pTimer;
 //mouse
 - (void) getMouseXY: (NSEvent*) pEvent : (float&) x : (float&) y;
 - (IMouseInfo) getMouseLeft: (NSEvent*) pEvent;

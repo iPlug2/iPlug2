@@ -472,8 +472,14 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   return kCVReturnSuccess;
 }
 
+- (void) onTimer: (NSTimer*) pTimer
+{
+  [self render];
+}
+
 - (void) setTimer
 {
+#ifdef IGRAPHICS_CVDISPLAYLINK
   mDisplaySource = dispatch_source_create(DISPATCH_SOURCE_TYPE_DATA_ADD, 0, 0, dispatch_get_main_queue());
   dispatch_source_set_event_handler(mDisplaySource, ^(){
     [self render];
@@ -503,14 +509,24 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   assert(cvReturn == kCVReturnSuccess);
   
   CVDisplayLinkStart(mDisplayLink);
+#else
+  double sec = 1.0 / (double) mGraphics->FPS();
+  mTimer = [NSTimer timerWithTimeInterval:sec target:self selector:@selector(onTimer:) userInfo:nil repeats:YES];
+  [[NSRunLoop currentRunLoop] addTimer: mTimer forMode: (NSString*) kCFRunLoopCommonModes];
+#endif
 }
 
 - (void) killTimer
 {
+#ifdef IGRAPHICS_CVDISPLAYLINK
   CVDisplayLinkStop(mDisplayLink);
   dispatch_source_cancel(mDisplaySource);
   CVDisplayLinkRelease(mDisplayLink);
   mDisplayLink = nil;
+#else
+  [mTimer invalidate];
+  mTimer = nullptr;
+#endif
 }
 
 - (void) dealloc
