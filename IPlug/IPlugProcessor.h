@@ -17,6 +17,7 @@
 #include <cstdio>
 #include <cassert>
 #include <memory>
+#include <vector>
 
 #include "ptrlist.h"
 
@@ -143,10 +144,14 @@ public:
   /** @return const Pointer to an IOConfig at idx. Can return nullptr if idx is invalid */
   const IOConfig* GetIOConfig(int idx) const { return mIOConfigs.Get(idx); }
 
+  /** @return Index of IOConfig that matches input and output bus vectors. Can return -1 if not found */
+  int GetIOConfigWithChanCounts(std::vector<int>& inputBuses, std::vector<int>& outputBuses);
+  
   /** Used to determine the maximum number of input or output buses based on what was specified in the channel I/O config string
    * @param direction Return input or output bus count
+   * @param pConfigIdxWithTheMostBuses Optional ptr to report the index of the config with the max bus count, if multiple configs have the same bus count, this should report the one with the higher channel count
    * @return The maximum bus count across all channel I/O configs */
-  int MaxNBuses(ERoute direction) const;
+  int MaxNBuses(ERoute direction, int* pConfigIdxWithTheMostBuses = nullptr) const;
 
   /** For a given input or output bus what is the maximum possible number of channels
    * @param direction Return input or output bus count
@@ -188,9 +193,6 @@ public:
 
   /** @return \c true if this plug-in has a side-chain input, which may not necessarily be active in the current I/O config */
   bool HasSidechainInput() const { return MaxNBuses(ERoute::kInput) > 1; }
-
-  /** @return The number of channels and the side-chain input \todo this will change */
-  int NSidechainChannels() const { return 1; } // TODO: this needs to be more flexible, based on channel I/O
 
   /** This is called by IPlugVST in order to limit a plug-in to stereo I/O for certain picky hosts \todo may no longer be relevant*/
   void LimitToStereoIO();//TODO: this should be updated

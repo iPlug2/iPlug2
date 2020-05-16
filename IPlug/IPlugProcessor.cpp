@@ -114,7 +114,6 @@ double IPlugProcessor::GetSamplesPerBeat() const
 
 #pragma mark -
 
-int IPlugProcessor::MaxNBuses(ERoute direction) const
 void IPlugProcessor::GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const
 {
   if(direction == ERoute::kInput)
@@ -147,15 +146,62 @@ void IPlugProcessor::GetBusName(ERoute direction, int busIdx, int nBuses, WDL_St
     }
   }
 }
+
+int IPlugProcessor::MaxNBuses(ERoute direction, int* pConfigIdxWithTheMostBuses) const
 {
   int maxNBuses = 0;
-  //find the maximum channel count for each input or output bus
+  int configWithMostBuses = 0;
+
   for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
   {
-    maxNBuses = std::max(mIOConfigs.Get(configIdx)->NBuses(direction), maxNBuses);
+    IOConfig* pIConfig = mIOConfigs.Get(configIdx);
+    int nBuses = pIConfig->NBuses(direction);
+    
+    if(nBuses >= maxNBuses)
+    {
+      maxNBuses = nBuses;
+      configWithMostBuses = configIdx;
+    }
   }
+  
+  if(pConfigIdxWithTheMostBuses)
+    *pConfigIdxWithTheMostBuses = configWithMostBuses;
 
   return maxNBuses;
+}
+
+int IPlugProcessor::GetIOConfigWithChanCounts(std::vector<int>& inputBuses, std::vector<int>& outputBuses)
+{
+  int nInputBuses = static_cast<int>(inputBuses.size());
+  int nOutputBuses = static_cast<int>(outputBuses.size());
+
+  for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
+  {
+    const IOConfig* pConfig = GetIOConfig(configIdx);
+    
+    if(pConfig->NBuses(ERoute::kInput) == nInputBuses && pConfig->NBuses(ERoute::kOutput) == nOutputBuses)
+    {
+      bool match = true;
+      
+      for (int inputBusIdx = 0; inputBusIdx < nInputBuses; inputBusIdx++)
+      {
+        match &= inputBuses[inputBusIdx] == pConfig->GetBusInfo(ERoute::kInput, inputBusIdx)->NChans();
+      }
+      
+      if(match)
+      {
+        for (int outputBusIdx = 0; outputBusIdx < nOutputBuses; outputBusIdx++)
+        {
+          match &= outputBuses[outputBusIdx] == pConfig->GetBusInfo(ERoute::kOutput, outputBusIdx)->NChans();
+        }
+      }
+      
+      if(match)
+        return configIdx;
+    }
+  }
+  
+  return -1;
 }
 
 int IPlugProcessor::MaxNChannelsForBus(ERoute direction, int busIdx) const
