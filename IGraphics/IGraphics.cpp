@@ -165,7 +165,7 @@ void IGraphics::RemoveAllControls()
   mCornerResizer = nullptr;
   mPerfDisplay = nullptr;
     
-#if !defined(NDEBUG)
+#ifndef NDEBUG
   mLiveEdit = nullptr;
 #endif
   
@@ -416,7 +416,7 @@ void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
   if (mPerfDisplay)
     func(*mPerfDisplay);
   
-#if !defined(NDEBUG)
+#ifndef NDEBUG
   if (mLiveEdit)
     func(*mLiveEdit);
 #endif
@@ -745,7 +745,7 @@ bool IGraphics::IsDirty(IRECTList& rects)
 #endif
 
   //TODO: for GL backends, having an ImGui on top currently requires repainting everything on each frame
-#if defined IGRAPHICS_IMGUI && (defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3)
+#if defined IGRAPHICS_IMGUI && defined IGRAPHICS_GL
   if (mImGuiRenderer && mImGuiRenderer->GetDrawFunc())
   {
     rects.Add(GetBounds());
@@ -860,7 +860,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
     if(mCornerResizer.get() != nullptr)
       cornerResizer = pControl == mCornerResizer.get();
 
-    if(!cornerResizer && mImGuiRenderer.get()->OnMouseDown(points[0].x, points[0].y, points[0].ms))
+    if(!cornerResizer && mImGuiRenderer->OnMouseDown(points[0].x, points[0].y, points[0].ms))
     {
       ReleaseMouseCapture();
       return;
@@ -986,7 +986,7 @@ void IGraphics::OnMouseUp(const std::vector<IMouseInfo>& points)
 #ifdef IGRAPHICS_IMGUI
   if(mImGuiRenderer && points.size() == 1)
   {
-    if(mImGuiRenderer.get()->OnMouseUp(points[0].x, points[0].y, points[0].ms))
+    if(mImGuiRenderer->OnMouseUp(points[0].x, points[0].y, points[0].ms))
     {
       ReleaseMouseCapture();
       return;
@@ -1027,7 +1027,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   
 #ifdef IGRAPHICS_IMGUI
   if(mImGuiRenderer)
-    mImGuiRenderer.get()->OnMouseMove(x, y, mod);
+    mImGuiRenderer->OnMouseMove(x, y, mod);
 #endif
   
   // N.B. GetMouseControl handles which controls can receive mouseovers
@@ -1089,7 +1089,7 @@ void IGraphics::OnMouseDrag(const std::vector<IMouseInfo>& points)
   }
 #ifdef IGRAPHICS_IMGUI
   else if(mImGuiRenderer && points.size() == 1)
-    mImGuiRenderer.get()->OnMouseMove(points[0].x, points[0].y, points[0].ms);
+    mImGuiRenderer->OnMouseMove(points[0].x, points[0].y, points[0].ms);
 #endif
 }
 
@@ -1101,7 +1101,7 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 #ifdef IGRAPHICS_IMGUI
   if(mImGuiRenderer)
   {
-    mImGuiRenderer.get()->OnMouseDown(x, y, mod);
+    mImGuiRenderer->OnMouseDown(x, y, mod);
     return true;
   }
 #endif
@@ -1134,7 +1134,7 @@ void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 #ifdef IGRAPHICS_IMGUI
     if(mImGuiRenderer)
     {
-      mImGuiRenderer.get()->OnMouseWheel(x, y, mod, d);
+      mImGuiRenderer->OnMouseWheel(x, y, mod, d);
       return;
     }
 #endif
@@ -1154,7 +1154,7 @@ bool IGraphics::OnKeyDown(float x, float y, const IKeyPress& key)
 #ifdef IGRAPHICS_IMGUI
   if(mImGuiRenderer)
   {
-    handled = mImGuiRenderer.get()->OnKeyDown(x, y, key);
+    handled = mImGuiRenderer->OnKeyDown(x, y, key);
     
     if(handled)
       return true;
@@ -1182,7 +1182,7 @@ bool IGraphics::OnKeyUp(float x, float y, const IKeyPress& key)
 #ifdef IGRAPHICS_IMGUI
   if(mImGuiRenderer)
   {
-    handled = mImGuiRenderer.get()->OnKeyUp(x, y, key);
+    handled = mImGuiRenderer->OnKeyUp(x, y, key);
     
     if(handled)
       return true;
@@ -1221,7 +1221,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
     {
       IControl* pControl = GetControl(c);
 
-#if _DEBUG
+#ifndef NDEBUG
       if(!mLiveEdit)
       {
 #endif
@@ -1235,7 +1235,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
             }
           }
         }
-#if _DEBUG
+#ifndef NDEBUG
       }
       else if (pControl->GetRECT().Contains(x, y))
       {
@@ -1425,7 +1425,7 @@ void IGraphics::EnableTooltips(bool enable)
 
 void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
 {
-#if defined(_DEBUG)
+#ifndef NDEBUG
   if (enable)
   {
     if (!mLiveEdit)
@@ -2181,7 +2181,7 @@ void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::funct
 {
   mImGuiRenderer = std::make_unique<ImGuiRenderer>(this, drawFunc, setupFunc);
   
-#if !defined IGRAPHICS_GL2 && !defined IGRAPHICS_GL3 // TODO: IGRAPHICS_GL!
+#if !defined IGRAPHICS_GL
   CreatePlatformImGui();
 #endif
 }
