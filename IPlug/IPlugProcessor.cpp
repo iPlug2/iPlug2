@@ -320,6 +320,27 @@ int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& 
   return IOConfigIndex;
 }
 
+int IPlugProcessor::GetAUPluginType() const
+{
+  if (mPlugType == EIPlugPluginType::kEffect)
+  {
+    if (DoesMIDIIn())
+      return 'aumf';
+    else
+      return 'aufx';
+  }
+  else if (mPlugType == EIPlugPluginType::kInstrument)
+  {
+    return 'aumu';
+  }
+  else if (mPlugType == EIPlugPluginType::kMIDIEffect)
+  {
+    return 'aumi';
+  }
+  else
+    return 'aufx';
+}
+
 #pragma mark -
 
 void IPlugProcessor::SetChannelConnections(ERoute direction, int idx, int n, bool connected)
