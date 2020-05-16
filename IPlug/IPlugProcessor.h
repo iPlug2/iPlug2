@@ -153,7 +153,7 @@ public:
    * @return The maximum bus count across all channel I/O configs */
   int MaxNBuses(ERoute direction, int* pConfigIdxWithTheMostBuses = nullptr) const;
 
-  /** For a given input or output bus what is the maximum possible number of channels
+  /** For a given input or output bus what is the maximum possible number of channels. This method is not Realtime safe.
    * @param direction Return input or output bus count
    * @param busIdx The index of the bus to look up
    * @return return The maximum number of channels on that bus */
