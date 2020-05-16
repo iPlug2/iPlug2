@@ -1297,7 +1297,7 @@ public:
     {
       IParam* pParam = GetDelegate()->GetParam(p);
       
-      if(strcmp(pParam->GetGroupForHost(), paramGroup) == 0)
+      if(strcmp(pParam->GetGroup(), paramGroup) == 0)
       {
         paramIdsForGroup.push_back(p);
       }

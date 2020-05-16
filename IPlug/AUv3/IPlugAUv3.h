@@ -61,7 +61,7 @@ public:
   void SetParameterFromValueObserver(uint64_t address, float value);
   void SendParameterValueFromObserver(uint64_t address, float value);
   float GetParameter(uint64_t address);
-  const char* GetParamDisplayForHost(uint64_t address, float value);
+  const char* GetParamDisplay(uint64_t address, float value);
   float GetParamStringToValue(uint64_t address, const char* str);
   void SetBuffers(AudioBufferList* pInBufferList, AudioBufferList* pOutBufferList);
   void Prepare(double sampleRate, uint32_t blockSize);

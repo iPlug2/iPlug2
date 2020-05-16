@@ -87,7 +87,7 @@ public:
       IParam* pParam = pPlug->GetParam(i);
       unitID = Steinberg::Vst::kRootUnitId; // reset unitID
     
-      const char* paramGroupName = pParam->GetGroupForHost();
+      const char* paramGroupName = pParam->GetGroup();
       
       if (CStringHasContents(paramGroupName)) // if the parameter has a group
       {

@@ -343,7 +343,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       if (idx >= 0 && idx < _this->NParams())
       {
         ENTER_PARAMS_MUTEX_STATIC
-        strcpy((char*) ptr, _this->GetParam(idx)->GetLabelForHost());
+        strcpy((char*) ptr, _this->GetParam(idx)->GetLabel());
         LEAVE_PARAMS_MUTEX_STATIC
       }
       return 0;
@@ -353,7 +353,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       if (idx >= 0 && idx < _this->NParams())
       {
         ENTER_PARAMS_MUTEX_STATIC
-        _this->GetParam(idx)->GetDisplayForHost(_this->mParamDisplayStr);
+        _this->GetParam(idx)->GetDisplay(_this->mParamDisplayStr);
         LEAVE_PARAMS_MUTEX_STATIC
         strcpy((char*) ptr, _this->mParamDisplayStr.Get());
       }
@@ -364,7 +364,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       if (idx >= 0 && idx < _this->NParams())
       {
         ENTER_PARAMS_MUTEX_STATIC
-        strcpy((char*) ptr, _this->GetParam(idx)->GetNameForHost());
+        strcpy((char*) ptr, _this->GetParam(idx)->GetName());
         LEAVE_PARAMS_MUTEX_STATIC
       }
       return 0;
@@ -396,7 +396,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
             break;
         }
 
-        strcpy(props->label, pParam->GetLabelForHost());
+        strcpy(props->label, pParam->GetLabel());
         LEAVE_PARAMS_MUTEX_STATIC
 
         return 1;
@@ -777,7 +777,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
           {
             if (value >= 0 && value < _this->NParams())
             {
-              _this->GetParam((int) value)->GetDisplayForHost((double) opt, true, _this->mParamDisplayStr);
+              _this->GetParam((int) value)->GetDisplay((double) opt, true, _this->mParamDisplayStr);
               strcpy((char*) ptr, _this->mParamDisplayStr.Get());
             }
             return 0xbeef;

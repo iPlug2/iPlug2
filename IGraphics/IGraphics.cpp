@@ -476,7 +476,7 @@ void IGraphics::AssignParamNameToolTips()
   auto func = [](IControl& control)
   {
     if (control.GetParamIdx() > kNoParameter)
-      control.SetTooltip(control.GetParam()->GetNameForHost());
+      control.SetTooltip(control.GetParam()->GetName());
   };
   
   ForStandardControlsFunc(func);
@@ -515,7 +515,7 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds, int valI
 
     if ( type == IParam::kTypeEnum || (type == IParam::kTypeBool && nDisplayTexts))
     {
-      pParam->GetDisplayForHost(currentText);
+      pParam->GetDisplay(currentText);
       mPromptPopupMenu.Clear();
 
       // Fill the menu
@@ -528,7 +528,7 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds, int valI
         else // not equal
           mPromptPopupMenu.AddItem( new IPopupMenu::Item(str), -1 );
         
-        mPromptPopupMenu.SetRootTitle(pParam->GetNameForHost());
+        mPromptPopupMenu.SetRootTitle(pParam->GetName());
       }
 
       CreatePopupMenu(control, mPromptPopupMenu, bounds, valIdx);
@@ -536,12 +536,12 @@ void IGraphics::PromptUserInput(IControl& control, const IRECT& bounds, int valI
     // TODO: what if there are Int/Double Params with a display text e.g. -96db = "mute"
     else // type == IParam::kTypeInt || type == IParam::kTypeDouble
     {
-      pParam->GetDisplayForHost(currentText, false);
+      pParam->GetDisplay(currentText, false);
       
       if(control.GetPromptShowsParamLabel())
       {
         currentText.Append(" ");
-        currentText.Append(pParam->GetLabelForHost());
+        currentText.Append(pParam->GetLabel());
       }
       
       CreateTextEntry(control, control.GetText(), bounds, currentText.Get(), valIdx);
