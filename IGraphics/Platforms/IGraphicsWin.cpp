@@ -142,7 +142,7 @@ StaticStorage<IGraphicsWin::HFontHolder> IGraphicsWin::sHFontCache;
 UINT(WINAPI *__GetDpiForWindow)(HWND);
 
 // Mouse and tablet helpers
-static int GetScaleForWindow(HWND hWnd)
+int GetScaleForHWND(HWND hWnd)
 {
   if (hWnd && __GetDpiForWindow)
   {
@@ -251,7 +251,7 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
   }
 
   // TODO: move this... listen to the right messages in windows for screen resolution changes, etc.
-  int scale = GetScaleForWindow(mPlugWnd);
+  int scale = GetScaleForHWND(mPlugWnd);
   if (scale != GetScreenScale())
     SetScreenScale(scale);
 
@@ -1100,7 +1100,7 @@ EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption
 void* IGraphicsWin::OpenWindow(void* pParent)
 {
   mParentWnd = (HWND) pParent;
-  int screenScale = GetScaleForWindow(mParentWnd);
+  int screenScale = GetScaleForHWND(mParentWnd);
   int x = 0, y = 0, w = WindowWidth() * screenScale, h = WindowHeight() * screenScale;
 
   if (mPlugWnd)
