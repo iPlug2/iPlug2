@@ -289,27 +289,39 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     toggle = 0;
     toggleRects = sameCell().FracRectHorizontal(0.49f, true);
 
-    for(auto label : {"Disable", "Show Bubble"})
+    for(auto label : {"Disable", "Show Bubble", "OS Text Entry", "OS Menu"})
     {
       pGraphics->AttachControl(new IVToggleControl(toggleRects.GetGridCell(toggle, 0, 5, 1), [pGraphics, toggle](IControl* pCaller){
         SplashClickActionFunc(pCaller);
         bool state = pCaller->GetValue() > 0.5f;
-        pGraphics->ForStandardControlsFunc([pCaller, toggle, state](IControl& control) {
-          
-          switch (toggle) {
-            case 0 :
+        switch (toggle) {
+          case 0:
+            pGraphics->ForStandardControlsFunc([pCaller, toggle, state](IControl& control) {
               if(&control != pCaller)
-                control.SetDisabled(state); break;
-            case 1 :
-              if(&control != pCaller)
-              {
-                if(control.GetParamIdx() == kParamGain)
-                  control.SetActionFunction(state ? ShowBubbleHorizontalActionFunc : nullptr); break;
-              }
-            default:
-              break;
-          }
-        });
+                control.SetDisabled(state);
+            });
+            break;
+          case 1:
+            pGraphics->ForStandardControlsFunc([pCaller, toggle, state](IControl& control) {
+              if(&control != pCaller && control.GetParamIdx() == kParamGain){
+                control.SetActionFunction(state ? ShowBubbleHorizontalActionFunc : nullptr);
+              }});
+            break;
+          case 2:
+            if(state)
+              pGraphics->RemoveTextEntryControl();
+            else
+              pGraphics->AttachTextEntryControl();
+            break;
+          case 3:
+            if(state)
+              pGraphics->RemovePopupMenuControl();
+            else
+              pGraphics->AttachPopupMenuControl();
+            break;
+          default:
+            break;
+        }
       }, label, style.WithValueText(forkAwesomeText.WithSize(12.f)).WithDrawFrame(false).WithDrawShadows(false), ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE));
       
       toggle++;

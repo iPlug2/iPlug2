@@ -278,6 +278,11 @@ void IGraphics::AttachPopupMenuControl(const IText& text, const IRECT& bounds)
   }
 }
 
+void IGraphics::RemovePopupMenuControl()
+{
+  mPopupControl = nullptr;
+}
+
 void IGraphics::AttachTextEntryControl()
 {
   if (!mTextEntryControl)
@@ -285,6 +290,11 @@ void IGraphics::AttachTextEntryControl()
     mTextEntryControl = std::make_unique<ITextEntryControl>();
     mTextEntryControl->SetDelegate(*GetDelegate());
   }
+}
+
+void IGraphics::RemoveTextEntryControl()
+{
+  mTextEntryControl = nullptr;
 }
 
 void IGraphics::ShowBubbleControl(IControl* pCaller, float x, float y, const char* str, EDirection dir, IRECT minimumContentBounds)
