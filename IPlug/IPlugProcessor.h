@@ -129,6 +129,14 @@ public:
   void GetTimeSig(int& numerator, int& denominator) const { numerator = mTimeInfo.mNumerator; denominator = mTimeInfo.mDenominator; }
 
 #pragma mark -
+  
+  /** Get the name for a particular bus
+   * @param direction Input or output bus
+   * @param busIdx The index of the bus
+   * @param nBuses The total number of buses for this direction
+   * @param str String to fill with the bus name */
+  virtual void GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const;
+  
   /** @return The number of channel I/O configs derived from the channel io string*/
   int NIOConfigs() const { return mIOConfigs.GetSize(); }
 

@@ -115,6 +115,38 @@ double IPlugProcessor::GetSamplesPerBeat() const
 #pragma mark -
 
 int IPlugProcessor::MaxNBuses(ERoute direction) const
+void IPlugProcessor::GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const
+{
+  if(direction == ERoute::kInput)
+  {
+    if(nBuses == 1)
+    {
+      str.Set("Input");
+    }
+    else if(nBuses == 2)
+    {
+      if(busIdx == 0)
+        str.Set("Main");
+      else
+        str.Set("Aux");
+    }
+    else
+    {
+      str.SetFormatted(MAX_BUS_NAME_LEN, "Input %i", busIdx);
+    }
+  }
+  else
+  {
+    if(nBuses == 1)
+    {
+      str.Set("Output");
+    }
+    else
+    {
+      str.SetFormatted(MAX_BUS_NAME_LEN, "Output %i", busIdx);
+    }
+  }
+}
 {
   int maxNBuses = 0;
   //find the maximum channel count for each input or output bus
@@ -229,7 +261,7 @@ int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& 
 
       if(NChanOnBus)
       {
-        pConfig->AddBusInfo(busDir, NChanOnBus, RoutingDirStrs[busDir]);
+        pConfig->AddBusInfo(busDir, NChanOnBus);
         NBuses++;
       }
       else if(NBuses > 0)
