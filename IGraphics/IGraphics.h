@@ -983,8 +983,10 @@ public:
   /** \todo detailed description of how this works
    * @param w New width in pixels
    * @param h New height in pixels
-   * @param scale New scale ratio */
-  void Resize(int w, int h, float scale);
+   * @param scale New scale ratio
+   * @param needsPlatformResize This should be true for a "manual" resize from the plug-in UI and false
+   * if being called from IEditorDelegate::OnParentWindowResize(), in order to avoid feedback */
+  void Resize(int w, int h, float scale, bool needsPlatformResize = true);
   
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */

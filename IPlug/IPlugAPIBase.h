@@ -157,7 +157,7 @@ public:
   
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
   
-  bool EditorResizeFromUI(int viewWidth, int viewHeight) override { return EditorResize(viewWidth, viewHeight); }
+  bool EditorResizeFromUI(int viewWidth, int viewHeight, bool needsPlatformResize) override;
   
   void SendParameterValueFromUI(int paramIdx, double normalisedValue) override
   {
@@ -186,7 +186,7 @@ public:
 private:
   /** Implementations call into the APIs resize hooks
    * returns a bool to indicate whether the DAW or plugin class has resized the host window */
-  virtual bool EditorResize(int width, int height);
+  virtual bool EditorResize(int width, int height) { return false; }
   
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
