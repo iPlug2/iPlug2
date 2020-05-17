@@ -14,6 +14,23 @@
 
 #include "IGraphicsWeb.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+void GetScreenDimensions(int& width, int& height)
+{
+  width = val::global("window")["innerWidth"].as<int>();
+  height = val::global("window")["innerHeight"].as<int>();
+}
+
+float GetScaleForScreen(int height)
+{
+  return 1.f;
+}
+
+END_IPLUG_NAMESPACE
+END_IGRAPHICS_NAMESPACE
+
 using namespace iplug;
 using namespace igraphics;
 using namespace emscripten;
