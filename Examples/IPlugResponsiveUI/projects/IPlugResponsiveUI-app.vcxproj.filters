@@ -92,6 +92,12 @@
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
       <Filter>IGraphics\Drawing</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Extras\IGraphicsImGui.cpp">
+      <Filter>IGraphics\Extras</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Extras\IGraphicsFlexBox.cpp">
+      <Filter>IGraphics\Extras</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugResponsiveUI.h" />
@@ -291,6 +297,12 @@
     <ClInclude Include="..\..\..\IGraphics\ISender.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Extras\IGraphicsImGui.h">
+      <Filter>IGraphics\Extras</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Extras\IGraphicsFlexBox.h">
+      <Filter>IGraphics\Extras</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
@@ -322,6 +334,9 @@
     </Filter>
     <Filter Include="IPlug\APP\RTAudioMidi\include">
       <UniqueIdentifier>{649c5de3-b4c2-4de9-8d57-3b1762646259}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics\Extras">
+      <UniqueIdentifier>{51744d21-58e1-4947-9665-5e9cf99a1190}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

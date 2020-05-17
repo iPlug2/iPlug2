@@ -65,6 +65,12 @@
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
       <Filter>IGraphics\Drawing</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Extras\IGraphicsImGui.cpp">
+      <Filter>IGraphics\Extras</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Extras\IGraphicsFlexBox.cpp">
+      <Filter>IGraphics\Extras</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -228,6 +234,12 @@
     <ClInclude Include="..\..\..\IGraphics\ISender.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Extras\IGraphicsImGui.h">
+      <Filter>IGraphics\Extras</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Extras\IGraphicsFlexBox.h">
+      <Filter>IGraphics\Extras</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="IPlug">
@@ -253,6 +265,9 @@
     </Filter>
     <Filter Include="config">
       <UniqueIdentifier>{8c338368-7512-426b-af83-0f50719ca0bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics\Extras">
+      <UniqueIdentifier>{cb77f66f-6d67-4061-ac80-ec46e44cab81}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -143,6 +143,12 @@
     <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp">
       <Filter>IGraphics</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Extras\IGraphicsImGui.cpp">
+      <Filter>IGraphics\Extras</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Extras\IGraphicsFlexBox.cpp">
+      <Filter>IGraphics\Extras</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -384,6 +390,12 @@
     <ClInclude Include="..\..\..\IGraphics\ISender.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Extras\IGraphicsImGui.h">
+      <Filter>IGraphics\Extras</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Extras\IGraphicsFlexBox.h">
+      <Filter>IGraphics\Extras</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
@@ -442,6 +454,9 @@
     </Filter>
     <Filter Include="IPlug\VST3\VST3_SDK\plugininterfaces\base">
       <UniqueIdentifier>{5f06b03e-5093-46c0-9513-efb4e494c857}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics\Extras">
+      <UniqueIdentifier>{9e5eea88-dde5-43b6-b022-f9bd9e753ba0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

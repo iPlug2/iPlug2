@@ -6,7 +6,7 @@
 IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPrograms))
 {
-  GetParam(kGain)->InitGain("Gain", -70.);
+  GetParam(kGain)->InitGain("Gain", -70., -70., 0.);
 
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {

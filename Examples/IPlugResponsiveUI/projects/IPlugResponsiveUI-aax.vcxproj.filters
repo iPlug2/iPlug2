@@ -74,6 +74,12 @@
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
       <Filter>IGraphics\Drawing</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Extras\IGraphicsImGui.cpp">
+      <Filter>IGraphics\Extras</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Extras\IGraphicsFlexBox.cpp">
+      <Filter>IGraphics\Extras</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugResponsiveUI.h" />
@@ -243,6 +249,12 @@
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h">
       <Filter>IGraphics\Drawing</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Extras\IGraphicsImGui.h">
+      <Filter>IGraphics\Extras</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Extras\IGraphicsFlexBox.h">
+      <Filter>IGraphics\Extras</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
@@ -268,6 +280,9 @@
     </Filter>
     <Filter Include="IGraphics\Controls">
       <UniqueIdentifier>{3c740de7-2371-4065-bf3d-5af9193c7b7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IGraphics\Extras">
+      <UniqueIdentifier>{1bfbdb3d-aa14-44e8-ba62-24296c34c612}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
