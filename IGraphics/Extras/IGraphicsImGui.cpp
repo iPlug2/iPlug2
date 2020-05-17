@@ -8,7 +8,7 @@
  ==============================================================================
 */
 
-#if defined IGRAPHICS_IMGUI
+#if defined IGRAPHICS_IMGUI && !defined IGRAPHICS_CANVAS
 
 #include "IPlugPlatform.h"
 #include "IGraphicsImGui.h"
@@ -18,14 +18,14 @@
   #include "imgui_impl_opengl2.h"
 #elif defined IGRAPHICS_GL3 || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
   #include "imgui_impl_opengl3.h"
-#else
+#elif defined IGRAPHICS_METAL
   #if defined OS_MAC || defined OS_IOS
     #import <Metal/Metal.h>
     #import <QuartzCore/QuartzCore.h>
     #include "imgui_impl_metal.h"
-  #else
-    #error "ImGui is only supported on this platform using the OpenGL based backends"
   #endif
+#else
+  #error "ImGui is only supported on this platform using the OpenGL based backends"
 #endif
 
 using namespace iplug;
