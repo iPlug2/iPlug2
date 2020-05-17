@@ -8,7 +8,7 @@
  ==============================================================================
 */
 
-#if defined IGRAPHICS_IMGUI && !defined IGRAPHICS_CANVAS
+#if defined IGRAPHICS_IMGUI
 
 #include "IPlugPlatform.h"
 #include "IGraphicsImGui.h"
@@ -18,14 +18,14 @@
   #include "imgui_impl_opengl2.h"
 #elif defined IGRAPHICS_GL3 || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
   #include "imgui_impl_opengl3.h"
-#elif defined IGRAPHICS_METAL
+#else
   #if defined OS_MAC || defined OS_IOS
     #import <Metal/Metal.h>
     #import <QuartzCore/QuartzCore.h>
     #include "imgui_impl_metal.h"
+  #else
+    #error "ImGui is only supported on this platform using the OpenGL based backends"
   #endif
-#else
-  #error "ImGui is only supported on this platform using the OpenGL based backends"
 #endif
 
 using namespace iplug;
@@ -199,7 +199,7 @@ void ImGuiRenderer::Init()
   const char* glsl_version = "#version 100";
   //const char* glsl_version = "#version 300 es";
   ImGui_ImplOpenGL3_Init(glsl_version);
-#else
+#elif defined IGRAPHICS_METAL
   ImGui_ImplMetal_Init(MTLCreateSystemDefaultDevice());
 #endif
 }
@@ -210,7 +210,7 @@ void ImGuiRenderer::Destroy()
   ImGui_ImplOpenGL2_Shutdown();
 #elif defined IGRAPHICS_GL3 || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
   ImGui_ImplOpenGL3_Shutdown();
-#else
+#elif defined IGRAPHICS_METAL
   ImGui_ImplMetal_Shutdown();
 #endif
 }

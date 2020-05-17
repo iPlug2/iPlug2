@@ -11,7 +11,7 @@
 
 #pragma once
 
-#if defined IGRAPHICS_IMGUI && !defined IGRAPHICS_CANVAS
+#if defined IGRAPHICS_IMGUI
 #include "imgui.h"
 #include "IGraphicsStructs.h"
 
