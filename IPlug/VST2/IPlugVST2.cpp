@@ -212,8 +212,6 @@ bool IPlugVST2::EditorResize(int viewWidth, int viewHeight)
     
       resized = mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
     }
-    
-    SetEditorSize(viewWidth, viewHeight);
   }
 
   return resized;

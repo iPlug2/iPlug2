@@ -218,8 +218,6 @@ bool IPlugVST3::EditorResize(int viewWidth, int viewHeight)
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
       mView->resize(viewWidth, viewHeight);
-
-    SetEditorSize(viewWidth, viewHeight);
   }
   
   return true;
