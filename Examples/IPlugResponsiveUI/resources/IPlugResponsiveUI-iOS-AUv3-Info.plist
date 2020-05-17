@@ -40,14 +40,14 @@
 					<key>sandboxSafe</key>
 					<true/>
 					<key>subtype</key>
-					<string>Ipef</string>
+					<string>uPfn</string>
 					<key>tags</key>
 					<array>
-						<string>Effects</string>
-						<string>size:{600,600}</string>
+						<string>Synth</string>
+						<string>size:{1024,768}</string>
 					</array>
 					<key>type</key>
-					<string>aufx</string>
+					<string>aumu</string>
 					<key>version</key>
 					<integer>65536</integer>
 				</dict>
