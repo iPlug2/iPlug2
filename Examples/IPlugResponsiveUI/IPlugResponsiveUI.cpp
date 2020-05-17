@@ -56,7 +56,7 @@ IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
     pGraphics->AttachControl(new IVSliderControl(GetBounds(2, b), kGain));
     pGraphics->AttachControl(new IVScopeControl<>(GetBounds(3, b), "", DEFAULT_STYLE.WithColor(kBG, COLOR_BLACK).WithColor(kFG, COLOR_WHITE)), kCtrlTagScope);
 
-#ifndef OS_IOS
+#if !defined OS_IOS && defined IGRAPHICS_IMGUI
     pGraphics->AttachImGui([](IGraphics* pGraphics){
       static bool liveEdit = pGraphics->LiveEditEnabled();
       static bool showFPS = false;
