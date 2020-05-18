@@ -143,7 +143,9 @@ bool IPlugVST3Controller::EditorResize(int viewWidth, int viewHeight)
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
-      mView->resize(viewWidth, viewHeight); 
+      mView->resize(viewWidth, viewHeight);
+ 
+    SetEditorSize(viewWidth, viewHeight);
   }
   
   return true;
