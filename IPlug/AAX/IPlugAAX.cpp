@@ -251,7 +251,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double
   return result;
 }
 
-void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
+void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo, const TParamValPair* inSynchronizedParamValues[], int32_t inNumSynchronizedParamValues)
 {
   TRACE
 
