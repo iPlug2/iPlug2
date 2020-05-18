@@ -151,10 +151,10 @@ AAX_Result IPlugAAX::EffectInit()
       case IParam::kTypeDouble:
       {
         pAAXParam = new AAX_CParameter<double>(pParamIDStr->Get(),
-                                          AAX_CString(pParam->GetNameForHost()),
+                                          AAX_CString(pParam->GetName()),
                                           pParam->GetDefault(),
                                           AAX_CIPlugTaperDelegate<double>(*pParam),
-                                          AAX_CUnitDisplayDelegateDecorator<double>(AAX_CNumberDisplayDelegate<double>(), AAX_CString(pParam->GetLabelForHost())),
+                                          AAX_CUnitDisplayDelegateDecorator<double>(AAX_CNumberDisplayDelegate<double>(), AAX_CString(pParam->GetLabel())),
                                           pParam->GetCanAutomate());
         
         pAAXParam->SetNumberOfSteps(128); // TODO: check this https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
@@ -165,10 +165,10 @@ AAX_Result IPlugAAX::EffectInit()
       case IParam::kTypeInt:
       {
         pAAXParam = new AAX_CParameter<int>(pParamIDStr->Get(),
-                                        AAX_CString(pParam->GetNameForHost()),
+                                        AAX_CString(pParam->GetName()),
                                         (int)pParam->GetDefault(),
                                         AAX_CLinearTaperDelegate<int,1>((int)pParam->GetMin(), (int)pParam->GetMax()),
-                                        AAX_CUnitDisplayDelegateDecorator<int>(AAX_CNumberDisplayDelegate<int,0>(), AAX_CString(pParam->GetLabelForHost())),
+                                        AAX_CUnitDisplayDelegateDecorator<int>(AAX_CNumberDisplayDelegate<int,0>(), AAX_CString(pParam->GetLabel())),
                                         pParam->GetCanAutomate());
         
         pAAXParam->SetNumberOfSteps(128);
@@ -192,7 +192,7 @@ AAX_Result IPlugAAX::EffectInit()
         }
         
         pAAXParam = new AAX_CParameter<int>(pParamIDStr->Get(),
-                                        AAX_CString(pParam->GetNameForHost()),
+                                        AAX_CString(pParam->GetName()),
                                         (int)pParam->GetDefault(),
                                         AAX_CLinearTaperDelegate<int,1>((int) pParam->GetMin(), (int) pParam->GetMax()),
                                         AAX_CStringDisplayDelegate<int>(displayTexts),
@@ -535,8 +535,6 @@ bool IPlugAAX::EditorResize(int viewWidth, int viewHeight)
     
     if (pViewInterface && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
       pViewInterface->GetViewContainer()->SetViewSize(oEffectViewSize);
-
-    SetEditorSize(viewWidth, viewHeight);
   }
   
   return true;

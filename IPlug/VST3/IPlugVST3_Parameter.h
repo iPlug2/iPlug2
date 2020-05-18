@@ -25,8 +25,8 @@ public:
   IPlugVST3Parameter(IParam* pParam, Steinberg::Vst::ParamID tag, Steinberg::Vst::UnitID unitID)
   : mIPlugParam(pParam)
   {
-    Steinberg::UString(info.title, str16BufferSize(Steinberg::Vst::String128)).assign(pParam->GetNameForHost());
-    Steinberg::UString(info.units, str16BufferSize(Steinberg::Vst::String128)).assign(pParam->GetLabelForHost());
+    Steinberg::UString(info.title, str16BufferSize(Steinberg::Vst::String128)).assign(pParam->GetName());
+    Steinberg::UString(info.units, str16BufferSize(Steinberg::Vst::String128)).assign(pParam->GetLabel());
 
     precision = pParam->GetDisplayPrecision();
 
@@ -49,7 +49,7 @@ public:
   void toString(Steinberg::Vst::ParamValue valueNormalized, Steinberg::Vst::String128 string) const override
   {
     WDL_String display;
-    mIPlugParam->GetDisplayForHost(valueNormalized, true, display);
+    mIPlugParam->GetDisplay(valueNormalized, true, display);
     Steinberg::UString(string, 128).fromAscii(display.Get());
   }
 

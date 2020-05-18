@@ -65,8 +65,6 @@ public:
 
   float MeasureText(const IText& text, const char* str, IRECT& bounds) const override;
 
-  void ContextReady(void* pLayer);
-
 protected:
   void CreatePlatformImGui() override;
 

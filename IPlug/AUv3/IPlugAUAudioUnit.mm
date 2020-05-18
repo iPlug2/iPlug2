@@ -314,7 +314,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
       }
     }
     
-    const char* paramGroupName = pParam->GetGroupForHost();
+    const char* paramGroupName = pParam->GetGroup();
     auto clumpID = 0;
 
     if (CStringHasContents(paramGroupName))
@@ -339,7 +339,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     AUParameterAddress address = AUParameterAddress(paramIdx);
 
     AUParameter *pAUParam = [AUParameterTree createParameterWithIdentifier:    [NSString stringWithFormat:@"%d", paramIdx ]
-                                                                         name: [NSString stringWithCString:pParam->GetNameForHost() encoding:NSUTF8StringEncoding]
+                                                                         name: [NSString stringWithCString:pParam->GetName() encoding:NSUTF8StringEncoding]
                                                                       address: address
                                                                           min: pParam->GetMin()
                                                                           max: pParam->GetMax()
@@ -417,7 +417,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
   mParameterTree.implementorStringFromValueCallback = ^(AUParameter *param, const AUValue *__nullable valuePtr) {
     AUValue value = valuePtr == nil ? param.value : *valuePtr;
-    return [NSString stringWithCString:pPlug->GetParamDisplayForHost(param.address, value) encoding:NSUTF8StringEncoding];
+    return [NSString stringWithCString:pPlug->GetParamDisplay(param.address, value) encoding:NSUTF8StringEncoding];
   };
 
   mParameterTree.implementorValueFromStringCallback = ^(AUParameter* param, NSString* string) {
