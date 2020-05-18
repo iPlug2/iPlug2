@@ -85,5 +85,8 @@ void IPlugSurroundEffect::ProcessBlock(sample** inputs, sample** outputs, int nF
       outputs[c][s] = inputs[c][s] * gain;
     }
   }
+
+  mInputPeakSender.ProcessBlock(inputs, nFrames, kCtrlTagInputMeter);
+  mOutputPeakSender.ProcessBlock(outputs, nFrames, kCtrlTagOutputMeter);
 }
 #endif
