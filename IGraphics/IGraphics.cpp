@@ -764,7 +764,7 @@ bool IGraphics::IsDirty(IRECTList& rects)
 #if defined IGRAPHICS_IMGUI && defined IGRAPHICS_GL
   if (mImGuiRenderer && mImGuiRenderer->GetDrawFunc())
   {
-    rects.Add(GetBounds());
+    rects.Add(IRECT(0,0,1,1));
     return true;
   }
 #endif
