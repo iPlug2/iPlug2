@@ -19,7 +19,7 @@ using namespace Steinberg;
 using namespace Vst;
 
 #ifndef CUSTOM_BUSTYPE_FUNC
-uint64_t iplug::GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, const IOConfig* pConfig)
+uint64_t iplug::GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, const IOConfig* pConfig, WDL_TypedBuf<uint64_t>* APIBusTypes)
 {
   assert(pConfig != nullptr);
   assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
