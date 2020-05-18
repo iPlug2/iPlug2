@@ -1210,7 +1210,7 @@ class IVTrackControlBase : public IControl
                          , public IVectorBase
 {
 public:
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, std::initializer_list<const char*> trackNames = {})
   : IControl(bounds)
   , IVectorBase(style)
   , mMinTrackValue(minTrackValue)
@@ -1225,10 +1225,20 @@ public:
       mTrackBounds.Add(IRECT());
     }
     
+    if(trackNames.size())
+    {
+      assert(trackNames.size() == maxNTracks); // check that the trackNames list size matches the number of tracks
+      
+      for (auto& trackName : trackNames)
+      {
+        mTrackNames.Add(new WDL_String(trackName));
+      }
+    }
+    
     AttachIControl(this, label);
   }
 
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, std::initializer_list<const char*> trackNames = {})
   : IControl(bounds)
   , IVectorBase(style)
   , mMinTrackValue(minTrackValue)
@@ -1242,11 +1252,21 @@ public:
       SetParamIdx(lowParamidx+i, i);
       mTrackBounds.Add(IRECT());
     }
+    
+    if(trackNames.size())
+    {
+      assert(trackNames.size() == maxNTracks);
+      
+      for (auto& trackName : trackNames)
+      {
+        mTrackNames.Add(new WDL_String(trackName));
+      }
+    }
 
     AttachIControl(this, label);
   }
   
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, const char* trackNames = 0, ...)
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, std::initializer_list<const char*> trackNames = {})
   : IControl(bounds)
   , IVectorBase(style)
   , mMinTrackValue(minTrackValue)
@@ -1262,7 +1282,22 @@ public:
       mTrackBounds.Add(IRECT());
     }
     
+    if(trackNames.size())
+    {
+      assert(trackNames.size() == params.size());
+      
+      for (auto& trackName : trackNames)
+      {
+        mTrackNames.Add(new WDL_String(trackName));
+      }
+    }
+    
     AttachIControl(this, label);
+  }
+  
+  virtual ~IVTrackControlBase()
+  {
+    mTrackNames.Empty(true);
   }
   
   virtual void MakeTrackRects(const IRECT& bounds)
@@ -1297,7 +1332,7 @@ public:
     {
       IParam* pParam = GetDelegate()->GetParam(p);
       
-      if(strcmp(pParam->GetGroupForHost(), paramGroup) == 0)
+      if(strcmp(pParam->GetGroup(), paramGroup) == 0)
       {
         paramIdsForGroup.push_back(p);
       }
@@ -1306,7 +1341,7 @@ public:
     mTrackBounds.Resize(0);
     
     int nParamsInGroup = static_cast<int>(paramIdsForGroup.size());
-        
+    
     SetNVals(nParamsInGroup);
   
     int valIdx = 0;
@@ -1337,12 +1372,36 @@ public:
     OnResize();
   }
   
-  //void SetAllTrackData(float val) { memset(mTrackData.Get(), (int) Clip(val, mMinTrackValue, mMaxTrackValue), mTrackData.GetSize() * sizeof(float) ); }
+  bool HasTrackNames() const
+  {
+    return mTrackNames.GetSize() > 0;
+  }
+  
+  const char* GetTrackName(int chIdx) const
+  {
+    WDL_String* pStr = mTrackNames.Get(chIdx);
+    return pStr ? pStr->Get() : "";
+  }
+  
+  void SetTrackName(int chIdx, const char* newName)
+  {
+    assert(chIdx >= 0 && chIdx < mTrackNames.GetSize());
+    
+    if(chIdx >= 0 && chIdx < mTrackNames.GetSize())
+    {
+      mTrackNames.Get(chIdx)->Set(newName);
+    }
+  }
+  
 protected:
   
   virtual void DrawTrack(IGraphics& g, const IRECT& r, int chIdx)
   {
     DrawTrackBG(g, r, chIdx);
+    
+    if(HasTrackNames())
+      DrawTrackName(g, r, chIdx);
+    
     DrawTrackHandle(g, r, chIdx);
     
     if(mStyle.drawFrame && mDrawTrackFrame)
@@ -1352,6 +1411,11 @@ protected:
   virtual void DrawTrackBG(IGraphics& g, const IRECT& r, int chIdx)
   {
     g.FillRect(kBG, r, &mBlend);
+  }
+  
+  virtual void DrawTrackName(IGraphics& g, const IRECT& r, int chIdx)
+  {
+    g.DrawText(mText, GetTrackName(chIdx), r);
   }
   
   virtual void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx)
@@ -1385,6 +1449,7 @@ protected:
 protected:
   EDirection mDirection = EDirection::Vertical;
   WDL_TypedBuf<IRECT> mTrackBounds;
+  WDL_PtrList<WDL_String> mTrackNames;
   float mMinTrackValue;
   float mMaxTrackValue;
   float mTrackPadding = 0.;

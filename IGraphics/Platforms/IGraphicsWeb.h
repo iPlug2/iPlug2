@@ -36,6 +36,10 @@ static val GetPreloadedImages()
   return val::global("Module")["preloadedImages"];
 }
 
+extern void GetScreenDimensions(int& width, int& height);
+
+extern float GetScaleForScreen(int height);
+
 /** IGraphics platform class for the web
 * @ingroup PlatformClasses */
 class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS

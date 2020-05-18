@@ -85,10 +85,14 @@ bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) con
   return isEqual;
 }
 
-bool IPlugAPIBase::EditorResize(int viewWidth, int viewHeight)
+bool IPlugAPIBase::EditorResizeFromUI(int viewWidth, int viewHeight, bool needsPlatformResize)
 {
   SetEditorSize(viewWidth, viewHeight);
-  return false;
+  
+  if (needsPlatformResize)
+    return EditorResize(viewWidth, viewHeight);
+  else
+    return true;
 }
 
 #pragma mark -

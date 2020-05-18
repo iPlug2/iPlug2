@@ -541,8 +541,8 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         if (pParam->GetMeta()) pInfo->flags |= kAudioUnitParameterFlag_IsElementMeta;
         if (pParam->NDisplayTexts()) pInfo->flags |= kAudioUnitParameterFlag_ValuesHaveStrings;
 
-        const char* paramName = pParam->GetNameForHost();
-        pInfo->cfNameString = CFStringCreateWithCString(0, pParam->GetNameForHost(), kCFStringEncodingUTF8);
+        const char* paramName = pParam->GetName();
+        pInfo->cfNameString = CFStringCreateWithCString(0, pParam->GetName(), kCFStringEncodingUTF8);
         strcpy(pInfo->name, paramName);   // Max 52.
 
         switch (pParam->Type())
@@ -626,7 +626,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         pInfo->maxValue = pParam->GetMax();
         pInfo->defaultValue = pParam->GetDefault();
         
-        const char* paramGroupName = pParam->GetGroupForHost();
+        const char* paramGroupName = pParam->GetGroup();
 
         if (CStringHasContents(paramGroupName))
         {
@@ -964,7 +964,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         AudioUnitParameterIDName* pIDName = (AudioUnitParameterIDName*) pData;
         char cStr[MAX_PARAM_NAME_LEN];
         ENTER_PARAMS_MUTEX
-        strcpy(cStr, GetParam(pIDName->inID)->GetNameForHost());
+        strcpy(cStr, GetParam(pIDName->inID)->GetName());
         LEAVE_PARAMS_MUTEX
         if (pIDName->inDesiredLength != kAudioUnitParameterName_Full)
         {
@@ -1012,7 +1012,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       {
         AudioUnitParameterStringFromValue* pSFV = (AudioUnitParameterStringFromValue*) pData;
         ENTER_PARAMS_MUTEX
-        GetParam(pSFV->inParamID)->GetDisplayForHost(*(pSFV->inValue), false, mParamDisplayStr);
+        GetParam(pSFV->inParamID)->GetDisplay(*(pSFV->inValue), false, mParamDisplayStr);
         LEAVE_PARAMS_MUTEX
         pSFV->outString = MakeCFString((const char*) mParamDisplayStr.Get());
       }

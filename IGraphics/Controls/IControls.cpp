@@ -127,7 +127,7 @@ void IVSwitchControl::SetDirty(bool push, int valIdx)
   const IParam* pParam = GetParam();
 
   if(pParam)
-    pParam->GetDisplayForHost(mValueStr);
+    pParam->GetDisplay(mValueStr);
 }
 
 void IVSwitchControl::OnResize()
@@ -149,10 +149,10 @@ void IVSwitchControl::OnInit()
   
   if(pParam)
   {
-    pParam->GetDisplayForHostWithLabel(mValueStr);
+    pParam->GetDisplayWithLabel(mValueStr);
   
     if(!mLabelStr.GetLength())
-      mLabelStr.Set(pParam->GetNameForHost());
+      mLabelStr.Set(pParam->GetName());
   }
 }
 
@@ -338,7 +338,7 @@ void IVTabSwitchControl::OnInit()
     }
     
     if(!mLabelStr.GetLength())
-      mLabelStr.Set(pParam->GetNameForHost());
+      mLabelStr.Set(pParam->GetName());
   }
 }
 
@@ -638,7 +638,7 @@ void IVKnobControl::SetDirty(bool push, int valIdx)
   const IParam* pParam = GetParam();
   
   if(pParam)
-    pParam->GetDisplayForHostWithLabel(mValueStr);
+    pParam->GetDisplayWithLabel(mValueStr);
 }
 
 void IVKnobControl::OnInit()
@@ -647,10 +647,10 @@ void IVKnobControl::OnInit()
   
   if(pParam)
   {
-    pParam->GetDisplayForHostWithLabel(mValueStr);
+    pParam->GetDisplayWithLabel(mValueStr);
     
     if(!mLabelStr.GetLength())
-      mLabelStr.Set(pParam->GetNameForHost());
+      mLabelStr.Set(pParam->GetName());
   }
 }
 
@@ -794,7 +794,7 @@ void IVSliderControl::SetDirty(bool push, int valIdx)
   const IParam* pParam = GetParam();
   
   if(pParam)
-    pParam->GetDisplayForHostWithLabel(mValueStr);
+    pParam->GetDisplayWithLabel(mValueStr);
 }
 
 void IVSliderControl::OnInit()
@@ -804,9 +804,9 @@ void IVSliderControl::OnInit()
   if(pParam)
   {
     if(!mLabelStr.GetLength())
-      mLabelStr.Set(pParam->GetNameForHost());
+      mLabelStr.Set(pParam->GetName());
     
-    pParam->GetDisplayForHostWithLabel(mValueStr);
+    pParam->GetDisplayWithLabel(mValueStr);
   }
 }
 
