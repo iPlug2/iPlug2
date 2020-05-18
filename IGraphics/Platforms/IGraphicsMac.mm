@@ -117,7 +117,7 @@ void IGraphicsMac::CloseWindow()
 {
   if (mView)
   {
-#ifdef IGRAPHICS_IMGUI
+#if defined IGRAPHICS_IMGUI && !defined IGRAPHICS_SKIA && !defined IGRAPHICS_GL
     if(mImGuiView)
     {
       IGRAPHICS_IMGUIVIEW* pImGuiView = (IGRAPHICS_IMGUIVIEW*) mImGuiView;
@@ -158,7 +158,7 @@ void IGraphicsMac::PlatformResize(bool parentHasResized)
     [[NSAnimationContext currentContext] setDuration:0.0];
     [(IGRAPHICS_VIEW*) mView setFrameSize: size ];
     
-#ifdef IGRAPHICS_IMGUI
+#if defined IGRAPHICS_IMGUI && !defined IGRAPHICS_SKIA && !defined IGRAPHICS_GL
     if(mImGuiView)
       [(IGRAPHICS_IMGUIVIEW*) mImGuiView setFrameSize: size ];
 #endif
@@ -610,7 +610,7 @@ bool IGraphicsMac::SetTextInClipboard(const char* str)
 
 void IGraphicsMac::CreatePlatformImGui()
 {
-#ifdef IGRAPHICS_IMGUI
+#if defined IGRAPHICS_IMGUI && !defined IGRAPHICS_SKIA && !defined IGRAPHICS_GL
   if(mView)
   {
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;

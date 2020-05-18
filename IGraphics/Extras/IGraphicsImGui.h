@@ -50,6 +50,10 @@ public:
     return mDrawFunc;
   }
   
+  #ifdef IGRAPHICS_SKIA
+    SkPaint fFontPaint;
+  #endif
+  
 private:
   IGraphics* mGraphics;
   std::function<void(IGraphics*)> mDrawFunc = nullptr;

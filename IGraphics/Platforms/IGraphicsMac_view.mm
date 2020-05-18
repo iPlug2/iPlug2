@@ -14,7 +14,7 @@
 #import <Metal/Metal.h>
 #endif
 
-#ifdef IGRAPHICS_IMGUI
+#if defined IGRAPHICS_IMGUI && !defined IGRAPHICS_SKIA && !defined IGRAPHICS_GL
 #import <Metal/Metal.h>
 #include "imgui.h"
 #import "imgui_impl_metal.h"
@@ -1303,7 +1303,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
 @end
 
-#ifdef IGRAPHICS_IMGUI
+#if defined IGRAPHICS_IMGUI && !defined IGRAPHICS_SKIA && !defined IGRAPHICS_GL
 
 @implementation IGRAPHICS_IMGUIVIEW
 {

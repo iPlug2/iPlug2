@@ -191,16 +191,32 @@ bool ImGuiRenderer::OnKeyUp(float x, float y, const IKeyPress& keyPress)
 
 void ImGuiRenderer::Init()
 {
-#if defined IGRAPHICS_GL2
-  ImGui_ImplOpenGL2_Init();
-#elif defined IGRAPHICS_GL3
-  ImGui_ImplOpenGL3_Init();
-#elif defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
-  const char* glsl_version = "#version 100";
-  //const char* glsl_version = "#version 300 es";
-  ImGui_ImplOpenGL3_Init(glsl_version);
-#elif defined IGRAPHICS_METAL
-  ImGui_ImplMetal_Init(MTLCreateSystemDefaultDevice());
+#if defined IGRAPHICS_SKIA
+  ImGuiIO& io = ImGui::GetIO();
+  int w, h;
+  unsigned char* pixels;
+  io.Fonts->GetTexDataAsAlpha8(&pixels, &w, &h);
+  SkImageInfo info = SkImageInfo::MakeA8(w, h);
+  SkPixmap pmap(info, pixels, info.minRowBytes());
+  SkMatrix localMatrix = SkMatrix::MakeScale(1.0f / w, 1.0f / h);
+  auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
+  auto fontShader = fontImage->makeShader(&localMatrix);
+  fFontPaint.setShader(fontShader);
+  fFontPaint.setColor(SK_ColorWHITE);
+  fFontPaint.setFilterQuality(kLow_SkFilterQuality);
+  io.Fonts->TexID = &fFontPaint;
+#else
+  #if defined IGRAPHICS_GL2
+    ImGui_ImplOpenGL2_Init();
+  #elif defined IGRAPHICS_GL3
+    ImGui_ImplOpenGL3_Init();
+  #elif defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+    const char* glsl_version = "#version 100";
+    //const char* glsl_version = "#version 300 es";
+    ImGui_ImplOpenGL3_Init(glsl_version);
+  #elif defined IGRAPHICS_METAL
+    ImGui_ImplMetal_Init(MTLCreateSystemDefaultDevice());
+  #endif
 #endif
 }
 
@@ -217,16 +233,20 @@ void ImGuiRenderer::Destroy()
 
 void ImGuiRenderer::NewFrame()
 {
-#if defined IGRAPHICS_GL2
-  ImGui_ImplOpenGL2_NewFrame();
+#if defined IGRAPHICS_SKIA
   this->DoFrame();
-  ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
-#elif defined IGRAPHICS_GL3 || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
-  ImGui_ImplOpenGL3_NewFrame();
-  this->DoFrame();
-  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 #else
-  //Metal rendering handled in IGRAPHICS_IMGUIVIEW
+  #if defined IGRAPHICS_GL2
+    ImGui_ImplOpenGL2_NewFrame();
+    this->DoFrame();
+    ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+  #elif defined IGRAPHICS_GL3 || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+    ImGui_ImplOpenGL3_NewFrame();
+    this->DoFrame();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+  #else
+    //Metal rendering handled in IGRAPHICS_IMGUIVIEW
+  #endif
 #endif
 }
 
