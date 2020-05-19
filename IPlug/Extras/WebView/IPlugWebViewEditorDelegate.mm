@@ -253,5 +253,5 @@ void WebViewEditorDelegate::Resize(int width, int height)
 //  [[NSAnimationContext currentContext] setDuration:0.0];
   [(__bridge WKWebView*) mWKWebView setFrame: MAKERECT(0.f, 0.f, (float) width, (float) height) ];
 //  [NSAnimationContext endGrouping];
-  EditorResizeFromUI(width, height);
+  EditorResizeFromUI(width, height, true);
 }
