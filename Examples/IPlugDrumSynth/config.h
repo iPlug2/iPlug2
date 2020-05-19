@@ -38,12 +38,12 @@
 #define AUV2_VIEW_CLASS IPlugDrumSynth_View
 #define AUV2_VIEW_CLASS_STR "IPlugDrumSynth_View"
 
-#define AAX_TYPE_IDS 'EFN1', 'EFN2'
+#define AAX_TYPE_IDS 'IPD1'
 #define AAX_PLUG_MFR_STR "Acme"
 #define AAX_PLUG_NAME_STR "IPlugDrumSynth\nIPDS"
 #define AAX_DOES_AUDIOSUITE 0
 #define AAX_PLUG_CATEGORY_STR "Synth"
-
+#define AAX_AOS_STRS "Drum2", "Drum3", "Drum4"
 #define VST3_SUBCATEGORY "Instrument|Synth"
 
 #define APP_NUM_CHANNELS 2

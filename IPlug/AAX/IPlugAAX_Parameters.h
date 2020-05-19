@@ -66,6 +66,7 @@ struct AAX_SIPlugSetupInfo
   AAX_EStemFormat mOutputStemFormat;
   bool mUseHostGeneratedGUI;
   bool mCanBypass;
+  bool mWantsSideChain;
   AAX_CTypeID mManufacturerID;
   AAX_CTypeID mProductID;
   AAX_CTypeID mPluginID;
@@ -102,8 +103,9 @@ struct AAX_SIPlugSetupInfo
     mLatency = 0;
     mAudiosuiteID = 'none';
     mMultiMonoSupport = true;
-        
+    mWantsSideChain = false;
     mNumAuxOutputStems = 0;
+    
     for (int32_t i=0; i<kMaxAuxOutputStems; i++)
     {
       mAuxOutputStemNames[i] = 0;
@@ -138,6 +140,7 @@ struct AAX_SIPlugRenderInfo
   float** mMeters;
   
   int64_t* mCurrentStateNum;
+  int32_t* mSideChainP;
 };
 
 class AAX_CIPlugParameters : public AAX_CEffectParameters

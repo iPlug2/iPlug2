@@ -43,10 +43,10 @@
 #define AUV2_VIEW_CLASS IPlugSideChain_View
 #define AUV2_VIEW_CLASS_STR "IPlugSideChain_View"
 
-#define AAX_TYPE_IDS 'EFN1', 'EFN2'
-#define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'
+#define AAX_TYPE_IDS 'ISC1', 'ISC2'
+#define AAX_TYPE_IDS_AUDIOSUITE 'SCA1', 'SCA2'
 #define AAX_PLUG_MFR_STR "Acme"
-#define AAX_PLUG_NAME_STR "IPlugSideChain\nIPEF"
+#define AAX_PLUG_NAME_STR "IPlugSideChain\nIPSC"
 #define AAX_PLUG_CATEGORY_STR "Effect"
 #define AAX_DOES_AUDIOSUITE 1
 

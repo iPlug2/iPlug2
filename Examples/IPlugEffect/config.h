@@ -15,7 +15,7 @@
 
 #define SHARED_RESOURCES_SUBPATH "IPlugEffect"
 
-#define PLUG_CHANNEL_IO "2-2"
+#define PLUG_CHANNEL_IO "1-1 2-2"
 
 #define PLUG_LATENCY 0
 #define PLUG_TYPE 0
@@ -35,8 +35,8 @@
 #define AUV2_VIEW_CLASS IPlugEffect_View
 #define AUV2_VIEW_CLASS_STR "IPlugEffect_View"
 
-#define AAX_TYPE_IDS 'EFN1', 'EFN2'
-#define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'
+#define AAX_TYPE_IDS 'IEF1', 'IEF2'
+#define AAX_TYPE_IDS_AUDIOSUITE 'IEA1', 'IEA2'
 #define AAX_PLUG_MFR_STR "Acme"
 #define AAX_PLUG_NAME_STR "IPlugEffect\nIPEF"
 #define AAX_PLUG_CATEGORY_STR "Effect"

@@ -119,6 +119,7 @@ private:
   AAX_ITransport* mTransport = nullptr;
   WDL_PtrList<WDL_String> mParamIDs;
   IMidiQueue mMidiOutputQueue;
+  int mMaxNChansForMainInputBus = 0;
 };
 
 IPlugAAX* MakePlug(const InstanceInfo& info);

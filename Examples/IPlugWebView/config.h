@@ -35,8 +35,8 @@
 #define AUV2_VIEW_CLASS IPlugWebView_View
 #define AUV2_VIEW_CLASS_STR "IPlugWebView_View"
 
-#define AAX_TYPE_IDS 'EFN1', 'EFN2'
-#define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'
+#define AAX_TYPE_IDS 'IPWV'
+#define AAX_TYPE_IDS_AUDIOSUITE 'IPWA'
 #define AAX_PLUG_MFR_STR "Acme"
 #define AAX_PLUG_NAME_STR "IPlugWebView\nIPEF"
 #define AAX_PLUG_CATEGORY_STR "Effect"

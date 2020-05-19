@@ -35,12 +35,12 @@
 #define AUV2_VIEW_CLASS IPlugResponsiveUI_View
 #define AUV2_VIEW_CLASS_STR "IPlugResponsiveUI_View"
 
-#define AAX_TYPE_IDS 'EFN1', 'EFN2'
-#define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'
+#define AAX_TYPE_IDS 'IPRU'
+#define AAX_TYPE_IDS_AUDIOSUITE 'IPRA'
 #define AAX_PLUG_MFR_STR "Acme"
 #define AAX_PLUG_NAME_STR "IPlugResponsiveUI\nIPEF"
 #define AAX_PLUG_CATEGORY_STR "Effect"
-#define AAX_DOES_AUDIOSUITE 1
+#define AAX_DOES_AUDIOSUITE 0
 
 #define VST3_SUBCATEGORY "Fx"
 

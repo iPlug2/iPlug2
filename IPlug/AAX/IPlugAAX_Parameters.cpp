@@ -122,6 +122,7 @@ AAX_Result  AAX_CIPlugParameters::StaticDescribe(AAX_IEffectDescriptor * ioDescr
 
   AAX_CFieldIndex globalNodeID = AAX_FIELD_INDEX(AAX_SIPlugRenderInfo, mGlobalNode);
   AAX_CFieldIndex localInputNodeID = AAX_FIELD_INDEX(AAX_SIPlugRenderInfo, mInputNode);
+  AAX_CFieldIndex localOutputNodeID = AAX_FIELD_INDEX(AAX_SIPlugRenderInfo, mOutputNode);
   AAX_CFieldIndex transportNodeID = AAX_FIELD_INDEX(AAX_SIPlugRenderInfo, mTransportNode);
 
   if (setupInfo.mNeedsGlobalMIDI)
@@ -134,6 +135,11 @@ AAX_Result  AAX_CIPlugParameters::StaticDescribe(AAX_IEffectDescriptor * ioDescr
   else
     err = compDesc->AddPrivateData( localInputNodeID, sizeof(float), AAX_ePrivateDataOptions_DefaultOptions );    
 
+  if (setupInfo.mNeedsOutputMIDI)
+    err = compDesc->AddMIDINode ( localOutputNodeID, AAX_eMIDINodeType_LocalOutput, setupInfo.mOutputMIDINodeName, setupInfo.mOutputMIDIChannelMask );
+  else
+    err = compDesc->AddPrivateData( localOutputNodeID, sizeof(float), AAX_ePrivateDataOptions_DefaultOptions );
+  
   if (setupInfo.mNeedsTransport)
     err = compDesc->AddMIDINode ( transportNodeID, AAX_eMIDINodeType_Transport, "Transport", 0xffff );
   else
@@ -161,7 +167,10 @@ AAX_Result  AAX_CIPlugParameters::StaticDescribe(AAX_IEffectDescriptor * ioDescr
   else
     err = compDesc->AddPrivateData( AAX_FIELD_INDEX (AAX_SIPlugRenderInfo, mMeters), sizeof(float), AAX_ePrivateDataOptions_DefaultOptions ); 
   
-    //Add optional aux output stems.
+  if(setupInfo.mWantsSideChain)
+    err = compDesc->AddSideChainIn( AAX_FIELD_INDEX (AAX_SIPlugRenderInfo, mSideChainP));
+
+  //Add optional aux output stems.
   // NOTE: This will throw for hosts that do not support AOS, which will result in the
   // Effect not being registered. An alternative would be to detect the lack of AOS
   // support and to communicate this to the effect so that it could adjust its
@@ -194,6 +203,9 @@ AAX_Result  AAX_CIPlugParameters::StaticDescribe(AAX_IEffectDescriptor * ioDescr
     err = properties->AddProperty(AAX_eProperty_HybridInputStemFormat, static_cast<int32_t>(setupInfo.mHybridInputStemFormat));
     err = properties->AddProperty(AAX_eProperty_HybridOutputStemFormat, static_cast<int32_t>(setupInfo.mHybridOutputStemFormat));
   }
+  
+  if(setupInfo.mWantsSideChain)
+    err = properties->AddProperty(AAX_eProperty_SupportsSideChainInput, true);
   
   // initial latency
   err = properties->AddProperty(AAX_eProperty_LatencyContribution, setupInfo.mLatency);
