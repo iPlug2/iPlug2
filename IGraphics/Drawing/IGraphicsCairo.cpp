@@ -59,24 +59,22 @@ IGraphicsCairo::Bitmap::~Bitmap()
 class IGraphicsCairo::Font
 {
 public:
-  Font(cairo_font_face_t* font, double EMRatio) : mFont(font), mEMRatio(EMRatio) {}
+  Font(cairo_font_face_t* font) : mFont(font) {}
   virtual ~Font() { if (mFont) cairo_font_face_destroy(mFont); }
 
   Font(const Font&) = delete;
   Font& operator=(const Font&) = delete;
     
   cairo_font_face_t* GetFont() const { return mFont; }
-  double GetEMRatio() const { return mEMRatio; }
     
 protected:
   cairo_font_face_t* mFont;
-  double mEMRatio;
 };
 
 #ifdef OS_MAC
 struct IGraphicsCairo::OSFont : Font
 {
-  OSFont(const FontDescriptor fontRef, double EMRatio) : Font(nullptr, EMRatio)
+  OSFont(const FontDescriptor fontRef) : Font(nullptr)
   {
     CTFontRef ctFont = CTFontCreateWithFontDescriptor(fontRef, 0.f, NULL);
     CGFontRef cgFont = CTFontCopyGraphicsFont(ctFont, NULL);
@@ -88,8 +86,8 @@ struct IGraphicsCairo::OSFont : Font
 #elif defined OS_WIN
 struct IGraphicsCairo::OSFont : Font
 {
-  OSFont(const FontDescriptor fontRef, double EMRatio)
-  : Font(cairo_win32_font_face_create_for_hfont(fontRef), EMRatio)
+  OSFont(const FontDescriptor fontRef)
+  : Font(cairo_win32_font_face_create_for_hfont(fontRef))
   {}
 };
 
@@ -492,7 +490,7 @@ void IGraphicsCairo::PrepareAndMeasureText(const IText& text, const char* str, I
   // Get the correct font face
   
   cairo_set_font_face(context, pCachedFont->GetFont());
-  cairo_set_font_size(context, text.mSize * pCachedFont->GetEMRatio());
+  cairo_set_font_size(context, text.mSize);
   cairo_font_extents(context, &fontExtents);
 
   // Draw / measure
@@ -673,7 +671,7 @@ bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font
   if (!data->IsValid())
     return false;
     
-  std::unique_ptr<OSFont> cairoFont(new OSFont(font->GetDescriptor(), data->GetHeightEMRatio()));
+  std::unique_ptr<OSFont> cairoFont(new OSFont(font->GetDescriptor()));
 
   if (cairo_font_face_status(cairoFont->GetFont()) == CAIRO_STATUS_SUCCESS)
   {

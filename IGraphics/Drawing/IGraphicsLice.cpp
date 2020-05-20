@@ -38,7 +38,6 @@ struct IGraphicsLice::FontInfo
   bool mBold;
   bool mItalic;
   bool mUnderline;
-  double mEMRatio;
 };
 
 #ifdef OS_MAC
@@ -711,8 +710,9 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
   assert(pFontInfo && "No font found - did you forget to load it?");
   
 #ifdef OS_MAC
-  int h = static_cast<int>(std::round(text.mSize * pFontInfo->mEMRatio * GetScreenScale()));
+  int h = static_cast<int>(std::round(text.mSize * GetScreenScale()));
 #else
+  // TODO - check the correct code for windows!
   int h = static_cast<int>(std::round(text.mSize) * GetScreenScale());
 #endif
     
@@ -754,8 +754,6 @@ bool IGraphicsLice::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
   
   if (data->IsValid())
   {
-    double EMRatio = data->GetHeightEMRatio();
-      
 #ifdef OS_MAC
     StaticStorage<MacRegisteredFont>::Accessor registeredFontStorage(sMacRegistedFontCache);
 
@@ -765,14 +763,14 @@ bool IGraphicsLice::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
       fontName.Append(" ");
       fontName.Append(&data->GetStyle());
     }
-    fontInfoStorage.Add(new FontInfo{fontName, false, false, false, EMRatio}, fontID);
+    fontInfoStorage.Add(new FontInfo{fontName, false, false, false}, fontID);
       
     if (!font->IsSystem())
     {
       registeredFontStorage.Add(new MacRegisteredFont(font->GetDescriptor()), fontID);
     }
 #else
-    fontInfoStorage.Add(new FontInfo{data->GetFamily(), data->IsBold(), data->IsItalic(), data->IsUnderline(), EMRatio}, fontID);
+    fontInfoStorage.Add(new FontInfo{data->GetFamily(), data->IsBold(), data->IsItalic(), data->IsUnderline()}, fontID);
 #endif
     return true;
   }
