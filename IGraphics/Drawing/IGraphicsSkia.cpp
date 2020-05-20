@@ -699,7 +699,7 @@ void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IR
   font.setHinting(SkFontHinting::kSlight);
   font.setForceAutoHinting(false);
   font.setSubpixel(true);
-  font.setSize(text.mSize * pFont->mData->GetHeightEMRatio());
+  font.setSize(text.mSize);
   
   // Draw / measure
   const double textWidth = font.measureText(str, strlen(str), SkTextEncoding::kUTF8, nullptr/* &bounds*/);
