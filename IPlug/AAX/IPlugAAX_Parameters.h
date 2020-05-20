@@ -147,7 +147,7 @@ class AAX_CIPlugParameters : public AAX_CEffectParameters
 {
 public:
   AAX_CIPlugParameters (void);
-  ~AAX_CIPlugParameters (void) AAX_OVERRIDE;
+  ~AAX_CIPlugParameters (void) override;
  
 protected:
   typedef std::pair<AAX_CParamID const, const AAX_IParameterValue*> TParamValPair;
@@ -155,10 +155,10 @@ protected:
   void AddSynchronizedParameter(const AAX_IParameter& inParameter);
   
 public:
-  AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParamID, double aValue, AAX_EUpdateSource inSource) AAX_OVERRIDE;
-  AAX_Result GenerateCoefficients() AAX_OVERRIDE;
-  AAX_Result ResetFieldData (AAX_CFieldIndex iFieldIndex, void * oData, uint32_t iDataSize) const AAX_OVERRIDE;
-  AAX_Result TimerWakeup() AAX_OVERRIDE;
+  AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParamID, double aValue, AAX_EUpdateSource inSource) override;
+  AAX_Result GenerateCoefficients() override;
+  AAX_Result ResetFieldData (AAX_CFieldIndex iFieldIndex, void * oData, uint32_t iDataSize) const override;
+  AAX_Result TimerWakeup() override;
 
   static AAX_Result StaticDescribe (AAX_IEffectDescriptor * ioDescriptor, const AAX_SIPlugSetupInfo & setupInfo);
 
