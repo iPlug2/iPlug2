@@ -17,7 +17,7 @@ extract **AAX_SDK_2p3p2.zip** here
 
 On Windows you will need to 
 
-  - Open *msvc/AAX_SDK.sln" in Visual Studio 2019. You should be prompted to retarget the solution, agree to that to upgrade the compiler and VS projects for VS2019
+  - Open *msvc/AAX_SDK.sln* in Visual Studio 2019. You should be prompted to retarget the solution, agree to that to upgrade the compiler and VS projects for VS2019
   
   - Right click the "AAXLibrary" project in the solution explorer and select "Properties". Navigate to *Configurations Properties -> C/C++ -> Code Generation -> Runtime Library* . For the Configurations/Platform Debug/x64 this should be set to *Multi-threaded Debug (/MTd)*, change it and click apply. For the Release/x64 platform it should be set to *Multi-threaded (/MT)*, change it and click apply.
 
