@@ -324,7 +324,8 @@ void IGraphicsSkia::DrawResize()
 #else
   #ifdef OS_WIN
     mSurface.reset();
-    const size_t bmpSize = sizeof(BITMAPINFOHEADER) + WindowWidth() * WindowHeight() * GetScreenScale() * sizeof(uint32_t);
+   
+    const size_t bmpSize = sizeof(BITMAPINFOHEADER) + (WindowWidth() * GetScreenScale()) * (WindowHeight() * GetScreenScale()) * sizeof(uint32_t);
     mSurfaceMemory.Resize(bmpSize);
     BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.Get());
     ZeroMemory(bmpInfo, sizeof(BITMAPINFO));
