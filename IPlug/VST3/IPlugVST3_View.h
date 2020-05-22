@@ -242,7 +242,7 @@ public:
 
     iplug::IKeyPress keyPress { str.Get(), VSTKeyCodeToVK(keyMsg, str.Get()[0]),
       static_cast<bool>(modifiers & Steinberg::kShiftKey),
-      static_cast<bool>(modifiers & Steinberg::kControlKey),
+      static_cast<bool>(modifiers & Steinberg::kCommandKey),
       static_cast<bool>(modifiers & Steinberg::kAlternateKey)};
     
     return keyPress;

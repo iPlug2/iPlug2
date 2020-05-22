@@ -38,10 +38,12 @@ body {
 #greyout { position: relative; text-align: center; color: black; }
 
 #wam {
-  position: absolute;
-  z-index: 9;
-  background-color: #f1f1f1;
-  border: 1px solid #d3d3d3;
+  /* 
+  position: absolute; 
+  */
+  /* z-index: 9; */
+  /* background-color: #f1f1f1; */
+  /* border: 1px solid #d3d3d3; */
   text-align: center;
 }
 

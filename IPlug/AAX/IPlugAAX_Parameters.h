@@ -10,7 +10,7 @@
 
 #pragma once
 
-// This helper class is based on AVID's AAX_CInstrumentParameters
+// This is a slightly modified version of AAX_CMonolithicParameters.h
 
 #include "AAX_CEffectParameters.h"
 
@@ -18,53 +18,62 @@
 #include "AAX_IComponentDescriptor.h"
 #include "AAX_IPropertyMap.h"
 
+#include "AAX_CAtomicQueue.h"
+#include "AAX_IParameter.h"
 #include "AAX_IMIDINode.h"
 #include "AAX_IString.h"
 
 #include "IPlugPlatform.h"
 
-//static const int kMaxAdditionalMIDINodes = 15;
-static const int kMaxAuxOutputStems = 16;
+#include <set>
+#include <list>
+#include <utility>
+
+#define kMaxAdditionalMIDINodes 15
+#define kMaxAuxOutputStems 32
+#define kSynchronizedParameterQueueSize 32
 
 BEGIN_IPLUG_NAMESPACE
 
 struct AAX_SIPlugSetupInfo
 {
-  bool mNeedsGlobalMIDI;              // Does the IPlug use a global MIDI input node?
-  const char* mGlobalMIDINodeName;    // Name of the global MIDI node, if used
-  uint32_t mGlobalMIDIEventMask;      // Global MIDI node event mask, if used
-  
-  bool mNeedsInputMIDI;               // Does the IPlug use a local MIDI input node?
-  const char* mInputMIDINodeName;     // Name of the MIDI input node, if used
-  uint32_t mInputMIDIChannelMask;     // MIDI input node channel mask, if used
-	//int32_t mNumAdditionalInputMIDINodes;// Number of additional input MIDI Nodes.  These will all share the same channelMask and base MIDINodeName, but the names will be appended with numbers 2,3,4,...
-  
+  bool mNeedsGlobalMIDI;
+  const char* mGlobalMIDINodeName;
+  uint32_t mGlobalMIDIEventMask;
+  bool mNeedsInputMIDI;
+  const char* mInputMIDINodeName;
+  uint32_t  mInputMIDIChannelMask;
+  int32_t mNumAdditionalInputMIDINodes;
   bool mNeedsOutputMIDI;
   const char* mOutputMIDINodeName;
   uint32_t mOutputMIDIChannelMask;
   int32_t mNumAdditionalOutputMIDINodes;
   
-  bool mNeedsTransport;               // Does the IPlug use the transport interface?
-  const char* mTransportMIDINodeName; // Name of the MIDI transport node, if used
+  bool mNeedsTransport;
+  const char* mTransportMIDINodeName;
   
-  int32_t mNumMeters;                 // Number of meter taps used by the IPlug.  Must match the size of \ref mMeterIDs
-  const AAX_CTypeID* mMeterIDs;       // Array of meter IDs
+  int32_t mNumMeters;
+  const AAX_CTypeID* mMeterIDs;
   
-  //Aux Output Stems Feature.
-  int32_t mNumAuxOutputStems;         // Number of aux output stems for the plug-in.
-  const char* mAuxOutputStemNames[kMaxAuxOutputStems];  // Names of the aux output stems.
-  AAX_EStemFormat mAuxOutputStemFormats[kMaxAuxOutputStems]; // Stem formats for the output stems.
+  int32_t mNumAuxOutputStems;
+  const char* mAuxOutputStemNames[kMaxAuxOutputStems];
+  AAX_EStemFormat mAuxOutputStemFormats[kMaxAuxOutputStems];
   
-  AAX_EStemFormat mInputStemFormat;   // Input stem format
-  AAX_EStemFormat mOutputStemFormat;  // Output stem format
+  AAX_EStemFormat mHybridInputStemFormat;
+  AAX_EStemFormat mHybridOutputStemFormat;
+  
+  AAX_EStemFormat mInputStemFormat;
+  AAX_EStemFormat mOutputStemFormat;
   bool mUseHostGeneratedGUI;
-  bool mCanBypass;                    // Can this plugin be bypassed?
-  AAX_CTypeID mManufacturerID;        // Manufacturer ID
-  AAX_CTypeID mProductID;             // Product ID
-  AAX_CTypeID mPluginID;              // Plug-In (Type) ID
-  AAX_CTypeID mAudioSuiteID;          // AudioSuite Plug-In (Type) ID
-
-  int32_t mLatency;                   // Initial Latency
+  bool mCanBypass;
+  bool mWantsSideChain;
+  AAX_CTypeID mManufacturerID;
+  AAX_CTypeID mProductID;
+  AAX_CTypeID mPluginID;
+  AAX_CTypeID mAudiosuiteID;
+  AAX_CBoolean mMultiMonoSupport;
+  
+  int32_t mLatency;
   
   AAX_SIPlugSetupInfo()
   {
@@ -79,11 +88,11 @@ struct AAX_SIPlugSetupInfo
     mOutputMIDINodeName = "OutputMIDI";
     mOutputMIDIChannelMask = 0xffff;
     mNumAdditionalOutputMIDINodes = 0;
-    
+    mNumAdditionalInputMIDINodes = 0;
     mNeedsTransport = false;
     mTransportMIDINodeName = "Transport";
     mNumMeters = 0;
-    mMeterIDs = nullptr;
+    mMeterIDs = 0;
     mInputStemFormat = AAX_eStemFormat_Mono;
     mOutputStemFormat = AAX_eStemFormat_Mono;
     mUseHostGeneratedGUI = false;
@@ -91,9 +100,10 @@ struct AAX_SIPlugSetupInfo
     mManufacturerID = 'none';
     mProductID = 'none';
     mPluginID = 'none';
-    mAudioSuiteID = 'none';
     mLatency = 0;
-    
+    mAudiosuiteID = 'none';
+    mMultiMonoSupport = true;
+    mWantsSideChain = false;
     mNumAuxOutputStems = 0;
     
     for (int32_t i=0; i<kMaxAuxOutputStems; i++)
@@ -101,47 +111,131 @@ struct AAX_SIPlugSetupInfo
       mAuxOutputStemNames[i] = 0;
       mAuxOutputStemFormats[i] = AAX_eStemFormat_Mono;
     }
+    
+    mHybridInputStemFormat = AAX_eStemFormat_None;
+    mHybridOutputStemFormat = AAX_eStemFormat_None;
   }
 };
 
-class AAX_CIPlugParameters; 
+class AAX_CIPlugParameters;
 
 struct AAX_SIPlugPrivateData
 {
-  AAX_CIPlugParameters* mIPlugParametersPtr;
-//  AAX_EStemFormat       mInputStemFormat;
-//  AAX_EStemFormat       mOutputStemFormat;
+  AAX_CIPlugParameters* mMonolithicParametersPtr;
 };
 
 struct AAX_SIPlugRenderInfo
 {
-  float** mAudioInputs;           // Audio input buffers
-  float** mAudioOutputs;          // Audio output buffers
-  int32_t* mNumSamples;           // Number of samples in each buffer.  Bounded as per \ref AAE_EAudioBufferLengthNative.  The exact value can vary from buffer to buffer.
-  AAX_CTimestamp* mClock;         // Pointer to the global running time clock.
+  float** mAudioInputs;
+  float** mAudioOutputs;
+  int32_t* mNumSamples;
+  AAX_CTimestamp* mClock;
+  AAX_IMIDINode* mInputNode;
+  AAX_IMIDINode* mOutputNode;
+  AAX_IMIDINode* mGlobalNode;
+  AAX_IMIDINode* mTransportNode;
+  AAX_IMIDINode* mAdditionalInputMIDINodes[kMaxAdditionalMIDINodes];
 
-  AAX_IMIDINode* mInputNode;      // Buffered local MIDI input node.
-  AAX_IMIDINode* mOutputNode;     // Buffered local MIDI output node.
-  AAX_IMIDINode* mGlobalNode;     // Buffered global MIDI input node. Used for global events like beat updates in metronomes.
-  AAX_IMIDINode* mTransportNode;  // Transport MIDI node.  Used for querying the state of the MIDI transport.
-  //AAX_IMIDINode* mAdditionalInputMIDINodes[kMaxAdditionalMIDINodes];  // List of additional input MIDI nodes, if your plugin needs them.
-
-  AAX_SIPlugPrivateData* mPrivateData; // Struct containing private data relating to the instance.  You should not need to use this data.
-
-  float** mMeters;                // Array of meter taps.  One meter value should be entered per tap for each render call.
+  AAX_SIPlugPrivateData* mPrivateData;
+  float** mMeters;
+  
+  int64_t* mCurrentStateNum;
+  int32_t* mSideChainP;
 };
 
 class AAX_CIPlugParameters : public AAX_CEffectParameters
 {
 public:
-  AAX_CIPlugParameters () {}
-  virtual ~AAX_CIPlugParameters () {}
+  AAX_CIPlugParameters (void);
+  ~AAX_CIPlugParameters (void) override;
+ 
+protected:
+  typedef std::pair<AAX_CParamID const, const AAX_IParameterValue*> TParamValPair;
+  virtual void RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo, const TParamValPair* inSynchronizedParamValues[], int32_t inNumSynchronizedParamValues) {}
+  void AddSynchronizedParameter(const AAX_IParameter& inParameter);
+  
+public:
+  AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParamID, double aValue, AAX_EUpdateSource inSource) override;
+  AAX_Result GenerateCoefficients() override;
+  AAX_Result ResetFieldData (AAX_CFieldIndex iFieldIndex, void * oData, uint32_t iDataSize) const override;
+  AAX_Result TimerWakeup() override;
 
-  virtual void RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo) {}   
+  static AAX_Result StaticDescribe (AAX_IEffectDescriptor * ioDescriptor, const AAX_SIPlugSetupInfo & setupInfo);
 
-  virtual AAX_Result ResetFieldData (AAX_CFieldIndex iFieldIndex, void * oData, uint32_t iDataSize) const; 
-  static  AAX_Result  StaticDescribe (AAX_IEffectDescriptor * ioDescriptor, const AAX_SIPlugSetupInfo & setupInfo);
-  static  void  AAX_CALLBACK  StaticRenderAudio(AAX_SIPlugRenderInfo* const inInstancesBegin [], const void* inInstancesEnd); 
+  static void AAX_CALLBACK  StaticRenderAudio(AAX_SIPlugRenderInfo* const  inInstancesBegin [], const void* inInstancesEnd);
+private:
+  struct SParamValList
+  {
+    static const int32_t sCap = 4*kSynchronizedParameterQueueSize;
+    
+    TParamValPair* mElem[sCap];
+    int32_t mSize;
+    
+    SParamValList()
+    {
+      Clear();
+    }
+    
+    void Add(TParamValPair* inElem)
+    {
+      AAX_ASSERT(sCap > mSize);
+      if (sCap > mSize)
+      {
+        mElem[mSize++] = inElem;
+      }
+    }
+    
+    void Append(const SParamValList& inOther)
+    {
+      AAX_ASSERT(sCap >= mSize + inOther.mSize);
+      for (int32_t i = 0; i < inOther.mSize; ++i)
+      {
+        Add(inOther.mElem[i]);
+      }
+    }
+    
+    void Append(const std::list<TParamValPair*>& inOther)
+    {
+      AAX_ASSERT(sCap >= mSize + (int64_t)inOther.size());
+      for (std::list<TParamValPair*>::const_iterator iter = inOther.begin(); iter != inOther.end(); ++iter)
+      {
+        Add(*iter);
+      }
+    }
+    
+    void Merge(AAX_IPointerQueue<TParamValPair>& inOther)
+    {
+      do
+      {
+        TParamValPair* const val = inOther.Pop();
+        if (NULL == val) { break; }
+        Add(val);
+      } while (1);
+    }
+    
+    void Clear()
+    {
+      std::memset(mElem, 0x0, sizeof(mElem));
+      mSize = 0;
+    }
+  };
+  
+  typedef std::set<const AAX_IParameter*> TParamSet;
+  typedef std::pair<int64_t, std::list<TParamValPair*> > TNumberedParamStateList;
+  typedef AAX_CAtomicQueue<TNumberedParamStateList, 256> TNumberedStateListQueue;
+  typedef AAX_CAtomicQueue<const TParamValPair, 16*kSynchronizedParameterQueueSize> TParamValPairQueue;
+  
+  
+  SParamValList GetUpdatesForState(int64_t inTargetStateNum);
+  void DeleteUsedParameterChanges();
+  
+private:
+  std::set<std::string> mSynchronizedParameters;
+  int64_t mStateCounter;
+  TParamSet mDirtyParameters;
+  TNumberedStateListQueue mQueuedParameterChanges;
+  TNumberedStateListQueue mFinishedParameterChanges;
+  TParamValPairQueue mFinishedParameterValues; 
 };
 
 END_IPLUG_NAMESPACE

@@ -404,24 +404,16 @@ struct IChannelData
   WDL_String mLabel;
 };
 
-/** Used to manage information about a bus such as whether it's an input or output, channel count and if it has a label */
+/** Used to manage information about a bus such as whether it's an input or output, channel count */
 class IBusInfo
 {
 public:
-  IBusInfo(ERoute direction, int nchans = 0, const char* label = "")
+  IBusInfo(ERoute direction, int nchans = 0)
   : mDirection(direction)
   , mNChans(nchans)
   {
-    if(CStringHasContents(label))
-      mLabel.Set(label);
-    else
-      mLabel.Set(RoutingDirStrs[direction]);
   }
-
-  void SetLabel(const char* label) { mLabel.Set(label);  }
-
-  const char* GetLabel() const { return mLabel.Get(); }
-
+  
   int NChans() const { return mNChans; }
 
   ERoute GetDirection() const { return mDirection; }
@@ -429,7 +421,6 @@ public:
 private:
   ERoute mDirection;
   int mNChans;
-  WDL_String mLabel;
 };
 
 /** An IOConfig is used to store bus info for each input/output configuration defined in the channel io string */
@@ -447,9 +438,9 @@ struct IOConfig
    * @param direction /todo
    * @param NChans /todo
    * @param label /todo */
-  void AddBusInfo(ERoute direction, int NChans, const char* label = "")
+  void AddBusInfo(ERoute direction, int NChans)
   {
-    mBusInfo[direction].Add(new IBusInfo(direction, NChans, label));
+    mBusInfo[direction].Add(new IBusInfo(direction, NChans));
   }
   
   /** /todo

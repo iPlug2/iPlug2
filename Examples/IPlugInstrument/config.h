@@ -34,7 +34,7 @@
 #define AUV2_VIEW_CLASS IPlugInstrument_View
 #define AUV2_VIEW_CLASS_STR "IPlugInstrument_View"
 
-#define AAX_TYPE_IDS 'EFN1', 'EFN2'
+#define AAX_TYPE_IDS 'IPI1', 'IPI2'
 #define AAX_PLUG_MFR_STR "Acme"
 #define AAX_PLUG_NAME_STR "IPlugInstrument\nIPIS"
 #define AAX_DOES_AUDIOSUITE 0

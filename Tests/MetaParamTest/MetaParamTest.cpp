@@ -40,7 +40,7 @@ struct FourValues : public IControl
     {
       WDL_String str;
       IRECT r = GetRect(num);
-      GetParam(num)->GetDisplayForHost(str);
+      GetParam(num)->GetDisplay(str);
       g.DrawText(mText, str.Get(), r);
     };
     
@@ -72,7 +72,7 @@ MetaParamTest::MetaParamTest(const InstanceInfo& info)
   
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_HEIGHT));
   };
   
   auto updatePeersFunc =

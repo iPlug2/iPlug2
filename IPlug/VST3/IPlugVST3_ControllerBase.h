@@ -12,6 +12,7 @@
 
 #include "pluginterfaces/base/ibstream.h"
 #include "public.sdk/source/vst/vsteditcontroller.h"
+#include "pluginterfaces/vst/ivstchannelcontextinfo.h"
 
 #include "IPlugAPIBase.h"
 #include "IPlugVST3_Parameter.h"
@@ -86,7 +87,7 @@ public:
       IParam* pParam = pPlug->GetParam(i);
       unitID = Steinberg::Vst::kRootUnitId; // reset unitID
     
-      const char* paramGroupName = pParam->GetGroupForHost();
+      const char* paramGroupName = pParam->GetGroup();
       
       if (CStringHasContents(paramGroupName)) // if the parameter has a group
       {
@@ -198,9 +199,120 @@ public:
       }
     }
   }
+
+  bool SetChannelContextInfos(Steinberg::Vst::IAttributeList* pList)
+  {
+    using namespace Steinberg;
+    using namespace Vst;
+
+    if (pList)
+    {
+      // optional we can ask for the channel name length
+      int64 length;
+      if (pList->getInt(ChannelContext::kChannelNameLengthKey, length) == kResultTrue)
+      {
+        // get the channel name where we, as plug-in, are instantiated
+        // Note: length is multiplied by two because Ableton Live 10.1.13 is buggy
+        // and pList->getString() size parameter is interpreted as TChar instead
+        // of byte: end of string zero value is written in an out of memory position
+        std::vector<TChar> name((length+1)*2);
+        if (pList->getString(ChannelContext::kChannelNameKey, name.data(),  static_cast<Steinberg::uint32>(length+1)*sizeof(TChar)) == kResultTrue)
+        {
+          Steinberg::String str(name.data());
+          str.toMultiByte(kCP_Utf8);
+          mChannelName.Set(str);
+        }
+      }
+
+      // get the channel uid namespace length
+      if (pList->getInt(ChannelContext::kChannelUIDLengthKey, length) == kResultTrue)
+      {
+        // get the channel UID
+        // Note: length is multiplied by two because Ableton Live 10.1.13 is buggy
+        // and pList->getString() size parameter is interpreted as TChar instead
+        // of byte: end of string zero value is written in an out of memory position
+        std::vector<TChar> name((length+1)*2);
+        if (pList->getString(ChannelContext::kChannelUIDKey, name.data(), static_cast<Steinberg::uint32>(length+1)*sizeof(TChar)) == kResultTrue)
+        {
+          Steinberg::String str(name.data());
+          str.toMultiByte(kCP_Utf8);
+          mChannelUID.Set(str);
+        }
+      }
+
+      // get channel index
+      int64 index;
+      if (pList->getInt(ChannelContext::kChannelIndexKey, index) == kResultTrue)
+      {
+        mChannelIndex = static_cast<int>(index);
+      }
+
+      // get the channel color
+      int64 color;
+      if (pList->getInt(ChannelContext::kChannelColorKey, color) == kResultTrue)
+      {
+        mChannelColor = (uint32) color;
+      }
+
+      // get channel index namespace order of the current used index namespace
+      if (pList->getInt(ChannelContext::kChannelIndexNamespaceOrderKey, index) == kResultTrue)
+      {
+        mChannelNamespaceIndex = static_cast<int>(index);
+      }
+
+      // get the channel index namespace length
+      if (pList->getInt(ChannelContext::kChannelIndexNamespaceLengthKey, length) == kResultTrue)
+      {
+        // get the channel index namespace
+        // Note: length is multiplied by two because Ableton Live 10.1.13 is buggy
+        // and pList->getString() size parameter is interpreted as TChar instead
+        // of byte: end of string zero value is written in an out of memory position
+        std::vector<TChar> name((length+1)*2);
+        if (pList->getString(ChannelContext::kChannelIndexNamespaceKey, name.data(), static_cast<Steinberg::uint32>(length+1)*sizeof(TChar)) == kResultTrue)
+        {
+          Steinberg::String str(name.data());
+          str.toMultiByte(kCP_Utf8);
+          mChannelNamespace.Set(str);
+        }
+      }
+
+      // get plug-in channel location
+      int64 location;
+      if (pList->getInt(ChannelContext::kChannelPluginLocationKey, location) == kResultTrue)
+      {
+        String128 string128;
+        switch (location)
+        {
+        case ChannelContext::kPreVolumeFader:
+          Steinberg::UString(string128, 128).fromAscii("PreVolFader");
+          break;
+        case ChannelContext::kPostVolumeFader:
+          Steinberg::UString(string128, 128).fromAscii("PostVolFader");
+          break;
+        case ChannelContext::kUsedAsPanner:
+          Steinberg::UString(string128, 128).fromAscii("UsedAsPanner");
+          break;
+        default: Steinberg::UString(string128, 128).fromAscii("unknown!");
+          break;
+        }
+      }
+
+      return true;
+    }
+
+    return false;
+  }
   
 public:
   IPlugVST3BypassParameter* mBypassParameter = nullptr;
+
+  // ChannelContext::IInfoListener
+  WDL_String mChannelName;
+  WDL_String mChannelNamespace;
+  WDL_String mChannelUID;
+  int mChannelNamespaceIndex = 0;
+  int mChannelIndex = 0;
+  unsigned int mChannelColor = 0;
 };
 
 END_IPLUG_NAMESPACE

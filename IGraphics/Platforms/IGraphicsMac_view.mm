@@ -377,67 +377,6 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
 }
 @end
 
-@implementation IGRAPHICS_GLLAYER
-
-- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
-{
-  mView = pView;
-  
-  self = [super init];
-  if ( self != nil )
-  {
-    self.needsDisplayOnBoundsChange = YES;
-    self.asynchronous = NO;
-  }
-  
-  return self;
-}
-
-- (NSOpenGLContext*) openGLContextForPixelFormat:(NSOpenGLPixelFormat*) pixelFormat
-{
-  NSOpenGLContext* context = [super openGLContextForPixelFormat: pixelFormat];
-  
-  [context makeCurrentContext];
-  
-  if(!mView->mGraphics->GetDrawContext())
-    mView->mGraphics->ContextReady(self);
-  
-  return context;
-}
-
-- (NSOpenGLPixelFormat*) openGLPixelFormatForDisplayMask: (uint32_t) mask
-{
-  NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
-  #if defined IGRAPHICS_GL3
-    profile = (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core;
-  #endif
-  
-  const NSOpenGLPixelFormatAttribute kAttributes[] =  {
-    NSOpenGLPFAAccelerated,
-    NSOpenGLPFANoRecovery,
-    NSOpenGLPFADoubleBuffer,
-    NSOpenGLPFAAlphaSize, 8,
-    NSOpenGLPFAColorSize, 24,
-    NSOpenGLPFADepthSize, 0,
-    NSOpenGLPFAStencilSize, 8,
-    NSOpenGLPFAOpenGLProfile, profile,
-    (NSOpenGLPixelFormatAttribute) 0
-  };
-
-  return [[NSOpenGLPixelFormat alloc] initWithAttributes:kAttributes];
-}
-
-//- (BOOL)canDrawInOpenGLContext:(NSOpenGLContext *)context pixelFormat:(NSOpenGLPixelFormat *)pixelFormat forLayerTime:(CFTimeInterval)timeInterval displayTime:(const CVTimeStamp *)timeStamp
-//{
-//}
-
-- (void) drawInOpenGLContext: (NSOpenGLContext*) context pixelFormat: (NSOpenGLPixelFormat*) pixelFormat forLayerTime: (CFTimeInterval) timeInterval displayTime: (const CVTimeStamp*) timeStamp
-{
-  [mView render];
-}
-
-@end
-
 #pragma mark -
 
 extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
@@ -453,30 +392,131 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   self = [super initWithFrame:r];
   
   mMouseOutDuringDrag = false;
-    
-#if defined IGRAPHICS_NANOVG || defined IGRAPHICS_SKIA
-  if (!self.wantsLayer)
-  {
-    #if defined IGRAPHICS_METAL
-    self.layer = [CAMetalLayer new];
-    [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
-    ((CAMetalLayer*) self.layer).device = MTLCreateSystemDefaultDevice();
-    #elif defined IGRAPHICS_GL
-    self.layer = [[IGRAPHICS_GLLAYER alloc] initWithIGraphicsView:self];
-    self.wantsBestResolutionOpenGLSurface = YES;
-    #endif
-    self.layer.opaque = YES;
-    self.wantsLayer = YES;
-  }
-#endif
+
+  self.wantsLayer = YES;
+  self.layer.opaque = YES;
+  self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
   
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
+  
+  #if defined IGRAPHICS_METAL
+  self.layer = [CAMetalLayer new];
+  [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
+  ((CAMetalLayer*) self.layer).device = MTLCreateSystemDefaultDevice();
+  
+  #elif defined IGRAPHICS_GL
+  NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
+  #if defined IGRAPHICS_GL3
+    profile = (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core;
+  #endif
+  const NSOpenGLPixelFormatAttribute attrs[] =  {
+    NSOpenGLPFAAccelerated,
+    NSOpenGLPFANoRecovery,
+    NSOpenGLPFADoubleBuffer,
+    NSOpenGLPFAAlphaSize, 8,
+    NSOpenGLPFAColorSize, 24,
+    NSOpenGLPFADepthSize, 0,
+    NSOpenGLPFAStencilSize, 8,
+    NSOpenGLPFAOpenGLProfile, profile,
+    (NSOpenGLPixelFormatAttribute) 0
+  };
+  NSOpenGLPixelFormat* pPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
+  NSOpenGLContext* pGLContext = [[NSOpenGLContext alloc] initWithFormat:pPixelFormat shareContext:nil];
+  
+  #ifdef DEBUG
+  // CGLEnable([context CGLContextObj], kCGLCECrashOnRemovedFunctions); //SKIA_GL2 will crash
+  #endif
 
-  double sec = 1.0 / (double) pGraphics->FPS();
+  self.pixelFormat = pPixelFormat;
+  self.openGLContext = pGLContext;
+  self.wantsBestResolutionOpenGLSurface = YES;
+  #endif // IGRAPHICS_GL
+
+  #if !defined IGRAPHICS_GL
+  [self setTimer];
+  #endif
+  
+  return self;
+}
+
+#ifdef IGRAPHICS_GL
+- (void) prepareOpenGL
+{
+  [super prepareOpenGL];
+  
+  [[self openGLContext] makeCurrentContext];
+  
+  // Synchronize buffer swaps with vertical refresh rate
+  GLint swapInt = 1;
+  [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
+  
+  [self setTimer];
+}
+#endif
+
+static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* now, const CVTimeStamp* outputTime, CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext)
+{
+  dispatch_source_t source = (dispatch_source_t) displayLinkContext;
+  dispatch_source_merge_data(source, 1);
+  
+  return kCVReturnSuccess;
+}
+
+- (void) onTimer: (NSTimer*) pTimer
+{
+  [self render];
+}
+
+- (void) setTimer
+{
+#ifdef IGRAPHICS_CVDISPLAYLINK
+  mDisplaySource = dispatch_source_create(DISPATCH_SOURCE_TYPE_DATA_ADD, 0, 0, dispatch_get_main_queue());
+  dispatch_source_set_event_handler(mDisplaySource, ^(){
+    [self render];
+  });
+  dispatch_resume(mDisplaySource);
+
+  CVReturn cvReturn;
+
+  cvReturn = CVDisplayLinkCreateWithActiveCGDisplays(&mDisplayLink);
+  
+  assert(cvReturn == kCVReturnSuccess);
+
+  cvReturn = CVDisplayLinkSetOutputCallback(mDisplayLink, &displayLinkCallback, (void*) mDisplaySource);
+  assert(cvReturn == kCVReturnSuccess);
+
+  #ifdef IGRAPHICS_GL
+  CGLContextObj cglContext = [[self openGLContext] CGLContextObj];
+  CGLPixelFormatObj cglPixelFormat = [[self pixelFormat] CGLPixelFormatObj];
+  CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, cglContext, cglPixelFormat);
+  #endif
+  
+  CGDirectDisplayID viewDisplayID =
+      (CGDirectDisplayID) [self.window.screen.deviceDescription[@"NSScreenNumber"] unsignedIntegerValue];;
+
+  cvReturn = CVDisplayLinkSetCurrentCGDisplay(mDisplayLink, viewDisplayID);
+
+  assert(cvReturn == kCVReturnSuccess);
+  
+  CVDisplayLinkStart(mDisplayLink);
+#else
+  double sec = 1.0 / (double) mGraphics->FPS();
   mTimer = [NSTimer timerWithTimeInterval:sec target:self selector:@selector(onTimer:) userInfo:nil repeats:YES];
   [[NSRunLoop currentRunLoop] addTimer: mTimer forMode: (NSString*) kCFRunLoopCommonModes];
+#endif
+}
 
-  return self;
+- (void) killTimer
+{
+#ifdef IGRAPHICS_CVDISPLAYLINK
+  CVDisplayLinkStop(mDisplayLink);
+  dispatch_source_cancel(mDisplaySource);
+  CVDisplayLinkRelease(mDisplayLink);
+  mDisplayLink = nil;
+#else
+  [mTimer invalidate];
+  mTimer = nullptr;
+#endif
 }
 
 - (void) dealloc
@@ -490,6 +530,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [super dealloc];
 }
+
 
 - (BOOL) isOpaque
 {
@@ -577,6 +618,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 // not called for layer backed views
 - (void) drawRect: (NSRect) bounds
 {
+  #if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL
   if (mGraphics)
   {
     if (!mGraphics->GetPlatformContext())
@@ -595,20 +637,13 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
       mGraphics->Draw(drawRects);
     }
   }
+  #else // this gets called on resize
+  //TODO: set GL context/flush?
+  //mGraphics->Draw(mDirtyRects);
+  #endif
 }
 
 - (void) render
-{
-#if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL // for layer-backed views setNeedsDisplayInRect/drawRect is not called
-  for (int i = 0; i < mDirtyRects.Size(); i++)
-    [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
-#else
-  // so just draw on each frame, if something is dirty
-  mGraphics->Draw(mDirtyRects);
-#endif
-}
-
-- (void) onTimer: (NSTimer*) pTimer
 {
   mDirtyRects.Clear();
   
@@ -616,11 +651,19 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   {
     mGraphics->SetAllControlsClean();
       
-#ifdef IGRAPHICS_GL
-    [self.layer setNeedsDisplay];
-#else
-    [self render];
-#endif
+    #if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL // for layer-backed views setNeedsDisplayInRect/drawRect is not called
+      for (int i = 0; i < mDirtyRects.Size(); i++)
+        [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
+    #else
+    #ifdef IGRAPHICS_GL
+      [[self openGLContext] makeCurrentContext];
+    #endif
+      // so just draw on each frame, if something is dirty
+      mGraphics->Draw(mDirtyRects);
+    #endif
+    #ifdef IGRAPHICS_GL
+    [[self openGLContext] flushBuffer];
+    #endif
   }
 }
 
@@ -1000,12 +1043,6 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [pCursor set];
 }
 
-- (void) killTimer
-{
-  [mTimer invalidate];
-  mTimer = 0;
-}
-
 - (void) removeFromSuperview
 {
   if (mTextFieldView)
@@ -1026,7 +1063,6 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   mGraphics->SetAllControlsDirty();
 
   [self endUserInput ];
-  [self setNeedsDisplay: YES];
 }
 
 - (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) bounds;

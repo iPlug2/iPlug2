@@ -17,7 +17,8 @@ skia_use_system_zlib = false
 skia_use_system_expat = false
 skia_use_system_icu = false
 skia_use_system_harfbuzz = false
-skia_use_libwebp = false
+skia_use_libwebp_decode = false
+skia_use_libwebp_encode = false
 skia_use_xps = false
 skia_use_dng_sdk = false
 skia_use_expat = true
@@ -34,7 +35,7 @@ cc = "clang"
 cxx = "clang++"
 target_os = "ios"
 target_cpu = "arm64"
-extra_cflags = ["-miphoneos-version-min=12.1",
+extra_cflags = ["-miphoneos-version-min=13",
 "-I../../../src/skia/third_party/externals/expat/lib",
 "-fembed-bitcode"]
 extra_cflags_c = ["-Wno-error"]
@@ -62,7 +63,8 @@ skia_use_system_zlib = false
 skia_use_system_expat = false
 skia_use_system_icu = false
 skia_use_system_harfbuzz = false
-skia_use_libwebp = false
+skia_use_libwebp_decode = false
+skia_use_libwebp_encode = false
 skia_use_xps = false
 skia_use_dng_sdk = false
 skia_use_expat = true
@@ -79,7 +81,7 @@ cc = "clang"
 cxx = "clang++"
 target_os = "ios"
 target_cpu = "x64"
-extra_cflags = ["-miphoneos-version-min=12.1",
+extra_cflags = ["-miphoneos-version-min=13",
 "-I../../../src/skia/third_party/externals/expat/lib",
 "-fembed-bitcode"]
 extra_cflags_c = ["-Wno-error"]

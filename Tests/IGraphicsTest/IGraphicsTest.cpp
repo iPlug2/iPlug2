@@ -24,7 +24,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
   
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_HEIGHT));
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
@@ -106,7 +106,8 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
 
       pGraphics->RemoveControlWithTag(kCtrlTagTestControl);
       
-      IControl* pNewControl;
+      IControl* pNewControl = nullptr;
+      
       switch (idx) {
         case 0: pNewControl = new TestGradientControl(testRect, kParamDummy); break;
         case 1: pNewControl = new TestColorControl(testRect); break;
@@ -137,7 +138,9 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
 
       }
       
-      pGraphics->AttachControl(pNewControl, kCtrlTagTestControl);
+      if(pNewControl)
+        pGraphics->AttachControl(pNewControl, kCtrlTagTestControl);
+      
       SendCurrentParamValuesFromDelegate();
     };
     

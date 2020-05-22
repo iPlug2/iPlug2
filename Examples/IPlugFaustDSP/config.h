@@ -35,10 +35,10 @@
 #define AUV2_VIEW_CLASS IPlugFaustDSP_View
 #define AUV2_VIEW_CLASS_STR "IPlugFaustDSP_View"
 
-#define AAX_TYPE_IDS 'EFN1', 'EFN2'
-#define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'
+#define AAX_TYPE_IDS 'IPFA'
+#define AAX_TYPE_IDS_AUDIOSUITE 'IPFU'
 #define AAX_PLUG_MFR_STR "Acme"
-#define AAX_PLUG_NAME_STR "IPlugFaustDSP\nIPEF"
+#define AAX_PLUG_NAME_STR "IPlugFaustDSP\nIPFA"
 #define AAX_PLUG_CATEGORY_STR "Effect"
 #define AAX_DOES_AUDIOSUITE 1
 

@@ -31,6 +31,19 @@ void GetScreenDimensions(int& width, int& height)
   height = bounds.size.height;
 }
 
+float GetScaleForScreen(int plugHeight)
+{
+  float scale = 1.f;
+  int width, height;
+  GetScreenDimensions(width, height);
+  if(height > width)
+    scale = (float) width / (float) plugHeight;
+  else
+    scale = (float) height / (float) plugHeight;
+  
+  return scale;
+}
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
@@ -172,6 +185,11 @@ const char* IGraphicsIOS::GetPlatformAPIStr()
   return "iOS";
 }
 
+void IGraphicsIOS::GetMouseLocation(float& x, float&y) const
+{
+  [(IGRAPHICS_VIEW*) mView getLastTouchLocation: x : y];
+}
+
 void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext)
 {
 }
@@ -182,6 +200,7 @@ void IGraphicsIOS::PromptForDirectory(WDL_String& dir)
 
 bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
+  [(IGRAPHICS_VIEW*) mView promptForColor: color: str: func];
   return false;
 }
 
