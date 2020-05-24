@@ -92,10 +92,13 @@ public:
   virtual void SetSampleRateAndBlockSize(double sampleRate, int blockSize) {};
 
   /** Implement this to allow picking a sound program from an integer index, as with MIDI.
-   * @param p The new program number */
+   * @param pgm The new program number */
   virtual void SetProgramNumber(int pgm) {};
 
-  /** Implement this to respond to control numbers for which there are not ramps. A synthesizer could use its own ramps internally if needed. */
+  /** Implement this to respond to control numbers for which there are not ramps. A synthesizer could use its own ramps internally if needed. 
+   * @param controlNumber The MIDI controller number
+   * @param value The normalized value
+   */
   virtual void SetControl(int controlNumber, float value) {};
 
 protected:
