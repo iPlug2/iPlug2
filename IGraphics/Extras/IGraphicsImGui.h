@@ -55,6 +55,7 @@ public:
   #endif
   
 private:
+  ImGuiContext* mCtx = nullptr;
   IGraphics* mGraphics;
   std::function<void(IGraphics*)> mDrawFunc = nullptr;
   friend IGraphics;

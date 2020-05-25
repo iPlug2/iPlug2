@@ -36,7 +36,7 @@ ImGuiRenderer::ImGuiRenderer(IGraphics* pGraphics, std::function<void(IGraphics*
 , mDrawFunc(drawFunc)
 {
   IMGUI_CHECKVERSION();
-  ImGui::CreateContext();
+  mCtx = ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO();
   
   if(setupFunc == nullptr)
@@ -88,11 +88,13 @@ ImGuiRenderer::ImGuiRenderer(IGraphics* pGraphics, std::function<void(IGraphics*
 ImGuiRenderer::~ImGuiRenderer()
 {
   Destroy();
-  ImGui::DestroyContext();
+  ImGui::DestroyContext(mCtx);
+  mCtx = nullptr;
 }
 
 void ImGuiRenderer::DoFrame()
 {
+  ImGui::SetCurrentContext(mCtx);
   ImGuiIO &io = ImGui::GetIO();
   io.DisplaySize.x = std::round(mGraphics->Width() * mGraphics->GetDrawScale());
   io.DisplaySize.y = std::round(mGraphics->Height() * mGraphics->GetDrawScale());
@@ -129,6 +131,7 @@ void ImGuiRenderer::DoFrame()
     mGraphics->MoveMouseCursor(io.MousePos.x, io.MousePos.y);
   }
   
+  ImGui::SetCurrentContext(mCtx);
   ImGui::NewFrame();
   
   if(mDrawFunc)
@@ -139,6 +142,7 @@ void ImGuiRenderer::DoFrame()
 
 bool ImGuiRenderer::OnMouseDown(float x, float y, const IMouseMod &mod)
 {
+  ImGui::SetCurrentContext(mCtx);
   ImGuiIO &io = ImGui::GetIO();  
   io.MouseDown[0] = mod.L;
   io.MouseDown[1] = mod.R;
@@ -147,6 +151,7 @@ bool ImGuiRenderer::OnMouseDown(float x, float y, const IMouseMod &mod)
 
 bool ImGuiRenderer::OnMouseUp(float x, float y, const IMouseMod &mod)
 {
+  ImGui::SetCurrentContext(mCtx);
   ImGuiIO &io = ImGui::GetIO();
   io.MouseDown[0] = false;
   io.MouseDown[1] = false;
@@ -155,6 +160,7 @@ bool ImGuiRenderer::OnMouseUp(float x, float y, const IMouseMod &mod)
 
 bool ImGuiRenderer::OnMouseWheel(float x, float y, const IMouseMod& mod, float delta)
 {
+  ImGui::SetCurrentContext(mCtx);
   ImGuiIO &io = ImGui::GetIO();
   io.MouseWheel += (delta * 0.1f);
   return io.WantCaptureMouse;
@@ -162,12 +168,14 @@ bool ImGuiRenderer::OnMouseWheel(float x, float y, const IMouseMod& mod, float d
 
 void ImGuiRenderer::OnMouseMove(float x, float y, const IMouseMod& mod)
 {
+  ImGui::SetCurrentContext(mCtx);
   ImGuiIO &io = ImGui::GetIO();
   io.MousePos = ImVec2(x * mGraphics->GetDrawScale(), y * mGraphics->GetDrawScale());
 }
 
 bool ImGuiRenderer::OnKeyDown(float x, float y, const IKeyPress& keyPress)
 {
+  ImGui::SetCurrentContext(mCtx);
   ImGuiIO &io = ImGui::GetIO();
   
   if(keyPress.VK != kVK_BACK)
@@ -184,6 +192,7 @@ bool ImGuiRenderer::OnKeyDown(float x, float y, const IKeyPress& keyPress)
 
 bool ImGuiRenderer::OnKeyUp(float x, float y, const IKeyPress& keyPress)
 {
+  ImGui::SetCurrentContext(mCtx);
   ImGuiIO &io = ImGui::GetIO();
   io.KeysDown[keyPress.VK] = false;
   return io.WantCaptureKeyboard;
@@ -222,6 +231,8 @@ void ImGuiRenderer::Init()
 
 void ImGuiRenderer::Destroy()
 {
+  ImGui::SetCurrentContext(mCtx);
+
 #if defined IGRAPHICS_GL2
   ImGui_ImplOpenGL2_Shutdown();
 #elif defined IGRAPHICS_GL3 || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
@@ -233,7 +244,29 @@ void ImGuiRenderer::Destroy()
 
 void ImGuiRenderer::NewFrame()
 {
+  ImGui::SetCurrentContext(mCtx);
+
 #if defined IGRAPHICS_SKIA
+  ImGuiIO& io = ImGui::GetIO();
+  int w, h;
+  unsigned char* pixels;
+  io.Fonts->GetTexDataAsAlpha8(&pixels, &w, &h);
+  SkImageInfo info = SkImageInfo::MakeA8(w, h);
+  SkPixmap pmap(info, pixels, info.minRowBytes());
+  SkMatrix localMatrix = SkMatrix::MakeScale(1.0f / w, 1.0f / h);
+  auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
+  auto fontShader = fontImage->makeShader(&localMatrix);
+  fFontPaint.setShader(fontShader);
+  fFontPaint.setColor(SK_ColorWHITE);
+  fFontPaint.setFilterQuality(kLow_SkFilterQuality);
+  io.Fonts->TexID = &fFontPaint;
+  this->DoFrame();
+#elif defined IGRAPHICS_GL2
+  ImGui_ImplOpenGL2_NewFrame();
+  this->DoFrame();
+  ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+#elif defined IGRAPHICS_GL3 || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+  ImGui_ImplOpenGL3_NewFrame();
   this->DoFrame();
 #else
   #if defined IGRAPHICS_GL2
