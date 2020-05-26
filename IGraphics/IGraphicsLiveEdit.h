@@ -69,7 +69,11 @@ public:
       {
         mClickedOnControl = c;
         
-        if(GetHandleRect(mMouseDownRECT).Contains(x, y))
+        if (mod.R)
+        {
+          GetUI()->CreatePopupMenu(*this, mControlRightClickMenu, x, y);
+        }
+        else if(GetHandleRect(mMouseDownRECT).Contains(x, y))
         {
           mMouseClickedOnResizeHandle = true;
         }
@@ -159,7 +163,7 @@ public:
   
   void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override
   {
-    if(pSelectedMenu)
+    if(pSelectedMenu == &mRightClickMenu)
     {
       auto idx = pSelectedMenu->GetChosenItemIdx();
       float x, y;
@@ -171,8 +175,13 @@ public:
         case 0 : GetUI()->AttachControl(new PlaceHolder(b)); break;
         case 1 : GetUI()->AttachControl(new IVKnobControl(b, nullptr)); break;
         case 2 : GetUI()->AttachControl(new IVSliderControl(b, nullptr)); break;
+        case 3 : GetUI()->AttachControl(new IVButtonControl(b, nullptr)); break;
         default: break;
       }
+    }
+    else if (pSelectedMenu == &mControlRightClickMenu)
+    {
+      GetUI()->RemoveControl(GetUI()->GetControl(mClickedOnControl));
     }
   }
   
@@ -221,7 +230,8 @@ public:
   }
 
 private:
-  IPopupMenu mRightClickMenu {"Add an item", {"Add Place Holder", "Add IVKnobControl", "Add IVButtonControl"}};
+  IPopupMenu mRightClickMenu {"Add an item", {"Add Place Holder", "Add IVKnobControl", "Add IVSliderControl", "Add IVButtonControl"}};
+  IPopupMenu mControlRightClickMenu {"Remove an item", {"Remove"}};
   bool mMouseOversEnabled;
 //  bool mEditModeActive = false;
 //  bool mLiveEditingEnabled = false;
