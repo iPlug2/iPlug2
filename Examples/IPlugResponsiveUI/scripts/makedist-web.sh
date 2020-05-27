@@ -167,6 +167,11 @@ mkdir styles
 cp $IPLUG2_ROOT/IPlug/WEB/Template/styles/style.css styles/style.css
 cp $IPLUG2_ROOT/IPlug/WEB/Template/favicon.ico favicon.ico
 
+# flaky sed to remove comments around /* position: absolute */
+sed -i.bak '41d' styles/style.css
+sed -i.bak '42d' styles/style.css
+rm styles/*.bak
+
 echo MAKING  - WEB WASM MODULE -----------------------------
 
 cd $PROJECT_ROOT/projects

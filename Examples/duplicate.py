@@ -243,7 +243,7 @@ def main():
   pp = pprint.PrettyPrinter(indent=4)
   pp.pprint(config)
 
-  print("\ndone - don't forget to change MFR_UID in config.h")
+  print("\ndone - don't forget to change PLUG_MFR_UID in config.h")
 
 if __name__ == '__main__':
   main()
