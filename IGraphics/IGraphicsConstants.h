@@ -136,7 +136,7 @@ enum class ELineCap { Butt, Round, Square };
 enum class ELineJoin { Miter, Round, Bevel };
 
 /** /todo */
-enum class EPatternType { Solid, Linear, Radial };
+enum class EPatternType { Solid, Linear, Radial, Sweep };
 
 /** /todo */
 enum class EPatternExtend { None, Pad, Reflect, Repeat };
