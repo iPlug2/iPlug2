@@ -1093,12 +1093,10 @@ public:
   /**@return \c true if showning the control bounds */
   bool ShowControlBoundsEnabled() const { return mShowControlBounds; }
   
-  /** Live edit mode allows you to relocate controls at runtime in debug builds and save the locations to a predefined file (e.g. main plugin .cpp file) \todo we need a separate page for liveedit info
-   * @param enable Set \c true if you wish to enable live editing mode
-   * @param file The absolute path of the file which contains the layout info (correctly tagged) for live editing
-   * @param gridsize The size of the layout grid in pixels */
-  void EnableLiveEdit(bool enable, const char* file = 0, int gridsize = 10);
-  
+  /** Live edit mode allows you to relocate controls at runtime in debug builds
+   * @param enable Set \c true if you wish to enable live editing mode */
+  void EnableLiveEdit(bool enable);
+
   /**@return \c true if live edit mode is enabled */
   bool LiveEditEnabled() const { return mLiveEdit != nullptr; }
   
@@ -1266,6 +1264,10 @@ public:
    * @return A pointer to the IControl object at idx or nullptr if not found */
   IControl* GetControl(int idx) { return mControls.Get(idx); }
 
+  /** @param pControl Pointer to the control to get
+   * @return integer index of the control in mControls array or -1 if not found */
+  int GetControlIdx(IControl* pControl) const { return mControls.Find(pControl); }
+  
   /** @param ctrlTag The tag to look for
    * @return A pointer to the IControl object with the tag of nullptr if not found */
   IControl* GetControlWithTag(int ctrlTag);
@@ -1309,14 +1311,17 @@ public:
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
 
-  /** Remove control from the control list */
-  void RemoveControl(IControl* pControl);
-  
   /** Remove controls from the control list with a particular tag.  */
   void RemoveControlWithTag(int ctrlTag);
   
   /** Remove controls from the control list above a particular index, (frees memory).  */
   void RemoveControls(int fromIdx);
+
+  /** Remove a control at a particular index, (frees memory). */
+  void RemoveControl(int idx);
+  
+  /** Remove a control at using ptr, (frees memory). */
+  void RemoveControl(IControl* pControl);
   
   /** Removes all regular IControls from the control list, as well as special controls (frees memory). */
   void RemoveAllControls();

@@ -124,12 +124,6 @@ void IGraphics::SetLayoutOnResize(bool layoutOnResize)
   mLayoutOnResize = layoutOnResize;
 }
 
-void IGraphics::RemoveControl(IControl* pControl)
-{
-  mControls.DeletePtr(pControl);
-  SetAllControlsDirty();
-}
-
 void IGraphics::RemoveControlWithTag(int ctrlTag)
 {
   mControls.DeletePtr(GetControlWithTag(ctrlTag));
@@ -157,6 +151,30 @@ void IGraphics::RemoveControls(int fromIdx)
     
     mControls.Delete(idx--, true);
   }
+  
+  SetAllControlsDirty();
+}
+
+void IGraphics::RemoveControl(int idx)
+{
+  RemoveControl(GetControl(idx));
+}
+
+void IGraphics::RemoveControl(IControl* pControl)
+{
+  if(ControlIsCaptured(pControl))
+    ReleaseMouseCapture();
+  
+  if (pControl == mMouseOver)
+    ClearMouseOver();
+  
+  if (pControl == mInTextEntry)
+    mInTextEntry = nullptr;
+  
+  if (pControl == mInPopupMenu)
+    mInPopupMenu = nullptr;
+  
+  mControls.DeletePtr(pControl, true);
   
   SetAllControlsDirty();
 }
@@ -1439,14 +1457,14 @@ void IGraphics::EnableTooltips(bool enable)
   if (enable) mEnableMouseOver = true;
 }
 
-void IGraphics::EnableLiveEdit(bool enable, const char* file, int gridsize)
+void IGraphics::EnableLiveEdit(bool enable)
 {
 #ifndef NDEBUG
   if (enable)
   {
     if (!mLiveEdit)
     {
-      mLiveEdit = std::make_unique<IGraphicsLiveEdit>(mEnableMouseOver/*, file, gridsize*/);
+      mLiveEdit = std::make_unique<IGraphicsLiveEdit>(mEnableMouseOver);
       mLiveEdit->SetDelegate(*GetDelegate());
     }
   }
