@@ -2151,7 +2151,7 @@ struct IPattern
   }
 
   static IPattern CreateSweepGradient(float x1, float y1, const std::initializer_list<IColorStop>& stops = {},
-    float angleStart = 0.0, float angleEnd = 360.0)
+    float angleStart = 0.f, float angleEnd = 360.f)
   {
     IPattern pattern(EPatternType::Sweep);
 
@@ -2168,7 +2168,7 @@ struct IPattern
 
     for (auto& stop : stops)
     {
-      pattern.AddStop(stop.mColor, stop.mOffset * (angleEnd - angleStart) / 360.0);
+      pattern.AddStop(stop.mColor, stop.mOffset * (angleEnd - angleStart) / 360.f);
     }
     return pattern;
   }
