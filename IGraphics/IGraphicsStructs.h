@@ -2110,7 +2110,7 @@ struct IPattern
    * @param direction /todo
    * @param stops /todo
    * @return IPattern /todo */
-  static IPattern CreateLinearGradient(const IRECT& bounds, EDirection direction, const std::initializer_list<IColorStop>& stops = {})
+  static IPattern CreateLinearGradient(const IRECT& bounds, EDirection direction, const std::initializer_list<IColorStop>& stops)
   {
     float x1, y1, x2, y2;
     
@@ -2136,7 +2136,7 @@ struct IPattern
    * @param r /todo
    * @param stops /todo
    * @return IPattern /todo */
-  static IPattern CreateRadialGradient(float x1, float y1, float r, const std::initializer_list<IColorStop>& stops = {})
+  static IPattern CreateRadialGradient(float x1, float y1, float r, const std::initializer_list<IColorStop>& stops)
   {
     IPattern pattern(EPatternType::Radial);
     
@@ -2150,8 +2150,7 @@ struct IPattern
     return pattern;
   }
 
-  static IPattern CreateSweepGradient(float x1, float y1, const std::initializer_list<IColorStop>& stops = {},
-    float angleStart = 0.0, float angleEnd = 360.0)
+  static IPattern CreateSweepGradient(float x1, float y1, const std::initializer_list<IColorStop>& stops, float angleStart = 0.0, float angleEnd = 360.0)
   {
     IPattern pattern(EPatternType::Sweep);
 
@@ -2170,6 +2169,7 @@ struct IPattern
     {
       pattern.AddStop(stop.mColor, stop.mOffset * (angleEnd - angleStart) / 360.0);
     }
+    
     return pattern;
   }
   
