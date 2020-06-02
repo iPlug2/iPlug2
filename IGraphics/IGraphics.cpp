@@ -1806,6 +1806,14 @@ void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRE
     if(!isAsync)
       SetControlValueAfterPopupMenu(pReturnMenu);
   }
+  
+  int nVals = control.NVals();
+  
+  for (int v = 0; v < nVals; v++)
+  {
+    if (control.GetParamIdx(v) > kNoParameter)
+      GetDelegate()->EndInformHostOfParamChangeFromUI(control.GetParamIdx(v));
+  }
 }
 
 void IGraphics::CreatePopupMenu(IControl& control, IPopupMenu& menu, const IRECT& bounds, int valIdx)
