@@ -56,7 +56,10 @@ public:
     TRACE
     
     if (pSize)
+    {
       rect = *pSize;
+      mOwner.OnParentWindowResize(rect.getWidth(), rect.getHeight());
+    }
     
     return Steinberg::kResultTrue;
   }
@@ -75,6 +78,21 @@ public:
     {
       return Steinberg::kResultFalse;
     }
+  }
+  
+  Steinberg::tresult PLUGIN_API canResize() override
+  {
+    if (mOwner.HasUI() && mOwner.GetHostResizeEnabled())
+    {
+      return Steinberg::kResultTrue;
+    }
+    
+    return Steinberg::kResultFalse;
+  }
+  
+  Steinberg::tresult PLUGIN_API checkSizeConstraint (Steinberg::ViewRect* pRect) override
+  {
+    return Steinberg::kResultTrue;
   }
   
   Steinberg::tresult PLUGIN_API attached(void* pParent, Steinberg::FIDString type) override
@@ -260,7 +278,7 @@ public:
   
   DELEGATE_REFCOUNT(Steinberg::CPluginView)
 
-  void resize(int w, int h)
+  void Resize(int w, int h)
   {
     TRACE
     

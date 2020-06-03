@@ -349,6 +349,7 @@ struct Config
   bool plugHasUI;
   int plugWidth;
   int plugHeight;
+  bool plugHostResize;
   const char* bundleID;
   
   Config(int nParams,
@@ -369,6 +370,7 @@ struct Config
               bool plugHasUI,
               int plugWidth,
               int plugHeight,
+              bool plugHostResize,
               const char* bundleID)
               
   : nParams(nParams)
@@ -389,6 +391,7 @@ struct Config
   , plugHasUI(plugHasUI)
   , plugWidth(plugWidth)
   , plugHeight(plugHeight)
+  , plugHostResize(plugHostResize)
   , bundleID(bundleID)
   {};
 };

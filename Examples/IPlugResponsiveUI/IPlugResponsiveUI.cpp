@@ -82,7 +82,8 @@ IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
 #if IPLUG_EDITOR
 void IPlugResponsiveUI::OnParentWindowResize(int width, int height)
 {
-  GetUI()->Resize(width, height, 1.f, false);
+  if(GetUI())
+    GetUI()->Resize(width, height, 1.f, false);
 }
 #endif
 
