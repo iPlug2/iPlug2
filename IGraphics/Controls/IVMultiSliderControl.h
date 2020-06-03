@@ -202,8 +202,7 @@ public:
 
   //override to do something when an individual slider is dragged
   virtual void OnNewValue(int trackIdx, double val) {}
-
-  void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue) override
+  
   void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
     if (!IsDisabled() && msgTag == kMsgTagSetHighlight && dataSize == sizeof(int))
