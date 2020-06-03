@@ -90,12 +90,18 @@ public:
     return Steinberg::kResultFalse;
   }
   
-  Steinberg::tresult PLUGIN_API checkSizeConstraint (Steinberg::ViewRect* pRect) override
+  Steinberg::tresult PLUGIN_API checkSizeConstraint(Steinberg::ViewRect* pRect) override
   {
     int w = pRect->getWidth();
     int h = pRect->getHeight();
     
-    return mOwner.ConstrainEditorResize(w, h) ? Steinberg::kResultTrue : Steinberg::kResultFalse;
+    if(!mOwner.ConstrainEditorResize(w, h))
+    {
+      pRect->right = pRect->left + w;
+      pRect->bottom = pRect->top + h;
+    }
+    
+    return Steinberg::kResultTrue;
   }
   
   Steinberg::tresult PLUGIN_API attached(void* pParent, Steinberg::FIDString type) override
