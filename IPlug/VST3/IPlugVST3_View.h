@@ -92,7 +92,10 @@ public:
   
   Steinberg::tresult PLUGIN_API checkSizeConstraint (Steinberg::ViewRect* pRect) override
   {
-    return Steinberg::kResultTrue;
+    int w = pRect->getWidth();
+    int h = pRect->getHeight();
+    
+    return mOwner.ConstrainEditorResize(w, h) ? Steinberg::kResultTrue : Steinberg::kResultFalse;
   }
   
   Steinberg::tresult PLUGIN_API attached(void* pParent, Steinberg::FIDString type) override

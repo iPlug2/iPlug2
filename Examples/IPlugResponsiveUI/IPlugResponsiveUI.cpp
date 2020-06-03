@@ -46,7 +46,6 @@ IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
 
     pGraphics->SetLayoutOnResize(true);
     // pGraphics->AttachCornerResizer(EUIResizerMode::Size, true);
-    pGraphics->SetSizeConstraints(10,10000,10,10000);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     pGraphics->AttachPopupMenuControl();
 

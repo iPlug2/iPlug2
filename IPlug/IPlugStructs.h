@@ -349,6 +349,10 @@ struct Config
   bool plugHasUI;
   int plugWidth;
   int plugHeight;
+  int plugMinWidth;
+  int plugMaxWidth;
+  int plugMinHeight;
+  int plugMaxHeight;
   bool plugHostResize;
   const char* bundleID;
   
@@ -371,6 +375,10 @@ struct Config
               int plugWidth,
               int plugHeight,
               bool plugHostResize,
+              int plugMinWidth,
+              int plugMaxWidth,
+              int plugMinHeight,
+              int plugMaxHeight,
               const char* bundleID)
               
   : nParams(nParams)
@@ -391,6 +399,10 @@ struct Config
   , plugHasUI(plugHasUI)
   , plugWidth(plugWidth)
   , plugHeight(plugHeight)
+  , plugMinWidth(plugMinWidth)
+  , plugMaxWidth(plugMaxWidth)
+  , plugMinHeight(plugMinHeight)
+  , plugMaxHeight(plugMaxHeight)
   , plugHostResize(plugHostResize)
   , bundleID(bundleID)
   {};

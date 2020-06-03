@@ -708,6 +708,24 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 #endif
       }
       return 0;
+    case WM_GETMINMAXINFO:
+    {
+      IPlugAPP* pPlug = pAppHost->GetPlug();
+
+      MINMAXINFO* mmi = (MINMAXINFO*) lParam;
+      mmi->ptMinTrackSize.x = pPlug->GetMinWidth();
+      mmi->ptMinTrackSize.y = pPlug->GetMinHeight();
+      mmi->ptMaxTrackSize.x = pPlug->GetMaxWidth();
+      mmi->ptMaxTrackSize.y = pPlug->GetMaxHeight();
+      
+#ifdef OS_MAC
+      const int titleBarOffset = 22;
+      mmi->ptMinTrackSize.y += titleBarOffset;
+      mmi->ptMaxTrackSize.y += titleBarOffset;
+#endif
+      
+      return 0;
+    }
     case WM_SIZE:
     {
       IPlugAPP* pPlug = pAppHost->GetPlug();
