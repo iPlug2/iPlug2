@@ -1196,17 +1196,18 @@ class IVTrackControlBase : public IControl
                          , public IVectorBase
 {
 public:
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, std::initializer_list<const char*> trackNames = {})
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int maxNTracks = 1, int nSteps = 0, EDirection dir = EDirection::Horizontal, std::initializer_list<const char*> trackNames = {})
   : IControl(bounds)
   , IVectorBase(style)
+  , mNSteps(nSteps)
   , mDirection(dir)
   {
     SetNVals(maxNTracks);
-
+    mTrackBounds.Resize(maxNTracks);
+    
     for (int i=0; i<maxNTracks; i++)
     {
       SetParamIdx(kNoParameter, i);
-      mTrackBounds.Add(IRECT());
     }
     
     if(trackNames.size())
@@ -1222,17 +1223,18 @@ public:
     AttachIControl(this, label);
   }
 
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, std::initializer_list<const char*> trackNames = {})
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, int nSteps = 0, EDirection dir = EDirection::Horizontal, std::initializer_list<const char*> trackNames = {})
   : IControl(bounds)
   , IVectorBase(style)
+  , mNSteps(nSteps)
   , mDirection(dir)
   {
     SetNVals(maxNTracks);
-
+    mTrackBounds.Resize(maxNTracks);
+    
     for (int i = 0; i < maxNTracks; i++)
     {
       SetParamIdx(lowParamidx+i, i);
-      mTrackBounds.Add(IRECT());
     }
     
     if(trackNames.size())
@@ -1248,18 +1250,20 @@ public:
     AttachIControl(this, label);
   }
   
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, EDirection dir = EDirection::Horizontal, std::initializer_list<const char*> trackNames = {})
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, int nSteps = 0, EDirection dir = EDirection::Horizontal, std::initializer_list<const char*> trackNames = {})
   : IControl(bounds)
   , IVectorBase(style)
+  , mNSteps(nSteps)
   , mDirection(dir)
   {
-    SetNVals(static_cast<int>(params.size()));
-  
+    int maxNTracks = static_cast<int>(params.size());
+    SetNVals(maxNTracks);
+    mTrackBounds.Resize(maxNTracks);
+    
     int valIdx = 0;
     for (auto param : params)
     {
       SetParamIdx(param, valIdx++);
-      mTrackBounds.Add(IRECT());
     }
     
     if(trackNames.size())
@@ -1280,20 +1284,46 @@ public:
     mTrackNames.Empty(true);
   }
   
-  virtual void MakeTrackRects(const IRECT& bounds)
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseOverTrack = GetValIdxForPos(x, y);
+    SetDirty(false);
+  }
+
+  void OnMouseOut() override
+  {
+    mMouseOverTrack = -1;
+    SetDirty(false);
+  }
+  
+  virtual void OnResize() override
+  {
+    SetTargetRECT(MakeRects(mRECT));
+    MakeTrackRects(mWidgetBounds);
+    MakeStepRects(mWidgetBounds, mNSteps);
+    SetDirty(false);
+  }
+  
+  int GetValIdxForPos(float x, float y) const override
   {
     int nVals = NVals();
-    int dir = static_cast<int>(mDirection); // 0 = horizontal, 1 = vertical
-    for (int ch = 0; ch < nVals; ch++)
+    
+    for (auto v = 0; v < nVals; v++)
     {
-      mTrackBounds.Get()[ch] = bounds.SubRect(EDirection(!dir), nVals, ch).
-                                     GetPadded(0, -mTrackPadding * (float) dir, -mTrackPadding * (float) !dir, -mTrackPadding);
+      if (mTrackBounds.Get()[v].Contains(x, y))
+      {
+        return v;
+      }
     }
+
+    return kNoValIdx;
   }
   
   void DrawWidget(IGraphics& g) override
   {
-    int nVals = NVals();
+    DrawBG(g, mWidgetBounds);
+
+    const int nVals = NVals();
     
     for (int ch = 0; ch < nVals; ch++)
     {
@@ -1317,39 +1347,55 @@ public:
         paramIdsForGroup.push_back(p);
       }
     }
-    
-    mTrackBounds.Resize(0);
-    
-    int nParamsInGroup = static_cast<int>(paramIdsForGroup.size());
-    
-    SetNVals(nParamsInGroup);
-  
-    int valIdx = 0;
-    for (auto param : paramIdsForGroup)
-    {
-      SetParamIdx(param, valIdx++);
-      mTrackBounds.Add(IRECT());
-    }
-    
-    OnResize();
+
+    SetParams(paramIdsForGroup);
   }
   
   /** Update the parameters based on a parameter group name.
    * You probably want to call IEditorDelegate::SendCurrentParamValuesFromDelegate() after this, to update the control values */
-  void SetParams(std::initializer_list<int> paramIds)
+  void SetParams(const std::vector<int>& paramIds)
   {
-    mTrackBounds.Resize(0);
+    int nParams = static_cast<int>(paramIds.size());
 
-    SetNVals(static_cast<int>(paramIds.size()));
+    SetNVals(nParams);
+    mTrackBounds.Resize(nParams);
   
     int valIdx = 0;
     for (auto param : paramIds)
     {
       SetParamIdx(param, valIdx++);
-      mTrackBounds.Add(IRECT());
     }
     
-    OnResize();
+    const IParam* pFirstParam = GetParam(0);
+    const int range = pFirstParam->GetRange() / pFirstParam->GetStep();
+    mZeroValueStepHasBounds = !(range == 1);
+    SetNSteps(pFirstParam->GetStepped() ? range : 0); // calls OnResize()
+  }
+  
+  void SetBaseValue(double value)
+  {
+    mBaseValue = value; OnResize();
+  }
+  
+  void SetTrackPadding(double value)
+  {
+    mTrackPadding = value; OnResize();
+  }
+  
+  void SetPeakSize(double value)
+  {
+    mPeakSize = value; OnResize();
+  }
+  
+  void SetNSteps(int nSteps)
+  {
+    mNSteps = nSteps; OnResize();
+  }
+
+  void SetHighlightedTrack(int highlightIdx)
+  {
+    mHighlightedTrack = highlightIdx;
+    SetDirty(false);
   }
   
   bool HasTrackNames() const
@@ -1374,7 +1420,19 @@ public:
   }
   
 protected:
-  
+  virtual void DrawBG(IGraphics& g, const IRECT& r)
+  {
+    g.FillRect(kBG, r, &mBlend);
+
+    if(mBaseValue > 0.)
+    {
+      if(mDirection == EDirection::Horizontal)
+        g.DrawVerticalLine(GetColor(kSH), r, mBaseValue);
+      else
+        g.DrawHorizontalLine(GetColor(kSH), r, mBaseValue);
+    }
+  }
+
   virtual void DrawTrack(IGraphics& g, const IRECT& r, int chIdx)
   {
     DrawTrackBG(g, r, chIdx);
@@ -1382,15 +1440,87 @@ protected:
     if(HasTrackNames())
       DrawTrackName(g, r, chIdx);
     
-    DrawTrackHandle(g, r, chIdx);
+    const float trackPos = static_cast<float>(GetValue(chIdx));
+    const bool stepped = GetStepped();
     
+    IRECT fillRect;
+    
+    if(mBaseValue > 0.)
+    {
+      if(mDirection == EDirection::Vertical)
+      {
+        fillRect = IRECT(r.L,
+                         trackPos < mBaseValue ? r.B - r.H() * mBaseValue : r.B - r.H() * trackPos,
+                         r.R,
+                         trackPos < mBaseValue ? r.B - r.H() * trackPos : r.B - r.H() * mBaseValue);
+      }
+      else
+      {
+        fillRect = IRECT(trackPos < mBaseValue ? r.L + r.W() * trackPos : r.L + r.W() * mBaseValue,
+                         r.T,
+                         trackPos < mBaseValue ? r.L + r.W() * mBaseValue : r.L + r.W() * trackPos,
+                         r.B);
+      }
+    }
+    else
+    {
+      fillRect = r.FracRect(mDirection, trackPos);
+      
+      if(stepped && mZeroValueStepHasBounds && trackPos == 0.f)
+      {
+        fillRect.T = mStepBounds.Get()[0].T;
+      }
+    }
+    
+    assert(fillRect.W() >= 0.);
+    assert(fillRect.H() >= 0.);
+    
+    if(stepped)
+    {
+      int step = GetStepIdxForPos(fillRect.L, fillRect.T + 1);
+
+      if (step > -1)
+        fillRect.B = mStepBounds.Get()[step].B;
+      
+      if(mZeroValueStepHasBounds)
+        DrawTrackHandle(g, fillRect, chIdx, trackPos > mBaseValue);
+      else
+      {
+        if(GetValue(chIdx) > 0.)
+          DrawTrackHandle(g, fillRect, chIdx, trackPos > mBaseValue);
+      }
+    }
+    else
+    {
+      DrawTrackHandle(g, fillRect, chIdx, trackPos > mBaseValue);
+      
+      IRECT peakRect;
+      
+      if(mDirection == EDirection::Vertical)
+      {
+        peakRect = IRECT(fillRect.L,
+                         trackPos < mBaseValue ? fillRect.B : fillRect.T,
+                         fillRect.R,
+                         trackPos < mBaseValue ? fillRect.B - mPeakSize: fillRect.T + mPeakSize);
+      }
+      else
+      {
+        peakRect = IRECT(trackPos < mBaseValue ? fillRect.L + mPeakSize : fillRect.R - mPeakSize,
+                         fillRect.T,
+                         trackPos < mBaseValue ? fillRect.L : fillRect.R,
+                         fillRect.B);
+      }
+      
+      DrawPeak(g, peakRect, chIdx, trackPos > mBaseValue);
+    }
+
     if(mStyle.drawFrame && mDrawTrackFrame)
       g.DrawRect(GetColor(kFR), r, &mBlend, mStyle.frameThickness);
   }
-  
+
   virtual void DrawTrackBG(IGraphics& g, const IRECT& r, int chIdx)
   {
-    g.FillRect(kBG, r, &mBlend);
+    /* NO-OP */
   }
   
   virtual void DrawTrackName(IGraphics& g, const IRECT& r, int chIdx)
@@ -1398,41 +1528,87 @@ protected:
     g.DrawText(mText, GetTrackName(chIdx), r);
   }
   
-  virtual void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx)
+  /** Draw the main body of the track
+   * @param g The IGraphics context
+   * @param r The bounds of the track handle, which may be centered around mBaseValue, if mBaseValue > 0.
+   * @param chIdx channel index
+   * @param aboveBaseValue true if the handle channel value is above the base value */
+  virtual void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue)
   {
-    IRECT fillRect = r.FracRect(mDirection, static_cast<float>(GetValue(chIdx)));
+    g.FillRect(GetColor(kFG), r, &mBlend);
     
-    g.FillRect(GetColor(kFG), fillRect, &mBlend); // TODO: shadows!
-    
-    IRECT peakRect;
-    
-    if(mDirection == EDirection::Vertical)
-      peakRect = IRECT(fillRect.L, fillRect.T, fillRect.R, fillRect.T + mPeakSize);
-    else
-      peakRect = IRECT(fillRect.R - mPeakSize, fillRect.T, fillRect.R, fillRect.B);
-    
-    DrawPeak(g, peakRect, chIdx);
+    if(chIdx == mMouseOverTrack)
+      g.FillRect(GetColor(kHL), r, &mBlend);
   }
   
-  virtual void DrawPeak(IGraphics& g, const IRECT& r, int chIdx)
+  virtual void DrawPeak(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue)
   {
     g.FillRect(GetColor(kFR), r, &mBlend);
   }
-  
-  virtual void OnResize() override
+    
+  int GetStepIdxForPos(float x, float y) const
   {
-    SetTargetRECT(MakeRects(mRECT));
-    MakeTrackRects(mWidgetBounds);
-    SetDirty(false);
+    int nSteps = mStepBounds.GetSize();
+    
+    for (auto v = 0; v < nSteps; v++)
+    {
+      if (mStepBounds.Get()[v].ContainsEdge(x, y))
+      {
+        return v;
+      }
+    }
+
+    return -1;
+  }
+
+  virtual void MakeTrackRects(const IRECT& bounds)
+  {
+    int nVals = NVals();
+    int dir = static_cast<int>(mDirection); // 0 = horizontal, 1 = vertical
+    for (int ch = 0; ch < nVals; ch++)
+    {
+      mTrackBounds.Get()[ch] = bounds.SubRect(EDirection(!dir), nVals, ch).
+                                     GetPadded(0, -mTrackPadding * (float) dir, -mTrackPadding * (float) !dir, -mTrackPadding);
+    }
   }
   
+  virtual void MakeStepRects(const IRECT& bounds, int nSteps)
+  {
+    if(nSteps)
+    {
+      int dir = static_cast<int>(mDirection);
+      
+      nSteps += (int) mZeroValueStepHasBounds;
+      
+      mStepBounds.Resize(nSteps);
+      
+      for (int step = 0; step < nSteps; step++)
+      {
+        mStepBounds.Get()[step] = bounds.SubRect(EDirection(dir), nSteps, nSteps - 1 - step);
+      }
+    }
+    else
+      mStepBounds.Resize(0);
+  }
+  
+  bool GetStepped() const
+  {
+    return mStepBounds.GetSize() > 0;
+  }
+
 protected:
   EDirection mDirection = EDirection::Vertical;
   WDL_TypedBuf<IRECT> mTrackBounds;
+  WDL_TypedBuf<IRECT> mStepBounds;
   WDL_PtrList<WDL_String> mTrackNames;
+  int mNSteps = 0;
   float mTrackPadding = 0.;
   float mPeakSize = 1.;
+  int mHighlightedTrack = -1; // Highlight a single track, e.g. for step sequencer
+  int mMouseOverTrack = -1;
+  double mBaseValue = 0.; // 0-1 value to represent the mid-point, i.e. for displaying bipolar data
   bool mDrawTrackFrame = true;
+  bool mZeroValueStepHasBounds = true;
 };
 
 /** A base class for buttons/momentary switches - cannot be linked to parameters.

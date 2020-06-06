@@ -30,7 +30,7 @@ class IVMeterControl : public IVTrackControlBase
 {
 public:
   IVMeterControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, std::initializer_list<const char*> trackNames = {})
-  : IVTrackControlBase(bounds, label, style, MAXNC, dir, trackNames)
+  : IVTrackControlBase(bounds, label, style, MAXNC, 0, dir, trackNames)
   {
   }
 
