@@ -34,6 +34,24 @@
     return true;
   }
   #endif
+
+  UINT(WINAPI *__GetDpiForWindow)(HWND);
+
+  int GetScaleForHWND(HWND hWnd)
+  {
+    if (!__GetDpiForWindow)
+    {
+      HINSTANCE h = LoadLibraryA("user32.dll");
+      if (h) *(void **)&__GetDpiForWindow = GetProcAddress(h, "GetDpiForWindow");
+    }
+
+    int dpi = __GetDpiForWindow(hWnd);
+    if (dpi != USER_DEFAULT_SCREEN_DPI)
+      return static_cast<int>(std::round(static_cast<double>(dpi) / USER_DEFAULT_SCREEN_DPI));
+
+    return 1;
+  }
+
 #endif
 
 #pragma mark - ** Global Functions and Defines **
