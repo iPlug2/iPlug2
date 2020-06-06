@@ -1196,11 +1196,9 @@ class IVTrackControlBase : public IControl
                          , public IVectorBase
 {
 public:
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, std::initializer_list<const char*> trackNames = {})
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, std::initializer_list<const char*> trackNames = {})
   : IControl(bounds)
   , IVectorBase(style)
-  , mMinTrackValue(minTrackValue)
-  , mMaxTrackValue(maxTrackValue)
   , mDirection(dir)
   {
     SetNVals(maxNTracks);
@@ -1224,11 +1222,9 @@ public:
     AttachIControl(this, label);
   }
 
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, std::initializer_list<const char*> trackNames = {})
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, EDirection dir = EDirection::Horizontal, std::initializer_list<const char*> trackNames = {})
   : IControl(bounds)
   , IVectorBase(style)
-  , mMinTrackValue(minTrackValue)
-  , mMaxTrackValue(maxTrackValue)
   , mDirection(dir)
   {
     SetNVals(maxNTracks);
@@ -1252,11 +1248,9 @@ public:
     AttachIControl(this, label);
   }
   
-  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, EDirection dir = EDirection::Horizontal, float minTrackValue = 0.f, float maxTrackValue = 1.f, std::initializer_list<const char*> trackNames = {})
+  IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, EDirection dir = EDirection::Horizontal, std::initializer_list<const char*> trackNames = {})
   : IControl(bounds)
   , IVectorBase(style)
-  , mMinTrackValue(minTrackValue)
-  , mMaxTrackValue(maxTrackValue)
   , mDirection(dir)
   {
     SetNVals(static_cast<int>(params.size()));
@@ -1436,8 +1430,6 @@ protected:
   EDirection mDirection = EDirection::Vertical;
   WDL_TypedBuf<IRECT> mTrackBounds;
   WDL_PtrList<WDL_String> mTrackNames;
-  float mMinTrackValue;
-  float mMaxTrackValue;
   float mTrackPadding = 0.;
   float mPeakSize = 1.;
   bool mDrawTrackFrame = true;
