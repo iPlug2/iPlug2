@@ -1,14 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?><Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ImportGroup Label="PropertySheets"/>
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <RTAUDIOMIDI_PATH>$(IPLUG_PATH)\APP\RTAudioMidi</RTAUDIOMIDI_PATH>
     <WDL_PATH>$(IPLUG2_ROOT)\WDL</WDL_PATH>
     <LICE_PATH>$(WDL_PATH)\lice</LICE_PATH>
     <IPLUG_PATH>$(IPLUG2_ROOT)\IPlug</IPLUG_PATH>
     <EXTRAS_PATH>$(IPLUG_PATH)\Extras</EXTRAS_PATH>
-    <IPLUG_INC_PATHS>$(WDL_PATH);$(IPLUG_PATH);$(EXTRAS_PATH);$(EXTRAS_PATH)\Synth;$(EXTRAS_PATH)\Faust;$(SolutionDir)\resources</IPLUG_INC_PATHS>
     <IGRAPHICS_PATH>$(IPLUG2_ROOT)\IGraphics</IGRAPHICS_PATH>
     <DEPS_PATH>$(IPLUG2_ROOT)\Dependencies</DEPS_PATH>
+    <JSON_PATH>$(DEPS_PATH)\Extras\nlohmann</JSON_PATH>
+    <IPLUG_INC_PATHS>$(WDL_PATH);$(IPLUG_PATH);$(EXTRAS_PATH);$(EXTRAS_PATH)\Synth;$(EXTRAS_PATH)\Faust;$(EXTRAS_PATH)\WebView;$(JSON_PATH);$(SolutionDir)\resources</IPLUG_INC_PATHS>
     <IPLUG_DEPS_PATH>$(DEPS_PATH)\IPlug</IPLUG_DEPS_PATH>
     <IGRAPHICS_DEPS_PATH>$(DEPS_PATH)\IGraphics</IGRAPHICS_DEPS_PATH>
     <NANOVG_PATH>$(IGRAPHICS_DEPS_PATH)\NanoVG\src</NANOVG_PATH>
@@ -81,6 +83,7 @@
       <AdditionalIncludeDirectories>$(WDL_PATH);$(IPLUG_PATH);$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -88,7 +91,7 @@
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
     </Link>
     <Lib>
-      <AdditionalDependencies/>
+      <AdditionalDependencies />
     </Lib>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\resources\fonts;$(SolutionDir)\resources\img;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -110,14 +113,17 @@
     <BuildMacro Include="EXTRAS_PATH">
       <Value>$(EXTRAS_PATH)</Value>
     </BuildMacro>
-    <BuildMacro Include="IPLUG_INC_PATHS">
-      <Value>$(IPLUG_INC_PATHS)</Value>
-    </BuildMacro>
     <BuildMacro Include="IGRAPHICS_PATH">
       <Value>$(IGRAPHICS_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="DEPS_PATH">
       <Value>$(DEPS_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="JSON_PATH">
+      <Value>$(JSON_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="IPLUG_INC_PATHS">
+      <Value>$(IPLUG_INC_PATHS)</Value>
     </BuildMacro>
     <BuildMacro Include="IPLUG_DEPS_PATH">
       <Value>$(IPLUG_DEPS_PATH)</Value>

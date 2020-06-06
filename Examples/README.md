@@ -14,4 +14,4 @@ More specialized examples:
 
 * **IPlugReaperExtension** : This is a template project for making a [Reaper Extension](http://reaper.fm/sdk/plugin/plugin.php). No realtime audio processing code, obviously. Making a reaper extension can be painful since it is all based around the Win32 APIs. This abstracts away some of the nastyness.
 * **IPlugSwift** : An iOS AUv3 project using Swift/UIKit for the user interface 
-* **IPlugWebView** : An example (macOS/iOS only) that doesn't use IGraphics for UI, instead it embeds a WKWebKitView to allow UI to be written in HTML/CSS/JS
+* **IPlugWebUI** : An example showing how UI can written in HTML/CSS/JS, using a platform web view

@@ -530,11 +530,7 @@ static void ClientResize(HWND hWnd, int nWidth, int nHeight)
 //  MoveWindow(hWnd, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, FALSE);
 }
 
-#ifndef NO_IGRAPHICS 
-// DPI helper
-extern UINT(WINAPI* __GetDpiForWindow)(HWND);
-
-// Mouse and tablet helpers
+#ifdef OS_WIN 
 extern int GetScaleForHWND(HWND hWnd);
 #endif
 
@@ -561,11 +557,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 
       int scale = 1;
       #ifdef OS_WIN 
-      #ifndef NO_IGRAPHICS
-        scale = GetScaleForHWND(gHWND);
-      #else
-        #error GetScaleForHWND() not implemented
-      #endif
+      scale = GetScaleForHWND(gHWND);
       #endif
 
       ClientResize(hwndDlg, width * scale, height * scale);
@@ -721,11 +713,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
         GetClientRect(hwndDlg, &r);
         int scale = 1;
         #ifdef OS_WIN 
-        #ifndef NO_IGRAPHICS
         scale = GetScaleForHWND(hwndDlg);
-        #else
-          #error GetScaleForHWND() not implemented
-        #endif
         #endif
         pPlug->OnParentWindowResize(r.right / scale, r.bottom / scale);
         return 1;
