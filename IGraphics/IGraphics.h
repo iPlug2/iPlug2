@@ -1561,6 +1561,17 @@ protected:
 
   /** /todo
    * @param text /todo
+   * @param r /todo
+   * @param x /todo
+   * @param y /todo
+   * @param width /todo
+   * @param height /todo
+   * @param ascender /todo
+   * @param descender /todo */
+  static void CalculateTextPositions(const IText& text, IRECT &r, double& x, double& y, double width, double height, double ascender, double descender);
+    
+  /** /todo
+   * @param text /todo
    * @param bounds /todo
    * @param rect /todo */
   void DoMeasureTextRotation(const IText& text, const IRECT& bounds, IRECT& rect) const;

@@ -84,7 +84,7 @@ enum class ETextStyle { Normal, Bold, Italic };
 enum class EAlign { Near, Center, Far };
 
 /** /todo */
-enum class EVAlign { Top, Middle, Bottom };
+enum class EVAlign { Top, Middle, Bottom, Baseline };
 
 /** Types of Gesture Recongnizer */
 enum class EGestureType { Unknown, DoubleTap, TripleTap, LongPress1, LongPress2, SwipeLeft, SwipeRight, SwipeUp, SwipeDown, Pinch, Rotate, Pan};

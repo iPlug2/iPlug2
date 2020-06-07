@@ -35,6 +35,8 @@ private:
 struct IGraphicsLice::FontInfo
 {
   WDL_String mFontName;
+  float mAscender;
+  float mDescender;
   bool mBold;
   bool mItalic;
   bool mUnderline;
@@ -535,41 +537,29 @@ IColor IGraphicsLice::GetPoint(int x, int y)
 #define DrawText DrawTextA
 #endif
 
-void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, LICE_IFont*& pFont) const
+void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, LICE_IFont*& pFont, double& x, double& y) const
 {
-  pFont = CacheFont(text);
+  FontInfo* pFontInfo;
+  pFont = CacheFont(text, pFontInfo);
   RECT R = {0, 0, 0, 0};
   UINT fmt = DT_NOCLIP | DT_TOP | DT_LEFT | LICE_DT_USEFGALPHA;
   
   pFont->DrawText(mRenderBitmap, str, -1, &R, fmt | DT_CALCRECT);
   
-  const float textWidth = R.right / static_cast<float>(GetScreenScale());
-  const float textHeight = R.bottom / static_cast<float>(GetScreenScale());
-  float x = 0.f;
-  float y = 0.f;
-
-  switch (text.mAlign)
-  {
-    case EAlign::Near:     x = r.L;                          break;
-    case EAlign::Center:   x = r.MW() - (textWidth / 2.f);   break;
-    case EAlign::Far:      x = r.R - textWidth;              break;
-  }
-  
-  switch (text.mVAlign)
-  {
-    case EVAlign::Top:      y = r.T;                           break;
-    case EVAlign::Middle:   y = r.MH() - (textHeight / 2.f);   break;
-    case EVAlign::Bottom:   y = r.B - textHeight;              break;
-  }
-  
-  r = IRECT(x, y, x + textWidth, y + textHeight);
+  const float width = R.right / static_cast<float>(GetScreenScale());
+  const float height = R.bottom / static_cast<float>(GetScreenScale());
+  const float ascender = pFontInfo->mAscender * text.mSize;
+  const float descender = -pFontInfo->mDescender * text.mSize;
+    
+  CalculateTextPositions(text, r, x, y, width, height, ascender, descender);
 }
 
 float IGraphicsLice::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   IRECT r = bounds;
   LICE_IFont* pFont;
-  PrepareAndMeasureText(text, str, bounds, pFont);
+  double x, y;
+  PrepareAndMeasureText(text, str, bounds, pFont, x, y);
   DoMeasureTextRotation(text, r, bounds);
   return bounds.W();
 }
@@ -579,9 +569,10 @@ void IGraphicsLice::DoDrawText(const IText& text, const char* str, const IRECT& 
   IRECT measured = bounds;
   LICE_IFont* pFont;
   UINT fmt = DT_NOCLIP | DT_TOP | DT_LEFT | LICE_DT_USEFGALPHA;
-  
+  double x, y;
+    
   NeedsClipping();
-  PrepareAndMeasureText(text, str, measured, pFont);
+  PrepareAndMeasureText(text, str, measured, pFont, x, y);
   
   if (text.mAngle)
   {
@@ -702,10 +693,10 @@ void IGraphicsLice::UpdateLayer()
   mDrawOffsetY = currentLayer ? r.T : 0;
 }
 
-LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
+LICE_IFont* IGraphicsLice::CacheFont(const IText& text, FontInfo*& pFontInfo) const
 {
   StaticStorage<FontInfo>::Accessor fontInfoStorage(sFontInfoCache);
-  FontInfo* pFontInfo = fontInfoStorage.Find(text.mFont);
+  pFontInfo = fontInfoStorage.Find(text.mFont);
   
   assert(pFontInfo && "No font found - did you forget to load it?");
   
@@ -754,6 +745,10 @@ bool IGraphicsLice::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
   
   if (data->IsValid())
   {
+    const float EMRatio = 1.f / data->GetUnitsPerEM();
+    const float ascender = data->GetAscender() * EMRatio;
+    const float descender = data->GetDescender() * EMRatio;
+      
 #ifdef OS_MAC
     StaticStorage<MacRegisteredFont>::Accessor registeredFontStorage(sMacRegistedFontCache);
 
@@ -763,14 +758,14 @@ bool IGraphicsLice::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
       fontName.Append(" ");
       fontName.Append(&data->GetStyle());
     }
-    fontInfoStorage.Add(new FontInfo{fontName, false, false, false}, fontID);
+    fontInfoStorage.Add(new FontInfo{fontName, ascender, descender, false, false, false}, fontID);
       
     if (!font->IsSystem())
     {
       registeredFontStorage.Add(new MacRegisteredFont(font->GetDescriptor()), fontID);
     }
 #else
-    fontInfoStorage.Add(new FontInfo{data->GetFamily(), data->IsBold(), data->IsItalic(), data->IsUnderline()}, fontID);
+    fontInfoStorage.Add(new FontInfo{data->GetFamily(), ascender, descender, , data->IsBold(), data->IsItalic(), data->IsUnderline()}, fontID);
 #endif
     return true;
   }

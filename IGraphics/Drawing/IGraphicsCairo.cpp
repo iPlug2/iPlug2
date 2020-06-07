@@ -501,26 +501,12 @@ void IGraphicsCairo::PrepareAndMeasureText(const IText& text, const char* str, I
   cairo_scaled_font_text_to_glyphs(pFont, 0, 0, str, -1, &pGlyphs, &numGlyphs, nullptr, nullptr, nullptr);
   cairo_glyph_extents(context, pGlyphs, numGlyphs, &textExtents);
   
-  const double textWidth = textExtents.width + textExtents.x_bearing;
-  const double textHeight = fontExtents.height;
+  const double width = textExtents.width + textExtents.x_bearing;
+  const double height = fontExtents.height;
   const double ascender = fontExtents.ascent;
   const double descender = fontExtents.descent;
     
-  switch (text.mAlign)
-  {
-    case EAlign::Near:     x = r.L;                          break;
-    case EAlign::Center:   x = r.MW() - (textWidth / 2.0);   break;
-    case EAlign::Far:      x = r.R - textWidth;              break;
-  }
-  
-  switch (text.mVAlign)
-  {
-    case EVAlign::Top:      y = r.T + ascender;                            break;
-    case EVAlign::Middle:   y = r.MH() - descender + (textHeight / 2.0);   break;
-    case EVAlign::Bottom:   y = r.B - descender;                           break;
-  }
-  
-  r = IRECT((float) x, (float) (y - ascender), (float) (x + textWidth), (float) (y + textHeight - ascender));
+  CalculateTextPositions(text, r, x, y, width, height, ascender, descender);
   
   // Destroy temporary context
   if (context != mContext)

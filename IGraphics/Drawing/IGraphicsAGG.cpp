@@ -580,13 +580,13 @@ void IGraphicsAGG::PrepareAndMeasureText(const IText& text, const char* str, IRE
   mFontEngine.height(text.mSize);
   mFontEngine.flip_y(true);
   
-  const double textHeight = text.mSize;
-  const double EMHeight = pFont->GetAscender() - pFont->GetDescender();
-  const double ascender = text.mSize * pFont->GetAscender() / EMHeight;
-  const double descender = text.mSize * pFont->GetDescender() / EMHeight;
-  
+  const double EMRatio = text.mSize / pFont->GetUnitsPerEM();
+  const double ascender = pFont->GetAscender() * EMRatio;
+  const double descender = -pFont->GetDescender() * EMRatio;
+  const double height = ascender + descender;
+
   mFontManager.reset_last_glyph();
-  double textWidth = 0.0;
+  double width = 0.0;
   
   for (int i = 0; str[i]; i++)
   {
@@ -597,27 +597,13 @@ void IGraphicsAGG::PrepareAndMeasureText(const IText& text, const char* str, IRE
       double dx = 0.0;
       double dy = 0.0;
       mFontManager.add_kerning(&dx, &dy);
-      textWidth += dx;
+      width += dx;
     }
     
-    textWidth += pGlyph->advance_x;
+    width += pGlyph->advance_x;
   }
   
-  switch (text.mAlign)
-  {
-    case EAlign::Near:     x = r.L;                          break;
-    case EAlign::Center:   x = r.MW() - (textWidth / 2.0);   break;
-    case EAlign::Far:      x = r.R - textWidth;              break;
-  }
-  
-  switch (text.mVAlign)
-  {
-    case EVAlign::Top:      y = r.T + ascender;                            break;
-    case EVAlign::Middle:   y = r.MH() + descender + (textHeight / 2.0);   break;
-    case EVAlign::Bottom:   y = r.B + descender;                           break;
-  }
-  
-  r = IRECT((float) x, (float) y - ascender, (float) (x + textWidth), (float) (y + textHeight - ascender));
+  CalculateTextPositions(text, r, x, y, width, height, ascender, descender);
 }
 
 float IGraphicsAGG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
