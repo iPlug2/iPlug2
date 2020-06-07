@@ -616,6 +616,7 @@ IColor IGraphicsNanoVG::GetPoint(int x, int y)
 
 void IGraphicsNanoVG::PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const
 {
+  float ascender, descender, height;
   float fbounds[4];
   
   assert(nvgFindFont(mVG, text.mFont) != -1 && "No font found - did you forget to load it?");
@@ -624,26 +625,17 @@ void IGraphicsNanoVG::PrepareAndMeasureText(const IText& text, const char* str, 
   nvgFontSize(mVG, text.mSize);
   nvgFontFace(mVG, text.mFont);
   
-  int align = 0;
-  
-  switch (text.mAlign)
-  {
-    case EAlign::Near:     align = NVG_ALIGN_LEFT;     x = r.L;        break;
-    case EAlign::Center:   align = NVG_ALIGN_CENTER;   x = r.MW();     break;
-    case EAlign::Far:      align = NVG_ALIGN_RIGHT;    x = r.R;        break;
-  }
-  
-  switch (text.mVAlign)
-  {
-    case EVAlign::Top:     align |= NVG_ALIGN_TOP;     y = r.T;        break;
-    case EVAlign::Middle:  align |= NVG_ALIGN_MIDDLE;  y = r.MH();     break;
-    case EVAlign::Bottom:  align |= NVG_ALIGN_BOTTOM;  y = r.B;        break;
-  }
+  int align = NVG_ALIGN_LEFT || NVG_ALIGN_BASELINE;
   
   nvgTextAlign(mVG, align);
   nvgTextBounds(mVG, x, y, str, NULL, fbounds);
-  
-  r = IRECT(fbounds[0], fbounds[1], fbounds[2], fbounds[3]);
+  nvgTextMetrics(mVG, &ascender, &descender, &height);
+    
+  descender = -descender;
+    
+  const float width = fbounds[2] - fbounds[0];
+
+  CalculateTextPositions(text, r, x, y, width, height, ascender, descender);
 }
 
 float IGraphicsNanoVG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const

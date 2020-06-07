@@ -90,7 +90,7 @@ enum class ETextStyle { Normal, Bold, Italic };
 enum class EAlign { Near, Center, Far };
 
 /** Constants to specify vertical alignment */
-enum class EVAlign { Top, Middle, Bottom };
+enum class EVAlign { Top, Middle, Bottom, Baseline };
 
 /** Constants for layout orientation e.g. location of labels in a IVControl */
 enum class EOrientation { North, East, South, West };

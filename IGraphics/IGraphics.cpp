@@ -2235,6 +2235,27 @@ bool IGraphics::LoadFont(const char* fontID, const char* fontName, ETextStyle st
   return false;
 }
 
+//static
+void IGraphics::CalculateTextPositions(const IText& text, IRECT &r, double& x, double& y, double width, double height, double ascender, double descender)
+{
+  switch (text.mAlign)
+  {
+    case EAlign::Near:      x = r.L;                      break;
+    case EAlign::Center:    x = r.MW() - (width / 2.0);   break;
+    case EAlign::Far:       x = r.R - width;              break;
+  }
+  
+  switch (text.mVAlign)
+  {
+    case EVAlign::Top:      y = r.T + ascender;                           break;
+    case EVAlign::Middle:   y = r.MH() - descender + (height / 2.0);      break;
+    case EVAlign::Bottom:   y = r.B - descender;                          break;
+    case EVAlign::Baseline: y = r.B;                                      break;
+  }
+  
+  r = IRECT((float) x, (float) (y - ascender), (float) (x + width), (float) (y - ascender + height));
+}
+
 void IGraphics::DoMeasureTextRotation(const IText& text, const IRECT& bounds, IRECT& rect) const
 {
   double tx = 0.0, ty = 0.0;
@@ -2277,9 +2298,25 @@ void IGraphics::CalculateTextRotation(const IText& text, const IRECT& bounds, IR
   
   switch (text.mVAlign)
   {
-    case EVAlign::Top:      ty = bounds.T - rect.T;        break;
-    case EVAlign::Middle:   ty = bounds.MH() - rect.MH();  break;
-    case EVAlign::Bottom:   ty = bounds.B - rect.B;        break;
+    case EVAlign::Top:        ty = bounds.T - rect.T;        break;
+    case EVAlign::Middle:     ty = bounds.MH() - rect.MH();  break;
+    case EVAlign::Bottom:     ty = bounds.B - rect.B;        break;
+    case EVAlign::Baseline:
+    {
+      double x4 = bounds.L;
+      double y4 = bounds.B;
+        
+      switch (text.mAlign)
+      {
+        case EAlign::Near:     x4 = bounds.L;       break;
+        case EAlign::Center:   x4 = bounds.MW();    break;
+        case EAlign::Far:      x4 = bounds.R;       break;
+      }
+        
+      m.TransformPoint(x4, y4);
+      ty = bounds.B - y4;
+      break;
+    }
   }
 }
 
