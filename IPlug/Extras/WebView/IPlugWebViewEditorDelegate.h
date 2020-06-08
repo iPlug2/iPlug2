@@ -1,4 +1,4 @@
- /*
+/*
  ==============================================================================
  
  This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
@@ -18,7 +18,7 @@
 
 BEGIN_IPLUG_NAMESPACE
 
-/** This Editor Delegate allows using WKWebKitView for an iPlug user interface on macOS/iOS and IWebView2 on Windows */
+/** This Editor Delegate allows using a platform native Web View as the UI for an iPlug plugin */
 class WebViewEditorDelegate : public IEditorDelegate
                             , public IWebView
 {
