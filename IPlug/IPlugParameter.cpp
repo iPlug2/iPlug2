@@ -259,7 +259,7 @@ void IParam::SetDisplayPrecision(int precision)
   mDisplayPrecision = precision;
 }
 
-void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, bool withDisplayText) const
+void IParam::GetDisplay(double value, bool normalized, WDL_String& str, bool withDisplayText) const
 {
   if (normalized) value = FromNormalized(value);
 
@@ -304,17 +304,17 @@ void IParam::GetDisplayForHost(double value, bool normalized, WDL_String& str, b
   }
 }
 
-const char* IParam::GetNameForHost() const
+const char* IParam::GetName() const
 {
   return mName;
 }
 
-const char* IParam::GetLabelForHost() const
+const char* IParam::GetLabel() const
 {
   return (CStringHasContents(GetDisplayText(static_cast<int>(mValue.load())))) ? "" : mLabel;
 }
 
-const char* IParam::GetGroupForHost() const
+const char* IParam::GetGroup() const
 {
   return mParamGroup;
 }
@@ -387,7 +387,7 @@ void IParam::GetJSON(WDL_String& json, int idx) const
 {
   json.AppendFormatted(8192, "{");
   json.AppendFormatted(8192, "\"id\":%i, ", idx);
-  json.AppendFormatted(8192, "\"name\":\"%s\", ", GetNameForHost());
+  json.AppendFormatted(8192, "\"name\":\"%s\", ", GetName());
   switch (Type())
   {
     case IParam::kTypeNone:
@@ -416,5 +416,5 @@ void IParam::GetJSON(WDL_String& json, int idx) const
 
 void IParam::PrintDetails() const
 {
-  DBGMSG("%s %f", GetNameForHost(), Value());
+  DBGMSG("%s %f", GetName(), Value());
 }

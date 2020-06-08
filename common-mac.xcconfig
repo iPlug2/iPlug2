@@ -71,13 +71,15 @@ IMGUI_PATH = $(DEPS_PATH)/IGraphics/imgui
 //faust is linked as a dynamic library
 FAUST_LIB_PATHS = $(BUILT_LIBS_LIB_PATH)
 FAUST_INC_PATHS = $(BUILT_LIBS_INC_PATH)
-FAUST_DEFS = SWELL_COMPILED //FAUST_EXE=\"$(BUILT_LIBS_PATH)/bin/faust\" FAUST_LIBRARY_PATH=\"$(BUILT_LIBS_PATH)/share/faust\"
+//FAUST_DEFS = FAUST_EXE=\"$(BUILT_LIBS_PATH)/bin/faust\" FAUST_LIBRARY_PATH=\"$(BUILT_LIBS_PATH)/share/faust\"
 FAUST_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/libfaust.dylib
 
 CIVETWEB_INC_PATHS = $(BUILT_LIBS_INC_PATH)
 CIVETWEB_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
 
-EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Synth $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket $(CIVETWEB_PATH) $(JSON11_PATH) $(RTAUDIO_PATH) $(RTMIDI_PATH)
+JSON_INC_PATH = $(DEPS_PATH)/Extras/nlohmann
+
+EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Synth $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket $(CIVETWEB_INC_PATHS) $(JSON11_PATH) $(RTAUDIO_PATH) $(RTMIDI_PATH) $(JSON_INC_PATH)
 
 // Plug-in SDK paths
 VST2_SDK = $(DEPS_PATH)/IPlug/VST2_SDK
@@ -138,7 +140,7 @@ SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SK
 LICE_LNK_FLAGS = $(LIB_PNG) $(LIB_Z)
 IGRAPHICS_LNK_FLAGS = $(SKIA_LNK_FLAGS) $(LICE_LNK_FLAGS) $(CAIRO_LNK_FLAGS)
 
-ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework Metal -framework MetalKit -framework QuartzCore -framework WebKit -framework OpenGL
+ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework Metal -framework MetalKit -framework QuartzCore -framework OpenGL
 APP_FRAMEWORKS = -framework AppKit -framework CoreMIDI -framework CoreAudio
 AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework CoreMIDI
 AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudio -framework CoreAudioKit

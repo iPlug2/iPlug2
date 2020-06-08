@@ -33,6 +33,10 @@ do
     continue
   fi
 
+  if [ "$file" == "IPlugResponsiveUI" ]; then
+    continue
+  fi
+
   if [ -d "$file/projects/$file-macOS.xcodeproj" ]
   then
     echo "building $file/projects/$file-macOS.xcodeproj $TARGET target"

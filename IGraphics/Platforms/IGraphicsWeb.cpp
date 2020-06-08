@@ -14,6 +14,23 @@
 
 #include "IGraphicsWeb.h"
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+void GetScreenDimensions(int& width, int& height)
+{
+  width = val::global("window")["innerWidth"].as<int>();
+  height = val::global("window")["innerHeight"].as<int>();
+}
+
+float GetScaleForScreen(int height)
+{
+  return 1.f;
+}
+
+END_IPLUG_NAMESPACE
+END_IGRAPHICS_NAMESPACE
+
 using namespace iplug;
 using namespace igraphics;
 using namespace emscripten;
@@ -510,6 +527,20 @@ static EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* 
   return false;
 }
 
+static EM_BOOL uievent_callback(int eventType, const EmscriptenUiEvent* pEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
+
+  if (eventType == EMSCRIPTEN_EVENT_RESIZE)
+  {
+    pGraphics->GetDelegate()->OnParentWindowResize(pEvent->windowInnerWidth, pEvent->windowInnerHeight);
+
+    return true;
+  }
+  
+  return false;
+}
+
 IColorPickerHandlerFunc gColorPickerHandlerFunc = nullptr;
 
 static void color_picker_callback(val e)
@@ -560,6 +591,7 @@ IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float s
   emscripten_set_touchend_callback("#canvas", this, 1, touch_callback);
   emscripten_set_touchmove_callback("#canvas", this, 1, touch_callback);
   emscripten_set_touchcancel_callback("#canvas", this, 1, touch_callback);
+  emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, 1, uievent_callback);
 }
 
 IGraphicsWeb::~IGraphicsWeb()
@@ -661,7 +693,7 @@ void IGraphicsWeb::OnMainLoopTimer()
   {
     gGraphics->SetScreenScale(screenScale);
   }
-  
+
   if (gGraphics->IsDirty(rects))
   {
     gGraphics->SetAllControlsClean();

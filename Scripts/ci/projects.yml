@@ -46,6 +46,14 @@ steps:
 
 - template: ${{parameters.platform}}
   parameters:
+    name: IPlugResponsiveUI
+    path: 'Examples'
+    graphics: ${{parameters.graphics}}
+    artifactName: IPlugResponsiveUI_${{parameters.graphics}}
+    platformStr: ${{parameters.platformStr}}
+
+- template: ${{parameters.platform}}
+  parameters:
     name: IGraphicsStressTest
     path: 'Tests'
     graphics: ${{parameters.graphics}}

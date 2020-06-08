@@ -112,7 +112,7 @@ bool IPluginBase::SerializeParams(IByteChunk& chunk) const
   for (i = 0; i < n && savedOK; ++i)
   {
     IParam* pParam = mParams.Get(i);
-    Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
+    Trace(TRACELOC, "%d %s %f", i, pParam->GetName(), pParam->Value());
     double v = pParam->Value();
     savedOK &= (chunk.Put(&v) > 0);
   }
@@ -130,7 +130,7 @@ int IPluginBase::UnserializeParams(const IByteChunk& chunk, int startPos)
     double v = 0.0;
     pos = chunk.Get(&v, pos);
     pParam->Set(v);
-    Trace(TRACELOC, "%d %s %f", i, pParam->GetNameForHost(), pParam->Value());
+    Trace(TRACELOC, "%d %s %f", i, pParam->GetName(), pParam->Value());
   }
 
   OnParamReset(kPresetRecall);
@@ -179,11 +179,11 @@ void IPluginBase::CopyParamValues(const char* inGroup, const char *outGroup)
   for (auto p = 0; p < NParams(); p++)
   {
     IParam* pParam = GetParam(p);
-    if(strcmp(pParam->GetGroupForHost(), inGroup) == 0)
+    if(strcmp(pParam->GetGroup(), inGroup) == 0)
     {
       inParams.Add(pParam);
     }
-    else if(strcmp(pParam->GetGroupForHost(), outGroup) == 0)
+    else if(strcmp(pParam->GetGroup(), outGroup) == 0)
     {
       outParams.Add(pParam);
     }
@@ -210,7 +210,7 @@ void IPluginBase::ForParamInGroup(const char* paramGroup, std::function<void (in
   for (auto p = 0; p < NParams(); p++)
   {
     IParam* pParam = GetParam(p);
-    if(strcmp(pParam->GetGroupForHost(), paramGroup) == 0)
+    if(strcmp(pParam->GetGroup(), paramGroup) == 0)
     {
       func(p, *pParam);
     }

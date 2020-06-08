@@ -44,7 +44,7 @@
 					<key>tags</key>
 					<array>
 						<string>Synth</string>
-						<string>size:{900,600}</string>
+						<string>size:{1024,768}</string>
 					</array>
 					<key>type</key>
 					<string>aumu</string>

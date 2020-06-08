@@ -90,6 +90,9 @@ public:
   
   /** If you are not using IGraphics you can if you need to free resources etc when the window closes. Call base implementation. */
   virtual void CloseWindow() { OnUIClose(); }
+
+  /** Called by app wrappers when the OS window scaling buttons/resizers are used */
+  virtual void OnParentWindowResize(int width, int height) { /* NO-OP*/ }
   
 #pragma mark - Methods you may want to override...
   /** Override this method to do something before the UI is opened. You must call the base implementation to make sure controls linked to parameters get updated correctly. */
@@ -255,8 +258,8 @@ public:
   
   /** If the editor changes UI dimensions, e.g. from clicking a button to choose a size or dragging a corner resizer, it needs to call into the plug-in API to resize the window in the plugin
    * returns a bool to indicate whether the DAW or plugin class has resized the host window */
-  virtual bool EditorResizeFromUI(int viewWidth, int viewHeight) { return false; }
-    
+  virtual bool EditorResizeFromUI(int viewWidth, int viewHeight, bool needsPlatformResize) { return false; }
+
   /** SendMidiMsgFromUI (Abbreviation: SMMFUI)
    * This method should be used  when  sending a MIDI message from the UI. For example clicking on a key in a virtual keyboard.
    * Eventually the MIDI message can be handled in IPlugProcessor::ProcessMidiMsg(), from where it can be used to trigger sound and or forwarded to the API's MIDI output.

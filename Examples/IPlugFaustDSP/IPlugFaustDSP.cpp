@@ -21,7 +21,7 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
   
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_HEIGHT));
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
@@ -57,7 +57,7 @@ void IPlugFaustDSP::OnReset()
 
 void IPlugFaustDSP::OnParamChange(int paramIdx)
 {
-  mFaustProcessor.SetParameterValueNormalised(paramIdx, GetParam(paramIdx)->Value());
+  mFaustProcessor.SetParameterValueNormalised(paramIdx, GetParam(paramIdx)->GetNormalized());
 }
 
 void IPlugFaustDSP::OnIdle()

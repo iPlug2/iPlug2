@@ -87,7 +87,7 @@ public:
       IParam* pParam = pPlug->GetParam(i);
       unitID = Steinberg::Vst::kRootUnitId; // reset unitID
     
-      const char* paramGroupName = pParam->GetGroupForHost();
+      const char* paramGroupName = pParam->GetGroup();
       
       if (CStringHasContents(paramGroupName)) // if the parameter has a group
       {
@@ -212,8 +212,11 @@ public:
       if (pList->getInt(ChannelContext::kChannelNameLengthKey, length) == kResultTrue)
       {
         // get the channel name where we, as plug-in, are instantiated
-        std::vector<TChar> name(length + 1);
-        if (pList->getString(ChannelContext::kChannelNameKey, name.data(), static_cast<Steinberg::uint32>(length + 1)) == kResultTrue)
+        // Note: length is multiplied by two because Ableton Live 10.1.13 is buggy
+        // and pList->getString() size parameter is interpreted as TChar instead
+        // of byte: end of string zero value is written in an out of memory position
+        std::vector<TChar> name((length+1)*2);
+        if (pList->getString(ChannelContext::kChannelNameKey, name.data(),  static_cast<Steinberg::uint32>(length+1)*sizeof(TChar)) == kResultTrue)
         {
           Steinberg::String str(name.data());
           str.toMultiByte(kCP_Utf8);
@@ -225,8 +228,11 @@ public:
       if (pList->getInt(ChannelContext::kChannelUIDLengthKey, length) == kResultTrue)
       {
         // get the channel UID
-        std::vector<TChar> name(length + 1);
-        if (pList->getString(ChannelContext::kChannelUIDKey, name.data(), static_cast<Steinberg::uint32>(length + 1)) == kResultTrue)
+        // Note: length is multiplied by two because Ableton Live 10.1.13 is buggy
+        // and pList->getString() size parameter is interpreted as TChar instead
+        // of byte: end of string zero value is written in an out of memory position
+        std::vector<TChar> name((length+1)*2);
+        if (pList->getString(ChannelContext::kChannelUIDKey, name.data(), static_cast<Steinberg::uint32>(length+1)*sizeof(TChar)) == kResultTrue)
         {
           Steinberg::String str(name.data());
           str.toMultiByte(kCP_Utf8);
@@ -258,8 +264,11 @@ public:
       if (pList->getInt(ChannelContext::kChannelIndexNamespaceLengthKey, length) == kResultTrue)
       {
         // get the channel index namespace
-        std::vector<TChar> name(length + 1);
-        if (pList->getString(ChannelContext::kChannelIndexNamespaceKey, name.data(), static_cast<Steinberg::uint32>(length + 1)) == kResultTrue)
+        // Note: length is multiplied by two because Ableton Live 10.1.13 is buggy
+        // and pList->getString() size parameter is interpreted as TChar instead
+        // of byte: end of string zero value is written in an out of memory position
+        std::vector<TChar> name((length+1)*2);
+        if (pList->getString(ChannelContext::kChannelIndexNamespaceKey, name.data(), static_cast<Steinberg::uint32>(length+1)*sizeof(TChar)) == kResultTrue)
         {
           Steinberg::String str(name.data());
           str.toMultiByte(kCP_Utf8);
