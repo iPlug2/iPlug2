@@ -222,7 +222,19 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
     mInPopupMenu->OnContextSelection(pMenu ? pMenu->GetChosenItemIdx() : -1);
   else
     mInPopupMenu->OnPopupMenuSelection(!pMenu || pMenu->GetChosenItemIdx() == -1 ? nullptr : pMenu, mPopupMenuValIdx);
+  
+  int nVals = mInPopupMenu->NVals();
+
+  for (int v = 0; v < nVals; v++)
+  {
+    int paramIdx = mInPopupMenu->GetParamIdx(v);
     
+    if (paramIdx > kNoParameter)
+    {
+      GetDelegate()->EndInformHostOfParamChangeFromUI(paramIdx);
+    }
+  }
+  
   mInPopupMenu = nullptr;
 }
 

@@ -734,6 +734,16 @@ private:
 
 public:
 #pragma mark - Platform implementation
+  
+  /** Add an OS view as a sub-view, on top of the IGraphics view
+   * @param r The bounds where the view should be attached
+   * @param pView the platform view, which would be a HWND on Windows, NSView* on macOS or UIView* on iOS */
+  virtual void AttachPlatformView(const IRECT& r, void* pView) {};
+  
+  /** Remove a previously attached platform view from the IGraphics view
+   * @param pView the platform view to remove, which would be a HWND on Windows, NSView* on macOS or UIView* on iOS */
+  virtual void RemovePlatformView(void* pView) {};
+
   /** Get the x, y position in the graphics context of the mouse cursor
    * @param x Where the X position will be stored
    * @param y Where the Y position will be stored */

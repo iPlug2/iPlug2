@@ -222,7 +222,25 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 1).GetCentredInside(20.f), COLOR_GREEN), kCtrlTagGreenLED);
     pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 2).GetCentredInside(20.f), 0.5f), kCtrlTagBlueLED);
 
+//    #pragma mark IWebViewControl -
+//
+//    AddLabel("IWebViewControl");
+//
+//    auto readyFunc = [](IWebViewControl* pCaller){
+//      pCaller->LoadHTML(R"(<input type="range" id="vol" name="vol" min="0" max="100" onchange='IPlugSendMsg({"msg":"SAMFUI"})'>)");
+//    };
+//
+//    auto msgFunc = [](IWebViewControl* pCaller, const char* json){
+//      auto j = json::parse(json, nullptr, false);
+//      pCaller->GetUI()->GetBackgroundControl()->As<IPanelControl>()->SetPattern(IColor::GetRandomColor());
+//    };
+//
+//    pGraphics->AttachControl(new IWebViewControl(b.GetCentredInside(200), false, readyFunc, msgFunc, "C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugControls\\WebView2Loader.dll", "C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugControls\\"));
 
+//    pGraphics->AttachControl(new IVButtonControl(b.GetFromTRHC(50, 50)))->SetAnimationEndActionFunction([b](IControl* pCaller){
+//      /* TODO: get webview control */->EvaluateJavaScript(R"(document.body.style.background = "#000";)");
+//    });
+    
     //pGraphics->AttachControl(new IVGroupControl("Vector Controls", "vcontrols", 10.f, 30.f, 10.f, 10.f));
 
     #pragma mark IVControl panel -
