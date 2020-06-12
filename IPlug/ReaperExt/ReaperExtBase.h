@@ -36,7 +36,7 @@ public:
   
   void EndInformHostOfParamChangeFromUI(int paramIdx) override {}; // NO-OP
   
-  bool EditorResizeFromUI(int viewWidth, int viewHeight) override;
+  bool EditorResizeFromUI(int viewWidth, int viewHeight, bool needsPlatformResize) override;
 
   /** /todo */
   virtual void OnIdle() {}; // NO-OP
