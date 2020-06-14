@@ -291,7 +291,7 @@ protected:
 };
 
 /** A vector range slider control, with two handles */
-class IVRangeSliderControl : public IVTrackControlBase
+class IVRangeSliderControl : public IVTrackControlBase, public IMultiTouchControlBase
 {
 public:
   IVRangeSliderControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, bool onlyHandle = false, float handleSize = 20.f, float trackSize = 2.f);
@@ -300,20 +300,21 @@ public:
   void DrawTrack(IGraphics& g, const IRECT& r, int chIdx) override;
   void DrawWidget(IGraphics& g) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
-  void OnMouseOut() override { mHitHandle = -1; IVTrackControlBase::OnMouseOut(); }
+  void OnMouseOut() override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override { mMouseIsDown = false; }
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+  void OnTouchCancelled(float x, float y, const IMouseMod& mod) override;
 
 protected:
   void MakeTrackRects(const IRECT& bounds) override;
   IRECT GetHandleBounds(int trackIdx, bool hitTest = false);
-  void HitTestHandles(float x, float y);
+  int HitTestHandles(float x, float y);
   
-  int mHitHandle = -1;
   float mTrackSize;
   float mHandleSize;
-  bool mMouseIsDown = false;
+  bool mHandlePressed[2] = {false};
+  int mMouseOverHandle = -1;
 };
 
 /** A vector XY Pad slider control */
