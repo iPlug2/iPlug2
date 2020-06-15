@@ -752,6 +752,13 @@ struct IRECT
     return IRECT(l, t, l+w, t+h);
   }
   
+  static IRECT MakeMidXYWH(float x, float y, float w, float h)
+  {
+    float halfW = w/2.f;
+    float halfH = h/2.f;
+    return IRECT(x - halfW, y - halfH, x + halfW, y + halfH);
+  }
+  
   /** @return true */
   bool Empty() const
   {
