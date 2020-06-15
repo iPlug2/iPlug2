@@ -44,7 +44,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
 
   HMODULE hModule = LoadLibraryA(mDLLPath.Get());
 
-  TCCWebView2EnvWithOptions handle = (TCCWebView2EnvWithOptions) GetProcAddress(hModule, "CreateCoreWebView2EnvironmentWithDetails");
+  TCCWebView2EnvWithOptions handle = (TCCWebView2EnvWithOptions) GetProcAddress(hModule, "CreateCoreWebView2EnvironmentWithOptions");
 
   if (handle != NULL)
   {
