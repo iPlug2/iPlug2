@@ -154,6 +154,24 @@ public:
   {
   }
   
+  void Hide(bool hide) override
+  {
+    mBackGroundControl->Hide(hide);
+    
+    for(int i = 0; i<mKeyControls.GetSize(); i++)
+    {
+      mKeyControls.Get(i)->Hide(hide);
+    }
+    
+    for(int i = 0; i<mHighlightControls.GetSize(); i++)
+    {
+      mHighlightControls.Get(i)->Hide(hide);
+    }
+    
+    mHide = hide;
+    SetDirty(false);
+  }
+  
   void SendMidiNoteMsg(int key, int velocity)
   {
     IMidiMsg msg;
@@ -269,6 +287,8 @@ public:
     {
       mKeyControls.Get(i)->SetTargetAndDrawRECTs(mRECT.GetGridCell(i, 1, mKeyControls.GetSize()));
     }
+    
+    //TODO: highlights
   }
   
   /** Sets a note state, if the keyboard contains that note
