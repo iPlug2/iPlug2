@@ -403,7 +403,7 @@ struct IColor
   }
   
   /** Create an IColor from a color code in a CString. Can be used to convert a hex code into an IColor object.
-   * @param colorCode CString representation of the color code (no alpha). Use with hex numbers, e.g. "#ff38a2". WARNING: This does very little error checking
+   * @param hexStr CString representation of the color code (no alpha). Use with hex numbers, e.g. "#ff38a2". WARNING: This does very little error checking
    * @return IColor A new IColor based on the color code provided */
   static IColor FromColorCodeStr(const char* hexStr)
   {
@@ -420,6 +420,16 @@ struct IColor
       assert(0 && "Invalid color code str, returning black");
       return IColor();
     }
+  }
+  
+  int ToColorCode() const
+  {
+    return (R << 16) | (G << 8) | B;
+  }
+  
+  void ToColorCodeStr(WDL_String& str) const
+  {
+    str.SetFormatted(32, "#%02x%02x%02x%02x", R, G, B, A);
   }
   
   /** Create an IColor from Hue Saturation and Luminance values
