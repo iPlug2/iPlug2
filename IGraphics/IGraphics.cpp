@@ -1795,8 +1795,8 @@ void IGraphics::StartLayer(IControl* pControl, const IRECT& r)
 {
   auto pixelBackingScale = GetBackingPixelScale();
   IRECT alignedBounds = r.GetPixelAligned(pixelBackingScale);
-  const int w = static_cast<int>(std::ceil(pixelBackingScale * std::ceil(alignedBounds.W())));
-  const int h = static_cast<int>(std::ceil(pixelBackingScale * std::ceil(alignedBounds.H())));
+  const int w = Clip(static_cast<int>(std::ceil(pixelBackingScale * std::ceil(alignedBounds.W()))), 1, 16384);
+  const int h = Clip(static_cast<int>(std::ceil(pixelBackingScale * std::ceil(alignedBounds.H()))), 1, 16384);
 
   PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale()), alignedBounds, pControl, pControl ? pControl->GetRECT() : IRECT()));
 }
