@@ -1,4 +1,5 @@
 REM ICON SETTER Adapted for VST3 and AAX based on CreatePackage.bat Copyright 2017 by Avid Technology, Inc.
+SETLOCAL enableextensions
 SET BundleDir="%~fn1"
 SET IconSource="%~fn2"
 SET Format=%3
@@ -13,7 +14,7 @@ SET X86=Win32
 SET X86_64=x64
 )
 
-IF EXIST %BundleDir% GOTO BUNDLEDIR_EXISTS
+IF EXIST "%BundleDir%" GOTO BUNDLEDIR_EXISTS
 mkdir %BundleDir%
 :BUNDLEDIR_EXISTS
 
