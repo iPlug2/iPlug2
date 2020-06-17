@@ -284,9 +284,8 @@ void IGraphicsCanvas::PrepareAndMeasureText(const IText& text, const char* str, 
   const double width = context.call<val>("measureText", std::string(str))["width"].as<double>();
   const double ascender = pFont->mAscender * text.mSize;
   const double descender = pFont->mDescender * text.mSize;
-  const double height = ascender + descender;
 
-  CalculateTextPositions(text, r, x, y, width, height, ascender, descender);
+  CalculateTextPositions(text, r, x, y, width, ascender, descender);
 }
 
 float IGraphicsCanvas::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const

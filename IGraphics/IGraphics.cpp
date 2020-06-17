@@ -2236,8 +2236,9 @@ bool IGraphics::LoadFont(const char* fontID, const char* fontName, ETextStyle st
 }
 
 //static
-void IGraphics::CalculateTextPositions(const IText& text, IRECT &r, double& x, double& y, double width, double height, double ascender, double descender)
+void IGraphics::CalculateTextPositions(const IText& text, IRECT &r, double& x, double& y, double width, double ascender, double descender)
 {
+  const double height = ascender + descender;
   switch (text.mAlign)
   {
     case EAlign::Near:      x = r.L;                      break;

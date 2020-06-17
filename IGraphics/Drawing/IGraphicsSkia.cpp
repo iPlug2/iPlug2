@@ -707,9 +707,8 @@ void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IR
   
   const double ascender = -metrics.fAscent;
   const double descender = metrics.fDescent;
-  const double height = ascender + descender;
 
-  CalculateTextPositions(text, r, x, y, width, height, ascender, descender);
+  CalculateTextPositions(text, r, x, y, width, ascender, descender);
 }
 
 float IGraphicsSkia::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const

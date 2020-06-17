@@ -631,11 +631,13 @@ void IGraphicsNanoVG::PrepareAndMeasureText(const IText& text, const char* str, 
   nvgTextBounds(mVG, x, y, str, NULL, fbounds);
   nvgTextMetrics(mVG, &ascender, &descender, &height);
     
-  descender = -descender;
-    
+  const float scale = 1.f;
   const float width = fbounds[2] - fbounds[0];
 
-  CalculateTextPositions(text, r, x, y, width, height, ascender, descender);
+  ascender = ascender * scale;
+  descender = -descender * scale;
+    
+  CalculateTextPositions(text, r, x, y, width, ascender, descender);
 }
 
 float IGraphicsNanoVG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const

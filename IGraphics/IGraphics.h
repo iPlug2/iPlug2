@@ -1786,7 +1786,7 @@ protected:
    * @param height /todo
    * @param ascender /todo
    * @param descender /todo */
-  static void CalculateTextPositions(const IText& text, IRECT &r, double& x, double& y, double width, double height, double ascender, double descender);
+  static void CalculateTextPositions(const IText& text, IRECT &r, double& x, double& y, double width, double ascender, double descender);
     
   /** /todo
    * @param text /todo
