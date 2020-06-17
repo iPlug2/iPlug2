@@ -103,7 +103,7 @@ endmacro()
 
 function(add_faust_file dsp_file class_name)
   # Default values
-  set(FAUST_DSP_OUTPUT "${${FAUST_TARGET_NAME}_INCLUDE_DIR}/${class_name}.hpp")
+  set(FAUST_DSP_OUTPUT "${${FAUST_TARGET_NAME}_INCLUDE_DIR}/Faust${class_name}.hpp")
 
   add_custom_command(
     OUTPUT "${FAUST_DSP_OUTPUT}"
@@ -346,10 +346,14 @@ function(iplug2_configure_target target target_type)
       "SUFFIX" ".vst3"
     )
     
-  elseif (${target_type} STREQUAL "web")
-    addL(_defs "WEB_API")
+  elseif (${target_type} STREQUAL "web_gui")
+    addL(_defs "WEB_API" "IPLUG_EDITOR=1")
     addL(_incdir ${IPLUG2_DIR}/IPlug/WEB )
-  # TODO include WAM plugins
+  
+  elseif (${target_type} STREQUAL "web_dsp")
+    addL(_defs "WEB_API" "IPLUG_DSP=1")
+    addL(_incdir ${IPLUG2_DIR}/IPlug/WEB )
+
   else()
     message("Invalid target type" FATAL_ERROR)
   endif()
