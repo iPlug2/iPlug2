@@ -294,7 +294,8 @@ protected:
     {
       CreateIPlugParameters(mPlug, mIPlugParamStartIdx);
     }
-    
+
+    DBGMSG("Faust Params: %s\n", mName.Get());
     for(auto p = 0; p < NParams(); p++)
     {
       DBGMSG("%i %s\n", p, mParams.Get(p)->GetName());

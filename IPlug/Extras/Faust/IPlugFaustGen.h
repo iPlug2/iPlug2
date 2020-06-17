@@ -15,7 +15,6 @@
 #else
 #define FAUST_BLOCK(class, member, file, nvoices, rate) Faust_##class member {#class, file, nvoices, rate}
 // if this file is not found, you need to run the code without FAUST_COMPILED defined and make sure to call CompileCPP();
-#include "FaustCode.hpp"
 using FaustGen = iplug::IPlugFaust; // not used, except for CompileCPP();
 #endif
 
