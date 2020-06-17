@@ -583,7 +583,6 @@ void IGraphicsAGG::PrepareAndMeasureText(const IText& text, const char* str, IRE
   const double EMRatio = text.mSize / pFont->GetUnitsPerEM();
   const double ascender = pFont->GetAscender() * EMRatio;
   const double descender = -pFont->GetDescender() * EMRatio;
-  const double height = ascender + descender;
 
   mFontManager.reset_last_glyph();
   double width = 0.0;
@@ -603,7 +602,7 @@ void IGraphicsAGG::PrepareAndMeasureText(const IText& text, const char* str, IRE
     width += pGlyph->advance_x;
   }
   
-  CalculateTextPositions(text, r, x, y, width, height, ascender, descender);
+  CalculateTextPositions(text, r, x, y, width, ascender, descender);
 }
 
 float IGraphicsAGG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const

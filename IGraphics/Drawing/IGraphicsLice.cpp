@@ -547,11 +547,10 @@ void IGraphicsLice::PrepareAndMeasureText(const IText& text, const char* str, IR
   pFont->DrawText(mRenderBitmap, str, -1, &R, fmt | DT_CALCRECT);
   
   const float width = R.right / static_cast<float>(GetScreenScale());
-  const float height = R.bottom / static_cast<float>(GetScreenScale());
   const float ascender = pFontInfo->mAscender * text.mSize;
   const float descender = -pFontInfo->mDescender * text.mSize;
     
-  CalculateTextPositions(text, r, x, y, width, height, ascender, descender);
+  CalculateTextPositions(text, r, x, y, width, ascender, descender);
 }
 
 float IGraphicsLice::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const

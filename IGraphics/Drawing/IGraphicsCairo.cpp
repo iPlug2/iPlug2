@@ -502,11 +502,10 @@ void IGraphicsCairo::PrepareAndMeasureText(const IText& text, const char* str, I
   cairo_glyph_extents(context, pGlyphs, numGlyphs, &textExtents);
   
   const double width = textExtents.width + textExtents.x_bearing;
-  const double height = fontExtents.height;
   const double ascender = fontExtents.ascent;
   const double descender = fontExtents.descent;
     
-  CalculateTextPositions(text, r, x, y, width, height, ascender, descender);
+  CalculateTextPositions(text, r, x, y, width, ascender, descender);
   
   // Destroy temporary context
   if (context != mContext)
