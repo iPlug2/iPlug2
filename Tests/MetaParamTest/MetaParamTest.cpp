@@ -51,7 +51,7 @@ struct FourValues : public IControl
 #endif
 
 MetaParamTest::MetaParamTest(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
+: Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kParamLeftX)->InitDouble("X1", 100., 0., 100.0, 0.01, "%");
   GetParam(kParamLeftY)->InitDouble("Y1", 100., 0., 100.0, 0.01, "%");
