@@ -34,14 +34,10 @@ if (WIN32)
     CACHE PATH "Path to install 64-bit AAX plugins")
   
   # Need to determine processor arch for postbuild-win.bat
-  if ("${CMAKE_GENERATOR}" MATCHES ".*Visual Studio.*")
-    set(PROCESSOR_ARCH "\$(PlatformName)")
+  if (CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64")
+    set(PROCESSOR_ARCH "x64")
   else()
-    if (CMAKE_SYSTEM_PROCESSOR MATCHES "AMD64")
-      set(PROCESSOR_ARCH "x64")
-    else()
-      set(PROCESSOR_ARCH "Win32")
-    endif()
+    set(PROCESSOR_ARCH "Win32")
   endif()
 else()
   message("Unsupported platform" FATAL_ERROR)
@@ -99,6 +95,7 @@ macro(end_faust_target)
     DEPENDS ${FAUST_TARGET_DEP_LIST}
     SOURCES ${FAUST_TARGET_SRC_LIST}
   )
+  set("${FAUST_TARGET_NAME}_CPP_FILES" ${FAUST_TARGET_DEP_LIST})
 endmacro()
 
 function(add_faust_file dsp_file class_name)
@@ -123,9 +120,12 @@ endfunction()
 # this function multiple times to change the configuration as desired.
 #
 function(iplug2_configure app_name)
-  cmake_parse_arguments(PARSE_ARGV 2 "cfg"
-    "FAUST NANOVG GL2 GL3"
-    "VST_ICON AAX_ICON" "")
+  cmake_parse_arguments("cfg"
+    "FAUST;FAUST_GEN;NANOVG;GL2;GL3;OSC;HIIR;SYNTH"
+    "VST_ICON;AAX_ICON"
+    ""
+    ${ARGN}
+  )
   macro(setDefault var value1 valueDefault)
     if ("${value1}")
       set(${var} "${value1}" PARENT_SCOPE)
@@ -133,17 +133,29 @@ function(iplug2_configure app_name)
       set(${var} "${valueDefault}" PARENT_SCOPE)
     endif()
   endmacro()
+  macro(setDef var test_var)
+    set(${var} ${${test_var}} PARENT_SCOPE)
+    # if(${test_var})
+    #   set(${var} 1 PARENT_SCOPE)
+    # else()
+    #   set(${var} 0 PARENT_SCOPE)
+    # endif()
+  endmacro()
   
   set(IPLUG2_CONFIG_APP_NAME "${app_name}" PARENT_SCOPE)
-  set(IPLUG2_CONFIG_FAUST "$<DEFINED cfg_FAUST:1>" PARENT_SCOPE)
-  set(IPLUG2_CONFIG_IGRAPHICS_NANOVG "$<DEFINED cfg_NANOVG:1>" PARENT_SCOPE)
-  set(IPLUG2_CONFIG_IGRAPHICS_GL2 "$<DEFINED cfg_GL2:1>" PARENT_SCOPE)
-  set(IPLUG2_CONFIG_IGRAPHICS_GL3 "$<DEFINED cfg_GL3:1>" PARENT_SCOPE)
+  setDef(IPLUG2_CONFIG_FAUST cfg_FAUST)
+  setDef(IPLUG2_CONFIG_FAUST_GEN cfg_FAUST_GEN)
+  setDef(IPLUG2_CONFIG_IGRAPHICS_NANOVG cfg_NANOVG)
+  setDef(IPLUG2_CONFIG_IGRAPHICS_GL2 cfg_GL2)
+  setDef(IPLUG2_CONFIG_IGRAPHICS_GL3 cfg_GL3)
+  setDef(IPLUG2_CONFIG_OSC cfg_OSC)
+  setDef(IPLUG2_CONFIG_HIIR cfg_HIIR)
+  setDef(IPLUG2_CONFIG_SYNTH cfg_SYNTH)
   setDefault(IPLUG2_CONFIG_VST_ICON "${cfg_VST_ICON}" 
     "${IPLUG2_DIR}/Dependencies/IPlug/VST3_SDK/doc/artwork/VST_Logo_Steinberg.ico")
   setDefault(IPLUG2_CONFIG_AAX_ICON "${cfg_AAX_ICON}"
     "${IPLUG2_DIR}/Dependencies/IPlug/AAX_SDK/Utilities/PlugIn.ico")
-endfunction()    
+endfunction()
 
 
 #! iplug2_configure_target : Configure a CMake target to output one of the various plugin formats supported by iPlug2.
@@ -164,6 +176,7 @@ function(iplug2_configure_target target target_type)
   set(IPLUG_DEPS ${IPLUG2_DIR}/Dependencies/IPlug)
   set(IPLUG_SRC ${IPLUG2_DIR}/IPlug)
   set(IGRAPHICS_SRC ${IPLUG2_DIR}/IGraphics)
+  set(CREATE_BUNDLE_SCRIPT "${IPLUG2_DIR}/Scripts/create_bundle.bat")
   
   #############
   # Variables #
@@ -189,6 +202,7 @@ function(iplug2_configure_target target target_type)
     ${IGRAPHICS_SRC}/Controls/IPopupMenuControl.cpp
     ${IGRAPHICS_SRC}/Controls/ITextEntryControl.cpp
   )
+
   # Include directories
   set(_incdir 
     ${IPLUG_SRC}
@@ -284,15 +298,11 @@ function(iplug2_configure_target target target_type)
     addL(_src ${sd}/IPlugVST2.cpp)
 
     if (WIN32)
-      # After building, we run the post-build script, but only on Windows
-      set(cmd_args_1 "\".dll\"" "${IPLUG2_CONFIG_APP_NAME}" "\"${PROCESSOR_ARCH}\"" "1" "\"$<TARGET_FILE:${target}>\""
-        "${VST2_32_PATH}" "${VST2_64_PATH}" "${VST3_32_PATH}" "${VST3_64_PATH}"
-        "${AAX_32_PATH}" "${AAX_64_PATH}" "\"${CMAKE_BINARY_DIR}/out\""
-        "\"${IPLUG2_CONFIG_VST_ICON}\"" "\"${IPLUG2_CONFIG_AAX_ICON}\""
-        "\"${IPLUG2_DIR}/Scripts/create_bundle.bat\""
+      # After building, we run the post-build script
+      add_custom_command(TARGET ${target} POST_BUILD 
+        COMMAND "${CMAKE_BINARY_DIR}/postbuild-win.bat" 
+        ARGS "\"$<TARGET_FILE:${target}>\"" "\".dll\""
       )
-      string(REPLACE "/" "\\" cmd_args_2 "${cmd_args_1}")
-      add_custom_command(TARGET ${target} POST_BUILD COMMAND ${post_build_script} ARGS ${cmd_args_2})
     endif()
     
   #########
@@ -306,7 +316,6 @@ function(iplug2_configure_target target target_type)
     addL(_src 
       ${sd}/IPlugVST3.cpp 
       ${sd}/IPlugVST3_Controller.cpp
-      ${sd}/IPlugVST3_Processor.cpp
       ${sd}/IPlugVST3_ProcessorBase.cpp
     )
     
@@ -321,21 +330,14 @@ function(iplug2_configure_target target target_type)
       "${sdk2}/vst/vstbus.cpp;${sdk2}/vst/vstcomponent.cpp;"
       "${sdk2}/vst/vstcomponentbase.cpp;${sdk2}/vst/vstinitiids.cpp;"
       "${sdk2}/vst/vstparameters.cpp;${sdk2}/vst/vstsinglecomponenteffect.cpp;"
-      "${sdk2}/vst/hosting/parameterchanges.cpp;${sdk2}/vst/hosting/parameterchanges.h;"
     )
     if (WIN32)
-      set(vst3_sdk_src "${vst3_sdk_src};${sdk2}/main/dllmain.cpp;${sdk2}/main/pluginfactory.cpp;")
-
-      # Note: For visual studio, we COULD use $(TargetPath) for the target, but for all other platforms, no.
+      set(vst3_sdk_src "${vst3_sdk_src};${sdk2}/main/dllmain.cpp;${sdk2}/main/pluginfactory.cpp;${sdk2}/main/winexport.def")
       # After building, we run the post-build script
-      set(cmd_args_1 "\".vst3\"" "\"${IPLUG2_CONFIG_APP_NAME}\"" "\"${PROCESSOR_ARCH}\"" "\"1\"" "\"$<TARGET_FILE:${target}>\""
-        "${VST2_32_PATH}" "${VST2_64_PATH}" "${VST3_32_PATH}" "${VST3_64_PATH}"
-        "${AAX_32_PATH}" "${AAX_64_PATH}" "\"${CMAKE_BINARY_DIR}/out\""
-        "\"${IPLUG2_CONFIG_VST_ICON}\"" "\"${IPLUG2_CONFIG_AAX_ICON}\""
-        "\"${IPLUG2_DIR}/Scripts/create_bundle.bat\""
+      add_custom_command(TARGET ${target} POST_BUILD 
+        COMMAND "${CMAKE_BINARY_DIR}/postbuild-win.bat" 
+        ARGS "\"$<TARGET_FILE:${target}>\"" "\".vst3\""
       )
-      string(REPLACE "/" "\\" cmd_args_2 "${cmd_args_1}")
-      add_custom_command(TARGET ${target} POST_BUILD COMMAND ${post_build_script} ARGS ${cmd_args_2})
     endif()
     set(vst3_src "${vst3_src_base};${vst3_src_interfaces};${vst3_sdk_src}")
     target_sources(${target} PRIVATE ${vst3_src})
@@ -357,6 +359,14 @@ function(iplug2_configure_target target target_type)
   else()
     message("Invalid target type" FATAL_ERROR)
   endif()
+
+
+  # postbuild-win.bat is used by VST2/VST3/AAX on Windows, so we just always configure it on Windows
+  if (WIN32)
+    # Note: For visual studio, we COULD use $(TargetPath) for the target, but for all other generators, no.
+    set(plugin_build_dir "${CMAKE_BINARY_DIR}/out")
+    configure_file("${IPLUG2_DIR}/Scripts/postbuild-win.bat.in" "${CMAKE_BINARY_DIR}/postbuild-win.bat")
+  endif()
   
   ###################
   # Config Settings #
@@ -375,10 +385,27 @@ function(iplug2_configure_target target target_type)
   if (IPLUG2_CONFIG_IGRAPHICS_NANOVG)
     addL(_defs "IGRAPHICS_NANOVG")
   endif()
-  if (IPLUG2_CONFIG_FAUST)
+
+  # IPlug/Extras
+  if (IPLUG2_CONFIG_FAUST OR IPLUG2_CONFIG_FAUST_GEN)
     addL(_incdir ${IPLUG2_DIR}/IPlug/Extras/Faust ${FAUST_INCLUDE_DIR})
   endif()
-  
+  if (IPLUG2_CONFIG_FAUST_GEN)
+    addL(_src "${IPLUG_SRC}/Extras/Faust/IPlugFaustGen.cpp")
+  endif()
+  if (IPLUG2_CONFIG_HIIR)
+    addL(_src "${IPLUG_SRC}/Extras/HIIR/PolyphaseIIR2Designer.cpp")
+    addL(_incdir ${IPLUG_SRC}/Extras/HIIR)
+  endif()
+  if (IPLUG2_CONFIG_OSC)
+    addL(_src ${IPLUG_SRC}/Extras/OSC/IPlugOSC_msg.cpp)
+    addL(_incdir ${IPLUG_SRC}/Extras/OSC)
+  endif()
+  if (IPLUG2_CONFIG_SYNTH)
+    addL(_src ${IPLUG_SRC}/Extras/Synth/MidiSynth.cpp ${IPLUG_SRC}/Extras/Synth/VoiceAllocator.cpp)
+    addL(_incdir ${IPLUG_SRC}/Extras/Synth)
+  endif()
+
   if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     addL(_defs "_CRT_SECURE_NO_WARNINGS" "_CRT_SECURE_NO_DEPRECATE" "_CRT_NONSTDC_NO_DEPRECATE" "NOMINMAX" "_MBCS")
     addL(_copts "/wd4996" "/wd4250" "/wd4018" "/wd4267" "/wd4068")
