@@ -42,9 +42,9 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
 
   assert(mDLLPath.GetLength() > 0);
 
-  HMODULE hModule = LoadLibraryA(mDLLPath.Get());
+  mDLLHandle = LoadLibraryA(mDLLPath.Get());
 
-  TCCWebView2EnvWithOptions handle = (TCCWebView2EnvWithOptions) GetProcAddress(hModule, "CreateCoreWebView2EnvironmentWithOptions");
+  TCCWebView2EnvWithOptions handle = (TCCWebView2EnvWithOptions) GetProcAddress(mDLLHandle, "CreateCoreWebView2EnvironmentWithOptions");
 
   if (handle != NULL)
   {
@@ -117,7 +117,7 @@ void IWebView::CloseWebView()
   mWebViewCtrlr = nullptr;
   mWebViewWnd = nullptr;
 
-  FreeLibrary(mDLLPath.Get());
+  FreeLibrary(mDLLHandle);
 }
 
 void IWebView::LoadHTML(const char* html)

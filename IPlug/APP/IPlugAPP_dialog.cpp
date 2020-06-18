@@ -717,15 +717,11 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 #endif
 
 #ifdef OS_WIN 
-#ifndef NO_IGRAPHICS
       int scale = GetScaleForHWND(hwndDlg);
       mmi->ptMinTrackSize.x *= scale;
       mmi->ptMinTrackSize.y *= scale;
       mmi->ptMaxTrackSize.x *= scale;
       mmi->ptMaxTrackSize.y *= scale;
-#else
-#error GetScaleForHWND() not implemented
-#endif
 #endif
       
       return 0;
