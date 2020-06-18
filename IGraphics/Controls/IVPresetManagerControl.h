@@ -202,7 +202,7 @@ public:
       //if (PLUG()->LoadProgramFromVSTPreset(mFiles.Get(pItem->GetTag())->Get()))
       //{
       //  PLUG()->ModifyCurrentPreset(PLUG()->GetPatchName());
-      //  PLUG()->InformHostOfProgramChange();
+      //  PLUG()->InformHostOfPresetChange();
         mPresetNameButton->SetLabelStr(pItem->GetText());
       //}
     }

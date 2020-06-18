@@ -96,7 +96,7 @@ public:
   void BeginInformHostOfParamChange(int idx) override { beginEdit(idx); }
   void InformHostOfParamChange(int idx, double normalizedValue) override  { performEdit(idx, normalizedValue); }
   void EndInformHostOfParamChange(int idx) override  { endEdit(idx); }
-  void InformHostOfProgramChange() override  { /* TODO: */}
+  void InformHostOfPresetChange() override  { /* TODO: */}
   bool EditorResize(int viewWidth, int viewHeight) override;
   void DirtyParametersFromUI() override;
   

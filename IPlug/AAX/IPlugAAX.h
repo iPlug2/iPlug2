@@ -87,7 +87,7 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
   
-  void InformHostOfProgramChange() override { }; //NA
+  void InformHostOfPresetChange() override { }; //NA
   
   bool EditorResize(int viewWidth, int viewHeight) override;
   

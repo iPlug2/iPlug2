@@ -163,7 +163,7 @@ public:
   void SetCurrentPresetIdx(int idx) { assert(idx > -1 && idx < NPresets()); mCurrentPresetIdx = idx; }
   
   /** Implemented by the API class, called by the UI (etc) when the plug-in initiates a program/preset change (not applicable to all APIs) */
-  virtual void InformHostOfProgramChange() {};
+  virtual void InformHostOfPresetChange() {};
 #pragma mark - Preset Manipulation - NO-OPs
   
 #ifdef NO_PRESETS

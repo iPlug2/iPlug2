@@ -117,7 +117,7 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
   return kResultFalse;
 }
 
-//void IPlugVST3Controller::InformHostOfProgramChange()
+//void IPlugVST3Controller::InformHostOfPresetChange()
 //{
 //  if (NPresets())
 //  {

@@ -878,7 +878,7 @@ bool IPluginBase::LoadProgramFromFXP(const char* file)
         UnserializeState(pgm, pos);
         ModifyCurrentPreset(prgName);
         RestorePreset(GetCurrentPresetIdx());
-        InformHostOfProgramChange();
+        InformHostOfPresetChange();
         
         return true;
       }
@@ -896,7 +896,7 @@ bool IPluginBase::LoadProgramFromFXP(const char* file)
         
         ModifyCurrentPreset(prgName);
         RestorePreset(GetCurrentPresetIdx());
-        InformHostOfProgramChange();
+        InformHostOfPresetChange();
         
         return true;
       }
@@ -972,7 +972,7 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
         IByteChunk::GetIPlugVerFromChunk(bnk, pos);
         UnserializePresets(bnk, pos);
         //RestorePreset(currentPgm);
-        InformHostOfProgramChange();
+        InformHostOfPresetChange();
         return true;
       }
       else if (fxbMagic == 'FxBk') // Due to the big Endian-ness of FXP/FXB format we cannot call SerializeParams()
@@ -1032,7 +1032,7 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
         }
         
         RestorePreset(currentPgm);
-        InformHostOfProgramChange();
+        InformHostOfPresetChange();
         
         return true;
       }
