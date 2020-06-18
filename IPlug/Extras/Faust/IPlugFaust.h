@@ -147,7 +147,7 @@ public:
     mParams.Get(paramIdx)->Set(nonNormalizedValue);
 
     if(mZones.GetSize() == NParams())
-      *(mZones.Get(paramIdx)) = nonNormalizedValue;
+      *(mZones.Get(paramIdx)) = sample(nonNormalizedValue);
     else
       DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetName());
     }
@@ -162,7 +162,7 @@ public:
 //    mParams.Get(paramIdx)->Set(nonNormalizedValue); // TODO: we are not updating the IPlug parameter
 
     if(dest)
-      *dest = nonNormalizedValue;
+      *dest = sample(nonNormalizedValue);
     else
       DBGMSG("IPlugFaust-%s:: No parameter named %s\n", mName.Get(), labelToLookup);
   }
