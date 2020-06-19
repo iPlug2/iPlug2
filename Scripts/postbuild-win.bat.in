@@ -3,22 +3,33 @@ setlocal EnableDelayedExpansion
 setlocal EnableExtensions
 
 set FORMAT=%2
-set NAME=@IPLUG2_CONFIG_APP_NAME@
-set NAME_QUOTED="@IPLUG2_CONFIG_APP_NAME@"
+set NAME="@IPLUG2_APP_NAME@"
 set PLATFORM="@PROCESSOR_ARCH@"
 set COPY_VST2="1"
 set BUILT_BINARY=%1
-set BUILT_BINARY=%BUILT_BINARY:/=\%
 set VST2_32_PATH="@VST2_32_PATH@"
 set VST2_64_PATH="@VST2_64_PATH@"
 set VST3_32_PATH="@VST3_32_PATH@"
 set VST3_64_PATH="@VST3_64_PATH@"
 set AAX_32_PATH="@AAX_32_PATH@"
 set AAX_64_PATH="@AAX_64_PATH@"
-set BUILD_DIR="@plugin_build_dir@"
-set VST_ICON="@IPLUG2_CONFIG_VST_ICON@"
-set AAX_ICON="@IPLUG2_CONFIG_AAX_ICON@"
-set CREATE_BUNDLE_SCRIPT="@CREATE_BUNDLE_SCRIPT@"
+set BUILD_DIR=@plugin_build_dir@
+set VST_ICON="@IPLUG2_VST_ICON@"
+set AAX_ICON="@IPLUG2_AAX_ICON@"
+set CREATE_BUNDLE_SCRIPT="@create_bundle_script@"
+
+REM copy and xcopy break with forward-slashes, and it's easier to do this here than in CMake
+set BUILT_BINARY=%BUILT_BINARY:/=\%
+set VST2_32_PATH=%VST2_32_PATH:/=\%
+set VST2_64_PATH=%VST2_64_PATH:/=\%
+set VST3_32_PATH=%VST3_32_PATH:/=\%
+set VST3_64_PATH=%VST3_64_PATH:/=\%
+set AAX_32_PATH=%AAX_32_PATH:/=\%
+set AAX_64_PATH=%AAX_64_PATH:/=\%
+set BUILD_DIR=%BUILD_DIR:/=\%
+set VST_ICON=%VST_ICON:/=\%
+set AAX_ICON=%AAX_ICON:/=\%
+set CREATE_BUNDLE_SCRIPT=%CREATE_BUNDLE_SCRIPT:/=\%
 
 echo POSTBUILD SCRIPT VARIABLES -----------------------------------------------------
 echo FORMAT %FORMAT% 
@@ -37,6 +48,7 @@ echo CREATE_BUNDLE_SCRIPT %CREATE_BUNDLE_SCRIPT%
 echo END POSTBUILD SCRIPT VARIABLES -----------------------------------------------------
 
 if %PLATFORM% == "Win32" (
+
   if %FORMAT% == ".exe" (
     copy /y %BUILT_BINARY% %BUILD_DIR%\%NAME%_%PLATFORM%.exe
   )
@@ -57,7 +69,7 @@ if %PLATFORM% == "Win32" (
   if %FORMAT% == ".vst3" (
     echo copying 32bit binary to VST3 BUNDLE ..
     call %CREATE_BUNDLE_SCRIPT% %BUILD_DIR%\%NAME%.vst3 %VST_ICON% %FORMAT%
-    copy /y %BUILT_BINARY% %BUILD_DIR%\%NAME%.vst3\Contents\x86-win
+    copy /y %BUILT_BINARY% "%BUILD_DIR%\%NAME%.vst3\Contents\x86-win"
     if exist %VST3_32_PATH% ( 
       echo copying VST3 bundle to 32bit VST3 Plugins folder ...
       call %CREATE_BUNDLE_SCRIPT% %VST3_32_PATH%\%NAME%.vst3 %VST_ICON% %FORMAT%
