@@ -114,6 +114,9 @@ function(iplug2_add_interface target)
   if (cfg_DEPEND)
     add_dependencies(${target} ${cfg_TYPE} ${cfg_DEPEND})
   endif()
+  if (cfg_UNUSED)
+    message("Unused arguments ${cfg_UNUSED}" FATAL_ERROR)
+  endif()
 endfunction()
 
 
@@ -216,6 +219,7 @@ elseif(COMPILER_OPT_ARCH_AVX_SUPPORTED)
   list(APPEND _opts "/arch:AVX")
 endif()
 
+source_group("IPlug" FILES ${_src})
 iplug2_add_interface(iPlug2_Core DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} OPTION ${_opts})
 
 
@@ -386,7 +390,7 @@ iplug2_add_interface(iPlug2_NANOVG
 )
 
 iplug2_add_interface(iPlug2_Faust
-  INCLUDE ${IPLUG2_DIR}/IPlug/Extras/Faust ${FAUST_INCLUDE_DIR}
+  INCLUDE "${IPLUG2_DIR}/IPlug/Extras/Faust" "${FAUST_INCLUDE_DIR}"
 )
 
 iplug2_add_interface(iPlug2_FaustGen
@@ -409,6 +413,17 @@ iplug2_add_interface(iPlug2_Synth
   SOURCE ${IPLUG_SRC}/Extras/Synth/MidiSynth.cpp ${IPLUG_SRC}/Extras/Synth/VoiceAllocator.cpp
 )
 
+
+set(IPLUG2_TARGETS
+  iPlug2_Core iPlug2_APP iPlug2_AU iPlug2_AUv3 iPlug2_VST2 iPlug2_VST3 iPlug2_WEB_DSP iPlug2_WEB_GUI
+  iPlug2_Faust iPlug2_FaustGen iPlug2_HIIR iPlug2_OSC iPlug2_Synth
+)
+foreach(target IN ITEMS ${IPLUG2_TARGETS})
+  get_target_property(_src ${target} INTERFACE_SOURCES)
+  if (NOT "${_src}" STREQUAL "_src-NOTFOUND")
+    source_group(TREE ${IPLUG2_DIR} PREFIX "IPlug" FILES ${_src})
+  endif()
+endforeach()
 
 unset(_inc)
 unset(_def)
