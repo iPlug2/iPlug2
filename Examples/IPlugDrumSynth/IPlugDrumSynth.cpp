@@ -52,7 +52,7 @@ private:
 #endif
 
 IPlugDrumSynth::IPlugDrumSynth(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
+: Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   GetParam(kParamMultiOuts)->InitBool("Multi-outs", false);

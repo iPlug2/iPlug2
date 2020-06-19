@@ -1887,7 +1887,7 @@ void IPlugAU::EndInformHostOfParamChange(int idx)
   SendAUEvent(kAudioUnitEvent_EndParameterChangeGesture, mCI, idx);
 }
 
-void IPlugAU::InformHostOfProgramChange()
+void IPlugAU::InformHostOfPresetChange()
 {
   //InformListeners(kAudioUnitProperty_CurrentPreset, kAudioUnitScope_Global);
   InformListeners(kAudioUnitProperty_PresentPreset, kAudioUnitScope_Global);

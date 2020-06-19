@@ -116,6 +116,8 @@ void IWebView::CloseWebView()
 {
   mWebViewCtrlr = nullptr;
   mWebViewWnd = nullptr;
+
+  FreeLibrary(mDLLPath.Get());
 }
 
 void IWebView::LoadHTML(const char* html)

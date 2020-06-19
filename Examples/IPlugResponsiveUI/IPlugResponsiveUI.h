@@ -7,7 +7,7 @@
 #include "ISender.h"
 #endif
 
-const int kNumPrograms = 1;
+const int kNumPresets = 1;
 
 enum EParams
 {

@@ -4,7 +4,7 @@
 #include "IControls.h"
 #include "IPlugPaths.h"
 
-const int kNumPrograms = 1;
+const int kNumPresets = 1;
 
 enum EParams
 {

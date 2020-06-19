@@ -193,7 +193,7 @@ void IPlugVST2::EndInformHostOfParamChange(int idx)
   mHostCallback(&mAEffect, audioMasterEndEdit, idx, 0, 0, 0.0f);
 }
 
-void IPlugVST2::InformHostOfProgramChange()
+void IPlugVST2::InformHostOfPresetChange()
 {
   mHostCallback(&mAEffect, audioMasterUpdateDisplay, 0, 0, 0, 0.0f);
 }
