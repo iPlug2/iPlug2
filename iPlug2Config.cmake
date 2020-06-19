@@ -82,43 +82,58 @@ function(add_faust_target target)
   add_custom_target(${target} ALL DEPENDS ${out_list} SOURCES ${src_list})
 endfunction()
 
-
-
-function(iplug2_add_interface target)
-  cmake_parse_arguments("cfg" "" "" "INCLUDE;SOURCE;DEFINE;OPTION;LINK;DEPEND" ${ARGN})
-  if (NOT (TARGET ${target}))
-    add_library(${target} INTERFACE)
-  endif()
-  set(cfg_TYPE INTERFACE)
+#! iplug2_target_add : Helper function to add sources, include directories, etc.
+# 
+# This helper function combines calls to target_include_directories, target_sources,
+# target_compile_definitions, target_compile_options, target_link_libraries,
+# add_dependencies, and target_compile_features into a single function call. 
+# This means you don't have to re-type the target name so many times, and makes it
+# clearer exactly what you're adding to a given target.
+# 
+# \arg:target The name of the target
+# \arg:set_type <PUBLIC | PRIVATE | INTERFACE>
+# \group:INCLUDE List of include directories
+# \group:SOURCE List of source files
+# \group:DEFINE Compiler definitions
+# \group:OPTION Compile options
+# \group:LINK Link libraries (including other targets)
+# \group:DEPEND Add dependencies on other targets
+# \group:FEATURE Add compile features
+function(iplug2_target_add target set_type)
+  cmake_parse_arguments("cfg" "" "" "INCLUDE;SOURCE;DEFINE;OPTION;LINK;DEPEND;FEATURE" ${ARGN})
   #message("CALL iplug2_add_interface ${target}")
   if (cfg_INCLUDE)
-    #message("INCLUDE ${target} : ${cfg_INCLUDE}")
-    target_include_directories(${target} INTERFACE ${cfg_INCLUDE})
+    target_include_directories(${target} ${set_type} ${cfg_INCLUDE})
   endif()
   if (cfg_SOURCE)
-    #message("SOURCE ${target} : ${cfg_SOURCE}")
-    target_sources(${target} INTERFACE ${cfg_SOURCE})
+    target_sources(${target} ${set_type} ${cfg_SOURCE})
   endif()
   if (cfg_DEFINE)
-    #message("DEFINE ${target} : ${cfg_DEFINE}")
-    target_compile_definitions(${target} INTERFACE ${cfg_DEFINE})
+    target_compile_definitions(${target} ${set_type} ${cfg_DEFINE})
   endif()
   if (cfg_OPTION)
-    #message("OPTION ${target} : ${cfg_OPTION}")
-    target_compile_options(${target} INTERFACE ${cfg_OPTION})
+    target_compile_options(${target} ${set_type} ${cfg_OPTION})
   endif()
   if (cfg_LINK)
-    #message("LINK ${target} : ${cfg_LINK}")
-    target_link_libraries(${target} INTERFACE ${cfg_LINK})
+    target_link_libraries(${target} ${set_type} ${cfg_LINK})
   endif()
   if (cfg_DEPEND)
-    add_dependencies(${target} ${cfg_TYPE} ${cfg_DEPEND})
+    add_dependencies(${target} ${set_type} ${cfg_DEPEND})
+  endif()
+  if (cfg_FEATURE)
+    target_compile_features(${target} ${set_type} ${cfg_FEATURE})
   endif()
   if (cfg_UNUSED)
     message("Unused arguments ${cfg_UNUSED}" FATAL_ERROR)
   endif()
 endfunction()
 
+function(iplug2_add_interface target)
+  if (NOT (TARGET ${target}))
+    add_library(${target} INTERFACE)
+  endif()
+  iplug2_target_add(${target} INTERFACE ${ARGN})
+endfunction()
 
 ############################
 # General iPlug2 Interface #
@@ -371,6 +386,19 @@ iplug2_add_interface(iPlug2_WEB_GUI
   LINK iPlug2_Core
 )
 
+####################
+# Reaper Extension #
+####################
+
+add_library(iPlug2_REAPER INTERFACE)
+set(_sdk ${IPLUG2_DIR}/IPlug/ReaperExt)
+iplug2_add_interface(iPlug2_REAPER
+  INCLUDE "${_sdk}" "${_DEPS}/IPlug/Reaper"
+  SOURCE "${_sdk}/ReaperExtBase.cpp"
+  DEFINE "REAPER_PLUGIN"
+  LINK iPlug2_VST2
+)
+
 ###############################
 # Minor Configuration Targets #
 ###############################
@@ -415,7 +443,7 @@ iplug2_add_interface(iPlug2_Synth
 
 
 set(IPLUG2_TARGETS
-  iPlug2_Core iPlug2_APP iPlug2_AU iPlug2_AUv3 iPlug2_VST2 iPlug2_VST3 iPlug2_WEB_DSP iPlug2_WEB_GUI
+  iPlug2_Core iPlug2_APP iPlug2_AU iPlug2_AUv3 iPlug2_VST2 iPlug2_VST3 iPlug2_WEB_DSP iPlug2_WEB_GUI iPlug2_REAPER
   iPlug2_Faust iPlug2_FaustGen iPlug2_HIIR iPlug2_OSC iPlug2_Synth
 )
 foreach(target IN ITEMS ${IPLUG2_TARGETS})
@@ -432,7 +460,8 @@ unset(_opts)
 unset(tmp)
 unset(_DEPS)
 
-
+#! iplug2_configure_target : Configure a target for the given output type
+#
 function(iplug2_configure_target target target_type)
 
   # Standalone app
@@ -464,11 +493,10 @@ function(iplug2_configure_target target target_type)
       )
     endif()
     set_target_properties(${target} PROPERTIES
-      "OUTPUT_NAME" "${IPLUG2_CONFIG_APP_NAME}"
+      "OUTPUT_NAME" "${IPLUG2_APP_NAME}"
       "SUFFIX" ".vst3"
     )
   else()
     message("Unknown target type \'${target_type}\' for target '${target}'" FATAL_ERROR)
   endif()
 endfunction()
-
