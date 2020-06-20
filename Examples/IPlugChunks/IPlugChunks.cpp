@@ -15,7 +15,7 @@ const char* pAboutTextBody[] =
 };
 
 IPlugChunks::IPlugChunks(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
+: Plugin(info, MakeConfig(kNumParams, kNumPresets))
 , mGain(1.0)
 , mUIJustOpened(false)
 {
