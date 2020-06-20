@@ -15,7 +15,7 @@ const char* pAboutTextBody[] =
 };
 
 IPlugChunks::IPlugChunks(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
+: Plugin(info, MakeConfig(kNumParams, kNumPresets))
 , mGain(1.0)
 , mUIJustOpened(false)
 {
@@ -104,13 +104,15 @@ IPlugChunks::IPlugChunks(const InstanceInfo& info)
       iplug::IPluginBase::IncrementPreset(false);
     };
     
-    mIncButton = new IVButtonControl(IRECT(290.f, 10.f, 314.f, 34.f), incaction, "", incstyle, false, false, EVShape::Triangle);
+    mIncButton = new IVButtonControl(IRECT(284.f, 10.f, 308.f, 34.f), incaction, "", incstyle, false, false, EVShape::Triangle);
     pGraphics->AttachControl(mIncButton);
     mIncButton->SetAngle(90.f);
+    mIncButton->SetSize(30.f, 24.f);
     
-    mDecButton = new IVButtonControl(IRECT(92.f, 10.f, 116.f, 34.f), decaction, "", incstyle, false, false, EVShape::Triangle);
+    mDecButton = new IVButtonControl(IRECT(86.f, 10.f, 110.f, 34.f), decaction, "", incstyle, false, false, EVShape::Triangle);
     pGraphics->AttachControl(mDecButton);
     mDecButton->SetAngle(270.f);
+    mDecButton->SetSize(30.f, 24.f);
     
     pGraphics->AttachControl(new IVButtonControl(IRECT(10.f, 10.f, 70.f, 34.f), DefaultClickActionFunc, "About", aboutstyle, true, false));
     
