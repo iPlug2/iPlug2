@@ -22,7 +22,7 @@
 #define NUM_SLIDERS 16
 #define BEAT_DIV 4 // semiquavers
 
-const int kNumPrograms = 128;
+const int kNumPresets = 128;
 
 enum EParams
 {

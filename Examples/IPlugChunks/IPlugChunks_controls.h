@@ -262,7 +262,7 @@ public:
         case 3: //Save Program
           fileName.Set(dynamic_cast<IPluginBase*>(GetDelegate())->GetPresetName(currpreset));
           GetUI()->PromptForFile(fileName, mPreviousPath, EFileAction::Save, "fxp");
-          dynamic_cast<IPluginBase*>(GetDelegate())->SaveProgramAsFXP(fileName.Get());
+          dynamic_cast<IPluginBase*>(GetDelegate())->SavePresetAsFXP(fileName.Get());
           break;
         case 4: //Save Bank
           fileName.Set("FactoryBank");
@@ -271,7 +271,7 @@ public:
           break;
         case 6: //Load Preset
           GetUI()->PromptForFile(fileName, mPreviousPath, EFileAction::Open, "fxp");
-          dynamic_cast<IPluginBase*>(GetDelegate())->LoadProgramFromFXP(fileName.Get());
+          dynamic_cast<IPluginBase*>(GetDelegate())->LoadPresetFromFXP(fileName.Get());
           break;
         case 7: // Load Bank
           GetUI()->PromptForFile(fileName, mPreviousPath, EFileAction::Open, "fxb");
@@ -522,7 +522,7 @@ public:
     if (itemChosen > -1)
     {
       dynamic_cast<IPluginBase*>(GetDelegate())->RestorePreset(itemChosen);
-      dynamic_cast<IPluginBase*>(GetDelegate())->InformHostOfProgramChange();
+      dynamic_cast<IPluginBase*>(GetDelegate())->InformHostOfPresetChange();
       dynamic_cast<IPluginBase*>(GetDelegate())->DirtyParametersFromUI();
     }
     SetDirty(false);
@@ -536,7 +536,7 @@ public:
     safeName.Set(txt, MAX_PRESET_NAME_LEN);
     
     dynamic_cast<IPluginBase*>(GetDelegate())->ModifyCurrentPreset(safeName.Get());
-    dynamic_cast<IPluginBase*>(GetDelegate())->InformHostOfProgramChange();
+    dynamic_cast<IPluginBase*>(GetDelegate())->InformHostOfPresetChange();
     dynamic_cast<IPluginBase*>(GetDelegate())->DirtyParametersFromUI();
     SetDirty(false);
   }
