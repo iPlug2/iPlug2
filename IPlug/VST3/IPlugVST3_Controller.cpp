@@ -117,7 +117,7 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
   return kResultFalse;
 }
 
-//void IPlugVST3Controller::InformHostOfProgramChange()
+//void IPlugVST3Controller::InformHostOfPresetChange()
 //{
 //  if (NPresets())
 //  {
@@ -143,7 +143,7 @@ bool IPlugVST3Controller::EditorResize(int viewWidth, int viewHeight)
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
-      mView->resize(viewWidth, viewHeight);
+      mView->Resize(viewWidth, viewHeight);
  
     SetEditorSize(viewWidth, viewHeight);
   }

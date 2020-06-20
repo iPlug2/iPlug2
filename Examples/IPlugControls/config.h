@@ -8,6 +8,7 @@
 #define PLUG_EMAIL_STR "spam@me.com"
 #define PLUG_COPYRIGHT_STR "Copyright 2019 Acme Inc"
 #define PLUG_CLASS_NAME IPlugControls
+#define PLUG_HOST_RESIZE 0
 
 #define BUNDLE_NAME "IPlugControls"
 #define BUNDLE_MFR "AcmeInc"
@@ -47,7 +48,6 @@
 #define APP_N_VECTOR_WAIT 0
 #define APP_MULT 1
 #define APP_COPY_AUV3 0
-#define APP_RESIZABLE 0
 #define APP_SIGNAL_VECTOR_SIZE 64
 
 #define ROBOTO_FN "Roboto-Regular.ttf"

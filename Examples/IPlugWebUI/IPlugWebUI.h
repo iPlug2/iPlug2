@@ -6,7 +6,7 @@
 
 using namespace iplug;
 
-const int kNumPrograms = 3;
+const int kNumPresets = 3;
 
 enum EParams
 {
