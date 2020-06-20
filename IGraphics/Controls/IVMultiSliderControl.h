@@ -85,9 +85,16 @@ public:
       if(step > -1)
       {
         y = mStepBounds.Get()[step].T;
+        
+        if(mStepBounds.GetSize() == 1)
+          value = 1.f;
+        else
+          value = step * (1.f/float(mStepBounds.GetSize()-1));
       }
-      
-      value = 1.f - (y-bounds.T) / bounds.H();
+      else
+      {
+        value = 1.f - (y-bounds.T) / bounds.H();
+      }
       
       for(auto i = 0; i < nVals; i++)
       {
@@ -103,10 +110,16 @@ public:
       if(step > -1)
       {
         x = mStepBounds.Get()[step].L;
+        
+        if(mStepBounds.GetSize() == 1)
+          value = 1.f;
+        else
+          value = 1.- (step * (1.f/float(mStepBounds.GetSize()-1)));
       }
-      
-      value = (x-bounds.L) / bounds.W();
-      
+      else
+      {
+        value = (x-bounds.L) / bounds.W();
+      }
       for(auto i = 0; i < nVals; i++)
       {
         if(mTrackBounds.Get()[i].Contains(mTrackBounds.Get()[i].MW(), y))

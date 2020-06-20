@@ -1441,6 +1441,7 @@ protected:
       DrawTrackName(g, r, chIdx);
     
     const float trackPos = static_cast<float>(GetValue(chIdx));
+    
     const bool stepped = GetStepped();
     
     IRECT fillRect;
@@ -1468,7 +1469,8 @@ protected:
       
       if(stepped && mZeroValueStepHasBounds && trackPos == 0.f)
       {
-        fillRect.T = mStepBounds.Get()[0].T;
+        if(mDirection == EDirection::Vertical)
+          fillRect.T = mStepBounds.Get()[0].T;
       }
     }
     
@@ -1477,18 +1479,24 @@ protected:
     
     if(stepped)
     {
-      int step = GetStepIdxForPos(fillRect.L, fillRect.T + 1);
+      int step = GetStepIdxForPos(fillRect.R, fillRect.T);
 
       if (step > -1)
-        fillRect.B = mStepBounds.Get()[step].B;
-      
-      if(mZeroValueStepHasBounds)
-        DrawTrackHandle(g, fillRect, chIdx, trackPos > mBaseValue);
-      else
       {
-        if(GetValue(chIdx) > 0.)
-          DrawTrackHandle(g, fillRect, chIdx, trackPos > mBaseValue);
+        if(mDirection == EDirection::Horizontal)
+        {
+          fillRect.L = mStepBounds.Get()[step].L;
+          fillRect.R = mStepBounds.Get()[step].R;
+        }
+        else
+        {
+          fillRect.T = mStepBounds.Get()[step].T;
+          fillRect.B = mStepBounds.Get()[step].B;
+        }
       }
+      
+      if(mZeroValueStepHasBounds || GetValue(chIdx) > 0.)
+        DrawTrackHandle(g, fillRect, chIdx, trackPos > mBaseValue);
     }
     else
     {
@@ -1608,7 +1616,7 @@ protected:
   int mMouseOverTrack = -1;
   double mBaseValue = 0.; // 0-1 value to represent the mid-point, i.e. for displaying bipolar data
   bool mDrawTrackFrame = true;
-  bool mZeroValueStepHasBounds = true;
+  bool mZeroValueStepHasBounds = true; // If this is true, there is a separate step for zero
 };
 
 /** A base class for buttons/momentary switches - cannot be linked to parameters.
