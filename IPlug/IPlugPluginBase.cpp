@@ -727,7 +727,7 @@ void IPluginBase::DumpBankBlob(const char* filename, bool incrementerAdded) cons
 // so when we use it here, since vst fxp/fxb files are big endian, we need to swap the endianess
 // regardless of the endianness of the host, and on big endian hosts it will get swapped back to
 // big endian
-bool IPluginBase::SaveProgramAsFXP(const char* file) const
+bool IPluginBase::SavePresetAsFXP(const char* file) const
 {
   if (CStringHasContents(file))
   {
@@ -905,7 +905,7 @@ bool IPluginBase::SaveBankAsFXB(const char* file) const
     return false;
 }
 
-bool IPluginBase::LoadProgramFromFXP(const char* file)
+bool IPluginBase::LoadPresetFromFXP(const char* file)
 {
   if (CStringHasContents(file))
   {
@@ -968,7 +968,7 @@ bool IPluginBase::LoadProgramFromFXP(const char* file)
         UnserializeState(pgm, pos);
         ModifyCurrentPreset(prgName);
         RestorePreset(GetCurrentPresetIdx());
-        InformHostOfProgramChange();
+        InformHostOfPresetChange();
         
         return true;
       }
@@ -986,7 +986,7 @@ bool IPluginBase::LoadProgramFromFXP(const char* file)
         
         ModifyCurrentPreset(prgName);
         RestorePreset(GetCurrentPresetIdx());
-        InformHostOfProgramChange();
+        InformHostOfPresetChange();
         
         return true;
       }
@@ -1062,7 +1062,7 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
         IByteChunk::GetIPlugVerFromChunk(bnk, pos);
         UnserializePresets(bnk, pos);
         //RestorePreset(currentPgm);
-        InformHostOfProgramChange();
+        InformHostOfPresetChange();
         return true;
       }
       else if (fxbMagic == 'FxBk') // Due to the big Endian-ness of FXP/FXB format we cannot call SerializeParams()
@@ -1122,7 +1122,7 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
         }
         
         RestorePreset(currentPgm);
-        InformHostOfProgramChange();
+        InformHostOfPresetChange();
         
         return true;
       }
@@ -1132,7 +1132,7 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
   return false;
 }
 
-bool IPluginBase::LoadProgramFromVSTPreset(const char* path)
+bool IPluginBase::LoadPresetFromVSTPreset(const char* path)
 {
   auto isEqualID = [](const ChunkID id1, const ChunkID id2) {
     return memcmp (id1, id2, sizeof (ChunkID)) == 0;
@@ -1291,7 +1291,7 @@ void IPluginBase::MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentSta
   chunk.Put(&metaInfoSize);
 }
 
-bool IPluginBase::SaveProgramAsVSTPreset(const char* path) const
+bool IPluginBase::SavePresetAsVSTPreset(const char* path) const
 {
   if (path)
   {

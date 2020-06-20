@@ -27,6 +27,7 @@
 #define PLUG_HEIGHT 300
 #define PLUG_FPS 60
 #define PLUG_SHARED_RESOURCES 0
+#define PLUG_HOST_RESIZE 0
 
 #define AUV2_ENTRY IPlugMidiEffect_Entry
 #define AUV2_ENTRY_STR "IPlugMidiEffect_Entry"
@@ -47,7 +48,6 @@
 #define APP_N_VECTOR_WAIT 0
 #define APP_MULT 1
 #define APP_COPY_AUV3 0
-#define APP_RESIZABLE 0
 #define APP_SIGNAL_VECTOR_SIZE 64
 
 #define ROBOTO_FN "Roboto-Regular.ttf"
