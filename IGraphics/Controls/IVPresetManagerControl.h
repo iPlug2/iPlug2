@@ -199,10 +199,10 @@ public:
     {
       IPopupMenu::Item* pItem = mItems.Get(mSelectedIndex);
 
-      //if (PLUG()->LoadProgramFromVSTPreset(mFiles.Get(pItem->GetTag())->Get()))
+      //if (PLUG()->LoadPresetFromVSTPreset(mFiles.Get(pItem->GetTag())->Get()))
       //{
       //  PLUG()->ModifyCurrentPreset(PLUG()->GetPatchName());
-      //  PLUG()->InformHostOfProgramChange();
+      //  PLUG()->InformHostOfPresetChange();
         mPresetNameButton->SetLabelStr(pItem->GetText());
       //}
     }

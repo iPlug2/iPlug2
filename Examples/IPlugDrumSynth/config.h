@@ -30,6 +30,8 @@
 #define PLUG_HEIGHT 335
 #define PLUG_FPS 60
 #define PLUG_SHARED_RESOURCES 0
+#define PLUG_HOST_RESIZE 0
+
 #define SHARED_RESOURCES_SUBPATH "IPlugDrumSynth"
 
 #define AUV2_ENTRY IPlugDrumSynth_Entry
@@ -50,7 +52,6 @@
 #define APP_N_VECTOR_WAIT 0
 #define APP_MULT 1
 #define APP_COPY_AUV3 0
-#define APP_RESIZABLE 0
 #define APP_SIGNAL_VECTOR_SIZE 64
 
 #define ROBOTO_FN "Roboto-Regular.ttf"
