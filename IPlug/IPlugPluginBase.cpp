@@ -474,7 +474,7 @@ void  IPluginBase::IncrementPreset(bool isIncrementing)
     RestorePreset(prevpreset);
   }
   
-  InformHostOfProgramChange();
+  InformHostOfPresetChange();
   DirtyParametersFromUI();
 }
 
