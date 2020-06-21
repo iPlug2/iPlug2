@@ -12,8 +12,8 @@ find_file(VST2_32_PATH
   DOC "Path to install 32-bit VST2 plugins"
 )
 find_file(VST2_64_PATH
-  "VstPlugins"
-  PATHS "C:/Program Files"
+  NAMES "VstPlugins" "VST"
+  PATHS "C:/Program Files" "$ENV{HOME}/Library/Audio/Plug-Ins" 
   DOC "Path to install 64-bit VST2 plugins"
 )
 find_file(VST3_32_PATH
@@ -23,7 +23,7 @@ find_file(VST3_32_PATH
 )
 find_file(VST3_64_PATH
   "VST3"
-  PATHS "C:/Program Files/Common Files"
+  PATHS "C:/Program Files/Common Files" "$ENV{HOME}/Library/Audio/Plug-Ins"
   DOC "Path to install 64-bit VST3 plugins"
 )
 
@@ -51,8 +51,14 @@ if (WIN32)
   else()
     set(PROCESSOR_ARCH "Win32" CACHE STRING "Processor architecture")
   endif()
+
+elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+  set(_tmp "$ENV{HOME}/Library/Audio/Plug-Ins")
+  set(VST2_PATH "${_tmp}/VST" CACHE PATH "VST2 plugin directory.")
+  set(VST3_PATH "${_tmp}/VST3" CACHE PATH "VST3 plugin directory.")
+
 else()
-  message("Unsupported platform" FATAL_ERROR)
+  #message("Unsupported platform" FATAL_ERROR)
 endif()
 
 include(CheckCXXCompilerFlag)
@@ -73,6 +79,7 @@ function(add_faust_target target)
     set(out_file "${${target}_INCLUDE_DIR}/Faust${class_name}.hpp")
     add_custom_command(
       OUTPUT "${out_file}"
+      COMMAND "mkdir" "-p" "${${target}_INCLUDE_DIR}"
       COMMAND "${FAUST_EXECUTABLE}" -lang cpp -cn "${class_name}" -a "${IPLUG2_DIR}/IPlug/Extras/Faust/IPlugFaust_arch.cpp" -o "${out_file}" "${dsp_file}"
       DEPENDS "${dsp_file}"
     )
@@ -100,7 +107,7 @@ endfunction()
 # \group:DEPEND Add dependencies on other targets
 # \group:FEATURE Add compile features
 function(iplug2_target_add target set_type)
-  cmake_parse_arguments("cfg" "" "" "INCLUDE;SOURCE;DEFINE;OPTION;LINK;DEPEND;FEATURE" ${ARGN})
+  cmake_parse_arguments("cfg" "" "" "INCLUDE;SOURCE;DEFINE;OPTION;LINK;DEPEND;FEATURE;RESOURCE" ${ARGN})
   #message("CALL iplug2_add_interface ${target}")
   if (cfg_INCLUDE)
     target_include_directories(${target} ${set_type} ${cfg_INCLUDE})
@@ -123,6 +130,10 @@ function(iplug2_target_add target set_type)
   if (cfg_FEATURE)
     target_compile_features(${target} ${set_type} ${cfg_FEATURE})
   endif()
+  if (cfg_RESOURCE)
+    set_property(TARGET ${target} APPEND PROPERTY RESOURCE ${cfg_RESOURCE})
+    target_sources(${target} ${set_type} ${cfg_RESOURCE})
+  endif()
   if (cfg_UNUSED)
     message("Unused arguments ${cfg_UNUSED}" FATAL_ERROR)
   endif()
@@ -142,10 +153,12 @@ endfunction()
 add_library(iPlug2_Core INTERFACE)
 set(IPLUG_SRC ${IPLUG2_DIR}/IPlug)
 set(IGRAPHICS_SRC ${IPLUG2_DIR}/IGraphics)
+set(WDL_DIR ${IPLUG2_DIR}/WDL)
 set(_DEPS ${IPLUG2_DIR}/Dependencies)
 
-set(_def "")
+set(_def "NOMINMAX")
 set(_opts "")
+set(_lib "")
 set(_inc
   # IGraphics
   ${IPLUG2_DIR}/IGraphics
@@ -164,8 +177,6 @@ set(_inc
   ${IPLUG2_DIR}/Dependencies/IGraphics/AGG/agg-2.4/src/platform/win32
   ${IPLUG2_DIR}/Dependencies/IGraphics/Cairo
   ${IPLUG2_DIR}/Dependencies/Build/src
-  ${IPLUG2_DIR}/WDL/libpng
-  ${IPLUG2_DIR}/WDL/zlib
   ${IPLUG2_DIR}/Dependencies/Build/src/freetype/include
   ${IPLUG2_DIR}/Dependencies/IGraphics/STB
   ${IPLUG2_DIR}/Dependencies/IGraphics/imgui
@@ -180,9 +191,11 @@ set(_inc
   ${IPLUG2_DIR}/Dependencies/IGraphics/yoga
   ${IPLUG2_DIR}/Dependencies/IGraphics/yoga/yoga
   # iPlug2
+  ${WDL_DIR}
+  ${WDL_DIR}/libpng
+  ${WDL_DIR}/zlib
   ${IPLUG_SRC}
   ${IPLUG_SRC}/Extras
-  ${IPLUG2_DIR}/WDL
 )
 
 set(_src
@@ -216,8 +229,20 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
   list(APPEND _src ${IGRAPHICS_SRC}/Platforms/IGraphicsLinux.cpp)
+
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-  list(APPEND _src ${IGRAPHICS_SRC}/Platforms/IGraphicsMac.mm)
+  list(APPEND _src 
+    ${IPLUG_SRC}/IPlugPaths.mm
+    ${IGRAPHICS_SRC}/Platforms/IGraphicsMac.mm
+    ${IGRAPHICS_SRC}/Platforms/IGraphicsMac_view.mm
+    ${IGRAPHICS_SRC}/Platforms/IGraphicsCoreText.mm
+  )
+  list(APPEND _inc ${WDL_DIR}/swell)
+  list(APPEND _lib
+    "-framework Cocoa" "-framework Carbon" "-framework CoreFoundation" "-framework CoreData" "-framework Foundation" 
+    "-framework CoreServices" "-framework Metal" "-framework MetalKit" "-framework QuartzCore" "-framework OpenGL"
+  )
+  list(APPEND _opts "-Wno-deprecated-declarations")
 else()
   message("Unhandled system ${CMAKE_SYSTEM_NAME}" FATAL_ERROR)
 endif()
@@ -234,8 +259,8 @@ elseif(COMPILER_OPT_ARCH_AVX_SUPPORTED)
   list(APPEND _opts "/arch:AVX")
 endif()
 
-source_group("IPlug" FILES ${_src})
-iplug2_add_interface(iPlug2_Core DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} OPTION ${_opts})
+source_group(TREE ${IPLUG2_DIR} PREFIX "IPlug" FILES ${_src})
+iplug2_add_interface(iPlug2_Core DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} OPTION ${_opts} LINK ${_lib})
 
 
 ##################
@@ -250,12 +275,7 @@ set(_src
   ${sdk}/IPlugAPP_host.cpp 
   ${sdk}/IPlugAPP_main.cpp
   ${_DEPS}/IPlug/RTAudio/RtAudio.cpp
-  ${_DEPS}/IPlug/RTAudio/include/asio.cpp
-  ${_DEPS}/IPlug/RTAudio/include/asiodrivers.cpp
-  ${_DEPS}/IPlug/RTAudio/include/asiolist.cpp
-  ${_DEPS}/IPlug/RTAudio/include/iasiothiscallresolver.cpp
   ${_DEPS}/IPlug/RTMidi/RtMidi.cpp
-  ${_DEPS}/IPlug/RTMidi/rtmidi_c.cpp
 )
 set(_inc
   ${sdk} 
@@ -264,11 +284,43 @@ set(_inc
   ${_DEPS}/IPlug/RTMidi
   ${_DEPS}/IPlug/RTMidi/include
 )
-set(_def "APP_API" "IPLUG_EDITOR=1" "IPLUG_DSP=1" "__WINDOWS_DS__" "__WINDOWS_MM__" "__WINDOWS_ASIO__")
+set(_def "APP_API" "IPLUG_EDITOR=1" "IPLUG_DSP=1" )
 
 # Link Windows sound libraies if on Windows
 if (WIN32)
-  target_link_libraries(iPlug2_APP INTERFACE dsound.lib winmm.lib)
+  iplug2_target_add(iPlug2_APP INTERFACE
+    DEFINE "__WINDOWS_DS__" "__WINDOWS_MM__" "__WINDOWS_ASIO__"
+    SOURCE
+      ${_DEPS}/IPlug/RTAudio/include/asio.cpp
+      ${_DEPS}/IPlug/RTAudio/include/asiodrivers.cpp
+      ${_DEPS}/IPlug/RTAudio/include/asiolist.cpp
+      ${_DEPS}/IPlug/RTAudio/include/iasiothiscallresolver.cpp
+      ${_DEPS}/IPlug/RTMidi/rtmidi_c.cpp
+      ${CMAKE_SOURCE_DIR}/resources/main.rc
+    LINK dsound.lib winmm.lib
+  )
+
+elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+  # Some source files here combine C++ and Objective-C, so we tell clang how to compile them
+  set_property(SOURCE ${_src} PROPERTY LANGUAGE "OBJCXX")
+  iplug2_target_add(iPlug2_APP INTERFACE
+    DEFINE "__MACOSX_CORE__" "SWELL_COMPILED"
+    LINK "-framework AppKit" "-framework CoreMIDI" "-framework CoreAudio"
+    SOURCE 
+      "${WDL_DIR}/swell/swell-appstub.mm"
+      "${WDL_DIR}/swell/swellappmain.mm"
+      "${WDL_DIR}/swell/swell-ini.cpp"
+      "${WDL_DIR}/swell/swell-dlg.mm"
+      "${WDL_DIR}/swell/swell-kb.mm"
+      "${WDL_DIR}/swell/swell-miscdlg.mm"
+      "${WDL_DIR}/swell/swell-menu.mm"
+      "${WDL_DIR}/swell/swell-wnd.mm"
+      "${WDL_DIR}/swell/swell.cpp"
+      "${WDL_DIR}/swell/swell-misc.mm"
+      "${WDL_DIR}/swell/swell-gdi.mm"
+  )
+else()
+  message(FATAL_ERROR "APP not supported on platform ${CMAKE_SYSTEM_NAME}")
 endif()
 
 iplug2_add_interface(iPlug2_APP INCLUDE ${_inc} DEFINE ${_def} SOURCE ${_src} LINK iPlug2_Core)
@@ -288,7 +340,7 @@ set(_src
 set(_inc
   ${_sdk}
 )
-set(_def "AU_API" "IPLUG_EDITOR=1" "IPLUG_DSP=1")
+set(_def "AU_API" "IPLUG_EDITOR=1" "IPLUG_DSP=1" "SWELL_CLEANUP_ON_UNLOAD")
 
 iplug2_add_interface(iPlug2_AU INCLUDE ${_inc} SOURCE ${_src} DEFINE ${_def} LINK iPlug2_Core)
 
@@ -306,7 +358,7 @@ set(_src
   ${_sdk}/IPlugAUViewController.mm
 )
 set(_inc ${sdk})
-set(_def "AUv3_API" "IPLUG_EDITOR=1" "IPLUG_DSP=1")
+set(_def "AUv3_API" "IPLUG_EDITOR=1" "IPLUG_DSP=1" "SWELL_CLEANUP_ON_UNLOAD")
 
 iplug2_add_interface(iPlug2_AUv3 INCLUDE ${_inc} SOURCE ${_src} DEFINE ${_def} LINK iPlug2_Core)
 
@@ -360,6 +412,10 @@ list(APPEND _src
 # Platform-dependent stuff
 if (WIN32)
   list(APPEND _src "${sdk}/main/dllmain.cpp" "${sdk}/main/pluginfactory.cpp" "${sdk}/main/winexport.def")
+
+elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+  list(APPEND _def "SWELL_CLEANUP_ON_UNLOAD")
+  list(APPEND _src "${sdk}/main/macmain.cpp" "${sdk}/main/pluginfactory.cpp" "${sdk}/main/macexport.exp")
 endif()
 
 source_group(TREE ${VST3_SDK} PREFIX "IPlug/VST3" FILES ${_src})
@@ -416,6 +472,11 @@ iplug2_add_interface(iPlug2_GL3
 iplug2_add_interface(iPlug2_NANOVG
   DEFINE "IGRAPHICS_NANOVG"
 )
+if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+  set(_src ${_DEPS}/IGraphics/NanoVG/src/nanovg.c)
+  iplug2_target_add(iPlug2_NANOVG INTERFACE SOURCE ${_src})
+  set_property(SOURCE ${_src} PROPERTY LANGUAGE C)
+endif()
 
 iplug2_add_interface(iPlug2_Faust
   INCLUDE "${IPLUG2_DIR}/IPlug/Extras/Faust" "${FAUST_INCLUDE_DIR}"
@@ -444,7 +505,7 @@ iplug2_add_interface(iPlug2_Synth
 
 set(IPLUG2_TARGETS
   iPlug2_Core iPlug2_APP iPlug2_AU iPlug2_AUv3 iPlug2_VST2 iPlug2_VST3 iPlug2_WEB_DSP iPlug2_WEB_GUI iPlug2_REAPER
-  iPlug2_Faust iPlug2_FaustGen iPlug2_HIIR iPlug2_OSC iPlug2_Synth
+  iPlug2_Faust iPlug2_FaustGen iPlug2_HIIR iPlug2_OSC iPlug2_Synth iPlug2_NANOVG
 )
 foreach(target IN ITEMS ${IPLUG2_TARGETS})
   get_target_property(_src ${target} INTERFACE_SOURCES)
@@ -460,9 +521,18 @@ unset(_opts)
 unset(tmp)
 unset(_DEPS)
 
+
 #! iplug2_configure_target : Configure a target for the given output type
 #
 function(iplug2_configure_target target target_type)
+
+  # ALL Configurations
+  if (CMAKE_SYSTEM_NAME MATCHES "Darwin") 
+    # For MacOS we make sure the output name is the same as the app name.
+    # This is basically required for bundles.
+    set_property(TARGET ${target} PROPERTY OUTPUT_NAME "${IPLUG2_APP_NAME}")
+  endif() 
+
 
   # Standalone app
   if ("${target_type}" MATCHES "app")
@@ -471,6 +541,16 @@ function(iplug2_configure_target target target_type)
         COMMAND "${CMAKE_BINARY_DIR}/postbuild-win.bat"
         ARGS "\"$<TARGET_FILE:${target}>\"" "\".exe\""
       )
+
+    elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+      # Set the Info.plist file and add required resources
+      set(_res 
+        "${CMAKE_SOURCE_DIR}/resources/${IPLUG2_APP_NAME}.icns"
+        "${CMAKE_SOURCE_DIR}/resources/${IPLUG2_APP_NAME}-macOS-MainMenu.xib")
+      source_group("Resources" FILES ${res_files})
+      iplug2_target_add(${target} PUBLIC RESOURCE ${_res})
+      set_target_properties(${target} PROPERTIES 
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/resources/macOS-App-Info.plist.in")
     endif()
 
   # VST2
@@ -486,16 +566,32 @@ function(iplug2_configure_target target target_type)
   # VST3 
   elseif ("${target_type}" MATCHES "vst3")
     if (WIN32)
+      # Use .vst3 as the extension instead of .dll
+      set_target_properties(${target} PROPERTIES
+        OUTPUT_NAME "${IPLUG2_APP_NAME}"
+        PREFIX ""
+        SUFFIX ".vst3"
+      )
       # After building, we run the post-build script
       add_custom_command(TARGET ${target} POST_BUILD
         COMMAND "${CMAKE_BINARY_DIR}/postbuild-win.bat" 
         ARGS "\"$<TARGET_FILE:${target}>\"" "\".vst3\""
       )
+
+    elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+      # Set the Info.plist file we're using and add resources
+      set_target_properties(${target} PROPERTIES 
+        BUNDLE TRUE
+        MACOS_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/resources/macOS-VST3-Info.plist.in
+        BUNDLE_EXTENSION "vst3"
+        PREFIX ""
+        SUFFIX ""
+      )
+      target_compile_definitions(${target} PUBLIC "$<IF:$<CONFIG:DEBUG>,DEVELOPMENT,RELEASE>")
     endif()
-    set_target_properties(${target} PROPERTIES
-      "OUTPUT_NAME" "${IPLUG2_APP_NAME}"
-      "SUFFIX" ".vst3"
-    )
+
+    
   else()
     message("Unknown target type \'${target_type}\' for target '${target}'" FATAL_ERROR)
   endif()

@@ -3,6 +3,7 @@ set(_faust_names faust.exe faust)
 find_program(FAUST_EXECUTABLE
     NAMES faust.exe faust
     PATHS "C:/Program Files/Faust/bin" "C:/Program Files (x86)/Faust/bin"
+          "/usr/bin" "/usr/local/bin"
 )
 unset(_faust_names)
 
