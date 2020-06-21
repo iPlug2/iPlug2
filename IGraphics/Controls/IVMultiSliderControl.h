@@ -32,6 +32,7 @@ public:
      * @param bounds The control's bounds
      * @param label The label for the vector control, leave empty for no label
      * @param style The styling of this vector control \see IVStyle
+     * @param nSteps The number of cross-axis steps for integer quantized grids
      * @param direction The direction of the sliders */
   IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, int nSteps = 0, EDirection dir = EDirection::Vertical)
   : IVTrackControlBase(bounds, label, style, MAXNC, nSteps, dir)
@@ -62,7 +63,7 @@ public:
   
   void Draw(IGraphics& g) override
   {
-    DrawBackGround(g, mRECT);
+    DrawBackground(g, mRECT);
     DrawWidget(g);
     DrawLabel(g);
     

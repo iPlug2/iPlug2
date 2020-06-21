@@ -699,7 +699,7 @@ public:
     g.PathClipRegion(IRECT());
   }
   
-  virtual void DrawBackGround(IGraphics& g, const IRECT& rect)
+  virtual void DrawBackground(IGraphics& g, const IRECT& rect)
   {
     IBlend blend = mControl->GetBlend();
     g.FillRect(GetColor(kBG), rect, &blend);
@@ -1191,7 +1191,8 @@ protected:
   double mMouseDragValue;
 };
 
-/** A base class for mult-strip/track controls, such as multi-sliders, meters */
+/** A base class for mult-strip/track controls, such as multi-sliders, meters
+ * Track refers to the channel/strip, Step refers to cross-axis steps, e.g. integer quantization */
 class IVTrackControlBase : public IControl
                          , public IVectorBase
 {
@@ -1321,8 +1322,6 @@ public:
   
   void DrawWidget(IGraphics& g) override
   {
-    DrawBG(g, mWidgetBounds);
-
     const int nVals = NVals();
     
     for (int ch = 0; ch < nVals; ch++)
@@ -1420,7 +1419,7 @@ public:
   }
   
 protected:
-  virtual void DrawBG(IGraphics& g, const IRECT& r)
+  virtual void DrawBackground(IGraphics& g, const IRECT& r) override
   {
     g.FillRect(kBG, r, &mBlend);
 
@@ -1435,7 +1434,7 @@ protected:
 
   virtual void DrawTrack(IGraphics& g, const IRECT& r, int chIdx)
   {
-    DrawTrackBG(g, r, chIdx);
+    DrawTrackBackground(g, r, chIdx);
     
     if(HasTrackNames())
       DrawTrackName(g, r, chIdx);
@@ -1526,7 +1525,7 @@ protected:
       g.DrawRect(GetColor(kFR), r, &mBlend, mStyle.frameThickness);
   }
 
-  virtual void DrawTrackBG(IGraphics& g, const IRECT& r, int chIdx)
+  virtual void DrawTrackBackground(IGraphics& g, const IRECT& r, int chIdx)
   {
     /* NO-OP */
   }
