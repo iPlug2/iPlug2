@@ -423,7 +423,7 @@ public:
   
   void Draw(IGraphics& g) override
   {
-    DrawBackGround(g, mRECT);
+    DrawBackground(g, mRECT);
     DrawWidget(g);
     DrawLabel(g);
     DrawValue(g, mMouseIsOver);

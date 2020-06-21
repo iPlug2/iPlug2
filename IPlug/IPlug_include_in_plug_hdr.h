@@ -209,6 +209,22 @@ END_IPLUG_NAMESPACE
   #define PLUG_HEIGHT 500
 #endif
 
+#ifndef PLUG_MIN_WIDTH
+  #define PLUG_MIN_WIDTH (PLUG_WIDTH / 2)
+#endif
+
+#ifndef PLUG_MIN_HEIGHT
+  #define PLUG_MIN_HEIGHT (PLUG_HEIGHT / 2)
+#endif
+
+#ifndef PLUG_MAX_WIDTH
+  #define PLUG_MAX_WIDTH (PLUG_WIDTH * 2)
+#endif
+
+#ifndef PLUG_MAX_HEIGHT
+  #define PLUG_MAX_HEIGHT (PLUG_HEIGHT * 2)
+#endif
+
 #ifndef PLUG_FPS
   #pragma message WARN("PLUG_FPS not defined, setting to 60")
   #define PLUG_FPS 60

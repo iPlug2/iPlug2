@@ -977,19 +977,6 @@ public:
     mMaxScale = std::max(lo, hi);
   }
   
-  /** /todo 
-   * @param widthLo /todo
-   * @param widthHi /todo
-   * @param heightLo /todo
-   * @param heightHi /todo */
-  void SetSizeConstraints(int widthLo, int widthHi, int heightLo, int heightHi)
-  {
-    mMinWidth = std::min(widthLo, widthHi);
-    mMaxWidth = std::max(widthLo, widthHi);
-    mMinHeight = std::min(heightLo, heightHi);
-    mMaxHeight = std::max(heightLo, heightHi);
-  }
-  
   /** \todo detailed description of how this works
    * @param w New width in pixels
    * @param h New height in pixels
@@ -1650,10 +1637,6 @@ private:
   float mMouseDownY = -1.f;
   float mMinScale;
   float mMaxScale;
-  int mMinWidth;
-  int mMaxWidth;
-  int mMinHeight;
-  int mMaxHeight;
   int mLastClickedParam = kNoParameter;
   bool mEnableMouseOver = false;
   bool mStrict = false;

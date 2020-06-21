@@ -2,7 +2,7 @@
 #include "IPlug_include_in_plug_src.h"
 
 IPlugWebUI::IPlugWebUI(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
+: Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kGain)->InitGain("Gain", 0., -70, 0.);
 
