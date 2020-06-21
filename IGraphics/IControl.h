@@ -1622,7 +1622,7 @@ protected:
   int mMouseOverTrack = -1;
   double mBaseValue = 0.; // 0-1 value to represent the mid-point, i.e. for displaying bipolar data
   bool mDrawTrackFrame = true;
-  bool mZeroValueStepHasBounds = true; // If this is true, there is a separate step for zero
+  bool mZeroValueStepHasBounds = true; // If this is true, there is a separate step for zero, when mNSteps > 0
 };
 
 /** A base class for buttons/momentary switches - cannot be linked to parameters.
