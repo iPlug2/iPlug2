@@ -70,6 +70,9 @@ function(add_faust_target target)
   set(src_list "")
   set(out_list "")
 
+  # Make sure the output directory exists
+  file(MAKE_DIRECTORY "${${target}_INCLUDE_DIR}")
+
   list(LENGTH ARGN argcnt)
   math(EXPR argcnt "${argcnt} - 1")
   foreach (i1 RANGE 0 ${argcnt} 2)
@@ -79,7 +82,6 @@ function(add_faust_target target)
     set(out_file "${${target}_INCLUDE_DIR}/Faust${class_name}.hpp")
     add_custom_command(
       OUTPUT "${out_file}"
-      COMMAND "mkdir" "-p" "${${target}_INCLUDE_DIR}"
       COMMAND "${FAUST_EXECUTABLE}" -lang cpp -cn "${class_name}" -a "${IPLUG2_DIR}/IPlug/Extras/Faust/IPlugFaust_arch.cpp" -o "${out_file}" "${dsp_file}"
       DEPENDS "${dsp_file}"
     )
@@ -296,7 +298,6 @@ if (WIN32)
       ${_DEPS}/IPlug/RTAudio/include/asiolist.cpp
       ${_DEPS}/IPlug/RTAudio/include/iasiothiscallresolver.cpp
       ${_DEPS}/IPlug/RTMidi/rtmidi_c.cpp
-      ${CMAKE_SOURCE_DIR}/resources/main.rc
     LINK dsound.lib winmm.lib
   )
 
@@ -541,7 +542,8 @@ function(iplug2_configure_target target target_type)
         COMMAND "${CMAKE_BINARY_DIR}/postbuild-win.bat"
         ARGS "\"$<TARGET_FILE:${target}>\"" "\".exe\""
       )
-
+      iplug2_target_add(${target} PUBLIC RESOURCE ${CMAKE_SOURCE_DIR}/resources/main.rc)
+      
     elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
       # Set the Info.plist file and add required resources
       set(_res 
