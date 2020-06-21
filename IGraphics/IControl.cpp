@@ -1039,7 +1039,7 @@ void ISliderControlBase::OnMouseDrag(float x, float y, float dX, float dY, const
 {
   const IParam* pParam = GetParam();
 
-  if(mod.touchID)
+  if(mod.touchID || !mHideCursorOnDrag)
   {
     if(pParam)
     {
