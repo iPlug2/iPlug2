@@ -737,13 +737,13 @@ struct IRECT
   /** Bottom of the rectangle (Y + H) */
   float B;
 
-  /** /todo  */
+  /** Construct an empty IRECT  */
   IRECT()
   {
     L = T = R = B = 0.f;
   }
   
-  /** Construct a new IRECT
+  /** Construct a new IRECT with dimensions
    * @param l Left
    * @param t Top
    * @param r Right
@@ -815,7 +815,7 @@ struct IRECT
   /** Create a new IRECT that is a union of this IRECT and `rhs`.
    * The resulting IRECT will have the minimim L and T values and maximum R and B values of the inputs.
    * @param rhs another IRECT
-   * @return IRECT the new IREC   */
+   * @return IRECT the new IRECT */
   inline IRECT Union(const IRECT& rhs) const
   {
     if (Empty()) { return rhs; }
