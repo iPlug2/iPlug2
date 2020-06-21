@@ -1397,6 +1397,12 @@ public:
     SetDirty(false);
   }
   
+  void SetZeroValueStepHasBounds(bool val)
+  {
+    mZeroValueStepHasBounds = val;
+    OnResize();
+  }
+  
   bool HasTrackNames() const
   {
     return mTrackNames.GetSize() > 0;
