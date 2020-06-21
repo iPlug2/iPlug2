@@ -734,6 +734,16 @@ private:
 
 public:
 #pragma mark - Platform implementation
+  
+  /** Add an OS view as a sub-view, on top of the IGraphics view
+   * @param r The bounds where the view should be attached
+   * @param pView the platform view, which would be a HWND on Windows, NSView* on macOS or UIView* on iOS */
+  virtual void AttachPlatformView(const IRECT& r, void* pView) {};
+  
+  /** Remove a previously attached platform view from the IGraphics view
+   * @param pView the platform view to remove, which would be a HWND on Windows, NSView* on macOS or UIView* on iOS */
+  virtual void RemovePlatformView(void* pView) {};
+
   /** Get the x, y position in the graphics context of the mouse cursor
    * @param x Where the X position will be stored
    * @param y Where the Y position will be stored */
@@ -967,24 +977,13 @@ public:
     mMaxScale = std::max(lo, hi);
   }
   
-  /** /todo 
-   * @param widthLo /todo
-   * @param widthHi /todo
-   * @param heightLo /todo
-   * @param heightHi /todo */
-  void SetSizeConstraints(int widthLo, int widthHi, int heightLo, int heightHi)
-  {
-    mMinWidth = std::min(widthLo, widthHi);
-    mMaxWidth = std::max(widthLo, widthHi);
-    mMinHeight = std::min(heightLo, heightHi);
-    mMaxHeight = std::max(heightLo, heightHi);
-  }
-  
   /** \todo detailed description of how this works
    * @param w New width in pixels
    * @param h New height in pixels
-   * @param scale New scale ratio */
-  void Resize(int w, int h, float scale);
+   * @param scale New scale ratio
+   * @param needsPlatformResize This should be true for a "manual" resize from the plug-in UI and false
+   * if being called from IEditorDelegate::OnParentWindowResize(), in order to avoid feedback */
+  void Resize(int w, int h, float scale, bool needsPlatformResize = true);
   
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /true to enable strict drawing mode */
@@ -1091,12 +1090,10 @@ public:
   /**@return \c true if showning the control bounds */
   bool ShowControlBoundsEnabled() const { return mShowControlBounds; }
   
-  /** Live edit mode allows you to relocate controls at runtime in debug builds and save the locations to a predefined file (e.g. main plugin .cpp file) \todo we need a separate page for liveedit info
-   * @param enable Set \c true if you wish to enable live editing mode
-   * @param file The absolute path of the file which contains the layout info (correctly tagged) for live editing
-   * @param gridsize The size of the layout grid in pixels */
-  void EnableLiveEdit(bool enable, const char* file = 0, int gridsize = 10);
-  
+  /** Live edit mode allows you to relocate controls at runtime in debug builds
+   * @param enable Set \c true if you wish to enable live editing mode */
+  void EnableLiveEdit(bool enable);
+
   /**@return \c true if live edit mode is enabled */
   bool LiveEditEnabled() const { return mLiveEdit != nullptr; }
   
@@ -1228,6 +1225,15 @@ public:
    @param bounds The area that the menu should occupy /todo check */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
   
+  /** Remove the IGraphics popup menu, use platform popup menu if available */
+  void RemovePopupMenuControl();
+  
+  /** Attach a control for text entry, to override platform text entry */
+  void AttachTextEntryControl();
+  
+  /** Remove the IGraphics text entry, use platform text entry if available */
+  void RemoveTextEntryControl();
+  
   /** Attach the default control to show text as a control changes*/
   void AttachBubbleControl(const IText& text = DEFAULT_TEXT);
 
@@ -1243,9 +1249,6 @@ public:
   
   /** @return \c true if performance display is shown */
   bool ShowingFPSDisplay() { return mPerfDisplay != nullptr; }
-
-  /** Attach a control for text entry, to override platform text entry */
-  void AttachTextEntryControl();
   
   /** Attach an IControl to the graphics context and add it to the top of the control stack. The control is owned by the graphics context and will be deleted when the context is deleted.
    * @param pControl A pointer to an IControl to attach.
@@ -1258,6 +1261,10 @@ public:
    * @return A pointer to the IControl object at idx or nullptr if not found */
   IControl* GetControl(int idx) { return mControls.Get(idx); }
 
+  /** @param pControl Pointer to the control to get
+   * @return integer index of the control in mControls array or -1 if not found */
+  int GetControlIdx(IControl* pControl) const { return mControls.Find(pControl); }
+  
   /** @param ctrlTag The tag to look for
    * @return A pointer to the IControl object with the tag of nullptr if not found */
   IControl* GetControlWithTag(int ctrlTag);
@@ -1301,14 +1308,17 @@ public:
   /** @return The number of controls that have been added to this graphics context */
   int NControls() const { return mControls.GetSize(); }
 
-  /** Remove control from the control list */
-  void RemoveControl(IControl* pControl);
-  
   /** Remove controls from the control list with a particular tag.  */
   void RemoveControlWithTag(int ctrlTag);
   
   /** Remove controls from the control list above a particular index, (frees memory).  */
   void RemoveControls(int fromIdx);
+
+  /** Remove a control at a particular index, (frees memory). */
+  void RemoveControl(int idx);
+  
+  /** Remove a control at using ptr, (frees memory). */
+  void RemoveControl(IControl* pControl);
   
   /** Removes all regular IControls from the control list, as well as special controls (frees memory). */
   void RemoveAllControls();
@@ -1627,10 +1637,6 @@ private:
   float mMouseDownY = -1.f;
   float mMinScale;
   float mMaxScale;
-  int mMinWidth;
-  int mMaxWidth;
-  int mMinHeight;
-  int mMaxHeight;
   int mLastClickedParam = kNoParameter;
   bool mEnableMouseOver = false;
   bool mStrict = false;

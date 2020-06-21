@@ -33,8 +33,7 @@ BEGIN_IPLUG_NAMESPACE
 /** A generic synthesizer voice to be controlled by a voice allocator. */
 namespace voiceControlNames
 {
-  /** This enum names the control ramps by which we connect a controller to a synth voice.
-   */
+  /** This enum names the control ramps by which we connect a controller to a synth voice. */
   enum eControlNames
   {
     kVoiceControlGate = 0,
@@ -73,9 +72,9 @@ public:
    @param inputs Pointer to input channel arrays. Sometimes synthesisers have audio inputs. Alternatively you can pass in modulation from global LFOs etc here.
    @param outputs Pointer to output channel arrays. You should add to the existing data in these arrays (so that all the voices get summed)
    @param nInputs The number of input channels that contain valid data
-   @param nOutputs input channels that contain valid data
+   @param nOutputs The number of output channels that contain valid data
    @param startIdx The start index of the block of samples to process
-   @param nFrames The number of samples the process in this block */
+   @param nFrames The number of samples to process in this block */
   virtual void ProcessSamplesAccumulating(sample** inputs, sample** outputs, int nInputs, int nOutputs, int startIdx, int nFrames)
   {
     for (auto c = 0; c < nOutputs; c++)
@@ -87,16 +86,19 @@ public:
     }
   }
 
-  /** If you have members that need to update when the sample rate changes you can do that by overriding this method
-   * @param sampleRate The new sample rate */
+  /** Implement this if you need to do work when the sample rate or block size changes.
+   * @param sampleRate The new sample rate
+   * @param blockSize The new block size in samples */
   virtual void SetSampleRateAndBlockSize(double sampleRate, int blockSize) {};
 
-  /** Implement this to allow picking a sound program from an integer index, as with MIDI
-   * @param p The new program number */
+  /** Implement this to allow picking a sound program from an integer index, as with MIDI.
+   * @param pgm The new program number */
   virtual void SetProgramNumber(int pgm) {};
 
-  /** Implement this to respond to control numbers for which there are not ramps. A synthesizer could
-   * use its own ramps internally if needed. */
+  /** Implement this to respond to control numbers for which there are not ramps. A synthesizer could use its own ramps internally if needed. 
+   * @param controlNumber The MIDI controller number
+   * @param value The normalized value
+   */
   virtual void SetControl(int controlNumber, float value) {};
 
 protected:

@@ -1,5 +1,5 @@
 
-const int kNumPrograms = 3;
+const int kNumPresets = 3;
 
 const int kParamGain = 0;
 const int kNumParams = 1;

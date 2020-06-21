@@ -5,7 +5,7 @@
 #include "IconsFontaudio.h"
 
 IPlugControls::IPlugControls(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
+: Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   GetParam(kParamMode)->InitEnum("Mode", 0, 4, "", IParam::kFlagsNone, "", "one", "two", "three", "four");
@@ -197,7 +197,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IVSlideSwitchControl(sameCell().SubRectVertical(3, 1), kParamMode, "IVSlideSwitchControl", style, true), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kParamFreq1, kParamFreq2}, "IVXYPadControl", style), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVMultiSliderControl<4>(nextCell(), "IVMultiSliderControl", style), kNoTag, "vcontrols");
-    pGraphics->AttachControl(new IVMeterControl<2>(nextCell(), "IVMeterControl", style), kCtrlTagMeter, "vcontrols");
+    pGraphics->AttachControl(new IVMeterControl<2>(nextCell(), "IVMeterControl", style.WithColor(kFG, COLOR_WHITE.WithOpacity(0.3f)), EDirection::Vertical, {"L", "R"}), kCtrlTagMeter, "vcontrols");
     pGraphics->AttachControl(new IVScopeControl<2>(nextCell(), "IVScopeControl", style.WithColor(kFG, COLOR_BLACK)), kCtrlTagScope, "vcontrols");
     pGraphics->AttachControl(new IVDisplayControl(nextCell(), "IVDisplayControl", style, EDirection::Horizontal, -1., 1., 0., 512), kCtrlTagDisplay, "vcontrols");
     pGraphics->AttachControl(new IVLabelControl(nextCell().SubRectVertical(3, 0).GetMidVPadded(10.f), "IVLabelControl"), kNoTag, "vcontrols");
@@ -222,7 +222,25 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 1).GetCentredInside(20.f), COLOR_GREEN), kCtrlTagGreenLED);
     pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 2).GetCentredInside(20.f), 0.5f), kCtrlTagBlueLED);
 
+//    #pragma mark IWebViewControl -
+//
+//    AddLabel("IWebViewControl");
+//
+//    auto readyFunc = [](IWebViewControl* pCaller){
+//      pCaller->LoadHTML(R"(<input type="range" id="vol" name="vol" min="0" max="100" onchange='IPlugSendMsg({"msg":"SAMFUI"})'>)");
+//    };
+//
+//    auto msgFunc = [](IWebViewControl* pCaller, const char* json){
+//      auto j = json::parse(json, nullptr, false);
+//      pCaller->GetUI()->GetBackgroundControl()->As<IPanelControl>()->SetPattern(IColor::GetRandomColor());
+//    };
+//
+//    pGraphics->AttachControl(new IWebViewControl(b.GetCentredInside(200), false, readyFunc, msgFunc, "C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugControls\\WebView2Loader.dll", "C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugControls\\"));
 
+//    pGraphics->AttachControl(new IVButtonControl(b.GetFromTRHC(50, 50)))->SetAnimationEndActionFunction([b](IControl* pCaller){
+//      /* TODO: get webview control */->EvaluateJavaScript(R"(document.body.style.background = "#000";)");
+//    });
+    
     //pGraphics->AttachControl(new IVGroupControl("Vector Controls", "vcontrols", 10.f, 30.f, 10.f, 10.f));
 
     #pragma mark IVControl panel -
@@ -289,27 +307,39 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     toggle = 0;
     toggleRects = sameCell().FracRectHorizontal(0.49f, true);
 
-    for(auto label : {"Disable", "Show Bubble"})
+    for(auto label : {"Disable", "Show Bubble", "OS Text Entry", "OS Menu"})
     {
       pGraphics->AttachControl(new IVToggleControl(toggleRects.GetGridCell(toggle, 0, 5, 1), [pGraphics, toggle](IControl* pCaller){
         SplashClickActionFunc(pCaller);
         bool state = pCaller->GetValue() > 0.5f;
-        pGraphics->ForStandardControlsFunc([pCaller, toggle, state](IControl& control) {
-          
-          switch (toggle) {
-            case 0 :
+        switch (toggle) {
+          case 0:
+            pGraphics->ForStandardControlsFunc([pCaller, toggle, state](IControl& control) {
               if(&control != pCaller)
-                control.SetDisabled(state); break;
-            case 1 :
-              if(&control != pCaller)
-              {
-                if(control.GetParamIdx() == kParamGain)
-                  control.SetActionFunction(state ? ShowBubbleHorizontalActionFunc : nullptr); break;
-              }
-            default:
-              break;
-          }
-        });
+                control.SetDisabled(state);
+            });
+            break;
+          case 1:
+            pGraphics->ForStandardControlsFunc([pCaller, toggle, state](IControl& control) {
+              if(&control != pCaller && control.GetParamIdx() == kParamGain){
+                control.SetActionFunction(state ? ShowBubbleHorizontalActionFunc : nullptr);
+              }});
+            break;
+          case 2:
+            if(state)
+              pGraphics->RemoveTextEntryControl();
+            else
+              pGraphics->AttachTextEntryControl();
+            break;
+          case 3:
+            if(state)
+              pGraphics->RemovePopupMenuControl();
+            else
+              pGraphics->AttachPopupMenuControl();
+            break;
+          default:
+            break;
+        }
       }, label, style.WithValueText(forkAwesomeText.WithSize(12.f)).WithDrawFrame(false).WithDrawShadows(false), ICON_FK_SQUARE_O, ICON_FK_CHECK_SQUARE));
       
       toggle++;

@@ -53,8 +53,6 @@ const char* const DEFAULT_FONT = "Roboto-Regular";
 static constexpr float DEFAULT_TEXT_SIZE = 14.f;
 static constexpr int FONT_LEN = 64;
 
-static const float SENDER_THRESHOLD = (float) DBToAmp(-90.);
-
 /** @enum EBlend Porter-Duff blend mode/compositing operators */
 enum class EBlend
 {
@@ -86,9 +84,16 @@ enum class EAlign { Near, Center, Far };
 /** /todo */
 enum class EVAlign { Top, Middle, Bottom };
 
+/** CStrings for EAlign options  */
+static const char* kEAlignStrs[3] = { "Near", "Center", "Far" };
+
+/** CStrings for EVAlign options  */
+static const char* kEVAlignStrs[3] = { "Top", "Middle", "Bottom" };
+
 /** Types of Gesture Recongnizer */
 enum class EGestureType { Unknown, DoubleTap, TripleTap, LongPress1, LongPress2, SwipeLeft, SwipeRight, SwipeUp, SwipeDown, Pinch, Rotate, Pan};
 
+/** CStrings for EGestureType options  */
 static const char* kGestureTypeStrs[12] = { "Unknown", "DoubleTap", "TripleTap", "LongPress1", "LongPress2", "SwipeLeft", "SwipeRight", "SwipeUp", "SwipeDown", "Pinch", "Rotate", "Pan"};
 
 /** Distinguised gesture states */
@@ -109,6 +114,7 @@ enum EVColor
   kNumVColors
 };
 
+/** CStrings for EVColor options  */
 static const char* kVColorStrs[kNumVColors] =
 {
   "bg",
@@ -138,7 +144,7 @@ enum class ELineCap { Butt, Round, Square };
 enum class ELineJoin { Miter, Round, Bevel };
 
 /** /todo */
-enum class EPatternType { Solid, Linear, Radial };
+enum class EPatternType { Solid, Linear, Radial, Sweep };
 
 /** /todo */
 enum class EPatternExtend { None, Pad, Reflect, Repeat };

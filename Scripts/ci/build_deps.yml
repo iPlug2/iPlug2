@@ -152,9 +152,9 @@ jobs:
 
   - bash: |
       cd $BUILD_SOURCESDIRECTORY
-      wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
-      tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
-      export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+      wget https://github.com/llvm/llvm-project/releases/download/llvmorg-9.0.1/clang+llvm-9.0.1-x86_64-apple-darwin.tar.xz
+      tar -xf clang+llvm-9.0.1-x86_64-apple-darwin.tar.xz -C $HOME
+      export PATH=$HOME/clang+llvm-9.0.1-x86_64-apple-darwin/bin:$PATH
       echo "##vso[task.setvariable variable=PATH]$PATH"
 
       cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust

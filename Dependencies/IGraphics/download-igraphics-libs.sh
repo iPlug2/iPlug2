@@ -16,7 +16,7 @@ PIXMAN_VERSION=pixman-0.34.0
 EXPAT_VERSION=expat-2.2.5
 PNG_VERSION=v1.6.35
 ZLIB_VERSION=zlib-1.2.11
-SKIA_VERSION=chrome/m81
+SKIA_VERSION=chrome/m83
 # SKIA_VERSION=master
 
 # URLs where tarballs of releases can be downloaded - no trailing slash

@@ -1,3 +1,13 @@
+/*
+ ==============================================================================
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for  more info.
+
+ ==============================================================================
+*/
+
 #if defined IGRAPHICS_IMGUI
 
 #include "IPlugPlatform.h"
@@ -189,7 +199,7 @@ void ImGuiRenderer::Init()
   const char* glsl_version = "#version 100";
   //const char* glsl_version = "#version 300 es";
   ImGui_ImplOpenGL3_Init(glsl_version);
-#else
+#elif defined IGRAPHICS_METAL
   ImGui_ImplMetal_Init(MTLCreateSystemDefaultDevice());
 #endif
 }
@@ -200,7 +210,7 @@ void ImGuiRenderer::Destroy()
   ImGui_ImplOpenGL2_Shutdown();
 #elif defined IGRAPHICS_GL3 || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
   ImGui_ImplOpenGL3_Shutdown();
-#else
+#elif defined IGRAPHICS_METAL
   ImGui_ImplMetal_Shutdown();
 #endif
 }

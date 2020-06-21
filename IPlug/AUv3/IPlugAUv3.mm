@@ -228,12 +228,12 @@ float IPlugAUv3::GetParameter(uint64_t address)
   return val;
 }
 
-const char* IPlugAUv3::GetParamDisplayForHost(uint64_t address, float value)
+const char* IPlugAUv3::GetParamDisplay(uint64_t address, float value)
 {
   const int paramIdx = GetParamIdx(address);
 
   ENTER_PARAMS_MUTEX
-  GetParam(paramIdx)->GetDisplayForHost(value, false, mParamDisplayStr);
+  GetParam(paramIdx)->GetDisplay(value, false, mParamDisplayStr);
   LEAVE_PARAMS_MUTEX
   return (const char*) mParamDisplayStr.Get();
 }

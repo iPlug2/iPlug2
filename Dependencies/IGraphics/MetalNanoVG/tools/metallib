@@ -31,7 +31,6 @@ cd $DIR/../src
 
 result=true
 
-METAL_VERSIONS=( "1.0" "1.1" "1.2" "2.0" "2.1" )
 PREFIX="mnvg_bitcode"
 
 mkdir $PREFIX
@@ -39,18 +38,10 @@ mkdir $PREFIX
 execute_cmd() {
   SDK=$1
   TARGET=$2
-  VERSION=$3
 
   SUFFIX=""
   CMD="xcrun -sdk $SDK metal -c nanovg_mtl_shaders.metal"
-  if [ "$VERSION" != "" ]; then
-    echo " - Ver: $VERSION"
-    CMD="$CMD -std=$TARGET-metal$VERSION"
-    SUFFIX="_${VERSION//./_}"
-    echo ${CMD}
-  fi
 
-  #xcrun -sdk iphoneos metal nanovg_mtl_shaders.metal -std=ios-metal2.0 -o nanovg_mtl_iphoneos_2_0.air
   AIR_FILE_NAME="$PREFIX/$TARGET$SUFFIX.air"
   HEADER_NAME="$PREFIX/$TARGET$SUFFIX.h"
   VARIABLE_NAME="$PREFIX/$TARGET$SUFFIX"
@@ -74,7 +65,7 @@ execute_cmd() {
   return 0
 }
 
-for SDK in "iphoneos" "macosx" "appletvos"; do
+for SDK in "iphoneos" "iphonesimulator" "macosx" "appletvos"; do
   if [ $SDK = "appletvos" ]; then
     echo "* Compiling for tvOS..."
     TARGET="tvos"
@@ -87,20 +78,19 @@ for SDK in "iphoneos" "macosx" "appletvos"; do
     if [ $SDK = "iphoneos" ]; then
       echo "* Compiling for iOS..."
       TARGET="ios"
-      VERSIONS=( "${METAL_VERSIONS[@]}" )
+    elif [ $SDK = "iphonesimulator" ]; then
+      echo "* Compiling for Simulator..."
+      TARGET="simulator"
     elif [ $SDK = "macosx" ]; then
       echo "* Compiling for macOS..."
       TARGET="macos"
-      VERSIONS=( "${METAL_VERSIONS[@]:1}" )
     fi
 
-    for VERSION in "${VERSIONS[@]}"; do
-      execute_cmd $SDK $TARGET $VERSION
-      if [ $? -ne 0 ]; then
-        result=false
-        break
-      fi
-    done
+    execute_cmd $SDK $TARGET
+    if [ $? -ne 0 ]; then
+      result=false
+      break
+    fi
   fi
 done
 

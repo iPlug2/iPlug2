@@ -33,5 +33,6 @@
 #include "SkSVGTransformableNode.cpp"
 #include "SkSVGUse.cpp"
 #include "SkSVGValue.cpp"
+#include "SkSVGText.cpp"
 
 #endif // IGRAPHICS_SKIA
