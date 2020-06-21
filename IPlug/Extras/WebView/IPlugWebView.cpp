@@ -117,7 +117,8 @@ void IWebView::CloseWebView()
   mWebViewCtrlr = nullptr;
   mWebViewWnd = nullptr;
 
-  FreeLibrary(mDLLHandle);
+  if(mDLLHandle) 
+    FreeLibrary(mDLLHandle);
 }
 
 void IWebView::LoadHTML(const char* html)

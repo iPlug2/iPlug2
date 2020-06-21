@@ -93,7 +93,7 @@ private:
   EventRegistrationToken mNavigationCompletedToken;
   WDL_String mDLLPath;
   WDL_String mTmpPath;
-  HMODULE mDLLHandle;
+  HMODULE mDLLHandle = nullptr;
 #endif
 };
 

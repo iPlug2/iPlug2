@@ -1367,7 +1367,7 @@ public:
     }
     
     const IParam* pFirstParam = GetParam(0);
-    const int range = pFirstParam->GetRange() / pFirstParam->GetStep();
+    const int range = static_cast<int>(pFirstParam->GetRange() / pFirstParam->GetStep());
     mZeroValueStepHasBounds = !(range == 1);
     SetNSteps(pFirstParam->GetStepped() ? range : 0); // calls OnResize()
   }
@@ -1377,12 +1377,12 @@ public:
     mBaseValue = value; OnResize();
   }
   
-  void SetTrackPadding(double value)
+  void SetTrackPadding(float value)
   {
     mTrackPadding = value; OnResize();
   }
   
-  void SetPeakSize(double value)
+  void SetPeakSize(float value)
   {
     mPeakSize = value; OnResize();
   }
@@ -1433,9 +1433,9 @@ protected:
     if(mBaseValue > 0.)
     {
       if(mDirection == EDirection::Horizontal)
-        g.DrawVerticalLine(GetColor(kSH), r, mBaseValue);
+        g.DrawVerticalLine(GetColor(kSH), r, static_cast<float>(mBaseValue));
       else
-        g.DrawHorizontalLine(GetColor(kSH), r, mBaseValue);
+        g.DrawHorizontalLine(GetColor(kSH), r, static_cast<float>(mBaseValue));
     }
   }
 
@@ -1451,21 +1451,22 @@ protected:
     const bool stepped = GetStepped();
     
     IRECT fillRect;
-    
-    if(mBaseValue > 0.)
+    const float bv = static_cast<float>(mBaseValue);
+
+    if(bv > 0.f)
     {
       if(mDirection == EDirection::Vertical)
       {
         fillRect = IRECT(r.L,
-                         trackPos < mBaseValue ? r.B - r.H() * mBaseValue : r.B - r.H() * trackPos,
+                         trackPos < bv ? r.B - r.H() * bv : r.B - r.H() * trackPos,
                          r.R,
-                         trackPos < mBaseValue ? r.B - r.H() * trackPos : r.B - r.H() * mBaseValue);
+                         trackPos < bv ? r.B - r.H() * trackPos : r.B - r.H() * bv);
       }
       else
       {
-        fillRect = IRECT(trackPos < mBaseValue ? r.L + r.W() * trackPos : r.L + r.W() * mBaseValue,
+        fillRect = IRECT(trackPos < bv ? r.L + r.W() * trackPos : r.L + r.W() * bv,
                          r.T,
-                         trackPos < mBaseValue ? r.L + r.W() * mBaseValue : r.L + r.W() * trackPos,
+                         trackPos < bv ? r.L + r.W() * bv : r.L + r.W() * trackPos,
                          r.B);
       }
     }
@@ -1622,7 +1623,7 @@ protected:
   int mMouseOverTrack = -1;
   double mBaseValue = 0.; // 0-1 value to represent the mid-point, i.e. for displaying bipolar data
   bool mDrawTrackFrame = true;
-  bool mZeroValueStepHasBounds = true; // If this is true, there is a separate step for zero
+  bool mZeroValueStepHasBounds = true; // If this is true, there is a separate step for zero, when mNSteps > 0
 };
 
 /** A base class for buttons/momentary switches - cannot be linked to parameters.
