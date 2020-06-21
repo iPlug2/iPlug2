@@ -1534,7 +1534,7 @@ protected:
 
   virtual void DrawTrackBackground(IGraphics& g, const IRECT& r, int chIdx)
   {
-    /* NO-OP */
+    g.FillRect(chIdx == mHighlightedTrack ? this->GetColor(kHL) : COLOR_TRANSPARENT, r);
   }
   
   virtual void DrawTrackName(IGraphics& g, const IRECT& r, int chIdx)
@@ -1549,8 +1549,8 @@ protected:
    * @param aboveBaseValue true if the handle channel value is above the base value */
   virtual void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue)
   {
-    g.FillRect(GetColor(kFG), r, &mBlend);
-    
+    g.FillRect(chIdx == mHighlightedTrack ? GetColor(kX1) : GetColor(kFG), r, &mBlend);
+
     if(chIdx == mMouseOverTrack)
       g.FillRect(GetColor(kHL), r, &mBlend);
   }
