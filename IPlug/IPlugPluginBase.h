@@ -176,6 +176,10 @@ public:
 #else
   #pragma mark - Preset Manipulation - OPs - These methods are not included if you define NO_PRESETS
   
+  /** Gain access to preset attributes
+   * @ param idx The index number of the preset you are referring to */
+  IPreset* GetPreset(int idx) { return mPresets.Get(idx); }
+  
   /** This method should update the current preset with current values
    * NOTE: This is only relevant for VST2 plug-ins, which is the only format to have the notion of banks?
    * @param name CString name of the modified preset */
@@ -264,23 +268,27 @@ public:
    * @return int /todo */
   int UnserializePresets(IByteChunk& chunk, int startPos); // Returns the new chunk position (endPos).
   
-  // Dump the current state as source code for a call to MakePresetFromNamedParams / MakePresetFromBlob
+  /** Writes a call to MakePreset() for the current preset to a new text file
+   * @param file The name of the file to write or overwrite. */
+  void DumpMakePresetSrc(const char* file) const;
 
-  /** /todo 
-   * @param file /todo
-   * @param paramEnumNames /todo */
-  void DumpPresetSrcCode(const char* file, const char* paramEnumNames[]) const;
+  /** Writes a call to MakePresetFromNamedParams() for the current preset to a new text file
+   * @param file The name of the file to write or overwrite.
+   * @param paramEnumNames A list of all parameter names. e.g. const char* pParamNames[] = {"kParam1", "kParam2", "kParam3"}; */
+  void DumpMakePresetFromNamedParamsSrc(const char* file, const char* paramEnumNames[]) const;
 
-  /** /todo 
-   * @param file /todo */
+  /** Writes a call to MakePresetFromBlob() for the current preset to a new text file
+   * @param file The name of the file to write or overwrite. */
   void DumpPresetBlob(const char* file) const;
 
-  /** /todo 
-   * @param filename /todo */
+  /** Writes a call to MakePresetFromBlob() for all presets to a new text file
+   * Note: Set PLUG_DOES_STATE_CHUNKS to 1 to load blob presets.
+   * @param filename The name of the file to write.*/
   void DumpAllPresetsBlob(const char* filename) const;
 
-  /** /todo 
-   * @param file /todo */
+  /** Writes a call to MakePresetFromBlob() for all presets to a new text file
+   * Note: Set PLUG_DOES_STATE_CHUNKS to 1 to load blob presets.
+   * @param file The name of the file to write. */
   void DumpBankBlob(const char* file) const;
   
   /** Save current state as a VST2 format preset

@@ -534,7 +534,48 @@ int IPluginBase::UnserializePresets(IByteChunk& chunk, int startPos)
   return pos;
 }
 
-void IPluginBase::DumpPresetSrcCode(const char* filename, const char* paramEnumNames[]) const
+void IPluginBase::DumpMakePresetSrc(const char* filename) const
+{
+  bool sDumped = false;
+  if (!sDumped)
+  {
+    sDumped = true;
+    int i, n = NParams();
+    FILE* fp = fopen(filename, "a");
+    
+    if (!fp)
+      return;
+    
+    int idx = GetCurrentPresetIdx();
+    fprintf(fp, "MakePreset(\"%s\"", GetPresetName(idx));
+    for (i = 0; i < n; ++i)
+    {
+      const IParam* pParam = GetParam(i);
+      char paramVal[32];
+      switch (pParam->Type())
+      {
+        case IParam::kTypeBool:
+          sprintf(paramVal, "%s", (pParam->Bool() ? "true" : "false"));
+          break;
+        case IParam::kTypeInt:
+          sprintf(paramVal, "%d", pParam->Int());
+          break;
+        case IParam::kTypeEnum:
+          sprintf(paramVal, "%d", pParam->Int());
+          break;
+        case IParam::kTypeDouble:
+        default:
+          sprintf(paramVal, "%.6f", pParam->Value());
+          break;
+      }
+      fprintf(fp, ", %s", paramVal);
+    }
+    fprintf(fp, ");\n");
+    fclose(fp);
+  }
+}
+
+void IPluginBase::DumpMakePresetFromNamedParamsSrc(const char* filename, const char* paramEnumNames[]) const
 {
   // static bool sDumped = false;
   bool sDumped = false;
@@ -543,8 +584,13 @@ void IPluginBase::DumpPresetSrcCode(const char* filename, const char* paramEnumN
   {
     sDumped = true;
     int i, n = NParams();
-    FILE* fp = fopen(filename, "w");
-    fprintf(fp, "  MakePresetFromNamedParams(\"name\", %d", n);
+    FILE* fp = fopen(filename, "a");
+    
+    if (!fp)
+      return;
+    
+    int idx = GetCurrentPresetIdx();
+    fprintf(fp, "  MakePresetFromNamedParams(\"%s\", %d", GetPresetName(idx), n);
     for (i = 0; i < n; ++i)
     {
       const IParam* pParam = GetParam(i);
@@ -572,9 +618,33 @@ void IPluginBase::DumpPresetSrcCode(const char* filename, const char* paramEnumN
   }
 }
 
+void IPluginBase::DumpPresetBlob(const char* filename) const
+{
+  FILE* fp = fopen(filename, "a");
+  
+  if (!fp)
+    return;
+  
+  int idx = GetCurrentPresetIdx();
+  fprintf(fp, "MakePresetFromBlob(\"%s\", \"", GetPresetName(idx));
+  
+  char buf[MAX_BLOB_LENGTH];
+  
+  IByteChunk* pPresetChunk = &mPresets.Get(mCurrentPresetIdx)->mChunk;
+  uint8_t* byteStart = pPresetChunk->GetData();
+  
+  wdl_base64encode(byteStart, buf, pPresetChunk->Size());
+  
+  fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
+  fclose(fp);
+}
+
 void IPluginBase::DumpAllPresetsBlob(const char* filename) const
 {
   FILE* fp = fopen(filename, "w");
+  
+  if (!fp)
+    return;
   
   char buf[MAX_BLOB_LENGTH] = "";
   IByteChunk chnk;
@@ -588,25 +658,9 @@ void IPluginBase::DumpAllPresetsBlob(const char* filename) const
     chnk.PutChunk(&(pPreset->mChunk));
     wdl_base64encode(chnk.GetData(), buf, chnk.Size());
     
-    fprintf(fp, "%s\", %i, %i);\n", buf, chnk.Size(), pPreset->mChunk.Size());
+    fprintf(fp, "%s\", %i);\n", buf, chnk.Size());
   }
   
-  fclose(fp);
-}
-
-void IPluginBase::DumpPresetBlob(const char* filename) const
-{
-  FILE* fp = fopen(filename, "w");
-  fprintf(fp, "MakePresetFromBlob(\"name\", \"");
-  
-  char buf[MAX_BLOB_LENGTH];
-  
-  IByteChunk* pPresetChunk = &mPresets.Get(mCurrentPresetIdx)->mChunk;
-  uint8_t* byteStart = pPresetChunk->GetData();
-  
-  wdl_base64encode(byteStart, buf, pPresetChunk->Size());
-  
-  fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
   fclose(fp);
 }
 
