@@ -44,7 +44,7 @@
       allowLocationSimulation = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
-         FilePath = "/Applications/VST3PluginTestHost.app">
+         FilePath = "/Applications/REAPER64.app">
       </PathRunnable>
       <MacroExpansion>
          <BuildableReference
@@ -64,7 +64,7 @@
       debugDocumentVersioning = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
-         FilePath = "/Applications/VST3PluginTestHost.app">
+         FilePath = "/Applications/REAPER64.app">
       </PathRunnable>
    </ProfileAction>
    <AnalyzeAction
