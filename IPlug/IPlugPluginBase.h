@@ -176,6 +176,10 @@ public:
 #else
   #pragma mark - Preset Manipulation - OPs - These methods are not included if you define NO_PRESETS
   
+  /** Gain access to preset attributes
+   * @ param idx The index number of the preset you are referring to */
+  IPreset* GetPreset(int idx) { return mPresets.Get(idx); }
+  
   /** This method should update the current preset with current values
    * NOTE: This is only relevant for VST2 plug-ins, which is the only format to have the notion of banks?
    * @param name CString name of the modified preset */
