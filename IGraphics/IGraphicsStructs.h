@@ -728,27 +728,34 @@ const IText DEFAULT_TEXT = IText();
  * In IGraphics 0,0 is top left. */
 struct IRECT
 {
-  float L, T, R, B;
+  /** Left side of the rectangle (X) */
+  float L;
+  /** Top of the rectangle (Y) */
+  float T;
+  /** Right side of the rectangle (X + W) */
+  float R;
+  /** Bottom of the rectangle (Y + H) */
+  float B;
 
-  /** /todo  */
+  /** Construct an empty IRECT  */
   IRECT()
   {
     L = T = R = B = 0.f;
   }
   
-  /** /todo 
-   * @param l /todo
-   * @param t /todo
-   * @param r /todo
-   * @param b /todo */
+  /** Construct a new IRECT with dimensions
+   * @param l Left
+   * @param t Top
+   * @param r Right
+   * @param b Bottom */
   IRECT(float l, float t, float r, float b)
   : L(l), R(r), T(t), B(b)
   {}
   
-  /** /todo 
-   * @param x /todo
-   * @param y /todo
-   * @param bitmap /todo */
+  /** Construct a new IRECT at the given position and with the same size as the bitmap
+   * @param x Top
+   * @param y Left
+   * @param bitmap Bitmap for the size */
   IRECT(float x, float y, const IBitmap& bitmap)
   {
     L = x;
@@ -757,18 +764,24 @@ struct IRECT
     B = T + (float) bitmap.FH();
   }
 
+  /** Create a new IRECT with the given position and size
+   * @param l Left/X of new IRECT
+   * @param t Top/Y of new IRECT
+   * @param w Width of new IRECT
+   * @param h Height of new IRECT
+   * @return the new IRECT */
   static IRECT MakeXYWH(float l, float t, float w, float h)
   {
     return IRECT(l, t, l+w, t+h);
   }
   
-  /** @return true */
+  /** @return bool true if all the fields of this IRECT are 0 */
   bool Empty() const
   {
     return (L == 0.f && T == 0.f && R == 0.f && B == 0.f);
   }
 
-  /** /todo  */
+  /** Set all fields of this IRECT to 0 */
   void Clear()
   {
     L = T = R = B = 0.f;
@@ -784,24 +797,25 @@ struct IRECT
     return !(*this == rhs);
   }
 
-  /** @return float /todo  */
+  /** @return float the width of this IRECT  */
   inline float W() const { return R - L; }
 
-  /** @return float /todo  */
+  /** @return float the height of this IRECT  */
   inline float H() const { return B - T; }
 
-  /** @return float /todo  */
+  /** @return float the midpoint of this IRECT on the x-axis (middle-width) */
   inline float MW() const { return 0.5f * (L + R); }
 
-  /** @return float /todo  */
+  /** @return float the midpoint of this IRECT on the y-axis (middle-height) */
   inline float MH() const { return 0.5f * (T + B); }
 
-  /** @return float /todo  */
+  /** @return float the area of this IRECT  */
   inline float Area() const { return W() * H(); }
   
-  /** /todo 
-   * @param rhs /todo
-   * @return IRECT /todo*/
+  /** Create a new IRECT that is a union of this IRECT and `rhs`.
+   * The resulting IRECT will have the minimim L and T values and maximum R and B values of the inputs.
+   * @param rhs another IRECT
+   * @return IRECT the new IRECT */
   inline IRECT Union(const IRECT& rhs) const
   {
     if (Empty()) { return rhs; }
@@ -809,9 +823,10 @@ struct IRECT
     return IRECT(std::min(L, rhs.L), std::min(T, rhs.T), std::max(R, rhs.R), std::max(B, rhs.B));
   }
 
-  /** /todo 
-   * @param rhs /todo
-   * @return IRECT /todo */
+  /** Create a new IRECT that is the intersection of this IRECT and `rhs`.
+   * The resulting IRECT will have the maximum L and T values and minimum R and B values of the inputs.
+   * @param rhs another IRECT
+   * @return IRECT the new IRECT  */
   inline IRECT Intersect(const IRECT& rhs) const
   {
     if (Intersects(rhs))
@@ -820,48 +835,48 @@ struct IRECT
     return IRECT();
   }
 
-  /** /todo 
-   * @param rhs /todo
-   * @return true /todo
-   * @return false /todo */
+  /** Returns true if this IRECT shares any common pixels with `rhs`, false otherwise.
+   * @param rhs another IRECT
+   * @return true this IRECT shares any common space with `rhs`
+   * @return false this IRECT and `rhs` are completely separate  */
   inline bool Intersects(const IRECT& rhs) const
   {
     return (!Empty() && !rhs.Empty() && R >= rhs.L && L < rhs.R && B >= rhs.T && T < rhs.B);
   }
 
-  /** /todo 
-   * @param rhs /todo
-   * @return true /todo
-   * @return false /todo */
+  /** Returns true if this IRECT completely contains `rhs`.
+   * @param rhs another IRECT
+   * @return true if this IRECT completely contains `rhs`
+   * @return false if any part of `rhs` is outside this IRECT */
   inline bool Contains(const IRECT& rhs) const
   {
     return (!Empty() && !rhs.Empty() && rhs.L >= L && rhs.R <= R && rhs.T >= T && rhs.B <= B);
   }
 
-  /** /todo 
-   * @param x /todo
-   * @param y /todo
-   * @return true /todo
-   * @return false /todo */
+  /** Returns true if this IRECT completely contains the point (x,y).
+   * @param x point X
+   * @param y point Y
+   * @return true the point (x,y) is inside this IRECT
+   * @return false the point (x,y) is outside this IRECT */
   inline bool Contains(float x, float y) const
   {
     return (!Empty() && x >= L && x < R && y >= T && y < B);
   }
   
-  /** /todo
-   * includes right-most and bottom-most pixels
-   * @param x /todo
-   * @param y /todo
-   * @return true /todo
-   * @return false /todo */
+  /** Returns true if the point (x,y) is either contained in this IRECT or on an edge.
+   * Unlike Contains(x,y) this method includes right-most and bottom-most pixels.
+   * @param x point X
+   * @param y point Y
+   * @return true the point (x,y) is inside this IRECT
+   * @return false the point (x,y) is outside this IRECT */
   inline bool ContainsEdge(float x, float y) const
   {
     return (!Empty() && x >= L && x <= R && y >= T && y <= B);
   }
 
-  /** /todo 
-   * @param x /todo
-   * @param y /todo */
+  /** Ensure the point (x,y) is inside this IRECT.
+   * @param x point X, will be modified if it's outside this IRECT
+   * @param y point Y, will be modified if it's outside this IRECT */
   inline void Constrain(float& x, float& y) const
   {
     if (x < L) x = L;
@@ -878,10 +893,11 @@ struct IRECT
     return IRECT(L + rhs.L, T + rhs.T, L + rhs.R, T + rhs.B);
   }
   
-  /** /todo
+  /** Return if this IRECT and `rhs` may be merged.
    * The two rects cover exactly the area returned by Union()
-   * @param rhs /todo
-   * @return true /todo */
+   * @param rhs another IRECT
+   * @return true this IRECT wholly contains `rhs` or `rhs` wholly contains this IRECT
+   * @return false any part of these IRECTs does not overlap */
   bool Mergeable(const IRECT& rhs) const
   {
     if (Empty() || rhs.Empty())
@@ -891,11 +907,12 @@ struct IRECT
     return T == rhs.T && B == rhs.B && ((L >= rhs.L && L <= rhs.R) || (rhs.L >= L && rhs.L <= R));
   }
   
-  /** /todo 
-   * @param layoutDir /todo
-   * @param frac /todo
-   * @param fromTopOrRight /todo
-   * @return IRECT /todo */
+  /** Get a new rectangle which is a fraction of this rectangle
+   * @param layoutDir EDirection::Vertical or EDirection::Horizontal
+   * @param frac Fractional multiplier
+   * @param fromTopOrRight If true the new rectangle will expand from the top (Vertical) or right (Horizontal)
+         otherwise it will expand from the bottom (Vertical) or left (Horizontal)
+   * @return IRECT the new rectangle */
   inline IRECT FracRect(EDirection layoutDir, float frac, bool fromTopOrRight = false) const
   {
     if(layoutDir == EDirection::Vertical)
@@ -904,10 +921,10 @@ struct IRECT
       return FracRectHorizontal(frac, fromTopOrRight);
   }
   
-  /** /todo 
-   * @param frac /todo
-   * @param rhs /todo
-   * @return IRECT /todo */
+  /** Returns a new IRECT with a width that is multiplied by `frac`.
+   * @param frac width multiplier
+   * @param rhs if true, the new IRECT will expand/contract from the right, otherwise it will come from the left
+   * @return IRECT the new IRECT */
   inline IRECT FracRectHorizontal(float frac, bool rhs = false) const
   {
     float widthOfSubRect = W() * frac;
@@ -918,10 +935,10 @@ struct IRECT
       return IRECT(L, T, L + widthOfSubRect, B);
   }
   
-  /** /todo 
-   * @param frac /todo
-   * @param fromTop /todo
-   * @return IRECT /todo */
+  /** Returns a new IRECT with a height that is multiplied by `frac`.
+   * @param frac height multiplier
+   * @param fromTop if true, the new IRECT will expand/contract from the top, otherwise it will come from the bottom
+   * @return IRECT the new IRECT */
   inline IRECT FracRectVertical(float frac, bool fromTop = false) const
   {
     float heightOfSubRect = H() * frac;
@@ -932,10 +949,13 @@ struct IRECT
       return IRECT(L, B - heightOfSubRect, R, B);
   }
 
-  /** /todo 
-   * @param numSlices /todo
-   * @param sliceIdx /todo
-   * @return IRECT /todo */
+  /** Returns a new IRECT which is a horizontal "slice" of this IRECT.
+   * First divide the current height into `numSlices` equal parts, then return the n'th "slice"
+   * where "n" is `sliceIdx`. The returned IRECT will have the same width as this IRECT.
+   *
+   * @param numSlices number of equal-sized parts to divide this IRECT into
+   * @param sliceIdx which "slice" to select
+   * @return IRECT the new IRECT */
   inline IRECT SubRectVertical(int numSlices, int sliceIdx) const
   {
     float heightOfSubRect = H() / (float) numSlices;
@@ -944,10 +964,13 @@ struct IRECT
     return IRECT(L, T + t, R, T + t + heightOfSubRect);
   }
 
-  /** /todo 
-   * @param numSlices /todo
-   * @param sliceIdx /todo
-   * @return IRECT /todo */
+  /** Returns a new IRECT which is a vertical "slice" of this IRECT.
+   * First divide the current width into `numSlices` equal parts, then return the n'th "slice"
+   * where "n" is `sliceIdx`. The returned IRECT will have the same height as this IRECT.
+   *
+   * @param numSlices number of equal-sized parts to divide this IRECT into
+   * @param sliceIdx which "slice" to select
+   * @return IRECT the new IRECT */
   inline IRECT SubRectHorizontal(int numSlices, int sliceIdx) const
   {
     float widthOfSubRect = W() / (float) numSlices;
@@ -956,11 +979,11 @@ struct IRECT
     return IRECT(L + l, T, L + l + widthOfSubRect, B);
   }
   
-  /** /todo 
-   * @param layoutDir /todo
-   * @param numSlices /todo
-   * @param sliceIdx /todo
-   * @return IRECT /todo */
+  /** Get a new rectangle which is a "slice" of this rectangle.
+   * @param layoutDir EDirection::Vertical or EDirection::Horizontal
+   * @param numSlices Number of equal-sized parts to divide this IRECT into
+   * @param sliceIdx Which "slice" to return
+   * @return IRECT the new rectangle */
   inline IRECT SubRect(EDirection layoutDir, int numSlices, int sliceIdx) const
   {
     if(layoutDir == EDirection::Vertical)
@@ -969,28 +992,28 @@ struct IRECT
       return SubRectHorizontal(numSlices, sliceIdx);
   }
   
-  /** /todo 
-   * @param w /todo
-   * @param h /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT expanding from the top-left corner
+   * @param w Width of the desired IRECT
+   * @param h Weight of the desired IRECT
+   * @return IRECT The resulting subrect */
   inline IRECT GetFromTLHC(float w, float h) const { return IRECT(L, T, L+w, T+h); }
 
-  /** /todo 
-   * @param w /todo
-   * @param h /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT expanding from the bottom-left corner
+   * @param w Width of the desired IRECT
+   * @param h Height of the desired IRECT
+   * @return IRECT The resulting subrect */
   inline IRECT GetFromBLHC(float w, float h) const { return IRECT(L, B-h, L+w, B); }
 
-  /** /todo 
-   * @param w /todo
-   * @param h /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT expanding from the top-right corner
+   * @param w Width of the desired IRECT
+   * @param h Height of the desired IRECT
+   * @return IRECT The resulting subrect */
   inline IRECT GetFromTRHC(float w, float h) const { return IRECT(R-w, T, R, T+h); }
 
-  /** /todo 
-   * @param w /todo
-   * @param h /todo
-   * @return IRECT /todo */
+  /** Get a subrect of this IRECT expanding from the bottom-right corner
+   * @param w Width of the desired IRECT
+   * @param h Height of the desired IRECT
+   * @return IRECT The resulting subrect */
   inline IRECT GetFromBRHC(float w, float h) const { return IRECT(R-w, B-h, R, B); }
 
   /** Get a subrect of this IRECT bounded in Y by the top edge and 'amount'
@@ -1128,7 +1151,7 @@ struct IRECT
     return *this;
   }
   
-  /** @return true /todo */
+  /** @return true If all the values of this IRECT are within 1/1000th of being an integer */
   bool IsPixelAligned() const
   {
     // If all values are within 1/1000th of a pixel of an integer the IRECT is considered pixel aligned
@@ -1138,9 +1161,10 @@ struct IRECT
     return isInteger(L) && isInteger(T) && isInteger(R) && isInteger(B);
   }
   
-  /** /todo
-   * @param scale /todo
-   * @return false /todo */
+  /** Return true if, when scaled by `scale`, this IRECT is pixel aligned
+   * When scaling this mutliples each value of the IRECT, it does not scale from the center.
+   * @param scale Scale value for the test
+   * @return true The scaled IRECT is pixel-aligned */
   bool IsPixelAligned(float scale) const
   {
     IRECT r = *this;
@@ -1157,8 +1181,9 @@ struct IRECT
     B = std::ceil(B);
   }
 
-  /** /todo 
-   * @param scale /todo */
+  /** Pixel-align this IRECT at the given scale factor then scale it back down
+   * When scaling this mutliples each value of the IRECT, it does not scale from the center.
+   * @param scale Scale value for the alignment */
   inline void PixelAlign(float scale)
   {
     // N.B. - double precision is *required* for accuracy of the reciprocal
@@ -1166,9 +1191,9 @@ struct IRECT
     PixelAlign();
     Scale(static_cast<float>(1.0/static_cast<double>(scale)));
   }
-  
-  /** /todo 
-   * @return IRECT /todo  */
+
+  /** Get a copy of this IRECT with PixelAlign() called
+   * @return IRECT the new rectangle */
   inline IRECT GetPixelAligned() const
   {
     IRECT r = *this;
@@ -1176,9 +1201,9 @@ struct IRECT
     return r;
   }
   
-  /** /todo 
-   * @param scale /todo
-   * @return IRECT /todo */
+  /** Get a copy of this IRECT with PixelAlign(scale) called
+   * @param scale Scaling factor for the alignment
+   * @return IRECT the new rectangle */
   inline IRECT GetPixelAligned(float scale) const
   {
     IRECT r = *this;
@@ -1186,7 +1211,8 @@ struct IRECT
     return r;
   }
     
-  /** Pixel aligns to nearest pixels */
+  /** Pixel aligns to nearest pixels
+   * This may make the IRECT smaller, unlike PixelAlign(). */
   inline void PixelSnap()
   {
     L = std::round(L);
@@ -1195,8 +1221,8 @@ struct IRECT
     B = std::round(B);
   }
   
-  /** /todo 
-   * @param scale /todo */
+  /** Pixel align a scaled version of this IRECT
+   * @param scale Scaling factor for the alignment */
   inline void PixelSnap(float scale)
   {
     // N.B. - double precision is *required* for accuracy of the reciprocal
@@ -1205,7 +1231,7 @@ struct IRECT
     Scale(static_cast<float>(1.0/static_cast<double>(scale)));
   }
   
-  /** @return IRECT /todo */
+  /** @return IRECT A copy of this IRECT with PixelSnap() called */
   inline IRECT GetPixelSnapped() const
   {
     IRECT r = *this;
@@ -1213,9 +1239,9 @@ struct IRECT
     return r;
   }
   
-  /** /todo 
-   * @param scale /todo
-   * @return IRECT /todo */
+  /** Get a copy of this IRECT with PixelSnap(scale) called
+   * @param Scaling factor for the alignment
+   * @return IRECT the new rectangle */
   inline IRECT GetPixelSnapped(float scale) const
   {
     IRECT r = *this;
@@ -1223,8 +1249,9 @@ struct IRECT
     return r;
   }
   
-  /** /todo 
-   * @param padding /todo */
+  /** Pad this IRECT
+   * N.B. Using a positive padding value will expand the IRECT, a negative value will contract it
+   * @param padding Padding amount */
   inline void Pad(float padding)
   {
     L -= padding;
@@ -1233,11 +1260,12 @@ struct IRECT
     B += padding;
   }
   
-  /** /todo 
-   * @param padL /todo
-   * @param padT /todo
-   * @param padR /todo
-   * @param padB /todo */
+  /** Pad this IRECT
+   * N.B. Using a positive padding value will expand the IRECT, a negative value will contract it
+   * @param padL Left-padding
+   * @param padT Top-padding
+   * @param padR Right-padding
+   * @param padB Bottom-padding */
   inline void Pad(float padL, float padT, float padR, float padB)
   {
     L -= padL;
@@ -1246,24 +1274,26 @@ struct IRECT
     B += padB;
   }
   
-  /** /todo 
-  * @param padding /todo */
+  /** Pad this IRECT in the X-axis
+   * N.B. Using a positive padding value will expand the IRECT, a negative value will contract it
+   * @param padding Left and right padding */
   inline void HPad(float padding)
   {
     L -= padding;
     R += padding;
   }
   
-  /** /todo 
-  * @param padding /todo */
+  /** Pad this IRECT in the Y-axis
+   * N.B. Using a positive padding value will expand the IRECT, a negative value will contract it
+   * @param padding Top and bottom padding */
   inline void VPad(float padding)
   {
     T -= padding;
     B += padding;
   }
   
-  /** /todo 
-   * @param padding /todo */
+  /** Set the width of this IRECT to 2*padding without changing it's center point on the X-axis
+   * @param padding Left and right padding (1/2 the new width) */
   inline void MidHPad(float padding)
   {
     const float mw = MW();
@@ -1271,8 +1301,8 @@ struct IRECT
     R = mw + padding;
   }
   
-  /** /todo 
-   * @param padding /todo */
+  /** Set the height of this IRECT to 2*padding without changing it's center point on the Y-axis
+   * @param padding Top and bottom padding (1/2 the new height) */
   inline void MidVPad(float padding)
   {
     const float mh = MH();
@@ -1280,58 +1310,65 @@ struct IRECT
     B = mh + padding;
   }
 
-  /** /todo 
-   * @param padding /todo
-   * @return IRECT /todo */
+  /** Get a copy of this IRECT with each value padded by `padding`
+   * N.B. Using a positive padding value will expand the IRECT, a negative value will contract it
+   * @param padding Padding amount
+   * @return IRECT the new rectangle */
   inline IRECT GetPadded(float padding) const
   {
     return IRECT(L-padding, T-padding, R+padding, B+padding);
   }
 
-  /** /todo 
-   * @param padding /todo
-   * @return IRECT /todo */
+  /** Get a copy of this IRECT with the values padded
+   * N.B. Using a positive padding value will expand the IRECT, a negative value will contract it
+   * @param padL Left-padding
+   * @param padT Top-padding
+   * @param padR Right-padding
+   * @param padB Bottom-padding
+   * @return IRECT the new rectangle */
   inline IRECT GetPadded(float padL, float padT, float padR, float padB) const
   {
     return IRECT(L-padL, T-padT, R+padR, B+padB);
   }
 
-  /** /todo 
-   * @param padding /todo
-   * @return IRECT /todo */
+  /** Get a copy of this IRECT padded in the X-axis
+   * N.B. Using a positive padding value will expand the IRECT, a negative value will contract it
+   * @param padding Left and right padding
+   * @return IRECT the new rectangle */
   inline IRECT GetHPadded(float padding) const
   {
     return IRECT(L-padding, T, R+padding, B);
   }
 
-  /** /todo 
-   * @param padding /todo
-   * @return IRECT /todo */
+  /** Get a copy of this IRECT padded in the Y-axis
+   * N.B. Using a positive padding value will expand the IRECT, a negative value will contract it
+   * @param padding Top and bottom padding
+   * @return IRECT the new rectangle */
   inline IRECT GetVPadded(float padding) const
   {
     return IRECT(L, T-padding, R, B+padding);
   }
 
-  /** /todo 
-   * @param padding /todo
-   * @return IRECT /todo */
+  /** Get a copy of this IRECT where its width = 2 * padding but the center point on the X-axis has not changed
+   * @param padding Left and right padding (1/2 the new width)
+   * @return IRECT the new rectangle */
   inline IRECT GetMidHPadded(float padding) const
   {
     return IRECT(MW()-padding, T, MW()+padding, B);
   }
 
-  /** /todo 
-   * @param padding /todo
-   * @return IRECT /todo */
+  /** Get a copy of this IRECT where its height = 2 * padding but the center point on the Y-axis has not changed
+   * @param padding Top and bottom padding (1/2 the new height)
+   * @return IRECT the new rectangle */
   inline IRECT GetMidVPadded(float padding) const
   {
     return IRECT(L, MH()-padding, R, MH()+padding);
   }
 
-  /** /todo 
-   * @param w /todo
-   * @param rhs /todo
-   * @return IRECT /todo */
+  /** Get a copy of this IRECT with a new width
+   * @param w Width of the new rectangle
+   * @param rhs If true the new rectangle will expand from the right side, otherwise it will expand from the left
+   * @return IRECT the new rectangle */
   inline IRECT GetHSliced(float w, bool rhs = false) const
   {
     if(rhs)
@@ -1340,10 +1377,10 @@ struct IRECT
       return IRECT(L, T, L + w, B);
   }
   
-  /** /todo 
-   * @param h /todo
-   * @param bot /todo
-   * @return IRECT /todo */
+  /** Get a copy of this IRECT with a new height
+   * @param h Height of the new rectangle
+   * @param bot If true the new rectangle will expand from the bottom, otherwise it will expand from the top
+   * @return IRECT the new rectangle */
   inline IRECT GetVSliced(float h, bool bot = false) const
   {
     if(bot)
@@ -1378,8 +1415,8 @@ struct IRECT
     }
   }
   
-  /** /todo 
-   * @param scale /todo */
+  /** Multiply each field of this IRECT by `scale`.
+   * @param scale The amount to multiply each field by */
   void Scale(float scale)
   {
     L *= scale;
@@ -1388,8 +1425,8 @@ struct IRECT
     B *= scale;
   }
   
-  /** /todo 
-   * @param scale /todo  */
+  /** Scale the width and height of this IRECT by `scale` without changing the center point
+   * @param scale The scaling factor */
   void ScaleAboutCentre(float scale)
   {
     float x = MW();
@@ -1402,9 +1439,9 @@ struct IRECT
     B = y + (hh * scale);
   }
 
-  /** /todo
-   * @param scale /todo
-   * @return IRECT /todo */
+  /** Get a copy of this IRECT with all values multiplied by `scale`.
+   * @param scale The amount to multiply each value by
+   * @return IRECT the resulting rectangle */
   IRECT GetScaled(float scale) const
   {
     IRECT r = *this;
@@ -1412,9 +1449,9 @@ struct IRECT
     return r;
   }
   
-  /** /todo 
-   * @param scale /todo
-   * @return IRECT /todo */
+  /** Get a copy of this IRECT where the width and height are multiplied by `scale` without changing the center point
+   * @param scale Scaling factor
+   * @return IRECT the resulting rectangle */
   IRECT GetScaledAboutCentre(float scale) const
   {
     IRECT r = *this;
@@ -1422,11 +1459,11 @@ struct IRECT
     return r;
   }
   
-  /** /todo 
-   * @param start /todo
-   * @param dest /todo
-   * @param progress /todo
-   * @return IRECT /todo */
+  /** Get a rectangle that is a linear interpolation between `start` and `dest`
+   * @param start Starting rectangle
+   * @param dest Ending rectangle
+   * @param progress Interpolation point
+   * @return IRECT the new rectangle */
   static IRECT LinearInterpolateBetween(const IRECT& start, const IRECT& dest, float progress)
   {
     IRECT result;
@@ -1437,9 +1474,9 @@ struct IRECT
     return result;
   }
 
-  /** /todo 
-   * @param x /todo
-   * @param y /todo */
+  /** Get a random point within this rectangle
+   * @param x OUT output X value of point
+   * @param y OUT output Y value of point */
   void GetRandomPoint(float& x, float& y) const
   {
     const float r1 = static_cast<float>(std::rand()/(static_cast<float>(RAND_MAX)+1.f));
@@ -1449,7 +1486,7 @@ struct IRECT
     y = T + r2 * H();
   }
 
-  /** @return IRECT /todo */
+  /** @return IRECT A random rectangle inside this IRECT */
   IRECT GetRandomSubRect() const
   {
     float l, t, r, b;
@@ -1460,11 +1497,11 @@ struct IRECT
     return IRECT(l, t, r, b);
   }
 
-  /** /todo 
-   * @param l /todo
-   * @param t /todo
-   * @param r /todo
-   * @param b /todo */
+  /** Offset each field of the rectangle
+   * @param l Left offset
+   * @param t Top offset
+   * @param r Right offset
+   * @param b Bottom offset */
   void Alter(float l, float t, float r, float b)
   {
     L += l;
@@ -1473,20 +1510,20 @@ struct IRECT
     B += b;
   }
   
-  /** /todo 
-   * @param l /todo
-   * @param t /todo
-   * @param r /todo
-   * @param b /todo
-   * @return IRECT /todo  */
+  /** Get a copy of this rectangle where each field is offset
+   * @param l Left offset
+   * @param t Top offset
+   * @param r Right offset
+   * @param b Bottom offset
+   * @return IRECT the new rectangle */
   IRECT GetAltered(float l, float t, float r, float b) const
   {
     return IRECT(L + l, T + t, R + r, B + b);
   }
   
-  /** /todo 
-   * @param x /todo
-   * @param y /todo */
+  /** Translate this rectangle
+   * @param x Offset in the X axis
+   * @param y Offset in the Y axis */
   void Translate(float x, float y)
   {
     L += x;
@@ -1495,34 +1532,34 @@ struct IRECT
     B += y;
   }
   
-  /** /todo 
-   * @param x /todo
-   * @param y /todo
-   * @return IRECT /todo */
+  /** Get a translated copy of this rectangle 
+   * @param x Offset in the X axis
+   * @param y Offset in the Y axis
+   * @return IRECT the new rectangle */
   IRECT GetTranslated(float x, float y) const
   {
     return IRECT(L + x, T + y, R + x, B + y);
   }
   
-  /** /todo 
-   * @param x /todo
-   * @return IRECT /todo */
+  /** Get a copy of this rectangle translated on the X axis
+   * @param x Offset
+   * @return IRECT the new rectangle */
   IRECT GetHShifted(float x) const
   {
     return GetTranslated(x, 0.f);
   }
   
-  /** /todo 
-   * @param y /todo
-   * @return IRECT /todo */
+  /** Get a copy of this rectangle translated on the Y axis
+   * @param y Offset
+   * @return IRECT the new rectangle */
   IRECT GetVShifted(float y) const
   {
     return GetTranslated(0.f, y);
   }
 
-  /** /todo 
-   * @param sr /todo
-   * @return IRECT /todo */
+  /** Get a rectangle the size of `sr` but with the same center point as this rectangle 
+   * @param sr Size rectangle
+   * @return IRECT the new rectangle */
   IRECT GetCentredInside(const IRECT& sr) const
   {
     IRECT r;
@@ -1534,10 +1571,10 @@ struct IRECT
     return r;
   }
   
-  /** /todo 
-   * @param w /todo
-   * @param h /todo
-   * @return IRECT /todo */
+  /** Get a rectangle with the same center point as this rectangle and the given size
+   * @param w Width of the new rectangle (minimum 1.0)
+   * @param h Height of the new rectangle (a value of 0 will make it the same as w, thus a square)
+   * @return IRECT the new rectangle */
   IRECT GetCentredInside(float w, float h = 0.f) const
   {
     w = std::max(w, 1.f);
@@ -1554,9 +1591,9 @@ struct IRECT
     return r;
   }
 
-  /** /todo 
-   * @param bitmap /todo
-   * @return IRECT /todo */
+  /** Get a rectangle with the same center point as this rectangle and the size of the bitmap
+   * @param bitmap Bitmap used to size the new rectangle
+   * @return IRECT the new rectangle */
   IRECT GetCentredInside(const IBitmap& bitmap) const
   {
     IRECT r;
@@ -1607,8 +1644,7 @@ struct IRECT
     return result;
   }
   
-  /** /todo 
-   * @return float /todo */
+  /** @return float Either the width or the height of the rectangle, whichever is less */
   float GetLengthOfShortestSide() const
   {
     if(W() < H())
@@ -1634,7 +1670,16 @@ struct IRECT
 /** Used to manage mouse modifiers i.e. right click and shift/control/alt keys. */
 struct IMouseMod
 {
-  bool L, R, S, C, A;
+  /** Is the left mouse button pressed. */
+  bool L;
+  /** Is the right mouse button pressed. */
+  bool R;
+  /** Is shift pressed. */
+  bool S;
+  /** Is ctrl pressed. */
+  bool C;
+  /** Is alt pressed. */
+  bool A;
 
   ITouchID touchID = 0;
   float touchRadius = 0.f;
@@ -2441,6 +2486,7 @@ struct IVStyle
   IVStyle WithShowValue(bool show = true) const { IVStyle newStyle = *this; newStyle.showValue = show; return newStyle; }
   IVStyle WithLabelText(const IText& text) const { IVStyle newStyle = *this; newStyle.labelText = text; return newStyle;}
   IVStyle WithValueText(const IText& text) const { IVStyle newStyle = *this; newStyle.valueText = text; return newStyle; }
+  IVStyle WithHideCursor(bool hide = true) const { IVStyle newStyle = *this; newStyle.hideCursor = hide; return newStyle; }
   IVStyle WithColor(EVColor idx, IColor color) const { IVStyle newStyle = *this; newStyle.colorSpec.mColors[idx] = color; return newStyle; }
   IVStyle WithColors(IVColorSpec spec) const { IVStyle newStyle = *this; newStyle.colorSpec = spec; return newStyle; }
   IVStyle WithRoundness(float v) const { IVStyle newStyle = *this; newStyle.roundness = Clip(v, 0.f, 1.f); return newStyle; }

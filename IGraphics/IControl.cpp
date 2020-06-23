@@ -770,6 +770,25 @@ bool IKnobControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 #endif
 }
 
+void IKnobControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  mMouseDown = true;
+  mMouseDragValue = GetValue();
+
+  if (mHideCursorOnDrag)
+    GetUI()->HideMouseCursor(true, true);
+
+  IControl::OnMouseDown(x, y, mod);
+}
+
+void IKnobControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
+{
+  mMouseDown = false;
+
+  if (mHideCursorOnDrag)
+    GetUI()->HideMouseCursor(false);
+}
+
 void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
   double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
@@ -777,10 +796,32 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
   IRECT dragBounds = GetKnobDragBounds();
 
   if (mDirection == EDirection::Vertical)
-    SetValue(GetValue() + (double) dY / (double)(dragBounds.T - dragBounds.B) / gearing);
+    mMouseDragValue += static_cast<double>(dY / static_cast<double>(dragBounds.T - dragBounds.B) / gearing);
   else
-    SetValue(GetValue() + (double) dX / (double)(dragBounds.R - dragBounds.L) / gearing);
+    mMouseDragValue += static_cast<double>(dX / static_cast<double>(dragBounds.R - dragBounds.L) / gearing);
 
+  mMouseDragValue = Clip(mMouseDragValue, 0., 1.);
+
+  double v = mMouseDragValue;
+  const IParam* pParam = GetParam();
+  
+  if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
+  {
+    const double range = pParam->GetRange();
+    
+    if (range > 0.)
+    {
+      double l, h;
+      pParam->GetBounds(l, h);
+
+      v = l + mMouseDragValue * range;
+      v = v - std::fmod(v, pParam->GetStep());
+      v -= l;
+      v /= range;
+    }
+  }
+
+  SetValue(v);
   SetDirty();
 }
 
@@ -788,7 +829,28 @@ void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, floa
 {
   double gearing = IsFineControl(mod, true) ? 0.001 : 0.01;
 
-  SetValue(GetValue() + gearing * d);
+  double v = GetValue() + gearing * d;
+  const IParam* pParam = GetParam();
+  
+  if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
+  {
+    const double range = pParam->GetRange();
+
+    if (range > 0. && d != 0.f)
+    {
+      double l, h;
+      pParam->GetBounds(l,h);
+      v = l + GetValue() * range;
+      const double step = pParam->GetStep();
+      v += d > 0 ? step : -step;
+      v = Clip(v, l, h);
+      v = v - std::fmod(v, step);
+      v -= l;
+      v /= range;
+    }
+  }
+
+  SetValue(v);
   SetDirty();
 }
 
@@ -948,7 +1010,16 @@ void ISliderControlBase::OnResize()
 void ISliderControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   mMouseDown = true;
-  SnapToMouse(x, y, mDirection, mTrackBounds);
+  
+  if(GetParam())
+  {
+    if(!GetParam()->GetStepped())
+      SnapToMouse(x, y, mDirection, mTrackBounds);
+  }
+  else
+    SnapToMouse(x, y, mDirection, mTrackBounds);
+
+  mMouseDragValue = GetValue();
 
   if (mHideCursorOnDrag)
     GetUI()->HideMouseCursor(true, true);
@@ -966,20 +1037,54 @@ void ISliderControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
 
 void ISliderControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
-  if(mod.touchID)
+  const IParam* pParam = GetParam();
+
+  if(mod.touchID || !mHideCursorOnDrag)
   {
-    SnapToMouse(x, y, mDirection, mTrackBounds);
-  }
-  else
-  {
-    double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
-    
-    if (mDirection == EDirection::Vertical)
-      SetValue(GetValue() + (static_cast<double>(dY) / static_cast<double>(mTrackBounds.T - mTrackBounds.B) / gearing));
+    if(pParam)
+    {
+      if(!pParam->GetStepped())
+      {
+        SnapToMouse(x, y, mDirection, mTrackBounds);
+        return;
+      }
+      // non-stepped parameter, fall through
+    }
     else
-      SetValue(GetValue() + (static_cast<double>(dX) / static_cast<double>(mTrackBounds.R - mTrackBounds.L) / gearing));
+    {
+      SnapToMouse(x, y, mDirection, mTrackBounds);
+      return;
+    }
   }
   
+  double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
+
+  if (mDirection == EDirection::Vertical)
+    mMouseDragValue += static_cast<double>(dY / static_cast<double>(mTrackBounds.T - mTrackBounds.B) / gearing);
+  else
+    mMouseDragValue += static_cast<double>(dX / static_cast<double>(mTrackBounds.R - mTrackBounds.L) / gearing);
+  
+  mMouseDragValue = Clip(mMouseDragValue, 0., 1.);
+
+  double v = mMouseDragValue;
+  
+  if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
+  {
+    const double range = pParam->GetRange();
+    
+    if (range > 0.)
+    {
+      double l, h;
+      pParam->GetBounds(l,h);
+
+      v = l + mMouseDragValue * range;
+      v = v - std::fmod(v, pParam->GetStep());
+      v -= l;
+      v /= range;
+    }
+  }
+
+  SetValue(v);
   SetDirty(true);
 }
 
@@ -987,7 +1092,28 @@ void ISliderControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, fl
 {
   double gearing = IsFineControl(mod, true) ? 0.001 : 0.01;
 
-  SetValue(GetValue() + gearing * d);
+  double v = GetValue() + gearing * d;
+  const IParam* pParam = GetParam();
+  
+  if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
+  {
+    const double range = pParam->GetRange();
+
+    if (range > 0. && d != 0.f)
+    {
+      double l, h;
+      pParam->GetBounds(l,h);
+      v = l + GetValue() * range;
+      const double step = pParam->GetStep();
+      v += d > 0 ? step : -step;
+      v = Clip(v, l, h);
+      v = v - std::fmod(v, step);
+      v -= l;
+      v /= range;
+    }
+  }
+
+  SetValue(v);
   SetDirty();
 }
 
