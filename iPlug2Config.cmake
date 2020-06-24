@@ -22,6 +22,8 @@ set(IPLUG2_AAX_ICON
   CACHE FILEPATH "Path to AAX plugin icon"
 )
 
+set(IPLUG2_CXX_STANDARD "17" CACHE STRING "The C++ standard to use")
+
 set(IPLUG2_APP_NAME ${CMAKE_PROJECT_NAME} CACHE STRING "Name of the VST/AU/App/etc.")
 
 if (WIN32)
@@ -51,7 +53,8 @@ CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
 CHECK_CXX_COMPILER_FLAG("/arch:AVX" COMPILER_OPT_ARCH_AVX_SUPPORTED)
 
 function(add_faust_target target)
-  set("${target}_INCLUDE_DIR" "${PROJECT_BINARY_DIR}/${target}.dir" PARENT_SCOPE)
+  set(inc_dir "${PROJECT_BINARY_DIR}/${target}.dir")
+  set("${target}_INCLUDE_DIR" ${inc_dir} PARENT_SCOPE)
   set(src_list "")
   set(out_list "")
 
@@ -64,7 +67,7 @@ function(add_faust_target target)
     math(EXPR i2 "${i1} + 1")
     list(GET ARGN ${i1} dsp_file)
     list(GET ARGN ${i2} class_name)
-    set(out_file "${${target}_INCLUDE_DIR}/Faust${class_name}.hpp")
+    set(out_file "${inc_dir}/Faust${class_name}.hpp")
     add_custom_command(
       OUTPUT "${out_file}"
       COMMAND "${FAUST_EXECUTABLE}" -lang cpp -cn "${class_name}" -a "${IPLUG2_DIR}/IPlug/Extras/Faust/IPlugFaust_arch.cpp" -o "${out_file}" "${dsp_file}"
@@ -454,6 +457,7 @@ unset(_DEPS)
 #! iplug2_configure_target : Configure a target for the given output type
 #
 function(iplug2_configure_target target target_type)
+  set_property(TARGET ${target} PROPERTY CXX_STANDARD ${IPLUG2_CXX_STANDARD})
 
   # ALL Configurations
   if (WIN32)
