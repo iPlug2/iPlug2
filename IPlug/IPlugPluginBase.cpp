@@ -487,6 +487,24 @@ const char* IPluginBase::GetPresetName(int idx) const
   return "";
 }
 
+void IPluginBase::ModifyPreset(int idx, const char* name)
+{
+  if (idx >= 0 && idx < mPresets.GetSize())
+  {
+    IPreset* pPreset = mPresets.Get(idx);
+    pPreset->mChunk.Clear();
+    
+    Trace(TRACELOC, "%d %s", idx, pPreset->mName);
+    
+    SerializeState(pPreset->mChunk);
+    
+    if (CStringHasContents(name))
+    {
+      strcpy(pPreset->mName, name);
+    }
+  }
+}
+
 void IPluginBase::ModifyCurrentPreset(const char* name)
 {
   if (mCurrentPresetIdx >= 0 && mCurrentPresetIdx < mPresets.GetSize())

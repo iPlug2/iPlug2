@@ -180,6 +180,11 @@ public:
    * @ param idx The index number of the preset you are referring to */
   IPreset* GetPreset(int idx) { return mPresets.Get(idx); }
   
+  /** Sets the specified preset to whatever current params are.
+   * @param idx The index number of the preset to modify.
+   * @param name CString name of the modified preset */
+  void ModifyPreset(int idx, const char* name = 0);
+  
   /** This method should update the current preset with current values
    * NOTE: This is only relevant for VST2 plug-ins, which is the only format to have the notion of banks?
    * @param name CString name of the modified preset */
