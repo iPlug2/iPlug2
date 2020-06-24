@@ -22,13 +22,14 @@ BEGIN_IPLUG_NAMESPACE
 struct IPlugVST3State
 {
   /** Called when saving the plugin state to a host project or .vstpreset file.
-   * Writes chunk, bypass state, current preset idx, preset names, and bank state to IBStream *state when SAVE_PRESET_BANKSTATE is defined.
-   * Writes chunk, bypass state, and preset name of currently selected preset to IBStream *state when SAVE_PRESET_BANKSTATE is not defined.
-   * Note: if SAVE_PRESET_BANKSTATE is not defined, the currently selected preset state and name will be restored to index 0.*/
+   * Writes chunk, bypass state, and preset name of currently selected preset to IBStream *state. */
   template <class T>
   static bool GetState(T* pPlug, Steinberg::IBStream* pState)
   {
     IByteChunk chunk;
+    
+    // TODO: IPlugVer should be in chunk!
+    //  IByteChunk::GetIPlugVerFromChunk(chunk)
     Steinberg::int32 chunksize;
     
     if (pPlug->SerializeState(chunk))
@@ -43,7 +44,6 @@ struct IPlugVST3State
     Steinberg::int32 toSaveBypass = pPlug->GetBypassed() ? 1 : 0;
     pState->write(&toSaveBypass, sizeof (Steinberg::int32));
     
-#ifndef SAVE_PRESET_BANKSTATE
     IPreset* pPreset = pPlug->GetPreset(pPlug->GetCurrentPresetIdx());
     
     Steinberg::Vst::String128 toSavePresetName;
@@ -54,35 +54,11 @@ struct IPlugVST3State
     
     pState->write(pPreset->mChunk.GetData(), chunksize);
     
-#else
-    int numberofpresets = pPlug->NPresets();
-    if (numberofpresets > 0)
-    {
-      Steinberg::int32 toSaveCurrentPresetIdx = pPlug->GetCurrentPresetIdx();
-      pState->write(&toSaveCurrentPresetIdx, sizeof(Steinberg::int32));
-      
-      for (int i = 0; i < numberofpresets; ++i)
-      {
-        IPreset* pPreset = pPlug->GetPreset(i);
-        
-        Steinberg::Vst::String128 toSavePresetName;
-        WDL_String mPresetName;
-        mPresetName.Set(pPreset->mName);
-        Steinberg::UString(toSavePresetName, sizeof(Steinberg::Vst::String128)).fromAscii(mPresetName.Get());
-        pState->write(&toSavePresetName, sizeof(Steinberg::Vst::String128));
-        
-        pState->write(pPreset->mChunk.GetData(), chunksize);
-      }
-    }
-#endif
-    
     return true;
   }
   
   /** Called when restoring the plugin state from a saved host project or .vstpreset file.
-   * Loads chunk, bypass state, saved preset idx, preset names, and bank state from IBStream *state when SAVE_PRESET_BANKSTATE is defined.
-   * Loads chunk, bypass state, and preset name of saved preset from IBStream *state when SAVE_PRESET_BANKSTATE is not defined.
-   * Note: if SAVE_PRESET_BANKSTATE is not defined, the saved preset state and name will be restored to index 0.*/
+   * Loads chunk, bypass state, and preset name of saved preset from IBStream *state and restores at index 0. */
   template <class T>
   static bool SetState(T* pPlug, Steinberg::IBStream* pState)
   {
@@ -113,7 +89,6 @@ struct IPlugVST3State
           pController->mBypassParameter->setNormalized(savedBypass);
       }
       
-#ifndef SAVE_PRESET_BANKSTATE
       IPreset* pPreset = pPlug->GetPreset(0);
       
       Steinberg::Vst::String128 savedPresetName;
@@ -130,36 +105,6 @@ struct IPlugVST3State
       
       pState->read(pPreset->mChunk.GetData(), chunksize);
       pPlug->RestorePreset(0);
-      
-#else
-      int numberofpresets = pPlug->NPresets();
-      if (numberofpresets > 0)
-      {
-        Steinberg::int32 savedPresetIdx = 0;
-        pState->read(&savedPresetIdx, sizeof(Steinberg::int32));
-        
-        for (int i = 0; i < numberofpresets; ++i)
-        {
-          IPreset* pPreset = pPlug->GetPreset(i);
-          
-          Steinberg::Vst::String128 savedPresetName;
-          if (pState->read(&savedPresetName, sizeof(Steinberg::Vst::String128)) != Steinberg::kResultOk)
-          {
-            return false;
-          }
-          
-          WDL_String mPresetName;
-          char PresetName[128];
-          Steinberg::UString(savedPresetName, sizeof(Steinberg::Vst::String128)).toAscii(PresetName, sizeof(Steinberg::Vst::String128));
-          mPresetName.Set(PresetName);
-          strcpy(pPreset->mName, mPresetName.Get());
-          
-          pState->read(pPreset->mChunk.GetData(), chunksize);
-        }
-        
-        pPlug->RestorePreset(savedPresetIdx);
-      }
-#endif
       
       pPlug->OnRestoreState();
       return true;

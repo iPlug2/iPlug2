@@ -26,10 +26,8 @@ EXTRA_LNK_FLAGS = //$(IGRAPHICS_LNK_FLAGS)
 // PREPROCESSOR MACROS
 //AU_NO_PRESETS - Define this to prevent factory presets in AU plugins from showing in hosts preset menu.
 //VST3_PRESET_LIST - Define this to cause factory presets in Vst3 plugins to show in hosts preset menu.
-//SAVE_PRESET_BANKSTATE - Define this to store/restore preset state, index, and name of currently selected preset as well as the bank state in Vst3 plugins (all presets).
-//Note: if SAVE_PRESET_BANKSTATE is not defined, the currently selected preset state and name will be restored to index 0.
 
-EXTRA_ALL_DEFS = OBJC_PREFIX=vIPlugChunks SWELL_APP_PREFIX=Swell_vIPlugChunks IGRAPHICS_NANOVG IGRAPHICS_METAL SAVE_PRESET_BANKSTATE
+EXTRA_ALL_DEFS = OBJC_PREFIX=vIPlugChunks SWELL_APP_PREFIX=Swell_vIPlugChunks IGRAPHICS_NANOVG IGRAPHICS_METAL AU_NO_PRESETS
 //EXTRA_DEBUG_DEFS =
 //EXTRA_RELEASE_DEFS =
 //EXTRA_TRACER_DEFS =
