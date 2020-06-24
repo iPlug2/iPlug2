@@ -22,17 +22,13 @@ using namespace iplug;
 IPluginBase::IPluginBase(int nParams, int nPresets)
 : EDITOR_DELEGATE_CLASS(nParams)
 {  
-#ifndef NO_PRESETS
   for (int i = 0; i < nPresets; ++i)
     mPresets.Add(new IPreset());
-#endif
 }
 
 IPluginBase::~IPluginBase()
 {
-#ifndef NO_PRESETS
   mPresets.Empty(true);
-#endif
 }
 
 int IPluginBase::GetPluginVersion(bool decimal) const
@@ -259,7 +255,6 @@ void IPluginBase::PrintParamValues()
   });
 }
 
-#ifndef NO_PRESETS
 static IPreset* GetNextUninitializedPreset(WDL_PtrList<IPreset>* pPresets)
 {
   int n = pPresets->GetSize();
@@ -1285,5 +1280,3 @@ bool IPluginBase::SavePresetAsVSTPreset(const char* path) const
   
   return false;
 }
-
-#endif

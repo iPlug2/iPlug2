@@ -164,19 +164,10 @@ public:
   
   /** Implemented by the API class, called by the UI (etc) when the plug-in initiates a program/preset change (not applicable to all APIs) */
   virtual void InformHostOfPresetChange() {};
-#pragma mark - Preset Manipulation - NO-OPs
+
+#pragma mark - Preset Manipulation
   
-#ifdef NO_PRESETS
-  virtual int NPresets() const { return 1; }
-  virtual void ModifyCurrentPreset(const char* name = 0) { };
-  virtual bool RestorePreset(int idx) { mCurrentPresetIdx = idx; return true; }
-  virtual bool RestorePreset(const char* name) { return true; }
-  virtual const char* GetPresetName(int idx) const { return "-"; }
-  
-#else
-  #pragma mark - Preset Manipulation - OPs - These methods are not included if you define NO_PRESETS
-  
-  /** Gain access to preset attributes
+  /** Get a ptr to a factory preset
    * @ param idx The index number of the preset you are referring to */
   IPreset* GetPreset(int idx) { return mPresets.Get(idx); }
   
@@ -205,16 +196,16 @@ public:
   const char* GetPresetName(int idx) const;
   
   /** Copy source preset to preset at index
-  * @param pPresetSrc source preset
-  * @param dest_idx index of internal dest preset */
-  void CopyPreset(IPreset* pPresetSrc, int dest_idx, bool copyname = false)
+  * @param pSrc source preset
+  * @param destIdx index of internal destination preset */
+  void CopyPreset(IPreset* pSrc, int destIdx, bool copyname = false)
   {
-    IPreset* pPresetTgt = mPresets.Get(dest_idx);
+    IPreset* pDst = mPresets.Get(destIdx);
 
-    pPresetTgt->mChunk.Clear();
-    pPresetTgt->mChunk.PutChunk(&pPresetSrc->mChunk);
-    pPresetTgt->mInitialized = true;
-    strncpy(pPresetTgt->mName, pPresetSrc->mName, MAX_PRESET_NAME_LEN - 1);
+    pDst->mChunk.Clear();
+    pDst->mChunk.PutChunk(&pSrc->mChunk);
+    pDst->mInitialized = true;
+    strncpy(pDst->mName, pSrc->mName, MAX_PRESET_NAME_LEN - 1);
   }
   
   /** /todo 
@@ -273,7 +264,7 @@ public:
   void DumpMakePresetSrc(const char* file) const;
 
   /** Writes a call to MakePresetFromNamedParams() for the current preset to a new text file
-   * @param file The name of the file to write or overwrite.
+   * @param file The name of the file to write.
    * @param paramEnumNames A list of all parameter names. e.g. const char* pParamNames[] = {"kParam1", "kParam2", "kParam3"}; */
   void DumpMakePresetFromNamedParamsSrc(const char* file, const char* paramEnumNames[]) const;
 
@@ -373,7 +364,6 @@ public:
    * @return true /todo
    * @return false /todo */
   bool SaveBankAsProToolsPresets(const char* path, unsigned long pluginID) { return false; }
-#endif
   
 #pragma mark - Parameter manipulation
     
@@ -488,10 +478,8 @@ protected:
   bool mHostResize = false;
   /** A list of unique cstrings found specified as "parameter groups" when defining IParams. These are used in various APIs to group parameters together in automation dialogues. */
   WDL_PtrList<const char> mParamGroups;
-  
-#ifndef NO_PRESETS
+  /** "Baked in" Factory presets */
   WDL_PtrList<IPreset> mPresets;
-#endif
 
 #ifdef PARAMS_MUTEX
   friend class IPlugVST3ProcessorBase;
