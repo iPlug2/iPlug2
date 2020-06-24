@@ -384,6 +384,29 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set_property(SOURCE ${_src} PROPERTY LANGUAGE C)
 endif()
 
+
+
+
+add_library(iPlug2_Skia INTERFACE)
+if (WIN32)
+  set(sdk "${_DEPS}/Build/win/${PROCESSOR_ARCH}/$<IF:$<CONFIG:DEBUG>,Debug,Release>")
+  iplug2_target_add(iPlug2_Skia INTERFACE
+    DEFINE "IGRAPHICS_SKIA"
+    LINK 
+      "${sdk}/libpng.lib"
+      "${sdk}/pixman.lib"
+      "${sdk}/skia.lib"
+      "${sdk}/skottie.lib"
+      "${sdk}/skparagraph.lib"
+      "${sdk}/sksg.lib"
+      "${sdk}/skshaper.lib"
+      "${sdk}/zlib.lib"
+  )
+else()
+  set(iPlug2_Skia_NOTFOUND "TRUE")
+endif()
+
+
 iplug2_add_interface(iPlug2_Faust
   INCLUDE "${IPLUG2_DIR}/IPlug/Extras/Faust" "${FAUST_INCLUDE_DIR}"
 )
