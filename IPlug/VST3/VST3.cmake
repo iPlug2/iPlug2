@@ -54,15 +54,20 @@ list(APPEND _src ${tmp})
 # In the public.sdk dir we only add specific sources.
 set(sdk ${VST3_SDK}/public.sdk/source)
 list(APPEND _src
-  "${sdk}/common/commoniids.cpp" "${sdk}/common/memorystream.cpp"
+  "${sdk}/common/commoniids.cpp"
+  "${sdk}/common/memorystream.cpp"
   "${sdk}/common/pluginview.cpp" "${sdk}/vst/vstaudioeffect.cpp"
   "${sdk}/vst/vstbus.cpp" "${sdk}/vst/vstcomponent.cpp"
   "${sdk}/vst/vstcomponentbase.cpp" "${sdk}/vst/vstinitiids.cpp"
   "${sdk}/vst/vstparameters.cpp" "${sdk}/vst/vstsinglecomponenteffect.cpp"
 )
+list(APPEND _inc
+  "${sdk}/vst/vst2wrapper"
+)
 # Platform-dependent stuff
 if (WIN32)
   list(APPEND _src "${sdk}/main/dllmain.cpp" "${sdk}/main/pluginfactory.cpp" "${sdk}/main/winexport.def")
+  list(APPEND _src "${sdk}/common/threadchecker_win32.cpp")
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   list(APPEND _def "SWELL_CLEANUP_ON_UNLOAD")
@@ -71,6 +76,7 @@ endif()
 
 source_group(TREE ${VST3_SDK} PREFIX "IPlug/VST3" FILES ${_src})
 iplug2_add_interface(iPlug2_VST3 INCLUDE ${_inc} SOURCE ${_src} DEFINE ${_def} LINK iPlug2_Core)
+
 
 
 function(iplug2_configure_vst3 target)

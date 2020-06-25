@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.11)
+cmake_policy(SET CMP0076 NEW)
 
 # We need this so we can find call FindFaust.cmake
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH};${CMAKE_CURRENT_LIST_DIR})
