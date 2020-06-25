@@ -60,7 +60,7 @@ function(add_faust_target target)
   set(out_list "")
 
   # Make sure the output directory exists
-  file(MAKE_DIRECTORY "${${target}_INCLUDE_DIR}")
+  file(MAKE_DIRECTORY "${inc_dir}")
 
   list(LENGTH ARGN argcnt)
   math(EXPR argcnt "${argcnt} - 1")
