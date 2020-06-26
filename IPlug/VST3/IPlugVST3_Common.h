@@ -104,6 +104,7 @@ struct IPlugVST3State
       strcpy(pPreset->mName, mPresetName.Get());
       
       pState->read(pPreset->mChunk.GetData(), chunksize);
+      pPlug->ModifyPreset(0, pPreset->mName);
       pPlug->RestorePreset(0);
       
       pPlug->OnRestoreState();
