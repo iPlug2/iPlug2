@@ -1,6 +1,6 @@
 
 DEPOT_TOOLS_PATH=../Build/tmp/depot_tools
-ERROR_STR="error - call this script with either Debug or Release as the first argument, and x64 or x86 as the second argument"
+ERROR_STR="error - call this script with either Debug or Release as the first argument, and x64 or Win32 as the second argument"
 
 if [ "$#" -eq 2 ]; then
 
@@ -16,7 +16,7 @@ if [ "$#" -eq 2 ]; then
   if [ "$2" = "x64" ]; then
     CPU_STR="x64"
     DIR_ARCH_STR="x64"
-  elif [ "$2" = "x86" ]; then
+  elif [ "$2" = "Win32" ]; then
     CPU_STR="x86"
     DIR_ARCH_STR="Win32"
   else

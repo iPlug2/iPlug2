@@ -50,8 +50,6 @@ jobs:
 
   - bash: |
       cd ./Dependencies/IGraphics
-      echo $(buildConfiguration)
-      echo $(buildPlatform)
       ./build-skia-win.sh $(buildConfiguration) $(buildPlatform)
     displayName: Build SKIA
 
