@@ -51,6 +51,7 @@ jobs:
   - bash: |
       cd ./Dependencies/IGraphics
       echo $(buildConfiguration)
+      echo $(buildPlatform)
       ./build-skia-win.sh $(buildConfiguration) $(buildPlatform)
     displayName: Build SKIA
 
@@ -58,13 +59,6 @@ jobs:
       cd ./Dependencies/Build
       ./../IGraphics/package-deps-src.sh
     displayName: slim SKIA src
-    condition: eq(variables.buildPlatform, 'x64')
-
-  - bash: |
-      cd ./Dependencies/Build
-      rm -r src/skia
-    displayName: remove SKIA src
-    condition: eq(variables.buildPlatform, 'Win32')
 
   - task: PublishPipelineArtifact@0
     inputs:
