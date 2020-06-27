@@ -51,8 +51,7 @@ jobs:
   - bash: |
       cd ./Dependencies/IGraphics
       echo $(buildConfiguration)
-      ./build-skia-win.sh $(buildConfiguration)
-    condition: eq(variables.buildPlatform, 'x64')
+      ./build-skia-win.sh $(buildConfiguration) $(buildPlatform)
     displayName: Build SKIA
 
   - bash: |
