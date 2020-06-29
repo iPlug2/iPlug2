@@ -177,7 +177,7 @@ public:
   #pragma mark - Preset Manipulation - OPs - These methods are not included if you define NO_PRESETS
   
   /** Gain access to preset attributes
-   * @ param idx The index number of the preset you are referring to */
+   * @param idx The index number of the preset you are referring to */
   IPreset* GetPreset(int idx) { return mPresets.Get(idx); }
   
   /** Sets the specified preset to whatever current params are.
