@@ -27,6 +27,7 @@ mkdir -p ./src/skia
 mkdir -p ./src/skia/experimental/svg
 mkdir -p ./src/skia/src/
 mkdir -p ./src/skia/modules
+mkdir -p ./third_party/externals/icu/source/common
 mv ./skia_include_tmp ./src/skia/include
 mv ./skia_skottie_tmp ./src/skia/modules/skottie
 mv ./skia_particles_tmp ./src/skia/modules/particles
