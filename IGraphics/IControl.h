@@ -220,7 +220,7 @@ public:
    * If you are calling this "manually" to reuse a control for multiple parameters, you probably want to call IEditorDelegate::SendCurrentParamValuesFromDelegate() afterward, to update the control values
    * @param paramIdx Parameter index, or kNoParameter if there is no parameter linked with this control at valIdx
    * @param valIdx An index to choose which of the controls vals to set */
-  void SetParamIdx(int paramIdx, int valIdx = 0);
+  virtual void SetParamIdx(int paramIdx, int valIdx = 0);
  
   /** Check if the control is linked to a particular parameter
    * @param paramIdx The paramIdx to test
