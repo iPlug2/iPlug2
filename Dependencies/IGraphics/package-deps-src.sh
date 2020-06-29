@@ -13,7 +13,7 @@ mv ./src/skia/modules/skshaper ./skia_skshaper_tmp
 mv ./src/skia/experimental/svg/model ./skia_experimental_tmp
 mv ./src/skia/src/core ./skia_src_core_tmp
 mv ./src/skia/src/xml ./skia_src_xml_tmp
-mv ./third_party/externals/icu/source/common/unicode ./skia_ext_icu_tmp
+mv ./src/skia/third_party/externals/icu/source/common/unicode ./skia_ext_icu_tmp
 
 if [ "$(uname)" == "Darwin" ]; then
 rm -r src
@@ -27,7 +27,7 @@ mkdir -p ./src/skia
 mkdir -p ./src/skia/experimental/svg
 mkdir -p ./src/skia/src/
 mkdir -p ./src/skia/modules
-mkdir -p ./third_party/externals/icu/source/common
+mkdir -p ./src/skia/third_party/externals/icu/source/common
 mv ./skia_include_tmp ./src/skia/include
 mv ./skia_skottie_tmp ./src/skia/modules/skottie
 mv ./skia_particles_tmp ./src/skia/modules/particles
@@ -36,4 +36,4 @@ mv ./skia_skshaper_tmp ./src/skia/modules/skshaper
 mv ./skia_experimental_tmp ./src/skia/experimental/svg/model
 mv ./skia_src_core_tmp ./src/skia/src/core
 mv ./skia_src_xml_tmp ./src/skia/src/xml
-mv ./skia_ext_icu_tmp ./third_party/externals/icu/source/common/unicode
+mv ./skia_ext_icu_tmp ./src/skia/third_party/externals/icu/source/common/unicode

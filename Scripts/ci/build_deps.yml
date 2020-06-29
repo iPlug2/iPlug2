@@ -180,9 +180,13 @@ jobs:
 
   - bash: |
       cd ./Dependencies/IGraphics
-      ./build-skia-ios.sh arm64
       ./build-skia-ios.sh x64
-    displayName: Build Skia (ARM & x64)
+    displayName: Build Skia (x64)
+
+  - bash: |
+      cd ./Dependencies/IGraphics
+      ./build-skia-ios.sh arm64
+    displayName: Build Skia (ARM64)
 
   - bash: |
       cd ./Dependencies/Build
