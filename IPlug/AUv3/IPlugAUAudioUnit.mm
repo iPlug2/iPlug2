@@ -455,7 +455,10 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     mUIUpdateParamObserverToken = nullptr;
   }
   
-  delete mPlug;
+  // delete on the main thread, otherwise get main thread warnings
+//  dispatch_sync(dispatch_get_main_queue(), ^{
+    delete self->mPlug;
+//  });
 }
 
 #pragma mark - AUAudioUnit (Overrides)
