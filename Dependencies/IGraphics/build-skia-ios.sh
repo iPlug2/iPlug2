@@ -16,8 +16,9 @@ if [ "$#" -eq 1 ]; then
 
   if [ ! -d $DEPOT_TOOLS_PATH ]; then
     git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git' $DEPOT_TOOLS_PATH
-    export PATH="${PWD}/$DEPOT_TOOLS_PATH:${PATH}"
   fi
+
+  export PATH="${PWD}/$DEPOT_TOOLS_PATH:${PATH}"
 
   cd ../Build/src/skia
 
