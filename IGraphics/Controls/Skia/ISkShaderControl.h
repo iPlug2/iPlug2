@@ -56,34 +56,34 @@ public:
 //      )";
 
     // basic
-//    mShaderStr = R"(
-//    uniform float iTime;
-//    uniform float2 iResolution;
-//    void main(float2 fragCoord, inout half4 color) {
-//      float2 st = fragCoord/iResolution.xy;
-//      color = half4(st, 0., 1.);
-//    }
-//    )";
+    //mShaderStr = R"(
+    //uniform float iTime;
+    //uniform float2 iResolution;
+    //void main(float2 fragCoord, inout half4 color) {
+    //  float2 st = fragCoord/iResolution.xy;
+    //  color = half4(st, 0., 1.);
+    //}
+    //)";
     
     // spiral
-//    mShaderStr = R"(
-//    uniform float iTime;
-//    uniform float2 iResolution;
-//
-//    void main(float2 p, inout half4 color) {
-//      float2 in_center = float2(300., 300.);
-//      float4 in_colors0 = float4(1.,1.,1.,1.);
-//      float4 in_colors1 = float4(0.,0.,0.,1.);
-//      float2 pp = p - in_center;
-//      float radius = sqrt(dot(pp, pp));
-//      radius = sqrt(radius);
-//      float angle = atan(pp.y / pp.x);
-//      float t = (angle + 3.1415926/2) / (3.1415926);
-//      t += radius * iTime;
-//      t = fract(t);
-//      color = half4(mix(in_colors0, in_colors1, t));
-//    }
-//    )";
+    mShaderStr = R"(
+    uniform float iTime;
+    uniform float2 iResolution;
+
+    void main(float2 p, inout half4 color) {
+      float2 in_center = float2(300., 300.);
+      float4 in_colors0 = float4(1.,1.,1.,1.);
+      float4 in_colors1 = float4(0.,0.,0.,1.);
+      float2 pp = p - in_center;
+      float radius = sqrt(dot(pp, pp));
+      radius = sqrt(radius);
+      float angle = atan(pp.y / pp.x);
+      float t = (angle + 3.1415926/2) / (3.1415926);
+      t += radius * iTime;
+      t = fract(t);
+      color = half4(mix(in_colors0, in_colors1, t));
+    }
+    )";
     
     // noise
 //    mShaderStr = R"(
@@ -321,7 +321,6 @@ public:
                                       nullptr, false);
     
     mPaint.setShader(std::move(shader));
-    
 
     return true;
   }
