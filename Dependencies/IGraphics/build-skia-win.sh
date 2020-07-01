@@ -36,8 +36,6 @@ if [ "$#" -eq 2 ]; then
   python tools/git-sync-deps
 
   ./bin/gn gen ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR --args='
-  is_official_build = true
-  is_debug = false
   skia_use_system_libjpeg_turbo = false
   skia_use_system_libpng = false
   skia_use_system_zlib = false
@@ -64,8 +62,12 @@ if [ "$#" -eq 2 ]; then
 
   if [ $CONFIG_STR = "Debug" ]; then
     echo 'extra_cflags = [ "/MTd" ]' >> ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/args.gn
+    echo 'is_debug = true' >> ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/args.gn
+    echo 'is_official_build = false' >> ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/args.gn
   else
     echo 'extra_cflags = [ "/MT" ]' >> ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/args.gn
+    echo 'is_debug = false' >> ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/args.gn
+    echo 'is_official_build = true' >> ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/args.gn
   fi
 
   if [ $DIR_ARCH_STR = "Win32" ]; then
