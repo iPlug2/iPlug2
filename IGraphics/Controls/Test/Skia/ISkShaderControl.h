@@ -55,6 +55,33 @@ public:
 //      }
 //      )";
 
+    mShaderStr = R"(
+    uniform float u_time;
+    uniform float2 u_resolution;
+//    uniform float2 u_mouse;
+
+    // Plot a line on Y using a value between 0.0-1.0
+    float plot(float2 st, float pct){
+      return  smoothstep( pct-0.02, pct, st.y) -
+              smoothstep( pct, pct+0.02, st.y);
+    }
+
+    void main(float2 p, inout half4 color) {
+      float2 st = p/u_resolution.xy;
+
+        float y = st.x;
+
+        float3 acolor = float3(y);
+
+        // Plot a line
+        float pct = plot(st,y);
+        acolor = (1.0-pct)*acolor+pct*float3(0.0,1.0,0.0);
+
+      color = half4(acolor,1.0);
+    }
+    )";
+    
+    
     // basic
     //mShaderStr = R"(
     //uniform float iTime;
@@ -317,8 +344,7 @@ public:
     mRTEffect = effect;
     
     auto inputs = SkData::MakeWithoutCopy(mShaderInputs.get(), mRTEffect->inputSize());
-    auto shader = mRTEffect->makeShader(std::move(inputs), mChildren.data(), mChildren.count(),
-                                      nullptr, false);
+    auto shader = mRTEffect->makeShader(std::move(inputs), mChildren.data(), mChildren.count(), nullptr, false);
     
     mPaint.setShader(std::move(shader));
 
