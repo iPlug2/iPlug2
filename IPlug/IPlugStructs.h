@@ -111,7 +111,7 @@ struct IByteGetter
 class IByteChunk : private IByteGetter
 {
 public:
-  IByteChunk() {}
+  IByteChunk() : mPos(0) {}
   ~IByteChunk() {}
   
   /** This method is used in order to place the IPlug version number in the chunk when serialising data. In theory this is for backwards compatibility.
@@ -160,6 +160,17 @@ public:
   {
     return IByteGetter::GetBytes(mBytes.Get(), Size(), pBuf, size, startPos);
   }
+
+  /** Copy \c size bytes from the buffer into \c pBuf .
+   * @param pBuf Destination buffer
+   * @param size Number of bytes to copy
+   * @return Number of bytes read */
+  inline int GetBytes(void* pBuf, int size)
+  {
+    int len = GetBytes(pBuf, size, mPos);
+    mPos += len;
+    return len;
+  }
   
   /** /todo 
    * @tparam T 
@@ -181,6 +192,18 @@ public:
   {
     return GetBytes(pVal, sizeof(T), startPos);
   }
+
+  /** Copy a value out of the buffer at the current position and into the value and update the position
+   * @tparam T type of the variable to get
+   * @param pVal Pointer to the destination where the value will be stored
+   * @return int The number of bytes read from the buffer */
+  template <class T>
+  inline int Get(T* pVal)
+  {
+    int len = Get(pVal, mPos);
+    mPos += len;
+    return len;
+  }
   
   /** /todo 
    * @param str /todo
@@ -192,13 +215,23 @@ public:
     return PutBytes(str, slen);
   }
   
-  /** /todo 
-   * @param str /todo
-   * @param startPos /todo
-   * @return int /todo */
+  /** Retrieve a string from the buffer and put it in \c str .
+   * @param str Destination for the string
+   * @param startPos Starting index in the buffer
+   * @return int Number of bytes read */
   inline int GetStr(WDL_String& str, int startPos) const
   {
     return IByteGetter::GetStr(mBytes.Get(), Size(), str, startPos);
+  }
+
+  /** Retrieve a string from the buffer and put it in \c str .
+   * @param str Destination for the string
+   * @return int Number of bytes read */
+  inline int GetStr(WDL_String& str)
+  {
+    int len = GetStr(str, mPos);
+    mPos += len;
+    return len;
   }
   
   /** /todo 
@@ -213,6 +246,7 @@ public:
   inline void Clear()
   {
     mBytes.Resize(0);
+    mPos = 0;
   }
   
   /** Returns the current size of the chunk
@@ -258,16 +292,31 @@ public:
   {
     return (otherChunk.Size() == Size() && !memcmp(otherChunk.mBytes.Get(), mBytes.Get(), Size()));
   }
+
+  /** Return the current position in the buffer.
+   * @return The currene position in the buffer */
+  inline int Tell() const
+  {
+    return mPos;
+  }
+
+  /** Set the current buffer position. 
+   * @param pos The new buffer position */
+  inline void Seek(int pos)
+  {
+    mPos = pos;
+  }
   
 private:
   WDL_TypedBuf<uint8_t> mBytes;
+  int mPos;
 };
 
 /** Manages a non-owned block of memory, for receiving arbitrary message byte streams */
 class IByteStream : private IByteGetter
 {
 public:
-  IByteStream(const void *pData, int dataSize) : mBytes(reinterpret_cast<const uint8_t *>(pData)), mSize(dataSize) {}
+  IByteStream(const void *pData, int dataSize) : mBytes(reinterpret_cast<const uint8_t *>(pData)), mSize(dataSize), mPos(0) {}
   ~IByteStream() {}
   
   /** /todo 
@@ -280,24 +329,46 @@ public:
     return IByteGetter::GetBytes(mBytes, Size(), pBuf, size, startPos);
   }
   
-  /** /todo 
-   * @tparam T 
-   * @param pVal /todo
-   * @param startPos /todo
-   * @return int /todo */
+  /** Copy a value out of the buffer and into the value
+   * @tparam T type of the variable to get
+   * @param pVal Pointer to the destination where the value will be stored
+   * @param startPos Starting index in the buffer
+   * @return int The number of bytes read from the buffer */
   template <class T>
   inline int Get(T* pVal, int startPos) const
   {
     return GetBytes(pVal, sizeof(T), startPos);
   }
+
+  /** Copy a value out of the buffer at the current position and into the value and update the position
+   * @tparam T type of the variable to get
+   * @param pVal Pointer to the destination where the value will be stored
+   * @return int The number of bytes read from the buffer */
+  template <class T>
+  inline int Get(T* pVal)
+  {
+    int len = Get(pVal, mPos);
+    mPos += len;
+    return len;
+  }
   
-  /** /todo  
-   * @param str /todo
-   * @param startPos /todo
-   * @return int /todo */
+  /** Retrieve a string from the buffer and put it in \c str .
+   * @param str Destination for the string
+   * @param startPos Starting index in the buffer
+   * @return int Number of bytes read */
   inline int GetStr(WDL_String& str, int startPos) const
   {
     return IByteGetter::GetStr(mBytes, Size(), str, startPos);
+  }
+
+  /** Retrieve a string from the buffer and put it in \c str .
+   * @param str Destination for the string
+   * @return int Number of bytes read */
+  inline int GetStr(WDL_String& str)
+  {
+    int len = GetStr(str, mPos);
+    mPos += len;
+    return len;
   }
   
   /** Returns the  size of the chunk
@@ -322,9 +393,24 @@ public:
   {
     return mBytes;
   }
+
+  /** Return the current position in the buffer.
+   * @return The currene position in the buffer */
+  inline int Tell() const
+  {
+    return mPos;
+  }
+
+  /** Set the current buffer position. 
+   * @param pos The new buffer position */
+  inline void Seek(int pos)
+  {
+    mPos = pos;
+  }
   
 private:
   const uint8_t* mBytes;
+  int mPos;
   int mSize;
 };
 
