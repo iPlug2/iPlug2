@@ -143,7 +143,7 @@ class FaustGen : public IPlugFaust
     
     /** If DSP already exists will return it, otherwise create it
      * @return pointer to the DSP instance */
-    ::dsp* GetDSP(int maxInputs, int maxOutputs);
+    ::dsp* GetDSP(int maxInputs, int maxOutputs, midi_handler& handler);
 
     void FreeDSPFactory();
     void SetDefaultCompileOptions();
@@ -155,7 +155,7 @@ class FaustGen : public IPlugFaust
 
     void UpdateSourceCode(const char* str);
 
-    ::dsp* CreateDSPInstance(int nVoices = 0);
+    ::dsp* CreateDSPInstance(midi_handler& handler, int nVoices = 0);
     void AddInstance(FaustGen* pDSP) { mInstances.insert(pDSP); }
     void RemoveInstance(FaustGen* pDSP);
 

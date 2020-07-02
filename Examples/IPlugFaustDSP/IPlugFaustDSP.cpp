@@ -55,6 +55,11 @@ void IPlugFaustDSP::OnReset()
   mFaustProcessor.SetSampleRate(GetSampleRate());
 }
 
+void IPlugFaustDSP::ProcessMidiMsg(const IMidiMsg& msg)
+{
+  mFaustProcessor.ProcessMidiMsg(msg);
+}
+
 void IPlugFaustDSP::OnParamChange(int paramIdx)
 {
   mFaustProcessor.SetParameterValueNormalised(paramIdx, GetParam(paramIdx)->GetNormalized());

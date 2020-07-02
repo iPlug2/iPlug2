@@ -31,6 +31,7 @@ public:
 #if IPLUG_DSP
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void OnReset() override;
+  void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnParamChange(int paramIdx) override;
   void OnIdle() override;
 private:

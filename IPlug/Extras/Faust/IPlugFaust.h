@@ -17,8 +17,16 @@
 
 #include <memory>
 
+#define FAUSTFLOAT iplug::sample
+
+#define FAUSTCLASS_POLY mydsp_poly
+
+#define FAUST_UI_INTERVAL 100 //ms
+
+#include "faust/dsp/poly-dsp.h"
 #include "faust/gui/UI.h"
 #include "faust/gui/MidiUI.h"
+#include "faust/midi/iplug2-midi.h"
 #include "assocarray.h"
 
 #include "IPlugAPIBase.h"
@@ -48,6 +56,10 @@ public:
       mOverSampler = std::make_unique<OverSampler<sample>>(OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */);
     
     mName.Set(name);
+    mMidiUI = std::make_unique<MidiUI>(&mMidiHandler);
+    if(sTimer == nullptr) {
+        sTimer = Timer::Create(std::bind(&IPlugFaust::OnTimer, this, std::placeholders::_1), FAUST_UI_INTERVAL);
+    }
   }
 
   virtual ~IPlugFaust()
@@ -77,6 +89,9 @@ public:
   
   void FreeDSP()
   {
+    if (dynamic_cast<midi*>(mDSP.get())) {
+      mMidiHandler.removeMidiIn(dynamic_cast<midi*>(mDSP.get()));
+    }
     mDSP = nullptr;
   }
   
@@ -100,7 +115,7 @@ public:
 
   void ProcessMidiMsg(const IMidiMsg& msg)
   {
-//    TODO:
+      mMidiHandler.decodeMessage(msg);
   }
 
   virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames)
@@ -313,16 +328,24 @@ protected:
     
     return -1;
   }
+    
+  void OnTimer(Timer& timer)
+  {
+    GUI::updateAllGuis();
+  }
   
   std::unique_ptr<OverSampler<sample>> mOverSampler;
   WDL_String mName;
   int mNVoices;
   std::unique_ptr<::dsp> mDSP;
+  iplug2_midi_handler mMidiHandler;
   std::unique_ptr<MidiUI> mMidiUI;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<FAUSTFLOAT> mZones;
+  static Timer* sTimer;
   WDL_StringKeyedArray<FAUSTFLOAT*> mMap; // map is used for setting FAUST parameters by name, also used to reconnect existing parameters
   int mIPlugParamStartIdx = -1; // if this is negative, it means there is no linking
+  
   IPlugAPIBase* mPlug = nullptr;
   bool mInitialized = false;
 };

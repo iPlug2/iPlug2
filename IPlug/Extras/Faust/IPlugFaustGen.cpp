@@ -10,14 +10,12 @@
 
 #ifndef FAUST_COMPILED
 
-
-
 #include "IPlugFaustGen.h"
 #include "IPlugUtilities.h"
 
 #include "faust/dsp/libfaust.h"
 #define LLVM_DSP
-#include "faust/dsp/poly-dsp.h"
+
 #include "fileread.h"
 
 using namespace iplug;
@@ -26,7 +24,8 @@ int FaustGen::sFaustGenCounter = 0;
 int FaustGen::Factory::sFactoryCounter = 0;
 bool FaustGen::sAutoRecompile = false;
 std::map<std::string, FaustGen::Factory *> FaustGen::Factory::sFactoryMap;
-std::list<GUI*> GUI::fGuiList;
+//std::list<GUI*> GUI::fGuiList;
+//ztimedmap GUI::gTimedZoneMap;
 Timer* FaustGen::sTimer = nullptr;
 
 FaustGen::Factory::Factory(const char* name, const char* libraryPath, const char* drawPath, const char* inputDSP)
@@ -148,13 +147,17 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   }
 }
 
-::dsp *FaustGen::Factory::CreateDSPInstance(int nVoices)
+::dsp *FaustGen::Factory::CreateDSPInstance(midi_handler& handler, int nVoices)
 {
   ::dsp* pMonoDSP = mLLVMFactory->createDSPInstance();
 
+  // Polyphony handling
+  bool midi_sync = false;
+  MidiMeta::analyse(pMonoDSP, midi_sync, nVoices);
+    
+  /*
   // Check 'nvoices' metadata
-  if (nVoices == 0)
-  {
+  if (nVoices == 0) {
     FMeta meta;
     pMonoDSP->metadata(&meta);
     std::string numVoices = meta.get("nvoices", "0");
@@ -162,14 +165,18 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
     if (nVoices < 0)
       nVoices = 0;
   }
+  */
 
-  if (nVoices > 0)
-    return new mydsp_poly(pMonoDSP, nVoices, true);
-  else
+  if (nVoices > 0) {
+    dsp_poly* dsp_poly = new mydsp_poly(pMonoDSP, nVoices, true);
+    handler.addMidiIn(dsp_poly);
+    return dsp_poly;
+  } else {
     return pMonoDSP;
+  }
 }
 
-::dsp *FaustGen::Factory::GetDSP(int maxInputs, int maxOutputs)
+::dsp *FaustGen::Factory::GetDSP(int maxInputs, int maxOutputs, midi_handler& handler)
 {
   ::dsp* pDSP = nullptr;
   FMeta meta;
@@ -178,7 +185,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   // Factory already allocated
   if (mLLVMFactory)
   {
-    pDSP = CreateDSPInstance();
+    pDSP = CreateDSPInstance(handler);
     DBGMSG("FaustGen-%s: Factory already allocated, %i input(s), %i output(s)\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
     goto end;
   }
@@ -189,7 +196,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
     mLLVMFactory = CreateFactoryFromBitCode();
     if (mLLVMFactory)
     {
-      pDSP = CreateDSPInstance();
+      pDSP = CreateDSPInstance(handler);
       pDSP->metadata(&meta);
       DBGMSG("FaustGen-%s: Compilation from bitcode succeeded, %i input(s), %i output(s)\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
       goto end;
@@ -202,7 +209,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
     mLLVMFactory = CreateFactoryFromSourceCode();
     if (mLLVMFactory)
     {
-      pDSP = CreateDSPInstance();
+      pDSP = CreateDSPInstance(handler);
       pDSP->metadata(&meta);
       DBGMSG("FaustGen-%s: Compilation from source code succeeded, %i input(s), %i output(s)\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
       goto end;
@@ -213,7 +220,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   mSourceCodeStr.SetFormatted(256, maxInputs == 0 ? DEFAULT_SOURCE_CODE_FMT_STR_INSTRUMENT : DEFAULT_SOURCE_CODE_FMT_STR_FX, maxOutputs);
   mLLVMFactory = createDSPFactoryFromString("default", mSourceCodeStr.Get(), 0, 0, GetLLVMArchStr(), error, 0);
 
-  pDSP = CreateDSPInstance();
+  pDSP = CreateDSPInstance(handler);
   DBGMSG("FaustGen-%s: Allocation of default DSP succeeded, %i input(s), %i output(s)\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
 
 end:
@@ -477,15 +484,14 @@ FaustGen::~FaustGen()
 void FaustGen::Init()
 {
   mZones.Empty(); // remove existing pointers to zones
-  
-  mDSP = std::unique_ptr<::dsp>(mFactory->GetDSP(mMaxNInputs, mMaxNOutputs));
+    
+  mDSP = std::unique_ptr<::dsp>(mFactory->GetDSP(mMaxNInputs, mMaxNOutputs, mMidiHandler));
   assert(mDSP);
-
-//    AddMidiHandler();
-//    mDSP->buildUserInterface(mMidiUI);
+ 
+  mDSP->buildUserInterface(mMidiUI.get());
   mDSP->buildUserInterface(this);
   mDSP->init(DEFAULT_SAMPLE_RATE);
-
+  
   assert((mDSP->getNumInputs() <= mMaxNInputs) && (mDSP->getNumOutputs() <= mMaxNOutputs)); // don't have enough buffers to process the DSP
   
   if ((mFactory->mNInputs != mDSP->getNumInputs()) || (mFactory->mNOutputs != mDSP->getNumOutputs()))
@@ -603,7 +609,6 @@ void FaustGen::OnTimer(Timer& timer)
       DBGMSG("FaustGen-%s: File change detected ----------------------------------\n", mName.Get());
       DBGMSG("FaustGen-%s: JIT compiling %s\n", mName.Get(), pInputFile->Get());
       f.second->LoadFile(pInputFile->Get());
-      Init();
     }
       
     f.second->mPreviousTime = newTime;
