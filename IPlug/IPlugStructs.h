@@ -164,12 +164,11 @@ public:
   /** Copy \c size bytes from the buffer into \c pBuf .
    * @param pBuf Destination buffer
    * @param size Number of bytes to copy
-   * @return Number of bytes read */
+   * @return Next read position in the buffer */
   inline int GetBytes(void* pBuf, int size)
   {
-    int len = GetBytes(pBuf, size, mPos);
-    mPos += len;
-    return len;
+    mPos = GetBytes(pBuf, size, mPos);
+    return mPos;
   }
   
   /** /todo 
@@ -196,13 +195,12 @@ public:
   /** Copy a value out of the buffer at the current position and into the value and update the position
    * @tparam T type of the variable to get
    * @param pVal Pointer to the destination where the value will be stored
-   * @return int The number of bytes read from the buffer */
+   * @return int Next read position in the buffer */
   template <class T>
   inline int Get(T* pVal)
   {
-    int len = Get(pVal, mPos);
-    mPos += len;
-    return len;
+    mPos = Get(pVal, mPos);
+    return mPos;
   }
   
   /** /todo 
@@ -218,7 +216,7 @@ public:
   /** Retrieve a string from the buffer and put it in \c str .
    * @param str Destination for the string
    * @param startPos Starting index in the buffer
-   * @return int Number of bytes read */
+   * @return int Next read position in the buffer */
   inline int GetStr(WDL_String& str, int startPos) const
   {
     return IByteGetter::GetStr(mBytes.Get(), Size(), str, startPos);
@@ -226,12 +224,11 @@ public:
 
   /** Retrieve a string from the buffer and put it in \c str .
    * @param str Destination for the string
-   * @return int Number of bytes read */
+   * @return int Next read position in the buffer */
   inline int GetStr(WDL_String& str)
   {
-    int len = GetStr(str, mPos);
-    mPos += len;
-    return len;
+    mPos = GetStr(str, mPos);
+    return mPos;
   }
   
   /** /todo 
@@ -333,7 +330,7 @@ public:
    * @tparam T type of the variable to get
    * @param pVal Pointer to the destination where the value will be stored
    * @param startPos Starting index in the buffer
-   * @return int The number of bytes read from the buffer */
+   * @return int Next read position in the buffer */
   template <class T>
   inline int Get(T* pVal, int startPos) const
   {
@@ -343,19 +340,18 @@ public:
   /** Copy a value out of the buffer at the current position and into the value and update the position
    * @tparam T type of the variable to get
    * @param pVal Pointer to the destination where the value will be stored
-   * @return int The number of bytes read from the buffer */
+   * @return int Next read position in the buffer */
   template <class T>
   inline int Get(T* pVal)
   {
-    int len = Get(pVal, mPos);
-    mPos += len;
-    return len;
+    mPos = Get(pVal, mPos);
+    return mPos;
   }
   
   /** Retrieve a string from the buffer and put it in \c str .
    * @param str Destination for the string
    * @param startPos Starting index in the buffer
-   * @return int Number of bytes read */
+   * @return int Next read position in the buffer */
   inline int GetStr(WDL_String& str, int startPos) const
   {
     return IByteGetter::GetStr(mBytes, Size(), str, startPos);
@@ -363,12 +359,11 @@ public:
 
   /** Retrieve a string from the buffer and put it in \c str .
    * @param str Destination for the string
-   * @return int Number of bytes read */
+   * @return int Next read position in the buffer */
   inline int GetStr(WDL_String& str)
   {
-    int len = GetStr(str, mPos);
-    mPos += len;
-    return len;
+    mPos = GetStr(str, mPos);
+    return mPos;
   }
   
   /** Returns the  size of the chunk
