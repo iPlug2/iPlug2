@@ -66,52 +66,55 @@ struct IPlugVST3State
     
     IByteChunk chunk;
     
-    pPlug->SerializeState(chunk); // to get the size
-    Steinberg::int32 chunksize = chunk.Size();
+    const int bytesPerBlock = 128;
+    char buffer[bytesPerBlock];
     
-    if (chunksize > 0)
+    while(true)
     {
-      pState->read(chunk.GetData(), chunksize);
-      pPlug->UnserializeState(chunk, 0);
+      Steinberg::int32 bytesRead = 0;
+      auto status = pState->read(buffer, (Steinberg::int32) bytesPerBlock, &bytesRead);
       
-      Steinberg::int32 savedBypass = 0;
+      if (bytesRead <= 0 || (status != Steinberg::kResultTrue && pPlug->GetHost() != kHostWaveLab))
+        break;
       
-      if (pState->read(&savedBypass, sizeof(Steinberg::int32)) != Steinberg::kResultOk)
-      {
-        return false;
-      }
-      
-      IPlugVST3ControllerBase* pController = dynamic_cast<IPlugVST3ControllerBase*>(pPlug);
-      
-      if(pController)
-      {
-        if (pController->mBypassParameter)
-          pController->mBypassParameter->setNormalized(savedBypass);
-      }
-      
-      IPreset* pPreset = pPlug->GetPreset(0);
-      
-      Steinberg::Vst::String128 savedPresetName;
-      if (pState->read(&savedPresetName, sizeof(Steinberg::Vst::String128)) != Steinberg::kResultOk)
-      {
-        return false;
-      }
-      
-      WDL_String mPresetName;
-      char PresetName[128];
-      Steinberg::UString(savedPresetName, sizeof(Steinberg::Vst::String128)).toAscii(PresetName, sizeof(Steinberg::Vst::String128));
-      mPresetName.Set(PresetName);
-      strcpy(pPreset->mName, mPresetName.Get());
-      
-      pState->read(pPreset->mChunk.GetData(), chunksize);
-      pPlug->ModifyPreset(0, pPreset->mName);
-      pPlug->RestorePreset(0);
-      
-      pPlug->OnRestoreState();
-      return true;
+      chunk.PutBytes(buffer, bytesRead);
+    }
+    int pos = pPlug->UnserializeState(chunk,0);
+    
+    Steinberg::int32 savedBypass = 0;
+    
+    pState->seek(pos,Steinberg::IBStream::IStreamSeekMode::kIBSeekSet);
+    if (pState->read (&savedBypass, sizeof (Steinberg::int32)) != Steinberg::kResultOk) {
+      return false;
     }
     
-    return false;
+    IPlugVST3ControllerBase* pController = dynamic_cast<IPlugVST3ControllerBase*>(pPlug);
+    
+    if(pController)
+    {
+      if (pController->mBypassParameter)
+        pController->mBypassParameter->setNormalized(savedBypass);
+    }
+    
+    Steinberg::Vst::String128 savedPresetName;
+    
+    if (pState->read(&savedPresetName, sizeof(Steinberg::Vst::String128)) != Steinberg::kResultOk)
+    {
+      return false;
+    }
+    
+    IPreset* pPreset = pPlug->GetPreset(0);
+    WDL_String mPresetName;
+    char PresetName[128];
+    Steinberg::UString(savedPresetName, sizeof(Steinberg::Vst::String128)).toAscii(PresetName, sizeof(Steinberg::Vst::String128));
+    mPresetName.Set(PresetName);
+    strcpy(pPreset->mName, mPresetName.Get());
+    
+    pPlug->ModifyPreset(0, pPreset->mName);
+    pPlug->RestorePreset(0);
+    pPlug->OnRestoreState();
+    
+    return true;
   }
 };
 
