@@ -17,4 +17,4 @@
 
 std::list<GUI*> GUI::fGuiList;
 ztimedmap GUI::gTimedZoneMap;
-iplug::Timer* iplug::IPlugFaust::sTimer = nullptr;
+iplug::Timer* iplug::IPlugFaust::sUITimer = nullptr;

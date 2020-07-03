@@ -17,8 +17,6 @@
 
 #include <memory>
 
-#define FAUSTFLOAT iplug::sample
-
 #define FAUSTCLASS_POLY mydsp_poly
 
 #define FAUST_UI_INTERVAL 100 //ms
@@ -53,17 +51,22 @@ public:
   : mNVoices(nVoices)
   {
     if(rate > 1)
+    {
       mOverSampler = std::make_unique<OverSampler<sample>>(OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */);
-    
+    }
+      
     mName.Set(name);
     mMidiUI = std::make_unique<MidiUI>(&mMidiHandler);
-    if(sTimer == nullptr) {
-        sTimer = Timer::Create(std::bind(&IPlugFaust::OnTimer, this, std::placeholders::_1), FAUST_UI_INTERVAL);
+    
+    if(sUITimer == nullptr)
+    {
+      sUITimer = Timer::Create(std::bind(&IPlugFaust::OnUITimer, this, std::placeholders::_1), FAUST_UI_INTERVAL);
     }
   }
 
   virtual ~IPlugFaust()
   {
+    mMidiHandler.stopMidi();
     mParams.Empty(true);
   }
 
@@ -89,9 +92,9 @@ public:
   
   void FreeDSP()
   {
-    if (dynamic_cast<midi*>(mDSP.get())) {
-      mMidiHandler.removeMidiIn(dynamic_cast<midi*>(mDSP.get()));
-    }
+//    if (dynamic_cast<midi*>(mDSP.get())) {
+//      mMidiHandler.removeMidiIn(dynamic_cast<midi*>(mDSP.get()));
+//    }
     mDSP = nullptr;
   }
   
@@ -115,7 +118,7 @@ public:
 
   void ProcessMidiMsg(const IMidiMsg& msg)
   {
-      mMidiHandler.decodeMessage(msg);
+    mMidiHandler.decodeMessage(msg);
   }
 
   virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames)
@@ -329,7 +332,7 @@ protected:
     return -1;
   }
     
-  void OnTimer(Timer& timer)
+  void OnUITimer(Timer& timer)
   {
     GUI::updateAllGuis();
   }
@@ -342,7 +345,7 @@ protected:
   std::unique_ptr<MidiUI> mMidiUI;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<FAUSTFLOAT> mZones;
-  static Timer* sTimer;
+  static Timer* sUITimer;
   WDL_StringKeyedArray<FAUSTFLOAT*> mMap; // map is used for setting FAUST parameters by name, also used to reconnect existing parameters
   int mIPlugParamStartIdx = -1; // if this is negative, it means there is no linking
   

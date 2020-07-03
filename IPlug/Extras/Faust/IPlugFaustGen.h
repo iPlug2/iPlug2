@@ -62,8 +62,6 @@ static inline bool Equal(StatTime a, StatTime b) { return a == b; }
 static inline StatTime TimeZero() { return (StatTime) 0; }
 #endif
 
-#define FAUSTFLOAT iplug::sample
-
 #include "faust/dsp/llvm-dsp.h"
 #include "IPlugFaust.h"
 #include "IPlugTimer.h"

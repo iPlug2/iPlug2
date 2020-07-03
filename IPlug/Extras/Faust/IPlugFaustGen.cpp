@@ -24,8 +24,6 @@ int FaustGen::sFaustGenCounter = 0;
 int FaustGen::Factory::sFactoryCounter = 0;
 bool FaustGen::sAutoRecompile = false;
 std::map<std::string, FaustGen::Factory *> FaustGen::Factory::sFactoryMap;
-//std::list<GUI*> GUI::fGuiList;
-//ztimedmap GUI::gTimedZoneMap;
 Timer* FaustGen::sTimer = nullptr;
 
 FaustGen::Factory::Factory(const char* name, const char* libraryPath, const char* drawPath, const char* inputDSP)
@@ -33,7 +31,6 @@ FaustGen::Factory::Factory(const char* name, const char* libraryPath, const char
   mPreviousTime = TimeZero();
   mName.Set(name);
   mInstanceIdx = sFactoryCounter++;
-//  mMidiHandler.start_midi();
 
   AddLibraryPath(libraryPath);
   mDrawPath.Set(drawPath);
@@ -47,7 +44,6 @@ FaustGen::Factory::~Factory()
   FreeDSPFactory();
   mSourceCodeStr.Set("");
   mBitCodeStr.Set("");
-//  mMidiHandler.stop_midi();
 }
 
 void FaustGen::Factory::FreeDSPFactory()
@@ -152,26 +148,17 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   ::dsp* pMonoDSP = mLLVMFactory->createDSPInstance();
 
   // Polyphony handling
-  bool midi_sync = false;
-  MidiMeta::analyse(pMonoDSP, midi_sync, nVoices);
-    
-  /*
-  // Check 'nvoices' metadata
-  if (nVoices == 0) {
-    FMeta meta;
-    pMonoDSP->metadata(&meta);
-    std::string numVoices = meta.get("nvoices", "0");
-    nVoices = atoi(numVoices.c_str());
-    if (nVoices < 0)
-      nVoices = 0;
-  }
-  */
+  bool midiSync = false;
+  MidiMeta::analyse(pMonoDSP, midiSync, nVoices);
 
-  if (nVoices > 0) {
-    dsp_poly* dsp_poly = new mydsp_poly(pMonoDSP, nVoices, true);
-    handler.addMidiIn(dsp_poly);
-    return dsp_poly;
-  } else {
+  if (nVoices > 0)
+  {
+    dsp_poly* pDspPoly = new mydsp_poly(pMonoDSP, nVoices, true);
+    handler.addMidiIn(pDspPoly);
+    return pDspPoly;
+  }
+  else
+  {
     return pMonoDSP;
   }
 }
