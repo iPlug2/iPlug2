@@ -203,13 +203,13 @@ public:
     {
       assert(plugParamIdx + p < pPlug->NParams()); // plugin needs to have enough params!
 
-      IParam* pParam = pPlug->GetParam(plugParamIdx + p);
-      const double currentValueNormalised = pParam->GetNormalized();
-      pParam->Init(*mParams.Get(p));
+      IParam* pPlugParam = pPlug->GetParam(plugParamIdx + p);
+      const double currentValueNormalised = pPlugParam->GetNormalized();
+      pPlugParam->Init(*mParams.Get(p));
       if(setToDefault)
-        pParam->SetToDefault();
+        pPlugParam->SetToDefault();
       else
-        pParam->SetNormalized(currentValueNormalised);
+        pPlugParam->SetNormalized(currentValueNormalised);
     }
 
     return plugParamIdx;

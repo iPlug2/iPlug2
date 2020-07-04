@@ -11,7 +11,7 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
   mFaustProcessor.Init();
   mFaustProcessor.CompileCPP();
   mFaustProcessor.SetAutoRecompile(true);
-//  mFaustProcessor.CreateIPlugParameters(this); // in order to create iplug params, based on faust .dsp params, uncomment this
+  // mFaustProcessor.CreateIPlugParameters(this, 0, mFaustProcessor.NParams()); // in order to create iplug params, based on faust .dsp params, uncomment this
 #ifndef FAUST_COMPILED
   mFaustProcessor.SetCompileFunc([&](){
     OnParamReset(EParamSource::kRecompile);
@@ -29,6 +29,7 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
 
     IRECT knobs = b.GetFromTop(100.);
     IRECT viz = b.GetReducedFromTop(100);
+    IRECT keyb = viz.ReduceFromBottom(100);
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
 
@@ -38,6 +39,7 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->AttachControl(new IVScopeControl<2>(viz, "", DEFAULT_STYLE.WithColor(kBG, COLOR_BLACK).WithColor(kFG, COLOR_GREEN)), kCtrlTagScope);
+    pGraphics->AttachControl(new IVKeyboardControl(keyb));
   };
 #endif
 }
