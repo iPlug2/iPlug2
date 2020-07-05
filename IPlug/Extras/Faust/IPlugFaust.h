@@ -90,9 +90,6 @@ public:
   
   void FreeDSP()
   {
-//    if (dynamic_cast<midi*>(mDSP.get())) {
-//      mMidiHandler.removeMidiIn(dynamic_cast<midi*>(mDSP.get()));
-//    }
     mMidiHandler->stopMidi();
     mMidiUI = nullptr;
     mDSP = nullptr;
