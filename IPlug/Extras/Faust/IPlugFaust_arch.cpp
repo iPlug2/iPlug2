@@ -24,6 +24,9 @@ public:
 
   void Init() override
   {
+    mMidiHandler = std::make_unique<iplug2_midi_handler>();
+    mMidiUI = std::make_unique<MidiUI>(mMidiHandler.get());
+      
     ::dsp* tmpDsp = new FAUSTCLASS();
     
     // Polyphony handling
@@ -34,7 +37,7 @@ public:
     if (nvoices > 0)
     {
       dsp_poly* dspPoly = new FAUSTCLASS_POLY(tmpDsp, nvoices, true);
-      mMidiHandler.addMidiIn(dspPoly);
+      mMidiHandler->addMidiIn(dspPoly);
       mDSP = std::unique_ptr<::dsp>(dspPoly);
     }
     else

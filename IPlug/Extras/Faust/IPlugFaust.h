@@ -56,8 +56,7 @@ public:
     }
       
     mName.Set(name);
-    mMidiUI = std::make_unique<MidiUI>(&mMidiHandler);
-    
+      
     if(sUITimer == nullptr)
     {
       sUITimer = Timer::Create(std::bind(&IPlugFaust::OnUITimer, this, std::placeholders::_1), FAUST_UI_INTERVAL);
@@ -66,7 +65,6 @@ public:
 
   virtual ~IPlugFaust()
   {
-    mMidiHandler.stopMidi();
     mParams.Empty(true);
   }
 
@@ -95,7 +93,10 @@ public:
 //    if (dynamic_cast<midi*>(mDSP.get())) {
 //      mMidiHandler.removeMidiIn(dynamic_cast<midi*>(mDSP.get()));
 //    }
+    mMidiHandler->stopMidi();
+    mMidiUI = nullptr;
     mDSP = nullptr;
+    mMidiHandler = nullptr;
   }
   
   void SetOverSamplingRate(int rate)
@@ -118,7 +119,7 @@ public:
 
   void ProcessMidiMsg(const IMidiMsg& msg)
   {
-    mMidiHandler.decodeMessage(msg);
+    mMidiHandler->decodeMessage(msg);
   }
 
   virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames)
@@ -341,7 +342,7 @@ protected:
   WDL_String mName;
   int mNVoices;
   std::unique_ptr<::dsp> mDSP;
-  iplug2_midi_handler mMidiHandler;
+  std::unique_ptr<iplug2_midi_handler> mMidiHandler;
   std::unique_ptr<MidiUI> mMidiUI;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<FAUSTFLOAT> mZones;
