@@ -143,7 +143,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   }
 }
 
-::dsp *FaustGen::Factory::CreateDSPInstance(const std::unique_ptr<iplug2_midi_handler>& handler, int nVoices)
+::dsp *FaustGen::Factory::CreateDSPInstance(const MidiHandlerPtr& handler, int nVoices)
 {
   ::dsp* pMonoDSP = mLLVMFactory->createDSPInstance();
 
@@ -163,7 +163,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   }
 }
 
-::dsp *FaustGen::Factory::GetDSP(int maxInputs, int maxOutputs, const std::unique_ptr<iplug2_midi_handler>& handler)
+::dsp *FaustGen::Factory::GetDSP(int maxInputs, int maxOutputs, const MidiHandlerPtr& handler)
 {
   ::dsp* pDSP = nullptr;
   FMeta meta;

@@ -40,13 +40,14 @@
 #endif
 
 BEGIN_IPLUG_NAMESPACE
+using MidiHandlerPtr = std::unique_ptr<iplug2_midi_handler>;
 
 /** This abstract interface is used by the IPlug FAUST architecture file and the IPlug libfaust JIT compiling class FaustGen
  * In order to provide a consistent interface to FAUST DSP whether using the JIT compiler or a compiled C++ class */
 class IPlugFaust : public UI, public Meta
 {
 public:
-
+  
   IPlugFaust(const char* name, int nVoices = 1, int rate = 1)
   : mNVoices(nVoices)
   {
@@ -339,7 +340,7 @@ protected:
   WDL_String mName;
   int mNVoices;
   std::unique_ptr<::dsp> mDSP;
-  std::unique_ptr<iplug2_midi_handler> mMidiHandler;
+  MidiHandlerPtr mMidiHandler;
   std::unique_ptr<MidiUI> mMidiUI;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<FAUSTFLOAT> mZones;
