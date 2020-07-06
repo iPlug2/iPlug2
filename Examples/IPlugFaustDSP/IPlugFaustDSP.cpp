@@ -4,14 +4,14 @@
 IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, 1))
 {
-  InitParamRange(0, kNumParams-1, 0, "Param %i", 0., 0., 1., 0.01, "", IParam::kFlagsNone); // initialize kNumParams generic iplug params
+  InitParamRange(0, kNumParams-1, 1, "Param %i", 0., 0., 1., 0.01, "", IParam::kFlagsNone); // initialize kNumParams generic iplug params
   
 #if IPLUG_DSP
   mFaustProcessor.SetMaxChannelCount(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput));
   mFaustProcessor.Init();
   mFaustProcessor.CompileCPP();
   mFaustProcessor.SetAutoRecompile(true);
-  // mFaustProcessor.CreateIPlugParameters(this, 0, mFaustProcessor.NParams()); // in order to create iplug params, based on faust .dsp params, uncomment this
+  mFaustProcessor.CreateIPlugParameters(this, 0, mFaustProcessor.NParams()); // in order to create iplug params, based on faust .dsp params, uncomment this
 #ifndef FAUST_COMPILED
   mFaustProcessor.SetCompileFunc([&](){
     OnParamReset(EParamSource::kRecompile);
@@ -34,7 +34,7 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
 
     for (int i = 0; i < kNumParams; i++) {
-      pGraphics->AttachControl(new IVKnobControl(knobs.GetGridCell(i, 1, kNumParams), i));
+      pGraphics->AttachControl(new IVKnobControl(knobs.GetGridCell(i, 1, kNumParams).GetPadded(-5.f), i));
     }
     
     pGraphics->AttachPanelBackground(COLOR_GRAY);

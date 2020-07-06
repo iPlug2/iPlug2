@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------
 name: "FaustExample"
-Code generated with Faust 2.27.0 (https://faust.grame.fr)
+Code generated with Faust 2.26.1 (https://faust.grame.fr)
 Compilation options: -lang cpp -scal -ftz 0
 ------------------------------------------------------------ */
 
@@ -19,6 +19,65 @@ Compilation options: -lang cpp -scal -ftz 0
 #include <cmath>
 #include <math.h>
 
+class Faust1SIG0 {
+	
+  private:
+	
+	int iRec0[2];
+	
+  public:
+	
+	int getNumInputsFaust1SIG0() {
+		return 0;
+	}
+	int getNumOutputsFaust1SIG0() {
+		return 1;
+	}
+	int getInputRateFaust1SIG0(int channel) {
+		int rate;
+		switch ((channel)) {
+			default: {
+				rate = -1;
+				break;
+			}
+		}
+		return rate;
+	}
+	int getOutputRateFaust1SIG0(int channel) {
+		int rate;
+		switch ((channel)) {
+			case 0: {
+				rate = 0;
+				break;
+			}
+			default: {
+				rate = -1;
+				break;
+			}
+		}
+		return rate;
+	}
+	
+	void instanceInitFaust1SIG0(int sample_rate) {
+		for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) {
+			iRec0[l0] = 0;
+		}
+	}
+	
+	void fillFaust1SIG0(int count, float* table) {
+		for (int i = 0; (i < count); i = (i + 1)) {
+			iRec0[0] = (iRec0[1] + 1);
+			table[i] = std::sin((9.58738019e-05f * float((iRec0[0] + -1))));
+			iRec0[1] = iRec0[0];
+		}
+	}
+
+};
+
+static Faust1SIG0* newFaust1SIG0() { return (Faust1SIG0*)new Faust1SIG0(); }
+static void deleteFaust1SIG0(Faust1SIG0* dsp) { delete dsp; }
+
+static float ftbl0Faust1SIG0[65536];
 
 #ifndef FAUSTCLASS 
 #define FAUSTCLASS Faust1
@@ -33,31 +92,19 @@ class Faust1 : public dsp {
 	
  private:
 	
-	FAUSTFLOAT fHslider0;
-	FAUSTFLOAT fHslider1;
+	FAUSTFLOAT fVslider0;
 	int fSampleRate;
 	float fConst0;
-	float fConst1;
-	FAUSTFLOAT fHslider2;
-	float fRec0[2];
-	float fConst2;
-	float fConst3;
-	FAUSTFLOAT fButton0;
-	float fVec0[2];
+	FAUSTFLOAT fVslider1;
+	float fRec1[2];
+	FAUSTFLOAT fVslider2;
 	float fRec2[2];
-	float fConst4;
-	float fConst5;
-	int iRec3[2];
 	
  public:
 	
 	void metadata(Meta* m) { 
-		m->declare("envelopes.lib/adsr:author", "Yann Orlarey");
-		m->declare("envelopes.lib/author", "GRAME");
-		m->declare("envelopes.lib/copyright", "GRAME");
-		m->declare("envelopes.lib/license", "LGPL with exception");
-		m->declare("envelopes.lib/name", "Faust Envelope Library");
-		m->declare("envelopes.lib/version", "0.1");
+		m->declare("basics.lib/name", "Faust Basic Element Library");
+		m->declare("basics.lib/version", "0.1");
 		m->declare("filename", "IPlugFaustDSP.dsp");
 		m->declare("maths.lib/author", "GRAME");
 		m->declare("maths.lib/copyright", "GRAME");
@@ -65,7 +112,6 @@ class Faust1 : public dsp {
 		m->declare("maths.lib/name", "Faust Math Library");
 		m->declare("maths.lib/version", "2.3");
 		m->declare("name", "FaustExample");
-		m->declare("options", "[midi:on][nvoices:12]");
 		m->declare("oscillators.lib/name", "Faust Oscillator Library");
 		m->declare("oscillators.lib/version", "0.1");
 		m->declare("platform.lib/name", "Generic Platform Library");
@@ -108,37 +154,29 @@ class Faust1 : public dsp {
 	}
 	
 	static void classInit(int sample_rate) {
+		Faust1SIG0* sig0 = newFaust1SIG0();
+		sig0->instanceInitFaust1SIG0(sample_rate);
+		sig0->fillFaust1SIG0(65536, ftbl0Faust1SIG0);
+		deleteFaust1SIG0(sig0);
 	}
 	
 	virtual void instanceConstants(int sample_rate) {
 		fSampleRate = sample_rate;
-		fConst0 = std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate)));
-		fConst1 = (1.0f / fConst0);
-		fConst2 = std::max<float>(1.0f, (0.00999999978f * fConst0));
-		fConst3 = (1.0f / fConst2);
-		fConst4 = (0.200000003f / fConst2);
-		fConst5 = (0.800000012f / std::max<float>(1.0f, (0.100000001f * fConst0)));
+		fConst0 = (1.0f / std::min<float>(192000.0f, std::max<float>(1.0f, float(fSampleRate))));
 	}
 	
 	virtual void instanceResetUserInterface() {
-		fHslider0 = FAUSTFLOAT(0.5f);
-		fHslider1 = FAUSTFLOAT(0.5f);
-		fHslider2 = FAUSTFLOAT(200.0f);
-		fButton0 = FAUSTFLOAT(0.0f);
+		fVslider0 = FAUSTFLOAT(0.0f);
+		fVslider1 = FAUSTFLOAT(440.0f);
+		fVslider2 = FAUSTFLOAT(441.0f);
 	}
 	
 	virtual void instanceClear() {
-		for (int l0 = 0; (l0 < 2); l0 = (l0 + 1)) {
-			fRec0[l0] = 0.0f;
-		}
 		for (int l1 = 0; (l1 < 2); l1 = (l1 + 1)) {
-			fVec0[l1] = 0.0f;
+			fRec1[l1] = 0.0f;
 		}
 		for (int l2 = 0; (l2 < 2); l2 = (l2 + 1)) {
 			fRec2[l2] = 0.0f;
-		}
-		for (int l3 = 0; (l3 < 2); l3 = (l3 + 1)) {
-			iRec3[l3] = 0;
 		}
 	}
 	
@@ -162,39 +200,28 @@ class Faust1 : public dsp {
 	
 	virtual void buildUserInterface(UI* ui_interface) {
 		ui_interface->openVerticalBox("FaustExample");
-		ui_interface->addHorizontalSlider("freq", &fHslider2, 200.0f, 50.0f, 1000.0f, 0.00999999978f);
-		ui_interface->addHorizontalSlider("gain", &fHslider0, 0.5f, 0.0f, 1.0f, 0.00999999978f);
-		ui_interface->addButton("gate", &fButton0);
-		ui_interface->declare(&fHslider1, "midi", "ctrl 7");
-		ui_interface->addHorizontalSlider("master", &fHslider1, 0.5f, 0.0f, 1.0f, 0.00999999978f);
+		ui_interface->declare(&fVslider0, "1", "");
+		ui_interface->addVerticalSlider("Gain", &fVslider0, 0.0f, 0.0f, 1.0f, 0.100000001f);
+		ui_interface->declare(&fVslider1, "2", "");
+		ui_interface->addVerticalSlider("Freq1", &fVslider1, 440.0f, 100.0f, 1000.0f, 0.100000001f);
+		ui_interface->declare(&fVslider2, "3", "");
+		ui_interface->addVerticalSlider("Freq2", &fVslider2, 441.0f, 100.0f, 1000.0f, 0.100000001f);
 		ui_interface->closeBox();
 	}
 	
 	virtual void compute(int count, FAUSTFLOAT** inputs, FAUSTFLOAT** outputs) {
 		FAUSTFLOAT* output0 = outputs[0];
 		FAUSTFLOAT* output1 = outputs[1];
-		float fSlow0 = (float(fHslider0) * float(fHslider1));
-		float fSlow1 = std::max<float>(1.00000001e-07f, std::fabs(float(fHslider2)));
-		float fSlow2 = (fConst1 * fSlow1);
-		float fSlow3 = (1.0f - (fConst0 / fSlow1));
-		float fSlow4 = float(fButton0);
-		int iSlow5 = (fSlow4 == 0.0f);
+		float fSlow0 = float(fVslider0);
+		float fSlow1 = (fConst0 * float(fVslider1));
+		float fSlow2 = (fConst0 * float(fVslider2));
 		for (int i = 0; (i < count); i = (i + 1)) {
-			float fTemp0 = (fSlow2 + (fRec0[1] + -1.0f));
-			int iTemp1 = (fTemp0 < 0.0f);
-			float fTemp2 = (fSlow2 + fRec0[1]);
-			fRec0[0] = (iTemp1 ? fTemp2 : fTemp0);
-			float fRec1 = (iTemp1 ? fTemp2 : (fSlow2 + (fRec0[1] + (fSlow3 * fTemp0))));
-			fVec0[0] = fSlow4;
-			fRec2[0] = (fSlow4 + (fRec2[1] * float((fVec0[1] >= fSlow4))));
-			iRec3[0] = (iSlow5 * (iRec3[1] + 1));
-			float fTemp3 = (fSlow0 * (((2.0f * fRec1) + -1.0f) * std::max<float>(0.0f, (std::min<float>((fConst3 * fRec2[0]), std::max<float>((1.20000005f - (fConst4 * fRec2[0])), 0.800000012f)) - (fConst5 * float(iRec3[0]))))));
-			output0[i] = FAUSTFLOAT(fTemp3);
-			output1[i] = FAUSTFLOAT(fTemp3);
-			fRec0[1] = fRec0[0];
-			fVec0[1] = fVec0[0];
+			fRec1[0] = (fSlow1 + (fRec1[1] - std::floor((fSlow1 + fRec1[1]))));
+			output0[i] = FAUSTFLOAT((fSlow0 * ftbl0Faust1SIG0[int((65536.0f * fRec1[0]))]));
+			fRec2[0] = (fSlow2 + (fRec2[1] - std::floor((fSlow2 + fRec2[1]))));
+			output1[i] = FAUSTFLOAT((fSlow0 * ftbl0Faust1SIG0[int((65536.0f * fRec2[0]))]));
+			fRec1[1] = fRec1[0];
 			fRec2[1] = fRec2[0];
-			iRec3[1] = iRec3[0];
 		}
 	}
 

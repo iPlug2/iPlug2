@@ -18,7 +18,7 @@ enum EControlTags
   kNumCtrlTags
 };
 
-const int kNumParams = 5;
+const int kNumParams = 8;
 
 using namespace iplug;
 using namespace igraphics;
