@@ -260,7 +260,7 @@ public:
 
 WDL_PtrList<IODevice> g_devices;
 
-class OSCReciever;
+class OSCReceiver;
 
 class OSCInterface
 {
@@ -502,10 +502,10 @@ public:
   }
 };
 
-class OSCReciever : public OSCInterface
+class OSCReceiver : public OSCInterface
 {
 public:
-  OSCReciever(int port = 8000)
+  OSCReceiver(int port = 8000)
   {
     WDL_String str;
     CreateReciever(str, port);
