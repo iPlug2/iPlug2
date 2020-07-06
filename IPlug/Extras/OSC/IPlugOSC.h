@@ -26,6 +26,7 @@
 #include "jnetlib/jnetlib.h"
 
 #include "IPlugPlatform.h"
+#include "IPlugLogger.h"
 #include "IPlugOSC_msg.h"
 #include "IPlugTimer.h"
 
@@ -487,8 +488,7 @@ public:
     WDL_String str;
     CreateSender(str, destIP, port);
     DBGMSG("%s\n", str.Get());
-    mOutputProc = [&]()
-    {
+    mOutputProc = [&]() {
       for (auto x = 0; x < g_devices.GetSize(); x++)
         g_devices.Get(x)->run_output(results);  // send queued messages
     };
