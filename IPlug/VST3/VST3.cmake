@@ -1,22 +1,6 @@
 cmake_minimum_required(VERSION 3.11)
 find_package(VST3_SDK REQUIRED)
 
-find_file(VST3_32_PATH
-  "VST3"
-  PATHS "C:/Program Files (x86)/Common Files"
-  DOC "Path to install 32-bit VST3 plugins"
-)
-find_file(VST3_64_PATH
-  "VST3"
-  PATHS "C:/Program Files/Common Files" "$ENV{HOME}/Library/Audio/Plug-Ins"
-  DOC "Path to install 64-bit VST3 plugins"
-)
-
-set(IPLUG2_VST_ICON 
-  "${IPLUG2_DIR}/Dependencies/IPlug/VST3_SDK/doc/artwork/VST_Logo_Steinberg.ico"
-  CACHE FILEPATH "Path to VST3 plugin icon"
-)
-
 ##########################
 # VST3 Interface Library #
 ##########################

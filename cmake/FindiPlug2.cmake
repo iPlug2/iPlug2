@@ -13,6 +13,22 @@ find_file(VST2_64_PATH
   DOC "Path to install 64-bit VST2 plugins"
 )
 
+find_file(VST3_32_PATH
+  "VST3"
+  PATHS "C:/Program Files (x86)/Common Files"
+  DOC "Path to install 32-bit VST3 plugins"
+)
+find_file(VST3_64_PATH
+  "VST3"
+  PATHS "C:/Program Files/Common Files" "$ENV{HOME}/Library/Audio/Plug-Ins"
+  DOC "Path to install 64-bit VST3 plugins"
+)
+
+set(IPLUG2_VST_ICON 
+  "${IPLUG2_DIR}/Dependencies/IPlug/VST3_SDK/doc/artwork/VST_Logo_Steinberg.ico"
+  CACHE FILEPATH "Path to VST3 plugin icon"
+)
+
 set(IPLUG2_AAX_ICON
   "${IPLUG2_DIR}/Dependencies/IPlug/AAX_SDK/Utilities/PlugIn.ico"
   CACHE FILEPATH "Path to AAX plugin icon"
@@ -47,33 +63,6 @@ endif()
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
 CHECK_CXX_COMPILER_FLAG("/arch:AVX" COMPILER_OPT_ARCH_AVX_SUPPORTED)
-
-function(add_faust_target target)
-  set(inc_dir "${PROJECT_BINARY_DIR}/${target}.dir")
-  set("${target}_INCLUDE_DIR" ${inc_dir} PARENT_SCOPE)
-  set(src_list "")
-  set(out_list "")
-
-  # Make sure the output directory exists
-  file(MAKE_DIRECTORY "${inc_dir}")
-
-  list(LENGTH ARGN argcnt)
-  math(EXPR argcnt "${argcnt} - 1")
-  foreach (i1 RANGE 0 ${argcnt} 2)
-    math(EXPR i2 "${i1} + 1")
-    list(GET ARGN ${i1} dsp_file)
-    list(GET ARGN ${i2} class_name)
-    set(out_file "${inc_dir}/Faust${class_name}.hpp")
-    add_custom_command(
-      OUTPUT "${out_file}"
-      COMMAND "${FAUST_EXECUTABLE}" -lang cpp -cn "${class_name}" -a "${IPLUG2_DIR}/IPlug/Extras/Faust/IPlugFaust_arch.cpp" -o "${out_file}" "${dsp_file}"
-      DEPENDS "${dsp_file}"
-    )
-    list(APPEND src_list "${dsp_file}")
-    list(APPEND out_list "${out_file}")
-  endforeach()
-  add_custom_target(${target} ALL DEPENDS ${out_list} SOURCES ${src_list})
-endfunction()
 
 #! iplug2_target_add : Helper function to add sources, include directories, etc.
 # 
@@ -142,7 +131,8 @@ set(IGRAPHICS_SRC ${IPLUG2_DIR}/IGraphics)
 set(WDL_DIR ${IPLUG2_DIR}/WDL)
 set(_DEPS ${IPLUG2_DIR}/Dependencies)
 
-set(_def "NOMINMAX")
+# Make sure we define DEBUG for debug builds
+set(_def "NOMINMAX" "$<$<CONFIG:Debug>:DEBUG>")
 set(_opts "")
 set(_lib "")
 set(_inc
@@ -167,13 +157,6 @@ set(_inc
   ${IPLUG2_DIR}/Dependencies/IGraphics/STB
   ${IPLUG2_DIR}/Dependencies/IGraphics/imgui
   ${IPLUG2_DIR}/Dependencies/IGraphics/imgui/examples
-  ${IPLUG2_DIR}/Dependencies/Build/src/skia
-  ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/core
-  ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/effects
-  ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/config
-  ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/utils
-  ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/gpu
-  ${IPLUG2_DIR}/Dependencies/Build/src/skia/experimental/svg/model
   ${IPLUG2_DIR}/Dependencies/IGraphics/yoga
   ${IPLUG2_DIR}/Dependencies/IGraphics/yoga/yoga
   # iPlug2
@@ -384,13 +367,16 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
 endif()
 
 
-
+add_library(iPlug2_NoGraphics INTERFACE)
+iplug2_target_add(iPlug2_NoGraphics INTERFACE
+  DEFINE "NO_GRAPHICS"
+)
 
 add_library(iPlug2_Skia INTERFACE)
 if (WIN32)
   set(sdk "${_DEPS}/Build/win/${PROCESSOR_ARCH}/$<IF:$<CONFIG:DEBUG>,Debug,Release>")
   iplug2_target_add(iPlug2_Skia INTERFACE
-    DEFINE "IGRAPHICS_SKIA"
+    DEFINE "IGRAPHICS_SKIA" "IGRAPHICS_CPU"
     LINK 
       "${sdk}/libpng.lib"
       "${sdk}/pixman.lib"
@@ -400,11 +386,18 @@ if (WIN32)
       "${sdk}/sksg.lib"
       "${sdk}/skshaper.lib"
       "${sdk}/zlib.lib"
+    INCLUDE
+      ${IPLUG2_DIR}/Dependencies/Build/src/skia
+      ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/core
+      ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/effects
+      ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/config
+      ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/utils
+      ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/gpu
+      ${IPLUG2_DIR}/Dependencies/Build/src/skia/experimental/svg/model
   )
 else()
   set(iPlug2_Skia_NOTFOUND "TRUE")
 endif()
-
 
 iplug2_add_interface(iPlug2_Faust
   INCLUDE "${IPLUG2_DIR}/IPlug/Extras/Faust" "${FAUST_INCLUDE_DIR}"
