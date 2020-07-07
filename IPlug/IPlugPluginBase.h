@@ -271,8 +271,8 @@ public:
   
   /** Override this method in your plugin by pasting presets copied from the text file made by one of the "DumpPreset" functions into it.
    * For chunk based plugins, use MakePresetFromBlob(). For non-chunk based plugins, use MakePreset() or MakePresetFromNamedParams().
-   * If manually adding calls to a "MakePreset" function, add "++*n;" after each call for an accurate count of presets in CreatePresets(). */
-  virtual void AddDumpedPresets(int* n) {}
+   * If manually adding calls to a "MakePreset" function, add "++n;" after each call for an accurate count of presets in CreatePresets(). */
+  virtual void AddDumpedPresets(int& n) {}
 
   /** [VST2 only] /todo *  
    * @param chunk /todo
@@ -291,32 +291,32 @@ public:
   /** Writes a call to MakePreset() for the current preset to a new text file, or adds it to a pre-existing one
    * for pasting into AddDumpedPresets().
    * @param file The name of the file to write or overwrite.
-   * @param incrementerAdded If set to true (default), adds "++*n;" after each function call for counting presets in CreatePresets(). */
+   * @param incrementerAdded If set to true (default), adds "++n;" after each function call for counting presets in CreatePresets(). */
   void DumpMakePresetSrc(const char* file, bool incrementerAdded = true) const;
 
   /** Writes a call to MakePresetFromNamedParams() for the current preset to a new text file, or adds it to a pre-existing one
    * for pasting into AddDumpedPresets().
    * @param file The name of the file to write or overwrite.
    * @param paramEnumNames A list of all parameter names. e.g. const char* pParamNames[] = {"kParam1", "kParam2", "kParam3"};
-   * @param incrementerAdded If set to true (default), adds "++*n;" after each function call for counting presets in CreatePresets(). */
+   * @param incrementerAdded If set to true (default), adds "++n;" after each function call for counting presets in CreatePresets(). */
   void DumpMakePresetFromNamedParamsSrc(const char* file, const char* paramEnumNames[], bool incrementerAdded = true) const;
 
   /** Writes a call to MakePresetFromBlob() for the current preset to a new text file, or adds it to a pre-existing one
    * for pasting into AddDumpedPresets(). Note: Set PLUG_DOES_STATE_CHUNKS to 1 to load blob presets.
    * @param file The name of the file to write or overwrite.
-   * @param incrementerAdded If set to true (default), adds "++*n;" after each function call for counting presets in CreatePresets(). */
+   * @param incrementerAdded If set to true (default), adds "++n;" after each function call for counting presets in CreatePresets(). */
   void DumpPresetBlob(const char* file, bool incrementerAdded = true) const;
 
   /** Writes a call to MakePresetFromBlob() for all presets to a new text file for pasting into AddDumpedPresets().
    * Note: Set PLUG_DOES_STATE_CHUNKS to 1 to load blob presets.
    * @param filename The name of the file to write.
-   * @param incrementerAdded If set to true (default), adds "++*n;" after each function call for counting presets in CreatePresets(). */
+   * @param incrementerAdded If set to true (default), adds "++n;" after each function call for counting presets in CreatePresets(). */
   void DumpAllPresetsBlob(const char* filename, bool incrementerAdded = true) const;
 
   /** Writes a call to MakePresetFromBlob() for all presets to a new text file for pasting into AddDumpedPresets().
    * Note: Set PLUG_DOES_STATE_CHUNKS to 1 to load blob presets.
    * @param file The name of the file to write.
-   * @param incrementerAdded If set to true (default), adds "++*n;" after each function call for counting presets in CreatePresets(). */
+   * @param incrementerAdded If set to true (default), adds "++n;" after each function call for counting presets in CreatePresets(). */
   void DumpBankBlob(const char* file, bool incrementerAdded = true) const;
   
   /** Save current state as a VST2 format preset

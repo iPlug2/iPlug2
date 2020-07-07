@@ -528,10 +528,8 @@ void IPluginBase::CreatePresets()
   int n = 0;
   int npresets = mPresets.GetSize();
   
-  MakeDefaultPreset("Init", 1);
-  ++n;
-  AddDumpedPresets(&n);
-  MakeDefaultPreset("User Preset", npresets - n);
+  AddDumpedPresets(n);
+  if (n < npresets) MakeDefaultPreset("Default Preset", npresets - n);
 }
 
 bool IPluginBase::SerializePresets(IByteChunk& chunk) const
@@ -620,7 +618,7 @@ void IPluginBase::DumpMakePresetSrc(const char* filename, bool incrementerAdded)
       fprintf(fp, ", %s", paramVal);
     }
     fprintf(fp, ");\n");
-    if (incrementerAdded) fprintf(fp, "  ++*n;\n");
+    if (incrementerAdded) fprintf(fp, "  ++n;\n");
     fclose(fp);
   }
 }
@@ -664,7 +662,7 @@ void IPluginBase::DumpMakePresetFromNamedParamsSrc(const char* filename, const c
       fprintf(fp, ",\n    %s, %s", paramEnumNames[i], paramVal);
     }
     fprintf(fp, ");\n");
-    if (incrementerAdded) fprintf(fp, "  ++*n;\n");
+    if (incrementerAdded) fprintf(fp, "  ++n;\n");
     fclose(fp);
   }
 }
@@ -687,7 +685,7 @@ void IPluginBase::DumpPresetBlob(const char* filename, bool incrementerAdded) co
   wdl_base64encode(byteStart, buf, pPresetChunk->Size());
   
   fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
-  if (incrementerAdded) fprintf(fp, "  ++*n;\n");
+  if (incrementerAdded) fprintf(fp, "  ++n;\n");
   fclose(fp);
 }
 
@@ -711,7 +709,7 @@ void IPluginBase::DumpAllPresetsBlob(const char* filename, bool incrementerAdded
     wdl_base64encode(chnk.GetData(), buf, chnk.Size());
     
     fprintf(fp, "%s\", %i);\n", buf, chnk.Size());
-    if (incrementerAdded) fprintf(fp, "  ++*n;\n");
+    if (incrementerAdded) fprintf(fp, "  ++n;\n");
   }
   
   fclose(fp);
@@ -735,7 +733,7 @@ void IPluginBase::DumpBankBlob(const char* filename, bool incrementerAdded) cons
     wdl_base64encode(pPresetChunk->GetData(), buf, pPresetChunk->Size());
     
     fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
-    if (incrementerAdded) fprintf(fp, "  ++*n;\n");
+    if (incrementerAdded) fprintf(fp, "  ++n;\n");
   }
   
   fclose(fp);
