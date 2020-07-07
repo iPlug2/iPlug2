@@ -455,7 +455,10 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     mUIUpdateParamObserverToken = nullptr;
   }
   
-  delete mPlug;
+  // delete on the main thread, otherwise get main thread warnings
+//  dispatch_sync(dispatch_get_main_queue(), ^{
+    delete self->mPlug;
+//  });
 }
 
 #pragma mark - AUAudioUnit (Overrides)
@@ -778,7 +781,15 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
 #pragma mark - IPlugAUAudioUnit
 
-- (void)informHostOfParamChange: (AUParameterAddress) address : (float) realValue
+- (void) beginInformHostOfParamChange: (uint64_t) address;
+{
+  AUParameter* parameterToChange = [mParameterTree parameterWithAddress:address];
+  AUValue exitingValue = [parameterToChange value];
+  
+  [parameterToChange setValue:exitingValue originator:mUIUpdateParamObserverToken atHostTime:0 eventType:AUParameterAutomationEventTypeTouch]; // TODO: atHostTime:0 ?
+}
+
+- (void) informHostOfParamChange: (AUParameterAddress) address : (float) realValue
 {
   AUParameter* parameterToChange = [mParameterTree parameterWithAddress:address];
   
@@ -786,6 +797,14 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     [parameterToChange setValue:realValue originator:mUIUpdateParamObserverToken];
   else
     [parameterToChange setValue:realValue];
+}
+
+- (void) endInformHostOfParamChange: (uint64_t) address;
+{
+  AUParameter* parameterToChange = [mParameterTree parameterWithAddress:address];
+  AUValue exitingValue = [parameterToChange value];
+  
+  [parameterToChange setValue:exitingValue originator:mUIUpdateParamObserverToken atHostTime:0 eventType:AUParameterAutomationEventTypeRelease]; // TODO: atHostTime:0 ?
 }
 
 - (PLATFORM_VIEW*) openWindow: (PLATFORM_VIEW*) pParent

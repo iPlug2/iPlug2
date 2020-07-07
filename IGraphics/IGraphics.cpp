@@ -1101,8 +1101,8 @@ void IGraphics::OnMouseOut()
 
 void IGraphics::OnMouseDrag(const std::vector<IMouseInfo>& points)
 {
-//  Trace("IGraphics::OnMouseDrag:", __LINE__, "x:%0.2f, y:%0.2f, dX:%0.2f, dY:%0.2f, mod:LRSCA: %i%i%i%i%i",
-//        x, y, dX, dY, mod.L, mod.R, mod.S, mod.C, mod.A);
+  Trace("IGraphics::OnMouseDrag:", __LINE__, "x:%0.2f, y:%0.2f, dX:%0.2f, dY:%0.2f, mod:LRSCA: %i%i%i%i%i",
+        points[0].x, points[0].y, points[0].dX, points[0].dY, points[0].ms.L, points[0].ms.R, points[0].ms.S, points[0].ms.C, points[0].ms.A);
 
   if (mResizingInProcess && points.size() == 1)
     OnDragResize(points[0].x, points[0].y);
