@@ -61,8 +61,6 @@ static inline bool Equal(StatTime a, StatTime b) { return a == b; }
 static inline StatTime TimeZero() { return (StatTime) 0; }
 #endif
 
-#define FAUSTFLOAT iplug::sample
-
 #include "faust/dsp/llvm-dsp.h"
 #include "IPlugFaust.h"
 #include "IPlugTimer.h"
@@ -142,7 +140,7 @@ class FaustGen : public IPlugFaust
     
     /** If DSP already exists will return it, otherwise create it
      * @return pointer to the DSP instance */
-    ::dsp* GetDSP(int maxInputs, int maxOutputs);
+    ::dsp* GetDSP(int maxInputs, int maxOutputs, const MidiHandlerPtr& handler);
 
     void FreeDSPFactory();
     void SetDefaultCompileOptions();
@@ -154,7 +152,7 @@ class FaustGen : public IPlugFaust
 
     void UpdateSourceCode(const char* str);
 
-    ::dsp* CreateDSPInstance(int nVoices = 0);
+    ::dsp* CreateDSPInstance(const MidiHandlerPtr& handler, int nVoices = 0);
     void AddInstance(FaustGen* pDSP) { mInstances.insert(pDSP); }
     void RemoveInstance(FaustGen* pDSP);
 
@@ -193,7 +191,6 @@ class FaustGen : public IPlugFaust
     std::set<FaustGen*> mInstances;
 
     llvm_dsp_factory* mLLVMFactory = nullptr;
-    //  midi_handler mMidiHandler;
     WDL_FastString mSourceCodeStr;
     WDL_FastString mBitCodeStr;
     WDL_String mDrawPath;
