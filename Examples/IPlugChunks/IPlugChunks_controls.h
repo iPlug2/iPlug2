@@ -205,6 +205,20 @@ public:
     g.FillTriangle(mTriColor, ax, ay, bx, by, cx, cy);
     
   }
+
+  void ResetFactoryBank()
+  {
+    int numpresets = dynamic_cast<IPluginBase*>(GetDelegate())->NPresets();
+    for (int i = 0; i < numpresets; i++)
+    {
+      IPreset* pPreset = dynamic_cast<IPluginBase*>(GetDelegate())->GetPreset(i);
+      pPreset->mChunk.Clear();
+      pPreset->mInitialized =false;
+    }
+    dynamic_cast<IPluginBase*>(GetDelegate())->CreatePresets();
+    dynamic_cast<IPluginBase*>(GetDelegate())->RestorePreset(0);
+    dynamic_cast<IPluginBase*>(GetDelegate())->InformHostOfPresetChange();
+  }
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
@@ -233,6 +247,8 @@ public:
     menu.AddItem("Dump PresetBlob");
     menu.AddItem("Dump AllPresetsBlob");
     menu.AddItem("Dump BankBlob");
+    menu.AddSeparator();
+    menu.AddItem("Reset to Factory Default");
     
     if(GetUI() != nullptr)
     {
@@ -301,6 +317,9 @@ public:
           fileName.Set("blobBank");
           GetUI()->PromptForFile(fileName, mPreviousPath, EFileAction::Save, "txt");
           dynamic_cast<IPluginBase*>(GetDelegate())->DumpBankBlob(fileName.Get());
+          break;
+          case 15: //Reset factory presets
+          ResetFactoryBank();
           break;
         default:
           break;

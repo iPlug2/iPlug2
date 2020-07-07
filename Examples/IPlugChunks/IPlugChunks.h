@@ -65,7 +65,7 @@ public:
   void Reset();
   void OnParamChange(int paramIdx) override;
   void OnIdle() override;
-  void AddDumpedPresets(int* n) override;
+  void AddDumpedPresets(int& n) override;
   bool SerializeState(IByteChunk &chunk) const override;
   int UnserializeState(const IByteChunk &chunk, int startPos) override;
   bool CompareState(const uint8_t* pIncomingState, int startPos) const override;
