@@ -75,9 +75,9 @@ IGraphics::~IGraphics()
 
 void IGraphics::SetScreenScale(int scale)
 {
+  mScreenScale = scale;
   int windowWidth = WindowWidth() * GetPlatformWindowScale();
   int windowHeight = WindowHeight() * GetPlatformWindowScale();
-  mScreenScale = scale;
     
   PlatformResize(GetDelegate()->EditorResizeFromUI(windowWidth, windowHeight, true));
   ForAllControls(&IControl::OnRescale);
