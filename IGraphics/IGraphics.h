@@ -1600,6 +1600,7 @@ private:
   }
   
   WDL_PtrList<IControl> mControls;
+  std::unordered_map<int, IControl*> mCtrlTags;
 
   // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
   std::unique_ptr<ICornerResizerControl> mCornerResizer;

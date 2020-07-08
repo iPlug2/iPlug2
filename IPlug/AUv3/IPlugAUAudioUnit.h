@@ -22,13 +22,15 @@
 #endif
 
 @interface IPlugAUAudioUnit : AUAudioUnit
-- (void)informHostOfParamChange: (uint64_t) address : (float) realValue;
-- (NSUInteger)getChannelLayoutTags: (int) dir : (AudioChannelLayoutTag*) pTags;
-- (void)populateChannelCapabilitesArray: (NSMutableArray*) pArray;
-- (NSInteger)width;
-- (NSInteger)height;
-- (PLATFORM_VIEW*)openWindow: (PLATFORM_VIEW*) pParent;
+- (void) beginInformHostOfParamChange: (uint64_t) address;
+- (void) informHostOfParamChange: (uint64_t) address : (float) realValue;
+- (void) endInformHostOfParamChange: (uint64_t) address;
+- (NSUInteger) getChannelLayoutTags: (int) dir : (AudioChannelLayoutTag*) pTags;
+- (void) populateChannelCapabilitesArray: (NSMutableArray*) pArray;
+- (NSInteger) width;
+- (NSInteger) height;
+- (PLATFORM_VIEW*) openWindow: (PLATFORM_VIEW*) pParent;
 //- (void)resize: (CGRect) bounds;
-- (void)closeWindow;
+- (void) closeWindow;
 - (bool) sendMidiData:(int64_t) sampleTime : (NSInteger) length : (const uint8_t*) midiBytes;
 @end

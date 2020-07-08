@@ -19,7 +19,8 @@ enum EControlTags
 {
   kCtrlTagDialogResult = 0,
   kCtrlTagVectorButton,
-  kCtrlTagVectorSlider,
+  kCtrlTagVectorSliderV,
+  kCtrlTagVectorSliderH,
   kCtrlTagTabSwitch,
   kCtrlTagRadioButton,
   kCtrlTagScope,
