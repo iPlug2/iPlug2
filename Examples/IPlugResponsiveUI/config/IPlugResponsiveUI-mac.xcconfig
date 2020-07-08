@@ -52,7 +52,7 @@ ARCHS = $(ARCHS_STANDARD_64_BIT)
 GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
 
 // Flags to pass to compiler for all builds
-GCC_CFLAGS = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 //-mavx
+GCC_CFLAGS[arch=x86_64] = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 //-mavx
 
 // Uncomment to enable relaxed IEEE compliance
 //GCC_FAST_MATH = YES
