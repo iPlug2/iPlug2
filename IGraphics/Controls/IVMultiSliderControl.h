@@ -26,6 +26,8 @@ template <int MAXNC = 1>
 class IVMultiSliderControl : public IVTrackControlBase
 {
 public:
+  using OnNewValueFunc = std::function<void(int trackIdx, double val)>;
+
   static constexpr int kMsgTagSetHighlight = 0;
   
   /** Constructs a vector multi slider control that is not linked to parameters
@@ -232,9 +234,24 @@ public:
   }
 
   /** override to do something when an individual slider is dragged */
-  virtual void OnNewValue(int trackIdx, double val) {}
+  virtual void OnNewValue(int trackIdx, double val)
+  {
+    if(mOnNewValueFunc)
+      mOnNewValueFunc(trackIdx, val);
+  }
+  
+  void SetOnNewValueFunc(OnNewValueFunc func)
+  {
+    mOnNewValueFunc = func;
+  }
+  
+  int GetLastSliderHit() const
+  {
+    return mSliderHit;
+  }
   
 protected:
+  OnNewValueFunc mOnNewValueFunc = nullptr;
   int mPrevSliderHit = -1;
   int mSliderHit = -1;
   double mGrain = 0.001;
