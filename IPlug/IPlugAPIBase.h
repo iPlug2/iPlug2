@@ -84,16 +84,6 @@ public:
    * @param height The selected height */
   virtual void OnHostSelectedViewConfiguration(int width, int height) {}
 
-  /** KeyDown handler for VST2, in order to get keystrokes from certain hosts 
-   * @param key Information about the key that was pressed
-   * @return \c true if the key was handled by the plug-in */
-  virtual bool OnKeyDown(const IKeyPress& key) { return false; }
-
-  /** KeyDown handler for VST2, in order to get keystrokes from certain hosts
-   * @param key Information about the key that was released
-   * @return \c true if the key was handled by the plug-in */
-  virtual bool OnKeyUp(const IKeyPress& key) { return false; }
-
   /** Override this method to provide custom text linked to MIDI note numbers in API classes that support that (VST2)
    * Typically this might be used for a drum machine plug-in, in order to label a certainty "kick drum" etc.
    * @param noteNumber MIDI note to get the textual description for
@@ -127,11 +117,20 @@ public:
   void SetParameterValue(int paramIdx, double normalizedValue);
   
   /** Get the color of the track that the plug-in is inserted on */
-  virtual void GetTrackColor(int& r, int& g, int& b) {};
+  virtual void GetTrackColor(int& r, int& g, int& b) { r = 0; g = 0; b = 0; }
 
   /** Get the name of the track that the plug-in is inserted on */
-  virtual void GetTrackName(WDL_String& str) {};
-  
+  virtual void GetTrackName(WDL_String& str) {}
+
+  /** Get the index of the track that the plug-in is inserted on */
+  virtual int GetTrackIndex() { return 0; }
+
+  /** Get the namespace of the track that the plug-in is inserted on */
+  virtual void GetTrackNamespace(WDL_String& str) {}
+
+  /** Get the namespace index of the track that the plug-in is inserted on */
+  virtual int GetTrackNamespaceIndex() { return 0; }
+
   /** /todo */
   virtual void DirtyParametersFromUI() override;
 
@@ -158,7 +157,7 @@ public:
   
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
   
-  bool EditorResizeFromUI(int viewWidth, int viewHeight) override { return EditorResize(viewWidth, viewHeight); }
+  bool EditorResizeFromUI(int viewWidth, int viewHeight, bool needsPlatformResize) override;
   
   void SendParameterValueFromUI(int paramIdx, double normalisedValue) override
   {
@@ -187,27 +186,27 @@ public:
 private:
   /** Implementations call into the APIs resize hooks
    * returns a bool to indicate whether the DAW or plugin class has resized the host window */
-  virtual bool EditorResize(int width, int height);
+  virtual bool EditorResize(int width, int height) { return false; }
   
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
-  virtual void BeginInformHostOfParamChange(int paramIdx) {};
+  virtual void BeginInformHostOfParamChange(int paramIdx) {}
 
   /** Implemented by the API class, called by the UI (or by a delegate) at the end of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
-  virtual void EndInformHostOfParamChange(int paramIdx) {};
+  virtual void EndInformHostOfParamChange(int paramIdx) {}
 
   /** Implemented by the API class, called by the UI via SetParameterValue() with the value of a parameter change gesture
    * @param paramIdx The parameter that is being changed
    * @param normalizedValue The new normalised value of the parameter being changed */
-  virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {};
+  virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {}
   
   //DISTRIBUTED ONLY (Currently only VST3)
   /** /todo */
-  virtual void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {};
+  virtual void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {}
   
   /** /todo */
-  virtual void TransmitSysExDataFromProcessor(const SysExData& data) {};
+  virtual void TransmitSysExDataFromProcessor(const SysExData& data) {}
 
   void OnTimer(Timer& t);
 

@@ -372,10 +372,10 @@ public:
 
       if(mWritePos == 0)
       {
-        mDownsampler16x.process_block(mDown8x.Get(), mDown16x.Get(), 8);
-        mDownsampler8x.process_block(mDown4x.Get(), mDown8x.Get(), 4);
-        mDownsampler4x.process_block(mDown2x.Get(), mDown4x.Get(), 2);
-        mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x.Get());
+        mDownsampler16x.Get(0)->process_block(mDown8x.Get(), mDown16x.Get(), 8);
+        mDownsampler8x.Get(0)->process_block(mDown4x.Get(), mDown8x.Get(), 4);
+        mDownsampler4x.Get(0)->process_block(mDown2x.Get(), mDown4x.Get(), 2);
+        mDownSamplerOutput = mDownsampler2x.Get(0)->process_sample(mDown2x.Get());
       }
     };
 
@@ -388,9 +388,9 @@ public:
 
       if(mWritePos == 0)
       {
-        mDownsampler8x.process_block(mDown4x.Get(), mDown8x.Get(), 4);
-        mDownsampler4x.process_block(mDown2x.Get(), mDown4x.Get(), 2);
-        mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x.Get());
+        mDownsampler8x.Get(0)->process_block(mDown4x.Get(), mDown8x.Get(), 4);
+        mDownsampler4x.Get(0)->process_block(mDown2x.Get(), mDown4x.Get(), 2);
+        mDownSamplerOutput = mDownsampler2x.Get(0)->process_sample(mDown2x.Get());
       }
     };
 
@@ -403,8 +403,8 @@ public:
 
       if(mWritePos == 0)
       {
-        mDownsampler4x.process_block(mDown2x.Get(), mDown4x.Get(), 2);
-        mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x.Get());
+        mDownsampler4x.Get(0)->process_block(mDown2x.Get(), mDown4x.Get(), 2);
+        mDownSamplerOutput = mDownsampler2x.Get(0)->process_sample(mDown2x.Get());
       }
     };
 
@@ -416,7 +416,7 @@ public:
 
       if(mWritePos == 0)
       {
-        mDownSamplerOutput = mDownsampler2x.process_sample(mDown2x.Get());
+        mDownSamplerOutput = mDownsampler2x.Get(0)->process_sample(mDown2x.Get());
       }
     };
 

@@ -16,7 +16,6 @@ MidiSynth::MidiSynth(VoiceAllocator::EPolyMode mode, int blockSize)
 : mBlockSize(blockSize)
 {
   SetPolyMode(mode);
-  const int kPitchBendDefault = 7;
 
   for(int i=0; i<128; i++)
   {
@@ -28,11 +27,8 @@ MidiSynth::MidiSynth(VoiceAllocator::EPolyMode mode, int blockSize)
   for(int i=0; i<16; ++i)
   {
     mChannelStates[i] = ChannelState{0};
-    mChannelStates[i].pitchBendRange = kPitchBendDefault;
+    mChannelStates[i].pitchBendRange = kDefaultPitchBendRange;
   }
-
-  // TEST - set a default lower MPE zone and enable MPE mode
-  // SetMPEZones(0, 16);
 }
 
 MidiSynth::~MidiSynth()
@@ -168,7 +164,7 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
       masterChannelStoredValue = mChannelStates[MasterChannelFor(event.mAddress.mChannel)].timbre;
     }
 
-    if(isMasterChannel(event.mAddress.mChannel))
+    if(IsMasterChannel(event.mAddress.mChannel))
     {
       // store value in master channel
       *pChannelDestValue = event.mValue;
@@ -198,7 +194,7 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
     // affects all voices within the zone. Program changes sent to member channels are ignored.
     case IMidiMsg::kProgramChange:
     {
-      if(isMasterChannel(event.mAddress.mChannel))
+      if(IsMasterChannel(event.mAddress.mChannel))
       {
         event.mAction = kProgramChangeAction;
         event.mControllerNumber = msg.Program();
@@ -246,7 +242,6 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
       event.mValue = static_cast<float>(msg.ControlChange(msg.ControlChangeIdx()));
       break;
     }
-
     default:
     {
       break;
@@ -304,22 +299,25 @@ void MidiSynth::SetMPEZones(int channel, int nChans)
       SetChannelPitchBendRange(kMPEUpperZoneMasterChannel - 1, 48);
     }
   }
-  // std::cout << "MPE mode: " << (mMPEMode ? "ON" : "OFF") << "\n";
-  // std::cout << "MPE channels: \n    lo: " << mMPELowerZoneChannels << " hi " << mMPEUpperZoneChannels << "\n";
+  else
+    SetPitchBendRange(mNonMPEPitchBendRange);
+  
+  std::cout << "MPE mode: " << (mMPEMode ? "ON" : "OFF") << "\n";
+  std::cout << "MPE channels: \n    lo: " << mMPELowerZoneChannels << " hi " << mMPEUpperZoneChannels << "\n";
 }
 
 void MidiSynth::SetChannelPitchBendRange(int channelParam, int rangeParam)
 {
   int channelLo, channelHi;
-  if(isInLowerZone(channelParam))
+  if(IsInLowerZone(channelParam))
   {
-    channelLo = lowerZoneStart();
-    channelHi = lowerZoneEnd();
+    channelLo = LowerZoneStart();
+    channelHi = LowerZoneEnd();
   }
-  else if (isInUpperZone(channelParam))
+  else if (IsInUpperZone(channelParam))
   {
-    channelLo = upperZoneStart();
-    channelHi = upperZoneEnd();
+    channelLo = UpperZoneStart();
+    channelHi = UpperZoneEnd();
   }
   else
   {
@@ -381,7 +379,7 @@ void MidiSynth::HandleRPN(IMidiMsg msg)
           SetChannelPitchBendRange(channel, value);
           break;
         case 6: // RPN 6 : MPE zone configuration. These messages may turn MPE mode on or off.
-          if(isMasterChannel(channel))
+          if(IsMasterChannel(channel))
           {
             SetMPEZones(channel, value);
           }

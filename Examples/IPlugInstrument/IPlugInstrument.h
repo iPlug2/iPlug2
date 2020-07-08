@@ -1,9 +1,9 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
-#include "IVMeterControl.h"
+#include "IControls.h"
 
-const int kNumPrograms = 1;
+const int kNumPresets = 1;
 
 enum EParams
 {
@@ -13,39 +13,50 @@ enum EParams
   kParamDecay,
   kParamSustain,
   kParamRelease,
+  kParamLFOShape,
+  kParamLFORateHz,
+  kParamLFORateTempo,
+  kParamLFORateMode,
+  kParamLFODepth,
   kNumParams
 };
 
+#if IPLUG_DSP
 // will use EParams in IPlugInstrument_DSP.h
 #include "IPlugInstrument_DSP.h"
+#endif
 
 enum EControlTags
 {
   kCtrlTagMeter = 0,
+  kCtrlTagLFOVis,
+  kCtrlTagScope,
+  kCtrlTagRTText,
   kCtrlTagKeyboard,
+  kCtrlTagBender,
   kNumCtrlTags
 };
 
 using namespace iplug;
 using namespace igraphics;
 
-class IPlugInstrument : public Plugin
+class IPlugInstrument final : public Plugin
 {
 public:
   IPlugInstrument(const InstanceInfo& info);
 
-#if IPLUG_DSP // All DSP methods and member variables should be within an IPLUG_DSP guard, should you want distributed UI
+#if IPLUG_DSP // http://bit.ly/2S64BDd
 public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnReset() override;
   void OnParamChange(int paramIdx) override;
   void OnIdle() override;
-  bool OnKeyDown(const IKeyPress& key) override;
-  bool OnKeyUp(const IKeyPress& key) override;
+  bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
 
 private:
   IPlugInstrumentDSP<sample> mDSP {16};
-  IVMeterControl<1>::Sender mMeterSender {kCtrlTagMeter};
+  IPeakSender<2> mMeterSender;
+  ISender<1> mLFOVisSender;
 #endif
 };

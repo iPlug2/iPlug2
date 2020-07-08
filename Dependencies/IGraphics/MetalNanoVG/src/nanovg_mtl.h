@@ -31,7 +31,6 @@ extern "C" {
 #include "nanovg.h"
 
 // Create flags
-
 enum NVGcreateFlags {
   // Flag indicating if geometry based anti-aliasing is used (may not be
   // needed when using MSAA).
@@ -51,6 +50,15 @@ enum NVGcreateFlags {
 // These are additional flags on top of NVGimageFlags.
 enum NVGimageFlagsMetal {
   NVG_IMAGE_NODELETE = 1 << 16, // Do not delete Metal texture handle.
+};
+
+// The possible OS targets.
+enum MNVGTarget {
+  MNVG_IOS,
+  MNVG_MACOS,
+  MNVG_SIMULATOR,
+  MNVG_TVOS,
+  MNVG_UNKNOWN,
 };
 
 struct MNVGframebuffer {
@@ -103,6 +111,9 @@ void* mnvgImageHandle(NVGcontext* ctx, int image);
 // Copies the pixels from the specified image into the specified `data`.
 void mnvgReadPixels(NVGcontext* ctx, int image, int x, int y, int width,
                     int height, void* data);
+
+// Returns the current OS target.
+enum MNVGTarget mnvgTarget(void);
 
 #ifdef __cplusplus
 }

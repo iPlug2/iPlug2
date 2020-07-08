@@ -168,6 +168,11 @@ NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend)
   return c;
 }
 
+void NanoVGRect(NVGcontext* pContext, const IRECT& r)
+{
+  nvgRect(pContext, r.L, r.T, r.W(), r.H());
+}
+
 void NanoVGSetBlendMode(NVGcontext* pContext, const IBlend* pBlend)
 {
   if (!pBlend)
@@ -206,7 +211,7 @@ NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend
 
   if (pattern.mType == EPatternType::Radial)
   {
-    return nvgRadialGradient(pContext, s[0], s[1], 0.0, inverse.mXX, icol, ocol);
+    return nvgRadialGradient(pContext, s[0], s[1], inverse.mXX * pattern.GetStop(0).mOffset, inverse.mXX, icol, ocol);
   }
   else
   {
@@ -226,7 +231,7 @@ IGraphicsNanoVG::IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, f
 {
   DBGMSG("IGraphics NanoVG @ %i FPS\n", fps);
   StaticStorage<IFontData>::Accessor storage(sFontCache);
-  storage.Release();
+  storage.Retain();
 }
 
 IGraphicsNanoVG::~IGraphicsNanoVG() 
@@ -424,7 +429,7 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 #if defined IGRAPHICS_METAL
   mVG = nvgCreateContext(pContext, NVG_ANTIALIAS | NVG_TRIPLE_BUFFER); //TODO: NVG_STENCIL_STROKES currently has issues
 #else
-  mVG = nvgCreateContext(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+  mVG = nvgCreateContext(NVG_ANTIALIAS /*| NVG_STENCIL_STROKES*/);
 #endif
 
   if (mVG == nullptr)
@@ -624,12 +629,14 @@ void IGraphicsNanoVG::PrepareAndMeasureText(const IText& text, const char* str, 
   r = IRECT(fbounds[0], fbounds[1], fbounds[2], fbounds[3]);
 }
 
-void IGraphicsNanoVG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
+float IGraphicsNanoVG::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   IRECT r = bounds;
   double x, y;
   PrepareAndMeasureText(text, str, bounds, x, y);
   DoMeasureTextRotation(text, r, bounds);
+  
+  return bounds.W();
 }
 
 void IGraphicsNanoVG::DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
@@ -780,10 +787,7 @@ void IGraphicsNanoVG::PathTransformSetMatrix(const IMatrix& m)
 
 void IGraphicsNanoVG::SetClipRegion(const IRECT& r)
 {
-  if (!r.Empty())
-    nvgScissor(mVG, r.L, r.T, r.W(), r.H());
-  else
-    nvgResetScissor(mVG);
+  nvgScissor(mVG, r.L, r.T, r.W(), r.H());
 }
 
 void IGraphicsNanoVG::DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen)

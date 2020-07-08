@@ -572,7 +572,7 @@
 			};
 			buildConfigurationList = 91D3DA0F1B023C03008FFFBB /* Build configuration list for PBXProject "IPlugSwift-iOS" */;
 			compatibilityVersion = "Xcode 6.3";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				English,
@@ -870,12 +870,12 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IPlugSwift;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugSwift;
 				PRODUCT_NAME = IPlugSwift;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -919,12 +919,12 @@
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugSwift-iOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IPlugSwift;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugSwift;
 				PRODUCT_NAME = IPlugSwift;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -970,7 +970,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IPlugSwift.AUv3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugSwift.AUv3;
 				PRODUCT_NAME = IPlugSwiftAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1017,7 +1017,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugSwift-iOS-AUv3-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.app.IPlugSwift.AUv3;
+				PRODUCT_BUNDLE_IDENTIFIER = com.AcmeInc.IPlugSwift.AUv3;
 				PRODUCT_NAME = IPlugSwiftAppExtension;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;

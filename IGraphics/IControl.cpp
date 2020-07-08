@@ -59,7 +59,7 @@ void ShowBubbleHorizontalActionFunc(IControl* pCaller)
   const IParam* pParam = pCaller->GetParam();
   IRECT bounds = pCaller->GetRECT();
   WDL_String display;
-  pParam->GetDisplayForHostWithLabel(display);
+  pParam->GetDisplayWithLabel(display);
   pGraphics->ShowBubbleControl(pCaller, bounds.R, bounds.MH(), display.Get(), EDirection::Horizontal, IRECT(0,0,50,30));
 }
 
@@ -69,7 +69,7 @@ void ShowBubbleVerticalActionFunc(IControl* pCaller)
   const IParam* pParam = pCaller->GetParam();
   IRECT bounds = pCaller->GetRECT();
   WDL_String display;
-  pParam->GetDisplayForHostWithLabel(display);
+  pParam->GetDisplayWithLabel(display);
   pGraphics->ShowBubbleControl(pCaller, bounds.MW(), bounds.T, display.Get(), EDirection::Vertical, IRECT(0,0,50,30));
 }
 
@@ -159,7 +159,7 @@ void IControl::SetValueFromDelegate(double value, int valIdx)
   // Don't update the control from delegate if it is being captured
   // (i.e. if host is automating the control then the mouse is more important)
   
-  if (this != GetUI()->GetCapturedControl())
+  if (!GetUI()->ControlIsCaptured(this))
   {
     if(GetValue(valIdx) != value)
     {
@@ -242,6 +242,7 @@ void IControl::Hide(bool hide)
 
 void IControl::SetDisabled(bool disable)
 {
+  mBlend.mWeight = (disable ? GRAYED_ALPHA : 1.0f);
   mDisabled = disable;
   SetDirty(false);
 }
@@ -296,8 +297,12 @@ void IControl::SetPosition(float x, float y)
 {
   if (x < 0.f) x = 0.f;
   if (y < 0.f) y = 0.f;
-
-  SetTargetAndDrawRECTs({x, y, x + mRECT.W(), y + mRECT.H()});
+ 
+  float tX = x + (mTargetRECT.L - mRECT.L);
+  float tY = y + (mTargetRECT.T - mRECT.T);
+    
+  SetRECT({x, y, x + mRECT.W(), y + mRECT.H()});
+  SetTargetRECT({tX, tY, tX + mTargetRECT.W(), tY + mTargetRECT.H()});
 }
 
 void IControl::SetSize(float w, float h)
@@ -394,18 +399,15 @@ void IControl::DrawPTHighlight(IGraphics& g)
   }
 }
 
-void IControl::SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx, float scalar /* TODO: scalar! */, double minClip, double maxClip)
+void IControl::SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx, double minClip, double maxClip)
 {
   bounds.Constrain(x, y);
 
   float val;
-
-  //val = 1.f - (y - (mRECT.B - (mRECT.H()*lengthMult)) / 2) / ((mLen*lengthMult));
   
   if(direction == EDirection::Vertical)
     val = 1.f - (y-bounds.T) / bounds.H();
   else
-    //mValue = (double) (x - (mRECT.R - (mRECT.W()*lengthMult)) - mHandleHeadroom / 2) / (double) ((mLen*lengthMult) - mHandleHeadroom);
     val = (x-bounds.L) / bounds.W();
 
   auto valFunc = [&](int valIdx) {
@@ -480,10 +482,10 @@ void ITextControl::SetStrFmt(int maxlen, const char* fmt, ...)
 
 void ITextControl::Draw(IGraphics& g)
 {
-  g.FillRect(mBGColor, mRECT);
+  g.FillRect(mBGColor, mRECT, &mBlend);
   
-  if (mStr.GetLength())
-    g.DrawText(mText, mStr.Get(), mRECT);
+  if (mStr.GetLength() && g.GetControlInTextEntry() != this)
+    g.DrawText(mText, mStr.Get(), mRECT, &mBlend);
 }
 
 void ITextControl::SetBoundsBasedOnStr()
@@ -506,17 +508,48 @@ IURLControl::IURLControl(const IRECT& bounds, const char* str, const char* urlSt
 
 void IURLControl::Draw(IGraphics& g)
 {
-  g.FillRect(mBGColor, mRECT);
+  g.FillRect(mBGColor, mRECT, &mBlend);
   
   if(mMouseIsOver)
     mText.mFGColor = mMOColor;
   else
     mText.mFGColor = mClicked ? mCLColor : mOriginalColor;
   
-  g.DrawLine(mText.mFGColor, mRECT.L, mRECT.B, mRECT.R, mRECT.B);
-  
   if (mStr.GetLength())
-    g.DrawText(mText, mStr.Get(), mRECT);
+  {
+    IRECT textDims;
+    g.MeasureText(mText, mStr.Get(), textDims);
+    
+    float linePosY = 0.f;
+    float linePosL = 0.f;
+    float linePosR = 0.f;
+
+    if(mText.mVAlign == EVAlign::Middle)
+      linePosY = mRECT.MH() + textDims.B;
+    else if(mText.mVAlign == EVAlign::Bottom)
+      linePosY = mRECT.B;
+    else if(mText.mVAlign == EVAlign::Top)
+      linePosY = mRECT.T - textDims.H();
+    
+    if(mText.mAlign == EAlign::Center)
+    {
+      linePosL = mRECT.MW() + textDims.L;
+      linePosR = mRECT.MW() + textDims.R;
+    }
+    else if(mText.mAlign == EAlign::Near)
+    {
+      linePosL = mRECT.L;
+      linePosR = mRECT.L + textDims.W();
+    }
+    else if(mText.mAlign == EAlign::Far)
+    {
+      linePosL = mRECT.R - textDims.W();
+      linePosR = mRECT.R;
+    }
+
+    g.DrawLine(mText.mFGColor, linePosL, linePosY, linePosR, linePosY, &mBlend);
+    g.DrawText(mText, mStr.Get(), mRECT, &mBlend);
+  }
 }
 
 void IURLControl::OnMouseDown(float x, float y, const IMouseMod& mod)
@@ -592,25 +625,27 @@ void ICaptionControl::Draw(IGraphics& g)
 
   if(pParam)
   {
-    pParam->GetDisplayForHost(mStr);
+    pParam->GetDisplay(mStr);
 
     if (mShowParamLabel)
     {
       mStr.Append(" ");
-      mStr.Append(pParam->GetLabelForHost());
+      mStr.Append(pParam->GetLabel());
     }
   }
 
   ITextControl::Draw(g);
   
-  if(mTri.W() > 0.f) {
-    g.FillTriangle(COLOR_DARK_GRAY, mTri.L, mTri.T, mTri.R, mTri.T, mTri.MW(), mTri.B, GetMouseIsOver() ? 0 : &BLEND_50);
+  if(mTri.W() > 0.f)
+  {
+    g.FillTriangle(mMouseIsOver ? mTriangleMouseOverColor : mTriangleColor, mTri.L, mTri.T, mTri.R, mTri.T, mTri.MW(), mTri.B, GetMouseIsOver() ? 0 : &BLEND_50);
   }
 }
 
 void ICaptionControl::OnResize()
 {
-  if(GetParam()->Type() == IParam::kTypeEnum)
+  const IParam* pParam = GetParam();
+  if(pParam && pParam->Type() == IParam::kTypeEnum)
   {
     mTri = mRECT.FracRectHorizontal(0.2f, true).GetCentredInside(IRECT(0, 0, 8, 5)); //TODO: This seems rubbish
   }
@@ -735,6 +770,25 @@ bool IKnobControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 #endif
 }
 
+void IKnobControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  mMouseDown = true;
+  mMouseDragValue = GetValue();
+
+  if (mHideCursorOnDrag)
+    GetUI()->HideMouseCursor(true, true);
+
+  IControl::OnMouseDown(x, y, mod);
+}
+
+void IKnobControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
+{
+  mMouseDown = false;
+
+  if (mHideCursorOnDrag)
+    GetUI()->HideMouseCursor(false);
+}
+
 void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
 {
   double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
@@ -742,10 +796,32 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
   IRECT dragBounds = GetKnobDragBounds();
 
   if (mDirection == EDirection::Vertical)
-    SetValue(GetValue() + (double)dY / (double)(dragBounds.T - dragBounds.B) / gearing);
+    mMouseDragValue += static_cast<double>(dY / static_cast<double>(dragBounds.T - dragBounds.B) / gearing);
   else
-    SetValue(GetValue() + (double)dX / (double)(dragBounds.R - dragBounds.L) / gearing);
+    mMouseDragValue += static_cast<double>(dX / static_cast<double>(dragBounds.R - dragBounds.L) / gearing);
 
+  mMouseDragValue = Clip(mMouseDragValue, 0., 1.);
+
+  double v = mMouseDragValue;
+  const IParam* pParam = GetParam();
+  
+  if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
+  {
+    const double range = pParam->GetRange();
+    
+    if (range > 0.)
+    {
+      double l, h;
+      pParam->GetBounds(l, h);
+
+      v = l + mMouseDragValue * range;
+      v = v - std::fmod(v, pParam->GetStep());
+      v -= l;
+      v /= range;
+    }
+  }
+
+  SetValue(v);
   SetDirty();
 }
 
@@ -753,7 +829,28 @@ void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, floa
 {
   double gearing = IsFineControl(mod, true) ? 0.001 : 0.01;
 
-  SetValue(GetValue() + gearing * d);
+  double v = GetValue() + gearing * d;
+  const IParam* pParam = GetParam();
+  
+  if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
+  {
+    const double range = pParam->GetRange();
+
+    if (range > 0. && d != 0.f)
+    {
+      double l, h;
+      pParam->GetBounds(l,h);
+      v = l + GetValue() * range;
+      const double step = pParam->GetStep();
+      v += d > 0 ? step : -step;
+      v = Clip(v, l, h);
+      v = v - std::fmod(v, step);
+      v -= l;
+      v /= range;
+    }
+  }
+
+  SetValue(v);
   SetDirty();
 }
 
@@ -887,18 +984,148 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
     menuToAddTo.RemoveEmptySubmenus();
 }
 
-ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, bool onlyHandle, float handleSize)
+ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, double gearing, float handleSize)
 : IControl(bounds, paramIdx)
 , mDirection(dir)
-, mOnlyHandle(onlyHandle)
+, mHandleSize(handleSize)
+, mGearing(gearing)
 {
-  handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
 }
 
- ISliderControlBase::ISliderControlBase(const IRECT& bounds, IActionFunction aF, EDirection dir, bool onlyHandle, float handleSize)
+ ISliderControlBase::ISliderControlBase(const IRECT& bounds, IActionFunction aF, EDirection dir, double gearing, float handleSize)
 : IControl(bounds, aF)
 , mDirection(dir)
-, mOnlyHandle(onlyHandle)
+, mHandleSize(handleSize)
+, mGearing(gearing)
 {
-  handleSize == 0 ? mHandleSize = bounds.W() : mHandleSize = handleSize;
+}
+
+void ISliderControlBase::OnResize()
+{
+  SetTargetRECT(mRECT);
+  mTrackBounds = mRECT;
+  SetDirty(false);
+}
+
+void ISliderControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
+{
+  mMouseDown = true;
+  
+  if(GetParam())
+  {
+    if(!GetParam()->GetStepped())
+      SnapToMouse(x, y, mDirection, mTrackBounds);
+  }
+  else
+    SnapToMouse(x, y, mDirection, mTrackBounds);
+
+  mMouseDragValue = GetValue();
+
+  if (mHideCursorOnDrag)
+    GetUI()->HideMouseCursor(true, true);
+
+  IControl::OnMouseDown(x, y, mod);
+}
+
+void ISliderControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
+{
+  mMouseDown = false;
+
+  if (mHideCursorOnDrag)
+    GetUI()->HideMouseCursor(false);
+}
+
+void ISliderControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
+{
+  const IParam* pParam = GetParam();
+
+  if(mod.touchID || !mHideCursorOnDrag)
+  {
+    if(pParam)
+    {
+      if(!pParam->GetStepped())
+      {
+        SnapToMouse(x, y, mDirection, mTrackBounds);
+        return;
+      }
+      // non-stepped parameter, fall through
+    }
+    else
+    {
+      SnapToMouse(x, y, mDirection, mTrackBounds);
+      return;
+    }
+  }
+  
+  double gearing = IsFineControl(mod, false) ? mGearing * 10.0 : mGearing;
+
+  if (mDirection == EDirection::Vertical)
+    mMouseDragValue += static_cast<double>(dY / static_cast<double>(mTrackBounds.T - mTrackBounds.B) / gearing);
+  else
+    mMouseDragValue += static_cast<double>(dX / static_cast<double>(mTrackBounds.R - mTrackBounds.L) / gearing);
+  
+  mMouseDragValue = Clip(mMouseDragValue, 0., 1.);
+
+  double v = mMouseDragValue;
+  
+  if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
+  {
+    const double range = pParam->GetRange();
+    
+    if (range > 0.)
+    {
+      double l, h;
+      pParam->GetBounds(l,h);
+
+      v = l + mMouseDragValue * range;
+      v = v - std::fmod(v, pParam->GetStep());
+      v -= l;
+      v /= range;
+    }
+  }
+
+  SetValue(v);
+  SetDirty(true);
+}
+
+void ISliderControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
+{
+  double gearing = IsFineControl(mod, true) ? 0.001 : 0.01;
+
+  double v = GetValue() + gearing * d;
+  const IParam* pParam = GetParam();
+  
+  if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
+  {
+    const double range = pParam->GetRange();
+
+    if (range > 0. && d != 0.f)
+    {
+      double l, h;
+      pParam->GetBounds(l,h);
+      v = l + GetValue() * range;
+      const double step = pParam->GetStep();
+      v += d > 0 ? step : -step;
+      v = Clip(v, l, h);
+      v = v - std::fmod(v, step);
+      v -= l;
+      v /= range;
+    }
+  }
+
+  SetValue(v);
+  SetDirty();
+}
+
+bool ISliderControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
+{
+#ifdef PROTOOLS
+#ifdef OS_WIN
+  return mod.C;
+#else
+  return wheel ? mod.C : mod.R;
+#endif
+#else
+  return (mod.C || mod.S);
+#endif
 }

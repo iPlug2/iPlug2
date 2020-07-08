@@ -40,7 +40,7 @@ struct FourValues : public IControl
     {
       WDL_String str;
       IRECT r = GetRect(num);
-      GetParam(num)->GetDisplayForHost(str);
+      GetParam(num)->GetDisplay(str);
       g.DrawText(mText, str.Get(), r);
     };
     
@@ -51,7 +51,7 @@ struct FourValues : public IControl
 #endif
 
 MetaParamTest::MetaParamTest(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
+: Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kParamLeftX)->InitDouble("X1", 100., 0., 100.0, 0.01, "%");
   GetParam(kParamLeftY)->InitDouble("Y1", 100., 0., 100.0, 0.01, "%");
@@ -70,14 +70,16 @@ MetaParamTest::MetaParamTest(const InstanceInfo& info)
   GetParam(kParamEnum2)->SetDisplayText(2, "Hearts");
   GetParam(kParamEnum2)->SetDisplayText(3, "Clubs");
   
-#if IPLUG_EDITOR // All UI methods and member variables should be within an IPLUG_EDITOR guard, should you want distributed UI
+#if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_HEIGHT));
   };
   
   auto updatePeersFunc =
 
   mLayoutFunc = [&](IGraphics* pGraphics) {
+
+    pGraphics->EnableMultiTouch(true);
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
@@ -89,8 +91,8 @@ MetaParamTest::MetaParamTest(const InstanceInfo& info)
     pGraphics->AttachControl(new IVKnobControl(b.GetGridCell(2, 2, 2).FracRectHorizontal(0.5, true), kParamLeftY), kCtrlLeftYKnob, "mux");
     pGraphics->AttachControl(new IVKnobControl(b.GetGridCell(3, 2, 2).FracRectHorizontal(0.5), kParamRightX), kCtrlRightXKnob, "mux");
     pGraphics->AttachControl(new IVKnobControl(b.GetGridCell(3, 2, 2).FracRectHorizontal(0.5, true), kParamRightY), kCtrlRightYKnob, "mux");
-    pGraphics->AttachControl(new IVSwitchControl(b.GetCentredInside(30), kParamLink));
-    pGraphics->AttachControl(new FourValues(b.GetFromBottom(100).GetPadded(-20), kParamEnum1, kParamLeftX, kParamLeftY, kParamEnum2));
+    pGraphics->AttachControl(new IVSwitchControl(b.GetCentredInside(50), kParamLink));
+//    pGraphics->AttachControl(new FourValues(b.GetFromBottom(100).GetPadded(-20), kParamEnum1, kParamLeftX, kParamLeftY, kParamEnum2));
     
     pGraphics->ForControlInGroup("mux", [&](IControl& control)
     {
@@ -123,14 +125,9 @@ MetaParamTest::MetaParamTest(const InstanceInfo& info)
         }
       });
     });
-
-    
   };
 #endif
 }
-
-#if IPLUG_EDITOR
-#endif
 
 #if IPLUG_DSP
 void MetaParamTest::ProcessBlock(sample** inputs, sample** outputs, int nFrames)

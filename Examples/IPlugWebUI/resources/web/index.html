@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style type="text/css">
+    * {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+    }
+  
+    p, h1 {
+      pointer-events: none;
+    }
+  
+    .left {
+      width: 50%;
+      position: absolute;
+      left: 0;
+      display: table-cell;
+      vertical-align: middle;
+    }
+  
+    .left span, .left input {
+      vertical-align: middle;
+    }
+  
+    .right {
+      width: 50%;
+      position: absolute;
+      right: 0;
+      display: table-cell;
+      vertical-align: middle;
+    }
+  
+    .right span {
+      vertical-align: middle;
+    }
+  
+    .right input {
+      vertical-align: baseline;
+    }
+  
+    button {
+      display: block;
+    }
+  </style>
+  
+  <script src="script.js"></script>
+  <script src="webaudio-controls.js"></script>
+  <script>
+    function OnParamChange(param, value) {
+      if(param == 0) {
+        document.getElementById("gain_knob").value = value * 100.;
+      }
+    }
+  
+    function OnControlChange(ctrlTag, value) {
+      if(ctrlTag == 0) {
+        document.getElementById("meter").value = value;
+      }
+    }
+  
+    function onLoad() {
+      document.getElementById("gain_knob").addEventListener('input', function(e) {
+                                                          SPVFUI(0, e.target.value/100.)
+                                                          });
+    }
+  </script>
+</head>
+<body onload="onLoad()">
+<!--<h1>IPlugWebView</h1>-->
+<div>
+  <div class="left">
+    <p>Gain</p>
+    <!-- <input id="slider" type="range" onmousedown="BPCFUI(0)" oninput="SPVFUI(0, this.value/100.)" onmouseup="EPCFUI(0)"> -->
+    <webaudio-knob id="gain_knob" min="0" max="100"></webaudio-knob>
+    <progress id="meter">
+  </div>
+  <div class="right">
+    <button onclick="SAMFUI(0)">Small GUI</button>
+    <button onclick="SAMFUI(1)">Medium GUI</button>
+    <button onclick="SAMFUI(2)">Large GUI</button>
+  </div>
+</div>
+</body>
+</html>

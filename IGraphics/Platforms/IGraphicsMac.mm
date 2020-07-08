@@ -76,44 +76,54 @@ void IGraphicsMac::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
   CoreTextHelpers::CachePlatformFont(fontID, font, sFontDescriptorCache);
 }
 
-void IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds) const
+float IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
 #ifdef IGRAPHICS_LICE
   @autoreleasepool
   {
-    IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
+    return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
   }
 #else
-  IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
+  return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
 #endif
-}
-
-void IGraphicsMac::ContextReady(void* pLayer)
-{
-  OnViewInitialized(pLayer);
-  SetScreenScale([[NSScreen mainScreen] backingScaleFactor]);
-  GetDelegate()->LayoutUI(this);
-  UpdateTooltips();
-  GetDelegate()->OnUIOpen();
 }
 
 void* IGraphicsMac::OpenWindow(void* pParent)
 {
   TRACE
   CloseWindow();
-  mView = (IGRAPHICS_VIEW*) [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
-  
-#ifndef IGRAPHICS_GL // with OpenGL, we don't get given the glcontext until later, ContextReady will get called elsewhere
-  IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
-  ContextReady([pView layer]);
+  IGRAPHICS_VIEW* pView = [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
+  mView = (void*) pView;
+    
+#ifdef IGRAPHICS_GL
+  [[pView openGLContext] makeCurrentContext];
 #endif
+    
+  OnViewInitialized([pView layer]);
+  SetScreenScale([[NSScreen mainScreen] backingScaleFactor]);
+  GetDelegate()->LayoutUI(this);
+  UpdateTooltips();
+  GetDelegate()->OnUIOpen();
   
-  if (pParent) // Cocoa VST host.
+  if (pParent)
   {
-    [(NSView*) pParent addSubview: (IGRAPHICS_VIEW*) mView];
+    [(NSView*) pParent addSubview: pView];
   }
 
   return mView;
+}
+
+void IGraphicsMac::AttachPlatformView(const IRECT& r, void* pView)
+{
+  NSView* pNewSubView = (NSView*) pView;
+  [pNewSubView setFrame:ToNSRect(this, r)];
+  
+  [(IGRAPHICS_VIEW*) mView addSubview:(NSView*) pNewSubView];
+}
+
+void IGraphicsMac::RemovePlatformView(void* pView)
+{
+  [(NSView*) pView removeFromSuperview];
 }
 
 void IGraphicsMac::CloseWindow()
@@ -133,7 +143,7 @@ void IGraphicsMac::CloseWindow()
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
       
 #ifdef IGRAPHICS_GL
-    [((IGRAPHICS_GLLAYER *)pView.layer).openGLContext makeCurrentContext];
+    [[pView openGLContext] makeCurrentContext];
 #endif
       
     [pView removeAllToolTips];
@@ -170,7 +180,7 @@ void IGraphicsMac::PlatformResize(bool parentHasResized)
   }  
 }
 
-void IGraphicsMac::PointToScreen(float& x, float& y)
+void IGraphicsMac::PointToScreen(float& x, float& y) const
 {
   if (mView)
   {
@@ -185,7 +195,7 @@ void IGraphicsMac::PointToScreen(float& x, float& y)
   }
 }
 
-void IGraphicsMac::ScreenToPoint(float& x, float& y)
+void IGraphicsMac::ScreenToPoint(float& x, float& y) const
 {
   if (mView)
   {
@@ -262,6 +272,17 @@ void IGraphicsMac::StoreCursorPosition()
   
   // Convert to IGraphics coordinates
   ScreenToPoint(mCursorX, mCursorY);
+}
+
+void IGraphicsMac::GetMouseLocation(float& x, float&y) const
+{
+  // Get position in screen coordinates
+  NSPoint mouse = [NSEvent mouseLocation];
+  x = mouse.x;
+  y = mouse.y;
+  
+  // Convert to IGraphics coordinates
+  ScreenToPoint(x, y);
 }
 
 EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
@@ -593,9 +614,9 @@ bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
   }
 }
 
-bool IGraphicsMac::SetTextInClipboard(const WDL_String& str)
+bool IGraphicsMac::SetTextInClipboard(const char* str)
 {
-  NSString* pTextForClipboard = [NSString stringWithUTF8String:str.Get()];
+  NSString* pTextForClipboard = [NSString stringWithUTF8String:str];
   [[NSPasteboard generalPasteboard] clearContents];
   return [[NSPasteboard generalPasteboard] setString:pTextForClipboard forType:NSStringPboardType];
 }

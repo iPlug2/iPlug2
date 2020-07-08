@@ -18,12 +18,12 @@ enum EControlTags
   kNumCtrlTags
 };
 
-const int kNumParams = 4;
+const int kNumParams = 8;
 
 using namespace iplug;
 using namespace igraphics;
 
-class IPlugFaustDSP : public Plugin
+class IPlugFaustDSP final : public Plugin
 {
 public:
   IPlugFaustDSP(const InstanceInfo& info);
@@ -31,10 +31,11 @@ public:
 #if IPLUG_DSP
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void OnReset() override;
+  void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnParamChange(int paramIdx) override;
   void OnIdle() override;
 private:
   FAUST_BLOCK(Faust1, mFaustProcessor, DSP_FILE, 1, 1);
-  IVScopeControl<2>::Sender mScopeSender { kCtrlTagScope };
+  IBufferSender<2> mScopeSender;
 #endif
 };

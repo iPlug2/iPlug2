@@ -53,6 +53,13 @@ jobs:
     condition: eq(variables.build_web, true)
 
   - bash: |
+      cd ./Dependencies/IGraphics
+      rm -r imgui
+      git clone https://github.com/ocornut/imgui.git imgui
+      rm -r imgui/.git
+    displayName: Download Dear ImGui
+
+  - bash: |
       rm -r .git
       cd ./Dependencies/Build/
       find . -type f -iname \*.png -delete

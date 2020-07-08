@@ -209,10 +209,10 @@ public:
   {
     if(mRoundedKeys)
     {
-      g.FillRoundRect(color, bounds, 0., 0., mRoundness, mRoundness);
+      g.FillRoundRect(color, bounds, 0., 0., mRoundness, mRoundness/*, &blend*/);
     }
     else
-      g.FillRect(color, bounds);
+      g.FillRect(color, bounds/*, &blend*/);
   }
 
   void Draw(IGraphics& g) override
@@ -243,17 +243,17 @@ public:
             shadowBounds.R = shadowBounds.L + 0.35f * shadowBounds.W();
             
             if(!mRoundedKeys)
-              g.FillRect(shadowColor, shadowBounds);
+              g.FillRect(shadowColor, shadowBounds, &mBlend);
             else {
-              g.FillRoundRect(shadowColor, shadowBounds, 0., 0., mRoundness, mRoundness); // this one looks strange with rounded corners
+              g.FillRoundRect(shadowColor, shadowBounds, 0., 0., mRoundness, mRoundness, &mBlend); // this one looks strange with rounded corners
             }
           }
         }
         if (mDrawFrame && i != 0)
         { // only draw the left border if it doesn't overlay mRECT left border
-          g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, mRECT.B, nullptr, mFrameThickness);
+          g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, mRECT.B, &mBlend, mFrameThickness);
           if (i == NKeys() - 2 && IsBlackKey(NKeys() - 1))
-            g.DrawLine(mFR_COLOR, kL + mWKWidth, mRECT.T, kL + mWKWidth, mRECT.B, nullptr, mFrameThickness);
+            g.DrawLine(mFR_COLOR, kL + mWKWidth, mRECT.T, kL + mWKWidth, mRECT.B, &mBlend, mFrameThickness);
         }
       }
     }
@@ -280,31 +280,31 @@ public:
           shadowBounds.R = shadowBounds.L + w;
           DrawKey(g, shadowBounds, shadowColor);
         }
-        DrawKey(g, keyBounds, i == mHighlight ? mHK_COLOR : mBK_COLOR);
+        DrawKey(g, keyBounds, (i == mHighlight ? mHK_COLOR : mBK_COLOR.WithContrast(IsDisabled() ? GRAYED_ALPHA : 0.f)));
 
         if (GetKeyIsPressed(i))
         {
           // draw pressed black key
           IColor cBP = mPK_COLOR;
           cBP.A = (int) mBKAlpha;
-          g.FillRect(cBP, keyBounds);
+          g.FillRect(cBP, keyBounds, &mBlend);
         }
 
         if(!mRoundedKeys)
         {
           // draw l, r and bottom if they don't overlay the mRECT borders
           if (mBKHeightRatio != 1.0)
-            g.DrawLine(mFR_COLOR, kL, BKBottom, kL + BKWidth, BKBottom);
+            g.DrawLine(mFR_COLOR, kL, BKBottom, kL + BKWidth, BKBottom, &mBlend);
           if (i > 0)
-            g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, BKBottom);
+            g.DrawLine(mFR_COLOR, kL, mRECT.T, kL, BKBottom, &mBlend);
           if (i != NKeys() - 1)
-            g.DrawLine(mFR_COLOR, kL + BKWidth, mRECT.T, kL + BKWidth, BKBottom);
+            g.DrawLine(mFR_COLOR, kL + BKWidth, mRECT.T, kL + BKWidth, BKBottom, &mBlend);
         }
       }
     }
 
     if (mDrawFrame)
-      g.DrawRect(mFR_COLOR, mRECT, nullptr, mFrameThickness);
+      g.DrawRect(mFR_COLOR, mRECT, &mBlend, mFrameThickness);
 
     if (mShowNoteAndVel)
     {
@@ -326,9 +326,9 @@ public:
           r.L -= e;
           r.R -= e;
         }
-        g.FillRect(mWK_COLOR, r);
-        g.DrawRect(mFR_COLOR, r);
-        g.DrawText(mText, t.Get(), r);
+        g.FillRect(mWK_COLOR, r, &mBlend);
+        g.DrawRect(mFR_COLOR, r, &mBlend);
+        g.DrawText(mText, t.Get(), r, &mBlend);
       }
     }
 
@@ -340,7 +340,7 @@ public:
     //ti.SetFormatted(16, "mBAlpha: %d", mBAlpha);
     IText txt(20, COLOR_RED);
     IRECT tr(mRECT.L + 20, mRECT.B - 20, mRECT.L + 160, mRECT.B);
-    g.DrawText(txt, ti.Get(), tr);
+    g.DrawText(txt, ti.Get(), tr, &mBlend);
 #endif
   }
 
@@ -710,6 +710,175 @@ protected:
   WDL_TypedBuf<bool> mPressedKeys;
   WDL_TypedBuf<float> mKeyXPos;
   int mHighlight = -1;
+};
+
+/** Vectorial "wheel" control for pitchbender/modwheel
+* @ingroup IControls */
+class IWheelControl : public ISliderControlBase
+{
+  static constexpr int kSpringAnimationTime = 50;
+  static constexpr int kNumRungs = 10;
+public:
+  static constexpr int kMessageTagSetPitchBendRange = 0;
+
+  /** Create a WheelControl
+   * @param bounds The control's bounds
+   * @param cc A Midi CC to link, defaults to kNoCC which is interpreted as pitch bend */
+  IWheelControl(const IRECT& bounds, IMidiMsg::EControlChangeMsg cc = IMidiMsg::EControlChangeMsg::kNoCC, int initBendRange = 12)
+  : ISliderControlBase(bounds, kNoParameter, EDirection::Vertical, DEFAULT_GEARING, 40.f)
+  , mCC(cc)
+  , mPitchBendRange(initBendRange)
+  {
+    mMenu.AddItem("1 semitone");
+    mMenu.AddItem("2 semitones");
+    mMenu.AddItem("Fifth");
+    mMenu.AddItem("Octave");
+
+    SetValue(cc == IMidiMsg::EControlChangeMsg::kNoCC ? 0.5 : 0.);
+    SetWantsMidi(true);
+    SetActionFunction([cc](IControl* pControl){
+      IMidiMsg msg;
+      if(cc == IMidiMsg::EControlChangeMsg::kNoCC) // pitchbend
+        msg.MakePitchWheelMsg((pControl->GetValue() * 2.) - 1.);
+      else
+        msg.MakeControlChangeMsg(cc, pControl->GetValue());
+      
+      pControl->GetDelegate()->SendMidiMsgFromUI(msg);
+    });
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    IRECT handleBounds = mRECT.GetPadded(-10.f);
+    const float stepSize = handleBounds.H() / (float) kNumRungs;
+    g.FillRoundRect(DEFAULT_SHCOLOR, mRECT.GetPadded(-5.f));
+    
+    if(!g.CheckLayer(mLayer))
+    {
+      const IRECT layerRect = handleBounds.GetMidVPadded(handleBounds.H() + stepSize);
+      
+      if(layerRect.W() > 0 && layerRect.H() > 0)
+      {
+        g.StartLayer(this, layerRect);
+        g.DrawGrid(COLOR_BLACK.WithOpacity(0.5f), layerRect, 0.f, stepSize, nullptr, 2.f);
+        mLayer = g.EndLayer();
+      }
+    }
+    
+    // NanoVG only has 2 stop gradients
+    IRECT r = handleBounds.FracRectVertical(0.5, true);
+    g.PathRect(r);
+    g.PathFill(IPattern::CreateLinearGradient(r, EDirection::Vertical, {{COLOR_BLACK, 0.f},{COLOR_MID_GRAY, 1.f}}));
+    r = handleBounds.FracRectVertical(0.51f, false); // slight overlap
+    g.PathRect(r);
+    g.PathFill(IPattern::CreateLinearGradient(r, EDirection::Vertical, {{COLOR_MID_GRAY, 0.f},{COLOR_BLACK, 1.f}}));
+
+    const float value = static_cast<float>(GetValue());
+    const float y = (handleBounds.H() - (stepSize)) * value;
+    const float triangleRamp = std::fabs(value-0.5f) * 2.f;
+    
+    g.DrawBitmap(mLayer->GetBitmap(), handleBounds, 0, (int) y);
+  
+    const IRECT cutoutBounds = handleBounds.GetFromBottom(stepSize).GetTranslated(0, -y);
+    g.PathRect(cutoutBounds);
+    g.PathFill(IPattern::CreateLinearGradient(cutoutBounds, EDirection::Vertical,
+    {
+      //TODO: this can be improved
+      {COLOR_BLACK.WithContrast(iplug::Lerp(0.f, 0.5f, triangleRamp)), 0.f},
+      {COLOR_BLACK.WithContrast(iplug::Lerp(0.5f, 0.f, triangleRamp)), 1.f}
+    }));
+    
+    g.DrawVerticalLine(COLOR_BLACK, cutoutBounds, 0.f);
+    g.DrawVerticalLine(COLOR_BLACK, cutoutBounds, 1.f);
+    g.DrawRect(COLOR_BLACK, handleBounds);
+  }
+  
+  void OnMidi(const IMidiMsg& msg) override
+  {
+    if(mCC == IMidiMsg::EControlChangeMsg::kNoCC)
+    {
+      if(msg.StatusMsg() == IMidiMsg::kPitchWheel)
+      {
+        SetValue((msg.PitchWheel() + 1.) * 0.5);
+        SetDirty(false);
+      }
+    }
+    else
+    {
+      if(msg.ControlChangeIdx() == mCC)
+      {
+        SetValue(msg.ControlChange(mCC));
+        SetDirty(false);
+      }
+    }
+  }
+  
+  void OnMouseWheel(float x, float y, const IMouseMod &mod, float d) override
+  {
+    /* NO-OP */
+  }
+
+  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int) override
+  {
+    if(pSelectedMenu) 
+    {
+      switch (pSelectedMenu->GetChosenItemIdx()) 
+      {
+        case 0: mPitchBendRange = 1; break;
+        case 1: mPitchBendRange = 2; break;
+        case 2: mPitchBendRange = 7; break;
+        case 3:
+        default:
+          mPitchBendRange = 12; break;
+      }
+      
+      GetDelegate()->SendArbitraryMsgFromUI(kMessageTagSetPitchBendRange, GetTag(), sizeof(int), &mPitchBendRange);
+    }
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod &mod) override
+  {
+    if(mod.R && mCC == IMidiMsg::EControlChangeMsg::kNoCC)
+    {
+      switch (mPitchBendRange) 
+      {
+        case 1: mMenu.CheckItemAlone(0); break;
+        case 2: mMenu.CheckItemAlone(1); break;
+        case 7: mMenu.CheckItemAlone(2); break;
+        case 12: mMenu.CheckItemAlone(3); break;
+        default:
+          break;
+      }
+      
+      GetUI()->CreatePopupMenu(*this, mMenu, x, y);
+    }
+    else
+      ISliderControlBase::OnMouseDown(x, y, mod);
+  }
+  
+  void OnMouseUp(float x, float y, const IMouseMod &mod) override
+  {
+    if(mCC == IMidiMsg::EControlChangeMsg::kNoCC) // pitchbend
+    {
+      double startValue = GetValue();
+      SetAnimation([startValue](IControl* pCaller) {
+        pCaller->SetValue(iplug::Lerp(startValue, 0.5, Clip(pCaller->GetAnimationProgress(), 0., 1.)));
+        if(pCaller->GetAnimationProgress() > 1.) {
+          pCaller->SetDirty(true);
+          pCaller->OnEndAnimation();
+          return;
+        }
+      }, kSpringAnimationTime);
+    }
+    
+    ISliderControlBase::OnMouseUp(x, y, mod);
+  }
+  
+private:
+  IPopupMenu mMenu;
+  int mPitchBendRange;
+  IMidiMsg::EControlChangeMsg mCC;
+  ILayerPtr mLayer;
 };
 
 END_IGRAPHICS_NAMESPACE

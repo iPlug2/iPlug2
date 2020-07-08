@@ -70,17 +70,13 @@ void IGEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normaliz
   if(!mGraphics)
     return;
 
-  if (ctrlTag > kNoTag)
+  IControl* pControl = mGraphics->GetControlWithTag(ctrlTag);
+  
+  assert(pControl);
+  
+  if(pControl)
   {
-    for (auto c = 0; c < mGraphics->NControls(); c++)
-    {
-      IControl* pControl = mGraphics->GetControl(c);
-      
-      if (pControl->GetTag() == ctrlTag)
-      {
-        pControl->SetValueFromDelegate(normalizedValue);
-      }
-    }
+    pControl->SetValueFromDelegate(normalizedValue);
   }
 }
 
@@ -89,17 +85,13 @@ void IGEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int d
   if(!mGraphics)
     return;
   
-  if (ctrlTag > kNoTag)
+  IControl* pControl = mGraphics->GetControlWithTag(ctrlTag);
+  
+  assert(pControl);
+  
+  if(pControl)
   {
-    for (auto c = 0; c < mGraphics->NControls(); c++)
-    {
-      IControl* pControl = mGraphics->GetControl(c);
-      
-      if (pControl->GetTag() == ctrlTag)
-      {
-        pControl->OnMsgFromDelegate(msgTag, dataSize, pData);
-      }
-    }
+    pControl->OnMsgFromDelegate(msgTag, dataSize, pData);
   }
 }
 
@@ -197,4 +189,32 @@ bool IGEditorDelegate::SerializeEditorState(IByteChunk& chunk) const
 int IGEditorDelegate::UnserializeEditorState(const IByteChunk& chunk, int startPos)
 {
   return UnserializeEditorSize(chunk, startPos);
+}
+
+bool IGEditorDelegate::OnKeyDown(const IKeyPress& key)
+{
+  IGraphics* pGraphics = GetUI();
+  
+  if (pGraphics)
+  {
+    float x, y;
+    pGraphics->GetMouseLocation(x, y);
+    return pGraphics->OnKeyDown(x, y, key);
+  }
+  else
+    return false;
+}
+
+bool IGEditorDelegate::OnKeyUp(const IKeyPress& key)
+{
+  IGraphics* pGraphics = GetUI();
+
+  if (pGraphics)
+  {
+    float x, y;
+    pGraphics->GetMouseLocation(x, y);
+    return pGraphics->OnKeyUp(x, y, key);
+  }
+  else
+    return false;
 }

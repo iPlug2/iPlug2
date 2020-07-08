@@ -91,11 +91,15 @@ cd "$SRC_DIR"
 
 echo
 
-export MACOSX_DEPLOYMENT_TARGET=10.7
+# export MACOSX_DEPLOYMENT_TARGET=10.7
+export MACOSX_DEPLOYMENT_TARGET=10.9
 
-export LDFLAGS="-arch i386 -arch x86_64"
-export CFLAGS="-Os -arch i386 -arch x86_64"
-export CXXFLAGS="-Os -arch i386 -arch x86_64"
+# export LDFLAGS="-arch i386 -arch x86_64"
+# export CFLAGS="-Os -arch i386 -arch x86_64"
+# export CXXFLAGS="-Os -arch i386 -arch x86_64"
+export LDFLAGS="-arch x86_64"
+export CFLAGS="-Os -arch x86_64"
+export CXXFLAGS="-Os -arch x86_64"
 
 # remove old log file if exists
 if [ -e $LOG_DIR/$LOG_NAME ]
@@ -475,15 +479,15 @@ fi
 #rm -r $INSTALL_DIR/share/
 #rm -r $INSTALL_DIR/bin/
 
-echo "Verify UB Builds..."
+# echo "Verify UB Builds..."
 # file "$LIB_DIR/libbz2.a"
 # file "$LIB_DIR/libexpat.a"
-file "$LIB_DIR/libz.a"
-file "$LIB_DIR/libpixman-1.a"
-file "$LIB_DIR/libpng16.a"
-file "$LIB_DIR/libfreetype.a"
+# file "$LIB_DIR/libz.a"
+# file "$LIB_DIR/libpixman-1.a"
+# file "$LIB_DIR/libpng16.a"
+# file "$LIB_DIR/libfreetype.a"
 # file "$LIB_DIR/libfontconfig.a"
-file "$LIB_DIR/libcairo.a"
+# file "$LIB_DIR/libcairo.a"
 exit
 
 #rm -r $SRC_DIR

@@ -84,36 +84,42 @@ enum class EAlign { Near, Center, Far };
 /** /todo */
 enum class EVAlign { Top, Middle, Bottom };
 
+/** CStrings for EAlign options  */
+static const char* kEAlignStrs[3] = { "Near", "Center", "Far" };
+
+/** CStrings for EVAlign options  */
+static const char* kEVAlignStrs[3] = { "Top", "Middle", "Bottom" };
+
 /** Types of Gesture Recongnizer */
 enum class EGestureType { Unknown, DoubleTap, TripleTap, LongPress1, LongPress2, SwipeLeft, SwipeRight, SwipeUp, SwipeDown, Pinch, Rotate, Pan};
 
+/** CStrings for EGestureType options  */
 static const char* kGestureTypeStrs[12] = { "Unknown", "DoubleTap", "TripleTap", "LongPress1", "LongPress2", "SwipeLeft", "SwipeRight", "SwipeUp", "SwipeDown", "Pinch", "Rotate", "Pan"};
 
 /** Distinguised gesture states */
 enum class EGestureState { Unknown, Began, InProcess, Ended };
 
-/** /todo */
+/** EVColors are 9 color indices that are used by IVControls and make up an IVColorSpec */
 enum EVColor
 {
-  kBG = 0,    // background color: All vector controls should fill their BG with this color, which is transparent by default
-  kFG,        // foreground
-  kOFF = kFG, // off states will use the same color as kFG to fill
-  kPR,        // pressed
-  kON = kPR,  // on states will use the same color as kPR to fill
-  kFR,        // frame: the color of the stroke/borders
-  kHL,        // highlight: mouse over or focus
-  kSH,        // shadow
-  kX1,        // extra1
-  kX2,        // extra2
-  kX3,        // extra3
-  kNumDefaultVColors
+  kBG = 0,         // background: transparent by default
+  kFG, kOFF = kFG, // foreground/OFF states
+  kPR, kON = kPR,  // pressed/ON states
+  kFR,             // frame: the stroke around a button or knob handle, or border around the outside of the control
+  kHL,             // highlight: mouse over and splash click animation
+  kSH,             // shadow
+  kX1,             // extra1: typically used for indicator tracks on knobs and sliders
+  kX2,             // extra2
+  kX3,             // extra3
+  kNumVColors
 };
 
-static const char* kVColorStrs[kNumDefaultVColors] =
+/** CStrings for EVColor options  */
+static const char* kVColorStrs[kNumVColors] =
 {
-  "background",
-  "foreground/off states",
-  "pressed/on states",
+  "bg",
+  "fg/off ",
+  "pressed/on",
   "frame",
   "highlight",
   "shadow",
@@ -138,7 +144,7 @@ enum class ELineCap { Butt, Round, Square };
 enum class ELineJoin { Miter, Round, Bevel };
 
 /** /todo */
-enum class EPatternType { Solid, Linear, Radial };
+enum class EPatternType { Solid, Linear, Radial, Sweep };
 
 /** /todo */
 enum class EPatternExtend { None, Pad, Reflect, Repeat };
@@ -164,6 +170,9 @@ enum class ECursor
   APPSTARTING,
   HELP
 };
+
+/** /todo */
+enum class ETouchEvent { Began, Moved, Ended, Cancelled, Invalid };
 
 // This enumeration must match win32 message box options
 enum EMsgBoxType

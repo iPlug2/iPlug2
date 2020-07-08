@@ -27,6 +27,7 @@ IPlugVST3Controller::IPlugVST3Controller(const InstanceInfo& info, const Config&
 , mDoesMidiIn(config.plugDoesMidiIn)
 , mProcessorGUID(info.mOtherGUID)
 {
+  CreateTimer();
 }
 
 IPlugVST3Controller::~IPlugVST3Controller()
@@ -92,7 +93,7 @@ tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamVal
 
 tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment(int32 busIndex, int16 midiChannel, CtrlNumber midiCCNumber, ParamID& tag)
 {
-  if (busIndex == 0)
+  if (busIndex == 0 && midiChannel < VST3_NUM_CC_CHANS)
   {
     tag = kMIDICCParamStartIdx + (midiChannel * kCountCtrlNumber) + midiCCNumber;
     return kResultTrue;
@@ -114,7 +115,7 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
   return kResultFalse;
 }
 
-//void IPlugVST3Controller::InformHostOfProgramChange()
+//void IPlugVST3Controller::InformHostOfPresetChange()
 //{
 //  if (NPresets())
 //  {
@@ -126,12 +127,21 @@ tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int
 //  }
 //}
 
+#pragma mark IInfoListener overrides
+
+Steinberg::tresult PLUGIN_API IPlugVST3Controller::setChannelContextInfos(Steinberg::Vst::IAttributeList* pList)
+{
+  return IPlugVST3ControllerBase::SetChannelContextInfos(pList) ? kResultTrue : kResultFalse;
+}
+
+#pragma mark -
+
 bool IPlugVST3Controller::EditorResize(int viewWidth, int viewHeight)
 {
   if (HasUI())
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
-      mView->resize(viewWidth, viewHeight);
+      mView->Resize(viewWidth, viewHeight);
  
     SetEditorSize(viewWidth, viewHeight);
   }

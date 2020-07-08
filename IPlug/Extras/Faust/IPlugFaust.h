@@ -17,37 +17,51 @@
 
 #include <memory>
 
+#define FAUSTCLASS_POLY mydsp_poly
+
+#define FAUST_UI_INTERVAL 100 //ms
+
+#include "faust/dsp/poly-dsp.h"
 #include "faust/gui/UI.h"
 #include "faust/gui/MidiUI.h"
+#include "faust/midi/iplug2-midi.h"
 #include "assocarray.h"
 
 #include "IPlugAPIBase.h"
 
 #include "Oversampler.h"
 
-#ifndef DEFAULT_FAUST_LIBRARY_PATH
+#ifndef FAUST_LIBRARY_PATH
   #if defined OS_MAC || defined OS_LINUX
-    #define DEFAULT_FAUST_LIBRARY_PATH "/usr/local/share/faust/"
+    #define FAUST_LIBRARY_PATH "/usr/local/share/faust/"
   #else
-   #define DEFAULT_FAUST_LIBRARY_PATH "C:\\Program Files\\Faust\\share\\faust"
+   #define FAUST_LIBRARY_PATH "C:\\Program Files\\Faust\\share\\faust"
   #endif
 #endif
 
 BEGIN_IPLUG_NAMESPACE
+using MidiHandlerPtr = std::unique_ptr<iplug2_midi_handler>;
 
 /** This abstract interface is used by the IPlug FAUST architecture file and the IPlug libfaust JIT compiling class FaustGen
  * In order to provide a consistent interface to FAUST DSP whether using the JIT compiler or a compiled C++ class */
 class IPlugFaust : public UI, public Meta
 {
 public:
-
+  
   IPlugFaust(const char* name, int nVoices = 1, int rate = 1)
   : mNVoices(nVoices)
   {
     if(rate > 1)
+    {
       mOverSampler = std::make_unique<OverSampler<sample>>(OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */);
-    
+    }
+      
     mName.Set(name);
+      
+    if(sUITimer == nullptr)
+    {
+      sUITimer = Timer::Create(std::bind(&IPlugFaust::OnUITimer, this, std::placeholders::_1), FAUST_UI_INTERVAL);
+    }
   }
 
   virtual ~IPlugFaust()
@@ -77,7 +91,10 @@ public:
   
   void FreeDSP()
   {
+    mMidiHandler->stopMidi();
+    mMidiUI = nullptr;
     mDSP = nullptr;
+    mMidiHandler = nullptr;
   }
   
   void SetOverSamplingRate(int rate)
@@ -100,7 +117,7 @@ public:
 
   void ProcessMidiMsg(const IMidiMsg& msg)
   {
-//    TODO:
+    mMidiHandler->decodeMessage(msg);
   }
 
   virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames)
@@ -134,7 +151,7 @@ public:
       if(mZones.GetSize() == NParams())
         *(mZones.Get(paramIdx)) = mParams.Get(paramIdx)->Value();
       else
-        DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetNameForHost());
+        DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetName());
     }
   }
   
@@ -149,7 +166,7 @@ public:
     if(mZones.GetSize() == NParams())
       *(mZones.Get(paramIdx)) = nonNormalizedValue;
     else
-      DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetNameForHost());
+      DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetName());
     }
     else
       DBGMSG("SetParameterValue called with no FAUST params\n");
@@ -185,13 +202,13 @@ public:
     {
       assert(plugParamIdx + p < pPlug->NParams()); // plugin needs to have enough params!
 
-      IParam* pParam = pPlug->GetParam(plugParamIdx + p);
-      const double currentValueNormalised = pParam->GetNormalized();
-      pParam->Init(*mParams.Get(p));
+      IParam* pPlugParam = pPlug->GetParam(plugParamIdx + p);
+      const double currentValueNormalised = pPlugParam->GetNormalized();
+      pPlugParam->Init(*mParams.Get(p));
       if(setToDefault)
-        pParam->SetToDefault();
+        pPlugParam->SetToDefault();
       else
-        pParam->SetNormalized(currentValueNormalised);
+        pPlugParam->SetNormalized(currentValueNormalised);
     }
 
     return plugParamIdx;
@@ -287,17 +304,17 @@ protected:
   {
     for(auto p = 0; p < NParams(); p++)
     {
-      mMap.Insert(mParams.Get(p)->GetNameForHost(), mZones.Get(p)); // insert will overwrite keys with the same name
+      mMap.Insert(mParams.Get(p)->GetName(), mZones.Get(p)); // insert will overwrite keys with the same name
     }
     
-    if(mIPlugParamStartIdx > -1 && mPlug != nullptr) // if we've allready linked parameters
+    if(mIPlugParamStartIdx > -1 && mPlug != nullptr) // if we've already linked parameters
     {
       CreateIPlugParameters(mPlug, mIPlugParamStartIdx);
     }
     
     for(auto p = 0; p < NParams(); p++)
     {
-      DBGMSG("%i %s\n", p, mParams.Get(p)->GetNameForHost());
+      DBGMSG("%i %s\n", p, mParams.Get(p)->GetName());
     }
   }
 
@@ -305,7 +322,7 @@ protected:
   {
     for(auto p = 0; p < NParams(); p++)
     {
-      if(strcmp(name, mParams.Get(p)->GetNameForHost()) == 0)
+      if(strcmp(name, mParams.Get(p)->GetName()) == 0)
       {
         return p;
       }
@@ -313,16 +330,24 @@ protected:
     
     return -1;
   }
+    
+  void OnUITimer(Timer& timer)
+  {
+    GUI::updateAllGuis();
+  }
   
   std::unique_ptr<OverSampler<sample>> mOverSampler;
   WDL_String mName;
   int mNVoices;
   std::unique_ptr<::dsp> mDSP;
+  MidiHandlerPtr mMidiHandler;
   std::unique_ptr<MidiUI> mMidiUI;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<FAUSTFLOAT> mZones;
+  static Timer* sUITimer;
   WDL_StringKeyedArray<FAUSTFLOAT*> mMap; // map is used for setting FAUST parameters by name, also used to reconnect existing parameters
   int mIPlugParamStartIdx = -1; // if this is negative, it means there is no linking
+  
   IPlugAPIBase* mPlug = nullptr;
   bool mInitialized = false;
 };

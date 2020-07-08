@@ -46,10 +46,10 @@ public:
   IPlugAUv3(const InstanceInfo& info, const Config& config);
   
   //IPlugAPIBase
-  void BeginInformHostOfParamChange(int idx) override {};
+  void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
-  void EndInformHostOfParamChange(int idx) override {};
-  void InformHostOfProgramChange() override {};
+  void EndInformHostOfParamChange(int idx) override;
+  void InformHostOfPresetChange() override {};
 
   //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
@@ -61,7 +61,7 @@ public:
   void SetParameterFromValueObserver(uint64_t address, float value);
   void SendParameterValueFromObserver(uint64_t address, float value);
   float GetParameter(uint64_t address);
-  const char* GetParamDisplayForHost(uint64_t address, float value);
+  const char* GetParamDisplay(uint64_t address, float value);
   float GetParamStringToValue(uint64_t address, const char* str);
   void SetBuffers(AudioBufferList* pInBufferList, AudioBufferList* pOutBufferList);
   void Prepare(double sampleRate, uint32_t blockSize);

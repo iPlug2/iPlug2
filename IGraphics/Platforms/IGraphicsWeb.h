@@ -36,6 +36,10 @@ static val GetPreloadedImages()
   return val::global("Module")["preloadedImages"];
 }
 
+extern void GetScreenDimensions(int& width, int& height);
+
+extern float GetScaleForScreen(int height);
+
 /** IGraphics platform class for the web
 * @ingroup PlatformClasses */
 class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
@@ -53,6 +57,7 @@ public:
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override { /* NOT SUPPORTABLE*/ }
   ECursor SetMouseCursor(ECursor cursorType) override;
+  void GetMouseLocation(float& x, float&y) const override;
 
   void ForceEndUserEdit() override {} // TODO:
   void* OpenWindow(void* pParent) override;
@@ -60,7 +65,7 @@ public:
   void* GetWindow() override { return nullptr; } // TODO:
   bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
   bool GetTextFromClipboard(WDL_String& str) override;
-  bool SetTextInClipboard(const WDL_String& str) override { return false; } // TODO
+  bool SetTextInClipboard(const char* str) override { return false; } // TODO
   void UpdateTooltips() override {} // TODO:
   EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
   
@@ -68,6 +73,8 @@ public:
   void PromptForDirectory(WDL_String& path) override;
   bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
+
+  bool PlatformSupportsMultiTouch() const override { return true; }
   
   //IGraphicsWeb
   static void OnMainLoopTimer();

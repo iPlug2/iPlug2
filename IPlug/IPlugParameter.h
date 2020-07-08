@@ -43,12 +43,18 @@ public:
   /** Flags to determine characteristics of the parameter */
   enum EFlags
   {
+    /** No flags */
     kFlagsNone            = 0,
-    kFlagCannotAutomate   = 0x1, /** Indicates that the parameter is not automatable */
-    kFlagStepped          = 0x2, /** Indicates that the parameter ???  */
-    kFlagNegateDisplay    = 0x4, /** Indicates that the parameter should be displayed as a negative value */
-    kFlagSignDisplay      = 0x8, /** Indicates that the parameter should be displayed as a signed value */
-    kFlagMeta             = 0x10, /** Indicates that the parameter may influence the state of other parameters */
+     /** Indicates that the parameter is not automatable */
+    kFlagCannotAutomate   = 0x1,
+    /** Indicates that the parameter is stepped  */
+    kFlagStepped          = 0x2,
+    /** Indicates that the parameter should be displayed as a negative value */
+    kFlagNegateDisplay    = 0x4,
+    /** Indicates that the parameter should be displayed as a signed value */
+    kFlagSignDisplay      = 0x8,
+    /** Indicates that the parameter may influence the state of other parameters */
+    kFlagMeta             = 0x10,
   };
   
   using DisplayFunc = std::function<void(double, WDL_String&)>;
@@ -131,120 +137,120 @@ public:
   /** Initialize the parameter as boolean
    * @param name The parameter's name
    * @param defaultValue The default value of the parameter
-   * @param label The parameter's label
+   * @param label The parameter's unit suffix. Has no effect for this type of parameter
    * @param flags The parameter's flags \see IParam::EFlags
    * @param group The parameter's group
    * @param offText The display text when the parameter value == 0.
    * @param onText The display text when the parameter value == 1. */
   void InitBool(const char* name, bool defaultValue, const char* label = "", int flags = 0, const char* group = "", const char* offText = "off", const char* onText = "on"); // TODO: LABEL not used here TODO: so why have it?
   
-  /** /todo 
-   * @param name /todo
-   * @param defaultValue /todo
+  /** Initialize the parameter as enum
+   * @param name The parameter's name
+   * @param defaultValue The default value of the parameter
    * @param nEnums /todo
-   * @param label /todo
-   * @param flags /todo
-   * @param group /todo
+   * @param label The parameter's unit suffix. Has no effect for this type of parameter
+   * @param flags The parameter's flags \see IParam::EFlags
+   * @param group The parameter's group
    * @param listItems /todo
    * @param ... /todo */
   void InitEnum(const char* name, int defaultValue, int nEnums, const char* label = "", int flags = 0, const char* group = "", const char* listItems = 0, ...); // TODO: LABEL not used here TODO: so why have it?
 
-  /** /todo
-   * @param name /todo
-   * @param defaultValue /todo
+  /** Initialize the parameter as enum
+   * @param name The parameter's name
+   * @param defaultValue The default value of the parameter
    * @param listItems /todo
-   * @param label /todo
-   * @param flags /todo
+   * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo*/
   void InitEnum(const char* name, int defaultValue, const std::initializer_list<const char*>& listItems, int flags = 0, const char* group = "");
 
-  /** /todo 
-   * @param name /todo
-   * @param defaultValue /todo
-   * @param minVal /todo
-   * @param maxVal /todo
-   * @param label /todo
-   * @param flags /todo
+  /** Initialize the parameter as integer
+   * @param name The parameter's name
+   * @param defaultValue The default value of the parameter
+   * @param minVal The minimum value of the parameter
+   * @param maxVal The maximum value of the parameter
+   * @param label The parameter's unit suffix (eg. dB, %)
+   * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo */
   void InitInt(const char* name, int defaultValue, int minVal, int maxVal, const char* label = "", int flags = 0, const char* group = "");
   
-  /** /todo 
-   * @param name /todo
-   * @param defaultVal /todo
-   * @param minVal /todo
-   * @param maxVal /todo
+  /** Initialize the parameter as double
+   * @param name The parameter's name
+   * @param defaultVal The default value of the parameter
+   * @param minVal The minimum value of the parameter
+   * @param maxVal The maximum value of the parameter
    * @param step /todo
-   * @param label /todo
-   * @param flags /todo
+   * @param label The parameter's unit suffix (eg. dB, %)
+   * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo
    * @param shape /todo
    * @param unit /todo
    * @param displayFunc /todo */
   void InitDouble(const char* name, double defaultVal, double minVal, double maxVal, double step, const char* label = "", int flags = 0, const char* group = "", const Shape& shape = ShapeLinear(), EParamUnit unit = kUnitCustom, DisplayFunc displayFunc = nullptr);
 
-  /** /todo 
-   * @param name /todo
-   * @param defaultVal /todo
-   * @param minVal /todo
-   * @param maxVal /todo
+  /** Initialize the parameter as seconds
+   * @param name The parameter's name
+   * @param defaultVal The default value of the parameter
+   * @param minVal The minimum value of the parameter
+   * @param maxVal The maximum value of the parameter
    * @param step /todo
-   * @param flags /todo
+   * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo */
   void InitSeconds(const char* name, double defaultVal = 1., double minVal = 0., double maxVal = 10., double step = 0.1, int flags = 0, const char* group = "");
   
-  /** /todo
-   * @param name /todo
-   * @param defaultVal /todo
-   * @param minVal /todo
-   * @param maxVal /todo
+  /** Initialize the parameter as milliseconds
+   * @param name The parameter's name
+   * @param defaultVal The default value of the parameter
+   * @param minVal The minimum value of the parameter
+   * @param maxVal The maximum value of the parameter
    * @param step /todo
-   * @param flags /todo
+   * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo */
   void InitMilliseconds(const char* name, double defaultVal = 1., double minVal = 0., double maxVal = 100., int flags = 0, const char* group = "");
-  /** /todo 
-   * @param name /todo
-   * @param defaultVal /todo
-   * @param minVal /todo
-   * @param maxVal /todo
+
+  /** Initialize the parameter as frequency
+   * @param name The parameter's name
+   * @param defaultVal The default value of the parameter
+   * @param minVal The minimum value of the parameter
+   * @param maxVal The maximum value of the parameter
    * @param step /todo
-   * @param flags /todo
+   * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo */
   void InitFrequency(const char* name, double defaultVal = 1000., double minVal = 0.1, double maxVal = 10000., double step = 0.1, int flags = 0, const char* group = "");
   
-  /** /todo 
-   * @param name /todo
-   * @param defaultVal /todo
-   * @param minVal /todo
-   * @param maxVal /todo
-   * @param flags /todo
+  /** Initialize the parameter as pitch
+   * @param name The parameter's name
+   * @param defaultVal The default value of the parameter
+   * @param minVal The minimum value of the parameter
+   * @param maxVal The maximum value of the parameter
+   * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo */
   void InitPitch(const char* name, int defaultVal = 60, int minVal = 0, int maxVal = 128, int flags = 0, const char* group = "", bool middleCisC4 = false);
   
-  /** /todo 
-   * @param name /todo
-   * @param defaultVal /todo
-   * @param minVal /todo
-   * @param maxVal /todo
+  /** Initialize the parameter as gain
+   * @param name The parameter's name
+   * @param defaultVal The default value of the parameter
+   * @param minVal The minimum value of the parameter
+   * @param maxVal The maximum value of the parameter
    * @param step /todo
-   * @param flags /todo
+   * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo */
   void InitGain(const char* name, double defaultVal = 0., double minVal = -70., double maxVal = 24., double step = 0.5, int flags = 0, const char* group = "");
   
-  /** /todo 
-   * @param name /todo
-   * @param defaultVal /todo
-   * @param minVal /todo
-   * @param maxVal /todo
-   * @param flags /todo
+  /** Initialize the parameter as percentage
+   * @param name The parameter's name
+   * @param defaultVal The default value of the parameter
+   * @param minVal The minimum value of the parameter
+   * @param maxVal The maximum value of the parameter
+   * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo */
   void InitPercentage(const char* name, double defaultVal = 0., double minVal = 0., double maxVal = 100., int flags = 0, const char* group = "");
 
-  /** /todo 
-   * @param name /todo
-   * @param defaultVal /todo
-   * @param minVal /todo
-   * @param maxVal /todo
-   * @param flags /todo
+  /** Initialize the parameter as angle in degrees
+   * @param name The parameter's name
+   * @param defaultVal The default value of the parameter
+   * @param minVal The minimum value of the parameter
+   * @param maxVal The maximum value of the parameter
+   * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo */
   void InitAngleDegrees(const char* name, double defaultVal = 0., double minVal = 0., double maxVal = 360., int flags = 0, const char* group = "");
 
@@ -293,7 +299,7 @@ public:
    * @param str /todo */
   void SetString(const char* str) { mValue.store(StringToValue(str)); }
 
-  /** /todo  */
+  /** Replaces the parameter's current value with the default one  */
   void SetToDefault() { mValue.store(mDefault); }
 
   /** /todo 
@@ -304,13 +310,21 @@ public:
    * @param value /todo
    * @param str /todo */
   void SetDisplayText(double value, const char* str);
-  
+
+  /** Set the parameters display precision
+ * @param precision The display precision in digits*/
+  void SetDisplayPrecision(int precision);
+
   /** Set the parameters label after creation. WARNING: if this is called after the host has queried plugin parameters, the host may display the label as it was previously
    * @param label /todo */
   void SetLabel(const char* label) { strcpy(mLabel, label); }
+  
+  /** Set the function to translate display values
+   * @param func  /todo */
+  void SetDisplayFunc(DisplayFunc func) { mDisplayFunction = func; }
 
   /** Gets a readable value of the parameter
-   * @return Current value of the parameter */
+   * @return double Current value of the parameter */
   double Value() const { return mValue.load(); }
 
   /** Returns the parameter's value as a boolean
@@ -320,24 +334,30 @@ public:
   /** @return Current value of the parameter as an integer */
   int Int() const { return static_cast<int>(mValue.load()); }
   
-  /** /todo 
-   * @return double /todo */
+  /** Gain based on parameter's current value in dB
+   * @return double Gain calculated as an approximation of
+   * \f$ 10^{\frac{x}{20}} \f$
+   * @see #IAMP_DB */
   double DBToAmp() const { return iplug::DBToAmp(mValue.load()); }
 
-  /** /todo 
-   * @return double /todo */
+  /** Returns the parameter's normalized value
+   * @return double The resulting normalized value */
   double GetNormalized() const { return ToNormalized(mValue.load()); }
 
   /** /todo 
    * @param display /todo
    * @param withDisplayText /todo */
-  void GetDisplayForHost(WDL_String& display, bool withDisplayText = true) const { GetDisplayForHost(mValue.load(), false, display, withDisplayText); }
+  void GetDisplay(WDL_String& display, bool withDisplayText = true) const { GetDisplay(mValue.load(), false, display, withDisplayText); }
 
-  void GetDisplayForHostWithLabel(WDL_String& display, bool withDisplayText = true) const
+  void GetDisplayWithLabel(WDL_String& display, bool withDisplayText = true) const
   {
-    GetDisplayForHost(mValue.load(), false, display, withDisplayText);
-    display.Append(" ");
-    display.Append(GetLabelForHost());
+    GetDisplay(mValue.load(), false, display, withDisplayText);
+    const char* hostlabel = GetLabel();
+    if (CStringHasContents(hostlabel))
+    {
+      display.Append(" ");
+      display.Append(hostlabel);
+    }
   }
   
   /** /todo 
@@ -345,22 +365,22 @@ public:
    * @param normalized /todo
    * @param display /todo
    * @param withDisplayText /todo */
-  void GetDisplayForHost(double value, bool normalized, WDL_String& display, bool withDisplayText = true) const;
+  void GetDisplay(double value, bool normalized, WDL_String& display, bool withDisplayText = true) const;
 
   /** /todo 
    * @return const char* /todo */
-  const char* GetNameForHost() const;
+  const char* GetName() const;
 
   /** /todo 
    * @return const char* /todo */
-  const char* GetLabelForHost() const;
+  const char* GetLabel() const;
 
   /** /todo 
    * @return const char* /todo */
-  const char* GetGroupForHost() const;
+  const char* GetGroup() const;
 
-  /** /todo 
-   * @return const char* /todo */
+  /** Get parameter's label (unit suffix)
+   * @return const char* Parameter's label (unit suffix) or \c nullptr if it is not set */
   const char* GetCustomUnit() const { return mUnit == kUnitCustom ? mLabel : nullptr; }
   
   /** /todo 
@@ -385,12 +405,15 @@ public:
    * @return false /todo */
   bool MapDisplayText(const char* str, double* pValue) const;  // Reverse map back to value.
   
-  /** /todo 
-   * @return EParamType /todo */
+  /** Get the parameter's type
+   * @return EParamType Type of the parameter, @e kTypeNone if not initialized
+   * @see EParamType */
   EParamType Type() const { return mType; }
 
-  /** /todo 
-   * @return EParamUnit /todo */
+  /** Get the parameter's unit
+   * @note This is only used for AU plugins to determine the appearance of parameters, based on the kind of data they represent 
+   * @return EParamUnit 
+   * @see EParamUnit */
   EParamUnit Unit() const { return mUnit; }
 
   /** /todo 

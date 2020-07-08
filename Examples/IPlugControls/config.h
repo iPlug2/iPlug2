@@ -8,6 +8,7 @@
 #define PLUG_EMAIL_STR "spam@me.com"
 #define PLUG_COPYRIGHT_STR "Copyright 2019 Acme Inc"
 #define PLUG_CLASS_NAME IPlugControls
+#define PLUG_HOST_RESIZE 0
 
 #define BUNDLE_NAME "IPlugControls"
 #define BUNDLE_MFR "AcmeInc"
@@ -34,20 +35,19 @@
 #define AUV2_VIEW_CLASS IPlugControls_View
 #define AUV2_VIEW_CLASS_STR "IPlugControls_View"
 
-#define AAX_TYPE_IDS 'EFN1', 'EFN2'
-#define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'
+#define AAX_TYPE_IDS 'IPCT'
+//#define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'
 #define AAX_PLUG_MFR_STR "Acme"
-#define AAX_PLUG_NAME_STR "IPlugControls\nIPEF"
-#define AAX_PLUG_CATEGORY_STR "Effect"
-#define AAX_DOES_AUDIOSUITE 1
+#define AAX_PLUG_NAME_STR "IPlugControls\nIPCT"
+#define AAX_PLUG_CATEGORY_STR "Synth"
+#define AAX_DOES_AUDIOSUITE 0
 
-#define VST3_SUBCATEGORY "Fx"
+#define VST3_SUBCATEGORY "Instrument|Synth"
 
 #define APP_NUM_CHANNELS 2
 #define APP_N_VECTOR_WAIT 0
 #define APP_MULT 1
 #define APP_COPY_AUV3 0
-#define APP_RESIZABLE 0
 #define APP_SIGNAL_VECTOR_SIZE 64
 
 #define ROBOTO_FN "Roboto-Regular.ttf"
@@ -60,4 +60,14 @@
 #define PNGKNOBROTATE_2X_FN "knob-rotate@2x.png"
 #define PNGSWITCH_FN "switch.png"
 #define PNGBUTTON_FN "button.png"
+#define PNGSLIDERHANDLE_FN "slider-handle.png"
+#define PNGSLIDERTRACK_FN "slider-track.png"
+#define PNGTEXT_FN "font.png"
+#define PNGTEXT_2X_FN "font@2x.png"
+
+#define SVGSLIDERHANDLE_FN "slider-handle.svg"
+#define SVGSLIDERTRACK_FN "slider-track.svg"
 #define SVGKNOBROTATE_FN "vector-knob.svg"
+#define SVGHSLIDERHANDLE_FN "hslider-handle.svg"
+#define SVGHSLIDERTRACK_FN "hslider-track.svg"
+

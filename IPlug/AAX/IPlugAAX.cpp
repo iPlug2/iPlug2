@@ -110,6 +110,8 @@ IPlugAAX::IPlugAAX(const InstanceInfo& info, const Config& config)
   
   SetBlockSize(DEFAULT_BLOCK_SIZE);
   
+  mMaxNChansForMainInputBus = MaxNChannelsForBus(kInput, 0);
+  
   CreateTimer();
 }
 
@@ -151,10 +153,10 @@ AAX_Result IPlugAAX::EffectInit()
       case IParam::kTypeDouble:
       {
         pAAXParam = new AAX_CParameter<double>(pParamIDStr->Get(),
-                                          AAX_CString(pParam->GetNameForHost()),
+                                          AAX_CString(pParam->GetName()),
                                           pParam->GetDefault(),
                                           AAX_CIPlugTaperDelegate<double>(*pParam),
-                                          AAX_CUnitDisplayDelegateDecorator<double>(AAX_CNumberDisplayDelegate<double>(), AAX_CString(pParam->GetLabelForHost())),
+                                          AAX_CUnitDisplayDelegateDecorator<double>(AAX_CNumberDisplayDelegate<double>(), AAX_CString(pParam->GetLabel())),
                                           pParam->GetCanAutomate());
         
         pAAXParam->SetNumberOfSteps(128); // TODO: check this https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
@@ -165,10 +167,10 @@ AAX_Result IPlugAAX::EffectInit()
       case IParam::kTypeInt:
       {
         pAAXParam = new AAX_CParameter<int>(pParamIDStr->Get(),
-                                        AAX_CString(pParam->GetNameForHost()),
+                                        AAX_CString(pParam->GetName()),
                                         (int)pParam->GetDefault(),
                                         AAX_CLinearTaperDelegate<int,1>((int)pParam->GetMin(), (int)pParam->GetMax()),
-                                        AAX_CUnitDisplayDelegateDecorator<int>(AAX_CNumberDisplayDelegate<int,0>(), AAX_CString(pParam->GetLabelForHost())),
+                                        AAX_CUnitDisplayDelegateDecorator<int>(AAX_CNumberDisplayDelegate<int,0>(), AAX_CString(pParam->GetLabel())),
                                         pParam->GetCanAutomate());
         
         pAAXParam->SetNumberOfSteps(128);
@@ -192,7 +194,7 @@ AAX_Result IPlugAAX::EffectInit()
         }
         
         pAAXParam = new AAX_CParameter<int>(pParamIDStr->Get(),
-                                        AAX_CString(pParam->GetNameForHost()),
+                                        AAX_CString(pParam->GetName()),
                                         (int)pParam->GetDefault(),
                                         AAX_CLinearTaperDelegate<int,1>((int) pParam->GetMin(), (int) pParam->GetMax()),
                                         AAX_CStringDisplayDelegate<int>(displayTexts),
@@ -251,7 +253,7 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double
   return result;
 }
 
-void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
+void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo, const TParamValPair* inSynchronizedParamValues[], int32_t inNumSynchronizedParamValues)
 {
   TRACE
 
@@ -269,8 +271,8 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
     AAX_CMidiStream* pMidiBuffer = pMidiIn->GetNodeBuffer();
     AAX_CMidiPacket* pMidiPacket = pMidiBuffer->mBuffer;
     uint32_t packets_count = pMidiBuffer->mBufferSize;
-        
-    for (int i = 0; i<packets_count; i++, pMidiPacket++) 
+    
+    for (auto i = 0; i<packets_count; i++, pMidiPacket++)
     {
       IMidiMsg msg(pMidiPacket->mTimestamp, pMidiPacket->mData[0], pMidiPacket->mData[1], pMidiPacket->mData[2]);
       ProcessMidiMsg(msg);
@@ -291,13 +293,36 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo)
     OnReset();
   }
 
-  SetChannelConnections(ERoute::kInput, 0, numInChannels, true);
-  SetChannelConnections(ERoute::kInput, numInChannels, MaxNChannels(ERoute::kInput) - numInChannels, false);
-  AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), pRenderInfo->mAudioInputs, numSamples);
+  if (!IsInstrument())
+  {
+    SetChannelConnections(ERoute::kInput, 0, numInChannels, true);
+    SetChannelConnections(ERoute::kInput, numInChannels, MaxNChannels(ERoute::kInput) - numInChannels, false);
+    
+    int sideChainChannel = HasSidechainInput() ? *pRenderInfo->mSideChainP : 0;
+
+    if (sideChainChannel)
+    {
+      SetChannelConnections(ERoute::kInput, mMaxNChansForMainInputBus, 1, true);
+      AttachBuffers(ERoute::kInput, 0, numInChannels, pRenderInfo->mAudioInputs, numSamples);
+      AttachBuffers(ERoute::kInput, mMaxNChansForMainInputBus, 1, pRenderInfo->mAudioInputs + sideChainChannel, numSamples);
+    }
+    else
+      AttachBuffers(ERoute::kInput, 0, numInChannels, pRenderInfo->mAudioInputs, numSamples);
+  }
+    
+  int maxNOutChans = MaxNChannels(ERoute::kOutput);
   
-  SetChannelConnections(ERoute::kOutput, 0, numOutChannels, true);
-  SetChannelConnections(ERoute::kOutput, numOutChannels, MaxNChannels(ERoute::kOutput) - numOutChannels, false);
-  AttachBuffers(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), pRenderInfo->mAudioOutputs, numSamples);
+  SetChannelConnections(ERoute::kOutput, 0, maxNOutChans, true);
+  
+  if (MaxNBuses(kOutput) == 1) // single output bus, only connect available channels
+  {
+    SetChannelConnections(ERoute::kOutput, numOutChannels, maxNOutChans - numOutChannels, false);
+    AttachBuffers(ERoute::kOutput, 0, maxNOutChans, pRenderInfo->mAudioOutputs, numSamples);
+  }
+  else // multi output buses, connect all buffers including AOS
+  {
+    AttachBuffers(ERoute::kOutput, 0, maxNOutChans, pRenderInfo->mAudioOutputs, numSamples);
+  }
   
   if (bypass) 
     PassThroughBuffers(0.0f, numSamples);
