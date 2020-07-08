@@ -145,12 +145,6 @@ set(_inc
   ${IPLUG2_DIR}/WDL/lice
   ${IPLUG2_DIR}/Dependencies/IGraphics/NanoSVG/src
   ${IPLUG2_DIR}/Dependencies/IGraphics/NanoVG/src
-  ${IPLUG2_DIR}/Dependencies/IGraphics/AGG/agg-2.4/include
-  ${IPLUG2_DIR}/Dependencies/IGraphics/AGG/agg-2.4/font_freetype
-  ${IPLUG2_DIR}/Dependencies/IGraphics/AGG/agg-2.4/include/util
-  ${IPLUG2_DIR}/Dependencies/IGraphics/AGG/agg-2.4/include/platform/win32
-  ${IPLUG2_DIR}/Dependencies/IGraphics/AGG/agg-2.4/src
-  ${IPLUG2_DIR}/Dependencies/IGraphics/AGG/agg-2.4/src/platform/win32
   ${IPLUG2_DIR}/Dependencies/IGraphics/Cairo
   ${IPLUG2_DIR}/Dependencies/Build/src
   ${IPLUG2_DIR}/Dependencies/Build/src/freetype/include
@@ -251,7 +245,7 @@ iplug2_add_interface(iPlug2_Core DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} O
 # Standalone App #
 ##################
 
-include("${IPLUG2_DIR}/IPlug/APP/APP.cmake")
+include("${IPLUG2_DIR}/cmake/APP.cmake")
 
 ##############
 # Audio Unit #
@@ -308,7 +302,7 @@ iplug2_add_interface(iPlug2_VST2
 # VST3 #
 ########
 
-include("${IPLUG2_DIR}/IPlug/VST3/VST3.cmake")
+include("${IPLUG2_DIR}/cmake/VST3.cmake")
 
 #################
 # Web DSP / GUI #
@@ -398,6 +392,9 @@ if (WIN32)
 else()
   set(iPlug2_Skia_NOTFOUND "TRUE")
 endif()
+
+
+include("${IPLUG2_DIR}/cmake/AGG.cmake")
 
 iplug2_add_interface(iPlug2_Faust
   INCLUDE "${IPLUG2_DIR}/IPlug/Extras/Faust" "${FAUST_INCLUDE_DIR}"
