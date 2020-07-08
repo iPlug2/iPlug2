@@ -347,6 +347,18 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
   return new Bitmap(mVG, fileNameOrResID, scale, idx, location == EResourceLocation::kPreloadedTexture);
 }
 
+APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale)
+{
+  int idx = 0;
+  int nvgImageFlags = 0;
+
+  ActivateGLContext();  
+  idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pData, dataSize);
+  DeactivateGLContext();
+
+  return new Bitmap(mVG, name, scale, idx, false);
+}
+
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
   if (mInDraw)

@@ -354,6 +354,17 @@ APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* fileNameOrResID, int scale
   return new Bitmap(GetPreloadedImages()[fileNameOrResID], fileNameOrResID + 1, scale);
 }
 
+APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale)
+{
+  // TODO 
+  // Encode image as data URL, (e.g. 'data:image/png;base64,<base64-encoded data here>')
+  // var img = new Image(); 
+  // img.src = <data_url>; 
+  // Now img can be used for drawing
+  DBGMSG("IGraphicsCanvas does not currently implement loading bitmaps from data");
+  return nullptr;
+}
+
 APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, double drawScale)
 {
   return new Bitmap(width, height, scale, drawScale);

@@ -79,6 +79,23 @@ PlatformFontPtr CoreTextHelpers::LoadPlatformFont(const char* fontID, const char
   return PlatformFontPtr(new CoreTextFont(descriptor.Release(), provider.Release(), TextStyleString(style), true));
 }
 
+PlatformFontPtr CoreTextHelpers::LoadPlatformFont(const char* fontID, void* pData, int dataSize)
+{
+  CFLocal<CGDataProviderRef> provider(CGDataProviderCreateWithData(nullptr, pData, (size_t)dataSize, nullptr));
+  
+  if (!provider.Get())
+    return nullptr;
+  
+  CFLocal<CGFontRef> cgFont(CGFontCreateWithDataProvider(provider.Get()));
+  CFLocal<CTFontRef> ctFont(CTFontCreateWithGraphicsFont(cgFont.Get(), 0.f, NULL, NULL));
+  CFLocal<CTFontDescriptorRef> descriptor(CTFontCopyFontDescriptor(ctFont.Get()));
+  
+  if (!descriptor.Get())
+    return nullptr;
+  
+  return PlatformFontPtr(new CoreTextFont(descriptor.Release(), provider.Release(), "", false));
+}
+
 void CoreTextHelpers::CachePlatformFont(const char* fontID, const PlatformFontPtr& font, StaticStorage<CoreTextFontDescriptor>& cache)
 {
   StaticStorage<CoreTextFontDescriptor>::Accessor storage(cache);

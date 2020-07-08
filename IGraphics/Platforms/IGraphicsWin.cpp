@@ -1982,6 +1982,37 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
   return PlatformFontPtr(font ? new Font(font, TextStyleString(style), true) : nullptr);
 }
 
+PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, void* pData, int dataSize)
+{
+  StaticStorage<InstalledFont>::Accessor fontStorage(sPlatformFontCache);
+
+  std::unique_ptr<InstalledFont> pFont;
+  void* pFontMem = pData;
+  int resSize = dataSize;
+
+  pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
+
+  if (pFontMem && pFont && pFont->IsValid())
+  {
+    IFontInfo fontInfo(pFontMem, resSize, 0);
+    WDL_String family = fontInfo.GetFamily();
+    int weight = fontInfo.IsBold() ? FW_BOLD : FW_REGULAR;
+    bool italic = fontInfo.IsItalic();
+    bool underline = fontInfo.IsUnderline();
+
+    HFONT font = GetHFont(family.Get(), weight, italic, underline);
+
+    if (font)
+    {
+      // TODO should I use fontID for the 2nd param here, or something else?
+      fontStorage.Add(pFont.release(), fontID);
+      return PlatformFontPtr(new Font(font, "", false));
+    }
+  }
+
+  return nullptr;
+}
+
 void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
 {
   StaticStorage<HFontHolder>::Accessor hfontStorage(sHFontCache);

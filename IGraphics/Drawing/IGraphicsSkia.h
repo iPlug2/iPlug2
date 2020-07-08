@@ -125,6 +125,7 @@ protected:
   bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
 
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
+  APIBitmap* LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale) override;
 private:
     
   void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, SkFont& font) const;
