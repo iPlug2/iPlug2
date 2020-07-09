@@ -19,6 +19,8 @@ std::list<GUI*> GUI::fGuiList;
 ztimedmap GUI::gTimedZoneMap;
 iplug::Timer* iplug::IPlugFaust::sUITimer = nullptr;
 
+using namespace iplug;
+
 IPlugFaust::IPlugFaust(const char* name, int nVoices, int rate)
 : mNVoices(nVoices)
 {
