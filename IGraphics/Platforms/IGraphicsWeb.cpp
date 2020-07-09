@@ -101,8 +101,9 @@ class IGraphicsWeb::MemoryFont : public Font
 {
 public:
   MemoryFont(const char* fontName, const char* fontStyle, const void* pData, int dataSize)
-  : Font(fontName, fontStyle), mSystem(false)
+  : Font(fontName, fontStyle)
   {
+    mSystem = false;
     mData.Set((const uint8_t*)pData, dataSize);
   }
 
