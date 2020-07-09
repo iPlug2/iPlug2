@@ -26,7 +26,7 @@
     <PNG_PATH>$(WDL_PATH)\libpng</PNG_PATH>
     <ZLIB_PATH>$(WDL_PATH)\zlib</ZLIB_PATH>
     <STB_PATH>$(IGRAPHICS_DEPS_PATH)\STB</STB_PATH>
-    <FAUST_INC_PATHS>$(ProgramW6432)\Faust\include</FAUST_INC_PATHS>
+    <FAUST_INC_PATHS>$(DEPS_PATH)\Build\win\Faust\include</FAUST_INC_PATHS>
     <STATIC_LIBS_PATH>$(DEPS_PATH)\Build\win\$(Platform)\$(Configuration)</STATIC_LIBS_PATH>
     <IMGUI_INC_PATHS>$(IGRAPHICS_DEPS_PATH)\imgui;$(IGRAPHICS_DEPS_PATH)\imgui\examples</IMGUI_INC_PATHS>
     <YOGA_INC_PATHS>$(IGRAPHICS_DEPS_PATH)\yoga;$(IGRAPHICS_DEPS_PATH)\yoga\yoga</YOGA_INC_PATHS>
@@ -70,7 +70,7 @@
     <REAPER_INC_PATHS>$(IPLUG_DEPS_PATH)/Reaper;$(IPLUG_PATH)\ReaperExt;</REAPER_INC_PATHS>
     <AAX_ICON>$(AAX_SDK)\Utilities\PlugIn.ico</AAX_ICON>
     <VST_ICON>$(VST3_SDK)\doc\artwork\VST_Logo_Steinberg.ico</VST_ICON>
-    <FAUST_LIB_PATH>$(ProgramW6432)\Faust\lib</FAUST_LIB_PATH>
+    <FAUST_LIB_PATH>$(DEPS_PATH)\Build\win\Faust\lib</FAUST_LIB_PATH>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>

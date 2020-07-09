@@ -31,11 +31,11 @@
 
 #include "Oversampler.h"
 
-#ifndef FAUST_LIBRARY_PATH
+#ifndef FAUST_SHARE_PATH
   #if defined OS_MAC || defined OS_LINUX
-    #define FAUST_LIBRARY_PATH "/usr/local/share/faust/"
+    #define FAUST_SHARE_PATH "/usr/local/share/faust/"
   #else
-   #define FAUST_LIBRARY_PATH "C:\\Program Files\\Faust\\share\\faust"
+   #define FAUST_SHARE_PATH "C:\\Program Files\\Faust\\share\\faust"
   #endif
 #endif
 

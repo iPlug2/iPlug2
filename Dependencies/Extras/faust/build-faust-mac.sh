@@ -14,7 +14,7 @@ if [ -d "$FAUST_REPO_DIR" ]
 then
   echo faust repo exists
 else
-  git clone https://github.com/grame-cncm/faust.git $FAUST_REPO_DIR
+  git clone --recursive https://github.com/grame-cncm/faust.git $FAUST_REPO_DIR
 fi
 mkdir $FAUST_CMAKE_BUILD_DIR
 cd $FAUST_CMAKE_BUILD_DIR
