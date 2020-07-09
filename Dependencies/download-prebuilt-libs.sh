@@ -37,5 +37,16 @@ fi
 
 unzip -o $ZIP_FILE.zip
 mv $ZIP_FILE/* Build
+
+
+if [ "$FOLDER" == "win" ]; then
+  curl https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_WIN_FAUST.zip -L -J -O
+  unzip -o IPLUG2_DEPS_WIN_FAUST.zip
+  mkdir Build/win/Faust
+  mv Faust/* Build/win/Faust
+  rm -r Faust
+fi
+
+
 rm -r $ZIP_FILE
 rm *.zip
