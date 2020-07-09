@@ -114,7 +114,7 @@ public:
 
 private:
   WDL_TypedBuf<uint8_t> mData;
-}
+};
 
 #pragma mark - Utilities and Callbacks
 
