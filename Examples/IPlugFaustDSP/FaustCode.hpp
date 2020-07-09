@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------
 name: "FaustExample"
-Code generated with Faust 2.26.1 (https://faust.grame.fr)
+Code generated with Faust 2.26.2 (https://faust.grame.fr)
 Compilation options: -lang cpp -scal -ftz 0
 ------------------------------------------------------------ */
 
@@ -239,7 +239,7 @@ public:
               int rate = 1,
               const char* outputCPPFile = 0,
               const char* drawPath = 0,
-              const char* libraryPath = FAUST_LIBRARY_PATH)
+              const char* libraryPath = FAUST_SHARE_PATH)
   : IPlugFaust(name, nVoices)
   {
   }
@@ -281,3 +281,4 @@ public:
 
 
 #endif
+
