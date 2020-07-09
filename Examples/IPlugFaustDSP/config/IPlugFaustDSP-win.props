@@ -3,10 +3,9 @@
   <PropertyGroup Label="UserMacros">
     <IPLUG2_ROOT>$(ProjectDir)..\..\..</IPLUG2_ROOT>
     <BINARY_NAME>IPlugFaustDSP</BINARY_NAME>
-    <EXTRA_DEBUG_DEFS>DSP_FILE="C:\\Users\\Oli\\Dev\\iPlug2\\Examples\\IPlugFaustDSP\\IPlugFaustDSP.dsp"</EXTRA_DEBUG_DEFS>
     <EXTRA_ALL_DEFS>IGRAPHICS_NANOVG;IGRAPHICS_GL2;FAUSTFLOAT=double</EXTRA_ALL_DEFS>
+    <EXTRA_DEBUG_DEFS>DSP_FILE=R"($(SolutionDir)IPlugFaustDSP.dsp)";FAUST_DLL_PATH=R"($(SolutionDir)..\..\Dependencies\Build\win\Faust\)"</EXTRA_DEBUG_DEFS>
     <EXTRA_RELEASE_DEFS>FAUST_COMPILED</EXTRA_RELEASE_DEFS>
-    <EXTRA_TRACER_DEFS />
     <PDB_FILE>$(SolutionDir)build-win\pdbs\$(TargetName)_$(Platform).pdb</PDB_FILE>
     <BUILD_DIR>$(SolutionDir)build-win</BUILD_DIR>
     <CREATE_BUNDLE_SCRIPT>$(IPLUG2_ROOT)\Scripts\create_bundle.bat</CREATE_BUNDLE_SCRIPT>
