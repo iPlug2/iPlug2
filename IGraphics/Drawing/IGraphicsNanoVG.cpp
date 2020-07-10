@@ -349,14 +349,24 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
 
 APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale)
 {
-  int idx = 0;
-  int nvgImageFlags = 0;
+  StaticStorage<APIBitmap>::Accessor storage(mBitmapCache);
+  APIBitmap* pBitmap = storage.Find(name, scale);
 
-  ActivateGLContext();  
-  idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pData, dataSize);
-  DeactivateGLContext();
+  if (!pBitmap)
+  {
+    int idx = 0;
+    int nvgImageFlags = 0;
 
-  return new Bitmap(mVG, name, scale, idx, false);
+    ActivateGLContext();
+    idx = idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pData, dataSize);
+    DeactivateGLContext();
+
+    pBitmap = new Bitmap(mVG, name, scale, idx, false);
+
+    storage.Add(pBitmap, name, scale);
+  }
+
+  return pBitmap;
 }
 
 APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
