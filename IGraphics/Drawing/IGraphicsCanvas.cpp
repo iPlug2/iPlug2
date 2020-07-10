@@ -15,6 +15,8 @@
 #include <type_traits>
 #include <emscripten.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 #include "wdl_base64.h"
 
 using namespace iplug;
@@ -354,15 +356,46 @@ APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* fileNameOrResID, int scale
   return new Bitmap(GetPreloadedImages()[fileNameOrResID], fileNameOrResID + 1, scale);
 }
 
+
+// Weird hack to get the ImageBitmap out of the promise.
+EM_JS(void, create_bitmap, (), {
+  createImageBitmap(window._arg).then((img) => { window._ret = img; });
+});
+
 APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale)
 {
-  // TODO 
-  // Encode image as data URL, (e.g. 'data:image/png;base64,<base64-encoded data here>')
-  // var img = new Image(); 
-  // img.src = <data_url>; 
-  // Now img can be used for drawing
-  DBGMSG("IGraphicsCanvas does not currently implement loading bitmaps from data");
-  return nullptr;
+  // TODO decode image to RGBA with width and height
+  int width = 0;
+  int height = 0;
+  int channels = 0;
+  uint8_t* pRGBA;
+
+  pRGBA = stbi_load_from_memory((const uint8_t*)pData, dataSize, &width, &height, &channels, 4);
+  if (!pRGBA)
+  {
+    return nullptr;
+  }
+
+  printf("Size: %d x %d\n", width, height);
+  DBGMSG("Size: %d x %d\n", width, height);
+
+  val imgData = val::global("ImageData").new_(width, height);
+  val pixelData = imgData["data"];
+
+  int rgbaSize = width * height * channels;
+  for (int i = 0; i < rgbaSize; i++)
+  {
+    pixelData.set(i, pRGBA[i]);
+  }
+
+  stbi_image_free(pRGBA);
+
+  val::global("window").set("_arg", imgData);
+  create_bitmap();
+  val img = val::global("window")["_ret"];
+
+  //val img = val::global("window").call<val>("createImageBitmap", imgData);
+  return new Bitmap(img, name, scale);
 }
 
 APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, double drawScale)
