@@ -356,12 +356,6 @@ APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* fileNameOrResID, int scale
   return new Bitmap(GetPreloadedImages()[fileNameOrResID], fileNameOrResID + 1, scale);
 }
 
-
-// Weird hack to get the ImageBitmap out of the promise.
-EM_JS(void, create_bitmap, (), {
-  createImageBitmap(window._arg).then((img) => { window._ret = img; });
-});
-
 APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale)
 {
   // TODO decode image to RGBA with width and height
@@ -376,26 +370,22 @@ APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* name, const void* pData, i
     return nullptr;
   }
 
-  printf("Size: %d x %d\n", width, height);
   DBGMSG("Size: %d x %d\n", width, height);
-
-  val imgData = val::global("ImageData").new_(width, height);
-  val pixelData = imgData["data"];
-
+  // Now that we've decoded the data, put it on a canvas
   int rgbaSize = width * height * channels;
-  for (int i = 0; i < rgbaSize; i++)
-  {
-    pixelData.set(i, pRGBA[i]);
-  }
+  val rgbaArray = val::global("Uint8ClampedArray").new_(val(emscripten::typed_memory_view(rgbaSize, pRGBA)));
+
+  val imgData = val::global("ImageData").new_(rgbaArray, val(width), val(height));
+  val canvas = val::global("document").call<val>("createElement", std::string("canvas"));
+  canvas.set("width", width);
+  canvas.set("height", height);
+
+  val ctx = canvas.call<val>("getContext", std::string("2d"));
+  ctx.call<void>("putImageData", imgData, 0, 0);
 
   stbi_image_free(pRGBA);
 
-  val::global("window").set("_arg", imgData);
-  create_bitmap();
-  val img = val::global("window")["_ret"];
-
-  //val img = val::global("window").call<val>("createImageBitmap", imgData);
-  return new Bitmap(img, name, scale);
+  return new Bitmap(canvas, name, scale);
 }
 
 APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, double drawScale)
