@@ -277,7 +277,8 @@ IControl* IGraphics::AttachControl(IControl* pControl, int ctrlTag, const char* 
   
   if(ctrlTag > kNoTag)
   {
-    assert(mCtrlTags.insert(std::make_pair(ctrlTag, pControl)).second && "AttachControl failed: ctrl tags must be unique");
+    //TODO: assert on duplicate control tags
+    mCtrlTags.insert(std::make_pair(ctrlTag, pControl));
   }
   
   pControl->OnAttached();
