@@ -405,12 +405,8 @@ public:
   /** This is an idle call from the GUI thread, only active if USE_IDLE_CALLS is defined. /todo check this */
   virtual void OnGUIIdle() {}
   
-  /** Set the control's tag. Controls can be given tags, in order to direct messages to them. @see Control Tags
-   * @param tag A unique integer to identify this control */
-  void SetTag(int tag) { mTag = tag; }
-  
   /** Get the control's tag. @see Control Tags */
-  int GetTag() const { return mTag; }
+  int GetTag() const { return GetUI()->GetControlTag(this); }
   
   /** Specify whether this control wants to know about MIDI messages sent to the UI. See OnMIDIMsg() */
   void SetWantsMidi(bool enable = true) { mWantsMidi = enable; }
@@ -523,7 +519,6 @@ protected:
     }
   }
     
-  int mTag = kNoTag;
   IRECT mRECT;
   IRECT mTargetRECT;
   

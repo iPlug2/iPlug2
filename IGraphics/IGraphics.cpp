@@ -270,17 +270,19 @@ void IGraphics::AttachPanelBackground(const IPattern& color)
 
 IControl* IGraphics::AttachControl(IControl* pControl, int ctrlTag, const char* group)
 {
-  pControl->SetDelegate(*GetDelegate());
-  pControl->SetTag(ctrlTag);
-  pControl->SetGroup(group);
-  mControls.Add(pControl);
-  
   if(ctrlTag > kNoTag)
   {
-    //TODO: assert on duplicate control tags
-    mCtrlTags.insert(std::make_pair(ctrlTag, pControl));
+    auto result = mCtrlTags.insert(std::make_pair(ctrlTag, pControl));
+    assert(result.second && "AttachControl failed: ctrl tags must be unique");
+    
+    if (!result.second)
+      return nullptr;
   }
   
+  pControl->SetDelegate(*GetDelegate());
+  pControl->SetGroup(group);
+  mControls.Add(pControl);
+    
   pControl->OnAttached();
   return pControl;
 }

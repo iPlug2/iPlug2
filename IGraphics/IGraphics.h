@@ -1269,6 +1269,19 @@ public:
    * @return A pointer to the IControl object with the tag of nullptr if not found */
   IControl* GetControlWithTag(int ctrlTag);
   
+  /** @param pControl Pointer to the control to get the tag for
+   * @return The tag assigned to the control when it was attached, or kNoTag (-1) */
+  int GetControlTag(const IControl* pControl) const
+  {
+    for (auto itr = mCtrlTags.begin(); itr != mCtrlTags.end(); ++itr)
+    {
+      if (itr->second == pControl)
+        return itr->first;
+    }
+    
+    return kNoTag;
+  }
+  
   /** Check to see if any control is captured */
   bool ControlIsCaptured() const { return mCapturedMap.size() > 0; }
   
