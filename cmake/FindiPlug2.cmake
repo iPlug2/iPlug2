@@ -127,7 +127,7 @@ endfunction()
 
 add_library(iPlug2_Core INTERFACE)
 set(IPLUG_SRC ${IPLUG2_DIR}/IPlug)
-set(IGRAPHICS_SRC ${IPLUG2_DIR}/IGraphics)
+set(IGRAPHICS_PATH ${IPLUG2_DIR}/IGraphics)
 set(WDL_DIR ${IPLUG2_DIR}/WDL)
 set(_DEPS ${IPLUG2_DIR}/Dependencies)
 
@@ -137,11 +137,11 @@ set(_opts "")
 set(_lib "")
 set(_inc
   # IGraphics
-  ${IPLUG2_DIR}/IGraphics
-  ${IPLUG2_DIR}/IGraphics/Controls
-  ${IPLUG2_DIR}/IGraphics/Drawing
-  ${IPLUG2_DIR}/IGraphics/Platforms
-  ${IPLUG2_DIR}/IGraphics/Extras
+  ${IGRAPHICS_PATH}
+  ${IGRAPHICS_PATH}/Controls
+  ${IGRAPHICS_PATH}/Drawing
+  ${IGRAPHICS_PATH}/Platforms
+  ${IGRAPHICS_PATH}/Extras
   ${IPLUG2_DIR}/WDL/lice
   ${IPLUG2_DIR}/Dependencies/IGraphics/NanoSVG/src
   ${IPLUG2_DIR}/Dependencies/IGraphics/NanoVG/src
@@ -186,17 +186,17 @@ set(_src
 
   # These should only be added if the user is using IGraphics
   # For now, we assume they are by default. This should be changed later.
-  ${IGRAPHICS_SRC}/IControl.cpp
-  ${IGRAPHICS_SRC}/IGraphics.cpp
-  ${IGRAPHICS_SRC}/IGraphicsEditorDelegate.cpp
-  ${IGRAPHICS_SRC}/Controls/IControls.cpp
-  ${IGRAPHICS_SRC}/Controls/IPopupMenuControl.cpp
-  ${IGRAPHICS_SRC}/Controls/ITextEntryControl.cpp
+  ${IGRAPHICS_PATH}/IControl.cpp
+  ${IGRAPHICS_PATH}/IGraphics.cpp
+  ${IGRAPHICS_PATH}/IGraphicsEditorDelegate.cpp
+  ${IGRAPHICS_PATH}/Controls/IControls.cpp
+  ${IGRAPHICS_PATH}/Controls/IPopupMenuControl.cpp
+  ${IGRAPHICS_PATH}/Controls/ITextEntryControl.cpp
 )
 
 # Platform Settings
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-  list(APPEND _src ${IGRAPHICS_SRC}/Platforms/IGraphicsWin.cpp)
+  list(APPEND _src ${IGRAPHICS_PATH}/Platforms/IGraphicsWin.cpp)
   target_link_libraries(iPlug2_Core INTERFACE "Shlwapi.lib" "comctl32.lib" "wininet.lib")
   
   # postbuild-win.bat is used by VST2/VST3/AAX on Windows, so we just always configure it on Windows
@@ -206,14 +206,14 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
   configure_file("${IPLUG2_DIR}/Scripts/postbuild-win.bat.in" "${CMAKE_BINARY_DIR}/postbuild-win.bat")
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
-  list(APPEND _src ${IGRAPHICS_SRC}/Platforms/IGraphicsLinux.cpp)
+  list(APPEND _src ${IGRAPHICS_PATH}/Platforms/IGraphicsLinux.cpp)
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   list(APPEND _src 
     ${IPLUG_SRC}/IPlugPaths.mm
-    ${IGRAPHICS_SRC}/Platforms/IGraphicsMac.mm
-    ${IGRAPHICS_SRC}/Platforms/IGraphicsMac_view.mm
-    ${IGRAPHICS_SRC}/Platforms/IGraphicsCoreText.mm
+    ${IGRAPHICS_PATH}/Platforms/IGraphicsMac.mm
+    ${IGRAPHICS_PATH}/Platforms/IGraphicsMac_view.mm
+    ${IGRAPHICS_PATH}/Platforms/IGraphicsCoreText.mm
   )
   list(APPEND _inc ${WDL_DIR}/swell)
   list(APPEND _lib
@@ -240,16 +240,15 @@ endif()
 source_group(TREE ${IPLUG2_DIR} PREFIX "IPlug" FILES ${_src})
 iplug2_add_interface(iPlug2_Core DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} OPTION ${_opts} LINK ${_lib})
 
-
 ##################
 # Standalone App #
 ##################
 
 include("${IPLUG2_DIR}/cmake/APP.cmake")
 
-##############
-# Audio Unit #
-##############
+#################
+# Audio Unit v2 #
+#################
 
 add_library(iPlug2_AU INTERFACE)
 set(_sdk ${IPLUG2_DIR}/IPlug/AUv2)
@@ -297,7 +296,6 @@ iplug2_add_interface(iPlug2_VST2
   LINK iPlug2_Core
 )
 
-
 ########
 # VST3 #
 ########
@@ -308,21 +306,7 @@ include("${IPLUG2_DIR}/cmake/VST3.cmake")
 # Web DSP / GUI #
 #################
 
-set(_sdk ${IPLUG2_DIR}/IPlug/WEB)
-
-iplug2_add_interface(iPlug2_WEB_DSP
-  DEFINE "WEB_API" "IPLUG_DSP=1"
-  SOURCE ${_sdk}/IPlugWeb.cpp
-  INCLUDE ${_sdk}
-  LINK iPlug2_Core
-)
-
-iplug2_add_interface(iPlug2_WEB_GUI
-  DEFINE "WEB_API" "IPLUG_EDITOR=1"
-  SOURCE ${_sdk}/IPlugWeb.cpp
-  INCLUDE ${_sdk}
-  LINK iPlug2_Core
-)
+include("${IPLUG2_DIR}/cmake/WEB.cmake")
 
 ####################
 # Reaper Extension #
@@ -422,7 +406,7 @@ iplug2_add_interface(iPlug2_Synth
 
 
 set(IPLUG2_TARGETS
-  iPlug2_Core iPlug2_APP iPlug2_AU iPlug2_AUv3 iPlug2_VST2 iPlug2_VST3 iPlug2_WEB_DSP iPlug2_WEB_GUI iPlug2_REAPER
+  iPlug2_Core iPlug2_APP iPlug2_AU iPlug2_AUv3 iPlug2_VST2 iPlug2_VST3 iPlug2_WEB iPlug2_WAM iPlug2_REAPER
   iPlug2_Faust iPlug2_FaustGen iPlug2_HIIR iPlug2_OSC iPlug2_Synth iPlug2_NANOVG
 )
 foreach(target IN ITEMS ${IPLUG2_TARGETS})
