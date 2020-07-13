@@ -30,7 +30,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->EnableTooltips(true);
 
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
-    pGraphics->AttachPanelBackground(COLOR_GRAY);
+    pGraphics->AttachPanelBackground(mBGControlPattern);
     pGraphics->AttachTextEntryControl();
     
 #ifndef OS_IOS
@@ -486,6 +486,13 @@ void IPlugControls::OnMidiMsgUI(const IMidiMsg& msg)
     }
   }
 }
+
+void IPlugControls::OnUIClose()
+{
+  // store the background pattern. No modifications to other controls are stored, and this would also need to be serialized in plugin state, for recall!
+  mBGControlPattern = GetUI()->GetBackgroundControl()->As<IPanelControl>()->GetPattern();
+}
+
 #endif
 
 #if IPLUG_DSP
