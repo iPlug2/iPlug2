@@ -197,3 +197,11 @@ int IPlugFaust::FindExistingParameterWithName(const char* name) // TODO: this ne
 
   return -1;
 }
+
+void IPlugFaust::SyncFaustParams()
+{
+  for (auto p = 0; p < NParams(); p++)
+  {
+    *mZones.Get(p) = mParams.Get(p)->Value();
+  }
+}

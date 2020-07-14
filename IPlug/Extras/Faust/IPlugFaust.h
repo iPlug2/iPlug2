@@ -97,8 +97,10 @@ public:
     if(mOverSampler)
       multiplier = mOverSampler->GetRate();
     
-    if (mDSP)
+    if (mDSP) {
       mDSP->init(((int) sampleRate) * multiplier);
+      SyncFaustParams();
+    }
   }
 
   void ProcessMidiMsg(const IMidiMsg& msg)
@@ -120,6 +122,8 @@ public:
   {
     return mParams.GetSize();
   }
+  
+  void SyncFaustParams();
 
   // Meta
   void declare(const char *key, const char *value) override
