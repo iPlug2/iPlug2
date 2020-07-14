@@ -1635,14 +1635,16 @@ WDL_TypedBuf<uint8_t> IGraphics::LoadResource(const char* fileNameOrResID, const
     if (!fd)
       return result;
     
-    if (!fseek(fd, 0, SEEK_END))
+    // First we determine the file size
+    if (fseek(fd, 0, SEEK_END))
     {
       fclose(fd);
       return result;
     }
-
     long size = ftell(fd);
-    if (!fseek(fd, 0, SEEK_SET))
+
+    // Now reset to the start of the file so we can actually read it.
+    if (fseek(fd, 0, SEEK_SET))
     {
       fclose(fd);
       return result;
