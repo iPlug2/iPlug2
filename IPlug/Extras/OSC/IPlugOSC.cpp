@@ -306,7 +306,7 @@ OSCInterface::~OSCInterface()
   }
 }
 
-OSCDevice* OSCInterface::CreateReciever(WDL_String& log, int port)
+OSCDevice* OSCInterface::CreateReceiver(WDL_String& log, int port)
 {
   const char buf[] = "127.0.0.1";
 
@@ -458,7 +458,7 @@ void OSCReceiver::SetReceivePort(int port)
     }
 
     WDL_String log;
-    mDevice = CreateReciever(log, port);
+    mDevice = CreateReceiver(log, port);
     mPort = port;
     
     if(mLogFunc)
