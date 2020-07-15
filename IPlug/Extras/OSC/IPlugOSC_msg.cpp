@@ -112,7 +112,7 @@ int OscMessageRead::GetNumArgs() const
 {
   if (!m_msgok) return 0;
   if (m_type_ptr >= m_type_end) return 0;
-  return strlen(m_type_ptr);
+  return (int) strlen(m_type_ptr);
 }
 
 const char* OscMessageRead::PopWord()
@@ -146,7 +146,7 @@ const void *OscMessageRead::GetIndexedArg(int idx, char *typeOut) const
   {
     if (*ptr == 'i') valptr += sizeof(int);
     else if (*ptr == 'f') valptr += sizeof(float);
-    else if (*ptr == 's') valptr += pad4(strlen(valptr));
+    else if (*ptr == 's') valptr += pad4((int) strlen(valptr));
     else return 0;
 
     idx--;
@@ -159,7 +159,7 @@ const void *OscMessageRead::GetIndexedArg(int idx, char *typeOut) const
   const char *endptr = valptr; 
   if (*ptr == 'i') endptr += sizeof(int);
   else if (*ptr == 'f') endptr += sizeof(float);
-  else if (*ptr == 's') endptr += pad4(strlen(valptr));
+  else if (*ptr == 's') endptr += pad4((int) strlen(valptr));
   else return 0;
 
   if (endptr > m_arg_end) return 0;
@@ -213,7 +213,7 @@ const char* OscMessageRead::PopStringArg(bool peek)
   if (!peek)
   {
     ++m_type_ptr;
-    int n=pad4(strlen(p));
+    int n=pad4((int) strlen(p));
     m_arg_ptr += n;
   }
 
@@ -227,14 +227,14 @@ void OscMessageRead::DebugDump(const char* label, char* dump, int dumplen)
   strcpy(dump, label);
   strcat(dump, m_msg_ptr);
 
-  int n=pad4(strlen(m_msg_ptr));
+  int n=pad4((int) strlen(m_msg_ptr));
 
   const char* t=m_msg_ptr+n;
   if (*t == ',')
   {    
     sprintf(dump+strlen(dump), " [%s]", t+1);
 
-    n += pad4(strlen(t));
+    n += pad4((int) strlen(t));
 
     const char* a=m_msg_ptr+n;
     while (*t++)
@@ -251,8 +251,8 @@ void OscMessageRead::DebugDump(const char* label, char* dump, int dumplen)
       }
       else if (*t == 's')
       {
-        sprintf(dump+strlen(dump), " \"%s\"", a);
-        a += pad4(strlen(a));        
+        sprintf(dump + (int) strlen(dump), " \"%s\"", a);
+        a += pad4((int) strlen(a));
       }
       else
       {
@@ -278,7 +278,7 @@ OscMessageWrite::OscMessageWrite()
 
 bool OscMessageWrite::PushWord(const char* word)
 {
-  int len=strlen(word);
+  int len=(int) strlen(word);
   if (m_msg_ptr+len+1 >= m_msg+sizeof(m_msg)) return false;
 
   strcpy(m_msg_ptr, word);
@@ -325,7 +325,7 @@ bool OscMessageWrite::PushFloatArg(float val)
 
 bool OscMessageWrite::PushStringArg(const char* val)
 {
-  int len=strlen(val);
+  int len=(int) strlen(val);
   int padlen=pad4(len);
 
   if (m_type_ptr+1 > m_types+sizeof(m_types)) return false;
@@ -343,13 +343,13 @@ bool OscMessageWrite::PushStringArg(const char* val)
 
 const char* OscMessageWrite::GetBuffer(int* len)
 {
-  int msglen=m_msg_ptr-m_msg;
+  int msglen=(int) (m_msg_ptr-m_msg);
   int msgpadlen=pad4(msglen);
 
-  int typelen=m_type_ptr-m_types+1; // add the comma
+  int typelen=(int) (m_type_ptr-m_types+1); // add the comma
   int typepadlen=pad4(typelen);
 
-  int arglen=m_arg_ptr-m_args; // already padded
+  int arglen=(int) (m_arg_ptr-m_args); // already padded
 
   if (msgpadlen+typepadlen+arglen > sizeof(m_msg)) 
   {
@@ -369,7 +369,7 @@ const char* OscMessageWrite::GetBuffer(int* len)
   memcpy(p, m_args, arglen);
   p += arglen;
 
-  if (len) *len=p-m_msg;
+  if (len) *len=(int) (p-m_msg);
   return m_msg;
 }
 
