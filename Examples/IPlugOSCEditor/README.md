@@ -1,2 +1,2 @@
 # IPlugOSCEditor
-A basic volume control effect plug-in with IGraphics GUI
+Demonstrates how to use the Open Sound Control classes in iPlug2
