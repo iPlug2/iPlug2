@@ -12,7 +12,7 @@
 
 /**
  * @file IPlug Open Sound Control (OSC) support
- * The code in this file is mostly copied from Cockos OSCII-BOT https://github.com/justinfrankel/oscii-bot
+ * The code in this file is mostly copied/hacked from Cockos OSCII-BOT https://github.com/justinfrankel/oscii-bot
  * OSCII-BOT is licensed under the GPL, but this copy has been authorised for use under the WDL licence by Cockos Inc.
  *
  */
@@ -34,91 +34,45 @@ extern void Sleep(int ms);
 
 BEGIN_IPLUG_NAMESPACE
 
-class IODevice
-{
-protected:
-  IODevice()
-  {
-    m_has_input = false;
-    m_has_output = false;
-    m_last_open_time = 0.0;
-  }
-  
-  IODevice(const IODevice&) = delete;
-  IODevice& operator=(const IODevice&) = delete;
-    
-  struct rec
-  {
-    void (*callback)(void *d1, int dev_idx, char type, int msglen, void *msg); // type=0 for MIDI, 1=osc
-    void *data1;
-    int dev_idx;
-  };
-  
-  WDL_TypedBuf<rec> m_instances;
-public:
-  double m_last_open_time;
-  bool m_has_input, m_has_output;
-  
-  virtual ~IODevice () {};
-  virtual void start() {}
-  virtual void run_input(WDL_FastString& textOut)=0;
-  virtual void run_output(WDL_FastString& textOut)=0;
-  virtual const char *get_type()=0;
-  
-  virtual void oscSend(const char *src, int len) {}
-  //  virtual void midiSend(const unsigned char *buf, int len) {}
-  
-  virtual void addinst(void (*callback)(void *d1, int dev_idx, char type, int msglen, void *msg), void *d1, int dev_idx)
-  {
-    const rec r = {callback, d1, dev_idx};
-    m_instances.Add(r);
-  }
-  
-  virtual void onMessage(char type, const unsigned char *msg, int len)
-  {
-    const int n=m_instances.GetSize();
-    const rec *r = m_instances.Get();
-    for (int x=0;x<n; x++)
-      if (r[x].callback) r[x].callback(r[x].data1,r[x].dev_idx, type, len, (void*)msg);
-  }
-};
+#ifndef OSC_TIMER_RATE
+static constexpr int OSC_TIMER_RATE = 100;
+#endif
 
-class OSCDevice : public IODevice
+class OSCDevice
 {
 public:
   OSCDevice(const char* dest, int maxpacket, int sendsleep, struct sockaddr_in* listen_addr)
   {
-    m_has_input = true;
-    m_has_output = false;
+    mHasOutput = dest != nullptr;
+    mHasInput = listen_addr != nullptr;
     
-    // m_has_output = m_has_input = true;
-    memset(&m_sendaddr, 0, sizeof(m_sendaddr));
-    m_maxpacketsz = maxpacket > 0 ? maxpacket : 1024;
-    m_sendsleep = sendsleep >= 0 ? sendsleep : 10;
-    m_sendsock = socket(AF_INET, SOCK_DGRAM, 0);
+    memset(&mSendAddress, 0, sizeof(mSendAddress));
+    mMaxMacketSize = maxpacket > 0 ? maxpacket : 1024;
+    mSendSleep = sendsleep >= 0 ? sendsleep : 10;
+    mSendSocket = socket(AF_INET, SOCK_DGRAM, 0);
     
-    if (m_sendsock == INVALID_SOCKET)
+    if (mSendSocket == INVALID_SOCKET)
     {
       //TODO:
     }
     else if (listen_addr)
     {
-      m_recvaddr = *listen_addr;
+      mReceiveAddress = *listen_addr;
       int on = 1;
-      setsockopt(m_sendsock, SOL_SOCKET, SO_BROADCAST, (char*)&on, sizeof(on));
-      if (!bind(m_sendsock, (struct sockaddr*)&m_recvaddr, sizeof(struct sockaddr)))
+      setsockopt(mSendSocket, SOL_SOCKET, SO_BROADCAST, (char*)&on, sizeof(on));
+      if (!bind(mSendSocket, (struct sockaddr*)&mReceiveAddress, sizeof(struct sockaddr)))
       {
-        SET_SOCK_BLOCK(m_sendsock, false);
+        SET_SOCK_BLOCK(mSendSocket, false);
       }
       else
       {
-        closesocket(m_sendsock);
-        m_sendsock = INVALID_SOCKET;
+        closesocket(mSendSocket);
+        mSendSocket = INVALID_SOCKET;
       }
     }
     else
     {
-      m_dest.Set(dest);
+      mDestination.Set(dest);
       
       WDL_String tmp(dest);
       int sendport = 0;
@@ -130,69 +84,74 @@ public:
       }
       if (!sendport) sendport=8000;
       
-      m_sendaddr.sin_family = AF_INET;
-      m_sendaddr.sin_addr.s_addr = inet_addr(tmp.Get());
-      m_sendaddr.sin_port = htons(sendport);
+      mSendAddress.sin_family = AF_INET;
+      mSendAddress.sin_addr.s_addr = inet_addr(tmp.Get());
+      mSendAddress.sin_port = htons(sendport);
       
       int on = 1;
-      setsockopt(m_sendsock, SOL_SOCKET, SO_BROADCAST, (char*)&on, sizeof(on));
-      SET_SOCK_BLOCK(m_sendsock, false);
+      setsockopt(mSendSocket, SOL_SOCKET, SO_BROADCAST, (char*)&on, sizeof(on));
+      SET_SOCK_BLOCK(mSendSocket, false);
     }
   }
   
   virtual ~OSCDevice()
   {
-    if (m_sendsock != INVALID_SOCKET)
+    if (mSendSocket != INVALID_SOCKET)
     {
-      shutdown(m_sendsock, SHUT_RDWR);
-      closesocket(m_sendsock);
-      m_sendsock = INVALID_SOCKET;
+      shutdown(mSendSocket, SHUT_RDWR);
+      closesocket(mSendSocket);
+      mSendSocket = INVALID_SOCKET;
     }
   }
   
-  virtual void run_input(WDL_FastString &textOut)
+  void RunInput()
   {
-    if (m_sendsock == INVALID_SOCKET) return;
-    struct sockaddr *p = m_dest.GetLength() ? nullptr : (struct sockaddr *) &m_sendaddr;
+    if (mSendSocket == INVALID_SOCKET)
+      return;
+    
+    struct sockaddr *p = mDestination.GetLength() ? nullptr : (struct sockaddr *) &mSendAddress;
+    
     for (;;)
     {
       char buf[16384];
       buf[0] = 0;
-      socklen_t plen = (socklen_t) sizeof(m_sendaddr);
-      const int len = (int)recvfrom(m_sendsock, buf, sizeof(buf), 0, p, p?&plen:nullptr);
-      if (len<1) break;
+      socklen_t plen = (socklen_t) sizeof(mSendAddress);
+      const int len = (int) recvfrom(mSendSocket, buf, sizeof(buf), 0, p, p?&plen:nullptr);
       
-      onMessage(1,(const unsigned char *)buf,len);
+      if (len<1)
+        break;
+      
+      OnMessage(1,(const unsigned char *)buf,len);
     }
   }
   
-  virtual void run_output(WDL_FastString &results)
+  void RunOutput()
   {
     static char hdr[16] = { '#', 'b', 'u', 'n', 'd', 'l', 'e', 0, 0, 0, 0, 0, 1, 0, 0, 0 };
     
-    // send m_sendq as UDP blocks
-    if (m_sendq.Available() <= 16)
+    // send mSendQueue as UDP blocks
+    if (mSendQueue.Available() <= 16)
     {
-      if (m_sendq.Available() > 0) m_sendq.Clear();
-      return;
+      if (mSendQueue.Available() > 0) mSendQueue.Clear();
+        return;
     }
-    // m_sendq should begin with a 16 byte pad, then messages in OSC
+    // mSendQueue should begin with a 16 byte pad, then messages in OSC
     
-    char* packetstart = (char*) m_sendq.Get();
+    char* packetstart = (char*) mSendQueue.Get();
     int packetlen = 16;
     bool hasbundle = false;
-    m_sendq.Advance(16); // skip bundle for now, but keep it around
+    mSendQueue.Advance(16); // skip bundle for now, but keep it around
     
-    SET_SOCK_BLOCK(m_sendsock, true);
+    SET_SOCK_BLOCK(mSendSocket, true);
     
-    while (m_sendq.Available() >= sizeof(int))
+    while (mSendQueue.Available() >= sizeof(int))
     {
-      int len = *(int*) m_sendq.Get(); // not advancing
+      int len = *(int*) mSendQueue.Get(); // not advancing
       OSC_MAKEINTMEM4BE((char*)&len);
       
-      if (len < 1 || len > MAX_OSC_MSG_LEN || len > m_sendq.Available()) break;
+      if (len < 1 || len > MAX_OSC_MSG_LEN || len > mSendQueue.Available()) break;
       
-      if (packetlen > 16 && packetlen+sizeof(int)+len > m_maxpacketsz)
+      if (packetlen > 16 && packetlen+sizeof(int)+len > mMaxMacketSize)
       {
         // packet is full
         if (!hasbundle)
@@ -205,16 +164,17 @@ public:
           memcpy(packetstart, hdr, 16);
         }
         
-        sendto(m_sendsock, packetstart, packetlen, 0, (struct sockaddr*)&m_sendaddr, sizeof(m_sendaddr));
-        if (m_sendsleep>0) Sleep(m_sendsleep);
+        sendto(mSendSocket, packetstart, packetlen, 0, (struct sockaddr*)&mSendAddress, sizeof(mSendAddress));
+        if (mSendSleep>0)
+          Sleep(mSendSleep);
         
-        packetstart = (char*) m_sendq.Get()-16; // safe since we padded the queue start
+        packetstart = (char*) mSendQueue.Get()-16; // safe since we padded the queue start
         packetlen = 16;
         hasbundle = false;
       }
       
       if (packetlen > 16) hasbundle = true;
-      m_sendq.Advance(sizeof(int)+len);
+      mSendQueue.Advance(sizeof(int)+len);
       packetlen += sizeof(int)+len;
     }
     
@@ -229,65 +189,98 @@ public:
       {
         memcpy(packetstart,hdr,16);
       }
-      sendto(m_sendsock, packetstart, packetlen, 0, (struct sockaddr*) &m_sendaddr, sizeof(m_sendaddr));
-      if (m_sendsleep > 0) Sleep(m_sendsleep);
+      sendto(mSendSocket, packetstart, packetlen, 0, (struct sockaddr*) &mSendAddress, sizeof(mSendAddress));
+      if (mSendSleep > 0)
+        Sleep(mSendSleep);
     }
-    SET_SOCK_BLOCK(m_sendsock, false);
+    SET_SOCK_BLOCK(mSendSocket, false);
     
-    m_sendq.Clear();
+    mSendQueue.Clear();
   }
   
-  virtual void oscSend(const char* src, int len)
+  virtual void AddInstance(void (*callback)(void *d1, int dev_idx, int msglen, void *msg), void *d1, int dev_idx)
   {
-    if (!m_sendq.GetSize()) m_sendq.Add(nullptr,16);
+    const rec r = {callback, d1, dev_idx};
+    mInstances.Add(r);
+  }
+  
+  virtual void OnMessage(char type, const unsigned char *msg, int len)
+  {
+    const int n = mInstances.GetSize();
+    const rec *r = mInstances.Get();
+    for (int x=0;x<n; x++)
+      if (r[x].callback) r[x].callback(r[x].data1,r[x].dev_idx, len, (void*)msg);
+  }
+  
+  void SendOSC(const char* src, int len)
+  {
+    if (!mSendQueue.GetSize())
+      mSendQueue.Add(nullptr,16);
     
     int tlen = len;
     OSC_MAKEINTMEM4BE(&tlen);
-    m_sendq.Add(&tlen,sizeof(tlen));
-    m_sendq.Add(src,len);
+    mSendQueue.Add(&tlen,sizeof(tlen));
+    mSendQueue.Add(src,len);
   }
+
+private:
+  struct rec
+  {
+    void (*callback)(void *d1, int dev_idx, int msglen, void *msg);
+    void *data1;
+    int dev_idx;
+  };
+    
+  WDL_TypedBuf<rec> mInstances;
+public:
+  double mLastOpenTime = 0;
+  bool mHasInput = false;
+  bool mHasOutput = false;
   
-  virtual const char* get_type() { return "OSC"; }
+  SOCKET mSendSocket;
+  int mMaxMacketSize, mSendSleep;
+  WDL_String mDestination;
   
-  SOCKET m_sendsock;
-  int m_maxpacketsz, m_sendsleep;
-  struct sockaddr_in m_sendaddr;
-  WDL_Queue m_sendq;
-  WDL_String m_dest;
-  
-  struct sockaddr_in m_recvaddr;
-  WDL_Queue m_recvq;
+  struct sockaddr_in mSendAddress, mReceiveAddress;
+  WDL_Queue mSendQueue, mReceiveQueue;
 };
 
-WDL_PtrList<IODevice> g_devices;
+WDL_PtrList<OSCDevice> gDevices;
 
 class OSCReceiver;
 
 class OSCInterface
 {
+  struct incomingEvent
+  {
+    OSCDevice* dev_ptr;
+    int sz; // size of msg
+    unsigned char msg[3];
+  };
+  
 public:
-  OSCInterface(int updateRateMs = 100)
+  OSCInterface()
   {
     JNL::open_socketlib();
     
     if(!mTimer)
-      mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&OSCInterface::OnTimer, this, std::placeholders::_1), updateRateMs));
+      mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&OSCInterface::OnTimer, this, std::placeholders::_1), OSC_TIMER_RATE));
       
     sInstances++;
   }
   
   virtual ~OSCInterface()
   {
-    if (--sInstances == 0)
+    if (--sInstances == 0) {
       mTimer = nullptr;
+      gDevices.Empty(true);
+    }
   }
   
   OSCInterface(const OSCInterface&) = delete;
   OSCInterface& operator=(const OSCInterface&) = delete;
     
-  static void MessageCallback(void *d1, int dev_idx, char type, int msglen, void *msg);
-  
-  void CreateReciever(WDL_String& results, int port = 8000)
+  OSCDevice* CreateReciever(WDL_String& log, int port = 8000)
   {
     const char buf[] = "127.0.0.1";
     
@@ -299,20 +292,19 @@ public:
     addr.sin_port = htons(port);
     
     int x;
-    bool is_reuse = false;
+    bool isReuse = false;
     OSCDevice *r = nullptr;
-    for (x = 0; x < g_devices.GetSize(); x++)
+    for (x = 0; x < gDevices.GetSize(); x++)
     {
-      IODevice  *dev = g_devices.Get(x);
-      if (dev && !strcmp(dev->get_type(),"OSC") && dev->m_has_input)
+      OSCDevice* dev = gDevices.Get(x);
+      if (dev && dev->mHasInput)
       {
-        OSCDevice *od = (OSCDevice *)dev;
-        if (od->m_recvaddr.sin_port == addr.sin_port && od->m_recvaddr.sin_addr.s_addr == addr.sin_addr.s_addr)
+        if (dev->mReceiveAddress.sin_port == addr.sin_port && dev->mReceiveAddress.sin_addr.s_addr == addr.sin_addr.s_addr)
         {
-          r=od;
-          is_reuse=true;
+          r = dev;
+          isReuse = true;
           
-          results.AppendFormatted(1024,"\tAttached to already-opened listener '%s:%i'\r\n", buf, port);
+          log.AppendFormatted(1024, "Attached to already-opened listener '%s:%i'\r\n", buf, port);
           
           break;
         }
@@ -323,43 +315,44 @@ public:
     {
       std::unique_ptr<OSCDevice> device(new OSCDevice(nullptr, 0, -1, &addr));
 
-      if (device->m_sendsock == INVALID_SOCKET)
+      if (device->mSendSocket == INVALID_SOCKET)
       {
-        results.AppendFormatted(1024,"\tError listening for '%s:%i'\r\n", buf, port);
+        log.AppendFormatted(1024, "Error listening for '%s:%i'\r\n", buf, port);
       }
       else
       {
         r = device.release();
-        results.AppendFormatted(1024,"\tListening on '%s:%i'\r\n", buf, port);
+        log.AppendFormatted(1024, "Listening for OSC on '%s:%i'\r\n", buf, port);
       }
     }
     
     if (r)
     {
-      r->addinst(MessageCallback, this, m_devs.GetSize());
-      m_devs.Add(r);
+      r->AddInstance(MessageCallback, this, mDevices.GetSize());
+      mDevices.Add(r);
       
-      if (!is_reuse)
-        g_devices.Add(r);
+      if (!isReuse)
+        gDevices.Add(r);
     }
+    
+    return r;
   }
   
-  void CreateSender(WDL_String& results, const char* ip = "127.0.0.1", int port = 8000)
+  OSCDevice* CreateSender(WDL_String& log, const char* ip = "127.0.0.1", int port = 8000)
   {
-    WDL_String dp;
-    dp.SetFormatted(256, "%s:%i", ip, port);
+    WDL_String destStr;
+    destStr.SetFormatted(256, "%s:%i", ip, port);
     OSCDevice *r = nullptr;
-    bool is_reuse = false;
-    for (auto x=0; x<g_devices.GetSize(); x++)
+    bool isReuse = false;
+    for (auto x=0; x<gDevices.GetSize(); x++)
     {
-      IODevice *d = g_devices.Get(x);
-      if (d && !strcmp(d->get_type(),"OSC") && d->m_has_output)
+      OSCDevice *d = gDevices.Get(x);
+      if (d && d->mHasOutput)
       {
-        OSCDevice *p = (OSCDevice *)d;
-        if (!strcmp(p->m_dest.Get(), dp.Get()))
+        if (!strcmp(d->mDestination.Get(), destStr.Get()))
         {
-          is_reuse = true;
-          r = p; // reuse!
+          isReuse = true;
+          r = d; // reuse!
           break;
         }
       }
@@ -367,11 +360,11 @@ public:
     
     if (!r)
     {
-      is_reuse = false;
-      std::unique_ptr<OSCDevice> device(new OSCDevice(dp.Get(), 0, -1, nullptr));
-      if (device->m_sendsock == INVALID_SOCKET)
+      isReuse = false;
+      std::unique_ptr<OSCDevice> device(new OSCDevice(destStr.Get(), 0, -1, nullptr));
+      if (device->mSendSocket == INVALID_SOCKET)
       {
-        results.AppendFormatted(1024,"\tWarning: failed creating destination for output '%s' OSC '%s'\r\n", dp.Get(), dp.Get());
+        log.AppendFormatted(1024,"Warning: failed creating destination for output '%s'\n", destStr.Get());
       }
       else
       {
@@ -381,44 +374,42 @@ public:
     
     if (r)
     {
-      r->addinst(MessageCallback, this, m_devs.GetSize());
-      m_devs.Add(r);
+      r->AddInstance(MessageCallback, this, mDevices.GetSize());
+      mDevices.Add(r);
       
-      if (!is_reuse)
-        g_devices.Add(r);
+      if (!isReuse)
+        gDevices.Add(r);
     }
+    
+    return r;
   }
   
 public:
-  void SendMsg(const char* msg, int len)
-  {
-    g_devices.Get(0)->oscSend(msg, len); // TODO: device 0?
-  }
-  
-  struct incomingEvent
-  {
-    IODevice* dev_ptr;
-    int sz; // size of msg[], 1..3 for midi, anything for OSC
-    char type; // 0=midi, 1=OSC
-    unsigned char msg[3];
-  };
-  
+
   virtual void OnOSCMessage(OscMessageRead& msg) {};
   
 private:
+  static void MessageCallback(void *d1, int dev_idx, int msglen, void *msg);
+
   void OnTimer(Timer& timer)
   {
-    if(mInputProc)
-      mInputProc();
+    const int nDevices = gDevices.GetSize();
     
-    if (m_incoming_events.GetSize())
+    for (auto i = 0; i < nDevices; i++)
+    {
+      auto* pDev = gDevices.Get(i);
+      if(pDev->mHasInput)
+        pDev->RunInput();
+    }
+    
+    if (mIncomingEvents.GetSize())
     {
       static WDL_HeapBuf tmp;
       
-      m_incoming_events_mutex.Enter();
-      tmp.CopyFrom(&m_incoming_events,false);
-      m_incoming_events.Resize(0,false);
-      m_incoming_events_mutex.Leave();
+      mIncomingEvents_mutex.Enter();
+      tmp.CopyFrom(&mIncomingEvents,false);
+      mIncomingEvents.Resize(0,false);
+      mIncomingEvents_mutex.Leave();
       
       int pos=0;
       const int endpos = tmp.GetSize();
@@ -447,9 +438,7 @@ private:
           
           const char *mstr = rmsg.GetMessage();
           if (mstr && *mstr)
-          {
             OnOSCMessage(rmsg);
-          }
           
           rd_pos += rd_sz+4;
           if (rd_pos >= evt->sz) break;
@@ -460,22 +449,50 @@ private:
       }
     }
     
-    if(mOutputProc)
-      mOutputProc();
+    for (auto i = 0; i < nDevices; i++)
+    {
+      auto* pDev = gDevices.Get(i);
+      if(pDev->mHasOutput)
+        pDev->RunOutput();  // send queued messages
+    }
   }
   
   // these are non-owned refs
-  WDL_PtrList<IODevice> m_devs;
+  WDL_PtrList<OSCDevice> mDevices;
+  
 protected:
   static std::unique_ptr<Timer> mTimer;
   static int sInstances;
-  WDL_FastString results;
-  std::function<void()> mInputProc = nullptr;
-  std::function<void()> mOutputProc = nullptr;
-  WDL_HeapBuf m_incoming_events;  // incomingEvent list, each is 8-byte aligned
-  WDL_Mutex m_incoming_events_mutex;
-  static const int DEVICE_INDEX_BASE = 0x400000;
+  WDL_HeapBuf mIncomingEvents;  // incomingEvent list, each is 8-byte aligned
+  WDL_Mutex mIncomingEvents_mutex;
 };
+
+//static
+void OSCInterface::MessageCallback(void *d1, int dev_idx, int len, void *msg)
+{
+  OSCInterface* _this  = (OSCInterface *) d1;
+  
+  if (_this && msg)
+  {
+    if (_this->mIncomingEvents.GetSize() < 65536*8)
+    {
+      const int this_sz = ((sizeof(incomingEvent) + (len-3)) + 7) & ~7;
+      
+      _this->mIncomingEvents_mutex.Enter();
+      const int oldsz = _this->mIncomingEvents.GetSize();
+      _this->mIncomingEvents.Resize(oldsz + this_sz,false);
+      
+      if (_this->mIncomingEvents.GetSize() == oldsz+this_sz)
+      {
+        incomingEvent *item=(incomingEvent *) ((char *)_this->mIncomingEvents.Get() + oldsz);
+        item->dev_ptr = _this->mDevices.Get(dev_idx);
+        item->sz = len;
+        memcpy(item->msg, msg, len);
+      }
+      _this->mIncomingEvents_mutex.Leave();
+    }
+  }
+}
 
 std::unique_ptr<Timer> OSCInterface::mTimer;
 int OSCInterface::sInstances = 0;
@@ -485,21 +502,34 @@ class OSCSender : public OSCInterface
 public:
   OSCSender(const char* destIP = "127.0.0.1", int port = 8000)
   {
-    WDL_String str;
-    CreateSender(str, destIP, port);
-    DBGMSG("%s\n", str.Get());
-    mOutputProc = [&]() {
-      for (auto x = 0; x < g_devices.GetSize(); x++)
-        g_devices.Get(x)->run_output(results);  // send queued messages
-    };
+    WDL_String log;
+    SetDesination(destIP, port, log);
+    DBGMSG("%s\n", log.Get());
+  }
+  
+  void SetDesination(const char* ip, int port, WDL_String& log)
+  {
+    if(strcmp(ip, mDestIP.Get()) && port != mPort)
+    {
+      if(mDevice != nullptr)
+      {
+        gDevices.DeletePtr(mDevice, true);
+      }
+      
+      mDevice = CreateSender(log, ip, port);
+    }
   }
   
   void SendOSCMessage(OscMessageWrite& msg)
   {
-    int msgLength;
-    const char* msgStr = msg.GetBuffer(&msgLength);
-    SendMsg(msgStr, msgLength);
+    int len;
+    const char* msgStr = msg.GetBuffer(&len);
+    mDevice->SendOSC(msgStr, len);
   }
+private:
+  int mPort = 0;
+  WDL_String mDestIP;
+  OSCDevice* mDevice = nullptr;
 };
 
 class OSCReceiver : public OSCInterface
@@ -507,57 +537,32 @@ class OSCReceiver : public OSCInterface
 public:
   OSCReceiver(int port = 8000)
   {
-    WDL_String str;
-    CreateReciever(str, port);
-    DBGMSG("%s\n", str.Get());
-    
-    mInputProc = [&]()
+    WDL_String log;
+    SetReceivePort(port, log);
+    DBGMSG("%s\n", log.Get());
+  }
+  
+  void SetReceivePort(int port, WDL_String& log)
+  {
+    if(port != mPort)
     {
-      const int sizeOfData = results.GetLength();
-      
-      for (auto x = 0; x < g_devices.GetSize(); x++)
-        g_devices.Get(x)->run_input(results);
-      
-      if (results.GetLength() != sizeOfData) // if some input device added results
+      if(mDevice != nullptr)
       {
-        OscMessageRead msg{mReadBuf, sizeOfData};
-        OnOSCMessage(msg);
+        gDevices.DeletePtr(mDevice, true);
       }
-    };
+      
+      mDevice = CreateReciever(log, port);
+      mPort = port;
+    }
   }
   
   virtual void OnOSCMessage(OscMessageRead& msg) = 0;
   
 private:
+  OSCDevice* mDevice = nullptr;
+  int mPort = 0;
   char mReadBuf[MAX_OSC_MSG_LEN] = {};
 };
 
-//static
-void OSCInterface::MessageCallback(void *d1, int dev_idx, char type, int len, void *msg)
-{
-  OSCInterface* _this  = (OSCInterface *) d1;
-  
-  if (_this && msg)
-  {
-    if (_this->m_incoming_events.GetSize() < 65536*8)
-    {
-      const int this_sz = ((sizeof(incomingEvent) + (len-3)) + 7) & ~7;
-      
-      _this->m_incoming_events_mutex.Enter();
-      const int oldsz = _this->m_incoming_events.GetSize();
-      _this->m_incoming_events.Resize(oldsz + this_sz,false);
-      
-      if (_this->m_incoming_events.GetSize() == oldsz+this_sz)
-      {
-        incomingEvent *item=(incomingEvent *) ((char *)_this->m_incoming_events.Get() + oldsz);
-        item->dev_ptr = _this->m_devs.Get(dev_idx);
-        item->sz = len;
-        item->type = type;
-        memcpy(item->msg,msg,len);
-      }
-      _this->m_incoming_events_mutex.Leave();
-    }
-  }
-}
 
 END_IPLUG_NAMESPACE
