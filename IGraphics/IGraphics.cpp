@@ -412,7 +412,17 @@ void IGraphics::ShowFPSDisplay(bool enable)
 
 IControl* IGraphics::GetControlWithTag(int ctrlTag)
 {
-  return mCtrlTags[ctrlTag];
+  IControl* pControl = mCtrlTags[ctrlTag];
+  
+  if(pControl != nullptr)
+  {
+    return pControl;
+  }
+  else
+  {
+    assert(pControl && "There is no control attached with this tag");
+    return nullptr;
+  }
 }
 
 void IGraphics::HideControl(int paramIdx, bool hide)
