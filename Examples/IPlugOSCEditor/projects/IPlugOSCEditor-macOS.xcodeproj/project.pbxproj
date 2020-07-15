@@ -47,6 +47,25 @@
 		4F03A5D320A4621100EBDFFB /* IGraphicsStructs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F03A56820A4621000EBDFFB /* IGraphicsStructs.h */; };
 		4F03A5D420A4621100EBDFFB /* IGraphicsUtilities.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F03A56920A4621100EBDFFB /* IGraphicsUtilities.h */; };
 		4F03A5D520A4621100EBDFFB /* IGraphicsConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F03A56A20A4621100EBDFFB /* IGraphicsConstants.h */; };
+		4F06B2B124BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
+		4F06B2B224BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
+		4F06B2B324BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
+		4F06B2B424BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
+		4F06B2B524BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
+		4F06B2B624BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
+		4F06B2B724BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
+		4F06B2B824BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
+		4F06B2B924BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
+		4F06B2D424BF65E300C7EDDA /* IPlugWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B2BE24BF65E300C7EDDA /* IPlugWebView.h */; };
+		4F06B2DF24BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2E024BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
+		4F06B2E124BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
+		4F06B2E224BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
+		4F06B2E324BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
+		4F06B2E424BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
+		4F06B2E524BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
+		4F06B2E624BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
+		4F06B2E724BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
 		4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F0848252015129300F9E881 /* IPlugAAX_Parameters.cpp */; };
 		4F0D965C23099F6900BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		4F10D3D9203A6719003EF82A /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F10D3D7203A6719003EF82A /* RtMidi.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
@@ -516,6 +535,10 @@
 		4F03A56A20A4621100EBDFFB /* IGraphicsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsConstants.h; path = ../../../IGraphics/IGraphicsConstants.h; sourceTree = "<group>"; };
 		4F05C5A82082424400DD1621 /* IPlugWAM.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugWAM.h; path = ../../../IPlug/WEB/IPlugWAM.h; sourceTree = "<group>"; tabWidth = 2; };
 		4F05C5A92082424400DD1621 /* IPlugWAM.cpp */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugWAM.cpp; path = ../../../IPlug/WEB/IPlugWAM.cpp; sourceTree = "<group>"; tabWidth = 2; };
+		4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugOSC.cpp; sourceTree = "<group>"; };
+		4F06B2BA24BF65BA00C7EDDA /* IWebViewControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IWebViewControl.h; sourceTree = "<group>"; };
+		4F06B2BE24BF65E300C7EDDA /* IPlugWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugWebView.h; sourceTree = "<group>"; };
+		4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWebView.mm; sourceTree = "<group>"; };
 		4F0848252015129300F9E881 /* IPlugAAX_Parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX_Parameters.cpp; path = ../../../IPlug/AAX/IPlugAAX_Parameters.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		4F0848262015129400F9E881 /* IPlugAAX_Parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_Parameters.h; path = ../../../IPlug/AAX/IPlugAAX_Parameters.h; sourceTree = "<group>"; tabWidth = 2; };
 		4F0848272015129400F9E881 /* IPlugAAX_view_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_view_interface.h; path = ../../../IPlug/AAX/IPlugAAX_view_interface.h; sourceTree = "<group>"; tabWidth = 2; };
@@ -1091,6 +1114,15 @@
 			name = WAM_SDK;
 			sourceTree = "<group>";
 		};
+		4F06B2BB24BF65E300C7EDDA /* WebView */ = {
+			isa = PBXGroup;
+			children = (
+				4F06B2BE24BF65E300C7EDDA /* IPlugWebView.h */,
+				4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */,
+			);
+			path = WebView;
+			sourceTree = "<group>";
+		};
 		4F10D3D1203A6700003EF82A /* RTAudioMidi */ = {
 			isa = PBXGroup;
 			children = (
@@ -1179,6 +1211,7 @@
 		4F5369B820C446430089212E /* Extras */ = {
 			isa = PBXGroup;
 			children = (
+				4F06B2BB24BF65E300C7EDDA /* WebView */,
 				4F6E673C21C5614C005991A9 /* Synth */,
 				4FC44B9820F151B90062F870 /* WebSocket */,
 				4F5369BC20C446430089212E /* Easing.h */,
@@ -1200,6 +1233,7 @@
 			isa = PBXGroup;
 			children = (
 				4F5369C020C446430089212E /* IPlugOSC.h */,
+				4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */,
 				4F5369BF20C446430089212E /* IPlugOSC_msg.h */,
 				4F5369C120C446430089212E /* IPlugOSC_msg.cpp */,
 			);
@@ -1245,6 +1279,7 @@
 				4FF83B5E20B6E901007A0E4B /* IVScopeControl.h */,
 				4F63695720A463090022C370 /* IVKeyboardControl.h */,
 				4F97BD8B2137629600541A17 /* IFPSDisplayControl.h */,
+				4F06B2BA24BF65BA00C7EDDA /* IWebViewControl.h */,
 			);
 			name = Controls;
 			path = ../../../IGraphics/Controls;
@@ -1755,6 +1790,7 @@
 				4FCEAB6424BEFF470016EF6C /* netinc.h in Headers */,
 				4FCEAB6624BEFF470016EF6C /* listen.h in Headers */,
 				4FCEAB8824BF02C00016EF6C /* asyncdns.h in Headers */,
+				4F06B2D424BF65E300C7EDDA /* IPlugWebView.h in Headers */,
 				4F78BE1222E73DD900AD537E /* AUv3Framework.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2364,11 +2400,13 @@
 				4FCE29D821D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F9A82F8213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */,
+				4F06B2E024BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
 				4F8C10E120BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
 				4FCEAB7C24BEFFEC0016EF6C /* IPlugOSC_msg.cpp in Sources */,
 				4FCEAB4824BEFF470016EF6C /* listen.cpp in Sources */,
 				4F6369DE20A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
 				4F8D9707209EF5AC006E2A11 /* IPlugOSCEditor.cpp in Sources */,
+				4F06B2B224BF64A300C7EDDA /* IPlugOSC.cpp in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FB1F59020E4B010004157C8 /* IGraphicsMac_view.mm in Sources */,
 				4FA9F80E21F76177004E6FE2 /* IGraphicsAGG_src.mm in Sources */,
@@ -2384,11 +2422,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F06B2B724BF64A300C7EDDA /* IPlugOSC.cpp in Sources */,
 				4FCEAB8224BEFFEF0016EF6C /* IPlugOSC_msg.cpp in Sources */,
 				4FCEAB7724BEFF470016EF6C /* connection.cpp in Sources */,
 				4F78BE3222E7429B00AD537E /* IPlugAUv3Appex.m in Sources */,
 				4FCEAB4D24BEFF470016EF6C /* listen.cpp in Sources */,
 				4FCEAB8F24BF02C00016EF6C /* asyncdns.cpp in Sources */,
+				4F06B2E524BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
 				4FCEAB1F24BEFF470016EF6C /* util.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2404,12 +2444,14 @@
 				4F63697020A463090022C370 /* IControls.cpp in Sources */,
 				4FCEAB7E24BEFFED0016EF6C /* IPlugOSC_msg.cpp in Sources */,
 				4FCEAB1C24BEFF470016EF6C /* util.cpp in Sources */,
+				4F06B2B424BF64A300C7EDDA /* IPlugOSC.cpp in Sources */,
 				4FD52131202A5B9B00A4D22A /* IPlugAU_view_factory.mm in Sources */,
 				4FA9F80721F760C1004E6FE2 /* IGraphicsLice_src.mm in Sources */,
 				4FA9F81021F76177004E6FE2 /* IGraphicsAGG_src.mm in Sources */,
 				4F993F7423055C96000313AF /* IPlugProcessor.cpp in Sources */,
 				4F8C10E320BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
 				4FCEAB7424BEFF470016EF6C /* connection.cpp in Sources */,
+				4F06B2E224BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
 				4F6FD2B422675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
 				4F9A82FA213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */,
@@ -2452,6 +2494,7 @@
 				4F3EE1D2231438D000004786 /* swell-misc.mm in Sources */,
 				4F3EE1D3231438D000004786 /* swell-wnd.mm in Sources */,
 				4F3EE1D4231438D000004786 /* swell.cpp in Sources */,
+				4F06B2B924BF64A300C7EDDA /* IPlugOSC.cpp in Sources */,
 				4F3EE1D5231438D000004786 /* IPlugAPP_host.cpp in Sources */,
 				4F3EE1D6231438D000004786 /* IPlugAPP.cpp in Sources */,
 				4F3EE1D7231438D000004786 /* IGraphics.cpp in Sources */,
@@ -2464,6 +2507,7 @@
 				4F3EE1DE231438D000004786 /* IPlugOSCEditor.cpp in Sources */,
 				4F3EE1DF231438D000004786 /* IPopupMenuControl.cpp in Sources */,
 				4F3EE1E0231438D000004786 /* IPlugAPIBase.cpp in Sources */,
+				4F06B2E724BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
 				4F3EE1E1231438D000004786 /* IPlugPluginBase.cpp in Sources */,
 				4FCEAB4F24BEFF470016EF6C /* listen.cpp in Sources */,
 				4F3EE1E2231438D000004786 /* IGraphicsEditorDelegate.cpp in Sources */,
@@ -2492,8 +2536,10 @@
 				4FCEAB7824BEFF470016EF6C /* connection.cpp in Sources */,
 				4F78BE1C22E7406D00AD537E /* IGraphicsLice_src.mm in Sources */,
 				4F78BE1D22E7406D00AD537E /* IGraphicsAGG_src.mm in Sources */,
+				4F06B2B824BF64A300C7EDDA /* IPlugOSC.cpp in Sources */,
 				4F78BE1E22E7406D00AD537E /* IGraphicsNanoVG_src.m in Sources */,
 				4F78BE1F22E7406D00AD537E /* IGraphics.cpp in Sources */,
+				4F06B2E624BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
 				4F78BE2022E7406D00AD537E /* IGraphicsEditorDelegate.cpp in Sources */,
 				4FCEAB9024BF02C00016EF6C /* asyncdns.cpp in Sources */,
 				4F78BE2122E7406D00AD537E /* IControl.cpp in Sources */,
@@ -2524,11 +2570,13 @@
 				4F815973205D50EB00393585 /* vstinitiids.cpp in Sources */,
 				4F81597E205D50EB00393585 /* fdebug.cpp in Sources */,
 				4FCEAB4924BEFF470016EF6C /* listen.cpp in Sources */,
+				4F06B2E124BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
 				4FA9F80621F760C1004E6FE2 /* IGraphicsLice_src.mm in Sources */,
 				4F9828B8140A9EB700F3FCC1 /* IPlugAPIBase.cpp in Sources */,
 				4F81597F205D50EB00393585 /* fdynlib.cpp in Sources */,
 				4F815919205D50EB00393585 /* memorystream.cpp in Sources */,
 				4F9828C1140A9EB700F3FCC1 /* IPlugParameter.cpp in Sources */,
+				4F06B2B324BF64A300C7EDDA /* IPlugOSC.cpp in Sources */,
 				4F81591A205D50EB00393585 /* pluginview.cpp in Sources */,
 				4FCEAB8B24BF02C00016EF6C /* asyncdns.cpp in Sources */,
 				4F815982205D50EB00393585 /* fstring.cpp in Sources */,
@@ -2590,8 +2638,10 @@
 				4FCEAB7524BEFF470016EF6C /* connection.cpp in Sources */,
 				4F03A5B020A4621100EBDFFB /* IGraphics.cpp in Sources */,
 				4F35DEB1207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
+				4F06B2B524BF64A300C7EDDA /* IPlugOSC.cpp in Sources */,
 				4F5F344520C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F1A5285205D914A00CF2908 /* IPlugAAX.cpp in Sources */,
+				4F06B2E324BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
 				4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */,
 				4FCEAB8D24BF02C00016EF6C /* asyncdns.cpp in Sources */,
 				4FB1F59420E4B014004157C8 /* IGraphicsMac_view.mm in Sources */,
@@ -2657,6 +2707,7 @@
 				4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */,
 				4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */,
 				4FD16D4413B635B2001D0217 /* swell.cpp in Sources */,
+				4F06B2B124BF64A300C7EDDA /* IPlugOSC.cpp in Sources */,
 				4F690CA3203A45C700A4A13E /* IPlugAPP_host.cpp in Sources */,
 				4F1A5282205D913300CF2908 /* IPlugAPP.cpp in Sources */,
 				4F03A5AC20A4621100EBDFFB /* IGraphics.cpp in Sources */,
@@ -2669,6 +2720,7 @@
 				4F3862EF2014BBEC0009F402 /* IPlugOSCEditor.cpp in Sources */,
 				4F9A82F7213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4F78D90B13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
+				4F06B2DF24BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
 				4F35DEAD207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4FCEAB4724BEFF470016EF6C /* listen.cpp in Sources */,
 				4F8C10E020BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
@@ -2685,6 +2737,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */,
+				4F06B2E424BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
 				4FFBB90620863B0E00DDD0E7 /* IPlugTimer.cpp in Sources */,
 				4FFBB90720863B0E00DDD0E7 /* IPlugOSCEditor.cpp in Sources */,
 				4FFBB90820863B0E00DDD0E7 /* pluginfactory.cpp in Sources */,
@@ -2719,6 +2772,7 @@
 				4FFBB92620863B0E00DDD0E7 /* updatehandler.cpp in Sources */,
 				4FFBB92820863B0E00DDD0E7 /* vstcomponent.cpp in Sources */,
 				4FFBB92C20863B0E00DDD0E7 /* fstreamer.cpp in Sources */,
+				4F06B2B624BF64A300C7EDDA /* IPlugOSC.cpp in Sources */,
 				4FFBB92D20863B0E00DDD0E7 /* vstrepresentation.cpp in Sources */,
 				4FFBB92E20863B0E00DDD0E7 /* fcondition.cpp in Sources */,
 				4FFBB93020863B0E00DDD0E7 /* fbuffer.cpp in Sources */,

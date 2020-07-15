@@ -7,6 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4F06B2E924BF720200C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2E824BF720200C7EDDA /* IPlugOSC.cpp */; };
+		4F06B2F524BF72D400C7EDDA /* netinc.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B2EB24BF72D400C7EDDA /* netinc.h */; };
+		4F06B2F624BF72D400C7EDDA /* connection.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B2EC24BF72D400C7EDDA /* connection.h */; };
+		4F06B2F724BF72D400C7EDDA /* asyncdns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2ED24BF72D400C7EDDA /* asyncdns.cpp */; };
+		4F06B2F824BF72D400C7EDDA /* jnetlib.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B2EE24BF72D400C7EDDA /* jnetlib.h */; };
+		4F06B2F924BF72D400C7EDDA /* listen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2EF24BF72D400C7EDDA /* listen.cpp */; };
+		4F06B2FA24BF72D400C7EDDA /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2F024BF72D400C7EDDA /* util.cpp */; };
+		4F06B2FB24BF72D400C7EDDA /* util.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B2F124BF72D400C7EDDA /* util.h */; };
+		4F06B2FC24BF72D400C7EDDA /* connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2F224BF72D400C7EDDA /* connection.cpp */; };
+		4F06B2FD24BF72D400C7EDDA /* listen.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B2F324BF72D400C7EDDA /* listen.h */; };
+		4F06B2FE24BF72D400C7EDDA /* asyncdns.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B2F424BF72D400C7EDDA /* asyncdns.h */; };
+		4F06B30A24BF72FF00C7EDDA /* IPlugWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B30424BF72FF00C7EDDA /* IPlugWebView.h */; };
+		4F06B30D24BF72FF00C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B30724BF72FF00C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B30E24BF732B00C7EDDA /* IPlugOSC_msg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F977D3A20CC9DD800D19F46 /* IPlugOSC_msg.cpp */; };
 		4F0BA47B24698DC900DB93AC /* IGraphicsIOS_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0BA47A24698DC900DB93AC /* IGraphicsIOS_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103420A0E55900D3092F /* IPlugProcessor.cpp */; };
 		4F10E7C020B17EDB00F5B09B /* IPlugOSCEditor-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugOSCEditor-iOS-MainInterface.storyboard */; };
@@ -90,6 +104,19 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4F06B2E824BF720200C7EDDA /* IPlugOSC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugOSC.cpp; sourceTree = "<group>"; };
+		4F06B2EB24BF72D400C7EDDA /* netinc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = netinc.h; path = ../../../../WDL/jnetlib/netinc.h; sourceTree = "<group>"; };
+		4F06B2EC24BF72D400C7EDDA /* connection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = connection.h; path = ../../../../WDL/jnetlib/connection.h; sourceTree = "<group>"; };
+		4F06B2ED24BF72D400C7EDDA /* asyncdns.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = asyncdns.cpp; path = ../../../../WDL/jnetlib/asyncdns.cpp; sourceTree = "<group>"; };
+		4F06B2EE24BF72D400C7EDDA /* jnetlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jnetlib.h; path = ../../../../WDL/jnetlib/jnetlib.h; sourceTree = "<group>"; };
+		4F06B2EF24BF72D400C7EDDA /* listen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = listen.cpp; path = ../../../../WDL/jnetlib/listen.cpp; sourceTree = "<group>"; };
+		4F06B2F024BF72D400C7EDDA /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = util.cpp; path = ../../../../WDL/jnetlib/util.cpp; sourceTree = "<group>"; };
+		4F06B2F124BF72D400C7EDDA /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = util.h; path = ../../../../WDL/jnetlib/util.h; sourceTree = "<group>"; };
+		4F06B2F224BF72D400C7EDDA /* connection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = connection.cpp; path = ../../../../WDL/jnetlib/connection.cpp; sourceTree = "<group>"; };
+		4F06B2F324BF72D400C7EDDA /* listen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = listen.h; path = ../../../../WDL/jnetlib/listen.h; sourceTree = "<group>"; };
+		4F06B2F424BF72D400C7EDDA /* asyncdns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = asyncdns.h; path = ../../../../WDL/jnetlib/asyncdns.h; sourceTree = "<group>"; };
+		4F06B30424BF72FF00C7EDDA /* IPlugWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugWebView.h; sourceTree = "<group>"; };
+		4F06B30724BF72FF00C7EDDA /* IPlugWebView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWebView.mm; sourceTree = "<group>"; };
 		4F0BA47A24698DC900DB93AC /* IGraphicsIOS_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsIOS_src.m; sourceTree = "<group>"; };
 		4F10E7BF20B17EDB00F5B09B /* IPlugOSCEditor-iOS-MainInterface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugOSCEditor-iOS-MainInterface.storyboard"; path = "../resources/IPlugOSCEditor-iOS-MainInterface.storyboard"; sourceTree = "<group>"; };
 		4F10E7C520B189DD00F5B09B /* IPlugOSCEditor-iOS.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "IPlugOSCEditor-iOS.entitlements"; sourceTree = "<group>"; };
@@ -276,6 +303,32 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4F06B2EA24BF72C900C7EDDA /* jnetlib */ = {
+			isa = PBXGroup;
+			children = (
+				4F06B2ED24BF72D400C7EDDA /* asyncdns.cpp */,
+				4F06B2F424BF72D400C7EDDA /* asyncdns.h */,
+				4F06B2EC24BF72D400C7EDDA /* connection.h */,
+				4F06B2EE24BF72D400C7EDDA /* jnetlib.h */,
+				4F06B2F024BF72D400C7EDDA /* util.cpp */,
+				4F06B2EF24BF72D400C7EDDA /* listen.cpp */,
+				4F06B2EB24BF72D400C7EDDA /* netinc.h */,
+				4F06B2F124BF72D400C7EDDA /* util.h */,
+				4F06B2F324BF72D400C7EDDA /* listen.h */,
+				4F06B2F224BF72D400C7EDDA /* connection.cpp */,
+			);
+			path = jnetlib;
+			sourceTree = "<group>";
+		};
+		4F06B30124BF72FF00C7EDDA /* WebView */ = {
+			isa = PBXGroup;
+			children = (
+				4F06B30424BF72FF00C7EDDA /* IPlugWebView.h */,
+				4F06B30724BF72FF00C7EDDA /* IPlugWebView.mm */,
+			);
+			path = WebView;
+			sourceTree = "<group>";
+		};
 		4F3E0F9B20A0C64100A9C2BE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -423,6 +476,7 @@
 		4F977D3120CC9DD800D19F46 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
+				4F06B30124BF72FF00C7EDDA /* WebView */,
 				4F6E673521C5613A005991A9 /* Synth */,
 				4F977D3520CC9DD800D19F46 /* Easing.h */,
 				4F977D3620CC9DD800D19F46 /* NChanDelay.h */,
@@ -442,8 +496,9 @@
 		4F977D3720CC9DD800D19F46 /* OSC */ = {
 			isa = PBXGroup;
 			children = (
-				4F977D3820CC9DD800D19F46 /* IPlugOSC_msg.h */,
 				4F977D3920CC9DD800D19F46 /* IPlugOSC.h */,
+				4F06B2E824BF720200C7EDDA /* IPlugOSC.cpp */,
+				4F977D3820CC9DD800D19F46 /* IPlugOSC_msg.h */,
 				4F977D3A20CC9DD800D19F46 /* IPlugOSC_msg.cpp */,
 			);
 			path = OSC;
@@ -525,6 +580,7 @@
 		4FFF102F20A0E54C00D3092F /* WDL */ = {
 			isa = PBXGroup;
 			children = (
+				4F06B2EA24BF72C900C7EDDA /* jnetlib */,
 				4FFF107120A0E5A500D3092F /* heapbuf.h */,
 				4FFF107420A0E5A500D3092F /* mutex.h */,
 				4FFF107620A0E5A500D3092F /* ptrlist.h */,
@@ -585,7 +641,14 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F06B2FB24BF72D400C7EDDA /* util.h in Headers */,
 				4FA61F7C22E89A5900A92C58 /* AUv3Framework.h in Headers */,
+				4F06B2F524BF72D400C7EDDA /* netinc.h in Headers */,
+				4F06B2FD24BF72D400C7EDDA /* listen.h in Headers */,
+				4F06B2F624BF72D400C7EDDA /* connection.h in Headers */,
+				4F06B2FE24BF72D400C7EDDA /* asyncdns.h in Headers */,
+				4F06B30A24BF72FF00C7EDDA /* IPlugWebView.h in Headers */,
+				4F06B2F824BF72D400C7EDDA /* jnetlib.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -659,12 +722,12 @@
 				LastUpgradeCheck = 1200;
 				TargetAttributes = {
 					4FA61F6D22E899B500A92C58 = {
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						ProvisioningStyle = Automatic;
 					};
 					91236D0C1B08F42B00734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						LastSwiftMigration = 1010;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -680,7 +743,7 @@
 					};
 					91236D761B08F59300734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						LastSwiftMigration = 1010;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -771,21 +834,28 @@
 				4FA61F8622E89B2000A92C58 /* IPlugAUv3.mm in Sources */,
 				4FA61F8522E89B2000A92C58 /* IPlugAUAudioUnit.mm in Sources */,
 				4F0BA47B24698DC900DB93AC /* IGraphicsIOS_src.m in Sources */,
+				4F06B2F724BF72D400C7EDDA /* asyncdns.cpp in Sources */,
 				4FA61F8F22E89B4300A92C58 /* IGraphicsIOS_view.mm in Sources */,
 				4FA61F8E22E89B4300A92C58 /* IGraphicsIOS.mm in Sources */,
 				4FA61F9022E8A1F500A92C58 /* IGraphics.cpp in Sources */,
 				4FA61F7E22E89AFF00A92C58 /* IPlugPluginBase.cpp in Sources */,
 				4FA61F8C22E89B3700A92C58 /* IControl.cpp in Sources */,
 				4FA61F8D22E89B4300A92C58 /* IGraphicsCoreText.mm in Sources */,
+				4F06B30D24BF72FF00C7EDDA /* IPlugWebView.mm in Sources */,
+				4F06B30E24BF732B00C7EDDA /* IPlugOSC_msg.cpp in Sources */,
 				4FA61F8922E89B3700A92C58 /* IControls.cpp in Sources */,
 				4FA61F8222E89AFF00A92C58 /* IPlugTimer.cpp in Sources */,
+				4F06B2E924BF720200C7EDDA /* IPlugOSC.cpp in Sources */,
 				4FA61F8822E89B3700A92C58 /* ITextEntryControl.cpp in Sources */,
 				4FA61F8B22E89B3700A92C58 /* IGraphicsEditorDelegate.cpp in Sources */,
 				4FA61F8322E89AFF00A92C58 /* IPlugPaths.mm in Sources */,
+				4F06B2F924BF72D400C7EDDA /* listen.cpp in Sources */,
+				4F06B2FC24BF72D400C7EDDA /* connection.cpp in Sources */,
 				4FA61F8122E89AFF00A92C58 /* IPlugParameter.cpp in Sources */,
 				4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */,
 				4FA61F7F22E89AFF00A92C58 /* IPlugAPIBase.cpp in Sources */,
 				4FA61F9222E8A2B500A92C58 /* IPlugOSCEditor.cpp in Sources */,
+				4F06B2FA24BF72D400C7EDDA /* util.cpp in Sources */,
 				4FA61F8A22E89B3700A92C58 /* IPopupMenuControl.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

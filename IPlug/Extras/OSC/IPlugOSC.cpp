@@ -1,11 +1,16 @@
 #include "IPlugOSC.h"
-#include <functional>
 
 using namespace iplug;
 
 std::unique_ptr<Timer> OSCInterface::mTimer;
 int OSCInterface::sInstances = 0;
 WDL_PtrList<OSCDevice> gDevices;
+
+#ifdef OS_WIN
+#define XSleep Sleep
+#else
+void XSleep(int ms) { usleep(ms?ms*1000:100); }
+#endif
 
 OSCDevice::OSCDevice(const char* dest, int maxpacket, int sendsleep, sockaddr_in* listen_addr)
 {
@@ -132,7 +137,7 @@ void OSCDevice::RunOutput()
 
       sendto(mSendSocket, packetstart, packetlen, 0, (struct sockaddr*) & mSendAddress, sizeof(mSendAddress));
       if (mSendSleep > 0)
-        Sleep(mSendSleep);
+        XSleep(mSendSleep);
 
       packetstart = (char*)mSendQueue.Get() - 16; // safe since we padded the queue start
       packetlen = 16;
@@ -157,7 +162,7 @@ void OSCDevice::RunOutput()
     }
     sendto(mSendSocket, packetstart, packetlen, 0, (struct sockaddr*) & mSendAddress, sizeof(mSendAddress));
     if (mSendSleep > 0)
-      Sleep(mSendSleep);
+      XSleep(mSendSleep);
   }
   SET_SOCK_BLOCK(mSendSocket, false);
 
@@ -187,54 +192,6 @@ void OSCDevice::SendOSC(const char* src, int len)
   OSC_MAKEINTMEM4BE(&tlen);
   mSendQueue.Add(&tlen, sizeof(tlen));
   mSendQueue.Add(src, len);
-}
-
-OSCSender::OSCSender(const char* destIP, int port)
-{
-  WDL_String log;
-  SetDesination(destIP, port, log);
-  DBGMSG("%s\n", log.Get());
-}
-
-void OSCSender::SetDesination(const char* ip, int port, WDL_String& log)
-{
-  if (strcmp(ip, mDestIP.Get()) && port != mPort)
-  {
-    if (mDevice != nullptr)
-    {
-      gDevices.DeletePtr(mDevice, true);
-    }
-
-    mDevice = CreateSender(log, ip, port);
-  }
-}
-
-void OSCSender::SendOSCMessage(OscMessageWrite& msg)
-{
-  int len;
-  const char* msgStr = msg.GetBuffer(&len);
-  mDevice->SendOSC(msgStr, len);
-}
-
-OSCReceiver::OSCReceiver(int port)
-{
-  WDL_String log;
-  SetReceivePort(port, log);
-  DBGMSG("%s\n", log.Get());
-}
-
-void OSCReceiver::SetReceivePort(int port, WDL_String& log)
-{
-  if (port != mPort)
-  {
-    if (mDevice != nullptr)
-    {
-      gDevices.DeletePtr(mDevice, true);
-    }
-
-    mDevice = CreateReciever(log, port);
-    mPort = port;
-  }
 }
 
 //static
@@ -330,7 +287,8 @@ void OSCInterface::OnTimer(Timer& timer)
   }
 }
 
-OSCInterface::OSCInterface()
+OSCInterface::OSCInterface(OSCLogFunc logFunc)
+: mLogFunc(logFunc)
 {
   JNL::open_socketlib();
 
@@ -442,6 +400,8 @@ OSCDevice* OSCInterface::CreateSender(WDL_String& log, const char* ip, int port)
 
   if (r)
   {
+    log.AppendFormatted(1024, "Set destination: '%s'\n", destStr.Get());
+
     r->AddInstance(MessageCallback, this, mDevices.GetSize());
     mDevices.Add(r);
 
@@ -450,4 +410,58 @@ OSCDevice* OSCInterface::CreateSender(WDL_String& log, const char* ip, int port)
   }
 
   return r;
+}
+
+OSCSender::OSCSender(const char* destIP, int port, OSCLogFunc logFunc)
+: OSCInterface(logFunc)
+{
+  SetDesination(destIP, port);
+}
+
+void OSCSender::SetDesination(const char* ip, int port)
+{
+  if (strcmp(ip, mDestIP.Get()) && port != mPort)
+  {
+    if (mDevice != nullptr)
+    {
+      gDevices.DeletePtr(mDevice, true);
+    }
+
+    WDL_String log;
+    mDevice = CreateSender(log, ip, port);
+    
+    if(mLogFunc)
+      mLogFunc(log);
+  }
+}
+
+void OSCSender::SendOSCMessage(OscMessageWrite& msg)
+{
+  int len;
+  const char* msgStr = msg.GetBuffer(&len);
+  mDevice->SendOSC(msgStr, len);
+}
+
+OSCReceiver::OSCReceiver(int port, OSCLogFunc logFunc)
+: OSCInterface(logFunc)
+{
+  SetReceivePort(port);
+}
+
+void OSCReceiver::SetReceivePort(int port)
+{
+  if (port != mPort)
+  {
+    if (mDevice != nullptr)
+    {
+      gDevices.DeletePtr(mDevice, true);
+    }
+
+    WDL_String log;
+    mDevice = CreateReciever(log, port);
+    mPort = port;
+    
+    if(mLogFunc)
+      mLogFunc(log);
+  }
 }

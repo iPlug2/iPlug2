@@ -16,6 +16,7 @@ enum ECtrlTags
   kCtrlTagGain = 0,
   kCtrlTagSendIP,
   kCtrlTagSendPort,
+  kCtrlTagWebView,
   kNumCtrlTags
 };
 

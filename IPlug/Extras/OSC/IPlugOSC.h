@@ -29,16 +29,14 @@
 #include "IPlugOSC_msg.h"
 #include "IPlugTimer.h"
 
-#ifndef OS_WIN
-#include <unistd.h>
-extern void Sleep(int ms);
-#endif
 
 BEGIN_IPLUG_NAMESPACE
 
 #ifndef OSC_TIMER_RATE
 static constexpr int OSC_TIMER_RATE = 100;
 #endif
+
+using OSCLogFunc = std::function<void(WDL_String& log)>;
 
 class OSCDevice
 {
@@ -91,7 +89,7 @@ class OSCInterface
   };
   
 public:
-  OSCInterface();
+  OSCInterface(OSCLogFunc logFunc = nullptr);
   
   virtual ~OSCInterface();
   
@@ -105,6 +103,8 @@ public:
 public:
   virtual void OnOSCMessage(OscMessageRead& msg) {};
   
+  void SetLogFunc(OSCLogFunc logFunc) { mLogFunc = logFunc; }
+  
 private:
   static void MessageCallback(void *d1, int dev_idx, int msglen, void *msg);
 
@@ -114,19 +114,19 @@ private:
   WDL_PtrList<OSCDevice> mDevices;
   
 protected:
+  OSCLogFunc mLogFunc;
   static std::unique_ptr<Timer> mTimer;
   static int sInstances;
   WDL_HeapBuf mIncomingEvents;  // incomingEvent list, each is 8-byte aligned
   WDL_Mutex mIncomingEvents_mutex;
 };
 
-
 class OSCSender : public OSCInterface
 {
 public:
-  OSCSender(const char* destIP = "127.0.0.1", int port = 8000);
+  OSCSender(const char* destIP = "127.0.0.1", int port = 8000, OSCLogFunc logFunc = nullptr);
   
-  void SetDesination(const char* ip, int port, WDL_String& log);
+  void SetDesination(const char* ip, int port);
   
   void SendOSCMessage(OscMessageWrite& msg);
 private:
@@ -138,9 +138,9 @@ private:
 class OSCReceiver : public OSCInterface
 {
 public:
-  OSCReceiver(int port = 8000);
+  OSCReceiver(int port = 8000, OSCLogFunc logFunc = nullptr);
   
-  void SetReceivePort(int port, WDL_String& log);
+  void SetReceivePort(int port);
   
   virtual void OnOSCMessage(OscMessageRead& msg) = 0;
   
