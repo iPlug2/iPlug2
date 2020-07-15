@@ -316,6 +316,8 @@
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsMac_view.h" />
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWeb.h" />
     <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWin.h" />
+    <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.h" />
+    <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h" />
@@ -338,6 +340,13 @@
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_Parameter.h" />
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.h" />
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_View.h" />
+    <ClInclude Include="..\..\..\WDL\jnetlib\asyncdns.h" />
+    <ClInclude Include="..\..\..\WDL\jnetlib\connection.h" />
+    <ClInclude Include="..\..\..\WDL\jnetlib\irc_util.h" />
+    <ClInclude Include="..\..\..\WDL\jnetlib\jnetlib.h" />
+    <ClInclude Include="..\..\..\WDL\jnetlib\listen.h" />
+    <ClInclude Include="..\..\..\WDL\jnetlib\netinc.h" />
+    <ClInclude Include="..\..\..\WDL\jnetlib\util.h" />
     <ClInclude Include="..\IPlugOSCEditor.h" />
     <ClInclude Include="..\resources\resource.h" />
   </ItemGroup>
@@ -415,6 +424,8 @@
     <ClCompile Include="..\..\..\IGraphics\IControl.cpp" />
     <ClCompile Include="..\..\..\IGraphics\IGraphics.cpp" />
     <ClCompile Include="..\..\..\IGraphics\Platforms\IGraphicsWin.cpp" />
+    <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.cpp" />
+    <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp" />
     <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
@@ -424,6 +435,10 @@
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp" />
     <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3.cpp" />
     <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.cpp" />
+    <ClCompile Include="..\..\..\WDL\jnetlib\asyncdns.cpp" />
+    <ClCompile Include="..\..\..\WDL\jnetlib\connection.cpp" />
+    <ClCompile Include="..\..\..\WDL\jnetlib\listen.cpp" />
+    <ClCompile Include="..\..\..\WDL\jnetlib\util.cpp" />
     <ClCompile Include="..\IPlugOSCEditor.cpp" />
   </ItemGroup>
   <ItemGroup>

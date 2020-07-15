@@ -44,7 +44,7 @@ IPlugOSCEditor::IPlugOSCEditor(const InstanceInfo& info)
     pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100), [&](IControl* pCaller) {
                                                 OscMessageWrite msg;
                                                 msg.PushWord("gain");
-                                                msg.PushFloatArg(pCaller->GetValue());
+                                                msg.PushFloatArg((float) pCaller->GetValue());
                                                 SendOSCMessage(msg);}
                                                , "Gain"), kCtrlTagGain);
     

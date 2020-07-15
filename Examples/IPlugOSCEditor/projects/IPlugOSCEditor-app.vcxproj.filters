@@ -92,6 +92,24 @@
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
       <Filter>IGraphics\Drawing</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.cpp">
+      <Filter>IPlug\Extras\OSC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.cpp">
+      <Filter>IPlug\Extras\OSC</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\WDL\jnetlib\asyncdns.cpp">
+      <Filter>WDL\jnetlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\WDL\jnetlib\connection.cpp">
+      <Filter>WDL\jnetlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\WDL\jnetlib\listen.cpp">
+      <Filter>WDL\jnetlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\WDL\jnetlib\util.cpp">
+      <Filter>WDL\jnetlib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugOSCEditor.h" />
@@ -291,6 +309,33 @@
     <ClInclude Include="..\..\..\IGraphics\ISender.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.h">
+      <Filter>IPlug\Extras\OSC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.h">
+      <Filter>IPlug\Extras\OSC</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\WDL\jnetlib\asyncdns.h">
+      <Filter>WDL\jnetlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\WDL\jnetlib\connection.h">
+      <Filter>WDL\jnetlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\WDL\jnetlib\irc_util.h">
+      <Filter>WDL\jnetlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\WDL\jnetlib\jnetlib.h">
+      <Filter>WDL\jnetlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\WDL\jnetlib\listen.h">
+      <Filter>WDL\jnetlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\WDL\jnetlib\netinc.h">
+      <Filter>WDL\jnetlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\WDL\jnetlib\util.h">
+      <Filter>WDL\jnetlib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
@@ -322,6 +367,18 @@
     </Filter>
     <Filter Include="IPlug\APP\RTAudioMidi\include">
       <UniqueIdentifier>{649c5de3-b4c2-4de9-8d57-3b1762646259}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\Extras">
+      <UniqueIdentifier>{ffd530b5-0203-4ecd-9ad2-113d65885e67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\Extras\OSC">
+      <UniqueIdentifier>{788ed615-2bfa-4ff4-80bd-858336910773}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WDL">
+      <UniqueIdentifier>{5b053485-0b35-41d9-8df1-e3628726b6fd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="WDL\jnetlib">
+      <UniqueIdentifier>{259bea70-aee6-4669-bd65-bd27c8b2842a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
