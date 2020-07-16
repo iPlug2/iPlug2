@@ -104,7 +104,7 @@ public:
   /** Draw an SVG image to the graphics context
    * @param svg The SVG image to the graphics context
    * @param bounds The rectangular region to draw the image in
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void DrawSVG(const ISVG& svg, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
 
   /** Draw an SVG image to the graphics context with rotation
@@ -114,7 +114,7 @@ public:
    * @param width \todo
    * @param height \todo
    * @param angle The angle to rotate the bitmap mask at in degrees clockwise
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void DrawRotatedSVG(const ISVG& svg, float destCentreX, float destCentreY, float width, float height, double angle, const IBlend* pBlend = 0) = 0;
 
   /** Draw a bitmap (raster) image to the graphics context
@@ -122,29 +122,29 @@ public:
    * @param bounds The rectangular region to draw the image in
    * @param srcX The X coordinate in the source image to draw from \todo
    * @param srcY The Y coordinate in the source image to draw from \todo
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend = 0) = 0;
 
   /** Draw a bitmap (raster) image to the graphics context, scaling the image to fit the bounds
    * @param bitmap The bitmap image to draw to the graphics context
    * @param bounds The rectangular region to draw the image in
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
   
   /** Draw a bitmap (raster) image to the graphics context with rotation
    * @param bitmap The bitmap image to draw to the graphics context
    * @param destCentreX The X coordinate in the graphics context of the centre point at which to rotate the image around. \todo check this
    * @param destCentreY The Y coordinate in the graphics context of the centre point at which to rotate the image around. \todo check this
-   * @param angle The angle of rotation in degrees
+   * @param angle The angle of rotation in degrees clockwise
    * @param yOffsetZeroDeg \todo
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void DrawRotatedBitmap(const IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg = 0, const IBlend* pBlend = 0) = 0;
 
   /** Fill a rectangle corresponding to a pixel on a 1:1 screen with a color
    * @param color The color to fill the point with
    * @param x The X coordinate in the graphics context at which to draw
    * @param y The Y coordinate in the graphics context at which to draw
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend = 0) = 0;
 
   /** Draw a line to the graphics context
@@ -153,7 +153,7 @@ public:
    * @param y1 The Y coordinate in the graphics context of the start of the line
    * @param x2 The X coordinate in the graphics context of the end of the line
    * @param y2 The Y coordinate in the graphics context of the end of the line
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   virtual void DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
 
@@ -163,7 +163,7 @@ public:
    * @param y1 The Y coordinate in the graphics context of the start of the line
    * @param x2 The X coordinate in the graphics context of the end of the line
    * @param y2 The Y coordinate in the graphics context of the end of the line
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   virtual void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend = 0, float thickness = 1.f, float dashLen = 2.f) = 0;
   
@@ -175,14 +175,14 @@ public:
    * @param y2 The Y coordinate in the graphics context of the second vertex
    * @param x3 The X coordinate in the graphics context of the third vertex
    * @param y3 The Y coordinate in the graphics context of the third vertex
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   virtual void DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
 
   /** Draw a rectangle to the graphics context
    * @param bounds The rectangular area in which to draw the shape
    * @param color The color to draw the shape to draw the shape with
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   virtual void DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
 
@@ -190,7 +190,7 @@ public:
    * @param color The color to draw the shape with
    * @param bounds The rectangular region to draw the shape in
    * @param cornerRadius The corner radius in pixels
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   virtual void DrawRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius = 5.f, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
 
@@ -201,7 +201,7 @@ public:
    * @param cRTR The top right corner radius in pixels
    * @param cRBR The bottom right corner radius in pixels
    * @param cRBL The bottom left corner radius in pixels
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   virtual void DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
   
@@ -212,7 +212,7 @@ public:
    * @param r The radius of the circle on which the arc lies
    * @param a1 the start angle of the arc at in degrees clockwise where 0 is up
    * @param a2 the end angle of the arc at in degrees clockwise where 0 is up
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   virtual void DrawArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
 
@@ -221,14 +221,14 @@ public:
    * @param cx The X coordinate in the graphics context of the centre of the circle
    * @param cy The Y coordinate in the graphics context of the centre of the circle
    * @param r The radius of the circle
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   virtual void DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
   
   /** Draw an ellipse within a rectangular region of the graphics context
    * @param color The color to draw the shape with
    * @param bounds The rectangular region to draw the shape in
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   virtual void DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
   
@@ -239,23 +239,23 @@ public:
    * @param r1 The radius of the ellipse along the line found by rotating the x-axis by the angle
    * @param r2 The radius of the ellipse along the line found by rotating the y-axis by the angle
    * @param angle The angle rotates the radii r1 and r2 clockwise in degrees to adjust the orientation
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   virtual void DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle = 0.0, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
 
-  /** Draw a convex polygon to the graphics to the graphics context
+  /** Draw a convex polygon to the graphics context
    * @param color The color to draw the shape with
    * @param x Pointer to the first element in an array of X coordinates for the vertices of the polygon
    * @param y Pointer to the first element in an array of Y coordinates for the vertices of the polygon
    * @param nPoints The number of points in the coordinate arrays
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   virtual void DrawConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend = 0, float thickness = 1.f) = 0;
 
   /** Draw a dotted rectangle to the graphics context
    * @param color The color to draw the shape with
    * @param bounds The rectangular region to draw the shape in
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   virtual void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0, float thickness = 1.f, float dashLen = 2.f) = 0;
 
@@ -267,20 +267,20 @@ public:
    * @param y2 The Y coordinate in the graphics context of the second vertex
    * @param x3 The X coordinate in the graphics context of the third vertex
    * @param y3 The Y coordinate in the graphics context of the third vertex
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend = 0) = 0;
 
   /** Fill a rectangular region of the graphics context with a color
    * @param color The color to fill the shape with
    * @param bounds The rectangular region to fill the shape in
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
 
   /** Fill a rounded rectangle in the graphics context with a color
    * @param color The color to fill the shape with
    * @param bounds The rectangular region to fill the shape in
    * @param cornerRadius The corner radius in pixels
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void FillRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius = 5.f, const IBlend* pBlend = 0) = 0;
 
   /** Fill a rounded rectangle in the graphics context with a color
@@ -290,7 +290,7 @@ public:
    * @param cRTR The top right corner radius in pixels
    * @param cRBR The bottom right corner radius in pixels
    * @param cRBL The bottom left corner radius in pixels
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend = 0) = 0;
   
   /** Fill a circle in the graphics context with a color
@@ -298,13 +298,13 @@ public:
    * @param cx The X coordinate in the graphics context of the centre of the circle
    * @param cy The Y coordinate in the graphics context of the centre of the circle
    * @param r The radius of the circle
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend = 0) = 0;
 
   /** Fill an ellipse within a rectangular region of the graphics context
    * @param color The color to fill the shape with
    * @param bounds The rectangular region to fill the shape in
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend = 0) = 0;
   
   /** Fill an ellipse in the graphics context
@@ -314,7 +314,7 @@ public:
    * @param r1 The radius of the ellipse along the line found by rotating the x-axis by the angle
    * @param r2 The radius of the ellipse along the line found by rotating the y-axis by the angle
    * @param angle The angle rotates the radii r1 and r2 clockwise in degrees to adjust the orientation
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle = 0.0, const IBlend* pBlend = 0) = 0;
   
   /** Fill an arc segment in the graphics context with a color
@@ -324,7 +324,7 @@ public:
    * @param r The radius of the circle on which the arc lies
    * @param a1 the start angle  of the arc at in degrees clockwise where 0 is up
    * @param a2 the end angle  of the arc at in degrees clockwise where 0 is up
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void FillArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend = 0) = 0;
 
   /** Fill a convex polygon in the graphics context with a color
@@ -332,7 +332,7 @@ public:
    * @param x Pointer to the first element in an array of X coordinates for the vertices of the polygon
    * @param y Pointer to the first element in an array of Y coordinates for the vertices of the polygon
    * @param nPoints The number of points in the coordinate arrays
-   * @param pBlend Optional blend method, see IBlend documentation */
+   * @param pBlend Optional blend method */
   virtual void FillConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend = 0) = 0;
 
   /** Draw some text to the graphics context in a specific rectangle
@@ -360,11 +360,11 @@ public:
    * @return An IColor specifiying the color of the pixel at x,y */
   virtual IColor GetPoint(int x, int y)  = 0;
 
-  /** Gets a void pointer to IGraphics Draw Class context data (e.g raw framebuffer).
-   * See draw class implementation headers (e.g. IGraphicsLice.h) for what you can cast the void pointer to */
-   virtual void* GetDrawContext() = 0;
+  /** Gets a void pointer to underlying drawing context, for the IGraphics backend
+   * See draw class implementation headers (e.g. IGraphicsNanoVG.h) for what you can cast the void pointer to */
+  virtual void* GetDrawContext() = 0;
 
-  /** @return A CString representing the Drawing API in use e.g. "LICE" */
+  /** @return A CString representing the Drawing API in use e.g. "NanoVG" */
   virtual const char* GetDrawingAPIStr() = 0;
   
   /** Returns a new IBitmap, an integer scaled version of the input, and adds it to the cache
@@ -417,33 +417,35 @@ public:
   /** Draw a vertical line, within a rectangular region of the graphics context
    * @param color The color to draw the line with
    * @param bounds The rectangular region to draw the line in
-   * @param x \todo
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param x The normalized position of the line on the horizontal axis, within bounds
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   void DrawVerticalLine(const IColor& color, const IRECT& bounds, float x, const IBlend* pBlend = 0, float thickness = 1.f);
 
   /** Draw a horizontal line, within a rectangular region of the graphics context
    * @param color The color to draw the line with
    * @param bounds The rectangular region to draw the line in
-   * @param y \todo
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param y The normalized position of the line on the vertical axis, within bounds
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   void DrawHorizontalLine(const IColor& color, const IRECT& bounds, float y, const IBlend* pBlend = 0, float thickness = 1.f);
 
-  /** \todo
+  /** Draw a clipped vertical line at a position in the graphics context bounds
    * @param color The color to draw the line with
-   * @param xi \todo
-   * @param yLo \todo
-   * @param yHi \todo
-   * @param pBlend Optional blend method, see IBlend documentation*/
+   * @param xi The position of the line on the x axis
+   * @param yLo The start of the vertical line on the y axis
+   * @param yHi The end of the vertical line on the y axis
+   * @param pBlend Optional blend method
+   * @param thickness Optional line thickness */
   void DrawVerticalLine(const IColor& color, float xi, float yLo, float yHi, const IBlend* pBlend = 0, float thickness = 1.f);
 
-  /** \todo
+  /** Draw a clipped horizontal line at a position in the graphics context bounds
    * @param color The color to draw the line with
-   * @param yi \todo
-   * @param xLo \todo
-   * @param xHi \todo
-   * @param pBlend Optional blend method, see IBlend documentation*/
+   * @param yi The position of the line on the y axis
+   * @param xLo The start of the horizontal line on the x axis
+   * @param xHi The end of the horizontal line on the x axis
+   * @param pBlend Optional blend method
+   * @param thickness Optional line thickness */
   void DrawHorizontalLine(const IColor& color, float yi, float xLo, float xHi, const IBlend* pBlend = 0, float thickness = 1.f);
 
   /** Draw a radial line to the graphics context, useful for pointers on dials
@@ -453,7 +455,7 @@ public:
    * @param angle The angle to draw at in degrees clockwise where 0 is up
    * @param rMin minima of the radial line (distance from cx,cy)
    * @param rMax maxima of the radial line (distance from cx,cy)
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   void DrawRadialLine(const IColor& color, float cx, float cy, float angle, float rMin, float rMax, const IBlend* pBlend = 0, float thickness = 1.f);
 
@@ -462,18 +464,18 @@ public:
    * @param bounds The rectangular region to fill the grid in
    * @param gridSizeH The width of the grid cells
    * @param gridSizeV The height of the grid cells
-   * @param pBlend Optional blend method, see IBlend documentation
+   * @param pBlend Optional blend method
    * @param thickness Optional line thickness */
   virtual void DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend = 0, float thickness = 1.f);
 
-  /** /todo
-   * @param color /todo
-   * @param bounds /todo
-   * @param normYPoints /todo
-   * @param nPoints /todo
-   * @param normXPoints /todo
-   * @param pBlend /todo
-   * @param thickness /todo */
+  /** Draw a line between a collection of normalized points
+   * @param color The color to draw the line with
+   * @param bounds The rectangular region to draw the line in
+   * @param normYPoints Ptr to float array - the normalized Y positions of the points
+   * @param nPoints The number of points in the normYPoints / normXPoints
+   * @param normXPoints Optional normailzed X positions of the points
+   * @param pBlend Optional blend method
+   * @param thickness Optional line thickness */
   virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f);
   
   /** Load a font to be used by the graphics context
@@ -491,236 +493,238 @@ public:
 
 #pragma mark - Layer management
   
-  /** /todo 
-   * @param r /todo*/
-  void StartLayer(IControl *owner, const IRECT& r);
+  /** Create an IGraphics layer. Switches drawing to an offscreen bitmap for drawing
+   * IControl* pOwner The control that owns the layer
+   * @param r The bounds of the layer within the IGraphics context */
+  void StartLayer(IControl* pOwner, const IRECT& r);
   
-  /** /todo
-   * @param layer /todo*/
+  /** If a layer already exists, continue drawing to it
+   * @param layer the layer to resume */
   void ResumeLayer(ILayerPtr& layer);
 
-  /** /todo
-   * @return ILayerPtr /todo */
+  /** End an IGraphics layer. Switches drawing back to the main context
+   * @return ILayerPtr a pointer to the layer, which should be kept around in order to draw it */
   ILayerPtr EndLayer();
 
-  /** /todo 
-   * @param layer /todo
-   * @return /todo */
+  /** Test to see if a layer needs drawing, for instance if the control's bounds were changed
+   * @param layer The layer to check
+   * @return \c true if the layer needs to be updated */
   bool CheckLayer(const ILayerPtr& layer);
 
-  /** /todo 
-   * @param layer /todo
-   * @param pBlend /todo */
+  /** Draw a layer to the main IGraphics context
+   * @param layer The layer to draw
+   * @param pBlend Optional blend method */
   void DrawLayer(const ILayerPtr& layer, const IBlend* pBlend = nullptr);
 
-  /** /todo
-   * @param layer /todo
-   * @param bounds /todo
-   * @param pBlend /todo */
+  /** Draw a layer to the main IGraphics context, fitting it to a rectangle that is different to the layer's bounds
+   * @param layer The layer to draw
+   * @param bounds The bounds in which to draw the layer
+   * @param pBlend Optional blend method */
   void DrawFittedLayer(const ILayerPtr& layer, const IRECT& bounds, const IBlend* pBlend);
 
-  /** /todo
-   * @param layer /todo
-   * @param angle /todo */
+  /** Draw a layer to the main IGraphics context, with rotation
+   * @param layer The layer to draw
+   * @param angle The angle of rotation in degrees clockwise */
   void DrawRotatedLayer(const ILayerPtr& layer, double angle);
     
-  /** Applies a dropshadow directly onto a layer
+  /** Applies a drop shadow directly onto a layer
   * @param layer - the layer to add the shadow to 
   * @param shadow - the shadow to add */
   void ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow);
-    
-  /** /todo */
-  virtual void UpdateLayer() {}
 
-  /** /todo
-   * @param layer /todo
-   * @param data /todo */
+protected:
+  /** Get the contents of a layers pixels as bitmap data
+   * @param layer The layer to get the data from
+   * @param data The pixel data extracted from the layer */
   virtual void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) = 0;
   
-  /** /todo
-   * @param layer /todo
-   * @param mask /todo
-   * @param shadow /todo */
+  /** Implemented by a graphics backend to apply a calculated shadow mask to a layer, according to the shadow settings specified
+   * @param layer The layer to apply the shadow to
+   * @param mask The mask of the shadow as raw bitmap data
+   * @param shadow The shadow specification */
   virtual void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) = 0;
   
-  /** /todo
-   * @param layer /todo */
-  void PushLayer(ILayer* layer);
+  /** Implemented by a graphics backend to prepare for drawing to the layer at the top of the stack */
+  virtual void UpdateLayer() {}
+
+  /** Push a layer on to the stack.
+   * @param pLayer The new layer */
+  void PushLayer(ILayer* pLayer);
   
-  /** /todo
-   * @return ILayer* /todo */
+  /** Pop a layer off the stack.
+   * @return ILayer* The layer that came off the stack */
   ILayer* PopLayer();
   
 #pragma mark - Drawing API path support
 public:
-  
+  /** \c true if the IGraphics backend supports paths */
   virtual bool HasPathSupport() const { return false; }
 
-  /** /todo */
+  /** Clear the stack of path drawing commands */
   virtual void PathClear() {}
 
-  /** /todo */
+  /** Close the path that is being specified. */
   virtual void PathClose() {}
 
-  /** /todo 
-   * @param x1 /todo
-   * @param y1 /todo
-   * @param x2 /todo
-   * @param y2 /todo */
+  /** Add a line to the current path
+   * @param x1 The X coordinate in the graphics context of the start of the line
+   * @param y1 The Y coordinate in the graphics context of the start of the line
+   * @param x2 The X coordinate in the graphics context of the end of the line
+   * @param y2 The Y coordinate in the graphics context of the end of the line */
   void PathLine(float x1, float y1, float x2, float y2)
   {
     PathMoveTo(x1, y1);
     PathLineTo(x2, y2);
   }
 
-  /** /todo 
-   * @param cx /todo
-   * @param cy /todo
-   * @param angle /todo
-   * @param rMin /todo
-   * @param rMax /todo */
+  /** Add a radial line to the current path
+   * @param cx centre point x coordinate
+   * @param cy centre point y coordinate
+   * @param angle The angle to draw at in degrees clockwise where 0 is up
+   * @param rMin minima of the radial line (distance from cx,cy)
+   * @param rMax maxima of the radial line (distance from cx,cy) */
   void PathRadialLine(float cx, float cy, float angle, float rMin, float rMax);
 
-  /** /todo 
-   * @param x1 /todo
-   * @param y1 /todo
-   * @param x2 /todo
-   * @param y2 /todo
-   * @param x3 /todo
-   * @param y3 /todo */
+  /** Add a triangle to the current path
+   * @param x1 The X coordinate in the graphics context of the first vertex
+   * @param y1 The Y coordinate in the graphics context of the first vertex
+   * @param x2 The X coordinate in the graphics context of the second vertex
+   * @param y2 The Y coordinate in the graphics context of the second vertex
+   * @param x3 The X coordinate in the graphics context of the third vertex
+   * @param y3 The Y coordinate in the graphics context of the third vertex */
   virtual void PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3) {}
 
-  /** /todo 
-   * @param bounds /todo */
+  /** Add a rectangle to the current path
+   * @param bounds The bounds of the rectangle to add */
   virtual void PathRect(const IRECT& bounds) {}
 
-  /** /todo 
-   * @param bounds /todo
-   * @param ctl /todo
-   * @param ctr /todo
-   * @param cbl /todo
-   * @param cbr /todo */
+  /** Add a rounded rectangle to the current path, with independent corner roundness
+   * @param bounds The rectangular region to draw the shape in
+   * @param cRTL The top left corner radius in pixels
+   * @param cRTR The top right corner radius in pixels
+   * @param cRBR The bottom right corner radius in pixels
+   * @param cRBL The bottom left corner radius in pixels */
   virtual void PathRoundRect(const IRECT& bounds, float ctl, float ctr, float cbl, float cbr) {}
 
-  /** /todo 
-   * @param bounds /todo
-   * @param cr /todo */
-  virtual void PathRoundRect(const IRECT& bounds, float cr = 5.f) {}
+  /** Add a rounded rectangle to the current path
+   * @param bounds The rectangular region to draw the shape in
+   * @param cornerRadius The corner radius in pixels */
+  virtual void PathRoundRect(const IRECT& bounds, float cornerRadius = 5.f) {}
 
-  /** /todo 
-   * @param cx /todo
-   * @param cy /todo
-   * @param r /todo
-   * @param a1 /todo
-   * @param a2 /todo */
+  /** Add an arc to the current path
+   * @param cx The X coordinate in the graphics context of the centre of the circle on which the arc lies
+   * @param cy The Y coordinate in the graphics context of the centre of the circle on which the arc lies
+   * @param r The radius of the circle on which the arc lies
+   * @param a1 the start angle of the arc at in degrees clockwise where 0 is up
+   * @param a2 the end angle of the arc at in degrees clockwise where 0 is up */
   virtual void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding = EWinding::CW) {}
 
-  /** /todo 
-   * @param cx /todo
-   * @param cy /todo
-   * @param r /todo  */
+  /** Add a circle to the current path
+   * @param cx The X coordinate in the graphics context of the centre of the circle
+   * @param cy The Y coordinate in the graphics context of the centre of the circle
+   * @param r The radius of the circle */
   virtual void PathCircle(float cx, float cy, float r) {}
 
-  /** /todo 
-   * @param x /todo
-   * @param y /todo
-   * @param r1 /todo
-   * @param r2 /todo
-   * @param angle /todo */
+  /** Add an ellipse to the current path, specifying the rectangular region
+   * @param bounds The rectangular region to draw the shape in */
+   virtual void PathEllipse(const IRECT& bounds) {}
+  
+  /** Add an ellipse to the current path
+   * @param x The X coordinate in the graphics context of the centre of the ellipse
+   * @param y The Y coordinate in the graphics context of the centre of the ellipse
+   * @param r1 The radius of the ellipse along the line found by rotating the x-axis by the angle
+   * @param r2 The radius of the ellipse along the line found by rotating the y-axis by the angle
+   * @param angle The angle rotates the radii r1 and r2 clockwise in degrees to adjust the orientation */
   virtual void PathEllipse(float x, float y, float r1, float r2, float angle = 0.0) {}
 
-  /** /todo 
-   * @param bounds /todo */
-  virtual void PathEllipse(const IRECT& bounds) {}
-
-  /** /todo 
-   * @param x /todo
-   * @param y /todo
-   * @param nPoints /todo */
+  /** Add a convex polygon to the current path
+   * @param x Pointer to the first element in an array of X coordinates for the vertices of the polygon
+   * @param y Pointer to the first element in an array of Y coordinates for the vertices of the polygon
+   * @param nPoints The number of points in the coordinate arrays */
   virtual void PathConvexPolygon(float* x, float* y, int nPoints) {}
 
-  /** /todo 
-   * @param x /todo
-   * @param y /todo */
+  /** Move the current point in the current path
+   * @param x The X coordinate
+   * @param y The Y coordinate */
   virtual void PathMoveTo(float x, float y) {}
 
-  /** /todo 
-   * @param x /todo
-   * @param y /todo */
+  /** Add a line to the current path from the current point to the specified location
+   * @param x The X coordinate of the end of the line
+   * @param y The Y coordinate of the end of the line */
   virtual void PathLineTo(float x, float y) {}
 
-  /** /todo
-  * @param clockwise /todo*/
+  /** NanoVG only. https://github.com/memononen/nanovg/blob/master/src/nanovg.h#L454
+  * @param clockwise Should the path be wound clockwise */
   virtual void PathSetWinding(bool clockwise) {}
 
-  /** /todo
-   * @param c1x  /todo
-   * @param c1y  /todo
-   * @param c2x  /todo
-   * @param c2y  /todo
-   * @param x2  /todo
-   * @param y2  /todo */
+  /** Add a cubic bezier to the current path from the current point to the specified location
+   * @param c1x Control point 1 X coordinate
+   * @param c1y Control point 1 Y coordinate
+   * @param c2x  Control point 2 X coordinate
+   * @param c2y  Control point 2 Y coordinate
+   * @param x2 The X coordinate of the end of the line
+   * @param y2 The Y coordinate of the end of the line */
   virtual void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) {}
 
-  /** /todo
-   * @param cx /todo
-   * @param cy /todo
-   * @param x2 /todo
-   * @param y2 /todo */
+  /** Add a quadratic bezier to the current path from the current point to the specified location
+   * @param cx Control point X coordinate
+   * @param cy Control point Y coordinate
+   * @param x2 The X coordinate of the end of the line
+   * @param y2 The Y coordinate of the end of the line */
   virtual void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) {}
   
-  /** /todo 
-   * @param pattern /todo
-   * @param thickness /todo
-   * @param options /todo
-   * @param pBlend /todo */
+  /** Stroke the current current path
+   * @param pattern The IPattern to use, for e.g. color or gradient
+   * @param thickness The line thickness
+   * @param options Optional IStrokeOptions to specify dash, join and path preserve options
+   * @param pBlend Optional blend method */
   virtual void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options = IStrokeOptions(), const IBlend* pBlend = 0) {}
 
-  /** /todo 
-   * @param pattern /todo
-   * @param options /todo
-   * @param pBlend /todo */
+  /** Fill the current current path
+   * @param pattern The IPattern to use, for e.g. color or gradient
+   * @param options Optional IFillOptions to specify fill rule and preserve options
+   * @param pBlend Optional blend method */
   virtual void PathFill(const IPattern& pattern, const IFillOptions& options = IFillOptions(), const IBlend* pBlend = 0) {}
 
-  /** /todo */
+  /** Save the current affine transform of the current path */
   virtual void PathTransformSave() {}
 
-  /** /todo */
+  /** Restore the affine transform of the current path, to the previously saved state */
   virtual void PathTransformRestore() {}
 
-  /** /todo 
-   * @param clearStates /todo */
+  /** Reset the affine transform of the current path, to the default state
+   * @param clearStates Selects whether the call also empties the transform stack */
   virtual void PathTransformReset(bool clearStates = false) {}
 
-  /** /todo 
-   * @param x /todo
-   * @param y /todo */
+  /** Apply a translation transform to the current path
+   * @param x Horizontal translation amount
+   * @param y Vertical translation amount */
   virtual void PathTransformTranslate(float x, float y) {}
 
-  /** /todo 
-   * @param scaleX /todo
-   * @param scaleY /todo */
-  virtual void PathTransformScale(float scaleX, float scaleY) {}
+  /** Apply a scale transform to the current path, with independant x, y scales
+   * @param x Horizontal scale amount
+   * @param y Horizontal scale amount */
+  virtual void PathTransformScale(float x, float y) {}
 
-  /** /todo 
-   * @param scale /todo */
+  /** Apply a scale transform to the current path, with independant x, y scales
+   * @param scale Scale amount */
   virtual void PathTransformScale(float scale) {}
 
-  /** /todo 
-   * @param angle /todo*/
+  /** Apply a rotation transform to the current path
+   * @param angle Angle to rotate in degrees clockwise */
   virtual void PathTransformRotate(float angle) {}
 
-  /** /todo 
-   * @param xAngle /todo
-   * @param yAngle /todo */
+  /** Apply a skew transform to the current path
+   * @param xAngle Angle to skew horizontal in degrees clockwise
+   * @param yAngle Angle to skew vertical in degrees clockwise */
   virtual void PathTransformSkew(float xAngle, float yAngle) {}
 
-  /** /todo 
-   * @param matrix /todo */
+  /** Apply an arbitary affine transform matrix to the current path
+   * @param matrix The transfomation matrix */
   virtual void PathTransformMatrix(const IMatrix& matrix) {}
 
-  /** /todo 
-   * @param r /todo */
+  /** Clip the current path to a particular region
+   * @param r The rectangular region to clip */
   virtual void PathClipRegion(const IRECT r = IRECT()) {}
   
 private:
@@ -749,9 +753,9 @@ public:
    * @param y Where the Y position will be stored */
   virtual void GetMouseLocation(float& x, float&y) const = 0;
   
-  /** Call to hide the mouse cursor 
-   * @param hide /todo
-   * @param lock /todo */
+  /** Call to hide/show the mouse cursor
+   * @param hide Should the cursor be hidden or shown
+   * @param lock Set \c true to hold the cursor in place while hidden */
   virtual void HideMouseCursor(bool hide = true, bool lock = true) = 0;
 
   /** Force move the mouse cursor to a specific position in the graphics context
@@ -761,7 +765,7 @@ public:
   
   /** Sets the mouse cursor to one of ECursor (implementations should return the result of the base implementation)
    * @param cursorType The cursor type
-   * @return the previous cursor type so it can be restored later */
+   * @return The previous cursor type so it can be restored later */
   virtual ECursor SetMouseCursor(ECursor cursorType = ECursor::ARROW)
   {
     ECursor oldCursorType = mCursorType;
@@ -784,7 +788,7 @@ public:
    * return void pointer to platform window or view handle */
   virtual void* GetWindow() = 0;
 
-  /** @return /true if the platform window/view is open */
+  /** @return /c true if the platform window/view is open */
   virtual bool WindowIsOpen() { return GetWindow(); }
 
   /** Get text from the clipboard
@@ -822,7 +826,7 @@ public:
    * @param color When a color is chosen the IColor referenced will be updated with the new color
    * @param str The text to display in the dialog box e.g. "Please choose a color... (Windows only)"
    * @param IColorPickerHandlerFunc func callback for asynchronous color pickers
-   * @return /true if prompt completed successfully */
+   * @return /c true if prompt completed successfully */
   virtual bool PromptForColor(IColor& color, const char* str = "", IColorPickerHandlerFunc func = nullptr) = 0;
 
   /** Open a URL in the platform’s default browser
@@ -830,7 +834,7 @@ public:
    * @param msgWindowTitle \todo ?
    * @param confirmMsg \todo ?
    * @param errMsgOnFailure \todo ?
-   * @return /true on success */
+   * @return /c true on success */
   virtual bool OpenURL(const char* url, const char* msgWindowTitle = 0, const char* confirmMsg = 0, const char* errMsgOnFailure = 0) = 0;
 
   /** @return A CString representing the Platform API in use e.g. "macOS" */
@@ -986,7 +990,7 @@ public:
   void Resize(int w, int h, float scale, bool needsPlatformResize = true);
   
   /** Enables strict drawing mode. \todo explain strict drawing
-   * @param strict Set /true to enable strict drawing mode */
+   * @param strict Set /c true to enable strict drawing mode */
   void SetStrictDrawing(bool strict);
 
   /* Enables layout on resize. This means IGEditorDelegate:LayoutUI() will be called when the GUI is resized */
@@ -1338,12 +1342,12 @@ public:
   
   /** Hide controls linked to a specific parameter
    * @param paramIdx The parameter index
-   * @param hide /true to hide */
+   * @param hide /c true to hide */
   void HideControl(int paramIdx, bool hide);
 
   /** Disable or enable controls linked to a specific parameter
    * @param paramIdx The parameter index
-   * @param disable /true to disable */
+   * @param disable /c true to disable */
   void DisableControl(int paramIdx, bool diable);
 
   /** Calls SetDirty() on every control */
@@ -1353,20 +1357,20 @@ public:
   void SetAllControlsClean();
 
 private:
-  /** /todo
-   * @param x /todo
-   * @param y /todo
-   * @param mouseOver /todo
-   * @return int /todo */
+  /** Get the index of the control at x and y coordinates on mouse event
+   * @param x The X coordinate to test
+   * @param y The Y coordinate to test
+   * @param mouseOver Is this initiated from mouse over event
+   * @return int the index of the hit control in the control stack */
   int GetMouseControlIdx(float x, float y, bool mouseOver = false);
   
-  /** /todo
-   * @param x /todo
-   * @param y /todo
-   * @param capture /todo
-   * @param mouseOver /todo
-   * @param touchID /todo
-   * @return IControl* /todo */
+  /** Get the control at x and y coordinates on mouse event
+   * @param x The X coordinate to test
+   * @param y The Y coordinate to test
+   * @param capture should the control be captured
+   * @param mouseOver Is this initiated from mouse over event
+   * @param touchID The ITouchID relating to the event (multi-touch only)
+   * @return IControl* The hit control in the control stack */
   IControl* GetMouseControl(float x, float y, bool capture, bool mouseOver = false, ITouchID touchID = 0);
   
 #pragma mark - Event handling
@@ -1386,7 +1390,7 @@ public:
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
    * @param y The Y coordinate in the graphics context at which the mouse event occurred
    * @param mod IMouseMod struct contain information about the modifiers held
-   * @return <#return value> */
+   * @return /c true on handled */
   bool OnMouseDblClick(float x, float y, const IMouseMod& mod);
 
   /** @param x The X coordinate in the graphics context at which the mouse event occurred
@@ -1519,7 +1523,6 @@ public:
   void ClearGestureRegions();
 
 protected:
-
   /** /todo
    * @param fileNameOrResID /todo 
    * @param scale /todo
