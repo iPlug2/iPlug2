@@ -49,7 +49,7 @@ IPlugOSCEditor::IPlugOSCEditor(const InstanceInfo& info)
     
     pGraphics->AttachControl(new IVNumberBoxControl(topRow.SubRectHorizontal(3, 2).GetPadded(-10.f), kNoParameter, [&](IControl* pCaller){
       SetReceivePort(static_cast<int>(pCaller->As<IVNumberBoxControl>()->GetRealValue()));
-    }, "Recieve Port", DEFAULT_STYLE, 8000, 4000, 10000));
+    }, "Receive Port", DEFAULT_STYLE, 8000, 4000, 10000));
     
     pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100), [&](IControl* pCaller) {
                                                 OscMessageWrite msg;
