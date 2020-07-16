@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -56,7 +56,7 @@ public:
     /** Indicates that the parameter may influence the state of other parameters */
     kFlagMeta             = 0x10,
   };
-  
+
   using DisplayFunc = std::function<void(double, WDL_String&)>;
 
 #pragma mark - Shape
@@ -66,28 +66,30 @@ public:
   {
     virtual ~Shape() {}
 
-    /** /todo 
+    /** /todo
      * @return Shape* /todo */
     virtual Shape* Clone() const = 0;
 
-    /** /todo 
+    /** /todo
      * @param param /todo */
     virtual void Init(const IParam& param) {}
 
-    /** /todo 
+    /** /todo
      * @return EDisplayType /todo */
     virtual EDisplayType GetDisplayType() const = 0;
 
-    /** /todo 
-     * @param value /todo
-     * @param param /todo
-     * @return double /todo */
+    /** Computes the value from a raw normalized input, calculated from the IParam::nMin and IParam::nMax, applying any needed transformations.  This is a virtual function that is overridden in a child class to provide the correct transformation
+     * @param value The raw value as a \c double to be computed
+     * @param param The IParam to do the calculation against
+     * @return double The computed value
+     */
     virtual double NormalizedToValue(double value, const IParam& param) const = 0;
 
-    /** /todo 
-     * @param value /todo
-     * @param param /todo
-     * @return double /todo */
+    /** Computes the raw normalized value from an input, calculated from the IParam::nMin and IParam::nMax, applying any needed transformations.  This is a virtual function that is overridden in a child class to provide the correct transformation
+     * @param value The computed value as a \c double to be normalized
+     * @param param The IParam to do the calculation against
+     * @return double The normalized value
+     */
     virtual double ValueToNormalized(double value, const IParam& param) const = 0;
   };
 
@@ -96,33 +98,66 @@ public:
   {
     Shape* Clone() const override { return new ShapeLinear(*this); };
     IParam::EDisplayType GetDisplayType() const override { return kDisplayLinear; }
+    /** Computes the linear value from a raw normalized input, calculated from the IParam::nMin and IParam::nMax
+     * @param value The raw value as a \c double to be computed
+     * @param param The IParam to do the calculation against
+     * @return double The computed value
+     */
     double NormalizedToValue(double value, const IParam& param) const override;
+
+    /** Computes the linear raw normalized value from an input, calculated from the IParam::nMin and IParam::nMax
+     * @param value The computed value as a \c double to be normalized
+     * @param param The IParam to do the calculation against
+     * @return double The normalized value
+     */
     double ValueToNormalized(double value, const IParam& param) const override;
-  
+
     double mShape;
   };
-  
+
   /** PowCurve parameter shaping */
   struct ShapePowCurve : public Shape
   {
     ShapePowCurve(double shape);
     Shape* Clone() const override { return new ShapePowCurve(*this); };
     IParam::EDisplayType GetDisplayType() const override;
+    /** Computes the power value from a raw normalized input, calculated from the IParam::nMin and IParam::nMax
+     * @param value The raw value as a \c double to be computed
+     * @param param The IParam to do the calculation against
+     * @return double The computed value
+     */
     double NormalizedToValue(double value, const IParam& param) const override;
+
+    /** Computes the power raw normalized value from an input, calculated from the IParam::nMin and IParam::nMax
+     * @param value The computed value as a \c double to be normalized
+     * @param param The IParam to do the calculation against
+     * @return double The normalized value
+     */
     double ValueToNormalized(double value, const IParam& param) const override;
-    
+
     double mShape;
   };
-  
+
   /** Exponential parameter shaping */
   struct ShapeExp : public Shape
   {
     void Init(const IParam& param) override;
     Shape* Clone() const override { return new ShapeExp(*this); };
     IParam::EDisplayType GetDisplayType() const override { return kDisplayLog; }
+    /** Computes the exponential value from a raw normalized input, calculated from the IParam::nMin and IParam::nMax
+     * @param value The raw value as a \c double to be computed
+     * @param param The IParam to do the calculation against
+     * @return double The computed value
+     */
     double NormalizedToValue(double value, const IParam& param) const override;
+
+    /** Computes the exponential raw normalized value from an input, calculated from the IParam::nMin and IParam::nMax
+     * @param value The computed value as a \c double to be normalized
+     * @param param The IParam to do the calculation against
+     * @return double The normalized value
+     */
     double ValueToNormalized(double value, const IParam& param) const override;
-    
+
     double mMul = 1.0;
     double mAdd = 1.0;
   };
@@ -143,7 +178,7 @@ public:
    * @param offText The display text when the parameter value == 0.
    * @param onText The display text when the parameter value == 1. */
   void InitBool(const char* name, bool defaultValue, const char* label = "", int flags = 0, const char* group = "", const char* offText = "off", const char* onText = "on"); // TODO: LABEL not used here TODO: so why have it?
-  
+
   /** Initialize the parameter as enum
    * @param name The parameter's name
    * @param defaultValue The default value of the parameter
@@ -172,7 +207,7 @@ public:
    * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo */
   void InitInt(const char* name, int defaultValue, int minVal, int maxVal, const char* label = "", int flags = 0, const char* group = "");
-  
+
   /** Initialize the parameter as double
    * @param name The parameter's name
    * @param defaultVal The default value of the parameter
@@ -196,7 +231,7 @@ public:
    * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo */
   void InitSeconds(const char* name, double defaultVal = 1., double minVal = 0., double maxVal = 10., double step = 0.1, int flags = 0, const char* group = "");
-  
+
   /** Initialize the parameter as milliseconds
    * @param name The parameter's name
    * @param defaultVal The default value of the parameter
@@ -216,7 +251,7 @@ public:
    * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo */
   void InitFrequency(const char* name, double defaultVal = 1000., double minVal = 0.1, double maxVal = 10000., double step = 0.1, int flags = 0, const char* group = "");
-  
+
   /** Initialize the parameter as pitch
    * @param name The parameter's name
    * @param defaultVal The default value of the parameter
@@ -225,7 +260,7 @@ public:
    * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo */
   void InitPitch(const char* name, int defaultVal = 60, int minVal = 0, int maxVal = 128, int flags = 0, const char* group = "", bool middleCisC4 = false);
-  
+
   /** Initialize the parameter as gain
    * @param name The parameter's name
    * @param defaultVal The default value of the parameter
@@ -235,7 +270,7 @@ public:
    * @param flags The parameter's flags \see IParam::EFlags
    * @param group /todo */
   void InitGain(const char* name, double defaultVal = 0., double minVal = -70., double maxVal = 24., double step = 0.5, int flags = 0, const char* group = "");
-  
+
   /** Initialize the parameter as percentage
    * @param name The parameter's name
    * @param defaultVal The default value of the parameter
@@ -254,14 +289,14 @@ public:
    * @param group /todo */
   void InitAngleDegrees(const char* name, double defaultVal = 0., double minVal = 0., double maxVal = 360., int flags = 0, const char* group = "");
 
-  /** /todo 
+  /** /todo
    * @param p /todo
    * @param searchStr /todo
    * @param replaceStr /todo
    * @param newGroup /todo */
   void Init(const IParam& p, const char* searchStr = "", const char* replaceStr = "", const char* newGroup = "");
-  
-  /** /todo 
+
+  /** /todo
    * @param str /todo
    * @return double /todo */
   double StringToValue(const char* str) const;
@@ -295,18 +330,18 @@ public:
    * @param normalizedValue The expected normalized value between 0. and 1. */
   void SetNormalized(double normalizedValue) { Set(FromNormalized(normalizedValue)); }
 
-  /** /todo 
+  /** /todo
    * @param str /todo */
   void SetString(const char* str) { mValue.store(StringToValue(str)); }
 
   /** Replaces the parameter's current value with the default one  */
   void SetToDefault() { mValue.store(mDefault); }
 
-  /** /todo 
+  /** /todo
    * @param value /todo */
   void SetDefault(double value) { mDefault = value; SetToDefault(); }
 
-  /** /todo 
+  /** /todo
    * @param value /todo
    * @param str /todo */
   void SetDisplayText(double value, const char* str);
@@ -318,7 +353,7 @@ public:
   /** Set the parameters label after creation. WARNING: if this is called after the host has queried plugin parameters, the host may display the label as it was previously
    * @param label /todo */
   void SetLabel(const char* label) { strcpy(mLabel, label); }
-  
+
   /** Set the function to translate display values
    * @param func  /todo */
   void SetDisplayFunc(DisplayFunc func) { mDisplayFunction = func; }
@@ -333,7 +368,7 @@ public:
 
   /** @return Current value of the parameter as an integer */
   int Int() const { return static_cast<int>(mValue.load()); }
-  
+
   /** Gain based on parameter's current value in dB
    * @return double Gain calculated as an approximation of
    * \f$ 10^{\frac{x}{20}} \f$
@@ -344,11 +379,14 @@ public:
    * @return double The resulting normalized value */
   double GetNormalized() const { return ToNormalized(mValue.load()); }
 
-  /** /todo 
-   * @param display /todo
+  /** /todo
+   * @param display \c WDL_String to filled with the results
    * @param withDisplayText /todo */
   void GetDisplay(WDL_String& display, bool withDisplayText = true) const { GetDisplay(mValue.load(), false, display, withDisplayText); }
 
+  /** Fills the \c WDL_String the value of the parameter along with the label
+   * @param display \c WDL_String to filled with the results
+   * @param withDisplayText /todo */
   void GetDisplayWithLabel(WDL_String& display, bool withDisplayText = true) const
   {
     GetDisplay(mValue.load(), false, display, withDisplayText);
@@ -359,120 +397,123 @@ public:
       display.Append(hostlabel);
     }
   }
-  
-  /** /todo 
+
+  /** /todo
    * @param value /todo
    * @param normalized /todo
    * @param display /todo
    * @param withDisplayText /todo */
   void GetDisplay(double value, bool normalized, WDL_String& display, bool withDisplayText = true) const;
 
-  /** /todo 
-   * @return const char* /todo */
+  /** Returns the parameter's name
+   * @return const char* pointing to the parameter's name */
   const char* GetName() const;
 
-  /** /todo 
+  /** /todo
    * @return const char* /todo */
   const char* GetLabel() const;
 
-  /** /todo 
-   * @return const char* /todo */
+  /** Returns the parameter's unit suffix (eg. dB, %)
+   * @return const char* pointing to the parameter's name */
   const char* GetGroup() const;
 
   /** Get parameter's label (unit suffix)
    * @return const char* Parameter's label (unit suffix) or \c nullptr if it is not set */
   const char* GetCustomUnit() const { return mUnit == kUnitCustom ? mLabel : nullptr; }
-  
-  /** /todo 
+
+  /** /todo
    * @return int /todo */
   int NDisplayTexts() const;
 
-  /** /todo 
+  /** /todo
    * @param value /todo
    * @return const char* /todo */
   const char* GetDisplayText(double value) const;
 
-  /** /todo 
+  /** /todo
    * @param idx /todo
    * @param pValue /todo
    * @return const char* /todo  */
   const char* GetDisplayTextAtIdx(int idx, double* pValue = nullptr) const;
 
-  /** /todo 
+  /** /todo
    * @param str /todo
    * @param pValue /todo
    * @return true /todo
    * @return false /todo */
   bool MapDisplayText(const char* str, double* pValue) const;  // Reverse map back to value.
-  
+
   /** Get the parameter's type
    * @return EParamType Type of the parameter, @e kTypeNone if not initialized
    * @see EParamType */
   EParamType Type() const { return mType; }
 
   /** Get the parameter's unit
-   * @note This is only used for AU plugins to determine the appearance of parameters, based on the kind of data they represent 
-   * @return EParamUnit 
+   * @note This is only used for AU plugins to determine the appearance of parameters, based on the kind of data they represent
+   * @return EParamUnit
    * @see EParamUnit */
   EParamUnit Unit() const { return mUnit; }
 
-  /** /todo 
+  /** /todo
    * @return EDisplayType /todo */
   EDisplayType DisplayType() const { return mShape->GetDisplayType(); }
-  
-  /** /todo 
-   * @param normalized /todo
+
+  /** Returns the parameter's default value
+   * @param normalized
    * @return double /todo  */
   double GetDefault(bool normalized = false) const { return normalized ? ToNormalized(GetDefault()) : mDefault; }
-  
-  /**  @return double /todo */
+
+  /** Returns the parameter's minimum value
+   * @return double */
   double GetMin() const { return mMin; }
 
-  /**  @return double /todo */
+  /** Returns the parameter's maximum value
+   * @return double */
   double GetMax() const { return mMax; }
-  
-  /** /todo 
+
+  /** /todo
    * @param lo /todo
    * @param hi /todo */
   void GetBounds(double& lo, double& hi) const;
 
-  /** /todo 
+  /** /todo
    * @return double /todo  */
   double GetRange() const { return mMax - mMin; }
 
-  /** /todo 
+  /** /todo
    * @return double /todo */
   double GetStep() const { return mStep; }
 
-  /** /todo 
-   * @return int /todo */
+  /** Returns the display precision
+   * @return int The number of digits to display after the decimal */
   int GetDisplayPrecision() const {return mDisplayPrecision;}
-  
-  /** /todo 
-   * @return int /todo */
+
+  /** /todo
+   * @return int /todo
+   * @see EFlags */
   int GetFlags() const { return mFlags; }
 
-  /** /todo 
+  /** /todo
    * @return true /todo  */
   bool GetCanAutomate() const { return !(mFlags & kFlagCannotAutomate); }
 
-  /** /todo 
+  /** /todo
    * @return true /todo */
   bool GetStepped() const { return mFlags & kFlagStepped; }
 
-  /** /todo 
+  /** /todo
    * @return false /todo */
   bool GetNegateDisplay() const { return mFlags & kFlagNegateDisplay; }
 
-  /** /todo 
+  /** /todo
    * @return false /todo */
   bool GetSignDisplay() const { return mFlags & kFlagSignDisplay; }
 
-  /** /todo 
+  /** /todo
    * @return false /todo */
   bool GetMeta() const { return mFlags & kFlagMeta; }
- 
-  /** /todo 
+
+  /** /todo
    * @param json /todo
    * @param idx /todo */
   void GetJSON(WDL_String& json, int idx) const;
@@ -500,7 +541,7 @@ private:
   char mName[MAX_PARAM_NAME_LEN];
   char mLabel[MAX_PARAM_LABEL_LEN];
   char mParamGroup[MAX_PARAM_GROUP_LEN];
-  
+
   std::unique_ptr<Shape> mShape;
   DisplayFunc mDisplayFunction = nullptr;
 
