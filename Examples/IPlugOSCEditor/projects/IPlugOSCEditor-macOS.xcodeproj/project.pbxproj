@@ -53,19 +53,17 @@
 		4F06B2B424BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
 		4F06B2B524BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
 		4F06B2B624BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
-		4F06B2B724BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
 		4F06B2B824BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
 		4F06B2B924BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
 		4F06B2D424BF65E300C7EDDA /* IPlugWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B2BE24BF65E300C7EDDA /* IPlugWebView.h */; };
 		4F06B2DF24BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F06B2E024BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
-		4F06B2E124BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
-		4F06B2E224BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
-		4F06B2E324BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
-		4F06B2E424BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
-		4F06B2E524BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
-		4F06B2E624BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
-		4F06B2E724BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; };
+		4F06B2E024BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2E124BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2E224BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2E324BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2E424BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2E624BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2E724BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F0848252015129300F9E881 /* IPlugAAX_Parameters.cpp */; };
 		4F0D965C23099F6900BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		4F10D3D9203A6719003EF82A /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F10D3D7203A6719003EF82A /* RtMidi.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
@@ -310,7 +308,6 @@
 		4FCEAB1C24BEFF470016EF6C /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAAF324BEFF460016EF6C /* util.cpp */; };
 		4FCEAB1D24BEFF470016EF6C /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAAF324BEFF460016EF6C /* util.cpp */; };
 		4FCEAB1E24BEFF470016EF6C /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAAF324BEFF460016EF6C /* util.cpp */; };
-		4FCEAB1F24BEFF470016EF6C /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAAF324BEFF460016EF6C /* util.cpp */; };
 		4FCEAB2024BEFF470016EF6C /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAAF324BEFF460016EF6C /* util.cpp */; };
 		4FCEAB2124BEFF470016EF6C /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAAF324BEFF460016EF6C /* util.cpp */; };
 		4FCEAB4724BEFF470016EF6C /* listen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAAF924BEFF460016EF6C /* listen.cpp */; };
@@ -319,7 +316,6 @@
 		4FCEAB4A24BEFF470016EF6C /* listen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAAF924BEFF460016EF6C /* listen.cpp */; };
 		4FCEAB4B24BEFF470016EF6C /* listen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAAF924BEFF460016EF6C /* listen.cpp */; };
 		4FCEAB4C24BEFF470016EF6C /* listen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAAF924BEFF460016EF6C /* listen.cpp */; };
-		4FCEAB4D24BEFF470016EF6C /* listen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAAF924BEFF460016EF6C /* listen.cpp */; };
 		4FCEAB4E24BEFF470016EF6C /* listen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAAF924BEFF460016EF6C /* listen.cpp */; };
 		4FCEAB4F24BEFF470016EF6C /* listen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAAF924BEFF460016EF6C /* listen.cpp */; };
 		4FCEAB6424BEFF470016EF6C /* netinc.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCEAAFE24BEFF460016EF6C /* netinc.h */; };
@@ -331,7 +327,6 @@
 		4FCEAB7424BEFF470016EF6C /* connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB0324BEFF460016EF6C /* connection.cpp */; };
 		4FCEAB7524BEFF470016EF6C /* connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB0324BEFF460016EF6C /* connection.cpp */; };
 		4FCEAB7624BEFF470016EF6C /* connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB0324BEFF460016EF6C /* connection.cpp */; };
-		4FCEAB7724BEFF470016EF6C /* connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB0324BEFF460016EF6C /* connection.cpp */; };
 		4FCEAB7824BEFF470016EF6C /* connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB0324BEFF460016EF6C /* connection.cpp */; };
 		4FCEAB7924BEFF470016EF6C /* connection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB0324BEFF460016EF6C /* connection.cpp */; };
 		4FCEAB7B24BEFFEB0016EF6C /* IPlugOSC_msg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369C120C446430089212E /* IPlugOSC_msg.cpp */; };
@@ -340,7 +335,6 @@
 		4FCEAB7F24BEFFEE0016EF6C /* IPlugOSC_msg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369C120C446430089212E /* IPlugOSC_msg.cpp */; };
 		4FCEAB8024BEFFEE0016EF6C /* IPlugOSC_msg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369C120C446430089212E /* IPlugOSC_msg.cpp */; };
 		4FCEAB8124BEFFEF0016EF6C /* IPlugOSC_msg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369C120C446430089212E /* IPlugOSC_msg.cpp */; };
-		4FCEAB8224BEFFEF0016EF6C /* IPlugOSC_msg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369C120C446430089212E /* IPlugOSC_msg.cpp */; };
 		4FCEAB8424BEFFF10016EF6C /* IPlugOSC_msg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369C120C446430089212E /* IPlugOSC_msg.cpp */; };
 		4FCEAB8524BEFFF20016EF6C /* IPlugOSC_msg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F5369C120C446430089212E /* IPlugOSC_msg.cpp */; };
 		4FCEAB8824BF02C00016EF6C /* asyncdns.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCEAB8624BF02C00016EF6C /* asyncdns.h */; };
@@ -350,7 +344,6 @@
 		4FCEAB8C24BF02C00016EF6C /* asyncdns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB8724BF02C00016EF6C /* asyncdns.cpp */; };
 		4FCEAB8D24BF02C00016EF6C /* asyncdns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB8724BF02C00016EF6C /* asyncdns.cpp */; };
 		4FCEAB8E24BF02C00016EF6C /* asyncdns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB8724BF02C00016EF6C /* asyncdns.cpp */; };
-		4FCEAB8F24BF02C00016EF6C /* asyncdns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB8724BF02C00016EF6C /* asyncdns.cpp */; };
 		4FCEAB9024BF02C00016EF6C /* asyncdns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB8724BF02C00016EF6C /* asyncdns.cpp */; };
 		4FCEAB9124BF02C00016EF6C /* asyncdns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB8724BF02C00016EF6C /* asyncdns.cpp */; };
 		4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0413B634AA001D0217 /* swell-dlg.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code"; }; };
@@ -2422,14 +2415,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F06B2B724BF64A300C7EDDA /* IPlugOSC.cpp in Sources */,
-				4FCEAB8224BEFFEF0016EF6C /* IPlugOSC_msg.cpp in Sources */,
-				4FCEAB7724BEFF470016EF6C /* connection.cpp in Sources */,
 				4F78BE3222E7429B00AD537E /* IPlugAUv3Appex.m in Sources */,
-				4FCEAB4D24BEFF470016EF6C /* listen.cpp in Sources */,
-				4FCEAB8F24BF02C00016EF6C /* asyncdns.cpp in Sources */,
-				4F06B2E524BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
-				4FCEAB1F24BEFF470016EF6C /* util.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
