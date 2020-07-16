@@ -445,6 +445,7 @@
     <ClCompile Include="..\..\..\IPlug\AAX\IPlugAAX.cpp" />
     <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.cpp" />
     <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.cpp" />
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp" />
@@ -526,6 +527,7 @@
     <ClInclude Include="..\..\..\IPlug\AAX\IPlugAAX.h" />
     <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.h" />
     <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.h" />
+    <ClInclude Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugDelegate_select.h" />

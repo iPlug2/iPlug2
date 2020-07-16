@@ -110,6 +110,9 @@
     <ClCompile Include="..\..\..\WDL\jnetlib\util.cpp">
       <Filter>WDL\jnetlib</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.cpp">
+      <Filter>IPlug\Extras\WebView</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugOSCEditor.h" />
@@ -336,6 +339,9 @@
     <ClInclude Include="..\..\..\WDL\jnetlib\util.h">
       <Filter>WDL\jnetlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.h">
+      <Filter>IPlug\Extras\WebView</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
@@ -380,6 +386,9 @@
     <Filter Include="WDL\jnetlib">
       <UniqueIdentifier>{259bea70-aee6-4669-bd65-bd27c8b2842a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="IPlug\Extras\WebView">
+      <UniqueIdentifier>{84ca475e-0a48-4a90-a1cb-9bc3b168c185}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc">
@@ -399,6 +408,7 @@
     <None Include="..\config\IPlugOSCEditor-win.props">
       <Filter>config</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\resources\IPlugOSCEditor.ico">

@@ -83,6 +83,9 @@
     <ClCompile Include="..\..\..\WDL\jnetlib\util.cpp">
       <Filter>WDL\jnetlib</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.cpp">
+      <Filter>IPlug\Extras\WebView</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -273,6 +276,9 @@
     <ClInclude Include="..\..\..\WDL\jnetlib\util.h">
       <Filter>WDL\jnetlib</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.h">
+      <Filter>IPlug\Extras\WebView</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="IPlug">
@@ -310,6 +316,9 @@
     </Filter>
     <Filter Include="WDL\jnetlib">
       <UniqueIdentifier>{ec64396c-1d10-4890-9cdb-7a6b7aa1a16d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\Extras\WebView">
+      <UniqueIdentifier>{03df0574-c77a-4239-8544-8da07b02be9b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

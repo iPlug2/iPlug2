@@ -92,6 +92,9 @@
     <ClCompile Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.cpp">
       <Filter>IPlug\Extras\OSC</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.cpp">
+      <Filter>IPlug\Extras\WebView</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugOSCEditor.h" />
@@ -288,6 +291,9 @@
     <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC_msg.h">
       <Filter>IPlug\Extras\OSC</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.h">
+      <Filter>IPlug\Extras\WebView</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
@@ -325,6 +331,9 @@
     </Filter>
     <Filter Include="IPlug\Extras\OSC">
       <UniqueIdentifier>{ccf5e42f-eb63-4398-bb6d-9d258bbc3ae2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\Extras\WebView">
+      <UniqueIdentifier>{d1a5b8b2-57ad-4063-940e-5a47a3a7dbb0}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
