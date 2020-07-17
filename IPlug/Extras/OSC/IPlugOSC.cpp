@@ -416,12 +416,12 @@ OSCSender::OSCSender(const char* destIP, int port, OSCLogFunc logFunc)
 : OSCInterface(logFunc)
 , mDestIP("")
 {
-  SetDesination(destIP, port);
+  SetDestination(destIP, port);
 }
 
 void OSCSender::SetDestination(const char* ip, int port)
 {
-  if ((strcmp(ip, mDestIP.Get()) == 0) && port != mPort)
+  if (strcmp(ip, mDestIP.Get()) || port != mPort)
   {
     mDestIP.Set(ip);
     mPort = port;

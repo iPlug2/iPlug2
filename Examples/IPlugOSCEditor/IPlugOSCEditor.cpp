@@ -37,7 +37,7 @@ IPlugOSCEditor::IPlugOSCEditor(const InstanceInfo& info)
       WDL_String log;
       const char* ip = pGraphics->GetControlWithTag(kCtrlTagSendIP)->As<IEditableTextControl>()->GetStr();
       int port = static_cast<int>(pGraphics->GetControlWithTag(kCtrlTagSendPort)->As<IVNumberBoxControl>()->GetRealValue());
-      SetDesination(ip, port);
+      SetDestination(ip, port);
     };
     
     IRECT topRow = b.SubRectVertical(3, 0).GetMidVPadded(40.f);
