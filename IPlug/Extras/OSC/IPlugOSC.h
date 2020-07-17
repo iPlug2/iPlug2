@@ -160,10 +160,10 @@ public:
    * @param logFunc  */
   OSCSender(const char* destIP = "127.0.0.1", int port = 8000, OSCLogFunc logFunc = nullptr);
   
-  /** Set the Desination object
+  /** Set the Destination object
    * @param ip 
    * @param port */
-  void SetDesination(const char* ip, int port);
+  void SetDestination(const char* ip, int port);
   
   /**
    * @param msg */

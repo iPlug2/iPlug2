@@ -414,14 +414,18 @@ OSCDevice* OSCInterface::CreateSender(WDL_String& log, const char* ip, int port)
 
 OSCSender::OSCSender(const char* destIP, int port, OSCLogFunc logFunc)
 : OSCInterface(logFunc)
+, mDestIP("")
 {
   SetDesination(destIP, port);
 }
 
-void OSCSender::SetDesination(const char* ip, int port)
+void OSCSender::SetDestination(const char* ip, int port)
 {
-  if (strcmp(ip, mDestIP.Get()) && port != mPort)
+  if ((strcmp(ip, mDestIP.Get()) == 0) && port != mPort)
   {
+    mDestIP.Set(ip);
+    mPort = port;
+    
     if (mDevice != nullptr)
     {
       gDevices.DeletePtr(mDevice, true);
