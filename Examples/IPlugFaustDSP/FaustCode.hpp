@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------
-name: "FaustExample"
-Code generated with Faust 2.26.1 (https://faust.grame.fr)
+name: "IPlugFaustDSP (mono example)"
+Code generated with Faust 2.26.2 (https://faust.grame.fr)
 Compilation options: -lang cpp -scal -ftz 0
 ------------------------------------------------------------ */
 
@@ -111,7 +111,7 @@ class Faust1 : public dsp {
 		m->declare("maths.lib/license", "LGPL with exception");
 		m->declare("maths.lib/name", "Faust Math Library");
 		m->declare("maths.lib/version", "2.3");
-		m->declare("name", "FaustExample");
+		m->declare("name", "IPlugFaustDSP (mono example)");
 		m->declare("oscillators.lib/name", "Faust Oscillator Library");
 		m->declare("oscillators.lib/version", "0.1");
 		m->declare("platform.lib/name", "Generic Platform Library");
@@ -199,7 +199,7 @@ class Faust1 : public dsp {
 	}
 	
 	virtual void buildUserInterface(UI* ui_interface) {
-		ui_interface->openVerticalBox("FaustExample");
+		ui_interface->openVerticalBox("IPlugFaustDSP (mono example)");
 		ui_interface->declare(&fVslider0, "1", "");
 		ui_interface->addVerticalSlider("Gain", &fVslider0, 0.0f, 0.0f, 1.0f, 0.100000001f);
 		ui_interface->declare(&fVslider1, "2", "");
@@ -239,7 +239,7 @@ public:
               int rate = 1,
               const char* outputCPPFile = 0,
               const char* drawPath = 0,
-              const char* libraryPath = FAUST_LIBRARY_PATH)
+              const char* libraryPath = FAUST_SHARE_PATH)
   : IPlugFaust(name, nVoices)
   {
   }

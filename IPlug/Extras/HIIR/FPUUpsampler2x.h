@@ -117,8 +117,8 @@ void Upsampler2xFPU <NC, T>::set_coefs (const double coef_arr [NBR_COEFS])
 template <int NC, typename T>
 void Upsampler2xFPU <NC, T>::process_sample (T &out_0, T &out_1, T input)
 {
-  assert (&out_0 != 0);
-  assert (&out_1 != 0);
+//  assert (&out_0 != 0);
+//  assert (&out_1 != 0);
 
   T even = input;
   T odd = input;
@@ -137,10 +137,10 @@ void Upsampler2xFPU <NC, T>::process_sample (T &out_0, T &out_1, T input)
 template <int NC, typename T>
 void Upsampler2xFPU <NC, T>::process_block (T out_ptr [], const T in_ptr [], long nbr_spl)
 {
-  assert (out_ptr != 0);
-  assert (in_ptr != 0);
-  assert (out_ptr >= in_ptr + nbr_spl || in_ptr >= out_ptr + nbr_spl);
-  assert (nbr_spl > 0);
+//  assert (out_ptr != 0);
+//  assert (in_ptr != 0);
+//  assert (out_ptr >= in_ptr + nbr_spl || in_ptr >= out_ptr + nbr_spl);
+//  assert (nbr_spl > 0);
 
   long pos = 0;
   do

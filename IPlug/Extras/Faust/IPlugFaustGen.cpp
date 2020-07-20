@@ -382,7 +382,7 @@ bool FaustGen::Factory::LoadFile(const char* file)
     return true;
   }
   
-  assert(0 && "If you hit this assert it means the faust DSP file specificed in FAUST_BLOCK file was not found. This may be due to the app's sandbox.");
+  assert(0 && "If you hit this assert it means the faust DSP file specificed in FAUST_BLOCK file was not found. This may be due to an invalid path or the macOS app sandbox.");
   
   return false;
 }

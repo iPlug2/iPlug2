@@ -270,16 +270,19 @@ void IGraphics::AttachPanelBackground(const IPattern& color)
 
 IControl* IGraphics::AttachControl(IControl* pControl, int ctrlTag, const char* group)
 {
-  pControl->SetDelegate(*GetDelegate());
-  pControl->SetTag(ctrlTag);
-  pControl->SetGroup(group);
-  mControls.Add(pControl);
-  
   if(ctrlTag > kNoTag)
   {
-    assert(mCtrlTags.insert(std::make_pair(ctrlTag, pControl)).second && "AttachControl failed: ctrl tags must be unique");
+    auto result = mCtrlTags.insert(std::make_pair(ctrlTag, pControl));
+    assert(result.second && "AttachControl failed: ctrl tags must be unique");
+    
+    if (!result.second)
+      return nullptr;
   }
   
+  pControl->SetDelegate(*GetDelegate());
+  pControl->SetGroup(group);
+  mControls.Add(pControl);
+    
   pControl->OnAttached();
   return pControl;
 }
@@ -409,7 +412,17 @@ void IGraphics::ShowFPSDisplay(bool enable)
 
 IControl* IGraphics::GetControlWithTag(int ctrlTag)
 {
-  return mCtrlTags[ctrlTag];
+  IControl* pControl = mCtrlTags[ctrlTag];
+  
+  if(pControl != nullptr)
+  {
+    return pControl;
+  }
+  else
+  {
+    assert(pControl && "There is no control attached with this tag");
+    return nullptr;
+  }
 }
 
 void IGraphics::HideControl(int paramIdx, bool hide)

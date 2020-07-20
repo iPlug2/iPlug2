@@ -1,5 +1,5 @@
 // declare options "[midi:on][nvoices:12]";
-// declare name "FaustExample";
+// declare name "IPlugFaustDSP (polydsp synth example)";
 
 // import("stdfaust.lib");
 
@@ -10,7 +10,7 @@
 // envelope = en.adsr(0.01,0.01,0.8,0.1,gate)*gain;
 // process = os.sawtooth(freq)*envelope*master <: (_,_);
 
-declare name "FaustExample";
+declare name "IPlugFaustDSP (mono example)";
 import("stdfaust.lib");
 
 g = vslider("[1]Gain", 0, 0., 1, 0.1);

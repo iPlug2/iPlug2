@@ -19,6 +19,8 @@ std::list<GUI*> GUI::fGuiList;
 ztimedmap GUI::gTimedZoneMap;
 iplug::Timer* iplug::IPlugFaust::sUITimer = nullptr;
 
+using namespace iplug;
+
 IPlugFaust::IPlugFaust(const char* name, int nVoices, int rate)
 : mNVoices(nVoices)
 {
@@ -194,4 +196,12 @@ int IPlugFaust::FindExistingParameterWithName(const char* name) // TODO: this ne
   }
 
   return -1;
+}
+
+void IPlugFaust::SyncFaustParams()
+{
+  for (auto p = 0; p < NParams(); p++)
+  {
+    *mZones.Get(p) = mParams.Get(p)->Value();
+  }
 }

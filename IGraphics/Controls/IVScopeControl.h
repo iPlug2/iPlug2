@@ -23,7 +23,7 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-/** Vectorial multichannel capable oscilloscope control
+/** Vectorial multi-channel capable oscilloscope control
  * @ingroup IControls */
 template <int MAXNC = 1, int MAXBUF = 128>
 class IVScopeControl : public IControl
