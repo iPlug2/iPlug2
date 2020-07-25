@@ -20,7 +20,7 @@ if(!(Test-Path -PathType Container $LLVM_REPO_DIR)) {
     Pop-Location
 }
 
-if(![System.IO.File]::Exists($FAUST_REPO_DIR)) {
+if(!(Test-Path -PathType Container $FAUST_REPO_DIR)) {
     git clone --depth=1 https://github.com/grame-cncm/faust.git $FAUST_REPO_DIR
 }
 
