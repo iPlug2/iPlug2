@@ -495,8 +495,9 @@ public:
   
   /** Create an IGraphics layer. Switches drawing to an offscreen bitmap for drawing
    * IControl* pOwner The control that owns the layer
-   * @param r The bounds of the layer within the IGraphics context */
-  void StartLayer(IControl* pOwner, const IRECT& r);
+   * @param r The bounds of the layer within the IGraphics context
+   * @param cacheable Used to make sure the underlying bitmap can be shared between plug-in instances */
+  void StartLayer(IControl* pOwner, const IRECT& r, bool cacheable = false);
   
   /** If a layer already exists, continue drawing to it
    * @param layer the layer to resume */
@@ -1536,8 +1537,9 @@ protected:
    * @param height The desired height
    * @param scale The scale in relation to 1:1 pixels
    * @param drawScale /todo
+   * @param cacheable Used to make sure the underlying bitmap can be shared between plug-in instances
    * @return APIBitmap* The new API Bitmap */
-  virtual APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) = 0;
+  virtual APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable = false) = 0;
 
   /** /todo
    * @param fontID /todo

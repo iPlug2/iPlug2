@@ -262,7 +262,7 @@ APIBitmap* IGraphicsCairo::LoadAPIBitmap(const char* fileNameOrResID, int scale,
   return new Bitmap(pSurface, scale, 1.f);
 }
 
-APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height, int scale, double drawScale)
+APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
 {
   return new Bitmap(mSurface, width, height, scale, drawScale);
 }
