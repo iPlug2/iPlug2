@@ -98,6 +98,7 @@ typedef bool WDL_bool;
 #define wdl_max(x,y) ((x)<(y)?(y):(x))
 #define wdl_min(x,y) ((x)<(y)?(x):(y))
 #define wdl_abs(x) ((x)<0 ? -(x) : (x))
+#define wdl_clamp(x,minv,maxv) ((x) < (minv) ? (minv) : ((x) > (maxv) ? (maxv) : (x)))
 #endif
 
 #ifndef _WIN32
@@ -155,6 +156,39 @@ typedef bool WDL_bool;
 #define WDL_ASSERT(x)
 #define WDL_NORMALLY(x) WDL_likely(x)
 #define WDL_NOT_NORMALLY(x) WDL_unlikely(x)
+#endif
+
+
+typedef unsigned int WDL_TICKTYPE;
+
+static WDL_bool WDL_STATICFUNC_UNUSED WDL_TICKS_IN_RANGE(WDL_TICKTYPE current,  WDL_TICKTYPE refstart, int len) // current >= refstart && current < refstart+len
+{
+  WDL_ASSERT(len > 0);
+  return (current - refstart) < (WDL_TICKTYPE)len;
+}
+
+static WDL_bool WDL_STATICFUNC_UNUSED WDL_TICKS_IN_RANGE_ENDING_AT(WDL_TICKTYPE current,  WDL_TICKTYPE refend, int len) // current >= refend-len && current < refend
+{
+  const WDL_TICKTYPE refstart = refend - len;
+  WDL_ASSERT(len > 0);
+  return (current - refstart) < (WDL_TICKTYPE)len;
+  //return ((refend-1) - current) < (WDL_TICKTYPE)len;
+}
+
+// use this if you want validate that nothing that includes wdltypes.h calls fopen() directly on win32
+// #define WDL_CHECK_FOR_NON_UTF8_FOPEN
+
+#if defined(WDL_CHECK_FOR_NON_UTF8_FOPEN) && !defined(_WDL_WIN32_UTF8_H_)
+  #ifdef fopen
+    #undef fopen
+  #endif
+  #include <stdio.h>
+  static WDL_STATICFUNC_UNUSED FILE *WDL_fopenA(const char *fn, const char *mode) { return fopen(fn,mode); }
+  #define fopen this_should_be_fopenUTF8_include_win32_utf8.h
+#else
+  // callers of WDL_fopenA don't mind being non-UTF8-compatible on win32
+  // (this could map to either fopen() or fopenUTF8()
+  #define WDL_fopenA(fn,mode) fopen(fn,mode)
 #endif
 
 #endif

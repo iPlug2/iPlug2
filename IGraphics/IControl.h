@@ -220,7 +220,7 @@ public:
    * If you are calling this "manually" to reuse a control for multiple parameters, you probably want to call IEditorDelegate::SendCurrentParamValuesFromDelegate() afterward, to update the control values
    * @param paramIdx Parameter index, or kNoParameter if there is no parameter linked with this control at valIdx
    * @param valIdx An index to choose which of the controls vals to set */
-  void SetParamIdx(int paramIdx, int valIdx = 0);
+  virtual void SetParamIdx(int paramIdx, int valIdx = 0);
  
   /** Check if the control is linked to a particular parameter
    * @param paramIdx The paramIdx to test
@@ -405,12 +405,8 @@ public:
   /** This is an idle call from the GUI thread, only active if USE_IDLE_CALLS is defined. /todo check this */
   virtual void OnGUIIdle() {}
   
-  /** Set the control's tag. Controls can be given tags, in order to direct messages to them. @see Control Tags
-   * @param tag A unique integer to identify this control */
-  void SetTag(int tag) { mTag = tag; }
-  
   /** Get the control's tag. @see Control Tags */
-  int GetTag() const { return mTag; }
+  int GetTag() const { return GetUI()->GetControlTag(this); }
   
   /** Specify whether this control wants to know about MIDI messages sent to the UI. See OnMIDIMsg() */
   void SetWantsMidi(bool enable = true) { mWantsMidi = enable; }
@@ -523,7 +519,6 @@ protected:
     }
   }
     
-  int mTag = kNoTag;
   IRECT mRECT;
   IRECT mTargetRECT;
   
@@ -1535,7 +1530,7 @@ protected:
 
   virtual void DrawTrackBackground(IGraphics& g, const IRECT& r, int chIdx)
   {
-    /* NO-OP */
+    g.FillRect(chIdx == mHighlightedTrack ? this->GetColor(kHL) : COLOR_TRANSPARENT, r);
   }
   
   virtual void DrawTrackName(IGraphics& g, const IRECT& r, int chIdx)
@@ -1550,8 +1545,8 @@ protected:
    * @param aboveBaseValue true if the handle channel value is above the base value */
   virtual void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue)
   {
-    g.FillRect(GetColor(kFG), r, &mBlend);
-    
+    g.FillRect(chIdx == mHighlightedTrack ? GetColor(kX1) : GetColor(kFG), r, &mBlend);
+
     if(chIdx == mMouseOverTrack)
       g.FillRect(GetColor(kHL), r, &mBlend);
   }

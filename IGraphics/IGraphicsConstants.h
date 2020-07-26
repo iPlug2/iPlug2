@@ -49,7 +49,10 @@ static constexpr float GRAYED_ALPHA = 0.25f;
 static const char* DEFAULT_PATH = "~/Desktop";
 #endif
 
+#ifndef DEFAULT_FONT
 const char* const DEFAULT_FONT = "Roboto-Regular";
+#endif
+
 static constexpr float DEFAULT_TEXT_SIZE = 14.f;
 static constexpr int FONT_LEN = 64;
 
