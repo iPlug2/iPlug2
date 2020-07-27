@@ -1,5 +1,14 @@
+#
+# List all files filtered out by .gitignore
+#
+# $ git ls-files -i --exclude-from=.gitignore
+#
+
+_*
+*~
+~$*
 *.o
-*.ipch
+*.obj
 *.lnk
 *.exe
 *.opensdf
