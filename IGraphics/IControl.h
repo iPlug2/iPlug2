@@ -1876,11 +1876,21 @@ public:
   void Draw(IGraphics& g) override;
   void OnInit() override;
 
+  /** Set the text to display. NOTE: does not set the control dirty.
+   @param str CString with the text to display */
   virtual void SetStr(const char* str);
+  
+  /** Set the text to display, using a printf-like format string. NOTE: does not set the control dirty.
+   @param str CString with the text to display */
   virtual void SetStrFmt(int maxlen, const char* fmt, ...);
+  
+  /** Clear the text . NOTE: does not set the control dirty. */
   virtual void ClearStr() { SetStr(""); }
+  
+  /** @return Cstring with the text that the control displays */
   const char* GetStr() const { return mStr.Get(); }
   
+  /** Measures the bounds of the text that the control displays and compacts/expands the controls bounds to fit */
   void SetBoundsBasedOnStr();
   
 protected:
@@ -1907,6 +1917,7 @@ public:
   void OnTextEntryCompletion(const char* str, int valIdx) override
   {
     SetStr(str);
+    SetDirty(true);
   }
 };
 
