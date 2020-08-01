@@ -83,7 +83,7 @@ extern void INIPath(WDL_String& path, const char* pluginName);
  *
  * @param fileNameOrResID The filename or resourceID including extension. If no resource is found this argument is tested as an absolute path.
  * @param type The resource type (file extension) in lower or upper case, e.g. ttf or TTF for a truetype font
- * @param result WDL_String which will either contain the full path to the resource on disk, or the ful Windows resourceID on success
+ * @param result WDL_String which will either contain the full path to the resource on disk, or the full Windows resourceID on success
  * @return \c true on success */
 extern EResourceLocation LocateResource(const char* fileNameOrResID, const char* type, WDL_String& result, const char* bundleID, void* pHInstance, const char* sharedResourcesSubPath);
 
