@@ -799,13 +799,20 @@ void IGraphicsSkia::SetClipRegion(const IRECT& r)
   mCanvas->clipRect(SkiaRect(r));
 }
 
-APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale)
+APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
 {
   sk_sp<SkSurface> surface;
   
   #ifndef IGRAPHICS_CPU
   SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-  surface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
+  if (cacheable)
+  {
+    surface = SkSurface::MakeRasterN32Premul(width, height);
+  }
+  else
+  {
+    surface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
+  }
   #else
   surface = SkSurface::MakeRasterN32Premul(width, height);
   #endif
