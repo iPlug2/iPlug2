@@ -371,6 +371,7 @@
     <ClCompile Include="..\..\..\IGraphics\IGraphics.cpp" />
     <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp" />
     <ClCompile Include="..\..\..\IGraphics\Platforms\IGraphicsWin.cpp" />
+    <ClCompile Include="..\..\..\IPlug\Extras\Faust\IPlugFaust.cpp" />
     <ClCompile Include="..\..\..\IPlug\Extras\Faust\IPlugFaustGen.cpp" />
     <ClCompile Include="..\..\..\IPlug\Extras\Faust\IPlugFaust_arch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>

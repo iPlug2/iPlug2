@@ -35,7 +35,6 @@ static double sFPS = 0.0;
 
 #define PARAM_EDIT_ID 99
 #define IPLUG_TIMER_ID 2
-#define IPLUG_WIN_MAX_WIDE_PATH 4096
 
 #define TOOLTIPWND_MAXWIDTH 250
 
@@ -136,25 +135,9 @@ IFontDataPtr IGraphicsWin::Font::GetFontData()
 StaticStorage<IGraphicsWin::InstalledFont> IGraphicsWin::sPlatformFontCache;
 StaticStorage<IGraphicsWin::HFontHolder> IGraphicsWin::sHFontCache;
 
-#pragma mark - DPI Helper
+#pragma mark - Mouse and tablet helpers
 
-// DPI helper
-UINT(WINAPI *__GetDpiForWindow)(HWND);
-
-// Mouse and tablet helpers
-int GetScaleForHWND(HWND hWnd)
-{
-  if (hWnd && __GetDpiForWindow)
-  {
-    int dpi = __GetDpiForWindow(hWnd);
-    if (dpi != USER_DEFAULT_SCREEN_DPI)
-      return std::round(static_cast<double>(dpi) / USER_DEFAULT_SCREEN_DPI);
-  }
-
-  return 1;
-}
-
-#pragma mark -
+extern int GetScaleForHWND(HWND hWnd);
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
@@ -820,12 +803,6 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
 IGraphicsWin::IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
   : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
-  if (!__GetDpiForWindow)
-  {
-    HINSTANCE h = LoadLibrary("user32.dll");
-    if (h) *(void **)&__GetDpiForWindow = GetProcAddress(h, "GetDpiForWindow");
-  }
-
   StaticStorage<InstalledFont>::Accessor fontStorage(sPlatformFontCache);
   StaticStorage<HFontHolder>::Accessor hfontStorage(sHFontCache);
   fontStorage.Retain();

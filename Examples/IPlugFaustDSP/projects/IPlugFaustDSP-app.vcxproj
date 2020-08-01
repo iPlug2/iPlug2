@@ -404,6 +404,7 @@
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_dialog.cpp" />
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_host.cpp" />
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_main.cpp" />
+    <ClCompile Include="..\..\..\IPlug\Extras\Faust\IPlugFaust.cpp" />
     <ClCompile Include="..\..\..\IPlug\Extras\Faust\IPlugFaustGen.cpp" />
     <ClCompile Include="..\..\..\IPlug\Extras\Faust\IPlugFaust_arch.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

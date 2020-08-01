@@ -4,7 +4,7 @@
 #include "IPlugDrumSynth_DSP.h"
 #include "ISender.h"
 
-const int kNumPrograms = 1;
+const int kNumPresets = 1;
 
 enum EParams
 {

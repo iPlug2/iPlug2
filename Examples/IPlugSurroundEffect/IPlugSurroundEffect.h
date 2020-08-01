@@ -3,7 +3,7 @@
 #include "IPlug_include_in_plug_hdr.h"
 #include "ISender.h"
 
-const int kNumPrograms = 1;
+const int kNumPresets = 1;
 
 enum EParams
 {

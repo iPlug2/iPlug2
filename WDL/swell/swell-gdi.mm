@@ -29,6 +29,8 @@
 #import <CoreFoundation/CFDictionary.h>
 #import <objc/objc-runtime.h>
 #include "swell.h"
+#define SWELL_GetOSXVersion SWELL_GDI_GetOSXVersion
+#define SWELL_IMPLEMENT_GETOSXVERSION static
 #include "swell-internal.h"
 
 #include "../mutex.h"
@@ -46,31 +48,6 @@
 #ifndef SWELL_NO_METAL
 void SWELL_Metal_FillRect(void *_tex, int x, int y, int w, int h, int color);
 #endif
-
-// reimplement here so that swell-gdi isn't dependent on swell-misc, and vice-versa
-static int SWELL_GDI_GetOSXVersion()
-{
-  static SInt32 v;
-  if (!v)
-  {
-    if (NSAppKitVersionNumber >= 1266.0) 
-    {
-      if (NSAppKitVersionNumber >= 1670.0)  // unsure if this is correct (10.14.1 is 1671.1)
-        v = 0x10d0;
-      else if (NSAppKitVersionNumber >= 1404.0)
-        v = 0x10b0;
-      else
-        v=0x10a0; // 10.10+ Gestalt(gsv) return 0x109x, so we bump this to 0x10a0
-    }
-    else 
-    {
-      SInt32 a = 0x1040;
-      Gestalt(gestaltSystemVersion,&a);
-      v=a;
-    }
-  }
-  return v;
-}
 
 #ifdef __AVX__
 #include <immintrin.h>
@@ -1501,6 +1478,8 @@ void StretchBlt(HDC hdcOut, int x, int y, int destw, int desth, HDC hdcIn, int x
   
   if (desth == preclip_h) desth=h;
   else if (h != preclip_h) desth = (h*desth)/preclip_h;
+
+  if (destw < 1 || desth < 1) return;
   
   const bool use_alphachannel = mode == (int)SRCCOPY_USEALPHACHAN;
 
@@ -1511,13 +1490,50 @@ void StretchBlt(HDC hdcOut, int x, int y, int destw, int desth, HDC hdcIn, int x
 
   if (dest->metal_ctx)
   {
-    void SWELL_Metal_Blit(void *tex, unsigned char *buf, int x, int y, int w, int h, int span, bool retina_hint);
+    void SWELL_Metal_Blit(void *tex, const unsigned int *buf, int x, int y, int w, int h, int span, bool retina_hint, bool use_alpha);
 
+    const unsigned int *ptr = (const unsigned int *)p;
     if (w == destw && h == desth)
-      SWELL_Metal_Blit(hdcOut->metal_ctx,p,x,y,w,h,sw,false);
-    else if (WDL_NORMALLY(w == destw*2) && WDL_NORMALLY(h == desth*2))
+      SWELL_Metal_Blit(hdcOut->metal_ctx,ptr,x,y,w,h,sw,false, use_alphachannel);
+    else if (w == destw*2 && h == desth*2)
+      SWELL_Metal_Blit(hdcOut->metal_ctx,ptr,x*2,y*2,w,h,sw,true, use_alphachannel);
+    else
     {
-      SWELL_Metal_Blit(hdcOut->metal_ctx,p,x*2,y*2,w,h,sw,true);
+      // Using StretchBlt() to size contents isn't ideal (in Metal mode or in win32), but if the caller insists
+      const bool retina = w >= destw*2 && h >= desth*2 && SWELL_IsRetinaDC(hdcOut);
+      if (retina)
+      {
+        destw *= 2;
+        desth *= 2;
+        x*=2;
+        y*=2;
+      }
+
+      // resize a copy of image to destw/desth/destsw/destptr
+      static WDL_TypedBuf<unsigned int> tmp;
+      const int destspan = (destw+3)&~3;
+      const unsigned int dx = (w * 65536) / destw, dy = (h * 65536) / desth;
+      unsigned int *destptr = tmp.ResizeOK(destspan*desth, false);
+      if (WDL_NOT_NORMALLY(!destptr)) return;
+
+      unsigned int *wr = destptr;
+      for (int i=0;i<desth; i ++)
+      {
+        unsigned int yp = ((unsigned int)i * dy)>>16;
+        if (WDL_NOT_NORMALLY(yp >= (unsigned int)h)) break;
+        const unsigned int *rd = ptr + yp*sw;
+        int xpos = 0;
+        for (int j=0;j<destw; j ++)
+        {
+          const unsigned int xp = (xpos>>16);
+          if (WDL_NOT_NORMALLY(xp >= (unsigned int)w)) break;
+          wr[j] = rd[xp];
+          xpos += dx;
+        }
+        wr += destspan;
+      }
+
+      SWELL_Metal_Blit(hdcOut->metal_ctx,destptr,x,y, destw, desth, destspan, retina, use_alphachannel);
     }
 
     return;
@@ -1767,7 +1783,7 @@ void SWELL_FillDialogBackground(HDC hdc, const RECT *r, int level)
       NSColor *c = [NSColor windowBackgroundColor];
       if ([c respondsToSelector:@selector(CGColor)])
       {
-        CGContextSetFillColorWithColor(ctx, [c CGColor]);
+        CGContextSetFillColorWithColor(ctx, (CGColorRef)[c CGColor]);
         ok = true;
       }
     }

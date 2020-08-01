@@ -25,7 +25,7 @@
 #   - task: VSBuild@1
 #     inputs:
 #       solution: 'Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/WinBuild/vs2017/AAXLibrary.sln'
-#       vsVersion: '15.0'
+#       vsVersion: '16.0'
 #       platform: x64
 #       configuration: Release
 #     displayName: Compile AAX Library Visual Studio Solution x64
@@ -33,7 +33,7 @@
 #   - task: VSBuild@1
 #     inputs:
 #       solution: 'Dependencies/IPlug/AAX_SDK/Libs/AAXLibrary/WinBuild/vs2017/AAXLibrary.sln'
-#       vsVersion: '15.0'
+#       vsVersion: '16.0'
 #       platform: Win32
 #       configuration: Release
 #     displayName: Compile AAX Library Visual Studio Solution Win32

@@ -154,7 +154,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
 
 @implementation IGRAPHICS_MENU
 
-- (id) initWithIPopupMenuAndReciever: (IPopupMenu*) pMenu : (NSView*) pView
+- (id) initWithIPopupMenuAndReceiver: (IPopupMenu*) pMenu : (NSView*) pView
 {
   [self initWithTitle: @""];
 
@@ -193,7 +193,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
     else if (pMenuItem->GetSubmenu())
     {
       nsMenuItem = [self addItemWithTitle:nsMenuItemTitle action:nil keyEquivalent:@""];
-      NSMenu* subMenu = [[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:pMenuItem->GetSubmenu() :pView];
+      NSMenu* subMenu = [[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReceiver:pMenuItem->GetSubmenu() :pView];
       [self setSubmenu: subMenu forItem:nsMenuItem];
       [subMenu release];
     }
@@ -392,56 +392,46 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   self = [super initWithFrame:r];
   
   mMouseOutDuringDrag = false;
-    
-#if defined IGRAPHICS_METAL || defined IGRAPHICS_GL
-//  if (!self.wantsLayer)
-  {
-    #if defined IGRAPHICS_METAL
-    self.layer = [CAMetalLayer new];
-    [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
-    ((CAMetalLayer*) self.layer).device = MTLCreateSystemDefaultDevice();
-    
-    #elif defined IGRAPHICS_GL
-    
-    NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
-    #if defined IGRAPHICS_GL3
-    profile = (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core;
-    #endif
-    
-    const NSOpenGLPixelFormatAttribute attrs[] =  {
-      NSOpenGLPFAAccelerated,
-      NSOpenGLPFANoRecovery,
-      NSOpenGLPFADoubleBuffer,
-      NSOpenGLPFAAlphaSize, 8,
-      NSOpenGLPFAColorSize, 24,
-      NSOpenGLPFADepthSize, 0,
-      NSOpenGLPFAStencilSize, 8,
-      NSOpenGLPFAOpenGLProfile, profile,
-      (NSOpenGLPixelFormatAttribute) 0
-    };
-    
-    NSOpenGLPixelFormat *pf = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
-    assert(pf);
-       
-    NSOpenGLContext* context = [[NSOpenGLContext alloc] initWithFormat:pf shareContext:nil];
-    assert(context);
-    
-  #ifdef DEBUG
-//    CGLEnable([context CGLContextObj], kCGLCECrashOnRemovedFunctions); //SKIA_GL2 will crash
-  #endif
-  
-    self.pixelFormat = pf;
-    self.openGLContext = context;
-    self.wantsBestResolutionOpenGLSurface = YES;
-    #endif // IGRAPHICS_GL
-    self.layer.opaque = YES;
-    self.wantsLayer = YES;
-    self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
-  }
-#endif // IGRAPHICS_METAL || IGRAPHICS_GL
+
+  self.wantsLayer = YES;
+  self.layer.opaque = YES;
+  self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
   
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
   
+  #if defined IGRAPHICS_METAL
+  self.layer = [CAMetalLayer new];
+  [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
+  ((CAMetalLayer*) self.layer).device = MTLCreateSystemDefaultDevice();
+  
+  #elif defined IGRAPHICS_GL
+  NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
+  #if defined IGRAPHICS_GL3
+    profile = (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core;
+  #endif
+  const NSOpenGLPixelFormatAttribute attrs[] =  {
+    NSOpenGLPFAAccelerated,
+    NSOpenGLPFANoRecovery,
+    NSOpenGLPFADoubleBuffer,
+    NSOpenGLPFAAlphaSize, 8,
+    NSOpenGLPFAColorSize, 24,
+    NSOpenGLPFADepthSize, 0,
+    NSOpenGLPFAStencilSize, 8,
+    NSOpenGLPFAOpenGLProfile, profile,
+    (NSOpenGLPixelFormatAttribute) 0
+  };
+  NSOpenGLPixelFormat* pPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
+  NSOpenGLContext* pGLContext = [[NSOpenGLContext alloc] initWithFormat:pPixelFormat shareContext:nil];
+  
+  #ifdef DEBUG
+  // CGLEnable([context CGLContextObj], kCGLCECrashOnRemovedFunctions); //SKIA_GL2 will crash
+  #endif
+
+  self.pixelFormat = pPixelFormat;
+  self.openGLContext = pGLContext;
+  self.wantsBestResolutionOpenGLSurface = YES;
+  #endif // IGRAPHICS_GL
+
   #if !defined IGRAPHICS_GL
   [self setTimer];
   #endif
@@ -1078,7 +1068,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 - (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (NSRect) bounds;
 {
   IGRAPHICS_MENU_RCVR* pDummyView = [[[IGRAPHICS_MENU_RCVR alloc] initWithFrame:bounds] autorelease];
-  NSMenu* pNSMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReciever:&menu : pDummyView] autorelease];
+  NSMenu* pNSMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReceiver:&menu : pDummyView] autorelease];
   NSPoint wp = {bounds.origin.x, bounds.origin.y + 4};
 
   [pNSMenu popUpMenuPositioningItem:nil atLocation:wp inView:self];

@@ -48,8 +48,10 @@ SWELL_PATH = $(WDL_PATH)/swell
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
 EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket
 
+JSON_INC_PATH = $(DEPS_PATH)/Extras/nlohmann
+
 // this build setting is included at the xcode project level, since we need all these include paths
-IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS) $(AUv3_PATH)
+IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS) $(AUv3_PATH) $(JSON_INC_PATH)
 
 BUILT_LIBS_PATH = $(DEPS_PATH)/Build/ios
 BUILT_LIBS_INC_PATH = $(BUILT_LIBS_PATH)/include
@@ -74,7 +76,7 @@ IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/examples
 
 SKIA_PATH = $(DEPS_PATH)/Build/src/skia
 
-SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu $(SKIA_PATH)/experimental/svg/model
+SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu $(SKIA_PATH)/experimental/svg/model $(SKIA_PATH)/third_party/externals/icu/source/common
 
 YOGA_INC_PATHS = $(YOGA_PATH) $(YOGA_PATH)/yoga
 

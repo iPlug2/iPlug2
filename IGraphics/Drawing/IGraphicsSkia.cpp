@@ -168,8 +168,9 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
   SkPaint paint;
   paint.setAntiAlias(true);
   paint.setBlendMode(SkiaBlendMode(pBlend));
+  int numStops = pattern.NStops();
     
-  if (pattern.mType == EPatternType::Solid || pattern.NStops() <  2)
+  if (pattern.mType == EPatternType::Solid || numStops <  2)
   {
     paint.setColor(SkiaColor(pattern.GetStop(0).mColor, pBlend));
   }
@@ -194,24 +195,42 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)
     SkColor colors[8];
     SkScalar positions[8];
       
-    assert(pattern.NStops() <= 8);
+    assert(numStops <= 8);
     
-    for(int i = 0; i < pattern.NStops(); i++)
+    for(int i = 0; i < numStops; i++)
     {
       const IColorStop& stop = pattern.GetStop(i);
       colors[i] = SkiaColor(stop.mColor, pBlend);
       positions[i] = stop.mOffset;
     }
-   
-    if(pattern.mType == EPatternType::Linear)
-      paint.setShader(SkGradientShader::MakeLinear(points, colors, positions, pattern.NStops(), SkiaTileMode(pattern), 0, nullptr));
-    else
+
+    switch (pattern.mType)
+    {
+    case EPatternType::Linear:
+      paint.setShader(SkGradientShader::MakeLinear(points, colors, positions, numStops, SkiaTileMode(pattern), 0, nullptr));
+      break;
+
+    case EPatternType::Radial:
     {
       float xd = points[0].x() - points[1].x();
       float yd = points[0].y() - points[1].y();
       float radius = std::sqrt(xd * xd + yd * yd);
-        
-      paint.setShader(SkGradientShader::MakeRadial(points[0], radius, colors, positions, pattern.NStops(), SkiaTileMode(pattern), 0, nullptr));
+      paint.setShader(SkGradientShader::MakeRadial(points[0], radius, colors, positions, numStops, SkiaTileMode(pattern), 0, nullptr));
+      break;
+    }
+
+    case EPatternType::Sweep:
+    {
+      SkMatrix matrix = SkMatrix::MakeAll(m.mXX, m.mYX, 0, m.mXY, m.mYY, 0, 0, 0, 1);
+      
+      paint.setShader(SkGradientShader::MakeSweep(x1, y1, colors, nullptr, numStops, SkTileMode::kDecal,
+        0, 360 * positions[numStops - 1], 0, &matrix));
+
+      break;
+    }
+
+    default:
+      break;
     }
   }
     
@@ -326,7 +345,8 @@ void IGraphicsSkia::DrawResize()
 #else
   #ifdef OS_WIN
     mSurface.reset();
-    const size_t bmpSize = sizeof(BITMAPINFOHEADER) + WindowWidth() * WindowHeight() * GetScreenScale() * sizeof(uint32_t);
+   
+    const size_t bmpSize = sizeof(BITMAPINFOHEADER) + (WindowWidth() * GetScreenScale()) * (WindowHeight() * GetScreenScale()) * sizeof(uint32_t);
     mSurfaceMemory.Resize(bmpSize);
     BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.Get());
     ZeroMemory(bmpInfo, sizeof(BITMAPINFO));
@@ -642,6 +662,7 @@ void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IR
 float IGraphicsSkia::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   SkFont font;
+  font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
   IRECT r = bounds;
   double x, y;
@@ -655,8 +676,10 @@ void IGraphicsSkia::DoDrawText(const IText& text, const char* str, const IRECT& 
   IRECT measured = bounds;
   
   SkFont font;
+  font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+
   double x, y;
-  
+
   PrepareAndMeasureText(text, str, measured, x, y, font);
   PathTransformSave();
   DoTextRotation(text, bounds, measured);
@@ -852,13 +875,20 @@ void IGraphicsSkia::SetClipRegion(const IRECT& r)
   mCanvas->clipRect(SkiaRect(r));
 }
 
-APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale)
+APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
 {
   sk_sp<SkSurface> surface;
   
   #ifndef IGRAPHICS_CPU
   SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-  surface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
+  if (cacheable)
+  {
+    surface = SkSurface::MakeRasterN32Premul(width, height);
+  }
+  else
+  {
+    surface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
+  }
   #else
   surface = SkSurface::MakeRasterN32Premul(width, height);
   #endif

@@ -87,7 +87,7 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
   
-  void InformHostOfProgramChange() override { }; //NA
+  void InformHostOfPresetChange() override { }; //NA
   
   bool EditorResize(int viewWidth, int viewHeight) override;
   
@@ -119,6 +119,7 @@ private:
   AAX_ITransport* mTransport = nullptr;
   WDL_PtrList<WDL_String> mParamIDs;
   IMidiQueue mMidiOutputQueue;
+  int mMaxNChansForMainInputBus = 0;
 };
 
 IPlugAAX* MakePlug(const InstanceInfo& info);

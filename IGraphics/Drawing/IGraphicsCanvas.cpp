@@ -354,7 +354,7 @@ APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* fileNameOrResID, int scale
   return new Bitmap(GetPreloadedImages()[fileNameOrResID], fileNameOrResID + 1, scale);
 }
 
-APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, double drawScale)
+APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
 {
   return new Bitmap(width, height, scale, drawScale);
 }

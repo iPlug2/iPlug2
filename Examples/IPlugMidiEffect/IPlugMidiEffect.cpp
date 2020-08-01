@@ -3,7 +3,7 @@
 #include "IControls.h"
 
 IPlugMidiEffect::IPlugMidiEffect(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
+: Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   

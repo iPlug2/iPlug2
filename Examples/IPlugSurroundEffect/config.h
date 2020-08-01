@@ -28,6 +28,7 @@
 #define PLUG_HEIGHT 600
 #define PLUG_FPS 60
 #define PLUG_SHARED_RESOURCES 0
+#define PLUG_HOST_RESIZE 0
 
 #define AUV2_ENTRY IPlugSurroundEffect_Entry
 #define AUV2_ENTRY_STR "IPlugSurroundEffect_Entry"
@@ -35,20 +36,19 @@
 #define AUV2_VIEW_CLASS IPlugSurroundEffect_View
 #define AUV2_VIEW_CLASS_STR "IPlugSurroundEffect_View"
 
-#define AAX_TYPE_IDS 'EFN1', 'EFN2'
-#define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'
+#define AAX_TYPE_IDS 'IPS1', 'IPS2', 'IPS3', 'IPS4'
+#define AAX_TYPE_IDS_AUDIOSUITE 'IPA1', 'IPA2', 'IPA3', 'IPA4'
 #define AAX_PLUG_MFR_STR "Acme"
-#define AAX_PLUG_NAME_STR "IPlugSurroundEffect\nIPEF"
-#define AAX_PLUG_CATEGORY_STR "Effect"
+#define AAX_PLUG_NAME_STR "IPlugSurroundEffect\nIPSE"
+#define AAX_PLUG_CATEGORY_STR "SoundField"
 #define AAX_DOES_AUDIOSUITE 1
 
-#define VST3_SUBCATEGORY "Fx"
+#define VST3_SUBCATEGORY "Fx|Spatial"
 
 #define APP_NUM_CHANNELS 2
 #define APP_N_VECTOR_WAIT 0
 #define APP_MULT 1
 #define APP_COPY_AUV3 0
-#define APP_RESIZABLE 0
 #define APP_SIGNAL_VECTOR_SIZE 64
 
 #define ROBOTO_FN "Roboto-Regular.ttf"

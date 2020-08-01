@@ -34,6 +34,27 @@
     return true;
   }
   #endif
+
+  UINT(WINAPI *__GetDpiForWindow)(HWND);
+
+  int GetScaleForHWND(HWND hWnd)
+  {
+    if (!__GetDpiForWindow)
+    {
+      HINSTANCE h = LoadLibraryA("user32.dll");
+      if (h) *(void **)&__GetDpiForWindow = GetProcAddress(h, "GetDpiForWindow");
+
+      if (!__GetDpiForWindow)
+        return 1;
+    }
+
+    int dpi = __GetDpiForWindow(hWnd);
+    if (dpi != USER_DEFAULT_SCREEN_DPI)
+      return static_cast<int>(std::round(static_cast<double>(dpi) / USER_DEFAULT_SCREEN_DPI));
+
+    return 1;
+  }
+
 #endif
 
 #pragma mark - ** Global Functions and Defines **
@@ -314,7 +335,7 @@ Steinberg::FUnknown* MakeProcessor()
 
 static Config MakeConfig(int nParams, int nPresets)
 {
-  return Config(nParams, nPresets, PLUG_CHANNEL_IO, PUBLIC_NAME, "", PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, PLUG_LATENCY, PLUG_DOES_MIDI_IN, PLUG_DOES_MIDI_OUT, PLUG_DOES_MPE, PLUG_DOES_STATE_CHUNKS, PLUG_TYPE, PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT, BUNDLE_ID);
+  return Config(nParams, nPresets, PLUG_CHANNEL_IO, PUBLIC_NAME, "", PLUG_MFR, PLUG_VERSION_HEX, PLUG_UNIQUE_ID, PLUG_MFR_ID, PLUG_LATENCY, PLUG_DOES_MIDI_IN, PLUG_DOES_MIDI_OUT, PLUG_DOES_MPE, PLUG_DOES_STATE_CHUNKS, PLUG_TYPE, PLUG_HAS_UI, PLUG_WIDTH, PLUG_HEIGHT, PLUG_HOST_RESIZE, PLUG_MIN_WIDTH, PLUG_MAX_WIDTH, PLUG_MIN_HEIGHT, PLUG_MAX_HEIGHT, BUNDLE_ID);
 }
 
 END_IPLUG_NAMESPACE

@@ -28,6 +28,11 @@
 #define PLUG_HEIGHT 768
 #define PLUG_FPS 60
 #define PLUG_SHARED_RESOURCES 0
+#define PLUG_HOST_RESIZE 1
+#define PLUG_MIN_WIDTH 512
+#define PLUG_MIN_HEIGHT 512
+#define PLUG_MAX_WIDTH 2048
+#define PLUG_MAX_HEIGHT 2048
 
 #define AUV2_ENTRY IPlugResponsiveUI_Entry
 #define AUV2_ENTRY_STR "IPlugResponsiveUI_Entry"
@@ -35,12 +40,12 @@
 #define AUV2_VIEW_CLASS IPlugResponsiveUI_View
 #define AUV2_VIEW_CLASS_STR "IPlugResponsiveUI_View"
 
-#define AAX_TYPE_IDS 'EFN1', 'EFN2'
-#define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'
+#define AAX_TYPE_IDS 'IPRU'
+#define AAX_TYPE_IDS_AUDIOSUITE 'IPRA'
 #define AAX_PLUG_MFR_STR "Acme"
 #define AAX_PLUG_NAME_STR "IPlugResponsiveUI\nIPEF"
 #define AAX_PLUG_CATEGORY_STR "Effect"
-#define AAX_DOES_AUDIOSUITE 1
+#define AAX_DOES_AUDIOSUITE 0
 
 #define VST3_SUBCATEGORY "Fx"
 
@@ -48,7 +53,6 @@
 #define APP_N_VECTOR_WAIT 0
 #define APP_MULT 0.25
 #define APP_COPY_AUV3 0
-#define APP_RESIZABLE 1
 #define APP_SIGNAL_VECTOR_SIZE 64
 
 #define ROBOTO_FN "Roboto-Regular.ttf"
