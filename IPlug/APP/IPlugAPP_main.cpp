@@ -117,7 +117,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
             break; // not a child, exit
         }
       }
-      while (temphwnd = GetParent(temphwnd));
+      while ( (temphwnd = GetParent(temphwnd)) != NULL );
       
       if (hWndParent && IsDialogMessage(hWndParent,&msg))
         continue;

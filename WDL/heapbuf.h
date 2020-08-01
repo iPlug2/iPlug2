@@ -177,7 +177,7 @@ class WDL_HeapBuf
                 void *nbuf=realloc(m_buf,newalloc);
                 if (!nbuf)
                 {
-                  if (!(nbuf=malloc(newalloc))) 
+                  if ( ( nbuf = malloc(newalloc) ) == 0 ) 
                   {
                     #ifdef WDL_HEAPBUF_ONMALLOCFAIL
                       WDL_HEAPBUF_ONMALLOCFAIL(newalloc);
