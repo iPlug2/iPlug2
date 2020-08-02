@@ -1023,6 +1023,8 @@ public:
   }
   
 protected:
+  virtual ~IVectorBase() = default;
+
   IControl* mControl = nullptr;
   IVStyle mStyle; // IVStyle that defines certain common properties of an IVControl
   bool mLabelInWidget = false; // Should the Label text be displayed inside the widget
@@ -1127,6 +1129,8 @@ public:
   }
   
 protected:
+  virtual ~IMultiTouchControlBase() = default;
+
   static constexpr int MAX_TOUCHES = 10;
   std::unordered_map<ITouchID, TrackedTouch> mTrackedTouches;
   bool mTouchStatus[MAX_TOUCHES] = { 0 };
