@@ -363,7 +363,10 @@ void IGraphicsSkia::DrawResize()
   #endif
 #endif
   if (mSurface)
+  {
     mCanvas = mSurface->getCanvas();
+    mCanvas->save();
+  }
 }
 
 void IGraphicsSkia::BeginFrame()
@@ -769,7 +772,6 @@ void IGraphicsSkia::RenderPath(SkPaint& paint)
 
 void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
 {
-  double scale = GetScreenScale() * GetDrawScale();
   double xTranslate = 0.0;
   double yTranslate = 0.0;
     
@@ -785,18 +787,22 @@ void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
   }
 
   mMatrix = SkMatrix::MakeAll(m.mXX, m.mXY, m.mTX, m.mYX, m.mYY, m.mTY, 0, 0, 1);
-  SkMatrix globalMatrix = SkMatrix::MakeScale(scale);
-  SkMatrix skMatrix = mMatrix;
+  SkMatrix globalMatrix = SkMatrix::MakeScale(GetTotalScale());
+  mClipMatrix = SkMatrix();
+  mFinalMatrix = mMatrix;
   globalMatrix.preTranslate(xTranslate, yTranslate);
-  skMatrix.postConcat(globalMatrix);
-  mCanvas->setMatrix(skMatrix);
+  mClipMatrix.postConcat(globalMatrix);
+  mFinalMatrix.postConcat(globalMatrix);
+  mCanvas->setMatrix(mFinalMatrix);
 }
 
 void IGraphicsSkia::SetClipRegion(const IRECT& r)
 {
-  mCanvas->restore();
+  mCanvas->restoreToCount(0);
   mCanvas->save();
+  mCanvas->setMatrix(mClipMatrix);
   mCanvas->clipRect(SkiaRect(r));
+  mCanvas->setMatrix(mFinalMatrix);
 }
 
 APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
@@ -816,7 +822,9 @@ APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, doub
   #else
   surface = SkSurface::MakeRasterN32Premul(width, height);
   #endif
-  
+
+  surface->getCanvas()->save();
+
   return new Bitmap(std::move(surface), width, height, scale, drawScale);
 }
 
