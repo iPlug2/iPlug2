@@ -138,6 +138,8 @@ private:
   SkCanvas* mCanvas = nullptr;
   SkPath mMainPath;
   SkMatrix mMatrix;
+  SkMatrix mClipMatrix;
+  SkMatrix mFinalMatrix;
 
 #if defined OS_WIN && defined IGRAPHICS_CPU
   WDL_TypedBuf<uint8_t> mSurfaceMemory;
