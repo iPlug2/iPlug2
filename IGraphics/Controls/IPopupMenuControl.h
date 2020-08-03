@@ -95,6 +95,27 @@ public:
   virtual void DrawDownArrow(IGraphics& g, const IRECT& bounds, bool sel, IBlend* pBlend);
   /** Override this method to change the way a cell separator is drawn  */
   virtual void DrawSeparator(IGraphics& g, const IRECT& bounds, IBlend* pBlend);
+  
+  /** Call this to set the Callout Arrow color */
+  void SetCalloutArrowColor(IColor color) { mCalloutArrowColor = color; }
+  /** Call this to set the Panel color */
+  void SetPanelColor(IColor color) { mPanelBackgroundColor = color; }
+  /** Call this to set the Cell color when mouse is over it */
+  void SetCellBackgroundColor(IColor color) { mCellBackGroundColor = color; }
+  /** Call this to set the mouseover color for text, tick, and arrows on menu panels*/
+  void SetItemMouseoverColor(IColor color) { mItemMouseoverColor = color; }
+  /** Call this to set the color of enabled text items, ticks and arrows on menu panels*/
+  void SetItemColor(IColor color) { mItemColor = color; }
+  /** Call this to set the text color of disabled items on menu panels */
+  void SetDisabledItemColor(IColor color) { mDisabledItemColor = color; }
+  /** Call this to set the Separator color on menu panels */
+  void SetSeparatorColor(IColor color) { mSeparatorColor = color; }
+  /** Sets the amount the main menu is shifted to make room for submenus. This helps on small GUI's where submenus will intrude upon the main menu.
+   * This does not affect the positioning of menus that do not contain submenus.
+   * @param distance The distance in pixels to shift the main menu. Use negative numbers for shift to left - positive for shift to right. */
+  void SetShiftForSubmenus(float distance) { mMenuShift = distance; }
+  /** If set true, the menu (kNorth) is forced to appear below it's control(kSouth) when it would normally be above - only if there is room for it. */
+  void SetMenuForcedSouth(bool isForcedSouth) { mForcedSouth = isForcedSouth;}
 
   /** Call this to create a pop-up menu
    * @param menu Reference to a menu from which to populate this user interface control. NOTE: this object should not be a temporary, otherwise when the menu returns asynchronously, it may not exist.
@@ -187,12 +208,15 @@ private:
   int mMaxColumnItems = 0; // How long the list can get before adding a new column - 0 equals no limit
   bool mScrollIfTooBig = true; // If the menu is higher than the graphics context, should it scroll or should it start a new column
   bool mCallOut = false; // set true if popup should be outside of bounds (i.e. on a tablet touchscreen interface)
+  bool mMenuHasSubmenu = false; // Gets automatically set to true in CreatePopupMenu() if *mMenu contains any submenus... false if not.
+  bool mForcedSouth = false; // if set true, a menu in the lower half of the GUI will appear below it's control if there is enough room for it.
 
   float mCellGap = 2.f; // The gap between cells in pixels
   float mSeparatorSize = 2.; // The size in pixels of a separator. This could be width or height
   float mRoundness = 5.f; // The roundness of the corners of the menu panel backgrounds
   float mDropShadowSize = 10.f; // The size in pixels of the drop shadow
   float mOpacity = 0.95f; // The opacity of the menu panel backgrounds when fully faded in
+  float mMenuShift = 0.f; // The distance in pixels the main menu is shifted to make room for submenus (only if one exist). Set by SetShiftForSubmenus()
 
   const float TEXT_HPAD = 5.; // The amount of horizontal padding on either side of cell text in pixels
   const float TICK_SIZE = 10.; // The size of the area on the left of the cell where a tick mark appears on checked items - actual
@@ -204,6 +228,14 @@ private:
   IRECT mCalloutArrowBounds;
 
   IRECT mMaxBounds; // if view is only showing a part of the graphics context, we need to know because menus can't go there
+  
+  IColor mCalloutArrowColor = COLOR_WHITE;
+  IColor mPanelBackgroundColor = COLOR_WHITE;
+  IColor mCellBackGroundColor = COLOR_BLUE;
+  IColor mItemMouseoverColor = COLOR_WHITE;
+  IColor mItemColor = COLOR_BLACK;
+  IColor mDisabledItemColor = COLOR_GRAY;
+  IColor mSeparatorColor = COLOR_MID_GRAY;
 
 protected:
   IRECT mSpecifiedCollapsedBounds;
