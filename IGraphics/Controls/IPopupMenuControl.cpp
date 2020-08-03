@@ -271,34 +271,34 @@ void IPopupMenuControl::DrawCalloutArrow(IGraphics& g, const IRECT& bounds, IBle
   switch (mCalloutArrowDir) {
     case kNorth:
       ax = bounds.MW() - halftri;
-      ay = bounds.MH() + halftri;
-      bx = ax + trisize;
-      by = ay;
-      cx = bounds.MW();
-      cy = ay - trisize;
-      break;
-    case kEast:
-      ax = bounds.MW() - halftri;
-      ay = bounds.MH() + halftri;
-      bx = ax;
-      by = ay - trisize;
-      cx = ax + trisize;
-      cy = bounds.MH();
-      break;
-    case kSouth:
-      ax = bounds.MW() - halftri;
       ay = bounds.MH() - halftri;
       bx = ax + trisize;
       by = ay;
       cx = bounds.MW();
       cy = ay + trisize;
       break;
-    case kWest:
+    case kEast:
       ax = bounds.MW() + halftri;
       ay = bounds.MH() + halftri;
       bx = ax;
       by = ay - trisize;
       cx = ax - trisize;
+      cy = bounds.MH();
+      break;
+    case kSouth:
+      ax = bounds.MW() - halftri;
+      ay = bounds.MH() + halftri;
+      bx = ax + trisize;
+      by = ay;
+      cx = bounds.MW();
+      cy = ay - trisize;
+      break;
+    case kWest:
+      ax = bounds.MW() - halftri;
+      ay = bounds.MH() + halftri;
+      bx = ax;
+      by = ay - trisize;
+      cx = ax + trisize;
       cy = bounds.MH();
       break;
     default:
