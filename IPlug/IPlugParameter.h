@@ -304,7 +304,7 @@ public:
    * @param value The new default value */
   void SetDefault(double value) { mDefault = value; SetToDefault(); }
 
-  /** Set some text to display for a particular value, e.g. -70dB could display "-inf".
+  /** Set some text to display for a particular value, e.g. -70dB could display "-inf"
    * @param value The value for which to display the text
    * @param str CString text to display at value */
   void SetDisplayText(double value, const char* str);
@@ -329,7 +329,8 @@ public:
    * @return \c true if value >= 0.5, else otherwise */
   bool Bool() const { return (mValue.load() >= 0.5); }
 
-  /** @return Current value of the parameter as an integer */
+  /** Returns the parameter's value as an integer
+  @return Current value of the parameter as an integer */
   int Int() const { return static_cast<int>(mValue.load()); }
   
   /** Gain based on parameter's current value in dB
@@ -402,7 +403,7 @@ public:
   /** Get the value of a particular display text 
    * @param str The display text to look up
    * @param pValue The value linked to the display text will be put here
-   * @return /c true if str matched a display text */
+   * @return \c true if str matched a display text */
   bool MapDisplayText(const char* str, double* pValue) const;
   
   /** Get the parameter's type
@@ -425,10 +426,12 @@ public:
    * @return double The parameter's default value  */
   double GetDefault(bool normalized = false) const { return normalized ? ToNormalized(GetDefault()) : mDefault; }
   
-  /** @return The minimum real value of the parameter's range */
+  /** Returns the parameter's minimum value
+   * @return The minimum real value of the parameter's range */
   double GetMin() const { return mMin; }
 
-  /** @return The maximum real value of the parameter's range */
+  /** Returns the parameter's maximum value
+   * @return The maximum real value of the parameter's range */
   double GetMax() const { return mMax; }
   
   /** Get the minimum and maximum real value of the parameter's range in one method call
@@ -436,35 +439,39 @@ public:
    * @param hi The maximum value will be put here */
   void GetBounds(double& lo, double& hi) const;
 
-  /** @return double The difference between the parameter's maximum and minimum bounds */
+  /** Returns the parameter's range
+   * @return double The difference between the parameter's maximum and minimum bounds */
   double GetRange() const { return mMax - mMin; }
 
-  /** @return The parameter's step size */
+  /** Returns the parameter's step size
+   * @return The parameter's step size */
   double GetStep() const { return mStep; }
 
-  /** @return int The number of decimal places that should be used to display the parameter's real value */
+  /** Returns the parameter's precision
+   * @return int The number of decimal places that should be used to display the parameter's real value */
   int GetDisplayPrecision() const {return mDisplayPrecision;}
   
-  /** @return int The parameter's flags as an integer */
+  /** Returns the parameter's flags
+   * @return int The parameter's flags as an integer */
   int GetFlags() const { return mFlags; }
 
-  /** @return /c true If the parameter should be automateable  */
+  /** @return \c true If the parameter should be automateable  */
   bool GetCanAutomate() const { return !(mFlags & kFlagCannotAutomate); }
 
-  /** @return /c true If the parameter should be discrete (stepped)  */
+  /** @return \c true If the parameter should be discrete (stepped)  */
   bool GetStepped() const { return mFlags & kFlagStepped; }
 
-  /** @return /c true If the parameter should be displayed as a negative value */
+  /** @return \c true If the parameter should be displayed as a negative value */
   bool GetNegateDisplay() const { return mFlags & kFlagNegateDisplay; }
 
-  /** @return /c true If the parameter should be displayed as a signed value */
+  /** @return \c true If the parameter should be displayed as a signed value */
   bool GetSignDisplay() const { return mFlags & kFlagSignDisplay; }
 
-  /** @return /c true If the parameter is flagged as a "meta" parameter, e.g. one that could modify other parameters */
+  /** @return \c true If the parameter is flagged as a "meta" parameter, e.g. one that could modify other parameters */
   bool GetMeta() const { return mFlags & kFlagMeta; }
  
   /** Get a JSON description of the parameter. 
-   * @param json /c WDL_String to fill with the JSON 
+   * @param json WDL_String to fill with the JSON
    * @param idx Index of the parameter, to place in the JSON */
   void GetJSON(WDL_String& json, int idx) const;
 
