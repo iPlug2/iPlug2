@@ -65,7 +65,8 @@ public:
 
   // IEditorDelegate
   void DirtyParametersFromUI() override;
-  
+  void SendParameterValueFromUI(int paramIdx, double normalisedValue) override;
+
   // IPlugProcessor
   void SetLatency(int samples) override;
   
