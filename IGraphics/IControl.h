@@ -454,7 +454,7 @@ public:
   /** @return A const pointer to the IGraphics context that owns this control */
   const IGraphics* GetUI() const { return mGraphics; }
 
-  /* This can be used in IControl::Draw() to check if the mouse is over the control, without implementing mouse over methods 
+  /** This can be used in IControl::Draw() to check if the mouse is over the control, without implementing mouse over methods. Note that this method is only enabled if IGraphics::EnableMouseOver() is set to \c true  
    * @return \true if the mouse is over this control. */
   bool GetMouseIsOver() const { return mMouseIsOver; }
   
