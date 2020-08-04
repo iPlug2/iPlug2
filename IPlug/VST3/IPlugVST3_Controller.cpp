@@ -43,7 +43,8 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
     Initialize(this, parameters, mPlugIsInstrument, mDoesMidiIn);
     IPlugVST3GetHost(this, context);
     OnHostIdentified();
-
+    OnParamReset(kReset);
+    
     return kResultTrue;
   }
 
