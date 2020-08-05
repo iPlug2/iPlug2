@@ -116,6 +116,7 @@ private:
 
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, void* pData, int dataSize) override;
   void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override;
 
   inline IMouseInfo GetMouseInfo(LPARAM lParam, WPARAM wParam);

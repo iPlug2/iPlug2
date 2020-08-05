@@ -10,6 +10,7 @@
 
 #include <cstring>
 #include <cstdio>
+#include <cstdint>
 #include <emscripten/key_codes.h>
 
 #include "IGraphicsWeb.h"
@@ -95,6 +96,25 @@ IFontDataPtr IGraphicsWeb::FileFont::GetFontData()
   
   return fontData;
 }
+
+class IGraphicsWeb::MemoryFont : public Font
+{
+public:
+  MemoryFont(const char* fontName, const char* fontStyle, const void* pData, int dataSize)
+  : Font(fontName, fontStyle)
+  {
+    mSystem = false;
+    mData.Set((const uint8_t*)pData, dataSize);
+  }
+
+  IFontDataPtr GetFontData() override
+  {
+    return IFontDataPtr(new IFontData(mData.Get(), mData.GetSize(), 0));
+  }
+
+private:
+  WDL_TypedBuf<uint8_t> mData;
+};
 
 #pragma mark - Utilities and Callbacks
 
@@ -882,6 +902,11 @@ PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* f
   const char* styles[] = { "normal", "bold", "italic" };
   
   return PlatformFontPtr(new Font(fontName, styles[static_cast<int>(style)]));
+}
+
+PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, void* pData, int dataSize)
+{
+  return PlatformFontPtr(new MemoryFont(fontID, "", pData, dataSize));
 }
 
 #if defined IGRAPHICS_CANVAS

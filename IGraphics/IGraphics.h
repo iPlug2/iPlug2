@@ -483,6 +483,13 @@ public:
    * @param fileNameOrResID A CString absolute path or resource ID
    * @return \c true on success */
   virtual bool LoadFont(const char* fontID, const char* fileNameOrResID);
+
+  /** Load a font from in-memory data to be used by the graphics context
+   * @param fontID A CString that will be used to reference the font
+   * @param pData Pointer to the font data in memory
+   * @param dataSize Size (in bytes) of data at \c pData
+   * @return \c true on success */
+  virtual bool LoadFont(const char* fontID, void* pData, int dataSize);
     
   /** \todo
    * @param fontID A CString that will be used to reference the font
@@ -872,6 +879,13 @@ public:
    * @param fileNameOrResID A resource or file name/path
    * @return PlatformFontPtr from which the platform font can be retrieved */
   virtual PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) = 0;
+
+  /** Load a font from data in memory.
+   * @param fontID A CString that is used to reference the font
+   * @param pData Pointer to font data in memory
+   * @param dataSize Size (in bytes) of data at \c pData
+   * @return PlatformFontPtr from which the platform font may be retrieved */
+  virtual PlatformFontPtr LoadPlatformFont(const char* fontID, void* pData, int dataSize) = 0;
   
   /** Load a system font in a platform format.
    * @param fontID  A string that is used to reference the font
@@ -1505,10 +1519,35 @@ public:
    * @return An IBitmap representing the image */
   virtual IBitmap LoadBitmap(const char* fileNameOrResID, int nStates = 1, bool framesAreHorizontal = false, int targetScale = 0);
 
+  /** Load a bitmap image from memory
+   * @param name CString name to associate with the bitmap, must include a file extension
+   * @param pData pointer to the bitmap file data
+   * @param dataSize size of the data at \c pData
+   * @param nStates The number of states/frames in a multi-frame stacked bitmap
+   * @param framesAreHorizontal Set \c true if the frames in a bitmap are stacked horizontally
+   * @param targetScale Set \c to a number > 0 to explicity load e.g. an @2x.png
+   * @return An IBitmap representing the image */
+  virtual IBitmap LoadBitmap(const char *name, const void* pData, int dataSize, int nStates = 1, bool framesAreHorizontal = false, int targetScale = 0);
+
   /** Load an SVG from disk or from windows resource
    * @param fileNameOrResID A CString absolute path or resource ID
    * @return An ISVG representing the image */
   virtual ISVG LoadSVG(const char* fileNameOrResID, const char* units = "px", float dpi = 72.f);
+
+  /** Load an SVG image from memory
+   * @param name CString name to associate with the SVG
+   * @param pData Pointer to the SVG file data
+   * @param dataSize Size (in bytes) of the data at \c pData
+   * @param units /todo
+   * @param dpi /todo
+   * @return An ISVG representing the image */
+  virtual ISVG LoadSVG(const char* name, const void* pData, int dataSize, const char* units = "px", float dpi = 72.f);
+
+  /** Load a resource from the file system, the bundle, or a Windows resource, and returns its data
+   * @param fileNameOrResID CString file name or resource ID
+   * @param fileType Type of the file (e.g "png", "svg", "ttf")
+   * @return A WDL_TypedBuf containing the data, or with a length of 0 if the resource was not found */
+  virtual WDL_TypedBuf<uint8_t> LoadResource(const char* fileNameOrResID, const char* fileType);
 
   /** Registers a gesture recognizer with the graphics context
    * @param type The type of gesture recognizer */
@@ -1531,6 +1570,8 @@ protected:
    * @param ext /todo
    * @return APIBitmap* /todo */
   virtual APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) = 0;
+
+  virtual APIBitmap* LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale) = 0;
 
   /** Creates a new API bitmap, either in memory or as a GPU texture
    * @param width The desired width
