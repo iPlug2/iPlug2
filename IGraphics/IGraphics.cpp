@@ -1507,6 +1507,7 @@ void IGraphics::EnableLiveEdit(bool enable)
 #endif
 }
 
+// Skia has its own implementation for SVGs. On all other platforms we use NanoSVG, because it works.
 #ifdef IGRAPHICS_SKIA
 ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
@@ -1515,41 +1516,36 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
   
   if(!pHolder)
   {
-    WDL_String path;
-    EResourceLocation resourceFound = LocateResource(fileName, "svg", path, GetBundleID(), GetWinModuleHandle(), GetSharedResourcesSubPath());
-    
-    if (resourceFound == EResourceLocation::kNotFound)
-      return ISVG(nullptr); // return invalid SVG
-    
+    WDL_TypedBuf<uint8_t> svgData = LoadResource(fileName, "svg");
+    if (svgData.GetSize() == 0)
+    {
+      return ISVG(nullptr);
+    }
+    else
+    {
+      return LoadSVG(fileName, svgData.Get(), svgData.GetSize(), units, dpi);
+    }
+  }
+  
+  return ISVG(pHolder->mSVGDom);
+}
+
+ISVG IGraphics::LoadSVG(const char* name, const void* pData, int dataSize, const char* units, float dpi)
+{
+  StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
+  SVGHolder* pHolder = storage.Find(name);
+
+  if (!pHolder)
+  {
     sk_sp<SkSVGDOM> svgDOM;
     bool success = false;
     SkDOM xmlDom;
 
-#ifdef OS_WIN
-    if (resourceFound == EResourceLocation::kWinBinary)
-    {
-      int size = 0;
-      const void* pResData = LoadWinResource(path.Get(), "svg", size, GetWinModuleHandle());
-
-      if (pResData)
-      {
-        SkMemoryStream svgStream(pResData, size);
-        success = xmlDom.build(svgStream) != nullptr;
-      }
-    }
-#endif
-
-    if (resourceFound == EResourceLocation::kAbsolutePath)
-    {
-      SkFILEStream svgStream(path.Get());
-
-      if(svgStream.isValid())
-        success = xmlDom.build(svgStream) != nullptr;
-    }
+    SkMemoryStream svgStream(pData, dataSize);
+    success = xmlDom.build(svgStream) != nullptr;
 
     if (success)
       svgDOM = SkSVGDOM::MakeFromDOM(xmlDom);
-
     success = svgDOM != nullptr;
 
     if (!success)
@@ -1561,23 +1557,9 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     {
       NSVGimage* pImage = nullptr;
 
-      if (resourceFound == EResourceLocation::kAbsolutePath)
-      {
-        pImage = nsvgParseFromFile(path.Get(), units, dpi);
-      }
-      #ifdef OS_WIN
-      else if (resourceFound == EResourceLocation::kWinBinary)
-      {
-        int size = 0;
-        const void* pResData = LoadWinResource(path.Get(), "svg", size, GetWinModuleHandle());
-
-        if (pResData)
-        {
-          WDL_String svgStr{ static_cast<const char*>(pResData) };
-          pImage = nsvgParse(svgStr.Get(), units, dpi);
-        }
-      }
-      #endif
+      WDL_String svgStr;
+      svgStr.Set((const char*)pData, dataSize);
+      pImage = nsvgParse(svgStr.Get(), units, dpi);
       
       assert(pImage);
 
@@ -1587,12 +1569,12 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     }
 
     pHolder = new SVGHolder(svgDOM);
-    
-    storage.Add(pHolder, path.Get());
+    storage.Add(pHolder, name);
   }
-  
+
   return ISVG(pHolder->mSVGDom);
 }
+
 #else
 ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
@@ -1601,47 +1583,99 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 
   if(!pHolder)
   {
-    WDL_String path;
-    EResourceLocation resourceFound = LocateResource(fileName, "svg", path, GetBundleID(), GetWinModuleHandle(), GetSharedResourcesSubPath());
+    WDL_TypedBuf<uint8_t> svgData = LoadResource(fileName, "svg");
+    if (svgData.GetSize() == 0)
+    {
+      return ISVG(nullptr);
+    }
+    else
+    {
+      return LoadSVG(fileName, svgData.Get(), svgData.GetSize(), units, dpi);
+    }
+  }
 
-    if (resourceFound == EResourceLocation::kNotFound)
-      return ISVG(nullptr); // return invalid SVG
+  return ISVG(pHolder->mImage);
+}
 
+ISVG IGraphics::LoadSVG(const char* name, const void* pData, int dataSize, const char* units, float dpi)
+{
+  StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
+  SVGHolder* pHolder = storage.Find(name);
+
+  if (!pHolder)
+  {
     NSVGimage* pImage = nullptr;
 
-#ifdef OS_WIN    
-    if (resourceFound == EResourceLocation::kWinBinary)
-    {
-      int size = 0;
-      const void* pResData = LoadWinResource(path.Get(), "svg", size, GetWinModuleHandle());
+    // Because we're taking a const void* pData, but NanoSVG takes a void*, 
+    WDL_String svgStr;
+    svgStr.Set((const char*)pData, dataSize);
+    pImage = nsvgParse(svgStr.Get(), units, dpi);
 
-      if (pResData)
-      {
-        WDL_String svgStr{ static_cast<const char*>(pResData) };
-
-        pImage = nsvgParse(svgStr.Get(), units, dpi);
-      }
-      else
-        return ISVG(nullptr); // return invalid SVG
-    }
-#endif
-
-    if (resourceFound == EResourceLocation::kAbsolutePath)
-    {
-      pImage = nsvgParseFromFile(path.Get(), units, dpi);
-
-      if(!pImage)
-        return ISVG(nullptr); // return invalid SVG
-    }
-
-    pHolder = new SVGHolder(pImage);
+    if (!pImage)
+      return ISVG(nullptr);
     
-    storage.Add(pHolder, path.Get());
+    pHolder = new SVGHolder(pImage);
+
+    storage.Add(pHolder, name);
   }
 
   return ISVG(pHolder->mImage);
 }
 #endif
+
+WDL_TypedBuf<uint8_t> IGraphics::LoadResource(const char* fileNameOrResID, const char* fileType)
+{
+  WDL_TypedBuf<uint8_t> result;
+
+  WDL_String path;
+  EResourceLocation resourceFound = LocateResource(fileNameOrResID, fileType, path, GetBundleID(), GetWinModuleHandle(), GetSharedResourcesSubPath());
+
+  if (resourceFound == EResourceLocation::kNotFound)
+    return result;
+
+#ifdef OS_WIN    
+  if (resourceFound == EResourceLocation::kWinBinary)
+  {
+    int size = 0;
+    const void* pResData = LoadWinResource(path.Get(), fileType, size, GetWinModuleHandle());
+    result.Resize(size);
+    result.Set((const uint8_t*)pResData, size);
+  }
+#endif
+  if (resourceFound == EResourceLocation::kAbsolutePath)
+  {
+    FILE* fd = fopen(path.Get(), "rb");
+    if (!fd)
+      return result;
+    
+    // First we determine the file size
+    if (fseek(fd, 0, SEEK_END))
+    {
+      fclose(fd);
+      return result;
+    }
+    long size = ftell(fd);
+
+    // Now reset to the start of the file so we can actually read it.
+    if (fseek(fd, 0, SEEK_SET))
+    {
+      fclose(fd);
+      return result;
+    }
+
+    result.Resize((int)size);
+    size_t bytesRead = fread(result.Get(), 1, (size_t)size, fd);
+    if (bytesRead != (size_t)size)
+    {
+      fclose(fd);
+      result.Resize(0, true);
+      return result;
+    }
+    fclose(fd);
+  }
+
+  return result;
+}
 
 IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {
@@ -1705,7 +1739,58 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
   return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
 }
 
-void IGraphics::ReleaseBitmap(const IBitmap& bitmap)
+IBitmap IGraphics::LoadBitmap(const char *name, const void *pData, int dataSize, int nStates, bool framesAreHorizontal, int targetScale)
+{
+  if (targetScale == 0)
+    targetScale = GetScreenScale();
+
+  StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
+  APIBitmap* pAPIBitmap = storage.Find(name, targetScale);
+
+  // If the bitmap is not already cached at the targetScale
+  if (!pAPIBitmap)
+  {
+    WDL_String fullPath;
+    std::unique_ptr<APIBitmap> loadedBitmap;
+    int sourceScale = 0;
+    
+    const char* ext = name + strlen(name) - 1;
+    while (ext >= name && *ext != '.') --ext;
+    ++ext;
+    
+    bool bitmapTypeSupported = BitmapExtSupported(ext);
+    
+    if (!bitmapTypeSupported)
+      return IBitmap(); // return invalid IBitmap
+
+    // Seach the cache for an existing copy, maybe with a different scale
+    pAPIBitmap = SearchBitmapInCache(name, targetScale, sourceScale);
+    // It's definitely not loaded, so load it with scale = 1.
+    if (!pAPIBitmap)
+    {
+      loadedBitmap = std::unique_ptr<APIBitmap>(LoadAPIBitmap(name, pData, dataSize, 1));
+      pAPIBitmap= loadedBitmap.get();
+    }
+
+    // Protection from searching for non-existent bitmaps (e.g. typos in config.h or .rc)
+    // Also protects from invalid bitmap data.
+    assert(pAPIBitmap && "Bitmap not found");
+
+    // Scale or retain if needed (N.B. - scaling retains in the cache)
+    if (pAPIBitmap->GetScale() != targetScale)
+    {
+      return ScaleBitmap(IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name), name, targetScale);
+    }
+    else if (loadedBitmap)
+    {
+      RetainBitmap(IBitmap(loadedBitmap.release(), nStates, framesAreHorizontal, name), name);
+    }
+  }
+
+  return IBitmap(pAPIBitmap, nStates, framesAreHorizontal, name);
+}
+
+void IGraphics::ReleaseBitmap(const IBitmap &bitmap)
 {
   StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   storage.Remove(bitmap.GetAPIBitmap());
@@ -2045,6 +2130,23 @@ bool IGraphics::LoadFont(const char* fontID, const char* fileNameOrResID)
   }
   
   DBGMSG("Could not locate font %s\n", fileNameOrResID);
+  return false;
+}
+
+bool IGraphics::LoadFont(const char* fontID, void* pData, int dataSize)
+{
+  PlatformFontPtr font = LoadPlatformFont(fontID, pData, dataSize);
+
+  if (font)
+  {
+    if (LoadAPIFont(fontID, font))
+    {
+      CachePlatformFont(fontID, font);
+      return true;
+    }
+  }
+
+  DBGMSG("Could not load font %s\n", fontID);
   return false;
 }
 
