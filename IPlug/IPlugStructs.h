@@ -327,6 +327,65 @@ private:
   int mSize;
 };
 
+/** Helper class to maintain a read position whilst extracting data from an IByteChunk  */
+class IByteChunkReader
+{
+public:
+  IByteChunkReader(const IByteChunk& chunk, int startPos = 0)
+  : mChunk(chunk)
+  , mPos(startPos)
+  {
+  }
+  
+  /** Copy \c nBytesToCopy bytes from the managed IByteChunk into \c pBuf .
+   * @param pBuf Destination buffer
+   * @param nBytesToCopy Number of bytes to copy
+   * @return Next read position in the IByteChunk */
+  inline int GetBytes(void* pBuf, int nBytesToCopy)
+  {
+    mPos = mChunk.GetBytes(pBuf, nBytesToCopy, mPos);
+    return mPos;
+  }
+  
+  /** Copy arbitary typed data out of the managed IByteChunk at the current position and update the position
+   * @tparam T type of the variable to get
+   * @param pDst Pointer to the destination where the value will be stored
+   * @return int Next read position in the IByteChunk */
+  template <class T>
+  inline int Get(T* pDst)
+  {
+    mPos = mChunk.Get(pDst, mPos);
+    return mPos;
+  }
+  
+  /** Retrieve a string from the managed IByteChunk and put it in \c str .
+   * @param str Destination for the string
+   * @return int Next read position in the IByteChunk */
+  inline int GetStr(WDL_String& str)
+  {
+    mPos = mChunk.GetStr(str, mPos);
+    return mPos;
+  }
+  
+  /** Return the current position in the managed IByteChunk
+   * @return The current position in the IByteChunk */
+  inline int Tell() const
+  {
+    return mPos;
+  }
+
+  /** Set the current position in the managed IByteChunk.
+   * @param pos The new IByteChunk position */
+  inline void Seek(int pos)
+  {
+    mPos = pos;
+  }
+
+private:
+  const IByteChunk& mChunk;
+  int mPos;
+};
+
 /** Helper struct to set compile time options to an API class constructor  */
 struct Config
 {
