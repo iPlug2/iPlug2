@@ -13,10 +13,10 @@ ContinuationIndentWidth: 4
 ConstructorInitializerIndentWidth: 2
 ObjCBlockIndentWidth: 2
 
-AccessModifierOffset: -3
+AccessModifierOffset: -2
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: false
+AlignConsecutiveDeclarations: true
 AlignConsecutiveMacros: true
 AlignEscapedNewlines: Left
 AlignOperands: true
@@ -26,9 +26,9 @@ AllowAllConstructorInitializersOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: true
-AllowShortFunctionsOnASingleLine: All
+AllowShortFunctionsOnASingleLine: Inline
 AllowShortLambdasOnASingleLine: All
-AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
@@ -37,22 +37,6 @@ AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBraces: Allman
-BraceWrapping:
-  AfterClass:            true
-  AfterControlStatement: true
-  AfterEnum:             true
-  AfterFunction:         true
-  AfterNamespace:        true
-  AfterObjCDeclaration:  true
-  AfterStruct:           true
-  AfterUnion:            true
-  AfterExternBlock:      true
-  BeforeCatch:           true
-  BeforeElse:            true
-  IndentBraces:          false
-  SplitEmptyFunction:    false
-  SplitEmptyRecord:      false
-  SplitEmptyNamespace:   false
 BreakBeforeBinaryOperators: None
 BreakBeforeInheritanceComma: false
 BreakBeforeTernaryOperators: true
@@ -67,15 +51,13 @@ ColumnLimit: 120
 CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 Cpp11BracedListStyle: true
-DeriveLineEnding: true
-DerivePointerAlignment: true
+DeriveLineEnding: false
+DerivePointerAlignment: false
 DisableFormat: false
 ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: true
 ForEachMacros:
   - foreach
-  - Q_FOREACH
-  - BOOST_FOREACH
 IncludeBlocks: Preserve
 IndentCaseLabels: true
 IndentGotoLabels: true
@@ -84,8 +66,8 @@ IndentWrappedFunctionNames: false
 JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: false
-#MacroBlockBegin: ''
-#MacroBlockEnd: ''
+MacroBlockBegin: "INCLUDE_.*_START"
+MacroBlockEnd: "INCLUDE_.*_END"
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: All
 ObjCBinPackProtocolList: Never
