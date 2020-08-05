@@ -10,6 +10,9 @@
 
 #pragma once
 
+#include "IPlugPlatform.h"
+
+
 #include <cstring>
 #include <cstdint>
 #include <ctime>
@@ -20,13 +23,13 @@
 #include <vector>
 
 #include "ptrlist.h"
-
-#include "IPlugPlatform.h"
 #include "IPlugConstants.h"
 #include "IPlugStructs.h"
 #include "IPlugUtilities.h"
-#include "NChanDelay.h"
 
+INCLUDE_DEPENDENCIES_START
+#include "NChanDelay.h"
+INCLUDE_DEPENDENCIES_END
 /**
  * @file
  * @copydoc IPlugProcessor

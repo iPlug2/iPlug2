@@ -3,67 +3,62 @@
  
  This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
  
- See LICENSE.txt for  more info.
+ See LICENSE.txt for more info.
  
  ==============================================================================
 */
 
-#pragma once
-
 /**
  * @file
- * @brief Include to get consistently named preprocessor macros for different platforms and logging functionality
+ * @brief Core include file. Should be included first
  */
 
-#ifdef _WIN32
-  #define OS_WIN
-#elif defined __APPLE__
-  #include <TargetConditionals.h>
-  #if TARGET_OS_IPHONE
-    #define OS_IOS
-  #elif TARGET_OS_MAC
-    #define OS_MAC
-  #endif
-#elif defined __linux || defined __linux__ || defined linux
-  #define OS_LINUX
-#elif defined EMSCRIPTEN
-  #define OS_WEB
-#else
-  #error "No OS defined!"
+#pragma once
+
+
+//---------------------------------------------------------
+// Configuration flags
+
+
+// Disable version checking when compiling
+#ifndef IPLUG_SKIP_CPP_VERSION_CHECK
+	#define IPLUG_SKIP_CPP_VERSION_CHECK 0
 #endif
 
-#if defined(_WIN64) || defined(__LP64__)
-  #define ARCH_64BIT
+// Bypass inclusion of system headers like windows.h
+#ifndef IPLUG_DONT_INCLUDE_PLATFORM_HEADER
+	#define IPLUG_DONT_INCLUDE_PLATFORM_HEADER 0
 #endif
 
-#if __cplusplus == 201402L
-#define IPLUG_CPP14
+// Enables extra compiler warnings
+#ifndef IPLUG_EXTENDED_COMPILER_WARNINGS
+	#define IPLUG_EXTENDED_COMPILER_WARNINGS 1
 #endif
 
-//these two components of the c standard library are used thoughtout IPlug/WDL 
-#include <cstring>
-#include <cstdlib>
+#include "Platform/Platform.h"
+
 
 #ifdef PARAMS_MUTEX
-  #define ENTER_PARAMS_MUTEX mParams_mutex.Enter(); Trace(TRACELOC, "%s", "ENTER_PARAMS_MUTEX");
-  #define LEAVE_PARAMS_MUTEX mParams_mutex.Leave(); Trace(TRACELOC, "%s", "LEAVE_PARAMS_MUTEX");
-  #define ENTER_PARAMS_MUTEX_STATIC _this->mParams_mutex.Enter(); Trace(TRACELOC, "%s", "ENTER_PARAMS_MUTEX");
-  #define LEAVE_PARAMS_MUTEX_STATIC _this->mParams_mutex.Leave(); Trace(TRACELOC, "%s", "LEAVE_PARAMS_MUTEX");
+	#define ENTER_PARAMS_MUTEX \
+		mParams_mutex.Enter(); \
+		Trace(TRACELOC, "%s", "ENTER_PARAMS_MUTEX");
+	#define LEAVE_PARAMS_MUTEX \
+		mParams_mutex.Leave(); \
+		Trace(TRACELOC, "%s", "LEAVE_PARAMS_MUTEX");
+	#define ENTER_PARAMS_MUTEX_STATIC \
+		_this->mParams_mutex.Enter(); \
+		Trace(TRACELOC, "%s", "ENTER_PARAMS_MUTEX");
+	#define LEAVE_PARAMS_MUTEX_STATIC \
+		_this->mParams_mutex.Leave(); \
+		Trace(TRACELOC, "%s", "LEAVE_PARAMS_MUTEX");
 #else
-  #define ENTER_PARAMS_MUTEX
-  #define LEAVE_PARAMS_MUTEX
-  #define ENTER_PARAMS_MUTEX_STATIC
-  #define LEAVE_PARAMS_MUTEX_STATIC
+	#define ENTER_PARAMS_MUTEX
+	#define LEAVE_PARAMS_MUTEX
+	#define ENTER_PARAMS_MUTEX_STATIC
+	#define LEAVE_PARAMS_MUTEX_STATIC
 #endif
 
-#define BEGIN_IPLUG_NAMESPACE namespace iplug {
-#define END_IPLUG_NAMESPACE }
 
-#define BEGIN_IGRAPHICS_NAMESPACE namespace igraphics {
-#define END_IGRAPHICS_NAMESPACE }
-
-namespace iplug {namespace igraphics {}};
-
-#if defined IGRAPHICS_GLES2 || IGRAPHICS_GLES3 || IGRAPHICS_GL2 || defined IGRAPHICS_GL3
-  #define IGRAPHICS_GL
+#if defined IGRAPHICS_GLES2 || IGRAPHICS_GLES3 || IGRAPHICS_GL2 || IGRAPHICS_GL3
+	#define IGRAPHICS_GL
 #endif

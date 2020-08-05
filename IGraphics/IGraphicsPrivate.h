@@ -14,6 +14,7 @@
  * @file Private structs and small classes, internal use only
  * @{
  */
+#include "IPlugPlatform.h"
 
 #include <codecvt>
 #include <string>
@@ -37,8 +38,6 @@
 #else
   #include "nanosvg.h"
 #endif
-
-#include "IPlugPlatform.h"
 
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
@@ -326,7 +325,7 @@ private:
       // Check version
       if (GetUInt32(4) == 0x00010000 || GetUInt32(4) == 0x00020000)
       {
-        if (faceIdx < GetSInt32(8))
+        if (faceIdx < GetUInt32(8))
         {
           mData += GetUInt32(12 + faceIdx * 4);
           return;

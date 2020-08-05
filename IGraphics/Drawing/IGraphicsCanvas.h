@@ -10,10 +10,11 @@
 
 #pragma once
 
+#include "IPlugPlatform.h"
+
 #include <emscripten/val.h>
 #include <emscripten/bind.h>
 
-#include "IPlugPlatform.h"
 
 #include "IGraphicsPathBase.h"
 

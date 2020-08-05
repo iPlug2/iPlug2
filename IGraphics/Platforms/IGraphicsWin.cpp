@@ -8,6 +8,7 @@
  ==============================================================================
 */
 
+#include "IGraphicsWin.h"
 
 #include <Shlobj.h>
 #include <commctrl.h>
@@ -15,7 +16,6 @@
 #include "heapbuf.h"
 
 #include "IPlugParameter.h"
-#include "IGraphicsWin.h"
 #include "IPopupMenuControl.h"
 #include "IPlugPaths.h"
 
@@ -24,10 +24,6 @@
 
 using namespace iplug;
 using namespace igraphics;
-
-#pragma warning(disable:4244) // Pointer size cast mismatch.
-#pragma warning(disable:4312) // Pointer size cast mismatch.
-#pragma warning(disable:4311) // Pointer size cast mismatch.
 
 static int nWndClassReg = 0;
 static const char* wndClassName = "IPlugWndClass";
@@ -66,7 +62,7 @@ public:
   InstalledFont(const InstalledFont&) = delete;
   InstalledFont& operator=(const InstalledFont&) = delete;
     
-  bool IsValid() const { return mFontHandle; }
+  bool IsValid() const { return (mFontHandle != nullptr); }
   
 private:
   HANDLE mFontHandle;
@@ -188,8 +184,8 @@ void IGraphicsWin::DestroyEditWindow()
 void IGraphicsWin::OnDisplayTimer(int vBlankCount)
 {
   // Check the message vblank with the current one to see if we are way behind. If so, then throw these away.
-  DWORD msgCount = vBlankCount;
-  DWORD curCount = mVBlankCount;
+  uint32 msgCount = vBlankCount;
+  uint32 curCount = mVBlankCount;
 
   if(mVSYNCEnabled)
   {
@@ -476,7 +472,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_TOUCH:
     {
-      UINT nTouches = LOWORD(wParam);
+      uint32 nTouches = LOWORD(wParam);
 
       if (nTouches > 0)
       {
@@ -490,7 +486,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
         GetTouchInputInfo(hTouchInput, nTouches, touches.Get(), sizeof(TOUCHINPUT));
 
-        for (int i = 0; i < nTouches; i++)
+        for (uint32 i = 0; i < nTouches; i++)
         {
           TOUCHINPUT* pTI = touches.Get() +i;
 
@@ -614,7 +610,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
         if (regionType == COMPLEXREGION && GetRegionData(region, bufferSize, regionData))
         {
-          for (int i = 0; i < regionData->rdh.nCount; i++)
+          for (uint32 i = 0; i < regionData->rdh.nCount; i++)
             addDrawRect(rects, *(((RECT*)regionData->Buffer) + i));
         }
         else
@@ -1375,12 +1371,12 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
         HMENU submenu = CreateMenu(*pMenuItem->GetSubmenu(), pOffsetIdx);
         if (submenu)
         {
-          AppendMenu(hMenu, flags|MF_POPUP, (UINT_PTR)submenu, (const TCHAR*)entryText.Get());
+          AppendMenu(hMenu, flags|MF_POPUP, (UINT_PTR)submenu, (const char*)entryText.Get());
         }
       }
       else
       {
-        AppendMenu(hMenu, flags, offset + inc, entryText.Get());
+        AppendMenu(hMenu, flags, static_cast<UINT_PTR>(offset) + inc, entryText.Get());
       }
     }
     inc++;
@@ -1823,7 +1819,7 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
   if (!numChars)
     str.Set("");
   
-  return numChars;
+  return (numChars != 0);
 }
 
 bool IGraphicsWin::SetTextInClipboard(const char* str)
@@ -2028,27 +2024,36 @@ void IGraphicsWin::StopVBlankThread()
 // https://bugs.chromium.org/p/chromium/issues/detail?id=467617
 
 // structs to use
-typedef UINT32 D3DKMT_HANDLE;
-typedef UINT D3DDDI_VIDEO_PRESENT_SOURCE_ID;
-typedef struct _D3DKMT_OPENADAPTERFROMHDC {
-  HDC                            hDc;
-  D3DKMT_HANDLE                  hAdapter;
-  LUID                           AdapterLuid;
-  D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
+using D3DKMT_HANDLE                  = uint32;
+using D3DDDI_VIDEO_PRESENT_SOURCE_ID = uint32;
+
+typedef struct _D3DKMT_OPENADAPTERFROMHDC
+{
+	HDC                            hDc;
+	D3DKMT_HANDLE                  hAdapter;
+	LUID                           AdapterLuid;
+	D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
 } D3DKMT_OPENADAPTERFROMHDC;
-typedef struct _D3DKMT_CLOSEADAPTER {
-  D3DKMT_HANDLE hAdapter;
+
+typedef struct _D3DKMT_CLOSEADAPTER
+{
+	D3DKMT_HANDLE hAdapter;
 } D3DKMT_CLOSEADAPTER;
-typedef struct _D3DKMT_WAITFORVERTICALBLANKEVENT {
-  D3DKMT_HANDLE                  hAdapter;
-  D3DKMT_HANDLE                  hDevice;
-  D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
+
+typedef struct _D3DKMT_WAITFORVERTICALBLANKEVENT
+{
+	D3DKMT_HANDLE                  hAdapter;
+	D3DKMT_HANDLE                  hDevice;
+	D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
 } D3DKMT_WAITFORVERTICALBLANKEVENT;
 
+
+
+
 // entry points
-typedef NTSTATUS(WINAPI* D3DKMTOpenAdapterFromHdc)(D3DKMT_OPENADAPTERFROMHDC* Arg1);
-typedef NTSTATUS(WINAPI* D3DKMTCloseAdapter)(const D3DKMT_CLOSEADAPTER* Arg1);
-typedef NTSTATUS(WINAPI* D3DKMTWaitForVerticalBlankEvent)(const D3DKMT_WAITFORVERTICALBLANKEVENT* Arg1);
+typedef long(WINAPI* D3DKMTOpenAdapterFromHdc)(D3DKMT_OPENADAPTERFROMHDC* Arg1);
+typedef long(WINAPI* D3DKMTCloseAdapter)(const D3DKMT_CLOSEADAPTER* Arg1);
+typedef long(WINAPI* D3DKMTWaitForVerticalBlankEvent)(const D3DKMT_WAITFORVERTICALBLANKEVENT* Arg1);
 
 DWORD IGraphicsWin::OnVBlankRun()
 {
@@ -2065,15 +2070,16 @@ DWORD IGraphicsWin::OnVBlankRun()
   //
   // TODO: handle low power modes
 
-  D3DKMTOpenAdapterFromHdc pOpen = nullptr;
-  D3DKMTCloseAdapter pClose = nullptr;
-  D3DKMTWaitForVerticalBlankEvent pWait = nullptr;
+  D3DKMTOpenAdapterFromHdc        pOpen  = nullptr;
+  D3DKMTCloseAdapter              pClose = nullptr;
+  D3DKMTWaitForVerticalBlankEvent pWait  = nullptr;
+
   HINSTANCE hInst = LoadLibrary("gdi32.dll");
   if (hInst != nullptr)
   {
-    pOpen  = (D3DKMTOpenAdapterFromHdc)GetProcAddress((HMODULE)hInst, "D3DKMTOpenAdapterFromHdc");
-    pClose = (D3DKMTCloseAdapter)GetProcAddress((HMODULE)hInst, "D3DKMTCloseAdapter");
-    pWait  = (D3DKMTWaitForVerticalBlankEvent)GetProcAddress((HMODULE)hInst, "D3DKMTWaitForVerticalBlankEvent");
+    reinterpret_cast<void*&>(pOpen)  = GetProcAddress((HMODULE) hInst, "D3DKMTOpenAdapterFromHdc");
+    reinterpret_cast<void*&>(pClose) = GetProcAddress((HMODULE) hInst, "D3DKMTCloseAdapter");
+    reinterpret_cast<void*&>(pWait)  = GetProcAddress((HMODULE) hInst, "D3DKMTWaitForVerticalBlankEvent");
   }
 
   // if we don't get bindings to the methods we will fallback
@@ -2107,8 +2113,8 @@ DWORD IGraphicsWin::OnVBlankRun()
           D3DKMT_OPENADAPTERFROMHDC openAdapterData = { 0 };
           HDC hDC = GetDC(mVBlankWindow);
           openAdapterData.hDc = hDC;
-          NTSTATUS status = (*pOpen)(&openAdapterData);
-          if (status == S_OK)
+
+          if (pOpen(&openAdapterData) == S_OK)
           {
             // success, setup wait request parameters.
             adapterLastFailTime = 0;
@@ -2129,8 +2135,7 @@ DWORD IGraphicsWin::OnVBlankRun()
       if (adapterIsOpen)
       {
         // Finally we can wait on VBlank
-        NTSTATUS status = (*pWait)(&we);
-        if (status != S_OK)
+		  if (pWait(&we) != S_OK)
         {
           // failed, close now and try again on the next pass.
           _D3DKMT_CLOSEADAPTER ca;
@@ -2186,16 +2191,20 @@ void IGraphicsWin::VBlankNotify()
 #elif defined IGRAPHICS_SKIA
   #include "IGraphicsSkia.cpp"
   #ifdef IGRAPHICS_GL
+	INCLUDE_DEPENDENCIES_START
     #include "glad.c"
+	INCLUDE_DEPENDENCIES_END
   #endif
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
 #ifdef IGRAPHICS_FREETYPE
-#define FONS_USE_FREETYPE
+  #define FONS_USE_FREETYPE
   #pragma comment(lib, "freetype.lib")
 #endif
+  INCLUDE_DEPENDENCIES_START
   #include "nanovg.c"
   #include "glad.c"
+  INCLUDE_DEPENDENCIES_END
 #elif defined IGRAPHICS_D2D
   #include "IGraphicsD2D.cpp"
 #else

@@ -8,6 +8,8 @@
  ==============================================================================
 */
 
+#pragma once
+
 #ifndef __IGRAPHICS_SRC_INC__
 #define __IGRAPHICS_SRC_INC__
 

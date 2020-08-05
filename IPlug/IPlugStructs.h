@@ -17,12 +17,13 @@
  * @{
  */
 
+#include "IPlugPlatform.h"
+
 #include <algorithm>
 #include "wdlstring.h"
 #include "ptrlist.h"
 
 #include "IPlugConstants.h"
-#include "IPlugPlatform.h"
 #include "IPlugMidi.h" // <- Midi related structs in here
 #include "IPlugUtilities.h"
 

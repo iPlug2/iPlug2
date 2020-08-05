@@ -17,6 +17,8 @@
  * base/source/timer.cpp, so thanks to them 
  * */
 
+#include "IPlugPlatform.h"
+
 #include <cstring>
 #include <stdint.h>
 #include <cstring>
@@ -24,8 +26,6 @@
 #include <functional>
 #include "ptrlist.h"
 #include "mutex.h"
-
-#include "IPlugPlatform.h"
 
 #if defined OS_MAC || defined OS_IOS
 #include <CoreFoundation/CoreFoundation.h>

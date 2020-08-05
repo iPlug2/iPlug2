@@ -8,6 +8,8 @@
  ==============================================================================
 */
 
+#pragma once
+
 #ifndef __IGRAPHICS_HDR_INC__
 #define __IGRAPHICS_HDR_INC__
 

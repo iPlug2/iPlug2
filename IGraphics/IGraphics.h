@@ -40,6 +40,7 @@
 #include "IPlugAAX_view_interface.h"
 #endif
 
+#include "IPlugPlatform.h"
 #include "IPlugConstants.h"
 #include "IPlugLogger.h"
 #include "IPlugPaths.h"
@@ -790,7 +791,7 @@ public:
   virtual void* GetWindow() = 0;
 
   /** @return /c true if the platform window/view is open */
-  virtual bool WindowIsOpen() { return GetWindow(); }
+  virtual bool WindowIsOpen() { return (GetWindow() != nullptr); }
 
   /** Get text from the clipboard
    * @param str A WDL_String that will be filled with the text that is currently on the clipboard

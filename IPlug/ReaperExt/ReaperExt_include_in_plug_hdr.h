@@ -16,9 +16,9 @@
  * Include this file in the main header for your reaper extension
 */
 
-#include "config.h"
-
 #include "IPlugPlatform.h"
+
+#include "config.h"
 
 #if !defined NO_IGRAPHICS
 #include "IGraphics_include_in_plug_hdr.h"

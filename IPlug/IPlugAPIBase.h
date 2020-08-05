@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "IPlugPlatform.h"
+
 #include <cstring>
 #include <cstdint>
 #include <memory>
@@ -17,7 +19,6 @@
 #include "ptrlist.h"
 #include "mutex.h"
 
-#include "IPlugPlatform.h"
 #include "IPlugPluginBase.h"
 #include "IPlugConstants.h"
 #include "IPlugStructs.h"

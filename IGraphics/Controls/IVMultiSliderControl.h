@@ -187,16 +187,16 @@ public:
     SetDirty(true); // will send all param vals to delegate
   }
 
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  void OnMouseDown(float xPos, float yPos, const IMouseMod& mod) override
   {
     // This allows single clicking to remove a step entry when !mZeroValueStepHasBounds
     if(GetStepped() && !mZeroValueStepHasBounds && mPrevSliderHit != -1)
     {
-      int ch = GetValIdxForPos(x, y);
+	  int ch = GetValIdxForPos(xPos, yPos);
       
       if(ch > -1)
       {
-        int step = GetStepIdxForPos(x, y);
+	    int step = GetStepIdxForPos(xPos, yPos);
         
         if(step > -1)
         {
@@ -217,7 +217,7 @@ public:
     if (!mod.S)
       mPrevSliderHit = -1;
       
-    SnapToMouse(x, y, mDirection, mWidgetBounds);
+    SnapToMouse(xPos, yPos, mDirection, mWidgetBounds);
   }
 
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override

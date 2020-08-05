@@ -69,8 +69,8 @@ public:
     }
   }
 protected:
-  float mHighRangeDB;
   float mLowRangeDB;
+  float mHighRangeDB;
 };
 
 const static IColor LED1 = {255, 36, 157, 16};

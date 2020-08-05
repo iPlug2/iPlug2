@@ -8,13 +8,14 @@
  ==============================================================================
 */
 
+#include "IPlugPlatform.h"
+
 #include "CivetServer.h"
 #include <cstring>
 #include <memory>
 
 #include "ptrlist.h"
 #include "IPlugLogger.h"
-#include "IPlugPlatform.h"
 
 #ifdef OS_WIN
 #include <windows.h>

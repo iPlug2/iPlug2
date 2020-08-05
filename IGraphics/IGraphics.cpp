@@ -11,7 +11,6 @@
 #include "IGraphics.h"
 
 #define NANOSVG_IMPLEMENTATION
-#pragma warning(disable:4244) // float conversion
 #include "nanosvg.h"
 
 #if defined VST3_API
@@ -1105,7 +1104,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   if (mMouseOver)
     mMouseOver->OnMouseOver(x, y, mod);
 
-  return pControl;
+  return (pControl != nullptr);
 }
 
 void IGraphics::OnMouseOut()
@@ -1187,7 +1186,7 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
     }
   }
     
-  return pControl;
+  return (pControl != nullptr);
 }
 
 void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)

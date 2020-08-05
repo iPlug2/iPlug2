@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "IPlugPlatform.h"
+
 #ifndef FAUST_COMPILED
 #define FAUST_BLOCK(class, member, file, nvoices, rate) FaustGen member {#class, file, nvoices, rate}
 #else
@@ -27,7 +29,6 @@ using FaustGen = iplug::IPlugFaust; // not used, except for CompileCPP();
 #include <vector>
 #include <map>
 
-#include "IPlugPlatform.h"
 #include "IPlugConstants.h"
 #include "IPlugPaths.h"
 

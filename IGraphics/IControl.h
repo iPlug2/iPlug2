@@ -15,6 +15,8 @@
  * @brief This file contains the base IControl implementation, along with some base classes for specific types of control.
  */
 
+#include "IPlugPlatform.h"
+
 #include <cstring>
 #include <cstdlib>
 #include <vector>
@@ -27,7 +29,6 @@
 #include "base/source/fobject.h"
 #endif
 
-#include "IPlugPlatform.h"
 
 #include "wdlstring.h"
 #include "ptrlist.h"

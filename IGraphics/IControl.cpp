@@ -8,12 +8,13 @@
  ==============================================================================
 */
 
+#include "IControl.h"
+
 #include <cmath>
 #include <cstring>
 #define WDL_NO_SUPPORT_UTF8
 #include "dirscan.h"
 
-#include "IControl.h"
 #include "IPlugParameter.h"
 
 BEGIN_IPLUG_NAMESPACE

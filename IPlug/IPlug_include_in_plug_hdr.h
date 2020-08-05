@@ -17,8 +17,9 @@
  * A preprocessor macro for a particular API such as VST2_API should be defined at project level
 */
 
-#include <cstdio>
 #include "IPlugPlatform.h"
+
+#include <cstdio>
 #include "config.h"
 
 #define API_EXT2

@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <windows.h>
+#include "IPlugPlatform.h"
 #include <windowsx.h>
 #include <winuser.h>
 
@@ -55,7 +55,7 @@ public:
 
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override;
-  bool WindowIsOpen() override { return (mPlugWnd); }
+  bool WindowIsOpen() override { return (mPlugWnd != nullptr); }
 
   void UpdateTooltips() override {}
 
@@ -149,7 +149,7 @@ private:
   volatile bool mVBlankShutdown = false; // Flag to indiciate that the vsync thread should shutdown
   HANDLE mVBlankThread = INVALID_HANDLE_VALUE; //ID of thread.
   volatile DWORD mVBlankCount = 0; // running count of vblank events since the start of the window.
-  int mVBlankSkipUntil = 0; // support for skipping vblank notification if the last callback took  too long.  This helps keep the message pump clear in the case of overload.
+  uint32 mVBlankSkipUntil = 0; // support for skipping vblank notification if the last callback took  too long.  This helps keep the message pump clear in the case of overload.
   bool mVSYNCEnabled = false;
   
   const IParam* mEditParam = nullptr;

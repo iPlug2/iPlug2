@@ -204,7 +204,7 @@ struct ISVG
     if (mImage)
       return mImage->width;
     else
-      return 0;
+      return -1; // returning 0 generates divide by 0 warning when compiling
   }
 
   /** /todo */
@@ -213,7 +213,7 @@ struct ISVG
     if (mImage)
       return mImage->height;
     else
-      return 0;
+      return -1; // returning 0 generates divide by 0 warning when compiling
   }
   
   /** @return \true if the SVG has valid data */

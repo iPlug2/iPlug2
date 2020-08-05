@@ -13,11 +13,12 @@
  * @brief IParam implementation
  */
 
+#include "IPlugParameter.h"
+#include "IPlugLogger.h"
+
 #include <cstdio>
 #include <algorithm>
 
-#include "IPlugParameter.h"
-#include "IPlugLogger.h"
 
 using namespace iplug;
 

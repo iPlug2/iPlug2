@@ -17,6 +17,8 @@
  *
  */
 
+#include "IPlugPlatform.h"
+
 #include <cstring>
 #include <ctime>
 #include <functional>
@@ -24,7 +26,6 @@
 
 #include "jnetlib/jnetlib.h"
 
-#include "IPlugPlatform.h"
 #include "IPlugLogger.h"
 #include "IPlugOSC_msg.h"
 #include "IPlugTimer.h"
