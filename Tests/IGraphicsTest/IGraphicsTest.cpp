@@ -103,8 +103,6 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     };
     
     auto chooseTestControl = [&, pGraphics, testRect](int idx) {
-
-      pGraphics->RemoveControlWithTag(kCtrlTagTestControl);
       
       IControl* pNewControl = nullptr;
       
@@ -146,6 +144,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     
     pGraphics->AttachControl(new IVRadioButtonControl(bounds.FracRectHorizontal(0.2),
                                                       [pGraphics, chooseTestControl](IControl* pCaller) {
+                                                        pGraphics->RemoveControlWithTag(kCtrlTagTestControl);
                                                         SplashClickActionFunc(pCaller);
                                                         int selectedTest = dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx();
                                                         chooseTestControl(selectedTest);

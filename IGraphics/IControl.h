@@ -58,7 +58,7 @@ public:
   /** Constructor (range of parameters)
    * @brief Creates an IControl which is linked to multiple parameters
    * NOTE: An IControl does not know about the delegate or graphics context to which it belongs in the constructor
-   * If you need to do something once those things are know, see IControl::OnInit()
+   * If you need to do something once those things are known, see IControl::OnInit()
    * @param bounds The rectangular area that the control occupies
    * @param params An initializer list of valid integer parameter indexes
    * @param actionFunc pass in a lambda function to provide custom functionality when the control "action" happens (usually mouse down). */
@@ -196,12 +196,14 @@ public:
   void PromptUserInput(const IRECT& bounds, int valIdx = 0);
   
   /** Set an Action Function for this control. 
-   * actionfunc @see Action Functions */
-  inline void SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; }
+   * @param actionFunc A std::function conforming to IActionFunction
+   * @return Ptr to this control, for chaining */
+  inline IControl* SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; return this; }
 
   /** Set an Action Function to be called at the end of an animation.
-   * actionfunc @see Action Functions */
-  inline void SetAnimationEndActionFunction(IActionFunction actionFunc) { mAnimationEndActionFunc = actionFunc; }
+   * @param actionFunc A std::function conforming to IActionFunction
+   * @return Ptr to this control, for chaining */
+  inline IControl* SetAnimationEndActionFunction(IActionFunction actionFunc) { mAnimationEndActionFunc = actionFunc; return this; }
   
   /** Set a tooltip for the control
    * @param str CString tooltip to be displayed */
@@ -452,7 +454,7 @@ public:
   /** @return A const pointer to the IGraphics context that owns this control */
   const IGraphics* GetUI() const { return mGraphics; }
 
-  /* This can be used in IControl::Draw() to check if the mouse is over the control, without implementing mouse over methods 
+  /** This can be used in IControl::Draw() to check if the mouse is over the control, without implementing mouse over methods. Note that this method is only enabled if IGraphics::EnableMouseOver() is set to \c true  
    * @return \true if the mouse is over this control. */
   bool GetMouseIsOver() const { return mMouseIsOver; }
   
@@ -1876,11 +1878,21 @@ public:
   void Draw(IGraphics& g) override;
   void OnInit() override;
 
+  /** Set the text to display. NOTE: does not set the control dirty.
+   @param str CString with the text to display */
   virtual void SetStr(const char* str);
+  
+  /** Set the text to display, using a printf-like format string. NOTE: does not set the control dirty.
+   @param str CString with the text to display */
   virtual void SetStrFmt(int maxlen, const char* fmt, ...);
+  
+  /** Clear the text . NOTE: does not set the control dirty. */
   virtual void ClearStr() { SetStr(""); }
+  
+  /** @return Cstring with the text that the control displays */
   const char* GetStr() const { return mStr.Get(); }
   
+  /** Measures the bounds of the text that the control displays and compacts/expands the controls bounds to fit */
   void SetBoundsBasedOnStr();
   
 protected:
@@ -1907,6 +1919,7 @@ public:
   void OnTextEntryCompletion(const char* str, int valIdx) override
   {
     SetStr(str);
+    SetDirty(true);
   }
 };
 

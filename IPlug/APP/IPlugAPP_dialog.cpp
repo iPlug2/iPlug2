@@ -555,12 +555,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       width = pPlug->GetEditorWidth();
       height = pPlug->GetEditorHeight();
 
-      int scale = 1;
-      #ifdef OS_WIN 
-      scale = GetScaleForHWND(gHWND);
-      #endif
-
-      ClientResize(hwndDlg, width * scale, height * scale);
+      ClientResize(hwndDlg, width, height);
 
       ShowWindow(hwndDlg, SW_SHOW);
       return 1;

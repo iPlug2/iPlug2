@@ -8,14 +8,20 @@ $FAUST_REPO_DIR="$TMP_DIR\faust"
 $LLVM_CMAKE_BUILD_DIR="$TMP_DIR\llvm-cmake"
 $FAUST_CMAKE_BUILD_DIR="$TMP_DIR\faust-cmake"
 $INSTALL_DIR="$BUILD_DIR\win\x64\Debug"
+$LLVM_COMMIT_HASH="ef32c611aa214dea855364efd7ba451ec5ec3f74"
 
-if(![System.IO.File]::Exists($LLVM_REPO_DIR)) {
-    git clone --config core.autocrlf=false https://github.com/llvm/llvm-project.git $LLVM_REPO_DIR
-    git checkout $LLVM_VER
+if(!(Test-Path -PathType Container $LLVM_REPO_DIR)) {
+    mkdir $LLVM_REPO_DIR
+    Push-Location $LLVM_REPO_DIR
+    git init
+    git remote add origin https://github.com/llvm/llvm-project.git
+    git fetch --depth 1 origin $LLVM_COMMIT_HASH
+    git checkout FETCH_HEAD
+    Pop-Location
 }
 
-if(![System.IO.File]::Exists($FAUST_REPO_DIR)) {
-    git clone https://github.com/grame-cncm/faust.git $FAUST_REPO_DIR
+if(!(Test-Path -PathType Container $FAUST_REPO_DIR)) {
+    git clone --depth=1 https://github.com/grame-cncm/faust.git $FAUST_REPO_DIR
 }
 
 mkdir $LLVM_CMAKE_BUILD_DIR
