@@ -48,7 +48,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
     // Load iplug parameters into the GUI thread visible values
     
     for (int i = 0; i < NParams(); ++i)
-      parameters.getParameter(i)->SetNormalized(GetParam(i)->GetNormalized());
+      parameters.getParameter(i)->setNormalized(GetParam(i)->GetNormalized());
     
     return kResultTrue;
   }
