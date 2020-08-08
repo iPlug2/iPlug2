@@ -8,7 +8,6 @@
  ==============================================================================
 */
 
-#include <cmath>
 
 #include "IGraphicsNanoVG.h"
 #include "ITextEntryControl.h"
@@ -52,8 +51,10 @@
       #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_WEB
     #endif
   #endif
+  BEGIN_INCLUDE_DEPENDENCIES
   #include "nanovg_gl.h"
   #include "nanovg_gl_utils.h"
+  END_INCLUDE_DEPENDENCIES
 #elif defined IGRAPHICS_METAL
   #include "nanovg_mtl.h"
   #if defined OS_MAC
@@ -63,9 +64,6 @@
 #else
   #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
-
-#include <string>
-#include <map>
 
 using namespace iplug;
 using namespace igraphics;

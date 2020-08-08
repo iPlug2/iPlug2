@@ -118,6 +118,7 @@
 #include <cassert>
 #include <cctype>
 #include <cmath>
+#include <codecvt>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -126,9 +127,13 @@
 #include <ctime>
 #include <functional>
 #include <limits>
+#include <map>
 #include <memory>
+#include <stack>
 #include <string>
+#include <unordered_map>
 #include <vector>
+
 
 //---------------------------------------------------------
 // Set default types

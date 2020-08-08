@@ -13,7 +13,9 @@
 #include "IPlugPlatform.h"
 #include "IGraphicsPathBase.h"
 
+BEGIN_INCLUDE_DEPENDENCIES
 #include "nanovg.h"
+END_INCLUDE_DEPENDENCIES
 #include "mutex.h"
 #include <stack>
 
@@ -21,7 +23,9 @@
 
 #if defined IGRAPHICS_GL
   #define NANOVG_FBO_VALID 1
-  #include "nanovg_gl_utils.h"
+BEGIN_INCLUDE_DEPENDENCIES
+#include "nanovg_gl_utils.h"
+END_INCLUDE_DEPENDENCIES
 #elif defined IGRAPHICS_METAL
   #include "nanovg_mtl.h"
 #else

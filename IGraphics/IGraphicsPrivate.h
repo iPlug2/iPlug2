@@ -16,10 +16,6 @@
  */
 #include "IPlugPlatform.h"
 
-#include <codecvt>
-#include <string>
-#include <memory>
-
 #include "mutex.h"
 #include "wdlstring.h"
 #include "wdlendian.h"
@@ -36,7 +32,9 @@
   #include "src/xml/SkDOM.h"
   #pragma warning( pop )
 #else
+BEGIN_INCLUDE_DEPENDENCIES
   #include "nanosvg.h"
+END_INCLUDE_DEPENDENCIES
 #endif
 
 #ifdef IGRAPHICS_AGG

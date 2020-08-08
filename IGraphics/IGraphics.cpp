@@ -11,7 +11,9 @@
 #include "IGraphics.h"
 
 #define NANOSVG_IMPLEMENTATION
+BEGIN_INCLUDE_DEPENDENCIES
 #include "nanosvg.h"
+END_INCLUDE_DEPENDENCIES
 
 #if defined VST3_API
 

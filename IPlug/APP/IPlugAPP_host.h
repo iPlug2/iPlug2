@@ -51,8 +51,10 @@
 	#include "IPlugSWELL.h"
 #endif
 
+BEGIN_INCLUDE_DEPENDENCIES
 #include "RtAudio.h"
 #include "RtMidi.h"
+END_INCLUDE_DEPENDENCIES
 
 #define OFF_TEXT "off"
 

@@ -54,11 +54,6 @@
 #include "IGraphicsImGui.h"
 #endif
 
-#include <stack>
-#include <memory>
-#include <vector>
-#include <unordered_map>
-
 #ifdef FillRect
 #undef FillRect
 #endif
