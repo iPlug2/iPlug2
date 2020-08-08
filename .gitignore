@@ -1,9 +1,3 @@
-#
-# List all files filtered out by .gitignore
-#
-# $ git ls-files -i --exclude-from=.gitignore
-#
-
 _*
 *~
 ~$*
@@ -32,6 +26,7 @@ _*
 *.RPP-bak
 Icon?
 .DS_Stor*
+cpp.hint
 doxygen_warnings.txt
 Pods
 PodFile.lock
