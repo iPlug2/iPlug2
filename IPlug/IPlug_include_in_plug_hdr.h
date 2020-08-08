@@ -19,7 +19,6 @@
 
 #include "IPlugPlatform.h"
 
-#include <cstdio>
 #include "config.h"
 
 #define API_EXT2
@@ -96,7 +95,6 @@ using Plugin = PLUGIN_API_BASE;
 END_IPLUG_NAMESPACE
 
 #ifdef OS_WIN
-  #define EXPORT __declspec(dllexport)
   #define BUNDLE_ID ""
 #elif defined OS_MAC
   #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME API_EXT2
@@ -114,17 +112,6 @@ END_IPLUG_NAMESPACE
 
 #if !defined NO_IGRAPHICS && !defined VST3P_API
 #include "IGraphics_include_in_plug_hdr.h"
-#endif
-
-#define STRINGISE_IMPL(x) #x
-#define STRINGISE(x) STRINGISE_IMPL(x)
-
-// Use: #pragma message WARN("My message")
-#if _MSC_VER
-#   define FILE_LINE_LINK __FILE__ "(" STRINGISE(__LINE__) ") : "
-#   define WARN(exp) (FILE_LINE_LINK "WARNING: " exp)
-#else//__GNUC__ - may need other defines for different compilers
-#   define WARN(exp) ("WARNING: " exp)
 #endif
 
 #ifndef PLUG_NAME
@@ -176,37 +163,37 @@ END_IPLUG_NAMESPACE
 #endif
 
 #ifndef PLUG_DOES_MIDI_IN
-  #pragma message WARN("PLUG_DOES_MIDI_IN not defined, setting to 0")
+  PRAGMA_MESSAGE("PLUG_DOES_MIDI_IN not defined, setting to 0")
   #define PLUG_DOES_MIDI_IN 0
 #endif
 
 #ifndef PLUG_DOES_MIDI_OUT
-  #pragma message WARN("PLUG_DOES_MIDI_OUT not defined, setting to 0")
+  PRAGMA_MESSAGE("PLUG_DOES_MIDI_OUT not defined, setting to 0")
   #define PLUG_DOES_MIDI_OUT 0
 #endif
 
 #ifndef PLUG_DOES_MPE
-  #pragma message WARN("PLUG_DOES_MPE not defined, setting to 0")
+  PRAGMA_MESSAGE("PLUG_DOES_MPE not defined, setting to 0")
   #define PLUG_DOES_MPE 0
 #endif
 
 #ifndef PLUG_DOES_STATE_CHUNKS
-  #pragma message WARN("PLUG_DOES_STATE_CHUNKS not defined, setting to 0")
+  PRAGMA_MESSAGE("PLUG_DOES_STATE_CHUNKS not defined, setting to 0")
   #define PLUG_DOES_STATE_CHUNKS 0
 #endif
 
 #ifndef PLUG_HAS_UI
-  #pragma message WARN("PLUG_HAS_UI not defined, setting to 0")
+  PRAGMA_MESSAGE("PLUG_HAS_UI not defined, setting to 0")
   #define PLUG_HAS_UI 0
 #endif
 
 #ifndef PLUG_WIDTH
-  #pragma message WARN("PLUG_WIDTH not defined, setting to 500px")
+  PRAGMA_MESSAGE("PLUG_WIDTH not defined, setting to 500px")
   #define PLUG_WIDTH 500
 #endif
 
 #ifndef PLUG_HEIGHT
-  #pragma message WARN("PLUG_HEIGHT not defined, setting to 500px")
+  PRAGMA_MESSAGE("PLUG_HEIGHT not defined, setting to 500px")
   #define PLUG_HEIGHT 500
 #endif
 
@@ -227,16 +214,16 @@ END_IPLUG_NAMESPACE
 #endif
 
 #ifndef PLUG_FPS
-  #pragma message WARN("PLUG_FPS not defined, setting to 60")
+  PRAGMA_MESSAGE("PLUG_FPS not defined, setting to 60")
   #define PLUG_FPS 60
 #endif
 
 #ifndef PLUG_SHARED_RESOURCES
-  #pragma message WARN("PLUG_SHARED_RESOURCES not defined, setting to 0")
+  PRAGMA_MESSAGE("PLUG_SHARED_RESOURCES not defined, setting to 0")
   #define PLUG_SHARED_RESOURCES 0
 #else
   #ifndef SHARED_RESOURCES_SUBPATH
-    #pragma message WARN("SHARED_RESOURCES_SUBPATH not defined, setting to PLUG_NAME")
+    PRAGMA_MESSAGE("SHARED_RESOURCES_SUBPATH not defined, setting to PLUG_NAME")
     #define SHARED_RESOURCES_SUBPATH PLUG_NAME
   #endif
 #endif
@@ -247,22 +234,22 @@ END_IPLUG_NAMESPACE
   #endif
 
   #ifndef PLUG_URL_STR
-    #pragma message WARN("PLUG_URL_STR not defined, setting to empty string")
+    PRAGMA_MESSAGE("PLUG_URL_STR not defined, setting to empty string")
     #define PLUG_URL_STR ""
   #endif
 
   #ifndef PLUG_EMAIL_STR
-    #pragma message WARN("PLUG_EMAIL_STR not defined, setting to empty string")
+    PRAGMA_MESSAGE("PLUG_EMAIL_STR not defined, setting to empty string")
     #define PLUG_EMAIL_STR ""
   #endif
 
   #ifndef PLUG_COPYRIGHT_STR
-    #pragma message WARN("PLUG_COPYRIGHT_STR not defined, setting to empty string")
+    PRAGMA_MESSAGE("PLUG_COPYRIGHT_STR not defined, setting to empty string")
     #define PLUG_COPYRIGHT_STR ""
   #endif
 
   #ifndef VST3_SUBCATEGORY
-    #pragma message WARN("VST3_SUBCATEGORY not defined, setting to other")
+    PRAGMA_MESSAGE("VST3_SUBCATEGORY not defined, setting to other")
     #define VST3_SUBCATEGORY "Other"
   #endif
 #endif

@@ -10,11 +10,14 @@
 
 #pragma once
 
+#include "IPlugParameter.h"
+
+BEGIN_INCLUDE_DEPENDENCIES
 #include "pluginterfaces/base/ustring.h"
 #include "public.sdk/source/vst/vstparameters.h"
 #include "base/source/fstring.h"
+END_INCLUDE_DEPENDENCIES
 
-#include "IPlugParameter.h"
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -31,7 +34,7 @@ public:
     precision = pParam->GetDisplayPrecision();
 
     if (pParam->Type() != IParam::kTypeDouble)
-      info.stepCount = pParam->GetRange();
+      info.stepCount = (int32)pParam->GetRange();
     else
       info.stepCount = 0; // continuous
 

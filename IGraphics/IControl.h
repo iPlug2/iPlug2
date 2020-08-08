@@ -25,8 +25,11 @@
 #if defined VST3_API || defined VST3C_API
 #undef stricmp
 #undef strnicmp
+
+BEGIN_INCLUDE_DEPENDENCIES
 #include "pluginterfaces/vst/ivstcontextmenu.h"
 #include "base/source/fobject.h"
+END_INCLUDE_DEPENDENCIES
 #endif
 
 

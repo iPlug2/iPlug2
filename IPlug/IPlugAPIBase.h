@@ -12,10 +12,6 @@
 
 #include "IPlugPlatform.h"
 
-#include <cstring>
-#include <cstdint>
-#include <memory>
-
 #include "ptrlist.h"
 #include "mutex.h"
 

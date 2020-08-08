@@ -16,11 +16,7 @@
  * @ingroup IPlugStructs
  */
 
-#include <cassert>
-#include <cstdint>
-#include <cstdio>
-#include <algorithm>
-
+#include "IPlugPlatform.h"
 #include "IPlugLogger.h"
 
 BEGIN_IPLUG_NAMESPACE
@@ -30,99 +26,114 @@ BEGIN_IPLUG_NAMESPACE
 struct IMidiMsg
 {
   int mOffset;
-  uint8_t mStatus, mData1, mData2;
-  
+  uint8 mStatus, mData1, mData2;
+
+
+  //TODO: These enums should be enum class {} to avoid potential naming contamination in the same scope
+
   /** /todo */
-  enum EStatusMsg
+  enum EStatusMsg : uint8
   {
-    kNone = 0,
-    kNoteOff = 8,
-    kNoteOn = 9,
-    kPolyAftertouch = 10,
-    kControlChange = 11,
-    kProgramChange = 12,
-    kChannelAftertouch = 13,
-    kPitchWheel = 14
+    kNone                      = 0,
+    kNoteOff                   = 8,
+    kNoteOn                    = 9,
+    kPolyAftertouch            = 10,
+    kControlChange             = 11,
+    kProgramChange             = 12,
+    kChannelAftertouch         = 13,
+    kPitchWheel                = 14
   };
   
   /** /todo */
-  enum EControlChangeMsg
+  enum EControlChangeMsg : uint8
   {
-    kNoCC = -1,
-    kModWheel = 1,
-    kBreathController = 2,
-    kUndefined003 = 3,
-    kFootController = 4,
-    kPortamentoTime = 5,
-    kChannelVolume = 7,
-    kBalance = 8,
-    kUndefined009 = 9,
-    kPan = 10,
-    kExpressionController = 11,
-    kEffectControl1 = 12,
-    kEffectControl2 = 13,
-    kUndefined014 = 14,
-    kUndefined015 = 15,
+	// Custom
+    kNoCC                      = 0xFF,
+
+	// Control Changes and Mode Changes
+    kModWheel                  = 1,
+    kBreathController          = 2,
+    kUndefined003              = 3,
+    kFootController            = 4,
+    kPortamentoTime            = 5,
+    kChannelVolume             = 7,
+    kBalance                   = 8,
+    kUndefined009              = 9,
+    kPan                       = 10,
+    kExpressionController      = 11,
+    kEffectControl1            = 12,
+    kEffectControl2            = 13,
+    kUndefined014              = 14,
+    kUndefined015              = 15,
     kGeneralPurposeController1 = 16,
     kGeneralPurposeController2 = 17,
     kGeneralPurposeController3 = 18,
     kGeneralPurposeController4 = 19,
-    kUndefined020 = 20,
-    kUndefined021 = 21,
-    kUndefined022 = 22,
-    kUndefined023 = 23,
-    kUndefined024 = 24,
-    kUndefined025 = 25,
-    kUndefined026 = 26,
-    kUndefined027 = 27,
-    kUndefined028 = 28,
-    kUndefined029 = 29,
-    kUndefined030 = 30,
-    kUndefined031 = 31,
-    kSustainOnOff = 64,
-    kPortamentoOnOff = 65,
-    kSustenutoOnOff = 66,
-    kSoftPedalOnOff = 67,
-    kLegatoOnOff = 68,
-    kHold2OnOff = 69,
-    kSoundVariation = 70,
-    kResonance = 71,
-    kReleaseTime = 72,
-    kAttackTime = 73,
-    kCutoffFrequency = 74,
-    kDecayTime = 75,
-    kVibratoRate = 76,
-    kVibratoDepth = 77,
-    kVibratoDelay = 78,
-    kSoundControllerUndefined = 79,
-    kUndefined085 = 85,
-    kUndefined086 = 86,
-    kUndefined087 = 87,
-    kUndefined088 = 88,
-    kUndefined089 = 89,
-    kUndefined090 = 90,
-    kTremoloDepth = 92,
-    kChorusDepth = 93,
-    kPhaserDepth = 95,
-    kUndefined102 = 102,
-    kUndefined103 = 103,
-    kUndefined104 = 104,
-    kUndefined105 = 105,
-    kUndefined106 = 106,
-    kUndefined107 = 107,
-    kUndefined108 = 108,
-    kUndefined109 = 109,
-    kUndefined110 = 110,
-    kUndefined111 = 111,
-    kUndefined112 = 112,
-    kUndefined113 = 113,
-    kUndefined114 = 114,
-    kUndefined115 = 115,
-    kUndefined116 = 116,
-    kUndefined117 = 117,
-    kUndefined118 = 118,
-    kUndefined119 = 119,
-    kAllNotesOff = 123
+    kUndefined020              = 20,
+    kUndefined021              = 21,
+    kUndefined022              = 22,
+    kUndefined023              = 23,
+    kUndefined024              = 24,
+    kUndefined025              = 25,
+    kUndefined026              = 26,
+    kUndefined027              = 27,
+    kUndefined028              = 28,
+    kUndefined029              = 29,
+    kUndefined030              = 30,
+    kUndefined031              = 31,
+    kSustainOnOff              = 64,
+    kPortamentoOnOff           = 65,
+    kSustenutoOnOff            = 66,
+    kSoftPedalOnOff            = 67,
+    kLegatoOnOff               = 68,
+    kHold2OnOff                = 69,
+    kSoundVariation            = 70,
+    kResonance                 = 71,
+    kReleaseTime               = 72,
+    kAttackTime                = 73,
+    kCutoffFrequency           = 74,
+    kDecayTime                 = 75,
+    kVibratoRate               = 76,
+    kVibratoDepth              = 77,
+    kVibratoDelay              = 78,
+    kSoundControllerUndefined  = 79,
+    kUndefined085              = 85,
+    kUndefined086              = 86,
+    kUndefined087              = 87,
+    kUndefined088              = 88,
+    kUndefined089              = 89,
+    kUndefined090              = 90,
+    kTremoloDepth              = 92,
+    kChorusDepth               = 93,
+    kPhaserDepth               = 95,
+    kUndefined102              = 102,
+    kUndefined103              = 103,
+    kUndefined104              = 104,
+    kUndefined105              = 105,
+    kUndefined106              = 106,
+    kUndefined107              = 107,
+    kUndefined108              = 108,
+    kUndefined109              = 109,
+    kUndefined110              = 110,
+    kUndefined111              = 111,
+    kUndefined112              = 112,
+    kUndefined113              = 113,
+    kUndefined114              = 114,
+    kUndefined115              = 115,
+    kUndefined116              = 116,
+    kUndefined117              = 117,
+    kUndefined118              = 118,
+    kUndefined119              = 119,
+
+	// Channel Mode Messages
+	kAllSoundOff               = 120,  // All Sound Off
+	kResetAllControlers        = 121,  // Reset All Controllers
+	kLocalOnOff                = 122,  // Local Control On/Off
+    kAllNotesOff               = 123,  // All Notes Off
+	kOmniModeOff               = 124,  // Omni Mode Off (+ all notes off)
+	kOmniModeOn                = 125,  // Omni Mode On (+ all notes off)
+	kMonoMode                  = 126,  // Mono Mode On (+ poly off, + all notes off)
+	kPolyMode                  = 127   // Poly Mode On (+ mono off, +all notes off)
   };
   
   /** /todo 
@@ -130,7 +141,7 @@ struct IMidiMsg
    * @param s /todo
    * @param d1 /todo
    * @param d2 /todo */
-  IMidiMsg(int offs = 0, uint8_t s = 0, uint8_t d1 = 0, uint8_t d2 = 0)
+  IMidiMsg(int offs = 0, uint8 s = 0, uint8 d1 = 0, uint8 d2 = 0)
   : mOffset(offs)
   , mStatus(s)
   , mData1(d1)
@@ -142,7 +153,7 @@ struct IMidiMsg
    * @param velocity /todo
    * @param offset /todo
    * @param channel /todo */
-  void MakeNoteOnMsg(int noteNumber, int velocity, int offset, int channel = 0)
+  void MakeNoteOnMsg(uint8 noteNumber, uint8 velocity, int offset, uint8 channel = 0)
   {
     Clear();
     mStatus = channel | (kNoteOn << 4) ;
@@ -155,7 +166,7 @@ struct IMidiMsg
    * @param noteNumber /todo
    * @param offset /todo
    * @param channel /todo */
-  void MakeNoteOffMsg(int noteNumber, int offset, int channel = 0)
+  void MakeNoteOffMsg(uint8 noteNumber, int offset, uint8 channel = 0)
   {
     Clear();
     mStatus = channel | (kNoteOff << 4);
@@ -167,14 +178,14 @@ struct IMidiMsg
    * @param value range [-1, 1], converts to [0, 16384) where 8192 = no pitch change.
    * @param channel /todo
    * @param offset /todo */
-  void MakePitchWheelMsg(double value, int channel = 0, int offset = 0)
+  void MakePitchWheelMsg(double value, uint8 channel = 0, uint8 offset = 0)
   {
     Clear();
     mStatus = channel | (kPitchWheel << 4);
     int i = 8192 + (int) (value * 8192.0);
     i = std::min(std::max(i, 0), 16383);
-    mData2 = i>>7;
-    mData1 = i&0x7F;
+    mData2 = static_cast<uint8>(i) >> 7;
+    mData1 = static_cast<uint8>(i) & 0x7F;
     mOffset = offset;
   }
   
@@ -183,17 +194,17 @@ struct IMidiMsg
    * @param value range [0, 1] /todo
    * @param channel /todo
    * @param offset /todo */
-  void MakeControlChangeMsg(EControlChangeMsg idx, double value, int channel = 0, int offset = 0)
+  void MakeControlChangeMsg(EControlChangeMsg idx, double value, uint8 channel = 0, int offset = 0)
   {
     Clear();
     mStatus = channel | (kControlChange << 4);
     mData1 = idx;
-    mData2 = (int) (value * 127.0);
+    mData2 = (uint8) (value * 127.0);
     mOffset = offset;
   }
 
   /** /todo */
-  void MakeProgramChange(int program, int channel = 0, int offset = 0)
+  void MakeProgramChange(uint8 program, uint8 channel = 0, int offset = 0)
   {
     Clear();
     mStatus = channel | (kProgramChange << 4);
@@ -205,7 +216,7 @@ struct IMidiMsg
    * @param pressure /todo
    * @param offset /todo
    * @param channel /todo */
-  void MakeChannelATMsg(int pressure, int offset, int channel)
+  void MakeChannelATMsg(uint8 pressure, int offset, uint8 channel)
   {
     Clear();
     mStatus = channel | (kChannelAftertouch << 4);
@@ -219,7 +230,7 @@ struct IMidiMsg
    * @param pressure /todo
    * @param offset /todo
    * @param channel /todo */
-  void MakePolyATMsg(int noteNumber, int pressure, int offset, int channel)
+  void MakePolyATMsg(uint8 noteNumber, uint8 pressure, int offset, uint8 channel)
   {
     Clear();
     mStatus = channel | (kPolyAftertouch << 4);
@@ -238,8 +249,8 @@ struct IMidiMsg
    * @return EStatusMsg /todo */
   EStatusMsg StatusMsg() const
   {
-    unsigned int e = mStatus >> 4;
-    if (e < kNoteOff || e > kPitchWheel)
+    uint8 e = mStatus >> 4;
+    if (e < kNoteOff || e > kPitchWheel)  // TODO: if( isValidStatusMsg(e) )
     {
       return kNone;
     }
@@ -522,7 +533,8 @@ struct IMidiMsg
   * @ingroup IPlugStructs */
 struct ISysEx
 {
-  int mOffset, mSize;
+  int mOffset;
+  int mSize;
   const uint8_t* mData;
   
   /** /todo  
@@ -531,8 +543,8 @@ struct ISysEx
    * @param size /todo */
   ISysEx(int offs = 0, const uint8_t* pData = nullptr, int size = 0)
   : mOffset(offs)
-  , mData(pData)
   , mSize(size)
+  , mData(pData)
   {}
   
   /** /todo */

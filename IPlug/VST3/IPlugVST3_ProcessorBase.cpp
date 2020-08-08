@@ -8,11 +8,9 @@
  ==============================================================================
  */
 
-#include "pluginterfaces/vst/ivstparameterchanges.h"
-#include "pluginterfaces/vst/vstspeaker.h"
-#include "pluginterfaces/vst/ivstmidicontrollers.h"
-#include "public.sdk/source/vst/vsteventshelper.h"
+#include "IPlugPlatform.h"
 #include "IPlugVST3_ProcessorBase.h"
+
 
 using namespace iplug;
 using namespace Steinberg;
@@ -120,7 +118,7 @@ void IPlugVST3ProcessorBase::ProcessMidiIn(IEventList* pEventList, IPlugQueue<IM
   }
 }
 
-void IPlugVST3ProcessorBase::ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, SysExData& sysExBuf, IEventList* pOutputEvents, int32 numSamples)
+void IPlugVST3ProcessorBase::ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, SysExData& sysExBuf, IEventList* pOutputEvents, Steinberg::int32 numSamples)
 {
   if (!mMidiOutputQueue.Empty() && pOutputEvents)
   {
@@ -209,7 +207,7 @@ void IPlugVST3ProcessorBase::ProcessMidiOut(IPlugQueue<SysExData>& sysExQueue, S
   }
 }
 
-void IPlugVST3ProcessorBase::AttachBuffers(ERoute direction, int idx, int n, AudioBusBuffers& pBus, int nFrames, int32 sampleSize)
+void IPlugVST3ProcessorBase::AttachBuffers(ERoute direction, int idx, int n, AudioBusBuffers& pBus, int nFrames, Steinberg::int32 sampleSize)
 {
   if (sampleSize == kSample32)
     IPlugProcessor::AttachBuffers(direction, idx, n, pBus.channelBuffers32, nFrames);
@@ -240,7 +238,7 @@ bool IPlugVST3ProcessorBase::SetProcessing(bool state)
   return true;
 }
 
-bool IPlugVST3ProcessorBase::CanProcessSampleSize(int32 symbolicSampleSize)
+bool IPlugVST3ProcessorBase::CanProcessSampleSize(Steinberg::int32 symbolicSampleSize)
 {
   switch (symbolicSampleSize)
   {
@@ -275,6 +273,8 @@ void IPlugVST3ProcessorBase::PrepareProcessContext(ProcessData& data, ProcessSet
 
 void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data, IPlugQueue<IMidiMsg>& fromProcessor)
 {
+  using int32 = Steinberg::int32;
+
   IParameterChanges* paramChanges = data.inputParameterChanges;
   
   if (paramChanges)
@@ -349,7 +349,9 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data, IPlugQue
 
 void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup, const BusList& ins, const BusList& outs)
 {
-  int32 sampleSize = setup.symbolicSampleSize;
+	using int32 = Steinberg::int32;
+
+	int32 sampleSize = setup.symbolicSampleSize;
     
   if (sampleSize == kSample32 || sampleSize == kSample64)
   {
@@ -392,7 +394,7 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
     for (int outBus = 0, chanOffset = 0; outBus < data.numOutputs; outBus++)
     {
       int busChannels = data.outputs[outBus].numChannels;
-      SetChannelConnections(ERoute::kOutput, chanOffset, busChannels, outs[outBus].get()->isActive());
+      SetChannelConnections(ERoute::kOutput, chanOffset, busChannels, static_cast<bool>(outs[outBus].get()->isActive()));
       SetChannelConnections(ERoute::kOutput, chanOffset + busChannels, MaxNChannels(ERoute::kOutput) - (chanOffset + busChannels), false);
       AttachBuffers(ERoute::kOutput, chanOffset, busChannels, data.outputs[outBus], data.numSamples, sampleSize);
       chanOffset += busChannels;

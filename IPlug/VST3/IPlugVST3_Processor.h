@@ -13,14 +13,17 @@
 
 #undef stricmp
 #undef strnicmp
+
+#include "IPlugAPIBase.h"
+#include "IPlugVST3_ProcessorBase.h"
+#include "IPlugVST3_Common.h"
+
+BEGIN_INCLUDE_DEPENDENCIES
 #include "public.sdk/source/vst/vstaudioeffect.h"
 #include "public.sdk/source/vst/hosting/parameterchanges.h"
 #include "pluginterfaces/vst/ivstprocesscontext.h"
+END_INCLUDE_DEPENDENCIES
 
-#include "IPlugAPIBase.h"
-
-#include "IPlugVST3_ProcessorBase.h"
-#include "IPlugVST3_Common.h"
 
 /**
  * @file

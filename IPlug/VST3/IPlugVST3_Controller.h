@@ -18,10 +18,8 @@
 
 #undef stricmp
 #undef strnicmp
-#include "public.sdk/source/vst/vsteditcontroller.h"
-#include "pluginterfaces/vst/ivstchannelcontextinfo.h"
 
-#include "IPlugAPIBase.h"
+#include "../IPlugAPIBase.h"
 
 #include "IPlugVST3_View.h"
 #include "IPlugVST3_ControllerBase.h"

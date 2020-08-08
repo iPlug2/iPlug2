@@ -41,16 +41,16 @@ struct IMouseInfo;
 struct IColor;
 struct IGestureInfo;
 
-using IActionFunction = std::function<void(IControl*)>;
-using IAnimationFunction = std::function<void(IControl*)>;
-using ILambdaDrawFunction = std::function<void(ILambdaControl*, IGraphics&, IRECT&)>;
-using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
+using IActionFunction             = std::function<void(IControl*)>;
+using IAnimationFunction          = std::function<void(IControl*)>;
+using ILambdaDrawFunction         = std::function<void(ILambdaControl*, IGraphics&, IRECT&)>;
+using IKeyHandlerFunc             = std::function<bool(const IKeyPress& key, bool isUp)>;
 using IMsgBoxCompletionHanderFunc = std::function<void(EMsgBoxResult result)>;
-using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
-using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
-using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
-using IDisplayTickFunc = std::function<void()>;
-using ITouchID = uintptr_t;
+using IColorPickerHandlerFunc     = std::function<void(const IColor& result)>;
+using IGestureFunc                = std::function<void(IControl*, const IGestureInfo&)>;
+using IPopupFunction              = std::function<void(IPopupMenu* pMenu)>;
+using IDisplayTickFunc            = std::function<void()>;
+using ITouchID                    = uintptr_t;
 
 /** A click action function that does nothing */
 void EmptyClickActionFunc(IControl* pCaller);

@@ -11,9 +11,16 @@
 
 #pragma once
 
-#include "public.sdk/source/vst/vstbus.h"
+
+BEGIN_INCLUDE_DEPENDENCIES
 #include "pluginterfaces/base/ustring.h"
 #include "pluginterfaces/vst/ivstevents.h"
+#include "pluginterfaces/vst/ivstmidicontrollers.h"
+#include "pluginterfaces/vst/ivstparameterchanges.h"
+#include "pluginterfaces/vst/vstspeaker.h"
+#include "public.sdk/source/vst/vstbus.h"
+#include "public.sdk/source/vst/vsteventshelper.h"
+END_INCLUDE_DEPENDENCIES
 
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"

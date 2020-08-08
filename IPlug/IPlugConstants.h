@@ -40,11 +40,11 @@ using sample = PLUG_SAMPLE_DST;
 #define MAX_PROCESS_TRACE_COUNT 100
 #define MAX_IDLE_TRACE_COUNT 15
 
-enum EIPlugPluginType
+enum class EIPlugPluginType : uint8
 {
-  kEffect = 0,
-  kInstrument = 1,
-  kMIDIEffect = 2
+  Effect,
+  Instrument,
+  MIDIEffect
 };
 
 enum EVST3ParamIDs

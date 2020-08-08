@@ -20,11 +20,6 @@
 
 //#include "IPlugPlatform.h"
 
-#include <algorithm>
-#include <cmath>
-#include <cstdio>
-#include <cctype>
-
 #include "IPlugConstants.h"
 #include "wdlstring.h"
 
@@ -82,14 +77,6 @@ static inline bool CStringHasContents(const char* str)
 		}                                        \
 	}
 
-#ifndef REMINDER
-	#ifdef OS_WIN
-		// This enables: #pragma REMINDER("change this line!") with click-through from VC++.
-		#define REMINDER(msg) message(__FILE__ "(" MAKE_STR(__LINE__) "): " msg)
-	#elif defined __APPLE__
-		#define REMINDER(msg) WARNING msg
-	#endif
-#endif
 
 /** @brief Calculates gain from a given dB value
  * @param dB Value in dB
@@ -288,7 +275,7 @@ static void GetHostNameStr(EHost host, WDL_String& str)
 		case kHostStandalone:         str.Set("standalone");          break;
 		case kHostWWW:                str.Set("www");                 break;
 
-		default:                      str.Set("Unknown"); break;
+		default:                      str.Set("Unknown");             break;
 	}
 }
 // clang-format on

@@ -12,65 +12,62 @@
 #pragma once
 // clang-format off
 
+//---------------------------------------------------------
+// Global compiler specific preprocessor definitions
+#if defined(_MSC_VER)
+	#define PRAGMA(...)       __pragma(__VA_ARGS__)
+	#define IPLUG_EXPORT      __declspec(dllexport)
+	#define NOINLINE          __declspec(noinline)
+#elif defined(__GNUC__) || defined(__clang__)
+	#define PRAGMA(...)       _pragma(__VA_ARGS__)
+	#define IPLUG_EXPORT      __attribute__((visibility("default")))
+	#define NOINLINE          noinline
+#endif
+
+
+//---------------------------------------------------------
 // Preprocessor helpers
-#define PREPROCESSOR_TOKEN_STRING(String)       #String
+
+#define PREPROCESSOR_TOKEN_STRING(expr)         #expr
 #define PREPROCESSOR_TOKEN_CONCAT(A, B)         A##B
 #define PREPROCESSOR_TOKEN_VARIADIC(...)        __VA_ARGS__
-#define PREPROCESSOR_STRING(String)             PREPROCESSOR_TOKEN_STRING(String)
+#define PREPROCESSOR_STRING(expr)               PREPROCESSOR_TOKEN_STRING(expr)
 #define PREPROCESSOR_CONCAT(A, B)               PREPROCESSOR_TOKEN_CONCAT(A, B)
 #define PREPROCESSOR_UNPARENTHESIZE(...)        PREPROCESSOR_TOKEN_VARIADIC __VA_ARGS__
 
-// Only works if [Def] is defined as 0 or 1. If [Def] is undefined it goes badonkadonk.
-#define __PP_INTERNAL_IF_0(Expr0, Expr1)        Expr0
-#define __PP_INTERNAL_IF_1(Expr0, Expr1)        Expr1
-#define PREPROCESSOR_IF0ELSE(Def, Expr0, Expr1) PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, Def)(Expr0, Expr1)
-#define PREPROCESSOR_IF1ELSE(Def, Expr1, Expr0) PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, Def)(Expr0, Expr1)
-#define PREPROCESSOR_IF0(Def, Expr)             PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, Def)(Expr, )
-#define PREPROCESSOR_IF1(Def, Expr)             PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, Def)(, Expr)
+//---------------------------------------------------------
+// Only works if [def] is defined as 0 or 1. If [def] is undefined it goes badonkadonk.
 
-#define DEPRECATED(Version, Message)            [[deprecated(Message)]]
+#define __PP_INTERNAL_IF_0(expr0, expr1)        expr0
+#define __PP_INTERNAL_IF_1(expr0, expr1)        expr1
+#define PREPROCESSOR_IF0ELSE(def, expr0, expr1) PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(expr0, expr1)
+#define PREPROCESSOR_IF1ELSE(def, expr1, expr0) PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(expr0, expr1)
+#define PREPROCESSOR_IF0(def, expr)             PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(expr, )
+#define PREPROCESSOR_IF1(def, expr)             PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(, expr)
 
-/*
-	#define UE_CHECK_IMPL(expr) \
-		{ \
-			if(!(expr)) \
-			{ \
-				struct Impl \
-				{ \
-					static void FORCENOINLINE UE_DEBUG_SECTION ExecCheckImplInternal() \
-					{ \
-						FDebug::CheckVerifyFailed(#expr, __FILE__, __LINE__, TEXT("")); \
-					} \
-				}; \
-				Impl::ExecCheckImplInternal(); \
-				PLATFORM_BREAK(); \
-				CA_ASSUME(false); \
-			} \
-		}
-*/
+//---------------------------------------------------------
+// Global preprocessor definitions
 
-
-// Preprocessor definitions
 #define BEGIN_IPLUG_NAMESPACE                   namespace iplug {
 #define BEGIN_IGRAPHICS_NAMESPACE               namespace igraphics {
 #define END_IPLUG_NAMESPACE                     }
 #define END_IGRAPHICS_NAMESPACE                 }
 
+#define WARNING_MESSAGE(msg)                    PRAGMA(message(__FILE__ "(" PREPROCESSOR_STRING(__LINE__) ") : " "WARNING: " msg))
+#define REMINDER_MESSAGE(msg)                   PRAGMA(message(__FILE__ "(" PREPROCESSOR_STRING(__LINE__) "): " msg))
+#define DEPRECATED(version, message)            [[deprecated(message)]]
+#define NODISCARD                               [[nodiscard]]
+
+
 // clang-format on
 
-
 //---------------------------------------------------------
-
-// Silence C++17 codecvt deprecation messages
-#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
-
-
-//---------------------------------------------------------
+// Detect platform target
 
 #ifdef _WIN32
 	#define PLATFORM_WINDOWS 1
 	#define OS_WIN  // TODO: remove later
-#elif defined __APPLE__
+#elif __APPLE__
 	#include <TargetConditionals.h>
 	#if TARGET_OS_IPHONE
 		#define PLATFORM_IOS 1
@@ -79,16 +76,18 @@
 		#define PLATFORM_MAC 1
 		#define OS_MAC  // TODO: remove later
 	#endif
-#elif defined __linux || defined __linux__ || defined linux
+#elif __gnu_linux__
 	#define PLATFORM_LINUX 1
 	#define OS_LINUX  // TODO: remove later
-#elif defined EMSCRIPTEN
+#elif EMSCRIPTEN
 	#define PLATFORM_WEB 1
 	#define OS_WEB  // TODO: remove later
 #else
 	#error "No OS defined!"
 #endif
 
+// Set any undefined platform to 0.
+// This will generate a redefinition warning in case of name collition with third-party includes.
 #if !PLATFORM_WINDOWS
 	#define PLATFORM_WINDOWS 0
 #endif
@@ -108,42 +107,56 @@
 
 //---------------------------------------------------------
 // STL headers
+// TODO: move to precompiled headers
+
+#ifndef _CRT_SECURE_NO_DEPRECATE
+	#define _CRT_SECURE_NO_DEPRECATE
+#endif
+
+#include <algorithm>
+#include <atomic>
 #include <cassert>
+#include <cctype>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
-#include <cstdlib>
-
-#include <cstdlib>
-#include <string>
-#include <vector>
+#include <ctime>
+#include <functional>
 #include <limits>
 #include <memory>
+#include <string>
+#include <vector>
 
+//---------------------------------------------------------
+// Set default types
 
 namespace iplug::Types
 {
+	// std::uint*_t and int*_t is optional compiler implementation
 	struct Generic
 	{
-		typedef unsigned char      uint8;
-		typedef unsigned short     uint16;
-		typedef unsigned int       uint32;
-		typedef unsigned long long uint64;
-		typedef char               int8;
-		typedef short              int16;
-		typedef int                int32;
-		typedef long long          int64;
-		typedef unsigned char      utf8;
-		typedef char16_t           utf16;
-		typedef char32_t           utf32;
-		typedef wchar_t            wchar;
-		typedef unsigned __int64   size;
+		using byte   = std::byte;
+		using uint8  = unsigned char;
+		using uint16 = unsigned short;
+		using uint32 = unsigned int;
+		using uint64 = unsigned long long;
+		using int8   = char;
+		using int16  = short;
+		using int32  = int;
+		using int64  = long long;
+		using utf8   = unsigned char;
+		using utf16  = char16_t;
+		using utf32  = char32_t;
+		using wchar  = wchar_t;
 	};
 }  // namespace iplug::Types
 
-//---------------------------------------------------------
 
-// Include correct platform header file
+//---------------------------------------------------------
+// Include target platform header
 #if PLATFORM_WINDOWS
 	#include "Windows/WindowsPlatform.h"
 #elif PLATFORM_IOS
@@ -160,59 +173,94 @@ namespace iplug::Types
 
 
 //---------------------------------------------------------
-// Default values
+// Default platform/compiler dependent preprocessor definitions
+
+#ifndef BEGIN_INCLUDE_DEPENDENCIES
+	#define BEGIN_INCLUDE_DEPENDENCIES
+#endif
+
+#ifndef END_INCLUDE_DEPENDENCIES
+	#define END_INCLUDE_DEPENDENCIES
+#endif
+
+#ifndef NOINLINE
+	#define NOINLINE
+#endif
+
+
+//---------------------------------------------------------
+// Defaults for undefined platform definitions
 
 #ifndef PLATFORM_64BIT
 	#error "PLATFORM_64BIT is undefined. Set value of 0 or 1 in corresponding platform section"
+#endif
+
+#ifndef IPLUG_API
+	#define IPLUG_API
 #endif
 
 #ifndef PLATFORM_LITTLE_ENDIAN
 	#define PLATFORM_LITTLE_ENDIAN 0
 #endif
 
-#ifndef PLATFORM_CACHE_LINE_SIZE
+#if defined(PLATFORM_CACHE_LINE_SIZE) && !defined(PLATFORM_CACHE_ALIGN)
+	#undef PLATFORM_CACHE_LINE_SIZE
+#elif !defined(PLATFORM_CACHE_LINE_SIZE) && defined(PLATFORM_CACHE_ALIGN)
 	#define PLATFORM_CACHE_LINE_SIZE 64
 #endif
 
-#ifndef noinline
-	#define noinline
+#ifndef PLATFORM_PTHREADS
+	#define PLATFORM_PTHREADS 0
 #endif
 
 
+//---------------------------------------------------------
+// Link types from target platform to iplug namespace and perform basic tests
+
 namespace iplug
 {
-	const struct aaffq
-	{
-		const bool b64Bit        = (PLATFORM_64BIT);
-		const bool bLittleEndian = (PLATFORM_LITTLE_ENDIAN);
-	};
-}  // namespace iplug
+	// 8-bit unsigned enum class
+	using byte = Types::Platform::byte;
+
+	// 8-bit unsigned
+	using uint8 = Types::Platform::uint8;
+
+	// 16-bit unsigned
+	using uint16 = Types::Platform::uint16;
+
+	// 32-bit unsigned
+	using uint32 = Types::Platform::uint32;
+
+	// 64-bit unsigned
+	using uint64 = Types::Platform::uint64;
+
+	// 8-bit signed
+	using int8 = Types::Platform::int8;
+
+	// 16-bit signed
+	using int16 = Types::Platform::int16;
+
+	// 32-bit signed
+	using int32 = Types::Platform::int32;
+
+	// 64-bit signed
+	using int64 = Types::Platform::int64;
+
+	// 8-bit unsigned
+	using utf8 = Types::Platform::utf8;
+
+	// 16-bit unsigned
+	using utf16 = Types::Platform::utf16;
+
+	// 32-bit unsigned
+	using utf32 = Types::Platform::utf32;
+
+	// 16-bit or 32-bit unsigned (undefined width)
+	using wchar = Types::Platform::wchar;
 
 
-//---------------------------------------------------------
-
-typedef iplug::Types::PlatformTypes::uint8  uint8;
-typedef iplug::Types::PlatformTypes::uint16 uint16;
-typedef iplug::Types::PlatformTypes::uint32 uint32;
-typedef iplug::Types::PlatformTypes::uint64 uint64;
-typedef iplug::Types::PlatformTypes::int8   int8;
-typedef iplug::Types::PlatformTypes::int16  int16;
-typedef iplug::Types::PlatformTypes::int32  int32;
-typedef iplug::Types::PlatformTypes::int64  int64;
-typedef iplug::Types::PlatformTypes::utf8   utf8;
-typedef iplug::Types::PlatformTypes::utf16  utf16;
-typedef iplug::Types::PlatformTypes::utf32  utf32;
-typedef iplug::Types::PlatformTypes::wchar  wchar;
-typedef iplug::Types::PlatformTypes::size   size;
-
-//---------------------------------------------------------
-// Type safety checks
-
-namespace iplug::Types::Tests
-{
-	static_assert(1 == sizeof(char) && sizeof(char) <= sizeof(short) && sizeof(short) <= sizeof(int) &&
-					  sizeof(int) <= sizeof(long) && sizeof(long) <= sizeof(long long),
-				  "Type sanity check failed. This should never happen.");
+	//---------------------------------------------------------
+	// Type safety checks. Don't want things to go badonkadonk.
 
 	static_assert(sizeof(uint8) == 1, "uint8 type size failed.");
 	static_assert(sizeof(uint16) == 2, "uint16 type size failed.");
@@ -223,10 +271,11 @@ namespace iplug::Types::Tests
 	static_assert(sizeof(int32) == 4, "int32 type size failed.");
 	static_assert(sizeof(int64) == 8, "int64 type size failed.");
 	static_assert(sizeof(utf8) == 1, "utf8 type size failed.");
-	static_assert(sizeof(utf16) == 2, "char16 type size failed.");
-	static_assert(sizeof(utf32) == 4, "char32 type size failed.");
-	static_assert(sizeof(wchar) == sizeof(utf16) || sizeof(wchar) == sizeof(utf32), "wchar type size failed.");
-	static_assert(sizeof(size) == sizeof(nullptr), "size type size failed.");
+	static_assert(sizeof(utf16) == 2, "utf16 type size failed.");
+	static_assert(sizeof(utf32) == 4, "utf32 type size failed.");
+	static_assert(sizeof(wchar) >= 2, "wchar type size failed.");
+	static_assert(sizeof(size_t) >= 4, "size_t type size failed.");
+	static_assert(sizeof(size_t) == sizeof(nullptr), "size_t type size failed.");
 
 	static_assert(uint8(-1) > uint8(0), "uint8 type sign test failed. uint8 is signed.");
 	static_assert(uint16(-1) > uint16(0), "uint16 type sign test failed. uint16 is signed.");
@@ -240,7 +289,5 @@ namespace iplug::Types::Tests
 	static_assert(utf16(-1) > utf16(0), "utf16 type sign test failed. utf16 is signed.");
 	static_assert(utf32(-1) > utf32(0), "utf32 type sign test failed. utf32 is signed.");
 	static_assert(wchar(-1) > wchar(0), "wchar type sign test failed. wchar is signed.");
-	static_assert(size(-1) > size(0), "size type sign test failed. size is signed.");
-
-}  // namespace iplug::Types::Tests
-
+	static_assert(size_t(-1) > size_t(0), "size_t type sign test failed. size is signed.");
+}  // namespace iplug

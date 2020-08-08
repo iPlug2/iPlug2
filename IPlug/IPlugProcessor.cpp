@@ -22,11 +22,11 @@
 using namespace iplug;
 
 IPlugProcessor::IPlugProcessor(const Config& config, EAPI plugAPI)
-: mLatency(config.latency)
-, mPlugType((EIPlugPluginType) config.plugType)
+: mPlugType((EIPlugPluginType) config.plugType)
 , mDoesMIDIIn(config.plugDoesMidiIn)
 , mDoesMIDIOut(config.plugDoesMidiOut)
 , mDoesMPE(config.plugDoesMPE)
+, mLatency(config.latency)
 {
   int totalNInBuses, totalNOutBuses;
   int totalNInChans, totalNOutChans;
@@ -400,18 +400,18 @@ int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& 
 
 int IPlugProcessor::GetAUPluginType() const
 {
-  if (mPlugType == EIPlugPluginType::kEffect)
+  if (mPlugType == EIPlugPluginType::Effect)
   {
     if (DoesMIDIIn())
       return 'aumf';
     else
       return 'aufx';
   }
-  else if (mPlugType == EIPlugPluginType::kInstrument)
+  else if (mPlugType == EIPlugPluginType::Instrument)
   {
     return 'aumu';
   }
-  else if (mPlugType == EIPlugPluginType::kMIDIEffect)
+  else if (mPlugType == EIPlugPluginType::MIDIEffect)
   {
     return 'aumi';
   }

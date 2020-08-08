@@ -96,7 +96,7 @@ IGraphicsNanoVG::Bitmap::Bitmap(NVGcontext* pContext, const char* path, double s
   int w = 0, h = 0;
   nvgImageSize(mVG, nvgImageID, &w, &h);
   
-  SetBitmap(nvgImageID, w, h, sourceScale, 1.f);
+  SetBitmap(nvgImageID, w, h, static_cast<int>(sourceScale), 1.f);  // TODO: sourceScale is a double, but SetBitmap takes an int. Is that intended?
 }
 
 IGraphicsNanoVG::Bitmap::Bitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, int scale, float drawScale)

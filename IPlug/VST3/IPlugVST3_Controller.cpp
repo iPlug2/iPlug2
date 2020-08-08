@@ -10,10 +10,12 @@
 
 #include "IPlugVST3_Controller.h"
 
+BEGIN_INCLUDE_DEPENDENCIES
 #include "pluginterfaces/base/ustring.h"
 #include "pluginterfaces/base/ibstream.h"
 #include "pluginterfaces/vst/ivstmidicontrollers.h"
 //#include "public.sdk/source/vst/vstpresetfile.cpp"
+END_INCLUDE_DEPENDENCIES
 
 #include "IPlugVST3_Parameter.h"
 

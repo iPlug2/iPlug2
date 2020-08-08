@@ -18,10 +18,6 @@
 #include "IPlugPlatform.h"
 #include "IPlugUtilities.h"
 
-#include <atomic>
-#include <functional>
-#include <memory>
-
 #include "wdlstring.h"
 
 

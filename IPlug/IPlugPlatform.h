@@ -16,25 +16,6 @@
 #pragma once
 
 
-//---------------------------------------------------------
-// Configuration flags
-
-
-// Disable version checking when compiling
-#ifndef IPLUG_SKIP_CPP_VERSION_CHECK
-	#define IPLUG_SKIP_CPP_VERSION_CHECK 0
-#endif
-
-// Bypass inclusion of system headers like windows.h
-#ifndef IPLUG_DONT_INCLUDE_PLATFORM_HEADER
-	#define IPLUG_DONT_INCLUDE_PLATFORM_HEADER 0
-#endif
-
-// Enables extra compiler warnings
-#ifndef IPLUG_EXTENDED_COMPILER_WARNINGS
-	#define IPLUG_EXTENDED_COMPILER_WARNINGS 1
-#endif
-
 #include "Platform/Platform.h"
 
 

@@ -10,17 +10,12 @@
 
 #include "IGraphicsWin.h"
 
-#include <Shlobj.h>
-#include <commctrl.h>
-
 #include "heapbuf.h"
 
 #include "IPlugParameter.h"
 #include "IPopupMenuControl.h"
 #include "IPlugPaths.h"
 
-#include <wininet.h>
-#include <VersionHelpers.h>
 
 using namespace iplug;
 using namespace igraphics;
@@ -110,7 +105,9 @@ IFontDataPtr IGraphicsWin::Font::GetFontData()
 
     if (size != GDI_ERROR)
     {
-      fontData = std::make_unique<IFontData>(size);
+      // If we don't cast from const size_t to const size_t,
+      // MSVC compiler generates a C4244 warning at /W4. Makes no sense at all.
+      fontData = std::make_unique<IFontData>(static_cast<const size_t>(size));
 
       if (fontData->GetSize() == size)
       {
@@ -181,7 +178,7 @@ void IGraphicsWin::DestroyEditWindow()
  }
 }
 
-void IGraphicsWin::OnDisplayTimer(int vBlankCount)
+void IGraphicsWin::OnDisplayTimer(uint32 vBlankCount)
 {
   // Check the message vblank with the current one to see if we are way behind. If so, then throw these away.
   uint32 msgCount = vBlankCount;
@@ -205,11 +202,11 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
     }
   }
 
-  if (mParamEditWnd && mParamEditMsg != kNone)
+  if (mParamEditWnd && mParamEditMsg != EParamEditMsg::kNone)
   {
     switch (mParamEditMsg)
     {
-      case kCommit:
+	  case EParamEditMsg::kCommit:
       {
         WCHAR wtxt[MAX_WIN32_PARAM_LEN];
         WDL_String tempUTF8;
@@ -219,12 +216,12 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
         DestroyEditWindow();
         break;
       }
-      case kCancel:
+	  case EParamEditMsg::kCancel:
         DestroyEditWindow();
         break;
     }
 
-    mParamEditMsg = kNone;
+    mParamEditMsg = EParamEditMsg::kNone;
 
     return; // TODO: check this!
   }
@@ -259,7 +256,7 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
       RECT r2 = { (LONG)notDirtyR.L, (LONG)notDirtyR.T, (LONG)notDirtyR.R, (LONG)notDirtyR.B };
       ValidateRect(mPlugWnd, &r2); // make sure we dont redraw the edit box area
       UpdateWindow(mPlugWnd);
-      mParamEditMsg = kUpdate;
+      mParamEditMsg = EParamEditMsg::kUpdate;
     }
     else
     {
@@ -315,11 +312,11 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     return DefWindowProc(hWnd, msg, wParam, lParam);
   }
 
-  if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg == kEditing)
+  if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg == EParamEditMsg::kEditing)
   {
     if (msg == WM_RBUTTONDOWN || (msg == WM_LBUTTONDOWN))
     {
-      pGraphics->mParamEditMsg = kCancel;
+      pGraphics->mParamEditMsg = EParamEditMsg::kCancel;
       return 0;
     }
     return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -359,7 +356,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       pGraphics->HideTooltip();
       if (pGraphics->mParamEditWnd)
       {
-        pGraphics->mParamEditMsg = kCommit;
+        pGraphics->mParamEditMsg = EParamEditMsg::kCommit;
         return 0;
       }
       SetFocus(hWnd); // Added to get keyboard focus again when user clicks in window
@@ -456,13 +453,13 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     {
       if (pGraphics->mParamEditWnd)
       {
-        pGraphics->mParamEditMsg = kCancel;
+        pGraphics->mParamEditMsg = EParamEditMsg::kCancel;
         return 0;
       }
       else
       {
         IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
-        float d = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+        float d = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA);
         const float scale = pGraphics->GetTotalScale();
         RECT r;
         GetWindowRect(hWnd, &r);
@@ -507,6 +504,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             info.ms.touchRadius = pTI->cxContact;
           }
 
+		  
           info.ms.touchID = static_cast<ITouchID>(pTI->dwID);
 
           if (pTI->dwFlags & TOUCHEVENTF_DOWN)
@@ -740,24 +738,24 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
       {
         if (wParam == VK_RETURN)
         {
-          pGraphics->mParamEditMsg = kCommit;
+          pGraphics->mParamEditMsg = EParamEditMsg::kCommit;
           return 0;
         }
         else if (wParam == VK_ESCAPE)
         {
-          pGraphics->mParamEditMsg = kCancel;
+          pGraphics->mParamEditMsg = EParamEditMsg::kCancel;
           return 0;
         }
         break;
       }
       case WM_SETFOCUS:
       {
-        pGraphics->mParamEditMsg = kEditing;
+        pGraphics->mParamEditMsg = EParamEditMsg::kEditing;
         break;
       }
       case WM_KILLFOCUS:
       {
-        pGraphics->mParamEditMsg = kCommit;
+        pGraphics->mParamEditMsg = EParamEditMsg::kCommit;
         break;
       }
       // handle WM_GETDLGCODE so that we can say that we want the return key message
@@ -782,7 +780,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
           {
             if (pGraphics->mParamEditWnd)
             {
-              pGraphics->mParamEditMsg = kCommit;
+              pGraphics->mParamEditMsg = EParamEditMsg::kCommit;
               return 0;
             }
           }
@@ -847,7 +845,7 @@ static bool IsChildWindow(HWND pWnd)
 
 void IGraphicsWin::ForceEndUserEdit()
 {
-  mParamEditMsg = kCancel;
+  mParamEditMsg = EParamEditMsg::kCancel;
 }
 
 static UINT SETPOS_FLAGS = SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE;
@@ -2191,9 +2189,9 @@ void IGraphicsWin::VBlankNotify()
 #elif defined IGRAPHICS_SKIA
   #include "IGraphicsSkia.cpp"
   #ifdef IGRAPHICS_GL
-	INCLUDE_DEPENDENCIES_START
+	BEGIN_INCLUDE_DEPENDENCIES
     #include "glad.c"
-	INCLUDE_DEPENDENCIES_END
+	END_INCLUDE_DEPENDENCIES
   #endif
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
@@ -2201,10 +2199,10 @@ void IGraphicsWin::VBlankNotify()
   #define FONS_USE_FREETYPE
   #pragma comment(lib, "freetype.lib")
 #endif
-  INCLUDE_DEPENDENCIES_START
+  BEGIN_INCLUDE_DEPENDENCIES
   #include "nanovg.c"
   #include "glad.c"
-  INCLUDE_DEPENDENCIES_END
+  END_INCLUDE_DEPENDENCIES
 #elif defined IGRAPHICS_D2D
   #include "IGraphicsD2D.cpp"
 #else

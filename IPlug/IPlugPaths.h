@@ -19,6 +19,11 @@
 
 BEGIN_IPLUG_NAMESPACE
 
+
+using PluginIDType = void*;
+
+
+/*
 #if defined OS_MAC || defined OS_IOS
 using PluginIDType = const char *;
 #elif defined OS_WIN
@@ -26,20 +31,17 @@ using PluginIDType = HMODULE;
 #else
 using PluginIDType = void *;
 #endif
-
-#if defined OS_WIN
-#include <windows.h>
+*/
  // Unicode helpers
 void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen);
 void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str);
-#endif
 
 /** @param path WDL_String reference where the path will be put on success or empty string on failure */
 extern void HostPath(WDL_String& path, const char* bundleID = 0);
 
 /** @param path WDL_String reference where the path will be put on success or empty string on failure
  *  @param pExtra This should either be a const char* to bundleID (macOS) or an HMODULE handle (windows) */
-extern void PluginPath(WDL_String& path, PluginIDType pExtra);
+//extern void PluginPath(WDL_String& path, PluginIDType pExtra);
 
 /** Get the path to the plug-in bundle resource path. On macOS and iOS if this is called in an AUv3 app extension it will return the bundle of the parent app
  * iOS bundles are flat, so the path is just to the .app where as macOS bundles contain a resources subfolder

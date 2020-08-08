@@ -8,6 +8,8 @@
  ==============================================================================
 */
 
+#pragma once
+
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
 
@@ -25,7 +27,6 @@
 #include "IPlugAAX_Parameters.h"
 
 #include "AAX_CEffectGUI.h"
-
 #include "AAX_Push8ByteStructAlignment.h"
 
 #if defined OS_WIN

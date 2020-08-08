@@ -19,10 +19,6 @@
 
 #if defined OS_WEB
 #include <emscripten/val.h>
-#elif defined OS_WIN
-#include <windows.h>
-#include <Shlobj.h>
-#include <Shlwapi.h>
 #endif
 
 BEGIN_IPLUG_NAMESPACE
@@ -66,7 +62,7 @@ void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
   UTF16ToUTF8(path, wideBuffer);
 }
 
-static void GetModulePath(HMODULE hModule, WDL_String& path)
+ static void GetModulePath(HMODULE hModule, WDL_String& path)
 {
   path.Set("");
   char pathCStr[MAX_WIN32_PATH_LEN];
@@ -93,10 +89,10 @@ void HostPath(WDL_String& path, const char* bundleID)
   GetModulePath(0, path);
 }
 
-void PluginPath(WDL_String& path, HMODULE pExtra)
-{
-  GetModulePath(pExtra, path);
-}
+//void PluginPath(WDL_String& path, HMODULE pExtra)
+//{
+//  GetModulePath(pExtra, path);
+//}
 
 void BundleResourcePath(WDL_String& path, HMODULE pExtra)
 {

@@ -14,11 +14,17 @@
 #include "nanosvg.h"
 
 #if defined VST3_API
+
+BEGIN_INCLUDE_DEPENDENCIES
 #include "pluginterfaces/base/ustring.h"
+END_INCLUDE_DEPENDENCIES
+
 #include "IPlugVST3.h"
 using VST3_API_BASE = iplug::IPlugVST3;
 #elif defined VST3C_API
+BEGIN_INCLUDE_DEPENDENCIES
 #include "pluginterfaces/base/ustring.h"
+END_INCLUDE_DEPENDENCIES
 #include "IPlugVST3_Controller.h"
 #include "IPlugVST3_View.h"
 using VST3_API_BASE = iplug::IPlugVST3Controller;
