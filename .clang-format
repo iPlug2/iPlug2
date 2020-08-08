@@ -3,20 +3,21 @@
 BasedOnStyle: google
 Language: Cpp
 
+ColumnLimit: 120
+
 UseTab: ForContinuationAndIndentation
 #UseTab: Never
 
 IndentWidth: 4
 TabWidth: 4
 ContinuationIndentWidth: 4
-
 ConstructorInitializerIndentWidth: 2
 ObjCBlockIndentWidth: 2
 
 AccessModifierOffset: -2
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: true
+AlignConsecutiveDeclarations: false
 AlignConsecutiveMacros: true
 AlignEscapedNewlines: Left
 AlignOperands: true
@@ -43,11 +44,7 @@ BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: false
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
-BreakAfterJavaFieldAnnotations: false
 BreakStringLiterals: true
-ColumnLimit: 120
-#CommentPragmas: '   \* '
-#CommentPragmas: '/\*(.+\n.+)+\*/'
 CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
 Cpp11BracedListStyle: true
@@ -56,8 +53,7 @@ DerivePointerAlignment: false
 DisableFormat: false
 ExperimentalAutoDetectBinPacking: false
 FixNamespaceComments: true
-ForEachMacros:
-  - foreach
+ForEachMacros: [foreach]
 IncludeBlocks: Preserve
 IndentCaseLabels: true
 IndentGotoLabels: true
@@ -66,39 +62,22 @@ IndentWrappedFunctionNames: false
 JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: false
-MacroBlockBegin: "INCLUDE_.*_START"
-MacroBlockEnd: "INCLUDE_.*_END"
+MacroBlockBegin: "BEGIN_INCLUDE_.*"
+MacroBlockEnd: "END_INCLUDE_.*"
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: All
 ObjCBinPackProtocolList: Never
 ObjCSpaceAfterProperty: true
 ObjCSpaceBeforeProtocolList: false
 PenaltyBreakAssignment: 2
-PenaltyBreakBeforeFirstCallParameter: 10
-PenaltyBreakComment: 10
+PenaltyBreakBeforeFirstCallParameter: 1
+PenaltyBreakComment: 300
 PenaltyBreakFirstLessLess: 120
 PenaltyBreakString: 1000
 PenaltyBreakTemplateDeclaration: 10
 PenaltyExcessCharacter: 1000000
 PenaltyReturnTypeOnItsOwnLine: 10000
 PointerAlignment: Left
-RawStringFormats:
-  - Language: TextProto
-    Delimiters:
-      - pb
-      - PB
-      - proto
-      - PROTO
-    EnclosingFunctions:
-      - EqualsProto
-      - EquivToProto
-      - PARSE_PARTIAL_TEXT_PROTO
-      - PARSE_TEST_PROTO
-      - PARSE_TEXT_PROTO
-      - ParseTextOrDie
-      - ParseTextProtoOrDie
-    CanonicalDelimiter: ''
-    BasedOnStyle: google
 ReflowComments: false
 SortIncludes: false
 SortUsingDeclarations: true

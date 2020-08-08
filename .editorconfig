@@ -10,7 +10,6 @@ indent_size = 4
 tab_width = 4
 trim_trailing_whitespace = true
 insert_final_newline = true
-guidelines = 120
 
 [*.{bat,cmd}]
 end_of_line = crlf
