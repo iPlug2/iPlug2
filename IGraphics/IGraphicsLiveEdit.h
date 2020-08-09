@@ -161,17 +161,15 @@ public:
         if(r.R < mMouseDownRECT.L +mGridSize) r.R = mMouseDownRECT.L+mGridSize;
         if(r.B < mMouseDownRECT.T +mGridSize) r.B = mMouseDownRECT.T+mGridSize;
           
-        pControl->SetSize(r.W(), r.H());
+        GetUI()->SetControlSize(r.W(), r.H(), mClickedOnControl);
       }
       else
       {
         const float x1 = SnapToGrid(mMouseDownRECT.L + (x - mouseDownX));
         const float y1 = SnapToGrid(mMouseDownRECT.T + (y - mouseDownY));
           
-        pControl->SetPosition(x1, y1);
+        GetUI()->SetControlPosition(x1, y1, mClickedOnControl);
       }
-
-      GetUI()->SetAllControlsDirty();
     }
     else
     {

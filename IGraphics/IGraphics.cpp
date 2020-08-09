@@ -202,6 +202,34 @@ void IGraphics::RemoveAllControls()
   mControls.Empty(true);
 }
 
+void IGraphics::SetControlPosition(float x, float y, int idx)
+{
+  IControl* pControl = GetControl(idx);
+  pControl->SetPosition(x, y);
+  if (!pControl->IsHidden())
+    SetAllControlsDirty();
+}
+
+void IGraphics::SetControlSize(float w, float h, int idx)
+{
+  IControl* pControl = GetControl(idx);
+  pControl->SetSize(w, h);
+  if (!pControl->IsHidden())
+    SetAllControlsDirty();
+}
+
+void IGraphics::SetControlPositionWithTag(float x, float y, int ctrlTag)
+{
+  int idx = GetControlIdx(GetControlWithTag(ctrlTag));
+  SetControlPosition(x, y, idx);
+}
+
+void IGraphics::SetControlSizeWithTag(float w, float h, int ctrlTag)
+{
+  int idx = GetControlIdx(GetControlWithTag(ctrlTag));
+  SetControlSize(w, h, idx);
+}
+
 void IGraphics::SetControlValueAfterTextEdit(const char* str)
 {
   if (!mInTextEntry)

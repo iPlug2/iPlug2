@@ -1370,7 +1370,31 @@ public:
   
   /** Calls SetClean() on every control */
   void SetAllControlsClean();
-
+    
+  /** Reposition a control, redrawing the interface correctly
+   @param x The new x position
+   @param y The new y position
+   @param idx The index of the control */
+  void SetControlPosition(float x, float y, int idx);
+  
+  /** Resize a control, redrawing the interface correctly
+   @param w The new width
+   @param h The new height
+   @param idx The index of the control */
+  void SetControlSize(float w, float h, int idx);
+  
+  /** Reposition a control using a tag to find the control, redrawing the interface correctly
+   @param x The new x position
+   @param y The new y position
+   @param ctrlTag The tag to look for */
+  void SetControlPositionWithTag(float x, float y, int ctrlTag);
+  
+  /** Resize a control using a tag to find the control, redrawing the interface correctly
+   @param w The new width
+   @param h The new height
+   @param ctrlTag The tag to look for */
+  void SetControlSizeWithTag(float w, float h, int ctrlTag);
+  
 private:
   /** Get the index of the control at x and y coordinates on mouse event
    * @param x The X coordinate to test
