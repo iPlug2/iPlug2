@@ -236,7 +236,9 @@ namespace iplug::Types
 		using int32  = std::int32_t;
 		using int64  = std::int64_t;
 	};
+
 }  // namespace iplug::Types
+
 
 
 //---------------------------------------------------------

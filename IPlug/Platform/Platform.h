@@ -10,6 +10,39 @@
 
 
 #pragma once
+
+
+//---------------------------------------------------------
+// Detect platform target
+
+#ifdef _WIN32
+	#define PLATFORM_WINDOWS 1
+	#define PLATFORM_HEADER_PREFIX Windows
+	#define OS_WIN  // TODO: remove later
+#elif __APPLE__
+	#include <TargetConditionals.h>
+	#if TARGET_OS_IPHONE
+		#define PLATFORM_IOS 1
+		#define PLATFORM_HEADER_PREFIX IOS
+		#define OS_IOS  // TODO: remove later
+	#elif TARGET_OS_MAC
+		#define PLATFORM_MAC 1
+		#define PLATFORM_HEADER_PREFIX MAC
+		#define OS_MAC  // TODO: remove later
+	#endif
+#elif __gnu_linux__
+	#define PLATFORM_LINUX 1
+	#define PLATFORM_HEADER_PREFIX Linux
+	#define OS_LINUX  // TODO: remove later
+#elif EMSCRIPTEN
+	#define PLATFORM_WEB 1
+	#define PLATFORM_HEADER_PREFIX WEB
+	#define OS_WEB  // TODO: remove later
+#else
+	#error "No OS defined!"
+#endif
+
+
 // clang-format off
 
 //---------------------------------------------------------
@@ -48,6 +81,8 @@
 //---------------------------------------------------------
 // Global preprocessor definitions
 
+#define PLATFORM_HEADER(file)                   PREPROCESSOR_STRING(PLATFORM_HEADER_PREFIX/##file)
+
 #define BEGIN_IPLUG_NAMESPACE                   namespace iplug {
 #define BEGIN_IGRAPHICS_NAMESPACE               namespace igraphics {
 #define END_IPLUG_NAMESPACE                     }
@@ -59,32 +94,9 @@
 #define NODISCARD                               [[nodiscard]]
 
 
+
 // clang-format on
 
-//---------------------------------------------------------
-// Detect platform target
-
-#ifdef _WIN32
-	#define PLATFORM_WINDOWS 1
-	#define OS_WIN  // TODO: remove later
-#elif __APPLE__
-	#include <TargetConditionals.h>
-	#if TARGET_OS_IPHONE
-		#define PLATFORM_IOS 1
-		#define OS_IOS  // TODO: remove later
-	#elif TARGET_OS_MAC
-		#define PLATFORM_MAC 1
-		#define OS_MAC  // TODO: remove later
-	#endif
-#elif __gnu_linux__
-	#define PLATFORM_LINUX 1
-	#define OS_LINUX  // TODO: remove later
-#elif EMSCRIPTEN
-	#define PLATFORM_WEB 1
-	#define OS_WEB  // TODO: remove later
-#else
-	#error "No OS defined!"
-#endif
 
 // Set any undefined platform to 0.
 // This will generate a redefinition warning in case of name collition with third-party includes.
@@ -295,4 +307,6 @@ namespace iplug
 	static_assert(utf32(-1) > utf32(0), "utf32 type sign test failed. utf32 is signed.");
 	static_assert(wchar(-1) > wchar(0), "wchar type sign test failed. wchar is signed.");
 	static_assert(size_t(-1) > size_t(0), "size_t type sign test failed. size is signed.");
+
 }  // namespace iplug
+
