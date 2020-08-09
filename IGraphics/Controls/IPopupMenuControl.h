@@ -98,8 +98,6 @@ public:
   /** Override this method to change the way a cell separator is drawn  */
   virtual void DrawSeparator(IGraphics& g, const IRECT& bounds, IBlend* pBlend);
   
-  /** Call this to set the Callout Arrow color */
-  void SetCalloutArrowColor(IColor color) { mCalloutArrowColor = color; }
   /** Call this to set the Panel color */
   void SetPanelColor(IColor color) { mPanelBackgroundColor = color; }
   /** Call this to set the Cell color when mouse is over it */
@@ -211,7 +209,6 @@ private:
   MenuPanel* mAppearingMenuPanel = nullptr; // A pointer to a MenuPanel that's in the process of fading in
   EPopupState mState = kCollapsed; // The state of the pop-up, mainly used for animation
   IRECT* mMouseCellBounds = nullptr;
-  IRECT mPrevMouseCellBounds;// The cell bounds that last had the mouse over it.
   IPopupMenu* mMenu = nullptr; // Pointer to the main IPopupMenu, that this control is visualising. This control does not own the menu.
     
   int mMaxColumnItems = 0; // How long the list can get before adding a new column - 0 equals no limit
@@ -241,7 +238,6 @@ private:
 
   IRECT mMaxBounds; // if view is only showing a part of the graphics context, we need to know because menus can't go there
   
-  IColor mCalloutArrowColor = COLOR_WHITE;
   IColor mPanelBackgroundColor = COLOR_WHITE;
   IColor mCellBackGroundColor = COLOR_BLUE;
   IColor mItemMouseoverColor = COLOR_WHITE;
