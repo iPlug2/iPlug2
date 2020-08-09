@@ -13,14 +13,13 @@
  * @brief IParam implementation
  */
 
+#include "IPlugPlatform.h"
+#include "IPlugConstants.h"
 #include "IPlugParameter.h"
 #include "IPlugLogger.h"
 
-#include <cstdio>
-#include <algorithm>
 
-
-using namespace iplug;
+BEGIN_IPLUG_NAMESPACE
 
 #pragma mark - Shape
 
@@ -160,11 +159,8 @@ void IParam::InitDouble(const char* name, double defaultVal, double minVal, doub
 
   Set(defaultVal);
   
-  for (mDisplayPrecision = 0;
-       mDisplayPrecision < MAX_PARAM_DISPLAY_PRECISION && step != floor(step);
-       ++mDisplayPrecision, step *= 10.0)
+  for (mDisplayPrecision = 0; mDisplayPrecision < MAX_PARAM_DISPLAY_PRECISION && step != floor(step); ++mDisplayPrecision, step *= 10.0)
   {
-    ;
   }
     
   mShape = std::unique_ptr<Shape>(shape.Clone());
@@ -192,8 +188,8 @@ void IParam::InitPitch(const char *name, int defaultVal, int minVal, int maxVal,
   WDL_String displayText;
   for (auto i = minVal; i <= maxVal; i++)
   {
-    MidiNoteName(i, displayText, /*cents*/false, middleCisC);
-    SetDisplayText(i - minVal, displayText.Get());
+    MidiNoteName(i, displayText, false, middleCisC);
+    SetDisplayText(static_cast<double>(i) - minVal, displayText.Get());
   }
 }
 
@@ -241,8 +237,8 @@ void IParam::Init(const IParam& p, const char* searchStr, const char* replaceStr
   for (auto i=0; i<p.NDisplayTexts(); i++)
   {
     double val;
-    const char* str = p.GetDisplayTextAtIdx(i, &val);
-    SetDisplayText(val, str);
+    const char* s = p.GetDisplayTextAtIdx(i, &val);
+    SetDisplayText(val, s);
   }
 }
 
@@ -419,3 +415,5 @@ void IParam::PrintDetails() const
 {
   DBGMSG("%s %f", GetName(), Value());
 }
+
+END_IPLUG_NAMESPACE
