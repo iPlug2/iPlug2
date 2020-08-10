@@ -31,8 +31,9 @@ doxygen_warnings.txt
 Pods
 PodFile.lock
 
-# local user-specific files & folders
+# local user-specific files & folders that should be ignored
 xcuserdata/
+.vscode/
 *.rsuser
 *.suo
 *.user
@@ -54,6 +55,9 @@ ipch/
 [Oo]ut/
 [Bb]uild*/
 [Ii]nstall/
+
+!/.vscode/c_cpp_properties.json
+!/.vscode/*.code-snippets
 
 !README*
 !AUTHORS
