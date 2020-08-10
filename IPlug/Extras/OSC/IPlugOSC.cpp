@@ -6,7 +6,7 @@ std::unique_ptr<Timer> OSCInterface::mTimer;
 int OSCInterface::sInstances = 0;
 WDL_PtrList<OSCDevice> gDevices;
 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
 #define XSleep Sleep
 #else
 void XSleep(int ms) { usleep(ms?ms*1000:100); }

@@ -94,17 +94,17 @@ BEGIN_IPLUG_NAMESPACE
 using Plugin = PLUGIN_API_BASE;
 END_IPLUG_NAMESPACE
 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   #define BUNDLE_ID ""
-#elif defined OS_MAC
+#elif PLATFORM_MAC
   #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME API_EXT2
   #define EXPORT __attribute__ ((visibility("default")))
-#elif defined OS_IOS
+#elif PLATFORM_IOS
   #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." BUNDLE_NAME API_EXT2
   #define EXPORT __attribute__ ((visibility("default")))
-#elif defined OS_LINUX
+#elif PLATFORM_LINUX
   //TODO:
-#elif defined OS_WEB
+#elif PLATFORM_WEB
   #define BUNDLE_ID ""
 #else
   #error "No OS defined!"
@@ -197,6 +197,7 @@ END_IPLUG_NAMESPACE
   #define PLUG_HEIGHT 500
 #endif
 
+// TODO: Remove arbitrary size limits. Let people with their 8K or 16K screens be able to see without magnifying glass
 #ifndef PLUG_MIN_WIDTH
   #define PLUG_MIN_WIDTH (PLUG_WIDTH / 2)
 #endif
@@ -213,6 +214,7 @@ END_IPLUG_NAMESPACE
   #define PLUG_MAX_HEIGHT (PLUG_HEIGHT * 2)
 #endif
 
+// TODO: FPS should be read from client hardware and then have a FPS limit option client side
 #ifndef PLUG_FPS
   PRAGMA_MESSAGE("PLUG_FPS not defined, setting to 60")
   #define PLUG_FPS 60

@@ -33,7 +33,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachPanelBackground(mBGControlPattern);
     pGraphics->AttachTextEntryControl();
     
-#ifndef OS_IOS
+#if !PLATFORM_IOS
     pGraphics->AttachPopupMenuControl(DEFAULT_LABEL_TEXT);
 #endif
     pGraphics->AttachBubbleControl();

@@ -758,7 +758,7 @@ void ISwitchControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
 bool IKnobControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 {
 #ifdef PROTOOLS
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   return mod.C;
 #else
   return wheel ? mod.C : mod.R;
@@ -1118,7 +1118,7 @@ void ISliderControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, fl
 bool ISliderControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 {
 #ifdef PROTOOLS
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   return mod.C;
 #else
   return wheel ? mod.C : mod.R;

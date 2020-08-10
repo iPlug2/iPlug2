@@ -26,14 +26,14 @@ public:
    : ITextControl(bounds, "Do a gesture...")
   {
     mIgnoreMouse = false;
-    #ifdef OS_IOS
+    #if PLATFORM_IOS
     mText = IText(60.f);
     #endif
   }
   
   void Draw(IGraphics& g) override
   {
-  #ifdef OS_IOS
+  #if PLATFORM_IOS
     g.DrawDottedRect(COLOR_BLACK, mRECT);
 
     g.PathTransformSave();

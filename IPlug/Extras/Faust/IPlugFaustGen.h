@@ -34,7 +34,7 @@ using FaustGen = iplug::IPlugFaust; // not used, except for CompileCPP();
 
 #include <sys/stat.h>
 
-#if defined OS_MAC || defined OS_LINUX
+#if PLATFORM_MAC || PLATFORM_LINUX
 typedef struct stat StatType;
 typedef timespec StatTime;
 
@@ -48,7 +48,7 @@ static inline StatTime TimeZero()
   ts.tv_nsec = 0;
   return ts;
 }
-#else //OS_WIN
+#else
 typedef struct _stat64i32 StatType;
 typedef time_t StatTime;
 
@@ -69,10 +69,12 @@ static inline StatTime TimeZero() { return (StatTime) 0; }
 
 #include "mutex.h"
 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
 #pragma comment(lib, "faust.lib")
 #else
+BEGIN_INCLUDE_DEPENDENCIES
 #include <libgen.h>
+END_INCLUDE_DEPENDENCIES
 #endif
 
 #define DEFAULT_SOURCE_CODE_FMT_STR_FX "import(\"stdfaust.lib\");\nprocess=par(i,%i,_);"
@@ -85,7 +87,7 @@ static inline StatTime TimeZero() { return (StatTime) 0; }
 #define FAUST_RECOMPILE_INTERVAL 5000 //ms
 
 #ifndef FAUST_EXE
-  #if defined OS_MAC || defined OS_LINUX
+  #if PLATFORM_MAC || PLATFORM_LINUX
     #define FAUST_EXE "/usr/local/bin/faust"
   #else
     #define FAUST_EXE "C:\\\"Program Files\"\\Faust\\bin\\faust.exe"//Double quotes around "Program Files" because of whitespace
@@ -93,7 +95,7 @@ static inline StatTime TimeZero() { return (StatTime) 0; }
 #endif
 
 #ifndef FAUST_DLL_PATH
-  #if defined OS_MAC || defined OS_LINUX
+  #if PLATFORM_MAC || PLATFORM_LINUX
     #define FAUST_DLL_PATH "/usr/local/lib/"
   #else
     #define FAUST_DLL_PATH "C:\\Program Files\\Faust\\lib"
@@ -106,7 +108,7 @@ class FaustGen : public IPlugFaust
 {
   class Factory
   {
-#ifdef OS_MAC
+#if PLATFORM_MAC
     static std::string GetLLVMArchStr()
     {
       int tmp;

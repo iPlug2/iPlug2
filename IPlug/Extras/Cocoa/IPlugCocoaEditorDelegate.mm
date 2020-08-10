@@ -1,10 +1,10 @@
 #include "IPlugCocoaEditorDelegate.h"
 #import "IPlugCocoaViewController.h"
 
-#if defined OS_MAC
+#if PLATFORM_MAC
 #define VIEW NSView
 #define MAKERECT NSMakeRect
-#elif defined OS_IOS
+#elif PLATFORM_IOS
 #import <UIKit/UIKit.h>
 #define VIEW UIView
 #define MAKERECT CGRectMake
@@ -23,7 +23,7 @@ CocoaEditorDelegate::~CocoaEditorDelegate()
 
 void* CocoaEditorDelegate::OpenWindow(void* pParent)
 {
-#ifdef OS_IOS
+#if PLATFORM_IOS
   IPlugCocoaViewController* viewController = (IPlugCocoaViewController*) [(VIEW*) pParent nextResponder];
   [viewController setEditorDelegate: this];
   mViewController = viewController;

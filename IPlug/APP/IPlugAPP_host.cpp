@@ -10,7 +10,7 @@
 
 #include "IPlugAPP_host.h"
 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
 	#include <sys/stat.h>
 #endif
 
@@ -79,11 +79,11 @@ namespace iplug
 
 	bool IPlugAPPHost::InitState()
 	{
-#if defined OS_WIN
+#if PLATFORM_WINDOWS
 		char strPath[MAX_PATH_LEN];
 		SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, strPath);
 		mINIPath.SetFormatted(MAX_PATH_LEN, "%s\\%s\\", strPath, BUNDLE_NAME);
-#elif defined OS_MAC
+#elif PLATFORM_MAC
 		mINIPath.SetFormatted(MAX_PATH_LEN, "%s/Library/Application Support/%s/", getenv("HOME"), BUNDLE_NAME);
 #else
 	#error NOT IMPLEMENTED
@@ -135,12 +135,12 @@ namespace iplug
 		}
 		else  // folder doesn't exist - make folder and make file
 		{
-#if defined OS_WIN
+#if PLATFORM_WINDOWS
 			// folder doesn't exist - make folder and make file
 			CreateDirectory(mINIPath.Get(), NULL);
 			mINIPath.Append("settings.ini");
 			UpdateINI();  // will write file if doesn't exist
-#elif defined OS_MAC
+#elif PLATFORM_MAC
 			mode_t process_mask = umask(0);
 			int    result_code  = mkdir(mINIPath.Get(), S_IRWXU | S_IRWXG | S_IRWXO);
 			umask(process_mask);
@@ -222,7 +222,7 @@ namespace iplug
 			if (!strcmp(nameToTest, OFF_TEXT))
 				return 0;
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
 			start = 2;
 			if (!strcmp(nameToTest, "virtual input"))
 				return 1;
@@ -239,7 +239,7 @@ namespace iplug
 			if (!strcmp(nameToTest, OFF_TEXT))
 				return 0;
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
 			start = 2;
 			if (!strcmp(nameToTest, "virtual output"))
 				return 1;
@@ -272,7 +272,7 @@ namespace iplug
 			info                   = mDAC->getDeviceInfo(i);
 			std::string deviceName = info.name;
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
 			size_t colonIdx = deviceName.rfind(": ");
 
 			if (colonIdx != std::string::npos && deviceName.length() >= 2)
@@ -313,7 +313,7 @@ namespace iplug
 
 			mMidiInputDevNames.push_back(OFF_TEXT);
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
 			mMidiInputDevNames.push_back("virtual input");
 #endif
 
@@ -326,7 +326,7 @@ namespace iplug
 
 			mMidiOutputDevNames.push_back(OFF_TEXT);
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
 			mMidiOutputDevNames.push_back("virtual output");
 #endif
 
@@ -386,12 +386,12 @@ namespace iplug
 			mDAC = nullptr;
 		}
 
-#if defined OS_WIN
+#if PLATFORM_WINDOWS
 		if (mState.mAudioDriverType == kDeviceASIO)
 			mDAC = std::make_unique<RtAudio>(RtAudio::WINDOWS_ASIO);
 		else
 			mDAC = std::make_unique<RtAudio>(RtAudio::WINDOWS_DS);
-#elif defined OS_MAC
+#elif PLATFORM_MAC
 		if (mState.mAudioDriverType == kDeviceCoreAudio)
 			mDAC = std::make_unique<RtAudio>(RtAudio::MACOSX_CORE);
 			//else
@@ -411,12 +411,12 @@ namespace iplug
 		int inputID  = -1;
 		int outputID = -1;
 
-#if defined OS_WIN
+#if PLATFORM_WINDOWS
 		if (mState.mAudioDriverType == kDeviceASIO)
 			inputID = GetAudioDeviceIdx(mState.mAudioOutDev.Get());
 		else
 			inputID = GetAudioDeviceIdx(mState.mAudioInDev.Get());
-#elif defined OS_MAC
+#elif PLATFORM_MAC
 		inputID = GetAudioDeviceIdx(mState.mAudioInDev.Get());
 #else
 	#error NOT IMPLEMENTED
@@ -495,13 +495,13 @@ namespace iplug
 				{
 					return true;
 				}
-#if defined OS_WIN
+#if PLATFORM_WINDOWS
 				else
 				{
 					mMidiIn->openPort(port - 1);
 					return true;
 				}
-#elif defined OS_MAC
+#elif PLATFORM_MAC
 				else if (port == 1)
 				{
 					std::string virtualMidiInputName = "To ";
@@ -535,13 +535,13 @@ namespace iplug
 
 				if (port == 0)
 					return true;
-#if defined OS_WIN
+#if PLATFORM_WINDOWS
 				else
 				{
 					mMidiOut->openPort(port - 1);
 					return true;
 				}
-#elif defined OS_MAC
+#elif PLATFORM_MAC
 				else if (port == 1)
 				{
 					std::string virtualMidiOutputName = "From ";

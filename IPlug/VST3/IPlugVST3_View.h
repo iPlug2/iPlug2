@@ -36,11 +36,11 @@ class IPlugVST3View : public Steinberg::CPluginView, public Steinberg::IPlugView
 	{
 		if (mOwner.HasUI())  // for no editor plugins
 		{
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
 			if (strcmp(type, Steinberg::kPlatformTypeHWND) == 0)
 				return Steinberg::kResultTrue;
 
-#elif defined OS_MAC
+#elif PLATFORM_MAC
 			if (strcmp(type, Steinberg::kPlatformTypeNSView) == 0)
 				return Steinberg::kResultTrue;
 #endif
@@ -107,10 +107,10 @@ class IPlugVST3View : public Steinberg::CPluginView, public Steinberg::IPlugView
 		if (mOwner.HasUI())
 		{
 			void* pView = nullptr;
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
 			if (strcmp(type, Steinberg::kPlatformTypeHWND) == 0)
 				pView = mOwner.OpenWindow(pParent);
-#elif defined OS_MAC
+#elif PLATFORM_MAC
 			if (strcmp(type, Steinberg::kPlatformTypeNSView) == 0)
 				pView = mOwner.OpenWindow(pParent);
 			else  // Carbon
@@ -146,7 +146,7 @@ class IPlugVST3View : public Steinberg::CPluginView, public Steinberg::IPlugView
 
 	static int AsciiToVK(int ascii)
 	{
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
 		HKL layout = GetKeyboardLayout(0);
 		return VkKeyScanExA((CHAR) ascii, layout);
 #else

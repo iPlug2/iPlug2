@@ -32,7 +32,7 @@
 #include "Oversampler.h"
 
 #ifndef FAUST_SHARE_PATH
-  #if defined OS_MAC || defined OS_LINUX
+  #if PLATFORM_MAC || PLATFORM_LINUX
     #define FAUST_SHARE_PATH "/usr/local/share/faust/"
   #else
    #define FAUST_SHARE_PATH "C:\\Program Files\\Faust\\share\\faust"

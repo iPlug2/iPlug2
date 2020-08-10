@@ -38,9 +38,9 @@ BEGIN_IPLUG_NAMESPACE
 #ifdef NDEBUG
   #define DBGMSG(...) do {} while(0)// should be optimized away
 #else
-  #if defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB) || defined(OS_IOS)
+  #if PLATFORM_MAC || PLATFORM_LINUX || PLATFORM_WEB || PLATFORM_IOS
     #define DBGMSG(...) printf(__VA_ARGS__)
-  #elif defined OS_WIN
+  #elif PLATFORM_WINDOWS
     #ifdef OutputDebugString
     #undef OutputDebugString
     #define OutputDebugString OutputDebugStringA
@@ -73,9 +73,9 @@ BEGIN_IPLUG_NAMESPACE
 #if defined TRACER_BUILD
   #define TRACE Trace(TRACELOC, "");
 
-  #if defined OS_WIN
+  #if PLATFORM_WINDOWS
     #define SYS_THREAD_ID (intptr_t) GetCurrentThreadId()
-  #elif defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB)
+  #elif PLATFORM_MAC || PLATFORM_LINUX || PLATFORM_WEB
     #define SYS_THREAD_ID (intptr_t) pthread_self()
   #endif
 
@@ -95,7 +95,7 @@ BEGIN_IPLUG_NAMESPACE
     LogFile()
     {
       char logFilePath[100];
-  #ifdef OS_WIN
+  #if PLATFORM_WINDOWS
       sprintf(logFilePath, "%s/%s", "C:\\", LOGFILE); // TODO: check windows logFilePath
   #else
       sprintf(logFilePath, "%s/%s", getenv("HOME"), LOGFILE);

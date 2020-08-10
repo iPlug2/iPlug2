@@ -11,7 +11,7 @@
 #include "IPlugAPP.h"
 #include "IPlugAPP_host.h"
 
-#if defined OS_MAC || defined OS_LINUX
+#if PLATFORM_MAC || PLATFORM_LINUX
 	#include <IPlugSWELL.h>
 #endif
 
@@ -41,7 +41,7 @@ bool IPlugAPP::EditorResize(int viewWidth, int viewHeight)
 
 	if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
 	{
-#ifdef OS_MAC
+#if PLATFORM_MAC
 		const int titleBarOffset = 22;
 		RECT r;
 		GetWindowRect(gHWND, &r);

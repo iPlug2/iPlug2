@@ -12,12 +12,12 @@
 
 #include "IPlugPlatform.h"
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
   #include "cairo/cairo.h"
   #define __QUICKDRAW__
   #define __HISERVICES__
   #include "cairo/cairo-quartz.h"
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
   #define CAIRO_WIN32_STATIC_BUILD
 
   #pragma comment(lib, "cairo.lib")
@@ -54,7 +54,7 @@ private:
   class Bitmap;
   class Font;
   struct OSFont;
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   class PNGStream;
 #endif
 public:

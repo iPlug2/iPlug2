@@ -13,16 +13,16 @@
 #include "ITextEntryControl.h"
 
 #if defined IGRAPHICS_GL
-  #if defined OS_MAC
+  #if PLATFORM_MAC
     #if defined IGRAPHICS_GL2
       #define NANOVG_GL2_IMPLEMENTATION
     #elif defined IGRAPHICS_GL3
       #include <OpenGL/gl3.h>
       #define NANOVG_GL3_IMPLEMENTATION
     #else
-      #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 for IGRAPHICS_NANOVG with OS_MAC
+      #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 for IGRAPHICS_NANOVG with PLATFORM_MAC
     #endif
-  #elif defined OS_IOS
+  #elif PLATFORM_IOS
 //    #if defined IGRAPHICS_GLES2
 //      #define NANOVG_GLES2_IMPLEMENTATION
 //    #elif defined IGRAPHICS_GLES3
@@ -31,18 +31,18 @@
 //      #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_IOS
 //    #endif
     #error NOT IMPLEMENTED
-  #elif defined OS_WIN
+  #elif PLATFORM_WINDOWS
     #pragma comment(lib, "opengl32.lib")
     #if defined IGRAPHICS_GL2
       #define NANOVG_GL2_IMPLEMENTATION
     #elif defined IGRAPHICS_GL3
       #define NANOVG_GL3_IMPLEMENTATION
     #else
-      #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_WIN
+      #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with PLATFORM_WINDOWS
     #endif
-  #elif defined OS_LINUX
+  #elif PLATFORM_LINUX
     #error NOT IMPLEMENTED
-  #elif defined OS_WEB
+  #elif PLATFORM_WEB
     #if defined IGRAPHICS_GLES2
       #define NANOVG_GLES2_IMPLEMENTATION
     #elif defined IGRAPHICS_GLES3
@@ -52,12 +52,12 @@
     #endif
   #endif
   BEGIN_INCLUDE_DEPENDENCIES
-  #include "nanovg_gl.h"
-  #include "nanovg_gl_utils.h"
+  #include <nanovg_gl.h>
+  #include <nanovg_gl_utils.h>
   END_INCLUDE_DEPENDENCIES
 #elif defined IGRAPHICS_METAL
-  #include "nanovg_mtl.h"
-  #if defined OS_MAC
+  #include <nanovg_mtl.h>
+  #if PLATFORM_MAC
     //even though this is a .cpp we are in an objc(pp) compilation unit
     #import <Metal/Metal.h>
   #endif
@@ -244,7 +244,7 @@ const char* IGraphicsNanoVG::GetDrawingAPIStr()
 #if defined IGRAPHICS_METAL
   return "NanoVG | Metal";
 #else
-  #if defined OS_WEB
+  #if PLATFORM_WEB
     return "NanoVG | WebGL";
   #else
     #if defined IGRAPHICS_GL2
@@ -310,7 +310,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
   int idx = 0;
   int nvgImageFlags = 0;
   
-#ifdef OS_IOS
+#if PLATFORM_IOS
   if (location == EResourceLocation::kPreloadedTexture)
   {
     idx = mnvgCreateImageFromHandle(mVG, gTextureMap[fileNameOrResID], nvgImageFlags);
@@ -318,7 +318,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
   else
 #endif
   
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   if (location == EResourceLocation::kWinBinary)
   {
     const void* pResData = nullptr;
@@ -478,7 +478,7 @@ void IGraphicsNanoVG::BeginFrame()
     glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
     glClearColor(0.f, 0.f, 0.f, 0.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  #if defined OS_MAC
+  #if PLATFORM_MAC
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mInitialFBO); // stash apple fbo
   #endif
 #endif
@@ -504,7 +504,7 @@ void IGraphicsNanoVG::EndFrame()
   nvgFill(mVG);
   nvgRestore(mVG);
   
-#if defined OS_MAC && defined IGRAPHICS_GL
+#if PLATFORM_MAC && defined IGRAPHICS_GL
   glBindFramebuffer(GL_FRAMEBUFFER, mInitialFBO); // restore apple fbo
 #endif
 

@@ -27,9 +27,9 @@
 #include "ptrlist.h"
 #include "mutex.h"
 
-#if defined OS_MAC || defined OS_IOS
+#if PLATFORM_MAC || PLATFORM_IOS
 #include <CoreFoundation/CoreFoundation.h>
-#elif defined OS_WEB
+#elif PLATFORM_WEB
 #include <emscripten/html5.h>
 #endif
 
@@ -49,7 +49,7 @@ struct Timer
   virtual void Stop() = 0;
 };
 
-#if defined OS_MAC || defined OS_IOS
+#if PLATFORM_MAC || PLATFORM_IOS
 
 class Timer_impl : public Timer
 {
@@ -66,7 +66,7 @@ private:
   ITimerFunction mTimerFunc;
   uint32_t mIntervalMs;
 };
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
 class Timer_impl : public Timer
 {
 public:
@@ -82,7 +82,7 @@ private:
   ITimerFunction mTimerFunc;
   uint32_t mIntervalMs;
 };
-#elif defined OS_WEB
+#elif PLATFORM_WEB
 class Timer_impl : public Timer
 {
 public:

@@ -10,16 +10,26 @@
 
 #import <AudioToolbox/AudioToolbox.h>
 
+// FIXME: Check if this is valid. PLATFORM_IOS should already be set from platform.h
+#if PLATFORM_IOS
+    #import <UIKit/UIKit.h>
+    #define PLATFORM_VIEW UIView
+#else
+    #define PLATFORM_VIEW NSView
+#endif
+
+/*
 #if defined __APPLE__
   #include <TargetConditionals.h>
   #if TARGET_OS_IPHONE
-    #define OS_IOS
+    #define PLATFORM_IOS
     #import <UIKit/UIKit.h>
     #define PLATFORM_VIEW UIView
   #else
     #define PLATFORM_VIEW NSView
   #endif
 #endif
+*/
 
 @interface IPlugAUAudioUnit : AUAudioUnit
 - (void) beginInformHostOfParamChange: (uint64_t) address;

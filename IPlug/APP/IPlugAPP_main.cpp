@@ -20,7 +20,7 @@
 
 #pragma mark - WINDOWS
 
-#if defined OS_WIN
+#if PLATFORM_WINDOWS
 
 extern int WINAPI MainDlgProc(HWND, UINT, WPARAM, LPARAM);
 extern HINSTANCE  gHINSTANCE;
@@ -145,7 +145,7 @@ namespace iplug
 		return 0;
 	}
 	#pragma mark - MAC
-#elif defined(OS_MAC)
+#elif PLATFORM_MAC
 	#import <Cocoa/Cocoa.h>
 	#include "IPlugSWELL.h"
 	#include "IPlugPaths.h"
@@ -322,7 +322,7 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 	#include "resources/main.rc_mac_menu"
 
 	#pragma mark - LINUX
-#elif defined(OS_LINUX)
+#elif PLATFORM_LINUX
 //#include <IPlugSWELL.h>
 //#include "swell-internal.h" // fixes problem with HWND forward decl
 //

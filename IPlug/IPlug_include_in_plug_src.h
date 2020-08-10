@@ -20,9 +20,9 @@
 
 #define PUBLIC_NAME PLUG_NAME
 
-#pragma mark - OS_WIN
+#pragma mark - PLATFORM_WINDOWS
 
-#if defined OS_WIN && !defined VST3C_API
+#if PLATFORM_WINDOWS && !defined VST3C_API
 	HINSTANCE gHINSTANCE = 0;
 
 	#if defined(VST2_API) || defined(AAX_API)
@@ -83,7 +83,7 @@
     
     EXPORT int main(int hostCallback)
     {
-    #if defined OS_MAC
+    #if PLATFORM_MAC
       return (VstIntPtr) VSTPluginMain((audioMasterCallback)hostCallback);
     #else
       return (int) VSTPluginMain((audioMasterCallback)hostCallback);
@@ -103,7 +103,7 @@
 #endif
 
   #ifndef EFFECT_TYPE_VST3
-    #if PLUG_TYPE == 1
+    #if PLUG_TYPE == Instrument
       #define EFFECT_TYPE_VST3 kInstrumentSynth
     #else
       #define EFFECT_TYPE_VST3 kFx
@@ -113,7 +113,7 @@
   #if defined VST3P_API || defined VST3_API
   bool InitModule()
   {
-    #ifdef OS_WIN
+    #if PLATFORM_WINDOWS
     extern void* moduleHandle;
     gHINSTANCE = (HINSTANCE) moduleHandle;
     #endif

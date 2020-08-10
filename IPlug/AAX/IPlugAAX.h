@@ -29,19 +29,19 @@
 #include "AAX_CEffectGUI.h"
 #include "AAX_Push8ByteStructAlignment.h"
 
-#if defined OS_WIN
+#if PLATFORM_WINDOWS
   #if defined _DEBUG
-    #if defined ARCH_64BIT
+    #if PLATFORM_64BIT
       #pragma comment(lib, "AAXLibrary_x64_D.lib")
     #else
       #pragma comment(lib, "AAXLibrary_D.lib")
     #endif
   #else
-  #if defined ARCH_64BIT
-    #pragma comment(lib, "AAXLibrary_x64.lib")
-  #else
-    #pragma comment(lib, "AAXLibrary.lib")
-  #endif
+    #if PLATFORM_64BIT
+      #pragma comment(lib, "AAXLibrary_x64.lib")
+    #else
+      #pragma comment(lib, "AAXLibrary.lib")
+    #endif
   #endif
 #endif
 

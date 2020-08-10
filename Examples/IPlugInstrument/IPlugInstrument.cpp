@@ -28,7 +28,7 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     pGraphics->EnableMouseOver(true);
     pGraphics->EnableMultiTouch(true);
     
-#ifdef OS_WEB
+#if PLATFORM_WEB
     pGraphics->AttachPopupMenuControl();
 #endif
 
@@ -72,7 +72,7 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
         pGraphics->GetControlWithTag(kCtrlTagKeyboard)->Hide(hide = !hide);
         pGraphics->Resize(PLUG_WIDTH, hide ? PLUG_HEIGHT / 2 : PLUG_HEIGHT, pGraphics->GetDrawScale());
     });
-#ifdef OS_IOS
+#if PLATFORM_IOS
     if(!IsAuv3AppExtension())
     {
       pGraphics->AttachControl(new IVButtonControl(b.GetFromTRHC(100, 100), [pGraphics](IControl* pCaller) {

@@ -965,7 +965,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
                 
                 if (mod.A) modifiers |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
                 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
                 if (mod.C) modifiers |= AAX_eModifiers_Command;
 #else
                 if (mod.C) modifiers |= AAX_eModifiers_Control;
@@ -978,7 +978,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
             };
             
             uint32_t aaxModifiersForPT = GetAAXModifiersFromIMouseMod(mod);
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
             // required to get start/windows and alt keys
             uint32_t aaxModifiersFromPT = 0;
             mAAXViewContainer->GetModifiers(&aaxModifiersFromPT);
@@ -1532,7 +1532,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
     bool success = false;
     SkDOM xmlDom;
 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
     if (resourceFound == EResourceLocation::kWinBinary)
     {
       int size = 0;
@@ -1572,7 +1572,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
       {
         pImage = nsvgParseFromFile(path.Get(), units, dpi);
       }
-      #ifdef OS_WIN
+      #if PLATFORM_WINDOWS
       else if (resourceFound == EResourceLocation::kWinBinary)
       {
         int size = 0;
@@ -1616,7 +1616,7 @@ ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 
     NSVGimage* pImage = nullptr;
 
-#ifdef OS_WIN    
+#if PLATFORM_WINDOWS    
     if (resourceFound == EResourceLocation::kWinBinary)
     {
       int size = 0;

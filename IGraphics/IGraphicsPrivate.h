@@ -41,9 +41,9 @@ END_INCLUDE_DEPENDENCIES
   #include "IGraphicsAGG_src.h"
   #define BITMAP_DATA_TYPE agg::pixel_map*
 #elif defined IGRAPHICS_CAIRO
-  #if defined OS_MAC || defined OS_LINUX
+  #if PLATFORM_MAC || PLATFORM_LINUX
     #include "cairo/cairo.h"
-  #elif defined OS_WIN
+  #elif PLATFORM_WINDOWS
     #include "cairo/src/cairo.h"
   #else
     #error NOT IMPLEMENTED
@@ -75,13 +75,13 @@ END_INCLUDE_DEPENDENCIES
   #define BITMAP_DATA_TYPE void*;
 #endif
 
-#if defined OS_MAC || defined OS_IOS
+#if PLATFORM_MAC || PLATFORM_IOS
   #include <CoreText/CoreText.h>
   #define FONT_DESCRIPTOR_TYPE CTFontDescriptorRef
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
   #include "wingdi.h"
   #define FONT_DESCRIPTOR_TYPE HFONT
-#elif defined OS_WEB
+#elif PLATFORM_WEB
   #define FONT_DESCRIPTOR_TYPE std::pair<WDL_String, WDL_String>*
 #else 
   // NO_IGRAPHICS

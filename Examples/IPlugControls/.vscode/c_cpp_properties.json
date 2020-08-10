@@ -13,21 +13,18 @@
                 "${workspaceFolder}/../../Dependencies/Build/mac/include/**"
             ],
             "defines": [
-                "OS_MAC",
                 "APP_API",
                 "IPLUG_DSP=1",
                 "IPLUG_EDITOR=1",
                 "IGRAPHICS_NANOVG",
-                "IGRAPHICS_METAL,",
-                "NOMINMAX"
+                "IGRAPHICS_METAL,"
             ],
             "macFrameworkPath": [
                 "/System/Library/Frameworks",
                 "/Library/Frameworks"
             ],
             "compilerPath": "/usr/bin/clang",
-            "cStandard": "c11",
-            "cppStandard": "c++11",
+            "cppStandard": "c++17",
             "intelliSenseMode": "clang-x64"
         }
     ],

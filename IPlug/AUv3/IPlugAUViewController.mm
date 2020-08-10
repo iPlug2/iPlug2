@@ -14,7 +14,7 @@
 #include "IPlugPlatform.h"
 #include "IPlugLogger.h"
 
-#ifdef OS_IOS
+#if PLATFORM_IOS
 #import "GenericUI.h"
 #endif
 
@@ -25,7 +25,7 @@
 @interface IPlugAUViewController (AUAudioUnitFactory)
 @end
 
-#ifdef OS_IOS
+#if PLATFORM_IOS
 #pragma mark - iOS
 @implementation IPlugAUViewController
 

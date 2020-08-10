@@ -17,14 +17,14 @@
 #include "IPlugConstants.h"
 #include "IPlugPaths.h"
 
-#if defined OS_WEB
+#if PLATFORM_WEB
 #include <emscripten/val.h>
 #endif
 
 BEGIN_IPLUG_NAMESPACE
 
-#if defined OS_WIN
-#pragma mark - OS_WIN
+#if PLATFORM_WINDOWS
+#pragma mark - PLATFORM_WINDOWS
 
 // Unicode helpers
 void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
@@ -98,7 +98,7 @@ void BundleResourcePath(WDL_String& path, HMODULE pExtra)
 {
 #ifdef VST3_API
   GetModulePath(pExtra, path);
-#ifdef ARCH_64BIT
+#ifdef PLATFORM_64BIT
   path.SetLen(path.GetLength() - strlen("x86_64-win/"));
 #else
   path.SetLen(path.GetLength() - strlen("x86-win/"));
@@ -231,8 +231,8 @@ bool AppIsSandboxed()
   return false;
 }
 
-#elif defined OS_WEB
-#pragma mark - OS_WEB
+#elif PLATFORM_WEB
+#pragma mark - PLATFORM_WEB
 
 void AppSupportPath(WDL_String& path, bool isSystem)
 {

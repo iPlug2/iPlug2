@@ -12,10 +12,12 @@
 #include "config.h"
 #include "resource.h"
 
-#ifdef OS_WIN
-#include "asio.h"
+#if PLATFORM_WINDOWS
+BEGIN_INCLUDE_DEPENDENCIES
+#include <asio.h>
+END_INCLUDE_DEPENDENCIES
 #define GET_MENU() GetMenu(gHWND)
-#elif defined OS_MAC
+#elif PLATFORM_MAC
 #define GET_MENU() SWELL_GetCurrentMenu()
 #endif
 
@@ -118,7 +120,7 @@ void IPlugAPPHost::PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* in
 // This has to get called after any change to audio driver/in dev/out dev
 void IPlugAPPHost::PopulateDriverSpecificControls(HWND hwndDlg)
 {
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   int driverType = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_DRIVER, CB_GETCURSEL, 0, 0);
   if(driverType == kDeviceASIO)
   {
@@ -154,7 +156,7 @@ void IPlugAPPHost::PopulateDriverSpecificControls(HWND hwndDlg)
       outdevidx = i;
   }
 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   if(driverType == kDeviceASIO)
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_DEV,CB_SETCURSEL, outdevidx, 0);
   else
@@ -268,7 +270,7 @@ bool IPlugAPPHost::PopulateMidiDialogs(HWND hwndDlg)
   }
 }
 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
 void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)
 {
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"DirectSound");
@@ -279,7 +281,7 @@ void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)
   PopulateMidiDialogs(hwndDlg);
 }
 
-#elif defined OS_MAC
+#elif PLATFORM_MAC
 void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)
 {
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"CoreAudio");
@@ -460,10 +462,10 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 
         case IDC_BUTTON_OS_DEV_SETTINGS:
           if (HIWORD(wParam) == BN_CLICKED)
-            #ifdef OS_WIN
+            #if PLATFORM_WINDOWS
             if( (_this->mState.mAudioDriverType == kDeviceASIO) && (_this->mDAC->isStreamRunning() == true)) // TODO: still not right
               ASIOControlPanel();
-            #elif defined OS_MAC
+            #elif PLATFORM_MAC
             system("open \"/Applications/Utilities/Audio MIDI Setup.app\"");
             #else
               #error NOT IMPLEMENTED
@@ -530,7 +532,7 @@ static void ClientResize(HWND hWnd, int nWidth, int nHeight)
 //  MoveWindow(hWnd, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, FALSE);
 }
 
-#ifdef OS_WIN 
+#if PLATFORM_WINDOWS 
 extern int GetScaleForHWND(HWND hWnd);
 #endif
 
@@ -565,7 +567,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       gHWND = NULL;
       IPlugAPPHost::sInstance = nullptr;
       
-      #ifdef OS_WIN
+      #if PLATFORM_WINDOWS
       PostQuitMessage(0);
       #else
       SWELL_PostQuitMessage(hwndDlg);
@@ -705,13 +707,13 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       mmi->ptMaxTrackSize.x = pPlug->GetMaxWidth();
       mmi->ptMaxTrackSize.y = pPlug->GetMaxHeight();
       
-#ifdef OS_MAC
+#if PLATFORM_MAC
       const int titleBarOffset = 22;
       mmi->ptMinTrackSize.y += titleBarOffset;
       mmi->ptMaxTrackSize.y += titleBarOffset;
 #endif
 
-#ifdef OS_WIN 
+#if PLATFORM_WINDOWS 
       int scale = GetScaleForHWND(hwndDlg);
       mmi->ptMinTrackSize.x *= scale;
       mmi->ptMinTrackSize.y *= scale;
@@ -733,7 +735,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
         RECT r;
         GetClientRect(hwndDlg, &r);
         int scale = 1;
-        #ifdef OS_WIN 
+        #if PLATFORM_WINDOWS 
         scale = GetScaleForHWND(hwndDlg);
         #endif
         pPlug->OnParentWindowResize(r.right / scale, r.bottom / scale);

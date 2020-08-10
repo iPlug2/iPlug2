@@ -19,7 +19,7 @@
 #elif defined IGRAPHICS_GL3 || defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
   #include "imgui_impl_opengl3.h"
 #else
-  #if defined OS_MAC || defined OS_IOS
+  #if PLATFORM_MAC || PLATFORM_IOS
     #import <Metal/Metal.h>
     #import <QuartzCore/QuartzCore.h>
     #include "imgui_impl_metal.h"

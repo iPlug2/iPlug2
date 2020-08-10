@@ -24,9 +24,9 @@ using PluginIDType = void*;
 
 
 /*
-#if defined OS_MAC || defined OS_IOS
+#if PLATFORM_MAC || PLATFORM_IOS
 using PluginIDType = const char *;
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
 using PluginIDType = HMODULE;
 #else
 using PluginIDType = void *;
@@ -97,7 +97,7 @@ extern const void* LoadWinResource(const char* resID, const char* type, int& siz
 /** @return \c true if the app is sandboxed (and therefore file access etc is restricted) */
 extern bool AppIsSandboxed();
 
-#ifdef OS_IOS
+#if PLATFORM_IOS
 extern bool IsAuv3AppExtension();
 #endif
   

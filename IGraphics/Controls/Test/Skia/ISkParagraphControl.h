@@ -42,7 +42,7 @@
 #include "modules/skparagraph/src/TextLine.h"
 #include "modules/skparagraph/utils/TestFontCollection.h"
 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   #pragma comment(lib, "skparagraph.lib")
   #pragma comment(lib, "skshaper.lib")
 #endif

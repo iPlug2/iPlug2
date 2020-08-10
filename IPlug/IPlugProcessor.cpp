@@ -15,7 +15,7 @@
 
 #include "IPlugProcessor.h"
 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
 #define strtok_r strtok_s
 #endif
 

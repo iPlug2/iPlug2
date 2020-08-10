@@ -14,15 +14,15 @@
 #include "wdlstring.h"
 #include <functional>
 
-#if defined OS_MAC
+#if PLATFORM_MAC
   #define PLATFORM_VIEW NSView
   #define PLATFORM_RECT NSRect
   #define MAKERECT NSMakeRect
-#elif defined OS_IOS
+#elif PLATFORM_IOS
   #define PLATFORM_VIEW UIView
   #define PLATFORM_RECT CGRect
   #define MAKERECT CGRectMake
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
   #include <wrl.h>
   #include <wil/com.h>
   #include "WebView2.h"
@@ -73,7 +73,7 @@ public:
   /** When a script in the web view posts a message, it will arrive as a UTF8 json string here */
   virtual void OnMessageFromWebView(const char* json) {}
 
-#if defined OS_WIN
+#if PLATFORM_WINDOWS
   /** Set the paths required for the Windows ICoreWebView2 component
    * @param dllPath (Windows only) an absolute path to the WebView2Loader.dll that is required to use the WebView2 on windows
    * @param tmpPath (Windows only) an absolute path to the folder that should be used */
@@ -82,11 +82,11 @@ public:
   
 private:
   bool mOpaque = true;
-#if defined OS_MAC || defined OS_IOS
+#if PLATFORM_MAC || PLATFORM_IOS
   void* mWKWebView = nullptr;
   void* mWebConfig = nullptr;
   void* mScriptHandler = nullptr;
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
   wil::com_ptr<ICoreWebView2Controller> mWebViewCtrlr;
   wil::com_ptr<ICoreWebView2> mWebViewWnd;
   EventRegistrationToken mWebMessageReceivedToken;

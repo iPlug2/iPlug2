@@ -162,7 +162,7 @@ public:
     GLuint vs = compileShader(GL_VERTEX_SHADER, vs_str);
     
     static const char fs_str[] =
-#ifdef OS_WEB
+#if PLATFORM_WEB
     "precision lowp float;"
 #endif
     "varying vec4 color;"

@@ -16,7 +16,7 @@
 
 #include "IGraphicsSkia_src.cpp"
 
-#if defined OS_MAC || defined OS_IOS
+#if PLATFORM_MAC || PLATFORM_IOS
   #include "SkCGUtils.h"
   #if defined IGRAPHICS_GL2
     #include <OpenGL/gl.h>
@@ -27,9 +27,9 @@
     #import <Metal/Metal.h>
     #import <QuartzCore/CAMetalLayer.h>
   #elif !defined IGRAPHICS_CPU
-    #error Define either IGRAPHICS_GL2, IGRAPHICS_GL3, IGRAPHICS_METAL, or IGRAPHICS_CPU for IGRAPHICS_SKIA with OS_MAC
+    #error Define either IGRAPHICS_GL2, IGRAPHICS_GL3, IGRAPHICS_METAL, or IGRAPHICS_CPU for IGRAPHICS_SKIA with PLATFORM_MAC
   #endif
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
   #pragma comment(lib, "libpng.lib")
   #pragma comment(lib, "zlib.lib")
   #pragma comment(lib, "skia.lib")
@@ -39,7 +39,7 @@
 #endif
 
 #if defined IGRAPHICS_GL
-  #include "gl/GrGLInterface.h"
+  #include <gl/GrGLInterface.h>
 #endif
 
 using namespace iplug;
@@ -271,7 +271,7 @@ bool IGraphicsSkia::BitmapExtSupported(const char* ext)
 
 APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext)
 {
-//#ifdef OS_IOS
+//#if PLATFORM_IOS
 //  if (location == EResourceLocation::kPreloadedTexture)
 //  {
 //    assert(0 && "SKIA does not yet load KTX textures");
@@ -288,7 +288,7 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
 //  }
 //  else
 //#endif
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   if (location == EResourceLocation::kWinBinary)
   {
     int size = 0;
@@ -341,7 +341,7 @@ void IGraphicsSkia::DrawResize()
     mSurface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
   }
 #else
-  #ifdef OS_WIN
+  #if PLATFORM_WINDOWS
     mSurface.reset();
    
     const size_t bmpSize = sizeof(BITMAPINFOHEADER) + (WindowWidth() * GetScreenScale()) * (WindowHeight() * GetScreenScale()) * sizeof(uint32_t);
@@ -417,7 +417,7 @@ void IGraphicsSkia::BeginFrame()
 void IGraphicsSkia::EndFrame()
 {
 #ifdef IGRAPHICS_CPU
-  #if defined OS_MAC || defined OS_IOS
+  #if PLATFORM_MAC || PLATFORM_IOS
     SkPixmap pixmap;
     mSurface->peekPixels(&pixmap);
     SkBitmap bmp;
@@ -427,7 +427,7 @@ void IGraphicsSkia::EndFrame()
     CGContextScaleCTM(pCGContext, 1.0 / GetScreenScale(), 1.0 / GetScreenScale());
     SkCGDrawBitmap(pCGContext, bmp, 0, 0);
     CGContextRestoreGState(pCGContext);
-  #elif defined OS_WIN
+  #elif PLATFORM_WINDOWS
     auto w = WindowWidth() * GetScreenScale();
     auto h = WindowHeight() * GetScreenScale();
     BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.Get());

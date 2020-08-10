@@ -82,9 +82,9 @@ const char* IPluginBase::GetAPIStr() const
 
 const char* IPluginBase::GetArchStr() const
 {
-#if defined OS_WEB
+#if PLATFORM_WEB
   return "WASM";
-#elif defined ARCH_64BIT
+#elif PLATFORM_64BIT
   return "x64";
 #else
   return "x86";

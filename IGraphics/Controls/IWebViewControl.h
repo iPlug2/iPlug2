@@ -49,7 +49,7 @@ public:
   , mOnReadyFunc(readyFunc)
   , mOnMessageFunc(msgFunc)
   {
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
     SetWebViewPaths(dllPath, tmpPath);
 #endif
   }

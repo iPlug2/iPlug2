@@ -10,7 +10,7 @@
 
 #ifdef IGRAPHICS_AGG
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-register"
 #endif
@@ -60,10 +60,10 @@
 #include "agg_trans_single_path.h"
 #include "agg_gradient_lut.h"
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
 #include "agg_mac_pmap.h"
 #pragma clang diagnostic pop
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
 #pragma comment(lib, "libpng.lib")
 #pragma comment(lib, "zlib.lib")
 #pragma comment(lib, "freetype.lib")

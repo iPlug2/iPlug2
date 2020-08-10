@@ -56,10 +56,10 @@ private:
     agg::cover_type alpha;
   };
   
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   using PixelOrder = agg::order_bgra;
   using PixelMapType = agg::pixel_map_win32;
-#elif defined OS_MAC
+#elif PLATFORM_MAC
   using PixelOrder = agg::order_argb;
   using PixelMapType = agg::pixel_map_mac;
 #else

@@ -24,9 +24,7 @@
 #include "IGraphics_include_in_plug_hdr.h"
 #endif
 
-#ifdef OS_WIN
-#include <windows.h>
-#else
+#if !PLATFORM_WINDOWS
 #include "swell.h"
 #undef FillRect
 #undef DrawText

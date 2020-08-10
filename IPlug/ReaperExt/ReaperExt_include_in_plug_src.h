@@ -70,7 +70,7 @@ extern "C"
       gParent = pRec->hwnd_main;
       
       HMENU hMenu = GetSubMenu(GetMenu(gParent),
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
                                8
 #else // OS X has one extra menu
                                9
@@ -102,7 +102,7 @@ extern "C"
 };
 
 
-#ifndef OS_WIN
+#if !PLATFORM_WINDOWS
 #define SWELL_DLG_FLAGS_AUTOGEN SWELL_DLG_WS_FLIPPED//|SWELL_DLG_WS_RESIZABLE
 #include "swell-dlggen.h"
 #include "main.rc_mac_dlg"

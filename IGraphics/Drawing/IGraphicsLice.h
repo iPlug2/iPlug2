@@ -12,13 +12,13 @@
 
 #include "IPlugPlatform.h"
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
   #include <CoreGraphics/CoreGraphics.h>
   #include <IPlugSWELL.h>
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
   #pragma comment(lib, "libpng.lib")
   #pragma comment(lib, "zlib.lib")
-#elif defined OS_LINUX
+#elif PLATFORM_LINUX
   #include <IPlugSWELL.h>
 #else
   #error NOT IMPLEMENTED
@@ -157,7 +157,7 @@ private:
   int mDrawOffsetY = 0;
   
   std::unique_ptr<LICE_SysBitmap> mDrawBitmap;
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   std::unique_ptr<LICE_SysBitmap> mScaleBitmap;
 #endif
   // N.B. mRenderBitmap is not owned through this pointer, and should not be deleted
@@ -168,7 +168,7 @@ private:
   static StaticStorage<LICE_IFont> sFontCache;
   static StaticStorage<FontInfo> sFontInfoCache;
     
-#ifdef OS_MAC
+#if PLATFORM_MAC
   class MacRegisteredFont;
   static StaticStorage<MacRegisteredFont> sMacRegistedFontCache;
   CGColorSpaceRef mColorSpace = nullptr;

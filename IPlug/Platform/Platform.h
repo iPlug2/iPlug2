@@ -15,33 +15,52 @@
 //---------------------------------------------------------
 // Detect platform target
 
-#ifdef _WIN32
-	#define PLATFORM_WINDOWS 1
-	#define PLATFORM_HEADER_PREFIX Windows
-	#define OS_WIN  // TODO: remove later
-#elif __APPLE__
+// Make sure nothing else defines any platform variable
+#undef PLATFORM_WINDOWS
+#undef PLATFORM_IOS
+#undef PLATFORM_MAC
+#undef PLATFORM_LINUX
+#undef PLATFORM_WEB
+
+#ifdef __APPLE__
 	#include <TargetConditionals.h>
-	#if TARGET_OS_IPHONE
-		#define PLATFORM_IOS 1
-		#define PLATFORM_HEADER_PREFIX IOS
-		#define OS_IOS  // TODO: remove later
-	#elif TARGET_OS_MAC
-		#define PLATFORM_MAC 1
-		#define PLATFORM_HEADER_PREFIX MAC
-		#define OS_MAC  // TODO: remove later
-	#endif
-#elif __gnu_linux__
-	#define PLATFORM_LINUX 1
-	#define PLATFORM_HEADER_PREFIX Linux
-	#define OS_LINUX  // TODO: remove later
-#elif EMSCRIPTEN
-	#define PLATFORM_WEB 1
-	#define PLATFORM_HEADER_PREFIX WEB
-	#define OS_WEB  // TODO: remove later
-#else
-	#error "No OS defined!"
 #endif
 
+#ifdef _WIN32
+	#define PLATFORM_WINDOWS       1
+	#define PLATFORM_HEADER_PREFIX Windows
+#elif TARGET_OS_MAC
+	#define PLATFORM_MAC           1
+	#define PLATFORM_HEADER_PREFIX Mac
+#elif TARGET_OS_IPHONE
+	#define PLATFORM_IOS           1
+	#define PLATFORM_HEADER_PREFIX IOS
+#elif __gnu_linux__
+	#define PLATFORM_LINUX         1
+	#define PLATFORM_HEADER_PREFIX Linux
+#elif EMSCRIPTEN
+	#define PLATFORM_WEB           1
+	#define PLATFORM_HEADER_PREFIX WEB
+#else
+	#error "Undefined platform detected."
+#endif
+
+// Set any undefined platform to 0 to generate a redefinition warning in case of naming collition
+#if !PLATFORM_WINDOWS
+	#define PLATFORM_WINDOWS 0
+#endif
+#if !PLATFORM_IOS
+	#define PLATFORM_IOS 0
+#endif
+#if !PLATFORM_MAC
+	#define PLATFORM_MAC 0
+#endif
+#if !PLATFORM_LINUX
+	#define PLATFORM_LINUX 0
+#endif
+#if !PLATFORM_WEB
+	#define PLATFORM_WEB 0
+#endif
 
 // clang-format off
 
@@ -94,27 +113,8 @@
 #define NODISCARD                               [[nodiscard]]
 
 
-
 // clang-format on
 
-
-// Set any undefined platform to 0.
-// This will generate a redefinition warning in case of name collition with third-party includes.
-#if !PLATFORM_WINDOWS
-	#define PLATFORM_WINDOWS 0
-#endif
-#if !PLATFORM_IOS
-	#define PLATFORM_IOS 0
-#endif
-#if !PLATFORM_MAC
-	#define PLATFORM_MAC 0
-#endif
-#if !PLATFORM_LINUX
-	#define PLATFORM_LINUX 0
-#endif
-#if !PLATFORM_WEB
-	#define PLATFORM_WEB 0
-#endif
 
 
 //---------------------------------------------------------
@@ -230,6 +230,14 @@ namespace iplug::Types
 	#define PLATFORM_PTHREADS 0
 #endif
 
+#ifndef PLATFORM_PTRSIZE
+	#if (PLATFORM_64BIT)
+		#define PLATFORM_PTRSIZE 8
+	#else
+		#define PLATFORM_PTRSIZE 4
+	#endif
+#endif
+
 
 //---------------------------------------------------------
 // Link types from target platform to iplug namespace and perform basic tests
@@ -279,6 +287,11 @@ namespace iplug
 	//---------------------------------------------------------
 	// Type safety checks. Don't want things to go badonkadonk.
 
+	static_assert(sizeof(void*) == PLATFORM_PTRSIZE,
+				  "ptr size failed. ptr size does not match target architecture (32bit/64bit).");
+	static_assert(sizeof(void*) == sizeof(nullptr),
+				  "ptr size failed. void* and nullptr should be equal size. If this fails, the world is doomed.");
+
 	static_assert(sizeof(uint8) == 1, "uint8 type size failed.");
 	static_assert(sizeof(uint16) == 2, "uint16 type size failed.");
 	static_assert(sizeof(uint32) == 4, "uint32 type size failed.");
@@ -307,6 +320,4 @@ namespace iplug
 	static_assert(utf32(-1) > utf32(0), "utf32 type sign test failed. utf32 is signed.");
 	static_assert(wchar(-1) > wchar(0), "wchar type sign test failed. wchar is signed.");
 	static_assert(size_t(-1) > size_t(0), "size_t type sign test failed. size is signed.");
-
 }  // namespace iplug
-

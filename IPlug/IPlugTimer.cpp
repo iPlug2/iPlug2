@@ -17,7 +17,7 @@
 
 using namespace iplug;
 
-#if defined OS_MAC || defined OS_IOS
+#if PLATFORM_MAC || PLATFORM_IOS
 
 Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
 {
@@ -61,7 +61,7 @@ void Timer_impl::TimerProc(CFRunLoopTimerRef timer, void *info)
   itimer->mTimerFunc(*itimer);
 }
 
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
 
 Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
 {
@@ -116,7 +116,7 @@ void CALLBACK Timer_impl::TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
     }
   }
 }
-#elif defined OS_WEB
+#elif PLATFORM_WEB
 Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
 {
   return new Timer_impl(func, intervalMs);
