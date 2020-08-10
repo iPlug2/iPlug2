@@ -221,30 +221,19 @@ void IPopupMenuControl::OnMouseOver(float x, float y, const IMouseMod& mod)
       mMouseCellBounds = mActiveMenuPanel->HitTestCells(x, y);
     }
   }
-  else
-    if (mPrevMouseCellBounds != *mMouseCellBounds)
-    {
-      if (mMenuHasSubmenu && mActiveMenuPanel->mParentIdx)
-      {
-        CalculateMenuPanels(x, y);
-      }
-    }
   
-    if(mActiveMenuPanel->mScroller)
-    {
-      if(mMouseCellBounds == mActiveMenuPanel->mCellBounds.Get(0))
-      {
-        mActiveMenuPanel->ScrollUp();
-      }
-      else if (mMouseCellBounds == mActiveMenuPanel->mCellBounds.Get((mActiveMenuPanel->mCellBounds.GetSize()-1)))
-      {
-        mActiveMenuPanel->ScrollDown();
-      }
-    }
+  CalculateMenuPanels(x, y);
   
-  if (mMouseCellBounds != nullptr)
+  if(mActiveMenuPanel->mScroller)
   {
-    mPrevMouseCellBounds = *mMouseCellBounds;
+    if(mMouseCellBounds == mActiveMenuPanel->mCellBounds.Get(0))
+    {
+      mActiveMenuPanel->ScrollUp();
+    }
+    else if (mMouseCellBounds == mActiveMenuPanel->mCellBounds.Get((mActiveMenuPanel->mCellBounds.GetSize()-1)))
+    {
+      mActiveMenuPanel->ScrollDown();
+    }
   }
   
   SetDirty(false);
@@ -314,7 +303,7 @@ void IPopupMenuControl::DrawCalloutArrow(IGraphics& g, const IRECT& bounds, IBle
     default:
       break;
   }
-  g.FillTriangle(mCalloutArrowColor, ax, ay, bx, by, cx, cy, pBlend);
+  g.FillTriangle(mPanelBackgroundColor, ax, ay, bx, by, cx, cy, pBlend);
 }
 
 void IPopupMenuControl::DrawSubMenuCalloutArrow(IGraphics& g, const IRECT& bounds, IBlend* pBlend)
@@ -341,7 +330,7 @@ void IPopupMenuControl::DrawSubMenuCalloutArrow(IGraphics& g, const IRECT& bound
     cx = ax + trisize;
     cy = bounds.MH();
   }
-  g.FillTriangle(mCalloutArrowColor, ax, ay, bx, by, cx, cy, pBlend);
+  g.FillTriangle(mPanelBackgroundColor, ax, ay, bx, by, cx, cy, pBlend);
 }
 
 void IPopupMenuControl::DrawPanelBackground(IGraphics& g, MenuPanel* panel)
@@ -871,7 +860,6 @@ void IPopupMenuControl::CollapseEverything()
   
   GetUI()->SetControlValueAfterPopupMenu(pClickedMenu);
   
-  mPrevMouseCellBounds.Clear();
   mSubMenuOpened = false;
   mActiveMenuPanel = nullptr;
 
