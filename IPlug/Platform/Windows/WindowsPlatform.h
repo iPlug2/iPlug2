@@ -224,7 +224,7 @@
 
 namespace iplug::Types
 {
-	using Platform = struct Windows : public Generic
+	struct PLATFORM_NAME : Generic
 	{
 		using uint8  = std::uint8_t;
 		using uint16 = std::uint16_t;
@@ -235,7 +235,6 @@ namespace iplug::Types
 		using int32  = std::int32_t;
 		using int64  = std::int64_t;
 	};
-
 }  // namespace iplug::Types
 
 

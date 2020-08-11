@@ -10,9 +10,14 @@
 
 #pragma once
 
+// clang-format off
 
 //---------------------------------------------------------
-// Detect platform target
+// Set platform target
+
+#ifdef __APPLE__
+	#include <TargetConditionals.h>
+#endif
 
 // Make sure nothing else defines any platform variable
 #undef PLATFORM_WINDOWS
@@ -20,48 +25,38 @@
 #undef PLATFORM_MAC
 #undef PLATFORM_LINUX
 #undef PLATFORM_WEB
+#undef PLATFORM_NAME
 
-#ifdef __APPLE__
-	#include <TargetConditionals.h>
-#endif
+#define PLATFORM_WINDOWS 0
+#define PLATFORM_IOS     0
+#define PLATFORM_MAC     0
+#define PLATFORM_LINUX   0
+#define PLATFORM_WEB     0
 
 #ifdef _WIN32
-	#define PLATFORM_WINDOWS       1
-	#define PLATFORM_HEADER_PREFIX Windows
+	#undef PLATFORM_WINDOWS
+	#define PLATFORM_WINDOWS 1
+	#define PLATFORM_NAME    Windows
 #elif TARGET_OS_MAC
-	#define PLATFORM_MAC           1
-	#define PLATFORM_HEADER_PREFIX Mac
+	#undef PLATFORM_MAC
+	#define PLATFORM_MAC     1
+	#define PLATFORM_NAME    Mac
 #elif TARGET_OS_IPHONE
-	#define PLATFORM_IOS           1
-	#define PLATFORM_HEADER_PREFIX IOS
+	#undef PLATFORM_IOS
+	#define PLATFORM_IOS     1
+	#define PLATFORM_NAME    IOS
 #elif __gnu_linux__
-	#define PLATFORM_LINUX         1
-	#define PLATFORM_HEADER_PREFIX Linux
+	#undef PLATFORM_LINUX
+	#define PLATFORM_LINUX   1
+	#define PLATFORM_NAME    Linux
 #elif EMSCRIPTEN
-	#define PLATFORM_WEB           1
-	#define PLATFORM_HEADER_PREFIX WEB
+	#undef PLATFORM_WEB
+	#define PLATFORM_WEB     1
+	#define PLATFORM_NAME    WEB
 #else
-	#error "Undefined platform detected."
+	#error "Unknown platform target."
 #endif
 
-// Set any undefined platform to 0 to generate a redefinition warning in case of naming collition
-#if !PLATFORM_WINDOWS
-	#define PLATFORM_WINDOWS 0
-#endif
-#if !PLATFORM_IOS
-	#define PLATFORM_IOS 0
-#endif
-#if !PLATFORM_MAC
-	#define PLATFORM_MAC 0
-#endif
-#if !PLATFORM_LINUX
-	#define PLATFORM_LINUX 0
-#endif
-#if !PLATFORM_WEB
-	#define PLATFORM_WEB 0
-#endif
-
-// clang-format off
 
 //---------------------------------------------------------
 // Global compiler specific preprocessor definitions
@@ -86,20 +81,20 @@
 #define PREPROCESSOR_CONCAT(A, B)               PREPROCESSOR_TOKEN_CONCAT(A, B)
 #define PREPROCESSOR_UNPARENTHESIZE(...)        PREPROCESSOR_TOKEN_VARIADIC __VA_ARGS__
 
-//---------------------------------------------------------
-// Only works if [def] is defined as 0 or 1. If [def] is undefined it goes badonkadonk.
-
-#define __PP_INTERNAL_IF_0(expr0, expr1)        expr0
-#define __PP_INTERNAL_IF_1(expr0, expr1)        expr1
-#define PREPROCESSOR_IF0ELSE(def, expr0, expr1) PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(expr0, expr1)
-#define PREPROCESSOR_IF1ELSE(def, expr1, expr0) PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(expr0, expr1)
-#define PREPROCESSOR_IF0(def, expr)             PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(expr, )
-#define PREPROCESSOR_IF1(def, expr)             PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(, expr)
+// Only works if (def) is defined as 0 or 1
+//#define __PP_INTERNAL_IF_0(expr0, expr1)        expr0
+//#define __PP_INTERNAL_IF_1(expr0, expr1)        expr1
+//#define PREPROCESSOR_IF0ELSE(def, expr0, expr1) PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(expr0, expr1)
+//#define PREPROCESSOR_IF1ELSE(def, expr1, expr0) PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(expr0, expr1)
+//#define PREPROCESSOR_IF0(def, expr)             PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(expr, )
+//#define PREPROCESSOR_IF1(def, expr)             PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(, expr)
 
 //---------------------------------------------------------
 // Global preprocessor definitions
 
-#define PLATFORM_HEADER(file)                   PREPROCESSOR_STRING(PLATFORM_HEADER_PREFIX/##file)
+// No quotes in filename
+#define PLATFORM_HEADER(filename)               PREPROCESSOR_STRING(PLATFORM_NAME/##filename)
+#define PLATFORM_PREFIX_HEADER(filename)        PREPROCESSOR_STRING(PREPROCESSOR_CONCAT(PLATFORM_NAME/,PLATFORM_NAME)##filename)
 
 #define BEGIN_IPLUG_NAMESPACE                   namespace iplug {
 #define BEGIN_IGRAPHICS_NAMESPACE               namespace igraphics {
@@ -113,8 +108,6 @@
 
 
 // clang-format on
-
-
 
 //---------------------------------------------------------
 // STL headers
@@ -163,29 +156,21 @@ namespace iplug::Types
 		using int16  = short;
 		using int32  = int;
 		using int64  = long long;
-		using utf8   = unsigned char;
 		using utf16  = char16_t;
 		using utf32  = char32_t;
 		using wchar  = wchar_t;
+
+		enum class utf8 : unsigned char
+		{
+		};
 	};
 }  // namespace iplug::Types
 
 
 //---------------------------------------------------------
-// Include target platform header
-#if PLATFORM_WINDOWS
-	#include "Windows/WindowsPlatform.h"
-#elif PLATFORM_IOS
-	#include "IOS/IOSPlatform.h"
-#elif PLATFORM_MAC
-	#include "Mac/MacPlatform.h"
-#elif PLATFORM_LINUX
-	#include "Linux/LinuxPlatform.h"
-#elif PLATFORM_WEB
-	#include "WEB/WEBPlatform.h"
-#else
-	#error "No platform target defined"
-#endif
+// Include target platform main header file
+
+#include PLATFORM_PREFIX_HEADER(Platform.h)
 
 
 //---------------------------------------------------------
@@ -229,65 +214,36 @@ namespace iplug::Types
 	#define PLATFORM_PTHREADS 0
 #endif
 
-#ifndef PLATFORM_PTRSIZE
-	#if (PLATFORM_64BIT)
-		#define PLATFORM_PTRSIZE 8
-	#else
-		#define PLATFORM_PTRSIZE 4
-	#endif
-#endif
-
 
 //---------------------------------------------------------
 // Link types from target platform to iplug namespace and perform basic tests
 
 namespace iplug
 {
-	// 8-bit unsigned enum class
-	using byte = Types::Platform::byte;
+	// Check if we have a valid platform struct
+	static_assert(std::is_class_v<Types::PLATFORM_NAME>);
+	static_assert(std::is_base_of_v<Types::Generic, Types::PLATFORM_NAME>);
 
-	// 8-bit unsigned
-	using uint8 = Types::Platform::uint8;
-
-	// 16-bit unsigned
-	using uint16 = Types::Platform::uint16;
-
-	// 32-bit unsigned
-	using uint32 = Types::Platform::uint32;
-
-	// 64-bit unsigned
-	using uint64 = Types::Platform::uint64;
-
-	// 8-bit signed
-	using int8 = Types::Platform::int8;
-
-	// 16-bit signed
-	using int16 = Types::Platform::int16;
-
-	// 32-bit signed
-	using int32 = Types::Platform::int32;
-
-	// 64-bit signed
-	using int64 = Types::Platform::int64;
-
-	// 8-bit unsigned
-	using utf8 = Types::Platform::utf8;
-
-	// 16-bit unsigned
-	using utf16 = Types::Platform::utf16;
-
-	// 32-bit unsigned
-	using utf32 = Types::Platform::utf32;
-
-	// 16-bit or 32-bit unsigned (undefined width)
-	using wchar = Types::Platform::wchar;
+	using byte   = Types::PLATFORM_NAME::byte;    // 8-bit unsigned enum class
+	using uint8  = Types::PLATFORM_NAME::uint8;   // 8-bit unsigned
+	using uint16 = Types::PLATFORM_NAME::uint16;  // 16-bit unsigned
+	using uint32 = Types::PLATFORM_NAME::uint32;  // 32-bit unsigned
+	using uint64 = Types::PLATFORM_NAME::uint64;  // 64-bit unsigned
+	using int8   = Types::PLATFORM_NAME::int8;    // 8-bit signed
+	using int16  = Types::PLATFORM_NAME::int16;   // 16-bit signed
+	using int32  = Types::PLATFORM_NAME::int32;   // 32-bit signed
+	using int64  = Types::PLATFORM_NAME::int64;   // 64-bit signed
+	using utf8   = Types::PLATFORM_NAME::utf8;    // 8-bit unsigned
+	using utf16  = Types::PLATFORM_NAME::utf16;   // 16-bit unsigned
+	using utf32  = Types::PLATFORM_NAME::utf32;   // 32-bit unsigned
+	using wchar  = Types::PLATFORM_NAME::wchar;   // 16-bit or 32-bit unsigned (undefined width)
 
 
 	//---------------------------------------------------------
 	// Type safety checks. Don't want things to go badonkadonk.
 
-	static_assert(sizeof(void*) == PLATFORM_PTRSIZE,
-				  "ptr size failed. ptr size does not match target architecture (32bit/64bit).");
+	static_assert(sizeof(void*) == (PLATFORM_64BIT + 1) << 2,
+				  "ptr size failed. size does not match target architecture (32bit/64bit).");
 	static_assert(sizeof(void*) == sizeof(nullptr),
 				  "ptr size failed. void* and nullptr should be equal size. If this fails, the world is doomed.");
 
