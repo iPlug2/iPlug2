@@ -83,11 +83,9 @@
 #define WIN32_LEAN_AND_MEAN  // Exclude alot of stuff
 #define STRICT               // Should be default when using WIN32_LEAN_AND_MEAN. but just to be sure
 
-
-//	#undef UNICODE
-//	#undef _UNICODE
-//	#define UNICODE_OFF  // For vst3 ftypes.h
-
+// Are we supposed to set WINAPI_FAMILY flags with flags defined in winapifamily.h
+// which sets the WINAPI_FAMILY to a default value if flags are not defined because we needed to
+// include winapifamily.h to get the flags defined to set WINAPI_FAMILY ... which gets set to default...
 #include <winapifamily.h>
 #undef WINAPI_FAMILY
 #undef _INC_WINAPIFAMILY

@@ -12,7 +12,7 @@
 
 #include "IPlugPlatform.h"
 
-namespace iplug::Generic
+namespace iplug::Platform::Generic
 {
 	class GenericExampleClass
 	{

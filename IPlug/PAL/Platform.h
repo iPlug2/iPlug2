@@ -45,7 +45,7 @@
 	#undef PLATFORM_IOS
 	#define PLATFORM_IOS     1
 	#define PLATFORM_NAME    IOS
-#elif __gnu_linux__
+#elif __linux__ && !__ANDROID__
 	#undef PLATFORM_LINUX
 	#define PLATFORM_LINUX   1
 	#define PLATFORM_NAME    Linux
@@ -53,22 +53,17 @@
 	#undef PLATFORM_WEB
 	#define PLATFORM_WEB     1
 	#define PLATFORM_NAME    WEB
+#elif __ANDROID__
+	#error "Android is not supported."
 #else
 	#error "Unknown platform target."
 #endif
 
 
 //---------------------------------------------------------
-// Global compiler specific preprocessor definitions
-#if defined(_MSC_VER)
-	#define PRAGMA(...)       __pragma(__VA_ARGS__)
-	#define IPLUG_EXPORT      __declspec(dllexport)
-	#define NOINLINE          __declspec(noinline)
-#elif defined(__GNUC__) || defined(__clang__)
-	#define PRAGMA(...)       _pragma(__VA_ARGS__)
-	#define IPLUG_EXPORT      __attribute__((visibility("default")))
-	#define NOINLINE          noinline
-#endif
+// Compiler settings
+
+#include "PlatformCompiler.h"
 
 
 //---------------------------------------------------------
@@ -89,6 +84,7 @@
 //#define PREPROCESSOR_IF0(def, expr)             PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(expr, )
 //#define PREPROCESSOR_IF1(def, expr)             PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(, expr)
 
+
 //---------------------------------------------------------
 // Global preprocessor definitions
 
@@ -103,9 +99,9 @@
 
 #define WARNING_MESSAGE(msg)                    PRAGMA(message(__FILE__ "(" PREPROCESSOR_STRING(__LINE__) ") : " "WARNING: " msg))
 #define REMINDER_MESSAGE(msg)                   PRAGMA(message(__FILE__ "(" PREPROCESSOR_STRING(__LINE__) "): " msg))
+
 #define DEPRECATED(version, message)            [[deprecated(message)]]
 #define NODISCARD                               [[nodiscard]]
-
 
 // clang-format on
 
@@ -142,7 +138,7 @@
 //---------------------------------------------------------
 // Set default types
 
-namespace iplug::Types
+namespace iplug::Platform::Types
 {
 	// std::uint*_t and int*_t is optional compiler implementation
 	struct Generic
@@ -159,12 +155,13 @@ namespace iplug::Types
 		using utf16  = char16_t;
 		using utf32  = char32_t;
 		using wchar  = wchar_t;
+		using size_t = std::size_t;
 
 		enum class utf8 : unsigned char
 		{
 		};
 	};
-}  // namespace iplug::Types
+}  // namespace iplug::Platform::Types
 
 
 //---------------------------------------------------------
@@ -174,7 +171,11 @@ namespace iplug::Types
 
 
 //---------------------------------------------------------
-// Default platform/compiler dependent preprocessor definitions
+// Default preprocessor definitions
+
+#ifndef PLATFORM_64BIT
+	#error "PLATFORM_64BIT is undefined. Check PlatformCompiler.h"
+#endif
 
 #ifndef BEGIN_INCLUDE_DEPENDENCIES
 	#define BEGIN_INCLUDE_DEPENDENCIES
@@ -186,14 +187,6 @@ namespace iplug::Types
 
 #ifndef NOINLINE
 	#define NOINLINE
-#endif
-
-
-//---------------------------------------------------------
-// Defaults for undefined platform definitions
-
-#ifndef PLATFORM_64BIT
-	#error "PLATFORM_64BIT is undefined. Set value of 0 or 1 in corresponding platform section"
 #endif
 
 #ifndef IPLUG_API
@@ -221,22 +214,24 @@ namespace iplug::Types
 namespace iplug
 {
 	// Check if we have a valid platform struct
-	static_assert(std::is_class_v<Types::PLATFORM_NAME>);
-	static_assert(std::is_base_of_v<Types::Generic, Types::PLATFORM_NAME>);
+	static_assert(std::is_class_v<Platform::Types::PLATFORM_NAME>, "Platform type definition is wrong type.");
+	static_assert(std::is_base_of_v<Platform::Types::Generic, Platform::Types::PLATFORM_NAME>,
+				  "Platform type definition structure inheritance failure.");
 
-	using byte   = Types::PLATFORM_NAME::byte;    // 8-bit unsigned enum class
-	using uint8  = Types::PLATFORM_NAME::uint8;   // 8-bit unsigned
-	using uint16 = Types::PLATFORM_NAME::uint16;  // 16-bit unsigned
-	using uint32 = Types::PLATFORM_NAME::uint32;  // 32-bit unsigned
-	using uint64 = Types::PLATFORM_NAME::uint64;  // 64-bit unsigned
-	using int8   = Types::PLATFORM_NAME::int8;    // 8-bit signed
-	using int16  = Types::PLATFORM_NAME::int16;   // 16-bit signed
-	using int32  = Types::PLATFORM_NAME::int32;   // 32-bit signed
-	using int64  = Types::PLATFORM_NAME::int64;   // 64-bit signed
-	using utf8   = Types::PLATFORM_NAME::utf8;    // 8-bit unsigned
-	using utf16  = Types::PLATFORM_NAME::utf16;   // 16-bit unsigned
-	using utf32  = Types::PLATFORM_NAME::utf32;   // 32-bit unsigned
-	using wchar  = Types::PLATFORM_NAME::wchar;   // 16-bit or 32-bit unsigned (undefined width)
+	using byte   = Platform::Types::PLATFORM_NAME::byte;    // 8-bit unsigned enum class type
+	using uint8  = Platform::Types::PLATFORM_NAME::uint8;   // 8-bit unsigned
+	using uint16 = Platform::Types::PLATFORM_NAME::uint16;  // 16-bit unsigned
+	using uint32 = Platform::Types::PLATFORM_NAME::uint32;  // 32-bit unsigned
+	using uint64 = Platform::Types::PLATFORM_NAME::uint64;  // 64-bit unsigned
+	using int8   = Platform::Types::PLATFORM_NAME::int8;    // 8-bit signed
+	using int16  = Platform::Types::PLATFORM_NAME::int16;   // 16-bit signed
+	using int32  = Platform::Types::PLATFORM_NAME::int32;   // 32-bit signed
+	using int64  = Platform::Types::PLATFORM_NAME::int64;   // 64-bit signed
+	using utf8   = Platform::Types::PLATFORM_NAME::utf8;    // 8-bit unsigned enum class type
+	using utf16  = Platform::Types::PLATFORM_NAME::utf16;   // 16-bit unsigned
+	using utf32  = Platform::Types::PLATFORM_NAME::utf32;   // 32-bit unsigned
+	using wchar  = Platform::Types::PLATFORM_NAME::wchar;   // 16-bit or 32-bit unsigned
+	using size_t = Platform::Types::PLATFORM_NAME::size_t;  // 32-bit or 64-bit unsigned
 
 
 	//---------------------------------------------------------
@@ -261,6 +256,7 @@ namespace iplug
 	static_assert(sizeof(wchar) >= 2, "wchar type size failed.");
 	static_assert(sizeof(size_t) >= 4, "size_t type size failed.");
 	static_assert(sizeof(size_t) == sizeof(nullptr), "size_t type size failed.");
+	static_assert(sizeof(size_t) == (PLATFORM_64BIT + 1) << 2, "size_t type size failed.");
 
 	static_assert(uint8(-1) > uint8(0), "uint8 type sign test failed. uint8 is signed.");
 	static_assert(uint16(-1) > uint16(0), "uint16 type sign test failed. uint16 is signed.");

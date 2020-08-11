@@ -16,11 +16,11 @@
 
 namespace iplug
 {
-	class IExampleClass final : public Generic::GenericExampleClass
+	class ExampleClass final : public Platform::Generic::GenericExampleClass
 	{
 	  public:
-		IExampleClass() {};
-		~IExampleClass() {};
+		ExampleClass() {};
+		~ExampleClass() {};
 
 	};
 }  // namespace iplug

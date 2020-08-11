@@ -10,42 +10,63 @@
 
 #pragma once
 
-//---------------------------------------------------------
-// Platform configuration
+// clang-format off
 
-#ifdef _WIN64
+//---------------------------------------------------------
+// Global compiler specific preprocessor definitions
+
+#if _MSC_VER
+	#define PRAGMA(...)       __pragma(__VA_ARGS__)
+	#define IPLUG_APIENTRY    __stdcall
+	#define IPLUG_IMPORT      __declspec(dllimport)
+	#define IPLUG_EXPORT      __declspec(dllexport)
+	#define NOINLINE          __declspec(noinline)
+#elif __GNUC__ || __clang__ || __EMSCRIPTEN__
+	#define PRAGMA(...)       _Pragma(__VA_ARGS__)
+	#define IPLUG_API         
+	#define IPLUG_IMPORT
+	#define IPLUG_EXPORT      __attribute__((visibility("default")))
+	#define NOINLINE          __attribute__((noinline))
+#else
+	#error "Unsupported compiler."
+#endif
+
+#ifdef IPLUG_DLL_EXPORT
+	#define IPLUG_API IPLUG_EXPORT
+#else
+	#define IPLUG_API IPLUG_IMPORT
+#endif
+
+//---------------------------------------------------------
+// Set 32/64 bit platform architecture via the hail mary method
+
+#if _WIN64 || __64BIT__ || __x86_64__ || __ia64__ || _M_IA64 || _M_X64 || _M_AMD64 || _M_ARM64 || __LP64__ || __aarch64__
 	#define PLATFORM_64BIT 1
 #else
 	#define PLATFORM_64BIT 0
 #endif
 
 
-#define IPLUG_API                __stdcall
-#define PLATFORM_LITTLE_ENDIAN   1
-#define PLATFORM_CACHE_LINE_SIZE 64
-#define PLATFORM_CACHE_ALIGN     __declspec(align(PLATFORM_CACHE_LINE_SIZE))
-#define DEBUGBREAK()             __debugbreak()
-#define PLATFORM_PTHREADS        0
-
-
 //---------------------------------------------------------
-// There seems to be no reason not to use C++17 in 2020 and onwards
-// https://en.cppreference.com/w/cpp/compiler_support#cpp17
+// Additional MSVC Settings
 
-#if !defined(_MSVC_LANG) || (_MSVC_LANG < 201703L)
-	#error "C++17 conformant compiler required. Use /std:c++17 as compiler option."
-#endif
+#if _MSC_VER
+	//---------------------------------------------------------
+	// There seems to be no reason not to use C++17 in 2020 and onwards
+	// https://en.cppreference.com/w/cpp/compiler_support#cpp17
 
-#if !defined(_MSC_VER) || (_MSC_VER < 1924)
-	#error "Visual Studio 2019 version 16.4 or higher is required to compile."
-#endif
+	#if _MSVC_LANG < 201703L
+		#error "C++17 conformant compiler required. Use /std:c++17 as compiler option."
+	#endif
+
+	#if _MSC_VER < 1924
+		#error "Visual Studio 2019 version 16.4 or higher is required to compile."
+	#endif
 
 
-//---------------------------------------------------------
-// Setup compiler warnings
+	//---------------------------------------------------------
+	// Setup compiler warnings
 
-// clang-format off
-#if defined(_MSC_VER)
 
 	// Mark warnings as errors that needs to be corrected. Don't be lazy.
 	// List provided by the good people over at Epic Games.
@@ -217,30 +238,36 @@
 		__pragma(pack(pop))
 
 #endif // _MSC_VER
+
+
+//---------------------------------------------------------
+// Additional Clang Settings
+
+#if __clang__
+
+	#define BEGIN_INCLUDE_DEPENDENCIES                                                            \
+		_Pragma("clang diagnostic push")                                                          \
+		_Pragma("clang diagnostic ignored \"-Wunknown-pragmas\"")                                 \
+		_Pragma("clang diagnostic ignored \"-Wunused-parameter\"")
+
+	#define END_INCLUDE_DEPENDENCIES                                                              \
+		_Pragma("clang diagnostic pop")
+
+#endif
+
+
+//---------------------------------------------------------
+// Additional GCC Settings
+
+#if __GNUC__
+
+	#define BEGIN_INCLUDE_DEPENDENCIES                                                            \
+		_Pragma("GCC diagnostic push")                                                            \
+		_Pragma("GCC diagnostic ignored \"-Wunknown-pragmas\"")                                   \
+		_Pragma("GCC diagnostic ignored \"-Wunused-parameter\"")
+
+	#define END_INCLUDE_DEPENDENCIES                                                              \
+		_Pragma("GCC diagnostic pop")
+#endif
+
 // clang-format on
-
-//---------------------------------------------------------
-// Windows specific types
-
-namespace iplug::Types
-{
-	struct PLATFORM_NAME : Generic
-	{
-		using uint8  = std::uint8_t;
-		using uint16 = std::uint16_t;
-		using uint32 = std::uint32_t;
-		using uint64 = std::uint64_t;
-		using int8   = std::int8_t;
-		using int16  = std::int16_t;
-		using int32  = std::int32_t;
-		using int64  = std::int64_t;
-	};
-}  // namespace iplug::Types
-
-
-
-//---------------------------------------------------------
-// Configure and include windows.h
-// TODO: Remove this include file when isolation is complete
-
-#include "WindowsSDK.h"
