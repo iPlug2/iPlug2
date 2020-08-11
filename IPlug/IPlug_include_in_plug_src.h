@@ -29,8 +29,7 @@
 		#ifdef __MINGW32__
 			extern "C"
 		#endif
-		BOOL WINAPI
-		DllMain(HINSTANCE hDllInst, DWORD fdwReason, LPVOID res)
+		BOOL WINAPI DllMain(HINSTANCE hDllInst, DWORD fdwReason, LPVOID res)
 		{
 			gHINSTANCE = hDllInst;
 			return true;
@@ -65,7 +64,7 @@
 #if defined VST2_API
   extern "C"
   {
-    EXPORT void* VSTPluginMain(audioMasterCallback hostCallback)
+    IPLUG_EXPORT void* VSTPluginMain(audioMasterCallback hostCallback)
     {
       using namespace iplug;
 
@@ -81,7 +80,7 @@
       return 0;
     }
     
-    EXPORT int main(int hostCallback)
+    IPLUG_EXPORT int main(int hostCallback)
     {
     #if PLATFORM_MAC
       return (VstIntPtr) VSTPluginMain((audioMasterCallback)hostCallback);
@@ -188,14 +187,14 @@
   {
     #ifndef AU_NO_COMPONENT_ENTRY
     //Component Manager
-    EXPORT ComponentResult AUV2_ENTRY(ComponentParameters* pParams, void* pPlug)
+    IPLUG_EXPORT ComponentResult AUV2_ENTRY(ComponentParameters* pParams, void* pPlug)
     {
       return IPlugAU::IPlugAUEntry(pParams, pPlug);
     }
     #endif
 
     //>10.7 SDK AUPlugin
-    EXPORT void* AUV2_FACTORY(const AudioComponentDescription* pInDesc)
+    IPLUG_EXPORT void* AUV2_FACTORY(const AudioComponentDescription* pInDesc)
     {
       return IPlugAUFactory<PLUG_CLASS_NAME, PLUG_DOES_MIDI_IN>::Factory(pInDesc);
     }
