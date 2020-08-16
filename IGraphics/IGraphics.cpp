@@ -202,7 +202,7 @@ void IGraphics::RemoveAllControls()
   mControls.Empty(true);
 }
 
-void IGraphics::SetControlPosition(float x, float y, int idx)
+void IGraphics::SetControlPosition(int idx, float x, float y)
 {
   IControl* pControl = GetControl(idx);
   pControl->SetPosition(x, y);
@@ -210,7 +210,7 @@ void IGraphics::SetControlPosition(float x, float y, int idx)
     SetAllControlsDirty();
 }
 
-void IGraphics::SetControlSize(float w, float h, int idx)
+void IGraphics::SetControlSize(int idx, float w, float h)
 {
   IControl* pControl = GetControl(idx);
   pControl->SetSize(w, h);
@@ -218,16 +218,12 @@ void IGraphics::SetControlSize(float w, float h, int idx)
     SetAllControlsDirty();
 }
 
-void IGraphics::SetControlPositionWithTag(float x, float y, int ctrlTag)
+void IGraphics::SetControlBounds(int idx, const IRECT& r)
 {
-  int idx = GetControlIdx(GetControlWithTag(ctrlTag));
-  SetControlPosition(x, y, idx);
-}
-
-void IGraphics::SetControlSizeWithTag(float w, float h, int ctrlTag)
-{
-  int idx = GetControlIdx(GetControlWithTag(ctrlTag));
-  SetControlSize(w, h, idx);
+  IControl* pControl = GetControl(idx);
+  pControl->SetTargetAndDrawRECTs(r);
+  if (!pControl->IsHidden())
+    SetAllControlsDirty();
 }
 
 void IGraphics::SetControlValueAfterTextEdit(const char* str)
@@ -438,9 +434,9 @@ void IGraphics::ShowFPSDisplay(bool enable)
   SetAllControlsDirty();
 }
 
-IControl* IGraphics::GetControlWithTag(int ctrlTag)
+IControl* IGraphics::GetControlWithTag(int ctrlTag) const
 {
-  IControl* pControl = mCtrlTags[ctrlTag];
+  IControl* pControl = mCtrlTags.at(ctrlTag);
   
   if(pControl != nullptr)
   {
