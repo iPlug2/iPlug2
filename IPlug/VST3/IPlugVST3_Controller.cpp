@@ -43,7 +43,13 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
     Initialize(this, parameters, mPlugIsInstrument, mDoesMidiIn);
     IPlugVST3GetHost(this, context);
     OnHostIdentified();
-
+    OnParamReset(kReset);
+    
+    // Load iplug parameters into the GUI thread visible values
+    
+    for (int i = 0; i < NParams(); ++i)
+      parameters.getParameter(i)->setNormalized(GetParam(i)->GetNormalized());
+    
     return kResultTrue;
   }
 
@@ -80,17 +86,15 @@ tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* pState)
 
 ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized(ParamID tag)
 {
-  if (tag >= kBypassParam)
-    return EditControllerEx1::getParamNormalized(tag);
-  
-  return IPlugVST3ControllerBase::GetParamNormalized(this, tag);
+  return IPlugVST3ControllerBase::GetParamNormalized(parameters, tag);
 }
 
 tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
 {
-  IPlugVST3ControllerBase::SetParamNormalized(this, tag, value);
-  
-  return EditControllerEx1::setParamNormalized(tag, value);
+  if (IPlugVST3ControllerBase::SetParamNormalized(this, parameters, tag, value))
+    return kResultTrue;
+  else
+    return kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment(int32 busIndex, int16 midiChannel, CtrlNumber midiCCNumber, ParamID& tag)
@@ -277,4 +281,10 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int da
   message->getAttributes()->setInt("CT", ctrlTag);
   message->getAttributes()->setBinary("D", pData, dataSize);
   sendMessage(message);
+}
+
+void IPlugVST3Controller::SendParameterValueFromUI(int paramIdx, double normalisedValue)
+{
+  IPlugVST3ControllerBase::SetVST3ParamNormalized(parameters, paramIdx, normalisedValue);
+  IPlugAPIBase::SendParameterValueFromUI(paramIdx, normalisedValue);
 }
