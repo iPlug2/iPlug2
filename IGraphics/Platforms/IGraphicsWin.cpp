@@ -1913,7 +1913,6 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
 {
   StaticStorage<InstalledFont>::Accessor fontStorage(sPlatformFontCache);
 
-  std::unique_ptr<InstalledFont> pFont;
   void* pFontMem = nullptr;
   int resSize = 0;
   WDL_String fullPath;
@@ -1928,43 +1927,29 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
     case kAbsolutePath:
     {
       HANDLE file = CreateFile(fullPath.Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+      PlatformFontPtr ret = nullptr;
       if (file)
       {
         HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
         if (mapping)
         {
+          resSize = (int)GetFileSize(file, nullptr);
           pFontMem = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
-          pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
+          ret = LoadPlatformFont(fontID, pFontMem, resSize);
           UnmapViewOfFile(pFontMem);
           CloseHandle(mapping);
         }
         CloseHandle(file);
       }
+      return ret;
     }
     break;
     case kWinBinary:
     {
       pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize, GetWinModuleHandle()));
-      pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
+      return LoadPlatformFont(fontID, pFontMem, resSize);
     }
     break;
-  } 
-
-  if (pFontMem && pFont && pFont->IsValid())
-  {
-    IFontInfo fontInfo(pFontMem, resSize, 0);
-    WDL_String family = fontInfo.GetFamily();
-    int weight = fontInfo.IsBold() ? FW_BOLD : FW_REGULAR;
-    bool italic = fontInfo.IsItalic();
-    bool underline = fontInfo.IsUnderline();
-
-    HFONT font = GetHFont(family.Get(), weight, italic, underline);
-
-    if (font)
-    {
-      fontStorage.Add(pFont.release(), fileNameOrResID);
-      return PlatformFontPtr(new Font(font, "", false));
-    }
   }
 
   return nullptr;
@@ -1980,6 +1965,36 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
   HFONT font = GetHFont(fontName, weight, italic, underline, quality, true);
 
   return PlatformFontPtr(font ? new Font(font, TextStyleString(style), true) : nullptr);
+}
+
+PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, void* pData, int dataSize)
+{
+  StaticStorage<InstalledFont>::Accessor fontStorage(sPlatformFontCache);
+
+  std::unique_ptr<InstalledFont> pFont;
+  void* pFontMem = pData;
+  int resSize = dataSize;
+
+  pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
+
+  if (pFontMem && pFont && pFont->IsValid())
+  {
+    IFontInfo fontInfo(pFontMem, resSize, 0);
+    WDL_String family = fontInfo.GetFamily();
+    int weight = fontInfo.IsBold() ? FW_BOLD : FW_REGULAR;
+    bool italic = fontInfo.IsItalic();
+    bool underline = fontInfo.IsUnderline();
+
+    HFONT font = GetHFont(family.Get(), weight, italic, underline);
+
+    if (font)
+    {
+      fontStorage.Add(pFont.release(), fontID);
+      return PlatformFontPtr(new Font(font, "", false));
+    }
+  }
+
+  return nullptr;
 }
 
 void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)

@@ -123,17 +123,15 @@ tresult PLUGIN_API IPlugVST3::getState(IBStream* pState)
 #pragma mark IEditController overrides
 ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
 {
-  if (tag >= kBypassParam)
-    return EditControllerEx1::getParamNormalized(tag);
-  
-  return IPlugVST3ControllerBase::GetParamNormalized(this, tag);
+  return IPlugVST3ControllerBase::GetParamNormalized(parameters, tag);
 }
 
 tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
 {
-  IPlugVST3ControllerBase::SetParamNormalized(this, tag, value);
-  
-  return EditControllerEx1::setParamNormalized(tag, value);
+  if (IPlugVST3ControllerBase::SetParamNormalized(this, parameters, tag, value))
+    return kResultTrue;
+  else
+    return kResultFalse;
 }
 
 IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
@@ -224,11 +222,19 @@ bool IPlugVST3::EditorResize(int viewWidth, int viewHeight)
   return true;
 }
 
+#pragma mark IEditorDelegate overrides
+
 void IPlugVST3::DirtyParametersFromUI()
 {
   startGroupEdit();
   IPlugAPIBase::DirtyParametersFromUI();
   finishGroupEdit();
+}
+
+void IPlugVST3::SendParameterValueFromUI(int paramIdx, double normalisedValue)
+{
+  IPlugVST3ControllerBase::SetVST3ParamNormalized(parameters, paramIdx, normalisedValue);
+  IPlugAPIBase::SendParameterValueFromUI(paramIdx, normalisedValue);
 }
 
 void IPlugVST3::SetLatency(int latency)
