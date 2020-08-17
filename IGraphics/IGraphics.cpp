@@ -202,6 +202,30 @@ void IGraphics::RemoveAllControls()
   mControls.Empty(true);
 }
 
+void IGraphics::SetControlPosition(int idx, float x, float y)
+{
+  IControl* pControl = GetControl(idx);
+  pControl->SetPosition(x, y);
+  if (!pControl->IsHidden())
+    SetAllControlsDirty();
+}
+
+void IGraphics::SetControlSize(int idx, float w, float h)
+{
+  IControl* pControl = GetControl(idx);
+  pControl->SetSize(w, h);
+  if (!pControl->IsHidden())
+    SetAllControlsDirty();
+}
+
+void IGraphics::SetControlBounds(int idx, const IRECT& r)
+{
+  IControl* pControl = GetControl(idx);
+  pControl->SetTargetAndDrawRECTs(r);
+  if (!pControl->IsHidden())
+    SetAllControlsDirty();
+}
+
 void IGraphics::SetControlValueAfterTextEdit(const char* str)
 {
   if (!mInTextEntry)
@@ -410,9 +434,9 @@ void IGraphics::ShowFPSDisplay(bool enable)
   SetAllControlsDirty();
 }
 
-IControl* IGraphics::GetControlWithTag(int ctrlTag)
+IControl* IGraphics::GetControlWithTag(int ctrlTag) const
 {
-  IControl* pControl = mCtrlTags[ctrlTag];
+  IControl* pControl = mCtrlTags.at(ctrlTag);
   
   if(pControl != nullptr)
   {

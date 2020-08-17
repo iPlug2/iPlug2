@@ -1284,11 +1284,21 @@ public:
    * @return integer index of the control in mControls array or -1 if not found */
   int GetControlIdx(IControl* pControl) const { return mControls.Find(pControl); }
   
+  /** Gets the index of a tagged control
+   * @param ctrlTag The tag to look for
+   * @return int index or -1 if not found */
+  int GetIdxOfTaggedControl(int ctrlTag) const
+  {
+    IControl* pControl = GetControlWithTag(ctrlTag);
+    return pControl ? GetControlIdx(pControl) : -1;
+  }
+  
   /** @param ctrlTag The tag to look for
    * @return A pointer to the IControl object with the tag of nullptr if not found */
-  IControl* GetControlWithTag(int ctrlTag);
+  IControl* GetControlWithTag(int ctrlTag) const;
   
-  /** @param pControl Pointer to the control to get the tag for
+  /** Get the tag given to a control
+   * @param pControl Pointer to the control to get the tag for
    * @return The tag assigned to the control when it was attached, or kNoTag (-1) */
   int GetControlTag(const IControl* pControl) const
   {
@@ -1370,7 +1380,24 @@ public:
   
   /** Calls SetClean() on every control */
   void SetAllControlsClean();
-
+    
+  /** Reposition a control, redrawing the interface correctly
+   @param idx The index of the control
+   @param x The new x position
+   @param y The new y position */
+  void SetControlPosition(int idx, float x, float y);
+  
+  /** Resize a control, redrawing the interface correctly
+   @param idx The index of the control
+   @param w The new width
+   @param h The new height */
+  void SetControlSize(int idx, float w, float h);
+  
+  /** Set a controls target and draw rect to r, redrawing the interface correctly
+   @param idx The index of the control 
+   @param r The new bounds for the control's target and draw rect */
+  void SetControlBounds(int idx, const IRECT& r);
+  
 private:
   /** Get the index of the control at x and y coordinates on mouse event
    * @param x The X coordinate to test
