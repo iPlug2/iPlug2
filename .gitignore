@@ -55,7 +55,6 @@ ipch/
 [Bb]uild*/
 [Ii]nstall/
 
-!/.vscode/c_cpp_properties.json
 !/.vscode/*.code-snippets
 
 !README*
