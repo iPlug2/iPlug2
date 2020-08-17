@@ -16,7 +16,7 @@
 
 namespace iplug
 {
-	class ExampleClass final : public Platform::Generic::GenericExampleClass
+	class ExampleClass final : public platform::generic::GenericExampleClass
 	{
 	  public:
 		ExampleClass() {};
