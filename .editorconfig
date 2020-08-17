@@ -11,6 +11,9 @@ tab_width = 4
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+[*.{c,cc,cpp,h,hpp,ixx,cppm}]
+indent_brace_style = Allman
+
 [*.{bat,cmd}]
 end_of_line = crlf
 
@@ -18,7 +21,12 @@ end_of_line = crlf
 end_of_line = crlf
 indent_style = space
 indent_size = 2
+tab_width = 2
 
 [*.{py,sh,yaml,yml,xml}]
 indent_style = space
+tab_width = 2
 indent_size = 2
+
+[{*.cmake,CMakeLists.txt}]
+indent_style = space
