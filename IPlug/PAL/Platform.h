@@ -19,20 +19,6 @@
 	#include <TargetConditionals.h>
 #endif
 
-// Make sure nothing else defines any platform variable
-#undef PLATFORM_WINDOWS
-#undef PLATFORM_IOS
-#undef PLATFORM_MAC
-#undef PLATFORM_LINUX
-#undef PLATFORM_WEB
-#undef PLATFORM_NAME
-
-#define PLATFORM_WINDOWS 0
-#define PLATFORM_IOS     0
-#define PLATFORM_MAC     0
-#define PLATFORM_LINUX   0
-#define PLATFORM_WEB     0
-
 #ifdef _WIN32
 	#undef PLATFORM_WINDOWS
 	#define PLATFORM_WINDOWS 1
@@ -59,6 +45,25 @@
 	#error "Unknown platform target."
 #endif
 
+#ifndef PLATFORM_NAME
+	#error "PLATFORM_NAME must be defined."
+#endif
+
+#ifndef PLATFORM_WINDOWS
+	#define PLATFORM_WINDOWS 0
+#endif
+#ifndef PLATFORM_IOS
+	#define PLATFORM_IOS     0
+#endif
+#ifndef PLATFORM_MAC
+	#define PLATFORM_MAC     0
+#endif
+#ifndef PLATFORM_LINUX
+	#define PLATFORM_LINUX   0
+#endif
+#ifndef PLATFORM_WEB
+	#define PLATFORM_WEB     0
+#endif
 
 //---------------------------------------------------------
 // Compiler settings
