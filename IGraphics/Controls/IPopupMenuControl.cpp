@@ -512,7 +512,7 @@ IRECT IPopupMenuControl::GetLargestCellRectForMenu(IPopupMenu& menu, float x, fl
   return IRECT(x, y, x + span.W(), y + span.H());
 }
 
-void IPopupMenuControl::GetPanelDimensions(IPopupMenu&menu, float* width, float* height) const
+void IPopupMenuControl::GetPanelDimensions(IPopupMenu&menu, float& width, float& height) const
 {
   IRECT maxCell = GetLargestCellRectForMenu(menu, 0, 0);
   
@@ -531,8 +531,8 @@ void IPopupMenuControl::GetPanelDimensions(IPopupMenu&menu, float* width, float*
   float numCells = numItems - numSeparators;
   panelHeight = (numCells * maxCell.H()) + (numSeparators * mSeparatorSize) + ((numItems - 1) * mCellGap);
   
-  *width = maxCell.W();
-  *height = panelHeight;
+  width = maxCell.W();
+  height = panelHeight;
 }
 
 void IPopupMenuControl::CalculateMenuPanels(float x, float y)
@@ -580,7 +580,7 @@ void IPopupMenuControl::CalculateMenuPanels(float x, float y)
           float panelWidth = 0.f;
           float panelHeight = 0.f;
           
-          GetPanelDimensions(*pSubMenu, &panelWidth, &panelHeight);
+          GetPanelDimensions(*pSubMenu, panelWidth, panelHeight);
           
           float minT = mMaxBounds.T + mDropShadowSize;
           float maxB = mMaxBounds.B - panelHeight - (mDropShadowSize * 2.f);
@@ -683,7 +683,7 @@ void IPopupMenuControl::Expand(const IRECT& anchorArea)
   float panelWidth = 0.f;
   float panelHeight = 0.f;
   
-  GetPanelDimensions(*mMenu, &panelWidth, &panelHeight);
+  GetPanelDimensions(*mMenu, panelWidth, panelHeight);
   
   float minT = mMaxBounds.T + mDropShadowSize;
   float maxB = mMaxBounds.B - panelHeight - (mDropShadowSize * 2.f);

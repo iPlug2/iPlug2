@@ -143,10 +143,10 @@ private:
   IRECT GetLargestCellRectForMenu(IPopupMenu& menu, float x, float y) const;
   
   /** Sets the values of two variables for the length and width of the specified menu panel.
-   * @param menu The menu to get dimensions of.
-   * @param width A pointer to set a variable with the value of the panels width.
-   * @param height A pointer to set a variable with the value of the panels height.*/
-  void GetPanelDimensions(IPopupMenu&menu, float* width, float* height) const;
+   * @param menu The menu to get dimensions of
+   * @param width Value to be filled with the panel's width.
+   * @param height Value to be filled with the panel's height.*/
+  void GetPanelDimensions(IPopupMenu&menu, float& width, float& height) const;
 
   /** This method is called to expand the modal pop-up menu. It calculates the dimensions and wrapping, to keep the cells within the graphics context. It handles the dirtying of the graphics context, and modification of graphics behaviours such as tooltips and mouse cursor */
   void Expand(const IRECT& bounds);
