@@ -182,7 +182,9 @@ void IGraphicsMac::PlatformResize(bool parentHasResized)
 #endif
     
     [NSAnimationContext endGrouping];
-  }  
+  }
+    
+  UpdateTooltips();
 }
 
 void IGraphicsMac::PointToScreen(float& x, float& y) const
