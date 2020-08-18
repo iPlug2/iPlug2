@@ -395,7 +395,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
   self.wantsLayer = YES;
   self.layer.opaque = YES;
-  self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
   
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
   
@@ -403,7 +402,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   self.layer = [CAMetalLayer new];
   [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
   ((CAMetalLayer*) self.layer).device = MTLCreateSystemDefaultDevice();
-  
+  ((CAMetalLayer*) self.layer).presentsWithTransaction = YES;
+  self.layer.delegate = self;
   #elif defined IGRAPHICS_GL
   NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
   #if defined IGRAPHICS_GL3
@@ -432,12 +432,23 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   self.wantsBestResolutionOpenGLSurface = YES;
   #endif // IGRAPHICS_GL
 
+  // N.B. - this needs to be done after the layers exist and are initalised
+    
+  self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
+
   #if !defined IGRAPHICS_GL
   [self setTimer];
   #endif
   
   return self;
 }
+
+#ifdef IGRAPHICS_METAL
+- (void) displayLayer:(CALayer *)layer
+{
+  [self render];
+}
+#endif
 
 #ifdef IGRAPHICS_GL
 - (void) prepareOpenGL
