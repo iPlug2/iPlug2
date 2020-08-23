@@ -1078,6 +1078,9 @@ void IGraphics::OnMouseUp(const std::vector<IMouseInfo>& points)
     }
   }
 #endif
+    
+  if (points.size() == 1 && !points[0].ms.isTouch)
+    OnMouseOver(points[0].x, points[0].y, points[0].ms);
 }
 
 void IGraphics::OnTouchCancelled(const std::vector<IMouseInfo>& points)

@@ -511,6 +511,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             info.ms.touchRadius = pTI->cxContact;
           }
 
+          info.ms.isTouch = true;
           info.ms.touchID = static_cast<ITouchID>(pTI->dwID);
 
           if (pTI->dwFlags & TOUCHEVENTF_DOWN)

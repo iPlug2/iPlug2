@@ -1681,19 +1681,30 @@ struct IMouseMod
   /** Is alt pressed. */
   bool A;
 
+  bool isTouch = false;
   ITouchID touchID = 0;
   float touchRadius = 0.f;
   
-  /** /todo 
+  /** /todo
+   * @param l /todo
+   * @param r /todo
+   * @param s /todo
+   * @param c /todo
+   * @param a /todo */
+  IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
+  : L(l), R(r), S(s), C(c), A(a)
+  {}
+  
+  /** /todo
    * @param l /todo
    * @param r /todo
    * @param s /todo
    * @param c /todo
    * @param a /todo
    * @pararm touch /todo */
-  IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false, ITouchID touch = 0)
-    : L(l), R(r), S(s), C(c), A(a), touchID(touch)
-    {}
+  IMouseMod(bool l, bool r, bool s, bool c, bool a, ITouchID touch)
+  : L(l), R(r), S(s), C(c), A(a), isTouch(true), touchID(touch)
+  {}
   
   /** /todo */
   void DBGPrint() { DBGMSG("L: %i, R: %i, S: %i, C: %i,: A: %i\n", L, R, S, C, A); }
