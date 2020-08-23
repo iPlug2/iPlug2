@@ -1784,9 +1784,31 @@ public:
     SetAnimation(DefaultAnimationFunc, mAnimationDuration);
   }
   
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override { mMouseInfo.x = x; mMouseInfo.y = y; mMouseInfo.ms = mod; SetDirty(false); }
-  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override { mMouseInfo.x = x; mMouseInfo.y = y; mMouseInfo.ms = mod; SetDirty(false); }
-  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override { mMouseInfo.x = x; mMouseInfo.y = y; mMouseInfo.ms = mod; SetDirty(false); }
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseInfo.x = x;
+    mMouseInfo.y = y;
+    mMouseInfo.ms = mod;
+    SetDirty(false);
+  }
+  
+  void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
+  {
+    mMouseInfo.x = x;
+    mMouseInfo.y = y;
+    mMouseInfo.dX = dX;
+    mMouseInfo.dY = dY;
+    mMouseInfo.ms = mod;
+    SetDirty(false);
+  }
+  
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override
+  {
+    mMouseInfo.x = x;
+    mMouseInfo.y = y;
+    mMouseInfo.ms = mod;
+    SetDirty(false);
+  }
   
 public: // public for easy access :-)
   ILayerPtr mLayer;
