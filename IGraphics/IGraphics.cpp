@@ -1149,8 +1149,13 @@ void IGraphics::OnMouseDrag(const std::vector<IMouseInfo>& points)
 
   if (mResizingInProcess && points.size() == 1)
     OnDragResize(points[0].x, points[0].y);
-  else if (ControlIsCaptured() && !GetControlInTextEntry())
+  else if (ControlIsCaptured() && !IsInPlatformTextEntry())
   {
+    IControl *textEntry = nullptr;
+      
+    if (GetControlInTextEntry())
+      textEntry = mTextEntryControl.get();
+      
     for (auto& point : points)
     {
       float x = point.x;
@@ -1161,11 +1166,14 @@ void IGraphics::OnMouseDrag(const std::vector<IMouseInfo>& points)
       
       auto itr = mCapturedMap.find(mod.touchID);
       
-      if(itr != mCapturedMap.end())
+      if (itr != mCapturedMap.end())
       {
         IControl* pCapturedControl = itr->second;
 
-        if(pCapturedControl && (dX != 0 || dY != 0))
+        if (textEntry && pCapturedControl != textEntry)
+            pCapturedControl = nullptr;
+          
+        if (pCapturedControl && (dX != 0 || dY != 0))
         {
           pCapturedControl->OnMouseDrag(x, y, dX, dY, mod);
         }
