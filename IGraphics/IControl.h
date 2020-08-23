@@ -1760,6 +1760,7 @@ public:
       SetAnimation(DefaultAnimationFunc, mAnimationDuration);
     
     mIgnoreMouse = ignoreMouse;
+    mDblAsSingleClick = true;
   }
   
   void Draw(IGraphics& g) override
@@ -1788,7 +1789,7 @@ public:
   {
     mMouseInfo.x = x;
     mMouseInfo.y = y;
-    mMouseInfo.ms = mod;
+    mMouseInfo.ms = IMouseMod();
     SetDirty(false);
   }
   
@@ -1801,15 +1802,7 @@ public:
     mMouseInfo.ms = mod;
     SetDirty(false);
   }
-  
-  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override
-  {
-    mMouseInfo.x = x;
-    mMouseInfo.y = y;
-    mMouseInfo.ms = mod;
-    SetDirty(false);
-  }
-  
+
 public: // public for easy access :-)
   ILayerPtr mLayer;
   IMouseInfo mMouseInfo;
