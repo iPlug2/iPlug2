@@ -60,11 +60,12 @@ public:
   void DismissEdit();
   void CommitEdit();
 
-  void SetStr(const char* str);
-
   void CreateTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str);
 
 private:
+    
+  void SetStr(const char* str);
+
   template<typename Proc>
   bool CallSTB(Proc proc);
   void OnStateChanged();
