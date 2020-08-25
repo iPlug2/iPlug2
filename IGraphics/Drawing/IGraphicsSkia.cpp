@@ -653,7 +653,7 @@ void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const I
       dashArray[i + 1] = options.mDash.GetArray()[(i + 1) % dashCount];
     }
     
-    paint.setPathEffect(SkDashPathEffect::Make(dashArray, dashMax, 0));
+    paint.setPathEffect(SkDashPathEffect::Make(dashArray, dashMax, options.mDash.GetOffset()));
   }
   
   paint.setStrokeWidth(thickness);
