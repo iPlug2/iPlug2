@@ -21,7 +21,7 @@
 *.vcxproj           text eol=crlf
 *.vcxproj.filters   text eol=crlf
 *.props             text eol=crlf
-*.rc                text eol=crlf
+*.rc                text eol=crlf working-tree-encoding=UTF-16
 
 *.command           text eol=lf
 *.sh                text eol=lf
