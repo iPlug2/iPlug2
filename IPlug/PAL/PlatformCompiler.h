@@ -15,7 +15,7 @@
 //---------------------------------------------------------
 // Global compiler specific preprocessor definitions
 
-#if _MSC_VER
+#if (_MSC_VER) && !defined(__clang__)
 	#define PRAGMA(...)       __pragma(__VA_ARGS__)
 	#define IPLUG_APIENTRY    __stdcall
 	#define IPLUG_IMPORT      __declspec(dllimport)
@@ -38,7 +38,7 @@
 #endif
 
 //---------------------------------------------------------
-// Set 32/64 bit platform architecture via the hail mary method
+// Set 32/64 bit platform architecture via the hail mary method (should probably get this from cmake instead)
 
 #if _WIN64 || __64BIT__ || __x86_64__ || __ia64__ || _M_IA64 || _M_X64 || _M_AMD64 || _M_ARM64 || __LP64__ || __aarch64__
 	#define PLATFORM_64BIT 1
