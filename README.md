@@ -14,7 +14,7 @@ iPlug 2 includes support for [the FAUST programming language](http://faust.grame
 iPlug 2 is licensed with a liberal zlib-like [license](https://github.com/iPlug2/iPlug2/blob/master/LICENSE.txt), which means that it is free to use in closed source projects and is free from corporate interference.
 
 You can discuss iPlug 2 on the [iPlug2 forum](https://iplug2.discourse.group
-) or on the [iPlug user's slack channel.](https://join.slack.com/t/iplug-users/shared_invite/enQtNDIyNjk0NDY2ODAwLWE4Zjc1MTk3NWQzMDRlY2YyOTllMWQyMDY2YjRjMjBmYTMwYzBiMTIwNDM0YWY0MmM5NTBmYWJmMjBkYzRkZDc)
+) or on the [iPlug user's slack channel.](https://join.slack.com/t/iplug-users/shared_invite/zt-3wftafbp-EzSXPj~I~VoLm0aL06NV7A)
 
 We welcome any help with bug fixes, features or documentation. 
 
@@ -22,4 +22,4 @@ We welcome any help with bug fixes, features or documentation.
 
 You can help support the project financially in several ways, preferably via [github sponsors](https://github.com/sponsors/olilarkin) but also [via patreon](https://www.patreon.com/olilarkin) or [paypal donations](https://paypal.me/olilarkin?locale.x=en_GB). With regular financial support, more time can be spent maintaining and improving the project. Even small contributions are very much appreciated.
 
-[![patreon](Documentation/img/become_a_patron_button.png)](https://www.patreon.com/olilarkin) [![paypal](Documentation/img/paypal_donate_button.gif)](https://paypal.me/olilarkin?locale.x=en_GB)[![slack](Documentation/img/join_slack_button.png)](https://join.slack.com/t/iplug-users/shared_invite/enQtNDIyNjk0NDY2ODAwLWE4Zjc1MTk3NWQzMDRlY2YyOTllMWQyMDY2YjRjMjBmYTMwYzBiMTIwNDM0YWY0MmM5NTBmYWJmMjBkYzRkZDc)
+[![patreon](Documentation/img/become_a_patron_button.png)](https://www.patreon.com/olilarkin) [![paypal](Documentation/img/paypal_donate_button.gif)](https://paypal.me/olilarkin?locale.x=en_GB)[![slack](Documentation/img/join_slack_button.png)](https://join.slack.com/t/iplug-users/shared_invite/zt-3wftafbp-EzSXPj~I~VoLm0aL06NV7A)
