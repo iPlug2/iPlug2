@@ -23,7 +23,7 @@
 	#define NOINLINE          __declspec(noinline)
 #elif __GNUC__ || __clang__ || __EMSCRIPTEN__
 	#define PRAGMA(...)       _Pragma(__VA_ARGS__)
-	#define IPLUG_API         
+	#define IPLUG_API
 	#define IPLUG_IMPORT
 	#define IPLUG_EXPORT      __attribute__((visibility("default")))
 	#define NOINLINE          __attribute__((noinline))
@@ -50,7 +50,7 @@
 //---------------------------------------------------------
 // Additional MSVC Settings
 
-#if _MSC_VER
+#if _MSC_VER && !defined(__clang__)
 	//---------------------------------------------------------
 	// There seems to be no reason not to use C++17 in 2020 and onwards
 	// https://en.cppreference.com/w/cpp/compiler_support#cpp17
@@ -59,7 +59,7 @@
 		#error "C++17 conformant compiler required. Use /std:c++17 as compiler option."
 	#endif
 
-	#if _MSC_VER < 1924
+	#if _MSC_VER < 1911 //1924
 		#error "Visual Studio 2019 version 16.4 or higher is required to compile."
 	#endif
 
