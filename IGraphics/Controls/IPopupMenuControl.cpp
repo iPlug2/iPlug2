@@ -341,8 +341,10 @@ void IPopupMenuControl::DrawPanelBackground(IGraphics& g, MenuPanel* panel)
 
 void IPopupMenuControl::DrawPanelShadow(IGraphics& g, MenuPanel* panel)
 {
+#if defined IGRAPHICS_NANOVG || ENABLE_SHADOW
   const float yDrop = 2.0;
   IRECT inner = panel->mRECT.GetPadded(-mDropShadowSize);
+#endif
     
 #ifdef IGRAPHICS_NANOVG
   auto NanoVGColor = [](const IColor& color, const IBlend* pBlend = nullptr) {
