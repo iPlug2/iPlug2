@@ -53,6 +53,7 @@ ipch/
 .idea/
 [Oo]ut/
 [Bb]uild*/
+cmake-build-*/
 [Ii]nstall/
 
 !/.vscode/*.code-snippets
