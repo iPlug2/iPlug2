@@ -259,7 +259,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     auto ds = mGraphics->GetDrawScale();
     
     point.ms.L = true;
-    point.ms.isTouch = true;
     point.ms.touchID = reinterpret_cast<ITouchID>(pTouch);
     point.ms.touchRadius = [pTouch majorRadius];
   

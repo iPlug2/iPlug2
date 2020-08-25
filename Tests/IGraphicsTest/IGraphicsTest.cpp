@@ -97,7 +97,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     "MPS (NanoVG MTL only)",
     "OpenGL (NanoVG GL only)",
     "Gesture Recognizers (iOS only)",
-    "MultiTouch (iOS/Windows only)",
+    "MultiTouch (iOS/Win/Web only)",
     "FlexBox",
     "Mask"
     };

@@ -1664,49 +1664,32 @@ struct IRECT
     return result;
   }
   
+  /** Print the IRECT's detailes to the console in Debug builds */
   void DBGPrint() { DBGMSG("L: %f, T: %f, R: %f, B: %f,: W: %f, H: %f\n", L, T, R, B, W(), H()); }
 };
 
-/** Used to manage mouse modifiers i.e. right click and shift/control/alt keys. */
+/** Used to manage mouse modifiers i.e. right click and shift/control/alt keys. Also used for multiple touches, to keep track of touch radius */
 struct IMouseMod
 {
-  /** Is the left mouse button pressed. */
-  bool L;
-  /** Is the right mouse button pressed. */
-  bool R;
-  /** Is shift pressed. */
-  bool S;
-  /** Is ctrl pressed. */
-  bool C;
-  /** Is alt pressed. */
-  bool A;
-
-  bool isTouch = false;
+  bool L, R, S, C, A;
   ITouchID touchID = 0;
   float touchRadius = 0.f;
   
-  /** /todo
-   * @param l /todo
-   * @param r /todo
-   * @param s /todo
-   * @param c /todo
-   * @param a /todo */
-  IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false)
-  : L(l), R(r), S(s), C(c), A(a)
+  /** Create an IMouseMod
+   * @param l left mouse button pressed
+   * @param r right mouse button pressed
+   * @param s shift pressed 
+   * @param c ctrl pressed
+   * @param a alt pressed
+   * @param touchID touch identifier, for multi-touch */
+  IMouseMod(bool l = false, bool r = false, bool s = false, bool c = false, bool a = false, ITouchID touchID = 0)
+  : L(l), R(r), S(s), C(c), A(a), touchID(touchID)
   {}
-  
-  /** /todo
-   * @param l /todo
-   * @param r /todo
-   * @param s /todo
-   * @param c /todo
-   * @param a /todo
-   * @pararm touch /todo */
-  IMouseMod(bool l, bool r, bool s, bool c, bool a, ITouchID touch)
-  : L(l), R(r), S(s), C(c), A(a), isTouch(true), touchID(touch)
-  {}
-  
-  /** /todo */
+
+  /** \c true if this IMouseMod is linked to a touch event */
+  bool IsTouch() const { return touchID > 0; }
+
+  /** Print the mouse modifier values to the console in Debug builds */
   void DBGPrint() { DBGMSG("L: %i, R: %i, S: %i, C: %i,: A: %i\n", L, R, S, C, A); }
 };
 
