@@ -873,6 +873,7 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
 #ifndef NDEBUG
     if (mShowControlBounds)
     {
+      PrepareRegion(clipBounds);
       DrawRect(CONTROL_BOUNDS_COLOR, pControl->GetRECT());
     }
 #endif
