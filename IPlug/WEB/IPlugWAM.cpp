@@ -112,7 +112,7 @@ void IPlugWAM::onMessage(char* verb, char* res, double data)
   }
   else if(strcmp(verb, "SAMFUI") == 0) // SAMFUI
   {
-    uint8_t data[2] = {-1, -1};
+    int data[2] = {-1, -1};
     char* pChar = strtok(res, ":");
     int i = 0;
     while (pChar != nullptr) {
