@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IGraphicsTest</string>
 	<key>CFBundleGetInfoString</key>
-	<string>IGraphicsTest v1.0.0 Copyright 2019 Acme Inc</string>
+	<string>IGraphicsTest v1.0.0 Copyright 2020 Acme Inc</string>
 	<key>CFBundleIconFile</key>
 	<string>IGraphicsTest.icns</string>
 	<key>CFBundleIdentifier</key>

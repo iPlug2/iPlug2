@@ -30,7 +30,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IPlugChunks</string>
 	<key>CFBundleGetInfoString</key>
-	<string>IPlugChunks v1.0.0 Copyright 2019 Acme Inc</string>
+	<string>IPlugChunks v1.0.0 Copyright 2020 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.audiounit.IPlugChunks</string>
 	<key>CFBundleInfoDictionaryVersion</key>

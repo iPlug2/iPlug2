@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IPlugOSCEditor</string>
 	<key>CFBundleGetInfoString</key>
-	<string>IPlugOSCEditor v1.0.0 Copyright 2019 Acme Inc</string>
+	<string>IPlugOSCEditor v1.0.0 Copyright 2020 Acme Inc</string>
 	<key>CFBundleIconFile</key>
 	<string>IPlugOSCEditor.icns</string>
 	<key>CFBundleIdentifier</key>
