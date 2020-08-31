@@ -30,4 +30,4 @@
 #define PLUG_FPS 60
 #define PLUG_SHARED_RESOURCES 0
 #define SHARED_RESOURCES_SUBPATH "IPlugSwift" //not used
-
+#define PLUG_HOST_RESIZE 0
