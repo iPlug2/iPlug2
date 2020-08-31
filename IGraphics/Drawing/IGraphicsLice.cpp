@@ -207,7 +207,13 @@ IGraphicsLice::~IGraphicsLice()
 void IGraphicsLice::DrawResize()
 {
   if(!mDrawBitmap)
+#ifndef OS_LINUX
     mDrawBitmap = std::make_unique<LICE_SysBitmap>(Width() * GetScreenScale(), Height() * GetScreenScale());
+#else
+  {
+    mDrawBitmap = std::make_unique<LICE_MemBitmap>(Width() * GetScreenScale(), Height() * GetScreenScale());
+  }
+#endif
   else
     mDrawBitmap->resize(Width() * GetScreenScale(), Height() * GetScreenScale());
 
@@ -964,6 +970,11 @@ void IGraphicsLice::EndFrame()
     CGContextRestoreGState(pCGContext);
     CGImageRelease(img);
   }
+#elif defined OS_LINUX
+  xcbt_window xw = (xcbt_window) GetWindow();
+  unsigned size = Width()*Height()*4; // AZ: DIRTY HACK !!!
+  xcbt_window_draw_img(xw, 24, Width(), Height(), 0, 0, size, (uint8_t *)mDrawBitmap->getBits());
+  
 #else // OS_WIN
   PAINTSTRUCT ps;
   HWND hWnd = (HWND) GetWindow();
@@ -983,7 +994,7 @@ void IGraphicsLice::EndFrame()
 #endif
 }
 
-#ifdef OS_MAC
+#if defined OS_MAC || defined OS_LINUX
   #ifdef FillRect
     #undef FillRect
   #endif

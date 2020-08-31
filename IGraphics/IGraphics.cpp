@@ -37,6 +37,17 @@ using VST3_API_BASE = iplug::IPlugVST3Controller;
 #include "ITextEntryControl.h"
 #include "IBubbleControl.h"
 
+#if defined OS_LINUX
+/*
+ * Up to GCC 8 they have "forgotten" to transport C++11 standard expf into std:: namespace
+ */
+namespace std {
+  inline _GLIBCXX_CONSTEXPR float
+  expf(float __x)
+  { return __builtin_expf(__x); }
+};
+#endif
+
 using namespace iplug;
 using namespace igraphics;
 

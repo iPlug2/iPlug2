@@ -28,6 +28,10 @@
 
   #include "cairo/src/cairo.h"
   #include "cairo/src/cairo-win32.h"
+#elif defined OS_LINUX
+  #include "cairo/cairo.h"
+  #include "cairo/cairo-xcb.h"
+  #include "cairo/cairo-ft.h"
 #else
   #error NOT IMPLEMENTED
 #endif
@@ -117,7 +121,38 @@ private:
   cairo_t* mContext;
   cairo_surface_t* mSurface;
 
+#ifdef OS_LINUX
+  // MAYBE: FT Face is not thread safe and comes from FT Library instance... 
+  //        but font data can be cached and FT Library just need locks during FT Face creation
+  // This implementation assume one instance GUI is not multi-threaded
+  class FreetypeFontCache
+  {
+    public:
+      Font *Find(const char *fontID) const;
+      void  Add(Font *font, const char *fontID);
+      FT_Library Library() { return mFTLibrary; }
+      
+      FreetypeFontCache()
+      {
+        FT_Init_FreeType(&mFTLibrary);
+      }
+      
+      ~FreetypeFontCache();
+      
+    private:
+      struct Item
+      {
+        WDL_String            mFontID;
+        std::unique_ptr<Font> mFont;
+      };
+      FT_Library mFTLibrary;
+      WDL_PtrList<Item> mFonts;
+  };
+  FreetypeFontCache mFontCache;
+  cairo_surface_t* mWindowSurface;
+#else
   static StaticStorage<Font> sFontCache;
+#endif
 };
 
 END_IGRAPHICS_NAMESPACE

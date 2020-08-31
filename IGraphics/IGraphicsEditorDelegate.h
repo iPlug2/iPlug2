@@ -41,7 +41,8 @@ public:
   void* OpenWindow(void* pHandle) final;
   void CloseWindow() final;
   void SetScreenScale(double scale) final;
-  
+  void SetIntegration(void *mainLoop) final;
+
   bool OnKeyDown(const IKeyPress& key) override;
   bool OnKeyUp(const IKeyPress& key) override;
     
@@ -97,6 +98,9 @@ private:
   int mLastHeight = 0;
   float mLastScale = 0.f;
   bool mClosing = false; // used to prevent re-entrancy on closing
+  void *mMainLoop = nullptr; // that can be set in SetIntegration prior IGraphics is created 
+                   // AZ: how to manage its lifetime? it is set by frame (plug-in type specific), used in IGraphics implementation. 
+                  //      May be make it some interface and manage its lifetime there
 };
 
 END_IGRAPHICS_NAMESPACE

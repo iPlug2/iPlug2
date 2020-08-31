@@ -35,5 +35,7 @@
 #include "agg_vpgen_segmentator.cpp"
 #ifdef OS_WIN
  #include "agg_win32_pmap.cpp"
+#elif defined OS_LINUX
+ #include "agg_xcb_pmap.cpp"
 #endif
 #endif //IGRAPHICS_AGG

@@ -783,7 +783,11 @@ public:
 
   /** Call to force end text entry (will cancel any half input text \todo check) */
   virtual void ForceEndUserEdit() = 0;
-    
+
+  /** Set platform specific host GUI event loop integration
+   * @param mainLoop is something the host and graphics implementation should agree on*/
+  virtual void SetIntegration(void *mainLoop) {}
+
   /** Open a new platform view for this graphics context
    * @param pParentWnd void pointer to parent platform window or view handle (if applicable) \todo check
    * @return void pointer to newly created IGraphics platform view */

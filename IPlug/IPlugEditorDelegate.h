@@ -19,6 +19,8 @@
 #include <cstring>
 #include <stdint.h>
 
+#include "wdltypes.h"
+#include <stdlib.h>
 #include "ptrlist.h"
 
 #include "IPlugParameter.h"
@@ -346,6 +348,10 @@ public:
   /** Can be used by a host API to inform the editor of screen scale changes
    *@param scale The new screen scale*/
   virtual void SetScreenScale(double scale) {}
+
+  /** Can be used by a host API to specify event loop integration.
+   *@param platform specific pointer*/
+  virtual void SetIntegration(void *mainLoop) {}
 
 protected:
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to MakeConfig() in the plug-in class implementation constructor */

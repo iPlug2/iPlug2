@@ -45,3 +45,7 @@ iPlug2/Dependencies/Build/win/Release/x86
 iPlug2/Dependencies/Build/win/Debug/x64
 iPlug2/Dependencies/Build/win/Release/x64
 ```
+
+## Linux
+
+Dependencies will be downloaded and compiled when required. iPlug2 HEAD downloads current HEAD of dependencies, so there can be some transient incompatibilities.

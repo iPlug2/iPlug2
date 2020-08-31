@@ -102,6 +102,7 @@ agg::comp_op_e AGGBlendMode(const IBlend* pBlend)
     case EBlend::Add:          return agg::comp_op_plus;
     case EBlend::XOR:          return agg::comp_op_xor;
   }
+  return agg::comp_op_src_over;
 }
 
 agg::cover_type AGGCover(const IBlend* pBlend)
@@ -469,6 +470,12 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, E
     if (pixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, agg::pixel_map::format_png))
       return new Bitmap(pixelMap.release(), scale, 1.f, false);
   }
+#elif defined OS_LINUX
+  if (location != EResourceLocation::kNotFound && ispng)
+  {
+    if (pixelMap->load_img_file(fileNameOrResID))
+      return new Bitmap(pixelMap.release(), scale, 1.f, false);
+  }
 #else
   if (location == EResourceLocation::kAbsolutePath && ispng)
   {
@@ -547,6 +554,9 @@ void IGraphicsAGG::EndFrame()
   CGContextScaleCTM(pCGContext, 1.0, -1.0);
   mPixelMap.draw(pCGContext, GetScreenScale());
   CGContextRestoreGState(pCGContext);
+#elif defined OS_LINUX
+  xcbt_window xw = (xcbt_window) GetWindow();
+  xcbt_window_draw_img(xw, 24, Width(), Height(), 0, 0, mPixelMap.row_bytes()*mPixelMap.height(), mPixelMap.buf());
 #else
   PAINTSTRUCT ps;
   HWND hWnd = (HWND) GetWindow();

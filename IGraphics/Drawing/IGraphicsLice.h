@@ -156,9 +156,13 @@ private:
     
   int mDrawOffsetX = 0;
   int mDrawOffsetY = 0;
-  
+
+#ifndef OS_LINUX  
   std::unique_ptr<LICE_SysBitmap> mDrawBitmap;
-#ifdef OS_WIN
+#else
+  std::unique_ptr<LICE_MemBitmap> mDrawBitmap;
+#endif
+#if defined OS_WIN
   std::unique_ptr<LICE_SysBitmap> mScaleBitmap;
 #endif
   // N.B. mRenderBitmap is not owned through this pointer, and should not be deleted

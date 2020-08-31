@@ -68,6 +68,8 @@
 #pragma comment(lib, "zlib.lib")
 #pragma comment(lib, "freetype.lib")
 #include "agg_win32_pmap.h"
+#elif defined OS_LINUX
+#include "agg_xcb_pmap.h"
 #endif
 
 #endif

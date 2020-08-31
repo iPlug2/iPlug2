@@ -119,10 +119,40 @@ private:
   const uint8_t* mData;
   int mSize;
 };
+#elif defined OS_LINUX
+struct IGraphicsCairo::OSFont : Font
+{
+  OSFont(FT_Library ft_library, IFontDataPtr&& data) : Font(nullptr, 0.), mData(std::move(data)), mFTFace(nullptr)
+  {
+    auto error = FT_New_Memory_Face(ft_library, mData->Get(), mData->GetSize(), mData->GetFaceIdx(), &mFTFace);
+    if ( !error ) 
+    {
+      mFont = cairo_ft_font_face_create_for_ft_face(mFTFace, 0);
+      mEMRatio = mData->GetHeightEMRatio();
+    }
+  }
+  virtual ~OSFont()
+  {
+    if(mFont)
+    {
+      cairo_font_face_destroy(mFont); // we have to call it before FT_Done_Face, so we can not wait ~Font().
+      mFont = nullptr;
+    }
+    if(mFTFace)
+    {
+      FT_Done_Face(mFTFace);
+    }
+  }
+private:
+  IFontDataPtr mData;
+  FT_Face mFTFace;
+};
 #endif
 
 // Fonts
+#ifndef OS_LINUX
 StaticStorage<IGraphicsCairo::Font> IGraphicsCairo::sFontCache;
+#endif
 
 #pragma mark - Utilites
 
@@ -210,17 +240,24 @@ IGraphicsCairo::IGraphicsCairo(IGEditorDelegate& dlg, int w, int h, int fps, flo
 : IGraphicsPathBase(dlg, w, h, fps, scale)
 , mSurface(nullptr)
 , mContext(nullptr)
+#ifdef OS_LINUX
+, mWindowSurface(nullptr)
+#endif
 {
   DBGMSG("IGraphics Cairo @ %i FPS\n", fps);
-  
+
+#ifndef OS_LINUX  
   StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Retain();
+#endif
 }
 
 IGraphicsCairo::~IGraphicsCairo() 
 {
+#ifndef OS_LINUX
   StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Release();
+#endif
   
   // N.B. calls through to destroy context and surface
   UpdateCairoMainSurface(nullptr);
@@ -237,6 +274,8 @@ void IGraphicsCairo::DrawResize()
     SetPlatformContext(dc);
     ReleaseDC(window, dc);
   }
+#elif defined OS_LINUX
+  SetPlatformContext((void *)(uintptr_t)1); // it is just a "tip" to create new surface, that is how that method is implemented (better design?)
 #endif
 }
 
@@ -483,10 +522,14 @@ void IGraphicsCairo::PrepareAndMeasureText(const IText& text, const char* str, I
   }
   else
     context = mContext;
-  
+
+#ifdef OS_LINUX
+  Font* pCachedFont = mFontCache.Find(text.mFont);
+#else
   StaticStorage<Font>::Accessor storage(sFontCache);
   Font* pCachedFont = storage.Find(text.mFont);
-    
+#endif
+
   assert(pCachedFont && "No font found - did you forget to load it?");
     
   // Get the correct font face
@@ -600,12 +643,24 @@ void IGraphicsCairo::UpdateCairoContext()
   //cairo_set_antialias(mContext, CAIRO_ANTIALIAS_FAST);
 }
 
+
 void IGraphicsCairo::UpdateCairoMainSurface(cairo_surface_t* pSurface)
 {
   if (mSurface)
   {
     cairo_surface_destroy(mSurface);
     mSurface = nullptr;
+#ifdef OS_LINUX
+    if (mWindowSurface)
+    {
+      cairo_device_t *dev = cairo_surface_get_device(mWindowSurface);
+      cairo_device_reference(dev); // without bugs destroying surface should kill it
+      cairo_surface_destroy(mWindowSurface);
+      //printf("After destroy surface: %d %d\n", cairo_device_get_reference_count (dev), cairo_surface_get_reference_count (mWindowSurface));
+      mWindowSurface = nullptr;
+      cairo_device_finish(dev); // HACK to forget XCB connection
+    }
+#endif
   }
   
   if (pSurface)
@@ -628,6 +683,16 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
 #elif defined OS_WIN
     mSurface = cairo_win32_surface_create_with_ddb((HDC) pContext, CAIRO_FORMAT_ARGB32, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
     cairo_surface_set_device_scale(mSurface, GetBackingPixelScale(), GetBackingPixelScale());
+#elif defined OS_LINUX
+    xcbt_window xw = (xcbt_window)GetWindow();
+    // TODO: AZ... find real visual, check for errors 
+    xcb_screen_t *si = xcbt_screen_info(xcbt_window_x(xw), xcbt_window_screen(xw));
+    mWindowSurface = cairo_xcb_surface_create(xcbt_window_conn(xw), xcbt_window_xwnd(xw), xcbt_visual_type(xcbt_window_x(xw),si->root_visual), WindowWidth(), WindowHeight());
+    //dev = cairo_surface_get_device(mWindowSurface);
+    //printf("XCB device references: %d\n", cairo_device_get_reference_count (dev));
+    cairo_surface_set_device_scale(mWindowSurface, GetDrawScale(), GetDrawScale());
+    
+    mSurface = cairo_surface_create_similar_image(mWindowSurface, CAIRO_FORMAT_RGB24, WindowWidth(), WindowHeight());
 #else
   #error NOT IMPLEMENTED
 #endif
@@ -656,11 +721,71 @@ void IGraphicsCairo::EndFrame()
   HDC cdc = cairo_win32_surface_get_dc(mSurface);
   BitBlt(dc, 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale(), cdc, 0, 0, SRCCOPY);
   EndPaint(hWnd, &ps);
+#elif defined OS_LINUX
+  if (mSurface && mWindowSurface)
+  {
+    cairo_surface_flush(mSurface);
+    auto cr = cairo_create(mWindowSurface);
+    cairo_set_source_surface(cr, mSurface, 0, 0);
+    cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+    cairo_paint(cr);
+    cairo_destroy(cr);
+    
+    cairo_surface_flush(mWindowSurface);
+  }
 #else
 #error NOT IMPLEMENTED
 #endif
 }
 
+#ifdef OS_LINUX
+IGraphicsCairo::Font *IGraphicsCairo::FreetypeFontCache::Find(const char *fontID) const
+{
+  int i, n = mFonts.GetSize();
+  for (i = 0; i < n; ++i)
+  {
+    Item *im = mFonts.Get(i);
+    if (!strcmp(fontID, im->mFontID.Get()))
+      return im->mFont.get();
+  }
+  return nullptr;
+}
+
+void  IGraphicsCairo::FreetypeFontCache::Add(Font *font, const char *fontID)
+{
+  Item* im = mFonts.Add(new Item);
+  im->mFontID.Set(fontID);
+  im->mFont = std::unique_ptr<Font>(font);
+}
+
+IGraphicsCairo::FreetypeFontCache::~FreetypeFontCache()
+{
+  mFonts.Empty(true);
+  FT_Done_FreeType(mFTLibrary);
+}
+
+bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
+{
+  if (mFontCache.Find(fontID))
+    return true;
+
+  IFontDataPtr data = font->GetFontData();
+  
+  if (!data->IsValid())
+    return false;
+
+  std::unique_ptr<Font> cairoFont(new OSFont(mFontCache.Library(), std::move(data)));
+
+  if (cairo_font_face_status(cairoFont->GetFont()) == CAIRO_STATUS_SUCCESS)
+  {
+    mFontCache.Add(cairoFont.release(), fontID);
+    return true;
+  }
+    
+  return false;
+}
+
+#else
 bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
   StaticStorage<Font>::Accessor storage(sFontCache);
@@ -672,7 +797,7 @@ bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font
   
   if (!data->IsValid())
     return false;
-    
+
   std::unique_ptr<OSFont> cairoFont(new OSFont(font->GetDescriptor(), data->GetHeightEMRatio()));
 
   if (cairo_font_face_status(cairoFont->GetFont()) == CAIRO_STATUS_SUCCESS)
@@ -683,6 +808,7 @@ bool IGraphicsCairo::LoadAPIFont(const char* fontID, const PlatformFontPtr& font
     
   return false;
 }
+#endif
 
 void IGraphicsCairo::PathTransformSetMatrix(const IMatrix& m)
 {

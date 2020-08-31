@@ -62,6 +62,9 @@ private:
 #elif defined OS_MAC
   using PixelOrder = agg::order_argb;
   using PixelMapType = agg::pixel_map_mac;
+#elif defined OS_LINUX
+  using PixelOrder = agg::order_bgra;
+  using PixelMapType = agg::pixel_map_xcb;
 #else
 #error NOT IMPLEMENTED
 #endif
