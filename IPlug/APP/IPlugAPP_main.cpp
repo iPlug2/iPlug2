@@ -56,8 +56,6 @@ namespace iplug
 
 		HACCEL hAccel = LoadAccelerators(gHINSTANCE, MAKEINTRESOURCE(IDR_ACCELERATOR1));
 
-		static UINT(WINAPI * __SetProcessDpiAwarenessContext)(DPI_AWARENESS_CONTEXT);
-
 		double scale = 1.;
 
 		/*
@@ -74,19 +72,7 @@ namespace iplug
 		  </asmv3:application>
 		</assembly>
 		*/
-		if (!__SetProcessDpiAwarenessContext)
-		{
-			HINSTANCE h = LoadLibrary("user32.dll");
-			if (h)
-				*(void**) &__SetProcessDpiAwarenessContext = GetProcAddress(h, "SetProcessDpiAwarenessContext");
-			if (!__SetProcessDpiAwarenessContext)
-				*(void**) &__SetProcessDpiAwarenessContext = (void*) (INT_PTR) 1;
-		}
-		if ((UINT_PTR) __SetProcessDpiAwarenessContext > (UINT_PTR) 1)
-		{
-			// NOTE: DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 requires Windows 10 version 1703+
-			__SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-		}
+		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
 		// TODO: Create window should be used since dialog boxes don't support maximize window
 		CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), IPlugAPPHost::MainDlgProc);
@@ -140,7 +126,8 @@ namespace iplug
 			DestroyWindow(gHWND);
 
 	#ifndef APP_ALLOW_MULTIPLE_INSTANCES
-		ReleaseMutex(hMutex);
+		if (hMutex)
+			ReleaseMutex(hMutex);
 	#endif
 		return 0;
 	}
@@ -442,7 +429,7 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 // Main entry routing to corresponding namespace entry.
 // To be moved to platform section
 #if PLATFORM_WINDOWS
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdParam, int nShowCmd)
+int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpszCmdParam, _In_ int nShowCmd)
 {
 	return iplug::WinMain(hInstance, hPrevInstance, lpszCmdParam, nShowCmd);
 }

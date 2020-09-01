@@ -1,16 +1,18 @@
  /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
 #import <CoreAudioKit/AUViewController.h>
 #import "IPlugAUAudioUnit.h"
 #import "IPlugAUViewController.h"
+
+//#include "config.h"                  // TODO: Is config.h even used in this file?
 #include "IPlugPlatform.h"
 #include "IPlugLogger.h"
 
@@ -68,14 +70,14 @@
 - (void) viewWillAppear:(BOOL)animated
 {
   [super viewWillAppear:animated];
-  
+
   if(self.audioUnit)
   {
     UIView* view = [_audioUnit openWindow:self.view];
 
     if(view == nil)
       self.view = [[GenericUI alloc] initWithAUPlugin:self.audioUnit];
-      
+
     int viewWidth = (int) [self.audioUnit width];
     int viewHeight = (int) [self.audioUnit height];
     self.preferredContentSize = CGSizeMake (viewWidth, viewHeight);
@@ -85,7 +87,7 @@
 - (void) viewDidDisappear:(BOOL)animated
 {
   [super viewDidDisappear:animated];
-  
+
   if(self.audioUnit)
   {
     [self.audioUnit closeWindow];

@@ -8,18 +8,23 @@
  ==============================================================================
 */
 
-#ifndef _IPLUGAPI_
-#define _IPLUGAPI_
+#pragma once
 
 /**
  * @file
  * @copydoc IPlugVST3Controller
  */
+#include "IPlugPlatform.h"
 
 #undef stricmp
 #undef strnicmp
 
-#include "../IPlugAPIBase.h"
+BEGIN_INCLUDE_DEPENDENCIES
+#include "public.sdk/source/vst/vsteditcontroller.h"
+#include "pluginterfaces/vst/ivstchannelcontextinfo.h"
+END_INCLUDE_DEPENDENCIES
+
+#include "IPlugAPIBase.h"
 
 #include "IPlugVST3_View.h"
 #include "IPlugVST3_ControllerBase.h"
@@ -114,5 +119,3 @@ private:
 };
 
 END_IPLUG_NAMESPACE
-
-#endif // _IPLUGAPI_

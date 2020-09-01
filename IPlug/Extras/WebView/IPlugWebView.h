@@ -12,7 +12,6 @@
 
 #include "IPlugPlatform.h"
 #include "wdlstring.h"
-#include <functional>
 
 #if PLATFORM_MAC
   #define PLATFORM_VIEW NSView
@@ -25,7 +24,7 @@
 #elif PLATFORM_WINDOWS
   #include <wrl.h>
   #include <wil/com.h>
-  #include "WebView2.h"
+  #include <WebView2.h>
 #endif
 
 BEGIN_IPLUG_NAMESPACE

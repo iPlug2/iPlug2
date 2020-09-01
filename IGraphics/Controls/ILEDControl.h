@@ -17,7 +17,7 @@
  */
 
 #include "IControl.h"
-#include "Easing.h"
+#include "Extras/Easing.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE

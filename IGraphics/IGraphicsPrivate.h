@@ -161,7 +161,7 @@ private:
   BitmapData mBitmap; // for most drawing APIs BitmapData is a pointer. For Nanovg it is an integer index
   int mWidth;
   int mHeight;
-  int mScale;
+  int mScale;         // TODO: Should be float not int?
   float mDrawScale;
 };
 
@@ -208,7 +208,7 @@ public:
   bool IsCondensed() const  { return mMacStyle & (1 << 5); }
   bool IsExpanded() const   { return mMacStyle & (1 << 6); }
   
-  double GetHeightEMRatio() const { return mUnitsPerEM / static_cast<double>(mAscender - mDescender); }
+  double GetHeightEMRatio() const { return static_cast<double>(mUnitsPerEM / (mAscender - mDescender)); }	// TODO: codereview
 
   uint16_t GetUnitsPerEM() const { return mUnitsPerEM; }
   int16_t GetAscender() const    { return mAscender; }

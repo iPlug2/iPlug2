@@ -19,7 +19,6 @@
 		"<windows.h> already included without proper configuration. Make sure to include Platform.h before any other file that includes windows.h"
 #endif
 
-// Undefine all
 #undef NOGDICAPMASKS
 #undef NOVIRTUALKEYCODES
 #undef NOWINMESSAGES
@@ -60,6 +59,16 @@
 #undef NODEFERWINDOWPOS
 #undef NOMCX
 
+// Restore default packing before including windows.h incase custom alignment
+// has been set with /Zp(x) compiler switch. Defaults 64bit=16, 32bit=8
+#if (PLATFORM_64BIT)
+	#pragma pack(push, 16)
+#else
+	#pragma pack(push, 8)
+#endif
+
+#include <SDKDDKVer.h>
+
 // The following flags inhibit definition of the indicated items.
 #define NOGDICAPMASKS     // CC_*, LC_*, PC_*, CP_*, TC_*, RC_
 #define OEMRESOURCE       // OEM Resource values
@@ -83,29 +92,6 @@
 #define WIN32_LEAN_AND_MEAN  // Exclude alot of stuff
 #define STRICT               // Should be default when using WIN32_LEAN_AND_MEAN. but just to be sure
 
-// Are we supposed to set WINAPI_FAMILY flags with flags defined in winapifamily.h
-// which sets the WINAPI_FAMILY to a default value if flags are not defined because we needed to
-// include winapifamily.h to get the flags defined to set WINAPI_FAMILY ... which gets set to default...
-#include <winapifamily.h>
-#undef WINAPI_FAMILY
-#undef _INC_WINAPIFAMILY
-
-// WINAPI_FAMILY_PC_APP        // Windows Store Applications
-// WINAPI_FAMILY_PHONE_APP     // Windows Phone Applications
-// WINAPI_FAMILY_SYSTEM        // Windows Drivers and Tools
-// WINAPI_FAMILY_SERVER        // Windows Server Applications
-// WINAPI_FAMILY_GAMES         // Windows Games and Applications
-// WINAPI_FAMILY_DESKTOP_APP   // Windows Desktop Applications
-#define WINAPI_FAMILY (WINAPI_FAMILY_DESKTOP_APP)
-
-// Restore default packing before including windows.h incase custom alignment
-// has been set with /Zp(x) compiler switch. Defaults 64bit=16, 32bit=8
-#if (PLATFORM_64BIT)
-	#pragma pack(push, 16)
-#else
-	#pragma pack(push, 8)
-#endif
-
 #include <windows.h>
 
 // Additional windows headers
@@ -113,6 +99,10 @@
 #include <stdint.h>   // C Standard Library
 #include <intsafe.h>  // Helper functions to prevent integer overflow bugs
 #include <strsafe.h>  // Safer C library string routine replacements
+
+#include <stdlib.h>
+#include <malloc.h>
+#include <memory.h>
 
 #include <commctrl.h>
 #include <commdlg.h>
@@ -122,5 +112,6 @@
 #include <VersionHelpers.h>
 #include <WindowsX.h>
 #include <wininet.h>
+#include <winsock.h>
 
 #pragma pack(pop)

@@ -35,7 +35,7 @@ BEGIN_INCLUDE_DEPENDENCIES
 		#endif
 	#elif defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
 		#if PLATFORM_WINDOWS
-			#include <glad/glad.h>
+			#include <glad.h>
 		#elif PLATFORM_MAC
 			#if defined IGRAPHICS_GL2
 				#include <OpenGL/gl.h>
@@ -49,15 +49,15 @@ BEGIN_INCLUDE_DEPENDENCIES
 END_INCLUDE_DEPENDENCIES
 
 	#if PLATFORM_WINDOWS
-		#include "IGraphicsWin.h"
+		#include "Platforms/IGraphicsWin.h"
 	#elif PLATFORM_MAC
-		#include "IGraphicsMac.h"
+		#include "Platforms/IGraphicsMac.h"
 	#elif PLATFORM_IOS
-		#include "IGraphicsIOS.h"
+		#include "Platforms/IGraphicsIOS.h"
 	#elif PLATFORM_LINUX
-		#include "IGraphicsLinux.h"
+		#include "Platforms/IGraphicsLinux.h"
 	#elif PLATFORM_WEB
-		#include "IGraphicsWeb.h"
+		#include "Platforms/IGraphicsWeb.h"
 	#endif
 
 	//TODO: move this

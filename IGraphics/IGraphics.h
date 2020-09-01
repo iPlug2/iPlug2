@@ -1535,7 +1535,7 @@ protected:
    * @param drawScale /todo
    * @param cacheable Used to make sure the underlying bitmap can be shared between plug-in instances
    * @return APIBitmap* The new API Bitmap */
-  virtual APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable = false) = 0;
+  virtual APIBitmap* CreateAPIBitmap(int width, int height, int scale, float drawScale, bool cacheable = false) = 0;
 
   /** /todo
    * @param fontID /todo

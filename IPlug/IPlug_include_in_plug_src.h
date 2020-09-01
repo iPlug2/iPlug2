@@ -18,39 +18,27 @@
  * Depending on the API macro defined, a different entry point and helper methods are activated
 */
 
+// clang-format off
+
 #define PUBLIC_NAME PLUG_NAME
 
 #pragma mark - PLATFORM_WINDOWS
-
 #if PLATFORM_WINDOWS && !defined VST3C_API
-	HINSTANCE gHINSTANCE = 0;
+HINSTANCE gHINSTANCE = 0;
 
 	#if defined(VST2_API) || defined(AAX_API)
-		#ifdef __MINGW32__
-			extern "C"
-		#endif
-		BOOL WINAPI DllMain(HINSTANCE hDllInst, DWORD fdwReason, LPVOID res)
-		{
-			gHINSTANCE = hDllInst;
-			return true;
-		}
+	BOOL WINAPI DllMain(HINSTANCE hDllInst, DWORD fdwReason, LPVOID res)
+	{
+		gHINSTANCE = hDllInst;
+		return true;
+	}
 	#endif
 
-	UINT(WINAPI* __GetDpiForWindow)(HWND);
 
+	// TODO: move function. This function doesn't belong in an api header include, it should be something like PAL::System::GetDPI()
 	int GetScaleForHWND(HWND hWnd)
 	{
-		if (!__GetDpiForWindow)
-		{
-			HINSTANCE h = LoadLibraryA("user32.dll");
-			if (h)
-				*(void**) &__GetDpiForWindow = GetProcAddress(h, "GetDpiForWindow");
-
-			if (!__GetDpiForWindow)
-				return 1;
-		}
-
-		int dpi = __GetDpiForWindow(hWnd);
+		int dpi = GetDpiForWindow(hWnd);
 		if (dpi != USER_DEFAULT_SCREEN_DPI)
 			return static_cast<int>(std::round(static_cast<double>(dpi) / USER_DEFAULT_SCREEN_DPI));
 
@@ -62,213 +50,221 @@
 
 #pragma mark - VST2
 #if defined VST2_API
-  extern "C"
-  {
-    IPLUG_EXPORT void* VSTPluginMain(audioMasterCallback hostCallback)
-    {
-      using namespace iplug;
+	extern "C"
+	{
+		IPLUG_EXPORT void* VSTPluginMain(audioMasterCallback hostCallback)
+		{
+			using namespace iplug;
 
-      IPlugVST2* pPlug = MakePlug(InstanceInfo{hostCallback});
+			IPlugVST2* pPlug = MakePlug(InstanceInfo {hostCallback});
 
-      if (pPlug)
-      {
-        AEffect& aEffect = pPlug->GetAEffect();
-        pPlug->EnsureDefaultPreset();
-        aEffect.numPrograms = std::max(aEffect.numPrograms, 1); // some hosts don't like 0 presets
-        return &aEffect;
-      }
-      return 0;
-    }
-    
-    IPLUG_EXPORT int main(int hostCallback)
-    {
-    #if PLATFORM_MAC
-      return (VstIntPtr) VSTPluginMain((audioMasterCallback)hostCallback);
-    #else
-      return (int) VSTPluginMain((audioMasterCallback)hostCallback);
-    #endif
-    }
-  };
+			if (pPlug)
+			{
+				AEffect& aEffect = pPlug->GetAEffect();
+				pPlug->EnsureDefaultPreset();
+				aEffect.numPrograms = std::max(aEffect.numPrograms, 1);  // some hosts don't like 0 presets
+				return &aEffect;
+			}
+			return 0;
+		}
+
+		IPLUG_EXPORT int main(int hostCallback)
+		{
+		#if PLATFORM_MAC
+			return (VstIntPtr) VSTPluginMain((audioMasterCallback) hostCallback);
+		#else
+			return (int) VSTPluginMain((audioMasterCallback) hostCallback);
+		#endif
+		}
+	};
+
 #pragma mark - VST3 (All)
 #elif defined VST3_API || VST3C_API || defined VST3P_API
 	BEGIN_INCLUDE_DEPENDENCIES
-		#include "public.sdk/source/main/pluginfactory.h"
-		#include "pluginterfaces/vst/ivstcomponent.h"
-		#include "pluginterfaces/vst/ivsteditcontroller.h"
+	#include "public.sdk/source/main/pluginfactory.h"
+	#include "pluginterfaces/vst/ivstcomponent.h"
+	#include "pluginterfaces/vst/ivsteditcontroller.h"
 	END_INCLUDE_DEPENDENCIES
-#if !defined VST3_PROCESSOR_UID && !defined VST3_CONTROLLER_UID
-	#define VST3_PROCESSOR_UID 0xF2AEE70D, 0x00DE4F4E, PLUG_MFR_ID, PLUG_UNIQUE_ID
-	#define VST3_CONTROLLER_UID 0xF2AEE70E, 0x00DE4F4F, PLUG_MFR_ID, PLUG_UNIQUE_ID
-#endif
 
-  #ifndef EFFECT_TYPE_VST3
-    #if PLUG_TYPE == Instrument
-      #define EFFECT_TYPE_VST3 kInstrumentSynth
-    #else
-      #define EFFECT_TYPE_VST3 kFx
-    #endif
-  #endif
+	#if !defined VST3_PROCESSOR_UID && !defined VST3_CONTROLLER_UID
+		#define VST3_PROCESSOR_UID  0xF2AEE70D, 0x00DE4F4E, PLUG_MFR_ID, PLUG_UNIQUE_ID
+		#define VST3_CONTROLLER_UID 0xF2AEE70E, 0x00DE4F4F, PLUG_MFR_ID, PLUG_UNIQUE_ID
+	#endif
 
-  #if defined VST3P_API || defined VST3_API
-  bool InitModule()
-  {
-    #if PLATFORM_WINDOWS
-    extern void* moduleHandle;
-    gHINSTANCE = (HINSTANCE) moduleHandle;
-    #endif
-    return true;
-  }
+	#ifndef EFFECT_TYPE_VST3
+		#if PLUG_TYPE == Instrument
+			#define EFFECT_TYPE_VST3 kInstrumentSynth
+		#else
+			#define EFFECT_TYPE_VST3 kFx
+		#endif
+	#endif
 
-  // called after library is unloaded
-  bool DeinitModule()
-  {
-    return true;
-  }
-  #endif
-  #pragma mark - VST3
-  #if defined VST3_API
-  static Steinberg::FUnknown* createInstance(void*)
-  {
-    return (Steinberg::Vst::IAudioProcessor*) MakePlug(InstanceInfo());
-  }
+	#if defined VST3P_API || defined VST3_API
+		bool InitModule()
+		{
+		#if PLATFORM_WINDOWS
+			extern void* moduleHandle;
+			gHINSTANCE = (HINSTANCE) moduleHandle;
+		#endif
+			return true;
+		}
 
-  BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
+		// called after library is unloaded
+		bool DeinitModule()
+		{
+			return true;
+		}
+	#endif
 
-  DEF_CLASS2(INLINE_UID_FROM_FUID(FUID(VST3_PROCESSOR_UID)),
-              Steinberg::PClassInfo::kManyInstances,          // cardinality
-              kVstAudioEffectClass,                           // the component category (don't change this)
-              PLUG_NAME,                                      // plug-in name
-              Steinberg::Vst::kSimpleModeSupported,           // means gui and plugin aren't split
-              VST3_SUBCATEGORY,                               // Subcategory for this plug-in
-              PLUG_VERSION_STR,                               // plug-in version
-              kVstVersionString,                              // the VST 3 SDK version (don't change - use define)
-              createInstance)                                 // function pointer called to be instantiate
+	#pragma mark - VST3
+	#if defined VST3_API
+		static Steinberg::FUnknown* createInstance(void*)
+		{
+			return (Steinberg::Vst::IAudioProcessor*) MakePlug(InstanceInfo());
+		}
 
-  END_FACTORY
-  #pragma mark - VST3 Processor
-  #elif defined VST3P_API
-  static Steinberg::FUnknown* createProcessorInstance(void*)
-  {
-      return MakeProcessor();
-  }
+		BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
 
-  static Steinberg::FUnknown* createControllerInstance(void*)
-  {
-    return MakeController();
-  }
+		DEF_CLASS2(INLINE_UID_FROM_FUID(FUID(VST3_PROCESSOR_UID)),
+				   Steinberg::PClassInfo::kManyInstances,  // cardinality
+				   kVstAudioEffectClass,                   // the component category (don't change this)
+				   PLUG_NAME,                              // plug-in name
+				   Steinberg::Vst::kSimpleModeSupported,   // means gui and plugin aren't split
+				   VST3_SUBCATEGORY,                       // Subcategory for this plug-in
+				   PLUG_VERSION_STR,                       // plug-in version
+				   kVstVersionString,                      // the VST 3 SDK version (don't change - use define)
+				   createInstance)                         // function pointer called to be instantiate
 
-  BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
+		END_FACTORY
+	#pragma mark - VST3 Processor
+	#elif defined VST3P_API
+		static Steinberg::FUnknown* createProcessorInstance(void*)
+		{
+			return MakeProcessor();
+		}
 
-  DEF_CLASS2 (INLINE_UID_FROM_FUID(FUID(VST3_PROCESSOR_UID)),
-              PClassInfo::kManyInstances,                     // cardinality
-              kVstAudioEffectClass,                           // the component category (do not changed this)
-              PLUG_NAME,                                      // here the Plug-in name (to be changed)
-              Vst::kDistributable,                            // means component/controller can on different computers
-              VST3_SUBCATEGORY,                               // Subcategory for this Plug-in (to be changed)
-              PLUG_VERSION_STR,                               // Plug-in version (to be changed)
-              kVstVersionString,                              // the VST 3 SDK version (don't change - use define)
-              createProcessorInstance)                        // function pointer called to be instantiate
+		static Steinberg::FUnknown* createControllerInstance(void*)
+		{
+			return MakeController();
+		}
 
-  DEF_CLASS2(INLINE_UID_FROM_FUID(FUID(VST3_CONTROLLER_UID)),
-              PClassInfo::kManyInstances,                     // cardinality
-              kVstComponentControllerClass,                   // the Controller category (do not changed this)
-              PLUG_NAME " Controller",                        // controller name (could be the same than component name)
-              0,                                              // not used here
-              "",                                             // not used here
-              PLUG_VERSION_STR,                               // Plug-in version (to be changed)
-              kVstVersionString,                              // the VST 3 SDK version (don't change - use define)
-              createControllerInstance)                       // function pointer called to be instantiate
+		BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
 
-  END_FACTORY
-  #endif
+		DEF_CLASS2(INLINE_UID_FROM_FUID(FUID(VST3_PROCESSOR_UID)),
+				   PClassInfo::kManyInstances,  // cardinality
+				   kVstAudioEffectClass,        // the component category (do not changed this)
+				   PLUG_NAME,                   // here the Plug-in name (to be changed)
+				   Vst::kDistributable,         // means component/controller can on different computers
+				   VST3_SUBCATEGORY,            // Subcategory for this Plug-in (to be changed)
+				   PLUG_VERSION_STR,            // Plug-in version (to be changed)
+				   kVstVersionString,           // the VST 3 SDK version (don't change - use define)
+				   createProcessorInstance)     // function pointer called to be instantiate
+
+		DEF_CLASS2(INLINE_UID_FROM_FUID(FUID(VST3_CONTROLLER_UID)),
+				   PClassInfo::kManyInstances,    // cardinality
+				   kVstComponentControllerClass,  // the Controller category (do not changed this)
+				   PLUG_NAME " Controller",       // controller name (could be the same than component name)
+				   0,                             // not used here
+				   "",                            // not used here
+				   PLUG_VERSION_STR,              // Plug-in version (to be changed)
+				   kVstVersionString,             // the VST 3 SDK version (don't change - use define)
+				   createControllerInstance)      // function pointer called to be instantiate
+
+		END_FACTORY
+	#endif
+
 #pragma mark - AUv2
 #elif defined AU_API
-  extern "C"
-  {
-    #ifndef AU_NO_COMPONENT_ENTRY
-    //Component Manager
-    IPLUG_EXPORT ComponentResult AUV2_ENTRY(ComponentParameters* pParams, void* pPlug)
-    {
-      return IPlugAU::IPlugAUEntry(pParams, pPlug);
-    }
-    #endif
+	extern "C"
+	{
+		#ifndef AU_NO_COMPONENT_ENTRY
+		//Component Manager
+		IPLUG_EXPORT ComponentResult AUV2_ENTRY(ComponentParameters* pParams, void* pPlug)
+		{
+			return IPlugAU::IPlugAUEntry(pParams, pPlug);
+		}
+		#endif
 
-    //>10.7 SDK AUPlugin
-    IPLUG_EXPORT void* AUV2_FACTORY(const AudioComponentDescription* pInDesc)
-    {
-      return IPlugAUFactory<PLUG_CLASS_NAME, PLUG_DOES_MIDI_IN>::Factory(pInDesc);
-    }
-  };
+		//>10.7 SDK AUPlugin
+		IPLUG_EXPORT void* AUV2_FACTORY(const AudioComponentDescription* pInDesc)
+		{
+			return IPlugAUFactory<PLUG_CLASS_NAME, PLUG_DOES_MIDI_IN>::Factory(pInDesc);
+		}
+	};
+
 #pragma mark - WAM
 #elif defined WAM_API
-  extern "C"
-  {
-    EMSCRIPTEN_KEEPALIVE void* createModule()
-    {
-      Processor* pWAM = dynamic_cast<Processor*>(iplug::MakePlug(InstanceInfo()));
-      return (void*) pWAM;
-    }
-  }
+	extern "C"
+	{
+		EMSCRIPTEN_KEEPALIVE void* createModule()
+		{
+			Processor* pWAM = dynamic_cast<Processor*>(iplug::MakePlug(InstanceInfo()));
+			return (void*) pWAM;
+		}
+	}
+
 #pragma mark - WEB
 #elif defined WEB_API
-#include <memory>
-#include "config.h"
-  std::unique_ptr<iplug::IPlugWeb> gPlug;
-  extern void StartMainLoopTimer();
+	#include <memory>
+	#include "config.h"
+	std::unique_ptr<iplug::IPlugWeb> gPlug;
+	extern void StartMainLoopTimer();
 
-  extern "C"
-  {
-    EMSCRIPTEN_KEEPALIVE void iplug_syncfs()
-    {
-      EM_ASM({
-        if(Module.syncdone == 1) {
-          Module.syncdone = 0;
-          FS.syncfs(false, function (err) {
-            assert(!err);
-            console.log("Synced to IDBFS...");
-            Module.syncdone = 1;
-          });
-        }
-      });
-    }
-    
-    EMSCRIPTEN_KEEPALIVE void iplug_fsready()
-    {
-      gPlug = std::unique_ptr<iplug::IPlugWeb>(iplug::MakePlug(InstanceInfo()));
-      gPlug->SetHost("www", 0);
-      gPlug->OpenWindow(nullptr);
-      iplug_syncfs(); // plug in may initialise settings in constructor, write to persistent data after init
-    }
-  }
+	extern "C"
+	{
+		EMSCRIPTEN_KEEPALIVE void iplug_syncfs()
+		{
+			EM_ASM({
+				if (Module.syncdone == 1)
+				{
+					Module.syncdone = 0;
+					FS.syncfs(
+						false, function(err) {
+							assert(!err);
+							console.log("Synced to IDBFS...");
+							Module.syncdone = 1;
+						});
+				}
+			});
+		}
 
-  int main()
-  {
-    //create persistent data file system and synchronise
-    EM_ASM(
-           var name = '/' + UTF8ToString($0) + '_data';
-           FS.mkdir(name);
-           FS.mount(IDBFS, {}, name);
+		EMSCRIPTEN_KEEPALIVE void iplug_fsready()
+		{
+			gPlug = std::unique_ptr<iplug::IPlugWeb>(iplug::MakePlug(InstanceInfo()));
+			gPlug->SetHost("www", 0);
+			gPlug->OpenWindow(nullptr);
+			iplug_syncfs();  // plug in may initialise settings in constructor, write to persistent data after init
+		}
+	}
 
-           Module.syncdone = 0;
-           FS.syncfs(true, function (err) {
-            assert(!err);
-            console.log("Synced from IDBFS...");
-            Module.syncdone = 1;
-            ccall('iplug_fsready', 'v');
-          });
-        , PLUG_NAME);
+	int main()
+	{
+		//create persistent data file system and synchronise
+		EM_ASM(var name = '/' + UTF8ToString($0) + '_data'; FS.mkdir(name); FS.mount(IDBFS, {}, name);
 
-    StartMainLoopTimer();
+			   Module.syncdone = 0;
+			   FS.syncfs(
+				   true,
+				   function(err) {
+					   assert(!err);
+					   console.log("Synced from IDBFS...");
+					   Module.syncdone = 1;
+					   ccall('iplug_fsready', 'v');
+				   });
+			   , PLUG_NAME);
 
-    // TODO: this code never runs, so when do we delete?!
-    gPlug = nullptr;
-    
-    return 0;
-  }
+		StartMainLoopTimer();
+
+		// TODO: this code never runs, so when do we delete?!
+		gPlug = nullptr;
+
+		return 0;
+	}
+
 #elif defined AUv3_API || defined AAX_API || defined APP_API
-// Nothing to do here
+	// Nothing to do here
 #else
-  #error "No API defined!"
+	#error "No API defined!"
 #endif
 
 #pragma mark - ** Instantiation **
@@ -278,60 +274,61 @@ BEGIN_IPLUG_NAMESPACE
 #pragma mark -
 #pragma mark VST2, VST3, AAX, AUv3, APP, WAM, WEB
 
-#if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API  || defined WAM_API || defined WEB_API
+#if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API || defined WAM_API || defined WEB_API
 
-Plugin* MakePlug(const InstanceInfo& info)
-{
-  // From VST3 - is this necessary?
-  static WDL_Mutex sMutex;
-  WDL_MutexLock lock(&sMutex);
-  
-  return new PLUG_CLASS_NAME(info);
-}
+	Plugin* MakePlug(const InstanceInfo& info)
+	{
+		// From VST3 - is this necessary?
+		static WDL_Mutex sMutex;
+		WDL_MutexLock lock(&sMutex);
+
+		return new PLUG_CLASS_NAME(info);
+	}
 
 #pragma mark - AUv2
 #elif defined AU_API
+	Plugin* MakePlug(void* pMemory)
+	{
+		InstanceInfo info;
+		info.mCocoaViewFactoryClassName.Set(AUV2_VIEW_CLASS_STR);
 
-Plugin* MakePlug(void* pMemory)
-{
-  InstanceInfo info;
-  info.mCocoaViewFactoryClassName.Set(AUV2_VIEW_CLASS_STR);
-    
-  if (pMemory)
-    return new(pMemory) PLUG_CLASS_NAME(info);
-  else
-    return new PLUG_CLASS_NAME(info);
-}
+		if (pMemory)
+			return new (pMemory) PLUG_CLASS_NAME(info);
+		else
+			return new PLUG_CLASS_NAME(info);
+	}
 
 #pragma mark - VST3 Controller
 #elif defined VST3C_API
 
-Steinberg::FUnknown* MakeController()
-{
-  static WDL_Mutex sMutex;
-  WDL_MutexLock lock(&sMutex);
-  IPlugVST3Controller::InstanceInfo info;
-  info.mOtherGUID = Steinberg::FUID(VST3_PROCESSOR_UID);
-  //If you are trying to build a distributed VST3 plug-in and you hit an error here "no matching constructor...",
-  //you need to replace all instances of PLUG_CLASS_NAME in your plug-in class, with the macro PLUG_CLASS_NAME
-  return static_cast<Steinberg::Vst::IEditController*>(new PLUG_CLASS_NAME(info));
-}
+	Steinberg::FUnknown* MakeController()
+	{
+		static WDL_Mutex sMutex;
+		WDL_MutexLock lock(&sMutex);
+		IPlugVST3Controller::InstanceInfo info;
+		info.mOtherGUID = Steinberg::FUID(VST3_PROCESSOR_UID);
+		//If you are trying to build a distributed VST3 plug-in and you hit an error here "no matching constructor...",
+		//you need to replace all instances of PLUG_CLASS_NAME in your plug-in class, with the macro PLUG_CLASS_NAME
+		return static_cast<Steinberg::Vst::IEditController*>(new PLUG_CLASS_NAME(info));
+	}
 
 #pragma mark - VST3 Processor
 #elif defined VST3P_API
 
-Steinberg::FUnknown* MakeProcessor()
-{
-  static WDL_Mutex sMutex;
-  WDL_MutexLock lock(&sMutex);
-  IPlugVST3Processor::InstanceInfo info;
-  info.mOtherGUID = Steinberg::FUID(VST3_CONTROLLER_UID);
-  return static_cast<Steinberg::Vst::IAudioProcessor*>(new PLUG_CLASS_NAME(info));
-}
+	Steinberg::FUnknown* MakeProcessor()
+	{
+		static WDL_Mutex sMutex;
+		WDL_MutexLock lock(&sMutex);
+		IPlugVST3Processor::InstanceInfo info;
+		info.mOtherGUID = Steinberg::FUID(VST3_CONTROLLER_UID);
+		return static_cast<Steinberg::Vst::IAudioProcessor*>(new PLUG_CLASS_NAME(info));
+	}
 
 #else
-#error "No API defined!"
+	#error "No API defined!"
 #endif
+
+// clang-format on
 
 #pragma mark - ** Config Utility **
 
@@ -379,5 +376,5 @@ END_IPLUG_NAMESPACE
  */
 
 #if !defined NO_IGRAPHICS && !defined VST3P_API
-#include "IGraphics_include_in_plug_src.h"
+	#include "IGraphics_include_in_plug_src.h"
 #endif

@@ -226,7 +226,7 @@ void IGraphicsWin::OnDisplayTimer(uint32 vBlankCount)
     return; // TODO: check this!
   }
 
-  // TODO: move this... listen to the right messages in windows for screen resolution changes, etc.
+  // TODO: move this... listen to the right messages (WM_DPICHANGED) in windows for screen resolution changes, etc.
   int scale = GetScaleForHWND(mPlugWnd);
   if (scale != GetScreenScale())
     SetScreenScale(scale);
@@ -2055,7 +2055,8 @@ typedef long(WINAPI* D3DKMTWaitForVerticalBlankEvent)(const D3DKMT_WAITFORVERTIC
 
 DWORD IGraphicsWin::OnVBlankRun()
 {
-  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
+// THREAD_PRIORITY_TIME_CRITICAL will cause priority problems with input and events
+//  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
 
   // TODO: get expected vsync value.  For now we will use a fallback
   // of 60Hz
@@ -2179,33 +2180,33 @@ void IGraphicsWin::VBlankNotify()
   ::PostMessage(mVBlankWindow, WM_VBLANK, mVBlankCount, 0);
 }
 
-#ifndef NO_IGRAPHICS
-#if defined IGRAPHICS_AGG
-  #include "IGraphicsAGG.cpp"
-#elif defined IGRAPHICS_CAIRO
-  #include "IGraphicsCairo.cpp"
-#elif defined IGRAPHICS_LICE
-  #include "IGraphicsLice.cpp"
-#elif defined IGRAPHICS_SKIA
-  #include "IGraphicsSkia.cpp"
-  #ifdef IGRAPHICS_GL
-	BEGIN_INCLUDE_DEPENDENCIES
-    #include "glad.c"
-	END_INCLUDE_DEPENDENCIES
-  #endif
-#elif defined IGRAPHICS_NANOVG
-  #include "IGraphicsNanoVG.cpp"
-#ifdef IGRAPHICS_FREETYPE
-  #define FONS_USE_FREETYPE
-  #pragma comment(lib, "freetype.lib")
-#endif
-  BEGIN_INCLUDE_DEPENDENCIES
-  #include "nanovg.c"
-  #include "glad.c"
-  END_INCLUDE_DEPENDENCIES
-#elif defined IGRAPHICS_D2D
-  #include "IGraphicsD2D.cpp"
-#else
-  #error
-#endif
-#endif
+//#ifndef NO_IGRAPHICS
+//	#if defined IGRAPHICS_AGG
+//		#include "IGraphicsAGG.cpp"
+//	#elif defined IGRAPHICS_CAIRO
+//		#include "IGraphicsCairo.cpp"
+//	#elif defined IGRAPHICS_LICE
+//		#include "IGraphicsLice.cpp"
+//	#elif defined IGRAPHICS_SKIA
+//		#include "IGraphicsSkia.cpp"
+//		#ifdef IGRAPHICS_GL
+//			BEGIN_INCLUDE_DEPENDENCIES
+//			#include "glad.c"
+//			END_INCLUDE_DEPENDENCIES
+//		#endif
+//	#elif defined IGRAPHICS_NANOVG
+//		#include "IGraphicsNanoVG.cpp"
+//		#ifdef IGRAPHICS_FREETYPE
+//			#define FONS_USE_FREETYPE
+//			#pragma comment(lib, "freetype.lib")
+//		#endif
+//		BEGIN_INCLUDE_DEPENDENCIES
+//		#include "nanovg.c"
+//		#include "glad.c"
+//		END_INCLUDE_DEPENDENCIES
+//	#elif defined IGRAPHICS_D2D
+//		#include "IGraphicsD2D.cpp"
+//	#else
+//		#error
+//	#endif
+//#endif

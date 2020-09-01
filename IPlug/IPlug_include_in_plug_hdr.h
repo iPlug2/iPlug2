@@ -28,7 +28,7 @@
 	#ifdef REAPER_PLUGIN
 		#define LICE_PROVIDED_BY_APP
 		//  #define SWELL_PROVIDED_BY_APP
-		#include "IPlugReaperVST2.h"
+		#include "VST2/IPlugReaperVST2.h"
 		#define PLUGIN_API_BASE IPlugReaperVST2
 
 		#ifdef FillRect
@@ -41,50 +41,50 @@
 			#undef Polygon
 		#endif
 	#else
-		#include "IPlugVST2.h"
+		#include "VST2/IPlugVST2.h"
 	using Plugin = iplug::IPlugVST2;
 	#endif
 	#define API_EXT "vst"
 #elif defined AU_API
-	#include "IPlugAU.h"
+	#include "AUv2/IPlugAU.h"
 	using Plugin = iplug::IPlugAU;
 	#define API_EXT "audiounit"
 #elif defined AUv3_API
-	#include "IPlugAUv3.h"
+	#include "AUv3/IPlugAUv3.h"
 	using Plugin = iplug::IPlugAUv3;
 	#define API_EXT "app"
 	#undef API_EXT2
 	#define API_EXT2 ".AUv3"
 #elif defined AAX_API
-	#include "IPlugAAX.h"
+	#include "AAX/IPlugAAX.h"
 	using Plugin = iplug::IPlugAAX;
 	#define API_EXT "aax"
 	#define PROTOOLS
 #elif defined APP_API
-	#include "IPlugAPP.h"
+	#include "APP/IPlugAPP.h"
 	using Plugin = iplug::IPlugAPP;
 	#define API_EXT "app"
 #elif defined WAM_API
-	#include "IPlugWAM.h"
+	#include "WEB/IPlugWAM.h"
 	using Plugin = iplug::IPlugWAM;
 #elif defined WEB_API
-	#include "IPlugWeb.h"
+	#include "WEB/IPlugWeb.h"
 	using Plugin = iplug::IPlugWeb;
 #elif defined VST3_API
 	#define IPLUG_VST3
-	#include "IPlugVST3.h"
+	#include "VST3/IPlugVST3.h"
 	using Plugin = iplug::IPlugVST3;
 	#define API_EXT "vst3"
 #elif defined VST3C_API
 	#define IPLUG_VST3
-	#include "IPlugVST3_Controller.h"
+	#include "VST3/IPlugVST3_Controller.h"
 	using Plugin = iplug::IPlugVST3Controller;
 	#undef PLUG_CLASS_NAME
 	#define PLUG_CLASS_NAME VST3Controller
 	#define API_EXT "vst3"
 #elif defined VST3P_API
 	#define IPLUG_VST3
-	#include "IPlugVST3_Processor.h"
+	#include "VST3/IPlugVST3_Processor.h"
 	using Plugin = iplug::IPlugVST3Processor;
 	#define API_EXT "vst3"
 #else

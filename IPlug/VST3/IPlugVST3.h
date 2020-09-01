@@ -26,14 +26,8 @@ BEGIN_INCLUDE_DEPENDENCIES
 #include "pluginterfaces/vst/vsttypes.h"
 #include "pluginterfaces/vst/ivstcontextmenu.h"
 #include "pluginterfaces/vst/ivstchannelcontextinfo.h"
-#include "pluginterfaces/base/ustring.h"
-#include "pluginterfaces/base/ibstream.h"
-#include "pluginterfaces/vst/ivstparameterchanges.h"
-#include "pluginterfaces/vst/ivstevents.h"
-#include "pluginterfaces/vst/ivstmidicontrollers.h"
-#include "public.sdk/source/vst/vsteditcontroller.h"
-#include "pluginterfaces/vst/ivstchannelcontextinfo.h"
 END_INCLUDE_DEPENDENCIES
+
 
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
@@ -58,7 +52,7 @@ class IPlugVST3 : public IPlugAPIBase,
 				  public Steinberg::Vst::IMidiMapping,
 				  public Steinberg::Vst::ChannelContext::IInfoListener
 {
-  public:
+ public:
 	using ViewType = IPlugVST3View<IPlugVST3>;
 
 	IPlugVST3(const InstanceInfo& info, const Config& config);
@@ -90,8 +84,14 @@ class IPlugVST3 : public IPlugAPIBase,
 	Steinberg::tresult PLUGIN_API setProcessing(Steinberg::TBool state) override;
 	Steinberg::tresult PLUGIN_API process(Steinberg::Vst::ProcessData& data) override;
 	Steinberg::tresult PLUGIN_API canProcessSampleSize(Steinberg::int32 symbolicSampleSize) override;
-	Steinberg::uint32 PLUGIN_API getLatencySamples() override { return GetLatency(); }
-	Steinberg::uint32 PLUGIN_API getTailSamples() override { return GetTailSize(); }  //TODO - infinite tail
+	Steinberg::uint32 PLUGIN_API getLatencySamples() override
+	{
+		return GetLatency();
+	}
+	Steinberg::uint32 PLUGIN_API getTailSamples() override
+	{
+		return GetTailSize();
+	}  //TODO - infinite tail
 	Steinberg::tresult PLUGIN_API setState(Steinberg::IBStream* pState) override;
 	Steinberg::tresult PLUGIN_API getState(Steinberg::IBStream* pState) override;
 
@@ -100,8 +100,11 @@ class IPlugVST3 : public IPlugAPIBase,
 	Steinberg::tresult PLUGIN_API setParamNormalized(Steinberg::Vst::ParamID tag,
 													 Steinberg::Vst::ParamValue value) override;
 	Steinberg::IPlugView* PLUGIN_API createView(const char* name) override;
-	Steinberg::tresult PLUGIN_API setEditorState(Steinberg::IBStream* pState) override;
-	Steinberg::tresult PLUGIN_API getEditorState(Steinberg::IBStream* pState) override;
+
+	// Something missing? There is no override for setEditorState and getEditorState
+	//Steinberg::tresult PLUGIN_API setEditorState(Steinberg::IBStream* pState) override;
+	//Steinberg::tresult PLUGIN_API getEditorState(Steinberg::IBStream* pState) override;
+
 	Steinberg::tresult PLUGIN_API setComponentState(Steinberg::IBStream* state) override;
 
 	// IMidiMapping
@@ -122,19 +125,37 @@ class IPlugVST3 : public IPlugAPIBase,
 	};
 
 	/** Get the name of the track that the plug-in is inserted on */
-	virtual void GetTrackName(WDL_String& str) override { str = mChannelName; };
+	virtual void GetTrackName(WDL_String& str) override
+	{
+		str = mChannelName;
+	};
 
 	/** Get the index of the track that the plug-in is inserted on */
-	virtual int GetTrackIndex() override { return mChannelIndex; };
+	virtual int GetTrackIndex() override
+	{
+		return mChannelIndex;
+	};
 
 	/** Get the namespace of the track that the plug-in is inserted on */
-	virtual void GetTrackNamespace(WDL_String& str) override { str = mChannelNamespace; };
+	virtual void GetTrackNamespace(WDL_String& str) override
+	{
+		str = mChannelNamespace;
+	};
 
 	/** Get the namespace index of the track that the plug-in is inserted on */
-	virtual int GetTrackNamespaceIndex() override { return mChannelNamespaceIndex; };
+	virtual int GetTrackNamespaceIndex() override
+	{
+		return mChannelNamespaceIndex;
+	};
 
-	Steinberg::Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
-	ViewType* GetView() { return mView; }
+	Steinberg::Vst::IComponentHandler* GetComponentHandler()
+	{
+		return componentHandler;
+	}
+	ViewType* GetView()
+	{
+		return mView;
+	}
 
 	Steinberg::Vst::AudioBus* getAudioInput(Steinberg::int32 index)
 	{
@@ -170,7 +191,7 @@ class IPlugVST3 : public IPlugAPIBase,
 	END_DEFINE_INTERFACES(SingleComponentEffect)
 	REFCOUNT_METHODS(SingleComponentEffect)
 
-  private:
+ private:
 	ViewType* mView;
 };
 

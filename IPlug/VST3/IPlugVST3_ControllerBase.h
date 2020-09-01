@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "IPlugPlatform.h"
+
 BEGIN_INCLUDE_DEPENDENCIES
 #include "pluginterfaces/base/ibstream.h"
 #include "public.sdk/source/vst/vsteditcontroller.h"
@@ -176,7 +178,7 @@ public:
       {
         case kPresetParam:
         {
-          pPlug->RestorePreset(std::round((pPlug->NPresets() - 1) * value));
+          pPlug->RestorePreset(std::round((pPlug->NPresets() - 1.0) * value));
           break;
         }
         default:

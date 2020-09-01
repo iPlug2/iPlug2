@@ -805,7 +805,7 @@ void IGraphicsSkia::SetClipRegion(const IRECT& r)
   mCanvas->setMatrix(mFinalMatrix);
 }
 
-APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
+APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, float drawScale, bool cacheable)
 {
   sk_sp<SkSurface> surface;
   

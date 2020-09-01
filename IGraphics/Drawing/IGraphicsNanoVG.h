@@ -14,23 +14,23 @@
 #include "IGraphicsPathBase.h"
 
 BEGIN_INCLUDE_DEPENDENCIES
-#include "nanovg.h"
+#include <nanovg.h>
 END_INCLUDE_DEPENDENCIES
-#include "mutex.h"
-#include <stack>
+#include <mutex.h>
 
 // Thanks to Olli Wang/MOUI for much of this macro magic  https://github.com/ollix/moui
 
-#if defined IGRAPHICS_GL
-  #define NANOVG_FBO_VALID 1
 BEGIN_INCLUDE_DEPENDENCIES
-#include "nanovg_gl_utils.h"
-END_INCLUDE_DEPENDENCIES
+#if defined IGRAPHICS_GL
+	#define NANOVG_FBO_VALID 1
+	#include <glad.h>				// TODO: temporary, "nanovg_gl_utils.h" needs to know about types from glad.h
+	#include <nanovg_gl_utils.h>
 #elif defined IGRAPHICS_METAL
-  #include "nanovg_mtl.h"
+	#include <nanovg_mtl.h>
 #else
-  #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
+	#error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
+END_INCLUDE_DEPENDENCIES
 
 #if defined IGRAPHICS_GL2
   #define NANOVG_GL2 1
@@ -127,7 +127,7 @@ public:
     
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
-  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable = false) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, float drawScale, bool cacheable = false) override;
 
   bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
 

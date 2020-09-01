@@ -151,7 +151,7 @@ IPlugVST2::IPlugVST2(const InstanceInfo& info, const Config& config)
 
   if (config.plugDoesChunks) { mAEffect.flags |= effFlagsProgramChunks; }
   if (LegalIO(1, -1)) { mAEffect.flags |= __effFlagsCanMonoDeprecated; }
-  if (config.plugType == EIPlugPluginType::kInstrument) { mAEffect.flags |= effFlagsIsSynth; }
+  if (config.plugType == EIPlugPluginType::Instrument) { mAEffect.flags |= effFlagsIsSynth; }
 
   memset(&mEditRect, 0, sizeof(ERect));
   memset(&mInputSpkrArr, 0, sizeof(VstSpeakerArrangement));

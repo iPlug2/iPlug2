@@ -15,7 +15,7 @@
 
 BEGIN_INCLUDE_DEPENDENCIES
 #include "ptrlist.h"
-#include "NChanDelay.h"
+#include "Extras/NChanDelay.h"
 END_INCLUDE_DEPENDENCIES
 
 #include "IPlugConstants.h"

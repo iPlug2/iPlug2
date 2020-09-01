@@ -8,6 +8,18 @@
  ==============================================================================
 */
 
+#include "IPlugPlatform.h"
+
+BEGIN_INCLUDE_DEPENDENCIES
+#include "pluginterfaces/base/ustring.h"
+#include "pluginterfaces/base/ibstream.h"
+#include "pluginterfaces/vst/ivstparameterchanges.h"
+#include "pluginterfaces/vst/ivstevents.h"
+#include "pluginterfaces/vst/ivstmidicontrollers.h"
+#include "public.sdk/source/vst/vsteditcontroller.h"
+#include "pluginterfaces/vst/ivstchannelcontextinfo.h"
+END_INCLUDE_DEPENDENCIES
+
 #include "IPlugVST3.h"
 
 using namespace iplug;
@@ -19,9 +31,9 @@ using namespace Vst;
 #pragma mark - IPlugVST3 Constructor/Destructor
 
 IPlugVST3::IPlugVST3(const InstanceInfo& info, const Config& config)
-  : IPlugAPIBase(config, kAPIVST3),
-	IPlugVST3ProcessorBase(config, *this),
-	mView(nullptr)
+	: IPlugAPIBase(config, kAPIVST3)
+	, IPlugVST3ProcessorBase(config, *this)
+	, mView(nullptr)
 {
 	CreateTimer();
 }
@@ -152,17 +164,17 @@ IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
 	return 0;
 }
 
-tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* pState)
-{
-	// Currently nothing to do here
-	return kResultOk;
-}
-
-tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* pState)
-{
-	// Currently nothing to do here
-	return kResultOk;
-}
+//tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* pState)
+//{
+//	// Currently nothing to do here
+//	return kResultOk;
+//}
+//
+//tresult PLUGIN_API IPlugVST3::getEditorState(IBStream* pState)
+//{
+//	// Currently nothing to do here
+//	return kResultOk;
+//}
 
 tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* pState)
 {

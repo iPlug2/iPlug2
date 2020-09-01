@@ -82,6 +82,8 @@ public:
   /** Destructor. Clean up any resources that your control owns. */
   virtual ~IControl() {}
 
+  // TODO: OnMouseDown and OnMouseUp should be OnMouseButtonDown and OnMouseButtonUp to show intent. OnMouseDown and OnMouseUp can be actual movement.
+
   /** Implement this method to respond to a mouse down event on this control. 
    * @param x The X coordinate of the mouse event
    * @param y The Y coordinate of the mouse event
@@ -573,7 +575,7 @@ private:
   IActionFunction mAnimationEndActionFunc = nullptr;
   IAnimationFunction mAnimationFunc = nullptr;
   TimePoint mAnimationStartTime;
-  Milliseconds mAnimationDuration;
+  Milliseconds mAnimationDuration {0.0};
   std::vector<ParamTuple> mVals { {kNoParameter, 0.} };
   std::unordered_map<EGestureType, IGestureFunc> mGestureFuncs;
   EGestureType mLastGesture = EGestureType::Unknown;

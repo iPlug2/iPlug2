@@ -13,56 +13,34 @@
 // clang-format off
 
 //---------------------------------------------------------
-// Set platform target
-
-#ifdef __APPLE__
-	#include <TargetConditionals.h>
-#endif
-
-#ifdef _WIN32
-	#undef PLATFORM_WINDOWS
-	#define PLATFORM_WINDOWS 1
-	#define PLATFORM_NAME    Windows
-#elif TARGET_OS_MAC
-	#undef PLATFORM_MAC
-	#define PLATFORM_MAC     1
-	#define PLATFORM_NAME    Mac
-#elif TARGET_OS_IPHONE
-	#undef PLATFORM_IOS
-	#define PLATFORM_IOS     1
-	#define PLATFORM_NAME    IOS
-#elif __linux__ && !__ANDROID__
-	#undef PLATFORM_LINUX
-	#define PLATFORM_LINUX   1
-	#define PLATFORM_NAME    Linux
-#elif EMSCRIPTEN
-	#undef PLATFORM_WEB
-	#define PLATFORM_WEB     1
-	#define PLATFORM_NAME    WEB
-#elif __ANDROID__
-	#error "Android is not supported."
-#else
-	#error "Unknown platform target."
-#endif
-
+// 
 #ifndef PLATFORM_NAME
-	#error "PLATFORM_NAME must be defined."
+	#error "PLATFORM_NAME must be defined. Make sure cmake declared this when generating project."
 #endif
 
+// Set non-active platforms to 0
 #ifndef PLATFORM_WINDOWS
 	#define PLATFORM_WINDOWS 0
 #endif
+
 #ifndef PLATFORM_IOS
 	#define PLATFORM_IOS     0
 #endif
+
 #ifndef PLATFORM_MAC
 	#define PLATFORM_MAC     0
 #endif
+
 #ifndef PLATFORM_LINUX
 	#define PLATFORM_LINUX   0
 #endif
+
 #ifndef PLATFORM_WEB
 	#define PLATFORM_WEB     0
+#endif
+
+#if PLATFORM_WINDOWS + PLATFORM_IOS + PLATFORM_MAC + PLATFORM_LINUX + PLATFORM_WEB != 1
+	#error "One and only one platform should be active. Check cmake settings."
 #endif
 
 //---------------------------------------------------------
@@ -94,8 +72,9 @@
 // Global preprocessor definitions
 
 // No quotes in filename
-#define PLATFORM_HEADER(filename)               PREPROCESSOR_STRING(PLATFORM_NAME/##filename)
-#define PLATFORM_PREFIX_HEADER(filename)        PREPROCESSOR_STRING(PREPROCESSOR_CONCAT(PLATFORM_NAME/,PLATFORM_NAME)##filename)
+#define PLATFORM_HEADER(filename)               PREPROCESSOR_STRING(PLATFORM_NAME/filename)
+#define PLATFORM_PREFIX_HEADER(filename)        PREPROCESSOR_STRING(PREPROCESSOR_CONCAT(PLATFORM_NAME/PLATFORM_NAME, filename))
+
 
 #define BEGIN_IPLUG_NAMESPACE                   namespace iplug {
 #define BEGIN_IGRAPHICS_NAMESPACE               namespace igraphics {
@@ -108,18 +87,17 @@
 #define DEPRECATED(version, message)            [[deprecated(message)]]
 #define NODISCARD                               [[nodiscard]]
 
+
 // clang-format on
 
 //---------------------------------------------------------
-// STL headers
+// STD headers
 // TODO: move to precompiled headers
 
-#ifndef _CRT_SECURE_NO_DEPRECATE
-	#define _CRT_SECURE_NO_DEPRECATE
-#endif
-
 #include <algorithm>
+#include <array>
 #include <atomic>
+#include <bitset>
 #include <cassert>
 #include <cctype>
 #include <cmath>
@@ -135,10 +113,10 @@
 #include <map>
 #include <memory>
 #include <stack>
+#include <stdint.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
 
 //---------------------------------------------------------
 // Set default types

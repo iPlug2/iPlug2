@@ -313,12 +313,13 @@ void IPluginBase::MakePresetFromNamedParams(const char* name, int nParamsNamed, 
     pPreset->mInitialized = true;
     strcpy(pPreset->mName, name);
     
-    int i = 0, n = NParams();
+//    int i = 0;
+	int n = NParams();
     
     WDL_TypedBuf<double> vals;
     vals.Resize(n);
     double* pV = vals.Get();
-    for (i = 0; i < n; ++i, ++pV)
+    for (int i = 0; i < n; ++i, ++pV)
     {
       *pV = PARAM_UNINIT;
     }

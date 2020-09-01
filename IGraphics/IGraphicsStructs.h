@@ -2015,6 +2015,12 @@ struct IMatrix
    * @param y /todo
    * @param x0 /todo
    * @param y0 /todo */
+  void TransformPoint(float& x, float& y, float x0, float y0) const
+  {
+    x = x0 * mXX + y0 * mXY + mTX;
+    y = x0 * mYX + y0 * mYY + mTY;
+  };
+
   void TransformPoint(double& x, double& y, double x0, double y0) const
   {
     x = x0 * mXX + y0 * mXY + mTX;

@@ -552,6 +552,7 @@ void IURLControl::Draw(IGraphics& g)
 
 void IURLControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
+  // TODO: This should be called on mouse button release to be compliant with standard behaviour
   GetUI()->OpenURL(mURLStr.Get());
   GetUI()->ReleaseMouseCapture();
   mClicked = true;

@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "IPlugPlatform.h"
+
 BEGIN_INCLUDE_DEPENDENCIES
 #include "pluginterfaces/gui/iplugviewcontentscalesupport.h"
 #include "pluginterfaces/base/keycodes.h"
@@ -18,7 +20,7 @@ END_INCLUDE_DEPENDENCIES
 #include "IPlugStructs.h"
 
 
-BEGIN_IPLUG_NAMESPACE
+//BEGIN_IPLUG_NAMESPACE
 
 /** IPlug VST3 View  */
 template <class T>
@@ -304,4 +306,4 @@ class IPlugVST3View : public Steinberg::CPluginView, public Steinberg::IPlugView
 
 	T& mOwner;
 };
-END_IPLUG_NAMESPACE
+//END_IPLUG_NAMESPACE

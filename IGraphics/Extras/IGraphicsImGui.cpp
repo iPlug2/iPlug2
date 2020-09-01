@@ -11,7 +11,7 @@
 #if defined IGRAPHICS_IMGUI
 
 #include "IPlugPlatform.h"
-#include "IGraphicsImGui.h"
+#include "Extras/IGraphicsImGui.h"
 #include "IGraphics_select.h"
 
 #if defined IGRAPHICS_GL2

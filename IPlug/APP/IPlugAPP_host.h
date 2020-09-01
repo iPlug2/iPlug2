@@ -37,8 +37,6 @@
 
 #include "IPlugAPP.h"
 
-#include "config.h"
-
 #if PLATFORM_WINDOWS
 	#define DEFAULT_INPUT_DEV  "Default Device"
 	#define DEFAULT_OUTPUT_DEV "Default Device"
@@ -106,8 +104,8 @@ class IPlugAPPHost
 			mMidiOutDev(OFF_TEXT),
 			mAudioDriverType(0)  // DirectSound / CoreAudio by default
 			,
-			mBufferSize(512),
 			mAudioSR(44100),
+			mBufferSize(512),
 			mMidiInChan(0),
 			mMidiOutChan(0)
 
@@ -125,8 +123,8 @@ class IPlugAPPHost
 			mMidiInDev(obj.mMidiInDev.Get()),
 			mMidiOutDev(obj.mMidiOutDev.Get()),
 			mAudioDriverType(obj.mAudioDriverType),
-			mBufferSize(obj.mBufferSize),
 			mAudioSR(obj.mAudioSR),
+			mBufferSize(obj.mBufferSize),
 			mMidiInChan(obj.mMidiInChan),
 			mMidiOutChan(obj.mMidiOutChan)
 

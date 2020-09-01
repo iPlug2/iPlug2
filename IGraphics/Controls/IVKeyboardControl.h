@@ -105,7 +105,7 @@ public:
     {
       mLastVelocity = GetVelocity(y);
 
-      TriggerMidiMsgFromKeyPress(mLastTouchedKey, (int) (mLastVelocity * 127.f));
+      TriggerMidiMsgFromKeyPress(mLastTouchedKey, mLastVelocity);
     }
 
     SetDirty(true);
@@ -150,7 +150,7 @@ public:
     {
       mLastVelocity = GetVelocity(y);
 
-      TriggerMidiMsgFromKeyPress(mLastTouchedKey, (int) (mLastVelocity * 127.f));
+      TriggerMidiMsgFromKeyPress(mLastTouchedKey, mLastVelocity);
 
       TriggerMidiMsgFromKeyPress(prevKey, 0);
       SetKeyIsPressed(prevKey, false);
@@ -189,14 +189,14 @@ public:
   {
     switch (msg.StatusMsg())
     {
-      case IMidiMsg::kNoteOn:
+		case IMidiMsg::EStatusMsg::kNoteOn:
         SetNoteFromMidi(msg.NoteNumber(), (msg.Velocity() != 0));
         break;
-      case IMidiMsg::kNoteOff:
+      case IMidiMsg::EStatusMsg::kNoteOff:
         SetNoteFromMidi(msg.NoteNumber(), false);
         break;
-      case IMidiMsg::kControlChange:
-        if(msg.ControlChangeIdx() == IMidiMsg::kAllNotesOff)
+      case IMidiMsg::EStatusMsg::kControlChange:
+        if(msg.ControlChangeIdx() == IMidiMsg::EControlChangeMsg::kAllNotesOff)
           ClearNotesFromMidi();
         break;
       default: break;
@@ -671,11 +671,11 @@ private:
     return w;
   }
 
-  void TriggerMidiMsgFromKeyPress(int key, int velocity)
+  void TriggerMidiMsgFromKeyPress(int key, float velocity)
   {
     IMidiMsg msg;
 
-    const int nn = GetMidiNoteNumberForKey(key);
+    const int16 nn = GetMidiNoteNumberForKey(key);
 
     if(velocity > 0)
       msg.MakeNoteOnMsg(nn, velocity, 0);
@@ -797,7 +797,7 @@ public:
   {
     if(mCC == IMidiMsg::EControlChangeMsg::kNoCC)
     {
-      if(msg.StatusMsg() == IMidiMsg::kPitchWheel)
+      if(msg.StatusMsg() == IMidiMsg::EStatusMsg::kPitchWheel)
       {
         SetValue((msg.PitchWheel() + 1.) * 0.5);
         SetDirty(false);

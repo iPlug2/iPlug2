@@ -12,58 +12,58 @@
 #include "IGraphicsNanoVG.h"
 #include "ITextEntryControl.h"
 
+BEGIN_INCLUDE_DEPENDENCIES
 #if defined IGRAPHICS_GL
-  #if PLATFORM_MAC
-    #if defined IGRAPHICS_GL2
-      #define NANOVG_GL2_IMPLEMENTATION
-    #elif defined IGRAPHICS_GL3
-      #include <OpenGL/gl3.h>
-      #define NANOVG_GL3_IMPLEMENTATION
-    #else
-      #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 for IGRAPHICS_NANOVG with PLATFORM_MAC
-    #endif
-  #elif PLATFORM_IOS
-//    #if defined IGRAPHICS_GLES2
-//      #define NANOVG_GLES2_IMPLEMENTATION
-//    #elif defined IGRAPHICS_GLES3
-//      #define NANOVG_GLES2_IMPLEMENTATION
-//    #else
-//      #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_IOS
-//    #endif
-    #error NOT IMPLEMENTED
-  #elif PLATFORM_WINDOWS
-    #pragma comment(lib, "opengl32.lib")
-    #if defined IGRAPHICS_GL2
-      #define NANOVG_GL2_IMPLEMENTATION
-    #elif defined IGRAPHICS_GL3
-      #define NANOVG_GL3_IMPLEMENTATION
-    #else
-      #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with PLATFORM_WINDOWS
-    #endif
-  #elif PLATFORM_LINUX
-    #error NOT IMPLEMENTED
-  #elif PLATFORM_WEB
-    #if defined IGRAPHICS_GLES2
-      #define NANOVG_GLES2_IMPLEMENTATION
-    #elif defined IGRAPHICS_GLES3
-      #define NANOVG_GLES3_IMPLEMENTATION
-    #else
-      #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_WEB
-    #endif
-  #endif
-  BEGIN_INCLUDE_DEPENDENCIES
-  #include <nanovg_gl.h>
-  #include <nanovg_gl_utils.h>
-  END_INCLUDE_DEPENDENCIES
+	#if PLATFORM_MAC
+		#if defined IGRAPHICS_GL2
+			#define NANOVG_GL2_IMPLEMENTATION
+		#elif defined IGRAPHICS_GL3
+			#include <OpenGL/gl3.h>
+			#define NANOVG_GL3_IMPLEMENTATION
+		#else
+			#error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 for IGRAPHICS_NANOVG with PLATFORM_MAC
+		#endif
+	#elif PLATFORM_IOS
+	    //#if defined IGRAPHICS_GLES2
+	    //  #define NANOVG_GLES2_IMPLEMENTATION
+	    //#elif defined IGRAPHICS_GLES3
+	    //  #define NANOVG_GLES2_IMPLEMENTATION
+	    //#else
+	    //  #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_IOS
+	    //#endif
+		#error NOT IMPLEMENTED
+	#elif PLATFORM_WINDOWS
+//		#pragma comment(lib, "opengl32.lib")
+		#if defined IGRAPHICS_GL2
+			#define NANOVG_GL2_IMPLEMENTATION
+		#elif defined IGRAPHICS_GL3
+			#define NANOVG_GL3_IMPLEMENTATION
+		#else
+			#error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with PLATFORM_WINDOWS
+		#endif
+	#elif PLATFORM_LINUX
+		#error NOT IMPLEMENTED
+	#elif PLATFORM_WEB
+		#if defined IGRAPHICS_GLES2
+			#define NANOVG_GLES2_IMPLEMENTATION
+		#elif defined IGRAPHICS_GLES3
+			#define NANOVG_GLES3_IMPLEMENTATION
+		#else
+			#error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_WEB
+		#endif
+	#endif
+	#include <nanovg_gl.h>
+	#include <nanovg_gl_utils.h>
 #elif defined IGRAPHICS_METAL
-  #include <nanovg_mtl.h>
-  #if PLATFORM_MAC
-    //even though this is a .cpp we are in an objc(pp) compilation unit
-    #import <Metal/Metal.h>
-  #endif
+	#include <nanovg_mtl.h>
+	#if PLATFORM_MAC
+		//even though this is a .cpp we are in an objc(pp) compilation unit
+		#import <Metal/Metal.h>
+	#endif
 #else
-  #error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
+	#error you must define either IGRAPHICS_GL2, IGRAPHICS_GLES2 etc or IGRAPHICS_METAL when using IGRAPHICS_NANOVG
 #endif
+END_INCLUDE_DEPENDENCIES
 
 using namespace iplug;
 using namespace igraphics;
@@ -198,7 +198,7 @@ NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend
 {
   assert(pattern.NStops() > 0);
   
-  double s[2], e[2];
+  float s[2], e[2];
   
   NVGcolor icol = NanoVGColor(pattern.GetStop(0).mColor, pBlend);
   NVGcolor ocol = NanoVGColor(pattern.GetStop(pattern.NStops() - 1).mColor, pBlend);
@@ -345,7 +345,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
   return new Bitmap(mVG, fileNameOrResID, scale, idx, location == EResourceLocation::kPreloadedTexture);
 }
 
-APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
+APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, float drawScale, bool cacheable)
 {
   if (mInDraw)
   {

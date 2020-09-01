@@ -16,7 +16,7 @@
  */
 
 #include "IControl.h"
-#include "IGraphicsFlexBox.h"
+#include "Extras/IGraphicsFlexBox.h"
 
 /** Control to test IGraphicsFlexBox
  *   @ingroup TestControls */
@@ -29,11 +29,11 @@ public:
     mText = IText(70.f, EVAlign::Middle);
     SetTooltip("TestFlexboxControl");
   }
-  
+
   void Draw(IGraphics& g) override
   {
     g.FillRect(COLOR_WHITE, mRootRect);
-    
+
     WDL_String str;
     for (int i=0; i<7; i++)
     {
@@ -43,26 +43,26 @@ public:
       g.DrawText(mText, str.Get(), mItemRects[i]);
     }
   }
-  
+
   void OnResize() override
   {
     DoLayout();
   }
-  
+
   void DoLayout()
   {
     mItemRects.clear();
-    
+
     for (int i=0; i<7; i++)
     {
       mItemRects.push_back(IRECT());
     }
-    
+
     IFlexBox f;
     f.Init(mRECT, YGFlexDirectionColumn);
 
     YGNodeRef r;
-    
+
     for (int i=0; i<7; i++)
     {
       r = f.AddItem(100.f, 100.f);

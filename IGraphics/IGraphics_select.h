@@ -32,7 +32,7 @@ BEGIN_INCLUDE_DEPENDENCIES
   #elif defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
     #define IGRAPHICS_GL
     #if PLATFORM_WINDOWS
-      #include <glad/glad.h>
+      #include <glad.h>
     #elif PLATFORM_MAC
       #if defined IGRAPHICS_GL2
         #include <OpenGL/gl.h>

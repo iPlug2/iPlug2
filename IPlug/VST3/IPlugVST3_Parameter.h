@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "IPlugParameter.h"
+#include "IPlugPlatform.h"
 
 BEGIN_INCLUDE_DEPENDENCIES
 #include "pluginterfaces/base/ustring.h"
@@ -18,6 +18,7 @@ BEGIN_INCLUDE_DEPENDENCIES
 #include "base/source/fstring.h"
 END_INCLUDE_DEPENDENCIES
 
+#include "IPlugParameter.h"
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -49,17 +50,17 @@ public:
     info.unitId = unitID;
   }
 
-  void toString(Steinberg::Vst::ParamValue valueNormalized, Steinberg::Vst::String128 string) const override
+  void toString(Steinberg::Vst::ParamValue vNormalized, Steinberg::Vst::String128 string) const override
   {
     WDL_String display;
-    mIPlugParam->GetDisplay(valueNormalized, true, display);
+    mIPlugParam->GetDisplay(vNormalized, true, display);
     Steinberg::UString(string, 128).fromAscii(display.Get());
   }
 
-  bool fromString(const Steinberg::Vst::TChar* string, Steinberg::Vst::ParamValue& valueNormalized) const override
+  bool fromString(const Steinberg::Vst::TChar* string, Steinberg::Vst::ParamValue& vNormalized) const override
   {
     Steinberg::String str((Steinberg::Vst::TChar*) string);
-    valueNormalized = mIPlugParam->ToNormalized(mIPlugParam->StringToValue(str.text8()));
+    vNormalized = mIPlugParam->ToNormalized(mIPlugParam->StringToValue(str.text8()));
 
     return true;
   }
@@ -88,9 +89,9 @@ public:
   : Steinberg::Vst::Parameter(STR16("Preset"), kPresetParam, STR16(""), 0, nPresets - 1, Steinberg::Vst::ParameterInfo::kIsProgramChange)
   {}
   
-  Steinberg::Vst::ParamValue toPlain(Steinberg::Vst::ParamValue valueNormalized) const override
+  Steinberg::Vst::ParamValue toPlain(Steinberg::Vst::ParamValue vNormalized) const override
   {
-    return std::round(valueNormalized * info.stepCount);
+    return std::round(vNormalized * info.stepCount);
   }
   
   Steinberg::Vst::ParamValue toNormalized(Steinberg::Vst::ParamValue plainValue) const override
