@@ -7,7 +7,6 @@ cmake_policy(SET CMP0091 NEW)  # MSVC runtime library flags are selected by an a
 
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
-#list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/Dependencies/IPlug/VST3_SDK/cmake/modules")
 list(REMOVE_DUPLICATES CMAKE_MODULE_PATH)
 include(IPlug2)
 
@@ -29,6 +28,7 @@ if(NOT IPLUG2_EXTERNAL_PROJECT)
     _iplug_check_initialized()
 endif()
 
+# Testing architecture. CMAKE_SIZEOF_VOID_P is only available *after* a project has been declared.
 if(NOT CMAKE_SIZEOF_VOID_P EQUAL 8)
     iplug_syntax_error("32-bit is not supported.")
 endif()
@@ -61,6 +61,7 @@ add_library(IPlug_VST3C INTERFACE)
 add_library(IPlug_VST3P INTERFACE)
 add_library(IPlug_WEB   INTERFACE)
 
+
 #------------------------------------------------------------------------------
 
 add_subdirectory(IPlug)
@@ -70,6 +71,7 @@ add_subdirectory(Dependencies)
 
 
 #------------------------------------------------------------------------------
+# Compile options for all IPlug2 related libraries. This is not used by consumers
 
 target_compile_options(IPlug_SharedCompileOptions
     INTERFACE
@@ -103,9 +105,7 @@ endif()
 # TODO: Add support for the other graphics libraries
 
 
-
-
-# Shared
+# Shared definitions for all IPlug2 related libraries and consumers
 target_compile_definitions(IPlug_SharedDefinitions
     INTERFACE
         ${PLATFORM_ID}=1
@@ -124,26 +124,13 @@ target_compile_definitions(IPlug_SharedDefinitions
         >
 )
 
-# APP
-target_compile_definitions(IPlug_APP
-    INTERFACE
-        APP_API
-        IPLUG_EDITOR=1
-        IPLUG_DSP=1
-        # $<$<BOOL:${PLATFORM_MAC}>:SWELL_COMPILED>
-)
-
-# VST3
-target_compile_definitions(IPlug_VST3
-    INTERFACE
-        VST3_API
-        IPLUG_EDITOR=1
-        IPLUG_DSP=1
-)
+# Target specific definitions
+target_compile_definitions(IPlug_APP  INTERFACE APP_API  IPLUG_EDITOR=1 IPLUG_DSP=1 $<$<BOOL:${PLATFORM_MAC}>:SWELL_COMPILED> )
+target_compile_definitions(IPlug_VST3 INTERFACE VST3_API IPLUG_EDITOR=1 IPLUG_DSP=1                                           )
 
 
 #------------------------------------------------------------------------------
-# Includes
+# Shared includes for all IPlug2 related libraries and consumers
 
 target_include_directories(IPlug_SharedIncludes
     INTERFACE
@@ -193,7 +180,7 @@ target_include_directories(IPlug_SharedIncludes
 
 
 #------------------------------------------------------------------------------
-# link dependencies
+# Shared linker settings for all IPlug2 related libraries and consumers
 
 set(_deplibs "")
 
@@ -263,6 +250,7 @@ list(APPEND _deplibs
 
 target_link_libraries(IPlug_SharedLinkLibraries INTERFACE ${_deplibs})
 
+# Target specific linker settings
 target_link_libraries(IPlug_AAX   INTERFACE AAXLibrary_x64$<$<CONFIG:Debug>:_D>.lib )  # Only 64bit (32bit needs to finally go away)
 target_link_libraries(IPlug_APP   INTERFACE RTAudio RTMidi                          )
 target_link_libraries(IPlug_AU    INTERFACE                                         )
