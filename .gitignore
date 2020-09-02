@@ -41,6 +41,7 @@ xcuserdata/
 *.sln.docstates
 CMakeSettings.json
 
+Dependencies/IPlug/VST3_SDK/*
 Dependencies/IPlug/VST2_SDK/*
 Dependencies/IPlug/AAX_SDK/*
 Dependencies/IPlug/WAM_AWP/*
