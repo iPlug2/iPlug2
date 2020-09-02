@@ -18,8 +18,8 @@ set(_DEPENDENCIES_WARNINGS
 # Glad
 #-----------------------------------------------------------------------------
 
-set(_libName "Glad")
-set(_libPath "${IPLUG2_ROOT_PATH}/Dependencies/IGraphics/glad")
+set(_libName      "Glad"                                                     )
+set(_libPath      "${IPLUG2_ROOT_PATH}/Dependencies/IGraphics/glad"          )
 
 add_library(${_libName} STATIC)
 
@@ -33,17 +33,14 @@ target_compile_definitions(${_libName}
 
 target_include_directories(${_libName}
     PUBLIC
-        # "IGraphics/glad_GL2/include"
-        # "IGraphics/glad_GL2/src"
-        # "IGraphics/glad_GL3/include"
-        # "IGraphics/glad_GL3/src"
         "IGraphics/glad"
+        "IGraphics/glad/${IPLUG2_GLAD_VERSION}"
 )
 
 target_sources(${_libName}
     PRIVATE
-        "IGraphics/glad/glad.c"
-        "IGraphics/glad/glad.h"
+        "IGraphics/glad/${IPLUG2_GLAD_VERSION}/glad.c"
+        "IGraphics/glad/${IPLUG2_GLAD_VERSION}/glad.h"
         "IGraphics/glad/khrplatform.h"
 )
 

@@ -57,6 +57,19 @@ foreach(_file IN LISTS _files)
 endforeach()
 
 
+#------------------------------------------------------------------------------
+# Glad version settings
+
+set(IPLUG2_GLAD_VERSION "4.5-ES2-3.1-Core" CACHE STRING "Select version of Glad to compile for OpenGL")
+set_property(CACHE IPLUG2_GLAD_VERSION PROPERTY STRINGS
+    "2.1-Compability"
+    "2.1-Core"
+    "3.3-Compability"
+    "3.3-Core"
+    "4.5-ES2-3.1-Compability"
+    "4.5-ES2-3.1-Core"
+)
+
 
 #------------------------------------------------------------------------------
 
