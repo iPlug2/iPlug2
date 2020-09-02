@@ -17,7 +17,7 @@
 #define PLUG_CHANNEL_IO "0-2"
 
 #define PLUG_LATENCY 0
-#define PLUG_TYPE 1
+#define PLUG_TYPE Instrument
 #define PLUG_DOES_MIDI_IN 1
 #define PLUG_DOES_MIDI_OUT 0
 #define PLUG_DOES_MPE 0

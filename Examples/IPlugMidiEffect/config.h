@@ -17,7 +17,7 @@
 #define SHARED_RESOURCES_SUBPATH "IPlugMidiEffect"
 
 #define PLUG_LATENCY 0
-#define PLUG_TYPE 2
+#define PLUG_TYPE MIDIEffect
 #define PLUG_DOES_MIDI_IN 1
 #define PLUG_DOES_MIDI_OUT 1
 #define PLUG_DOES_MPE 1

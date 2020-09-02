@@ -19,7 +19,7 @@
 #define PLUG_CHANNEL_IO "2-2"
 
 #define PLUG_LATENCY 0
-#define PLUG_TYPE 0
+#define PLUG_TYPE Effect
 #define PLUG_DOES_MIDI_IN 1
 #define PLUG_DOES_MIDI_OUT 0
 #define PLUG_DOES_MPE 0
