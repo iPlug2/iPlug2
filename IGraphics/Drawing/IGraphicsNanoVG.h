@@ -127,6 +127,7 @@ public:
     
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
+  APIBitmap* LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale) override;
   APIBitmap* CreateAPIBitmap(int width, int height, int scale, float drawScale, bool cacheable = false) override;
 
   bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;

@@ -300,6 +300,11 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   return new Bitmap(fileNameOrResID, scale);
 }
 
+APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale)
+{
+  return new Bitmap(pData, dataSize, scale);
+}
+
 void IGraphicsSkia::OnViewInitialized(void* pContext)
 {
 #if defined IGRAPHICS_GL

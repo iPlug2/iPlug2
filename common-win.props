@@ -31,20 +31,20 @@
     <IMGUI_INC_PATHS>$(IGRAPHICS_DEPS_PATH)\imgui;$(IGRAPHICS_DEPS_PATH)\imgui\examples</IMGUI_INC_PATHS>
     <YOGA_INC_PATHS>$(IGRAPHICS_DEPS_PATH)\yoga;$(IGRAPHICS_DEPS_PATH)\yoga\yoga</YOGA_INC_PATHS>
     <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(IGRAPHICS_PATH)\Controls;$(IGRAPHICS_PATH)\Drawing;$(IGRAPHICS_PATH)\Platforms;$(IGRAPHICS_PATH)\Extras;$(LICE_PATH);$(NANOSVG_PATH);$(NANOVG_PATH);$(AGG_INC_PATHS);$(CAIRO_PATHS);$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH);$(IMGUI_INC_PATHS);$(SKIA_INC_PATHS);$(YOGA_INC_PATHS)</IGRAPHICS_INC_PATHS>
-    <VST2_SDK>$(IPLUG_DEPS_PATH)\VST2_SDK</VST2_SDK>
-    <VST3_SDK>$(IPLUG_DEPS_PATH)\VST3_SDK</VST3_SDK>
-    <ASIO_SDK>$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
-    <AAX_SDK>$(IPLUG_DEPS_PATH)\AAX_SDK</AAX_SDK>
-    <VST2_32_HOST_PATH>$(ProgramFiles)\REAPER\reaper.exe</VST2_32_HOST_PATH>
-    <VST2_64_HOST_PATH>$(ProgramW6432)\REAPER (x64)\reaper.exe</VST2_64_HOST_PATH>
-    <VST3_32_HOST_PATH>$(ProgramFiles)\REAPER\reaper.exe</VST3_32_HOST_PATH>
-    <VST3_64_HOST_PATH>$(ProgramW6432)\REAPER (x64)\reaper.exe</VST3_64_HOST_PATH>
-    <VST3_32_PATH>$(CommonProgramFiles)\VST3</VST3_32_PATH>
-    <VST3_64_PATH>$(CommonProgramW6432)\VST3</VST3_64_PATH>
-    <VST2_32_PATH>$(ProgramFiles)\VstPlugins</VST2_32_PATH>
-    <VST2_64_PATH>$(ProgramW6432)\VstPlugins</VST2_64_PATH>
-    <AAX_32_PATH>$(CommonProgramFiles)\Avid\Audio\Plug-Ins</AAX_32_PATH>
-    <AAX_64_PATH>$(CommonProgramW6432)\Avid\Audio\Plug-Ins</AAX_64_PATH>
+    <VST2_SDK Condition="'$(VST2_SDK)'==''">$(IPLUG_DEPS_PATH)\VST2_SDK</VST2_SDK>
+    <VST3_SDK Condition="'$(VST3_SDK)'==''">$(IPLUG_DEPS_PATH)\VST3_SDK</VST3_SDK>
+    <ASIO_SDK Condition="'$(ASIO_SDK)'==''">$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
+    <AAX_SDK Condition="'$(AAX_SDK)'==''">$(IPLUG_DEPS_PATH)\AAX_SDK</AAX_SDK>
+    <VST2_32_HOST_PATH Condition="'$(VST2_32_HOST_PATH)'==''">$(ProgramFiles)\REAPER\reaper.exe</VST2_32_HOST_PATH>
+    <VST2_64_HOST_PATH Condition="'$(VST2_64_HOST_PATH)'==''">$(ProgramW6432)\REAPER (x64)\reaper.exe</VST2_64_HOST_PATH>
+    <VST3_32_HOST_PATH Condition="'$(VST3_32_HOST_PATH)'==''">$(ProgramFiles)\REAPER\reaper.exe</VST3_32_HOST_PATH>
+    <VST3_64_HOST_PATH Condition="'$(VST3_64_HOST_PATH)'==''">$(ProgramW6432)\REAPER (x64)\reaper.exe</VST3_64_HOST_PATH>
+    <VST3_32_PATH Condition="'$(VST3_32_PATH)'==''">$(CommonProgramFiles)\VST3</VST3_32_PATH>
+    <VST3_64_PATH Condition="'$(VST3_64_PATH)'==''">$(CommonProgramW6432)\VST3</VST3_64_PATH>
+    <VST2_32_PATH Condition="'$(VST2_32_PATH)'==''">$(ProgramFiles)\VstPlugins</VST2_32_PATH>
+    <VST2_64_PATH Condition="'$(VST2_64_PATH)'==''">$(ProgramW6432)\VstPlugins</VST2_64_PATH>
+    <AAX_32_PATH Condition="'$(AAX_32_PATH)'==''">$(CommonProgramFiles)\Avid\Audio\Plug-Ins</AAX_32_PATH>
+    <AAX_64_PATH Condition="'$(AAX_64_PATH)'==''">$(CommonProgramW6432)\Avid\Audio\Plug-Ins</AAX_64_PATH>
     <REAPER_EXT_PATH>$(APPDATA)\REAPER\UserPlugins</REAPER_EXT_PATH>
     <APP_DEFS>APP_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;IPLUG_EDITOR=1;IPLUG_DSP=1</APP_DEFS>
     <VST2_DEFS>VST2_API;VST_FORCE_DEPRECATED;IPLUG_EDITOR=1;IPLUG_DSP=1</VST2_DEFS>

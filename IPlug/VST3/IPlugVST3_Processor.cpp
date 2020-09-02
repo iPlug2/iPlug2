@@ -30,17 +30,19 @@ IPlugVST3Processor::~IPlugVST3Processor() {}
 
 tresult PLUGIN_API IPlugVST3Processor::initialize(FUnknown* context)
 {
-	TRACE
-
-	if (AudioEffect::initialize(context) == kResultOk)
-	{
-		Initialize(this);
-		IPlugVST3GetHost(this, context);
-		OnHostIdentified();
-		return kResultOk;
-	}
-
-	return kResultFalse;
+  TRACE
+  
+  if (AudioEffect::initialize(context) == kResultOk)
+  {
+    Initialize(this);
+    IPlugVST3GetHost(this, context);
+    OnHostIdentified();
+    OnParamReset(kReset);
+    
+    return kResultOk;
+  }
+  
+  return kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Processor::terminate()

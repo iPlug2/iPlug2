@@ -717,11 +717,14 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 					return 0;
 				}
 #endif
-			}
-			return 0;
-		case WM_GETMINMAXINFO:
-		{
-			IPlugAPP* pPlug = pAppHost->GetPlug();
+      }
+      return 0;
+    case WM_GETMINMAXINFO:
+    {
+      if(!pAppHost)
+        return 1;
+      
+      IPlugAPP* pPlug = pAppHost->GetPlug();
 
 			MINMAXINFO* mmi       = (MINMAXINFO*) lParam;
 			mmi->ptMinTrackSize.x = pPlug->GetMinWidth();
