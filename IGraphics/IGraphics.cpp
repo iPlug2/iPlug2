@@ -1676,7 +1676,7 @@ WDL_TypedBuf<uint8_t> IGraphics::LoadResource(const char* fileNameOrResID, const
   if (resourceFound == EResourceLocation::kNotFound)
     return result;
 
-#ifdef OS_WIN    
+#ifdef PLATFORM_WINDOWS
   if (resourceFound == EResourceLocation::kWinBinary)
   {
     int size = 0;

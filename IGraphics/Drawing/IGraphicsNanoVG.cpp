@@ -295,8 +295,7 @@ IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAr
       return IBitmap(); // return invalid IBitmap
     }
 
-    pAPIBitmap = LoadAPIBitmap(fullPathOrResourceID.Get(), ext, resourceFound, sourceScale);
-    
+	pAPIBitmap = LoadAPIBitmap(fullPathOrResourceID.Get(), sourceScale, resourceFound, ext);    
     storage.Add(pAPIBitmap, name, sourceScale);
 
     assert(pAPIBitmap && "Bitmap not loaded");
@@ -356,7 +355,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* name, const void* pData, i
     int nvgImageFlags = 0;
 
     ActivateGLContext();
-    idx = idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pData, dataSize);
+    idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pData, dataSize);
     DeactivateGLContext();
 
     pBitmap = new Bitmap(mVG, name, scale, idx, false);
