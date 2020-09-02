@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
- See LICENSE.txt for  more info.
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+ See LICENSE.txt for more info.
+
  ==============================================================================
 */
 
@@ -118,7 +118,7 @@
 #endif
 
 #ifndef PLUG_TYPE
-	#error You need to define PLUG_TYPE in config.h. 0 = Effect, 1 = Instrument, 2 = MIDI Effect
+	#error You need to define PLUG_TYPE in config.h. Effect, Instrument or MIDIEffect
 #endif
 
 #ifndef PLUG_VERSION_HEX

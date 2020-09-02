@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -40,7 +40,7 @@ static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int b
 {
   assert(pConfig != nullptr);
   assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
-  
+
   int numChans = pConfig->GetBusInfo(dir, busIdx)->NChans();
 
   switch (numChans)
@@ -71,7 +71,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
 {
   AAX_Result err = AAX_SUCCESS;
   AAX_IEffectDescriptor* pDesc = pC->NewDescriptor();
- 
+
   if (pDesc == NULL)
     return AAX_ERROR_NULL_OBJECT;
 
@@ -79,18 +79,18 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
 
   WDL_String fullPlugNameStr {AAX_PLUG_NAME_STR};
   char *plugNameStr = fullPlugNameStr.Get();
-    
+
   while (plugNameStr)
   {
     auto span = strcspn(plugNameStr, "\n");
-    
+
     if (span)
     {
       subStr.Set(plugNameStr, (int) span);
       err |= pDesc->AddName(subStr.Get());
       pC->AddPackageName(subStr.Get());
       plugNameStr = strstr(plugNameStr, "\n");
-      
+
       if (plugNameStr)
         ++plugNameStr;
     }
@@ -99,7 +99,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
       break;
     }
   }
-  
+
   AAX_EPlugInCategory category = AAX_ePlugInCategory_None;
   if (EIPlugPluginType::PLUG_TYPE == EIPlugPluginType::Instrument) category = AAX_ePlugInCategory_SWGenerators;
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "None") == (0)) category = AAX_ePlugInCategory_None;
@@ -115,22 +115,22 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "SoundField") == (0)) category = AAX_ePlugInCategory_SoundField;
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "Effect") == (0)) category = AAX_ePlugInCategory_None;
   err |= pDesc->AddCategory(category);
-  
+
   //err |= effectDescriptor->AddResourceInfo(AAX_eResourceType_PageTable, PLUG_NAME ".xml");
-  
+
   AAX_CTypeID aaxTypeIDs[] = {AAX_TYPE_IDS};
 #ifdef AAX_TYPE_IDS_AUDIOSUITE
   AAX_CTypeID aaxTypeIDsAudioSuite[] = {AAX_TYPE_IDS_AUDIOSUITE};
 #endif
-  
+
   WDL_PtrList<IOConfig> channelIO;
   int totalNInChans = 0, totalNOutChans = 0;
   int totalNInBuses = 0, totalNOutBuses = 0;
-  
+
   const int NIOConfigs = IPlugProcessor::ParseChannelIOStr(PLUG_CHANNEL_IO, channelIO, totalNInChans, totalNOutChans, totalNInBuses, totalNOutBuses);
-  
+
   auto PopulateSetupInfo = [](int configIdx, const IOConfig* pConfig, int typeId, int audioSuiteId, AAX_SIPlugSetupInfo& setupInfo){
-    if(PLUG_TYPE == 1 && pConfig->GetTotalNChannels(kInput) == 0) {
+    if(EIPlugPluginType::PLUG_TYPE == EIPlugPluginType::Instrument && pConfig->GetTotalNChannels(kInput) == 0) {
       // For some reason in protools instruments need to have input buses if not defined set input chan count the same as output
       setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kOutput, 0 /* first bus */, pConfig);
     }
@@ -138,13 +138,13 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
       setupInfo.mInputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kInput, 0 /* first bus */, pConfig);
 
     setupInfo.mOutputStemFormat = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kOutput, 0 /* first bus */, pConfig);
-    
+
     setupInfo.mNumAuxOutputStems = pConfig->NBuses(ERoute::kOutput) - 1;
-        
+
     for (int i = 0; i < setupInfo.mNumAuxOutputStems; ++i)
     {
       setupInfo.mAuxOutputStemFormats[i] = (AAX_EStemFormat) GetAPIBusTypeForChannelIOConfig(configIdx, ERoute::kOutput, i, pConfig);
-      
+
 #ifdef AAX_AOS_STRS
       static const char* aaxAOSStrs[] = {AAX_AOS_STRS};
       setupInfo.mAuxOutputStemNames[i] = aaxAOSStrs[i];
@@ -154,7 +154,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
       setupInfo.mAuxOutputStemNames[i] = str.Get();
 #endif
     }
-    
+
     setupInfo.mManufacturerID = PLUG_MFR_ID;
     setupInfo.mProductID = PLUG_UNIQUE_ID;
     setupInfo.mPluginID = typeId;
@@ -165,22 +165,22 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
     setupInfo.mNeedsInputMIDI = PLUG_DOES_MIDI_IN;
     setupInfo.mInputMIDINodeName = PLUG_NAME" Midi";
     setupInfo.mInputMIDIChannelMask = 0x0001;
-    
+
     setupInfo.mNeedsOutputMIDI = PLUG_DOES_MIDI_OUT;
     setupInfo.mOutputMIDINodeName = PLUG_NAME" Midi";
     setupInfo.mOutputMIDIChannelMask = 0x0001;
-    
+
     setupInfo.mNeedsTransport = true;
     setupInfo.mLatency = PLUG_LATENCY;
   };
-  
-  if((PLUG_TYPE != 1) && (totalNInBuses > 1)) // Effect with sidechain input
+
+  if((EIPlugPluginType::PLUG_TYPE != EIPlugPluginType::Instrument) && (totalNInBuses > 1)) // Effect with sidechain input
   {
     int aaxTypeIdIdx = 0;
     for (int configIdx = 0; configIdx < NIOConfigs; configIdx++) // loop through all configs
     {
       const IOConfig* pConfig = channelIO.Get(configIdx);
-      
+
       if(pConfig->NBuses(ERoute::kInput) == 1) // and only add the configs with no explicit sidechain
       {
         AAX_CTypeID typeId = aaxTypeIDs[aaxTypeIdIdx];
@@ -192,26 +192,26 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
         AAX_SIPlugSetupInfo setupInfo;
         PopulateSetupInfo(configIdx, pConfig, typeId, audioSuiteId, setupInfo);
         setupInfo.mWantsSideChain = true;
-        
+
         err |= AAX_CIPlugParameters::StaticDescribe(pDesc, setupInfo);
 
         AAX_ASSERT (err == AAX_SUCCESS);
-        
+
         aaxTypeIdIdx++;
       }
     }
   }
-  else if((PLUG_TYPE == 1) && (totalNOutBuses > 1)) // Instrument with multi-bus outputs
+  else if((EIPlugPluginType::PLUG_TYPE == EIPlugPluginType::Instrument) && (totalNOutBuses > 1)) // Instrument with multi-bus outputs
   {
     int configIdx = NIOConfigs-1; // Take the last IOConfig, assuming it contains all the busses
-    
+
     const IOConfig* pConfig = channelIO.Get(configIdx);
-    
+
     AAX_CTypeID typeId = aaxTypeIDs[0]; // There should only be one ID
-    
+
     AAX_SIPlugSetupInfo setupInfo;
     PopulateSetupInfo(configIdx, pConfig, typeId, 0, setupInfo);
-    
+
     err |= AAX_CIPlugParameters::StaticDescribe(pDesc, setupInfo);
 
     AAX_ASSERT (err == AAX_SUCCESS);
@@ -221,7 +221,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
     for (int configIdx = 0; configIdx < NIOConfigs; configIdx++)
     {
       const IOConfig* pConfig = channelIO.Get(configIdx);
-      
+
       AAX_CTypeID typeId = aaxTypeIDs[configIdx];
 #if AAX_DOES_AUDIOSUITE
       AAX_CTypeID audioSuiteId = aaxTypeIDsAudioSuite[configIdx];
@@ -230,7 +230,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
 #endif
       AAX_SIPlugSetupInfo setupInfo;
       PopulateSetupInfo(configIdx, pConfig, typeId, audioSuiteId, setupInfo);
-      
+
       err |= AAX_CIPlugParameters::StaticDescribe(pDesc, setupInfo);
 
       AAX_ASSERT (err == AAX_SUCCESS);
@@ -239,20 +239,20 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
 
   // Data model
   err |= pDesc->AddProcPtr((void*) IPlugAAX::Create, kAAX_ProcPtrID_Create_EffectParameters);
-  
+
   // GUI
 #if PLUG_HAS_UI
   err |= pDesc->AddProcPtr((void*) AAX_CEffectGUI_IPLUG::Create, kAAX_ProcPtrID_Create_EffectGUI);
 #endif
-  
+
   if (err == AAX_SUCCESS)
     err = pC->AddEffect(BUNDLE_ID, pDesc);
-  
+
   AAX_ASSERT (err == AAX_SUCCESS);
-  
+
   pC->SetManufacturerName(AAX_PLUG_MFR_STR);
-  
+
   pC->SetPackageVersion(PLUG_VERSION_HEX);
-  
+
   return err;
 }

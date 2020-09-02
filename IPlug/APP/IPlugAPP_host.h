@@ -56,9 +56,9 @@ END_INCLUDE_DEPENDENCIES
 
 #define OFF_TEXT "off"
 
-extern HWND      gHWND;
+extern HWND gHWND;
 extern HINSTANCE gHINSTANCE;
-extern UINT      gSCROLLMSG;
+extern UINT gSCROLLMSG;
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -78,7 +78,7 @@ class IPlugAPP;
 /** A class that hosts an IPlug as a standalone app and provides Audio/Midi I/O */
 class IPlugAPPHost
 {
-  public:
+ public:
 	/** Used to manage changes to app i/o */
 	struct AppState
 	{
@@ -86,11 +86,11 @@ class IPlugAPPHost
 		WDL_String mAudioOutDev;
 		WDL_String mMidiInDev;
 		WDL_String mMidiOutDev;
-		uint32_t   mAudioDriverType;
-		uint32_t   mAudioSR;
-		uint32_t   mBufferSize;
-		uint32_t   mMidiInChan;
-		uint32_t   mMidiOutChan;
+		uint32_t mAudioDriverType;
+		uint32_t mAudioSR;
+		uint32_t mBufferSize;
+		uint32_t mMidiInChan;
+		uint32_t mMidiOutChan;
 
 		uint32_t mAudioInChanL;
 		uint32_t mAudioInChanR;
@@ -98,41 +98,37 @@ class IPlugAPPHost
 		uint32_t mAudioOutChanR;
 
 		AppState()
-		  : mAudioInDev(DEFAULT_INPUT_DEV),
-			mAudioOutDev(DEFAULT_OUTPUT_DEV),
-			mMidiInDev(OFF_TEXT),
-			mMidiOutDev(OFF_TEXT),
-			mAudioDriverType(0)  // DirectSound / CoreAudio by default
-			,
-			mAudioSR(44100),
-			mBufferSize(512),
-			mMidiInChan(0),
-			mMidiOutChan(0)
+			: mAudioInDev(DEFAULT_INPUT_DEV)
+			, mAudioOutDev(DEFAULT_OUTPUT_DEV)
+			, mMidiInDev(OFF_TEXT)
+			, mMidiOutDev(OFF_TEXT)
+			, mAudioDriverType(0)  // DirectSound / CoreAudio by default
+			, mAudioSR(44100)
+			, mBufferSize(512)
+			, mMidiInChan(0)
+			, mMidiOutChan(0)
 
-			,
-			mAudioInChanL(1),
-			mAudioInChanR(2),
-			mAudioOutChanL(1),
-			mAudioOutChanR(2)
+			, mAudioInChanL(1)
+			, mAudioInChanR(2)
+			, mAudioOutChanL(1)
+			, mAudioOutChanR(2)
 		{
 		}
 
 		AppState(const AppState& obj)
-		  : mAudioInDev(obj.mAudioInDev.Get()),
-			mAudioOutDev(obj.mAudioOutDev.Get()),
-			mMidiInDev(obj.mMidiInDev.Get()),
-			mMidiOutDev(obj.mMidiOutDev.Get()),
-			mAudioDriverType(obj.mAudioDriverType),
-			mAudioSR(obj.mAudioSR),
-			mBufferSize(obj.mBufferSize),
-			mMidiInChan(obj.mMidiInChan),
-			mMidiOutChan(obj.mMidiOutChan)
-
-			,
-			mAudioInChanL(obj.mAudioInChanL),
-			mAudioInChanR(obj.mAudioInChanR),
-			mAudioOutChanL(obj.mAudioInChanL),
-			mAudioOutChanR(obj.mAudioInChanR)
+			: mAudioInDev(obj.mAudioInDev.Get())
+			, mAudioOutDev(obj.mAudioOutDev.Get())
+			, mMidiInDev(obj.mMidiInDev.Get())
+			, mMidiOutDev(obj.mMidiOutDev.Get())
+			, mAudioDriverType(obj.mAudioDriverType)
+			, mAudioSR(obj.mAudioSR)
+			, mBufferSize(obj.mBufferSize)
+			, mMidiInChan(obj.mMidiInChan)
+			, mMidiOutChan(obj.mMidiOutChan)
+			, mAudioInChanL(obj.mAudioInChanL)
+			, mAudioInChanR(obj.mAudioInChanR)
+			, mAudioOutChanL(obj.mAudioInChanL)
+			, mAudioOutChanR(obj.mAudioInChanR)
 		{
 		}
 
@@ -150,10 +146,13 @@ class IPlugAPPHost
 
 			);
 		}
-		bool operator!=(const AppState& rhs) { return !operator==(rhs); }
+		bool operator!=(const AppState& rhs)
+		{
+			return !operator==(rhs);
+		}
 	};
 
-	static IPlugAPPHost*                 Create();
+	static IPlugAPPHost* Create();
 	static std::unique_ptr<IPlugAPPHost> sInstance;
 
 	void PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* pInputDevInfo, RtAudio::DeviceInfo* pOutputDevInfo);
@@ -203,27 +202,30 @@ class IPlugAPPHost
 	bool TryToChangeAudio();
 	bool SelectMIDIDevice(ERoute direction, const char* portName);
 
-	static int  AudioCallback(void*               pOutputBuffer,
-							  void*               pInputBuffer,
-							  uint32_t            nFrames,
-							  double              streamTime,
-							  RtAudioStreamStatus status,
-							  void*               pUserData);
+	static int AudioCallback(void* pOutputBuffer,
+							 void* pInputBuffer,
+							 uint32_t nFrames,
+							 double streamTime,
+							 RtAudioStreamStatus status,
+							 void* pUserData);
 	static void MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, void* pUserData);
 	static void ErrorCallback(RtAudioError::Type type, const std::string& errorText);
 
 	static WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	static WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-	IPlugAPP* GetPlug() { return mIPlug.get(); }
+	IPlugAPP* GetPlug()
+	{
+		return mIPlug.get();
+	}
 
-  private:
-	std::unique_ptr<IPlugAPP>  mIPlug          = nullptr;
-	std::unique_ptr<RtAudio>   mDAC            = nullptr;
-	std::unique_ptr<RtMidiIn>  mMidiIn         = nullptr;
-	std::unique_ptr<RtMidiOut> mMidiOut        = nullptr;
-	int                        mMidiOutChannel = -1;
-	int                        mMidiInChannel  = -1;
+ private:
+	std::unique_ptr<IPlugAPP> mIPlug    = nullptr;
+	std::unique_ptr<RtAudio> mDAC       = nullptr;
+	std::unique_ptr<RtMidiIn> mMidiIn   = nullptr;
+	std::unique_ptr<RtMidiOut> mMidiOut = nullptr;
+	int mMidiOutChannel                 = -1;
+	int mMidiInChannel                  = -1;
 
 	/**  */
 	AppState mState;
@@ -232,14 +234,14 @@ class IPlugAPPHost
 	/** When the audio driver is started the current state is copied here so that if OK is pressed after APPLY nothing is changed */
 	AppState mActiveState;
 
-	double   mSampleRate     = 44100.;
+	double mSampleRate       = 44100.;
 	uint32_t mSamplesElapsed = 0;
 	uint32_t mVecWait        = 0;
 	uint32_t mBufferSize     = 512;
 	uint32_t mBufIndex       = 0;  // index for signal vector, loops from 0 to mSigVS
-	bool     mExiting        = false;
-	bool     mAudioEnding    = false;
-	bool     mAudioDone      = false;
+	bool mExiting            = false;
+	bool mAudioEnding        = false;
+	bool mAudioDone          = false;
 
 	/** The index of the operating systems default input device, -1 if not detected */
 	int32_t mDefaultInputDev = -1;
@@ -248,8 +250,8 @@ class IPlugAPPHost
 
 	WDL_String mINIPath;
 
-	std::vector<uint32_t>    mAudioInputDevs;
-	std::vector<uint32_t>    mAudioOutputDevs;
+	std::vector<uint32_t> mAudioInputDevs;
+	std::vector<uint32_t> mAudioOutputDevs;
 	std::vector<std::string> mAudioIDDevNames;
 	std::vector<std::string> mMidiInputDevNames;
 	std::vector<std::string> mMidiOutputDevNames;
