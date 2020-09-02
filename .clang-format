@@ -11,10 +11,10 @@ UseTab: ForContinuationAndIndentation
 IndentWidth: 4
 TabWidth: 4
 ContinuationIndentWidth: 4
-ConstructorInitializerIndentWidth: 2
+ConstructorInitializerIndentWidth: 4
 ObjCBlockIndentWidth: 2
 
-AccessModifierOffset: -2
+AccessModifierOffset: -3
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: false
@@ -58,7 +58,7 @@ BraceWrapping:
 BreakBeforeBinaryOperators: None
 BreakBeforeInheritanceComma: false
 BreakBeforeTernaryOperators: true
-BreakConstructorInitializersBeforeComma: false
+BreakConstructorInitializersBeforeComma: true
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
 BreakStringLiterals: true
