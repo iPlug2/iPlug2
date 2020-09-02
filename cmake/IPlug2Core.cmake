@@ -168,7 +168,7 @@ macro(iplug_add_vst3 _target)
 
     _iplug_add_target_lib(${_target} IPlug_VST3)
     add_library(${_target} SHARED)
-    target_link_libraries(${_target} PUBLIC ${_target}-static IVST3SDK)
+    target_link_libraries(${_target} PUBLIC ${_target}-static IVST3SDK) # IVST3SDK is needed for vst3 export
 
     set_target_properties(${_target} PROPERTIES SUFFIX ".${_arg_EXTENSION}")
 

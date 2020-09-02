@@ -317,6 +317,15 @@ endfunction()
 
 #------------------------------------------------------------------------------
 # _iplug_add_target_lib
+#
+# This will create a static library related to the current consumer.
+# Since IPlug2 have a lot of conditional compiling in #if statements and
+# rely on config.h from the consumer for information, we make a target
+# specific static library to prevent recompilation of all the code
+# in the consumer project.
+#
+#   _target         - Name of the target to build a static library for
+#   _pluginapi_lib  - Target type library to link
 
 function(_iplug_add_target_lib _target _pluginapi_lib)
     set(_libName "${_target}-static")
@@ -330,15 +339,22 @@ function(_iplug_add_target_lib _target _pluginapi_lib)
             ${CMAKE_CURRENT_LIST_DIR}/resources
     )
 
-    # Filter out unused sources from compiling.
-    # Don't like this solution, but since you can only set flags per 'target directory/source'
-    # instead of per 'target/source', this will have to do. Perferably we would like to see all
-    # source files, just exclude those we don't need from build per target instead since we can
-    # have multiple targets for the same source files per project.
+    # Get list of all source files in IPlug and IGraphics.
+    # We can't use the interface libraries directly since we have to filter
+    # out some of the source files depending on what the target type is.
     get_target_property(_iplug_src_list IPlug INTERFACE_SOURCES)
     get_target_property(_igraphics_src_list IGraphics INTERFACE_SOURCES)
     set(_src_list ${_iplug_src_list} ${_igraphics_src_list} )
 
+    # Filter out unused sources from compiling.
+    # Don't like this solution, but since you can only set flags per 'source file'
+    # instead of per 'target/source file', this will have to do.
+    # Preferably we would like to see all source files listed in the IDE and just
+    # exclude those we don't need from compiling on a per target instead. But, since
+    # we can have multiple targets for the same source file per project, it's not
+    # possible until such option is implemented in cmake.
+
+    # AAX
     if(NOT ${_pluginapi_lib} STREQUAL "IPlug_AAX")
         list(REMOVE_ITEM _src_list
             "${IPLUG2_ROOT_PATH}/IPlug/AAX/IPlugAAX.cpp"
@@ -347,6 +363,7 @@ function(_iplug_add_target_lib _target _pluginapi_lib)
         )
     endif()
 
+    # APP
     if(NOT ${_pluginapi_lib} STREQUAL "IPlug_APP")
         list(REMOVE_ITEM _src_list
             "${IPLUG2_ROOT_PATH}/IPlug/APP/IPlugAPP.cpp"
@@ -356,36 +373,38 @@ function(_iplug_add_target_lib _target _pluginapi_lib)
         )
     endif()
 
-    # TODO:
+    # AUv2
     if(NOT ${_pluginapi_lib} STREQUAL "IPlug_AU")
-        # list(REMOVE_ITEM _src_list
-        #     "${IPLUG2_ROOT_PATH}/IPlug/AUv2/dfx-au-utilities.c"
-        #     "${IPLUG2_ROOT_PATH}/IPlug/AUv2/IPlugAU.cpp"
-        #     "${IPLUG2_ROOT_PATH}/IPlug/AUv2/IPlugAU_view_factory.mm"
-        # )
+        list(REMOVE_ITEM _src_list
+            "${IPLUG2_ROOT_PATH}/IPlug/AUv2/dfx-au-utilities.c"
+            "${IPLUG2_ROOT_PATH}/IPlug/AUv2/IPlugAU.cpp"
+            "${IPLUG2_ROOT_PATH}/IPlug/AUv2/IPlugAU_view_factory.mm"
+        )
     endif()
 
-    # TODO:
+    # AUv3
     if(NOT ${_pluginapi_lib} STREQUAL "IPlug_AUv3")
-        # list(REMOVE_ITEM _src_list
-        #     "${IPLUG2_ROOT_PATH}/IPlug/AUv3/GenericUI.mm"
-        #     "${IPLUG2_ROOT_PATH}/IPlug/AUv3/iOSApp/AppDelegate.m"
-        #     "${IPLUG2_ROOT_PATH}/IPlug/AUv3/iOSApp/AppViewController.mm"
-        #     "${IPLUG2_ROOT_PATH}/IPlug/AUv3/iOSApp/IPlugAUPlayer.mm"
-        #     "${IPLUG2_ROOT_PATH}/IPlug/AUv3/iOSApp/main.m"
-        #     "${IPLUG2_ROOT_PATH}/IPlug/AUv3/IPlugAUAudioUnit.mm"
-        #     "${IPLUG2_ROOT_PATH}/IPlug/AUv3/IPlugAUv3.mm"
-        #     "${IPLUG2_ROOT_PATH}/IPlug/AUv3/IPlugAUv3Appex.m"
-        #     "${IPLUG2_ROOT_PATH}/IPlug/AUv3/IPlugAUViewController.mm"
-        # )
+        list(REMOVE_ITEM _src_list
+            "${IPLUG2_ROOT_PATH}/IPlug/AUv3/GenericUI.mm"
+            "${IPLUG2_ROOT_PATH}/IPlug/AUv3/iOSApp/AppDelegate.m"
+            "${IPLUG2_ROOT_PATH}/IPlug/AUv3/iOSApp/AppViewController.mm"
+            "${IPLUG2_ROOT_PATH}/IPlug/AUv3/iOSApp/IPlugAUPlayer.mm"
+            "${IPLUG2_ROOT_PATH}/IPlug/AUv3/iOSApp/main.m"
+            "${IPLUG2_ROOT_PATH}/IPlug/AUv3/IPlugAUAudioUnit.mm"
+            "${IPLUG2_ROOT_PATH}/IPlug/AUv3/IPlugAUv3.mm"
+            "${IPLUG2_ROOT_PATH}/IPlug/AUv3/IPlugAUv3Appex.m"
+            "${IPLUG2_ROOT_PATH}/IPlug/AUv3/IPlugAUViewController.mm"
+        )
     endif()
 
+    # VST2
     if(NOT ${_pluginapi_lib} STREQUAL "IPlug_VST2")
         list(REMOVE_ITEM _src_list
             "${IPLUG2_ROOT_PATH}/IPlug/VST2/IPlugVST2.cpp"
         )
     endif()
 
+    # VST3
     if(NOT ${_pluginapi_lib} STREQUAL "IPlug_VST3")
         list(REMOVE_ITEM _src_list
             "${IPLUG2_ROOT_PATH}/IPlug/VST3/IPlugVST3.cpp"
@@ -395,26 +414,27 @@ function(_iplug_add_target_lib _target _pluginapi_lib)
         )
     endif()
 
-    # TODO:
+    # WEB
     if(NOT ${_pluginapi_lib} STREQUAL "IPlug_WEB")
-        # list(REMOVE_ITEM _src_list
-        #     "${IPLUG2_ROOT_PATH}/IPlug/WEB/IPlugWAM.cpp"
-        #     "${IPLUG2_ROOT_PATH}/IPlug/WEB/IPlugWeb.cpp"
-        # )
+        list(REMOVE_ITEM _src_list
+            "${IPLUG2_ROOT_PATH}/IPlug/WEB/IPlugWAM.cpp"
+            "${IPLUG2_ROOT_PATH}/IPlug/WEB/IPlugWeb.cpp"
+        )
     endif()
 
+    # Add remaining source files
     target_sources(${_libName} PRIVATE ${_src_list})
 
     target_link_libraries(${_libName}
         PRIVATE
-            IPlug_SharedCompileOptions
+            IPlug_SharedCompileOptions # PRIVATE so as not to interfer with consumer settings
         PUBLIC
             IPlug_SharedLinkLibraries
             IPlug_SharedDefinitions
             IPlug_SharedIncludes
             ${_pluginapi_lib}
     )
-    cmake_print_variables(_pluginapi_lib)
+
     if(NOT IPLUG2_EXTERNAL_PROJECT)
         set_target_properties(${_libName} PROPERTIES FOLDER "Examples/${PROJECT_NAME}/Libraries")
     else()
