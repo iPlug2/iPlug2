@@ -30,3 +30,7 @@ indent_size = 2
 
 [{*.cmake,CMakeLists.txt}]
 indent_style = space
+
+[*.rc]
+charset = utf-16
+indent_style = space
