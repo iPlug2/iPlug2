@@ -26,7 +26,7 @@ static int VSTSpkrArrType(int nchan)
 
 static int AsciiToVK(int ascii)
 {
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   HKL layout = GetKeyboardLayout(0);
   return VkKeyScanExA((CHAR)ascii, layout);
 #else
@@ -151,7 +151,7 @@ IPlugVST2::IPlugVST2(const InstanceInfo& info, const Config& config)
 
   if (config.plugDoesChunks) { mAEffect.flags |= effFlagsProgramChunks; }
   if (LegalIO(1, -1)) { mAEffect.flags |= __effFlagsCanMonoDeprecated; }
-  if (config.plugType == EIPlugPluginType::kInstrument) { mAEffect.flags |= effFlagsIsSynth; }
+  if (config.plugType == EIPlugPluginType::Instrument) { mAEffect.flags |= effFlagsIsSynth; }
 
   memset(&mEditRect, 0, sizeof(ERect));
   memset(&mInputSpkrArr, 0, sizeof(VstSpeakerArrangement));
@@ -458,12 +458,13 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     }
     case effEditOpen:
     {
-#if defined OS_WIN || defined ARCH_64BIT
+#if PLATFORM_WINDOWS || PLATFORM_64BIT
       if (_this->OpenWindow(ptr))
       {
         return 1;
       }
 #else   // OSX 32 bit, check if we are in a Cocoa VST host, otherwise tough luck
+        // TODO: Is this still relevant with 32bit support removed from OSX?
       bool iscocoa = (_this->mHasVSTExtensions&VSTEXT_COCOA);
       if (iscocoa && _this->OpenWindow(ptr))
       {

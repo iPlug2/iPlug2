@@ -14,7 +14,7 @@
 
 #include "IPlugWebViewEditorDelegate.h"
 
-#ifdef OS_IOS
+#if PLATFORM_IOS
 #import <UIKit/UIKit.h>
 #endif
 

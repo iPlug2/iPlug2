@@ -73,7 +73,7 @@ protected:
   double mEMRatio;
 };
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
 struct IGraphicsCairo::OSFont : Font
 {
   OSFont(const FontDescriptor fontRef, double EMRatio) : Font(nullptr, EMRatio)
@@ -85,7 +85,7 @@ struct IGraphicsCairo::OSFont : Font
     CGFontRelease(cgFont);
   }
 };
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
 struct IGraphicsCairo::OSFont : Font
 {
   OSFont(const FontDescriptor fontRef, double EMRatio)
@@ -229,7 +229,7 @@ IGraphicsCairo::~IGraphicsCairo()
 void IGraphicsCairo::DrawResize()
 {
   SetPlatformContext(nullptr);
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   HWND window = static_cast<HWND>(GetWindow());
   if (window)
   {
@@ -244,7 +244,7 @@ APIBitmap* IGraphicsCairo::LoadAPIBitmap(const char* fileNameOrResID, int scale,
 {
   cairo_surface_t* pSurface = nullptr;
 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   if (location == EResourceLocation::kWinBinary)
   {
     int size = 0;
@@ -262,7 +262,7 @@ APIBitmap* IGraphicsCairo::LoadAPIBitmap(const char* fileNameOrResID, int scale,
   return new Bitmap(pSurface, scale, 1.f);
 }
 
-APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
+APIBitmap* IGraphicsCairo::CreateAPIBitmap(int width, int height, int scale, float drawScale, bool cacheable)
 {
   return new Bitmap(mSurface, width, height, scale, drawScale);
 }
@@ -551,7 +551,7 @@ void IGraphicsCairo::DoDrawText(const IText& text, const char* str, const IRECT&
   const IColor& c = text.mFGColor;
   bool useNativeTransforms = true;
 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   IMatrix m = GetTransformMatrix();
   useNativeTransforms = !text.mAngle && !m.mXY && !m.mYX;
 #endif 
@@ -622,10 +622,10 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
   }
   else if(!mSurface)
   {
-#ifdef OS_MAC
+#if PLATFORM_MAC
     mSurface = cairo_quartz_surface_create_for_cg_context(CGContextRef(pContext), WindowWidth(), WindowHeight());
     cairo_surface_set_device_scale(mSurface, GetDrawScale(), GetDrawScale());
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
     mSurface = cairo_win32_surface_create_with_ddb((HDC) pContext, CAIRO_FORMAT_ARGB32, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
     cairo_surface_set_device_scale(mSurface, GetBackingPixelScale(), GetBackingPixelScale());
 #else
@@ -647,8 +647,8 @@ void IGraphicsCairo::SetPlatformContext(void* pContext)
 
 void IGraphicsCairo::EndFrame()
 {
-#ifdef OS_MAC
-#elif defined OS_WIN
+#if PLATFORM_MAC
+#elif PLATFORM_WINDOWS
   cairo_surface_flush(mSurface);
   PAINTSTRUCT ps;
   HWND hWnd = (HWND) GetWindow();

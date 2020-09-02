@@ -15,14 +15,11 @@
  * @copydoc IParam
  */
 
-#include <atomic>
-#include <cstring>
-#include <functional>
-#include <memory>
+#include "IPlugPlatform.h"
+#include "IPlugUtilities.h"
 
 #include "wdlstring.h"
 
-#include "IPlugUtilities.h"
 
 BEGIN_IPLUG_NAMESPACE
 

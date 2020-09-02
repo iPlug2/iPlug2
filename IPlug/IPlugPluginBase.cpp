@@ -82,9 +82,9 @@ const char* IPluginBase::GetAPIStr() const
 
 const char* IPluginBase::GetArchStr() const
 {
-#if defined OS_WEB
+#if PLATFORM_WEB
   return "WASM";
-#elif defined ARCH_64BIT
+#elif PLATFORM_64BIT
   return "x64";
 #else
   return "x86";
@@ -313,12 +313,13 @@ void IPluginBase::MakePresetFromNamedParams(const char* name, int nParamsNamed, 
     pPreset->mInitialized = true;
     strcpy(pPreset->mName, name);
     
-    int i = 0, n = NParams();
+//    int i = 0;
+	int n = NParams();
     
     WDL_TypedBuf<double> vals;
     vals.Resize(n);
     double* pV = vals.Get();
-    for (i = 0; i < n; ++i, ++pV)
+    for (int i = 0; i < n; ++i, ++pV)
     {
       *pV = PARAM_UNINIT;
     }

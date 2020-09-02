@@ -56,10 +56,10 @@ private:
     agg::cover_type alpha;
   };
   
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   using PixelOrder = agg::order_bgra;
   using PixelMapType = agg::pixel_map_win32;
-#elif defined OS_MAC
+#elif PLATFORM_MAC
   using PixelOrder = agg::order_argb;
   using PixelMapType = agg::pixel_map_mac;
 #else
@@ -267,7 +267,8 @@ public:
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale) override { /* TODO */ return nullptr; }
-  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable = false) override;
+
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, float drawScale, bool cacheable = false) override;
 
   bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
 

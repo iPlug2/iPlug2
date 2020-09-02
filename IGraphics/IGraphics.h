@@ -40,6 +40,7 @@
 #include "IPlugAAX_view_interface.h"
 #endif
 
+#include "IPlugPlatform.h"
 #include "IPlugConstants.h"
 #include "IPlugLogger.h"
 #include "IPlugPaths.h"
@@ -52,11 +53,6 @@
 #ifdef IGRAPHICS_IMGUI
 #include "IGraphicsImGui.h"
 #endif
-
-#include <stack>
-#include <memory>
-#include <vector>
-#include <unordered_map>
 
 #ifdef FillRect
 #undef FillRect
@@ -797,7 +793,7 @@ public:
   virtual void* GetWindow() = 0;
 
   /** @return /c true if the platform window/view is open */
-  virtual bool WindowIsOpen() { return GetWindow(); }
+  virtual bool WindowIsOpen() { return (GetWindow() != nullptr); }
 
   /** Get text from the clipboard
    * @param str A WDL_String that will be filled with the text that is currently on the clipboard
@@ -1607,7 +1603,7 @@ protected:
    * @param drawScale /todo
    * @param cacheable Used to make sure the underlying bitmap can be shared between plug-in instances
    * @return APIBitmap* The new API Bitmap */
-  virtual APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable = false) = 0;
+  virtual APIBitmap* CreateAPIBitmap(int width, int height, int scale, float drawScale, bool cacheable = false) = 0;
 
   /** /todo
    * @param fontID /todo

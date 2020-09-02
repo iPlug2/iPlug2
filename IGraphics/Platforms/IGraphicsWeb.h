@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "IPlugPlatform.h"
+
 #include <emscripten.h>
 #include <emscripten/val.h>
 #include <emscripten/bind.h>
@@ -17,7 +19,6 @@
 
 #include <utility>
 
-#include "IPlugPlatform.h"
 
 #include "IGraphics_select.h"
 

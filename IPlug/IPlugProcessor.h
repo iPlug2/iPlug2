@@ -10,22 +10,17 @@
 
 #pragma once
 
-#include <cstring>
-#include <cstdint>
-#include <ctime>
-#include <cmath>
-#include <cstdio>
-#include <cassert>
-#include <memory>
-#include <vector>
-
-#include "ptrlist.h"
-
 #include "IPlugPlatform.h"
+
+
+BEGIN_INCLUDE_DEPENDENCIES
+#include "ptrlist.h"
+#include "Extras/NChanDelay.h"
+END_INCLUDE_DEPENDENCIES
+
 #include "IPlugConstants.h"
 #include "IPlugStructs.h"
 #include "IPlugUtilities.h"
-#include "NChanDelay.h"
 
 /**
  * @file
@@ -198,10 +193,10 @@ public:
   void LimitToStereoIO();//TODO: this should be updated
 
   /** @return \c true if the plug-in was configured as an instrument at compile time */
-  bool IsInstrument() const { return mPlugType == EIPlugPluginType::kInstrument; }
+  bool IsInstrument() const { return mPlugType == EIPlugPluginType::Instrument; }
 
   /** @return \c true if the plug-in was configured as an MFX at compile time */
-  bool IsMidiEffect() const { return mPlugType == EIPlugPluginType::kMIDIEffect; }
+  bool IsMidiEffect() const { return mPlugType == EIPlugPluginType::MIDIEffect; }
   
   /** @return int The 4Char identifier for the type of audiounit plugin, e.g. 'aufx' for an effect audiounit */
   int GetAUPluginType() const;

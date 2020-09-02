@@ -8,6 +8,8 @@
  ==============================================================================
 */
 
+#pragma once
+
 #ifndef __IGRAPHICS_SRC_INC__
 #define __IGRAPHICS_SRC_INC__
 
@@ -21,7 +23,7 @@
 
 #ifndef NO_IGRAPHICS
 
-  #if defined OS_WEB
+  #if PLATFORM_WEB
 
   #include <emscripten.h>
 
@@ -33,21 +35,21 @@
     emscripten_set_main_loop(pGraphics->OnMainLoopTimer, 0 /*pGraphics->FPS()*/, 1);
   }
 
-  #elif defined OS_WIN
+  #elif PLATFORM_WINDOWS
   extern HINSTANCE gHINSTANCE;
   #endif
 
   BEGIN_IPLUG_NAMESPACE
   BEGIN_IGRAPHICS_NAMESPACE
 
-  #if defined OS_WIN
+  #if PLATFORM_WINDOWS
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     IGraphicsWin* pGraphics = new IGraphicsWin(dlg, w, h, fps, scale);
     pGraphics->SetWinModuleHandle(gHINSTANCE);
     return pGraphics;
   }
-  #elif defined OS_MAC
+  #elif PLATFORM_MAC
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     IGraphicsMac* pGraphics = new IGraphicsMac(dlg, w, h, fps, scale);
@@ -56,7 +58,7 @@
     
     return pGraphics;
   }
-  #elif defined OS_IOS
+  #elif PLATFORM_IOS
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     IGraphicsIOS* pGraphics = new IGraphicsIOS(dlg, w, h, fps, scale);
@@ -64,7 +66,7 @@
 
     return pGraphics;
   }
-  #elif defined OS_WEB
+  #elif PLATFORM_WEB
   IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.)
   {
     gGraphics = new IGraphicsWeb(dlg, w, h, fps, scale);

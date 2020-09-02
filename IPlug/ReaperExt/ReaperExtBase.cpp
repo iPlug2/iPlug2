@@ -38,7 +38,7 @@ bool ReaperExtBase::EditorResizeFromUI(int viewWidth, int viewHeight, bool needs
 {
   if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
   {
-#ifdef OS_MAC
+#if PLATFORM_MAC
 #define TITLEBAR_BODGE 22 //TODO: sort this out
     RECT r;
     GetWindowRect(gHWND, &r);

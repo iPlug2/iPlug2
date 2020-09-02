@@ -4,7 +4,7 @@
 #include "IGraphicsPathBase.h"
 
 // N.B. - this must be defined according to the skia build, not the iPlug build
-#if (defined OS_MAC || defined OS_IOS) && !defined IGRAPHICS_SKIA_NO_METAL
+#if (PLATFORM_MAC || PLATFORM_IOS) && !defined IGRAPHICS_SKIA_NO_METAL
 #define SK_METAL
 #endif
 
@@ -110,7 +110,7 @@ public:
   int AlphaChannel() const override { return 3; }
   bool FlippedBitmap() const override { return false; }
 
-  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable = false) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, float drawScale, bool cacheable = false) override;
 
   void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) override;
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
@@ -142,7 +142,7 @@ private:
   SkMatrix mClipMatrix;
   SkMatrix mFinalMatrix;
 
-#if defined OS_WIN && defined IGRAPHICS_CPU
+#if PLATFORM_WINDOWS && defined IGRAPHICS_CPU
   WDL_TypedBuf<uint8_t> mSurfaceMemory;
 #endif
   

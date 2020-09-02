@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include "IPlugPlatform.h"
+
 #define OVERSAMPLING_FACTORS_VA_LIST "None", "2x", "4x", "8x", "16x"
 
 #include <functional>
@@ -22,7 +24,6 @@
 #include "heapbuf.h"
 #include "ptrlist.h"
 
-#include "IPlugPlatform.h"
 
 BEGIN_IPLUG_NAMESPACE
 

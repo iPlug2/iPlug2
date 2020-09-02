@@ -14,10 +14,7 @@
  * @file Private structs and small classes, internal use only
  * @{
  */
-
-#include <codecvt>
-#include <string>
-#include <memory>
+#include "IPlugPlatform.h"
 
 #include "mutex.h"
 #include "wdlstring.h"
@@ -35,18 +32,18 @@
   #include "src/xml/SkDOM.h"
   #pragma warning( pop )
 #else
+BEGIN_INCLUDE_DEPENDENCIES
   #include "nanosvg.h"
+END_INCLUDE_DEPENDENCIES
 #endif
-
-#include "IPlugPlatform.h"
 
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG_src.h"
   #define BITMAP_DATA_TYPE agg::pixel_map*
 #elif defined IGRAPHICS_CAIRO
-  #if defined OS_MAC || defined OS_LINUX
+  #if PLATFORM_MAC || PLATFORM_LINUX
     #include "cairo/cairo.h"
-  #elif defined OS_WIN
+  #elif PLATFORM_WINDOWS
     #include "cairo/src/cairo.h"
   #else
     #error NOT IMPLEMENTED
@@ -78,13 +75,13 @@
   #define BITMAP_DATA_TYPE void*;
 #endif
 
-#if defined OS_MAC || defined OS_IOS
+#if PLATFORM_MAC || PLATFORM_IOS
   #include <CoreText/CoreText.h>
   #define FONT_DESCRIPTOR_TYPE CTFontDescriptorRef
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
   #include "wingdi.h"
   #define FONT_DESCRIPTOR_TYPE HFONT
-#elif defined OS_WEB
+#elif PLATFORM_WEB
   #define FONT_DESCRIPTOR_TYPE std::pair<WDL_String, WDL_String>*
 #else 
   // NO_IGRAPHICS
@@ -164,7 +161,7 @@ private:
   BitmapData mBitmap; // for most drawing APIs BitmapData is a pointer. For Nanovg it is an integer index
   int mWidth;
   int mHeight;
-  int mScale;
+  int mScale;         // TODO: Should be float not int?
   float mDrawScale;
 };
 
@@ -211,7 +208,7 @@ public:
   bool IsCondensed() const  { return mMacStyle & (1 << 5); }
   bool IsExpanded() const   { return mMacStyle & (1 << 6); }
   
-  double GetHeightEMRatio() const { return mUnitsPerEM / static_cast<double>(mAscender - mDescender); }
+  double GetHeightEMRatio() const { return static_cast<double>(mUnitsPerEM / (mAscender - mDescender)); }	// TODO: codereview
 
   uint16_t GetUnitsPerEM() const { return mUnitsPerEM; }
   int16_t GetAscender() const    { return mAscender; }
@@ -326,7 +323,7 @@ private:
       // Check version
       if (GetUInt32(4) == 0x00010000 || GetUInt32(4) == 0x00020000)
       {
-        if (faceIdx < GetSInt32(8))
+        if (faceIdx < GetUInt32(8))
         {
           mData += GetUInt32(12 + faceIdx * 4);
           return;

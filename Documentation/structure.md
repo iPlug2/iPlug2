@@ -15,14 +15,14 @@ TODO: explain
 | IPlugEffect-app.props                     | Visual Studio 2019 property sheet to provide settings that are shared between standalone x86/x64                        |
 | IPlugEffect-app.vcxproj                   | VS2019 project for standalone                                                                                           |
 | IPlugEffect-app.vcxproj.filters           | VS2019 settings file (don't edit manually)                                                                              |
-| IPlugEffect-app.vcxproj.user              | VS2019 settings file (don't edit manually)                                                                              |
+| IPlugEffect-app.vcxproj.user              | VS2019 user specific settings file for local settings like drive paths etc. Overrides project settings.                 |
 | IPlugEffect-vst2.props                    | VS2019 property sheet to provide settings that are shared between VST2 x86/x64                                          |
 | IPlugEffect-vst2.vcxproj                  | VS2019 project for VST2                                                                                                 |
-| IPlugEffect-vst2.vcxproj.user             | VS2019 settings file (don't edit manually)                                                                              |
+| IPlugEffect-vst2.vcxproj.user             | VS2019 user specific settings file for local settings like drive paths etc. Overrides project settings.                 |
 | IPlugEffect-vst3.props                    | VS2019 property sheet to provide settings that are shared between VST3 x86/x64                                          |
 | IPlugEffect-vst3.vcxproj                  | VS2019 project for VST3                                                                                                 |
 | IPlugEffect-vst3.vcxproj.filters          | VS2019 settings file (don't edit manually)                                                                              |
-| IPlugEffect-vst3.vcxproj.user             | VS2019 settings file (don't edit manually)                                                                              |
+| IPlugEffect-vst3.vcxproj.user             | VS2019 user specific settings file for local settings like drive paths etc. Overrides project settings.                 |
 | IPlugEffect.cpp                           | Source code - plugin's implementation                                                                                   |
 | IPlugEffect.exp                           | macOS auv2 symbol exports file                                                                                          |
 | IPlugEffect.h                             | Source code - plugin's interface                                                                                        |

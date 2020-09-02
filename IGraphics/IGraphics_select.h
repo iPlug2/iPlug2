@@ -14,26 +14,26 @@
  */
 
 #if !defined DOXYGEN_SHOULD_SKIP_THIS
-
+BEGIN_INCLUDE_DEPENDENCIES
   #if defined IGRAPHICS_GLES2
     #define IGRAPHICS_GL
-    #if defined OS_IOS
+    #if PLATFORM_IOS
       #include <OpenGLES/ES2/gl.h>
-    #elif defined OS_WEB
+    #elif PLATFORM_WEB
       #include <GLES2/gl2.h>
     #endif
   #elif defined IGRAPHICS_GLES3
     #define IGRAPHICS_GL
-    #if defined OS_IOS
+    #if PLATFORM_IOS
       #include <OpenGLES/ES3/gl.h>
-    #elif defined OS_WEB
+    #elif PLATFORM_WEB
       #include <GLES3/gl3.h>
     #endif
   #elif defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
     #define IGRAPHICS_GL
-    #if defined OS_WIN
-      #include <glad/glad.h>
-    #elif defined OS_MAC
+    #if PLATFORM_WINDOWS
+      #include <glad.h>
+    #elif PLATFORM_MAC
       #if defined IGRAPHICS_GL2
         #include <OpenGL/gl.h>
       #elif defined IGRAPHICS_GL3
@@ -43,6 +43,7 @@
       #include <OpenGL/gl.h>
     #endif
   #endif
+END_INCLUDE_DEPENDENCIES
 
   #if defined IGRAPHICS_LICE
     #include "IGraphicsLice.h"
@@ -86,5 +87,7 @@ END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
 #if defined IGRAPHICS_IMGUI
-  #include "imgui.h"
+BEGIN_INCLUDE_DEPENDENCIES
+  #include <imgui.h>
+END_INCLUDE_DEPENDENCIES
 #endif

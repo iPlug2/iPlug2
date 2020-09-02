@@ -164,7 +164,7 @@ public:
   bool IsFineControl(const IMouseMod& mod, bool wheel) const
   {
     #ifdef PROTOOLS
-    #ifdef OS_WIN
+    #if PLATFORM_WINDOWS
       return mod.C;
     #else
       return wheel ? mod.C : mod.R;

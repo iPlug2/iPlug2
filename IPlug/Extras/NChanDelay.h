@@ -45,7 +45,7 @@ public:
       int32_t readAddress = mWriteAddress - mDTSamples;
       readAddress %= mDTSamples;
 
-      for (auto c = 0; c < mNInChans; c++)
+      for (uint32_t c = 0; c < mNInChans; c++)
       {
         if (c < mNOutChans)
         {

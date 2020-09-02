@@ -95,7 +95,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
   WKWebView* webView = [[WKWebView alloc] initWithFrame: MAKERECT(x, y, w, h) configuration:webConfig];
   
 
-#if defined OS_IOS
+#if PLATFORM_IOS
   if(!mOpaque)
   {
     webView.backgroundColor = [UIColor clearColor];
@@ -104,7 +104,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
   }
 #endif
 
-#if defined OS_MAC
+#if PLATFORM_MAC
   if(!mOpaque)
     [webView setValue:@(NO) forKey:@"drawsBackground"];
 //    [webView setValue:[NSNumber numberWithBool:YES]  forKey:@"drawsTransparentBackground"]; // deprecated
@@ -114,7 +114,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
   
   [webView setNavigationDelegate:scriptHandler];
     
-//#ifdef OS_MAC
+//#if PLATFORM_MAC
 //  [webView setAutoresizingMask: NSViewHeightSizable|NSViewWidthSizable|NSViewMinXMargin|NSViewMaxXMargin|NSViewMinYMargin|NSViewMaxYMargin ];
 //#else
 //  [webView setAutoresizingMask: UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleTopMargin];
@@ -191,7 +191,7 @@ void IWebView::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc f
 
 void IWebView::EnableScroll(bool enable)
 {
-#ifdef OS_IOS
+#if PLATFORM_IOS
   WKWebView* webView = (__bridge WKWebView*) mWKWebView;
   [webView.scrollView setScrollEnabled:enable];
 #endif

@@ -8,26 +8,17 @@
  ==============================================================================
 */
 
-
-#include <Shlobj.h>
-#include <commctrl.h>
+#include "IGraphicsWin.h"
 
 #include "heapbuf.h"
 
 #include "IPlugParameter.h"
-#include "IGraphicsWin.h"
 #include "IPopupMenuControl.h"
 #include "IPlugPaths.h"
 
-#include <wininet.h>
-#include <VersionHelpers.h>
 
 using namespace iplug;
 using namespace igraphics;
-
-#pragma warning(disable:4244) // Pointer size cast mismatch.
-#pragma warning(disable:4312) // Pointer size cast mismatch.
-#pragma warning(disable:4311) // Pointer size cast mismatch.
 
 static int nWndClassReg = 0;
 static const char* wndClassName = "IPlugWndClass";
@@ -66,7 +57,7 @@ public:
   InstalledFont(const InstalledFont&) = delete;
   InstalledFont& operator=(const InstalledFont&) = delete;
     
-  bool IsValid() const { return mFontHandle; }
+  bool IsValid() const { return (mFontHandle != nullptr); }
   
 private:
   HANDLE mFontHandle;
@@ -114,7 +105,9 @@ IFontDataPtr IGraphicsWin::Font::GetFontData()
 
     if (size != GDI_ERROR)
     {
-      fontData = std::make_unique<IFontData>(size);
+      // If we don't cast from const size_t to const size_t,
+      // MSVC compiler generates a C4244 warning at /W4. Makes no sense at all.
+      fontData = std::make_unique<IFontData>(static_cast<const size_t>(size));
 
       if (fontData->GetSize() == size)
       {
@@ -185,11 +178,11 @@ void IGraphicsWin::DestroyEditWindow()
  }
 }
 
-void IGraphicsWin::OnDisplayTimer(int vBlankCount)
+void IGraphicsWin::OnDisplayTimer(uint32 vBlankCount)
 {
   // Check the message vblank with the current one to see if we are way behind. If so, then throw these away.
-  DWORD msgCount = vBlankCount;
-  DWORD curCount = mVBlankCount;
+  uint32 msgCount = vBlankCount;
+  uint32 curCount = mVBlankCount;
 
   if(mVSYNCEnabled)
   {
@@ -209,11 +202,11 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
     }
   }
 
-  if (mParamEditWnd && mParamEditMsg != kNone)
+  if (mParamEditWnd && mParamEditMsg != EParamEditMsg::kNone)
   {
     switch (mParamEditMsg)
     {
-      case kCommit:
+	  case EParamEditMsg::kCommit:
       {
         WCHAR wtxt[MAX_WIN32_PARAM_LEN];
         WDL_String tempUTF8;
@@ -223,17 +216,17 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
         DestroyEditWindow();
         break;
       }
-      case kCancel:
+	  case EParamEditMsg::kCancel:
         DestroyEditWindow();
         break;
     }
 
-    mParamEditMsg = kNone;
+    mParamEditMsg = EParamEditMsg::kNone;
 
     return; // TODO: check this!
   }
 
-  // TODO: move this... listen to the right messages in windows for screen resolution changes, etc.
+  // TODO: move this... listen to the right messages (WM_DPICHANGED) in windows for screen resolution changes, etc.
   int scale = GetScaleForHWND(mPlugWnd);
   if (scale != GetScreenScale())
     SetScreenScale(scale);
@@ -263,7 +256,7 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
       RECT r2 = { (LONG)notDirtyR.L, (LONG)notDirtyR.T, (LONG)notDirtyR.R, (LONG)notDirtyR.B };
       ValidateRect(mPlugWnd, &r2); // make sure we dont redraw the edit box area
       UpdateWindow(mPlugWnd);
-      mParamEditMsg = kUpdate;
+      mParamEditMsg = EParamEditMsg::kUpdate;
     }
     else
     {
@@ -319,11 +312,11 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     return DefWindowProc(hWnd, msg, wParam, lParam);
   }
 
-  if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg == kEditing)
+  if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg == EParamEditMsg::kEditing)
   {
     if (msg == WM_RBUTTONDOWN || (msg == WM_LBUTTONDOWN))
     {
-      pGraphics->mParamEditMsg = kCancel;
+      pGraphics->mParamEditMsg = EParamEditMsg::kCancel;
       return 0;
     }
     return DefWindowProc(hWnd, msg, wParam, lParam);
@@ -363,7 +356,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       pGraphics->HideTooltip();
       if (pGraphics->mParamEditWnd)
       {
-        pGraphics->mParamEditMsg = kCommit;
+        pGraphics->mParamEditMsg = EParamEditMsg::kCommit;
         return 0;
       }
       SetFocus(hWnd); // Added to get keyboard focus again when user clicks in window
@@ -460,13 +453,13 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     {
       if (pGraphics->mParamEditWnd)
       {
-        pGraphics->mParamEditMsg = kCancel;
+        pGraphics->mParamEditMsg = EParamEditMsg::kCancel;
         return 0;
       }
       else
       {
         IMouseInfo info = pGraphics->GetMouseInfo(lParam, wParam);
-        float d = GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA;
+        float d = static_cast<float>(GET_WHEEL_DELTA_WPARAM(wParam) / WHEEL_DELTA);
         const float scale = pGraphics->GetTotalScale();
         RECT r;
         GetWindowRect(hWnd, &r);
@@ -476,7 +469,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_TOUCH:
     {
-      UINT nTouches = LOWORD(wParam);
+      uint32 nTouches = LOWORD(wParam);
 
       if (nTouches > 0)
       {
@@ -490,7 +483,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
         GetTouchInputInfo(hTouchInput, nTouches, touches.Get(), sizeof(TOUCHINPUT));
 
-        for (int i = 0; i < nTouches; i++)
+        for (uint32 i = 0; i < nTouches; i++)
         {
           TOUCHINPUT* pTI = touches.Get() +i;
 
@@ -511,6 +504,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             info.ms.touchRadius = pTI->cxContact;
           }
 
+		  
           info.ms.touchID = static_cast<ITouchID>(pTI->dwID);
 
           if (pTI->dwFlags & TOUCHEVENTF_DOWN)
@@ -614,7 +608,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
         if (regionType == COMPLEXREGION && GetRegionData(region, bufferSize, regionData))
         {
-          for (int i = 0; i < regionData->rdh.nCount; i++)
+          for (uint32 i = 0; i < regionData->rdh.nCount; i++)
             addDrawRect(rects, *(((RECT*)regionData->Buffer) + i));
         }
         else
@@ -744,24 +738,24 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
       {
         if (wParam == VK_RETURN)
         {
-          pGraphics->mParamEditMsg = kCommit;
+          pGraphics->mParamEditMsg = EParamEditMsg::kCommit;
           return 0;
         }
         else if (wParam == VK_ESCAPE)
         {
-          pGraphics->mParamEditMsg = kCancel;
+          pGraphics->mParamEditMsg = EParamEditMsg::kCancel;
           return 0;
         }
         break;
       }
       case WM_SETFOCUS:
       {
-        pGraphics->mParamEditMsg = kEditing;
+        pGraphics->mParamEditMsg = EParamEditMsg::kEditing;
         break;
       }
       case WM_KILLFOCUS:
       {
-        pGraphics->mParamEditMsg = kCommit;
+        pGraphics->mParamEditMsg = EParamEditMsg::kCommit;
         break;
       }
       // handle WM_GETDLGCODE so that we can say that we want the return key message
@@ -786,7 +780,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
           {
             if (pGraphics->mParamEditWnd)
             {
-              pGraphics->mParamEditMsg = kCommit;
+              pGraphics->mParamEditMsg = EParamEditMsg::kCommit;
               return 0;
             }
           }
@@ -851,7 +845,7 @@ static bool IsChildWindow(HWND pWnd)
 
 void IGraphicsWin::ForceEndUserEdit()
 {
-  mParamEditMsg = kCancel;
+  mParamEditMsg = EParamEditMsg::kCancel;
 }
 
 static UINT SETPOS_FLAGS = SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE;
@@ -1375,12 +1369,12 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
         HMENU submenu = CreateMenu(*pMenuItem->GetSubmenu(), pOffsetIdx);
         if (submenu)
         {
-          AppendMenu(hMenu, flags|MF_POPUP, (UINT_PTR)submenu, (const TCHAR*)entryText.Get());
+          AppendMenu(hMenu, flags|MF_POPUP, (UINT_PTR)submenu, (const char*)entryText.Get());
         }
       }
       else
       {
-        AppendMenu(hMenu, flags, offset + inc, entryText.Get());
+        AppendMenu(hMenu, flags, static_cast<UINT_PTR>(offset) + inc, entryText.Get());
       }
     }
     inc++;
@@ -1823,7 +1817,7 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
   if (!numChars)
     str.Set("");
   
-  return numChars;
+  return (numChars != 0);
 }
 
 bool IGraphicsWin::SetTextInClipboard(const char* str)
@@ -2043,31 +2037,41 @@ void IGraphicsWin::StopVBlankThread()
 // https://bugs.chromium.org/p/chromium/issues/detail?id=467617
 
 // structs to use
-typedef UINT32 D3DKMT_HANDLE;
-typedef UINT D3DDDI_VIDEO_PRESENT_SOURCE_ID;
-typedef struct _D3DKMT_OPENADAPTERFROMHDC {
-  HDC                            hDc;
-  D3DKMT_HANDLE                  hAdapter;
-  LUID                           AdapterLuid;
-  D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
+using D3DKMT_HANDLE                  = uint32;
+using D3DDDI_VIDEO_PRESENT_SOURCE_ID = uint32;
+
+typedef struct _D3DKMT_OPENADAPTERFROMHDC
+{
+	HDC                            hDc;
+	D3DKMT_HANDLE                  hAdapter;
+	LUID                           AdapterLuid;
+	D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
 } D3DKMT_OPENADAPTERFROMHDC;
-typedef struct _D3DKMT_CLOSEADAPTER {
-  D3DKMT_HANDLE hAdapter;
+
+typedef struct _D3DKMT_CLOSEADAPTER
+{
+	D3DKMT_HANDLE hAdapter;
 } D3DKMT_CLOSEADAPTER;
-typedef struct _D3DKMT_WAITFORVERTICALBLANKEVENT {
-  D3DKMT_HANDLE                  hAdapter;
-  D3DKMT_HANDLE                  hDevice;
-  D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
+
+typedef struct _D3DKMT_WAITFORVERTICALBLANKEVENT
+{
+	D3DKMT_HANDLE                  hAdapter;
+	D3DKMT_HANDLE                  hDevice;
+	D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
 } D3DKMT_WAITFORVERTICALBLANKEVENT;
 
+
+
+
 // entry points
-typedef NTSTATUS(WINAPI* D3DKMTOpenAdapterFromHdc)(D3DKMT_OPENADAPTERFROMHDC* Arg1);
-typedef NTSTATUS(WINAPI* D3DKMTCloseAdapter)(const D3DKMT_CLOSEADAPTER* Arg1);
-typedef NTSTATUS(WINAPI* D3DKMTWaitForVerticalBlankEvent)(const D3DKMT_WAITFORVERTICALBLANKEVENT* Arg1);
+typedef long(WINAPI* D3DKMTOpenAdapterFromHdc)(D3DKMT_OPENADAPTERFROMHDC* Arg1);
+typedef long(WINAPI* D3DKMTCloseAdapter)(const D3DKMT_CLOSEADAPTER* Arg1);
+typedef long(WINAPI* D3DKMTWaitForVerticalBlankEvent)(const D3DKMT_WAITFORVERTICALBLANKEVENT* Arg1);
 
 DWORD IGraphicsWin::OnVBlankRun()
 {
-  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
+// THREAD_PRIORITY_TIME_CRITICAL will cause priority problems with input and events
+//  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
 
   // TODO: get expected vsync value.  For now we will use a fallback
   // of 60Hz
@@ -2080,15 +2084,16 @@ DWORD IGraphicsWin::OnVBlankRun()
   //
   // TODO: handle low power modes
 
-  D3DKMTOpenAdapterFromHdc pOpen = nullptr;
-  D3DKMTCloseAdapter pClose = nullptr;
-  D3DKMTWaitForVerticalBlankEvent pWait = nullptr;
+  D3DKMTOpenAdapterFromHdc        pOpen  = nullptr;
+  D3DKMTCloseAdapter              pClose = nullptr;
+  D3DKMTWaitForVerticalBlankEvent pWait  = nullptr;
+
   HINSTANCE hInst = LoadLibrary("gdi32.dll");
   if (hInst != nullptr)
   {
-    pOpen  = (D3DKMTOpenAdapterFromHdc)GetProcAddress((HMODULE)hInst, "D3DKMTOpenAdapterFromHdc");
-    pClose = (D3DKMTCloseAdapter)GetProcAddress((HMODULE)hInst, "D3DKMTCloseAdapter");
-    pWait  = (D3DKMTWaitForVerticalBlankEvent)GetProcAddress((HMODULE)hInst, "D3DKMTWaitForVerticalBlankEvent");
+    reinterpret_cast<void*&>(pOpen)  = GetProcAddress((HMODULE) hInst, "D3DKMTOpenAdapterFromHdc");
+    reinterpret_cast<void*&>(pClose) = GetProcAddress((HMODULE) hInst, "D3DKMTCloseAdapter");
+    reinterpret_cast<void*&>(pWait)  = GetProcAddress((HMODULE) hInst, "D3DKMTWaitForVerticalBlankEvent");
   }
 
   // if we don't get bindings to the methods we will fallback
@@ -2122,8 +2127,8 @@ DWORD IGraphicsWin::OnVBlankRun()
           D3DKMT_OPENADAPTERFROMHDC openAdapterData = { 0 };
           HDC hDC = GetDC(mVBlankWindow);
           openAdapterData.hDc = hDC;
-          NTSTATUS status = (*pOpen)(&openAdapterData);
-          if (status == S_OK)
+
+          if (pOpen(&openAdapterData) == S_OK)
           {
             // success, setup wait request parameters.
             adapterLastFailTime = 0;
@@ -2144,8 +2149,7 @@ DWORD IGraphicsWin::OnVBlankRun()
       if (adapterIsOpen)
       {
         // Finally we can wait on VBlank
-        NTSTATUS status = (*pWait)(&we);
-        if (status != S_OK)
+		  if (pWait(&we) != S_OK)
         {
           // failed, close now and try again on the next pass.
           _D3DKMT_CLOSEADAPTER ca;
@@ -2191,29 +2195,33 @@ void IGraphicsWin::VBlankNotify()
   ::PostMessage(mVBlankWindow, WM_VBLANK, mVBlankCount, 0);
 }
 
-#ifndef NO_IGRAPHICS
-#if defined IGRAPHICS_AGG
-  #include "IGraphicsAGG.cpp"
-#elif defined IGRAPHICS_CAIRO
-  #include "IGraphicsCairo.cpp"
-#elif defined IGRAPHICS_LICE
-  #include "IGraphicsLice.cpp"
-#elif defined IGRAPHICS_SKIA
-  #include "IGraphicsSkia.cpp"
-  #ifdef IGRAPHICS_GL
-    #include "glad.c"
-  #endif
-#elif defined IGRAPHICS_NANOVG
-  #include "IGraphicsNanoVG.cpp"
-#ifdef IGRAPHICS_FREETYPE
-#define FONS_USE_FREETYPE
-  #pragma comment(lib, "freetype.lib")
-#endif
-  #include "nanovg.c"
-  #include "glad.c"
-#elif defined IGRAPHICS_D2D
-  #include "IGraphicsD2D.cpp"
-#else
-  #error
-#endif
-#endif
+//#ifndef NO_IGRAPHICS
+//	#if defined IGRAPHICS_AGG
+//		#include "IGraphicsAGG.cpp"
+//	#elif defined IGRAPHICS_CAIRO
+//		#include "IGraphicsCairo.cpp"
+//	#elif defined IGRAPHICS_LICE
+//		#include "IGraphicsLice.cpp"
+//	#elif defined IGRAPHICS_SKIA
+//		#include "IGraphicsSkia.cpp"
+//		#ifdef IGRAPHICS_GL
+//			BEGIN_INCLUDE_DEPENDENCIES
+//			#include "glad.c"
+//			END_INCLUDE_DEPENDENCIES
+//		#endif
+//	#elif defined IGRAPHICS_NANOVG
+//		#include "IGraphicsNanoVG.cpp"
+//		#ifdef IGRAPHICS_FREETYPE
+//			#define FONS_USE_FREETYPE
+//			#pragma comment(lib, "freetype.lib")
+//		#endif
+//		BEGIN_INCLUDE_DEPENDENCIES
+//		#include "nanovg.c"
+//		#include "glad.c"
+//		END_INCLUDE_DEPENDENCIES
+//	#elif defined IGRAPHICS_D2D
+//		#include "IGraphicsD2D.cpp"
+//	#else
+//		#error
+//	#endif
+//#endif

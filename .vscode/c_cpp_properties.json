@@ -13,8 +13,7 @@
             "APP_API",
             "IPLUG_DSP=1",
             "IPLUG_EDITOR=1",
-            "IGRAPHICS_NANOVG",
-            "NOMINMAX"
+            "IGRAPHICS_NANOVG"
         ]
       },
     "configurations": [
@@ -24,27 +23,25 @@
                 "${commonIncludePaths}",
                 "${workspaceFolder}/../../Dependencies/Build/mac/include/**"
             ],
-            "defines": [
-                "${commonDefs}",
-                "OS_MAC",
-                "IGRAPHICS_METAL"
-            ],
+			"defines": [
+				"${commonDefs}",
+				"IGRAPHICS_METAL"
+			],
             "macFrameworkPath": [
                 "/System/Library/Frameworks",
                 "/Library/Frameworks"
             ],
-            "cppStandard": "c++14"
+            "cppStandard": "c++17"
         },
         {
             "name": "Win32",
             "includePath": [
                 "${commonIncludePaths}"
             ],
-            "defines": [
-                "${commonDefs}",
-                "OS_WIN",
-                "IGRAPHICS_GL2"
-            ]
+			"defines": [
+				"${commonDefs}",
+				"IGRAPHICS_GL2"
+			]
         }
     ],
     "version": 4

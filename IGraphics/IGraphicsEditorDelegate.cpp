@@ -149,9 +149,9 @@ bool IGEditorDelegate::SerializeEditorSize(IByteChunk& data) const
   int height = mGraphics ? mGraphics->Height() : mLastHeight;
   float scale = mGraphics ? mGraphics->GetDrawScale() : mLastScale;
     
-  savedOK &= data.Put(&width);
-  savedOK &= data.Put(&height);
-  savedOK &= data.Put(&scale);
+  savedOK &= static_cast<bool>(data.Put(&width));
+  savedOK &= static_cast<bool>(data.Put(&height));
+  savedOK &= static_cast<bool>(data.Put(&scale));
     
   return savedOK;
 }

@@ -14,8 +14,9 @@
  * @ingroup SpecialControls
 */
 
-#include "ITextEntryControl.h"
 #include "IPlugPlatform.h"
+
+#include "ITextEntryControl.h"
 #include "wdlutf8.h"
 #include <string>
 #include <codecvt>

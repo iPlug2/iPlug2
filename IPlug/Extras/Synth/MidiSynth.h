@@ -15,18 +15,17 @@
  * @copydoc MidiSynth
  */
 
-#include <array>
-#include <vector>
-#include <stdint.h>
 
-#include "ptrlist.h"
 
+#include "IPlugPlatform.h"
 #include "IPlugConstants.h"
 #include "IPlugMidi.h"
 #include "IPlugLogger.h"
 
 #include "SynthVoice.h"
 #include "VoiceAllocator.h"
+
+#include "ptrlist.h"
 
 #define DEBUG_VOICE_COUNT 0
 
@@ -39,7 +38,8 @@ class MidiSynth
 public:
   /** This defines the size in samples of a single block of processing that will be done by the synth. */
   static constexpr int kDefaultBlockSize = 32;
-  static constexpr int kDefaultPitchBendRange = 12;
+
+  static constexpr uint8 kDefaultPitchBendRange = 12;
 
 #pragma mark - MidiSynth class
 
@@ -71,7 +71,7 @@ public:
   }
   
   /** Set the pitch bend range for non-MPE mode */
-  void SetPitchBendRange(int pitchBendRange)
+  void SetPitchBendRange(uint8 pitchBendRange)
   {
     mNonMPEPitchBendRange = pitchBendRange;
     
@@ -152,7 +152,7 @@ public:
    * @param nOutputs input channels that contain valid data
    * @param nFrames The number of sample frames to process
    * @return \c true if the synth is silent */
-  bool ProcessBlock(sample** inputs, sample** outputs, int nInputs, int nOutputs, int nFrames);
+  bool ProcessBlock(sample** inputs, sample** outputs, uint32 nInputs, uint32 nOutputs, uint32 nFrames);
 
 private:
 
@@ -176,7 +176,7 @@ private:
   bool IsInLowerZone(int c) const { return ((c > 0)&&(c < mMPELowerZoneChannels)); }
   bool IsInUpperZone(int c) const { return ((c < 15)&&(c > 15 - mMPEUpperZoneChannels)); }
   int MasterChannelFor(int memberChan) const { return IsInUpperZone(memberChan) ? kMPEUpperZoneMasterChannel : kMPELowerZoneMasterChannel; }
-  int MasterZoneFor(int memberChan) const { return IsInUpperZone(memberChan) ? 1 : 0; }
+  uint8 MasterZoneFor(int memberChan) const { return IsInUpperZone(memberChan) ? 1 : 0; }
 
   // handy functions for writing loops on lower and upper Zone member channels
   int LowerZoneStart() const { return 1; }
@@ -185,7 +185,7 @@ private:
   int UpperZoneEnd() const { return 15; }
 
   void SetMPEZones(int channel, int nChans);
-  void SetChannelPitchBendRange(int channel, int range);
+  void SetChannelPitchBendRange(int channel, uint8 range);
 
   VoiceInputEvent MidiMessageToEventBasic(const IMidiMsg& msg);
   VoiceInputEvent MidiMessageToEventMPE(const IMidiMsg& msg);
@@ -203,7 +203,7 @@ private:
   int64_t mSampleTime{0};
   double mSampleRate = DEFAULT_SAMPLE_RATE;
   bool mVoicesAreActive = false;
-  int mNonMPEPitchBendRange = kDefaultPitchBendRange;
+  uint8 mNonMPEPitchBendRange = kDefaultPitchBendRange;
   
   // the synth will startup in basic MIDI mode. When an MPE Zone setup message is received, MPE mode is entered.
   // To leave MPE mode, use RPNs to set all MPE zone channel counts to 0 as per the MPE spec.

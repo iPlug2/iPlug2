@@ -12,12 +12,12 @@
 
 #include "IPlugPlatform.h"
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
   #include "cairo/cairo.h"
   #define __QUICKDRAW__
   #define __HISERVICES__
   #include "cairo/cairo-quartz.h"
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
   #define CAIRO_WIN32_STATIC_BUILD
 
   #pragma comment(lib, "cairo.lib")
@@ -54,7 +54,7 @@ private:
   class Bitmap;
   class Font;
   struct OSFont;
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   class PNGStream;
 #endif
 public:
@@ -87,7 +87,7 @@ public:
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale) override { /* TODO */ return nullptr; }
-  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable = false) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, float drawScale, bool cacheable = false) override;
 
   bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
     

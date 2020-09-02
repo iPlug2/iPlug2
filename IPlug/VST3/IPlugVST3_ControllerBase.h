@@ -10,9 +10,13 @@
 
 #pragma once
 
+#include "IPlugPlatform.h"
+
+BEGIN_INCLUDE_DEPENDENCIES
 #include "pluginterfaces/base/ibstream.h"
 #include "public.sdk/source/vst/vsteditcontroller.h"
 #include "pluginterfaces/vst/ivstchannelcontextinfo.h"
+END_INCLUDE_DEPENDENCIES
 
 #include "IPlugAPIBase.h"
 #include "IPlugVST3_Parameter.h"
@@ -171,7 +175,7 @@ public:
       {
         case kPresetParam:
         {
-          pPlug->RestorePreset(std::round((pPlug->NPresets() - 1) * value));
+          pPlug->RestorePreset(std::round((pPlug->NPresets() - 1.0) * value));
           break;
         }
         default:

@@ -1,12 +1,14 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
+
+#pragma once
 
 #ifndef _IPLUGAPI_
 #define _IPLUGAPI_
@@ -25,24 +27,8 @@
 #include "IPlugAAX_Parameters.h"
 
 #include "AAX_CEffectGUI.h"
-
 #include "AAX_Push8ByteStructAlignment.h"
 
-#if defined OS_WIN
-  #if defined _DEBUG
-    #if defined ARCH_64BIT
-      #pragma comment(lib, "AAXLibrary_x64_D.lib")
-    #else
-      #pragma comment(lib, "AAXLibrary_D.lib")
-    #endif
-  #else
-  #if defined ARCH_64BIT
-    #pragma comment(lib, "AAXLibrary_x64.lib")
-  #else
-    #pragma comment(lib, "AAXLibrary.lib")
-  #endif
-  #endif
-#endif
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -61,7 +47,7 @@ public:
   ~AAX_CEffectGUI_IPLUG() {}
   static AAX_IEffectGUI* AAX_CALLBACK Create();
   AAX_Result SetControlHighlightInfo(AAX_CParamID iParameterID, AAX_CBoolean iIsHighlighted, AAX_EHighlightColor iColor);
-  
+
 private:
   void CreateViewContents();
   void CreateViewContainer();
@@ -81,27 +67,27 @@ class IPlugAAX : public IPlugAPIBase
 public:
   IPlugAAX(const InstanceInfo& info, const Config& config);
   ~IPlugAAX();
-  
+
   //IPlugAPIBase Overrides
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
-  
+
   void InformHostOfPresetChange() override { }; //NA
-  
+
   bool EditorResize(int viewWidth, int viewHeight) override;
-  
+
   //IPlug Processor Overrides
   void SetLatency(int samples) override;
   bool SendMidiMsg(const IMidiMsg& msg) override;
-  
+
   AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParameterID, double iValue, AAX_EUpdateSource iSource) override;
-  
+
   //AAX_CIPlugParameters Overrides
   static AAX_CEffectParameters *AAX_CALLBACK Create();
   AAX_Result EffectInit() override;
   void RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo, const TParamValPair* inSynchronizedParamValues[], int32_t inNumSynchronizedParamValues) override;
-  
+
   //AAX_CEffectParameters Overrides
   AAX_Result GetChunkIDFromIndex(int32_t index, AAX_CTypeID* pChunkID) const override;
   AAX_Result GetChunkSize(AAX_CTypeID chunkID, uint32_t* pChunkSize) const override;

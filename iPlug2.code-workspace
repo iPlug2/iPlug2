@@ -6,20 +6,11 @@
 	],
 	"settings": {
 		"files.exclude": {
-			"WDL/*": true,
-			"Dependencies/IPlug/*_SDK": true,
-			"Dependencies/IPlug/WAM*": true,
-			"Dependencies/IPlug/RT*": true,
-			"Dependencies/IPlug/Reaper*": true,
-			"Dependencies/Build*": true,
-			"Dependencies/IGraphics/AGG*": true,
-			"Dependencies/IGraphics/glad*": true,
-			"Dependencies/IGraphics/GL*": true,
-			"Dependencies/IGraphics/imgui*": true,
-			"Dependencies/IGraphics/STB*": true,
-			"Dependencies/IGraphics/*Nano*": true,
-			"Dependencies/IGraphics/yoga": true,
-			"_*": true
+			".vscode/": true,
+			"build/": true,
+			"out/": true,
+			"cpp.hint": true,
+			".vs/": true
 		},
 		"git.ignoreLimitWarning": true,
 		"files.associations": {

@@ -407,7 +407,7 @@ void FaustGen::Factory::SetCompileOptions(std::initializer_list<const char*> opt
 //
 //    DBGMSG("FaustGen-%s: Start looking for optimal compilation options...\n");
 //
-//  #ifdef OS_MAC
+//  #if PLATFORM_MAC
 //    double best;
 //    dsp_optimizer optimizer(string(mSourceCodeStr.Get()), (*mLibraryPaths.begin()).c_str(), getTarget(), sys_getblksize());
 //    mOptions = optimizer.findOptimizedParameters(best);
@@ -436,7 +436,7 @@ FaustGen::FaustGen(const char* name, const char* inputDSPFile, int nVoices, int 
 {
   sFaustGenCounter++;
 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   SetDllDirectoryA(FAUST_DLL_PATH);
 #endif
   
@@ -510,7 +510,7 @@ void FaustGen::GetDrawPath(WDL_String& path)
 
 bool FaustGen::CompileCPP()
 {
-//#ifndef OS_WIN
+//#if !PLATFORM_WINDOWS
   WDL_String archFile;
   archFile.Set(__FILE__);
   archFile.remove_filepart(true);
@@ -539,7 +539,7 @@ bool FaustGen::CompileCPP()
   folder.remove_filepart(true);
   WDL_String finalOutput = folder;
   finalOutput.AppendFormatted(1024, "FaustCode.hpp");
-#ifndef OS_WIN
+#if !PLATFORM_WINDOWS
   command.SetFormatted(1024, "cat %s*.tmp > %s", folder.Get(), finalOutput.Get());
 #else
   command.SetFormatted(1024, "copy %s*.tmp %s", folder.Get(), finalOutput.Get());
@@ -552,7 +552,7 @@ bool FaustGen::CompileCPP()
     return false;
   }
 
-#ifndef OS_WIN
+#if !PLATFORM_WINDOWS
   command.SetFormatted(1024, "rm %s*.tmp", folder.Get());
 #else
   command.SetFormatted(1024, "del %s*.tmp", folder.Get());
@@ -615,7 +615,7 @@ void FaustGen::OnTimer(Timer& timer)
     //objFile.Set(pInputFile);
     //objFile.remove_fileext();
 
-//#ifdef OS_WIN
+//#if PLATFORM_WINDOWS
 //    objFile.Append(".obj");
 //#else
 //    objFile.Append(".o");

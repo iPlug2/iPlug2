@@ -463,7 +463,7 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, E
   std::unique_ptr<PixelMapType> pixelMap(new PixelMapType());
   bool ispng = strstr(fileNameOrResID, "png") != nullptr;
 
-#if defined OS_WIN
+#if PLATFORM_WINDOWS
   if (location != EResourceLocation::kNotFound && ispng)
   {
     if (pixelMap->load_img((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, agg::pixel_map::format_png))
@@ -480,7 +480,7 @@ APIBitmap* IGraphicsAGG::LoadAPIBitmap(const char* fileNameOrResID, int scale, E
   return new APIBitmap();
 }
 
-APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
+APIBitmap* IGraphicsAGG::CreateAPIBitmap(int width, int height, int scale, float drawScale, bool cacheable)
 {
   return new Bitmap(CreatePixmap<PixelMapType>(width, height), scale, drawScale, true);
 }
@@ -540,7 +540,7 @@ void IGraphicsAGG::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const 
 
 void IGraphicsAGG::EndFrame()
 {
-#ifdef OS_MAC
+#if PLATFORM_MAC
   CGContext* pCGContext = (CGContext*) GetPlatformContext();
   CGContextSaveGState(pCGContext);
   CGContextTranslateCTM(pCGContext, 0.0, WindowHeight());

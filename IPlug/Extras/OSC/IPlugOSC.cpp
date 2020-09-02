@@ -6,7 +6,7 @@ std::unique_ptr<Timer> OSCInterface::mTimer;
 int OSCInterface::sInstances = 0;
 WDL_PtrList<OSCDevice> gDevices;
 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
 #define XSleep Sleep
 #else
 void XSleep(int ms) { usleep(ms?ms*1000:100); }
@@ -57,7 +57,7 @@ OSCDevice::OSCDevice(const char* dest, int maxpacket, int sendsleep, sockaddr_in
 
     mSendAddress.sin_family = AF_INET;
     mSendAddress.sin_addr.s_addr = inet_addr(tmp.Get());
-    mSendAddress.sin_port = htons(sendport);
+    mSendAddress.sin_port = htons(static_cast<u_short>(sendport));
 
     int on = 1;
     setsockopt(mSendSocket, SOL_SOCKET, SO_BROADCAST, (char*)&on, sizeof(on));
@@ -315,7 +315,7 @@ OSCDevice* OSCInterface::CreateReceiver(WDL_String& log, int port)
   addr.sin_family = AF_INET;
   if (buf[0] && buf[0] != '*') addr.sin_addr.s_addr = inet_addr(buf);
   if (addr.sin_addr.s_addr == INADDR_NONE) addr.sin_addr.s_addr = INADDR_ANY;
-  addr.sin_port = htons(port);
+  addr.sin_port = htons(static_cast<u_short>(port));
 
   int x;
   bool isReuse = false;

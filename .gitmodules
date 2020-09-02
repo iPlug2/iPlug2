@@ -1,0 +1,4 @@
+[submodule "Dependencies/IPlug/VST3_SDK"]
+	path = Dependencies/IPlug/VST3_SDK
+	url = https://github.com/steinbergmedia/vst3sdk.git
+	ignore = all

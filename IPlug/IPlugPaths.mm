@@ -18,7 +18,7 @@
 #include <string>
 #include <map>
 
-#if defined(OS_IOS) || defined(OS_MAC)
+#if PLATFORM_IOS || PLATFORM_MAC
 #import <Foundation/Foundation.h>
 #endif
 
@@ -28,7 +28,7 @@ extern std::map<std::string, void*> gTextureMap;
 
 BEGIN_IPLUG_NAMESPACE
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
 void HostPath(WDL_String& path, const char* bundleID)
 {
   @autoreleasepool
@@ -236,7 +236,7 @@ bool AppIsSandboxed()
     return false;
 }
 
-#elif defined OS_IOS
+#elif PLATFORM_IOS
 #pragma mark - IOS
 
 void HostPath(WDL_String& path, const char* bundleID)

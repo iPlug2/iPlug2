@@ -8,12 +8,13 @@
  ==============================================================================
 */
 
+#include "IControl.h"
+
 #include <cmath>
 #include <cstring>
 #define WDL_NO_SUPPORT_UTF8
 #include "dirscan.h"
 
-#include "IControl.h"
 #include "IPlugParameter.h"
 
 BEGIN_IPLUG_NAMESPACE
@@ -551,6 +552,7 @@ void IURLControl::Draw(IGraphics& g)
 
 void IURLControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
+  // TODO: This should be called on mouse button release to be compliant with standard behaviour
   GetUI()->OpenURL(mURLStr.Get());
   GetUI()->ReleaseMouseCapture();
   mClicked = true;
@@ -757,7 +759,7 @@ void ISwitchControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
 bool IKnobControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 {
 #ifdef PROTOOLS
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   return mod.C;
 #else
   return wheel ? mod.C : mod.R;
@@ -1117,7 +1119,7 @@ void ISliderControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, fl
 bool ISliderControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 {
 #ifdef PROTOOLS
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   return mod.C;
 #else
   return wheel ? mod.C : mod.R;

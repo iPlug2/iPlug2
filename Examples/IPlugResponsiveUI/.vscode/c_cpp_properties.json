@@ -11,8 +11,7 @@
             "APP_API",
             "IPLUG_DSP=1",
             "IPLUG_EDITOR=1",
-            "IGRAPHICS_NANOVG",
-            "NOMINMAX"
+            "IGRAPHICS_NANOVG"
         ]
       },
     "configurations": [
@@ -24,14 +23,13 @@
             ],
             "defines": [
                 "${commonDefs}",
-                "OS_MAC",
                 "IGRAPHICS_METAL"
             ],
             "macFrameworkPath": [
                 "/System/Library/Frameworks",
                 "/Library/Frameworks"
             ],
-            "cppStandard": "c++14"
+            "cppStandard": "c++17"
         },
         {
             "name": "Win32",
@@ -40,7 +38,6 @@
             ],
             "defines": [
                 "${commonDefs}",
-                "OS_WIN",
                 "IGRAPHICS_GL2"
             ]
         }

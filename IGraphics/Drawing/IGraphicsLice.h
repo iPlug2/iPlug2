@@ -12,13 +12,13 @@
 
 #include "IPlugPlatform.h"
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
   #include <CoreGraphics/CoreGraphics.h>
   #include <IPlugSWELL.h>
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
   #pragma comment(lib, "libpng.lib")
   #pragma comment(lib, "zlib.lib")
-#elif defined OS_LINUX
+#elif PLATFORM_LINUX
   #include <IPlugSWELL.h>
 #else
   #error NOT IMPLEMENTED
@@ -97,7 +97,7 @@ public:
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale) override { /* TODO */ return nullptr; }
-  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable = false) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, float drawScale, bool cacheable = false) override;
 
   bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
 
@@ -158,7 +158,7 @@ private:
   int mDrawOffsetY = 0;
   
   std::unique_ptr<LICE_SysBitmap> mDrawBitmap;
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   std::unique_ptr<LICE_SysBitmap> mScaleBitmap;
 #endif
   // N.B. mRenderBitmap is not owned through this pointer, and should not be deleted
@@ -169,7 +169,7 @@ private:
   static StaticStorage<LICE_IFont> sFontCache;
   static StaticStorage<FontInfo> sFontInfoCache;
     
-#ifdef OS_MAC
+#if PLATFORM_MAC
   class MacRegisteredFont;
   static StaticStorage<MacRegisteredFont> sMacRegistedFontCache;
   CGColorSpaceRef mColorSpace = nullptr;

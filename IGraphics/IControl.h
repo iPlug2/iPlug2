@@ -15,6 +15,8 @@
  * @brief This file contains the base IControl implementation, along with some base classes for specific types of control.
  */
 
+#include "IPlugPlatform.h"
+
 #include <cstring>
 #include <cstdlib>
 #include <vector>
@@ -23,11 +25,13 @@
 #if defined VST3_API || defined VST3C_API
 #undef stricmp
 #undef strnicmp
+
+BEGIN_INCLUDE_DEPENDENCIES
 #include "pluginterfaces/vst/ivstcontextmenu.h"
 #include "base/source/fobject.h"
+END_INCLUDE_DEPENDENCIES
 #endif
 
-#include "IPlugPlatform.h"
 
 #include "wdlstring.h"
 #include "ptrlist.h"
@@ -77,6 +81,8 @@ public:
   
   /** Destructor. Clean up any resources that your control owns. */
   virtual ~IControl() {}
+
+  // TODO: OnMouseDown and OnMouseUp should be OnMouseButtonDown and OnMouseButtonUp to show intent. OnMouseDown and OnMouseUp can be actual movement.
 
   /** Implement this method to respond to a mouse down event on this control. 
    * @param x The X coordinate of the mouse event
@@ -569,7 +575,7 @@ private:
   IActionFunction mAnimationEndActionFunc = nullptr;
   IAnimationFunction mAnimationFunc = nullptr;
   TimePoint mAnimationStartTime;
-  Milliseconds mAnimationDuration;
+  Milliseconds mAnimationDuration {0.0};
   std::vector<ParamTuple> mVals { {kNoParameter, 0.} };
   std::unordered_map<EGestureType, IGestureFunc> mGestureFuncs;
   EGestureType mLastGesture = EGestureType::Unknown;
@@ -1023,6 +1029,8 @@ public:
   }
   
 protected:
+  virtual ~IVectorBase() = default;
+
   IControl* mControl = nullptr;
   IVStyle mStyle; // IVStyle that defines certain common properties of an IVControl
   bool mLabelInWidget = false; // Should the Label text be displayed inside the widget
@@ -1127,6 +1135,8 @@ public:
   }
   
 protected:
+  virtual ~IMultiTouchControlBase() = default;
+
   static constexpr int MAX_TOUCHES = 10;
   std::unordered_map<ITouchID, TrackedTouch> mTrackedTouches;
   bool mTouchStatus[MAX_TOUCHES] = { 0 };

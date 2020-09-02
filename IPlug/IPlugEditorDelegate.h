@@ -15,9 +15,7 @@
  * @copydoc IEditorDelegate
  */
 
-#include <cassert>
-#include <cstring>
-#include <stdint.h>
+#include "IPlugPlatform.h"
 
 #include "ptrlist.h"
 

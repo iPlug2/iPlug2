@@ -11,17 +11,24 @@
 #include "IGraphics.h"
 
 #define NANOSVG_IMPLEMENTATION
-#pragma warning(disable:4244) // float conversion
+BEGIN_INCLUDE_DEPENDENCIES
 #include "nanosvg.h"
+END_INCLUDE_DEPENDENCIES
 
 #if defined VST3_API
+
+BEGIN_INCLUDE_DEPENDENCIES
 #include "pluginterfaces/base/ustring.h"
-#include "IPlugVST3.h"
+END_INCLUDE_DEPENDENCIES
+
+#include "VST3/IPlugVST3.h"
 using VST3_API_BASE = iplug::IPlugVST3;
 #elif defined VST3C_API
+BEGIN_INCLUDE_DEPENDENCIES
 #include "pluginterfaces/base/ustring.h"
-#include "IPlugVST3_Controller.h"
-#include "IPlugVST3_View.h"
+END_INCLUDE_DEPENDENCIES
+#include "VST3/IPlugVST3_Controller.h"
+#include "VST3/IPlugVST3_View.h"
 using VST3_API_BASE = iplug::IPlugVST3Controller;
 #endif
 
@@ -983,7 +990,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
                 
                 if (mod.A) modifiers |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
                 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
                 if (mod.C) modifiers |= AAX_eModifiers_Command;
 #else
                 if (mod.C) modifiers |= AAX_eModifiers_Control;
@@ -996,7 +1003,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
             };
             
             uint32_t aaxModifiersForPT = GetAAXModifiersFromIMouseMod(mod);
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
             // required to get start/windows and alt keys
             uint32_t aaxModifiersFromPT = 0;
             mAAXViewContainer->GetModifiers(&aaxModifiersFromPT);
@@ -1133,7 +1140,7 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
   if (mMouseOver)
     mMouseOver->OnMouseOver(x, y, mod);
 
-  return pControl;
+  return (pControl != nullptr);
 }
 
 void IGraphics::OnMouseOut()
@@ -1223,7 +1230,7 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
     }
   }
     
-  return pControl;
+  return (pControl != nullptr);
 }
 
 void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
@@ -2238,16 +2245,16 @@ void IGraphics::CalculateTextRotation(const IText& text, const IRECT& bounds, IR
   
   switch (text.mAlign)
   {
-    case EAlign::Near:     tx = bounds.L - rect.L;         break;
-    case EAlign::Center:   tx = bounds.MW() - rect.MW();   break;
-    case EAlign::Far:      tx = bounds.R - rect.R;         break;
+    case EAlign::Near:     tx = static_cast<double>(bounds.L) - rect.L;         break;
+    case EAlign::Center:   tx = static_cast<double>(bounds.MW()) - rect.MW();   break;
+    case EAlign::Far:      tx = static_cast<double>(bounds.R) - rect.R;         break;
   }
   
   switch (text.mVAlign)
   {
-    case EVAlign::Top:      ty = bounds.T - rect.T;        break;
-    case EVAlign::Middle:   ty = bounds.MH() - rect.MH();  break;
-    case EVAlign::Bottom:   ty = bounds.B - rect.B;        break;
+    case EVAlign::Top:      ty = static_cast<double>(bounds.T) - rect.T;        break;
+    case EVAlign::Middle:   ty = static_cast<double>(bounds.MH()) - rect.MH();  break;
+    case EVAlign::Bottom:   ty = static_cast<double>(bounds.B) - rect.B;        break;
   }
 }
 
@@ -2263,7 +2270,7 @@ void IGraphics::SetQwertyMidiKeyHandlerFunc(std::function<void(const IMidiMsg& m
     auto onOctSwitch = [&]() {
       base = Clip(base, 24, 96);
       
-      for(auto i=0;i<128;i++) {
+      for(int16 i=0;i<128;i++) {
         if(keysDown[i]) {
           msg.MakeNoteOffMsg(i, 0);
           GetDelegate()->SendMidiMsgFromUI(msg);

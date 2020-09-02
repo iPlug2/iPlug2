@@ -41,16 +41,16 @@ struct IMouseInfo;
 struct IColor;
 struct IGestureInfo;
 
-using IActionFunction = std::function<void(IControl*)>;
-using IAnimationFunction = std::function<void(IControl*)>;
-using ILambdaDrawFunction = std::function<void(ILambdaControl*, IGraphics&, IRECT&)>;
-using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
+using IActionFunction             = std::function<void(IControl*)>;
+using IAnimationFunction          = std::function<void(IControl*)>;
+using ILambdaDrawFunction         = std::function<void(ILambdaControl*, IGraphics&, IRECT&)>;
+using IKeyHandlerFunc             = std::function<bool(const IKeyPress& key, bool isUp)>;
 using IMsgBoxCompletionHanderFunc = std::function<void(EMsgBoxResult result)>;
-using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
-using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
-using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
-using IDisplayTickFunc = std::function<void()>;
-using ITouchID = uintptr_t;
+using IColorPickerHandlerFunc     = std::function<void(const IColor& result)>;
+using IGestureFunc                = std::function<void(IControl*, const IGestureInfo&)>;
+using IPopupFunction              = std::function<void(IPopupMenu* pMenu)>;
+using IDisplayTickFunc            = std::function<void()>;
+using ITouchID                    = uintptr_t;
 
 /** A click action function that does nothing */
 void EmptyClickActionFunc(IControl* pCaller);
@@ -204,7 +204,7 @@ struct ISVG
     if (mImage)
       return mImage->width;
     else
-      return 0;
+      return -1; // returning 0 generates divide by 0 warning when compiling
   }
 
   /** /todo */
@@ -213,7 +213,7 @@ struct ISVG
     if (mImage)
       return mImage->height;
     else
-      return 0;
+      return -1; // returning 0 generates divide by 0 warning when compiling
   }
   
   /** @return \true if the SVG has valid data */
@@ -2009,6 +2009,12 @@ struct IMatrix
    * @param y /todo
    * @param x0 /todo
    * @param y0 /todo */
+  void TransformPoint(float& x, float& y, float x0, float y0) const
+  {
+    x = x0 * mXX + y0 * mXY + mTX;
+    y = x0 * mYX + y0 * mYY + mTY;
+  };
+
   void TransformPoint(double& x, double& y, double x0, double y0) const
   {
     x = x0 * mXX + y0 * mXY + mTX;

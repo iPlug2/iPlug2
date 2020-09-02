@@ -1,4 +1,4 @@
-#include "IGraphicsFlexBox.h"
+#include "Extras/IGraphicsFlexBox.h"
 
 using namespace iplug;
 using namespace igraphics;
@@ -82,17 +82,3 @@ IRECT IFlexBox::GetItemBounds(int nodeIndex) const
                YGNodeLayoutGetLeft(mRootNodeRef) + YGNodeLayoutGetLeft(child) + YGNodeLayoutGetWidth(child),
                YGNodeLayoutGetTop(mRootNodeRef)  + YGNodeLayoutGetTop(child)  + YGNodeLayoutGetHeight(child));
 };
-
-// TODO: eventually build Yoga as a static library,
-// for now include Yoga .cpp files here
-#include "YGLayout.cpp"
-#include "YGEnums.cpp"
-#include "YGNodePrint.cpp"
-#include "YGValue.cpp"
-#include "YGConfig.cpp"
-#include "YGNode.cpp"
-#include "YGStyle.cpp"
-#include "Yoga.cpp"
-#include "Utils.cpp"
-#include "log.cpp"
-#include "event/event.cpp"

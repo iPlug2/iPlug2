@@ -41,7 +41,7 @@ struct IGraphicsLice::FontInfo
   double mEMRatio;
 };
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
 class IGraphicsLice::MacRegisteredFont
 {
 public:
@@ -180,7 +180,7 @@ IGraphicsLice::IGraphicsLice(IGEditorDelegate& dlg, int w, int h, int fps, float
   StaticStorage<FontInfo>::Accessor fontInfoStorage(sFontInfoCache);
   fontStorage.Retain();
   fontInfoStorage.Retain();
-#ifdef OS_MAC
+#if PLATFORM_MAC
   StaticStorage<MacRegisteredFont>::Accessor registeredFontStorage(sMacRegistedFontCache);
   registeredFontStorage.Retain();
 #endif
@@ -192,7 +192,7 @@ IGraphicsLice::~IGraphicsLice()
   StaticStorage<FontInfo>::Accessor fontInfoStorage(sFontInfoCache);
   fontStorage.Release();
   fontInfoStorage.Release();
-#ifdef OS_MAC
+#if PLATFORM_MAC
   StaticStorage<MacRegisteredFont>::Accessor registeredFontStorage(sMacRegistedFontCache);
   registeredFontStorage.Release();
     
@@ -211,7 +211,7 @@ void IGraphicsLice::DrawResize()
   else
     mDrawBitmap->resize(Width() * GetScreenScale(), Height() * GetScreenScale());
 
-#ifdef OS_WIN
+#if PLATFORM_WINDOWS
   if (GetDrawScale() == 1.0)
   {
     mScaleBitmap = nullptr;
@@ -532,7 +532,7 @@ IColor IGraphicsLice::GetPoint(int x, int y)
   return IColor(LICE_GETA(pix), LICE_GETR(pix), LICE_GETG(pix), LICE_GETB(pix));
 }
 
-#if defined OS_WIN
+#if PLATFORM_WINDOWS
 #define DrawText DrawTextA
 #endif
 
@@ -710,7 +710,7 @@ LICE_IFont* IGraphicsLice::CacheFont(const IText& text) const
   
   assert(pFontInfo && "No font found - did you forget to load it?");
   
-#ifdef OS_MAC
+#if PLATFORM_MAC
   int h = static_cast<int>(std::round(text.mSize * pFontInfo->mEMRatio * GetScreenScale()));
 #else
   int h = static_cast<int>(std::round(text.mSize) * GetScreenScale());
@@ -756,7 +756,7 @@ bool IGraphicsLice::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
   {
     double EMRatio = data->GetHeightEMRatio();
       
-#ifdef OS_MAC
+#if PLATFORM_MAC
     StaticStorage<MacRegisteredFont>::Accessor registeredFontStorage(sMacRegistedFontCache);
 
     WDL_String fontName(data->GetFamily());
@@ -809,7 +809,7 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
 
   if (ispng)
   {
-#if defined OS_WIN
+#if PLATFORM_WINDOWS
     if (location == EResourceLocation::kWinBinary)
       return new Bitmap(LICE_LoadPNGFromResource((HINSTANCE) GetWinModuleHandle(), fileNameOrResID, 0), scale, false);
     else
@@ -822,7 +822,7 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
 
   if (isjpg)
   {
-    #if defined OS_WIN
+    #if PLATFORM_WINDOWS
     if (location == EResourceLocation::kWinBinary)
       return new Bitmap(LICE_LoadJPGFromResource((HINSTANCE)GetWinModuleHandle(), fileNameOrResID, 0), scale, false);
     else
@@ -834,7 +834,7 @@ APIBitmap* IGraphicsLice::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   return nullptr;
 }
 
-APIBitmap* IGraphicsLice::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
+APIBitmap* IGraphicsLice::CreateAPIBitmap(int width, int height, int scale, float drawScale, bool cacheable)
 {
   LICE_IBitmap* pBitmap = new LICE_MemBitmap(width, height);
   memset(pBitmap->getBits(), 0, pBitmap->getRowSpan() * pBitmap->getHeight() * sizeof(LICE_pixel));
@@ -923,7 +923,7 @@ void IGraphicsLice::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
 
 void IGraphicsLice::EndFrame()
 {
-#ifdef OS_MAC
+#if PLATFORM_MAC
   CGImageRef img = NULL;
   CGRect r = CGRectMake(0, 0, WindowWidth(), WindowHeight());
 
@@ -964,7 +964,7 @@ void IGraphicsLice::EndFrame()
     CGContextRestoreGState(pCGContext);
     CGImageRelease(img);
   }
-#else // OS_WIN
+#else // PLATFORM_WINDOWS
   PAINTSTRUCT ps;
   HWND hWnd = (HWND) GetWindow();
   HDC dc = BeginPaint(hWnd, &ps);
@@ -983,7 +983,7 @@ void IGraphicsLice::EndFrame()
 #endif
 }
 
-#ifdef OS_MAC
+#if PLATFORM_MAC
   #ifdef FillRect
     #undef FillRect
   #endif
@@ -999,7 +999,7 @@ void IGraphicsLice::EndFrame()
   #define LineTo SWELL_LineTo
   #define SetPixel SWELL_SetPixel
   #define Polygon(a,b,c) SWELL_Polygon(a,b,c)
-#elif defined OS_WIN
+#elif PLATFORM_WINDOWS
   #define DrawText DrawTextA
 #endif
 

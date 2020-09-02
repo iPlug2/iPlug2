@@ -95,7 +95,7 @@ void IPlugSideChain::ProcessBlock(sample** inputs, sample** outputs, int nFrames
      Imperfect hack around it here. Probably a better solution is to have an enable sidechain button in the plug-in UI, in addition to the host sidechain routing.
   */
   
-#if defined OS_MAC && defined AU_API
+#if PLATFORM_MAC && defined AU_API
   if(GetHost() == kHostLogic || GetHost() == kHostGarageBand) {
     const int sz = nFrames * sizeof(sample);
     if(!memcmp(inputs[0], inputs[2], sz)) {

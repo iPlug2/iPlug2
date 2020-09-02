@@ -35,7 +35,7 @@ public:
   inline T Process(T input)
   {
     mOutM1[0] = (input * mB) + (mOutM1[0] * mA);
-#ifndef OS_IOS
+#if !PLATFORM_IOS
     denormal_fix(&mOutM1[0]);
 #endif
     return mOutM1[0];
@@ -75,7 +75,7 @@ public:
       for (auto c = 0; c < NC; c++)
       {
         T output = (inputs[channelOffset + c] * b) + (mOutM1[c] * a);
-#ifndef OS_IOS
+#if !PLATFORM_IOS
         denormal_fix(&output);
 #endif
         mOutM1[c] = output;

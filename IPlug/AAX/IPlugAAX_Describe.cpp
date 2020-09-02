@@ -101,7 +101,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
   }
   
   AAX_EPlugInCategory category = AAX_ePlugInCategory_None;
-  if (PLUG_TYPE == 1) category = AAX_ePlugInCategory_SWGenerators;
+  if (EIPlugPluginType::PLUG_TYPE == EIPlugPluginType::Instrument) category = AAX_ePlugInCategory_SWGenerators;
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "None") == (0)) category = AAX_ePlugInCategory_None;
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "EQ") == (0)) category = AAX_ePlugInCategory_EQ;
   else if(strcmp(AAX_PLUG_CATEGORY_STR, "Dynamics") == (0)) category = AAX_ePlugInCategory_Dynamics;
