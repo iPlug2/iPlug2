@@ -13,7 +13,6 @@ function(iplug_git_update_submodules)
 		return()
 	endif()
 
-	find_package(Git)
 	if(GIT_FOUND AND EXISTS "${IPLUG2_ROOT_PATH}/.git")
 		execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
 						WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

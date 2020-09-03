@@ -4,6 +4,8 @@
 include_guard(GLOBAL)
 include(CMakePrintHelpers)
 
+#------------------------------------------------------------------------------
+
 # Get default IPLUG2_ROOT_PATH
 get_filename_component(_root ${CMAKE_CURRENT_LIST_DIR} DIRECTORY)
 set(IPLUG2_ROOT_PATH "${_root}" CACHE PATH "")  # I am root...
@@ -26,6 +28,8 @@ if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
         "Create a build directory outside of the source code and call cmake from there.")
 endif()
 
+#------------------------------------------------------------------------------
+
 # Get IPlug2 verion number from ROOT/IPlug/IPlugVersion.h
 iplug_get_version("${IPLUG2_ROOT_PATH}/IPlug/IPlugVersion.h" IPLUG_VERSION)
 iplug_info("IPlug2 version ${IPLUG_VERSION}")
@@ -33,6 +37,10 @@ iplug_info("IPlug2 version ${IPLUG_VERSION}")
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+find_package(Git)
+
+
+#------------------------------------------------------------------------------
 
 # Find the VST3 SDK
 set(_path $ENV{VST3_SDK_PATH})
