@@ -250,29 +250,41 @@ if(HAVESDK_VST3)
     set(_libName "VST3SDK")
     set(_libPath "${VST3_SDK_PATH}")
 
-
-    # if(EXISTS "${_libPath}/VST3_SDK/pluginterfaces/base/fstrdefs.h")
-    #     file(RENAME "${_libPath}/VST3_SDK/pluginterfaces/base/fstrdefs.h" "${_libPath}/VST3_SDK/pluginterfaces/base/_fstrdefs.h")
-    # endif()
-
-    # if(EXISTS "${_libPath}/VST3_SDK/pluginterfaces/base/ftypes.h")
-    #     file(RENAME "${_libPath}/VST3_SDK/pluginterfaces/base/ftypes.h" "${_libPath}/VST3_SDK/pluginterfaces/base/_ftypes.h")
-    # endif()
+    # Apply IPlug2 vst3sdk code patch
+    option(IPLUG2_VST3SDK_UNICODE_OFF "Sets UNICODE_OFF for VST3SDK and applies a code patch fix." OFF)
+    if(IPLUG2_VST3SDK_UNICODE_OFF)
+        iplug_info("VST3SDK UNICODE_OFF is enabled")
+        if(GIT_FOUND)
+            execute_process(
+                COMMAND ${GIT_EXECUTABLE} apply --check --no-index "${IPLUG2_ROOT_PATH}/Dependencies/IPlug/vst3sdk.patch"
+                WORKING_DIRECTORY ${VST3_SDK_PATH}
+                OUTPUT_QUIET ERROR_QUIET
+                RESULT_VARIABLE GIT_RESULT)
+            if(GIT_RESULT EQUAL "0")
+                iplug_info("Applying VST3SDK code patch")
+                execute_process(
+                    COMMAND ${GIT_EXECUTABLE} apply --stat -v --no-index --apply  "${IPLUG2_ROOT_PATH}/Dependencies/IPlug/vst3sdk.patch"
+                    WORKING_DIRECTORY ${VST3_SDK_PATH})
+            endif()
+        else()
+            iplug_warning("Unable to apply VST3SDK code patch. Git executable not found.")
+            iplug_warning("Disabling VST3SDK UNICODE_OFF.")
+            set(IPLUG2_VST3SDK_UNICODE_OFF OFF)
+        endif()
+    else()
+        iplug_info("VST3SDK UNICODE_OFF is disabled")
+    endif()
 
 
     add_library(${_libName} STATIC)
 
     target_compile_options(${_libName} PRIVATE ${_DEPENDENCIES_WARNINGS})
 
-    target_include_directories(${_libName}
-        PUBLIC
-            # "IPlug/VST3_SDK_MOD"
-            "${VST3_SDK_PATH}"
-    )
+    target_include_directories(${_libName} PUBLIC "${VST3_SDK_PATH}")
 
     target_compile_definitions(${_libName}
         PUBLIC
-            # UNICODE_OFF
+            $<$<BOOL:${IPLUG2_VST3SDK_UNICODE_OFF}>:UNICODE_OFF>
             $<$<CONFIG:Debug>:DEVELOPMENT=1>
             $<$<CONFIG:Release>:RELEASE=1>
             $<$<CONFIG:Distributed>:RELEASE=1>
@@ -433,18 +445,14 @@ if(HAVESDK_VST3)
             # "${VST3_SDK_PATH}/public.sdk/source/vst/hosting/processdata.cpp"
             # "${VST3_SDK_PATH}/public.sdk/source/vst/hosting/processdata.h"
 
-
             "${VST3_SDK_PATH}/public.sdk/source/main/pluginfactory.cpp"
             "${VST3_SDK_PATH}/public.sdk/source/main/pluginfactory.h"
             "${VST3_SDK_PATH}/public.sdk/source/common/threadchecker.h"
-
     )
 
     if(PLATFORM_WINDOWS)
         target_sources(${_libName}
             PRIVATE
-                # "${VST3_SDK_PATH}/public.sdk/source/vst/vstgui_win32_bundle_support.cpp"
-                # "${VST3_SDK_PATH}/public.sdk/source/vst/vstgui_win32_bundle_support.h"
                 "${VST3_SDK_PATH}/public.sdk/source/common/threadchecker_win32.cpp"
                 "${VST3_SDK_PATH}/public.sdk/source/main/dllmain.cpp"
         )
@@ -463,6 +471,13 @@ if(HAVESDK_VST3)
     endif()
     get_target_property(DEPSOURCE_LIST ${_libName} SOURCES)
     source_group(TREE "${_libPath}" FILES ${DEPSOURCE_LIST})
+    source_group(TREE "${IPLUG2_ROOT_PATH}/Dependencies/IPlug/VST3_SDK_MOD/pluginterfaces/base"
+        PREFIX
+            "pluginterfaces/base"
+        FILES
+            "IPlug/VST3_SDK_MOD/pluginterfaces/base/ftypes.h"
+            "IPlug/VST3_SDK_MOD/pluginterfaces/base/fstrdefs.h"
+    )
     set_target_properties(${_libName} PROPERTIES FOLDER "${_LIBFOLDER}")
 
     # VST3 Interface lib for export

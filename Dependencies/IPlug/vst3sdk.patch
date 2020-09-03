@@ -1,0 +1,64 @@
+diff --git a/pluginterfaces/base/fstrdefs.h b/pluginterfaces/base/fstrdefs.h
+index 00eaa1de9..c31d86359 100644
+--- a/pluginterfaces/base/fstrdefs.h
++++ b/pluginterfaces/base/fstrdefs.h
+@@ -120,8 +120,11 @@ inline int32 _tstrlen (const T* wcs)
+
+ 	return (int32) (eos - wcs - 1);
+ }
+-
+-inline int32 tstrlen (const tchar* str) {return _tstrlen (str);}
++#ifndef UNICODE
++	inline int32 tstrlen (const char16* str) {return _tstrlen (str);}
++#else
++	inline int32 tstrlen (const tchar* str) {return _tstrlen(str);}
++#endif
+ inline int32 strlen8 (const char8* str) {return _tstrlen (str);}
+ inline int32 strlen16 (const char16* str) {return _tstrlen (str);}
+
+diff --git a/pluginterfaces/base/ftypes.h b/pluginterfaces/base/ftypes.h
+index aee8a3c5e..bc6ff0aae 100644
+--- a/pluginterfaces/base/ftypes.h
++++ b/pluginterfaces/base/ftypes.h
+@@ -16,6 +16,7 @@
+ 
+ #pragma once
+ 
++#include <cstdint>
+ #include "fplatform.h"
+ 
+ //#define UNICODE_OFF 	// disable / enable unicode
+@@ -44,11 +45,11 @@ namespace Steinberg
+ 	typedef unsigned short uint16;
+ 
+ #if SMTG_OS_WINDOWS && !defined(__GNUC__)
+-	typedef long int32;
+-	typedef unsigned long uint32;
++	typedef std::int32_t int32;
++	typedef std::uint32_t uint32;
+ #else
+-	typedef int int32;
+-	typedef unsigned int uint32;
++	typedef std::int32_t int32;
++	typedef std::uint32_t uint32;
+ #endif
+ 
+ 	static const int32 kMaxLong = 0x7fffffff;
+@@ -58,13 +59,13 @@ namespace Steinberg
+ 	static const uint32 kMaxInt32u = 0xffffffff;
+ 
+ #if SMTG_OS_WINDOWS && !defined(__GNUC__)
+-	typedef __int64 int64;
+-	typedef unsigned __int64 uint64;
++	typedef std::int64_t int64;
++	typedef std::uint64_t uint64;
+ 	static const int64 kMaxInt64 = 9223372036854775807i64;
+ 	static const int64 kMinInt64 = (-9223372036854775807i64 - 1);
+ #else
+-	typedef long long int64;
+-	typedef unsigned long long uint64;
++	typedef std::int64_t int64;
++	typedef std::uint64_t uint64;
+ 	static const int64 kMaxInt64 = 0x7fffffffffffffffLL;
+ 	static const int64 kMinInt64 = (-0x7fffffffffffffffLL-1);
+ #endif
