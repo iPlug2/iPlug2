@@ -26,7 +26,6 @@ _*
 *.RPP-bak
 Icon?
 .DS_Stor*
-cpp.hint
 doxygen_warnings.txt
 Pods
 PodFile.lock
