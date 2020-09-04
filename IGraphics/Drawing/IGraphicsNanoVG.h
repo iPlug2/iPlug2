@@ -15,12 +15,10 @@
 
 BEGIN_INCLUDE_DEPENDENCIES
 #include <nanovg.h>
-END_INCLUDE_DEPENDENCIES
 #include <mutex.h>
 
 // Thanks to Olli Wang/MOUI for much of this macro magic  https://github.com/ollix/moui
 
-BEGIN_INCLUDE_DEPENDENCIES
 #if defined IGRAPHICS_GL
 	#define NANOVG_FBO_VALID 1
 	#include <glad.h>				// TODO: temporary, "nanovg_gl_utils.h" needs to know about types from glad.h
