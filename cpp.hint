@@ -1,0 +1,25 @@
+#define BEGIN_IPLUG_NAMESPACE namespace iplug {
+#define END_IPLUG_NAMESPACE }
+#define BEGIN_IGRAPHICS_NAMESPACE namespace igraphics {
+#define END_IGRAPHICS_NAMESPACE }
+#define BEGIN_INCLUDE_DEPENDENCIES
+#define END_INCLUDE_DEPENDENCIES
+#define NEW new (1, __FILE__, __LINE__)
+#define NEW
+#define SMTG_OVERRIDE
+#define SMTG_CPP11_STDLIBSUPPORT
+#define SMTG_NOEXCEPT
+#define DECLARE_CLASS_IID(ClassName, l1, l2, l3, l4) static const ::Steinberg::TUID ClassName##_iid = INLINE_UID (l1, l2, l3, l4); const ::Steinberg::FUID ClassName::iid (ClassName##_iid);
+#define DECLARE_CLASS_IID(ClassName, l1, l2, l3, l4) static const ::Steinberg::TUID ClassName##_iid = INLINE_UID (l1, l2, l3, l4);
+#define WDL_LITTLE_ENDIAN
+#define OBJ_METHODS(className, baseClass) static inline Steinberg::FClassID getFClassID () {return (#className);} virtual Steinberg::FClassID isA () const SMTG_OVERRIDE {return className::getFClassID ();} virtual bool isA (Steinberg::FClassID s) const SMTG_OVERRIDE {return isTypeOf (s, false);} virtual bool isTypeOf (Steinberg::FClassID s, bool askBaseClass = true) const SMTG_OVERRIDE { return (classIDsEqual (s, #className) ? true : (askBaseClass ? baseClass::isTypeOf (s, true) : false)); }
+#define SMTG_ALWAYS_INLINE __inline__ __attribute__((__always_inline__))
+#define SMTG_ALWAYS_INLINE
+#define VST3_PROCESSOR_UID
+#define INLINE_UID_FROM_FUID(x) INLINE_UID (x.getLong1 (), x.getLong2 (), x.getLong3 (), x.getLong4 ())
+#define DEF_CLASS2(cid, cardinality, category, name, classFlags, subCategories, version, sdkVersion, createMethod) { TUID lcid = cid; static PClassInfo2 componentClass (lcid,cardinality,category,name,classFlags,subCategories,0,version,sdkVersion); gPluginFactory->registerClass (&componentClass,createMethod); }
+#define WDL_ENDIAN_INLINE
+#define DEF_CLASS_IID(ClassName) const ::Steinberg::FUID ClassName::iid (ClassName##_iid);
+#define IMPLEMENT_FUNKNOWN_METHODS(ClassName, InterfaceName, ClassIID) IMPLEMENT_REFCOUNT (ClassName) IMPLEMENT_QUERYINTERFACE (ClassName, InterfaceName, ClassIID)
+#define DEFINE_INTERFACES Steinberg::tresult PLUGIN_API queryInterface (const Steinberg::TUID iid, void** obj) SMTG_OVERRIDE {
+#define IMPLEMENT_REFCOUNT(ClassName) ::Steinberg::uint32 PLUGIN_API ClassName::addRef () { return ::Steinberg::FUnknownPrivate::atomicAdd (__funknownRefCount, 1); } ::Steinberg::uint32 PLUGIN_API ClassName::release () { if (::Steinberg::FUnknownPrivate::atomicAdd (__funknownRefCount, -1) == 0) { delete this; return 0; } return __funknownRefCount; }
