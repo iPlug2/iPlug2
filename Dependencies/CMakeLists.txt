@@ -207,7 +207,7 @@ target_compile_options(${_libName} PRIVATE ${_DEPENDENCIES_WARNINGS})
 target_include_directories(${_libName}
     PUBLIC
         "IGraphics/NanoVG/src"
-        $<$<BOOL:${IPLUG2_ENABLE_METALNANOVG}>:${IPLUG2_ROOT_PATH}/Dependencies/IGraphics/MetalNanoVG/src>
+        $<$<BOOL:${IPLUG2_ENABLE_METAL}>:${IPLUG2_ROOT_PATH}/Dependencies/IGraphics/MetalNanoVG/src>
 )
 
 # FONS_USE_FREETYPE
@@ -223,7 +223,7 @@ target_sources(${_libName}
         "IGraphics/NanoVG/src/stb_truetype.h"
 )
 
-if(IPLUG2_ENABLE_METALNANOVG)
+if(GFXLIB_NANOVG AND IPLUG2_ENABLE_METAL)
     target_sources(${_libName}
         PRIVATE
             "IGraphics/MetalNanoVG/src/nanovg_mtl.m"
@@ -232,7 +232,7 @@ endif()
 
 target_link_libraries(${_libName}
     PUBLIC
-        $<$<BOOL:${IPLUG2_ENABLE_METALNANOVG}>:
+        $<$<BOOL:${IPLUG2_ENABLE_METAL}>:
             -framework Metal
             -framework QuartzCore
         >
@@ -479,16 +479,6 @@ if(HAVESDK_VST3)
             "IPlug/VST3_SDK_MOD/pluginterfaces/base/fstrdefs.h"
     )
     set_target_properties(${_libName} PROPERTIES FOLDER "${_LIBFOLDER}")
-
-    # VST3 Interface lib for export
-    set(_libName "IVST3SDK")
-    add_library(${_libName} INTERFACE)
-
-    if(PLATFORM_WINDOWS)
-        target_sources(${_libName} INTERFACE "${VST3_SDK_PATH}/public.sdk/source/main/winexport.def")
-    elseif(PLATFORM_MAC)
-        target_sources(${_libName} INTERFACE "${VST3_SDK_PATH}/public.sdk/source/main/macexport.exp")
-    endif()
 endif()
 
 # -----------------------------------------------------------------------------

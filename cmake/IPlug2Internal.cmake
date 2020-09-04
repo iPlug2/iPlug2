@@ -1,17 +1,11 @@
 include_guard(GLOBAL)
 
 #------------------------------------------------------------------------------
-macro(_iplug_check_initialized)
-    string_assert(${CMAKE_SYSTEM_NAME} "CMAKE_SYSTEM_NAME not set in toolchain.")
-    if(NOT IPLUG_IS_INITIALIZED)
-        _iplug_setup()
-        _iplug_set_default_compiler_options()
-        set(IPLUG_IS_INITIALIZED TRUE)
-    endif()
-endmacro()
+# _iplug_setup
+#
+#   Project initialization of everything related to IPlug2
 
-#------------------------------------------------------------------------------
-function(_iplug_setup)
+macro(_iplug_setup)
     string_assert(${CMAKE_SYSTEM_NAME} "CMAKE_SYSTEM_NAME not set in toolchain")
 
     # We don't like long lists of if()/elseif()
@@ -28,10 +22,10 @@ function(_iplug_setup)
     string_assert(${_PLATFORM_NAME} "PLATFORM_NAME missing from PLATFORM_${CMAKE_SYSTEM_NAME}"  )
 
     # Propagate variables to parent scope
-    set(${_PLATFORM_ID} TRUE              PARENT_SCOPE)
-    set(PLATFORM_ID     ${_PLATFORM_ID}   PARENT_SCOPE)
-    set(PLATFORM_NAME   ${_PLATFORM_NAME} PARENT_SCOPE)
-    set(PLATFORM_APPLE  ${APPLE}          PARENT_SCOPE)  # set if target is macOS, iOS, tvOS or watchOS
+    set(${_PLATFORM_ID} TRUE              )
+    set(PLATFORM_ID     ${_PLATFORM_ID}   )
+    set(PLATFORM_NAME   ${_PLATFORM_NAME} )
+    set(PLATFORM_APPLE  ${APPLE}          )  # set if target is macOS, iOS, tvOS or watchOS
 
     # Set build types
     set(CONFIGURATION_TYPES "Debug" "Release" "Distributed")
@@ -49,10 +43,136 @@ function(_iplug_setup)
 		endif()
 	endif()
 
-    # Update Git submodules if enabled
-    iplug_git_update_submodules()
-endfunction()
+    #------------------------------------------------------------------------------
+    find_package(Git)
 
+    # Update Git submodules if enabled
+#    iplug_git_update_submodules()
+
+
+    # Find a suitable application to use as default debugger for VST2/VST3 plugins
+    if(PLATFORM_WINDOWS)
+        set(_reg_tests
+            "[HKEY_LOCAL_MACHINE\\SOFTWARE\\REAPER]"
+            "[HKEY_LOCAL_MACHINE\\SOFTWARE\\PreSonus\\Studio One 5]"
+            "[HKEY_LOCAL_MACHINE\\SOFTWARE\\PreSonus\\Studio One 4]"
+            "[HKEY_LOCAL_MACHINE\\SOFTWARE\\PreSonus\\Studio One 3]"
+            "[HKEY_CURRENT_USER\\Software\\Image-Line\\FL Studio 20\\General;Program location]"  # unconfirmed
+            "[HKEY_CURRENT_USER\\Software\\Image-Line\\FL Studio 12\\General;Program location]"  # unconfirmed
+            "[HKEY_LOCAL_MACHINE\\Software\\Propellerhead Software\\Reason]"                     # unconfirmed
+        )
+        foreach(_key IN LISTS _reg_tests)
+            get_filename_component(_key "${_key}" ABSOLUTE)
+            if(_key AND NOT ${_key} MATCHES "registry")
+                if(_key MATCHES "^.*(Reaper)$")
+                    string(APPEND _key "/reaper.exe" )
+                endif()
+                set(DEFAULT_VST_PLUGIN_DEBUGGER ${_key})
+                break()
+            endif()
+        endforeach()
+    endif()
+
+    #------------------------------------------------------------------------------
+    # VST3 SDK
+
+    set(_path $ENV{VST3_SDK_PATH})
+    if(NOT _path)
+        set(_path "${IPLUG2_ROOT_PATH}/Dependencies/IPlug/VST3_SDK")
+    endif()
+    set(VST3_SDK_PATH "${_path}" CACHE PATH "Path to Steinberg VST3 SDK")
+
+    set(_files
+        "CMakeLists.txt"
+        "base/CMakeLists.txt"
+        "pluginterfaces/CMakeLists.txt"
+        "public.sdk/CMakeLists.txt"
+        "public.sdk/source/main/winexport.def"
+        "public.sdk/source/main/macexport.exp"
+    )
+    set(HAVESDK_VST3 TRUE)
+    foreach(_file IN LISTS _files)
+        if(NOT EXISTS "${VST3_SDK_PATH}/${_file}")
+            set(HAVESDK_VST3 FALSE)
+        endif()
+    endforeach()
+
+    if(HAVESDK_VST3)
+        list(APPEND CMAKE_MODULE_PATH "${VST3_SDK_PATH}/cmake/modules")
+        include(SMTG_DetectPlatform)
+        include(SetupVST3LibraryDefaultPath)
+
+        smtg_detect_platform()
+        smtg_get_default_vst3_path()
+
+#        cmake_print_variables(SMTG_WIN)
+#        cmake_print_variables(DEFAULT_VST3_FOLDER)
+    endif()
+
+    #------------------------------------------------------------------------------
+    # VST2 SDK
+
+    # if(PLATFORM_WINDOWS)
+    #     get_filename_component(DEFAULT_VST2_FOLDER "[HKEY_LOCAL_MACHINE\\SOFTWARE\\VST;VSTPluginsPath]" ABSOLUTE)
+    #     cmake_print_variables(DEFAULT_VST2_FOLDER)
+    # endif()
+
+
+    #------------------------------------------------------------------------------
+    # Glad version settings
+
+    set(IPLUG2_GLAD_VERSION "4.5-ES2-3.1-Core" CACHE STRING "Select version of Glad to compile for OpenGL")
+    set_property(CACHE IPLUG2_GLAD_VERSION PROPERTY STRINGS
+        "2.1-Compability"
+        "2.1-Core"
+        "3.3-Compability"
+        "3.3-Core"
+        "4.5-ES2-3.1-Compability"
+        "4.5-ES2-3.1-Core"
+    )
+
+
+    #------------------------------------------------------------------------------
+    # To keep options within a somewhat reasonable level, we choose graphics backend in cmake options,
+    # not per target. This way we can bake it into the static library. Though, every target will
+    # have to use the same graphics backend. Unfortunately this also means that we can't compile
+    # for multiple plugins if we're targeting a web application (at the moment).
+
+    # TODO: Add support for the other graphics libraries
+
+    set(IPLUG2_GFXLIBRARY "GFXLIB_NANOVG" CACHE STRING "Select backend graphics library for rendering")
+    set_property(CACHE IPLUG2_GFXLIBRARY PROPERTY STRINGS
+        # GFXLIB_AGG
+        # GFXLIB_CAIRO
+        # GFXLIB_LICE
+        GFXLIB_NANOVG
+        # GFXLIB_SKIA
+        # GFXLIB_CANVAS
+    )
+
+    unset(GFXLIB_AGG)
+    unset(GFXLIB_CAIRO)
+    unset(GFXLIB_LICE)
+    unset(GFXLIB_NANOVG)
+    unset(GFXLIB_SKIA)
+    unset(GFXLIB_CANVAS)
+    set(${IPLUG2_GFXLIBRARY} TRUE)
+
+    if(PLATFORM_APPLE)
+        option(IPLUG2_ENABLE_METAL "Use Metal for rendering" ON)
+    endif()
+
+endmacro()
+
+#------------------------------------------------------------------------------
+macro(_iplug_check_initialized)
+    string_assert(${CMAKE_SYSTEM_NAME} "CMAKE_SYSTEM_NAME not set in toolchain.")
+    if(NOT IPLUG_IS_INITIALIZED)
+        _iplug_setup()
+        _iplug_set_default_compiler_options()
+        set(IPLUG_IS_INITIALIZED TRUE)
+    endif()
+endmacro()
 
 #------------------------------------------------------------------------------
 macro(_iplug_set_default_compiler_options)
@@ -328,8 +448,8 @@ endfunction()
 #   _pluginapi_lib  - Target type library to link
 
 function(_iplug_add_target_lib _target _pluginapi_lib)
-    set(_libName "${_target}-static")
 
+    set(_libName "${_target}-static")
     add_library(${_libName})
 
     # Add access to target specific resources and config.h
@@ -337,6 +457,10 @@ function(_iplug_add_target_lib _target _pluginapi_lib)
         PRIVATE
             ${CMAKE_CURRENT_LIST_DIR}
             ${CMAKE_CURRENT_LIST_DIR}/resources
+    )
+
+    set_target_properties(${_target} PROPERTIES
+        VS_DPI_AWARE "PerMonitor"
     )
 
     # Get list of all source files in IPlug and IGraphics.

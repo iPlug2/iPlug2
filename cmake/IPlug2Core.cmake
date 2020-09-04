@@ -132,19 +132,18 @@ macro(iplug_add_application _target)
         iplug_syntax_error("Unknown subsystem \"${_arg_SUBSYSTEM}\". Valid options are 'GUI' or 'Console'")
     endif()
 
-    _iplug_add_target_lib(${_target} IPlug_APP)
     add_executable(${_target})
-    target_link_libraries(${_target} PUBLIC ${_target}-static)
+    _iplug_add_target_lib(${_target} IPlug_APP)
+    target_link_libraries(${_target} PRIVATE ${_target}-static)
 
     if(PLATFORM_WINDOWS AND _arg_SUBSYSTEM STREQUAL "GUI")
-        set_property(TARGET ${_target} PROPERTY WIN32_EXECUTABLE TRUE)
+        set_target_properties(${_target} PROPERTIES WIN32_EXECUTABLE TRUE)
     endif()
 
     if(NOT IPLUG2_EXTERNAL_PROJECT)
         set_target_properties(${_target} PROPERTIES FOLDER "Examples/${PROJECT_NAME}")
     endif()
 endmacro()
-
 
 
 #------------------------------------------------------------------------------
@@ -161,20 +160,35 @@ macro(iplug_add_vst3 _target)
         set(_arg_EXTENSION "vst3")
     endif()
 
+    add_library(${_target} SHARED)
+
     if(NOT HAVESDK_VST3)
-        iplug_warning("VST3 Plugins requires Steinberg VST3 SDK to be installed.")
+        iplug_warning("VST3 Plugins requires a valid path to Steinberg VST3 SDK. '${_target}' will not be able to compile.")
+        set_target_properties(${_target} PROPERTIES
+            EXCLUDE_FROM_ALL TRUE
+            VS_CONFIGURATION_TYPE Utility) # does an equivalent option for the other generators exist?
+    else()
+        _iplug_add_target_lib(${_target} IPlug_VST3)
+        target_link_libraries(${_target} PRIVATE ${_target}-static)
+
+        if(DEFAULT_VST_PLUGIN_DEBUGGER)
+            set_target_properties(${_target} PROPERTIES VS_DEBUGGER_COMMAND "${DEFAULT_VST_PLUGIN_DEBUGGER}")
+        endif()
+
+        set(_path "${VST3_SDK_PATH}/public.sdk/source/main")
+        if(MSVC)
+            set_target_properties(${_target} PROPERTIES LINK_FLAGS "/DEF:\"${_path}/winexport.def\"")
+        elseif(XCODE)
+            set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_EXPORTED_SYMBOLS_FILE "${_path}/macexport.exp")
+        else()
+            set_target_properties(${_target} PROPERTIES LINK_FLAGS "-exported_symbols_list \"${_path}/macexport.exp\"")
+        endif()
     endif()
 
-    _iplug_add_target_lib(${_target} IPlug_VST3)
-    add_library(${_target} SHARED)
-    target_link_libraries(${_target} PUBLIC ${_target}-static IVST3SDK) # IVST3SDK is needed for vst3 export
-
     set_target_properties(${_target} PROPERTIES SUFFIX ".${_arg_EXTENSION}")
-
     if(NOT IPLUG2_EXTERNAL_PROJECT)
         set_target_properties(${_target} PROPERTIES FOLDER "Examples/${PROJECT_NAME}")
     endif()
-
 endmacro()
 
 #------------------------------------------------------------------------------

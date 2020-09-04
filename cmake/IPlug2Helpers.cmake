@@ -1,5 +1,7 @@
 include_guard(GLOBAL)
 
+option(_DEBUG "Debug output for Iplug2 cmake scripts" OFF)
+
 #------------------------------------------------------------------------------
 # helper macros
 
@@ -57,9 +59,6 @@ endfunction()
 #     _str - String to test
 #     _msg - Message to write if (_str) is empty
 #
-
-# string_assert debug cache option
-option(_DEBUG "" OFF)
 
 function(string_assert _str _msg)
 	set(SYNTAX_ERROR "${_str}-Guru Meditation")
