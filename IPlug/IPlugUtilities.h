@@ -34,7 +34,7 @@ BEGIN_IPLUG_NAMESPACE
 template <typename T>
 T Clip(T x, T lo, T hi)
 {
-	return std::min(std::max(x, lo), hi);
+	return ::std::min(::std::max(x, lo), hi);
 }
 
 /** Linear interpolate between values \p a and \p b
