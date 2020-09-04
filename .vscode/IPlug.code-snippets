@@ -1,40 +1,41 @@
 {
-	"author": {
-	"prefix": "Header",
-	"body": [
-		"/*",
-		"==============================================================================",
-		"",
-		"This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.",
-		"",
-		"See LICENSE.txt for  more info.",
-		"",
-		"===============================================================================",
-		"*/",
-		"$7",
-	],
-	"description": "iPlug2 source header"
+	"header": {
+		"prefix": "Header",
+		"body": [
+			"/*",
+			" ==============================================================================",
+			"",
+			" This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.",
+			"",
+			" See LICENSE.txt for more info.",
+			"",
+			" ===============================================================================",
+			"*/",
+			"\r",
+		],
+		"description": "iPlug2 source header"
 	},
 
-	"osguard": {
-		"prefix": "OS Guard",
-		"body": [
-			"#if PLATFORM_WINDOWS",
-			"   $1",
-			"#elif PLATFORM_MAC",
-			"   $2",
-			"#elif PLATFORM_IOS",
-			"   $3",
-			"#elif PLATFORM_LINUX",
-			"   $4",
-			"#elif PLATFORM_WEB",
-			"   $5",
-			"#else",
-			"   #error unsupported platform",
-			"#endif"
-		],
-		"description": "iPlug OS guard macros"
-	},
+	// This shouldn't be used
+	// "osguard": {
+	// 	"prefix": "OS Guard",
+	// 	"body": [
+	// 		"#if PLATFORM_WINDOWS",
+	// 		"   $1",
+	// 		"#elif PLATFORM_MAC",
+	// 		"   $2",
+	// 		"#elif PLATFORM_IOS",
+	// 		"   $3",
+	// 		"#elif PLATFORM_LINUX",
+	// 		"   $4",
+	// 		"#elif PLATFORM_WEB",
+	// 		"   $5",
+	// 		"#else",
+	// 		"   #error unsupported platform",
+	// 		"#endif"
+	// 	],
+	// 	"description": "iPlug OS guard macros"
+	// },
 
 	"initdoubleparam": {
 		"prefix": "InitDoubleParam",
@@ -66,6 +67,5 @@
 			"GetParam(${1:kGain})->InitBool(${2:\"label\"}, ${3:default});"//, ${4:IParam::kFlagsNone}, ${5:\"group\"}, ${6:\"off\"}, ${7:\"on\"});"
 		],
 		"description": "Initialize Boolean IParam"
-	},
-
-  }
+	}
+}
