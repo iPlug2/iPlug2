@@ -13,11 +13,7 @@
  * @brief IPlugAPIBase implementation
  */
 
-#include <cmath>
-#include <cstdio>
-#include <ctime>
-#include <cassert>
-
+#include "IPlugPlatform.h"
 #include "IPlugAPIBase.h"
 
 using namespace iplug;

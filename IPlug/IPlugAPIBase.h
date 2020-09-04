@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "IPlugPlatform.h"
 
 #include "ptrlist.h"
 #include "mutex.h"
