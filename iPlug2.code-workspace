@@ -6,10 +6,9 @@
 	],
 	"settings": {
 		"files.exclude": {
-			".vscode/": true,
+			".vscode/*.json": true,
 			"build/": true,
 			"out/": true,
-			"cpp.hint": true,
 			".vs/": true
 		},
 		"git.ignoreLimitWarning": true,
