@@ -1,11 +1,11 @@
 *        -text
-*.c      text=auto
-*.cpp    text=auto
-*.cc     text=auto
-*.h      text=auto
-*.hpp    text=auto
-*.m      text=auto
-*.mm     text=auto
+*.c      text eol=lf
+*.cpp    text eol=lf
+*.cc     text eol=lf
+*.h      text eol=lf
+*.hpp    text eol=lf
+*.m      text eol=lf
+*.mm     text eol=lf
 
 *.eel    text=auto
 *.php    text=auto
