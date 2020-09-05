@@ -12,7 +12,7 @@ IndentWidth: 4
 TabWidth: 4
 ContinuationIndentWidth: 4
 ConstructorInitializerIndentWidth: 4
-ObjCBlockIndentWidth: 2
+ObjCBlockIndentWidth: 4
 
 AccessModifierOffset: -3
 AlignAfterOpenBracket: Align
@@ -28,7 +28,7 @@ AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine: Empty
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Empty
-AllowShortLambdasOnASingleLine: All
+AllowShortLambdasOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: None
