@@ -292,10 +292,6 @@ if(HAVESDK_VST3)
 
     target_sources(${_libName}
         PRIVATE
-            # Modified
-            # "IPlug/VST3_SDK_MOD/pluginterfaces/base/ftypes.h"
-            # "IPlug/VST3_SDK_MOD/pluginterfaces/base/fstrdefs.h"
-
             # Steinberg VST3 SDK Source
             "${VST3_SDK_PATH}/base/source/baseiids.cpp"
             "${VST3_SDK_PATH}/base/source/classfactoryhelpers.h"
@@ -332,10 +328,8 @@ if(HAVESDK_VST3)
             "${VST3_SDK_PATH}/pluginterfaces/base/falignpop.h"
             "${VST3_SDK_PATH}/pluginterfaces/base/falignpush.h"
             "${VST3_SDK_PATH}/pluginterfaces/base/fplatform.h"
-
             "${VST3_SDK_PATH}/pluginterfaces/base/fstrdefs.h"
             "${VST3_SDK_PATH}/pluginterfaces/base/ftypes.h"
-
             "${VST3_SDK_PATH}/pluginterfaces/base/funknown.cpp"
             "${VST3_SDK_PATH}/pluginterfaces/base/funknown.h"
             "${VST3_SDK_PATH}/pluginterfaces/base/futils.h"
@@ -471,13 +465,6 @@ if(HAVESDK_VST3)
     endif()
     get_target_property(DEPSOURCE_LIST ${_libName} SOURCES)
     source_group(TREE "${_libPath}" FILES ${DEPSOURCE_LIST})
-    source_group(TREE "${IPLUG2_ROOT_PATH}/Dependencies/IPlug/VST3_SDK_MOD/pluginterfaces/base"
-        PREFIX
-            "pluginterfaces/base"
-        FILES
-            "IPlug/VST3_SDK_MOD/pluginterfaces/base/ftypes.h"
-            "IPlug/VST3_SDK_MOD/pluginterfaces/base/fstrdefs.h"
-    )
     set_target_properties(${_libName} PROPERTIES FOLDER "${_LIBFOLDER}")
 endif()
 
