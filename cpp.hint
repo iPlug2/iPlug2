@@ -23,3 +23,28 @@
 #define IMPLEMENT_FUNKNOWN_METHODS(ClassName, InterfaceName, ClassIID) IMPLEMENT_REFCOUNT (ClassName) IMPLEMENT_QUERYINTERFACE (ClassName, InterfaceName, ClassIID)
 #define DEFINE_INTERFACES Steinberg::tresult PLUGIN_API queryInterface (const Steinberg::TUID iid, void** obj) SMTG_OVERRIDE {
 #define IMPLEMENT_REFCOUNT(ClassName) ::Steinberg::uint32 PLUGIN_API ClassName::addRef () { return ::Steinberg::FUnknownPrivate::atomicAdd (__funknownRefCount, 1); } ::Steinberg::uint32 PLUGIN_API ClassName::release () { if (::Steinberg::FUnknownPrivate::atomicAdd (__funknownRefCount, -1) == 0) { delete this; return 0; } return __funknownRefCount; }
+#define STDMETHODCALLTYPE
+#define REFIID
+#define STDMETHOD(method)
+#define STDMETHOD(method) HRESULT (STDMETHODCALLTYPE * method)
+#define THIS_
+#define PURE
+#define STDMETHOD_(type, method)
+#define STDMETHOD_(type, method) type (STDMETHODCALLTYPE * method)
+#define RTAUDIOAPI __declspec(dllexport)
+#define RTAUDIOAPI __attribute__((visibility("default")))
+#define RTAUDIOAPI
+#define FUNKNOWN_METHODS2(InterfaceName1, InterfaceName2, BaseClass) DEF_INTERFACES_2(InterfaceName1,InterfaceName2,BaseClass) REFCOUNT_METHODS(BaseClass)
+#define SINGLETON(ClassName) static ClassName* instance (bool create = true) { static Steinberg::FObject* inst = nullptr; if (inst == nullptr && create && Steinberg::Singleton::isTerminated () == false) { Steinberg::Singleton::lockRegister (); if (inst == nullptr) { inst = NEW ClassName; Steinberg::Singleton::registerInstance (&inst); } Steinberg::Singleton::unlockRegister (); } return (ClassName*)inst; }
+#define ZEXPORT
+#define ZEXPORT __declspec(dllexport)
+#define ZEXPORT __declspec(dllimport)
+#define local
+#define OF(args)
+#define OF(args) ()
+#define ZEXTERN extern __declspec(dllexport)
+#define ZEXTERN extern __declspec(dllimport)
+#define ZEXTERN
+#define YOGA_EXPORT
+#define YOGA_EXPORT __attribute__((visibility("default")))
+#define interface
