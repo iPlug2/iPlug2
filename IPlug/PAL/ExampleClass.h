@@ -12,7 +12,7 @@
 
 #include "IPlugPlatform.h"
 
-namespace iplug::platform::generic
+namespace iplug::generic
 {
 	/**
 	 * @brief Definition of a class used as the base for platform implementation.
@@ -28,13 +28,13 @@ namespace iplug::platform::generic
 	 *        need for any specific implementations, then it shouldn't be defined
 	 *        inside PAL.
 	 */
-	class GenericExampleClass
+	class ExampleClass
 	{
-	  protected:
-		GenericExampleClass()  = default;
-		~GenericExampleClass() = default;
+	 protected:
+		ExampleClass()  = default;
+		~ExampleClass() = default;
 	};
-}  // namespace iplug::platform::generic
+}  // namespace iplug::generic
 
 // Include after GenericXXX class definition in global namespace
 #include PLATFORM_HEADER(ExampleClass.h)

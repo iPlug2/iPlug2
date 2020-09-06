@@ -10,31 +10,42 @@
 
 #pragma once
 
+//---------------------------------------------------------
+// Compiler detection
+
+#define PLATFORM_COMPILER_MSVC       0
+#define PLATFORM_COMPILER_GCC        0
+#define PLATFORM_COMPILER_CLANG      0
+
+#if _MSC_VER && !defined __clang__
+	#undef PLATFORM_COMPILER_MSVC
+	#define PLATFORM_COMPILER_MSVC 1
+#elif defined __GNUC__ && !defined __clang__
+	#undef PLATFORM_COMPILER_GCC
+	#define PLATFORM_COMPILER_GCC 1
+#elif defined __clang__
+	#undef PLATFORM_COMPILER_CLANG
+	#define PLATFORM_COMPILER_CLANG 1
+#else
+	#error "Unsupported compiler."
+#endif
+
+
 // clang-format off
 
 //---------------------------------------------------------
 // Global compiler specific preprocessor definitions
 
-#if (_MSC_VER) && !defined(__clang__)
+#if PLATFORM_COMPILER_MSVC
 	#define PRAGMA(...)       __pragma(__VA_ARGS__)
 	#define IPLUG_APIENTRY    __stdcall
-	#define IPLUG_IMPORT      __declspec(dllimport)
-	#define IPLUG_EXPORT      __declspec(dllexport)
 	#define NOINLINE          __declspec(noinline)
-#elif __GNUC__ || __clang__ || __EMSCRIPTEN__
+#elif PLATFORM_COMPILER_GCC || PLATFORM_COMPILER_CLANG
 	#define PRAGMA(...)       _Pragma(__VA_ARGS__)
 	#define IPLUG_API
-	#define IPLUG_IMPORT
-	#define IPLUG_EXPORT      __attribute__((visibility("default")))
 	#define NOINLINE          __attribute__((noinline))
 #else
 	#error "Unsupported compiler."
-#endif
-
-#ifdef IPLUG_DLL_EXPORT
-	#define IPLUG_API IPLUG_EXPORT
-#else
-	#define IPLUG_API IPLUG_IMPORT
 #endif
 
 //---------------------------------------------------------
@@ -50,7 +61,7 @@
 //---------------------------------------------------------
 // Additional MSVC Settings
 
-#if _MSC_VER && !defined(__clang__)
+#if PLATFORM_COMPILER_MSVC
 	//---------------------------------------------------------
 	// There seems to be no reason not to use C++17 in 2020 and onwards
 	// https://en.cppreference.com/w/cpp/compiler_support#cpp17
@@ -233,8 +244,8 @@
 		__pragma(warning(disable: 28253)) /* Inconsistent annotation for '<func>': _Param_(<num>) has '<annotation>' on the prior instance. */                                                                      \
 		__pragma(warning(disable: 28301)) /* No annotations for first declaration of '<func>'. */
 
-	#define END_INCLUDE_DEPENDENCIES                                                                                                 \
-		__pragma(warning(pop))                                                                                                       \
+	#define END_INCLUDE_DEPENDENCIES  \
+		__pragma(warning(pop))        \
 		__pragma(pack(pop))
 
 #endif // _MSC_VER
@@ -243,7 +254,7 @@
 //---------------------------------------------------------
 // Additional Clang Settings
 
-#if __clang__
+#if PLATFORM_COMPILER_CLANG
 
 	#define BEGIN_INCLUDE_DEPENDENCIES                                                            \
 		_Pragma("clang diagnostic push")                                                          \
@@ -259,7 +270,7 @@
 //---------------------------------------------------------
 // Additional GCC Settings
 
-#if __GNUC__
+#if PLATFORM_COMPILER_GCC
 
 	#define BEGIN_INCLUDE_DEPENDENCIES                                                            \
 		_Pragma("GCC diagnostic push")                                                            \

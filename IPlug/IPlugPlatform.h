@@ -15,8 +15,19 @@
 
 #pragma once
 
-
 #include "PAL/Platform.h"
+
+// TODO: temporary, move to template header later
+namespace iplug
+{
+	// Return number of elements in an array.
+	template <typename T>
+	inline constexpr size_t TArrayCount(T&& array)
+	{
+		return sizeof(uint8(&)[sizeof(array) / sizeof(array[0])]);
+	}
+
+}  // namespace iplug
 
 
 #ifdef PARAMS_MUTEX

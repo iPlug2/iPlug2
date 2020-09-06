@@ -50,7 +50,7 @@
 
 
 //---------------------------------------------------------
-// Preprocessor helpers
+// Global preprocessor definitions
 
 #define PREPROCESSOR_TOKEN_STRING(expr)         #expr
 #define PREPROCESSOR_TOKEN_CONCAT(A, B)         A##B
@@ -59,22 +59,9 @@
 #define PREPROCESSOR_CONCAT(A, B)               PREPROCESSOR_TOKEN_CONCAT(A, B)
 #define PREPROCESSOR_UNPARENTHESIZE(...)        PREPROCESSOR_TOKEN_VARIADIC __VA_ARGS__
 
-// Only works if (def) is defined as 0 or 1
-//#define __PP_INTERNAL_IF_0(expr0, expr1)        expr0
-//#define __PP_INTERNAL_IF_1(expr0, expr1)        expr1
-//#define PREPROCESSOR_IF0ELSE(def, expr0, expr1) PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(expr0, expr1)
-//#define PREPROCESSOR_IF1ELSE(def, expr1, expr0) PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(expr0, expr1)
-//#define PREPROCESSOR_IF0(def, expr)             PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(expr, )
-//#define PREPROCESSOR_IF1(def, expr)             PREPROCESSOR_TOKEN_CONCAT(__PP_INTERNAL_IF_, def)(, expr)
-
-
-//---------------------------------------------------------
-// Global preprocessor definitions
-
 // No quotes in filename
 #define PLATFORM_HEADER(filename)               PREPROCESSOR_STRING(PLATFORM_NAME/filename)
 #define PLATFORM_PREFIX_HEADER(filename)        PREPROCESSOR_STRING(PREPROCESSOR_CONCAT(PLATFORM_NAME/PLATFORM_NAME, filename))
-
 
 #define BEGIN_IPLUG_NAMESPACE                   namespace iplug {
 #define BEGIN_IGRAPHICS_NAMESPACE               namespace igraphics {
@@ -88,11 +75,8 @@
 #define NODISCARD                               [[nodiscard]]
 
 
-// clang-format on
-
 //---------------------------------------------------------
 // STD headers
-// TODO: move to precompiled headers
 
 #include <algorithm>
 #include <array>
@@ -113,18 +97,21 @@
 #include <map>
 #include <memory>
 #include <stack>
-#include <stdint.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
+
+// clang-format on
+
 //---------------------------------------------------------
 // Set default types
 
-namespace iplug::Platform::Types
+namespace iplug::generic
 {
-	// std::uint*_t and int*_t is optional compiler implementation
-	struct Generic
+	// std::uint*_t and int*_t are optional implementations
+	// and may not be available on some compilers.
+	struct Types
 	{
 		using byte   = std::byte;
 		using uint8  = unsigned char;
@@ -137,21 +124,22 @@ namespace iplug::Platform::Types
 		using int64  = long long;
 		using utf16  = char16_t;
 		using utf32  = char32_t;
-		using wchar  = wchar_t;
 		using size_t = std::size_t;
 
 		enum class utf8 : unsigned char
 		{
 		};
 	};
-}  // namespace iplug::Platform::Types
-
+}  // namespace iplug::types
 
 //---------------------------------------------------------
 // Include target platform main header file
 
 #include PLATFORM_PREFIX_HEADER(Platform.h)
 
+// NULL definition conformance and overload type safety
+#undef NULL
+#define NULL nullptr
 
 //---------------------------------------------------------
 // Default preprocessor definitions
@@ -197,24 +185,23 @@ namespace iplug::Platform::Types
 namespace iplug
 {
 	// Check if we have a valid platform struct
-	static_assert(std::is_class_v<Platform::Types::PLATFORM_NAME>, "Platform type definition is wrong type.");
-	static_assert(std::is_base_of_v<Platform::Types::Generic, Platform::Types::PLATFORM_NAME>,
+	static_assert(std::is_class_v<types::Platform>, "Platform type definition is wrong type.");
+	static_assert(std::is_base_of_v<generic::Types, types::Platform>,
 				  "Platform type definition structure inheritance failure.");
 
-	using byte   = Platform::Types::PLATFORM_NAME::byte;    // 8-bit unsigned enum class type
-	using uint8  = Platform::Types::PLATFORM_NAME::uint8;   // 8-bit unsigned
-	using uint16 = Platform::Types::PLATFORM_NAME::uint16;  // 16-bit unsigned
-	using uint32 = Platform::Types::PLATFORM_NAME::uint32;  // 32-bit unsigned
-	using uint64 = Platform::Types::PLATFORM_NAME::uint64;  // 64-bit unsigned
-	using int8   = Platform::Types::PLATFORM_NAME::int8;    // 8-bit signed
-	using int16  = Platform::Types::PLATFORM_NAME::int16;   // 16-bit signed
-	using int32  = Platform::Types::PLATFORM_NAME::int32;   // 32-bit signed
-	using int64  = Platform::Types::PLATFORM_NAME::int64;   // 64-bit signed
-	using utf8   = Platform::Types::PLATFORM_NAME::utf8;    // 8-bit unsigned enum class type
-	using utf16  = Platform::Types::PLATFORM_NAME::utf16;   // 16-bit unsigned
-	using utf32  = Platform::Types::PLATFORM_NAME::utf32;   // 32-bit unsigned
-	using wchar  = Platform::Types::PLATFORM_NAME::wchar;   // 16-bit or 32-bit unsigned
-	using size_t = Platform::Types::PLATFORM_NAME::size_t;  // 32-bit or 64-bit unsigned
+	using byte   = types::Platform::byte;    // 8-bit unsigned enum class type
+	using uint8  = types::Platform::uint8;   // 8-bit unsigned
+	using uint16 = types::Platform::uint16;  // 16-bit unsigned
+	using uint32 = types::Platform::uint32;  // 32-bit unsigned
+	using uint64 = types::Platform::uint64;  // 64-bit unsigned
+	using int8   = types::Platform::int8;    // 8-bit signed
+	using int16  = types::Platform::int16;   // 16-bit signed
+	using int32  = types::Platform::int32;   // 32-bit signed
+	using int64  = types::Platform::int64;   // 64-bit signed
+	using utf8   = types::Platform::utf8;    // 8-bit unsigned enum class type
+	using utf16  = types::Platform::utf16;   // 16-bit unsigned
+	using utf32  = types::Platform::utf32;   // 32-bit unsigned
+	using size_t = types::Platform::size_t;  // 32-bit or 64-bit unsigned
 
 
 	//---------------------------------------------------------
@@ -236,10 +223,10 @@ namespace iplug
 	static_assert(sizeof(utf8) == 1, "utf8 type size failed.");
 	static_assert(sizeof(utf16) == 2, "utf16 type size failed.");
 	static_assert(sizeof(utf32) == 4, "utf32 type size failed.");
-	static_assert(sizeof(wchar) >= 2, "wchar type size failed.");
 	static_assert(sizeof(size_t) >= 4, "size_t type size failed.");
 	static_assert(sizeof(size_t) == sizeof(nullptr), "size_t type size failed.");
 	static_assert(sizeof(size_t) == (PLATFORM_64BIT + 1) << 2, "size_t type size failed.");
+	static_assert(sizeof(wchar_t) >= 2, "wchar_t type size failed.");
 
 	static_assert(uint8(-1) > uint8(0), "uint8 type sign test failed. uint8 is signed.");
 	static_assert(uint16(-1) > uint16(0), "uint16 type sign test failed. uint16 is signed.");
@@ -252,6 +239,6 @@ namespace iplug
 	static_assert(utf8(-1) > utf8(0), "utf8 type sign test failed. utf8 is signed.");
 	static_assert(utf16(-1) > utf16(0), "utf16 type sign test failed. utf16 is signed.");
 	static_assert(utf32(-1) > utf32(0), "utf32 type sign test failed. utf32 is signed.");
-	static_assert(wchar(-1) > wchar(0), "wchar type sign test failed. wchar is signed.");
 	static_assert(size_t(-1) > size_t(0), "size_t type sign test failed. size is signed.");
+	static_assert(wchar_t(-1) > wchar_t(0), "wchar_t type sign test failed. wchar is signed.");
 }  // namespace iplug
