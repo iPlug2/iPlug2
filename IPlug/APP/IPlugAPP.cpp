@@ -8,6 +8,7 @@
  ==============================================================================
 */
 
+#include "IPlugPlatform.h"
 #include "IPlugAPP.h"
 #include "IPlugAPP_host.h"
 
@@ -42,7 +43,7 @@ bool IPlugAPP::EditorResize(int viewWidth, int viewHeight)
 	if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
 	{
 #if PLATFORM_MAC
-		const int titleBarOffset = 22;
+		constexpr int titleBarOffset = 22;
 		RECT r;
 		GetWindowRect(gHWND, &r);
 		SetWindowPos(
@@ -105,9 +106,10 @@ void IPlugAPP::SendSysexMsgFromUI(const ISysEx& msg)
 
 void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
 {
-	SetChannelConnections(
-		ERoute::kInput, 0, MaxNChannels(ERoute::kInput), !IsInstrument());  //TODO: go elsewhere - enable inputs
-	SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);  //TODO: go elsewhere
+	//TODO: go elsewhere - enable inputs
+	SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), !IsInstrument());
+	//TODO: go elsewhere
+	SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
 
 	AttachBuffers(ERoute::kInput, 0, NChannelsConnected(ERoute::kInput), inputs, GetBlockSize());
 	AttachBuffers(ERoute::kOutput, 0, NChannelsConnected(ERoute::kOutput), outputs, GetBlockSize());
