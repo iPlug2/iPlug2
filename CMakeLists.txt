@@ -71,7 +71,7 @@ add_subdirectory(Dependencies)
 
 
 #------------------------------------------------------------------------------
-# Compile options for all IPlug2 related libraries. This is not used by consumers
+# Compile options for all IPlug2 related targets. This is not used by consumers
 
 target_compile_options(IPlug_SharedCompileOptions
     INTERFACE
@@ -85,38 +85,44 @@ target_compile_options(IPlug_SharedCompileOptions
 # Definitions
 
 # NanoVG definitions
-set(_NANOVG_DEF "")
-if(GFXLIB_NANOVG)
-    list(APPEND _NANOVG_DEF IGRAPHICS_NANOVG)
+# set(_NANOVG_DEF "")
+# if(GFXLIB_NANOVG)
+#     list(APPEND _NANOVG_DEF IGRAPHICS_NANOVG)
 
-    if(IPLUG2_ENABLE_METAL)
-        list(APPEND _NANOVG_DEF IGRAPHICS_METAL)
-    else()
-        list(APPEND _NANOVG_DEF
-            # these are just here for templating, don't know if some platform requires other GL versions
-            $<$<BOOL:${PLATFORM_WINDOWS}>:IGRAPHICS_GL3>
-            $<$<BOOL:${PLATFORM_MAC}>:IGRAPHICS_GL3>
-            $<$<BOOL:${PLATFORM_LINUX}>:IGRAPHICS_GL3>
-            $<$<BOOL:${PLATFORM_IOS}>:IGRAPHICS_GL3>
-        )
-    endif()
-endif()
-
-# TODO: Add support for the other graphics libraries
+#     if(NOT IPLUG2_ENABLE_METAL)
+#         list(APPEND _NANOVG_DEF
+#             # these are just here for templating, don't know if some platform requires other GL versions
+#             $<$<BOOL:${PLATFORM_WINDOWS}>:IGRAPHICS_GL3>
+#             $<$<BOOL:${PLATFORM_MAC}>:IGRAPHICS_GL3>
+#             $<$<BOOL:${PLATFORM_LINUX}>:IGRAPHICS_GL3>
+#             $<$<BOOL:${PLATFORM_IOS}>:IGRAPHICS_GL3>
+#         )
+#     endif()
+# endif()
 
 
-# Shared definitions for all IPlug2 related libraries and consumers
+
+# Shared definitions for all targets
 target_compile_definitions(IPlug_SharedDefinitions
     INTERFACE
         ${PLATFORM_ID}=1
         PLATFORM_NAME=${PLATFORM_NAME}
         _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 
-        ${_NANOVG_DEF}
+        # ${_NANOVG_DEF}
 
-        $<$<BOOL:${PLATFORM_MAC}>:
-            SWELL_CLEANUP_ON_UNLOAD
-        >
+        # TODO: Add support for the other graphics libraries
+        $<$<BOOL:${GFXLIB_NANOVG}>:IGRAPHICS_NANOVG>
+
+        # OpenGL for now, not much choice at the moment
+        $<$<BOOL:${PLATFORM_WINDOWS}>:IGRAPHICS_GL3>
+        $<$<BOOL:${PLATFORM_MAC}>:IGRAPHICS_GL3>
+        $<$<BOOL:${PLATFORM_LINUX}>:IGRAPHICS_GL3>
+        $<$<BOOL:${PLATFORM_IOS}>:IGRAPHICS_GL3>
+
+        $<$<BOOL:${IPLUG2_ENABLE_METAL}>:IGRAPHICS_METAL>
+        $<$<BOOL:${PLATFORM_MAC}>:SWELL_CLEANUP_ON_UNLOAD>
+
         $<$<BOOL:${PLATFORM_WINDOWS}>:
             WIN32
             _WINDOWS
@@ -125,24 +131,24 @@ target_compile_definitions(IPlug_SharedDefinitions
 )
 
 # Target specific definitions
-target_compile_definitions(IPlug_APP  INTERFACE APP_API  IPLUG_EDITOR=1 IPLUG_DSP=1 $<$<BOOL:${PLATFORM_MAC}>:SWELL_COMPILED> )
-target_compile_definitions(IPlug_VST3 INTERFACE VST3_API IPLUG_EDITOR=1 IPLUG_DSP=1                                           )
-
+target_compile_definitions(IPlug_APP   INTERFACE APP_API   IPLUG_EDITOR=1 IPLUG_DSP=1 $<$<BOOL:${PLATFORM_MAC}>:__MACOSX_CORE__ SWELL_COMPILED> )
+target_compile_definitions(IPlug_VST3  INTERFACE VST3_API  IPLUG_EDITOR=1 IPLUG_DSP=1                                                           )
+target_compile_definitions(IPlug_AAX   INTERFACE AAX_API   IPLUG_EDITOR=1 IPLUG_DSP=1                                                           )
+target_compile_definitions(IPlug_AU    INTERFACE AU_API    IPLUG_EDITOR=1 IPLUG_DSP=1                                                           )
+target_compile_definitions(IPlug_AUv3  INTERFACE AUv3_API  IPLUG_EDITOR=1 IPLUG_DSP=1                                                           )
+target_compile_definitions(IPlug_VST2  INTERFACE VST2_API  IPLUG_EDITOR=1 IPLUG_DSP=1                                                           )
+target_compile_definitions(IPlug_VST3C INTERFACE VST3C_API IPLUG_EDITOR=1 IPLUG_DSP=0                                                           )
+target_compile_definitions(IPlug_VST3P INTERFACE VST3P_API IPLUG_EDITOR=0 IPLUG_DSP=1 #[[NO_IGRAPHICS]]                                         )
+# target_compile_definitions(IPlug_WAM   INTERFACE WAM_API   IPLUG_EDITOR=0 IPLUG_DSP=1 NO_IGRAPHICS                                              )
+# target_compile_definitions(IPlug_WEB   INTERFACE WEB_API   IPLUG_EDITOR=1 IPLUG_DSP=0 USE_WEBGL2=0 FULL_ES3=1                                   )
 
 #------------------------------------------------------------------------------
 # Shared includes for all IPlug2 related libraries and consumers
 
 target_include_directories(IPlug_SharedIncludes
     INTERFACE
-        # Are these needed? Shouldn't these already be defined in xcode or env variables?
-        $<$<BOOL:${PLATFORM_MAC}>:
-            /System/Library/Frameworks
-            /Library/Frameworks
-        >
-
         IPlug
         IGraphics
-
         IGraphics/Controls
         IGraphics/Drawing
         IGraphics/Platforms
@@ -176,52 +182,100 @@ target_include_directories(IPlug_SharedIncludes
         $<$<BOOL:${EXTRAS_FAUST}>:${IPLUG2_ROOT_PATH}/IPlug/Extras/Faust
             $<$<BOOL:${PLATFORM_WINDOWS}>:${IPLUG2_ROOT_PATH}/Dependencies/Build/win/Faust/include>
         >
+
+        $<$<BOOL:${PLATFORM_APPLE}>:
+            ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks
+            ${CMAKE_OSX_SYSROOT}/Library/Frameworks
+        >
 )
 
 
 #------------------------------------------------------------------------------
 # Shared linker settings for all IPlug2 related libraries and consumers
 
-set(_deplibs "")
+set(_deplibs     "")
+set(_deplibsAPP  "")
+set(_deplibsAU   "")
+set(_deplibsAUv3 "")
 
-# MacOS & iOS
+# These mac & ios settings are in no way tested, leaving this to
+# someone who actually have the hardware to implement correctly.
 if(PLATFORM_APPLE)
-    # no clue how this works on apple platforms. writing blindly :)
-    find_library(FRAMEWORK_ACCELERATE Accelerate)
-    list(APPEND _deplibs
-        "${FRAMEWORK_ACCELERATE}"
-        "-framework CoreAudioKit"
-        "-framework AudioToolbox"
-        "-framework AVFoundation"
-        "-framework QuartzCore"
-        "-framework CoreMIDI"
-    )
+    find_library(FRAMEWORK_COREAUDIO      CoreAudio)
+    find_library(FRAMEWORK_COREAUDIOKIT   CoreAudioKit)
+    find_library(FRAMEWORK_COREFOUNDATION CoreFoundation)
+    find_library(FRAMEWORK_COREMIDI       CoreMIDI)
+    find_library(FRAMEWORK_CORESERVICES   CoreServices)
+    find_library(FRAMEWORK_COCOA          Cocoa)
+    find_library(FRAMEWORK_OPENGL         OpenGL)
+    find_library(FRAMEWORK_QUARTZCORE     QuartzCore)
+    find_library(FRAMEWORK_CARBON         Carbon)
+    find_library(FRAMEWORK_METAL          Metal)
+    find_library(FRAMEWORK_AUDIOUNIT      AudioUnit)
+    find_library(FRAMEWORK_AUDIOTOOLBOX   AudioToolbox)
+    find_library(FRAMEWORK_AVFOUNDATION   AVFoundation)
+    find_library(FRAMEWORK_APPKIT         AppKit)
+    find_library(FRAMEWORK_FOUNDATION     Foundation)
+    find_library(FRAMEWORK_METALKIT       MetalKit)
+    find_library(FRAMEWORK_COREDATA       CoreData)
+
+    mark_as_advanced(FRAMEWORK_COREAUDIO)
+    mark_as_advanced(FRAMEWORK_COREAUDIOKIT)
+    mark_as_advanced(FRAMEWORK_COREFOUNDATION)
+    mark_as_advanced(FRAMEWORK_COREMIDI)
+    mark_as_advanced(FRAMEWORK_CORESERVICES)
+    mark_as_advanced(FRAMEWORK_COCOA)
+    mark_as_advanced(FRAMEWORK_OPENGL)
+    mark_as_advanced(FRAMEWORK_QUARTZCORE)
+    mark_as_advanced(FRAMEWORK_CARBON)
+    mark_as_advanced(FRAMEWORK_METAL)
+    mark_as_advanced(FRAMEWORK_AUDIOUNIT)
+    mark_as_advanced(FRAMEWORK_AUDIOTOOLBOX)
+    mark_as_advanced(FRAMEWORK_AVFOUNDATION)
+    mark_as_advanced(FRAMEWORK_APPKIT)
+    mark_as_advanced(FRAMEWORK_FOUNDATION)
+    mark_as_advanced(FRAMEWORK_METALKIT)
+    mark_as_advanced(FRAMEWORK_COREDATA)
 endif()
 
 if(PLATFORM_MAC)
-    find_library(FRAMEWORK_COREFOUNDATION CoreFoundation)
-    find_library(FRAMEWORK_COCOA Cocoa)
-    find_library(FRAMEWORK_OPENGL OpenGL)
-    find_library(FRAMEWORK_QUARTZCORE QuartzCore)
-    find_library(FRAMEWORK_CARBON Carbon)
     list(APPEND _deplibs
         "${FRAMEWORK_COREFOUNDATION}"
+        "${FRAMEWORK_COREAUDIO}"
+        "${FRAMEWORK_COREDATA}"
+        "${FRAMEWORK_CORESERVICES}"
+        "${FRAMEWORK_FOUNDATION}"
         "${FRAMEWORK_COCOA}"
         "${FRAMEWORK_OPENGL}"
         "${FRAMEWORK_QUARTZCORE}"
         "${FRAMEWORK_CARBON}"
-        "-framework AppKit"
+        "${FRAMEWORK_METAL}"
+        "${FRAMEWORK_METALKIT}"
     )
+    list(APPEND _deplibsAPP  "${FRAMEWORK_APPKIT}"       "${FRAMEWORK_COREMIDI}"                                 )
+    list(APPEND _deplibsAU   "${FRAMEWORK_AUDIOUNIT}"    "${FRAMEWORK_AUDIOTOOLBOX}" "${FRAMEWORK_COREMIDI}"     )
+    list(APPEND _deplibsAUv3 "${FRAMEWORK_AUDIOTOOLBOX}" "${FRAMEWORK_AVFOUNDATION}" "${FRAMEWORK_COREAUDIOKIT}" )
 endif()
 
 if(PLATFORM_IOS)
-        list(APPEND _deplibs
-        "-framework UIKit"
-        "-framework CoreGraphics"
-        "-framework CoreText"
-        "-framework ImageIO"
-        "-framework MobileCoreServices"
-        "-framework MediaPlayer"
+    find_library(FRAMEWORK_CORETEXT     CoreText)
+    find_library(FRAMEWORK_UIKIT        UIKit)
+    find_library(FRAMEWORK_COREGRAPHICS CoreGraphics)
+
+    mark_as_advanced(FRAMEWORK_CORETEXT)
+    mark_as_advanced(FRAMEWORK_UIKIT)
+    mark_as_advanced(FRAMEWORK_COREGRAPHICS)
+
+    list(APPEND _deplibs
+        "${FRAMEWORK_AUDIOTOOLBOX}"
+        "${FRAMEWORK_AVFOUNDATION}"
+        "${FRAMEWORK_COREAUDIOKIT}"
+        "${FRAMEWORK_COREGRAPHICS}"
+        "${FRAMEWORK_CORETEXT}"
+        "${FRAMEWORK_QUARTZCORE}"
+        "${FRAMEWORK_METAL}"
+        "${FRAMEWORK_UIKIT}"
+        "${FRAMEWORK_METALKIT}"
     )
 endif()
 
@@ -251,22 +305,26 @@ list(APPEND _deplibs
 target_link_libraries(IPlug_SharedLinkLibraries INTERFACE ${_deplibs})
 
 # Target specific linker settings
-target_link_libraries(IPlug_AAX   INTERFACE AAXLibrary_x64$<$<CONFIG:Debug>:_D>.lib )  # Only 64bit (32bit needs to finally go away)
-target_link_libraries(IPlug_APP   INTERFACE RTAudio RTMidi                          )
-target_link_libraries(IPlug_AU    INTERFACE                                         )
-target_link_libraries(IPlug_AUv3  INTERFACE                                         )
-target_link_libraries(IPlug_VST2  INTERFACE                                         )
-target_link_libraries(IPlug_VST3  INTERFACE VST3SDK                                 )
-target_link_libraries(IPlug_VST3C INTERFACE IPlug_VST3                              )
-target_link_libraries(IPlug_VST3P INTERFACE IPlug_VST3                              )
-target_link_libraries(IPlug_WEB   INTERFACE                                         )
+target_link_libraries(IPlug_AAX   INTERFACE $<$<BOOL:${PLATFORM_WINDOWS}>:AAXLibrary_x64$<$<CONFIG:Debug>:_D>.lib> )  # Only 64bit (32bit needs to finally go away)
+target_link_libraries(IPlug_APP   INTERFACE ${_deplibsAPP} RTAudio RTMidi                                          )
+target_link_libraries(IPlug_AU    INTERFACE ${_deplibsAU}                                                          )
+target_link_libraries(IPlug_AUv3  INTERFACE ${_deplibsAUv3}                                                        )
+target_link_libraries(IPlug_VST2  INTERFACE                                                                        )
+target_link_libraries(IPlug_VST3  INTERFACE VST3SDK                                                                )
+target_link_libraries(IPlug_VST3C INTERFACE IPlug_VST3                                                             )
+target_link_libraries(IPlug_VST3P INTERFACE IPlug_VST3                                                             )
+target_link_libraries(IPlug_WEB   INTERFACE                                                                        )
 
 
 #------------------------------------------------------------------------------
 # Examples
 
 if(NOT IPLUG2_EXTERNAL_PROJECT)
-    foreach(_example_project IN ITEMS #[[IPlugChunks]] IPlugControls)
+    set(_examples
+        # IPlugChunks
+        IPlugControls
+    )
+    foreach(_example_project IN LISTS _examples)
         add_subdirectory("Examples/${_example_project}")
     endforeach()
 endif()
