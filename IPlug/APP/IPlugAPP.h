@@ -10,63 +10,56 @@
 
 #pragma once
 
-#ifndef _IPLUGAPI_
-#define _IPLUGAPI_
-
 /**
  * @file
  * @copydoc IPlugAPP
  */
 
-
-#include "IPlugPlatform.h"
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
+
 
 BEGIN_IPLUG_NAMESPACE
 
 struct InstanceInfo
 {
-  void* pAppHost;
+	void* pAppHost;
 };
 
 class IPlugAPPHost;
 
 /**  Standalone application base class for an IPlug plug-in
 *   @ingroup APIClasses */
-class IPlugAPP : public IPlugAPIBase
-               , public IPlugProcessor
+class IPlugAPP : public IPlugAPIBase, public IPlugProcessor
 {
-public:
-  IPlugAPP(const InstanceInfo& info, const Config& config);
-  
-  //IPlugAPIBase
-  void BeginInformHostOfParamChange(int idx) override {};
-  void InformHostOfParamChange(int idx, double normalizedValue) override {};
-  void EndInformHostOfParamChange(int idx) override {};
-  void InformHostOfPresetChange() override {};
-  bool EditorResize(int viewWidth, int viewHeight) override;
+ public:
+	IPlugAPP(const InstanceInfo& info, const Config& config);
 
-  //IEditorDelegate
-  void SendSysexMsgFromUI(const ISysEx& msg) override;
-  
-  //IPlugProcessor
-  bool SendMidiMsg(const IMidiMsg& msg) override;
-  bool SendSysEx(const ISysEx& msg) override;
-  
-  //IPlugAPP
-  void AppProcess(double** inputs, double** outputs, int nFrames);
+	//IPlugAPIBase
+	void BeginInformHostOfParamChange(int idx) override {};
+	void InformHostOfParamChange(int idx, double normalizedValue) override {};
+	void EndInformHostOfParamChange(int idx) override {};
+	void InformHostOfPresetChange() override {};
+	bool EditorResize(int viewWidth, int viewHeight) override;
 
-private:
-  IPlugAPPHost* mAppHost = nullptr;
-  IPlugQueue<IMidiMsg> mMidiMsgsFromCallback {MIDI_TRANSFER_SIZE};
-  IPlugQueue<SysExData> mSysExMsgsFromCallback {SYSEX_TRANSFER_SIZE};
+	//IEditorDelegate
+	void SendSysexMsgFromUI(const ISysEx& msg) override;
 
-  friend class IPlugAPPHost;
+	//IPlugProcessor
+	bool SendMidiMsg(const IMidiMsg& msg) override;
+	bool SendSysEx(const ISysEx& msg) override;
+
+	//IPlugAPP
+	void AppProcess(double** inputs, double** outputs, int nFrames);
+
+ private:
+	IPlugAPPHost* mAppHost = nullptr;
+	IPlugQueue<IMidiMsg> mMidiMsgsFromCallback {MIDI_TRANSFER_SIZE};
+	IPlugQueue<SysExData> mSysExMsgsFromCallback {SYSEX_TRANSFER_SIZE};
+
+	friend class IPlugAPPHost;
 };
 
 IPlugAPP* MakePlug(const InstanceInfo& info);
 
 END_IPLUG_NAMESPACE
-
-#endif
