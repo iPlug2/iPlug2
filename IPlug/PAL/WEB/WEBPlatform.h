@@ -28,9 +28,9 @@
 //---------------------------------------------------------
 // WEB specific types
 
-namespace iplug::Platform::Types
+namespace iplug::types
 {
-	struct PLATFORM_NAME : Generic
+	struct Web : iplug::generic::Types
 	{
 		using uint8  = std::uint8_t;
 		using uint16 = std::uint16_t;
@@ -41,5 +41,6 @@ namespace iplug::Platform::Types
 		using int32  = std::int32_t;
 		using int64  = std::int64_t;
 	};
-}  // namespace iplug::Types
+	using Platform = Web;
+}  // namespace iplug::types
 

@@ -12,7 +12,7 @@
 
 // clang-format off
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // 
 #ifndef PLATFORM_NAME
 	#error "PLATFORM_NAME must be defined. Make sure cmake declared this when generating project."
@@ -43,13 +43,13 @@
 	#error "One and only one platform should be active. Check cmake settings."
 #endif
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Compiler settings
 
 #include "PlatformCompiler.h"
 
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Global preprocessor definitions
 
 #define PREPROCESSOR_TOKEN_STRING(expr)         #expr
@@ -75,7 +75,7 @@
 #define NODISCARD                               [[nodiscard]]
 
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // STD headers
 
 #include <algorithm>
@@ -104,7 +104,7 @@
 
 // clang-format on
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Set default types
 
 namespace iplug::generic
@@ -132,7 +132,7 @@ namespace iplug::generic
 	};
 }  // namespace iplug::types
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Include target platform main header file
 
 #include PLATFORM_PREFIX_HEADER(Platform.h)
@@ -141,7 +141,7 @@ namespace iplug::generic
 #undef NULL
 #define NULL nullptr
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Default preprocessor definitions
 
 #ifndef PLATFORM_64BIT
@@ -179,7 +179,20 @@ namespace iplug::generic
 #endif
 
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
+// Base templates
+
+template <class>
+inline constexpr bool _Always_false = false;
+
+template <class T>
+struct _Invalid
+{
+	static_assert(_Always_false<T>, "Invalid type.");
+};
+
+
+//-----------------------------------------------------------------------------
 // Link types from target platform to iplug namespace and perform basic tests
 
 namespace iplug
@@ -204,7 +217,7 @@ namespace iplug
 	using size_t = types::Platform::size_t;  // 32-bit or 64-bit unsigned
 
 
-	//---------------------------------------------------------
+	//-----------------------------------------------------------------------------
 	// Type safety checks. Don't want things to go badonkadonk.
 
 	static_assert(sizeof(void*) == (PLATFORM_64BIT + 1) << 2,
