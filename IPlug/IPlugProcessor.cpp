@@ -69,9 +69,11 @@ IPlugProcessor::~IPlugProcessor()
 
 void IPlugProcessor::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-  int i, nIn = mChannelData[ERoute::kInput].GetSize(), nOut = mChannelData[ERoute::kOutput].GetSize();
+  const int nIn = mChannelData[ERoute::kInput].GetSize();
+  const int nOut = mChannelData[ERoute::kOutput].GetSize();
+
   int j = 0;
-  for (i = 0; i < nOut; ++i)
+  for (int i = 0; i < nOut; ++i)
   {
     if (i < nIn)
     {

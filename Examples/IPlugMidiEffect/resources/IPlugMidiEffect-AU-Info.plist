@@ -30,7 +30,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IPlugMidiEffect</string>
 	<key>CFBundleGetInfoString</key>
-	<string>IPlugMidiEffect v1.0.0 Copyright 2019 Acme Inc</string>
+	<string>IPlugMidiEffect v1.0.0 Copyright 2020 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.audiounit.IPlugMidiEffect</string>
 	<key>CFBundleInfoDictionaryVersion</key>

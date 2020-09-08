@@ -208,7 +208,7 @@ BEGIN
             VALUE "InternalName", "IPlugSideChain"
             VALUE "ProductName", "IPlugSideChain"
             VALUE "CompanyName", "AcmeInc"
-            VALUE "LegalCopyright", "Copyright 2019 Acme Inc"
+            VALUE "LegalCopyright", "Copyright 2020 Acme Inc"
             VALUE "LegalTrademarks", "VST is a trademark of Steinberg Media Technologies GmbH, Audio Unit is a trademark of Apple, Inc."
         END
     END
