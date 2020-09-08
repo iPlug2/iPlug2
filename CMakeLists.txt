@@ -11,6 +11,12 @@ list(REMOVE_DUPLICATES CMAKE_MODULE_PATH)
 include(IPlug2)
 
 
+# Reminder: This file can be accessed both pre and post project declaration.
+# Any variables set in this CMakeLists.txt are contained to this directory scope only.
+# To set variables that are accessible by external projects as well, depending on need,
+# use IPlug2Internal.cmake -> _iplug_pre_project_setup()
+#                             _iplug_post_project_setup()
+
 #------------------------------------------------------------------------------
 # Project settings
 # If we're calling from an external source we let that project be the owner of
@@ -43,29 +49,31 @@ mark_as_advanced(VCPKG_TARGET_TRIPLET)
 
 
 #------------------------------------------------------------------------------
-
 # IPlug2 Interface libraries
+
+add_library(IPlug                      INTERFACE)
+add_library(IGraphics                  INTERFACE)
 add_library(IPlug_SharedDefinitions    INTERFACE)
 add_library(IPlug_SharedIncludes       INTERFACE)
 add_library(IPlug_SharedCompileOptions INTERFACE)
 add_library(IPlug_SharedLinkLibraries  INTERFACE)
+add_library(IPlug_APP                  INTERFACE)
+add_library(IPlug_AAX                  INTERFACE)
+add_library(IPlug_AU                   INTERFACE)
+add_library(IPlug_AUv3                 INTERFACE)
+add_library(IPlug_VST2                 INTERFACE)
+add_library(IPlug_VST3                 INTERFACE)
+add_library(IPlug_VST3C                INTERFACE)
+add_library(IPlug_VST3P                INTERFACE)
+add_library(IPlug_WEB                  INTERFACE)
 
-# Target Interface libraries
-add_library(IPlug_APP   INTERFACE)
-add_library(IPlug_AAX   INTERFACE)
-add_library(IPlug_AU    INTERFACE)
-add_library(IPlug_AUv3  INTERFACE)
-add_library(IPlug_VST2  INTERFACE)
-add_library(IPlug_VST3  INTERFACE)
-add_library(IPlug_VST3C INTERFACE)
-add_library(IPlug_VST3P INTERFACE)
-add_library(IPlug_WEB   INTERFACE)
+# Create source list for IPlug & IGraphics with a one time glob dependency check
+file(GLOB_RECURSE IPLUG_SOURCE_LIST CONFIGURE_DEPENDS "${IPLUG2_ROOT_PATH}/IPlug/*")
+file(GLOB_RECURSE IGRAPHICS_SOURCE_LIST CONFIGURE_DEPENDS "${IPLUG2_ROOT_PATH}/IGraphics/*")
+target_sources(IPlug INTERFACE ${IPLUG_SOURCE_LIST})
+target_sources(IGraphics INTERFACE ${IGRAPHICS_SOURCE_LIST})
 
-
-#------------------------------------------------------------------------------
-
-add_subdirectory(IPlug)
-add_subdirectory(IGraphics)
+# Add external libraries
 add_subdirectory(WDL)
 add_subdirectory(Dependencies)
 
@@ -83,24 +91,6 @@ target_compile_options(IPlug_SharedCompileOptions
 
 #------------------------------------------------------------------------------
 # Definitions
-
-# NanoVG definitions
-# set(_NANOVG_DEF "")
-# if(GFXLIB_NANOVG)
-#     list(APPEND _NANOVG_DEF IGRAPHICS_NANOVG)
-
-#     if(NOT IPLUG2_ENABLE_METAL)
-#         list(APPEND _NANOVG_DEF
-#             # these are just here for templating, don't know if some platform requires other GL versions
-#             $<$<BOOL:${PLATFORM_WINDOWS}>:IGRAPHICS_GL3>
-#             $<$<BOOL:${PLATFORM_MAC}>:IGRAPHICS_GL3>
-#             $<$<BOOL:${PLATFORM_LINUX}>:IGRAPHICS_GL3>
-#             $<$<BOOL:${PLATFORM_IOS}>:IGRAPHICS_GL3>
-#         )
-#     endif()
-# endif()
-
-
 
 # Shared definitions for all targets
 target_compile_definitions(IPlug_SharedDefinitions

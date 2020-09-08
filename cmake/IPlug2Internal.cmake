@@ -1,11 +1,37 @@
 include_guard(GLOBAL)
 
 #------------------------------------------------------------------------------
-# _iplug_setup
+# _iplug_pre_project_setup
 #
-#   Project initialization of everything related to IPlug2
+#   Pre Project initialization of everything related to IPlug2
+macro(_iplug_pre_project_setup)
 
-macro(_iplug_setup)
+    validate_path("${IPLUG2_ROOT_PATH}" "IPLUG2_ROOT_PATH path not set correctly")
+
+    # Standard in-source build prevention
+    if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+        iplug_syntax_error(
+            "Generating build files in source tree is not allowed to prevent sleepless nights and lots of tears."
+            "Create a build directory outside of the source code and call cmake from there.")
+    endif()
+
+    #------------------------------------------------------------------------------
+    # Get IPlug2 verion number from ROOT/IPlug/IPlugVersion.h
+    iplug_get_version("${IPLUG2_ROOT_PATH}/IPlug/IPlugVersion.h" IPLUG_VERSION)
+    iplug_info("IPlug2 version ${IPLUG_VERSION}")
+
+    set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+    set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
+
+endmacro()
+
+
+#------------------------------------------------------------------------------
+# _iplug_post_project_setup
+#
+#   Post Project initialization of everything related to IPlug2
+
+macro(_iplug_post_project_setup)
     string_assert(${CMAKE_SYSTEM_NAME} "CMAKE_SYSTEM_NAME not set in toolchain")
 
     # We don't like long lists of if()/elseif()
@@ -168,7 +194,7 @@ endmacro()
 macro(_iplug_check_initialized)
     string_assert(${CMAKE_SYSTEM_NAME} "CMAKE_SYSTEM_NAME not set in toolchain.")
     if(NOT IPLUG_IS_INITIALIZED)
-        _iplug_setup()
+        _iplug_post_project_setup()
         _iplug_set_default_compiler_options()
         set(IPLUG_IS_INITIALIZED TRUE)
     endif()
