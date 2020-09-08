@@ -15,43 +15,34 @@
 
 #pragma once
 
+//-----------------------------------------------------------------------------
+// STD headers
+
+#include <algorithm>
+#include <array>
+#include <atomic>
+#include <bitset>
+#include <cassert>
+#include <cctype>
+#include <cmath>
+#include <codecvt>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <ctime>
+#include <functional>
+#include <limits>
+#include <map>
+#include <memory>
+#include <stack>
+#include <string>
+#include <type_traits>
+#include <unordered_map>
+#include <vector>
+
+
+//-----------------------------------------------------------------------------
+
 #include "PAL/Platform.h"
-
-// TODO: temporary, move to template header later
-namespace iplug
-{
-	// Return number of elements in an array.
-	template <typename T>
-	inline constexpr size_t TArrayCount(T&& array)
-	{
-		return sizeof(uint8(&)[sizeof(array) / sizeof(array[0])]);
-	}
-
-}  // namespace iplug
-
-
-#ifdef PARAMS_MUTEX
-	#define ENTER_PARAMS_MUTEX \
-		mParams_mutex.Enter(); \
-		Trace(TRACELOC, "%s", "ENTER_PARAMS_MUTEX");
-	#define LEAVE_PARAMS_MUTEX \
-		mParams_mutex.Leave(); \
-		Trace(TRACELOC, "%s", "LEAVE_PARAMS_MUTEX");
-	#define ENTER_PARAMS_MUTEX_STATIC \
-		_this->mParams_mutex.Enter(); \
-		Trace(TRACELOC, "%s", "ENTER_PARAMS_MUTEX");
-	#define LEAVE_PARAMS_MUTEX_STATIC \
-		_this->mParams_mutex.Leave(); \
-		Trace(TRACELOC, "%s", "LEAVE_PARAMS_MUTEX");
-#else
-	#define ENTER_PARAMS_MUTEX
-	#define LEAVE_PARAMS_MUTEX
-	#define ENTER_PARAMS_MUTEX_STATIC
-	#define LEAVE_PARAMS_MUTEX_STATIC
-#endif
-
-#ifndef IGRAPHICS_GL
-	#if defined IGRAPHICS_GLES2 || IGRAPHICS_GLES3 || IGRAPHICS_GL2 || IGRAPHICS_GL3
-		#define IGRAPHICS_GL
-	#endif
-#endif

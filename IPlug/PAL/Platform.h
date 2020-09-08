@@ -10,10 +10,6 @@
 
 #pragma once
 
-// clang-format off
-
-//-----------------------------------------------------------------------------
-// 
 #ifndef PLATFORM_NAME
 	#error "PLATFORM_NAME must be defined. Make sure cmake declared this when generating project."
 #endif
@@ -24,85 +20,29 @@
 #endif
 
 #ifndef PLATFORM_IOS
-	#define PLATFORM_IOS     0
+	#define PLATFORM_IOS 0
 #endif
 
 #ifndef PLATFORM_MAC
-	#define PLATFORM_MAC     0
+	#define PLATFORM_MAC 0
 #endif
 
 #ifndef PLATFORM_LINUX
-	#define PLATFORM_LINUX   0
+	#define PLATFORM_LINUX 0
 #endif
 
 #ifndef PLATFORM_WEB
-	#define PLATFORM_WEB     0
+	#define PLATFORM_WEB 0
 #endif
 
 #if PLATFORM_WINDOWS + PLATFORM_IOS + PLATFORM_MAC + PLATFORM_LINUX + PLATFORM_WEB != 1
 	#error "One and only one platform should be active. Check cmake settings."
 #endif
 
-//-----------------------------------------------------------------------------
-// Compiler settings
 
+#include "IPlugPreprocessor.h"
 #include "PlatformCompiler.h"
 
-
-//-----------------------------------------------------------------------------
-// Global preprocessor definitions
-
-#define PREPROCESSOR_TOKEN_STRING(expr)         #expr
-#define PREPROCESSOR_TOKEN_CONCAT(A, B)         A##B
-#define PREPROCESSOR_TOKEN_VARIADIC(...)        __VA_ARGS__
-#define PREPROCESSOR_STRING(expr)               PREPROCESSOR_TOKEN_STRING(expr)
-#define PREPROCESSOR_CONCAT(A, B)               PREPROCESSOR_TOKEN_CONCAT(A, B)
-#define PREPROCESSOR_UNPARENTHESIZE(...)        PREPROCESSOR_TOKEN_VARIADIC __VA_ARGS__
-
-// No quotes in filename
-#define PLATFORM_HEADER(filename)               PREPROCESSOR_STRING(PLATFORM_NAME/filename)
-#define PLATFORM_PREFIX_HEADER(filename)        PREPROCESSOR_STRING(PREPROCESSOR_CONCAT(PLATFORM_NAME/PLATFORM_NAME, filename))
-
-#define BEGIN_IPLUG_NAMESPACE                   namespace iplug {
-#define BEGIN_IGRAPHICS_NAMESPACE               namespace igraphics {
-#define END_IPLUG_NAMESPACE                     }
-#define END_IGRAPHICS_NAMESPACE                 }
-
-#define WARNING_MESSAGE(msg)                    PRAGMA(message(__FILE__ "(" PREPROCESSOR_STRING(__LINE__) ") : " "WARNING: " msg))
-#define REMINDER_MESSAGE(msg)                   PRAGMA(message(__FILE__ "(" PREPROCESSOR_STRING(__LINE__) "): " msg))
-
-#define DEPRECATED(version, message)            [[deprecated(message)]]
-#define NODISCARD                               [[nodiscard]]
-
-
-//-----------------------------------------------------------------------------
-// STD headers
-
-#include <algorithm>
-#include <array>
-#include <atomic>
-#include <bitset>
-#include <cassert>
-#include <cctype>
-#include <cmath>
-#include <codecvt>
-#include <cstddef>
-#include <cstdint>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <ctime>
-#include <functional>
-#include <limits>
-#include <map>
-#include <memory>
-#include <stack>
-#include <string>
-#include <unordered_map>
-#include <vector>
-
-
-// clang-format on
 
 //-----------------------------------------------------------------------------
 // Set default types
@@ -125,24 +65,20 @@ namespace iplug::generic
 		using utf16  = char16_t;
 		using utf32  = char32_t;
 		using size_t = std::size_t;
-
 		enum class utf8 : unsigned char
 		{
 		};
 	};
-}  // namespace iplug::types
+}  // namespace iplug::generic
 
-//-----------------------------------------------------------------------------
+
 // Include target platform main header file
-
 #include PLATFORM_PREFIX_HEADER(Platform.h)
 
-// NULL definition conformance and overload type safety
+// NULL redefinition for compiler conformance and overload type safety
 #undef NULL
 #define NULL nullptr
 
-//-----------------------------------------------------------------------------
-// Default preprocessor definitions
 
 #ifndef PLATFORM_64BIT
 	#error "PLATFORM_64BIT is undefined. Check PlatformCompiler.h"
@@ -180,20 +116,7 @@ namespace iplug::generic
 
 
 //-----------------------------------------------------------------------------
-// Base templates
-
-template <class>
-inline constexpr bool _Always_false = false;
-
-template <class T>
-struct _Invalid
-{
-	static_assert(_Always_false<T>, "Invalid type.");
-};
-
-
-//-----------------------------------------------------------------------------
-// Link types from target platform to iplug namespace and perform basic tests
+// Link types from target platform to iplug namespace
 
 namespace iplug
 {
@@ -254,4 +177,24 @@ namespace iplug
 	static_assert(utf32(-1) > utf32(0), "utf32 type sign test failed. utf32 is signed.");
 	static_assert(size_t(-1) > size_t(0), "size_t type sign test failed. size is signed.");
 	static_assert(wchar_t(-1) > wchar_t(0), "wchar_t type sign test failed. wchar is signed.");
+
+
+	//-----------------------------------------------------------------------------
+	// Base templates
+
+	template <class> inline constexpr bool _Always_false = false;
+
+	template <class T> struct _Invalid
+	{
+		static_assert(_Always_false<T>, "Invalid type.");
+	};
+
+
+	// Return number of elements in an array.
+	// TODO: temporary, move to template header later
+	template <typename T> inline constexpr size_t TArrayCount(T&& array)
+	{
+		return sizeof(uint8(&)[sizeof(array) / sizeof(array[0])]);
+	}
+
 }  // namespace iplug
