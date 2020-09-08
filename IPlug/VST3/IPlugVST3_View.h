@@ -14,7 +14,9 @@
 
 #include "IPlugStructs.h"
 
+#ifdef OS_LINUX
 #include "IPlugVST3_RunLoop.h"
+#endif
 
 /** IPlug VST3 View  */
 template <class T>
