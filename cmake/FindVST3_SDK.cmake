@@ -73,6 +73,7 @@ endif()
 
 add_library(VST3_SDK STATIC ${_src})
 target_include_directories(VST3_SDK PUBLIC "${VST3_SDK_DIR}")
+target_compile_definitions(VST3_SDK PUBLIC "$<IF:$<CONFIG:Debug>,DEVELOPMENT,RELEASE>")
 source_group(TREE ${VST3_SDK_DIR} PREFIX "IPlug/VST3" FILES ${_src})
 iplug2_target_add(VST3_SDK INTERFACE SOURCE ${_inf} DEFINE ${_def})
 

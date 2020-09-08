@@ -44,4 +44,6 @@ Projects*
 Examples/IPlugSwift/Pods
 PodFile.lock
 */*/.vscode/ipch
+#.vscode/launch.json
+*/*/.vscode/launch.json
 Examples/Build

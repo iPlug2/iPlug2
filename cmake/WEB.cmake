@@ -51,7 +51,7 @@ target_link_options(iPlug2_WAM INTERFACE
   "SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=\"['ccall', 'cwrap', 'setValue', 'UTF8ToString']\""
   "SHELL:-s BINARYEN_ASYNC_COMPILATION=0"
   "SHELL:-s SINGLE_FILE=1"
-  "SHELL:-s EXPORT_NAME=\"'AudioWorkletGlobalScope.WAM.${IPLUG2_APP_NAME}'\""
+  "SHELL:-s EXPORT_NAME=\"'AudioWorkletGlobalScope.WAM.${IPLUG_APP_NAME}'\""
   ${_ldflags})
 
 add_library(iPlug2_Canvas INTERFACE)

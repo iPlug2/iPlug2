@@ -1,42 +1,13 @@
 cmake_minimum_required(VERSION 3.11)
 cmake_policy(SET CMP0076 NEW)
 
-# Determine VST2 and VST3 directories
-find_file(VST2_32_PATH
-  "VstPlugins"
-  PATHS "C:/Program Files (x86)"
-  DOC "Path to install 32-bit VST2 plugins"
-)
-find_file(VST2_64_PATH
-  NAMES "VstPlugins" "VST"
-  PATHS "C:/Program Files" "$ENV{HOME}/Library/Audio/Plug-Ins" 
-  DOC "Path to install 64-bit VST2 plugins"
-)
-
-find_file(VST3_32_PATH
-  "VST3"
-  PATHS "C:/Program Files (x86)/Common Files"
-  DOC "Path to install 32-bit VST3 plugins"
-)
-find_file(VST3_64_PATH
-  "VST3"
-  PATHS "C:/Program Files/Common Files" "$ENV{HOME}/Library/Audio/Plug-Ins"
-  DOC "Path to install 64-bit VST3 plugins"
-)
-
-set(IPLUG2_VST_ICON 
-  "${IPLUG2_DIR}/Dependencies/IPlug/VST3_SDK/doc/artwork/VST_Logo_Steinberg.ico"
-  CACHE FILEPATH "Path to VST3 plugin icon"
-)
-
 set(IPLUG2_AAX_ICON
   "${IPLUG2_DIR}/Dependencies/IPlug/AAX_SDK/Utilities/PlugIn.ico"
   CACHE FILEPATH "Path to AAX plugin icon"
 )
 
-set(IPLUG2_CXX_STANDARD "17" CACHE STRING "The C++ standard to use")
-
-set(IPLUG2_APP_NAME ${CMAKE_PROJECT_NAME} CACHE STRING "Name of the VST/AU/App/etc.")
+set(IPLUG_CXX_STANDARD "17" CACHE STRING "The C++ standard to use")
+set(IPLUG_APP_NAME ${CMAKE_PROJECT_NAME} CACHE STRING "Name of the VST/AU/App/etc.")
 
 if (WIN32)
   set(AAX_32_PATH "C:/Program Files (x86)/Common Files/Avid/Audio/Plug-Ins"
@@ -82,7 +53,7 @@ CHECK_CXX_COMPILER_FLAG("/arch:AVX" COMPILER_OPT_ARCH_AVX_SUPPORTED)
 # \group:DEPEND Add dependencies on other targets
 # \group:FEATURE Add compile features
 function(iplug2_target_add target set_type)
-  cmake_parse_arguments("cfg" "" "" "INCLUDE;SOURCE;DEFINE;OPTION;LINK;DEPEND;FEATURE;RESOURCE" ${ARGN})
+  cmake_parse_arguments("cfg" "" "" "INCLUDE;SOURCE;DEFINE;OPTION;LINK;LINK_DIR;DEPEND;FEATURE;RESOURCE" ${ARGN})
   #message("CALL iplug2_add_interface ${target}")
   if (cfg_INCLUDE)
     target_include_directories(${target} ${set_type} ${cfg_INCLUDE})
@@ -99,6 +70,9 @@ function(iplug2_target_add target set_type)
   if (cfg_LINK)
     target_link_libraries(${target} ${set_type} ${cfg_LINK})
   endif()
+  if (cfg_LINK_DIR)
+    target_link_directories(${target} ${set_type} ${cfg_LINK_DIR})
+  endif()
   if (cfg_DEPEND)
     add_dependencies(${target} ${set_type} ${cfg_DEPEND})
   endif()
@@ -107,29 +81,44 @@ function(iplug2_target_add target set_type)
   endif()
   if (cfg_RESOURCE)
     set_property(TARGET ${target} APPEND PROPERTY RESOURCE ${cfg_RESOURCE})
-    target_sources(${target} ${set_type} ${cfg_RESOURCE})
+    #target_sources(${target} ${set_type} ${cfg_RESOURCE})
   endif()
   if (cfg_UNUSED)
     message("Unused arguments ${cfg_UNUSED}" FATAL_ERROR)
   endif()
 endfunction()
 
-function(iplug2_add_interface target)
-  if (NOT (TARGET ${target}))
-    add_library(${target} INTERFACE)
-  endif()
-  iplug2_target_add(${target} INTERFACE ${ARGN})
+
+function(iplug_target_bundle_resources target res_dir)
+  get_property(resources TARGET ${target} PROPERTY RESOURCE)
+  foreach (res ${resources})
+    get_filename_component(fn "${res}" NAME)
+
+    set(dst "${res_dir}/${fn}")
+    if (fn MATCHES ".*\\.ttf")
+      set(dst "${res_dir}/fonts/${fn}")
+    elseif ((fn MATCHES ".*\\.png") OR (fn MATCHES ".*\\.svg"))
+      set(dst "${res_dir}/img/${fn}")
+    endif()
+    target_sources(${target} PUBLIC "${dst}")
+    add_custom_command(OUTPUT "${dst}"
+      COMMAND ${CMAKE_COMMAND} ARGS "-E" "copy" "${res}" "${dst}"
+      MAIN_DEPENDENCY "${res}"
+    )
+  endforeach()
 endfunction()
 
 ############################
 # General iPlug2 Interface #
 ############################
 
-add_library(iPlug2_Core INTERFACE)
 set(IPLUG_SRC ${IPLUG2_DIR}/IPlug)
 set(IGRAPHICS_PATH ${IPLUG2_DIR}/IGraphics)
 set(WDL_DIR ${IPLUG2_DIR}/WDL)
 set(_DEPS ${IPLUG2_DIR}/Dependencies)
+set(IGRAPHICS_DEPS ${IPLUG2_DIR}/Dependencies/IGraphics)
+
+add_library(iPlug2_Core INTERFACE)
 
 # Make sure we define DEBUG for debug builds
 set(_def "NOMINMAX" "$<$<CONFIG:Debug>:DEBUG>")
@@ -206,7 +195,16 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
   configure_file("${IPLUG2_DIR}/Scripts/postbuild-win.bat.in" "${CMAKE_BINARY_DIR}/postbuild-win.bat")
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
-  list(APPEND _src ${IGRAPHICS_PATH}/Platforms/IGraphicsLinux.cpp)
+  list(APPEND _src
+    ${IGRAPHICS_PATH}/Platforms/IGraphicsLinux.cpp
+    ${IGRAPHICS_DEPS}/xcbt/xcbt.c
+  )
+  list(APPEND _inc
+    ${WDL_DIR}/swell
+    ${IGRAPHICS_DEPS}/xcbt
+  )
+  list(APPEND _lib "pthread" "xcb" "dl" "fontconfig" "freetype" "rt")
+  set_property(SOURCE ${IGRAPHICS_DEPS}/xcbt/xcbt.c PROPERTY LANGUAGE C)
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   list(APPEND _src 
@@ -227,7 +225,12 @@ endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   list(APPEND _def "_CRT_SECURE_NO_WARNINGS" "_CRT_SECURE_NO_DEPRECATE" "_CRT_NONSTDC_NO_DEPRECATE" "NOMINMAX" "_MBCS")
-  list(APPEND _opts "/wd4996" "/wd4250" "/wd4018" "/wd4267" "/wd4068")
+  list(APPEND _opts "/wd4996" "/wd4250" "/wd4018" "/wd4267" "/wd4068" "/MT$<$<CONFIG:Debug>:d>")
+endif()
+
+# Set certain compiler flags, specifically errors if there are undefined symbols
+if ((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID MATCHES "GNU"))
+  list(APPEND _opts "-Wl,--no-undefined")
 endif()
 
 # Use advanced SIMD instructions when available.
@@ -238,12 +241,16 @@ elseif(COMPILER_OPT_ARCH_AVX_SUPPORTED)
 endif()
 
 source_group(TREE ${IPLUG2_DIR} PREFIX "IPlug" FILES ${_src})
-iplug2_add_interface(iPlug2_Core DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} OPTION ${_opts} LINK ${_lib})
+iplug2_target_add(iPlug2_Core INTERFACE DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} OPTION ${_opts} LINK ${_lib})
+
+
+#############
+# IGraphics #
+#############
 
 ##################
 # Standalone App #
 ##################
-
 include("${IPLUG2_DIR}/cmake/APP.cmake")
 
 #################
@@ -263,7 +270,8 @@ set(_inc
 )
 set(_def "AU_API" "IPLUG_EDITOR=1" "IPLUG_DSP=1" "SWELL_CLEANUP_ON_UNLOAD")
 
-iplug2_add_interface(iPlug2_AU INCLUDE ${_inc} SOURCE ${_src} DEFINE ${_def} LINK iPlug2_Core)
+add_library(iPlugAU INTERFACE)
+iplug2_target_add(iPlug2_AU INTERFACE INCLUDE ${_inc} SOURCE ${_src} DEFINE ${_def} LINK iPlug2_Core)
 
 #################
 # Audio Unit v3 #
@@ -281,31 +289,21 @@ set(_src
 set(_inc ${sdk})
 set(_def "AUv3_API" "IPLUG_EDITOR=1" "IPLUG_DSP=1" "SWELL_CLEANUP_ON_UNLOAD")
 
-iplug2_add_interface(iPlug2_AUv3 INCLUDE ${_inc} SOURCE ${_src} DEFINE ${_def} LINK iPlug2_Core)
+iplug2_target_add(iPlug2_AUv3 INTERFACE INCLUDE ${_inc} SOURCE ${_src} DEFINE ${_def} LINK iPlug2_Core)
 
-##########################
-# VST2 Interface Library #
-##########################
-
-set(sdk ${IPLUG2_DIR}/IPlug/VST2)
-
-iplug2_add_interface(iPlug2_VST2
-  INCLUDE ${sdk} ${_DEPS}/IPlug/VST2_SDK
-  SOURCE ${sdk}/IPlugVST2.cpp
-  DEFINE "VST2_API" "VST_FORCE_DEPRECATED" "IPLUG_EDITOR=1" "IPLUG_DSP=1"
-  LINK iPlug2_Core
-)
+########
+# VST2 #
+########
+include("${IPLUG2_DIR}/cmake/VST2.cmake")
 
 ########
 # VST3 #
 ########
-
 include("${IPLUG2_DIR}/cmake/VST3.cmake")
 
 #################
 # Web DSP / GUI #
 #################
-
 include("${IPLUG2_DIR}/cmake/WEB.cmake")
 
 ####################
@@ -314,7 +312,7 @@ include("${IPLUG2_DIR}/cmake/WEB.cmake")
 
 add_library(iPlug2_REAPER INTERFACE)
 set(_sdk ${IPLUG2_DIR}/IPlug/ReaperExt)
-iplug2_add_interface(iPlug2_REAPER
+iplug2_target_add(iPlug2_REAPER INTERFACE
   INCLUDE "${_sdk}" "${_DEPS}/IPlug/Reaper"
   SOURCE "${_sdk}/ReaperExtBase.cpp"
   DEFINE "REAPER_PLUGIN"
@@ -325,17 +323,33 @@ iplug2_add_interface(iPlug2_REAPER
 # Minor Configuration Targets #
 ###############################
 
-iplug2_add_interface(iPlug2_GL2
-  INCLUDE  ${_DEPS}/IGraphics/glad_GL2/include ${_DEPS}/IGraphics/glad_GL2/src
+set(_glx_inc "")
+set(_glx_src "")
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+  set(_glx_inc ${IGRAPHICS_DEPS}/glad_GLX/include ${IGRAPHICS_DEPS}/glad_GLX/src)
+  set(_glx_src ${IGRAPHICS_DEPS}/glad_GLX/src/glad_glx.c)
+endif()
+
+add_library(iPlug2_GL2 INTERFACE)
+iplug2_target_add(iPlug2_GL2 INTERFACE
+  INCLUDE 
+    ${_DEPS}/IGraphics/glad_GL2/include ${_DEPS}/IGraphics/glad_GL2/src ${_glx_inc}
+  SOURCE
+    ${_glx_src}
   DEFINE "IGRAPHICS_GL2"
 )
 
-iplug2_add_interface(iPlug2_GL3
-  INCLUDE ${_DEPS}/IGraphics/glad_GL3/include ${_DEPS}/IGraphics/glad_GL3/src
+add_library(iPlug2_GL3 INTERFACE)
+iplug2_target_add(iPlug2_GL3 INTERFACE
+  INCLUDE
+    ${_DEPS}/IGraphics/glad_GL3/include ${_DEPS}/IGraphics/glad_GL3/src ${_glx_inc}
+  SOURCE
+    ${_glx_src}
   DEFINE "IGRAPHICS_GL3"
 )
 
-iplug2_add_interface(iPlug2_NANOVG
+add_library(iPlug2_NANOVG INTERFACE)
+iplug2_target_add(iPlug2_NANOVG INTERFACE
   DEFINE "IGRAPHICS_NANOVG"
 )
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
@@ -380,26 +394,31 @@ endif()
 
 include("${IPLUG2_DIR}/cmake/AGG.cmake")
 
-iplug2_add_interface(iPlug2_Faust
+add_library(iPlug2_Faust INTERFACE)
+iplug2_target_add(iPlug2_Faust INTERFACE
   INCLUDE "${IPLUG2_DIR}/IPlug/Extras/Faust" "${FAUST_INCLUDE_DIR}"
 )
 
-iplug2_add_interface(iPlug2_FaustGen
+add_library(iPlug2_FaustGen INTERFACE)
+iplug2_target_add(iPlug2_FaustGen INTERFACE
   SOURCE "${IPLUG_SRC}/Extras/Faust/IPlugFaustGen.cpp"
   LINK iPlug2_Faust
 )
 
-iplug2_add_interface(iPlug2_HIIR
+add_library(iPlug2_HIIR INTERFACE)
+iplug2_target_add(iPlug2_HIIR INTERFACE
   INCLUDE ${IPLUG_SRC}/Extras/HIIR
   SOURCE "${IPLUG_SRC}/Extras/HIIR/PolyphaseIIR2Designer.cpp"
 )
 
-iplug2_add_interface(iPlug2_OSC
+add_library(iPlug2_OSC INTERFACE)
+iplug2_target_add(iPlug2_OSC INTERFACE
   INCLUDE ${IPLUG_SRC}/Extras/OSC
   SOURCE ${IPLUG_SRC}/Extras/OSC/IPlugOSC_msg.cpp
 )
 
-iplug2_add_interface(iPlug2_Synth
+add_library(iPlug2_Synth INTERFACE)
+iplug2_target_add(iPlug2_Synth INTERFACE
   INCLUDE ${IPLUG_SRC}/Extras/Synth
   SOURCE ${IPLUG_SRC}/Extras/Synth/MidiSynth.cpp ${IPLUG_SRC}/Extras/Synth/VoiceAllocator.cpp
 )
@@ -440,7 +459,7 @@ function(iplug2_configure_target target target_type)
   elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin") 
     # For MacOS we make sure the output name is the same as the app name.
     # This is basically required for bundles.
-    set_property(TARGET ${target} PROPERTY OUTPUT_NAME "${IPLUG2_APP_NAME}")
+    set_property(TARGET ${target} PROPERTY OUTPUT_NAME "${IPLUG_APP_NAME}")
   endif() 
   
   if ("${target_type}" MATCHES "app")
@@ -448,17 +467,9 @@ function(iplug2_configure_target target target_type)
 
   # VST2
   elseif ("${target_type}" MATCHES "vst2")
-    if (WIN32)
-      # After building, we run the post-build script
-      add_custom_command(TARGET ${target} POST_BUILD 
-        COMMAND "${CMAKE_BINARY_DIR}/postbuild-win.bat" 
-        ARGS "\"$<TARGET_FILE:${target}>\"" "\".dll\""
-      )
-    endif()
-
+    iplug2_configure_vst2(${target})
   elseif ("${target_type}" MATCHES "vst3")
     iplug2_configure_vst3(${target})
-
   else()
     message("Unknown target type \'${target_type}\' for target '${target}'" FATAL_ERROR)
   endif()

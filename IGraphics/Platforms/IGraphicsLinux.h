@@ -62,6 +62,7 @@ public:
   bool SetTextInClipboard(const char* str) override { return false; } // TODO
 
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, void* pData, int dataSize) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
 
   void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override { } // No reason to cache (no universal font handle)

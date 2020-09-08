@@ -51,27 +51,89 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
       "${WDL_DIR}/swell/swell-misc.mm"
       "${WDL_DIR}/swell/swell-gdi.mm"
   )
+elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(Gtk_30 REQUIRED IMPORTED_TARGET "gtk+-3.0")
+  pkg_check_modules(Gdk_30 REQUIRED IMPORTED_TARGET "gdk-3.0")
+  pkg_check_modules(Alsa IMPORTED_TARGET "alsa")
+  pkg_check_modules(Jack IMPORTED_TARGET "jack")
+  pkg_check_modules(PulseAudio IMPORTED_TARGET "libpulse")
+  pkg_check_modules(PulseAudioSimple IMPORTED_TARGET "libpulse-simple")
+
+  set(IPLUG_APP_ALSA 1 CACHE BOOL "Use ALSA on Linux")
+  set(IPLUG_APP_JACK 1 CACHE BOOL "Use JACK on Linux")
+  set(IPLUG_APP_PULSE 1 CACHE BOOL "Use Pulse Audio on Linux")
+
+  # Build and link Swell properly on Linux. This uses GTK+ 3.0 and X11
+  set(swell_src
+    swell.h
+    swell.cpp
+    swell-appstub-generic.cpp
+    swell-dlg-generic.cpp
+    swell-gdi-generic.cpp
+    swell-ini.cpp
+    swell-kb-generic.cpp
+    swell-menu-generic.cpp
+    swell-miscdlg-generic.cpp
+    swell-misc-generic.cpp
+    swell-wnd-generic.cpp
+    swell-generic-gdk.cpp
+  )
+  list(TRANSFORM swell_src PREPEND "${WDL_DIR}/swell/")
+
+  iplug2_target_add(iPlug2_APP INTERFACE
+    DEFINE "SWELL_COMPILED" "SWELL_SUPPORT_GTK" "SWELL_TARGET_GDK=3"
+    INCLUDE "${WDL_DIR}/swell/"
+    LINK PkgConfig::Gtk_30 PkgConfig::Gdk_30 "X11" "Xi"
+    SOURCE ${swell_src}
+  )
+
+  # RtAudio
+  if (IPLUG_APP_ALSA)
+    iplug2_target_add(iPlug2_APP INTERFACE
+      DEFINE "__LINUX_ALSA__" LINK PkgConfig::Alsa)
+  endif()
+  if (IPLUG_APP_JACK)
+    iplug2_target_add(iPlug2_APP INTERFACE
+      DEFINE "__UNIX_JACK__" LINK PkgConfig::Jack)
+  endif()
+  if (IPLUG_APP_PULSE)
+    iplug2_target_add(iPlug2_APP INTERFACE
+      DEFINE "__LINUX_PULSE__" LINK PkgConfig::PulseAudio PkgConfig::PulseAudioSimple)
+  endif()
+  
 else()
   message(FATAL_ERROR "APP not supported on platform ${CMAKE_SYSTEM_NAME}")
 endif()
 
-iplug2_add_interface(iPlug2_APP INCLUDE ${_inc} DEFINE ${_def} SOURCE ${_src} LINK iPlug2_Core)
+iplug2_target_add(iPlug2_APP INTERFACE INCLUDE ${_inc} DEFINE ${_def} SOURCE ${_src} LINK iPlug2_Core)
 
 function(iplug2_configure_app target)
+  set(res_dir "${CMAKE_BINARY_DIR}/${IPLUG_APP_NAME}-app/resources")
+
   if (WIN32)
     add_custom_command(TARGET ${target} POST_BUILD
       COMMAND "${CMAKE_BINARY_DIR}/postbuild-win.bat"
       ARGS "\"$<TARGET_FILE:${target}>\"" "\".exe\""
     )
+    iplug_target_bundle_resources(${target} "${res_dir}")
     
   elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     # Set the Info.plist file and add required resources
     set(_res 
-      "${CMAKE_SOURCE_DIR}/resources/${IPLUG2_APP_NAME}.icns"
-      "${CMAKE_SOURCE_DIR}/resources/${IPLUG2_APP_NAME}-macOS-MainMenu.xib")
+      "${CMAKE_SOURCE_DIR}/resources/${IPLUG_APP_NAME}.icns"
+      "${CMAKE_SOURCE_DIR}/resources/${IPLUG_APP_NAME}-macOS-MainMenu.xib")
     source_group("Resources" FILES ${res_files})
     iplug2_target_add(${target} PUBLIC RESOURCE ${_res})
     set_target_properties(${target} PROPERTIES 
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/resources/macOS-App-Info.plist.in")
+
+  elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    set_target_properties(${target} PROPERTIES
+      OUTPUT_NAME "${IPLUG_APP_NAME}"
+      RUNTIME_OUTPUT_DIRECTORY "${IPLUG_APP_NAME}-app"
+    )
+    iplug_target_bundle_resources(${target} "${res_dir}")
+
   endif()
 endfunction()
