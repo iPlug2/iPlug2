@@ -15,7 +15,6 @@
  * @copydoc SynthVoice
  */
 
-#include "IPlugPlatform.h"
 #include "IPlugConstants.h"
 #include "IPlugMidi.h"
 #include "IPlugLogger.h"
@@ -23,7 +22,7 @@
 #include "IPlugQueue.h"
 #include "ControlRamp.h"
 
-#include "ptrlist.h"
+#include <ptrlist.h>
 
 BEGIN_IPLUG_NAMESPACE
 

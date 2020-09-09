@@ -22,7 +22,6 @@ macro(_iplug_pre_project_setup)
 
     set_property(GLOBAL PROPERTY USE_FOLDERS ON)
     set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMake")
-
 endmacro()
 
 
@@ -34,24 +33,20 @@ endmacro()
 macro(_iplug_post_project_setup)
     string_assert(${CMAKE_SYSTEM_NAME} "CMAKE_SYSTEM_NAME not set in toolchain")
 
-    # We don't like long lists of if()/elseif()
     set(PLATFORM_Windows    "PLATFORM_WINDOWS" "Windows")
     set(PLATFORM_Darwin     "PLATFORM_MAC"     "Mac"    )
     set(PLATFORM_Linux      "PLATFORM_LINUX"   "Linux"  )
     set(PLATFORM_iOS        "PLATFORM_IOS"     "IOS"    )
 #    set(PLATFORM_Android    "PLATFORM_ANDROID" "Android")
 
-    list(GET PLATFORM_${CMAKE_SYSTEM_NAME} 0 _PLATFORM_ID)
-    list(GET PLATFORM_${CMAKE_SYSTEM_NAME} 1 _PLATFORM_NAME)
+    list(GET PLATFORM_${CMAKE_SYSTEM_NAME} 0 PLATFORM_ID)
+    list(GET PLATFORM_${CMAKE_SYSTEM_NAME} 1 PLATFORM_NAME)
 
-    string_assert(${_PLATFORM_ID}   "PLATFORM_ID \"${CMAKE_SYSTEM_NAME}\" is not supported yet.")
-    string_assert(${_PLATFORM_NAME} "PLATFORM_NAME missing from PLATFORM_${CMAKE_SYSTEM_NAME}"  )
+    string_assert(${PLATFORM_ID}   "PLATFORM_ID \"${CMAKE_SYSTEM_NAME}\" is not supported yet.")
+    string_assert(${PLATFORM_NAME} "PLATFORM_NAME missing from PLATFORM_${CMAKE_SYSTEM_NAME}"  )
 
-    # Propagate variables to parent scope
-    set(${_PLATFORM_ID} TRUE              )
-    set(PLATFORM_ID     ${_PLATFORM_ID}   )
-    set(PLATFORM_NAME   ${_PLATFORM_NAME} )
-    set(PLATFORM_APPLE  ${APPLE}          )  # set if target is macOS, iOS, tvOS or watchOS
+    set(${PLATFORM_ID} TRUE)
+    set(PLATFORM_APPLE ${APPLE})  # set if target is macOS, iOS, tvOS or watchOS
 
     # Set build types
     set(CONFIGURATION_TYPES "Debug" "Release" "Distributed")
@@ -69,12 +64,24 @@ macro(_iplug_post_project_setup)
 		endif()
 	endif()
 
+    # Configure output folders
+    if(PLATFORM_WINDOWS OR (PLATFORM_MAC AND CMAKE_GENERATOR STREQUAL Xcode))
+        set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+    else ()
+        set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE}")
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/${CMAKE_BUILD_TYPE}")
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/${CMAKE_BUILD_TYPE}")
+    endif()
+
+
     #------------------------------------------------------------------------------
+
     find_package(Git)
 
-    # Update Git submodules if enabled
-#    iplug_git_update_submodules()
 
+    #------------------------------------------------------------------------------
 
     # Find a suitable application to use as default debugger for VST2/VST3 plugins
     if(PLATFORM_WINDOWS)
@@ -145,6 +152,16 @@ macro(_iplug_post_project_setup)
 
 
     #------------------------------------------------------------------------------
+    # TFLOAT type definition
+
+    set(IPLUG2_TFLOAT_TYPE "float" CACHE STRING "tfloat type [float|double]. Base type used for floating-point operations")
+    set_property(CACHE IPLUG2_TFLOAT_TYPE PROPERTY STRINGS
+        "float"
+        "double"
+    )
+
+
+    #------------------------------------------------------------------------------
     # Glad version settings
 
     set(IPLUG2_GLAD_VERSION "4.5-ES2-3.1-Core" CACHE STRING "Select version of Glad to compile for OpenGL")
@@ -202,7 +219,6 @@ endmacro()
 
 #------------------------------------------------------------------------------
 macro(_iplug_set_default_compiler_options)
-
     # Default settings for all new targets on all platforms
     set(CMAKE_CXX_STANDARD                  17     )
     set(CMAKE_CXX_STANDARD_REQUIRED         YES    )
@@ -232,7 +248,6 @@ macro(_iplug_set_default_compiler_options)
             set(_obx /Ob2)
         endif()
 
-
         # Flags that are set as default for every new target configuration
         set(CL_FLAGS
             /D_CRT_SECURE_NO_DEPRECATE    # Disable deprecation warnings for Unsafe CRT Library functions
@@ -250,6 +265,8 @@ macro(_iplug_set_default_compiler_options)
             /Zc:rvalueCast    # Enforce type conversion rules. Conform to the C++11 standard
             /volatile:iso     # Strict volatile semantics. Acquire/release semantics are not guaranteed
             /utf-8            # Specifies UTF-8 character set, this is the default for GCC & Clang
+#            /W4               # Warning level 4
+            /Zp8              # Packs structures on 8-byte boundaries. Default is 16
             /TP               # Treat all as C++ source files
             /permissive-      # Set standard-conformance mode. "Should" be default since VC++ 2017 v15.5
             /GF               # Eliminate Duplicate Strings (string pooling) (Enabled in debug as well to avoid behaviour differences)
@@ -349,8 +366,8 @@ endfunction()
 
 function(_iplug_generate_source_groups)
     # Set up source groups for IDE
-    source_group("Resources" FILES "${IPLUG2_ROOT_PATH}/Dependencies/IPlug/VST3_SDK/public.sdk/source/main/winexport.def")
-    source_group("Resources" FILES "${IPLUG2_ROOT_PATH}/Dependencies/IPlug/VST3_SDK/public.sdk/source/main/macexport.exp")
+#    source_group("Resources" FILES "${IPLUG2_ROOT_PATH}/Dependencies/IPlug/VST3_SDK/public.sdk/source/main/winexport.def")
+#    source_group("Resources" FILES "${IPLUG2_ROOT_PATH}/Dependencies/IPlug/VST3_SDK/public.sdk/source/main/macexport.exp")
 
     get_target_property(_src_list IPlug INTERFACE_SOURCES)
     source_group(TREE "${IPLUG2_ROOT_PATH}" FILES ${_src_list})
@@ -572,12 +589,23 @@ function(_iplug_add_target_lib _target _pluginapi_lib)
         )
     endif()
 
+    # Remove PCH cpp file
+    list(REMOVE_ITEM _src_list "${IPLUG2_ROOT_PATH}/IPlug/IPlugPCH.cpp")
+
     # Add remaining source files
     target_sources(${_libName} PRIVATE ${_src_list})
 
+    # Configure precompiled headers
+    target_precompile_headers(${_libName}
+        PRIVATE
+            "${IPLUG2_ROOT_PATH}/IPlug/IPlugPCH.h"
+    )
+    target_precompile_headers(${_target} REUSE_FROM ${_libName})
+
+
     target_link_libraries(${_libName}
         PRIVATE
-            IPlug_SharedCompileOptions # PRIVATE so as not to interfer with consumer settings
+            IPlug_CompileOptions
         PUBLIC
             IPlug_SharedLinkLibraries
             IPlug_SharedDefinitions

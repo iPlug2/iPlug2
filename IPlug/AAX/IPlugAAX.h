@@ -19,7 +19,6 @@
  */
 
 
-#include "IPlugPlatform.h"
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 #include "IPlugMidi.h"

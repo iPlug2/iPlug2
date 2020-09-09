@@ -38,7 +38,6 @@
 #define DEPRECATED(version, message)            [[deprecated(message)]]
 #define NODISCARD                               [[nodiscard]]
 
-
 #ifdef PARAMS_MUTEX
 	#define ENTER_PARAMS_MUTEX                  mParams_mutex.Enter();        Trace(TRACELOC, "%s", "ENTER_PARAMS_MUTEX");
 	#define LEAVE_PARAMS_MUTEX                  mParams_mutex.Leave();        Trace(TRACELOC, "%s", "LEAVE_PARAMS_MUTEX");
@@ -51,10 +50,44 @@
 	#define LEAVE_PARAMS_MUTEX_STATIC
 #endif
 
+// clang-format on
+
 #ifndef IGRAPHICS_GL
 	#if defined IGRAPHICS_GLES2 || IGRAPHICS_GLES3 || IGRAPHICS_GL2 || IGRAPHICS_GL3
 		#define IGRAPHICS_GL
 	#endif
 #endif
 
-// clang-format on
+#ifndef PLATFORM_NAME
+	#error "PLATFORM_NAME must be defined. Make sure cmake declared this when generating project."
+#endif
+
+// Set non-active platforms to 0
+#ifndef PLATFORM_WINDOWS
+	#define PLATFORM_WINDOWS 0
+#endif
+
+#ifndef PLATFORM_IOS
+	#define PLATFORM_IOS 0
+#endif
+
+#ifndef PLATFORM_MAC
+	#define PLATFORM_MAC 0
+#endif
+
+#ifndef PLATFORM_LINUX
+	#define PLATFORM_LINUX 0
+#endif
+
+#ifndef PLATFORM_WEB
+	#define PLATFORM_WEB 0
+#endif
+
+#if PLATFORM_WINDOWS + PLATFORM_IOS + PLATFORM_MAC + PLATFORM_LINUX + PLATFORM_WEB != 1
+	#error "One and only one platform should be active. Check cmake settings."
+#endif
+
+// Default floating-point type to use for variables and functions unless explicitly specified
+#ifndef IPLUG2_TFLOAT_TYPE
+	#define IPLUG2_TFLOAT_TYPE float
+#endif

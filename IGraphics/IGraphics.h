@@ -40,7 +40,6 @@
 #include "IPlugAAX_view_interface.h"
 #endif
 
-#include "IPlugPlatform.h"
 #include "IPlugConstants.h"
 #include "IPlugLogger.h"
 #include "IPlugPaths.h"

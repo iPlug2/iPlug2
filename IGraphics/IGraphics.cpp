@@ -12,20 +12,18 @@
 
 #define NANOSVG_IMPLEMENTATION
 BEGIN_INCLUDE_DEPENDENCIES
-#include "nanosvg.h"
+#include <nanosvg.h>
 END_INCLUDE_DEPENDENCIES
 
 #if defined VST3_API
-
 BEGIN_INCLUDE_DEPENDENCIES
-#include "pluginterfaces/base/ustring.h"
+#include <pluginterfaces/base/ustring.h>
 END_INCLUDE_DEPENDENCIES
-
 #include "VST3/IPlugVST3.h"
 using VST3_API_BASE = iplug::IPlugVST3;
 #elif defined VST3C_API
 BEGIN_INCLUDE_DEPENDENCIES
-#include "pluginterfaces/base/ustring.h"
+#include <pluginterfaces/base/ustring.h>
 END_INCLUDE_DEPENDENCIES
 #include "VST3/IPlugVST3_Controller.h"
 #include "VST3/IPlugVST3_View.h"

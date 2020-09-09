@@ -11,8 +11,6 @@
 #pragma once
 // you can inherit this class in your GUI framework editor in order to get a pointer to the AAX viewcontainter
 
-#include "IPlugPlatform.h"
-
 #include "AAX_IViewContainer.h"
 
 

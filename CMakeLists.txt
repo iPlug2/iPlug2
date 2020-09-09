@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.17 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
 
 cmake_policy(SET CMP0046 NEW)  # Error on non-existent dependency in add_dependencies
 cmake_policy(SET CMP0054 NEW)  # Only interpret if() arguments as variables or keywords when unquoted
@@ -55,7 +55,7 @@ add_library(IPlug                      INTERFACE)
 add_library(IGraphics                  INTERFACE)
 add_library(IPlug_SharedDefinitions    INTERFACE)
 add_library(IPlug_SharedIncludes       INTERFACE)
-add_library(IPlug_SharedCompileOptions INTERFACE)
+add_library(IPlug_CompileOptions       INTERFACE)
 add_library(IPlug_SharedLinkLibraries  INTERFACE)
 add_library(IPlug_APP                  INTERFACE)
 add_library(IPlug_AAX                  INTERFACE)
@@ -81,11 +81,10 @@ add_subdirectory(Dependencies)
 #------------------------------------------------------------------------------
 # Compile options for all IPlug2 related targets. This is not used by consumers
 
-target_compile_options(IPlug_SharedCompileOptions
+target_compile_options(IPlug_CompileOptions
     INTERFACE
         $<$<CXX_COMPILER_ID:MSVC>:
             /W4
-            /Zp8    # Packs structures on 8-byte boundaries. Default is 16
         >
 )
 
@@ -99,7 +98,13 @@ target_compile_definitions(IPlug_SharedDefinitions
         PLATFORM_NAME=${PLATFORM_NAME}
         _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 
+        _CRT_SECURE_NO_DEPRECATE    # Disable deprecation warnings for Unsafe CRT Library functions
+        _CRT_NONSTDC_NO_DEPRECATE   # Disable deprecation warnings for POSIX function names
+        _MBCS                       # _UNICODE, _MBCS or _SBCS. _MBCS is the same as _SBCS but with additional typesafety checks
+                                    # If using _UNICODE, it's recommended to set both _UNICODE and UNICODE.
+
         # ${_NANOVG_DEF}
+        IPLUG2_TFLOAT_TYPE=${IPLUG2_TFLOAT_TYPE}
 
         # TODO: Add support for the other graphics libraries
         $<$<BOOL:${GFXLIB_NANOVG}>:IGRAPHICS_NANOVG>

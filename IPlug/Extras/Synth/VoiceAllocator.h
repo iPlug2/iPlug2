@@ -15,7 +15,6 @@
  * @copydoc VoiceAllocator
  */
 
-#include "IPlugPlatform.h"
 #include "IPlugLogger.h"
 #include "IPlugQueue.h"
 

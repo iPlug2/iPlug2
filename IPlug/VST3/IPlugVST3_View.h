@@ -10,11 +10,9 @@
 
 #pragma once
 
-#include "IPlugPlatform.h"
-
 BEGIN_INCLUDE_DEPENDENCIES
-#include "pluginterfaces/gui/iplugviewcontentscalesupport.h"
-#include "pluginterfaces/base/keycodes.h"
+#include <pluginterfaces/gui/iplugviewcontentscalesupport.h>
+#include <pluginterfaces/base/keycodes.h>
 END_INCLUDE_DEPENDENCIES
 
 #include "IPlugStructs.h"

@@ -17,8 +17,6 @@
  *
  */
 
-#include "IPlugPlatform.h"
-
 BEGIN_IPLUG_NAMESPACE
 
 #define MAX_OSC_MSG_LEN 1024

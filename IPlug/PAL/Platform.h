@@ -10,45 +10,14 @@
 
 #pragma once
 
-#ifndef PLATFORM_NAME
-	#error "PLATFORM_NAME must be defined. Make sure cmake declared this when generating project."
-#endif
-
-// Set non-active platforms to 0
-#ifndef PLATFORM_WINDOWS
-	#define PLATFORM_WINDOWS 0
-#endif
-
-#ifndef PLATFORM_IOS
-	#define PLATFORM_IOS 0
-#endif
-
-#ifndef PLATFORM_MAC
-	#define PLATFORM_MAC 0
-#endif
-
-#ifndef PLATFORM_LINUX
-	#define PLATFORM_LINUX 0
-#endif
-
-#ifndef PLATFORM_WEB
-	#define PLATFORM_WEB 0
-#endif
-
-#if PLATFORM_WINDOWS + PLATFORM_IOS + PLATFORM_MAC + PLATFORM_LINUX + PLATFORM_WEB != 1
-	#error "One and only one platform should be active. Check cmake settings."
-#endif
-
-
-#include "IPlugPreprocessor.h"
-#include "PlatformCompiler.h"
-
-
-//-----------------------------------------------------------------------------
-// Set default types
 
 namespace iplug::generic
 {
+	enum class utf8 : unsigned char
+	{
+	};
+
+	// Set default types
 	// std::uint*_t and int*_t are optional implementations
 	// and may not be available on some compilers.
 	struct Types
@@ -62,12 +31,11 @@ namespace iplug::generic
 		using int16  = short;
 		using int32  = int;
 		using int64  = long long;
+		using utf8   = iplug::generic::utf8;
 		using utf16  = char16_t;
 		using utf32  = char32_t;
 		using size_t = std::size_t;
-		enum class utf8 : unsigned char
-		{
-		};
+		using tfloat = IPLUG2_TFLOAT_TYPE;
 	};
 }  // namespace iplug::generic
 
@@ -90,14 +58,6 @@ namespace iplug::generic
 
 #ifndef END_INCLUDE_DEPENDENCIES
 	#define END_INCLUDE_DEPENDENCIES
-#endif
-
-#ifndef NOINLINE
-	#define NOINLINE
-#endif
-
-#ifndef IPLUG_API
-	#define IPLUG_API
 #endif
 
 #ifndef PLATFORM_LITTLE_ENDIAN
@@ -138,6 +98,7 @@ namespace iplug
 	using utf16  = types::Platform::utf16;   // 16-bit unsigned
 	using utf32  = types::Platform::utf32;   // 32-bit unsigned
 	using size_t = types::Platform::size_t;  // 32-bit or 64-bit unsigned
+	using tfloat = types::Platform::tfloat;  // defined floating-point type float/double
 
 
 	//-----------------------------------------------------------------------------
@@ -147,6 +108,9 @@ namespace iplug
 				  "ptr size failed. size does not match target architecture (32bit/64bit).");
 	static_assert(sizeof(void*) == sizeof(nullptr),
 				  "ptr size failed. void* and nullptr should be equal size. If this fails, the world is doomed.");
+
+	static_assert(std::is_floating_point_v<tfloat> && (std::is_same_v<tfloat, float> || std::is_same_v<tfloat, double>),
+				  "tfloat is invalid type. Only float and double are valid");
 
 	static_assert(sizeof(uint8) == 1, "uint8 type size failed.");
 	static_assert(sizeof(uint16) == 2, "uint16 type size failed.");

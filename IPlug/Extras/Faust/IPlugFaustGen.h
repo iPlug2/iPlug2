@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "IPlugPlatform.h"
 
 #ifndef FAUST_COMPILED
 #define FAUST_BLOCK(class, member, file, nvoices, rate) FaustGen member {#class, file, nvoices, rate}
@@ -23,16 +22,9 @@ using FaustGen = iplug::IPlugFaust; // not used, except for CompileCPP();
 
 #ifndef FAUST_COMPILED
 
-#include <iostream>
-#include <string>
-#include <set>
-#include <vector>
-#include <map>
-
 #include "IPlugConstants.h"
 #include "IPlugPaths.h"
 
-#include <sys/stat.h>
 
 #if PLATFORM_MAC || PLATFORM_LINUX
 typedef struct stat StatType;

@@ -11,15 +11,13 @@
 #pragma once
 
 
-#include "IPlugPlatform.h"
-
 #undef stricmp
 #undef strnicmp
 
 BEGIN_INCLUDE_DEPENDENCIES
-#include "public.sdk/source/vst/vstaudioeffect.h"
-#include "public.sdk/source/vst/hosting/parameterchanges.h"
-#include "pluginterfaces/vst/ivstprocesscontext.h"
+#include <public.sdk/source/vst/vstaudioeffect.h>
+#include <public.sdk/source/vst/hosting/parameterchanges.h>
+#include <pluginterfaces/vst/ivstprocesscontext.h>
 END_INCLUDE_DEPENDENCIES
 
 #include "IPlugAPIBase.h"

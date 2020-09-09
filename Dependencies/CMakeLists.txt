@@ -10,6 +10,8 @@ set(_DEPENDENCIES_WARNINGS
         /wd5105     # macro expansion producing 'defined' has undefined behavior
         /wd4267     # 'var' : conversion from 'size_t' to 'type', possible loss of data
         /wd4244     # 'conversion' conversion from 'type1' to 'type2', possible loss of data
+        /wd4103     # 'filename' : alignment changed after including header, may be due to missing #pragma pack(pop)
+
     >
 )
 

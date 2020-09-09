@@ -10,8 +10,6 @@
 
 #pragma once
 
-#include "IPlugPlatform.h"
-
 #if PLATFORM_MAC
   #include <CoreGraphics/CoreGraphics.h>
   #include <IPlugSWELL.h>

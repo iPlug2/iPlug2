@@ -19,7 +19,6 @@ http://sam.zoy.org/wtfpl/COPYING for more details.
 
 #pragma once
 
-#include <array>
 #include "FPUStageProc.h"
 
 namespace hiir

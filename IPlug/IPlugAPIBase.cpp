@@ -13,7 +13,6 @@
  * @brief IPlugAPIBase implementation
  */
 
-#include "IPlugPlatform.h"
 #include "IPlugAPIBase.h"
 
 using namespace iplug;

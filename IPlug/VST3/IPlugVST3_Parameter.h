@@ -10,12 +10,10 @@
 
 #pragma once
 
-#include "IPlugPlatform.h"
-
 BEGIN_INCLUDE_DEPENDENCIES
-#include "pluginterfaces/base/ustring.h"
-#include "public.sdk/source/vst/vstparameters.h"
-#include "base/source/fstring.h"
+#include <pluginterfaces/base/ustring.h>
+#include <public.sdk/source/vst/vstparameters.h>
+#include <base/source/fstring.h>
 END_INCLUDE_DEPENDENCIES
 
 #include "IPlugParameter.h"

@@ -19,8 +19,6 @@
  * Include this file in the main cpp file if using IGraphics outside a plugin context
  */
 
-#include "IPlugPlatform.h"
-
 #ifndef NO_IGRAPHICS
 
   #if PLATFORM_WEB

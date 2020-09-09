@@ -13,7 +13,6 @@
  * @brief IPlugPaths implementation for Windows and Linux
  */
 
-#include "IPlugPlatform.h"
 #include "IPlugConstants.h"
 #include "IPlugPaths.h"
 

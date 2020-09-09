@@ -14,13 +14,8 @@
  * @ingroup SpecialControls
 */
 
-#include "IPlugPlatform.h"
-
 #include "ITextEntryControl.h"
-#include "wdlutf8.h"
-#include <string>
-#include <codecvt>
-#include <locale>
+#include <wdlutf8.h>
 
 #ifdef _MSC_VER
 #if (_MSC_VER >= 1900 /* VS 2015*/) && (_MSC_VER < 1920 /* pre VS 2019 */)

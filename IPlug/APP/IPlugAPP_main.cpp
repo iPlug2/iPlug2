@@ -8,10 +8,9 @@
  ==============================================================================
 */
 
-#include "IPlugPlatform.h"
 
-#include "wdltypes.h"
-#include "wdlstring.h"
+#include <wdltypes.h>
+#include <wdlstring.h>
 
 #include "IPlugAPP_host.h"
 

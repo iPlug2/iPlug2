@@ -12,8 +12,6 @@
 
 // This is a slightly modified version of AAX_CMonolithicParameters.h
 
-#include "IPlugPlatform.h"
-
 #include "AAX_CEffectParameters.h"
 
 #include "AAX_IEffectDescriptor.h"
@@ -25,10 +23,6 @@
 #include "AAX_IMIDINode.h"
 #include "AAX_IString.h"
 
-
-#include <set>
-#include <list>
-#include <utility>
 
 #define kMaxAdditionalMIDINodes 15
 #define kMaxAuxOutputStems 32

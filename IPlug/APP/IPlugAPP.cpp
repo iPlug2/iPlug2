@@ -8,7 +8,6 @@
  ==============================================================================
 */
 
-#include "IPlugPlatform.h"
 #include "IPlugAPP.h"
 #include "IPlugAPP_host.h"
 

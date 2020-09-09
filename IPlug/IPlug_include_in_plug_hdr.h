@@ -17,8 +17,6 @@
  * A preprocessor macro for a particular API such as VST2_API should be defined at project level
 */
 
-#include "IPlugPlatform.h"
-
 #include "config.h"
 
 // clang-format off

@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "IPlugPlatform.h"
 #include "IGraphicsPathBase.h"
 
 BEGIN_INCLUDE_DEPENDENCIES

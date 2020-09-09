@@ -10,24 +10,20 @@
 
 #pragma once
 
-#include "IPlugPlatform.h"
 
 #define OVERSAMPLING_FACTORS_VA_LIST "None", "2x", "4x", "8x", "16x"
-
-#include <functional>
-#include <cmath>
 
 #include "HIIR/FPUUpsampler2x.h"
 #include "HIIR/FPUDownsampler2x.h"
 //#include "HIIR/PolyphaseIIR2Designer.h"
 
-#include "heapbuf.h"
-#include "ptrlist.h"
+#include <heapbuf.h>
+#include <ptrlist.h>
 
 
 BEGIN_IPLUG_NAMESPACE
 
-using namespace hiir;
+//using namespace hiir;
 
 enum EFactor
 {

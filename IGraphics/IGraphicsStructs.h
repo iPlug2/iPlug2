@@ -16,10 +16,6 @@
  * @{
  */
 
-#include <functional>
-#include <chrono>
-#include <numeric>
-
 #include "IPlugUtilities.h"
 #include "IPlugLogger.h"
 #include "IPlugStructs.h"
@@ -1988,7 +1984,7 @@ struct IMatrix
    * @return IMatrix& /todo */
   IMatrix& Rotate(float a)
   {
-    const double rad = DegToRad(a);
+    const double rad = math::DegToRad(a);
     const double c = std::cos(rad);
     const double s = std::sin(rad);
     
@@ -2001,7 +1997,7 @@ struct IMatrix
    * @return IMatrix& /todo */
   IMatrix& Skew(float xa, float ya)
   {
-    return Transform(IMatrix(1.0, std::tan(DegToRad(ya)), std::tan(DegToRad(xa)), 1.0, 0.0, 0.0));
+    return Transform(IMatrix(1.0, std::tan(math::DegToRad(ya)), std::tan(math::DegToRad(xa)), 1.0, 0.0, 0.0));
   }
   
   /** /todo 
@@ -2215,7 +2211,7 @@ struct IPattern
       angleEnd -= 90;
     #endif
 
-    float rad = DegToRad(angleStart);
+    float rad = math::DegToRad(angleStart);
     float c = std::cos(rad);
     float s = std::sin(rad);
 

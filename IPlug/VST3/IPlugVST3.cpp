@@ -8,16 +8,14 @@
  ==============================================================================
 */
 
-#include "IPlugPlatform.h"
-
 BEGIN_INCLUDE_DEPENDENCIES
-#include "pluginterfaces/base/ustring.h"
-#include "pluginterfaces/base/ibstream.h"
-#include "pluginterfaces/vst/ivstparameterchanges.h"
-#include "pluginterfaces/vst/ivstevents.h"
-#include "pluginterfaces/vst/ivstmidicontrollers.h"
-#include "public.sdk/source/vst/vsteditcontroller.h"
-#include "pluginterfaces/vst/ivstchannelcontextinfo.h"
+#include <pluginterfaces/base/ustring.h>
+#include <pluginterfaces/base/ibstream.h>
+#include <pluginterfaces/vst/ivstparameterchanges.h>
+#include <pluginterfaces/vst/ivstevents.h>
+#include <pluginterfaces/vst/ivstmidicontrollers.h>
+#include <public.sdk/source/vst/vsteditcontroller.h>
+#include <pluginterfaces/vst/ivstchannelcontextinfo.h>
 END_INCLUDE_DEPENDENCIES
 
 #include "IPlugVST3.h"

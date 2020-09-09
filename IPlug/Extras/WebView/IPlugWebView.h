@@ -10,17 +10,16 @@
 
 #pragma once
 
-#include "IPlugPlatform.h"
-#include "wdlstring.h"
+#include <wdlstring.h>
 
 #if PLATFORM_MAC
   #define PLATFORM_VIEW NSView
   #define PLATFORM_RECT NSRect
-  #define MAKERECT NSMakeRect
+  #define MAKERECT      NSMakeRect
 #elif PLATFORM_IOS
   #define PLATFORM_VIEW UIView
   #define PLATFORM_RECT CGRect
-  #define MAKERECT CGRectMake
+  #define MAKERECT      CGRectMake
 #elif PLATFORM_WINDOWS
   #include <wrl.h>
   #include <wil/com.h>

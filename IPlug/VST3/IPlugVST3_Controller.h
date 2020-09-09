@@ -14,14 +14,13 @@
  * @file
  * @copydoc IPlugVST3Controller
  */
-#include "IPlugPlatform.h"
 
 #undef stricmp
 #undef strnicmp
 
 BEGIN_INCLUDE_DEPENDENCIES
-#include "public.sdk/source/vst/vsteditcontroller.h"
-#include "pluginterfaces/vst/ivstchannelcontextinfo.h"
+#include <public.sdk/source/vst/vsteditcontroller.h>
+#include <pluginterfaces/vst/ivstchannelcontextinfo.h>
 END_INCLUDE_DEPENDENCIES
 
 #include "IPlugAPIBase.h"

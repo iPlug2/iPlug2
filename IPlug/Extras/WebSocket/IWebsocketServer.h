@@ -8,16 +8,11 @@
  ==============================================================================
 */
 
-#include "IPlugPlatform.h"
+#include <CivetServer.h>
+#include <ptrlist.h>
 
-#include "CivetServer.h"
-
-#include "ptrlist.h"
 #include "IPlugLogger.h"
 
-#if !PLATFORM_WINDOWS
-#include <unistd.h>
-#endif
 
 BEGIN_IPLUG_NAMESPACE
 

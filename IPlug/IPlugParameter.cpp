@@ -13,7 +13,6 @@
  * @brief IParam implementation
  */
 
-#include "IPlugPlatform.h"
 #include "IPlugConstants.h"
 #include "IPlugParameter.h"
 #include "IPlugLogger.h"

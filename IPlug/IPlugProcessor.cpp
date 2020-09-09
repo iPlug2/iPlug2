@@ -553,7 +553,7 @@ void IPlugProcessor::ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames)
 
 void IPlugProcessor::ProcessBuffersAccumulating(int nFrames)
 {
-	int n = MaxNChannels(ERoute::kOutput);
+	const int n = MaxNChannels(ERoute::kOutput);
 
 	ProcessBuffers((PLUG_SAMPLE_DST) 0, nFrames);
 	IChannelData<>** ppOutChannel = mChannelData[ERoute::kOutput].GetList();

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "IPlugPlatform.h"
 #include "IGraphicsPathBase.h"
 
 // N.B. - this must be defined according to the skia build, not the iPlug build

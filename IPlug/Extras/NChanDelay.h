@@ -9,7 +9,6 @@
 */
 
 #pragma once
-#include "IPlugPlatform.h"
 
 BEGIN_IPLUG_NAMESPACE
 

@@ -16,7 +16,6 @@
  * @ingroup IPlugStructs
  */
 
-#include "IPlugPlatform.h"
 #include "IPlugLogger.h"
 
 BEGIN_IPLUG_NAMESPACE

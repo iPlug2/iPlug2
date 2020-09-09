@@ -17,8 +17,6 @@
  * Include this file in the main header if using IGraphics outside a plugin context
  */
 
-#include "IPlugPlatform.h"
-
 #ifndef NO_IGRAPHICS
 BEGIN_INCLUDE_DEPENDENCIES
 	#if defined IGRAPHICS_GLES2

@@ -10,7 +10,6 @@
 
 #if defined IGRAPHICS_IMGUI
 
-#include "IPlugPlatform.h"
 #include "Extras/IGraphicsImGui.h"
 #include "IGraphics_select.h"
 

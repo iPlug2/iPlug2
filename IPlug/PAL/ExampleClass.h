@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include "IPlugPlatform.h"
 
 namespace iplug::generic
 {

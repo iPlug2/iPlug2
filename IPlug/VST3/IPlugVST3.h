@@ -15,17 +15,15 @@
 
 #pragma once
 
-#include "IPlugPlatform.h"
-
 #undef stricmp
 #undef strnicmp
 
 BEGIN_INCLUDE_DEPENDENCIES
-#include "public.sdk/source/vst/vstsinglecomponenteffect.h"
-#include "pluginterfaces/vst/ivstprocesscontext.h"
-#include "pluginterfaces/vst/vsttypes.h"
-#include "pluginterfaces/vst/ivstcontextmenu.h"
-#include "pluginterfaces/vst/ivstchannelcontextinfo.h"
+#include <public.sdk/source/vst/vstsinglecomponenteffect.h>
+#include <pluginterfaces/vst/ivstprocesscontext.h>
+#include <pluginterfaces/vst/vsttypes.h>
+#include <pluginterfaces/vst/ivstcontextmenu.h>
+#include <pluginterfaces/vst/ivstchannelcontextinfo.h>
 END_INCLUDE_DEPENDENCIES
 
 

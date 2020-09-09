@@ -14,13 +14,13 @@
  * @file Private structs and small classes, internal use only
  * @{
  */
-#include "IPlugPlatform.h"
 
-#include "mutex.h"
-#include "wdlstring.h"
-#include "wdlendian.h"
-#include "ptrlist.h"
-#include "heapbuf.h"
+#include <mutex.h>
+#include <wdlstring.h>
+#include <wdlendian.h>
+#include <ptrlist.h>
+#include <heapbuf.h>
+
 
 #ifdef IGRAPHICS_SKIA
   #pragma warning( push )
@@ -33,7 +33,7 @@
   #pragma warning( pop )
 #else
 BEGIN_INCLUDE_DEPENDENCIES
-  #include "nanosvg.h"
+  #include <nanosvg.h>
 END_INCLUDE_DEPENDENCIES
 #endif
 

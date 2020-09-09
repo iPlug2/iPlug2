@@ -15,8 +15,6 @@
  * @copydoc IEditorDelegate
  */
 
-#include "IPlugPlatform.h"
-
 #include "ptrlist.h"
 
 #include "IPlugParameter.h"

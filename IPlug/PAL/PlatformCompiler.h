@@ -42,7 +42,7 @@
 	#define NOINLINE          __declspec(noinline)
 #elif PLATFORM_COMPILER_GCC || PLATFORM_COMPILER_CLANG
 	#define PRAGMA(...)       _Pragma(__VA_ARGS__)
-	#define IPLUG_API
+	#define IPLUG_APIENTRY
 	#define NOINLINE          __attribute__((noinline))
 #else
 	#error "Unsupported compiler."

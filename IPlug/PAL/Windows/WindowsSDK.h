@@ -126,7 +126,6 @@ using PNTSTATUS = NTSTATUS*;
 // Additional windows headers
 #include <VersionHelpers.h>
 
-#include <stdint.h>   // C Standard Library
 #include <intrin.h>   // Intrinsic functions
 #include <intsafe.h>  // Helper functions to prevent integer overflow bugs
 #include <strsafe.h>  // Safer C library string routine replacements
@@ -139,7 +138,6 @@ using PNTSTATUS = NTSTATUS*;
 #include <WindowsX.h>
 #include <wininet.h>
 #include <winsock.h>
-
 #include <d3dkmthk.h>
 
 #pragma pack(pop)

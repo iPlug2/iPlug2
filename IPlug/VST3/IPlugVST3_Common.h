@@ -10,10 +10,8 @@
 
 #pragma once
 
-#include "IPlugPlatform.h"
-
 BEGIN_INCLUDE_DEPENDENCIES
-#include "pluginterfaces/base/ibstream.h"
+#include <pluginterfaces/base/ibstream.h>
 END_INCLUDE_DEPENDENCIES
 
 #include "IPlugAPIBase.h"

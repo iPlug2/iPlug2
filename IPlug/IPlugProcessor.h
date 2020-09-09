@@ -10,11 +10,9 @@
 
 #pragma once
 
-#include "IPlugPlatform.h"
-
 
 BEGIN_INCLUDE_DEPENDENCIES
-#include "ptrlist.h"
+#include <ptrlist.h>
 #include "Extras/NChanDelay.h"
 END_INCLUDE_DEPENDENCIES
 

@@ -15,7 +15,6 @@
  * @copydoc IParam
  */
 
-#include "IPlugPlatform.h"
 #include "IPlugUtilities.h"
 
 #include "wdlstring.h"
@@ -334,7 +333,7 @@ public:
    * @return double Gain calculated as an approximation of
    * \f$ 10^{\frac{x}{20}} \f$
    * @see #IAMP_DB */
-  double DBToAmp() const { return iplug::DBToAmp(mValue.load()); }
+//  double DBToAmp() const { return iplug::DBToAmp(mValue.load()); }
 
   /** Returns the parameter's normalized value
    * @return double The resulting normalized value */

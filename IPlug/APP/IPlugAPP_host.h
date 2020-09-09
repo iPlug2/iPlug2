@@ -28,10 +28,8 @@
  
  */
 
-#include "IPlugPlatform.h"
-
-#include "wdltypes.h"
-#include "wdlstring.h"
+#include <wdltypes.h>
+#include <wdlstring.h>
 
 #include "IPlugConstants.h"
 

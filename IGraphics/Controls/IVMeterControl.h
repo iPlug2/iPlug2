@@ -16,6 +16,7 @@
  * @copydoc IVMeterControl
  */
 
+#include "IPlugMath.h"
 #include "IControl.h"
 #include "ISender.h"
 #include "IPlugStructs.h"
@@ -60,7 +61,7 @@ public:
       double rangeDB = std::fabs(mHighRangeDB - mLowRangeDB);
       for (auto c = d.chanOffset; c < (d.chanOffset + d.nChans); c++)
       {
-        double ampValue = AmpToDB(static_cast<double>(d.vals[c]));
+		double ampValue  = std::fabs(math::AmpToDB(d.vals[c]));
         double linearPos = (ampValue + lowPointAbs)/rangeDB;
         SetValue(Clip(linearPos, 0., 1.), c);
       }
