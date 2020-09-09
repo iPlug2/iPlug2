@@ -11,8 +11,7 @@
 #pragma once
 #include "IPlugConstants.h"
 #include "IGraphicsConstants.h"
-
-#include <cmath>
+#include "IPlugMath.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -31,17 +30,17 @@ static double GetTimestamp()
   return std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count();
 }
 
-template <typename T>
-inline T DegToRad(T degrees)
-{
-  return static_cast<T>(iplug::PI) * (degrees / static_cast<T>(180.0));
-}
-
-template <typename T>
-inline T RadToDeg(T radians)
-{
-  return radians / static_cast<T>(iplug::PI) * static_cast<T>(180.0);
-}
+//template <typename T>
+//inline T DegToRad(T degrees)
+//{
+//  return static_cast<T>(iplug::PI) * (degrees / static_cast<T>(180.0));
+//}
+//
+//template <typename T>
+//inline T RadToDeg(T radians)
+//{
+//  return radians / static_cast<T>(iplug::PI) * static_cast<T>(180.0);
+//}
 
 /** Calculate evenly distributed points on a radial line. NOTE: will crash if the nPoints and data array do not match size.
  * @param angleDegrees The angle to draw at in degrees clockwise where 0 is up
@@ -53,7 +52,7 @@ inline T RadToDeg(T radians)
  * @param data Multidimensional array for nPoints pairs of float coordinates for the points */
 static inline void RadialPoints(float angleDegrees, float cx, float cy, float rMin, float rMax, int nPoints, float data[][2])
 {
-  const float angleRadians = DegToRad(angleDegrees - 90.f);
+  const float angleRadians = math::DegToRad(angleDegrees - 90.f);
   const float sinV = std::sin(angleRadians);
   const float cosV = std::cos(angleRadians);
   

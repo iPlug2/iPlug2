@@ -16,14 +16,14 @@
  * @brief 
  */
 
-#include "IPlugPlatform.h"
+#include "IPlugMath.h"
 #include "IPlugQueue.h"
-#include <array>
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-static const float SENDER_THRESHOLD = (float) DBToAmp(-90.);
+// TODO: make constexpr
+static const float SENDER_THRESHOLD = math::DBToAmp(-90.0f);
 
 /** ISenderData is used to represent a typed data packet, that may contain values for multiple channels */
 template <int MAXNC = 1, typename T = float>

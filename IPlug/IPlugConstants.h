@@ -18,12 +18,10 @@
  * @{
  */
 
-#include "IPlugPlatform.h"
-
 BEGIN_IPLUG_NAMESPACE
 
 #if !defined(SAMPLE_TYPE_FLOAT) && !defined(SAMPLE_TYPE_DOUBLE)
-	#define SAMPLE_TYPE_DOUBLE
+	#define SAMPLE_TYPE_FLOAT
 #endif
 
 #ifdef SAMPLE_TYPE_DOUBLE
@@ -54,27 +52,27 @@ enum EVST3ParamIDs
 	kPresetParam = 'prst',
 	kMIDICCParamStartIdx
 #else
-	kBypassParam = (1 << 16),
+	kBypassParam = 0x10000,
 	kPresetParam,  // not used unless baked in presets declared
 	kMIDICCParamStartIdx
 #endif
 };
 
 //TODO: these should be in a separate math class/namespace
-static const double PI = 3.1415926535897932384626433832795;
+//inline constexpr double PI = 3.1415926535897932384626433832795;
 
 /** @brief Magic number for gain to dB conversion.
  * Approximates \f$ 20*log_{10}(x) \f$
  * @see AmpToDB
 */
-static const double AMP_DB = 8.685889638065036553;
+//inline constexpr double AMP_DB = 8.685889638065036553;
 /** @brief Magic number for dB to gain conversion.
  * Approximates \f$ 10^{\frac{x}{20}} \f$
  * @see DBToAmp
 */
-static const double IAMP_DB             = 0.11512925464970;
-static const double DEFAULT_SAMPLE_RATE = 44100.0;
-static const int MAX_PRESET_NAME_LEN    = 256;
+inline constexpr double DEFAULT_SAMPLE_RATE = 44100;
+inline constexpr int MAX_PRESET_NAME_LEN    = 256;
+
 #define UNUSED_PRESET_NAME       "empty"
 #define DEFAULT_USER_PRESET_NAME "user preset"
 
@@ -123,11 +121,11 @@ static const int MAX_PRESET_NAME_LEN    = 256;
 #define IPLUG_VERSION       0x010000
 #define IPLUG_VERSION_MAGIC 'pfft'
 
-static const int DEFAULT_BLOCK_SIZE = 1024;
-static const double DEFAULT_TEMPO   = 120.0;
-static const int kNoParameter       = -1;
-static const int kNoValIdx          = -1;
-static const int kNoTag             = -1;
+inline constexpr int DEFAULT_BLOCK_SIZE = 1024;
+inline constexpr double DEFAULT_TEMPO   = 120.0;
+inline constexpr int kNoParameter       = -1;
+inline constexpr int kNoValIdx          = -1;
+inline constexpr int kNoTag             = -1;
 
 #define MAX_BUS_CHANS 64  // wild cards in channel i/o strings will result in this many channels
 
@@ -161,7 +159,7 @@ enum EParamSource
 	kNumParamSources
 };
 
-static const char* ParamSourceStrs[kNumParamSources] = {
+inline constexpr const char* ParamSourceStrs[kNumParamSources] = {
 	"Reset", "Host", "Preset", "UI", "Editor Delegate", "Recompile", "Unknown"};
 
 /** @enum ERoute
@@ -173,7 +171,7 @@ enum ERoute
 	kOutput = 1
 };
 
-static const char* RoutingDirStrs[2] = {"Input", "Output"};
+inline constexpr const char* RoutingDirStrs[2] = {"Input", "Output"};
 
 enum EAPI
 {
@@ -254,7 +252,8 @@ enum EResourceLocation
 };
 
 // These constants come from vstpreset.cpp, allowing saving of VST3 format presets without including the VST3 SDK
-typedef char ChunkID[4];
+//typedef char ChunkID[4];
+using ChunkID = char[4];
 
 enum ChunkType
 {
@@ -277,14 +276,14 @@ static const ChunkID commonChunks[kNumPresetChunks] = {
 };
 
 // Preset Header: header id + version + class id + list offset
-static const int32_t kFormatVersion = 1;
-static const int32_t kClassIDSize   = 32;  // ASCII-encoded FUID
-static const int32_t kHeaderSize    = sizeof(ChunkID) + sizeof(int32_t) + kClassIDSize + sizeof(int64_t);
+inline constexpr int32 kFormatVersion = 1;
+inline constexpr int32 kClassIDSize   = 32;  // ASCII-encoded FUID
+inline constexpr int32 kHeaderSize    = sizeof(ChunkID) + sizeof(int32) + kClassIDSize + sizeof(int64);
 //static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
 
 // Preset Version Constants
-static const int kFXPVersionNum = 1;
-static const int kFXBVersionNum = 2;
+inline constexpr int kFXPVersionNum = 1;
+inline constexpr int kFXBVersionNum = 2;
 
 // This enumeration must match win32 Fkeys as specified in winuser.h
 enum ESpecialKey
@@ -299,81 +298,72 @@ enum ESpecialKey
 // This enumeration must match win32 virtual keys as specified in winuser.h
 enum EVirtualKey
 {
-	kVK_NONE = 0x00,
-
-	kVK_LBUTTON = 0x01,
-	kVK_RBUTTON = 0x02,
-	kVK_MBUTTON = 0x04,
-
-	kVK_BACK = 0x08,
-	kVK_TAB  = 0x09,
-
-	kVK_CLEAR  = 0x0C,
-	kVK_RETURN = 0x0D,
-
-	kVK_SHIFT   = 0x10,
-	kVK_CONTROL = 0x11,
-	kVK_MENU    = 0x12,
-	kVK_PAUSE   = 0x13,
-	kVK_CAPITAL = 0x14,
-
-	kVK_ESCAPE = 0x1B,
-
-	kVK_SPACE    = 0x20,
-	kVK_PRIOR    = 0x21,
-	kVK_NEXT     = 0x22,
-	kVK_END      = 0x23,
-	kVK_HOME     = 0x24,
-	kVK_LEFT     = 0x25,
-	kVK_UP       = 0x26,
-	kVK_RIGHT    = 0x27,
-	kVK_DOWN     = 0x28,
-	kVK_SELECT   = 0x29,
-	kVK_PRINT    = 0x2A,
-	kVK_SNAPSHOT = 0x2C,
-	kVK_INSERT   = 0x2D,
-	kVK_DELETE   = 0x2E,
-	kVK_HELP     = 0x2F,
-
-	kVK_0 = 0x30,
-	kVK_1 = 0x31,
-	kVK_2 = 0x32,
-	kVK_3 = 0x33,
-	kVK_4 = 0x34,
-	kVK_5 = 0x35,
-	kVK_6 = 0x36,
-	kVK_7 = 0x37,
-	kVK_8 = 0x38,
-	kVK_9 = 0x39,
-	kVK_A = 0x41,
-	kVK_B = 0x42,
-	kVK_C = 0x43,
-	kVK_D = 0x44,
-	kVK_E = 0x45,
-	kVK_F = 0x46,
-	kVK_G = 0x47,
-	kVK_H = 0x48,
-	kVK_I = 0x49,
-	kVK_J = 0x4A,
-	kVK_K = 0x4B,
-	kVK_L = 0x4C,
-	kVK_M = 0x4D,
-	kVK_N = 0x4E,
-	kVK_O = 0x4F,
-	kVK_P = 0x50,
-	kVK_Q = 0x51,
-	kVK_R = 0x52,
-	kVK_S = 0x53,
-	kVK_T = 0x54,
-	kVK_U = 0x55,
-	kVK_V = 0x56,
-	kVK_W = 0x57,
-	kVK_X = 0x58,
-	kVK_Y = 0x59,
-	kVK_Z = 0x5A,
-
-	kVK_LWIN = 0x5B,
-
+	kVK_NONE      = 0x00,
+	kVK_LBUTTON   = 0x01,
+	kVK_RBUTTON   = 0x02,
+	kVK_MBUTTON   = 0x04,
+	kVK_BACK      = 0x08,
+	kVK_TAB       = 0x09,
+	kVK_CLEAR     = 0x0C,
+	kVK_RETURN    = 0x0D,
+	kVK_SHIFT     = 0x10,
+	kVK_CONTROL   = 0x11,
+	kVK_MENU      = 0x12,
+	kVK_PAUSE     = 0x13,
+	kVK_CAPITAL   = 0x14,
+	kVK_ESCAPE    = 0x1B,
+	kVK_SPACE     = 0x20,
+	kVK_PRIOR     = 0x21,
+	kVK_NEXT      = 0x22,
+	kVK_END       = 0x23,
+	kVK_HOME      = 0x24,
+	kVK_LEFT      = 0x25,
+	kVK_UP        = 0x26,
+	kVK_RIGHT     = 0x27,
+	kVK_DOWN      = 0x28,
+	kVK_SELECT    = 0x29,
+	kVK_PRINT     = 0x2A,
+	kVK_SNAPSHOT  = 0x2C,
+	kVK_INSERT    = 0x2D,
+	kVK_DELETE    = 0x2E,
+	kVK_HELP      = 0x2F,
+	kVK_0         = 0x30,
+	kVK_1         = 0x31,
+	kVK_2         = 0x32,
+	kVK_3         = 0x33,
+	kVK_4         = 0x34,
+	kVK_5         = 0x35,
+	kVK_6         = 0x36,
+	kVK_7         = 0x37,
+	kVK_8         = 0x38,
+	kVK_9         = 0x39,
+	kVK_A         = 0x41,
+	kVK_B         = 0x42,
+	kVK_C         = 0x43,
+	kVK_D         = 0x44,
+	kVK_E         = 0x45,
+	kVK_F         = 0x46,
+	kVK_G         = 0x47,
+	kVK_H         = 0x48,
+	kVK_I         = 0x49,
+	kVK_J         = 0x4A,
+	kVK_K         = 0x4B,
+	kVK_L         = 0x4C,
+	kVK_M         = 0x4D,
+	kVK_N         = 0x4E,
+	kVK_O         = 0x4F,
+	kVK_P         = 0x50,
+	kVK_Q         = 0x51,
+	kVK_R         = 0x52,
+	kVK_S         = 0x53,
+	kVK_T         = 0x54,
+	kVK_U         = 0x55,
+	kVK_V         = 0x56,
+	kVK_W         = 0x57,
+	kVK_X         = 0x58,
+	kVK_Y         = 0x59,
+	kVK_Z         = 0x5A,
+	kVK_LWIN      = 0x5B,
 	kVK_NUMPAD0   = 0x60,
 	kVK_NUMPAD1   = 0x61,
 	kVK_NUMPAD2   = 0x62,
@@ -414,11 +404,8 @@ enum EVirtualKey
 	kVK_F22       = 0x85,
 	kVK_F23       = 0x86,
 	kVK_F24       = 0x87,
-
-	kVK_NUMLOCK = 0x90,
-	kVK_SCROLL  = 0x91
+	kVK_NUMLOCK   = 0x90,
+	kVK_SCROLL    = 0x91
 };
 
 END_IPLUG_NAMESPACE
-
-/**@}*/

@@ -15,26 +15,19 @@
  * @brief This file contains the base IControl implementation, along with some base classes for specific types of control.
  */
 
-#include "IPlugPlatform.h"
-
-#include <cstring>
-#include <cstdlib>
-#include <vector>
-#include <unordered_map>
-
 #if defined VST3_API || defined VST3C_API
 #undef stricmp
 #undef strnicmp
 
 BEGIN_INCLUDE_DEPENDENCIES
-#include "pluginterfaces/vst/ivstcontextmenu.h"
-#include "base/source/fobject.h"
+#include <pluginterfaces/vst/ivstcontextmenu.h>
+#include <base/source/fobject.h>
 END_INCLUDE_DEPENDENCIES
 #endif
 
 
-#include "wdlstring.h"
-#include "ptrlist.h"
+#include <wdlstring.h>
+#include <ptrlist.h>
 
 #include "IGraphics.h"
 
@@ -494,7 +487,7 @@ public:
   IActionFunction GetActionFunction() { return mActionFunc; }
 
   /** Get the progress in a control's animation, in the range 0-1 */
-  double GetAnimationProgress() const;
+  const float GetAnimationProgress() const;
   
   /** Get the duration of animations applied to the control */
   Milliseconds GetAnimationDuration() const { return mAnimationDuration; }
@@ -915,7 +908,7 @@ public:
   {
     float x1, x2, x3, y1, y2, y3;
     
-    float theta = DegToRad(angle);
+    float theta = math::DegToRad(angle);
     
     IRECT handleBounds = GetAdjustedHandleBounds(bounds);
     
