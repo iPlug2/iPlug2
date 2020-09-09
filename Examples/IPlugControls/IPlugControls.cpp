@@ -84,9 +84,13 @@ IPlugControls::IPlugControls(const InstanceInfo& info) : Plugin(info, MakeConfig
 
 		int cellIdx = -1;
 
-		auto nextCell = [&]() { return b.GetGridCell(++cellIdx, nRows, nCols).GetPadded(-5.); };
+		auto nextCell = [&]() {
+			return b.GetGridCell(++cellIdx, nRows, nCols).GetPadded(-5.);
+		};
 
-		auto sameCell = [&]() { return b.GetGridCell(cellIdx, nRows, nCols).GetPadded(-5.); };
+		auto sameCell = [&]() {
+			return b.GetGridCell(cellIdx, nRows, nCols).GetPadded(-5.);
+		};
 
 		auto AddLabel = [&](const char* label) {
 			pGraphics->AttachControl(new ITextControl(nextCell().GetFromTop(20.f), label, style.labelText));
@@ -374,9 +378,18 @@ IPlugControls::IPlugControls(const InstanceInfo& info) : Plugin(info, MakeConfig
 			kNoTag,
 			"vcontrols");
 		pGraphics->AttachControl(new IVPlotControl(nextCell(),
-												   {{COLOR_RED, [](double x) { return std::sin(x * 6.2); }},
-													{COLOR_BLUE, [](double x) { return std::cos(x * 6.2); }},
-													{COLOR_GREEN, [](double x) { return x > 0.5; }}
+												   {{COLOR_RED,
+													 [](double x) {
+														 return std::sin(x * 6.2);
+													 }},
+													{COLOR_BLUE,
+													 [](double x) {
+														 return std::cos(x * 6.2);
+													 }},
+													{COLOR_GREEN,
+													 [](double x) {
+														 return x > 0.5;
+													 }}
 
 												   },
 												   32,
@@ -390,7 +403,9 @@ IPlugControls::IPlugControls(const InstanceInfo& info) : Plugin(info, MakeConfig
 		pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "IVKeyboardControl", style.labelText));
 		pGraphics->AttachControl(new IWheelControl(wideCell.GetFromLeft(25.f).GetMidVPadded(40.f)));
 		pGraphics->AttachControl(new IVKeyboardControl(wideCell.GetPadded(-25), 36, 72), kNoTag)
-			->SetActionFunction([this](IControl* pControl) { this->FlashBlueLED(); });
+			->SetActionFunction([this](IControl* pControl) {
+				this->FlashBlueLED();
+			});
 
 		AddLabel("ILEDControl");
 		pGraphics->AttachControl(
@@ -425,32 +440,37 @@ IPlugControls::IPlugControls(const InstanceInfo& info) : Plugin(info, MakeConfig
 
 		//pGraphics->AttachControl(new IVGroupControl("Vector Controls", "vcontrols", 10.f, 30.f, 10.f, 10.f));
 
-    AddLabel("ILambdaControl");
-    pGraphics->AttachControl(new ILambdaControl(sameCell().GetScaledAboutCentre(0.5),
-    [](ILambdaControl* pCaller, IGraphics& g, IRECT& r) {
-      const float radius = r.W();
-      const float x = r.MW();
-      const float y = r.MH();
-      const float rotate = pCaller->GetAnimationProgress() * PI;
-      
-      for(int index = 0, limit = 40; index < limit; ++index)
-      {
-        float firstAngle = (index * 2 * PI) / limit;
-        float secondAngle = ((index + 1) * 2 * PI) / limit;
-        
-        g.PathTriangle(x, y,
-                       x + std::sin(firstAngle + rotate) * radius, y + std::cos(firstAngle + rotate) * radius,
-                       x + std::sin(secondAngle + rotate) * radius, y + std::cos(secondAngle + rotate) * radius);
-        
-        if(index % 2)
-          g.PathFill(COLOR_RED);
-        else
-          g.PathFill(pCaller->mMouseInfo.ms.L ? COLOR_VIOLET : COLOR_BLUE);
-      }
-      
-    }, 1000, false));
-    
-    #pragma mark IVControl panel -
+		AddLabel("ILambdaControl");
+		pGraphics->AttachControl(new ILambdaControl(
+			sameCell().GetScaledAboutCentre(0.5),
+			[](ILambdaControl* pCaller, IGraphics& g, IRECT& r) {
+				const float radius = r.W();
+				const float x      = r.MW();
+				const float y      = r.MH();
+				const float rotate = pCaller->GetAnimationProgress() * math::pi;
+
+				for (int index = 0, limit = 40; index < limit; ++index)
+				{
+					float firstAngle  = (index * 2 * math::pi) / limit;
+					float secondAngle = ((index + 1) * 2 * math::pi) / limit;
+
+					g.PathTriangle(x,
+								   y,
+								   x + std::sin(firstAngle + rotate) * radius,
+								   y + std::cos(firstAngle + rotate) * radius,
+								   x + std::sin(secondAngle + rotate) * radius,
+								   y + std::cos(secondAngle + rotate) * radius);
+
+					if (index % 2)
+						g.PathFill(COLOR_RED);
+					else
+						g.PathFill(pCaller->mMouseInfo.ms.L ? COLOR_VIOLET : COLOR_BLUE);
+				}
+			},
+			1000,
+			false));
+
+	#pragma mark IVControl panel -
 
 		cellIdx = 31;
 
