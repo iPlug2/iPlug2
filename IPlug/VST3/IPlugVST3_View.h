@@ -153,8 +153,10 @@ public:
 
   Steinberg::tresult PLUGIN_API setFrame (Steinberg::IPlugFrame* frame) override 
   { 
+  #ifdef OS_LINUX
     mOwner.SetIntegration(iplug::IPlugVST3_EmbedFactory(frame));
-    
+  #endif
+  
     return CPluginView::setFrame(frame);
   }
 
