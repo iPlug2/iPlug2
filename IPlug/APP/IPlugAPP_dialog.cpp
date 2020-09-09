@@ -601,6 +601,9 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       height = pPlug->GetEditorHeight();
 
       ClientResize(hwndDlg, width, height);
+#if defined(OS_LINUX)
+      SetWindowPos(pAppHost->mSite, hwndDlg, 0, 0, width, height, SWP_NOZORDER);
+#endif
 
       ShowWindow(hwndDlg, SW_SHOW);
       return 1;

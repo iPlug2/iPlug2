@@ -367,6 +367,7 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
 
 #ifdef APP_API
   xcbt_window_map(mPlugWnd);
+  //xcbt_window_set_xembed_info(mPlugWnd);
 #elif defined VST2_API
   xcbt_window_set_xembed_info(mPlugWnd);
 #elif defined VST3_API
@@ -434,7 +435,7 @@ void IGraphicsLinux::PlatformResize(bool parentHasResized)
       xcb_window_t prt = xcbt_window_xprt(mPlugWnd);
       if( prt )
       {
-        xcb_configure_window(conn, prt, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);        
+        xcb_configure_window(conn, prt, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
       }
     }
     xcbt_flush(mX);
