@@ -23,6 +23,7 @@ namespace iplug::math
 	template <class T> inline constexpr T log10e_v      = _Invalid<T> {};
 	template <class T> inline constexpr T log10_2_v     = _Invalid<T> {};
 	template <class T> inline constexpr T pi_v          = _Invalid<T> {};
+	template <class T> inline constexpr T pi_t2_v       = _Invalid<T> {};
 	template <class T> inline constexpr T pi2_v         = _Invalid<T> {};
 	template <class T> inline constexpr T pi4_v         = _Invalid<T> {};
 	template <class T> inline constexpr T inv_pi_v      = _Invalid<T> {};
@@ -51,6 +52,7 @@ namespace iplug::math
 	template <> inline constexpr double log10e_v<double>      = 0.4342944819032518;
 	template <> inline constexpr double log10_2_v<double>     = 0.3010299956639812;
 	template <> inline constexpr double pi_v<double>          = 3.141592653589793;
+	template <> inline constexpr double pi_t2_v<double>       = 6.283185307179585;
 	template <> inline constexpr double pi2_v<double>         = 1.570796326794897;
 	template <> inline constexpr double pi4_v<double>         = 0.7853981633974483;
 	template <> inline constexpr double inv_pi_v<double>      = 0.3183098861837907;
@@ -76,6 +78,7 @@ namespace iplug::math
 	template <> inline constexpr float log10e_v<float>      = static_cast<float>(log10e_v<double>);
 	template <> inline constexpr float log10_2_v<float>     = static_cast<float>(log10_2_v<double>);
 	template <> inline constexpr float pi_v<float>          = static_cast<float>(pi_v<double>);
+	template <> inline constexpr float pi_t2_v<float>       = static_cast<float>(pi_t2_v<double>);
 	template <> inline constexpr float pi2_v<float>         = static_cast<float>(pi2_v<double>);
 	template <> inline constexpr float pi4_v<float>         = static_cast<float>(pi4_v<double>);
 	template <> inline constexpr float inv_pi_v<float>      = static_cast<float>(inv_pi_v<double>);
@@ -101,6 +104,7 @@ namespace iplug::math
 	inline constexpr tfloat log10e      = log10e_v<tfloat>;       // log10(e)
 	inline constexpr tfloat log10_2     = log10_2_v<tfloat>;      // log10(2)
 	inline constexpr tfloat pi          = pi_v<tfloat>;           // pi
+	inline constexpr tfloat pi_t2       = pi_t2_v<tfloat>;        // pi*2
 	inline constexpr tfloat pi2         = pi2_v<tfloat>;          // pi/2
 	inline constexpr tfloat pi4         = pi4_v<tfloat>;          // pi/4
 	inline constexpr tfloat inv_pi      = inv_pi_v<tfloat>;       // 1/pi
@@ -175,6 +179,37 @@ namespace iplug::math
 		Y += E;
 		Y *= 6.020599913279624f;
 		return Y;
+	}
+
+
+	inline const float fsqrt(float value)
+	{
+		static const auto fsqrt_lut = [] {
+			PLATFORM_CACHE_ALIGN
+			static uint32 array[0x10000];
+			union
+			{
+				float f;
+				uint32 i;
+			} s;
+			for (int i = 0; i <= 0x7fff; ++i)
+			{
+				s.i               = (i << 8) | (0x7f << 23);
+				s.f               = static_cast<float>(std::sqrt(s.f));
+				array[i + 0x8000] = (s.i & 0x7fffff);
+				s.i               = (i << 8) | (0x80 << 23);
+				s.f               = static_cast<float>(std::sqrt(s.f));
+				array[i]          = (s.i & 0x7fffff);
+			}
+			return array;
+		}();
+
+		uint32 fbits = *(uint32*) &value;
+		if (fbits == 0)
+			return 0.0;
+
+		*(uint32*) &value = fsqrt_lut[(fbits >> 8) & 0xffff] | ((fbits - 0x3f800000) >> 1) + 0x3f800000 & 0x7f800000;
+		return value;
 	}
 
 }  // namespace iplug::math
