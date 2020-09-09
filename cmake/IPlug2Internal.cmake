@@ -265,13 +265,13 @@ macro(_iplug_set_default_compiler_options)
             /Zc:rvalueCast    # Enforce type conversion rules. Conform to the C++11 standard
             /volatile:iso     # Strict volatile semantics. Acquire/release semantics are not guaranteed
             /utf-8            # Specifies UTF-8 character set, this is the default for GCC & Clang
-#            /W4               # Warning level 4
             /Zp8              # Packs structures on 8-byte boundaries. Default is 16
             /TP               # Treat all as C++ source files
             /permissive-      # Set standard-conformance mode. "Should" be default since VC++ 2017 v15.5
             /GF               # Eliminate Duplicate Strings (string pooling) (Enabled in debug as well to avoid behaviour differences)
             /JMC              # Just My Code debugging
             /wd5045           # Disable Spectre mitigation warnings
+            /wd4652           # Compiler option 'option' inconsistent with precompiled header; current command-line option will override that defined in the precompiled header
         )
 
         # Debug
