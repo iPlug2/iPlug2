@@ -53,6 +53,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   )
 elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
   find_package(PkgConfig REQUIRED)
+  pkg_check_modules(Glib_20 REQUIRED IMPORTED_TARGET "glib-2.0")
   pkg_check_modules(Gtk_30 REQUIRED IMPORTED_TARGET "gtk+-3.0")
   pkg_check_modules(Gdk_30 REQUIRED IMPORTED_TARGET "gdk-3.0")
   pkg_check_modules(Alsa IMPORTED_TARGET "alsa")
@@ -84,7 +85,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
   iplug2_target_add(iPlug2_APP INTERFACE
     DEFINE "SWELL_COMPILED" "SWELL_SUPPORT_GTK" "SWELL_TARGET_GDK=3"
     INCLUDE "${WDL_DIR}/swell/"
-    LINK PkgConfig::Gtk_30 PkgConfig::Gdk_30 "X11" "Xi"
+    LINK "-L/usr/lib" PkgConfig::Gtk_30 PkgConfig::Gdk_30 PkgConfig::Glib_20 "X11" "Xi"
     SOURCE ${swell_src}
   )
 
