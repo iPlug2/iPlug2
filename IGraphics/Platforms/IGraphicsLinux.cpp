@@ -64,7 +64,7 @@ void IGraphicsLinux::Paint()
 {
   IRECT ir = {0, 0, static_cast<float>(WindowWidth()), static_cast<float>(WindowHeight())};
   IRECTList rects;
-  rects.Add(ir);
+  rects.Add(ir.GetScaled(1.f / GetBackingPixelScale()));
   // DBGMSG("Paint\n");
   void *ctx = xcbt_window_draw_begin(mPlugWnd);
 

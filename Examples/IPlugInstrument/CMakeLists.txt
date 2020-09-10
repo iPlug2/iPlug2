@@ -39,7 +39,7 @@ add_library(_base INTERFACE)
 # linking libraries, adding resources, setting compile options, etc.
 iplug2_target_add(_base INTERFACE
     INCLUDE ${dir} ${dir}/resources
-    LINK iPlug2_Synth iPlug2_GL3 iPlug2_NANOVG
+    LINK iPlug2_Synth iPlug2_NANOVG iPlug2_GL2
 )
 
 # This makes the project use C++ 17. iPlug2 should be c++14 compatible,
