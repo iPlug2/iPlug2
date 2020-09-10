@@ -447,12 +447,12 @@ IPlugControls::IPlugControls(const InstanceInfo& info) : Plugin(info, MakeConfig
 				const float radius = r.W();
 				const float x      = r.MW();
 				const float y      = r.MH();
-				const float rotate = pCaller->GetAnimationProgress() * math::pi;
+				const float rotate = pCaller->GetAnimationProgress() * math::constants::pi;
 
 				for (int index = 0, limit = 40; index < limit; ++index)
 				{
-					float firstAngle  = (index * 2 * math::pi) / limit;
-					float secondAngle = ((index + 1) * 2 * math::pi) / limit;
+					float firstAngle  = (index * 2 * math::constants::pi) / limit;
+					float secondAngle = ((index + 1) * 2 * math::constants::pi) / limit;
 
 					g.PathTriangle(x,
 								   y,

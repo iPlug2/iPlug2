@@ -10,15 +10,17 @@
  ==============================================================================
 */
 
-
 /**
  * @file
- * @brief IPlug2 PreCompiledHeaders include file. Should be included first
+ * @brief IPlug2 Precompiled headers
  */
 
+#if !PLATFORM_WINDOWS
+	#include <unistd.h>
+#endif
 
-//-----------------------------------------------------------------------------
-// STD headers
+//#include <stdint.h>
+#include <sys/stat.h>
 
 #include <algorithm>
 #include <array>
@@ -46,19 +48,11 @@
 #include <numeric>
 #include <set>
 #include <stack>
-#include <stdint.h>
 #include <string>
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <vector>
-#include <sys/stat.h>
-
-#if !PLATFORM_WINDOWS
-	#include <unistd.h>
-#endif
-
-//-----------------------------------------------------------------------------
 
 #include "IPlugPreprocessor.h"
 #include "PAL/PlatformCompiler.h"
