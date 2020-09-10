@@ -27,8 +27,11 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set(VST2_PATH "${_tmp}/VST" CACHE PATH "VST2 plugin directory.")
   set(VST3_PATH "${_tmp}/VST3" CACHE PATH "VST3 plugin directory.")
 
+elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+  find_package(PkgConfig REQUIRED)
+
 else()
-  #message("Unsupported platform" FATAL_ERROR)
+  message("Unsupported platform" FATAL_ERROR)
 endif()
 
 include(CheckCXXCompilerFlag)
@@ -358,6 +361,37 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set_property(SOURCE ${_src} PROPERTY LANGUAGE C)
 endif()
 
+
+add_library(iPlug2_LICE INTERFACE)
+iplug2_target_add(iPlug2_LICE INTERFACE
+  DEFINE "IGRAPHICS_LICE" "SWELL_LICE_GDI" "SWELL_FREETYPE"
+    #"${IGRAPHICS_PATH}/Drawing/IGraphicsLice_src.cpp"
+)
+if (CMAKE_SYSTEM_NAME MATCHES "Linux")
+  pkg_check_modules(Freetype2 REQUIRED IMPORTED_TARGET "freetype2")
+  
+  set(swell_src
+    swell.h
+    swell.cpp
+    swell-dlg-generic.cpp
+    swell-gdi-generic.cpp
+    swell-ini.cpp
+    swell-kb-generic.cpp
+    swell-menu-generic.cpp
+    swell-miscdlg-generic.cpp
+    swell-misc-generic.cpp
+    swell-wnd-generic.cpp
+    swell-gdi-lice.cpp
+    swell-generic-gdk.cpp
+  )
+  list(TRANSFORM swell_src PREPEND "${WDL_DIR}/swell/")
+
+  iplug2_target_add(iPlug2_LICE INTERFACE
+    INCLUDE ${_DEPS}/IGraphics/glad_GL2/include ${_DEPS}/IGraphics/glad_GL2/src ${_glx_inc}
+    SOURCE ${_glx_src}
+    LINK PkgConfig::Freetype2
+  )
+endif()
 
 add_library(iPlug2_NoGraphics INTERFACE)
 iplug2_target_add(iPlug2_NoGraphics INTERFACE

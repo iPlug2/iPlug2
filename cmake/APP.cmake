@@ -52,7 +52,6 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
       "${WDL_DIR}/swell/swell-gdi.mm"
   )
 elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
-  find_package(PkgConfig REQUIRED)
   pkg_check_modules(Glib_20 REQUIRED IMPORTED_TARGET "glib-2.0")
   pkg_check_modules(Gtk_30 REQUIRED IMPORTED_TARGET "gtk+-3.0")
   pkg_check_modules(Gdk_30 REQUIRED IMPORTED_TARGET "gdk-3.0")
