@@ -142,6 +142,8 @@ target_compile_definitions(IPlug_VST3P INTERFACE VST3P_API IPLUG_EDITOR=0 IPLUG_
 
 target_include_directories(IPlug_SharedIncludes
     INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+
         IPlug
         IGraphics
         IGraphics/Controls

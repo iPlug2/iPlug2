@@ -440,7 +440,8 @@ function(_iplug_generate_source_groups)
     if(NOT GFXLIB_AGG)
         _iplug_disable_source_compile(
             "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsAGG.cpp"
-            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsAGG_src.cpp")
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsAGG_src.cpp"
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsAGG_src.mm")
     endif()
 
     if(NOT GFXLIB_CAIRO)
@@ -451,17 +452,20 @@ function(_iplug_generate_source_groups)
     if(NOT GFXLIB_LICE)
         _iplug_disable_source_compile(
             "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsLice.cpp"
-            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsLice_src.cpp")
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsLice_src.cpp"
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsLice_src.mm")
     endif()
 
     if(NOT GFXLIB_NANOVG)
         _iplug_disable_source_compile(
-            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsNanoVG.cpp")
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsNanoVG.cpp"
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsNanoVG_src.m")
     endif()
 
     if(NOT GFXLIB_SKIA)
         _iplug_disable_source_compile(
-            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsSkia.cpp")
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsSkia.cpp"
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsSkia_src.cpp")
     endif()
 
     # Option to compile with Faust if available
