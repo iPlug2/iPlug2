@@ -8,13 +8,8 @@
  ==============================================================================
 */
 
-#ifdef IGRAPHICS_AGG
 
-#if PLATFORM_MAC
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-register"
-#endif
-
+BEGIN_INCLUDE_DEPENDENCIES
 #include "agg_basics.h"
 #include "agg_renderer_base.h"
 #include "agg_renderer_primitives.h"
@@ -59,15 +54,12 @@
 #include "agg_conv_segmentator.h"
 #include "agg_trans_single_path.h"
 #include "agg_gradient_lut.h"
-
 #if PLATFORM_MAC
-#include "agg_mac_pmap.h"
-#pragma clang diagnostic pop
+	#include "agg_mac_pmap.h"
 #elif PLATFORM_WINDOWS
-#pragma comment(lib, "libpng.lib")
-#pragma comment(lib, "zlib.lib")
-#pragma comment(lib, "freetype.lib")
-#include "agg_win32_pmap.h"
+	//#pragma comment(lib, "libpng.lib")
+	//#pragma comment(lib, "zlib.lib")
+	//#pragma comment(lib, "freetype.lib")
+	#include "agg_win32_pmap.h"
 #endif
-
-#endif
+END_INCLUDE_DEPENDENCIES

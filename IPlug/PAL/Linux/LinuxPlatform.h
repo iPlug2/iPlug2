@@ -11,7 +11,7 @@
 #pragma once
 
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Platform configuration
 
 // currently a copy from WindowsPlatform.h
@@ -25,7 +25,7 @@
 #define PLATFORM_PTHREADS        1
 
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Linux specific types
 
 namespace iplug::types
@@ -44,3 +44,9 @@ namespace iplug::types
 	using Platform = Linux;
 }  // namespace iplug::types
 
+
+//-----------------------------------------------------------------------------
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <dirent.h>

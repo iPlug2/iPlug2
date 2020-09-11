@@ -13,7 +13,7 @@
 #include "IPlugEditorDelegate.h"
 #include "IPlugWebView.h"
 #include "wdl_base64.h"
-#include "json.hpp"
+#include <json.hpp>
 #include <functional>
 
 BEGIN_IPLUG_NAMESPACE

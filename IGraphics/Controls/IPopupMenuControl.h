@@ -16,8 +16,6 @@
  * @copydoc IPopupMenuControl
  */
 
-#include "IControl.h"
-
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 

@@ -11,23 +11,14 @@
 #pragma once
 
 
-#include "ptrlist.h"
-#include "mutex.h"
-
-#include "IPlugPluginBase.h"
-#include "IPlugConstants.h"
-#include "IPlugStructs.h"
-#include "IPlugUtilities.h"
-#include "IPlugParameter.h"
-#include "IPlugQueue.h"
-#include "IPlugTimer.h"
-
 /**
  * @file
  * @copydoc IPlugAPIBase
  * @defgroup APIClasses IPlug::APIClasses
  * An IPlug API class is the base class for a particular audio plug-in API
 */
+
+#include "IPlugPluginBase.h"
 
 BEGIN_IPLUG_NAMESPACE
 

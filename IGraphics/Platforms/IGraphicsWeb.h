@@ -10,15 +10,7 @@
 
 #pragma once
 
-#include <emscripten.h>
-#include <emscripten/val.h>
-#include <emscripten/bind.h>
-#include <emscripten/html5.h>
-
-#include <utility>
-
-
-#include "IGraphics_select.h"
+//#include "IGraphics_select.h"
 
 using namespace emscripten;
 

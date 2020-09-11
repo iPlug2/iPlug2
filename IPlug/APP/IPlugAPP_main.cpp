@@ -9,9 +9,6 @@
 */
 
 
-#include <wdltypes.h>
-#include <wdlstring.h>
-
 #include "IPlugAPP_host.h"
 
 #include "config.h"

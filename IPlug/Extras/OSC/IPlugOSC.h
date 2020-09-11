@@ -17,11 +17,7 @@
  *
  */
 
-#include "jnetlib/jnetlib.h"
-
-#include "IPlugLogger.h"
 #include "IPlugOSC_msg.h"
-#include "IPlugTimer.h"
 
 
 BEGIN_IPLUG_NAMESPACE

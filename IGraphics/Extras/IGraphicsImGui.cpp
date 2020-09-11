@@ -11,7 +11,7 @@
 #if defined IGRAPHICS_IMGUI
 
 #include "Extras/IGraphicsImGui.h"
-#include "IGraphics_select.h"
+//#include "IGraphics_select.h"
 
 #if defined IGRAPHICS_GL2
   #include "imgui_impl_opengl2.h"

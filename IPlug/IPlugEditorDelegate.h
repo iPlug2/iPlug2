@@ -15,11 +15,6 @@
  * @copydoc IEditorDelegate
  */
 
-#include "ptrlist.h"
-
-#include "IPlugParameter.h"
-#include "IPlugMidi.h"
-#include "IPlugStructs.h"
 
 BEGIN_IPLUG_NAMESPACE
 

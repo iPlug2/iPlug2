@@ -10,14 +10,6 @@
 
 #pragma once
 
-#include <cmath>
-#include <cstring>
-#include <cstdio>
-#include <cassert>
-#include <memory>
-
-#include "wdlstring.h"
-#include "ptrlist.h"
 
 /**
  * @file

@@ -11,7 +11,7 @@
 #pragma once
 
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Platform configuration
 
 #define PLATFORM_LITTLE_ENDIAN   1
@@ -21,7 +21,7 @@
 #define PLATFORM_PTHREADS        0
 
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Windows specific types
 
 namespace iplug::types
@@ -41,7 +41,7 @@ namespace iplug::types
 }  // namespace iplug::types
 
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Configure and include windows.h
 // TODO: Remove this include file when isolation is complete
 

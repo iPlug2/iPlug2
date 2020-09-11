@@ -9,9 +9,6 @@
 */
 
 #pragma once
-#include "IPlugConstants.h"
-#include "IGraphicsConstants.h"
-#include "IPlugMath.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE

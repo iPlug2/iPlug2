@@ -18,13 +18,6 @@
  */
 
 
-#include <wdlstring.h>
-#include <ptrlist.h>
-
-#include "IPlugConstants.h"
-#include "IPlugMidi.h"  // <- Midi related structs in here
-#include "IPlugUtilities.h"
-
 namespace iplug
 {
 	/** In certain cases we need to queue parameter changes for transferral between threads */

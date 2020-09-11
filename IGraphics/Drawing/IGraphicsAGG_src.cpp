@@ -8,6 +8,7 @@
  ==============================================================================
 */
 
+// TODO: Implement static AGG library
 #ifdef IGRAPHICS_AGG
 #include "agg_arc.cpp"
 #include "agg_arrowhead.cpp"

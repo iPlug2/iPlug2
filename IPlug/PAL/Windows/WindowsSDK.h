@@ -139,5 +139,6 @@ using PNTSTATUS = NTSTATUS*;
 #include <wininet.h>
 #include <winsock.h>
 #include <d3dkmthk.h>
+#include <sys/stat.h>
 
 #pragma pack(pop)

@@ -13,8 +13,6 @@
 #include "IGraphicsPathBase.h"
 #include "IGraphicsAGG_src.h"
 
-#include "heapbuf.h"
-
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 

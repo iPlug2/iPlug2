@@ -10,9 +10,6 @@
 
 #pragma once
 
-#include <CoreGraphics/CoreGraphics.h>
-
-#include "IGraphics_select.h"
 #include "IGraphicsCoreText.h"
 
 BEGIN_IPLUG_NAMESPACE

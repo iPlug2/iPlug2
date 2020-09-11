@@ -89,8 +89,6 @@
 	#error "No API defined!"
 #endif
 
-// clang-format on
-
 #if PLATFORM_WINDOWS || PLATFORM_WEB
 	#define BUNDLE_ID ""
 #elif PLATFORM_MAC
@@ -156,37 +154,37 @@
 #endif
 
 #ifndef PLUG_DOES_MIDI_IN
-PRAGMA_MESSAGE("PLUG_DOES_MIDI_IN not defined, setting to 0")
+	PRAGMA_MESSAGE("PLUG_DOES_MIDI_IN not defined, setting to 0")
 	#define PLUG_DOES_MIDI_IN 0
 #endif
 
 #ifndef PLUG_DOES_MIDI_OUT
-PRAGMA_MESSAGE("PLUG_DOES_MIDI_OUT not defined, setting to 0")
+	PRAGMA_MESSAGE("PLUG_DOES_MIDI_OUT not defined, setting to 0")
 	#define PLUG_DOES_MIDI_OUT 0
 #endif
 
 #ifndef PLUG_DOES_MPE
-PRAGMA_MESSAGE("PLUG_DOES_MPE not defined, setting to 0")
+	PRAGMA_MESSAGE("PLUG_DOES_MPE not defined, setting to 0")
 	#define PLUG_DOES_MPE 0
 #endif
 
 #ifndef PLUG_DOES_STATE_CHUNKS
-PRAGMA_MESSAGE("PLUG_DOES_STATE_CHUNKS not defined, setting to 0")
+	PRAGMA_MESSAGE("PLUG_DOES_STATE_CHUNKS not defined, setting to 0")
 	#define PLUG_DOES_STATE_CHUNKS 0
 #endif
 
 #ifndef PLUG_HAS_UI
-PRAGMA_MESSAGE("PLUG_HAS_UI not defined, setting to 0")
+	PRAGMA_MESSAGE("PLUG_HAS_UI not defined, setting to 0")
 	#define PLUG_HAS_UI 0
 #endif
 
 #ifndef PLUG_WIDTH
-PRAGMA_MESSAGE("PLUG_WIDTH not defined, setting to 500px")
+	PRAGMA_MESSAGE("PLUG_WIDTH not defined, setting to 500px")
 	#define PLUG_WIDTH 500
 #endif
 
 #ifndef PLUG_HEIGHT
-PRAGMA_MESSAGE("PLUG_HEIGHT not defined, setting to 500px")
+	PRAGMA_MESSAGE("PLUG_HEIGHT not defined, setting to 500px")
 	#define PLUG_HEIGHT 500
 #endif
 
@@ -209,16 +207,16 @@ PRAGMA_MESSAGE("PLUG_HEIGHT not defined, setting to 500px")
 
 // TODO: FPS should be read from client hardware and then have a FPS limit option client side
 #ifndef PLUG_FPS
-PRAGMA_MESSAGE("PLUG_FPS not defined, setting to 60")
+	PRAGMA_MESSAGE("PLUG_FPS not defined, setting to 60")
 	#define PLUG_FPS 60
 #endif
 
 #ifndef PLUG_SHARED_RESOURCES
-PRAGMA_MESSAGE("PLUG_SHARED_RESOURCES not defined, setting to 0")
+	PRAGMA_MESSAGE("PLUG_SHARED_RESOURCES not defined, setting to 0")
 	#define PLUG_SHARED_RESOURCES 0
 #else
 	#ifndef SHARED_RESOURCES_SUBPATH
-PRAGMA_MESSAGE("SHARED_RESOURCES_SUBPATH not defined, setting to PLUG_NAME")
+	PRAGMA_MESSAGE("SHARED_RESOURCES_SUBPATH not defined, setting to PLUG_NAME")
 		#define SHARED_RESOURCES_SUBPATH PLUG_NAME
 	#endif
 #endif
@@ -229,22 +227,22 @@ PRAGMA_MESSAGE("SHARED_RESOURCES_SUBPATH not defined, setting to PLUG_NAME")
 	#endif
 
 	#ifndef PLUG_URL_STR
-PRAGMA_MESSAGE("PLUG_URL_STR not defined, setting to empty string")
+		PRAGMA_MESSAGE("PLUG_URL_STR not defined, setting to empty string")
 		#define PLUG_URL_STR ""
 	#endif
 
 	#ifndef PLUG_EMAIL_STR
-PRAGMA_MESSAGE("PLUG_EMAIL_STR not defined, setting to empty string")
+		PRAGMA_MESSAGE("PLUG_EMAIL_STR not defined, setting to empty string")
 		#define PLUG_EMAIL_STR ""
 	#endif
 
 	#ifndef PLUG_COPYRIGHT_STR
-PRAGMA_MESSAGE("PLUG_COPYRIGHT_STR not defined, setting to empty string")
+		PRAGMA_MESSAGE("PLUG_COPYRIGHT_STR not defined, setting to empty string")
 		#define PLUG_COPYRIGHT_STR ""
 	#endif
 
 	#ifndef VST3_SUBCATEGORY
-PRAGMA_MESSAGE("VST3_SUBCATEGORY not defined, setting to other")
+		PRAGMA_MESSAGE("VST3_SUBCATEGORY not defined, setting to other")
 		#define VST3_SUBCATEGORY "Other"
 	#endif
 #endif
@@ -292,3 +290,4 @@ PRAGMA_MESSAGE("VST3_SUBCATEGORY not defined, setting to other")
 		#endif
 	#endif
 #endif
+// clang-format on

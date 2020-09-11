@@ -11,7 +11,7 @@
 #pragma once
 
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Platform configuration
 
 // currently a copy from WindowsPlatform.h
@@ -25,7 +25,7 @@
 #define PLATFORM_PTHREADS        0
 
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Mac specific types
 
 namespace iplug::types
@@ -44,3 +44,11 @@ namespace iplug::types
 	using Platform = MacOS;
 }  // namespace iplug::types
 
+
+//-----------------------------------------------------------------------------
+
+#include <CoreGraphics/CoreGraphics.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <dirent.h>

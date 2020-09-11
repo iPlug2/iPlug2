@@ -16,11 +16,6 @@
  * @copydoc IVMeterControl
  */
 
-#include "IPlugMath.h"
-#include "IControl.h"
-#include "ISender.h"
-#include "IPlugStructs.h"
-
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 

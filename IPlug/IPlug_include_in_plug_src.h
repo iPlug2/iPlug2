@@ -80,11 +80,11 @@ HINSTANCE gHINSTANCE = 0;
 
 #pragma mark - VST3 (All)
 #elif defined VST3_API || VST3C_API || defined VST3P_API
-	BEGIN_INCLUDE_DEPENDENCIES
-	#include "public.sdk/source/main/pluginfactory.h"
-	#include "pluginterfaces/vst/ivstcomponent.h"
-	#include "pluginterfaces/vst/ivsteditcontroller.h"
-	END_INCLUDE_DEPENDENCIES
+	//BEGIN_INCLUDE_DEPENDENCIES
+	//#include "public.sdk/source/main/pluginfactory.h"
+	//#include "pluginterfaces/vst/ivstcomponent.h"
+	//#include "pluginterfaces/vst/ivsteditcontroller.h"
+	//END_INCLUDE_DEPENDENCIES
 
 	#if !defined VST3_PROCESSOR_UID && !defined VST3_CONTROLLER_UID
 		#define VST3_PROCESSOR_UID  0xF2AEE70D, 0x00DE4F4E, PLUG_MFR_ID, PLUG_UNIQUE_ID

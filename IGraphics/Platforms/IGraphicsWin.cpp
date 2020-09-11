@@ -9,9 +9,6 @@
 */
 
 #include "IGraphicsWin.h"
-
-#include "heapbuf.h"
-
 #include "IPlugParameter.h"
 #include "IPopupMenuControl.h"
 #include "IPlugPaths.h"
@@ -105,13 +102,11 @@ IFontDataPtr IGraphicsWin::Font::GetFontData()
 	if (hdc != NULL)
 	{
 		SelectObject(hdc, mFont);
-		const size_t size = ::GetFontData(hdc, 0, 0, NULL, 0);
+		const uint32 size = ::GetFontData(hdc, 0, 0, NULL, 0);
 
 		if (size != GDI_ERROR)
 		{
-			// If we don't cast from const size_t to const size_t,
-			// MSVC compiler generates a C4244 warning at /W4. Makes no sense at all.
-			fontData = std::make_unique<IFontData>(static_cast<const size_t>(size));
+			fontData = std::make_unique<IFontData>(size);
 
 			if (fontData->GetSize() == size)
 			{

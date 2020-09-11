@@ -11,14 +11,8 @@
 #pragma once
 
 
-BEGIN_INCLUDE_DEPENDENCIES
-#include <ptrlist.h>
 #include "Extras/NChanDelay.h"
-END_INCLUDE_DEPENDENCIES
 
-#include "IPlugConstants.h"
-#include "IPlugStructs.h"
-#include "IPlugUtilities.h"
 
 /**
  * @file

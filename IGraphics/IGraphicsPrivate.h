@@ -15,13 +15,6 @@
  * @{
  */
 
-#include <mutex.h>
-#include <wdlstring.h>
-#include <wdlendian.h>
-#include <ptrlist.h>
-#include <heapbuf.h>
-
-
 #ifdef IGRAPHICS_SKIA
   #pragma warning( push )
   #pragma warning( disable : 4244 )

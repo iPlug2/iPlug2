@@ -44,3 +44,10 @@ namespace iplug::types
 	using Platform = Web;
 }  // namespace iplug::types
 
+
+//-----------------------------------------------------------------------------
+
+#include <emscripten.h>
+#include <emscripten/val.h>
+#include <emscripten/bind.h>
+#include <emscripten/html5.h>

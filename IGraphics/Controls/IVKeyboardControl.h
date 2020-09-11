@@ -16,9 +16,6 @@
  * @copydoc IVKeyboardControl
  */
 
-#include "IControl.h"
-#include "IPlugMidi.h"
-
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 

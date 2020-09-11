@@ -28,11 +28,6 @@
  
  */
 
-#include <wdltypes.h>
-#include <wdlstring.h>
-
-#include "IPlugConstants.h"
-
 #include "IPlugAPP.h"
 
 #if PLATFORM_WINDOWS

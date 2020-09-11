@@ -16,13 +16,7 @@
  * @{
  */
 
-#include "IPlugUtilities.h"
-#include "IPlugLogger.h"
-#include "IPlugStructs.h"
-
 #include "IGraphicsPrivate.h"
-#include "IGraphicsUtilities.h"
-#include "IGraphicsConstants.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE

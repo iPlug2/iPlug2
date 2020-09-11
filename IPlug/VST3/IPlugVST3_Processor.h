@@ -8,28 +8,16 @@
  ==============================================================================
 */
 
-#pragma once
-
-
-#undef stricmp
-#undef strnicmp
-
-BEGIN_INCLUDE_DEPENDENCIES
-#include <public.sdk/source/vst/vstaudioeffect.h>
-#include <public.sdk/source/vst/hosting/parameterchanges.h>
-#include <pluginterfaces/vst/ivstprocesscontext.h>
-END_INCLUDE_DEPENDENCIES
-
-#include "IPlugAPIBase.h"
-#include "IPlugVST3_ProcessorBase.h"
-#include "IPlugVST3_Common.h"
-
-
-
 /**
  * @file
  * @copydoc IPlugVST3Processor
  */
+
+#pragma once
+
+#include "IPlugVST3_ProcessorBase.h"
+#include "IPlugVST3_Common.h"
+
 
 BEGIN_IPLUG_NAMESPACE
 

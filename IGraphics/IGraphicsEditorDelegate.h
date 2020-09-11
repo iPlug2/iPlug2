@@ -8,16 +8,14 @@
  ==============================================================================
 */
 
-#pragma once
-
-#include <memory>
-
-#include "IPlugEditorDelegate.h"
-
 /**
  * @file
  * @copydoc IGEditorDelegate
  */
+
+#pragma once
+
+#include "IPlugEditorDelegate.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
