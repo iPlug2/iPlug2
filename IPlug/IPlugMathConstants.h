@@ -104,7 +104,7 @@ namespace iplug::math::constants
 	template <> inline constexpr float rad_v<float>         = static_cast<float>(rad_v<double>);
 	template <> inline constexpr float inv_rad_v<float>     = static_cast<float>(inv_rad_v<double>);
 
-	inline constexpr tfloat delta       = delta_v<tfloat>;        // 0.00001 precision threshold
+	inline constexpr tfloat delta       = delta_v<tfloat>;        // 0.00001 precision threshold (-100dB in Np)
 	inline constexpr tfloat macheps16   = macheps16_v<tfloat>;    // Machine epsilon 16bit 9.77e-4
 	inline constexpr tfloat macheps32   = macheps32_v<tfloat>;    // Machine epsilon 32bit 1.19e-7
 	inline constexpr tfloat macheps64   = macheps64_v<tfloat>;    // Machine epsilon 64bit 2.22e-16

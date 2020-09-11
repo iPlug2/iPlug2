@@ -258,6 +258,7 @@
 
 	#define BEGIN_INCLUDE_DEPENDENCIES                                                            \
 		_Pragma("clang diagnostic push")                                                          \
+		_Pragma("clang diagnostic ignored \"-Wdeprecated-register\"")                             \
 		_Pragma("clang diagnostic ignored \"-Wunknown-pragmas\"")                                 \
 		_Pragma("clang diagnostic ignored \"-Wunused-parameter\"")
 
@@ -274,6 +275,7 @@
 
 	#define BEGIN_INCLUDE_DEPENDENCIES                                                            \
 		_Pragma("GCC diagnostic push")                                                            \
+		_Pragma("GCC diagnostic ignored \"-Wdeprecated-register\"")                               \
 		_Pragma("GCC diagnostic ignored \"-Wunknown-pragmas\"")                                   \
 		_Pragma("GCC diagnostic ignored \"-Wunused-parameter\"")
 

@@ -12,24 +12,29 @@
 
 #include "IPlugMathConstants.h"
 
-// temporary until finding a suitable location
-namespace iplug
-{
-	inline constexpr bool IsLittleEndian()
-	{
-		return (PLATFORM_LITTLE_ENDIAN == 1);
-	}
-}  // namespace iplug
-
 
 namespace iplug::math
 {
-	// True if value is smaller than given threshold or delta constant
+	template <class T> inline constexpr T abs(T value)
+	{
+		return (value >= 0) ? value : -value;
+	}
+
+
+	// True if value is smaller than given threshold or delta constant (0.00001 or -100dB in Neper units)
 	template <class T = tfloat>
 	inline constexpr bool IsBelowThreshold(const T value, const T threshold = constants::delta_v<T>)
 	{
 		static_assert(std::is_floating_point_v<T>);
 		return (abs(value) < threshold);
+	}
+
+	// True if value is higher than given threshold or delta constant (0.00001 or -100dB in Neper units)
+	template <class T = tfloat>
+	inline constexpr bool IsAboveThreshold(const T value, const T threshold = constants::delta_v<T>)
+	{
+		static_assert(std::is_floating_point_v<T>);
+		return (abs(value) > threshold);
 	}
 
 	// True if value is, or is close to 0.0 based on given threshold or macheps32 constant
@@ -48,7 +53,7 @@ namespace iplug::math
 		return (abs(A - B) <= threshold);
 	}
 
-	template <class T> inline constexpr bool IsPowerOfTwo(const T value)
+	template <class Tret=bool, class T> inline constexpr Tret IsPowerOfTwo(const T value)
 	{
 		return ((value & (value - 1)) == 0);
 	}
@@ -57,7 +62,7 @@ namespace iplug::math
 	template <class T> inline constexpr T PowerOfTwoCeil(T value)
 	{
 		static_assert(std::is_arithmetic_v<T>);
-		if constexpr (IsLittleEndian())
+		if constexpr (Platform::IsLittleEndian())
 		{
 			union
 			{
@@ -65,7 +70,7 @@ namespace iplug::math
 				uint64 i;
 			} u;
 			u.i = static_cast<uint64>(abs(value));
-			u.i <<= ((u.i & (u.i - 1)) != 0);
+			u.i <<= IsPowerOfTwo<int>(u.i);
 			u.f = static_cast<double>(u.i);
 			u.i &= 0xfff0000000000000u;
 			if (value < 0)
@@ -74,7 +79,7 @@ namespace iplug::math
 		}
 
 		uint64 v = static_cast<uint64>(abs(value));
-		v <<= ((value & (value - 1)) != 0);
+		v <<= IsPowerOfTwo<int>(value);
 		T u = static_cast<T>(ldexp(1.0, ilogb(v)));
 		if (value < 0)
 			u = -u;
@@ -85,7 +90,7 @@ namespace iplug::math
 	template <class T> inline constexpr T PowerOfTwoFloor(T value)
 	{
 		static_assert(std::is_arithmetic_v<T>);
-		if constexpr (IsLittleEndian())
+		if constexpr (Platform::IsLittleEndian())
 		{
 			union
 			{
@@ -160,7 +165,7 @@ namespace iplug::math
 
 	inline float fsqrt(const float value)
 	{
-		static_assert(IsLittleEndian(), "Big Endians not implemented yet");
+		static_assert(Platform::IsLittleEndian(), "Big Endians not implemented yet");
 
 		// internal lookup table for fsqrt
 		static const uint32* _fsqrt_lut = [] {
