@@ -14,8 +14,11 @@ namespace iplug::math::constants
 {
 	struct ultimate_question_of_life
 	{
-		template <class T> static inline constexpr T answer = 42;
+		template <class T>
+		static inline constexpr T answer = 42;
 	};
+
+	// clang-format off
 
 	template <class T> inline constexpr T delta_v       = _Invalid<T> {};
 	template <class T> inline constexpr T macheps16_v   = _Invalid<T> {};
@@ -103,6 +106,8 @@ namespace iplug::math::constants
 	template <> inline constexpr float inv_Np_v<float>      = static_cast<float>(inv_Np_v<double>);
 	template <> inline constexpr float rad_v<float>         = static_cast<float>(rad_v<double>);
 	template <> inline constexpr float inv_rad_v<float>     = static_cast<float>(inv_rad_v<double>);
+
+	// clang-format on
 
 	inline constexpr tfloat delta       = delta_v<tfloat>;        // 0.00001 precision threshold (-100dB in Np)
 	inline constexpr tfloat macheps16   = macheps16_v<tfloat>;    // Machine epsilon 16bit 9.77e-4

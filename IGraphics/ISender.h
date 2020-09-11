@@ -20,7 +20,8 @@ BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
 /** ISenderData is used to represent a typed data packet, that may contain values for multiple channels */
-template <int MAXNC = 1, typename T = float> struct ISenderData
+template <int MAXNC = 1, typename T = float>
+struct ISenderData
 {
 	int ctrlTag    = kNoTag;
 	int nChans     = MAXNC;
@@ -42,7 +43,8 @@ template <int MAXNC = 1, typename T = float> struct ISenderData
 
 /** ISender is a utility class which can be used to defer data from the realtime audio processing and send it to the GUI
  * for visualization */
-template <int MAXNC = 1, int QUEUE_SIZE = 64, typename T = float> class ISender
+template <int MAXNC = 1, int QUEUE_SIZE = 64, typename T = float>
+class ISender
 {
  public:
 	static constexpr int kUpdateMessage = 0;
@@ -70,7 +72,8 @@ template <int MAXNC = 1, int QUEUE_SIZE = 64, typename T = float> class ISender
 };
 
 /** IPeakSender is a utility class which can be used to defer peak data from sample buffers for sending to the GUI */
-template <int MAXNC = 1, int QUEUE_SIZE = 64> class IPeakSender : public ISender<MAXNC, QUEUE_SIZE, float>
+template <int MAXNC = 1, int QUEUE_SIZE = 64>
+class IPeakSender : public ISender<MAXNC, QUEUE_SIZE, float>
 {
  public:
 	/** Queue peaks from sample buffers into the sender, checking the data is over the required threshold. This can be

@@ -15,7 +15,8 @@
 
 namespace iplug::math
 {
-	template <class T> inline constexpr T abs(T value)
+	template <class T>
+	inline constexpr T abs(T value)
 	{
 		return (value >= 0) ? value : -value;
 	}
@@ -53,13 +54,15 @@ namespace iplug::math
 		return (abs(A - B) <= threshold);
 	}
 
-	template <class Tret=bool, class T> inline constexpr Tret IsPowerOfTwo(const T value)
+	template <class Tret = bool, class T>
+	inline constexpr Tret IsPowerOfTwo(const T value)
 	{
 		return ((value & (value - 1)) == 0);
 	}
 
 	// Returns nearest power of two value that is greater than or equal to value
-	template <class T> inline constexpr T PowerOfTwoCeil(T value)
+	template <class T>
+	inline constexpr T PowerOfTwoCeil(T value)
 	{
 		static_assert(std::is_arithmetic_v<T>);
 		if constexpr (Platform::IsLittleEndian())
@@ -87,7 +90,8 @@ namespace iplug::math
 	}
 
 	// Returns nearest power of two value that is less than or equal to value
-	template <class T> inline constexpr T PowerOfTwoFloor(T value)
+	template <class T>
+	inline constexpr T PowerOfTwoFloor(T value)
 	{
 		static_assert(std::is_arithmetic_v<T>);
 		if constexpr (Platform::IsLittleEndian())
@@ -111,14 +115,16 @@ namespace iplug::math
 	}
 
 	// Degrees to radians
-	template <class T = tfloat> inline constexpr auto DegToRad(const T Degrees)
+	template <class T = tfloat>
+	inline constexpr auto DegToRad(const T Degrees)
 	{
 		static_assert(std::is_arithmetic_v<T>);
 		return Degrees * constants::inv_rad_v<T>;
 	}
 
 	// Radians to degrees
-	template <class T = tfloat> inline constexpr auto RadToDeg(const T Radians)
+	template <class T = tfloat>
+	inline constexpr auto RadToDeg(const T Radians)
 	{
 		static_assert(std::is_arithmetic_v<T>);
 		return Radians * constants::rad_v<T>;
@@ -129,7 +135,8 @@ namespace iplug::math
 	 * @param dB Value
 	 * @return Gain calculated as an approximation of e^(inv_Np*dB)
 	 */
-	template <class T = tfloat> inline constexpr auto DBToAmp(const T dB)
+	template <class T = tfloat>
+	inline constexpr auto DBToAmp(const T dB)
 	{
 		static_assert(std::is_floating_point_v<T>);
 		return exp(constants::inv_Np_v<T> * dB);
@@ -140,7 +147,8 @@ namespace iplug::math
 	 * @param Amplitude Value
 	 * @return dB calculated as an approximation of Np*log(Amplitude)
 	 */
-	template <class T = tfloat> inline constexpr auto AmpToDB(const T Amplitude)
+	template <class T = tfloat>
+	inline constexpr auto AmpToDB(const T Amplitude)
 	{
 		static_assert(std::is_floating_point_v<T>);
 		return constants::Np_v<T> * log(fabs(Amplitude));
