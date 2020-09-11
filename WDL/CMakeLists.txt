@@ -14,9 +14,6 @@ target_compile_options(WDL
 
 
 target_include_directories(WDL
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        $<$<BOOL:${PLATFORM_MAC}>:${CMAKE_CURRENT_SOURCE_DIR}/swell>
     PRIVATE
         # "cmath"
         # "eel2"
@@ -67,7 +64,7 @@ target_sources(WDL
         # "des.h"
         # "destroycheck.h"
         # "diffcalc.h"
-        # "dirscan.h"
+        "dirscan.h"
         # "eel2/asm-nseel-aarch64-gcc.c"
         # "eel2/asm-nseel-arm-gcc.c"
         # "eel2/asm-nseel-ppc-gcc.c"
