@@ -24,7 +24,7 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-class IVKeyboardControl : public IControl , public IMultiTouchControlBase
+class IVKeyboardControl : public IContainer , public IMultiTouchControlBase
 {
   enum class GlideMode { Glissando, Pitch };
   enum class KeyLayoutMode { Contiguous, Piano };
@@ -130,7 +130,7 @@ public:
                     const IColor& PK_COLOR = DEFAULT_PK_COLOR,
                     const IColor& FR_COLOR = DEFAULT_FR_COLOR,
                     const IColor& HK_COLOR = DEFAULT_HK_COLOR)
-  : IControl(bounds)
+  : IContainer(bounds)
   {
     SetNoteRange(minNote, maxNote);
     SetWantsMidi(true);
@@ -139,37 +139,15 @@ public:
     SetTargetRECT(IRECT());
   }
   
-  void OnInit() override
-  {
-    GetUI()->AttachControl(mBackGroundControl = new IPanelControl(mRECT, COLOR_BLACK));
-    CreateKeys(true);
-  }
-  
   void OnAttached() override
   {
+    AddChildControl(mBackGroundControl = new IPanelControl(mRECT, COLOR_BLACK));
+    CreateKeys(true);
 //    CreateHighlights();
   }
   
   void Draw(IGraphics& g) override
   {
-  }
-  
-  void Hide(bool hide) override
-  {
-    mBackGroundControl->Hide(hide);
-    
-    for(int i = 0; i<mKeyControls.GetSize(); i++)
-    {
-      mKeyControls.Get(i)->Hide(hide);
-    }
-    
-    for(int i = 0; i<mHighlightControls.GetSize(); i++)
-    {
-      mHighlightControls.Get(i)->Hide(hide);
-    }
-    
-    mHide = hide;
-    SetDirty(false);
   }
   
   void SendMidiNoteMsg(int key, int velocity)
@@ -281,14 +259,17 @@ public:
   
   void OnResize() override
   {
-    mBackGroundControl->SetTargetAndDrawRECTs(mRECT);
-    
-    for (int i=0; i<mKeyControls.GetSize(); i++)
+    if(mBackGroundControl)
     {
-      mKeyControls.Get(i)->SetTargetAndDrawRECTs(mRECT.GetGridCell(i, 1, mKeyControls.GetSize()));
+      mBackGroundControl->SetTargetAndDrawRECTs(mRECT);
+      
+      for (int i=0; i<mKeyControls.GetSize(); i++)
+      {
+        mKeyControls.Get(i)->SetTargetAndDrawRECTs(mRECT.GetGridCell(i, 1, mKeyControls.GetSize()));
+      }
+      
+      //TODO: highlights
     }
-    
-    //TODO: highlights
   }
   
   /** Sets a note state, if the keyboard contains that note
@@ -328,13 +309,11 @@ public:
   
   void CreateHighlights()
   {
-    IGraphics* pGraphics = GetUI();
-    
     for(int i=0;i<MAX_TOUCHES;i++)
     {
       HighlightControl* pNewHightlightControl = new HighlightControl(mRECT.GetCentredInside(10), this, GetRainbow(i%7));
 //      pNewHightlightControl->Hide(true);
-      pGraphics->AttachControl(pNewHightlightControl);
+      AddChildControl(pNewHightlightControl);
       mHighlightControls.Add(pNewHightlightControl);
     }
   }
@@ -342,14 +321,12 @@ public:
   /** @param maintainWidth Set true if keys should resize to fit parent bounds */
   void CreateKeys(bool maintainWidth)
   {
-    IGraphics* pGraphics = GetUI();
-    
     int numWhiteKeys = mMaxNote-mMinNote;
     
     for(int i=0; i< numWhiteKeys;i++)
     {
       KeyControl* pNewKeyControl = new KeyControl(mRECT.GetGridCell(i, 1, numWhiteKeys), i, false, this);
-      pGraphics->AttachControl(pNewKeyControl);
+      AddChildControl(pNewKeyControl);
       mKeyControls.Add(pNewKeyControl);
     }
   }

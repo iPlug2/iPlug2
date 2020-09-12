@@ -37,6 +37,8 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
+class IContainer;
+
 /** The lowest level base class of an IGraphics control. A control is anything on the GUI 
 *  @ingroup BaseControls */
 class IControl
@@ -448,6 +450,11 @@ public:
     OnRescale();
   }
   
+  /** @return A pointer to the parent container, if the control is a sub control */
+  IContainer* GetParent() const { return mParent; }
+  
+  void SetParent(IContainer* pParent) { mParent = pParent; }
+  
   /** @return A pointer to the IGraphics context that owns this control */ 
   IGraphics* GetUI() { return mGraphics; }
     
@@ -520,7 +527,7 @@ protected:
         func(v, args...);
     }
   }
-    
+  
   IRECT mRECT;
   IRECT mTargetRECT;
   
@@ -563,6 +570,7 @@ protected:
 #endif
   
 private:
+  IContainer* mParent = nullptr;
   IGEditorDelegate* mDelegate = nullptr;
   IGraphics* mGraphics = nullptr;
   IActionFunction mActionFunc = nullptr;
@@ -581,6 +589,50 @@ private:
  * \addtogroup BaseControls
  * @{
  */
+
+class IContainer : public IControl
+{
+public:
+  IContainer(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr)
+  : IControl(bounds, paramIdx, actionFunc)
+  {}
+  
+  IContainer(const IRECT& bounds, const std::initializer_list<int>& params, IActionFunction actionFunc = nullptr)
+  : IControl(bounds, params, actionFunc)
+  {}
+  
+  IContainer(const IRECT& bounds, IActionFunction actionFunc)
+  : IControl(bounds, actionFunc)
+  {}
+  
+  virtual ~IContainer()
+  {
+    mChildren.Empty(false);
+  }
+  
+  void SetDisabled(bool disable) override
+  {
+    for (int i=0; i<mChildren.GetSize(); i++) {
+      mChildren.Get(i)->SetDisabled(disable);
+    }
+  }
+
+  void Hide(bool hide) override
+  {
+    for (int i=0; i<mChildren.GetSize(); i++) {
+      mChildren.Get(i)->Hide(hide);
+    }
+  }
+  
+  IControl* AddChildControl(IControl* pControl, int ctrlTag = kNoTag, const char* group = "")
+  {
+    pControl->SetParent(this);
+    return mChildren.Add(GetUI()->AttachControl(pControl, ctrlTag, group));
+  }
+  
+private:
+  WDL_PtrList<IControl> mChildren;
+};
 
 /** A base interface, to be combined with IControl for bitmap-based controls "IBControls", managing an IBitmap */
 class IBitmapBase

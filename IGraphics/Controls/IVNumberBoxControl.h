@@ -23,12 +23,12 @@ BEGIN_IGRAPHICS_NAMESPACE
 /** A "meta control" for a number box with an Inc/Dec button
  * It adds several child buttons 
  * @ingroup IControls */
-class IVNumberBoxControl : public IControl
+class IVNumberBoxControl : public IContainer
                          , public IVectorBase
 {
 public:
   IVNumberBoxControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr, const char* label = "", const IVStyle& style = DEFAULT_STYLE, double defaultValue = 50.f, double minValue = 1.f, double maxValue = 100.f, const char* fmtStr = "%0.0f")
-  : IControl(bounds, paramIdx, actionFunc)
+  : IContainer(bounds, paramIdx, actionFunc)
   , IVectorBase(style.WithDrawShadows(false)
                 .WithValueText(style.valueText.WithVAlign(EVAlign::Middle)))
   , mFmtStr(fmtStr)
@@ -77,13 +77,13 @@ public:
   void OnAttached() override
   {
     IRECT sections = mWidgetBounds;
-    GetUI()->AttachControl(mTextReadout = new IVLabelControl(sections.ReduceFromLeft(sections.W() * 0.75f), "0", mStyle.WithDrawFrame(true)));
+    AddChildControl(mTextReadout = new IVLabelControl(sections.ReduceFromLeft(sections.W() * 0.75f), "0", mStyle.WithDrawFrame(true)));
     
     mTextReadout->SetStrFmt(32, mFmtStr.Get(), mRealValue);
     
     sections.Pad(-1.f, 1.f, 0.f, 1.f);
-    GetUI()->AttachControl(mIncButton = new IVButtonControl(sections.FracRectVertical(0.5f, true), SplashClickActionFunc, "+", mStyle))->SetAnimationEndActionFunction(mIncrementFunc);
-    GetUI()->AttachControl(mDecButton = new IVButtonControl(sections.FracRectVertical(0.5f, false), SplashClickActionFunc, "-", mStyle))->SetAnimationEndActionFunction(mDecrementFunc);
+    AddChildControl(mIncButton = new IVButtonControl(sections.FracRectVertical(0.5f, true), SplashClickActionFunc, "+", mStyle))->SetAnimationEndActionFunction(mIncrementFunc);
+    AddChildControl(mDecButton = new IVButtonControl(sections.FracRectVertical(0.5f, false), SplashClickActionFunc, "-", mStyle))->SetAnimationEndActionFunction(mDecrementFunc);
   }
   
   void OnMouseDown(float x, float y, const IMouseMod &mod) override
