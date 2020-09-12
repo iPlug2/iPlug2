@@ -10,131 +10,57 @@
 
 #pragma once
 
+
 namespace iplug::math::constants
 {
-	struct ultimate_question_of_life
-	{
-		template <class T>
-		static inline constexpr T answer = 42;
-	};
-
 	// clang-format off
 
-	template <class T> inline constexpr T delta_v       = _Invalid<T> {};
-	template <class T> inline constexpr T macheps16_v   = _Invalid<T> {};
-	template <class T> inline constexpr T macheps32_v   = _Invalid<T> {};
-	template <class T> inline constexpr T macheps64_v   = _Invalid<T> {};
-	template <class T> inline constexpr T e_v           = _Invalid<T> {};
-	template <class T> inline constexpr T log2e_v       = _Invalid<T> {};
-	template <class T> inline constexpr T log10e_v      = _Invalid<T> {};
-	template <class T> inline constexpr T log10_2_v     = _Invalid<T> {};
-	template <class T> inline constexpr T pi_v          = _Invalid<T> {};
-	template <class T> inline constexpr T pi2_v         = _Invalid<T> {};
-	template <class T> inline constexpr T pi4_v         = _Invalid<T> {};
-	template <class T> inline constexpr T inv_pi_v      = _Invalid<T> {};
-	template <class T> inline constexpr T inv_pi2_v     = _Invalid<T> {};
-	template <class T> inline constexpr T inv_sqrtpi_v  = _Invalid<T> {};
-	template <class T> inline constexpr T inv_sqrtpi2_v = _Invalid<T> {};
-	template <class T> inline constexpr T ln2_v         = _Invalid<T> {};
-	template <class T> inline constexpr T ln10_v        = _Invalid<T> {};
-	template <class T> inline constexpr T sqrt2_v       = _Invalid<T> {};
-	template <class T> inline constexpr T sqrt3_v       = _Invalid<T> {};
-	template <class T> inline constexpr T inv_sqrt2_v   = _Invalid<T> {};
-	template <class T> inline constexpr T inv_sqrt3_v   = _Invalid<T> {};
-	template <class T> inline constexpr T egamma_v      = _Invalid<T> {};
-	template <class T> inline constexpr T phi_v         = _Invalid<T> {};
-	template <class T> inline constexpr T G_v           = _Invalid<T> {};
-	template <class T> inline constexpr T Np_v          = _Invalid<T> {};
-	template <class T> inline constexpr T inv_Np_v      = _Invalid<T> {};
-	template <class T> inline constexpr T rad_v         = _Invalid<T> {};
-	template <class T> inline constexpr T inv_rad_v     = _Invalid<T> {};
+	// Declare floating point types
+	#define FDECLARE_CONST(name, number)                                                              \
+		template <class T>                                                                            \
+		inline constexpr typename std::enable_if_t<std::is_floating_point_v<T>, T> name##_v = number; \
+		inline constexpr tfloat name = name##_v<tfloat>;
 
-	template <> inline constexpr double delta_v<double>       = 0.00001;
-	template <> inline constexpr double macheps16_v<double>   = 9.77e-4;
-	template <> inline constexpr double macheps32_v<double>   = 1.19e-7;
-	template <> inline constexpr double macheps64_v<double>   = 2.22e-16;
-	template <> inline constexpr double e_v<double>           = 2.718281828459045;
-	template <> inline constexpr double log2e_v<double>       = 1.4426950408889634;
-	template <> inline constexpr double log10e_v<double>      = 0.4342944819032518;
-	template <> inline constexpr double log10_2_v<double>     = 0.3010299956639812;
-	template <> inline constexpr double pi_v<double>          = 3.141592653589793;
-	template <> inline constexpr double pi2_v<double>         = 1.570796326794897;
-	template <> inline constexpr double pi4_v<double>         = 0.7853981633974483;
-	template <> inline constexpr double inv_pi_v<double>      = 0.3183098861837907;
-	template <> inline constexpr double inv_pi2_v<double>     = 0.6366197723675814;
-	template <> inline constexpr double inv_sqrtpi_v<double>  = 0.5641895835477563;
-	template <> inline constexpr double inv_sqrtpi2_v<double> = 1.128379167095513;
-	template <> inline constexpr double ln2_v<double>         = 0.6931471805599453;
-	template <> inline constexpr double ln10_v<double>        = 2.302585092994046;
-	template <> inline constexpr double sqrt2_v<double>       = 1.4142135623730951;
-	template <> inline constexpr double sqrt3_v<double>       = 1.7320508075688772;
-	template <> inline constexpr double inv_sqrt2_v<double>   = 0.7071067811865475;
-	template <> inline constexpr double inv_sqrt3_v<double>   = 0.5773502691896257;
-	template <> inline constexpr double egamma_v<double>      = 0.5772156649015329;
-	template <> inline constexpr double phi_v<double>         = 1.618033988749895;
-	template <> inline constexpr double G_v<double>           = 0.000000000066742;
-	template <> inline constexpr double Np_v<double>          = 8.685889638065036;
-	template <> inline constexpr double inv_Np_v<double>      = 0.115129254649702;
-	template <> inline constexpr double rad_v<double>         = 57.295779513082321;
-	template <> inline constexpr double inv_rad_v<double>     = 0.0174532925199433;
+	// Declare integral types
+	#define IDECLARE_CONST(name, number)                                                              \
+		template <class T>                                                                            \
+		inline constexpr typename std::enable_if_t<std::is_integral_v<T>, T> name##_v = number;       \
+		inline constexpr int name = name##_v<int>;
 
-	template <> inline constexpr float delta_v<float>       = static_cast<float>(delta_v<double>);
-	template <> inline constexpr float macheps16_v<float>   = static_cast<float>(macheps16_v<double>);
-	template <> inline constexpr float macheps32_v<float>   = static_cast<float>(macheps32_v<double>);
-	template <> inline constexpr float macheps64_v<float>   = static_cast<float>(macheps64_v<double>);
-	template <> inline constexpr float e_v<float>           = static_cast<float>(e_v<double>);
-	template <> inline constexpr float log2e_v<float>       = static_cast<float>(log2e_v<double>);
-	template <> inline constexpr float log10e_v<float>      = static_cast<float>(log10e_v<double>);
-	template <> inline constexpr float log10_2_v<float>     = static_cast<float>(log10_2_v<double>);
-	template <> inline constexpr float pi_v<float>          = static_cast<float>(pi_v<double>);
-	template <> inline constexpr float pi2_v<float>         = static_cast<float>(pi2_v<double>);
-	template <> inline constexpr float pi4_v<float>         = static_cast<float>(pi4_v<double>);
-	template <> inline constexpr float inv_pi_v<float>      = static_cast<float>(inv_pi_v<double>);
-	template <> inline constexpr float inv_pi2_v<float>     = static_cast<float>(inv_pi2_v<double>);
-	template <> inline constexpr float inv_sqrtpi_v<float>  = static_cast<float>(inv_sqrtpi_v<double>);
-	template <> inline constexpr float inv_sqrtpi2_v<float> = static_cast<float>(inv_sqrtpi2_v<double>);
-	template <> inline constexpr float ln2_v<float>         = static_cast<float>(ln2_v<double>);
-	template <> inline constexpr float ln10_v<float>        = static_cast<float>(ln10_v<double>);
-	template <> inline constexpr float sqrt2_v<float>       = static_cast<float>(sqrt2_v<double>);
-	template <> inline constexpr float sqrt3_v<float>       = static_cast<float>(sqrt3_v<double>);
-	template <> inline constexpr float inv_sqrt2_v<float>   = static_cast<float>(inv_sqrt2_v<double>);
-	template <> inline constexpr float inv_sqrt3_v<float>   = static_cast<float>(inv_sqrt3_v<double>);
-	template <> inline constexpr float egamma_v<float>      = static_cast<float>(egamma_v<double>);
-	template <> inline constexpr float phi_v<float>         = static_cast<float>(phi_v<double>);
-	template <> inline constexpr float G_v<float>           = static_cast<float>(G_v<double>);
-	template <> inline constexpr float Np_v<float>          = static_cast<float>(Np_v<double>);
-	template <> inline constexpr float inv_Np_v<float>      = static_cast<float>(inv_Np_v<double>);
-	template <> inline constexpr float rad_v<float>         = static_cast<float>(rad_v<double>);
-	template <> inline constexpr float inv_rad_v<float>     = static_cast<float>(inv_rad_v<double>);
+	FDECLARE_CONST( delta,        0.00001            )  // 0.00001 precision threshold (-100dB in Np)
+	FDECLARE_CONST( macheps16,    9.77e-4            )  // Machine epsilon 16bit 9.77e-4
+	FDECLARE_CONST( macheps32,    1.19e-7            )  // Machine epsilon 32bit 1.19e-7
+	FDECLARE_CONST( macheps64,    2.22e-16           )  // Machine epsilon 64bit 2.22e-16
+	FDECLARE_CONST( e,            2.718281828459045  )  // Euler's number
+	FDECLARE_CONST( log2e,        1.4426950408889634 )  // log2(e)
+	FDECLARE_CONST( log10e,       0.4342944819032518 )  // log10(e)
+	FDECLARE_CONST( log10_2,      0.3010299956639812 )  // log10(2)
+	FDECLARE_CONST( pi,           3.141592653589793  )  // pi
+	FDECLARE_CONST( pi2,          1.570796326794897  )  // pi/2
+	FDECLARE_CONST( pi4,          0.7853981633974483 )  // pi/4
+	FDECLARE_CONST( inv_pi,       0.3183098861837907 )  // 1/pi
+	FDECLARE_CONST( inv_pi2,      0.6366197723675814 )  // 2/pi
+	FDECLARE_CONST( inv_sqrtpi,   0.5641895835477563 )  // 1/sqrt(pi)
+	FDECLARE_CONST( inv_sqrtpi2,  1.128379167095513  )  // 2/sqrt(pi)
+	FDECLARE_CONST( ln2,          0.6931471805599453 )  // ln(2)
+	FDECLARE_CONST( ln10,         2.302585092994046  )  // ln(10)
+	FDECLARE_CONST( sqrt2,        1.4142135623730951 )  // sqrt(2)
+	FDECLARE_CONST( sqrt3,        1.7320508075688772 )  // sqrt(3)
+	FDECLARE_CONST( inv_sqrt2,    0.7071067811865475 )  // 1/sqrt(2)
+	FDECLARE_CONST( inv_sqrt3,    0.5773502691896257 )  // 1/sqrt(3)
+	FDECLARE_CONST( egamma,       0.5772156649015329 )  // γ Euler–Mascheroni constant
+	FDECLARE_CONST( phi,          1.618033988749895  )  // φ=(1+sqrt(5))/2 (golden ratio)
+	FDECLARE_CONST( G,            0.000000000066742  )  // Gravitational constant
+	FDECLARE_CONST( Np,           8.685889638065036  )  // Neper 20*log10(e)
+	FDECLARE_CONST( inv_Np,       0.115129254649702  )  // 1/Np
+	FDECLARE_CONST( rad,          57.295779513082321 )  // 180/pi
+	FDECLARE_CONST( inv_rad,      0.0174532925199433 )  // 1/rad
 
+	IDECLARE_CONST( ultimate_question_of_life, 42 )     // yes
+
+
+	#undef FDECLARE_CONST
+	#undef IDECLARE_CONST
 	// clang-format on
 
-	inline constexpr tfloat delta       = delta_v<tfloat>;        // 0.00001 precision threshold (-100dB in Np)
-	inline constexpr tfloat macheps16   = macheps16_v<tfloat>;    // Machine epsilon 16bit 9.77e-4
-	inline constexpr tfloat macheps32   = macheps32_v<tfloat>;    // Machine epsilon 32bit 1.19e-7
-	inline constexpr tfloat macheps64   = macheps64_v<tfloat>;    // Machine epsilon 64bit 2.22e-16
-	inline constexpr tfloat e           = e_v<tfloat>;            // Euler's number
-	inline constexpr tfloat log2e       = log2e_v<tfloat>;        // log2(e)
-	inline constexpr tfloat log10e      = log10e_v<tfloat>;       // log10(e)
-	inline constexpr tfloat log10_2     = log10_2_v<tfloat>;      // log10(2)
-	inline constexpr tfloat pi          = pi_v<tfloat>;           // pi
-	inline constexpr tfloat pi2         = pi2_v<tfloat>;          // pi/2
-	inline constexpr tfloat pi4         = pi4_v<tfloat>;          // pi/4
-	inline constexpr tfloat inv_pi      = inv_pi_v<tfloat>;       // 1/pi
-	inline constexpr tfloat inv_pi2     = inv_pi2_v<tfloat>;      // 2/pi
-	inline constexpr tfloat inv_sqrtpi  = inv_sqrtpi_v<tfloat>;   // 1/sqrt(pi)
-	inline constexpr tfloat inv_sqrtpi2 = inv_sqrtpi2_v<tfloat>;  // 2/sqrt(pi)
-	inline constexpr tfloat ln2         = ln2_v<tfloat>;          // ln(2)
-	inline constexpr tfloat ln10        = ln10_v<tfloat>;         // ln(10)
-	inline constexpr tfloat sqrt2       = sqrt2_v<tfloat>;        // sqrt(2)
-	inline constexpr tfloat sqrt3       = sqrt3_v<tfloat>;        // sqrt(3)
-	inline constexpr tfloat inv_sqrt2   = inv_sqrt2_v<tfloat>;    // 1/sqrt(2)
-	inline constexpr tfloat inv_sqrt3   = inv_sqrt3_v<tfloat>;    // 1/sqrt(3)
-	inline constexpr tfloat egamma      = egamma_v<tfloat>;       // γ Euler–Mascheroni constant
-	inline constexpr tfloat phi         = phi_v<tfloat>;          // φ=(1+sqrt(5))/2 (golden ratio)
-	inline constexpr tfloat G           = G_v<tfloat>;            // Gravitational constant
-	inline constexpr tfloat Np          = Np_v<tfloat>;           // Neper 20*log10(e)
-	inline constexpr tfloat inv_Np      = inv_Np_v<tfloat>;       // 1/Np
-	inline constexpr tfloat rad         = rad_v<tfloat>;          // 180/pi
-	inline constexpr tfloat inv_rad     = inv_rad_v<tfloat>;      // 1/rad
 }  // namespace iplug::math::constants

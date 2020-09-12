@@ -58,3 +58,5 @@
 #define TRACE
 #define VST3_API
 #define DEF_INTERFACE(InterfaceName) QUERY_INTERFACE (iid, obj, InterfaceName::iid, InterfaceName)
+#define FDECLARE_CONST(name, number)
+#define IDECLARE_CONST(name, number)
