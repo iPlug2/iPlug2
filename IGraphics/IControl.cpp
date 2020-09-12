@@ -780,10 +780,11 @@ void IKnobControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void IKnobControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
-  mMouseDown = false;
-
   if (mHideCursorOnDrag)
     GetUI()->HideMouseCursor(false);
+  
+  mMouseDown = false;
+  SetDirty(false);
 }
 
 void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
@@ -1026,10 +1027,11 @@ void ISliderControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void ISliderControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
-  mMouseDown = false;
-
   if (mHideCursorOnDrag)
     GetUI()->HideMouseCursor(false);
+  
+  mMouseDown = false;
+  SetDirty(false);
 }
 
 void ISliderControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
