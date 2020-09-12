@@ -354,7 +354,7 @@ protected:
   bool mMPEMode = false;
   WDL_PtrList<KeyControl> mKeyControls;
   WDL_PtrList<HighlightControl> mHighlightControls;
-  IPanelControl* mBackGroundControl;
+  IPanelControl* mBackGroundControl = nullptr;
   bool mKeysAreContiguous = false;
   int mMinNote, mMaxNote;
   ILayerPtr mLayer;
