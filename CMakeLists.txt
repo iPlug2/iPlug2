@@ -81,12 +81,13 @@ add_subdirectory(Dependencies)
 #------------------------------------------------------------------------------
 # Compile options for all IPlug2 related targets. This is not used by consumers
 
-target_compile_options(IPlug_CompileOptions
-    INTERFACE
-        $<$<CXX_COMPILER_ID:MSVC>:
-            /W4
-        >
-)
+if(MSVC AND NOT Clang)
+    set(_flags /W4)
+elseif(AppleClang OR Clang OR GNU)
+    set(_flags -Wall -Werror -Wshadow -Wno-error=shadow -Wundef -Wno-error=undef -pedantic)
+endif()
+
+target_compile_options(IPlug_CompileOptions INTERFACE ${_flags})
 
 #------------------------------------------------------------------------------
 # Definitions
