@@ -590,6 +590,9 @@ private:
  * @{
  */
 
+/** IContainer allows a control to nest sub controls.
+ * Inheritors should add their children by overriding OnInit() and calling AddChildControl(). Child controls should not have been added elsewhere.
+ * OnResized() should also be overriden if the control bounds will change */
 class IContainer : public IControl
 {
 public:
@@ -615,6 +618,8 @@ public:
     for (int i=0; i<mChildren.GetSize(); i++) {
       mChildren.Get(i)->SetDisabled(disable);
     }
+    
+    IControl::SetDisabled(disable);
   }
 
   void Hide(bool hide) override
@@ -622,12 +627,21 @@ public:
     for (int i=0; i<mChildren.GetSize(); i++) {
       mChildren.Get(i)->Hide(hide);
     }
+    
+    IControl::Hide(hide);
   }
   
   IControl* AddChildControl(IControl* pControl, int ctrlTag = kNoTag, const char* group = "")
   {
     pControl->SetParent(this);
     return mChildren.Add(GetUI()->AttachControl(pControl, ctrlTag, group));
+  }
+  
+  void RemoveChildControl(IControl* pControl)
+  {
+    pControl->SetParent(nullptr);
+    mChildren.DeletePtr(pControl, false);
+    GetUI()->RemoveControl(pControl);
   }
   
 private:
