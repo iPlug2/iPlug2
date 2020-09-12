@@ -1,6 +1,5 @@
 #include "IPlugControls.h"
 #include "IPlug_include_in_plug_src.h"
-#include "IPlugPaths.h"
 #include "IconsForkAwesome.h"
 #include "IconsFontaudio.h"
 
@@ -807,13 +806,13 @@ void IPlugControls::OnIdle()
 
 void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-	const double phaseIncr1 = (1. / GetSampleRate()) * GetParam(kParamFreq1)->Value();
-	const double phaseIncr2 = (1. / GetSampleRate()) * GetParam(kParamFreq2)->Value();
+	const tfloat phaseIncr1 = static_cast<tfloat>((1.0 / GetSampleRate()) * GetParam(kParamFreq1)->Value());
+	const tfloat phaseIncr2 = static_cast<tfloat>((1.0 / GetSampleRate()) * GetParam(kParamFreq2)->Value());
 
 	for (int s = 0; s < nFrames; s++)
 	{
-		static double phase1 = 0.;
-		static double phase2 = 0.;
+		static tfloat phase1 = 0.0;
+		static tfloat phase2 = 0.0;
 
 		outputs[0][s] = cos(phase1 += phaseIncr1);
 		outputs[1][s] = sin(phase2 += phaseIncr2);
@@ -823,14 +822,14 @@ void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 	mScopeSender.ProcessBlock(outputs, nFrames, kCtrlTagScope);
 	mMeterSender.ProcessBlock(outputs, nFrames, kCtrlTagMeter);
 
-	mLastOutputData.vals[0] = (float) outputs[0][0];  // just take first value in block
+	mLastOutputData.vals[0] = static_cast<float>(outputs[0][0]);  // just take first value in block
 
 	mRTTextSender.PushData(mLastOutputData);
 
 	for (int s = 0; s < nFrames; s++)
 	{
-		outputs[0][s] = 0.;
-		outputs[1][s] = 0.;
+		outputs[0][s] = 0.0;
+		outputs[1][s] = 0.0;
 	}
 }
 #endif
