@@ -113,7 +113,7 @@ public:
   
   void OnMouseDblClick(float x, float y, const IMouseMod &mod) override
   {
-    if(mTextReadout->GetRECT().Contains(x, y))
+    if(!IsDisabled() && mTextReadout->GetRECT().Contains(x, y))
       GetUI()->CreateTextEntry(*this, mText, mTextReadout->GetRECT(), mTextReadout->GetStr());
   }
   
