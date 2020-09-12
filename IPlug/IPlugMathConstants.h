@@ -27,7 +27,7 @@ namespace iplug::math::constants
 		inline constexpr typename std::enable_if_t<std::is_integral_v<T>, T> name##_v = number;       \
 		inline constexpr int name = name##_v<int>;
 
-	FDECLARE_CONST( delta,        0.00001            )  // 0.00001 precision threshold (-100dB in Np)
+	FDECLARE_CONST( delta,        0.00001            )  // Δ precision threshold (=e^(1/20*ln(10)*-100dB))
 	FDECLARE_CONST( macheps16,    9.77e-4            )  // Machine epsilon 16bit 9.77e-4
 	FDECLARE_CONST( macheps32,    1.19e-7            )  // Machine epsilon 32bit 1.19e-7
 	FDECLARE_CONST( macheps64,    2.22e-16           )  // Machine epsilon 64bit 2.22e-16
@@ -51,13 +51,12 @@ namespace iplug::math::constants
 	FDECLARE_CONST( egamma,       0.5772156649015329 )  // γ Euler–Mascheroni constant
 	FDECLARE_CONST( phi,          1.618033988749895  )  // φ=(1+sqrt(5))/2 (golden ratio)
 	FDECLARE_CONST( G,            0.000000000066742  )  // Gravitational constant
-	FDECLARE_CONST( Np,           8.685889638065036  )  // Neper 20*log10(e)
-	FDECLARE_CONST( inv_Np,       0.115129254649702  )  // 1/Np
-	FDECLARE_CONST( rad,          57.295779513082321 )  // 180/pi
-	FDECLARE_CONST( inv_rad,      0.0174532925199433 )  // 1/rad
+	FDECLARE_CONST( Np,           8.685889638065036  )  // 20*log10(e) dB
+	FDECLARE_CONST( inv_Np,       0.115129254649702  )  // 1/20*ln(10) Np
+	FDECLARE_CONST( rad,          57.295779513082321 )  // 180/pi deg
+	FDECLARE_CONST( inv_rad,      0.0174532925199433 )  // pi/180 rad
 
 	IDECLARE_CONST( ultimate_question_of_life, 42 )     // yes
-
 
 	#undef FDECLARE_CONST
 	#undef IDECLARE_CONST
