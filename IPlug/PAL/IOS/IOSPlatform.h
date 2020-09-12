@@ -11,7 +11,7 @@
 #pragma once
 
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // Platform configuration
 
 // currently a copy from WindowsPlatform.h
@@ -20,12 +20,11 @@
 
 #define PLATFORM_LITTLE_ENDIAN   1
 #define PLATFORM_CACHE_LINE_SIZE 64
-#define PLATFORM_CACHE_ALIGN     __declspec(align(PLATFORM_CACHE_LINE_SIZE))
 #define DEBUGBREAK()             __debugbreak()
 #define PLATFORM_PTHREADS        0
 
 
-//---------------------------------------------------------
+//-----------------------------------------------------------------------------
 // IOS specific types
 
 namespace iplug::types
@@ -43,4 +42,12 @@ namespace iplug::types
 	};
 	using Platform = IOS;
 }  // namespace iplug::types
+
+
+//-----------------------------------------------------------------------------
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <dirent.h>
 

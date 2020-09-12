@@ -15,11 +15,6 @@
  * @copydoc ControlRamp
  */
 
-#include <array>
-#include <functional>
-#include <iostream>
-#include <utility>
-
 BEGIN_IPLUG_NAMESPACE
 
 /** A ControlRamp describes one value changing over time. It can

@@ -40,10 +40,12 @@
 	#define PRAGMA(...)       __pragma(__VA_ARGS__)
 	#define IPLUG_APIENTRY    __stdcall
 	#define NOINLINE          __declspec(noinline)
+	#define CACHE_ALIGN(x)    __declspec(align(x))
 #elif PLATFORM_COMPILER_GCC || PLATFORM_COMPILER_CLANG
 	#define PRAGMA(...)       _Pragma(__VA_ARGS__)
 	#define IPLUG_APIENTRY
 	#define NOINLINE          __attribute__((noinline))
+	#define CACHE_ALIGN(x)    __attribute__((aligned(x)))
 #else
 	#error "Unsupported compiler."
 #endif
@@ -258,6 +260,7 @@
 
 	#define BEGIN_INCLUDE_DEPENDENCIES                                                            \
 		_Pragma("clang diagnostic push")                                                          \
+		_Pragma("clang diagnostic ignored \"-Wdeprecated-register\"")                             \
 		_Pragma("clang diagnostic ignored \"-Wunknown-pragmas\"")                                 \
 		_Pragma("clang diagnostic ignored \"-Wunused-parameter\"")
 
@@ -274,6 +277,7 @@
 
 	#define BEGIN_INCLUDE_DEPENDENCIES                                                            \
 		_Pragma("GCC diagnostic push")                                                            \
+		_Pragma("GCC diagnostic ignored \"-Wdeprecated-register\"")                               \
 		_Pragma("GCC diagnostic ignored \"-Wunknown-pragmas\"")                                   \
 		_Pragma("GCC diagnostic ignored \"-Wunused-parameter\"")
 

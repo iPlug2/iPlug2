@@ -1,6 +1,5 @@
 #pragma once
 
-#include <yoga/Yoga.h>
 #include "IGraphicsStructs.h"
 
 BEGIN_IPLUG_NAMESPACE

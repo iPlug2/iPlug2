@@ -8,7 +8,7 @@
  ==============================================================================
 */
 
-#include "IGraphics.h"
+//#include "IGraphics.h"
 
 #define NANOSVG_IMPLEMENTATION
 BEGIN_INCLUDE_DEPENDENCIES
@@ -16,31 +16,13 @@ BEGIN_INCLUDE_DEPENDENCIES
 END_INCLUDE_DEPENDENCIES
 
 #if defined VST3_API
-BEGIN_INCLUDE_DEPENDENCIES
-#include <pluginterfaces/base/ustring.h>
-END_INCLUDE_DEPENDENCIES
-#include "VST3/IPlugVST3.h"
-using VST3_API_BASE = iplug::IPlugVST3;
+	#include "VST3/IPlugVST3.h"
+	using VST3_API_BASE = iplug::IPlugVST3;
 #elif defined VST3C_API
-BEGIN_INCLUDE_DEPENDENCIES
-#include <pluginterfaces/base/ustring.h>
-END_INCLUDE_DEPENDENCIES
-#include "VST3/IPlugVST3_Controller.h"
-#include "VST3/IPlugVST3_View.h"
+	#include "VST3/IPlugVST3_Controller.h"
+	#include "VST3/IPlugVST3_View.h"
 using VST3_API_BASE = iplug::IPlugVST3Controller;
 #endif
-
-#include "IPlugParameter.h"
-#include "IPlugPluginBase.h"
-
-#include "IControl.h"
-#include "IControls.h"
-#include "IGraphicsLiveEdit.h"
-#include "IFPSDisplayControl.h"
-#include "ICornerResizerControl.h"
-#include "IPopupMenuControl.h"
-#include "ITextEntryControl.h"
-#include "IBubbleControl.h"
 
 using namespace iplug;
 using namespace igraphics;

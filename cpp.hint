@@ -48,3 +48,15 @@
 #define YOGA_EXPORT
 #define YOGA_EXPORT __attribute__((visibility("default")))
 #define interface
+#define DELEGATE_REFCOUNT(ClassName) public: virtual ::Steinberg::uint32 PLUGIN_API addRef () SMTG_OVERRIDE { return ClassName::addRef (); } virtual ::Steinberg::uint32 PLUGIN_API release () SMTG_OVERRIDE { return ClassName::release (); }
+#define SMTG_TYPE_SIZE_CHECK(Type, Platform64Size, MacOS32Size, Win32Size, Linux32Size) SMTG_TYPE_STATIC_CHECK (sizeof, Type, Platform64Size, MacOS32Size, Win32Size, Linux32Size)
+#define SMTG_TYPE_SIZE_CHECK(Type, Platform64Size, MacOS32Size, Win32Size, Linux32Size)
+#define PLUGIN_API
+#define setState
+#define getState
+#define TRACE Trace(TRACELOC, "");
+#define TRACE
+#define VST3_API
+#define DEF_INTERFACE(InterfaceName) QUERY_INTERFACE (iid, obj, InterfaceName::iid, InterfaceName)
+#define FDECLARE_CONST(name, number)
+#define IDECLARE_CONST(name, number)

@@ -14,7 +14,6 @@
 
 BEGIN_INCLUDE_DEPENDENCIES
 #include <nanovg.h>
-#include <mutex.h>
 
 // Thanks to Olli Wang/MOUI for much of this macro magic  https://github.com/ollix/moui
 

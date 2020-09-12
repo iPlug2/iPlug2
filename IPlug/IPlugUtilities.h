@@ -18,9 +18,6 @@
  * @{
  */
 
-#include "IPlugConstants.h"
-#include "wdlstring.h"
-
 
 BEGIN_IPLUG_NAMESPACE
 

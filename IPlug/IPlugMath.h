@@ -10,161 +10,171 @@
 
 #pragma once
 
+#include "IPlugMathConstants.h"
+
 
 namespace iplug::math
 {
-	struct ultimate_question_of_life
+	template <class T>
+	inline constexpr T Abs(T value)
 	{
-		template <class T> static inline constexpr T answer = 42;
-	};
+		return (value >= 0) ? value : -value;
+	}
 
-	template <class T> inline constexpr T e_v           = _Invalid<T> {};
-	template <class T> inline constexpr T log2e_v       = _Invalid<T> {};
-	template <class T> inline constexpr T log10e_v      = _Invalid<T> {};
-	template <class T> inline constexpr T log10_2_v     = _Invalid<T> {};
-	template <class T> inline constexpr T pi_v          = _Invalid<T> {};
-	template <class T> inline constexpr T pi2_v         = _Invalid<T> {};
-	template <class T> inline constexpr T pi4_v         = _Invalid<T> {};
-	template <class T> inline constexpr T inv_pi_v      = _Invalid<T> {};
-	template <class T> inline constexpr T inv_pi2_v     = _Invalid<T> {};
-	template <class T> inline constexpr T inv_sqrtpi_v  = _Invalid<T> {};
-	template <class T> inline constexpr T inv_sqrtpi2_v = _Invalid<T> {};
-	template <class T> inline constexpr T ln2_v         = _Invalid<T> {};
-	template <class T> inline constexpr T ln10_v        = _Invalid<T> {};
-	template <class T> inline constexpr T sqrt2_v       = _Invalid<T> {};
-	template <class T> inline constexpr T sqrt3_v       = _Invalid<T> {};
-	template <class T> inline constexpr T inv_sqrt2_v   = _Invalid<T> {};
-	template <class T> inline constexpr T inv_sqrt3_v   = _Invalid<T> {};
-	template <class T> inline constexpr T egamma_v      = _Invalid<T> {};
-	template <class T> inline constexpr T phi_v         = _Invalid<T> {};
-	template <class T> inline constexpr T G_v           = _Invalid<T> {};
-	template <class T> inline constexpr T ampdbe_v      = _Invalid<T> {};
-	template <class T> inline constexpr T inv_ampdbe_v  = _Invalid<T> {};
-	template <class T> inline constexpr T rad_v         = _Invalid<T> {};
-	template <class T> inline constexpr T inv_rad_v     = _Invalid<T> {};
+	template <class T>
+	inline constexpr T Clamp(const T value, const T min, const T max)
+	{
+		return value < min ? min : value < max ? value : max;
+	}
 
-	// VC++ intellisense C++17 bug showing 'explicit specialization must precede first use'
-	// Code compiles just fine and tested on compiler explorer.
+	template <class T>
+	inline constexpr T Align(const T value, const float alignment)
+	{
+		if (value == 0 || alignment == 0)
+			return value;
+		return static_cast<T>(floorf((static_cast<float>(value) + 0.5f * alignment) / alignment) * alignment);
+	}
 
-	template <> inline constexpr double e_v<double>           = 2.718281828459045;
-	template <> inline constexpr double log2e_v<double>       = 1.4426950408889634;
-	template <> inline constexpr double log10e_v<double>      = 0.4342944819032518;
-	template <> inline constexpr double log10_2_v<double>     = 0.3010299956639812;
-	template <> inline constexpr double pi_v<double>          = 3.141592653589793;
-	template <> inline constexpr double pi2_v<double>         = 1.570796326794897;
-	template <> inline constexpr double pi4_v<double>         = 0.7853981633974483;
-	template <> inline constexpr double inv_pi_v<double>      = 0.3183098861837907;
-	template <> inline constexpr double inv_pi2_v<double>     = 0.6366197723675814;
-	template <> inline constexpr double inv_sqrtpi_v<double>  = 0.5641895835477563;
-	template <> inline constexpr double inv_sqrtpi2_v<double> = 1.128379167095513;
-	template <> inline constexpr double ln2_v<double>         = 0.6931471805599453;
-	template <> inline constexpr double ln10_v<double>        = 2.302585092994046;
-	template <> inline constexpr double sqrt2_v<double>       = 1.4142135623730951;
-	template <> inline constexpr double sqrt3_v<double>       = 1.7320508075688772;
-	template <> inline constexpr double inv_sqrt2_v<double>   = 0.7071067811865475;
-	template <> inline constexpr double inv_sqrt3_v<double>   = 0.5773502691896257;
-	template <> inline constexpr double egamma_v<double>      = 0.5772156649015329;
-	template <> inline constexpr double phi_v<double>         = 1.618033988749895;
-	template <> inline constexpr double G_v<double>           = 0.000000000066742;
-	template <> inline constexpr double ampdbe_v<double>      = 8.685889638065036;
-	template <> inline constexpr double inv_ampdbe_v<double>  = 0.115129254649702;
-	template <> inline constexpr double rad_v<double>         = 57.295779513082321;
-	template <> inline constexpr double inv_rad_v<double>     = 0.0174532925199433;
+	template <class T = int>
+	inline constexpr T BitAlign(T value, T alignment = 0x10)
+	{
+		static_assert(std::is_integral_v<T>);
+		return (value + alignment - 1) & ~(alignment - 1);
+	}
 
-	template <> inline constexpr float e_v<float>           = static_cast<float>(e_v<double>);
-	template <> inline constexpr float log2e_v<float>       = static_cast<float>(log2e_v<double>);
-	template <> inline constexpr float log10e_v<float>      = static_cast<float>(log10e_v<double>);
-	template <> inline constexpr float log10_2_v<float>     = static_cast<float>(log10_2_v<double>);
-	template <> inline constexpr float pi_v<float>          = static_cast<float>(pi_v<double>);
-	template <> inline constexpr float pi2_v<float>         = static_cast<float>(pi2_v<double>);
-	template <> inline constexpr float pi4_v<float>         = static_cast<float>(pi4_v<double>);
-	template <> inline constexpr float inv_pi_v<float>      = static_cast<float>(inv_pi_v<double>);
-	template <> inline constexpr float inv_pi2_v<float>     = static_cast<float>(inv_pi2_v<double>);
-	template <> inline constexpr float inv_sqrtpi_v<float>  = static_cast<float>(inv_sqrtpi_v<double>);
-	template <> inline constexpr float inv_sqrtpi2_v<float> = static_cast<float>(inv_sqrtpi2_v<double>);
-	template <> inline constexpr float ln2_v<float>         = static_cast<float>(ln2_v<double>);
-	template <> inline constexpr float ln10_v<float>        = static_cast<float>(ln10_v<double>);
-	template <> inline constexpr float sqrt2_v<float>       = static_cast<float>(sqrt2_v<double>);
-	template <> inline constexpr float sqrt3_v<float>       = static_cast<float>(sqrt3_v<double>);
-	template <> inline constexpr float inv_sqrt2_v<float>   = static_cast<float>(inv_sqrt2_v<double>);
-	template <> inline constexpr float inv_sqrt3_v<float>   = static_cast<float>(inv_sqrt3_v<double>);
-	template <> inline constexpr float egamma_v<float>      = static_cast<float>(egamma_v<double>);
-	template <> inline constexpr float phi_v<float>         = static_cast<float>(phi_v<double>);
-	template <> inline constexpr float G_v<float>           = static_cast<float>(G_v<double>);
-	template <> inline constexpr float ampdbe_v<float>      = static_cast<float>(ampdbe_v<double>);
-	template <> inline constexpr float inv_ampdbe_v<float>  = static_cast<float>(inv_ampdbe_v<double>);
-	template <> inline constexpr float rad_v<float>         = static_cast<float>(rad_v<double>);
-	template <> inline constexpr float inv_rad_v<float>     = static_cast<float>(inv_rad_v<double>);
+	// True if value is smaller than given threshold or delta constant (Amplitude of -100dB)
+	template <class T = tfloat>
+	inline constexpr bool IsBelowThreshold(const T value, const T threshold = constants::delta_v<T>)
+	{
+		return (Abs(value) < threshold);
+	}
 
-	inline constexpr tfloat e           = e_v<tfloat>;            // e
-	inline constexpr tfloat log2e       = log2e_v<tfloat>;        // log2(e)
-	inline constexpr tfloat log10e      = log10e_v<tfloat>;       // log10(e)
-	inline constexpr tfloat log10_2     = log10_2_v<tfloat>;      // log10(2)
-	inline constexpr tfloat pi          = pi_v<tfloat>;           // pi
-	inline constexpr tfloat pi2         = pi2_v<tfloat>;          // pi/2
-	inline constexpr tfloat pi4         = pi4_v<tfloat>;          // pi/4
-	inline constexpr tfloat inv_pi      = inv_pi_v<tfloat>;       // 1/pi
-	inline constexpr tfloat inv_pi2     = inv_pi2_v<tfloat>;      // 2/pi
-	inline constexpr tfloat inv_sqrtpi  = inv_sqrtpi_v<tfloat>;   // 1/sqrt(pi)
-	inline constexpr tfloat inv_sqrtpi2 = inv_sqrtpi2_v<tfloat>;  // 2/sqrt(pi)
-	inline constexpr tfloat ln2         = ln2_v<tfloat>;          // ln(2)
-	inline constexpr tfloat ln10        = ln10_v<tfloat>;         // ln(10)
-	inline constexpr tfloat sqrt2       = sqrt2_v<tfloat>;        // sqrt(2)
-	inline constexpr tfloat sqrt3       = sqrt3_v<tfloat>;        // sqrt(3)
-	inline constexpr tfloat inv_sqrt2   = inv_sqrt2_v<tfloat>;    // 1/sqrt(2)
-	inline constexpr tfloat inv_sqrt3   = inv_sqrt3_v<tfloat>;    // 1/sqrt(3)
-	inline constexpr tfloat egamma      = egamma_v<tfloat>;       // eulers gamma
-	inline constexpr tfloat phi         = phi_v<tfloat>;          // Φ (golden ratio)
-	inline constexpr tfloat G           = G_v<tfloat>;            // gravitational constant
-	inline constexpr tfloat ampdbe      = ampdbe_v<tfloat>;       // 20*log10(e)
-	inline constexpr tfloat inv_ampdbe  = inv_ampdbe_v<tfloat>;   // 1/(20*log10(e))
-	inline constexpr tfloat rad         = rad_v<tfloat>;          // 180/pi
-	inline constexpr tfloat inv_rad     = inv_rad_v<tfloat>;      // pi/180
+	// True if value is higher than given threshold or delta constant (Amplitude of -100dB )
+	template <class T = tfloat>
+	inline constexpr bool IsAboveThreshold(const T value, const T threshold = constants::delta_v<T>)
+	{
+		return (Abs(value) > threshold);
+	}
+
+	// True if value is, or is close to 0.0 based on given threshold or macheps32 constant
+	template <class T = tfloat>
+	inline constexpr bool IsNearlyZero(const T value, const T threshold = constants::macheps32_v<T>)
+	{
+		return (Abs(value) <= threshold);
+	}
+
+	// True if value A is, or is close to value B based on given threshold or macheps32 constant
+	template <class T = tfloat>
+	inline constexpr bool IsNearlyEqual(const T A, const T B, const T threshold = constants::macheps32_v<T>)
+	{
+		return (Abs(A - B) <= threshold);
+	}
+
+	template <class Tret = bool, class T>
+	inline constexpr Tret IsPowerOfTwo(const T value)
+	{
+		return ((value & (value - 1)) == 0);
+	}
+
+	// Returns nearest power of two value that is greater than or equal to value
+	template <class T>
+	inline constexpr T PowerOfTwoCeil(T value)
+	{
+		static_assert(std::is_arithmetic_v<T>);
+		if constexpr (Platform::IsLittleEndian())
+		{
+			union
+			{
+				double f;
+				uint64 i;
+			} u;
+			u.i = static_cast<uint64>(Abs(value));
+			u.i <<= IsPowerOfTwo<int>(u.i);
+			u.f = static_cast<double>(u.i);
+			u.i &= 0xfff0000000000000u;
+			if (value < 0)
+				u.f = -u.f;
+			return static_cast<T>(u.f);
+		}
+
+		uint64 v = static_cast<uint64>(Abs(value));
+		v <<= IsPowerOfTwo<int>(value);
+		T u = static_cast<T>(ldexp(1.0, ilogb(v)));
+		if (value < 0)
+			u = -u;
+		return u;
+	}
+
+	// Returns nearest power of two value that is less than or equal to value
+	template <class T>
+	inline constexpr T PowerOfTwoFloor(T value)
+	{
+		static_assert(std::is_arithmetic_v<T>);
+		if constexpr (Platform::IsLittleEndian())
+		{
+			union
+			{
+				double f;
+				uint64 i;
+			} u;
+			u.f = static_cast<double>(value);
+			u.i &= 0xfff0000000000000u;
+			if (value < 0)
+				u.f = -u.f;
+			return static_cast<T>(u.f);
+		}
+
+		T u = static_cast<T>(ldexp(1.0, ilogb(value)));
+		if (value < 0)
+			u = -u;
+		return u;
+	}
 
 	// Degrees to radians
-	template <class T = tfloat> inline constexpr auto DegToRad(T Degrees)
+	template <class T = tfloat>
+	inline constexpr auto DegToRad(const T Degrees)
 	{
-		return Degrees * inv_rad_v<T>;
+		static_assert(std::is_arithmetic_v<T>);
+		return Degrees * constants::inv_rad_v<T>;
 	}
 
 	// Radians to degrees
-	template <class T = tfloat> inline constexpr auto RadToDeg(T Radians)
+	template <class T = tfloat>
+	inline constexpr auto RadToDeg(const T Radians)
 	{
-		return Radians * rad_v<T>;
+		static_assert(std::is_arithmetic_v<T>);
+		return Radians * constants::rad_v<T>;
 	}
 
-	/** @brief Calculates gain from a given dB value
-		 * @param dB Value in dB
-		 * @return Gain calculated as an approximation of
-		 * \f$ 10^{\frac{x}{20}} \f$
-		 * @see #IAMP_DB
-		 */
-	template <class T = tfloat> inline constexpr auto DBToAmp(T dB)
+	/**
+	 * @brief Calculates amplitude from a given dB value
+	 * @param dB Value
+	 * @return Gain calculated as an approximation of e^(inv_Np*dB)
+	 */
+	template <class T = tfloat>
+	inline constexpr auto DBToAmp(const T dB)
 	{
-		// return std::exp(amp_db<T> * dB);
-		if constexpr (std::is_same_v<T, float>)
-			return std::expf(inv_ampdbe_v<T> * dB);
-		else
-			return std::exp(inv_ampdbe_v<T> * dB);
+		static_assert(std::is_floating_point_v<T>);
+		return exp(constants::inv_Np_v<T> * dB);
 	}
 
-	/** @return dB calculated as an approximation of
-		 * \f$ 20*log_{10}(x) \f$
-		 * @see #AMP_DB */
-	template <class T = tfloat> inline constexpr auto AmpToDB(T Amplitude)
+	/**
+	 * @brief Calculates dB from a given amplitude value
+	 * @param Amplitude Value
+	 * @return dB calculated as an approximation of Np*log(Amplitude)
+	 */
+	template <class T = tfloat>
+	inline constexpr auto AmpToDB(const T Amplitude)
 	{
-		// return inv_amp_db<T> * std::log(Amplitude);
-		if constexpr (std::is_same_v<T, float>)
-			return std::log10f(Amplitude) * 20.0f;
-		else
-			return std::log10(Amplitude) * 20.0f;
+		static_assert(std::is_floating_point_v<T>);
+		return constants::Np_v<T> * log(Abs(Amplitude));
 	}
 
 	// AmpToDB using fast approximation
-	inline const auto AmpToDBf(const float Amplitude) noexcept
+	inline const auto AmpToDBf(const float Amplitude)
 	{
 		int E;
-		float F = std::frexpf(std::fabsf(Amplitude), &E);
+		float F = frexpf(Abs(Amplitude), &E);
 		float Y = 1.23149591368684f;
 		Y *= F;
 		Y += -4.11852516267426f;
@@ -177,4 +187,39 @@ namespace iplug::math
 		return Y;
 	}
 
+	inline float fsqrt(const float value)
+	{
+		static_assert(Platform::IsLittleEndian(), "Big Endians not implemented yet");
+
+		// internal lookup table for fsqrt
+		static const uint32* _fsqrt_lut = [] {
+			CACHE_ALIGN(16)
+			static uint32 array[0x10000];
+			union
+			{
+				float f;
+				uint32 i;
+			} u;
+
+			for (int i = 0; i <= 0x7fff; ++i)
+			{
+				u.i               = (i << 8) | (0x7f << 23);
+				u.f               = sqrtf(u.f);
+				array[i + 0x8000] = (u.i & 0x7fffff);
+				u.i               = (i << 8) | (0x80 << 23);
+				u.f               = sqrtf(u.f);
+				array[i]          = (u.i & 0x7fffff);
+			}
+			return array;
+		}();
+
+		uint32 fbits = *(uint32*) &value;
+		if (fbits == 0)
+			return 0.0f;
+
+		*(uint32*) &value =
+			_fsqrt_lut[(fbits >> 8) & 0xffff] | ((((fbits - 0x3f800000) >> 1) + 0x3f800000) & 0x7f800000);
+
+		return value;
+	}
 }  // namespace iplug::math

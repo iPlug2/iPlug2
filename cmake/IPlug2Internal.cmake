@@ -52,17 +52,17 @@ macro(_iplug_post_project_setup)
     set(CONFIGURATION_TYPES "Debug" "Release" "Distributed")
     set(DEFAULT_BUILD_TYPE "Debug")
 
-	get_property(bIsMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
-	if(bIsMultiConfig)
-		set(CMAKE_CONFIGURATION_TYPES ${CONFIGURATION_TYPES} CACHE STRING "" FORCE)
-		mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
-	else()
-		if(NOT CMAKE_BUILD_TYPE)
-			set(CMAKE_BUILD_TYPE ${DEFAULT_BUILD_TYPE} CACHE STRING "" FORCE)
-			set_property(CACHE CMAKE_BUILD_TYPE PROPERTY HELPSTRING "Choose the type of build")
-			set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${CONFIGURATION_TYPES})
-		endif()
-	endif()
+    get_property(bIsMultiConfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+    if(bIsMultiConfig)
+        set(CMAKE_CONFIGURATION_TYPES ${CONFIGURATION_TYPES} CACHE STRING "" FORCE)
+        mark_as_advanced(CMAKE_CONFIGURATION_TYPES)
+    else()
+        if(NOT CMAKE_BUILD_TYPE)
+            set(CMAKE_BUILD_TYPE ${DEFAULT_BUILD_TYPE} CACHE STRING "" FORCE)
+            set_property(CACHE CMAKE_BUILD_TYPE PROPERTY HELPSTRING "Choose the type of build")
+            set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS ${CONFIGURATION_TYPES})
+        endif()
+    endif()
 
     # Configure output folders
     if(PLATFORM_WINDOWS OR (PLATFORM_MAC AND CMAKE_GENERATOR STREQUAL Xcode))
@@ -228,13 +228,7 @@ macro(_iplug_set_default_compiler_options)
     set(CMAKE_CXX_VISIBILITY_PRESET         hidden )
     set(CMAKE_CXX_VISIBILITY_INLINES_HIDDEN YES    )
 
-    # Default MSVC Settings for all new targets. This also includes the windows version of clang
-    if(MSVC AND PLATFORM_WINDOWS)
-        # Fair warning if clang is masquerading as MSVC
-        if(CMAKE_CXX_COMPILER_ID STREQUAL Clang)
-            iplug_warning("Using Clang for windows is untested. Results may be \"unpredictable\".")
-        endif()
-
+    if(MSVC AND NOT Clang)
         # The minimum compatible compiler version still needs adjusting
         if(MSVC_VERSION LESS 1911)
             iplug_syntax_error("MSVC++ version 14.11 or higher is required.")
@@ -265,13 +259,13 @@ macro(_iplug_set_default_compiler_options)
             /Zc:rvalueCast    # Enforce type conversion rules. Conform to the C++11 standard
             /volatile:iso     # Strict volatile semantics. Acquire/release semantics are not guaranteed
             /utf-8            # Specifies UTF-8 character set, this is the default for GCC & Clang
-#            /W4               # Warning level 4
             /Zp8              # Packs structures on 8-byte boundaries. Default is 16
             /TP               # Treat all as C++ source files
             /permissive-      # Set standard-conformance mode. "Should" be default since VC++ 2017 v15.5
             /GF               # Eliminate Duplicate Strings (string pooling) (Enabled in debug as well to avoid behaviour differences)
             /JMC              # Just My Code debugging
             /wd5045           # Disable Spectre mitigation warnings
+            /wd4652           # Compiler option 'option' inconsistent with precompiled header; current command-line option will override that defined in the precompiled header
         )
 
         # Debug
@@ -334,7 +328,58 @@ macro(_iplug_set_default_compiler_options)
                 set(CMAKE_${_type}_LINKER_FLAGS_${_cfg} "/LTCG /INCREMENTAL:NO")
             endforeach()
         endforeach()
+    elseif(GNU OR Clang OR AppleClang)
+        set(CL_FLAGS
+            -fmessage-length=0
+            -pipe
+            -fexceptions
+            -fasm-blocks
+            -fno-math-errno
+            -fno-trapping-math
+            -mavx
+            -Wdelete-non-virtual-dtor
+        )
 
+        set(CL_FLAGS_DEBUG
+            /D_DEBUG
+            $<$<BOOL:${enable_address_sanitizer}>:-fsanitize=address>
+            $<$<BOOL:${enable_thread_sanitizer}>:-fsanitize=thread>
+            $<$<BOOL:${enable_undefined_behavior_sanitizer}>:-fsanitize=undefined>
+        )
+
+        set(CL_FLAGS_RELEASE
+            /DNDEBUG
+            -O3
+        )
+
+        set(CL_FLAGS_DISTRIBUTED
+            /DNDEBUG
+            /DDISTRIBUTED=1
+            -O3
+        )
+
+        list(JOIN CL_FLAGS             " " CL_FLAGS            )
+        list(JOIN CL_FLAGS_DEBUG       " " CL_FLAGS_DEBUG      )
+        list(JOIN CL_FLAGS_RELEASE     " " CL_FLAGS_RELEASE    )
+        list(JOIN CL_FLAGS_DISTRIBUTED " " CL_FLAGS_DISTRIBUTED)
+
+        foreach(_lang IN ITEMS C CXX)
+            list(APPEND CMAKE_${_lang}_FLAGS             ${CL_FLAGS}            )
+            list(APPEND CMAKE_${_lang}_FLAGS_DEBUG       ${CL_FLAGS_DEBUG}      )
+            list(APPEND CMAKE_${_lang}_FLAGS_RELEASE     ${CL_FLAGS_RELEASE}    )
+            list(APPEND CMAKE_${_lang}_FLAGS_DISTRIBUTED ${CL_FLAGS_DISTRIBUTED})
+            # set(CMAKE_${_lang}_FLAGS             ${CL_FLAGS}            )
+            # set(CMAKE_${_lang}_FLAGS_DEBUG       ${CL_FLAGS_DEBUG}      )
+            # set(CMAKE_${_lang}_FLAGS_RELEASE     ${CL_FLAGS_RELEASE}    )
+            # set(CMAKE_${_lang}_FLAGS_DISTRIBUTED ${CL_FLAGS_DISTRIBUTED})
+        endforeach()
+
+        foreach(_type IN ITEMS EXE SHARED)
+            foreach(_cfg RELEASE DISTRIBUTED)
+                list(APPEND CMAKE_${_type}_LINKER_FLAGS_${_cfg} "$<$<CXX_COMPILER_ID:AppleClang>:-dead_strip>")
+                # set(CMAKE_${_type}_LINKER_FLAGS_${_cfg} "$<$<CXX_COMPILER_ID:AppleClang>:-dead_strip>")
+            endforeach()
+        endforeach()
     endif()
 endmacro()
 
@@ -440,7 +485,8 @@ function(_iplug_generate_source_groups)
     if(NOT GFXLIB_AGG)
         _iplug_disable_source_compile(
             "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsAGG.cpp"
-            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsAGG_src.cpp")
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsAGG_src.cpp"
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsAGG_src.mm")
     endif()
 
     if(NOT GFXLIB_CAIRO)
@@ -451,17 +497,20 @@ function(_iplug_generate_source_groups)
     if(NOT GFXLIB_LICE)
         _iplug_disable_source_compile(
             "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsLice.cpp"
-            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsLice_src.cpp")
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsLice_src.cpp"
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsLice_src.mm")
     endif()
 
     if(NOT GFXLIB_NANOVG)
         _iplug_disable_source_compile(
-            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsNanoVG.cpp")
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsNanoVG.cpp"
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsNanoVG_src.m")
     endif()
 
     if(NOT GFXLIB_SKIA)
         _iplug_disable_source_compile(
-            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsSkia.cpp")
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsSkia.cpp"
+            "${IPLUG2_ROOT_PATH}/IGraphics/Drawing/IGraphicsSkia_src.cpp")
     endif()
 
     # Option to compile with Faust if available
@@ -597,10 +646,10 @@ function(_iplug_add_target_lib _target _pluginapi_lib)
 
     # Configure precompiled headers
     target_precompile_headers(${_libName}
-        PRIVATE
+        PUBLIC
             "${IPLUG2_ROOT_PATH}/IPlug/IPlugPCH.h"
     )
-    target_precompile_headers(${_target} REUSE_FROM ${_libName})
+    # target_precompile_headers(${_target} REUSE_FROM ${_libName})
 
 
     target_link_libraries(${_libName}

@@ -19,19 +19,6 @@
  * No need to wrap tracer calls in #ifdef TRACER_BUILD because Trace is a no-op unless TRACER_BUILD is defined.
  */
 
-#include <cstdio>
-#include <cctype>
-#include <cstdarg>
-#include <cstdint>
-#include <cstring>
-#include <ctime>
-#include <cassert>
-
-#include "wdlstring.h"
-#include "mutex.h"
-
-#include "IPlugConstants.h"
-#include "IPlugUtilities.h"
 
 BEGIN_IPLUG_NAMESPACE
 

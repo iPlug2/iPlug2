@@ -10,24 +10,22 @@
 
 #pragma once
 
-BEGIN_INCLUDE_DEPENDENCIES
-#include <pluginterfaces/gui/iplugviewcontentscalesupport.h>
-#include <pluginterfaces/base/keycodes.h>
-END_INCLUDE_DEPENDENCIES
 
-#include "IPlugStructs.h"
-
-
-//BEGIN_IPLUG_NAMESPACE
+BEGIN_IPLUG_NAMESPACE
 
 /** IPlug VST3 View  */
-template <class T>
-class IPlugVST3View : public Steinberg::CPluginView, public Steinberg::IPlugViewContentScaleSupport
+template <class T> class IPlugVST3View : public Steinberg::CPluginView, public Steinberg::IPlugViewContentScaleSupport
 {
-  public:
-	IPlugVST3View(T& owner) : mOwner(owner) { mOwner.addRef(); }
+ public:
+	IPlugVST3View(T& owner) : mOwner(owner)
+	{
+		mOwner.addRef();
+	}
 
-	~IPlugVST3View() { mOwner.release(); }
+	~IPlugVST3View()
+	{
+		mOwner.release();
+	}
 
 	IPlugVST3View(const IPlugVST3View&) = delete;
 	IPlugVST3View& operator=(const IPlugVST3View&) = delete;
@@ -304,4 +302,4 @@ class IPlugVST3View : public Steinberg::CPluginView, public Steinberg::IPlugView
 
 	T& mOwner;
 };
-//END_IPLUG_NAMESPACE
+END_IPLUG_NAMESPACE

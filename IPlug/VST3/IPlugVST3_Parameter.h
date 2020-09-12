@@ -10,14 +10,6 @@
 
 #pragma once
 
-BEGIN_INCLUDE_DEPENDENCIES
-#include <pluginterfaces/base/ustring.h>
-#include <public.sdk/source/vst/vstparameters.h>
-#include <base/source/fstring.h>
-END_INCLUDE_DEPENDENCIES
-
-#include "IPlugParameter.h"
-
 BEGIN_IPLUG_NAMESPACE
 
 /** VST3 parameter helper */

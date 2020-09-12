@@ -14,8 +14,6 @@
  */
 
 #include "IPlugPluginBase.h"
-#include "wdlendian.h"
-#include "wdl_base64.h"
 
 using namespace iplug;
 

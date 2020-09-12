@@ -16,15 +16,11 @@
  */
 
 
-
-#include "IPlugConstants.h"
 #include "IPlugMidi.h"
 #include "IPlugLogger.h"
 
 #include "SynthVoice.h"
 #include "VoiceAllocator.h"
-
-#include <ptrlist.h>
 
 #define DEBUG_VOICE_COUNT 0
 

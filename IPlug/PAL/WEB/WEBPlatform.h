@@ -20,7 +20,6 @@
 
 #define PLATFORM_LITTLE_ENDIAN   1
 #define PLATFORM_CACHE_LINE_SIZE 64
-#define PLATFORM_CACHE_ALIGN     __declspec(align(PLATFORM_CACHE_LINE_SIZE))
 #define DEBUGBREAK()             __debugbreak()
 #define PLATFORM_PTHREADS        0
 
@@ -44,3 +43,10 @@ namespace iplug::types
 	using Platform = Web;
 }  // namespace iplug::types
 
+
+//-----------------------------------------------------------------------------
+
+#include <emscripten.h>
+#include <emscripten/val.h>
+#include <emscripten/bind.h>
+#include <emscripten/html5.h>

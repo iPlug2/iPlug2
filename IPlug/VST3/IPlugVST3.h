@@ -15,21 +15,6 @@
 
 #pragma once
 
-#undef stricmp
-#undef strnicmp
-
-BEGIN_INCLUDE_DEPENDENCIES
-#include <public.sdk/source/vst/vstsinglecomponenteffect.h>
-#include <pluginterfaces/vst/ivstprocesscontext.h>
-#include <pluginterfaces/vst/vsttypes.h>
-#include <pluginterfaces/vst/ivstcontextmenu.h>
-#include <pluginterfaces/vst/ivstchannelcontextinfo.h>
-END_INCLUDE_DEPENDENCIES
-
-
-#include "IPlugAPIBase.h"
-#include "IPlugProcessor.h"
-
 #include "IPlugVST3_Common.h"
 #include "IPlugVST3_ProcessorBase.h"
 #include "IPlugVST3_View.h"
@@ -89,8 +74,6 @@ class IPlugVST3 : public IPlugAPIBase,
   Steinberg::Vst::ParamValue PLUGIN_API getParamNormalized(Steinberg::Vst::ParamID tag) override;
   Steinberg::tresult PLUGIN_API setParamNormalized(Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value) override;
   Steinberg::IPlugView* PLUGIN_API createView(const char* name) override;
-  //Steinberg::tresult PLUGIN_API setEditorState(Steinberg::IBStream* pState) override;
-  //Steinberg::tresult PLUGIN_API getEditorState(Steinberg::IBStream* pState) override;
   Steinberg::tresult PLUGIN_API setComponentState(Steinberg::IBStream *state) override;
  
   // IMidiMapping

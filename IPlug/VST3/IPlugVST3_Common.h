@@ -10,11 +10,6 @@
 
 #pragma once
 
-BEGIN_INCLUDE_DEPENDENCIES
-#include <pluginterfaces/base/ibstream.h>
-END_INCLUDE_DEPENDENCIES
-
-#include "IPlugAPIBase.h"
 #include "IPlugVST3_Parameter.h"
 #include "IPlugVST3_ControllerBase.h"
 

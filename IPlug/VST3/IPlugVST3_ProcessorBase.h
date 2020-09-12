@@ -11,14 +11,6 @@
 
 #pragma once
 
-BEGIN_INCLUDE_DEPENDENCIES
-#include <public.sdk/source/vst/vstbus.h>
-#include <pluginterfaces/base/ustring.h>
-#include <pluginterfaces/vst/ivstevents.h>
-END_INCLUDE_DEPENDENCIES
-
-#include "IPlugAPIBase.h"
-#include "IPlugProcessor.h"
 #include "IPlugVST3_Defs.h"
 
 // Custom bus type function (in global namespace)

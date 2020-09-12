@@ -8,13 +8,6 @@
  ==============================================================================
  */
 
-BEGIN_INCLUDE_DEPENDENCIES
-#include <pluginterfaces/vst/ivstparameterchanges.h>
-#include <pluginterfaces/vst/vstspeaker.h>
-#include <pluginterfaces/vst/ivstmidicontrollers.h>
-#include <public.sdk/source/vst/vsteventshelper.h>
-END_INCLUDE_DEPENDENCIES
-
 #include "IPlugVST3_ProcessorBase.h"
 
 

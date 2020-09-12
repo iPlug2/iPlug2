@@ -15,10 +15,6 @@
  * @copydoc IPlugQueue
  */
 
-#include <atomic>
-#include <cstddef>
-
-#include "heapbuf.h"
 
 BEGIN_IPLUG_NAMESPACE
 

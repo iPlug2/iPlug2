@@ -15,16 +15,6 @@
  * @copydoc IPlugVST3Controller
  */
 
-#undef stricmp
-#undef strnicmp
-
-BEGIN_INCLUDE_DEPENDENCIES
-#include <public.sdk/source/vst/vsteditcontroller.h>
-#include <pluginterfaces/vst/ivstchannelcontextinfo.h>
-END_INCLUDE_DEPENDENCIES
-
-#include "IPlugAPIBase.h"
-
 #include "IPlugVST3_View.h"
 #include "IPlugVST3_ControllerBase.h"
 #include "IPlugVST3_Common.h"

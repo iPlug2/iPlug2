@@ -10,10 +10,6 @@
 
 #pragma once
 
-//#include <windowsx.h>
-//#include <winuser.h>
-
-#include "IGraphics_select.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE

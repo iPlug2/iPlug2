@@ -10,17 +10,8 @@
 
 #pragma once
 
-BEGIN_INCLUDE_DEPENDENCIES
-#include <pluginterfaces/base/ibstream.h>
-#include <public.sdk/source/vst/vsteditcontroller.h>
-#include <pluginterfaces/vst/ivstchannelcontextinfo.h>
-END_INCLUDE_DEPENDENCIES
-
-#include "IPlugAPIBase.h"
 #include "IPlugVST3_Parameter.h"
 #include "IPlugVST3_Defs.h"
-
-#include "IPlugMidi.h"
 
 BEGIN_IPLUG_NAMESPACE
 

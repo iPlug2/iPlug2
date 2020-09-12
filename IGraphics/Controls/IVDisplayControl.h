@@ -16,9 +16,6 @@
  * @copydoc IVDisplayControl
  */
 
-#include "IControl.h"
-#include "ISender.h"
-
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 

@@ -465,16 +465,17 @@ if(HAVESDK_VST3)
                 "${VST3_SDK_PATH}/public.sdk/source/main/linuxmain.cpp"
         )
     endif()
+
     get_target_property(DEPSOURCE_LIST ${_libName} SOURCES)
     source_group(TREE "${_libPath}" FILES ${DEPSOURCE_LIST})
     set_target_properties(${_libName} PROPERTIES FOLDER "${_LIBFOLDER}")
 endif()
 
 # -----------------------------------------------------------------------------
-
-# "IGraphics/AGG/agg-2.4/include"
-# "IGraphics/AGG/agg-2.4/font_freetype"
-# "IGraphics/AGG/agg-2.4/include/util"
-# "IGraphics/AGG/agg-2.4/include/platform/win32"
-# "IGraphics/STB"
-
+# TODO:
+# imgui
+# Freetype
+# AGG
+# Cairo
+# Skia
+# ...

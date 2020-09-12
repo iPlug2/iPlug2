@@ -8,9 +8,6 @@
  ==============================================================================
 */
 
-#include <algorithm>
-#include <cmath>
-
 #include "IGraphicsAGG.h"
 
 // Source for AGG

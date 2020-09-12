@@ -16,11 +16,6 @@
  * @copydoc IVMeterControl
  */
 
-#include "IPlugMath.h"
-#include "IControl.h"
-#include "ISender.h"
-#include "IPlugStructs.h"
-
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
@@ -57,11 +52,11 @@ public:
       ISenderData<MAXNC> d;
       pos = stream.Get(&d, pos);
 
-      double lowPointAbs = std::fabs(mLowRangeDB);
-      double rangeDB = std::fabs(mHighRangeDB - mLowRangeDB);
+      double lowPointAbs = fabs(mLowRangeDB);
+      double rangeDB = fabs(mHighRangeDB - mLowRangeDB);
       for (auto c = d.chanOffset; c < (d.chanOffset + d.nChans); c++)
       {
-		double ampValue  = std::fabs(math::AmpToDB(d.vals[c]));
+		double ampValue  = math::AmpToDB(d.vals[c]);
         double linearPos = (ampValue + lowPointAbs)/rangeDB;
         SetValue(Clip(linearPos, 0., 1.), c);
       }

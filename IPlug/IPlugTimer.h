@@ -17,14 +17,6 @@
  * base/source/timer.cpp, so thanks to them 
  * */
 
-#include <ptrlist.h>
-#include <mutex.h>
-
-#if PLATFORM_MAC || PLATFORM_IOS
-#include <CoreFoundation/CoreFoundation.h>
-#elif PLATFORM_WEB
-#include <emscripten/html5.h>
-#endif
 
 BEGIN_IPLUG_NAMESPACE
 

@@ -16,9 +16,6 @@
  * @copydoc ILEDControl
  */
 
-#include "IControl.h"
-#include "Extras/Easing.h"
-
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
@@ -63,7 +60,7 @@ public:
         return;
       }
       
-      pControl->SetValue(EaseCubicIn(1. -progress));
+      pControl->SetValue(math::EaseCubicIn(1. -progress));
       
     }, decayTimeMs);
   }

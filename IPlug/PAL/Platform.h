@@ -1,15 +1,21 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for more info.
- 
+
  ==============================================================================
 */
 
 #pragma once
 
+#include <cstddef>
+#include <cstdint>
+#include <type_traits>
+
+#include "IPlugPreprocessor.h"
+#include "PlatformCompiler.h"
 
 namespace iplug::generic
 {
@@ -31,7 +37,7 @@ namespace iplug::generic
 		using int16  = short;
 		using int32  = int;
 		using int64  = long long;
-		using utf8   = iplug::generic::utf8;
+		using utf8   = ::iplug::generic::utf8;
 		using utf16  = char16_t;
 		using utf32  = char32_t;
 		using size_t = std::size_t;
@@ -160,5 +166,28 @@ namespace iplug
 	{
 		return sizeof(uint8(&)[sizeof(array) / sizeof(array[0])]);
 	}
-
 }  // namespace iplug
+
+
+
+
+// Temporary
+namespace iplug::generic
+{
+	struct Platform
+	{
+		inline static constexpr bool IsLittleEndian()
+		{
+			return (PLATFORM_LITTLE_ENDIAN == 1);
+		}
+	};
+}
+
+namespace iplug
+{
+	struct Platform final : public iplug::generic::Platform
+	{
+	};
+}
+
+

@@ -16,17 +16,6 @@
  * @brief A collection of IControls for common UI widgets, such as knobs, sliders, switches
  */
 
-#include "IControl.h"
-#include "IColorPickerControl.h"
-#include "IVKeyboardControl.h"
-#include "IVMeterControl.h"
-#include "IVScopeControl.h"
-#include "IVMultiSliderControl.h"
-#include "IRTTextControl.h"
-#include "IVDisplayControl.h"
-#include "ILEDControl.h"
-#include "IPopupMenuControl.h"
-
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 

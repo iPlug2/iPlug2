@@ -40,15 +40,6 @@
 #include "IPlugAAX_view_interface.h"
 #endif
 
-#include "IPlugConstants.h"
-#include "IPlugLogger.h"
-#include "IPlugPaths.h"
-
-#include "IGraphicsConstants.h"
-#include "IGraphicsStructs.h"
-#include "IGraphicsPopupMenu.h"
-#include "IGraphicsEditorDelegate.h"
-
 #ifdef IGRAPHICS_IMGUI
 #include "IGraphicsImGui.h"
 #endif

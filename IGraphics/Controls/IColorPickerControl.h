@@ -15,11 +15,6 @@
  * @copydoc IColorPickerControl
  */
 
-#include "IControl.h"
-#ifdef IGRAPHICS_NANOVG
-#include "nanovg.h"
-#endif
-
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 

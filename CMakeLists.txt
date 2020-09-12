@@ -81,12 +81,13 @@ add_subdirectory(Dependencies)
 #------------------------------------------------------------------------------
 # Compile options for all IPlug2 related targets. This is not used by consumers
 
-target_compile_options(IPlug_CompileOptions
-    INTERFACE
-        $<$<CXX_COMPILER_ID:MSVC>:
-            /W4
-        >
-)
+if(MSVC AND NOT Clang)
+    set(_flags /W4)
+elseif(AppleClang OR Clang OR GNU)
+    set(_flags -Wall -Werror -Wshadow -Wno-error=shadow -Wundef -Wno-error=undef -pedantic)
+endif()
+
+target_compile_options(IPlug_CompileOptions INTERFACE ${_flags})
 
 #------------------------------------------------------------------------------
 # Definitions
@@ -142,6 +143,8 @@ target_compile_definitions(IPlug_VST3P INTERFACE VST3P_API IPLUG_EDITOR=0 IPLUG_
 
 target_include_directories(IPlug_SharedIncludes
     INTERFACE
+        ${CMAKE_CURRENT_SOURCE_DIR}
+
         IPlug
         IGraphics
         IGraphics/Controls
@@ -315,11 +318,18 @@ target_link_libraries(IPlug_WEB   INTERFACE                                     
 # Examples
 
 if(NOT IPLUG2_EXTERNAL_PROJECT)
-    set(_examples
-        # IPlugChunks
-        IPlugControls
-    )
-    foreach(_example_project IN LISTS _examples)
-        add_subdirectory("Examples/${_example_project}")
+    file(GLOB EXAMPLES_LIST LIST_DIRECTORIES TRUE RELATIVE "${IPLUG2_ROOT_PATH}/Examples/" "Examples/*")
+
+    foreach(_str IN LISTS EXAMPLES_LIST)
+        if(NOT IS_DIRECTORY "${IPLUG2_ROOT_PATH}/Examples/${_str}")
+            list(REMOVE_ITEM EXAMPLES_LIST ${_str})
+        endif()
+    endforeach()
+
+    foreach(_example IN LISTS EXAMPLES_LIST)
+        if(EXISTS "${IPLUG2_ROOT_PATH}/Examples/${_example}/CMakeLists.txt")
+            add_subdirectory("${IPLUG2_ROOT_PATH}/Examples/${_example}")
+            iplug_info("Added example project '${_example}'")
+        endif()
     endforeach()
 endif()

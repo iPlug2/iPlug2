@@ -9,10 +9,6 @@
 */
 
 #include "IGraphicsCanvas.h"
-#include <string>
-#include <utility>
-#include <stdio.h>
-#include <type_traits>
 #include <emscripten.h>
 
 #define STB_IMAGE_IMPLEMENTATION

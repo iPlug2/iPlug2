@@ -1,8 +1,5 @@
 #pragma once
 
-#include "IPlug_include_in_plug_hdr.h"
-#include "IControls.h"
-#include "IPlugPaths.h"
 
 const int kNumPresets = 1;
 

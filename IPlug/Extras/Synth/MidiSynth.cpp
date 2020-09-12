@@ -301,8 +301,8 @@ void MidiSynth::SetMPEZones(int channel, int nChans)
 	else
 		SetPitchBendRange(mNonMPEPitchBendRange);
 
-	std::cout << "MPE mode: " << (mMPEMode ? "ON" : "OFF") << "\n";
-	std::cout << "MPE channels: \n    lo: " << mMPELowerZoneChannels << " hi " << mMPEUpperZoneChannels << "\n";
+//	std::cout << "MPE mode: " << (mMPEMode ? "ON" : "OFF") << "\n";
+//	std::cout << "MPE channels: \n    lo: " << mMPELowerZoneChannels << " hi " << mMPEUpperZoneChannels << "\n";
 }
 
 void MidiSynth::SetChannelPitchBendRange(int channelParam, uint8 rangeParam)
@@ -371,7 +371,7 @@ void MidiSynth::HandleRPN(IMidiMsg msg)
 			{
 				value = state.valueMSB & 0xFF;
 			}
-			std::cout << "RPN received: channel " << channel << ", param " << param << ", value " << value << "\n";
+//			std::cout << "RPN received: channel " << channel << ", param " << param << ", value " << value << "\n";
 			switch (param)
 			{
 				case 0:  // RPN 0 : pitch bend range
