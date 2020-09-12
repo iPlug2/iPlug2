@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IPlugSideChain</string>
 	<key>CFBundleGetInfoString</key>
-	<string>IPlugSideChain v1.0.0 Copyright 2019 Acme Inc</string>
+	<string>IPlugSideChain v1.0.0 Copyright 2020 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.vst3.IPlugSideChain</string>
 	<key>CFBundleInfoDictionaryVersion</key>

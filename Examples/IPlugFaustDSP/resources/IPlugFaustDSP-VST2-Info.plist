@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IPlugFaustDSP</string>
 	<key>CFBundleGetInfoString</key>
-	<string>IPlugFaustDSP v1.0.0 Copyright 2019 Acme Inc</string>
+	<string>IPlugFaustDSP v1.0.0 Copyright 2020 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.vst.IPlugFaustDSP</string>
 	<key>CFBundleInfoDictionaryVersion</key>

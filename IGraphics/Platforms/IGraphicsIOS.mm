@@ -313,6 +313,11 @@ PlatformFontPtr IGraphicsIOS::LoadPlatformFont(const char* fontID, const char* f
   return CoreTextHelpers::LoadPlatformFont(fontID, fontName, style);
 }
 
+PlatformFontPtr IGraphicsIOS::LoadPlatformFont(const char* fontID, void* pData, int dataSize)
+{
+  return CoreTextHelpers::LoadPlatformFont(fontID, pData, dataSize);
+}
+
 void IGraphicsIOS::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
 {
   CoreTextHelpers::CachePlatformFont(fontID, font, sFontDescriptorCache);

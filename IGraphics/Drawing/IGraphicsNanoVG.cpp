@@ -347,7 +347,29 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
   return new Bitmap(mVG, fileNameOrResID, scale, idx, location == EResourceLocation::kPreloadedTexture);
 }
 
-APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
+APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale)
+{
+  StaticStorage<APIBitmap>::Accessor storage(mBitmapCache);
+  APIBitmap* pBitmap = storage.Find(name, scale);
+
+  if (!pBitmap)
+  {
+    int idx = 0;
+    int nvgImageFlags = 0;
+
+    ActivateGLContext();
+    idx = idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pData, dataSize);
+    DeactivateGLContext();
+
+    pBitmap = new Bitmap(mVG, name, scale, idx, false);
+
+    storage.Add(pBitmap, name, scale);
+  }
+
+  return pBitmap;
+}
+
+APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
 {
   if (mInDraw)
   {
@@ -474,9 +496,7 @@ void IGraphicsNanoVG::BeginFrame()
   mInDraw = true;
   IGraphics::BeginFrame(); // start perf graph timing
 
-#ifdef IGRAPHICS_METAL
-  //  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
-#else
+#ifdef IGRAPHICS_GL
     glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
     glClearColor(0.f, 0.f, 0.f, 0.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
