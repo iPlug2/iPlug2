@@ -1334,7 +1334,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
         }
 #ifndef NDEBUG
       }
-      else if (pControl->GetRECT().Contains(x, y))
+      else if (pControl->GetRECT().Contains(x, y) && pControl->GetParent() == nullptr)
       {
         return c;
       }

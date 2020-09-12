@@ -264,17 +264,20 @@ public:
     {
       IControl* pControl = g.GetControl(i);
       IRECT cr = pControl->GetRECT();
-
-      if(pControl->IsHidden())
-        g.DrawDottedRect(COLOR_RED, cr);
-      else if(pControl->IsDisabled())
-        g.DrawDottedRect(COLOR_GREEN, cr);
-      else
-        g.DrawDottedRect(COLOR_BLUE, cr);
       
-      IRECT h = GetHandleRect(cr);
-      g.FillTriangle(mRectColor, h.L, h.B, h.R, h.B, h.R, h.T);
-      g.DrawTriangle(COLOR_BLACK, h.L, h.B, h.R, h.B, h.R, h.T);
+      if(!pControl->GetParent()) // don't allow reszing sub controls
+      {
+        if(pControl->IsHidden())
+          g.DrawDottedRect(COLOR_RED, cr);
+        else if(pControl->IsDisabled())
+          g.DrawDottedRect(COLOR_GREEN, cr);
+        else
+          g.DrawDottedRect(COLOR_BLUE, cr);
+        
+        IRECT h = GetHandleRect(cr);
+        g.FillTriangle(mRectColor, h.L, h.B, h.R, h.B, h.R, h.T);
+        g.DrawTriangle(COLOR_BLACK, h.L, h.B, h.R, h.B, h.R, h.T);
+      }
     }
     
     for(int i = 0; i< mSelectedControls.GetSize(); i++)
