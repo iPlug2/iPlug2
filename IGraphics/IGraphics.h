@@ -1183,15 +1183,13 @@ private:
 
 #pragma mark - Control management
 public:
-  /** /todo
-   * @param func /todo */
+  /** For all controls, including the "special controls" call a method
+   * @param func A std::function to perform on each control */
   void ForAllControlsFunc(std::function<void(IControl& control)> func);
   
-  /** /todo
-   * @tparam T /todo
-   * @tparam Args /todo
-   * @param method /todo
-   * @param args /todo */
+  /** For all controls, including the "special controls" call a method
+   * @param method The method to call
+   * @param args The method arguments */
   template<typename T, typename... Args>
   void ForAllControls(T method, Args... args);
   
@@ -1199,23 +1197,21 @@ public:
    * @param func A std::function to perform on each control */
   void ForStandardControlsFunc(std::function<void(IControl& control)> func);
   
-  /** /todo
-   * @tparam T /todo
-   * @tparam Args /todo
-   * @param method /todo
-   * @param paramIdx /todo
-   * @param args /todo */
+  /** For all standard controls in the main control stack that are linked to a specific parameter, call a method
+   * @param method The method to call
+   * @param paramIdx The parameter index to match
+   * @param args The method arguments */
   template<typename T, typename... Args>
   void ForMatchingControls(T method, int paramIdx, Args... args);
 
-  /** /todo
-   * @param paramIdx /todo
-   * @param func /todo */
+  /** For all standard controls in the main control stack that are linked to a specific parameter, execute a function
+   * @param paramIdx The parameter index to match
+   * @param func A std::function to perform on each control */
   void ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func);
   
-  /** \todo
-   * @param group /todo
-   * @param func /todo */
+  /** For all standard controls in the main control stack that are linked to a group, execute a function
+   * @param group CString specificying the goupd name
+   * @param func A std::function to perform on each control */
   void ForControlInGroup(const char* group, std::function<void(IControl& control)> func);
   
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
