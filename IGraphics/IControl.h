@@ -607,10 +607,32 @@ public:
   IContainer(const IRECT& bounds, IActionFunction actionFunc)
   : IControl(bounds, actionFunc)
   {}
+  IContainer(const IRECT& bounds, std::function<void(IContainer* pContainer)> attachFunc, std::function<void(IContainer* pContainer)> resizeFunc = nullptr)
+  : IControl(bounds)
+  , mAttachFunc(attachFunc)
+  , mResizeFunc(resizeFunc)
+  {}
+  
+  virtual void Draw(IGraphics& g) override
+  {
+    /* NO-OP */
+  }
   
   virtual ~IContainer()
   {
     mChildren.Empty(false);
+  }
+  
+  virtual void OnAttached() override
+  {
+    if(mAttachFunc)
+      mAttachFunc(this);
+  }
+  
+  virtual void OnResize() override
+  {
+    if(mResizeFunc && mChildren.GetSize())
+      mResizeFunc(this);
   }
   
   void SetDisabled(bool disable) override
@@ -644,7 +666,14 @@ public:
     GetUI()->RemoveControl(pControl);
   }
   
+  IControl* GetChild(int idx)
+  {
+    return mChildren.Get(idx);
+  }
+  
 private:
+  std::function<void(IContainer* pContainer)> mAttachFunc = nullptr;
+  std::function<void(IContainer* pContainer)> mResizeFunc = nullptr;
   WDL_PtrList<IControl> mChildren;
 };
 
