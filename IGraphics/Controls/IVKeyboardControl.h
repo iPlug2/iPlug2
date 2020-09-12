@@ -24,7 +24,7 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-class IVKeyboardControl : public IContainer , public IMultiTouchControlBase
+class IVKeyboardControl : public IContainer, public IMultiTouchControlBase
 {
   enum class GlideMode { Glissando, Pitch };
   enum class KeyLayoutMode { Contiguous, Piano };
@@ -39,11 +39,10 @@ class IVKeyboardControl : public IContainer , public IMultiTouchControlBase
   class KeyControl : public IControl
   {
   public:
-    KeyControl(const IRECT& bounds, int idx, bool isSharp, IVKeyboardControl* pParent)
+    KeyControl(const IRECT& bounds, int idx, bool isSharp)
     : IControl(bounds)
     , mIdx(idx)
     , mIsSharp(isSharp)
-    , mParent(pParent)
     {
       mDblAsSingleClick = true;
       SetNVals(2);
@@ -66,30 +65,30 @@ class IVKeyboardControl : public IContainer , public IMultiTouchControlBase
       mPointerDown = true;
       //parent sets this one dirty
       SnapToMouse(x, y, EDirection::Vertical, mRECT, EValIDs::kHeight);
-      mParent->AddTouch(mod.touchID, x, y, mod.touchRadius);
-      mParent->SetHit(mod.touchID, this);
+      GetKeyboard()->AddTouch(mod.touchID, x, y, mod.touchRadius);
+      GetKeyboard()->SetHit(mod.touchID, this);
     }
     
     void OnMouseUp(float x, float y, const IMouseMod& mod) override
     {
       mPointerDown = false;
 
-      mParent->ReleaseTouch(mod.touchID);
-      mParent->ClearHitIfMovedOffKey(mod.touchID, nullptr);
+      GetKeyboard()->ReleaseTouch(mod.touchID);
+      GetKeyboard()->ClearHitIfMovedOffKey(mod.touchID, nullptr);
     }
     
     void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
     {
-      mParent->UpdateTouch(mod.touchID, x, y, mod.touchRadius);
-      mParent->HitMoved(mod.touchID, this);
+      GetKeyboard()->UpdateTouch(mod.touchID, x, y, mod.touchRadius);
+      GetKeyboard()->HitMoved(mod.touchID, this);
       
       SnapToMouse(x, y, EDirection::Vertical, mRECT, EValIDs::kHeight);
-      mParent->SendCtrl1(mod.touchID, GetValue(EValIDs::kHeight));
+      GetKeyboard()->SendCtrl1(mod.touchID, GetValue(EValIDs::kHeight));
     }
     
     void OnTouchCancelled(float x, float y, const IMouseMod& mod) override
     {
-      mParent->ClearAllTouches();
+      GetKeyboard()->ClearAllTouches();
     }
     
     int GetIdx() const
@@ -98,16 +97,19 @@ class IVKeyboardControl : public IContainer , public IMultiTouchControlBase
     }
     
   private:
+    IVKeyboardControl* GetKeyboard() {
+      return dynamic_cast<IVKeyboardControl*>(GetParent());
+    }
+    
     bool mPointerDown = false;
     bool mIsSharp;
     int mIdx;
-    IVKeyboardControl* mParent;
   };
   
   class HighlightControl : public IControl
   {
   public:
-    HighlightControl(const IRECT& bounds, IVKeyboardControl* pParent, const IColor& color)
+    HighlightControl(const IRECT& bounds, const IColor& color)
     : IControl(bounds)
     , mColor(color)
     {
@@ -311,7 +313,7 @@ public:
   {
     for(int i=0;i<MAX_TOUCHES;i++)
     {
-      HighlightControl* pNewHightlightControl = new HighlightControl(mRECT.GetCentredInside(10), this, GetRainbow(i%7));
+      HighlightControl* pNewHightlightControl = new HighlightControl(mRECT.GetCentredInside(10), GetRainbow(i%7));
 //      pNewHightlightControl->Hide(true);
       AddChildControl(pNewHightlightControl);
       mHighlightControls.Add(pNewHightlightControl);
@@ -325,7 +327,7 @@ public:
     
     for(int i=0; i< numWhiteKeys;i++)
     {
-      KeyControl* pNewKeyControl = new KeyControl(mRECT.GetGridCell(i, 1, numWhiteKeys), i, false, this);
+      KeyControl* pNewKeyControl = new KeyControl(mRECT.GetGridCell(i, 1, numWhiteKeys), i, false);
       AddChildControl(pNewKeyControl);
       mKeyControls.Add(pNewKeyControl);
     }
