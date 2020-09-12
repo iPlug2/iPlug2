@@ -20,7 +20,6 @@
 
 #define PLATFORM_LITTLE_ENDIAN   1
 #define PLATFORM_CACHE_LINE_SIZE 64
-#define PLATFORM_CACHE_ALIGN     __attribute__((aligned(PLATFORM_CACHE_LINE_SIZE)))
 #define DEBUGBREAK()             __debugbreak()
 #define PLATFORM_PTHREADS        0
 

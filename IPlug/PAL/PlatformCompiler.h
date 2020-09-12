@@ -40,10 +40,12 @@
 	#define PRAGMA(...)       __pragma(__VA_ARGS__)
 	#define IPLUG_APIENTRY    __stdcall
 	#define NOINLINE          __declspec(noinline)
+	#define CACHE_ALIGN(x)    __declspec(align(x))
 #elif PLATFORM_COMPILER_GCC || PLATFORM_COMPILER_CLANG
 	#define PRAGMA(...)       _Pragma(__VA_ARGS__)
 	#define IPLUG_APIENTRY
 	#define NOINLINE          __attribute__((noinline))
+	#define CACHE_ALIGN(x)    __attribute__((aligned(x)))
 #else
 	#error "Unsupported compiler."
 #endif
