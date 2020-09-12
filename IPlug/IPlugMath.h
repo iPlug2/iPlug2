@@ -16,42 +16,58 @@
 namespace iplug::math
 {
 	template <class T>
-	inline constexpr T abs(T value)
+	inline constexpr T Abs(T value)
 	{
 		return (value >= 0) ? value : -value;
 	}
 
+	template <class T>
+	inline constexpr T Clamp(const T value, const T min, const T max)
+	{
+		return value < min ? min : value < max ? value : max;
+	}
 
-	// True if value is smaller than given threshold or delta constant (0.00001 or -100dB in Neper units)
+	template <class T>
+	inline constexpr T Align(const T value, const float alignment)
+	{
+		if (value == 0 || alignment == 0)
+			return value;
+		return static_cast<T>(floorf((static_cast<float>(value) + 0.5f * alignment) / alignment) * alignment);
+	}
+
+	template <class T = int>
+	inline constexpr T BitAlign(T value, T alignment = 0x10)
+	{
+		static_assert(std::is_integral_v<T>);
+		return (value + alignment - 1) & ~(alignment - 1);
+	}
+
+	// True if value is smaller than given threshold or delta constant (Amplitude of -100dB)
 	template <class T = tfloat>
 	inline constexpr bool IsBelowThreshold(const T value, const T threshold = constants::delta_v<T>)
 	{
-		static_assert(std::is_floating_point_v<T>);
-		return (abs(value) < threshold);
+		return (Abs(value) < threshold);
 	}
 
-	// True if value is higher than given threshold or delta constant (0.00001 or -100dB in Neper units)
+	// True if value is higher than given threshold or delta constant (Amplitude of -100dB )
 	template <class T = tfloat>
 	inline constexpr bool IsAboveThreshold(const T value, const T threshold = constants::delta_v<T>)
 	{
-		static_assert(std::is_floating_point_v<T>);
-		return (abs(value) > threshold);
+		return (Abs(value) > threshold);
 	}
 
 	// True if value is, or is close to 0.0 based on given threshold or macheps32 constant
 	template <class T = tfloat>
 	inline constexpr bool IsNearlyZero(const T value, const T threshold = constants::macheps32_v<T>)
 	{
-		static_assert(std::is_floating_point_v<T>);
-		return (abs(value) <= threshold);
+		return (Abs(value) <= threshold);
 	}
 
 	// True if value A is, or is close to value B based on given threshold or macheps32 constant
 	template <class T = tfloat>
 	inline constexpr bool IsNearlyEqual(const T A, const T B, const T threshold = constants::macheps32_v<T>)
 	{
-		static_assert(std::is_floating_point_v<T>);
-		return (abs(A - B) <= threshold);
+		return (Abs(A - B) <= threshold);
 	}
 
 	template <class Tret = bool, class T>
@@ -72,7 +88,7 @@ namespace iplug::math
 				double f;
 				uint64 i;
 			} u;
-			u.i = static_cast<uint64>(abs(value));
+			u.i = static_cast<uint64>(Abs(value));
 			u.i <<= IsPowerOfTwo<int>(u.i);
 			u.f = static_cast<double>(u.i);
 			u.i &= 0xfff0000000000000u;
@@ -81,7 +97,7 @@ namespace iplug::math
 			return static_cast<T>(u.f);
 		}
 
-		uint64 v = static_cast<uint64>(abs(value));
+		uint64 v = static_cast<uint64>(Abs(value));
 		v <<= IsPowerOfTwo<int>(value);
 		T u = static_cast<T>(ldexp(1.0, ilogb(v)));
 		if (value < 0)
@@ -151,14 +167,14 @@ namespace iplug::math
 	inline constexpr auto AmpToDB(const T Amplitude)
 	{
 		static_assert(std::is_floating_point_v<T>);
-		return constants::Np_v<T> * log(fabs(Amplitude));
+		return constants::Np_v<T> * log(Abs(Amplitude));
 	}
 
 	// AmpToDB using fast approximation
 	inline const auto AmpToDBf(const float Amplitude)
 	{
 		int E;
-		float F = frexpf(fabsf(Amplitude), &E);
+		float F = frexpf(Abs(Amplitude), &E);
 		float Y = 1.23149591368684f;
 		Y *= F;
 		Y += -4.11852516267426f;
@@ -177,7 +193,7 @@ namespace iplug::math
 
 		// internal lookup table for fsqrt
 		static const uint32* _fsqrt_lut = [] {
-			PLATFORM_CACHE_ALIGN
+			CACHE_ALIGN(16)
 			static uint32 array[0x10000];
 			union
 			{
@@ -188,10 +204,10 @@ namespace iplug::math
 			for (int i = 0; i <= 0x7fff; ++i)
 			{
 				u.i               = (i << 8) | (0x7f << 23);
-				u.f               = static_cast<float>(sqrt(u.f));
+				u.f               = sqrtf(u.f);
 				array[i + 0x8000] = (u.i & 0x7fffff);
 				u.i               = (i << 8) | (0x80 << 23);
-				u.f               = static_cast<float>(sqrt(u.f));
+				u.f               = sqrtf(u.f);
 				array[i]          = (u.i & 0x7fffff);
 			}
 			return array;
