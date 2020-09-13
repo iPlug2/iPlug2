@@ -60,3 +60,12 @@
 #define DEF_INTERFACE(InterfaceName) QUERY_INTERFACE (iid, obj, InterfaceName::iid, InterfaceName)
 #define FDECLARE_CONST(name, number)
 #define IDECLARE_CONST(name, number)
+#define NODISCARD [[nodiscard]]
+#define PLATFORM_WINDOWS
+#define PLATFORM_IOS
+#define nvgBindFramebuffer(fb) mnvgBindFramebuffer(fb)
+#define nvgBindFramebuffer(fb) nvgluBindFramebuffer(fb)
+#define assert(expression) ((void)0)
+#define assert(expression) (void)( (!!(expression)) || (_wassert(_CRT_WIDE(#expression), _CRT_WIDE(__FILE__), (unsigned)(__LINE__)), 0) )
+#define glClear
+#define glViewport
