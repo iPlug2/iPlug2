@@ -27,7 +27,7 @@
 //---------------------------------------------------------
 // WEB specific types
 
-namespace iplug::types
+namespace iplug::type
 {
 	struct Web : iplug::generic::Types
 	{

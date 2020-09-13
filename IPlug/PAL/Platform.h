@@ -87,24 +87,24 @@ namespace iplug::generic
 namespace iplug
 {
 	// Check if we have a valid platform struct
-	static_assert(std::is_class_v<types::Platform>, "Platform type definition is wrong type.");
-	static_assert(std::is_base_of_v<generic::Types, types::Platform>,
+	static_assert(std::is_class_v<type::Platform>, "Platform type definition is wrong type.");
+	static_assert(std::is_base_of_v<generic::Types, type::Platform>,
 				  "Platform type definition structure inheritance failure.");
 
-	using byte   = types::Platform::byte;    // 8-bit unsigned enum class type
-	using uint8  = types::Platform::uint8;   // 8-bit unsigned
-	using uint16 = types::Platform::uint16;  // 16-bit unsigned
-	using uint32 = types::Platform::uint32;  // 32-bit unsigned
-	using uint64 = types::Platform::uint64;  // 64-bit unsigned
-	using int8   = types::Platform::int8;    // 8-bit signed
-	using int16  = types::Platform::int16;   // 16-bit signed
-	using int32  = types::Platform::int32;   // 32-bit signed
-	using int64  = types::Platform::int64;   // 64-bit signed
-	using utf8   = types::Platform::utf8;    // 8-bit unsigned enum class type
-	using utf16  = types::Platform::utf16;   // 16-bit unsigned
-	using utf32  = types::Platform::utf32;   // 32-bit unsigned
-	using size_t = types::Platform::size_t;  // 32-bit or 64-bit unsigned
-	using tfloat = types::Platform::tfloat;  // defined floating-point type float/double
+	using byte   = type::Platform::byte;    // 8-bit unsigned enum class type
+	using uint8  = type::Platform::uint8;   // 8-bit unsigned
+	using uint16 = type::Platform::uint16;  // 16-bit unsigned
+	using uint32 = type::Platform::uint32;  // 32-bit unsigned
+	using uint64 = type::Platform::uint64;  // 64-bit unsigned
+	using int8   = type::Platform::int8;    // 8-bit signed
+	using int16  = type::Platform::int16;   // 16-bit signed
+	using int32  = type::Platform::int32;   // 32-bit signed
+	using int64  = type::Platform::int64;   // 64-bit signed
+	using utf8   = type::Platform::utf8;    // 8-bit unsigned enum class type
+	using utf16  = type::Platform::utf16;   // 16-bit unsigned
+	using utf32  = type::Platform::utf32;   // 32-bit unsigned
+	using size_t = type::Platform::size_t;  // 32-bit or 64-bit unsigned
+	using tfloat = type::Platform::tfloat;  // defined floating-point type float/double
 
 
 	//-----------------------------------------------------------------------------
@@ -150,25 +150,59 @@ namespace iplug
 
 
 	//-----------------------------------------------------------------------------
-	// Base templates
-
-	template <class> inline constexpr bool _Always_false = false;
-
-	template <class T> struct _Invalid
-	{
-		static_assert(_Always_false<T>, "Invalid type.");
-	};
-
+	// templates
 
 	// Return number of elements in an array.
 	// TODO: temporary, move to template header later
-	template <typename T> inline constexpr size_t TArrayCount(T&& array)
+	template <typename T>
+	inline constexpr size_t TArrayCount(T&& array)
 	{
 		return sizeof(uint8(&)[sizeof(array) / sizeof(array[0])]);
 	}
 }  // namespace iplug
 
 
+namespace iplug::type
+{
+	template <class>
+	inline constexpr bool _Always_false = false;
+
+	template <class T>
+	struct _Invalid
+	{
+		static_assert(_Always_false<T>, "Invalid type.");
+	};
+
+	// Copy of MSVC internal std::_Is_any_of_v implementation
+	template <class T, class... Types>
+	inline constexpr bool IsAnyOf = std::disjunction_v<std::is_same<T, Types>...>;
+
+	// No bool or char
+	template <class T>
+	inline constexpr bool IsMathIntegral = IsAnyOf<std::remove_cv_t<T>,  // remove 'const' and 'volatile' qualifiers
+												   short,
+												   unsigned short,
+												   int,
+												   unsigned int,
+												   long,
+												   unsigned long,
+												   long long,
+												   unsigned long long>;
+
+	// clang-format off
+	// Added for consistency
+
+	template <class T> inline constexpr bool IsIntegral      = std::is_integral_v<T>;
+	template <class T> inline constexpr bool IsFloatingPoint = std::is_floating_point_v<T>;
+	template <class T> inline constexpr bool IsArithmetic    = std::is_arithmetic_v<T>;
+	template <class T> inline constexpr bool IsSigned        = std::is_signed_v<T>;
+	template <class T> inline constexpr bool IsUnsigned      = std::is_unsigned_v<T>;
+	// clang-format on
+
+	// Using modified is_integral_v without bool or char types
+	template <class T>
+	inline constexpr bool IsMathArithmetic = IsMathIntegral<T> || IsFloatingPoint<T>;
+}  // namespace iplug::type
 
 
 // Temporary
@@ -181,13 +215,11 @@ namespace iplug::generic
 			return (PLATFORM_LITTLE_ENDIAN == 1);
 		}
 	};
-}
+}  // namespace iplug::generic
 
 namespace iplug
 {
 	struct Platform final : public iplug::generic::Platform
 	{
 	};
-}
-
-
+}  // namespace iplug

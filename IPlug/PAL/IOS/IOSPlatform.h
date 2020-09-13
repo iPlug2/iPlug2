@@ -27,7 +27,7 @@
 //-----------------------------------------------------------------------------
 // IOS specific types
 
-namespace iplug::types
+namespace iplug::type
 {
 	struct IOS : iplug::generic::Types
 	{

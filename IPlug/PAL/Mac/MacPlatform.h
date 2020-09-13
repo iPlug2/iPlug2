@@ -27,7 +27,7 @@
 //-----------------------------------------------------------------------------
 // Mac specific types
 
-namespace iplug::types
+namespace iplug::type
 {
 	struct MacOS : iplug::generic::Types
 	{

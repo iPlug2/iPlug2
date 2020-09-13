@@ -27,7 +27,7 @@
 //-----------------------------------------------------------------------------
 // Linux specific types
 
-namespace iplug::types
+namespace iplug::type
 {
 	struct Linux : iplug::generic::Types
 	{
