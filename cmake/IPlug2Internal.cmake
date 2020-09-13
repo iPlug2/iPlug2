@@ -272,7 +272,7 @@ macro(_iplug_set_default_compiler_options)
         set(CL_FLAGS_DEBUG
             /D_DEBUG          # Specify debug versions of the C run-time library
             /GS               # Buffer Security Checks. Detects some buffer overruns that overwrite a function's return address, exception handler address, or certain types of parameters
-            /sdl              # Enable Additional Security Development Lifecycle Checks
+            # /sdl              # Enable Additional Security Development Lifecycle Checks
             /Zi               # Generates complete debugging information. /ZI (edit and continue) can cause issues in code size, performance, and compiler conformance
             /Ob0              # Disables inline expansions
             /Od               # Disables optimization
@@ -283,7 +283,7 @@ macro(_iplug_set_default_compiler_options)
         set(CL_FLAGS_RELEASE
             /DNDEBUG          # Turn off assertion checks
             /GS               # Buffer Security Checks. Detects some buffer overruns that overwrite a function's return address, exception handler address, or certain types of parameters
-            /sdl              # Enable Additional Security Development Lifecycle Checks
+            # /sdl              # Enable Additional Security Development Lifecycle Checks
             /Zo               # Enhance Optimized Debugging for optimized code in non-debug builds. Tells the compiler to generate additional debugging information for local variables and inlined functions
             /GL               # Whole Program Optimization
             /O2               # Creates fast code
@@ -649,8 +649,6 @@ function(_iplug_add_target_lib _target _pluginapi_lib)
         PUBLIC
             "${IPLUG2_ROOT_PATH}/IPlug/IPlugPCH.h"
     )
-    # target_precompile_headers(${_target} REUSE_FROM ${_libName})
-
 
     target_link_libraries(${_libName}
         PRIVATE
