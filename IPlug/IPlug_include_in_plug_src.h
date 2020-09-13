@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -16,13 +16,14 @@
  * Include this file in the main source for your plugin, after #including the main header for your plugin.
  * A preprocessor macro for a particular API such as VST2_API should be defined at project level
  * Depending on the API macro defined, a different entry point and helper methods are activated
-*/
+ */
 
 // clang-format off
 
 #define PUBLIC_NAME PLUG_NAME
 
 #pragma mark - PLATFORM_WINDOWS
+
 #if PLATFORM_WINDOWS && !defined VST3C_API
 HINSTANCE gHINSTANCE = 0;
 
@@ -36,13 +37,12 @@ HINSTANCE gHINSTANCE = 0;
 
 
 	// TODO: move function. This function doesn't belong in an api header include, it should be something like PAL::System::GetDPI()
-	int GetScaleForHWND(HWND hWnd)
+	const int GetScaleForHWND(const HWND hWnd, const bool useCachedResult=true)
 	{
-		int dpi = GetDpiForWindow(hWnd);
-		if (dpi != USER_DEFAULT_SCREEN_DPI)
-			return static_cast<int>(std::round(static_cast<double>(dpi) / USER_DEFAULT_SCREEN_DPI));
-
-		return 1;
+		static int CachedScale = 0;
+		if(useCachedResult == false || CachedScale == 0)
+			CachedScale = math::IntegralDivide(GetDpiForWindow(hWnd), USER_DEFAULT_SCREEN_DPI);
+		return CachedScale;
 	}
 #endif
 
