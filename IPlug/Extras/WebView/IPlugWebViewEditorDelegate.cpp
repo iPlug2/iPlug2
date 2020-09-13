@@ -25,7 +25,8 @@ WebViewEditorDelegate::~WebViewEditorDelegate()
   CloseWindow();
 }
 
-extern int GetScaleForHWND(HWND hWnd);
+//extern int GetScaleForHWND(HWND hWnd);
+extern const int GetScaleForHWND(const HWND hWnd, const bool useCachedResult=true);
 
 void* WebViewEditorDelegate::OpenWindow(void* pParent)
 {

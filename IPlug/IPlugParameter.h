@@ -259,14 +259,14 @@ public:
   /** Constrains the input value between \c mMin and \c mMax
    * @param value The input value to constrain
    * @return double The resulting constrained value */
-  inline double Constrain(double value) const { return Clip((mFlags & kFlagStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
+  inline double Constrain(double value) const { return math::Clamp((mFlags & kFlagStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
 
   /** Convert a real value to normalized value for this parameter
    * @param nonNormalizedValue The real input value
    * @return The corresponding normalized value, for this parameter */
   inline double ToNormalized(double nonNormalizedValue) const
   {
-    return Clip(mShape->ValueToNormalized(Constrain(nonNormalizedValue), *this), 0., 1.);
+    return math::Clamp(mShape->ValueToNormalized(Constrain(nonNormalizedValue), *this), 0., 1.);
   }
 
   /** Convert a normalized value to real value for this parameter

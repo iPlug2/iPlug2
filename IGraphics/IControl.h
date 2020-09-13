@@ -793,7 +793,7 @@ class IBitmapBase
 		if (mBitmap.N() > 1)
 		{
 			i = 1 + int(0.5 + mControl->GetValue() * (double) (mBitmap.N() - 1));
-			i = Clip(i, 1, mBitmap.N());
+			i = math::Clamp(i, 1, mBitmap.N());
 		}
 		IBlend blend = mControl->GetBlend();
 		g.DrawBitmap(mBitmap, mControl->GetRECT().GetCentredInside(IRECT(0, 0, mBitmap)), i, &blend);
@@ -850,13 +850,13 @@ class IVectorBase
 	}
 	void SetWidgetFrac(float frac)
 	{
-		mStyle.widgetFrac = Clip(frac, 0.f, 1.f);
+		mStyle.widgetFrac = math::Clamp(frac, 0.f, 1.f);
 		mControl->OnResize();
 		mControl->SetDirty(false);
 	}
 	void SetAngle(float angle)
 	{
-		mStyle.angle = Clip(angle, 0.f, 360.f);
+		mStyle.angle = math::Clamp(angle, 0.f, 360.f);
 		mControl->SetDirty(false);
 	}
 	void SetShowLabel(bool show)
@@ -873,7 +873,7 @@ class IVectorBase
 	}
 	void SetRoundness(float roundness)
 	{
-		mStyle.roundness = Clip(roundness, 0.f, 1.f);
+		mStyle.roundness = math::Clamp(roundness, 0.f, 1.f);
 		mControl->SetDirty(false);
 	}
 	void SetDrawFrame(bool draw)

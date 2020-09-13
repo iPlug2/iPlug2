@@ -22,84 +22,82 @@ BEGIN_IGRAPHICS_NAMESPACE
 /** Vectorial multi-channel capable oscilloscope control
  * @ingroup IControls */
 template <int MAXNC = 1, int MAXBUF = 128>
-class IVScopeControl : public IControl
-                     , public IVectorBase
+class IVScopeControl : public IControl, public IVectorBase
 {
-public:
-  /** Constructs an IVScopeControl 
-   * @param bounds The rectangular area that the control occupies
-   * @param label A CString to label the control
-   * @param style, /see IVStyle */
-  IVScopeControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE)
-  : IControl(bounds)
-  , IVectorBase(style)
-  {
-    AttachIControl(this, label);
-  }
-  
-  void Draw(IGraphics& g) override
-  {
-    DrawBackground(g, mRECT);
-    DrawWidget(g);
-    DrawLabel(g);
-    
-    if(mStyle.drawFrame)
-      g.DrawRect(GetColor(kFR), mWidgetBounds, &mBlend, mStyle.frameThickness);
-  }
+ public:
+	/** Constructs an IVScopeControl
+	 * @param bounds The rectangular area that the control occupies
+	 * @param label A CString to label the control
+	 * @param style, /see IVStyle */
+	IVScopeControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE)
+		: IControl(bounds)
+		, IVectorBase(style)
+	{
+		AttachIControl(this, label);
+	}
 
-  void DrawWidget(IGraphics& g) override
-  {
-    g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5, &mBlend, mStyle.frameThickness);
-    
-    IRECT r = mWidgetBounds.GetPadded(-mPadding);
+	void Draw(IGraphics& g) override
+	{
+		DrawBackground(g, mRECT);
+		DrawWidget(g);
+		DrawLabel(g);
 
-    const float maxY = (r.H() / 2.f); // y +/- centre
+		if (mStyle.drawFrame)
+			g.DrawRect(GetColor(kFR), mWidgetBounds, &mBlend, mStyle.frameThickness);
+	}
 
-    float xPerData = r.W() / (float) MAXBUF;
+	void DrawWidget(IGraphics& g) override
+	{
+		g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5, &mBlend, mStyle.frameThickness);
 
-    for (int c = 0; c < mBuf.nChans; c++)
-    {
-      float xHi = 0.f;
-      float yHi = mBuf.vals[c][0] * maxY;
-      yHi = Clip(yHi, -maxY, maxY);
+		IRECT r = mWidgetBounds.GetPadded(-mPadding);
 
-      g.PathMoveTo(r.L + xHi, r.MH() - yHi);
-      for (int s = 1; s < MAXBUF; s++)
-      {
-        xHi = ((float) s * xPerData);
-        yHi = mBuf.vals[c][s] * maxY;
-        yHi = Clip(yHi, -maxY, maxY);
-        g.PathLineTo(r.L + xHi, r.MH() - yHi);
-      }
-      
-      g.PathStroke(GetColor(kFG), mTrackSize, IStrokeOptions(), &mBlend);
-    }
-  }
-  
-  void OnResize() override
-  {
-    SetTargetRECT(MakeRects(mRECT));
-    SetDirty(false);
-  }
+		const float maxY = (r.H() / 2.f);  // y +/- centre
 
-  void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
-  {
-    if (!IsDisabled() && msgTag == ISender<>::kUpdateMessage)
-    {
-      IByteStream stream(pData, dataSize);
+		float xPerData = r.W() / (float) MAXBUF;
 
-      int pos = 0;
-      pos = stream.Get(&mBuf, pos);
+		for (int c = 0; c < mBuf.nChans; c++)
+		{
+			float xHi = 0.f;
+			float yHi = mBuf.vals[c][0] * maxY;
+			yHi       = math::Clamp(yHi, -maxY, maxY);
 
-      SetDirty(false);
-    }
-  }
+			g.PathMoveTo(r.L + xHi, r.MH() - yHi);
+			for (int s = 1; s < MAXBUF; s++)
+			{
+				xHi = ((float) s * xPerData);
+				yHi = mBuf.vals[c][s] * maxY;
+				yHi = math::Clamp(yHi, -maxY, maxY);
+				g.PathLineTo(r.L + xHi, r.MH() - yHi);
+			}
 
-private:
-  ISenderData<MAXNC, std::array<float, MAXBUF>> mBuf;
-  float mPadding = 2.f;
+			g.PathStroke(GetColor(kFG), mTrackSize, IStrokeOptions(), &mBlend);
+		}
+	}
+
+	void OnResize() override
+	{
+		SetTargetRECT(MakeRects(mRECT));
+		SetDirty(false);
+	}
+
+	void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
+	{
+		if (!IsDisabled() && msgTag == ISender<>::kUpdateMessage)
+		{
+			IByteStream stream(pData, dataSize);
+
+			int pos = 0;
+			pos     = stream.Get(&mBuf, pos);
+
+			SetDirty(false);
+		}
+	}
+
+ private:
+	ISenderData<MAXNC, std::array<float, MAXBUF>> mBuf;
+	float mPadding = 2.f;
 };
 
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
-

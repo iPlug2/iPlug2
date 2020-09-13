@@ -129,7 +129,8 @@ StaticStorage<IGraphicsWin::HFontHolder> IGraphicsWin::sHFontCache;
 
 #pragma mark - Mouse and tablet helpers
 
-extern int GetScaleForHWND(HWND hWnd);
+//extern int GetScaleForHWND(HWND hWnd);
+extern const int GetScaleForHWND(const HWND hWnd, const bool useCachedResult=true);
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
@@ -217,7 +218,9 @@ void IGraphicsWin::OnDisplayTimer(uint32 vBlankCount)
 				DestroyEditWindow();
 				break;
 			}
-			case EParamEditMsg::kCancel: DestroyEditWindow(); break;
+			case EParamEditMsg::kCancel:
+				DestroyEditWindow();
+				break;
 		}
 
 		mParamEditMsg = EParamEditMsg::kNone;
@@ -289,12 +292,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
 		if (pGraphics->mVSYNCEnabled)  // use VBLANK thread
 		{
-			assert((pGraphics->FPS() == 60) && "If you want to run at frame rates other than 60FPS");
+			assert((pGraphics->GetFPS() == 60) && "If you want to run at frame rates other than 60FPS");
 			pGraphics->StartVBlankThread(hWnd);
 		}
 		else  // use WM_TIMER -- its best to get below 16ms because the windows time quanta is slightly above 15ms.
 		{
-			int mSec = static_cast<int>(std::floorf(1000.0f / (pGraphics->FPS())));
+			int mSec = static_cast<int>(std::floorf(1000.0f / (pGraphics->GetFPS())));
 			if (mSec < 20)
 				mSec = 15;
 			SetTimer(hWnd, IPLUG_TIMER_ID, mSec, NULL);
@@ -333,7 +336,9 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
 	switch (msg)
 	{
-		case WM_VBLANK: pGraphics->OnDisplayTimer(wParam); return 0;
+		case WM_VBLANK:
+			pGraphics->OnDisplayTimer(wParam);
+			return 0;
 
 		case WM_TIMER:
 			if (wParam == IPLUG_TIMER_ID)
@@ -341,7 +346,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
 			return 0;
 
-		case WM_ERASEBKGND: return 0;
+		case WM_ERASEBKGND:
+			return 0;
 
 		case WM_RBUTTONDOWN:
 		case WM_LBUTTONDOWN:
@@ -538,7 +544,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 			}
 			return 0;
 		}
-		case WM_GETDLGCODE: return DLGC_WANTALLKEYS;
+		case WM_GETDLGCODE:
+			return DLGC_WANTALLKEYS;
 		case WM_KEYDOWN:
 		case WM_KEYUP:
 		{
@@ -736,7 +743,8 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
 								break;
 							else
 								return 0;
-						default: break;
+						default:
+							break;
 					}
 				}
 				break;
@@ -864,7 +872,7 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
 		HWND pParent = 0, pGrandparent = 0;
 		int dlgW = 0, dlgH = 0, parentW = 0, parentH = 0, grandparentW = 0, grandparentH = 0;
 		GetWindowSize(mPlugWnd, &dlgW, &dlgH);
-		int dw = (WindowWidth() * GetScreenScale()) - dlgW, dh = (WindowHeight() * GetScreenScale()) - dlgH;
+		int dw = (GetWindowWidth() * GetScreenScale()) - dlgW, dh = (GetWindowHeight() * GetScreenScale()) - dlgH;
 
 		if (IsChildWindow(mPlugWnd))
 		{
@@ -964,21 +972,50 @@ ECursor IGraphicsWin::SetMouseCursor(ECursor cursorType)
 
 	switch (cursorType)
 	{
-		case ECursor::ARROW: cursor = LoadCursor(NULL, IDC_ARROW); break;
-		case ECursor::IBEAM: cursor = LoadCursor(NULL, IDC_IBEAM); break;
-		case ECursor::WAIT: cursor = LoadCursor(NULL, IDC_WAIT); break;
-		case ECursor::CROSS: cursor = LoadCursor(NULL, IDC_CROSS); break;
-		case ECursor::UPARROW: cursor = LoadCursor(NULL, IDC_UPARROW); break;
-		case ECursor::SIZENWSE: cursor = LoadCursor(NULL, IDC_SIZENWSE); break;
-		case ECursor::SIZENESW: cursor = LoadCursor(NULL, IDC_SIZENESW); break;
-		case ECursor::SIZEWE: cursor = LoadCursor(NULL, IDC_SIZEWE); break;
-		case ECursor::SIZENS: cursor = LoadCursor(NULL, IDC_SIZENS); break;
-		case ECursor::SIZEALL: cursor = LoadCursor(NULL, IDC_SIZEALL); break;
-		case ECursor::INO: cursor = LoadCursor(NULL, IDC_NO); break;
-		case ECursor::HAND: cursor = LoadCursor(NULL, IDC_HAND); break;
-		case ECursor::APPSTARTING: cursor = LoadCursor(NULL, IDC_APPSTARTING); break;
-		case ECursor::HELP: cursor = LoadCursor(NULL, IDC_HELP); break;
-		default: cursor = LoadCursor(NULL, IDC_ARROW);
+		case ECursor::ARROW:
+			cursor = LoadCursor(NULL, IDC_ARROW);
+			break;
+		case ECursor::IBEAM:
+			cursor = LoadCursor(NULL, IDC_IBEAM);
+			break;
+		case ECursor::WAIT:
+			cursor = LoadCursor(NULL, IDC_WAIT);
+			break;
+		case ECursor::CROSS:
+			cursor = LoadCursor(NULL, IDC_CROSS);
+			break;
+		case ECursor::UPARROW:
+			cursor = LoadCursor(NULL, IDC_UPARROW);
+			break;
+		case ECursor::SIZENWSE:
+			cursor = LoadCursor(NULL, IDC_SIZENWSE);
+			break;
+		case ECursor::SIZENESW:
+			cursor = LoadCursor(NULL, IDC_SIZENESW);
+			break;
+		case ECursor::SIZEWE:
+			cursor = LoadCursor(NULL, IDC_SIZEWE);
+			break;
+		case ECursor::SIZENS:
+			cursor = LoadCursor(NULL, IDC_SIZENS);
+			break;
+		case ECursor::SIZEALL:
+			cursor = LoadCursor(NULL, IDC_SIZEALL);
+			break;
+		case ECursor::INO:
+			cursor = LoadCursor(NULL, IDC_NO);
+			break;
+		case ECursor::HAND:
+			cursor = LoadCursor(NULL, IDC_HAND);
+			break;
+		case ECursor::APPSTARTING:
+			cursor = LoadCursor(NULL, IDC_APPSTARTING);
+			break;
+		case ECursor::HELP:
+			cursor = LoadCursor(NULL, IDC_HELP);
+			break;
+		default:
+			cursor = LoadCursor(NULL, IDC_ARROW);
 	}
 
 	SetCursor(cursor);
@@ -1007,7 +1044,7 @@ void IGraphicsWin::CreateGLContext()
 {
 	PIXELFORMATDESCRIPTOR pfd = {sizeof(PIXELFORMATDESCRIPTOR),
 								 1,
-								 PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,  //Flags
+								 PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,  // Flags
 								 PFD_TYPE_RGBA,  // The kind of framebuffer. RGBA or palette.
 								 32,             // Colordepth of the framebuffer.
 								 0,
@@ -1039,7 +1076,7 @@ void IGraphicsWin::CreateGLContext()
 	mHGLRC = wglCreateContext(dc);
 	wglMakeCurrent(dc, mHGLRC);
 
-	//TODO: return false if GL init fails?
+	// TODO: return false if GL init fails?
 	if (!gladLoadGL())
 		DBGMSG("Error initializing glad");
 
@@ -1088,7 +1125,10 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 {
 	mParentWnd      = (HWND) pParent;
 	int screenScale = GetScaleForHWND(mParentWnd);
-	int x = 0, y = 0, w = WindowWidth() * screenScale, h = WindowHeight() * screenScale;
+	int x           = 0;
+	int y           = 0;
+	int w           = GetWindowWidth() * screenScale;
+	int h           = GetWindowHeight() * screenScale;
 
 	if (mPlugWnd)
 	{
@@ -1458,7 +1498,7 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
 							result = pReturnMenu;
 							result->SetChosenItemIdx(idx);
 
-							//synchronous
+							// synchronous
 							if (pReturnMenu && pReturnMenu->GetFunction())
 								pReturnMenu->ExecFunction();
 						}
@@ -1468,7 +1508,7 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
 		}
 		DestroyMenu(hMenu);
 
-		RECT r = {0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale()};
+		RECT r = {0, 0, GetWindowWidth() * GetScreenScale(), GetWindowHeight() * GetScreenScale()};
 		InvalidateRect(mPlugWnd, &r, FALSE);
 
 		return result;
@@ -1487,10 +1527,16 @@ void IGraphicsWin::CreatePlatformTextEntry(
 
 	switch (text.mAlign)
 	{
-		case EAlign::Near: editStyle = ES_LEFT; break;
-		case EAlign::Far: editStyle = ES_RIGHT; break;
+		case EAlign::Near:
+			editStyle = ES_LEFT;
+			break;
+		case EAlign::Far:
+			editStyle = ES_RIGHT;
+			break;
 		case EAlign::Center:
-		default: editStyle = ES_CENTER; break;
+		default:
+			editStyle = ES_CENTER;
+			break;
 	}
 
 	const float scale  = GetTotalScale();
@@ -1598,7 +1644,7 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
 
 	dirCStr[0] = '\0';
 
-	//if (!path.GetLength())
+	// if (!path.GetLength())
 	//  DesktopPath(path);
 
 	UTF8ToUTF16(dirCStr, path.Get(), _MAX_PATH);
@@ -2098,10 +2144,10 @@ void IGraphicsWin::StopVBlankThread()
 // https://bugs.chromium.org/p/chromium/issues/detail?id=467617
 
 // structs to use
-//using D3DKMT_HANDLE                  = uint32;
-//using D3DDDI_VIDEO_PRESENT_SOURCE_ID = uint32;
+// using D3DKMT_HANDLE                  = uint32;
+// using D3DDDI_VIDEO_PRESENT_SOURCE_ID = uint32;
 //
-//typedef struct _D3DKMT_OPENADAPTERFROMHDC
+// typedef struct _D3DKMT_OPENADAPTERFROMHDC
 //{
 //	HDC                            hDc;
 //	D3DKMT_HANDLE                  hAdapter;
@@ -2109,12 +2155,12 @@ void IGraphicsWin::StopVBlankThread()
 //	D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
 //} D3DKMT_OPENADAPTERFROMHDC;
 //
-//typedef struct _D3DKMT_CLOSEADAPTER
+// typedef struct _D3DKMT_CLOSEADAPTER
 //{
 //	D3DKMT_HANDLE hAdapter;
 //} D3DKMT_CLOSEADAPTER;
 //
-//typedef struct _D3DKMT_WAITFORVERTICALBLANKEVENT
+// typedef struct _D3DKMT_WAITFORVERTICALBLANKEVENT
 //{
 //	D3DKMT_HANDLE                  hAdapter;
 //	D3DKMT_HANDLE                  hDevice;
@@ -2122,9 +2168,9 @@ void IGraphicsWin::StopVBlankThread()
 //} D3DKMT_WAITFORVERTICALBLANKEVENT;
 //
 //// entry points
-//typedef long(WINAPI* D3DKMTOpenAdapterFromHdc)(D3DKMT_OPENADAPTERFROMHDC* Arg1);
-//typedef long(WINAPI* D3DKMTCloseAdapter)(const D3DKMT_CLOSEADAPTER* Arg1);
-//typedef long(WINAPI* D3DKMTWaitForVerticalBlankEvent)(const D3DKMT_WAITFORVERTICALBLANKEVENT* Arg1);
+// typedef long(WINAPI* D3DKMTOpenAdapterFromHdc)(D3DKMT_OPENADAPTERFROMHDC* Arg1);
+// typedef long(WINAPI* D3DKMTCloseAdapter)(const D3DKMT_CLOSEADAPTER* Arg1);
+// typedef long(WINAPI* D3DKMTWaitForVerticalBlankEvent)(const D3DKMT_WAITFORVERTICALBLANKEVENT* Arg1);
 
 DWORD IGraphicsWin::OnVBlankRun()
 {
@@ -2201,7 +2247,7 @@ DWORD IGraphicsWin::OnVBlankRun()
 	if (adapterIsOpen)
 	{
 		_D3DKMT_CLOSEADAPTER ca;
-		ca.hAdapter = we.hAdapter;
+		ca.hAdapter  = we.hAdapter;
 		NTSTATUS ret = D3DKMTCloseAdapter(&ca);
 		assert(ret == D3DKMT_MIRACAST_DEVICE_STATUS_SUCCESS);
 		adapterIsOpen = false;

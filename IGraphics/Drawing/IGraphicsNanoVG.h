@@ -28,6 +28,9 @@ BEGIN_INCLUDE_DEPENDENCIES
 #endif
 END_INCLUDE_DEPENDENCIES
 
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
 #if defined IGRAPHICS_GL2
   #define NANOVG_GL2 1
   #define nvgCreateContext(flags) nvgCreateGL2(flags)
@@ -60,9 +63,6 @@ END_INCLUDE_DEPENDENCIES
 #elif defined IGRAPHICS_METAL
   using NVGframebuffer = MNVGframebuffer;
 #endif
-
-BEGIN_IPLUG_NAMESPACE
-BEGIN_IGRAPHICS_NAMESPACE
 
 /** Converts IColor to a NVGcolor */
 NVGcolor NanoVGColor(const IColor& color, const IBlend* pBlend = 0);

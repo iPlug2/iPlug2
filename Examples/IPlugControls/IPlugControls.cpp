@@ -179,7 +179,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info) : Plugin(info, MakeConfig
 																	 pCaller->OnEndAnimation();
 																	 return;
 																 }
-																 pCaller->SetValue(Clip(progress + .5, 0., 1.));
+																 pCaller->SetValue(math::Clamp(progress + .5, 0., 1.));
 															 },
 															 100);
 													 }),

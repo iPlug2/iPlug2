@@ -624,8 +624,8 @@ void IPopupMenuControl::CalculateMenuPanels(float x, float y)
 					else
 						xx = pCellRect->L - PAD - calloutSpace - panelWidth - mDropShadowSize;
 
-					math::Clamp(xx, minL, maxR);
-					math::Clamp(yy, minT, maxB);
+					xx = math::Clamp(xx, minL, maxR);
+					yy = math::Clamp(yy, minT, maxB);
 
 					pMenuPanelForThisMenu =
 						mMenuPanels.Add(new MenuPanel(*this, *pSubMenu, xx, yy, mMenuPanels.Find(mActiveMenuPanel)));

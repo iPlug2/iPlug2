@@ -45,14 +45,14 @@ VoiceInputEvent MidiSynth::MidiMessageToEventBasic(const IMidiMsg& msg)
 	{
 		case IMidiMsg::EStatusMsg::kNoteOn:
 		{
-			uint8 v       = Clip<uint8>(msg.Velocity(), 0, 127);
+			uint8 v       = math::Clamp<uint8>(msg.Velocity(), 0, 127);
 			event.mAction = (v == 0) ? kNoteOffAction : kNoteOnAction;
 			event.mValue  = mVelocityLUT[v];
 			break;
 		}
 		case IMidiMsg::EStatusMsg::kNoteOff:
 		{
-			uint8 v       = Clip<uint8>(msg.Velocity(), 0, 127);
+			uint8 v       = math::Clamp<uint8>(msg.Velocity(), 0, 127);
 			event.mAction = kNoteOffAction;
 			event.mValue  = mVelocityLUT[v];
 			break;
@@ -206,14 +206,14 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
 		}
 		case IMidiMsg::EStatusMsg::kNoteOn:
 		{
-			uint8 v       = Clip<uint8>(msg.Velocity(), 0, 127);
+			uint8 v       = math::Clamp<uint8>(msg.Velocity(), 0, 127);
 			event.mAction = (v == 0) ? kNoteOffAction : kNoteOnAction;
 			event.mValue  = mVelocityLUT[v];
 			break;
 		}
 		case IMidiMsg::EStatusMsg::kNoteOff:
 		{
-			uint8 v       = Clip<uint8>(msg.Velocity(), 0, 127);
+			uint8 v       = math::Clamp<uint8>(msg.Velocity(), 0, 127);
 			event.mAction = kNoteOffAction;
 			event.mValue  = mVelocityLUT[v];
 			break;
@@ -260,17 +260,17 @@ void MidiSynth::SetMPEZones(int channel, int nChans)
 {
 	// total channels = member channels + the master channel, or 0 if there is no Zone.
 	// totalChannels is never 1.
-	int memberChannels = Clip(nChans, 0, 15);
+	int memberChannels = math::Clamp(nChans, 0, 15);
 	int totalChannels  = memberChannels ? (memberChannels + 1) : 0;
 	if (channel == 0)
 	{
 		mMPELowerZoneChannels = totalChannels;
-		mMPEUpperZoneChannels = Clip(mMPEUpperZoneChannels, 0, 16 - mMPELowerZoneChannels);
+		mMPEUpperZoneChannels = math::Clamp(mMPEUpperZoneChannels, 0, 16 - mMPELowerZoneChannels);
 	}
 	else if (channel == 15)
 	{
 		mMPEUpperZoneChannels = totalChannels;
-		mMPELowerZoneChannels = Clip(mMPELowerZoneChannels, 0, 16 - mMPEUpperZoneChannels);
+		mMPELowerZoneChannels = math::Clamp(mMPELowerZoneChannels, 0, 16 - mMPEUpperZoneChannels);
 	}
 
 	// activate / deactivate MPE mode if needed
@@ -320,10 +320,10 @@ void MidiSynth::SetChannelPitchBendRange(int channelParam, uint8 rangeParam)
 	}
 	else
 	{
-		channelLo = channelHi = Clip(channelParam, 0, 15);
+		channelLo = channelHi = math::Clamp(channelParam, 0, 15);
 	}
 
-	uint8 range = Clip<uint8>(rangeParam, 0, 96);
+	uint8 range = math::Clamp<uint8>(rangeParam, 0, 96);
 
 	for (int i = channelLo; i <= channelHi; ++i)
 	{

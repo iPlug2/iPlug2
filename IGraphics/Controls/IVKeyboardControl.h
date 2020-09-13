@@ -398,8 +398,8 @@ class IVKeyboardControl : public IControl
 
 	void SetBlackToWhiteRatios(float widthRatio, float heightRatio = 0.6)
 	{
-		widthRatio  = Clip(widthRatio, 0.1f, 1.f);
-		heightRatio = Clip(heightRatio, 0.1f, 1.f);
+		widthRatio  = math::Clamp(widthRatio, 0.1f, 1.f);
+		heightRatio = math::Clamp(heightRatio, 0.1f, 1.f);
 
 		float halfW    = 0.5f * mWKWidth * mBKWidthRatio;
 		float r        = widthRatio / mBKWidthRatio;
@@ -491,7 +491,7 @@ class IVKeyboardControl : public IControl
 			else
 				mBKAlpha += lumDW + 0.5f;
 
-			mBKAlpha = Clip(mBKAlpha, 15.f, 255.f);
+			mBKAlpha = math::Clamp(mBKAlpha, 15.f, 255.f);
 		}
 
 		SetDirty(false);
@@ -659,7 +659,7 @@ class IVKeyboardControl : public IControl
 
 			float fracPos = (yPos - mRECT.T) / (0.95f * h);  // 0.95 is to get max velocity around the bottom
 
-			velocity = Clip(fracPos, 1.f / 127.f, 1.f);
+			velocity = math::Clamp(fracPos, 1.f / 127.f, 1.f);
 		}
 
 		return velocity;
@@ -900,7 +900,7 @@ class IWheelControl : public ISliderControlBase
 			float startValue = GetValue();
 			SetAnimation(
 				[startValue](IControl* pCaller) {
-					pCaller->SetValue(iplug::Lerp(startValue, 0.5f, Clip(pCaller->GetAnimationProgress(), 0.0f, 1.0f)));
+					pCaller->SetValue(iplug::Lerp(startValue, 0.5f, math::Clamp(pCaller->GetAnimationProgress(), 0.0f, 1.0f)));
 					if (pCaller->GetAnimationProgress() > 1.)
 					{
 						pCaller->SetDirty(true);

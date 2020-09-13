@@ -192,7 +192,7 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
 	valIdx = (NVals() == 1) ? 0 : valIdx;
 
 	auto setValue = [this](int v) {
-		SetValue(Clip(GetValue(v), 0.0, 1.0), v);
+		SetValue(math::Clamp(GetValue(v), 0.0, 1.0), v);
 	};
 	ForValIdx(valIdx, setValue);
 
@@ -410,7 +410,7 @@ void IControl::SnapToMouse(
 		val = (x - bounds.L) / bounds.W();
 
 	auto valFunc = [&](int valIdx) {
-		SetValue(Clip(std::round(val / 0.001) * 0.001, minClip, maxClip), valIdx);
+		SetValue(math::Clamp(std::round(val / 0.001) * 0.001, minClip, maxClip), valIdx);
 	};
 
 	ForValIdx(valIdx, valFunc);
@@ -824,7 +824,7 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
 	else
 		mMouseDragValue += static_cast<double>(dX / static_cast<double>(dragBounds.R - dragBounds.L) / gearing);
 
-	mMouseDragValue = Clip(mMouseDragValue, 0., 1.);
+	mMouseDragValue = math::Clamp(mMouseDragValue, 0., 1.);
 
 	double v             = mMouseDragValue;
 	const IParam* pParam = GetParam();
@@ -867,7 +867,7 @@ void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, floa
 			v                 = l + GetValue() * range;
 			const double step = pParam->GetStep();
 			v += d > 0 ? step : -step;
-			v = Clip(v, l, h);
+			v = math::Clamp(v, l, h);
 			v = v - std::fmod(v, step);
 			v -= l;
 			v /= range;
@@ -960,7 +960,7 @@ void ISliderControlBase::OnMouseDrag(float x, float y, float dX, float dY, const
 	else
 		mMouseDragValue += static_cast<double>(dX / static_cast<double>(mTrackBounds.R - mTrackBounds.L) / gearing);
 
-	mMouseDragValue = Clip(mMouseDragValue, 0., 1.);
+	mMouseDragValue = math::Clamp(mMouseDragValue, 0., 1.);
 
 	double v = mMouseDragValue;
 
@@ -1002,7 +1002,7 @@ void ISliderControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, fl
 			v                 = l + GetValue() * range;
 			const double step = pParam->GetStep();
 			v += d > 0 ? step : -step;
-			v = Clip(v, l, h);
+			v = math::Clamp(v, l, h);
 			v = v - std::fmod(v, step);
 			v -= l;
 			v /= range;

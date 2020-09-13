@@ -546,7 +546,7 @@ static void ClientResize(HWND hWnd, int nWidth, int nHeight)
 }
 
 #if PLATFORM_WINDOWS
-extern int GetScaleForHWND(HWND hWnd);
+extern const int GetScaleForHWND(const HWND hWnd, const bool useCachedResult=true);
 #endif
 
 //static

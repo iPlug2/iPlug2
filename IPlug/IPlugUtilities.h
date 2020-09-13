@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -21,21 +21,17 @@
 
 BEGIN_IPLUG_NAMESPACE
 
-/** Clips the value \p x between \p lo and \p hi
- * @param x Input value
- * @param lo Minimum value to be allowed
- * @param hi Maximum value to be allowed
- * If \p x is outside given range, it will be set to one of the boundaries */
 template <typename T>
-T Clip(T x, T lo, T hi)
+DEPRECATED(2.0, "Deprecated. Use math::Clamp instead")
+inline constexpr T Clip(T x, T lo, T hi)
 {
-	return ::std::min(::std::max(x, lo), hi);
+	return math::Clamp<T>(x, lo, hi);
 }
 
 /** Linear interpolate between values \p a and \p b
-* @param a Low value
-* @param b High value
-* @param f Value betweeen 0-1 for interpolation */
+ * @param a Low value
+ * @param b High value
+ * @param f Value betweeen 0-1 for interpolation */
 template <typename T>
 inline T Lerp(T a, T b, T f)
 {
@@ -73,8 +69,7 @@ static inline bool CStringHasContents(const char* str)
 	}
 
 
-
-/** /todo  
+/** /todo
  * @param version /todo
  * @param ver /todo
  * @param maj /todo
@@ -86,7 +81,7 @@ static inline void GetVersionParts(int version, int& ver, int& maj, int& min)
 	min = version & 0x000000FF;
 }
 
-/** /todo  
+/** /todo
  * @param version /todo
  * @return int /todo */
 static inline int GetDecimalVersion(int version)
@@ -96,7 +91,7 @@ static inline int GetDecimalVersion(int version)
 	return 10000 * ver + 100 * rmaj + rmin;
 }
 
-/** /todo 
+/** /todo
  * @param version /todo
  * @param str /todo */
 static inline void GetVersionStr(int version, WDL_String& str)
@@ -106,9 +101,9 @@ static inline void GetVersionStr(int version, WDL_String& str)
 	str.SetFormatted(MAX_VERSION_STR_LEN, "v%d.%d.%d", ver, rmaj, rmin);
 }
 
-/** /todo  
- * @tparam SRC 
- * @tparam DEST 
+/** /todo
+ * @tparam SRC
+ * @tparam DEST
  * @param pDest /todo
  * @param pSrc /todo
  * @param n /todo */
@@ -121,7 +116,7 @@ void CastCopy(DEST* pDest, SRC* pSrc, int n)
 	}
 }
 
-/** /todo  
+/** /todo
  * @param cDest /todo
  * @param cSrc /todo */
 static void ToLower(char* cDest, const char* cSrc)
@@ -257,7 +252,7 @@ static void GetHostNameStr(EHost host, WDL_String& str)
 }
 // clang-format on
 
-/** /todo 
+/** /todo
  * @param midiPitch /todo
  * @param noteName /todo
  * @param cents /todo
@@ -266,7 +261,7 @@ static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = fa
 {
 	static const char noteNames[12][3] = {"C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#", "B "};
 
-	int midiPitchR = (int) std::round(midiPitch);
+	int midiPitchR = math::Round<int>(midiPitch);
 	int pitchClass = midiPitchR % 12;
 	int octave     = (midiPitchR / 12) - (middleCisC4 ? 1 : 2);
 
