@@ -15,72 +15,157 @@
 
 namespace iplug::math
 {
-	template <class T>
-	inline constexpr T Abs(T value)
+	enum class ERound
 	{
-		return (value >= 0) ? value : -value;
+		Ceil,
+		Floor,
+		Nearest
+	};
+
+	template <class T>
+	NODISCARD inline constexpr auto Abs(const T value)
+	{
+		static_assert(type::IsArithmetic<T>);
+		if constexpr (type::IsUnsigned<T>)
+			return value;
+		return value >= 0 ? value : -value;
 	}
 
 	template <class T>
-	inline constexpr T Clamp(const T value, const T min, const T max)
+	NODISCARD inline constexpr auto Tan(const T value)
 	{
+		static_assert(type::IsMathArithmetic<T>);
+		return tanf(static_cast<float>(value));
+	}
+
+	// True if value is within min and max-1, to test min to max, use ClampEval
+	template <class T>
+	NODISCARD inline constexpr bool IsWithin(const T value, const T min, const T max)
+	{
+		static_assert(type::IsArithmetic<T>);
+		if constexpr (type::IsIntegral<T>)
+			return (((value - min) | (max - value - 1)) >= 0);
+		else
+			return value < min ? false : value < max ? true : false;
+	}
+
+
+	/** Clamps a value between min and max
+	 * @param value Input value
+	 * @param min Minimum value to be allowed
+	 * @param max Maximum value to be allowed
+	 * If value is outside given range, it will be set to one of the boundaries */
+	template <class T>
+	NODISCARD inline constexpr auto Clamp(const T value, const T min, const T max)
+	{
+		static_assert(type::IsArithmetic<T>);
 		return value < min ? min : value < max ? value : max;
 	}
 
+	// True if value would be clamped
 	template <class T>
-	inline constexpr T Align(const T value, const float alignment)
+	NODISCARD inline constexpr bool ClampEval(const T value, const T min, const T max)
 	{
+		static_assert(type::IsArithmetic<T>);
+		if constexpr (type::IsIntegral<T>)
+			return (((value - min) | (max - value)) >= 0);
+		else
+			return value < min ? false : value <= max ? true : false;
+	}
+
+	template <class Tr=float, class Tv>
+	NODISCARD inline constexpr Tr Round(const Tv value)
+	{
+		static_assert(type::IsFloatingPoint<Tv>);
+		return static_cast<Tr>(roundf(static_cast<float>(value)));
+	}
+
+	template <class Tr=float, class Tv>
+	NODISCARD inline constexpr Tr Ceil(const Tv value)
+	{
+		static_assert(type::IsFloatingPoint<Tv>);
+		return static_cast<Tr>(ceilf(static_cast<float>(value)));
+	}
+
+	template <class Tr=float, class Tv>
+	NODISCARD inline constexpr Tr Floor(const Tv value)
+	{
+		static_assert(type::IsFloatingPoint<Tv>);
+		return static_cast<Tr>(floorf(static_cast<float>(value)));
+	}
+
+	template <ERound rounding = ERound::Nearest, class Tx, class Ty>
+	NODISCARD inline constexpr auto IntegralDivide(const Tx dividend, const Ty divisor)
+	{
+		static_assert(type::IsMathIntegral<Tx> && type::IsMathIntegral<Ty>);
+		if constexpr (rounding == ERound::Ceil)
+			return (dividend + divisor - 1) / divisor;
+		if constexpr (rounding == ERound::Floor)
+			return dividend / divisor;
+		if constexpr (rounding == ERound::Nearest)
+			return (dividend >= 0) ? (dividend + divisor / 2) / divisor : (dividend - divisor / 2 + 1) / divisor;
+	}
+
+	template <class Tr=tfloat, class T>
+	NODISCARD inline constexpr Tr Align(const T value, const float alignment)
+	{
+		static_assert(type::IsArithmetic<T>);
 		if (value == 0 || alignment == 0)
-			return value;
-		return static_cast<T>(floorf((static_cast<float>(value) + 0.5f * alignment) / alignment) * alignment);
+			return static_cast<Tr>(value);
+		return static_cast<Tr>(floorf((static_cast<float>(value) + 0.5f * alignment) / alignment) * alignment);
 	}
 
 	template <class T = int>
-	inline constexpr T BitAlign(T value, T alignment = 0x10)
+	NODISCARD inline constexpr T BitAlign(T value, T alignment = 0x10)
 	{
-		static_assert(std::is_integral_v<T>);
+		static_assert(type::IsMathIntegral<T>);
 		return (value + alignment - 1) & ~(alignment - 1);
 	}
 
 	// True if value is smaller than given threshold or delta constant (Amplitude of -100dB)
-	template <class T = tfloat>
-	inline constexpr bool IsBelowThreshold(const T value, const T threshold = constants::delta_v<T>)
+	template <class T>
+	NODISCARD inline constexpr bool IsBelowThreshold(const T value, const T threshold = constants::delta_v<T>)
 	{
+		static_assert(type::IsFloatingPoint<T>);
 		return (Abs(value) < threshold);
 	}
 
 	// True if value is higher than given threshold or delta constant (Amplitude of -100dB )
-	template <class T = tfloat>
-	inline constexpr bool IsAboveThreshold(const T value, const T threshold = constants::delta_v<T>)
+	template <class T>
+	NODISCARD inline constexpr bool IsAboveThreshold(const T value, const T threshold = constants::delta_v<T>)
 	{
+		static_assert(type::IsFloatingPoint<T>);
 		return (Abs(value) > threshold);
 	}
 
 	// True if value is, or is close to 0.0 based on given threshold or macheps32 constant
-	template <class T = tfloat>
-	inline constexpr bool IsNearlyZero(const T value, const T threshold = constants::macheps32_v<T>)
+	template <class T>
+	NODISCARD inline constexpr bool IsNearlyZero(const T value, const T threshold = constants::macheps32_v<T>)
 	{
+		static_assert(type::IsFloatingPoint<T>);
 		return (Abs(value) <= threshold);
 	}
 
 	// True if value A is, or is close to value B based on given threshold or macheps32 constant
-	template <class T = tfloat>
-	inline constexpr bool IsNearlyEqual(const T A, const T B, const T threshold = constants::macheps32_v<T>)
+	template <class T>
+	NODISCARD inline constexpr bool IsNearlyEqual(const T A, const T B, const T threshold = constants::macheps32_v<T>)
 	{
+		static_assert(type::IsFloatingPoint<T>);
 		return (Abs(A - B) <= threshold);
 	}
 
 	template <class Tret = bool, class T>
-	inline constexpr Tret IsPowerOfTwo(const T value)
+	NODISCARD inline constexpr Tret IsPowerOfTwo(const T value)
 	{
+		static_assert(type::IsMathArithmetic<T>);
 		return ((value & (value - 1)) == 0);
 	}
 
 	// Returns nearest power of two value that is greater than or equal to value
 	template <class T>
-	inline constexpr T PowerOfTwoCeil(T value)
+	NODISCARD inline constexpr T PowerOfTwoCeil(T value)
 	{
-		static_assert(std::is_arithmetic_v<T>);
+		static_assert(type::IsMathArithmetic<T>);
 		if constexpr (Platform::IsLittleEndian())
 		{
 			union
@@ -107,9 +192,9 @@ namespace iplug::math
 
 	// Returns nearest power of two value that is less than or equal to value
 	template <class T>
-	inline constexpr T PowerOfTwoFloor(T value)
+	NODISCARD inline constexpr T PowerOfTwoFloor(T value)
 	{
-		static_assert(std::is_arithmetic_v<T>);
+		static_assert(type::IsMathArithmetic<T>);
 		if constexpr (Platform::IsLittleEndian())
 		{
 			union
@@ -131,18 +216,18 @@ namespace iplug::math
 	}
 
 	// Degrees to radians
-	template <class T = tfloat>
-	inline constexpr auto DegToRad(const T Degrees)
+	template <class T>
+	NODISCARD inline constexpr auto DegToRad(const T Degrees)
 	{
-		static_assert(std::is_arithmetic_v<T>);
+		static_assert(type::IsMathArithmetic<T>);
 		return Degrees * constants::inv_rad_v<T>;
 	}
 
 	// Radians to degrees
-	template <class T = tfloat>
-	inline constexpr auto RadToDeg(const T Radians)
+	template <class T>
+	NODISCARD inline constexpr auto RadToDeg(const T Radians)
 	{
-		static_assert(std::is_arithmetic_v<T>);
+		static_assert(type::IsMathArithmetic<T>);
 		return Radians * constants::rad_v<T>;
 	}
 
@@ -151,10 +236,10 @@ namespace iplug::math
 	 * @param dB Value
 	 * @return Gain calculated as an approximation of e^(inv_Np*dB)
 	 */
-	template <class T = tfloat>
-	inline constexpr auto DBToAmp(const T dB)
+	template <class T>
+	NODISCARD inline constexpr auto DBToAmp(const T dB)
 	{
-		static_assert(std::is_floating_point_v<T>);
+		static_assert(type::IsFloatingPoint<T>);
 		return exp(constants::inv_Np_v<T> * dB);
 	}
 
@@ -163,37 +248,37 @@ namespace iplug::math
 	 * @param Amplitude Value
 	 * @return dB calculated as an approximation of Np*log(Amplitude)
 	 */
-	template <class T = tfloat>
-	inline constexpr auto AmpToDB(const T Amplitude)
+	template <class T>
+	NODISCARD inline constexpr auto AmpToDB(const T Amplitude)
 	{
-		static_assert(std::is_floating_point_v<T>);
+		static_assert(type::IsFloatingPoint<T>);
 		return constants::Np_v<T> * log(Abs(Amplitude));
 	}
 
 	// AmpToDB using fast approximation
-	inline const auto AmpToDBf(const float Amplitude)
+	NODISCARD inline const auto AmpToDBf(const float Amplitude)
 	{
-		int E;
-		float F = frexpf(Abs(Amplitude), &E);
-		float Y = 1.23149591368684f;
-		Y *= F;
-		Y += -4.11852516267426f;
-		Y *= F;
-		Y += 6.02197014179219f;
-		Y *= F;
-		Y += -3.13396450166353f;
-		Y += E;
-		Y *= 6.020599913279624f;
-		return Y;
+		int e;
+		float f = frexpf(Abs(Amplitude), &e);
+		float y = 1.23149591368684f;
+		y *= f;
+		y += -4.11852516267426f;
+		y *= f;
+		y += 6.02197014179219f;
+		y *= f;
+		y += -3.13396450166353f;
+		y += e;
+		y *= 6.020599913279624f;
+		return y;
 	}
 
-	inline float fsqrt(const float value)
+	NODISCARD inline float fsqrt(const float value)
 	{
 		static_assert(Platform::IsLittleEndian(), "Big Endians not implemented yet");
 
 		// internal lookup table for fsqrt
 		static const uint32* _fsqrt_lut = [] {
-			CACHE_ALIGN(16)
+			CACHE_ALIGN(32)
 			static uint32 array[0x10000];
 			union
 			{
