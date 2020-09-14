@@ -607,11 +607,14 @@ public:
   IContainer(const IRECT& bounds, IActionFunction actionFunc)
   : IControl(bounds, actionFunc)
   {}
+  
   IContainer(const IRECT& bounds, std::function<void(IContainer* pContainer)> attachFunc, std::function<void(IContainer* pContainer)> resizeFunc = nullptr)
   : IControl(bounds)
   , mAttachFunc(attachFunc)
   , mResizeFunc(resizeFunc)
-  {}
+  {
+    mIgnoreMouse = true;
+  }
   
   virtual void Draw(IGraphics& g) override
   {
@@ -670,6 +673,8 @@ public:
   {
     return mChildren.Get(idx);
   }
+  
+  int NChildren() const { return mChildren.GetSize(); }
   
 private:
   std::function<void(IContainer* pContainer)> mAttachFunc = nullptr;
