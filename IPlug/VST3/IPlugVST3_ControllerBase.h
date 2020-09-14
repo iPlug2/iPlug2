@@ -27,11 +27,12 @@ class IPlugVST3ControllerBase
 {
 public:
     
-  IPlugVST3ControllerBase() = default;
+  IPlugVST3ControllerBase(Steinberg::Vst::ParameterContainer& parameters) : mParameters(parameters) {}
+  
   IPlugVST3ControllerBase(const IPlugVST3ControllerBase&) = delete;
   IPlugVST3ControllerBase& operator=(const IPlugVST3ControllerBase&) = delete;
     
-  void Initialize(IPlugAPIBase* pPlug, Steinberg::Vst::ParameterContainer& parameters, bool plugIsInstrument, bool midiIn)
+  void Initialize(IPlugAPIBase* pPlug, bool plugIsInstrument, bool midiIn)
   {
     Steinberg::Vst::EditControllerEx1* pEditController = dynamic_cast<Steinberg::Vst::EditControllerEx1*>(pPlug);
 
@@ -78,7 +79,7 @@ public:
       unitInfo.programListId = Steinberg::Vst::kNoProgramListId;
     
     if (!plugIsInstrument)
-      parameters.addParameter(mBypassParameter = new IPlugVST3BypassParameter());
+      mParameters.addParameter(mBypassParameter = new IPlugVST3BypassParameter());
     
     pEditController->addUnit(new Steinberg::Vst::Unit(unitInfo));
 
@@ -111,7 +112,7 @@ public:
       }
       
       Steinberg::Vst::Parameter* pVST3Parameter = new IPlugVST3Parameter(pParam, i, unitID);
-      parameters.addParameter(pVST3Parameter);
+      mParameters.addParameter(pVST3Parameter);
     }
 
     assert(VST3_NUM_CC_CHANS <= VST3_NUM_MIDI_IN_CHANS && "VST3_NUM_CC_CHANS must be less than or equal to VST3_NUM_MIDI_IN_CHANS");
@@ -144,25 +145,25 @@ public:
         for (int i = 0; i < 128; i++)
         {
           Steinberg::UString(paramName, str16BufferSize(Steinberg::Vst::String128)).assign(IMidiMsg::CCNameStr(i));
-          parameters.addParameter(paramName, STR16(""), 0, 0, 0, paramIdx++, unitID);
+          mParameters.addParameter(paramName, STR16(""), 0, 0, 0, paramIdx++, unitID);
         }
 
-        parameters.addParameter(STR16("Channel Aftertouch"), STR16(""), 0, 0, 0, paramIdx++, unitID);
-        parameters.addParameter(STR16("Pitch Bend"), STR16(""), 0, 0.5, 0, paramIdx++, unitID);
+        mParameters.addParameter(STR16("Channel Aftertouch"), STR16(""), 0, 0, 0, paramIdx++, unitID);
+        mParameters.addParameter(STR16("Pitch Bend"), STR16(""), 0, 0.5, 0, paramIdx++, unitID);
       }
     }
 #endif
   }
   
-  Steinberg::Vst::ParamValue GetParamNormalized(Steinberg::Vst::ParameterContainer& parameters, Steinberg::Vst::ParamID tag)
+  Steinberg::Vst::ParamValue GetParamNormalized(Steinberg::Vst::ParamID tag)
   {
-    Steinberg::Vst::Parameter* parameter = parameters.getParameter(tag);
+    Steinberg::Vst::Parameter* parameter = mParameters.getParameter(tag);
     return parameter ? parameter->getNormalized() : 0.0;
   }
     
-  bool SetParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParameterContainer& parameters, Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value)
+  bool SetParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value)
   {
-    if (!SetVST3ParamNormalized(parameters, tag, value))
+    if (!SetVST3ParamNormalized(tag, value))
       return false;
     
     if (tag >= kBypassParam)
@@ -297,11 +298,23 @@ public:
     return false;
   }
   
+  void UpdateParams(IPlugAPIBase* pPlug, int savedBypass)
+  {
+    for (int i = 0; i < pPlug->NParams(); i++)
+    {
+      double normalized = pPlug->GetParam(i)->GetNormalized();
+      mParameters.getParameter(i)->setNormalized(normalized);
+    }
+    
+    if (mBypassParameter)
+      mBypassParameter->setNormalized(savedBypass);
+  }
+  
 protected:
   
-  bool SetVST3ParamNormalized(Steinberg::Vst::ParameterContainer& parameters, Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value)
+  bool SetVST3ParamNormalized(Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value)
   {
-    Steinberg::Vst::Parameter* parameter = parameters.getParameter(tag);
+    Steinberg::Vst::Parameter* parameter = mParameters.getParameter(tag);
     
     if (!parameter)
       return false;
@@ -311,6 +324,7 @@ protected:
   }
   
 public:
+  Steinberg::Vst::ParameterContainer& mParameters;
   IPlugVST3BypassParameter* mBypassParameter = nullptr;
 
   // ChannelContext::IInfoListener
