@@ -189,15 +189,30 @@ namespace iplug::type
 												   long long,
 												   unsigned long long>;
 
-	// clang-format off
-	// Added for consistency
+	template <class Tx, class Ty>
+	inline constexpr bool IsSame = std::is_same_v<std::remove_cv_t<Tx>, Ty>;
 
-	template <class T> inline constexpr bool IsIntegral      = std::is_integral_v<T>;
-	template <class T> inline constexpr bool IsFloatingPoint = std::is_floating_point_v<T>;
-	template <class T> inline constexpr bool IsArithmetic    = std::is_arithmetic_v<T>;
-	template <class T> inline constexpr bool IsSigned        = std::is_signed_v<T>;
-	template <class T> inline constexpr bool IsUnsigned      = std::is_unsigned_v<T>;
-	// clang-format on
+	template <class T>
+	inline constexpr bool IsIntegral = std::is_integral_v<T>;
+
+	template <class T>
+	inline constexpr bool IsFloatingPoint = std::is_floating_point_v<T>;
+
+	template <class T>
+	inline constexpr bool IsArithmetic = std::is_arithmetic_v<T>;
+
+	template <class T>
+	inline constexpr bool IsSigned = std::is_signed_v<T>;
+
+	template <class T>
+	inline constexpr bool IsUnsigned = std::is_unsigned_v<T>;
+
+	template <class T>
+	inline constexpr bool IsFloat = IsSame<T, float>;
+
+	template <class T>
+	inline constexpr bool IsDouble = IsSame<T, double>;
+
 
 	// Using modified is_integral_v without bool or char types
 	template <class T>

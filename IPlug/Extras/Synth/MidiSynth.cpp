@@ -45,14 +45,14 @@ VoiceInputEvent MidiSynth::MidiMessageToEventBasic(const IMidiMsg& msg)
 	{
 		case IMidiMsg::EStatusMsg::kNoteOn:
 		{
-			uint8 v       = math::Clamp<uint8>(msg.Velocity(), 0, 127);
+			uint8 v       = math::Clamp(msg.Velocity(), 0, 127);
 			event.mAction = (v == 0) ? kNoteOffAction : kNoteOnAction;
 			event.mValue  = mVelocityLUT[v];
 			break;
 		}
 		case IMidiMsg::EStatusMsg::kNoteOff:
 		{
-			uint8 v       = math::Clamp<uint8>(msg.Velocity(), 0, 127);
+			uint8 v       = math::Clamp(msg.Velocity(), 0, 127);
 			event.mAction = kNoteOffAction;
 			event.mValue  = mVelocityLUT[v];
 			break;

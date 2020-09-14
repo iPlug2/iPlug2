@@ -257,11 +257,11 @@ static void GetHostNameStr(EHost host, WDL_String& str)
  * @param noteName /todo
  * @param cents /todo
  * @param middleCisC4 /todo */
-static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = false, bool middleCisC4 = false)
+static void MidiNoteName(float midiPitch, WDL_String& noteName, bool cents = false, bool middleCisC4 = false)
 {
 	static const char noteNames[12][3] = {"C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#", "B "};
 
-	int midiPitchR = math::Round<int>(midiPitch);
+	int midiPitchR = math::RoundToInt(midiPitch);
 	int pitchClass = midiPitchR % 12;
 	int octave     = (midiPitchR / 12) - (middleCisC4 ? 1 : 2);
 
