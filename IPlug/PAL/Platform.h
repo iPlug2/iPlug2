@@ -50,10 +50,10 @@ namespace iplug::generic
 #include PLATFORM_PREFIX_HEADER(Platform.h)
 
 // Must be defined after main platform header
-#ifdef _DEBUG
-	#define DEBUG_ASSERT(expr) ((expr) ? ((void) 0) : (DEBUGBREAK()))
+#ifndef NDEBUG
+	#define DEBUG_ASSERT(expression) ((expression) ? ((void) 0) : (DEBUGBREAK()))
 #else
-	#define DEBUG_ASSERT(expr) assert(expr)
+	#define DEBUG_ASSERT(expression) ((void) 0)
 #endif
 
 // NULL redefinition for compiler conformance and overload type safety
@@ -179,7 +179,7 @@ namespace iplug::type
 	template <class T>
 	struct InvalidType
 	{
-		static_assert(Always_false<T>, "Invalid type.");
+		static_assert(Always_false<T>, "Invalid type");
 	};
 
 	// Copy of MSVC internal std::_Is_any_of_v implementation
