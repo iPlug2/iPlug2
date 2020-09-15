@@ -18,7 +18,7 @@ namespace iplug::math
 	template <class T>
 	NODISCARD inline constexpr auto DegToRad(const T Degrees)
 	{
-		static_assert(type::IsMathArithmetic<T>);
+		static_assert(type::IsArithmetic<T>);
 		return Degrees * constants::inv_rad_v<T>;
 	}
 
@@ -26,7 +26,7 @@ namespace iplug::math
 	template <class T>
 	NODISCARD inline constexpr auto RadToDeg(const T Radians)
 	{
-		static_assert(type::IsMathArithmetic<T>);
+		static_assert(type::IsArithmetic<T>);
 		return Radians * constants::rad_v<T>;
 	}
 

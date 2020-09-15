@@ -35,7 +35,7 @@ namespace iplug::math
 	template <class T>
 	NODISCARD inline constexpr T Tan(const T value)
 	{
-		static_assert(type::IsMathArithmetic<T>);
+		static_assert(type::IsArithmetic<T>);
 		return tan(value);
 	}
 
@@ -218,7 +218,7 @@ namespace iplug::math
 		static_assert(type::IsIntegral<Tx> && type::IsIntegral<Ty>);
 		if constexpr (rounding == ERound::Ceil)
 			return (dividend + divisor - 1) / divisor;
-		if constexpr (rounding == ERound::Floor)
+		if constexpr (rounding == ERound::Floor || rounding == ERound::None)
 			return dividend / divisor;
 		if constexpr (rounding == ERound::Nearest)
 			return (dividend >= 0) ? (dividend + divisor / 2) / divisor : (dividend - divisor / 2 + 1) / divisor;
@@ -256,7 +256,7 @@ namespace iplug::math
 	NODISCARD inline constexpr T AlignPow2(const T value, const Ta alignment = (1 << 4))
 	{
 		static_assert(type::IsArithmetic<T>);
-		static_assert(type::IsMathIntegral<Ta>);
+		static_assert(type::IsIntegral<Ta>);
 		static_assert(type::IsUnsigned<Ta>);
 		DEBUG_ASSERT(IsPow2(alignment));  // alignment must be a power of 2 number
 
@@ -290,8 +290,7 @@ namespace iplug::math
 			x |= x >> 16;
 		if constexpr (sizeof(Tx) >= 8)
 			x |= x >> 32;
-		x++;
-		Tx y = x >> 1;
+		Tx y = ++x >> 1;
 		T v  = static_cast<T>((x - val) > (val - y) ? y : x);
 		return v;
 	}

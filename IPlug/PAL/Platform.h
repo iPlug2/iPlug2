@@ -53,7 +53,7 @@ namespace iplug::generic
 #ifdef _DEBUG
 	#define DEBUG_ASSERT(expr) ((expr) ? ((void) 0) : (DEBUGBREAK()))
 #else
-    #define DEBUG_ASSERT(expr) assert(expr)
+	#define DEBUG_ASSERT(expr) assert(expr)
 #endif
 
 // NULL redefinition for compiler conformance and overload type safety
@@ -186,29 +186,33 @@ namespace iplug::type
 	template <class T, class... Types>
 	inline constexpr bool IsAnyOf = std::disjunction_v<std::is_same<T, Types>...>;
 
-	// No bool or char
+	// No bool, char, wchar_t, char16_t or char32_t
 	template <class T>
-	inline constexpr bool IsMathIntegral = IsAnyOf<std::remove_cv_t<T>,  // remove 'const' and 'volatile' qualifiers
-												   short,
-												   unsigned short,
-												   int,
-												   unsigned int,
-												   long,
-												   unsigned long,
-												   long long,
-												   unsigned long long>;
+	inline constexpr bool IsIntegral = IsAnyOf<std::remove_cv_t<T>,  // remove 'const' and 'volatile' qualifiers
+											   uint8,
+											   uint16,
+											   uint32,
+											   uint64,
+											   int8,
+											   int16,
+											   int32,
+											   int64,
+											   signed char,
+											   unsigned char,
+											   short,
+											   unsigned short,
+											   int,
+											   unsigned int,
+											   long,
+											   unsigned long,
+											   long long,
+											   unsigned long long>;
 
 	template <class Tx, class Ty>
 	inline constexpr bool IsSame = std::is_same_v<std::remove_cv_t<Tx>, Ty>;
 
 	template <class T>
-	inline constexpr bool IsIntegral = std::is_integral_v<T>;
-
-	template <class T>
 	inline constexpr bool IsFloatingPoint = std::is_floating_point_v<T>;
-
-	template <class T>
-	inline constexpr bool IsArithmetic = std::is_arithmetic_v<T>;
 
 	template <class T>
 	inline constexpr bool IsSigned = std::is_signed_v<T>;
@@ -224,7 +228,7 @@ namespace iplug::type
 
 	// Using modified is_integral_v without bool or char types
 	template <class T>
-	inline constexpr bool IsMathArithmetic = IsMathIntegral<T> || IsFloatingPoint<T>;
+	inline constexpr bool IsArithmetic = IsIntegral<T> || IsFloatingPoint<T>;
 
 	// clang-format off
 
