@@ -29,6 +29,7 @@ using namespace Vst;
 IPlugVST3::IPlugVST3(const InstanceInfo& info, const Config& config)
 : IPlugAPIBase(config, kAPIVST3)
 , IPlugVST3ProcessorBase(config, *this)
+, IPlugVST3ControllerBase(parameters)
 , mView(nullptr)
 {
   CreateTimer();
@@ -45,7 +46,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
   if (SingleComponentEffect::initialize(context) == kResultOk)
   {
     IPlugVST3ProcessorBase::Initialize(this);
-    IPlugVST3ControllerBase::Initialize(this, parameters, IsInstrument(), DoesMIDIIn());
+    IPlugVST3ControllerBase::Initialize(this, IsInstrument(), DoesMIDIIn());
 
     IPlugVST3GetHost(this, context);
     OnHostIdentified();
@@ -123,12 +124,12 @@ tresult PLUGIN_API IPlugVST3::getState(IBStream* pState)
 #pragma mark IEditController overrides
 ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
 {
-  return IPlugVST3ControllerBase::GetParamNormalized(parameters, tag);
+  return IPlugVST3ControllerBase::GetParamNormalized(tag);
 }
 
 tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
 {
-  if (IPlugVST3ControllerBase::SetParamNormalized(this, parameters, tag, value))
+  if (IPlugVST3ControllerBase::SetParamNormalized(this, tag, value))
     return kResultTrue;
   else
     return kResultFalse;
@@ -233,7 +234,7 @@ void IPlugVST3::DirtyParametersFromUI()
 
 void IPlugVST3::SendParameterValueFromUI(int paramIdx, double normalisedValue)
 {
-  IPlugVST3ControllerBase::SetVST3ParamNormalized(parameters, paramIdx, normalisedValue);
+  IPlugVST3ControllerBase::SetVST3ParamNormalized(paramIdx, normalisedValue);
   IPlugAPIBase::SendParameterValueFromUI(paramIdx, normalisedValue);
 }
 
