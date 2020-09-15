@@ -90,7 +90,6 @@ END_INCLUDE_DEPENDENCIES
 
 #include "IPlugConstants.h"
 #include "IPlugLogger.h"
-#include "IPlugMathConstants.h"
 #include "IPlugMath.h"
 #include "Extras/Easing.h"
 #include "IPlugStructs.h"
