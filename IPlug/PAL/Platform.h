@@ -49,10 +49,16 @@ namespace iplug::generic
 // Include target platform main header file
 #include PLATFORM_PREFIX_HEADER(Platform.h)
 
+// Must be defined after main platform header
+#ifdef _DEBUG
+	#define DEBUG_ASSERT(expr) ((expr) ? ((void) 0) : (DEBUGBREAK()))
+#else
+    #define DEBUG_ASSERT(expr) assert(expr)
+#endif
+
 // NULL redefinition for compiler conformance and overload type safety
 #undef NULL
 #define NULL nullptr
-
 
 #ifndef PLATFORM_64BIT
 	#error "PLATFORM_64BIT is undefined. Check PlatformCompiler.h"
@@ -165,12 +171,12 @@ namespace iplug
 namespace iplug::type
 {
 	template <class>
-	inline constexpr bool _Always_false = false;
+	inline constexpr bool Always_false = false;
 
 	template <class T>
-	struct _Invalid
+	struct InvalidType
 	{
-		static_assert(_Always_false<T>, "Invalid type.");
+		static_assert(Always_false<T>, "Invalid type.");
 	};
 
 	// Copy of MSVC internal std::_Is_any_of_v implementation
@@ -213,10 +219,29 @@ namespace iplug::type
 	template <class T>
 	inline constexpr bool IsDouble = IsSame<T, double>;
 
-
 	// Using modified is_integral_v without bool or char types
 	template <class T>
 	inline constexpr bool IsMathArithmetic = IsMathIntegral<T> || IsFloatingPoint<T>;
+
+	// clang-format off
+
+	// Returns uint8, uint16, uint32 or uint64 based on the size of T
+	template <class T>
+	using ConditionalUIntSize = std::conditional_t<sizeof(T) == 1, uint8,
+		                        std::conditional_t<sizeof(T) == 2, uint16,
+		                        std::conditional_t<sizeof(T) == 4, uint32,
+		                        std::conditional_t<sizeof(T) == 8, uint64,
+		                        type::InvalidType<T>>>>>;
+
+	// Returns int8, int16, int32 or int64 based on the size of T
+	template <class T>
+	using ConditionalIntSize =  std::conditional_t<sizeof(T) == 1, int8,
+		                        std::conditional_t<sizeof(T) == 2, int16,
+		                        std::conditional_t<sizeof(T) == 4, int32,
+		                        std::conditional_t<sizeof(T) == 8, int64,
+		                        type::InvalidType<T>>>>>;
+
+	// clang-format on
 }  // namespace iplug::type
 
 
