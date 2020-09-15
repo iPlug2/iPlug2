@@ -644,9 +644,15 @@ function(_iplug_add_target_lib _target _pluginapi_lib)
     # Add remaining source files
     target_sources(${_libName} PRIVATE ${_src_list})
 
-    # Configure precompiled headers
+    # Configure precompiled headers for the static library
     target_precompile_headers(${_libName}
-        PUBLIC
+        PRIVATE
+            "${IPLUG2_ROOT_PATH}/IPlug/IPlugSharedPCH.h"
+    )
+
+    # Configure precompiled headers for the consumer
+    target_precompile_headers(${_target}
+        PRIVATE
             "${IPLUG2_ROOT_PATH}/IPlug/IPlugPCH.h"
     )
 
