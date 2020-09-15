@@ -105,13 +105,13 @@ class IBitmap
 	}
 
 	/** @return Width of a single frame in pixels */
-	int FW() const
+	inline constexpr int FW() const
 	{
 		return (mFramesAreHorizontal ? mW / mN : mW);
 	}
 
 	/** @return Height of a single frame in pixels */
-	int FH() const
+	inline constexpr int FH() const
 	{
 		return (mFramesAreHorizontal ? mH : mH / mN);
 	}
@@ -624,7 +624,9 @@ struct IBlend
 	/** Creates a new IBlend
 	 * @param type Blend type (defaults to none)
 	 * @param weight normalised alpha blending amount */
-	IBlend(EBlend type = EBlend::Default, float weight = 1.0f) : mMethod(type), mWeight(math::Clamp(weight, 0.f, 1.f)) {}
+	IBlend(EBlend type = EBlend::Default, float weight = 1.0f) : mMethod(type), mWeight(math::Clamp(weight, 0.f, 1.f))
+	{
+	}
 };
 
 /** /todo
@@ -860,25 +862,36 @@ struct IRECT
 	float B = 0.f;
 
 	/** Construct an empty IRECT  */
-	IRECT() = default;
+	inline constexpr IRECT() = default;
 
 	/** Construct a new IRECT with dimensions
 	 * @param l Left
 	 * @param t Top
 	 * @param r Right
 	 * @param b Bottom */
-	IRECT(float l, float t, float r, float b) : L(l), T(t), R(r), B(b) {}
+	inline constexpr IRECT(float l, float t, float r, float b)
+	{
+		// floating point precision can cause r or b to be greater than l or t
+		L = l;
+		T = t;
+		R = std::max(r, l);
+		B = std::max(b, t);
+		DEBUG_ASSERT(L <= R);
+		DEBUG_ASSERT(T <= B);
+	}
 
 	/** Construct a new IRECT at the given position and with the same size as the bitmap
 	 * @param x Top
 	 * @param y Left
 	 * @param bitmap Bitmap for the size */
-	IRECT(float x, float y, const IBitmap& bitmap)
+	inline constexpr IRECT(float x, float y, const IBitmap& bitmap)
 	{
 		L = x;
 		T = y;
 		R = L + (float) bitmap.FW();
 		B = T + (float) bitmap.FH();
+		DEBUG_ASSERT(L <= R);
+		DEBUG_ASSERT(T <= B);
 	}
 
 	/** Create a new IRECT with the given position and size
@@ -887,59 +900,61 @@ struct IRECT
 	 * @param w Width of new IRECT
 	 * @param h Height of new IRECT
 	 * @return the new IRECT */
-	static IRECT MakeXYWH(float l, float t, float w, float h)
+	static inline constexpr IRECT MakeXYWH(float l, float t, float w, float h)
 	{
+		DEBUG_ASSERT(w >= 0);
+		DEBUG_ASSERT(h >= 0);
 		return IRECT(l, t, l + w, t + h);
 	}
 
 	/** @return bool true if all the fields of this IRECT are 0 */
-	bool Empty() const
+	inline constexpr bool Empty() const
 	{
-		return (L == 0.f && T == 0.f && R == 0.f && B == 0.f);
+		return math::IsBelowThreshold(L, T, R, B) ? true : false;
 	}
 
 	/** Set all fields of this IRECT to 0 */
-	void Clear()
+	inline constexpr void Clear()
 	{
 		L = T = R = B = 0.f;
 	}
 
-	bool operator==(const IRECT& rhs) const
+	inline constexpr bool operator==(const IRECT& rhs) const
 	{
 		return (L == rhs.L && T == rhs.T && R == rhs.R && B == rhs.B);
 	}
 
-	bool operator!=(const IRECT& rhs) const
+	inline constexpr bool operator!=(const IRECT& rhs) const
 	{
 		return !(*this == rhs);
 	}
 
 	/** @return float the width of this IRECT  */
-	inline float W() const
+	inline constexpr float W() const
 	{
 		return R - L;
 	}
 
 	/** @return float the height of this IRECT  */
-	inline float H() const
+	inline constexpr float H() const
 	{
 		return B - T;
 	}
 
 	/** @return float the midpoint of this IRECT on the x-axis (middle-width) */
-	inline float MW() const
+	inline constexpr float MW() const
 	{
 		return 0.5f * (L + R);
 	}
 
 	/** @return float the midpoint of this IRECT on the y-axis (middle-height) */
-	inline float MH() const
+	inline constexpr float MH() const
 	{
 		return 0.5f * (T + B);
 	}
 
 	/** @return float the area of this IRECT  */
-	inline float Area() const
+	inline constexpr float Area() const
 	{
 		return W() * H();
 	}
@@ -948,16 +963,14 @@ struct IRECT
 	 * The resulting IRECT will have the minimim L and T values and maximum R and B values of the inputs.
 	 * @param rhs another IRECT
 	 * @return IRECT the new IRECT */
-	inline IRECT Union(const IRECT& rhs) const
+	inline constexpr IRECT Union(const IRECT& rhs) const
 	{
 		if (Empty())
-		{
 			return rhs;
-		}
+
 		if (rhs.Empty())
-		{
 			return *this;
-		}
+
 		return IRECT(std::min(L, rhs.L), std::min(T, rhs.T), std::max(R, rhs.R), std::max(B, rhs.B));
 	}
 
@@ -965,7 +978,7 @@ struct IRECT
 	 * The resulting IRECT will have the maximum L and T values and minimum R and B values of the inputs.
 	 * @param rhs another IRECT
 	 * @return IRECT the new IRECT  */
-	inline IRECT Intersect(const IRECT& rhs) const
+	inline constexpr IRECT Intersect(const IRECT& rhs) const
 	{
 		if (Intersects(rhs))
 			return IRECT(std::max(L, rhs.L), std::max(T, rhs.T), std::min(R, rhs.R), std::min(B, rhs.B));
@@ -977,7 +990,7 @@ struct IRECT
 	 * @param rhs another IRECT
 	 * @return true this IRECT shares any common space with `rhs`
 	 * @return false this IRECT and `rhs` are completely separate  */
-	inline bool Intersects(const IRECT& rhs) const
+	inline constexpr bool Intersects(const IRECT& rhs) const
 	{
 		return (!Empty() && !rhs.Empty() && R >= rhs.L && L < rhs.R && B >= rhs.T && T < rhs.B);
 	}
@@ -986,7 +999,7 @@ struct IRECT
 	 * @param rhs another IRECT
 	 * @return true if this IRECT completely contains `rhs`
 	 * @return false if any part of `rhs` is outside this IRECT */
-	inline bool Contains(const IRECT& rhs) const
+	inline constexpr bool Contains(const IRECT& rhs) const
 	{
 		return (!Empty() && !rhs.Empty() && rhs.L >= L && rhs.R <= R && rhs.T >= T && rhs.B <= B);
 	}
@@ -996,7 +1009,7 @@ struct IRECT
 	 * @param y point Y
 	 * @return true the point (x,y) is inside this IRECT
 	 * @return false the point (x,y) is outside this IRECT */
-	inline bool Contains(float x, float y) const
+	inline constexpr bool Contains(float x, float y) const
 	{
 		return (!Empty() && x >= L && x < R && y >= T && y < B);
 	}
@@ -1007,7 +1020,7 @@ struct IRECT
 	 * @param y point Y
 	 * @return true the point (x,y) is inside this IRECT
 	 * @return false the point (x,y) is outside this IRECT */
-	inline bool ContainsEdge(float x, float y) const
+	inline constexpr bool ContainsEdge(float x, float y) const
 	{
 		return (!Empty() && x >= L && x <= R && y >= T && y <= B);
 	}
@@ -1015,22 +1028,15 @@ struct IRECT
 	/** Ensure the point (x,y) is inside this IRECT.
 	 * @param x point X, will be modified if it's outside this IRECT
 	 * @param y point Y, will be modified if it's outside this IRECT */
-	inline void Constrain(float& x, float& y) const
+	inline constexpr void Constrain(float& x, float& y) const
 	{
-		if (x < L)
-			x = L;
-		else if (x > R)
-			x = R;
-
-		if (y < T)
-			y = T;
-		else if (y > B)
-			y = B;
+		x = math::Clamp(x, L, R);
+		y = math::Clamp(y, T, B);
 	}
 
 	/** Offsets the input IRECT based on the parent
 	 * @param rhs IRECT to offset */
-	IRECT Inset(const IRECT& rhs) const
+	inline constexpr IRECT Inset(const IRECT& rhs) const
 	{
 		return IRECT(L + rhs.L, T + rhs.T, L + rhs.R, T + rhs.B);
 	}
@@ -1040,7 +1046,7 @@ struct IRECT
 	 * @param rhs another IRECT
 	 * @return true this IRECT wholly contains `rhs` or `rhs` wholly contains this IRECT
 	 * @return false any part of these IRECTs does not overlap */
-	bool Mergeable(const IRECT& rhs) const
+	inline constexpr bool Mergeable(const IRECT& rhs) const
 	{
 		if (Empty() || rhs.Empty())
 			return true;
@@ -1055,7 +1061,7 @@ struct IRECT
 	 * @param fromTopOrRight If true the new rectangle will expand from the top (Vertical) or right (Horizontal)
 		   otherwise it will expand from the bottom (Vertical) or left (Horizontal)
 	 * @return IRECT the new rectangle */
-	inline IRECT FracRect(EDirection layoutDir, float frac, bool fromTopOrRight = false) const
+	inline constexpr IRECT FracRect(EDirection layoutDir, float frac, bool fromTopOrRight = false) const
 	{
 		if (layoutDir == EDirection::Vertical)
 			return FracRectVertical(frac, fromTopOrRight);
@@ -1067,7 +1073,7 @@ struct IRECT
 	 * @param frac width multiplier
 	 * @param rhs if true, the new IRECT will expand/contract from the right, otherwise it will come from the left
 	 * @return IRECT the new IRECT */
-	inline IRECT FracRectHorizontal(float frac, bool rhs = false) const
+	inline constexpr IRECT FracRectHorizontal(float frac, bool rhs = false) const
 	{
 		float widthOfSubRect = W() * frac;
 
@@ -1081,7 +1087,7 @@ struct IRECT
 	 * @param frac height multiplier
 	 * @param fromTop if true, the new IRECT will expand/contract from the top, otherwise it will come from the bottom
 	 * @return IRECT the new IRECT */
-	inline IRECT FracRectVertical(float frac, bool fromTop = false) const
+	inline constexpr IRECT FracRectVertical(float frac, bool fromTop = false) const
 	{
 		float heightOfSubRect = H() * frac;
 
@@ -1098,7 +1104,7 @@ struct IRECT
 	 * @param numSlices number of equal-sized parts to divide this IRECT into
 	 * @param sliceIdx which "slice" to select
 	 * @return IRECT the new IRECT */
-	inline IRECT SubRectVertical(int numSlices, int sliceIdx) const
+	inline constexpr IRECT SubRectVertical(int numSlices, int sliceIdx) const
 	{
 		float heightOfSubRect = H() / (float) numSlices;
 		float t               = heightOfSubRect * (float) sliceIdx;
@@ -1113,7 +1119,7 @@ struct IRECT
 	 * @param numSlices number of equal-sized parts to divide this IRECT into
 	 * @param sliceIdx which "slice" to select
 	 * @return IRECT the new IRECT */
-	inline IRECT SubRectHorizontal(int numSlices, int sliceIdx) const
+	inline constexpr IRECT SubRectHorizontal(int numSlices, int sliceIdx) const
 	{
 		float widthOfSubRect = W() / (float) numSlices;
 		float l              = widthOfSubRect * (float) sliceIdx;
@@ -1126,7 +1132,7 @@ struct IRECT
 	 * @param numSlices Number of equal-sized parts to divide this IRECT into
 	 * @param sliceIdx Which "slice" to return
 	 * @return IRECT the new rectangle */
-	inline IRECT SubRect(EDirection layoutDir, int numSlices, int sliceIdx) const
+	inline constexpr IRECT SubRect(EDirection layoutDir, int numSlices, int sliceIdx) const
 	{
 		if (layoutDir == EDirection::Vertical)
 			return SubRectVertical(numSlices, sliceIdx);
@@ -1138,7 +1144,7 @@ struct IRECT
 	 * @param w Width of the desired IRECT
 	 * @param h Weight of the desired IRECT
 	 * @return IRECT The resulting subrect */
-	inline IRECT GetFromTLHC(float w, float h) const
+	inline constexpr IRECT GetFromTLHC(float w, float h) const
 	{
 		return IRECT(L, T, L + w, T + h);
 	}
@@ -1147,7 +1153,7 @@ struct IRECT
 	 * @param w Width of the desired IRECT
 	 * @param h Height of the desired IRECT
 	 * @return IRECT The resulting subrect */
-	inline IRECT GetFromBLHC(float w, float h) const
+	inline constexpr IRECT GetFromBLHC(float w, float h) const
 	{
 		return IRECT(L, B - h, L + w, B);
 	}
@@ -1156,7 +1162,7 @@ struct IRECT
 	 * @param w Width of the desired IRECT
 	 * @param h Height of the desired IRECT
 	 * @return IRECT The resulting subrect */
-	inline IRECT GetFromTRHC(float w, float h) const
+	inline constexpr IRECT GetFromTRHC(float w, float h) const
 	{
 		return IRECT(R - w, T, R, T + h);
 	}
@@ -1165,7 +1171,7 @@ struct IRECT
 	 * @param w Width of the desired IRECT
 	 * @param h Height of the desired IRECT
 	 * @return IRECT The resulting subrect */
-	inline IRECT GetFromBRHC(float w, float h) const
+	inline constexpr IRECT GetFromBRHC(float w, float h) const
 	{
 		return IRECT(R - w, B - h, R, B);
 	}
@@ -1173,7 +1179,7 @@ struct IRECT
 	/** Get a subrect of this IRECT bounded in Y by the top edge and 'amount'
 	 * @param amount Size in Y of the desired IRECT
 	 * @return IRECT The resulting subrect */
-	inline IRECT GetFromTop(float amount) const
+	inline constexpr IRECT GetFromTop(float amount) const
 	{
 		return IRECT(L, T, R, T + amount);
 	}
@@ -1181,7 +1187,7 @@ struct IRECT
 	/** Get a subrect of this IRECT bounded in Y by 'amount' and the bottom edge
 	 * @param amount Size in Y of the desired IRECT
 	 * @return IRECT The resulting subrect */
-	inline IRECT GetFromBottom(float amount) const
+	inline constexpr IRECT GetFromBottom(float amount) const
 	{
 		return IRECT(L, B - amount, R, B);
 	}
@@ -1189,7 +1195,7 @@ struct IRECT
 	/** Get a subrect of this IRECT bounded in X by the left edge and 'amount'
 	 * @param amount Size in X of the desired IRECT
 	 * @return IRECT The resulting subrect */
-	inline IRECT GetFromLeft(float amount) const
+	inline constexpr IRECT GetFromLeft(float amount) const
 	{
 		return IRECT(L, T, L + amount, B);
 	}
@@ -1197,7 +1203,7 @@ struct IRECT
 	/** Get a subrect of this IRECT bounded in X by 'amount' and the right edge
 	 * @param amount Size in X of the desired IRECT
 	 * @return IRECT The resulting subrect */
-	inline IRECT GetFromRight(float amount) const
+	inline constexpr IRECT GetFromRight(float amount) const
 	{
 		return IRECT(R - amount, T, R, B);
 	}
@@ -1205,7 +1211,7 @@ struct IRECT
 	/** Get a subrect of this IRECT reduced in height from the top edge by 'amount'
 	 * @param amount Size in Y to reduce by
 	 * @return IRECT The resulting subrect */
-	inline IRECT GetReducedFromTop(float amount) const
+	inline constexpr IRECT GetReducedFromTop(float amount) const
 	{
 		return IRECT(L, T + amount, R, B);
 	}
@@ -1213,7 +1219,7 @@ struct IRECT
 	/** Get a subrect of this IRECT reduced in height from the bottom edge by 'amount'
 	 * @param amount Size in Y to reduce by
 	 * @return IRECT The resulting subrect */
-	inline IRECT GetReducedFromBottom(float amount) const
+	inline constexpr IRECT GetReducedFromBottom(float amount) const
 	{
 		return IRECT(L, T, R, B - amount);
 	}
@@ -1221,7 +1227,7 @@ struct IRECT
 	/** Get a subrect of this IRECT reduced in width from the left edge by 'amount'
 	 * @param amount Size in X to reduce by
 	 * @return IRECT The resulting subrect */
-	inline IRECT GetReducedFromLeft(float amount) const
+	inline constexpr IRECT GetReducedFromLeft(float amount) const
 	{
 		return IRECT(L + amount, T, R, B);
 	}
@@ -1229,7 +1235,7 @@ struct IRECT
 	/** Get a subrect of this IRECT reduced in width from the right edge by 'amount'
 	 * @param amount Size in X to reduce by
 	 * @return IRECT The resulting subrect */
-	inline IRECT GetReducedFromRight(float amount) const
+	inline constexpr IRECT GetReducedFromRight(float amount) const
 	{
 		return IRECT(L, T, R - amount, B);
 	}
@@ -1237,7 +1243,7 @@ struct IRECT
 	/** Reduce in height from the top edge by 'amount' and return the removed region
 	 * @param amount Size in Y to reduce by
 	 * @return IRECT The removed subrect */
-	inline IRECT ReduceFromTop(float amount)
+	inline constexpr IRECT ReduceFromTop(float amount)
 	{
 		IRECT r = GetFromTop(amount);
 		T += amount;
@@ -1247,7 +1253,7 @@ struct IRECT
 	/** Reduce in height from the bottom edge by 'amount' and return the removed region
 	 * @param amount Size in Y to reduce by
 	 * @return IRECT The removed subrect */
-	inline IRECT ReduceFromBottom(float amount)
+	inline constexpr IRECT ReduceFromBottom(float amount)
 	{
 		IRECT r = GetFromBottom(amount);
 		B -= amount;
@@ -1257,7 +1263,7 @@ struct IRECT
 	/** Reduce in width from the left edge by 'amount' and return the removed region
 	 * @param amount Size in X to reduce by
 	 * @return IRECT The removed subrect */
-	inline IRECT ReduceFromLeft(float amount)
+	inline constexpr IRECT ReduceFromLeft(float amount)
 	{
 		IRECT r = GetFromLeft(amount);
 		L += amount;
@@ -1267,7 +1273,7 @@ struct IRECT
 	/** Reduce in width from the right edge by 'amount' and return the removed region
 	 * @param amount Size in X to reduce by
 	 * @return IRECT The removed subrect */
-	inline IRECT ReduceFromRight(float amount)
+	inline constexpr IRECT ReduceFromRight(const float amount)
 	{
 		IRECT r = GetFromRight(amount);
 		R -= amount;
@@ -1280,9 +1286,12 @@ struct IRECT
 	 * @param nRows Number of rows in the cell grid
 	 * @param nColumns Number of columns in the cell grid
 	 * @return IRECT The resulting subrect */
-	inline IRECT GetGridCell(int row, int col, int nRows, int nColumns /*, EDirection = EDirection::Horizontal*/) const
+	inline constexpr IRECT GetGridCell(int row,
+									   int col,
+									   int nRows,
+									   int nColumns /*, EDirection = EDirection::Horizontal*/) const
 	{
-		assert(row * col <= nRows * nColumns);  // not enough cells !
+		DEBUG_ASSERT(row * col <= nRows * nColumns);  // not enough cells !
 
 		const IRECT vrect = SubRectVertical(nRows, row);
 		return vrect.SubRectHorizontal(nColumns, col);
@@ -1296,10 +1305,10 @@ struct IRECT
 	 * @param dir Desired direction of indexing, by row (EDirection::Horizontal) or by column (EDirection::Vertical)
 	 * @param nCells Number of desired sequential cells to join (on same row/column)
 	 * @return IRECT The resulting subrect */
-	inline IRECT GetGridCell(
+	IRECT GetGridCell(
 		int cellIndex, int nRows, int nColumns, EDirection dir = EDirection::Horizontal, int nCells = 1) const
 	{
-		assert(cellIndex <= nRows * nColumns);  // not enough cells !
+		DEBUG_ASSERT(cellIndex <= nRows * nColumns);  // not enough cells !
 
 		int cell = 0;
 
@@ -1353,22 +1362,17 @@ struct IRECT
 	}
 
 	/** @return true If all the values of this IRECT are within 1/1000th of being an integer */
-	bool IsPixelAligned() const
+	inline constexpr bool IsPixelAligned() const
 	{
 		// If all values are within 1/1000th of a pixel of an integer the IRECT is considered pixel aligned
-
-		auto isInteger = [](float x) {
-			return std::fabs(x - std::round(x)) <= static_cast<float>(1e-3);
-		};
-
-		return isInteger(L) && isInteger(T) && isInteger(R) && isInteger(B);
+		return math::IsNearlyInteger(L, T, R, B, 1e-3f);
 	}
 
 	/** Return true if, when scaled by `scale`, this IRECT is pixel aligned
 	 * When scaling this mutliples each value of the IRECT, it does not scale from the center.
 	 * @param scale Scale value for the test
 	 * @return true The scaled IRECT is pixel-aligned */
-	bool IsPixelAligned(float scale) const
+	inline const bool IsPixelAligned(float scale) const
 	{
 		IRECT r = *this;
 		r.Scale(scale);
@@ -1376,28 +1380,31 @@ struct IRECT
 	}
 
 	/** Pixel aligns the rect in an inclusive manner (moves all points outwards) */
-	inline void PixelAlign()
+	inline constexpr void PixelAlign()
 	{
-		L = std::floor(L);
-		T = std::floor(T);
-		R = std::ceil(R);
-		B = std::ceil(B);
+		L = math::Floor(L);
+		T = math::Floor(T);
+		R = math::Ceil(R);
+		B = math::Ceil(B);
 	}
 
 	/** Pixel-align this IRECT at the given scale factor then scale it back down
 	 * When scaling this mutliples each value of the IRECT, it does not scale from the center.
 	 * @param scale Scale value for the alignment */
-	inline void PixelAlign(float scale)
+	inline constexpr void PixelAlign(float scale)
 	{
 		// N.B. - double precision is *required* for accuracy of the reciprocal
+		// ? Are you sure? I can't see any difference.
+
 		Scale(scale);
 		PixelAlign();
-		Scale(static_cast<float>(1.0 / static_cast<double>(scale)));
+		// Scale(static_cast<float>(1.0 / static_cast<double>(scale)));
+		Scale((1.0f / scale));
 	}
 
 	/** Get a copy of this IRECT with PixelAlign() called
 	 * @return IRECT the new rectangle */
-	inline IRECT GetPixelAligned() const
+	inline constexpr IRECT GetPixelAligned() const
 	{
 		IRECT r = *this;
 		r.PixelAlign();
@@ -1407,7 +1414,7 @@ struct IRECT
 	/** Get a copy of this IRECT with PixelAlign(scale) called
 	 * @param scale Scaling factor for the alignment
 	 * @return IRECT the new rectangle */
-	inline IRECT GetPixelAligned(float scale) const
+	inline constexpr IRECT GetPixelAligned(float scale) const
 	{
 		IRECT r = *this;
 		r.PixelAlign(scale);
@@ -1416,26 +1423,27 @@ struct IRECT
 
 	/** Pixel aligns to nearest pixels
 	 * This may make the IRECT smaller, unlike PixelAlign(). */
-	inline void PixelSnap()
+	inline constexpr void PixelSnap()
 	{
-		L = std::round(L);
-		T = std::round(T);
-		R = std::round(R);
-		B = std::round(B);
+		L = math::Round(L);
+		T = math::Round(T);
+		R = math::Round(R);
+		B = math::Round(B);
 	}
 
 	/** Pixel align a scaled version of this IRECT
 	 * @param scale Scaling factor for the alignment */
-	inline void PixelSnap(float scale)
+	inline constexpr void PixelSnap(float scale)
 	{
 		// N.B. - double precision is *required* for accuracy of the reciprocal
 		Scale(scale);
 		PixelSnap();
-		Scale(static_cast<float>(1.0 / static_cast<double>(scale)));
+		// Scale(static_cast<float>(1.0 / static_cast<double>(scale)));
+		Scale(1.0f / scale);
 	}
 
 	/** @return IRECT A copy of this IRECT with PixelSnap() called */
-	inline IRECT GetPixelSnapped() const
+	inline constexpr IRECT GetPixelSnapped() const
 	{
 		IRECT r = *this;
 		r.PixelSnap();
@@ -1445,7 +1453,7 @@ struct IRECT
 	/** Get a copy of this IRECT with PixelSnap(scale) called
 	 * @param Scaling factor for the alignment
 	 * @return IRECT the new rectangle */
-	inline IRECT GetPixelSnapped(float scale) const
+	inline constexpr IRECT GetPixelSnapped(float scale) const
 	{
 		IRECT r = *this;
 		r.PixelSnap(scale);
@@ -1455,7 +1463,7 @@ struct IRECT
 	/** Pad this IRECT
 	 * N.B. Using a positive padding value will expand the IRECT, a negative value will contract it
 	 * @param padding Padding amount */
-	inline void Pad(float padding)
+	inline constexpr void Pad(float padding)
 	{
 		L -= padding;
 		T -= padding;
@@ -1469,7 +1477,7 @@ struct IRECT
 	 * @param padT Top-padding
 	 * @param padR Right-padding
 	 * @param padB Bottom-padding */
-	inline void Pad(float padL, float padT, float padR, float padB)
+	inline constexpr void Pad(float padL, float padT, float padR, float padB)
 	{
 		L -= padL;
 		T -= padT;
@@ -1480,7 +1488,7 @@ struct IRECT
 	/** Pad this IRECT in the X-axis
 	 * N.B. Using a positive padding value will expand the IRECT, a negative value will contract it
 	 * @param padding Left and right padding */
-	inline void HPad(float padding)
+	inline constexpr void HPad(float padding)
 	{
 		L -= padding;
 		R += padding;
@@ -1489,7 +1497,7 @@ struct IRECT
 	/** Pad this IRECT in the Y-axis
 	 * N.B. Using a positive padding value will expand the IRECT, a negative value will contract it
 	 * @param padding Top and bottom padding */
-	inline void VPad(float padding)
+	inline constexpr void VPad(float padding)
 	{
 		T -= padding;
 		B += padding;
@@ -1497,7 +1505,7 @@ struct IRECT
 
 	/** Set the width of this IRECT to 2*padding without changing it's center point on the X-axis
 	 * @param padding Left and right padding (1/2 the new width) */
-	inline void MidHPad(float padding)
+	inline constexpr void MidHPad(float padding)
 	{
 		const float mw = MW();
 		L              = mw - padding;
@@ -1506,7 +1514,7 @@ struct IRECT
 
 	/** Set the height of this IRECT to 2*padding without changing it's center point on the Y-axis
 	 * @param padding Top and bottom padding (1/2 the new height) */
-	inline void MidVPad(float padding)
+	inline constexpr void MidVPad(float padding)
 	{
 		const float mh = MH();
 		T              = mh - padding;
@@ -1517,7 +1525,7 @@ struct IRECT
 	 * N.B. Using a positive padding value will expand the IRECT, a negative value will contract it
 	 * @param padding Padding amount
 	 * @return IRECT the new rectangle */
-	inline IRECT GetPadded(float padding) const
+	inline constexpr IRECT GetPadded(const float padding) const
 	{
 		return IRECT(L - padding, T - padding, R + padding, B + padding);
 	}
@@ -1529,7 +1537,7 @@ struct IRECT
 	 * @param padR Right-padding
 	 * @param padB Bottom-padding
 	 * @return IRECT the new rectangle */
-	inline IRECT GetPadded(float padL, float padT, float padR, float padB) const
+	inline constexpr IRECT GetPadded(float padL, float padT, float padR, float padB) const
 	{
 		return IRECT(L - padL, T - padT, R + padR, B + padB);
 	}
@@ -1538,7 +1546,7 @@ struct IRECT
 	 * N.B. Using a positive padding value will expand the IRECT, a negative value will contract it
 	 * @param padding Left and right padding
 	 * @return IRECT the new rectangle */
-	inline IRECT GetHPadded(float padding) const
+	inline constexpr IRECT GetHPadded(float padding) const
 	{
 		return IRECT(L - padding, T, R + padding, B);
 	}
@@ -1547,7 +1555,7 @@ struct IRECT
 	 * N.B. Using a positive padding value will expand the IRECT, a negative value will contract it
 	 * @param padding Top and bottom padding
 	 * @return IRECT the new rectangle */
-	inline IRECT GetVPadded(float padding) const
+	inline constexpr IRECT GetVPadded(float padding) const
 	{
 		return IRECT(L, T - padding, R, B + padding);
 	}
@@ -1555,7 +1563,7 @@ struct IRECT
 	/** Get a copy of this IRECT where its width = 2 * padding but the center point on the X-axis has not changed
 	 * @param padding Left and right padding (1/2 the new width)
 	 * @return IRECT the new rectangle */
-	inline IRECT GetMidHPadded(float padding) const
+	inline constexpr IRECT GetMidHPadded(float padding) const
 	{
 		return IRECT(MW() - padding, T, MW() + padding, B);
 	}
@@ -1563,7 +1571,7 @@ struct IRECT
 	/** Get a copy of this IRECT where its height = 2 * padding but the center point on the Y-axis has not changed
 	 * @param padding Top and bottom padding (1/2 the new height)
 	 * @return IRECT the new rectangle */
-	inline IRECT GetMidVPadded(float padding) const
+	inline constexpr IRECT GetMidVPadded(float padding) const
 	{
 		return IRECT(L, MH() - padding, R, MH() + padding);
 	}
@@ -1572,7 +1580,7 @@ struct IRECT
 	 * @param w Width of the new rectangle
 	 * @param rhs If true the new rectangle will expand from the right side, otherwise it will expand from the left
 	 * @return IRECT the new rectangle */
-	inline IRECT GetHSliced(float w, bool rhs = false) const
+	inline constexpr IRECT GetHSliced(float w, bool rhs = false) const
 	{
 		if (rhs)
 			return IRECT(R - w, T, R, B);
@@ -1584,7 +1592,7 @@ struct IRECT
 	 * @param h Height of the new rectangle
 	 * @param bot If true the new rectangle will expand from the bottom, otherwise it will expand from the top
 	 * @return IRECT the new rectangle */
-	inline IRECT GetVSliced(float h, bool bot = false) const
+	inline constexpr IRECT GetVSliced(float h, bool bot = false) const
 	{
 		if (bot)
 			return IRECT(L, B - h, R, B);
@@ -1620,7 +1628,7 @@ struct IRECT
 
 	/** Multiply each field of this IRECT by `scale`.
 	 * @param scale The amount to multiply each field by */
-	void Scale(float scale)
+	inline constexpr void Scale(float scale)
 	{
 		L *= scale;
 		T *= scale;
@@ -1630,12 +1638,12 @@ struct IRECT
 
 	/** Scale the width and height of this IRECT by `scale` without changing the center point
 	 * @param scale The scaling factor */
-	void ScaleAboutCentre(float scale)
+	inline constexpr void ScaleAboutCentre(float scale)
 	{
 		float x  = MW();
 		float y  = MH();
-		float hw = W() / 2.f;
-		float hh = H() / 2.f;
+		float hw = W() * 0.5f;
+		float hh = H() * 0.5f;
 		L        = x - (hw * scale);
 		T        = y - (hh * scale);
 		R        = x + (hw * scale);
@@ -1645,7 +1653,7 @@ struct IRECT
 	/** Get a copy of this IRECT with all values multiplied by `scale`.
 	 * @param scale The amount to multiply each value by
 	 * @return IRECT the resulting rectangle */
-	IRECT GetScaled(float scale) const
+	inline constexpr IRECT GetScaled(float scale) const
 	{
 		IRECT r = *this;
 		r.Scale(scale);
@@ -1655,7 +1663,7 @@ struct IRECT
 	/** Get a copy of this IRECT where the width and height are multiplied by `scale` without changing the center point
 	 * @param scale Scaling factor
 	 * @return IRECT the resulting rectangle */
-	IRECT GetScaledAboutCentre(float scale) const
+	inline constexpr IRECT GetScaledAboutCentre(float scale) const
 	{
 		IRECT r = *this;
 		r.ScaleAboutCentre(scale);
@@ -1667,7 +1675,7 @@ struct IRECT
 	 * @param dest Ending rectangle
 	 * @param progress Interpolation point
 	 * @return IRECT the new rectangle */
-	static IRECT LinearInterpolateBetween(const IRECT& start, const IRECT& dest, float progress)
+	static inline constexpr IRECT LinearInterpolateBetween(const IRECT& start, const IRECT& dest, float progress)
 	{
 		IRECT result;
 		result.L = start.L + progress * (dest.L - start.L);
@@ -1680,7 +1688,7 @@ struct IRECT
 	/** Get a random point within this rectangle
 	 * @param x OUT output X value of point
 	 * @param y OUT output Y value of point */
-	void GetRandomPoint(float& x, float& y) const
+	inline const void GetRandomPoint(float& x, float& y) const
 	{
 		const float r1 = static_cast<float>(std::rand() / (static_cast<float>(RAND_MAX) + 1.f));
 		const float r2 = static_cast<float>(std::rand() / (static_cast<float>(RAND_MAX) + 1.f));
@@ -1690,7 +1698,7 @@ struct IRECT
 	}
 
 	/** @return IRECT A random rectangle inside this IRECT */
-	IRECT GetRandomSubRect() const
+	inline const IRECT GetRandomSubRect() const
 	{
 		float l, t, r, b;
 		GetRandomPoint(l, t);
@@ -1705,7 +1713,7 @@ struct IRECT
 	 * @param t Top offset
 	 * @param r Right offset
 	 * @param b Bottom offset */
-	void Alter(float l, float t, float r, float b)
+	inline constexpr void Alter(float l, float t, float r, float b)
 	{
 		L += l;
 		T += t;
@@ -1719,7 +1727,7 @@ struct IRECT
 	 * @param r Right offset
 	 * @param b Bottom offset
 	 * @return IRECT the new rectangle */
-	IRECT GetAltered(float l, float t, float r, float b) const
+	inline constexpr IRECT GetAltered(float l, float t, float r, float b) const
 	{
 		return IRECT(L + l, T + t, R + r, B + b);
 	}
@@ -1727,7 +1735,7 @@ struct IRECT
 	/** Translate this rectangle
 	 * @param x Offset in the X axis
 	 * @param y Offset in the Y axis */
-	void Translate(float x, float y)
+	inline constexpr void Translate(float x, float y)
 	{
 		L += x;
 		T += y;
@@ -1739,7 +1747,7 @@ struct IRECT
 	 * @param x Offset in the X axis
 	 * @param y Offset in the Y axis
 	 * @return IRECT the new rectangle */
-	IRECT GetTranslated(float x, float y) const
+	inline constexpr IRECT GetTranslated(float x, float y) const
 	{
 		return IRECT(L + x, T + y, R + x, B + y);
 	}
@@ -1747,7 +1755,7 @@ struct IRECT
 	/** Get a copy of this rectangle translated on the X axis
 	 * @param x Offset
 	 * @return IRECT the new rectangle */
-	IRECT GetHShifted(float x) const
+	inline constexpr IRECT GetHShifted(float x) const
 	{
 		return GetTranslated(x, 0.f);
 	}
@@ -1755,7 +1763,7 @@ struct IRECT
 	/** Get a copy of this rectangle translated on the Y axis
 	 * @param y Offset
 	 * @return IRECT the new rectangle */
-	IRECT GetVShifted(float y) const
+	inline constexpr IRECT GetVShifted(float y) const
 	{
 		return GetTranslated(0.f, y);
 	}
@@ -1763,11 +1771,11 @@ struct IRECT
 	/** Get a rectangle the size of `sr` but with the same center point as this rectangle
 	 * @param sr Size rectangle
 	 * @return IRECT the new rectangle */
-	IRECT GetCentredInside(const IRECT& sr) const
+	inline constexpr IRECT GetCentredInside(const IRECT& sr) const
 	{
 		IRECT r;
-		r.L = MW() - sr.W() / 2.f;
-		r.T = MH() - sr.H() / 2.f;
+		r.L = MW() - sr.W() * 0.5f;
+		r.T = MH() - sr.H() * 0.5f;
 		r.R = r.L + sr.W();
 		r.B = r.T + sr.H();
 
@@ -1778,7 +1786,7 @@ struct IRECT
 	 * @param w Width of the new rectangle (minimum 1.0)
 	 * @param h Height of the new rectangle (a value of 0 will make it the same as w, thus a square)
 	 * @return IRECT the new rectangle */
-	IRECT GetCentredInside(float w, float h = 0.f) const
+	inline constexpr IRECT GetCentredInside(float w, float h = 0.f) const
 	{
 		w = std::max(w, 1.f);
 
@@ -1797,11 +1805,11 @@ struct IRECT
 	/** Get a rectangle with the same center point as this rectangle and the size of the bitmap
 	 * @param bitmap Bitmap used to size the new rectangle
 	 * @return IRECT the new rectangle */
-	IRECT GetCentredInside(const IBitmap& bitmap) const
+	inline constexpr IRECT GetCentredInside(const IBitmap& bitmap) const
 	{
 		IRECT r;
-		r.L = MW() - bitmap.FW() / 2.f;
-		r.T = MH() - bitmap.FH() / 2.f;
+		r.L = MW() - bitmap.FW() * 0.5f;
+		r.T = MH() - bitmap.FH() * 0.5f;
 		r.R = r.L + (float) bitmap.FW();
 		r.B = r.T + (float) bitmap.FH();
 
@@ -1811,7 +1819,7 @@ struct IRECT
 	/** Vertically align this rect to the reference IRECT
 	 * @param sr the source IRECT to use as reference
 	 * @param align the vertical alignment */
-	void VAlignTo(const IRECT& sr, EVAlign align)
+	inline constexpr void VAlignTo(const IRECT& sr, const EVAlign align)
 	{
 		const float height = H();
 		switch (align)
@@ -1834,7 +1842,7 @@ struct IRECT
 	/** Horizontally align this rect to the reference IRECT
 	 * @param sr the IRECT to use as reference
 	 * @param align the horizontal alignment */
-	void HAlignTo(const IRECT& sr, EAlign align)
+	inline constexpr void HAlignTo(const IRECT& sr, const EAlign align)
 	{
 		const float width = W();
 		switch (align)
@@ -1858,7 +1866,7 @@ struct IRECT
 	 * @param sr the source IRECT to use as reference
 	 * @param align the vertical alignment
 	 * @return the new rectangle */
-	IRECT GetVAlignedTo(const IRECT& sr, EVAlign align) const
+	inline constexpr IRECT GetVAlignedTo(const IRECT& sr, EVAlign align) const
 	{
 		IRECT result = *this;
 		result.VAlignTo(sr, align);
@@ -1866,19 +1874,16 @@ struct IRECT
 	}
 
 	/** @return float Either the width or the height of the rectangle, whichever is less */
-	float GetLengthOfShortestSide() const
+	inline constexpr float GetLengthOfShortestSide() const
 	{
-		if (W() < H())
-			return W();
-		else
-			return H();
+		return W() < H() ? W() : H();
 	}
 
 	/** Get a rectangle the same dimensions as this one, horizontally aligned to the reference IRECT
 	 * @param sr the IRECT to use as reference
 	 * @param align the horizontal alignment
 	 * @return the new rectangle */
-	IRECT GetHAlignedTo(const IRECT& sr, EAlign align) const
+	inline constexpr IRECT GetHAlignedTo(const IRECT& sr, const EAlign align) const
 	{
 		IRECT result = *this;
 		result.HAlignTo(sr, align);
@@ -1886,7 +1891,7 @@ struct IRECT
 	}
 
 	/** Print the IRECT's detailes to the console in Debug builds */
-	void DBGPrint()
+	inline const void DBGPrint() const
 	{
 		DBGMSG("L: %f, T: %f, R: %f, B: %f,: W: %f, H: %f\n", L, T, R, B, W(), H());
 	}

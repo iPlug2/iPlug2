@@ -131,6 +131,16 @@ namespace iplug::math
 		return (Abs(value) < threshold);
 	}
 
+	// True if all 4 values are smaller than given threshold or delta constant
+	template <class Tr = bool, class T>
+	NODISCARD inline constexpr Tr IsBelowThreshold(
+		const T v1, const T v2, const T v3, const T v4, const T threshold = constants::delta_v<T>)
+	{
+		static_assert(type::IsFloatingPoint<T>);
+		return IsBelowThreshold(v1, threshold) && IsBelowThreshold(v2, threshold) && IsBelowThreshold(v3, threshold) &&
+			   IsBelowThreshold(v4, threshold);
+	}
+
 	// True if the fractional part of a floating point value is smaller than given threshold or delta constant
 	template <class Tr = bool, class T>
 	NODISCARD inline constexpr Tr IsNearlyInteger(const T value, const T threshold = constants::delta_v<T>)
