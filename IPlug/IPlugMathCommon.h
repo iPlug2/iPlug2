@@ -251,8 +251,7 @@ namespace iplug::math
 			return pow(2.0, value);
 	}
 
-	// Return integral value aligned to a pow2 alignment value. By default there is no check to see if alignment is an
-	// actual power of 2 value, but can be activated by using AlignPow2<ERound::Ceil>() or AlignPow2<ERound::Floor>()
+	// Return integral value aligned to a pow2 alignment value.
 	template <class T, class Ta = uint32>
 	NODISCARD inline constexpr T AlignPow2(const T value, const Ta alignment = (1 << 4))
 	{
