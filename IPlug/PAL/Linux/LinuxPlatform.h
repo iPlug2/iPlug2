@@ -20,7 +20,7 @@
 
 #define PLATFORM_LITTLE_ENDIAN   1
 #define PLATFORM_CACHE_LINE_SIZE 64
-#define DEBUGBREAK()             __debugbreak()
+#define DEBUGBREAK()             __emit__(0x90CC)
 #define PLATFORM_PTHREADS        1
 
 

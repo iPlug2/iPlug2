@@ -20,8 +20,21 @@
 
 #define PLATFORM_LITTLE_ENDIAN   1
 #define PLATFORM_CACHE_LINE_SIZE 64
-#define DEBUGBREAK()             __debugbreak()
 #define PLATFORM_PTHREADS        0
+
+// https://stackoverflow.com/questions/44140778/resumable-assert-breakpoint-on-ios-like-debugbreak-with-ms-compiler/44142833#44142833
+#if defined(__aarch64__)  // ARM64
+	#define DEBUGBREAK()                                                         \
+		__asm__ __volatile__("   mov    x0, %x0;    \n" /* pid                */ \
+							 "   mov    x1, #0x11;  \n" /* SIGSTOP            */ \
+							 "   mov    x16, #0x25; \n" /* syscall 37 = kill  */ \
+							 "   svc    #0x80       \n" /* software interrupt */ \
+							 "   mov    x0, x0      \n" /* nop                */ \
+							 ::"r"(getpid())                                     \
+							 : "x0", "x1", "x16", "memory")
+#else
+	#define DEBUGBREAK() __asm__ __volatile__("int $3; mov %eax, %eax")
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -41,7 +54,7 @@ namespace iplug::type
 		using int64  = std::int64_t;
 	};
 	using Platform = IOS;
-}  // namespace iplug::types
+}  // namespace iplug::type
 
 
 //-----------------------------------------------------------------------------
@@ -50,4 +63,3 @@ namespace iplug::type
 #include <unistd.h>
 #include <sys/types.h>
 #include <dirent.h>
-
