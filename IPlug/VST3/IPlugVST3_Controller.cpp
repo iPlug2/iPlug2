@@ -26,6 +26,7 @@ IPlugVST3Controller::IPlugVST3Controller(const InstanceInfo& info, const Config&
 , mPlugIsInstrument(config.plugType == kInstrument)
 , mDoesMidiIn(config.plugDoesMidiIn)
 , mProcessorGUID(info.mOtherGUID)
+, IPlugVST3ControllerBase(parameters)
 {
   CreateTimer();
 }
@@ -40,7 +41,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 {
   if (EditControllerEx1::initialize(context) == kResultTrue)
   {
-    Initialize(this, parameters, mPlugIsInstrument, mDoesMidiIn);
+    Initialize(this, mPlugIsInstrument, mDoesMidiIn);
     IPlugVST3GetHost(this, context);
     OnHostIdentified();
     OnParamReset(kReset);
@@ -86,12 +87,12 @@ tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* pState)
 
 ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized(ParamID tag)
 {
-  return IPlugVST3ControllerBase::GetParamNormalized(parameters, tag);
+  return IPlugVST3ControllerBase::GetParamNormalized(tag);
 }
 
 tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
 {
-  if (IPlugVST3ControllerBase::SetParamNormalized(this, parameters, tag, value))
+  if (IPlugVST3ControllerBase::SetParamNormalized(this, tag, value))
     return kResultTrue;
   else
     return kResultFalse;
@@ -285,6 +286,6 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int da
 
 void IPlugVST3Controller::SendParameterValueFromUI(int paramIdx, double normalisedValue)
 {
-  IPlugVST3ControllerBase::SetVST3ParamNormalized(parameters, paramIdx, normalisedValue);
+  IPlugVST3ControllerBase::SetVST3ParamNormalized(paramIdx, normalisedValue);
   IPlugAPIBase::SendParameterValueFromUI(paramIdx, normalisedValue);
 }
