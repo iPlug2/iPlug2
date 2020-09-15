@@ -39,6 +39,63 @@ namespace iplug::math
 		return tan(value);
 	}
 
+	template <class T>
+	NODISCARD inline constexpr T Round(const T value)
+	{
+		static_assert(type::IsFloatingPoint<T>);
+		if constexpr (type::IsSame<T, float>)
+			return floorf(value + 0.5f);
+		else
+			return floor(value + 0.5);
+	}
+
+	template <class T>
+	NODISCARD inline constexpr T Ceil(const T value)
+	{
+		static_assert(type::IsFloatingPoint<T>);
+		return ceil(value);
+	}
+
+	template <class T>
+	NODISCARD inline constexpr T Floor(const T value)
+	{
+		static_assert(type::IsFloatingPoint<T>);
+		return floor(value);
+	}
+
+	template <class T>
+	NODISCARD inline constexpr int RoundToInt(const T value)
+	{
+		return static_cast<int>(Round(value));
+	}
+
+	template <class T>
+	NODISCARD inline constexpr int FloorToInt(const T value)
+	{
+		return static_cast<int>(Floor(value));
+	}
+
+	template <class T>
+	NODISCARD inline constexpr int CeilToInt(const T value)
+	{
+		return static_cast<int>(Ceil(value));
+	}
+
+	// Returns the signed fractional portion of value
+	template <class T>
+	NODISCARD inline constexpr T Fraction(const T value)
+	{
+		static_assert(type::IsFloatingPoint<T>);
+		return value - FloorToInt(value) + -(value < 0);
+	}
+
+	template <class T>
+	NODISCARD inline constexpr T FractionAbs(const T value)
+	{
+		static_assert(type::IsFloatingPoint<T>);
+		return value - Floor(value);
+	}
+
 	//-----------------------------------------------------------------------------
 
 	template <class Tr = bool, class T>
@@ -72,6 +129,23 @@ namespace iplug::math
 	{
 		static_assert(type::IsFloatingPoint<T>);
 		return (Abs(value) < threshold);
+	}
+
+	// True if the fractional part of a floating point value is smaller than given threshold or delta constant
+	template <class Tr = bool, class T>
+	NODISCARD inline constexpr Tr IsNearlyInteger(const T value, const T threshold = constants::delta_v<T>)
+	{
+		static_assert(type::IsFloatingPoint<T>);
+		return IsBelowThreshold(Fraction(value), threshold);
+	}
+
+	// True if the fractional part of 4 floating point values are smaller than given threshold or delta constant
+	template <class Tr = bool, class T>
+	NODISCARD inline constexpr Tr IsNearlyInteger(
+		const T v1, const T v2, const T v3, const T v4, const T threshold = constants::delta_v<T>)
+	{
+		return IsNearlyInteger(v1, threshold) && IsNearlyInteger(v2, threshold) && IsNearlyInteger(v3, threshold) &&
+			   IsNearlyInteger(v4, threshold);
 	}
 
 	// True if value is higher than given threshold or delta constant (Amplitude of -100dB )
@@ -153,63 +227,6 @@ namespace iplug::math
 			return (((value - static_cast<T>(min)) | (static_cast<T>(max) - value)) >= 0);
 		else
 			return value < min ? false : value <= max ? true : false;
-	}
-
-	template <class T>
-	NODISCARD inline constexpr T Round(const T value)
-	{
-		static_assert(type::IsFloatingPoint<T>);
-		if constexpr (type::IsSame<T, float>)
-			return floorf(value + 0.5f);
-		else
-			return floor(value + 0.5);
-	}
-
-	template <class T>
-	NODISCARD inline constexpr T Ceil(const T value)
-	{
-		static_assert(type::IsFloatingPoint<T>);
-		return ceil(value);
-	}
-
-	template <class T>
-	NODISCARD inline constexpr T Floor(const T value)
-	{
-		static_assert(type::IsFloatingPoint<T>);
-		return floor(value);
-	}
-
-	template <class T>
-	NODISCARD inline constexpr int RoundToInt(const T value)
-	{
-		return static_cast<int>(Round(value));
-	}
-
-	template <class T>
-	NODISCARD inline constexpr int FloorToInt(const T value)
-	{
-		return static_cast<int>(Floor(value));
-	}
-
-	template <class T>
-	NODISCARD inline constexpr int CeilToInt(const T value)
-	{
-		return static_cast<int>(Ceil(value));
-	}
-
-	// Returns the signed fractional portion of value
-	template <class T>
-	NODISCARD inline constexpr T Fraction(const T value)
-	{
-		static_assert(type::IsFloatingPoint<T>);
-		return value - FloorToInt(value) + -IsNegative<int>(value);
-	}
-
-	template <class T>
-	NODISCARD inline constexpr T FractionAbs(const T value)
-	{
-		static_assert(type::IsFloatingPoint<T>);
-		return value - Floor(value);
 	}
 
 	template <ERound rounding = ERound::Floor, class Tx, class Ty>
@@ -342,10 +359,12 @@ namespace iplug::math
 		T v = static_cast<T>(++x >> 1);
 		return v;
 	}
+
 }  // namespace iplug::math
 
 
 //-----------------------------------------------------------------------------
+
 
 namespace iplug::math
 {
