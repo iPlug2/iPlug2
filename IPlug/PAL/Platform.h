@@ -124,6 +124,9 @@ namespace iplug
 	static_assert(std::is_floating_point_v<tfloat> && (std::is_same_v<tfloat, float> || std::is_same_v<tfloat, double>),
 				  "tfloat is invalid type. Only float and double are valid");
 
+	static_assert(false == 0, "bool false value failed.");
+	static_assert(true == 1, "bool true value failed.");
+
 	static_assert(sizeof(uint8) == 1, "uint8 type size failed.");
 	static_assert(sizeof(uint16) == 2, "uint16 type size failed.");
 	static_assert(sizeof(uint32) == 4, "uint32 type size failed.");
