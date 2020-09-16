@@ -910,7 +910,7 @@ struct IRECT
 	/** @return bool true if all the fields of this IRECT are 0 */
 	inline constexpr bool Empty() const
 	{
-		return math::IsBelowThreshold(L, T, R, B) ? true : false;
+		return math::IsNearlyZeroDelta(L, T, R, B);
 	}
 
 	/** Set all fields of this IRECT to 0 */
