@@ -21,11 +21,17 @@
 #include <bitset>
 #include <chrono>
 #include <codecvt>
+#include <cstring>
 #include <functional>
 #include <map>
 #include <numeric>
 #include <stack>
 #include <string>
+#include <version>
+
+#if __cpp_lib_bit_cast
+	#include <bit>
+#endif
 
 //#include <algorithm>
 //#include <atomic>
@@ -36,7 +42,6 @@
 //#include <cstdarg>
 //#include <cstdio>
 //#include <cstdlib>
-//#include <cstring>
 //#include <ctime>
 //#include <iostream>
 //#include <limits>
