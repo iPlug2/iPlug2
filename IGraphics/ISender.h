@@ -98,7 +98,7 @@ class IPeakSender : public ISender<MAXNC, QUEUE_SIZE, float>
 			sum += d.vals[c];
 		}
 
-		if (math::IsAboveThreshold(sum) || math::IsAboveThreshold(mPreviousSum))
+		if (math::IsNearlyZeroDelta(sum) == false || math::IsNearlyZeroDelta(mPreviousSum) == false)
 			ISender<MAXNC, QUEUE_SIZE, float>::PushData(d);
 
 		mPreviousSum = sum;
@@ -128,7 +128,7 @@ class IBufferSender : public ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF
 					mRunningSum[c] = 0.f;
 				}
 
-				if (math::IsAboveThreshold(sum) || math::IsAboveThreshold(mPreviousSum))
+				if (math::IsNearlyZeroDelta(sum) == false || math::IsNearlyZeroDelta(mPreviousSum) == false)
 				{
 					mBuffer.ctrlTag    = ctrlTag;
 					mBuffer.nChans     = nChans;

@@ -123,63 +123,59 @@ namespace iplug::math
 			return value < min ? false : value < max ? true : false;
 	}
 
-	// True if value is smaller than given threshold or delta constant (Amplitude of -100dB)
-	template <class Tr = bool, class T>
-	NODISCARD inline constexpr Tr IsBelowThreshold(const T value, const T threshold = constants::delta_v<T>)
-	{
-		static_assert(type::IsFloatingPoint<T>);
-		return (Abs(value) < threshold);
-	}
-
-	// True if all 4 values are smaller than given threshold or delta constant
-	template <class Tr = bool, class T>
-	NODISCARD inline constexpr Tr IsBelowThreshold(
-		const T v1, const T v2, const T v3, const T v4, const T threshold = constants::delta_v<T>)
-	{
-		static_assert(type::IsFloatingPoint<T>);
-		return IsBelowThreshold(v1, threshold) && IsBelowThreshold(v2, threshold) && IsBelowThreshold(v3, threshold) &&
-			   IsBelowThreshold(v4, threshold);
-	}
-
-	// True if the fractional part of a floating point value is smaller than given threshold or delta constant
-	template <class Tr = bool, class T>
-	NODISCARD inline constexpr Tr IsNearlyInteger(const T value, const T threshold = constants::delta_v<T>)
-	{
-		static_assert(type::IsFloatingPoint<T>);
-		return IsBelowThreshold(Fraction(value), threshold);
-	}
-
-	// True if the fractional part of 4 floating point values are smaller than given threshold or delta constant
-	template <class Tr = bool, class T>
-	NODISCARD inline constexpr Tr IsNearlyInteger(
-		const T v1, const T v2, const T v3, const T v4, const T threshold = constants::delta_v<T>)
-	{
-		return IsNearlyInteger(v1, threshold) && IsNearlyInteger(v2, threshold) && IsNearlyInteger(v3, threshold) &&
-			   IsNearlyInteger(v4, threshold);
-	}
-
-	// True if value is higher than given threshold or delta constant (Amplitude of -100dB )
-	template <class Tr = bool, class T>
-	NODISCARD inline constexpr Tr IsAboveThreshold(const T value, const T threshold = constants::delta_v<T>)
-	{
-		static_assert(type::IsFloatingPoint<T>);
-		return (Abs(value) > threshold);
-	}
-
-	// True if value is, or is close to 0.0 based on given threshold or macheps32 constant
-	template <class Tr = bool, class T>
-	NODISCARD inline constexpr Tr IsNearlyZero(const T value, const T threshold = constants::macheps32_v<T>)
-	{
-		static_assert(type::IsFloatingPoint<T>);
-		return (Abs(value) <= threshold);
-	}
-
 	// True if value A is, or is close to value B based on given threshold or macheps32 constant
 	template <class Tr = bool, class T>
 	NODISCARD inline constexpr Tr IsNearlyEqual(const T A, const T B, const T threshold = constants::macheps32_v<T>)
 	{
 		static_assert(type::IsFloatingPoint<T>);
-		return (Abs(A - B) <= threshold);
+		return Abs(A - B) <= threshold;
+	}
+
+	// True if the absolute value is less or equal to the specified threshold, or macheps32 constant (1.19e-7)
+	template <class Tr = bool, class T>
+	NODISCARD inline constexpr Tr IsNearlyZero(const T value, const T threshold = constants::macheps32_v<T>)
+	{
+		static_assert(type::IsFloatingPoint<T>);
+		return Abs(value) <= threshold;
+	}
+
+	// True if all 4 absolute values are less or equal to the specified threshold, or macheps32 constant (1.19e-7)
+	template <class Tr = bool, class T>
+	NODISCARD inline constexpr Tr IsNearlyZero(
+		const T A, const T B, const T C, const T D, const T threshold = constants::macheps32_v<T>)
+	{
+		return IsNearlyZero(A, threshold) && IsNearlyZero(B, threshold) && IsNearlyZero(C, threshold) &&
+			   IsNearlyZero(D, threshold);
+	}
+
+	// True if the absolute value is less or equal to the delta constant (0.00001 = Amplitude of -100dB)
+	template <class Tr = bool, class T>
+	NODISCARD inline constexpr Tr IsNearlyZeroDelta(const T value)
+	{
+		return IsNearlyZero(value, constants::delta_v<T>);
+	}
+
+	// True if all 4 values are smaller or equal to delta constant (0.00001 = Amplitude of -100dB)
+	template <class Tr = bool, class T>
+	NODISCARD inline constexpr Tr IsNearlyZeroDelta(const T A, const T B, const T C, const T D)
+	{
+		return IsNearlyZero(A, B, C, D, constants::delta_v<T>);
+	}
+
+	// True if a floating point value is nearly a integer value based on threshold or delta constant
+	template <class Tr = bool, class T>
+	NODISCARD inline constexpr Tr IsNearlyInteger(const T value, const T threshold = constants::delta_v<T>)
+	{
+		return IsNearlyEqual(value, Round(value), threshold);
+	}
+
+	// True if all 4 floating point values are nearly integer values based on threshold or delta constant
+	template <class Tr = bool, class T>
+	NODISCARD inline constexpr Tr IsNearlyInteger(
+		const T A, const T B, const T C, const T D, const T threshold = constants::delta_v<T>)
+	{
+		return IsNearlyInteger(A, threshold) && IsNearlyInteger(B, threshold) && IsNearlyInteger(C, threshold) &&
+			   IsNearlyInteger(D, threshold);
 	}
 
 	template <class Tr = bool, class T>
