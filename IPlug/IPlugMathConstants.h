@@ -16,15 +16,15 @@ namespace iplug::math::constants
 	// clang-format off
 
 	// Declare floating point types
-	#define FDECLARE_CONST(name, number)                                                              \
-		template <class T>                                                                            \
-		inline constexpr typename std::enable_if_t<std::is_floating_point_v<T>, T> name##_v = number; \
-		inline constexpr tfloat name = name##_v<tfloat>;
+	#define FDECLARE_CONST(name, number)                                                                                   \
+		template <class T>                                                                                                 \
+		inline constexpr typename std::conditional_t<type::IsFloatingPoint<T>, T, type::InvalidType<T>> name##_v = number; \
+		inline constexpr float name = name##_v<float>;
 
 	// Declare integral types
-	#define IDECLARE_CONST(name, number)                                                              \
-		template <class T>                                                                            \
-		inline constexpr typename std::enable_if_t<std::is_integral_v<T>, T> name##_v = number;       \
+	#define IDECLARE_CONST(name, number)                                                                                   \
+		template <class T>                                                                                                 \
+		inline constexpr typename std::conditional_t<type::IsIntegral<T>, T, type::InvalidType<T>> name##_v = number;      \
 		inline constexpr int name = name##_v<int>;
 
 	FDECLARE_CONST( delta,        0.00001            )  // Δ precision threshold (=e^(1/20*ln(10)*-100dB))
