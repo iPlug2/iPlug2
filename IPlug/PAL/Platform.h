@@ -248,24 +248,27 @@ namespace iplug::type
 		                        std::conditional_t<sizeof(T) == 8, int64,
 		                        type::InvalidType<T>>>>>;
 
+	// Emulate C++20 bit_cast, or if available use the real bit_cast
+	#ifndef __cpp_lib_bit_cast
+		template <class To,
+				  class From,
+				  std::enable_if_t<std::conjunction_v<std::bool_constant<sizeof(To) == sizeof(From)>,
+													  std::is_trivially_copyable<To>,
+													  std::is_trivially_copyable<From>>,
+								   int> = 0>
+		NODISCARD constexpr To bit_cast(const From& type) noexcept
+		{
+			To result;
+			memcpy(&result, &type, sizeof(To));
+			return result;
+		}
+	#else
+		template <class To, class From>
+		using bit_cast = ::std::bit_cast<To, From>;
+	#endif
+
 	// clang-format on
 }  // namespace iplug::type
-
-
-#ifndef __cpp_lib_bit_cast
-template <class To,
-		  class From,
-		  std::enable_if_t<std::conjunction_v<std::bool_constant<sizeof(To) == sizeof(From)>,
-											  std::is_trivially_copyable<To>,
-											  std::is_trivially_copyable<From>>,
-						   int> = 0>
-NODISCARD constexpr To bit_cast(const From& type) noexcept
-{
-	To result;
-	memcpy(&result, &type, sizeof(To));
-	return result;
-}
-#endif
 
 
 // Temporary
