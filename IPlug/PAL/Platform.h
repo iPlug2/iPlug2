@@ -231,13 +231,13 @@ namespace iplug::type
 	inline constexpr bool IsArithmetic = IsIntegral<T> || IsFloatingPoint<T>;
 
 	template <class T>
-	using EnableWhenFloatingtPoint = std::enable_if_t<type::IsFloatingPoint<T>>;
+	using EnableWhenFloatingtPoint = std::enable_if_t<type::IsFloatingPoint<T>, int>;
 
 	template <class T>
-	using EnableWhenIntegral = std::enable_if_t<type::IsIntegral<T>>;
+	using EnableWhenIntegral = std::enable_if_t<type::IsIntegral<T>, int>;
 
 	template <class T>
-	using EnableWhenArethmatic = std::enable_if_t<type::IsArithmetic<T>>;
+	using EnableWhenArethmatic = std::enable_if_t<type::IsArithmetic<T>, int>;
 
 
 	// clang-format off
