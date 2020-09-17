@@ -230,6 +230,16 @@ namespace iplug::type
 	template <class T>
 	inline constexpr bool IsArithmetic = IsIntegral<T> || IsFloatingPoint<T>;
 
+	template <class T>
+	using EnableWhenFloatingtPoint = std::enable_if_t<type::IsFloatingPoint<T>>;
+
+	template <class T>
+	using EnableWhenIntegral = std::enable_if_t<type::IsIntegral<T>>;
+
+	template <class T>
+	using EnableWhenArethmatic = std::enable_if_t<type::IsArithmetic<T>>;
+
+
 	// clang-format off
 
 	// Returns uint8, uint16, uint32 or uint64 based on the size of T
