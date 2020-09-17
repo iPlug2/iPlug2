@@ -12,8 +12,6 @@
 
 namespace iplug::math
 {
-	//-----------------------------------------------------------------------------
-
 	// Degrees to radians
 	template <class T>
 	NODISCARD inline constexpr auto DegToRad(const T Degrees)
@@ -22,6 +20,7 @@ namespace iplug::math
 		return Degrees * constants::inv_rad_v<T>;
 	}
 
+
 	// Radians to degrees
 	template <class T>
 	NODISCARD inline constexpr auto RadToDeg(const T Radians)
@@ -29,6 +28,7 @@ namespace iplug::math
 		static_assert(type::IsArithmetic<T>);
 		return Radians * constants::rad_v<T>;
 	}
+
 
 	/**
 	 * @brief Calculates amplitude from a given dB value
@@ -42,6 +42,7 @@ namespace iplug::math
 		return exp(constants::inv_Np_v<T> * dB);
 	}
 
+
 	/**
 	 * @brief Calculates dB from a given amplitude value
 	 * @param Amplitude Value
@@ -53,6 +54,7 @@ namespace iplug::math
 		static_assert(type::IsFloatingPoint<T>);
 		return constants::Np_v<T> * log(Abs(Amplitude));
 	}
+
 
 	// AmpToDB using fast approximation
 	NODISCARD inline const auto AmpToDBf(const float Amplitude)
