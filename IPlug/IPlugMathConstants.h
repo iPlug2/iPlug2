@@ -10,11 +10,10 @@
 
 #pragma once
 
+// clang-format off
 
 namespace iplug::math::constants
 {
-	// clang-format off
-
 	// Declare floating point types
 	#define FDECLARE_CONST(name, number)                                                                                   \
 		template <class T>                                                                                                 \
@@ -27,7 +26,7 @@ namespace iplug::math::constants
 		inline constexpr typename std::conditional_t<type::IsIntegral<T>, T, type::InvalidType<T>> name##_v = number;      \
 		inline constexpr int name = name##_v<int>;
 
-	FDECLARE_CONST( delta,        0.00001            )  // Δ precision threshold (=e^(1/20*ln(10)*-100dB))
+	FDECLARE_CONST( delta,        0.0000150203704834 )  // Δ threshold for single precision floating point (equivalent to an amplitude of -96.4663773dB)
 	FDECLARE_CONST( macheps16,    9.77e-4            )  // Machine epsilon 16bit 9.77e-4
 	FDECLARE_CONST( macheps32,    1.19e-7            )  // Machine epsilon 32bit 1.19e-7
 	FDECLARE_CONST( macheps64,    2.22e-16           )  // Machine epsilon 64bit 2.22e-16
@@ -60,10 +59,11 @@ namespace iplug::math::constants
 	FDECLARE_CONST( semitone,     1.0594630943592953 )  // Hz=2^(1/12) (Δhigh)
 	FDECLARE_CONST( inv_semitone, 0.9438743126816935 )  // Hz=2^(-1/12) (Δlow)
 
-	IDECLARE_CONST( ultimate_question_of_life, 42 )     // yes
+	IDECLARE_CONST( ultimate_question_of_life, 42    )  // yes
 
 	#undef FDECLARE_CONST
 	#undef IDECLARE_CONST
-	// clang-format on
 
 }  // namespace iplug::math::constants
+
+// clang-format on
