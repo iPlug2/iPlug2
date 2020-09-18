@@ -16,11 +16,16 @@ set(sdk ${IPLUG2_DIR}/IPlug/VST2)
 
 add_library(iPlug2_VST2 INTERFACE)
 iplug2_target_add(iPlug2_VST2 INTERFACE
-  INCLUDE ${sdk} ${_DEPS}/IPlug/VST2_SDK
+  INCLUDE ${sdk} ${IPLUG_DEPS}/VST2_SDK
   SOURCE ${sdk}/IPlugVST2.cpp
   DEFINE "VST2_API" "VST_FORCE_DEPRECATED" "IPLUG_EDITOR=1" "IPLUG_DSP=1"
   LINK iPlug2_Core
 )
+if (OS_LINUX)
+  iplug2_target_add(iPlug2_VST2 INTERFACE
+    DEFINE "SMTG_OS_LINUX"
+  )
+endif()
 
 function(iplug2_configure_vst2 target)
   if (WIN32)
@@ -55,7 +60,7 @@ function(iplug2_configure_vst2 target)
 
   # Handle resources
   if (res_dir)
-    iplug_target_bundle_resources(${target} "${res_dir}")
+    iplug2_target_bundle_resources(${target} "${res_dir}")
   endif()
 
 endfunction()

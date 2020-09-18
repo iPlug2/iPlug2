@@ -65,7 +65,12 @@ void IPlugAPIBase::OnHostRequestingImportantParameters(int count, WDL_TypedBuf<i
 
 void IPlugAPIBase::CreateTimer()
 {
+#if defined(OS_LINUX) && !defined(APP_API)
+  auto cb = [this](Timer& timer) { if (!HasUI()) { OnTimer(*mTimer); } };
+  mTimer = std::unique_ptr<Timer>(Timer::Create(cb, IDLE_TIMER_RATE));
+#else
   mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&IPlugAPIBase::OnTimer, this, std::placeholders::_1), IDLE_TIMER_RATE));
+#endif
 }
 
 bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) const
@@ -194,7 +199,9 @@ void IPlugAPIBase::OnTimer(Timer& t)
   #endif
   }
   
+#if !(defined(OS_LINUX) && defined(VST2_API))
   OnIdle();
+#endif
 }
 
 void IPlugAPIBase::SendMidiMsgFromUI(const IMidiMsg& msg)

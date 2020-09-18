@@ -7,15 +7,15 @@ set(_src
   ${sdk}/IPlugAPP_dialog.cpp 
   ${sdk}/IPlugAPP_host.cpp 
   ${sdk}/IPlugAPP_main.cpp
-  ${_DEPS}/IPlug/RTAudio/RtAudio.cpp
-  ${_DEPS}/IPlug/RTMidi/RtMidi.cpp
+  ${IPLUG_DEPS}/RTAudio/RtAudio.cpp
+  ${IPLUG_DEPS}/RTMidi/RtMidi.cpp
 )
 set(_inc
   ${sdk} 
-  ${_DEPS}/IPlug/RTAudio
-  ${_DEPS}/IPlug/RTAudio/include
-  ${_DEPS}/IPlug/RTMidi
-  ${_DEPS}/IPlug/RTMidi/include
+  ${IPLUG_DEPS}/RTAudio
+  ${IPLUG_DEPS}/RTAudio/include
+  ${IPLUG_DEPS}/RTMidi
+  ${IPLUG_DEPS}/RTMidi/include
 )
 set(_def "APP_API" "IPLUG_EDITOR=1" "IPLUG_DSP=1" )
 
@@ -24,11 +24,11 @@ if (WIN32)
   iplug2_target_add(iPlug2_APP INTERFACE
     DEFINE "__WINDOWS_DS__" "__WINDOWS_MM__" "__WINDOWS_ASIO__"
     SOURCE
-      ${_DEPS}/IPlug/RTAudio/include/asio.cpp
-      ${_DEPS}/IPlug/RTAudio/include/asiodrivers.cpp
-      ${_DEPS}/IPlug/RTAudio/include/asiolist.cpp
-      ${_DEPS}/IPlug/RTAudio/include/iasiothiscallresolver.cpp
-      ${_DEPS}/IPlug/RTMidi/rtmidi_c.cpp
+      ${IPLUG_DEPS}/RTAudio/include/asio.cpp
+      ${IPLUG_DEPS}/RTAudio/include/asiodrivers.cpp
+      ${IPLUG_DEPS}/RTAudio/include/asiolist.cpp
+      ${IPLUG_DEPS}/RTAudio/include/iasiothiscallresolver.cpp
+      ${IPLUG_DEPS}/RTMidi/rtmidi_c.cpp
     LINK dsound.lib winmm.lib
   )
 
@@ -133,7 +133,7 @@ function(iplug2_configure_app target)
       OUTPUT_NAME "${IPLUG_APP_NAME}"
       RUNTIME_OUTPUT_DIRECTORY "${IPLUG_APP_NAME}-app"
     )
-    iplug_target_bundle_resources(${target} "${res_dir}")
+    iplug2_target_bundle_resources(${target} "${res_dir}")
 
   endif()
 endfunction()

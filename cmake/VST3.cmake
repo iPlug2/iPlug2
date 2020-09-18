@@ -101,6 +101,7 @@ if (NOT (CMAKE_SYSTEM_NAME MATCHES "Linux"))
     "${sdk}/timer.cpp"
     "${sdk}/timer.h"
   )
+  list(APPEND _def "SMTG_OS_LINUX")
 endif()
 
 set(sdk "${VST3_SDK_DIR}/base/thread")
@@ -157,7 +158,7 @@ iplug2_target_add(${tgt} INTERFACE SOURCE ${_inf} DEFINE ${_def})
 
 function(iplug2_configure_vst3 target)
 
-  set(res_dir "${CMAKE_BINARY_DIR}/${IPLUG_APP_NAME}.vst3/Resources")
+  set(res_dir "${CMAKE_BINARY_DIR}/${IPLUG_APP_NAME}.vst3/Contents/Resources")
 
   if (WIN32)
     # Use .vst3 as the extension instead of .dll
@@ -194,7 +195,7 @@ function(iplug2_configure_vst3 target)
       PREFIX ""
       SUFFIX ".so"
     )
-    iplug_target_bundle_resources(${target} "${res_dir}")
+    iplug2_target_bundle_resources(${target} "${res_dir}")
     
   endif()
 endfunction()

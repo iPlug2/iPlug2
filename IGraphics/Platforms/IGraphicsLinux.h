@@ -15,6 +15,8 @@
 #include <xcbt.h>
 
 BEGIN_IPLUG_NAMESPACE
+class Timer;
+
 BEGIN_IGRAPHICS_NAMESPACE
 
 /** IGraphics platform class for linux
@@ -101,6 +103,7 @@ private:
   void               *mBaseWindowData;
 
   xcb_timestamp_t     mLastLeftClickStamp; // it will be not zero in case there is a chance for double click
+  Timer *mTimer = nullptr;
 
   void Paint();
   inline IMouseInfo GetMouseInfo(int16_t x, int16_t y, int16_t state);

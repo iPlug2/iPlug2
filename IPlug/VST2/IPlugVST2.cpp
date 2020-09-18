@@ -499,7 +499,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         xcbt_embed_idle_cb(_this->mEmbed);
       }
 //    #ifdef USE_IDLE_CALLS
-//    _this->OnIdle();
+    _this->OnIdle();
 //    #endif
       return 0;
     }

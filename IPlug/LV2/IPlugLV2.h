@@ -14,7 +14,7 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
-#include "lv2/core/lv2.h"
+#include <lv2/lv2plug.in/ns/lv2core/lv2.h>
 #include <vector>
 
 BEGIN_IPLUG_NAMESPACE
@@ -83,7 +83,7 @@ private:
 
 #ifdef IPLUG_EDITOR
 
-#include "lv2/ui/ui.h"
+#include <lv2/lv2plug.in/ns/ext/ui/ui.h>
 #include "xcbt.h"
 
 /** Used to pass various instance info to the API class */

@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.11)
 find_package(Emscripten REQUIRED)
 
 set(sdk ${IPLUG2_DIR}/IPlug/WEB)
-set(WAM_SDK_PATH ${_DEPS}/IPlug/WAM_SDK)
-set(WAM_AWP_PATH ${_DEPS}/IPlug/WAM_AWP)
+set(WAM_SDK_PATH ${IPLUG_DEPS}/IPlug/WAM_SDK)
+set(WAM_AWP_PATH ${IPLUG_DEPS}/IPlug/WAM_AWP)
 
 set(_opt "-Wno-bitwise-op-parentheses")
 set(_def "WDL_NO_DEFINE_MINMAX")
@@ -57,3 +57,11 @@ target_link_options(iPlug2_WAM INTERFACE
 add_library(iPlug2_Canvas INTERFACE)
 iplug2_target_add(iPlug2_Canvas INTERFACE
   DEFINE "IGRAPHICS_CANVAS")
+
+function(iplug2_configure_web target)
+  message("WEB not yet implemented" FATAL_ERROR)
+endfunction()
+
+function(iplug2_configure_wam)
+  message("WAM not yet implemented" FATAL_ERROR)
+endfunction(iplug2_configure_wam)

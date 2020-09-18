@@ -12,6 +12,7 @@
 
 #include <cstring>
 #include <cstdint>
+#include <atomic>
 #include <memory>
 
 #include "ptrlist.h"

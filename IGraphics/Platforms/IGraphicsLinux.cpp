@@ -23,6 +23,7 @@
 #include "IGraphicsLinux.h"
 #include "IPopupMenuControl.h"
 #include "IPlugPaths.h"
+#include "IPlugTimer.h"
 
 #ifdef OS_LINUX
   #ifdef IGRAPHICS_GL
@@ -121,7 +122,7 @@ void IGraphicsLinux::TimerHandler(int timer_id){
       Paint();
       SetAllControlsClean();
     }
-    xcbt_timer_set(mX, IPLUG_TIMER_ID, 20, (xcbt_timer_cb)TimerHandlerProxy, this);
+    xcbt_timer_set(mX, IPLUG_TIMER_ID, 10, (xcbt_timer_cb)TimerHandlerProxy, this);
   }
 }
 
@@ -363,7 +364,9 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
     xcbt_window_draw_stop(mPlugWnd);
   }
 
-  xcbt_timer_set(mX, IPLUG_TIMER_ID, 20, (xcbt_timer_cb)TimerHandlerProxy, this);
+  xcbt_timer_set(mX, IPLUG_TIMER_ID, 10, (xcbt_timer_cb)TimerHandlerProxy, this);
+
+  //mTimer = Timer::Create([this](Timer& timer) { xcbt_embed_idle_cb(mEmbed); }, 10);
 
 #ifdef APP_API
   xcbt_window_map(mPlugWnd);
@@ -393,6 +396,11 @@ void IGraphicsLinux::CloseWindow()
     mPlugWnd = NULL;
     xcbt_disconnect(mX);
     mX = NULL;
+  }
+  if (mTimer)
+  {
+    delete mTimer;
+    mTimer = nullptr;
   }
   mEmbed = nullptr; // TODO: memory leak!
 }

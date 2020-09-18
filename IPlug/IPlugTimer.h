@@ -99,7 +99,9 @@ public:
   ~Timer_impl();
 
   void Stop() override;
+  void Execute();
   static void NotifyCallback(union sigval v);
+
 
 private:
   static WDL_Mutex sMutex;
