@@ -60,3 +60,65 @@ div.line {
     vertical-align: middle;
     margin-right: 5px
 }
+
+/* Show member parameters on a single line */
+table.memname tr {
+	float: left;
+}
+
+h2.groupheader {
+	font-size: 125%;
+}
+
+.icon {
+    height: 20px;
+    font: 600 11px/21px Roboto, Arial, Helvetica, sans-serif;
+}
+
+body, div, p, p.reference, p.definition, .mdescRight, .section.see, .desc, .entry {
+	font: 400 13px/21px Roboto, Arial, Helvetica, sans-serif;
+}
+
+dt {
+	font-weight: bold;
+}
+
+.title {
+	line-height: 20px;
+	font-size: 125%;
+}
+
+div.line {
+	font: 300 12px/18px Cascadia Code, Cascadia Mono, Consolas, DejaVu Sans Mono, Monospace;
+	background-color: white;
+}
+.memproto, table, dl, .paramname, td {
+	font: 300 13px/19px Cascadia Code, Cascadia Mono, Consolas, DejaVu Sans Mono, Monospace;
+}
+
+tt, code, kbd, samp {
+	font: 300 13px/19px Cascadia Code, Cascadia Mono, Consolas, DejaVu Sans Mono, Monospace;
+    display: inline-block;
+    direction: ltr;
+}
+
+.memtitle {
+	font: 600 13px/19px Cascadia Code, Cascadia Mono, Consolas, DejaVu Sans Mono, Monospace;
+}
+
+.memname {
+    font-weight: 300;
+    margin-left: 6px;
+}
+.memTemplParams, .memtemplate { font-size: 90%; }
+
+.overload {
+    font-family: "Courier New", Courier, Monospace;
+    font-size: 80%;
+}
+
+div.ingroups {
+    font-size: 9pt;
+    width: 50%;
+    text-align: left;
+}
