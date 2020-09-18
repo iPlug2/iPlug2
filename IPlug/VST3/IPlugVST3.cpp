@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -21,6 +21,7 @@ using namespace Vst;
 IPlugVST3::IPlugVST3(const InstanceInfo& info, const Config& config)
 	: IPlugAPIBase(config, kAPIVST3)
 	, IPlugVST3ProcessorBase(config, *this)
+	, IPlugVST3ControllerBase(parameters)
 	, mView(nullptr)
 {
 	CreateTimer();
@@ -34,17 +35,17 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
 {
 	TRACE
 
-	if (SingleComponentEffect::initialize(context) == kResultOk)
-	{
-		IPlugVST3ProcessorBase::Initialize(this);
-		IPlugVST3ControllerBase::Initialize(this, parameters, IsInstrument(), DoesMIDIIn());
+		if (SingleComponentEffect::initialize(context) == kResultOk)
+		{
+			IPlugVST3ProcessorBase::Initialize(this);
+			IPlugVST3ControllerBase::Initialize(this, IsInstrument(), DoesMIDIIn());
 
-		IPlugVST3GetHost(this, context);
-		OnHostIdentified();
-		OnParamReset(kReset);
+			IPlugVST3GetHost(this, context);
+			OnHostIdentified();
+			OnParamReset(kReset);
 
-		return kResultOk;
-	}
+			return kResultOk;
+		}
 
 	return kResultFalse;
 }
@@ -53,7 +54,7 @@ tresult PLUGIN_API IPlugVST3::terminate()
 {
 	TRACE
 
-	return SingleComponentEffect::terminate();
+		return SingleComponentEffect::terminate();
 }
 
 tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* pInputBusArrangements,
@@ -63,17 +64,17 @@ tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* pInputBusAr
 {
 	TRACE
 
-	return IPlugVST3ProcessorBase::SetBusArrangements(
-			   this, pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses)
-			   ? kResultTrue
-			   : kResultFalse;
+		return IPlugVST3ProcessorBase::SetBusArrangements(
+			this, pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses)
+		? kResultTrue
+		: kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::setActive(TBool state)
 {
 	TRACE
 
-	OnActivate((bool) state);
+		OnActivate((bool) state);
 	return SingleComponentEffect::setActive(state);
 }
 
@@ -81,7 +82,7 @@ tresult PLUGIN_API IPlugVST3::setupProcessing(ProcessSetup& newSetup)
 {
 	TRACE
 
-	return SetupProcessing(newSetup, processSetup) ? kResultOk : kResultFalse;
+		return SetupProcessing(newSetup, processSetup) ? kResultOk : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::setProcessing(TBool state)
@@ -95,14 +96,14 @@ tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 {
 	TRACE
 
-	Process(data,
-			processSetup,
-			audioInputs,
-			audioOutputs,
-			mMidiMsgsFromEditor,
-			mMidiMsgsFromProcessor,
-			mSysExDataFromEditor,
-			mSysexBuf);
+		Process(data,
+				processSetup,
+				audioInputs,
+				audioOutputs,
+				mMidiMsgsFromEditor,
+				mMidiMsgsFromProcessor,
+				mSysExDataFromEditor,
+				mSysexBuf);
 	return kResultOk;
 }
 
@@ -115,28 +116,28 @@ tresult PLUGIN_API IPlugVST3::setState(IBStream* pState)
 {
 	TRACE
 
-	return IPlugVST3State::SetState(this, pState) ? kResultOk : kResultFalse;
+		return IPlugVST3State::SetState(this, pState) ? kResultOk : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::getState(IBStream* pState)
 {
 	TRACE
 
-	return IPlugVST3State::GetState(this, pState) ? kResultOk : kResultFalse;
+		return IPlugVST3State::GetState(this, pState) ? kResultOk : kResultFalse;
 }
 
 #pragma mark IEditController overrides
 ParamValue PLUGIN_API IPlugVST3::getParamNormalized(ParamID tag)
 {
-  return IPlugVST3ControllerBase::GetParamNormalized(parameters, tag);
+	return IPlugVST3ControllerBase::GetParamNormalized(tag);
 }
 
 tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
 {
-  if (IPlugVST3ControllerBase::SetParamNormalized(this, parameters, tag, value))
-    return kResultTrue;
-  else
-    return kResultFalse;
+	if (IPlugVST3ControllerBase::SetParamNormalized(this, tag, value))
+		return kResultTrue;
+	else
+		return kResultFalse;
 }
 
 IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
@@ -229,8 +230,8 @@ void IPlugVST3::DirtyParametersFromUI()
 
 void IPlugVST3::SendParameterValueFromUI(int paramIdx, double normalisedValue)
 {
-  IPlugVST3ControllerBase::SetVST3ParamNormalized(parameters, paramIdx, normalisedValue);
-  IPlugAPIBase::SendParameterValueFromUI(paramIdx, normalisedValue);
+	IPlugVST3ControllerBase::SetVST3ParamNormalized(paramIdx, normalisedValue);
+	IPlugAPIBase::SendParameterValueFromUI(paramIdx, normalisedValue);
 }
 
 void IPlugVST3::SetLatency(int latency)

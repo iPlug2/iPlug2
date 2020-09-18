@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -17,10 +17,11 @@ using namespace Steinberg;
 using namespace Vst;
 
 IPlugVST3Controller::IPlugVST3Controller(const InstanceInfo& info, const Config& config)
-  : IPlugAPIBase(config, kAPIVST3),
-	mPlugIsInstrument(config.plugType == EIPlugPluginType::Instrument),
-	mDoesMidiIn(config.plugDoesMidiIn),
-	mProcessorGUID(info.mOtherGUID)
+	: IPlugAPIBase(config, kAPIVST3)
+	, mPlugIsInstrument(config.plugType == EIPlugPluginType::Instrument)
+	, mDoesMidiIn(config.plugDoesMidiIn)
+	, mProcessorGUID(info.mOtherGUID)
+	, IPlugVST3ControllerBase(parameters)
 {
 	CreateTimer();
 }
@@ -31,20 +32,20 @@ IPlugVST3Controller::~IPlugVST3Controller() {}
 
 tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 {
-  if (EditControllerEx1::initialize(context) == kResultTrue)
-  {
-    Initialize(this, parameters, mPlugIsInstrument, mDoesMidiIn);
-    IPlugVST3GetHost(this, context);
-    OnHostIdentified();
-    OnParamReset(kReset);
-    
-    // Load iplug parameters into the GUI thread visible values
-    
-    for (int i = 0; i < NParams(); ++i)
-      parameters.getParameter(i)->setNormalized(GetParam(i)->GetNormalized());
-    
-    return kResultTrue;
-  }
+	if (EditControllerEx1::initialize(context) == kResultTrue)
+	{
+		Initialize(this, mPlugIsInstrument, mDoesMidiIn);
+		IPlugVST3GetHost(this, context);
+		OnHostIdentified();
+		OnParamReset(kReset);
+
+		// Load iplug parameters into the GUI thread visible values
+
+		for (int i = 0; i < NParams(); ++i)
+			parameters.getParameter(i)->setNormalized(GetParam(i)->GetNormalized());
+
+		return kResultTrue;
+	}
 
 	return kResultFalse;
 }
@@ -79,15 +80,15 @@ tresult PLUGIN_API IPlugVST3Controller::getState(IBStream* pState)
 
 ParamValue PLUGIN_API IPlugVST3Controller::getParamNormalized(ParamID tag)
 {
-  return IPlugVST3ControllerBase::GetParamNormalized(parameters, tag);
+	return IPlugVST3ControllerBase::GetParamNormalized(tag);
 }
 
 tresult PLUGIN_API IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
 {
-  if (IPlugVST3ControllerBase::SetParamNormalized(this, parameters, tag, value))
-    return kResultTrue;
-  else
-    return kResultFalse;
+	if (IPlugVST3ControllerBase::SetParamNormalized(this, tag, value))
+		return kResultTrue;
+	else
+		return kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment(Steinberg::int32 busIndex,
@@ -170,7 +171,7 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
 	if (!strcmp(message->getMessageID(), "SCVFD"))
 	{
 		Steinberg::int64 ctrlTag = kNoTag;
-		double normalizedValue   = 0.;
+		double normalizedValue = 0.;
 
 		if (message->getAttributes()->getInt("CT", ctrlTag) == kResultFalse)
 			return kResultFalse;
@@ -184,7 +185,7 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
 	{
 		const void* data;
 		Steinberg::int64 ctrlTag = kNoTag;
-		Steinberg::int64 msgTag  = kNoTag;
+		Steinberg::int64 msgTag = kNoTag;
 
 		if (message->getAttributes()->getInt("CT", ctrlTag) == kResultFalse)
 			return kResultFalse;
@@ -225,7 +226,7 @@ tresult PLUGIN_API IPlugVST3Controller::notify(IMessage* message)
 		{
 			if (message->getAttributes()->getInt("O", offset) == kResultOk)
 			{
-				ISysEx msg {static_cast<int>(offset), static_cast<const uint8_t*>(data), static_cast<int>(size)};
+				ISysEx msg{static_cast<int>(offset), static_cast<const uint8_t*>(data), static_cast<int>(size)};
 				SendSysexMsgFromDelegate(msg);
 			}
 		}
@@ -268,9 +269,9 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int da
 
 	if (dataSize == 0)  // allow sending messages with no data
 	{
-		dataSize      = 1;
+		dataSize = 1;
 		uint8_t dummy = 0;
-		pData         = &dummy;
+		pData = &dummy;
 	}
 
 	message->setMessageID("SAMFUI");
@@ -282,6 +283,6 @@ void IPlugVST3Controller::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int da
 
 void IPlugVST3Controller::SendParameterValueFromUI(int paramIdx, double normalisedValue)
 {
-  IPlugVST3ControllerBase::SetVST3ParamNormalized(parameters, paramIdx, normalisedValue);
-  IPlugAPIBase::SendParameterValueFromUI(paramIdx, normalisedValue);
+	IPlugVST3ControllerBase::SetVST3ParamNormalized(paramIdx, normalisedValue);
+	IPlugAPIBase::SendParameterValueFromUI(paramIdx, normalisedValue);
 }

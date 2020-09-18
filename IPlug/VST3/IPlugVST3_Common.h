@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
+
  This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
- 
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -32,16 +32,16 @@ struct IPlugVST3State
 		if (pPlug->SerializeState(chunk))
 		{
 			/*
-       int chunkSize = chunk.Size();
-       void* data = (void*) &chunkSize;
-       state->write(data, (Steinberg::int32) sizeof(int));*/
+	   int chunkSize = chunk.Size();
+	   void* data = (void*) &chunkSize;
+	   state->write(data, (Steinberg::int32) sizeof(int));*/
 			pState->write(chunk.GetData(), chunk.Size());
 		}
 		else
 			return false;
 
 		Steinberg::int32 toSaveBypass = pPlug->GetBypassed() ? 1 : 0;
-		pState->write(&toSaveBypass, sizeof(Steinberg::int32));
+		pState->write(&toSaveBypass, sizeof (Steinberg::int32));
 
 		return true;
 	};
@@ -51,7 +51,7 @@ struct IPlugVST3State
 	{
 		TRACE
 
-		IByteChunk chunk;
+			IByteChunk chunk;
 
 		const int bytesPerBlock = 128;
 		char buffer[bytesPerBlock];
@@ -59,7 +59,7 @@ struct IPlugVST3State
 		while (true)
 		{
 			Steinberg::int32 bytesRead = 0;
-			auto status                = pState->read(buffer, (Steinberg::int32) bytesPerBlock, &bytesRead);
+			auto status = pState->read(buffer, (Steinberg::int32) bytesPerBlock, &bytesRead);
 
 			if (bytesRead <= 0 || (status != Steinberg::kResultTrue && pPlug->GetHost() != kHostWaveLab))
 				break;
@@ -71,7 +71,7 @@ struct IPlugVST3State
 		Steinberg::int32 savedBypass = 0;
 
 		pState->seek(pos, Steinberg::IBStream::IStreamSeekMode::kIBSeekSet);
-		if (pState->read(&savedBypass, sizeof(Steinberg::int32)) != Steinberg::kResultOk)
+		if (pState->read (&savedBypass, sizeof (Steinberg::int32)) != Steinberg::kResultOk)
 		{
 			return false;
 		}
@@ -79,10 +79,7 @@ struct IPlugVST3State
 		IPlugVST3ControllerBase* pController = dynamic_cast<IPlugVST3ControllerBase*>(pPlug);
 
 		if (pController)
-		{
-			if (pController->mBypassParameter)
-				pController->mBypassParameter->setNormalized(savedBypass);
-		}
+			pController->UpdateParams(pPlug, savedBypass);
 
 		pPlug->OnRestoreState();
 
