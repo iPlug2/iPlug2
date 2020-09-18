@@ -139,7 +139,9 @@ public:
   Steinberg::tresult PLUGIN_API removed() override
   {
     if (mOwner.HasUI())
+    {
       mOwner.CloseWindow();
+    }
     
     return CPluginView::removed();
   }
@@ -154,7 +156,9 @@ public:
   Steinberg::tresult PLUGIN_API setFrame (Steinberg::IPlugFrame* frame) override 
   { 
   #ifdef OS_LINUX
-    mOwner.SetIntegration(iplug::IPlugVST3_EmbedFactory(frame));
+    auto rloop = iplug::IPlugVST3_RunLoop::Create(frame);
+    rloop->CreateTimer([&]() { mOwner.OnIdle(); }, 20);
+    mOwner.SetIntegration(rloop);
   #endif
   
     return CPluginView::setFrame(frame);

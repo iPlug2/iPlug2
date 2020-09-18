@@ -1,6 +1,7 @@
 #include "IPlugInstrument.h"
 #include "IPlug_include_in_plug_src.h"
 #include "LFO.h"
+#include <time.h>
 
 IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
@@ -97,8 +98,32 @@ void IPlugInstrument::ProcessBlock(sample** inputs, sample** outputs, int nFrame
   mLFOVisSender.PushData({kCtrlTagLFOVis, {float(mDSP.mLFO.GetLastOutput())}});
 }
 
+static uint64_t _time = 0;
+static uint64_t _avg = 0;
+static uint64_t _count = 0;
+static void log_idle_avg()
+{
+  uint64_t now;
+  struct timespec t;
+  clock_gettime(CLOCK_MONOTONIC, &t);
+  now = (t.tv_sec * 1000) + (t.tv_nsec / 1000000);
+  
+  if (_time == 0) {
+    _time = now;
+  } else {
+    uint64_t diff = now - _time;
+    _avg = (_avg + diff) / 2;
+    _time = now;
+  }
+  _count ++;
+  if (_count % 100 == 0) {
+    printf("Average msec between idle calls: %u\n", _avg);
+  }
+}
+
 void IPlugInstrument::OnIdle()
 {
+  //log_idle_avg();
   mMeterSender.TransmitData(*this);
   mLFOVisSender.TransmitData(*this);
 }

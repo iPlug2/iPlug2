@@ -397,12 +397,11 @@ void IGraphicsLinux::CloseWindow()
     xcbt_disconnect(mX);
     mX = NULL;
   }
-  if (mTimer)
+  if (mEmbed)
   {
-    delete mTimer;
-    mTimer = nullptr;
+    mEmbed->dtor(mEmbed);
+    mEmbed = nullptr;
   }
-  mEmbed = nullptr; // TODO: memory leak!
 }
 
 EMsgBoxResult IGraphicsLinux::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
