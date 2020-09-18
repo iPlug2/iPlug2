@@ -392,6 +392,9 @@ public:
   /** Checks a file extension and reports whether this drawing API supports loading that extension */
   virtual bool BitmapExtSupported(const char* ext) = 0;
   
+  /** NanoVG only */
+  virtual void DrawFastDropShadow(const IRECT& innerBounds, const IRECT& outerBounds, float xyDrop = 5.f, float roundness = 0.f, float blur = 10.f, IBlend* pBlend = nullptr) { /* NO-OP*/ }
+  
 #pragma mark - Base implementation - drawing helpers
 
   /** Draws a bitmap into the graphics context. NOTE: this helper method handles multi-frame bitmaps, indexable via frame
