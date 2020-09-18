@@ -196,25 +196,7 @@ protected:
   void DrawDropShadow(IGraphics& g, const IRECT& r)
   {
   #ifdef IGRAPHICS_NANOVG
-    const float yDrop = 2.0;
-
-    auto NanoVGColor = [](const IColor& color, const IBlend* pBlend = nullptr) {
-      NVGcolor c;
-      c.r = (float) color.R / 255.0f;
-      c.g = (float) color.G / 255.0f;
-      c.b = (float) color.B / 255.0f;
-      c.a = (BlendWeight(pBlend) * color.A) / 255.0f;
-      return c;
-    };
-
-    NVGcontext* vg = (NVGcontext*) g.GetDrawContext();
-    NVGpaint shadowPaint = nvgBoxGradient(vg, r.L, r.T + yDrop, r.W(), r.H(), mRoundness * 2.f, 20.f, NanoVGColor(COLOR_BLACK_DROP_SHADOW, &mBlend), NanoVGColor(COLOR_TRANSPARENT));
-    nvgBeginPath(vg);
-    nvgRect(vg, mBubbleBounds.L, mBubbleBounds.T, mBubbleBounds.W(), mBubbleBounds.H());
-    nvgFillPaint(vg, shadowPaint);
-    nvgGlobalCompositeOperation(vg, NVG_SOURCE_OVER);
-    nvgFill(vg);
-    nvgBeginPath(vg); // Clear the paths
+    g.DrawFastDropShadow(r, mBubbleBounds, 2.0, mRoundness, 20.f, &mBlend);
   #else
 //    if (!g.CheckLayer(mShadowLayer))
 //    {
