@@ -14,6 +14,8 @@ find_file(VST2_64_PATH
 
 set(sdk ${IPLUG2_DIR}/IPlug/VST2)
 
+message("Compiler ${CMAKE_C_COMPILER_ID}")
+
 add_library(iPlug2_VST2 INTERFACE)
 iplug2_target_add(iPlug2_VST2 INTERFACE
   INCLUDE ${sdk} ${IPLUG_DEPS}/VST2_SDK
@@ -25,6 +27,9 @@ if (OS_LINUX)
   iplug2_target_add(iPlug2_VST2 INTERFACE
     DEFINE "SMTG_OS_LINUX"
   )
+  if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
+    iplug2_target_add(iPlug2_VST2 INTERFACE DEFINE "__cdecl=__attribute__((__cdecl__))")
+  endif()
 endif()
 
 function(iplug2_configure_vst2 target)
