@@ -27,6 +27,8 @@ if (OS_LINUX)
   iplug2_target_add(iPlug2_VST2 INTERFACE
     DEFINE "SMTG_OS_LINUX"
   )
+  # CMake doesn't like __cdecl, so instead of having people modify their aeffect.h
+  # file, just redefine __cdecl.
   if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
     iplug2_target_add(iPlug2_VST2 INTERFACE DEFINE "__cdecl=__attribute__((__cdecl__))")
   endif()
