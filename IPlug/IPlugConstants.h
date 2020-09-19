@@ -58,18 +58,6 @@ enum EVST3ParamIDs
 #endif
 };
 
-//TODO: these should be in a separate math class/namespace
-//inline constexpr double PI = 3.1415926535897932384626433832795;
-
-/** @brief Magic number for gain to dB conversion.
- * Approximates \f$ 20*log_{10}(x) \f$
- * @see AmpToDB
-*/
-//inline constexpr double AMP_DB = 8.685889638065036553;
-/** @brief Magic number for dB to gain conversion.
- * Approximates \f$ 10^{\frac{x}{20}} \f$
- * @see DBToAmp
-*/
 inline constexpr double DEFAULT_SAMPLE_RATE = 44100;
 inline constexpr int MAX_PRESET_NAME_LEN    = 256;
 
