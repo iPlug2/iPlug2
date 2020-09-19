@@ -411,8 +411,6 @@ endfunction()
 
 function(_iplug_generate_source_groups)
     # Set up source groups for IDE
-#    source_group("Resources" FILES "${IPLUG2_ROOT_PATH}/Dependencies/IPlug/VST3_SDK/public.sdk/source/main/winexport.def")
-#    source_group("Resources" FILES "${IPLUG2_ROOT_PATH}/Dependencies/IPlug/VST3_SDK/public.sdk/source/main/macexport.exp")
 
     get_target_property(_src_list IPlug INTERFACE_SOURCES)
     source_group(TREE "${IPLUG2_ROOT_PATH}" FILES ${_src_list})
@@ -644,15 +642,12 @@ function(_iplug_add_target_lib _target _pluginapi_lib)
     # Add remaining source files
     target_sources(${_libName} PRIVATE ${_src_list})
 
+	# Add IPLUG2_STATIC definition when we're compiling the library
+    target_compile_definitions(${_libName} PRIVATE IPLUG2_STATIC)
+
     # Configure precompiled headers for the static library
     target_precompile_headers(${_libName}
-        PRIVATE
-            "${IPLUG2_ROOT_PATH}/IPlug/IPlugSharedPCH.h"
-    )
-
-    # Configure precompiled headers for the consumer
-    target_precompile_headers(${_target}
-        PRIVATE
+        PUBLIC
             "${IPLUG2_ROOT_PATH}/IPlug/IPlugPCH.h"
     )
 
