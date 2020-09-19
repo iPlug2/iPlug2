@@ -35,6 +35,13 @@
   #define TARGET_REZ_MAC_X86_64     0
 #endif
 
+#undef  TARGET_REZ_MAC_ARM_64
+#if defined(__arm64__) || defined(ARM64_YES)
+  #define TARGET_REZ_MAC_ARM_64     1
+#else
+  #define TARGET_REZ_MAC_ARM_64     0
+#endif
+
 #if TARGET_OS_MAC
    #if TARGET_REZ_MAC_X86 && TARGET_REZ_MAC_X86_64
     #define TARGET_REZ_FAT_COMPONENTS_2 1
@@ -44,6 +51,8 @@
     #define Target_PlatformType     platformIA32NativeEntryPoint
   #elif TARGET_REZ_MAC_X86_64
     #define Target_PlatformType     platformX86_64NativeEntryPoint
+  #elif TARGET_REZ_MAC_ARM_64
+    #define Target_PlatformType     platformArm64NativeEntryPoint
   #else
     #error you gotta target something
   #endif
