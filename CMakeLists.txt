@@ -319,17 +319,12 @@ target_link_libraries(IPlug_WEB   INTERFACE                                     
 
 if(NOT IPLUG2_EXTERNAL_PROJECT)
     file(GLOB EXAMPLES_LIST LIST_DIRECTORIES TRUE RELATIVE "${IPLUG2_ROOT_PATH}/Examples/" "Examples/*")
-
     foreach(_str IN LISTS EXAMPLES_LIST)
-        if(NOT IS_DIRECTORY "${IPLUG2_ROOT_PATH}/Examples/${_str}")
-            list(REMOVE_ITEM EXAMPLES_LIST ${_str})
-        endif()
-    endforeach()
-
-    foreach(_example IN LISTS EXAMPLES_LIST)
-        if(EXISTS "${IPLUG2_ROOT_PATH}/Examples/${_example}/CMakeLists.txt")
-            add_subdirectory("${IPLUG2_ROOT_PATH}/Examples/${_example}")
-            iplug_info("Added example project '${_example}'")
+        if(IS_DIRECTORY "${IPLUG2_ROOT_PATH}/Examples/${_str}")
+            if(EXISTS "${IPLUG2_ROOT_PATH}/Examples/${_str}/CMakeLists.txt")
+                add_subdirectory("${IPLUG2_ROOT_PATH}/Examples/${_str}")
+                iplug_info("Added example project '${_str}'")
+            endif()
         endif()
     endforeach()
 endif()
