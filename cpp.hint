@@ -71,3 +71,12 @@
 #define glViewport
 #define DEBUG_ASSERT(expr) ((expr) ? ((void) 0) : (DEBUGBREAK()))
 #define DEBUG_ASSERT(expr) assert(expr)
+#define PLATFORM_NAME
+#define PLATFORM_PTHREADS
+#define PLATFORM_64BIT
+#define PLATFORM_LINUX
+#define PLATFORM_MAC
+#define PLATFORM_WEB
+#define PLATFORM_LITTLE_ENDIAN
+#define CACHE_ALIGN(x) __declspec(align(x))
+#define CACHE_ALIGN(x) __attribute__((aligned(x)))
