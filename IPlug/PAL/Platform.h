@@ -8,8 +8,10 @@
  ==============================================================================
 */
 
+
 #pragma once
 
+// Required std includes for platform.h
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
@@ -76,10 +78,13 @@ namespace iplug::generic
 	#define PLATFORM_LITTLE_ENDIAN 0
 #endif
 
-#if defined(PLATFORM_CACHE_LINE_SIZE) && !defined(PLATFORM_CACHE_ALIGN)
-	#undef PLATFORM_CACHE_LINE_SIZE
-#elif !defined(PLATFORM_CACHE_LINE_SIZE) && defined(PLATFORM_CACHE_ALIGN)
+#ifndef PLATFORM_CACHE_LINE_SIZE
 	#define PLATFORM_CACHE_LINE_SIZE 64
+#endif
+
+#if PLATFORM_CACHE_LINE_SIZE != 16 && PLATFORM_CACHE_LINE_SIZE != 32 && PLATFORM_CACHE_LINE_SIZE != 64 && \
+	PLATFORM_CACHE_LINE_SIZE != 128
+	#error "Invalid PLATFORM_CACHE_LINE_SIZE set. Must be 16, 32, 64 or 128"
 #endif
 
 #ifndef PLATFORM_PTHREADS
@@ -168,7 +173,83 @@ namespace iplug
 	{
 		return sizeof(uint8(&)[sizeof(array) / sizeof(array[0])]);
 	}
+
+	//-----------------------------------------------------------------------------
+	// Enum class helpers with compile-time information
+	// Can be used to for replacing #ifdef/#endif with 'if constexpr(ENUM::Native == ENUM::Value){...}'
+
+	enum class ECompiler
+	{   // clang-format off
+		Emscripten,
+		MSVC,
+		Clang,
+		AppleClang,
+		GCC,
+		Native  = (PLATFORM_COMPILER_EMSCRIPTEN) ? Emscripten
+				: (PLATFORM_COMPILER_MSVC)       ? MSVC
+				: (PLATFORM_COMPILER_GCC)        ? GCC
+				: (PLATFORM_COMPILER_CLANG)      ? Clang : AppleClang
+		// clang-format on
+	};
+
+	enum class EArch
+	{
+		_32bit,
+		_64bit,
+		Native = (PLATFORM_64BIT == 1) ? _64bit : _32bit
+	};
+
+	enum class EPlatform
+	{   // clang-format off
+		Windows = 0x10,
+		MacOS   = 0x20,
+		iOS     = 0x30,
+		Linux   = 0x40,
+		Web     = 0x50,
+		Native  = (PLATFORM_WINDOWS) ? Windows
+				: (PLATFORM_LINUX)   ? Linux
+				: (PLATFORM_MAC)     ? MacOS
+				: (PLATFORM_IOS)     ? iOS : Web
+		// clang-format on
+	};
+
+	enum class EEndian
+	{
+		Little = 0x10,
+		Big    = 0x20,
+		Native = (PLATFORM_LITTLE_ENDIAN == 1) ? Little : Big
+	};
+
+	enum class EPThreads
+	{
+		Enabled,
+		Disabled,
+		Native = (PLATFORM_PTHREADS == 1) ? Enabled : Disabled
+	};
+
+	enum class ECacheLineSize
+	{   // clang-format off
+		_16,
+		_32,
+		_64,
+		_128,
+		Native = (PLATFORM_CACHE_LINE_SIZE == 16) ? _16
+			   : (PLATFORM_CACHE_LINE_SIZE == 32) ? _32
+			   : (PLATFORM_CACHE_LINE_SIZE == 64) ? _64 : _128
+		// clang-format on
+	};
 }  // namespace iplug
+
+// Cleanup, but keeping PLATFORM_NAME & PLATFORM_<ID>
+#undef PLATFORM_CACHE_LINE_SIZE
+#undef PLATFORM_LITTLE_ENDIAN
+#undef PLATFORM_64BIT
+#undef PLATFORM_PTHREADS
+#undef PLATFORM_COMPILER_APPLECLANG
+#undef PLATFORM_COMPILER_EMSCRIPTEN
+#undef PLATFORM_COMPILER_MSVC
+#undef PLATFORM_COMPILER_GCC
+#undef PLATFORM_COMPILER_CLANG
 
 
 namespace iplug::type
@@ -279,23 +360,3 @@ namespace iplug::type
 
 	// clang-format on
 }  // namespace iplug::type
-
-
-// Temporary
-namespace iplug::generic
-{
-	struct Platform
-	{
-		inline static constexpr bool IsLittleEndian()
-		{
-			return (PLATFORM_LITTLE_ENDIAN == 1);
-		}
-	};
-}  // namespace iplug::generic
-
-namespace iplug
-{
-	struct Platform final : public iplug::generic::Platform
-	{
-	};
-}  // namespace iplug
