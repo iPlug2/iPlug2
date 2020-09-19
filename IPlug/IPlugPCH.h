@@ -52,7 +52,7 @@
 	#include <bit>
 #endif
 
-#undef __alignas_is_defined  // make sure alignas isn't defined as a macro
+#undef alignas  // make sure alignas isn't defined as a macro
 
 BEGIN_INCLUDE_DEPENDENCIES
 #define WDL_NO_SUPPORT_UTF8
