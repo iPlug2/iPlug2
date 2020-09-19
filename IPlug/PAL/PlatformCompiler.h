@@ -13,16 +13,24 @@
 //---------------------------------------------------------
 // Compiler detection
 
+#define PLATFORM_COMPILER_EMSCRIPTEN 0
 #define PLATFORM_COMPILER_MSVC       0
 #define PLATFORM_COMPILER_GCC        0
 #define PLATFORM_COMPILER_CLANG      0
+#define PLATFORM_COMPILER_APPLECLANG 0
 
-#if _MSC_VER && !defined __clang__
+#if defined __EMSCRIPTEN__
+	#undef PLATFORM_COMPILER_EMSCRIPTEN
+	#define PLATFORM_COMPILER_EMSCRIPTEN 1
+#elif _MSC_VER && !defined __clang__
 	#undef PLATFORM_COMPILER_MSVC
 	#define PLATFORM_COMPILER_MSVC 1
 #elif defined __GNUC__ && !defined __clang__
 	#undef PLATFORM_COMPILER_GCC
 	#define PLATFORM_COMPILER_GCC 1
+#elif defined __clang__ && defined __apple_build_version__
+	#undef PLATFORM_COMPILER_APPLECLANG
+	#define PLATFORM_COMPILER_APPLECLANG 1
 #elif defined __clang__
 	#undef PLATFORM_COMPILER_CLANG
 	#define PLATFORM_COMPILER_CLANG 1
@@ -41,7 +49,7 @@
 	#define IPLUG_APIENTRY    __stdcall
 	#define NOINLINE          __declspec(noinline)
 	#define CACHE_ALIGN(x)    __declspec(align(x))
-#elif PLATFORM_COMPILER_GCC || PLATFORM_COMPILER_CLANG
+#elif PLATFORM_COMPILER_GCC || PLATFORM_COMPILER_CLANG || PLATFORM_COMPILER_APPLECLANG
 	#define PRAGMA(...)       _Pragma(__VA_ARGS__)
 	#define IPLUG_APIENTRY
 	#define NOINLINE          __attribute__((noinline))
@@ -256,7 +264,7 @@
 //---------------------------------------------------------
 // Additional Clang Settings
 
-#if PLATFORM_COMPILER_CLANG
+#if PLATFORM_COMPILER_CLANG || PLATFORM_COMPILER_APPLECLANG
 
 	#define BEGIN_INCLUDE_DEPENDENCIES                                                            \
 		_Pragma("clang diagnostic push")                                                          \
