@@ -71,7 +71,7 @@
   AVAudioFormat* format = [mainMixer outputFormatForBus:0];
   [audioEngine attachNode:avAudioUnit];
   
-#if PLUG_TYPE==0
+#if PLUG_TYPE==Effect
   [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: format];
 #endif
   [audioEngine connect:avAudioUnit to:audioEngine.outputNode format: format];

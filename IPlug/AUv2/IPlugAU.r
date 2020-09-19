@@ -72,15 +72,15 @@
 #define RES_ID 1000
 #define RES_NAME PLUG_MFR ": " PLUG_PUBLIC_NAME
 
-#if PLUG_TYPE==0
+#if PLUG_TYPE==Effect
 #if PLUG_DOES_MIDI_IN
 #define COMP_TYPE kAudioUnitType_MusicEffect
 #else
 #define COMP_TYPE kAudioUnitType_Effect
 #endif
-#elif PLUG_TYPE==1
+#elif PLUG_TYPE==Instrument
 #define COMP_TYPE kAudioUnitType_MusicDevice
-#elif PLUG_TYPE==2
+#elif PLUG_TYPE==MIDIEffect
 #define COMP_TYPE 'aumi'
 #endif
 

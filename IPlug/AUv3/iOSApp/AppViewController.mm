@@ -52,15 +52,15 @@
   
   AudioComponentDescription desc;
 
-#if PLUG_TYPE==0
+#if PLUG_TYPE==Effect
 #if PLUG_DOES_MIDI_IN
   desc.componentType = kAudioUnitType_MusicEffect;
 #else
   desc.componentType = kAudioUnitType_Effect;
 #endif
-#elif PLUG_TYPE==1
+#elif PLUG_TYPE==Instrument
   desc.componentType = kAudioUnitType_MusicDevice;
-#elif PLUG_TYPE==2
+#elif PLUG_TYPE==MIDIEffect
   desc.componentType = 'aumi';
 #endif
 
