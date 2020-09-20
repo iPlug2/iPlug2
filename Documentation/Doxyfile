@@ -888,25 +888,19 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = ../IGraphics/NanoVG \
-                         ../IGraphics/NanoSVG \
-                         ../IGraphics/freetype \
-                         ../IGraphics/MetalNanoVG \
-                         ../IGraphics/AGG \
-                         ../IGraphics/stb \
-                         ../IPlug/AAX/IPlugAAX_Describe.cpp \
+EXCLUDE                = ../IPlug/AAX/IPlugAAX_Describe.cpp \
                          ../IPlug/AAX/IPlugAAX_Parameters.cpp \
                          ../IPlug/AAX/IPlugAAX_Parameters.h \
                          ../IPlug/AAX/IPlugAAX_TaperDelegate.h \
                          ../IPlug/AAX/IPlugAAX_view_interface.h \
-                         ../IPlug/Extras \
                          ../IPlug/AUv3/BufferedAudioBus.hpp \
                          ../IPlug/AUv3/IPlugAUAudioUnit.h \
                          ../IPlug/AUv3/IPlugAUAudioUnit.mm \
                          ../IPlug/AUv3/IPlugAUViewController.mm \
                          ../IPlug/AUv2/dfx-au-utilities.h \
                          ../IPlug/AUv2/dfx-au-utilities.c \
-                         ../IPlug/AUv2/IPlugAU_view_factory.mm
+                         ../IPlug/AUv2/IPlugAU_view_factory.mm \
+                         ../IGraphics/Controls/Test
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -934,21 +928,12 @@ EXCLUDE_PATTERNS       =
 # exclude all test directories use the pattern */test/*
 
 EXCLUDE_SYMBOLS        = IAutoGUI \
-                         IPlugVST3Parameter \
-                         NChanDelayLine \
-                         IPlugVST3View \
                          AAX_CEffectGUI_IPLUG \
                          CFStrLocal \
                          CStrLocal \
-                         "AudioComponentPlugInInstance	" \
-                         BufferList \
-                         Config \
-                         InstanceInfo \
-                         IPlugVST3View \
                          VIEW_CLASS \
                          ChannelIO \
                          LogFile \
-                         AAX_CIPlugParameters \
                          SingleComponentEffect \
                          IGRAPHICS_FORMATTER \
                          IGRAPHICS_MENU \
@@ -960,15 +945,6 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          CoreTextFont \
                          CCoreTextFontDescriptor \
                          CFLocal \
-                         CanvasFont \
-                         CairoFont \
-                         LICEFontInfo \
-                         SkiaFont \
-                         WebFont \
-                         WebFileFont \
-                         WinFont \
-                         WinFontDescriptor \
-                         WinInstalledFont \
                          IGraphicsIOS_View \
                          LineInfo \
                          StaticStorage \
@@ -986,25 +962,12 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          SWELL_TimerFuncTarget \
                          SWELL_DataHold \
                          pixel_wrapper \
-                         AGGBitmap \
-                         CairoBitmap \
-                         CanvasBitmap \
-                         LICEBitmap \
-                         NanoVGBitmap \
-                         SkiaBitmap \
-                         IFontInfo \
-                         IFontData \
-                         PlatformFont \
                          _D3DKMT_CLOSEADAPTER \
                          _D3DKMT_OPENADAPTERFROMHDC \
                          _D3DKMT_WAITFORVERTICALBLANKEVENT \
-                         AppDelegate \
-                         AppViewController \
                          CoreTextFontDescriptor \
                          GenericUI \
                          IGRAPHICS_UITABLEVC \
-                         IPlugAUPlayer \
-                         IPlugAUViewController
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include
@@ -2280,7 +2243,11 @@ INCLUDE_FILE_PATTERNS  =
 # This tag requires that the tag ENABLE_PREPROCESSING is set to YES.
 
 PREDEFINED             = DOXYGEN_SHOULD_SKIP_THIS \
-                         NO_IGRAPHICS
+                         NO_IGRAPHICS \
+                         "BEGIN_IPLUG_NAMESPACE=\"namespace iplug {\"" \
+                         "END_IPLUG_NAMESPACE=\"}\"" \
+                         "BEGIN_IGRAPHICS_NAMESPACE=\"namespace igraphics {\"" \
+                         "END_IGRAPHICS_NAMESPACE\"}\""
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this
 # tag can be used to specify a list of macro names that should be expanded. The
