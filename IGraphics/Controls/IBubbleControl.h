@@ -48,10 +48,11 @@ public:
    * @param text The IText style to use for the readout
    * @param fillColor The background color of the bubble
    * @param strokeColor The stroke color of the bubble */
-  IBubbleControl(const IText& text = DEFAULT_TEXT.WithAlign(EAlign::Center), const IColor& fillColor = COLOR_WHITE, const IColor& strokeColor = COLOR_BLACK)
+  IBubbleControl(const IText& text = DEFAULT_TEXT.WithAlign(EAlign::Center), const IColor& fillColor = COLOR_WHITE, const IColor& strokeColor = COLOR_BLACK, float roundness = 5.f)
   : IControl(IRECT())
   , mFillColor(fillColor)
   , mStrokeColor(strokeColor)
+  , mRoundness(roundness)
   {
     mText = text;
     mHide = true;
@@ -226,6 +227,11 @@ protected:
 //    g.DrawLayer(mShadowLayer, &mBlend);
   #endif
   }
+  
+  virtual void MeasureText(const char* str, IRECT& contentBounds)
+  {
+    GetUI()->MeasureText(mText, str, contentBounds);
+  }
 
   void ShowBubble(IControl* pCaller, float x, float y, const char* str, EDirection dir, IRECT minimumContentBounds, ITouchID touchID = 0)
   {
@@ -237,13 +243,18 @@ protected:
     
     mStr.Set(str);
     IRECT contentBounds;
-    GetUI()->MeasureText(mText, str, contentBounds);
+    MeasureText(str, contentBounds);
     
     if (!minimumContentBounds.Empty())
     {
-      if(minimumContentBounds.W() > contentBounds.W() || minimumContentBounds.H() > contentBounds.H())
+      if(minimumContentBounds.W() > contentBounds.W())
       {
-        contentBounds = minimumContentBounds;
+        contentBounds.R = contentBounds.L + minimumContentBounds.W();
+      }
+      
+      if(minimumContentBounds.H() > contentBounds.H())
+      {
+        contentBounds.B = contentBounds.T + minimumContentBounds.H();
       }
     }
     
