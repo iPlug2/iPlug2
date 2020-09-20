@@ -215,8 +215,8 @@ namespace iplug
 
 	enum class EEndian
 	{
-		Little = 0x10,
-		Big    = 0x20,
+		Little = 0,
+		Big    = 1,
 		Native = (PLATFORM_LITTLE_ENDIAN == 1) ? Little : Big
 	};
 
