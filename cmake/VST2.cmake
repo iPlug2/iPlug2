@@ -14,8 +14,6 @@ find_file(VST2_64_PATH
 
 set(sdk ${IPLUG2_DIR}/IPlug/VST2)
 
-message("Compiler ${CMAKE_C_COMPILER_ID}")
-
 add_library(iPlug2_VST2 INTERFACE)
 iplug2_target_add(iPlug2_VST2 INTERFACE
   INCLUDE ${sdk} ${IPLUG_DEPS}/VST2_SDK

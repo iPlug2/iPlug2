@@ -1,6 +1,6 @@
 # should be set prior include
 DEBUG = 1
-IGRAPHICS=IGRAPHICS_LICE
+IGRAPHICS=NANOVG_GL2
 
 include ./../../common-linux.mk
 

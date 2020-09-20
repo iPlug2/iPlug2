@@ -186,6 +186,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
     ${WDL_DIR}/swell
   )
   list(APPEND _lib "pthread" "rt")
+  list(APPEND _opts "-Wno-multichar")
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   list(APPEND _src 
