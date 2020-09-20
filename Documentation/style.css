@@ -63,7 +63,20 @@ div.line {
 
 /* Show member parameters on a single line */
 table.memname tr {
+	padding: 0px;
 	float: left;
+}
+
+table.memname td {
+  padding: 0px;
+}
+
+td {
+    padding: 0px;
+}
+
+.params .paramname {
+    padding-right: 12px;
 }
 
 h2.groupheader {
@@ -71,8 +84,8 @@ h2.groupheader {
 }
 
 .icon {
-    height: 20px;
-    font: 600 11px/21px Roboto, Arial, Helvetica, sans-serif;
+    height: 19px;
+    font: 600 12px/21px Roboto, Arial, Helvetica, sans-serif;
 }
 
 body, div, p, p.reference, p.definition, .mdescRight, .section.see, .desc, .entry {
@@ -93,17 +106,17 @@ div.line {
 	background-color: white;
 }
 .memproto, table, dl, .paramname, td {
-	font: 300 13px/19px Cascadia Code, Cascadia Mono, Consolas, DejaVu Sans Mono, Monospace;
+	font: 300 9.5pt/18px Cascadia Code, Cascadia Mono, Consolas, DejaVu Sans Mono, Monospace;
 }
 
 tt, code, kbd, samp {
-	font: 300 13px/19px Cascadia Code, Cascadia Mono, Consolas, DejaVu Sans Mono, Monospace;
+	font: 300 9.5pt/18px Cascadia Code, Cascadia Mono, Consolas, DejaVu Sans Mono, Monospace;
     display: inline-block;
     direction: ltr;
 }
 
 .memtitle {
-	font: 600 13px/19px Cascadia Code, Cascadia Mono, Consolas, DejaVu Sans Mono, Monospace;
+	font: 600 9.5pt/18px Cascadia Code, Cascadia Mono, Consolas, DejaVu Sans Mono, Monospace;
 }
 
 .memname {
