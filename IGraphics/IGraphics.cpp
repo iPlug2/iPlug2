@@ -668,7 +668,7 @@ void IGraphics::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int bmpSt
   return DrawBitmap(bitmap, bounds, srcX, srcY, pBlend);
 }
 
-void IGraphics::DrawBitmapedText(const IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
+void IGraphics::DrawBitmapedText(const IBitmap& bitmap, const IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter, bool multiline, int charWidth, int charHeight, int charOffset)
 {
   if (CStringHasContents(str))
   {

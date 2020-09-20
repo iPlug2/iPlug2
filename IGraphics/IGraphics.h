@@ -412,7 +412,7 @@ public:
    * @param charWidth how wide is a character in the bitmap
    * @param charHeight how high is a character in the bitmap
    * @param charOffset what is the offset between characters drawn */
-  void DrawBitmapedText(const IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
+  void DrawBitmapedText(const IBitmap& bitmap, const IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
 
   /** Draw a vertical line, within a rectangular region of the graphics context
    * @param color The color to draw the line with
