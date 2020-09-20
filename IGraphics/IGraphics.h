@@ -919,7 +919,7 @@ class IGraphics
 	 * return void pointer to platform window or view handle */
 	virtual void* GetWindow() = 0;
 
-	/** @return /c true if the platform window/view is open */
+	/** @retval true if the platform window/view is open */
 	virtual bool WindowIsOpen()
 	{
 		return (GetWindow() != nullptr);
@@ -927,12 +927,12 @@ class IGraphics
 
 	/** Get text from the clipboard
 	 * @param str A WDL_String that will be filled with the text that is currently on the clipboard
-	 * @return /c true on success */
+	 * @retval true on success */
 	virtual bool GetTextFromClipboard(WDL_String& str) = 0;
 
 	/** Set text in the clipboard
 	 * @param str A CString that will be used to set the current text in the clipboard
-	 * @return /c true on success */
+	 * @retval true on success */
 	virtual bool SetTextInClipboard(const char* str) = 0;
 
 	/** Call this if you modify control tool tips at runtime. \todo explain */
@@ -973,7 +973,7 @@ class IGraphics
 	 * @param color When a color is chosen the IColor referenced will be updated with the new color
 	 * @param str The text to display in the dialog box e.g. "Please choose a color... (Windows only)"
 	 * @param IColorPickerHandlerFunc func callback for asynchronous color pickers
-	 * @return /c true if prompt completed successfully */
+	 * @retval true if prompt completed successfully */
 	virtual bool PromptForColor(IColor& color, const char* str = "", IColorPickerHandlerFunc func = nullptr) = 0;
 
 	/** Open a URL in the platform’s default browser
@@ -981,7 +981,7 @@ class IGraphics
 	 * @param msgWindowTitle \todo ?
 	 * @param confirmMsg \todo ?
 	 * @param errMsgOnFailure \todo ?
-	 * @return /c true on success */
+	 * @retval true on success */
 	virtual bool OpenURL(const char* url,
 						 const char* msgWindowTitle  = 0,
 						 const char* confirmMsg      = 0,
@@ -995,7 +995,7 @@ class IGraphics
 
 	/** @param path WDL_String reference where the path will be put on success or empty string on failure
 	 * @param select et \c true if you want to select the item in Explorer/Finder
-	 * @return \c true on success (if the path was valid) */
+	 * @retval true on success (if the path was valid) */
 	virtual bool RevealPathInExplorerOrFinder(WDL_String& path, bool select = false)
 	{
 		return false;
@@ -1110,7 +1110,7 @@ class IGraphics
 
 	/** Called repeatedly at frame rate by the platform class to check what the graphics context says is dirty.
 	 * @param rects The rectangular regions which will be added to to mark what is dirty in the context
-	 * @return /c true if a control is dirty */
+	 * @retval true if a control is dirty */
 	bool IsDirty(IRECTList& rects);
 
 	/** Called by the platform class indicating a number of rectangles in the UI that need to redraw
@@ -1181,7 +1181,7 @@ class IGraphics
 	void Resize(int w, int h, float scale, bool needsPlatformResize = true);
 
 	/** Enables strict drawing mode. \todo explain strict drawing
-	 * @param strict Set /c true to enable strict drawing mode */
+	 * @param strict Set \b true to enable strict drawing mode */
 	void SetStrictDrawing(bool strict);
 
 	/* Enables layout on resize. This means IGEditorDelegate:LayoutUI() will be called when the GUI is resized */
@@ -1311,13 +1311,13 @@ class IGraphics
 		return false;
 	}
 
-	/** @return /c true if multi touch is enabled */
+	/** @retval true if multi touch is enabled */
 	bool MultiTouchEnabled() const
 	{
 		return mEnableMultiTouch;
 	}
 
-	/** @return /c true if the platform supports multi touch */
+	/** @retval true if the platform supports multi touch */
 	virtual bool PlatformSupportsMultiTouch() const
 	{
 		return false;
@@ -1672,12 +1672,12 @@ class IGraphics
 
 	/** Hide controls linked to a specific parameter
 	 * @param paramIdx The parameter index
-	 * @param hide /c true to hide */
+	 * @param hide \b true to hide */
 	void HideControl(int paramIdx, bool hide);
 
 	/** Disable or enable controls linked to a specific parameter
 	 * @param paramIdx The parameter index
-	 * @param disable /c true to disable */
+	 * @param disable \b true to disable */
 	void DisableControl(int paramIdx, bool diable);
 
 	/** Calls SetDirty() on every control */
@@ -1737,7 +1737,7 @@ class IGraphics
 	/** @param x The X coordinate in the graphics context at which the mouse event occurred
 	 * @param y The Y coordinate in the graphics context at which the mouse event occurred
 	 * @param mod IMouseMod struct contain information about the modifiers held
-	 * @return /c true on handled */
+	 * @retval true on handled */
 	bool OnMouseDblClick(float x, float y, const IMouseMod& mod);
 
 	/** @param x The X coordinate in the graphics context at which the mouse event occurred
@@ -1749,19 +1749,19 @@ class IGraphics
 	/** @param x The X coordinate in the graphics context of the mouse cursor at the time of the key press
 	 * @param y The Y coordinate in the graphics context of the mouse cursor at the time of the key press
 	 * @param key \todo
-	 * @return \c true if handled \todo check this */
+	 * @retval true if handled \todo check this */
 	bool OnKeyDown(float x, float y, const IKeyPress& key);
 
 	/** @param x The X coordinate in the graphics context of the mouse cursor at the time of the key press
 	 * @param y The Y coordinate in the graphics context of the mouse cursor at the time of the key press
 	 * @param key \todo
-	 * @return \c true if handled \todo check this */
+	 * @retval true if handled \todo check this */
 	bool OnKeyUp(float x, float y, const IKeyPress& key);
 
 	/** @param x The X coordinate in the graphics context at which to draw
 	 * @param y The Y coordinate in the graphics context at which to draw
 	 * @param mod IMouseMod struct contain information about the modifiers held
-	 * @return \c true if handled \todo check this */
+	 * @retval true if handled \todo check this */
 	bool OnMouseOver(float x, float y, const IMouseMod& mod);
 
 	/** \todo */
@@ -1839,7 +1839,7 @@ class IGraphics
 
 	/** [AAX only] \todo
 	 * @param paramIdx The index of the parameter to highlight
-	 * @param isHighlighted /c true if the parameter should be highlighted
+	 * @param isHighlighted \b true if the parameter should be highlighted
 	 * @param color An integer corresponding to AAX_EParameterHighlight \todo check Enum name */
 	void SetPTParameterHighlight(int paramIdx, bool isHighlighted, int color);
 
