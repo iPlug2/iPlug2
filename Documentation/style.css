@@ -75,7 +75,7 @@ td {
     padding: 0px;
 }
 
-.params .paramname {
+.params .paramname, .retval .paramname {
     padding-right: 12px;
 }
 
