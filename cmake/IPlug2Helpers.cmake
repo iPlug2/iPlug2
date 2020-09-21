@@ -1,6 +1,6 @@
 include_guard(GLOBAL)
 
-option(_DEBUG "Debug output for Iplug2 cmake scripts" OFF)
+option(IPLUG2_DEVELOPER_CMAKE_DEBUG "Debug output for Iplug2 cmake scripts" OFF)
 
 #------------------------------------------------------------------------------
 # helper macros
@@ -21,7 +21,7 @@ macro(iplug_syntax_error)
 endmacro()
 
 macro(iplug_debug_message)
-    if(_DEBUG)
+    if(IPLUG2_DEVELOPER_CMAKE_DEBUG)
         set(_msg ${ARGN})
         iplug_set_caller()
         message(STATUS "[  OK  ]\t<${_caller}> ${_msg}")

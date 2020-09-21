@@ -152,15 +152,21 @@ endmacro()
 macro(iplug_add_vst3 _target)
     _iplug_check_initialized()
 
-    set(_oneValueArgs "EXTENSION")
+    set(_oneValueArgs "EXTENSION" "ICON")
     set(_multiValueArgs "")
     cmake_parse_arguments(_arg "" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN})
 
     if(NOT _arg_EXTENSION)
         set(_arg_EXTENSION "vst3")
     endif()
+    if(NOT _arg_ICON)
+        set(_arg_ICON "${VST3_SDK_PATH}/doc/artwork/VST_Logo_Steinberg.ico")
+    endif()
 
-    add_library(${_target} SHARED)
+    add_library(${_target} MODULE)
+
+    set(PLUGIN_BUNDLE_NAME ${PROJECT_NAME}) # TODO: change to bundle name
+    set(PLUGIN_NAME ${PROJECT_NAME})        # TODO: change to name from project configuration
 
     if(NOT HAVESDK_VST3)
         iplug_warning("VST3 Plugins requires a valid path to Steinberg VST3 SDK. '${_target}' will not be able to compile.")
@@ -171,18 +177,132 @@ macro(iplug_add_vst3 _target)
         _iplug_add_target_lib(${_target} IPlug_VST3)
         target_link_libraries(${_target} PRIVATE ${_target}-static)
 
-        if(DEFAULT_VST_PLUGIN_DEBUGGER)
-            set_target_properties(${_target} PROPERTIES VS_DEBUGGER_COMMAND "${DEFAULT_VST_PLUGIN_DEBUGGER}")
-        endif()
+        # Set default application to use when debugging a vst3. Does not override any existing user settings
+        set_target_properties(${_target} PROPERTIES VS_DEBUGGER_COMMAND "${VST3_DEFAULT_DEBUG_APPLICATION}")
 
+
+        # Implements modified smtg_add_vst3plugin_with_pkgname() / smtg_make_plugin_package()
+        # Does *not* include compile with debug information in release mode, nor does it set /DEBUG linker option
         set(_path "${VST3_SDK_PATH}/public.sdk/source/main")
         if(MSVC)
             set_target_properties(${_target} PROPERTIES LINK_FLAGS "/DEF:\"${_path}/winexport.def\"")
+            set_target_properties(${_target} PROPERTIES PDB_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/PDB")
         elseif(XCODE)
             set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_EXPORTED_SYMBOLS_FILE "${_path}/macexport.exp")
+
+            # modified smtg_setup_universal_binary()
+            if(SMTG_BUILD_UNIVERSAL_BINARY)
+                if(XCODE_VERSION VERSION_GREATER_EQUAL 12)
+                    set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_OSX_ARCHITECTURES "x86_64;arm64;arm64e")
+                    set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD_64_BIT)")
+                else()
+                    set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_OSX_ARCHITECTURES "x86_64;i386")
+                    set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD_32_64_BIT)")
+                endif()
+                # diff: adding $<$<CONFIG:Distributed>:NO>
+                set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "$<$<CONFIG:Debug>:YES>$<$<CONFIG:Release>:NO>$<$<CONFIG:Distributed>:NO>")
+            endif()
+
+            if(SMTG_IOS_DEVELOPMENT_TEAM)
+                set_target_properties(${_target} PROPERTIES
+                    XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ${SMTG_IOS_DEVELOPMENT_TEAM}
+                    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "${SMTG_CODE_SIGN_IDENTITY_MAC}"
+                )
+            endif()
         else()
             set_target_properties(${_target} PROPERTIES LINK_FLAGS "-exported_symbols_list \"${_path}/macexport.exp\"")
         endif()
+
+
+        set(VST3_CONFIG_PATH $<$<CONFIG:Debug>:VST3-Debug>$<$<CONFIG:Release>:VST3-Release>$<$<CONFIG:Distributed>:VST3-Distributed>)
+        set(PLUGIN_PACKAGE_PATH ${PROJECT_BINARY_DIR}/bin/${VST3_CONFIG_PATH}/${PLUGIN_BUNDLE_NAME})
+
+        set_target_properties(${_target} PROPERTIES LIBRARY_OUTPUT_NAME "${PLUGIN_NAME}")
+
+        if(PLATFORM_WINDOWS)
+            foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
+                string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG_UPPER)
+                set_target_properties(${_target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} "${PLUGIN_PACKAGE_PATH}")
+            endforeach()
+
+            if(EXISTS ${_arg_ICON})
+                add_custom_command(TARGET ${_target}
+                    COMMENT "Copy PlugIn.ico and desktop.ini and change their attributes."
+                    POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy
+                        ${_arg_ICON}
+                        ${PLUGIN_PACKAGE_PATH}/PlugIn.ico
+                    COMMAND ${CMAKE_COMMAND} -E copy
+                        ${SMTG_DESKTOP_INI_PATH}
+                        ${PLUGIN_PACKAGE_PATH}/desktop.ini
+                    COMMAND attrib +h ${PLUGIN_PACKAGE_PATH}/desktop.ini
+                    COMMAND attrib +h ${PLUGIN_PACKAGE_PATH}/PlugIn.ico
+                    COMMAND attrib +s ${PLUGIN_PACKAGE_PATH}
+                )
+            endif()
+        elseif(PLATFORM_APPLE)
+            # !!! this is untested code
+            set_target_properties(${_target} PROPERTIES BUNDLE TRUE)
+            if(XCODE)
+                set_target_properties(${_target} PROPERTIES
+                    XCODE_ATTRIBUTE_GENERATE_PKGINFO_FILE   YES
+                    XCODE_ATTRIBUTE_WRAPPER_EXTENSION       ${_arg_EXTENSION}
+                    XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS $<$<CONFIG:Debug>YES>$<$<CONFIG:Release>:NO>$<$<CONFIG:Distributed>:NO>
+                    XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT $<$<CONFIG:Debug>:dwarf>$<$<CONFIG:Release>:dwarf-with-dsym>$<$<CONFIG:Distributed>:dwarf-with-dsym>
+                )
+            else()
+                set_target_properties(${target} PROPERTIES
+                    BUNDLE_EXTENSION            ${_arg_EXTENSION}
+                    LIBRARY_OUTPUT_DIRECTORY    ${PLUGIN_PACKAGE_PATH}
+                )
+            endif()
+
+        elseif(PLATFORM_LINUX)
+            # !!! this is untested code
+            smtg_get_linux_architecture_name() # Sets var LINUX_ARCHITECTURE_NAME
+            iplug_info("Linux architecture name is ${LINUX_ARCHITECTURE_NAME}.")
+            set_target_properties(${_target} PROPERTIES
+                PREFIX                   ""
+                LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_PACKAGE_PATH}
+            )
+            if(${CMAKE_BUILD_TYPE} MATCHES "Release|Distributed")
+                smtg_strip_symbols(${_target})
+            endif()
+        endif()
+
+
+        if(SMTG_RUN_VST_VALIDATOR)
+            smtg_run_vst_validator(${_target})
+        endif()
+
+        # set(SMTG_CREATE_PLUGIN_LINK ON)
+        if(SMTG_CREATE_PLUGIN_LINK)
+            if(${SMTG_PLUGIN_TARGET_PATH} STREQUAL "")
+                message(FATAL_ERROR "Define a proper value for SMTG_PLUGIN_TARGET_PATH")
+            endif()
+
+            set(TARGET_SOURCE ${PLUGIN_PACKAGE_PATH})
+            set(TARGET_DESTINATION ${SMTG_PLUGIN_TARGET_PATH}/${PLUGIN_BUNDLE_NAME})
+
+            if(SMTG_WIN)
+                file(TO_NATIVE_PATH "${TARGET_DESTINATION}" SRC_NATIVE_PATH)
+                file(TO_NATIVE_PATH "${PLUGIN_PACKAGE_PATH}" TARGET_DESTINATION)
+                add_custom_command(
+                    TARGET ${_target} POST_BUILD
+                    COMMAND del "${SRC_NATIVE_PATH}"
+                    COMMAND mklink
+                        "${SRC_NATIVE_PATH}"
+                        "${TARGET_DESTINATION}"
+                )
+            else()
+                add_custom_command(
+                    TARGET ${_target} POST_BUILD
+                    COMMAND mkdir -p "${TARGET_DESTINATION}"
+                    COMMAND ln -svfF "${TARGET_SOURCE}" "${TARGET_DESTINATION}"
+                )
+            endif()
+        endif()
+
     endif()
 
     set_target_properties(${_target} PROPERTIES SUFFIX ".${_arg_EXTENSION}")

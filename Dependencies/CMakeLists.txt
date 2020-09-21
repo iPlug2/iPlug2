@@ -252,10 +252,11 @@ if(HAVESDK_VST3)
     set(_libName "VST3SDK")
     set(_libPath "${VST3_SDK_PATH}")
 
-    # Apply IPlug2 vst3sdk code patch
-    option(IPLUG2_VST3SDK_UNICODE_OFF "Sets UNICODE_OFF for VST3SDK and applies a code patch fix." OFF)
-    if(IPLUG2_VST3SDK_UNICODE_OFF)
-        iplug_info("VST3SDK UNICODE_OFF is enabled")
+    # Apply IPlug2 vst3 sdk code patch
+    set(VST3_SDK_UNICODE_OFF_DESC "Adds UNICODE_OFF definition to VST3 SDK and applies a code patch to correct tchar errors.")
+    option(VST3_SDK_UNICODE_OFF ${VST3_SDK_UNICODE_OFF_DESC} OFF)
+    if(VST3_SDK_UNICODE_OFF)
+        iplug_info("UNICODE_OFF is defined for Steinberg VST3 SDK")
         if(GIT_FOUND)
             execute_process(
                 COMMAND ${GIT_EXECUTABLE} apply --check --no-index "${IPLUG2_ROOT_PATH}/Dependencies/IPlug/vst3sdk.patch"
@@ -263,18 +264,16 @@ if(HAVESDK_VST3)
                 OUTPUT_QUIET ERROR_QUIET
                 RESULT_VARIABLE GIT_RESULT)
             if(GIT_RESULT EQUAL "0")
-                iplug_info("Applying VST3SDK code patch")
+                iplug_info("Applying code patch to Stenberg VST3 SDK")
                 execute_process(
                     COMMAND ${GIT_EXECUTABLE} apply --stat -v --no-index --apply  "${IPLUG2_ROOT_PATH}/Dependencies/IPlug/vst3sdk.patch"
                     WORKING_DIRECTORY ${VST3_SDK_PATH})
             endif()
         else()
-            iplug_warning("Unable to apply VST3SDK code patch. Git executable not found.")
-            iplug_warning("Disabling VST3SDK UNICODE_OFF.")
-            set(IPLUG2_VST3SDK_UNICODE_OFF OFF)
+            iplug_warning("Unable to apply VST3 SDK code patch. Git executable not found.")
+            iplug_warning("Removing UNICODE_OFF definition from Steinberg VST3 SDK.")
+            set(VST3_SDK_UNICODE_OFF OFF CACHE BOOL ${VST3_SDK_UNICODE_OFF_DESC} FORCE)
         endif()
-    else()
-        iplug_info("VST3SDK UNICODE_OFF is disabled")
     endif()
 
 
@@ -286,7 +285,7 @@ if(HAVESDK_VST3)
 
     target_compile_definitions(${_libName}
         PUBLIC
-            $<$<BOOL:${IPLUG2_VST3SDK_UNICODE_OFF}>:UNICODE_OFF>
+            $<$<BOOL:${VST3_SDK_UNICODE_OFF}>:UNICODE_OFF>
             $<$<CONFIG:Debug>:DEVELOPMENT=1>
             $<$<CONFIG:Release>:RELEASE=1>
             $<$<CONFIG:Distributed>:RELEASE=1>

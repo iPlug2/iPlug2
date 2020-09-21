@@ -68,8 +68,16 @@ add_library(IPlug_VST3P                INTERFACE)
 add_library(IPlug_WEB                  INTERFACE)
 
 # Create source list for IPlug & IGraphics with a one time glob dependency check
-file(GLOB_RECURSE IPLUG_SOURCE_LIST CONFIGURE_DEPENDS "${IPLUG2_ROOT_PATH}/IPlug/*")
-file(GLOB_RECURSE IGRAPHICS_SOURCE_LIST CONFIGURE_DEPENDS "${IPLUG2_ROOT_PATH}/IGraphics/*")
+option(IPLUG2_DEVELOPER_ENABLE_GLOB_DEPENDENCY "Enable glob dependency check on IPlug and IGraphics when compiling." OFF)
+if(IPLUG2_DEVELOPER_ENABLE_GLOB_DEPENDENCY)
+    set(_CONFIGURE_DEPENDS CONFIGURE_DEPENDS)
+else()
+    set(_CONFIGURE_DEPENDS "")
+endif()
+
+file(GLOB_RECURSE IPLUG_SOURCE_LIST ${_CONFIGURE_DEPENDS} "${IPLUG2_ROOT_PATH}/IPlug/*")
+file(GLOB_RECURSE IGRAPHICS_SOURCE_LIST ${_CONFIGURE_DEPENDS} "${IPLUG2_ROOT_PATH}/IGraphics/*")
+
 target_sources(IPlug INTERFACE ${IPLUG_SOURCE_LIST})
 target_sources(IGraphics INTERFACE ${IGRAPHICS_SOURCE_LIST})
 

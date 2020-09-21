@@ -82,31 +82,6 @@ macro(_iplug_post_project_setup)
 
 
     #------------------------------------------------------------------------------
-
-    # Find a suitable application to use as default debugger for VST2/VST3 plugins
-    if(PLATFORM_WINDOWS)
-        set(_reg_tests
-            "[HKEY_LOCAL_MACHINE\\SOFTWARE\\REAPER]"
-            "[HKEY_LOCAL_MACHINE\\SOFTWARE\\PreSonus\\Studio One 5]"
-            "[HKEY_LOCAL_MACHINE\\SOFTWARE\\PreSonus\\Studio One 4]"
-            "[HKEY_LOCAL_MACHINE\\SOFTWARE\\PreSonus\\Studio One 3]"
-            "[HKEY_CURRENT_USER\\Software\\Image-Line\\FL Studio 20\\General;Program location]"  # unconfirmed
-            "[HKEY_CURRENT_USER\\Software\\Image-Line\\FL Studio 12\\General;Program location]"  # unconfirmed
-            "[HKEY_LOCAL_MACHINE\\Software\\Propellerhead Software\\Reason]"                     # unconfirmed
-        )
-        foreach(_key IN LISTS _reg_tests)
-            get_filename_component(_key "${_key}" ABSOLUTE)
-            if(_key AND NOT ${_key} MATCHES "registry")
-                if(_key MATCHES "^.*(Reaper)$")
-                    string(APPEND _key "/reaper.exe" )
-                endif()
-                set(DEFAULT_VST_PLUGIN_DEBUGGER ${_key})
-                break()
-            endif()
-        endforeach()
-    endif()
-
-    #------------------------------------------------------------------------------
     # VST3 SDK
 
     set(_path $ENV{VST3_SDK_PATH})
@@ -131,15 +106,72 @@ macro(_iplug_post_project_setup)
     endforeach()
 
     if(HAVESDK_VST3)
+        # Find a suitable application to use as default when lanching debugger for VST3 plugins
+        if(${CMAKE_GENERATOR} MATCHES "^Visual Studio")
+            set(_reg_tests
+                "[HKEY_LOCAL_MACHINE\\SOFTWARE\\REAPER]"
+                "[HKEY_LOCAL_MACHINE\\SOFTWARE\\PreSonus\\Studio One 5]"
+                "[HKEY_LOCAL_MACHINE\\SOFTWARE\\PreSonus\\Studio One 4]"
+                "[HKEY_LOCAL_MACHINE\\SOFTWARE\\PreSonus\\Studio One 3]"
+                # "[HKEY_CURRENT_USER\\Software\\Image-Line\\FL Studio 20\\General;Program location]"  # unconfirmed
+                # "[HKEY_CURRENT_USER\\Software\\Image-Line\\FL Studio 12\\General;Program location]"  # unconfirmed
+                # "[HKEY_LOCAL_MACHINE\\Software\\Propellerhead Software\\Reason]"                     # unconfirmed
+            )
+
+            set(VST3_DEFAULT_DEBUG_APPLICATION_DESC "Default application to use when debugging a VST3 plugin. This setting does not override any previous settings in Visual Studio.")
+            set(VST3_DEFAULT_DEBUG_APPLICATION "" CACHE FILEPATH "${VST3_DEFAULT_DEBUG_APPLICATION_DESC}")
+            if(NOT VST3_DEFAULT_DEBUG_APPLICATION)
+                foreach(_key IN LISTS _reg_tests)
+                    get_filename_component(_key "${_key}" ABSOLUTE)
+                    if(_key AND NOT ${_key} MATCHES "registry")
+                        if(_key MATCHES "^.*Reaper$")
+                            string(APPEND _key "/reaper.exe" )
+                        endif()
+                        if(EXISTS ${_key})
+                            set(VST3_DEFAULT_DEBUG_APPLICATION ${_key} CACHE FILEPATH "${VST3_DEFAULT_DEBUG_APPLICATION_DESC}" FORCE)
+                            break()
+                        endif()
+                    endif()
+                endforeach()
+            endif()
+        endif()
+
         list(APPEND CMAKE_MODULE_PATH "${VST3_SDK_PATH}/cmake/modules")
+
         include(SMTG_DetectPlatform)
-        include(SetupVST3LibraryDefaultPath)
-
         smtg_detect_platform()
-        smtg_get_default_vst3_path()
 
-#        cmake_print_variables(SMTG_WIN)
-#        cmake_print_variables(DEFAULT_VST3_FOLDER)
+        include(SetupVST3LibraryDefaultPath)
+        include(AddVST3Library) # Includes AddSMTGLibrary, UniversalBinary and provides SMTG_DESKTOP_INI_PATH
+        include(CoreAudioSupport)
+
+        smtg_get_default_vst3_path()  # Provides DEFAULT_VST3_FOLDER
+
+        set(SMTG_PLUGIN_TARGET_PATH "${DEFAULT_VST3_FOLDER}" CACHE PATH "Here you can redefine the VST3 Plug-ins folder")
+
+        # Unlike the default setting in Steinberg VST3 SDK, we do *not* create a directory if it's missing, just warn about it.
+        if(SMTG_PLUGIN_TARGET_PATH AND NOT EXISTS ${SMTG_PLUGIN_TARGET_PATH})
+            iplug_warning("SMTG_PLUGIN_TARGET_PATH = \"${SMTG_PLUGIN_TARGET_PATH}\" is invalid.")
+        endif()
+
+        if(PLATFORM_WINDOWS)
+            set(DEF_OPT_LINK OFF) # be sure to start visual with admin right when enabling this
+        else()
+            set(DEF_OPT_LINK ON)
+        endif()
+        option(SMTG_CREATE_PLUGIN_LINK "Create symbolic link for each Plug-in (you need to have the Administrator right on Windows! or change the Local Group Policy to allow create symbolic links)" ${DEF_OPT_LINK})
+
+
+        if(PLATFORM_APPLE)
+            set(SMTG_CODE_SIGN_IDENTITY_MAC "Mac Developer" CACHE STRING "macOS Code Sign Identity")
+            set(SMTG_CODE_SIGN_IDENTITY_IOS "iPhone Developer" CACHE STRING "iOS Code Sign Identity")
+            option(SMTG_AUV3_WRAPPER_EXTERNAL_PLUGIN_FACTORY "Use externally provided GetPluginFactory()" OFF)
+        endif()
+
+        # Run the Validator after each new compilation of VST3 Plug-ins
+        option(SMTG_RUN_VST_VALIDATOR "Run VST validator on VST3 Plug-ins" ON)
+
+
     endif()
 
     #------------------------------------------------------------------------------
@@ -257,6 +289,7 @@ macro(_iplug_set_default_compiler_options)
             /fp:fast          # Floating Point Model '/fp:fast'. This is also the default used by Steinberg VST3 SDK.
             /Zc:preprocessor  # C++ conforming preprocessor
             /Zc:rvalueCast    # Enforce type conversion rules. Conform to the C++11 standard
+			/Zc:__cplusplus   # Enables the __cplusplus preprocessor macro to report an updated value for recent C++ language standards support. If not specified __cplusplus will always be 199711L
             /volatile:iso     # Strict volatile semantics. Acquire/release semantics are not guaranteed
             /utf-8            # Specifies UTF-8 character set, this is the default for GCC & Clang
             /Zp8              # Packs structures on 8-byte boundaries. Default is 16
@@ -323,12 +356,14 @@ macro(_iplug_set_default_compiler_options)
         # Use multithreaded, static versions of the MSVC run-time library (LIBCMT.lib/LIBCMTD.lib)
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
-        foreach(_type IN ITEMS EXE SHARED)
+        foreach(_type IN ITEMS EXE SHARED MODULE)
             foreach(_cfg RELEASE DISTRIBUTED)
                 set(CMAKE_${_type}_LINKER_FLAGS_${_cfg} "/LTCG /INCREMENTAL:NO")
             endforeach()
         endforeach()
+
     elseif(GNU OR Clang OR AppleClang)
+
         set(CL_FLAGS
             -fmessage-length=0
             -pipe
@@ -374,7 +409,7 @@ macro(_iplug_set_default_compiler_options)
             # set(CMAKE_${_lang}_FLAGS_DISTRIBUTED ${CL_FLAGS_DISTRIBUTED})
         endforeach()
 
-        foreach(_type IN ITEMS EXE SHARED)
+        foreach(_type IN ITEMS EXE SHARED MODULE)
             foreach(_cfg RELEASE DISTRIBUTED)
                 list(APPEND CMAKE_${_type}_LINKER_FLAGS_${_cfg} "$<$<CXX_COMPILER_ID:AppleClang>:-dead_strip>")
                 # set(CMAKE_${_type}_LINKER_FLAGS_${_cfg} "$<$<CXX_COMPILER_ID:AppleClang>:-dead_strip>")
@@ -635,9 +670,6 @@ function(_iplug_add_target_lib _target _pluginapi_lib)
             "${IPLUG2_ROOT_PATH}/IPlug/WEB/IPlugWeb.cpp"
         )
     endif()
-
-    # Remove PCH cpp file
-    list(REMOVE_ITEM _src_list "${IPLUG2_ROOT_PATH}/IPlug/IPlugPCH.cpp")
 
     # Add remaining source files
     target_sources(${_libName} PRIVATE ${_src_list})
