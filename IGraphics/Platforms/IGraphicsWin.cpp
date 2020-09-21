@@ -1233,8 +1233,9 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
 static void GetWndClassName(HWND hWnd, WDL_String* pStr)
 {
-	char cStr[MAX_CLASSNAME_LEN];
-	cStr[0] = '\0';
+	constexpr int MAX_CLASSNAME_LEN = 128;
+
+	char cStr[MAX_CLASSNAME_LEN] = {};
 	GetClassName(hWnd, cStr, MAX_CLASSNAME_LEN);
 	pStr->Set(cStr);
 }
@@ -1286,6 +1287,8 @@ IRECT IGraphicsWin::GetWindowRECT()
 	if (mPlugWnd)
 	{
 		RECT r;
+		constexpr int TOOLWIN_BORDER_W = 6;
+		constexpr int TOOLWIN_BORDER_H = 23;
 		GetWindowRect(mPlugWnd, &r);
 		r.right -= TOOLWIN_BORDER_W;
 		r.bottom -= TOOLWIN_BORDER_H;

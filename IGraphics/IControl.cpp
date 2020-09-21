@@ -203,7 +203,7 @@ void IControl::SetDirty(bool triggerAction, int valIdx)
 		auto paramUpdate = [this](int v) {
 			if (GetParamIdx(v) > kNoParameter)
 			{
-				GetDelegate()->SendParameterValueFromUI(GetParamIdx(v), GetValue(v));  //TODO: take tuple
+				GetDelegate()->SendParameterValueFromUI(GetParamIdx(v), GetValue(v));  // TODO: take tuple
 				GetUI()->UpdatePeers(this, v);
 			}
 		};
@@ -318,7 +318,7 @@ IControl* IControl::AttachGestureRecognizer(EGestureType type, IGestureFunc func
 
 	GetUI()->AttachGestureRecognizer(type);  // this will crash if called in constructor
 
-	return this;  //for chaining
+	return this;  // for chaining
 }
 
 bool IControl::OnGesture(const IGestureInfo& info)
@@ -347,8 +347,8 @@ void IControl::PromptUserInput(int valIdx)
 		{
 			float cX    = mRECT.MW();
 			float cY    = mRECT.MH();
-			float halfW = PARAM_EDIT_W / 2.f;
-			float halfH = PARAM_EDIT_H / 2.f;
+			float halfW = 20.f;  // PARAM_EDIT_W 40.f / 2.f
+			float halfH = 8.f;   // PARAM_EDIT_H 16.f / 2.f
 
 			IRECT txtRECT = IRECT(cX - halfW, cY - halfH, cX + halfW, cY + halfH);
 			GetUI()->PromptUserInput(*this, txtRECT, valIdx);
@@ -370,19 +370,20 @@ void IControl::SetPTParameterHighlight(bool isHighlighted, int color)
 {
 	switch (color)
 	{
-		case 0:  //AAX_eHighlightColor_Red
+		case 0:  // AAX_eHighlightColor_Red
 			mPTHighlightColor = COLOR_RED;
 			break;
-		case 1:  //AAX_eHighlightColor_Blue
+		case 1:  // AAX_eHighlightColor_Blue
 			mPTHighlightColor = COLOR_BLUE;
 			break;
-		case 2:  //AAX_eHighlightColor_Green
+		case 2:  // AAX_eHighlightColor_Green
 			mPTHighlightColor = COLOR_GREEN;
 			break;
-		case 3:  //AAX_eHighlightColor_Yellow
+		case 3:  // AAX_eHighlightColor_Yellow
 			mPTHighlightColor = COLOR_YELLOW;
 			break;
-		default: break;
+		default:
+			break;
 	}
 
 	mPTisHighlighted = isHighlighted;
@@ -577,7 +578,7 @@ ITextToggleControl::ITextToggleControl(const IRECT& bounds,
 	, mOffText(offText)
 {
 	SetParamIdx(paramIdx);
-	//TODO: assert boolean?
+	// TODO: assert boolean?
 	mIgnoreMouse      = false;
 	mDblAsSingleClick = true;
 }
@@ -672,7 +673,7 @@ void ICaptionControl::OnResize()
 	const IParam* pParam = GetParam();
 	if (pParam && pParam->Type() == IParam::kTypeEnum)
 	{
-		mTri = mRECT.FracRectHorizontal(0.2f, true).GetCentredInside(IRECT(0, 0, 8, 5));  //TODO: This seems rubbish
+		mTri = mRECT.FracRectHorizontal(0.2f, true).GetCentredInside(IRECT(0, 0, 8, 5));  // TODO: This seems rubbish
 	}
 }
 
@@ -806,11 +807,11 @@ void IKnobControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void IKnobControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
-  if (mHideCursorOnDrag)
-    GetUI()->HideMouseCursor(false);
-  
-  mMouseDown = false;
-  SetDirty(false);
+	if (mHideCursorOnDrag)
+		GetUI()->HideMouseCursor(false);
+
+	mMouseDown = false;
+	SetDirty(false);
 }
 
 void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
@@ -878,11 +879,12 @@ void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, floa
 	SetDirty();
 }
 
-ISliderControlBase::ISliderControlBase(const IRECT& bounds, int paramIdx, EDirection dir, double gearing, float handleSize)
-: IControl(bounds, paramIdx)
-, mDirection(dir)
-, mHandleSize(handleSize)
-, mGearing(gearing)
+ISliderControlBase::ISliderControlBase(
+	const IRECT& bounds, int paramIdx, EDirection dir, double gearing, float handleSize)
+	: IControl(bounds, paramIdx)
+	, mDirection(dir)
+	, mHandleSize(handleSize)
+	, mGearing(gearing)
 {
 }
 
@@ -924,11 +926,11 @@ void ISliderControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void ISliderControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
-  if (mHideCursorOnDrag)
-    GetUI()->HideMouseCursor(false);
-  
-  mMouseDown = false;
-  SetDirty(false);
+	if (mHideCursorOnDrag)
+		GetUI()->HideMouseCursor(false);
+
+	mMouseDown = false;
+	SetDirty(false);
 }
 
 void ISliderControlBase::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
@@ -1029,68 +1031,68 @@ bool ISliderControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 
 IDirBrowseControlBase::~IDirBrowseControlBase()
 {
-  mFiles.Empty(true);
-  mPaths.Empty(true);
-  mPathLabels.Empty(true);
-  mItems.Empty(false);
+	mFiles.Empty(true);
+	mPaths.Empty(true);
+	mPathLabels.Empty(true);
+	mItems.Empty(false);
 }
 
 int IDirBrowseControlBase::NItems()
 {
-  return mItems.GetSize();
+	return mItems.GetSize();
 }
 
 void IDirBrowseControlBase::AddPath(const char* path, const char* label)
 {
-  assert(strlen(path));
+	assert(strlen(path));
 
-  mPaths.Add(new WDL_String(path));
-  mPathLabels.Add(new WDL_String(label));
+	mPaths.Add(new WDL_String(path));
+	mPathLabels.Add(new WDL_String(label));
 }
 
 void IDirBrowseControlBase::CollectSortedItems(IPopupMenu* pMenu)
 {
-  int nItems = pMenu->NItems();
-  
-  for (int i = 0; i < nItems; i++)
-  {
-    IPopupMenu::Item* pItem = pMenu->GetItem(i);
-    
-    if(pItem->GetSubmenu())
-      CollectSortedItems(pItem->GetSubmenu());
-    else
-      mItems.Add(pItem);
-  }
+	int nItems = pMenu->NItems();
+
+	for (int i = 0; i < nItems; i++)
+	{
+		IPopupMenu::Item* pItem = pMenu->GetItem(i);
+
+		if (pItem->GetSubmenu())
+			CollectSortedItems(pItem->GetSubmenu());
+		else
+			mItems.Add(pItem);
+	}
 }
 
 void IDirBrowseControlBase::SetupMenu()
 {
-  mFiles.Empty(true);
-  mItems.Empty(false);
-  
-  mMainMenu.Clear();
-  mSelectedIndex = -1;
+	mFiles.Empty(true);
+	mItems.Empty(false);
 
-  int idx = 0;
+	mMainMenu.Clear();
+	mSelectedIndex = -1;
 
-  if (mPaths.GetSize() == 1)
-  {
-    ScanDirectory(mPaths.Get(0)->Get(), mMainMenu);
-  }
-  else
-  {
-    for (int p = 0; p<mPaths.GetSize(); p++)
-    {
-      IPopupMenu* pNewMenu = new IPopupMenu();
-      mMainMenu.AddItem(mPathLabels.Get(p)->Get(), idx++, pNewMenu);
-      ScanDirectory(mPaths.Get(p)->Get(), *pNewMenu);
-    }
-  }
-  
-  CollectSortedItems(&mMainMenu);
+	int idx = 0;
+
+	if (mPaths.GetSize() == 1)
+	{
+		ScanDirectory(mPaths.Get(0)->Get(), mMainMenu);
+	}
+	else
+	{
+		for (int p = 0; p < mPaths.GetSize(); p++)
+		{
+			IPopupMenu* pNewMenu = new IPopupMenu();
+			mMainMenu.AddItem(mPathLabels.Get(p)->Get(), idx++, pNewMenu);
+			ScanDirectory(mPaths.Get(p)->Get(), *pNewMenu);
+		}
+	}
+
+	CollectSortedItems(&mMainMenu);
 }
 
-//void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
+// void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
 //{
 //  if (mSelectedMenu != nullptr) {
 //    if(mSelectedIndex > -1)
@@ -1100,7 +1102,7 @@ void IDirBrowseControlBase::SetupMenu()
 //    label.Set("");
 //}
 //
-//void IDirBrowseControlBase::GetSelectedItemPath(WDL_String& path)
+// void IDirBrowseControlBase::GetSelectedItemPath(WDL_String& path)
 //{
 //  if (mSelectedMenu != nullptr) {
 //    if(mSelectedIndex > -1) {
@@ -1115,44 +1117,45 @@ void IDirBrowseControlBase::SetupMenu()
 
 void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
 {
-  WDL_DirScan d;
+	WDL_DirScan d;
 
-  if (!d.First(path))
-  {
-    do
-    {
-      const char* f = d.GetCurrentFN();
-      if (f && f[0] != '.')
-      {
-        if (d.GetCurrentIsDirectory())
-        {
-          WDL_String subdir;
-          d.GetCurrentFullFN(&subdir);
-          IPopupMenu* pNewMenu = new IPopupMenu();
-          menuToAddTo.AddItem(d.GetCurrentFN(), pNewMenu, -2);
-          ScanDirectory(subdir.Get(), *pNewMenu);
-        }
-        else
-        {
-          const char* a = strstr(f, mExtension.Get());
-          if (a && a > f && strlen(a) == strlen(mExtension.Get()))
-          {
-            WDL_String menuEntry {f};
-            
-            if(!mShowFileExtensions)
-              menuEntry.Set(f, (int) (a - f));
-            
-            IPopupMenu::Item* pItem = new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize());
-            menuToAddTo.AddItem(pItem, -2 /* sort alphabetically */);
-            WDL_String* pFullPath = new WDL_String("");
-            d.GetCurrentFullFN(pFullPath);
-            mFiles.Add(pFullPath);
-          }
-        }
-      }
-    } while (!d.Next());
-  }
-  
-  if(!mShowEmptySubmenus)
-    menuToAddTo.RemoveEmptySubmenus();
+	if (!d.First(path))
+	{
+		do
+		{
+			const char* f = d.GetCurrentFN();
+			if (f && f[0] != '.')
+			{
+				if (d.GetCurrentIsDirectory())
+				{
+					WDL_String subdir;
+					d.GetCurrentFullFN(&subdir);
+					IPopupMenu* pNewMenu = new IPopupMenu();
+					menuToAddTo.AddItem(d.GetCurrentFN(), pNewMenu, -2);
+					ScanDirectory(subdir.Get(), *pNewMenu);
+				}
+				else
+				{
+					const char* a = strstr(f, mExtension.Get());
+					if (a && a > f && strlen(a) == strlen(mExtension.Get()))
+					{
+						WDL_String menuEntry {f};
+
+						if (!mShowFileExtensions)
+							menuEntry.Set(f, (int) (a - f));
+
+						IPopupMenu::Item* pItem =
+							new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize());
+						menuToAddTo.AddItem(pItem, -2 /* sort alphabetically */);
+						WDL_String* pFullPath = new WDL_String("");
+						d.GetCurrentFullFN(pFullPath);
+						mFiles.Add(pFullPath);
+					}
+				}
+			}
+		} while (!d.Next());
+	}
+
+	if (!mShowEmptySubmenus)
+		menuToAddTo.RemoveEmptySubmenus();
 }
