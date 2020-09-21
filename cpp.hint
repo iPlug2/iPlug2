@@ -80,3 +80,5 @@
 #define PLATFORM_LITTLE_ENDIAN
 #define CACHE_ALIGN(x) __declspec(align(x))
 #define CACHE_ALIGN(x) __attribute__((aligned(x)))
+#define __cplusplus
+#define _MSC_VER
