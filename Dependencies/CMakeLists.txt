@@ -264,7 +264,7 @@ if(HAVESDK_VST3)
                 OUTPUT_QUIET ERROR_QUIET
                 RESULT_VARIABLE GIT_RESULT)
             if(GIT_RESULT EQUAL "0")
-                iplug_info("Applying code patch to Stenberg VST3 SDK")
+                iplug_info("Applying code patch to Steinberg VST3 SDK")
                 execute_process(
                     COMMAND ${GIT_EXECUTABLE} apply --stat -v --no-index --apply  "${IPLUG2_ROOT_PATH}/Dependencies/IPlug/vst3sdk.patch"
                     WORKING_DIRECTORY ${VST3_SDK_PATH})
