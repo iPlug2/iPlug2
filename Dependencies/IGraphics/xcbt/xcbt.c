@@ -34,6 +34,7 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#include <time.h>
 
 // for dynamic loading
 #include <dlfcn.h>
