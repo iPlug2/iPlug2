@@ -319,7 +319,7 @@ macro(iplug_add_vst3 _target)
         # cmake_print_variables(PLUGIN_PACKAGE_PATH)
 
         set_target_properties(${_target} PROPERTIES LIBRARY_OUTPUT_NAME "${PLUGIN_NAME}")
-        set_target_properties(${_target} PROPERTIES SUFFIX ".${PLUGIN_EXTENSION}")
+        set_target_properties(${_target} PROPERTIES SUFFIX ".${PLUGIN_EXT}")
 
         if(PLATFORM_WINDOWS)
             foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
@@ -350,13 +350,13 @@ macro(iplug_add_vst3 _target)
             if(XCODE)
                 set_target_properties(${_target} PROPERTIES
                     XCODE_ATTRIBUTE_GENERATE_PKGINFO_FILE   YES
-                    XCODE_ATTRIBUTE_WRAPPER_EXTENSION       ${_arg_EXTENSION}
+                    XCODE_ATTRIBUTE_WRAPPER_EXTENSION       ${PLUGIN_EXT}
                     XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS $<$<CONFIG:Debug>YES>$<$<CONFIG:Release>:NO>$<$<CONFIG:Distributed>:NO>
                     XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT $<$<CONFIG:Debug>:dwarf>$<$<CONFIG:Release>:dwarf-with-dsym>$<$<CONFIG:Distributed>:dwarf-with-dsym>
                 )
             else()
                 set_target_properties(${target} PROPERTIES
-                    BUNDLE_EXTENSION            ${_arg_EXTENSION}
+                    BUNDLE_EXTENSION            ${PLUGIN_EXT}
                     LIBRARY_OUTPUT_DIRECTORY    ${PLUGIN_PACKAGE_PATH}
                 )
             endif()
