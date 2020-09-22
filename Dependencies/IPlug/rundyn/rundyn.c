@@ -10,6 +10,9 @@ This program emulates rundll32.exe (from Windows) on unix platforms.
 #include <stdio.h>
 
 #define PROG_NAME "rundyn"
+#define ERR_RET (50)
+void print_help();
+typedef int (*fn_main_t)(int, char**);
 
 #ifdef _WIN32
 #include <windows.h>
@@ -34,10 +37,6 @@ void* _dlsym(libref_t module, const char* func_name)
   return dlsym(module, func_name);
 }
 #endif
-
-#define ERR_RET (10000)
-void print_help();
-typedef int (*fn_main_t)(int, char**);
 
 int main(int argc, char **argv)
 {
