@@ -1,16 +1,43 @@
 cmake_minimum_required(VERSION 3.11)
 
 # Determine VST2 and VST3 directories
-find_file(VST2_32_PATH
-  "VstPlugins"
-  PATHS "C:/Program Files (x86)"
-  DOC "Path to install 32-bit VST2 plugins"
-)
-find_file(VST2_64_PATH
-  NAMES "VstPlugins" "VST"
-  PATHS "C:/Program Files" "$ENV{HOME}/Library/Audio/Plug-Ins" 
-  DOC "Path to install 64-bit VST2 plugins"
-)
+set(_doc "Path to install VST2 plugins")
+set(vst2_default_path "")
+if (WIN32)
+  set(_names "VstPlugins")
+  if (PROCESSOR_ARCH STREQUAL "Win32")
+    set(_paths
+      "C:/Program Files (x86)/"
+      "C:/Program Files (x86)/Steinberg/")
+    set(vst2_default_path "C:/Program Files (x86)/${_names}/")
+  else()
+    set(vst2_default_path "C:/Program Files/${_names}/")
+  endif()
+  # Append this for x86, x64, and ARM I guess
+  list(APPEND _paths
+    "C:/Program Files/"
+    "C:/Program Files/Steinberg/")
+  
+  find_file(VST2_PATH NAMES ${_names} PATHS ${_paths} DOC ${_doc})
+
+elseif (OS_MAC)
+  find_file(VST2_PATH
+    NAMES "VST"
+    PATHS "$ENV{HOME}/Library/Audio/Plug-Ins"
+    DOC ${_doc})
+  set(vst2_default_path "$ENV{HOME}/Library/Audio/Plug-Ins/VST/")
+
+elseif (OS_LINUX)
+  find_file(VST2_PATH
+    NAMES ".vst"
+    PATHS "$ENV{HOME}"
+    DOC ${_doc})
+  set(vst2_default_path "$ENV{HOME}/.vst/")
+
+endif()
+
+# If we didn't find a VST2 path, pick the default
+set(VST2_PATH "${vst2_default_path}" CACHE PATH ${_doc})
 
 set(sdk ${IPLUG2_DIR}/IPlug/VST2)
 

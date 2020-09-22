@@ -11,7 +11,6 @@ cmake_policy(SET CMP0076 NEW)
 
 set(iPlug2_FOUND 1)
 
-set(IPLUG_CXX_STANDARD "17" CACHE STRING "The C++ standard to use")
 set(IPLUG_APP_NAME ${CMAKE_PROJECT_NAME} CACHE STRING "Name of the VST/AU/App/etc.")
 
 if (WIN32)
@@ -92,6 +91,56 @@ function(iplug2_target_add target set_type)
     message("Unused arguments ${cfg_UNUSED}" FATAL_ERROR)
   endif()
 endfunction()
+
+function(iplug2_find_path VAR)
+  cmake_parse_arguments("arg" "REQUIRED;DIR;FILE;DEFAULT_FIRST;DEFAULT_LAST" "DEFAULT;DOC" "PATHS" ${ARGN})
+
+  # var = false
+  set(out 0)
+  
+  foreach (pt ${arg_PATHS})
+    if (EXISTS ${pt})
+      if (IS_DIRECTORY ${pt})
+        set(is_dir 1)
+      else()
+        set(is_dir 0)
+      endif()
+
+      if ((arg_FILE AND (NOT ${is_dir})) 
+          OR (arg_DIR AND ${is_dir})
+          OR (NOT arg_DIR AND NOT arg_FILE) )
+        set(out ${pt})
+        break()
+      endif()
+    endif()
+  endforeach()
+
+  # Handle various default options
+  if ((NOT ${VAR}) AND (arg_DEFAULT))
+    set(out ${arg_DEFAULT})
+  endif()
+  if ((NOT ${VAR}) AND (arg_DEFAULT_FIRST))
+    list(GET ${arg_PATHS} 0 out)
+  endif()
+  if ((NOT ${VAR}) AND (arg_DEFAULT_LAST))
+    list(GET ${arg_PATHS} -1 out)
+  endif()
+
+  # Handle required
+  if ((NOT ${VAR}) AND (arg_REQUIRED))
+    message("Path ${VAR} not found!" FATAL_ERROR)
+  endif()
+  # Set cache var or var in parent scope
+  if (arg_DOC)
+    if (is_dir)
+      set(${VAR} ${out} CACHE PATH ${arg_DOC})
+    else()
+      set(${VAR} ${out} CACHE FILEPATH ${arg_DOC})
+    endif()
+  else()
+    set(${VAR} ${out} PARENT_SCOPE)
+  endif()
+endfunction(iplug2_find_dir)
 
 #! iplug2_target_bundle_resource : Internal function to copy all resources to the output directory
 # 
@@ -224,6 +273,12 @@ endif()
 source_group(TREE ${IPLUG2_DIR} PREFIX "IPlug" FILES ${_src})
 iplug2_target_add(iPlug2_Core INTERFACE DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} OPTION ${_opts} LINK ${_lib})
 
+#############
+# IGraphics #
+#############
+
+# We include this first because APP requires LICE.
+include("${IPLUG2_DIR}/cmake/IGraphics.cmake")
 
 ##################
 # Plugin Formats #
@@ -248,12 +303,6 @@ iplug2_target_add(iPlug2_REAPER INTERFACE
   DEFINE "REAPER_PLUGIN"
   LINK iPlug2_VST2
 )
-
-#############
-# IGraphics #
-#############
-
-include("${IPLUG2_DIR}/cmake/IGraphics.cmake")
 
 ###############################
 # Minor Configuration Targets #
@@ -342,7 +391,8 @@ function(iplug2_configure_target target target_type)
 
   endif()
   
-  if ("${target_type}" STREQUAL "app")
+  
+      if ("${target_type}" STREQUAL "app")
     iplug2_configure_app(${target})
   elseif ("${target_type}" STREQUAL "aax")
     iplug2_configure_aax(${target})
@@ -350,8 +400,8 @@ function(iplug2_configure_target target target_type)
     iplug2_configure_au2(${target})
   elseif ("${target_type}" STREQUAL "au3")
     iplug2_configure_au3(${target})
-  # elseif ("${target_type}" STREQUAL "lv2")
-  #   iplug2_configure_lv2(${target})
+  elseif ("${target_type}" STREQUAL "lv2")
+    iplug2_configure_lv2(${target})
   # elseif ("${target_type}" STREQUAL "reaper")
   #   iplug2_conifgure_reaper(${target})
   elseif ("${target_type}" STREQUAL "vst2")

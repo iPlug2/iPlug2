@@ -15,7 +15,6 @@ set(_inc
   ${IGRAPHICS_SRC}/Drawing
   ${IGRAPHICS_SRC}/Platforms
   ${IGRAPHICS_SRC}/Extras
-  ${IPLUG2_DIR}/WDL/lice
   ${IGRAPHICS_DEPS}/NanoSVG/src
   ${IGRAPHICS_DEPS}/NanoVG/src
   ${IGRAPHICS_DEPS}/Cairo
@@ -157,46 +156,36 @@ endif()
 # LICE #
 ########
 
+include("${IPLUG2_DIR}/cmake/LICE.cmake")
+
 # LICE build is different between APP and all other targets when using swell.
 # Link to iPlug2_LICE and we'll fix it in configure.
 add_library(iPlug2_LICE INTERFACE)
-
-# Since app on Linux already uses Swell, we don't have to re-include extra stuff.
-add_library(iPlug2_LICE_APP INTERFACE)
-iplug2_target_add(iPlug2_LICE_APP INTERFACE
-  DEFINE "IGRAPHICS_LICE"
-  #SOURCE "${IGRAPHICS_SRC}/Drawing/IGraphicsLice_src.cpp"
-  INCLUDE 
-    "${WDL_DIR}/swell"
-    "${WDL_DIR}/lice"
-    "${IGRAPHICS_DEPS}/NanoSVG/src"
-  # Link libpng and zlib (libz)
-  LINK iPlug2_IGraphicsCore "png" "z" 
+iplug2_target_add(iPlug2_LICE INTERFACE
+  DEFINE "IGRAPHICS_LICE" "SWELL_EXTRA_MINIMAL" "SWELL_LICE_GDI" "SWELL_FREETYPE"
+  SOURCE "${IGRAPHICS_SRC}/Drawing/IGraphicsLice_src.cpp"
+  LINK iPlug2_IGraphicsCore LICE_Core LICE_PNG LICE_ZLIB "dl" "pthread"
 )
 
-set(swell_src
-  swell.h
-  swell.cpp
-  swell-dlg-generic.cpp
-  swell-gdi-generic.cpp
-  swell-ini.cpp
-  swell-menu-generic.cpp
-  swell-wnd-generic.cpp
-  swell-gdi-lice.cpp
-)
-list(TRANSFORM swell_src PREPEND "${WDL_DIR}/swell/")
-
-add_library(iPlug2_LICE_Normal INTERFACE)
-iplug2_target_add(iPlug2_LICE_Normal INTERFACE
-  DEFINE "SWELL_EXTRA_MINIMAL" "SWELL_LICE_GDI" "SWELL_FREETYPE"
-  SOURCE "${swell_src}"
-  LINK iPlug2_LICE_APP "freetype" "dl" "pthread"
-)
+# set(swell_src
+#   swell.h
+#   swell.cpp
+#   swell-dlg-generic.cpp
+#   swell-gdi-generic.cpp
+#   swell-ini.cpp
+#   swell-menu-generic.cpp
+#   swell-wnd-generic.cpp
+#   swell-gdi-lice.cpp
+# )
+# list(TRANSFORM swell_src PREPEND "${WDL_DIR}/swell/")
 
 if (OS_LINUX)
   pkg_check_modules(Freetype2 REQUIRED IMPORTED_TARGET "freetype2")
-  iplug2_target_add(iPlug2_LICE_Normal INTERFACE
-    INCLUDE ${IGRAPHICS_DEPS}/glad_GL2/include ${IGRAPHICS_DEPS}/glad_GL2/src ${_glx_inc}
+  iplug2_target_add(iPlug2_LICE INTERFACE
+    INCLUDE 
+      ${IGRAPHICS_DEPS}/glad_GL2/include
+      ${IGRAPHICS_DEPS}/glad_GL2/src
+      ${_glx_inc}
     SOURCE ${_glx_src}
     LINK PkgConfig::Freetype2
   )  

@@ -175,7 +175,7 @@ function(iplug2_configure_vst3 target)
       ARGS "\"$<TARGET_FILE:${target}>\"" "\".vst3\""
     )
 
-    iplug_target_bundle_resources(${target} "${res_dir}")
+    iplug2_target_bundle_resources(${target} "${res_dir}")
 
   elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     # Set the Info.plist file we're using and add resources
