@@ -24,6 +24,7 @@
 #include <cstring>
 #include <functional>
 #include <map>
+#include <memory>
 #include <numeric>
 #include <stack>
 #include <string>
@@ -43,7 +44,6 @@
 //#include <limits>
 //#include <list>
 //#include <locale>
-//#include <memory>
 //#include <set>
 //#include <unordered_map>
 //#include <utility>
@@ -142,8 +142,6 @@ END_INCLUDE_DEPENDENCIES
 // clang-format off
 
 #ifndef IPLUG2_STATIC
-	#include "config.h"
-
 	#define API_EXT2
 	#ifdef VST2_API
 		#ifdef REAPER_PLUGIN

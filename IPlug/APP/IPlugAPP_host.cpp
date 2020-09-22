@@ -8,13 +8,8 @@
  ==============================================================================
 */
 
-#include "config.h"
 
 #include "IPlugAPP_host.h"
-
-#if PLATFORM_WINDOWS
-	#include <sys/stat.h>
-#endif
 
 #include "IPlugLogger.h"
 

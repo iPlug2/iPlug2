@@ -12,7 +12,6 @@
 #import "IPlugAUAudioUnit.h"
 #import "IPlugAUViewController.h"
 
-//#include "config.h"                  // TODO: Is config.h even used in this file?
 #include "IPlugLogger.h"
 
 #if PLATFORM_IOS

@@ -132,6 +132,8 @@ target_compile_definitions(IPlug_SharedDefinitions
             _WINDOWS
             MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS=0
         >
+
+        ${CONFIG_DEFINITIONS}
 )
 
 # Target specific definitions

@@ -9,7 +9,6 @@
 */
 
 #include "IPlugAAX.h"
-#include "config.h"
 
 //AAX Components
 #include "AAX_ICollection.h"

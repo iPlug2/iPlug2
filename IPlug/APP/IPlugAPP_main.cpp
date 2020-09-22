@@ -11,7 +11,6 @@
 
 #include "IPlugAPP_host.h"
 
-#include "config.h"
 #include "resource.h"
 
 #pragma mark - WINDOWS

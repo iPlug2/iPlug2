@@ -1,5 +1,32 @@
 include_guard(GLOBAL)
 
+# configuration variables that are considered string values and gets quotation marks applied in the definition
+set(_iplug_config_string_variables
+    PLUG_NAME
+    PLUG_MFR
+    PLUG_VERSION_STR
+    PLUG_URL_STR
+    PLUG_EMAIL_STR
+    PLUG_COPYRIGHT_STR
+    PLUG_CHANNEL_IO
+    BUNDLE_NAME
+    BUNDLE_MFR
+    BUNDLE_DOMAIN
+    SHARED_RESOURCES_SUBPATH
+    VST3_SUBCATEGORY
+    AAX_PLUG_MFR_STR
+    AAX_PLUG_NAME_STR
+    AAX_PLUG_CATEGORY_STR
+    AUV2_ENTRY_STR
+    AUV2_VIEW_CLASS_STR
+)
+
+# list of config variables excluded from being defined in code
+set(_iplug_config_definition_exclude
+    ICON
+)
+
+
 #------------------------------------------------------------------------------
 # _iplug_pre_project_setup
 #
@@ -439,6 +466,26 @@ function(_iplug_disable_source_compile)
     endif()
     set_source_files_properties(${_exclude} PROPERTIES LANGUAGE "")
 endfunction()
+
+
+#------------------------------------------------------------------------------
+# _iplug_add_config_variable
+
+macro(_iplug_add_config_variable _name _value)
+    string(REPLACE "\n" "\\n" _str "${_value}")
+    string(REPLACE "\r" "\\r" _str "${_str}")
+    string(REPLACE "\t" "\\t" _str "${_str}")
+    set(CONFIG_${_name} "${_str}")
+    list(FIND _iplug_config_definition_exclude ${_name} _result)
+    if(${_result} EQUAL -1)
+        list(FIND _iplug_config_string_variables ${_name} _result)
+        if(${_result} EQUAL -1)
+            list(APPEND CONFIG_DEFINITIONS "${_name}=${_str}")
+        else()
+            list(APPEND CONFIG_DEFINITIONS "${_name}=\"${_str}\"")
+        endif()
+    endif()
+endmacro()
 
 
 #------------------------------------------------------------------------------

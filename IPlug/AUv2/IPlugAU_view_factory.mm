@@ -12,7 +12,6 @@
 #include <AudioUnit/AudioUnit.h>
 #include <AudioUnit/AUCocoaUIView.h>
 
-#include "config.h"   // This is your plugin's config.h.
 #include "IPlugAPIBase.h"
 
 using namespace iplug;

@@ -12,8 +12,6 @@
 #import "IPlugAUPlayer.h"
 #import "IPlugAUAudioUnit.h"
 
-#include "config.h"
-
 #import "IPlugAUViewController.h"
 #import <CoreAudioKit/CoreAudioKit.h>
 

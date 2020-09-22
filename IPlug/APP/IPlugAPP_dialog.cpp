@@ -9,7 +9,6 @@
 */
 
 #include "IPlugAPP_host.h"
-#include "config.h"
 #include "resource.h"
 
 BEGIN_INCLUDE_DEPENDENCIES

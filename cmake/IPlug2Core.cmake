@@ -51,6 +51,102 @@ macro(iplug_configure_project)
 
     string_assert(${PROJECT_NAME} "PROJECT_NAME is empty. Make sure to call configure after project declarations.")
 
+    # TODO: refactor definitions
+    set(_oneValueArgs
+        "ICON"
+
+        "BUNDLE_NAME"
+        "BUNDLE_MFR"
+        "BUNDLE_DOMAIN"
+
+        "PLUG_NAME"
+        "PLUG_MFR"
+        "PLUG_VERSION_HEX"
+        "PLUG_VERSION_STR"
+        "PLUG_UNIQUE_ID"
+        "PLUG_MFR_ID"
+        "PLUG_URL_STR"
+        "PLUG_EMAIL_STR"
+        "PLUG_COPYRIGHT_STR"
+        "PLUG_CHANNEL_IO"
+        "PLUG_LATENCY"
+        "PLUG_DOES_MIDI_IN"
+        "PLUG_DOES_MIDI_OUT"
+        "PLUG_DOES_MPE"
+        "PLUG_DOES_STATE_CHUNKS"
+        "PLUG_HAS_UI"
+        "PLUG_WIDTH"
+        "PLUG_HEIGHT"
+        "PLUG_FPS"
+        "PLUG_SHARED_RESOURCES"
+        "PLUG_TYPE"
+        "PLUG_HOST_RESIZE"
+
+        "SHARED_RESOURCES_SUBPATH"
+        "VST3_SUBCATEGORY"
+
+        "APP_NUM_CHANNELS"
+        "APP_N_VECTOR_WAIT"
+        "APP_MULT"
+        "APP_COPY_AUV3"
+        "APP_SIGNAL_VECTOR_SIZE"
+
+        "AAX_TYPE_IDS"
+        "AAX_TYPE_IDS_AUDIOSUITE"
+        "AAX_PLUG_MFR_STR"
+        "AAX_PLUG_CATEGORY_STR"
+        "AAX_DOES_AUDIOSUITE"
+
+        "AUV2_ENTRY"
+        "AUV2_FACTORY"
+        "AUV2_VIEW_CLASS"
+    )
+
+
+    set(_multiValueArgs "RESOURCE_DEFINITIONS")
+    cmake_parse_arguments(_arg "" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN})
+
+    # surrounds string variables with needed quotation marks
+    foreach(_var IN LISTS _oneValueArgs)
+        _iplug_add_config_variable(${_var} "${_arg_${_var}}")
+    endforeach()
+
+    # resource definitions are always strings
+    if(_arg_RESOURCE_DEFINITIONS)
+        while(TRUE)
+            list(LENGTH _arg_RESOURCE_DEFINITIONS _len)
+            if(NOT _len OR ${_len} EQUAL 0)
+                break()
+            endif()
+            list(POP_FRONT _arg_RESOURCE_DEFINITIONS _item_name)
+            list(POP_FRONT _arg_RESOURCE_DEFINITIONS _item_val)
+            _iplug_add_config_variable(${_item_name} "\"${_item_val}\"")
+        endwhile()
+    endif()
+
+    # additional variables that are auto assigned
+    _iplug_add_config_variable(PLUG_CLASS_NAME "${PROJECT_NAME}")
+    _iplug_add_config_variable(AUV2_ENTRY_STR "${CONFIG_AUV2_ENTRY}")
+    _iplug_add_config_variable(AUV2_VIEW_CLASS_STR "${CONFIG_AUV2_VIEW_CLASS}")
+    _iplug_add_config_variable(AAX_PLUG_NAME_STR "${CONFIG_PLUG_CLASS_NAME}\\nIPCT")
+
+
+
+    # cmake_print_list(CONFIG_DEFINITIONS)
+
+    # check validity of config variables
+    if(NOT CONFIG_PLUG_NAME)
+        iplug_syntax_error("Missing PLUG_NAME.")
+    endif()
+    iplug_info("PLUG_NAME = ${CONFIG_PLUG_NAME}")
+
+    if(NOT CONFIG_BUNDLE_NAME)
+        iplug_syntax_error("Missing BUNDLE_NAME.")
+    endif()
+    iplug_info("BUNDLE_NAME = ${CONFIG_BUNDLE_NAME}")
+
+
+
     # IPlug2_BINARY_DIR is declared in IPlug2/CMakeLists.txt.
     # If we're adding IPlug with add_subdirectory it never gets declared since we're using
     # a external project as superproject and hitchhiking into that binary directory instead.
@@ -152,21 +248,24 @@ endmacro()
 macro(iplug_add_vst3 _target)
     _iplug_check_initialized()
 
-    set(_oneValueArgs "EXTENSION" "ICON")
+    set(_oneValueArgs "EXTENSION")
     set(_multiValueArgs "")
     cmake_parse_arguments(_arg "" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN})
 
     if(NOT _arg_EXTENSION)
         set(_arg_EXTENSION "vst3")
     endif()
-    if(NOT _arg_ICON)
-        set(_arg_ICON "${VST3_SDK_PATH}/doc/artwork/VST_Logo_Steinberg.ico")
+
+    set(VST3_ICON ${CONFIG_ICON})
+    if(NOT VST3_ICON)
+        set(VST3_ICON "${VST3_SDK_PATH}/doc/artwork/VST_Logo_Steinberg.ico")
     endif()
 
     add_library(${_target} MODULE)
 
-    set(PLUGIN_BUNDLE_NAME ${PROJECT_NAME}) # TODO: change to bundle name
-    set(PLUGIN_NAME ${PROJECT_NAME})        # TODO: change to name from project configuration
+    set(PLUGIN_NAME ${CONFIG_PLUG_NAME})
+    set(PLUGIN_EXT ${_arg_EXTENSION})
+    set(PLUGIN_NAME_EXT "${PLUGIN_NAME}.${PLUGIN_EXT}")
 
     if(NOT HAVESDK_VST3)
         iplug_warning("VST3 Plugins requires a valid path to Steinberg VST3 SDK. '${_target}' will not be able to compile.")
@@ -215,9 +314,12 @@ macro(iplug_add_vst3 _target)
 
 
         set(VST3_CONFIG_PATH $<$<CONFIG:Debug>:VST3-Debug>$<$<CONFIG:Release>:VST3-Release>$<$<CONFIG:Distributed>:VST3-Distributed>)
-        set(PLUGIN_PACKAGE_PATH ${PROJECT_BINARY_DIR}/bin/${VST3_CONFIG_PATH}/${PLUGIN_BUNDLE_NAME})
+        set(PLUGIN_PACKAGE_PATH ${PROJECT_BINARY_DIR}/bin/${VST3_CONFIG_PATH}/${CONFIG_BUNDLE_NAME})
+
+        # cmake_print_variables(PLUGIN_PACKAGE_PATH)
 
         set_target_properties(${_target} PROPERTIES LIBRARY_OUTPUT_NAME "${PLUGIN_NAME}")
+        set_target_properties(${_target} PROPERTIES SUFFIX ".${PLUGIN_EXTENSION}")
 
         if(PLATFORM_WINDOWS)
             foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
@@ -225,12 +327,12 @@ macro(iplug_add_vst3 _target)
                 set_target_properties(${_target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} "${PLUGIN_PACKAGE_PATH}")
             endforeach()
 
-            if(EXISTS ${_arg_ICON})
+            if(EXISTS ${VST3_ICON})
                 add_custom_command(TARGET ${_target}
                     COMMENT "Copy PlugIn.ico and desktop.ini and change their attributes."
                     POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy
-                        ${_arg_ICON}
+                        ${VST3_ICON}
                         ${PLUGIN_PACKAGE_PATH}/PlugIn.ico
                     COMMAND ${CMAKE_COMMAND} -E copy
                         ${SMTG_DESKTOP_INI_PATH}
@@ -240,7 +342,9 @@ macro(iplug_add_vst3 _target)
                     COMMAND attrib +s ${PLUGIN_PACKAGE_PATH}
                 )
             endif()
+
         elseif(PLATFORM_APPLE)
+
             # !!! this is untested code
             set_target_properties(${_target} PROPERTIES BUNDLE TRUE)
             if(XCODE)
@@ -258,6 +362,7 @@ macro(iplug_add_vst3 _target)
             endif()
 
         elseif(PLATFORM_LINUX)
+
             # !!! this is untested code
             smtg_get_linux_architecture_name() # Sets var LINUX_ARCHITECTURE_NAME
             iplug_info("Linux architecture name is ${LINUX_ARCHITECTURE_NAME}.")
@@ -275,24 +380,28 @@ macro(iplug_add_vst3 _target)
             smtg_run_vst_validator(${_target})
         endif()
 
-        # set(SMTG_CREATE_PLUGIN_LINK ON)
+
         if(SMTG_CREATE_PLUGIN_LINK)
             if(${SMTG_PLUGIN_TARGET_PATH} STREQUAL "")
                 message(FATAL_ERROR "Define a proper value for SMTG_PLUGIN_TARGET_PATH")
             endif()
 
             set(TARGET_SOURCE ${PLUGIN_PACKAGE_PATH})
-            set(TARGET_DESTINATION ${SMTG_PLUGIN_TARGET_PATH}/${PLUGIN_BUNDLE_NAME})
+            set(TARGET_DESTINATION ${SMTG_PLUGIN_TARGET_PATH}/${CONFIG_BUNDLE_NAME})
 
             if(SMTG_WIN)
-                file(TO_NATIVE_PATH "${TARGET_DESTINATION}" SRC_NATIVE_PATH)
-                file(TO_NATIVE_PATH "${PLUGIN_PACKAGE_PATH}" TARGET_DESTINATION)
+                file(TO_NATIVE_PATH "${TARGET_SOURCE}" SOURCE_NATIVE_PATH)
+                file(TO_NATIVE_PATH "${TARGET_DESTINATION}" DESTINATION_NATIVE_PATH)
+                file(TO_NATIVE_PATH "${TARGET_SOURCE}/${PLUGIN_NAME_EXT}" SOURCE_PLUGIN_NATIVE)
+                file(TO_NATIVE_PATH "${TARGET_DESTINATION}/${PLUGIN_NAME_EXT}" DESTINATION_PLUGIN_NATIVE)
+
                 add_custom_command(
                     TARGET ${_target} POST_BUILD
-                    COMMAND del "${SRC_NATIVE_PATH}"
+                    COMMAND if not exist "${DESTINATION_NATIVE_PATH}" mkdir "${DESTINATION_NATIVE_PATH}"
+                    COMMAND del "${DESTINATION_PLUGIN_NATIVE}"
                     COMMAND mklink
-                        "${SRC_NATIVE_PATH}"
-                        "${TARGET_DESTINATION}"
+                        "${DESTINATION_PLUGIN_NATIVE}"
+                        "${SOURCE_PLUGIN_NATIVE}"
                 )
             else()
                 add_custom_command(
@@ -305,7 +414,7 @@ macro(iplug_add_vst3 _target)
 
     endif()
 
-    set_target_properties(${_target} PROPERTIES SUFFIX ".${_arg_EXTENSION}")
+
     if(NOT IPLUG2_EXTERNAL_PROJECT)
         set_target_properties(${_target} PROPERTIES FOLDER "Examples/${PROJECT_NAME}")
     endif()
