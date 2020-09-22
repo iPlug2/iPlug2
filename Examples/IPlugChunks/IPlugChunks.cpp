@@ -1,6 +1,5 @@
 #include "IPlugChunks.h"
 #include "IPlug_include_in_plug_src.h"
-#include "IControls.h"
 
 IPlugChunks::IPlugChunks(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))

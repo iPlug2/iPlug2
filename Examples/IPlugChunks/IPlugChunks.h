@@ -1,6 +1,5 @@
 #pragma once
 
-#include "IPlug_include_in_plug_hdr.h"
 
 const int kNumPresets = 1;
 constexpr int kNumSteps = 16;
