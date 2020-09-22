@@ -12,6 +12,7 @@ cmake_policy(SET CMP0076 NEW)
 set(iPlug2_FOUND 1)
 
 set(IPLUG_APP_NAME ${CMAKE_PROJECT_NAME} CACHE STRING "Name of the VST/AU/App/etc.")
+set(PLUG_NAME ${CMAKE_PROJECT_NAME} CACHE STRING "Name of the VST/AU/App/etc.")
 
 if (WIN32)
   # Need to determine processor arch for postbuild-win.bat
@@ -92,19 +93,30 @@ function(iplug2_target_add target set_type)
   endif()
 endfunction()
 
+#! iplug2_find_path : An alternative to find_file and find_path that allows a default value.
+# 
+# \arg:VAR Variable name to set
+# \flag:DIR Search for a directory (cannot be used with FILE)
+# \flag:FILE Search for a file (cannot be used with DIR)
+# \flag:REQUIRED If this is set and there is no default cmake will abort with an error
+# \param:DEFAULT_IDX If the path can't be found use the path in PATHS at index DEFAULT_IDX,
+#                    negative values start from the end
+# \param:DEFAULT If the path can't be found use this path instead
+# \param:DOC Documentation string. If this is set the value will be set as a cache variable
+# \group:PATHS List of paths to search for
 function(iplug2_find_path VAR)
-  cmake_parse_arguments("arg" "REQUIRED;DIR;FILE;DEFAULT_FIRST;DEFAULT_LAST" "DEFAULT;DOC" "PATHS" ${ARGN})
+  cmake_parse_arguments("arg" "REQUIRED;DIR;FILE" "DEFAULT_IDX;DEFAULT;DOC" "PATHS" ${ARGN})
 
-  # var = false
   set(out 0)
-  
   foreach (pt ${arg_PATHS})
     if (EXISTS ${pt})
+      
       if (IS_DIRECTORY ${pt})
         set(is_dir 1)
       else()
         set(is_dir 0)
       endif()
+      message("Found path ${pt} and is_dir=${is_dir}")
 
       if ((arg_FILE AND (NOT ${is_dir})) 
           OR (arg_DIR AND ${is_dir})
@@ -116,19 +128,19 @@ function(iplug2_find_path VAR)
   endforeach()
 
   # Handle various default options
-  if ((NOT ${VAR}) AND (arg_DEFAULT))
+  if ((NOT out) AND (arg_DEFAULT))
     set(out ${arg_DEFAULT})
   endif()
-  if ((NOT ${VAR}) AND (arg_DEFAULT_FIRST))
+  if ((NOT out) AND (arg_DEFAULT_FIRST))
     list(GET ${arg_PATHS} 0 out)
   endif()
-  if ((NOT ${VAR}) AND (arg_DEFAULT_LAST))
+  if ((NOT out) AND (arg_DEFAULT_LAST))
     list(GET ${arg_PATHS} -1 out)
   endif()
 
   # Handle required
-  if ((NOT ${VAR}) AND (arg_REQUIRED))
-    message("Path ${VAR} not found!" FATAL_ERROR)
+  if ((NOT out) AND (arg_REQUIRED))
+    message(FATAL_ERROR "Path ${VAR} not found!")
   endif()
   # Set cache var or var in parent scope
   if (arg_DOC)
@@ -140,7 +152,7 @@ function(iplug2_find_path VAR)
   else()
     set(${VAR} ${out} PARENT_SCOPE)
   endif()
-endfunction(iplug2_find_dir)
+endfunction(iplug2_find_path)
 
 #! iplug2_target_bundle_resource : Internal function to copy all resources to the output directory
 # 
@@ -178,6 +190,7 @@ set(IGRAPHICS_SRC ${IPLUG2_DIR}/IGraphics)
 set(WDL_DIR ${IPLUG2_DIR}/WDL)
 set(IPLUG_DEPS ${IPLUG2_DIR}/Dependencies/IPlug)
 set(IGRAPHICS_DEPS ${IPLUG2_DIR}/Dependencies/IGraphics)
+set(BUILD_DEPS ${IPLUG2_DIR}/Dependencies/Build)
 
 # Core iPlug2 interface. All targets MUST link to this.
 add_library(iPlug2_Core INTERFACE)

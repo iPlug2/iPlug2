@@ -1,46 +1,25 @@
 cmake_minimum_required(VERSION 3.11)
 
 # Determine VST2 and VST3 directories
-set(_doc "Path to install VST2 plugins")
-set(vst2_default_path "")
 if (WIN32)
-  set(_names "VstPlugins")
+  set(fn "VstPlugins")
   if (PROCESSOR_ARCH STREQUAL "Win32")
-    set(_paths
-      "C:/Program Files (x86)/"
-      "C:/Program Files (x86)/Steinberg/")
-    set(vst2_default_path "C:/Program Files (x86)/${_names}/")
-  else()
-    set(vst2_default_path "C:/Program Files/${_names}/")
+    set(_paths "$ENV{ProgramFiles(x86)}/${fn}" "$ENV{ProgramFiles(x86)}/Steinberg/${fn}")
   endif()
   # Append this for x86, x64, and ARM I guess
-  list(APPEND _paths
-    "C:/Program Files/"
-    "C:/Program Files/Steinberg/")
-  
-  find_file(VST2_PATH NAMES ${_names} PATHS ${_paths} DOC ${_doc})
-
+  list(APPEND _paths "$ENV{ProgramFiles}/${fn}" "$ENV{ProgramFiles}/Steinberg/${fn}")
 elseif (OS_MAC)
-  find_file(VST2_PATH
-    NAMES "VST"
-    PATHS "$ENV{HOME}/Library/Audio/Plug-Ins"
-    DOC ${_doc})
-  set(vst2_default_path "$ENV{HOME}/Library/Audio/Plug-Ins/VST/")
-
+  set(fn "VST")
+  set(_paths "$ENV{HOME}/Library/Audio/Plug-Ins/${fn}" "/Library/Audio/Plug-Ins/${fn}")
 elseif (OS_LINUX)
-  find_file(VST2_PATH
-    NAMES ".vst"
-    PATHS "$ENV{HOME}"
-    DOC ${_doc})
-  set(vst2_default_path "$ENV{HOME}/.vst/")
-
+  set(_paths "$ENV{HOME}/.vst" "/usr/local/lib/vst" "/usr/local/vst")
 endif()
 
-# If we didn't find a VST2 path, pick the default
-set(VST2_PATH "${vst2_default_path}" CACHE PATH ${_doc})
+iplug2_find_path(VST2_INSTALL_PATH REQUIRED DIR DEFAULT_IDX 0 
+  DOC "Path to install VST2 plugins"
+  PATHS ${_paths})
 
 set(sdk ${IPLUG2_DIR}/IPlug/VST2)
-
 add_library(iPlug2_VST2 INTERFACE)
 iplug2_target_add(iPlug2_VST2 INTERFACE
   INCLUDE ${sdk} ${IPLUG_DEPS}/VST2_SDK
@@ -61,9 +40,10 @@ endif()
 
 function(iplug2_configure_vst2 target)
   if (WIN32)
+    set(out_dir "${CMAKE_BINARY_DIR}/${target}")
     set_target_properties(${target} PROPERTIES
       OUTPUT_NAME "${IPLUG_APP_NAME}"
-      LIBRARY_OUTPUT_DIRECTORY "${target}"
+      LIBRARY_OUTPUT_DIRECTORY "${out_dir}"
       PREFIX ""
       SUFFIX ".dll"
     )
@@ -81,13 +61,17 @@ function(iplug2_configure_vst2 target)
     set(res_dir "")
 
   elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    set(out_dir "${CMAKE_BINARY_DIR}/${target}")
     set_target_properties(${target} PROPERTIES
       OUTPUT_NAME "${IPLUG_APP_NAME}"
-      LIBRARY_OUTPUT_DIRECTORY "${target}"
+      LIBRARY_OUTPUT_DIRECTORY "${out_dir}"
       PREFIX ""
       SUFFIX ".so"
     )
     set(res_dir "${CMAKE_BINARY_DIR}/${target}/resources")
+
+    add_custom_command(TARGET ${target} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} ARGS "-E" "copy_directory" "${out_dir}" "${VST2_INSTALL_PATH}/${PLUG_NAME}")
   endif()
 
   # Handle resources

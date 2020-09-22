@@ -12,7 +12,7 @@ cmake_policy(SET CMP0091 NEW)
 # To build the VST3 version:
 #   cmake --build build-linux --target IPlugInstrument-vst3
 
-project(IPlugInstrument VERSION 1.0.0 LANGUAGES C CXX)
+project(IPlugEffect VERSION 1.0.0 LANGUAGES C CXX)
 
 set(IPLUG2_DIR ${CMAKE_SOURCE_DIR}/../..)
 include(${IPLUG2_DIR}/iplug2.cmake)
@@ -21,9 +21,8 @@ find_package(iPlug2 REQUIRED)
 set(dir "${CMAKE_SOURCE_DIR}")
 set(SRC_FILES
   "${dir}/config.h"
-  "${dir}/IPlugInstrument.h"
-  "${dir}/IPlugInstrument.cpp"
-  "${dir}/IPlugInstrument_DSP.h"
+  "${dir}/IPlugEffect.h"
+  "${dir}/IPlugEffect.cpp"
 )
 source_group(TREE ${dir} FILES ${SRC_FILES})
 

@@ -4,8 +4,9 @@
 
 # We need this so we can find call FindFaust.cmake
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
-# This is used in iplug2_configure_target
-set(IPLUG2_DIR ${CMAKE_CURRENT_LIST_DIR})
+
+# This is used in many places
+set(IPLUG2_DIR ${CMAKE_CURRENT_LIST_DIR} CACHE PATH DOC "Path to the iPlug2 directory")
 
 # CMP0091 is REQURED to be NEW for this to work.
 cmake_policy(GET CMP0091 _tmp)
@@ -14,3 +15,6 @@ if (NOT "${_tmp}" STREQUAL "NEW")
 endif()
 # Make sure MSVC uses static linking for compatibility with Skia libraries and easier distribution.
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
+# We generate folders for targets that support it (Visual Studio, Xcode, etc.)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)

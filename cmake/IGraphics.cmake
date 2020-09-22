@@ -125,32 +125,58 @@ iplug2_target_add(iPlug2_NoGraphics INTERFACE
 ########
 
 add_library(iPlug2_Skia INTERFACE)
-target_link_libraries(iPlug2_Skia INTERFACE iPlug2_IGraphicsCore)
+iplug2_target_add(iPlug2_Skia INTERFACE 
+  DEFINE "IGRAPHICS_SKIA"
+  LINK iPlug2_IGraphicsCore)
+
 if (WIN32)
-  set(sdk "${IPLUG_DEPS}/Build/win/${PROCESSOR_ARCH}/$<IF:$<CONFIG:DEBUG>,Debug,Release>")
+  set(sdk "${BUILD_DEPS}/win/${PROCESSOR_ARCH}/$<IF:$<CONFIG:DEBUG>,Debug,Release>")
   iplug2_target_add(iPlug2_Skia INTERFACE
-    DEFINE "IGRAPHICS_SKIA" "IGRAPHICS_CPU"
-    LINK 
+    LINK
       "${sdk}/libpng.lib"
       "${sdk}/pixman.lib"
       "${sdk}/skia.lib"
       "${sdk}/skottie.lib"
       "${sdk}/skparagraph.lib"
       "${sdk}/sksg.lib"
-      "${sdk}/skshaper.lib"
-      "${sdk}/zlib.lib"
-    INCLUDE
-      ${IPLUG2_DIR}/Dependencies/Build/src/skia
-      ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/core
-      ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/effects
-      ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/config
-      ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/utils
-      ${IPLUG2_DIR}/Dependencies/Build/src/skia/include/gpu
-      ${IPLUG2_DIR}/Dependencies/Build/src/skia/experimental/svg/model
-  )
-else()
-  set(iPlug2_Skia_NOTFOUND "TRUE")
+      "${sdk}/skshaper.lib")
+
+elseif (OS_MAC)
+  # TODO MAC: Check if this is the real path
+  set(sdk "${IPLUG_DEPS}/../Build/mac/${PROCESSOR_ARCH}/lib")
+
+elseif (OS_LINUX)
+  set(sdk "${IPLUG_DEPS}/../Build/linux/lib")
+  iplug2_target_add(iPlug2_Skia INTERFACE
+    LINK 
+      "${sdk}/libpng.a"
+      "${sdk}/libpixman-1.a"
+      "${sdk}/libskia.a"
+      "${sdk}/libskottie.a"
+      "${sdk}/libskparagraph.a"
+      "${sdk}/libsksg.a"
+      "${sdk}/libskshaper.a")
+
 endif()
+
+iplug2_target_add(iPlug2_Skia INTERFACE
+  INCLUDE
+    ${BUILD_DEPS}/src/skia
+    ${BUILD_DEPS}/src/skia/include/core
+    ${BUILD_DEPS}/src/skia/include/effects
+    ${BUILD_DEPS}/src/skia/include/config
+    ${BUILD_DEPS}/src/skia/include/utils
+    ${BUILD_DEPS}/src/skia/include/gpu
+    ${BUILD_DEPS}/src/skia/experimental/svg/model)
+
+add_library(iPlug2_Skia_GL2 INTERFACE)
+target_link_libraries(iPlug2_Skia_GL2 INTERFACE iPlug2_Skia iPlug2_GL2)
+
+add_library(iPlug2_Skia_GL3 INTERFACE)
+target_link_libraries(iPlug2_Skia_GL3 INTERFACE iPlug2_Skia iPlug2_GL3)
+
+add_library(iPlug2_Skia_CPU INTERFACE)
+iplug2_target_add(iPlug2_Skia_CPU INTERFACE DEFINE "IGRAPHICS_CPU" LINK iPlug2_Skia)
 
 ########
 # LICE #

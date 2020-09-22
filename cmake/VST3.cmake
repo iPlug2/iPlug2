@@ -25,7 +25,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(vst3_target_arch "${CMAKE_SYSTEM_PROCESSOR}-linux")
 endif()
 
-find_file(VST3_PATH ${vst3_names} PATHS ${vst3_paths} DOC "Path to install VST3 plugins")
+find_file(VST3_INSTALL_PATH ${vst3_names} PATHS ${vst3_paths} DOC "Path to install VST3 plugins")
 
 set(IPLUG2_VST_ICON 
   "${IPLUG2_DIR}/Dependencies/IPlug/VST3_SDK/doc/artwork/VST_Logo_Steinberg.ico"
@@ -158,13 +158,15 @@ iplug2_target_add(${tgt} INTERFACE SOURCE ${_inf} DEFINE ${_def})
 
 function(iplug2_configure_vst3 target)
 
+  set(out_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}.vst3")
+  set(install_dir "${VST3_INSTALL_PATH}/${PLUG_NAME}.vst3")
   set(res_dir "${CMAKE_BINARY_DIR}/${IPLUG_APP_NAME}.vst3/Contents/Resources")
 
   if (WIN32)
     # Use .vst3 as the extension instead of .dll
     set_target_properties(${target} PROPERTIES
       OUTPUT_NAME "${IPLUG_APP_NAME}"
-      LIBRARY_OUTPUT_DIRECTORY "${IPLUG_APP_NAME}.vst3/Contents/${vst3_target_arch}/"
+      LIBRARY_OUTPUT_DIRECTORY "${out_dir}/Contents/${vst3_target_arch}/"
       PREFIX ""
       SUFFIX ".vst3"
     )
@@ -187,15 +189,21 @@ function(iplug2_configure_vst3 target)
       PREFIX ""
       SUFFIX ""
     )
+    add_custom_command(TARGET ${target} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} ARGS "-E" "copy_directory" "${out_dir}" "${install_dir}")
 
   elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    
     set_target_properties(${target} PROPERTIES
       OUTPUT_NAME "${IPLUG_APP_NAME}"
-      LIBRARY_OUTPUT_DIRECTORY "${IPLUG_APP_NAME}.vst3/Contents/${vst3_target_arch}/"
+      LIBRARY_OUTPUT_DIRECTORY "${out_dir}/Contents/${vst3_target_arch}/"
       PREFIX ""
       SUFFIX ".so"
     )
     iplug2_target_bundle_resources(${target} "${res_dir}")
-    
+
+    add_custom_command(TARGET ${target} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} ARGS "-E" "copy_directory" "${out_dir}" "${install_dir}")
+
   endif()
 endfunction()
