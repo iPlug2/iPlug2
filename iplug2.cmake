@@ -6,7 +6,7 @@
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 # This is used in many places
-set(IPLUG2_DIR ${CMAKE_CURRENT_LIST_DIR} CACHE PATH DOC "Path to the iPlug2 directory")
+set(IPLUG2_DIR ${CMAKE_CURRENT_LIST_DIR})
 
 # CMP0091 is REQURED to be NEW for this to work.
 cmake_policy(GET CMP0091 _tmp)
