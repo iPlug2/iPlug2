@@ -195,18 +195,7 @@ protected:
   
   void DrawDropShadow(IGraphics& g, const IRECT& r)
   {
-  #ifdef IGRAPHICS_NANOVG
     g.DrawFastDropShadow(r, mBubbleBounds, 2.0, mRoundness, 20.f, &mBlend);
-  #else
-//    if (!g.CheckLayer(mShadowLayer))
-//    {
-//      g.StartLayer(this, mBubbleBounds);
-//      g.FillRoundRect(COLOR_BLACK, r, mRoundness);
-//      mShadowLayer = g.EndLayer();
-//      g.ApplyLayerDropShadow(mShadowLayer, IShadow(COLOR_BLACK_DROP_SHADOW, 20.0, 0.0, yDrop, 1.0, true));
-//    }
-//    g.DrawLayer(mShadowLayer, &mBlend);
-  #endif
   }
 
   void ShowBubble(IControl* pCaller, float x, float y, const char* str, EDirection dir, IRECT minimumContentBounds, ITouchID touchID = 0)
