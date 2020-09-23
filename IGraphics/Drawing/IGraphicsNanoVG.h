@@ -100,6 +100,8 @@ public:
   void DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen) override;
   void DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen) override;
 
+  void DrawFastDropShadow(const IRECT& innerBounds, const IRECT& outerBounds, float xyDrop = 5.f, float roundness = 0.f, float blur = 10.f, IBlend* pBlend = nullptr) override;
+  
   void PathClear() override;
   void PathClose() override;
   void PathArc(float cx, float cy, float r, float a1, float a2, EWinding winding) override;
@@ -120,7 +122,7 @@ public:
   bool BitmapExtSupported(const char* ext) override;
 
   void DeleteFBO(NVGframebuffer* pBuffer);
-    
+  
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale) override;

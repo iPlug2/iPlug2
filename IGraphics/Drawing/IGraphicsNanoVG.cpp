@@ -905,3 +905,14 @@ void IGraphicsNanoVG::ClearFBOStack()
     mFBOStack.pop();
   }
 }
+
+void IGraphicsNanoVG::DrawFastDropShadow(const IRECT& innerBounds, const IRECT& outerBounds, float xyDrop, float roundness, float blur, IBlend* pBlend)
+{
+  NVGpaint shadowPaint = nvgBoxGradient(mVG, innerBounds.L + xyDrop, innerBounds.T + xyDrop, innerBounds.W(), innerBounds.H(), roundness, blur, NanoVGColor(COLOR_BLACK_DROP_SHADOW, pBlend), NanoVGColor(COLOR_TRANSPARENT, nullptr));
+  nvgBeginPath(mVG);
+  nvgRect(mVG, outerBounds.L, outerBounds.T, outerBounds.W(), outerBounds.H());
+  nvgFillPaint(mVG, shadowPaint);
+  nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
+  nvgFill(mVG);
+  nvgBeginPath(mVG);
+}

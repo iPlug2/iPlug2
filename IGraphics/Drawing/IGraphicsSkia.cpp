@@ -7,6 +7,7 @@
 #pragma warning( disable : 4244 )
 #include "SkDashPathEffect.h"
 #include "SkGradientShader.h"
+#include "SkMaskFilter.h"
 #include "SkFont.h"
 #include "SkFontMetrics.h"
 #include "SkTypeface.h"
@@ -900,6 +901,17 @@ void IGraphicsSkia::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
     pCanvas->setMatrix(m);
     pCanvas->drawImage(foreground.get(), 0.0, 0.0);
   }
+}
+
+void IGraphicsSkia::DrawFastDropShadow(const IRECT& innerBounds, const IRECT& outerBounds, float xyDrop, float roundness, float blur, IBlend* pBlend)
+{
+  SkRect r = SkiaRect(innerBounds.GetTranslated(xyDrop, xyDrop));
+  
+  SkPaint paint = SkiaPaint(COLOR_BLACK_DROP_SHADOW, pBlend);
+  paint.setStyle(SkPaint::Style::kFill_Style);
+  
+  paint.setMaskFilter(SkMaskFilter::MakeBlur(kSolid_SkBlurStyle, blur * 0.5)); // 0.5 seems to match nanovg
+  mCanvas->drawRoundRect(r, roundness, roundness, paint);
 }
 
 const char* IGraphicsSkia::GetDrawingAPIStr()
