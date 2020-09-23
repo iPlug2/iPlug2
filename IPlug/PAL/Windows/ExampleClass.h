@@ -16,11 +16,11 @@
 
 namespace iplug
 {
-	class ExampleClass final : public generic::ExampleClass
+	class ExampleClass final : public generic::GenericExampleClass
 	{
 	  public:
 		ExampleClass() {};
-		~ExampleClass() {};
+		~ExampleClass() override {};
 
 	};
 }  // namespace iplug
