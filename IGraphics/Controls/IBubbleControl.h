@@ -257,11 +257,6 @@ protected:
       
     SetRECT(mRECT.Union(mBubbleBounds));
 
-//    #ifndef IGRAPHICS_NANOVG
-//    if(mShadowLayer)
-//      mShadowLayer->Invalidate();
-//    #endif
-    
     if(mState == kCollapsed)
     {
       Hide(false);
@@ -287,9 +282,6 @@ protected:
   IRECT mBubbleBounds;
   IControl* mCaller = nullptr;
   EArrowDir mArrowDir = EArrowDir::kWest;
-//  #ifndef IGRAPHICS_NANOVG
-//  ILayerPtr mShadowLayer;
-//  #endif
   WDL_String mStr;
   IBlend mBlend = { EBlend::Default, 0.f }; // blend for sub panels appearing
   float mRoundness = 5.f; // The roundness of the corners of the menu panel backgrounds

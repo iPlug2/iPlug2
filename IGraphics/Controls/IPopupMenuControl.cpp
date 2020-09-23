@@ -16,11 +16,6 @@
 
 #include "IPopupMenuControl.h"
 
-// TODO: drop shadow on non-nanovg backends too slow
-#ifndef ENABLE_SHADOW
-  #define ENABLE_SHADOW 0
-#endif
-
 #ifdef IGRAPHICS_NANOVG
 #include "nanovg.h"
 #endif
