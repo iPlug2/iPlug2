@@ -195,7 +195,7 @@ protected:
   
   void DrawDropShadow(IGraphics& g, const IRECT& r)
   {
-    g.DrawFastDropShadow(r, mBubbleBounds, 2.0, mRoundness, 20.f, &mBlend);
+    g.DrawFastDropShadow(r, mBubbleBounds, 2.0, mRoundness, 10.f, &mBlend);
   }
 
   void ShowBubble(IControl* pCaller, float x, float y, const char* str, EDirection dir, IRECT minimumContentBounds, ITouchID touchID = 0)

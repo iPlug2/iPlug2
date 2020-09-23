@@ -342,7 +342,7 @@ void IPopupMenuControl::DrawPanelBackground(IGraphics& g, MenuPanel* panel)
 void IPopupMenuControl::DrawPanelShadow(IGraphics& g, MenuPanel* panel)
 {
   IRECT inner = panel->mRECT.GetPadded(-mDropShadowSize);
-  g.DrawFastDropShadow(inner, panel->mRECT, 2.0, mRoundness * 2.f, 10.f, &panel->mBlend);
+  g.DrawFastDropShadow(inner, panel->mRECT, 2.0, mRoundness, 10.f, &panel->mBlend);
 }
 
 void IPopupMenuControl::DrawCellBackground(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* pBlend)

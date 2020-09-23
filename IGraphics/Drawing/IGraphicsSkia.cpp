@@ -909,22 +909,8 @@ void IGraphicsSkia::DrawFastDropShadow(const IRECT& innerBounds, const IRECT& ou
   
   SkPaint paint = SkiaPaint(COLOR_BLACK_DROP_SHADOW, pBlend);
   paint.setStyle(SkPaint::Style::kFill_Style);
-//  SkPoint points[2] =
-//  {
-//    SkPoint::Make(r.x(), r.top()),
-//    SkPoint::Make(r.right(), r.bottom())
-//  };
-//
-//  SkColor colors[2] =
-//  {
-//    SkiaColor(COLOR_BLACK_DROP_SHADOW, pBlend),
-//    SkiaColor(COLOR_TRANSPARENT, pBlend),
-//  };
-//
-//  SkScalar positions[2] = {0.f, 1.f};
   
-//  paint.setShader(SkGradientShader::MakeLinear(points, colors, positions, 2, SkTileMode::kDecal, 0, nullptr));
-  paint.setMaskFilter(SkMaskFilter::MakeBlur(kSolid_SkBlurStyle, blur));
+  paint.setMaskFilter(SkMaskFilter::MakeBlur(kSolid_SkBlurStyle, blur * 0.5)); // 0.5 seems to match nanovg
   mCanvas->drawRoundRect(r, roundness, roundness, paint);
 }
 
