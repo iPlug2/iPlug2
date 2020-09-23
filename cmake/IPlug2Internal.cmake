@@ -730,6 +730,11 @@ function(_iplug_add_target_lib _target _pluginapi_lib)
             "${IPLUG2_ROOT_PATH}/IPlug/IPlugPCH.h"
     )
 
+    target_compile_definitions(${_libName}
+        PUBLIC
+            ${CONFIG_DEFINITIONS}
+    )
+
     target_link_libraries(${_libName}
         PRIVATE
             IPlug_CompileOptions
