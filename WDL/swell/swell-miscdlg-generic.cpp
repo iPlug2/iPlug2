@@ -496,7 +496,8 @@ get_dir:
             {
               lstrcpyn_safe(buf,parms->initialdir,sizeof(buf));
             }
-            else getcwd(buf,sizeof(buf));
+            else if (!getcwd(buf,sizeof(buf)))
+              buf[0]=0;
           }
 
           SetWindowText(edit,filepart);
@@ -1143,7 +1144,7 @@ static LRESULT WINAPI swellMessageBoxProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
           h = GetWindow(h,GW_HWNDNEXT);
         }
         const int bspace = SWELL_UI_SCALE(button_spacing), sc8 = SWELL_UI_SCALE(8);
-        if (lbl) SetWindowPos(h,NULL,sc8,0,r.right,r.bottom - sc8 - button_height,  SWP_NOZORDER|SWP_NOACTIVATE);
+        if (lbl) SetWindowPos(lbl,NULL,sc8,0,r.right,r.bottom - sc8 - button_height,  SWP_NOZORDER|SWP_NOACTIVATE);
         int xo = r.right/2 - (bxwid + (tabsz-1)*bspace)/2;
         for (int x=0; x<tabsz; x++)
         {
@@ -1218,7 +1219,7 @@ int MessageBox(HWND hwndParent, const char *text, const char *caption, int type)
 #ifdef SWELL_LICE_GDI
 struct ChooseColor_State {
   int ncustom;
-  int *custom;
+  COLORREF *custom;
 
   double h,s,v;
 
@@ -1605,11 +1606,11 @@ static LRESULT WINAPI swellColorSelectProc(HWND hwnd, UINT uMsg, WPARAM wParam, 
 }
 #endif //SWELL_LICE_GDI
 
-bool SWELL_ChooseColor(HWND h, int *val, int ncustom, int *custom)
+bool SWELL_ChooseColor(HWND h, COLORREF *val, int ncustom, COLORREF *custom)
 {
 #ifdef SWELL_LICE_GDI
   ChooseColor_State state = { ncustom, custom };
-  int c = val ? *val : 0;
+  COLORREF c = val ? *val : 0;
   _RGB2HSV(GetRValue(c),GetGValue(c),GetBValue(c),&state.h,&state.s,&state.v);
   bool rv = DialogBoxParam(NULL,NULL,h,swellColorSelectProc,(LPARAM)&state)!=0;
   delete state.bm;

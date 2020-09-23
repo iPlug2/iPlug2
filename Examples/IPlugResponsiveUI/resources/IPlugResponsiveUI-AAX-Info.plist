@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IPlugResponsiveUI</string>
 	<key>CFBundleGetInfoString</key>
-	<string>IPlugResponsiveUI v1.0.0 Copyright 2019 Acme Inc</string>
+	<string>IPlugResponsiveUI v1.0.0 Copyright 2020 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.aax.IPlugResponsiveUI</string>
 	<key>CFBundleInfoDictionaryVersion</key>

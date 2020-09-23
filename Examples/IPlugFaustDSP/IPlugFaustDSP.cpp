@@ -11,7 +11,7 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
   mFaustProcessor.Init();
   mFaustProcessor.CompileCPP();
   mFaustProcessor.SetAutoRecompile(true);
-  mFaustProcessor.CreateIPlugParameters(this, 0, mFaustProcessor.NParams()); // in order to create iplug params, based on faust .dsp params, uncomment this
+ // mFaustProcessor.CreateIPlugParameters(this, 0, mFaustProcessor.NParams()); // in order to create iplug params, based on faust .dsp params, uncomment this
 #ifndef FAUST_COMPILED
   mFaustProcessor.SetCompileFunc([&](){
     OnParamReset(EParamSource::kRecompile);

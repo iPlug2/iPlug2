@@ -30,7 +30,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->EnableTooltips(true);
 
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
-    pGraphics->AttachPanelBackground(COLOR_GRAY);
+    pGraphics->AttachPanelBackground(mBGControlPattern);
     pGraphics->AttachTextEntryControl();
     
 #ifndef OS_IOS
@@ -243,6 +243,31 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     
     //pGraphics->AttachControl(new IVGroupControl("Vector Controls", "vcontrols", 10.f, 30.f, 10.f, 10.f));
 
+    AddLabel("ILambdaControl");
+    pGraphics->AttachControl(new ILambdaControl(sameCell().GetScaledAboutCentre(0.5),
+    [](ILambdaControl* pCaller, IGraphics& g, IRECT& r) {
+      const float radius = r.W();
+      const float x = r.MW();
+      const float y = r.MH();
+      const float rotate = pCaller->GetAnimationProgress() * PI;
+      
+      for(int index = 0, limit = 40; index < limit; ++index)
+      {
+        float firstAngle = (index * 2 * PI) / limit;
+        float secondAngle = ((index + 1) * 2 * PI) / limit;
+        
+        g.PathTriangle(x, y,
+                       x + std::sin(firstAngle + rotate) * radius, y + std::cos(firstAngle + rotate) * radius,
+                       x + std::sin(secondAngle + rotate) * radius, y + std::cos(secondAngle + rotate) * radius);
+        
+        if(index % 2)
+          g.PathFill(COLOR_RED);
+        else
+          g.PathFill(pCaller->mMouseInfo.ms.L ? COLOR_VIOLET : COLOR_BLUE);
+      }
+      
+    }, 1000, false));
+    
     #pragma mark IVControl panel -
 
     cellIdx = 31;
@@ -486,6 +511,13 @@ void IPlugControls::OnMidiMsgUI(const IMidiMsg& msg)
     }
   }
 }
+
+void IPlugControls::OnUIClose()
+{
+  // store the background pattern. No modifications to other controls are stored, and this would also need to be serialized in plugin state, for recall!
+  mBGControlPattern = GetUI()->GetBackgroundControl()->As<IPanelControl>()->GetPattern();
+}
+
 #endif
 
 #if IPLUG_DSP

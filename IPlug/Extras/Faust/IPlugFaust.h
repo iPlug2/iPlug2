@@ -31,11 +31,11 @@
 
 #include "Oversampler.h"
 
-#ifndef FAUST_LIBRARY_PATH
+#ifndef FAUST_SHARE_PATH
   #if defined OS_MAC || defined OS_LINUX
-    #define FAUST_LIBRARY_PATH "/usr/local/share/faust/"
+    #define FAUST_SHARE_PATH "/usr/local/share/faust/"
   #else
-   #define FAUST_LIBRARY_PATH "C:\\Program Files\\Faust\\share\\faust"
+   #define FAUST_SHARE_PATH "C:\\Program Files\\Faust\\share\\faust"
   #endif
 #endif
 
@@ -48,21 +48,7 @@ class IPlugFaust : public UI, public Meta
 {
 public:
   
-  IPlugFaust(const char* name, int nVoices = 1, int rate = 1)
-  : mNVoices(nVoices)
-  {
-    if(rate > 1)
-    {
-      mOverSampler = std::make_unique<OverSampler<sample>>(OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */);
-    }
-      
-    mName.Set(name);
-      
-    if(sUITimer == nullptr)
-    {
-      sUITimer = Timer::Create(std::bind(&IPlugFaust::OnUITimer, this, std::placeholders::_1), FAUST_UI_INTERVAL);
-    }
-  }
+  IPlugFaust(const char* name, int nVoices = 1, int rate = 1);
 
   virtual ~IPlugFaust()
   {
@@ -111,8 +97,10 @@ public:
     if(mOverSampler)
       multiplier = mOverSampler->GetRate();
     
-    if (mDSP)
+    if (mDSP) {
       mDSP->init(((int) sampleRate) * multiplier);
+      SyncFaustParams();
+    }
   }
 
   void ProcessMidiMsg(const IMidiMsg& msg)
@@ -120,104 +108,22 @@ public:
     mMidiHandler->decodeMessage(msg);
   }
 
-  virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames)
-  {
-    if (mDSP)
-    {
-      assert(mDSP->getSampleRate() != 0); // did you forget to call SetSampleRate?
-      
-      if(mOverSampler)
-        mOverSampler->ProcessBlock(inputs, outputs, nFrames, 2 /* TODO: flexible channel count */,
-                                   [&](sample** inputs, sample** outputs, int nFrames) //TODO:: badness capture = allocated
-                                   {
-                                     mDSP->compute(nFrames, inputs, outputs);
-                                   });
-      else
-        mDSP->compute(nFrames, inputs, outputs);
-    }
-//    else silence?
-  }
+  virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames);
 
-  void SetParameterValueNormalised(int paramIdx, double normalizedValue)
-  {
-    if(paramIdx > kNoParameter && paramIdx >= NParams())
-    {
-      DBGMSG("IPlugFaust-%s:: No parameter %i\n", mName.Get(), paramIdx);
-    }
-    else
-    {
-      mParams.Get(paramIdx)->SetNormalized(normalizedValue);
-    
-      if(mZones.GetSize() == NParams())
-        *(mZones.Get(paramIdx)) = mParams.Get(paramIdx)->Value();
-      else
-        DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetName());
-    }
-  }
+  void SetParameterValueNormalised(int paramIdx, double normalizedValue);
   
-  void SetParameterValue(int paramIdx, double nonNormalizedValue)
-  {
-    if(NParams()) {
-      
-    assert(paramIdx < NParams()); // Seems like we don't have enough parameters!
-    
-    mParams.Get(paramIdx)->Set(nonNormalizedValue);
+  void SetParameterValue(int paramIdx, double nonNormalizedValue);
 
-    if(mZones.GetSize() == NParams())
-      *(mZones.Get(paramIdx)) = nonNormalizedValue;
-    else
-      DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetName());
-    }
-    else
-      DBGMSG("SetParameterValue called with no FAUST params\n");
-  }
+  void SetParameterValue(const char* labelToLookup, double nonNormalizedValue);
 
-  void SetParameterValue(const char* labelToLookup, double nonNormalizedValue)
-  {
-    FAUSTFLOAT* dest = nullptr;
-    dest = mMap.Get(labelToLookup, nullptr);
-//    mParams.Get(paramIdx)->Set(nonNormalizedValue); // TODO: we are not updating the IPlug parameter
+  int CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx = 0, int endIdx = -1, bool setToDefault = true);
 
-    if(dest)
-      *dest = nonNormalizedValue;
-    else
-      DBGMSG("IPlugFaust-%s:: No parameter named %s\n", mName.Get(), labelToLookup);
-  }
-
-  int CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx = 0, int endIdx = -1, bool setToDefault = true)
-  {
-    assert(pPlug != nullptr);
-   
-    if(NParams() == 0)
-      return -1;
-    
-    mPlug = pPlug;
-    
-    int plugParamIdx = mIPlugParamStartIdx = startIdx;
-    
-    if(endIdx == -1)
-      endIdx = pPlug->NParams();
-    
-    for (auto p = 0; p < endIdx; p++)
-    {
-      assert(plugParamIdx + p < pPlug->NParams()); // plugin needs to have enough params!
-
-      IParam* pPlugParam = pPlug->GetParam(plugParamIdx + p);
-      const double currentValueNormalised = pPlugParam->GetNormalized();
-      pPlugParam->Init(*mParams.Get(p));
-      if(setToDefault)
-        pPlugParam->SetToDefault();
-      else
-        pPlugParam->SetNormalized(currentValueNormalised);
-    }
-
-    return plugParamIdx;
-  }
-
-  int NParams()
+  int NParams() const
   {
     return mParams.GetSize();
   }
+  
+  void SyncFaustParams();
 
   // Meta
   void declare(const char *key, const char *value) override
@@ -264,72 +170,11 @@ public:
   void addSoundfile(const char *label, const char *filename, Soundfile **sf_zone) override {}
 
 protected:
-  void AddOrUpdateParam(IParam::EParamType type, const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init = 0., FAUSTFLOAT min = 0., FAUSTFLOAT max = 0., FAUSTFLOAT step = 1.)
-  {
-    IParam* pParam = nullptr;
-    
-    const int idx = FindExistingParameterWithName(label);
-    
-    if(idx > -1)
-      pParam = mParams.Get(idx);
-    else
-      pParam = new IParam();
-    
-    switch (type)
-    {
-      case IParam::EParamType::kTypeBool:
-        pParam->InitBool(label, 0);
-        break;
-      case IParam::EParamType::kTypeInt:
-        pParam->InitInt(label, static_cast<int>(init), static_cast<int>(min), static_cast<int>(max));
-        break;
-      case IParam::EParamType::kTypeEnum:
-        pParam->InitEnum(label, static_cast<int>(init), static_cast<int>(max - min));
-        //TODO: metadata
-        break;
-      case IParam::EParamType::kTypeDouble:
-        pParam->InitDouble(label, init, min, max, step);
-        break;
-      default:
-        break;
-    }
-    
-    if(idx == -1)
-      mParams.Add(pParam);
-    
-    mZones.Add(zone);
-  }
+  void AddOrUpdateParam(IParam::EParamType type, const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init = 0., FAUSTFLOAT min = 0., FAUSTFLOAT max = 0., FAUSTFLOAT step = 1.);
   
-  void BuildParameterMap()
-  {
-    for(auto p = 0; p < NParams(); p++)
-    {
-      mMap.Insert(mParams.Get(p)->GetName(), mZones.Get(p)); // insert will overwrite keys with the same name
-    }
-    
-    if(mIPlugParamStartIdx > -1 && mPlug != nullptr) // if we've already linked parameters
-    {
-      CreateIPlugParameters(mPlug, mIPlugParamStartIdx);
-    }
-    
-    for(auto p = 0; p < NParams(); p++)
-    {
-      DBGMSG("%i %s\n", p, mParams.Get(p)->GetName());
-    }
-  }
+  void BuildParameterMap();
 
-  int FindExistingParameterWithName(const char* name) // TODO: this needs to check meta data too - incase of grouping
-  {
-    for(auto p = 0; p < NParams(); p++)
-    {
-      if(strcmp(name, mParams.Get(p)->GetName()) == 0)
-      {
-        return p;
-      }
-    }
-    
-    return -1;
-  }
+  int FindExistingParameterWithName(const char* name);
     
   void OnUITimer(Timer& timer)
   {

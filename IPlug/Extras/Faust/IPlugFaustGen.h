@@ -212,7 +212,7 @@ class FaustGen : public IPlugFaust
 public:
 
   FaustGen(const char* name, const char* inputDSPFile = 0, int nVoices = 1, int rate = 1,
-           const char* outputCPPFile = 0, const char* drawPath = 0, const char* libraryPath = FAUST_LIBRARY_PATH);
+           const char* outputCPPFile = 0, const char* drawPath = 0, const char* libraryPath = FAUST_SHARE_PATH);
 
   ~FaustGen();
 

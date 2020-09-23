@@ -300,6 +300,11 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   return new Bitmap(fileNameOrResID, scale);
 }
 
+APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale)
+{
+  return new Bitmap(pData, dataSize, scale);
+}
+
 void IGraphicsSkia::OnViewInitialized(void* pContext)
 {
 #if defined IGRAPHICS_GL
@@ -363,7 +368,10 @@ void IGraphicsSkia::DrawResize()
   #endif
 #endif
   if (mSurface)
+  {
     mCanvas = mSurface->getCanvas();
+    mCanvas->save();
+  }
 }
 
 void IGraphicsSkia::BeginFrame()
@@ -586,6 +594,7 @@ void IGraphicsSkia::PrepareAndMeasureText(const IText& text, const char* str, IR
 float IGraphicsSkia::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
   SkFont font;
+  font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
 
   IRECT r = bounds;
   double x, y;
@@ -599,8 +608,10 @@ void IGraphicsSkia::DoDrawText(const IText& text, const char* str, const IRECT& 
   IRECT measured = bounds;
   
   SkFont font;
+  font.setEdging(SkFont::Edging::kSubpixelAntiAlias);
+
   double x, y;
-  
+
   PrepareAndMeasureText(text, str, measured, x, y, font);
   PathTransformSave();
   DoTextRotation(text, bounds, measured);
@@ -642,7 +653,7 @@ void IGraphicsSkia::PathStroke(const IPattern& pattern, float thickness, const I
       dashArray[i + 1] = options.mDash.GetArray()[(i + 1) % dashCount];
     }
     
-    paint.setPathEffect(SkDashPathEffect::Make(dashArray, dashMax, 0));
+    paint.setPathEffect(SkDashPathEffect::Make(dashArray, dashMax, options.mDash.GetOffset()));
   }
   
   paint.setStrokeWidth(thickness);
@@ -766,7 +777,6 @@ void IGraphicsSkia::RenderPath(SkPaint& paint)
 
 void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
 {
-  double scale = GetScreenScale() * GetDrawScale();
   double xTranslate = 0.0;
   double yTranslate = 0.0;
     
@@ -782,31 +792,44 @@ void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
   }
 
   mMatrix = SkMatrix::MakeAll(m.mXX, m.mXY, m.mTX, m.mYX, m.mYY, m.mTY, 0, 0, 1);
-  SkMatrix globalMatrix = SkMatrix::MakeScale(scale);
-  SkMatrix skMatrix = mMatrix;
+  SkMatrix globalMatrix = SkMatrix::MakeScale(GetTotalScale());
+  mClipMatrix = SkMatrix();
+  mFinalMatrix = mMatrix;
   globalMatrix.preTranslate(xTranslate, yTranslate);
-  skMatrix.postConcat(globalMatrix);
-  mCanvas->setMatrix(skMatrix);
+  mClipMatrix.postConcat(globalMatrix);
+  mFinalMatrix.postConcat(globalMatrix);
+  mCanvas->setMatrix(mFinalMatrix);
 }
 
 void IGraphicsSkia::SetClipRegion(const IRECT& r)
 {
-  mCanvas->restore();
+  mCanvas->restoreToCount(0);
   mCanvas->save();
+  mCanvas->setMatrix(mClipMatrix);
   mCanvas->clipRect(SkiaRect(r));
+  mCanvas->setMatrix(mFinalMatrix);
 }
 
-APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale)
+APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
 {
   sk_sp<SkSurface> surface;
   
   #ifndef IGRAPHICS_CPU
   SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-  surface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
+  if (cacheable)
+  {
+    surface = SkSurface::MakeRasterN32Premul(width, height);
+  }
+  else
+  {
+    surface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
+  }
   #else
   surface = SkSurface::MakeRasterN32Premul(width, height);
   #endif
-  
+
+  surface->getCanvas()->save();
+
   return new Bitmap(std::move(surface), width, height, scale, drawScale);
 }
 

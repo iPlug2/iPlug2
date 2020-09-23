@@ -17,7 +17,7 @@ public:
               int rate = 1,
               const char* outputCPPFile = 0,
               const char* drawPath = 0,
-              const char* libraryPath = FAUST_LIBRARY_PATH)
+              const char* libraryPath = FAUST_SHARE_PATH)
   : IPlugFaust(name, nVoices)
   {
   }

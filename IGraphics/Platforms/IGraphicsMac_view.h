@@ -88,7 +88,7 @@ using namespace igraphics;
 {
   IPopupMenu* mIPopupMenu;
 }
-- (id) initWithIPopupMenuAndReciever: (IPopupMenu*) pMenu : (NSView*) pView;
+- (id) initWithIPopupMenuAndReceiver: (IPopupMenu*) pMenu : (NSView*) pView;
 - (IPopupMenu*) iPopupMenu;
 @end
 

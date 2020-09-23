@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IPlugControls</string>
 	<key>CFBundleGetInfoString</key>
-	<string>IPlugControls v1.0.0 Copyright 2019 Acme Inc</string>
+	<string>IPlugControls v1.0.0 Copyright 2020 Acme Inc</string>
 	<key>CFBundleIconFile</key>
 	<string>IPlugControls.icns</string>
 	<key>CFBundleIdentifier</key>

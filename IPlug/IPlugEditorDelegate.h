@@ -85,7 +85,7 @@ public:
   int NParams() const { return mParams.GetSize(); }
   
   /** If you are not using IGraphics, you can implement this method to attach to the native parent view e.g. NSView, UIView, HWND.
-   *  Defer calling OnUIOpen() if nessecary. */
+   *  Defer calling OnUIOpen() if necessary. */
   virtual void* OpenWindow(void* pParent) { OnUIOpen(); return nullptr; }
   
   /** If you are not using IGraphics you can if you need to free resources etc when the window closes. Call base implementation. */
