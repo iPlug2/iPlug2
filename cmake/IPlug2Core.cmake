@@ -47,6 +47,7 @@ endfunction()
 # iplug_configure_project
 
 macro(iplug_configure_project)
+    set(_caller_override iplug_configure_project)
     _iplug_check_initialized()
 
     string_assert(${PROJECT_NAME} "PROJECT_NAME is empty. Make sure to call configure after project declarations.")
@@ -56,7 +57,6 @@ macro(iplug_configure_project)
         "ICON"
 
         "BUNDLE_NAME"
-        "BUNDLE_MFR"
         "BUNDLE_DOMAIN"
 
         "PLUG_NAME"
@@ -93,7 +93,6 @@ macro(iplug_configure_project)
 
         "AAX_TYPE_IDS"
         "AAX_TYPE_IDS_AUDIOSUITE"
-        "AAX_PLUG_MFR_STR"
         "AAX_PLUG_CATEGORY_STR"
         "AAX_DOES_AUDIOSUITE"
 
@@ -124,28 +123,39 @@ macro(iplug_configure_project)
         endwhile()
     endif()
 
-    # additional variables that are auto assigned
-    _iplug_add_config_variable(PLUG_CLASS_NAME "${PROJECT_NAME}")
-    _iplug_add_config_variable(AUV2_ENTRY_STR "${CONFIG_AUV2_ENTRY}")
-    _iplug_add_config_variable(AUV2_VIEW_CLASS_STR "${CONFIG_AUV2_VIEW_CLASS}")
-    _iplug_add_config_variable(AAX_PLUG_NAME_STR "${CONFIG_PLUG_CLASS_NAME}\\nIPCT")
+    # additional variables that are auto assigned based on existing variables
+    _iplug_add_config_variable(PLUG_CLASS_NAME     "${PROJECT_NAME}"                                      )
+    _iplug_add_config_variable(BUNDLE_MFR          "${CONFIG_PLUG_MFR}"                                   )
+    _iplug_add_config_variable(AAX_PLUG_MFR_STR    "${CONFIG_PLUG_MFR}"                                   )
+    _iplug_add_config_variable(AUV2_ENTRY_STR      "${CONFIG_AUV2_ENTRY}"                                 )
+    _iplug_add_config_variable(AUV2_VIEW_CLASS_STR "${CONFIG_AUV2_VIEW_CLASS}"                            )
+    _iplug_add_config_variable(AAX_PLUG_NAME_STR   "${CONFIG_PLUG_CLASS_NAME}\\n${CONFIG_PLUG_UNIQUE_ID}" )
 
 
+    # check for unknown configuration variables and provide a warning if found
+    if(_arg_UNPARSED_ARGUMENTS)
+        set(_arg ${_arg_UNPARSED_ARGUMENTS})
+        while(TRUE)
+            list(LENGTH _arg _len)
+            if(NOT _len OR ${_len} EQUAL 0)
+                break()
+            endif()
+            list(POP_FRONT _arg _item_name)
+            list(POP_FRONT _arg _item_val)
+            iplug_warning("Unknown configuration ${_item_name} = \"${_item_val}\".")
+        endwhile()
+    endif()
 
     # cmake_print_list(CONFIG_DEFINITIONS)
 
-    # check validity of config variables
-    if(NOT CONFIG_PLUG_NAME)
-        iplug_syntax_error("Missing PLUG_NAME.")
-    endif()
-    iplug_info("PLUG_NAME = ${CONFIG_PLUG_NAME}")
 
-    if(NOT CONFIG_BUNDLE_NAME)
-        iplug_syntax_error("Missing BUNDLE_NAME.")
-    endif()
-    iplug_info("BUNDLE_NAME = ${CONFIG_BUNDLE_NAME}")
-
-
+    # Check validity of config variables.
+    # _iplug_validate_string options:
+    #     [CONFIG] [NOSPACES] [NONUMERICS] [NOTEMPTY] [NOINVALID] [HYPHEN] [DOT] [SLASH] [EXISTS]
+    #     [MINLENGTH <length>] [MAXLENGTH <length>]
+    _iplug_validate_string(PLUG_NAME   CONFIG NOTEMPTY                                            )
+    _iplug_validate_string(BUNDLE_NAME CONFIG NOTEMPTY NOSPACES NOINVALID HYPHEN DOT MAXLENGTH 16 )
+    _iplug_validate_string(ICON        CONFIG FILE_EXISTS                                         )
 
     # IPlug2_BINARY_DIR is declared in IPlug2/CMakeLists.txt.
     # If we're adding IPlug with add_subdirectory it never gets declared since we're using
@@ -156,6 +166,7 @@ macro(iplug_configure_project)
     endif()
 
     _iplug_generate_source_groups()
+    set(_caller_override "")
 endmacro()
 
 
@@ -236,6 +247,9 @@ macro(iplug_add_application _target)
         set_target_properties(${_target} PROPERTIES WIN32_EXECUTABLE TRUE)
     endif()
 
+    set_target_properties(${_target}
+        PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/bin/$<$<CONFIG:$<CONFIG>>:APP-$<CONFIG>>")
+
     if(NOT IPLUG2_EXTERNAL_PROJECT)
         set_target_properties(${_target} PROPERTIES FOLDER "Examples/${PROJECT_NAME}")
     endif()
@@ -256,16 +270,14 @@ macro(iplug_add_vst3 _target)
         set(_arg_EXTENSION "vst3")
     endif()
 
-    set(VST3_ICON ${CONFIG_ICON})
-    if(NOT VST3_ICON)
+    get_filename_component(VST3_ICON "${CONFIG_ICON}" ABSOLUTE)
+    if(NOT VST3_ICON OR NOT EXISTS ${VST3_ICON})
         set(VST3_ICON "${VST3_SDK_PATH}/doc/artwork/VST_Logo_Steinberg.ico")
     endif()
 
     add_library(${_target} MODULE)
 
-    set(PLUGIN_NAME ${CONFIG_PLUG_NAME})
-    set(PLUGIN_EXT ${_arg_EXTENSION})
-    set(PLUGIN_NAME_EXT "${PLUGIN_NAME}.${PLUGIN_EXT}")
+
 
     if(NOT HAVESDK_VST3)
         iplug_warning("VST3 Plugins requires a valid path to Steinberg VST3 SDK. '${_target}' will not be able to compile.")
@@ -276,57 +288,58 @@ macro(iplug_add_vst3 _target)
         _iplug_add_target_lib(${_target} IPlug_VST3)
         target_link_libraries(${_target} PRIVATE ${_target}-static)
 
-        # Set default application to use when debugging a vst3. Does not override any existing user settings
-        set_target_properties(${_target} PROPERTIES VS_DEBUGGER_COMMAND "${VST3_DEFAULT_DEBUG_APPLICATION}")
 
+        set(PLUGIN_NAME ${CONFIG_PLUG_NAME})
+        set(PLUGIN_EXT ${_arg_EXTENSION})
+        set(PLUGIN_NAME_EXT "${PLUGIN_NAME}.${PLUGIN_EXT}")
+        set(VST3_CONFIG_PATH $<$<CONFIG:$<CONFIG>>:VST3-$<CONFIG>>)
+        set(PLUGIN_PACKAGE_PATH ${PROJECT_BINARY_DIR}/bin/${VST3_CONFIG_PATH}/${CONFIG_BUNDLE_NAME})
+        set(_path "${VST3_SDK_PATH}/public.sdk/source/main")
+
+        set_target_properties(${_target} PROPERTIES
+            LIBRARY_OUTPUT_NAME                            ${PLUGIN_NAME}
+            SUFFIX                                         .${PLUGIN_EXT}
+            LIBRARY_OUTPUT_DIRECTORY                       ${PLUGIN_PACKAGE_PATH}
+            PDB_OUTPUT_DIRECTORY                           ${PROJECT_BINARY_DIR}/PDB/${VST3_CONFIG_PATH}
+            VS_DEBUGGER_COMMAND                            ${VST3_DEFAULT_DEBUG_APPLICATION}
+            BUNDLE                                         TRUE
+            BUNDLE_EXTENSION                               ${PLUGIN_EXT}
+            XCODE_ATTRIBUTE_WRAPPER_EXTENSION              ${PLUGIN_EXT}
+            XCODE_ATTRIBUTE_GENERATE_PKGINFO_FILE          YES
+            XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS $<$<CONFIG:Debug>YES>$<$<CONFIG:Release>:NO>$<$<CONFIG:Distributed>:NO>
+            XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT       $<$<CONFIG:Debug>:dwarf>
+        )
 
         # Implements modified smtg_add_vst3plugin_with_pkgname() / smtg_make_plugin_package()
         # Does *not* include compile with debug information in release mode, nor does it set /DEBUG linker option
-        set(_path "${VST3_SDK_PATH}/public.sdk/source/main")
         if(MSVC)
             set_target_properties(${_target} PROPERTIES LINK_FLAGS "/DEF:\"${_path}/winexport.def\"")
-            set_target_properties(${_target} PROPERTIES PDB_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/PDB")
         elseif(XCODE)
             set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_EXPORTED_SYMBOLS_FILE "${_path}/macexport.exp")
-
-            # modified smtg_setup_universal_binary()
-            if(SMTG_BUILD_UNIVERSAL_BINARY)
-                if(XCODE_VERSION VERSION_GREATER_EQUAL 12)
-                    set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_OSX_ARCHITECTURES "x86_64;arm64;arm64e")
-                    set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD_64_BIT)")
-                else()
-                    set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_OSX_ARCHITECTURES "x86_64;i386")
-                    set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD_32_64_BIT)")
-                endif()
-                # diff: adding $<$<CONFIG:Distributed>:NO>
-                set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "$<$<CONFIG:Debug>:YES>$<$<CONFIG:Release>:NO>$<$<CONFIG:Distributed>:NO>")
-            endif()
-
-            if(SMTG_IOS_DEVELOPMENT_TEAM)
-                set_target_properties(${_target} PROPERTIES
-                    XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ${SMTG_IOS_DEVELOPMENT_TEAM}
-                    XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "${SMTG_CODE_SIGN_IDENTITY_MAC}"
-                )
-            endif()
         else()
             set_target_properties(${_target} PROPERTIES LINK_FLAGS "-exported_symbols_list \"${_path}/macexport.exp\"")
         endif()
 
+        # modified smtg_setup_universal_binary()
+        if(SMTG_BUILD_UNIVERSAL_BINARY)
+            if(XCODE_VERSION VERSION_GREATER_EQUAL 12)
+                set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_OSX_ARCHITECTURES "x86_64;arm64;arm64e")
+                set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD_64_BIT)")
+            else()
+                set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_OSX_ARCHITECTURES "x86_64;i386")
+                set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_ARCHS "$(ARCHS_STANDARD_32_64_BIT)")
+            endif()
+            # diff: adding $<$<CONFIG:Distributed>:NO>
+            set_target_properties(${_target} PROPERTIES XCODE_ATTRIBUTE_ONLY_ACTIVE_ARCH "$<$<CONFIG:Debug>:YES>$<$<CONFIG:Release>:NO>$<$<CONFIG:Distributed>:NO>")
+        endif()
 
-        set(VST3_CONFIG_PATH $<$<CONFIG:Debug>:VST3-Debug>$<$<CONFIG:Release>:VST3-Release>$<$<CONFIG:Distributed>:VST3-Distributed>)
-        set(PLUGIN_PACKAGE_PATH ${PROJECT_BINARY_DIR}/bin/${VST3_CONFIG_PATH}/${CONFIG_BUNDLE_NAME})
-
-        # cmake_print_variables(PLUGIN_PACKAGE_PATH)
-
-        set_target_properties(${_target} PROPERTIES LIBRARY_OUTPUT_NAME "${PLUGIN_NAME}")
-        set_target_properties(${_target} PROPERTIES SUFFIX ".${PLUGIN_EXT}")
+        if(SMTG_IOS_DEVELOPMENT_TEAM)
+            set_target_properties(${_target} PROPERTIES
+                XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ${SMTG_IOS_DEVELOPMENT_TEAM}
+                XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY "${SMTG_CODE_SIGN_IDENTITY_MAC}")
+        endif()
 
         if(PLATFORM_WINDOWS)
-            foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
-                string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG_UPPER)
-                set_target_properties(${_target} PROPERTIES LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG_UPPER} "${PLUGIN_PACKAGE_PATH}")
-            endforeach()
-
             if(EXISTS ${VST3_ICON})
                 add_custom_command(TARGET ${_target}
                     COMMENT "Copy PlugIn.ico and desktop.ini and change their attributes."
@@ -335,7 +348,7 @@ macro(iplug_add_vst3 _target)
                         ${VST3_ICON}
                         ${PLUGIN_PACKAGE_PATH}/PlugIn.ico
                     COMMAND ${CMAKE_COMMAND} -E copy
-                        ${SMTG_DESKTOP_INI_PATH}
+                        ${CMAKE_BINARY_DIR}/desktop.ini  #${SMTG_DESKTOP_INI_PATH}
                         ${PLUGIN_PACKAGE_PATH}/desktop.ini
                     COMMAND attrib +h ${PLUGIN_PACKAGE_PATH}/desktop.ini
                     COMMAND attrib +h ${PLUGIN_PACKAGE_PATH}/PlugIn.ico
@@ -343,43 +356,18 @@ macro(iplug_add_vst3 _target)
                 )
             endif()
 
-        elseif(PLATFORM_APPLE)
-
-            # !!! this is untested code
-            set_target_properties(${_target} PROPERTIES BUNDLE TRUE)
-            if(XCODE)
-                set_target_properties(${_target} PROPERTIES
-                    XCODE_ATTRIBUTE_GENERATE_PKGINFO_FILE   YES
-                    XCODE_ATTRIBUTE_WRAPPER_EXTENSION       ${PLUGIN_EXT}
-                    XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS $<$<CONFIG:Debug>YES>$<$<CONFIG:Release>:NO>$<$<CONFIG:Distributed>:NO>
-                    XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT $<$<CONFIG:Debug>:dwarf>$<$<CONFIG:Release>:dwarf-with-dsym>$<$<CONFIG:Distributed>:dwarf-with-dsym>
-                )
-            else()
-                set_target_properties(${target} PROPERTIES
-                    BUNDLE_EXTENSION            ${PLUGIN_EXT}
-                    LIBRARY_OUTPUT_DIRECTORY    ${PLUGIN_PACKAGE_PATH}
-                )
-            endif()
-
         elseif(PLATFORM_LINUX)
-
             # !!! this is untested code
             smtg_get_linux_architecture_name() # Sets var LINUX_ARCHITECTURE_NAME
-            iplug_info("Linux architecture name is ${LINUX_ARCHITECTURE_NAME}.")
-            set_target_properties(${_target} PROPERTIES
-                PREFIX                   ""
-                LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_PACKAGE_PATH}
-            )
+            set_target_properties(${_target} PROPERTIES PREFIX "")
             if(${CMAKE_BUILD_TYPE} MATCHES "Release|Distributed")
                 smtg_strip_symbols(${_target})
             endif()
         endif()
 
-
         if(SMTG_RUN_VST_VALIDATOR)
             smtg_run_vst_validator(${_target})
         endif()
-
 
         if(SMTG_CREATE_PLUGIN_LINK)
             if(${SMTG_PLUGIN_TARGET_PATH} STREQUAL "")
@@ -392,16 +380,14 @@ macro(iplug_add_vst3 _target)
             if(SMTG_WIN)
                 file(TO_NATIVE_PATH "${TARGET_SOURCE}" SOURCE_NATIVE_PATH)
                 file(TO_NATIVE_PATH "${TARGET_DESTINATION}" DESTINATION_NATIVE_PATH)
-                file(TO_NATIVE_PATH "${TARGET_SOURCE}/${PLUGIN_NAME_EXT}" SOURCE_PLUGIN_NATIVE)
-                file(TO_NATIVE_PATH "${TARGET_DESTINATION}/${PLUGIN_NAME_EXT}" DESTINATION_PLUGIN_NATIVE)
-
+                # file(TO_NATIVE_PATH "${TARGET_SOURCE}/${PLUGIN_NAME_EXT}" SOURCE_PLUGIN_NATIVE)
+                # file(TO_NATIVE_PATH "${TARGET_DESTINATION}/${PLUGIN_NAME_EXT}" DESTINATION_PLUGIN_NATIVE)
                 add_custom_command(
                     TARGET ${_target} POST_BUILD
-                    COMMAND if not exist "${DESTINATION_NATIVE_PATH}" mkdir "${DESTINATION_NATIVE_PATH}"
-                    COMMAND del "${DESTINATION_PLUGIN_NATIVE}"
-                    COMMAND mklink
-                        "${DESTINATION_PLUGIN_NATIVE}"
-                        "${SOURCE_PLUGIN_NATIVE}"
+                    COMMAND rmdir "${DESTINATION_NATIVE_PATH}"
+                    COMMAND mklink /D
+                        "${DESTINATION_NATIVE_PATH}"
+                        "${SOURCE_NATIVE_PATH}"
                 )
             else()
                 add_custom_command(

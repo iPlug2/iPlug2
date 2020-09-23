@@ -6,10 +6,10 @@ option(IPLUG2_DEVELOPER_CMAKE_DEBUG "Debug output for Iplug2 cmake scripts" OFF)
 # helper macros
 
 macro(iplug_set_caller)
-    set(_caller ${CMAKE_CURRENT_FUNCTION})
-#    if(NOT _caller)
-#        set(_caller "CMakeLists.txt")
-#    endif()
+    set(_caller ${_caller_override})
+    if(NOT _caller)
+        set(_caller ${CMAKE_CURRENT_FUNCTION})
+    endif()
 endmacro()
 
 macro(iplug_syntax_error)

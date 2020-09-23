@@ -103,10 +103,12 @@ macro(_iplug_post_project_setup)
     endif()
 
 
-    #------------------------------------------------------------------------------
-
     find_package(Git)
 
+    if(PLATFORM_WINDOWS AND NOT EXISTS "${CMAKE_BINARY_DIR}/desktop.ini")
+        file(GENERATE OUTPUT "${CMAKE_BINARY_DIR}/desktop.ini"
+            CONTENT "[.ShellClassInfo]\nIconResource=PlugIn.ico,0\n")
+    endif()
 
     #------------------------------------------------------------------------------
     # VST3 SDK
@@ -486,6 +488,77 @@ macro(_iplug_add_config_variable _name _value)
         endif()
     endif()
 endmacro()
+
+
+#------------------------------------------------------------------------------
+# _iplug_validate_string
+
+function(_iplug_validate_string _name)
+    set(_options CONFIG NOSPACES NONUMERICS NOINVALID NOTEMPTY HYPHEN DOT SLASH FILE_EXISTS)
+    set(_onevalue MINLENGTH MAXLENGTH)
+    cmake_parse_arguments(OPTION "${_options}" "${_onevalue}" "" ${ARGN})
+
+    set(_chars     ""                         )
+    set(_esc_chars ""                         )
+    set(_value     "${${_name}}"              )
+    set(_defined   "${_name} = \"${_value}\"" )
+
+    if(OPTION_CONFIG)
+        set(_value   "${CONFIG_${_name}}"                    )
+        set(_defined "Configuration ${_name} = \"${_value}\"" )
+    endif()
+
+    string(LENGTH "${_value}" _len)
+
+    if(OPTION_NOTEMPTY AND _len EQUAL 0)
+        iplug_syntax_error("${_defined}. String can not be empty.")
+    endif()
+
+    if(OPTION_MINLENGTH AND _len LESS OPTION_MINLENGTH)
+        iplug_syntax_error("${_defined}. String length is less than ${OPTION_MINLENGTH} characters.")
+    endif()
+
+    if(OPTION_MAXLENGTH AND _len GREATER OPTION_MAXLENGTH)
+        iplug_syntax_error("${_defined}. String length exceedes ${OPTION_MAXLENGTH} characters.")
+    endif()
+
+    if(OPTION_FILE_EXISTS)
+        if(NOT _len EQUAL 0)
+            get_filename_component(_file "${_value}" ABSOLUTE )
+            if(NOT EXISTS ${_file})
+                iplug_syntax_error("${_defined}. Path/File does not exist.")
+            endif()
+            return()
+        endif()
+    endif()
+
+    if(OPTION_NOINVALID)
+        if(NOT OPTION_NONUMERICS)
+            set(_chars "${_chars}0-9")
+        endif()
+
+        if(NOT OPTION_NOSPACES)
+            set(_chars "${_chars} ")
+        endif()
+
+        if(OPTION_SLASH)
+            set(_esc_chars "${_esc_chars}\\/")
+        endif()
+
+        if(OPTION_DOT)
+            set(_esc_chars "${_esc_chars}\\.")
+        endif()
+
+        if(OPTION_HYPHEN)
+            set(_esc_chars "${_esc_chars}-")
+        endif()
+
+        set(_regex "[^A-Za-z${_chars}\\${_esc_chars}]")
+        if(${_value} MATCHES "${_regex}")
+            iplug_syntax_error("${_defined}. String contains invalid characters.")
+        endif()
+    endif()
+endfunction()
 
 
 #------------------------------------------------------------------------------

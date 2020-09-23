@@ -20,10 +20,8 @@ iplug_configure_project(
     PLUG_URL_STR                "https://iplug2.github.io"
     PLUG_EMAIL_STR              "spam@me.com"
     PLUG_COPYRIGHT_STR          "Copyright 2020 Acme Inc"
-    PLUG_CLASS_NAME             IPlugChunks
 
     BUNDLE_NAME                 "IPlugChunks"
-    BUNDLE_MFR                  "AcmeInc"
     BUNDLE_DOMAIN               "com"
 
     SHARED_RESOURCES_SUBPATH    "IPlugChunks"
@@ -49,7 +47,6 @@ iplug_configure_project(
 
     AAX_TYPE_IDS                "'IEF1', 'IEF2'"
     AAX_TYPE_IDS_AUDIOSUITE     "'IEA1', 'IEA2'"
-    AAX_PLUG_MFR_STR            "Acme"
     AAX_PLUG_CATEGORY_STR       "Effect"
     AAX_DOES_AUDIOSUITE         1
 
