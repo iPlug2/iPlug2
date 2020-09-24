@@ -47,19 +47,19 @@ endfunction()
 # iplug_configure_project
 
 macro(iplug_configure_project)
-    set(_caller_override iplug_configure_project)
     _iplug_check_initialized()
+    set(_caller_override iplug_configure_project)
 
     string_assert(${PROJECT_NAME} "PROJECT_NAME is empty. Make sure to call configure after project declarations.")
 
     # TODO: refactor definitions
     set(_oneValueArgs
-        "ICON"
 
         "BUNDLE_NAME"
         "BUNDLE_DOMAIN"
 
         "PLUG_NAME"
+        "PLUG_NAME_ABBREVIATION"
         "PLUG_MFR"
         "PLUG_VERSION_HEX"
         "PLUG_VERSION_STR"
@@ -81,13 +81,13 @@ macro(iplug_configure_project)
         "PLUG_SHARED_RESOURCES"
         "PLUG_TYPE"
         "PLUG_HOST_RESIZE"
+        "PLUG_ICON"
 
         "SHARED_RESOURCES_SUBPATH"
         "VST3_SUBCATEGORY"
 
         "APP_NUM_CHANNELS"
         "APP_N_VECTOR_WAIT"
-        "APP_MULT"
         "APP_COPY_AUV3"
         "APP_SIGNAL_VECTOR_SIZE"
 
@@ -100,7 +100,6 @@ macro(iplug_configure_project)
         "AUV2_FACTORY"
         "AUV2_VIEW_CLASS"
     )
-
 
     set(_multiValueArgs "RESOURCE_DEFINITIONS")
     cmake_parse_arguments(_arg "" "${_oneValueArgs}" "${_multiValueArgs}" ${ARGN})
@@ -123,14 +122,16 @@ macro(iplug_configure_project)
         endwhile()
     endif()
 
-    # additional variables that are auto assigned based on existing variables
-    _iplug_add_config_variable(PLUG_CLASS_NAME     "${PROJECT_NAME}"                                      )
-    _iplug_add_config_variable(BUNDLE_MFR          "${CONFIG_PLUG_MFR}"                                   )
-    _iplug_add_config_variable(AAX_PLUG_MFR_STR    "${CONFIG_PLUG_MFR}"                                   )
-    _iplug_add_config_variable(AUV2_ENTRY_STR      "${CONFIG_AUV2_ENTRY}"                                 )
-    _iplug_add_config_variable(AUV2_VIEW_CLASS_STR "${CONFIG_AUV2_VIEW_CLASS}"                            )
-    _iplug_add_config_variable(AAX_PLUG_NAME_STR   "${CONFIG_PLUG_CLASS_NAME}\\n${CONFIG_PLUG_UNIQUE_ID}" )
+    # additional variables that are based on existing variables
+    _iplug_add_config_variable(PLUG_CLASS_NAME     "${PROJECT_NAME}")
+    # _iplug_add_config_variable(PLUG_VERSION_HEX    "")  # TODO: generate information from PLUG_VERSION_STR
+    _iplug_add_config_variable(BUNDLE_MFR          "${CONFIG_PLUG_MFR}")
+    _iplug_add_config_variable(AAX_PLUG_MFR_STR    "${CONFIG_PLUG_MFR}")
+    _iplug_add_config_variable(AUV2_ENTRY_STR      "${CONFIG_AUV2_ENTRY}")
+    _iplug_add_config_variable(AUV2_VIEW_CLASS_STR "${CONFIG_AUV2_VIEW_CLASS}")
+    _iplug_add_config_variable(AAX_PLUG_NAME_STR   "${CONFIG_PLUG_CLASS_NAME}\\n${CONFIG_PLUG_NAME_ABBREVIATION}")
 
+    _iplug_add_config_variable(APP_MULT            1)  # APP_MULT should probably be removed
 
     # check for unknown configuration variables and provide a warning if found
     if(_arg_UNPARSED_ARGUMENTS)
@@ -146,16 +147,59 @@ macro(iplug_configure_project)
         endwhile()
     endif()
 
-    # cmake_print_list(CONFIG_DEFINITIONS)
-
-
     # Check validity of config variables.
     # _iplug_validate_string options:
-    #     [CONFIG] [NOSPACES] [NONUMERICS] [NOTEMPTY] [NOINVALID] [HYPHEN] [DOT] [SLASH] [EXISTS]
-    #     [MINLENGTH <length>] [MAXLENGTH <length>]
-    _iplug_validate_string(PLUG_NAME   CONFIG NOTEMPTY                                            )
-    _iplug_validate_string(BUNDLE_NAME CONFIG NOTEMPTY NOSPACES NOINVALID HYPHEN DOT MAXLENGTH 16 )
-    _iplug_validate_string(ICON        CONFIG FILE_EXISTS                                         )
+    #   [CONFIG] [NOTEMPTY] [FILE_EXISTS] [ALPHAFIRST] [STREQUAL] [INAPOSTROPHES]
+    #   [ALPHA] [NUMERIC] [SPACE] [HYPHEN] [DOT] [SLASH] [APOSTROPHE] [COMMA] [DELIMITER] [UNDERSCORE]
+    #   [MINLENGTH <length>] [MAXLENGTH <length>]
+    _iplug_validate_string(PLUG_NAME                CONFIG NOTEMPTY ALPHA NUMERIC SPACE)
+    _iplug_validate_string(PLUG_NAME_ABBREVIATION   CONFIG NOTEMPTY ALPHA NUMERIC MAXLENGTH 4)
+    _iplug_validate_string(PLUG_MFR                 CONFIG NOTEMPTY MAXLENGTH 127)
+    _iplug_validate_string(PLUG_VERSION_STR         CONFIG NOTEMPTY NUMERIC DOT)
+    _iplug_validate_string(PLUG_URL_STR             CONFIG MAXLENGTH 255)
+    _iplug_validate_string(PLUG_EMAIL_STR           CONFIG MAXLENGTH 127)
+    _iplug_validate_string(PLUG_COPYRIGHT_STR       CONFIG MAXLENGTH 127)
+    _iplug_validate_string(PLUG_UNIQUE_ID           CONFIG NOTEMPTY INAPOSTROPHES ALPHA NUMERIC MAXLENGTH 4)
+    _iplug_validate_string(PLUG_MFR_ID              CONFIG NOTEMPTY INAPOSTROPHES ALPHA NUMERIC MAXLENGTH 4)
+    _iplug_validate_string(PLUG_CHANNEL_IO          CONFIG NOTEMPTY NUMERIC HYPHEN SPACE)
+    _iplug_validate_string(PLUG_LATENCY             CONFIG NUMERIC)
+    _iplug_validate_string(PLUG_DOES_MIDI_IN        CONFIG STREQUAL 0 1)
+    _iplug_validate_string(PLUG_DOES_MIDI_OUT       CONFIG STREQUAL 0 1)
+    _iplug_validate_string(PLUG_DOES_MPE            CONFIG STREQUAL 0 1)
+    _iplug_validate_string(PLUG_DOES_STATE_CHUNKS   CONFIG STREQUAL 0 1)
+    _iplug_validate_string(PLUG_HAS_UI              CONFIG STREQUAL 0 1)
+    _iplug_validate_string(PLUG_WIDTH               CONFIG NUMERIC)
+    _iplug_validate_string(PLUG_PLUG_HEIGHT         CONFIG NUMERIC)
+    _iplug_validate_string(PLUG_HOST_RESIZE         CONFIG NOTEMPTY STREQUAL 0 1)
+    _iplug_validate_string(PLUG_FPS                 CONFIG NUMERIC)
+    _iplug_validate_string(PLUG_SHARED_RESOURCES    CONFIG NUMERIC)
+    _iplug_validate_string(PLUG_TYPE                CONFIG NOTEMPTY STREQUAL Effect Instrument MIDIEffect)
+    _iplug_validate_string(PLUG_ICON                CONFIG FILE_EXISTS)
+    _iplug_validate_string(BUNDLE_DOMAIN            CONFIG NOTEMPTY ALPHAFIRST ALPHA NUMERIC HYPHEN)
+    _iplug_validate_string(BUNDLE_NAME              CONFIG NOTEMPTY ALPHAFIRST ALPHA NUMERIC HYPHEN)
+    _iplug_validate_string(SHARED_RESOURCES_SUBPATH CONFIG FILE_EXISTS)
+
+    # TODO: Move to iplug_add_application
+    _iplug_validate_string(APP_NUM_CHANNELS         CONFIG NOTEMPTY NUMERIC)
+    _iplug_validate_string(APP_N_VECTOR_WAIT        CONFIG NOTEMPTY NUMERIC)
+    _iplug_validate_string(APP_COPY_AUV3            CONFIG NOTEMPTY STREQUAL 0 1)
+    _iplug_validate_string(APP_SIGNAL_VECTOR_SIZE   CONFIG NOTEMPTY NUMERIC MAXLENGTH 6)
+
+    # TODO: Move to iplug_add_aax
+    _iplug_validate_string(AAX_TYPE_IDS             CONFIG NOTEMPTY ALPHA NUMERIC SPACE APOSTROPHE COMMA)
+    _iplug_validate_string(AAX_TYPE_IDS_AUDIOSUITE  CONFIG NOTEMPTY ALPHA NUMERIC SPACE APOSTROPHE COMMA)
+    _iplug_validate_string(AAX_DOES_AUDIOSUITE      CONFIG NOTEMPTY STREQUAL 0 1)
+    _iplug_validate_string(AAX_PLUG_CATEGORY_STR    CONFIG NOTEMPTY STREQUAL None EQ Dynamics PitchShift Reverb Delay Modulation Harmonic NoiseReduction Dither SoundField Effect)
+
+    # TODO: Move to iplug_add_vst3
+    _iplug_validate_string(VST3_SUBCATEGORY         CONFIG ALPHA DELIMITER MAXLENGTH 127)
+
+    # TODO: Move to iplug_add_auv2
+    _iplug_validate_string(AUV2_ENTRY               CONFIG ALPHAFIRST ALPHA NUMERIC UNDERSCORE)
+    _iplug_validate_string(AUV2_VIEW_CLASS          CONFIG ALPHAFIRST ALPHA NUMERIC UNDERSCORE)
+    _iplug_validate_string(AUV2_FACTORY             CONFIG ALPHAFIRST ALPHA NUMERIC UNDERSCORE)
+
+    set(_caller_override "")
 
     # IPlug2_BINARY_DIR is declared in IPlug2/CMakeLists.txt.
     # If we're adding IPlug with add_subdirectory it never gets declared since we're using
@@ -166,7 +210,6 @@ macro(iplug_configure_project)
     endif()
 
     _iplug_generate_source_groups()
-    set(_caller_override "")
 endmacro()
 
 
@@ -270,7 +313,7 @@ macro(iplug_add_vst3 _target)
         set(_arg_EXTENSION "vst3")
     endif()
 
-    get_filename_component(VST3_ICON "${CONFIG_ICON}" ABSOLUTE)
+    get_filename_component(VST3_ICON "${CONFIG_PLUG_ICON}" ABSOLUTE)
     if(NOT VST3_ICON OR NOT EXISTS ${VST3_ICON})
         set(VST3_ICON "${VST3_SDK_PATH}/doc/artwork/VST_Logo_Steinberg.ico")
     endif()

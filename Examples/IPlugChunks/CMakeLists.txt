@@ -1,10 +1,7 @@
 cmake_minimum_required(VERSION 3.17)
-include_guard(GLOBAL)
-
 
 # Include the IPlug2.cmake module. Path can be absolute or relative.
 include("../../cmake/IPlug2.cmake")
-
 
 # Declare our project
 project(IPlugChunks)
@@ -12,6 +9,7 @@ project(IPlugChunks)
 # Project configuration
 iplug_configure_project(
     PLUG_NAME                   "IPlugChunks"
+    PLUG_NAME_ABBREVIATION      "IPCH"
     PLUG_MFR                    "AcmeInc"
     PLUG_VERSION_HEX            0x00010000
     PLUG_VERSION_STR            "1.0.0"
@@ -23,8 +21,6 @@ iplug_configure_project(
 
     BUNDLE_NAME                 "IPlugChunks"
     BUNDLE_DOMAIN               "com"
-
-    SHARED_RESOURCES_SUBPATH    "IPlugChunks"
 
     PLUG_CHANNEL_IO             "1-1 2-2"
 
@@ -54,7 +50,6 @@ iplug_configure_project(
 
     APP_NUM_CHANNELS            2
     APP_N_VECTOR_WAIT           0
-    APP_MULT                    1
     APP_COPY_AUV3               0
     APP_SIGNAL_VECTOR_SIZE      64
 

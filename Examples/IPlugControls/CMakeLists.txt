@@ -1,10 +1,7 @@
 cmake_minimum_required(VERSION 3.17)
-include_guard(GLOBAL)
-
 
 # Include the IPlug2.cmake module. Path can be absolute or relative.
 include("../../cmake/IPlug2.cmake")
-
 
 # Declare our project
 project(IPlugControls)
@@ -12,6 +9,7 @@ project(IPlugControls)
 # Project configuration
 iplug_configure_project(
     PLUG_NAME                   "IPlugControls"                 #
+    PLUG_NAME_ABBREVIATION      "IPCT"                          #
     PLUG_MFR                    "AcmeInc"                       #
     PLUG_VERSION_HEX            0x00010000                      #
     PLUG_VERSION_STR            "1.0.0"                         #
@@ -33,30 +31,26 @@ iplug_configure_project(
     PLUG_HOST_RESIZE            0                               #
     PLUG_FPS                    60                              #
     PLUG_SHARED_RESOURCES       0                               #
+    PLUG_ICON                   "resources/IPlugControls.ico"   #
 
     BUNDLE_NAME                 "IPlugControls"                 #
     BUNDLE_DOMAIN               "com"                           #
 
-    ICON                        "resources/IPlugControls.ico"   #
-
-    SHARED_RESOURCES_SUBPATH    "IPlugControls"                 #
     VST3_SUBCATEGORY            "Instrument|Synth"              # TODO: move to vst3 config
 
     APP_NUM_CHANNELS            2                               # TODO: move to app config
     APP_N_VECTOR_WAIT           0                               #
-    APP_MULT                    1                               #
     APP_COPY_AUV3               0                               #
     APP_SIGNAL_VECTOR_SIZE      64                              #
 
-    AAX_TYPE_IDS                'IPCT'                          # TODO: move to aax config
+    AAX_TYPE_IDS                "'IPCT'"                        # TODO: move to aax config
     AAX_TYPE_IDS_AUDIOSUITE     "'EFA1', 'EFA2'"                #
-    AAX_PLUG_CATEGORY_STR       "Synth"                         #
+    AAX_PLUG_CATEGORY_STR       "None"                          #
     AAX_DOES_AUDIOSUITE         0                               #
 
     AUV2_ENTRY                  IPlugControls_Entry             # TODO: move to auv2 config
     AUV2_VIEW_CLASS             IPlugControls_View              #
     AUV2_FACTORY                IPlugControls_Factory           #
-
 
     RESOURCE_DEFINITIONS
         ROBOTO_FN               "Roboto-Regular.ttf"
