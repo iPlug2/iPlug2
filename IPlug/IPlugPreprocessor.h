@@ -34,6 +34,7 @@
 
 #define WARNING_MESSAGE(msg)                    PRAGMA(message(__FILE__ "(" PREPROCESSOR_STRING(__LINE__) ") : " "WARNING: " msg))
 #define REMINDER_MESSAGE(msg)                   PRAGMA(message(__FILE__ "(" PREPROCESSOR_STRING(__LINE__) "): " msg))
+#define PRAGMA_MESSAGE(msg)                     PRAGMA(message(msg))
 
 #define DEPRECATED(version, message)            [[deprecated(message)]]
 #define NODISCARD                               [[nodiscard]]
