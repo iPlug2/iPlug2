@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -43,7 +43,7 @@ namespace iplug
 			mMidiOut->closePort();
 	}
 
-	//static
+	// static
 	IPlugAPPHost* IPlugAPPHost::Create()
 	{
 		sInstance = std::make_unique<IPlugAPPHost>();
@@ -58,9 +58,11 @@ namespace iplug
 			return false;
 
 		TryToChangeAudioDriverType();  // will init RTAudio with an API type based on gState->mAudioDriverType
-		ProbeAudioIO();  // find out what audio IO devs are available and put their IDs in the global variables gAudioInputDevs / gAudioOutputDevs
+		ProbeAudioIO();  // find out what audio IO devs are available and put their IDs in the global variables
+						 // gAudioInputDevs / gAudioOutputDevs
 		InitMidi();      // creates RTMidiIn and RTMidiOut objects
-		ProbeMidiIO();  // find out what midi IO devs are available and put their names in the global variables gMidiInputDevs / gMidiOutputDevs
+		ProbeMidiIO();   // find out what midi IO devs are available and put their names in the global variables
+						 // gMidiInputDevs / gMidiOutputDevs
 		SelectMIDIDevice(ERoute::kInput, mState.mMidiInDev.Get());
 		SelectMIDIDevice(ERoute::kOutput, mState.mMidiOutDev.Get());
 
@@ -70,9 +72,15 @@ namespace iplug
 		return true;
 	}
 
-	bool IPlugAPPHost::OpenWindow(HWND pParent) { return mIPlug->OpenWindow(pParent) != nullptr; }
+	bool IPlugAPPHost::OpenWindow(HWND pParent)
+	{
+		return mIPlug->OpenWindow(pParent) != nullptr;
+	}
 
-	void IPlugAPPHost::CloseWindow() { mIPlug->CloseWindow(); }
+	void IPlugAPPHost::CloseWindow()
+	{
+		mIPlug->CloseWindow();
+	}
 
 	bool IPlugAPPHost::InitState()
 	{
@@ -105,19 +113,19 @@ namespace iplug
 				GetPrivateProfileString("audio", "outdev", "Built-in Output", buf, STRBUFSZ, mINIPath.Get());
 				mState.mAudioOutDev.Set(buf);
 
-				//audio
+				// audio
 				mState.mAudioInChanL =
 					GetPrivateProfileInt("audio", "in1", 1, mINIPath.Get());  // 1 is first audio input
 				mState.mAudioInChanR = GetPrivateProfileInt("audio", "in2", 2, mINIPath.Get());
 				mState.mAudioOutChanL =
 					GetPrivateProfileInt("audio", "out1", 1, mINIPath.Get());  // 1 is first audio output
 				mState.mAudioOutChanR = GetPrivateProfileInt("audio", "out2", 2, mINIPath.Get());
-				//mState.mAudioInIsMono = GetPrivateProfileInt("audio", "monoinput", 0, mINIPath.Get());
+				// mState.mAudioInIsMono = GetPrivateProfileInt("audio", "monoinput", 0, mINIPath.Get());
 
 				mState.mBufferSize = GetPrivateProfileInt("audio", "buffer", 512, mINIPath.Get());
 				mState.mAudioSR    = GetPrivateProfileInt("audio", "sr", 44100, mINIPath.Get());
 
-				//midi
+				// midi
 				GetPrivateProfileString("midi", "indev", "no input", buf, STRBUFSZ, mINIPath.Get());
 				mState.mMidiInDev.Set(buf);
 				GetPrivateProfileString("midi", "outdev", "no output", buf, STRBUFSZ, mINIPath.Get());
@@ -139,7 +147,7 @@ namespace iplug
 			UpdateINI();  // will write file if doesn't exist
 #elif PLATFORM_MAC
 			mode_t process_mask = umask(0);
-			int    result_code  = mkdir(mINIPath.Get(), S_IRWXU | S_IRWXG | S_IRWXO);
+			int result_code     = mkdir(mINIPath.Get(), S_IRWXU | S_IRWXG | S_IRWXO);
 			umask(process_mask);
 
 			if (!result_code)
@@ -161,7 +169,7 @@ namespace iplug
 
 	void IPlugAPPHost::UpdateINI()
 	{
-		char        buf[STRBUFSZ];  // temp buffer for writing integers to profile strings
+		char buf[STRBUFSZ];  // temp buffer for writing integers to profile strings
 		const char* ini = mINIPath.Get();
 
 		sprintf(buf, "%u", mState.mAudioDriverType);
@@ -178,8 +186,8 @@ namespace iplug
 		WritePrivateProfileString("audio", "out1", buf, ini);
 		sprintf(buf, "%u", mState.mAudioOutChanR);
 		WritePrivateProfileString("audio", "out2", buf, ini);
-		//sprintf(buf, "%u", mState.mAudioInIsMono);
-		//WritePrivateProfileString("audio", "monoinput", buf, ini);
+		// sprintf(buf, "%u", mState.mAudioInIsMono);
+		// WritePrivateProfileString("audio", "monoinput", buf, ini);
 
 		WDL_String str;
 		str.SetFormatted(32, "%i", mState.mBufferSize);
@@ -197,7 +205,10 @@ namespace iplug
 		WritePrivateProfileString("midi", "outchan", buf, ini);
 	}
 
-	std::string IPlugAPPHost::GetAudioDeviceName(int idx) const { return mAudioIDDevNames.at(idx); }
+	std::string IPlugAPPHost::GetAudioDeviceName(int idx) const
+	{
+		return mAudioIDDevNames.at(idx);
+	}
 
 	int IPlugAPPHost::GetAudioDeviceIdx(const char* deviceNameToTest) const
 	{
@@ -330,7 +341,7 @@ namespace iplug
 			for (int i = 0; i < nOutputPorts; i++)
 			{
 				mMidiOutputDevNames.push_back(mMidiOut->getPortName(i));
-				//This means the virtual output port wont be added as an input
+				// This means the virtual output port wont be added as an input
 			}
 		}
 	}
@@ -391,8 +402,8 @@ namespace iplug
 #elif PLATFORM_MAC
 		if (mState.mAudioDriverType == kDeviceCoreAudio)
 			mDAC = std::make_unique<RtAudio>(RtAudio::MACOSX_CORE);
-			//else
-			//mDAC = std::make_unique<RtAudio>(RtAudio::UNIX_JACK);
+			// else
+			// mDAC = std::make_unique<RtAudio>(RtAudio::UNIX_JACK);
 #else
 	#error NOT IMPLEMENTED
 #endif
@@ -483,7 +494,7 @@ namespace iplug
 				port = 0;
 			}
 
-			//TODO: send all notes off?
+			// TODO: send all notes off?
 			if (mMidiIn)
 			{
 				mMidiIn->closePort();
@@ -527,7 +538,7 @@ namespace iplug
 
 			if (mMidiOut)
 			{
-				//TODO: send all notes off?
+				// TODO: send all notes off?
 				mMidiOut->closePort();
 
 				if (port == 0)
@@ -639,12 +650,12 @@ namespace iplug
 
 			for (uint32 i = 0; i < iParams.nChannels; i++)
 			{
-				mInputBufPtrs.Add(nullptr);  //will be set in callback
+				mInputBufPtrs.Add(nullptr);  // will be set in callback
 			}
 
 			for (uint32 i = 0; i < oParams.nChannels; i++)
 			{
-				mOutputBufPtrs.Add(nullptr);  //will be set in callback
+				mOutputBufPtrs.Add(nullptr);  // will be set in callback
 			}
 
 			mDAC->startStream();
@@ -710,12 +721,12 @@ namespace iplug
 	}
 
 	// static
-	int IPlugAPPHost::AudioCallback(void*               pOutputBuffer,
-									void*               pInputBuffer,
-									uint32              nFrames,
-									double              streamTime,
+	int IPlugAPPHost::AudioCallback(void* pOutputBuffer,
+									void* pInputBuffer,
+									uint32 nFrames,
+									double streamTime,
 									RtAudioStreamStatus status,
-									void*               pUserData)
+									void* pUserData)
 	{
 		IPlugAPPHost* _this = (IPlugAPPHost*) pUserData;
 
@@ -725,9 +736,9 @@ namespace iplug
 		double* pInputBufferD  = static_cast<double*>(pInputBuffer);
 		double* pOutputBufferD = static_cast<double*>(pOutputBuffer);
 
-		bool startWait = _this->mVecWait >=
-						 APP_N_VECTOR_WAIT;  // wait APP_N_VECTOR_WAIT * iovs before processing audio, to avoid clicks
-		bool doFade = _this->mVecWait == APP_N_VECTOR_WAIT || _this->mAudioEnding;
+		// wait APP_N_VECTOR_WAIT * iovs before processing audio, to avoid clicks
+		bool startWait = _this->mVecWait >= APP_N_VECTOR_WAIT;
+		bool doFade    = _this->mVecWait == APP_N_VECTOR_WAIT || _this->mAudioEnding;
 
 		if (startWait && !_this->mAudioDone)
 		{
@@ -815,6 +826,6 @@ namespace iplug
 	// static
 	void IPlugAPPHost::ErrorCallback(RtAudioError::Type type, const std::string& errorText)
 	{
-		//TODO:
+		// TODO:
 	}
 }  // namespace iplug
