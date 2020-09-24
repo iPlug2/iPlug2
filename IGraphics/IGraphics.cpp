@@ -668,7 +668,7 @@ void IGraphics::DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int bmpSt
 }
 
 void IGraphics::DrawBitmapedText(const IBitmap& bitmap,
-								 IRECT& bounds,
+								 const IRECT& bounds,
 								 IText& text,
 								 IBlend* pBlend,
 								 const char* str,
