@@ -52,6 +52,7 @@ struct TimerHandler : Steinberg::Linux::ITimerHandler, public Steinberg::FObject
     ev->tHandlerSet = false;
     xcbt_process(ev->x);
   }
+
   DELEGATE_REFCOUNT (Steinberg::FObject)
   DEFINE_INTERFACES
     DEF_INTERFACE (Steinberg::Linux::ITimerHandler)
@@ -148,7 +149,7 @@ int IPlugVST3_RunLoop::xt_set_x(xcbt_embed* pe, xcbt x)
 
 int IPlugVST3_RunLoop::xt_set_timer(xcbt_embed* pe, int msec)
 {
-  Self* ev = (Self*) e;
+  Self* ev = (Self*) pe;
 
   if(!ev)
     return 0;
