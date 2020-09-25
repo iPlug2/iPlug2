@@ -260,8 +260,8 @@ private:
 
 #ifdef OS_LINUX
   /** Site for embedding plug-in */
-  HWND  mSite = nullptr;
-  void *mSiteWnd = 0; // XID
+  HWND mSite = nullptr;
+  void* mSiteWnd = 0; // XID
 #endif
   
   friend class IPlugAPP;

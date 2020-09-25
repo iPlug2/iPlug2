@@ -181,7 +181,6 @@ public:
     mSysExDataFromEditor.Push(data);
   }
 
-  /** /todo  * On Linux there is no common main loop. SWELL based app has implicit one and soo it works for APP_API. */
   void CreateTimer();
 
   void OnTimer(Timer& t);
@@ -210,8 +209,6 @@ private:
   
   /** /todo */
   virtual void TransmitSysExDataFromProcessor(const SysExData& data) {}
-
-  // AZ: temporary void OnTimer(Timer& t);
 
 protected:
   WDL_String mParamDisplayStr;

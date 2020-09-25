@@ -334,20 +334,20 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
   switch (msg)
   {
     case SWELLAPP_ONLOAD:
-      {
-	IPlugAPPHost* pAppHost = IPlugAPPHost::Create();
-	pAppHost->Init();
-	pAppHost->TryToChangeAudio();
-      }
-      break;
+    {
+      IPlugAPPHost* pAppHost = IPlugAPPHost::Create();
+      pAppHost->Init();
+      pAppHost->TryToChangeAudio();
+    }
+    break;
     case SWELLAPP_LOADED:
-      {
-	HWND hwnd =  CreateDialog(NULL, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, IPlugAPPHost::MainDlgProc);
-	HMENU hmenu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_MENU1));
-	SetMenu(hwnd, hmenu);
-	ShowWindow(hwnd, SW_SHOW);
-      }
-      break;
+    {
+      HWND hwnd =  CreateDialog(NULL, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, IPlugAPPHost::MainDlgProc);
+      HMENU hmenu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_MENU1));
+      SetMenu(hwnd, hmenu);
+      ShowWindow(hwnd, SW_SHOW);
+    }
+    break;
     case SWELLAPP_PROCESSMESSAGE:
       // TODO: probably need keyboard processing here
       break;

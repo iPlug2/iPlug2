@@ -88,7 +88,7 @@
   #define FONT_DESCRIPTOR_TYPE std::pair<WDL_String, WDL_String>*
 #elif defined OS_LINUX
   // #include "swell-types.h"
-  #define FONT_DESCRIPTOR_TYPE void *
+  #define FONT_DESCRIPTOR_TYPE void*
 #else 
   // NO_IGRAPHICS
 #endif
