@@ -9,6 +9,7 @@
 */
 
 #import <UIKit/UIKit.h>
+#import <MSColorPicker/MSColorPicker.h>
 #include "IGraphicsIOS.h"
 
 BEGIN_IPLUG_NAMESPACE
@@ -54,7 +55,7 @@ using namespace igraphics;
 
 @end
 
-@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate, UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate>
+@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate, UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate, MSColorSelectionViewControllerDelegate>
 {
 @public
   IGraphicsIOS* mGraphics;
@@ -63,6 +64,8 @@ using namespace igraphics;
   UITextField* mTextField;
   CAMetalLayer* mMTLLayer;
   int mTextFieldLength;
+  IColorPickerHandlerFunc mColorPickerHandlerFunc;
+  float mPrevX, mPrevY;
 }
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics;
 - (BOOL) isOpaque;
@@ -73,8 +76,9 @@ using namespace igraphics;
 - (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect;
 - (void) endUserInput;
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
-
-- (void)presentationControllerDidDismiss: (UIPresentationController *) presentationController;
+- (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func;
+- (void) presentationControllerDidDismiss: (UIPresentationController*) presentationController;
+- (void) colorViewController:(MSColorSelectionViewController*) colorViewController didChangeColor:(UIColor*) color;
 
 //gestures
 - (void) attachGestureRecognizer: (EGestureType) type;
@@ -84,6 +88,9 @@ using namespace igraphics;
 - (void) onSwipeGesture: (UISwipeGestureRecognizer*) recognizer;
 - (void) onPinchGesture: (UIPinchGestureRecognizer*) recognizer;
 - (void) onRotateGesture: (UIRotationGestureRecognizer*) recognizer;
+
+- (void) getLastTouchLocation: (float&) x : (float&) y;
+
 @property (readonly) CAMetalLayer* metalLayer;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 

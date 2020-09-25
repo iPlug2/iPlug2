@@ -88,7 +88,7 @@ using namespace igraphics;
 {
   IPopupMenu* mIPopupMenu;
 }
-- (id) initWithIPopupMenuAndReciever: (IPopupMenu*) pMenu : (NSView*) pView;
+- (id) initWithIPopupMenuAndReceiver: (IPopupMenu*) pMenu : (NSView*) pView;
 - (IPopupMenu*) iPopupMenu;
 @end
 
@@ -107,10 +107,19 @@ using namespace igraphics;
 - (bool) becomeFirstResponder;
 @end
 
-@interface IGRAPHICS_VIEW : NSView <NSTextFieldDelegate/*, WKScriptMessageHandler*/>
+#ifdef IGRAPHICS_GL
+#define VIEW_BASE NSOpenGLView
+#else
+#define VIEW_BASE NSView
+#endif
+
+@interface IGRAPHICS_VIEW : VIEW_BASE <NSTextFieldDelegate/*, WKScriptMessageHandler*/>
 {
-  NSTrackingArea* mTrackingArea;
+  CVDisplayLinkRef mDisplayLink;
+  dispatch_source_t mDisplaySource;
   NSTimer* mTimer;
+  
+  NSTrackingArea* mTrackingArea;
   IGRAPHICS_TEXTFIELD* mTextFieldView;
   NSCursor* mMoveCursor;
   float mPrevX, mPrevY;
@@ -128,8 +137,8 @@ using namespace igraphics;
 - (void) viewDidChangeBackingProperties: (NSNotification*) pNotification;
 - (void) drawRect: (NSRect) bounds;
 - (void) render;
-- (void) onTimer: (NSTimer*) pTimer;
 - (void) killTimer;
+- (void) onTimer: (NSTimer*) pTimer;
 //mouse
 - (void) getMouseXY: (NSEvent*) pEvent : (float&) x : (float&) y;
 - (IMouseInfo) getMouseLeft: (NSEvent*) pEvent;
@@ -166,14 +175,6 @@ using namespace igraphics;
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender;
 //
 - (void) setMouseCursor: (ECursor) cursorType;
-@end
-
-@interface IGRAPHICS_GLLAYER : NSOpenGLLayer
-{
-  IGRAPHICS_VIEW* mView;
-}
-
-- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
 @end
 
 #ifdef IGRAPHICS_IMGUI

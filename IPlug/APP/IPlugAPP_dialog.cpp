@@ -554,17 +554,22 @@ static void ClientResize(HWND hWnd, int nWidth, int nHeight)
   
   screenwidth  = GetSystemMetrics(SM_CXSCREEN);
   screenheight = GetSystemMetrics(SM_CYSCREEN);
-  x = (screenwidth / 2) - (nWidth/2);
-  y = (screenheight / 2) - (nHeight/2);
+  x = (screenwidth / 2) - (nWidth / 2);
+  y = (screenheight / 2) - (nHeight / 2);
   
   GetClientRect(hWnd, &rcClient);
   GetWindowRect(hWnd, &rcWindow);
+
   ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
   ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
   
   SetWindowPos(hWnd, 0, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, 0);
 //  MoveWindow(hWnd, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, FALSE);
 }
+
+#ifdef OS_WIN 
+extern int GetScaleForHWND(HWND hWnd);
+#endif
 
 //static
 WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -577,26 +582,32 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
   switch (uMsg)
   {
     case WM_INITDIALOG:
-      {
-        gHWND = hwndDlg;
-        width = pAppHost->GetPlug()->GetEditorWidth();
-        height = pAppHost->GetPlug()->GetEditorHeight();
+    {
+      gHWND = hwndDlg;
+      IPlugAPP* pPlug = pAppHost->GetPlug();
 
 #ifdef OS_LINUX
-        RECT r = {0, 0, width, height};
+        RECT r = {0, 0, 100, 100};
         DBGMSG("APP: Initial socket size: %dx%d\n", r.right, r.bottom);
         pAppHost->mSite = SWELL_CreateXBridgeWindow(hwndDlg, &pAppHost->mSiteWnd, &r);
-        if(!pAppHost->OpenWindow(pAppHost->mSiteWnd))
+        if(!pAppHost->OpenWindow(pAppHost->mSiteWnd)) {
 #else
-        if(!pAppHost->OpenWindow(gHWND))
+        if(!pAppHost->OpenWindow(gHWND)) {
 #endif
-          DBGMSG("couldn't attach gui\n");
-
-        ClientResize(hwndDlg, width, height);
-
-        ShowWindow(hwndDlg,SW_SHOW);
-        return 1;
+        DBGMSG("couldn't attach gui\n");
       }
+
+      width = pPlug->GetEditorWidth();
+      height = pPlug->GetEditorHeight();
+
+      ClientResize(hwndDlg, width, height);
+#if defined(OS_LINUX)
+      SetWindowPos(pAppHost->mSite, hwndDlg, 0, 0, width, height, SWP_NOZORDER);
+#endif
+
+      ShowWindow(hwndDlg, SW_SHOW);
+      return 1;
+    }
     case WM_DESTROY:
       pAppHost->CloseWindow();
       gHWND = NULL;
@@ -732,6 +743,57 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 #endif
       }
       return 0;
+    case WM_GETMINMAXINFO:
+    {
+      if(!pAppHost)
+        return 1;
+      
+      IPlugAPP* pPlug = pAppHost->GetPlug();
+
+      MINMAXINFO* mmi = (MINMAXINFO*) lParam;
+      mmi->ptMinTrackSize.x = pPlug->GetMinWidth();
+      mmi->ptMinTrackSize.y = pPlug->GetMinHeight();
+      mmi->ptMaxTrackSize.x = pPlug->GetMaxWidth();
+      mmi->ptMaxTrackSize.y = pPlug->GetMaxHeight();
+      
+#ifdef OS_MAC
+      const int titleBarOffset = 22;
+      mmi->ptMinTrackSize.y += titleBarOffset;
+      mmi->ptMaxTrackSize.y += titleBarOffset;
+#endif
+
+#ifdef OS_WIN 
+      int scale = GetScaleForHWND(hwndDlg);
+      mmi->ptMinTrackSize.x *= scale;
+      mmi->ptMinTrackSize.y *= scale;
+      mmi->ptMaxTrackSize.x *= scale;
+      mmi->ptMaxTrackSize.y *= scale;
+#endif
+      
+      return 0;
+    }
+    case WM_SIZE:
+    {
+      IPlugAPP* pPlug = pAppHost->GetPlug();
+
+      switch (LOWORD(wParam))
+      {
+      case SIZE_RESTORED:
+      case SIZE_MAXIMIZED:
+      {
+        RECT r;
+        GetClientRect(hwndDlg, &r);
+        int scale = 1;
+        #ifdef OS_WIN 
+        scale = GetScaleForHWND(hwndDlg);
+        #endif
+        pPlug->OnParentWindowResize(r.right / scale, r.bottom / scale);
+        return 1;
+      }
+      default:
+        return 0;
+      }
+    }
   }
   return 0;
 }

@@ -48,8 +48,10 @@ SWELL_PATH = $(WDL_PATH)/swell
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
 EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket
 
+JSON_INC_PATH = $(DEPS_PATH)/Extras/nlohmann
+
 // this build setting is included at the xcode project level, since we need all these include paths
-IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS) $(AUv3_PATH)
+IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS) $(AUv3_PATH) $(JSON_INC_PATH)
 
 BUILT_LIBS_PATH = $(DEPS_PATH)/Build/ios
 BUILT_LIBS_INC_PATH = $(BUILT_LIBS_PATH)/include
@@ -68,17 +70,18 @@ NVGMTL_PATH = $(IGRAPHICS_DEPS_PATH)/MetalNanoVG/src
 STB_PATH = $(DEPS_PATH)/IGraphics/STB
 IMGUI_PATH = $(DEPS_PATH)/IGraphics/imgui
 YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga
+MSCOLORPICKER_PATHS = $(IGRAPHICS_DEPS_PATH)/MSColorPicker $(IGRAPHICS_DEPS_PATH)/MSColorPicker/MSColorPicker
 
 IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/examples
 
 SKIA_PATH = $(DEPS_PATH)/Build/src/skia
 
-SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu $(SKIA_PATH)/experimental/svg/model
+SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu $(SKIA_PATH)/experimental/svg/model $(SKIA_PATH)/third_party/externals/icu/source/common
 
 YOGA_INC_PATHS = $(YOGA_PATH) $(YOGA_PATH)/yoga
 
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics suppor
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(CONTROLS_PATH) $(PLATFORMS_PATH) $(DRAWING_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(SKIA_INC_PATHS) $(FT_PATH) $(STB_PATH) $(IMGUI_INC_PATHS) $(YOGA_INC_PATHS)
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(CONTROLS_PATH) $(PLATFORMS_PATH) $(DRAWING_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(SKIA_INC_PATHS) $(FT_PATH) $(STB_PATH) $(IMGUI_INC_PATHS) $(YOGA_INC_PATHS) $(MSCOLORPICKER_PATHS)
 
 //FAUST_INC_PATHS = /usr/local/include /usr/local/opt/include
 FAUST_INC_PATHS = $(DEPS_PATH)/Build/mac/include

@@ -8,11 +8,31 @@
  ==============================================================================
 */
 #include "IPlugLV2.h"
-#include <lv2/urid/urid.h>
-#include <lv2/options/options.h>
-#include <lv2/buf-size/buf-size.h>
+
+#include <lv2/lv2plug.in/ns/ext/atom/atom.h>
+#include <lv2/lv2plug.in/ns/ext/atom/forge.h>
+#include <lv2/lv2plug.in/ns/ext/midi/midi.h>
+#include <lv2/lv2plug.in/ns/ext/options/options.h>
+#include <lv2/lv2plug.in/ns/ext/patch/patch.h>
+#include <lv2/lv2plug.in/ns/ext/state/state.h>
+#include <lv2/lv2plug.in/ns/ext/urid/urid.h>
+#include <lv2/lv2plug.in/ns/ext/worker/worker.h>
+#include <lv2/lv2plug.in/ns/ext/patch/patch.h>
 
 #define NOTIMP printf("%s: not implemented\n", __FUNCTION__);
+
+
+struct CoreURIDMap
+{
+  LV2_URID atom_Blank;
+  LV2_URID atom_Object;
+  LV2_URID atom_URID;
+  LV2_URID atom_Float;
+  LV2_URID atom_Bool;
+  LV2_URID patch_Set;
+  LV2_URID patch_property;
+  LV2_URID patch_value;
+};
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -107,7 +127,9 @@ void IPlugLV2DSP::activate()
 
 void IPlugLV2DSP::run(uint32_t n_samples)
 {
-  int nInputs = MaxNChannels(ERoute::kInput), nOutputs = MaxNChannels(ERoute::kOutput), nParams = NParams();
+  int nInputs = MaxNChannels(ERoute::kInput);
+  int nOutputs = MaxNChannels(ERoute::kOutput);
+  int nParams = NParams();
 
   if(GetBlockSize() < n_samples)
   {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1130"
+   LastUpgradeVersion = "1200"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -29,8 +29,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -45,7 +43,7 @@
       <PathRunnable
          runnableDebuggingMode = "0"
          BundleIdentifier = "com.steinberg.vst3.plugintesthost"
-         FilePath = "/Applications/VST3PluginTestHost.app">
+         FilePath = "/Applications/REAPER64.app">
       </PathRunnable>
       <MacroExpansion>
          <BuildableReference
@@ -56,8 +54,12 @@
             ReferencedContainer = "container:IPlugInstrument-macOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
-      <AdditionalOptions>
-      </AdditionalOptions>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "$(SRCROOT)/../$(PRODUCT_NAME).RPP"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"

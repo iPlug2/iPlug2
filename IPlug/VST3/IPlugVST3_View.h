@@ -14,7 +14,9 @@
 
 #include "IPlugStructs.h"
 
+#ifdef OS_LINUX
 #include "IPlugVST3_RunLoop.h"
+#endif
 
 /** IPlug VST3 View  */
 template <class T>
@@ -61,7 +63,10 @@ public:
     TRACE
     
     if (pSize)
+    {
       rect = *pSize;
+      mOwner.OnParentWindowResize(rect.getWidth(), rect.getHeight());
+    }
     
     return Steinberg::kResultTrue;
   }
@@ -80,6 +85,30 @@ public:
     {
       return Steinberg::kResultFalse;
     }
+  }
+  
+  Steinberg::tresult PLUGIN_API canResize() override
+  {
+    if (mOwner.HasUI() && mOwner.GetHostResizeEnabled())
+    {
+      return Steinberg::kResultTrue;
+    }
+    
+    return Steinberg::kResultFalse;
+  }
+  
+  Steinberg::tresult PLUGIN_API checkSizeConstraint(Steinberg::ViewRect* pRect) override
+  {
+    int w = pRect->getWidth();
+    int h = pRect->getHeight();
+    
+    if(!mOwner.ConstrainEditorResize(w, h))
+    {
+      pRect->right = pRect->left + w;
+      pRect->bottom = pRect->top + h;
+    }
+    
+    return Steinberg::kResultTrue;
   }
   
   Steinberg::tresult PLUGIN_API attached(void* pParent, Steinberg::FIDString type) override
@@ -110,7 +139,9 @@ public:
   Steinberg::tresult PLUGIN_API removed() override
   {
     if (mOwner.HasUI())
+    {
       mOwner.CloseWindow();
+    }
     
     return CPluginView::removed();
   }
@@ -124,8 +155,12 @@ public:
 
   Steinberg::tresult PLUGIN_API setFrame (Steinberg::IPlugFrame* frame) override 
   { 
-    mOwner.SetIntegration(iplug::IPlugVST3_EmbedFactory(frame));
-    
+  #ifdef OS_LINUX
+    auto rloop = iplug::IPlugVST3_RunLoop::Create(frame);
+    rloop->CreateTimer([&]() { mOwner.OnIdle(); }, 20);
+    mOwner.SetIntegration(rloop);
+  #endif
+  
     return CPluginView::setFrame(frame);
   }
 
@@ -259,7 +294,7 @@ public:
 
     iplug::IKeyPress keyPress { str.Get(), VSTKeyCodeToVK(keyMsg, str.Get()[0]),
       static_cast<bool>(modifiers & Steinberg::kShiftKey),
-      static_cast<bool>(modifiers & Steinberg::kControlKey),
+      static_cast<bool>(modifiers & Steinberg::kCommandKey),
       static_cast<bool>(modifiers & Steinberg::kAlternateKey)};
     
     return keyPress;
@@ -277,7 +312,7 @@ public:
   
   DELEGATE_REFCOUNT(Steinberg::CPluginView)
 
-  void resize(int w, int h)
+  void Resize(int w, int h)
   {
     TRACE
     

@@ -23,10 +23,13 @@
 #include "IGraphicsLinux.h"
 #include "IPopupMenuControl.h"
 #include "IPlugPaths.h"
+#include "IPlugTimer.h"
 
 #ifdef OS_LINUX
-#ifdef IGRAPHICS_GL
-#endif
+  #ifdef IGRAPHICS_GL
+    #include "glad.c"
+    #include <glad/glad_glx.h>
+  #endif
   #include <fontconfig/fontconfig.h>
 #endif
 
@@ -42,18 +45,27 @@ using namespace igraphics;
 class IGraphicsLinux::Font : public PlatformFont
 {
 public:
-  Font(WDL_String &fileName) : PlatformFont(false), mFileName(fileName) { }
+  Font(WDL_String &fileName) : PlatformFont(false), mFileName(fileName)
+  {
+    mFontData.Resize(0);
+  }
+
+  Font(WDL_String &fontID, const void *pData, int dataSize) : PlatformFont(false), mFileName(fontID)
+  {
+    mFontData.Set((const uint8_t*)pData, dataSize);
+  }
   IFontDataPtr GetFontData() override;
 
 private:
   WDL_String mFileName;
+  WDL_TypedBuf<uint8_t> mFontData;
 };
 
 void IGraphicsLinux::Paint()
 {
   IRECT ir = {0, 0, static_cast<float>(WindowWidth()), static_cast<float>(WindowHeight())};
   IRECTList rects;
-  rects.Add(ir);
+  rects.Add(ir.GetScaled(1.f / GetBackingPixelScale()));
   // DBGMSG("Paint\n");
   void *ctx = xcbt_window_draw_begin(mPlugWnd);
 
@@ -110,7 +122,7 @@ void IGraphicsLinux::TimerHandler(int timer_id){
       Paint();
       SetAllControlsClean();
     }
-    xcbt_timer_set(mX, IPLUG_TIMER_ID, 20, (xcbt_timer_cb)TimerHandlerProxy, this);
+    xcbt_timer_set(mX, IPLUG_TIMER_ID, 10, (xcbt_timer_cb)TimerHandlerProxy, this);
   }
 }
 
@@ -352,10 +364,13 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
     xcbt_window_draw_stop(mPlugWnd);
   }
 
-  xcbt_timer_set(mX, IPLUG_TIMER_ID, 20, (xcbt_timer_cb)TimerHandlerProxy, this);
+  xcbt_timer_set(mX, IPLUG_TIMER_ID, 10, (xcbt_timer_cb)TimerHandlerProxy, this);
+
+  //mTimer = Timer::Create([this](Timer& timer) { xcbt_embed_idle_cb(mEmbed); }, 10);
 
 #ifdef APP_API
   xcbt_window_map(mPlugWnd);
+  //xcbt_window_set_xembed_info(mPlugWnd);
 #elif defined VST2_API
   xcbt_window_set_xembed_info(mPlugWnd);
 #elif defined VST3_API
@@ -382,7 +397,11 @@ void IGraphicsLinux::CloseWindow()
     xcbt_disconnect(mX);
     mX = NULL;
   }
-  mEmbed = nullptr; // TODO: memory leak!
+  if (mEmbed)
+  {
+    mEmbed->dtor(mEmbed);
+    mEmbed = nullptr;
+  }
 }
 
 EMsgBoxResult IGraphicsLinux::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
@@ -423,7 +442,7 @@ void IGraphicsLinux::PlatformResize(bool parentHasResized)
       xcb_window_t prt = xcbt_window_xprt(mPlugWnd);
       if( prt )
       {
-        xcb_configure_window(conn, prt, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);        
+        xcb_configure_window(conn, prt, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
       }
     }
     xcbt_flush(mX);
@@ -437,24 +456,31 @@ void IGraphicsLinux::PlatformResize(bool parentHasResized)
 
 IFontDataPtr IGraphicsLinux::Font::GetFontData()
 {
-  IFontDataPtr pData;
-  int file = open(mFileName.Get(), O_RDONLY);
-  if (file >= 0)
+  if (mFontData.GetSize() == 0)
   {
-    struct stat sb;
-    if (fstat(file, &sb) == 0)
+    IFontDataPtr pData;
+    int file = open(mFileName.Get(), O_RDONLY);
+    if (file >= 0)
     {
-      int fontSize = static_cast<int>(sb.st_size);
-      void *pFontMem = mmap(NULL, fontSize, PROT_READ, MAP_PRIVATE | MAP_POPULATE, file, 0);
-      if (pFontMem != MAP_FAILED)
+      struct stat sb;
+      if (fstat(file, &sb) == 0)
       {
-        pData = std::make_unique<IFontData>(pFontMem, fontSize, 0);
-        munmap(pFontMem, fontSize);
+        int fontSize = static_cast<int>(sb.st_size);
+        void *pFontMem = mmap(NULL, fontSize, PROT_READ, MAP_PRIVATE | MAP_POPULATE, file, 0);
+        if (pFontMem != MAP_FAILED)
+        {
+          pData = std::make_unique<IFontData>(pFontMem, fontSize, 0);
+          munmap(pFontMem, fontSize);
+        }
       }
+      close(file);
     }
-    close(file);
+    return pData;
   }
-  return pData;
+  else
+  {
+    return std::make_unique<IFontData>((const void*)mFontData.Get(), mFontData.GetSize(), 0);
+  }
 }
 
 
@@ -469,6 +495,13 @@ PlatformFontPtr IGraphicsLinux::LoadPlatformFont(const char* fontID, const char*
   }
 
   return PlatformFontPtr(new Font(fullPath));
+}
+
+PlatformFontPtr IGraphicsLinux::LoadPlatformFont(const char* fontID, void* pData, int dataSize)
+{
+  WDL_String name;
+  name.Set(fontID);
+  return PlatformFontPtr(new Font(name, pData, dataSize));
 }
 
 PlatformFontPtr IGraphicsLinux::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)

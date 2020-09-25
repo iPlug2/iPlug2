@@ -59,13 +59,14 @@ public:
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
-  void InformHostOfProgramChange() override {}
+  void InformHostOfPresetChange() override {}
   void InformHostOfParameterDetailsChange() override;
   bool EditorResize(int viewWidth, int viewHeight) override;
 
   // IEditorDelegate
   void DirtyParametersFromUI() override;
-  
+  void SendParameterValueFromUI(int paramIdx, double normalisedValue) override;
+
   // IPlugProcessor
   void SetLatency(int samples) override;
   
@@ -114,6 +115,32 @@ public:
 
   Steinberg::Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   ViewType* GetView() { return mView; }
+  
+  Steinberg::Vst::AudioBus* getAudioInput(Steinberg::int32 index)
+  {
+    Steinberg::Vst::AudioBus* bus = nullptr;
+    if (index < static_cast<Steinberg::int32> (audioInputs.size ()))
+      bus = Steinberg::FCast<Steinberg::Vst::AudioBus> (audioInputs.at (index));
+    return bus;
+  }
+
+  Steinberg::Vst::AudioBus* getAudioOutput(Steinberg::int32 index)
+  {
+    Steinberg::Vst::AudioBus* bus = nullptr;
+    if (index < static_cast<Steinberg::int32> (audioOutputs.size ()))
+      bus = Steinberg::FCast<Steinberg::Vst::AudioBus> (audioOutputs.at (index));
+    return bus;
+  }
+  
+  void removeAudioInputBus(Steinberg::Vst::AudioBus* pBus)
+  {
+    audioInputs.erase(std::remove(audioInputs.begin(), audioInputs.end(), pBus));
+  }
+   
+  void removeAudioOutputBus(Steinberg::Vst::AudioBus* pBus)
+  {
+    audioOutputs.erase(std::remove(audioOutputs.begin(), audioOutputs.end(), pBus));
+  }
    
   // Interface    
   OBJ_METHODS(IPlugVST3, SingleComponentEffect)

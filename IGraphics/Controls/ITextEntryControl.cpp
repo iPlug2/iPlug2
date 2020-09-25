@@ -560,9 +560,4 @@ void ITextEntryControl::SetStr(const char* str)
 {
   mCharWidths.Resize(0, false);
   mEditString = StringConvert{}.from_bytes(std::string(str));
-
-  if (mEditState.select_start != mEditState.select_end)
-  {
-    SelectAll();
-  }
 }

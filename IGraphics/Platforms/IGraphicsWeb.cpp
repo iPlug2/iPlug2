@@ -10,9 +10,27 @@
 
 #include <cstring>
 #include <cstdio>
+#include <cstdint>
 #include <emscripten/key_codes.h>
 
 #include "IGraphicsWeb.h"
+
+BEGIN_IPLUG_NAMESPACE
+BEGIN_IGRAPHICS_NAMESPACE
+
+void GetScreenDimensions(int& width, int& height)
+{
+  width = val::global("window")["innerWidth"].as<int>();
+  height = val::global("window")["innerHeight"].as<int>();
+}
+
+float GetScaleForScreen(int height)
+{
+  return 1.f;
+}
+
+END_IPLUG_NAMESPACE
+END_IGRAPHICS_NAMESPACE
 
 using namespace iplug;
 using namespace igraphics;
@@ -78,6 +96,25 @@ IFontDataPtr IGraphicsWeb::FileFont::GetFontData()
   
   return fontData;
 }
+
+class IGraphicsWeb::MemoryFont : public Font
+{
+public:
+  MemoryFont(const char* fontName, const char* fontStyle, const void* pData, int dataSize)
+  : Font(fontName, fontStyle)
+  {
+    mSystem = false;
+    mData.Set((const uint8_t*)pData, dataSize);
+  }
+
+  IFontDataPtr GetFontData() override
+  {
+    return IFontDataPtr(new IFontData(mData.Get(), mData.GetSize(), 0));
+  }
+
+private:
+  WDL_TypedBuf<uint8_t> mData;
+};
 
 #pragma mark - Utilities and Callbacks
 
@@ -315,20 +352,27 @@ static EM_BOOL outside_mouse_callback(int eventType, const EmscriptenMouseEvent*
   info.y = (pEvent->targetY - rect["top"].as<double>()) / pGraphics->GetDrawScale();
   info.dX = pEvent->movementX;
   info.dY = pEvent->movementY;
-  info.ms = {pEvent->buttons == 1, pEvent->buttons == 2, static_cast<bool>(pEvent->shiftKey), static_cast<bool>(pEvent->ctrlKey), static_cast<bool>(pEvent->altKey)};
+  info.ms = {(pEvent->buttons & 1) != 0, (pEvent->buttons & 2) != 0, static_cast<bool>(pEvent->shiftKey), static_cast<bool>(pEvent->ctrlKey), static_cast<bool>(pEvent->altKey)};
   std::vector<IMouseInfo> list {info};
   
   switch (eventType)
   {
     case EMSCRIPTEN_EVENT_MOUSEUP:
+    {
+      // Get button states based on what caused the mouse up (nothing in buttons)
+      list[0].ms.L = pEvent->button == 0;
+      list[0].ms.R = pEvent->button == 2;
       pGraphics->OnMouseUp(list);
       emscripten_set_mousemove_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, pGraphics, 1, nullptr);
       emscripten_set_mouseup_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, pGraphics, 1, nullptr);
       break;
+    }
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
+    {
       if(pEvent->buttons != 0 && !pGraphics->IsInPlatformTextEntry())
         pGraphics->OnMouseDrag(list);
       break;
+    }
     default:
       break;
   }
@@ -348,8 +392,8 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent,
   info.y = pEvent->targetY / pGraphics->GetDrawScale();
   info.dX = pEvent->movementX;
   info.dY = pEvent->movementY;
-  info.ms = {pEvent->buttons == 1,
-             pEvent->buttons == 2,
+  info.ms = {(pEvent->buttons & 1) != 0,
+             (pEvent->buttons & 2) != 0,
              static_cast<bool>(pEvent->shiftKey),
              static_cast<bool>(pEvent->ctrlKey),
              static_cast<bool>(pEvent->altKey)};
@@ -377,7 +421,14 @@ static EM_BOOL mouse_callback(int eventType, const EmscriptenMouseEvent* pEvent,
       
       break;
     }
-    case EMSCRIPTEN_EVENT_MOUSEUP: pGraphics->OnMouseUp(list); break;
+    case EMSCRIPTEN_EVENT_MOUSEUP:
+    {
+      // Get button states based on what caused the mouse up (nothing in buttons)
+      list[0].ms.L = pEvent->button == 0;
+      list[0].ms.R = pEvent->button == 2;
+      pGraphics->OnMouseUp(list);
+      break;
+    }
     case EMSCRIPTEN_EVENT_MOUSEMOVE:
     {
       gFirstClick = false;
@@ -417,7 +468,7 @@ static EM_BOOL wheel_callback(int eventType, const EmscriptenWheelEvent* pEvent,
 {
   IGraphics* pGraphics = (IGraphics*) pUserData;
   
-  IMouseMod modifiers(0, 0, pEvent->mouse.shiftKey, pEvent->mouse.ctrlKey, pEvent->mouse.altKey);
+  IMouseMod modifiers(false, false, pEvent->mouse.shiftKey, pEvent->mouse.ctrlKey, pEvent->mouse.altKey);
   
   double x = pEvent->mouse.targetX;
   double y = pEvent->mouse.targetY;
@@ -510,6 +561,20 @@ static EM_BOOL text_entry_keydown(int eventType, const EmscriptenKeyboardEvent* 
   return false;
 }
 
+static EM_BOOL uievent_callback(int eventType, const EmscriptenUiEvent* pEvent, void* pUserData)
+{
+  IGraphicsWeb* pGraphics = (IGraphicsWeb*) pUserData;
+
+  if (eventType == EMSCRIPTEN_EVENT_RESIZE)
+  {
+    pGraphics->GetDelegate()->OnParentWindowResize(pEvent->windowInnerWidth, pEvent->windowInnerHeight);
+
+    return true;
+  }
+  
+  return false;
+}
+
 IColorPickerHandlerFunc gColorPickerHandlerFunc = nullptr;
 
 static void color_picker_callback(val e)
@@ -560,6 +625,7 @@ IGraphicsWeb::IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float s
   emscripten_set_touchend_callback("#canvas", this, 1, touch_callback);
   emscripten_set_touchmove_callback("#canvas", this, 1, touch_callback);
   emscripten_set_touchcancel_callback("#canvas", this, 1, touch_callback);
+  emscripten_set_resize_callback(EMSCRIPTEN_EVENT_TARGET_WINDOW, this, 1, uievent_callback);
 }
 
 IGraphicsWeb::~IGraphicsWeb()
@@ -661,7 +727,7 @@ void IGraphicsWeb::OnMainLoopTimer()
   {
     gGraphics->SetScreenScale(screenScale);
   }
-  
+
   if (gGraphics->IsDirty(rects))
   {
     gGraphics->SetAllControlsClean();
@@ -850,6 +916,11 @@ PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, const char* f
   const char* styles[] = { "normal", "bold", "italic" };
   
   return PlatformFontPtr(new Font(fontName, styles[static_cast<int>(style)]));
+}
+
+PlatformFontPtr IGraphicsWeb::LoadPlatformFont(const char* fontID, void* pData, int dataSize)
+{
+  return PlatformFontPtr(new MemoryFont(fontID, "", pData, dataSize));
 }
 
 #if defined IGRAPHICS_CANVAS

@@ -87,7 +87,7 @@ public:
       IParam* pParam = pPlug->GetParam(i);
       unitID = Steinberg::Vst::kRootUnitId; // reset unitID
     
-      const char* paramGroupName = pParam->GetGroupForHost();
+      const char* paramGroupName = pParam->GetGroup();
       
       if (CStringHasContents(paramGroupName)) // if the parameter has a group
       {
@@ -154,20 +154,17 @@ public:
 #endif
   }
   
-  Steinberg::Vst::ParamValue PLUGIN_API GetParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParamID tag)
+  Steinberg::Vst::ParamValue GetParamNormalized(Steinberg::Vst::ParameterContainer& parameters, Steinberg::Vst::ParamID tag)
   {
-    IParam* param = pPlug->GetParam(tag);
-        
-    if (param)
-    {
-      return param->GetNormalized();
-    }
-        
-    return 0.0;
+    Steinberg::Vst::Parameter* parameter = parameters.getParameter(tag);
+    return parameter ? parameter->getNormalized() : 0.0;
   }
     
-  void PLUGIN_API SetParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value)
+  bool SetParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParameterContainer& parameters, Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value)
   {
+    if (!SetVST3ParamNormalized(parameters, tag, value))
+      return false;
+    
     if (tag >= kBypassParam)
     {
       switch (tag)
@@ -190,14 +187,11 @@ public:
         pParam->SetNormalized(value);
         pPlug->OnParamChangeUI(tag, kHost);
 
-// in VST3, parameter changes are managed by the host
-#if !defined VST3C_API // && !defined VST3_API //TODO
-        pPlug->SendParameterValueFromAPI(tag, value, true);
-#else
         pPlug->SendParameterValueFromDelegate(tag, value, true);
-#endif
       }
     }
+    
+    return true;
   }
 
   bool SetChannelContextInfos(Steinberg::Vst::IAttributeList* pList)
@@ -212,8 +206,11 @@ public:
       if (pList->getInt(ChannelContext::kChannelNameLengthKey, length) == kResultTrue)
       {
         // get the channel name where we, as plug-in, are instantiated
-        std::vector<TChar> name(length + 1);
-        if (pList->getString(ChannelContext::kChannelNameKey, name.data(), static_cast<Steinberg::uint32>(length + 1)) == kResultTrue)
+        // Note: length is multiplied by two because Ableton Live 10.1.13 is buggy
+        // and pList->getString() size parameter is interpreted as TChar instead
+        // of byte: end of string zero value is written in an out of memory position
+        std::vector<TChar> name((length+1)*2);
+        if (pList->getString(ChannelContext::kChannelNameKey, name.data(),  static_cast<Steinberg::uint32>(length+1)*sizeof(TChar)) == kResultTrue)
         {
           Steinberg::String str(name.data());
           str.toMultiByte(kCP_Utf8);
@@ -225,8 +222,11 @@ public:
       if (pList->getInt(ChannelContext::kChannelUIDLengthKey, length) == kResultTrue)
       {
         // get the channel UID
-        std::vector<TChar> name(length + 1);
-        if (pList->getString(ChannelContext::kChannelUIDKey, name.data(), static_cast<Steinberg::uint32>(length + 1)) == kResultTrue)
+        // Note: length is multiplied by two because Ableton Live 10.1.13 is buggy
+        // and pList->getString() size parameter is interpreted as TChar instead
+        // of byte: end of string zero value is written in an out of memory position
+        std::vector<TChar> name((length+1)*2);
+        if (pList->getString(ChannelContext::kChannelUIDKey, name.data(), static_cast<Steinberg::uint32>(length+1)*sizeof(TChar)) == kResultTrue)
         {
           Steinberg::String str(name.data());
           str.toMultiByte(kCP_Utf8);
@@ -258,8 +258,11 @@ public:
       if (pList->getInt(ChannelContext::kChannelIndexNamespaceLengthKey, length) == kResultTrue)
       {
         // get the channel index namespace
-        std::vector<TChar> name(length + 1);
-        if (pList->getString(ChannelContext::kChannelIndexNamespaceKey, name.data(), static_cast<Steinberg::uint32>(length + 1)) == kResultTrue)
+        // Note: length is multiplied by two because Ableton Live 10.1.13 is buggy
+        // and pList->getString() size parameter is interpreted as TChar instead
+        // of byte: end of string zero value is written in an out of memory position
+        std::vector<TChar> name((length+1)*2);
+        if (pList->getString(ChannelContext::kChannelIndexNamespaceKey, name.data(), static_cast<Steinberg::uint32>(length+1)*sizeof(TChar)) == kResultTrue)
         {
           Steinberg::String str(name.data());
           str.toMultiByte(kCP_Utf8);
@@ -292,6 +295,19 @@ public:
     }
 
     return false;
+  }
+  
+protected:
+  
+  bool SetVST3ParamNormalized(Steinberg::Vst::ParameterContainer& parameters, Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value)
+  {
+    Steinberg::Vst::Parameter* parameter = parameters.getParameter(tag);
+    
+    if (!parameter)
+      return false;
+    
+    parameter->setNormalized(value);
+    return true;
   }
   
 public:

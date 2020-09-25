@@ -11,30 +11,24 @@
 
 BEGIN_IPLUG_NAMESPACE
 
-struct EventHandler;
-struct TimerHandler;
+struct VST3Timer : Steinberg::Linux::ITimerHandler, public Steinberg::FObject
+{
+  std::function<void()> callback;
 
-extern "C" {
+  void PLUGIN_API onTimer() override
+  {
+    callback();
+  }
 
-typedef struct {
-  xcbt_embed embed;
-  
-  Steinberg::Linux::IRunLoop *runLoop;
-  xcbt x;
-
-  // we support exactly one watch and one timer 
-  struct EventHandler *eHandler;
-  bool   eHandlerSet;
-  struct TimerHandler *tHandler;
-  bool   tHandlerSet;
-  
-} _xcbt_embed_vst3;
-
+  DELEGATE_REFCOUNT (Steinberg::FObject)
+  DEFINE_INTERFACES
+    DEF_INTERFACE (Steinberg::Linux::ITimerHandler)
+  END_DEFINE_INTERFACES (Steinberg::FObject)
 };
 
 struct EventHandler : Steinberg::Linux::IEventHandler, public Steinberg::FObject
 {
-  _xcbt_embed_vst3 *ev;
+  IPlugVST3_RunLoop *ev;
 
   void PLUGIN_API onFDIsSet (Steinberg::Linux::FileDescriptor) override 
   { 
@@ -49,7 +43,7 @@ struct EventHandler : Steinberg::Linux::IEventHandler, public Steinberg::FObject
 
 struct TimerHandler : Steinberg::Linux::ITimerHandler, public Steinberg::FObject
 {
-  _xcbt_embed_vst3 *ev;
+  IPlugVST3_RunLoop *ev;
 
   void PLUGIN_API onTimer () override
   {
@@ -64,8 +58,84 @@ struct TimerHandler : Steinberg::Linux::ITimerHandler, public Steinberg::FObject
   END_DEFINE_INTERFACES (Steinberg::FObject)
 };
 
-static int xcbt_embed_vst3_set_x(xcbt_embed *pe, xcbt x){
-  _xcbt_embed_vst3 *ev = (_xcbt_embed_vst3 *)pe;
+IPlugVST3_RunLoop* IPlugVST3_RunLoop::Create(Steinberg::FUnknown *frame)
+{
+  auto ev = new IPlugVST3_RunLoop();
+  ev->dtor = Self::xt_dtor;
+  ev->set_x = Self::xt_set_x;
+  ev->set_timer = Self::xt_set_timer;
+  ev->watch = Self::xt_watch;
+
+  Steinberg::FUnknownPtr<Steinberg::Linux::IRunLoop> runLoop(frame);
+  ev->runLoop = runLoop;
+  if(!ev->runLoop)
+  {
+    delete ev;
+    return nullptr;
+  }
+  ev->x = nullptr;
+  ev->eHandlerSet = false;
+  ev->tHandlerSet = false;
+  ev->eHandler = new EventHandler();
+  ev->eHandler->ev = ev;
+  ev->tHandler = new TimerHandler();
+  ev->tHandler->ev = ev;
+  
+  return ev;
+}
+
+void IPlugVST3_RunLoop::Destory(IPlugVST3_RunLoop* self)
+{
+  Self::xt_dtor((xcbt_embed*)self);
+}
+
+VST3Timer* IPlugVST3_RunLoop::CreateTimer(std::function<void()> callback, int msec)
+{
+  auto tm = new VST3Timer();
+  tm->callback = callback;
+  if (runLoop->registerTimer(tm, msec) == Steinberg::kResultOk)
+  {
+    mTimers.Add(tm);
+    return tm;
+  }
+  else
+  {
+    delete tm;
+  }
+}
+
+void IPlugVST3_RunLoop::DestroyTimer(VST3Timer *timer)
+{
+  runLoop->unregisterTimer(timer);
+  mTimers.Delete(mTimers.FindR(timer));
+  delete timer;
+}
+
+void IPlugVST3_RunLoop::xt_dtor(xcbt_embed *pe)
+{
+  Self *ev = (Self*)pe;
+  if (ev)
+  {
+    Self::xt_watch(pe, -1);
+    Self::xt_set_timer(pe, -1);
+    // printf("Releasing eHandeler %u\n", ev->eHandler->getRefCount()); // was checking refCounter is 1...
+    // printf("Releasing tHandler %u\n", ev->tHandler->getRefCount());
+    ev->eHandler->release();
+    ev->tHandler->release();
+
+    int i = 0;
+    while ((i = ev->mTimers.GetSize()) > 0)
+    {
+      ev->DestroyTimer(ev->mTimers.Get(i - 1));
+    }
+
+    delete ev;
+  }
+}
+
+int IPlugVST3_RunLoop::xt_set_x(xcbt_embed *pe, xcbt x)
+{
+  Self *ev = (Self*)pe;
   if(ev && !ev->x)
   {
     ev->x = x;
@@ -74,8 +144,9 @@ static int xcbt_embed_vst3_set_x(xcbt_embed *pe, xcbt x){
   return 0;
 }
 
-static int xcbt_embed_vst3_set_timer(xcbt_embed *pe, int msec){
-  _xcbt_embed_vst3 *ev = (_xcbt_embed_vst3 *)pe;
+int IPlugVST3_RunLoop::xt_set_timer(xcbt_embed *pe, int msec)
+{
+  Self *ev = (Self*)pe;
   if(!ev)
     return 0;
   if(ev->tHandlerSet){
@@ -94,8 +165,9 @@ static int xcbt_embed_vst3_set_timer(xcbt_embed *pe, int msec){
   return ev->tHandlerSet == true;
 }
 
-static int xcbt_embed_vst3_watch(xcbt_embed *pe, int fd){
-  _xcbt_embed_vst3 *ev = (_xcbt_embed_vst3 *)pe;
+int IPlugVST3_RunLoop::xt_watch(xcbt_embed *pe, int fd)
+{
+  Self *ev = (Self*)pe;
   int i;
   if(!ev)
     return 0;
@@ -118,46 +190,5 @@ static int xcbt_embed_vst3_watch(xcbt_embed *pe, int fd){
   }
   return ev->eHandlerSet == true;
 }
-
-static void xcbt_embed_vst3_dtor(xcbt_embed *pe){
-  _xcbt_embed_vst3 *ev = (_xcbt_embed_vst3 *)pe;
-  if (ev)
-  {
-    xcbt_embed_vst3_watch(pe, -1);
-    xcbt_embed_vst3_set_timer(pe, -1);
-    // printf("Releasing eHandeler %u\n", ev->eHandler->getRefCount()); // was checking refCounter is 1...
-    // printf("Releasing tHandler %u\n", ev->tHandler->getRefCount());
-    ev->eHandler->release();
-    ev->tHandler->release();
-    delete ev;
-  }
-}
-
-xcbt_embed *IPlugVST3_EmbedFactory(Steinberg::FUnknown *frame)
-{
-  _xcbt_embed_vst3 *ev = new _xcbt_embed_vst3();
-  ev->embed.dtor = xcbt_embed_vst3_dtor;
-  ev->embed.set_x = xcbt_embed_vst3_set_x;
-  ev->embed.set_timer = xcbt_embed_vst3_set_timer;
-  ev->embed.watch = xcbt_embed_vst3_watch;
-
-  Steinberg::FUnknownPtr<Steinberg::Linux::IRunLoop> runLoop(frame);
-  ev->runLoop = runLoop;
-  if(!ev->runLoop)
-  {
-    delete ev;
-    return nullptr;
-  }
-  ev->x = nullptr;
-  ev->eHandlerSet = false;
-  ev->tHandlerSet = false;
-  ev->eHandler = new EventHandler();
-  ev->eHandler->ev = ev;
-  ev->tHandler = new TimerHandler();
-  ev->tHandler->ev = ev;
-  
-  return &ev->embed;
-}
-
 
 END_IPLUG_NAMESPACE

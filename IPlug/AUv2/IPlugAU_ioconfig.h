@@ -21,8 +21,9 @@ static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int b
 
   switch (numChans)
   {
-    case 0: APIBusTypes->Add(kAudioChannelLayoutTag_UseChannelDescriptions | 0);
-      return kAudioChannelLayoutTag_UseChannelDescriptions | 0;
+    case 0:
+      APIBusTypes->Add(kAudioChannelLayoutTag_UseChannelDescriptions | 0);
+      break;
     case 1:
       APIBusTypes->Add(kAudioChannelLayoutTag_Mono);
       break;
@@ -66,7 +67,7 @@ static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int b
       APIBusTypes->Add(kAudioChannelLayoutTag_DiscreteInOrder | numChans);
       break;
   }
-  return true;
+  return 0; // AU can return multiple types
 }
 
 END_IPLUG_NAMESPACE

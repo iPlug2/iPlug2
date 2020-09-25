@@ -93,6 +93,9 @@ public:
   /** @return \c true if the plug-in is meant to have a UI, as defined in config.h */
   bool HasUI() const { return mHasUI; }
   
+  /** @return \c true if the plug-in allows reszing via the host's window chrome, as defined in config.h */
+  bool GetHostResizeEnabled() const { return mHostResize; }
+  
   /*** @return a CString with the bundle identifier (macOS/IOS only) */
   const char* GetBundleID() const { return mBundleID.Get(); }
     
@@ -160,18 +163,13 @@ public:
   void SetCurrentPresetIdx(int idx) { assert(idx > -1 && idx < NPresets()); mCurrentPresetIdx = idx; }
   
   /** Implemented by the API class, called by the UI (etc) when the plug-in initiates a program/preset change (not applicable to all APIs) */
-  virtual void InformHostOfProgramChange() {};
-#pragma mark - Preset Manipulation - NO-OPs
+  virtual void InformHostOfPresetChange() {};
+
+#pragma mark - Preset Manipulation
   
-#ifdef NO_PRESETS
-  virtual int NPresets() const { return 1; }
-  virtual void ModifyCurrentPreset(const char* name = 0) { };
-  virtual bool RestorePreset(int idx) { mCurrentPresetIdx = idx; return true; }
-  virtual bool RestorePreset(const char* name) { return true; }
-  virtual const char* GetPresetName(int idx) const { return "-"; }
-  
-#else
-  #pragma mark - Preset Manipulation - OPs - These methods are not included if you define NO_PRESETS
+  /** Get a ptr to a factory preset
+   * @ param idx The index number of the preset you are referring to */
+  IPreset* GetPreset(int idx) { return mPresets.Get(idx); }
   
   /** This method should update the current preset with current values
    * NOTE: This is only relevant for VST2 plug-ins, which is the only format to have the notion of banks?
@@ -198,16 +196,16 @@ public:
   const char* GetPresetName(int idx) const;
   
   /** Copy source preset to preset at index
-  * @param pPresetSrc source preset
-  * @param dest_idx index of internal dest preset */
-  void CopyPreset(IPreset* pPresetSrc, int dest_idx, bool copyname = false)
+  * @param pSrc source preset
+  * @param destIdx index of internal destination preset */
+  void CopyPreset(IPreset* pSrc, int destIdx, bool copyname = false)
   {
-    IPreset* pPresetTgt = mPresets.Get(dest_idx);
+    IPreset* pDst = mPresets.Get(destIdx);
 
-    pPresetTgt->mChunk.Clear();
-    pPresetTgt->mChunk.PutChunk(&pPresetSrc->mChunk);
-    pPresetTgt->mInitialized = true;
-    strncpy(pPresetTgt->mName, pPresetSrc->mName, MAX_PRESET_NAME_LEN - 1);
+    pDst->mChunk.Clear();
+    pDst->mChunk.PutChunk(&pSrc->mChunk);
+    pDst->mInitialized = true;
+    strncpy(pDst->mName, pSrc->mName, MAX_PRESET_NAME_LEN - 1);
   }
   
   /** /todo 
@@ -261,29 +259,33 @@ public:
    * @return int /todo */
   int UnserializePresets(IByteChunk& chunk, int startPos); // Returns the new chunk position (endPos).
   
-  // Dump the current state as source code for a call to MakePresetFromNamedParams / MakePresetFromBlob
+  /** Writes a call to MakePreset() for the current preset to a new text file
+   * @param file The name of the file to write or overwrite. */
+  void DumpMakePresetSrc(const char* file) const;
 
-  /** /todo 
-   * @param file /todo
-   * @param paramEnumNames /todo */
-  void DumpPresetSrcCode(const char* file, const char* paramEnumNames[]) const;
+  /** Writes a call to MakePresetFromNamedParams() for the current preset to a new text file
+   * @param file The name of the file to write.
+   * @param paramEnumNames A list of all parameter names. e.g. const char* pParamNames[] = {"kParam1", "kParam2", "kParam3"}; */
+  void DumpMakePresetFromNamedParamsSrc(const char* file, const char* paramEnumNames[]) const;
 
-  /** /todo 
-   * @param file /todo */
+  /** Writes a call to MakePresetFromBlob() for the current preset to a new text file
+   * @param file The name of the file to write or overwrite. */
   void DumpPresetBlob(const char* file) const;
 
-  /** /todo 
-   * @param filename /todo */
+  /** Writes a call to MakePresetFromBlob() for all presets to a new text file
+   * Note: Set PLUG_DOES_STATE_CHUNKS to 1 to load blob presets.
+   * @param filename The name of the file to write.*/
   void DumpAllPresetsBlob(const char* filename) const;
 
-  /** /todo 
-   * @param file /todo */
+  /** Writes a call to MakePresetFromBlob() for all presets to a new text file
+   * Note: Set PLUG_DOES_STATE_CHUNKS to 1 to load blob presets.
+   * @param file The name of the file to write. */
   void DumpBankBlob(const char* file) const;
   
   /** Save current state as a VST2 format preset
    * @param file /todo
    * @return true /todo */
-  bool SaveProgramAsFXP(const char* file) const;
+  bool SavePresetAsFXP(const char* file) const;
 
   /** Save current bank as a VST2 format bank [VST2 only]
    * @param file /todo
@@ -293,7 +295,7 @@ public:
   /** Load VST2 format preset 
    * @param file /todo
    * @return true /todo */
-  bool LoadProgramFromFXP(const char* file);
+  bool LoadPresetFromFXP(const char* file);
 
   /** Load VST2 format bank [VST2 only]
    * @param file /todo
@@ -316,12 +318,12 @@ public:
   /** /todo 
    * @param file /todo
    * @return true /todo */
-  bool SaveProgramAsVSTPreset(const char* file) const;
+  bool SavePresetAsVSTPreset(const char* file) const;
 
   /** /todo 
    * @param file /todo
    * @return true /todo*/
-  bool LoadProgramFromVSTPreset(const char* file);
+  bool LoadPresetFromVSTPreset(const char* file);
 
   /** /todo 
    * @param path /todo
@@ -332,12 +334,12 @@ public:
    * @param name /todo
    * @param file /todo
    * @return true /todo  */
-  bool SaveProgramAsAUPreset(const char* name, const char* file) const { return false; }
+  bool SavePresetAsAUPreset(const char* name, const char* file) const { return false; }
 
   /** /todo 
    * @param file /todo
    * @return true /todo  */
-  bool LoadProgramFromAUPreset(const char* file) { return false; }
+  bool LoadPresetFromAUPreset(const char* file) { return false; }
 
   /** /todo 
    * @param path /todo
@@ -349,12 +351,12 @@ public:
    * @param file /todo
    * @param pluginID /todo
    * @return true /todo */
-  bool SaveProgramAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID) const { return false; }
+  bool SavePresetAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID) const { return false; }
 
   /** /todo 
    * @param file /todo
    * @return true /todo */
-  bool LoadProgramFromProToolsPreset(const char* file) { return false; }
+  bool LoadPresetFromProToolsPreset(const char* file) { return false; }
 
   /** /todo 
    * @param path /todo
@@ -362,7 +364,6 @@ public:
    * @return true /todo
    * @return false /todo */
   bool SaveBankAsProToolsPresets(const char* path, unsigned long pluginID) { return false; }
-#endif
   
 #pragma mark - Parameter manipulation
     
@@ -465,22 +466,20 @@ protected:
   EAPI mAPI;
   /** macOS/iOS bundle ID */
   WDL_String mBundleID;
-  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
+  /** Saving VST3 format presets requires this see SavePresetAsVSTPreset */
   WDL_String mVST3ProductCategory;
-  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
+  /** Saving VST3 format presets requires this see SavePresetAsVSTPreset */
   WDL_String mVST3ProcessorUIDStr;
-  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
+  /** Saving VST3 format presets requires this see SavePresetAsVSTPreset */
   WDL_String mVST3ControllerUIDStr;
-  
   /** \c true if the plug-in has a user interface. If false the host will provide a default interface */
   bool mHasUI = false;
-
+  /** \c true if the host window chrome should be able to resize the plug-in UI, only applicable in certain formats/hosts */
+  bool mHostResize = false;
   /** A list of unique cstrings found specified as "parameter groups" when defining IParams. These are used in various APIs to group parameters together in automation dialogues. */
   WDL_PtrList<const char> mParamGroups;
-  
-#ifndef NO_PRESETS
+  /** "Baked in" Factory presets */
   WDL_PtrList<IPreset> mPresets;
-#endif
 
 #ifdef PARAMS_MUTEX
   friend class IPlugVST3ProcessorBase;

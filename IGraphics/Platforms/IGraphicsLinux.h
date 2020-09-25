@@ -15,6 +15,8 @@
 #include <xcbt.h>
 
 BEGIN_IPLUG_NAMESPACE
+class Timer;
+
 BEGIN_IGRAPHICS_NAMESPACE
 
 /** IGraphics platform class for linux
@@ -62,6 +64,7 @@ public:
   bool SetTextInClipboard(const char* str) override { return false; } // TODO
 
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
+  PlatformFontPtr LoadPlatformFont(const char* fontID, void* pData, int dataSize) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
 
   void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override { } // No reason to cache (no universal font handle)
@@ -100,6 +103,7 @@ private:
   void               *mBaseWindowData;
 
   xcb_timestamp_t     mLastLeftClickStamp; // it will be not zero in case there is a chance for double click
+  Timer *mTimer = nullptr;
 
   void Paint();
   inline IMouseInfo GetMouseInfo(int16_t x, int16_t y, int16_t state);

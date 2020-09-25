@@ -32,7 +32,9 @@ IPlugAPIBase::IPlugAPIBase(Config c, EAPI plugAPI)
   mProductName.Set(c.productName, MAX_PLUGIN_NAME_LEN);
   mMfrName.Set(c.mfrName, MAX_PLUGIN_NAME_LEN);
   mHasUI = c.plugHasUI;
+  mHostResize = c.plugHostResize;
   SetEditorSize(c.plugWidth, c.plugHeight);
+  SetSizeConstraints(c.plugMinWidth, c.plugMaxWidth, c.plugMinHeight, c.plugMaxHeight);
   mStateChunks = c.plugDoesChunks;
   mAPI = plugAPI;
   mBundleID.Set(c.bundleID);
@@ -63,7 +65,14 @@ void IPlugAPIBase::OnHostRequestingImportantParameters(int count, WDL_TypedBuf<i
 
 void IPlugAPIBase::CreateTimer()
 {
+#if defined(OS_LINUX) && !defined(APP_API) && !defined(VST3_API)
+  auto cb = [this](Timer& timer) { if (!HasUI()) { OnTimer(*mTimer); } };
+  mTimer = std::unique_ptr<Timer>(Timer::Create(cb, IDLE_TIMER_RATE));
+#elif defined(OS_LINUX) && defined(VST3_API)
+  // Do nothing.
+#else
   mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&IPlugAPIBase::OnTimer, this, std::placeholders::_1), IDLE_TIMER_RATE));
+#endif
 }
 
 bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) const
@@ -85,10 +94,12 @@ bool IPlugAPIBase::CompareState(const uint8_t* pIncomingState, int startPos) con
   return isEqual;
 }
 
-bool IPlugAPIBase::EditorResize(int viewWidth, int viewHeight)
-{
-  SetEditorSize(viewWidth, viewHeight);
-  return false;
+bool IPlugAPIBase::EditorResizeFromUI(int viewWidth, int viewHeight, bool needsPlatformResize)
+{  
+  if (needsPlatformResize)
+    return EditorResize(viewWidth, viewHeight);
+  else
+    return true;
 }
 
 #pragma mark -
@@ -148,8 +159,8 @@ void IPlugAPIBase::OnTimer(Timer& t)
 {
   if(HasUI())
   {
-    // in distributed VST3, parameter changes are managed by the host
-  #if !defined VST3C_API && !defined VST3P_API // && !defined VST3_API
+    // in VST3, parameter changes are managed by the host
+  #if !defined VST3C_API && !defined VST3P_API && !defined VST3_API
     while(mParamChangeFromProcessor.ElementsAvailable())
     {
       ParamTuple p;
@@ -172,8 +183,8 @@ void IPlugAPIBase::OnTimer(Timer& t)
     }
   #endif
     
-    // Midi messages from the processor to the controller, are sent as IMessages and SendMidiMsgFromDelegate gets triggered on the other side's notify
-  #if defined VST3P_API // || defined VST3_API
+    // In VST3 midi messages from the processor to the controller, are sent as IMessages and SendMidiMsgFromDelegate gets triggered on the other side's notify
+  #if defined VST3P_API || defined VST3_API
     while (mMidiMsgsFromProcessor.ElementsAvailable())
     {
       IMidiMsg msg;
@@ -190,7 +201,10 @@ void IPlugAPIBase::OnTimer(Timer& t)
   #endif
   }
   
+  // On VST2 Linux we call OnIdle from the VST2 API
+#if !(defined(OS_LINUX) && defined(VST2_API))
   OnIdle();
+#endif
 }
 
 void IPlugAPIBase::SendMidiMsgFromUI(const IMidiMsg& msg)

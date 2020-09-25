@@ -41,13 +41,21 @@ bool IPlugAPP::EditorResize(int viewWidth, int viewHeight)
     
   if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
   {
-    #ifdef OS_MAC
-    #define TITLEBAR_BODGE 22 //TODO: sort this out
+  #ifdef OS_MAC
+    const int titleBarOffset = 22;
     RECT r;
     GetWindowRect(gHWND, &r);
-    SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - TITLEBAR_BODGE, viewWidth, viewHeight + TITLEBAR_BODGE, 0);
+    SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - titleBarOffset, viewWidth, viewHeight + titleBarOffset, 0);
     parentResized = true;
-    #endif
+  #elif defined(OS_LINUX)
+    const int titleBarOffset = 22;
+    RECT r;
+    GetWindowRect(gHWND, &r);
+    //SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - titleBarOffset, viewWidth, viewHeight + titleBarOffset, 0);
+    SetWindowPos(gHWND, 0, r.left, r.top, viewWidth, viewHeight + titleBarOffset, SWP_NOZORDER|SWP_NOMOVE);
+    SetWindowPos(mAppHost->mSite, 0, 0, 0, viewWidth, viewHeight, SWP_NOMOVE);
+    parentResized = true;
+  #endif
     SetEditorSize(viewWidth, viewHeight);
   }
   

@@ -26,38 +26,46 @@ template <int MAXNC = 1>
 class IVMultiSliderControl : public IVTrackControlBase
 {
 public:
+  using OnNewValueFunc = std::function<void(int trackIdx, double val)>;
 
+  static constexpr int kMsgTagSetHighlight = 0;
+  
   /** Constructs a vector multi slider control that is not linked to parameters
-     * @param bounds The control's bounds
-     * @param label The label for the vector control, leave empty for no label
-     * @param style The styling of this vector control \see IVStyle
-     * @param direction The direction of the sliders
-     * @param minTrackValue Defines the minimum value of each slider
-     * @param maxTrackValue Defines the maximum value of each slider */
-  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, float minTrackValue = 0.f, float maxTrackValue = 1.f)
-  : IVTrackControlBase(bounds, label, style, MAXNC, dir, minTrackValue, maxTrackValue)
+   * @param bounds The control's bounds
+   * @param label The label for the vector control, leave empty for no label
+   * @param style The styling of this vector control \see IVStyle
+   * @param nSteps The number of cross-axis steps for integer quantized grids
+   * @param direction The direction of the sliders */
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, int nSteps = 0, EDirection dir = EDirection::Vertical)
+  : IVTrackControlBase(bounds, label, style, MAXNC, nSteps, dir)
   {
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
   }
 
-  /** Constructs a vector multi slider control that is linked to parameters
+  /** Constructs a vector multi slider control that is linked to sequential parameters
    * @param bounds The control's bounds
    * @param label The label for the vector control, leave empty for no label
    * @param style The styling of this vector control \see IVStyle
    * @param loParamIdx The parameter index for the first slider in the multislider. The total number of sliders/parameters covered depends on the template argument, and is contiguous from loParamIdx
-   * @param direction The direction of the sliders
-   * @param minTrackValue Defines the minimum value of each slider
-   * @param maxTrackValue Defines the maximum value of each slider */
-  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, EDirection dir, float minTrackValue, float maxTrackValue) //FIXME: float minTrackValue, float maxTrackValue?
-  : IVTrackControlBase(bounds, label, style, loParamIdx, MAXNC, dir, minTrackValue, maxTrackValue)
+   * @param nSteps The number of cross-axis steps for integer quantized grids
+   * @param direction The direction of the sliders */
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, int loParamIdx, int nSteps, EDirection dir)
+  : IVTrackControlBase(bounds, label, style, loParamIdx, MAXNC, nSteps, dir)
   {
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
   }
   
-  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, EDirection dir, float minTrackValue, float maxTrackValue)//, const char* trackNames = 0, ...)
-  : IVTrackControlBase(bounds, label, style, params, dir, minTrackValue, maxTrackValue)
+  /** Constructs a vector multi slider control that is linked to a list of parameters that need not be sequential
+   * @param bounds The control's bounds
+   * @param label The label for the vector control, leave empty for no label
+   * @param style The styling of this vector control \see IVStyle
+   * @param params List of parameter indexes, the length of which should match the template argument
+   * @param nSteps The number of cross-axis steps for integer quantized grids
+   * @param direction The direction of the sliders */
+  IVMultiSliderControl(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, int nSteps, EDirection dir)
+  : IVTrackControlBase(bounds, label, style, params, nSteps, dir)
   {
     mDrawTrackFrame = false;
     mTrackPadding = 1.f;
@@ -65,7 +73,7 @@ public:
   
   void Draw(IGraphics& g) override
   {
-    DrawBackGround(g, mRECT);
+    DrawBackground(g, mRECT);
     DrawWidget(g);
     DrawLabel(g);
     
@@ -73,36 +81,35 @@ public:
       g.DrawRect(GetColor(kFR), mWidgetBounds, &mBlend, mStyle.frameThickness);
   }
 
-  int GetValIdxForPos(float x, float y) const override
-  {
-    int nVals = NVals();
-    
-    for (auto v = 0; v < nVals; v++)
-    {
-      if (mTrackBounds.Get()[v].Contains(x, y))
-      {
-        return v;
-      }
-    }
-
-    return kNoValIdx;
-  }
-
   void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1 /* TODO:: not used*/, double minClip = 0., double maxClip = 1.) override
   {
     bounds.Constrain(x, y);
     int nVals = NVals();
 
-    float value = 0.;
+    double value = 0.;
     int sliderTest = -1;
-
+    
+    int step = GetStepIdxForPos(x, y);
+        
     if(direction == EDirection::Vertical)
     {
-      value = 1.f - (y-bounds.T) / bounds.H();
+      if(step > -1)
+      {
+        y = mStepBounds.Get()[step].T;
+        
+        if(mStepBounds.GetSize() == 1)
+          value = 1.f;
+        else
+          value = step * (1.f/float(mStepBounds.GetSize()-1));
+      }
+      else
+      {
+        value = 1.f - (y-bounds.T) / bounds.H();
+      }
       
       for(auto i = 0; i < nVals; i++)
       {
-        if(mTrackBounds.Get()[i].Contains(x, mTrackBounds.Get()[i].MH()))
+        if(mTrackBounds.Get()[i].ContainsEdge(x, mTrackBounds.Get()[i].MH()))
         {
           sliderTest = i;
           break;
@@ -111,28 +118,41 @@ public:
     }
     else
     {
-      value = (x-bounds.L) / bounds.W();
-      
+      if(step > -1)
+      {
+        x = mStepBounds.Get()[step].L;
+        
+        if(mStepBounds.GetSize() == 1)
+          value = 1.f;
+        else
+          value = 1.- (step * (1.f/float(mStepBounds.GetSize()-1)));
+      }
+      else
+      {
+        value = (x-bounds.L) / bounds.W();
+      }
       for(auto i = 0; i < nVals; i++)
       {
-        if(mTrackBounds.Get()[i].Contains(mTrackBounds.Get()[i].MW(), y))
+        if(mTrackBounds.Get()[i].ContainsEdge(mTrackBounds.Get()[i].MW(), y))
         {
           sliderTest = i;
           break;
         }
       }
     }
-    
-    value = std::round( value / mGrain ) * mGrain;
+        
+    if(!GetStepped())
+       value = std::round(value / mGrain) * mGrain;
     
     if (sliderTest > -1)
     {
-      SetValue(mMinTrackValue + Clip(value, 0.f, 1.f) * (mMaxTrackValue - mMinTrackValue), sliderTest);
+      SetValue(Clip(value, 0., 1.), sliderTest);
       OnNewValue(sliderTest, GetValue(sliderTest));
 
       mSliderHit = sliderTest;
-
-      if (mPrevSliderHit != -1)
+      mMouseOverTrack = mSliderHit;
+      
+      if (!GetStepped() && mPrevSliderHit != -1) // LERP disabled when stepped
       {
         if (abs(mPrevSliderHit - mSliderHit) > 1 /*|| shiftClicked*/)
         {
@@ -164,14 +184,39 @@ public:
       mSliderHit = -1;
     }
 
-    SetDirty(true); // will send all param vals parameter value to delegate
+    SetDirty(true); // will send all param vals to delegate
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
+    // This allows single clicking to remove a step entry when !mZeroValueStepHasBounds
+    if(GetStepped() && !mZeroValueStepHasBounds && mPrevSliderHit != -1)
+    {
+      int ch = GetValIdxForPos(x, y);
+      
+      if(ch > -1)
+      {
+        int step = GetStepIdxForPos(x, y);
+        
+        if(step > -1)
+        {
+          float y = mStepBounds.Get()[step].T;
+          double valueAtStep = 1.f - (y-mWidgetBounds.T) / mWidgetBounds.H();
+
+          if(GetValue(ch) == valueAtStep)
+          {
+            SetValue(0., ch);
+            OnNewValue(ch, 0.);
+            SetDirty(true);
+            return;
+          }
+        }
+      }
+    }
+
     if (!mod.S)
       mPrevSliderHit = -1;
-
+      
     SnapToMouse(x, y, mDirection, mWidgetBounds);
   }
 
@@ -180,13 +225,50 @@ public:
     SnapToMouse(x, y, mDirection, mWidgetBounds);
   }
 
-  //override to do something when an individual slider is dragged
-  virtual void OnNewValue(int trackIdx, double val) {}
+  void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
+  {
+    if (!IsDisabled() && msgTag == kMsgTagSetHighlight && dataSize == sizeof(int))
+    {
+      SetHighlightedTrack(*reinterpret_cast<const int*>(pData));
+    }
+  }
 
+  /** override to do something when an individual slider is dragged */
+  virtual void OnNewValue(int trackIdx, double val)
+  {
+    if(mOnNewValueFunc)
+      mOnNewValueFunc(trackIdx, val);
+  }
+  
+  void SetOnNewValueFunc(OnNewValueFunc func)
+  {
+    mOnNewValueFunc = func;
+  }
+  
+  int GetLastSliderHit() const
+  {
+    return mSliderHit;
+  }
+  
 protected:
+  OnNewValueFunc mOnNewValueFunc = nullptr;
   int mPrevSliderHit = -1;
   int mSliderHit = -1;
-  float mGrain = 0.001f;
+  double mGrain = 0.001;
+};
+
+/** A vectorial multi-toggle control, could be used for a trigger in a step sequencer or tarnce gate
+* @ingroup IControls */
+template <int MAXNC = 1>
+class IVMultiToggleControl : public IVMultiSliderControl<MAXNC>
+{
+public:
+  IVMultiToggleControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical)
+  : IVMultiSliderControl<MAXNC>(bounds, label, style, 1, dir)
+  {
+    IVMultiSliderControl<MAXNC>::mZeroValueStepHasBounds = false;
+    IVMultiSliderControl<MAXNC>::mDblAsSingleClick = true;
+  }
 };
 
 END_IGRAPHICS_NAMESPACE

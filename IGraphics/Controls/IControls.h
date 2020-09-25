@@ -25,6 +25,7 @@
 #include "IRTTextControl.h"
 #include "IVDisplayControl.h"
 #include "ILEDControl.h"
+#include "IPopupMenuControl.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -423,7 +424,7 @@ public:
   
   void Draw(IGraphics& g) override
   {
-    DrawBackGround(g, mRECT);
+    DrawBackground(g, mRECT);
     DrawWidget(g);
     DrawLabel(g);
     DrawValue(g, mMouseIsOver);

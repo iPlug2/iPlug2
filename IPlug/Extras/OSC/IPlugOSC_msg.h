@@ -12,7 +12,7 @@
 
 /**
  * @file IPlug Open Sound Control (OSC) support - OSC message helpers
- * The code in this file is mostly copied from Cockos OSCII-BOT https://github.com/justinfrankel/oscii-bot
+ * The code in this file is mostly copied/hacked from Cockos OSCII-BOT https://github.com/justinfrankel/oscii-bot
  * OSCII-BOT is licensed under the GPL, but this copy has been authorised for use under the WDL licence by Cockos Inc.
  *
  */

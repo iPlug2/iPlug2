@@ -24,7 +24,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
   
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_HEIGHT));
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
@@ -97,16 +97,15 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     "MPS (NanoVG MTL only)",
     "OpenGL (NanoVG GL only)",
     "Gesture Recognizers (iOS only)",
-    "MultiTouch (iOS/Windows only)",
+    "MultiTouch (iOS/Win/Web only)",
     "FlexBox",
     "Mask"
     };
     
     auto chooseTestControl = [&, pGraphics, testRect](int idx) {
-
-      pGraphics->RemoveControlWithTag(kCtrlTagTestControl);
       
-      IControl* pNewControl;
+      IControl* pNewControl = nullptr;
+      
       switch (idx) {
         case 0: pNewControl = new TestGradientControl(testRect, kParamDummy); break;
         case 1: pNewControl = new TestColorControl(testRect); break;
@@ -137,12 +136,15 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
 
       }
       
-      pGraphics->AttachControl(pNewControl, kCtrlTagTestControl);
+      if(pNewControl)
+        pGraphics->AttachControl(pNewControl, kCtrlTagTestControl);
+      
       SendCurrentParamValuesFromDelegate();
     };
     
     pGraphics->AttachControl(new IVRadioButtonControl(bounds.FracRectHorizontal(0.2),
                                                       [pGraphics, chooseTestControl](IControl* pCaller) {
+                                                        pGraphics->RemoveControlWithTag(kCtrlTagTestControl);
                                                         SplashClickActionFunc(pCaller);
                                                         int selectedTest = dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx();
                                                         chooseTestControl(selectedTest);

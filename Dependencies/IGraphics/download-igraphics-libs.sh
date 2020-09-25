@@ -16,7 +16,7 @@ PIXMAN_VERSION=pixman-0.34.0
 EXPAT_VERSION=expat-2.2.5
 PNG_VERSION=v1.6.35
 ZLIB_VERSION=zlib-1.2.11
-SKIA_VERSION=chrome/m81
+SKIA_VERSION=chrome/m83
 # SKIA_VERSION=master
 
 # URLs where tarballs of releases can be downloaded - no trailing slash
@@ -66,6 +66,17 @@ spin() {
         printf "\b\b\b\b\b\b"
     done
     printf "    \b\b\b\b"
+}
+
+git_clone_commit() {
+    # git_clone_commit <git_url> <dest_dir> <commit_hash>
+    mkdir -p "$2"
+    pushd "$2"
+    git init
+    git remote add origin "$1"
+    git fetch --depth 1 origin "$3"
+    git checkout FETCH_HEAD
+    popd
 }
 
 cd "${0%/*}"
@@ -197,9 +208,8 @@ then
   echo "Found cairo"
 else
   echo "Downloading cairo"
-  git clone $CAIRO_URL "$SRC_DIR/cairo"
+  git_clone_commit $CAIRO_URL "$SRC_DIR/cairo" $CAIRO_VERSION
   cd "$SRC_DIR/cairo"
-  git checkout -b build $CAIRO_VERSION
   rm -r -f .git
   cd "$IGRAPHICS_DEPS_DIR"
 fi
@@ -212,9 +222,8 @@ then
   echo "Found skia"
 else
   echo "Downloading skia"
-  git clone $SKIA_URL "$SRC_DIR/skia"
+  git_clone_commit $SKIA_URL "$SRC_DIR/skia" $SKIA_VERSION
   cd "$SRC_DIR/skia"
-  git checkout $SKIA_VERSION
   echo "Patching skia"
   git apply "$IGRAPHICS_DEPS_DIR/skia.patch" 
   rm -r -f .git

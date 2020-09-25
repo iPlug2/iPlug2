@@ -99,6 +99,8 @@ namespace CoreTextHelpers
 
   extern PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style);
 
+  extern PlatformFontPtr LoadPlatformFont(const char* fontID, void* pData, int dataSize);
+
   extern void CachePlatformFont(const char* fontID, const PlatformFontPtr& font, StaticStorage<CoreTextFontDescriptor>& cache);
   
   CoreTextFontDescriptor* GetCTFontDescriptor(const IText& text, StaticStorage<CoreTextFontDescriptor>& cache);

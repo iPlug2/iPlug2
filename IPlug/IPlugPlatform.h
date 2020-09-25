@@ -64,3 +64,6 @@
 
 namespace iplug {namespace igraphics {}};
 
+#if defined IGRAPHICS_GLES2 || IGRAPHICS_GLES3 || IGRAPHICS_GL2 || defined IGRAPHICS_GL3
+  #define IGRAPHICS_GL
+#endif

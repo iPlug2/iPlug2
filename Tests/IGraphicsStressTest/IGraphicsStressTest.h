@@ -16,7 +16,8 @@ enum EControlTags
   kCtrlTagButton2,
   kCtrlTagButton3,
   kCtrlTagButton4,
-  kCtrlTagButton5
+  kCtrlTagButton5,
+  kCtrlTagButton6
 };
 
 using namespace iplug;
@@ -28,6 +29,7 @@ public:
   IGraphicsStressTest(const InstanceInfo& info);
 #if IPLUG_EDITOR
   void LayoutUI(IGraphics* pGraphics) override;
+  void OnParentWindowResize(int width, int height) override;
 public:
   int mNumberOfThings = 16;
   int mKindOfThing = 0;
