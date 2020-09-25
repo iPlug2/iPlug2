@@ -789,7 +789,7 @@ public:
 
   /** Set platform specific host GUI event loop integration
    * @param mainLoop is something the host and graphics implementation should agree on*/
-  virtual void SetIntegration(void *mainLoop) {}
+  virtual void SetIntegration(void* pMainLoop) {}
 
   /** Open a new platform view for this graphics context
    * @param pParentWnd void pointer to parent platform window or view handle (if applicable) \todo check

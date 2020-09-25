@@ -70,13 +70,12 @@ void IGEditorDelegate::SetScreenScale(double scale)
     mGraphics->SetScreenScale(static_cast<int>(std::round(scale)));
 }
 
-void IGEditorDelegate::SetIntegration(void *mainLoop)
+void IGEditorDelegate::SetIntegration(void* pMainLoop)
 {
-  mMainLoop = mainLoop;
+  mMainLoop = pMainLoop;
+
   if(mGraphics)
-  {
-    mGraphics->SetIntegration(mainLoop);
-  }
+    mGraphics->SetIntegration(pMainLoop);
 }
 
 void IGEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
