@@ -38,10 +38,10 @@ public:
 private:
   Steinberg::Linux::IRunLoop *runLoop;
   xcbt x;
-  struct EventHandler *eHandler;
-  bool   eHandlerSet;
-  struct TimerHandler *tHandler;
-  bool   tHandlerSet;
+  struct EventHandler* eHandler;
+  bool eHandlerSet;
+  struct TimerHandler* tHandler;
+  bool tHandlerSet;
 
   WDL_PtrList<VST3Timer> mTimers;
 
@@ -60,10 +60,8 @@ public:
   static IPlugVST3_RunLoop* Create(Steinberg::FUnknown *frame);
   static void Destory(IPlugVST3_RunLoop* self);
 
-
   VST3Timer* CreateTimer(std::function<void()> callback, int msec);
   void DestroyTimer(VST3Timer* timer);
-
 };
 
 END_IPLUG_NAMESPACE
