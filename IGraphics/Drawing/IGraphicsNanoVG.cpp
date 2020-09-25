@@ -502,9 +502,7 @@ void IGraphicsNanoVG::BeginFrame()
   mInDraw = true;
   IGraphics::BeginFrame(); // start perf graph timing
 
-#ifdef IGRAPHICS_METAL
-  //  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
-#else
+#ifdef IGRAPHICS_GL
     glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
     glClearColor(0.f, 0.f, 0.f, 0.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -912,4 +910,15 @@ void IGraphicsNanoVG::ClearFBOStack()
     nvgDeleteFramebuffer(mFBOStack.top());
     mFBOStack.pop();
   }
+}
+
+void IGraphicsNanoVG::DrawFastDropShadow(const IRECT& innerBounds, const IRECT& outerBounds, float xyDrop, float roundness, float blur, IBlend* pBlend)
+{
+  NVGpaint shadowPaint = nvgBoxGradient(mVG, innerBounds.L + xyDrop, innerBounds.T + xyDrop, innerBounds.W(), innerBounds.H(), roundness, blur, NanoVGColor(COLOR_BLACK_DROP_SHADOW, pBlend), NanoVGColor(COLOR_TRANSPARENT, nullptr));
+  nvgBeginPath(mVG);
+  nvgRect(mVG, outerBounds.L, outerBounds.T, outerBounds.W(), outerBounds.H());
+  nvgFillPaint(mVG, shadowPaint);
+  nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
+  nvgFill(mVG);
+  nvgBeginPath(mVG);
 }

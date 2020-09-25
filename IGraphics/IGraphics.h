@@ -392,6 +392,9 @@ public:
   /** Checks a file extension and reports whether this drawing API supports loading that extension */
   virtual bool BitmapExtSupported(const char* ext) = 0;
   
+  /** NanoVG only */
+  virtual void DrawFastDropShadow(const IRECT& innerBounds, const IRECT& outerBounds, float xyDrop = 5.f, float roundness = 0.f, float blur = 10.f, IBlend* pBlend = nullptr) { /* NO-OP*/ }
+  
 #pragma mark - Base implementation - drawing helpers
 
   /** Draws a bitmap into the graphics context. NOTE: this helper method handles multi-frame bitmaps, indexable via frame
@@ -412,7 +415,7 @@ public:
    * @param charWidth how wide is a character in the bitmap
    * @param charHeight how high is a character in the bitmap
    * @param charOffset what is the offset between characters drawn */
-  void DrawBitmapedText(const IBitmap& bitmap, IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
+  void DrawBitmapedText(const IBitmap& bitmap, const IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
 
   /** Draw a vertical line, within a rectangular region of the graphics context
    * @param color The color to draw the line with
@@ -1187,15 +1190,13 @@ private:
 
 #pragma mark - Control management
 public:
-  /** /todo
-   * @param func /todo */
+  /** For all controls, including the "special controls" call a method
+   * @param func A std::function to perform on each control */
   void ForAllControlsFunc(std::function<void(IControl& control)> func);
   
-  /** /todo
-   * @tparam T /todo
-   * @tparam Args /todo
-   * @param method /todo
-   * @param args /todo */
+  /** For all controls, including the "special controls" call a method
+   * @param method The method to call
+   * @param args The method arguments */
   template<typename T, typename... Args>
   void ForAllControls(T method, Args... args);
   
@@ -1203,23 +1204,21 @@ public:
    * @param func A std::function to perform on each control */
   void ForStandardControlsFunc(std::function<void(IControl& control)> func);
   
-  /** /todo
-   * @tparam T /todo
-   * @tparam Args /todo
-   * @param method /todo
-   * @param paramIdx /todo
-   * @param args /todo */
+  /** For all standard controls in the main control stack that are linked to a specific parameter, call a method
+   * @param method The method to call
+   * @param paramIdx The parameter index to match
+   * @param args The method arguments */
   template<typename T, typename... Args>
   void ForMatchingControls(T method, int paramIdx, Args... args);
 
-  /** /todo
-   * @param paramIdx /todo
-   * @param func /todo */
+  /** For all standard controls in the main control stack that are linked to a specific parameter, execute a function
+   * @param paramIdx The parameter index to match
+   * @param func A std::function to perform on each control */
   void ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func);
   
-  /** \todo
-   * @param group /todo
-   * @param func /todo */
+  /** For all standard controls in the main control stack that are linked to a group, execute a function
+   * @param group CString specificying the goupd name
+   * @param func A std::function to perform on each control */
   void ForControlInGroup(const char* group, std::function<void(IControl& control)> func);
   
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
