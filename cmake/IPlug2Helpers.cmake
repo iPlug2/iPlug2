@@ -88,14 +88,17 @@ endfunction()
 #   validates if its conformant to specified options.
 #
 #   [NOTEMPTY]              Not allowed to be empty.
-#   [EXISTS]                Validates that the path or file the string is refering to exists.
+#   [FILE_EXISTS]           Refering to an existing file.
+#   [PATH_EXISTS]           Refering to an existing path.
 #   [ALPHAFIRST]            First character must be an alphabetic character.
-#   [INAPOSTROPHES]         Must be surrounded by apostophes.
+#   [SINGLE_QUOTED]         Required to be surrounded by single quote marks.
 #   [PREFIX <prefix>]       Prepend <prefix> to the variable name from which the string value is read.
 #   [SUFFIX <suffix>]       Append <suffix> to the variable name from which the string value is read.
-#   [MINLENGTH <length>]    Minimum length allowed. Ignoring apostophes if [INAPOSTROPHES] is set.
-#   [MAXLENGTH <length>]    Maximum length allowed. Ignoring apostophes if [INAPOSTROPHES] is set.
-#   [STREQUAL <string>...]  Must be equal to one of the provided strings.
+#   [MINLENGTH <length>]    Minimum length allowed. Ignoring apostophes if [SINGLE_QUOTED] is set.
+#   [MAXLENGTH <length>]    Maximum length allowed. Ignoring apostophes if [SINGLE_QUOTED] is set.
+#   [STREQUAL <string>...]  Required to be equal to one of the provided strings.
+#   [VERSION <x>]           Valid version format of <x> amount of numbers and a dot between each number.
+#                           (Implies [DOT] if testing for invalid characters)
 #
 #   If any of the following options are set, the function will validate if the string value is allowed
 #   to contain specified characters. If none of the options are set, it will skip character testing.
@@ -111,9 +114,9 @@ endfunction()
 #       [UNDERSCORE]        _
 
 function(iplug_validate_string _variable)
-    set(_options      NOTEMPTY EXISTS ALPHAFIRST INAPOSTROPHES)
+    set(_options      NOTEMPTY FILE_EXISTS PATH_EXISTS ALPHAFIRST SINGLE_QUOTED)
     set(_char_options ALPHA NUMERIC SPACE HYPHEN DOT SLASH APOSTROPHE COMMA DELIMITER UNDERSCORE)
-    set(_onevalue     PREFIX SUFFIX MINLENGTH MAXLENGTH)
+    set(_onevalue     PREFIX SUFFIX MINLENGTH MAXLENGTH VERSION)
     set(_multivalue   STREQUAL)
     cmake_parse_arguments(OPTION "${_options};${_char_options}" "${_onevalue}" "${_multivalue}" ${ARGN})
 
@@ -140,14 +143,34 @@ function(iplug_validate_string _variable)
         endif()
     endforeach()
 
-    if(OPTION_INAPOSTROPHES)
+    if(OPTION_SINGLE_QUOTED)
         if(NOT ${_value} MATCHES "^'.*'$")
-            iplug_syntax_error("${_defined}. String must be surrounded by apostrophes.")
+            iplug_syntax_error("${_defined}. String must be surrounded by single quote marks.")
         endif()
-        string(REPLACE "'" "" _value "${_value}")
+        string(REGEX REPLACE "^'(.*)'$" "\\1" _value "${_value}")
     endif()
 
     string(LENGTH "${_value}" _len)
+
+    if(OPTION_VERSION)
+        set(_regex "^[^\\.]+")
+        set(_validstr "##" )
+        set(_index ${OPTION_VERSION})
+        if(_index LESS 1 OR _index GREATER 8)  # Maybe up to 8 version numbers is a thing somewhere?
+            iplug_syntax_error("Invalid configuration VERSION=${OPTION_VERSION}. VERSION must be between 1 and 8.")
+        endif()
+        while(_index GREATER_EQUAL 1)
+            MATH(EXPR _index "${_index}-1")
+            if(NOT _index EQUAL 1)
+                string(APPEND _regex "\\.[^\\.]+")
+                string(APPEND _validstr ".##")
+            endif()
+        endwhile()
+        string(APPEND _regex "$")
+        if(NOT ${_value} MATCHES "${_regex}")
+            iplug_syntax_error("${_defined}. String must be a valid version format. \"${_validstr}\"")
+        endif()
+    endif()
 
     if(OPTION_STREQUAL)
         foreach(_str IN LISTS OPTION_STREQUAL)
@@ -171,11 +194,14 @@ function(iplug_validate_string _variable)
         iplug_syntax_error("${_defined}. String length exceedes ${OPTION_MAXLENGTH} characters.")
     endif()
 
-    if(OPTION_EXISTS)
+    if(OPTION_FILE_EXISTS OR OPTION_PATH_EXISTS)
         if(NOT _len EQUAL 0)
             get_filename_component(_file "${_value}" ABSOLUTE)
-            if(NOT EXISTS ${_file})
-                iplug_syntax_error("${_defined}. Path/File does not exist.")
+            if(OPTION_FILE_EXISTS AND (IS_DIRECTORY "${_file}" OR NOT EXISTS "${_file}"))
+                iplug_syntax_error("${_defined}. File does not exist.")
+            endif()
+            if(OPTION_PATH_EXISTS AND (NOT IS_DIRECTORY "${_file}" OR NOT EXISTS "${_file}"))
+                iplug_syntax_error("${_defined}. Path does not exist.")
             endif()
         endif()
         return()
@@ -204,7 +230,7 @@ function(iplug_validate_string _variable)
             string(APPEND _esc_chars "\\/")
         endif()
 
-        if(OPTION_DOT)
+        if(OPTION_DOT OR OPTION_VERSION)
             string(APPEND _esc_chars "\\.")
         endif()
 
