@@ -461,7 +461,7 @@ function(_iplug_disable_source_compile)
             string(REGEX MATCH "${_arg_REGEX}" _result ${_element})
             if(_result)
                 list(APPEND _exclude ${_element})
-                iplug_debug_message(":: ${_element}")
+                iplug_debug_message("${_element}")
             endif()
         endforeach()
     else()
@@ -491,132 +491,6 @@ macro(_iplug_add_config_variable _name _value)
             endif()
         endif()
 endmacro()
-
-
-#------------------------------------------------------------------------------
-# _iplug_validate_string
-
-function(_iplug_validate_string _name)
-    set(_options      CONFIG NOTEMPTY FILE_EXISTS ALPHAFIRST INAPOSTROPHES)
-    set(_char_options ALPHA NUMERIC SPACE HYPHEN DOT SLASH APOSTROPHE COMMA DELIMITER UNDERSCORE)
-    set(_onevalue     MINLENGTH MAXLENGTH)
-    set(_multivalue   STREQUAL)
-    cmake_parse_arguments(OPTION "${_options};${_char_options}" "${_onevalue}" "${_multivalue}" ${ARGN})
-
-    set(_noinvalid FALSE)
-    foreach(_val IN LISTS _char_options)
-        if(OPTION_${_val})
-            set(_noinvalid TRUE)
-            break()
-        endif()
-    endforeach()
-
-    set(_chars     "")
-    set(_esc_chars "")
-    set(_value     "${${_name}}")
-    set(_defined   "${_name} = \"${_value}\"")
-
-    if(OPTION_CONFIG)
-        set(_value   "${CONFIG_${_name}}")
-        set(_defined "Configuration ${_name} = \"${_value}\"")
-    endif()
-
-    if(OPTION_STREQUAL)
-        foreach(_str IN LISTS OPTION_STREQUAL)
-            if(${_value} STREQUAL ${_str})
-                return()
-            endif()
-        endforeach()
-        string(REPLACE ";" "\", \"" _str "${OPTION_STREQUAL}")
-        iplug_syntax_error("${_defined} is invalid. Valid options are \"${_str}\".")
-    endif()
-
-    if(OPTION_INAPOSTROPHES)
-        if(NOT ${_value} MATCHES "^'.*'$")
-            iplug_syntax_error("${_defined}. String must be surrounded by apostrophes.")
-        endif()
-        string(REPLACE "'" "" _value "${_value}")
-    endif()
-
-
-    string(LENGTH "${_value}" _len)
-
-    if(OPTION_NOTEMPTY AND NOT OPTION_MINLENGTH)
-        set(OPTION_MINLENGTH 1)
-    endif()
-
-    if(OPTION_MINLENGTH AND _len LESS OPTION_MINLENGTH)
-        iplug_syntax_error("${_defined}. String length is less than ${OPTION_MINLENGTH} characters.")
-    endif()
-
-    if(OPTION_MAXLENGTH AND _len GREATER OPTION_MAXLENGTH)
-        iplug_syntax_error("${_defined}. String length exceedes ${OPTION_MAXLENGTH} characters.")
-    endif()
-
-    if(OPTION_FILE_EXISTS)
-        if(NOT _len EQUAL 0)
-            get_filename_component(_file "${_value}" ABSOLUTE )
-            if(NOT EXISTS ${_file})
-                iplug_syntax_error("${_defined}. Path/File does not exist.")
-            endif()
-        endif()
-        return()
-    endif()
-
-    if(OPTION_ALPHAFIRST)
-        if(${_value} MATCHES "^[^A-Za-z]")
-            iplug_syntax_error("${_defined}. String must begin with an alphabetic character.")
-        endif()
-    endif()
-
-    if(_noinvalid)
-        if(OPTION_ALPHA)
-            string(APPEND _chars "A-Za-z")
-        endif()
-
-        if(OPTION_NUMERIC)
-            string(APPEND _chars "0-9")
-        endif()
-
-        if(OPTION_SPACE)
-            string(APPEND _chars " ")
-        endif()
-
-        if(OPTION_SLASH)
-            string(APPEND _esc_chars "\\/")
-        endif()
-
-        if(OPTION_DOT)
-            string(APPEND _esc_chars "\\.")
-        endif()
-
-        if(OPTION_HYPHEN)
-            string(APPEND _esc_chars "-")
-        endif()
-
-        if(OPTION_APOSTROPHE)
-            string(APPEND _esc_chars "'")
-        endif()
-
-        if(OPTION_COMMA)
-            string(APPEND _esc_chars ",")
-        endif()
-
-        if(OPTION_DELIMITER)
-            string(APPEND _esc_chars "|")
-        endif()
-
-        if(OPTION_UNDERSCORE)
-            string(APPEND _esc_chars "_")
-        endif()
-
-        set(_regex "[^${_chars}\\${_esc_chars}]")
-        # iplug_info("${_regex} ${_name}=\"${_value}\"")
-        if(${_value} MATCHES "${_regex}")
-            iplug_syntax_error("${_defined}. String contains invalid characters.")
-        endif()
-    endif()
-endfunction()
 
 
 #------------------------------------------------------------------------------
