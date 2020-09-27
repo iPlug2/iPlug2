@@ -632,7 +632,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
             {
               bool enabled = pGraphics->LiveEditEnabled();
               pGraphics->EnableLiveEdit(!enabled);
-              CheckMenuItem(GET_MENU(), ID_LIVE_EDIT, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+              CheckMenuItem(GET_MENU(), ID_LIVE_EDIT, (MF_BYCOMMAND | enabled) ? MF_UNCHECKED : MF_CHECKED);
             }
           }
           
@@ -650,7 +650,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
             {
               bool enabled = pGraphics->ShowAreaDrawnEnabled();
               pGraphics->ShowAreaDrawn(!enabled);
-              CheckMenuItem(GET_MENU(), ID_SHOW_DRAWN, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+              CheckMenuItem(GET_MENU(), ID_SHOW_DRAWN, (MF_BYCOMMAND | enabled) ? MF_UNCHECKED : MF_CHECKED);
             }
           }
           
@@ -668,7 +668,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
             {
               bool enabled = pGraphics->ShowControlBoundsEnabled();
               pGraphics->ShowControlBounds(!enabled);
-              CheckMenuItem(GET_MENU(), ID_SHOW_BOUNDS, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+              CheckMenuItem(GET_MENU(), ID_SHOW_BOUNDS, (MF_BYCOMMAND | enabled) ? MF_UNCHECKED : MF_CHECKED);
             }
           }
           
@@ -686,7 +686,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
             {
               bool enabled = pGraphics->ShowingFPSDisplay();
               pGraphics->ShowFPSDisplay(!enabled);
-              CheckMenuItem(GET_MENU(), ID_SHOW_FPS, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+              CheckMenuItem(GET_MENU(), ID_SHOW_FPS, (MF_BYCOMMAND | enabled) ? MF_UNCHECKED : MF_CHECKED);
             }
           }
           
