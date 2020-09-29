@@ -48,7 +48,7 @@ public:
     if (pPlug->NPresets())
     {
       unitInfo.programListId = kPresetParam;
-      parameters.addParameter(new IPlugVST3PresetParameter(pPlug->NPresets()));
+      mParameters.addParameter(new IPlugVST3PresetParameter(pPlug->NPresets()));
       
       Steinberg::Vst::ProgramListWithPitchNames* pList = new Steinberg::Vst::ProgramListWithPitchNames(STR16("Factory Presets"), 0 /* list id */, Steinberg::Vst::kRootUnitId);
       
