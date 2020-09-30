@@ -26,7 +26,7 @@ if (WIN32)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   find_program( IBTOOL ibtool HINTS "/usr/bin" "${OSX_DEVELOPER_ROOT}/usr/bin" )
   if ( ${IBTOOL} STREQUAL "IBTOOL-NOTFOUND" )
-      message( "ibtool can not be found" SEND_ERROR )
+    message( "ibtool can not be found" SEND_ERROR )
   endif()
   set(OS_MAC 1)
 
