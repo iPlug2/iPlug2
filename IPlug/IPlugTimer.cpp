@@ -147,8 +147,8 @@ class MainThread
 {
 public:
   MainThread()
-    : mRunning(true)
-    , mThread(std::bind(&MainThread::loop, this))
+  : mRunning(true)
+  , mThread(std::bind(&MainThread::loop, this))
   {}
 
   ~MainThread()
@@ -174,18 +174,19 @@ public:
 private:
   void loop()
   {
-#ifdef OS_LINUX
     int err = pthread_setname_np(pthread_self(), "iPlug2Loop");
-#endif
 
     std::chrono::milliseconds maxTimeout (100);
 
     MutexLock lck (mLock);
+
     while (mRunning)
     {
       TaskTime now = GetTimeNow();
       TaskTime until = now + maxTimeout;
-      for (int i = mTasks.size() - 1; i >= 0; i--) {
+
+      for (int i = mTasks.size() - 1; i >= 0; i--)
+      {
         Task& task = mTasks[i];
         // If the time has passed, execute the task 
         // and replace it with the task at the end

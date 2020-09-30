@@ -304,10 +304,8 @@ bool AppIsSandboxed()
 #elif defined OS_LINUX
 #pragma mark - OS_LINUX
 
-/*
- * Get the file path for the module where specified symbol is defined.
- */
-static bool GetFileNameFor(void *code, char *path, int size)
+// Get the file path for the module where specified symbol is defined
+static bool GetFileNameFor(void* code, char* path, int size)
 {
   Dl_info info;
 
@@ -326,12 +324,11 @@ static bool GetFileNameFor(void *code, char *path, int size)
   return true;
 }
 
-
 EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance, const char*)
 {
   char path[PATH_MAX];
   
-  if (CStringHasContents(name) && GetFileNameFor(reinterpret_cast<void *>(GetFileNameFor), path, PATH_MAX))
+  if (CStringHasContents(name) && GetFileNameFor(reinterpret_cast<void*>(GetFileNameFor), path, PATH_MAX))
   {
     for (char *s = path + strlen(path) - 1; s >= path; --s)
     {
@@ -343,31 +340,25 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
     }
 
     const char *subdir = "";
-    if(strcmp(type, "png") == 0) { //TODO: lowercase/uppercase png
+    if(strcmp(type, "png") == 0) //TODO: lowercase/uppercase png
       subdir = "img";
-    }
-    else if(strcmp(type, "ttf") == 0) { //TODO: lowercase/uppercase ttf
+    else if(strcmp(type, "ttf") == 0) //TODO: lowercase/uppercase ttf
       subdir = "fonts";
-    }
-    else if(strcmp(type, "svg") == 0) { //TODO: lowercase/uppercase svg
+    else if(strcmp(type, "svg") == 0) //TODO: lowercase/uppercase svg
       subdir = "img";
-    }
 
     result.SetFormatted(PATH_MAX, "%s%s%s%s%s", path, WDL_DIRCHAR_STR "resources" WDL_DIRCHAR_STR, subdir, WDL_DIRCHAR_STR, name);
     struct stat st;
+
     if (!stat(result.Get(), &st))
-    {
       return EResourceLocation::kAbsolutePath;
-    }
+
 #ifdef VST3_API
     // VST3 bundle since 3.6.10
     result.SetFormatted(PATH_MAX, "%s%s%s%s%s", path, WDL_DIRCHAR_STR ".." WDL_DIRCHAR_STR "Resources" WDL_DIRCHAR_STR, subdir, WDL_DIRCHAR_STR, name);
     if (!stat(result.Get(), &st))
-    {
       return EResourceLocation::kAbsolutePath;
-    }
 #endif
-    
   }
   return EResourceLocation::kNotFound;
 }

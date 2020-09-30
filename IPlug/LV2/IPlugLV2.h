@@ -89,11 +89,11 @@ private:
 /** Used to pass various instance info to the API class */
 struct InstanceInfo
 {
-  const LV2UI_Descriptor*   descriptor;
-  const char*               plugin_uri;
-  const char*               bundle_path;
-  LV2UI_Write_Function      write_function;
-  LV2UI_Controller          controller;
+  const LV2UI_Descriptor* descriptor;
+  const char* plugin_uri;
+  const char* bundle_path;
+  LV2UI_Write_Function write_function;
+  LV2UI_Controller controller;
   const LV2_Feature* const* features;
 };
 
@@ -126,13 +126,13 @@ public:
 private:
   int mParameterPortOffset;
 
-  LV2UI_Write_Function   mHostWrite;
-  LV2UI_Controller       mHostController;
-  bool                   mHostSupportIdle;
-  LV2UI_Widget           mHostWidget;
-  LV2UI_Resize          *mHostResize;
+  LV2UI_Write_Function mHostWrite;
+  LV2UI_Controller mHostController;
+  bool mHostSupportIdle;
+  LV2UI_Widget mHostWidget;
+  LV2UI_Resize * mHostResize;
   
-  xcbt_embed            *mEmbed;
+  xcbt_embed * mEmbed;
 };
 
 #endif

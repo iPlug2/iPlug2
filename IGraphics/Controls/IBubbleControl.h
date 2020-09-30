@@ -48,10 +48,11 @@ public:
    * @param text The IText style to use for the readout
    * @param fillColor The background color of the bubble
    * @param strokeColor The stroke color of the bubble */
-  IBubbleControl(const IText& text = DEFAULT_TEXT.WithAlign(EAlign::Center), const IColor& fillColor = COLOR_WHITE, const IColor& strokeColor = COLOR_BLACK)
+  IBubbleControl(const IText& text = DEFAULT_TEXT.WithAlign(EAlign::Center), const IColor& fillColor = COLOR_WHITE, const IColor& strokeColor = COLOR_BLACK, float roundness = 5.f)
   : IControl(IRECT())
   , mFillColor(fillColor)
   , mStrokeColor(strokeColor)
+  , mRoundness(roundness)
   {
     mText = text;
     mHide = true;
@@ -195,36 +196,12 @@ protected:
   
   void DrawDropShadow(IGraphics& g, const IRECT& r)
   {
-  #ifdef IGRAPHICS_NANOVG
-    const float yDrop = 2.0;
-
-    auto NanoVGColor = [](const IColor& color, const IBlend* pBlend = nullptr) {
-      NVGcolor c;
-      c.r = (float) color.R / 255.0f;
-      c.g = (float) color.G / 255.0f;
-      c.b = (float) color.B / 255.0f;
-      c.a = (BlendWeight(pBlend) * color.A) / 255.0f;
-      return c;
-    };
-
-    NVGcontext* vg = (NVGcontext*) g.GetDrawContext();
-    NVGpaint shadowPaint = nvgBoxGradient(vg, r.L, r.T + yDrop, r.W(), r.H(), mRoundness * 2.f, 20.f, NanoVGColor(COLOR_BLACK_DROP_SHADOW, &mBlend), NanoVGColor(COLOR_TRANSPARENT));
-    nvgBeginPath(vg);
-    nvgRect(vg, mBubbleBounds.L, mBubbleBounds.T, mBubbleBounds.W(), mBubbleBounds.H());
-    nvgFillPaint(vg, shadowPaint);
-    nvgGlobalCompositeOperation(vg, NVG_SOURCE_OVER);
-    nvgFill(vg);
-    nvgBeginPath(vg); // Clear the paths
-  #else
-//    if (!g.CheckLayer(mShadowLayer))
-//    {
-//      g.StartLayer(this, mBubbleBounds);
-//      g.FillRoundRect(COLOR_BLACK, r, mRoundness);
-//      mShadowLayer = g.EndLayer();
-//      g.ApplyLayerDropShadow(mShadowLayer, IShadow(COLOR_BLACK_DROP_SHADOW, 20.0, 0.0, yDrop, 1.0, true));
-//    }
-//    g.DrawLayer(mShadowLayer, &mBlend);
-  #endif
+    g.DrawFastDropShadow(r, mBubbleBounds, 2.0, mRoundness, 10.f, &mBlend);
+  }
+  
+  virtual void MeasureText(const char* str, IRECT& contentBounds)
+  {
+    GetUI()->MeasureText(mText, str, contentBounds);
   }
 
   void ShowBubble(IControl* pCaller, float x, float y, const char* str, EDirection dir, IRECT minimumContentBounds, ITouchID touchID = 0)
@@ -237,13 +214,18 @@ protected:
     
     mStr.Set(str);
     IRECT contentBounds;
-    GetUI()->MeasureText(mText, str, contentBounds);
+    MeasureText(str, contentBounds);
     
     if (!minimumContentBounds.Empty())
     {
-      if(minimumContentBounds.W() > contentBounds.W() || minimumContentBounds.H() > contentBounds.H())
+      if(minimumContentBounds.W() > contentBounds.W())
       {
-        contentBounds = minimumContentBounds;
+        contentBounds.R = contentBounds.L + minimumContentBounds.W();
+      }
+      
+      if(minimumContentBounds.H() > contentBounds.H())
+      {
+        contentBounds.B = contentBounds.T + minimumContentBounds.H();
       }
     }
     
@@ -286,11 +268,6 @@ protected:
       
     SetRECT(mRECT.Union(mBubbleBounds));
 
-//    #ifndef IGRAPHICS_NANOVG
-//    if(mShadowLayer)
-//      mShadowLayer->Invalidate();
-//    #endif
-    
     if(mState == kCollapsed)
     {
       Hide(false);
@@ -316,9 +293,6 @@ protected:
   IRECT mBubbleBounds;
   IControl* mCaller = nullptr;
   EArrowDir mArrowDir = EArrowDir::kWest;
-//  #ifndef IGRAPHICS_NANOVG
-//  ILayerPtr mShadowLayer;
-//  #endif
   WDL_String mStr;
   IBlend mBlend = { EBlend::Default, 0.f }; // blend for sub panels appearing
   float mRoundness = 5.f; // The roundness of the corners of the menu panel backgrounds

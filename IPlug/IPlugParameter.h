@@ -93,7 +93,7 @@ public:
   /** Linear parameter shaping */
   struct ShapeLinear : public Shape
   {
-    Shape* Clone() const override { return new ShapeLinear(*this); };
+    Shape* Clone() const override { return new ShapeLinear(*this); }
     IParam::EDisplayType GetDisplayType() const override { return kDisplayLinear; }
     double NormalizedToValue(double value, const IParam& param) const override;
     double ValueToNormalized(double value, const IParam& param) const override;
@@ -105,7 +105,7 @@ public:
   struct ShapePowCurve : public Shape
   {
     ShapePowCurve(double shape);
-    Shape* Clone() const override { return new ShapePowCurve(*this); };
+    Shape* Clone() const override { return new ShapePowCurve(*this); }
     IParam::EDisplayType GetDisplayType() const override;
     double NormalizedToValue(double value, const IParam& param) const override;
     double ValueToNormalized(double value, const IParam& param) const override;
@@ -117,7 +117,7 @@ public:
   struct ShapeExp : public Shape
   {
     void Init(const IParam& param) override;
-    Shape* Clone() const override { return new ShapeExp(*this); };
+    Shape* Clone() const override { return new ShapeExp(*this); }
     IParam::EDisplayType GetDisplayType() const override { return kDisplayLog; }
     double NormalizedToValue(double value, const IParam& param) const override;
     double ValueToNormalized(double value, const IParam& param) const override;

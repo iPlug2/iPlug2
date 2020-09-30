@@ -77,11 +77,8 @@ struct IPlugVST3State
     
     IPlugVST3ControllerBase* pController = dynamic_cast<IPlugVST3ControllerBase*>(pPlug);
     
-    if(pController)
-    {
-      if (pController->mBypassParameter)
-        pController->mBypassParameter->setNormalized(savedBypass);
-    }
+    if (pController)
+      pController->UpdateParams(pPlug, savedBypass);
     
     pPlug->OnRestoreState();
     
