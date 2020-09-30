@@ -3,7 +3,8 @@
 #
 
 # We need this so we can find call FindFaust.cmake
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+set(IPLUG2_CMAKE_DIR ${CMAKE_CURRENT_LIST_DIR}/Scripts/cmake)
+list(APPEND CMAKE_MODULE_PATH ${IPLUG2_CMAKE_DIR})
 
 # This is used in many places
 set(IPLUG2_DIR ${CMAKE_CURRENT_LIST_DIR})

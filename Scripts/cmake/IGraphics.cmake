@@ -90,6 +90,7 @@ iplug2_target_add(iPlug2_GL2 INTERFACE
     ${_glx_src}
   DEFINE "IGRAPHICS_GL2"
 )
+iplug2_source_tree(iPlug2_GL2)
 
 add_library(iPlug2_GL3 INTERFACE)
 iplug2_target_add(iPlug2_GL3 INTERFACE
@@ -99,6 +100,7 @@ iplug2_target_add(iPlug2_GL3 INTERFACE
     ${_glx_src}
   DEFINE "IGRAPHICS_GL3"
 )
+iplug2_source_tree(iPlug2_GL3)
 
 ##########
 # NanoVG #
@@ -110,10 +112,15 @@ iplug2_target_add(iPlug2_NANOVG INTERFACE
   LINK iPlug2_IGraphicsCore
 )
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-  set(_src ${IPLUG_DEPS}/IGraphics/NanoVG/src/nanovg.c)
+  set(_src ${IGRAPHICS_DEPS}/NanoVG/src/nanovg.c)
   iplug2_target_add(iPlug2_NANOVG INTERFACE SOURCE ${_src})
   set_property(SOURCE ${_src} PROPERTY LANGUAGE C)
 endif()
+iplug2_source_tree(iPlug2_NANOVG)
+
+###############
+# No Graphics #
+###############
 
 add_library(iPlug2_NoGraphics INTERFACE)
 iplug2_target_add(iPlug2_NoGraphics INTERFACE
@@ -124,65 +131,68 @@ iplug2_target_add(iPlug2_NoGraphics INTERFACE
 # Skia #
 ########
 
-add_library(iPlug2_Skia INTERFACE)
-iplug2_target_add(iPlug2_Skia INTERFACE 
-  DEFINE "IGRAPHICS_SKIA"
-  LINK iPlug2_IGraphicsCore)
+if (Skia IN_LIST iPlug2_FIND_COMPONENTS)
 
-if (WIN32)
-  set(sdk "${BUILD_DEPS}/win/${PROCESSOR_ARCH}/$<IF:$<CONFIG:DEBUG>,Debug,Release>")
+  add_library(iPlug2_Skia INTERFACE)
+  iplug2_target_add(iPlug2_Skia INTERFACE 
+    DEFINE "IGRAPHICS_SKIA"
+    LINK iPlug2_IGraphicsCore)
+
+  if (WIN32)
+    set(sdk "${BUILD_DEPS}/win/${PROCESSOR_ARCH}/$<IF:$<CONFIG:DEBUG>,Debug,Release>")
+    iplug2_target_add(iPlug2_Skia INTERFACE
+      LINK
+        "${sdk}/libpng.lib"
+        "${sdk}/pixman.lib"
+        "${sdk}/skia.lib"
+        "${sdk}/skottie.lib"
+        "${sdk}/skparagraph.lib"
+        "${sdk}/sksg.lib"
+        "${sdk}/skshaper.lib")
+
+  elseif (OS_MAC)
+    # TODO MAC: Check if this is the real path
+    set(sdk "${IPLUG_DEPS}/../Build/mac/${PROCESSOR_ARCH}/lib")
+
+  elseif (OS_LINUX)
+    set(sdk "${IPLUG_DEPS}/../Build/linux/lib")
+    iplug2_target_add(iPlug2_Skia INTERFACE
+      LINK 
+        "${sdk}/libpng.a"
+        "${sdk}/libpixman-1.a"
+        "${sdk}/libskia.a"
+        "${sdk}/libskottie.a"
+        "${sdk}/libskparagraph.a"
+        "${sdk}/libsksg.a"
+        "${sdk}/libskshaper.a")
+
+  endif()
+
   iplug2_target_add(iPlug2_Skia INTERFACE
-    LINK
-      "${sdk}/libpng.lib"
-      "${sdk}/pixman.lib"
-      "${sdk}/skia.lib"
-      "${sdk}/skottie.lib"
-      "${sdk}/skparagraph.lib"
-      "${sdk}/sksg.lib"
-      "${sdk}/skshaper.lib")
+    INCLUDE
+      ${BUILD_DEPS}/src/skia
+      ${BUILD_DEPS}/src/skia/include/core
+      ${BUILD_DEPS}/src/skia/include/effects
+      ${BUILD_DEPS}/src/skia/include/config
+      ${BUILD_DEPS}/src/skia/include/utils
+      ${BUILD_DEPS}/src/skia/include/gpu
+      ${BUILD_DEPS}/src/skia/experimental/svg/model)
 
-elseif (OS_MAC)
-  # TODO MAC: Check if this is the real path
-  set(sdk "${IPLUG_DEPS}/../Build/mac/${PROCESSOR_ARCH}/lib")
+  add_library(iPlug2_Skia_GL2 INTERFACE)
+  target_link_libraries(iPlug2_Skia_GL2 INTERFACE iPlug2_Skia iPlug2_GL2)
 
-elseif (OS_LINUX)
-  set(sdk "${IPLUG_DEPS}/../Build/linux/lib")
-  iplug2_target_add(iPlug2_Skia INTERFACE
-    LINK 
-      "${sdk}/libpng.a"
-      "${sdk}/libpixman-1.a"
-      "${sdk}/libskia.a"
-      "${sdk}/libskottie.a"
-      "${sdk}/libskparagraph.a"
-      "${sdk}/libsksg.a"
-      "${sdk}/libskshaper.a")
+  add_library(iPlug2_Skia_GL3 INTERFACE)
+  target_link_libraries(iPlug2_Skia_GL3 INTERFACE iPlug2_Skia iPlug2_GL3)
 
+  add_library(iPlug2_Skia_CPU INTERFACE)
+  iplug2_target_add(iPlug2_Skia_CPU INTERFACE DEFINE "IGRAPHICS_CPU" LINK iPlug2_Skia)
 endif()
-
-iplug2_target_add(iPlug2_Skia INTERFACE
-  INCLUDE
-    ${BUILD_DEPS}/src/skia
-    ${BUILD_DEPS}/src/skia/include/core
-    ${BUILD_DEPS}/src/skia/include/effects
-    ${BUILD_DEPS}/src/skia/include/config
-    ${BUILD_DEPS}/src/skia/include/utils
-    ${BUILD_DEPS}/src/skia/include/gpu
-    ${BUILD_DEPS}/src/skia/experimental/svg/model)
-
-add_library(iPlug2_Skia_GL2 INTERFACE)
-target_link_libraries(iPlug2_Skia_GL2 INTERFACE iPlug2_Skia iPlug2_GL2)
-
-add_library(iPlug2_Skia_GL3 INTERFACE)
-target_link_libraries(iPlug2_Skia_GL3 INTERFACE iPlug2_Skia iPlug2_GL3)
-
-add_library(iPlug2_Skia_CPU INTERFACE)
-iplug2_target_add(iPlug2_Skia_CPU INTERFACE DEFINE "IGRAPHICS_CPU" LINK iPlug2_Skia)
 
 ########
 # LICE #
 ########
 
-include("${IPLUG2_DIR}/cmake/LICE.cmake")
+include("${IPLUG2_CMAKE_DIR}/LICE.cmake")
 
 # LICE build is different between APP and all other targets when using swell.
 # Link to iPlug2_LICE and we'll fix it in configure.
@@ -244,46 +254,48 @@ endif()
 # AAG #
 #######
 
-set(sdk "${IPLUG2_DIR}/Dependencies/IGraphics/AGG/agg-2.4")
-set(_src
-  "${sdk}/src/agg_arc.cpp"
-  "${sdk}/src/agg_arrowhead.cpp"
-  "${sdk}/src/agg_bezier_arc.cpp"
-  "${sdk}/src/agg_bspline.cpp"
-  "${sdk}/src/agg_color_rgba.cpp"
-  "${sdk}/src/agg_curves.cpp"
-  "${sdk}/src/agg_image_filters.cpp"
-  "${sdk}/src/agg_line_aa_basics.cpp"
-  "${sdk}/src/agg_line_profile_aa.cpp"
-  "${sdk}/src/agg_rounded_rect.cpp"
-  "${sdk}/src/agg_sqrt_tables.cpp"
-  "${sdk}/src/agg_trans_affine.cpp"
-  "${sdk}/src/agg_trans_double_path.cpp"
-  "${sdk}/src/agg_trans_single_path.cpp"
-  "${sdk}/src/agg_trans_warp_magnifier.cpp"
-  "${sdk}/src/agg_vcgen_bspline.cpp"
-  "${sdk}/src/agg_vcgen_contour.cpp"
-  "${sdk}/src/agg_vcgen_dash.cpp"
-  "${sdk}/src/agg_vcgen_markers_term.cpp"
-  "${sdk}/src/agg_vcgen_smooth_poly1.cpp"
-  "${sdk}/src/agg_vcgen_stroke.cpp"
-  "${sdk}/src/agg_vpgen_clip_polygon.cpp"
-  "${sdk}/src/agg_vpgen_clip_polyline.cpp"
-  "${sdk}/src/agg_vpgen_segmentator.cpp"
-)
-add_library(AGG STATIC ${_src})
-iplug2_target_add(AGG PUBLIC
-  INCLUDE
-    "${sdk}/include"
-    "${sdk}/font_freetype"
-    "${sdk}/include/util"
-    "${sdk}/src"
-    "${sdk}/include/platform/win32"
-    "${sdk}/src/platform/win32"
-)
+if ("AGG" IN_LIST iPlug2_FIND_COMPONENTS)
+  set(sdk "${IPLUG2_DIR}/Dependencies/IGraphics/AGG/agg-2.4")
+  set(_src
+    "${sdk}/src/agg_arc.cpp"
+    "${sdk}/src/agg_arrowhead.cpp"
+    "${sdk}/src/agg_bezier_arc.cpp"
+    "${sdk}/src/agg_bspline.cpp"
+    "${sdk}/src/agg_color_rgba.cpp"
+    "${sdk}/src/agg_curves.cpp"
+    "${sdk}/src/agg_image_filters.cpp"
+    "${sdk}/src/agg_line_aa_basics.cpp"
+    "${sdk}/src/agg_line_profile_aa.cpp"
+    "${sdk}/src/agg_rounded_rect.cpp"
+    "${sdk}/src/agg_sqrt_tables.cpp"
+    "${sdk}/src/agg_trans_affine.cpp"
+    "${sdk}/src/agg_trans_double_path.cpp"
+    "${sdk}/src/agg_trans_single_path.cpp"
+    "${sdk}/src/agg_trans_warp_magnifier.cpp"
+    "${sdk}/src/agg_vcgen_bspline.cpp"
+    "${sdk}/src/agg_vcgen_contour.cpp"
+    "${sdk}/src/agg_vcgen_dash.cpp"
+    "${sdk}/src/agg_vcgen_markers_term.cpp"
+    "${sdk}/src/agg_vcgen_smooth_poly1.cpp"
+    "${sdk}/src/agg_vcgen_stroke.cpp"
+    "${sdk}/src/agg_vpgen_clip_polygon.cpp"
+    "${sdk}/src/agg_vpgen_clip_polyline.cpp"
+    "${sdk}/src/agg_vpgen_segmentator.cpp"
+  )
+  add_library(AGG STATIC ${_src})
+  iplug2_target_add(AGG PUBLIC
+    INCLUDE
+      "${sdk}/include"
+      "${sdk}/font_freetype"
+      "${sdk}/include/util"
+      "${sdk}/src"
+      "${sdk}/include/platform/win32"
+      "${sdk}/src/platform/win32"
+  )
 
-add_library(iPlug2_AGG INTERFACE)
-iplug2_target_add(iPlug2_AGG INTERFACE
-  LINK AGG iPlug2_IGraphicsCore
-  DEFINE "IGRAPHICS_AGG"
-)
+  add_library(iPlug2_AGG INTERFACE)
+  iplug2_target_add(iPlug2_AGG INTERFACE
+    LINK AGG iPlug2_IGraphicsCore
+    DEFINE "IGRAPHICS_AGG"
+  )
+endif() # AGG

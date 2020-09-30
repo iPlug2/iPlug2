@@ -16,7 +16,7 @@ project(IPlugInstrument VERSION 1.0.0 LANGUAGES C CXX)
 
 set(IPLUG2_DIR ${CMAKE_SOURCE_DIR}/../..)
 include(${IPLUG2_DIR}/iplug2.cmake)
-find_package(iPlug2 REQUIRED)
+find_package(iPlug2 REQUIRED COMPONENTS APP VST2 VST3 AU)
 
 set(dir "${CMAKE_SOURCE_DIR}")
 set(SRC_FILES
@@ -26,10 +26,10 @@ set(SRC_FILES
   "${dir}/IPlugInstrument_DSP.h"
 )
 source_group(TREE ${dir} FILES ${SRC_FILES})
-
 set(RES_FILES
   "${dir}/resources/fonts/Roboto-Regular.ttf"
 )
+source_group(TREE "${dir}/resources" PREFIX Resources FILES ${RES_FILES})
 
 # While not required, creating a base interface for includes and settings seems like a good idea.
 add_library(_base INTERFACE)
@@ -46,20 +46,22 @@ else()
   target_compile_options(_base INTERFACE "$<$<COMPILE_LANGUAGE:CXX>:-std=c++14>")
 endif()
 
-# For typing convenience the target name is put into a variable.
-set(tgt ${CMAKE_PROJECT_NAME}-app)
-add_executable(${tgt} WIN32 MACOSX_BUNDLE ${SRC_FILES})
-iplug2_target_add(${tgt} PUBLIC LINK iPlug2_APP _base RESOURCE ${RES_FILES})
+add_executable(App WIN32 MACOSX_BUNDLE ${SRC_FILES} ${RES_FILES})
+iplug2_target_add(App PUBLIC LINK _base RESOURCE ${RES_FILES})
 # You MUST call iplug_configure_target(<target_name> <app|vst2|vst3|...>) for things to build correctly.
-iplug2_configure_target(${tgt} app)
+iplug2_configure_target(App app)
 
-set(tgt ${CMAKE_PROJECT_NAME}-vst2)
-add_library(${tgt} MODULE ${SRC_FILES})
-iplug2_target_add(${tgt} PUBLIC LINK iPlug2_VST2 _base RESOURCE ${RES_FILES})
-iplug2_configure_target(${tgt} vst2)
+add_library(VST2 MODULE ${SRC_FILES} ${RES_FILES})
+iplug2_target_add(VST2 PUBLIC LINK _base RESOURCE ${RES_FILES})
+iplug2_configure_target(VST2 vst2)
 
-set(tgt ${CMAKE_PROJECT_NAME}-vst3)
-add_library(${tgt} MODULE ${SRC_FILES})
-iplug2_target_add(${tgt} PUBLIC LINK iPlug2_VST3 _base RESOURCE ${RES_FILES})
-iplug2_configure_target(${tgt} vst3)
+add_library(VST3 MODULE ${SRC_FILES} ${RES_FILES})
+iplug2_target_add(VST3 PUBLIC LINK _base RESOURCE ${RES_FILES})
+iplug2_configure_target(VST3 vst3)
+
+if (APPLE)
+  add_library(AUv2 MODULE ${SRC_FILES} ${RES_FILES})
+  iplug2_target_add(AUv2 PUBLIC LINK _base RESOURCE ${RES_FILES})
+  iplug2_configure_target(AUv2 au2)
+endif()
 
