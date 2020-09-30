@@ -94,7 +94,7 @@ static inline bool CStringHasContents(const char* str) { return str && str[0] !=
  */
 static inline double DBToAmp(double dB)
 {
-  return exp(IAMP_DB * dB);
+  return std::exp(IAMP_DB * dB);
 }
 
 /** @return dB calculated as an approximation of
@@ -102,7 +102,7 @@ static inline double DBToAmp(double dB)
  * @see #AMP_DB */
 static inline double AmpToDB(double amp)
 {
-  return AMP_DB * log(std::fabs(amp));
+  return AMP_DB * std::log(std::fabs(amp));
 }
 
 /** /todo  
