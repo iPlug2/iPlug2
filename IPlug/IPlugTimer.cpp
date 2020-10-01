@@ -14,15 +14,7 @@
  */
 
 #include "IPlugTimer.h"
-
-#ifdef OS_LINUX
-#include <thread>
-#include <condition_variable>
-#include <mutex>
-#include <chrono>
-#include <vector>
-#include <pthread.h>
-#endif
+#include "IPlugTaskThread.h"
 
 using namespace iplug;
 
@@ -127,93 +119,10 @@ void CALLBACK Timer_impl::TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
 }
 #elif defined OS_LINUX
 
-using TaskTime = std::chrono::steady_clock::time_point;
-using TaskDuration = std::chrono::microseconds;
-inline static TaskTime GetTimeNow()
-{
-  return std::chrono::steady_clock::now();
-}
+#if IPLUG_EDITOR
+static IPlugTaskThread sMainThread;
+#endif
 
-struct Task
-{
-  TaskTime time;
-  TaskDuration interval;
-  Timer_impl* timer;
-};
-
-using MutexLock = std::unique_lock<std::mutex>;
-
-class MainThread
-{
-public:
-  MainThread()
-  : mRunning(true)
-  , mThread(std::bind(&MainThread::loop, this))
-  {}
-
-  ~MainThread()
-  {
-    Stop();
-    mThread.join();
-  }
-
-  void PushTask(Task t)
-  {
-    MutexLock lck (mLock);
-    mTasks.push_back(t);
-    mCond.notify_one();
-  }
-
-  void Stop()
-  {
-    MutexLock lck (mLock);
-    mRunning = false;
-    mCond.notify_one();
-  }
-
-private:
-  void loop()
-  {
-    int err = pthread_setname_np(pthread_self(), "iPlug2Loop");
-
-    std::chrono::milliseconds maxTimeout (100);
-
-    MutexLock lck (mLock);
-
-    while (mRunning)
-    {
-      TaskTime now = GetTimeNow();
-      TaskTime until = now + maxTimeout;
-
-      for (int i = mTasks.size() - 1; i >= 0; i--)
-      {
-        Task& task = mTasks[i];
-        // If the time has passed, execute the task 
-        // and replace it with the task at the end
-        if (task.time <= now)
-        {
-          task.timer->Execute();
-          mTasks[i] = mTasks.back();
-          mTasks.pop_back();
-        }
-        else if (task.time < until)
-        {
-          until = task.time;
-        }
-      }
-      mCond.wait_until(lck, until);
-    }
-  }
-
-private:
-  std::thread mThread;
-  std::mutex mLock;
-  std::condition_variable mCond;
-  std::vector<Task> mTasks;
-  bool mRunning;
-};
-
-static MainThread sMainThread;
 WDL_Mutex Timer_impl::sMutex;
 WDL_PtrList<Timer_impl> Timer_impl::sTimers;
 
@@ -222,11 +131,36 @@ Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
   return new Timer_impl(func, intervalMs);
 }
 
+#if IPLUG_EDITOR
+Timer_impl::Timer_impl(ITimerFunction func, uint32_t intervalMs)
+: mTimerFunc(func)
+, mIntervalMs(intervalMs)
+, mID(0)
+{
+  auto cb = [&](uint64_t time) -> bool { mTimerFunc(*this); return true; };
+  Task task = Task::FromMs(intervalMs, intervalMs, cb);
+  mID = sMainThread.Push(task);
+}
+
+Timer_impl::~Timer_impl()
+{
+  Stop();
+}
+
+void Timer_impl::Stop()
+{
+  if (mID)
+  {
+    sMainThread.Cancel(mID);
+    mID = 0;
+  }
+}
+
+#else // No IPLUG_EDITOR
 void Timer_impl::NotifyCallback(union sigval v)
 {
   Timer_impl* timer = (Timer_impl*)v.sival_ptr;
-  timer->Execute();
-  //sMainThread.PushTask(Task { GetTimeNow(), std::chrono::seconds(0), timer });
+  timer->mTimerFunc(*timer);
 }
 
 Timer_impl::Timer_impl(ITimerFunction func, uint32_t intervalMs)
@@ -284,11 +218,7 @@ void Timer_impl::Stop()
     mID = 0;
   }
 }
-
-void Timer_impl::Execute()
-{
-  mTimerFunc(*this);
-}
+#endif // IPLUG_EDITOR
 
 #elif defined OS_WEB
 Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)

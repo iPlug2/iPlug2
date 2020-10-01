@@ -33,6 +33,8 @@ set(_src
   ${IGRAPHICS_SRC}/Controls/IControls.cpp
   ${IGRAPHICS_SRC}/Controls/IPopupMenuControl.cpp
   ${IGRAPHICS_SRC}/Controls/ITextEntryControl.cpp
+  ${IPLUG_SRC}/IPlugTaskThread.h
+  ${IPLUG_SRC}/IPlugTaskThread.cpp
 )
 
 # Platform Settings

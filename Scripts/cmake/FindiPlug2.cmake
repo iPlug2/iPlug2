@@ -143,8 +143,8 @@ function(iplug2_find_path VAR)
   if ((NOT out) AND (arg_DEFAULT))
     set(out ${arg_DEFAULT})
   endif()
-  if ((NOT out) AND (arg_DEFAULT_IDX))
-    list(GET ${arg_PATHS} ${arg_DEFAULT_IDX} out)
+  if ((NOT out) AND NOT ("${arg_DEFAULT_IDX}" STREQUAL ""))
+    list(GET arg_PATHS "${arg_DEFAULT_IDX}" out)
   endif()
 
   # Determine cache type for the variable
