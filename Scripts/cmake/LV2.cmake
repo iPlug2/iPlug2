@@ -29,6 +29,8 @@ iplug2_target_add(iPlug2_LV2 INTERFACE
 )
 
 function(iplug2_configure_lv2 target)
+  iplug2_target_add(${target} PUBLIC LINK iPlug2_LV2)
+
   set(out_dir "${CMAKE_BINARY_DIR}/${target}")
   set(install_dir "${LV2_INSTALL_PATH}/${PLUG_NAME}.lv2")
 

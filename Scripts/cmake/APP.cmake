@@ -115,33 +115,38 @@ else()
 endif()
 
 iplug2_target_add(iPlug2_APP INTERFACE INCLUDE ${_inc} DEFINE ${_def} SOURCE ${_src} LINK iPlug2_Core)
+iplug2_source_tree(iPlug2_APP)
 
-function(iplug2_configure_app target)
-  set(res_dir "${CMAKE_BINARY_DIR}/${IPLUG_APP_NAME}-app/resources")
+macro(iplug2_configure_app target)
+  iplug2_target_add(${target} PUBLIC LINK iPlug2_APP)
+
+  set(res_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}-app/resources")
 
   if (WIN32)
     add_custom_command(TARGET ${target} POST_BUILD
       COMMAND "${CMAKE_BINARY_DIR}/postbuild-win.bat"
       ARGS "\"$<TARGET_FILE:${target}>\"" "\".exe\""
     )
-    iplug_target_bundle_resources(${target} "${res_dir}")
     
   elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     # Set the Info.plist file and add required resources
     set(_res 
-      "${CMAKE_SOURCE_DIR}/resources/${IPLUG_APP_NAME}.icns"
-      "${CMAKE_SOURCE_DIR}/resources/${IPLUG_APP_NAME}-macOS-MainMenu.xib")
-    source_group("Resources" FILES ${res_files})
-    iplug2_target_add(${target} PUBLIC RESOURCE ${_res})
+      "${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}.icns"
+      "${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}-macOS-MainMenu.xib")
+    source_group("Resources" FILES ${_res})
+    iplug2_target_add(${target} PUBLIC SOURCE ${_res} RESOURCE ${_res})
     set_target_properties(${target} PROPERTIES 
-      MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/resources/macOS-App-Info.plist.in")
+      MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}-macOS-Info.plist")
 
   elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
     set_target_properties(${target} PROPERTIES
-      OUTPUT_NAME "${IPLUG_APP_NAME}"
-      RUNTIME_OUTPUT_DIRECTORY "${IPLUG_APP_NAME}-app"
+      OUTPUT_NAME "${PLUG_NAME}"
+      RUNTIME_OUTPUT_DIRECTORY "${PLUG_NAME}-app"
     )
-    iplug2_target_bundle_resources(${target} "${res_dir}")
-
+    
   endif()
-endfunction()
+
+  if (res_dir)
+    iplug2_target_bundle_resources(${target} "${res_dir}")
+  endif()
+endmacro()

@@ -24,9 +24,10 @@ if (WIN32)
   set(OS_WINDOWS 1)
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-  set(_tmp "$ENV{HOME}/Library/Audio/Plug-Ins")
-  set(VST2_PATH "${_tmp}/VST" CACHE PATH "VST2 plugin directory.")
-  set(VST3_PATH "${_tmp}/VST3" CACHE PATH "VST3 plugin directory.")
+  find_program( IBTOOL ibtool HINTS "/usr/bin" "${OSX_DEVELOPER_ROOT}/usr/bin" )
+  if ( ${IBTOOL} STREQUAL "IBTOOL-NOTFOUND" )
+    message( "ibtool can not be found" SEND_ERROR )
+  endif()
   set(OS_MAC 1)
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -93,6 +94,21 @@ function(iplug2_target_add target set_type)
   endif()
 endfunction()
 
+macro(iplug2_ternary VAR val_true val_false)
+  if (${ARGN})
+    set(${VAR} ${val_true})
+  else()
+    set(${VAR} ${val_false})
+  endif()
+endmacro()
+
+macro(iplug2_source_tree target)
+  get_target_property(_tmp ${target} INTERFACE_SOURCES)
+  if (NOT "${_tmp}" STREQUAL "_tmp-NOTFOUND")
+    source_group(TREE ${IPLUG2_DIR} PREFIX "IPlug" FILES ${_tmp})
+  endif()
+endmacro()
+
 #! iplug2_find_path : An alternative to find_file and find_path that allows a default value.
 # 
 # \arg:VAR Variable name to set
@@ -106,21 +122,17 @@ endfunction()
 # \group:PATHS List of paths to search for
 function(iplug2_find_path VAR)
   cmake_parse_arguments("arg" "REQUIRED;DIR;FILE" "DEFAULT_IDX;DEFAULT;DOC" "PATHS" ${ARGN})
+  if (NOT arg_DIR AND NOT arg_FILE)
+    message("ERROR: iplug2_find_path MUST specify either DIR or FILE as an argument" FATAL_ERROR)
+  endif()
 
   set(out 0)
   foreach (pt ${arg_PATHS})
     if (EXISTS ${pt})
-      
-      if (IS_DIRECTORY ${pt})
-        set(is_dir 1)
-      else()
-        set(is_dir 0)
-      endif()
-      message("Found path ${pt} and is_dir=${is_dir}")
+      iplug2_ternary(is_dir 1 0 IS_DIRECTORY ${pt})
+      #message("Found path ${pt} and is_dir=${is_dir}")
 
-      if ((arg_FILE AND (NOT ${is_dir})) 
-          OR (arg_DIR AND ${is_dir})
-          OR (NOT arg_DIR AND NOT arg_FILE) )
+      if ( (arg_FILE AND NOT ${is_dir}) OR (arg_DIR AND ${is_dir}) )
         set(out ${pt})
         break()
       endif()
@@ -131,24 +143,20 @@ function(iplug2_find_path VAR)
   if ((NOT out) AND (arg_DEFAULT))
     set(out ${arg_DEFAULT})
   endif()
-  if ((NOT out) AND (arg_DEFAULT_FIRST))
-    list(GET ${arg_PATHS} 0 out)
-  endif()
-  if ((NOT out) AND (arg_DEFAULT_LAST))
-    list(GET ${arg_PATHS} -1 out)
+  if ((NOT out) AND (arg_DEFAULT_IDX))
+    list(GET ${arg_PATHS} ${arg_DEFAULT_IDX} out)
   endif()
 
+  # Determine cache type for the variable
+  iplug2_ternary(_cache_type PATH FILEPATH ${arg_DIR})
   # Handle required
   if ((NOT out) AND (arg_REQUIRED))
+    set(${VAR} "${VAR}-NOTFOUND" CACHE ${_cache_type} ${arg_DOC}})
     message(FATAL_ERROR "Path ${VAR} not found!")
   endif()
   # Set cache var or var in parent scope
   if (arg_DOC)
-    if (is_dir)
-      set(${VAR} ${out} CACHE PATH ${arg_DOC})
-    else()
-      set(${VAR} ${out} CACHE FILEPATH ${arg_DOC})
-    endif()
+    set(${VAR} ${out} CACHE ${_cache_type} ${arg_DOC})
   else()
     set(${VAR} ${out} PARENT_SCOPE)
   endif()
@@ -164,21 +172,54 @@ endfunction(iplug2_find_path)
 # \arg:res_dir Directory to copy the resources into
 function(iplug2_target_bundle_resources target res_dir)
   get_property(resources TARGET ${target} PROPERTY RESOURCE)
-  foreach (res ${resources})
-    get_filename_component(fn "${res}" NAME)
+  if (CMAKE_GENERATOR STREQUAL "Xcode")
+    # On Xcode we mark each file as non-compiled
+    foreach (res ${resources})
+      get_filename_component(fn "${res}" NAME)
+      set(file_type "file")
+      if (fn MATCHES ".*\\.xib")
+        set(file_type "file.xib")
+      endif()
+      set_property(SOURCE ${res} PROPERTY XCODE_LAST_KNOWN_FILE_TYPE ${file_type})
+    endforeach()
+  else()
+    # Without Xcode we manually copy resources.
+    foreach (res ${resources})
+      
+      get_filename_component(fn "${res}" NAME)
+      # Default is to simply copy the file, some file types may need special
+      # handling in which case they set copy to FALSE.
+      set(copy TRUE)
 
-    set(dst "${res_dir}/${fn}")
-    if (fn MATCHES ".*\\.ttf")
-      set(dst "${res_dir}/fonts/${fn}")
-    elseif ((fn MATCHES ".*\\.png") OR (fn MATCHES ".*\\.svg"))
-      set(dst "${res_dir}/img/${fn}")
-    endif()
-    target_sources(${target} PUBLIC "${dst}")
-    add_custom_command(OUTPUT "${dst}"
-      COMMAND ${CMAKE_COMMAND} ARGS "-E" "copy" "${res}" "${dst}"
-      MAIN_DEPENDENCY "${res}"
-    )
-  endforeach()
+      set(dst "${res_dir}/${fn}")
+      if (NOT APPLE)
+        if (fn MATCHES ".*\\.ttf")
+          set(dst "${res_dir}/fonts/${fn}")
+        elseif ((fn MATCHES ".*\\.png") OR (fn MATCHES ".*\\.svg"))
+          set(dst "${res_dir}/img/${fn}")
+        endif()
+      else()
+
+        # Apple but no Xcode? Manually compile xib files
+        if (fn MATCHES ".*\\.xib")
+          get_filename_component(tmp "${res}" NAME_WE)
+          set(dst "${res_dir}/${tmp}.nib")
+          add_custom_command(OUTPUT ${dst}
+            COMMAND ${IBTOOL} ARGS "--compile" "${dst}" "${res}"
+            MAIN_DEPENDENCY "${res}")
+          set(copy FALSE)
+        endif()
+      endif()
+
+      target_sources(${target} PUBLIC "${dst}")
+
+      if (copy)
+        add_custom_command(OUTPUT "${dst}"
+          COMMAND ${CMAKE_COMMAND} ARGS "-E" "copy" "${res}" "${dst}"
+          MAIN_DEPENDENCY "${res}")
+      endif()
+    endforeach()
+  endif()
 endfunction()
 
 ############################
@@ -291,18 +332,35 @@ iplug2_target_add(iPlug2_Core INTERFACE DEFINE ${_def} INCLUDE ${_inc} SOURCE ${
 #############
 
 # We include this first because APP requires LICE.
-include("${IPLUG2_DIR}/cmake/IGraphics.cmake")
+include("${IPLUG2_CMAKE_DIR}/IGraphics.cmake")
 
 ##################
 # Plugin Formats #
 ##################
 
-include("${IPLUG2_DIR}/cmake/AAX.cmake")
-include("${IPLUG2_DIR}/cmake/APP.cmake")
-include("${IPLUG2_DIR}/cmake/AudioUnit.cmake")
-include("${IPLUG2_DIR}/cmake/VST2.cmake")
-include("${IPLUG2_DIR}/cmake/VST3.cmake")
-include("${IPLUG2_DIR}/cmake/WEB.cmake")
+if (AAX IN_LIST iPlug2_FIND_COMPONENTS)
+  include("${IPLUG2_CMAKE_DIR}/AAX.cmake")
+endif()
+
+if (APP IN_LIST iPlug2_FIND_COMPONENTS)
+  include("${IPLUG2_CMAKE_DIR}/APP.cmake")
+endif()
+
+if (AU IN_LIST iPlug2_FIND_COMPONENTS)
+  include("${IPLUG2_CMAKE_DIR}/AudioUnit.cmake")
+endif()
+
+if (VST2 IN_LIST iPlug2_FIND_COMPONENTS)
+  include("${IPLUG2_CMAKE_DIR}/VST2.cmake")
+endif()
+
+if (VST3 IN_LIST iPlug2_FIND_COMPONENTS)
+  include("${IPLUG2_CMAKE_DIR}/VST3.cmake")
+endif()
+
+if (WEB IN_LIST iPlug2_FIND_COMPONENTS)
+  include("${IPLUG2_CMAKE_DIR}/WEB.cmake")
+endif()
 
 ####################
 # Reaper Extension #
@@ -329,47 +387,28 @@ iplug2_target_add(iPlug2_Faust INTERFACE
 add_library(iPlug2_FaustGen INTERFACE)
 iplug2_target_add(iPlug2_FaustGen INTERFACE
   SOURCE "${IPLUG_SRC}/Extras/Faust/IPlugFaustGen.cpp"
-  LINK iPlug2_Faust
-)
+  LINK iPlug2_Faust)
+iplug2_source_tree(iPlug2_FaustGen)
 
 add_library(iPlug2_HIIR INTERFACE)
 iplug2_target_add(iPlug2_HIIR INTERFACE
   INCLUDE ${IPLUG_SRC}/Extras/HIIR
-  SOURCE "${IPLUG_SRC}/Extras/HIIR/PolyphaseIIR2Designer.cpp"
-)
+  SOURCE "${IPLUG_SRC}/Extras/HIIR/PolyphaseIIR2Designer.cpp")
+iplug2_source_tree(iPlug2_HIIR)
 
 add_library(iPlug2_OSC INTERFACE)
 iplug2_target_add(iPlug2_OSC INTERFACE
   INCLUDE ${IPLUG_SRC}/Extras/OSC
-  SOURCE ${IPLUG_SRC}/Extras/OSC/IPlugOSC_msg.cpp
-)
+  SOURCE ${IPLUG_SRC}/Extras/OSC/IPlugOSC_msg.cpp)
+iplug2_source_tree(iPlug2_OSC)
 
 add_library(iPlug2_Synth INTERFACE)
 iplug2_target_add(iPlug2_Synth INTERFACE
   INCLUDE ${IPLUG_SRC}/Extras/Synth
-  SOURCE 
+  SOURCE
     "${IPLUG_SRC}/Extras/Synth/MidiSynth.cpp"
-    "${IPLUG_SRC}/Extras/Synth/VoiceAllocator.cpp"
-)
-
-
-set(IPLUG2_TARGETS
-  iPlug2_Core iPlug2_APP iPlug2_AU iPlug2_AUv3 iPlug2_VST2 iPlug2_VST3 iPlug2_WEB iPlug2_WAM iPlug2_REAPER
-  iPlug2_Faust iPlug2_FaustGen iPlug2_HIIR iPlug2_OSC iPlug2_Synth iPlug2_NANOVG iPlug2_LICE
-)
-foreach(target IN ITEMS ${IPLUG2_TARGETS})
-  get_target_property(_src ${target} INTERFACE_SOURCES)
-  if (NOT "${_src}" STREQUAL "_src-NOTFOUND")
-    source_group(TREE ${IPLUG2_DIR} PREFIX "IPlug" FILES ${_src})
-  endif()
-endforeach()
-
-unset(_inc)
-unset(_def)
-unset(_src)
-unset(_opts)
-unset(tmp)
-unset(IPLUG_DEPS)
+    "${IPLUG_SRC}/Extras/Synth/VoiceAllocator.cpp")
+iplug2_source_tree(iPlug2_Synth)
 
 
 #! iplug2_configure_target : Configure a target for the given output type
@@ -388,7 +427,7 @@ function(iplug2_configure_target target target_type)
   elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin") 
     # For MacOS we make sure the output name is the same as the app name.
     # This is basically required for bundles.
-    set_property(TARGET ${target} PROPERTY OUTPUT_NAME "${IPLUG_APP_NAME}")
+    set_property(TARGET ${target} PROPERTY OUTPUT_NAME "${PLUG_NAME}")
 
   elseif (OS_LINUX)
 
