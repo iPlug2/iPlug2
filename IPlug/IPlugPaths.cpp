@@ -368,6 +368,26 @@ bool AppIsSandboxed()
   return false;
 }
 
+void AppSupportPath(WDL_String& path, bool isSystem)
+{
+  path.Set("~");
+}
+
+void SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID)
+{
+  AppSupportPath(path);
+}
+
+void DesktopPath(WDL_String& path)
+{
+  path.Set("");
+}
+
+void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
+{
+  path.Set("~/Presets");
+}
+
 #endif
 
 END_IPLUG_NAMESPACE
