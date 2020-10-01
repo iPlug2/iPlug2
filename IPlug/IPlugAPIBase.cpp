@@ -152,15 +152,6 @@ void IPlugAPIBase::OnTimer(Timer& t)
   {
 // VST3 ********************************************************************************
 #if defined VST3P_API || defined VST3_API
-#ifdef VST3_API // single component
-    while(mParamChangeFromProcessor.ElementsAvailable())
-    {
-      ParamTuple p;
-      mParamChangeFromProcessor.Pop(p);
-      SendParameterValueFromDelegate(p.idx, p.value, false);
-    }
-#endif
-    
     while (mMidiMsgsFromProcessor.ElementsAvailable())
     {
       IMidiMsg msg;
