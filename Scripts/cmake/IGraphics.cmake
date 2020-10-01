@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.11)
 ##################
 
 add_library(iPlug2_IGraphicsCore INTERFACE)
-set(_def "")
+set(_def "IPLUG_EDITOR=1")
 set(_lib "")
 set(_inc
   # IGraphics
@@ -71,6 +71,13 @@ source_group(TREE ${IPLUG2_DIR} PREFIX "IPlug" FILES ${_src})
 iplug2_target_add(iPlug2_IGraphicsCore INTERFACE DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} LINK ${_lib})
 
 
+###############
+# No Graphics #
+###############
+
+add_library(iPlug2_NoGraphics INTERFACE)
+iplug2_target_add(iPlug2_NoGraphics INTERFACE DEFINE "NO_IGRAPHICS=1")
+
 #######################
 # OpenGL Dependencies #
 #######################
@@ -117,15 +124,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set_property(SOURCE ${_src} PROPERTY LANGUAGE C)
 endif()
 iplug2_source_tree(iPlug2_NANOVG)
-
-###############
-# No Graphics #
-###############
-
-add_library(iPlug2_NoGraphics INTERFACE)
-iplug2_target_add(iPlug2_NoGraphics INTERFACE
-  DEFINE "NO_GRAPHICS"
-)
 
 ########
 # Skia #

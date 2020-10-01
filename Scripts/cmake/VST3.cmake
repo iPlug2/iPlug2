@@ -58,7 +58,7 @@ list(APPEND _inc ${sdk})
 iplug2_target_add(iPlug2_VST3 INTERFACE
   SOURCE ${_src}
   INCLUDE "${sdk}"
-  DEFINE "VST3_API" "IPLUG_EDITOR=1" "IPLUG_DSP=1"
+  DEFINE "VST3_API" "IPLUG_DSP=1"
   LINK iPlug2_Core
 )
 

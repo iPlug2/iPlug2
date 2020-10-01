@@ -14,8 +14,10 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
-#include <lv2/lv2plug.in/ns/lv2core/lv2.h>
-#include <vector>
+#include <lv2/core/lv2.h>
+#include <lv2/core/lv2_util.h>
+#include <lv2/urid/urid.h>
+#include <unordered_map>
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -38,6 +40,23 @@ struct InstanceInfo
   const char* bundle_path;
   const LV2_Feature* const* features;
 };
+
+struct CoreURIDMap
+{
+  LV2_URID atom_Blank;
+  LV2_URID atom_Object;
+  LV2_URID atom_URID;
+  LV2_URID atom_Float;
+  LV2_URID atom_Bool;
+  LV2_URID midi_MidiEvent;
+  LV2_URID patch_Set;
+  LV2_URID patch_property;
+  LV2_URID patch_value;
+};
+
+typedef LV2_Handle (*LV2_InstantiateFn)(const LV2_Descriptor *descriptor,
+                                      double rate, const char* bundle_path,
+                                      const LV2_Feature* const* features);
 
 /**  LV2 processor base class for an IPlug plug-in
 *   @ingroup APIClasses */
@@ -69,14 +88,20 @@ public:
   void  run(uint32_t n_samples);
   void  deactivate();
 
-#ifdef LV2_CFG
-  // support ttl generation
-  int write_manifest();
-  int write_also();
-#endif
+  static const LV2_Descriptor* descriptor(uint32_t index, LV2_InstantiateFn instantiate);
+  
+  int GetFirstControlPort() const;
+  int write_manifest(const char* dest_dir);
+  int write_also(const char* dest_dir);
 
 private:
+  int write_also_io(FILE* f, const IOConfig* io, int io_index);
+  int write_cfg_parameters(FILE* f);
+  int write_indent(FILE* f, int indent, const char* msg);
+
   void **mPorts; // simpler then vector for AttachBuffers
+  CoreURIDMap mCoreURIs;
+  std::unordered_map<LV2_URID, int> mParamIDMap;
 };
 
 #endif
