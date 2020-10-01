@@ -188,7 +188,12 @@ public:
         pParam->SetNormalized(value);
         pPlug->OnParamChangeUI(tag, kHost);
 
+// in VST3, parameter changes are managed by the host
+#if !defined VST3C_API // && !defined VST3_API //TODO
+        pPlug->SendParameterValueFromAPI(tag, value, true);
+#else
         pPlug->SendParameterValueFromDelegate(tag, value, true);
+#endif
       }
     }
     
