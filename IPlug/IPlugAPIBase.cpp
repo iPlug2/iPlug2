@@ -140,8 +140,6 @@ void IPlugAPIBase::DirtyParametersFromUI()
 
 void IPlugAPIBase::SendParameterValueFromAPI(int paramIdx, double value, bool normalized)
 {
-  //TODO: Can we assume that no host is stupid enough to try and set parameters on multiple threads at the same time?
-  // If that is the case then we need a MPSPC queue not SPSC
   if (normalized)
     value = GetParam(paramIdx)->FromNormalized(value);
   
@@ -152,13 +150,36 @@ void IPlugAPIBase::OnTimer(Timer& t)
 {
   if(HasUI())
   {
-    // in VST3, parameter changes are managed by the host
-  #if !defined VST3C_API && !defined VST3P_API && !defined VST3_API
+// VST3 ********************************************************************************
+#if defined VST3P_API || defined VST3_API
+    while (mMidiMsgsFromProcessor.ElementsAvailable())
+    {
+      IMidiMsg msg;
+      mMidiMsgsFromProcessor.Pop(msg);
+#ifdef VST3P_API // distributed
+      TransmitMidiMsgFromProcessor(msg);
+#else
+      SendMidiMsgFromDelegate(msg);
+#endif
+    }
+
+    while (mSysExDataFromProcessor.ElementsAvailable())
+    {
+      SysExData msg;
+      mSysExDataFromProcessor.Pop(msg);
+#ifdef VST3P_API // distributed
+      TransmitSysExDataFromProcessor(msg);
+#else
+      SendSysexMsgFromDelegate({msg.mOffset, msg.mData, msg.mSize});
+#endif
+    }
+// !VST3 ******************************************************************************
+#else
     while(mParamChangeFromProcessor.ElementsAvailable())
     {
       ParamTuple p;
       mParamChangeFromProcessor.Pop(p);
-      SendParameterValueFromDelegate(p.idx, p.value, false); // TODO:  if the parameter hasn't changed maybe we shouldn't do anything?
+      SendParameterValueFromDelegate(p.idx, p.value, false);
     }
     
     while (mMidiMsgsFromProcessor.ElementsAvailable())
@@ -174,24 +195,7 @@ void IPlugAPIBase::OnTimer(Timer& t)
       mSysExDataFromProcessor.Pop(msg);
       SendSysexMsgFromDelegate({msg.mOffset, msg.mData, msg.mSize});
     }
-  #endif
-    
-    // In VST3 midi messages from the processor to the controller, are sent as IMessages and SendMidiMsgFromDelegate gets triggered on the other side's notify
-  #if defined VST3P_API || defined VST3_API
-    while (mMidiMsgsFromProcessor.ElementsAvailable())
-    {
-      IMidiMsg msg;
-      mMidiMsgsFromProcessor.Pop(msg);
-      TransmitMidiMsgFromProcessor(msg);
-    }
-    
-    while (mSysExDataFromProcessor.ElementsAvailable())
-    {
-      SysExData data;
-      mSysExDataFromProcessor.Pop(data);
-      TransmitSysExDataFromProcessor(data);
-    }
-  #endif
+#endif
   }
   
   OnIdle();
