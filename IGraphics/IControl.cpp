@@ -60,7 +60,7 @@ void ShowBubbleHorizontalActionFunc(IControl* pCaller)
   IRECT bounds = pCaller->GetRECT();
   WDL_String display;
   pParam->GetDisplayWithLabel(display);
-  pGraphics->ShowBubbleControl(pCaller, bounds.R, bounds.MH(), display.Get(), EDirection::Horizontal, IRECT(0,0,50,30));
+  pGraphics->ShowBubbleControl(pCaller, bounds.R, bounds.MH(), display.Get(), EDirection::Horizontal, IRECT(0, 0, 50, 30));
 }
 
 void ShowBubbleVerticalActionFunc(IControl* pCaller)
@@ -70,7 +70,7 @@ void ShowBubbleVerticalActionFunc(IControl* pCaller)
   IRECT bounds = pCaller->GetRECT();
   WDL_String display;
   pParam->GetDisplayWithLabel(display);
-  pGraphics->ShowBubbleControl(pCaller, bounds.MW(), bounds.T, display.Get(), EDirection::Vertical, IRECT(0,0,50,30));
+  pGraphics->ShowBubbleControl(pCaller, bounds.MW(), bounds.T, display.Get(), EDirection::Vertical, IRECT(0, 0, 50, 30));
 }
 
 END_IGRAPHICS_NAMESPACE

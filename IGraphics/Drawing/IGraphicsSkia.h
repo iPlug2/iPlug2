@@ -102,6 +102,7 @@ public:
   void FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend) override;
   //void FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend) override;
 #endif
+  void DrawFastDropShadow(const IRECT& innerBounds, const IRECT& outerBounds, float xyDrop, float roundness, float blur, IBlend* pBlend) override;
   
   IColor GetPoint(int x, int y) override;
   void* GetDrawContext() override { return (void*) mCanvas; }
