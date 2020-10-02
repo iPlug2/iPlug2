@@ -501,7 +501,7 @@ bool IPluginBase::SerializePresets(IByteChunk& chunk) const
   return savedOK;
 }
 
-int IPluginBase::UnserializePresets(IByteChunk& chunk, int startPos)
+int IPluginBase::UnserializePresets(const IByteChunk& chunk, int startPos)
 {
   TRACE
   WDL_String name;
@@ -572,7 +572,6 @@ void IPluginBase::DumpMakePresetSrc(const char* filename) const
 
 void IPluginBase::DumpMakePresetFromNamedParamsSrc(const char* filename, const char* paramEnumNames[]) const
 {
-  // static bool sDumped = false;
   bool sDumped = false;
   
   if (!sDumped)
@@ -631,54 +630,6 @@ void IPluginBase::DumpPresetBlob(const char* filename) const
   wdl_base64encode(byteStart, buf, pPresetChunk->Size());
   
   fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
-  fclose(fp);
-}
-
-void IPluginBase::DumpAllPresetsBlob(const char* filename) const
-{
-  FILE* fp = fopen(filename, "w");
-  
-  if (!fp)
-    return;
-  
-  char buf[MAX_BLOB_LENGTH] = "";
-  IByteChunk chnk;
-  
-  for (int i = 0; i< NPresets(); i++)
-  {
-    IPreset* pPreset = mPresets.Get(i);
-    fprintf(fp, "MakePresetFromBlob(\"%s\", \"", pPreset->mName);
-    
-    chnk.Clear();
-    chnk.PutChunk(&(pPreset->mChunk));
-    wdl_base64encode(chnk.GetData(), buf, chnk.Size());
-    
-    fprintf(fp, "%s\", %i);\n", buf, chnk.Size());
-  }
-  
-  fclose(fp);
-}
-
-void IPluginBase::DumpBankBlob(const char* filename) const
-{
-  FILE* fp = fopen(filename, "w");
-  
-  if (!fp)
-    return;
-  
-  char buf[MAX_BLOB_LENGTH] = "";
-  
-  for (int i = 0; i< NPresets(); i++)
-  {
-    IPreset* pPreset = mPresets.Get(i);
-    fprintf(fp, "MakePresetFromBlob(\"%s\", \"", pPreset->mName);
-    
-    IByteChunk* pPresetChunk = &pPreset->mChunk;
-    wdl_base64encode(pPresetChunk->GetData(), buf, pPresetChunk->Size());
-    
-    fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
-  }
-  
   fclose(fp);
 }
 

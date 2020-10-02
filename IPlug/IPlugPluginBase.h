@@ -61,7 +61,7 @@ public:
   int GetMfrID() const { return mMfrID; }
   
   /** @return The host if it has been identified, see EHost enum for a list of possible hosts */
-   EHost GetHost() const { return mHost; }
+  EHost GetHost() const { return mHost; }
   
   /** Get the host name as a CString
    * @param str string into which to write the host name */
@@ -208,105 +208,99 @@ public:
     strncpy(pDst->mName, pSrc->mName, MAX_PRESET_NAME_LEN - 1);
   }
   
-  /** /todo 
-   * @param name /todo
-   * @param nPresets /todo */
+  /** This method can be used to initialize baked-in factory presets with the default parameter values. It finds the first uninitialized preset and initializes 
+   * nPresets that follow sequentially.
+   * Typically you would use it if you have configured you plugin bank to e.g. 32 presets, you provide e.g. 8 factory presets via MakePresetXXX, 
+   * but you want to fill the rest of the 32 presets with default values
+   * @param name The name to give the presets
+   * @param nPresets The number of presets to fill with default values */
   void MakeDefaultPreset(const char* name = 0, int nPresets = 1);
 
-  /** This method can be used from Plugin class to create a baked-in factory preset
+  /** Create a baked-in factory preset, specifiying parameter values sequentially 
    * usage: MakePreset(name, param1, param2, ..., paramN)
+   * See DumpMakePresetSrc() which is a utility that can be used to create the code for MakePreset() calls
    * @param name The preset name
-   * @param ... The list of parameter values, ordered acording to paramIdx */
+   * @param ... The list of parameter values, ordered sequentially according to paramIdx */
   void MakePreset(const char* name, ...);
 
-  /** /todo
-   * MakePresetFromNamedParams(name, nParamsNamed, paramEnum1, paramVal1, paramEnum2, paramVal2, ..., paramEnumN, paramVal2)
+  /** Create a baked-in factory preset, specifiying parameter values with a list of parameter index and value pairs
+   * usage: MakePresetFromNamedParams(name, nParamsNamed, paramEnum1, paramVal1, paramEnum2, paramVal2, ..., paramEnumN, paramVal2)
+   * See DumpMakePresetFromNamedParamsSrc() which is a utility that can be used to create the code for MakePreset() calls
    * nParamsNamed may be less than the total number of params.
-   * @param name /todo
-   * @param nParamsNamed /todo
-   * @param ... /todo  */
+   * @param name The preset name
+   * @param nParamsNamed The number of parameter index/value pairs. Parameters that are not set will be defaulted.
+   * @param ... The list of parameter index and value pairs */
   void MakePresetFromNamedParams(const char* name, int nParamsNamed, ...);
   
-  /** This method is primary called by chunk based plugins
+  /** Creates a preset from an IByteChunk containging serialized data. This can be used when your plugin state includes arbitary data, other than just parameters.
    * @param name The preset name
-   * @param chunk The block of memory to use */
+   * @param chunk An IByteChunk where the preset data has been serialized */
   void MakePresetFromChunk(const char* name, IByteChunk& chunk);
 
-  /** This method makes a preset from a Binary large object (blob)
+  /** Creates a preset from a base64 encoded CString. 
+   * This can be used when your plugin state includes arbitary data, other than just parameters.
+   * See DumpPresetBlob() which is a utility that can be used to create the code for DumpPresetBlob() calls
    * @param name The preset name
-   * @param blob The binary string
+   * @param blob The base64 encoded string
    * @param sizeOfChunk The binary string size */
   void MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk);
   
-  /** /todo */
+  /** [AUV2 only] Removes any presets that weren't initialized */
   void PruneUninitializedPresets();
   
-  /** [VST2 only] /todo *  */
+  /** [VST2 only] Called when the preset name is changed by the host */
   virtual void OnPresetsModified() {}
 
-  /** [VST2 only] /todo *  */
+  /** [VST2 only] Called to fill uninitialzed presets */
   void EnsureDefaultPreset();
 
-  /** [VST2 only] /todo *  
-   * @param chunk /todo
-   * @return true /todo
-   * @return false /todo */
+  /** [VST2 only] Called when the VST2 host calls effGetChunk for a bank *  
+   * @param chunk IByteChunk where the presets will be serialized 
+   * @return /c true on success */
   bool SerializePresets(IByteChunk& chunk) const;
 
-  /** [VST2 only] /todo * 
-   * @param chunk /todo
-   * @param startPos /todo
-   * @return int /todo */
-  int UnserializePresets(IByteChunk& chunk, int startPos); // Returns the new chunk position (endPos).
+  /** [VST2 only] Called when the VST2 host calls effSetChunk for a bank *  
+   * @param chunk IByteChunk where the preset bank will be unserialized 
+   * @param startPos The starting position in the chunk for the preset bank
+   * @return int The new chunk position (endPos). */
+  int UnserializePresets(const IByteChunk& chunk, int startPos); 
   
   /** Writes a call to MakePreset() for the current preset to a new text file
-   * @param file The name of the file to write or overwrite. */
+   * @param file The full path of the file to write or overwrite. */
   void DumpMakePresetSrc(const char* file) const;
 
   /** Writes a call to MakePresetFromNamedParams() for the current preset to a new text file
-   * @param file The name of the file to write.
+   * @param file The full path of the file to write or overwrite
    * @param paramEnumNames A list of all parameter names. e.g. const char* pParamNames[] = {"kParam1", "kParam2", "kParam3"}; */
   void DumpMakePresetFromNamedParamsSrc(const char* file, const char* paramEnumNames[]) const;
 
   /** Writes a call to MakePresetFromBlob() for the current preset to a new text file
-   * @param file The name of the file to write or overwrite. */
+   * @param file The full path of the file to write or overwrite. */
   void DumpPresetBlob(const char* file) const;
 
-  /** Writes a call to MakePresetFromBlob() for all presets to a new text file
-   * Note: Set PLUG_DOES_STATE_CHUNKS to 1 to load blob presets.
-   * @param filename The name of the file to write.*/
-  void DumpAllPresetsBlob(const char* filename) const;
-
-  /** Writes a call to MakePresetFromBlob() for all presets to a new text file
-   * Note: Set PLUG_DOES_STATE_CHUNKS to 1 to load blob presets.
-   * @param file The name of the file to write. */
-  void DumpBankBlob(const char* file) const;
-  
   /** Save current state as a VST2 format preset
-   * @param file /todo
-   * @return true /todo */
+   * @param file The full path of the file to write or overwrite
+   * @return /c true on success */
   bool SavePresetAsFXP(const char* file) const;
 
   /** Save current bank as a VST2 format bank [VST2 only]
-   * @param file /todo
-   * @return true /todo */
+   * @param file The full path of the file to write or overwrite
+   * @return /c true on success */
   bool SaveBankAsFXB(const char* file) const;
 
   /** Load VST2 format preset 
-   * @param file /todo
-   * @return true /todo */
+   * @param file The full path of the file to load
+   * @return /c true on success */
   bool LoadPresetFromFXP(const char* file);
 
   /** Load VST2 format bank [VST2 only]
-   * @param file /todo
-   * @return true /todo
-   * @return false /todo */
+   * @param file The full path of the file to load
+   * @return /c true on success */
   bool LoadBankFromFXB(const char* file);
 
   /** Save current bank as individual VST2 format presets [VST2 only]
-   * @param path /todo
-   * @return true /todo
-   * @return false /todo */
+   * @param file The full path of the file to write or overwrite
+   * @return /c true on success */
   bool SaveBankAsFXPs(const char* path) const { return false; }
   
   /** /todo 
@@ -315,54 +309,52 @@ public:
    * @param controllerState /todo */
   void MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState) const;
 
-  /** /todo 
-   * @param file /todo
-   * @return true /todo */
+  /** Save VST3 format preset
+   * @param file The full path of the file to write or overwrite
+   * @return /c true on success */
   bool SavePresetAsVSTPreset(const char* file) const;
 
-  /** /todo 
-   * @param file /todo
-   * @return true /todo*/
+  /** Load VST3 format preset
+   * @param file The full path of the file to load
+   * @return /c true on success */
   bool LoadPresetFromVSTPreset(const char* file);
 
-  /** /todo 
-   * @param path /todo
-   * @return true */
+  /** Save VST2 bank as individual VST3 format presets [VST2 only]
+   * @param path The full path of the folder where the files should be saved
+   * @return /c true on success */
   bool SaveBankAsVSTPresets(const char* path) { return false; }
   
-  /** /todo 
-   * @param name /todo
-   * @param file /todo
-   * @return true /todo  */
+  /** Save AUv2 format preset
+   * @param file The full path of the file to write or overwrite
+   * @return /c true on success */
   bool SavePresetAsAUPreset(const char* name, const char* file) const { return false; }
 
-  /** /todo 
-   * @param file /todo
-   * @return true /todo  */
+  /** Load AUv2 format preset
+   * @param file The full path of the file to load
+   * @return /c true on success */
   bool LoadPresetFromAUPreset(const char* file) { return false; }
 
-  /** /todo 
-   * @param path /todo
-   * @return true /todo */
+  /** Save VST2 bank as individual AUv2 format presets [VST2 only]
+   * @param path The full path of the folder where the files should be saved
+   * @return /c true on success */
   bool SaveBankAsAUPresets(const char* path) { return false; }
   
-  /** /todo 
-   * @param presetName /todo
-   * @param file /todo
-   * @param pluginID /todo
-   * @return true /todo */
+  /** Save ProTools format preset
+   * @param presetName The name to place in the in the preset
+   * @param file The full path of the file to write or overwrite
+   * @param pluginID The protools plugid to place in the preset
+   * @return /c true on success */
   bool SavePresetAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID) const { return false; }
 
-  /** /todo 
-   * @param file /todo
-   * @return true /todo */
+  /** Load ProTools format preset
+   * @param file The full path of the file to load
+   * @return /c true on success */
   bool LoadPresetFromProToolsPreset(const char* file) { return false; }
 
-  /** /todo 
-   * @param path /todo
-   * @param pluginID /todo
-   * @return true /todo
-   * @return false /todo */
+  /** Save VST2 bank as individual ProTools format presets [VST2 only]
+   * @param path The full path of the folder where the files should be saved
+   * @param pluginID The protools plugid to place in the preset
+   * @return /c true on success */
   bool SaveBankAsProToolsPresets(const char* path, unsigned long pluginID) { return false; }
   
 #pragma mark - Parameter manipulation
