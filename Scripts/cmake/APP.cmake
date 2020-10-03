@@ -123,6 +123,10 @@ macro(iplug2_configure_app target)
   set(res_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}-app/resources")
 
   if (WIN32)
+    set_target_properties(${target} PROPERTIES
+      OUTPUT_NAME "${PLUG_NAME}"
+      RUNTIME_OUTPUT_DIRECTORY "${PLUG_NAME}-app"
+    )
     add_custom_command(TARGET ${target} POST_BUILD
       COMMAND "${CMAKE_BINARY_DIR}/postbuild-win.bat"
       ARGS "\"$<TARGET_FILE:${target}>\"" "\".exe\""

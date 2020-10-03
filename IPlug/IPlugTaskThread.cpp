@@ -68,22 +68,34 @@ public:
   IPlugTaskThread_Impl(int queueSize)
     // Init next task ID with a new thread ID + 1
     : mNextTaskID((sThreadId.fetch_add(1) << 20) + 1)
-    , mQueueIn(queueSize)
     , mCancelQueue(queueSize)
-    , mThread(std::bind(&IPlugTaskThread_Impl::loop, this))
-  {}
+  {
+    mRunning.store(true);
+    mThread = new std::thread(std::bind(&IPlugTaskThread_Impl::loop, this));
+  }
+
+  ~IPlugTaskThread_Impl()
+  {
+    if (mThread)
+    {
+      Stop();
+      mThread->join();
+      delete mThread;
+      mThread = nullptr;
+    }
+  }
 
   TaskID Push(const Task& t)
   {
     TaskImpl t2;
-    t2.time = sTimeEpoch + milliseconds(t.time);
-    t2.interval = milliseconds(t.interval);
+    t2.time = sTimeEpoch + microseconds(t.time);
+    t2.interval = microseconds(t.interval);
     t2.callback = t.callback;
     t2.id = mNextTaskID.fetch_add(1, std::memory_order_seq_cst);
 
     // Add item and signal task thread that an item has been added
     mSignalLock.lock();
-    mQueueIn.Push(t2);
+    mQueueIn.push_back(t2);
     mSignalFlag.store(true);
     mSignalCond.notify_one();
     mSignalLock.unlock();
@@ -122,14 +134,14 @@ public:
       until = now + maxTimeout;
 
       // Grab new tasks
-      while (mQueueIn.ElementsAvailable())
+      mSignalLock.lock();
+      while (mQueueIn.size() > 0)
       {
-        TaskImpl t;
-        if (mQueueIn.Pop(t))
-        {
-          mTasks.push(t);
-        }
+        TaskImpl t2 = mQueueIn.back();
+        mQueueIn.pop_back();
+        mTasks.push(t2);
       }
+      mSignalLock.unlock();
 
       // Cancel any cancelled tasks
       while (mCancelQueue.ElementsAvailable())
@@ -160,13 +172,13 @@ public:
         if (task.time <= now)
         {
           mTasks.pop();
-          bool remove = task.callback(ToUsec(now - sTimeEpoch));
+          bool keep = task.callback(ToUsec(now - sTimeEpoch));
           if (task.interval == ClockT::duration::zero())
           {
-            remove = true;
+            keep = false;
           }
           // Rescheduling logic
-          if (!remove)
+          if (keep)
           {
             task.time = now + task.interval;
             mTasks.push(task);
@@ -181,20 +193,19 @@ public:
       }
 
       // Wait for timeout or signal
-      MutexLock lck (mSignalLock);
-      mSignalFlag.store(false);
-      do
       {
+        MutexLock lck(mSignalLock);
+        mSignalFlag.store(false);
         mSignalCond.wait_until(lck, until);
       }
-      while (ClockT::now() < until && !mSignalFlag.load());
     } // end while(mRunning.load())
+    printf("iPlug2Loop ended\n");
   }
 
-  std::thread mThread;
+  std::thread* mThread;
   std::atomic<bool> mRunning;
 
-  IPlugQueue<TaskImpl> mQueueIn;
+  std::vector<TaskImpl> mQueueIn;
   IPlugQueue<TaskID> mCancelQueue;
   
   std::mutex mSignalLock;

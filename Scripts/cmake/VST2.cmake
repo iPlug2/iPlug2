@@ -79,14 +79,14 @@ function(iplug2_configure_vst2 target)
       COMMAND ${CMAKE_COMMAND} ARGS "-E" "copy_directory" "${out_dir}" "${install_dir}")
 
   elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
-    set(out_dir "${CMAKE_BINARY_DIR}/${target}")
+    set(out_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}.vst2")
     set_target_properties(${target} PROPERTIES
-      OUTPUT_NAME "${IPLUG_APP_NAME}"
+      OUTPUT_NAME "${PLUG_NAME}"
       LIBRARY_OUTPUT_DIRECTORY "${out_dir}"
       PREFIX ""
       SUFFIX ".so"
     )
-    set(res_dir "${CMAKE_BINARY_DIR}/${target}/resources")
+    set(res_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}.vst2/resources")
 
     add_custom_command(TARGET ${target} POST_BUILD
       COMMAND ${CMAKE_COMMAND} ARGS "-E" "copy_directory" "${out_dir}" "${VST2_INSTALL_PATH}/${PLUG_NAME}")
