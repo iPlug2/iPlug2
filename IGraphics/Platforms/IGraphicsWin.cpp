@@ -417,8 +417,16 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         {
           std::vector<IMouseInfo> list{ info };
           pGraphics->OnMouseDrag(list);
+            
           if (pGraphics->MouseCursorIsLocked())
-            pGraphics->MoveMouseCursor(pGraphics->mHiddenCursorX, pGraphics->mHiddenCursorY);
+          {
+            const float x = pGraphics->mHiddenCursorX;
+            const float y = pGraphics->mHiddenCursorY;
+            
+            pGraphics->MoveMouseCursor(x, y);
+            pGraphics->mHiddenCursorX = x;
+            pGraphics->mHiddenCursorY = y;
+          }
         }
       }
 
@@ -946,14 +954,8 @@ void IGraphicsWin::MoveMouseCursor(float x, float y)
     GetCursorPos(&p);
     ScreenToClient(mPlugWnd, &p);
     
-    mCursorX = p.x / scale;
-    mCursorY = p.y / scale;
-      
-    if (mCursorHidden && !mCursorLock)
-    {
-      mHiddenCursorX = p.x / scale;
-      mHiddenCursorY = p.y / scale;
-    }
+    mHiddenCursorX = mCursorX = p.x / scale;
+    mHiddenCursorY = mCursorY = p.y / scale;
   }
 }
 
