@@ -14,7 +14,8 @@
 #include "IGraphicsLinux.h"
 #include "IPopupMenuControl.h"
 #include "IPlugPaths.h"
-#include "IPlugTimer.h"
+#include <unistd.h>
+#include <sys/wait.h>
 
 #ifdef OS_LINUX
   #ifdef IGRAPHICS_GL
@@ -54,6 +55,99 @@ private:
   WDL_String mFileName;
   WDL_TypedBuf<uint8_t> mFontData;
 };
+
+/** Run a child process with some input to stdin, and retrieve its stdout and exit status.
+ * @param command Command-line to be passed to /bin/sh
+ * @param subStdout Stores the stdout of the subprocess
+ * @param subStdin The contents of stdin for the subprocess (may be empty)
+ * @param exitStatus Output, exit status of the child process
+ * @return 0 on success, a negative value on failure */
+static int RunSubprocess(char* command, WDL_String& subStdout, const WDL_String& subStdin, int* exitStatus)
+{
+  int pipeOut[2];
+  int pipeIn[2];
+  pid_t cpid;
+
+  auto closePipeOut = [&]() {
+    close(pipeOut[0]);
+    close(pipeOut[1]);
+  };
+  auto closePipeIn = [&]() {
+    close(pipeIn[0]);
+    close(pipeIn[1]);
+  };
+
+  if (pipe(pipeOut) == -1)
+  {
+    return -1;
+  }
+
+  if (pipe(pipeIn) == -1)
+  {
+    closePipeOut();
+    return -2;
+  }
+
+  cpid = fork();
+  if (cpid == -1)
+  {
+    closePipeOut();
+    closePipeIn();
+    return -3;
+  }
+
+  if (cpid == 0)
+  {
+    // Child process
+    // Close unneeded pipes
+    close(pipeIn[1]);
+    close(pipeOut[0]);
+    // Replace stdout/stderr and stdin
+    dup2(pipeOut[1], STDOUT_FILENO);
+    dup2(pipeOut[1], STDERR_FILENO);
+    dup2(pipeIn[0], STDIN_FILENO);
+    // Replace the child process with the new process
+    WDL_String arg0 { "/bin/sh" };
+    WDL_String arg1 { "-c" };
+    char* args[] = { arg0.Get(), arg1.Get(), command, nullptr };
+    int status = execv("/bin/sh", args);
+    exit(status);
+  }
+  else 
+  {
+    // Parent process
+
+    // We write all contents to stdin and read from stdout until it's empty.
+    ssize_t written = 0;
+    while (written < subStdin.GetLength())
+    {
+      write(pipeIn[1], subStdin.Get() + written, subStdin.GetLength() - written);
+    }
+
+    WDL_HeapBuf hb;
+    hb.Resize(4096);
+    while (true)
+    {
+      ssize_t sz = read(pipeOut[0], hb.Get(), hb.GetSize());
+      if (sz == 0)
+      {
+        break;
+      }
+      subStdout.Append((const char*)hb.Get(), sz);
+    }
+
+    int status;
+    if (waitpid(cpid, &status, 0) == -1)
+    {
+      return -4;
+    }
+    *exitStatus = WEXITSTATUS(status);
+
+    closePipeOut();
+    closePipeIn();
+  }
+  return 0;
+}
 
 void IGraphicsLinux::Paint()
 {
@@ -420,9 +514,134 @@ void IGraphicsLinux::CloseWindow()
 
 EMsgBoxResult IGraphicsLinux::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
-  NOT_IMPLEMENTED;
+  WDL_String command;
+  WDL_String ag;
 
-  return kNoResult;
+  auto push_arg = [&]() {
+    command.Append(&ag);
+    command.Append(" ", 2);
+  };
+
+  ag.Set("zenity");
+  push_arg();
+
+  ag.Set("--modal");
+  push_arg();
+
+  ag.SetFormatted(strlen(caption) + 10, "\"--title=%s\"", caption);
+  push_arg();
+
+  ag.SetFormatted(strlen(text) + 10, "\"--text=%s\"", text);
+  push_arg();
+
+  switch (type)
+  {
+  case EMsgBoxType::kMB_OK:
+    ag.Set("--info");
+    push_arg();
+    break;
+  case EMsgBoxType::kMB_OKCANCEL:
+    ag.SetFormatted(64, "--ok-label=Ok");
+    push_arg();
+    ag.SetFormatted(64, "--cancel-label=Cancel");
+    push_arg();
+    ag.Set("--question");
+    push_arg();
+    break;
+  case EMsgBoxType::kMB_RETRYCANCEL:
+    ag.SetFormatted(64, "--ok-label=Retry");
+    push_arg();
+    ag.SetFormatted(64, "--cancel-label=Cancel");
+    push_arg();
+    ag.Set("--question");
+    push_arg();
+    break;
+  case EMsgBoxType::kMB_YESNO:
+    ag.Set("--question");
+    push_arg();
+    break;
+  case EMsgBoxType::kMB_YESNOCANCEL:
+    ag.Set("--question");
+    push_arg();
+    ag.Set("--extra-button=Cancel");
+    push_arg();
+    break;
+  }
+
+  EMsgBoxResult r = kNoResult;
+  WDL_String sStdout;
+  WDL_String sStdin;
+  int status;
+  if (RunSubprocess(command.Get(), sStdout, sStdin, &status) != 0)
+  {
+    completionHandler(r);
+    return r;
+  }
+
+  switch (type)
+  {
+  case EMsgBoxType::kMB_OK:
+    r = kOK;
+    break;
+  case EMsgBoxType::kMB_OKCANCEL:
+    switch (status)
+    {
+    case 0:
+      r = kOK;
+      break;
+    default:
+      r = kCANCEL;
+      break;
+    }
+    break;
+  case EMsgBoxType::kMB_RETRYCANCEL:
+    switch (status)
+    {
+    case 0:
+      r = kRETRY;
+      break;
+    default:
+      r = kCANCEL;
+      break;
+    }
+    break;
+  case EMsgBoxType::kMB_YESNO:
+    switch (status)
+    {
+    case 0:
+      r = kYES;
+      break;
+    default:
+      r = kNO;
+      break;
+    }
+    break;
+  case EMsgBoxType::kMB_YESNOCANCEL:
+    switch (status)
+    {
+    case 0:
+      r = kYES;
+      break;
+    case 1:
+      // zenity output our extra button text
+      if (sStdout.GetLength() > 0)
+      {
+        r = kCANCEL;
+      }
+      else
+      {
+        r = kNO;
+      }
+      break;
+    default:
+      r = kCANCEL;
+      break;
+    }
+    break;
+  }
+
+  completionHandler(r);
+  return r;
 }
 
 void IGraphicsLinux::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* extensions)
@@ -433,13 +652,83 @@ void IGraphicsLinux::PromptForFile(WDL_String& fileName, WDL_String& path, EFile
     return;
   }
 
-  NOT_IMPLEMENTED;
-  fileName.Set("");
+  WDL_String tmp;
+  WDL_String args;
+  args.AppendFormatted(path.GetLength() + 10, "cd \"%s\"; ", path.Get());
+  args.Append("zenity --file-selection ");
+  if (action == EFileAction::Save)
+  {
+    args.Append("--save --confirm-overwrite ");
+  }
+  if (fileName.GetLength() > 0)
+  {
+    args.AppendFormatted(fileName.GetLength() + 20, "\"--filename=%s\" ", fileName.Get());
+  }
+
+  // Split the string at commas and then append each format specifier
+  const char* ext = extensions;
+  while (*ext)
+  {
+    const char* start = ext;
+    while (*ext && *ext != ',')
+      ext++;
+    tmp.Set(start, ext - start);
+    args.AppendFormatted(256, "\"--file-filter=%s | %s\" ", tmp.Get(), tmp.Get());
+    if (!(*ext))
+      ext++;
+  }
+  
+  WDL_String sStdout;
+  WDL_String sStdin;
+  int status;
+  if (RunSubprocess(args.Get(), sStdout, sStdin, &status) != 0)
+  {
+    fileName.Set("");
+    return;
+  }
+
+  if (status == 0)
+  {
+    fileName.Set(sStdout.Get()); 
+  }
+  else
+  {
+    fileName.Set("");
+  }
 }
 
 void IGraphicsLinux::PromptForDirectory(WDL_String& dir)
 {
-  NOT_IMPLEMENTED;
+  if (!WindowIsOpen())
+  {
+    dir.Set("");
+    return;
+  }
+
+  WDL_String args;
+  args.Append("zenity --file-selection --directory ");
+  if (dir.GetLength() > 0)
+  {
+    args.AppendFormatted(dir.GetLength() + 20, "\"--filename=%s\"", dir.Get());
+  }
+  
+  WDL_String sStdout;
+  WDL_String sStdin;
+  int status;
+  if (RunSubprocess(args.Get(), sStdout, sStdin, &status) != 0)
+  {
+    dir.Set("");
+    return;
+  }
+
+  if (status == 0)
+  {
+    dir.Set(sStdout.Get()); 
+  }
+  else
+  {
+    dir.Set("");
+  }
 }
 
 void IGraphicsLinux::PlatformResize(bool parentHasResized)
