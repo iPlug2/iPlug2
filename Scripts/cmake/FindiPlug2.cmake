@@ -205,7 +205,7 @@ function(iplug2_target_bundle_resources target res_dir)
           get_filename_component(tmp "${res}" NAME_WE)
           set(dst "${res_dir}/${tmp}.nib")
           add_custom_command(OUTPUT ${dst}
-            COMMAND ${IBTOOL} ARGS "--compile" "${dst}" "${res}"
+            COMMAND ${IBTOOL} ARGS "--errors" "--warnings" "--notices" "--compile" "${dst}" "${res}"
             MAIN_DEPENDENCY "${res}")
           set(copy FALSE)
         endif()
@@ -346,7 +346,7 @@ if (APP IN_LIST iPlug2_FIND_COMPONENTS)
   include("${IPLUG2_CMAKE_DIR}/APP.cmake")
 endif()
 
-if (AU IN_LIST iPlug2_FIND_COMPONENTS)
+if ((AU IN_LIST iPlug2_FIND_COMPONENTS) AND APPLE)
   include("${IPLUG2_CMAKE_DIR}/AudioUnit.cmake")
 endif()
 
