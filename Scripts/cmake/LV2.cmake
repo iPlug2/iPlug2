@@ -22,7 +22,7 @@ set(_src
 list(TRANSFORM _src PREPEND "${IPLUG_SRC}/LV2/")
 add_library(iPlug2_LV2 INTERFACE)
 iplug2_target_add(iPlug2_LV2 INTERFACE
-  DEFINE "LV2_API" "IPLUG_EDITOR=1" "IPLUG_DSP=1"
+  DEFINE "LV2_API" "IPLUG_DSP=1"
   INCLUDE "${LV2_SDK}"
   SOURCE ${_src}
   LINK iPlug2_Core

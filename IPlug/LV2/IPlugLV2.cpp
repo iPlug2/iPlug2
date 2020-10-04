@@ -8,31 +8,39 @@
  ==============================================================================
 */
 #include "IPlugLV2.h"
+#include "config.h"
 
-#include <lv2/lv2plug.in/ns/ext/atom/atom.h>
-#include <lv2/lv2plug.in/ns/ext/atom/forge.h>
-#include <lv2/lv2plug.in/ns/ext/midi/midi.h>
-#include <lv2/lv2plug.in/ns/ext/options/options.h>
-#include <lv2/lv2plug.in/ns/ext/patch/patch.h>
-#include <lv2/lv2plug.in/ns/ext/state/state.h>
-#include <lv2/lv2plug.in/ns/ext/urid/urid.h>
-#include <lv2/lv2plug.in/ns/ext/worker/worker.h>
-#include <lv2/lv2plug.in/ns/ext/patch/patch.h>
+#include <lv2/atom/atom.h>
+#include <lv2/atom/forge.h>
+#include <lv2/midi/midi.h>
+#include <lv2/options/options.h>
+#include <lv2/patch/patch.h>
+#include <lv2/state/state.h>
+#include <lv2/worker/worker.h>
+#include <lv2/patch/patch.h>
 
 #define NOTIMP printf("%s: not implemented\n", __FUNCTION__);
+// Maximum number of DIGITS for IO configs (e.g. 9999 = 4 digits)
+#define MAX_CONFIG_DIGITS (4) 
 
-
-struct CoreURIDMap
+template<typename T, class Compare>
+int binary_find(const T* ar, size_t len, const T* test, Compare comp)
 {
-  LV2_URID atom_Blank;
-  LV2_URID atom_Object;
-  LV2_URID atom_URID;
-  LV2_URID atom_Float;
-  LV2_URID atom_Bool;
-  LV2_URID patch_Set;
-  LV2_URID patch_property;
-  LV2_URID patch_value;
-};
+  size_t lo = 0;
+  size_t hi = len - 1;
+  while (lo <= hi)
+  {
+    size_t mid = lo + ((hi - lo) / 2);
+    int r = comp(ar + mid, test);
+    if (r < 0)
+      lo = mid + 1;
+    else if (r > 0)
+      hi = mid - 1;
+    else
+      return mid;
+  }
+  return -(int)hi;
+}
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -47,7 +55,7 @@ IPlugLV2DSP::IPlugLV2DSP(const InstanceInfo &info, const Config& config)
   Trace(TRACELOC, "%s", config.pluginName);
   
   int nInputs = MaxNChannels(ERoute::kInput), nOutputs = MaxNChannels(ERoute::kOutput), nParams = NParams();
-  mPorts = new void *[nInputs + nOutputs + nParams];
+  mPorts = new void *[nInputs + nOutputs + nParams + 2];
   
   SetSampleRate(info.rate);
   
@@ -87,6 +95,33 @@ IPlugLV2DSP::IPlugLV2DSP(const InstanceInfo &info, const Config& config)
       }
     }
   }
+
+  if (urid_map)
+  {
+    // Find-Replace regex to turn name into full line
+    // ([a-z]+)_([A-Za-z]+)   mCoreURIs.$1_$2 = GET_URID(LV2_\U$1 __$2);
+#define GET_URID(name) urid_map->map(urid_map->handle, name)
+    mCoreURIs.atom_Blank     = GET_URID(LV2_ATOM__Blank);
+    mCoreURIs.atom_Object    = GET_URID(LV2_ATOM__Object);
+    mCoreURIs.atom_URID      = GET_URID(LV2_Atom__URID);
+    mCoreURIs.atom_Float     = GET_URID(LV2_ATOM__Float);
+    mCoreURIs.atom_Bool      = GET_URID(LV2_ATOM__Bool);
+    mCoreURIs.midi_MidiEvent = GET_URID(LV2_MIDI__MidiEvent);
+    mCoreURIs.patch_Set      = GET_URID(LV2_PATCH__Set);
+    mCoreURIs.patch_property = GET_URID(LV2_PATCH__property);
+    mCoreURIs.patch_value    = GET_URID(LV2_PATCH__value);
+
+    // Map all params to URIDs
+    WDL_String uri;
+    int nParams = NParams();
+    for (int n = 0; n < nParams; n++)
+    {
+      uri.SetFormatted(2048, "%s#Par%d", PLUG_URI, n);
+      mParamIDMap[GET_URID(uri.Get())] = n;
+    }
+#undef GET_URID
+  }
+
   SetBlockSize(block_size);
 
   // Default everything to connected, maybe: support less inputs/outpus then max (with separate descriptor, like Mono/Stereo/Surround 
@@ -98,7 +133,7 @@ IPlugLV2DSP::IPlugLV2DSP(const InstanceInfo &info, const Config& config)
 
 IPlugLV2DSP::~IPlugLV2DSP()
 {
-  delete mPorts;
+  delete[] mPorts;
 }
 
 // Private methods
@@ -107,8 +142,24 @@ IPlugLV2DSP::~IPlugLV2DSP()
 //IPlugProcessor
 bool IPlugLV2DSP::SendMidiMsg(const IMidiMsg& msg)
 {
-  NOTIMP
-  return false;
+  LV2_Atom_Sequence* out_port = ((LV2_Atom_Sequence*)mPorts[1]);
+
+  struct MIDINoteEvent
+  {
+    LV2_Atom_Event event;
+    uint8_t        msg[3];
+  };
+
+  MIDINoteEvent ev;
+  ev.event.time.frames = msg.mOffset;
+  ev.event.body.type = mCoreURIs.midi_MidiEvent;
+  ev.event.body.size = 3;
+  ev.msg[0] = msg.mStatus;
+  ev.msg[1] = msg.mData1;
+  ev.msg[2] = msg.mData2;
+  lv2_atom_sequence_append_event(out_port, out_port->atom.size, &ev.event);
+
+  return true;
 }
 
 
@@ -141,6 +192,59 @@ void IPlugLV2DSP::run(uint32_t n_samples)
   AttachBuffers(ERoute::kInput, 0, nInputs, (float **)mPorts, n_samples);
   AttachBuffers(ERoute::kOutput, 0, nOutputs, (float **)(mPorts + nInputs), n_samples);
 
+  LV2_ATOM_SEQUENCE_FOREACH(mPorts[0], ev)
+  {
+    uint32_t atom_type = ev->body.type;
+
+    if (atom_type == mCoreURIs.atom_Object)
+    {
+      const LV2_Atom_Object* obj = (LV2_Atom_Object*)&ev->body;
+      if (obj->body.otype == mCoreURIs.patch_Set)
+      {
+        uint32_t sampleAt = ev->time.frames;
+        // We should check to make sure bad hosts don't do this.
+        // If so, report to host.
+        if (sampleAt >= n_samples)
+        {
+          sampleAt = n_samples - 1;
+        }
+
+        // Determine the Param index from property ID
+        const LV2_Atom* property = nullptr;
+        lv2_atom_object_get(obj, mCoreURIs.patch_property, &property, 0);
+        if (!property || property->type != mCoreURIs.atom_URID)
+        {
+          continue;
+        }
+
+        const LV2_Atom* val = nullptr;
+        lv2_atom_object_get(obj, mCoreURIs.patch_value, &val, 0);
+        if (!val)
+        {
+          continue;
+        }
+
+        LV2_URID urid = ((LV2_Atom_URID*)property)->body;
+        OnParamChange(mParamIDMap[urid], EParamSource::kHost, sampleAt);
+      }
+    }
+    
+    if (atom_type == mCoreURIs.midi_MidiEvent)
+    {
+      const uint8_t* const msg = (const uint8_t*)(ev + 1);
+      switch (lv2_midi_message_type(msg))
+      {
+      case LV2_MIDI_MSG_NOTE_ON:
+        break;
+      case LV2_MIDI_MSG_NOTE_OFF:
+        break;
+      // TODO finish switch-case for processing MIDI messages
+      }
+    }
+  }
+  // END LV2_ATOM_SEQUENCE_FOREACH
+  
+#ifdef LV2_CONTROL_PORTS
   ENTER_PARAMS_MUTEX;
   for (int i = 0; i < nParams; ++i)
   {
@@ -156,6 +260,7 @@ void IPlugLV2DSP::run(uint32_t n_samples)
     }
   }
   LEAVE_PARAMS_MUTEX;
+#endif
 
   // TODO: parameters
   // TODO: time info
@@ -168,6 +273,90 @@ void IPlugLV2DSP::deactivate()
 {
   OnActivate(false);
   OnReset();
+}
+
+
+///////////////////////
+// LV2 DSP Callbacks //
+///////////////////////
+
+static void connect_port(LV2_Handle instance, uint32_t port, void *data)
+{
+  (static_cast<IPlugLV2DSP*>(instance))->connect_port(port, data);
+}
+
+static void activate(LV2_Handle instance)
+{
+  (static_cast<IPlugLV2DSP*>(instance))->activate();
+}
+
+static void run(LV2_Handle instance, uint32_t n_samples)
+{
+  (static_cast<IPlugLV2DSP*>(instance))->run(n_samples);
+}
+
+static void deactivate(LV2_Handle instance)
+{
+  (static_cast<IPlugLV2DSP*>(instance))->deactivate();
+}
+
+static void cleanup(LV2_Handle instance)
+{
+  delete (static_cast<IPlugLV2DSP*>(instance));
+}
+
+static const void *extension_data(const char *uri)
+{
+  return nullptr;
+}
+
+static WDL_TypedBuf<LV2_Descriptor> sDescriptors;
+// Static buffer for ALL URI strings.
+// Instead of doing a bunch of small allocations, we do one large one.
+static WDL_TypedBuf<char> sUriBuf;
+
+const LV2_Descriptor*
+IPlugLV2DSP::descriptor(uint32_t index, LV2_InstantiateFn instantiate)
+{
+  // Statically initialize the list of descriptors, one for each IO config.
+  if (sDescriptors.GetSize() == 0)
+  {
+    WDL_PtrList<IOConfig> ioConfigs;
+    int inChans, outChans, inBusses, outBusses;
+    IPlugProcessor::ParseChannelIOStr(PLUG_CHANNEL_IO, ioConfigs, inChans, outChans, inBusses, outBusses);
+
+    int nIOConfigs = ioConfigs.GetSize();
+    // Allocate a buffer large enough for all URI strings.
+    sUriBuf.Resize((strlen(PLUG_URI) + MAX_CONFIG_DIGITS + 6) * nIOConfigs);
+    char* urip = sUriBuf.Get();
+    char* uripEnd = urip + sUriBuf.GetSize();
+
+    for (int i = 0; i < nIOConfigs; i++)
+    {
+      int uriLen = snprintf(urip, uripEnd - urip, "%s#io_%d", PLUG_URI, i);
+      sDescriptors.Add(LV2_Descriptor {
+        urip,
+        instantiate,
+        connect_port,
+        activate,
+        run,
+        deactivate,
+        cleanup,
+        extension_data,
+      });
+      urip += uriLen;
+    }
+  }
+
+  // Once everything is initialized returning descriptors is easy.
+  if (sDescriptors.GetSize() < index)
+  {
+    return sDescriptors.Get() + index;
+  }
+  else
+  {
+    return nullptr;
+  }
 }
 
 #endif
