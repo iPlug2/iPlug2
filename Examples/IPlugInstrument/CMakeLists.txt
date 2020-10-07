@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.11 FATAL_ERROR)
-cmake_policy(SET CMP0091 NEW)
 
 #########
 # This is a build file for iPlug2 on Linux.
