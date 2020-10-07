@@ -34,9 +34,9 @@ public:
     k16thT,      // 1 sixteenth note triplet
     k16th,       // 1 sixteenth note
     k16thD,      // 1 dotted sixteenth note
+    k8thT,       // 1 eighth note triplet
     k8th,        // 1 eighth note
     k8thD,       // 1 dotted eighth note
-    k8thT,       // 1 eighth note triplet
     k4th,        // 1 quater note a.k.a 1 beat @ 4/4
     k4thD,       // 1 dotted beat @ 4/4
     k2th,        // 2 beats @ 4/4
@@ -78,8 +78,8 @@ public:
       24.   / 4.,
       16.   / 4.,
       12.   / 4.,
-      8.    / 4.,
       9.    / 4.,
+      8.    / 4.,
       6     / 4.,
       4.    / 4.,
       3.    / 4.,
