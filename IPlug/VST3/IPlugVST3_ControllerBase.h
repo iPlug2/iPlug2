@@ -187,7 +187,6 @@ public:
       {
         pParam->SetNormalized(value);
         pPlug->OnParamChangeUI(tag, kHost);
-
         pPlug->SendParameterValueFromDelegate(tag, value, true);
       }
     }

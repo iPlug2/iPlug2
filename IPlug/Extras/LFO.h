@@ -31,12 +31,12 @@ public:
   {
     k64th = 0,   // 1 sixty fourth of a beat
     k32nd,       // 1 thirty second of a beat
-    k16thT,      // 1 sixteenth note tripet
+    k16thT,      // 1 sixteenth note triplet
     k16th,       // 1 sixteenth note
     k16thD,      // 1 dotted sixteenth note
-    k8th,        // 1 eigth note
-    k8thD,       // 1 dotted eigth note
-    k8thT,       // 1 eigth note tripet
+    k8thT,       // 1 eighth note triplet
+    k8th,        // 1 eighth note
+    k8thD,       // 1 dotted eighth note
     k4th,        // 1 quater note a.k.a 1 beat @ 4/4
     k4thD,       // 1 dotted beat @ 4/4
     k2th,        // 2 beats @ 4/4
