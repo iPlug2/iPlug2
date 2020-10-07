@@ -99,7 +99,6 @@ public:
   ~Timer_impl();
 
   void Stop() override;
-  void Execute();
   static void NotifyCallback(union sigval v);
 
 
@@ -107,7 +106,11 @@ private:
   static WDL_Mutex sMutex;
   static WDL_PtrList<Timer_impl> sTimers;
 
+#if IPLUG_EDITOR
+  uint32_t mID;
+#else
   timer_t mID;
+#endif
   ITimerFunction mTimerFunc;
   uint32_t mIntervalMs;
 };
