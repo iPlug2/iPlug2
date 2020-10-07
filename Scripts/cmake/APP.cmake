@@ -89,7 +89,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
       "${WDL_DIR}/swell/"
       "${WDL_DIR}/lice/"
     LINK 
-      LICE_Core LICE_PNG PkgConfig::Gtk_30 PkgConfig::Gdk_30 PkgConfig::Glib_20 "X11" "Xi"
+      LICE_Core LICE_PNG LICE_ZLIB PkgConfig::Gtk_30 PkgConfig::Gdk_30 PkgConfig::Glib_20 "X11" "Xi"
     SOURCE
       ${swell_src}
       ${CMAKE_SOURCE_DIR}/resources/main.rc_mac_dlg

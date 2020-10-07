@@ -14,8 +14,6 @@ set(_src
   lice_ico.cpp
   lice_image.cpp
   lice_import.h
-  lice_lcf.cpp
-  lice_lcf.h
   lice_line.cpp
   lice_lvg.cpp
   lice_palette.cpp
@@ -193,7 +191,6 @@ list(TRANSFORM _src2 PREPEND "${WDL_DIR}/jpeglib/")
 add_library(LICE_JPEG INTERFACE)
 iplug2_target_add(LICE_JPEG INTERFACE SOURCE ${_src} ${_src2})
 
-
 set(_src
   adler32.c
   compress.c
@@ -229,6 +226,6 @@ set(_src
   zutil.c
   zutil.h
 )
-list(TRANSFORM _src PREPEND "${LICE_SRC}")
+list(TRANSFORM _src PREPEND "${WDL_DIR}/zlib/")
 add_library(LICE_ZLIB INTERFACE)
 iplug2_target_add(LICE_ZLIB INTERFACE SOURCE ${_src})
