@@ -291,7 +291,7 @@ void IVSlideSwitchControl::SetDirty(bool push, int valIdx)
 }
 
 IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
-: ISwitchControlBase(bounds, paramIdx, SplashClickActionFunc)
+: ISwitchControlBase(bounds, paramIdx, SplashClickActionFunc, (int) options.size())
 , IVectorBase(style)
 , mDirection(direction)
 {
@@ -349,31 +349,31 @@ void IVTabSwitchControl::Draw(IGraphics& g)
   DrawWidget(g);
 }
 
-void IVTabSwitchControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed, bool mouseOver, ETabSegment segment)
+void IVTabSwitchControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed, bool mouseOver, ETabSegment segment, bool disabled)
 {
   switch (mShape)
   {
     case EVShape::EndsRounded:
       if(mDirection == EDirection::Horizontal)
-        DrawPressableRectangle(g, r, pressed, mouseOver, IsDisabled(), segment == ETabSegment::Start, segment == ETabSegment::End, false, false);
+        DrawPressableRectangle(g, r, pressed, mouseOver, disabled, segment == ETabSegment::Start, segment == ETabSegment::End, false, false);
       else
-        DrawPressableRectangle(g, r, pressed, mouseOver, false, IsDisabled(), segment == ETabSegment::Start, false, segment == ETabSegment::End);
+        DrawPressableRectangle(g, r, pressed, mouseOver, false, disabled, segment == ETabSegment::Start, false, segment == ETabSegment::End);
       break;
     case EVShape::AllRounded:
       if(mDirection == EDirection::Horizontal)
-        DrawPressableRectangle(g, r, pressed, mouseOver, IsDisabled(), true, true, false, false);
+        DrawPressableRectangle(g, r, pressed, mouseOver, disabled, true, true, false, false);
       else
-        DrawPressableRectangle(g, r, pressed, mouseOver, IsDisabled(), false, true, false, true);
+        DrawPressableRectangle(g, r, pressed, mouseOver, disabled, false, true, false, true);
       break;
     default:
-      DrawPressableShape(g, mShape, r, pressed, mouseOver, IsDisabled());
+      DrawPressableShape(g, mShape, r, pressed, mouseOver, disabled);
       break;
   }
 }
 
 void IVTabSwitchControl::DrawWidget(IGraphics& g)
 {
-  int hit = GetSelectedIdx();
+  int selected = GetSelectedIdx();
   ETabSegment segment = ETabSegment::Start;
 
   for (int i = 0; i < mNumStates; i++)
@@ -386,9 +386,9 @@ void IVTabSwitchControl::DrawWidget(IGraphics& g)
     if(i == mNumStates-1)
       segment = ETabSegment::End;
 
-    DrawButton(g, r, i == hit, mMouseOverButton == i, segment);
-    
-    if (mTabLabels.Get(i))
+    DrawButton(g, r, i == selected, mMouseOverButton == i, segment, IsDisabled() || GetStateDisabled(i));
+        
+    if(mTabLabels.Get(i))
     {
       g.DrawText(mStyle.valueText, mTabLabels.Get(i)->Get(), r, &mBlend);
     }
@@ -474,7 +474,7 @@ void IVRadioButtonControl::DrawWidget(IGraphics& g)
   {
     IRECT r = mButtons.Get()[i];
     
-    DrawButton(g, r.GetFromLeft(mButtonAreaWidth).GetCentredInside(mButtonSize), i == hit, mMouseOverButton == i, ETabSegment::Mid);
+    DrawButton(g, r.GetFromLeft(mButtonAreaWidth).GetCentredInside(mButtonSize), i == hit, mMouseOverButton == i, ETabSegment::Mid, IsDisabled() || GetStateDisabled(i));
     
     if (mTabLabels.Get(i))
     {
