@@ -89,6 +89,9 @@ struct HTREEITEM__;
 
 #ifdef __OBJC__
 
+#ifndef MAC_OS_X_VERSION_10_7
+typedef struct _NSDraggingSession NSDraggingSession;
+#endif
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED <= MAC_OS_X_VERSION_10_4
 typedef int NSInteger;
@@ -254,6 +257,8 @@ typedef struct WindowPropRec
 -(NSInteger)columnAtPoint:(NSPoint)pt;
 -(int)getColumnPos:(int)idx; // get current position of column that was originally at idx
 -(int)getColumnIdx:(int)pos; // get original index of column that is currently at position
+
+-(BOOL)accessibilityPerformShowMenu;
 @end
 
 @interface SWELL_ImageButtonCell : NSButtonCell
@@ -1251,6 +1256,7 @@ void swell_scaling_init(bool no_auto_hidpi);
 extern int g_swell_ui_scale;
 extern swell_colortheme g_swell_ctheme;
 extern const char *g_swell_deffont_face;
+HFONT SWELL_GetDefaultFont(void);
 
 #endif
 

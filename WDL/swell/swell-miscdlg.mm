@@ -184,6 +184,16 @@ static LRESULT fileTypeChooseProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
   return DefWindowProc(hwnd,uMsg,wParam,lParam);
 }
 
+static void restoreMenuForFocus()
+{
+  HWND h = GetFocus();
+  HMENU menu = h ? GetMenu(h) : NULL;
+  if (!menu)
+    menu = SWELL_GetDefaultWindowMenu();
+  if (menu)
+    SWELL_SetCurrentMenu(menu);
+}
+
 // return true
 bool BrowseForSaveFile(const char *text, const char *initialdir, const char *initialfile, const char *extlist,
                        char *fn, int fnsize)
@@ -267,7 +277,7 @@ bool BrowseForSaveFile(const char *text, const char *initialdir, const char *ini
   SWELL_SetCurrentMenu(hm);
 
   NSInteger result = [panel runModalForDirectory:idir file:ifn];
-  SWELL_SetCurrentMenu(GetMenu(GetFocus()));
+  restoreMenuForFocus();
   if (hm) DestroyMenu(hm);
   
   if (oh) SendMessage(oh,WM_DESTROY,0,0);
@@ -371,7 +381,7 @@ bool BrowseForDirectory(const char *text, const char *initialdir, char *fn, int 
   if (hm) hm=SWELL_DuplicateMenu(hm);
   SWELL_SetCurrentMenu(hm);
   NSInteger result = [panel runModalForDirectory:idir file:nil types:nil];
-  SWELL_SetCurrentMenu(GetMenu(GetFocus()));
+  restoreMenuForFocus();
   if (hm) DestroyMenu(hm);
 	
   if (oh) SendMessage(oh,WM_DESTROY,0,0);
@@ -446,7 +456,7 @@ char *BrowseForFiles(const char *text, const char *initialdir,
   
   NSInteger result = [panel runModalForDirectory:idir file:ifn types:([fileTypes count]>0 ? fileTypes : nil)];
 
-  SWELL_SetCurrentMenu(GetMenu(GetFocus()));
+  restoreMenuForFocus();
   if (hm) DestroyMenu(hm);
 	
   if (oh) SendMessage(oh,WM_DESTROY,0,0);
@@ -500,55 +510,85 @@ char *BrowseForFiles(const char *text, const char *initialdir,
   return ret;
 }
 
-
+static NSString *mbidtostr(int idx)
+{
+  switch (idx)
+  {
+    case IDOK: return @"OK";
+    case IDCANCEL: return @"Cancel";
+    case IDYES: return @"Yes";
+    case IDNO: return @"No";
+    case IDRETRY: return @"Retry";
+    case IDABORT: return @"Abort";
+    case IDIGNORE: return @"Ignore";
+    default:
+      WDL_ASSERT(idx == 0);
+    return @"";
+  }
+}
 
 
 int MessageBox(HWND hwndParent, const char *text, const char *caption, int type)
 {
   swell_autoarp auto_arp;
 
-  NSInteger ret=0;
+  NSString *title = (NSString *)SWELL_CStringToCFString(caption?caption:"");
+  NSString *text2 = (NSString *)SWELL_CStringToCFString(text?text:"");
 
-  NSString *tit=(NSString *)SWELL_CStringToCFString(caption?caption:""); 
-  NSString *text2=(NSString *)SWELL_CStringToCFString(text?text:"");
-  
-  if (type == MB_OK)
+  int b1=IDOK, b2=0, b3=0;
+  switch (type & 0xf)
   {
-    NSRunAlertPanel(tit,@"%@",@"OK",@"",@"",text2);
-    ret=IDOK;
-  }	
-  else if (type == MB_OKCANCEL)
-  {
-    ret=NSRunAlertPanel(tit,@"%@",@"OK",@"Cancel",@"",text2);
-    if (ret) ret=IDOK;
-    else ret=IDCANCEL;
+    case MB_ABORTRETRYIGNORE:
+      b1 = IDABORT;
+      b2 = IDRETRY;
+      b3 = IDIGNORE;
+    break;
+    case MB_RETRYCANCEL:
+      b1 = IDRETRY;
+      // fallthrough
+    case MB_OKCANCEL:
+      b2 = IDCANCEL;
+    break;
+    case MB_YESNOCANCEL:
+      b3 = IDCANCEL;
+      // fallthrough
+    case MB_YESNO:
+      b1 = IDYES;
+      b2 = IDNO;
+    break;
   }
-  else if (type == MB_YESNO)
+
+  if ((type & MB_DEFBUTTON3) && b3)
   {
-    ret=NSRunAlertPanel(tit,@"%@",@"Yes",@"No",@"",text2);
-  //  printf("ret=%d\n",ret);
-    if (ret) ret=IDYES;
-    else ret=IDNO;
+    // rotate buttons right (making b3 the default)
+    const int tmp = b3;
+    b3 = b2;
+    b2 = b1;
+    b1 = tmp;
   }
-  else if (type == MB_RETRYCANCEL)
+  else if ((type & MB_DEFBUTTON2) && b2)
   {
-    ret=NSRunAlertPanel(tit,@"%@",@"Retry",@"Cancel",@"",text2);
-//    printf("ret=%d\n",ret);
-    if (ret) ret=IDRETRY;
-    else ret=IDCANCEL;
+    // rotate buttons left
+    const int tmp = b1;
+    b1 = b2;
+    b2 = b3 ? b3 : tmp;
+    if (b3) b3=tmp;
   }
-  else if (type == MB_YESNOCANCEL)
+
+  if (b2 && b3)
   {
-    ret=NSRunAlertPanel(tit,@"%@",@"Yes",@"Cancel",@"No",text2);
-    if (ret == 1) ret=IDYES;
-    else if (ret==-1) ret=IDNO;
-    else ret=IDCANCEL;
+    // NSRunAlertPanel ordering meh
+    const int tmp = b3;
+    b3 = b2;
+    b2 = tmp;
   }
-  
+
+  NSInteger ret = NSRunAlertPanel(title,@"%@",mbidtostr(b1),mbidtostr(b2),mbidtostr(b3),text2);
+
   [text2 release];
-  [tit release];
-  
-  return (int)ret; 
+  [title release];
+
+  return ret > 0 ? b1 : ret < 0 ? b3 : b2;
 }
 
 static WDL_DLGRET color_okCancelProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
