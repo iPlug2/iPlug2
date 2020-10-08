@@ -1386,7 +1386,7 @@ struct IRECT
     if(bot)
       return IRECT(L, B - h, R, B);
     else
-      return IRECT(L, T + h, R, B);
+      return IRECT(L, T, R, T + h);
   }
   
   /** /todo 
