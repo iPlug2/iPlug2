@@ -2289,8 +2289,8 @@ void IGraphics::SetQwertyMidiKeyHandlerFunc(std::function<void(const IMidiMsg& m
       case kVK_K: note = 12; break;
       case kVK_O: note = 13; break;
       case kVK_L: note = 14; break;
-      case kVK_Z: base -= 12; onOctSwitch(); return true;
-      case kVK_X: base += 12; onOctSwitch(); return true;
+      case kVK_Z: if(!isUp) { base -= 12; onOctSwitch(); } return true;
+      case kVK_X: if(!isUp) { base += 12; onOctSwitch(); } return true;
       default: return true; // don't beep, but don't do anything
     }
     
@@ -2307,7 +2307,7 @@ void IGraphics::SetQwertyMidiKeyHandlerFunc(std::function<void(const IMidiMsg& m
     }
     else {
       if(keysDown[pitch] == true) {
-        msg.MakeNoteOffMsg(pitch, 127, 0);
+        msg.MakeNoteOffMsg(pitch, 0);
         keysDown[pitch] = false;
         GetDelegate()->SendMidiMsgFromUI(msg);
         if(func)
