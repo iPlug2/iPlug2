@@ -735,15 +735,6 @@ void IGraphicsWeb::OnMainLoopTimer()
   }
 }
 
-bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
-{
-  val clipboardText = val::global("window")["clipboardData"].call<val>("getData", std::string("Text"));
-  
-  str.Set(clipboardText.as<std::string>().c_str());
-
-  return true; // TODO: return?
-}
-
 EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
   ReleaseMouseCapture();
