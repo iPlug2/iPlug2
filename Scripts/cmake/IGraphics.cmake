@@ -33,6 +33,7 @@ set(_src
   ${IGRAPHICS_SRC}/Controls/IControls.cpp
   ${IGRAPHICS_SRC}/Controls/IPopupMenuControl.cpp
   ${IGRAPHICS_SRC}/Controls/ITextEntryControl.cpp
+  ${IGRAPHICS_SRC}/Controls/ITooltipControl.cpp
   ${IPLUG_SRC}/IPlugTaskThread.h
   ${IPLUG_SRC}/IPlugTaskThread.cpp
 )
@@ -49,7 +50,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
   list(APPEND _inc
     ${IGRAPHICS_DEPS}/xcbt
   )
-  list(APPEND _lib "xcb" "dl" "fontconfig" "freetype")
+  list(APPEND _lib "xcb" "xcb-icccm" "dl" "fontconfig" "freetype")
   set_property(SOURCE ${IGRAPHICS_DEPS}/xcbt/xcbt.c PROPERTY LANGUAGE C)
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")

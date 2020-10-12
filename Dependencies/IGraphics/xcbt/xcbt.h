@@ -30,7 +30,22 @@ extern "C" {
 #include <xcb/xcb.h>
 
 // it should match defines and common_atom_names in the code
-#define XCBT_COMMON_ATOMS_COUNT 3
+#define XCBT_COMMON_ATOMS_COUNT 9
+
+/**
+ * Some atoms, require XCBT_INIT_ATOMS during connection
+ * 
+ * WARNING: no checks for x validity and can return 0 when is(could) not initialize(d)
+ */
+#define XCBT_WM_PROTOCOLS(x) ((x)->catoms[0])
+#define XCBT_WM_DELETE_WINDOW(x) ((x)->catoms[1])
+#define XCBT_XEMBED_INFO(x) ((x)->catoms[2])
+#define XCBT_ATOM_CLIPBOARD(x) ((x)->catoms[3])
+#define XCBT_ATOM_UTF8_STRING(x) ((x)->catoms[4])
+#define XCBT_ATOM_XSEL_DATA(x) ((x)->catoms[5])
+#define XCBT_ATOM_STRING(x) ((x)->catoms[6])
+#define XCBT_ATOM_TEXT(x) ((x)->catoms[7])
+#define XCBT_ATOM_TARGETS(x) ((x)->catoms[8])
 
 
 /**
@@ -92,21 +107,21 @@ typedef struct xcbt_img_prop_ {
 typedef void (*xcbt_window_handler)(xcbt_window xw, xcb_generic_event_t *evt, void *udata);
 
 /**
- * Some atoms, require XCBT_INIT_ATOMS during connection
- * 
- * WARNING: no checks for x validity and can return 0 when is(could) not initialize(d)
- */
-#define XCBT_WM_PROTOCOLS(x) ((x)->catoms[0])
-#define XCBT_WM_DELETE_WINDOW(x) ((x)->catoms[1])
-#define XCBT_XEMBED_INFO(x) ((x->catoms[2]))
-
-/**
  * Flags for xcbt_connect
  */
 typedef enum {
   XCBT_USE_GL = 1, // allow GL rendering
   XCBT_INIT_ATOMS = 2, // ascure common atoms during connect
 } XCBT_CONNECT_FLAGS;
+
+/**
+ * Flags for xcbt_move_cursor
+ */
+typedef enum {
+  XCBT_WINDOW   = 0xff00,
+  XCBT_RELATIVE = 0xff01,
+  XCBT_ABSOLUTE = 0xff02,
+} XCBT_MOUSE_FLAGS;
 
 /**
  * Return XCB connection
@@ -310,6 +325,35 @@ void xcbt_window_unmap(xcbt_window xw);
  *   To use just after mapping for embeded windows, before reporting XID to embedder.
  */
 int xcbt_window_wait_map(xcbt_window xw);
+
+/**
+ * Set the contents of the clipboard.
+ * Note that if the given window is closed, the clipboard contents will be cleared.
+ * @param xw XCBT window
+ * @param str Clipboard text or NULL to clear the clipboard
+ * @return 1 on success, 0 on failure
+ */
+int xcbt_clipboard_set_utf8(xcbt_window xw, const char* str);
+
+/**
+ * Returns the contents of the clipboard as a UTF-8 string,
+ * or a null pointer if the contents are unavailable or in an invalid format.
+ */
+const char* xcbt_clipboard_get_utf8(xcbt_window xw, int* length);
+
+/**
+ * Set the cursor position relative to the window.
+ * @param flags A single one of XCBT_WINDOW, XCBT_RELATIVE, XCBT_ABSOLUTE which
+ *              will position the mouse relative to the top-left corner of the window, relative
+ *              to its current position, or relative to the top-left corner of the screen
+ *              respectively.
+ */
+void xcbt_move_cursor(xcbt_window xw, XCBT_MOUSE_FLAGS flag, int x, int y);
+
+/**
+ * Get the position of the window in the screen space.
+ */
+void xcbt_window_get_screen_pos(xcbt_window xw, xcbt_rect* pos);
 
 /**
  * For GL window set context

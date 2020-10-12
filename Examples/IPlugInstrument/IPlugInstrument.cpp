@@ -85,6 +85,37 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     pGraphics->SetQwertyMidiKeyHandlerFunc([pGraphics](const IMidiMsg& msg) {
                                               dynamic_cast<IVKeyboardControl*>(pGraphics->GetControlWithTag(kCtrlTagKeyboard))->SetNoteFromMidi(msg.NoteNumber(), msg.StatusMsg() == IMidiMsg::kNoteOn);
                                            });
+
+    pGraphics->EnableTooltips(true);
+    pGraphics->ShowFPSDisplay(true);
+    IRECT testPanel = b.GetFromTLHC(260, 40).GetTranslated(80, 80);
+    const int TEST_COLS = 4;
+    pGraphics->AttachControl(new IVButtonControl(testPanel.GetGridCell(0, 1, TEST_COLS), [&](IControl* ctrl) {
+      WDL_String contents;
+      if (ctrl->GetUI()->GetTextFromClipboard(contents))
+      {
+        printf("Clipboard: %s\n", contents.Get());
+      }
+    }, "Test ClipGet"))->SetTooltip("Tooltip test");
+    pGraphics->AttachControl(new IVButtonControl(testPanel.GetGridCell(1, 1, TEST_COLS), [&](IControl* ctrl) {
+      ctrl->GetUI()->SetTextInClipboard("Clipboard text set test.");
+    }, "Test ClipSet"));
+    pGraphics->AttachControl(new IVButtonControl(testPanel.GetGridCell(2, 1, TEST_COLS), [&](IControl* ctrl) {
+      IColor col = COLOR_RED;
+      if (ctrl->GetUI()->PromptForColor(col, "Memes"))
+      {
+        printf("Color selected: rgba(%d,%d,%d,%d)\n", col.R, col.G, col.B, col.A);
+      }
+      else
+      {
+        printf("No color selected.\n");
+      }
+    }, "Test Color"));
+    
+    pGraphics->AttachControl(new IVButtonControl(testPanel.GetGridCell(3, 1, TEST_COLS), [&](IControl* ctrl) {
+      int result = ctrl->GetUI()->ShowMessageBox("A message for you", "Testy Testerson Title", EMsgBoxType::kMB_OKCANCEL);
+      printf("MsgBox result: %d\n", result);
+    }, "Test MsgBox"));
   };
 #endif
 }

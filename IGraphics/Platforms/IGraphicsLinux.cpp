@@ -13,9 +13,12 @@
 #include "IPlugParameter.h"
 #include "IGraphicsLinux.h"
 #include "IPopupMenuControl.h"
+#include "ITooltipControl.h"
 #include "IPlugPaths.h"
 #include <unistd.h>
 #include <sys/wait.h>
+#include <xcb/xcb_event.h>
+#include <xcb/xcb_icccm.h>
 
 #ifdef OS_LINUX
   #ifdef IGRAPHICS_GL
@@ -31,6 +34,8 @@ using namespace iplug;
 using namespace igraphics;
 
 #define IPLUG_TIMER_ID 2
+#define TOOLTIP_CONTROL_TAG (0x0FFFFFF0)
+#define MENU_CONTROL_IDX (0x0FFFFFF1)
 
 class IGraphicsLinux::Font : public PlatformFont
 {
@@ -111,11 +116,17 @@ static int RunSubprocess(char* command, WDL_String& subStdout, const WDL_String&
     WDL_String arg1 { "-c" };
     char* args[] = { arg0.Get(), arg1.Get(), command, nullptr };
     int status = execv("/bin/sh", args);
+    close(pipeIn[0]);
+    close(pipeOut[1]);
     exit(status);
   }
   else 
   {
     // Parent process
+
+    // Close unneeded pipes
+    close(pipeIn[0]);
+    close(pipeOut[1]);
 
     // We write all contents to stdin and read from stdout until it's empty.
     ssize_t written = 0;
@@ -123,6 +134,15 @@ static int RunSubprocess(char* command, WDL_String& subStdout, const WDL_String&
     {
       write(pipeIn[1], subStdin.Get() + written, subStdin.GetLength() - written);
     }
+
+    int status;
+    if (waitpid(cpid, &status, 0) == -1)
+    {
+      closePipeOut();
+      closePipeIn();
+      return -4;
+    }
+    *exitStatus = WEXITSTATUS(status);
 
     WDL_HeapBuf hb;
     hb.Resize(4096);
@@ -136,17 +156,17 @@ static int RunSubprocess(char* command, WDL_String& subStdout, const WDL_String&
       subStdout.Append((const char*)hb.Get(), sz);
     }
 
-    int status;
-    if (waitpid(cpid, &status, 0) == -1)
-    {
-      return -4;
-    }
-    *exitStatus = WEXITSTATUS(status);
-
     closePipeOut();
     closePipeIn();
   }
   return 0;
+}
+
+static uint64_t GetTimeMs()
+{
+  struct timespec t;
+  clock_gettime(CLOCK_MONOTONIC_RAW, &t);
+  return (t.tv_sec * 1000) + (t.tv_nsec / 1000000);
 }
 
 void IGraphicsLinux::Paint()
@@ -159,6 +179,11 @@ void IGraphicsLinux::Paint()
 
   if (ctx)
   {
+    // Handle displaying the hover control
+    if (mHoverControl != -1 && (mHoverStart + mTooltipTimeout) <= GetTimeMs())
+    {
+      ShowTooltip();
+    }
     Draw(rects);
     xcbt_window_draw_end(mPlugWnd);
   }
@@ -198,6 +223,8 @@ inline IMouseInfo IGraphicsLinux::GetMouseInfoDeltas(float& dX, float& dY, int16
   
   dX = info.x - oldX;
   dY = info.y - oldY;
+  // dX = oldX - info.x;
+  // dY = oldY - info.y;
   
   return info;
 }
@@ -212,7 +239,7 @@ void IGraphicsLinux::TimerHandler(int timerID)
       Paint();
       SetAllControlsClean();
     }
-    xcbt_timer_set(mX, IPLUG_TIMER_ID, 10, (xcbt_timer_cb) TimerHandlerProxy, this);
+    xcbt_timer_set(mX, IPLUG_TIMER_ID, 6, (xcbt_timer_cb) TimerHandlerProxy, this);
   }
 }
 
@@ -225,7 +252,7 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
     mBaseWindowHandler(mPlugWnd, NULL, mBaseWindowData);
     mPlugWnd = nullptr;
   }
-  else 
+  else
   {
     switch(evt->response_type & ~0x80)
     {
@@ -243,7 +270,10 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
       {
         xcb_button_press_event_t* bp = (xcb_button_press_event_t*) evt;
 
-        if (bp->detail == 1) // check for double-click
+        bool btnLeft = bp->detail == 1;
+        bool btnRight = bp->detail == 3;
+
+        if (btnLeft) // check for double-click
         { 
           if (!mLastLeftClickStamp)
           {
@@ -251,7 +281,7 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
           } 
           else
           {
-            if ((bp->time - mLastLeftClickStamp) < 500) // MAYBE: somehow find user settings
+            if ((bp->time - mLastLeftClickStamp) < mDblClickTimeout)
             {
               IMouseInfo info = GetMouseInfo(bp->event_x, bp->event_y, bp->state | XCB_BUTTON_MASK_1); // convert button to state mask
 
@@ -270,10 +300,14 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
         {
           mLastLeftClickStamp = 0;
         }
+
+        HideTooltip();
+
         // TODO: hide tooltips
         // TODO: end parameter editing (if in progress, and return then)
         // TODO: set focus
-        
+        xcb_set_input_focus_checked(xcbt_conn(mX), XCB_INPUT_FOCUS_POINTER_ROOT, mPlugWnd->wnd, XCB_CURRENT_TIME);
+
         // TODO: detect double click
         
         // TODO: set capture (or after capture...) (but check other buttons first)
@@ -283,6 +317,7 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
           IMouseInfo info = GetMouseInfo(bp->event_x, bp->event_y, state); // convert button to state mask
           std::vector<IMouseInfo> list{ info };
           OnMouseDown(list);
+          RequestFocus();
         } 
         else if ((bp->detail == 4) || (bp->detail == 5)) // wheel
         { 
@@ -302,6 +337,7 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
           IMouseInfo info = GetMouseInfo(br->event_x, br->event_y, state); // convert button to state mask
           std::vector<IMouseInfo> list{ info };
           OnMouseUp(list);
+          RequestFocus();
         }
         xcbt_flush(mX);
         break;
@@ -309,8 +345,12 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
       case XCB_MOTION_NOTIFY:
       {
         xcb_motion_notify_event_t* mn = (xcb_motion_notify_event_t*) evt;
-        mLastLeftClickStamp = 0;
+        if (mCursorLock && (float)mn->event_x == mMouseLockPos.x && (float)mn->event_y == mMouseLockPos.y)
+        {
+          break;
+        }
 
+        mLastLeftClickStamp = 0;
         if (mn->same_screen && (mn->event == xcbt_window_xwnd(mPlugWnd)))
         {
           // can use event_x/y
@@ -319,13 +359,24 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
             IMouseInfo info = GetMouseInfo(mn->event_x, mn->event_y, mn->state);
             if (OnMouseOver(info.x, info.y, info.ms))
             {
+              if (TooltipsEnabled())
+              {
+                int c = GetMouseOver();
+                if ((c != mHoverControl && c != mTooltipControlIndex) || c == -1)
+                {
+                  mHoverControl = c;
+                  mHoverStart = GetTimeMs();
+                  HideTooltip();
+                }
+              }
               // TODO: tracking and tooltips
             }
           } 
           else 
           {
+            // NOTE: this also updates mCursorX and mCursorY
             float dX, dY;
-            IMouseInfo info = GetMouseInfoDeltas(dX, dY, mn->event_x, mn->event_y, mn->state); //TODO: clean this up
+            IMouseInfo info = GetMouseInfoDeltas(dX, dY, mn->event_x, mn->event_y, mn->state);
 
             if (dX || dY)
             {
@@ -334,10 +385,10 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
               std::vector<IMouseInfo> list{ info };
 
               OnMouseDrag(list);
-              /* TODO:
-              if (MouseCursorIsLocked())
-                MoveMouseCursor(pGraphics->mHiddenCursorX, pGraphics->mHiddenCursorY);
-                */
+              if (mCursorLock && (mCursorX != mMouseLockPos.x || mCursorY != mMouseLockPos.y))
+              {
+                MoveMouseCursor(mMouseLockPos.x, mMouseLockPos.y);
+              }
             }
           }
         }
@@ -352,6 +403,25 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
           // TODO: check we really have to, but getting XEMBED_MAPPED and compare with current mapping status
           xcbt_window_map(mPlugWnd);
         }
+        break;
+      }
+      case XCB_ENTER_NOTIFY:
+      {
+        RequestFocus();
+        break;
+      }
+      case XCB_LEAVE_NOTIFY:
+      {
+        HideTooltip();
+        OnMouseOut();
+        break;
+      }
+      case XCB_FOCUS_IN:
+      {
+        break;
+      }
+      case XCB_FOCUS_OUT:
+      {
         break;
       }
       default:
@@ -428,6 +498,9 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
   }
 #endif
 
+  uint32_t max_request = xcb_get_maximum_request_length(xcbt_conn(mX));
+  printf("X max request size: %u\n", max_request);
+
   // NOTE: In case plug-in report REAPER extension in REAPER, pParent is NOT XID (SWELL HWND? I have not checked yet)
 
 #ifdef IGRAPHICS_GL
@@ -488,6 +561,14 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
   #error "Map or not to map... that is the question"
 #endif
   xcbt_sync(mX); // make sure everything is ready before reporting it is
+
+  // Reset some state
+  mCursorLock = false;
+  mMouseVisible = true;
+  // Make sure we have certain pre-defined controls.
+  auto ctrlTooltip = AttachControl(new ITooltipControl(IRECT(0, 0, 1, 1)), TOOLTIP_CONTROL_TAG);
+  mTooltipControlIndex = GetControlIdx(ctrlTooltip);
+
   return reinterpret_cast<void* >(xcbt_window_xwnd(mPlugWnd));
 }
 
@@ -510,6 +591,30 @@ void IGraphicsLinux::CloseWindow()
     mEmbed->dtor(mEmbed);
     mEmbed = nullptr;
   }
+}
+
+void IGraphicsLinux::HideMouseCursor(bool hide, bool lock)
+{
+  mMouseVisible = !hide;
+  if (mCursorLock != lock)
+  {
+    mCursorLock = lock;
+    if (mCursorLock)
+    {
+      mMouseLockPos = IVec2(mCursorX, mCursorY);
+    }
+    else
+    {
+      mMouseLockPos = IVec2(0, 0);
+    }
+  }
+}
+
+void IGraphicsLinux::MoveMouseCursor(float x, float y)
+{
+  xcbt_move_cursor(mPlugWnd, XCBT_WINDOW, (int)x, (int)y);
+  mCursorX = mMouseLockPos.x;
+  mCursorY = mMouseLockPos.y;
 }
 
 EMsgBoxResult IGraphicsLinux::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
@@ -574,7 +679,10 @@ EMsgBoxResult IGraphicsLinux::ShowMessageBox(const char* text, const char* capti
   int status;
   if (RunSubprocess(command.Get(), sStdout, sStdin, &status) != 0)
   {
-    completionHandler(r);
+    if (completionHandler)
+    {
+      completionHandler(r);
+    }
     return r;
   }
 
@@ -640,8 +748,25 @@ EMsgBoxResult IGraphicsLinux::ShowMessageBox(const char* text, const char* capti
     break;
   }
 
-  completionHandler(r);
+  if (completionHandler)
+  {
+    completionHandler(r);
+  }
   return r;
+}
+
+bool IGraphicsLinux::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
+{
+  WDL_String args;
+  args.SetFormatted(path.GetLength() + 40, "xdg-open \"%s\" ", path.Get());
+
+  WDL_String sOut, sIn;
+  int status;
+  if (RunSubprocess(args.Get(), sOut, sIn, &status) != 0)
+  {
+    return false;
+  }
+  return true;
 }
 
 void IGraphicsLinux::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* extensions)
@@ -665,18 +790,23 @@ void IGraphicsLinux::PromptForFile(WDL_String& fileName, WDL_String& path, EFile
     args.AppendFormatted(fileName.GetLength() + 20, "\"--filename=%s\" ", fileName.Get());
   }
 
-  // Split the string at commas and then append each format specifier
-  const char* ext = extensions;
-  while (*ext)
+  
+  if (extensions)
   {
-    const char* start = ext;
-    while (*ext && *ext != ',')
-      ext++;
-    tmp.Set(start, ext - start);
-    args.AppendFormatted(256, "\"--file-filter=%s | %s\" ", tmp.Get(), tmp.Get());
-    if (!(*ext))
-      ext++;
+    // Split the string at commas and then append each format specifier
+    const char* ext = extensions;
+    while (*ext)
+    {
+      const char* start = ext;
+      while (*ext && *ext != ',')
+        ext++;
+      tmp.Set(start, ext - start);
+      args.AppendFormatted(256, "\"--file-filter=%s | %s\" ", tmp.Get(), tmp.Get());
+      if (!(*ext))
+        ext++;
+    }
   }
+  
   
   WDL_String sStdout;
   WDL_String sStdin;
@@ -731,6 +861,92 @@ void IGraphicsLinux::PromptForDirectory(WDL_String& dir)
   }
 }
 
+bool IGraphicsLinux::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
+{
+  WDL_String args;
+  args.Append("zenity --color-selection ");
+  if (str)
+  {
+    args.AppendFormatted(strlen(str) + 20, "\"--title=%s\" ", str);
+  }
+  args.AppendFormatted(100, "\"--color=rgba(%d,%d,%d,%f)\" ", color.R, color.G, color.B, (float)color.A / 255.f);
+
+
+  bool ok = false;
+
+  WDL_String sOut;
+  WDL_String sIn;
+  int status;
+  if (RunSubprocess(args.Get(), sOut, sIn, &status) != 0)
+  {
+    return false;
+  }
+  else
+  {
+    if (strncmp(sOut.Get(), "rgba", 4) == 0)
+    {
+      // Parse RGBA
+      int cr, cg, cb;
+      float ca;
+      int ct = sscanf(sOut.Get(), "rgba(%d,%d,%d,%f)", &cr, &cg, &cb, &ca);
+      if (ct == 4)
+      {
+        color = IColor((int)(255.f * ca), cr, cg, cb);
+        ok = true;
+      }
+    }
+    else if (strncmp(sOut.Get(), "rgb", 3) == 0)
+    {
+      // Parse RGB
+      int cr, cg, cb;
+      int ct = sscanf(sOut.Get(), "rgb(%d,%d,%d)", &color.R, &color.G, &color.B);
+      if (ct == 3)
+      {
+        color = IColor(255, cr, cg, cb);
+        ok = true;
+      }
+    }
+
+    if (ok && func)
+      func(color);
+    return ok;
+  }
+}
+
+bool IGraphicsLinux::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
+{
+  WDL_String args;
+  args.SetFormatted(strlen(url) + 40, "xdg-open \"%s\" ", url);
+
+  WDL_String sOut, sIn;
+  int status;
+  if (RunSubprocess(args.Get(), sOut, sIn, &status) != 0)
+  {
+    return false;
+  }
+  return true;
+}
+
+bool IGraphicsLinux::GetTextFromClipboard(WDL_String& str)
+{
+  int length = 0;
+  const char* data = xcbt_clipboard_get_utf8(mPlugWnd, &length);
+  if (data)
+  {
+    str.Set(data, length);
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+bool IGraphicsLinux::SetTextInClipboard(const char* str)
+{
+  return xcbt_clipboard_set_utf8(mPlugWnd, str) == 1;
+}
+
 void IGraphicsLinux::PlatformResize(bool parentHasResized)
 {
   if (WindowIsOpen())
@@ -751,6 +967,28 @@ void IGraphicsLinux::PlatformResize(bool parentHasResized)
     }
     xcbt_flush(mX);
   }
+}
+
+void IGraphicsLinux::ShowTooltip()
+{
+  auto tt = GetControlWithTag(TOOLTIP_CONTROL_TAG)->As<ITooltipControl>();
+  if (tt->GetControlIdx() != mHoverControl)
+  {
+    tt->SetForControl(mHoverControl);
+    tt->Hide(false);
+  }
+}
+
+void IGraphicsLinux::HideTooltip()
+{
+  auto tt = GetControlWithTag(TOOLTIP_CONTROL_TAG)->As<ITooltipControl>();
+  tt->SetForControl(-1);
+  tt->Hide(true);
+}
+
+void IGraphicsLinux::RequestFocus()
+{
+  xcb_set_input_focus_checked(xcbt_conn(mX), XCB_INPUT_FOCUS_POINTER_ROOT, mPlugWnd->wnd, XCB_CURRENT_TIME);
 }
 
 //TODO: move these
@@ -841,6 +1079,18 @@ PlatformFontPtr IGraphicsLinux::LoadPlatformFont(const char* fontID, const char*
   FcConfigDestroy(config);
 
   return PlatformFontPtr(fullPath.Get()[0] ? new Font(fullPath) : nullptr);
+}
+
+uint32_t IGraphicsLinux::GetUserDblClickTimeout()
+{
+  // Default to 400
+  uint32_t timeout = 400;
+
+  // Source: forum.kde.org/viewtopic.php?f=289&t=153755
+  // Read $HOME/.gtkrc-2.0; Var: gtk-double-click-time
+  // Read $HOME/.config/gtk-3.0/settings.ini ; Var: gtk-double-click-time
+  // Read $HOME/.config/kdeglobals, [KDE] section, Var: DoubleClickInterval
+  return timeout;
 }
 
 IGraphicsLinux::IGraphicsLinux(IGEditorDelegate& dlg, int w, int h, int fps, float scale)

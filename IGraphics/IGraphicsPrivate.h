@@ -645,6 +645,8 @@ struct IVec2
   
   IVec2 operator-(const IVec2 b) { return IVec2{x-b.x, y-b.y}; }
   IVec2 operator+(const IVec2 b) { return IVec2{x+b.x, y+b.y}; }
+  bool operator==(const IVec2 &rhs) const { return x == rhs.x && y == rhs.y; }
+  bool operator!=(const IVec2 &rhs) const { return x != rhs.x || y == rhs.y; }
 };
 
 
