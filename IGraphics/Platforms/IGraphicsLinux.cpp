@@ -611,12 +611,18 @@ void IGraphicsLinux::HideMouseCursor(bool hide, bool lock)
   if (mCursorHidden != hide)
   {
     mCursorHidden = hide;
+    // https://stackoverflow.com/questions/57841785/how-to-hide-cursor-in-xcb
+
     if (mCursorHidden)
     {
+      xcb_grab_pointer(xcbt_conn(mX), 1, mPlugWnd->wnd,
+        XCB_EVENT_MASK_BUTTON_MOTION | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE,
+        XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, mPlugWnd->wnd, XCB_NONE, XCB_CURRENT_TIME);
       xcb_xfixes_hide_cursor_checked(xcbt_conn(mX), mPlugWnd->wnd);
     }
     else
     {
+      xcb_ungrab_pointer(xcbt_conn(mX), XCB_CURRENT_TIME);
       xcb_xfixes_show_cursor_checked(xcbt_conn(mX), mPlugWnd->wnd);
     }
   }
