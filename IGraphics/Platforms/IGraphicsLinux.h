@@ -34,6 +34,7 @@ public:
   void* GetWindow() override { return (void *)(intptr_t)mPlugWnd; }
   bool WindowIsOpen() override { return (mPlugWnd); }
   void PlatformResize(bool parentHasResized) override;
+  void GetMouseLocation(float& x, float& y) const override;
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
   EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
@@ -60,11 +61,8 @@ public:
 protected:
   void ShowTooltip();
   void HideTooltip();
-
-  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) override { return nullptr; } // TODO
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override { } // TODO
-
-  virtual void GetMouseLocation(float& x, float& y) const {} // TODO
 
   void RequestFocus();
 
@@ -89,6 +87,8 @@ private:
   /** Time when we began hovering this control (milliseconds). */
   uint64_t mHoverStart = 0;
   bool mMouseVisible;
+  /** The "platform-native" popup menu */
+  IPopupMenu *mPopupMenu = nullptr;
 
   void Paint();
   inline IMouseInfo GetMouseInfo(int16_t x, int16_t y, int16_t state);

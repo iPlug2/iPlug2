@@ -29,6 +29,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xlib-xcb.h>
 #include <xcb/xcb_icccm.h>
+#include <xcb/xfixes.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -485,6 +486,21 @@ static int xcbt_connect_init(_xcbt *x, uint32_t flags)
     }
     // Don't bother changing the capacity, just set the size
     x->screens.size = size;
+  }
+
+  // Load xfixes extension
+  {
+    xcb_xfixes_query_version_cookie_t cookie = xcb_xfixes_query_version(x->conn, 4, 0);
+    xcbt_flush(x);
+    xcb_generic_error_t* err;
+    xcb_xfixes_query_version_reply_t* reply = xcb_xfixes_query_version_reply(x->conn, cookie, &err);
+    if (!reply)
+    {
+      printf("Unable to load xfixes extension: codes %d,%d\n", err->major_code, err->minor_code);
+      free(err);
+      return 0;
+    }
+    free(reply);
   }
 
   return 1;
@@ -1153,7 +1169,7 @@ int xcbt_clipboard_set_utf8(xcbt_window pxw, const char* str)
   */
 
   // For now we implement this using xclip.
-  FILE* fd = popen("xclip -i", "w");
+  FILE* fd = popen("xclip -i -selection c", "w");
   if (fd)
   {
     fwrite(str, 1, strlen(str), fd);

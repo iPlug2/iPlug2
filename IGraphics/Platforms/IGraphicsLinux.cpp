@@ -19,6 +19,7 @@
 #include <sys/wait.h>
 #include <xcb/xcb_event.h>
 #include <xcb/xcb_icccm.h>
+#include <xcb/xfixes.h>
 
 #ifdef OS_LINUX
   #ifdef IGRAPHICS_GL
@@ -35,7 +36,7 @@ using namespace igraphics;
 
 #define IPLUG_TIMER_ID 2
 #define TOOLTIP_CONTROL_TAG (0x0FFFFFF0)
-#define MENU_CONTROL_IDX (0x0FFFFFF1)
+#define POPUP_MENU_CONTROL_TAG (0x0FFFFFF1)
 
 class IGraphicsLinux::Font : public PlatformFont
 {
@@ -568,6 +569,12 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
   // Make sure we have certain pre-defined controls.
   auto ctrlTooltip = AttachControl(new ITooltipControl(IRECT(0, 0, 1, 1)), TOOLTIP_CONTROL_TAG);
   mTooltipControlIndex = GetControlIdx(ctrlTooltip);
+  AttachPopupMenuControl();
+  AttachTextEntryControl();
+  if (mPopupMenu == nullptr)
+  {
+    mPopupMenu = new IPopupMenu();
+  }
 
   return reinterpret_cast<void* >(xcbt_window_xwnd(mPlugWnd));
 }
@@ -593,9 +600,26 @@ void IGraphicsLinux::CloseWindow()
   }
 }
 
+void IGraphicsLinux::GetMouseLocation(float& x, float& y) const
+{
+  x = mCursorX;
+  y = mCursorY;
+}
+
 void IGraphicsLinux::HideMouseCursor(bool hide, bool lock)
 {
-  mMouseVisible = !hide;
+  if (mCursorHidden != hide)
+  {
+    mCursorHidden = hide;
+    if (mCursorHidden)
+    {
+      xcb_xfixes_hide_cursor_checked(xcbt_conn(mX), mPlugWnd->wnd);
+    }
+    else
+    {
+      xcb_xfixes_show_cursor_checked(xcbt_conn(mX), mPlugWnd->wnd);
+    }
+  }
   if (mCursorLock != lock)
   {
     mCursorLock = lock;
@@ -984,6 +1008,17 @@ void IGraphicsLinux::HideTooltip()
   auto tt = GetControlWithTag(TOOLTIP_CONTROL_TAG)->As<ITooltipControl>();
   tt->SetForControl(-1);
   tt->Hide(true);
+}
+
+IPopupMenu* IGraphicsLinux::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
+{
+  auto popupCtrl = GetPopupMenuControl();
+  mPopupMenu->Clear(true);
+  menu.CloneInto(*mPopupMenu);
+  popupCtrl->CreatePopupMenu(*mPopupMenu, bounds);
+  popupCtrl->Hide(false);
+  isAsync = false;
+  return mPopupMenu;
 }
 
 void IGraphicsLinux::RequestFocus()

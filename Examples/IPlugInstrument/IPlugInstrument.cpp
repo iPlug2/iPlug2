@@ -2,6 +2,34 @@
 #include "IPlug_include_in_plug_src.h"
 #include "LFO.h"
 
+
+class ContextMenuButton : public IVButtonControl
+{
+public:
+  ContextMenuButton(const IRECT& bounds, IActionFunction aF, const char* label)
+  : IVButtonControl(bounds, aF, label)
+  {
+    mMenu.SetRootTitle("Menu Root");
+    mMenu.AddItem("Item 1");
+    mMenu.AddItem("Item 2");
+    mMenu.AddItem("Item 3");
+  }
+
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    if (mod.R)
+    {
+      GetUI()->CreatePopupMenu(*this, mMenu, mRECT);
+    }
+    else
+    {
+      IVButtonControl::OnMouseDown(x, y, mod);
+    }
+  }
+
+  IPopupMenu mMenu;
+};
+
 IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
@@ -100,7 +128,8 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     pGraphics->AttachControl(new IVButtonControl(testPanel.GetGridCell(1, 1, TEST_COLS), [&](IControl* ctrl) {
       ctrl->GetUI()->SetTextInClipboard("Clipboard text set test.");
     }, "Test ClipSet"));
-    pGraphics->AttachControl(new IVButtonControl(testPanel.GetGridCell(2, 1, TEST_COLS), [&](IControl* ctrl) {
+    
+    auto ctrlTest3 = pGraphics->AttachControl(new ContextMenuButton(testPanel.GetGridCell(2, 1, TEST_COLS), [&](IControl* ctrl) {
       IColor col = COLOR_RED;
       if (ctrl->GetUI()->PromptForColor(col, "Memes"))
       {
