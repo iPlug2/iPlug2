@@ -657,6 +657,9 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
 
 void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
 {
+  if (mCursorHidden == hide)
+    return;
+    
   if (hide)
   {
 #ifdef IGRAPHICS_WEB_POINTERLOCK
@@ -666,6 +669,7 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
 #endif
       val::global("document")["body"]["style"].set("cursor", "none");
     
+    mCursorHidden = true;
     mCursorLock = lock;
   }
   else
@@ -675,8 +679,9 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
       emscripten_exit_pointerlock();
     else
 #endif
-      OnSetCursor();
+    OnSetCursor();
       
+    mCursorHidden = false;
     mCursorLock = false;
   }
 }
