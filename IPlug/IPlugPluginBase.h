@@ -297,18 +297,7 @@ public:
    * @param file The full path of the file to load
    * @return /c true on success */
   bool LoadBankFromFXB(const char* file);
-
-  /** Save current bank as individual VST2 format presets [VST2 only]
-   * @param file The full path of the file to write or overwrite
-   * @return /c true on success */
-  bool SaveBankAsFXPs(const char* path) const { return false; }
   
-  /** /todo 
-   * @param chunk /todo
-   * @param componentState /todo
-   * @param controllerState /todo */
-  void MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState) const;
-
   /** Save VST3 format preset
    * @param file The full path of the file to write or overwrite
    * @return /c true on success */
@@ -318,44 +307,6 @@ public:
    * @param file The full path of the file to load
    * @return /c true on success */
   bool LoadPresetFromVSTPreset(const char* file);
-
-  /** Save VST2 bank as individual VST3 format presets [VST2 only]
-   * @param path The full path of the folder where the files should be saved
-   * @return /c true on success */
-  bool SaveBankAsVSTPresets(const char* path) { return false; }
-  
-  /** Save AUv2 format preset
-   * @param file The full path of the file to write or overwrite
-   * @return /c true on success */
-  bool SavePresetAsAUPreset(const char* name, const char* file) const { return false; }
-
-  /** Load AUv2 format preset
-   * @param file The full path of the file to load
-   * @return /c true on success */
-  bool LoadPresetFromAUPreset(const char* file) { return false; }
-
-  /** Save VST2 bank as individual AUv2 format presets [VST2 only]
-   * @param path The full path of the folder where the files should be saved
-   * @return /c true on success */
-  bool SaveBankAsAUPresets(const char* path) { return false; }
-  
-  /** Save ProTools format preset
-   * @param presetName The name to place in the in the preset
-   * @param file The full path of the file to write or overwrite
-   * @param pluginID The protools plugid to place in the preset
-   * @return /c true on success */
-  bool SavePresetAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID) const { return false; }
-
-  /** Load ProTools format preset
-   * @param file The full path of the file to load
-   * @return /c true on success */
-  bool LoadPresetFromProToolsPreset(const char* file) { return false; }
-
-  /** Save VST2 bank as individual ProTools format presets [VST2 only]
-   * @param path The full path of the folder where the files should be saved
-   * @param pluginID The protools plugid to place in the preset
-   * @return /c true on success */
-  bool SaveBankAsProToolsPresets(const char* path, unsigned long pluginID) { return false; }
   
 #pragma mark - Parameter manipulation
     

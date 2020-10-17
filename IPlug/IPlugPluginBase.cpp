@@ -1149,60 +1149,59 @@ bool IPluginBase::LoadPresetFromVSTPreset(const char* path)
   return false;
 }
 
-void IPluginBase::MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState) const
-{
-  WDL_String metaInfo("");
-  
-  metaInfo.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n", 1024);
-  metaInfo.Append("<MetaInfo>\n", 1024);
-  metaInfo.Append("\t<Attribute id=\"MediaType\" value=\"VstPreset\" type=\"string\" flags=\"writeProtected\"/>\n", 1024);
-  metaInfo.AppendFormatted(1024, "\t<Attribute id=\"plugname\" value=\"%s\" type=\"string\" flags=\"\"/>\n", mProductName.Get());
-  metaInfo.AppendFormatted(1024, "\t<Attribute id=\"plugtype\" value=\"%s\" type=\"string\" flags=\"\"/>\n", mVST3ProductCategory.Get());
-  metaInfo.Append("</MetaInfo>\n", 1024);
-  
-  //HEADER
-  chunk.Put(&commonChunks[kHeader]);
-  int32_t version = kFormatVersion;
-  chunk.Put(&version);
-  chunk.PutBytes(mVST3ProcessorUIDStr.Get(), kClassIDSize);
-  int64_t offsetToChunkList = componentState.Size() + controllerState.Size() + (2 * sizeof(int) /* 2 ints for sizes */) + strlen(metaInfo.Get()) + kHeaderSize;
-  chunk.Put(&offsetToChunkList);
-  
-  //DATA AREA
-  int componentSize = componentState.Size();
-  chunk.Put(&componentSize);
-  chunk.PutChunk(&componentState);
-  int ctrlrSize = controllerState.Size();
-  chunk.Put(&ctrlrSize);
-  chunk.PutChunk(&controllerState);
-  chunk.PutBytes(metaInfo.Get(), metaInfo.GetLength());
-  
-  //CHUNK LIST
-  chunk.Put(&commonChunks[kChunkList]);
-  int32_t entryCount = 3;
-  chunk.Put(&entryCount);
-  
-  chunk.Put(&commonChunks[kComponentState]);
-  int64_t offsetToComponentState = kHeaderSize;
-  chunk.Put(&offsetToComponentState);
-  int64_t componentStateSize = componentState.Size() + sizeof(int);
-  chunk.Put(&componentStateSize);
-  
-  chunk.Put(&commonChunks[kControllerState]);
-  int64_t offsetToCtrlrState = kHeaderSize + componentStateSize;
-  chunk.Put(&offsetToCtrlrState);
-  int64_t ctrlrStateSize = controllerState.Size() + sizeof(int);
-  chunk.Put(&ctrlrStateSize);
-  
-  chunk.Put(&commonChunks[kMetaInfo]);
-  int64_t offsetToMetaInfo = kHeaderSize + componentStateSize + ctrlrStateSize;
-  chunk.Put(&offsetToMetaInfo);
-  int64_t metaInfoSize = metaInfo.GetLength();
-  chunk.Put(&metaInfoSize);
-}
-
 bool IPluginBase::SavePresetAsVSTPreset(const char* path) const
 {
+  auto MakeVSTPresetChunk = [&](IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState) {
+    WDL_String metaInfo("");
+    
+    metaInfo.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n", 1024);
+    metaInfo.Append("<MetaInfo>\n", 1024);
+    metaInfo.Append("\t<Attribute id=\"MediaType\" value=\"VstPreset\" type=\"string\" flags=\"writeProtected\"/>\n", 1024);
+    metaInfo.AppendFormatted(1024, "\t<Attribute id=\"plugname\" value=\"%s\" type=\"string\" flags=\"\"/>\n", mProductName.Get());
+    metaInfo.AppendFormatted(1024, "\t<Attribute id=\"plugtype\" value=\"%s\" type=\"string\" flags=\"\"/>\n", mVST3ProductCategory.Get());
+    metaInfo.Append("</MetaInfo>\n", 1024);
+    
+    //HEADER
+    chunk.Put(&commonChunks[kHeader]);
+    int32_t version = kFormatVersion;
+    chunk.Put(&version);
+    chunk.PutBytes(mVST3ProcessorUIDStr.Get(), kClassIDSize);
+    int64_t offsetToChunkList = componentState.Size() + controllerState.Size() + (2 * sizeof(int) /* 2 ints for sizes */) + strlen(metaInfo.Get()) + kHeaderSize;
+    chunk.Put(&offsetToChunkList);
+    
+    //DATA AREA
+    int componentSize = componentState.Size();
+    chunk.Put(&componentSize);
+    chunk.PutChunk(&componentState);
+    int ctrlrSize = controllerState.Size();
+    chunk.Put(&ctrlrSize);
+    chunk.PutChunk(&controllerState);
+    chunk.PutBytes(metaInfo.Get(), metaInfo.GetLength());
+    
+    //CHUNK LIST
+    chunk.Put(&commonChunks[kChunkList]);
+    int32_t entryCount = 3;
+    chunk.Put(&entryCount);
+    
+    chunk.Put(&commonChunks[kComponentState]);
+    int64_t offsetToComponentState = kHeaderSize;
+    chunk.Put(&offsetToComponentState);
+    int64_t componentStateSize = componentState.Size() + sizeof(int);
+    chunk.Put(&componentStateSize);
+    
+    chunk.Put(&commonChunks[kControllerState]);
+    int64_t offsetToCtrlrState = kHeaderSize + componentStateSize;
+    chunk.Put(&offsetToCtrlrState);
+    int64_t ctrlrStateSize = controllerState.Size() + sizeof(int);
+    chunk.Put(&ctrlrStateSize);
+    
+    chunk.Put(&commonChunks[kMetaInfo]);
+    int64_t offsetToMetaInfo = kHeaderSize + componentStateSize + ctrlrStateSize;
+    chunk.Put(&offsetToMetaInfo);
+    int64_t metaInfoSize = metaInfo.GetLength();
+    chunk.Put(&metaInfoSize);
+  };
+
   if (path)
   {
     FILE* fp = fopen(path, "wb");
