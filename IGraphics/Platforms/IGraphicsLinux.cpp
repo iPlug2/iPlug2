@@ -499,9 +499,6 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
   }
 #endif
 
-  uint32_t max_request = xcb_get_maximum_request_length(xcbt_conn(mX));
-  printf("X max request size: %u\n", max_request);
-
   // NOTE: In case plug-in report REAPER extension in REAPER, pParent is NOT XID (SWELL HWND? I have not checked yet)
 
 #ifdef IGRAPHICS_GL
@@ -985,7 +982,7 @@ void IGraphicsLinux::PlatformResize(bool parentHasResized)
     xcb_window_t w = xcbt_window_xwnd(mPlugWnd);
     uint32_t values[] = { static_cast<uint32_t>(WindowWidth() * GetScreenScale()), static_cast<uint32_t>(WindowHeight() * GetScreenScale()) };
     xcb_configure_window(conn, w, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-    DBGMSG("INFO: resized to %ux%u\n", values[0], values[1]);
+    //DBGMSG("INFO: resized to %ux%u\n", values[0], values[1]);
     if (!parentHasResized)
     {
       DBGMSG("WARNING: parent is not resized, but I (should) have no control on it on X... XEMBED?\n");

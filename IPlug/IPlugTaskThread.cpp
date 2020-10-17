@@ -119,6 +119,7 @@ public:
 
   void loop()
   {
+    printf("iPlug2Loop started\n");
 #ifdef OS_LINUX
     int err = pthread_setname_np(pthread_self(), "iPlug2Loop");
 #endif
