@@ -57,7 +57,7 @@ public:
     kFlagMeta             = 0x10,
   };
   
-  /** DisplayFunc allows custom parameter display functions, defined by a lambda matchin this signature */
+  /** DisplayFunc allows custom parameter display functions, defined by a lambda matching this signature */
   using DisplayFunc = std::function<void(double, WDL_String&)>;
 
 #pragma mark - Shape
