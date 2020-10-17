@@ -89,7 +89,7 @@ REAPER_SDK = $(DEPS_PATH)/IPlug/Reaper
 // this build setting is included at the xcode project level, since we need all these include paths
 IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(SWELL_FOR_IPLUG_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS)
 
-IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/examples
+IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/backends
 
 IGRAPHICS_PATH = $(IPLUG2_ROOT)/IGraphics
 
