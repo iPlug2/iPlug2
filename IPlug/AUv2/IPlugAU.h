@@ -138,8 +138,8 @@ private:
   OSStatus SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element, UInt32* pDataSize, const void* pData);
   
   OSStatus GetProc(AudioUnitElement element, UInt32* pDataSize, void* pData);
-  OSStatus GetState(CFPropertyListRef* ppPropList);
-  OSStatus SetState(CFPropertyListRef pPropList);
+  virtual OSStatus GetState(CFPropertyListRef* ppPropList);
+  virtual OSStatus SetState(CFPropertyListRef pPropList);
   void InformListeners(AudioUnitPropertyID propID, AudioUnitScope scope);
   void SendAUEvent(AudioUnitEventType type, AudioComponentInstance ci, int idx);
   
@@ -184,18 +184,20 @@ private:
   static OSStatus DoReset(IPlugAU* pPlug);
   static OSStatus DoMIDIEvent(IPlugAU* pPlug, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame);
   static OSStatus DoSysEx(IPlugAU* pPlug, const UInt8 *inData, UInt32 inLength);
-  
-private:
+    
+protected:
   
 #pragma mark - Utilities
 
-  static inline void PutNumberInDict(CFMutableDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type);
-  static inline void PutStrInDict(CFMutableDictionaryRef pDict, const char* key, const char* value);
-  static inline void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteChunk* pChunk);
-  static inline bool GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type);
-  static inline bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value);
-  static inline bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk);
-  
+  static void PutNumberInDict(CFMutableDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type);
+  static void PutStrInDict(CFMutableDictionaryRef pDict, const char* key, const char* value);
+  static void PutDataInDict(CFMutableDictionaryRef pDict, const char* key, IByteChunk* pChunk);
+  static bool GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type);
+  static bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value);
+  static bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk);
+
+private:
+
 #pragma mark -
 
   bool mActive = false; // TODO: is this necessary? is it correct?
