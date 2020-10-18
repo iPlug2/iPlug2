@@ -970,7 +970,6 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
     
     if (pCapturedControl)
     {
-      
       int nVals = pCapturedControl->NVals();
       int valIdx = pCapturedControl->GetValIdxForPos(x, y);
       int paramIdx = pCapturedControl->GetParamIdx((valIdx > kNoValIdx) ? valIdx : 0);
