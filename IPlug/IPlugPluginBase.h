@@ -297,16 +297,7 @@ public:
    * @param file The full path of the file to load
    * @return /c true on success */
   bool LoadBankFromFXB(const char* file);
-  
-  /** Save VST3 format preset
-   * @param file The full path of the file to write or overwrite
-   * @return /c true on success */
-  bool SavePresetAsVSTPreset(const char* file) const;
 
-  /** Load VST3 format preset
-   * @param file The full path of the file to load
-   * @return /c true on success */
-  bool LoadPresetFromVSTPreset(const char* file);
   
 #pragma mark - Parameter manipulation
     
@@ -409,12 +400,6 @@ protected:
   EAPI mAPI;
   /** macOS/iOS bundle ID */
   WDL_String mBundleID;
-  /** Saving VST3 format presets requires this see SavePresetAsVSTPreset */
-  WDL_String mVST3ProductCategory;
-  /** Saving VST3 format presets requires this see SavePresetAsVSTPreset */
-  WDL_String mVST3ProcessorUIDStr;
-  /** Saving VST3 format presets requires this see SavePresetAsVSTPreset */
-  WDL_String mVST3ControllerUIDStr;
   /** \c true if the plug-in has a user interface. If false the host will provide a default interface */
   bool mHasUI = false;
   /** \c true if the host window chrome should be able to resize the plug-in UI, only applicable in certain formats/hosts */
