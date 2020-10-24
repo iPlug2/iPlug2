@@ -2081,6 +2081,18 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
   auto GaussianBlurSwap = [](uint8_t* out, uint8_t* in, uint8_t* kernel, int width, int height,
                              int outStride, int inStride, int kernelSize, uint32_t norm)
   {
+    int repeats = 0;
+    int fullKernelSize = kernelSize * 2 + 1;
+    uint32_t last = 0;
+
+    auto RepeatCheck = [&](int idx)
+    {
+      repeats = last == in[idx * 4] ? std::min(repeats + 1, fullKernelSize) : 1;
+      last = in[idx * 4];
+        
+      return repeats == fullKernelSize;
+    };
+      
     for (int i = 0; i < height; i++, in += inStride)
     {
       for (int j = 0; j < kernelSize - 1; j++)
@@ -2092,8 +2104,16 @@ void IGraphics::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
           accum += kernel[k] * in[(j + k) * 4];
         out[j * outStride + (i * 4)] = static_cast<uint8_t>(std::min(static_cast<uint32_t>(255), accum / norm));
       }
+      for (int j = 0; j < kernelSize * 2 - 2; j++)
+        RepeatCheck(j);
       for (int j = kernelSize - 1; j < (width - kernelSize) + 1; j++)
       {
+        if (RepeatCheck(j + kernelSize - 1))
+        {
+            out[j * outStride + (i * 4)] = static_cast<uint8_t>(last);
+            continue;
+        }
+          
         uint32_t accum = in[j * 4] * kernel[0];
         for (int k = 1; k < kernelSize; k++)
           accum += kernel[k] * (in[(j - k) * 4] + in[(j + k) * 4]);
