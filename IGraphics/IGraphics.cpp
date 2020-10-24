@@ -65,6 +65,10 @@ IGraphics::~IGraphics()
   mImGuiRenderer = nullptr;
 #endif
   
+  // N.B. - the OS levels have destructed, so we can't show/hide the cursor
+  // Thus, this prevents a call to a pure virtual in ReleaseMouseCapture
+    
+  mCursorHidden = false;
   RemoveAllControls();
     
   StaticStorage<APIBitmap>::Accessor bitmapStorage(sBitmapCache);
@@ -1306,7 +1310,8 @@ void IGraphics::OnDrop(const char* str, float x, float y)
 void IGraphics::ReleaseMouseCapture()
 {
   mCapturedMap.clear();
-//  HideMouseCursor(false); // TODO: mac crash on quit with "calling pure virtual function"
+  if (mCursorHidden)
+    HideMouseCursor(false);
 }
 
 int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
