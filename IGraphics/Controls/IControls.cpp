@@ -590,8 +590,8 @@ void IVKnobControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   {
     PromptUserInput(mValueBounds);
   }
-  else
-  {    
+  else if(!mod.R) // prevent default prompt on right click
+  {
     IKnobControlBase::OnMouseDown(x, y, mod);
   }
 
@@ -741,7 +741,7 @@ void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
   {
     PromptUserInput(mValueBounds);
   }
-  else
+  else if(!mod.R) // prevent default prompt on right click
   { 
     ISliderControlBase::OnMouseDown(x, y, mod);
   }
