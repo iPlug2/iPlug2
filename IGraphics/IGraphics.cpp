@@ -385,11 +385,12 @@ void IGraphics::ShowBubbleControl(IControl* pCaller, float x, float y, const cha
     if(touchIDsForCaller.size() == 1)
     {
       ITouchID touchID = touchIDsForCaller[0];
+      
       // first search to see if this touch matches existing bubble controls
       for(int i=0;i<nBubbleControls;i++)
       {
         IBubbleControl* pBubbleControl = mBubbleControls.Get(i);
-        if(pBubbleControl->mTouchId == touchID)
+        if(pBubbleControl->GetTouchID() == touchID)
         {
           pBubbleControl->ShowBubble(pCaller, x, y, str, dir, minimumContentBounds, touchID);
           return;
@@ -397,7 +398,7 @@ void IGraphics::ShowBubbleControl(IControl* pCaller, float x, float y, const cha
         else
           availableBubbleControls.push_back(pBubbleControl);
       }
-      
+
       if(availableBubbleControls.size())
       {
         // this works but why?

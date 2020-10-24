@@ -1331,11 +1331,17 @@ public:
   /* Get the first control in the control list, the background */
   IControl* GetBackgroundControl() { return GetControl(0);  }
   
-  /** @return Pointer to the special pop-up menu control, if one has been attached. \todo */
+  /** @return Pointer to the special pop-up menu control, if one has been attached */
   IPopupMenuControl* GetPopupMenuControl() { return mPopupControl.get(); }
   
-  /** @return Pointer to the special text entry control, if one has been attached. \todo */
+  /** @return Pointer to the special text entry control, if one has been attached */
   ITextEntryControl* GetTextEntryControl() { return mTextEntryControl.get(); }
+  
+  /** @return Pointer to the special bubble control at index i, if one has been attached */
+  IBubbleControl* GetBubbleControl(int i = 0) { return mBubbleControls.Get(i); }
+  
+  /** @return Number of attached bubble controls */
+  int NBubbleControls() const { return mBubbleControls.GetSize(); }
   
   /** Helper method to style all of the controls which inherit IVectorBase
    * @param IVStyle Style for the controls */
