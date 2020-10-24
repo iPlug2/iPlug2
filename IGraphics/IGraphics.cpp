@@ -983,20 +983,20 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
         if (mAAXViewContainer && paramIdx > kNoParameter)
         {
             auto GetAAXModifiersFromIMouseMod = [](const IMouseMod& mod) {
-                uint32_t modifiers = 0;
-                
-                if (mod.A) modifiers |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
-                
+              uint32_t modifiers = 0;
+              
+              if (mod.A) modifiers |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
+              
 #ifdef OS_WIN
-                if (mod.C) modifiers |= AAX_eModifiers_Command;
+              if (mod.C) modifiers |= AAX_eModifiers_Command;
 #else
-                if (mod.C) modifiers |= AAX_eModifiers_Control;
-                if (mod.R) modifiers |= AAX_eModifiers_Command;
+              if (mod.C) modifiers |= AAX_eModifiers_Control;
+              if (mod.R) modifiers |= AAX_eModifiers_Command;
 #endif
-                if (mod.S) modifiers |= AAX_eModifiers_Shift;
-                if (mod.R) modifiers |= AAX_eModifiers_SecondaryButton;
-                
-                return modifiers;
+              if (mod.S) modifiers |= AAX_eModifiers_Shift;
+              if (mod.R) modifiers |= AAX_eModifiers_SecondaryButton;
+              
+              return modifiers;
             };
             
             uint32_t aaxModifiersForPT = GetAAXModifiersFromIMouseMod(mod);
@@ -1019,9 +1019,11 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
 #ifndef IGRAPHICS_NO_CONTEXT_MENU
       if (mod.R && paramIdx > kNoParameter)
       {
-        ReleaseMouseCapture();
-        PopupHostContextMenuForParam(pCapturedControl, paramIdx, x, y);
-        return;
+        if(PopupHostContextMenuForParam(pCapturedControl, valIdx, x, y))
+        {
+          ReleaseMouseCapture();
+          return;
+        }
       }
 #endif
 
@@ -1429,65 +1431,64 @@ void IGraphics::SetPTParameterHighlight(int paramIdx, bool isHighlighted, int co
   ForMatchingControls(&IControl::SetPTParameterHighlight, paramIdx, isHighlighted, color);
 }
 
-void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, float x, float y)
+bool IGraphics::PopupHostContextMenuForParam(IControl* pControl, int valIdx, float x, float y)
 {
+  assert(pControl);
+  
   IPopupMenu& contextMenu = mPromptPopupMenu;
   contextMenu.Clear();
-
-  if(pControl)
-  {
-    pControl->CreateContextMenu(contextMenu);
+  
+  pControl->CreateContextMenu(contextMenu);
 
 #if defined VST3_API || defined VST3C_API
-    VST3_API_BASE* pVST3 = dynamic_cast<VST3_API_BASE*>(GetDelegate());
+  VST3_API_BASE* pVST3 = dynamic_cast<VST3_API_BASE*>(GetDelegate());
 
-    if (!pVST3->GetComponentHandler() || !pVST3->GetView())
-      return;
+  if (!pVST3->GetComponentHandler() || !pVST3->GetView())
+    return false;
 
-    Steinberg::FUnknownPtr<Steinberg::Vst::IComponentHandler3>handler(pVST3->GetComponentHandler() );
+  Steinberg::FUnknownPtr<Steinberg::Vst::IComponentHandler3>handler(pVST3->GetComponentHandler() );
 
-    if (handler == 0)
-      return;
+  if (handler == 0)
+    return false;
 
-    Steinberg::Vst::ParamID p = paramIdx;
+  Steinberg::Vst::ParamID p = pControl->GetParamIdx(valIdx);
 
-    Steinberg::Vst::IContextMenu* pVST3ContextMenu = handler->createContextMenu(pVST3->GetView(), &p);
+  Steinberg::Vst::IContextMenu* pVST3ContextMenu = handler->createContextMenu(pVST3->GetView(), &p);
 
-    if (pVST3ContextMenu)
+  if (pVST3ContextMenu)
+  {
+    Steinberg::Vst::IContextMenu::Item item = {0};
+
+    for (int i=0; i<contextMenu.NItems(); i++)
     {
-      Steinberg::Vst::IContextMenu::Item item = {0};
+      Steinberg::UString128 (contextMenu.GetItemText(i)).copyTo (item.name, 128);
+      item.tag = i;
 
-      for (int i = 0; i < contextMenu.NItems(); i++)
-      {
-        Steinberg::UString128 (contextMenu.GetItemText(i)).copyTo (item.name, 128);
-        item.tag = i;
+      if (!contextMenu.GetItem(i)->GetEnabled())
+        item.flags = Steinberg::Vst::IContextMenu::Item::kIsDisabled;
+      else
+        item.flags = 0;
 
-        if (!contextMenu.GetItem(i)->GetEnabled())
-          item.flags = Steinberg::Vst::IContextMenu::Item::kIsDisabled;
-        else
-          item.flags = 0;
-
-        pVST3ContextMenu->addItem(item, pControl);
-      }
-
-      x *= GetDrawScale();
-      y *= GetDrawScale();
-      pVST3ContextMenu->popup((Steinberg::UCoord) x, (Steinberg::UCoord) y);
-      pVST3ContextMenu->release();
+      pVST3ContextMenu->addItem(item, pControl);
     }
 
-#else
-    if(!contextMenu.NItems())
-      return;
-
-    DoCreatePopupMenu(*pControl, contextMenu, IRECT(x, y, x, y), kNoValIdx, true);
-#endif
+    x *= GetDrawScale();
+    y *= GetDrawScale();
+    pVST3ContextMenu->popup((Steinberg::UCoord) x, (Steinberg::UCoord) y);
+    pVST3ContextMenu->release();
+    
+    return true;
   }
-}
-
-void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y)
-{
-  PopupHostContextMenuForParam(GetControl(controlIdx), paramIdx, x, y);
+#else
+  if(!contextMenu.NItems())
+    return false;
+  else {
+    DoCreatePopupMenu(*pControl, contextMenu, IRECT(x, y, x, y), kNoValIdx, true);
+    return true;
+  }
+#endif
+  
+  return false;
 }
 
 void IGraphics::OnGUIIdle()

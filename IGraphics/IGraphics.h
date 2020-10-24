@@ -1522,18 +1522,12 @@ public:
 
   /** [VST3 primarily] In VST3 plug-ins this enable support for the IContextMenu interface,
    * which allows the host to add contextual options to e.g. automate a parameter associated with a control
-   * @param controlIdx The index of the control in the control stack
-   * @param paramIdx The parameter index associated with the control
+   * @param pControl pointer to an IControl for which to create the context menu
+   * @param valIdx The val index that the context menu is for
    * @param x The X coordinate in the graphics context at which to popup the context menu
-   * @param y The Y coordinate in the graphics context at which to popup the context menu */
-  void PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y);
-
-  /** /todo
-   * @param pControl /todo
-   * @param paramIdx /todo
-   * @param x /todo
-   * @param y /todo */
-  void PopupHostContextMenuForParam(IControl* pControl, int paramIdx, float x, float y);
+   * @param y The Y coordinate in the graphics context at which to popup the context menu
+   * @return true if the menu was made */
+  bool PopupHostContextMenuForParam(IControl* pControl, int valIdx, float x, float y);
   
 #pragma mark - Resource/File Loading
   
