@@ -384,12 +384,18 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mMTLLayer = nil;
 }
 
-- (void)textFieldDidEndEditing:(UITextField *)textField reason:(UITextFieldDidEndEditingReason)reason
+- (void) textFieldDidEndEditing:(UITextField*)textField reason:(UITextFieldDidEndEditingReason) reason
 {
-  [self endUserInput];
+  if(textField == mTextField)
+  {
+    mGraphics->SetControlValueAfterTextEdit([[mTextField text] UTF8String]);
+    mGraphics->SetAllControlsDirty();
+    
+    [self endUserInput];
+  }
 }
 
-- (BOOL)textFieldShouldReturn:(UITextField *)textField
+- (BOOL) textFieldShouldReturn:(UITextField*) textField
 {
   if(textField == mTextField)
   {
