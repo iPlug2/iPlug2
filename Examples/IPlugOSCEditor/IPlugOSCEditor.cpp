@@ -43,7 +43,7 @@ IPlugOSCEditor::IPlugOSCEditor(const InstanceInfo& info)
     IRECT topRow = b.SubRectVertical(3, 0).GetMidVPadded(40.f);
     IRECT bottomRow = b.SubRectVertical(3, 2);
     pGraphics->AttachControl(new IVLabelControl(topRow.SubRectHorizontal(3, 0).GetPadded(-10.f), "Send IP", DEFAULT_STYLE.WithValueText(DEFAULT_LABEL_TEXT).WithDrawShadows(false)));
-    pGraphics->AttachControl(new IEditableTextControl(topRow.SubRectHorizontal(3, 0).GetPadded(-10.f).GetFromBottom(44.f), "127.0.0.1"), kCtrlTagSendIP)->SetActionFunction(setSendIPAndPort);
+    pGraphics->AttachControl(new IEditableTextControl(topRow.SubRectHorizontal(3, 0).GetPadded(-10.f).GetFromBottom(44.f), "127.0.0.1"), kCtrlTagSendIP)->SetActionFunction(setSendIPAndPort)->SetTextEntryLength(32);
     
     pGraphics->AttachControl(new IVNumberBoxControl(topRow.SubRectHorizontal(3, 1).GetPadded(-10.f), kNoParameter, setSendIPAndPort, "Send Port", DEFAULT_STYLE, 8001, 4000, 10000), kCtrlTagSendPort);
     
