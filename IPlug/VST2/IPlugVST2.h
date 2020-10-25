@@ -79,6 +79,8 @@ private:
   bool SendVSTEvent(VstEvent& event);
   bool SendVSTEvents(WDL_TypedBuf<VstEvent>* pEvents);
   
+  void UpdateEditRect();
+    
   ERect mEditRect;
   VstSpeakerArrangement mInputSpkrArr, mOutputSpkrArr;
 
