@@ -975,10 +975,11 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
     
     if (pCapturedControl)
     {
-      int nVals = pCapturedControl->NVals();
-      int valIdx = pCapturedControl->GetValIdxForPos(x, y);
-      int paramIdx = pCapturedControl->GetParamIdx((valIdx > kNoValIdx) ? valIdx : 0);
-
+      const int nVals = pCapturedControl->NVals();
+      const int valIdx = pCapturedControl->GetValIdxForPos(x, y);
+      
+      if(valIdx > kNoValIdx)
+      {
 #ifdef AAX_API
         if (mAAXViewContainer && paramIdx > kNoParameter)
         {
@@ -1006,6 +1007,8 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
           mAAXViewContainer->GetModifiers(&aaxModifiersFromPT);
           aaxModifiersForPT |= aaxModifiersFromPT;
 #endif
+          int paramIdx = pCapturedControl->GetParamIdx(valIdx);
+
           WDL_String paramID;
           paramID.SetFormatted(32, "%i", paramIdx+1);
           
@@ -1017,25 +1020,30 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
 #endif
 
 #ifndef IGRAPHICS_NO_CONTEXT_MENU
-      if (mod.R && paramIdx > kNoParameter)
-      {
-        if(PopupHostContextMenuForParam(pCapturedControl, valIdx, x, y))
+        if (mod.R)
         {
-          ReleaseMouseCapture();
-          return;
+          ReleaseMouseCapture(); // Clear capture map and show cursor whatever PopupHostContextMenuForParam returns
+          
+          if(PopupHostContextMenuForParam(pCapturedControl, valIdx, x, y))
+          {
+            return;
+          }
         }
-      }
 #endif
 
-      for (int v = 0; v < nVals; v++)
-      {
-        if (pCapturedControl->GetParamIdx(v) > kNoParameter)
-          GetDelegate()->BeginInformHostOfParamChangeFromUI(pCapturedControl->GetParamIdx(v));
-      }
+        for (int v = 0; v < nVals; v++)
+        {
+          if (pCapturedControl->GetParamIdx(v) > kNoParameter)
+            GetDelegate()->BeginInformHostOfParamChangeFromUI(pCapturedControl->GetParamIdx(v));
+        }
+        
+      } // valIdx > kNoValIdx
 
       pCapturedControl->OnMouseDown(x, y, mod);
-    }
-  }
+
+    } // pCapturedControl valid
+    
+  } // points loop
 }
 
 void IGraphics::OnMouseUp(const std::vector<IMouseInfo>& points)
@@ -1434,6 +1442,7 @@ void IGraphics::SetPTParameterHighlight(int paramIdx, bool isHighlighted, int co
 bool IGraphics::PopupHostContextMenuForParam(IControl* pControl, int valIdx, float x, float y)
 {
   assert(pControl);
+  assert(valIdx > kNoValIdx);
   
   IPopupMenu& contextMenu = mPromptPopupMenu;
   contextMenu.Clear();
