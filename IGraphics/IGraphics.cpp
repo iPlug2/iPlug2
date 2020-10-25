@@ -971,6 +971,9 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
     float y = point.y;
     const IMouseMod& mod = point.ms;
     
+    if(ControlIsCaptured() && mod.R)
+      break;
+    
     IControl* pCapturedControl = GetMouseControl(x, y, true, false, mod.touchID);
     
     if (pCapturedControl)
