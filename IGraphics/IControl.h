@@ -1477,8 +1477,7 @@ protected:
       }
     }
     
-    assert(fillRect.W() >= 0.);
-    assert(fillRect.H() >= 0.);
+    fillRect.Clamp();
     
     if(stepped)
     {

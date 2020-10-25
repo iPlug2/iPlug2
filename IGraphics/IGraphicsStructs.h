@@ -787,6 +787,13 @@ struct IRECT
     L = T = R = B = 0.f;
   }
   
+  /** Restrict the RECT to a minimum width and height */
+  void Clamp(float minWidth = 1.f, float minHeight = 1.f)
+  {
+    R = std::min(L + minWidth, R);
+    B = std::min(T + minHeight, B);
+  }
+  
   bool operator==(const IRECT& rhs) const
   {
     return (L == rhs.L && T == rhs.T && R == rhs.R && B == rhs.B);
