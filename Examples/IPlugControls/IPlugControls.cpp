@@ -5,7 +5,7 @@
 #include "IconsFontaudio.h"
 
 IPlugControls::IPlugControls(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
+: Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   GetParam(kParamMode)->InitEnum("Mode", 0, 4, "", IParam::kFlagsNone, "", "one", "two", "three", "four");
@@ -30,7 +30,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->EnableTooltips(true);
 
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
-    pGraphics->AttachPanelBackground(COLOR_GRAY);
+    pGraphics->AttachPanelBackground(mBGControlPattern);
     pGraphics->AttachTextEntryControl();
     
 #ifndef OS_IOS
@@ -157,8 +157,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 
     pGraphics->AttachControl(new IVKnobControl(nextCell().GetCentredInside(110.), kParamGain, "IVKnobControl", style, true), kNoTag, "vcontrols");
     
-    pGraphics->AttachControl(new IVSliderControl(nextCell(), kParamGain, "IVSliderControl", style.WithRoundness(1.f), true, EDirection::Vertical, DEFAULT_GEARING, 6.f, 6.f, true), kCtrlTagVectorSlider, "vcontrols");
-    pGraphics->AttachControl(new IVSliderControl(nextCell().SubRectVertical(3, 0), kParamGain, "IVSliderControl H", style, true, EDirection::Horizontal), kCtrlTagVectorSlider, "vcontrols");
+    pGraphics->AttachControl(new IVSliderControl(nextCell(), kParamGain, "IVSliderControl", style.WithRoundness(1.f), true, EDirection::Vertical, DEFAULT_GEARING, 6.f, 6.f, true), kCtrlTagVectorSliderV, "vcontrols");
+    pGraphics->AttachControl(new IVSliderControl(nextCell().SubRectVertical(3, 0), kParamGain, "IVSliderControl H", style, true, EDirection::Horizontal), kCtrlTagVectorSliderH, "vcontrols");
     pGraphics->AttachControl(new IVRangeSliderControl(sameCell().SubRectVertical(3, 1), {kParamFreq1, kParamFreq2}, "IVRangeSliderControl", style, EDirection::Horizontal, true, 8.f, 2.f), kNoTag, "vcontrols");
     pGraphics->AttachControl(new ISVGSliderControl(sameCell().SubRectVertical(3, 2), hsliderHandleSVG, hsliderTrackSVG, kParamGain, EDirection::Horizontal), kNoTag, "svgcontrols")->SetTooltip("ISVGSlider H");
     
@@ -192,7 +192,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     
     pGraphics->AttachControl(new IVSwitchControl(nextCell().SubRectVertical(3, 0), kParamMode, "IVSwitchControl", style.WithValueText(IText(24.f, EAlign::Center))), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVToggleControl(sameCell().SubRectVertical(3, 1), SplashClickActionFunc, "IVToggleControl", style.WithValueText(forkAwesomeText), "", ICON_FK_CHECK), kNoTag, "vcontrols");
-    pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), kParamMode, {}, "IVRadioButtonControl", style, EVShape::Ellipse, EDirection::Vertical, 10.f), kCtrlTagRadioButton, "vcontrols");
+    pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), kParamMode, {"one", "two", "three", "four"}, "IVRadioButtonControl", style, EVShape::Ellipse, EDirection::Vertical, 10.f), kCtrlTagRadioButton, "vcontrols");
     pGraphics->AttachControl(new IVTabSwitchControl(nextCell().SubRectVertical(3, 0), SplashClickActionFunc, {ICON_FAU_FILTER_LOWPASS, ICON_FAU_FILTER_BANDPASS, ICON_FAU_FILTER_HIGHPASS}, "IVTabSwitchControl", style.WithValueText(fontaudioText), EVShape::EndsRounded), kCtrlTagTabSwitch, "vcontrols");
     pGraphics->AttachControl(new IVSlideSwitchControl(sameCell().SubRectVertical(3, 1), kParamMode, "IVSlideSwitchControl", style, true), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kParamFreq1, kParamFreq2}, "IVXYPadControl", style), kNoTag, "vcontrols");
@@ -222,9 +222,52 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 1).GetCentredInside(20.f), COLOR_GREEN), kCtrlTagGreenLED);
     pGraphics->AttachControl(new ILEDControl(sameCell().SubRectVertical(4, 1).SubRectHorizontal(3, 2).GetCentredInside(20.f), 0.5f), kCtrlTagBlueLED);
 
+//    #pragma mark IWebViewControl -
+//
+//    AddLabel("IWebViewControl");
+//
+//    auto readyFunc = [](IWebViewControl* pCaller){
+//      pCaller->LoadHTML(R"(<input type="range" id="vol" name="vol" min="0" max="100" onchange='IPlugSendMsg({"msg":"SAMFUI"})'>)");
+//    };
+//
+//    auto msgFunc = [](IWebViewControl* pCaller, const char* json){
+//      auto j = json::parse(json, nullptr, false);
+//      pCaller->GetUI()->GetBackgroundControl()->As<IPanelControl>()->SetPattern(IColor::GetRandomColor());
+//    };
+//
+//    pGraphics->AttachControl(new IWebViewControl(b.GetCentredInside(200), false, readyFunc, msgFunc, "C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugControls\\WebView2Loader.dll", "C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugControls\\"));
 
+//    pGraphics->AttachControl(new IVButtonControl(b.GetFromTRHC(50, 50)))->SetAnimationEndActionFunction([b](IControl* pCaller){
+//      /* TODO: get webview control */->EvaluateJavaScript(R"(document.body.style.background = "#000";)");
+//    });
+    
     //pGraphics->AttachControl(new IVGroupControl("Vector Controls", "vcontrols", 10.f, 30.f, 10.f, 10.f));
 
+    AddLabel("ILambdaControl");
+    pGraphics->AttachControl(new ILambdaControl(sameCell().GetScaledAboutCentre(0.5),
+    [](ILambdaControl* pCaller, IGraphics& g, IRECT& r) {
+      const float radius = r.W();
+      const float x = r.MW();
+      const float y = r.MH();
+      const float rotate = pCaller->GetAnimationProgress() * PI;
+      
+      for(int index = 0, limit = 40; index < limit; ++index)
+      {
+        float firstAngle = (index * 2 * PI) / limit;
+        float secondAngle = ((index + 1) * 2 * PI) / limit;
+        
+        g.PathTriangle(x, y,
+                       x + std::sin(firstAngle + rotate) * radius, y + std::cos(firstAngle + rotate) * radius,
+                       x + std::sin(secondAngle + rotate) * radius, y + std::cos(secondAngle + rotate) * radius);
+        
+        if(index % 2)
+          g.PathFill(COLOR_RED);
+        else
+          g.PathFill(pCaller->mMouseInfo.ms.L ? COLOR_VIOLET : COLOR_BLUE);
+      }
+      
+    }, 1000, false));
+    
     #pragma mark IVControl panel -
 
     cellIdx = 31;
@@ -468,6 +511,13 @@ void IPlugControls::OnMidiMsgUI(const IMidiMsg& msg)
     }
   }
 }
+
+void IPlugControls::OnUIClose()
+{
+  // store the background pattern. No modifications to other controls are stored, and this would also need to be serialized in plugin state, for recall!
+  mBGControlPattern = GetUI()->GetBackgroundControl()->As<IPanelControl>()->GetPattern();
+}
+
 #endif
 
 #if IPLUG_DSP

@@ -3,10 +3,13 @@
   <PropertyGroup Label="UserMacros">
     <IPLUG2_ROOT>$(ProjectDir)..\..\..</IPLUG2_ROOT>
     <BINARY_NAME>IPlugFaustDSP</BINARY_NAME>
-    <EXTRA_ALL_DEFS>IGRAPHICS_NANOVG;IGRAPHICS_GL2</EXTRA_ALL_DEFS>
-    <EXTRA_DEBUG_DEFS>DSP_FILE="C:\\Users\\Oli\\Dev\\iPlug2\\Examples\\IPlugFaustDSP\\IPlugFaustDSP.dsp"</EXTRA_DEBUG_DEFS>
+    <FAUST_SHARE_PATH>R"($(SolutionDir)..\..\Dependencies\Build\win\Faust\share\faust)"</FAUST_SHARE_PATH>
+    <FAUST_DLL_PATH>R"($(SolutionDir)..\..\Dependencies\Build\win\Faust\lib)"</FAUST_DLL_PATH>
+    <FAUST_EXE_PATH>R"($(SolutionDir)..\..\Dependencies\Build\win\Faust\bin\faust.exe)"</FAUST_EXE_PATH>
+    <DSP_FILE>R"($(SolutionDir)IPlugFaustDSP.dsp)"</DSP_FILE>
+    <EXTRA_ALL_DEFS>IGRAPHICS_NANOVG;IGRAPHICS_GL2;FAUSTFLOAT=double</EXTRA_ALL_DEFS>
+    <EXTRA_DEBUG_DEFS>DSP_FILE=$(DSP_FILE);FAUST_DLL_PATH=$(FAUST_DLL_PATH);FAUST_SHARE_PATH=$(FAUST_SHARE_PATH);FAUST_EXE=$(FAUST_EXE_PATH)</EXTRA_DEBUG_DEFS>
     <EXTRA_RELEASE_DEFS>FAUST_COMPILED</EXTRA_RELEASE_DEFS>
-    <EXTRA_TRACER_DEFS />
     <PDB_FILE>$(SolutionDir)build-win\pdbs\$(TargetName)_$(Platform).pdb</PDB_FILE>
     <BUILD_DIR>$(SolutionDir)build-win</BUILD_DIR>
     <CREATE_BUNDLE_SCRIPT>$(IPLUG2_ROOT)\Scripts\create_bundle.bat</CREATE_BUNDLE_SCRIPT>
@@ -38,6 +41,18 @@
   <ItemGroup>
     <BuildMacro Include="BINARY_NAME">
       <Value>$(BINARY_NAME)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FAUST_SHARE_PATH">
+      <Value>$(FAUST_SHARE_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FAUST_DLL_PATH">
+      <Value>$(FAUST_DLL_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FAUST_EXE_PATH">
+      <Value>$(FAUST_EXE_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="DSP_FILE">
+      <Value>$(DSP_FILE)</Value>
     </BuildMacro>
     <BuildMacro Include="EXTRA_ALL_DEFS">
       <Value>$(EXTRA_ALL_DEFS)</Value>

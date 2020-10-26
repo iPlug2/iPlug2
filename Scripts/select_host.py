@@ -42,7 +42,7 @@ print(" 8 - VST3 Test Host")
 
 # vst2/32bit
 print("choose a host to use for 32bit VST2 debugging...")
-choice = int(raw_input("Choice>>"))
+choice = int(input("Choice>>"))
 
 elem = doc.getElementsByTagName('VST2_32_HOST_PATH')[0]
 for child in elem.childNodes:
@@ -60,7 +60,7 @@ if ARGS[choice-1]:
 
 # vst2/64bit
 print("choose a host to use for 64bit VST2 debugging...")
-choice = int(raw_input("Choice>>"))
+choice = int(input("Choice>>"))
 
 elem = doc.getElementsByTagName('VST2_64_HOST_PATH')[0]
 for child in elem.childNodes:
@@ -78,7 +78,7 @@ if ARGS[choice-1]:
 
 # vst3/32bit
 print("choose a host to use for 32bit VST3 debugging...")
-choice = int(raw_input("Choice>>"))
+choice = int(input("Choice>>"))
 
 elem = doc.getElementsByTagName('VST3_32_HOST_PATH')[0]
 for child in elem.childNodes:
@@ -96,7 +96,7 @@ if ARGS[choice-1]:
 
 # vst3/64bit
 print("choose a host to use for 64bit VST3 debugging...")
-choice = int(raw_input("Choice>>"))
+choice = int(input("Choice>>"))
 
 elem = doc.getElementsByTagName('VST3_64_HOST_PATH')[0]
 for child in elem.childNodes:

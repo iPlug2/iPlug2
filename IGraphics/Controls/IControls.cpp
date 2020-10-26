@@ -37,7 +37,7 @@ IVLabelControl::IVLabelControl(const IRECT& bounds, const char* label, const IVS
 
 void IVLabelControl::Draw(IGraphics& g)
 {
-  DrawBackGround(g, mRECT);
+  DrawBackground(g, mRECT);
 
   if (mStr.GetLength())
   {
@@ -62,7 +62,7 @@ IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction aF, const 
 
 void IVButtonControl::Draw(IGraphics& g)
 {
-  DrawBackGround(g, mRECT);
+  DrawBackground(g, mRECT);
   DrawWidget(g);
   DrawLabel(g);
   DrawValue(g, false);
@@ -109,7 +109,7 @@ IVSwitchControl::IVSwitchControl(const IRECT& bounds, IActionFunction aF, const 
 
 void IVSwitchControl::Draw(IGraphics& g)
 {
-  DrawBackGround(g, mRECT);
+  DrawBackground(g, mRECT);
   DrawLabel(g);
   DrawWidget(g);
   DrawValue(g, false);
@@ -262,7 +262,7 @@ void IVSlideSwitchControl::OnEndAnimation()
 
 void IVSlideSwitchControl::Draw(IGraphics& g)
 {
-  DrawBackGround(g, mRECT);
+  DrawBackground(g, mRECT);
   DrawWidget(g);
   DrawLabel(g);
   
@@ -291,7 +291,7 @@ void IVSlideSwitchControl::SetDirty(bool push, int valIdx)
 }
 
 IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
-: ISwitchControlBase(bounds, paramIdx, SplashClickActionFunc)
+: ISwitchControlBase(bounds, paramIdx, SplashClickActionFunc, (int) options.size())
 , IVectorBase(style)
 , mDirection(direction)
 {
@@ -344,36 +344,36 @@ void IVTabSwitchControl::OnInit()
 
 void IVTabSwitchControl::Draw(IGraphics& g)
 {
-  DrawBackGround(g, mRECT);
+  DrawBackground(g, mRECT);
   DrawLabel(g);
   DrawWidget(g);
 }
 
-void IVTabSwitchControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed, bool mouseOver, ETabSegment segment)
+void IVTabSwitchControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed, bool mouseOver, ETabSegment segment, bool disabled)
 {
   switch (mShape)
   {
     case EVShape::EndsRounded:
       if(mDirection == EDirection::Horizontal)
-        DrawPressableRectangle(g, r, pressed, mouseOver, IsDisabled(), segment == ETabSegment::Start, segment == ETabSegment::End, false, false);
+        DrawPressableRectangle(g, r, pressed, mouseOver, disabled, segment == ETabSegment::Start, segment == ETabSegment::End, false, false);
       else
-        DrawPressableRectangle(g, r, pressed, mouseOver, false, IsDisabled(), segment == ETabSegment::Start, false, segment == ETabSegment::End);
+        DrawPressableRectangle(g, r, pressed, mouseOver, false, disabled, segment == ETabSegment::Start, false, segment == ETabSegment::End);
       break;
     case EVShape::AllRounded:
       if(mDirection == EDirection::Horizontal)
-        DrawPressableRectangle(g, r, pressed, mouseOver, IsDisabled(), true, true, false, false);
+        DrawPressableRectangle(g, r, pressed, mouseOver, disabled, true, true, false, false);
       else
-        DrawPressableRectangle(g, r, pressed, mouseOver, IsDisabled(), false, true, false, true);
+        DrawPressableRectangle(g, r, pressed, mouseOver, disabled, false, true, false, true);
       break;
     default:
-      DrawPressableShape(g, mShape, r, pressed, mouseOver, IsDisabled());
+      DrawPressableShape(g, mShape, r, pressed, mouseOver, disabled);
       break;
   }
 }
 
 void IVTabSwitchControl::DrawWidget(IGraphics& g)
 {
-  int hit = GetSelectedIdx();
+  int selected = GetSelectedIdx();
   ETabSegment segment = ETabSegment::Start;
 
   for (int i = 0; i < mNumStates; i++)
@@ -386,9 +386,9 @@ void IVTabSwitchControl::DrawWidget(IGraphics& g)
     if(i == mNumStates-1)
       segment = ETabSegment::End;
 
-    DrawButton(g, r, i == hit, mMouseOverButton == i, segment);
-    
-    if (mTabLabels.Get(i))
+    DrawButton(g, r, i == selected, mMouseOverButton == i, segment, IsDisabled() || GetStateDisabled(i));
+        
+    if(mTabLabels.Get(i))
     {
       g.DrawText(mStyle.valueText, mTabLabels.Get(i)->Get(), r, &mBlend);
     }
@@ -474,7 +474,7 @@ void IVRadioButtonControl::DrawWidget(IGraphics& g)
   {
     IRECT r = mButtons.Get()[i];
     
-    DrawButton(g, r.GetFromLeft(mButtonAreaWidth).GetCentredInside(mButtonSize), i == hit, mMouseOverButton == i, ETabSegment::Mid);
+    DrawButton(g, r.GetFromLeft(mButtonAreaWidth).GetCentredInside(mButtonSize), i == hit, mMouseOverButton == i, ETabSegment::Mid, IsDisabled() || GetStateDisabled(i));
     
     if (mTabLabels.Get(i))
     {
@@ -533,7 +533,7 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction aF, const char
 
 void IVKnobControl::Draw(IGraphics& g)
 {
-  DrawBackGround(g, mRECT);
+  DrawBackground(g, mRECT);
   DrawLabel(g);
   DrawWidget(g);
   DrawValue(g, mValueMouseOver);
@@ -682,7 +682,7 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const 
 
 void IVSliderControl::Draw(IGraphics& g)
 {
-  DrawBackGround(g, mRECT);
+  DrawBackground(g, mRECT);
   DrawLabel(g);
   DrawWidget(g);
   DrawValue(g, mValueMouseOver);
@@ -811,7 +811,7 @@ void IVSliderControl::OnInit()
 }
 
 IVRangeSliderControl::IVRangeSliderControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label, const IVStyle& style, EDirection dir, bool onlyHandle, float handleSize, float trackSize)
-: IVTrackControlBase(bounds, label, style, params, dir, 0, 1.)
+: IVTrackControlBase(bounds, label, style, params, 0, dir)
 , mHandleSize(handleSize)
 {
   mTrackSize = trackSize;
@@ -819,7 +819,7 @@ IVRangeSliderControl::IVRangeSliderControl(const IRECT& bounds, const std::initi
 
 void IVRangeSliderControl::Draw(IGraphics& g)
 {
-  DrawBackGround(g, mRECT);
+  DrawBackground(g, mRECT);
   DrawLabel(g);
   DrawWidget(g);
 //  DrawValue(g, mValueMouseOver);
@@ -880,7 +880,7 @@ void IVRangeSliderControl::DrawWidget(IGraphics& g)
 {
   IRECT r = mTrackBounds.Get()[0];
   
-  DrawTrackBG(g, r, 0);
+  DrawTrackBackground(g, r, 0);
   
   for(int i=0;i<NVals()-1;i++)
   {
@@ -947,7 +947,7 @@ IVXYPadControl::IVXYPadControl(const IRECT& bounds, const std::initializer_list<
 
 void IVXYPadControl::Draw(IGraphics& g)
 {
-  DrawBackGround(g, mRECT);
+  DrawBackground(g, mRECT);
   DrawLabel(g);
   
   if(mStyle.drawFrame)
@@ -1036,7 +1036,7 @@ IVPlotControl::IVPlotControl(const IRECT& bounds, const std::initializer_list<Pl
 
 void IVPlotControl::Draw(IGraphics& g)
 {
-  DrawBackGround(g, mRECT);
+  DrawBackground(g, mRECT);
   DrawLabel(g);
 
   float hdiv = mWidgetBounds.W() / static_cast<float>(mHorizontalDivisions);

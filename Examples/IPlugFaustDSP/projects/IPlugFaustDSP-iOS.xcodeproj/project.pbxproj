@@ -425,6 +425,7 @@
 		4F977D3120CC9DD800D19F46 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
+				4F800153252F0AAF00432412 /* LFO.h */,
 				4F6E673521C5613A005991A9 /* Synth */,
 				4F977D3520CC9DD800D19F46 /* Easing.h */,
 				4F977D3620CC9DD800D19F46 /* NChanDelay.h */,

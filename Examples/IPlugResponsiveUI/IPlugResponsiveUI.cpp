@@ -4,7 +4,7 @@
 #include "Test/TestSizeControl.h"
 
 IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
+: Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kGain)->InitGain("Gain", -70., -70., 0.);
 
@@ -46,7 +46,6 @@ IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
 
     pGraphics->SetLayoutOnResize(true);
     // pGraphics->AttachCornerResizer(EUIResizerMode::Size, true);
-    pGraphics->SetSizeConstraints(10,10000,10,10000);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     pGraphics->AttachPopupMenuControl();
 
@@ -82,7 +81,8 @@ IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
 #if IPLUG_EDITOR
 void IPlugResponsiveUI::OnParentWindowResize(int width, int height)
 {
-  GetUI()->Resize(width, height, 1.f, false);
+  if(GetUI())
+    GetUI()->Resize(width, height, 1.f, false);
 }
 #endif
 

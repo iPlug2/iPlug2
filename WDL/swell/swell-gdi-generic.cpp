@@ -151,6 +151,11 @@ HFONT CreateFont(int lfHeight, int lfWidth, int lfEscapement, int lfOrientation,
   return font;
 }
 
+HFONT SWELL_GetDefaultFont()
+{
+  return NULL;
+}
+
 
 HFONT CreateFontIndirect(LOGFONT *lf)
 {
@@ -692,7 +697,7 @@ return 0;
 
 void swell_load_color_theme(const char *fn)
 {
-  FILE *fp = fopen(fn,"r");
+  FILE *fp = WDL_fopenA(fn,"r");
   if (fp)
   {
     swell_colortheme load;

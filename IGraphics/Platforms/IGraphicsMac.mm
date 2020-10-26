@@ -71,6 +71,11 @@ PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, const char* f
   return CoreTextHelpers::LoadPlatformFont(fontID, fontName, style);
 }
 
+PlatformFontPtr IGraphicsMac::LoadPlatformFont(const char* fontID, void* pData, int dataSize)
+{
+  return CoreTextHelpers::LoadPlatformFont(fontID, pData, dataSize);
+}
+
 void IGraphicsMac::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
 {
   CoreTextHelpers::CachePlatformFont(fontID, font, sFontDescriptorCache);
@@ -111,6 +116,19 @@ void* IGraphicsMac::OpenWindow(void* pParent)
   }
 
   return mView;
+}
+
+void IGraphicsMac::AttachPlatformView(const IRECT& r, void* pView)
+{
+  NSView* pNewSubView = (NSView*) pView;
+  [pNewSubView setFrame:ToNSRect(this, r)];
+  
+  [(IGRAPHICS_VIEW*) mView addSubview:(NSView*) pNewSubView];
+}
+
+void IGraphicsMac::RemovePlatformView(void* pView)
+{
+  [(NSView*) pView removeFromSuperview];
 }
 
 void IGraphicsMac::CloseWindow()
@@ -164,7 +182,9 @@ void IGraphicsMac::PlatformResize(bool parentHasResized)
 #endif
     
     [NSAnimationContext endGrouping];
-  }  
+  }
+    
+  UpdateTooltips();
 }
 
 void IGraphicsMac::PointToScreen(float& x, float& y) const

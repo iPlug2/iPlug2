@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IPlugSurroundEffect</string>
 	<key>CFBundleGetInfoString</key>
-	<string>IPlugSurroundEffect v1.0.0 Copyright 2019 Acme Inc</string>
+	<string>IPlugSurroundEffect v1.0.0 Copyright 2020 Acme Inc</string>
 	<key>CFBundleIconFile</key>
 	<string>IPlugSurroundEffect.icns</string>
 	<key>CFBundleIdentifier</key>

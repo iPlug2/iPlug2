@@ -95,7 +95,10 @@ class WDL_TypedBufChildrenProvider:
 class WDL_PtrListChildrenProvider:
     def __init__(self, valobj, internal_dict):
         typename = valobj.GetTypeName()
-        base_type = re.match('WDL_PtrList<(.*)>', typename, re.S).group(1)
+        try:
+            base_type = re.match('WDL_PtrList<(.*)>', typename, re.S).group(1)
+        except:
+            base_type = re.match('WDL_PtrList<(.*)>', typename, re.S)
         debugger = lldb.debugger
         target = debugger.GetSelectedTarget()
         self.data_type = target.FindFirstType(base_type)

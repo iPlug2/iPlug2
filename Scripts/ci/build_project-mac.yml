@@ -76,7 +76,7 @@ steps:
     inputs:
       sdk: 'macosx10.15'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
-      args: '-target VST3 -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
+      args: '-UseModernBuildSystem=NO -target VST3 -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
       xcodeVersion: '11'
     condition: eq(variables.build_vst3, True)
@@ -86,7 +86,7 @@ steps:
     inputs:
       sdk: 'macosx10.15'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
-      args: '-target AAX -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
+      args: '-UseModernBuildSystem=NO -target AAX -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: '${{parameters.configuration}}'
       xcodeVersion: '11'
     condition: eq(variables.build_aax, True)
@@ -96,7 +96,7 @@ steps:
     inputs:
       sdk: 'macosx10.15'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
-      args: '-target AU -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
+      args: '-UseModernBuildSystem=NO -target AU -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
       xcodeVersion: '11'
     condition: eq(variables.build_auv2, True)
@@ -106,7 +106,7 @@ steps:
     inputs:
       sdk: 'macosx10.15'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
-      args: '-target APP -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
+      args: '-UseModernBuildSystem=NO -target APP -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
       xcodeVersion: '11'
       signingOption: 'manual'

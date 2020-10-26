@@ -42,10 +42,10 @@ bool IPlugAPP::EditorResize(int viewWidth, int viewHeight)
   if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
   {
     #ifdef OS_MAC
-    #define TITLEBAR_BODGE 22 //TODO: sort this out
+    const int titleBarOffset = 22;
     RECT r;
     GetWindowRect(gHWND, &r);
-    SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - TITLEBAR_BODGE, viewWidth, viewHeight + TITLEBAR_BODGE, 0);
+    SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - titleBarOffset, viewWidth, viewHeight + titleBarOffset, 0);
     parentResized = true;
     #endif
     SetEditorSize(viewWidth, viewHeight);

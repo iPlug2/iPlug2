@@ -146,6 +146,7 @@
 		4F6E673921C5613A005991A9 /* MidiSynth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MidiSynth.h; sourceTree = "<group>"; };
 		4F6E673A21C5613A005991A9 /* ControlRamp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ControlRamp.h; sourceTree = "<group>"; };
 		4F6E673B21C5613A005991A9 /* MidiSynth.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MidiSynth.cpp; sourceTree = "<group>"; };
+		4F800153252F0AAF00432412 /* LFO.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LFO.h; sourceTree = "<group>"; };
 		4F8D7DCB224AE821002A1A2A /* IGraphicsNanoVG_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsNanoVG_src.m; sourceTree = "<group>"; };
 		4F8D8BD82316701900EFA1FB /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		4F977D3520CC9DD800D19F46 /* Easing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Easing.h; sourceTree = "<group>"; };
@@ -423,6 +424,7 @@
 		4F977D3120CC9DD800D19F46 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
+				4F800153252F0AAF00432412 /* LFO.h */,
 				4F6E673521C5613A005991A9 /* Synth */,
 				4F977D3520CC9DD800D19F46 /* Easing.h */,
 				4F977D3620CC9DD800D19F46 /* NChanDelay.h */,

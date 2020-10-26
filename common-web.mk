@@ -49,7 +49,7 @@ INCLUDE_PATHS = -I$(PROJECT_ROOT) \
 -I$(NANOSVG_PATH) \
 -I$(STB_PATH) \
 -I$(IMGUI_PATH) \
--I$(IMGUI_PATH)/examples \
+-I$(IMGUI_PATH)/backends \
 -I$(YOGA_PATH) \
 -I$(YOGA_PATH)/yoga
 

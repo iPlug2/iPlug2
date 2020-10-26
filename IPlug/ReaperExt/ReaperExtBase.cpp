@@ -34,7 +34,7 @@ auto ClientResize = [](HWND hWnd, int nWidth, int nHeight) {
   SetWindowPos(hWnd, 0, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, 0);
 };
 
-bool ReaperExtBase::EditorResizeFromUI(int viewWidth, int viewHeight)
+bool ReaperExtBase::EditorResizeFromUI(int viewWidth, int viewHeight, bool needsPlatformResize)
 {
   if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
   {

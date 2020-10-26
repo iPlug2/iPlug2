@@ -228,6 +228,7 @@
 		4F993F7423055C96000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		4F993F7523055C97000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		4F993F7623055C98000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
+		4F99C48C24CE474900C510E1 /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
 		4F9A82F6213DE80400BE63A4 /* IPopupMenuControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A82F3213DE80200BE63A4 /* IPopupMenuControl.h */; };
 		4F9A82F7213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */; };
 		4F9A82F8213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */; };
@@ -291,14 +292,13 @@
 		4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; };
 		4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4113B635AB001D0217 /* swell-wnd.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code"; }; };
 		4FD16D4413B635B2001D0217 /* swell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4313B635B2001D0217 /* swell.cpp */; };
-		4FD18D592470BAF60057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FD18D5B2470BAFB0057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FD18D5C2470BAFB0057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FD18D5D2470BAFB0057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FD18D5E2470BAFC0057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FD18D5F2470BAFD0057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FD18D622470BB020057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FD18D632470BB050057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4FD18D592470BAF60057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
+		4FD18D5B2470BAFB0057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
+		4FD18D5C2470BAFB0057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
+		4FD18D5D2470BAFB0057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
+		4FD18D5E2470BAFC0057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
+		4FD18D622470BB020057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
+		4FD18D632470BB050057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
 		4FD52131202A5B9B00A4D22A /* IPlugAU_view_factory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD5212E202A5B9B00A4D22A /* IPlugAU_view_factory.mm */; };
 		4FD52133202A5B9B00A4D22A /* IPlugAU.r in Rez */ = {isa = PBXBuildFile; fileRef = 4FD52130202A5B9B00A4D22A /* IPlugAU.r */; };
 		4FD52136202A5BD000A4D22A /* dfx-au-utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FD52134202A5BD000A4D22A /* dfx-au-utilities.c */; };
@@ -590,6 +590,7 @@
 		4F7E6F2B20DEC3DE00A5F641 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		4F7E6F2D20DEC3DE00A5F641 /* IPlugWAM-awp.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "IPlugWAM-awp.js"; sourceTree = "<group>"; };
 		4F7E6F2F20DEC3DE00A5F641 /* IPlugWAM-awn.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "IPlugWAM-awn.js"; sourceTree = "<group>"; };
+		4F800152252F0A9F00432412 /* LFO.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LFO.h; sourceTree = "<group>"; };
 		4F8157DD205D50EA00393585 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
 		4F8157E0205D50EA00393585 /* memorystream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memorystream.cpp; sourceTree = "<group>"; };
 		4F8157E1205D50EA00393585 /* memorystream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = memorystream.h; sourceTree = "<group>"; };
@@ -1136,6 +1137,7 @@
 				4FC44B9820F151B90062F870 /* WebSocket */,
 				4F5369BC20C446430089212E /* Easing.h */,
 				4F5369BD20C446430089212E /* NChanDelay.h */,
+				4F800152252F0A9F00432412 /* LFO.h */,
 				4F5369BE20C446430089212E /* OSC */,
 				4F5369C320C446430089212E /* Oscillator.h */,
 				4F5369C420C446430089212E /* HIIR */,
@@ -2526,6 +2528,7 @@
 				4FB1F59620E4B017004157C8 /* IGraphicsMac_view.mm in Sources */,
 				4F9A82FD213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4F472103209B294400A0A0A8 /* IPlugVST3_Controller.cpp in Sources */,
+				4F99C48C24CE474900C510E1 /* IGraphicsImGui_src.mm in Sources */,
 				4F78BE2D22E7412300AD537E /* IGraphicsNanoVG_src.m in Sources */,
 				4FC3EFCB2086C27800BD11FA /* IPlugResponsiveUI.cpp in Sources */,
 			);
@@ -2597,7 +2600,6 @@
 				4FFBB91720863B0E00DDD0E7 /* funknown.cpp in Sources */,
 				4FFBB91820863B0E00DDD0E7 /* vstbus.cpp in Sources */,
 				4FFBB91920863B0E00DDD0E7 /* IPlugPluginBase.cpp in Sources */,
-				4FD18D5F2470BAFD0057191E /* IGraphicsImGui_src.mm in Sources */,
 				4FFBB91A20863B0E00DDD0E7 /* macmain.cpp in Sources */,
 				4FFBB91B20863B0E00DDD0E7 /* flock.cpp in Sources */,
 				4FFBB91D20863B0E00DDD0E7 /* ustring.cpp in Sources */,
@@ -2746,7 +2748,6 @@
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SYMROOT = "../build-mac";
-				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = "";
 			};
 			name = Debug;
@@ -2824,7 +2825,6 @@
 				SDKROOT = "$(BASE_SDK_MAC)";
 				SKIP_INSTALL = NO;
 				SYMROOT = "../build-mac";
-				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = "";
 			};
 			name = Release;
@@ -3940,7 +3940,6 @@
 				SDKROOT = "$(BASE_SDK_MAC)";
 				SKIP_INSTALL = NO;
 				SYMROOT = "../build-mac";
-				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = "";
 			};
 			name = Tracer;

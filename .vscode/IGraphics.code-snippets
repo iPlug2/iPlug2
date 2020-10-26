@@ -101,7 +101,7 @@
 
 			"\tvoid Draw(IGraphics& g) override",
 			"\t{",
-			"\t\tDrawBackGround(g, mRECT);",
+			"\t\tDrawBackground(g, mRECT);",
 			"\t\tDrawWidget(g);",
 			"\t\tDrawLabel(g);",
 			"\t\tDrawValue(g, mMouseIsOver);",

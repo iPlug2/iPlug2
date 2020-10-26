@@ -139,10 +139,26 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2); // to be implemente
 //
 
 
-
+#if defined(__APPLE__) && !defined(SWELL_USE_OBJC_BOOL)
+  #include <AvailabilityMacros.h>
+  // this may be safe to always use, but for now only use when using a very very modern SDK
+  #ifdef MAC_OS_X_VERSION_10_16
+    #define SWELL_USE_OBJC_BOOL
+  #endif
+#endif
 
 // basic types
-typedef signed char BOOL;
+#ifdef SWELL_USE_OBJC_BOOL
+  #include <objc/objc.h>
+  #ifndef __OBJC__
+    #undef NO
+    #undef YES
+    #undef Nil
+    #undef nil
+  #endif
+#else
+  typedef signed char BOOL;
+#endif
 typedef unsigned char BYTE;
 typedef unsigned short WORD;
 typedef unsigned int DWORD;
@@ -421,6 +437,12 @@ typedef struct HTREEITEM__ *HTREEITEM;
 #define TVN_FIRST               (0U-400U)       // treeview
 #define TVN_SELCHANGED          (TVN_FIRST-2)
 
+// swell-extension: WM_MOUSEMOVE set via capture in TVN_BEGINDRAG can return:
+//   -1 = drag not possible
+//   -2 = destination at end of list
+//   (HTREEITEM) = will end up before this item
+#define TVN_BEGINDRAG           (TVN_FIRST-7) 
+
 #define TVI_ROOT                ((HTREEITEM)0xFFFF0000)
 #define TVI_FIRST               ((HTREEITEM)0xFFFF0001)
 #define TVI_LAST                ((HTREEITEM)0xFFFF0002)
@@ -635,13 +657,22 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
  */
 #define MB_OK 0
 #define MB_OKCANCEL 1
+#define MB_ABORTRETRYIGNORE 2
 #define MB_YESNOCANCEL 3
 #define MB_YESNO 4
 #define MB_RETRYCANCEL 5
 
+#define MB_DEFBUTTON1 0
+#define MB_DEFBUTTON2 0x00000100
+#define MB_DEFBUTTON3 0x00000200
+
 #define MB_ICONERROR 0
 #define MB_ICONSTOP 0
 #define MB_ICONINFORMATION 0
+#define MB_ICONWARNING 0
+#define MB_ICONQUESTION 0
+#define MB_TOPMOST 0
+#define MB_ICONEXCLAMATION 0
 
 #define IDOK                1
 #define IDCANCEL            2
@@ -658,6 +689,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define GW_OWNER            4
 #define GW_CHILD            5
 
+#define GWL_HWNDPARENT      (-25)
 #define GWL_USERDATA        (-21)
 #define GWL_ID              (-12)
 #define GWL_STYLE           (-16) // only supported for BS_ for now I think
@@ -679,6 +711,8 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define WS_THICKFRAME   0x00040000L
 #define WS_GROUP        0x00020000L
 #define WS_TABSTOP      0x00010000L
+
+#define TVS_DISABLEDRAGDROP 0x10
 
 #define WS_BORDER 0 // ignored for now
 
@@ -719,6 +753,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define LB_GETSELCOUNT          0x0190
 #define LB_GETITEMDATA          0x0199
 #define LB_SETITEMDATA          0x019A
+#define LB_FINDSTRINGEXACT      0x01A2
 
 #define TBM_GETPOS              (WM_USER)
 #define TBM_SETTIC              (WM_USER+4)
@@ -999,6 +1034,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define EM_GETSEL               0xF0B0
 #define EM_SETSEL               0xF0B1
 #define EM_SCROLL               0xF0B5
+#define EM_REPLACESEL           0xF0C2
 #define EM_SETPASSWORDCHAR      0xF0CC
 
 #define SB_HORZ             0
@@ -1278,6 +1314,8 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define GHND (GMEM_MOVEABLE|GM_ZEROINIT)
 #define GPTR (GMEM_FIXED|GMEM_ZEROINIT)
 
+#define CF_TEXT (1)
+#define CF_HDROP (2)
 
 #define _MCW_RC         0x00000300              /* Rounding Control */
 #define _RC_NEAR        0x00000000              /*   near */

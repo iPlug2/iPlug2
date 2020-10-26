@@ -1,14 +1,16 @@
-<?xml version="1.0" encoding="utf-8"?><Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <ImportGroup Label="PropertySheets"/>
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <RTAUDIOMIDI_PATH>$(IPLUG_PATH)\APP\RTAudioMidi</RTAUDIOMIDI_PATH>
     <WDL_PATH>$(IPLUG2_ROOT)\WDL</WDL_PATH>
     <LICE_PATH>$(WDL_PATH)\lice</LICE_PATH>
     <IPLUG_PATH>$(IPLUG2_ROOT)\IPlug</IPLUG_PATH>
     <EXTRAS_PATH>$(IPLUG_PATH)\Extras</EXTRAS_PATH>
-    <IPLUG_INC_PATHS>$(WDL_PATH);$(IPLUG_PATH);$(EXTRAS_PATH);$(EXTRAS_PATH)\Synth;$(EXTRAS_PATH)\Faust;$(SolutionDir)\resources</IPLUG_INC_PATHS>
     <IGRAPHICS_PATH>$(IPLUG2_ROOT)\IGraphics</IGRAPHICS_PATH>
     <DEPS_PATH>$(IPLUG2_ROOT)\Dependencies</DEPS_PATH>
+    <JSON_PATH>$(DEPS_PATH)\Extras\nlohmann</JSON_PATH>
+    <IPLUG_INC_PATHS>$(WDL_PATH);$(IPLUG_PATH);$(EXTRAS_PATH);$(EXTRAS_PATH)\OSC;$(EXTRAS_PATH)\Synth;$(EXTRAS_PATH)\Faust;$(EXTRAS_PATH)\WebView;$(JSON_PATH);$(SolutionDir)\resources</IPLUG_INC_PATHS>
     <IPLUG_DEPS_PATH>$(DEPS_PATH)\IPlug</IPLUG_DEPS_PATH>
     <IGRAPHICS_DEPS_PATH>$(DEPS_PATH)\IGraphics</IGRAPHICS_DEPS_PATH>
     <NANOVG_PATH>$(IGRAPHICS_DEPS_PATH)\NanoVG\src</NANOVG_PATH>
@@ -18,31 +20,31 @@
     <AGG_PATH>$(IGRAPHICS_DEPS_PATH)\AGG\agg-2.4</AGG_PATH>
     <AGG_INC_PATHS>$(AGG_PATH)\include;$(AGG_PATH)\font_freetype;$(AGG_PATH)\include\util;$(AGG_PATH)\include\platform\win32;$(AGG_PATH)\src;$(AGG_PATH)\src\platform\win32</AGG_INC_PATHS>
     <SKIA_PATH>$(DEPS_PATH)\Build\src\skia</SKIA_PATH>
-    <SKIA_INC_PATHS>$(SKIA_PATH);$(SKIA_PATH)\include\core;$(SKIA_PATH)\include\effects;$(SKIA_PATH)\include\config;$(SKIA_PATH)\include\utils;$(SKIA_PATH)\include\gpu;$(SKIA_PATH)\experimental\svg\model</SKIA_INC_PATHS>
+    <SKIA_INC_PATHS>$(SKIA_PATH);$(SKIA_PATH)\include\core;$(SKIA_PATH)\include\effects;$(SKIA_PATH)\include\config;$(SKIA_PATH)\include\utils;$(SKIA_PATH)\include\gpu;$(SKIA_PATH)\experimental\svg\model;$(SKIA_PATH)\third_party\externals\icu\source\common</SKIA_INC_PATHS>
     <GLAD_GL2_PATHS>$(IGRAPHICS_DEPS_PATH)\glad_GL2\include;$(IGRAPHICS_DEPS_PATH)\glad_GL2\src</GLAD_GL2_PATHS>
     <GLAD_GL3_PATHS>$(IGRAPHICS_DEPS_PATH)\glad_GL3\include;$(IGRAPHICS_DEPS_PATH)\glad_GL3\src</GLAD_GL3_PATHS>
     <PNG_PATH>$(WDL_PATH)\libpng</PNG_PATH>
     <ZLIB_PATH>$(WDL_PATH)\zlib</ZLIB_PATH>
     <STB_PATH>$(IGRAPHICS_DEPS_PATH)\STB</STB_PATH>
-    <FAUST_INC_PATHS>$(ProgramW6432)\Faust\include</FAUST_INC_PATHS>
+    <FAUST_INC_PATHS>$(DEPS_PATH)\Build\win\Faust\include</FAUST_INC_PATHS>
     <STATIC_LIBS_PATH>$(DEPS_PATH)\Build\win\$(Platform)\$(Configuration)</STATIC_LIBS_PATH>
-    <IMGUI_INC_PATHS>$(IGRAPHICS_DEPS_PATH)\imgui;$(IGRAPHICS_DEPS_PATH)\imgui\examples</IMGUI_INC_PATHS>
+    <IMGUI_INC_PATHS>$(IGRAPHICS_DEPS_PATH)\imgui;$(IGRAPHICS_DEPS_PATH)\imgui\backends</IMGUI_INC_PATHS>
     <YOGA_INC_PATHS>$(IGRAPHICS_DEPS_PATH)\yoga;$(IGRAPHICS_DEPS_PATH)\yoga\yoga</YOGA_INC_PATHS>
     <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(IGRAPHICS_PATH)\Controls;$(IGRAPHICS_PATH)\Drawing;$(IGRAPHICS_PATH)\Platforms;$(IGRAPHICS_PATH)\Extras;$(LICE_PATH);$(NANOSVG_PATH);$(NANOVG_PATH);$(AGG_INC_PATHS);$(CAIRO_PATHS);$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH);$(IMGUI_INC_PATHS);$(SKIA_INC_PATHS);$(YOGA_INC_PATHS)</IGRAPHICS_INC_PATHS>
-    <VST2_SDK>$(IPLUG_DEPS_PATH)\VST2_SDK</VST2_SDK>
-    <VST3_SDK>$(IPLUG_DEPS_PATH)\VST3_SDK</VST3_SDK>
-    <ASIO_SDK>$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
-    <AAX_SDK>$(IPLUG_DEPS_PATH)\AAX_SDK</AAX_SDK>
-    <VST2_32_HOST_PATH>$(ProgramFiles)\REAPER\reaper.exe</VST2_32_HOST_PATH>
-    <VST2_64_HOST_PATH>$(ProgramW6432)\REAPER (x64)\reaper.exe</VST2_64_HOST_PATH>
-    <VST3_32_HOST_PATH>$(ProgramFiles)\REAPER\reaper.exe</VST3_32_HOST_PATH>
-    <VST3_64_HOST_PATH>$(ProgramW6432)\REAPER (x64)\reaper.exe</VST3_64_HOST_PATH>
-    <VST3_32_PATH>$(CommonProgramFiles)\VST3</VST3_32_PATH>
-    <VST3_64_PATH>$(CommonProgramW6432)\VST3</VST3_64_PATH>
-    <VST2_32_PATH>$(ProgramFiles)\VstPlugins</VST2_32_PATH>
-    <VST2_64_PATH>$(ProgramW6432)\VstPlugins</VST2_64_PATH>
-    <AAX_32_PATH>$(CommonProgramFiles)\Avid\Audio\Plug-Ins</AAX_32_PATH>
-    <AAX_64_PATH>$(CommonProgramW6432)\Avid\Audio\Plug-Ins</AAX_64_PATH>
+    <VST2_SDK Condition="'$(VST2_SDK)'==''">$(IPLUG_DEPS_PATH)\VST2_SDK</VST2_SDK>
+    <VST3_SDK Condition="'$(VST3_SDK)'==''">$(IPLUG_DEPS_PATH)\VST3_SDK</VST3_SDK>
+    <ASIO_SDK Condition="'$(ASIO_SDK)'==''">$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
+    <AAX_SDK Condition="'$(AAX_SDK)'==''">$(IPLUG_DEPS_PATH)\AAX_SDK</AAX_SDK>
+    <VST2_32_HOST_PATH Condition="'$(VST2_32_HOST_PATH)'==''">$(ProgramFiles)\REAPER\reaper.exe</VST2_32_HOST_PATH>
+    <VST2_64_HOST_PATH Condition="'$(VST2_64_HOST_PATH)'==''">$(ProgramW6432)\REAPER (x64)\reaper.exe</VST2_64_HOST_PATH>
+    <VST3_32_HOST_PATH Condition="'$(VST3_32_HOST_PATH)'==''">$(ProgramFiles)\REAPER\reaper.exe</VST3_32_HOST_PATH>
+    <VST3_64_HOST_PATH Condition="'$(VST3_64_HOST_PATH)'==''">$(ProgramW6432)\REAPER (x64)\reaper.exe</VST3_64_HOST_PATH>
+    <VST3_32_PATH Condition="'$(VST3_32_PATH)'==''">$(CommonProgramFiles)\VST3</VST3_32_PATH>
+    <VST3_64_PATH Condition="'$(VST3_64_PATH)'==''">$(CommonProgramW6432)\VST3</VST3_64_PATH>
+    <VST2_32_PATH Condition="'$(VST2_32_PATH)'==''">$(ProgramFiles)\VstPlugins</VST2_32_PATH>
+    <VST2_64_PATH Condition="'$(VST2_64_PATH)'==''">$(ProgramW6432)\VstPlugins</VST2_64_PATH>
+    <AAX_32_PATH Condition="'$(AAX_32_PATH)'==''">$(CommonProgramFiles)\Avid\Audio\Plug-Ins</AAX_32_PATH>
+    <AAX_64_PATH Condition="'$(AAX_64_PATH)'==''">$(CommonProgramW6432)\Avid\Audio\Plug-Ins</AAX_64_PATH>
     <REAPER_EXT_PATH>$(APPDATA)\REAPER\UserPlugins</REAPER_EXT_PATH>
     <APP_DEFS>APP_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;IPLUG_EDITOR=1;IPLUG_DSP=1</APP_DEFS>
     <VST2_DEFS>VST2_API;VST_FORCE_DEPRECATED;IPLUG_EDITOR=1;IPLUG_DSP=1</VST2_DEFS>
@@ -68,7 +70,7 @@
     <REAPER_INC_PATHS>$(IPLUG_DEPS_PATH)/Reaper;$(IPLUG_PATH)\ReaperExt;</REAPER_INC_PATHS>
     <AAX_ICON>$(AAX_SDK)\Utilities\PlugIn.ico</AAX_ICON>
     <VST_ICON>$(VST3_SDK)\doc\artwork\VST_Logo_Steinberg.ico</VST_ICON>
-    <FAUST_LIB_PATH>$(ProgramW6432)\Faust\lib</FAUST_LIB_PATH>
+    <FAUST_LIB_PATH>$(DEPS_PATH)\Build\win\Faust\lib</FAUST_LIB_PATH>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
@@ -81,6 +83,7 @@
       <AdditionalIncludeDirectories>$(WDL_PATH);$(IPLUG_PATH);$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp14</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -88,7 +91,7 @@
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
     </Link>
     <Lib>
-      <AdditionalDependencies/>
+      <AdditionalDependencies />
     </Lib>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(SolutionDir);$(SolutionDir)\resources\fonts;$(SolutionDir)\resources\img;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -110,14 +113,17 @@
     <BuildMacro Include="EXTRAS_PATH">
       <Value>$(EXTRAS_PATH)</Value>
     </BuildMacro>
-    <BuildMacro Include="IPLUG_INC_PATHS">
-      <Value>$(IPLUG_INC_PATHS)</Value>
-    </BuildMacro>
     <BuildMacro Include="IGRAPHICS_PATH">
       <Value>$(IGRAPHICS_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="DEPS_PATH">
       <Value>$(DEPS_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="JSON_PATH">
+      <Value>$(JSON_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="IPLUG_INC_PATHS">
+      <Value>$(IPLUG_INC_PATHS)</Value>
     </BuildMacro>
     <BuildMacro Include="IPLUG_DEPS_PATH">
       <Value>$(IPLUG_DEPS_PATH)</Value>

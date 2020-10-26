@@ -61,7 +61,7 @@ public:
   int GetMfrID() const { return mMfrID; }
   
   /** @return The host if it has been identified, see EHost enum for a list of possible hosts */
-   EHost GetHost() const { return mHost; }
+  EHost GetHost() const { return mHost; }
   
   /** Get the host name as a CString
    * @param str string into which to write the host name */
@@ -92,6 +92,9 @@ public:
   
   /** @return \c true if the plug-in is meant to have a UI, as defined in config.h */
   bool HasUI() const { return mHasUI; }
+  
+  /** @return \c true if the plug-in allows reszing via the host's window chrome, as defined in config.h */
+  bool GetHostResizeEnabled() const { return mHostResize; }
   
   /*** @return a CString with the bundle identifier (macOS/IOS only) */
   const char* GetBundleID() const { return mBundleID.Get(); }
@@ -160,18 +163,13 @@ public:
   void SetCurrentPresetIdx(int idx) { assert(idx > -1 && idx < NPresets()); mCurrentPresetIdx = idx; }
   
   /** Implemented by the API class, called by the UI (etc) when the plug-in initiates a program/preset change (not applicable to all APIs) */
-  virtual void InformHostOfProgramChange() {};
-#pragma mark - Preset Manipulation - NO-OPs
+  virtual void InformHostOfPresetChange() {};
+
+#pragma mark - Preset Manipulation
   
-#ifdef NO_PRESETS
-  virtual int NPresets() const { return 1; }
-  virtual void ModifyCurrentPreset(const char* name = 0) { };
-  virtual bool RestorePreset(int idx) { mCurrentPresetIdx = idx; return true; }
-  virtual bool RestorePreset(const char* name) { return true; }
-  virtual const char* GetPresetName(int idx) const { return "-"; }
-  
-#else
-  #pragma mark - Preset Manipulation - OPs - These methods are not included if you define NO_PRESETS
+  /** Get a ptr to a factory preset
+   * @ param idx The index number of the preset you are referring to */
+  IPreset* GetPreset(int idx) { return mPresets.Get(idx); }
   
   /** This method should update the current preset with current values
    * NOTE: This is only relevant for VST2 plug-ins, which is the only format to have the notion of banks?
@@ -198,171 +196,108 @@ public:
   const char* GetPresetName(int idx) const;
   
   /** Copy source preset to preset at index
-  * @param pPresetSrc source preset
-  * @param dest_idx index of internal dest preset */
-  void CopyPreset(IPreset* pPresetSrc, int dest_idx, bool copyname = false)
+  * @param pSrc source preset
+  * @param destIdx index of internal destination preset */
+  void CopyPreset(IPreset* pSrc, int destIdx, bool copyname = false)
   {
-    IPreset* pPresetTgt = mPresets.Get(dest_idx);
+    IPreset* pDst = mPresets.Get(destIdx);
 
-    pPresetTgt->mChunk.Clear();
-    pPresetTgt->mChunk.PutChunk(&pPresetSrc->mChunk);
-    pPresetTgt->mInitialized = true;
-    strncpy(pPresetTgt->mName, pPresetSrc->mName, MAX_PRESET_NAME_LEN - 1);
+    pDst->mChunk.Clear();
+    pDst->mChunk.PutChunk(&pSrc->mChunk);
+    pDst->mInitialized = true;
+    strncpy(pDst->mName, pSrc->mName, MAX_PRESET_NAME_LEN - 1);
   }
   
-  /** /todo 
-   * @param name /todo
-   * @param nPresets /todo */
+  /** This method can be used to initialize baked-in factory presets with the default parameter values. It finds the first uninitialized preset and initializes 
+   * nPresets that follow sequentially.
+   * Typically you would use it if you have configured you plugin bank to e.g. 32 presets, you provide e.g. 8 factory presets via MakePresetXXX, 
+   * but you want to fill the rest of the 32 presets with default values
+   * @param name The name to give the presets
+   * @param nPresets The number of presets to fill with default values */
   void MakeDefaultPreset(const char* name = 0, int nPresets = 1);
 
-  /** This method can be used from Plugin class to create a baked-in factory preset
+  /** Create a baked-in factory preset, specifiying parameter values sequentially 
    * usage: MakePreset(name, param1, param2, ..., paramN)
+   * See DumpMakePresetSrc() which is a utility that can be used to create the code for MakePreset() calls
    * @param name The preset name
-   * @param ... The list of parameter values, ordered acording to paramIdx */
+   * @param ... The list of parameter values, ordered sequentially according to paramIdx */
   void MakePreset(const char* name, ...);
 
-  /** /todo
-   * MakePresetFromNamedParams(name, nParamsNamed, paramEnum1, paramVal1, paramEnum2, paramVal2, ..., paramEnumN, paramVal2)
+  /** Create a baked-in factory preset, specifiying parameter values with a list of parameter index and value pairs
+   * usage: MakePresetFromNamedParams(name, nParamsNamed, paramEnum1, paramVal1, paramEnum2, paramVal2, ..., paramEnumN, paramVal2)
+   * See DumpMakePresetFromNamedParamsSrc() which is a utility that can be used to create the code for MakePreset() calls
    * nParamsNamed may be less than the total number of params.
-   * @param name /todo
-   * @param nParamsNamed /todo
-   * @param ... /todo  */
+   * @param name The preset name
+   * @param nParamsNamed The number of parameter index/value pairs. Parameters that are not set will be defaulted.
+   * @param ... The list of parameter index and value pairs */
   void MakePresetFromNamedParams(const char* name, int nParamsNamed, ...);
   
-  /** This method is primary called by chunk based plugins
+  /** Creates a preset from an IByteChunk containging serialized data. This can be used when your plugin state includes arbitary data, other than just parameters.
    * @param name The preset name
-   * @param chunk The block of memory to use */
+   * @param chunk An IByteChunk where the preset data has been serialized */
   void MakePresetFromChunk(const char* name, IByteChunk& chunk);
 
-  /** This method makes a preset from a Binary large object (blob)
+  /** Creates a preset from a base64 encoded CString. 
+   * This can be used when your plugin state includes arbitary data, other than just parameters.
+   * See DumpPresetBlob() which is a utility that can be used to create the code for DumpPresetBlob() calls
    * @param name The preset name
-   * @param blob The binary string
+   * @param blob The base64 encoded string
    * @param sizeOfChunk The binary string size */
   void MakePresetFromBlob(const char* name, const char* blob, int sizeOfChunk);
   
-  /** /todo */
+  /** [AUV2 only] Removes any presets that weren't initialized */
   void PruneUninitializedPresets();
   
-  /** [VST2 only] /todo *  */
+  /** [VST2 only] Called when the preset name is changed by the host */
   virtual void OnPresetsModified() {}
 
-  /** [VST2 only] /todo *  */
+  /** [VST2 only] Called to fill uninitialzed presets */
   void EnsureDefaultPreset();
 
-  /** [VST2 only] /todo *  
-   * @param chunk /todo
-   * @return true /todo
-   * @return false /todo */
+  /** [VST2 only] Called when the VST2 host calls effGetChunk for a bank *  
+   * @param chunk IByteChunk where the presets will be serialized 
+   * @return /c true on success */
   bool SerializePresets(IByteChunk& chunk) const;
 
-  /** [VST2 only] /todo * 
-   * @param chunk /todo
-   * @param startPos /todo
-   * @return int /todo */
-  int UnserializePresets(IByteChunk& chunk, int startPos); // Returns the new chunk position (endPos).
+  /** [VST2 only] Called when the VST2 host calls effSetChunk for a bank *  
+   * @param chunk IByteChunk where the preset bank will be unserialized 
+   * @param startPos The starting position in the chunk for the preset bank
+   * @return int The new chunk position (endPos). */
+  int UnserializePresets(const IByteChunk& chunk, int startPos); 
   
-  // Dump the current state as source code for a call to MakePresetFromNamedParams / MakePresetFromBlob
+  /** Writes a call to MakePreset() for the current preset to a new text file
+   * @param file The full path of the file to write or overwrite. */
+  void DumpMakePresetSrc(const char* file) const;
 
-  /** /todo 
-   * @param file /todo
-   * @param paramEnumNames /todo */
-  void DumpPresetSrcCode(const char* file, const char* paramEnumNames[]) const;
+  /** Writes a call to MakePresetFromNamedParams() for the current preset to a new text file
+   * @param file The full path of the file to write or overwrite
+   * @param paramEnumNames A list of all parameter names. e.g. const char* pParamNames[] = {"kParam1", "kParam2", "kParam3"}; */
+  void DumpMakePresetFromNamedParamsSrc(const char* file, const char* paramEnumNames[]) const;
 
-  /** /todo 
-   * @param file /todo */
+  /** Writes a call to MakePresetFromBlob() for the current preset to a new text file
+   * @param file The full path of the file to write or overwrite. */
   void DumpPresetBlob(const char* file) const;
 
-  /** /todo 
-   * @param filename /todo */
-  void DumpAllPresetsBlob(const char* filename) const;
-
-  /** /todo 
-   * @param file /todo */
-  void DumpBankBlob(const char* file) const;
-  
   /** Save current state as a VST2 format preset
-   * @param file /todo
-   * @return true /todo */
-  bool SaveProgramAsFXP(const char* file) const;
+   * @param file The full path of the file to write or overwrite
+   * @return /c true on success */
+  bool SavePresetAsFXP(const char* file) const;
 
   /** Save current bank as a VST2 format bank [VST2 only]
-   * @param file /todo
-   * @return true /todo */
+   * @param file The full path of the file to write or overwrite
+   * @return /c true on success */
   bool SaveBankAsFXB(const char* file) const;
 
   /** Load VST2 format preset 
-   * @param file /todo
-   * @return true /todo */
-  bool LoadProgramFromFXP(const char* file);
+   * @param file The full path of the file to load
+   * @return /c true on success */
+  bool LoadPresetFromFXP(const char* file);
 
   /** Load VST2 format bank [VST2 only]
-   * @param file /todo
-   * @return true /todo
-   * @return false /todo */
+   * @param file The full path of the file to load
+   * @return /c true on success */
   bool LoadBankFromFXB(const char* file);
 
-  /** Save current bank as individual VST2 format presets [VST2 only]
-   * @param path /todo
-   * @return true /todo
-   * @return false /todo */
-  bool SaveBankAsFXPs(const char* path) const { return false; }
-  
-  /** /todo 
-   * @param chunk /todo
-   * @param componentState /todo
-   * @param controllerState /todo */
-  void MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState) const;
-
-  /** /todo 
-   * @param file /todo
-   * @return true /todo */
-  bool SaveProgramAsVSTPreset(const char* file) const;
-
-  /** /todo 
-   * @param file /todo
-   * @return true /todo*/
-  bool LoadProgramFromVSTPreset(const char* file);
-
-  /** /todo 
-   * @param path /todo
-   * @return true */
-  bool SaveBankAsVSTPresets(const char* path) { return false; }
-  
-  /** /todo 
-   * @param name /todo
-   * @param file /todo
-   * @return true /todo  */
-  bool SaveProgramAsAUPreset(const char* name, const char* file) const { return false; }
-
-  /** /todo 
-   * @param file /todo
-   * @return true /todo  */
-  bool LoadProgramFromAUPreset(const char* file) { return false; }
-
-  /** /todo 
-   * @param path /todo
-   * @return true /todo */
-  bool SaveBankAsAUPresets(const char* path) { return false; }
-  
-  /** /todo 
-   * @param presetName /todo
-   * @param file /todo
-   * @param pluginID /todo
-   * @return true /todo */
-  bool SaveProgramAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID) const { return false; }
-
-  /** /todo 
-   * @param file /todo
-   * @return true /todo */
-  bool LoadProgramFromProToolsPreset(const char* file) { return false; }
-
-  /** /todo 
-   * @param path /todo
-   * @param pluginID /todo
-   * @return true /todo
-   * @return false /todo */
-  bool SaveBankAsProToolsPresets(const char* path, unsigned long pluginID) { return false; }
-#endif
   
 #pragma mark - Parameter manipulation
     
@@ -465,22 +400,14 @@ protected:
   EAPI mAPI;
   /** macOS/iOS bundle ID */
   WDL_String mBundleID;
-  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
-  WDL_String mVST3ProductCategory;
-  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
-  WDL_String mVST3ProcessorUIDStr;
-  /** Saving VST3 format presets requires this see SaveProgramAsVSTPreset */
-  WDL_String mVST3ControllerUIDStr;
-  
   /** \c true if the plug-in has a user interface. If false the host will provide a default interface */
   bool mHasUI = false;
-
+  /** \c true if the host window chrome should be able to resize the plug-in UI, only applicable in certain formats/hosts */
+  bool mHostResize = false;
   /** A list of unique cstrings found specified as "parameter groups" when defining IParams. These are used in various APIs to group parameters together in automation dialogues. */
   WDL_PtrList<const char> mParamGroups;
-  
-#ifndef NO_PRESETS
+  /** "Baked in" Factory presets */
   WDL_PtrList<IPreset> mPresets;
-#endif
 
 #ifdef PARAMS_MUTEX
   friend class IPlugVST3ProcessorBase;
