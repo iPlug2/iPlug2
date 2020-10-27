@@ -17,6 +17,10 @@ IFlexBox::~IFlexBox()
 
 void IFlexBox::Init(const IRECT& r, YGFlexDirection direction, YGJustify justify, YGWrap wrap, float padding, float margin)
 {
+  YGNodeStyleSetPosition(mRootNodeRef, YGEdge::YGEdgeLeft, r.L);
+  YGNodeStyleSetPosition(mRootNodeRef, YGEdge::YGEdgeTop, r.T );
+  YGNodeStyleSetPosition(mRootNodeRef, YGEdge::YGEdgeRight, r.R);
+  YGNodeStyleSetPosition(mRootNodeRef, YGEdge::YGEdgeBottom, r.B);
   YGNodeStyleSetWidth(mRootNodeRef, r.W());
   YGNodeStyleSetHeight(mRootNodeRef, r.H());
   YGNodeStyleSetFlexDirection(mRootNodeRef, direction);
