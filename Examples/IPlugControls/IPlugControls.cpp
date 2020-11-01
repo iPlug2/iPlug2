@@ -167,7 +167,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       pGraphics->ShowMessageBox("Message Title", "Message", kMB_YESNO, [&](EMsgBoxResult result) {
                                                       WDL_String str;
                                                       str.SetFormatted(32, "%s pressed", kMessageResultStrs[result]);
-                                                      dynamic_cast<ITextControl*>(pGraphics->GetControlWithTag(kCtrlTagDialogResult))->SetStr(str.Get());
+                                                      pGraphics->GetControlWithTag(kCtrlTagDialogResult)->As<ITextControl>()->SetStr(str.Get());
                                                     });
     };
     
