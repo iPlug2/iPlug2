@@ -57,7 +57,6 @@ if [ "$#" -eq 2 ]; then
   skia_enable_skparagraph = true
   skia_enable_sksl_interpreter = true
   skia_enable_svg = true
-  skia_enable_tools = false
   cc = "clang"
   cxx = "clang++"
   clang_win = "C:\Program Files\LLVM"
@@ -66,8 +65,8 @@ if [ "$#" -eq 2 ]; then
   if [ $CONFIG_STR = "Debug" ]; then
     echo 'extra_cflags = [ "/MTd" ]' >> ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/args.gn
 
-    echo 'is_debug = false' >> ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/args.gn
-    echo 'is_official_build = true' >> ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/args.gn
+    # tools currently fails to build with an SkPDF error
+    echo 'skia_enable_tools = false' >> ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/args.gn
 
     # disabled due to massive binaries
     # echo 'is_debug = true' >> ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/args.gn
