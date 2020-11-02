@@ -40,6 +40,14 @@ static double sFPS = 0.0;
 
 #define WM_VBLANK (WM_USER+1)
 
+#ifdef IGRAPHICS_GL3
+typedef HGLRC(WINAPI* PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareContext, const int* attribList);
+#define WGL_CONTEXT_MAJOR_VERSION_ARB     0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB     0x2092
+#define WGL_CONTEXT_PROFILE_MASK_ARB      0x9126
+#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB  0x00000001
+#endif
+
 #pragma mark - Private Classes and Structs
 
 // Fonts
@@ -1033,6 +1041,28 @@ void IGraphicsWin::CreateGLContext()
 
   mHGLRC = wglCreateContext(dc);
   wglMakeCurrent(dc, mHGLRC);
+
+#ifdef IGRAPHICS_GL3
+
+  // On windows we can't create a 3.3 context directly, since we need the wglCreateContextAttribsARB extension.
+  // We load the extension, then re-create the context.
+
+  auto wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+  if (wglCreateContextAttribsARB)
+  {
+	  wglDeleteContext(mHGLRC);
+
+	  const int attribList[] = {
+		  WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+		  WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+		  WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+		  0
+	  };
+
+	  mHGLRC = wglCreateContextAttribsARB(dc, 0, attribList);
+	  wglMakeCurrent(dc, mHGLRC);
+  }
+#endif
 
   //TODO: return false if GL init fails?
   if (!gladLoadGL())

@@ -8,6 +8,10 @@
 #define SK_METAL
 #endif
 
+#if defined IGRAPHICS_GL
+#define SK_GL
+#endif
+
 #pragma warning( push )
 #pragma warning( disable : 4244 )
 #include "SkSurface.h"
@@ -148,7 +152,7 @@ private:
 #endif
   
 #ifndef IGRAPHICS_CPU
-  sk_sp<GrContext> mGrContext;
+  sk_sp<GrDirectContext> mGrContext;
   sk_sp<SkSurface> mScreenSurface;
 #endif
   

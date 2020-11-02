@@ -27,8 +27,9 @@ if [ "$#" -eq 2 ]; then
   if [ ! -d $DEPOT_TOOLS_PATH ]; then
     echo "checking out Depot Tools..."
     git clone 'https://chromium.googlesource.com/chromium/tools/depot_tools.git' $DEPOT_TOOLS_PATH
-    export PATH="${PWD}/$DEPOT_TOOLS_PATH:${PATH}"
   fi
+
+  export PATH="${PWD}/$DEPOT_TOOLS_PATH:${PATH}"
 
   cd ../Build/src/skia
 
@@ -49,12 +50,15 @@ if [ "$#" -eq 2 ]; then
   skia_use_expat = true
   skia_use_icu = true
   skia_use_sfntly = false
+  skia_use_gl = true
   skia_enable_skottie = true
   skia_enable_pdf = false
   skia_enable_particles = true
   skia_enable_gpu = true
   skia_enable_skparagraph = true
   skia_enable_sksl_interpreter = true
+  skia_enable_svg = true
+  skia_enable_tools = false
   cc = "clang"
   cxx = "clang++"
   clang_win = "C:\Program Files\LLVM"
