@@ -50,7 +50,6 @@ if [ "$#" -eq 2 ]; then
   skia_use_expat = true
   skia_use_icu = true
   skia_use_sfntly = false
-  skia_use_gl = true
   skia_enable_skottie = true
   skia_enable_pdf = false
   skia_enable_particles = true
