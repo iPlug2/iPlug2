@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-sudo rm -r VST3_SDK
-sudo rm -r WAM_AWP
-sudo rm -r WAM_SDK
+rm -r VST3_SDK
+rm -r WAM_AWP
+rm -r WAM_SDK
 git clone https://github.com/iplug2/audioworklet-polyfill WAM_AWP
 git clone https://github.com/iplug2/api.git WAM_SDK
 
