@@ -282,7 +282,7 @@ public:
       g.DrawDottedRect(COLOR_WHITE, mSelectedControls.Get(i)->GetRECT());
     }
     
-    if(!mDragRegion.Empty())
+    if(!mDragRegion.ZeroArea())
     {
       g.DrawDottedRect(COLOR_RED, mDragRegion);
     }

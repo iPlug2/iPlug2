@@ -812,6 +812,9 @@ struct IRECT
   /** @return float the area of this IRECT  */
   inline float Area() const { return W() * H(); }
   
+  /** @return bool true if this rect has 0 area  */
+  inline float ZeroArea() const { return R <= L || T >= B; }
+
   /** Create a new IRECT that is a union of this IRECT and `rhs`.
    * The resulting IRECT will have the minimim L and T values and maximum R and B values of the inputs.
    * @param rhs another IRECT
