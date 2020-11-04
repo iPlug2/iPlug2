@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 #python shell script to modify common-win.props to select a host for debugging VST plug-ins
 

@@ -36,8 +36,7 @@ void SplashAnimationFunc(IControl* pCaller)
     return;
   }
   
-  dynamic_cast<IVectorBase*>(pCaller)->SetSplashRadius((float) progress);
-  
+  pCaller->As<IVectorBase>()->SetSplashRadius((float) progress);
   pCaller->SetDirty(false);
 };
 
@@ -49,7 +48,7 @@ void SplashClickActionFunc(IControl* pCaller)
 {
   float x, y;
   pCaller->GetUI()->GetMouseDownPoint(x, y);
-  dynamic_cast<IVectorBase*>(pCaller)->SetSplashPoint(x, y);
+  pCaller->As<IVectorBase>()->SetSplashPoint(x, y);
   pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION);
 }
 

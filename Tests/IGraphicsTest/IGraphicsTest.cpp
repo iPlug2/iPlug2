@@ -49,7 +49,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
       if(!isUp) {
         switch (key.VK) {
           case kVK_TAB:
-            dynamic_cast<IPanelControl*>(GetUI()->GetBackgroundControl())->SetPattern(IColor::GetRandomColor());
+            GetUI()->GetBackgroundControl()->As<IPanelControl>()->SetPattern(IColor::GetRandomColor());
             break;
             
           default:
@@ -146,7 +146,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
                                                       [pGraphics, chooseTestControl](IControl* pCaller) {
                                                         pGraphics->RemoveControlWithTag(kCtrlTagTestControl);
                                                         SplashClickActionFunc(pCaller);
-                                                        int selectedTest = dynamic_cast<IVRadioButtonControl*>(pCaller)->GetSelectedIdx();
+                                                        int selectedTest = pCaller->As<IVRadioButtonControl>()->GetSelectedIdx();
                                                         chooseTestControl(selectedTest);
                                                       },
                                                       testNames
