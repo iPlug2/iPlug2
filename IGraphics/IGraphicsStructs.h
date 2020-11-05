@@ -19,6 +19,10 @@
 #include <functional>
 #include <chrono>
 #include <numeric>
+#include <variant>
+#include <unordered_map>
+#include <optional>
+#include <string>
 
 #include "IPlugUtilities.h"
 #include "IPlugLogger.h"
@@ -35,11 +39,16 @@ class IGraphics;
 class IControl;
 class ILambdaControl;
 class IPopupMenu;
+class IBitmap;
+struct ISVG;
 struct IRECT;
 struct IVec2;
 struct IMouseInfo;
 struct IColor;
 struct IGestureInfo;
+struct IText;
+struct IPattern;
+struct IVColorSpec;
 
 using IActionFunction = std::function<void(IControl*)>;
 using IAnimationFunction = std::function<void(IControl*)>;
@@ -51,6 +60,10 @@ using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
 using IDisplayTickFunc = std::function<void()>;
 using ITouchID = uintptr_t;
+enum EPropIdxs { kBool = 0, kInt, kFloat, kStr, kColor, kRect, kText, kPattern, kBitmap, kSVG, kColorSpec };
+using IPropVar = std::variant<bool, int, float, const char*, IColor, IRECT, IText, IPattern, IBitmap, ISVG, IVColorSpec>;
+using IPropPair = std::pair<const std::string, IPropVar>;
+using IPropMap = std::unordered_map<std::string, IPropVar>;
 
 /** A click action function that does nothing */
 void EmptyClickActionFunc(IControl* pCaller);
@@ -2351,6 +2364,11 @@ struct IVColorSpec
 {
   IColor mColors[kNumVColors];
   
+  void SetColor(EVColor idx, const IColor& color)
+  {
+    mColors[(int) idx] = color;
+  }
+  
   const IColor& GetColor(EVColor color) const
   {
     return mColors[(int) color];
@@ -2419,7 +2437,7 @@ static constexpr float DEFAULT_FRAME_THICKNESS = 1.f;
 static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
 static constexpr float DEFAULT_WIDGET_FRAC = 1.f;
 static constexpr float DEFAULT_WIDGET_ANGLE = 0.f;
-const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Top};
+const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Top};
 const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Bottom};
 
 /** A struct encapsulating a set of properties used to configure IVControls */
@@ -2491,6 +2509,45 @@ struct IVStyle
   IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = Clip(v, 0.f, 1.f); return newStyle; }
   IVStyle WithAngle(float v) const { IVStyle newStyle = *this; newStyle.angle = Clip(v, 0.f, 360.f); return newStyle; }
   IVStyle WithEmboss(bool v = true) const { IVStyle newStyle = *this; newStyle.emboss = v; return newStyle; }
+  
+  void SetProp(const std::string& prop, const IPropVar& v)
+  {
+    if(     prop == "show_label")      { showLabel = *std::get_if<bool>(&v); }
+    else if(prop == "show_value")      { showValue = *std::get_if<bool>(&v); }
+    else if(prop == "label_text")      { labelText = *std::get_if<IText>(&v); }
+    else if(prop == "value_text")      { valueText = *std::get_if<IText>(&v); }
+    else if(prop == "colors")          { colorSpec = *std::get_if<IVColorSpec>(&v); }
+    else if(prop == "draw_shadows")    { drawShadows = *std::get_if<bool>(&v); }
+    else if(prop == "draw_frame")      { drawFrame = *std::get_if<bool>(&v); }
+    else if(prop == "emboss")          { emboss = *std::get_if<bool>(&v); }
+    else if(prop == "roundness")       { roundness = *std::get_if<float>(&v); }
+    else if(prop == "frame_thickness") { frameThickness = *std::get_if<float>(&v); }
+    else if(prop == "widget_frac")     { widgetFrac = *std::get_if<float>(&v); }
+    else if(prop == "shadow_offset")   { shadowOffset = *std::get_if<float>(&v); }
+    else if(prop == "angle")           { angle = *std::get_if<float>(&v); }
+  }
+  
+  IPropMap GetProps() const
+  {
+    IPropMap map =
+    {
+      {"show_label", showLabel},
+      {"show_value", showValue},
+      {"label_text", labelText},
+      {"value_text", valueText},
+      {"colors",     colorSpec},
+      {"draw_shadows", drawShadows},
+      {"draw_frame", drawFrame},
+      {"emboss", emboss},
+      {"roundness", roundness},
+      {"frame_thickness", frameThickness},
+      {"widget_frac", widgetFrac},
+      {"shadow_offset", shadowOffset},
+      {"angle", angle},
+    };
+    
+    return map;
+  }
 };
 
 const IVStyle DEFAULT_STYLE = IVStyle();

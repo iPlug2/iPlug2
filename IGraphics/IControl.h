@@ -496,7 +496,62 @@ public:
   /** Helper function to dynamic cast an IControl to a subclass */
   template <class T>
   T* As() { return dynamic_cast<T*>(this); }
+  
+  void SetPropertiesAndDefaults(const IPropMap& props, const IPropMap& defaults)
+  {
+    for(auto& propPair : props)
+    {
+      SetProp(propPair.first, propPair.second);
+    }
     
+    for(auto& propPair : defaults)
+    {
+      if(!HasProp(propPair.first))
+        SetProp(propPair.first, propPair.second);
+    }
+  }
+  
+  /** /todo */
+  virtual IControl* SetProperties(const IPropMap& properties)
+  {
+    mProperties = properties;
+    return this;
+  }
+  
+  /** /todo */
+  virtual IControl* SetProp(const std::string& name, const IPropVar& prop, bool dirtyControl = false)
+  {
+    mProperties.insert_or_assign(name, prop);
+    
+    if(dirtyControl)
+      SetDirty(false);
+    
+    return this;
+  }
+  
+  /** /todo */
+  const IPropMap GetProperties() const
+  {
+    return mProperties;
+  }
+  
+  bool HasProp(const std::string& name) const
+  {
+    auto result = mProperties.find(name);
+    return result != mProperties.end();
+  }
+  
+  /** /todo */
+  template<typename T>
+  std::optional<T> GetProp(const std::string& name) const
+  {
+    auto result = mProperties.find(name);
+    // can replace std::get_if with std::get on macOS > 10.14 https://stackoverflow.com/questions/52521388/stdvariantget-does-not-compile-with-apple-llvm-10-0/53887048#53887048
+    return result == mProperties.end() ? std::nullopt : std::optional<T>(*std::get_if<T>(&result->second));
+  }
+  
+  virtual const char* GetClassName() const { return ""; }
+  
 #if defined VST3_API || defined VST3C_API
   Steinberg::tresult PLUGIN_API executeMenuItem (Steinberg::int32 tag) override { OnContextSelection(tag); return Steinberg::kResultOk; }
 #endif
@@ -523,7 +578,9 @@ protected:
     
   IRECT mRECT;
   IRECT mTargetRECT;
-  
+
+  IPropMap mProperties;
+
   /** Controls can be grouped for hiding and showing panels */
   WDL_String mGroup;
   
@@ -626,8 +683,23 @@ public:
   
   void AttachIControl(IControl* pControl, const char* label)
   {
+    pControl->SetPropertiesAndDefaults(mStyle.GetProps(), {});
     mControl = pControl;
     mLabelStr.Set(label);
+  }
+  
+  void SetStyleProp(const std::string& prop, const IPropVar& var)
+  {
+    mStyle.SetProp(prop, var);
+    
+    if(prop == "show_label" ||
+       prop == "show_value" ||
+       prop == "label_text" ||
+       prop == "value_text")
+    {
+      if(mControl && mControl->GetUI())
+        mControl->OnResize();
+    }
   }
 
   void SetColor(EVColor colorIdx, const IColor& color)
@@ -646,6 +718,10 @@ public:
     return mStyle.colorSpec.GetColor(color);
   }
   
+  IRECT GetLabelBounds() const { return mLabelBounds; }
+  IRECT GetWidgetBounds() const { return mWidgetBounds; }
+
+  const char* GetLabelStr() const { return mLabelStr.Get(); }
   void SetLabelStr(const char* label) { mLabelStr.Set(label); mControl->SetDirty(false); }
   void SetValueStr(const char* value) { mValueStr.Set(value); mControl->SetDirty(false); }
   void SetWidgetFrac(float frac) { mStyle.widgetFrac = Clip(frac, 0.f, 1.f);  mControl->OnResize(); mControl->SetDirty(false); }

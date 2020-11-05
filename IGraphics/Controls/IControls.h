@@ -37,6 +37,30 @@ BEGIN_IGRAPHICS_NAMESPACE
 
 #pragma mark - Vector Controls
 
+#define IVECTORBASE_SETPROPERTIES(className) \
+const char* GetClassName() const override \
+{ \
+  return className; \
+} \
+\
+IControl* SetProp(const std::string& name, const IPropVar& prop, bool dirtyControl = false) override \
+{ \
+  IVectorBase::SetStyleProp(name, prop); \
+  return IControl::SetProp(name, prop, dirtyControl); \
+} \
+\
+virtual IControl* SetProperties(const IPropMap& properties) override \
+{ \
+  IControl::SetProperties(properties); \
+  for(auto& prop : properties) \
+  { \
+    IVectorBase::SetStyleProp(prop.first, prop.second); \
+  } \
+  \
+  return this; \
+} \
+
+
 /** A vector label control that can display text with a shadow. Uses the IVStyle "value" text for the label. */
 class IVLabelControl : public ITextControl
                      , public IVectorBase
@@ -44,6 +68,8 @@ class IVLabelControl : public ITextControl
 public:
   IVLabelControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE.WithDrawFrame(false).WithColor(kSH, COLOR_BLACK).WithShadowOffset(1).WithValueText(DEFAULT_VALUE_TEXT.WithSize(20.f).WithFGColor(COLOR_WHITE)));
   void Draw(IGraphics& g) override;
+  
+  IVECTORBASE_SETPROPERTIES ("IVLabelControl")
 };
 
 /** A vector button/momentary switch control. */
@@ -65,6 +91,8 @@ public:
   virtual void DrawWidget(IGraphics& g) override;
   bool IsHit(float x, float y) const override;
   void OnResize() override;
+  
+  IVECTORBASE_SETPROPERTIES ("IVButtonControl")
 };
 
 /** A vector switch control. Click to cycle through states. */
@@ -83,6 +111,8 @@ public:
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
   void OnResize() override;
   void OnInit() override;
+  
+  IVECTORBASE_SETPROPERTIES ("IVSwitchControl")
 };
 
 /** A vector toggle control. Click to cycle through two states. */
@@ -95,6 +125,8 @@ public:
   
   void DrawValue(IGraphics& g, bool mouseOver) override;
   void DrawWidget(IGraphics& g) override;
+  
+  IVECTORBASE_SETPROPERTIES ("IVToggleControl")
 protected:
   WDL_String mOffText;
   WDL_String mOnText;
@@ -115,6 +147,8 @@ public:
   void OnResize() override;
   void OnEndAnimation() override;
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
+  
+  IVECTORBASE_SETPROPERTIES ("IVSlideSwitchControl")
 protected:
   void UpdateRects();
 
@@ -164,8 +198,9 @@ public:
   
   /** returns the label string on the selected tab */
   const char* GetSelectedLabelStr() const;
-protected:
   
+  IVECTORBASE_SETPROPERTIES ("IVTabSwitchControl")
+protected:
   /** @return the index of the entry at the given point or -1 if no entry was hit */
   virtual int GetButtonForPoint(float x, float y) const;
 
@@ -201,6 +236,9 @@ public:
   IVRadioButtonControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Ellipse, EDirection direction = EDirection::Vertical, float buttonSize = 10.f);
   
   virtual void DrawWidget(IGraphics& g) override;
+  
+  IVECTORBASE_SETPROPERTIES ("IVRadioButtonControl")
+  
 protected:
   /** @return the index of the clickable entry at the given point or -1 if no entry was hit */
   int GetButtonForPoint(float x, float y) const override;
@@ -250,6 +288,8 @@ public:
   void SetOuterPointerFrac(float frac) { mOuterPointerFrac = frac; }
   void SetPointerThickness(float thickness) { mPointerThickness = thickness; }
 
+  IVECTORBASE_SETPROPERTIES ("IVKnobControl")
+  
 protected:
   virtual IRECT GetKnobDragBounds() override;
 
@@ -286,6 +326,8 @@ public:
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
   void OnInit() override;
 
+  IVECTORBASE_SETPROPERTIES ("IVSliderControl")
+
 protected:
   bool mHandleInsideTrack = false;
   bool mValueMouseOver = false;
@@ -305,6 +347,8 @@ public:
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override { mMouseIsDown = false; }
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
+
+  IVECTORBASE_SETPROPERTIES ("IVRangeSliderControl")
 
 protected:
   void MakeTrackRects(const IRECT& bounds) override;
@@ -330,6 +374,9 @@ public:
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override;
   void OnResize() override;
+  
+  IVECTORBASE_SETPROPERTIES ("IVXYPadControl")
+
 protected:
   float mHandleRadius;
   bool mMouseDown = false;
@@ -372,6 +419,8 @@ public:
    * @param func A reference object containing the function implementation to display */
   void AddPlotFunc(const IColor& color, const IPlotFunc& func);
   
+  IVECTORBASE_SETPROPERTIES ("IVPlotControl")
+
 protected:
   ILayerPtr mLayer;
   std::vector<Plot> mPlots;
@@ -399,6 +448,9 @@ public:
   void OnInit() override;
   
   void SetBoundsBasedOnGroup(const char* groupName, float padL, float padT, float padR, float padB);
+  
+  IVECTORBASE_SETPROPERTIES ("IVGroupControl")
+
 protected:
   WDL_String mGroupName;
   float mPadL = 0.f;
@@ -439,6 +491,8 @@ public:
   {
     SetTargetRECT(MakeRects(mRECT));
   }
+  
+  IVECTORBASE_SETPROPERTIES ("IVPanelControl")
 };
 
 /** A control to show a colour swatch of up to 9 colous. **/
@@ -464,6 +518,8 @@ public:
 
   void DrawWidget(IGraphics& g) override;
 
+  IVECTORBASE_SETPROPERTIES ("IVColorSwatchControl")
+  
 private:
   ColorChosenFunc mColorChosenFunc = nullptr;
   int mCellOver = -1;
