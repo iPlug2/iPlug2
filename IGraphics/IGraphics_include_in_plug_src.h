@@ -77,6 +77,10 @@
   END_IGRAPHICS_NAMESPACE
   END_IPLUG_NAMESPACE
 
+#ifdef IGRAPHICS_IMGUI
+  #include "IGraphicsImGuiExtensions.h"
+#endif
+
 #endif //NO_IGRAPHICS
 
 #endif //__IGRAPHICS_SRC_INC__
