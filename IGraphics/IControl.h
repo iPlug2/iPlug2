@@ -2046,10 +2046,10 @@ protected:
 };
 
 /** A control to use as a placeholder during development */
-class PlaceHolder : public ITextControl
+class IPlaceHolderControl : public ITextControl
 {
 public:
-  PlaceHolder(const IRECT& bounds, const char* str = "Place Holder");
+  IPlaceHolderControl(const IRECT& bounds, const char* str = "Place Holder");
   
   void Draw(IGraphics& g) override;
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override { GetUI()->CreateTextEntry(*this, mText, mRECT, mStr.Get()); }

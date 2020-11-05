@@ -652,7 +652,7 @@ void ICaptionControl::OnResize()
   }
 }
 
-PlaceHolder::PlaceHolder(const IRECT& bounds, const char* str)
+IPlaceHolderControl::IPlaceHolderControl(const IRECT& bounds, const char* str)
 : ITextControl(bounds, str, IText(20))
 {
   mBGColor = COLOR_WHITE;
@@ -661,7 +661,7 @@ PlaceHolder::PlaceHolder(const IRECT& bounds, const char* str)
   mIgnoreMouse = false;
 }
 
-void PlaceHolder::Draw(IGraphics& g)
+void IPlaceHolderControl::Draw(IGraphics& g)
 {
   g.FillRect(mBGColor, mRECT);
   g.DrawLine(COLOR_RED, mRECT.L, mRECT.T, mRECT.R, mRECT.B, &BLEND_50, 2.f);
@@ -693,7 +693,7 @@ void PlaceHolder::Draw(IGraphics& g)
   }
 }
 
-void PlaceHolder::OnResize()
+void IPlaceHolderControl::OnResize()
 {
   mTLHCStr.SetFormatted(32, "%0.1f, %0.1f", mRECT.L, mRECT.T);
   mWidthStr.SetFormatted(32, "%0.1f", mRECT.W());
