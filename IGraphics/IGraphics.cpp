@@ -289,9 +289,16 @@ void IGraphics::AttachSVGBackground(const char* fileName)
   mControls.Insert(0, pBG);
 }
 
-void IGraphics::AttachPanelBackground(const IPattern& color)
+void IGraphics::AttachPanelBackground(const IColor& color)
 {
-  IControl* pBG = new IPanelControl(GetBounds(), color);
+  IControl* pBG = new IPanelControl(GetBounds(), {{"color", color}});
+  pBG->SetDelegate(*GetDelegate());
+  mControls.Insert(0, pBG);
+}
+
+void IGraphics::AttachPanelBackground(const IPattern& pattern)
+{
+  IControl* pBG = new IPanelControl(GetBounds(), {{"pattern", pattern}});
   pBG->SetDelegate(*GetDelegate());
   mControls.Insert(0, pBG);
 }

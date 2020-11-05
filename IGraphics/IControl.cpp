@@ -441,6 +441,11 @@ double IControl::GetAnimationProgress() const
   return elapsed.count() / mAnimationDuration.count();
 }
 
+const IPropMap IPanelControl::DEFAULTS =
+{
+  {"color", COLOR_WHITE},
+};
+
 ITextControl::ITextControl(const IRECT& bounds, const char* str, const IText& text, const IColor& BGColor, bool setBoundsBasedOnStr)
 : IControl(bounds)
 , mStr(str)

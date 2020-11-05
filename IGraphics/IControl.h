@@ -1783,47 +1783,19 @@ protected:
 class IPanelControl : public IControl
 {
 public:
-  IPanelControl(const IRECT& bounds, const IColor& color, bool drawFrame = false)
-  : IControl(bounds, kNoParameter)
-  , mPattern(color)
-  , mDrawFrame(drawFrame)
-  {
-    mIgnoreMouse = true;
-  }
+  static const IPropMap DEFAULTS;
   
-  IPanelControl(const IRECT& bounds, const IPattern& pattern, bool drawFrame = false)
+  IPanelControl(const IRECT& bounds, const IPropMap& props = DEFAULTS)
   : IControl(bounds, kNoParameter)
-  , mPattern(pattern)
-  , mDrawFrame(drawFrame)
   {
     mIgnoreMouse = true;
+    SetPropertiesAndDefaults(props, DEFAULTS);
   }
 
   void Draw(IGraphics& g) override
   {
-    if(g.HasPathSupport())
-    {
-      g.PathRect(mRECT);
-      g.PathFill(mPattern);
-    }
-    else
-      g.FillRect(mPattern.GetStop(0).mColor, mRECT);
-    
-    if(mDrawFrame)
-      g.DrawRect(COLOR_LIGHT_GRAY, mRECT);
+    g.FillRect(*GetProp<IColor>("color"), mRECT);
   }
-  
-  void SetPattern(const IPattern& pattern)
-  {
-    mPattern = pattern;
-    SetDirty(false);
-  }
-  
-  IPattern GetPattern() const { return mPattern; }
-  
-private:
-  IPattern mPattern;
-  bool mDrawFrame;
 };
 
 /** A control that can be specialised with a lambda function, for quick experiments without making a custom IControl */
