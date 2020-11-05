@@ -1969,7 +1969,7 @@ void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRE
     bool isAsync = false;
     IPopupMenu* pReturnMenu = CreatePlatformPopupMenu(menu, bounds, isAsync);
     
-    if(!isAsync)
+    if(pReturnMenu && !isAsync)
       SetControlValueAfterPopupMenu(pReturnMenu);
   }
 }
