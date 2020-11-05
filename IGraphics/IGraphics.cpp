@@ -1548,6 +1548,7 @@ void IGraphics::EnableLiveEdit(bool enable)
     mLiveEdit = nullptr;
   }
   
+  ClearColorPicker();
   ClearMouseOver();
   ReleaseMouseCapture();
   SetMouseCursor(ECursor::ARROW);

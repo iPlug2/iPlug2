@@ -1198,7 +1198,13 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
 - (void) onColorPicked: (NSColorPanel*) pColorPanel
 {
-  mColorPickerFunc(FromNSColor([pColorPanel color]));
+  if (mColorPickerFunc)
+    mColorPickerFunc(FromNSColor([pColorPanel color]));
+}
+
+- (void) clearColorPickerFunc
+{
+  mColorPickerFunc = nullptr;
 }
 
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData

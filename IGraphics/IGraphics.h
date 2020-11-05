@@ -1688,6 +1688,8 @@ protected:
 #pragma mark -
 
 private:
+  virtual void ClearColorPicker() {};
+  
   void ClearMouseOver()
   {
     mMouseOver = nullptr;

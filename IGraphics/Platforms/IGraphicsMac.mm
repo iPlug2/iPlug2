@@ -542,6 +542,12 @@ bool IGraphicsMac::PromptForColor(IColor& color, const char* str, IColorPickerHa
   return false;
 }
 
+void IGraphicsMac::ClearColorPicker()
+{
+  if (mView)
+    [(IGRAPHICS_VIEW*) mView clearColorPickerFunc ];
+}
+
 IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
 {
   IPopupMenu* pReturnMenu = nullptr;
