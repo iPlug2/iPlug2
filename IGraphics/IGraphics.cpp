@@ -1539,7 +1539,7 @@ void IGraphics::EnableLiveEdit(bool enable)
   {
     if (!mLiveEdit)
     {
-      mLiveEdit = std::make_unique<IGraphicsLiveEdit>(mEnableMouseOver);
+      mLiveEdit = std::make_unique<IGraphicsLiveEdit>(mEnableMouseOver, mLiveEditSourcePath.Get());
       mLiveEdit->SetDelegate(*GetDelegate());
     }
   }
@@ -1554,6 +1554,11 @@ void IGraphics::EnableLiveEdit(bool enable)
   SetMouseCursor(ECursor::ARROW);
   SetAllControlsDirty();
 #endif
+}
+
+bool IGraphics::LiveEditInProgress() const
+{
+  return mLiveEdit ? true : false;
 }
 
 // Skia has its own implementation for SVGs. On all other platforms we use NanoSVG, because it works.

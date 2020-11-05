@@ -49,6 +49,7 @@
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
 
+
 #ifdef IGRAPHICS_IMGUI
 #include "IGraphicsImGui.h"
 #endif
@@ -79,6 +80,7 @@ class ITextEntryControl;
 class ICornerResizerControl;
 class IFPSDisplayControl;
 class IBubbleControl;
+class IGraphicsLiveEdit;
 
 /**  The lowest level base class of an IGraphics context */
 class IGraphics
@@ -1112,12 +1114,17 @@ public:
   /**@return \c true if showning the control bounds */
   bool ShowControlBoundsEnabled() const { return mShowControlBounds; }
   
-  /** Live edit mode allows you to relocate controls at runtime in debug builds
+  /** Live edit mode allows you to relocate controls at runtime in debug builds and save the locations to a predefined file (e.g. main plugin .cpp file) \todo we need a separate page for liveedit info
    * @param enable Set \c true if you wish to enable live editing mode */
   void EnableLiveEdit(bool enable);
 
+  void SetLiveEditSourcePath(const char* path) { mLiveEditSourcePath.Set(path); }
+
   /**@return \c true if live edit mode is enabled */
   bool LiveEditEnabled() const { return mLiveEdit != nullptr; }
+  
+  /**@return \c true if live edit is happening */
+  bool LiveEditInProgress() const;
   
   /** Returns an IRECT that represents the entire UI bounds
    * This is useful for programatically arranging UI elements by slicing up the IRECT using the various IRECT methods
@@ -1332,7 +1339,7 @@ public:
         touchesOnThisControl.push_back(i->first);
   }
   
-  /* Get the first control in the control list, the background */
+  /** Get the first control in the control list, the background */
   IControl* GetBackgroundControl() { return GetControl(0);  }
   
   /** @return Pointer to the special pop-up menu control, if one has been attached */
@@ -1346,6 +1353,8 @@ public:
   
   /** @return Number of attached bubble controls */
   int NBubbleControls() const { return mBubbleControls.GetSize(); }
+  /** @return Pointer to the special live edit control, if one has been attached. \todo */
+  IGraphicsLiveEdit* GetLiveEditControl() { return mLiveEdit.get(); }
   
   /** Helper method to style all of the controls which inherit IVectorBase
    * @param IVStyle Style for the controls */
@@ -1705,11 +1714,12 @@ private:
   std::unique_ptr<IPopupMenuControl> mPopupControl;
   std::unique_ptr<IFPSDisplayControl> mPerfDisplay;
   std::unique_ptr<ITextEntryControl> mTextEntryControl;
-  std::unique_ptr<IControl> mLiveEdit;
+  std::unique_ptr<IGraphicsLiveEdit> mLiveEdit;
   
   IPopupMenu mPromptPopupMenu;
   
   WDL_String mSharedResourcesSubPath;
+  WDL_String mLiveEditSourcePath;
   
   ECursor mCursorType = ECursor::ARROW;
   int mWidth;
