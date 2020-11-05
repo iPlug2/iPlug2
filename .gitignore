@@ -44,3 +44,4 @@ Projects*
 Examples/IPlugSwift/Pods
 PodFile.lock
 */*/.vscode/ipch
+*.gch
