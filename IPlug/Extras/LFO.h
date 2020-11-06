@@ -21,7 +21,7 @@ BEGIN_IPLUG_NAMESPACE
 
 #define LFO_TEMPODIV_VALIST "1/64", "1/32", "1/16T", "1/16", "1/16D", "1/8T", "1/8", "1/8D", "1/4", "1/4D", "1/2", "1/1", "2/1", "4/1", "8/1"
 
-#define LFO_SHAPE_VALIST "Triangle", "Square", "Ramp Up", "Ramp Down"
+#define LFO_SHAPE_VALIST "Triangle", "Square", "Ramp Up", "Ramp Down", "Sine"
 
 template<typename T = double>
 class LFO : public IOscillator<T>
@@ -53,7 +53,7 @@ public:
     kSquare,
     kRampUp,
     kRampDown,
-//    kSine,
+    kSine,
     kNumShapes
   };
   
@@ -203,6 +203,7 @@ private:
         case kSquare:   output = squareUnipolar(phase); break;
         case kRampUp:   output = rampupUnipolar(phase); break;
         case kRampDown: output = rampdownUnipolar(phase); break;
+        case kSine:     output = (std::sin(phase * 6.283185307179586) * 0.5) + 0.5; break;
         default: break;
       }
     }
@@ -213,6 +214,7 @@ private:
         case kSquare:   output = square(phase); break;
         case kRampUp:   output = rampup(phase); break;
         case kRampDown: output = rampdown(phase); break;
+        case kSine:     output = std::sin(phase * 6.283185307179586); break;
         default: break;
       }
     }
