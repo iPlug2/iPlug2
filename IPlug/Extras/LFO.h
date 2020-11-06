@@ -73,21 +73,21 @@ public:
   static T GetQNScalar(ETempoDivison division)
   {
     static constexpr T scalars[kNumDivisions] = {
-      64.   / 4.,
-      32.   / 4.,
-      24.   / 4.,
-      16.   / 4.,
-      12.   / 4.,
-      9.    / 4.,
-      8.    / 4.,
-      6     / 4.,
-      4.    / 4.,
-      3.    / 4.,
-      2.    / 4.,
-      1.    / 4.,
-      0.5   / 4.,
-      0.25  / 4.,
-      0.125 / 4.
+      64.   / 4., // k64th = 0,   // 1 sixty fourth of a beat
+      32.   / 4., // k32nd,       // 1 thirty second of a beat
+      24.   / 4., // k16thT,      // 1 sixteenth note triplet
+      16.   / 4., // k16th,       // 1 sixteenth note
+      12.   / 4., // k16thD,      // 1 dotted sixteenth note
+      9.    / 4., // k8thT,       // 1 eighth note triplet
+      8.    / 4., // k8th,        // 1 eighth note
+      6     / 4., // k8thD,       // 1 dotted eighth note
+      4.    / 4., // k4th,        // 1 quater note a.k.a 1 beat @ 4/4
+      3.    / 4., // k4thD,       // 1 dotted beat @ 4/4
+      2.    / 4., // k2th,        // 2 beats @ 4/4
+      1.    / 4., // k1,          // 1 bar @ 4/4
+      0.5   / 4., // k2,          // 2 bars @ 4/4
+      0.25  / 4., // k4,          // 4 bars @ 4/4
+      0.125 / 4., // k8,          // 8 bars @ 4/4
     };
     
     return scalars[division];
@@ -118,14 +118,18 @@ public:
     if(mRateMode == ERateMode::kBPM && !transportIsRunning)
       IOscillator<T>::SetFreqCPS(tempo/60.);
     
+    double samplesPerBeat = IOscillator<T>::mSampleRate * (60.0 / (tempo == 0.0 ? 1.0 : tempo)); // samples per beat
+    
     T phaseIncr = IOscillator<T>::mPhaseIncr;
 
     for (int s=0; s<nFrames; s++)
     {
+      double sampleAccurateQnPos = qnPos + ((double) s / samplesPerBeat);
+
       if(mRateMode == ERateMode::kBPM)
       {
         if(transportIsRunning)
-          phase = std::fmod(qnPos, oneOverQNScalar) / oneOverQNScalar;
+          phase = std::fmod(sampleAccurateQnPos, oneOverQNScalar) / oneOverQNScalar;
         else
           phase = WrapPhase(phase + (phaseIncr * mQNScalar));
       }
