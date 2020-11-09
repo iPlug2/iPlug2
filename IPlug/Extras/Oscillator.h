@@ -137,7 +137,6 @@ public:
   {
   }
 
-  //todo rewrite this
   inline T Process()
   {
     T output = 0.;

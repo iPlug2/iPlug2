@@ -290,11 +290,11 @@ public:
 #pragma mark - Editor resizing
   void SetEditorSize(int width, int height) { mEditorWidth = width; mEditorHeight = height; }
   
-  /** /todo
-   * @param widthLo /todo
-   * @param widthHi /todo
-   * @param heightLo /todo
-   * @param heightHi /todo */
+  /** \todo
+   * @param widthLo \todo
+   * @param widthHi \todo
+   * @param heightLo \todo
+   * @param heightHi \todo */
   void SetSizeConstraints(int widthLo, int widthHi, int heightLo, int heightHi)
   {
     mMinWidth = std::min(widthLo, widthHi);

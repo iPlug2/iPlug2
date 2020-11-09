@@ -32,7 +32,7 @@ struct IMidiMsg
   int mOffset;
   uint8_t mStatus, mData1, mData2;
   
-  /** /todo */
+  /** \todo */
   enum EStatusMsg
   {
     kNone = 0,
@@ -45,7 +45,7 @@ struct IMidiMsg
     kPitchWheel = 14
   };
   
-  /** /todo */
+  /** \todo */
   enum EControlChangeMsg
   {
     kNoCC = -1,
@@ -125,11 +125,11 @@ struct IMidiMsg
     kAllNotesOff = 123
   };
   
-  /** /todo 
-   * @param offs /todo
-   * @param s /todo
-   * @param d1 /todo
-   * @param d2 /todo */
+  /** \todo 
+   * @param offs \todo
+   * @param s \todo
+   * @param d1 \todo
+   * @param d2 \todo */
   IMidiMsg(int offs = 0, uint8_t s = 0, uint8_t d1 = 0, uint8_t d2 = 0)
   : mOffset(offs)
   , mStatus(s)
@@ -137,11 +137,11 @@ struct IMidiMsg
   , mData2(d2)
   {}
   
-  /** /todo 
-   * @param noteNumber /todo
-   * @param velocity /todo
-   * @param offset /todo
-   * @param channel /todo */
+  /** \todo 
+   * @param noteNumber \todo
+   * @param velocity \todo
+   * @param offset \todo
+   * @param channel \todo */
   void MakeNoteOnMsg(int noteNumber, int velocity, int offset, int channel = 0)
   {
     Clear();
@@ -151,10 +151,10 @@ struct IMidiMsg
     mOffset = offset;
   }
   
-  /** /todo 
-   * @param noteNumber /todo
-   * @param offset /todo
-   * @param channel /todo */
+  /** \todo 
+   * @param noteNumber \todo
+   * @param offset \todo
+   * @param channel \todo */
   void MakeNoteOffMsg(int noteNumber, int offset, int channel = 0)
   {
     Clear();
@@ -163,10 +163,10 @@ struct IMidiMsg
     mOffset = offset;
   }
 
-  /** /todo 
+  /** \todo 
    * @param value range [-1, 1], converts to [0, 16384) where 8192 = no pitch change.
-   * @param channel /todo
-   * @param offset /todo */
+   * @param channel \todo
+   * @param offset \todo */
   void MakePitchWheelMsg(double value, int channel = 0, int offset = 0)
   {
     Clear();
@@ -178,11 +178,11 @@ struct IMidiMsg
     mOffset = offset;
   }
   
-  /** /todo
-   * @param idx /todo
-   * @param value range [0, 1] /todo
-   * @param channel /todo
-   * @param offset /todo */
+  /** \todo
+   * @param idx \todo
+   * @param value range [0, 1] \todo
+   * @param channel \todo
+   * @param offset \todo */
   void MakeControlChangeMsg(EControlChangeMsg idx, double value, int channel = 0, int offset = 0)
   {
     Clear();
@@ -192,7 +192,7 @@ struct IMidiMsg
     mOffset = offset;
   }
 
-  /** /todo */
+  /** \todo */
   void MakeProgramChange(int program, int channel = 0, int offset = 0)
   {
     Clear();
@@ -201,10 +201,10 @@ struct IMidiMsg
     mOffset = offset;
   }
 
-  /** /todo  
-   * @param pressure /todo
-   * @param offset /todo
-   * @param channel /todo */
+  /** \todo  
+   * @param pressure \todo
+   * @param offset \todo
+   * @param channel \todo */
   void MakeChannelATMsg(int pressure, int offset, int channel)
   {
     Clear();
@@ -214,11 +214,11 @@ struct IMidiMsg
     mOffset = offset;
   }
   
-  /** /todo 
-   * @param noteNumber /todo
-   * @param pressure /todo
-   * @param offset /todo
-   * @param channel /todo */
+  /** \todo 
+   * @param noteNumber \todo
+   * @param pressure \todo
+   * @param offset \todo
+   * @param channel \todo */
   void MakePolyATMsg(int noteNumber, int pressure, int offset, int channel)
   {
     Clear();
@@ -234,8 +234,8 @@ struct IMidiMsg
     return mStatus & 0x0F;
   }
   
-  /** /todo  
-   * @return EStatusMsg /todo */
+  /** \todo  
+   * @return EStatusMsg \todo */
   EStatusMsg StatusMsg() const
   {
     unsigned int e = mStatus >> 4;
@@ -318,8 +318,8 @@ struct IMidiMsg
     return 0.0;
   }
   
-  /** /todo 
-   * @return EControlChangeMsg /todo */
+  /** \todo 
+   * @return EControlChangeMsg \todo */
   EControlChangeMsg ControlChangeIdx() const
   {
     return (EControlChangeMsg) mData1;
@@ -335,24 +335,24 @@ struct IMidiMsg
     return -1.0;
   }
   
-  /** /todo 
-   * @param msgValue /todo
+  /** \todo 
+   * @param msgValue \todo
    * @return \c true = on */
   static bool ControlChangeOnOff(double msgValue)
   {
     return (msgValue >= 0.5);
   }
   
-  /** /todo */
+  /** \todo */
   void Clear()
   {
     mOffset = 0;
     mStatus = mData1 = mData2 = 0;
   }
   
-  /** /todo  
-   * @param msg /todo
-   * @return const char* /todo */
+  /** \todo  
+   * @param msg \todo
+   * @return const char* \todo */
   static const char* StatusMsgStr(EStatusMsg msg)
   {
     switch (msg)
@@ -505,13 +505,13 @@ struct IMidiMsg
     
     return ccNameStrs[idx];
   }
-  /** /todo */
+  /** \todo */
   void LogMsg()
   {
     Trace(TRACELOC, "midi:(%s:%d:%d:%d)", StatusMsgStr(StatusMsg()), Channel(), mData1, mData2);
   }
   
-  /** /todo */
+  /** \todo */
   void PrintMsg() const
   {
     DBGMSG("midi: offset %i, (%s:%d:%d:%d)\n", mOffset, StatusMsgStr(StatusMsg()), Channel(), mData1, mData2);
@@ -525,29 +525,29 @@ struct ISysEx
   int mOffset, mSize;
   const uint8_t* mData;
   
-  /** /todo  
-   * @param offs /todo
-   * @param pData /todo
-   * @param size /todo */
+  /** \todo  
+   * @param offs \todo
+   * @param pData \todo
+   * @param size \todo */
   ISysEx(int offs = 0, const uint8_t* pData = nullptr, int size = 0)
   : mOffset(offs)
   , mData(pData)
   , mSize(size)
   {}
   
-  /** /todo */
+  /** \todo */
   void Clear()
   {
     mOffset = mSize = 0;
     mData = NULL;
   }
   
-  /** /todo 
-   * @param str /todo
-   * @param maxlen /todo
-   * @param pData /todo
-   * @param size /todo
-   * @return char* /todo */
+  /** \todo 
+   * @param str \todo
+   * @param maxlen \todo
+   * @param pData \todo
+   * @param size \todo
+   * @return char* \todo */
   char* SysExStr(char *str, int maxlen, const uint8_t* pData, int size)
   {
     assert(str != NULL && maxlen >= 3);

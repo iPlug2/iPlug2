@@ -167,7 +167,7 @@ struct ISVG
   {
   }
   
-  /** /todo */
+  /** \todo */
   float W() const
   {
     if (mSVGDom)
@@ -176,7 +176,7 @@ struct ISVG
       return 0;
   }
   
-  /** /todo */
+  /** \todo */
   float H() const
   {
     if (mSVGDom)
@@ -198,7 +198,7 @@ struct ISVG
     mImage = pImage;
   }
   
-  /** /todo */
+  /** \todo */
   float W() const
   {
     if (mImage)
@@ -207,7 +207,7 @@ struct ISVG
       return 0;
   }
 
-  /** /todo */
+  /** \todo */
   float H() const
   {
     if (mImage)
@@ -236,13 +236,13 @@ struct IColor
   
   void Set(int a = 255, int r = 0, int g = 0, int b = 0) { A = a; R = r; G = g; B = b; }
   
-  /** /todo */
+  /** \todo */
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
   
-  /** /todo */
+  /** \todo */
   void Clamp() { A = Clip(A, 0, 255); R = Clip(R, 0, 255); G = Clip(G, 0, 255); B = Clip(B, 0, 255); }
   
-  /** /todo 
+  /** \todo 
    * @param alpha */
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
 
@@ -336,8 +336,8 @@ struct IColor
     l /= 100.f;
   }
 
-  /** /todo
-   * @return int /todo */
+  /** \todo
+   * @return int \todo */
   int GetLuminosity() const
   {
     int min = R < G ? (R < B ? R : B) : (G < B ? G : B);
@@ -345,9 +345,9 @@ struct IColor
     return (min + max) / 2;
   };
   
-  /** /todo 
-   * @param randomAlpha /todo
-   * @return IColor /todo */
+  /** \todo 
+   * @param randomAlpha \todo
+   * @return IColor \todo */
   static IColor GetRandomColor(bool randomAlpha = false)
   {
     int A = randomAlpha ? std::rand() & 0xFF : 255;
@@ -466,10 +466,10 @@ struct IColor
     return col;
   }
 
-  /** /todo 
-   * @param start /todo
-   * @param dest /todo
-   * @param progress /todo */
+  /** \todo 
+   * @param start \todo
+   * @param dest \todo
+   * @param progress \todo */
   static IColor LinearInterpolateBetween(const IColor& start, const IColor& dest, float progress)
   {
     IColor result;
@@ -545,9 +545,9 @@ struct IBlend
   {}
 };
 
-/** /todo 
- * @param pBlend /todo
- * @return float /todo */
+/** \todo 
+ * @param pBlend \todo
+ * @return float \todo */
 inline float BlendWeight(const IBlend* pBlend)
 {
   return (pBlend ? pBlend->mWeight : 1.0f);
@@ -594,19 +594,19 @@ struct IStrokeOptions
       SetDash(array, offset, count);
     }
 
-    /** @return int /todo */
+    /** @return int \todo */
     int GetCount() const { return mCount; }
 
-    /** @return float  /todo */
+    /** @return float  \todo */
     float GetOffset() const { return mOffset; }
 
-    /** @return float* /todo */
+    /** @return float* \todo */
     const float* GetArray() const { return mArray; }
 
-    /** /todo 
-     * @param array /todo
-     * @param offset /todo
-     * @param count /todo */
+    /** \todo 
+     * @param array \todo
+     * @param offset \todo
+     * @param count \todo */
     void SetDash(float* array, float offset, int count)
     {
       assert(count >= 0 && count <= 8);
@@ -646,15 +646,15 @@ static const char* TextStyleString(ETextStyle style)
 /** Used to manage font and text/text entry style for a piece of text on the UI, independent of draw class/platform.*/
 struct IText
 {
-  /** /todo 
-   * @param size /todo
-   * @param color /todo
-   * @param font /todo
-   * @param align /todo
-   * @param valign /todo
-   * @param angle /todo
-   * @param TEBGColor /todo
-   * @param TEFGColor /todo */
+  /** \todo 
+   * @param size \todo
+   * @param color \todo
+   * @param font \todo
+   * @param align \todo
+   * @param valign \todo
+   * @param angle \todo
+   * @param TEBGColor \todo
+   * @param TEFGColor \todo */
   IText(float size = DEFAULT_TEXT_SIZE,
         const IColor& color = DEFAULT_TEXT_FGCOLOR,
         const char* font = nullptr,
@@ -674,9 +674,9 @@ struct IText
     strcpy(mFont, (font ? font : DEFAULT_FONT));
   }
 
-  /** /todo 
-    * @param size /todo
-    * @param valign /todo */
+  /** \todo 
+    * @param size \todo
+    * @param valign \todo */
   IText(float size, EVAlign valign, const IColor& color = DEFAULT_TEXT_FGCOLOR)
   : IText()
   {
@@ -685,9 +685,9 @@ struct IText
     mFGColor = color;
   }
   
-  /** /todo 
-   * @param size /todo
-   * @param align /todo */
+  /** \todo 
+   * @param size \todo
+   * @param align \todo */
   IText(float size, EAlign align, const IColor& color = DEFAULT_TEXT_FGCOLOR)
   : IText()
   {
@@ -1389,8 +1389,8 @@ struct IRECT
       return IRECT(L, T, R, T + h);
   }
   
-  /** /todo 
-   * @param rhs /todo */
+  /** \todo 
+   * @param rhs \todo */
   void Clank(const IRECT& rhs)
   {
     if (L < rhs.L)
@@ -1723,40 +1723,40 @@ public:
   IRECTList(const IRECTList&) = delete;
   IRECTList& operator=(const IRECTList&) = delete;
 
-  /** /todo
-   * @return int /todo */
+  /** \todo
+   * @return int \todo */
   int Size() const { return mRects.GetSize(); }
   
-  /** /todo 
-   * @param rect /todo */
+  /** \todo 
+   * @param rect \todo */
   void Add(const IRECT rect)
   {
     mRects.Add(rect);
   }
   
-  /** /todo 
-   * @param idx /todo
-   * @param rect /todo */
+  /** \todo 
+   * @param idx \todo
+   * @param rect \todo */
   void Set(int idx, const IRECT rect)
   {
     *(mRects.GetFast() + idx) = rect;
   }
   
-  /** /todo 
-   * @param idx /todo
-   * @return const IRECT& /todo */
+  /** \todo 
+   * @param idx \todo
+   * @return const IRECT& \todo */
   const IRECT& Get(int idx) const
   {
     return *(mRects.GetFast() + idx);
   }
   
-  /** /todo */
+  /** \todo */
   void Clear()
   {
     mRects.Resize(0);
   }
   
-  /** /todo * @return IRECT /todo */
+  /** \todo * @return IRECT \todo */
   IRECT Bounds()
   {
     IRECT r = Get(0);
@@ -1765,7 +1765,7 @@ public:
     return r;
   }
   
-  /** /todo */
+  /** \todo */
   void PixelAlign()
   {
     for (auto i = 0; i < Size(); i++)
@@ -1776,8 +1776,8 @@ public:
     }
   }
 
-  /** /todo 
-   * @param scale /todo */
+  /** \todo 
+   * @param scale \todo */
   void PixelAlign(float scale)
   {
     for (auto i = 0; i < Size(); i++)
@@ -1803,13 +1803,13 @@ public:
     return -1;
   }
   
-  /** /todo 
-   * @param input /todo
-   * @param rects /todo
-   * @param rowFractions /todo
-   * @param colFractions /todo
-   * @return true /todo
-   * @return false /todo */
+  /** \todo 
+   * @param input \todo
+   * @param rects \todo
+   * @param rowFractions \todo
+   * @param colFractions \todo
+   * @return true \todo
+   * @return false \todo */
   static bool GetFracGrid(const IRECT& input, IRECTList& rects, const std::initializer_list<float>& rowFractions, const std::initializer_list<float>& colFractions)
   {
     IRECT rowsLeft = input;
@@ -1845,7 +1845,7 @@ public:
     return true;
   }
   
-  /** /todo  */
+  /** \todo  */
   void Optimize()
   {
     // Remove rects that are contained by other rects and intersections
@@ -1897,10 +1897,10 @@ public:
   }
   
 private:
-  /** /todo 
-   * @param r /todo
-   * @param i /todo
-   * @return IRECT /todo */
+  /** \todo 
+   * @param r \todo
+   * @param i \todo
+   * @return IRECT \todo */
   IRECT Shrink(const IRECT &r, const IRECT &i)
   {
     if (i.L != r.L)
@@ -1912,10 +1912,10 @@ private:
     return IRECT(r.L, i.B, r.R, r.B);
   }
   
-  /** /todo 
-   * @param r /todo
-   * @param i /todo
-   * @return IRECT /todo */
+  /** \todo 
+   * @param r \todo
+   * @param i \todo
+   * @return IRECT \todo */
   IRECT Split(const IRECT r, const IRECT &i)
   {
     if (r.L == i.L)
@@ -1950,42 +1950,42 @@ private:
 /** Used to store transformation matrices **/
 struct IMatrix
 {
-  /** /todo 
-   * @param xx /todo
-   * @param yx /todo
-   * @param xy /todo
-   * @param yy /todo
-   * @param tx /todo
-   * @param ty /todo */
+  /** \todo 
+   * @param xx \todo
+   * @param yx \todo
+   * @param xy \todo
+   * @param yy \todo
+   * @param tx \todo
+   * @param ty \todo */
   IMatrix(double xx, double yx, double xy, double yy, double tx, double ty)
   : mXX(xx), mYX(yx), mXY(xy), mYY(yy), mTX(tx), mTY(ty)
   {}
   
-  /** /todo */
+  /** \todo */
   IMatrix() : IMatrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
   {}
   
-  /** /todo 
-   * @param x /todo
-   * @param y /todo
-   * @return IMatrix& /todo */
+  /** \todo 
+   * @param x \todo
+   * @param y \todo
+   * @return IMatrix& \todo */
   IMatrix& Translate(float x, float y)
   {
     return Transform(IMatrix(1.0, 0.0, 0.0, 1.0, x, y));
   }
   
-  /** /todo 
-   * @param x /todo
-   * @param y /todo
-   * @return IMatrix& /todo */
+  /** \todo 
+   * @param x \todo
+   * @param y \todo
+   * @return IMatrix& \todo */
   IMatrix& Scale(float x, float y)
   {
     return Transform(IMatrix(x, 0.0, 0.0, y, 0.0, 0.0));
   }
   
-  /** /todo 
-   * @param a /todo
-   * @return IMatrix& /todo */
+  /** \todo 
+   * @param a \todo
+   * @return IMatrix& \todo */
   IMatrix& Rotate(float a)
   {
     const double rad = DegToRad(a);
@@ -1995,38 +1995,38 @@ struct IMatrix
     return Transform(IMatrix(c, s, -s, c, 0.0, 0.0));
   }
   
-  /** /todo 
-   * @param xa /todo
-   * @param ya /todo
-   * @return IMatrix& /todo */
+  /** \todo 
+   * @param xa \todo
+   * @param ya \todo
+   * @return IMatrix& \todo */
   IMatrix& Skew(float xa, float ya)
   {
     return Transform(IMatrix(1.0, std::tan(DegToRad(ya)), std::tan(DegToRad(xa)), 1.0, 0.0, 0.0));
   }
   
-  /** /todo 
-   * @param x /todo
-   * @param y /todo
-   * @param x0 /todo
-   * @param y0 /todo */
+  /** \todo 
+   * @param x \todo
+   * @param y \todo
+   * @param x0 \todo
+   * @param y0 \todo */
   void TransformPoint(double& x, double& y, double x0, double y0) const
   {
     x = x0 * mXX + y0 * mXY + mTX;
     y = x0 * mYX + y0 * mYY + mTY;
   };
   
-  /** /todo 
-   * @param x /todo
-   * @param y /todo */
+  /** \todo 
+   * @param x \todo
+   * @param y \todo */
   void TransformPoint(double& x, double& y) const
   {
     TransformPoint(x, y, x, y);
   };
   
-  /** /todo 
-   * @param before /todo
-   * @param after /todo
-   * @return IMatrix& /todo */
+  /** \todo 
+   * @param before \todo
+   * @param after \todo
+   * @return IMatrix& \todo */
   IMatrix& Transform(const IRECT& before, const IRECT& after)
   {
     const double sx = after.W() / before.W();
@@ -2037,9 +2037,9 @@ struct IMatrix
     return *this = IMatrix(sx, 0.0, 0.0, sy, tx, ty);
   }
   
-  /** /todo 
-   * @param m /todo
-   * @return IMatrix& /todo */
+  /** \todo 
+   * @param m \todo
+   * @return IMatrix& \todo */
   IMatrix& Transform(const IMatrix& m)
   {
     IMatrix p = *this;
@@ -2054,8 +2054,8 @@ struct IMatrix
     return *this;
   }
   
-  /** /todo 
-   * @return IMatrix& /todo */
+  /** \todo 
+   * @return IMatrix& \todo */
   IMatrix& Invert()
   {
     IMatrix m = *this;
@@ -2082,9 +2082,9 @@ struct IColorStop
   : mOffset(0.f)
   {}
   
-  /** /todo 
-   * @param color /todo
-   * @param offset /todo */
+  /** \todo 
+   * @param color \todo
+   * @param offset \todo */
   IColorStop(IColor color, float offset)
   : mColor(color)
   , mOffset(offset)
@@ -2105,27 +2105,27 @@ struct IPattern
   int mNStops;
   IMatrix mTransform;
   
-  /** /todo 
-   * @param type /todo */
+  /** \todo 
+   * @param type \todo */
   IPattern(EPatternType type)
   : mType(type), mExtend(EPatternExtend::Pad), mNStops(0)
   {}
   
-  /** /todo 
-   * @param color /todo */
+  /** \todo 
+   * @param color \todo */
   IPattern(const IColor& color)
   : mType(EPatternType::Solid), mExtend(EPatternExtend::Pad), mNStops(1)
   {
     mStops[0] = IColorStop(color, 0.0);
   }
   
-  /** /todo 
-   * @param x1 /todo
-   * @param y1 /todo
-   * @param x2 /todo
-   * @param y2 /todo
-   * @param stops /todo
-   * @return IPattern /todo */
+  /** \todo 
+   * @param x1 \todo
+   * @param y1 \todo
+   * @param x2 \todo
+   * @param y2 \todo
+   * @param stops \todo
+   * @return IPattern \todo */
   static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, const std::initializer_list<IColorStop>& stops = {})
   {
     IPattern pattern(EPatternType::Linear);
@@ -2154,11 +2154,11 @@ struct IPattern
     return pattern;
   }
   
-  /** /todo 
-   * @param bounds /todo
-   * @param direction /todo
-   * @param stops /todo
-   * @return IPattern /todo */
+  /** \todo 
+   * @param bounds \todo
+   * @param direction \todo
+   * @param stops \todo
+   * @return IPattern \todo */
   static IPattern CreateLinearGradient(const IRECT& bounds, EDirection direction, const std::initializer_list<IColorStop>& stops = {})
   {
     float x1, y1, x2, y2;
@@ -2179,12 +2179,12 @@ struct IPattern
     return CreateLinearGradient(x1, y1, x2, y2, stops);
   }
   
-  /** /todo 
-   * @param x1 /todo
-   * @param y1 /todo
-   * @param r /todo
-   * @param stops /todo
-   * @return IPattern /todo */
+  /** \todo 
+   * @param x1 \todo
+   * @param y1 \todo
+   * @param r \todo
+   * @param stops \todo
+   * @return IPattern \todo */
   static IPattern CreateRadialGradient(float x1, float y1, float r, const std::initializer_list<IColorStop>& stops = {})
   {
     IPattern pattern(EPatternType::Radial);
@@ -2222,24 +2222,24 @@ struct IPattern
     return pattern;
   }
   
-  /** /todo 
-   * @return int /todo */
+  /** \todo 
+   * @return int \todo */
   int NStops() const
   {
     return mNStops;
   }
   
-  /** /todo 
-   * @param idx /todo
-   * @return const IColorStop& /todo */
+  /** \todo 
+   * @param idx \todo
+   * @return const IColorStop& \todo */
   const IColorStop& GetStop(int idx) const
   {
     return mStops[idx];
   }
   
-  /** /todo 
-   * @param color /todo
-   * @param offset /todo */
+  /** \todo 
+   * @param color \todo
+   * @param offset \todo */
   void AddStop(IColor color, float offset)
   {
     assert(mType != EPatternType::Solid && mNStops < 16);
@@ -2248,20 +2248,20 @@ struct IPattern
       mStops[mNStops++] = IColorStop(color, offset);
   }
   
-  /** /todo 
-   * @param xx /todo
-   * @param yx /todo
-   * @param xy /todo
-   * @param yy /todo
-   * @param x0 /todo
-   * @param y0 /todo */
+  /** \todo 
+   * @param xx \todo
+   * @param yx \todo
+   * @param xy \todo
+   * @param yy \todo
+   * @param x0 \todo
+   * @param y0 \todo */
   void SetTransform(float xx, float yx, float xy, float yy, float x0, float y0)
   {
     mTransform = IMatrix(xx, yx, xy, yy, x0, y0);
   }
   
-  /** /todo 
-   * @param transform /todo */
+  /** \todo 
+   * @param transform \todo */
   void SetTransform(const IMatrix& transform)
   {
     mTransform = transform;
@@ -2277,11 +2277,11 @@ class ILayer
   friend IGraphics;
   
 public:
-  /** /todo 
-   * @param pBitmap /todo
-   * @param r /todo
-   * @param pControl /todo
-   * @param cr /todo */
+  /** \todo 
+   * @param pBitmap \todo
+   * @param r \todo
+   * @param pControl \todo
+   * @param cr \todo */
   ILayer(APIBitmap* pBitmap, const IRECT& r, IControl* pControl, const IRECT& cr)
   : mBitmap(pBitmap)
   , mControl(pControl)
@@ -2293,16 +2293,16 @@ public:
   ILayer(const ILayer&) = delete;
   ILayer operator=(const ILayer&) = delete;
   
-  /** /todo */
+  /** \todo */
   void Invalidate() { mInvalid = true; }
 
-  /**  @return const APIBitmap* /todo */
+  /**  @return const APIBitmap* \todo */
   const APIBitmap* GetAPIBitmap() const { return mBitmap.get(); }
 
-  /** @return IBitmap /todo */
+  /** @return IBitmap \todo */
   IBitmap GetBitmap() const { return IBitmap(mBitmap.get(), 1, false); }
 
-  /** @return const IRECT& /todo*/
+  /** @return const IRECT& \todo*/
   const IRECT& Bounds() const { return mRECT; }
   
 private:
@@ -2322,13 +2322,13 @@ struct IShadow
 {
   IShadow() {}
 
-  /** /todo 
-   * @param pattern /todo
-   * @param blurSize /todo
-   * @param xOffset /todo
-   * @param yOffset /todo
-   * @param opacity /todo
-   * @param drawForeground /todo */
+  /** \todo 
+   * @param pattern \todo
+   * @param blurSize \todo
+   * @param xOffset \todo
+   * @param yOffset \todo
+   * @param opacity \todo
+   * @param drawForeground \todo */
   IShadow(const IPattern& pattern, float blurSize, float xOffset, float yOffset, float opacity, bool drawForeground = true)
   : mPattern(pattern)
   , mBlurSize(blurSize)
