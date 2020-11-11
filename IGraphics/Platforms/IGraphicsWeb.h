@@ -38,8 +38,6 @@ static val GetPreloadedImages()
 
 extern void GetScreenDimensions(int& width, int& height);
 
-extern float GetScaleForScreen(int height);
-
 /** IGraphics platform class for the web
 * @ingroup PlatformClasses */
 class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
