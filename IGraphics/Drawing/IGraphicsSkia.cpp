@@ -327,7 +327,11 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
 
 void IGraphicsSkia::OnViewDestroyed()
 {
-#if defined IGRAPHICS_METAL
+#if defined IGRAPHICS_GL
+  mSurface = nullptr;
+  mScreenSurface = nullptr;
+  mGrContext = nullptr;
+#elif defined IGRAPHICS_METAL
   [(id<MTLCommandQueue>) mMTLCommandQueue release];
   mMTLCommandQueue = nullptr;
   mMTLLayer = nullptr;
