@@ -13,7 +13,7 @@
 #include "SkTypeface.h"
 #pragma warning( pop )
 
-#include "GrContext.h"
+#include "GrDirectContext.h"
 
 #include "IGraphicsSkia_src.cpp"
 
@@ -310,13 +310,13 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
 {
 #if defined IGRAPHICS_GL
   auto glInterface = GrGLMakeNativeInterface();
-  mGrContext = GrContext::MakeGL(glInterface);
+  mGrContext = GrDirectContext::MakeGL(glInterface);
 #elif defined IGRAPHICS_METAL
   
   CAMetalLayer* pMTLLayer = (CAMetalLayer*) pContext;
   id<MTLDevice> device = pMTLLayer.device;
   id<MTLCommandQueue> commandQueue = [device newCommandQueue];
-  mGrContext = GrContext::MakeMetal((void*) device, (void*) commandQueue);
+  mGrContext = GrDirectContext::MakeMetal((void*) device, (void*) commandQueue);
   mMTLDevice = (void*) device;
   mMTLCommandQueue = (void*) commandQueue;
   mMTLLayer = pContext;
@@ -793,7 +793,8 @@ void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
   }
 
   mMatrix = SkMatrix::MakeAll(m.mXX, m.mXY, m.mTX, m.mYX, m.mYY, m.mTY, 0, 0, 1);
-  SkMatrix globalMatrix = SkMatrix::MakeScale(GetTotalScale());
+  auto scale = GetTotalScale();
+  SkMatrix globalMatrix = SkMatrix::Scale(scale, scale);
   mClipMatrix = SkMatrix();
   mFinalMatrix = mMatrix;
   globalMatrix.preTranslate(xTranslate, yTranslate);
@@ -888,7 +889,7 @@ void IGraphicsSkia::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
   IBlend blend(EBlend::Default, shadow.mOpacity);
   pCanvas->setMatrix(m);
   pCanvas->drawImage(image.get(), shadow.mXOffset * scale, shadow.mYOffset * scale);
-  m = SkMatrix::MakeScale(scale);
+  m = SkMatrix::Scale(scale, scale);
   pCanvas->setMatrix(m);
   pCanvas->translate(-layer->Bounds().L, -layer->Bounds().T);
   SkPaint p = SkiaPaint(shadow.mPattern, &blend);
