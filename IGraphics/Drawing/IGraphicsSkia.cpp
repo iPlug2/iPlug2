@@ -312,7 +312,6 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
   auto glInterface = GrGLMakeNativeInterface();
   mGrContext = GrDirectContext::MakeGL(glInterface);
 #elif defined IGRAPHICS_METAL
-  
   CAMetalLayer* pMTLLayer = (CAMetalLayer*) pContext;
   id<MTLDevice> device = pMTLLayer.device;
   id<MTLCommandQueue> commandQueue = [device newCommandQueue];
@@ -391,7 +390,11 @@ void IGraphicsSkia::BeginFrame()
     int fbo = 0, samples = 0, stencilBits = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
     glGetIntegerv(GL_SAMPLES, &samples);
+#ifdef IGRAPHICS_GL3
+    glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_STENCIL, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencilBits);
+#else
     glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
+#endif
     
     GrGLFramebufferInfo fbinfo;
     fbinfo.fFBOID = fbo;
