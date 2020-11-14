@@ -93,7 +93,7 @@ void IPlugDrumSynth::OnMidiMsgUI(const IMidiMsg& msg)
 
     if(pitchClass < kNumDrums)
     {
-      DrumPadControl* pPad = dynamic_cast<DrumPadControl*>(GetUI()->GetControlWithTag(pitchClass));
+      DrumPadControl* pPad = GetUI()->GetControlWithTag(pitchClass)->As<DrumPadControl>();
       pPad->SetSplashPoint(pPad->GetRECT().MW(), pPad->GetRECT().MH());
       pPad->TriggerAnimation();
     }

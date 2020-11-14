@@ -78,7 +78,7 @@ void IPlugReaperExtension::OnIdle()
     mPrevTrackCount = tracks;
     
     if(GetUI()) {
-      dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagText))->SetStrFmt(64, "NumTracks: %i", tracks);
+      GetUI()->GetControlWithTag(kCtrlTagText)->As<ITextControl>()->SetStrFmt(64, "NumTracks: %i", tracks);
     }
   }
 }

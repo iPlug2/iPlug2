@@ -145,19 +145,19 @@ public:
     mDrawScale = drawScale;
   }
 
-  /** @return BitmapData /todo */
+  /** @return BitmapData \todo */
   BitmapData GetBitmap() const { return mBitmap; }
 
-  /** /todo */
+  /** \todo */
   int GetWidth() const { return mWidth; }
 
-  /** /todo */
+  /** \todo */
   int GetHeight() const { return mHeight; }
 
-  /** /todo */
+  /** \todo */
   int GetScale() const { return mScale; }
   
-  /** /todo */
+  /** \todo */
   float GetDrawScale() const { return mDrawScale; }
 
 private:
@@ -421,7 +421,7 @@ private:
 /** IFontDataPtr is a managed pointer for transferring the ownership of font data */
 using IFontDataPtr = std::unique_ptr<IFontData>;
 
-/** /todo */
+/** \todo */
 class PlatformFont
 {
 public:
@@ -535,7 +535,7 @@ public:
   StaticStorage& operator=(const StaticStorage&) = delete;
     
 private:
-  /** /todo */
+  /** \todo */
   struct DataKey
   {
     // N.B. - hashID is not guaranteed to be unique
@@ -545,19 +545,19 @@ private:
     std::unique_ptr<T> data;
   };
   
-  /** /todo 
-   * @param str /todo
-   * @return size_t /todo */
+  /** \todo 
+   * @param str \todo
+   * @return size_t \todo */
   size_t Hash(const char* str)
   {
     std::string string(str);
     return std::hash<std::string>()(string);
   }
 
-  /** /todo 
-   * @param str /todo
-   * @param scale /todo
-   * @return T* /todo */
+  /** \todo 
+   * @param str \todo
+   * @param scale \todo
+   * @return T* \todo */
   T* Find(const char* str, double scale = 1.)
   {
     WDL_String cacheName(str);
@@ -577,10 +577,10 @@ private:
     return nullptr;
   }
 
-  /** /todo 
-   * @param pData /todo
-   * @param str /todo
-   * @param scale /todo scale where 2x = retina, omit if not needed */
+  /** \todo 
+   * @param pData \todo
+   * @param str \todo
+   * @param scale \todo scale where 2x = retina, omit if not needed */
   void Add(T* pData, const char* str, double scale = 1.)
   {
     DataKey* pKey = mDatas.Add(new DataKey);
@@ -596,7 +596,7 @@ private:
     //DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
   }
 
-  /** /todo @param pData /todo */
+  /** \todo @param pData \todo */
   void Remove(T* pData)
   {
     for (int i = 0; i < mDatas.GetSize(); ++i)
@@ -609,19 +609,19 @@ private:
     }
   }
 
-  /** /todo  */
+  /** \todo  */
   void Clear()
   {
     mDatas.Empty(true);
   };
 
-  /** /todo  */
+  /** \todo  */
   void Retain()
   {
     mCount++;
   }
   
-  /** /todo  */
+  /** \todo  */
   void Release()
   {
     if (--mCount == 0)

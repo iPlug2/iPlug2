@@ -60,7 +60,7 @@
 #endif
 
 //TODO: move this
-#if !defined OS_IOS && !defined OS_WEB
+#if !defined OS_IOS
 /** Helper to find a draw scale factor to scale the plug-in UI to fit in the platform-supplied area
  * @param height The original height of the UI.
  * @return A scaling factor that can be supplied when calling MakeGraphics() */

@@ -131,7 +131,7 @@ public:
   /** Get the namespace index of the track that the plug-in is inserted on */
   virtual int GetTrackNamespaceIndex() { return 0; }
 
-  /** /todo */
+  /** \todo */
   virtual void DirtyParametersFromUI() override;
 
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
@@ -180,7 +180,7 @@ public:
     mSysExDataFromEditor.Push(data);
   }
 
-  /** /todo */
+  /** \todo */
   void CreateTimer();
   
 private:
@@ -202,10 +202,10 @@ private:
   virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {}
   
   //DISTRIBUTED ONLY (Currently only VST3)
-  /** /todo */
+  /** \todo */
   virtual void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {}
   
-  /** /todo */
+  /** \todo */
   virtual void TransmitSysExDataFromProcessor(const SysExData& data) {}
 
   void OnTimer(Timer& t);

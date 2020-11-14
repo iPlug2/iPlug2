@@ -533,7 +533,7 @@ public:
   * @param handleSvg An ISVG for the track background
   * @param paramIdx The parameter index to link this control to 
   * @param dir The direction of the slider movement 
-  * @param gearing /todo */
+  * @param gearing \todo */
   ISVGSliderControl(const IRECT& bounds, const ISVG& handleSvg, const ISVG& trackSVG, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   void Draw(IGraphics& g) override;

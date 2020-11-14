@@ -298,7 +298,7 @@
 		"prefix": "AttachIVSliderControl",
 		"body": [
 			"pGraphics->AttachControl(new IVSliderControl(b.GetCentredInside(30,100), [](IControl* pCaller){",
-			"\tdynamic_cast<IVSliderControl*>(pCaller)->SetColor(kX1, IColor::LinearInterpolateBetween(COLOR_RED, COLOR_ORANGE, pCaller->GetValue())); },",
+			"\tpCaller->As<IVSliderControl>()->SetColor(kX1, IColor::LinearInterpolateBetween(COLOR_RED, COLOR_ORANGE, pCaller->GetValue())); },",
 			"\t\"\", DEFAULT_STYLE, false, EDirection::Vertical, DEFAULT_GEARING, 0.f, 15.f));",
 		],
 		"description": "Attach an AttachIVSliderControl"
