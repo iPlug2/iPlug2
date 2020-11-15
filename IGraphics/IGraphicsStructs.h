@@ -619,7 +619,7 @@ struct IStrokeOptions
     }
 
   private:
-    float mArray[8];
+    float mArray[8] = {};
     float mOffset;
     int mCount;
   };

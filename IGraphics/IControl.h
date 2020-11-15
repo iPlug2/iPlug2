@@ -1159,7 +1159,7 @@ protected:
   EDirection mDirection;
   double mGearing;
   bool mMouseDown = false;
-  double mMouseDragValue;
+  double mMouseDragValue = 0.0;
 };
 
 /** A base class for slider/fader controls, to handle mouse action and Sender. */

@@ -356,7 +356,7 @@ private:
   /** The height of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist */
   int mEditorHeight = 0;
   /** Editor sizing constraints */
-  int mMinWidth, mMaxWidth, mMinHeight, mMaxHeight;
+  int mMinWidth = 10, mMaxWidth = 100000, mMinHeight = 10, mMaxHeight = 100000;
 };
 
 END_IPLUG_NAMESPACE

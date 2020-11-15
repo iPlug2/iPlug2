@@ -373,7 +373,7 @@ private:
   // Font Identifiers
   WDL_String mFamily;
   WDL_String mStyle;
-  uint16_t mMacStyle;
+  uint16_t mMacStyle = 0;
   
   // Metrics
   uint16_t mUnitsPerEM = 0;
