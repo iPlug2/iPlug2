@@ -465,6 +465,8 @@ void ITextControl::SetStr(const char* str)
     
     if(mSetBoundsBasedOnStr)
       SetBoundsBasedOnStr();
+    
+    SetDirty(false);
   }
 }
 
@@ -474,6 +476,8 @@ void ITextControl::SetStrFmt(int maxlen, const char* fmt, ...)
   va_start(arglist, fmt);
   mStr.SetAppendFormattedArgs(false, maxlen, fmt, arglist);
   va_end(arglist);
+  
+  SetDirty(false);
 }
 
 void ITextControl::Draw(IGraphics& g)
