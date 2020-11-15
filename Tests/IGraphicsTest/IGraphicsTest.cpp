@@ -142,7 +142,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
       SendCurrentParamValuesFromDelegate();
     };
     
-    pGraphics->AttachControl(new IVRadioButtonControl(bounds.FracRectHorizontal(0.2),
+    pGraphics->AttachControl(new IVRadioButtonControl(bounds.FracRectHorizontal(0.2f),
                                                       [pGraphics, chooseTestControl](IControl* pCaller) {
                                                         pGraphics->RemoveControlWithTag(kCtrlTagTestControl);
                                                         SplashClickActionFunc(pCaller);
@@ -152,7 +152,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
                                                       testNames
                                                       ));
     
-    pGraphics->AttachControl(new IVSliderControl(bounds.FracRectHorizontal(0.2, true).GetCentredInside(100, 200), kParamDummy, "Value"));
+    pGraphics->AttachControl(new IVSliderControl(bounds.FracRectHorizontal(0.2f, true).GetCentredInside(100, 200), kParamDummy, "Value"));
 
     pGraphics->AttachControl(new GFXLabelControl(bounds.GetFromTRHC(230, 50)));//.GetTranslated(25, -25)));
     
