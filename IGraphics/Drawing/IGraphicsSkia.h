@@ -8,6 +8,10 @@
 #define SK_METAL
 #endif
 
+#if defined IGRAPHICS_GL
+#define SK_GL
+#endif
+
 #pragma warning( push )
 #pragma warning( disable : 4244 )
 #include "SkSurface.h"
