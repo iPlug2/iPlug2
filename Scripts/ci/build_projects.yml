@@ -9,8 +9,6 @@ jobs:
         graphics: 'NANOVG'
       # LICE:
       #   graphics: 'LICE'
-      # AGG:
-      #   graphics: 'AGG'
       SKIA:
         graphics: 'SKIA'
 
@@ -64,8 +62,6 @@ jobs:
         graphics: 'NANOVG'
       # LICE:
       #   graphics: 'LICE'
-      # AGG:
-      #   graphics: 'AGG'
       SKIA:
         graphics: 'SKIA'
 

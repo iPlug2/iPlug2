@@ -10,8 +10,6 @@ jobs:
         graphics: 'NANOVG'
       # LICE:
       #   graphics: 'LICE'
-      # AGG:
-      #   graphics: 'AGG'
       SKIA:
         graphics: 'SKIA'
 
@@ -50,10 +48,6 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # LICE:
-      #   graphics: 'LICE'
-      # AGG:
-      #   graphics: 'AGG'
       SKIA:
         graphics: 'SKIA'
 

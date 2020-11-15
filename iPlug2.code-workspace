@@ -12,7 +12,6 @@
 			"Dependencies/IPlug/RT*": true,
 			"Dependencies/IPlug/Reaper*": true,
 			"Dependencies/Build*": true,
-			"Dependencies/IGraphics/AGG*": true,
 			"Dependencies/IGraphics/glad*": true,
 			"Dependencies/IGraphics/GL*": true,
 			"Dependencies/IGraphics/imgui*": true,

@@ -40,10 +40,7 @@
 
 #include "IPlugPlatform.h"
 
-#ifdef IGRAPHICS_AGG
-  #include "IGraphicsAGG_src.h"
-  #define BITMAP_DATA_TYPE agg::pixel_map*
-#elif defined IGRAPHICS_NANOVG
+#if defined IGRAPHICS_NANOVG
   #define BITMAP_DATA_TYPE int;
 #elif defined IGRAPHICS_SKIA
   #pragma warning( push )

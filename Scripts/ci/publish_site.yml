@@ -19,8 +19,6 @@ jobs:
       #   graphics: 'NANOVG'
       # LICE:
       #   graphics: 'LICE'
-      # AGG:
-      #   graphics: 'AGG'
 
   pool:
     vmImage: 'ubuntu-16.04'

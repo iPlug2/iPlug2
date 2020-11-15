@@ -59,12 +59,6 @@
     <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp">
       <Filter>Source Files\IGraphics\Controls</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.cpp">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG_src.cpp">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsCanvas.cpp">
       <Filter>Source Files\IGraphics\Drawing</Filter>
     </ClCompile>
@@ -185,12 +179,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\IVScopeControl.h">
       <Filter>Source Files\IGraphics\Controls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.h">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsAGG_src.h">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsCanvas.h">
       <Filter>Source Files\IGraphics\Drawing</Filter>
