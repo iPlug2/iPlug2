@@ -26,12 +26,6 @@
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsLice.cpp">
-      <Filter>IGraphics\Drawing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsLice_src.cpp">
-      <Filter>IGraphics\Drawing</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.cpp">
       <Filter>IGraphics\Drawing</Filter>
     </ClCompile>
@@ -140,12 +134,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphicsUtilities.h">
       <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsLice_src.h">
-      <Filter>IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsLice.h">
-      <Filter>IGraphics\Drawing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.h">
       <Filter>IGraphics\Drawing</Filter>

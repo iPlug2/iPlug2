@@ -55,9 +55,6 @@
     sk_sp<SkSurface> mSurface;
   };
   #define BITMAP_DATA_TYPE SkiaDrawable*
-#elif defined IGRAPHICS_LICE
-  #include "lice.h"
-  #define BITMAP_DATA_TYPE LICE_IBitmap*
 #elif defined IGRAPHICS_CANVAS
   #include <emscripten.h>
   #include <emscripten/val.h>

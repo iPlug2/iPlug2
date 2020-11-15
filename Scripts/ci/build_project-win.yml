@@ -27,10 +27,7 @@ steps:
 
   - bash: |
       graphics=${{parameters.graphics}}
-      if [ $graphics = "LICE" ]
-      then
-        cd ./${{parameters.path}}/${{parameters.name}}/config
-        sed -i.bu 's/IGRAPHICS_NANOVG;IGRAPHICS_GL2/IGRAPHICS_LICE/' ${{parameters.name}}-win.props
+      if [ $graphics = "SKIA" ]
       then
         cd ./${{parameters.path}}/${{parameters.name}}/config
         sed -i.bu 's/IGRAPHICS_NANOVG;IGRAPHICS_GL2/IGRAPHICS_SKIA;IGRAPHICS_GL2/' ${{parameters.name}}-win.props

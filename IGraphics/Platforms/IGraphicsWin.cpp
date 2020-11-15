@@ -2223,9 +2223,7 @@ void IGraphicsWin::VBlankNotify()
 }
 
 #ifndef NO_IGRAPHICS
-#if defined IGRAPHICS_LICE
-  #include "IGraphicsLice.cpp"
-#elif defined IGRAPHICS_SKIA
+#if defined IGRAPHICS_SKIA
   #include "IGraphicsSkia.cpp"
   #ifdef IGRAPHICS_GL
     #include "glad.c"
@@ -2238,8 +2236,6 @@ void IGraphicsWin::VBlankNotify()
 #endif
   #include "nanovg.c"
   #include "glad.c"
-#elif defined IGRAPHICS_D2D
-  #include "IGraphicsD2D.cpp"
 #else
   #error
 #endif

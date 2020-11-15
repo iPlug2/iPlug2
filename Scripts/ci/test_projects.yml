@@ -8,8 +8,6 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # LICE:
-      #   graphics: 'LICE'
       SKIA:
         graphics: 'SKIA'
 

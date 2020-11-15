@@ -62,10 +62,6 @@
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsCanvas.cpp">
       <Filter>Source Files\IGraphics\Drawing</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsLice.cpp">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsLice_src.cpp">
       <Filter>Source Files\IGraphics\Drawing</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.cpp">
@@ -181,12 +177,6 @@
       <Filter>Source Files\IGraphics\Controls</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsCanvas.h">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsLice.h">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsLice_src.h">
       <Filter>Source Files\IGraphics\Drawing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.h">

@@ -173,7 +173,6 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          CFLocal \
                          CanvasFont \
                          Font \
-                         LICEFontInfo \
                          SkiaFont \
                          WebFont \
                          WebFileFont \
@@ -199,7 +198,6 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          pixel_wrapper \
                          CairoBitmap \
                          CanvasBitmap \
-                         LICEBitmap \
                          NanoVGBitmap \
                          SkiaBitmap \
                          IFontInfo \
