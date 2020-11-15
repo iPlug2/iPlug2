@@ -10,7 +10,6 @@
 		4F56E31B227F43A400F3E839 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F56E319227F43A400F3E839 /* IGraphicsCoreText.mm */; };
 		4F56E325227F9C3200F3E839 /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C2521EA55BD00C1EF1B /* IGraphicsNanoVG_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F56E32A227FA3C400F3E839 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F56E328227FA3C400F3E839 /* IPlugTimer.cpp */; };
-		4FB401D222806B3B00F35D81 /* IGraphicsAGG_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */; };
 		4FBA83B120ECB19100423B90 /* IPlugReaperExtension.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA837B20ECAE7B00423B90 /* IPlugReaperExtension.cpp */; };
 		4FBA83B420ECB63400423B90 /* swell-modstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA83A720ECAED000423B90 /* swell-modstub.mm */; };
 		4FBB8C7421EA55BD00C1EF1B /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C3221EA55BD00C1EF1B /* IGraphicsMac.mm */; };
@@ -43,7 +42,6 @@
 		4F74D1D922AA8E760079E7DF /* ReaperExtBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaperExtBase.h; sourceTree = "<group>"; };
 		4F74D1DA22AA8E760079E7DF /* ReaperExtBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReaperExtBase.cpp; sourceTree = "<group>"; };
 		4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdltypes.h; path = ../../../WDL/wdltypes.h; sourceTree = SOURCE_ROOT; };
-		4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsAGG_src.mm; sourceTree = "<group>"; };
 		4FBA837B20ECAE7B00423B90 /* IPlugReaperExtension.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = IPlugReaperExtension.cpp; path = ../IPlugReaperExtension.cpp; sourceTree = "<group>"; };
 		4FBA83A720ECAED000423B90 /* swell-modstub.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-modstub.mm"; path = "../../../WDL/swell/swell-modstub.mm"; sourceTree = "<group>"; };
 		4FBA83AC20ECAF0B00423B90 /* reaper_IPlugReaperExtension.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = reaper_IPlugReaperExtension.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -57,21 +55,11 @@
 		4FBA83C820ECD9DA00423B90 /* swell-dlggen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-dlggen.h"; path = "../../../WDL/swell/swell-dlggen.h"; sourceTree = "<group>"; };
 		4FBA83C920ECD9DA00423B90 /* swell-types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-types.h"; path = "../../../WDL/swell/swell-types.h"; sourceTree = "<group>"; };
 		4FBA83CA20ECD9DA00423B90 /* swell-functions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-functions.h"; path = "../../../WDL/swell/swell-functions.h"; sourceTree = "<group>"; };
-		4FBB8C1B21EA55BD00C1EF1B /* IGraphicsLice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice.h; sourceTree = "<group>"; };
-		4FBB8C1C21EA55BD00C1EF1B /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG.h; sourceTree = "<group>"; };
-		4FBB8C1D21EA55BD00C1EF1B /* IGraphicsLice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice.cpp; sourceTree = "<group>"; };
-		4FBB8C1E21EA55BD00C1EF1B /* IGraphicsLice_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice_src.h; sourceTree = "<group>"; };
-		4FBB8C1F21EA55BD00C1EF1B /* IGraphicsCairo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCairo.h; sourceTree = "<group>"; };
-		4FBB8C2021EA55BD00C1EF1B /* IGraphicsAGG_src.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsAGG_src.cpp; sourceTree = "<group>"; };
 		4FBB8C2121EA55BD00C1EF1B /* IGraphicsNanoVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsNanoVG.h; sourceTree = "<group>"; };
 		4FBB8C2221EA55BD00C1EF1B /* IGraphicsCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCanvas.cpp; sourceTree = "<group>"; };
-		4FBB8C2321EA55BD00C1EF1B /* IGraphicsCairo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCairo.cpp; sourceTree = "<group>"; };
-		4FBB8C2421EA55BD00C1EF1B /* IGraphicsAGG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsAGG.cpp; sourceTree = "<group>"; };
 		4FBB8C2521EA55BD00C1EF1B /* IGraphicsNanoVG_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsNanoVG_src.m; sourceTree = "<group>"; };
-		4FBB8C2621EA55BD00C1EF1B /* IGraphicsAGG_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG_src.h; sourceTree = "<group>"; };
 		4FBB8C2721EA55BD00C1EF1B /* IGraphicsNanoVG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsNanoVG.cpp; sourceTree = "<group>"; };
 		4FBB8C2821EA55BD00C1EF1B /* IGraphicsCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCanvas.h; sourceTree = "<group>"; };
-		4FBB8C2921EA55BD00C1EF1B /* IGraphicsLice_src.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice_src.cpp; sourceTree = "<group>"; };
 		4FBB8C2A21EA55BD00C1EF1B /* IGraphics_include_in_plug_hdr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_include_in_plug_hdr.h; sourceTree = "<group>"; };
 		4FBB8C2C21EA55BD00C1EF1B /* IGraphicsIOS_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsIOS_view.h; sourceTree = "<group>"; };
 		4FBB8C2D21EA55BD00C1EF1B /* IGraphicsWeb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsWeb.cpp; sourceTree = "<group>"; };
@@ -278,22 +266,11 @@
 			children = (
 				4F4A44B722D361A400A9D1A1 /* IGraphicsSkia.cpp */,
 				4F4A44B822D361A400A9D1A1 /* IGraphicsSkia.h */,
-				4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */,
-				4FBB8C1B21EA55BD00C1EF1B /* IGraphicsLice.h */,
-				4FBB8C1C21EA55BD00C1EF1B /* IGraphicsAGG.h */,
-				4FBB8C1D21EA55BD00C1EF1B /* IGraphicsLice.cpp */,
-				4FBB8C1E21EA55BD00C1EF1B /* IGraphicsLice_src.h */,
-				4FBB8C1F21EA55BD00C1EF1B /* IGraphicsCairo.h */,
-				4FBB8C2021EA55BD00C1EF1B /* IGraphicsAGG_src.cpp */,
 				4FBB8C2121EA55BD00C1EF1B /* IGraphicsNanoVG.h */,
 				4FBB8C2221EA55BD00C1EF1B /* IGraphicsCanvas.cpp */,
-				4FBB8C2321EA55BD00C1EF1B /* IGraphicsCairo.cpp */,
-				4FBB8C2421EA55BD00C1EF1B /* IGraphicsAGG.cpp */,
 				4FBB8C2521EA55BD00C1EF1B /* IGraphicsNanoVG_src.m */,
-				4FBB8C2621EA55BD00C1EF1B /* IGraphicsAGG_src.h */,
 				4FBB8C2721EA55BD00C1EF1B /* IGraphicsNanoVG.cpp */,
 				4FBB8C2821EA55BD00C1EF1B /* IGraphicsCanvas.h */,
-				4FBB8C2921EA55BD00C1EF1B /* IGraphicsLice_src.cpp */,
 			);
 			path = Drawing;
 			sourceTree = "<group>";
@@ -505,7 +482,6 @@
 				4FBB8C8821EA56C600C1EF1B /* IPlugPaths.cpp in Sources */,
 				4FBB8C7421EA55BD00C1EF1B /* IGraphicsMac.mm in Sources */,
 				4FBB8C7521EA55BD00C1EF1B /* IGraphicsMac_view.mm in Sources */,
-				4FB401D222806B3B00F35D81 /* IGraphicsAGG_src.mm in Sources */,
 				4F56E31B227F43A400F3E839 /* IGraphicsCoreText.mm in Sources */,
 				4FBB8C7F21EA55BD00C1EF1B /* IControl.cpp in Sources */,
 			);

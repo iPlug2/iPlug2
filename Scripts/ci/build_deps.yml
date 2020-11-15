@@ -119,8 +119,6 @@ jobs:
   - template: get_src_artifact.yml
 
   - bash: |
-      #tmp force cairo rebuild
-      rm -r ./Dependencies/Build/src/cairo
       cd ./Dependencies/IGraphics
       ./build-igraphics-libs-mac.sh
     displayName: Build Graphics Dependencies
