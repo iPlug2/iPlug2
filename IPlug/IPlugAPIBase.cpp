@@ -97,15 +97,6 @@ bool IPlugAPIBase::EditorResizeFromUI(int viewWidth, int viewHeight, bool needsP
 
 #pragma mark -
 
-void IPlugAPIBase::PrintDebugInfo() const
-{
-  WDL_String buildInfo;
-  GetBuildInfoStr(buildInfo);
-  DBGMSG("\n--------------------------------------------------\n%s\n", buildInfo.Get());
-}
-
-#pragma mark -
-
 void IPlugAPIBase::SetHost(const char* host, int version)
 {
   assert(mHost == kHostUninit);

@@ -38,7 +38,7 @@ static constexpr int OSC_TIMER_RATE = 100;
 
 using OSCLogFunc = std::function<void(WDL_String& log)>;
 
-/** /todo */
+/** \todo */
 class OSCDevice
 {
 public:
@@ -51,22 +51,22 @@ public:
   
   virtual ~OSCDevice();
   
-  /** /todo */
+  /** \todo */
   void RunInput();
   
-  /** /todo */
+  /** \todo */
   void RunOutput();
   
-  /** /todo */
+  /** \todo */
   void AddInstance(void (*callback)(void* d1, int dev_idx, int msglen, void* msg), void* d1, int dev_idx);
 
-  /** /todo
+  /** \todo
    * @param type 
    * @param msg 
    * @param len */
   void OnMessage(char type, const unsigned char* msg, int len);
   
-  /** /todo
+  /** \todo
    * @param src 
    * @param len */
   void SendOSC(const char* src, int len);
@@ -93,7 +93,7 @@ public:
   WDL_Queue mSendQueue, mReceiveQueue;
 };
 
-/** /todo */
+/** \todo */
 class OSCInterface
 {
   struct incomingEvent
@@ -126,7 +126,7 @@ public:
   OSCDevice* CreateSender(WDL_String& log, const char* ip = "127.0.0.1", int port = 8000);
   
 public:
-  /** /todo
+  /** \todo
    * @param msg */
   virtual void OnOSCMessage(OscMessageRead& msg) {};
   
@@ -150,7 +150,7 @@ protected:
   WDL_Mutex mIncomingEvents_mutex;
 };
 
-/** /todo */
+/** \todo */
 class OSCSender : public OSCInterface
 {
 public:
@@ -186,7 +186,7 @@ public:
    * @param port */
   void SetReceivePort(int port);
   
-  /** /todo */
+  /** \todo */
   virtual void OnOSCMessage(OscMessageRead& msg) = 0;
   
 private:

@@ -14,7 +14,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_HEIGHT));
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
@@ -249,12 +249,12 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       const float radius = r.W();
       const float x = r.MW();
       const float y = r.MH();
-      const float rotate = pCaller->GetAnimationProgress() * PI;
+      const float rotate = float(pCaller->GetAnimationProgress() * PI);
       
       for(int index = 0, limit = 40; index < limit; ++index)
       {
-        float firstAngle = (index * 2 * PI) / limit;
-        float secondAngle = ((index + 1) * 2 * PI) / limit;
+        float firstAngle = float ((index * 2 * PI) / limit);
+        float secondAngle = float (((index + 1) * 2 * PI) / limit);
         
         g.PathTriangle(x, y,
                        x + std::sin(firstAngle + rotate) * radius, y + std::cos(firstAngle + rotate) * radius,

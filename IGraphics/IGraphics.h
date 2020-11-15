@@ -17,7 +17,7 @@
  * Utility structures and classes for IGraphics
  * @defgroup DrawClasses IGraphics::DrawClasses
  * The IGraphics draw classes allow the actual drawing to be performed using different drawing API back-ends.
- * A project-wide definition such as IGRAPHICS_CAIRO, chooses which gets used at compile time
+ * A project-wide definition such as IGRAPHICS_SKIA, chooses which gets used at compile time
  * @defgroup PlatformClasses IGraphics::PlatformClasses
  * The IGraphics platform classes deal with event handling and platform specific contextual UI
  * @defgroup Controls IGraphics::IControls
@@ -31,7 +31,7 @@
  */
 
 #ifndef NO_IGRAPHICS
-#if defined(IGRAPHICS_AGG) + defined(IGRAPHICS_CAIRO) + defined(IGRAPHICS_NANOVG) + defined(IGRAPHICS_LICE) + defined(IGRAPHICS_CANVAS) + defined(IGRAPHICS_SKIA) != 1
+#if defined(IGRAPHICS_NANOVG) + defined(IGRAPHICS_CANVAS) + defined(IGRAPHICS_SKIA) != 1
 #error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
 #endif
 #endif
@@ -914,16 +914,16 @@ protected:
   /* Implemented on Windows to restore previous GL context calls ReleaseDC */
   virtual void DeactivateGLContext() {};
 
-  /** /todo
-   * @param control /todo
-   * @param text /todo
-   * @param bounds /todo
-   * @param str /todo */
+  /** \todo
+   * @param control \todo
+   * @param text \todo
+   * @param bounds \todo
+   * @param str \todo */
   virtual void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) = 0;
   
   /** Calls the platform backend to create the platform popup menu
    * @param menu The source IPopupMenu
-   * @param bounds /todo
+   * @param bounds \todo
    * @param isAsync This gets set true on platforms where popupmenu creation is asyncronous
    * @return A ptr to the chosen IPopupMenu or nullptr in the case of async or dismissed menu */
   virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) = 0;
@@ -992,9 +992,9 @@ public:
    * @param pMenu The menu that was clicked */
   void SetControlValueAfterPopupMenu(IPopupMenu* pMenu);
     
-  /** /todo 
-   * @param lo /todo
-   * @param hi /todo */
+  /** \todo 
+   * @param lo \todo
+   * @param hi \todo */
   void SetScaleConstraints(float lo, float hi)
   {
     mMinScale = std::min(lo, hi);
@@ -1135,15 +1135,15 @@ public:
  * @param func The function to call */
   void SetDisplayTickFunc(IDisplayTickFunc func) { mDisplayTickFunc = func; }
 
-  /** /todo
-   * @param keyHandlerFunc /todo */
+  /** \todo
+   * @param keyHandlerFunc \todo */
   void SetKeyHandlerFunc(IKeyHandlerFunc func) { mKeyHandlerFunc = func; }
 
   /** A helper to set the IGraphics KeyHandlerFunc in order to make an instrument playable via QWERTY keys
    * @param func A function to do something when a MIDI message is triggered */
   void SetQwertyMidiKeyHandlerFunc(std::function<void(const IMidiMsg& msg)> func = nullptr);
   
-  /** /todo */
+  /** \todo */
   void AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc = nullptr);
   
   /** Called by platform class to see if the point at x, y is linked to a gesture recognizer */
@@ -1157,24 +1157,24 @@ public:
   virtual int GetPlatformWindowScale() const { return 1; }
 
 private:
-  /* /todo */
+  /* \todo */
   virtual void CreatePlatformImGui() {}
   
-  /** /todo */
+  /** \todo */
   virtual void PlatformResize(bool parentHasResized) {}
   
-  /** /todo */
+  /** \todo */
   virtual void DrawResize() {}
   
   /** Draw a region of the graphics (redrawing all contained items)
-   * @param bounds /todo
-   * @param scale /todo */
+   * @param bounds \todo
+   * @param scale \todo */
   void Draw(const IRECT& bounds, float scale);
   
-  /** /todo
-   * @param pControl /todo
-   * @param bounds /todo
-   * @param scale /todo */
+  /** \todo
+   * @param pControl \todo
+   * @param bounds \todo
+   * @param scale \todo */
   void DrawControl(IControl* pControl, const IRECT& bounds, float scale);
   
   /** Shows a pop up/contextual menu in relation to a rectangular region of the graphics context
@@ -1251,7 +1251,7 @@ public:
 
   /** Attach a control for pop-up menus, to override platform style menus
    @param text The text style to use for the menu
-   @param bounds The area that the menu should occupy /todo check */
+   @param bounds The area that the menu should occupy \todo check */
   void AttachPopupMenuControl(const IText& text = DEFAULT_TEXT, const IRECT& bounds = IRECT());
   
   /** Remove the IGraphics popup menu, use platform popup menu if available */
@@ -1541,11 +1541,11 @@ public:
    * @param y The Y coordinate in the graphics context at which to popup the context menu */
   void PopupHostContextMenuForParam(int controlIdx, int paramIdx, float x, float y);
 
-  /** /todo
-   * @param pControl /todo
-   * @param paramIdx /todo
-   * @param x /todo
-   * @param y /todo */
+  /** \todo
+   * @param pControl \todo
+   * @param paramIdx \todo
+   * @param x \todo
+   * @param y \todo */
   void PopupHostContextMenuForParam(IControl* pControl, int paramIdx, float x, float y);
   
 #pragma mark - Resource/File Loading
@@ -1583,8 +1583,8 @@ public:
    * @param name CString name to associate with the SVG
    * @param pData Pointer to the SVG file data
    * @param dataSize Size (in bytes) of the data at \c pData
-   * @param units /todo
-   * @param dpi /todo
+   * @param units \todo
+   * @param dpi \todo
    * @return An ISVG representing the image */
   virtual ISVG LoadSVG(const char* name, const void* pData, int dataSize, const char* units = "px", float dpi = 72.f);
 
@@ -1608,12 +1608,12 @@ public:
   void ClearGestureRegions();
 
 protected:
-  /** /todo
-   * @param fileNameOrResID /todo 
-   * @param scale /todo
-   * @param location /todo
-   * @param ext /todo
-   * @return APIBitmap* /todo */
+  /** \todo
+   * @param fileNameOrResID \todo 
+   * @param scale \todo
+   * @param location \todo
+   * @param ext \todo
+   * @return APIBitmap* \todo */
   virtual APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) = 0;
 
   virtual APIBitmap* LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale) = 0;
@@ -1622,15 +1622,15 @@ protected:
    * @param width The desired width
    * @param height The desired height
    * @param scale The scale in relation to 1:1 pixels
-   * @param drawScale /todo
+   * @param drawScale \todo
    * @param cacheable Used to make sure the underlying bitmap can be shared between plug-in instances
    * @return APIBitmap* The new API Bitmap */
   virtual APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable = false) = 0;
 
-  /** /todo
-   * @param fontID /todo
-   * @param font /todo
-   * @return bool* /todo */
+  /** \todo
+   * @param fontID \todo
+   * @param font \todo
+   * @return bool* \todo */
   virtual bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) = 0;
 
   /** Specialized in IGraphicsCanvas drawing backend */
@@ -1643,56 +1643,56 @@ protected:
   virtual bool FlippedBitmap() const = 0;
 
   /** Utility used by SearchImageResource/SearchBitmapInCache
-   * @param sourceScale /todo
-   * @param targetScale /todo */
+   * @param sourceScale \todo
+   * @param targetScale \todo */
   inline void SearchNextScale(int& sourceScale, int targetScale);
 
   /** Search for a bitmap image resource matching the target scale 
-   * @param fileName /todo
-   * @param type /todo 
-   * @param result /todo
-   * @param targetScale /todo
-   * @param sourceScale /todo
-   * @return EResourceLocation /todo */
+   * @param fileName \todo
+   * @param type \todo 
+   * @param result \todo
+   * @param targetScale \todo
+   * @param sourceScale \todo
+   * @return EResourceLocation \todo */
   EResourceLocation SearchImageResource(const char* fileName, const char* type, WDL_String& result, int targetScale, int& sourceScale);
 
   /** Search the static storage cache for a bitmap image resource matching the target scale
-   * @param fileName /todo
-   * @param targetScale /todo
-   * @param sourceScale /todo
+   * @param fileName \todo
+   * @param targetScale \todo
+   * @param sourceScale \todo
    * @return  pointer to the bitmap in the cache,  or null pointer if not found */
   APIBitmap* SearchBitmapInCache(const char* fileName, int targetScale, int& sourceScale);
 
-  /** /todo
-   * @param text /todo
-   * @param str /todo
-   * @param bounds /todo
+  /** \todo
+   * @param text \todo
+   * @param str \todo
+   * @param bounds \todo
    * @return The width of the text */
   virtual float DoMeasureText(const IText& text, const char* str, IRECT& bounds) const = 0;
     
-  /** /todo
-   * @param text /todo
-   * @param str /todo
-   * @param bounds /todo
-   * @param pBlend /todo */
+  /** \todo
+   * @param text \todo
+   * @param str \todo
+   * @param bounds \todo
+   * @param pBlend \todo */
   virtual void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = nullptr) = 0;
 
-  /** /todo
-   * @param text /todo
-   * @param bounds /todo
-   * @param rect /todo */
+  /** \todo
+   * @param text \todo
+   * @param bounds \todo
+   * @param rect \todo */
   void DoMeasureTextRotation(const IText& text, const IRECT& bounds, IRECT& rect) const;
   
-  /** /todo
+  /** \todo
    text
-   * @param text /todo
-   * @param bounds /todo
-   * @param rect /todo
-   * @param tx /todo
-   * @param ty /todo */
+   * @param text \todo
+   * @param bounds \todo
+   * @param rect \todo
+   * @param tx \todo
+   * @param ty \todo */
   void CalculateTextRotation(const IText& text, const IRECT& bounds, IRECT& rect, double& tx, double& ty) const;
   
-  /** @return float /todo */
+  /** @return float \todo */
   virtual float GetBackingPixelScale() const = 0;
 #pragma mark -
 
@@ -1737,7 +1737,7 @@ private:
   IControl* mMouseOver = nullptr;
   IControl* mInTextEntry = nullptr;
   IControl* mInPopupMenu = nullptr;
-  bool mIsContextMenu;
+  bool mIsContextMenu = false;
   int mTextEntryValIdx = kNoValIdx;
   int mPopupMenuValIdx = kNoValIdx;
   int mMouseOverIdx = -1;

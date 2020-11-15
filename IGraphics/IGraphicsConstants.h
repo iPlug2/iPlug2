@@ -72,19 +72,19 @@ enum class EBlend
   Default = SrcOver
 };
 
-/** /todo */
+/** \todo */
 enum class EFileAction { Open, Save };
 
-/** /todo */
+/** \todo */
 enum class EDirection { Vertical, Horizontal };
 
 /** Used to specify text styles when loading fonts. */
 enum class ETextStyle { Normal, Bold, Italic };
 
-/** /todo */
+/** \todo */
 enum class EAlign { Near, Center, Far };
 
-/** /todo */
+/** \todo */
 enum class EVAlign { Top, Middle, Bottom };
 
 /** CStrings for EAlign options  */
@@ -131,31 +131,31 @@ static const char* kVColorStrs[kNumVColors] =
   "extra3"
 };
 
-/** /todo */
+/** \todo */
 enum class EVShape { Rectangle, Ellipse, Triangle, EndsRounded, AllRounded };
 
-/** /todo */
+/** \todo */
 enum class EWinding { CW, CCW };
 
-/** /todo */
+/** \todo */
 enum class EFillRule { Winding, EvenOdd, Preserve };
 
-/** /todo */
+/** \todo */
 enum class ELineCap { Butt, Round, Square };
 
-/** /todo */
+/** \todo */
 enum class ELineJoin { Miter, Round, Bevel };
 
-/** /todo */
+/** \todo */
 enum class EPatternType { Solid, Linear, Radial, Sweep };
 
-/** /todo */
+/** \todo */
 enum class EPatternExtend { None, Pad, Reflect, Repeat };
 
-/** /todo */
+/** \todo */
 enum class EUIResizerMode { Scale, Size };
 
-/** /todo */
+/** \todo */
 enum class ECursor
 {
   ARROW,
@@ -174,7 +174,7 @@ enum class ECursor
   HELP
 };
 
-/** /todo */
+/** \todo */
 enum class ETouchEvent { Began, Moved, Ended, Cancelled, Invalid };
 
 // This enumeration must match win32 message box options

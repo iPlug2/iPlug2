@@ -125,13 +125,6 @@
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\common\commoniids.cpp">
       <Filter>IPlug\VST3\VST3_SDK\public.sdk\common</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.cpp">
-      <Filter>IGraphics\Drawing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsCairo.cpp">
-      <Filter>IGraphics\Drawing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsLice.cpp">
       <Filter>IGraphics\Drawing</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.cpp">
@@ -203,21 +196,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphics_select.h">
       <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.h">
-      <Filter>IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsAGG_src.h">
-      <Filter>IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsCairo.h">
-      <Filter>IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsLice.h">
-      <Filter>IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsLice_src.h">
-      <Filter>IGraphics\Drawing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.h">
       <Filter>IGraphics\Drawing</Filter>

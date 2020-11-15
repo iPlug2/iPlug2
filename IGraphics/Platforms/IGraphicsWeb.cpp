@@ -24,11 +24,6 @@ void GetScreenDimensions(int& width, int& height)
   height = val::global("window")["innerHeight"].as<int>();
 }
 
-float GetScaleForScreen(int height)
-{
-  return 1.f;
-}
-
 END_IPLUG_NAMESPACE
 END_IGRAPHICS_NAMESPACE
 

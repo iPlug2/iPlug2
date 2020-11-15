@@ -1,56 +1,45 @@
 diff --git a/BUILD.gn b/BUILD.gn
-index bf15adf2cd..f7fd661ef8 100644
+index e7a79b9e7c..dc3e51e59e 100644
 --- a/BUILD.gn
 +++ b/BUILD.gn
-@@ -1129,10 +1129,7 @@ group("modules") {
-     "modules/particles",
-     "modules/skottie",
-     "modules/skshaper",
--  ]
--  if (target_cpu == "wasm") {
--    deps += [ "modules/skparagraph" ]
--  }
-+    "modules/skparagraph"]
- }
- 
- # Targets guarded by skia_enable_tools may use //third_party freely.
-@@ -2424,14 +2421,4 @@ if (skia_enable_tools) {
+@@ -3084,15 +3084,3 @@ if (skia_enable_tools) {
+     }
    }
  }
- 
+-
 -if (is_ios && skia_use_metal && !skia_enable_flutter_defines) {
 -  group("minimal_ios_mtl_skia_app") {
 -    deps = [ "experimental/minimal_ios_mtl_skia_app" ]
 -  }
 -}
- 
+-
 -if (is_ios && skia_enable_skottie && !skia_enable_flutter_defines) {
 -  group("skottie_ios") {
 -    deps = [ "tools/skottie_ios_app" ]
 -  }
 -}
 diff --git a/gn/toolchain/BUILD.gn b/gn/toolchain/BUILD.gn
-index 1832835f1a..042199fcb5 100644
+index e8e6ce4603..804838d3d0 100644
 --- a/gn/toolchain/BUILD.gn
 +++ b/gn/toolchain/BUILD.gn
-@@ -64,7 +64,7 @@ toolchain("msvc") {
+@@ -81,7 +81,7 @@ toolchain("msvc") {
    if (target_cpu == "x86") {
      # Toolchain asset includes a script that configures for x86 building.
      # We don't support x86 builds with local MSVC installations.
--    env_setup = "cmd /c $win_sdk/bin/SetEnv.cmd /x86 && "
-+    # env_setup = "cmd /c $win_sdk/bin/SetEnv.cmd /x86 && "
+-    env_setup = "$shell $win_sdk/bin/SetEnv.cmd /x86 && "
++    # env_setup = "$shell $win_sdk/bin/SetEnv.cmd /x86 && "
    } else if (target_cpu == "arm64") {
      # ARM64 compiler is incomplete - it relies on DLLs located in the host toolchain directory.
-     env_setup = "cmd /C set \"PATH=%PATH%;$win_vc\\Tools\\MSVC\\$win_toolchain_version\\bin\\HostX64\\x64\" && "
+     env_setup = "$shell set \"PATH=%PATH%;$win_vc\\Tools\\MSVC\\$win_toolchain_version\\bin\\HostX64\\x64\" && "
 diff --git a/modules/skparagraph/BUILD.gn b/modules/skparagraph/BUILD.gn
-index aa90c30dd3..3004db4a1c 100644
+index e8a8b48df6..7859ff97e7 100644
 --- a/modules/skparagraph/BUILD.gn
 +++ b/modules/skparagraph/BUILD.gn
-@@ -18,6 +18,7 @@ if (skia_enable_skparagraph) {
+@@ -21,6 +21,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
  
    component("skparagraph") {
      import("skparagraph.gni")
 +    complete_static_lib = false
      public_configs = [ ":public_config" ]
      public = skparagraph_public
-     if (skia_use_icu && skia_use_harfbuzz) {
+     sources = skparagraph_sources
