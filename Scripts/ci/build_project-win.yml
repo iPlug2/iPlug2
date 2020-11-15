@@ -31,10 +31,6 @@ steps:
       then
         cd ./${{parameters.path}}/${{parameters.name}}/config
         sed -i.bu 's/IGRAPHICS_NANOVG;IGRAPHICS_GL2/IGRAPHICS_LICE/' ${{parameters.name}}-win.props
-      elif [ $graphics = "CAIRO" ]
-      then
-        cd ./${{parameters.path}}/${{parameters.name}}/config
-        sed -i.bu 's/IGRAPHICS_NANOVG;IGRAPHICS_GL2/IGRAPHICS_CAIRO/' ${{parameters.name}}-win.props
       elif [ $graphics = "AGG" ]
       then
         cd ./${{parameters.path}}/${{parameters.name}}/config

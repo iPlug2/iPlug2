@@ -644,8 +644,6 @@ void IGraphicsMac::CreatePlatformImGui()
 
 #ifdef IGRAPHICS_AGG
   #include "IGraphicsAGG.cpp"
-#elif defined IGRAPHICS_CAIRO
-  #include "IGraphicsCairo.cpp"
 #elif defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
 #elif defined IGRAPHICS_SKIA

@@ -65,9 +65,6 @@
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG_src.cpp">
       <Filter>Source Files\IGraphics\Drawing</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsCairo.cpp">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsCanvas.cpp">
       <Filter>Source Files\IGraphics\Drawing</Filter>
     </ClCompile>
@@ -193,9 +190,6 @@
       <Filter>Source Files\IGraphics\Drawing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsAGG_src.h">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsCairo.h">
       <Filter>Source Files\IGraphics\Drawing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsCanvas.h">

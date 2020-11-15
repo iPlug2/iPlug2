@@ -173,7 +173,7 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          CCoreTextFontDescriptor \
                          CFLocal \
                          CanvasFont \
-                         CairoFont \
+                         Font \
                          LICEFontInfo \
                          SkiaFont \
                          WebFont \

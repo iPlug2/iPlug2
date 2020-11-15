@@ -8,8 +8,6 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CAIRO:
-      #   graphics: 'CAIRO'
       # LICE:
       #   graphics: 'LICE'
       # AGG:
@@ -52,8 +50,6 @@ jobs:
     matrix:
       NANOVG:
         graphics: 'NANOVG'
-      # CAIRO:
-      #   graphics: 'CAIRO'
       # LICE:
       #   graphics: 'LICE'
       # AGG:

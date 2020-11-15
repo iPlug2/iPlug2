@@ -17,8 +17,6 @@ jobs:
         graphics: 'SKIA'
       # NANOVG:
       #   graphics: 'NANOVG'
-      # CAIRO:
-      #   graphics: 'CAIRO'
       # LICE:
       #   graphics: 'LICE'
       # AGG:
