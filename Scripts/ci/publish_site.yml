@@ -17,12 +17,6 @@ jobs:
         graphics: 'SKIA'
       # NANOVG:
       #   graphics: 'NANOVG'
-      # CAIRO:
-      #   graphics: 'CAIRO'
-      # LICE:
-      #   graphics: 'LICE'
-      # AGG:
-      #   graphics: 'AGG'
 
   pool:
     vmImage: 'ubuntu-16.04'

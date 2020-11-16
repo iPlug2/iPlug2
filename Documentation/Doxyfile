@@ -123,7 +123,6 @@ EXCLUDE                = ../IGraphics/NanoVG \
                          ../IGraphics/NanoSVG \
                          ../IGraphics/freetype \
                          ../IGraphics/MetalNanoVG \
-                         ../IGraphics/AGG \
                          ../IGraphics/stb \
                          ../IPlug/AAX/IPlugAAX_Describe.cpp \
                          ../IPlug/AAX/IPlugAAX_Parameters.cpp \
@@ -173,8 +172,7 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          CCoreTextFontDescriptor \
                          CFLocal \
                          CanvasFont \
-                         CairoFont \
-                         LICEFontInfo \
+                         Font \
                          SkiaFont \
                          WebFont \
                          WebFileFont \
@@ -198,10 +196,8 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          SWELL_TimerFuncTarget \
                          SWELL_DataHold \
                          pixel_wrapper \
-                         AGGBitmap \
                          CairoBitmap \
                          CanvasBitmap \
-                         LICEBitmap \
                          NanoVGBitmap \
                          SkiaBitmap \
                          IFontInfo \

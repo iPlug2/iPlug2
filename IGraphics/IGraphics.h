@@ -17,7 +17,7 @@
  * Utility structures and classes for IGraphics
  * @defgroup DrawClasses IGraphics::DrawClasses
  * The IGraphics draw classes allow the actual drawing to be performed using different drawing API back-ends.
- * A project-wide definition such as IGRAPHICS_CAIRO, chooses which gets used at compile time
+ * A project-wide definition such as IGRAPHICS_SKIA, chooses which gets used at compile time
  * @defgroup PlatformClasses IGraphics::PlatformClasses
  * The IGraphics platform classes deal with event handling and platform specific contextual UI
  * @defgroup Controls IGraphics::IControls
@@ -31,7 +31,7 @@
  */
 
 #ifndef NO_IGRAPHICS
-#if defined(IGRAPHICS_AGG) + defined(IGRAPHICS_CAIRO) + defined(IGRAPHICS_NANOVG) + defined(IGRAPHICS_LICE) + defined(IGRAPHICS_CANVAS) + defined(IGRAPHICS_SKIA) != 1
+#if defined(IGRAPHICS_NANOVG) + defined(IGRAPHICS_CANVAS) + defined(IGRAPHICS_SKIA) != 1
 #error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
 #endif
 #endif
@@ -1721,7 +1721,7 @@ private:
   IControl* mMouseOver = nullptr;
   IControl* mInTextEntry = nullptr;
   IControl* mInPopupMenu = nullptr;
-  bool mIsContextMenu;
+  bool mIsContextMenu = false;
   int mTextEntryValIdx = kNoValIdx;
   int mPopupMenuValIdx = kNoValIdx;
   int mMouseOverIdx = -1;

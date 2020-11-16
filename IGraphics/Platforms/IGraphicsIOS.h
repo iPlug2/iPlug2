@@ -17,7 +17,7 @@ BEGIN_IGRAPHICS_NAMESPACE
 
 extern void GetScreenDimensions(int& width, int& height);
 
-extern float GetScaleForScreen(int height);
+extern float GetScaleForScreen(int width, int height);
 
 /** IGraphics platform class for IOS
 *   @ingroup PlatformClasses */

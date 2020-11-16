@@ -494,7 +494,7 @@ void IPopupMenuControl::GetPanelDimensions(IPopupMenu&menu, float& width, float&
       numSeparators += 1;
     }
   }
-  float numCells = numItems - numSeparators;
+  float numCells = float(numItems - numSeparators);
   panelHeight = (numCells * maxCell.H()) + (numSeparators * mSeparatorSize) + ((numItems - 1) * mCellGap);
   
   width = maxCell.W();

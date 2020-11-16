@@ -101,18 +101,8 @@
 		4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../resources/Images.xcassets; sourceTree = "<group>"; };
 		4F4A44A322D3604800A9D1A1 /* IGraphicsSkia.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsSkia.h; sourceTree = "<group>"; };
 		4F4A44A422D3604800A9D1A1 /* IGraphicsSkia.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsSkia.cpp; sourceTree = "<group>"; };
-		4F63697620A463AF0022C370 /* IGraphicsLice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice.h; sourceTree = "<group>"; };
-		4F63697720A463AF0022C370 /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG.h; sourceTree = "<group>"; };
-		4F63697820A463AF0022C370 /* IGraphicsLice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice.cpp; sourceTree = "<group>"; };
-		4F63697920A463AF0022C370 /* IGraphicsLice_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice_src.h; sourceTree = "<group>"; };
-		4F63697A20A463AF0022C370 /* IGraphicsCairo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCairo.h; sourceTree = "<group>"; };
-		4F63697B20A463AF0022C370 /* IGraphicsAGG_src.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsAGG_src.cpp; sourceTree = "<group>"; };
 		4F63697C20A463AF0022C370 /* IGraphicsNanoVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsNanoVG.h; sourceTree = "<group>"; };
-		4F63697D20A463AF0022C370 /* IGraphicsCairo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCairo.cpp; sourceTree = "<group>"; };
-		4F63697E20A463AF0022C370 /* IGraphicsAGG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsAGG.cpp; sourceTree = "<group>"; };
-		4F63697F20A463AF0022C370 /* IGraphicsAGG_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG_src.h; sourceTree = "<group>"; };
 		4F63698020A463AF0022C370 /* IGraphicsNanoVG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsNanoVG.cpp; sourceTree = "<group>"; };
-		4F63698120A463AF0022C370 /* IGraphicsLice_src.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice_src.cpp; sourceTree = "<group>"; };
 		4F63698220A463AF0022C370 /* IGraphics_include_in_plug_hdr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_include_in_plug_hdr.h; sourceTree = "<group>"; };
 		4F63698420A463AF0022C370 /* IGraphicsIOS_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsIOS_view.h; sourceTree = "<group>"; };
 		4F63698520A463AF0022C370 /* IGraphicsWeb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsWeb.cpp; sourceTree = "<group>"; };
@@ -318,16 +308,6 @@
 			children = (
 				4F4A44A422D3604800A9D1A1 /* IGraphicsSkia.cpp */,
 				4F4A44A322D3604800A9D1A1 /* IGraphicsSkia.h */,
-				4F63697620A463AF0022C370 /* IGraphicsLice.h */,
-				4F63697820A463AF0022C370 /* IGraphicsLice.cpp */,
-				4F63697920A463AF0022C370 /* IGraphicsLice_src.h */,
-				4F63698120A463AF0022C370 /* IGraphicsLice_src.cpp */,
-				4F63697A20A463AF0022C370 /* IGraphicsCairo.h */,
-				4F63697D20A463AF0022C370 /* IGraphicsCairo.cpp */,
-				4F63697720A463AF0022C370 /* IGraphicsAGG.h */,
-				4F63697E20A463AF0022C370 /* IGraphicsAGG.cpp */,
-				4F63697F20A463AF0022C370 /* IGraphicsAGG_src.h */,
-				4F63697B20A463AF0022C370 /* IGraphicsAGG_src.cpp */,
 				4F63697C20A463AF0022C370 /* IGraphicsNanoVG.h */,
 				4F63698020A463AF0022C370 /* IGraphicsNanoVG.cpp */,
 				4F8D7DCB224AE821002A1A2A /* IGraphicsNanoVG_src.m */,

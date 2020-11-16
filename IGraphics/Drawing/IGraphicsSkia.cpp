@@ -13,7 +13,7 @@
 #include "SkTypeface.h"
 #pragma warning( pop )
 
-#include "GrContext.h"
+#include "GrDirectContext.h"
 
 #include "IGraphicsSkia_src.cpp"
 
@@ -310,13 +310,12 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
 {
 #if defined IGRAPHICS_GL
   auto glInterface = GrGLMakeNativeInterface();
-  mGrContext = GrContext::MakeGL(glInterface);
+  mGrContext = GrDirectContext::MakeGL(glInterface);
 #elif defined IGRAPHICS_METAL
-  
   CAMetalLayer* pMTLLayer = (CAMetalLayer*) pContext;
   id<MTLDevice> device = pMTLLayer.device;
   id<MTLCommandQueue> commandQueue = [device newCommandQueue];
-  mGrContext = GrContext::MakeMetal((void*) device, (void*) commandQueue);
+  mGrContext = GrDirectContext::MakeMetal((void*) device, (void*) commandQueue);
   mMTLDevice = (void*) device;
   mMTLCommandQueue = (void*) commandQueue;
   mMTLLayer = pContext;
@@ -327,7 +326,11 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
 
 void IGraphicsSkia::OnViewDestroyed()
 {
-#if defined IGRAPHICS_METAL
+#if defined IGRAPHICS_GL
+  mSurface = nullptr;
+  mScreenSurface = nullptr;
+  mGrContext = nullptr;
+#elif defined IGRAPHICS_METAL
   [(id<MTLCommandQueue>) mMTLCommandQueue release];
   mMTLCommandQueue = nullptr;
   mMTLLayer = nullptr;
@@ -387,7 +390,11 @@ void IGraphicsSkia::BeginFrame()
     int fbo = 0, samples = 0, stencilBits = 0;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
     glGetIntegerv(GL_SAMPLES, &samples);
+#ifdef IGRAPHICS_GL3
+    glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_STENCIL, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencilBits);
+#else
     glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
+#endif
     
     GrGLFramebufferInfo fbinfo;
     fbinfo.fFBOID = fbo;
@@ -793,7 +800,8 @@ void IGraphicsSkia::PathTransformSetMatrix(const IMatrix& m)
   }
 
   mMatrix = SkMatrix::MakeAll(m.mXX, m.mXY, m.mTX, m.mYX, m.mYY, m.mTY, 0, 0, 1);
-  SkMatrix globalMatrix = SkMatrix::MakeScale(GetTotalScale());
+  auto scale = GetTotalScale();
+  SkMatrix globalMatrix = SkMatrix::Scale(scale, scale);
   mClipMatrix = SkMatrix();
   mFinalMatrix = mMatrix;
   globalMatrix.preTranslate(xTranslate, yTranslate);
@@ -888,7 +896,7 @@ void IGraphicsSkia::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
   IBlend blend(EBlend::Default, shadow.mOpacity);
   pCanvas->setMatrix(m);
   pCanvas->drawImage(image.get(), shadow.mXOffset * scale, shadow.mYOffset * scale);
-  m = SkMatrix::MakeScale(scale);
+  m = SkMatrix::Scale(scale, scale);
   pCanvas->setMatrix(m);
   pCanvas->translate(-layer->Bounds().L, -layer->Bounds().T);
   SkPaint p = SkiaPaint(shadow.mPattern, &blend);
@@ -919,9 +927,9 @@ const char* IGraphicsSkia::GetDrawingAPIStr()
 #ifdef IGRAPHICS_CPU
   return "SKIA | CPU";
 #elif defined IGRAPHICS_GL2
-  return "SKIA | OpenGL2";
+  return "SKIA | GL2";
 #elif defined IGRAPHICS_GL3
-  return "SKIA | OpenGL3";
+  return "SKIA | GL3";
 #elif defined IGRAPHICS_METAL
   return "SKIA | Metal";
 #endif

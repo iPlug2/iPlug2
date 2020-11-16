@@ -3650,7 +3650,7 @@ YOGA_EXPORT float YGRoundValueToPixelGrid(
     const float pointScaleFactor,
     const bool forceCeil,
     const bool forceFloor) {
-  double scaledValue = ((double) value) * pointScaleFactor;
+  float scaledValue = value * pointScaleFactor;
   // We want to calculate `fractial` such that `floor(scaledValue) = scaledValue
   // - fractial`.
   float fractial = fmodf(scaledValue, 1.0f);

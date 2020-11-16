@@ -85,10 +85,11 @@ public:
   /** @return  Returns a CString either "x86" or "x64" or "WASM" describing the binary architecture */
   const char* GetArchStr() const;
   
-  /** @brief Used to get the build date of the plug-in and architecture/api details in one string
-   * @note since the implementation is in IPlugAPIBase.cpp, you may want to touch that file as part of your build script to force recompilation
-   * @param str WDL_String will be set with the Plugin name, architecture, api, build date, build time*/
-  void GetBuildInfoStr(WDL_String& str) const;
+  /** Get the build date of the plug-in and architecture/api details in one string
+   * @param str WDL_String will be set with the Plugin name, architecture, api, build date, build time
+   * @param date CString, use __DATE__ macro
+   * @param time CString, use __TIME__ macro */
+  void GetBuildInfoStr(WDL_String& str, const char* date, const char* time) const;
   
   /** @return \c true if the plug-in is meant to have a UI, as defined in config.h */
   bool HasUI() const { return mHasUI; }

@@ -83,14 +83,7 @@ void IGraphicsMac::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
 
 float IGraphicsMac::MeasureText(const IText& text, const char* str, IRECT& bounds) const
 {
-#ifdef IGRAPHICS_LICE
-  @autoreleasepool
-  {
-    return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
-  }
-#else
   return IGRAPHICS_DRAW_CLASS::MeasureText(text, str, bounds);
-#endif
 }
 
 void* IGraphicsMac::OpenWindow(void* pParent)
@@ -642,16 +635,10 @@ void IGraphicsMac::CreatePlatformImGui()
 #endif
 }
 
-#ifdef IGRAPHICS_AGG
-  #include "IGraphicsAGG.cpp"
-#elif defined IGRAPHICS_CAIRO
-  #include "IGraphicsCairo.cpp"
-#elif defined IGRAPHICS_NANOVG
+#if defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
 #elif defined IGRAPHICS_SKIA
   #include "IGraphicsSkia.cpp"
-#elif defined IGRAPHICS_LICE
-  #include "IGraphicsLice.cpp"
 #else
   #error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
 #endif

@@ -15,7 +15,7 @@ IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
     GetScreenDimensions(w, h);
     return MakeGraphics(*this, w, h, 1.f);
 #else
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_HEIGHT));
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
 #endif
   };
 

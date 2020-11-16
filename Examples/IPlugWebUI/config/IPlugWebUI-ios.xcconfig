@@ -17,7 +17,7 @@ BINARY_NAME = IPlugWebUI
 // HEADER AND LIBRARY SEARCH PATHS
 EXTRA_INC_PATHS = 
 EXTRA_LIB_PATHS = 
-EXTRA_LNK_FLAGS = -framework WebKit
+EXTRA_LNK_FLAGS = -framework Metal -framework MetalKit -framework WebKit
 
 //------------------------------
 // PREPROCESSOR MACROS
