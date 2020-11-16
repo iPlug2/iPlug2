@@ -56,7 +56,7 @@ public:
 //      SetAnimation([&](IControl* pCaller) {
 //        float p = pCaller->GetAnimationProgress();
 //        mUniforms[kTime] = p;
-//        
+//
 //        if (p > 1.) {
 //          pCaller->OnEndAnimation();
 //        }
