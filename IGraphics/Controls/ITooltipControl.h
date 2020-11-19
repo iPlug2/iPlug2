@@ -27,7 +27,6 @@ private:
   IRECT mTargetArea;
   WDL_String mText;
   bool mNeedsResize;
-
 };
 
 END_IGRAPHICS_NAMESPACE

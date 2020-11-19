@@ -12,8 +12,6 @@
 
 #include "IPlugParameter.h"
 #include "IGraphicsLinux.h"
-#include "IPopupMenuControl.h"
-#include "ITooltipControl.h"
 #include "IPlugPaths.h"
 #include <unistd.h>
 #include <sys/wait.h>
@@ -35,8 +33,6 @@ using namespace iplug;
 using namespace igraphics;
 
 #define IPLUG_TIMER_ID 2
-#define TOOLTIP_CONTROL_TAG (0x0FFFFFF0)
-#define POPUP_MENU_CONTROL_TAG (0x0FFFFFF1)
 
 class IGraphicsLinux::Font : public PlatformFont
 {
@@ -180,11 +176,6 @@ void IGraphicsLinux::Paint()
 
   if (ctx)
   {
-    // Handle displaying the hover control
-    if (mHoverControl != -1 && (mHoverStart + mTooltipTimeout) <= GetTimeMs())
-    {
-      ShowTooltip();
-    }
     Draw(rects);
     xcbt_window_draw_end(mPlugWnd);
   }
@@ -302,9 +293,6 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
           mLastLeftClickStamp = 0;
         }
 
-        HideTooltip();
-
-        // TODO: hide tooltips
         // TODO: end parameter editing (if in progress, and return then)
         // TODO: set focus
         xcb_set_input_focus_checked(xcbt_conn(mX), XCB_INPUT_FOCUS_POINTER_ROOT, mPlugWnd->wnd, XCB_CURRENT_TIME);
@@ -358,20 +346,7 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
           if (!(mn->state & (XCB_BUTTON_MASK_1 | XCB_BUTTON_MASK_3))) // Not left/right drag
           {
             IMouseInfo info = GetMouseInfo(mn->event_x, mn->event_y, mn->state);
-            if (OnMouseOver(info.x, info.y, info.ms))
-            {
-              if (TooltipsEnabled())
-              {
-                int c = GetMouseOver();
-                if ((c != mHoverControl && c != mTooltipControlIndex) || c == -1)
-                {
-                  mHoverControl = c;
-                  mHoverStart = GetTimeMs();
-                  HideTooltip();
-                }
-              }
-              // TODO: tracking and tooltips
-            }
+            OnMouseOver(info.x, info.y, info.ms);
           } 
           else 
           {
@@ -413,7 +388,6 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
       }
       case XCB_LEAVE_NOTIFY:
       {
-        HideTooltip();
         OnMouseOut();
         break;
       }
@@ -563,17 +537,8 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
   // Reset some state
   mCursorLock = false;
   mMouseVisible = true;
-  // Make sure we have certain pre-defined controls.
-  auto ctrlTooltip = AttachControl(new ITooltipControl(IRECT(0, 0, 1, 1)), TOOLTIP_CONTROL_TAG);
-  mTooltipControlIndex = GetControlIdx(ctrlTooltip);
-  AttachPopupMenuControl();
-  AttachTextEntryControl();
-  if (mPopupMenu == nullptr)
-  {
-    mPopupMenu = new IPopupMenu();
-  }
 
-  return reinterpret_cast<void* >(xcbt_window_xwnd(mPlugWnd));
+  return reinterpret_cast<void*>(xcbt_window_xwnd(mPlugWnd));
 }
 
 void IGraphicsLinux::CloseWindow()
@@ -623,17 +588,15 @@ void IGraphicsLinux::HideMouseCursor(bool hide, bool lock)
       xcb_xfixes_show_cursor_checked(xcbt_conn(mX), mPlugWnd->wnd);
     }
   }
+
   if (mCursorLock != lock)
   {
     mCursorLock = lock;
+
     if (mCursorLock)
-    {
       mMouseLockPos = IVec2(mCursorX, mCursorY);
-    }
     else
-    {
       mMouseLockPos = IVec2(0, 0);
-    }
   }
 }
 
@@ -647,139 +610,134 @@ void IGraphicsLinux::MoveMouseCursor(float x, float y)
 EMsgBoxResult IGraphicsLinux::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
   WDL_String command;
-  WDL_String ag;
+  WDL_String argument;
 
-  auto push_arg = [&]() {
-    command.Append(&ag);
+  auto pushArgument = [&]() {
+    command.Append(&argument);
     command.Append(" ", 2);
   };
 
-  ag.Set("zenity");
-  push_arg();
+  argument.Set("zenity");
+  pushArgument();
 
-  ag.Set("--modal");
-  push_arg();
+  argument.Set("--modal");
+  pushArgument();
 
-  ag.SetFormatted(strlen(caption) + 10, "\"--title=%s\"", caption);
-  push_arg();
+  argument.SetFormatted(strlen(caption) + 10, "\"--title=%s\"", caption);
+  pushArgument();
 
-  ag.SetFormatted(strlen(text) + 10, "\"--text=%s\"", text);
-  push_arg();
+  argument.SetFormatted(strlen(text) + 10, "\"--text=%s\"", text);
+  pushArgument();
 
   switch (type)
   {
-  case EMsgBoxType::kMB_OK:
-    ag.Set("--info");
-    push_arg();
-    break;
-  case EMsgBoxType::kMB_OKCANCEL:
-    ag.SetFormatted(64, "--ok-label=Ok");
-    push_arg();
-    ag.SetFormatted(64, "--cancel-label=Cancel");
-    push_arg();
-    ag.Set("--question");
-    push_arg();
-    break;
-  case EMsgBoxType::kMB_RETRYCANCEL:
-    ag.SetFormatted(64, "--ok-label=Retry");
-    push_arg();
-    ag.SetFormatted(64, "--cancel-label=Cancel");
-    push_arg();
-    ag.Set("--question");
-    push_arg();
-    break;
-  case EMsgBoxType::kMB_YESNO:
-    ag.Set("--question");
-    push_arg();
-    break;
-  case EMsgBoxType::kMB_YESNOCANCEL:
-    ag.Set("--question");
-    push_arg();
-    ag.Set("--extra-button=Cancel");
-    push_arg();
-    break;
+    case EMsgBoxType::kMB_OK:
+      argument.Set("--info");
+      pushArgument();
+      break;
+    case EMsgBoxType::kMB_OKCANCEL:
+      argument.SetFormatted(64, "--ok-label=Ok");
+      pushArgument();
+      argument.SetFormatted(64, "--cancel-label=Cancel");
+      pushArgument();
+      argument.Set("--question");
+      pushArgument();
+      break;
+    case EMsgBoxType::kMB_RETRYCANCEL:
+      argument.SetFormatted(64, "--ok-label=Retry");
+      pushArgument();
+      argument.SetFormatted(64, "--cancel-label=Cancel");
+      pushArgument();
+      argument.Set("--question");
+      pushArgument();
+      break;
+    case EMsgBoxType::kMB_YESNO:
+      argument.Set("--question");
+      pushArgument();
+      break;
+    case EMsgBoxType::kMB_YESNOCANCEL:
+      argument.Set("--question");
+      pushArgument();
+      argument.Set("--extra-button=Cancel");
+      pushArgument();
+      break;
   }
 
-  EMsgBoxResult r = kNoResult;
+  EMsgBoxResult result = kNoResult;
   WDL_String sStdout;
   WDL_String sStdin;
   int status;
+
   if (RunSubprocess(command.Get(), sStdout, sStdin, &status) != 0)
   {
     if (completionHandler)
-    {
-      completionHandler(r);
-    }
-    return r;
+      completionHandler(result);
+
+    return result;
   }
 
   switch (type)
   {
-  case EMsgBoxType::kMB_OK:
-    r = kOK;
-    break;
-  case EMsgBoxType::kMB_OKCANCEL:
-    switch (status)
-    {
-    case 0:
-      r = kOK;
+    case EMsgBoxType::kMB_OK:
+      result = kOK;
       break;
-    default:
-      r = kCANCEL;
-      break;
-    }
-    break;
-  case EMsgBoxType::kMB_RETRYCANCEL:
-    switch (status)
-    {
-    case 0:
-      r = kRETRY;
-      break;
-    default:
-      r = kCANCEL;
-      break;
-    }
-    break;
-  case EMsgBoxType::kMB_YESNO:
-    switch (status)
-    {
-    case 0:
-      r = kYES;
-      break;
-    default:
-      r = kNO;
-      break;
-    }
-    break;
-  case EMsgBoxType::kMB_YESNOCANCEL:
-    switch (status)
-    {
-    case 0:
-      r = kYES;
-      break;
-    case 1:
-      // zenity output our extra button text
-      if (sStdout.GetLength() > 0)
+    case EMsgBoxType::kMB_OKCANCEL:
+      switch (status)
       {
-        r = kCANCEL;
-      }
-      else
-      {
-        r = kNO;
+        case 0:
+          result = kOK;
+          break;
+        default:
+          result = kCANCEL;
+          break;
       }
       break;
-    default:
-      r = kCANCEL;
+    case EMsgBoxType::kMB_RETRYCANCEL:
+      switch (status)
+      {
+        case 0:
+          result = kRETRY;
+          break;
+        default:
+          result = kCANCEL;
+          break;
+      }
       break;
-    }
-    break;
+    case EMsgBoxType::kMB_YESNO:
+      switch (status)
+      {
+        case 0:
+          result = kYES;
+          break;
+        default:
+          result = kNO;
+          break;
+      }
+      break;
+    case EMsgBoxType::kMB_YESNOCANCEL:
+      switch (status)
+      {
+        case 0:
+          result = kYES;
+          break;
+        case 1:
+          // zenity output our extra button text
+          if (sStdout.GetLength() > 0)
+            result = kCANCEL;
+          else
+            result = kNO;
+          break;
+        default:
+          result = kCANCEL;
+          break;
+      }
+      break;
   }
 
   if (completionHandler)
-  {
-    completionHandler(r);
-  }
-  return r;
+    completionHandler(result);
+
+  return result;
 }
 
 bool IGraphicsLinux::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
@@ -789,10 +747,12 @@ bool IGraphicsLinux::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
 
   WDL_String sOut, sIn;
   int status;
+
   if (RunSubprocess(args.Get(), sOut, sIn, &status) != 0)
   {
     return false;
   }
+
   return true;
 }
 
@@ -808,6 +768,7 @@ void IGraphicsLinux::PromptForFile(WDL_String& fileName, WDL_String& path, EFile
   WDL_String args;
   args.AppendFormatted(path.GetLength() + 10, "cd \"%s\"; ", path.Get());
   args.Append("zenity --file-selection ");
+
   if (action == EFileAction::Save)
   {
     args.Append("--save --confirm-overwrite ");
@@ -817,7 +778,6 @@ void IGraphicsLinux::PromptForFile(WDL_String& fileName, WDL_String& path, EFile
     args.AppendFormatted(fileName.GetLength() + 20, "\"--filename=%s\" ", fileName.Get());
   }
 
-  
   if (extensions)
   {
     // Split the string at commas and then append each format specifier
@@ -834,10 +794,10 @@ void IGraphicsLinux::PromptForFile(WDL_String& fileName, WDL_String& path, EFile
     }
   }
   
-  
   WDL_String sStdout;
   WDL_String sStdin;
   int status;
+
   if (RunSubprocess(args.Get(), sStdout, sStdin, &status) != 0)
   {
     fileName.Set("");
@@ -892,18 +852,18 @@ bool IGraphicsLinux::PromptForColor(IColor& color, const char* str, IColorPicker
 {
   WDL_String args;
   args.Append("zenity --color-selection ");
-  if (str)
-  {
-    args.AppendFormatted(strlen(str) + 20, "\"--title=%s\" ", str);
-  }
-  args.AppendFormatted(100, "\"--color=rgba(%d,%d,%d,%f)\" ", color.R, color.G, color.B, (float)color.A / 255.f);
 
+  if (str)
+    args.AppendFormatted(strlen(str) + 20, "\"--title=%s\" ", str);
+  
+  args.AppendFormatted(100, "\"--color=rgba(%d,%d,%d,%f)\" ", color.R, color.G, color.B, (float)color.A / 255.f);
 
   bool ok = false;
 
   WDL_String sOut;
   WDL_String sIn;
   int status;
+
   if (RunSubprocess(args.Get(), sOut, sIn, &status) != 0)
   {
     return false;
@@ -936,6 +896,7 @@ bool IGraphicsLinux::PromptForColor(IColor& color, const char* str, IColorPicker
 
     if (ok && func)
       func(color);
+
     return ok;
   }
 }
@@ -947,10 +908,12 @@ bool IGraphicsLinux::OpenURL(const char* url, const char* msgWindowTitle, const 
 
   WDL_String sOut, sIn;
   int status;
+
   if (RunSubprocess(args.Get(), sOut, sIn, &status) != 0)
   {
     return false;
   }
+
   return true;
 }
 
@@ -958,6 +921,7 @@ bool IGraphicsLinux::GetTextFromClipboard(WDL_String& str)
 {
   int length = 0;
   const char* data = xcbt_clipboard_get_utf8(mPlugWnd, &length);
+
   if (data)
   {
     str.Set(data, length);
@@ -994,34 +958,6 @@ void IGraphicsLinux::PlatformResize(bool parentHasResized)
     }
     xcbt_flush(mX);
   }
-}
-
-void IGraphicsLinux::ShowTooltip()
-{
-  auto tt = GetControlWithTag(TOOLTIP_CONTROL_TAG)->As<ITooltipControl>();
-  if (tt->GetControlIdx() != mHoverControl)
-  {
-    tt->SetForControl(mHoverControl);
-    tt->Hide(false);
-  }
-}
-
-void IGraphicsLinux::HideTooltip()
-{
-  auto tt = GetControlWithTag(TOOLTIP_CONTROL_TAG)->As<ITooltipControl>();
-  tt->SetForControl(-1);
-  tt->Hide(true);
-}
-
-IPopupMenu* IGraphicsLinux::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
-{
-  auto popupCtrl = GetPopupMenuControl();
-  mPopupMenu->Clear(true);
-  menu.CloneInto(*mPopupMenu);
-  popupCtrl->CreatePopupMenu(*mPopupMenu, bounds);
-  popupCtrl->Hide(false);
-  isAsync = false;
-  return mPopupMenu;
 }
 
 void IGraphicsLinux::RequestFocus()
@@ -1063,7 +999,6 @@ IFontDataPtr IGraphicsLinux::Font::GetFontData()
     return std::make_unique<IFontData>((const void*)mFontData.Get(), mFontData.GetSize(), 0);
   }
 }
-
 
 PlatformFontPtr IGraphicsLinux::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
 {
@@ -1134,14 +1069,12 @@ uint32_t IGraphicsLinux::GetUserDblClickTimeout()
 IGraphicsLinux::IGraphicsLinux(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
   : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
-  //FcInit();
 }
 
 IGraphicsLinux::~IGraphicsLinux()
 {
   CloseWindow();
   xcbt_embed_dtor(mEmbed);
-  // FcFini();
 }
 
 #ifndef NO_IGRAPHICS
