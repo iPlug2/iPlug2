@@ -32,6 +32,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
     pGraphics->AttachPanelBackground(mBGControlPattern);
     pGraphics->AttachTextEntryControl();
+    pGraphics->AttachToolTipControl();
     
 #ifndef OS_IOS
     pGraphics->AttachPopupMenuControl(DEFAULT_LABEL_TEXT);

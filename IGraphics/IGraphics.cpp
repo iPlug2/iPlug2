@@ -36,6 +36,7 @@ using VST3_API_BASE = iplug::IPlugVST3Controller;
 #include "IPopupMenuControl.h"
 #include "ITextEntryControl.h"
 #include "IBubbleControl.h"
+#include "ITooltipControl.h"
 
 #if defined OS_LINUX
 /*
@@ -206,6 +207,7 @@ void IGraphics::RemoveAllControls()
   mTextEntryControl = nullptr;
   mCornerResizer = nullptr;
   mPerfDisplay = nullptr;
+  mTooltipControl = nullptr;
     
 #ifndef NDEBUG
   mLiveEdit = nullptr;
@@ -372,6 +374,23 @@ void IGraphics::RemovePopupMenuControl()
   mPopupControl = nullptr;
 }
 
+void IGraphics::AttachToolTipControl(ITooltipControl* pControl)
+{
+  std::unique_ptr<ITooltipControl> control(pControl);
+  mTooltipControl.swap(control);
+  mTooltipControl->SetDelegate(*GetDelegate());
+}
+
+void IGraphics::AttachToolTipControl(const IColor& BGColor, const IText& text)
+{
+  AttachToolTipControl(new ITooltipControl(BGColor, text));
+}
+
+void IGraphics::RemoveToolTipControl()
+{
+  mTooltipControl = nullptr;
+}
+
 void IGraphics::AttachTextEntryControl()
 {
   if (!mTextEntryControl)
@@ -530,6 +549,9 @@ void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
   
   if (mPopupControl)
     func(*mPopupControl);
+  
+  if (mTooltipControl)
+    func(*mTooltipControl);
   
   if (mBubbleControls.GetSize())
   {
@@ -821,8 +843,7 @@ bool IGraphics::IsDirty(IRECTList& rects)
 
   bool dirty = false;
     
-  auto func = [&dirty, &rects](IControl& control)
-  {
+  auto func = [&dirty, &rects](IControl& control) {
     if (control.IsDirty())
     {
       // N.B padding outlines for single line outlines
@@ -1147,12 +1168,18 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
 
   if (mMouseOver)
     mMouseOver->OnMouseOver(x, y, mod);
+  
+  if(mTooltipControl)
+    mTooltipControl->SetControl(pControl);
 
   return pControl;
 }
 
 void IGraphics::OnMouseOut()
 {
+  if(mTooltipControl)
+    mTooltipControl->SetControl(nullptr); // Hides
+  
   Trace("IGraphics::OnMouseOut", __LINE__, "");
 
   // Store the old cursor type so this gets restored when the mouse enters again
@@ -1533,7 +1560,9 @@ IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 void IGraphics::EnableTooltips(bool enable)
 {
   mEnableTooltips = enable;
-  if (enable) mEnableMouseOver = true;
+  
+  if (enable)
+    EnableMouseOver(true);
 }
 
 void IGraphics::EnableLiveEdit(bool enable)

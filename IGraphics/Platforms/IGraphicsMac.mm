@@ -355,6 +355,11 @@ void IGraphicsMac::UpdateTooltips()
     return;
   }
 
+  if (GetTooltipControl()) // tooltips handled by IGraphics Control
+  {
+    return;
+  }
+    
   auto func = [this](IControl& control)
   {
     if (control.GetTooltip() && !control.IsHidden())

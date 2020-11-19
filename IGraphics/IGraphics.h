@@ -79,6 +79,7 @@ class ITextEntryControl;
 class ICornerResizerControl;
 class IFPSDisplayControl;
 class IBubbleControl;
+class ITooltipControl;
 
 /**  The lowest level base class of an IGraphics context */
 class IGraphics
@@ -1249,6 +1250,17 @@ public:
   
   /** Remove the IGraphics popup menu, use platform popup menu if available */
   void RemovePopupMenuControl();
+
+  /** Attach the default control for tool tips, specifying BGColor and text style
+   * @param BGColor The background color of the tooltip
+   * @param text The IText style to use for the tooltip */
+  void AttachToolTipControl(const IColor& BGColor = COLOR_WHITE, const IText& text = DEFAULT_TEXT);
+  
+  /** Attach a control for tool tips */
+  void AttachToolTipControl(ITooltipControl* pControl);
+  
+  /** Remove the IGraphics tool tip control, use platform tooltips if available */
+  void RemoveToolTipControl();
   
   /** Attach a control for text entry, to override platform text entry */
   void AttachTextEntryControl();
@@ -1337,6 +1349,9 @@ public:
   
   /** @return Pointer to the special pop-up menu control, if one has been attached */
   IPopupMenuControl* GetPopupMenuControl() { return mPopupControl.get(); }
+
+  /** @return Pointer to the special tooltip control, if one has been attached */
+  ITooltipControl* GetTooltipControl() { return mTooltipControl.get(); }
   
   /** @return Pointer to the special text entry control, if one has been attached */
   ITextEntryControl* GetTextEntryControl() { return mTextEntryControl.get(); }
@@ -1700,6 +1715,7 @@ private:
   // Order (front-to-back) ToolTip / PopUp / TextEntry / LiveEdit / Corner / PerfDisplay
   std::unique_ptr<ICornerResizerControl> mCornerResizer;
   WDL_PtrList<IBubbleControl> mBubbleControls;
+  std::unique_ptr<ITooltipControl> mTooltipControl;
   std::unique_ptr<IPopupMenuControl> mPopupControl;
   std::unique_ptr<IFPSDisplayControl> mPerfDisplay;
   std::unique_ptr<ITextEntryControl> mTextEntryControl;
