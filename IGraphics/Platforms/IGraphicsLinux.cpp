@@ -1078,15 +1078,15 @@ IGraphicsLinux::~IGraphicsLinux()
 }
 
 #ifndef NO_IGRAPHICS
-#if defined IGRAPHICS_SKIA
-  #include "IGraphicsSkia.cpp"
-if defined IGRAPHICS_NANOVG
-  #include "IGraphicsNanoVG.cpp"
-#ifdef IGRAPHICS_FREETYPE
-#define FONS_USE_FREETYPE
-#endif
-  #include "nanovg.c"
-#else
-  #error
-#endif
+  #if defined IGRAPHICS_SKIA
+    #include "IGraphicsSkia.cpp"
+  #else if defined IGRAPHICS_NANOVG
+    #include "IGraphicsNanoVG.cpp"
+    #ifdef IGRAPHICS_FREETYPE
+      #define FONS_USE_FREETYPE
+    #endif
+      #include "nanovg.c"
+  #else
+    #error
+  #endif
 #endif
