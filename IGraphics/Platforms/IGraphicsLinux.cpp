@@ -1080,7 +1080,7 @@ IGraphicsLinux::~IGraphicsLinux()
 #ifndef NO_IGRAPHICS
   #if defined IGRAPHICS_SKIA
     #include "IGraphicsSkia.cpp"
-  #else if defined IGRAPHICS_NANOVG
+  #elif defined IGRAPHICS_NANOVG
     #include "IGraphicsNanoVG.cpp"
     #ifdef IGRAPHICS_FREETYPE
       #define FONS_USE_FREETYPE
