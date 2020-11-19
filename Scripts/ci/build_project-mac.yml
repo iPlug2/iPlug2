@@ -39,22 +39,7 @@ steps:
 
   - bash: |
       graphics=${{parameters.graphics}}
-      if [ $graphics = "LICE" ]
-      then
-        cd ./${{parameters.path}}/${{parameters.name}}/config
-        sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_LICE SWELL_NO_METAL/' ${{parameters.name}}-mac.xcconfig
-        sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{parameters.name}}-mac.xcconfig
-      elif [ $graphics = "CAIRO" ]
-      then
-        cd ./${{parameters.path}}/${{parameters.name}}/config
-        sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_CAIRO/' ${{parameters.name}}-mac.xcconfig
-        sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{parameters.name}}-mac.xcconfig
-      elif [ $graphics = "AGG" ]
-      then
-        cd ./${{parameters.path}}/${{parameters.name}}/config
-        sed -i.bu 's/IGRAPHICS_NANOVG IGRAPHICS_METAL/IGRAPHICS_AGG/' ${{parameters.name}}-mac.xcconfig
-        sed -i.bu 's/\/\/$(IGRAPHICS_LNK_FLAGS)/$(IGRAPHICS_LNK_FLAGS)/' ${{parameters.name}}-mac.xcconfig
-      elif [ $graphics = "SKIA" ]
+      if [ $graphics = "SKIA" ]
       then
         cd ./${{parameters.path}}/${{parameters.name}}/config
         sed -i.bu 's/IGRAPHICS_NANOVG/IGRAPHICS_SKIA/' ${{parameters.name}}-mac.xcconfig

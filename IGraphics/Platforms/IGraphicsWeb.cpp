@@ -24,11 +24,6 @@ void GetScreenDimensions(int& width, int& height)
   height = val::global("window")["innerHeight"].as<int>();
 }
 
-float GetScaleForScreen(int height)
-{
-  return 1.f;
-}
-
 END_IPLUG_NAMESPACE
 END_IGRAPHICS_NAMESPACE
 
@@ -657,6 +652,9 @@ void* IGraphicsWeb::OpenWindow(void* pHandle)
 
 void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
 {
+  if (mCursorHidden == hide)
+    return;
+    
   if (hide)
   {
 #ifdef IGRAPHICS_WEB_POINTERLOCK
@@ -666,6 +664,7 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
 #endif
       val::global("document")["body"]["style"].set("cursor", "none");
     
+    mCursorHidden = true;
     mCursorLock = lock;
   }
   else
@@ -675,8 +674,9 @@ void IGraphicsWeb::HideMouseCursor(bool hide, bool lock)
       emscripten_exit_pointerlock();
     else
 #endif
-      OnSetCursor();
+    OnSetCursor();
       
+    mCursorHidden = false;
     mCursorLock = false;
   }
 }
@@ -733,15 +733,6 @@ void IGraphicsWeb::OnMainLoopTimer()
     gGraphics->SetAllControlsClean();
     gGraphics->Draw(rects);
   }
-}
-
-bool IGraphicsWeb::GetTextFromClipboard(WDL_String& str)
-{
-  val clipboardText = val::global("window")["clipboardData"].call<val>("getData", std::string("Text"));
-  
-  str.Set(clipboardText.as<std::string>().c_str());
-
-  return true; // TODO: return?
 }
 
 EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)

@@ -400,11 +400,11 @@ public:
    * @return \c true if the control is marked dirty. */
   virtual bool IsDirty();
 
-  /** Disable/enable right-clicking the control to prompt for user input /todo check this
+  /** Disable/enable right-clicking the control to prompt for user input \todo check this
    * @param disable \c true*/
   void DisablePrompt(bool disable) { mDisablePrompt = disable; }
 
-  /** This is an idle call from the GUI thread, only active if USE_IDLE_CALLS is defined. /todo check this */
+  /** This is an idle call from the GUI thread, only active if USE_IDLE_CALLS is defined. \todo check this */
   virtual void OnGUIIdle() {}
   
   /** Get the control's tag. @see Control Tags */
@@ -463,7 +463,7 @@ public:
    * @param y The Y coordinate for snapping
    * @param direction The direction of the control's travel- horizontal or vertical fader
    * @param bounds The area in which the track of e.g. a slider should be snapped
-   * @param valIdx /todo */
+   * @param valIdx \todo */
   virtual void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1, double minClip = 0., double maxClip = 1.);
 
   /* if you override this you must call the base implementation, to free mAnimationFunc */
@@ -816,12 +816,12 @@ public:
       g.DrawEllipse(GetColor(kFR), handleBounds, &blend, mStyle.frameThickness);
   }
   
-  /** /todo
-   @param IGraphics&g /todo
-   @param bounds /todo
-   @param pressed /todo
-   @param mouseOver /todo
-   @return /todo */
+  /** \todo
+   @param IGraphics&g \todo
+   @param bounds \todo
+   @param pressed \todo
+   @param mouseOver \todo
+   @return \todo */
   IRECT DrawPressableRectangle(IGraphics&g, const IRECT& bounds, bool pressed, bool mouseOver, bool disabled,
                                bool rtl = true, bool rtr = true, bool rbl = true, bool rbr = true)
   {
@@ -1159,7 +1159,7 @@ protected:
   EDirection mDirection;
   double mGearing;
   bool mMouseDown = false;
-  double mMouseDragValue;
+  double mMouseDragValue = 0.0;
 };
 
 /** A base class for slider/fader controls, to handle mouse action and Sender. */
@@ -1646,8 +1646,13 @@ public:
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   
   int GetSelectedIdx() const { return int(0.5 + GetValue() * (double) (mNumStates - 1)); }
+  
+  void SetStateDisabled(int stateIdx, bool disabled);
+  void SetAllStatesDisabled(bool disabled);
+  bool GetStateDisabled(int stateIdx) const;
 protected:
   int mNumStates;
+  WDL_TypedBuf<bool> mDisabledState;
   bool mMouseDown = false;
 };
 

@@ -105,11 +105,11 @@ static inline double AmpToDB(double amp)
   return AMP_DB * std::log(std::fabs(amp));
 }
 
-/** /todo  
- * @param version /todo
- * @param ver /todo
- * @param maj /todo
- * @param min /todo */
+/** \todo  
+ * @param version \todo
+ * @param ver \todo
+ * @param maj \todo
+ * @param min \todo */
 static inline void GetVersionParts(int version, int& ver, int& maj, int& min)
 {
   ver = (version & 0xFFFF0000) >> 16;
@@ -117,9 +117,9 @@ static inline void GetVersionParts(int version, int& ver, int& maj, int& min)
   min = version & 0x000000FF;
 }
 
-/** /todo  
- * @param version /todo
- * @return int /todo */
+/** \todo  
+ * @param version \todo
+ * @return int \todo */
 static inline int GetDecimalVersion(int version)
 {
   int ver, rmaj, rmin;
@@ -127,9 +127,9 @@ static inline int GetDecimalVersion(int version)
   return 10000 * ver + 100 * rmaj + rmin;
 }
 
-/** /todo 
- * @param version /todo
- * @param str /todo */
+/** \todo 
+ * @param version \todo
+ * @param str \todo */
 static inline void GetVersionStr(int version, WDL_String& str)
 {
   int ver, rmaj, rmin;
@@ -137,12 +137,12 @@ static inline void GetVersionStr(int version, WDL_String& str)
   str.SetFormatted(MAX_VERSION_STR_LEN, "v%d.%d.%d", ver, rmaj, rmin);
 }
 
-/** /todo  
+/** \todo  
  * @tparam SRC 
  * @tparam DEST 
- * @param pDest /todo
- * @param pSrc /todo
- * @param n /todo */
+ * @param pDest \todo
+ * @param pSrc \todo
+ * @param n \todo */
 template <class SRC, class DEST>
 void CastCopy(DEST* pDest, SRC* pSrc, int n)
 {
@@ -152,9 +152,9 @@ void CastCopy(DEST* pDest, SRC* pSrc, int n)
   }
 }
 
-/** /todo  
- * @param cDest /todo
- * @param cSrc /todo */
+/** \todo  
+ * @param cDest \todo
+ * @param cSrc \todo */
 static void ToLower(char* cDest, const char* cSrc)
 {
   int i, n = (int) strlen(cSrc);
@@ -286,11 +286,11 @@ static void GetHostNameStr(EHost host, WDL_String& str)
   }
 }
 
-/** /todo 
- * @param midiPitch /todo
- * @param noteName /todo
- * @param cents /todo
- * @param middleCisC4 /todo */
+/** \todo 
+ * @param midiPitch \todo
+ * @param noteName \todo
+ * @param cents \todo
+ * @param middleCisC4 \todo */
 static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = false, bool middleCisC4 = false)
 {
   static const char noteNames[12][3] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};

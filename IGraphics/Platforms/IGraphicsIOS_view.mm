@@ -29,7 +29,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 @implementation IGRAPHICS_UITABLEVC
 
-- (void)viewDidLoad
+- (void) viewDidLoad
 {
   [super viewDidLoad];
   self.tableView = [[UITableView alloc] initWithFrame:self.view.frame];
@@ -82,17 +82,17 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return self;
 }
 
-- (NSInteger)tableView:(UITableView*) tableView numberOfRowsInSection:(NSInteger)section
+- (NSInteger) tableView:(UITableView*) tableView numberOfRowsInSection:(NSInteger) section
 {
   return self.items.count;
 }
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView*) tableView
+- (NSInteger) numberOfSectionsInTableView:(UITableView*) tableView
 {
   return 1;
 }
 
-- (UITableViewCell *)tableView:(UITableView*) tableView cellForRowAtIndexPath:(NSIndexPath*) indexPath
+- (UITableViewCell*) tableView:(UITableView*) tableView cellForRowAtIndexPath:(NSIndexPath*) indexPath
 {
   static NSString *identifer = @"cell";
   UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifer];
@@ -122,7 +122,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return cell;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+- (CGFloat) tableView:(UITableView*) tableView heightForRowAtIndexPath:(NSIndexPath*) indexPath
 {
   int cellIndex = static_cast<int>(indexPath.row);
 
@@ -134,7 +134,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     return self.tableView.rowHeight;
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+- (void) tableView:(UITableView*) tableView didSelectRowAtIndexPath:(NSIndexPath*) indexPath
 {
   int cellIndex = static_cast<int>(indexPath.row);
 
@@ -163,7 +163,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
 }
 
-- (CGSize)preferredContentSize
+- (CGSize) preferredContentSize
 {
   if (self.presentingViewController && self.tableView != nil)
   {
@@ -218,7 +218,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return self;
 }
 
-- (void)setFrame:(CGRect)frame
+- (void) setFrame:(CGRect) frame
 {
   [super setFrame:frame];
   
@@ -240,7 +240,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   #endif
 }
 
-- (void) onTouchEvent:(ETouchEvent)eventType withTouches:(NSSet*)touches withEvent:(UIEvent*)event
+- (void) onTouchEvent:(ETouchEvent) eventType withTouches:(NSSet*) touches withEvent:(UIEvent*) event
 {
   if(mGraphics == nullptr) //TODO: why?
     return;
@@ -291,22 +291,22 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     mGraphics->OnTouchCancelled(points);
 }
 
-- (void) touchesBegan:(NSSet*)touches withEvent:(UIEvent*)event
+- (void) touchesBegan:(NSSet*) touches withEvent:(UIEvent*) event
 {
   [self onTouchEvent:ETouchEvent::Began withTouches:touches withEvent:event];
 }
 
-- (void) touchesMoved:(NSSet*)touches withEvent:(UIEvent*)event
+- (void) touchesMoved:(NSSet*) touches withEvent:(UIEvent*) event
 {
   [self onTouchEvent:ETouchEvent::Moved withTouches:touches withEvent:event];
 }
 
-- (void) touchesEnded:(NSSet*)touches withEvent:(UIEvent*)event
+- (void) touchesEnded:(NSSet*) touches withEvent:(UIEvent*) event
 {
   [self onTouchEvent:ETouchEvent::Ended withTouches:touches withEvent:event];
 }
 
-- (void) touchesCancelled:(NSSet*)touches withEvent:(UIEvent*)event
+- (void) touchesCancelled:(NSSet*) touches withEvent:(UIEvent*) event
 {
   [self onTouchEvent:ETouchEvent::Cancelled withTouches:touches withEvent:event];
 }
@@ -316,7 +316,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return mMTLLayer;
 }
 
-- (void)didMoveToSuperview
+- (void) didMoveToSuperview
 {
   [super didMoveToSuperview];
   if (self.superview)
@@ -332,7 +332,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
 }
 
-- (void)drawRect:(CGRect)rect
+- (void) drawRect:(CGRect)rect
 {
   IRECTList rects;
   
@@ -348,7 +348,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
 }
 
-- (void)redraw:(CADisplayLink*) displayLink
+- (void) redraw:(CADisplayLink*) displayLink
 {
 #ifdef IGRAPHICS_CPU
   [self setNeedsDisplay];
@@ -367,7 +367,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return YES;
 }
 
-- (BOOL)canBecomeFirstResponder
+- (BOOL) canBecomeFirstResponder
 {
   return YES;
 }
@@ -384,12 +384,18 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mMTLLayer = nil;
 }
 
-- (void)textFieldDidEndEditing:(UITextField *)textField reason:(UITextFieldDidEndEditingReason)reason
+- (void) textFieldDidEndEditing:(UITextField*) textField reason:(UITextFieldDidEndEditingReason) reason
 {
-  [self endUserInput];
+  if(textField == mTextField)
+  {
+    mGraphics->SetControlValueAfterTextEdit([[mTextField text] UTF8String]);
+    mGraphics->SetAllControlsDirty();
+    
+    [self endUserInput];
+  }
 }
 
-- (BOOL)textFieldShouldReturn:(UITextField *)textField
+- (BOOL) textFieldShouldReturn:(UITextField*) textField
 {
   if(textField == mTextField)
   {
@@ -401,12 +407,12 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return YES;
 }
 
-- (void) textFieldDidEndEditing:(UITextField *) textField
+- (void) textFieldDidEndEditing:(UITextField*) textField
 {
   [self endUserInput];
 }
 
-- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+- (BOOL) textField:(UITextField*) textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString*) string
 {
   if (!string.length)
     return YES;
@@ -449,12 +455,12 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return YES;
 }
 
-- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller
+- (UIModalPresentationStyle) adaptivePresentationStyleForPresentationController:(UIPresentationController*) controller
 {
   return UIModalPresentationNone;
 }
 
-- (BOOL)presentationControllerShouldDismiss:(UIPopoverPresentationController *)popoverPresentationController
+- (BOOL) presentationControllerShouldDismiss:(UIPopoverPresentationController*) popoverPresentationController
 {
   return YES;
 }
@@ -700,7 +706,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [self addGestureRecognizer:gestureRecognizer];
 }
 
-- (void) onTapGesture: (UITapGestureRecognizer *) recognizer
+- (void) onTapGesture: (UITapGestureRecognizer*) recognizer
 {
   CGPoint p = [recognizer locationInView:self];
   auto ds = mGraphics->GetDrawScale();
@@ -795,7 +801,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics->OnGestureRecognized(info);
 }
 
--(BOOL) gestureRecognizer:(UIGestureRecognizer*) gestureRecognizer shouldReceiveTouch:(UITouch*)touch
+-(BOOL) gestureRecognizer:(UIGestureRecognizer*) gestureRecognizer shouldReceiveTouch:(UITouch*) touch
 {
   CGPoint pos = [touch locationInView:touch.view];
   
@@ -807,7 +813,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     return FALSE;
 }
 
-- (void)keyboardWillShow:(NSNotification*) notification
+- (void) keyboardWillShow:(NSNotification*) notification
 {
   NSDictionary* info = [notification userInfo];
   CGSize kbSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
@@ -824,7 +830,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
 }
 
-- (void)keyboardWillBeHidden:(NSNotification*) notification
+- (void) keyboardWillBeHidden:(NSNotification*) notification
 {
   UIEdgeInsets contentInsets = UIEdgeInsetsZero;
   self.contentInset = contentInsets;
@@ -836,18 +842,18 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return NO;
 }
 
-- (void)scrollViewDidScroll:(UIScrollView*) scrollView
+- (void) scrollViewDidScroll:(UIScrollView*) scrollView
 {
   mGraphics->SetTranslation(0, -self.contentOffset.y);
   mGraphics->SetAllControlsDirty();
 }
 
-- (void)presentationControllerDidDismiss: (UIPresentationController *) presentationController
+- (void) presentationControllerDidDismiss: (UIPresentationController*) presentationController
 {
   mGraphics->SetControlValueAfterPopupMenu(nullptr);
 }
 
-- (void)colorViewController:(MSColorSelectionViewController*) colorViewCntroller didChangeColor:(UIColor*) color
+- (void) colorViewController:(MSColorSelectionViewController*) colorViewCntroller didChangeColor:(UIColor*) color
 {
   if(mColorPickerHandlerFunc)
   {
@@ -891,7 +897,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return self;
 }
 
-- (void)drawRect:(CGRect)rect
+- (void) drawRect:(CGRect)rect
 {
   id<MTLCommandBuffer> commandBuffer = [self.commandQueue commandBuffer];
   

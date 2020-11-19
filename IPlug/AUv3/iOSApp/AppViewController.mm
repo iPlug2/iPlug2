@@ -36,7 +36,7 @@
   return YES;
 }
 
-- (void)viewDidLoad
+- (void) viewDidLoad
 {
   [super viewDidLoad];
 
@@ -82,7 +82,7 @@
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveNotification:) name:@"LaunchBTMidiDialog" object:nil];
 }
 
--(void) receiveNotification:(NSNotification*)notification
+-(void) receiveNotification:(NSNotification*) notification
 {
   if ([notification.name isEqualToString:@"LaunchBTMidiDialog"])
   {
@@ -103,7 +103,7 @@
   }
 }
 
-- (void)embedPlugInView
+- (void) embedPlugInView
 {
 #if PLUG_HAS_UI
   UIView* view = iplugViewController.view;
@@ -120,5 +120,9 @@
   [auView addConstraints: constraints];
 }
 
+- (UIRectEdge) preferredScreenEdgesDeferringSystemGestures
+{
+  return UIRectEdgeAll;
+}
 @end
 

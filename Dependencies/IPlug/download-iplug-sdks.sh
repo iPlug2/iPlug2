@@ -12,3 +12,7 @@ git submodule update --init pluginterfaces
 git submodule update --init base
 git submodule update --init public.sdk
 git submodule update --init doc
+cd ..
+git checkout ./VST3_SDK/README.md
+git checkout ./WAM_SDK/readme.txt
+git checkout ./WAM_AWP/readme.txt

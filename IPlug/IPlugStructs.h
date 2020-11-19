@@ -507,29 +507,29 @@ struct IOConfig
     mBusInfo[1].Empty(true);
   }
   
-  /** /todo 
-   * @param direction /todo
-   * @param NChans /todo
-   * @param label /todo */
+  /** \todo 
+   * @param direction \todo
+   * @param NChans \todo
+   * @param label \todo */
   void AddBusInfo(ERoute direction, int NChans)
   {
     mBusInfo[direction].Add(new IBusInfo(direction, NChans));
   }
   
-  /** /todo
-   * @param direction /todo
-   * @param index /todo
-   * @return IBusInfo* /todo */
+  /** \todo
+   * @param direction \todo
+   * @param index \todo
+   * @return IBusInfo* \todo */
   const IBusInfo* GetBusInfo(ERoute direction, int index) const
   {
     assert(index >= 0 && index < mBusInfo[direction].GetSize());
     return mBusInfo[direction].Get(index);
   }
   
-  /** /todo 
-   * @param direction /todo
-   * @param index /todo
-   * @return int /todo */
+  /** \todo 
+   * @param direction \todo
+   * @param index \todo
+   * @return int \todo */
   int NChansOnBusSAFE(ERoute direction, int index) const
   {
     int NChans = 0;
@@ -540,17 +540,17 @@ struct IOConfig
     return NChans;
   }
   
-  /** /todo  
-   * @param direction /todo
-   * @return int /todo */
+  /** \todo  
+   * @param direction \todo
+   * @return int \todo */
   int NBuses(ERoute direction) const
   {
     return mBusInfo[direction].GetSize();
   }
   
   /** Get the total number of channels across all direction buses for this IOConfig
-   * @param direction /todo
-   * @return int /todo */
+   * @param direction \todo
+   * @return int \todo */
   int GetTotalNChannels(ERoute direction) const
   {
     int total = 0;
@@ -561,10 +561,10 @@ struct IOConfig
     return total;
   }
   
-  /** /todo  
-   * @param direction /todo
-   * @return true /todo
-   * @return false /todo */
+  /** \todo  
+   * @param direction \todo
+   * @return true \todo
+   * @return false \todo */
   bool ContainsWildcard(ERoute direction) const
   {
     for(auto i = 0; i < mBusInfo[direction].GetSize(); i++)
@@ -615,12 +615,12 @@ struct IKeyPress
   char utf8[5] = { 0 }; // UTF8 key
   bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
 
-  /** /todo
-   * @param _utf8 /todo
-   * @param vk /todo
-   * @param s /todo
-   * @param c /todo
-   * @param a /todo */
+  /** \todo
+   * @param _utf8 \todo
+   * @param vk \todo
+   * @param s \todo
+   * @param c \todo
+   * @param a \todo */
   IKeyPress(const char* _utf8, int vk, bool s = false, bool c = false, bool a = false)
     : VK(vk)
     , S(s), C(c), A(a)

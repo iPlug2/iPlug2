@@ -36,8 +36,7 @@ void SplashAnimationFunc(IControl* pCaller)
     return;
   }
   
-  dynamic_cast<IVectorBase*>(pCaller)->SetSplashRadius((float) progress);
-  
+  pCaller->As<IVectorBase>()->SetSplashRadius((float) progress);
   pCaller->SetDirty(false);
 };
 
@@ -49,7 +48,7 @@ void SplashClickActionFunc(IControl* pCaller)
 {
   float x, y;
   pCaller->GetUI()->GetMouseDownPoint(x, y);
-  dynamic_cast<IVectorBase*>(pCaller)->SetSplashPoint(x, y);
+  pCaller->As<IVectorBase>()->SetSplashPoint(x, y);
   pCaller->SetAnimation(SplashAnimationFunc, DEFAULT_ANIMATION_DURATION);
 }
 
@@ -466,6 +465,8 @@ void ITextControl::SetStr(const char* str)
     
     if(mSetBoundsBasedOnStr)
       SetBoundsBasedOnStr();
+    
+    SetDirty(false);
   }
 }
 
@@ -475,6 +476,8 @@ void ITextControl::SetStrFmt(int maxlen, const char* fmt, ...)
   va_start(arglist, fmt);
   mStr.SetAppendFormattedArgs(false, maxlen, fmt, arglist);
   va_end(arglist);
+  
+  SetDirty(false);
 }
 
 void ITextControl::Draw(IGraphics& g)
@@ -719,7 +722,33 @@ ISwitchControlBase::ISwitchControlBase(const IRECT& bounds, int paramIdx, IActio
 , mNumStates(numStates)
 {
   assert(mNumStates > 1);
+  mDisabledState.Resize(numStates);
+  SetAllStatesDisabled(false);
   mDblAsSingleClick = true;
+}
+
+void ISwitchControlBase::SetAllStatesDisabled(bool disabled)
+{
+  for(int i=0; i<mNumStates; i++)
+  {
+    SetStateDisabled(i, disabled);
+  }
+  SetDirty(false);
+}
+
+void ISwitchControlBase::SetStateDisabled(int stateIdx, bool disabled)
+{
+  if(stateIdx >= 0 && stateIdx < mNumStates)
+    mDisabledState.Get()[stateIdx] = disabled;
+  
+  SetDirty(false);
+}
+
+bool ISwitchControlBase::GetStateDisabled(int stateIdx) const
+{
+  if(stateIdx >= 0 && stateIdx < mNumStates)
+    return mDisabledState.Get()[stateIdx];
+  return false;
 }
 
 void ISwitchControlBase::OnInit()

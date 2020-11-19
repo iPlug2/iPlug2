@@ -96,6 +96,7 @@ public:
     void SetEnabled(bool state) { SetFlag(kDisabled, !state); }
     void SetChecked(bool state) { SetFlag(kChecked, state); }
     void SetTitle(bool state) {SetFlag(kTitle, state); }
+    void SetSubmenu(IPopupMenu* pSubmenu) { mSubmenu.reset(pSubmenu); }
 
   protected:
     void SetFlag(Flags flag, bool state)

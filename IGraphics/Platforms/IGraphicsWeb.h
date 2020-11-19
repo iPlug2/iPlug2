@@ -38,8 +38,6 @@ static val GetPreloadedImages()
 
 extern void GetScreenDimensions(int& width, int& height);
 
-extern float GetScaleForScreen(int height);
-
 /** IGraphics platform class for the web
 * @ingroup PlatformClasses */
 class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
@@ -65,8 +63,8 @@ public:
   void CloseWindow() override {} // TODO:
   void* GetWindow() override { return nullptr; } // TODO:
   bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
-  bool GetTextFromClipboard(WDL_String& str) override;
-  bool SetTextInClipboard(const char* str) override { return false; } // TODO
+  bool GetTextFromClipboard(WDL_String& str) override { str.Set(mClipboardText.Get()); return true; }
+  bool SetTextInClipboard(const char* str) override { mClipboardText.Set(str); return true; }
   void UpdateTooltips() override {} // TODO:
   EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
   
@@ -91,6 +89,8 @@ private:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, void* pData, int dataSize) override;
   void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override {}
+
+  WDL_String mClipboardText;
 };
 
 END_IGRAPHICS_NAMESPACE

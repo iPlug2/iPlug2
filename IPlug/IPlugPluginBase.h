@@ -85,10 +85,11 @@ public:
   /** @return  Returns a CString either "x86" or "x64" or "WASM" describing the binary architecture */
   const char* GetArchStr() const;
   
-  /** @brief Used to get the build date of the plug-in and architecture/api details in one string
-   * @note since the implementation is in IPlugAPIBase.cpp, you may want to touch that file as part of your build script to force recompilation
-   * @param str WDL_String will be set with the Plugin name, architecture, api, build date, build time*/
-  void GetBuildInfoStr(WDL_String& str) const;
+  /** Get the build date of the plug-in and architecture/api details in one string
+   * @param str WDL_String will be set with the Plugin name, architecture, api, build date, build time
+   * @param date CString, use __DATE__ macro
+   * @param time CString, use __TIME__ macro */
+  void GetBuildInfoStr(WDL_String& str, const char* date, const char* time) const;
   
   /** @return \c true if the plug-in is meant to have a UI, as defined in config.h */
   bool HasUI() const { return mHasUI; }
@@ -298,64 +299,6 @@ public:
    * @return /c true on success */
   bool LoadBankFromFXB(const char* file);
 
-  /** Save current bank as individual VST2 format presets [VST2 only]
-   * @param file The full path of the file to write or overwrite
-   * @return /c true on success */
-  bool SaveBankAsFXPs(const char* path) const { return false; }
-  
-  /** /todo 
-   * @param chunk /todo
-   * @param componentState /todo
-   * @param controllerState /todo */
-  void MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState) const;
-
-  /** Save VST3 format preset
-   * @param file The full path of the file to write or overwrite
-   * @return /c true on success */
-  bool SavePresetAsVSTPreset(const char* file) const;
-
-  /** Load VST3 format preset
-   * @param file The full path of the file to load
-   * @return /c true on success */
-  bool LoadPresetFromVSTPreset(const char* file);
-
-  /** Save VST2 bank as individual VST3 format presets [VST2 only]
-   * @param path The full path of the folder where the files should be saved
-   * @return /c true on success */
-  bool SaveBankAsVSTPresets(const char* path) { return false; }
-  
-  /** Save AUv2 format preset
-   * @param file The full path of the file to write or overwrite
-   * @return /c true on success */
-  bool SavePresetAsAUPreset(const char* name, const char* file) const { return false; }
-
-  /** Load AUv2 format preset
-   * @param file The full path of the file to load
-   * @return /c true on success */
-  bool LoadPresetFromAUPreset(const char* file) { return false; }
-
-  /** Save VST2 bank as individual AUv2 format presets [VST2 only]
-   * @param path The full path of the folder where the files should be saved
-   * @return /c true on success */
-  bool SaveBankAsAUPresets(const char* path) { return false; }
-  
-  /** Save ProTools format preset
-   * @param presetName The name to place in the in the preset
-   * @param file The full path of the file to write or overwrite
-   * @param pluginID The protools plugid to place in the preset
-   * @return /c true on success */
-  bool SavePresetAsProToolsPreset(const char* presetName, const char* file, unsigned long pluginID) const { return false; }
-
-  /** Load ProTools format preset
-   * @param file The full path of the file to load
-   * @return /c true on success */
-  bool LoadPresetFromProToolsPreset(const char* file) { return false; }
-
-  /** Save VST2 bank as individual ProTools format presets [VST2 only]
-   * @param path The full path of the folder where the files should be saved
-   * @param pluginID The protools plugid to place in the preset
-   * @return /c true on success */
-  bool SaveBankAsProToolsPresets(const char* path, unsigned long pluginID) { return false; }
   
 #pragma mark - Parameter manipulation
     
@@ -458,12 +401,6 @@ protected:
   EAPI mAPI;
   /** macOS/iOS bundle ID */
   WDL_String mBundleID;
-  /** Saving VST3 format presets requires this see SavePresetAsVSTPreset */
-  WDL_String mVST3ProductCategory;
-  /** Saving VST3 format presets requires this see SavePresetAsVSTPreset */
-  WDL_String mVST3ProcessorUIDStr;
-  /** Saving VST3 format presets requires this see SavePresetAsVSTPreset */
-  WDL_String mVST3ControllerUIDStr;
   /** \c true if the plug-in has a user interface. If false the host will provide a default interface */
   bool mHasUI = false;
   /** \c true if the host window chrome should be able to resize the plug-in UI, only applicable in certain formats/hosts */

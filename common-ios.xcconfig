@@ -8,10 +8,12 @@ COMPILER = com.apple.compilers.llvm.clang.1_0
 // which osx sdk to compile against - defaults to latest SDK available
 BASE_SDK_IOS = iphoneos // latest SDK
 
-CLANG_CXX_LANGUAGE_STANDARD = c++14
+CLANG_CXX_LANGUAGE_STANDARD = c++17
 CLANG_CXX_LIBRARY = libc++
 
 CLANG_WARN_DOCUMENTATION_COMMENTS = NO
+
+CLANG_ENABLE_OBJC_WEAK = YES
 
 // the minimum OS to support
 IPHONEOS_DEPLOYMENT_TARGET = 13
@@ -72,7 +74,7 @@ IMGUI_PATH = $(DEPS_PATH)/IGraphics/imgui
 YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga
 MSCOLORPICKER_PATHS = $(IGRAPHICS_DEPS_PATH)/MSColorPicker $(IGRAPHICS_DEPS_PATH)/MSColorPicker/MSColorPicker
 
-IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/examples
+IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/backends
 
 SKIA_PATH = $(DEPS_PATH)/Build/src/skia
 
@@ -95,6 +97,6 @@ LIB_SKPARAGRAPH = $(BUILT_LIBS_LIB_PATH)/libskparagraph.a
 SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH)
 IGRAPHICS_LNK_FLAGS = $(SKIA_LNK_FLAGS)
 
-AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudioKit -framework Metal -framework MetalKit -framework QuartzCore -framework UIKit -framework CoreText -framework CoreGraphics
+AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudioKit -framework QuartzCore -framework UIKit -framework CoreText -framework CoreGraphics
 
 

@@ -73,11 +73,11 @@ private:
 
     tmp.mExtend = (std::rand() & 0x10) ? ((std::rand() & 0x1000) ? EPatternExtend::None : EPatternExtend::Pad) : ((std::rand() & 0x1000) ? EPatternExtend::Repeat : EPatternExtend::Reflect);
 
-    tmp.AddStop(IColor::GetRandomColor(), 0.0);
-    tmp.AddStop(IColor::GetRandomColor(), 0.1);
-    tmp.AddStop(IColor::GetRandomColor(), 0.4);
-    tmp.AddStop(IColor::GetRandomColor(), 0.6);
-    tmp.AddStop(IColor::GetRandomColor(), 1.0);
+    tmp.AddStop(IColor::GetRandomColor(), 0.0f);
+    tmp.AddStop(IColor::GetRandomColor(), 0.1f);
+    tmp.AddStop(IColor::GetRandomColor(), 0.4f);
+    tmp.AddStop(IColor::GetRandomColor(), 0.6f);
+    tmp.AddStop(IColor::GetRandomColor(), 1.0f);
 
     mPattern = tmp;
   }

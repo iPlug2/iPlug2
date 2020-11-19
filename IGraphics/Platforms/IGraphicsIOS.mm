@@ -31,17 +31,11 @@ void GetScreenDimensions(int& width, int& height)
   height = bounds.size.height;
 }
 
-float GetScaleForScreen(int plugHeight)
+float GetScaleForScreen(int plugWidth, int plugHeight)
 {
-  float scale = 1.f;
   int width, height;
   GetScreenDimensions(width, height);
-  if(height > width)
-    scale = (float) width / (float) plugHeight;
-  else
-    scale = (float) height / (float) plugHeight;
-  
-  return scale;
+  return std::min((float) width / (float) plugWidth, (float) height / (float) plugHeight);
 }
 
 END_IGRAPHICS_NAMESPACE
@@ -61,7 +55,7 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
  
-#ifdef IGRAPHICS_METAL
+#if defined IGRAPHICS_METAL && !defined IGRAPHICS_SKIA
   if(!gTextureMap.size())
   {
     NSBundle* pBundle = [NSBundle mainBundle];
@@ -85,7 +79,7 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
         gTextureMap.insert(std::make_pair([[[pTextureFiles[i] lastPathComponent] stringByDeletingPathExtension] cStringUsingEncoding:NSUTF8StringEncoding], (MTLTexturePtr) gTextures[i]));
       }
     
-      DBGMSG("Preloaded %i textures", (int) [pTextureFiles count]);
+      DBGMSG("Preloaded %i textures\n", (int) [pTextureFiles count]);
     
       [textureLoader release];
       textureLoader = nil;

@@ -215,7 +215,7 @@ private:
   bool mScrollIfTooBig = true; // If the menu is higher than the graphics context, should it scroll or should it start a new column
   bool mCallOut = false; // set true if popup should be outside of bounds (i.e. on a tablet touchscreen interface)
   bool mMenuHasSubmenu = false; // Gets automatically set to true in CreatePopupMenu() if *mMenu contains any submenus... false if not.
-  bool mForcedSouth = false; // if set true, a menu in the lower half of the GUI will appear below it's control if there is enough room for it.
+  bool mForcedSouth = true; // if set true, a menu in the lower half of the GUI will appear below it's control if there is enough room for it.
   bool mSubmenuOnRight = true; // If set true, the submenu will be drawn on the right of the parent menu.... on the left if false.
   bool mSubMenuOpened = false; // Is set true when a submenu panel is open and false when menu is collapsed.
 

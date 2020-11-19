@@ -14,7 +14,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_HEIGHT));
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
@@ -167,7 +167,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       pGraphics->ShowMessageBox("Message Title", "Message", kMB_YESNO, [&](EMsgBoxResult result) {
                                                       WDL_String str;
                                                       str.SetFormatted(32, "%s pressed", kMessageResultStrs[result]);
-                                                      dynamic_cast<ITextControl*>(pGraphics->GetControlWithTag(kCtrlTagDialogResult))->SetStr(str.Get());
+                                                      pGraphics->GetControlWithTag(kCtrlTagDialogResult)->As<ITextControl>()->SetStr(str.Get());
                                                     });
     };
     
@@ -192,7 +192,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     
     pGraphics->AttachControl(new IVSwitchControl(nextCell().SubRectVertical(3, 0), kParamMode, "IVSwitchControl", style.WithValueText(IText(24.f, EAlign::Center))), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVToggleControl(sameCell().SubRectVertical(3, 1), SplashClickActionFunc, "IVToggleControl", style.WithValueText(forkAwesomeText), "", ICON_FK_CHECK), kNoTag, "vcontrols");
-    pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), kParamMode, {}, "IVRadioButtonControl", style, EVShape::Ellipse, EDirection::Vertical, 10.f), kCtrlTagRadioButton, "vcontrols");
+    pGraphics->AttachControl(new IVRadioButtonControl(nextCell().GetCentredInside(110.), kParamMode, {"one", "two", "three", "four"}, "IVRadioButtonControl", style, EVShape::Ellipse, EDirection::Vertical, 10.f), kCtrlTagRadioButton, "vcontrols");
     pGraphics->AttachControl(new IVTabSwitchControl(nextCell().SubRectVertical(3, 0), SplashClickActionFunc, {ICON_FAU_FILTER_LOWPASS, ICON_FAU_FILTER_BANDPASS, ICON_FAU_FILTER_HIGHPASS}, "IVTabSwitchControl", style.WithValueText(fontaudioText), EVShape::EndsRounded), kCtrlTagTabSwitch, "vcontrols");
     pGraphics->AttachControl(new IVSlideSwitchControl(sameCell().SubRectVertical(3, 1), kParamMode, "IVSlideSwitchControl", style, true), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVXYPadControl(nextCell(), {kParamFreq1, kParamFreq2}, "IVXYPadControl", style), kNoTag, "vcontrols");
@@ -249,12 +249,12 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       const float radius = r.W();
       const float x = r.MW();
       const float y = r.MH();
-      const float rotate = pCaller->GetAnimationProgress() * PI;
+      const float rotate = float(pCaller->GetAnimationProgress() * PI);
       
       for(int index = 0, limit = 40; index < limit; ++index)
       {
-        float firstAngle = (index * 2 * PI) / limit;
-        float secondAngle = ((index + 1) * 2 * PI) / limit;
+        float firstAngle = float ((index * 2 * PI) / limit);
+        float secondAngle = float (((index + 1) * 2 * PI) / limit);
         
         g.PathTriangle(x, y,
                        x + std::sin(firstAngle + rotate) * radius, y + std::cos(firstAngle + rotate) * radius,

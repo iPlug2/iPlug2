@@ -88,6 +88,7 @@ public:
           mBlend.mWeight = 0.;
           Hide(true);
           mState = kCollapsed;
+          mTouchId = 0;
           SetDirty(false);
         }
         
@@ -123,7 +124,7 @@ public:
   {
     IRECT r = mBubbleBounds.GetPadded(-mDropShadowSize);
 
-    DrawDropShadow(g, r); // TODO: currently too slow with !nanovg
+    DrawDropShadow(g, r);
     DrawBubble(g, r);
     DrawContent(g, r);
   }
@@ -138,6 +139,12 @@ public:
   
   /** Set the bounds that the menu can potentially occupy, if not the full graphics context */
   void SetMaxBounds(const IRECT& bounds) { mMaxBounds = bounds; }
+  
+  /** Set the background color for the bubble */
+  void SetFillColor(const IColor& color) { mFillColor = color; }
+  
+  /** Set the stroke color for the bubble */
+  void SetStrokeColor(const IColor& color) { mStrokeColor = color; }
 
 protected:
   virtual void DrawContent(IGraphics& g, const IRECT& r)
@@ -282,6 +289,16 @@ protected:
     }
     
     mCaller = pCaller;
+  }
+  
+  bool GetActive() const
+  {
+    return mState > EPopupState::kCollapsed;
+  }
+  
+  ITouchID GetTouchID() const
+  {
+    return mTouchId;
   }
   
 protected:

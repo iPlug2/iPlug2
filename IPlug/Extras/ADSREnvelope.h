@@ -103,6 +103,12 @@ public:
     return mStage != kIdle;
   }
 
+  /** @return /c true if the envelope is released */
+  bool GetReleased() const
+  {
+    return mReleased;
+  }
+  
   /** @return the previously output value */
   T GetPrevOutput() const
   {
