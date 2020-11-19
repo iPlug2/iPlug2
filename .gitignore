@@ -42,7 +42,7 @@ Documentation/doxygen_warnings.txt
 Examples/build_errors.log
 Projects*
 Examples/IPlugSwift/Pods
-PodFile.lock
+Podfile.lock
 */*/.vscode/ipch
 #.vscode/launch.json
 */*/.vscode/launch.json
