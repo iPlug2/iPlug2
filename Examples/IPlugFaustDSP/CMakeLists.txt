@@ -15,7 +15,7 @@ cmake_policy(SET CMP0091 NEW)
 project(IPlugFaustDSP VERSION 1.0.0 LANGUAGES C CXX)
 
 set(IPLUG2_DIR ${CMAKE_SOURCE_DIR}/../..)
-include(${IPLUG2_DIR}/iplug2.cmake)
+include(${IPLUG2_DIR}/iPlug2.cmake)
 find_package(iPlug2 REQUIRED)
 
 set(dir "${CMAKE_SOURCE_DIR}")

@@ -11,7 +11,7 @@ Loading iPlug2's CMake code is fairly easy, just a few lines.
 
 ```
 set(IPLUG2_DIR path/to/iPlug2)
-include(${IPLUG2_DIR}/iplug2.cmake)
+include(${IPLUG2_DIR}/iPlug2.cmake)
 find_package(iPlug2 REQUIRED COMPONENTS APP VST3 NanoVG)
 ```
 
