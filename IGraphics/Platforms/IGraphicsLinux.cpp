@@ -13,8 +13,13 @@
 #include "IPlugParameter.h"
 #include "IGraphicsLinux.h"
 #include "IPopupMenuControl.h"
+#include "ITooltipControl.h"
 #include "IPlugPaths.h"
-#include "IPlugTimer.h"
+#include <unistd.h>
+#include <sys/wait.h>
+#include <xcb/xcb_event.h>
+#include <xcb/xcb_icccm.h>
+#include <xcb/xfixes.h>
 
 #ifdef OS_LINUX
   #ifdef IGRAPHICS_GL
@@ -30,6 +35,8 @@ using namespace iplug;
 using namespace igraphics;
 
 #define IPLUG_TIMER_ID 2
+#define TOOLTIP_CONTROL_TAG (0x0FFFFFF0)
+#define POPUP_MENU_CONTROL_TAG (0x0FFFFFF1)
 
 class IGraphicsLinux::Font : public PlatformFont
 {
@@ -55,6 +62,114 @@ private:
   WDL_TypedBuf<uint8_t> mFontData;
 };
 
+/** Run a child process with some input to stdin, and retrieve its stdout and exit status.
+ * @param command Command-line to be passed to /bin/sh
+ * @param subStdout Stores the stdout of the subprocess
+ * @param subStdin The contents of stdin for the subprocess (may be empty)
+ * @param exitStatus Output, exit status of the child process
+ * @return 0 on success, a negative value on failure */
+static int RunSubprocess(char* command, WDL_String& subStdout, const WDL_String& subStdin, int* exitStatus)
+{
+  int pipeOut[2];
+  int pipeIn[2];
+  pid_t cpid;
+
+  auto closePipeOut = [&]() {
+    close(pipeOut[0]);
+    close(pipeOut[1]);
+  };
+  auto closePipeIn = [&]() {
+    close(pipeIn[0]);
+    close(pipeIn[1]);
+  };
+
+  if (pipe(pipeOut) == -1)
+  {
+    return -1;
+  }
+
+  if (pipe(pipeIn) == -1)
+  {
+    closePipeOut();
+    return -2;
+  }
+
+  cpid = fork();
+  if (cpid == -1)
+  {
+    closePipeOut();
+    closePipeIn();
+    return -3;
+  }
+
+  if (cpid == 0)
+  {
+    // Child process
+    // Close unneeded pipes
+    close(pipeIn[1]);
+    close(pipeOut[0]);
+    // Replace stdout/stderr and stdin
+    dup2(pipeOut[1], STDOUT_FILENO);
+    dup2(pipeOut[1], STDERR_FILENO);
+    dup2(pipeIn[0], STDIN_FILENO);
+    // Replace the child process with the new process
+    WDL_String arg0 { "/bin/sh" };
+    WDL_String arg1 { "-c" };
+    char* args[] = { arg0.Get(), arg1.Get(), command, nullptr };
+    int status = execv("/bin/sh", args);
+    close(pipeIn[0]);
+    close(pipeOut[1]);
+    exit(status);
+  }
+  else 
+  {
+    // Parent process
+
+    // Close unneeded pipes
+    close(pipeIn[0]);
+    close(pipeOut[1]);
+
+    // We write all contents to stdin and read from stdout until it's empty.
+    ssize_t written = 0;
+    while (written < subStdin.GetLength())
+    {
+      write(pipeIn[1], subStdin.Get() + written, subStdin.GetLength() - written);
+    }
+
+    int status;
+    if (waitpid(cpid, &status, 0) == -1)
+    {
+      closePipeOut();
+      closePipeIn();
+      return -4;
+    }
+    *exitStatus = WEXITSTATUS(status);
+
+    WDL_HeapBuf hb;
+    hb.Resize(4096);
+    while (true)
+    {
+      ssize_t sz = read(pipeOut[0], hb.Get(), hb.GetSize());
+      if (sz == 0)
+      {
+        break;
+      }
+      subStdout.Append((const char*)hb.Get(), sz);
+    }
+
+    closePipeOut();
+    closePipeIn();
+  }
+  return 0;
+}
+
+static uint64_t GetTimeMs()
+{
+  struct timespec t;
+  clock_gettime(CLOCK_MONOTONIC_RAW, &t);
+  return (t.tv_sec * 1000) + (t.tv_nsec / 1000000);
+}
+
 void IGraphicsLinux::Paint()
 {
   IRECT ir = {0, 0, static_cast<float>(WindowWidth()), static_cast<float>(WindowHeight())};
@@ -65,6 +180,11 @@ void IGraphicsLinux::Paint()
 
   if (ctx)
   {
+    // Handle displaying the hover control
+    if (mHoverControl != -1 && (mHoverStart + mTooltipTimeout) <= GetTimeMs())
+    {
+      ShowTooltip();
+    }
     Draw(rects);
     xcbt_window_draw_end(mPlugWnd);
   }
@@ -104,6 +224,8 @@ inline IMouseInfo IGraphicsLinux::GetMouseInfoDeltas(float& dX, float& dY, int16
   
   dX = info.x - oldX;
   dY = info.y - oldY;
+  // dX = oldX - info.x;
+  // dY = oldY - info.y;
   
   return info;
 }
@@ -118,7 +240,7 @@ void IGraphicsLinux::TimerHandler(int timerID)
       Paint();
       SetAllControlsClean();
     }
-    xcbt_timer_set(mX, IPLUG_TIMER_ID, 10, (xcbt_timer_cb) TimerHandlerProxy, this);
+    xcbt_timer_set(mX, IPLUG_TIMER_ID, 6, (xcbt_timer_cb) TimerHandlerProxy, this);
   }
 }
 
@@ -131,7 +253,7 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
     mBaseWindowHandler(mPlugWnd, NULL, mBaseWindowData);
     mPlugWnd = nullptr;
   }
-  else 
+  else
   {
     switch(evt->response_type & ~0x80)
     {
@@ -149,7 +271,10 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
       {
         xcb_button_press_event_t* bp = (xcb_button_press_event_t*) evt;
 
-        if (bp->detail == 1) // check for double-click
+        bool btnLeft = bp->detail == 1;
+        bool btnRight = bp->detail == 3;
+
+        if (btnLeft) // check for double-click
         { 
           if (!mLastLeftClickStamp)
           {
@@ -157,7 +282,7 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
           } 
           else
           {
-            if ((bp->time - mLastLeftClickStamp) < 500) // MAYBE: somehow find user settings
+            if ((bp->time - mLastLeftClickStamp) < mDblClickTimeout)
             {
               IMouseInfo info = GetMouseInfo(bp->event_x, bp->event_y, bp->state | XCB_BUTTON_MASK_1); // convert button to state mask
 
@@ -176,10 +301,14 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
         {
           mLastLeftClickStamp = 0;
         }
+
+        HideTooltip();
+
         // TODO: hide tooltips
         // TODO: end parameter editing (if in progress, and return then)
         // TODO: set focus
-        
+        xcb_set_input_focus_checked(xcbt_conn(mX), XCB_INPUT_FOCUS_POINTER_ROOT, mPlugWnd->wnd, XCB_CURRENT_TIME);
+
         // TODO: detect double click
         
         // TODO: set capture (or after capture...) (but check other buttons first)
@@ -189,6 +318,7 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
           IMouseInfo info = GetMouseInfo(bp->event_x, bp->event_y, state); // convert button to state mask
           std::vector<IMouseInfo> list{ info };
           OnMouseDown(list);
+          RequestFocus();
         } 
         else if ((bp->detail == 4) || (bp->detail == 5)) // wheel
         { 
@@ -208,6 +338,7 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
           IMouseInfo info = GetMouseInfo(br->event_x, br->event_y, state); // convert button to state mask
           std::vector<IMouseInfo> list{ info };
           OnMouseUp(list);
+          RequestFocus();
         }
         xcbt_flush(mX);
         break;
@@ -215,8 +346,12 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
       case XCB_MOTION_NOTIFY:
       {
         xcb_motion_notify_event_t* mn = (xcb_motion_notify_event_t*) evt;
-        mLastLeftClickStamp = 0;
+        if (mCursorLock && (float)mn->event_x == mMouseLockPos.x && (float)mn->event_y == mMouseLockPos.y)
+        {
+          break;
+        }
 
+        mLastLeftClickStamp = 0;
         if (mn->same_screen && (mn->event == xcbt_window_xwnd(mPlugWnd)))
         {
           // can use event_x/y
@@ -225,13 +360,24 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
             IMouseInfo info = GetMouseInfo(mn->event_x, mn->event_y, mn->state);
             if (OnMouseOver(info.x, info.y, info.ms))
             {
+              if (TooltipsEnabled())
+              {
+                int c = GetMouseOver();
+                if ((c != mHoverControl && c != mTooltipControlIndex) || c == -1)
+                {
+                  mHoverControl = c;
+                  mHoverStart = GetTimeMs();
+                  HideTooltip();
+                }
+              }
               // TODO: tracking and tooltips
             }
           } 
           else 
           {
+            // NOTE: this also updates mCursorX and mCursorY
             float dX, dY;
-            IMouseInfo info = GetMouseInfoDeltas(dX, dY, mn->event_x, mn->event_y, mn->state); //TODO: clean this up
+            IMouseInfo info = GetMouseInfoDeltas(dX, dY, mn->event_x, mn->event_y, mn->state);
 
             if (dX || dY)
             {
@@ -240,10 +386,10 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
               std::vector<IMouseInfo> list{ info };
 
               OnMouseDrag(list);
-              /* TODO:
-              if (MouseCursorIsLocked())
-                MoveMouseCursor(pGraphics->mHiddenCursorX, pGraphics->mHiddenCursorY);
-                */
+              if (mCursorLock && (mCursorX != mMouseLockPos.x || mCursorY != mMouseLockPos.y))
+              {
+                MoveMouseCursor(mMouseLockPos.x, mMouseLockPos.y);
+              }
             }
           }
         }
@@ -258,6 +404,25 @@ void IGraphicsLinux::WindowHandler(xcb_generic_event_t* evt)
           // TODO: check we really have to, but getting XEMBED_MAPPED and compare with current mapping status
           xcbt_window_map(mPlugWnd);
         }
+        break;
+      }
+      case XCB_ENTER_NOTIFY:
+      {
+        RequestFocus();
+        break;
+      }
+      case XCB_LEAVE_NOTIFY:
+      {
+        HideTooltip();
+        OnMouseOut();
+        break;
+      }
+      case XCB_FOCUS_IN:
+      {
+        break;
+      }
+      case XCB_FOCUS_OUT:
+      {
         break;
       }
       default:
@@ -394,6 +559,20 @@ void* IGraphicsLinux::OpenWindow(void* pParent)
   #error "Map or not to map... that is the question"
 #endif
   xcbt_sync(mX); // make sure everything is ready before reporting it is
+
+  // Reset some state
+  mCursorLock = false;
+  mMouseVisible = true;
+  // Make sure we have certain pre-defined controls.
+  auto ctrlTooltip = AttachControl(new ITooltipControl(IRECT(0, 0, 1, 1)), TOOLTIP_CONTROL_TAG);
+  mTooltipControlIndex = GetControlIdx(ctrlTooltip);
+  AttachPopupMenuControl();
+  AttachTextEntryControl();
+  if (mPopupMenu == nullptr)
+  {
+    mPopupMenu = new IPopupMenu();
+  }
+
   return reinterpret_cast<void* >(xcbt_window_xwnd(mPlugWnd));
 }
 
@@ -418,11 +597,203 @@ void IGraphicsLinux::CloseWindow()
   }
 }
 
+void IGraphicsLinux::GetMouseLocation(float& x, float& y) const
+{
+  x = mCursorX;
+  y = mCursorY;
+}
+
+void IGraphicsLinux::HideMouseCursor(bool hide, bool lock)
+{
+  if (mCursorHidden != hide)
+  {
+    mCursorHidden = hide;
+    // https://stackoverflow.com/questions/57841785/how-to-hide-cursor-in-xcb
+
+    if (mCursorHidden)
+    {
+      xcb_grab_pointer(xcbt_conn(mX), 1, mPlugWnd->wnd,
+        XCB_EVENT_MASK_BUTTON_MOTION | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE,
+        XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, mPlugWnd->wnd, XCB_NONE, XCB_CURRENT_TIME);
+      xcb_xfixes_hide_cursor_checked(xcbt_conn(mX), mPlugWnd->wnd);
+    }
+    else
+    {
+      xcb_ungrab_pointer(xcbt_conn(mX), XCB_CURRENT_TIME);
+      xcb_xfixes_show_cursor_checked(xcbt_conn(mX), mPlugWnd->wnd);
+    }
+  }
+  if (mCursorLock != lock)
+  {
+    mCursorLock = lock;
+    if (mCursorLock)
+    {
+      mMouseLockPos = IVec2(mCursorX, mCursorY);
+    }
+    else
+    {
+      mMouseLockPos = IVec2(0, 0);
+    }
+  }
+}
+
+void IGraphicsLinux::MoveMouseCursor(float x, float y)
+{
+  xcbt_move_cursor(mPlugWnd, XCBT_WINDOW, (int)x, (int)y);
+  mCursorX = mMouseLockPos.x;
+  mCursorY = mMouseLockPos.y;
+}
+
 EMsgBoxResult IGraphicsLinux::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
-  NOT_IMPLEMENTED;
+  WDL_String command;
+  WDL_String ag;
 
-  return kNoResult;
+  auto push_arg = [&]() {
+    command.Append(&ag);
+    command.Append(" ", 2);
+  };
+
+  ag.Set("zenity");
+  push_arg();
+
+  ag.Set("--modal");
+  push_arg();
+
+  ag.SetFormatted(strlen(caption) + 10, "\"--title=%s\"", caption);
+  push_arg();
+
+  ag.SetFormatted(strlen(text) + 10, "\"--text=%s\"", text);
+  push_arg();
+
+  switch (type)
+  {
+  case EMsgBoxType::kMB_OK:
+    ag.Set("--info");
+    push_arg();
+    break;
+  case EMsgBoxType::kMB_OKCANCEL:
+    ag.SetFormatted(64, "--ok-label=Ok");
+    push_arg();
+    ag.SetFormatted(64, "--cancel-label=Cancel");
+    push_arg();
+    ag.Set("--question");
+    push_arg();
+    break;
+  case EMsgBoxType::kMB_RETRYCANCEL:
+    ag.SetFormatted(64, "--ok-label=Retry");
+    push_arg();
+    ag.SetFormatted(64, "--cancel-label=Cancel");
+    push_arg();
+    ag.Set("--question");
+    push_arg();
+    break;
+  case EMsgBoxType::kMB_YESNO:
+    ag.Set("--question");
+    push_arg();
+    break;
+  case EMsgBoxType::kMB_YESNOCANCEL:
+    ag.Set("--question");
+    push_arg();
+    ag.Set("--extra-button=Cancel");
+    push_arg();
+    break;
+  }
+
+  EMsgBoxResult r = kNoResult;
+  WDL_String sStdout;
+  WDL_String sStdin;
+  int status;
+  if (RunSubprocess(command.Get(), sStdout, sStdin, &status) != 0)
+  {
+    if (completionHandler)
+    {
+      completionHandler(r);
+    }
+    return r;
+  }
+
+  switch (type)
+  {
+  case EMsgBoxType::kMB_OK:
+    r = kOK;
+    break;
+  case EMsgBoxType::kMB_OKCANCEL:
+    switch (status)
+    {
+    case 0:
+      r = kOK;
+      break;
+    default:
+      r = kCANCEL;
+      break;
+    }
+    break;
+  case EMsgBoxType::kMB_RETRYCANCEL:
+    switch (status)
+    {
+    case 0:
+      r = kRETRY;
+      break;
+    default:
+      r = kCANCEL;
+      break;
+    }
+    break;
+  case EMsgBoxType::kMB_YESNO:
+    switch (status)
+    {
+    case 0:
+      r = kYES;
+      break;
+    default:
+      r = kNO;
+      break;
+    }
+    break;
+  case EMsgBoxType::kMB_YESNOCANCEL:
+    switch (status)
+    {
+    case 0:
+      r = kYES;
+      break;
+    case 1:
+      // zenity output our extra button text
+      if (sStdout.GetLength() > 0)
+      {
+        r = kCANCEL;
+      }
+      else
+      {
+        r = kNO;
+      }
+      break;
+    default:
+      r = kCANCEL;
+      break;
+    }
+    break;
+  }
+
+  if (completionHandler)
+  {
+    completionHandler(r);
+  }
+  return r;
+}
+
+bool IGraphicsLinux::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
+{
+  WDL_String args;
+  args.SetFormatted(path.GetLength() + 40, "xdg-open \"%s\" ", path.Get());
+
+  WDL_String sOut, sIn;
+  int status;
+  if (RunSubprocess(args.Get(), sOut, sIn, &status) != 0)
+  {
+    return false;
+  }
+  return true;
 }
 
 void IGraphicsLinux::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* extensions)
@@ -433,13 +804,174 @@ void IGraphicsLinux::PromptForFile(WDL_String& fileName, WDL_String& path, EFile
     return;
   }
 
-  NOT_IMPLEMENTED;
-  fileName.Set("");
+  WDL_String tmp;
+  WDL_String args;
+  args.AppendFormatted(path.GetLength() + 10, "cd \"%s\"; ", path.Get());
+  args.Append("zenity --file-selection ");
+  if (action == EFileAction::Save)
+  {
+    args.Append("--save --confirm-overwrite ");
+  }
+  if (fileName.GetLength() > 0)
+  {
+    args.AppendFormatted(fileName.GetLength() + 20, "\"--filename=%s\" ", fileName.Get());
+  }
+
+  
+  if (extensions)
+  {
+    // Split the string at commas and then append each format specifier
+    const char* ext = extensions;
+    while (*ext)
+    {
+      const char* start = ext;
+      while (*ext && *ext != ',')
+        ext++;
+      tmp.Set(start, ext - start);
+      args.AppendFormatted(256, "\"--file-filter=%s | %s\" ", tmp.Get(), tmp.Get());
+      if (!(*ext))
+        ext++;
+    }
+  }
+  
+  
+  WDL_String sStdout;
+  WDL_String sStdin;
+  int status;
+  if (RunSubprocess(args.Get(), sStdout, sStdin, &status) != 0)
+  {
+    fileName.Set("");
+    return;
+  }
+
+  if (status == 0)
+  {
+    fileName.Set(sStdout.Get()); 
+  }
+  else
+  {
+    fileName.Set("");
+  }
 }
 
 void IGraphicsLinux::PromptForDirectory(WDL_String& dir)
 {
-  NOT_IMPLEMENTED;
+  if (!WindowIsOpen())
+  {
+    dir.Set("");
+    return;
+  }
+
+  WDL_String args;
+  args.Append("zenity --file-selection --directory ");
+  if (dir.GetLength() > 0)
+  {
+    args.AppendFormatted(dir.GetLength() + 20, "\"--filename=%s\"", dir.Get());
+  }
+  
+  WDL_String sStdout;
+  WDL_String sStdin;
+  int status;
+  if (RunSubprocess(args.Get(), sStdout, sStdin, &status) != 0)
+  {
+    dir.Set("");
+    return;
+  }
+
+  if (status == 0)
+  {
+    dir.Set(sStdout.Get()); 
+  }
+  else
+  {
+    dir.Set("");
+  }
+}
+
+bool IGraphicsLinux::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
+{
+  WDL_String args;
+  args.Append("zenity --color-selection ");
+  if (str)
+  {
+    args.AppendFormatted(strlen(str) + 20, "\"--title=%s\" ", str);
+  }
+  args.AppendFormatted(100, "\"--color=rgba(%d,%d,%d,%f)\" ", color.R, color.G, color.B, (float)color.A / 255.f);
+
+
+  bool ok = false;
+
+  WDL_String sOut;
+  WDL_String sIn;
+  int status;
+  if (RunSubprocess(args.Get(), sOut, sIn, &status) != 0)
+  {
+    return false;
+  }
+  else
+  {
+    if (strncmp(sOut.Get(), "rgba", 4) == 0)
+    {
+      // Parse RGBA
+      int cr, cg, cb;
+      float ca;
+      int ct = sscanf(sOut.Get(), "rgba(%d,%d,%d,%f)", &cr, &cg, &cb, &ca);
+      if (ct == 4)
+      {
+        color = IColor((int)(255.f * ca), cr, cg, cb);
+        ok = true;
+      }
+    }
+    else if (strncmp(sOut.Get(), "rgb", 3) == 0)
+    {
+      // Parse RGB
+      int cr, cg, cb;
+      int ct = sscanf(sOut.Get(), "rgb(%d,%d,%d)", &color.R, &color.G, &color.B);
+      if (ct == 3)
+      {
+        color = IColor(255, cr, cg, cb);
+        ok = true;
+      }
+    }
+
+    if (ok && func)
+      func(color);
+    return ok;
+  }
+}
+
+bool IGraphicsLinux::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
+{
+  WDL_String args;
+  args.SetFormatted(strlen(url) + 40, "xdg-open \"%s\" ", url);
+
+  WDL_String sOut, sIn;
+  int status;
+  if (RunSubprocess(args.Get(), sOut, sIn, &status) != 0)
+  {
+    return false;
+  }
+  return true;
+}
+
+bool IGraphicsLinux::GetTextFromClipboard(WDL_String& str)
+{
+  int length = 0;
+  const char* data = xcbt_clipboard_get_utf8(mPlugWnd, &length);
+  if (data)
+  {
+    str.Set(data, length);
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+}
+
+bool IGraphicsLinux::SetTextInClipboard(const char* str)
+{
+  return xcbt_clipboard_set_utf8(mPlugWnd, str) == 1;
 }
 
 void IGraphicsLinux::PlatformResize(bool parentHasResized)
@@ -450,7 +982,7 @@ void IGraphicsLinux::PlatformResize(bool parentHasResized)
     xcb_window_t w = xcbt_window_xwnd(mPlugWnd);
     uint32_t values[] = { static_cast<uint32_t>(WindowWidth() * GetScreenScale()), static_cast<uint32_t>(WindowHeight() * GetScreenScale()) };
     xcb_configure_window(conn, w, XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT, values);
-    DBGMSG("INFO: resized to %ux%u\n", values[0], values[1]);
+    //DBGMSG("INFO: resized to %ux%u\n", values[0], values[1]);
     if (!parentHasResized)
     {
       DBGMSG("WARNING: parent is not resized, but I (should) have no control on it on X... XEMBED?\n");
@@ -462,6 +994,39 @@ void IGraphicsLinux::PlatformResize(bool parentHasResized)
     }
     xcbt_flush(mX);
   }
+}
+
+void IGraphicsLinux::ShowTooltip()
+{
+  auto tt = GetControlWithTag(TOOLTIP_CONTROL_TAG)->As<ITooltipControl>();
+  if (tt->GetControlIdx() != mHoverControl)
+  {
+    tt->SetForControl(mHoverControl);
+    tt->Hide(false);
+  }
+}
+
+void IGraphicsLinux::HideTooltip()
+{
+  auto tt = GetControlWithTag(TOOLTIP_CONTROL_TAG)->As<ITooltipControl>();
+  tt->SetForControl(-1);
+  tt->Hide(true);
+}
+
+IPopupMenu* IGraphicsLinux::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
+{
+  auto popupCtrl = GetPopupMenuControl();
+  mPopupMenu->Clear(true);
+  menu.CloneInto(*mPopupMenu);
+  popupCtrl->CreatePopupMenu(*mPopupMenu, bounds);
+  popupCtrl->Hide(false);
+  isAsync = false;
+  return mPopupMenu;
+}
+
+void IGraphicsLinux::RequestFocus()
+{
+  xcb_set_input_focus_checked(xcbt_conn(mX), XCB_INPUT_FOCUS_POINTER_ROOT, mPlugWnd->wnd, XCB_CURRENT_TIME);
 }
 
 //TODO: move these
@@ -552,6 +1117,18 @@ PlatformFontPtr IGraphicsLinux::LoadPlatformFont(const char* fontID, const char*
   FcConfigDestroy(config);
 
   return PlatformFontPtr(fullPath.Get()[0] ? new Font(fullPath) : nullptr);
+}
+
+uint32_t IGraphicsLinux::GetUserDblClickTimeout()
+{
+  // Default to 400
+  uint32_t timeout = 400;
+
+  // Source: forum.kde.org/viewtopic.php?f=289&t=153755
+  // Read $HOME/.gtkrc-2.0; Var: gtk-double-click-time
+  // Read $HOME/.config/gtk-3.0/settings.ini ; Var: gtk-double-click-time
+  // Read $HOME/.config/kdeglobals, [KDE] section, Var: DoubleClickInterval
+  return timeout;
 }
 
 IGraphicsLinux::IGraphicsLinux(IGEditorDelegate& dlg, int w, int h, int fps, float scale)

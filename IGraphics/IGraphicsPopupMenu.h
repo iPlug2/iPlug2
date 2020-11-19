@@ -110,6 +110,8 @@ public:
     std::unique_ptr<IPopupMenu> mSubmenu;
     int mFlags;
     int mTag = -1;
+
+    friend class IPopupMenu;
   };
   
   #pragma mark -
@@ -211,6 +213,26 @@ public:
     }
   }
 
+  /** Clone this popup menu and all submenus into \p dst. */
+  void CloneInto(IPopupMenu& dst) const
+  {
+    dst.SetRootTitle(mRootTitle.Get());
+    dst.SetFunction(mPopupFunc);
+
+    int nItems = NItems();
+    for (int i = 0; i < nItems; i++)
+    {
+      const Item* rhs = GetItem(i);
+      Item* item = new Item(rhs->mText.Get(), rhs->mFlags, rhs->mTag);
+      if (rhs->mSubmenu != nullptr)
+      {
+        item->mSubmenu = std::unique_ptr<IPopupMenu>(new IPopupMenu());
+        rhs->GetSubmenu()->CloneInto(*item->mSubmenu);
+      }
+      dst.AddItem(item);
+    }
+  }
+
   void SetChosenItemIdx(int index) { mChosenItemIdx = index; };
   int GetChosenItemIdx() const { return mChosenItemIdx; }
   int NItems() const { return mMenuItems.GetSize(); }
@@ -224,6 +246,18 @@ public:
     int nItems = NItems();
     
     if (index >= 0 && index < nItems)
+    {
+      return mMenuItems.Get(index);
+    }
+    else
+    {
+      return nullptr;
+    }
+  }
+
+  const Item* GetItem(int index) const
+  {
+    if (index >= 0 && index < NItems())
     {
       return mMenuItems.Get(index);
     }

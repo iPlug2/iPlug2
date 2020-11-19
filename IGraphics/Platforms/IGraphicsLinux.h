@@ -11,7 +11,7 @@
 #pragma once
 
 #include "IGraphics_select.h"
-
+#include <memory>
 #include <xcbt.h>
 
 BEGIN_IPLUG_NAMESPACE
@@ -34,21 +34,22 @@ public:
   void* GetWindow() override { return (void *)(intptr_t)mPlugWnd; }
   bool WindowIsOpen() override { return (mPlugWnd); }
   void PlatformResize(bool parentHasResized) override;
-  void HideMouseCursor(bool hide, bool lock) override {} // TODO
-  void MoveMouseCursor(float x, float y) override {} // TODO
+  void GetMouseLocation(float& x, float& y) const override;
+  void HideMouseCursor(bool hide, bool lock) override;
+  void MoveMouseCursor(float x, float y) override;
   EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
   void ForceEndUserEdit() override {} // TODO
   void DrawResize() override;
   const char* GetPlatformAPIStr() override { return "Linux"; }
   void UpdateTooltips() override {}; // TODO
-  bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override { return false; } // TODO
+  bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* extensions) override;
   void PromptForDirectory(WDL_String& dir) override;
-  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override { return false; } // TODO
-  bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override { return false; } // TODO
+  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
+  bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
   static int GetUserOSVersion();
-  bool GetTextFromClipboard(WDL_String& str) override { return false; } // TODO
-  bool SetTextInClipboard(const char* str) override { return false; } // TODO
+  bool GetTextFromClipboard(WDL_String& str) override;
+  bool SetTextInClipboard(const char* str) override;
 
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, void* pData, int dataSize) override;
@@ -58,14 +59,14 @@ public:
   void SetIntegration(void* mainLoop) override;
 
 protected:
-  void SetTooltip(const char* tooltip) {} // TODO
-  void ShowTooltip() {} // TODO
-  void HideTooltip() {} // TODO
-
-  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) override { return nullptr; } // TODO
+  void ShowTooltip();
+  void HideTooltip();
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override { } // TODO
 
-  virtual void GetMouseLocation(float& x, float&y) const {} // TODO
+  void RequestFocus();
+
+  friend class IGraphics;
   
 private:
   xcbt mX = NULL;
@@ -74,7 +75,20 @@ private:
   xcbt_window_handler mBaseWindowHandler;
   void* mBaseWindowData;
 
+  /** Double-click timeout in milliseconds */
+  uint32_t mDblClickTimeout = 400;
+  uint32_t mTooltipTimeout = 1500;
   xcb_timestamp_t mLastLeftClickStamp; // it will be not zero in case there is a chance for double click
+
+  IVec2 mMouseLockPos;
+  int mTooltipControlIndex = -1;
+  /** Index for the control currently being hovered, -1 for no control */
+  int mHoverControl = -1;
+  /** Time when we began hovering this control (milliseconds). */
+  uint64_t mHoverStart = 0;
+  bool mMouseVisible;
+  /** The "platform-native" popup menu */
+  IPopupMenu *mPopupMenu = nullptr;
 
   void Paint();
   inline IMouseInfo GetMouseInfo(int16_t x, int16_t y, int16_t state);
@@ -82,6 +96,7 @@ private:
   void WindowHandler(xcb_generic_event_t* evt);
   void TimerHandler(int id);
 
+  static uint32_t GetUserDblClickTimeout();
   static void WindowHandlerProxy(xcbt_window xw, xcb_generic_event_t* evt, IGraphicsLinux* pGraphics) { pGraphics->WindowHandler(evt); }
   static void TimerHandlerProxy(xcbt x, int timer_id, IGraphicsLinux* pGraphics) { pGraphics->TimerHandler(timer_id); }
 };

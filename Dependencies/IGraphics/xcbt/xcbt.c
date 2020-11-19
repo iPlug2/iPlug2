@@ -28,6 +28,8 @@
 
 #include <X11/Xlib.h>
 #include <X11/Xlib-xcb.h>
+#include <xcb/xcb_icccm.h>
+#include <xcb/xfixes.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -64,6 +66,47 @@
 
 struct _xcbt_window;
 
+
+/**
+ * Small utility for non-intrusive list of pointers/
+ */
+struct _ptrlist {
+  void** data;
+  int    size;
+};
+typedef struct _ptrlist ptrlist_t;
+
+ptrlist_t ptrlist_new()
+{
+  ptrlist_t pr = { NULL, 0 };
+  return pr;
+}
+
+void ptrlist_free(ptrlist_t* pl)
+{
+  free(pl->data);
+  pl->data = NULL;
+  pl->size = 0;
+}
+
+void** _ptrlist_resize(ptrlist_t* pl, int new_size)
+{
+  if (pl->size == new_size)
+  {
+    return pl->size ? pl->data : NULL;
+  }
+  else
+  {
+    pl->data = realloc(pl->data, sizeof(void*) * new_size);
+    pl->size = new_size;
+    return pl->data;
+  }
+}
+
+#define ptrlist_resize(pl, new_size) _ptrlist_resize((ptrlist_t*)(pl), (new_size))
+#define ptrlist_of(_typ) struct { _typ** data; int size; }
+
+
 /*
  * Private
  */
@@ -87,6 +130,9 @@ typedef struct {
   // XLib/XCB mode only
   Display *dpy; // indicate XLib/XCB combo is used (GL ready)
 
+  // List of xcb_screen_t structures so we have access to root windows
+  ptrlist_of(xcb_screen_t) screens;
+
   // List of xcbt windows with xcb windows behind (for event handling)
   struct _xcbt_window *windows;
 
@@ -95,6 +141,11 @@ typedef struct {
   int                  timer_changed; // set to 1 where there are changes in the nearest timer
 
   xcbt_embed          *embed; // not null in embedded mode
+
+  // Clipboard data
+  char*         clipboard_data; // Clipboard data (currently UTF-8 only)
+  int           clipboard_length; // clipboard data length
+  xcb_window_t  clipboard_owner; // ID of window that owns clipboard data or 0 if not one of ours
 
   // Xlib
   void    *xlib;     // handle for libX11.so
@@ -156,6 +207,15 @@ static void xcbt_time(time_t *tv_sec, int *tv_msec){
     *tv_sec = ts.tv_sec;
     *tv_msec = ts.tv_nsec/1000000;
   }
+}
+
+static int timespec_cmp(const struct timespec* lhs, const struct timespec* rhs)
+{
+  long d = lhs->tv_sec - rhs->tv_sec;
+  if (d != 0)
+    return (int)d;
+  d = lhs->tv_nsec - rhs->tv_nsec;
+  return (int)d;
 }
 
 /*
@@ -372,6 +432,12 @@ static void xcbt_load_atoms(_xcbt *x){
     "WM_PROTOCOLS",
     "WM_DELETE_WINDOW",
     "_XEMBED_INFO",
+    "CLIPBOARD",
+    "UTF8_STRING",
+    "XSEL_DATA",
+    "STRING",
+    "TEXT",
+    "TARGETS",
   };
   if(x && !x->catoms[0]){
     xcb_intern_atom_cookie_t ck[XCBT_COMMON_ATOMS_COUNT];
@@ -394,8 +460,60 @@ static void xcbt_load_atoms(_xcbt *x){
   }
 }
 
+/**
+ * Initialize the xcb connection regardless of if it's Xlib or xcb.
+ */
+static int xcbt_connect_init(_xcbt *x, uint32_t flags)
+{
+  if ((flags & XCBT_INIT_ATOMS))
+    xcbt_load_atoms(x);
+  
+  // Iterate through screens
+  {
+    xcb_screen_iterator_t iter;
+    int size = 0;
+
+    iter = xcb_setup_roots_iterator(xcb_get_setup(x->conn));
+    // Default capacity to 8
+    ptrlist_resize(&x->screens, 8);
+    for (; iter.rem; size++, xcb_screen_next(&iter))
+    {
+      x->screens.data[size] = iter.data;
+      if (size + 1 == x->screens.size)
+      {
+        ptrlist_resize(&x->screens, x->screens.size * 2);
+      }
+    }
+    // Don't bother changing the capacity, just set the size
+    x->screens.size = size;
+  }
+
+  // Load xfixes extension
+  {
+    xcb_xfixes_query_version_cookie_t cookie = xcb_xfixes_query_version(x->conn, 4, 0);
+    xcbt_flush(x);
+    xcb_generic_error_t* err;
+    xcb_xfixes_query_version_reply_t* reply = xcb_xfixes_query_version_reply(x->conn, cookie, &err);
+    if (!reply)
+    {
+      printf("Unable to load xfixes extension: codes %d,%d\n", err->major_code, err->minor_code);
+      free(err);
+      return 0;
+    }
+    free(reply);
+  }
+
+  return 1;
+}
+
 xcbt xcbt_connect(uint32_t flags){
   _xcbt *x = (_xcbt *)calloc(1, sizeof(_xcbt));
+
+  // Initialize fields
+  x->clipboard_data = NULL;
+  x->clipboard_length = 0;
+  x->clipboard_owner = 0;
+
   if(x){
     if(flags & XCBT_USE_GL){
       dlerror(); // clear errors
@@ -415,10 +533,12 @@ xcbt xcbt_connect(uint32_t flags){
             x->def_screen = DefaultScreen(x->dpy);
             if((x->conn = x->XGetXCBConnection(x->dpy))){
               if(xcbt_glad_glx_load(x)){
-                if((flags & XCBT_INIT_ATOMS))
-                  xcbt_load_atoms(x);
-                TRACE("INFO: Xlib/XCB FD: %d\n", xcb_get_file_descriptor(x->conn));
-                return (xcbt)x;
+                if (xcbt_connect_init(x, flags)) {
+                  TRACE("INFO: Xlib/XCB FD: %d\n", xcb_get_file_descriptor(x->conn));
+                  return (xcbt)x;
+                } else {
+                  TRACE("XCBT setup failed\n");
+                }
               } else {
                 TRACE("Could not load GLX\n");
               }
@@ -441,9 +561,7 @@ xcbt xcbt_connect(uint32_t flags){
     }
     if((x->conn = xcb_connect(NULL, &x->def_screen)) && (x->def_screen >= 0)){
       TRACE("INFO: XCB only\n");
-      if((flags & XCBT_INIT_ATOMS)){
-        xcbt_load_atoms(x);
-      }
+      xcbt_connect_init(x, flags);
       //TRACE("XCBT %p is Connected\n", x->conn);
       return (xcbt)x;
     } else {
@@ -723,7 +841,7 @@ xcbt_window xcbt_window_gl_create(xcbt px, xcb_window_t prt, const xcbt_rect *po
                   XCB_EVENT_MASK_STRUCTURE_NOTIFY | // get varius notification messages like configure, reparent, etc.
                   XCB_EVENT_MASK_PROPERTY_CHANGE | // useful when something will change our property
                   XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE  |  // mouse clicks
-                  //XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE  |      // keyboard is questionable accordung to XEMBED
+                  //XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE  |      // keyboard is questionable according to XEMBED
                   XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW |   // mouse entering/leaving
                   XCB_EVENT_MASK_POINTER_MOTION // mouse motion
                   ;
@@ -1022,6 +1140,156 @@ int xcbt_window_wait_map(xcbt_window pxw){
   return xw->xmapped;
 }
 
+int xcbt_clipboard_set_utf8(xcbt_window pxw, const char* str)
+{
+  _xcbt_window *xw = (_xcbt_window*) pxw;
+  _xcbt *x = xw->x;
+/*
+  This probably needs to be done on a root window, not embedded.
+
+  xcb_void_cookie_t cookie1 = xcb_set_selection_owner_checked(
+      x->conn, xw->wnd, XCBT_ATOM_CLIPBOARD(x), XCB_CURRENT_TIME);
+  xcb_void_cookie_t cookie2 = xcb_set_selection_owner_checked(
+      x->conn, xw->wnd, XCB_ATOM_PRIMARY, XCB_CURRENT_TIME);
+  xcbt_flush(x);
+  xcb_generic_error_t* err1 = xcb_request_check(x->conn, cookie1);
+  xcb_generic_error_t* err2 = xcb_request_check(x->conn, cookie2);
+  int ok = !err1 && !err2;
+  if (ok)
+  {
+    // Data length includes terminating null
+    x->clipboard_length = strlen(str) + 1;
+    x->clipboard_data = calloc(1, x->clipboard_length);
+    memcpy(x->clipboard_data, str, x->clipboard_length);
+    x->clipboard_owner = xw->wnd;
+  }
+  free(err1);
+  free(err2);
+  return ok;
+  */
+
+  // For now we implement this using xclip.
+  FILE* fd = popen("xclip -i -selection c", "w");
+  if (fd)
+  {
+    fwrite(str, 1, strlen(str), fd);
+    pclose(fd);
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }
+}
+
+const char* xcbt_clipboard_get_utf8(xcbt_window pxw, int* length)
+{
+  _xcbt_window *xw = (_xcbt_window*) pxw;
+  _xcbt *x = xw->x;
+
+  // For some reason we don't always receive XCB_SELECTION_CLEAR events
+  // so assume we need to request the clipboard content every time.
+  // if (x->clipboard_owner != 0)
+  // {
+  //   _xcbt_window **windows = &x->windows;
+  //   while(*windows && ((*windows)->wnd != x->clipboard_owner)){
+  //     windows = &(*windows)->x_next;
+  //   }
+  //   // If we found the clipboard owner, then just return the clipboard data
+  //   if (*windows)
+  //   {
+  //     *length = x->clipboard_length;
+  //     return x->clipboard_data;
+  //   }
+  // }
+
+  // Either we don't own the window with the clipboard, or we don't know who does
+  x->clipboard_owner = 0;
+  x->clipboard_length = 0;
+  free(x->clipboard_data);
+  x->clipboard_data = NULL;
+
+  xcb_convert_selection(x->conn, xw->wnd,
+      XCBT_ATOM_CLIPBOARD(x), XCBT_ATOM_UTF8_STRING(x), XCBT_ATOM_CLIPBOARD(x), XCB_CURRENT_TIME);
+  xcbt_flush(x);
+  
+  struct timespec now;
+  struct timespec until;
+  clock_gettime(CLOCK_MONOTONIC_RAW, &now);
+  until = now;
+  // Default timeout is 1 second
+  until.tv_sec += 1;
+
+  // We have a timeout because getting the clipboard might fail.
+  // https://jtanx.github.io/2016/08/19/a-cross-platform-clipboard-library/#linux
+  while (x->clipboard_length == 0 && timespec_cmp(&now, &until) < 0)
+  {
+    xcbt_process((xcbt)x);
+    clock_gettime(CLOCK_MONOTONIC_RAW, &now);
+  }
+  if (x->clipboard_length > 0)
+  {
+    *length = x->clipboard_length;
+    return x->clipboard_data;
+  }
+  else
+  {
+    *length = 0;
+    return NULL;
+  }
+}
+
+void xcbt_move_cursor(xcbt_window pxw, XCBT_MOUSE_FLAGS flag, int cx, int cy)
+{
+  _xcbt_window* xw = (_xcbt_window*)pxw;
+  _xcbt* x = (_xcbt*)xw->x;
+  xcb_screen_t* screen = x->screens.data[xw->screen];
+  int16_t cx16 = (int16_t)cx;
+  int16_t cy16 = (int16_t)cy;
+  if (flag == XCBT_WINDOW)
+  {
+    // Get the window position relative to the screen root.
+    xcbt_rect re;
+    xcbt_window_get_screen_pos(pxw, &re);
+    xcb_warp_pointer_checked(x->conn, XCB_NONE, screen->root, 0, 0, 0, 0, re.x + cx16, re.y + cy16);
+  }
+  else if (flag == XCBT_RELATIVE)
+  {
+    xcb_warp_pointer_checked(x->conn, XCB_NONE, XCB_NONE, 0, 0, 0, 0, cx16, cy16);
+  }
+  else if (flag == XCBT_ABSOLUTE)
+  {
+    xcb_warp_pointer_checked(x->conn, XCB_NONE, screen->root, 0, 0, 0, 0, cx16, cy16);
+  }
+  //xcbt_flush(x);
+}
+
+void xcbt_window_get_screen_pos(xcbt_window pxw, xcbt_rect* rect)
+{
+  _xcbt_window* xw = (_xcbt_window*)pxw;
+  _xcbt* x = (_xcbt*)xw->x;
+
+  // Get the window position relative to the screen root.
+  xcb_query_tree_cookie_t cookie1 = xcb_query_tree(x->conn, xw->wnd);
+  xcb_query_tree_reply_t* tree = xcb_query_tree_reply(x->conn, cookie1, NULL);
+  if (!tree) {
+    return;
+  }
+
+  xcb_translate_coordinates_cookie_t cookie2 = xcb_translate_coordinates(x->conn,
+      xw->wnd, tree->root, xw->pos.x, xw->pos.y);
+  xcb_translate_coordinates_reply_t* trans = xcb_translate_coordinates_reply(x->conn, cookie2, NULL);
+  if (!trans) {
+    free(tree);
+    return;
+  }
+
+  rect->x = trans->dst_x;
+  rect->y = trans->dst_y;
+  free(tree);
+  free(trans);
+}
+
 /*
  * Event 0 is an error, print details  
  */
@@ -1168,10 +1436,31 @@ void xcbt_event_loop(xcbt px, int *exit_cond){
   }
 }
 
+static void xcbt_receive_clipboard(_xcbt_window *xw, xcb_atom_t property)
+{
+  _xcbt* x = xw->x;
+  xcb_icccm_get_text_property_reply_t prop;
+  xcb_get_property_cookie_t cookie = xcb_icccm_get_text_property(
+      x->conn, xw->wnd, property);
+  if (xcb_icccm_get_text_property_reply(x->conn, cookie, &prop, NULL))
+  {
+    // Allocate space for the null ptr
+    x->clipboard_length = prop.name_len + 1;
+    x->clipboard_data = realloc(x->clipboard_data, x->clipboard_length);
+    memcpy(x->clipboard_data, prop.name, x->clipboard_length);
+    x->clipboard_owner = 0;
+    x->clipboard_data[x->clipboard_length - 1] = 0;
+    xcb_icccm_get_text_property_reply_wipe(&prop);
+    xcb_delete_property(x->conn, xw->wnd, property); 
+  }
+}
+
 static void xcbt_window_default_handler(_xcbt_window *xw, xcb_generic_event_t *evt, void *unused){
-  if(!evt){
+  if (!xw || !evt)
+  {
     return; // required actions are handled by window_destroy
   }
+  _xcbt* x = xw->x;
   switch(evt->response_type & ~0x80){
     case XCB_EXPOSE:
       break;
@@ -1224,7 +1513,6 @@ static void xcbt_window_default_handler(_xcbt_window *xw, xcb_generic_event_t *e
       break;
     case XCB_REPARENT_NOTIFY:
     case XCB_MOTION_NOTIFY:
-    case XCB_PROPERTY_NOTIFY:
     case XCB_ENTER_NOTIFY:
     case XCB_LEAVE_NOTIFY:
     case XCB_BUTTON_PRESS:
@@ -1233,6 +1521,100 @@ static void xcbt_window_default_handler(_xcbt_window *xw, xcb_generic_event_t *e
     case XCB_CLIENT_MESSAGE:
       // TODO: may be process some...
       break;
+    case XCB_PROPERTY_NOTIFY:
+    {
+      xcb_property_notify_event_t* e = (xcb_property_notify_event_t*) evt;
+      // This is another way in which we can receive clipboard data.
+      // Maybe because of Xwayland?
+      if (e->atom == XCBT_ATOM_CLIPBOARD(x))
+      {
+        xcbt_receive_clipboard(xw, XCBT_ATOM_CLIPBOARD(x));
+      }
+    }
+    case XCB_SELECTION_CLEAR:
+    {
+      // A window has been asked to not be the clipboard owner anymore.
+      // We don't always receive this event, maybe due to Xwayland?
+      xcb_selection_clear_event_t* ec = (xcb_selection_clear_event_t*) evt;
+      if (ec->owner == x->clipboard_owner)
+      {
+        x->clipboard_owner = 0;
+        free(x->clipboard_data);
+        x->clipboard_data = NULL;
+        x->clipboard_length = 0;
+      }
+      // Now we want to know who the new owner is.
+      break;
+    }
+    case XCB_SELECTION_REQUEST:
+    {
+      // This is a request for the clipboard content.
+      xcb_selection_request_event_t* ec = (xcb_selection_request_event_t*) evt;
+      if (ec->property == XCB_NONE)
+      {
+        ec->property = ec->target;
+      }
+
+      int valid = 1;
+      if (ec->target == XCBT_ATOM_UTF8_STRING(x)
+          || ec->target == XCBT_ATOM_STRING(x)
+          || ec->target == XCBT_ATOM_TEXT(x))
+      {
+        xcb_change_property(x->conn, XCB_PROP_MODE_REPLACE, ec->requestor, ec->property,
+            ec->target, 8, x->clipboard_length, x->clipboard_data);
+      }
+      else if (ec->target == XCBT_ATOM_TARGETS(x))
+      {
+        // Request to see what type of targets we support
+        xcb_atom_t targets[] = {
+          XCBT_ATOM_TARGETS(x),
+          XCBT_ATOM_UTF8_STRING(x),
+          XCBT_ATOM_STRING(x),
+          XCBT_ATOM_TEXT(x),
+        };
+        xcb_change_property(x->conn, XCB_PROP_MODE_REPLACE, ec->requestor,
+            ec->property, XCB_ATOM_ATOM, sizeof(xcb_atom_t),
+            sizeof(targets) / sizeof(xcb_atom_t), targets);
+      }
+      else
+      {
+        valid = 0;
+      }
+
+      xcb_selection_notify_event_t notify = {0};
+      notify.response_type = XCB_SELECTION_NOTIFY;
+      notify.time = XCB_CURRENT_TIME;
+      notify.requestor = ec->requestor;
+      notify.selection = ec->selection;
+      notify.target = ec->target;
+      notify.property = valid ? ec->property : XCB_NONE;
+      xcb_send_event(x->conn, 0, ec->requestor, XCB_EVENT_MASK_PROPERTY_CHANGE, (char*)&notify);
+      xcbt_flush(x);
+
+      break;
+    }
+    case XCB_SELECTION_NOTIFY:
+    {
+      // We requested clipoard data and it has arrived.
+      // In some cases 
+      xcb_selection_notify_event_t* e_notify = (xcb_selection_notify_event_t*) evt;
+      if (e_notify->selection == XCBT_ATOM_CLIPBOARD(x) && e_notify->property != XCB_NONE)
+      {
+        xcb_icccm_get_text_property_reply_t prop;
+        xcb_get_property_cookie_t cookie = xcb_icccm_get_text_property(
+            x->conn, e_notify->requestor, e_notify->property);
+        if (xcb_icccm_get_text_property_reply(x->conn, cookie, &prop, NULL))
+        {
+          x->clipboard_length = prop.name_len + 1;
+          x->clipboard_data = realloc(x->clipboard_data, x->clipboard_length);
+          memcpy(x->clipboard_data, prop.name, x->clipboard_length);
+          x->clipboard_owner = 0;
+          xcb_icccm_get_text_property_reply_wipe(&prop);
+          xcb_delete_property(x->conn, e_notify->requestor, e_notify->property); 
+        }
+      }
+      break;
+    }
     default:
       TRACE("Win NI: Event %d (%s)\n", evt->response_type & ~0x80, evt->response_type & 0x80 ? "Synthetic" : "Native");
       return;
