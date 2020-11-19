@@ -582,7 +582,7 @@ void IGraphicsLinux::CloseWindow()
   {
     OnViewDestroyed();
 
-    SetPlatformContext(nullptr); // I do not set it, but Cairo does...
+    SetPlatformContext(nullptr);
 
     xcbt_window_destroy(mPlugWnd);
     mPlugWnd = NULL;
@@ -1145,15 +1145,9 @@ IGraphicsLinux::~IGraphicsLinux()
 }
 
 #ifndef NO_IGRAPHICS
-#if defined IGRAPHICS_AGG
-  #include "IGraphicsAGG.cpp"
-#elif defined IGRAPHICS_CAIRO
-  #include "IGraphicsCairo.cpp"
-#elif defined IGRAPHICS_LICE
-  #include "IGraphicsLice.cpp"
-#elif defined IGRAPHICS_SKIA
+#if defined IGRAPHICS_SKIA
   #include "IGraphicsSkia.cpp"
-#elif defined IGRAPHICS_NANOVG
+if defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
 #ifdef IGRAPHICS_FREETYPE
 #define FONS_USE_FREETYPE

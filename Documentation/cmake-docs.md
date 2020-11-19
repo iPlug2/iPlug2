@@ -84,9 +84,6 @@ List of components:
 * VST2 - Support for VST2 plugins
 * VST3 - Support for VST3 plugins
 * WEB - Support for Web Audio Modules (WIP)
-* AGG - AGG graphics backend
-* Cairo - Cairo graphics backend
-* LICE - LICE graphics backend (Not yet a component)
 * NanoVG - NanoVG graphics backend (Not yet a component)
 * Skia - Skia graphics backend
 

@@ -17,7 +17,6 @@ set(_inc
   ${IGRAPHICS_SRC}/Extras
   ${IGRAPHICS_DEPS}/NanoSVG/src
   ${IGRAPHICS_DEPS}/NanoVG/src
-  ${IGRAPHICS_DEPS}/Cairo
   ${IGRAPHICS_DEPS}/STB
   ${IGRAPHICS_DEPS}/imgui
   ${IGRAPHICS_DEPS}/imgui/examples
@@ -227,76 +226,3 @@ if (OS_LINUX)
     LINK PkgConfig::Freetype2
   )  
 endif()
-
-#########
-# Cairo #
-#########
-
-if ("Cairo" IN_LIST "${iPlug2_FIND_COMPONENTS}")
-  add_library(iPlug2_Cairo INTERFACE)
-  iplug2_target_add(iPlug2_Cairo
-    DEFINE "IGRAPHICS_CAIRO"
-    INCLUDE 
-      "${IGRAPHICS_DEPS}/NanoSVG/src"
-      "${IGRAPHICS_DEPS}/cairo"
-  )
-  if (OS_LINUX)
-    pkg_check_modules(Cairo REQUIRED IMPORTED_TARGET "cairo")
-
-    iplug2_target_add(iPlug2_Cairo INTERFACE
-      LINK PkgConfig::Cairo "freetype" "png" "z" "xcb" "xcb-shm" "xcb-render"
-    )
-  else()
-    message("Cairo not supported on this system" FATAL_ERROR)
-  endif()
-endif()
-
-#######
-# AAG #
-#######
-
-if ("AGG" IN_LIST iPlug2_FIND_COMPONENTS)
-  set(sdk "${IPLUG2_DIR}/Dependencies/IGraphics/AGG/agg-2.4")
-  set(_src
-    "${sdk}/src/agg_arc.cpp"
-    "${sdk}/src/agg_arrowhead.cpp"
-    "${sdk}/src/agg_bezier_arc.cpp"
-    "${sdk}/src/agg_bspline.cpp"
-    "${sdk}/src/agg_color_rgba.cpp"
-    "${sdk}/src/agg_curves.cpp"
-    "${sdk}/src/agg_image_filters.cpp"
-    "${sdk}/src/agg_line_aa_basics.cpp"
-    "${sdk}/src/agg_line_profile_aa.cpp"
-    "${sdk}/src/agg_rounded_rect.cpp"
-    "${sdk}/src/agg_sqrt_tables.cpp"
-    "${sdk}/src/agg_trans_affine.cpp"
-    "${sdk}/src/agg_trans_double_path.cpp"
-    "${sdk}/src/agg_trans_single_path.cpp"
-    "${sdk}/src/agg_trans_warp_magnifier.cpp"
-    "${sdk}/src/agg_vcgen_bspline.cpp"
-    "${sdk}/src/agg_vcgen_contour.cpp"
-    "${sdk}/src/agg_vcgen_dash.cpp"
-    "${sdk}/src/agg_vcgen_markers_term.cpp"
-    "${sdk}/src/agg_vcgen_smooth_poly1.cpp"
-    "${sdk}/src/agg_vcgen_stroke.cpp"
-    "${sdk}/src/agg_vpgen_clip_polygon.cpp"
-    "${sdk}/src/agg_vpgen_clip_polyline.cpp"
-    "${sdk}/src/agg_vpgen_segmentator.cpp"
-  )
-  add_library(AGG STATIC ${_src})
-  iplug2_target_add(AGG PUBLIC
-    INCLUDE
-      "${sdk}/include"
-      "${sdk}/font_freetype"
-      "${sdk}/include/util"
-      "${sdk}/src"
-      "${sdk}/include/platform/win32"
-      "${sdk}/src/platform/win32"
-  )
-
-  add_library(iPlug2_AGG INTERFACE)
-  iplug2_target_add(iPlug2_AGG INTERFACE
-    LINK AGG iPlug2_IGraphicsCore
-    DEFINE "IGRAPHICS_AGG"
-  )
-endif() # AGG
