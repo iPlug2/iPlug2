@@ -90,7 +90,7 @@ END_IPLUG_NAMESPACE
 #pragma mark -
 
 IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
-: IGraphicsPathBase(dlg, w, h, fps, scale)
+: IGraphics(dlg, w, h, fps, scale)
 {
   StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Retain();
