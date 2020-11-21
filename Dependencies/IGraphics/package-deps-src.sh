@@ -10,6 +10,7 @@ mv ./src/skia/modules/skottie ./skia_skottie_tmp
 mv ./src/skia/modules/particles ./skia_particles_tmp
 mv ./src/skia/modules/skparagraph ./skia_skparagraph_tmp
 mv ./src/skia/modules/skshaper ./skia_skshaper_tmp
+mv ./src/skia/modules/skresources ./skia_skresources_tmp
 mv ./src/skia/experimental/svg/model ./skia_experimental_tmp
 mv ./src/skia/src/core ./skia_src_core_tmp
 mv ./src/skia/src/xml ./skia_src_xml_tmp
@@ -32,6 +33,7 @@ mv ./skia_include_tmp ./src/skia/include
 mv ./skia_skottie_tmp ./src/skia/modules/skottie
 mv ./skia_particles_tmp ./src/skia/modules/particles
 mv ./skia_skparagraph_tmp ./src/skia/modules/skparagraph
+mv ./skia_skresources_tmp ./src/skia/modules/skresources
 mv ./skia_skshaper_tmp ./src/skia/modules/skshaper
 mv ./skia_experimental_tmp ./src/skia/experimental/svg/model
 mv ./skia_src_core_tmp ./src/skia/src/core
