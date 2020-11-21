@@ -12,11 +12,8 @@ BIN_DIR="$INSTALL_DIR/bin"
 LOG_DIR="$BUILD_DIR"
 LOG_NAME="build-mac.log"
 
-CAIRO_VERSION=cairo-1.16.0
 FREETYPE_VERSION=freetype-2.9.1
 PKGCONFIG_VERSION=pkg-config-0.28
-PIXMAN_VERSION=pixman-0.34.0
-EXPAT_VERSION=expat-2.2.5
 PNG_VERSION=libpng-1.6.34
 ZLIB_VERSION=zlib-1.2.11
 
@@ -111,37 +108,6 @@ fi
 
 #######################################################################
 
-#bzip
-# if [ -e $LIB_DIR/libbz2.a ]
-# then
-#   echo "Found bzip2"
-# else
-#   echo
-#   echo "Installing bzip2"
-#   if [ -e bzip2-1.0.6.tar.gz ]
-#   then
-#     echo "Tarball Present..."
-#   else
-#     echo "Downloading..."
-#     curl -O -L --progress-bar http://www.bzip.org/1.0.6/bzip2-1.0.6.tar.gz
-#   fi
-#   echo "Unpacking..."
-#   tar -xf bzip2-1.0.6.tar.gz >> $LOG_DIR/$LOG_NAME 2>&1
-#   cd bzip2-1.0.6
-#   echo -n "Building..."
-#   echo "---------------------------- Build bzip2 ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
-#   make CFLAGS="$CFLAGS -Wno-format" PREFIX="$INSTALL_DIR" -s install >> $LOG_DIR/$LOG_NAME 2>&1 &
-#   spin
-#   make -s clean >> $LOG_DIR/$LOG_NAME 2>&1 &
-#   spin
-#   echo "done."
-#   echo "bzip2 Installed!"
-#   echo
-#   cd "$SRC_DIR"
-# fi
-
-#######################################################################
-
 #pkg-config
 
 if [ -e "$BIN_DIR/pkg-config" ]
@@ -182,45 +148,6 @@ else
   cd "$SRC_DIR"
 fi
 
-#######################################################################
-
-#expat
-# if [ -e "$LIB_DIR/libexpat.a" ]
-# then
-#   echo "Found expat"
-# else
-#   echo
-#   echo "Installing expat"
-#   cd $DL_DIR
-#   if [ -e $EXPAT_VERSION.tar.bz2 ]
-#   then
-#     echo "Tarball Present..."
-#   else
-#     echo "Downloading..."
-#     curl -L --progress-bar -O https://github.com/libexpat/libexpat/releases/download/R_2_2_5/$EXPAT_VERSION.tar.bz2
-#   fi
-#   echo "Unpacking..."
-#   tar -jxf "$EXPAT_VERSION.tar.bz2"
-#   mv $EXPAT_VERSION "$SRC_DIR/expat"
-
-#   echo -n "Configuring..."
-#   cd "$SRC_DIR/expat"
-#   echo "---------------------------- Configure expat ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
-#   ./configure --disable-shared --enable-static --prefix "$INSTALL_DIR" >> $LOG_DIR/$LOG_NAME 2>&1 &
-#   spin
-#   echo "done."
-#   echo -n "Building..."
-#   echo "---------------------------- Build expat ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
-#   make -s install >> $LOG_DIR/$LOG_NAME 2>&1 &
-#   spin
-#   make -s clean >> $LOG_DIR/$LOG_NAME 2>&1 &
-#   spin
-#   echo "done."
-#   echo
-#   echo "expat Installed!"
-#   echo
-#   cd "$SRC_DIR"
-# fi
 #######################################################################
 
 #zlib
@@ -298,51 +225,6 @@ else
   echo "done."
   echo
   echo "libpng Installed!"
-  echo
-  cd "$SRC_DIR"
-fi
-
-#######################################################################
-
-#pixman
-if [ -e "$LIB_DIR/libpixman-1.a" ]
-then
-  echo "Found pixman"
-else
-  COPTPX="-Wno-unknown-attributes -Wno-unused-command-line-argument -Wno-shift-negative-value -Wno-tautological-constant-out-of-range-compare"
-  echo
-  echo "Installing pixman"
-  cd $DL_DIR
-  if [ -e $PIXMAN_VERSION.tar.gz ]
-  then
-    echo "Tarball Present..."
-  else
-    echo "Downloading..."
-    curl -L --progress-bar -O https://cairographics.org/releases/$PIXMAN_VERSION.tar.gz
-  fi
-  echo "Unpacking..."
-  tar -xf $PIXMAN_VERSION.tar.gz
-  mv $PIXMAN_VERSION "$SRC_DIR/pixman"
-
-  echo -n "Configuring..."
-  cd "$SRC_DIR/pixman"
-  echo "---------------------------- Configure pixman ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
-  ./configure --enable-static --disable-dependency-tracking --disable-gtk --prefix "$INSTALL_DIR" PKG_CONFIG="$BIN_DIR/pkg-config" PKG_CONFIG_LIBDIR="$LIB_DIR/pkgconfig" >> $LOG_DIR/$LOG_NAME 2>&1 &
-  spin
-  echo "done."
-  echo -n "Building..."
-  echo "---------------------------- Build pixman ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
-  make CFLAGS="-DHAVE_CONFIG_H $COPTPX $CFLAGS" -s install >> $LOG_DIR/$LOG_NAME 2>&1 &
-  spin
-  make -s clean >> $LOG_DIR/$LOG_NAME 2>&1 &
-  spin
-  echo "done."
-  echo
-  cp pixman-1.pc "$LIB_DIR/pkgconfig/pixman-1.pc"
-  #Must remove this after build, as building without them fails
-  rm "$LIB_DIR/libpixman-1.0.dylib"
-  rm "$LIB_DIR/libpixman-1.dylib"
-  echo "pixman Installed!"
   echo
   cd "$SRC_DIR"
 fi
@@ -432,62 +314,6 @@ fi
 #   cd "$SRC_DIR"
 # fi
 
-#######################################################################
-
-#cairo
-if [ -e "$LIB_DIR/libcairo.a" ]
-then
-  echo "Found cairo"
-else
-  COPTCR="-Wno-logical-not-parentheses -Wno-parentheses-equality -Wno-enum-conversion -Wno-unused-command-line-argument -Wno-unused-function -Wno-unused-variable -Wno-unused-local-typedef -Wno-tautological-constant-out-of-range-compare -Wno-absolute-value -Wno-literal-conversion"
-  echo
-  echo "Installing cairo"
-  cd $DL_DIR
-  if [ -e $CAIRO_VERSION.tar.xz ]
-  then
-    echo "Tarball Present..."
-  else
-    echo "Downloading..."
-    curl -L --progress-bar -O https://cairographics.org/releases/$CAIRO_VERSION.tar.xz
-  fi
-  echo "Unpacking..."
-  tar -xf $CAIRO_VERSION.tar.xz
-  mv $CAIRO_VERSION "$SRC_DIR/cairo"
-  cd "$SRC_DIR/cairo"
-  echo "Patching for macOS 10.13 compiliation..."
-  sed -i.bu 's/if test "x$cairo_cc_stderr" != "x"; then/if 0; then/' configure
-
-  echo -n "Configuring..."
-  echo "---------------------------- Configure cairo ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
-  ./configure --disable-shared --enable-static --disable-dependency-tracking --disable-svg --disable-pdf --disable-ps --disable-fc --enable-quartz-image=yes --disable-interpreter --disable-trace CFLAGS="$CFLAGS $COPTCR" --prefix "$INSTALL_DIR" PKG_CONFIG="$BIN_DIR/pkg-config" PKG_CONFIG_LIBDIR="$LIB_DIR/pkgconfig" LDFLAGS="$LDFLAGS -framework CoreFoundation -framework CoreGraphics -framework CoreText" >> $LOG_DIR/$LOG_NAME 2>&1 &
-  spin
-  echo "done."
-  echo -n "Building..."
-  echo "---------------------------- Build cairo ----------------------------" >> $LOG_DIR/$LOG_NAME 2>&1
-  make -s install >> $LOG_DIR/$LOG_NAME 2>&1 &
-  spin
-  make -s clean >> $LOG_DIR/$LOG_NAME 2>&1 &
-  spin
-  echo "done."
-  echo "cairo Installed!"
-  echo
-  cd "$SRC_DIR"
-fi
-
-#remove unwanted dirs
-#rm -r $INSTALL_DIR/man/
-#rm -r $INSTALL_DIR/share/
-#rm -r $INSTALL_DIR/bin/
-
-# echo "Verify UB Builds..."
-# file "$LIB_DIR/libbz2.a"
-# file "$LIB_DIR/libexpat.a"
-# file "$LIB_DIR/libz.a"
-# file "$LIB_DIR/libpixman-1.a"
-# file "$LIB_DIR/libpng16.a"
-# file "$LIB_DIR/libfreetype.a"
-# file "$LIB_DIR/libfontconfig.a"
-# file "$LIB_DIR/libcairo.a"
 exit
 
 #rm -r $SRC_DIR
