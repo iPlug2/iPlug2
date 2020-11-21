@@ -583,13 +583,16 @@ public:
         pNewControl = CreateNewControlBasedOnClassName(pControl->GetClassName(), mMouseDownRECT, pVectorBase ? pVectorBase->GetLabelStr() : pControl->GetClassName(), pControl->GetParamIdx());
         
         if(pNewControl)
+        {
           pNewControl->SetProperties(pControl->GetProperties());
         
-        pGraphics->AttachControl(pNewControl);
-        
+          pGraphics->AttachControl(pNewControl);
+          
+          mSourceEditor.AddControlToSource(pNewControl);
+        }
+      
         mClickedOnControl = GetUI()->NControls() - 1;
         mMouseClickedOnResizeHandle = false;
-        mSourceEditor.AddControlToSource(pNewControl);
       }
       else
       {
