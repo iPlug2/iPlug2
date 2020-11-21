@@ -11,7 +11,7 @@
 #pragma once
 
 #include "IPlugPlatform.h"
-#include "IGraphicsPathBase.h"
+#include "IGraphics.h"
 
 #include "nanovg.h"
 #include "mutex.h"
@@ -78,7 +78,7 @@ NVGpaint NanoVGPaint(NVGcontext* pContext, const IPattern& pattern, const IBlend
 
 /** IGraphics draw class using NanoVG  
 *   @ingroup DrawClasses */
-class IGraphicsNanoVG : public IGraphicsPathBase
+class IGraphicsNanoVG : public IGraphics
 {
 private:
   class Bitmap;

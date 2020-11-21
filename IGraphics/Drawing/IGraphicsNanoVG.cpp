@@ -227,7 +227,7 @@ END_IPLUG_NAMESPACE
 #pragma mark -
 
 IGraphicsNanoVG::IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
-: IGraphicsPathBase(dlg, w, h, fps, scale)
+: IGraphics(dlg, w, h, fps, scale)
 {
   DBGMSG("IGraphics NanoVG @ %i FPS\n", fps);
   StaticStorage<IFontData>::Accessor storage(sFontCache);

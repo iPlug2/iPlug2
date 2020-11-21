@@ -242,7 +242,7 @@ END_IPLUG_NAMESPACE
 #pragma mark -
 
 IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
-: IGraphicsPathBase(dlg, w, h, fps, scale)
+: IGraphics(dlg, w, h, fps, scale)
 {
   mMainPath.setIsVolatile(true);
   

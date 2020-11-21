@@ -131,9 +131,6 @@
     <ClInclude Include="..\..\..\IGraphics\IGraphicsLiveEdit.h">
       <Filter>Source Files\IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsPathBase.h">
-      <Filter>Source Files\IGraphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphicsPopupMenu.h">
       <Filter>Source Files\IGraphics</Filter>
     </ClInclude>

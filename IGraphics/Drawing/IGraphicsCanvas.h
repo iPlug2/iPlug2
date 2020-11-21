@@ -15,7 +15,7 @@
 
 #include "IPlugPlatform.h"
 
-#include "IGraphicsPathBase.h"
+#include "IGraphics.h"
 
 using namespace emscripten;
 
@@ -27,7 +27,7 @@ std::string CanvasColor(const IColor& color, float alpha = 1.0);
 
 /** IGraphics draw class HTML5 canvas
 * @ingroup DrawClasses */
-class IGraphicsCanvas : public IGraphicsPathBase
+class IGraphicsCanvas : public IGraphics
 {
 private:
   class Bitmap;
