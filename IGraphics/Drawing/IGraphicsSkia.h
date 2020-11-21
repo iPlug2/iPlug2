@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IPlugPlatform.h"
-#include "IGraphicsPathBase.h"
+#include "IGraphics.h"
 
 // N.B. - this must be defined according to the skia build, not the iPlug build
 #if (defined OS_MAC || defined OS_IOS) && !defined IGRAPHICS_SKIA_NO_METAL
@@ -40,7 +40,7 @@ SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend);
 
 /** IGraphics draw class using Skia
 *   @ingroup DrawClasses */
-class IGraphicsSkia : public IGraphicsPathBase
+class IGraphicsSkia : public IGraphics
 {
 private:
   class Bitmap;
