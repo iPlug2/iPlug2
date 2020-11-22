@@ -892,7 +892,7 @@ public:
   /** Set the platform draw context
    * Used in order to set the platform level draw context - CGContextRef context on macOS and the GDI HDC draw context handle on Windows.
    * @param pContext void pointer to CGContextRef or HDC */
-  virtual void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
+  void SetPlatformContext(void* pContext) { mPlatformContext = pContext; }
 
   /** Get the platform level draw context - an HDC or CGContextRef
    * @return void pointer to an HDC or CGContext */
@@ -1748,6 +1748,7 @@ private:
   IControl* mMouseOver = nullptr;
   IControl* mInTextEntry = nullptr;
   IControl* mInPopupMenu = nullptr;
+  void* mPlatformContext = nullptr;
   bool mIsContextMenu = false;
   int mTextEntryValIdx = kNoValIdx;
   int mPopupMenuValIdx = kNoValIdx;
@@ -1772,7 +1773,6 @@ private:
 
 protected:
   IGEditorDelegate* mDelegate;
-  void* mPlatformContext = nullptr;
   bool mCursorHidden = false;
   bool mCursorLock = false;
   bool mTabletInput = false;
