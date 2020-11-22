@@ -621,8 +621,9 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   #if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL
   if (mGraphics)
   {
-    if (!mGraphics->GetPlatformContext())
-      mGraphics->SetPlatformContext([self getCGContextRef]);
+    CGContextRef contextRef = [self getCGContextRef];
+    if (mGraphics->GetPlatformContext() != contextRef)
+      mGraphics->SetPlatformContext(contextRef);
       
     if (mGraphics->GetPlatformContext())
     {
