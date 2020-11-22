@@ -435,7 +435,7 @@ void IGraphicsSkia::EndFrame()
     mSurface->peekPixels(&pixmap);
     SkBitmap bmp;
     bmp.installPixels(pixmap);  
-    CGContext* pCGContext = (CGContextRef) mPlatformContext;
+    CGContext* pCGContext = (CGContextRef) GetPlatformContext();
     CGContextSaveGState(pCGContext);
     CGContextScaleCTM(pCGContext, 1.0 / GetScreenScale(), 1.0 / GetScreenScale());
     SkCGDrawBitmap(pCGContext, bmp, 0, 0);
