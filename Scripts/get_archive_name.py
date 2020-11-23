@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import fileinput, sys
 from parse_config import parse_config
 
