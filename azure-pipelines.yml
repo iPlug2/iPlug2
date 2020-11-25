@@ -3,9 +3,9 @@ variables:
 
   #PLATFORMS
   build_web: false # build web audio module versions of projects
-  build_mac: false # build mac binaries
-  build_win: false # build windows binaries
-  build_ios: false # build ios binaries
+  build_mac: true # build mac binaries
+  build_win: true # build windows binaries
+  build_ios: true # build ios binaries
 
   #FORMATS
   build_app: true # build standalone app
@@ -27,8 +27,7 @@ variables:
   publish_site: 'iPlug2/iPlug2.github.io'
   docs_site: 'iPlug2/docs'
 
-trigger:
-- master
+trigger: none
 
 pr:
 - master
