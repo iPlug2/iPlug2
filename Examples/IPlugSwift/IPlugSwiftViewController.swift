@@ -1,50 +1,15 @@
-import AudioKitUI
-
 public typealias MIDINoteNumber = UInt8
 public typealias MIDIVelocity = UInt8
 
-
-class IPlugSwiftViewController: IPlugCocoaViewController, AudioKitUI.AKKeyboardDelegate {
+class IPlugSwiftViewController: IPlugCocoaViewController {
   
-  @IBOutlet var KeyboardView: AudioKitUI.AKKeyboardView!
   @IBOutlet var Sliders: [UISlider]!
-  @IBOutlet var Plot: AKNodeOutputPlot!
-  @IBOutlet var PresetLoader: AKPresetLoaderView!
-  var presetsInitialized = false
-  
-  func presetSelected(_ preset:String) {
-    if let idx = PresetLoader.presets.firstIndex(of: preset) {
-      sendArbitraryMsgFromUI(msgTag: kMsgTagRestorePreset, ctrlTag: Int32(idx), msg: nil)
-    }
-  }
-  
-  func initializePresetList() {
-    if let presets = getAudioUnit()?.factoryPresets {
-      var presetNames : [String] = []
-      for preset in presets {
-        presetNames.append(preset.name)
-      }
-      
-      PresetLoader.presets = presetNames
-      PresetLoader.callback = presetSelected
-      presetsInitialized = true
-    }
-  }
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    KeyboardView.delegate = self
-    
-    if (getAudioUnit() != nil && !presetsInitialized) {
-      initializePresetList()
-    }
   }
   
   override func audioUnitInitialized() {
-    
-    if (presetsInitialized && PresetLoader != nil) {
-      initializePresetList()
-    }
   }
   
   override func onMessage(_ msgTag: Int32, _ ctrlTag: Int32, _ msg: Data!) -> Bool {
@@ -53,7 +18,7 @@ class IPlugSwiftViewController: IPlugCocoaViewController, AudioKitUI.AKKeyboardD
       msg.withUnsafeBytes { (outputBytes: UnsafeRawBufferPointer) in
         let floatData = outputBytes.bindMemory(to: Float.self)
         let mutablePtr = UnsafeMutablePointer<Float>.init(mutating: floatData.baseAddress)
-        Plot.updateBuffer(mutablePtr, withBufferSize: kDataPacketSize)
+        // TODO: handle incoming buffer data
       }
 
       return true
@@ -64,9 +29,6 @@ class IPlugSwiftViewController: IPlugCocoaViewController, AudioKitUI.AKKeyboardD
   
   override func onMidiMsgUI(_ status: UInt8, _ data1: UInt8, _ data2: UInt8, _ offset: Int32) {
     print("Midi message received in UI: status: \(status), data1: \(data1), data2: \(data2)")
-    
-    
-    KeyboardView.programmaticNoteOn(data1);
   }
   
   override func onSysexMsgUI(_ msg: Data!, _ offset: Int32) {
