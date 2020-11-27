@@ -32,7 +32,7 @@ struct IMidiMsg
   int mOffset;
   uint8_t mStatus, mData1, mData2;
   
-  /** \todo */
+  /** MIDI message status.*/
   enum EStatusMsg
   {
     kNone = 0,
@@ -45,7 +45,7 @@ struct IMidiMsg
     kPitchWheel = 14
   };
   
-  /** \todo */
+  /** MIDI Control parameter. */
   enum EControlChangeMsg
   {
     kNoCC = -1,
@@ -125,11 +125,11 @@ struct IMidiMsg
     kAllNotesOff = 123
   };
   
-  /** \todo 
-   * @param offs \todo
-   * @param s \todo
-   * @param d1 \todo
-   * @param d2 \todo */
+  /** Initializer for a MIDI message structure.
+   * @param offs - MIDI message queue offset.
+   * @param s        - MIDI message status.
+   * @param d1      - Data item 1.
+   * @param d2      - Data item 2.*/
   IMidiMsg(int offs = 0, uint8_t s = 0, uint8_t d1 = 0, uint8_t d2 = 0)
   : mOffset(offs)
   , mStatus(s)
@@ -137,11 +137,11 @@ struct IMidiMsg
   , mData2(d2)
   {}
   
-  /** \todo 
-   * @param noteNumber \todo
-   * @param velocity \todo
-   * @param offset \todo
-   * @param channel \todo */
+  /** Create a message that turns ON a Note.
+   * @param noteNumber - Note number.
+   * @param velocity     - Note velocity.
+   * @param offset         - MIDI message queue offset.
+   * @param channel       - MIDI channel.*/
   void MakeNoteOnMsg(int noteNumber, int velocity, int offset, int channel = 0)
   {
     Clear();
@@ -151,10 +151,10 @@ struct IMidiMsg
     mOffset = offset;
   }
   
-  /** \todo 
-   * @param noteNumber \todo
-   * @param offset \todo
-   * @param channel \todo */
+  /** Create a message that turns OFF a Note.
+   * @param noteNumber - Note number.
+   * @param offset          - MIDI message queue offset.
+   * @param channel        - MIDI channel.*/
   void MakeNoteOffMsg(int noteNumber, int offset, int channel = 0)
   {
     Clear();
@@ -163,10 +163,10 @@ struct IMidiMsg
     mOffset = offset;
   }
 
-  /** \todo 
-   * @param value range [-1, 1], converts to [0, 16384) where 8192 = no pitch change.
-   * @param channel \todo
-   * @param offset \todo */
+  /** Create a Pitch Wheel message.
+   * @param value     - Range [-1, 1], converts to [0, 16384) where 8192 = no pitch change.
+   * @param channel - MIDI channel.
+   * @param offset   - MIDI message queue offset.*/
   void MakePitchWheelMsg(double value, int channel = 0, int offset = 0)
   {
     Clear();
@@ -178,11 +178,11 @@ struct IMidiMsg
     mOffset = offset;
   }
   
-  /** \todo
-   * @param idx \todo
-   * @param value range [0, 1] \todo
-   * @param channel \todo
-   * @param offset \todo */
+  /** Create a message for Control Changes, i.e,  when a Contorl changes the value of a parameter.
+   * @param idx          - Parameter index.
+   * @param value     - Range [0, 1].
+   * @param channel - MIDI channel.
+   * @param offset   - MIDI message queue offset.*/
   void MakeControlChangeMsg(EControlChangeMsg idx, double value, int channel = 0, int offset = 0)
   {
     Clear();
@@ -192,7 +192,10 @@ struct IMidiMsg
     mOffset = offset;
   }
 
-  /** \todo */
+  /** Create a message for Program change ( instrument patch change ) assigned to a MIDI channel.
+   * @param program - Selected program.
+   * @param channel - MIDI channel.
+   * @param offset   - MIDI message queue offset.*/
   void MakeProgramChange(int program, int channel = 0, int offset = 0)
   {
     Clear();
@@ -201,10 +204,10 @@ struct IMidiMsg
     mOffset = offset;
   }
 
-  /** \todo  
-   * @param pressure \todo
-   * @param offset \todo
-   * @param channel \todo */
+  /** Create a MIDI channel AfterTouch message to set data for the pressure that occurs after a key is struck. The pressure is the average value held for all keys and is independent of which or how many keys are held down.
+   * @param pressure - Value of pressure applied to keys.
+   * @param offset     - MIDI message queue offset.
+   * @param channel   - MIDI channel.*/
   void MakeChannelATMsg(int pressure, int offset, int channel)
   {
     Clear();
@@ -214,11 +217,11 @@ struct IMidiMsg
     mOffset = offset;
   }
   
-  /** \todo 
-   * @param noteNumber \todo
-   * @param pressure \todo
-   * @param offset \todo
-   * @param channel \todo */
+  /** Create a MIDI AfterTouch message to set data for the pressure that occurs after a key is struck, this message is specific to each key unlike an AfterTouch message.
+   * @param noteNumber - Note number.
+   * @param pressure     - Value of pressure applied to key.
+   * @param offset         - MIDI message queue offset.
+   * @param channel       - MIDI channel. */
   void MakePolyATMsg(int noteNumber, int pressure, int offset, int channel)
   {
     Clear();
@@ -228,14 +231,15 @@ struct IMidiMsg
     mOffset = offset;
   }
   
-  /** @return [0, 15] for midi channels 1 ... 16 */
+  /** Gets the Channel of a MIDI message.
+   * @return [0, 15] for midi channels 1 ... 16.*/
   int Channel() const
   {
     return mStatus & 0x0F;
   }
   
-  /** \todo  
-   * @return EStatusMsg \todo */
+  /** Gets the Status of a MIDI message.
+   * @return EStatusMsg*/
   EStatusMsg StatusMsg() const
   {
     unsigned int e = mStatus >> 4;
@@ -246,7 +250,8 @@ struct IMidiMsg
     return (EStatusMsg) e;
   }
   
-  /** @return [0, 127), -1 if NA. */
+  /** Gets the Number of a Note.
+   * @return [0, 127), -1 if NA. */
   int NoteNumber() const
   {
     switch (StatusMsg())
@@ -260,7 +265,8 @@ struct IMidiMsg
     }
   }
   
-  /** @return returns [0, 127), -1 if NA. */
+  /** Gets the Velocity of Note.
+   * @return returns [0, 127), -1 if NA. */
   int Velocity() const
   {
     switch (StatusMsg())
@@ -273,7 +279,8 @@ struct IMidiMsg
     }
   }
   
-  /** @return [0, 127), -1 if NA. */
+  /** Get the value of the Pressure from a Poly AfterTouch message.
+   *@return [0, 127), -1 if NA. */
   int PolyAfterTouch() const
   {
     switch (StatusMsg())
@@ -285,7 +292,8 @@ struct IMidiMsg
     }
   }
   
-  /** @return [0, 127), -1 if NA. */
+  /** Get the value of the Pressure from an AfterTouch message.
+   *@return [0, 127), -1 if NA. */
   int ChannelAfterTouch() const
   {
     switch (StatusMsg())
@@ -297,7 +305,8 @@ struct IMidiMsg
     }
   }
   
-  /** @return [0, 127), -1 if NA. */
+  /** Get the value of the Program selected in a Program Change message.
+   *@return [0, 127), -1 if NA. */
   int Program() const
   {
     if (StatusMsg() == kProgramChange)
@@ -307,7 +316,8 @@ struct IMidiMsg
     return -1;
   }
   
-  /** @return [-1.0, 1.0], zero if NA.*/
+  /** Get the PitchWheel value from a Pitchweel message.
+   *@return [-1.0, 1.0], zero if NA.*/
   double PitchWheel() const
   {
     if (StatusMsg() == kPitchWheel)
@@ -318,14 +328,15 @@ struct IMidiMsg
     return 0.0;
   }
   
-  /** \todo 
-   * @return EControlChangeMsg \todo */
+  /** Gets the index of the parameter being changed in a Control Change message.
+   * @return EControlChangeMsg as an Enum of varying values, refert to the definition of EControlChangeMsg.*/
   EControlChangeMsg ControlChangeIdx() const
   {
     return (EControlChangeMsg) mData1;
   }
   
-  /** @return [0, 1], -1 if NA.*/
+  /** Get the value of a parameter in a Control Change message.
+   *@return [0, 1], -1 if NA.*/
   double ControlChange(EControlChangeMsg idx) const
   {
     if (StatusMsg() == kControlChange && ControlChangeIdx() == idx)
@@ -335,7 +346,7 @@ struct IMidiMsg
     return -1.0;
   }
   
-  /** \todo 
+  /** Get the status of a Control Changes ? \todo
    * @param msgValue \todo
    * @return \c true = on */
   static bool ControlChangeOnOff(double msgValue)
@@ -343,16 +354,16 @@ struct IMidiMsg
     return (msgValue >= 0.5);
   }
   
-  /** \todo */
+  /** Clear the data and offset of a MIDI message.*/
   void Clear()
   {
     mOffset = 0;
     mStatus = mData1 = mData2 = 0;
   }
   
-  /** \todo  
-   * @param msg \todo
-   * @return const char* \todo */
+  /** Get the MIDI message Status as a String.
+   * @param msg              - MIDI message Status.
+   * @return const char* - for the Status message String */
   static const char* StatusMsgStr(EStatusMsg msg)
   {
     switch (msg)
@@ -505,13 +516,13 @@ struct IMidiMsg
     
     return ccNameStrs[idx];
   }
-  /** \todo */
+  /** Log a message including the MIDI message Status, Channel, and Data items. */
   void LogMsg()
   {
     Trace(TRACELOC, "midi:(%s:%d:%d:%d)", StatusMsgStr(StatusMsg()), Channel(), mData1, mData2);
   }
   
-  /** \todo */
+  /** Print a message including the MIDI message queue offset, Status, Channel, and Data items. */
   void PrintMsg() const
   {
     DBGMSG("midi: offset %i, (%s:%d:%d:%d)\n", mOffset, StatusMsgStr(StatusMsg()), Channel(), mData1, mData2);

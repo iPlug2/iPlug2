@@ -128,7 +128,7 @@ public:
   /** Get the namespace index of the track that the plug-in is inserted on */
   virtual int GetTrackNamespaceIndex() { return 0; }
 
-  /** \todo */
+  /** Get the parameter values from the UI controls */
   virtual void DirtyParametersFromUI() override;
 
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
@@ -177,7 +177,7 @@ public:
     mSysExDataFromEditor.Push(data);
   }
 
-  /** \todo */
+  /** Creates an interval timer to execute a callback that periodically processes messges from the processor */
   void CreateTimer();
   
 private:
