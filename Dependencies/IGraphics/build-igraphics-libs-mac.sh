@@ -89,9 +89,9 @@ buildFreetype()
   ARCH=$1
   
   if [[ $ARCH == "x86_64" ]]; then
-    HOST="i386"
+    HOST="i386-apple-darwin"
   elif [[ $ARCH == "arm64" ]]; then
-    HOST="arm"
+    HOST="arm-apple-darwin"
   fi
 
   echo -n "Configuring freetype for ${ARCH} ..."
