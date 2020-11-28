@@ -14,7 +14,7 @@ LOG_NAME="build-mac.log"
 FREETYPE_OPTIONS="--disable-shared --without-zlib --without-png --without-bzip2 --without-harfbuzz"
 DEPLOYMENT_TARGET=10.9
 
-[[ -e "$PWD/build-igraphics-libs-mac-new.sh" ]] ||
+[[ -e "$PWD/build-igraphics-libs-mac.sh" ]] ||
 {
   echo "*******************************************************************************"
   echo "Error: Please cd into the folder containing this script before running it.";
