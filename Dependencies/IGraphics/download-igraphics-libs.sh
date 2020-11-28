@@ -9,7 +9,7 @@ LOG_PATH="$BUILD_DIR"
 LOG_NAME="download.log"
 
 # Basename part of tarballs to download
-FREETYPE_VERSION=freetype-2.9.1
+FREETYPE_VERSION=freetype-2.10.4
 PKGCONFIG_VERSION=pkg-config-0.28
 EXPAT_VERSION=expat-2.2.5
 PNG_VERSION=v1.6.35
