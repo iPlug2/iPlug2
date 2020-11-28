@@ -71,7 +71,7 @@ cd "$SRC_DIR"
 echo
 
 PLATFORMS_DIR="/Applications/Xcode.app/Contents/Developer/Platforms"
-SYSROOT="${PLATFORMS_DIR}/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
+SYSROOT="${PLATFORMS_DIR}/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk"
 
 # remove old log file if exists
 if [ -e $LOG_DIR/$LOG_NAME ]
