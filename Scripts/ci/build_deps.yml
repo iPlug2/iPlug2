@@ -120,6 +120,7 @@ jobs:
 
   - bash: |
       cd ./Dependencies/IGraphics
+      sudo xcode-select -s "/Applications/Xcode_12.2.app"
       ./build-igraphics-libs-mac.sh
     displayName: Build Graphics Dependencies
 
