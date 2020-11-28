@@ -10,7 +10,7 @@ export PATH="${PWD}/$DEPOT_TOOLS_PATH:${PATH}"
 
 cd ../Build/src/skia
 python tools/git-sync-deps
-./bin/gn gen ../../tmp/skia/macOS_x64 --args='
+./bin/gn gen ../../tmp/skia/macOS_x86_64 --args='
 is_official_build = true
 skia_use_system_libjpeg_turbo = false
 skia_use_system_libpng = false
@@ -40,23 +40,23 @@ target_cpu = "x86_64"
 extra_cflags = ["-mmacosx-version-min=10.9"]
 extra_cflags_c = ["-Wno-error"]
 '
-ninja -C ../../tmp/skia/macOS_x64
+ninja -C ../../tmp/skia/macOS_x86_64
 
 if [ "$?" -ne "0" ]; then
   echo "ERROR: build failed, aborting"
   exit 1
 fi
 
-if [ ! -d ../../mac/lib_x64 ]; then
-  mkdir -p ../../mac/lib_x64
+if [ ! -d ../../mac/lib_x86_64 ]; then
+  mkdir -p ../../mac/lib_x86_64
 fi
 
-mv ../../tmp/skia/macOS_x64/libskia.a ../../mac/lib_x64
-mv ../../tmp/skia/macOS_x64/libskottie.a ../../mac/lib_x64
-mv ../../tmp/skia/macOS_x64/libskshaper.a ../../mac/lib_x64
-mv ../../tmp/skia/macOS_x64/libsksg.a ../../mac/lib_x64
-mv ../../tmp/skia/macOS_x64/libskparagraph.a ../../mac/lib_x64
-mv ../../tmp/skia/macOS_x64/libsvg.a ../../mac/lib_x64
+mv ../../tmp/skia/macOS_x86_64/libskia.a ../../mac/lib_x86_64
+mv ../../tmp/skia/macOS_x86_64/libskottie.a ../../mac/lib_x86_64
+mv ../../tmp/skia/macOS_x86_64/libskshaper.a ../../mac/lib_x86_64
+mv ../../tmp/skia/macOS_x86_64/libsksg.a ../../mac/lib_x86_64
+mv ../../tmp/skia/macOS_x86_64/libskparagraph.a ../../mac/lib_x86_64
+mv ../../tmp/skia/macOS_x86_64/libsvg.a ../../mac/lib_x86_64
 
 python tools/git-sync-deps
 ./bin/gn gen ../../tmp/skia/macOS_arm64 --args='
@@ -133,6 +133,6 @@ if [ -d ../../mac/lib_arm64 ]; then
   rm -r ../../mac/lib_arm64
 fi
 
-if [ -d ../../mac/lib_x64 ]; then
-  rm -r ../../mac/lib_x64
+if [ -d ../../mac/lib_x86_64 ]; then
+  rm -r ../../mac/lib_x86_64
 fi
