@@ -436,6 +436,7 @@ typedef struct HTREEITEM__ *HTREEITEM;
 
 #define TVN_FIRST               (0U-400U)       // treeview
 #define TVN_SELCHANGED          (TVN_FIRST-2)
+#define TVN_ITEMEXPANDING       (TVN_FIRST-5)
 
 // swell-extension: WM_MOUSEMOVE set via capture in TVN_BEGINDRAG can return:
 //   -1 = drag not possible
@@ -777,6 +778,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define NM_CLICK                (NM_FIRST-2)    // uses NMCLICK struct
 #define NM_DBLCLK               (NM_FIRST-3)
 #define NM_RCLICK               (NM_FIRST-5)    // uses NMCLICK struct
+#define NM_CUSTOMDRAW           (NM_FIRST-12)
 
 
 #define LVSIL_STATE 1
@@ -1127,6 +1129,25 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define SIZE_MAXSHOW        3
 #define SIZE_MAXHIDE        4
 
+typedef struct tagNMLVCUSTOMDRAW
+{
+  struct {
+    NMHDR hdr;
+    DWORD dwDrawStage;
+    HDC hdc; // not implemented
+    RECT rc; // not implemented
+    DWORD dwItemSpec;
+    UINT uItemState; // not implemented
+    LPARAM lItemlParam; // not implemented
+  } nmcd;
+
+  COLORREF clrText, clrTextBk;
+  int iSubItem;
+} NMLVCUSTOMDRAW, *LPNMLVCUSTOMDRAW;
+// only currently used by listviews for color override
+#define CDDS_PREPAINT (0x00001)
+#define CDDS_ITEM     (0x10000)
+#define CDDS_ITEMPREPAINT (CDDS_ITEM | CDDS_PREPAINT)
 
 #ifndef MAKEINTRESOURCE
 #define MAKEINTRESOURCE(x) ((const char *)(UINT_PTR)(x))         

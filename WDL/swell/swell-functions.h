@@ -481,6 +481,7 @@ SWELL_API_DEFINE(BOOL, TreeView_SetItem,(HWND hwnd, LPTVITEM pitem))
 SWELL_API_DEFINE(HTREEITEM, TreeView_HitTest, (HWND hwnd, TVHITTESTINFO *hti))
 SWELL_API_DEFINE(BOOL, TreeView_SetIndent,(HWND hwnd, int indent))
 
+SWELL_API_DEFINE(HTREEITEM, TreeView_GetParent, (HWND hwnd, HTREEITEM item))
 SWELL_API_DEFINE(HTREEITEM, TreeView_GetChild, (HWND hwnd, HTREEITEM item))
 SWELL_API_DEFINE(HTREEITEM, TreeView_GetNextSibling, (HWND hwnd, HTREEITEM item))
 SWELL_API_DEFINE(HTREEITEM, TreeView_GetRoot, (HWND hwnd))
@@ -1083,5 +1084,7 @@ SWELL_API_DEFINE(bool, IsWindowEnabled, (HWND))
 
 SWELL_API_DEFINE(int, GetClassName, (HWND, char *, int)) // only partially implemented, if using custom control creators they should call SWELL_SetClassName() to set the class name (reading class name is desired)
 SWELL_API_DEFINE(void, SWELL_SetClassName, (HWND, const char*)) // must pass a static string!
+
+SWELL_API_DEFINE(void, SWELL_DisableContextMenu, (HWND, bool))
 
 #endif // _WDL_SWELL_H_API_DEFINED_
