@@ -23,29 +23,29 @@ DEPLOYMENT_TARGET=10.9
 }
 
 err_report() {
-    echo
-    echo "*******************************************************************************"
-    echo "Error: something went wrong during the build process, printing $LOG_NAME "
-    echo "*******************************************************************************"
-    echo
-    cat $LOG_DIR/$LOG_NAME
+  echo
+  echo "*******************************************************************************"
+  echo "Error: something went wrong during the build process, printing $LOG_NAME "
+  echo "*******************************************************************************"
+  echo
+  cat $LOG_DIR/$LOG_NAME
 }
 
 trap err_report ERR
 
 spin() {
-    pid=$! # Process Id of the previous running command
-    spin='-\|/'
-    i=0
-    while kill -0 $pid 2>/dev/null
-    do
-        local temp=${spin#?}
-        printf " [%c]  " "$spin"
-        local spin=$temp${spin%"$temp"}
-        sleep .1
-        printf "\b\b\b\b\b\b"
-    done
-    printf "    \b\b\b\b"
+  pid=$! # Process Id of the previous running command
+  spin='-\|/'
+  i=0
+  while kill -0 $pid 2>/dev/null
+  do
+    local temp=${spin#?}
+    printf " [%c]  " "$spin"
+    local spin=$temp${spin%"$temp"}
+    sleep .1
+    printf "\b\b\b\b\b\b"
+  done
+  printf "    \b\b\b\b"
 }
 
 cd "${0%/*}"
@@ -71,7 +71,7 @@ cd "$SRC_DIR"
 echo
 
 PLATFORMS_DIR="/Applications/Xcode.app/Contents/Developer/Platforms"
-SYSROOT="${PLATFORMS_DIR}/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk"
+SYSROOT="${PLATFORMS_DIR}/MacOSX.platform/Developer/SDKs/MacOSX.sdk"
 
 # remove old log file if exists
 if [ -e $LOG_DIR/$LOG_NAME ]
