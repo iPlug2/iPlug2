@@ -112,7 +112,7 @@ jobs:
   condition: and(eq(variables.build_deps, true), eq(variables.build_mac, true))
 
   pool:
-    vmImage: 'macos-11.0'
+    vmImage: 'macOS-11.0'
   steps:
   - checkout: none
 
