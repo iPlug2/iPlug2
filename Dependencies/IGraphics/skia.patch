@@ -1,8 +1,16 @@
 diff --git a/BUILD.gn b/BUILD.gn
-index e7a79b9e7c..dc3e51e59e 100644
+index 3985f614c6..c5537043e7 100644
 --- a/BUILD.gn
 +++ b/BUILD.gn
-@@ -3084,15 +3084,3 @@ if (skia_enable_tools) {
+@@ -1410,6 +1410,7 @@ group("modules") {
+     "modules/skottie",
+     "modules/skparagraph",
+     "modules/skshaper",
++    "modules/svg",
+   ]
+ }
+ 
+@@ -3064,15 +3065,3 @@ if (skia_enable_tools) {
      }
    }
  }
@@ -19,10 +27,10 @@ index e7a79b9e7c..dc3e51e59e 100644
 -  }
 -}
 diff --git a/gn/toolchain/BUILD.gn b/gn/toolchain/BUILD.gn
-index e8e6ce4603..804838d3d0 100644
+index 8029086eff..47eeeca061 100644
 --- a/gn/toolchain/BUILD.gn
 +++ b/gn/toolchain/BUILD.gn
-@@ -81,7 +81,7 @@ toolchain("msvc") {
+@@ -86,7 +86,7 @@ toolchain("msvc") {
    if (target_cpu == "x86") {
      # Toolchain asset includes a script that configures for x86 building.
      # We don't support x86 builds with local MSVC installations.

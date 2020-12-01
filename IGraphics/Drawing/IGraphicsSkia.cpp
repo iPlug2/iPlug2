@@ -13,10 +13,6 @@
 #include "SkTypeface.h"
 #pragma warning( pop )
 
-#include "GrDirectContext.h"
-
-#include "IGraphicsSkia_src.cpp"
-
 #if defined OS_MAC || defined OS_IOS
   #include "SkCGUtils.h"
   #if defined IGRAPHICS_GL2
@@ -34,6 +30,7 @@
   #pragma comment(lib, "libpng.lib")
   #pragma comment(lib, "zlib.lib")
   #pragma comment(lib, "skia.lib")
+  #pragma comment(lib, "svg.lib")
   #ifdef IGRAPHICS_GL
     #pragma comment(lib, "opengl32.lib")
   #endif

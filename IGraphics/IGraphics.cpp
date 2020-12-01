@@ -1554,17 +1554,12 @@ ISVG IGraphics::LoadSVG(const char* name, const void* pData, int dataSize, const
   if (!pHolder)
   {
     sk_sp<SkSVGDOM> svgDOM;
-    bool success = false;
     SkDOM xmlDom;
 
     SkMemoryStream svgStream(pData, dataSize);
-    success = xmlDom.build(svgStream) != nullptr;
-
-    if (success)
-      svgDOM = SkSVGDOM::MakeFromDOM(xmlDom);
-    success = svgDOM != nullptr;
-
-    if (!success)
+    svgDOM = SkSVGDOM::MakeFromStream(svgStream);
+    
+    if (!svgDOM)
       return ISVG(nullptr); // return invalid SVG
 
     // If an SVG doesn't have a container size, SKIA doesn't seem to have access to any meaningful size info.
