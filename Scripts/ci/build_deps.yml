@@ -107,26 +107,26 @@ jobs:
       targetPath: 'Dependencies/Build/'
     displayName: Publish Windows Dependencies Artifacts
 
-- job: BUILD_MAC_DEPS
-  dependsOn: GET_SRC_TREE
-  condition: and(eq(variables.build_deps, true), eq(variables.build_mac, true))
+# - job: BUILD_MAC_DEPS
+#   dependsOn: GET_SRC_TREE
+#   condition: and(eq(variables.build_deps, true), eq(variables.build_mac, true))
 
-  pool:
-    vmImage: 'macOS-11.0'
-  steps:
-  - checkout: none
+#   pool:
+#     vmImage: 'macOS-11.0'
+#   steps:
+#   - checkout: none
 
-  - template: get_src_artifact.yml
+#   - template: get_src_artifact.yml
 
-  - bash: |
-      cd ./Dependencies/IGraphics
-      ./build-igraphics-libs-mac.sh
-    displayName: Build Graphics Dependencies
+#   - bash: |
+#       cd ./Dependencies/IGraphics
+#       ./build-igraphics-libs-mac.sh
+#     displayName: Build Graphics Dependencies
 
-  - bash: |
-      cd ./Dependencies/IGraphics
-      ./build-skia-mac.sh
-    displayName: Build Skia
+#   - bash: |
+#       cd ./Dependencies/IGraphics
+#       ./build-skia-mac.sh
+#     displayName: Build Skia
 
   # - bash: |
   #     cd $BUILD_SOURCESDIRECTORY
@@ -144,16 +144,16 @@ jobs:
   #     ./build-civetweb-mac.sh
   #   displayName: Build CivetWeb
 
-  - bash: |
-      cd ./Dependencies/Build
-      ./../IGraphics/package-deps-src.sh
-    displayName: slim SKIA src
+  # - bash: |
+  #     cd ./Dependencies/Build
+  #     ./../IGraphics/package-deps-src.sh
+  #   displayName: slim SKIA src
 
-  - task: PublishPipelineArtifact@0
-    inputs:
-      artifactName: 'IPLUG2_DEPS_MAC'
-      targetPath: 'Dependencies/Build/'
-    displayName: Publish Mac Dependencies Artifacts
+  # - task: PublishPipelineArtifact@0
+  #   inputs:
+  #     artifactName: 'IPLUG2_DEPS_MAC'
+  #     targetPath: 'Dependencies/Build/'
+  #   displayName: Publish Mac Dependencies Artifacts
 
 - job: BUILD_IOS_DEPS
   dependsOn: GET_SRC_TREE
