@@ -112,7 +112,7 @@ jobs:
   condition: and(eq(variables.build_deps, true), eq(variables.build_mac, true))
 
   pool:
-    vmImage: 'macOS-latest'
+    vmImage: 'macos-11.0'
   steps:
   - checkout: none
 
@@ -120,7 +120,6 @@ jobs:
 
   - bash: |
       cd ./Dependencies/IGraphics
-      sudo xcode-select -s "/Applications/Xcode_12.2.app"
       ./build-igraphics-libs-mac.sh
     displayName: Build Graphics Dependencies
 
