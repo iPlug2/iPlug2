@@ -33,18 +33,13 @@ public:
   {
     g.DrawDottedRect(COLOR_BLACK, mRECT);
 
-    if (g.HasPathSupport())
-    {
-      float cr = static_cast<float>(GetValue()) * (mRECT.H() / 2.f);
-      g.PathRoundRect(mRECT.GetPadded(-2.f), cr);
-      IFillOptions fillOptions;
-      IStrokeOptions strokeOptions;
-      fillOptions.mPreserve = true;
-      g.PathFill(mPattern, fillOptions);
-      g.PathStroke(IColor(255, 0, 0, 0), 3, strokeOptions);
-    }
-    else
-      g.DrawText(mText, "UNSUPPORTED", mRECT);
+    float cr = static_cast<float>(GetValue()) * (mRECT.H() / 2.f);
+    g.PathRoundRect(mRECT.GetPadded(-2.f), cr);
+    IFillOptions fillOptions;
+    IStrokeOptions strokeOptions;
+    fillOptions.mPreserve = true;
+    g.PathFill(mPattern, fillOptions);
+    g.PathStroke(IColor(255, 0, 0, 0), 3, strokeOptions);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override

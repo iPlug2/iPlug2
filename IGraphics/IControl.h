@@ -567,6 +567,7 @@ private:
   IGraphics* mGraphics = nullptr;
   IActionFunction mActionFunc = nullptr;
   IActionFunction mAnimationEndActionFunc = nullptr;
+  IActionFunction mAnimationEndActionFuncQueued = nullptr;
   IAnimationFunction mAnimationFunc = nullptr;
   TimePoint mAnimationStartTime;
   Milliseconds mAnimationDuration;
@@ -1725,14 +1726,9 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    if(g.HasPathSupport())
-    {
-      g.PathRect(mRECT);
-      g.PathFill(mPattern);
-    }
-    else
-      g.FillRect(mPattern.GetStop(0).mColor, mRECT);
-    
+    g.PathRect(mRECT);
+    g.PathFill(mPattern);
+  
     if(mDrawFrame)
       g.DrawRect(COLOR_LIGHT_GRAY, mRECT);
   }

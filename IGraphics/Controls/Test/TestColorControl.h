@@ -44,11 +44,8 @@ public:
     g.DrawDottedRect(COLOR_BLACK, mRECT);
 
 #ifndef IGRAPHICS_NANOVG
-    if(g.HasPathSupport())
-    {
-      g.PathRect(mRECT);
-      g.PathFill(mPattern);
-    }
+    g.PathRect(mRECT);
+    g.PathFill(mPattern);
 #else
     g.DrawText(mText, "UNSUPPORTED", mRECT);
 #endif

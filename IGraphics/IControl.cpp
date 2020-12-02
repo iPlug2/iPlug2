@@ -230,6 +230,12 @@ bool IControl::IsDirty()
   if (GetAnimationFunction())
     return true;
   
+  if (!mDirty && mAnimationEndActionFuncQueued)
+  {
+    mAnimationEndActionFuncQueued(this);
+    mAnimationEndActionFuncQueued = nullptr;
+  }
+  
   return mDirty;
 }
 
@@ -422,8 +428,8 @@ void IControl::OnEndAnimation()
   mAnimationFunc = nullptr;
   SetDirty(false);
   
-  if(mAnimationEndActionFunc)
-    mAnimationEndActionFunc(this);
+  if(mAnimationEndActionFunc) // queue for next clean draw
+    mAnimationEndActionFuncQueued = mAnimationEndActionFunc;
 }
 
 void IControl::StartAnimation(int duration)

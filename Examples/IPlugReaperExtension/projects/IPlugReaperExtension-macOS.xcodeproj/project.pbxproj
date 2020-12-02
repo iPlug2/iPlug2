@@ -80,7 +80,6 @@
 		4FBB8C3C21EA55BD00C1EF1B /* IGraphicsUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsUtilities.h; sourceTree = "<group>"; };
 		4FBB8C3D21EA55BD00C1EF1B /* IGraphicsEditorDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsEditorDelegate.cpp; sourceTree = "<group>"; };
 		4FBB8C3E21EA55BD00C1EF1B /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };
-		4FBB8C3F21EA55BD00C1EF1B /* IGraphicsPathBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPathBase.h; sourceTree = "<group>"; };
 		4FBB8C4121EA55BD00C1EF1B /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
 		4FBB8C4321EA55BD00C1EF1B /* TestCursorControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestCursorControl.h; sourceTree = "<group>"; };
 		4FBB8C4421EA55BD00C1EF1B /* TestSizeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestSizeControl.h; sourceTree = "<group>"; };
@@ -247,7 +246,6 @@
 				4FBB8C6821EA55BD00C1EF1B /* IGraphicsEditorDelegate.h */,
 				4FBB8C3D21EA55BD00C1EF1B /* IGraphicsEditorDelegate.cpp */,
 				4FBB8C3E21EA55BD00C1EF1B /* IGraphics.cpp */,
-				4FBB8C3F21EA55BD00C1EF1B /* IGraphicsPathBase.h */,
 				4FBB8C6321EA55BD00C1EF1B /* IGraphicsStructs.h */,
 				4FBB8C6421EA55BD00C1EF1B /* IGraphicsConstants.h */,
 				4FBB8C6521EA55BD00C1EF1B /* IGraphicsLiveEdit.h */,

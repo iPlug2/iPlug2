@@ -32,7 +32,7 @@ struct IMidiMsg
   int mOffset;
   uint8_t mStatus, mData1, mData2;
   
-  /** \todo */
+  /** Constants for the status byte of a MIDI message */
   enum EStatusMsg
   {
     kNone = 0,
@@ -45,7 +45,7 @@ struct IMidiMsg
     kPitchWheel = 14
   };
   
-  /** \todo */
+  /** Constants for MIDI CC messages */
   enum EControlChangeMsg
   {
     kNoCC = -1,
@@ -125,23 +125,23 @@ struct IMidiMsg
     kAllNotesOff = 123
   };
   
-  /** \todo 
-   * @param offs \todo
-   * @param s \todo
-   * @param d1 \todo
-   * @param d2 \todo */
-  IMidiMsg(int offs = 0, uint8_t s = 0, uint8_t d1 = 0, uint8_t d2 = 0)
-  : mOffset(offs)
-  , mStatus(s)
-  , mData1(d1)
-  , mData2(d2)
+  /** Create an IMidiMsg, an abstraction for a MIDI message
+   * @param offset Sample offset in block
+   * @param status Status byte
+   * @param data1 Data byte 1
+   * @param data2 Data byte 2 */
+  IMidiMsg(int offset = 0, uint8_t status = 0, uint8_t data1 = 0, uint8_t data2 = 0)
+  : mOffset(offset)
+  , mStatus(status)
+  , mData1(data1)
+  , mData2(data2)
   {}
   
-  /** \todo 
-   * @param noteNumber \todo
-   * @param velocity \todo
-   * @param offset \todo
-   * @param channel \todo */
+  /** Make a Note On message
+   * @param noteNumber Note number
+   * @param velocity Note on velocity
+   * @param offset Sample offset in block
+   * @param channel MIDI channel [0, 15] */
   void MakeNoteOnMsg(int noteNumber, int velocity, int offset, int channel = 0)
   {
     Clear();
@@ -151,10 +151,10 @@ struct IMidiMsg
     mOffset = offset;
   }
   
-  /** \todo 
-   * @param noteNumber \todo
-   * @param offset \todo
-   * @param channel \todo */
+  /** Make a Note Off message
+   * @param noteNumber Note number
+   * @param offset Sample offset in block
+   * @param channel MIDI channel [0, 15] */
   void MakeNoteOffMsg(int noteNumber, int offset, int channel = 0)
   {
     Clear();
@@ -163,10 +163,10 @@ struct IMidiMsg
     mOffset = offset;
   }
 
-  /** \todo 
-   * @param value range [-1, 1], converts to [0, 16384) where 8192 = no pitch change.
-   * @param channel \todo
-   * @param offset \todo */
+  /** Create a pitch wheel/bend message
+   * @param value Range [-1, 1], converts to [0, 16384) where 8192 = no pitch change
+   * @param channel MIDI channel [0, 15]
+   * @param offset Sample offset in block */
   void MakePitchWheelMsg(double value, int channel = 0, int offset = 0)
   {
     Clear();
@@ -178,11 +178,11 @@ struct IMidiMsg
     mOffset = offset;
   }
   
-  /** \todo
-   * @param idx \todo
-   * @param value range [0, 1] \todo
-   * @param channel \todo
-   * @param offset \todo */
+  /** Create a CC message
+   * @param idx Controller index
+   * @param value Range [0, 1]
+   * @param channel MIDI channel [0, 15]
+   * @param offset Sample offset in block */
   void MakeControlChangeMsg(EControlChangeMsg idx, double value, int channel = 0, int offset = 0)
   {
     Clear();
@@ -192,7 +192,10 @@ struct IMidiMsg
     mOffset = offset;
   }
 
-  /** \todo */
+  /** Create a Program Change message
+   * @param program Program index
+   * @param channel MIDI channel [0, 15] 
+   * @param offset Sample offset in block */
   void MakeProgramChange(int program, int channel = 0, int offset = 0)
   {
     Clear();
@@ -201,10 +204,10 @@ struct IMidiMsg
     mOffset = offset;
   }
 
-  /** \todo  
-   * @param pressure \todo
-   * @param offset \todo
-   * @param channel \todo */
+  /** Create a Channel AfterTouch message 
+   * @param pressure Range [0, 127]
+   * @param offset Sample offset in block
+   * @param channel MIDI channel [0, 15] */
   void MakeChannelATMsg(int pressure, int offset, int channel)
   {
     Clear();
@@ -214,11 +217,11 @@ struct IMidiMsg
     mOffset = offset;
   }
   
-  /** \todo 
-   * @param noteNumber \todo
-   * @param pressure \todo
-   * @param offset \todo
-   * @param channel \todo */
+  /** Create a MIDI AfterTouch message to set data for the pressure that occurs after a key is struck, this message is specific to each key unlike an AfterTouch message.
+   * @param noteNumber Note number
+   * @param pressure Range [0, 127]
+   * @param offset Sample offset in block
+   * @param channel MIDI channel [0, 15] */
   void MakePolyATMsg(int noteNumber, int pressure, int offset, int channel)
   {
     Clear();
@@ -228,14 +231,15 @@ struct IMidiMsg
     mOffset = offset;
   }
   
-  /** @return [0, 15] for midi channels 1 ... 16 */
+  /** Gets the channel of a MIDI message
+   * @return [0, 15] for midi channels 1 ... 16. */
   int Channel() const
   {
     return mStatus & 0x0F;
   }
   
-  /** \todo  
-   * @return EStatusMsg \todo */
+  /** Gets the MIDI Status message
+   * @return EStatusMsg */
   EStatusMsg StatusMsg() const
   {
     unsigned int e = mStatus >> 4;
@@ -246,7 +250,8 @@ struct IMidiMsg
     return (EStatusMsg) e;
   }
   
-  /** @return [0, 127), -1 if NA. */
+  /** Gets the MIDI note number
+   * @return [0, 127], -1 if NA. */
   int NoteNumber() const
   {
     switch (StatusMsg())
@@ -260,7 +265,8 @@ struct IMidiMsg
     }
   }
   
-  /** @return returns [0, 127), -1 if NA. */
+  /** Get the velocity value of a NoteOn/NoteOff message
+   * @return returns [0, 127], -1 if NA. */
   int Velocity() const
   {
     switch (StatusMsg())
@@ -273,7 +279,8 @@ struct IMidiMsg
     }
   }
   
-  /** @return [0, 127), -1 if NA. */
+  /** Get the Pressure value from a PolyAfterTouch message
+   * @return [0, 127], -1 if NA. */
   int PolyAfterTouch() const
   {
     switch (StatusMsg())
@@ -285,7 +292,8 @@ struct IMidiMsg
     }
   }
   
-  /** @return [0, 127), -1 if NA. */
+  /** Get the Pressure value from an AfterTouch message
+   * @return [0, 127], -1 if NA. */
   int ChannelAfterTouch() const
   {
     switch (StatusMsg())
@@ -297,7 +305,8 @@ struct IMidiMsg
     }
   }
   
-  /** @return [0, 127), -1 if NA. */
+  /** Get the program index from a Program Change message
+   * @return [0, 127], -1 if NA. */
   int Program() const
   {
     if (StatusMsg() == kProgramChange)
@@ -307,7 +316,8 @@ struct IMidiMsg
     return -1;
   }
   
-  /** @return [-1.0, 1.0], zero if NA.*/
+  /** Get the value from a Pitchwheel message
+   * @return [-1.0, 1.0], zero if NA.*/
   double PitchWheel() const
   {
     if (StatusMsg() == kPitchWheel)
@@ -318,14 +328,15 @@ struct IMidiMsg
     return 0.0;
   }
   
-  /** \todo 
-   * @return EControlChangeMsg \todo */
+  /** Gets the controller index of a CC message
+   * @return EControlChangeMsg as an Enum of varying values, refert to the definition of EControlChangeMsg.*/
   EControlChangeMsg ControlChangeIdx() const
   {
     return (EControlChangeMsg) mData1;
   }
   
-  /** @return [0, 1], -1 if NA.*/
+  /** Get the value of a CC message
+   * @return [0, 1], -1 if NA.*/
   double ControlChange(EControlChangeMsg idx) const
   {
     if (StatusMsg() == kControlChange && ControlChangeIdx() == idx)
@@ -335,24 +346,24 @@ struct IMidiMsg
     return -1.0;
   }
   
-  /** \todo 
-   * @param msgValue \todo
+  /** Helper to get a boolean value from a CC messages
+   * @param msgValue The normalized CC value [0, 1]
    * @return \c true = on */
   static bool ControlChangeOnOff(double msgValue)
   {
     return (msgValue >= 0.5);
   }
   
-  /** \todo */
+  /** Clear the message */
   void Clear()
   {
     mOffset = 0;
     mStatus = mData1 = mData2 = 0;
   }
   
-  /** \todo  
-   * @param msg \todo
-   * @return const char* \todo */
+  /** Get the Status Message as a CString
+   * @param msg The Status Message
+   * @return CString describing the status byte */
   static const char* StatusMsgStr(EStatusMsg msg)
   {
     switch (msg)
@@ -369,6 +380,9 @@ struct IMidiMsg
     };
   }
   
+  /** Get the CC name as a CString
+   * @param idx Index of the MIDI CC [0-127]
+   * @return CString describing the controller */
   static const char* CCNameStr(int idx)
   {
     static const char* ccNameStrs[128] =
@@ -505,13 +519,14 @@ struct IMidiMsg
     
     return ccNameStrs[idx];
   }
-  /** \todo */
+
+  /** Log a message (TRACER BUILDS) */
   void LogMsg()
   {
     Trace(TRACELOC, "midi:(%s:%d:%d:%d)", StatusMsgStr(StatusMsg()), Channel(), mData1, mData2);
   }
   
-  /** \todo */
+  /** Print a message (DEBUG BUILDS) */
   void PrintMsg() const
   {
     DBGMSG("midi: offset %i, (%s:%d:%d:%d)\n", mOffset, StatusMsgStr(StatusMsg()), Channel(), mData1, mData2);
@@ -525,30 +540,30 @@ struct ISysEx
   int mOffset, mSize;
   const uint8_t* mData;
   
-  /** \todo  
-   * @param offs \todo
-   * @param pData \todo
-   * @param size \todo */
-  ISysEx(int offs = 0, const uint8_t* pData = nullptr, int size = 0)
-  : mOffset(offs)
+  /** Create an ISysex 
+   * @param offset The sample offset for the sysex message
+   * @param pData Ptr to the data, which must stay valid while this object is used
+   * @param size Size of the data in bytes */
+  ISysEx(int offset = 0, const uint8_t* pData = nullptr, int size = 0)
+  : mOffset(offset)
   , mData(pData)
   , mSize(size)
   {}
   
-  /** \todo */
+  /** Clear the data pointer and size (does not modify the external data!)  */
   void Clear()
   {
     mOffset = mSize = 0;
     mData = NULL;
   }
   
-  /** \todo 
-   * @param str \todo
-   * @param maxlen \todo
-   * @param pData \todo
-   * @param size \todo
-   * @return char* \todo */
-  char* SysExStr(char *str, int maxlen, const uint8_t* pData, int size)
+  /** Get the bytes of a sysex message as a CString
+   * @param str Buffer for CString
+   * @param maxlen size of the CString buffer
+   * @param pData Ptr to the bytes of the sysex message
+   * @param size Size of the data in bytes
+   * @return The CString result */
+  char* SysExStr(char* str, int maxlen, const uint8_t* pData, int size)
   {
     assert(str != NULL && maxlen >= 3);
     
@@ -570,6 +585,7 @@ struct ISysEx
     return str;
   }
   
+  /** Log a message (TRACER BUILDS) */
   void LogMsg()
   {
     char str[96];
