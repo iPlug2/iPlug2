@@ -196,7 +196,6 @@ include("${IPLUG2_CMAKE_DIR}/LICE.cmake")
 add_library(iPlug2_LICE INTERFACE)
 iplug_target_add(iPlug2_LICE INTERFACE
   DEFINE "IGRAPHICS_LICE" "SWELL_EXTRA_MINIMAL" "SWELL_LICE_GDI" "SWELL_FREETYPE"
-  SOURCE "${IGRAPHICS_SRC}/Drawing/IGraphicsLice_src.cpp"
   LINK iPlug2_IGraphicsCore LICE_Core LICE_PNG LICE_ZLIB "dl" "pthread"
 )
 
