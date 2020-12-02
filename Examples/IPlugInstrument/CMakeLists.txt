@@ -31,36 +31,36 @@ set(RES_FILES
 source_group(TREE "${dir}/resources" PREFIX Resources FILES ${RES_FILES})
 
 # While not required, creating a base interface for includes and settings seems like a good idea.
-add_library(_base INTERFACE)
+add_library(BASE INTERFACE)
 # iplug_target_add() is a shorthand function for adding sources and include dirs,
 # linking libraries, adding resources, setting compile options, etc.
-iplug_target_add(_base INTERFACE
+iplug_target_add(BASE INTERFACE
   INCLUDE ${dir} ${dir}/resources
   LINK IPLUG_SYNTH IPLUG_NANOVG IPLUG_GL2)
 
 # For whatever reason setting CXX_STANDARD doesn't seem to work properly, so set it explicitly.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  target_compile_options(_base INTERFACE "$<$<COMPILE_LANGUAGE:CXX>:/std:c++14>")
+  target_compile_options(BASE INTERFACE "$<$<COMPILE_LANGUAGE:CXX>:/std:c++14>")
 else()
-  target_compile_options(_base INTERFACE "$<$<COMPILE_LANGUAGE:CXX>:-std=c++14>")
+  target_compile_options(BASE INTERFACE "$<$<COMPILE_LANGUAGE:CXX>:-std=c++14>")
 endif()
 
 add_executable(App WIN32 MACOSX_BUNDLE ${SRC_FILES} ${RES_FILES})
-iplug_target_add(App PUBLIC LINK _base RESOURCE ${RES_FILES})
+iplug_target_add(App PUBLIC LINK BASE RESOURCE ${RES_FILES})
 # You MUST call iplug_configure_target(<target_name> <app|vst2|vst3|...>) for things to build correctly.
 iplug_configure_target(App app)
 
 add_library(VST2 MODULE ${SRC_FILES} ${RES_FILES})
-iplug_target_add(VST2 PUBLIC LINK _base RESOURCE ${RES_FILES})
+iplug_target_add(VST2 PUBLIC LINK BASE RESOURCE ${RES_FILES})
 iplug_configure_target(VST2 vst2)
 
 add_library(VST3 MODULE ${SRC_FILES} ${RES_FILES})
-iplug_target_add(VST3 PUBLIC LINK _base RESOURCE ${RES_FILES})
+iplug_target_add(VST3 PUBLIC LINK BASE RESOURCE ${RES_FILES})
 iplug_configure_target(VST3 vst3)
 
 if (APPLE)
   add_library(AUv2 MODULE ${SRC_FILES} ${RES_FILES})
-  iplug_target_add(AUv2 PUBLIC LINK _base RESOURCE ${RES_FILES})
+  iplug_target_add(AUv2 PUBLIC LINK BASE RESOURCE ${RES_FILES})
   iplug_configure_target(AUv2 au2)
 endif()
 
