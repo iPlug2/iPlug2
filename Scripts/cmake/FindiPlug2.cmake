@@ -302,7 +302,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   list(APPEND _lib
     "-framework CoreFoundation" "-framework CoreData" "-framework Foundation" "-framework CoreServices"
   )
-  list(APPEND _opts "-Wno-deprecated-declarations")
+  list(APPEND _opts "-Wno-deprecated-declarations"  "-Wno-c++11-narrowing")
 else()
   message("Unhandled system ${CMAKE_SYSTEM_NAME}" FATAL_ERROR)
 endif()
