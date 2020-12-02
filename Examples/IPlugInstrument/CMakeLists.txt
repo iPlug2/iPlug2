@@ -34,7 +34,7 @@ source_group(TREE "${dir}/resources" PREFIX Resources FILES ${RES_FILES})
 add_library(_base INTERFACE)
 # iplug_target_add() is a shorthand function for adding sources and include dirs,
 # linking libraries, adding resources, setting compile options, etc.
-iplug2_target_add(_base INTERFACE
+iplug_target_add(_base INTERFACE
   INCLUDE ${dir} ${dir}/resources
   LINK iPlug2_Synth iPlug2_NANOVG iPlug2_GL2)
 
@@ -46,21 +46,21 @@ else()
 endif()
 
 add_executable(App WIN32 MACOSX_BUNDLE ${SRC_FILES} ${RES_FILES})
-iplug2_target_add(App PUBLIC LINK _base RESOURCE ${RES_FILES})
+iplug_target_add(App PUBLIC LINK _base RESOURCE ${RES_FILES})
 # You MUST call iplug_configure_target(<target_name> <app|vst2|vst3|...>) for things to build correctly.
-iplug2_configure_target(App app)
+iplug_configure_target(App app)
 
 add_library(VST2 MODULE ${SRC_FILES} ${RES_FILES})
-iplug2_target_add(VST2 PUBLIC LINK _base RESOURCE ${RES_FILES})
-iplug2_configure_target(VST2 vst2)
+iplug_target_add(VST2 PUBLIC LINK _base RESOURCE ${RES_FILES})
+iplug_configure_target(VST2 vst2)
 
 add_library(VST3 MODULE ${SRC_FILES} ${RES_FILES})
-iplug2_target_add(VST3 PUBLIC LINK _base RESOURCE ${RES_FILES})
-iplug2_configure_target(VST3 vst3)
+iplug_target_add(VST3 PUBLIC LINK _base RESOURCE ${RES_FILES})
+iplug_configure_target(VST3 vst3)
 
 if (APPLE)
   add_library(AUv2 MODULE ${SRC_FILES} ${RES_FILES})
-  iplug2_target_add(AUv2 PUBLIC LINK _base RESOURCE ${RES_FILES})
-  iplug2_configure_target(AUv2 au2)
+  iplug_target_add(AUv2 PUBLIC LINK _base RESOURCE ${RES_FILES})
+  iplug_configure_target(AUv2 au2)
 endif()
 

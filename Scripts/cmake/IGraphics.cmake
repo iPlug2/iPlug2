@@ -69,7 +69,7 @@ else()
 endif()
 
 source_group(TREE ${IPLUG2_DIR} PREFIX "IPlug" FILES ${_src})
-iplug2_target_add(iPlug2_IGraphicsCore INTERFACE DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} LINK ${_lib})
+iplug_target_add(iPlug2_IGraphicsCore INTERFACE DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} LINK ${_lib})
 
 
 ###############
@@ -77,7 +77,7 @@ iplug2_target_add(iPlug2_IGraphicsCore INTERFACE DEFINE ${_def} INCLUDE ${_inc} 
 ###############
 
 add_library(iPlug2_NoGraphics INTERFACE)
-iplug2_target_add(iPlug2_NoGraphics INTERFACE DEFINE "NO_IGRAPHICS=1")
+iplug_target_add(iPlug2_NoGraphics INTERFACE DEFINE "NO_IGRAPHICS=1")
 
 #######################
 # OpenGL Dependencies #
@@ -91,40 +91,40 @@ if (CMAKE_SYSTEM_NAME MATCHES "Linux")
 endif()
 
 add_library(iPlug2_GL2 INTERFACE)
-iplug2_target_add(iPlug2_GL2 INTERFACE
+iplug_target_add(iPlug2_GL2 INTERFACE
   INCLUDE 
     ${IGRAPHICS_DEPS}/glad_GL2/include ${IGRAPHICS_DEPS}/glad_GL2/src ${_glx_inc}
   SOURCE
     ${_glx_src}
   DEFINE "IGRAPHICS_GL2"
 )
-iplug2_source_tree(iPlug2_GL2)
+iplug_source_tree(iPlug2_GL2)
 
 add_library(iPlug2_GL3 INTERFACE)
-iplug2_target_add(iPlug2_GL3 INTERFACE
+iplug_target_add(iPlug2_GL3 INTERFACE
   INCLUDE
     ${IGRAPHICS_DEPS}/glad_GL3/include ${IGRAPHICS_DEPS}/glad_GL3/src ${_glx_inc}
   SOURCE
     ${_glx_src}
   DEFINE "IGRAPHICS_GL3"
 )
-iplug2_source_tree(iPlug2_GL3)
+iplug_source_tree(iPlug2_GL3)
 
 ##########
 # NanoVG #
 ##########
 
 add_library(iPlug2_NANOVG INTERFACE)
-iplug2_target_add(iPlug2_NANOVG INTERFACE
+iplug_target_add(iPlug2_NANOVG INTERFACE
   DEFINE "IGRAPHICS_NANOVG"
   LINK iPlug2_IGraphicsCore
 )
 if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   set(_src ${IGRAPHICS_DEPS}/NanoVG/src/nanovg.c)
-  iplug2_target_add(iPlug2_NANOVG INTERFACE SOURCE ${_src})
+  iplug_target_add(iPlug2_NANOVG INTERFACE SOURCE ${_src})
   set_property(SOURCE ${_src} PROPERTY LANGUAGE C)
 endif()
-iplug2_source_tree(iPlug2_NANOVG)
+iplug_source_tree(iPlug2_NANOVG)
 
 ########
 # Skia #
@@ -133,13 +133,13 @@ iplug2_source_tree(iPlug2_NANOVG)
 if (Skia IN_LIST iPlug2_FIND_COMPONENTS)
 
   add_library(iPlug2_Skia INTERFACE)
-  iplug2_target_add(iPlug2_Skia INTERFACE 
+  iplug_target_add(iPlug2_Skia INTERFACE 
     DEFINE "IGRAPHICS_SKIA"
     LINK iPlug2_IGraphicsCore)
 
   if (WIN32)
     set(sdk "${BUILD_DEPS}/win/${PROCESSOR_ARCH}/$<IF:$<CONFIG:DEBUG>,Debug,Release>")
-    iplug2_target_add(iPlug2_Skia INTERFACE
+    iplug_target_add(iPlug2_Skia INTERFACE
       LINK
         "${sdk}/skia.lib"
         "${sdk}/skottie.lib"
@@ -154,7 +154,7 @@ if (Skia IN_LIST iPlug2_FIND_COMPONENTS)
 
   elseif (OS_LINUX)
     set(sdk "${IPLUG_DEPS}/../Build/linux/lib")
-    iplug2_target_add(iPlug2_Skia INTERFACE
+    iplug_target_add(iPlug2_Skia INTERFACE
       LINK 
         "${sdk}/libskia.a"
         "${sdk}/libskottie.a"
@@ -165,7 +165,7 @@ if (Skia IN_LIST iPlug2_FIND_COMPONENTS)
 
   endif()
 
-  iplug2_target_add(iPlug2_Skia INTERFACE
+  iplug_target_add(iPlug2_Skia INTERFACE
     INCLUDE
       ${BUILD_DEPS}/src/skia
       ${BUILD_DEPS}/src/skia/include/core
@@ -182,7 +182,7 @@ if (Skia IN_LIST iPlug2_FIND_COMPONENTS)
   target_link_libraries(iPlug2_Skia_GL3 INTERFACE iPlug2_Skia iPlug2_GL3)
 
   add_library(iPlug2_Skia_CPU INTERFACE)
-  iplug2_target_add(iPlug2_Skia_CPU INTERFACE DEFINE "IGRAPHICS_CPU" LINK iPlug2_Skia)
+  iplug_target_add(iPlug2_Skia_CPU INTERFACE DEFINE "IGRAPHICS_CPU" LINK iPlug2_Skia)
 endif()
 
 ########
@@ -194,7 +194,7 @@ include("${IPLUG2_CMAKE_DIR}/LICE.cmake")
 # LICE build is different between APP and all other targets when using swell.
 # Link to iPlug2_LICE and we'll fix it in configure.
 add_library(iPlug2_LICE INTERFACE)
-iplug2_target_add(iPlug2_LICE INTERFACE
+iplug_target_add(iPlug2_LICE INTERFACE
   DEFINE "IGRAPHICS_LICE" "SWELL_EXTRA_MINIMAL" "SWELL_LICE_GDI" "SWELL_FREETYPE"
   SOURCE "${IGRAPHICS_SRC}/Drawing/IGraphicsLice_src.cpp"
   LINK iPlug2_IGraphicsCore LICE_Core LICE_PNG LICE_ZLIB "dl" "pthread"
@@ -214,7 +214,7 @@ iplug2_target_add(iPlug2_LICE INTERFACE
 
 if (OS_LINUX)
   pkg_check_modules(Freetype2 REQUIRED IMPORTED_TARGET "freetype2")
-  iplug2_target_add(iPlug2_LICE INTERFACE
+  iplug_target_add(iPlug2_LICE INTERFACE
     INCLUDE 
       ${IGRAPHICS_DEPS}/glad_GL2/include
       ${IGRAPHICS_DEPS}/glad_GL2/src

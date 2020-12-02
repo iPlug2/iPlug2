@@ -21,7 +21,7 @@ set(_def "APP_API" "IPLUG_EDITOR=1" "IPLUG_DSP=1" )
 
 # Link Windows sound libraies if on Windows
 if (WIN32)
-  iplug2_target_add(iPlug2_APP INTERFACE
+  iplug_target_add(iPlug2_APP INTERFACE
     DEFINE "__WINDOWS_DS__" "__WINDOWS_MM__" "__WINDOWS_ASIO__"
     SOURCE
       ${IPLUG_DEPS}/RTAudio/include/asio.cpp
@@ -35,7 +35,7 @@ if (WIN32)
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   # Some source files here combine C++ and Objective-C, so we tell clang how to compile them
   set_property(SOURCE ${_src} PROPERTY LANGUAGE "OBJCXX")
-  iplug2_target_add(iPlug2_APP INTERFACE
+  iplug_target_add(iPlug2_APP INTERFACE
     DEFINE "__MACOSX_CORE__" "SWELL_COMPILED"
     LINK "-framework AppKit" "-framework CoreMIDI" "-framework CoreAudio"
     SOURCE 
@@ -83,7 +83,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
   )
   list(TRANSFORM swell_src PREPEND "${WDL_DIR}/swell/")
 
-  iplug2_target_add(iPlug2_APP INTERFACE
+  iplug_target_add(iPlug2_APP INTERFACE
     DEFINE "SWELL_COMPILED" "SWELL_SUPPORT_GTK" "SWELL_TARGET_GDK=3" SWELL_LICE_GDI SWELL_FREETYPE "_FILE_OFFSET_BITS=64" WDL_ALLOW_UNSIGNED_DEFAULT_CHAR
     INCLUDE 
       "${WDL_DIR}/swell/"
@@ -98,15 +98,15 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
 
   # RtAudio
   if (IPLUG_APP_ALSA)
-    iplug2_target_add(iPlug2_APP INTERFACE
+    iplug_target_add(iPlug2_APP INTERFACE
       DEFINE "__LINUX_ALSA__" LINK PkgConfig::Alsa)
   endif()
   if (IPLUG_APP_JACK)
-    iplug2_target_add(iPlug2_APP INTERFACE
+    iplug_target_add(iPlug2_APP INTERFACE
       DEFINE "__UNIX_JACK__" LINK PkgConfig::Jack)
   endif()
   if (IPLUG_APP_PULSE)
-    iplug2_target_add(iPlug2_APP INTERFACE
+    iplug_target_add(iPlug2_APP INTERFACE
       DEFINE "__LINUX_PULSE__" LINK PkgConfig::PulseAudio PkgConfig::PulseAudioSimple)
   endif()
   
@@ -114,11 +114,11 @@ else()
   message(FATAL_ERROR "APP not supported on platform ${CMAKE_SYSTEM_NAME}")
 endif()
 
-iplug2_target_add(iPlug2_APP INTERFACE INCLUDE ${_inc} DEFINE ${_def} SOURCE ${_src} LINK iPlug2_Core)
-iplug2_source_tree(iPlug2_APP)
+iplug_target_add(iPlug2_APP INTERFACE INCLUDE ${_inc} DEFINE ${_def} SOURCE ${_src} LINK iPlug2_Core)
+iplug_source_tree(iPlug2_APP)
 
-macro(iplug2_configure_app target)
-  iplug2_target_add(${target} PUBLIC LINK iPlug2_APP)
+macro(iplug_configure_app target)
+  iplug_target_add(${target} PUBLIC LINK iPlug2_APP)
 
   set(res_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}-app/resources")
 
@@ -138,7 +138,7 @@ macro(iplug2_configure_app target)
       "${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}.icns"
       "${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}-macOS-MainMenu.xib")
     source_group("Resources" FILES ${_res})
-    iplug2_target_add(${target} PUBLIC SOURCE ${_res} RESOURCE ${_res})
+    iplug_target_add(${target} PUBLIC SOURCE ${_res} RESOURCE ${_res})
     set_target_properties(${target} PROPERTIES 
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}-macOS-Info.plist")
 
@@ -151,6 +151,6 @@ macro(iplug2_configure_app target)
   endif()
 
   if (res_dir)
-    iplug2_target_bundle_resources(${target} "${res_dir}")
+    iplug_target_bundle_resources(${target} "${res_dir}")
   endif()
 endmacro()

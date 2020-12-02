@@ -17,33 +17,33 @@ elseif (OS_LINUX)
   set(_paths "$ENV{HOME}/.vst" "/usr/local/lib/vst" "/usr/local/vst")
 endif()
 
-iplug2_find_path(VST2_INSTALL_PATH REQUIRED DIR DEFAULT_IDX 0 
+iplug_find_path(VST2_INSTALL_PATH REQUIRED DIR DEFAULT_IDX 0 
   DOC "Path to install VST2 plugins"
   PATHS ${_paths})
 
 set(sdk ${IPLUG2_DIR}/IPlug/VST2)
 add_library(iPlug2_VST2 INTERFACE)
-iplug2_target_add(iPlug2_VST2 INTERFACE
+iplug_target_add(iPlug2_VST2 INTERFACE
   INCLUDE ${sdk} ${VST2_SDK}
   SOURCE ${sdk}/IPlugVST2.cpp
   DEFINE "VST2_API" "VST_FORCE_DEPRECATED" "IPLUG_DSP=1"
   LINK iPlug2_Core
 )
 if (OS_LINUX)
-  iplug2_target_add(iPlug2_VST2 INTERFACE
+  iplug_target_add(iPlug2_VST2 INTERFACE
     DEFINE "SMTG_OS_LINUX"
   )
   # CMake doesn't like __cdecl, so instead of having people modify their aeffect.h
   # file, just redefine __cdecl.
   if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
-    iplug2_target_add(iPlug2_VST2 INTERFACE DEFINE "__cdecl=__attribute__((__cdecl__))")
+    iplug_target_add(iPlug2_VST2 INTERFACE DEFINE "__cdecl=__attribute__((__cdecl__))")
   endif()
 endif()
 
 list(APPEND IPLUG2_TARGETS iPlug2_VST2)
 
-function(iplug2_configure_vst2 target)
-  iplug2_target_add(${target} PUBLIC LINK iPlug2_VST2)
+function(iplug_configure_vst2 target)
+  iplug_target_add(${target} PUBLIC LINK iPlug2_VST2)
 
   if (WIN32)
     set(out_dir "${CMAKE_BINARY_DIR}/${target}")
@@ -94,7 +94,7 @@ function(iplug2_configure_vst2 target)
 
   # Handle resources
   if (res_dir)
-    iplug2_target_bundle_resources(${target} "${res_dir}")
+    iplug_target_bundle_resources(${target} "${res_dir}")
   endif()
 
 endfunction()

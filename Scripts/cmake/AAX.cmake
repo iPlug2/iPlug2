@@ -12,6 +12,6 @@ if (WIN32)
     CACHE PATH "Path to install 64-bit AAX plugins")
 endif()
 
-function(iplug2_configure_aax target)
+function(iplug_configure_aax target)
   message("AAX not yet implemented" FATAL_ERROR)
 endfunction()

@@ -42,7 +42,7 @@ include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
 CHECK_CXX_COMPILER_FLAG("/arch:AVX" COMPILER_OPT_ARCH_AVX_SUPPORTED)
 
-#! iplug2_target_add : Helper function to add sources, include directories, etc.
+#! iplug_target_add : Helper function to add sources, include directories, etc.
 # 
 # This helper function combines calls to target_include_directories, target_sources,
 # target_compile_definitions, target_compile_options, target_link_libraries,
@@ -59,9 +59,9 @@ CHECK_CXX_COMPILER_FLAG("/arch:AVX" COMPILER_OPT_ARCH_AVX_SUPPORTED)
 # \group:LINK Link libraries (including other targets)
 # \group:DEPEND Add dependencies on other targets
 # \group:FEATURE Add compile features
-function(iplug2_target_add target set_type)
+function(iplug_target_add target set_type)
   cmake_parse_arguments("cfg" "" "" "INCLUDE;SOURCE;DEFINE;OPTION;LINK;LINK_DIR;DEPEND;FEATURE;RESOURCE" ${ARGN})
-  #message("CALL iplug2_add_interface ${target}")
+  #message("CALL iplug_add_interface ${target}")
   if (cfg_INCLUDE)
     target_include_directories(${target} ${set_type} ${cfg_INCLUDE})
   endif()
@@ -94,7 +94,7 @@ function(iplug2_target_add target set_type)
   endif()
 endfunction()
 
-macro(iplug2_ternary VAR val_true val_false)
+macro(iplug_ternary VAR val_true val_false)
   if (${ARGN})
     set(${VAR} ${val_true})
   else()
@@ -102,14 +102,14 @@ macro(iplug2_ternary VAR val_true val_false)
   endif()
 endmacro()
 
-macro(iplug2_source_tree target)
+macro(iplug_source_tree target)
   get_target_property(_tmp ${target} INTERFACE_SOURCES)
   if (NOT "${_tmp}" STREQUAL "_tmp-NOTFOUND")
     source_group(TREE ${IPLUG2_DIR} PREFIX "IPlug" FILES ${_tmp})
   endif()
 endmacro()
 
-#! iplug2_find_path : An alternative to find_file and find_path that allows a default value.
+#! iplug_find_path : An alternative to find_file and find_path that allows a default value.
 # 
 # \arg:VAR Variable name to set
 # \flag:DIR Search for a directory (cannot be used with FILE)
@@ -120,16 +120,16 @@ endmacro()
 # \param:DEFAULT If the path can't be found use this path instead
 # \param:DOC Documentation string. If this is set the value will be set as a cache variable
 # \group:PATHS List of paths to search for
-function(iplug2_find_path VAR)
+function(iplug_find_path VAR)
   cmake_parse_arguments("arg" "REQUIRED;DIR;FILE" "DEFAULT_IDX;DEFAULT;DOC" "PATHS" ${ARGN})
   if (NOT arg_DIR AND NOT arg_FILE)
-    message("ERROR: iplug2_find_path MUST specify either DIR or FILE as an argument" FATAL_ERROR)
+    message("ERROR: iplug_find_path MUST specify either DIR or FILE as an argument" FATAL_ERROR)
   endif()
 
   set(out 0)
   foreach (pt ${arg_PATHS})
     if (EXISTS ${pt})
-      iplug2_ternary(is_dir 1 0 IS_DIRECTORY ${pt})
+      iplug_ternary(is_dir 1 0 IS_DIRECTORY ${pt})
       #message("Found path ${pt} and is_dir=${is_dir}")
 
       if ( (arg_FILE AND NOT ${is_dir}) OR (arg_DIR AND ${is_dir}) )
@@ -148,7 +148,7 @@ function(iplug2_find_path VAR)
   endif()
 
   # Determine cache type for the variable
-  iplug2_ternary(_cache_type PATH FILEPATH ${arg_DIR})
+  iplug_ternary(_cache_type PATH FILEPATH ${arg_DIR})
   # Handle required
   if ((NOT out) AND (arg_REQUIRED))
     set(${VAR} "${VAR}-NOTFOUND" CACHE ${_cache_type} ${arg_DOC}})
@@ -160,9 +160,9 @@ function(iplug2_find_path VAR)
   else()
     set(${VAR} ${out} PARENT_SCOPE)
   endif()
-endfunction(iplug2_find_path)
+endfunction(iplug_find_path)
 
-#! iplug2_target_bundle_resource : Internal function to copy all resources to the output directory
+#! iplug_target_bundle_resource : Internal function to copy all resources to the output directory
 # 
 # This pulls the list of resources from the target's RESOURCE property. Currently
 # resources will be copied directly into res_dir unless the resource is a font
@@ -170,7 +170,7 @@ endfunction(iplug2_find_path)
 #
 # \arg:target The target to apply the changes on
 # \arg:res_dir Directory to copy the resources into
-function(iplug2_target_bundle_resources target res_dir)
+function(iplug_target_bundle_resources target res_dir)
   get_property(resources TARGET ${target} PROPERTY RESOURCE)
   if (CMAKE_GENERATOR STREQUAL "Xcode")
     # On Xcode we mark each file as non-compiled
@@ -325,7 +325,7 @@ elseif(COMPILER_OPT_ARCH_AVX_SUPPORTED)
 endif()
 
 source_group(TREE ${IPLUG2_DIR} PREFIX "IPlug" FILES ${_src})
-iplug2_target_add(iPlug2_Core INTERFACE DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} OPTION ${_opts} LINK ${_lib})
+iplug_target_add(iPlug2_Core INTERFACE DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} OPTION ${_opts} LINK ${_lib})
 
 #############
 # IGraphics #
@@ -368,7 +368,7 @@ endif()
 
 add_library(iPlug2_REAPER INTERFACE)
 set(_sdk ${IPLUG2_DIR}/IPlug/ReaperExt)
-iplug2_target_add(iPlug2_REAPER INTERFACE
+iplug_target_add(iPlug2_REAPER INTERFACE
   INCLUDE "${_sdk}" "${IPLUG_DEPS}/IPlug/Reaper"
   SOURCE "${_sdk}/ReaperExtBase.cpp"
   DEFINE "REAPER_PLUGIN"
@@ -380,40 +380,40 @@ iplug2_target_add(iPlug2_REAPER INTERFACE
 ###############################
 
 add_library(iPlug2_Faust INTERFACE)
-iplug2_target_add(iPlug2_Faust INTERFACE
+iplug_target_add(iPlug2_Faust INTERFACE
   INCLUDE "${IPLUG2_DIR}/IPlug/Extras/Faust" "${FAUST_INCLUDE_DIR}"
 )
 
 add_library(iPlug2_FaustGen INTERFACE)
-iplug2_target_add(iPlug2_FaustGen INTERFACE
+iplug_target_add(iPlug2_FaustGen INTERFACE
   SOURCE "${IPLUG_SRC}/Extras/Faust/IPlugFaustGen.cpp"
   LINK iPlug2_Faust)
-iplug2_source_tree(iPlug2_FaustGen)
+iplug_source_tree(iPlug2_FaustGen)
 
 add_library(iPlug2_HIIR INTERFACE)
-iplug2_target_add(iPlug2_HIIR INTERFACE
+iplug_target_add(iPlug2_HIIR INTERFACE
   INCLUDE ${IPLUG_SRC}/Extras/HIIR
   SOURCE "${IPLUG_SRC}/Extras/HIIR/PolyphaseIIR2Designer.cpp")
-iplug2_source_tree(iPlug2_HIIR)
+iplug_source_tree(iPlug2_HIIR)
 
 add_library(iPlug2_OSC INTERFACE)
-iplug2_target_add(iPlug2_OSC INTERFACE
+iplug_target_add(iPlug2_OSC INTERFACE
   INCLUDE ${IPLUG_SRC}/Extras/OSC
   SOURCE ${IPLUG_SRC}/Extras/OSC/IPlugOSC_msg.cpp)
-iplug2_source_tree(iPlug2_OSC)
+iplug_source_tree(iPlug2_OSC)
 
 add_library(iPlug2_Synth INTERFACE)
-iplug2_target_add(iPlug2_Synth INTERFACE
+iplug_target_add(iPlug2_Synth INTERFACE
   INCLUDE ${IPLUG_SRC}/Extras/Synth
   SOURCE
     "${IPLUG_SRC}/Extras/Synth/MidiSynth.cpp"
     "${IPLUG_SRC}/Extras/Synth/VoiceAllocator.cpp")
-iplug2_source_tree(iPlug2_Synth)
+iplug_source_tree(iPlug2_Synth)
 
 
-#! iplug2_configure_target : Configure a target for the given output type
+#! iplug_configure_target : Configure a target for the given output type
 #
-function(iplug2_configure_target target target_type)
+function(iplug_configure_target target target_type)
   set_property(TARGET ${target} PROPERTY CXX_STANDARD ${IPLUG2_CXX_STANDARD})
 
   # ALL Configurations
@@ -421,7 +421,7 @@ function(iplug2_configure_target target target_type)
     # On Windows ours fonts are included in the RC file, meaning we need to include main.rc
     # in ALL our builds. Yay for platform-specific bundling!
     set(_res "${CMAKE_SOURCE_DIR}/resources/main.rc")
-    iplug2_target_add(${target} PUBLIC RESOURCE ${_res})
+    iplug_target_add(${target} PUBLIC RESOURCE ${_res})
     source_group("Resources" FILES ${_res})
     
   elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin") 
@@ -445,25 +445,25 @@ function(iplug2_configure_target target target_type)
   
   
       if ("${target_type}" STREQUAL "app")
-    iplug2_configure_app(${target})
+    iplug_configure_app(${target})
   elseif ("${target_type}" STREQUAL "aax")
-    iplug2_configure_aax(${target})
+    iplug_configure_aax(${target})
   elseif ("${target_type}" STREQUAL "au2")
-    iplug2_configure_au2(${target})
+    iplug_configure_au2(${target})
   elseif ("${target_type}" STREQUAL "au3")
-    iplug2_configure_au3(${target})
+    iplug_configure_au3(${target})
   elseif ("${target_type}" STREQUAL "lv2")
-    iplug2_configure_lv2(${target})
+    iplug_configure_lv2(${target})
   # elseif ("${target_type}" STREQUAL "reaper")
-  #   iplug2_conifgure_reaper(${target})
+  #   iplug_conifgure_reaper(${target})
   elseif ("${target_type}" STREQUAL "vst2")
-    iplug2_configure_vst2(${target})
+    iplug_configure_vst2(${target})
   elseif ("${target_type}" STREQUAL "vst3")
-    iplug2_configure_vst3(${target})
+    iplug_configure_vst3(${target})
   elseif ("${target_type}" STREQUAL "web")
-    iplug2_configure_web(${target})
+    iplug_configure_web(${target})
   elseif ("${target_type}" STREQUAL "wam")
-    iplug2_configure_wam(${target})
+    iplug_configure_wam(${target})
   else()
     message("Unknown target type \'${target_type}\' for target '${target}'" FATAL_ERROR)
   endif()

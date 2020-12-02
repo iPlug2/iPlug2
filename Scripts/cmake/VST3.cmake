@@ -23,7 +23,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
   set(vst3_target_arch "${CMAKE_SYSTEM_PROCESSOR}-linux")
 endif()
 
-iplug2_find_path(VST3_INSTALL_PATH REQUIRED DIR DEFAULT_IDX 0 
+iplug_find_path(VST3_INSTALL_PATH REQUIRED DIR DEFAULT_IDX 0 
   DOC "Path to install VST3 plugins"
   PATHS ${_paths})
 
@@ -55,7 +55,7 @@ set(_src
   )
 
 list(APPEND _inc ${sdk})
-iplug2_target_add(iPlug2_VST3 INTERFACE
+iplug_target_add(iPlug2_VST3 INTERFACE
   SOURCE ${_src}
   INCLUDE "${sdk}"
   DEFINE "VST3_API" "IPLUG_DSP=1"
@@ -160,11 +160,11 @@ target_sources(${tgt} INTERFACE ${_src})
 target_include_directories(${tgt} INTERFACE "${VST3_SDK}")
 target_compile_definitions(${tgt} INTERFACE "$<IF:$<CONFIG:Debug>,DEVELOPMENT,RELEASE>")
 source_group(TREE ${VST3_SDK} PREFIX "IPlug/VST3" FILES ${_src})
-iplug2_target_add(${tgt} INTERFACE SOURCE ${_inf} DEFINE ${_def})
+iplug_target_add(${tgt} INTERFACE SOURCE ${_inf} DEFINE ${_def})
 
 
-function(iplug2_configure_vst3 target)
-  iplug2_target_add(${target} PUBLIC LINK iPlug2_VST3)
+function(iplug_configure_vst3 target)
+  iplug_target_add(${target} PUBLIC LINK iPlug2_VST3)
 
   set(out_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}.vst3")
   set(install_dir "${VST3_INSTALL_PATH}/${PLUG_NAME}.vst3")
@@ -218,7 +218,7 @@ function(iplug2_configure_vst3 target)
   endif()
 
   if (res_dir)
-    iplug2_target_bundle_resources(${target} "${res_dir}")
+    iplug_target_bundle_resources(${target} "${res_dir}")
   endif()
 
 endfunction()

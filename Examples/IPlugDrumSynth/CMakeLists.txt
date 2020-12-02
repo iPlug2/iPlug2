@@ -35,7 +35,7 @@ set(RES_FILES
 add_library(_base INTERFACE)
 # iplug_target_add() is a shorthand function for adding sources and include dirs,
 # linking libraries, adding resources, setting compile options, etc.
-iplug2_target_add(_base INTERFACE
+iplug_target_add(_base INTERFACE
   INCLUDE ${dir} ${dir}/resources
   LINK iPlug2_Synth iPlug2_NANOVG iPlug2_GL2)
 
@@ -49,17 +49,17 @@ endif()
 # For typing convenience the target name is put into a variable.
 set(tgt ${CMAKE_PROJECT_NAME}-app)
 add_executable(${tgt} WIN32 MACOSX_BUNDLE ${SRC_FILES})
-iplug2_target_add(${tgt} PUBLIC LINK iPlug2_APP _base RESOURCE ${RES_FILES})
+iplug_target_add(${tgt} PUBLIC LINK iPlug2_APP _base RESOURCE ${RES_FILES})
 # You MUST call iplug_configure_target(<target_name> <app|vst2|vst3|...>) for things to build correctly.
-iplug2_configure_target(${tgt} app)
+iplug_configure_target(${tgt} app)
 
 set(tgt ${CMAKE_PROJECT_NAME}-vst2)
 add_library(${tgt} MODULE ${SRC_FILES})
-iplug2_target_add(${tgt} PUBLIC LINK iPlug2_VST2 _base RESOURCE ${RES_FILES})
-iplug2_configure_target(${tgt} vst2)
+iplug_target_add(${tgt} PUBLIC LINK iPlug2_VST2 _base RESOURCE ${RES_FILES})
+iplug_configure_target(${tgt} vst2)
 
 set(tgt ${CMAKE_PROJECT_NAME}-vst3)
 add_library(${tgt} MODULE ${SRC_FILES})
-iplug2_target_add(${tgt} PUBLIC LINK iPlug2_VST3 _base RESOURCE ${RES_FILES})
-iplug2_configure_target(${tgt} vst3)
+iplug_target_add(${tgt} PUBLIC LINK iPlug2_VST3 _base RESOURCE ${RES_FILES})
+iplug_configure_target(${tgt} vst3)
 

@@ -2,13 +2,13 @@ cmake_minimum_required(VERSION 3.11)
 
 set(_doc "Path to install LV2 plugins")
 if (WIN32)
-  iplug2_find_path(LV2_INSTALL_PATH DIR DEFAULT_IDX 0 DOC ${_doc}
+  iplug_find_path(LV2_INSTALL_PATH DIR DEFAULT_IDX 0 DOC ${_doc}
     PATHS "$ENV{APPDATA}/LV2" "$ENV{COMMONPROGRAMFILES}/LV2")
 elseif (OS_MAC)
-  iplug2_find_path(LV2_INSTALL_PATH DIR DEFAULT_IDX 0 DOC ${_doc}
+  iplug_find_path(LV2_INSTALL_PATH DIR DEFAULT_IDX 0 DOC ${_doc}
     PATHS "$ENV{HOME}/Library/Audio/Plug-Ins/LV2" "/Library/Audio/Plug-Ins/LV2")
 elseif (OS_LINUX)
-  iplug2_find_path(LV2_INSTALL_PATH DIR DEFAULT_IDX 0 DOC ${_doc}
+  iplug_find_path(LV2_INSTALL_PATH DIR DEFAULT_IDX 0 DOC ${_doc}
     PATHS "$ENV{HOME}/.lv2" "/usr/local/lib/lv2" "/usr/lib/lv2")
 endif()
 
@@ -21,15 +21,15 @@ set(_src
 )
 list(TRANSFORM _src PREPEND "${IPLUG_SRC}/LV2/")
 add_library(iPlug2_LV2 INTERFACE)
-iplug2_target_add(iPlug2_LV2 INTERFACE
+iplug_target_add(iPlug2_LV2 INTERFACE
   DEFINE "LV2_API" "IPLUG_DSP=1"
   INCLUDE "${LV2_SDK}"
   SOURCE ${_src}
   LINK iPlug2_Core
 )
 
-function(iplug2_configure_lv2 target)
-  iplug2_target_add(${target} PUBLIC LINK iPlug2_LV2)
+function(iplug_configure_lv2 target)
+  iplug_target_add(${target} PUBLIC LINK iPlug2_LV2)
 
   set(out_dir "${CMAKE_BINARY_DIR}/${target}")
   set(install_dir "${LV2_INSTALL_PATH}/${PLUG_NAME}.lv2")
@@ -58,7 +58,7 @@ function(iplug2_configure_lv2 target)
 
   # Handle resources
   if (res_dir)
-    iplug2_target_bundle_resources(${target} "${res_dir}")
+    iplug_target_bundle_resources(${target} "${res_dir}")
   endif()
 
   # After building copy to the correct directory

@@ -19,7 +19,7 @@ set(WAM_EXPORTS "[\
   '_wam_onmessageN', '_wam_onmessageS', '_wam_onmessageA', '_wam_onpatch']")
 
 add_library(iPlug2_WEB INTERFACE)
-iplug2_target_add(iPlug2_WEB INTERFACE
+iplug_target_add(iPlug2_WEB INTERFACE
   DEFINE "WEB_API" "IPLUG_EDITOR=1" ${_def}
   OPTION ${_opt}
   SOURCE
@@ -37,7 +37,7 @@ target_link_options(iPlug2_WEB INTERFACE
   ${_ldflags})
 
 add_library(iPlug2_WAM INTERFACE)
-iplug2_target_add(iPlug2_WAM INTERFACE
+iplug_target_add(iPlug2_WAM INTERFACE
   DEFINE "WAM_API" "IPLUG_DSP=1" "NO_IGRAPHICS" "SAMPLE_TYPE_FLOAT" ${_def}
   OPTION ${_opt}
   SOURCE
@@ -55,13 +55,13 @@ target_link_options(iPlug2_WAM INTERFACE
   ${_ldflags})
 
 add_library(iPlug2_Canvas INTERFACE)
-iplug2_target_add(iPlug2_Canvas INTERFACE
+iplug_target_add(iPlug2_Canvas INTERFACE
   DEFINE "IGRAPHICS_CANVAS")
 
-function(iplug2_configure_web target)
+function(iplug_configure_web target)
   message("WEB not yet implemented" FATAL_ERROR)
 endfunction()
 
-function(iplug2_configure_wam)
+function(iplug_configure_wam)
   message("WAM not yet implemented" FATAL_ERROR)
-endfunction(iplug2_configure_wam)
+endfunction(iplug_configure_wam)

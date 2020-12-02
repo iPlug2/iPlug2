@@ -25,7 +25,7 @@ set(_src
 )
 list(TRANSFORM _src PREPEND "${LICE_SRC}")
 add_library(LICE_Core INTERFACE)
-iplug2_target_add(LICE_Core INTERFACE
+iplug_target_add(LICE_Core INTERFACE
   SOURCE ${_src}
   INCLUDE
     "${WDL_DIR}/swell"
@@ -41,7 +41,7 @@ set(_src
 )
 list(TRANSFORM _src PREPEND "${LICE_SRC}")
 add_library(LICE_GL INTERFACE)
-iplug2_target_add(LICE_GL INTERFACE SOURCE ${_src})
+iplug_target_add(LICE_GL INTERFACE SOURCE ${_src})
 
 
 set(_src
@@ -57,7 +57,7 @@ set(_src2
 )
 list(TRANSFORM _src2 PREPEND "${WDL_DIR}/giflib/")
 add_library(LICE_GIF INTERFACE)
-iplug2_target_add(LICE_GIF INTERFACE SOURCE ${_src} ${_src2})
+iplug_target_add(LICE_GIF INTERFACE SOURCE ${_src} ${_src2})
 
 
 set(_src
@@ -92,7 +92,7 @@ set(_src2
 )
 list(TRANSFORM _src2 PREPEND "${WDL_DIR}/libpng/")
 add_library(LICE_PNG INTERFACE)
-iplug2_target_add(LICE_PNG INTERFACE
+iplug_target_add(LICE_PNG INTERFACE
   DEFINE "PNG_WRITE_SUPPORTED"
   SOURCE ${_src} ${_src2}
 )
@@ -111,11 +111,11 @@ set(_src
 )
 list(TRANSFORM _src PREPEND "${WDL_DIR}/tinyxml/")
 add_library(LICE_TinyXML INTERFACE)
-iplug2_target_add(LICE_TinyXML INTERFACE SOURCE "${_src}")
+iplug_target_add(LICE_TinyXML INTERFACE SOURCE "${_src}")
 
 
 add_library(LICE_SVG INTERFACE)
-iplug2_target_add(LICE_SVG INTERFACE
+iplug_target_add(LICE_SVG INTERFACE
   SOURCE
     "${LICE_SRC}/lice_svg.cpp"
   LINK
@@ -189,7 +189,7 @@ set(_src2
 )
 list(TRANSFORM _src2 PREPEND "${WDL_DIR}/jpeglib/")
 add_library(LICE_JPEG INTERFACE)
-iplug2_target_add(LICE_JPEG INTERFACE SOURCE ${_src} ${_src2})
+iplug_target_add(LICE_JPEG INTERFACE SOURCE ${_src} ${_src2})
 
 set(_src
   adler32.c
@@ -228,4 +228,4 @@ set(_src
 )
 list(TRANSFORM _src PREPEND "${WDL_DIR}/zlib/")
 add_library(LICE_ZLIB INTERFACE)
-iplug2_target_add(LICE_ZLIB INTERFACE SOURCE ${_src})
+iplug_target_add(LICE_ZLIB INTERFACE SOURCE ${_src})
