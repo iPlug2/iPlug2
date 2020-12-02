@@ -444,7 +444,7 @@ function(iplug_configure_target target target_type)
   endif()
   
   
-      if ("${target_type}" STREQUAL "app")
+  if ("${target_type}" STREQUAL "app")
     iplug_configure_app(${target})
   elseif ("${target_type}" STREQUAL "aax")
     iplug_configure_aax(${target})
