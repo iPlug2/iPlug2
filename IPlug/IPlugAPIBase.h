@@ -128,7 +128,8 @@ public:
   /** Get the namespace index of the track that the plug-in is inserted on */
   virtual int GetTrackNamespaceIndex() { return 0; }
 
-  /** \todo */
+  /** In a distributed VST3 or WAM plugin, if you modify the parameters on the UI side (e.g. recall preset in custom preset browser), 
+   * you can call this to update the parameters on the DSP side */
   virtual void DirtyParametersFromUI() override;
 
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
@@ -177,7 +178,7 @@ public:
     mSysExDataFromEditor.Push(data);
   }
 
-  /** \todo */
+  /** Called by the API class to create the timer that pumps the parameter/message queues */
   void CreateTimer();
   
 private:
