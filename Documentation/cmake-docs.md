@@ -41,18 +41,18 @@ Create a target using those files, notice that both source files *and* resources
 add_executable(App WIN32 MACOSX_BUNDLE ${SRC_FILES} ${RES_FILES})
 ```
 
-The next step is to set properties and link libraries. iPlug2 has a convenient function for this named `iplug_target_add(...)`. This example links `IPLUG_NANOVG` and `IPLUG_GL2` to use the NanoVG graphics backend with OpenGL 2. It also links `IPLUG_SYNTH` to include code from `iPlug2/IPlug/Extras/Synth`.
+The next step is to set properties and link libraries. iPlug2 has a convenient function for this named `iplug_target_add(...)`. This example links `iPlug2_NANOVG` and `iPlug2_GL2` to use the NanoVG graphics backend with OpenGL 2. It also links `iPlug2_Synth` to include code from `iPlug2/IPlug/Extras/Synth`.
 ```
 iplug_target_add(App PUBLIC
   INCLUDE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/resources
-  LINK IPLUG_SYNTH IPLUG_NANOVG IPLUG_GL2
+  LINK iPlug2_Synth iPlug2_NANOVG iPlug2_GL2
   RESOURCE ${RES_FILES}
 )
 ```
 The above code is equivalent to
 ```
 target_include_directories(App PUBLIC ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/resources)
-target_link_libraries(App PUBLIC IPLUG_SYNTH IPLUG_NANOVG IPLUG_GL)
+target_link_libraries(App PUBLIC iPlug2_Synth iPlug2_NANOVG iPlug2_GL)
 set_property(TARGET ${target} APPEND PROPERTY RESOURCE ${RES_FILES})
 ```
 Finally call `iplug_configure_target(...)` to make sure it builds correctly (this is required for all plugins/apps/etc.).
@@ -65,7 +65,7 @@ Below is the code for the VST3 version. `SRC_FILES` and `RES_FILES` don't need t
 add_library(VST3 MODULE ${SRC_FILES} ${RES_FILES})
 iplug_target_add(VST3 PUBLIC
   INCLUDE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/resources
-  LINK IPLUG_SYNTH IPLUG_NANOVG IPLUG_GL2
+  LINK iPlug2_Synth iPlug2_NANOVG iPlug2_GL2
   RESOURCE ${RES_FILES}
 )
 iplug_configure_target(VST3 vst3)

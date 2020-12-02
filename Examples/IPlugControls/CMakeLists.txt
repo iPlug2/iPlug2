@@ -57,7 +57,7 @@ add_library(_base INTERFACE)
 # linking libraries, adding resources, setting compile options, etc.
 iplug_target_add(_base INTERFACE
   INCLUDE ${dir} ${dir}/resources
-  LINK IPLUG_SYNTH IPLUG_NANOVG IPLUG_GL2)
+  LINK iPlug2_Synth iPlug2_NANOVG iPlug2_GL2)
 
 # For whatever reason setting CXX_STANDARD doesn't seem to work properly, so set it explicitly.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")

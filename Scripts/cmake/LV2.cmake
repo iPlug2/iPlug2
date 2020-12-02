@@ -20,16 +20,16 @@ set(_src
   IPlugLV2_cfg.cpp
 )
 list(TRANSFORM _src PREPEND "${IPLUG_SRC}/LV2/")
-add_library(IPLUG_LV2 INTERFACE)
-iplug_target_add(IPLUG_LV2 INTERFACE
+add_library(iPlug2_LV2 INTERFACE)
+iplug_target_add(iPlug2_LV2 INTERFACE
   DEFINE "LV2_API" "IPLUG_DSP=1"
   INCLUDE "${LV2_SDK}"
   SOURCE ${_src}
-  LINK IPLUG_CORE
+  LINK iPlug2_Core
 )
 
 function(iplug_configure_lv2 target)
-  iplug_target_add(${target} PUBLIC LINK IPLUG_LV2)
+  iplug_target_add(${target} PUBLIC LINK iPlug2_LV2)
 
   set(out_dir "${CMAKE_BINARY_DIR}/${target}")
   set(install_dir "${LV2_INSTALL_PATH}/${PLUG_NAME}.lv2")
