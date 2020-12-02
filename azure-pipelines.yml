@@ -2,8 +2,8 @@ variables:
   build_deps: false # set true to build optional dependencies, e.g. (Skia, FAUST etc), if false, pre-built versions are downloaded
 
   #PLATFORMS
-  build_web: true # build web audio module versions of projects
-  build_mac: false # build mac binaries
+  build_web: false # build web audio module versions of projects
+  build_mac: true # build mac binaries
   build_win: true # build windows binaries
   build_ios: true # build ios binaries
 
