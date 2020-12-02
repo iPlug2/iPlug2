@@ -31,34 +31,34 @@ set(RES_FILES
 )
 
 # While not required, creating a base interface for includes and settings seems like a good idea.
-add_library(BASE INTERFACE)
+add_library(_base INTERFACE)
 # iplug_target_add() is a shorthand function for adding sources and include dirs,
 # linking libraries, adding resources, setting compile options, etc.
-iplug_target_add(BASE INTERFACE
+iplug_target_add(_base INTERFACE
   INCLUDE ${dir} ${dir}/resources
   LINK IPLUG_SYNTH IPLUG_NANOVG IPLUG_GL2)
 
 # For whatever reason setting CXX_STANDARD doesn't seem to work properly, so set it explicitly.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  target_compile_options(BASE INTERFACE "$<$<COMPILE_LANGUAGE:CXX>:/std:c++14>")
+  target_compile_options(_base INTERFACE "$<$<COMPILE_LANGUAGE:CXX>:/std:c++14>")
 else()
-  target_compile_options(BASE INTERFACE "$<$<COMPILE_LANGUAGE:CXX>:-std=c++14>")
+  target_compile_options(_base INTERFACE "$<$<COMPILE_LANGUAGE:CXX>:-std=c++14>")
 endif()
 
 # For typing convenience the target name is put into a variable.
 set(tgt ${CMAKE_PROJECT_NAME}-app)
 add_executable(${tgt} WIN32 MACOSX_BUNDLE ${SRC_FILES})
-iplug_target_add(${tgt} PUBLIC LINK IPLUG_APP BASE RESOURCE ${RES_FILES})
+iplug_target_add(${tgt} PUBLIC LINK IPLUG_APP _base RESOURCE ${RES_FILES})
 # You MUST call iplug_configure_target(<target_name> <app|vst2|vst3|...>) for things to build correctly.
 iplug_configure_target(${tgt} app)
 
 set(tgt ${CMAKE_PROJECT_NAME}-vst2)
 add_library(${tgt} MODULE ${SRC_FILES})
-iplug_target_add(${tgt} PUBLIC LINK IPLUG_VST2 BASE RESOURCE ${RES_FILES})
+iplug_target_add(${tgt} PUBLIC LINK IPLUG_VST2 _base RESOURCE ${RES_FILES})
 iplug_configure_target(${tgt} vst2)
 
 set(tgt ${CMAKE_PROJECT_NAME}-vst3)
 add_library(${tgt} MODULE ${SRC_FILES})
-iplug_target_add(${tgt} PUBLIC LINK IPLUG_VST3 BASE RESOURCE ${RES_FILES})
+iplug_target_add(${tgt} PUBLIC LINK IPLUG_VST3 _base RESOURCE ${RES_FILES})
 iplug_configure_target(${tgt} vst3)
 
