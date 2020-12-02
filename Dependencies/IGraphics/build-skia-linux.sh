@@ -49,6 +49,7 @@ skia_use_expat = true
 skia_use_metal = false
 skia_use_icu = true
 skia_use_sfntly = false
+skia_enable_svg = true
 skia_enable_skottie = true
 skia_enable_pdf = false
 skia_enable_particles = true
@@ -73,3 +74,4 @@ mv ${BUILD_DIR}/libskottie.a ${DEST_DIR}
 mv ${BUILD_DIR}/libskshaper.a ${DEST_DIR}
 mv ${BUILD_DIR}/libsksg.a ${DEST_DIR}
 mv ${BUILD_DIR}/libskparagraph.a ${DEST_DIR}
+mv ${BUILD_DIR}/libsvg.a ${DEST_DIR}

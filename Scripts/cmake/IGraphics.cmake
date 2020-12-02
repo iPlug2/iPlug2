@@ -141,13 +141,12 @@ if (Skia IN_LIST iPlug2_FIND_COMPONENTS)
     set(sdk "${BUILD_DEPS}/win/${PROCESSOR_ARCH}/$<IF:$<CONFIG:DEBUG>,Debug,Release>")
     iplug2_target_add(iPlug2_Skia INTERFACE
       LINK
-        "${sdk}/libpng.lib"
-        "${sdk}/pixman.lib"
         "${sdk}/skia.lib"
         "${sdk}/skottie.lib"
         "${sdk}/skparagraph.lib"
         "${sdk}/sksg.lib"
-        "${sdk}/skshaper.lib")
+        "${sdk}/skshaper.lib"
+        "${sdk}/svg.lib")
 
   elseif (OS_MAC)
     # TODO MAC: Check if this is the real path
@@ -157,13 +156,12 @@ if (Skia IN_LIST iPlug2_FIND_COMPONENTS)
     set(sdk "${IPLUG_DEPS}/../Build/linux/lib")
     iplug2_target_add(iPlug2_Skia INTERFACE
       LINK 
-        "${sdk}/libpng.a"
-        "${sdk}/libpixman-1.a"
         "${sdk}/libskia.a"
         "${sdk}/libskottie.a"
         "${sdk}/libskparagraph.a"
         "${sdk}/libsksg.a"
-        "${sdk}/libskshaper.a")
+        "${sdk}/libskshaper.a"
+        "${sdk}/libsvg.a")
 
   endif()
 
@@ -175,7 +173,7 @@ if (Skia IN_LIST iPlug2_FIND_COMPONENTS)
       ${BUILD_DEPS}/src/skia/include/config
       ${BUILD_DEPS}/src/skia/include/utils
       ${BUILD_DEPS}/src/skia/include/gpu
-      ${BUILD_DEPS}/src/skia/experimental/svg/model)
+      ${BUILD_DEPS}/src/skia/modules/svg)
 
   add_library(iPlug2_Skia_GL2 INTERFACE)
   target_link_libraries(iPlug2_Skia_GL2 INTERFACE iPlug2_Skia iPlug2_GL2)

@@ -41,7 +41,7 @@ Create a target using those files, notice that both source files *and* resources
 add_executable(App WIN32 MACOSX_BUNDLE ${SRC_FILES} ${RES_FILES})
 ```
 
-The next step is to set properties and link libraries. iPlug2 has a convenient function for this named `iplug2_target_add(...)`. This example links `iPlug2_NANOVG` and `iPlug2_GL2` to use the NanoVG graphics backend with OpenGL 2. It also links `iPlug2_Syth` to include code from `iPlug2/IPlug/Extras/Synth`.
+The next step is to set properties and link libraries. iPlug2 has a convenient function for this named `iplug2_target_add(...)`. This example links `iPlug2_NANOVG` and `iPlug2_GL2` to use the NanoVG graphics backend with OpenGL 2. It also links `iPlug2_Synth` to include code from `iPlug2/IPlug/Extras/Synth`.
 ```
 iplug2_target_add(App PUBLIC
   INCLUDE ${CMAKE_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/resources
