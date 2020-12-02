@@ -9,7 +9,7 @@
 cmake_minimum_required(VERSION 3.11)
 cmake_policy(SET CMP0076 NEW)
 
-set(iPlug2_FOUND 1)
+set(IPLUG_FOUND 1)
 
 set(IPLUG_APP_NAME ${CMAKE_PROJECT_NAME} CACHE STRING "Name of the VST/AU/App/etc.")
 set(PLUG_NAME ${CMAKE_PROJECT_NAME} CACHE STRING "Name of the VST/AU/App/etc.")
@@ -234,7 +234,7 @@ set(IGRAPHICS_DEPS ${IPLUG2_DIR}/Dependencies/IGraphics)
 set(BUILD_DEPS ${IPLUG2_DIR}/Dependencies/Build)
 
 # Core iPlug2 interface. All targets MUST link to this.
-add_library(iPlug2_Core INTERFACE)
+add_library(IPLUG_CORE INTERFACE)
 
 # Make sure we define DEBUG for debug builds
 set(_def "NOMINMAX" "$<$<CONFIG:Debug>:DEBUG>")
@@ -276,7 +276,7 @@ set(_src
 # Platform Settings
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
   list(APPEND _src ${IGRAPHICS_SRC}/Platforms/IGraphicsWin.cpp)
-  target_link_libraries(iPlug2_Core INTERFACE "Shlwapi.lib" "comctl32.lib" "wininet.lib")
+  target_link_libraries(IPLUG_CORE INTERFACE "Shlwapi.lib" "comctl32.lib" "wininet.lib")
   
   # postbuild-win.bat is used by VST2/VST3/AAX on Windows, so we just always configure it on Windows
   # Note: For visual studio, we COULD use $(TargetPath) for the target, but for all other generators, no.
@@ -325,7 +325,7 @@ elseif(COMPILER_OPT_ARCH_AVX_SUPPORTED)
 endif()
 
 source_group(TREE ${IPLUG2_DIR} PREFIX "IPlug" FILES ${_src})
-iplug_target_add(iPlug2_Core INTERFACE DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} OPTION ${_opts} LINK ${_lib})
+iplug_target_add(IPLUG_CORE INTERFACE DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_src} OPTION ${_opts} LINK ${_lib})
 
 #############
 # IGraphics #
@@ -338,27 +338,27 @@ include("${IPLUG2_CMAKE_DIR}/IGraphics.cmake")
 # Plugin Formats #
 ##################
 
-if (AAX IN_LIST iPlug2_FIND_COMPONENTS)
+if (AAX IN_LIST IPLUG_FIND_COMPONENTS)
   include("${IPLUG2_CMAKE_DIR}/AAX.cmake")
 endif()
 
-if (APP IN_LIST iPlug2_FIND_COMPONENTS)
+if (APP IN_LIST IPLUG_FIND_COMPONENTS)
   include("${IPLUG2_CMAKE_DIR}/APP.cmake")
 endif()
 
-if ((AU IN_LIST iPlug2_FIND_COMPONENTS) AND APPLE)
+if ((AU IN_LIST IPLUG_FIND_COMPONENTS) AND APPLE)
   include("${IPLUG2_CMAKE_DIR}/AudioUnit.cmake")
 endif()
 
-if (VST2 IN_LIST iPlug2_FIND_COMPONENTS)
+if (VST2 IN_LIST IPLUG_FIND_COMPONENTS)
   include("${IPLUG2_CMAKE_DIR}/VST2.cmake")
 endif()
 
-if (VST3 IN_LIST iPlug2_FIND_COMPONENTS)
+if (VST3 IN_LIST IPLUG_FIND_COMPONENTS)
   include("${IPLUG2_CMAKE_DIR}/VST3.cmake")
 endif()
 
-if (WEB IN_LIST iPlug2_FIND_COMPONENTS)
+if (WEB IN_LIST IPLUG_FIND_COMPONENTS)
   include("${IPLUG2_CMAKE_DIR}/WEB.cmake")
 endif()
 
@@ -366,49 +366,49 @@ endif()
 # Reaper Extension #
 ####################
 
-add_library(iPlug2_REAPER INTERFACE)
+add_library(IPLUG_REAPER INTERFACE)
 set(_sdk ${IPLUG2_DIR}/IPlug/ReaperExt)
-iplug_target_add(iPlug2_REAPER INTERFACE
+iplug_target_add(IPLUG_REAPER INTERFACE
   INCLUDE "${_sdk}" "${IPLUG_DEPS}/IPlug/Reaper"
   SOURCE "${_sdk}/ReaperExtBase.cpp"
   DEFINE "REAPER_PLUGIN"
-  LINK iPlug2_VST2
+  LINK IPLUG_VST2
 )
 
 ###############################
 # Minor Configuration Targets #
 ###############################
 
-add_library(iPlug2_Faust INTERFACE)
-iplug_target_add(iPlug2_Faust INTERFACE
+add_library(IPLUG_Faust INTERFACE)
+iplug_target_add(IPLUG_Faust INTERFACE
   INCLUDE "${IPLUG2_DIR}/IPlug/Extras/Faust" "${FAUST_INCLUDE_DIR}"
 )
 
-add_library(iPlug2_FaustGen INTERFACE)
-iplug_target_add(iPlug2_FaustGen INTERFACE
+add_library(IPLUG_FaustGen INTERFACE)
+iplug_target_add(IPLUG_FaustGen INTERFACE
   SOURCE "${IPLUG_SRC}/Extras/Faust/IPlugFaustGen.cpp"
-  LINK iPlug2_Faust)
-iplug_source_tree(iPlug2_FaustGen)
+  LINK IPLUG_Faust)
+iplug_source_tree(IPLUG_FaustGen)
 
-add_library(iPlug2_HIIR INTERFACE)
-iplug_target_add(iPlug2_HIIR INTERFACE
+add_library(IPLUG_HIIR INTERFACE)
+iplug_target_add(IPLUG_HIIR INTERFACE
   INCLUDE ${IPLUG_SRC}/Extras/HIIR
   SOURCE "${IPLUG_SRC}/Extras/HIIR/PolyphaseIIR2Designer.cpp")
-iplug_source_tree(iPlug2_HIIR)
+iplug_source_tree(IPLUG_HIIR)
 
-add_library(iPlug2_OSC INTERFACE)
-iplug_target_add(iPlug2_OSC INTERFACE
+add_library(IPLUG_OSC INTERFACE)
+iplug_target_add(IPLUG_OSC INTERFACE
   INCLUDE ${IPLUG_SRC}/Extras/OSC
   SOURCE ${IPLUG_SRC}/Extras/OSC/IPlugOSC_msg.cpp)
-iplug_source_tree(iPlug2_OSC)
+iplug_source_tree(IPLUG_OSC)
 
-add_library(iPlug2_Synth INTERFACE)
-iplug_target_add(iPlug2_Synth INTERFACE
+add_library(IPLUG_SYNTH INTERFACE)
+iplug_target_add(IPLUG_SYNTH INTERFACE
   INCLUDE ${IPLUG_SRC}/Extras/Synth
   SOURCE
     "${IPLUG_SRC}/Extras/Synth/MidiSynth.cpp"
     "${IPLUG_SRC}/Extras/Synth/VoiceAllocator.cpp")
-iplug_source_tree(iPlug2_Synth)
+iplug_source_tree(IPLUG_SYNTH)
 
 
 #! iplug_configure_target : Configure a target for the given output type
@@ -433,11 +433,11 @@ function(iplug_configure_target target target_type)
 
     # Fix LICE linking
     get_target_property(libs ${target} LINK_LIBRARIES)
-    if ("${libs}" MATCHES "iPlug2_LICE")
+    if ("${libs}" MATCHES "IPLUG_LICE")
       if ("${target_type}" STREQUAL "app")
-        target_link_libraries(${target} PUBLIC iPlug2_LICE_APP)
+        target_link_libraries(${target} PUBLIC IPLUG_LICE_APP)
       else()
-        target_link_libraries(${target} PUBLIC iPlug2_LICE_Normal)
+        target_link_libraries(${target} PUBLIC IPLUG_LICE_Normal)
       endif()
     endif()
 

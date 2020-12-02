@@ -24,8 +24,8 @@ set(_src
   lice_textnew.cpp
 )
 list(TRANSFORM _src PREPEND "${LICE_SRC}")
-add_library(LICE_Core INTERFACE)
-iplug_target_add(LICE_Core INTERFACE
+add_library(LICE_CORE INTERFACE)
+iplug_target_add(LICE_CORE INTERFACE
   SOURCE ${_src}
   INCLUDE
     "${WDL_DIR}/swell"

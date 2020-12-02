@@ -9,11 +9,11 @@ set(AUv2_INSTALL_PATH "$ENV{HOME}/Library/Audio/Plug-Ins/Components")
 find_library(AUDIOUNIT_LIB AudioUnit)
 find_library(COREAUDIO_LIB CoreAudio)
 
-add_library(iPlug2_AUv2 INTERFACE)
+add_library(IPLUG_AUv2 INTERFACE)
 set(_sdk ${IPLUG2_DIR}/IPlug/AUv2)
-iplug_target_add(iPlug2_AUv2 INTERFACE
+iplug_target_add(IPLUG_AUv2 INTERFACE
   DEFINE "AU_API" "IPLUG_EDITOR=1" "IPLUG_DSP=1" "SWELL_CLEANUP_ON_UNLOAD"
-  LINK iPlug2_Core ${AUDIOUNIT_LIB} ${COREAUDIO_LIB} "-framework CoreMidi" "-framework AudioToolbox"
+  LINK IPLUG_CORE ${AUDIOUNIT_LIB} ${COREAUDIO_LIB} "-framework CoreMidi" "-framework AudioToolbox"
   INCLUDE ${_sdk}
   SOURCE 
     ${_sdk}/dfx-au-utilities.c
@@ -21,10 +21,10 @@ iplug_target_add(iPlug2_AUv2 INTERFACE
     ${_sdk}/IPlugAU.r
     ${_sdk}/IPlugAU_view_factory.mm
   )
-iplug_source_tree(iPlug2_AUv2)
+iplug_source_tree(IPLUG_AUv2)
 
 function(iplug_configure_au2 target)
-  iplug_target_add(${target} PUBLIC LINK iPlug2_AUv2)
+  iplug_target_add(${target} PUBLIC LINK IPLUG_AUv2)
 
   if (CMAKE_GENERATOR STREQUAL "Xcode")
     set(out_dir "${CMAKE_BINARY_DIR}/$<CONFIG>/${PLUG_NAME}.component")
@@ -58,8 +58,8 @@ endfunction(iplug_configure_au2)
 
 
 set(_sdk ${IPLUG2_DIR}/IPlug/AUv3)
-add_library(iPlug2_AUv3 INTERFACE)
-iplug_target_add(iPlug2_AUv3 INTERFACE
+add_library(IPLUG_AUv3 INTERFACE)
+iplug_target_add(IPLUG_AUv3 INTERFACE
   INCLUDE ${_sdk}
   SOURCE
     ${_sdk}/GenericUI.mm
@@ -68,8 +68,8 @@ iplug_target_add(iPlug2_AUv3 INTERFACE
     ${_sdk}/IPlugAUv3Appex.m
     ${_sdk}/IPlugAUViewController.mm
   DEFINE "AUv3_API" "IPLUG_EDITOR=1" "IPLUG_DSP=1" "SWELL_CLEANUP_ON_UNLOAD"
-  LINK iPlug2_Core)
-iplug_source_tree(iPlug2_AUv3)
+  LINK IPLUG_CORE)
+iplug_source_tree(IPLUG_AUv3)
 
 function(iplug_configure_au3)
   #message("AUv3 not yet implemented" FATAL_ERROR)

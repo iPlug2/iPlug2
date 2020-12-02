@@ -36,7 +36,7 @@ add_library(_base INTERFACE)
 # linking libraries, adding resources, setting compile options, etc.
 iplug_target_add(_base INTERFACE
   INCLUDE ${dir} ${dir}/resources
-  LINK iPlug2_Synth iPlug2_NANOVG iPlug2_GL2)
+  LINK IPLUG_SYNTH IPLUG_NANOVG IPLUG_GL2)
 
 # For whatever reason setting CXX_STANDARD doesn't seem to work properly, so set it explicitly.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
@@ -48,17 +48,17 @@ endif()
 # For typing convenience the target name is put into a variable.
 set(tgt ${CMAKE_PROJECT_NAME}-app)
 add_executable(${tgt} WIN32 MACOSX_BUNDLE ${SRC_FILES})
-iplug_target_add(${tgt} PUBLIC LINK iPlug2_APP _base RESOURCE ${RES_FILES})
+iplug_target_add(${tgt} PUBLIC LINK IPLUG_APP _base RESOURCE ${RES_FILES})
 # You MUST call iplug_configure_target(<target_name> <app|vst2|vst3|...>) for things to build correctly.
 iplug_configure_target(${tgt} app)
 
 set(tgt ${CMAKE_PROJECT_NAME}-vst2)
 add_library(${tgt} MODULE ${SRC_FILES})
-iplug_target_add(${tgt} PUBLIC LINK iPlug2_VST2 _base RESOURCE ${RES_FILES})
+iplug_target_add(${tgt} PUBLIC LINK IPLUG_VST2 _base RESOURCE ${RES_FILES})
 iplug_configure_target(${tgt} vst2)
 
 set(tgt ${CMAKE_PROJECT_NAME}-vst3)
 add_library(${tgt} MODULE ${SRC_FILES})
-iplug_target_add(${tgt} PUBLIC LINK iPlug2_VST3 _base RESOURCE ${RES_FILES})
+iplug_target_add(${tgt} PUBLIC LINK IPLUG_VST3 _base RESOURCE ${RES_FILES})
 iplug_configure_target(${tgt} vst3)
 

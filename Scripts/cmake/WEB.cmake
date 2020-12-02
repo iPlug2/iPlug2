@@ -18,16 +18,16 @@ set(WAM_EXPORTS "[\
   '_wam_onprocess', '_wam_onmidi', '_wam_onsysex', '_wam_onparam', \
   '_wam_onmessageN', '_wam_onmessageS', '_wam_onmessageA', '_wam_onpatch']")
 
-add_library(iPlug2_WEB INTERFACE)
-iplug_target_add(iPlug2_WEB INTERFACE
+add_library(IPLUG_WEB INTERFACE)
+iplug_target_add(IPLUG_WEB INTERFACE
   DEFINE "WEB_API" "IPLUG_EDITOR=1" ${_def}
   OPTION ${_opt}
   SOURCE
     ${sdk}/IPlugWeb.h
     ${sdk}/IPlugWeb.cpp
-  LINK iPlug2_Core
+  LINK IPLUG_CORE
   )
-target_link_options(iPlug2_WEB INTERFACE
+target_link_options(IPLUG_WEB INTERFACE
   "SHELL:-s EXPORTED_FUNCTIONS=${WEB_EXPORTS}"
   "SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=\"['UTF8ToString']\""
   "SHELL:-s BINARYEN_ASYNC_COMPILATION=1"
@@ -36,8 +36,8 @@ target_link_options(iPlug2_WEB INTERFACE
   "-lidbfd.js"
   ${_ldflags})
 
-add_library(iPlug2_WAM INTERFACE)
-iplug_target_add(iPlug2_WAM INTERFACE
+add_library(IPLUG_WAM INTERFACE)
+iplug_target_add(IPLUG_WAM INTERFACE
   DEFINE "WAM_API" "IPLUG_DSP=1" "NO_IGRAPHICS" "SAMPLE_TYPE_FLOAT" ${_def}
   OPTION ${_opt}
   SOURCE
@@ -45,17 +45,17 @@ iplug_target_add(iPlug2_WAM INTERFACE
     ${sdk}/IPlugWAM.cpp
     ${WAM_SDK_PATH}/processor.h
     ${WAM_SDK_PATH}/processor.cpp
-  LINK iPlug2_Core
+  LINK IPLUG_CORE
   )
-target_link_options(iPlug2_WAM INTERFACE
+target_link_options(IPLUG_WAM INTERFACE
   "SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=\"['ccall', 'cwrap', 'setValue', 'UTF8ToString']\""
   "SHELL:-s BINARYEN_ASYNC_COMPILATION=0"
   "SHELL:-s SINGLE_FILE=1"
   "SHELL:-s EXPORT_NAME=\"'AudioWorkletGlobalScope.WAM.${IPLUG_APP_NAME}'\""
   ${_ldflags})
 
-add_library(iPlug2_Canvas INTERFACE)
-iplug_target_add(iPlug2_Canvas INTERFACE
+add_library(IPLUG_CANVAS INTERFACE)
+iplug_target_add(IPLUG_CANVAS INTERFACE
   DEFINE "IGRAPHICS_CANVAS")
 
 function(iplug_configure_web target)
