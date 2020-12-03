@@ -212,7 +212,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillBeHidden:) name:UIKeyboardWillHideNotification object:nil];
-  
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidEnterBackgroundNotification:) name:UIApplicationDidEnterBackgroundNotification object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForegroundNotification:) name:UIApplicationWillEnterForegroundNotification object:nil];
   mColorPickerHandlerFunc = nullptr;
   
   return self;
@@ -835,6 +836,16 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   UIEdgeInsets contentInsets = UIEdgeInsetsZero;
   self.contentInset = contentInsets;
   self.scrollIndicatorInsets = contentInsets;
+}
+
+- (void) applicationDidEnterBackgroundNotification:(NSNotification*) notification
+{
+  [self.displayLink setPaused:YES];
+}
+
+- (void) applicationWillEnterForegroundNotification:(NSNotification*) notification
+{
+  [self.displayLink setPaused:NO];
 }
 
 - (BOOL) delaysContentTouches
