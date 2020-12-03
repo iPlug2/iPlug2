@@ -168,6 +168,21 @@ public:
       SetDirty(false);
     }
   }
+    
+  void OnTouchCancelled(float x, float y, const IMouseMod& mod) override
+  {
+    if (mLastTouchedKey > -1)
+    {
+      SetKeyIsPressed(mLastTouchedKey, false);
+      TriggerMidiMsgFromKeyPress(mLastTouchedKey, 0);
+
+      mLastTouchedKey = -1;
+      mMouseOverKey = -1;
+      mLastVelocity = 0.;
+
+      SetDirty(false);
+    }
+  }
 
   void OnResize() override
   {
