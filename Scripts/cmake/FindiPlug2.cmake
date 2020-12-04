@@ -334,34 +334,6 @@ iplug_target_add(iPlug2_Core INTERFACE DEFINE ${_def} INCLUDE ${_inc} SOURCE ${_
 # We include this first because APP requires LICE.
 include("${IPLUG2_CMAKE_DIR}/IGraphics.cmake")
 
-##################
-# Plugin Formats #
-##################
-
-if (AAX IN_LIST iPlug2_FIND_COMPONENTS)
-  include("${IPLUG2_CMAKE_DIR}/AAX.cmake")
-endif()
-
-if (APP IN_LIST iPlug2_FIND_COMPONENTS)
-  include("${IPLUG2_CMAKE_DIR}/APP.cmake")
-endif()
-
-if ((AU IN_LIST iPlug2_FIND_COMPONENTS) AND APPLE)
-  include("${IPLUG2_CMAKE_DIR}/AudioUnit.cmake")
-endif()
-
-if (VST2 IN_LIST iPlug2_FIND_COMPONENTS)
-  include("${IPLUG2_CMAKE_DIR}/VST2.cmake")
-endif()
-
-if (VST3 IN_LIST iPlug2_FIND_COMPONENTS)
-  include("${IPLUG2_CMAKE_DIR}/VST3.cmake")
-endif()
-
-if (WEB IN_LIST iPlug2_FIND_COMPONENTS)
-  include("${IPLUG2_CMAKE_DIR}/WEB.cmake")
-endif()
-
 ####################
 # Reaper Extension #
 ####################
@@ -443,26 +415,52 @@ function(iplug_configure_target target target_type)
 
   endif()
   
-  
-  if ("${target_type}" STREQUAL "app")
-    iplug_configure_app(${target})
-  elseif ("${target_type}" STREQUAL "aax")
+  if ("${target_type}" STREQUAL "aax")
+    if (NOT TARGET iPlug2_AAX)
+      include("${IPLUG2_CMAKE_DIR}/AAX.cmake")
+    endif()
     iplug_configure_aax(${target})
+  elseif ("${target_type}" STREQUAL "app")
+    if (NOT TARGET iPlug2_APP)
+      include("${IPLUG2_CMAKE_DIR}/APP.cmake")
+    endif()
+    iplug_configure_app(${target})
   elseif ("${target_type}" STREQUAL "au2")
+    if (NOT TARGET iPlug2_AUv2)
+      include("${IPLUG2_CMAKE_DIR}/AudioUnit.cmake")
+    endif()
     iplug_configure_au2(${target})
   elseif ("${target_type}" STREQUAL "au3")
+    if (NOT TARGET iPlug2_AUv3)
+      include("${IPLUG2_CMAKE_DIR}/AudioUnit.cmake")
+    endif()
     iplug_configure_au3(${target})
   elseif ("${target_type}" STREQUAL "lv2")
+    if (NOT TARGET iPlug2_LV2)
+      include("${IPLUG2_CMAKE_DIR}/LV2.cmake")
+    endif()
     iplug_configure_lv2(${target})
   # elseif ("${target_type}" STREQUAL "reaper")
   #   iplug_conifgure_reaper(${target})
   elseif ("${target_type}" STREQUAL "vst2")
+    if (NOT TARGET iPlug2_VST2)
+      include("${IPLUG2_CMAKE_DIR}/VST2.cmake")
+    endif()
     iplug_configure_vst2(${target})
   elseif ("${target_type}" STREQUAL "vst3")
+    if (NOT TARGET iPlug2_VST3)
+      include("${IPLUG2_CMAKE_DIR}/VST3.cmake")
+    endif()
     iplug_configure_vst3(${target})
   elseif ("${target_type}" STREQUAL "web")
+    if (NOT TARGET iPlug2_WEB)
+      include("${IPLUG2_CMAKE_DIR}/WEB.cmake")
+    endif()
     iplug_configure_web(${target})
   elseif ("${target_type}" STREQUAL "wam")
+    if (NOT TARGET iPlug2_WAM)
+      include("${IPLUG2_CMAKE_DIR}/WEB.cmake")
+    endif()
     iplug_configure_wam(${target})
   else()
     message("Unknown target type \'${target_type}\' for target '${target}'" FATAL_ERROR)
