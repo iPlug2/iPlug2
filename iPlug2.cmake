@@ -2,6 +2,11 @@
 # This file should be included in your main CMakeLists.txt file. #
 #
 
+
+if (APPLE)
+  enable_language(OBJCXX)
+endif()
+
 # We need this so we can find call FindFaust.cmake
 set(IPLUG2_CMAKE_DIR ${CMAKE_CURRENT_LIST_DIR}/Scripts/cmake)
 list(APPEND CMAKE_MODULE_PATH ${IPLUG2_CMAKE_DIR})
