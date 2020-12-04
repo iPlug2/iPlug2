@@ -9,7 +9,6 @@
 */
 
 #import <UIKit/UIKit.h>
-#import <MSColorPicker/MSColorPicker.h>
 #include "IGraphicsIOS.h"
 
 BEGIN_IPLUG_NAMESPACE
@@ -55,7 +54,7 @@ using namespace igraphics;
 
 @end
 
-@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate, UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate, MSColorSelectionViewControllerDelegate>
+@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate, UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate, UIColorPickerViewControllerDelegate>
 {
 @public
   IGraphicsIOS* mGraphics;
@@ -78,7 +77,8 @@ using namespace igraphics;
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
 - (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func;
 - (void) presentationControllerDidDismiss: (UIPresentationController*) presentationController;
-- (void) colorViewController:(MSColorSelectionViewController*) colorViewController didChangeColor:(UIColor*) color;
+- (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
+- (void) colorPickerViewControllerDidFinish:(UIColorPickerViewController*) viewController;
 
 //gestures
 - (void) attachGestureRecognizer: (EGestureType) type;

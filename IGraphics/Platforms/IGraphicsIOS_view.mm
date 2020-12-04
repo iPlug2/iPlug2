@@ -607,37 +607,32 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func
 {
-  MSColorSelectionViewController* colorSelectionController = [[MSColorSelectionViewController alloc] init];
-  UINavigationController *navCtrl = [[UINavigationController alloc] initWithRootViewController:colorSelectionController];
-
-  UIUserInterfaceIdiom idiom = [[UIDevice currentDevice] userInterfaceIdiom];
-  
-  if(idiom == UIUserInterfaceIdiomPad)
+  if (@available(iOS 14.0, *))
   {
-    navCtrl.modalPresentationStyle = UIModalPresentationPopover;
+    UIColorPickerViewController* colorSelectionController = [[UIColorPickerViewController alloc] init];
+    
+    UIUserInterfaceIdiom idiom = [[UIDevice currentDevice] userInterfaceIdiom];
+    
+    if(idiom == UIUserInterfaceIdiomPad)
+      colorSelectionController.modalPresentationStyle = UIModalPresentationPopover;
+    else
+      colorSelectionController.modalPresentationStyle = UIModalPresentationPageSheet;
+    
+    colorSelectionController.popoverPresentationController.delegate = self;
+    colorSelectionController.popoverPresentationController.sourceView = self;
+    
+    float x, y;
+    mGraphics->GetMouseLocation(x, y);
+    colorSelectionController.popoverPresentationController.sourceRect = CGRectMake(x, y, 1, 1);
+    
+    colorSelectionController.delegate = self;
+    colorSelectionController.selectedColor = ToUIColor(color);
+    colorSelectionController.supportsAlpha = YES;
+    
+    mColorPickerHandlerFunc = func;
+    
+    [self.window.rootViewController presentViewController:colorSelectionController animated:YES completion:nil];
   }
-  else
-  {
-    navCtrl.modalPresentationStyle = UIModalPresentationPageSheet;
-  }
-  
-  navCtrl.popoverPresentationController.delegate = self;
-  navCtrl.popoverPresentationController.sourceView = self;
-  
-  float x, y;
-  mGraphics->GetMouseLocation(x, y);
-  navCtrl.popoverPresentationController.sourceRect = CGRectMake(x, y, 1, 1);
-  navCtrl.preferredContentSize = [colorSelectionController.view systemLayoutSizeFittingSize:UILayoutFittingCompressedSize];
-
-  colorSelectionController.delegate = self;
-  colorSelectionController.color = ToUIColor(color);
-  
-  UIBarButtonItem *doneBtn = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Done", ) style:UIBarButtonItemStyleDone target:self action:@selector(dismissColorPicker:)];
-  colorSelectionController.navigationItem.rightBarButtonItem = doneBtn;
-
-  mColorPickerHandlerFunc = func;
-  
-  [self.window.rootViewController presentViewController:navCtrl animated:YES completion:nil];
   
   return false;
 }
@@ -864,19 +859,18 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics->SetControlValueAfterPopupMenu(nullptr);
 }
 
-- (void) colorViewController:(MSColorSelectionViewController*) colorViewCntroller didChangeColor:(UIColor*) color
+- (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
 {
   if(mColorPickerHandlerFunc)
   {
-    IColor c = FromUIColor(color);
+    IColor c = FromUIColor([viewController selectedColor]);
     mColorPickerHandlerFunc(c);
   }
 }
 
-- (void) dismissColorPicker:(id) sender
+- (void) colorPickerViewControllerDidFinish:(UIColorPickerViewController*) viewController;
 {
   mColorPickerHandlerFunc = nullptr;
-  [self.window.rootViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void) getLastTouchLocation: (float&) x : (float&) y
