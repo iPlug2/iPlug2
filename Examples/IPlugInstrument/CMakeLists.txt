@@ -41,7 +41,7 @@ iplug_target_add(_base INTERFACE
   INCLUDE ${dir} ${dir}/resources
   LINK iPlug2_Synth iPlug2_NANOVG iPlug2_GL2)
 # Use C++ 14 standard
-target_compile_features(_base INTERFACE cxx_std_14)
+target_compile_features(_base INTERFACE cxx_std_17)
 
 
 add_executable(App WIN32 MACOSX_BUNDLE ${SRC_FILES} ${RES_FILES})
