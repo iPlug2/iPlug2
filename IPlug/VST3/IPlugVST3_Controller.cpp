@@ -158,6 +158,9 @@ bool IPlugVST3Controller::EditorResize(int viewWidth, int viewHeight)
 
 void IPlugVST3Controller::DirtyParametersFromUI()
 {
+  for (int i = 0; i < NParams(); i++)
+    IPlugVST3ControllerBase::SetVST3ParamNormalized(i, GetParam(i)->GetNormalized());
+
   startGroupEdit();
   IPlugAPIBase::DirtyParametersFromUI();
   finishGroupEdit();
