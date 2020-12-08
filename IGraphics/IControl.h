@@ -1855,7 +1855,10 @@ public:
   , mUseLayer(useLayer)
   {}
 
-  virtual ~ISVGControl() {}
+  ~ISVGControl()
+  {
+    mLayer.release();
+  }
 
   void Draw(IGraphics& g) override
   {
