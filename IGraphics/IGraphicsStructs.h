@@ -198,7 +198,7 @@ struct ISVG
     mImage = pImage;
   }
   
-  /** \todo */
+  /** @return The width of the SVG */
   float W() const
   {
     if (mImage)
@@ -207,7 +207,7 @@ struct ISVG
       return 0;
   }
 
-  /** \todo */
+  /** @return The height of the SVG */
   float H() const
   {
     if (mImage)
@@ -223,27 +223,36 @@ struct ISVG
 };
 #endif
 
-/** Used to manage color data, independent of draw class/platform. */
+/** Used to manage color data, independent of draw class/platform */
 struct IColor
 {
   int A, R, G, B;
   
+    /** Create an IColor 
+   * @param a Alpha value (valid range 0-255)
+   * @param r Red value (valid range 0-255)
+   * @param g Green value (valid range 0-255)
+   * @param b Blue value (valid range 0-255) */
   IColor(int a = 255, int r = 0, int g = 0, int b = 0) : A(a), R(r), G(g), B(b) {}
 
   bool operator==(const IColor& rhs) { return (rhs.A == A && rhs.R == R && rhs.G == G && rhs.B == B); }
-  
   bool operator!=(const IColor& rhs) { return !operator==(rhs); }
   
+  /** Set the color parts 
+   * @param a Alpha value (valid range 0-255)
+   * @param r Red value (valid range 0-255)
+   * @param g Green value (valid range 0-255)
+   * @param b Blue value (valid range 0-255) */
   void Set(int a = 255, int r = 0, int g = 0, int b = 0) { A = a; R = r; G = g; B = b; }
   
-  /** \todo */
+  /** @return \c true if all color parts are zero */
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
   
-  /** \todo */
+  /** Keep the member int variables within the range 0-255 */
   void Clamp() { A = Clip(A, 0, 255); R = Clip(R, 0, 255); G = Clip(G, 0, 255); B = Clip(B, 0, 255); }
   
-  /** \todo 
-   * @param alpha */
+  /** Randomise the color parts, with optional alpha 
+   * @param alpha Set the alpha of the new random color */
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
 
   /** Set the color's opacity/alpha component with a float
@@ -303,10 +312,10 @@ struct IColor
   }
 
   /** Get the Hue, Saturation and Luminance of the color
-* @param h hue value to set, output in the range 0. to 1. 
-* @param s saturation value to set, output in the range 0. to 1. 
-* @param l luminance value to set, output in the range 0. to 1. 
-* @param a alpha value to set, output in the range 0. to 1. */
+  * @param h hue value to set, output in the range 0. to 1. 
+  * @param s saturation value to set, output in the range 0. to 1. 
+  * @param l luminance value to set, output in the range 0. to 1. 
+  * @param a alpha value to set, output in the range 0. to 1. */
   void GetHSLA(float& h, float& s, float& l, float& a) const
   {
     const float fR = R / 255.f;
@@ -345,9 +354,9 @@ struct IColor
     return (min + max) / 2;
   };
   
-  /** \todo 
-   * @param randomAlpha \todo
-   * @return IColor \todo */
+  /** Get a random IColor
+   * @param randomAlpha Set true if you want a random alpha value too
+   * @return IColor A new IColor with a random combination of ARGB values */
   static IColor GetRandomColor(bool randomAlpha = false)
   {
     int A = randomAlpha ? std::rand() & 0xFF : 255;
@@ -422,11 +431,13 @@ struct IColor
     }
   }
   
+  /** Convert the IColor to a single int (no alpha) */
   int ToColorCode() const
   {
     return (R << 16) | (G << 8) | B;
   }
   
+  /** Convert the IColor to a hex string e.g. "#ffffffff" */
   void ToColorCodeStr(WDL_String& str) const
   {
     str.SetFormatted(32, "#%02x%02x%02x%02x", R, G, B, A);
@@ -466,10 +477,10 @@ struct IColor
     return col;
   }
 
-  /** \todo 
-   * @param start \todo
-   * @param dest \todo
-   * @param progress \todo */
+  /** Helper function to linear interpolate between two IColors
+   * @param start Start IColor
+   * @param dest End IColor
+   * @param progress The normalized interpolation point */
   static IColor LinearInterpolateBetween(const IColor& start, const IColor& dest, float progress)
   {
     IColor result;
@@ -545,9 +556,9 @@ struct IBlend
   {}
 };
 
-/** \todo 
- * @param pBlend \todo
- * @return float \todo */
+/** Helper function to extract the blend weight value from an IBlend ptr if it is valid
+ * @param pBlend ptr to an IBlend or nullptr
+ * @return float The blend weight value  */
 inline float BlendWeight(const IBlend* pBlend)
 {
   return (pBlend ? pBlend->mWeight : 1.0f);
@@ -2082,9 +2093,9 @@ struct IColorStop
   : mOffset(0.f)
   {}
   
-  /** \todo 
-   * @param color \todo
-   * @param offset \todo */
+  /** Create an IColor stop
+   * @param color The IColor for the stop
+   * @param offset The point in the gradient for the stop */
   IColorStop(IColor color, float offset)
   : mColor(color)
   , mOffset(offset)
@@ -2105,27 +2116,27 @@ struct IPattern
   int mNStops;
   IMatrix mTransform;
   
-  /** \todo 
-   * @param type \todo */
+  /** Create an IPattern
+   * @param type The type of pattern, one of EPatternType */
   IPattern(EPatternType type)
   : mType(type), mExtend(EPatternExtend::Pad), mNStops(0)
   {}
   
-  /** \todo 
-   * @param color \todo */
+  /** Create an IPattern with a solid color fill
+   * @param color The color for the single stop */
   IPattern(const IColor& color)
   : mType(EPatternType::Solid), mExtend(EPatternExtend::Pad), mNStops(1)
   {
     mStops[0] = IColorStop(color, 0.0);
   }
   
-  /** \todo 
-   * @param x1 \todo
-   * @param y1 \todo
-   * @param x2 \todo
-   * @param y2 \todo
-   * @param stops \todo
-   * @return IPattern \todo */
+  /** Create a linear gradient IPattern 
+   * @param x1 The start x position 
+   * @param y1 The start y position 
+   * @param x2 The end x position
+   * @param y2 The end y position
+   * @param stops An initializer list of IColorStops for the stops
+   * @return IPattern The new IPattern */
   static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, const std::initializer_list<IColorStop>& stops = {})
   {
     IPattern pattern(EPatternType::Linear);
@@ -2154,11 +2165,11 @@ struct IPattern
     return pattern;
   }
   
-  /** \todo 
-   * @param bounds \todo
-   * @param direction \todo
-   * @param stops \todo
-   * @return IPattern \todo */
+  /** Create a linear gradient IPattern across a rectangular area
+   * @param bounds The rectangular area
+   * @param direction If the gradient should be horizontal or vertical
+   * @param stops An initializer list of IColorStops for the stops
+   * @return IPattern The new IPattern */
   static IPattern CreateLinearGradient(const IRECT& bounds, EDirection direction, const std::initializer_list<IColorStop>& stops = {})
   {
     float x1, y1, x2, y2;
@@ -2179,12 +2190,12 @@ struct IPattern
     return CreateLinearGradient(x1, y1, x2, y2, stops);
   }
   
-  /** \todo 
-   * @param x1 \todo
-   * @param y1 \todo
-   * @param r \todo
-   * @param stops \todo
-   * @return IPattern \todo */
+  /** Create a radial gradient IPattern 
+   * @param x1 The x position of the centre 
+   * @param y1 The y position of the centre 
+   * @param r The radius of the gradient
+   * @param stops An initializer list of IColorStops for the stops
+   * @return IPattern The new IPattern */
   static IPattern CreateRadialGradient(float x1, float y1, float r, const std::initializer_list<IColorStop>& stops = {})
   {
     IPattern pattern(EPatternType::Radial);
@@ -2199,6 +2210,13 @@ struct IPattern
     return pattern;
   }
 
+  /** Create a sweep gradient IPattern (SKIA only)
+   * @param x1 The x position of the centre 
+   * @param y1 The y position of the centre 
+   * @param stops An initializer list of IColorStops for the stops
+   * @param angleStart the start angle of the sweep at in degrees clockwise where 0 is up
+   * @param angleEnd the end angle of the sweep at in degrees clockwise where 0 is up
+   * @return IPattern The new IPattern */
   static IPattern CreateSweepGradient(float x1, float y1, const std::initializer_list<IColorStop>& stops = {},
     float angleStart = 0.f, float angleEnd = 360.f)
   {

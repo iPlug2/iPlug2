@@ -137,12 +137,12 @@ static inline void GetVersionStr(int versionInteger, WDL_String& str)
   str.SetFormatted(MAX_VERSION_STR_LEN, "v%d.%d.%d", maj, min, pat);
 }
 
-/** \todo  
- * @tparam SRC 
- * @tparam DEST 
- * @param pDest \todo
- * @param pSrc \todo
- * @param n \todo */
+/** Helper function to  loop through a buffer of samples copying and casting from e.g float to double
+ * @tparam SRC The source type
+ * @tparam DEST The destination type
+ * @param pDest Ptr to the destination buffer
+ * @param pSrc Ptr to the source buffer
+ * @param n The number of or elements in the buffer */
 template <class SRC, class DEST>
 void CastCopy(DEST* pDest, SRC* pSrc, int n)
 {

@@ -496,7 +496,7 @@ public:
    * @return \c true on success */
   virtual bool LoadFont(const char* fontID, void* pData, int dataSize);
     
-  /** \todo
+  /** Load a font with a particular style (bold, italic) from a font file
    * @param fontID A CString that will be used to reference the font
    * @param fontName A CString font name
    * @param style A font style
@@ -1621,14 +1621,20 @@ public:
   void ClearGestureRegions();
 
 protected:
-  /** \todo
-   * @param fileNameOrResID \todo 
-   * @param scale \todo
-   * @param location \todo
-   * @param ext \todo
-   * @return APIBitmap* \todo */
+  /** Drawing API method to load a bitmap, called internally
+   * @param fileNameOrResID A CString absolute path or resource ID
+   * @param scale Integer to identify the scale of the resource, for multi-scale bitmaps
+   * @param location Identifies the kind of resource location
+   * @param ext CString for the file extension
+   * @return APIBitmap* Drawing API bitmap abstraction */
   virtual APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) = 0;
 
+  /** Drawing API method to load a bitmap from binary data, called internally
+   * @param name CString for the name of the resource
+   * @param pData Raw pointer to the binary data
+   * @param dataSize Size of the data in bytes
+   * @param scale Integer to identify the scale of the resource, for multi-scale bitmaps
+   * @return APIBitmap* Drawing API bitmap abstraction */
   virtual APIBitmap* LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale) = 0;
 
   /** Creates a new API bitmap, either in memory or as a GPU texture
@@ -1640,10 +1646,10 @@ protected:
    * @return APIBitmap* The new API Bitmap */
   virtual APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable = false) = 0;
 
-  /** \todo
-   * @param fontID \todo
-   * @param font \todo
-   * @return bool* \todo */
+  /** Drawing API method to load a font from a PlatformFontPtr, called internally
+   * @param fontID A CString that will be used to reference the font
+   * @param font Valid PlatformFontPtr, loaded via LoadPlatformFont
+  /** @return bool \c true if the font was loaded successfully */
   virtual bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) = 0;
 
   /** Specialized in IGraphicsCanvas drawing backend */

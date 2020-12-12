@@ -81,7 +81,7 @@ using BitmapData = BITMAP_DATA_TYPE;
 using FontDescriptor = FONT_DESCRIPTOR_TYPE;
 using RawBitmapData = WDL_TypedBuf<uint8_t>;
 
-/** A bitmap abstraction around the different drawing back end bitmap representations.
+/** A base class interface for a bitmap abstraction around the different drawing back end bitmap representations.
  * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
  * but still needs to be freed. Most of the time  end-users will deal with IBitmap rather than APIBitmap, which is used behind the scenes. */
 class APIBitmap
@@ -130,19 +130,19 @@ public:
     mDrawScale = drawScale;
   }
 
-  /** @return BitmapData \todo */
+  /** @return BitmapData Get the Bitmap data linked to this APIBitmap */
   BitmapData GetBitmap() const { return mBitmap; }
 
-  /** \todo */
+  /** @return the width of the bitmap */
   int GetWidth() const { return mWidth; }
 
-  /** \todo */
+  /** @return the height of the bitmap */
   int GetHeight() const { return mHeight; }
 
-  /** \todo */
+  /** @return the scale of the bitmap */
   int GetScale() const { return mScale; }
   
-  /** \todo */
+  /** @return the draw scale of the bitmap */
   float GetDrawScale() const { return mDrawScale; }
 
 private:
