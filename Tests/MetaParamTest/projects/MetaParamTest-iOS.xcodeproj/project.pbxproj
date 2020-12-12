@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4F0BA48E24699A7400DB93AC /* IGraphicsIOS_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0BA48D24699A7400DB93AC /* IGraphicsIOS_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103420A0E55900D3092F /* IPlugProcessor.cpp */; };
 		4F10E7C020B17EDB00F5B09B /* MetaParamTest-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* MetaParamTest-iOS-MainInterface.storyboard */; };
 		4F1115CF2296DA95000CFCBF /* MetaParamTest-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* MetaParamTest-iOS-MainInterface.storyboard */; };
@@ -90,7 +89,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4F0BA48D24699A7400DB93AC /* IGraphicsIOS_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsIOS_src.m; sourceTree = "<group>"; };
 		4F10E7BF20B17EDB00F5B09B /* MetaParamTest-iOS-MainInterface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "MetaParamTest-iOS-MainInterface.storyboard"; path = "../resources/MetaParamTest-iOS-MainInterface.storyboard"; sourceTree = "<group>"; };
 		4F10E7C520B189DD00F5B09B /* MetaParamTest-iOS.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "MetaParamTest-iOS.entitlements"; sourceTree = "<group>"; };
 		4F2020F620A1B2B500F22200 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
@@ -329,7 +327,7 @@
 				4F63698F20A463AF0022C370 /* IGraphicsWin.cpp */,
 				4F63699020A463AF0022C370 /* IGraphicsIOS.h */,
 				4F63698E20A463AF0022C370 /* IGraphicsIOS.mm */,
-				4F0BA48D24699A7400DB93AC /* IGraphicsIOS_src.m */,
+				4F0BA48D24699A7400DB93AC /*  */,
 				4F63698420A463AF0022C370 /* IGraphicsIOS_view.h */,
 				4F63699120A463AF0022C370 /* IGraphicsIOS_view.mm */,
 			);
@@ -744,7 +742,6 @@
 				4FA61F8622E89B2000A92C58 /* IPlugAUv3.mm in Sources */,
 				4FA61F8522E89B2000A92C58 /* IPlugAUAudioUnit.mm in Sources */,
 				4FA61F8F22E89B4300A92C58 /* IGraphicsIOS_view.mm in Sources */,
-				4F0BA48E24699A7400DB93AC /* IGraphicsIOS_src.m in Sources */,
 				4FA61F9022E8A1F500A92C58 /* IGraphics.cpp in Sources */,
 				4FA61F7E22E89AFF00A92C58 /* IPlugPluginBase.cpp in Sources */,
 				4FA61F8C22E89B3700A92C58 /* IControl.cpp in Sources */,

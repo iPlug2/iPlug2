@@ -21,7 +21,6 @@
 		4F06B30A24BF72FF00C7EDDA /* IPlugWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B30424BF72FF00C7EDDA /* IPlugWebView.h */; };
 		4F06B30D24BF72FF00C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B30724BF72FF00C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F06B30E24BF732B00C7EDDA /* IPlugOSC_msg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F977D3A20CC9DD800D19F46 /* IPlugOSC_msg.cpp */; };
-		4F0BA47B24698DC900DB93AC /* IGraphicsIOS_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F0BA47A24698DC900DB93AC /* IGraphicsIOS_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103420A0E55900D3092F /* IPlugProcessor.cpp */; };
 		4F10E7C020B17EDB00F5B09B /* IPlugOSCEditor-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugOSCEditor-iOS-MainInterface.storyboard */; };
 		4F1115CF2296DA95000CFCBF /* IPlugOSCEditor-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugOSCEditor-iOS-MainInterface.storyboard */; };
@@ -117,7 +116,6 @@
 		4F06B2F424BF72D400C7EDDA /* asyncdns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = asyncdns.h; path = ../../../../WDL/jnetlib/asyncdns.h; sourceTree = "<group>"; };
 		4F06B30424BF72FF00C7EDDA /* IPlugWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugWebView.h; sourceTree = "<group>"; };
 		4F06B30724BF72FF00C7EDDA /* IPlugWebView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWebView.mm; sourceTree = "<group>"; };
-		4F0BA47A24698DC900DB93AC /* IGraphicsIOS_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsIOS_src.m; sourceTree = "<group>"; };
 		4F10E7BF20B17EDB00F5B09B /* IPlugOSCEditor-iOS-MainInterface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugOSCEditor-iOS-MainInterface.storyboard"; path = "../resources/IPlugOSCEditor-iOS-MainInterface.storyboard"; sourceTree = "<group>"; };
 		4F10E7C520B189DD00F5B09B /* IPlugOSCEditor-iOS.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "IPlugOSCEditor-iOS.entitlements"; sourceTree = "<group>"; };
 		4F2020F620A1B2B500F22200 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
@@ -381,7 +379,6 @@
 				4F63698F20A463AF0022C370 /* IGraphicsWin.cpp */,
 				4F63699020A463AF0022C370 /* IGraphicsIOS.h */,
 				4F63698E20A463AF0022C370 /* IGraphicsIOS.mm */,
-				4F0BA47A24698DC900DB93AC /* IGraphicsIOS_src.m */,
 				4F63698420A463AF0022C370 /* IGraphicsIOS_view.h */,
 				4F63699120A463AF0022C370 /* IGraphicsIOS_view.mm */,
 			);
@@ -809,7 +806,6 @@
 				4FA61F8422E89B2000A92C58 /* GenericUI.mm in Sources */,
 				4FA61F8622E89B2000A92C58 /* IPlugAUv3.mm in Sources */,
 				4FA61F8522E89B2000A92C58 /* IPlugAUAudioUnit.mm in Sources */,
-				4F0BA47B24698DC900DB93AC /* IGraphicsIOS_src.m in Sources */,
 				4F06B2F724BF72D400C7EDDA /* asyncdns.cpp in Sources */,
 				4FA61F8F22E89B4300A92C58 /* IGraphicsIOS_view.mm in Sources */,
 				4FA61F8E22E89B4300A92C58 /* IGraphicsIOS.mm in Sources */,

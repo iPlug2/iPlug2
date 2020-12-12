@@ -16,8 +16,8 @@ class IPlugSwiftViewController: IPlugCocoaViewController {
     if(msgTag == kMsgTagData)
     {
       msg.withUnsafeBytes { (outputBytes: UnsafeRawBufferPointer) in
-        let floatData = outputBytes.bindMemory(to: Float.self)
-        let mutablePtr = UnsafeMutablePointer<Float>.init(mutating: floatData.baseAddress)
+//        let floatData = outputBytes.bindMemory(to: Float.self)
+//        let mutablePtr = UnsafeMutablePointer<Float>.init(mutating: floatData.baseAddress)
         // TODO: handle incoming buffer data
       }
 
@@ -72,20 +72,5 @@ class IPlugSwiftViewController: IPlugCocoaViewController {
   
   deinit {
     Sliders = nil;
-  }
-  
-  func noteOn(note: MIDINoteNumber) {
-    guard note < 128 else { return }
-    sendMidiMsgFromUI(status: 0x90, data1: note, data2: 127, offset: 0);
-  }
-  
-  public func noteOn(note: MIDINoteNumber, velocity: MIDIVelocity = 127) {
-    guard note < 128 else { return }
-    sendMidiMsgFromUI(status: 0x90, data1: note, data2: velocity, offset: 0);
-  }
-  
-  public func noteOff(note: MIDINoteNumber) {
-    guard note < 128 else { return }
-    sendMidiMsgFromUI(status: 0x80, data1: note, data2: 0, offset: 0);
   }
 }
