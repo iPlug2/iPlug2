@@ -1921,8 +1921,8 @@ protected:
 class IEditableTextControl : public ITextControl
 {
 public:
-  IEditableTextControl(const IRECT& bounds, const char* str, const IText& text = DEFAULT_TEXT)
-  : ITextControl(bounds, str, text)
+  IEditableTextControl(const IRECT& bounds, const char* str, const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
+  : ITextControl(bounds, str, text, BGColor)
   {
     mIgnoreMouse = false;
   }
