@@ -410,7 +410,7 @@ LICE_pixel LICE_GetPixel(LICE_IBitmap *bm, int x, int y);
 void LICE_Copy(LICE_IBitmap *dest, LICE_IBitmap *src); // resizes dest to fit
 
 
-//alpha parameter = const alpha (combined with source alpha if spcified)
+//alpha parameter = const alpha (combined with source alpha if specified)
 void LICE_Blit(LICE_IBitmap *dest, LICE_IBitmap *src, int dstx, int dsty, const RECT *srcrect, float alpha, int mode);
 void LICE_Blit(LICE_IBitmap *dest, LICE_IBitmap *src, int dstx, int dsty, int srcx, int srcy, int srcw, int srch, float alpha, int mode);
 
