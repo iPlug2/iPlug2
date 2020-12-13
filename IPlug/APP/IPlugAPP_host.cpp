@@ -301,39 +301,93 @@ void IPlugAPPHost::ProbeAudioIO()
   }
 }
 
-void IPlugAPPHost::ProbeMidiIO()
+bool IPlugAPPHost::ProbeMidiIO()
 {
-  if ( !mMidiIn || !mMidiOut )
-    return;
+  bool midiInChanged = false;
+  bool midiOutChanged = false;
+  if (!mMidiIn || !mMidiOut)
+    return false;
   else
   {
     int nInputPorts = mMidiIn->getPortCount();
-
-    mMidiInputDevNames.push_back(OFF_TEXT);
-
 #ifdef OS_MAC
-    mMidiInputDevNames.push_back("virtual input");
-#endif
-
-    for (int i=0; i<nInputPorts; i++ )
+    if (mMidiInputDevNames.size() != nInputPorts + 2)
     {
-      mMidiInputDevNames.push_back(mMidiIn->getPortName(i));
+#else
+    if (mMidiInputDevNames.size() != nInputPorts + 1)
+    {
+#endif
+      midiInChanged = true;
+      mMidiInputDevNames.clear();
+      mMidiInputDevNames.push_back(OFF_TEXT);
+#ifdef OS_MAC
+      mMidiInputDevNames.push_back("virtual input");
+#endif
+      for (int i = 0; i < nInputPorts; i++)
+      {
+        mMidiInputDevNames.push_back(mMidiIn->getPortName(i));
+    }
+  }
+    else
+    {
+      for (int i = 0; i < nInputPorts; i++)
+      {
+        if (mMidiInputDevNames.at(i + 1) != mMidiIn->getPortName(i))
+        {
+          midiInChanged = true;
+          mMidiInputDevNames.at(i + 1) = mMidiIn->getPortName(i);
+        }
+#ifdef OS_MAC
+        if (mMidiInputDevNames.at(i + 2) != mMidiIn->getPortName(i))
+        {
+          midiInChanged = true;
+          mMidiInputDevNames.at(i + 2) = mMidiIn->getPortName(i);
+        }
+#endif
+      }
     }
 
     int nOutputPorts = mMidiOut->getPortCount();
-
-    mMidiOutputDevNames.push_back(OFF_TEXT);
+#ifdef OS_MAC
+    if (mMidiOutputDevNames.size() != nOutputPorts + 2)
+    {
+#else
+    if (mMidiOutputDevNames.size() != nOutputPorts + 1)
+    {
+#endif
+      mMidiOutputDevNames.clear();
+      mMidiOutputDevNames.push_back(OFF_TEXT);
 
 #ifdef OS_MAC
-    mMidiOutputDevNames.push_back("virtual output");
+      mMidiOutputDevNames.push_back("virtual output");
 #endif
 
-    for (int i=0; i<nOutputPorts; i++ )
-    {
-      mMidiOutputDevNames.push_back(mMidiOut->getPortName(i));
-      //This means the virtual output port wont be added as an input
+      for (int i = 0; i < nOutputPorts; i++)
+      {
+        mMidiOutputDevNames.push_back(mMidiOut->getPortName(i));
+        //This means the virtual output port wont be added as an input
+      }
     }
-  }
+    else
+    {
+      for (int i = 0; i < nOutputPorts; i++)
+      {
+        if (mMidiOutputDevNames.at(i + 1) != mMidiOut->getPortName(i))
+        {
+          midiOutChanged = true;
+          mMidiOutputDevNames.at(i + 1) = mMidiOut->getPortName(i);
+        }
+#ifdef OS_MAC
+        if (mMidiInputDevNames.at(i + 2) != mMidiOut->getPortName(i))
+        {
+          midiOutChanged = true;
+          mMidiOutputDevNames.at(i + 2) = mMidiOut->getPortName(i);
+        }
+#endif
+      }
+    }
+    }
+  return midiInChanged || midiOutChanged;
 }
 
 bool IPlugAPPHost::AudioSettingsInStateAreEqual(AppState& os, AppState& ns)

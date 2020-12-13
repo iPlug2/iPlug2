@@ -195,7 +195,7 @@ public:
   
   /** find out which devices have input channels & which have output channels, add their ids to the lists */
   void ProbeAudioIO();
-  void ProbeMidiIO();
+  bool ProbeMidiIO();
   bool InitMidi();
   void CloseAudio();
   bool InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_t iovs);

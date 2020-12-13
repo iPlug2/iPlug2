@@ -53,7 +53,7 @@ public:
   void OnParamChange(int paramIdx) override;
   void OnIdle() override;
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
-
+  void OnMIDIPortStatusChange() override;
 private:
   IPlugInstrumentDSP<sample> mDSP {16};
   IPeakSender<2> mMeterSender;

@@ -148,3 +148,10 @@ void IPlugAPP::AppProcess(double** inputs, double** outputs, int nFrames)
   ProcessBuffers(0.0, GetBlockSize());
   LEAVE_PARAMS_MUTEX
 }
+
+void IPlugAPP::OnTimer(Timer& t)
+{
+  IPlugAPIBase::OnTimer(t);
+  if (mAppHost->ProbeMidiIO())
+    OnMIDIPortStatusChange();
+}

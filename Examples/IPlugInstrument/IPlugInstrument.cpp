@@ -150,4 +150,10 @@ bool IPlugInstrument::OnMessage(int msgTag, int ctrlTag, int dataSize, const voi
   
   return false;
 }
+
+void IPlugInstrument::OnMIDIPortStatusChange()
+{
+  EMsgBoxResult popupResult = this->GetUI()->ShowMessageBox("The number of MIDI IN/OUT devices has changed.",
+    "MIDI Port Status Changed", EMsgBoxType::kMB_OK);
+}
 #endif
