@@ -441,9 +441,7 @@ bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, c
 
 bool IGraphicsCanvas::FontExists(const char* font, const char* style)
 {
-    return !CompareFontMetrics(style, font, "monospace") ||
-    !CompareFontMetrics(style, font, "sans-serif") ||
-    !CompareFontMetrics(style, font, "serif");
+  return !CompareFontMetrics(style, font, "monospace") || !CompareFontMetrics(style, font, "sans-serif") || !CompareFontMetrics(style, font, "serif");
 }
 
 bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)

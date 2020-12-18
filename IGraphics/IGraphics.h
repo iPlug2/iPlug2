@@ -1649,7 +1649,7 @@ protected:
   /** Drawing API method to load a font from a PlatformFontPtr, called internally
    * @param fontID A CString that will be used to reference the font
    * @param font Valid PlatformFontPtr, loaded via LoadPlatformFont
-  /** @return bool \c true if the font was loaded successfully */
+   * @return bool \c true if the font was loaded successfully */
   virtual bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) = 0;
 
   /** Specialized in IGraphicsCanvas drawing backend */
