@@ -677,7 +677,7 @@ public:
       handleBounds.Pad(- 0.5f * mStyle.frameThickness);
     
     if (mStyle.drawShadows)
-      handleBounds.Alter(mStyle.shadowOffset, 0, -mStyle.shadowOffset, -mStyle.shadowOffset);
+      handleBounds.Offset(mStyle.shadowOffset, 0, -mStyle.shadowOffset, -mStyle.shadowOffset);
     
     return handleBounds;
   }

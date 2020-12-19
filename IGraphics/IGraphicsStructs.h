@@ -1523,7 +1523,7 @@ struct IRECT
    * @param t Top offset
    * @param r Right offset
    * @param b Bottom offset */
-  void Alter(float l, float t, float r, float b)
+  void Offset(float l, float t, float r, float b)
   {
     L += l;
     T += t;
@@ -1537,7 +1537,7 @@ struct IRECT
    * @param r Right offset
    * @param b Bottom offset
    * @return IRECT the new rectangle */
-  IRECT GetAltered(float l, float t, float r, float b) const
+  IRECT GetOffset(float l, float t, float r, float b) const
   {
     return IRECT(L + l, T + t, R + r, B + b);
   }
