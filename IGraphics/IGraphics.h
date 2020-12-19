@@ -135,12 +135,11 @@ public:
   
   /** Draw a bitmap (raster) image to the graphics context with rotation
    * @param bitmap The bitmap image to draw to the graphics context
-   * @param destCentreX The X coordinate in the graphics context of the centre point at which to rotate the image around. \todo check this
-   * @param destCentreY The Y coordinate in the graphics context of the centre point at which to rotate the image around. \todo check this
+   * @param destCentreX The X of the centre point at which to rotate the image around
+   * @param destCentreY The Y of the centre point at which to rotate the image around
    * @param angle The angle of rotation in degrees clockwise
-   * @param yOffsetZeroDeg \todo
    * @param pBlend Optional blend method */
-  virtual void DrawRotatedBitmap(const IBitmap& bitmap, float destCentreX, float destCentreY, double angle, int yOffsetZeroDeg = 0, const IBlend* pBlend = 0);
+  virtual void DrawRotatedBitmap(const IBitmap& bitmap, float destCentreX, float destCentreY, double angle, const IBlend* pBlend = 0);
 
   /** Fill a rectangle corresponding to a pixel on a 1:1 screen with a color
    * @param color The color to fill the point with

@@ -1468,7 +1468,6 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
 void IGraphics::OnGUIIdle()
 {
   TRACE
-
   ForAllControls(&IControl::OnGUIIdle);
 }
 
@@ -2381,10 +2380,8 @@ void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::funct
 }
 #endif
 
-  void IGraphics::DrawRotatedBitmap(const IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
+  void IGraphics::DrawRotatedBitmap(const IBitmap& bitmap, float destCtrX, float destCtrY, double angle, const IBlend* pBlend)
   {
-    //TODO: offset support
-    
     float width = bitmap.W() / bitmap.GetDrawScale();
     float height = bitmap.H() / bitmap.GetDrawScale();
     
