@@ -441,11 +441,11 @@ void IGraphics::ShowFPSDisplay(bool enable)
 
 IControl* IGraphics::GetControlWithTag(int ctrlTag) const
 {
-  IControl* pControl = mCtrlTags.at(ctrlTag);
-  
-  if(pControl != nullptr)
+  const auto it = mCtrlTags.find(ctrlTag);
+
+  if (it != mCtrlTags.end())
   {
-    return pControl;
+    return it->second;
   }
   else
   {
