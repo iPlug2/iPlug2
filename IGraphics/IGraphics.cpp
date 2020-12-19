@@ -449,7 +449,7 @@ IControl* IGraphics::GetControlWithTag(int ctrlTag) const
   }
   else
   {
-    assert(pControl && "There is no control attached with this tag");
+    assert("There is no control attached with this tag");
     return nullptr;
   }
 }
