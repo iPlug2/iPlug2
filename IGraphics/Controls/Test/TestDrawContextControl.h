@@ -45,6 +45,19 @@ public:
     nvgFillColor(vg, nvgRGBA(255, 0, 0, 255));
     nvgFill(vg);
     nvgRestore(vg);
+#elif defined IGRAPHICS_SKIA
+    SkCanvas* canvas = (SkCanvas*) g.GetDrawContext();
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorRED);
+    
+    SkRect rect = SkiaRect(r1);
+    canvas->translate(r1.MW(), r1.MH());
+    canvas->rotate(30);
+    canvas->translate(-r1.MW(), -r1.MH());
+    canvas->drawRect(rect, paint);
+#elif defined IGRAPHICS_CANVAS
+    
 #else
     g.DrawText(mText, "UNSUPPORTED", mRECT);
 #endif
