@@ -54,7 +54,11 @@ using namespace igraphics;
 
 @end
 
-@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate, UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate, UIColorPickerViewControllerDelegate>
+@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate, UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate
+#ifdef __IPHONE_14_0
+, UIColorPickerViewControllerDelegate
+#endif
+>
 {
 @public
   IGraphicsIOS* mGraphics;
@@ -77,8 +81,11 @@ using namespace igraphics;
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
 - (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func;
 - (void) presentationControllerDidDismiss: (UIPresentationController*) presentationController;
+
+#ifdef __IPHONE_14_0
 - (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
 - (void) colorPickerViewControllerDidFinish:(UIColorPickerViewController*) viewController;
+#endif
 
 //gestures
 - (void) attachGestureRecognizer: (EGestureType) type;

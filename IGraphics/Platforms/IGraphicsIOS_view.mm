@@ -607,33 +607,32 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func
 {
-  if (@available(iOS 14.0, *))
-  {
-    UIColorPickerViewController* colorSelectionController = [[UIColorPickerViewController alloc] init];
-    
-    UIUserInterfaceIdiom idiom = [[UIDevice currentDevice] userInterfaceIdiom];
-    
-    if(idiom == UIUserInterfaceIdiomPad)
-      colorSelectionController.modalPresentationStyle = UIModalPresentationPopover;
-    else
-      colorSelectionController.modalPresentationStyle = UIModalPresentationPageSheet;
-    
-    colorSelectionController.popoverPresentationController.delegate = self;
-    colorSelectionController.popoverPresentationController.sourceView = self;
-    
-    float x, y;
-    mGraphics->GetMouseLocation(x, y);
-    colorSelectionController.popoverPresentationController.sourceRect = CGRectMake(x, y, 1, 1);
-    
-    colorSelectionController.delegate = self;
-    colorSelectionController.selectedColor = ToUIColor(color);
-    colorSelectionController.supportsAlpha = YES;
-    
-    mColorPickerHandlerFunc = func;
-    
-    [self.window.rootViewController presentViewController:colorSelectionController animated:YES completion:nil];
-  }
+#ifdef __IPHONE_14_0
+  UIColorPickerViewController* colorSelectionController = [[UIColorPickerViewController alloc] init];
   
+  UIUserInterfaceIdiom idiom = [[UIDevice currentDevice] userInterfaceIdiom];
+  
+  if(idiom == UIUserInterfaceIdiomPad)
+    colorSelectionController.modalPresentationStyle = UIModalPresentationPopover;
+  else
+    colorSelectionController.modalPresentationStyle = UIModalPresentationPageSheet;
+  
+  colorSelectionController.popoverPresentationController.delegate = self;
+  colorSelectionController.popoverPresentationController.sourceView = self;
+  
+  float x, y;
+  mGraphics->GetMouseLocation(x, y);
+  colorSelectionController.popoverPresentationController.sourceRect = CGRectMake(x, y, 1, 1);
+  
+  colorSelectionController.delegate = self;
+  colorSelectionController.selectedColor = ToUIColor(color);
+  colorSelectionController.supportsAlpha = YES;
+  
+  mColorPickerHandlerFunc = func;
+  
+  [self.window.rootViewController presentViewController:colorSelectionController animated:YES completion:nil];
+#endif
+
   return false;
 }
 
@@ -859,6 +858,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics->SetControlValueAfterPopupMenu(nullptr);
 }
 
+#ifdef __IPHONE_14_0
 - (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
 {
   if(mColorPickerHandlerFunc)
@@ -872,6 +872,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   mColorPickerHandlerFunc = nullptr;
 }
+#endif
 
 - (void) getLastTouchLocation: (float&) x : (float&) y
 {
