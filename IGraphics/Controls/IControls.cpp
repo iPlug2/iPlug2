@@ -1163,7 +1163,7 @@ void IVGroupControl::OnResize()
 {
   SetTargetRECT(MakeRects(mRECT));
   mLabelBounds.HPad(mLabelPadding);
-  mWidgetBounds.Alter(0, -(mLabelBounds.H()/2.f) - (mStyle.frameThickness/2.f), 0, 0);
+  mWidgetBounds.Offset(0, -(mLabelBounds.H()/2.f) - (mStyle.frameThickness/2.f), 0, 0);
   const float cr = GetRoundedCornerRadius(mWidgetBounds);
   mLabelBounds.Translate(mRECT.L - mLabelBounds.L + mStyle.frameThickness + mLabelOffset + cr, 0.f);
   SetDirty(false);
@@ -1526,7 +1526,7 @@ void IBSliderControl::OnResize()
 void IBKnobRotaterControl::Draw(IGraphics& g)
 {
   const double angle = -130.0 + GetValue() * 260.0;
-  g.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle, 0, &mBlend);
+  g.DrawRotatedBitmap(mBitmap, mRECT.MW(), mRECT.MH(), angle, &mBlend);
 }
 
 IBTextControl::IBTextControl(const IRECT& bounds, const IBitmap& bitmap, const IText& text, const char* str, int charWidth, int charHeight, int charOffset, bool multiLine, bool vCenter, EBlend blend)

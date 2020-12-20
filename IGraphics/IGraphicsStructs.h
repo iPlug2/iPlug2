@@ -662,7 +662,7 @@ static const char* TextStyleString(ETextStyle style)
 /** IText is used to manage font and text/text entry style for a piece of text on the UI, independent of draw class/platform.*/
 struct IText
 {
-  /** Create a new IText 
+  /** Create a new IText with size, color, fontID ...
    * @param size The size of the text
    * @param color The color of the text
    * @param font CString for the font name or nullptr for DEFAULT_FONT 
@@ -714,7 +714,7 @@ struct IText
     mFGColor = color;
   }
   
-  /** Create a new IText with size, vertical align, color
+  /** Create a new IText with size and fontID
    * @param size The size of the text
    * @param fontID CString used to identify the font */
   IText(float size, const char* fontID)
@@ -1523,7 +1523,7 @@ struct IRECT
    * @param t Top offset
    * @param r Right offset
    * @param b Bottom offset */
-  void Alter(float l, float t, float r, float b)
+  void Offset(float l, float t, float r, float b)
   {
     L += l;
     T += t;
@@ -1531,13 +1531,13 @@ struct IRECT
     B += b;
   }
   
-  /** Get a copy of this rectangle where each field is offset
+  /** Get a copy of this rectangle where each field is offset by a specified amount
    * @param l Left offset
    * @param t Top offset
    * @param r Right offset
    * @param b Bottom offset
    * @return IRECT the new rectangle */
-  IRECT GetAltered(float l, float t, float r, float b) const
+  IRECT GetOffset(float l, float t, float r, float b) const
   {
     return IRECT(L + l, T + t, R + r, B + b);
   }

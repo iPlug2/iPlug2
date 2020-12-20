@@ -90,8 +90,8 @@ private:
   bool CompareFontMetrics(const char* style, const char* font1, const char* font2);
   bool FontExists(const char* font, const char* style);
     
-  double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
-  double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
+  double XTranslate() { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
+  double YTranslate() { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
 
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
