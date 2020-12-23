@@ -114,6 +114,7 @@ void IControl::SetParamIdx(int paramIdx, int valIdx)
 {
   assert(valIdx > kNoValIdx && valIdx < NVals());
   mVals.at(valIdx).idx = paramIdx;
+  SetDirty(false);
 }
 
 const IParam* IControl::GetParam(int valIdx) const
