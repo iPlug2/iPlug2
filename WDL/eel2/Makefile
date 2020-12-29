@@ -4,10 +4,12 @@ LFLAGS=
 CXX=g++
 
 ifdef DEBUG
-CFLAGS += -D_DEBUG -O0
+CFLAGS += -D_DEBUG -O0 -DWDL_CHECK_FOR_NON_UTF8_FOPEN
 else
 CFLAGS += -DNDEBUG -O
 endif
+
+CFLAGS += -D_FILE_OFFSET_BITS=64
 
 OBJS=nseel-caltab.o nseel-compiler.o nseel-eval.o nseel-lextab.o nseel-ram.o nseel-yylex.o nseel-cfunc.o fft.o
 
@@ -15,6 +17,13 @@ OBJS2=
 
 UNAME_S := $(shell uname -s)
 ARCH := $(shell uname -m)
+
+ifeq ($(ARCH), aarch64)
+  ifeq ($(shell $(CC) -dumpmachine | cut -f 1 -d -), arm)
+    # helper for armv7l userspace on aarch64 cpu
+    ARCH := armv7l
+  endif
+endif
 
 ifeq ($(UNAME_S),Darwin)
   CFLAGS += -arch $(ARCH)
@@ -63,7 +72,13 @@ ifndef NO_GFX
     CFLAGS += -DEEL_LICE_WANT_STANDALONE 
 
   ifeq ($(UNAME_S),Darwin)
-    CFLAGS += -mmacosx-version-min=10.5
+    CLANG_VER := $(shell clang --version|head -n 1| sed 's/.*version \([0-9][0-9]*\).*/\1/' )
+    CLANG_GT_9 := $(shell [ $(CLANG_VER) -gt 9 ] && echo true )
+    ifeq ($(CLANG_GT_9),true)
+      CFLAGS += -mmacosx-version-min=10.7 -stdlib=libc++
+    else
+      CFLAGS += -mmacosx-version-min=10.5
+    endif
     OBJS += swell-wnd.o swell-gdi.o swell.o swell-misc.o swell-dlg.o swell-menu.o swell-kb.o
     LFLAGS += -lobjc -framework Cocoa -framework Carbon
   else

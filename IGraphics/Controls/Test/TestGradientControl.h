@@ -33,18 +33,13 @@ public:
   {
     g.DrawDottedRect(COLOR_BLACK, mRECT);
 
-    if (g.HasPathSupport())
-    {
-      float cr = static_cast<float>(GetValue()) * (mRECT.H() / 2.f);
-      g.PathRoundRect(mRECT.GetPadded(-2.f), cr);
-      IFillOptions fillOptions;
-      IStrokeOptions strokeOptions;
-      fillOptions.mPreserve = true;
-      g.PathFill(mPattern, fillOptions);
-      g.PathStroke(IColor(255, 0, 0, 0), 3, strokeOptions);
-    }
-    else
-      g.DrawText(mText, "UNSUPPORTED", mRECT);
+    float cr = static_cast<float>(GetValue()) * (mRECT.H() / 2.f);
+    g.PathRoundRect(mRECT.GetPadded(-2.f), cr);
+    IFillOptions fillOptions;
+    IStrokeOptions strokeOptions;
+    fillOptions.mPreserve = true;
+    g.PathFill(mPattern, fillOptions);
+    g.PathStroke(IColor(255, 0, 0, 0), 3, strokeOptions);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
@@ -73,11 +68,11 @@ private:
 
     tmp.mExtend = (std::rand() & 0x10) ? ((std::rand() & 0x1000) ? EPatternExtend::None : EPatternExtend::Pad) : ((std::rand() & 0x1000) ? EPatternExtend::Repeat : EPatternExtend::Reflect);
 
-    tmp.AddStop(IColor::GetRandomColor(), 0.0);
-    tmp.AddStop(IColor::GetRandomColor(), 0.1);
-    tmp.AddStop(IColor::GetRandomColor(), 0.4);
-    tmp.AddStop(IColor::GetRandomColor(), 0.6);
-    tmp.AddStop(IColor::GetRandomColor(), 1.0);
+    tmp.AddStop(IColor::GetRandomColor(), 0.0f);
+    tmp.AddStop(IColor::GetRandomColor(), 0.1f);
+    tmp.AddStop(IColor::GetRandomColor(), 0.4f);
+    tmp.AddStop(IColor::GetRandomColor(), 0.6f);
+    tmp.AddStop(IColor::GetRandomColor(), 1.0f);
 
     mPattern = tmp;
   }

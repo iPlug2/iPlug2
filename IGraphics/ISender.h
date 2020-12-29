@@ -23,8 +23,6 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-static const float SENDER_THRESHOLD = (float) DBToAmp(-90.);
-
 /** ISenderData is used to represent a typed data packet, that may contain values for multiple channels */
 template <int MAXNC = 1, typename T = float>
 struct ISenderData

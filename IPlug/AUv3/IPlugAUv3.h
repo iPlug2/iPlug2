@@ -46,10 +46,10 @@ public:
   IPlugAUv3(const InstanceInfo& info, const Config& config);
   
   //IPlugAPIBase
-  void BeginInformHostOfParamChange(int idx) override {};
+  void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
-  void EndInformHostOfParamChange(int idx) override {};
-  void InformHostOfProgramChange() override {};
+  void EndInformHostOfParamChange(int idx) override;
+  void InformHostOfPresetChange() override {};
 
   //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;

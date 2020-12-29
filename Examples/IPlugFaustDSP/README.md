@@ -8,17 +8,13 @@ You can check the [conference paper](https://github.com/iPlug2/iPlug2/raw/master
 ## NOTES
 * JIT compilation will only work on macOS and Windows (iOS doesn't allow JIT compilation)
 
-* You should install FAUST, on your system, even though the macOS iPlug2 "pre-built libraries" zip contains a copy.
+* iPlug2 "pre-built libraries" zips contains a build of faust for mac and windows designed to work with this project. If you know what you are doing you can use your own build of faust, but warning: it is very complicated on Windows.
 
-MAC: https://github.com/grame-cncm/faust/releases/download/2.14.4/Faust-2.14.4.dmg
-
-WIN: https://github.com/grame-cncm/faust/releases/download/2.15.11/Faust-2.15.11-win64.exe
-
-* iPlug2 project preprocessor directives are set in the .xcconfig and .props files that reside in the /config folder of a project.
+* iPlug2 project preprocessor directives to choose the various paths for the faust dependencies are set in the .xcconfig and .props files that reside in the /config folder of a project.
 
 * The preprocessor directive *DSP_FILE* specified in debug builds is a hardcoded path to the FAUST .dsp file. You may need to modifiy that path in order for the JIT compilation to work.
 
-* The preprocessor directive *FAUST_LIBRARY_PATH* can be set to specify the install paths for faust libraries like stdfaust.lib. By default it looks in the standard faust install path, so if you didn't install faust the compilation will fail.
+* The preprocessor directive *FAUST_SHARE_PATH* can be set to specify the install paths for faust libraries like stdfaust.lib. By default it looks in the standard faust install path, so if you didn't install faust the compilation will fail.
 
 * The preprocessor directive *FAUST_COMPILED* is specified in release builds to take out the libfaust JIT compiler and just use the FaustCode.hpp file (the generated C++ code). If the JIT compiler is not working for you, you can disable it (with the FAUST_COMPILED macro) and complile the faust .dsp file to C++ using the command line faust executable.
 

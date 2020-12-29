@@ -15,6 +15,8 @@
 #include <type_traits>
 #include <emscripten.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 #include "wdl_base64.h"
 
 using namespace iplug;
@@ -53,11 +55,12 @@ struct IGraphicsCanvas::Font
 {
   using FontDesc = std::remove_pointer<FontDescriptor>::type;
   
-  Font(FontDesc descriptor, double ascenderRatio)
-  : mDescriptor(descriptor), mAscenderRatio(ascenderRatio)) {}
+  Font(FontDesc descriptor, double ascender, double descender)
+  : mDescriptor(descriptor), mAscender(ascender), mDescender(descender) {}
     
   FontDesc mDescriptor;
-  double mAscenderRatio;
+  double mAscender;
+  double mDescender;
 };
 
 static std::string GetFontString(const char* fontName, const char* styleName, double size)
@@ -87,7 +90,7 @@ END_IPLUG_NAMESPACE
 #pragma mark -
 
 IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
-: IGraphicsPathBase(dlg, w, h, fps, scale)
+: IGraphics(dlg, w, h, fps, scale)
 {
   StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Retain();
@@ -276,26 +279,11 @@ void IGraphicsCanvas::PrepareAndMeasureText(const IText& text, const char* str, 
   
   context.set("font", fontString);
   
-  const double textWidth = context.call<val>("measureText", std::string(str))["width"].as<double>();
-  const double textHeight = text.mSize;
-  const double ascender = pFont->mAscenderRatio * textHeight;
-  const double descender = -(1.0 - pFont->mAscenderRatio) * textHeight;
-  
-  switch (text.mAlign)
-  {
-    case EAlign::Near:     x = r.L;                          break;
-    case EAlign::Center:   x = r.MW() - (textWidth / 2.0);   break;
-    case EAlign::Far:      x = r.R - textWidth;              break;
-  }
-  
-  switch (text.mVAlign)
-  {
-    case EVAlign::Top:      y = r.T + ascender;                            break;
-    case EVAlign::Middle:   y = r.MH() + descender + (textHeight / 2.0);   break;
-    case EVAlign::Bottom:   y = r.B + descender;                           break;
-  }
-  
-  r = IRECT((float) x, (float) (y - ascender), (float) (x + textWidth), (float) (y + textHeight - ascender));
+  const double width = context.call<val>("measureText", std::string(str))["width"].as<double>();
+  const double ascender = pFont->mAscender * text.mSize;
+  const double descender = pFont->mDescender * text.mSize;
+
+  CalculateTextPositions(text, r, x, y, width, ascender, descender);
 }
 
 float IGraphicsCanvas::DoMeasureText(const IText& text, const char* str, IRECT& bounds) const
@@ -353,12 +341,43 @@ APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* fileNameOrResID, int scale
   return new Bitmap(GetPreloadedImages()[fileNameOrResID], fileNameOrResID + 1, scale);
 }
 
-APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, double drawScale)
+APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale)
+{
+  int width = 0;
+  int height = 0;
+  int channels = 0;
+  uint8_t* pRGBA;
+
+  pRGBA = stbi_load_from_memory((const uint8_t*)pData, dataSize, &width, &height, &channels, 4);
+  if (!pRGBA)
+  {
+    return nullptr;
+  }
+
+  DBGMSG("Size: %d x %d\n", width, height);
+  // Now that we've decoded the data, put it on a canvas
+  int rgbaSize = width * height * channels;
+  val rgbaArray = val::global("Uint8ClampedArray").new_(val(emscripten::typed_memory_view(rgbaSize, pRGBA)));
+
+  val imgData = val::global("ImageData").new_(rgbaArray, val(width), val(height));
+  val canvas = val::global("document").call<val>("createElement", std::string("canvas"));
+  canvas.set("width", width);
+  canvas.set("height", height);
+
+  val ctx = canvas.call<val>("getContext", std::string("2d"));
+  ctx.call<void>("putImageData", imgData, 0, 0);
+
+  stbi_image_free(pRGBA);
+
+  return new Bitmap(canvas, name, scale);
+}
+
+APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
 {
   return new Bitmap(width, height, scale, drawScale);
 }
 
-void IGraphicsCanvas::GetFontMetrics(const char* font, const char* style, double& ascenderRatio)
+void IGraphicsCanvas::GetFontMetrics(const char* font, const char* style, double& ascender, double &descender)
 {
   // Provides approximate font metrics for a system font (until text metrics are properly supported)
   int size = 1000;
@@ -384,7 +403,8 @@ void IGraphicsCanvas::GetFontMetrics(const char* font, const char* style, double
   double height = textSpan.call<val>("getBoundingClientRect")["height"].as<double>();
   document["body"].call<void>("removeChild", div);
   
-  ascenderRatio = ascent / height;
+  ascender = ascent / height;
+  descender = (1.0 - ascender);
 }
 
 bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, const char* font2)
@@ -406,9 +426,7 @@ bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, c
 
 bool IGraphicsCanvas::FontExists(const char* font, const char* style)
 {
-    return !CompareFontMetrics(style, font, "monospace") ||
-    !CompareFontMetrics(style, font, "sans-serif") ||
-    !CompareFontMetrics(style, font, "serif");
+  return !CompareFontMetrics(style, font, "monospace") || !CompareFontMetrics(style, font, "sans-serif") || !CompareFontMetrics(style, font, "serif");
 }
 
 bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
@@ -430,8 +448,10 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
       val fontFace = val::global("FontFace").new_(std::string(fontID), fontData);
         
       FontDescriptor descriptor = font->GetDescriptor();
-      const double ascenderRatio = data->GetAscender() / static_cast<double>(data->GetAscender() - data->GetDescender());
-      storage.Add(new Font({descriptor->first, descriptor->second}, ascenderRatio), fontID);
+      const double EMRatio = 1.f / data->GetUnitsPerEM();
+      const double ascender = data->GetAscender() * EMRatio;
+      const double descender = data->GetDescender() * EMRatio;
+      storage.Add(new Font({descriptor->first, descriptor->second}, ascender, -descender), fontID);
       
       // Add to store and request load immediately
       
@@ -450,10 +470,10 @@ bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
     
     if (FontExists(fontName, styleName))
     {
-      double ascenderRatio;
+      double ascender, descender;
       
-      GetFontMetrics(descriptor->first.Get(), descriptor->second.Get(), ascenderRatio);
-      storage.Add(new Font({descriptor->first, descriptor->second}, ascenderRatio), fontID);
+      GetFontMetrics(descriptor->first.Get(), descriptor->second.Get(), ascender, descender);
+      storage.Add(new Font({descriptor->first, descriptor->second}, ascender, descender), fontID);
       return true;
     }
   }

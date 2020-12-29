@@ -28,12 +28,12 @@ public:
 
   inline void SetFreqCPS(double freqHz)
   {
-    mPhaseIncr = mSampleRateReciprocal * freqHz;
+    mPhaseIncr = (1./mSampleRate) * freqHz;
   }
 
   void SetSampleRate(double sampleRate)
   {
-    mSampleRateReciprocal = (1./sampleRate);
+    mSampleRate = sampleRate;
   }
 
   void Reset()
@@ -49,7 +49,7 @@ public:
 protected:
   double mPhase = 0.;  // float phase (goes between 0. and 1.)
   double mPhaseIncr = 0.; // how much to add to the phase on each T
-  double mSampleRateReciprocal = 1./44100.;
+  double mSampleRate = 44100.;
   double mStartPhase;
 };
 
@@ -137,7 +137,6 @@ public:
   {
   }
 
-  //todo rewrite this
   inline T Process()
   {
     T output = 0.;

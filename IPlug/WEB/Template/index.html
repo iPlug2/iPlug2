@@ -217,6 +217,12 @@
         });
       }
 
+      // helper method for sending an "arbitary" message to the processor, which can be handled in OnMessage()
+      function SendMessageToWAM(msgTag, ctrlTag = -1, data = 0) {
+        let propArg = String(msgTag + ":" + ctrlTag);
+        NAME_PLACEHOLDER_WAM.port.postMessage({ "type": "msg", "verb": "SAMFUI", "prop": propArg, "data": data });
+      }
+      
       var statusElement = document.getElementById('status');
       var progressElement = document.getElementById('progress');
 

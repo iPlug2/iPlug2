@@ -10,12 +10,18 @@ IGraphicsStressTest::IGraphicsStressTest(const InstanceInfo& info)
   
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_HEIGHT));
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
 #endif
 }
 
 #if IPLUG_EDITOR
+void IGraphicsStressTest::OnParentWindowResize(int width, int height)
+{
+  if(GetUI())
+    GetUI()->Resize(width, height, 1.f, false);
+}
+
 void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
 {
   IRECT bounds = pGraphics->GetBounds();
@@ -32,7 +38,6 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
     return;
   }
   
-  pGraphics->SetSizeConstraints(100, 100000, 100, 100000);
   pGraphics->AttachCornerResizer(EUIResizerMode::Size, true);
   
   enum class EFunc {Next, Prev, More, Less, Set};
@@ -48,8 +53,8 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
         break;
     }
     
-    dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagNumThings))->SetStrFmt(64, "Number of things = %i", mNumberOfThings);
-    dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagTestNum))->SetStrFmt(64, "Test %i/%i", this->mKindOfThing, 32);
+    GetUI()->GetControlWithTag(kCtrlTagNumThings)->As<ITextControl>()->SetStrFmt(64, "Number of things = %i", mNumberOfThings);
+    GetUI()->GetControlWithTag(kCtrlTagTestNum)->As<ITextControl>()->SetStrFmt(64, "Test %i/%i", this->mKindOfThing, 32);
     GetUI()->SetAllControlsDirty();
   };
   

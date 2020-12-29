@@ -71,7 +71,6 @@ def replacestrs(filename, s, r):
   files = glob.glob(filename)
 
   for line in fileinput.input(files,inplace=1):
-    line.find(s)
     line = line.replace(s, r)
     sys.stdout.write(line)
 

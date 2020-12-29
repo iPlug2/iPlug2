@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IPlugEffect</string>
 	<key>CFBundleGetInfoString</key>
-	<string>IPlugEffect v1.0.0 Copyright 2019 Acme Inc</string>
+	<string>IPlugEffect v1.0.0 Copyright 2020 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.app.IPlugEffect.AUv3</string>
 	<key>CFBundleInfoDictionaryVersion</key>

@@ -96,7 +96,7 @@ public:
   void BeginInformHostOfParamChange(int idx) override { beginEdit(idx); }
   void InformHostOfParamChange(int idx, double normalizedValue) override  { performEdit(idx, normalizedValue); }
   void EndInformHostOfParamChange(int idx) override  { endEdit(idx); }
-  void InformHostOfProgramChange() override  { /* TODO: */}
+  void InformHostOfPresetChange() override  { /* TODO: */}
   bool EditorResize(int viewWidth, int viewHeight) override;
   void DirtyParametersFromUI() override;
   
@@ -104,6 +104,7 @@ public:
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(const ISysEx& msg) override;
   void SendArbitraryMsgFromUI(int msgTag, int ctrlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
+  void SendParameterValueFromUI(int paramIdx, double normalisedValue) override;
 
   Steinberg::Vst::IComponentHandler* GetComponentHandler() const { return componentHandler; }
   ViewType* GetView() const { return mView; }

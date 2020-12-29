@@ -130,5 +130,4 @@ def parse_xcconfig(configFile):
   return xcconfig
 
 if __name__ == '__main__':
-  import sys
   parse_config(sys.argv[1])

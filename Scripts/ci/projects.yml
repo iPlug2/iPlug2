@@ -82,7 +82,7 @@ steps:
 #     name: MyProject # the name of the iPlug2 project folder ... e.g. what you specified when duplicating IPlugEffect
 #     path: Projects  # the name of the folder that contains the project, which should be at the top level of the iPlug2 setup
 #                     # e.g. Examples/Tests or Projects if you want to separate external projects
-#     graphics: ${{parameters.graphics}} # here you can specify a graphics backend, either, 'NANOVG', 'CAIRO', 'AGG', 'LICE', 'CANVAS'
+#     graphics: ${{parameters.graphics}} # here you can specify a graphics backend, either, 'NANOVG', 'SKIA', 'CANVAS'
 #     artifactName: MyProject # How should the built artifact be named? If building for multiple graphics backends, you can customize this, using ${{parameters.graphics}}
 #     srcRepo: https://$GITHUB_USER:$GITHUB_PAT@github.com/MyProject.git # the git repository to clone into path/name for building
 #     srcBranch: master # the branch to clone for building

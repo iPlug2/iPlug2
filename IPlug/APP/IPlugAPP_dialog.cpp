@@ -530,11 +530,7 @@ static void ClientResize(HWND hWnd, int nWidth, int nHeight)
 //  MoveWindow(hWnd, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, FALSE);
 }
 
-#ifndef NO_IGRAPHICS 
-// DPI helper
-extern UINT(WINAPI* __GetDpiForWindow)(HWND);
-
-// Mouse and tablet helpers
+#ifdef OS_WIN 
 extern int GetScaleForHWND(HWND hWnd);
 #endif
 
@@ -559,16 +555,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       width = pPlug->GetEditorWidth();
       height = pPlug->GetEditorHeight();
 
-      int scale = 1;
-      #ifdef OS_WIN 
-      #ifndef NO_IGRAPHICS
-        scale = GetScaleForHWND(gHWND);
-      #else
-        #error GetScaleForHWND() not implemented
-      #endif
-      #endif
-
-      ClientResize(hwndDlg, width * scale, height * scale);
+      ClientResize(hwndDlg, width, height);
 
       ShowWindow(hwndDlg, SW_SHOW);
       return 1;
@@ -645,7 +632,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
             {
               bool enabled = pGraphics->LiveEditEnabled();
               pGraphics->EnableLiveEdit(!enabled);
-              CheckMenuItem(GET_MENU(), ID_LIVE_EDIT, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+              CheckMenuItem(GET_MENU(), ID_LIVE_EDIT, (MF_BYCOMMAND | enabled) ? MF_UNCHECKED : MF_CHECKED);
             }
           }
           
@@ -663,7 +650,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
             {
               bool enabled = pGraphics->ShowAreaDrawnEnabled();
               pGraphics->ShowAreaDrawn(!enabled);
-              CheckMenuItem(GET_MENU(), ID_SHOW_DRAWN, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+              CheckMenuItem(GET_MENU(), ID_SHOW_DRAWN, (MF_BYCOMMAND | enabled) ? MF_UNCHECKED : MF_CHECKED);
             }
           }
           
@@ -681,7 +668,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
             {
               bool enabled = pGraphics->ShowControlBoundsEnabled();
               pGraphics->ShowControlBounds(!enabled);
-              CheckMenuItem(GET_MENU(), ID_SHOW_BOUNDS, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+              CheckMenuItem(GET_MENU(), ID_SHOW_BOUNDS, (MF_BYCOMMAND | enabled) ? MF_UNCHECKED : MF_CHECKED);
             }
           }
           
@@ -699,7 +686,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
             {
               bool enabled = pGraphics->ShowingFPSDisplay();
               pGraphics->ShowFPSDisplay(!enabled);
-              CheckMenuItem(GET_MENU(), ID_SHOW_FPS, MF_BYCOMMAND | enabled ? MF_UNCHECKED : MF_CHECKED);
+              CheckMenuItem(GET_MENU(), ID_SHOW_FPS, (MF_BYCOMMAND | enabled) ? MF_UNCHECKED : MF_CHECKED);
             }
           }
           
@@ -708,6 +695,35 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 #endif
       }
       return 0;
+    case WM_GETMINMAXINFO:
+    {
+      if(!pAppHost)
+        return 1;
+      
+      IPlugAPP* pPlug = pAppHost->GetPlug();
+
+      MINMAXINFO* mmi = (MINMAXINFO*) lParam;
+      mmi->ptMinTrackSize.x = pPlug->GetMinWidth();
+      mmi->ptMinTrackSize.y = pPlug->GetMinHeight();
+      mmi->ptMaxTrackSize.x = pPlug->GetMaxWidth();
+      mmi->ptMaxTrackSize.y = pPlug->GetMaxHeight();
+      
+#ifdef OS_MAC
+      const int titleBarOffset = 22;
+      mmi->ptMinTrackSize.y += titleBarOffset;
+      mmi->ptMaxTrackSize.y += titleBarOffset;
+#endif
+
+#ifdef OS_WIN 
+      int scale = GetScaleForHWND(hwndDlg);
+      mmi->ptMinTrackSize.x *= scale;
+      mmi->ptMinTrackSize.y *= scale;
+      mmi->ptMaxTrackSize.x *= scale;
+      mmi->ptMaxTrackSize.y *= scale;
+#endif
+      
+      return 0;
+    }
     case WM_SIZE:
     {
       IPlugAPP* pPlug = pAppHost->GetPlug();
@@ -721,11 +737,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
         GetClientRect(hwndDlg, &r);
         int scale = 1;
         #ifdef OS_WIN 
-        #ifndef NO_IGRAPHICS
         scale = GetScaleForHWND(hwndDlg);
-        #else
-          #error GetScaleForHWND() not implemented
-        #endif
         #endif
         pPlug->OnParentWindowResize(r.right / scale, r.bottom / scale);
         return 1;

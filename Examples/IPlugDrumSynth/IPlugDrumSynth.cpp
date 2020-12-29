@@ -52,7 +52,7 @@ private:
 #endif
 
 IPlugDrumSynth::IPlugDrumSynth(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPrograms))
+: Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   GetParam(kParamMultiOuts)->InitBool("Multi-outs", false);
@@ -93,7 +93,7 @@ void IPlugDrumSynth::OnMidiMsgUI(const IMidiMsg& msg)
 
     if(pitchClass < kNumDrums)
     {
-      DrumPadControl* pPad = dynamic_cast<DrumPadControl*>(GetUI()->GetControlWithTag(pitchClass));
+      DrumPadControl* pPad = GetUI()->GetControlWithTag(pitchClass)->As<DrumPadControl>();
       pPad->SetSplashPoint(pPad->GetRECT().MW(), pPad->GetRECT().MH());
       pPad->TriggerAnimation();
     }

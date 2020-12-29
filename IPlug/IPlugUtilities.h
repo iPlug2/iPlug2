@@ -94,7 +94,7 @@ static inline bool CStringHasContents(const char* str) { return str && str[0] !=
  */
 static inline double DBToAmp(double dB)
 {
-  return exp(IAMP_DB * dB);
+  return std::exp(IAMP_DB * dB);
 }
 
 /** @return dB calculated as an approximation of
@@ -102,47 +102,47 @@ static inline double DBToAmp(double dB)
  * @see #AMP_DB */
 static inline double AmpToDB(double amp)
 {
-  return AMP_DB * log(std::fabs(amp));
+  return AMP_DB * std::log(std::fabs(amp));
 }
 
-/** /todo  
- * @param version /todo
- * @param ver /todo
- * @param maj /todo
- * @param min /todo */
-static inline void GetVersionParts(int version, int& ver, int& maj, int& min)
+/** Helper function to unpack the version number parts as individual integers
+ * @param versionInteger The version number packed into an integer
+ * @param maj The major version
+ * @param min The minor version
+ * @param pat The patch version */
+static inline void GetVersionParts(int versionInteger, int& maj, int& min, int& pat)
 {
-  ver = (version & 0xFFFF0000) >> 16;
-  maj = (version & 0x0000FF00) >> 8;
-  min = version & 0x000000FF;
+  maj = (versionInteger & 0xFFFF0000) >> 16;
+  min = (versionInteger & 0x0000FF00) >> 8;
+  pat = versionInteger & 0x000000FF;
 }
 
-/** /todo  
- * @param version /todo
- * @return int /todo */
-static inline int GetDecimalVersion(int version)
+/** Helper function to get the version number as a decimal integer
+ * @param versionInteger The version number packed into an integer
+ * @return int Decimal version */
+static inline int GetDecimalVersion(int versionInteger)
 {
-  int ver, rmaj, rmin;
-  GetVersionParts(version, ver, rmaj, rmin);
-  return 10000 * ver + 100 * rmaj + rmin;
+  int maj, min, pat;
+  GetVersionParts(versionInteger, maj, min, pat);
+  return 10000 * maj + 100 * min + pat;
 }
 
-/** /todo 
- * @param version /todo
- * @param str /todo */
-static inline void GetVersionStr(int version, WDL_String& str)
+/** Helper function to get the semantic version number as a string from an integer
+ * @param versionInteger The version number packed into an integer
+ * @param str WDL_String to be populated with the version number in MAJOR.MINOR.PATCH format as a string */
+static inline void GetVersionStr(int versionInteger, WDL_String& str)
 {
-  int ver, rmaj, rmin;
-  GetVersionParts(version, ver, rmaj, rmin);
-  str.SetFormatted(MAX_VERSION_STR_LEN, "v%d.%d.%d", ver, rmaj, rmin);
+  int maj, min, pat;
+  GetVersionParts(versionInteger, maj, min, pat);
+  str.SetFormatted(MAX_VERSION_STR_LEN, "v%d.%d.%d", maj, min, pat);
 }
 
-/** /todo  
- * @tparam SRC 
- * @tparam DEST 
- * @param pDest /todo
- * @param pSrc /todo
- * @param n /todo */
+/** Helper function to  loop through a buffer of samples copying and casting from e.g float to double
+ * @tparam SRC The source type
+ * @tparam DEST The destination type
+ * @param pDest Ptr to the destination buffer
+ * @param pSrc Ptr to the source buffer
+ * @param n The number of or elements in the buffer */
 template <class SRC, class DEST>
 void CastCopy(DEST* pDest, SRC* pSrc, int n)
 {
@@ -152,9 +152,9 @@ void CastCopy(DEST* pDest, SRC* pSrc, int n)
   }
 }
 
-/** /todo  
- * @param cDest /todo
- * @param cSrc /todo */
+/** \todo  
+ * @param cDest \todo
+ * @param cSrc \todo */
 static void ToLower(char* cDest, const char* cSrc)
 {
   int i, n = (int) strlen(cSrc);
@@ -202,7 +202,7 @@ static EHost LookUpHost(const char* inHost)
   if (strstr(host, "vst3plugintesthost"))   return kHostVST3TestHost;
   if (strstr(host, "ardour"))               return kHostArdour;
   if (strstr(host, "renoise"))              return kHostRenoise;
-  if (strstr(host, "OpenMPT"))              return kHostOpenMPT;
+  if (strstr(host, "openmpt"))              return kHostOpenMPT;
   if (strstr(host, "wavelab elements"))     return kHostWaveLabElements; // check for wavelab elements should come before wavelab ...
   if (strstr(host, "wavelab"))              return kHostWaveLab;
   if (strstr(host, "twistedwave"))          return kHostTwistedWave;
@@ -286,11 +286,11 @@ static void GetHostNameStr(EHost host, WDL_String& str)
   }
 }
 
-/** /todo 
- * @param midiPitch /todo
- * @param noteName /todo
- * @param cents /todo
- * @param middleCisC4 /todo */
+/** \todo 
+ * @param midiPitch \todo
+ * @param noteName \todo
+ * @param cents \todo
+ * @param middleCisC4 \todo */
 static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = false, bool middleCisC4 = false)
 {
   static const char noteNames[12][3] = {"C ","C#","D ","D#","E ","F ","F#","G ","G#","A ","A#","B "};

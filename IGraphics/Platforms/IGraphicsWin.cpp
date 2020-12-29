@@ -35,11 +35,18 @@ static double sFPS = 0.0;
 
 #define PARAM_EDIT_ID 99
 #define IPLUG_TIMER_ID 2
-#define IPLUG_WIN_MAX_WIDE_PATH 4096
 
 #define TOOLTIPWND_MAXWIDTH 250
 
 #define WM_VBLANK (WM_USER+1)
+
+#ifdef IGRAPHICS_GL3
+typedef HGLRC(WINAPI* PFNWGLCREATECONTEXTATTRIBSARBPROC) (HDC hDC, HGLRC hShareContext, const int* attribList);
+#define WGL_CONTEXT_MAJOR_VERSION_ARB     0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB     0x2092
+#define WGL_CONTEXT_PROFILE_MASK_ARB      0x9126
+#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB  0x00000001
+#endif
 
 #pragma mark - Private Classes and Structs
 
@@ -136,25 +143,9 @@ IFontDataPtr IGraphicsWin::Font::GetFontData()
 StaticStorage<IGraphicsWin::InstalledFont> IGraphicsWin::sPlatformFontCache;
 StaticStorage<IGraphicsWin::HFontHolder> IGraphicsWin::sHFontCache;
 
-#pragma mark - DPI Helper
+#pragma mark - Mouse and tablet helpers
 
-// DPI helper
-UINT(WINAPI *__GetDpiForWindow)(HWND);
-
-// Mouse and tablet helpers
-int GetScaleForHWND(HWND hWnd)
-{
-  if (hWnd && __GetDpiForWindow)
-  {
-    int dpi = __GetDpiForWindow(hWnd);
-    if (dpi != USER_DEFAULT_SCREEN_DPI)
-      return std::round(static_cast<double>(dpi) / USER_DEFAULT_SCREEN_DPI);
-  }
-
-  return 1;
-}
-
-#pragma mark -
+extern int GetScaleForHWND(HWND hWnd);
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
@@ -434,8 +425,16 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         {
           std::vector<IMouseInfo> list{ info };
           pGraphics->OnMouseDrag(list);
+            
           if (pGraphics->MouseCursorIsLocked())
-            pGraphics->MoveMouseCursor(pGraphics->mHiddenCursorX, pGraphics->mHiddenCursorY);
+          {
+            const float x = pGraphics->mHiddenCursorX;
+            const float y = pGraphics->mHiddenCursorY;
+            
+            pGraphics->MoveMouseCursor(x, y);
+            pGraphics->mHiddenCursorX = x;
+            pGraphics->mHiddenCursorY = y;
+          }
         }
       }
 
@@ -653,7 +652,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         pGraphics->Draw(rects);
 
         #ifdef IGRAPHICS_GL
-        SwapBuffers((HDC) pGraphics->mPlatformContext);
+        SwapBuffers((HDC) pGraphics->GetPlatformContext());
         pGraphics->DeactivateGLContext();
         #endif
 
@@ -820,12 +819,6 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
 IGraphicsWin::IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
   : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
-  if (!__GetDpiForWindow)
-  {
-    HINSTANCE h = LoadLibrary("user32.dll");
-    if (h) *(void **)&__GetDpiForWindow = GetProcAddress(h, "GetDpiForWindow");
-  }
-
   StaticStorage<InstalledFont>::Accessor fontStorage(sPlatformFontCache);
   StaticStorage<HFontHolder>::Accessor hfontStorage(sHFontCache);
   fontStorage.Retain();
@@ -969,14 +962,8 @@ void IGraphicsWin::MoveMouseCursor(float x, float y)
     GetCursorPos(&p);
     ScreenToClient(mPlugWnd, &p);
     
-    mCursorX = p.x / scale;
-    mCursorY = p.y / scale;
-      
-    if (mCursorHidden && !mCursorLock)
-    {
-      mHiddenCursorX = p.x / scale;
-      mHiddenCursorY = p.y / scale;
-    }
+    mHiddenCursorX = mCursorX = p.x / scale;
+    mHiddenCursorY = mCursorY = p.y / scale;
   }
 }
 
@@ -1051,9 +1038,30 @@ void IGraphicsWin::CreateGLContext()
   HDC dc = GetDC(mPlugWnd);
   int fmt = ChoosePixelFormat(dc, &pfd);
   SetPixelFormat(dc, fmt, &pfd);
-
   mHGLRC = wglCreateContext(dc);
   wglMakeCurrent(dc, mHGLRC);
+
+#ifdef IGRAPHICS_GL3
+  // On windows we can't create a 3.3 context directly, since we need the wglCreateContextAttribsARB extension.
+  // We load the extension, then re-create the context.
+  auto wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC) wglGetProcAddress("wglCreateContextAttribsARB");
+
+  if (wglCreateContextAttribsARB)
+  {
+    wglDeleteContext(mHGLRC);
+
+    const int attribList[] = {
+      WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+      WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+      WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+      0
+    };
+
+    mHGLRC = wglCreateContextAttribsARB(dc, 0, attribList);
+    wglMakeCurrent(dc, mHGLRC);
+  }
+
+#endif
 
   //TODO: return false if GL init fails?
   if (!gladLoadGL())
@@ -1080,7 +1088,7 @@ void IGraphicsWin::ActivateGLContext()
 
 void IGraphicsWin::DeactivateGLContext()
 {
-  ReleaseDC(mPlugWnd, (HDC) mPlatformContext);
+  ReleaseDC(mPlugWnd, (HDC) GetPlatformContext());
   wglMakeCurrent(mStartHDC, mStartHGLRC); // return current ctxt to start
 }
 #endif
@@ -1636,7 +1644,6 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
       ofn.Flags |= OFN_OVERWRITEPROMPT;
       rc = GetSaveFileNameW(&ofn);
       break;
-            
     case EFileAction::Open:
       default:
       ofn.Flags |= OFN_FILEMUSTEXIST;
@@ -1936,7 +1943,6 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
 {
   StaticStorage<InstalledFont>::Accessor fontStorage(sPlatformFontCache);
 
-  std::unique_ptr<InstalledFont> pFont;
   void* pFontMem = nullptr;
   int resSize = 0;
   WDL_String fullPath;
@@ -1951,43 +1957,29 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
     case kAbsolutePath:
     {
       HANDLE file = CreateFile(fullPath.Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+      PlatformFontPtr ret = nullptr;
       if (file)
       {
         HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
         if (mapping)
         {
+          resSize = (int)GetFileSize(file, nullptr);
           pFontMem = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
-          pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
+          ret = LoadPlatformFont(fontID, pFontMem, resSize);
           UnmapViewOfFile(pFontMem);
           CloseHandle(mapping);
         }
         CloseHandle(file);
       }
+      return ret;
     }
     break;
     case kWinBinary:
     {
       pFontMem = const_cast<void *>(LoadWinResource(fullPath.Get(), "ttf", resSize, GetWinModuleHandle()));
-      pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
+      return LoadPlatformFont(fontID, pFontMem, resSize);
     }
     break;
-  } 
-
-  if (pFontMem && pFont && pFont->IsValid())
-  {
-    IFontInfo fontInfo(pFontMem, resSize, 0);
-    WDL_String family = fontInfo.GetFamily();
-    int weight = fontInfo.IsBold() ? FW_BOLD : FW_REGULAR;
-    bool italic = fontInfo.IsItalic();
-    bool underline = fontInfo.IsUnderline();
-
-    HFONT font = GetHFont(family.Get(), weight, italic, underline);
-
-    if (font)
-    {
-      fontStorage.Add(pFont.release(), fileNameOrResID);
-      return PlatformFontPtr(new Font(font, "", false));
-    }
   }
 
   return nullptr;
@@ -2003,6 +1995,36 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
   HFONT font = GetHFont(fontName, weight, italic, underline, quality, true);
 
   return PlatformFontPtr(font ? new Font(font, TextStyleString(style), true) : nullptr);
+}
+
+PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, void* pData, int dataSize)
+{
+  StaticStorage<InstalledFont>::Accessor fontStorage(sPlatformFontCache);
+
+  std::unique_ptr<InstalledFont> pFont;
+  void* pFontMem = pData;
+  int resSize = dataSize;
+
+  pFont = std::make_unique<InstalledFont>(pFontMem, resSize);
+
+  if (pFontMem && pFont && pFont->IsValid())
+  {
+    IFontInfo fontInfo(pFontMem, resSize, 0);
+    WDL_String family = fontInfo.GetFamily();
+    int weight = fontInfo.IsBold() ? FW_BOLD : FW_REGULAR;
+    bool italic = fontInfo.IsItalic();
+    bool underline = fontInfo.IsUnderline();
+
+    HFONT font = GetHFont(family.Get(), weight, italic, underline);
+
+    if (font)
+    {
+      fontStorage.Add(pFont.release(), fontID);
+      return PlatformFontPtr(new Font(font, "", false));
+    }
+  }
+
+  return nullptr;
 }
 
 void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
@@ -2200,13 +2222,7 @@ void IGraphicsWin::VBlankNotify()
 }
 
 #ifndef NO_IGRAPHICS
-#if defined IGRAPHICS_AGG
-  #include "IGraphicsAGG.cpp"
-#elif defined IGRAPHICS_CAIRO
-  #include "IGraphicsCairo.cpp"
-#elif defined IGRAPHICS_LICE
-  #include "IGraphicsLice.cpp"
-#elif defined IGRAPHICS_SKIA
+#if defined IGRAPHICS_SKIA
   #include "IGraphicsSkia.cpp"
   #ifdef IGRAPHICS_GL
     #include "glad.c"
@@ -2219,8 +2235,6 @@ void IGraphicsWin::VBlankNotify()
 #endif
   #include "nanovg.c"
   #include "glad.c"
-#elif defined IGRAPHICS_D2D
-  #include "IGraphicsD2D.cpp"
 #else
   #error
 #endif
