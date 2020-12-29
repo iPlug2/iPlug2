@@ -233,8 +233,11 @@ bool IControl::IsDirty()
   
   if (!mDirty && mAnimationEndActionFuncQueued)
   {
-    mAnimationEndActionFuncQueued(this);
-    mAnimationEndActionFuncQueued = nullptr;
+    // swapping into tmp var here allows IGraphics::PromptForFile() etc to be used in action func without causing a loop
+    // this was problematic on windows
+    auto func = mAnimationEndActionFuncQueued;
+    mAnimationEndActionFuncQueued = nullptr; 
+    func(this);
   }
   
   return mDirty;
