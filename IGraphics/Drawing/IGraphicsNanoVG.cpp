@@ -745,13 +745,13 @@ bool IGraphicsNanoVG::LoadAPIFont(const char* fontID, const PlatformFontPtr& fon
     
   if (cached)
   {
-    nvgCreateFontFaceMem(mVG, fontID, cached->Get(), cached->GetSize(), cached->GetFaceIdx(), 0);
+    nvgCreateFontMemAtIndex(mVG, fontID, cached->Get(), cached->GetSize(), 0, cached->GetFaceIdx());
     return true;
   }
     
   IFontDataPtr data = font->GetFontData();
 
-  if (data->IsValid() && nvgCreateFontFaceMem(mVG, fontID, data->Get(), data->GetSize(), data->GetFaceIdx(), 0) != -1)
+  if (data->IsValid() && nvgCreateFontMemAtIndex(mVG, fontID, data->Get(), data->GetSize(), 0, data->GetFaceIdx()) != -1)
   {
     storage.Add(data.release(), fontID);
     return true;
