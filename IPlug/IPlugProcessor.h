@@ -17,6 +17,7 @@
 #include <cstdio>
 #include <cassert>
 #include <memory>
+#include <vector>
 
 #include "ptrlist.h"
 
@@ -40,8 +41,8 @@ class IPlugProcessor
 {
 public:
   /** IPlugProcessor constructor
-   * @param config /todo
-   * @param plugAPI /todo */
+   * @param config \todo
+   * @param plugAPI \todo */
   IPlugProcessor(const Config& config, EAPI plugAPI);
   virtual ~IPlugProcessor();
 
@@ -129,18 +130,30 @@ public:
   void GetTimeSig(int& numerator, int& denominator) const { numerator = mTimeInfo.mNumerator; denominator = mTimeInfo.mDenominator; }
 
 #pragma mark -
+  
+  /** Get the name for a particular bus
+   * @param direction Input or output bus
+   * @param busIdx The index of the bus
+   * @param nBuses The total number of buses for this direction
+   * @param str String to fill with the bus name */
+  virtual void GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const;
+  
   /** @return The number of channel I/O configs derived from the channel io string*/
   int NIOConfigs() const { return mIOConfigs.GetSize(); }
 
   /** @return const Pointer to an IOConfig at idx. Can return nullptr if idx is invalid */
   const IOConfig* GetIOConfig(int idx) const { return mIOConfigs.Get(idx); }
 
+  /** @return Index of IOConfig that matches input and output bus vectors. Can return -1 if not found */
+  int GetIOConfigWithChanCounts(std::vector<int>& inputBuses, std::vector<int>& outputBuses);
+  
   /** Used to determine the maximum number of input or output buses based on what was specified in the channel I/O config string
    * @param direction Return input or output bus count
+   * @param pConfigIdxWithTheMostBuses Optional ptr to report the index of the config with the max bus count, if multiple configs have the same bus count, this should report the one with the higher channel count
    * @return The maximum bus count across all channel I/O configs */
-  int MaxNBuses(ERoute direction) const;
+  int MaxNBuses(ERoute direction, int* pConfigIdxWithTheMostBuses = nullptr) const;
 
-  /** For a given input or output bus what is the maximum possible number of channels
+  /** For a given input or output bus what is the maximum possible number of channels. This method is not Realtime safe.
    * @param direction Return input or output bus count
    * @param busIdx The index of the bus to look up
    * @return return The maximum number of channels on that bus */
@@ -181,9 +194,6 @@ public:
   /** @return \c true if this plug-in has a side-chain input, which may not necessarily be active in the current I/O config */
   bool HasSidechainInput() const { return MaxNBuses(ERoute::kInput) > 1; }
 
-  /** @return The number of channels and the side-chain input \todo this will change */
-  int NSidechainChannels() const { return 1; } // TODO: this needs to be more flexible, based on channel I/O
-
   /** This is called by IPlugVST in order to limit a plug-in to stereo I/O for certain picky hosts \todo may no longer be relevant*/
   void LimitToStereoIO();//TODO: this should be updated
 
@@ -193,28 +203,8 @@ public:
   /** @return \c true if the plug-in was configured as an MFX at compile time */
   bool IsMidiEffect() const { return mPlugType == EIPlugPluginType::kMIDIEffect; }
   
-  /** /todo 
-   * @return int /todo */
-  int GetAUPluginType() const
-  {
-    if (mPlugType == EIPlugPluginType::kEffect)
-    {
-      if (DoesMIDIIn())
-        return 'aumf';
-      else
-        return 'aufx';
-    }
-    else if (mPlugType == EIPlugPluginType::kInstrument)
-    {
-      return 'aumu';
-    }
-    else if (mPlugType == EIPlugPluginType::kMIDIEffect)
-    {
-      return 'aumi';
-    }
-    else
-      return 'aufx';
-  }
+  /** @return int The 4Char identifier for the type of audiounit plugin, e.g. 'aufx' for an effect audiounit */
+  int GetAUPluginType() const;
 
   /** @return \c true if the plug-in was configured to receive midi at compile time */
   bool DoesMIDIIn() const { return mDoesMIDIIn; }
@@ -306,7 +296,7 @@ private:
   /* A list of IChannelData structures corresponding to every input/output channel */
   WDL_PtrList<IChannelData<>> mChannelData[2];
 protected: // these members are protected because they need to be access by the API classes, and don't want a setter/getter
-  /** A multichannel delay line used to delay the bypassed signal when a plug-in with latency is bypassed. */
+  /** A multi-channel delay line used to delay the bypassed signal when a plug-in with latency is bypassed. */
   std::unique_ptr<NChanDelayLine<sample>> mLatencyDelay = nullptr;
   /** Contains detailed information about the transport state */
   ITimeInfo mTimeInfo;

@@ -227,7 +227,7 @@ END_IPLUG_NAMESPACE
 #pragma mark -
 
 IGraphicsNanoVG::IGraphicsNanoVG(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
-: IGraphicsPathBase(dlg, w, h, fps, scale)
+: IGraphics(dlg, w, h, fps, scale)
 {
   DBGMSG("IGraphics NanoVG @ %i FPS\n", fps);
   StaticStorage<IFontData>::Accessor storage(sFontCache);
@@ -347,7 +347,29 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
   return new Bitmap(mVG, fileNameOrResID, scale, idx, location == EResourceLocation::kPreloadedTexture);
 }
 
-APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, double drawScale)
+APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale)
+{
+  StaticStorage<APIBitmap>::Accessor storage(mBitmapCache);
+  APIBitmap* pBitmap = storage.Find(name, scale);
+
+  if (!pBitmap)
+  {
+    int idx = 0;
+    int nvgImageFlags = 0;
+
+    ActivateGLContext();
+    idx = idx = nvgCreateImageMem(mVG, nvgImageFlags, (unsigned char*)pData, dataSize);
+    DeactivateGLContext();
+
+    pBitmap = new Bitmap(mVG, name, scale, idx, false);
+
+    storage.Add(pBitmap, name, scale);
+  }
+
+  return pBitmap;
+}
+
+APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
 {
   if (mInDraw)
   {
@@ -429,7 +451,7 @@ void IGraphicsNanoVG::OnViewInitialized(void* pContext)
 #if defined IGRAPHICS_METAL
   mVG = nvgCreateContext(pContext, NVG_ANTIALIAS | NVG_TRIPLE_BUFFER); //TODO: NVG_STENCIL_STROKES currently has issues
 #else
-  mVG = nvgCreateContext(NVG_ANTIALIAS | NVG_STENCIL_STROKES);
+  mVG = nvgCreateContext(NVG_ANTIALIAS /*| NVG_STENCIL_STROKES*/);
 #endif
 
   if (mVG == nullptr)
@@ -474,9 +496,7 @@ void IGraphicsNanoVG::BeginFrame()
   mInDraw = true;
   IGraphics::BeginFrame(); // start perf graph timing
 
-#ifdef IGRAPHICS_METAL
-  //  mnvgClearWithColor(mVG, nvgRGBAf(0, 0, 0, 0));
-#else
+#ifdef IGRAPHICS_GL
     glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
     glClearColor(0.f, 0.f, 0.f, 0.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -878,4 +898,15 @@ void IGraphicsNanoVG::ClearFBOStack()
     nvgDeleteFramebuffer(mFBOStack.top());
     mFBOStack.pop();
   }
+}
+
+void IGraphicsNanoVG::DrawFastDropShadow(const IRECT& innerBounds, const IRECT& outerBounds, float xyDrop, float roundness, float blur, IBlend* pBlend)
+{
+  NVGpaint shadowPaint = nvgBoxGradient(mVG, innerBounds.L + xyDrop, innerBounds.T + xyDrop, innerBounds.W(), innerBounds.H(), roundness, blur, NanoVGColor(COLOR_BLACK_DROP_SHADOW, pBlend), NanoVGColor(COLOR_TRANSPARENT, nullptr));
+  nvgBeginPath(mVG);
+  nvgRect(mVG, outerBounds.L, outerBounds.T, outerBounds.W(), outerBounds.H());
+  nvgFillPaint(mVG, shadowPaint);
+  nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
+  nvgFill(mVG);
+  nvgBeginPath(mVG);
 }

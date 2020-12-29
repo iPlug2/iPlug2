@@ -15,6 +15,8 @@
 #include <type_traits>
 #include <emscripten.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 #include "wdl_base64.h"
 
 using namespace iplug;
@@ -88,7 +90,7 @@ END_IPLUG_NAMESPACE
 #pragma mark -
 
 IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
-: IGraphicsPathBase(dlg, w, h, fps, scale)
+: IGraphics(dlg, w, h, fps, scale)
 {
   StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Retain();
@@ -339,7 +341,38 @@ APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* fileNameOrResID, int scale
   return new Bitmap(GetPreloadedImages()[fileNameOrResID], fileNameOrResID + 1, scale);
 }
 
-APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, double drawScale)
+APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale)
+{
+  int width = 0;
+  int height = 0;
+  int channels = 0;
+  uint8_t* pRGBA;
+
+  pRGBA = stbi_load_from_memory((const uint8_t*)pData, dataSize, &width, &height, &channels, 4);
+  if (!pRGBA)
+  {
+    return nullptr;
+  }
+
+  DBGMSG("Size: %d x %d\n", width, height);
+  // Now that we've decoded the data, put it on a canvas
+  int rgbaSize = width * height * channels;
+  val rgbaArray = val::global("Uint8ClampedArray").new_(val(emscripten::typed_memory_view(rgbaSize, pRGBA)));
+
+  val imgData = val::global("ImageData").new_(rgbaArray, val(width), val(height));
+  val canvas = val::global("document").call<val>("createElement", std::string("canvas"));
+  canvas.set("width", width);
+  canvas.set("height", height);
+
+  val ctx = canvas.call<val>("getContext", std::string("2d"));
+  ctx.call<void>("putImageData", imgData, 0, 0);
+
+  stbi_image_free(pRGBA);
+
+  return new Bitmap(canvas, name, scale);
+}
+
+APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
 {
   return new Bitmap(width, height, scale, drawScale);
 }
@@ -393,9 +426,7 @@ bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, c
 
 bool IGraphicsCanvas::FontExists(const char* font, const char* style)
 {
-    return !CompareFontMetrics(style, font, "monospace") ||
-    !CompareFontMetrics(style, font, "sans-serif") ||
-    !CompareFontMetrics(style, font, "serif");
+  return !CompareFontMetrics(style, font, "monospace") || !CompareFontMetrics(style, font, "sans-serif") || !CompareFontMetrics(style, font, "serif");
 }
 
 bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)

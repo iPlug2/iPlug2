@@ -107,9 +107,6 @@ public:
   virtual void OnIdle() {}
     
 #pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugAPIBase.cpp
-  /** Helper method, used to print some info to the console in debug builds. Can be overridden in other IPlugAPIBases, for specific functionality, such as printing UI details. */
-  virtual void PrintDebugInfo() const;
-
   /** SetParameterValue is called from the UI in the middle of a parameter change gesture (possibly via delegate) in order to update a parameter's value.
    * It will update mParams[paramIdx], call InformHostOfParamChange and IPlugAPIBase::OnParamChange();
    * @param paramIdx The index of the parameter that changed
@@ -117,12 +114,22 @@ public:
   void SetParameterValue(int paramIdx, double normalizedValue);
   
   /** Get the color of the track that the plug-in is inserted on */
-  virtual void GetTrackColor(int& r, int& g, int& b) {};
+  virtual void GetTrackColor(int& r, int& g, int& b) { r = 0; g = 0; b = 0; }
 
   /** Get the name of the track that the plug-in is inserted on */
-  virtual void GetTrackName(WDL_String& str) {};
-  
-  /** /todo */
+  virtual void GetTrackName(WDL_String& str) {}
+
+  /** Get the index of the track that the plug-in is inserted on */
+  virtual int GetTrackIndex() { return 0; }
+
+  /** Get the namespace of the track that the plug-in is inserted on */
+  virtual void GetTrackNamespace(WDL_String& str) {}
+
+  /** Get the namespace index of the track that the plug-in is inserted on */
+  virtual int GetTrackNamespaceIndex() { return 0; }
+
+  /** In a distributed VST3 or WAM plugin, if you modify the parameters on the UI side (e.g. recall preset in custom preset browser), 
+   * you can call this to update the parameters on the DSP side */
   virtual void DirtyParametersFromUI() override;
 
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
@@ -148,7 +155,7 @@ public:
   
   void EndInformHostOfParamChangeFromUI(int paramIdx) override { EndInformHostOfParamChange(paramIdx); }
   
-  bool EditorResizeFromUI(int viewWidth, int viewHeight) override { return EditorResize(viewWidth, viewHeight); }
+  bool EditorResizeFromUI(int viewWidth, int viewHeight, bool needsPlatformResize) override;
   
   void SendParameterValueFromUI(int paramIdx, double normalisedValue) override
   {
@@ -171,33 +178,33 @@ public:
     mSysExDataFromEditor.Push(data);
   }
 
-  /** /todo */
+  /** Called by the API class to create the timer that pumps the parameter/message queues */
   void CreateTimer();
   
 private:
   /** Implementations call into the APIs resize hooks
    * returns a bool to indicate whether the DAW or plugin class has resized the host window */
-  virtual bool EditorResize(int width, int height);
+  virtual bool EditorResize(int width, int height) { return false; }
   
   /** Implemented by the API class, called by the UI (or by a delegate) at the beginning of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
-  virtual void BeginInformHostOfParamChange(int paramIdx) {};
+  virtual void BeginInformHostOfParamChange(int paramIdx) {}
 
   /** Implemented by the API class, called by the UI (or by a delegate) at the end of a parameter change gesture
    * @param paramIdx The parameter that is being changed */
-  virtual void EndInformHostOfParamChange(int paramIdx) {};
+  virtual void EndInformHostOfParamChange(int paramIdx) {}
 
   /** Implemented by the API class, called by the UI via SetParameterValue() with the value of a parameter change gesture
    * @param paramIdx The parameter that is being changed
    * @param normalizedValue The new normalised value of the parameter being changed */
-  virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {};
+  virtual void InformHostOfParamChange(int paramIdx, double normalizedValue) {}
   
   //DISTRIBUTED ONLY (Currently only VST3)
-  /** /todo */
-  virtual void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {};
+  /** \todo */
+  virtual void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) {}
   
-  /** /todo */
-  virtual void TransmitSysExDataFromProcessor(const SysExData& data) {};
+  /** \todo */
+  virtual void TransmitSysExDataFromProcessor(const SysExData& data) {}
 
   void OnTimer(Timer& t);
 

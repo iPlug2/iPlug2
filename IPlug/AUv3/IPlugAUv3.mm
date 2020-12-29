@@ -32,11 +32,23 @@ void IPlugAUv3::SetAUAudioUnit(void* pAUAudioUnit)
   mAUAudioUnit = pAUAudioUnit;
 }
 
+void IPlugAUv3::BeginInformHostOfParamChange(int paramIdx)
+{
+  const AUParameterAddress address = GetParamAddress(paramIdx);
+  [(__bridge IPlugAUAudioUnit*) mAUAudioUnit beginInformHostOfParamChange:address];
+}
+
 void IPlugAUv3::InformHostOfParamChange(int paramIdx, double normalizedValue)
 {
   const AUParameterAddress address = GetParamAddress(paramIdx);
 
   [(__bridge IPlugAUAudioUnit*) mAUAudioUnit informHostOfParamChange:address :(float) GetParam(paramIdx)->FromNormalized(normalizedValue)];
+}
+
+void IPlugAUv3::EndInformHostOfParamChange(int paramIdx)
+{
+  const AUParameterAddress address = GetParamAddress(paramIdx);
+  [(__bridge IPlugAUAudioUnit*) mAUAudioUnit endInformHostOfParamChange:address];
 }
 
 bool IPlugAUv3::SendMidiMsg(const IMidiMsg& msg)
@@ -228,12 +240,12 @@ float IPlugAUv3::GetParameter(uint64_t address)
   return val;
 }
 
-const char* IPlugAUv3::GetParamDisplayForHost(uint64_t address, float value)
+const char* IPlugAUv3::GetParamDisplay(uint64_t address, float value)
 {
   const int paramIdx = GetParamIdx(address);
 
   ENTER_PARAMS_MUTEX
-  GetParam(paramIdx)->GetDisplayForHost(value, false, mParamDisplayStr);
+  GetParam(paramIdx)->GetDisplay(value, false, mParamDisplayStr);
   LEAVE_PARAMS_MUTEX
   return (const char*) mParamDisplayStr.Get();
 }

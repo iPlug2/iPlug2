@@ -113,7 +113,7 @@ void mnvgReadPixels(NVGcontext* ctx, int image, int x, int y, int width,
                     int height, void* data);
 
 // Returns the current OS target.
-enum MNVGTarget mnvgTarget();
+enum MNVGTarget mnvgTarget(void);
 
 #ifdef __cplusplus
 }

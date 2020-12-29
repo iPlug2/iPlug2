@@ -31,6 +31,13 @@ void GetScreenDimensions(int& width, int& height)
   height = bounds.size.height;
 }
 
+float GetScaleForScreen(int plugWidth, int plugHeight)
+{
+  int width, height;
+  GetScreenDimensions(width, height);
+  return std::min((float) width / (float) plugWidth, (float) height / (float) plugHeight);
+}
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
@@ -48,7 +55,7 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
  
-#ifdef IGRAPHICS_METAL
+#if defined IGRAPHICS_METAL && !defined IGRAPHICS_SKIA
   if(!gTextureMap.size())
   {
     NSBundle* pBundle = [NSBundle mainBundle];
@@ -72,7 +79,7 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
         gTextureMap.insert(std::make_pair([[[pTextureFiles[i] lastPathComponent] stringByDeletingPathExtension] cStringUsingEncoding:NSUTF8StringEncoding], (MTLTexturePtr) gTextures[i]));
       }
     
-      DBGMSG("Preloaded %i textures", (int) [pTextureFiles count]);
+      DBGMSG("Preloaded %i textures\n", (int) [pTextureFiles count]);
     
       [textureLoader release];
       textureLoader = nil;
@@ -146,6 +153,21 @@ void IGraphicsIOS::PlatformResize(bool parentHasResized)
   }
 }
 
+void IGraphicsIOS::AttachPlatformView(const IRECT& r, void* pView)
+{
+  IGRAPHICS_VIEW* pMainView = (IGRAPHICS_VIEW*) mView;
+  
+  UIView* pNewSubView = (UIView*) pView;
+  [pNewSubView setFrame:ToCGRect(this, r)];
+
+  [pMainView addSubview:pNewSubView];
+}
+
+void IGraphicsIOS::RemovePlatformView(void* pView)
+{
+  [(UIView*) pView removeFromSuperview];
+}
+
 EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
 {
   ReleaseMouseCapture();
@@ -172,6 +194,11 @@ const char* IGraphicsIOS::GetPlatformAPIStr()
   return "iOS";
 }
 
+void IGraphicsIOS::GetMouseLocation(float& x, float&y) const
+{
+  [(IGRAPHICS_VIEW*) mView getLastTouchLocation: x : y];
+}
+
 void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext)
 {
 }
@@ -182,6 +209,7 @@ void IGraphicsIOS::PromptForDirectory(WDL_String& dir)
 
 bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
+  [(IGRAPHICS_VIEW*) mView promptForColor: color: str: func];
   return false;
 }
 
@@ -277,6 +305,11 @@ PlatformFontPtr IGraphicsIOS::LoadPlatformFont(const char* fontID, const char* f
 PlatformFontPtr IGraphicsIOS::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
 {
   return CoreTextHelpers::LoadPlatformFont(fontID, fontName, style);
+}
+
+PlatformFontPtr IGraphicsIOS::LoadPlatformFont(const char* fontID, void* pData, int dataSize)
+{
+  return CoreTextHelpers::LoadPlatformFont(fontID, pData, dataSize);
 }
 
 void IGraphicsIOS::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)

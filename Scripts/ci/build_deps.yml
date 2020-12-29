@@ -44,28 +44,18 @@ jobs:
       # curl -sSf -o rustup-init.exe https://win.rustup.rs
       # rustup-init.exe -y --default-toolchain stable
       # echo "##vso[task.setvariable variable=PATH;]%PATH%;%USERPROFILE%\.cargo\bin"
-      choco install llvm --version 9.0.0
-    condition: eq(variables.buildPlatform, 'x64')
+      choco install llvm --version 10.0.0
     displayName: Install LLVM
 
   - bash: |
       cd ./Dependencies/IGraphics
-      echo $(buildConfiguration)
-      ./build-skia-win.sh $(buildConfiguration)
-    condition: eq(variables.buildPlatform, 'x64')
+      ./build-skia-win.sh $(buildConfiguration) $(buildPlatform)
     displayName: Build SKIA
 
   - bash: |
       cd ./Dependencies/Build
       ./../IGraphics/package-deps-src.sh
     displayName: slim SKIA src
-    condition: eq(variables.buildPlatform, 'x64')
-
-  - bash: |
-      cd ./Dependencies/Build
-      rm -r src/skia
-    displayName: remove SKIA src
-    condition: eq(variables.buildPlatform, 'Win32')
 
   - task: PublishPipelineArtifact@0
     inputs:
@@ -122,15 +112,13 @@ jobs:
   condition: and(eq(variables.build_deps, true), eq(variables.build_mac, true))
 
   pool:
-    vmImage: 'macos-10.14'
+    vmImage: 'macOS-11.0'
   steps:
   - checkout: none
 
   - template: get_src_artifact.yml
 
   - bash: |
-      #tmp force cairo rebuild
-      rm -r ./Dependencies/Build/src/cairo
       cd ./Dependencies/IGraphics
       ./build-igraphics-libs-mac.sh
     displayName: Build Graphics Dependencies
@@ -140,21 +128,11 @@ jobs:
       ./build-skia-mac.sh
     displayName: Build Skia
 
-  # - bash: |
-  #     curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
-  #     echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
-  #   displayName: Install Rust
-
-  # - bash: |
-  #     cd ./Dependencies/IGraphics
-  #     ./build-resvg-mac.sh
-  #   displayName: Build Resvg
-
   - bash: |
       cd $BUILD_SOURCESDIRECTORY
-      wget http://releases.llvm.org/7.0.0/clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz
-      tar -xf clang+llvm-7.0.0-x86_64-apple-darwin.tar.xz -C $HOME
-      export PATH=$HOME/clang+llvm-7.0.0-x86_64-apple-darwin/bin:$PATH
+      wget https://github.com/llvm/llvm-project/releases/download/llvmorg-9.0.1/clang+llvm-9.0.1-x86_64-apple-darwin.tar.xz
+      tar -xf clang+llvm-9.0.1-x86_64-apple-darwin.tar.xz -C $HOME
+      export PATH=$HOME/clang+llvm-9.0.1-x86_64-apple-darwin/bin:$PATH
       echo "##vso[task.setvariable variable=PATH]$PATH"
 
       cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
@@ -182,7 +160,7 @@ jobs:
   condition: and(eq(variables.build_deps, true), eq(variables.build_ios, true))
 
   pool:
-    vmImage: 'macos-10.14'
+    vmImage: 'macOS-latest'
   steps:
   - checkout: none
 
@@ -190,8 +168,13 @@ jobs:
 
   - bash: |
       cd ./Dependencies/IGraphics
-      ./build-skia-ios.sh
-    displayName: Build Skia
+      ./build-skia-ios.sh x64
+    displayName: Build Skia (x64)
+
+  - bash: |
+      cd ./Dependencies/IGraphics
+      ./build-skia-ios.sh arm64
+    displayName: Build Skia (ARM64)
 
   - bash: |
       cd ./Dependencies/Build

@@ -9,22 +9,17 @@ LOG_PATH="$BUILD_DIR"
 LOG_NAME="download.log"
 
 # Basename part of tarballs to download
-CAIRO_VERSION=1.16.0
-FREETYPE_VERSION=freetype-2.9.1
+FREETYPE_VERSION=freetype-2.10.4
 PKGCONFIG_VERSION=pkg-config-0.28
-PIXMAN_VERSION=pixman-0.34.0
 EXPAT_VERSION=expat-2.2.5
 PNG_VERSION=v1.6.35
 ZLIB_VERSION=zlib-1.2.11
-# SKIA_VERSION=chrome/m80
-SKIA_VERSION=master
+SKIA_VERSION=chrome/m88
+# SKIA_VERSION=master
 
 # URLs where tarballs of releases can be downloaded - no trailing slash
-#CAIRO tarball is compressed using xz which is not available on git-bash shell, so checkout tag via git
-CAIRO_URL=git://git.cairographics.org/git/cairo
 PNG_URL=https://github.com/glennrp/libpng/archive
 ZLIB_URL=https://www.zlib.net
-PIXMAN_URL=https://cairographics.org/releases
 FREETYPE_URL=https://download.savannah.gnu.org/releases/freetype
 SKIA_URL=https://github.com/google/skia.git
 
@@ -73,7 +68,7 @@ cd "${0%/*}"
 echo
 echo "###################################################################################"
 echo
-echo "     This script will download libraries required for IGraphics on windows,"
+echo "     This script will download source packages and repos for the libraries required for IGraphics,"
 echo "     please relax and have a cup of tea, it'll take a while..."
 echo
 echo "###################################################################################"
@@ -149,27 +144,6 @@ fi
 
 #######################################################################
 
-#pixman
-if [ -d "$SRC_DIR/pixman" ]
- then
-   echo "Found pixman"
- else
-  echo
-  echo "Downloading pixman"
-  if [ -e $PIXMAN_VERSION.tar.gz ]
-  then
-    echo "Tarball Present..."
-  else
-    echo "Downloading..."
-    curl -L --progress-bar -O $PIXMAN_URL/$PIXMAN_VERSION.tar.gz
-  fi
-  echo "Unpacking..."
-  tar -xf $PIXMAN_VERSION.tar.gz
-  mv $PIXMAN_VERSION "$SRC_DIR/pixman"
-fi
-
-#######################################################################
-
 #freetype
 if [ -d "$SRC_DIR/freetype" ]
 then
@@ -187,21 +161,6 @@ else
   echo "Unpacking..."
   tar -xf $FREETYPE_VERSION.tar.gz
   mv $FREETYPE_VERSION "$SRC_DIR/freetype"
-fi
-
-#######################################################################
-
-#cairo
-if [ -d "$SRC_DIR/cairo" ]
-then
-  echo "Found cairo"
-else
-  echo "Downloading cairo"
-  git clone $CAIRO_URL "$SRC_DIR/cairo"
-  cd "$SRC_DIR/cairo"
-  git checkout -b build $CAIRO_VERSION
-  rm -r -f .git
-  cd "$IGRAPHICS_DEPS_DIR"
 fi
 
 #######################################################################

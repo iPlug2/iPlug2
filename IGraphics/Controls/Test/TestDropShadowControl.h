@@ -38,10 +38,7 @@ public:
     {
       g.StartLayer(this, mRECT);
       
-      if (g.HasPathSupport())
-        g.DrawSVG(mSVG, mRECT);
-      else
-        g.FillCircle(COLOR_BLUE, mRECT.MW(), mRECT.MH(), mRECT.W() / 3);
+      g.DrawSVG(mSVG, mRECT);
 
       mLayer = g.EndLayer();
       IShadow shadow(COLOR_BLACK, 10.0, 5.0, 10.0, 0.7f, true);

@@ -12,6 +12,8 @@
 
 /**
  * @file
+ * @ingroup IControls
+ * @copydoc IVDisplayControl
  */
 
 #include "IControl.h"
@@ -20,14 +22,14 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-/**  */
+/** A control to display a rolling graphics of historical values */
 class IVDisplayControl : public IControl
                        , public IVectorBase
 {
 public:
   static constexpr int MAX_BUFFER_SIZE = 2048;
   
-  IVDisplayControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, float lo = 0., float hi = 1.f, float defaultVal = 0., uint32_t bufferSize = 100, float strokeThickness = 2.f)
+  IVDisplayControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Horizontal, float lo = 0., float hi = 1.f, float defaultVal = 0., uint32_t bufferSize = 100, float strokeThickness = 2.f)
   : IControl(bounds)
   , IVectorBase(style)
   , mLoValue(lo)
@@ -62,7 +64,7 @@ public:
   
   void Draw(IGraphics& g) override
   {
-    DrawBackGround(g, mRECT);
+    DrawBackground(g, mRECT);
     DrawWidget(g);
     DrawLabel(g);
     

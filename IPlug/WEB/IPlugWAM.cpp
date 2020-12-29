@@ -90,9 +90,10 @@ void IPlugWAM::OnEditorIdleTick()
   OnIdle();
 }
 
+//WAM onMessageN
 void IPlugWAM::onMessage(char* verb, char* res, double data)
 {
-  if(strcmp(verb, "TICK") == 0)
+  if(strcmp(verb, "TICK") == 0) // special case for DSP OnIdle()
   {
     OnEditorIdleTick();
   }
@@ -101,8 +102,7 @@ void IPlugWAM::onMessage(char* verb, char* res, double data)
     uint8_t data[3];
     char* pChar = strtok(res, ":");
     int i = 0;
-    while (pChar != nullptr)
-    {
+    while (pChar != nullptr) {
       data[i++] = atoi(pChar);
       pChar = strtok(nullptr, ":");
     }
@@ -110,12 +110,26 @@ void IPlugWAM::onMessage(char* verb, char* res, double data)
     IMidiMsg msg = {0, data[0], data[1], data[2]};
     ProcessMidiMsg(msg); // TODO: should queue to mMidiMsgsFromEditor?
   }
+  else if(strcmp(verb, "SAMFUI") == 0) // SAMFUI
+  {
+    int data[2] = {-1, -1};
+    char* pChar = strtok(res, ":");
+    int i = 0;
+    while (pChar != nullptr) {
+      data[i++] = atoi(pChar);
+      pChar = strtok(nullptr, ":");
+    }
+
+    OnMessage(data[0], data[1], sizeof(double), reinterpret_cast<void*>(&data));
+  }
 }
 
+//WAM onMessageS
 void IPlugWAM::onMessage(char* verb, char* res, char* str)
 {
 }
 
+//WAM onMessageA
 void IPlugWAM::onMessage(char* verb, char* res, void* pData, uint32_t size)
 {
   if(strcmp(verb, "SAMFUI") == 0)

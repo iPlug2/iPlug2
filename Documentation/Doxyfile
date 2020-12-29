@@ -123,7 +123,6 @@ EXCLUDE                = ../IGraphics/NanoVG \
                          ../IGraphics/NanoSVG \
                          ../IGraphics/freetype \
                          ../IGraphics/MetalNanoVG \
-                         ../IGraphics/AGG \
                          ../IGraphics/stb \
                          ../IPlug/AAX/IPlugAAX_Describe.cpp \
                          ../IPlug/AAX/IPlugAAX_Parameters.cpp \
@@ -132,12 +131,15 @@ EXCLUDE                = ../IGraphics/NanoVG \
                          ../IPlug/AAX/IPlugAAX_view_interface.h \
                          ../IPlug/Extras \
                          ../IPlug/AUv3/BufferedAudioBus.hpp \
+                         ../IPlug/AUv3/GenericUI.h \
+                         ../IPlug/AUv3/GenericUI.mm \
                          ../IPlug/AUv3/IPlugAUAudioUnit.h \
                          ../IPlug/AUv3/IPlugAUAudioUnit.mm \
                          ../IPlug/AUv3/IPlugAUViewController.mm \
                          ../IPlug/AUv2/dfx-au-utilities.h \
                          ../IPlug/AUv2/dfx-au-utilities.c \
-                         ../IPlug/AUv2/IPlugAU_view_factory.mm
+                         ../IPlug/AUv2/IPlugAU_view_factory.mm \
+                         ../IPlug/WEB/Template
 
 
 EXCLUDE_SYMLINKS       = NO
@@ -170,8 +172,7 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          CCoreTextFontDescriptor \
                          CFLocal \
                          CanvasFont \
-                         CairoFont \
-                         LICEFontInfo \
+                         Font \
                          SkiaFont \
                          WebFont \
                          WebFileFont \
@@ -195,15 +196,23 @@ EXCLUDE_SYMBOLS        = IAutoGUI \
                          SWELL_TimerFuncTarget \
                          SWELL_DataHold \
                          pixel_wrapper \
-                         AGGBitmap \
                          CairoBitmap \
                          CanvasBitmap \
-                         LICEBitmap \
                          NanoVGBitmap \
                          SkiaBitmap \
                          IFontInfo \
                          IFontData \
-                         PlatformFont   
+                         PlatformFont \
+                         _D3DKMT_CLOSEADAPTER \
+                         _D3DKMT_OPENADAPTERFROMHDC	\
+                         _D3DKMT_WAITFORVERTICALBLANKEVENT	\
+                         AppDelegate \
+                         AppViewController \
+                         CoreTextFontDescriptor \
+                         GenericUI \
+                         IGRAPHICS_UITABLEVC \
+                         IPlugAUPlayer \
+                         IPlugAUViewController \
 
 EXAMPLE_PATH           =
 EXAMPLE_PATTERNS       = *

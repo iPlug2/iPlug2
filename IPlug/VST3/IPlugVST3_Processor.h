@@ -64,6 +64,16 @@ public:
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override {} // NOOP in VST3 processor -> param change gets there via IPlugVST3Controller::setParamNormalized
   void SendArbitraryMsgFromDelegate(int msgTag, int dataSize = 0, const void* pData = nullptr) override;
   
+  void removeAudioInputBus(Steinberg::Vst::AudioBus* pBus)
+  {
+    audioInputs.erase(std::remove(audioInputs.begin(), audioInputs.end(), pBus));
+  }
+   
+  void removeAudioOutputBus(Steinberg::Vst::AudioBus* pBus)
+  {
+    audioOutputs.erase(std::remove(audioOutputs.begin(), audioOutputs.end(), pBus));
+  }
+  
 private:
   void TransmitMidiMsgFromProcessor(const IMidiMsg& msg) override;
   void TransmitSysExDataFromProcessor(const SysExData& data) override;
@@ -71,7 +81,7 @@ private:
   // IConnectionPoint
   Steinberg::tresult PLUGIN_API notify(Steinberg::Vst::IMessage* message) override;
   
-  Steinberg::Vst::ParameterChanges mOutputParamChanges;
+//  Steinberg::Vst::ParameterChanges mOutputParamChanges;
   IMidiQueue mMidiOutputQueue;
 };
 

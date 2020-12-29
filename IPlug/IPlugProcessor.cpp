@@ -69,9 +69,11 @@ IPlugProcessor::~IPlugProcessor()
 
 void IPlugProcessor::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-  int i, nIn = mChannelData[ERoute::kInput].GetSize(), nOut = mChannelData[ERoute::kOutput].GetSize();
+  const int nIn = mChannelData[ERoute::kInput].GetSize();
+  const int nOut = mChannelData[ERoute::kOutput].GetSize();
+
   int j = 0;
-  for (i = 0; i < nOut; ++i)
+  for (int i = 0; i < nOut; ++i)
   {
     if (i < nIn)
     {
@@ -114,16 +116,94 @@ double IPlugProcessor::GetSamplesPerBeat() const
 
 #pragma mark -
 
-int IPlugProcessor::MaxNBuses(ERoute direction) const
+void IPlugProcessor::GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const
+{
+  if(direction == ERoute::kInput)
+  {
+    if(nBuses == 1)
+    {
+      str.Set("Input");
+    }
+    else if(nBuses == 2)
+    {
+      if(busIdx == 0)
+        str.Set("Main");
+      else
+        str.Set("Aux");
+    }
+    else
+    {
+      str.SetFormatted(MAX_BUS_NAME_LEN, "Input %i", busIdx);
+    }
+  }
+  else
+  {
+    if(nBuses == 1)
+    {
+      str.Set("Output");
+    }
+    else
+    {
+      str.SetFormatted(MAX_BUS_NAME_LEN, "Output %i", busIdx);
+    }
+  }
+}
+
+int IPlugProcessor::MaxNBuses(ERoute direction, int* pConfigIdxWithTheMostBuses) const
 {
   int maxNBuses = 0;
-  //find the maximum channel count for each input or output bus
+  int configWithMostBuses = 0;
+
   for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
   {
-    maxNBuses = std::max(mIOConfigs.Get(configIdx)->NBuses(direction), maxNBuses);
+    IOConfig* pIConfig = mIOConfigs.Get(configIdx);
+    int nBuses = pIConfig->NBuses(direction);
+    
+    if(nBuses >= maxNBuses)
+    {
+      maxNBuses = nBuses;
+      configWithMostBuses = configIdx;
+    }
   }
+  
+  if(pConfigIdxWithTheMostBuses)
+    *pConfigIdxWithTheMostBuses = configWithMostBuses;
 
   return maxNBuses;
+}
+
+int IPlugProcessor::GetIOConfigWithChanCounts(std::vector<int>& inputBuses, std::vector<int>& outputBuses)
+{
+  int nInputBuses = static_cast<int>(inputBuses.size());
+  int nOutputBuses = static_cast<int>(outputBuses.size());
+
+  for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
+  {
+    const IOConfig* pConfig = GetIOConfig(configIdx);
+    
+    if(pConfig->NBuses(ERoute::kInput) == nInputBuses && pConfig->NBuses(ERoute::kOutput) == nOutputBuses)
+    {
+      bool match = true;
+      
+      for (int inputBusIdx = 0; inputBusIdx < nInputBuses; inputBusIdx++)
+      {
+        match &= inputBuses[inputBusIdx] == pConfig->GetBusInfo(ERoute::kInput, inputBusIdx)->NChans();
+      }
+      
+      if(match)
+      {
+        for (int outputBusIdx = 0; outputBusIdx < nOutputBuses; outputBusIdx++)
+        {
+          match &= outputBuses[outputBusIdx] == pConfig->GetBusInfo(ERoute::kOutput, outputBusIdx)->NChans();
+        }
+      }
+      
+      if(match)
+        return configIdx;
+    }
+  }
+  
+  return -1;
 }
 
 int IPlugProcessor::MaxNChannelsForBus(ERoute direction, int busIdx) const
@@ -132,8 +212,8 @@ int IPlugProcessor::MaxNChannelsForBus(ERoute direction, int busIdx) const
     return -1;
 
   const int maxNBuses = MaxNBuses(direction);
-  WDL_TypedBuf<int> maxChansOnBuses;
-  maxChansOnBuses.Resize(maxNBuses);
+  std::vector<int> maxChansOnBuses;
+  maxChansOnBuses.resize(maxNBuses);
 
   //find the maximum channel count for each input or output bus
   for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
@@ -141,10 +221,10 @@ int IPlugProcessor::MaxNChannelsForBus(ERoute direction, int busIdx) const
     const IOConfig* pIOConfig = GetIOConfig(configIdx);
 
     for (int bus = 0; bus < maxNBuses; bus++)
-      maxChansOnBuses.Get()[bus] = std::max(pIOConfig->NChansOnBusSAFE(direction, bus), maxChansOnBuses.Get()[bus]);
+      maxChansOnBuses[bus] = std::max(pIOConfig->NChansOnBusSAFE(direction, bus), maxChansOnBuses[bus]);
   }
 
-  return maxChansOnBuses.Get()[busIdx];
+  return maxChansOnBuses.size() > 0 ? maxChansOnBuses[busIdx] : 0;
 }
 
 int IPlugProcessor::NChannelsConnected(ERoute direction) const
@@ -229,7 +309,7 @@ int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& 
 
       if(NChanOnBus)
       {
-        pConfig->AddBusInfo(busDir, NChanOnBus, RoutingDirStrs[busDir]);
+        pConfig->AddBusInfo(busDir, NChanOnBus);
         NBuses++;
       }
       else if(NBuses > 0)
@@ -262,7 +342,7 @@ int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& 
     char* pOStr = strtok(NULL, "-");   // Output buses part of string
 
     WDL_String* thisIOStr  = new WDL_String();
-    thisIOStr->SetFormatted(10, "%s-%s", pIStr, pOStr);
+    thisIOStr->SetFormatted(256, "%s-%s", pIStr, pOStr);
 
     for (auto str = 0; str < IOStrlist.GetSize(); str++)
     {
@@ -318,6 +398,27 @@ int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& 
   DBGMSG("END IPLUG CHANNEL IO PARSER --------------------------------------------------\n");
 
   return IOConfigIndex;
+}
+
+int IPlugProcessor::GetAUPluginType() const
+{
+  if (mPlugType == EIPlugPluginType::kEffect)
+  {
+    if (DoesMIDIIn())
+      return 'aumf';
+    else
+      return 'aufx';
+  }
+  else if (mPlugType == EIPlugPluginType::kInstrument)
+  {
+    return 'aumu';
+  }
+  else if (mPlugType == EIPlugPluginType::kMIDIEffect)
+  {
+    return 'aumi';
+  }
+  else
+    return 'aufx';
 }
 
 #pragma mark -

@@ -60,44 +60,44 @@ struct SysExData
   uint8_t mData[MAX_SYSEX_SIZE];
 };
 
-/** A helper class for IByteChunk and IByteStream that avoids code duplication **/
+/** A helper class for IByteChunk and IByteStream that avoids code duplication */
 struct IByteGetter
 {
-  /** /todo 
-   * @param pData /todo
-   * @param dataSize /todo
-   * @param pBuf /todo
-   * @param size /todo
-   * @param startPos /todo
-   * @return int /todo */
-  static inline int GetBytes(const uint8_t* pData, int dataSize, void* pBuf, int size, int startPos)
+  /** Copy raw bytes from a byte array, returning the new position for subsequent calls
+   * @param pSrc The source buffer
+   * @param dstSize The size of the source data in bytes
+   * @param pDst The destination buffer
+   * @param nBytesToCopy The number of bytes to copy from pSrc
+   * @param startPos The starting position in bytes in pSrc
+   * @return int The end position in bytes after the copy, or -1 if the copy would have copied more data than in the src buffer  */
+  static inline int GetBytes(const uint8_t* pSrc, int srcSize, void* pDst, int nBytesToCopy, int startPos)
   {
-    int endPos = startPos + size;
-    if (startPos >= 0 && endPos <= dataSize)
+    int endPos = startPos + nBytesToCopy;
+    if (startPos >= 0 && endPos <= srcSize)
     {
-      memcpy(pBuf, pData + startPos, size);
+      memcpy(pDst, pSrc + startPos, nBytesToCopy);
       return endPos;
     }
     return -1;
   }
   
-  /** /todo 
-   * @param pData /todo
-   * @param dataSize /todo
-   * @param str /todo
-   * @param startPos /todo
-   * @return int /todo  */
-  static inline int GetStr(const uint8_t* pData, int dataSize, WDL_String& str, int startPos)
+  /** Get a string from a byte array, to a WDL_String, returning the new position for subsequent calls
+   * @param pSrc The source buffer
+   * @param dstSize The size of the source data in bytes
+   * @param str WDL_String to fill with the extracted string
+   * @param startPos The starting position in bytes in pSrc
+   * @return int The end position in bytes after the copy, or -1 if the copy would have copied more data than in the src buffer  */
+  static inline int GetStr(const uint8_t* pSrc, int srcSize, WDL_String& str, int startPos)
   {
     int len;
-    int strStartPos = GetBytes(pData, dataSize, &len, sizeof(len), startPos);
+    int strStartPos = GetBytes(pSrc, srcSize, &len, sizeof(len), startPos);
     if (strStartPos >= 0)
     {
       int strEndPos = strStartPos + len;
-      if (strEndPos <= dataSize)
+      if (strEndPos <= srcSize)
       {
         if (len > 0)
-          str.Set((char*) (pData + strStartPos), len);
+          str.Set((char*) (pSrc + strStartPos), len);
         else
           str.Set("");
       }
@@ -140,51 +140,52 @@ public:
     return ver;
   }
   
-  /** Copies data into the chunk
-   * @param pBuf Pointer to the object to copy data from
-   * @param size Number of bytes to copy */
-  inline int PutBytes(const void* pBuf, int size)
+  /** Copies data into the chunk, placing it at the end, resizing if nessecary
+   * @param pSrc Pointer to the data to copy
+   * @param nBytesToCopy Number of bytes to copy
+   * @return int The size of the chunk after insertion  */
+  inline int PutBytes(const void* pSrc, int nBytesToCopy)
   {
     int n = mBytes.GetSize();
-    mBytes.Resize(n + size);
-    memcpy(mBytes.Get() + n, pBuf, size);
+    mBytes.Resize(n + nBytesToCopy);
+    memcpy(mBytes.Get() + n, pSrc, nBytesToCopy);
     return mBytes.GetSize();
   }
   
-  /** /todo  
-   * @param pBuf /todo
-   * @param size /todo
-   * @param startPos /todo
-   * @return int /todo */
-  inline int GetBytes(void* pBuf, int size, int startPos) const
+  /** Copy raw bytes from the IByteChunk, returning the new position for subsequent calls
+   * @param pDst The destination buffer
+   * @param nBytesToCopy The number of bytes to copy from the chunk
+   * @param startPos The starting position in bytes in the chunk
+   * @return int The end position in the chunk (in bytes) after the copy, or -1 if the copy would have copied more data than in the chunk  */
+  inline int GetBytes(void* pDst, int nBytesToCopy, int startPos) const
   {
-    return IByteGetter::GetBytes(mBytes.Get(), Size(), pBuf, size, startPos);
+    return IByteGetter::GetBytes(mBytes.Get(), Size(), pDst, nBytesToCopy, startPos);
   }
   
-  /** /todo 
-   * @tparam T 
-   * @param pVal /todo
-   * @return int /todo */
+  /** Copies arbitary typed data into the IByteChunk
+   * @tparam T The type of data to be stored
+   * @param pVal Ptr to the data to be stored
+   * @return int The size of the chunk after insertion  */
   template <class T>
   inline int Put(const T* pVal)
   {
     return PutBytes(pVal, sizeof(T));
   }
   
-  /** /todo 
-   * @tparam T 
-   * @param pVal /todo
-   * @param startPos /todo
-   * @return int /todo */
+  /** Get arbitary typed data from the IByteChunk
+   * @tparam T The type of data to be extracted
+   * @param pDst Ptr to the destination where the data will be extracted
+   * @param startPos The starting position in bytes in the chunk
+   * @return int The end position in the chunk (in bytes) after the copy, or -1 if the copy would have copied  more data than in the chunk  */
   template <class T>
-  inline int Get(T* pVal, int startPos) const
+  inline int Get(T* pDst, int startPos) const
   {
-    return GetBytes(pVal, sizeof(T), startPos);
+    return GetBytes(pDst, sizeof(T), startPos);
   }
   
-  /** /todo 
-   * @param str /todo
-   * @return int /todo */
+  /** Put a string into the IByteChunk
+   * @param str CString to insert into the chunk
+   * @return int The size of the chunk after insertion  */
   inline int PutStr(const char* str)
   {
     int slen = (int) strlen(str);
@@ -192,24 +193,24 @@ public:
     return PutBytes(str, slen);
   }
   
-  /** /todo 
-   * @param str /todo
-   * @param startPos /todo
-   * @return int /todo */
+  /** Get a string from the IByteChunk
+   * @param str WDL_String to fill
+   * @param startPos The starting position in bytes in the chunk
+   * @return int The end position in the chunk (in bytes) after the copy, or -1 if the copy would have copied  more data than in the chunk  */
   inline int GetStr(WDL_String& str, int startPos) const
   {
     return IByteGetter::GetStr(mBytes.Get(), Size(), str, startPos);
   }
   
-  /** /todo 
-   * @param pRHS /todo
-   * @return int /todo */
+  /** Put another IByteChunk into this one
+   * @param pRHS Ptr to the IByteChunk to copy in
+   * @return int The size of the chunk after insertion  */
   inline int PutChunk(const IByteChunk* pRHS)
   {
     return PutBytes(pRHS->GetData(), pRHS->Size());
   }
   
-  /** Clears the chunk */
+  /** Clears the chunk (resizes to 0) */
   inline void Clear()
   {
     mBytes.Resize(0);
@@ -222,7 +223,7 @@ public:
     return mBytes.GetSize();
   }
   
-  /** Resizes the chunk /todo check
+  /** Resizes the chunk
    * @param newSize Desired size (in bytes)
    * @return Old size (in bytes) */
   inline int Resize(int newSize)
@@ -236,24 +237,23 @@ public:
     return n;
   }
   
-  /** /todo 
-   * @return uint8_t* /todo */
+  /** Gets a ptr to the chunk data
+   * @return uint8_t* Ptr to the chunk data */
   inline uint8_t* GetData()
   {
     return mBytes.Get();
   }
   
-  /** /todo 
-   * @return const uint8_t* /todo */
+  /** Gets a const ptr to the chunk data
+   * @return const uint8_t* const Ptr to the chunk data */
   inline const uint8_t* GetData() const
   {
     return mBytes.Get();
   }
   
-  /** /todo 
-   * @param otherChunk /todo
-   * @return true /todo
-   * @return false /todo */
+  /** Compares the size & values of the data of another chunk with this one
+   * @param otherChunk The chunk to compare with
+   * @return \c true if the chunks are equal */
   inline bool IsEqual(IByteChunk& otherChunk) const
   {
     return (otherChunk.Size() == Size() && !memcmp(otherChunk.mBytes.Get(), mBytes.Get(), Size()));
@@ -270,54 +270,53 @@ public:
   IByteStream(const void *pData, int dataSize) : mBytes(reinterpret_cast<const uint8_t *>(pData)), mSize(dataSize) {}
   ~IByteStream() {}
   
-  /** /todo 
-   * @param pBuf /todo
-   * @param size /todo
-   * @param startPos /todo
-   * @return int /todo */
-  inline int GetBytes(void* pBuf, int size, int startPos) const
+  /** Copy raw bytes from the stream, returning the new position for subsequent calls
+   * @param pDst The destination buffer
+   * @param nBytesToCopy The number of bytes to copy from the stream
+   * @param startPos The starting position in bytes in the stream
+   * @return int The end position in the stream (in bytes) after the copy, or -1 if the copy would have copied more data than in the stream  */
+  inline int GetBytes(void* pDst, int nBytesToCopy, int startPos) const
   {
-    return IByteGetter::GetBytes(mBytes, Size(), pBuf, size, startPos);
+    return IByteGetter::GetBytes(mBytes, Size(), pDst, nBytesToCopy, startPos);
   }
   
-  /** /todo 
-   * @tparam T 
-   * @param pVal /todo
-   * @param startPos /todo
-   * @return int /todo */
+  /** Get arbitary typed data from the stream
+   * @tparam T The type of data to be extracted
+   * @param pDst Ptr to the destination where the data will be extracted
+   * @param startPos The starting position in bytes in the stream
+   * @return int The end position in the stream (in bytes) after the copy, or -1 if the copy would have copied  more data than in the stream  */
   template <class T>
-  inline int Get(T* pVal, int startPos) const
+  inline int Get(T* pDst, int startPos) const
   {
-    return GetBytes(pVal, sizeof(T), startPos);
+    return GetBytes(pDst, sizeof(T), startPos);
   }
   
-  /** /todo  
-   * @param str /todo
-   * @param startPos /todo
-   * @return int /todo */
+  /** Get a string from the stream
+   * @param str WDL_String to fill
+   * @param startPos The starting position in bytes in the stream
+   * @return int The end position in the stream (in bytes) after the copy, or -1 if the copy would have copied  more data than in the stream  */
   inline int GetStr(WDL_String& str, int startPos) const
   {
     return IByteGetter::GetStr(mBytes, Size(), str, startPos);
   }
   
-  /** Returns the  size of the chunk
-   * @return  size (in bytes) */
+  /** Returns the  size of the stream
+   * @return size (in bytes) */
   inline int Size() const
   {
     return mSize;
   }
   
-  /** /todo  
-   * @param otherStream /todo
-   * @return true /todo
-   * @return false /todo */
+  /** Compares the size & values of the data of another stream with this one
+   * @param otherChunk The stream to compare with
+   * @return \c true if the streams are equal */
   inline bool IsEqual(IByteStream& otherStream) const
   {
     return (otherStream.Size() == Size() && !memcmp(otherStream.mBytes, mBytes, Size()));
   }
   
-  /** /todo  
-   * @return const uint8_t* /todo */
+  /** Gets a const ptr to the stream data
+   * @return uint8_t* const ptr to the stream data */
   inline const uint8_t* GetData()
   {
     return mBytes;
@@ -326,6 +325,65 @@ public:
 private:
   const uint8_t* mBytes;
   int mSize;
+};
+
+/** Helper class to maintain a read position whilst extracting data from an IByteChunk  */
+class IByteChunkReader
+{
+public:
+  IByteChunkReader(const IByteChunk& chunk, int startPos = 0)
+  : mChunk(chunk)
+  , mPos(startPos)
+  {
+  }
+  
+  /** Copy \c nBytesToCopy bytes from the managed IByteChunk into \c pBuf .
+   * @param pBuf Destination buffer
+   * @param nBytesToCopy Number of bytes to copy
+   * @return Next read position in the IByteChunk */
+  inline int GetBytes(void* pBuf, int nBytesToCopy)
+  {
+    mPos = mChunk.GetBytes(pBuf, nBytesToCopy, mPos);
+    return mPos;
+  }
+  
+  /** Copy arbitary typed data out of the managed IByteChunk at the current position and update the position
+   * @tparam T type of the variable to get
+   * @param pDst Pointer to the destination where the value will be stored
+   * @return int Next read position in the IByteChunk */
+  template <class T>
+  inline int Get(T* pDst)
+  {
+    mPos = mChunk.Get(pDst, mPos);
+    return mPos;
+  }
+  
+  /** Retrieve a string from the managed IByteChunk and put it in \c str .
+   * @param str Destination for the string
+   * @return int Next read position in the IByteChunk */
+  inline int GetStr(WDL_String& str)
+  {
+    mPos = mChunk.GetStr(str, mPos);
+    return mPos;
+  }
+  
+  /** Return the current position in the managed IByteChunk
+   * @return The current position in the IByteChunk */
+  inline int Tell() const
+  {
+    return mPos;
+  }
+
+  /** Set the current position in the managed IByteChunk.
+   * @param pos The new IByteChunk position */
+  inline void Seek(int pos)
+  {
+    mPos = pos;
+  }
+
+private:
+  const IByteChunk& mChunk;
+  int mPos;
 };
 
 /** Helper struct to set compile time options to an API class constructor  */
@@ -349,6 +407,11 @@ struct Config
   bool plugHasUI;
   int plugWidth;
   int plugHeight;
+  int plugMinWidth;
+  int plugMaxWidth;
+  int plugMinHeight;
+  int plugMaxHeight;
+  bool plugHostResize;
   const char* bundleID;
   
   Config(int nParams,
@@ -369,6 +432,11 @@ struct Config
               bool plugHasUI,
               int plugWidth,
               int plugHeight,
+              bool plugHostResize,
+              int plugMinWidth,
+              int plugMaxWidth,
+              int plugMinHeight,
+              int plugMaxHeight,
               const char* bundleID)
               
   : nParams(nParams)
@@ -389,6 +457,11 @@ struct Config
   , plugHasUI(plugHasUI)
   , plugWidth(plugWidth)
   , plugHeight(plugHeight)
+  , plugMinWidth(plugMinWidth)
+  , plugMaxWidth(plugMaxWidth)
+  , plugMinHeight(plugMinHeight)
+  , plugMaxHeight(plugMaxHeight)
+  , plugHostResize(plugHostResize)
   , bundleID(bundleID)
   {};
 };
@@ -404,24 +477,16 @@ struct IChannelData
   WDL_String mLabel;
 };
 
-/** Used to manage information about a bus such as whether it's an input or output, channel count and if it has a label */
+/** Used to manage information about a bus such as whether it's an input or output, channel count */
 class IBusInfo
 {
 public:
-  IBusInfo(ERoute direction, int nchans = 0, const char* label = "")
+  IBusInfo(ERoute direction, int nchans = 0)
   : mDirection(direction)
   , mNChans(nchans)
   {
-    if(CStringHasContents(label))
-      mLabel.Set(label);
-    else
-      mLabel.Set(RoutingDirStrs[direction]);
   }
-
-  void SetLabel(const char* label) { mLabel.Set(label);  }
-
-  const char* GetLabel() const { return mLabel.Get(); }
-
+  
   int NChans() const { return mNChans; }
 
   ERoute GetDirection() const { return mDirection; }
@@ -429,7 +494,6 @@ public:
 private:
   ERoute mDirection;
   int mNChans;
-  WDL_String mLabel;
 };
 
 /** An IOConfig is used to store bus info for each input/output configuration defined in the channel io string */
@@ -443,29 +507,29 @@ struct IOConfig
     mBusInfo[1].Empty(true);
   }
   
-  /** /todo 
-   * @param direction /todo
-   * @param NChans /todo
-   * @param label /todo */
-  void AddBusInfo(ERoute direction, int NChans, const char* label = "")
+  /** \todo 
+   * @param direction \todo
+   * @param NChans \todo
+   * @param label \todo */
+  void AddBusInfo(ERoute direction, int NChans)
   {
-    mBusInfo[direction].Add(new IBusInfo(direction, NChans, label));
+    mBusInfo[direction].Add(new IBusInfo(direction, NChans));
   }
   
-  /** /todo
-   * @param direction /todo
-   * @param index /todo
-   * @return IBusInfo* /todo */
+  /** \todo
+   * @param direction \todo
+   * @param index \todo
+   * @return IBusInfo* \todo */
   const IBusInfo* GetBusInfo(ERoute direction, int index) const
   {
     assert(index >= 0 && index < mBusInfo[direction].GetSize());
     return mBusInfo[direction].Get(index);
   }
   
-  /** /todo 
-   * @param direction /todo
-   * @param index /todo
-   * @return int /todo */
+  /** \todo 
+   * @param direction \todo
+   * @param index \todo
+   * @return int \todo */
   int NChansOnBusSAFE(ERoute direction, int index) const
   {
     int NChans = 0;
@@ -476,17 +540,17 @@ struct IOConfig
     return NChans;
   }
   
-  /** /todo  
-   * @param direction /todo
-   * @return int /todo */
+  /** \todo  
+   * @param direction \todo
+   * @return int \todo */
   int NBuses(ERoute direction) const
   {
     return mBusInfo[direction].GetSize();
   }
   
   /** Get the total number of channels across all direction buses for this IOConfig
-   * @param direction /todo
-   * @return int /todo */
+   * @param direction \todo
+   * @return int \todo */
   int GetTotalNChannels(ERoute direction) const
   {
     int total = 0;
@@ -497,10 +561,10 @@ struct IOConfig
     return total;
   }
   
-  /** /todo  
-   * @param direction /todo
-   * @return true /todo
-   * @return false /todo */
+  /** \todo  
+   * @param direction \todo
+   * @return true \todo
+   * @return false \todo */
   bool ContainsWildcard(ERoute direction) const
   {
     for(auto i = 0; i < mBusInfo[direction].GetSize(); i++)
@@ -551,12 +615,12 @@ struct IKeyPress
   char utf8[5] = { 0 }; // UTF8 key
   bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
 
-  /** /todo
-   * @param _utf8 /todo
-   * @param vk /todo
-   * @param s /todo
-   * @param c /todo
-   * @param a /todo */
+  /** \todo
+   * @param _utf8 \todo
+   * @param vk \todo
+   * @param s \todo
+   * @param c \todo
+   * @param a \todo */
   IKeyPress(const char* _utf8, int vk, bool s = false, bool c = false, bool a = false)
     : VK(vk)
     , S(s), C(c), A(a)

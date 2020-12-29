@@ -17,12 +17,6 @@ jobs:
         graphics: 'SKIA'
       # NANOVG:
       #   graphics: 'NANOVG'
-      # CAIRO:
-      #   graphics: 'CAIRO'
-      # LICE:
-      #   graphics: 'LICE'
-      # AGG:
-      #   graphics: 'AGG'
 
   pool:
     vmImage: 'ubuntu-16.04'
@@ -49,7 +43,8 @@ jobs:
     and
     (
       in(dependencies.BUILD_WEB_PROJECTS.result, 'Succeeded'),
-      eq(variables.publish_pages, true)
+      eq(variables.publish_pages, true),
+      ne(variables['Build.Reason'], 'PullRequest')
     )
 
   pool:

@@ -54,7 +54,11 @@ using namespace igraphics;
 
 @end
 
-@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate, UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate>
+@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate, UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate
+#ifdef __IPHONE_14_0
+, UIColorPickerViewControllerDelegate
+#endif
+>
 {
 @public
   IGraphicsIOS* mGraphics;
@@ -63,6 +67,8 @@ using namespace igraphics;
   UITextField* mTextField;
   CAMetalLayer* mMTLLayer;
   int mTextFieldLength;
+  IColorPickerHandlerFunc mColorPickerHandlerFunc;
+  float mPrevX, mPrevY;
 }
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics;
 - (BOOL) isOpaque;
@@ -73,8 +79,13 @@ using namespace igraphics;
 - (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect;
 - (void) endUserInput;
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
+- (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func;
+- (void) presentationControllerDidDismiss: (UIPresentationController*) presentationController;
 
-- (void)presentationControllerDidDismiss: (UIPresentationController *) presentationController;
+#ifdef __IPHONE_14_0
+- (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
+- (void) colorPickerViewControllerDidFinish:(UIColorPickerViewController*) viewController;
+#endif
 
 //gestures
 - (void) attachGestureRecognizer: (EGestureType) type;
@@ -84,6 +95,9 @@ using namespace igraphics;
 - (void) onSwipeGesture: (UISwipeGestureRecognizer*) recognizer;
 - (void) onPinchGesture: (UIPinchGestureRecognizer*) recognizer;
 - (void) onRotateGesture: (UIRotationGestureRecognizer*) recognizer;
+
+- (void) getLastTouchLocation: (float&) x : (float&) y;
+
 @property (readonly) CAMetalLayer* metalLayer;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 

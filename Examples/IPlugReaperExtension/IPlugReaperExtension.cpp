@@ -40,7 +40,6 @@ IPlugReaperExtension::IPlugReaperExtension(reaper_plugin_info_t* pRec)
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
 //    pGraphics->AttachCornerResizer(kUIResizerSize, true);
-    pGraphics->SetSizeConstraints(100, 4096, 100, 4096);
     pGraphics->AttachControl(new IVButtonControl(bounds.GetGridCell(0, 3, 1).GetPadded(-20.).SubRectVertical(2, 0).GetMidVPadded(20),
                                                  [&](IControl* pCaller) {
                                                    SplashClickActionFunc(pCaller);
@@ -79,7 +78,7 @@ void IPlugReaperExtension::OnIdle()
     mPrevTrackCount = tracks;
     
     if(GetUI()) {
-      dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagText))->SetStrFmt(64, "NumTracks: %i", tracks);
+      GetUI()->GetControlWithTag(kCtrlTagText)->As<ITextControl>()->SetStrFmt(64, "NumTracks: %i", tracks);
     }
   }
 }

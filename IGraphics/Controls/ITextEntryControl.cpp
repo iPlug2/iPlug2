@@ -21,6 +21,12 @@
 #include <codecvt>
 #include <locale>
 
+#ifdef _MSC_VER
+#if (_MSC_VER >= 1900 /* VS 2015*/) && (_MSC_VER < 1920 /* pre VS 2019 */)
+std::locale::id std::codecvt<char16_t, char, _Mbstatet>::id;
+#endif
+#endif
+
 //TODO: use either wdlutf8, iplug2 UTF8/UTF16 or cpp11 wstring_convert
 using StringConvert = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>;
 
@@ -554,9 +560,4 @@ void ITextEntryControl::SetStr(const char* str)
 {
   mCharWidths.Resize(0, false);
   mEditString = StringConvert{}.from_bytes(std::string(str));
-
-  if (mEditState.select_start != mEditState.select_end)
-  {
-    SelectAll();
-  }
 }

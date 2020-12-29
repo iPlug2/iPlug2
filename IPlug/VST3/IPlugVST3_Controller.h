@@ -19,6 +19,7 @@
 #undef stricmp
 #undef strnicmp
 #include "public.sdk/source/vst/vsteditcontroller.h"
+#include "pluginterfaces/vst/ivstchannelcontextinfo.h"
 
 #include "IPlugAPIBase.h"
 
@@ -32,6 +33,7 @@ BEGIN_IPLUG_NAMESPACE
  *   @ingroup APIClasses */
 class IPlugVST3Controller : public Steinberg::Vst::EditControllerEx1
                           , public Steinberg::Vst::IMidiMapping
+                          , public Steinberg::Vst::ChannelContext::IInfoListener
                           , public IPlugAPIBase
                           , public IPlugVST3ControllerBase
 {
@@ -64,10 +66,29 @@ public:
   // IEditControllerEx
   Steinberg::tresult PLUGIN_API getProgramName(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex, Steinberg::Vst::String128 name /*out*/) override;
   
+  // IInfoListener
+  Steinberg::tresult PLUGIN_API setChannelContextInfos(Steinberg::Vst::IAttributeList* list) override;
+
+  /** Get the color of the track that the plug-in is inserted on */
+  virtual void GetTrackColor(int& r, int& g, int& b) override { r = (mChannelColor>>16)&0xff; g = (mChannelColor>>8)&0xff; b = mChannelColor&0xff; };
+
+  /** Get the name of the track that the plug-in is inserted on */
+  virtual void GetTrackName(WDL_String& str) override { str = mChannelName; };
+
+  /** Get the index of the track that the plug-in is inserted on */
+  virtual int GetTrackIndex() override { return mChannelIndex; };
+
+  /** Get the namespace of the track that the plug-in is inserted on */
+  virtual void GetTrackNamespace(WDL_String& str) override { str = mChannelNamespace; };
+
+  /** Get the namespace index of the track that the plug-in is inserted on */
+  virtual int GetTrackNamespaceIndex() override { return mChannelNamespaceIndex; };
+
   // Interface
   OBJ_METHODS(IPlugVST3Controller, EditControllerEx1)
   DEFINE_INTERFACES
-  DEF_INTERFACE(IMidiMapping)
+    DEF_INTERFACE(IMidiMapping)
+    DEF_INTERFACE(IInfoListener)
   END_DEFINE_INTERFACES(EditControllerEx1)
   REFCOUNT_METHODS(EditControllerEx1)
   
@@ -75,7 +96,7 @@ public:
   void BeginInformHostOfParamChange(int idx) override { beginEdit(idx); }
   void InformHostOfParamChange(int idx, double normalizedValue) override  { performEdit(idx, normalizedValue); }
   void EndInformHostOfParamChange(int idx) override  { endEdit(idx); }
-  void InformHostOfProgramChange() override  { /* TODO: */}
+  void InformHostOfPresetChange() override  { /* TODO: */}
   bool EditorResize(int viewWidth, int viewHeight) override;
   void DirtyParametersFromUI() override;
   
@@ -83,6 +104,7 @@ public:
   void SendMidiMsgFromUI(const IMidiMsg& msg) override;
   void SendSysexMsgFromUI(const ISysEx& msg) override;
   void SendArbitraryMsgFromUI(int msgTag, int ctrlTag = kNoTag, int dataSize = 0, const void* pData = nullptr) override;
+  void SendParameterValueFromUI(int paramIdx, double normalisedValue) override;
 
   Steinberg::Vst::IComponentHandler* GetComponentHandler() const { return componentHandler; }
   ViewType* GetView() const { return mView; }

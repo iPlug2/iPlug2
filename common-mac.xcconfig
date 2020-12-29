@@ -9,10 +9,12 @@ COMPILER = com.apple.compilers.llvm.clang.1_0
 // which osx sdk to compile against - defaults to latest SDK available
 BASE_SDK_MAC = macosx // latest SDK
 
-CLANG_CXX_LANGUAGE_STANDARD = c++14
+CLANG_CXX_LANGUAGE_STANDARD = c++17
 CLANG_CXX_LIBRARY = libc++
 
 CLANG_WARN_DOCUMENTATION_COMMENTS = NO
+
+CLANG_ENABLE_OBJC_WEAK = YES
 
 // the minimum OS to support
 MACOSX_DEPLOYMENT_TARGET = 10.11
@@ -71,13 +73,14 @@ IMGUI_PATH = $(DEPS_PATH)/IGraphics/imgui
 //faust is linked as a dynamic library
 FAUST_LIB_PATHS = $(BUILT_LIBS_LIB_PATH)
 FAUST_INC_PATHS = $(BUILT_LIBS_INC_PATH)
-FAUST_DEFS = SWELL_COMPILED //FAUST_EXE=\"$(BUILT_LIBS_PATH)/bin/faust\" FAUST_LIBRARY_PATH=\"$(BUILT_LIBS_PATH)/share/faust\"
 FAUST_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/libfaust.dylib
 
 CIVETWEB_INC_PATHS = $(BUILT_LIBS_INC_PATH)
 CIVETWEB_LNK_FLAGS = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
 
-EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Synth $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket $(CIVETWEB_PATH) $(JSON11_PATH) $(RTAUDIO_PATH) $(RTMIDI_PATH)
+JSON_INC_PATH = $(DEPS_PATH)/Extras/nlohmann
+
+EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Synth $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket $(CIVETWEB_INC_PATHS) $(JSON11_PATH) $(RTAUDIO_PATH) $(RTMIDI_PATH) $(JSON_INC_PATH)
 
 // Plug-in SDK paths
 VST2_SDK = $(DEPS_PATH)/IPlug/VST2_SDK
@@ -88,36 +91,31 @@ REAPER_SDK = $(DEPS_PATH)/IPlug/Reaper
 // this build setting is included at the xcode project level, since we need all these include paths
 IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(SWELL_FOR_IPLUG_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS)
 
-IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/examples
+IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/backends
 
 IGRAPHICS_PATH = $(IPLUG2_ROOT)/IGraphics
 
 // IGraphics dependencies
 IGRAPHICS_DEPS_PATH = $(DEPS_PATH)/IGraphics
-LICE_PATH = $(WDL_PATH)/lice
 NSVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoSVG/src
 NVG_PATH = $(IGRAPHICS_DEPS_PATH)/NanoVG/src
 NVGMTL_PATH = $(IGRAPHICS_DEPS_PATH)/MetalNanoVG/src
-AGG_PATH = $(IGRAPHICS_DEPS_PATH)/AGG/agg-2.4
-AGG_INC_PATHS = $(AGG_PATH)/include $(AGG_PATH)/font_freetype $(AGG_PATH)/include/util $(AGG_PATH)/include/platform/mac $(AGG_PATH)/src $(AGG_PATH)/src/platform/mac
 STB_PATH = $(DEPS_PATH)/IGraphics/STB
 FT_PATH = $(BUILT_LIBS_INC_PATH)/freetype2
 SKIA_PATH = $(DEPS_PATH)/Build/src/skia
 YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga
 
-SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu $(SKIA_PATH)/experimental/svg/model
+SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu $(SKIA_PATH)/third_party/externals/icu/source/common $(SKIA_PATH)/modules/svg/include
 
 YOGA_INC_PATHS = $(YOGA_PATH) $(YOGA_PATH)/yoga
 
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(LICE_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(AGG_INC_PATHS) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH) $(IMGUI_INC_PATHS) $(SKIA_INC_PATHS) $(YOGA_INC_PATHS)
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH) $(IMGUI_INC_PATHS) $(SKIA_INC_PATHS) $(YOGA_INC_PATHS)
 
 // *****  LINKER/LIBRARY INCLUDE PATHS AND LINKER FLAGS
 
 //Static library Paths - on macOS we need to supply an absolute path to the static library, otherwise it will pick up a dynamic library with the same name
-LIB_CAIRO = $(BUILT_LIBS_LIB_PATH)/libcairo.a
 LIB_FT = $(BUILT_LIBS_LIB_PATH)/libfreetype.a
-LIB_PIXMAN = $(BUILT_LIBS_LIB_PATH)/libpixman-1.a
 LIB_PNG = $(BUILT_LIBS_LIB_PATH)/libpng.a
 LIB_Z = $(BUILT_LIBS_LIB_PATH)/libz.a
 LIB_CIVET = $(BUILT_LIBS_LIB_PATH)/libcivetweb.a
@@ -126,21 +124,20 @@ LIB_SKOTTIE = $(BUILT_LIBS_LIB_PATH)/libskottie.a
 LIB_SKSG = $(BUILT_LIBS_LIB_PATH)/libsksg.a
 LIB_SKSHAPER = $(BUILT_LIBS_LIB_PATH)/libskshaper.a
 LIB_SKPARAGRAPH = $(BUILT_LIBS_LIB_PATH)/libskparagraph.a
+LIB_SVG = $(BUILT_LIBS_LIB_PATH)/libsvg.a
 //LIB_YOGA = $(BUILT_LIBS_LIB_PATH)/libyoga.a
 
-SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH)
 
 //YOGA_LNK_FLAGS = $(LIB_YOGA)
 
 // you can optionally include this build setting, by adding it to EXTRA_LNK_FLAGS in your plug-ins xcconfig, in order to get all varieties of IGraphics support
-CAIRO_LNK_FLAGS = $(LIB_CAIRO) $(LIB_FT) $(LIB_PIXMAN) $(LIB_PNG) $(LIB_Z) //$(LIB_HB) $(LIB_HB_ICU) $(LIB_GF)
-SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH)
-LICE_LNK_FLAGS = $(LIB_PNG) $(LIB_Z)
-IGRAPHICS_LNK_FLAGS = $(SKIA_LNK_FLAGS) $(LICE_LNK_FLAGS) $(CAIRO_LNK_FLAGS)
+SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH) $(LIB_SVG)
+FREETYPE_LNK_FLAGS = $(LIB_FT) //$(LIB_PNG) $(LIB_Z)
+IGRAPHICS_LNK_FLAGS = $(SKIA_LNK_FLAGS) $(FREETYPE_LNK_FLAGS)
 
-ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework Metal -framework MetalKit -framework QuartzCore -framework WebKit -framework OpenGL
+ALL_FRAMEWORKS = -framework Cocoa -framework Carbon -framework CoreFoundation -framework CoreData -framework Foundation -framework CoreServices -framework QuartzCore 
 APP_FRAMEWORKS = -framework AppKit -framework CoreMIDI -framework CoreAudio
-AU_FRAMEWORKS = -framework AudioToolbox -framework AudioUnit -framework CoreAudio -framework CoreMIDI
+AU_FRAMEWORKS = -framework AudioUnit -framework AudioToolbox -framework CoreAudio -framework CoreMIDI
 AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudio -framework CoreAudioKit
 
 

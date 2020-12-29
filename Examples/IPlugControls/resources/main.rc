@@ -164,7 +164,9 @@ BEGIN
     "PNGSLIDERTRACK_FN PNG PNGSLIDERTRACK_FN\r\n"
     "SVGSLIDERHANDLE_FN SVG SVGSLIDERHANDLE_FN\r\n"
     "SVGSLIDERTRACK_FN SVG SVGSLIDERTRACK_FN\r\n"
-    "SVGKNOBROTATE_FN SVG SVGKNOBROTATE_FN\0"
+    "SVGKNOBROTATE_FN SVG SVGKNOBROTATE_FN\r\n"
+    "SVGHSLIDERHANDLE_FN SVG SVGHSLIDERHANDLE_FN\r\n"
+    "SVGHSLIDERTRACK_FN SVG SVGHSLIDERTRACK_FN\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -223,7 +225,7 @@ BEGIN
             VALUE "InternalName", "IPlugControls"
             VALUE "ProductName", "IPlugControls"
             VALUE "CompanyName", "AcmeInc"
-            VALUE "LegalCopyright", "Copyright 2019 Acme Inc"
+            VALUE "LegalCopyright", "Copyright 2020 Acme Inc"
             VALUE "LegalTrademarks", "VST is a trademark of Steinberg Media Technologies GmbH, Audio Unit is a trademark of Apple, Inc."
         END
     END
@@ -260,6 +262,8 @@ PNGSLIDERTRACK_FN PNG PNGSLIDERTRACK_FN
 SVGSLIDERHANDLE_FN SVG SVGSLIDERHANDLE_FN
 SVGSLIDERTRACK_FN SVG SVGSLIDERTRACK_FN
 SVGKNOBROTATE_FN SVG SVGKNOBROTATE_FN
+SVGHSLIDERHANDLE_FN SVG SVGHSLIDERHANDLE_FN
+SVGHSLIDERTRACK_FN SVG SVGHSLIDERTRACK_FN
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

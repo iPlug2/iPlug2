@@ -41,7 +41,7 @@ public:
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
-  void InformHostOfProgramChange() override;
+  void InformHostOfPresetChange() override;
   void HostSpecificInit() override;
   bool EditorResize(int viewWidth, int viewHeight) override;
 
@@ -79,6 +79,8 @@ private:
   bool SendVSTEvent(VstEvent& event);
   bool SendVSTEvents(WDL_TypedBuf<VstEvent>* pEvents);
   
+  void UpdateEditRect();
+    
   ERect mEditRect;
   VstSpeakerArrangement mInputSpkrArr, mOutputSpkrArr;
 

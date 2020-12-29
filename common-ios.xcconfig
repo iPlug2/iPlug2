@@ -8,13 +8,15 @@ COMPILER = com.apple.compilers.llvm.clang.1_0
 // which osx sdk to compile against - defaults to latest SDK available
 BASE_SDK_IOS = iphoneos // latest SDK
 
-CLANG_CXX_LANGUAGE_STANDARD = c++14
+CLANG_CXX_LANGUAGE_STANDARD = c++17
 CLANG_CXX_LIBRARY = libc++
 
 CLANG_WARN_DOCUMENTATION_COMMENTS = NO
 
+CLANG_ENABLE_OBJC_WEAK = YES
+
 // the minimum OS to support
-IPHONEOS_DEPLOYMENT_TARGET = 13
+IPHONEOS_DEPLOYMENT_TARGET = 14
 
 SHARED_PRECOMPS_DIR = $(TARGET_BUILD_DIR)/PCH
 
@@ -48,8 +50,10 @@ SWELL_PATH = $(WDL_PATH)/swell
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
 EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket
 
+JSON_INC_PATH = $(DEPS_PATH)/Extras/nlohmann
+
 // this build setting is included at the xcode project level, since we need all these include paths
-IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS) $(AUv3_PATH)
+IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS) $(AUv3_PATH) $(JSON_INC_PATH)
 
 BUILT_LIBS_PATH = $(DEPS_PATH)/Build/ios
 BUILT_LIBS_INC_PATH = $(BUILT_LIBS_PATH)/include
@@ -69,11 +73,11 @@ STB_PATH = $(DEPS_PATH)/IGraphics/STB
 IMGUI_PATH = $(DEPS_PATH)/IGraphics/imgui
 YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga
 
-IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/examples
+IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/backends
 
 SKIA_PATH = $(DEPS_PATH)/Build/src/skia
 
-SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu $(SKIA_PATH)/experimental/svg/model
+SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu $(SKIA_PATH)/third_party/externals/icu/source/common $(SKIA_PATH)/modules/svg/include
 
 YOGA_INC_PATHS = $(YOGA_PATH) $(YOGA_PATH)/yoga
 
@@ -88,10 +92,11 @@ LIB_SKOTTIE = $(BUILT_LIBS_LIB_PATH)/libskottie.a
 LIB_SKSG = $(BUILT_LIBS_LIB_PATH)/libsksg.a
 LIB_SKSHAPER = $(BUILT_LIBS_LIB_PATH)/libskshaper.a
 LIB_SKPARAGRAPH = $(BUILT_LIBS_LIB_PATH)/libskparagraph.a
+LIB_SVG = $(BUILT_LIBS_LIB_PATH)/libsvg.a
 
-SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH)
+SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH) $(LIB_SVG)
 IGRAPHICS_LNK_FLAGS = $(SKIA_LNK_FLAGS)
 
-AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudioKit -framework Metal -framework MetalKit -framework QuartzCore -framework UIKit -framework CoreText -framework CoreGraphics
+AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudioKit -framework QuartzCore -framework UIKit -framework CoreText -framework CoreGraphics
 
 

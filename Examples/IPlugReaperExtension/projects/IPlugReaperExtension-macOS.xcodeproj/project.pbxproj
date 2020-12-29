@@ -10,7 +10,6 @@
 		4F56E31B227F43A400F3E839 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F56E319227F43A400F3E839 /* IGraphicsCoreText.mm */; };
 		4F56E325227F9C3200F3E839 /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C2521EA55BD00C1EF1B /* IGraphicsNanoVG_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F56E32A227FA3C400F3E839 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F56E328227FA3C400F3E839 /* IPlugTimer.cpp */; };
-		4FB401D222806B3B00F35D81 /* IGraphicsAGG_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */; };
 		4FBA83B120ECB19100423B90 /* IPlugReaperExtension.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA837B20ECAE7B00423B90 /* IPlugReaperExtension.cpp */; };
 		4FBA83B420ECB63400423B90 /* swell-modstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA83A720ECAED000423B90 /* swell-modstub.mm */; };
 		4FBB8C7421EA55BD00C1EF1B /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C3221EA55BD00C1EF1B /* IGraphicsMac.mm */; };
@@ -43,7 +42,6 @@
 		4F74D1D922AA8E760079E7DF /* ReaperExtBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaperExtBase.h; sourceTree = "<group>"; };
 		4F74D1DA22AA8E760079E7DF /* ReaperExtBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReaperExtBase.cpp; sourceTree = "<group>"; };
 		4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdltypes.h; path = ../../../WDL/wdltypes.h; sourceTree = SOURCE_ROOT; };
-		4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsAGG_src.mm; sourceTree = "<group>"; };
 		4FBA837B20ECAE7B00423B90 /* IPlugReaperExtension.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = IPlugReaperExtension.cpp; path = ../IPlugReaperExtension.cpp; sourceTree = "<group>"; };
 		4FBA83A720ECAED000423B90 /* swell-modstub.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-modstub.mm"; path = "../../../WDL/swell/swell-modstub.mm"; sourceTree = "<group>"; };
 		4FBA83AC20ECAF0B00423B90 /* reaper_IPlugReaperExtension.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = reaper_IPlugReaperExtension.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -57,21 +55,11 @@
 		4FBA83C820ECD9DA00423B90 /* swell-dlggen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-dlggen.h"; path = "../../../WDL/swell/swell-dlggen.h"; sourceTree = "<group>"; };
 		4FBA83C920ECD9DA00423B90 /* swell-types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-types.h"; path = "../../../WDL/swell/swell-types.h"; sourceTree = "<group>"; };
 		4FBA83CA20ECD9DA00423B90 /* swell-functions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-functions.h"; path = "../../../WDL/swell/swell-functions.h"; sourceTree = "<group>"; };
-		4FBB8C1B21EA55BD00C1EF1B /* IGraphicsLice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice.h; sourceTree = "<group>"; };
-		4FBB8C1C21EA55BD00C1EF1B /* IGraphicsAGG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG.h; sourceTree = "<group>"; };
-		4FBB8C1D21EA55BD00C1EF1B /* IGraphicsLice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice.cpp; sourceTree = "<group>"; };
-		4FBB8C1E21EA55BD00C1EF1B /* IGraphicsLice_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLice_src.h; sourceTree = "<group>"; };
-		4FBB8C1F21EA55BD00C1EF1B /* IGraphicsCairo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCairo.h; sourceTree = "<group>"; };
-		4FBB8C2021EA55BD00C1EF1B /* IGraphicsAGG_src.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsAGG_src.cpp; sourceTree = "<group>"; };
 		4FBB8C2121EA55BD00C1EF1B /* IGraphicsNanoVG.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsNanoVG.h; sourceTree = "<group>"; };
 		4FBB8C2221EA55BD00C1EF1B /* IGraphicsCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCanvas.cpp; sourceTree = "<group>"; };
-		4FBB8C2321EA55BD00C1EF1B /* IGraphicsCairo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCairo.cpp; sourceTree = "<group>"; };
-		4FBB8C2421EA55BD00C1EF1B /* IGraphicsAGG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsAGG.cpp; sourceTree = "<group>"; };
 		4FBB8C2521EA55BD00C1EF1B /* IGraphicsNanoVG_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsNanoVG_src.m; sourceTree = "<group>"; };
-		4FBB8C2621EA55BD00C1EF1B /* IGraphicsAGG_src.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsAGG_src.h; sourceTree = "<group>"; };
 		4FBB8C2721EA55BD00C1EF1B /* IGraphicsNanoVG.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsNanoVG.cpp; sourceTree = "<group>"; };
 		4FBB8C2821EA55BD00C1EF1B /* IGraphicsCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCanvas.h; sourceTree = "<group>"; };
-		4FBB8C2921EA55BD00C1EF1B /* IGraphicsLice_src.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsLice_src.cpp; sourceTree = "<group>"; };
 		4FBB8C2A21EA55BD00C1EF1B /* IGraphics_include_in_plug_hdr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_include_in_plug_hdr.h; sourceTree = "<group>"; };
 		4FBB8C2C21EA55BD00C1EF1B /* IGraphicsIOS_view.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsIOS_view.h; sourceTree = "<group>"; };
 		4FBB8C2D21EA55BD00C1EF1B /* IGraphicsWeb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsWeb.cpp; sourceTree = "<group>"; };
@@ -92,7 +80,6 @@
 		4FBB8C3C21EA55BD00C1EF1B /* IGraphicsUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsUtilities.h; sourceTree = "<group>"; };
 		4FBB8C3D21EA55BD00C1EF1B /* IGraphicsEditorDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsEditorDelegate.cpp; sourceTree = "<group>"; };
 		4FBB8C3E21EA55BD00C1EF1B /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };
-		4FBB8C3F21EA55BD00C1EF1B /* IGraphicsPathBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPathBase.h; sourceTree = "<group>"; };
 		4FBB8C4121EA55BD00C1EF1B /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
 		4FBB8C4321EA55BD00C1EF1B /* TestCursorControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestCursorControl.h; sourceTree = "<group>"; };
 		4FBB8C4421EA55BD00C1EF1B /* TestSizeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestSizeControl.h; sourceTree = "<group>"; };
@@ -259,7 +246,6 @@
 				4FBB8C6821EA55BD00C1EF1B /* IGraphicsEditorDelegate.h */,
 				4FBB8C3D21EA55BD00C1EF1B /* IGraphicsEditorDelegate.cpp */,
 				4FBB8C3E21EA55BD00C1EF1B /* IGraphics.cpp */,
-				4FBB8C3F21EA55BD00C1EF1B /* IGraphicsPathBase.h */,
 				4FBB8C6321EA55BD00C1EF1B /* IGraphicsStructs.h */,
 				4FBB8C6421EA55BD00C1EF1B /* IGraphicsConstants.h */,
 				4FBB8C6521EA55BD00C1EF1B /* IGraphicsLiveEdit.h */,
@@ -278,22 +264,11 @@
 			children = (
 				4F4A44B722D361A400A9D1A1 /* IGraphicsSkia.cpp */,
 				4F4A44B822D361A400A9D1A1 /* IGraphicsSkia.h */,
-				4FB401D122806B3B00F35D81 /* IGraphicsAGG_src.mm */,
-				4FBB8C1B21EA55BD00C1EF1B /* IGraphicsLice.h */,
-				4FBB8C1C21EA55BD00C1EF1B /* IGraphicsAGG.h */,
-				4FBB8C1D21EA55BD00C1EF1B /* IGraphicsLice.cpp */,
-				4FBB8C1E21EA55BD00C1EF1B /* IGraphicsLice_src.h */,
-				4FBB8C1F21EA55BD00C1EF1B /* IGraphicsCairo.h */,
-				4FBB8C2021EA55BD00C1EF1B /* IGraphicsAGG_src.cpp */,
 				4FBB8C2121EA55BD00C1EF1B /* IGraphicsNanoVG.h */,
 				4FBB8C2221EA55BD00C1EF1B /* IGraphicsCanvas.cpp */,
-				4FBB8C2321EA55BD00C1EF1B /* IGraphicsCairo.cpp */,
-				4FBB8C2421EA55BD00C1EF1B /* IGraphicsAGG.cpp */,
 				4FBB8C2521EA55BD00C1EF1B /* IGraphicsNanoVG_src.m */,
-				4FBB8C2621EA55BD00C1EF1B /* IGraphicsAGG_src.h */,
 				4FBB8C2721EA55BD00C1EF1B /* IGraphicsNanoVG.cpp */,
 				4FBB8C2821EA55BD00C1EF1B /* IGraphicsCanvas.h */,
-				4FBB8C2921EA55BD00C1EF1B /* IGraphicsLice_src.cpp */,
 			);
 			path = Drawing;
 			sourceTree = "<group>";
@@ -441,7 +416,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1130;
+				LastUpgradeCheck = 1210;
 				TargetAttributes = {
 					4FBA83AB20ECAF0B00423B90 = {
 						CreatedOnToolsVersion = 9.4.1;
@@ -451,7 +426,7 @@
 			};
 			buildConfigurationList = 1DEB913E08733D840010E9CD /* Build configuration list for PBXProject "IPlugReaperExtension-macOS" */;
 			compatibilityVersion = "Xcode 6.3";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				en,
@@ -505,7 +480,6 @@
 				4FBB8C8821EA56C600C1EF1B /* IPlugPaths.cpp in Sources */,
 				4FBB8C7421EA55BD00C1EF1B /* IGraphicsMac.mm in Sources */,
 				4FBB8C7521EA55BD00C1EF1B /* IGraphicsMac_view.mm in Sources */,
-				4FB401D222806B3B00F35D81 /* IGraphicsAGG_src.mm in Sources */,
 				4F56E31B227F43A400F3E839 /* IGraphicsCoreText.mm in Sources */,
 				4FBB8C7F21EA55BD00C1EF1B /* IControl.cpp in Sources */,
 			);
@@ -587,7 +561,6 @@
 				SKIP_INSTALL = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
 				SYMROOT = "../build-mac";
-				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = "";
 			};
 			name = Debug;
@@ -663,7 +636,6 @@
 				SDKROOT = "$(BASE_SDK_MAC)";
 				SKIP_INSTALL = NO;
 				SYMROOT = "../build-mac";
-				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = "";
 			};
 			name = Release;
@@ -676,14 +648,12 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_COMMA = NO;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				EXECUTABLE_PREFIX = reaper_;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -711,14 +681,12 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_COMMA = NO;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_PREFIX = reaper_;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -741,14 +709,12 @@
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_COMMA = NO;
 				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-
 				COPY_PHASE_STRIP = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_PREFIX = reaper_;
@@ -833,7 +799,6 @@
 				SDKROOT = "$(BASE_SDK_MAC)";
 				SKIP_INSTALL = NO;
 				SYMROOT = "../build-mac";
-				VALID_ARCHS = "i386 x86_64";
 				WRAPPER_EXTENSION = "";
 			};
 			name = Tracer;

@@ -10,48 +10,51 @@ IGraphicsStressTest::IGraphicsStressTest(const InstanceInfo& info)
   
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, 1.);
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
 #endif
 }
 
 #if IPLUG_EDITOR
+void IGraphicsStressTest::OnParentWindowResize(int width, int height)
+{
+  if(GetUI())
+    GetUI()->Resize(width, height, 1.f, false);
+}
+
 void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
 {
   IRECT bounds = pGraphics->GetBounds();
   
   if(pGraphics->NControls()) {
     pGraphics->GetBackgroundControl()->SetTargetAndDrawRECTs(bounds);
-    pGraphics->GetControl(1)->SetTargetAndDrawRECTs(bounds);
-    pGraphics->GetControlWithTag(kCtrlTagNumThings)->SetTargetAndDrawRECTs(bounds.GetGridCell(0, 2, 1));
-    pGraphics->GetControlWithTag(kCtrlTagTestNum)->SetTargetAndDrawRECTs(bounds.GetGridCell(1, 2, 1));
+    pGraphics->GetControl(1)->SetTargetAndDrawRECTs(bounds.GetReducedFromBottom(50.f));
+    pGraphics->GetControlWithTag(kCtrlTagNumThings)->SetTargetAndDrawRECTs(bounds.GetFromBLHC(500, 50).GetGridCell(0, 1, 2));
+    pGraphics->GetControlWithTag(kCtrlTagTestNum)->SetTargetAndDrawRECTs(bounds.GetFromBLHC(500, 50).GetGridCell(1, 1, 2));
     
-    auto bottomButtons = bounds.GetFromBRHC(400, 50).GetPadded(-10.);
-    for(int button=0;button<5;button++)
-      pGraphics->GetControlWithTag(kCtrlTagButton1 + button)->SetTargetAndDrawRECTs(bottomButtons.GetGridCell(button, 1, 5));
-    
+    auto bottomButtons = bounds.GetFromBRHC(512, 50).GetPadded(-10.);
+    for(int button=0;button<6;button++)
+      pGraphics->GetControlWithTag(kCtrlTagButton1 + button)->SetTargetAndDrawRECTs(bottomButtons.GetGridCell(button, 1, 6));
     return;
   }
   
-  pGraphics->SetSizeConstraints(100, 100000, 100, 100000);
-  pGraphics->ShowFPSDisplay(true);
   pGraphics->AttachCornerResizer(EUIResizerMode::Size, true);
   
   enum class EFunc {Next, Prev, More, Less, Set};
   
   auto DoFunc = [&](EFunc func, int thing = 0){
     switch (func) {
-      case EFunc::Next: mKindOfThing++; break;
-      case EFunc::Prev: mKindOfThing--; break;
-      case EFunc::More: mNumberOfThings++; break;
-      case EFunc::Less: mNumberOfThings--; break;
-      case EFunc::Set: mKindOfThing = thing; break;
+      case EFunc::Next: this->mKindOfThing++; break;
+      case EFunc::Prev: this->mKindOfThing--; break;
+      case EFunc::More: this->mNumberOfThings++; break;
+      case EFunc::Less: this->mNumberOfThings--; break;
+      case EFunc::Set: this->mKindOfThing = thing; break;
       default:
         break;
     }
     
-    dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagNumThings))->SetStrFmt(64, "Number of things = %i", mNumberOfThings);
-    dynamic_cast<ITextControl*>(GetUI()->GetControlWithTag(kCtrlTagTestNum))->SetStrFmt(64, "Test %i/%i", mKindOfThing, 32);
+    GetUI()->GetControlWithTag(kCtrlTagNumThings)->As<ITextControl>()->SetStrFmt(64, "Number of things = %i", mNumberOfThings);
+    GetUI()->GetControlWithTag(kCtrlTagTestNum)->As<ITextControl>()->SetStrFmt(64, "Test %i/%i", this->mKindOfThing, 32);
     GetUI()->SetAllControlsDirty();
   };
   
@@ -71,13 +74,15 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
   pGraphics->EnableMouseOver(false);
   pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
   pGraphics->AttachPanelBackground(COLOR_GRAY);
-  pGraphics->AttachControl(new ILambdaControl(bounds, [&](ILambdaControl* pCaller, IGraphics& g, IRECT& r) {
+  pGraphics->AttachControl(new ILambdaControl(bounds.GetReducedFromBottom(50.f), [&](ILambdaControl* pCaller, IGraphics& g, IRECT& r) {
     static IBitmap smiley = g.LoadBitmap(SMILEY_FN);
     static ISVG tiger = g.LoadSVG(TIGER_FN);
     
-    if(mKindOfThing == 0)
-      g.DrawText(IText(40), "Press tab to go to next test, up/down to change the # of things", r);
+    g.FillRect(COLOR_WHITE, r);
     
+    if(this->mKindOfThing == 0)
+      g.DrawText(IText(40), "Press tab to go to next test, up/down to change the # of things", r);
+    else
     //      if (!g.CheckLayer(pCaller->mLayer))
     {
       //        g.StartLayer(r);
@@ -93,7 +98,7 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
         float rrad1 = rand() % 360;
         float rrad2 = rand() % 360;
         
-        switch (mKindOfThing)
+        switch (this->mKindOfThing)
         {
           case 1:  g.DrawRect(rc, rr, &rb); break;
           case 2:  g.FillRect(rc, rr, &rb); break;
@@ -120,24 +125,24 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
     
   }, 10000, false, false));
   
-  pGraphics->AttachControl(new ITextControl(bounds.GetGridCell(0, 2, 1), "", IText(100)), kCtrlTagNumThings);
-  pGraphics->AttachControl(new ITextControl(bounds.GetGridCell(1, 2, 1), "", IText(100)), kCtrlTagTestNum);
+  pGraphics->AttachControl(new ITextControl(bounds.GetFromBLHC(512, 50).GetGridCell(0, 1, 2), "", IText(20)), kCtrlTagNumThings);
+  pGraphics->AttachControl(new ITextControl(bounds.GetFromBLHC(512, 50).GetGridCell(1, 1, 2), "", IText(20)), kCtrlTagTestNum);
   
-  auto bottomButtons = bounds.GetFromBRHC(400, 50).GetPadded(-10.);
+  auto bottomButtons = bounds.GetFromBRHC(512, 50).GetPadded(-10.);
   int button = 0;
-  for (auto buttonLabel : {"Select test", "Next test", "Previous test", "NumThings++", "NumThings--"}) {
-    pGraphics->AttachControl(new IVButtonControl(bottomButtons.GetGridCell(button, 1, 5), [button, DoFunc, pGraphics](IControl* pCaller){
-      SplashClickActionFunc(pCaller);
+  for (auto buttonLabel : {"Select test", "Next test", "Prev test", "Things++", "Things--"}) {
+    pGraphics->AttachControl(new IVButtonControl(bottomButtons.GetGridCell(button, 1, 6), SplashClickActionFunc, buttonLabel, DEFAULT_STYLE.WithLabelText(DEFAULT_TEXT.WithVAlign(EVAlign::Middle)).WithRoundness(0.2)), kCtrlTagButton1 + button)->SetAnimationEndActionFunction([button, DoFunc, pGraphics](IControl* pCaller) {
       
-      switch (button) {
+      switch (button){
         case 0:
         {
-          static IPopupMenu menu {"Test", {"DrawRect", "FillRect", "DrawRoundRect", "FillRoundRect", "DrawEllipse", "FillEllipse", "DrawArc", "FillArc", "DrawLine", "DrawDottedLine", "DrawFittedBitmap", "DrawSVG"},
+          static IPopupMenu menu {"Test", {"Start", "DrawRect", "FillRect", "DrawRoundRect", "FillRoundRect", "DrawEllipse", "FillEllipse", "DrawArc", "FillArc", "DrawLine", "DrawDottedLine", "DrawFittedBitmap", "DrawSVG"},
             [DoFunc](IPopupMenu* pMenu) {
               DoFunc(EFunc::Set, pMenu->GetChosenItemIdx());
             }};
           
           pGraphics->CreatePopupMenu(*pCaller, menu, pCaller->GetRECT());
+          break;
         }
         case 1: DoFunc(EFunc::Next); break;
         case 2: DoFunc(EFunc::Prev); break;
@@ -146,10 +151,14 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
         default:
           break;
       }
-    }, buttonLabel, DEFAULT_STYLE.WithLabelText(DEFAULT_TEXT.WithVAlign(EVAlign::Middle))), kCtrlTagButton1 + button);
+    });
     
     button++;
   }
+  
+  pGraphics->AttachControl(new IVToggleControl(bottomButtons.GetGridCell(button, 1, 6), SplashClickActionFunc, "", DEFAULT_STYLE.WithRoundness(0.2), "FPS OFF", "FPS ON"), kCtrlTagButton6)->SetAnimationEndActionFunction([](IControl* pCaller){
+      pCaller->GetUI()->ShowFPSDisplay(pCaller->GetValue() > 0.5);
+  });
 
 }
 #endif

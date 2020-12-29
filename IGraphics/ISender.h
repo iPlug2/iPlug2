@@ -119,6 +119,7 @@ template <int MAXNC = 1, int QUEUE_SIZE = 64, int MAXBUF = 128>
 class IBufferSender : public ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF>>
 {
 public:
+
   /** Queue sample buffers into the sender, checking the data is over the required threshold. This can be called on the realtime audio thread. */
   void ProcessBlock(sample** inputs, int nFrames, int ctrlTag, int nChans = MAXNC, int chanOffset = 0)
   {

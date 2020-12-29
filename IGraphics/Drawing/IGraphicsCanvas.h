@@ -15,7 +15,7 @@
 
 #include "IPlugPlatform.h"
 
-#include "IGraphicsPathBase.h"
+#include "IGraphics.h"
 
 using namespace emscripten;
 
@@ -27,7 +27,7 @@ std::string CanvasColor(const IColor& color, float alpha = 1.0);
 
 /** IGraphics draw class HTML5 canvas
 * @ingroup DrawClasses */
-class IGraphicsCanvas : public IGraphicsPathBase
+class IGraphicsCanvas : public IGraphics
 {
 private:
   class Bitmap;
@@ -60,7 +60,8 @@ public:
     
 protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
-  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale) override;
+  APIBitmap* LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale) override;
+  APIBitmap* CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable = false) override;
 
   bool LoadAPIFont(const char* fontID, const PlatformFontPtr& font) override;
 
@@ -89,8 +90,8 @@ private:
   bool CompareFontMetrics(const char* style, const char* font1, const char* font2);
   bool FontExists(const char* font, const char* style);
     
-  double XTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
-  double YTranslate()  { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
+  double XTranslate() { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
+  double YTranslate() { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
 
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;

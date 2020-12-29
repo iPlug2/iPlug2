@@ -314,7 +314,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
       }
     }
     
-    const char* paramGroupName = pParam->GetGroupForHost();
+    const char* paramGroupName = pParam->GetGroup();
     auto clumpID = 0;
 
     if (CStringHasContents(paramGroupName))
@@ -339,7 +339,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     AUParameterAddress address = AUParameterAddress(paramIdx);
 
     AUParameter *pAUParam = [AUParameterTree createParameterWithIdentifier:    [NSString stringWithFormat:@"%d", paramIdx ]
-                                                                         name: [NSString stringWithCString:pParam->GetNameForHost() encoding:NSUTF8StringEncoding]
+                                                                         name: [NSString stringWithCString:pParam->GetName() encoding:NSUTF8StringEncoding]
                                                                       address: address
                                                                           min: pParam->GetMin()
                                                                           max: pParam->GetMax()
@@ -417,7 +417,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
   mParameterTree.implementorStringFromValueCallback = ^(AUParameter *param, const AUValue *__nullable valuePtr) {
     AUValue value = valuePtr == nil ? param.value : *valuePtr;
-    return [NSString stringWithCString:pPlug->GetParamDisplayForHost(param.address, value) encoding:NSUTF8StringEncoding];
+    return [NSString stringWithCString:pPlug->GetParamDisplay(param.address, value) encoding:NSUTF8StringEncoding];
   };
 
   mParameterTree.implementorValueFromStringCallback = ^(AUParameter* param, NSString* string) {
@@ -455,7 +455,10 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     mUIUpdateParamObserverToken = nullptr;
   }
   
-  delete mPlug;
+  // delete on the main thread, otherwise get main thread warnings
+//  dispatch_sync(dispatch_get_main_queue(), ^{
+    delete self->mPlug;
+//  });
 }
 
 #pragma mark - AUAudioUnit (Overrides)
@@ -778,7 +781,15 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
 #pragma mark - IPlugAUAudioUnit
 
-- (void)informHostOfParamChange: (AUParameterAddress) address : (float) realValue
+- (void) beginInformHostOfParamChange: (uint64_t) address;
+{
+  AUParameter* parameterToChange = [mParameterTree parameterWithAddress:address];
+  AUValue exitingValue = [parameterToChange value];
+  
+  [parameterToChange setValue:exitingValue originator:mUIUpdateParamObserverToken atHostTime:0 eventType:AUParameterAutomationEventTypeTouch]; // TODO: atHostTime:0 ?
+}
+
+- (void) informHostOfParamChange: (AUParameterAddress) address : (float) realValue
 {
   AUParameter* parameterToChange = [mParameterTree parameterWithAddress:address];
   
@@ -786,6 +797,14 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     [parameterToChange setValue:realValue originator:mUIUpdateParamObserverToken];
   else
     [parameterToChange setValue:realValue];
+}
+
+- (void) endInformHostOfParamChange: (uint64_t) address;
+{
+  AUParameter* parameterToChange = [mParameterTree parameterWithAddress:address];
+  AUValue exitingValue = [parameterToChange value];
+  
+  [parameterToChange setValue:exitingValue originator:mUIUpdateParamObserverToken atHostTime:0 eventType:AUParameterAutomationEventTypeRelease]; // TODO: atHostTime:0 ?
 }
 
 - (PLATFORM_VIEW*) openWindow: (PLATFORM_VIEW*) pParent

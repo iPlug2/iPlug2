@@ -49,11 +49,13 @@ static constexpr float GRAYED_ALPHA = 0.25f;
 static const char* DEFAULT_PATH = "~/Desktop";
 #endif
 
+#ifndef DEFAULT_FONT
 const char* const DEFAULT_FONT = "Roboto-Regular";
-static constexpr float DEFAULT_TEXT_SIZE = 11.f;
-static constexpr int FONT_LEN = 64;
+#endif
 
 static const float SENDER_THRESHOLD = (float) DBToAmp(-90.);
+static constexpr float DEFAULT_TEXT_SIZE = 11.f;
+static constexpr int FONT_LEN = 64;
 
 /** @enum EBlend Porter-Duff blend mode/compositing operators */
 enum class EBlend
@@ -71,24 +73,31 @@ enum class EBlend
   Default = SrcOver
 };
 
-/** /todo */
+/** \todo */
 enum class EFileAction { Open, Save };
 
-/** /todo */
+/** \todo */
 enum class EDirection { Vertical, Horizontal };
 
 /** Used to specify text styles when loading fonts. */
 enum class ETextStyle { Normal, Bold, Italic };
 
-/** /todo */
+/** \todo */
 enum class EAlign { Near, Center, Far };
 
 /** /todo */
 enum class EVAlign { Top, Middle, Bottom, Baseline };
 
+/** CStrings for EAlign options  */
+static const char* kEAlignStrs[3] = { "Near", "Center", "Far" };
+
+/** CStrings for EVAlign options  */
+static const char* kEVAlignStrs[3] = { "Top", "Middle", "Bottom" };
+
 /** Types of Gesture Recongnizer */
 enum class EGestureType { Unknown, DoubleTap, TripleTap, LongPress1, LongPress2, SwipeLeft, SwipeRight, SwipeUp, SwipeDown, Pinch, Rotate, Pan};
 
+/** CStrings for EGestureType options  */
 static const char* kGestureTypeStrs[12] = { "Unknown", "DoubleTap", "TripleTap", "LongPress1", "LongPress2", "SwipeLeft", "SwipeRight", "SwipeUp", "SwipeDown", "Pinch", "Rotate", "Pan"};
 
 /** Distinguised gesture states */
@@ -109,6 +118,7 @@ enum EVColor
   kNumVColors
 };
 
+/** CStrings for EVColor options  */
 static const char* kVColorStrs[kNumVColors] =
 {
   "bg",
@@ -122,31 +132,31 @@ static const char* kVColorStrs[kNumVColors] =
   "extra3"
 };
 
-/** /todo */
+/** \todo */
 enum class EVShape { Rectangle, Ellipse, Triangle, EndsRounded, AllRounded };
 
-/** /todo */
+/** \todo */
 enum class EWinding { CW, CCW };
 
-/** /todo */
+/** \todo */
 enum class EFillRule { Winding, EvenOdd, Preserve };
 
-/** /todo */
+/** \todo */
 enum class ELineCap { Butt, Round, Square };
 
-/** /todo */
+/** \todo */
 enum class ELineJoin { Miter, Round, Bevel };
 
-/** /todo */
-enum class EPatternType { Solid, Linear, Radial };
+/** \todo */
+enum class EPatternType { Solid, Linear, Radial, Sweep };
 
-/** /todo */
+/** \todo */
 enum class EPatternExtend { None, Pad, Reflect, Repeat };
 
-/** /todo */
+/** \todo */
 enum class EUIResizerMode { Scale, Size };
 
-/** /todo */
+/** \todo */
 enum class ECursor
 {
   ARROW,
@@ -165,7 +175,7 @@ enum class ECursor
   HELP
 };
 
-/** /todo */
+/** \todo */
 enum class ETouchEvent { Began, Moved, Ended, Cancelled, Invalid };
 
 // This enumeration must match win32 message box options

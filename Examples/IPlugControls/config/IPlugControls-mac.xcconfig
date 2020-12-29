@@ -17,7 +17,7 @@ BINARY_NAME = IPlugControls
 // HEADER AND LIBRARY SEARCH PATHS
 EXTRA_INC_PATHS = $(IGRAPHICS_INC_PATHS)
 EXTRA_LIB_PATHS = $(IGRAPHICS_LIB_PATHS)
-EXTRA_LNK_FLAGS = //$(IGRAPHICS_LNK_FLAGS)
+EXTRA_LNK_FLAGS = -framework Metal -framework MetalKit -framework OpenGL -framework WebKit //$(IGRAPHICS_LNK_FLAGS)
 
 // EXTRA_APP_DEFS =
 // EXTRA_PLUGIN_DEFS =
@@ -52,7 +52,7 @@ ARCHS = $(ARCHS_STANDARD_64_BIT)
 GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
 
 // Flags to pass to compiler for all builds
-GCC_CFLAGS = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 //-mavx
+GCC_CFLAGS[arch=x86_64] = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 //-mavx
 
 // Uncomment to enable relaxed IEEE compliance
 //GCC_FAST_MATH = YES
