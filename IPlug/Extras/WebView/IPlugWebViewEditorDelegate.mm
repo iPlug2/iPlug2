@@ -34,9 +34,8 @@ WebViewEditorDelegate::~WebViewEditorDelegate()
 void* WebViewEditorDelegate::OpenWindow(void* pParent)
 {
   PLATFORM_VIEW* parentView = (__bridge PLATFORM_VIEW*) pParent;
-  PLATFORM_RECT r = [parentView frame];
   
-  void* pView = OpenWebView(pParent, 0, 0, r.size.width, r.size.height);
+  void* pView = OpenWebView(pParent, 0, 0, GetEditorWidth(), GetEditorHeight());
   
   if(mEditorInitFunc)
     mEditorInitFunc();
