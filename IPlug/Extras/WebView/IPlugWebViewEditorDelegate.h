@@ -88,7 +88,18 @@ public:
     }
     else if (json["msg"] == "SAMFUI")
     {
-      SendArbitraryMsgFromUI(json["msgTag"], json["ctrlTag"], json["dataSize"], /*dataSize > 0 ? json["data"] :*/ nullptr);
+      const char* pData = nullptr;
+      int size = 0;
+      std::string dataStr;
+      
+      if(json.count("data")>0 && json["data"].is_string())
+      {
+        dataStr = json["data"].get<std::string>();
+        size = static_cast<int>(dataStr.size());
+        pData = dataStr.c_str();
+      }
+      
+      SendArbitraryMsgFromUI(json["msgTag"], json["ctrlTag"], size, reinterpret_cast<const void*>(pData));
     }
   }
 
