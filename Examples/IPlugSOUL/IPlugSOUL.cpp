@@ -3,14 +3,14 @@
 //#include "IControls.h"
 
 IPlugSOUL::IPlugSOUL(const InstanceInfo& info)
-: Plugin(info, MakeConfig(IPlugSOUL_DSP::numParameters, kNumPresets))
+: Plugin(info, MakeConfig(DSP::numParameters, kNumPresets))
 {
   mSOULParams = mDSP.createParameterList();
   
   int paramIdx = 0;
-  for (auto& p : IPlugSOUL_DSP::getParameterProperties()) {
+  for (auto& p : DSP::getParameterProperties()) {
     int flags = 0;
-    flags |= p.isAutomatable ? IParam::EFlags::kFlagCannotAutomate : 0;
+    flags |= !p.isAutomatable ? IParam::EFlags::kFlagCannotAutomate : 0;
     flags |= CStringHasContents(p.textValues) ? IParam::EFlags::kFlagStepped : 0;
 
     GetParam(paramIdx)->InitDouble(p.name, p.initialValue, p.minValue, p.maxValue, p.step, p.unit, flags, p.group);
@@ -19,9 +19,8 @@ IPlugSOUL::IPlugSOUL(const InstanceInfo& info)
       char* pChar = strtok(vals.Get(), "|");
       int tokIdx = 0;
       while (pChar != nullptr) {
-        GetParam(paramIdx)->SetDisplayText(static_cast<double>(tokIdx), pChar);
+        GetParam(paramIdx)->SetDisplayText(static_cast<double>(tokIdx++), pChar);
         pChar = strtok(nullptr, "|");
-        tokIdx++;
       }
     }
     
@@ -34,23 +33,23 @@ IPlugSOUL::IPlugSOUL(const InstanceInfo& info)
 #if IPLUG_DSP
 void IPlugSOUL::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
-  IPlugSOUL_DSP::RenderContext<sample> renderCtx;
+  DSP::RenderContext<sample> renderCtx;
 
-  assert(NInChansConnected() <= IPlugSOUL_DSP::numAudioInputChannels);
-  assert(NOutChansConnected() <= IPlugSOUL_DSP::numAudioOutputChannels);
+  assert(NInChansConnected() <= DSP::numAudioInputChannels);
+  assert(NOutChansConnected() <= DSP::numAudioOutputChannels);
   
   int paramIdx;
   while (mParamsToUpdate.Pop(paramIdx)) {
     mSOULParams[paramIdx].setValue(GetParam(paramIdx)->Value());
   }
   
-  if constexpr (IPlugSOUL_DSP::numAudioInputChannels > 0) {
-    for (auto i=0; i<IPlugSOUL_DSP::numAudioInputChannels; i++) {
+  if constexpr (DSP::numAudioInputChannels > 0) {
+    for (auto i=0; i<DSP::numAudioInputChannels; i++) {
       renderCtx.inputChannels[i] = inputs[i];
     }
   }
   
-  for (auto i=0; i<IPlugSOUL_DSP::numAudioOutputChannels; i++) {
+  for (auto i=0; i<DSP::numAudioOutputChannels; i++) {
     renderCtx.outputChannels[i] = outputs[i];
   }
   

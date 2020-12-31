@@ -43,13 +43,9 @@ public:
     struct _Stream_out_vec_2_f32_1024;
     struct soul__gain__SmoothedGainParameter___for__root__IPlugSOUL_DSP_gainStream___State;
     struct soul__gain__DynamicGain___for__root__IPlugSOUL_DSP_gain___State;
-    struct soul___filters__biquad__Coeffs;
-    struct soul___filters__biquad__State;
-    struct soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter___State;
     struct _State;
     struct soul__gain__SmoothedGainParameter___for__root__IPlugSOUL_DSP_gainStream___IO;
     struct soul__gain__DynamicGain___for__root__IPlugSOUL_DSP_gain___IO;
-    struct soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter___IO;
     struct StringLiteral;
 
     //==============================================================================
@@ -167,11 +163,6 @@ public:
         _addInputEvent_volume_f32 (state, eventValue);
     }
 
-    void addInputEvent_modeIn (float eventValue)
-    {
-        _addInputEvent_modeIn_f32 (state, eventValue);
-    }
-
     DynamicArray<const Vector<float, 2>> getOutputStreamFrames_out()
     {
         return { &(_getOutputFrameArrayRef_out (state).elements[0]), static_cast<int32_t> (framesToAdvance) };
@@ -199,8 +190,7 @@ public:
         return
         {
             { "in",     "in:in",     EndpointType::stream, "float32<2>", 2, ""                                                                                                                        },
-            { "volume", "in:volume", EndpointType::event,  "float32",    0, "{ \"name\": \"Volume\", \"unit\": \"dB\", \"min\": -70, \"max\": 0, \"init\": 0, \"step\": 0.5, \"label\": \"Volume\" }" },
-            { "modeIn", "in:modeIn", EndpointType::event,  "float32",    0, "{ \"name\": \"Mode\", \"min\": 0, \"max\": 2, \"init\": 0, \"text\": \"Lowpass|Highpass|Allpass\" }"                     }
+            { "volume", "in:volume", EndpointType::event,  "float32",    0, "{ \"name\": \"Volume\", \"unit\": \"dB\", \"min\": -70, \"max\": 0, \"init\": 0, \"step\": 0.5, \"label\": \"Volume\" }" }
         };
     }
 
@@ -261,12 +251,11 @@ public:
     };
 
     static constexpr bool      hasMIDIInput = false;
-    static constexpr uint32_t  numParameters = 2;
+    static constexpr uint32_t  numParameters = 1;
 
     static constexpr const ParameterProperties parameters[] =
     {
-        {  "volume",  "Volume",  "dB",  -70.0f,  0.0f,  0.5f,  0.0f,  true,  false,  false,  "",  ""                          },
-        {  "modeIn",  "Mode",    "",    0.0f,    2.0f,  1.0f,  0.0f,  true,  false,  false,  "",  "Lowpass|Highpass|Allpass"  }
+        {  "volume",  "Volume",  "dB",  -70.0f,  0.0f,  0.5f,  0.0f,  true,  false,  false,  "",  ""  }
     };
 
     static constexpr uint32_t numInputBuses  = 1;
@@ -284,8 +273,7 @@ public:
     {
         return
         {
-            {  parameters[0],  0.0f,  [this] (float v) { addInputEvent_volume (v); }  },
-            {  parameters[1],  0.0f,  [this] (float v) { addInputEvent_modeIn (v); }  }
+            {  parameters[0],  0.0f,  [this] (float v) { addInputEvent_volume (v); }  }
         };
     }
 
@@ -572,7 +560,7 @@ public:
     struct _SparseStreamStatus
     {
         int32_t m_activeRamps;
-        FixedArray<int32_t, 3> m_rampArray;
+        FixedArray<int32_t, 2> m_rampArray;
     };
 
     struct _Stream_in_vec_2_f32_1024
@@ -605,38 +593,16 @@ public:
         int32_t m__resumePoint, m__frameCount, m__arrayEntry, m__sessionID, m__processorId;
     };
 
-    struct soul___filters__biquad__Coeffs
-    {
-        Vector<double, 3> m_b, m_a;
-    };
-
-    struct soul___filters__biquad__State
-    {
-        FixedArray<float, 2> m_x, m_y;
-    };
-
-    struct soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter___State
-    {
-        int32_t m__resumePoint, m__frameCount, m__arrayEntry, m__sessionID, m__processorId;
-        float m_frequency;
-        int32_t m_mode;
-        bool m_recalc;
-        int32_t m_counter_1;
-        soul___filters__biquad__Coeffs m_c;
-        soul___filters__biquad__State m_s;
-    };
-
     struct _State
     {
         int32_t m__resumePoint, m__frameCount, m__arrayEntry, m__sessionID, m__processorId, m__framesToAdvance;
         _RenderStats m__renderStats;
         _SparseStreamStatus m__sparseStreamStatus;
         _Stream_in_vec_2_f32_1024 m__in_in;
-        _Event_in_f32_1 m__in_volume, m__in_modeIn;
+        _Event_in_f32_1 m__in_volume;
         _Stream_out_vec_2_f32_1024 m__out_out;
         soul__gain__SmoothedGainParameter___for__root__IPlugSOUL_DSP_gainStream___State m_gainStream_state;
         soul__gain__DynamicGain___for__root__IPlugSOUL_DSP_gain___State m_gain_state;
-        soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter___State m_filter_state;
     };
 
     struct soul__gain__SmoothedGainParameter___for__root__IPlugSOUL_DSP_gainStream___IO
@@ -649,10 +615,6 @@ public:
         Vector<float, 2> m__in_in;
         float m__in_gain;
         Vector<float, 2> m__out_out;
-    };
-
-    struct soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter___IO
-    {
     };
 
     //==============================================================================
@@ -678,7 +640,6 @@ public:
         Vector<float, 2> _3 = {};
         soul__gain__SmoothedGainParameter___for__root__IPlugSOUL_DSP_gainStream___IO _4 = {};
         soul__gain__DynamicGain___for__root__IPlugSOUL_DSP_gain___IO _5 = {};
-        soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter___IO _6 = {};
 
         _2 = _internal___minInt32 (1024, maxFrames);
         _updateRampingStreams (_state, _2);
@@ -692,8 +653,6 @@ public:
                            _5.m__in_gain = _4.m__out_gain;
                            soul__gain__DynamicGain___for__root__IPlugSOUL_DSP_gain__run (_state.m_gain_state, _5);
                            _writeToStream_struct__Stream_out_vec_2_f32_1024 (_state.m__out_out, _state.m__frameCount, _5.m__out_out);
-                           _6 = ZeroInitialiser();
-                           soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter__run (_state.m_filter_state, _6);
                            _state.m__frameCount = _state.m__frameCount + 1;
                            goto _main_loop_check;
         }
@@ -712,20 +671,11 @@ public:
         _state.m_gain_state.m__arrayEntry = 0;
         _state.m_gain_state.m__sessionID = _state.m__sessionID;
         _state.m_gain_state.m__processorId = 2;
-        _state.m_filter_state.m__arrayEntry = 0;
-        _state.m_filter_state.m__sessionID = _state.m__sessionID;
-        _state.m_filter_state.m__processorId = 3;
-        soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter___initialise (_state.m_filter_state);
     }
 
     void _addInputEvent_volume_f32 (_State& _state, const float& event) noexcept
     {
         soul__gain__SmoothedGainParameter___for__root__IPlugSOUL_DSP_gainStream___volume_f32 (_state.m_gainStream_state, event);
-    }
-
-    void _addInputEvent_modeIn_f32 (_State& _state, const float& event) noexcept
-    {
-        soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter___modeIn_f32 (_state.m_filter_state, event);
     }
 
     FixedArray<Vector<float, 2>, 1024>& _getInputFrameArrayRef_in (_State& _state) noexcept
@@ -940,50 +890,6 @@ public:
         }
     }
 
-    double soul__intrinsics___tan_specialised (double n) noexcept
-    {
-        double _2 = {}, _3 = {};
-
-        _2 = std::sin (n);
-        _3 = std::cos (n);
-        return _2 / _3;
-    }
-
-    double soul__intrinsics___sin_specialised_2 (double n) noexcept
-    {
-        return 0;
-    }
-
-    double soul__intrinsics___cos_specialised (double n) noexcept
-    {
-        return 0;
-    }
-
-    double soul__intrinsics___clamp_specialised (double n, double low, double high) noexcept
-    {
-        double _2 = {}, _3 = {}, _4 = {}, _5 = {}, _6 = {}, _T1 = {}, _T0 = {};
-
-        if (! (n < low)) goto _ternary_false_0;
-        _ternary_true_0: { _2 = low;
-                           _T0 = _2;
-                           goto _ternary_end_0;
-        }
-        _ternary_false_0: { if (! (n > high)) goto _ternary_false_1; }
-        _ternary_true_1: { _3 = high;
-                           _T1 = _3;
-                           goto _ternary_end_1;
-        }
-        _ternary_false_1: { _4 = n;
-                            _T1 = _4;
-        }
-        _ternary_end_1: { _5 = _T1;
-                          _T0 = _5;
-        }
-        _ternary_end_0: { _6 = _T0;
-                          return _6;
-        }
-    }
-
     //==============================================================================
     void soul__gain__SmoothedGainParameter___for__root__IPlugSOUL_DSP_gainStream___volume_f32 (soul__gain__SmoothedGainParameter___for__root__IPlugSOUL_DSP_gainStream___State& _state, float targetDB) noexcept
     {
@@ -1042,94 +948,6 @@ public:
         out_value_out = out_value_out + (_2 * Vector<float, 2> (_3));
         _state.m__resumePoint = 1;
         _io.m__out_out = out_value_out;
-    }
-
-    //==============================================================================
-    void soul___filters__biquad__setNormalised (soul___filters__biquad__Coeffs& c, soul___filters__biquad__Coeffs v) noexcept
-    {
-        c = v;
-    }
-
-    //==============================================================================
-    void soul___filters__onepole__update (soul___filters__biquad__Coeffs& c, double sampleRate, int32_t mode, double freqHz) noexcept
-    {
-        soul___filters__biquad__Coeffs nc = {};
-        double theta = {}, gamma = {}, gamma_2 = {}, w = {}, alpha = {};
-        double _2 = {}, _3 = {}, _4 = {}, _5 = {}, _6 = {};
-
-        nc = ZeroInitialiser();
-        nc.m_a[0] = 1.0;
-        theta = static_cast<double> (6.283185307179586 * (freqHz / sampleRate));
-        if (! (mode == 0)) goto _ifnot_0;
-        _if_0: { _2 = std::cos (static_cast<double> (theta));
-                 _3 = std::sin (static_cast<double> (theta));
-                 gamma = static_cast<double> (_2 / (1.0 + _3));
-                 nc.m_b[0] = (1.0 - static_cast<double> (gamma)) / 2.0;
-                 nc.m_b[1] = (1.0 - static_cast<double> (gamma)) / 2.0;
-                 nc.m_a[1] = static_cast<double> (-gamma);
-                 goto _ifend_0;
-        }
-        _ifnot_0: { if (! (mode == 1)) goto _ifnot_1; }
-        _if_1: { _4 = std::cos (static_cast<double> (theta));
-                 _5 = std::sin (static_cast<double> (theta));
-                 gamma_2 = static_cast<double> (_4 / (1.0 + _5));
-                 nc.m_b[0] = (1.0 + static_cast<double> (gamma_2)) / 2.0;
-                 nc.m_b[1] = (-(1.0 + static_cast<double> (gamma_2))) / 2.0;
-                 nc.m_a[1] = static_cast<double> (-gamma_2);
-                 goto _ifend_0;
-        }
-        _ifnot_1: { if (! (mode == 2)) goto _ifend_0; }
-        _if_2: { _6 = std::tan (static_cast<double> (theta * 0.5));
-                 w = static_cast<double> (_6);
-                 alpha = (w - 1.0) / (w + 1.0);
-                 nc.m_b[0] = static_cast<double> (alpha);
-                 nc.m_b[1] = 1.0;
-                 nc.m_a[1] = static_cast<double> (alpha);
-        }
-        _ifend_0: { soul___filters__biquad__setNormalised (c, nc); }
-    }
-
-    //==============================================================================
-    void soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter___modeIn_f32 (soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter___State& _state, float v) noexcept
-    {
-        _state.m_mode = static_cast<int32_t> (v);
-        _state.m_recalc = true;
-    }
-
-    void soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter__run (soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter___State& _state, soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter___IO& _io) noexcept
-    {
-        int32_t _resumePoint = {};
-        double _2 = {};
-        double clippedFrequency = {};
-        float _3 = {};
-
-        _resumePoint = _state.m__resumePoint;
-        if (_resumePoint == 1) goto _resume_point_1;
-        _block_0: { _state.m_s = ZeroInitialiser();
-                    _state.m_c = ZeroInitialiser();
-        }
-        _body_0: { if (! _state.m_recalc) goto _ifnot_0; }
-        _if_0: { _state.m_recalc = false;
-                 _2 = soul__intrinsics___clamp_specialised (static_cast<double> (_state.m_frequency), 5.0, (sampleRate * 1.0) * 0.49);
-                 clippedFrequency = static_cast<double> (_2);
-                 soul___filters__onepole__update (_state.m_c, (sampleRate * 1.0), _state.m_mode, static_cast<double> (clippedFrequency));
-        }
-        _ifnot_0: { _state.m_counter_1 = 16; }
-        _loop_1: { if (! (_state.m_counter_1 > 0)) goto _body_0; }
-        _body_1: { _3 = 0;
-                   _state.m__resumePoint = 1;
-                   return;
-        }
-        _resume_point_1: { _state.m_counter_1 = _state.m_counter_1 - 1;
-                           goto _loop_1;
-        }
-    }
-
-    void soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter___initialise (soul___filters__onepole__Processor___for__root__IPlugSOUL_DSP_filter___State& _state) noexcept
-    {
-        _state.m_frequency = 1000.0f;
-        _state.m_mode = 0;
-        _state.m_recalc = true;
     }
 
     //==============================================================================

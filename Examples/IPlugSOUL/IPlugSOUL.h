@@ -7,6 +7,7 @@ const int kNumPresets = 1;
 
 using namespace iplug;
 using namespace igraphics;
+using DSP = IPlugSOUL_DSP;
 
 class IPlugSOUL final : public Plugin
 {
@@ -18,9 +19,9 @@ public:
   void OnReset() override;
   void OnParamChange(int paramIdx) override;
   
-  IPlugSOUL_DSP mDSP;
+  DSP mDSP;
   int mSessionID = 0;
-  IPlugQueue<int> mParamsToUpdate {IPlugSOUL_DSP::numParameters};
-  std::vector<IPlugSOUL_DSP::Parameter> mSOULParams;
+  IPlugQueue<int> mParamsToUpdate {DSP::numParameters};
+  std::vector<DSP::Parameter> mSOULParams;
 #endif
 };
