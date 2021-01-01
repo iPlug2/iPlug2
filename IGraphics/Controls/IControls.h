@@ -383,7 +383,7 @@ protected:
   bool mTrackClipsHandle = true;
 };
 
-/** a vector plot to display functions and waveforms **/
+/** A vector plot to display functions and waveforms */
 class IVPlotControl : public IControl
                     , public IVectorBase
 {
@@ -433,7 +433,7 @@ protected:
   std::vector<float> mPoints;
 };
 
-/** A control to draw a rectangle around a named IControl group **/
+/** A control to draw a rectangle around a named IControl group */
 class IVGroupControl : public IControl
                      , public IVectorBase
 {
@@ -461,7 +461,7 @@ protected:
   float mLabelPadding = 10.f;
 };
 
-/** A panel control which can be styled with emboss etc. **/
+/** A panel control which can be styled with emboss etc. */
 class IVPanelControl : public IControl
                      , public IVectorBase
 {
@@ -495,7 +495,7 @@ public:
   IVECTORBASE_SETPROPERTIES ("IVPanelControl")
 };
 
-/** A control to show a colour swatch of up to 9 colous. **/
+/** A control to show a colour swatch of up to 9 colous. */
 class IVColorSwatchControl : public IControl
                            , public IVectorBase
 {

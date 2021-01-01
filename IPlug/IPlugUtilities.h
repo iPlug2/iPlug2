@@ -105,44 +105,44 @@ static inline double AmpToDB(double amp)
   return AMP_DB * std::log(std::fabs(amp));
 }
 
-/** \todo  
- * @param version \todo
- * @param ver \todo
- * @param maj \todo
- * @param min \todo */
-static inline void GetVersionParts(int version, int& ver, int& maj, int& min)
+/** Helper function to unpack the version number parts as individual integers
+ * @param versionInteger The version number packed into an integer
+ * @param maj The major version
+ * @param min The minor version
+ * @param pat The patch version */
+static inline void GetVersionParts(int versionInteger, int& maj, int& min, int& pat)
 {
-  ver = (version & 0xFFFF0000) >> 16;
-  maj = (version & 0x0000FF00) >> 8;
-  min = version & 0x000000FF;
+  maj = (versionInteger & 0xFFFF0000) >> 16;
+  min = (versionInteger & 0x0000FF00) >> 8;
+  pat = versionInteger & 0x000000FF;
 }
 
-/** \todo  
- * @param version \todo
- * @return int \todo */
-static inline int GetDecimalVersion(int version)
+/** Helper function to get the version number as a decimal integer
+ * @param versionInteger The version number packed into an integer
+ * @return int Decimal version */
+static inline int GetDecimalVersion(int versionInteger)
 {
-  int ver, rmaj, rmin;
-  GetVersionParts(version, ver, rmaj, rmin);
-  return 10000 * ver + 100 * rmaj + rmin;
+  int maj, min, pat;
+  GetVersionParts(versionInteger, maj, min, pat);
+  return 10000 * maj + 100 * min + pat;
 }
 
-/** \todo 
- * @param version \todo
- * @param str \todo */
-static inline void GetVersionStr(int version, WDL_String& str)
+/** Helper function to get the semantic version number as a string from an integer
+ * @param versionInteger The version number packed into an integer
+ * @param str WDL_String to be populated with the version number in MAJOR.MINOR.PATCH format as a string */
+static inline void GetVersionStr(int versionInteger, WDL_String& str)
 {
-  int ver, rmaj, rmin;
-  GetVersionParts(version, ver, rmaj, rmin);
-  str.SetFormatted(MAX_VERSION_STR_LEN, "v%d.%d.%d", ver, rmaj, rmin);
+  int maj, min, pat;
+  GetVersionParts(versionInteger, maj, min, pat);
+  str.SetFormatted(MAX_VERSION_STR_LEN, "v%d.%d.%d", maj, min, pat);
 }
 
-/** \todo  
- * @tparam SRC 
- * @tparam DEST 
- * @param pDest \todo
- * @param pSrc \todo
- * @param n \todo */
+/** Helper function to  loop through a buffer of samples copying and casting from e.g float to double
+ * @tparam SRC The source type
+ * @tparam DEST The destination type
+ * @param pDest Ptr to the destination buffer
+ * @param pSrc Ptr to the source buffer
+ * @param n The number of or elements in the buffer */
 template <class SRC, class DEST>
 void CastCopy(DEST* pDest, SRC* pSrc, int n)
 {

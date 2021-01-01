@@ -18,6 +18,7 @@
 #include "SkPath.h"
 #include "SkCanvas.h"
 #include "SkImage.h"
+#include "GrDirectContext.h"
 #pragma warning( pop )
 
 BEGIN_IPLUG_NAMESPACE
@@ -152,7 +153,7 @@ private:
 #endif
   
 #ifndef IGRAPHICS_CPU
-  sk_sp<GrContext> mGrContext;
+  sk_sp<GrDirectContext> mGrContext;
   sk_sp<SkSurface> mScreenSurface;
 #endif
   

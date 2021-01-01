@@ -376,7 +376,7 @@ APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, int scale, do
     nvgEndFrame(mVG);
   }
   
-  APIBitmap* pAPIBitmap =  new Bitmap(this, mVG, width, height, scale, drawScale);
+  APIBitmap* pAPIBitmap = new Bitmap(this, mVG, width, height, scale, drawScale);
 
   if (mInDraw)
   {

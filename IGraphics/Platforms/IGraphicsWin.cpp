@@ -652,7 +652,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         pGraphics->Draw(rects);
 
         #ifdef IGRAPHICS_GL
-        SwapBuffers((HDC) pGraphics->mPlatformContext);
+        SwapBuffers((HDC) pGraphics->GetPlatformContext());
         pGraphics->DeactivateGLContext();
         #endif
 
@@ -1088,7 +1088,7 @@ void IGraphicsWin::ActivateGLContext()
 
 void IGraphicsWin::DeactivateGLContext()
 {
-  ReleaseDC(mPlugWnd, (HDC) mPlatformContext);
+  ReleaseDC(mPlugWnd, (HDC) GetPlatformContext());
   wglMakeCurrent(mStartHDC, mStartHGLRC); // return current ctxt to start
 }
 #endif
@@ -1644,7 +1644,6 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
       ofn.Flags |= OFN_OVERWRITEPROMPT;
       rc = GetSaveFileNameW(&ofn);
       break;
-            
     case EFileAction::Open:
       default:
       ofn.Flags |= OFN_FILEMUSTEXIST;

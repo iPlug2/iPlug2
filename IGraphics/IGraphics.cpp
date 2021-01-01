@@ -448,15 +448,15 @@ void IGraphics::ShowFPSDisplay(bool enable)
 
 IControl* IGraphics::GetControlWithTag(int ctrlTag) const
 {
-  IControl* pControl = mCtrlTags.at(ctrlTag);
-  
-  if(pControl != nullptr)
+  const auto it = mCtrlTags.find(ctrlTag);
+
+  if (it != mCtrlTags.end())
   {
-    return pControl;
+    return it->second;
   }
   else
   {
-    assert(pControl && "There is no control attached with this tag");
+    assert("There is no control attached with this tag");
     return nullptr;
   }
 }
@@ -1475,7 +1475,6 @@ void IGraphics::PopupHostContextMenuForParam(int controlIdx, int paramIdx, float
 void IGraphics::OnGUIIdle()
 {
   TRACE
-
   ForAllControls(&IControl::OnGUIIdle);
 }
 
@@ -1567,17 +1566,12 @@ ISVG IGraphics::LoadSVG(const char* name, const void* pData, int dataSize, const
   if (!pHolder)
   {
     sk_sp<SkSVGDOM> svgDOM;
-    bool success = false;
     SkDOM xmlDom;
 
     SkMemoryStream svgStream(pData, dataSize);
-    success = xmlDom.build(svgStream) != nullptr;
-
-    if (success)
-      svgDOM = SkSVGDOM::MakeFromDOM(xmlDom);
-    success = svgDOM != nullptr;
-
-    if (!success)
+    svgDOM = SkSVGDOM::MakeFromStream(svgStream);
+    
+    if (!svgDOM)
       return ISVG(nullptr); // return invalid SVG
 
     // If an SVG doesn't have a container size, SKIA doesn't seem to have access to any meaningful size info.
@@ -2399,10 +2393,8 @@ void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::funct
 }
 #endif
 
-  void IGraphics::DrawRotatedBitmap(const IBitmap& bitmap, float destCtrX, float destCtrY, double angle, int yOffsetZeroDeg, const IBlend* pBlend)
+  void IGraphics::DrawRotatedBitmap(const IBitmap& bitmap, float destCtrX, float destCtrY, double angle, const IBlend* pBlend)
   {
-    //TODO: offset support
-    
     float width = bitmap.W() / bitmap.GetDrawScale();
     float height = bitmap.H() / bitmap.GetDrawScale();
     

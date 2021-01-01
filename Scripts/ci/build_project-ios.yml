@@ -55,7 +55,7 @@ steps:
       scheme: 'iOS-APP with AUv3'
       args: '-xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-ios.xcconfig'
       configuration: 'Release'
-      xcodeVersion: '10'
+      xcodeVersion: '11'
     displayName: Build ${{parameters.name}}
 
   # - bash: |

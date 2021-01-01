@@ -53,9 +53,8 @@ void IPluginBase::GetPluginVersionStr(WDL_String& str) const
 int IPluginBase::GetHostVersion(bool decimal) const
 {
   if (decimal)
-  {
     return GetDecimalVersion(mHostVersion);
-  }
+
   return mHostVersion;
 }
 
@@ -84,10 +83,12 @@ const char* IPluginBase::GetArchStr() const
 {
 #if defined OS_WEB
   return "WASM";
+#elif defined __aarch64__
+  return "arm64";
 #elif defined ARCH_64BIT
-  return "x64";
+  return "x86-64";
 #else
-  return "x86";
+  return "x86-32";
 #endif
 }
 

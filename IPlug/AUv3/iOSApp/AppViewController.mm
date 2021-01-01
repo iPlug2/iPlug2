@@ -42,11 +42,8 @@
 
 #if PLUG_HAS_UI
   NSString* storyBoardName = [NSString stringWithFormat:@"%s-iOS-MainInterface", PLUG_NAME];
-
   UIStoryboard* storyboard = [UIStoryboard storyboardWithName:storyBoardName bundle: nil];
-
   iplugViewController = [storyboard instantiateViewControllerWithIdentifier:@"main"];
-
   [self addChildViewController:iplugViewController];
 #endif
   
@@ -107,7 +104,6 @@
 {
 #if PLUG_HAS_UI
   UIView* view = iplugViewController.view;
-#endif
   view.frame = auView.bounds;
   [auView addSubview: view];
 
@@ -118,6 +114,7 @@
 
   constraints = [NSLayoutConstraint constraintsWithVisualFormat: @"V:|[view]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(view)];
   [auView addConstraints: constraints];
+#endif
 }
 
 - (UIRectEdge) preferredScreenEdgesDeferringSystemGestures

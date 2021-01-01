@@ -81,7 +81,7 @@ private:
   // IConnectionPoint
   Steinberg::tresult PLUGIN_API notify(Steinberg::Vst::IMessage* message) override;
   
-  Steinberg::Vst::ParameterChanges mOutputParamChanges;
+//  Steinberg::Vst::ParameterChanges mOutputParamChanges;
   IMidiQueue mMidiOutputQueue;
 };
 
