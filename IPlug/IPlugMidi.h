@@ -217,7 +217,7 @@ struct IMidiMsg
     mOffset = offset;
   }
   
-  /** Create a MIDI AfterTouch message to set data for the pressure that occurs after a key is struck, this message is specific to each key unlike an AfterTouch message.
+  /** Create a Poly AfterTouch message
    * @param noteNumber Note number
    * @param pressure Range [0, 127]
    * @param offset Sample offset in block

@@ -154,8 +154,7 @@ public:
       g.PathArc(centerX, centerY, radius + width * 0.5f, endAngle, startAngle, EWinding::CW);
       g.PathClose();
     }
-          
-      
+    
     IFillOptions fillOptions;
     fillOptions.mFillRule = value > 0.5 ? EFillRule::EvenOdd : EFillRule::Winding;
     fillOptions.mPreserve = true;

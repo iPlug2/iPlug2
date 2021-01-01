@@ -1644,7 +1644,6 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
       ofn.Flags |= OFN_OVERWRITEPROMPT;
       rc = GetSaveFileNameW(&ofn);
       break;
-            
     case EFileAction::Open:
       default:
       ofn.Flags |= OFN_FILEMUSTEXIST;

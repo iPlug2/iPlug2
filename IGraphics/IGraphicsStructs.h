@@ -167,7 +167,7 @@ struct ISVG
   {
   }
   
-  /** \todo */
+  /** The width of the SVG */
   float W() const
   {
     if (mSVGDom)
@@ -176,7 +176,7 @@ struct ISVG
       return 0;
   }
   
-  /** \todo */
+  /** The height of the SVG */
   float H() const
   {
     if (mSVGDom)
@@ -198,7 +198,7 @@ struct ISVG
     mImage = pImage;
   }
   
-  /** \todo */
+  /** @return The width of the SVG */
   float W() const
   {
     if (mImage)
@@ -207,7 +207,7 @@ struct ISVG
       return 0;
   }
 
-  /** \todo */
+  /** @return The height of the SVG */
   float H() const
   {
     if (mImage)
@@ -223,27 +223,36 @@ struct ISVG
 };
 #endif
 
-/** Used to manage color data, independent of draw class/platform. */
+/** Used to manage color data, independent of draw class/platform */
 struct IColor
 {
   int A, R, G, B;
   
+    /** Create an IColor 
+   * @param a Alpha value (valid range 0-255)
+   * @param r Red value (valid range 0-255)
+   * @param g Green value (valid range 0-255)
+   * @param b Blue value (valid range 0-255) */
   IColor(int a = 255, int r = 0, int g = 0, int b = 0) : A(a), R(r), G(g), B(b) {}
 
   bool operator==(const IColor& rhs) { return (rhs.A == A && rhs.R == R && rhs.G == G && rhs.B == B); }
-  
   bool operator!=(const IColor& rhs) { return !operator==(rhs); }
   
+  /** Set the color parts 
+   * @param a Alpha value (valid range 0-255)
+   * @param r Red value (valid range 0-255)
+   * @param g Green value (valid range 0-255)
+   * @param b Blue value (valid range 0-255) */
   void Set(int a = 255, int r = 0, int g = 0, int b = 0) { A = a; R = r; G = g; B = b; }
   
-  /** \todo */
+  /** @return \c true if all color parts are zero */
   bool Empty() const { return A == 0 && R == 0 && G == 0 && B == 0; }
   
-  /** \todo */
+  /** Keep the member int variables within the range 0-255 */
   void Clamp() { A = Clip(A, 0, 255); R = Clip(R, 0, 255); G = Clip(G, 0, 255); B = Clip(B, 0, 255); }
   
-  /** \todo 
-   * @param alpha */
+  /** Randomise the color parts, with optional alpha 
+   * @param alpha Set the alpha of the new random color */
   void Randomise(int alpha = 255) { A = alpha; R = std::rand() % 255; G = std::rand() % 255; B = std::rand() % 255; }
 
   /** Set the color's opacity/alpha component with a float
@@ -303,10 +312,10 @@ struct IColor
   }
 
   /** Get the Hue, Saturation and Luminance of the color
-* @param h hue value to set, output in the range 0. to 1. 
-* @param s saturation value to set, output in the range 0. to 1. 
-* @param l luminance value to set, output in the range 0. to 1. 
-* @param a alpha value to set, output in the range 0. to 1. */
+  * @param h hue value to set, output in the range 0. to 1. 
+  * @param s saturation value to set, output in the range 0. to 1. 
+  * @param l luminance value to set, output in the range 0. to 1. 
+  * @param a alpha value to set, output in the range 0. to 1. */
   void GetHSLA(float& h, float& s, float& l, float& a) const
   {
     const float fR = R / 255.f;
@@ -345,9 +354,9 @@ struct IColor
     return (min + max) / 2;
   };
   
-  /** \todo 
-   * @param randomAlpha \todo
-   * @return IColor \todo */
+  /** Get a random IColor
+   * @param randomAlpha Set true if you want a random alpha value too
+   * @return IColor A new IColor with a random combination of ARGB values */
   static IColor GetRandomColor(bool randomAlpha = false)
   {
     int A = randomAlpha ? std::rand() & 0xFF : 255;
@@ -422,11 +431,13 @@ struct IColor
     }
   }
   
+  /** Convert the IColor to a single int (no alpha) */
   int ToColorCode() const
   {
     return (R << 16) | (G << 8) | B;
   }
   
+  /** Convert the IColor to a hex string e.g. "#ffffffff" */
   void ToColorCodeStr(WDL_String& str) const
   {
     str.SetFormatted(32, "#%02x%02x%02x%02x", R, G, B, A);
@@ -466,10 +477,10 @@ struct IColor
     return col;
   }
 
-  /** \todo 
-   * @param start \todo
-   * @param dest \todo
-   * @param progress \todo */
+  /** Helper function to linear interpolate between two IColors
+   * @param start Start IColor
+   * @param dest End IColor
+   * @param progress The normalized interpolation point */
   static IColor LinearInterpolateBetween(const IColor& start, const IColor& dest, float progress)
   {
     IColor result;
@@ -545,9 +556,9 @@ struct IBlend
   {}
 };
 
-/** \todo 
- * @param pBlend \todo
- * @return float \todo */
+/** Helper function to extract the blend weight value from an IBlend ptr if it is valid
+ * @param pBlend ptr to an IBlend or nullptr
+ * @return float The blend weight value  */
 inline float BlendWeight(const IBlend* pBlend)
 {
   return (pBlend ? pBlend->mWeight : 1.0f);
@@ -583,31 +594,35 @@ struct IStrokeOptions
   class DashOptions
   {
   public:
-
+    /** Create a new empty DashOptions */
     DashOptions()
     : mCount(0)
     , mOffset(0)
     {}
 
+    /** Create a new DashOptions
+     * @param array Ptr to the float values/value for the length of the dashes (maximum of 8 floats) 
+     * @param offset The offset into the stroke where the dash should start
+     * @param count The length of the array passed in the first argument */
     DashOptions(float* array, float offset, int count)
     {
       SetDash(array, offset, count);
     }
 
-    /** @return int \todo */
+    /** @return int The length of the dash array */
     int GetCount() const { return mCount; }
 
-    /** @return float  \todo */
+    /** @return float The offset into the stroke where the dash starts */
     float GetOffset() const { return mOffset; }
 
-    /** @return float* \todo */
+    /** @return float* Ptr to the dash array */
     const float* GetArray() const { return mArray; }
 
-    /** \todo 
-     * @param array \todo
-     * @param offset \todo
-     * @param count \todo */
-    void SetDash(float* array, float offset, int count)
+    /** Set the dash array 
+     * @param array Ptr to the float values/value for the length of the dashes (maximum of 8 floats) 
+     * @param offset The offset into the stroke where the dash should start
+     * @param count The length of the array passed in the first argument */
+    void SetDash(float* pArray, float offset, int count)
     {
       assert(count >= 0 && count <= 8);
 
@@ -615,7 +630,7 @@ struct IStrokeOptions
       mOffset = offset;
 
       for (int i = 0; i < count; i++)
-        mArray[i] = array[i];
+        mArray[i] = pArray[i];
     }
 
   private:
@@ -631,6 +646,7 @@ struct IStrokeOptions
   DashOptions mDash;
 };
 
+/** Helper to get a CString based on ETextStyle */
 static const char* TextStyleString(ETextStyle style)
 {
   switch (style)
@@ -643,21 +659,21 @@ static const char* TextStyleString(ETextStyle style)
   }
 }
 
-/** Used to manage font and text/text entry style for a piece of text on the UI, independent of draw class/platform.*/
+/** IText is used to manage font and text/text entry style for a piece of text on the UI, independent of draw class/platform.*/
 struct IText
 {
-  /** \todo 
-   * @param size \todo
-   * @param color \todo
-   * @param font \todo
-   * @param align \todo
-   * @param valign \todo
-   * @param angle \todo
-   * @param TEBGColor \todo
-   * @param TEFGColor \todo */
+  /** Create a new IText with size, color, fontID ...
+   * @param size The size of the text
+   * @param color The color of the text
+   * @param font CString for the font name or nullptr for DEFAULT_FONT 
+   * @param align Horizontal alignment
+   * @param valign Vertical alignment
+   * @param angle Angle of the text in in degrees clockwise where 0 is normal, horizontal
+   * @param TEBGColor Background color for text entry
+   * @param TEFGColor Foreground color for text entry */
   IText(float size = DEFAULT_TEXT_SIZE,
         const IColor& color = DEFAULT_TEXT_FGCOLOR,
-        const char* font = nullptr,
+        const char* fontID = nullptr,
         EAlign align = EAlign::Center,
         EVAlign valign = EVAlign::Middle,
         float angle = 0,
@@ -671,12 +687,13 @@ struct IText
     , mTextEntryBGColor(TEBGColor)
     , mTextEntryFGColor(TEFGColor)
   {
-    strcpy(mFont, (font ? font : DEFAULT_FONT));
+    strcpy(mFont, (fontID ? fontID : DEFAULT_FONT));
   }
 
-  /** \todo 
-    * @param size \todo
-    * @param valign \todo */
+  /** Create a new IText with size, vertical align, color
+   * @param size The size of the text
+   * @param valign Vertical alignment
+   * @param color The color of the text */
   IText(float size, EVAlign valign, const IColor& color = DEFAULT_TEXT_FGCOLOR)
   : IText()
   {
@@ -685,9 +702,10 @@ struct IText
     mFGColor = color;
   }
   
-  /** \todo 
-   * @param size \todo
-   * @param align \todo */
+  /** Create a new IText with size, horizontal align, color
+   * @param size The size of the text
+   * @param align Horizontal alignment
+   * @param color The color of the text */
   IText(float size, EAlign align, const IColor& color = DEFAULT_TEXT_FGCOLOR)
   : IText()
   {
@@ -696,11 +714,14 @@ struct IText
     mFGColor = color;
   }
   
-  IText(float size, const char* font)
+  /** Create a new IText with size and fontID
+   * @param size The size of the text
+   * @param fontID CString used to identify the font */
+  IText(float size, const char* fontID)
   : IText()
   {
     mSize = size;
-    strcpy(mFont, (font ? font : DEFAULT_FONT));
+    strcpy(mFont, (fontID ? fontID : DEFAULT_FONT));
   }
   
   IText WithFGColor(const IColor& fgColor) const { IText newText = *this; newText.mFGColor = fgColor; return newText; }
@@ -709,7 +730,7 @@ struct IText
   IText WithVAlign(EVAlign valign) const { IText newText = *this; newText.mVAlign = valign; return newText; }
   IText WithSize(float size) const { IText newText = *this; newText.mSize = size; return newText; }
   IText WithAngle(float v) const { IText newText = *this; newText.mAngle = v; return newText; }
-  IText WithFont(const char* font) const { IText newText = *this; strcpy(newText.mFont, (font ? font : DEFAULT_FONT));; return newText; }
+  IText WithFont(const char* fontID) const { IText newText = *this; strcpy(newText.mFont, (fontID ? fontID : DEFAULT_FONT));; return newText; }
   
   char mFont[FONT_LEN];
   float mSize;
@@ -1502,7 +1523,7 @@ struct IRECT
    * @param t Top offset
    * @param r Right offset
    * @param b Bottom offset */
-  void Alter(float l, float t, float r, float b)
+  void Offset(float l, float t, float r, float b)
   {
     L += l;
     T += t;
@@ -1510,13 +1531,13 @@ struct IRECT
     B += b;
   }
   
-  /** Get a copy of this rectangle where each field is offset
+  /** Get a copy of this rectangle where each field is offset by a specified amount
    * @param l Left offset
    * @param t Top offset
    * @param r Right offset
    * @param b Bottom offset
    * @return IRECT the new rectangle */
-  IRECT GetAltered(float l, float t, float r, float b) const
+  IRECT GetOffset(float l, float t, float r, float b) const
   {
     return IRECT(L + l, T + t, R + r, B + b);
   }
@@ -1723,40 +1744,40 @@ public:
   IRECTList(const IRECTList&) = delete;
   IRECTList& operator=(const IRECTList&) = delete;
 
-  /** \todo
-   * @return int \todo */
+  /** @return int The number of rectangles in the list */
   int Size() const { return mRects.GetSize(); }
   
-  /** \todo 
-   * @param rect \todo */
-  void Add(const IRECT rect)
+  /** Add a rectangle to the list
+   * @param rect The IRECT to add */
+  void Add(const IRECT& rect)
   {
     mRects.Add(rect);
   }
   
-  /** \todo 
-   * @param idx \todo
-   * @param rect \todo */
-  void Set(int idx, const IRECT rect)
+  /** Set a specific rectangle in the list (will crash if idx is invalid)
+   * @param idx The index to set
+   * @param rect The new IRECT */
+  void Set(int idx, const IRECT& rect)
   {
     *(mRects.GetFast() + idx) = rect;
   }
   
-  /** \todo 
-   * @param idx \todo
-   * @return const IRECT& \todo */
+  /** Get an IRECT from the list (will crash if idx is invalid)
+   * @param idx The index to get
+   * @return const IRECT& The IRECT at idx */
   const IRECT& Get(int idx) const
   {
     return *(mRects.GetFast() + idx);
   }
   
-  /** \todo */
+  /** Clear the list */
   void Clear()
   {
     mRects.Resize(0);
   }
   
-  /** \todo * @return IRECT \todo */
+  /** Get a union of all rectangles in the list
+   * @return IRECT Union of all rectangles in the list */
   IRECT Bounds()
   {
     IRECT r = Get(0);
@@ -1765,7 +1786,7 @@ public:
     return r;
   }
   
-  /** \todo */
+  /** Align the rectangles to pixel boundaries */
   void PixelAlign()
   {
     for (auto i = 0; i < Size(); i++)
@@ -1776,8 +1797,8 @@ public:
     }
   }
 
-  /** \todo 
-   * @param scale \todo */
+  /** Pixel-align the IRECTs at the given scale factor then scale them back down
+   * @param scale Scale value for the alignment */
   void PixelAlign(float scale)
   {
     for (auto i = 0; i < Size(); i++)
@@ -1803,13 +1824,12 @@ public:
     return -1;
   }
   
-  /** \todo 
-   * @param input \todo
-   * @param rects \todo
-   * @param rowFractions \todo
-   * @param colFractions \todo
-   * @return true \todo
-   * @return false \todo */
+  /** Fill an IRECTList with divions of row and column divisions of an input IRECT 
+   * @param input The input rectangle
+   * @param rects The output IRECTList
+   * @param rowFractions Initializer list of fractions for the grid rows (should sum to 1.0)
+   * @param colFractions Initializer list of fractions for the grid columns (should sum to 1.0)
+   * @return \c true if the row and column fractions summed to 1.0, and grid creation was successful */
   static bool GetFracGrid(const IRECT& input, IRECTList& rects, const std::initializer_list<float>& rowFractions, const std::initializer_list<float>& colFractions)
   {
     IRECT rowsLeft = input;
@@ -1845,10 +1865,9 @@ public:
     return true;
   }
   
-  /** \todo  */
+  /** Remove rects that are contained by other rects and intersections and merge any rects that can be merged */
   void Optimize()
   {
-    // Remove rects that are contained by other rects and intersections
     for (int i = 0; i < Size(); i++)
     {
       for (int j = i + 1; j < Size(); j++)
@@ -1880,7 +1899,6 @@ public:
       }
     }
     
-    // Merge any rects that can be merged
     for (int i = 0; i < Size(); i++)
     {
       for (int j = i + 1; j < Size(); j++)
@@ -1947,45 +1965,45 @@ private:
   WDL_TypedBuf<IRECT> mRects;
 };
 
-/** Used to store transformation matrices **/
+/** Used to store transformation matrices */
 struct IMatrix
 {
-  /** \todo 
-   * @param xx \todo
-   * @param yx \todo
-   * @param xy \todo
-   * @param yy \todo
-   * @param tx \todo
-   * @param ty \todo */
+  /** Create an IMatrix, specifying the values
+   * @param xx xx component of the affine transformation
+   * @param yx yx component of the affine transformation
+   * @param xy xy component of the affine transformation
+   * @param yy yy component of the affine transformation
+   * @param tx X translation component of the affine transformation
+   * @param ty Y translation component of the affine transformation */
   IMatrix(double xx, double yx, double xy, double yy, double tx, double ty)
   : mXX(xx), mYX(yx), mXY(xy), mYY(yy), mTX(tx), mTY(ty)
   {}
   
-  /** \todo */
+  /** Create an identity matrix */
   IMatrix() : IMatrix(1.0, 0.0, 0.0, 1.0, 0.0, 0.0)
   {}
   
-  /** \todo 
-   * @param x \todo
-   * @param y \todo
-   * @return IMatrix& \todo */
+  /** Set the matrix for a translation transform
+   * @param x The translation for x values
+   * @param y The translation for y values
+   * @return IMatrix& The matrix */
   IMatrix& Translate(float x, float y)
   {
     return Transform(IMatrix(1.0, 0.0, 0.0, 1.0, x, y));
   }
   
-  /** \todo 
-   * @param x \todo
-   * @param y \todo
-   * @return IMatrix& \todo */
+  /** Set the matrix for a scale transform
+   * @param x The scale for x
+   * @param y The scale for y
+   * @return IMatrix& The matrix */
   IMatrix& Scale(float x, float y)
   {
     return Transform(IMatrix(x, 0.0, 0.0, y, 0.0, 0.0));
   }
   
-  /** \todo 
-   * @param a \todo
-   * @return IMatrix& \todo */
+  /** Set the matrix for a rotation transform
+   * @param a The angle of rotation in degrees
+   * @return IMatrix& The matrix */
   IMatrix& Rotate(float a)
   {
     const double rad = DegToRad(a);
@@ -1995,18 +2013,18 @@ struct IMatrix
     return Transform(IMatrix(c, s, -s, c, 0.0, 0.0));
   }
   
-  /** \todo 
-   * @param xa \todo
-   * @param ya \todo
-   * @return IMatrix& \todo */
+  /** Set the matrix for a skew transform
+   * @param xa The angle to skew x coordinates in degrees
+   * @param ya The angle to skew y coordinates in degrees
+   * @return IMatrix& The matrix */
   IMatrix& Skew(float xa, float ya)
   {
     return Transform(IMatrix(1.0, std::tan(DegToRad(ya)), std::tan(DegToRad(xa)), 1.0, 0.0, 0.0));
   }
   
-  /** \todo 
-   * @param x \todo
-   * @param y \todo
+  /** Transforms the point x, y  \todo
+   * @param x The x coordinate to transform
+   * @param y The y coordinate to transform
    * @param x0 \todo
    * @param y0 \todo */
   void TransformPoint(double& x, double& y, double x0, double y0) const
@@ -2015,9 +2033,9 @@ struct IMatrix
     y = x0 * mYX + y0 * mYY + mTY;
   };
   
-  /** \todo 
-   * @param x \todo
-   * @param y \todo */
+  /** Transforms the point x, y with the matrix
+   * @param x The x coordinate to transform
+   * @param y The y coordinate to transform */
   void TransformPoint(double& x, double& y) const
   {
     TransformPoint(x, y, x, y);
@@ -2026,7 +2044,7 @@ struct IMatrix
   /** \todo 
    * @param before \todo
    * @param after \todo
-   * @return IMatrix& \todo */
+   * @return IMatrix& The result of the transform */
   IMatrix& Transform(const IRECT& before, const IRECT& after)
   {
     const double sx = after.W() / before.W();
@@ -2037,9 +2055,9 @@ struct IMatrix
     return *this = IMatrix(sx, 0.0, 0.0, sy, tx, ty);
   }
   
-  /** \todo 
-   * @param m \todo
-   * @return IMatrix& \todo */
+  /** Transform this matrix with another 
+   * @param m The matrix with which to transform this one
+   * @return IMatrix& The result of the transform */
   IMatrix& Transform(const IMatrix& m)
   {
     IMatrix p = *this;
@@ -2054,8 +2072,8 @@ struct IMatrix
     return *this;
   }
   
-  /** \todo 
-   * @return IMatrix& \todo */
+  /** Changes the matrix to be the inverse of its original value
+   * @return IMatrix& The changed matrix */
   IMatrix& Invert()
   {
     IMatrix m = *this;
@@ -2075,16 +2093,16 @@ struct IMatrix
   double mXX, mYX, mXY, mYY, mTX, mTY;
 };
 
-/** Used to represent a point/stop in a gradient **/
+/** Used to represent a point/stop in a gradient */
 struct IColorStop
 {
   IColorStop()
   : mOffset(0.f)
   {}
   
-  /** \todo 
-   * @param color \todo
-   * @param offset \todo */
+  /** Create an IColor stop
+   * @param color The IColor for the stop
+   * @param offset The point in the gradient for the stop */
   IColorStop(IColor color, float offset)
   : mColor(color)
   , mOffset(offset)
@@ -2096,7 +2114,7 @@ struct IColorStop
   float mOffset;
 };
 
-/** Used to store pattern information for gradients **/
+/** Used to store pattern information for gradients */
 struct IPattern
 {
   EPatternType mType;
@@ -2105,27 +2123,27 @@ struct IPattern
   int mNStops;
   IMatrix mTransform;
   
-  /** \todo 
-   * @param type \todo */
+  /** Create an IPattern
+   * @param type The type of pattern, one of EPatternType */
   IPattern(EPatternType type)
   : mType(type), mExtend(EPatternExtend::Pad), mNStops(0)
   {}
   
-  /** \todo 
-   * @param color \todo */
+  /** Create an IPattern with a solid color fill
+   * @param color The color for the single stop */
   IPattern(const IColor& color)
   : mType(EPatternType::Solid), mExtend(EPatternExtend::Pad), mNStops(1)
   {
     mStops[0] = IColorStop(color, 0.0);
   }
   
-  /** \todo 
-   * @param x1 \todo
-   * @param y1 \todo
-   * @param x2 \todo
-   * @param y2 \todo
-   * @param stops \todo
-   * @return IPattern \todo */
+  /** Create a linear gradient IPattern 
+   * @param x1 The start x position 
+   * @param y1 The start y position 
+   * @param x2 The end x position
+   * @param y2 The end y position
+   * @param stops An initializer list of IColorStops for the stops
+   * @return IPattern The new IPattern */
   static IPattern CreateLinearGradient(float x1, float y1, float x2, float y2, const std::initializer_list<IColorStop>& stops = {})
   {
     IPattern pattern(EPatternType::Linear);
@@ -2154,11 +2172,11 @@ struct IPattern
     return pattern;
   }
   
-  /** \todo 
-   * @param bounds \todo
-   * @param direction \todo
-   * @param stops \todo
-   * @return IPattern \todo */
+  /** Create a linear gradient IPattern across a rectangular area
+   * @param bounds The rectangular area
+   * @param direction If the gradient should be horizontal or vertical
+   * @param stops An initializer list of IColorStops for the stops
+   * @return IPattern The new IPattern */
   static IPattern CreateLinearGradient(const IRECT& bounds, EDirection direction, const std::initializer_list<IColorStop>& stops = {})
   {
     float x1, y1, x2, y2;
@@ -2179,12 +2197,12 @@ struct IPattern
     return CreateLinearGradient(x1, y1, x2, y2, stops);
   }
   
-  /** \todo 
-   * @param x1 \todo
-   * @param y1 \todo
-   * @param r \todo
-   * @param stops \todo
-   * @return IPattern \todo */
+  /** Create a radial gradient IPattern 
+   * @param x1 The x position of the centre 
+   * @param y1 The y position of the centre 
+   * @param r The radius of the gradient
+   * @param stops An initializer list of IColorStops for the stops
+   * @return IPattern The new IPattern */
   static IPattern CreateRadialGradient(float x1, float y1, float r, const std::initializer_list<IColorStop>& stops = {})
   {
     IPattern pattern(EPatternType::Radial);
@@ -2199,6 +2217,13 @@ struct IPattern
     return pattern;
   }
 
+  /** Create a sweep gradient IPattern (SKIA only)
+   * @param x1 The x position of the centre 
+   * @param y1 The y position of the centre 
+   * @param stops An initializer list of IColorStops for the stops
+   * @param angleStart the start angle of the sweep at in degrees clockwise where 0 is up
+   * @param angleEnd the end angle of the sweep at in degrees clockwise where 0 is up
+   * @return IPattern The new IPattern */
   static IPattern CreateSweepGradient(float x1, float y1, const std::initializer_list<IColorStop>& stops = {},
     float angleStart = 0.f, float angleEnd = 360.f)
   {
@@ -2222,24 +2247,23 @@ struct IPattern
     return pattern;
   }
   
-  /** \todo 
-   * @return int \todo */
+  /** @return int The number of IColorStops in the IPattern */
   int NStops() const
   {
     return mNStops;
   }
   
-  /** \todo 
-   * @param idx \todo
-   * @return const IColorStop& \todo */
+  /** Get the IColorStop at a particular index (will crash if out of bounds)
+   * @param idx The index of the stop
+   * @return const IColorStop& The stop */
   const IColorStop& GetStop(int idx) const
   {
     return mStops[idx];
   }
   
-  /** \todo 
-   * @param color \todo
-   * @param offset \todo */
+  /** Add an IColorStop to the IPattern
+   * @param color The IColor
+   * @param offset The offset */
   void AddStop(IColor color, float offset)
   {
     assert(mType != EPatternType::Solid && mNStops < 16);
@@ -2248,20 +2272,20 @@ struct IPattern
       mStops[mNStops++] = IColorStop(color, offset);
   }
   
-  /** \todo 
-   * @param xx \todo
-   * @param yx \todo
-   * @param xy \todo
-   * @param yy \todo
-   * @param x0 \todo
-   * @param y0 \todo */
-  void SetTransform(float xx, float yx, float xy, float yy, float x0, float y0)
+  /** Set the affine transform for the IPattern with values 
+   * @param xx xx component of the affine transformation
+   * @param yx yx component of the affine transformation
+   * @param xy xy component of the affine transformation
+   * @param yy yy component of the affine transformation
+   * @param tx X translation component of the affine transformation
+   * @param ty Y translation component of the affine transformation */
+  void SetTransform(float xx, float yx, float xy, float yy, float tx, float ty)
   {
-    mTransform = IMatrix(xx, yx, xy, yy, x0, y0);
+    mTransform = IMatrix(xx, yx, xy, yy, tx, ty);
   }
   
-  /** \todo 
-   * @param transform \todo */
+  /** Set the affine transform for the IPattern with an IMatrix 
+   * @param transform The affine transform matrix */
   void SetTransform(const IMatrix& transform)
   {
     mTransform = transform;
@@ -2277,36 +2301,35 @@ class ILayer
   friend IGraphics;
   
 public:
-  /** \todo 
-   * @param pBitmap \todo
-   * @param r \todo
-   * @param pControl \todo
-   * @param cr \todo */
-  ILayer(APIBitmap* pBitmap, const IRECT& r, IControl* pControl, const IRECT& cr)
+  /** Create a layer/offscreen context (used internally)
+   * @param pBitmap The APIBitmap to use for the layer
+   * @param layerRect The bounds of the layer withing the graphics context
+   * @param pControl The control that the layer belongs to
+   * @param controlRect The bounds of the control */
+  ILayer(APIBitmap* pBitmap, const IRECT& layerRect, IControl* pControl, const IRECT& controlRect)
   : mBitmap(pBitmap)
   , mControl(pControl)
-  , mControlRECT(cr)
-  , mRECT(r)
+  , mControlRECT(controlRect)
+  , mRECT(layerRect)
   , mInvalid(false)
   {}
 
   ILayer(const ILayer&) = delete;
   ILayer operator=(const ILayer&) = delete;
   
-  /** \todo */
+  /** Mark the layer as needing its contents redrawn  */
   void Invalidate() { mInvalid = true; }
 
-  /**  @return const APIBitmap* \todo */
+  /**  @return const APIBitmap* The API bitmap for the layer */
   const APIBitmap* GetAPIBitmap() const { return mBitmap.get(); }
 
-  /** @return IBitmap \todo */
+  /** @return IBitmap An IBitmap to use the layer directly */
   IBitmap GetBitmap() const { return IBitmap(mBitmap.get(), 1, false); }
 
-  /** @return const IRECT& \todo*/
+  /** @return const IRECT& The bounds of the layer withing the graphics context */
   const IRECT& Bounds() const { return mRECT; }
   
 private:
-  
   std::unique_ptr<APIBitmap> mBitmap;
   IControl* mControl;
   IRECT mControlRECT;
@@ -2317,18 +2340,18 @@ private:
 /** ILayerPtr is a managed pointer for transferring the ownership of layers */
 using ILayerPtr = std::unique_ptr<ILayer>;
 
-/** Used to specify a gaussian drop-shadow. */
+/** Used to specify properties of a drop-shadow to a layer. Use with IGraphics::ApplyLayerDropShadow() */
 struct IShadow
 {
   IShadow() {}
 
-  /** \todo 
-   * @param pattern \todo
-   * @param blurSize \todo
-   * @param xOffset \todo
-   * @param yOffset \todo
-   * @param opacity \todo
-   * @param drawForeground \todo */
+  /** Create an IShadow 
+   * @param pattern The IPattern for the shadow
+   * @param blurSize The size of the gaussian blur in points
+   * @param xOffset Offset the shadow horizontally
+   * @param yOffset Offset the shadow vertically
+   * @param opacity The opacity of the shadow 
+   * @param drawForeground Should the layer contents be drawn, or just the shadow */
   IShadow(const IPattern& pattern, float blurSize, float xOffset, float yOffset, float opacity, bool drawForeground = true)
   : mPattern(pattern)
   , mBlurSize(blurSize)
@@ -2337,7 +2360,7 @@ struct IShadow
   , mOpacity(opacity)
   , mDrawForeground(drawForeground)
   {}
-    
+  
   IPattern mPattern = COLOR_BLACK;
   float mBlurSize = 0.f;
   float mXOffset = 0.f;
@@ -2351,11 +2374,13 @@ struct IVColorSpec
 {
   IColor mColors[kNumVColors];
   
+  /** @return The IColor for the EVColor in this ColorSpec */
   const IColor& GetColor(EVColor color) const
   {
     return mColors[(int) color];
   }
   
+  /** @return The default IColor for an EVColor */
   static const IColor& GetDefaultColor(EVColor idx)
   {
     switch(idx)
@@ -2374,11 +2399,14 @@ struct IVColorSpec
     };
   }
 
+  /** Create a new IVColorSpec object with default colors */
   IVColorSpec()
   {
     ResetColors();
   }
 
+  /** Create a new IVColorSpec object specifying the colors
+   * @param colors Initializer list of IColors */
   IVColorSpec(const std::initializer_list<IColor>& colors)
   {
     assert(colors.size() <= kNumVColors);
@@ -2390,16 +2418,16 @@ struct IVColorSpec
       mColors[i++] = c;
     }
     
-    for(;i < kNumVColors; i++)
+    for(; i<kNumVColors; i++)
     {
       mColors[i] = GetDefaultColor((EVColor) i);
     }
   }
   
-  /** Reset the colors to the defaults  */
+  /** Reset the colors to the defaults */
   void ResetColors()
   {
-    for (int i =0; i < kNumVColors; i++)
+    for (int i=0; i<kNumVColors; i++)
     {
       mColors[i] = GetDefaultColor((EVColor) i);
     }
@@ -2440,6 +2468,21 @@ struct IVStyle
   IText labelText = DEFAULT_LABEL_TEXT;
   IText valueText = DEFAULT_VALUE_TEXT;
   
+  /** Create a new IVStyle to configure common styling for IVControls
+   * @param showLabel Show the label
+   * @param showValue Show the value
+   * @param colors An IVColorSpec for the style
+   * @param labelText The IText for the label text style
+   * @param valueText The IText for the value text style
+   * @param hideCursor Should the cursor be hidden e.g. when dragging the control
+   * @param drawFrame Should the frame be drawn around the bounds of the control or around the handle, where relevant
+   * @param drawShadows Should there be a shadow beneath the control handle
+   * @param emboss Should the handle of the control be embossed
+   * @param roundness The roundness factor for the control's elements
+   * @param frameThickness The thickness of the controls frame elements
+   * @param shadowOffset The distance of the shadow from the foreground
+   * @param widgetFrac The fraction of the widget area (control area - label/value if shown) that the widget occupies
+   * @param angle The rotation angle in degrees of e.g. the handle/pointer on an IVSlider */
   IVStyle(bool showLabel = DEFAULT_SHOW_LABEL,
           bool showValue = DEFAULT_SHOW_VALUE,
           const IVColorSpec& colors = {DEFAULT_BGCOLOR, DEFAULT_FGCOLOR, DEFAULT_PRCOLOR, DEFAULT_FRCOLOR, DEFAULT_HLCOLOR, DEFAULT_SHCOLOR, DEFAULT_X1COLOR, DEFAULT_X2COLOR, DEFAULT_X3COLOR},
@@ -2471,6 +2514,8 @@ struct IVStyle
   {
   }
   
+  /** Create a new IVStyle based on a list of colors, and defaults for the other elements
+   * @param colors  */
   IVStyle(const std::initializer_list<IColor>& colors)
   : colorSpec(colors)
   {

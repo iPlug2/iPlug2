@@ -28,36 +28,13 @@
 #ifdef OS_IOS
 #pragma mark - iOS
 @implementation IPlugAUViewController
-
+#if PLUG_HAS_UI
 - (id) init
 {
   self = [super initWithNibName:@"IPlugAUViewController"
                          bundle:[NSBundle bundleForClass:NSClassFromString(@"IPlugAUViewController")]];
 
   return self;
-}
-
-- (AUAudioUnit*) createAudioUnitWithComponentDescription:(AudioComponentDescription) desc error:(NSError **)error
-{
-  self.audioUnit = [[IPlugAUAudioUnit alloc] initWithComponentDescription:desc error:error];
-
-  return self.audioUnit;
-}
-
-- (AUAudioUnit*) getAudioUnit
-{
-  return self.audioUnit;
-}
-
-- (void) audioUnitInitialized
-{
-  //No-op
-}
-
-- (void) setAudioUnit:(IPlugAUAudioUnit*) audioUnit
-{
-  _audioUnit = audioUnit;
-  [self audioUnitInitialized];
 }
 
 - (void) viewDidLoad
@@ -91,6 +68,37 @@
     [self.audioUnit closeWindow];
   }
 }
+#else // PLUG_HAS_UI==0
+
+- (void) beginRequestWithExtensionContext:(nonnull NSExtensionContext*) context
+{
+}
+
+#endif
+
+- (AUAudioUnit*) getAudioUnit
+{
+  return self.audioUnit;
+}
+
+- (void) audioUnitInitialized
+{
+  //No-op
+}
+
+- (void) setAudioUnit:(IPlugAUAudioUnit*) audioUnit
+{
+  _audioUnit = audioUnit;
+  [self audioUnitInitialized];
+}
+
+- (AUAudioUnit*) createAudioUnitWithComponentDescription:(AudioComponentDescription) desc error:(NSError **)error
+{
+  self.audioUnit = [[IPlugAUAudioUnit alloc] initWithComponentDescription:desc error:error];
+
+  return self.audioUnit;
+}
+
 @end
 
 #else // macOS
