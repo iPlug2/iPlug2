@@ -44,7 +44,7 @@ jobs:
       # curl -sSf -o rustup-init.exe https://win.rustup.rs
       # rustup-init.exe -y --default-toolchain stable
       # echo "##vso[task.setvariable variable=PATH;]%PATH%;%USERPROFILE%\.cargo\bin"
-      choco install llvm --version 9.0.0
+      choco install llvm --version 10.0.0
     displayName: Install LLVM
 
   - bash: |
@@ -112,15 +112,13 @@ jobs:
   condition: and(eq(variables.build_deps, true), eq(variables.build_mac, true))
 
   pool:
-    vmImage: 'macos-10.14'
+    vmImage: 'macOS-11.0'
   steps:
   - checkout: none
 
   - template: get_src_artifact.yml
 
   - bash: |
-      #tmp force cairo rebuild
-      rm -r ./Dependencies/Build/src/cairo
       cd ./Dependencies/IGraphics
       ./build-igraphics-libs-mac.sh
     displayName: Build Graphics Dependencies
@@ -129,16 +127,6 @@ jobs:
       cd ./Dependencies/IGraphics
       ./build-skia-mac.sh
     displayName: Build Skia
-
-  # - bash: |
-  #     curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
-  #     echo "##vso[task.setvariable variable=PATH;]$PATH:$HOME/.cargo/bin"
-  #   displayName: Install Rust
-
-  # - bash: |
-  #     cd ./Dependencies/IGraphics
-  #     ./build-resvg-mac.sh
-  #   displayName: Build Resvg
 
   - bash: |
       cd $BUILD_SOURCESDIRECTORY
@@ -172,7 +160,7 @@ jobs:
   condition: and(eq(variables.build_deps, true), eq(variables.build_ios, true))
 
   pool:
-    vmImage: 'macos-10.14'
+    vmImage: 'macOS-latest'
   steps:
   - checkout: none
 

@@ -32,7 +32,7 @@
 #ifndef SWELL_API_DEFINE
 
 
-#ifdef SWELL_PROVIDED_BY_APP
+#if defined(SWELL_PROVIDED_BY_APP) || defined(SWELL_LOAD_SWELL_DYLIB)
   #ifdef __cplusplus
     #define SWELL_API_DEFINE(ret,func,parms) extern "C" ret (*func)parms;
   #else
@@ -475,6 +475,7 @@ SWELL_API_DEFINE(HTREEITEM, TreeView_GetSelection,(HWND hwnd))
 SWELL_API_DEFINE(void, TreeView_DeleteItem,(HWND hwnd, HTREEITEM item))
 SWELL_API_DEFINE(void, TreeView_DeleteAllItems,(HWND hwnd))
 SWELL_API_DEFINE(void, TreeView_SelectItem,(HWND hwnd, HTREEITEM item))
+SWELL_API_DEFINE(void, TreeView_EnsureVisible,(HWND hwnd, HTREEITEM item))
 SWELL_API_DEFINE(BOOL, TreeView_GetItem,(HWND hwnd, LPTVITEM pitem))
 SWELL_API_DEFINE(BOOL, TreeView_SetItem,(HWND hwnd, LPTVITEM pitem))
 SWELL_API_DEFINE(HTREEITEM, TreeView_HitTest, (HWND hwnd, TVHITTESTINFO *hti))
@@ -792,11 +793,6 @@ SWELL_API_DEFINE(void, EmptyClipboard,())
 SWELL_API_DEFINE(void, SetClipboardData,(UINT type, HANDLE h))
 SWELL_API_DEFINE(UINT, RegisterClipboardFormat,(const char *desc))
 SWELL_API_DEFINE(UINT, EnumClipboardFormats,(UINT lastfmt))
-
-#ifndef CF_TEXT
-  // do not use 'static int globalvalue = CF_TEXT' as this will cause problems (RegisterClipboardFormat() being called too soon!).
-#define CF_TEXT (RegisterClipboardFormat("SWELL__CF_TEXT"))
-#endif
 
 SWELL_API_DEFINE(HANDLE, GlobalAlloc,(int flags, int sz))
 SWELL_API_DEFINE(void *, GlobalLock,(HANDLE h))

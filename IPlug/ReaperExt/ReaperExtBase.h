@@ -38,15 +38,15 @@ public:
   
   bool EditorResizeFromUI(int viewWidth, int viewHeight, bool needsPlatformResize) override;
 
-  /** /todo */
+  /** \todo */
   virtual void OnIdle() {}; // NO-OP
   
-  /** /todo
-   * @param actionName /todo
-   * @param func /todo */
+  /** \todo
+   * @param actionName \todo
+   * @param func \todo */
   void RegisterAction(const char* actionName, std::function<void()> func, bool addMenuItem = false, int* pToggle = nullptr/*, IKeyPress keyCmd*/);
   
-  /** /todo */
+  /** \todo */
   void ShowHideMainWindow();
   
   void ToggleDocking();

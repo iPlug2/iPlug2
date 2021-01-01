@@ -144,9 +144,8 @@ public:
 
     mRTEffect = effect;
     
-    auto inputs = SkData::MakeWithoutCopy(mUniforms.data(), mRTEffect->inputSize());
+    auto inputs = SkData::MakeWithoutCopy(mUniforms.data(), mRTEffect->uniformSize());
     auto shader = mRTEffect->makeShader(std::move(inputs), nullptr, 0, nullptr, false);
-    
     mPaint.setShader(std::move(shader));
 
     return true;

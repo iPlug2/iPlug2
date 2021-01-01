@@ -60,11 +60,12 @@
 #endif
 
 //TODO: move this
-#if !defined OS_IOS && !defined OS_WEB
+#if !defined OS_IOS
 /** Helper to find a draw scale factor to scale the plug-in UI to fit in the platform-supplied area
+ * @param width The original width of the UI.
  * @param height The original height of the UI.
  * @return A scaling factor that can be supplied when calling MakeGraphics() */
-static float GetScaleForScreen(int height) { return 1.f; }
+static float GetScaleForScreen(int width, int height) { return 1.f; }
 #endif
 
 #endif // NO_IGRAPHICS

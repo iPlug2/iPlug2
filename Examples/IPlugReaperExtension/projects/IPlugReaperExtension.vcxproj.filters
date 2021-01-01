@@ -59,22 +59,9 @@
     <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp">
       <Filter>Source Files\IGraphics\Controls</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.cpp">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsAGG_src.cpp">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsCairo.cpp">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsCanvas.cpp">
       <Filter>Source Files\IGraphics\Drawing</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsLice.cpp">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsLice_src.cpp">
       <Filter>Source Files\IGraphics\Drawing</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.cpp">
@@ -144,9 +131,6 @@
     <ClInclude Include="..\..\..\IGraphics\IGraphicsLiveEdit.h">
       <Filter>Source Files\IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsPathBase.h">
-      <Filter>Source Files\IGraphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphicsPopupMenu.h">
       <Filter>Source Files\IGraphics</Filter>
     </ClInclude>
@@ -189,22 +173,7 @@
     <ClInclude Include="..\..\..\IGraphics\Controls\IVScopeControl.h">
       <Filter>Source Files\IGraphics\Controls</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsAGG.h">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsAGG_src.h">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsCairo.h">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsCanvas.h">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsLice.h">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsLice_src.h">
       <Filter>Source Files\IGraphics\Drawing</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.h">

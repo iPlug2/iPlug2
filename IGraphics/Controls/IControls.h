@@ -25,6 +25,7 @@
 #include "IRTTextControl.h"
 #include "IVDisplayControl.h"
 #include "ILEDControl.h"
+#include "IPopupMenuControl.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -154,7 +155,7 @@ public:
   void OnInit() override;
 
   virtual void DrawWidget(IGraphics& g) override;
-  virtual void DrawButton(IGraphics& g, const IRECT& bounds, bool pressed, bool mouseOver, ETabSegment segment);
+  virtual void DrawButton(IGraphics& g, const IRECT& bounds, bool pressed, bool mouseOver, ETabSegment segment, bool disabled);
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override { mMouseOverButton = -1; ISwitchControlBase::OnMouseOut(); SetDirty(false); }
@@ -335,7 +336,7 @@ protected:
   bool mTrackClipsHandle = true;
 };
 
-/** a vector plot to display functions and waveforms **/
+/** A vector plot to display functions and waveforms */
 class IVPlotControl : public IControl
                     , public IVectorBase
 {
@@ -383,7 +384,7 @@ protected:
   std::vector<float> mPoints;
 };
 
-/** A control to draw a rectangle around a named IControl group **/
+/** A control to draw a rectangle around a named IControl group */
 class IVGroupControl : public IControl
                      , public IVectorBase
 {
@@ -408,7 +409,7 @@ protected:
   float mLabelPadding = 10.f;
 };
 
-/** A panel control which can be styled with emboss etc. **/
+/** A panel control which can be styled with emboss etc. */
 class IVPanelControl : public IControl
                      , public IVectorBase
 {
@@ -440,7 +441,7 @@ public:
   }
 };
 
-/** A control to show a colour swatch of up to 9 colous. **/
+/** A control to show a colour swatch of up to 9 colous. */
 class IVColorSwatchControl : public IControl
                            , public IVectorBase
 {
@@ -532,7 +533,7 @@ public:
   * @param handleSvg An ISVG for the track background
   * @param paramIdx The parameter index to link this control to 
   * @param dir The direction of the slider movement 
-  * @param gearing /todo */
+  * @param gearing \todo */
   ISVGSliderControl(const IRECT& bounds, const ISVG& handleSvg, const ISVG& trackSVG, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   void Draw(IGraphics& g) override;

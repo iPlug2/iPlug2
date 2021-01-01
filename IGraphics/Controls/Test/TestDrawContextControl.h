@@ -17,7 +17,7 @@
 
 #include "IControl.h"
 
-/** Control to test obtaining a drawing API (NanoVG, LICE, Cairo, AGG etc) context and using that API within an IControl
+/** Control to test obtaining a drawing API (NanoVG, Skia, Canvas) context and using that API within an IControl
  *   @ingroup TestControls */
 class TestDrawContextControl : public IControl
 {
@@ -45,18 +45,19 @@ public:
     nvgFillColor(vg, nvgRGBA(255, 0, 0, 255));
     nvgFill(vg);
     nvgRestore(vg);
-#elif defined IGRAPHICS_CAIRO
-    cairo_t* cr = (cairo_t*) g.GetDrawContext();
-
-    cairo_save(cr);
-    cairo_translate(cr, r1.MW(), r1.MH());
-    cairo_rotate(cr, DegToRad(30.f));
-    cairo_translate(cr, -r1.MW(), -r1.MH());
-    cairo_new_path(cr);
-    cairo_set_source_rgba(cr, 1.f, 0.f, 0.f, 1.f);
-    cairo_rectangle(cr, r1.L, r1.T, r1.W(), r1.H());
-    cairo_fill(cr);
-    cairo_close_path(cr);
+#elif defined IGRAPHICS_SKIA
+    SkCanvas* canvas = (SkCanvas*) g.GetDrawContext();
+    SkPaint paint;
+    paint.setAntiAlias(true);
+    paint.setColor(SK_ColorRED);
+    
+    SkRect rect = SkiaRect(r1);
+    canvas->translate(r1.MW(), r1.MH());
+    canvas->rotate(30);
+    canvas->translate(-r1.MW(), -r1.MH());
+    canvas->drawRect(rect, paint);
+#elif defined IGRAPHICS_CANVAS
+    
 #else
     g.DrawText(mText, "UNSUPPORTED", mRECT);
 #endif

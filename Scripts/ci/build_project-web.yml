@@ -15,6 +15,10 @@ parameters:
   email: '' # the git email address to commit with when publishing
 
 steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'
+      
   - bash: |
       if [ ${{ parameters.srcRepo }} != none ]
       then

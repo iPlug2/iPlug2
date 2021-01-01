@@ -36,17 +36,14 @@
   return YES;
 }
 
-- (void)viewDidLoad
+- (void) viewDidLoad
 {
   [super viewDidLoad];
 
 #if PLUG_HAS_UI
   NSString* storyBoardName = [NSString stringWithFormat:@"%s-iOS-MainInterface", PLUG_NAME];
-
   UIStoryboard* storyboard = [UIStoryboard storyboardWithName:storyBoardName bundle: nil];
-
   iplugViewController = [storyboard instantiateViewControllerWithIdentifier:@"main"];
-
   [self addChildViewController:iplugViewController];
 #endif
   
@@ -82,7 +79,7 @@
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveNotification:) name:@"LaunchBTMidiDialog" object:nil];
 }
 
--(void) receiveNotification:(NSNotification*)notification
+-(void) receiveNotification:(NSNotification*) notification
 {
   if ([notification.name isEqualToString:@"LaunchBTMidiDialog"])
   {
@@ -103,11 +100,10 @@
   }
 }
 
-- (void)embedPlugInView
+- (void) embedPlugInView
 {
 #if PLUG_HAS_UI
   UIView* view = iplugViewController.view;
-#endif
   view.frame = auView.bounds;
   [auView addSubview: view];
 
@@ -118,7 +114,12 @@
 
   constraints = [NSLayoutConstraint constraintsWithVisualFormat: @"V:|[view]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(view)];
   [auView addConstraints: constraints];
+#endif
 }
 
+- (UIRectEdge) preferredScreenEdgesDeferringSystemGestures
+{
+  return UIRectEdgeAll;
+}
 @end
 

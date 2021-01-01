@@ -1,6 +1,6 @@
 /* ------------------------------------------------------------
 name: "IPlugFaustDSP (mono example)"
-Code generated with Faust 2.26.2 (https://faust.grame.fr)
+Code generated with Faust 2.28.8 (https://faust.grame.fr)
 Compilation options: -lang cpp -scal -ftz 0
 ------------------------------------------------------------ */
 

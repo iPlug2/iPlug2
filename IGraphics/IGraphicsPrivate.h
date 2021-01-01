@@ -29,7 +29,7 @@
   #pragma warning( push )
   #pragma warning( disable : 4244 )
   #pragma warning( disable : 5030 )
-  #include "experimental/svg/model/SkSVGDOM.h"
+  #include "SkSVGDOM.h"
   #include "include/core/SkCanvas.h"
   #include "include/core/SkStream.h"
   #include "src/xml/SkDOM.h"
@@ -40,19 +40,7 @@
 
 #include "IPlugPlatform.h"
 
-#ifdef IGRAPHICS_AGG
-  #include "IGraphicsAGG_src.h"
-  #define BITMAP_DATA_TYPE agg::pixel_map*
-#elif defined IGRAPHICS_CAIRO
-  #if defined OS_MAC || defined OS_LINUX
-    #include "cairo/cairo.h"
-  #elif defined OS_WIN
-    #include "cairo/src/cairo.h"
-  #else
-    #error NOT IMPLEMENTED
-  #endif
-  #define BITMAP_DATA_TYPE cairo_surface_t*
-#elif defined IGRAPHICS_NANOVG
+#if defined IGRAPHICS_NANOVG
   #define BITMAP_DATA_TYPE int;
 #elif defined IGRAPHICS_SKIA
   #pragma warning( push )
@@ -67,9 +55,6 @@
     sk_sp<SkSurface> mSurface;
   };
   #define BITMAP_DATA_TYPE SkiaDrawable*
-#elif defined IGRAPHICS_LICE
-  #include "lice.h"
-  #define BITMAP_DATA_TYPE LICE_IBitmap*
 #elif defined IGRAPHICS_CANVAS
   #include <emscripten.h>
   #include <emscripten/val.h>
@@ -96,7 +81,7 @@ using BitmapData = BITMAP_DATA_TYPE;
 using FontDescriptor = FONT_DESCRIPTOR_TYPE;
 using RawBitmapData = WDL_TypedBuf<uint8_t>;
 
-/** A bitmap abstraction around the different drawing back end bitmap representations.
+/** A base class interface for a bitmap abstraction around the different drawing back end bitmap representations.
  * In most cases it does own the bitmap data, the exception being with NanoVG, where the image is loaded onto the GPU as a texture,
  * but still needs to be freed. Most of the time  end-users will deal with IBitmap rather than APIBitmap, which is used behind the scenes. */
 class APIBitmap
@@ -145,19 +130,19 @@ public:
     mDrawScale = drawScale;
   }
 
-  /** @return BitmapData /todo */
+  /** @return BitmapData Get the Bitmap data linked to this APIBitmap */
   BitmapData GetBitmap() const { return mBitmap; }
 
-  /** /todo */
+  /** @return the width of the bitmap */
   int GetWidth() const { return mWidth; }
 
-  /** /todo */
+  /** @return the height of the bitmap */
   int GetHeight() const { return mHeight; }
 
-  /** /todo */
+  /** @return the scale of the bitmap */
   int GetScale() const { return mScale; }
   
-  /** /todo */
+  /** @return the draw scale of the bitmap */
   float GetDrawScale() const { return mDrawScale; }
 
 private:
@@ -373,7 +358,7 @@ private:
   // Font Identifiers
   WDL_String mFamily;
   WDL_String mStyle;
-  uint16_t mMacStyle;
+  uint16_t mMacStyle = 0;
   
   // Metrics
   uint16_t mUnitsPerEM = 0;
@@ -421,7 +406,7 @@ private:
 /** IFontDataPtr is a managed pointer for transferring the ownership of font data */
 using IFontDataPtr = std::unique_ptr<IFontData>;
 
-/** /todo */
+/** \todo */
 class PlatformFont
 {
 public:
@@ -535,7 +520,7 @@ public:
   StaticStorage& operator=(const StaticStorage&) = delete;
     
 private:
-  /** /todo */
+  /** \todo */
   struct DataKey
   {
     // N.B. - hashID is not guaranteed to be unique
@@ -545,19 +530,19 @@ private:
     std::unique_ptr<T> data;
   };
   
-  /** /todo 
-   * @param str /todo
-   * @return size_t /todo */
+  /** \todo 
+   * @param str \todo
+   * @return size_t \todo */
   size_t Hash(const char* str)
   {
     std::string string(str);
     return std::hash<std::string>()(string);
   }
 
-  /** /todo 
-   * @param str /todo
-   * @param scale /todo
-   * @return T* /todo */
+  /** \todo 
+   * @param str \todo
+   * @param scale \todo
+   * @return T* \todo */
   T* Find(const char* str, double scale = 1.)
   {
     WDL_String cacheName(str);
@@ -577,10 +562,10 @@ private:
     return nullptr;
   }
 
-  /** /todo 
-   * @param pData /todo
-   * @param str /todo
-   * @param scale /todo scale where 2x = retina, omit if not needed */
+  /** \todo 
+   * @param pData \todo
+   * @param str \todo
+   * @param scale \todo scale where 2x = retina, omit if not needed */
   void Add(T* pData, const char* str, double scale = 1.)
   {
     DataKey* pKey = mDatas.Add(new DataKey);
@@ -596,7 +581,7 @@ private:
     //DBGMSG("adding %s to the static storage at %.1fx the original scale\n", str, scale);
   }
 
-  /** /todo @param pData /todo */
+  /** \todo @param pData \todo */
   void Remove(T* pData)
   {
     for (int i = 0; i < mDatas.GetSize(); ++i)
@@ -609,19 +594,19 @@ private:
     }
   }
 
-  /** /todo  */
+  /** \todo  */
   void Clear()
   {
     mDatas.Empty(true);
   };
 
-  /** /todo  */
+  /** \todo  */
   void Retain()
   {
     mCount++;
   }
   
-  /** /todo  */
+  /** \todo  */
   void Release()
   {
     if (--mCount == 0)

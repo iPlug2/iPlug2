@@ -41,8 +41,8 @@ class IPlugProcessor
 {
 public:
   /** IPlugProcessor constructor
-   * @param config /todo
-   * @param plugAPI /todo */
+   * @param config \todo
+   * @param plugAPI \todo */
   IPlugProcessor(const Config& config, EAPI plugAPI);
   virtual ~IPlugProcessor();
 

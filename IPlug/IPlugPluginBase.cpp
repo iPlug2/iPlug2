@@ -53,9 +53,8 @@ void IPluginBase::GetPluginVersionStr(WDL_String& str) const
 int IPluginBase::GetHostVersion(bool decimal) const
 {
   if (decimal)
-  {
     return GetDecimalVersion(mHostVersion);
-  }
+
   return mHostVersion;
 }
 
@@ -84,18 +83,20 @@ const char* IPluginBase::GetArchStr() const
 {
 #if defined OS_WEB
   return "WASM";
+#elif defined __aarch64__
+  return "arm64";
 #elif defined ARCH_64BIT
-  return "x64";
+  return "x86-64";
 #else
-  return "x86";
+  return "x86-32";
 #endif
 }
 
-void IPluginBase::GetBuildInfoStr(WDL_String& str) const
+void IPluginBase::GetBuildInfoStr(WDL_String& str, const char* date, const char* time) const
 {
   WDL_String version;
   GetPluginVersionStr(version);
-  str.SetFormatted(MAX_BUILD_INFO_STR_LEN, "%s version %s %s (%s), built on %s at %.5s ", GetPluginName(), version.Get(), GetAPIStr(), GetArchStr(), __DATE__, __TIME__);
+  str.SetFormatted(MAX_BUILD_INFO_STR_LEN, "%s %s (%s), built on %s at %.5s ", version.Get(), GetAPIStr(), GetArchStr(), date, time);
 }
 
 #pragma mark -
@@ -501,7 +502,7 @@ bool IPluginBase::SerializePresets(IByteChunk& chunk) const
   return savedOK;
 }
 
-int IPluginBase::UnserializePresets(IByteChunk& chunk, int startPos)
+int IPluginBase::UnserializePresets(const IByteChunk& chunk, int startPos)
 {
   TRACE
   WDL_String name;
@@ -572,7 +573,6 @@ void IPluginBase::DumpMakePresetSrc(const char* filename) const
 
 void IPluginBase::DumpMakePresetFromNamedParamsSrc(const char* filename, const char* paramEnumNames[]) const
 {
-  // static bool sDumped = false;
   bool sDumped = false;
   
   if (!sDumped)
@@ -631,54 +631,6 @@ void IPluginBase::DumpPresetBlob(const char* filename) const
   wdl_base64encode(byteStart, buf, pPresetChunk->Size());
   
   fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
-  fclose(fp);
-}
-
-void IPluginBase::DumpAllPresetsBlob(const char* filename) const
-{
-  FILE* fp = fopen(filename, "w");
-  
-  if (!fp)
-    return;
-  
-  char buf[MAX_BLOB_LENGTH] = "";
-  IByteChunk chnk;
-  
-  for (int i = 0; i< NPresets(); i++)
-  {
-    IPreset* pPreset = mPresets.Get(i);
-    fprintf(fp, "MakePresetFromBlob(\"%s\", \"", pPreset->mName);
-    
-    chnk.Clear();
-    chnk.PutChunk(&(pPreset->mChunk));
-    wdl_base64encode(chnk.GetData(), buf, chnk.Size());
-    
-    fprintf(fp, "%s\", %i);\n", buf, chnk.Size());
-  }
-  
-  fclose(fp);
-}
-
-void IPluginBase::DumpBankBlob(const char* filename) const
-{
-  FILE* fp = fopen(filename, "w");
-  
-  if (!fp)
-    return;
-  
-  char buf[MAX_BLOB_LENGTH] = "";
-  
-  for (int i = 0; i< NPresets(); i++)
-  {
-    IPreset* pPreset = mPresets.Get(i);
-    fprintf(fp, "MakePresetFromBlob(\"%s\", \"", pPreset->mName);
-    
-    IByteChunk* pPresetChunk = &pPreset->mChunk;
-    wdl_base64encode(pPresetChunk->GetData(), buf, pPresetChunk->Size());
-    
-    fprintf(fp, "%s\", %i);\n", buf, pPresetChunk->Size());
-  }
-  
   fclose(fp);
 }
 
@@ -1085,196 +1037,6 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
         
         return true;
       }
-    }
-  }
-  
-  return false;
-}
-
-bool IPluginBase::LoadPresetFromVSTPreset(const char* path)
-{
-  auto isEqualID = [](const ChunkID id1, const ChunkID id2) {
-    return memcmp (id1, id2, sizeof (ChunkID)) == 0;
-  };
-  
-  FILE* fp = fopen(path, "rb");
-  
-  if (fp)
-  {
-    IByteChunk pgm;
-    long fileSize;
-    
-    fseek(fp , 0 , SEEK_END);
-    fileSize = ftell(fp);
-    rewind(fp);
-    
-    pgm.Resize((int) fileSize);
-    fread(pgm.GetData(), fileSize, 1, fp);
-    
-    fclose(fp);
-    
-    int pos = 0;
-    
-    char classString[kClassIDSize + 1] = {0};
-//    FUID cID;
-    
-    //HEADER
-    ChunkID chunkID;
-    int32_t version = 0;
-    int64_t listOffset = 0;
-    
-    pos = pgm.Get(&chunkID, pos);
-    
-    if (!isEqualID(chunkID, commonChunks[kHeader]))
-      return false;
-    
-    pos = pgm.Get(&version, pos);
-    pos = pgm.GetBytes(&classString, kClassIDSize, pos);
-//    cID.fromString(classString);
-    
-//    if (cID != mProcFUID)
-//      return false;
-    
-    pos = pgm.Get(&listOffset, pos);
-    
-    //CHUNK LIST
-    pos = pgm.Get(&chunkID, (int) listOffset); // jump forward to chunklist start
-    
-    if (!isEqualID(chunkID, commonChunks[kChunkList]))
-      return false;
-    
-    int32_t entryCount = 0;
-    pos = pgm.Get(&entryCount, pos);
-    
-    if (entryCount < 2)
-      return false;
-    
-    pos = pgm.Get(&chunkID, pos);
-    
-    if (!isEqualID(chunkID, commonChunks[kComponentState]))
-      return false;
-    
-    int64_t offsetToComponentState = 0;
-    pos = pgm.Get(&offsetToComponentState, pos);
-    
-    int64_t componentStateSize = 0;
-    pos = pgm.Get(&componentStateSize, pos);
-    
-    pos = pgm.Get(&chunkID, pos);
-    
-    if (!isEqualID(chunkID, commonChunks[kControllerState]))
-      return false;
-    
-    int64_t offsetToCtrlrState = 0;
-    pos = pgm.Get(&offsetToCtrlrState, pos);
-    
-    int64_t ctrlrStateSize = 0;
-    pos = pgm.Get(&ctrlrStateSize, pos);
-    
-    //Forget about kMetaInfo chunk
-  
-    pos = (int) offsetToComponentState;
-    //DATA AREA
-    int componentChunkSizeIPlug;
-    pos = pgm.Get(&componentChunkSizeIPlug, pos);
-    IByteChunk::GetIPlugVerFromChunk(pgm, pos /* updates pos */ );
-    
-    pos += sizeof(int32_t); // FIXME: bypass
-    
-//    GetBypassStateFromChunk(&pgm, pos /* updates pos */);
-    pos = UnserializeState(pgm, pos);
-    
-    int ctrlrChunkSizeIPlug;
-    pos = pgm.Get(&ctrlrChunkSizeIPlug, pos);
-    IByteChunk::GetIPlugVerFromChunk(pgm, pos /* updates pos */);
-    pos = UnserializeVST3CtrlrState(pgm, pos);
-    
-    DirtyParametersFromUI();
-    OnRestoreState();
-    
-    return true;
-  }
-  
-  return false;
-}
-
-void IPluginBase::MakeVSTPresetChunk(IByteChunk& chunk, IByteChunk& componentState, IByteChunk& controllerState) const
-{
-  WDL_String metaInfo("");
-  
-  metaInfo.Append("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n", 1024);
-  metaInfo.Append("<MetaInfo>\n", 1024);
-  metaInfo.Append("\t<Attribute id=\"MediaType\" value=\"VstPreset\" type=\"string\" flags=\"writeProtected\"/>\n", 1024);
-  metaInfo.AppendFormatted(1024, "\t<Attribute id=\"plugname\" value=\"%s\" type=\"string\" flags=\"\"/>\n", mProductName.Get());
-  metaInfo.AppendFormatted(1024, "\t<Attribute id=\"plugtype\" value=\"%s\" type=\"string\" flags=\"\"/>\n", mVST3ProductCategory.Get());
-  metaInfo.Append("</MetaInfo>\n", 1024);
-  
-  //HEADER
-  chunk.Put(&commonChunks[kHeader]);
-  int32_t version = kFormatVersion;
-  chunk.Put(&version);
-  chunk.PutBytes(mVST3ProcessorUIDStr.Get(), kClassIDSize);
-  int64_t offsetToChunkList = componentState.Size() + controllerState.Size() + (2 * sizeof(int) /* 2 ints for sizes */) + strlen(metaInfo.Get()) + kHeaderSize;
-  chunk.Put(&offsetToChunkList);
-  
-  //DATA AREA
-  int componentSize = componentState.Size();
-  chunk.Put(&componentSize);
-  chunk.PutChunk(&componentState);
-  int ctrlrSize = controllerState.Size();
-  chunk.Put(&ctrlrSize);
-  chunk.PutChunk(&controllerState);
-  chunk.PutBytes(metaInfo.Get(), metaInfo.GetLength());
-  
-  //CHUNK LIST
-  chunk.Put(&commonChunks[kChunkList]);
-  int32_t entryCount = 3;
-  chunk.Put(&entryCount);
-  
-  chunk.Put(&commonChunks[kComponentState]);
-  int64_t offsetToComponentState = kHeaderSize;
-  chunk.Put(&offsetToComponentState);
-  int64_t componentStateSize = componentState.Size() + sizeof(int);
-  chunk.Put(&componentStateSize);
-  
-  chunk.Put(&commonChunks[kControllerState]);
-  int64_t offsetToCtrlrState = kHeaderSize + componentStateSize;
-  chunk.Put(&offsetToCtrlrState);
-  int64_t ctrlrStateSize = controllerState.Size() + sizeof(int);
-  chunk.Put(&ctrlrStateSize);
-  
-  chunk.Put(&commonChunks[kMetaInfo]);
-  int64_t offsetToMetaInfo = kHeaderSize + componentStateSize + ctrlrStateSize;
-  chunk.Put(&offsetToMetaInfo);
-  int64_t metaInfoSize = metaInfo.GetLength();
-  chunk.Put(&metaInfoSize);
-}
-
-bool IPluginBase::SavePresetAsVSTPreset(const char* path) const
-{
-  if (path)
-  {
-    FILE* fp = fopen(path, "wb");
-    
-    if (fp)
-    {
-      IByteChunk componentState;
-      IByteChunk::InitChunkWithIPlugVer(componentState);
-      //      AppendBypassStateToChunk(&componentState, false); //TODO:!!
-      SerializeState(componentState);
-      
-      IByteChunk ctrlrState;
-      IByteChunk::InitChunkWithIPlugVer(ctrlrState);
-      SerializeVST3CtrlrState(ctrlrState);
-      
-      IByteChunk pgm;
-      
-      MakeVSTPresetChunk(pgm, componentState, ctrlrState);
-      
-      fwrite(pgm.GetData(), pgm.Size(), 1, fp);
-      fclose(fp);
-      
-      return true;
     }
   }
   

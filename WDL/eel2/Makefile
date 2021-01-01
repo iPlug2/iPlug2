@@ -9,12 +9,21 @@ else
 CFLAGS += -DNDEBUG -O
 endif
 
+CFLAGS += -D_FILE_OFFSET_BITS=64
+
 OBJS=nseel-caltab.o nseel-compiler.o nseel-eval.o nseel-lextab.o nseel-ram.o nseel-yylex.o nseel-cfunc.o fft.o
 
 OBJS2=
 
 UNAME_S := $(shell uname -s)
 ARCH := $(shell uname -m)
+
+ifeq ($(ARCH), aarch64)
+  ifeq ($(shell $(CC) -dumpmachine | cut -f 1 -d -), arm)
+    # helper for armv7l userspace on aarch64 cpu
+    ARCH := armv7l
+  endif
+endif
 
 ifeq ($(UNAME_S),Darwin)
   CFLAGS += -arch $(ARCH)

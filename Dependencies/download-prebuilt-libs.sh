@@ -38,6 +38,9 @@ fi
 unzip -o $ZIP_FILE.zip
 mv $ZIP_FILE/* Build
 
+if [ "$FOLDER" == "mac" ]; then
+  chmod +x Build/mac/bin/faust*
+fi
 
 if [ "$FOLDER" == "win" ]; then
   curl https://github.com/iPlug2/iPlug2/releases/download/setup/IPLUG2_DEPS_WIN_FAUST.zip -L -J -O

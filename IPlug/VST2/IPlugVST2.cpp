@@ -167,12 +167,10 @@ IPlugVST2::IPlugVST2(const InstanceInfo& info, const Config& config)
 
   SetBlockSize(DEFAULT_BLOCK_SIZE);
 
-  if(config.plugHasUI)
+  if (config.plugHasUI)
   {
     mAEffect.flags |= effFlagsHasEditor;
-    mEditRect.left = mEditRect.top = 0;
-    mEditRect.right = config.plugWidth;
-    mEditRect.bottom = config.plugHeight;
+    UpdateEditRect();
   }
   
   CreateTimer();
@@ -206,17 +204,21 @@ bool IPlugVST2::EditorResize(int viewWidth, int viewHeight)
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
     {
-      mEditRect.left = mEditRect.top = 0;
-      mEditRect.right = viewWidth;
-      mEditRect.bottom = viewHeight;
-    
+      SetEditorSize(viewWidth, viewHeight);
+      UpdateEditRect();
+  
       resized = mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
     }
-    
-    SetEditorSize(viewWidth, viewHeight);
   }
 
   return resized;
+}
+
+void IPlugVST2::UpdateEditRect()
+{
+  mEditRect.left = mEditRect.top = 0;
+  mEditRect.right = GetEditorWidth();
+  mEditRect.bottom = GetEditorHeight();
 }
 
 void IPlugVST2::SetLatency(int samples)
@@ -450,6 +452,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (ptr && _this->HasUI())
       {
+        _this->UpdateEditRect();
         *(ERect**) ptr = &(_this->mEditRect);
         return 1;
       }
