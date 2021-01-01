@@ -31,9 +31,7 @@
   #pragma comment(lib, "zlib.lib")
   #pragma comment(lib, "skia.lib")
   #pragma comment(lib, "svg.lib")
-  #ifdef IGRAPHICS_GL
-    #pragma comment(lib, "opengl32.lib")
-  #endif
+  #pragma comment(lib, "opengl32.lib")
 #endif
 
 #if defined IGRAPHICS_GL
