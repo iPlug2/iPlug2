@@ -321,6 +321,8 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
 
 void IGraphicsSkia::OnViewDestroyed()
 {
+  RemoveAllControls();
+
 #if defined IGRAPHICS_GL
   mSurface = nullptr;
   mScreenSurface = nullptr;
