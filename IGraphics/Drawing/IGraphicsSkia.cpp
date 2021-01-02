@@ -521,7 +521,7 @@ void IGraphicsSkia::EndFrame()
 #else // GPU
   mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, nullptr);
   
-  #if defined IGRAPHICS_IMGUI
+  #if defined IGRAPHICS_IMGUI && !IGRAPHICS_CPU
   if(mImGuiRenderer)
   {
     mImGuiRenderer->NewFrame();

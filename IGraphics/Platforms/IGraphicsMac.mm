@@ -128,7 +128,7 @@ void IGraphicsMac::CloseWindow()
 {
   if (mView)
   {
-#if defined IGRAPHICS_IMGUI && !defined IGRAPHICS_SKIA && !defined IGRAPHICS_GL
+#if defined IGRAPHICS_IMGUI
     if(mImGuiView)
     {
       IGRAPHICS_IMGUIVIEW* pImGuiView = (IGRAPHICS_IMGUIVIEW*) mImGuiView;
@@ -623,7 +623,24 @@ bool IGraphicsMac::SetTextInClipboard(const char* str)
 
 void IGraphicsMac::CreatePlatformImGui()
 {
-#if defined IGRAPHICS_IMGUI && !defined IGRAPHICS_SKIA && !defined IGRAPHICS_GL
+#if defined IGRAPHICS_IMGUI
+  // use IGRAPHICS_IMGUIVIEW if:
+  // IGRAPHICS_SKIA | IGRAPHICS_CPU
+  // IGRAPHICS_NANOVG | IGRAPHICS_METAL
+  // draw in IGRAPHICS_VIEW if:
+  // IGRAPHICS_NANOVG | IGRAPHICS_GLX
+  // IGRAPHICS_SKIA | IGRAPHICS_GLX
+  // IGRAPHICS_SKIA | IGRAPHICS_METAL
+  
+#if defined IGRAPHICS_SKIA && IGRAPHICS_CPU
+#define USE_IGRAPHICS_IMGUIVIEW 1
+#elif defined IGRAPHICS_NANOVG && IGRAPHICS_METAL
+#define USE_IGRAPHICS_IMGUIVIEW 1
+#else
+#define USE_IGRAPHICS_IMGUIVIEW 0
+#endif
+
+#if USE_IGRAPHICS_IMGUIVIEW
   if(mView)
   {
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
@@ -633,6 +650,7 @@ void IGraphicsMac::CreatePlatformImGui()
     mImGuiView = pImGuiView;
   }
 #endif
+#endif // IGRAPHICS_IMGUI
 }
 
 #if defined IGRAPHICS_NANOVG

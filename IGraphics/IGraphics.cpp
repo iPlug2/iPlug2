@@ -809,7 +809,7 @@ bool IGraphics::IsDirty(IRECTList& rects)
   }
 #endif
 
-#if defined IGRAPHICS_IMGUI && defined IGRAPHICS_GL || defined IGRAPHICS_SKIA
+#if defined IGRAPHICS_IMGUI && defined IGRAPHICS_GL || defined IGRAPHICS_SKIA && !defined IGRAPHICS_CPU
   if (mImGuiRenderer && mImGuiRenderer->GetDrawFunc())
   {
     rects.Add(IRECT(0,0,1,1));
@@ -2373,9 +2373,7 @@ void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::funct
 {
   mImGuiRenderer = std::make_unique<ImGuiRenderer>(this, drawFunc, setupFunc);
   
-#if !defined IGRAPHICS_GL && !defined IGRAPHICS_SKIA
   CreatePlatformImGui();
-#endif
 }
 #endif
 

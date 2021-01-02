@@ -177,7 +177,7 @@ using namespace igraphics;
 - (void) setMouseCursor: (ECursor) cursorType;
 @end
 
-#if defined IGRAPHICS_IMGUI && !defined IGRAPHICS_SKIA && !defined IGRAPHICS_GL
+#if defined IGRAPHICS_IMGUI
 #import <MetalKit/MetalKit.h>
 
 @interface IGRAPHICS_IMGUIVIEW : MTKView

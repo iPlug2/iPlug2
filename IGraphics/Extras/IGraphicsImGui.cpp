@@ -201,19 +201,23 @@ bool ImGuiRenderer::OnKeyUp(float x, float y, const IKeyPress& keyPress)
 void ImGuiRenderer::Init()
 {
 #if defined IGRAPHICS_SKIA
-  ImGuiIO& io = ImGui::GetIO();
-  int w, h;
-  unsigned char* pixels;
-  io.Fonts->GetTexDataAsAlpha8(&pixels, &w, &h);
-  SkImageInfo info = SkImageInfo::MakeA8(w, h);
-  SkPixmap pmap(info, pixels, info.minRowBytes());
-  SkMatrix localMatrix = SkMatrix::Scale(1.0f / w, 1.0f / h);
-  auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
-  auto fontShader = fontImage->makeShader(&localMatrix);
-  fFontPaint.setShader(fontShader);
-  fFontPaint.setColor(SK_ColorWHITE);
-  fFontPaint.setFilterQuality(kLow_SkFilterQuality);
-  io.Fonts->TexID = &fFontPaint;
+  #if defined IGRAPHICS_CPU // ImGui drawn via SKIA when !CPU
+    ImGui_ImplMetal_Init(MTLCreateSystemDefaultDevice());
+  #else
+    ImGuiIO& io = ImGui::GetIO();
+    int w, h;
+    unsigned char* pixels;
+    io.Fonts->GetTexDataAsAlpha8(&pixels, &w, &h);
+    SkImageInfo info = SkImageInfo::MakeA8(w, h);
+    SkPixmap pmap(info, pixels, info.minRowBytes());
+    SkMatrix localMatrix = SkMatrix::Scale(1.0f / w, 1.0f / h);
+    auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
+    auto fontShader = fontImage->makeShader(&localMatrix);
+    fFontPaint.setShader(fontShader);
+    fFontPaint.setColor(SK_ColorWHITE);
+    fFontPaint.setFilterQuality(kLow_SkFilterQuality);
+    io.Fonts->TexID = &fFontPaint;
+  #endif
 #else
   #if defined IGRAPHICS_GL2
     ImGui_ImplOpenGL2_Init();
