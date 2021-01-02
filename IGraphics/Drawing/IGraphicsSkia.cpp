@@ -518,11 +518,12 @@ void IGraphicsSkia::EndFrame()
   #else
     #error NOT IMPLEMENTED
   #endif
-#else
+#else // GPU
   mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, nullptr);
   
   #if defined IGRAPHICS_IMGUI
-  if(mImGuiRenderer) {
+  if(mImGuiRenderer)
+  {
     mImGuiRenderer->NewFrame();
     DrawImGui(mScreenSurface.get());
   }

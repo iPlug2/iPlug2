@@ -51,7 +51,7 @@ public:
   }
   
   #ifdef IGRAPHICS_SKIA
-    SkPaint fFontPaint;
+  SkPaint fFontPaint;
   #endif
   
 private:
