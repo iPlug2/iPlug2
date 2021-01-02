@@ -133,7 +133,8 @@ protected:
   APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
   APIBitmap* LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale) override;
 private:
-    
+  void DrawImGui(SkSurface* surface);
+  
   void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y, SkFont& font) const;
 
   void PathTransformSetMatrix(const IMatrix& m) override;
@@ -163,7 +164,7 @@ private:
   void* mMTLDrawable;
   void* mMTLLayer;
 #endif
-  
+
   static StaticStorage<Font> sFontCache;
 };
 
