@@ -10,7 +10,7 @@ function SCVFD(ctrlTag, val) {
 //  console.log("SCVFD ctrlTag: " + ctrlTag + " value:" + val);
 }
 
-function SCMFD(ctrlTag, msgTag, dataSize, msg) {
+function SCMFD(ctrlTag, msgTag, msg) {
 //  var decodedData = window.atob(msg);
   console.log("SCMFD ctrlTag: " + ctrlTag + " msgTag:" + msgTag + "msg:" + msg);
 }
@@ -29,12 +29,12 @@ function SSMFD(offset, size, msg) {
 }
 
 // FROM UI
-function SAMFUI(msgTag, ctrlTag = -1, dataSize = 0, data = 0) {
+// data should be a base64 encoded string
+function SAMFUI(msgTag, ctrlTag = -1, data = 0) {
   var message = {
     "msg": "SAMFUI",
     "msgTag": msgTag,
     "ctrlTag": ctrlTag,
-    "dataSize": dataSize,
     "data": data
   };
   
@@ -52,10 +52,10 @@ function SMMFUI(statusByte, dataByte1, dataByte2) {
   IPlugSendMsg(message);
 }
 
-function SSMFUI(dataSize = 0, data = 0) {
+// data should be a base64 encoded string
+function SSMFUI(data = 0) {
   var message = {
     "msg": "SSMFUI",
-    "dataSize": dataSize,
     "data": data
   };
   
