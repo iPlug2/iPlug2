@@ -114,6 +114,7 @@ void IControl::SetParamIdx(int paramIdx, int valIdx)
 {
   assert(valIdx > kNoValIdx && valIdx < NVals());
   mVals.at(valIdx).idx = paramIdx;
+  SetDirty(false);
 }
 
 const IParam* IControl::GetParam(int valIdx) const
@@ -229,6 +230,15 @@ bool IControl::IsDirty()
 {
   if (GetAnimationFunction())
     return true;
+  
+  if (!mDirty && mAnimationEndActionFuncQueued)
+  {
+    // swapping into tmp var here allows IGraphics::PromptForFile() etc to be used in action func without causing a loop
+    // this was problematic on windows
+    auto func = mAnimationEndActionFuncQueued;
+    mAnimationEndActionFuncQueued = nullptr; 
+    func(this);
+  }
   
   return mDirty;
 }
@@ -422,8 +432,8 @@ void IControl::OnEndAnimation()
   mAnimationFunc = nullptr;
   SetDirty(false);
   
-  if(mAnimationEndActionFunc)
-    mAnimationEndActionFunc(this);
+  if(mAnimationEndActionFunc) // queue for next clean draw
+    mAnimationEndActionFuncQueued = mAnimationEndActionFunc;
 }
 
 void IControl::StartAnimation(int duration)

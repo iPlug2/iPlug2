@@ -34,11 +34,13 @@ void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen);
 void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str);
 #endif
 
-/** @param path WDL_String reference where the path will be put on success or empty string on failure */
+/** Get the path to the host binary 
+* @param path WDL_String reference where the path will be put on success or empty string on failure */
 extern void HostPath(WDL_String& path, const char* bundleID = 0);
 
-/** @param path WDL_String reference where the path will be put on success or empty string on failure
- *  @param pExtra This should either be a const char* to bundleID (macOS) or an HMODULE handle (windows) */
+/** Get the path to the plug-in binary 
+ * @param path WDL_String reference where the path will be put on success or empty string on failure
+ * @param pExtra This should either be a const char* to bundleID (macOS) or an HMODULE handle (windows) */
 extern void PluginPath(WDL_String& path, PluginIDType pExtra);
 
 /** Get the path to the plug-in bundle resource path. On macOS and iOS if this is called in an AUv3 app extension it will return the bundle of the parent app

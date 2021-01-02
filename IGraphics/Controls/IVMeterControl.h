@@ -79,6 +79,8 @@ const static IColor LED3 = {255, 215, 222, 37};
 const static IColor LED4 = {255, 247, 153, 33};
 const static IColor LED5 = COLOR_RED;
 
+/** Vectorial multi-channel capable meter control with segmented LEDs
+ * @ingroup IControls */
 template <int MAXNC = 1>
 class IVLEDMeterControl : public IVMeterControl<MAXNC>
 {

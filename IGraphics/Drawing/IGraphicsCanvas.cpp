@@ -90,7 +90,7 @@ END_IPLUG_NAMESPACE
 #pragma mark -
 
 IGraphicsCanvas::IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
-: IGraphicsPathBase(dlg, w, h, fps, scale)
+: IGraphics(dlg, w, h, fps, scale)
 {
   StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Retain();
@@ -441,9 +441,7 @@ bool IGraphicsCanvas::CompareFontMetrics(const char* style, const char* font1, c
 
 bool IGraphicsCanvas::FontExists(const char* font, const char* style)
 {
-    return !CompareFontMetrics(style, font, "monospace") ||
-    !CompareFontMetrics(style, font, "sans-serif") ||
-    !CompareFontMetrics(style, font, "serif");
+  return !CompareFontMetrics(style, font, "monospace") || !CompareFontMetrics(style, font, "sans-serif") || !CompareFontMetrics(style, font, "serif");
 }
 
 bool IGraphicsCanvas::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)

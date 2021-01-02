@@ -125,8 +125,6 @@
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\common\commoniids.cpp">
       <Filter>IPlug\VST3\VST3_SDK\public.sdk\common</Filter>
     </ClCompile>
-      <Filter>IGraphics\Drawing</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.cpp">
       <Filter>IGraphics\Drawing</Filter>
     </ClCompile>
@@ -171,9 +169,6 @@
       <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphicsLiveEdit.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsPathBase.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphicsPopupMenu.h">

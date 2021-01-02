@@ -13,10 +13,6 @@
 #include "SkTypeface.h"
 #pragma warning( pop )
 
-#include "GrDirectContext.h"
-
-#include "IGraphicsSkia_src.cpp"
-
 #if defined OS_MAC || defined OS_IOS
   #include "SkCGUtils.h"
   #if defined IGRAPHICS_GL2
@@ -34,9 +30,8 @@
   #pragma comment(lib, "libpng.lib")
   #pragma comment(lib, "zlib.lib")
   #pragma comment(lib, "skia.lib")
-  #ifdef IGRAPHICS_GL
-    #pragma comment(lib, "opengl32.lib")
-  #endif
+  #pragma comment(lib, "svg.lib")
+  #pragma comment(lib, "opengl32.lib")
 #endif
 
 #if defined IGRAPHICS_GL
@@ -242,7 +237,7 @@ END_IPLUG_NAMESPACE
 #pragma mark -
 
 IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
-: IGraphicsPathBase(dlg, w, h, fps, scale)
+: IGraphics(dlg, w, h, fps, scale)
 {
   mMainPath.setIsVolatile(true);
   
@@ -326,6 +321,8 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
 
 void IGraphicsSkia::OnViewDestroyed()
 {
+  RemoveAllControls();
+
 #if defined IGRAPHICS_GL
   mSurface = nullptr;
   mScreenSurface = nullptr;
@@ -435,7 +432,7 @@ void IGraphicsSkia::EndFrame()
     mSurface->peekPixels(&pixmap);
     SkBitmap bmp;
     bmp.installPixels(pixmap);  
-    CGContext* pCGContext = (CGContextRef) mPlatformContext;
+    CGContext* pCGContext = (CGContextRef) GetPlatformContext();
     CGContextSaveGState(pCGContext);
     CGContextScaleCTM(pCGContext, 1.0 / GetScreenScale(), 1.0 / GetScreenScale());
     SkCGDrawBitmap(pCGContext, bmp, 0, 0);
