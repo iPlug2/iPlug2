@@ -225,6 +225,7 @@ void IPlugVST2::SetLatency(int samples)
 {
   mAEffect.initialDelay = samples;
   IPlugProcessor::SetLatency(samples);
+  mHostCallback(&mAEffect, audioMasterIOChanged, 0, 0, 0, 0.0f);
 }
 
 bool IPlugVST2::SendVSTEvent(VstEvent& event)
