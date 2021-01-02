@@ -428,6 +428,7 @@ void IGraphicsSkia::BeginFrame()
 
 void IGraphicsSkia::DrawImGui(SkSurface* surface)
 {
+  #if defined IGRAPHICS_IMGUI
   // This causes ImGui to rebuild vertex/index data based on all immediate-mode commands
   // (widgets, etc...) that have been issued
   ImGui::Render();
@@ -490,6 +491,7 @@ void IGraphicsSkia::DrawImGui(SkSurface* surface)
       }
     }
   }
+  #endif
 }
 
 void IGraphicsSkia::EndFrame()
