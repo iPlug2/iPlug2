@@ -2,7 +2,6 @@
 # This file should be included in your main CMakeLists.txt file. #
 #
 
-
 if (APPLE)
   enable_language(OBJCXX)
 endif()
