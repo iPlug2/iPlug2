@@ -1,6 +1,6 @@
 #include "IPlugSOUL.h"
 #include "IPlug_include_in_plug_src.h"
-//#include "IControls.h"
+#include "IControls.h"
 
 IPlugSOUL::IPlugSOUL(const InstanceInfo& info)
 : Plugin(info, MakeConfig(DSP::numParameters, kNumPresets))
@@ -9,6 +9,8 @@ IPlugSOUL::IPlugSOUL(const InstanceInfo& info)
   
   int paramIdx = 0;
   for (auto& p : DSP::getParameterProperties()) {
+    mParamMap.insert(std::make_pair(p.name, paramIdx));
+
     int flags = 0;
     flags |= !p.isAutomatable ? IParam::EFlags::kFlagCannotAutomate : 0;
     flags |= CStringHasContents(p.textValues) ? IParam::EFlags::kFlagStepped : 0;
@@ -27,7 +29,23 @@ IPlugSOUL::IPlugSOUL(const InstanceInfo& info)
     paramIdx++;
   }
   
-  //TODO: GUI
+  #if IPLUG_EDITOR // http://bit.ly/2S64BDd
+    mMakeGraphicsFunc = [&]() {
+      return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
+    };
+    
+    mLayoutFunc = [&](IGraphics* pGraphics) {
+      pGraphics->AttachPanelBackground(COLOR_ORANGE);
+      pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
+      const IRECT b = pGraphics->GetBounds();
+      pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100), GetIPlugParamIdx("volume")));
+    };
+  #endif
+}
+
+int IPlugSOUL::GetIPlugParamIdx(const char* soulParamUID)
+{
+  return mParamMap[soulParamUID];
 }
 
 #if IPLUG_DSP

@@ -2,6 +2,7 @@
 
 #include "IPlug_include_in_plug_hdr.h"
 #include "IPlugSOUL_DSP.h"
+#include <map>
 
 const int kNumPresets = 1;
 
@@ -19,9 +20,12 @@ public:
   void OnReset() override;
   void OnParamChange(int paramIdx) override;
   
+  int GetIPlugParamIdx(const char* soulParamUID);
+private:
   DSP mDSP;
   int mSessionID = 0;
   IPlugQueue<int> mParamsToUpdate {DSP::numParameters};
   std::vector<DSP::Parameter> mSOULParams;
+  std::map<const char*, int> mParamMap;
 #endif
 };
