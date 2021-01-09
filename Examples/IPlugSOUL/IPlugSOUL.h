@@ -17,6 +17,7 @@ public:
 
 #if IPLUG_DSP // http://bit.ly/2S64BDd
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
+  void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnReset() override;
   void OnParamChange(int paramIdx) override;
   
@@ -27,5 +28,6 @@ private:
   IPlugQueue<int> mParamsToUpdate {DSP::numParameters};
   std::vector<DSP::Parameter> mSOULParams;
   std::map<const char*, int> mParamMap;
+  std::vector<DSP::MIDIMessage> mIncomingMIDIMessages;
 #endif
 };

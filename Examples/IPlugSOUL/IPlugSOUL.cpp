@@ -38,7 +38,8 @@ IPlugSOUL::IPlugSOUL(const InstanceInfo& info)
       pGraphics->AttachPanelBackground(COLOR_ORANGE);
       pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
       const IRECT b = pGraphics->GetBounds();
-      pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100), GetIPlugParamIdx("volume")));
+      pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-50), GetIPlugParamIdx("volume")));
+      pGraphics->AttachControl(new IVKeyboardControl(b.GetFromBottom(50)));
     };
   #endif
 }
@@ -68,6 +69,7 @@ void IPlugSOUL::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   }
   
   for (auto i=0; i<DSP::numAudioOutputChannels; i++) {
+    memset(outputs[i], 0, nFrames * sizeof(sample));
     renderCtx.outputChannels[i] = outputs[i];
   }
   
@@ -78,12 +80,24 @@ void IPlugSOUL::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   mDSP.setTimeSignature(mTimeInfo.mNumerator, mTimeInfo.mDenominator);
   mDSP.setTransportState(mTimeInfo.mTransportIsRunning ? 1 : 0);
   
+  if(mIncomingMIDIMessages.size()) {
+    renderCtx.incomingMIDI.messages = std::addressof (mIncomingMIDIMessages[0]);
+    renderCtx.incomingMIDI.numMessages = static_cast<uint32_t>(mIncomingMIDIMessages.size());
+  }
+  
   mDSP.render(renderCtx);
+  mIncomingMIDIMessages.clear();
+}
+
+void IPlugSOUL::ProcessMidiMsg(const IMidiMsg& msg)
+{
+  mIncomingMIDIMessages.push_back({static_cast<uint32_t>(msg.mOffset), msg.mStatus, msg.mData1, msg.mData2});
 }
 
 void IPlugSOUL::OnReset()
 {
   mDSP.init(GetSampleRate(), mSessionID++);
+  mIncomingMIDIMessages.reserve(GetBlockSize());
 }
 
 void IPlugSOUL::OnParamChange(int paramIdx)
