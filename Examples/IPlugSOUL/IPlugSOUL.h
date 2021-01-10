@@ -15,19 +15,18 @@ class IPlugSOUL final : public Plugin
 public:
   IPlugSOUL(const InstanceInfo& info);
 
-#if IPLUG_DSP // http://bit.ly/2S64BDd
+#if IPLUG_DSP
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnReset() override;
   void OnParamChange(int paramIdx) override;
-  
-  int GetIPlugParamIdx(const char* soulParamUID);
 private:
   DSP mDSP;
   int mSessionID = 0;
   IPlugQueue<int> mParamsToUpdate {DSP::numParameters};
   std::vector<DSP::Parameter> mSOULParams;
-  std::map<const char*, int> mParamMap;
   std::vector<DSP::MIDIMessage> mIncomingMIDIMessages;
 #endif
+  int GetIPlugParamIdx(const char* soulParamID) { return mParamMap[soulParamID]; }
+  std::map<const char*, int> mParamMap;
 };
