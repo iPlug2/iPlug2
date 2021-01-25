@@ -750,6 +750,23 @@ void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 void IVSliderControl::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
   ISliderControlBase::OnMouseUp(x, y, mod);
+  IRECT filledTrack = mTrackBounds.FracRect(mDirection, (float) GetValue());
+  float cx, cy;
+  
+  const float offset = (mStyle.drawShadows && mShape != EVShape::Ellipse /* TODO? */) ? mStyle.shadowOffset * 0.5f : 0.f;
+  if(mDirection == EDirection::Vertical)
+  {
+    cx = filledTrack.MW() + offset;
+    cy = filledTrack.T;
+  }
+  else
+  {
+    cx = filledTrack.R;
+    cy = filledTrack.MH() + offset;
+  }
+  
+  GetUI()->MoveMouseCursor(cx, cy);
+  
   SetDirty(true);
 }
 
