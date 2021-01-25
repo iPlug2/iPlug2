@@ -508,8 +508,8 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* labe
 , mAnchorAngle(aAnchor)
 {
   DisablePrompt(!valueIsEditable);
+  SetCursorHiding(style.hideCursor);
   mText = style.valueText;
-  mHideCursorOnDrag = mStyle.hideCursor;
   mShape = EVShape::Ellipse;
   mTrackSize = trackSize;
   AttachIControl(this, label);
@@ -523,8 +523,8 @@ IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction aF, const char
 , mAnchorAngle(aAnchor)
 {
   DisablePrompt(!valueIsEditable);
+  SetCursorHiding(style.hideCursor);
   mText = style.valueText;
-  mHideCursorOnDrag = mStyle.hideCursor;
   mShape = EVShape::Ellipse;
   mTrackSize = trackSize;
   SetActionFunction(aF);
@@ -660,8 +660,8 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* 
 , mHandleInsideTrack(handleInsideTrack)
 {
   DisablePrompt(!valueIsEditable);
+  SetCursorHiding(style.hideCursor);
   mText = style.valueText;
-  mHideCursorOnDrag = style.hideCursor;
   mShape = EVShape::Ellipse;
   mTrackSize = trackSize;
   AttachIControl(this, label);
@@ -673,8 +673,8 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const 
 , mHandleInsideTrack(handleInsideTrack)
 {
   DisablePrompt(!valueIsEditable);
+  SetCursorHiding(style.hideCursor);
   mText = style.valueText;
-  mHideCursorOnDrag = style.hideCursor;
   mShape = EVShape::Ellipse;
   mTrackSize = trackSize;
   AttachIControl(this, label);

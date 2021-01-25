@@ -1205,13 +1205,16 @@ public:
   
   void SetGearing(double gearing) { mGearing = gearing; }
   bool IsFineControl(const IMouseMod& mod, bool wheel) const;
-
+  void SetCursorHiding(bool hide) { mHideCursorOnDrag = hide; }
+  void SetCursorLocking(bool lock) { mLockHiddenCursor = lock; }
+  
 protected:
   /** Get the area for which mouse deltas will be used to calculate the amount dragging changes the control value. This is usually the area that contains the knob handle, can override if your control contains extra elements such as labels
    * @return IRECT The bounds over which mouse deltas will be used to calculate the amount dragging changes the control value */
   virtual IRECT GetKnobDragBounds() { return mTargetRECT; }
 
   bool mHideCursorOnDrag = true;
+  bool mLockHiddenCursor = true;
   EDirection mDirection;
   double mGearing;
   bool mMouseDown = false;
@@ -1233,9 +1236,12 @@ public:
 
   void SetGearing(double gearing) { mGearing = gearing; }
   bool IsFineControl(const IMouseMod& mod, bool wheel) const;
-  
+  void SetCursorHiding(bool hide) { mHideCursorOnDrag = hide; }
+  void SetCursorLocking(bool lock) { mLockHiddenCursor = lock; }
+
 protected:
   bool mHideCursorOnDrag = true;
+  bool mLockHiddenCursor = true;
   EDirection mDirection;
   IRECT mTrackBounds;
   float mHandleSize;
