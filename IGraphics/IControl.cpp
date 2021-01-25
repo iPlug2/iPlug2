@@ -811,7 +811,7 @@ void IKnobControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
   mMouseDragValue = GetValue();
 
   if (mHideCursorOnDrag)
-    GetUI()->HideMouseCursor(true, mLockHiddenCursor);
+    GetUI()->HideMouseCursor(true, true);
 
   IControl::OnMouseDown(x, y, mod);
 }
@@ -928,7 +928,7 @@ void ISliderControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
   mMouseDragValue = GetValue();
 
   if (mHideCursorOnDrag)
-    GetUI()->HideMouseCursor(true, mLockHiddenCursor);
+    GetUI()->HideMouseCursor(true, true);
 
   IControl::OnMouseDown(x, y, mod);
 }
