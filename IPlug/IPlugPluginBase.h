@@ -82,7 +82,7 @@ public:
   /** @return  Returns a CString describing the plug-in API, e.g. "VST2" */
   const char* GetAPIStr() const;
   
-  /** @return  Returns a CString either "x86" or "x64" or "WASM" describing the binary architecture */
+  /** @return  Returns a CString either "x86" or "x64", "arm64" or "WASM" describing the binary architecture */
   const char* GetArchStr() const;
   
   /** Get the build date of the plug-in and architecture/api details in one string

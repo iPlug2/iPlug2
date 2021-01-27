@@ -286,7 +286,7 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
         {
           // we are late, skip the next vblank to give us a breather.
           mVBlankSkipUntil = curCount+1;
-          DBGMSG("vblank painting was late by %i frames.", (mVBlankSkipUntil - msgCount));
+          //DBGMSG("vblank painting was late by %i frames.", (mVBlankSkipUntil - msgCount));
         }
       }
     }

@@ -8,7 +8,7 @@ IPlugWebUI::IPlugWebUI(const InstanceInfo& info)
 
   // Hard-coded paths must be modified!
 #ifdef OS_WIN
-  SetWebViewPaths("C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\WebView2Loader.dll", "C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\");
+  SetWebViewPaths("C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\packages\\Microsoft.Web.WebView2.1.0.721-prerelease\\build\\x64\\WebView2Loader.dll", "C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\");
 #endif
 
   mEditorInitFunc = [&]() {
@@ -60,6 +60,12 @@ bool IPlugWebUI::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pD
     Resize(1024, 335);
   else if(msgTag == kMsgTagButton3)
     Resize(1024, 768);
+  else if (msgTag == kMsgTagBinaryTest)
+  {
+    auto uint8Data = reinterpret_cast<const uint8_t*>(pData);
+    DBGMSG("Data Size %i bytes\n",  dataSize);
+    DBGMSG("Byte values: %i, %i, %i, %i\n", uint8Data[0], uint8Data[1], uint8Data[2], uint8Data[3]);
+  }
 
   return false;
 }

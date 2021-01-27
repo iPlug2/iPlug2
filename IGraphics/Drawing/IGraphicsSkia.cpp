@@ -11,6 +11,8 @@
 #include "SkFont.h"
 #include "SkFontMetrics.h"
 #include "SkTypeface.h"
+#include "SkVertices.h"
+#include "SkSwizzle.h"
 #pragma warning( pop )
 
 #if defined OS_MAC || defined OS_IOS
@@ -315,7 +317,7 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
   mMTLCommandQueue = (void*) commandQueue;
   mMTLLayer = pContext;
 #endif
-    
+
   DrawResize();
 }
 
@@ -424,6 +426,74 @@ void IGraphicsSkia::BeginFrame()
   IGraphics::BeginFrame();
 }
 
+void IGraphicsSkia::DrawImGui(SkSurface* surface)
+{
+  #if defined IGRAPHICS_IMGUI
+  // This causes ImGui to rebuild vertex/index data based on all immediate-mode commands
+  // (widgets, etc...) that have been issued
+  ImGui::Render();
+
+  // Then we fetch the most recent data, and convert it so we can render with Skia
+  const ImDrawData* drawData = ImGui::GetDrawData();
+  SkTDArray<SkPoint> pos;
+  SkTDArray<SkPoint> uv;
+  SkTDArray<SkColor> color;
+
+  auto canvas = surface->getCanvas();
+
+  for (int i = 0; i < drawData->CmdListsCount; ++i) {
+    const ImDrawList* drawList = drawData->CmdLists[i];
+
+    // De-interleave all vertex data (sigh), convert to Skia types
+    pos.rewind(); uv.rewind(); color.rewind();
+    for (int j = 0; j < drawList->VtxBuffer.size(); ++j) {
+        const ImDrawVert& vert = drawList->VtxBuffer[j];
+        pos.push_back(SkPoint::Make(vert.pos.x * GetScreenScale(), vert.pos.y * GetScreenScale()));
+        uv.push_back(SkPoint::Make(vert.uv.x, vert.uv.y));
+        color.push_back(vert.col);
+    }
+    // ImGui colors are RGBA
+    SkSwapRB(color.begin(), color.begin(), color.count());
+
+    int indexOffset = 0;
+
+    // Draw everything with canvas.drawVertices...
+    for (int j = 0; j < drawList->CmdBuffer.size(); ++j)
+    {
+      const ImDrawCmd* drawCmd = &drawList->CmdBuffer[j];
+
+      SkAutoCanvasRestore acr(canvas, true);
+
+      // TODO: Find min/max index for each draw, so we know how many vertices (sigh)
+      if (drawCmd->UserCallback)
+      {
+          drawCmd->UserCallback(drawList, drawCmd);
+      }
+      else
+      {
+        SkPaint* paint = static_cast<SkPaint*>(drawCmd->TextureId);
+        SkASSERT(paint);
+
+        canvas->clipRect(SkRect::MakeLTRB(drawCmd->ClipRect.x * GetScreenScale(),
+                                          drawCmd->ClipRect.y * GetScreenScale(),
+                                          drawCmd->ClipRect.z * GetScreenScale(),
+                                          drawCmd->ClipRect.w * GetScreenScale()));
+        
+        auto vertices = SkVertices::MakeCopy(SkVertices::kTriangles_VertexMode,
+                                             drawList->VtxBuffer.size(),
+                                             pos.begin(), uv.begin(), color.begin(),
+                                             drawCmd->ElemCount,
+                                             drawList->IdxBuffer.begin() + indexOffset);
+  
+        canvas->drawVertices(vertices, SkBlendMode::kModulate, mImGuiRenderer->fFontPaint);
+
+        indexOffset += drawCmd->ElemCount;
+      }
+    }
+  }
+  #endif
+}
+
 void IGraphicsSkia::EndFrame()
 {
 #ifdef IGRAPHICS_CPU
@@ -450,8 +520,17 @@ void IGraphicsSkia::EndFrame()
   #else
     #error NOT IMPLEMENTED
   #endif
-#else
+#else // GPU
   mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, nullptr);
+  
+  #if defined IGRAPHICS_IMGUI && !IGRAPHICS_CPU
+  if(mImGuiRenderer)
+  {
+    mImGuiRenderer->NewFrame();
+    DrawImGui(mScreenSurface.get());
+  }
+  #endif
+  
   mScreenSurface->getCanvas()->flush();
   
   #ifdef IGRAPHICS_METAL

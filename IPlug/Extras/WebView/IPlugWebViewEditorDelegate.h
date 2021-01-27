@@ -18,10 +18,12 @@
 
 BEGIN_IPLUG_NAMESPACE
 
-/** This Editor Delegate allows using a platform native Web View as the UI for an iPlug plugin */
+/** This Editor Delegate allows using a platform native web view as the UI for an iPlug plugin */
 class WebViewEditorDelegate : public IEditorDelegate
                             , public IWebView
 {
+  static constexpr int kDefaultMaxJSStringLength = 1024;
+  
 public:
   WebViewEditorDelegate(int nParams);
   virtual ~WebViewEditorDelegate();
@@ -37,36 +39,34 @@ public:
   void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override
   {
     WDL_String str;
-    str.SetFormatted(50, "SCVFD(%i, %f)", ctrlTag, normalizedValue);
+    str.SetFormatted(mMaxJSStringLength, "SCVFD(%i, %f)", ctrlTag, normalizedValue);
     EvaluateJavaScript(str.Get());
   }
 
   void SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData) override
   {
     WDL_String str;
-    WDL_TypedBuf<char> base64;
-    int sizeOfBase64 = static_cast<int>(4. * std::ceil((static_cast<double>(dataSize)/3.)));
-    base64.Resize(sizeOfBase64);
-    wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.GetFast(), dataSize);
-    str.SetFormatted(50, "SCMFD(%i, %i, %i, %s)", ctrlTag, msgTag, dataSize, base64.GetFast());
+    std::vector<char> base64;
+    base64.resize(GetBase64Length(dataSize));
+    wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.data(), dataSize);
+    str.SetFormatted(mMaxJSStringLength, "SCMFD(%i, %i, %i, %s)", ctrlTag, msgTag, dataSize, base64.data());
     EvaluateJavaScript(str.Get());
   }
 
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override
   {
     WDL_String str;
-    str.SetFormatted(50, "SPVFD(%i, %f)", paramIdx, value);
+    str.SetFormatted(mMaxJSStringLength, "SPVFD(%i, %f)", paramIdx, value);
     EvaluateJavaScript(str.Get());
   }
 
   void SendArbitraryMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
     WDL_String str;
-    WDL_TypedBuf<char> base64;
-    int sizeOfBase64 = static_cast<int>(4. * std::ceil((static_cast<double>(dataSize)/3.)));
-    base64.Resize(sizeOfBase64);
-    wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.GetFast(), dataSize);
-    str.SetFormatted(50, "SAMFD(%i, %i, %s)", msgTag, dataSize, base64.GetFast());
+    std::vector<char> base64;
+    base64.resize(GetBase64Length(dataSize));
+    wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.data(), dataSize);
+    str.SetFormatted(mMaxJSStringLength, "SAMFD(%i, %i, %s)", msgTag, dataSize, base64.data());
     EvaluateJavaScript(str.Get());
   }
 
@@ -88,18 +88,27 @@ public:
     }
     else if (json["msg"] == "SAMFUI")
     {
-      const char* pData = nullptr;
-      int size = 0;
-      std::string dataStr;
-      
-      if(json.count("data")>0 && json["data"].is_string())
+      std::vector<unsigned char> base64;
+
+      if(json.count("data") > 0 && json["data"].is_string())
       {
-        dataStr = json["data"].get<std::string>();
-        size = static_cast<int>(dataStr.size());
-        pData = dataStr.c_str();
+        auto dStr = json["data"].get<std::string>();
+        int dSize = static_cast<int>(dStr.size());
+        
+        // calculate the exact size of the decoded base64 data
+        int numPaddingBytes = 0;
+        
+        if(dSize >= 2 && dStr[dSize-2] == '=')
+          numPaddingBytes = 2;
+        else if(dSize >= 1 && dStr[dSize-1] == '=')
+          numPaddingBytes = 1;
+        
+
+        base64.resize((dSize * 3) / 4 - numPaddingBytes);
+        wdl_base64decode(dStr.c_str(), base64.data(), static_cast<int>(base64.size()));
       }
-      
-      SendArbitraryMsgFromUI(json["msgTag"], json["ctrlTag"], size, reinterpret_cast<const void*>(pData));
+
+      SendArbitraryMsgFromUI(json["msgTag"], json["ctrlTag"], static_cast<int>(base64.size()), base64.data());
     }
   }
 
@@ -120,7 +129,18 @@ public:
     OnUIOpen();
   }
   
+  void SetMaxJSStringLength(int length)
+  {
+    mMaxJSStringLength = length;
+  }
+  
 protected:
+  int GetBase64Length(int dataSize)
+  {
+    return static_cast<int>(4. * std::ceil((static_cast<double>(dataSize) / 3.)));
+  }
+  
+  int mMaxJSStringLength = kDefaultMaxJSStringLength;
   std::function<void()> mEditorInitFunc = nullptr;
 };
 

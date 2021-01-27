@@ -48,6 +48,13 @@
   <script src="script.js"></script>
   <script src="webaudio-controls.js"></script>
   <script>
+    function SendTestBinaryData() {
+      let uint8 = new Uint8Array([0, 0, 0, 0]);
+      uint8.fill(4, 1, 3);
+      var bin = String.fromCharCode.apply(null, uint8);
+      SAMFUI(3, -1, window.btoa(bin));
+    }
+    
     function OnParamChange(param, value) {
       if(param == 0) {
         document.getElementById("gain_knob").value = value * 100.;
@@ -74,6 +81,7 @@
     <p>Gain</p>
     <!-- <input id="slider" type="range" onmousedown="BPCFUI(0)" oninput="SPVFUI(0, this.value/100.)" onmouseup="EPCFUI(0)"> -->
     <webaudio-knob id="gain_knob" min="0" max="100"></webaudio-knob>
+    <button onclick="SendTestBinaryData()">Binary Test</button>
     <progress id="meter">
   </div>
   <div class="right">

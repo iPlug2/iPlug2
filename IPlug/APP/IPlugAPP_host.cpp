@@ -574,7 +574,7 @@ void IPlugAPPHost::CloseAudio()
 }
 
 bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_t iovs)
-{  
+{
   CloseAudio();
 
   RtAudio::StreamParameters iParams, oParams;

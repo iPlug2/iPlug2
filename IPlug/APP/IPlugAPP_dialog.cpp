@@ -21,7 +21,7 @@
 
 using namespace iplug;
 
-#if defined _DEBUG && !defined NO_IGRAPHICS
+#if !defined NO_IGRAPHICS
 #include "IGraphics.h"
 using namespace igraphics;
 #endif
@@ -527,7 +527,6 @@ static void ClientResize(HWND hWnd, int nWidth, int nHeight)
   ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
   
   SetWindowPos(hWnd, 0, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, 0);
-//  MoveWindow(hWnd, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, FALSE);
 }
 
 #ifdef OS_WIN 
@@ -724,6 +723,47 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       
       return 0;
     }
+#ifdef OS_WIN
+    case WM_DPICHANGED:
+    {
+      WORD dpi = HIWORD(wParam);
+      RECT* rect = (RECT*)lParam;
+      int scale = GetScaleForHWND(hwndDlg);
+
+      POINT ptDiff;
+      RECT rcClient;
+      RECT rcWindow;
+
+      GetClientRect(hwndDlg, &rcClient);
+      GetWindowRect(hwndDlg, &rcWindow);
+
+      ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
+      ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+
+#ifndef NO_IGRAPHICS
+      IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
+
+      if (pPlug)
+      {
+        IGraphics* pGraphics = pPlug->GetUI();
+
+        if (pGraphics)
+        {
+          pGraphics->SetScreenScale(scale);
+        }
+      }
+#else
+      IEditorDelegate* pPlug = dynamic_cast<IEditorDelegate*>(pAppHost->GetPlug());
+#endif
+
+      int w = pPlug->GetEditorWidth(); 
+      int h = pPlug->GetEditorHeight();
+
+      SetWindowPos(hwndDlg, 0, rect->left, rect->top, w + ptDiff.x, h + ptDiff.y, 0);
+
+      return 0;
+    }
+#endif
     case WM_SIZE:
     {
       IPlugAPP* pPlug = pAppHost->GetPlug();
