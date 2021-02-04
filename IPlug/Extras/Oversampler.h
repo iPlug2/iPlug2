@@ -6,7 +6,7 @@
  See LICENSE.txt for  more info.
  
  ==============================================================================
-*/
+ */
 
 #pragma once
 
@@ -44,11 +44,11 @@ class OverSampler
 public:
   using BlockProcessFunc = std::function<void(T**, T**, int)>;
   
-  OverSampler(EFactor factor = kNone, bool blockProcessing = true, int nChannels = 1)
+  OverSampler(EFactor factor = kNone, bool blockProcessing = true, int nInChannels = 1, int nOutChannels = 1)
   : mBlockProcessing(blockProcessing)
-  , mNChannels(nChannels)
+  , mNInChannels(nInChannels), mNOutChannels(nOutChannels)
   {
-    for (auto c = 0; c < mNChannels; c++)
+    for (auto c = 0; c < mNInChannels+mNOutChannels; c++)
     {
       mUpsampler2x.Add(new Upsampler2xFPU<12, T>());
       mDownsampler2x.Add(new Downsampler2xFPU<12, T>());
@@ -61,57 +61,60 @@ public:
       
       static constexpr double coeffs2x[12] = { 0.036681502163648017, 0.13654762463195794, 0.27463175937945444, 0.42313861743656711, 0.56109869787919531, 0.67754004997416184, 0.76974183386322703, 0.83988962484963892, 0.89226081800387902, 0.9315419599631839, 0.96209454837808417, 0.98781637073289585 };
       
-//    PolyphaseIir2Designer::compute_coefs(coeffs2x, 96., 0.01);
-
-//    printf("coeffs2x\n");
-//
-//    for(int i=0;i<12;i++)
-//      printf("%.17g,\n", coeffs2x[i]);
-
+      //    PolyphaseIir2Designer::compute_coefs(coeffs2x, 96., 0.01);
+      
+      //    printf("coeffs2x\n");
+      //
+      //    for(int i=0;i<12;i++)
+      //      printf("%.17g,\n", coeffs2x[i]);
+      
       mUpsampler2x.Get(c)->set_coefs(coeffs2x);
       mDownsampler2x.Get(c)->set_coefs(coeffs2x);
       
       
       static constexpr double coeffs4x[4] = {0.041893991997656171, 0.16890348243995201, 0.39056077292116603, 0.74389574826847926 };
-  
-  //    PolyphaseIir2Designer::compute_coefs(coeffs4x, 96., 0.255);
-  
-  //    printf("coeffs4x\n");
-  //
-  //    for(int i=0;i<4;i++)
-  //      printf("%.17g,\n", coeffs4x[i]);
-  
+      
+      //    PolyphaseIir2Designer::compute_coefs(coeffs4x, 96., 0.255);
+      
+      //    printf("coeffs4x\n");
+      //
+      //    for(int i=0;i<4;i++)
+      //      printf("%.17g,\n", coeffs4x[i]);
+      
       mUpsampler4x.Get(c)->set_coefs(coeffs4x);
       mDownsampler4x.Get(c)->set_coefs(coeffs4x);
-  
+      
       static constexpr double coeffs8x[3] = {0.055748680811302048, 0.24305119574153072, 0.64669913119268196 };
-  
-  //  PolyphaseIir2Designer::compute_coefs(coeffs8x, 96., 0.3775);
-  
-  //    printf("coeffs8x\n");
-  //
-  //    for(int i=0;i<3;i++)
-  //      printf("%.17g,\n", coeffs8x[i]);
-  
+      
+      //  PolyphaseIir2Designer::compute_coefs(coeffs8x, 96., 0.3775);
+      
+      //    printf("coeffs8x\n");
+      //
+      //    for(int i=0;i<3;i++)
+      //      printf("%.17g,\n", coeffs8x[i]);
+      
       mUpsampler8x.Get(c)->set_coefs(coeffs8x);
       mDownsampler8x.Get(c)->set_coefs(coeffs8x);
-  
+      
       static constexpr double coeffs16x[2] = {0.10717745346023573, 0.53091435354504557 };
-  
-  //    PolyphaseIir2Designer::compute_coefs(coeffs16x, 96., 0.43865);
-  
-  //    printf("coeffs16x\n");
-  //
-  //    for(int i=0;i<2;i++)
-  //      printf("%.17g,\n", coeffs16x[i]);
-  
+      
+      //    PolyphaseIir2Designer::compute_coefs(coeffs16x, 96., 0.43865);
+      
+      //    printf("coeffs16x\n");
+      //
+      //    for(int i=0;i<2;i++)
+      //      printf("%.17g,\n", coeffs16x[i]);
+      
       mUpsampler16x.Get(c)->set_coefs(coeffs16x);
       mDownsampler16x.Get(c)->set_coefs(coeffs16x);
     }
     
-    for (auto c = 0; c < mNChannels; c++)
+    for (auto c = 0; c < mNInChannels; c++)
     {
       mNextInputPtrs.Add(mUp2x.Get()); // ptr location doesn't matter at this stage
+    }
+    for (auto c = 0; c < mNOutChannels; c++)
+    {
       mNextOutputPtrs.Add(mDown2x.Get());
     }
     
@@ -131,10 +134,10 @@ public:
     mUpsampler16x.Empty(true);
     mDownsampler16x.Empty(true);
   }
-
+  
   OverSampler(const OverSampler&) = delete;
   OverSampler& operator=(const OverSampler&) = delete;
-    
+  
   void Reset(int blockSize = DEFAULT_BLOCK_SIZE)
   {
     int numBufSamples = 1;
@@ -147,7 +150,7 @@ public:
       blockSize = 1;
     }
     
-    numBufSamples *= mNChannels;
+    numBufSamples *= mNInChannels + mNOutChannels;
     
     mUp2x.Resize(2 * numBufSamples);
     mUp4x.Resize(4 * numBufSamples);
@@ -169,7 +172,7 @@ public:
     mDown4BufferPtrs.Empty();
     mDown2BufferPtrs.Empty();
     
-    for (auto c = 0; c < mNChannels; c++)
+    for (auto c = 0; c < mNInChannels+mNOutChannels; c++)
     {
       mUpsampler2x.Get(c)->clear_buffers();
       mUpsampler4x.Get(c)->clear_buffers();
@@ -190,16 +193,18 @@ public:
       mDown16BufferPtrs.Add(mDown16x.Get() + (c * 16 * blockSize));
     }
   }
-
+  
   /** Over sample an input block with a per-block function (up sample input -> process with function -> down sample)
    * @param inputs Two-dimensional array containing the non-interleaved input buffers of audio samples for all channels
    * @param outputs Two-dimensional array for audio output (non-interleaved).
    * @param nFrames The block size for this block: number of samples per channel.
-   * @param nChans The number of channels to process. Must be less or equal to the number of channels passed to the constructor
+   * @param nInChans The number of in channels to process. Must be less or equal to the number of in channels passed to the constructor
+   * @param nOutChans The number of out channels to process. Must be less or equal to the number of out channels passed to the constructor
    * @param func The function that processes the audio sample at the higher sampling rate. NOTE: std::function can call malloc if you pass in captures */
-  void ProcessBlock(T** inputs, T** outputs, int nFrames, int nChans, BlockProcessFunc func)
+  void ProcessBlock(T** inputs, T** outputs, int nFrames, int nInChans, int nOutChans, BlockProcessFunc func)
   {
-    assert(nChans <= mNChannels);
+    assert(nInChans <= mNInChannels);
+    assert(nOutChans <= mNOutChannels);
     
     if(mRate != mPrevRate)
     {
@@ -226,27 +231,27 @@ public:
       
       mPrevRate = mRate;
     }
-
+    
     if (mRate >= 2) {
-      for(auto c = 0; c < nChans; c++) {
+      for(auto c = 0; c < nInChans; c++) {
         mUpsampler2x.Get(c)->process_block(mUp2BufferPtrs.Get(c), inputs[c], nFrames);
       }
     }
     
     if (mRate >= 4) {
-      for(auto c = 0; c < nChans; c++) {
+      for(auto c = 0; c < nInChans; c++) {
         mUpsampler4x.Get(c)->process_block(mUp4BufferPtrs.Get(c), mUp2BufferPtrs.Get(c), nFrames * 2);
       }
     }
     
     if (mRate >= 8) {
-      for(auto c = 0; c < nChans; c++) {
+      for(auto c = 0; c < nInChans; c++) {
         mUpsampler8x.Get(c)->process_block(mUp8BufferPtrs.Get(c), mUp4BufferPtrs.Get(c), nFrames * 4);
       }
     }
     
     if (mRate == 16) {
-      for(auto c = 0; c < nChans; c++) {
+      for(auto c = 0; c < nInChans; c++) {
         mUpsampler16x.Get(c)->process_block(mUp16BufferPtrs.Get(c), mUp8BufferPtrs.Get(c), nFrames * 8);
       }
     }
@@ -256,8 +261,10 @@ public:
     }
     else {
       for (auto i = 0; i < mRate; i++) {
-        for(auto c = 0; c < nChans; c++) {
+        for(auto c = 0; c < nInChans; c++) {
           mNextInputPtrs.Set(c, mInPtrLoopSrc->Get(c) + (i * nFrames));
+        }
+        for(auto c = 0; c < nOutChans; c++) {
           mNextOutputPtrs.Set(c, mOutPtrLoopSrc->Get(c) + (i * nFrames));
         }
         func(mNextInputPtrs.GetList(), mNextOutputPtrs.GetList(), nFrames);
@@ -265,25 +272,25 @@ public:
     }
     
     if (mRate == 16) {
-      for(auto c = 0; c < nChans; c++) {
+      for(auto c = 0; c < nOutChans; c++) {
         mDownsampler16x.Get(c)->process_block(mDown8BufferPtrs.Get(c), mDown16BufferPtrs.Get(c), nFrames * 8);
       }
     }
     
     if (mRate >= 8) {
-      for(auto c = 0; c < nChans; c++) {
+      for(auto c = 0; c < nOutChans; c++) {
         mDownsampler8x.Get(c)->process_block(mDown4BufferPtrs.Get(c), mDown8BufferPtrs.Get(c), nFrames * 4);
       }
     }
     
     if (mRate >= 4) {
-      for(auto c = 0; c < nChans; c++) {
+      for(auto c = 0; c < nOutChans; c++) {
         mDownsampler4x.Get(c)->process_block(mDown2BufferPtrs.Get(c), mDown4BufferPtrs.Get(c), nFrames * 2);
       }
     }
     
     if (mRate >= 2) {
-      for(auto c = 0; c < nChans; c++) {
+      for(auto c = 0; c < nOutChans; c++) {
         mDownsampler2x.Get(c)->process_block(outputs[c], mDown2BufferPtrs.Get(c), nFrames);
       }
     }
@@ -296,19 +303,19 @@ public:
   T Process(T input, std::function<T(T)> func)
   {
     T output;
-
+    
     if(mRate == 16)
     {
       mUpsampler2x.Get(0)->process_sample(mUp2x.Get()[0], mUp2x.Get()[1], input);
       mUpsampler4x.Get(0)->process_block(mUp4x.Get(), mUp2x.Get(), 2);
       mUpsampler8x.Get(0)->process_block(mUp8x.Get(), mUp4x.Get(), 4);
       mUpsampler16x.Get(0)->process_block(mUp16x.Get(), mUp8x.Get(), 8);
-
+      
       for (auto i = 0; i < 16; i++)
       {
         mDown16x.Get()[i] = func(mUp16x.Get()[i]);
       }
-
+      
       mDownsampler16x.Get(0)->process_block(mDown8x.Get(), mDown16x.Get(), 8);
       mDownsampler8x.Get(0)->process_block(mDown4x.Get(), mDown8x.Get(), 4);
       mDownsampler4x.Get(0)->process_block(mDown2x.Get(), mDown4x.Get(), 2);
@@ -319,12 +326,12 @@ public:
       mUpsampler2x.Get(0)->process_sample(mUp2x.Get()[0], mUp2x.Get()[1], input);
       mUpsampler4x.Get(0)->process_block(mUp4x.Get(), mUp2x.Get(), 2);
       mUpsampler8x.Get(0)->process_block(mUp8x.Get(), mUp4x.Get(), 4);
-
+      
       for (auto i = 0; i < 8; i++)
       {
         mDown8x.Get()[i] = func(mUp8x.Get()[i]);
       }
-
+      
       mDownsampler8x.Get(0)->process_block(mDown4x.Get(), mDown8x.Get(), 4);
       mDownsampler4x.Get(0)->process_block(mDown2x.Get(), mDown4x.Get(), 2);
       output = mDownsampler2x.Get(0)->process_sample(mDown2x.Get());
@@ -333,19 +340,19 @@ public:
     {
       mUpsampler2x.Get(0)->process_sample(mUp2x.Get()[0], mUp2x.Get()[1], input);
       mUpsampler4x.Get(0)->process_block(mUp4x.Get(), mUp2x.Get(), 2);
-
+      
       for (auto i = 0; i < 4; i++)
       {
         mDown4x.Get()[i] = func(mUp4x.Get()[i]);
       }
-
+      
       mDownsampler4x.Get(0)->process_block(mDown2x.Get(), mDown4x.Get(), 2);
       output = mDownsampler2x.Get(0)->process_sample(mDown2x.Get());
     }
     else if (mRate == 2)
     {
       mUpsampler2x.Get(0)->process_sample(mUp2x.Get()[0], mUp2x.Get()[1], input);
-
+      
       mDown2x.Get()[0] = func(mUp2x.Get()[0]);
       mDown2x.Get()[1] = func(mUp2x.Get()[1]);
       output = mDownsampler2x.Get(0)->process_sample(mDown2x.Get());
@@ -354,10 +361,10 @@ public:
     {
       output = func(input);
     }
-
+    
     return output;
   }
-
+  
   /** Over-sample an per-sample synthesis function
    * @param genFunc The function that generates the audio sample
    * @return The audio sample output */
@@ -366,10 +373,10 @@ public:
     auto ProcessDown16x = [&](T input)
     {
       mDown16x.Get()[mWritePos] = (T) input;
-
+      
       mWritePos++;
       mWritePos &= 15;
-
+      
       if(mWritePos == 0)
       {
         mDownsampler16x.Get(0)->process_block(mDown8x.Get(), mDown16x.Get(), 8);
@@ -378,14 +385,14 @@ public:
         mDownSamplerOutput = mDownsampler2x.Get(0)->process_sample(mDown2x.Get());
       }
     };
-
+    
     auto ProcessDown8x = [&](T input)
     {
       mDown8x.Get()[mWritePos] = (T) input;
-
+      
       mWritePos++;
       mWritePos &= 7;
-
+      
       if(mWritePos == 0)
       {
         mDownsampler8x.Get(0)->process_block(mDown4x.Get(), mDown8x.Get(), 4);
@@ -393,39 +400,39 @@ public:
         mDownSamplerOutput = mDownsampler2x.Get(0)->process_sample(mDown2x.Get());
       }
     };
-
+    
     auto ProcessDown4x = [&](T input)
     {
       mDown4x.Get()[mWritePos] = (T) input;
-
+      
       mWritePos++;
       mWritePos &= 3;
-
+      
       if(mWritePos == 0)
       {
         mDownsampler4x.Get(0)->process_block(mDown2x.Get(), mDown4x.Get(), 2);
         mDownSamplerOutput = mDownsampler2x.Get(0)->process_sample(mDown2x.Get());
       }
     };
-
+    
     auto ProcessDown2x = [&](T input)
     {
       mDown2x.Get()[mWritePos] = (T) input;
-
+      
       mWritePos = !mWritePos;
-
+      
       if(mWritePos == 0)
       {
         mDownSamplerOutput = mDownsampler2x.Get(0)->process_sample(mDown2x.Get());
       }
     };
-
+    
     T output;
-
+    
     for (int j = 0; j < mRate; j++)
     {
       output = genFunc();
-
+      
       switch(mRate)
       {
         case 2: ProcessDown2x(output); break;
@@ -435,13 +442,13 @@ public:
         default: break;
       }
     }
-
+    
     if(mRate > 1)
       output = mDownSamplerOutput;
-
+    
     return output;
   }
-
+  
   void SetOverSampling(EFactor factor)
   {
     if(factor != mFactor)
@@ -470,7 +477,7 @@ public:
   {
     return mRate;
   }
-
+  
 private:
   EFactor mFactor = kNone;
   int mPrevRate = 0;
@@ -478,14 +485,15 @@ private:
   int mWritePos = 0;
   T mDownSamplerOutput = 0.;
   bool mBlockProcessing; // false
-  int mNChannels; // 1
+  int mNInChannels; // 1
+  int mNOutChannels; // 1
   
   // the actual data
   WDL_TypedBuf<T> mUp16x;
   WDL_TypedBuf<T> mUp8x;
   WDL_TypedBuf<T> mUp4x;
   WDL_TypedBuf<T> mUp2x;
-
+  
   WDL_TypedBuf<T> mDown16x;
   WDL_TypedBuf<T> mDown8x;
   WDL_TypedBuf<T> mDown4x;
@@ -501,10 +509,10 @@ private:
   WDL_PtrList<T> mDown8BufferPtrs;
   WDL_PtrList<T> mDown4BufferPtrs;
   WDL_PtrList<T> mDown2BufferPtrs;
-
+  
   WDL_PtrList<T> mNextInputPtrs;
   WDL_PtrList<T> mNextOutputPtrs;
-
+  
   //Ptrs to the buffer data ptrs, changed depending on rate (block processing only)
   WDL_PtrList<T>* mInPtrLoopSrc = nullptr;
   WDL_PtrList<T>* mOutPtrLoopSrc = nullptr;
@@ -514,7 +522,7 @@ private:
   WDL_PtrList<Upsampler2xFPU<4, T>> mUpsampler4x;  // for 2x to 4x SR
   WDL_PtrList<Upsampler2xFPU<3, T>> mUpsampler8x;  // for 4x to 8x SR
   WDL_PtrList<Upsampler2xFPU<2, T>> mUpsampler16x; // for 8x to 16x SR
-
+  
   WDL_PtrList<Downsampler2xFPU<12, T>> mDownsampler2x; // decimator for 2x to 1x SR
   WDL_PtrList<Downsampler2xFPU<4, T>> mDownsampler4x;  // decimator for 4x to 2x SR
   WDL_PtrList<Downsampler2xFPU<3, T>> mDownsampler8x;  // decimator for 8x to 4x SR
