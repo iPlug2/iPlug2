@@ -708,7 +708,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       mmi->ptMaxTrackSize.y = pPlug->GetMaxHeight();
       
 #ifdef OS_MAC
-      const int titleBarOffset = 22;
+      const int titleBarOffset = GetSystemMetrics(SM_CYMENU);
       mmi->ptMinTrackSize.y += titleBarOffset;
       mmi->ptMaxTrackSize.y += titleBarOffset;
 #endif
