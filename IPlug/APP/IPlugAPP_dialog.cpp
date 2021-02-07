@@ -26,6 +26,10 @@ using namespace iplug;
 using namespace igraphics;
 #endif
 
+#if defined OS_MAC
+extern int GetTitleBarOffset();
+#endif
+
 // check the input and output devices, find matching srs
 void IPlugAPPHost::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inputDevInfo, RtAudio::DeviceInfo* outputDevInfo)
 {
@@ -708,7 +712,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       mmi->ptMaxTrackSize.y = pPlug->GetMaxHeight();
       
 #ifdef OS_MAC
-      const int titleBarOffset = GetSystemMetrics(SM_CYMENU);
+      const int titleBarOffset = GetTitleBarOffset();
       mmi->ptMinTrackSize.y += titleBarOffset;
       mmi->ptMaxTrackSize.y += titleBarOffset;
 #endif
