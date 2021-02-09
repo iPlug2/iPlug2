@@ -44,3 +44,5 @@ Projects*
 Examples/IPlugSwift/Pods
 PodFile.lock
 */*/.vscode/ipch
+Examples/*/EBWebView
+Examples/*/packages
