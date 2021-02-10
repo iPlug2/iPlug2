@@ -2115,7 +2115,7 @@ static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpo
   return GDK_FILTER_CONTINUE;
 }
 
-HWND SWELL_CreateXBridgeWindow(HWND viewpar, void **wref, RECT *r)
+HWND SWELL_CreateXBridgeWindow(HWND viewpar, void **wref, const RECT *r)
 {
   HWND hwnd = NULL;
   *wref = NULL;
@@ -2528,6 +2528,7 @@ HCURSOR SWELL_LoadCursor(const char *_idx)
         {
           getHotSpotForFile(buf,&p->hotspot);
           GdkCursor *curs = gdk_cursor_new_from_pixbuf(gdk_display_get_default(),pb,p->hotspot.x,p->hotspot.y);
+          g_object_unref(pb);
           return (p->cachedCursor = (HCURSOR) curs);
         }
       }

@@ -1169,7 +1169,19 @@ EEL_F eel_lice_state::gfx_setfont(void *opaque, int np, EEL_F **parms)
         if (!s->font) s->font=LICE_CreateFont();
         if (s->font)
         {
-          HFONT hf=CreateFont(sz,0,0,0,(fontflag&1) ? FW_BOLD : FW_NORMAL,!!(fontflag&2),!!(fontflag&4),FALSE,ANSI_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH,s->last_fontname);
+          const int fw = (fontflag&1) ? FW_BOLD : FW_NORMAL;
+          HFONT hf=NULL;
+#if defined(_WIN32) && !defined(WDL_NO_SUPPORT_UTF8)
+          WCHAR wf[256];
+          if (WDL_DetectUTF8(s->last_fontname)>0 &&
+              GetVersion()<0x80000000 &&
+              MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,s->last_fontname,-1,wf,256))
+          {
+            hf = CreateFontW(sz,0,0,0,fw,!!(fontflag&2),!!(fontflag&4),FALSE,ANSI_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH,wf);
+          }
+#endif
+          if (!hf) hf = CreateFont(sz,0,0,0,fw,!!(fontflag&2),!!(fontflag&4),FALSE,ANSI_CHARSET,OUT_DEFAULT_PRECIS,CLIP_DEFAULT_PRECIS,DEFAULT_QUALITY,DEFAULT_PITCH,s->last_fontname);
+
           if (!hf)
           {
             s->use_fonth=0; // disable this font
@@ -1189,7 +1201,17 @@ EEL_F eel_lice_state::gfx_setfont(void *opaque, int np, EEL_F **parms)
               {
                 oldFont = SelectObject(hdc,hf);
                 GetTextMetrics(hdc,&tm);
-                GetTextFace(hdc, sizeof(s->actual_fontname), s->actual_fontname);
+
+#if defined(_WIN32) && !defined(WDL_NO_SUPPORT_UTF8)
+                if (GetVersion()<0x80000000 &&
+                    GetTextFaceW(hdc,sizeof(wf)/sizeof(wf[0]),wf) &&
+                    WideCharToMultiByte(CP_UTF8,0,wf,-1,s->actual_fontname,sizeof(s->actual_fontname),NULL,NULL))
+                {
+                  s->actual_fontname[sizeof(s->actual_fontname)-1]=0;
+                }
+                else
+#endif
+                  GetTextFace(hdc, sizeof(s->actual_fontname), s->actual_fontname);
                 SelectObject(hdc,oldFont);
               }
             }
@@ -2847,17 +2869,26 @@ static const char *eel_lice_function_reference =
 #endif
   "gfx_aaaaa\t\t"
   "The following global variables are special and will be used by the graphics system:\n\n\3"
-  "\4gfx_r, gfx_g, gfx_b, gfx_a2 - These represent the current red, green, blue, and alpha components used by drawing operations (0.0..1.0). gfx_a2 is the value written to the alpha channel when writing solid colors (normally ignored but useful when creating transparent images)\n"
-  "\4gfx_a, gfx_mode - Alpha and blend mode for drawing. Set mode to 0 for default options. Add 1.0 for additive blend mode (if you wish to do subtractive, set gfx_a to negative and use gfx_mode as additive). Add 2.0 to disable source alpha for gfx_blit(). Add 4.0 to disable filtering for gfx_blit(). \n"
-  "\4gfx_w, gfx_h - These are set to the current width and height of the UI framebuffer. \n"
-  "\4gfx_x, gfx_y - These set the \"current\" graphics position in x,y. You can set these yourselves, and many of the drawing functions update them as well. \n"
-  "\4gfx_clear - If set to a value greater than -1.0, this will result in the framebuffer being cleared to that color. the color for this one is packed RGB (0..255), i.e. red+green*256+blue*65536. The default is 0 (black). \n"
-  "\4gfx_dest - Defaults to -1, set to 0.." EEL_LICE_DOC_MAXHANDLE " to have drawing operations go to an offscreen buffer (or loaded image).\n"
-  "\4gfx_texth - Set to the height of a line of text in the current font. Do not modify this variable.\n"
-  "\4gfx_ext_retina - If set to 1.0 on initialization, will be updated to 2.0 if high resolution display is supported, and if so gfx_w/gfx_h/etc will be doubled.\n"
-  "\4mouse_x, mouse_y - mouse_x and mouse_y are set to the coordinates of the mouse relative to the graphics window.\n"
-  "\4mouse_wheel, mouse_hwheel - mouse wheel (and horizontal wheel) positions. These will change typically by 120 or a multiple thereof, the caller should clear the state to 0 after reading it."
-  "\4mouse_cap is a bitfield of mouse and keyboard modifier state.\3"
+  // we depend on the formatting here -- following gfx_aaaaa, search for \4[gfx_*|mouse_*]- for syntax highlight etc
+  "\4gfx_r - current red component (0..1) used by drawing operations.\n"
+  "\4gfx_g - current green component (0..1) used by drawing operations.\n"
+  "\4gfx_b - current blue component (0..1) used by drawing operations.\n"
+  "\4gfx_a2 - current alpha component (0..1) used by drawing operations when writing solid colors (normally ignored but useful when creating transparent images).\n"
+  "\4gfx_a - alpha for drawing (1=normal).\n"
+  "\4gfx_mode - blend mode for drawing. Set mode to 0 for default options. Add 1.0 for additive blend mode (if you wish to do subtractive, set gfx_a to negative and use gfx_mode as additive). Add 2.0 to disable source alpha for gfx_blit(). Add 4.0 to disable filtering for gfx_blit(). \n"
+  "\4gfx_w - width of the UI framebuffer. \n"
+  "\4gfx_h - height of the UI framebuffer. \n"
+  "\4gfx_x - current graphics position X. Some drawing functions use as start position and update. \n"
+  "\4gfx_y - current graphics position Y. Some drawing functions use as start position and update. \n"
+  "\4gfx_clear - if greater than -1.0, framebuffer will be cleared to that color. the color for this one is packed RGB (0..255), i.e. red+green*256+blue*65536. The default is 0 (black). \n"
+  "\4gfx_dest - destination for drawing operations, -1 is main framebuffer, set to 0.." EEL_LICE_DOC_MAXHANDLE " to have drawing operations go to an offscreen buffer (or loaded image).\n"
+  "\4gfx_texth - the (READ-ONLY) height of a line of text in the current font. Do not modify this variable.\n"
+  "\4gfx_ext_retina - to support hidpi/retina, callers should set to 1.0 on initialization, will be updated to 2.0 if high resolution display is supported, and if so gfx_w/gfx_h/etc will be doubled.\n"
+  "\4mouse_x - current X coordinate of the mouse relative to the graphics window.\n"
+  "\4mouse_y - current Y coordinate of the mouse relative to the graphics window.\n"
+  "\4mouse_wheel - wheel position, will change typically by 120 or a multiple thereof, the caller should clear the state to 0 after reading it.\n"
+  "\4mouse_hwheel - horizontal wheel positions, will change typically by 120 or a multiple thereof, the caller should clear the state to 0 after reading it.\n"
+  "\4mouse_cap - a bitfield of mouse and keyboard modifier state:\3"
     "\4" "1: left mouse button\n"
     "\4" "2: right mouse button\n"
 #ifdef __APPLE__
