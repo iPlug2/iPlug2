@@ -231,15 +231,6 @@ bool IControl::IsDirty()
   if (GetAnimationFunction())
     return true;
   
-  if (!mDirty && mAnimationEndActionFuncQueued)
-  {
-    // swapping into tmp var here allows IGraphics::PromptForFile() etc to be used in action func without causing a loop
-    // this was problematic on windows
-    auto func = mAnimationEndActionFuncQueued;
-    mAnimationEndActionFuncQueued = nullptr; 
-    func(this);
-  }
-  
   return mDirty;
 }
 
@@ -432,8 +423,8 @@ void IControl::OnEndAnimation()
   mAnimationFunc = nullptr;
   SetDirty(false);
   
-  if(mAnimationEndActionFunc) // queue for next clean draw
-    mAnimationEndActionFuncQueued = mAnimationEndActionFunc;
+  if(mAnimationEndActionFunc)
+    mAnimationEndActionFunc(this);
 }
 
 void IControl::StartAnimation(int duration)

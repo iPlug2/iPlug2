@@ -567,7 +567,6 @@ private:
   IGraphics* mGraphics = nullptr;
   IActionFunction mActionFunc = nullptr;
   IActionFunction mAnimationEndActionFunc = nullptr;
-  IActionFunction mAnimationEndActionFuncQueued = nullptr;
   IAnimationFunction mAnimationFunc = nullptr;
   TimePoint mAnimationStartTime;
   Milliseconds mAnimationDuration;
