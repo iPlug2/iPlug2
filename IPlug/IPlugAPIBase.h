@@ -103,8 +103,11 @@ public:
 #endif
   }
 
-  /** Override this method to get an "idle"" call on the main thread */
+  /** Override this method to get an "idle" call on the main thread */
   virtual void OnIdle() {}
+
+  /** Override this method to handle a change in the MIDI port status */
+  virtual void OnMIDIPortStatusChange() {}
     
 #pragma mark - Methods you can call - some of which have custom implementations in the API classes, some implemented in IPlugAPIBase.cpp
   /** SetParameterValue is called from the UI in the middle of a parameter change gesture (possibly via delegate) in order to update a parameter's value.
@@ -206,9 +209,9 @@ private:
   /** \todo */
   virtual void TransmitSysExDataFromProcessor(const SysExData& data) {}
 
-  void OnTimer(Timer& t);
-
 protected:
+  virtual void OnTimer(Timer& t);
+
   WDL_String mParamDisplayStr;
   std::unique_ptr<Timer> mTimer;
   

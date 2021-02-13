@@ -21,7 +21,7 @@ using namespace iplug;
 
 IPluginBase::IPluginBase(int nParams, int nPresets)
 : EDITOR_DELEGATE_CLASS(nParams)
-{  
+{
   for (int i = 0; i < nPresets; ++i)
     mPresets.Add(new IPreset());
 }

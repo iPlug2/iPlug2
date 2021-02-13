@@ -55,6 +55,9 @@ public:
   //IPlugAPP
   void AppProcess(double** inputs, double** outputs, int nFrames);
 
+protected:
+  virtual void OnTimer(Timer& t) override;
+
 private:
   IPlugAPPHost* mAppHost = nullptr;
   IPlugQueue<IMidiMsg> mMidiMsgsFromCallback {MIDI_TRANSFER_SIZE};
