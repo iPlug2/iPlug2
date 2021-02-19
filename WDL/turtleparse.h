@@ -143,22 +143,9 @@ public:
           list = new wdl_turtle_pair(NULL,NULL,NULL,NULL,1);
           objects.Insert(fs1.Get(),list);
         }
-        if (!parse_list(&str,str_end,list,'.')) return;
+        if (!parse_list(&str,str_end,list->get_list(),'.')) return;
       }
     }
-  }
-
-protected:
-  WDL_FastString m_base; // @base
-  WDL_StringKeyedArray<char *> m_prefixes; // @prefix
-
-  static bool is_single_char_tok(int c) { return c == '.' || c == ',' || c == ';' || c == '(' || c == ')' || c == '[' || c == ']'; }
-  static bool is_ws(int c) { return c == '\t' || c == '\r' || c == '\n' || c == ' '; }
-
-  void on_err(const char *msg, const char *rdptr)
-  {
-    if (!m_error_msg && msg) m_error_msg = msg;
-    if (!m_error_ptr && rdptr) m_error_ptr = rdptr;
   }
 
   static int is_number_tok(const char *p, const char *str_end)
@@ -180,6 +167,20 @@ protected:
     }
     if (!(f&1) || (f&(4|8)) == 4) return 0;
     return i;
+  }
+
+
+protected:
+  WDL_FastString m_base; // @base
+  WDL_StringKeyedArray<char *> m_prefixes; // @prefix
+
+  static bool is_single_char_tok(int c) { return c == '.' || c == ',' || c == ';' || c == '(' || c == ')' || c == '[' || c == ']'; }
+  static bool is_ws(int c) { return c == '\t' || c == '\r' || c == '\n' || c == ' '; }
+
+  void on_err(const char *msg, const char *rdptr)
+  {
+    if (!m_error_msg && msg) m_error_msg = msg;
+    if (!m_error_ptr && rdptr) m_error_ptr = rdptr;
   }
 
   const char *next_tok(const char **str, const char *str_end, int *toklen)
@@ -231,9 +232,17 @@ protected:
     }
     const char *p = tok_start;
     int nlen;
+    bool had_colon = false;
     if ((nlen = is_number_tok(p,str_end))) p+=nlen;
     else if (is_single_char_tok(*p)) p++;
-    else while (p < str_end && !is_ws(*p) && !is_single_char_tok(*p) && *p != '<') p++;
+    else while (p < str_end && !is_ws(*p))
+    {
+      if (*p == '<') break;
+      else if (*p == ':') had_colon = true;
+      else if (had_colon && *p == '.' && (p+1) < str_end && !is_ws(p[1]) && !is_single_char_tok(p[1])) { }
+      else if (is_single_char_tok(*p)) break;
+      p++;
+    }
     *toklen = (int)((*str = p) - tok_start);
     return tok_start;
   }
@@ -330,9 +339,9 @@ protected:
     return rv;
   }
 
-  bool parse_list(const char **str, const char *str_end, wdl_turtle_pair *listOut, int endchar)
+  bool parse_list(const char **str, const char *str_end, WDL_PtrList<wdl_turtle_pair> *listOut, int endchar)
   {
-    WDL_ASSERT(listOut->get_list());
+    if (WDL_NOT_NORMALLY(listOut == NULL)) return false;
     WDL_FastString verb_str, s, langtype;
     const char *has_verb = NULL;
     int state = 0, tok_l;
@@ -366,19 +375,19 @@ protected:
           if (tok[0] == '[')
           {
             wdl_turtle_pair *list = new wdl_turtle_pair(has_verb, NULL,NULL,NULL,1);
-            listOut->get_list()->Add(list);
-            if (!parse_list(str,str_end,list,']')) return false;
+            listOut->Add(list);
+            if (!parse_list(str,str_end,list->get_list(),']')) return false;
           }
           else if (tok[0] == '(')
           {
             wdl_turtle_pair *list = new wdl_turtle_pair(has_verb, NULL,NULL,NULL,2);
-            listOut->get_list()->Add(list);
-            if (!parse_list(str,str_end,list,')')) return false;
+            listOut->Add(list);
+            if (!parse_list(str,str_end,list->get_collection(),')')) return false;
           }
           else
           {
             int t = tok_to_str(tok,tok_l,&s,true), has_langtype = 0;
-            if (!t) { on_err("error parsing object",tok); return NULL; }
+            if (!t) { on_err("error parsing object",tok); return false; }
             if (t != '<')
             {
               if (t == '"')
@@ -388,7 +397,7 @@ protected:
                 {
                   // this is a bit more permissive than the spec. include @ in string
                   tok = next_tok(str,str_end,&tok_l);
-                  if (!tok || tok != peek) { on_err("literal has incorrect language specification",peek); return NULL; }
+                  if (!tok || tok != peek) { on_err("literal has incorrect language specification",peek); return false; }
                   has_langtype++;
                   langtype.Set(tok,tok_l);
                 }
@@ -396,12 +405,12 @@ protected:
                 {
                   peek = (*str += 2); // do not include ^^ in token
                   tok = next_tok(str,str_end,&tok_l);
-                  if (!tok || tok != peek || tok_to_str(tok,tok_l,&langtype,true) == '"') { on_err("literal has incorrect type specification",peek); return NULL; }
+                  if (!tok || tok != peek || tok_to_str(tok,tok_l,&langtype,true) == '"') { on_err("literal has incorrect type specification",peek); return false; }
                   has_langtype++;
                 }
               }
             }
-            listOut->get_list()->Add(new wdl_turtle_pair(has_verb, t == '<' ? s.Get() : NULL, t == '<' ? NULL : s.Get(), has_langtype ? langtype.Get() : NULL, 0));
+            listOut->Add(new wdl_turtle_pair(has_verb, t == '<' ? s.Get() : NULL, t == '<' ? NULL : s.Get(), has_langtype ? langtype.Get() : NULL, 0));
           }
           state++;
         break;

@@ -170,7 +170,7 @@ static int nseel_vms_referencing_globallist_cnt;
 nseel_globalVarItem *nseel_globalreg_list;
 static EEL_F *get_global_var(compileContext *ctx, const char *gv, int addIfNotPresent);
 
-static void *__newBlock_align(llBlock **start,int size, int align, int alloc_page_pad);
+static void *__newBlock_align(llBlock **start,int size, int align, int code_page_size);
 
 #define OPCODE_IS_TRIVIAL(x) ((x)->opcodeType <= OPCODETYPE_VARPTRPTR)
 enum {
@@ -245,50 +245,53 @@ static opcodeRec *newOpCode(compileContext *ctx, const char *str, int opType)
   return rec;
 }
 
-static int mprotect_get_page_size(void)
-{
 #ifndef EEL_DOESNT_NEED_EXEC_PERMS
-#ifndef _WIN32
+static int eel_get_page_size(void)
+{
   static int pagesize;
-  if (!pagesize) pagesize = (int)sysconf(_SC_PAGESIZE);
-  if (pagesize) return pagesize;
-#endif
-  return 4096;
+  if (!pagesize)
+  {
+#ifndef _WIN32
+    const int ps = (int)sysconf(_SC_PAGESIZE);
+    pagesize = wdl_max(ps, 4096);
 #else
-  return 0;
+    SYSTEM_INFO inf = { 0 };
+    GetSystemInfo(&inf);
+    pagesize = wdl_max(inf.dwPageSize, 4096);
 #endif
+  }
+  return pagesize;
 }
+#endif
 
-#define newCodeBlock(x,a) __newBlock_align(&ctx->blocks_head_code,x,a, mprotect_get_page_size())
+#define newCodeBlock(x,a) __newBlock_align(&ctx->blocks_head_code,x,a, 1)
 #define newDataBlock(x,a) __newBlock_align(&ctx->blocks_head_data,x,a,0)
 #define newCtxDataBlock(x,a) __newBlock_align(&ctx->ctx_pblocks,x,a,0)
 #define newTmpBlock(ctx, size) __newBlock_align(&(ctx)->tmpblocks, size, 8,0)
 
-static void mprotect_blocks(llBlock *llb, int exec)
-{
+static char *eel_get_llblock_buffer(llBlock *llb) { return (char *) (llb+1); }
+
 #ifndef EEL_DOESNT_NEED_EXEC_PERMS
+static void eel_set_blocks_allow_execute(llBlock *llb, int exec)
+{
   while (llb)
   {
-    void *start_p = llb->block, *end_p = llb->block + llb->sizeused;
-    // for code blocks, we will never execute code in a leading partial page of block,
-    // and sizeused will never extend into a trailing partial page
-  #ifdef _WIN32
-    DWORD ov;
-    UINT_PTR offs=((UINT_PTR)start_p + 4095)&~4095;
-    UINT_PTR eoffs=((UINT_PTR)end_p + 4095)&~4095;
-    VirtualProtect((LPVOID)offs,eoffs-offs,exec ? (PAGE_EXECUTE_READ) : (PAGE_READWRITE),&ov);
-  #else
-    const int pagesize = mprotect_get_page_size();
-    uintptr_t offs=((uintptr_t)start_p + pagesize-1)&~(pagesize-1);
-    uintptr_t eoffs=((uintptr_t)end_p + pagesize-1)&~(pagesize-1);
-    mprotect((void*)offs,eoffs-offs,exec ? (PROT_READ|PROT_EXEC) : (PROT_READ|PROT_WRITE));
-  #endif
+    const size_t sz = sizeof(*llb) + llb->sizealloc;
+    #ifdef _WIN32
+      DWORD ov;
+      VirtualProtect(llb,sz,exec ? (PAGE_EXECUTE_READ) : (PAGE_READWRITE),&ov);
+      FlushInstructionCache(GetCurrentProcess(),llb,sz);
+    #else
+      mprotect(llb,sz,exec ? (PROT_READ|PROT_EXEC) : (PROT_READ|PROT_WRITE));
+    #endif
+    WDL_ASSERT((((INT_PTR)llb) & (eel_get_page_size()-1)) == 0);
+    WDL_ASSERT((sz & (eel_get_page_size()-1)) == 0);
     llb = llb->next;
   }
-#endif
 }
+#endif
 
-static void freeBlocks(llBlock **start);
+static void freeBlocks(llBlock **start, int is_code);
 
 static int __growbuf_resize(eel_growbuf *buf, int newsize)
 {
@@ -433,7 +436,7 @@ static void *NSEEL_PProc_Stack(void *data, int data_size, compileContext *ctx)
     UINT_PTR stackptr = ((UINT_PTR) (&ch->stack));
 
     ch->want_stack=1;
-    if (!ch->stack) ch->stack = newDataBlock(NSEEL_STACK_SIZE*sizeof(EEL_F),NSEEL_STACK_SIZE*sizeof(EEL_F));
+    if (!ch->stack) ch->stack = newDataBlock(NSEEL_STACK_SIZE*sizeof(EEL_F),sizeof(EEL_F));
 
     data=EEL_GLUE_set_immediate(data, stackptr);
     data=EEL_GLUE_set_immediate(data, m1); // and
@@ -452,7 +455,7 @@ static void *NSEEL_PProc_Stack_PeekInt(void *data, int data_size, compileContext
     UINT_PTR stackptr = ((UINT_PTR) (&ch->stack));
 
     ch->want_stack=1;
-    if (!ch->stack) ch->stack = newDataBlock(NSEEL_STACK_SIZE*sizeof(EEL_F),NSEEL_STACK_SIZE*sizeof(EEL_F));
+    if (!ch->stack) ch->stack = newDataBlock(NSEEL_STACK_SIZE*sizeof(EEL_F),sizeof(EEL_F));
 
     data=EEL_GLUE_set_immediate(data, stackptr);
     data=EEL_GLUE_set_immediate(data, offs);
@@ -470,7 +473,7 @@ static void *NSEEL_PProc_Stack_PeekTop(void *data, int data_size, compileContext
     UINT_PTR stackptr = ((UINT_PTR) (&ch->stack));
 
     ch->want_stack=1;
-    if (!ch->stack) ch->stack = newDataBlock(NSEEL_STACK_SIZE*sizeof(EEL_F),NSEEL_STACK_SIZE*sizeof(EEL_F));
+    if (!ch->stack) ch->stack = newDataBlock(NSEEL_STACK_SIZE*sizeof(EEL_F),sizeof(EEL_F));
 
     data=EEL_GLUE_set_immediate(data, stackptr);
   }
@@ -735,6 +738,19 @@ void NSEEL_addfunc_varparm_ex(const char *name, int min_np, int want_exact, NSEE
   const int sz = (int) ((char *)_asm_generic2parm_retd_end-(char *)_asm_generic2parm_retd);
   NSEEL_addfunctionex2(name,min_np|(want_exact?BIF_TAKES_VARPARM_EX:BIF_TAKES_VARPARM),(char *)_asm_generic2parm_retd,sz,pproc,fptr,NULL,destination);
 }
+
+void NSEEL_addfunc_varparm_ctxptr(const char *name, int min_np, int want_exact, void *ctxptr, EEL_F (NSEEL_CGEN_CALL *fptr)(void *, INT_PTR, EEL_F **), eel_function_table *destination)
+{
+  const int sz = (int) ((char *)_asm_generic2parm_retd_end-(char *)_asm_generic2parm_retd);
+  NSEEL_addfunctionex2(name,min_np|(want_exact?BIF_TAKES_VARPARM_EX:BIF_TAKES_VARPARM),(char *)_asm_generic2parm_retd,sz,NULL,ctxptr,fptr,destination);
+}
+
+void NSEEL_addfunc_varparm_ctxptr2(const char *name, int min_np, int want_exact, NSEEL_PPPROC pproc, void *ctx, EEL_F (NSEEL_CGEN_CALL *fptr)(void *, void *, INT_PTR, EEL_F **), eel_function_table *destination)
+{
+  const int sz = (int) ((char *)_asm_generic2xparm_retd_end-(char *)_asm_generic2xparm_retd);
+  NSEEL_addfunctionex2(name,min_np|(want_exact?BIF_TAKES_VARPARM_EX:BIF_TAKES_VARPARM),(char *)_asm_generic2xparm_retd,sz,pproc,ctx,fptr,destination);
+}
+
 void NSEEL_addfunc_ret_type(const char *name, int np, int ret_type,  NSEEL_PPPROC pproc, void *fptr, eel_function_table *destination) // ret_type=-1 for bool, 1 for value, 0 for ptr
 {
   char *stub=NULL;
@@ -806,6 +822,7 @@ void NSEEL_addfunctionex2(const char *name, int nparms, char *code_startaddr, in
     {
       if (code_startaddr == (void *)&_asm_generic1parm_retd || 
           code_startaddr == (void *)&_asm_generic2parm_retd ||
+          code_startaddr == (void *)&_asm_generic2xparm_retd ||
           code_startaddr == (void *)&_asm_generic3parm_retd)
       {
         nparms |= BIF_RETURNSONSTACK;
@@ -823,52 +840,93 @@ void NSEEL_addfunctionex2(const char *name, int nparms, char *code_startaddr, in
 
 
 //---------------------------------------------------------------------------------------------------------------
-static void freeBlocks(llBlock **start)
+static void freeBlocks(llBlock **start, int is_code)
 {
   llBlock *s=*start;
   *start=0;
   while (s)
   {
     llBlock *llB = s->next;
-    free(s);
+#ifndef EEL_DOESNT_NEED_EXEC_PERMS
+    if (is_code)
+    {
+      #ifdef _WIN32
+        VirtualFree(s, 0, MEM_RELEASE);
+      #else
+        munmap(s,sizeof(*s) + s->sizealloc);
+      #endif
+    }
+    else
+#endif
+    {
+      free(s);
+    }
     s=llB;
   }
 }
 
+
 //---------------------------------------------------------------------------------------------------------------
-static void *__newBlock_align(llBlock **start, int size, int align, int alloc_page_pad)
+static void *__newBlock_align(llBlock **start, int size, int align, int is_for_code)
 {
   llBlock *llb = *start;
-  int alloc_adj, align_pos, sizeused;
-  if (llb && (sizeused = llb->sizeused) + size <= LLB_DSIZE)
-  {
-    align_pos = (int) (((INT_PTR)llb->block + sizeused)&(align-1));
-    if (align_pos) align_pos = align - align_pos;
+  int alloc_amt, align_pos, scan_cnt=8;
+  if (WDL_NOT_NORMALLY(align < 1)) align = 1;
 
-    if (sizeused + size + align_pos <= LLB_DSIZE)
+  while (llb && --scan_cnt > 0)
+  {
+    const int sizeused = llb->sizeused;
+    if (sizeused + size <= llb->sizealloc)
     {
-      llb->sizeused += size + align_pos;
-      return llb->block + sizeused + align_pos;
+      align_pos = (int) (((INT_PTR)eel_get_llblock_buffer(llb) + sizeused)&(align-1));
+      if (align_pos) align_pos = align - align_pos;
+
+      if (sizeused + size + align_pos <= llb->sizealloc)
+      {
+        llb->sizeused += size + align_pos;
+        return eel_get_llblock_buffer(llb) + sizeused + align_pos;
+      }
     }
+    llb = llb->next;
   }
 
-  if (alloc_page_pad > align) align = alloc_page_pad;
-  alloc_adj = size + align - 1 - LLB_DSIZE;
-  if (alloc_adj < 0) alloc_adj = 0;
+#ifndef EEL_DOESNT_NEED_EXEC_PERMS
+  if (is_for_code)
+  {
+    const int code_page_size = eel_get_page_size();
+    alloc_amt = (sizeof(*llb) + size + code_page_size - 1) & ~(code_page_size-1);
+    #ifdef _WIN32
+      llb = (llBlock *)VirtualAlloc(NULL,alloc_amt,MEM_COMMIT,PAGE_READWRITE);
+      if (llb == NULL) return NULL;
+    #else
+      llb = (llBlock *)mmap(NULL,alloc_amt, PROT_READ|PROT_WRITE,MAP_ANONYMOUS|MAP_PRIVATE,-1,0);
+      if (llb == MAP_FAILED) return NULL;
+    #endif
+    alloc_amt -= sizeof(*llb);
+    align_pos = 0;
 
-  if (alloc_page_pad > 0)
-    alloc_adj += alloc_page_pad-1;
+    WDL_ASSERT(((INT_PTR)llb & (code_page_size - 1))==0);
+    WDL_ASSERT(((INT_PTR)(eel_get_llblock_buffer(llb) + alloc_amt) & (code_page_size - 1))==0);
+  }
+  else
+#endif
+  {
+    // data block, allocate in larger chunks
+    alloc_amt = (size + align - 1 + 31)&~31;
+    if (alloc_amt < 65536-64) alloc_amt = 65536-64;
 
-  llb = (llBlock *)malloc(sizeof(llBlock) + alloc_adj);
-  if (!llb) return NULL;
+    llb = (llBlock *)malloc(sizeof(*llb) + alloc_amt);
+    if (!llb) return NULL;
+    align_pos = (int) (((INT_PTR)eel_get_llblock_buffer(llb))&(align-1));
+    if (align_pos) align_pos = align - align_pos;
+  }
 
-  align_pos = (int) (((INT_PTR)llb->block)&(align-1));
-  if (align_pos) align_pos = align - align_pos;
-  
+  WDL_ASSERT(size+align_pos <= alloc_amt);
   llb->sizeused = size + align_pos;
-  llb->next = *start;  
+  llb->sizealloc = alloc_amt;
+  llb->next = *start;
   *start = llb;
-  return llb->block + align_pos;
+  return eel_get_llblock_buffer(llb) + align_pos;
 }
 
 
@@ -4487,9 +4545,9 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *_expression
   ctx->isSharedFunctions = !!(compile_flags & NSEEL_CODE_COMPILE_FLAG_COMMONFUNCS);
   ctx->functions_local = NULL;
 
-  freeBlocks(&ctx->tmpblocks);
-  freeBlocks(&ctx->blocks_head_code);
-  freeBlocks(&ctx->blocks_head_data);
+  freeBlocks(&ctx->tmpblocks,0);
+  freeBlocks(&ctx->blocks_head_code,1);
+  freeBlocks(&ctx->blocks_head_data,0);
   memset(ctx->l_stats,0,sizeof(ctx->l_stats));
 
   handle = (codeHandleType*)newDataBlock(sizeof(codeHandleType),8);
@@ -5034,7 +5092,9 @@ had_error:
     }
     
     handle->blocks_code = ctx->blocks_head_code;
-    mprotect_blocks(handle->blocks_code,1);
+#ifndef EEL_DOESNT_NEED_EXEC_PERMS
+    eel_set_blocks_allow_execute(handle->blocks_code,1);
+#endif
     handle->blocks_data = ctx->blocks_head_data;
     ctx->blocks_head_code=0;
     ctx->blocks_head_data=0;
@@ -5052,9 +5112,9 @@ had_error:
   ctx->isGeneratingCommonFunction=0;
   ctx->isSharedFunctions=0;
 
-  freeBlocks(&ctx->tmpblocks);
-  freeBlocks(&ctx->blocks_head_code);
-  freeBlocks(&ctx->blocks_head_data);
+  freeBlocks(&ctx->tmpblocks,0);
+  freeBlocks(&ctx->blocks_head_code,1);
+  freeBlocks(&ctx->blocks_head_data,0);
 
   if (handle)
   {
@@ -5159,25 +5219,8 @@ void NSEEL_code_free(NSEEL_CODEHANDLE code)
     nseel_evallib_stats[3]-=h->code_stats[3];
     nseel_evallib_stats[4]--;
 
-    mprotect_blocks(h->blocks_code,0);
-#if defined(__ppc__) && defined(__APPLE__)
-    {
-      FILE *fp = fopen("/var/db/receipts/com.apple.pkg.Rosetta.plist","r");
-      if (fp) 
-      {
-        fclose(fp);
-        // on PPC, but rosetta installed, do not free h->blocks, as rosetta won't detect changes to these pages
-      }
-      else
-      {
-        freeBlocks(&h->blocks_code);
-      }
-    }
-#else
-    freeBlocks(&h->blocks_code);
-#endif
-    
-    freeBlocks(&h->blocks_data);
+    freeBlocks(&h->blocks_code,1);
+    freeBlocks(&h->blocks_data,0);
   }
 
 }
@@ -5253,12 +5296,12 @@ void NSEEL_VM_free(NSEEL_VMCTX _ctx) // free when done with a VM and ALL of its 
     EEL_GROWBUF_RESIZE(&ctx->varNameList,-1);
     NSEEL_VM_freeRAM(_ctx);
 
-    freeBlocks(&ctx->ctx_pblocks);
+    freeBlocks(&ctx->ctx_pblocks,0);
 
     // these should be 0 normally but just in case
-    freeBlocks(&ctx->tmpblocks);
-    freeBlocks(&ctx->blocks_head_code);
-    freeBlocks(&ctx->blocks_head_data);
+    freeBlocks(&ctx->tmpblocks,0);
+    freeBlocks(&ctx->blocks_head_code,1);
+    freeBlocks(&ctx->blocks_head_data,0);
 
 
     #ifndef NSEEL_SUPER_MINIMAL_LEXER

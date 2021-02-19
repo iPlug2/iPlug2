@@ -100,7 +100,7 @@ public:
 
     FadeDist=0.0;
     Smoothing=Lightable=true;
-    zBufferable=true;
+    zBufferable=1;
     PerspectiveCorrect=16;
     BackfaceCull=true;
     BackfaceIllumination=0.0;
@@ -118,7 +118,7 @@ public:
 
   pl_Bool Smoothing; // smoothing of lighting
   pl_Bool Lightable; // affected by lights
-  pl_Bool zBufferable;         /* Can this material be zbuffered? */
+  pl_uChar zBufferable;         /* Can this material be Z-buffered? 2=yes, but does not update Z buffer */
   pl_uChar PerspectiveCorrect; /* Correct texture perspective every n pixels */
 
   pl_Float FadeDist WDL_FIXALIGN;            /* For distance fading, distance at which intensity is 0. set to 0.0 for no distance shading */
@@ -207,18 +207,16 @@ public:
   void CalculateNormals();
 
 
+  pl_Float Xp, Yp, Zp, Xa, Ya, Za;    /* Position and rotation of object:
+                                         Note: rotations are around X then Y then Z. Measured in degrees */
+  pl_Float Matrix[16];                /* Transformation matrix */
+  pl_Float RotMatrix[16];             /* Rotation-only, for normals */
+
   WDL_TypedBuf<pl_Vertex> Vertices;
   WDL_TypedBuf<pl_Face> Faces;
   WDL_PtrList<pl_Obj> Children;
-                                      /* Children */
-  pl_Bool GenMatrix;                  /* Generate Matrix from the following
-                                         if set */
-  pl_Float Xp WDL_FIXALIGN;
-  pl_Float Yp, Zp, Xa, Ya, Za;    /* Position and rotation of object:
-                                         Note: rotations are around 
-                                         X then Y then Z. Measured in degrees */
-  pl_Float Matrix[16];                /* Transformation matrix */
-  pl_Float RotMatrix[16];             /* Rotation only matrix (for normals) */
+
+  pl_Bool GenMatrix;                  /* Generate Matrix from X-Z* if set */
 };
 
 
@@ -267,9 +265,10 @@ public:
 
 class pl_Cam {
 public:
-  pl_Cam() 
+  pl_Cam() : m_fBuffer(NULL,0,0,0,false)
   {
-    frameBuffer=0;
+    m_lastFBScaling=256;
+    m_lastFBWidth=m_lastFBHeight=0;
     Fov=90.0;
     AspectRatio=1.0;
     Sort=1;
@@ -278,6 +277,7 @@ public:
     X=Y=Z=0.0;
     WantZBuffer=false;
     Pitch=Pan=Roll=0.0;
+    GenMatrix = true;
   }
   ~pl_Cam()
   {
@@ -286,25 +286,30 @@ public:
 
   void SetTarget(pl_Float x, pl_Float y, pl_Float z); 
 
-
+  pl_Float Pitch, Pan, Roll;     /* Camera angle in degrees in worldspace */
   pl_Float Fov;                  /* FOV in degrees valid range is 1-179 */
   pl_Float AspectRatio;          /* Aspect ratio (usually 1.0) */
-  pl_sChar Sort;                 /* Sort polygons, -1 f-t-b, 1 b-t-f, 0 no */
-  pl_Float ClipBack WDL_FIXALIGN;             /* Far clipping ( < 0.0 is none) */
-  pl_sInt CenterX, CenterY;      /* Offset center of screen from actual center by this much... */
-  pl_Float X WDL_FIXALIGN;
-  pl_Float Y, Z;              /* Camera position in worldspace */
 
-  pl_Float Pitch, Pan, Roll;     /* Camera angle in degrees in worldspace */
+  pl_Float ClipBack WDL_FIXALIGN;             /* Far clipping ( < 0.0 is none) */
+  pl_Float X, Y, Z;              /* Camera position in worldspace */
+
+  pl_Float CamMatrix[16];        /* should be rotation-only. translation will mess with the normals */
+
+  pl_sChar Sort;                 /* Sort polygons, -1 f-t-b, 1 b-t-f, 0 no */
+  pl_sInt CenterX, CenterY;      /* Offset center of screen from actual center by this much... */
   
-  bool WantZBuffer;
+  pl_Bool WantZBuffer;
+  pl_Bool GenMatrix;             /* if set, generates CamMatrix from Pan/Pitch/Roll in Begin() */
 
   void Begin(LICE_IBitmap *fb, bool want_zbclear=true, pl_ZBuffer zbclear=0.0);
   void RenderLight(pl_Light *light);
-  void RenderObject(pl_Obj *obj, pl_Float *bmatrix=NULL, pl_Float *bnmatrix=NULL);
+  void RenderObject(pl_Obj *obj, const pl_Float *bmatrix=NULL, const pl_Float *bnmatrix=NULL);
   void SortToCurrent(); // sorts all faces added since Begin() or last SortToCurrent() call. useful for if you use zbuffering with transparent objects (draw them last)
 
-  LICE_IBitmap *GetFrameBuffer() { return frameBuffer; }
+  // returns true if onscreen x/y/z are world coordinates
+  bool ProjectCoordinate(pl_Float x, pl_Float y, pl_Float z, pl_Float *screen_x, pl_Float *screen_y, pl_Float *dist); // outputs can be NULL if not needed
+
+  LICE_IBitmap *GetFrameBuffer() { return m_fBuffer.m_buf ? &m_fBuffer : NULL; }
   WDL_TypedBuf<pl_ZBuffer> zBuffer;           /* Z Buffer (validate size before using)*/
 
   void End();
@@ -317,13 +322,20 @@ public:
 
   void PutFace(pl_Face *TriFace);
 
-private:
-  LICE_IBitmap *frameBuffer;         /* Framebuffer  - note this is owned by the camera if you set it */
+protected:
+  LICE_WrapperBitmap m_fBuffer;
+  pl_uInt m_lastFBWidth, m_lastFBHeight; // unscaled sizes when compared to m_fBuffer
+  pl_uInt m_lastFBScaling;
+  pl_sInt m_lastCX, m_lastCY; // calculated as w/2+CenterX/2 etc
 
     // internal use
   void ClipRenderFace(pl_Face *face, pl_Obj *obj);
   int ClipNeeded(pl_Face *face, pl_Obj *obj); // 0=no draw, 1=drawing (possibly splitting) necessary
-  void RecalcFrustum(); 
+  void RecalcFrustum(int fbw, int fbh);
+  double CalcFOVFactor(double fbw) const
+  {
+    return fbw/tan(plMin(plMax(Fov,1.0),179.0)*(PL_PI/360.0));
+  }
 
 
   #define PL_NUM_CLIP_PLANES 5
@@ -360,8 +372,6 @@ private:
 
   int _numfaces,_numfaces_sorted;
   WDL_TypedBuf<_faceInfo> _faces;
-
-  pl_Float _cMatrix[16] WDL_FIXALIGN;
 
   int _numlights;
   WDL_TypedBuf<_lightInfo> _lights;
@@ -544,7 +554,7 @@ void plMatrixTranslate(pl_Float m[], pl_Float x, pl_Float y, pl_Float z);
   Notes: 
     this is the same as dest = dest*src (since the order *does* matter);
 */
-void plMatrixMultiply(pl_Float *dest, pl_Float src[]);
+void plMatrixMultiply(pl_Float *dest, const pl_Float src[]);
 
 /*
    plMatrixApply() applies a matrix.
