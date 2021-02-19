@@ -31,8 +31,8 @@
 #define PLUG_HOST_RESIZE 1
 #define PLUG_MIN_WIDTH 512
 #define PLUG_MIN_HEIGHT 512
-#define PLUG_MAX_WIDTH 2048
-#define PLUG_MAX_HEIGHT 2048
+#define PLUG_MAX_WIDTH 8192
+#define PLUG_MAX_HEIGHT 8192
 
 #define AUV2_ENTRY IPlugResponsiveUI_Entry
 #define AUV2_ENTRY_STR "IPlugResponsiveUI_Entry"
