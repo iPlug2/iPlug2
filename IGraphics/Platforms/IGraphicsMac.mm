@@ -427,19 +427,15 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     return;
   }
 
-  NSString* pDefaultFileName;
-  NSString* pDefaultPath;
+  NSString* pDefaultFileName = nil;
+  NSString* pDefaultPath = nil;
   NSArray* pFileTypes = nil;
 
   if (fileName.GetLength())
     pDefaultFileName = [NSString stringWithCString:fileName.Get() encoding:NSUTF8StringEncoding];
-  else
-    pDefaultFileName = [NSString stringWithCString:"" encoding:NSUTF8StringEncoding];
 
-  if(!path.GetLength())
-    DesktopPath(path);
-
-  pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+  if(path.GetLength())
+    pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
 
   fileName.Set(""); // reset it
 
