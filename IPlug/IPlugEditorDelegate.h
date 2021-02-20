@@ -345,7 +345,7 @@ public:
   
   /** Can be used by a host API to inform the editor of screen scale changes
    *@param scale The new screen scale*/
-  virtual void SetScreenScale(double scale) {}
+  virtual void SetScreenScale(float scale) {}
 
 protected:
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to MakeConfig() in the plug-in class implementation constructor */

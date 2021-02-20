@@ -25,7 +25,7 @@ WebViewEditorDelegate::~WebViewEditorDelegate()
   CloseWindow();
 }
 
-extern int GetScaleForHWND(HWND hWnd);
+extern float GetScaleForHWND(HWND hWnd);
 
 void* WebViewEditorDelegate::OpenWindow(void* pParent)
 {
