@@ -740,12 +740,14 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
           _this->mHasVSTExtensions |= VSTEXT_COCKOS;
           return 0xbeef0000;
         }
-        else if (!strcmp((char*) ptr, "hasCockosViewAsConfig"))
+
+        if (!strcmp((char*) ptr, "hasCockosViewAsConfig"))
         {
           _this->mHasVSTExtensions |= VSTEXT_COCOA;
           return 0xbeef0000;
         }
-        else if (!strcmp((char*) ptr, "wantsChannelCountNotifications"))
+
+        if (!strcmp((char*) ptr, "wantsChannelCountNotifications"))
         {
           return 1;
         }
