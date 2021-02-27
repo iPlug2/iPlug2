@@ -751,6 +751,11 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         {
           return 1;
         }
+
+        if (!strcmp((char*)ptr, "MPE"))
+        {
+          return _this->DoesMPE() ? 1 : 0;
+        }
         
         return _this->VSTCanDo((char *) ptr);
       }
