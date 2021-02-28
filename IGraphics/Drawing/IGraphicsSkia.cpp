@@ -604,7 +604,11 @@ void IGraphicsSkia::PathArc(float cx, float cy, float r, float a1, float a2, EWi
 
 IColor IGraphicsSkia::GetPoint(int x, int y)
 {
-  return COLOR_BLACK; //TODO:
+  SkBitmap bitmap;
+  bitmap.allocPixels(SkImageInfo::MakeN32Premul(1, 1));
+  mCanvas->readPixels(bitmap, x, y);
+  auto color = bitmap.getColor(0,0);
+  return IColor(SkColorGetA(color), SkColorGetR(color), SkColorGetG(color), SkColorGetB(color));
 }
 
 bool IGraphicsSkia::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)

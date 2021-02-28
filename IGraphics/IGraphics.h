@@ -355,10 +355,10 @@ public:
    * @param bounds after calling the method this IRECT will be updated with the rectangular region the text will occupy */
   virtual float MeasureText(const IText& text, const char* str, IRECT& bounds) const;
 
-  /** Get the color of a point. On a 1:1 screen this corresponds to a pixel. \todo check this
+  /** Get the color at an X, Y location in the graphics context
    * @param x The X coordinate of the pixel
    * @param y The Y coordinate of the pixel
-   * @return An IColor specifiying the color of the pixel at x,y */
+   * @return An IColor specifiying the color of the pixel at x, y */
   virtual IColor GetPoint(int x, int y)  = 0;
 
   /** Gets a void pointer to underlying drawing context, for the IGraphics backend
