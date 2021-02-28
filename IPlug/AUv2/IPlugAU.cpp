@@ -1085,7 +1085,19 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     }
     NO_OP(kAudioUnitProperty_InputSamplesInOutput);       // 49,
     NO_OP(kAudioUnitProperty_ClassInfoFromDocument);      // 50
-      
+    case kAudioUnitProperty_SupportsMPE: // 58
+    {
+      if(pData == 0)
+      {
+        *pWriteable = false;
+        *pDataSize = sizeof(UInt32);
+      }
+      else
+      {
+        *((UInt32*) pData) = (DoesMPE() ? 1 : 0);
+      }
+      return noErr;
+    }
     default:
     {
       return kAudioUnitErr_InvalidProperty;
