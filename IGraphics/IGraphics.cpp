@@ -1445,9 +1445,13 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
 
         pVST3ContextMenu->addItem(item, pControl);
       }
-
+#ifdef OS_WIN
+      x *= GetTotalScale();
+      y *= GetTotalScale();
+#else
       x *= GetDrawScale();
       y *= GetDrawScale();
+#endif
       pVST3ContextMenu->popup((Steinberg::UCoord) x, (Steinberg::UCoord) y);
       pVST3ContextMenu->release();
     }
