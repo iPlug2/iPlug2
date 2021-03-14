@@ -283,7 +283,7 @@ public:
 
   /** Set the Text object typically used to determine font/layout/size etc of the main text in a control
    * @param txt An IText struct with the desired formatting */
-  void SetText(const IText& txt) { mText = txt; }
+  virtual void SetText(const IText& txt) { mText = txt; }
 
   /** Set the Blend for this control. This can be used differently by different controls, or not at all.
    *  By default it is used to change the opacity of controls when they are disabled */
@@ -2004,6 +2004,10 @@ public:
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override { GetUI()->SetMouseCursor(ECursor::HAND); IControl::OnMouseOver(x, y, mod); };
   void OnMouseOut() override { GetUI()->SetMouseCursor(); IControl::OnMouseOut(); }
+  void SetText(const IText&) override;
+
+  void SetMOColor(const IColor&);
+  void SetCLColor(const IColor&);
 
 protected:
   WDL_String mURLStr;
