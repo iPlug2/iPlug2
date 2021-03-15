@@ -136,24 +136,25 @@ public:
     {
     }
     
-    bool operator==(const AppState& rhs) { return (rhs.mAudioDriverType == mAudioDriverType &&
-                                                   rhs.mBufferSize == mBufferSize &&
-                                                   rhs.mAudioSR == mAudioSR &&
-                                                   rhs.mMidiInChan == mMidiInChan &&
-                                                   rhs.mMidiOutChan == mMidiOutChan &&
-                                                   (strcmp(rhs.mAudioInDev.Get(), mAudioInDev.Get()) == 0) &&
-                                                   (strcmp(rhs.mAudioOutDev.Get(), mAudioOutDev.Get()) == 0) &&
-                                                   (strcmp(rhs.mMidiInDev.Get(), mMidiInDev.Get()) == 0) &&
-                                                   (strcmp(rhs.mMidiOutDev.Get(), mMidiOutDev.Get()) == 0) &&
-                                                   
-                                                   rhs.mAudioInChanL == mAudioInChanL &&
-                                                   rhs.mAudioInChanR == mAudioInChanR &&
-                                                   rhs.mAudioOutChanL == mAudioOutChanL &&
-                                                   rhs.mAudioOutChanR == mAudioOutChanR
-                                                  
-                                                   );
+    bool operator==(const AppState& rhs) const {
+      return (rhs.mAudioDriverType == mAudioDriverType &&
+              rhs.mBufferSize == mBufferSize &&
+              rhs.mAudioSR == mAudioSR &&
+              rhs.mMidiInChan == mMidiInChan &&
+              rhs.mMidiOutChan == mMidiOutChan &&
+              (strcmp(rhs.mAudioInDev.Get(), mAudioInDev.Get()) == 0) &&
+              (strcmp(rhs.mAudioOutDev.Get(), mAudioOutDev.Get()) == 0) &&
+              (strcmp(rhs.mMidiInDev.Get(), mMidiInDev.Get()) == 0) &&
+              (strcmp(rhs.mMidiOutDev.Get(), mMidiOutDev.Get()) == 0) &&
+
+              rhs.mAudioInChanL == mAudioInChanL &&
+              rhs.mAudioInChanR == mAudioInChanR &&
+              rhs.mAudioOutChanL == mAudioOutChanL &&
+              rhs.mAudioOutChanR == mAudioOutChanR
+
+      );
     }
-    bool operator!=(const AppState& rhs) { return !operator==(rhs); }
+    bool operator!=(const AppState& rhs) const { return !operator==(rhs); }
   };
   
   static IPlugAPPHost* Create();
