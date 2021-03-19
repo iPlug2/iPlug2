@@ -842,7 +842,8 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
       pParam->GetBounds(l, h);
 
       v = l + mMouseDragValue * range;
-      v = v - std::fmod(v, pParam->GetStep());
+      const double step = pParam->GetStep();
+      v = std::round(v / step) * step;
       v -= l;
       v /= range;
     }
@@ -871,7 +872,7 @@ void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, floa
       const double step = pParam->GetStep();
       v += d > 0 ? step : -step;
       v = Clip(v, l, h);
-      v = v - std::fmod(v, step);
+      v = std::round(v / step) * step;
       v -= l;
       v /= range;
     }
@@ -976,7 +977,8 @@ void ISliderControlBase::OnMouseDrag(float x, float y, float dX, float dY, const
       pParam->GetBounds(l,h);
 
       v = l + mMouseDragValue * range;
-      v = v - std::fmod(v, pParam->GetStep());
+      const double step = pParam->GetStep();
+      v = std::round(v / step) * step;
       v -= l;
       v /= range;
     }
@@ -1005,7 +1007,7 @@ void ISliderControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, fl
       const double step = pParam->GetStep();
       v += d > 0 ? step : -step;
       v = Clip(v, l, h);
-      v = v - std::fmod(v, step);
+      v = std::round(v / step) * step;
       v -= l;
       v /= range;
     }
