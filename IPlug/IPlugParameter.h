@@ -473,7 +473,7 @@ public:
   bool GetMeta() const { return mFlags & kFlagMeta; }
  
   /** @return \c true If the parameter may act as host bypass parameter  */
-  bool GetHandlesBypass() const { return !(mFlags & kFlagBypass); }
+  bool GetHandlesBypass() const { return mFlags & kFlagBypass; }
 
   /** Get a JSON description of the parameter.
    * @param json WDL_String to fill with the JSON
