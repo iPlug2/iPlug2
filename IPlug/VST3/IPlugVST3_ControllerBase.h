@@ -76,10 +76,22 @@ public:
     }
     else
     #endif
-      unitInfo.programListId = Steinberg::Vst::kNoProgramListId;
-    
-    if (!plugIsInstrument)
-      mParameters.addParameter(mBypassParameter = new IPlugVST3BypassParameter());
+    unitInfo.programListId = Steinberg::Vst::kNoProgramListId;
+
+    if (!plugIsInstrument) {
+      bool existsBypassParameter = false;
+      for (int i = 0; i < pPlug->NParams() && !existsBypassParameter; i++)
+      {
+        if (pPlug->GetParam(i)->GetHandlesBypass())
+        {
+          existsBypassParameter = true;
+        }
+      }
+
+      if (!existsBypassParameter) {
+        mParameters.addParameter(mBypassParameter = new IPlugVST3BypassParameter());
+      }
+    }
     
     pEditController->addUnit(new Steinberg::Vst::Unit(unitInfo));
 

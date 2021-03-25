@@ -39,6 +39,7 @@ public:
 
     if (pParam->GetCanAutomate()) flags |= Steinberg::Vst::ParameterInfo::kCanAutomate;
     if (pParam->Type() == IParam::kTypeEnum) flags |= Steinberg::Vst::ParameterInfo::kIsList;
+    if (pParam->GetHandlesBypass()) flags |= Steinberg::Vst::ParameterInfo::kIsBypass;
 
     info.defaultNormalizedValue = valueNormalized = pParam->ToNormalized(pParam->GetDefault());
     info.flags = flags;
