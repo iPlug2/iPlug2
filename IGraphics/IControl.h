@@ -1532,9 +1532,6 @@ protected:
       }
     }
     
-    assert(fillRect.W() >= 0.);
-    assert(fillRect.H() >= 0.);
-    
     if(stepped)
     {
       int step = GetStepIdxForPos(fillRect.R, fillRect.T);
