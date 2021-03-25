@@ -398,7 +398,7 @@ void IPlugVST3ProcessorBase::ProcessAudio(ProcessData& data, ProcessSetup& setup
       chanOffset += busChannels;
     }
     
-    if (GetBypassed())
+    if (GetBypassed() && !GetWillHandleBypass())
     {
       if (sampleSize == kSample32)
         PassThroughBuffers(0.f, data.numSamples); // single precision
