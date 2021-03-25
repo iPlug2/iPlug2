@@ -55,7 +55,9 @@ public:
     kFlagSignDisplay      = 0x8,
     /** Indicates that the parameter may influence the state of other parameters */
     kFlagMeta             = 0x10,
-    /** Indicates that the parameter may act as host bypass parameter */
+    /** Indicates that the parameter may act as host bypass parameter
+     * Please beware: if this flag is set for a parameter, the bypass logic of iPlug2 is switched of,
+     * i.e. GetBypassed() will always return false and you must implement the bypass logic in ProcessBlock() yourself. */
     kFlagBypass           = 0x20,
   };
   
