@@ -559,8 +559,13 @@ bool IPlugAAX::EditorResize(int viewWidth, int viewHeight)
     oEffectViewSize.vert = (float) viewHeight;
     
     if (pViewInterface && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
-      pViewInterface->GetViewContainer()->SetViewSize(oEffectViewSize);
-
+    {
+      auto* viewContainer = pViewInterface->GetViewContainer();
+      
+      if (viewContainer)
+        viewContainer->SetViewSize(oEffectViewSize);
+    }
+    
     SetEditorSize(viewWidth, viewHeight);
   }
   
