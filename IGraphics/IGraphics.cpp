@@ -464,7 +464,7 @@ void IGraphics::DisableControl(int paramIdx, bool disable)
   ForMatchingControls(&IControl::SetDisabled, paramIdx, disable);
 }
 
-void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func)
+void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl* pControl)> func)
 {
   for (auto c = 0; c < NControls(); c++)
   {
@@ -472,13 +472,13 @@ void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& c
 
     if (pControl->LinkedToParam(paramIdx) > kNoValIdx)
     {
-      func(*pControl);
+      func(pControl);
       // Could be more than one, don't break until we check them all.
     }
   }
 }
 
-void IGraphics::ForControlInGroup(const char* group, std::function<void(IControl& control)> func)
+void IGraphics::ForControlInGroup(const char* group, std::function<void(IControl* pControl)> func)
 {
   for (auto c = 0; c < NControls(); c++)
   {
@@ -487,44 +487,44 @@ void IGraphics::ForControlInGroup(const char* group, std::function<void(IControl
     if (CStringHasContents(pControl->GetGroup()))
     {
       if (strcmp(pControl->GetGroup(), group) == 0)
-        func(*pControl);
+        func(pControl);
       // Could be more than one, don't break until we check them all.
     }
   }
 }
 
-void IGraphics::ForStandardControlsFunc(std::function<void(IControl& control)> func)
+void IGraphics::ForStandardControlsFunc(std::function<void(IControl* pControl)> func)
 {
   for (auto c = 0; c < NControls(); c++)
-    func(*GetControl(c));
+    func(GetControl(c));
 }
 
-void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
+void IGraphics::ForAllControlsFunc(std::function<void(IControl* pControl)> func)
 {
   ForStandardControlsFunc(func);
   
   if (mPerfDisplay)
-    func(*mPerfDisplay);
+    func(mPerfDisplay.get());
   
 #ifndef NDEBUG
   if (mLiveEdit)
-    func(*mLiveEdit);
+    func(mLiveEdit.get());
 #endif
   
   if (mCornerResizer)
-    func(*mCornerResizer);
+    func(mCornerResizer.get());
   
   if (mTextEntryControl)
-    func(*mTextEntryControl);
+    func(mTextEntryControl.get());
   
   if (mPopupControl)
-    func(*mPopupControl);
+    func(mPopupControl.get());
   
   if (mBubbleControls.GetSize())
   {
     for(int i = 0;i<mBubbleControls.GetSize();i++)
     {
-      func(*mBubbleControls.Get(i));
+      func(mBubbleControls.Get(i));
     }
   }
 }
@@ -532,13 +532,13 @@ void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
 template<typename T, typename... Args>
 void IGraphics::ForAllControls(T method, Args... args)
 {
-  ForAllControlsFunc([method, args...](IControl& control) { (control.*method)(args...); });
+  ForAllControlsFunc([method, args...](IControl* pControl) { (pControl->*method)(args...); });
 }
 
 template<typename T, typename... Args>
 void IGraphics::ForMatchingControls(T method, int paramIdx, Args... args)
 {
-  ForControlWithParam(paramIdx, [method, args...](IControl& control) { (control.*method)(args...); });
+  ForControlWithParam(paramIdx, [method, args...](IControl* pControl) { (pControl->*method)(args...); });
 }
 
 void IGraphics::SetAllControlsDirty()
@@ -553,10 +553,10 @@ void IGraphics::SetAllControlsClean()
 
 void IGraphics::AssignParamNameToolTips()
 {
-  auto func = [](IControl& control)
+  auto func = [](IControl* pControl)
   {
-    if (control.GetParamIdx() > kNoParameter)
-      control.SetTooltip(control.GetParam()->GetName());
+    if (pControl->GetParamIdx() > kNoParameter)
+      pControl->SetTooltip(pControl->GetParam()->GetName());
   };
   
   ForStandardControlsFunc(func);
@@ -567,14 +567,14 @@ void IGraphics::UpdatePeers(IControl* pCaller, int callerValIdx) // TODO: this c
   double value = pCaller->GetValue(callerValIdx);
   int paramIdx = pCaller->GetParamIdx(callerValIdx);
     
-  auto func = [pCaller, paramIdx, value](IControl& control)
+  auto func = [pCaller, paramIdx, value](IControl* pControl)
   {
-    int valIdx = control.LinkedToParam(paramIdx);
+    int valIdx = pControl->LinkedToParam(paramIdx);
 
     // Not actually called from the delegate, but we don't want to push the updates back to the delegate
-    if ((valIdx > kNoValIdx) && (&control != pCaller))
+    if ((valIdx > kNoValIdx) && (pControl != pCaller))
     {
-      control.SetValueFromDelegate(value, valIdx);
+      pControl->SetValueFromDelegate(value, valIdx);
     }
   };
     
@@ -781,16 +781,15 @@ bool IGraphics::IsDirty(IRECTList& rects)
   if (mDisplayTickFunc)
     mDisplayTickFunc();
 
-  ForAllControlsFunc([](IControl& control) { control.Animate(); } );
+  ForAllControlsFunc([](IControl* pControl) { pControl->Animate(); } );
 
   bool dirty = false;
     
-  auto func = [&dirty, &rects](IControl& control)
-  {
-    if (control.IsDirty())
+  auto func = [&dirty, &rects](IControl* pControl) {
+    if (pControl->IsDirty())
     {
       // N.B padding outlines for single line outlines
-      rects.Add(control.GetRECT().GetPadded(0.75));
+      rects.Add(pControl->GetRECT().GetPadded(0.75));
       dirty = true;
     }
   };
@@ -865,7 +864,7 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
 
 void IGraphics::Draw(const IRECT& bounds, float scale)
 {
-  ForAllControlsFunc([this, bounds, scale](IControl& control) { DrawControl(&control, bounds, scale); });
+  ForAllControlsFunc([this, bounds, scale](IControl* pControl) { DrawControl(pControl, bounds, scale); });
 
 #ifndef NDEBUG
   if (mShowAreaDrawn)
