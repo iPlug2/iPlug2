@@ -1142,7 +1142,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
             WDL_String menuEntry {f};
             
             if(!mShowFileExtensions)
-              menuEntry.Set(f, (int) (a - f));
+              menuEntry.Set(f, (int) (a - f) - 1);
             
             IPopupMenu::Item* pItem = new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize());
             menuToAddTo.AddItem(pItem, -2 /* sort alphabetically */);
