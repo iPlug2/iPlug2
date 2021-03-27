@@ -1038,7 +1038,7 @@ void IGraphics::OnMouseUp(const std::vector<IMouseInfo>& points)
             GetDelegate()->EndInformHostOfParamChangeFromUI(pCapturedControl->GetParamIdx(v));
         }
         
-        mCapturedMap.erase(itr);
+        mCapturedMap.erase(mod.touchID);
       }
     }
   }
