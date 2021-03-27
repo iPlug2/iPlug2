@@ -1174,7 +1174,7 @@ void IVGroupControl::SetBoundsBasedOnGroup(const char* groupName, float padL, fl
   mGroupName.Set(groupName);
   
   IRECT unionRect;
-  GetUI()->ForControlInGroup(mGroupName.Get(), [&unionRect](IControl& control) { unionRect = unionRect.Union(control.GetRECT()); });
+  GetUI()->ForControlInGroup(mGroupName.Get(), [&unionRect](IControl* pControl) { unionRect = unionRect.Union(pControl->GetRECT()); });
   float halfLabelHeight = mLabelBounds.H()/2.f;
   unionRect.GetVPadded(halfLabelHeight);
   mRECT = unionRect.GetPadded(padL, padT, padR, padB);
