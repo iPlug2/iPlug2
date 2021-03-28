@@ -16,7 +16,7 @@
 		4F7DB9D3247895C200ACF64B /* IPlugWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F7DB9CF247895C200ACF64B /* IPlugWebView.h */; };
 		4F7DB9D4247895C200ACF64B /* IPlugWebViewEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F7DB9D0247895C200ACF64B /* IPlugWebViewEditorDelegate.h */; };
 		4F7DB9D5247895C200ACF64B /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F7DB9D1247895C200ACF64B /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FA0FB22247D4E5600E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F7DB9CE247895C200ACF64B /* IPlugWebViewEditorDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4FA0FB22247D4E5600E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F7DB9CE247895C200ACF64B /* IPlugWebViewEditorDelegate.mm */; };
 		4FA0FB25247D4FE800E25C73 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E58231440C8000045E7 /* web */; };
 		4FA61F6822E8996C00A92C58 /* IPlugAUv3Appex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FA61F6722E8996C00A92C58 /* IPlugAUv3Appex.m */; };
 		4FA61F7522E899B500A92C58 /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA61F6E22E899B500A92C58 /* AUv3Framework.framework */; };
