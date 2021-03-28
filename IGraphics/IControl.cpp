@@ -833,20 +833,7 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
   const IParam* pParam = GetParam();
   
   if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
-  {
-    const double range = pParam->GetRange();
-    
-    if (range > 0.)
-    {
-      double l, h;
-      pParam->GetBounds(l, h);
-
-      v = l + mMouseDragValue * range;
-      v = v - std::fmod(v, pParam->GetStep());
-      v -= l;
-      v /= range;
-    }
-  }
+    v = pParam->ConstrainNormalized(mMouseDragValue);
 
   SetValue(v);
   SetDirty();
@@ -861,19 +848,13 @@ void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, floa
   
   if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
   {
-    const double range = pParam->GetRange();
-
-    if (range > 0. && d != 0.f)
+    if (d != 0.f)
     {
-      double l, h;
-      pParam->GetBounds(l,h);
-      v = l + GetValue() * range;
       const double step = pParam->GetStep();
+
+      v = pParam->FromNormalized(v);
       v += d > 0 ? step : -step;
-      v = Clip(v, l, h);
-      v = v - std::fmod(v, step);
-      v -= l;
-      v /= range;
+      v = pParam->ToNormalized(v);
     }
   }
 
@@ -967,20 +948,7 @@ void ISliderControlBase::OnMouseDrag(float x, float y, float dX, float dY, const
   double v = mMouseDragValue;
   
   if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
-  {
-    const double range = pParam->GetRange();
-    
-    if (range > 0.)
-    {
-      double l, h;
-      pParam->GetBounds(l,h);
-
-      v = l + mMouseDragValue * range;
-      v = v - std::fmod(v, pParam->GetStep());
-      v -= l;
-      v /= range;
-    }
-  }
+    v = pParam->ConstrainNormalized(mMouseDragValue);
 
   SetValue(v);
   SetDirty(true);
@@ -995,19 +963,13 @@ void ISliderControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, fl
   
   if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
   {
-    const double range = pParam->GetRange();
-
-    if (range > 0. && d != 0.f)
+    if (d != 0.f)
     {
-      double l, h;
-      pParam->GetBounds(l,h);
-      v = l + GetValue() * range;
       const double step = pParam->GetStep();
+          
+      v = pParam->FromNormalized(v);
       v += d > 0 ? step : -step;
-      v = Clip(v, l, h);
-      v = v - std::fmod(v, step);
-      v -= l;
-      v /= range;
+      v = pParam->ToNormalized(v);
     }
   }
 
