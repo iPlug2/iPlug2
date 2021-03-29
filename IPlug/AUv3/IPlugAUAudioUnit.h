@@ -29,6 +29,7 @@
 - (void) populateChannelCapabilitesArray: (NSMutableArray*) pArray;
 - (NSInteger) width;
 - (NSInteger) height;
+- (void) hostResized: (CGSize) newSize;
 - (PLATFORM_VIEW*) openWindow: (PLATFORM_VIEW*) pParent;
 //- (void)resize: (CGRect) bounds;
 - (void) closeWindow;

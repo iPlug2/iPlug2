@@ -42,6 +42,15 @@
   [super viewDidLoad];
 }
 
+- (void)viewDidLayoutSubviews
+{
+#if PLUG_HOST_RESIZE
+  if(self.audioUnit) {
+    [self.audioUnit hostResized: self.view.window.frame.size];
+  }
+#endif
+}
+
 - (void) viewWillAppear:(BOOL)animated
 {
   [super viewWillAppear:animated];

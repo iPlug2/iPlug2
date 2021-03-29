@@ -149,7 +149,8 @@ void IGraphicsIOS::PlatformResize(bool parentHasResized)
 {
   if (mView)
   {
-    //TODO
+    CGRect r = CGRectMake(0., 0., static_cast<CGFloat>(WindowWidth()), static_cast<CGFloat>(WindowHeight()));
+    [(IGRAPHICS_VIEW*) mView setFrame: r ];
   }
 }
 
