@@ -4,11 +4,11 @@
 IPlugWebUI::IPlugWebUI(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
-  GetParam(kGain)->InitGain("Gain", 0., -70, 0.);
+  GetParam(kGain)->InitGain("Gain", -70., -70, 0.);
 
   // Hard-coded paths must be modified!
 #ifdef OS_WIN
-  SetWebViewPaths("C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\packages\\Microsoft.Web.WebView2.1.0.781-prerelease\\runtimes\\win-x64\\native\\WebView2Loader.dll", "C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\");
+  SetWebViewPaths("C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\packages\\Microsoft.Web.WebView2.1.0.824-prerelease\\runtimes\\win-x64\\native\\WebView2Loader.dll", "C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\");
 #endif
 
 
@@ -22,9 +22,9 @@ IPlugWebUI::IPlugWebUI(const InstanceInfo& info)
     EnableScroll(false);
   };
   
-  MakePreset("One", 0.);
+  MakePreset("One", -70.);
   MakePreset("Two", -30.);
-  MakePreset("Three", 40.);
+  MakePreset("Three", 0.);
 }
 
 void IPlugWebUI::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
