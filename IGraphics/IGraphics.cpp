@@ -1535,7 +1535,9 @@ IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 void IGraphics::EnableTooltips(bool enable)
 {
   mEnableTooltips = enable;
-  if (enable) mEnableMouseOver = true;
+  UpdateTooltips();
+  if (enable) 
+    mEnableMouseOver = true;
 }
 
 void IGraphics::EnableLiveEdit(bool enable)
