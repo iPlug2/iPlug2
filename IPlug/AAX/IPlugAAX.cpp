@@ -528,7 +528,18 @@ AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk* pChunk, AAX_CBoo
   *pIsEqual = CompareState((const unsigned char*) pChunk->fData, 0);
     
   return AAX_SUCCESS;
-}  
+}
+
+AAX_Result IPlugAAX::NotificationReceived (AAX_CTypeID type, const void* data, uint32_t size)
+{
+  if (type == AAX_eNotificationEvent_TrackNameChanged && data != nullptr)
+  {
+    //AudioProcessor::TrackProperties props;
+    mChannelName.Set( static_cast<const AAX_IString*> (data)->Get() );
+  }
+  
+  return AAX_CEffectParameters::NotificationReceived (type, data, size);
+}
 
 void IPlugAAX::BeginInformHostOfParamChange(int idx)
 {
