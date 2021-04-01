@@ -1105,6 +1105,45 @@ EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption
   return result;
 }
 
+void IGraphicsWin::UpdateTooltips()
+{
+
+  if (mTooltipWnd)
+  {
+    DestroyWindow(mTooltipWnd);
+    mTooltipWnd = 0;
+    mShowingTooltip = false;
+    mTooltipIdx = -1;
+  }
+
+  if (mPlugWnd && TooltipsEnabled())
+  {
+    bool ok = false;
+    static const INITCOMMONCONTROLSEX iccex = { sizeof(INITCOMMONCONTROLSEX), ICC_TAB_CLASSES };
+
+    if (InitCommonControlsEx(&iccex))
+    {
+      mTooltipWnd = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TTS_NOPREFIX | TTS_ALWAYSTIP,
+        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, mPlugWnd, NULL, mHInstance, NULL);
+      if (mTooltipWnd)
+      {
+        SetWindowPos(mTooltipWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, TTF_IDISHWND | TTF_SUBCLASS, mPlugWnd, (UINT_PTR)mPlugWnd };
+        ti.lpszText = (LPTSTR)NULL;
+        SendMessage(mTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
+        SendMessage(mTooltipWnd, TTM_SETMAXTIPWIDTH, 0, TOOLTIPWND_MAXWIDTH);
+        ok = true;
+      }
+    }
+
+    if (!ok) EnableTooltips(ok);
+
+#ifdef IGRAPHICS_GL
+    wglMakeCurrent(NULL, NULL);
+#endif
+  }
+}
+
 void* IGraphicsWin::OpenWindow(void* pParent)
 {
   mParentWnd = (HWND) pParent;
@@ -1159,32 +1198,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
     SetAllControlsDirty();
   }
 
-  if (mPlugWnd && TooltipsEnabled())
-  {
-    bool ok = false;
-    static const INITCOMMONCONTROLSEX iccex = { sizeof(INITCOMMONCONTROLSEX), ICC_TAB_CLASSES };
-
-    if (InitCommonControlsEx(&iccex))
-    {
-      mTooltipWnd = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TTS_NOPREFIX | TTS_ALWAYSTIP,
-                                   CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, mPlugWnd, NULL, mHInstance, NULL);
-      if (mTooltipWnd)
-      {
-        SetWindowPos(mTooltipWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-        TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, TTF_IDISHWND | TTF_SUBCLASS, mPlugWnd, (UINT_PTR)mPlugWnd };
-        ti.lpszText = (LPTSTR)NULL;
-        SendMessage(mTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
-        SendMessage(mTooltipWnd, TTM_SETMAXTIPWIDTH, 0, TOOLTIPWND_MAXWIDTH);
-        ok = true;
-      }
-    }
-
-    if (!ok) EnableTooltips(ok);
-
-#ifdef IGRAPHICS_GL
-    wglMakeCurrent(NULL, NULL);
-#endif
-  }
+  UpdateTooltips();
 
   GetDelegate()->OnUIOpen();
   
