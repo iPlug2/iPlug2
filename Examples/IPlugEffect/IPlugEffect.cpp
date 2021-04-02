@@ -16,9 +16,13 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
+    pGraphics->EnableTooltips(true);
     const IRECT b = pGraphics->GetBounds();
     pGraphics->AttachControl(new ITextControl(b.GetMidVPadded(50), "Hello iPlug 2!", IText(50)));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-100), kGain));
+    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-100), kGain))->SetTooltip("Hello");
+    pGraphics->AttachControl(new IVToggleControl(b.GetFromBottom(100), [pGraphics](IControl* pCaller){
+      pGraphics->EnableTooltips(pCaller->GetValue() > 0.5);
+    }, ""));
   };
 #endif
 }
