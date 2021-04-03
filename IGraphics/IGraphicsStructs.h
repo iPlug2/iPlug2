@@ -1824,14 +1824,14 @@ public:
     return -1;
   }
   
-  /** Fill an IRECTList with divions of row and column divisions of an input IRECT 
+  /** Fill an IRECTList with divisons of an input IRECT
    * @param input The input rectangle
    * @param rects The output IRECTList
    * @param rowFractions Initializer list of fractions for the grid rows (should sum to 1.0)
    * @param colFractions Initializer list of fractions for the grid columns (should sum to 1.0)
-   * @param layoutDir If set to EDirection::Horizontal, cell idx increases horizontally (by row). If set to EDirection::Vertical, cell idx increases vertically (by column).
+   * @param layoutDir By default the cell idx increases horizontally (by row). If set to EDirection::Vertical, cell idx increases vertically (by column).
    * @return \c true if the row and column fractions summed to 1.0, and grid creation was successful */
-  static bool GetFracGrid(const IRECT& input, IRECTList& rects, const std::initializer_list<float>& rowFractions, const std::initializer_list<float>& colFractions, EDirection layoutDir)
+  static bool GetFracGrid(const IRECT& input, IRECTList& rects, const std::initializer_list<float>& rowFractions, const std::initializer_list<float>& colFractions, EDirection layoutDir = EDirection::Horizontal)
   {
     IRECT spaceLeft = input;
     float y = 0.;
