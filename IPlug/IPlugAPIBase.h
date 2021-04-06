@@ -208,7 +208,18 @@ private:
 
   void OnTimer(Timer& t);
 
-protected:
+  friend class IPlugAPP;
+  friend class IPlugAAX;
+  friend class IPlugVST2;
+  friend class IPlugVST3;
+  friend class IPlugVST3Controller;
+  friend class IPlugVST3Processor;
+  friend class IPlugAU;
+  friend class IPlugAUv3;
+  friend class IPlugWEB;
+  friend class IPlugWAM;
+
+private:
   WDL_String mParamDisplayStr;
   std::unique_ptr<Timer> mTimer;
   
