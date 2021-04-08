@@ -953,7 +953,7 @@ protected:
 
 #pragma mark - Base implementation
 public:
-  IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
+  IGraphics(IGEditorDelegate& dlg, int w, int h, int fps = DEFAULT_FPS, float scale = 1.);
 
   virtual ~IGraphics();
     

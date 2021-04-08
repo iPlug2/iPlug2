@@ -50,9 +50,8 @@ IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 , mDrawScale(scale)
 , mMinScale(scale / 2)
 , mMaxScale(scale * 2)
+, mFPS(fps)
 {
-  mFPS = (fps > 0 ? fps : DEFAULT_FPS);
-    
   StaticStorage<APIBitmap>::Accessor bitmapStorage(sBitmapCache);
   bitmapStorage.Retain();
   StaticStorage<SVGHolder>::Accessor svgStorage(sSVGCache);
