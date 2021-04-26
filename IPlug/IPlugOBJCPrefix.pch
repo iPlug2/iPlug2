@@ -35,6 +35,7 @@
   #define CONCAT2(a,b,c) CONCAT3(a,b,c)
   #define CONCAT(cname) CONCAT2(cname,OBJC_PREFIX,API)
 
+  #define HELPER_VIEW CONCAT(IWebViewEditorDelegateHelperView_)
   #define IGRAPHICS_VIEW CONCAT(IGraphicsView_)
   #define IGRAPHICS_MENU CONCAT(IGraphicsMenu_)
   #define IGRAPHICS_MENU_RCVR CONCAT(IGraphicsMenuRcvr_)

@@ -112,11 +112,7 @@ public:
     }
   }
 
-  void Resize(int width, int height)
-  {
-    SetWebViewBounds(0, 0, static_cast<float>(width), static_cast<float>(height));
-    EditorResizeFromUI(width, height, true);
-  }
+  void Resize(int width, int height);
 
   void OnWebViewReady() override
   {
@@ -142,6 +138,7 @@ protected:
   
   int mMaxJSStringLength = kDefaultMaxJSStringLength;
   std::function<void()> mEditorInitFunc = nullptr;
+  void* mHelperView = nullptr;
 };
 
 END_IPLUG_NAMESPACE

@@ -1,213 +1,175 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Source Files\IPlug">
-      <UniqueIdentifier>{eb500c0b-13a1-4cf7-9a63-e351d9584a3f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\IGraphics">
-      <UniqueIdentifier>{52e9a205-9404-4939-acf1-ec13eb12d417}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\IGraphics\Controls">
-      <UniqueIdentifier>{7759528a-7a68-4094-bf53-767931efc238}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\IGraphics\Drawing">
-      <UniqueIdentifier>{b54b1584-1f30-4ece-ae7c-bc87dd417093}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\IGraphics\Platforms">
-      <UniqueIdentifier>{a9726673-fb14-42e1-b80f-2b1e891619fd}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\IGraphics\Extras">
-      <UniqueIdentifier>{a11609cf-5f2c-40c9-aa0b-a6b46f6f6b18}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\IPlug\ReaperExt">
-      <UniqueIdentifier>{ee82a3d7-cae8-4cf9-af91-ed0e5fcfdf5f}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\IPlugReaperExtension.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
-      <Filter>Source Files\IPlug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
-      <Filter>Source Files\IPlug</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\IControl.cpp">
-      <Filter>Source Files\IGraphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\IGraphics.cpp">
-      <Filter>Source Files\IGraphics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp">
-      <Filter>Source Files\IGraphics</Filter>
+      <Filter>IGraphics</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp">
-      <Filter>Source Files\IGraphics\Controls</Filter>
+      <Filter>IGraphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Controls\IPopupMenuControl.cpp">
-      <Filter>Source Files\IGraphics\Controls</Filter>
+    <ClCompile Include="..\..\..\IGraphics\IGraphics.cpp">
+      <Filter>IGraphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp">
-      <Filter>Source Files\IGraphics\Controls</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsCanvas.cpp">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClCompile>
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.cpp">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Platforms\IGraphicsWin.cpp">
-      <Filter>Source Files\IGraphics\Platforms</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
-      <Filter>Source Files\IPlug</Filter>
+    <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp">
+      <Filter>IGraphics</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Extras\IGraphicsImGui.cpp">
-      <Filter>Source Files\IGraphics\Extras</Filter>
+      <Filter>IGraphics</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\ReaperExt\ReaperExtBase.cpp">
-      <Filter>Source Files\IPlug\ReaperExt</Filter>
+    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.cpp">
+      <Filter>IGraphics</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Platforms\IGraphicsWin.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\IPlugReaperExtension.cpp" />
+    <ClCompile Include="..\..\..\IGraphics\Controls\IPopupMenuControl.cpp">
+      <Filter>IGraphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\ReaperExt\ReaperExtBase.cpp">
+      <Filter>IPlug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\resources\main.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\resources\resource.h">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugConstants.h">
-      <Filter>Source Files\IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h">
-      <Filter>Source Files\IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugPaths.h">
-      <Filter>Source Files\IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugQueue.h">
-      <Filter>Source Files\IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugTimer.h">
-      <Filter>Source Files\IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IControl.h">
-      <Filter>Source Files\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphics.h">
-      <Filter>Source Files\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_hdr.h">
-      <Filter>Source Files\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_src.h">
-      <Filter>Source Files\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphics_select.h">
-      <Filter>Source Files\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsConstants.h">
-      <Filter>Source Files\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsEditorDelegate.h">
-      <Filter>Source Files\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsLiveEdit.h">
-      <Filter>Source Files\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsPopupMenu.h">
-      <Filter>Source Files\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsStructs.h">
-      <Filter>Source Files\IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsUtilities.h">
-      <Filter>Source Files\IGraphics</Filter>
+    <ClInclude Include="..\config.h" />
+    <ClInclude Include="..\resources\resource.h" />
+    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWin.h">
+      <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\IColorPickerControl.h">
-      <Filter>Source Files\IGraphics\Controls</Filter>
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IControl.h">
+      <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h">
-      <Filter>Source Files\IGraphics\Controls</Filter>
+      <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\ICornerResizerControl.h">
-      <Filter>Source Files\IGraphics\Controls</Filter>
+      <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\IFPSDisplayControl.h">
-      <Filter>Source Files\IGraphics\Controls</Filter>
+      <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\IPopupMenuControl.h">
-      <Filter>Source Files\IGraphics\Controls</Filter>
+    <ClInclude Include="..\..\..\IGraphics\IGraphics.h">
+      <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\IRTTextControl.h">
-      <Filter>Source Files\IGraphics\Controls</Filter>
+    <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_hdr.h">
+      <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h">
-      <Filter>Source Files\IGraphics\Controls</Filter>
+    <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_src.h">
+      <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVKeyboardControl.h">
-      <Filter>Source Files\IGraphics\Controls</Filter>
+    <ClInclude Include="..\..\..\IGraphics\IGraphics_select.h">
+      <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h">
-      <Filter>Source Files\IGraphics\Controls</Filter>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsConstants.h">
+      <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVMultiSliderControl.h">
-      <Filter>Source Files\IGraphics\Controls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVScopeControl.h">
-      <Filter>Source Files\IGraphics\Controls</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsCanvas.h">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.h">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWin.h">
-      <Filter>Source Files\IGraphics\Platforms</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\IPlugParameter.h">
-      <Filter>Source Files\IPlug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\IPlugReaperExtension.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsEditorDelegate.h">
+      <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Extras\IGraphicsImGui.h">
-      <Filter>Source Files\IGraphics\Extras</Filter>
+      <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\config.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsLiveEdit.h">
+      <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\ReaperExt\ReaperExtBase.h">
-      <Filter>Source Files\IPlug\ReaperExt</Filter>
+    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.h">
+      <Filter>IGraphics</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\ReaperExt\ReaperExt_include_in_plug_hdr.h">
-      <Filter>Source Files\IPlug\ReaperExt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IPlug\ReaperExt\ReaperExt_include_in_plug_src.h">
-      <Filter>Source Files\IPlug\ReaperExt</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h">
-      <Filter>Source Files\IGraphics\Drawing</Filter>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsPopupMenu.h">
+      <Filter>IGraphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\IGraphicsPrivate.h">
-      <Filter>Source Files\IGraphics</Filter>
+      <Filter>IGraphics</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsStructs.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\IGraphicsUtilities.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IRTTextControl.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVKeyboardControl.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVMultiSliderControl.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\IVScopeControl.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugConstants.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugParameter.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugPaths.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugQueue.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\IPlugTimer.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\ISender.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\IPlugReaperExtension.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\IPopupMenuControl.h">
+      <Filter>IGraphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\ReaperExt\ReaperExtBase.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\ReaperExt\ReaperExt_include_in_plug_hdr.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\ReaperExt\ReaperExt_include_in_plug_src.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\resources\main.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="IGraphics">
+      <UniqueIdentifier>{6adee0f4-2197-4120-9cda-6e7ab8bceba1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug">
+      <UniqueIdentifier>{08a3b889-8875-4989-8826-c4c94360c1bd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

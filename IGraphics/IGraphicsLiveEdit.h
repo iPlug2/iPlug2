@@ -180,13 +180,13 @@ public:
       mDragRegion.T = y < mouseDownY ? y : mouseDownY;
       mDragRegion.B = y < mouseDownY ? mouseDownY : y;
       
-      GetUI()->ForStandardControlsFunc([&](IControl& c) {
-                                         if(mDragRegion.Contains(c.GetRECT())) {
-                                           if(mSelectedControls.FindR(&c) == -1)
-                                             mSelectedControls.Add(&c);
+      GetUI()->ForStandardControlsFunc([&](IControl* pControl) {
+                                         if(mDragRegion.Contains(pControl->GetRECT())) {
+                                           if(mSelectedControls.FindR(pControl) == -1)
+                                             mSelectedControls.Add(pControl);
                                          }
                                          else {
-                                           int idx = mSelectedControls.FindR(&c);
+                                           int idx = mSelectedControls.FindR(pControl);
                                            if(idx > -1)
                                              mSelectedControls.Delete(idx);
                                          }

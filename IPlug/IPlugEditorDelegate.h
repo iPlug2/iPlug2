@@ -344,13 +344,26 @@ public:
   virtual int UnserializeEditorState(const IByteChunk& chunk, int startPos)  { return startPos; }
   
   /** Can be used by a host API to inform the editor of screen scale changes
-   *@param scale The new screen scale*/
+   * @param scale The new screen scale*/
   virtual void SetScreenScale(float scale) {}
 
-protected:
+  friend class IPlugAPP;
+  friend class IPlugAAX;
+  friend class IPlugVST2;
+  friend class IPlugVST3;
+  friend class IPlugVST3Controller;
+  friend class IPlugVST3Processor;
+  friend class IPlugAU;
+  friend class IPlugAUv3;
+  friend class IPlugWEB;
+  friend class IPlugWAM;
+  friend class IPlugAPIBase;
+  friend class IPluginBase;
+
+private:
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to MakeConfig() in the plug-in class implementation constructor */
   WDL_PtrList<IParam> mParams;
-private:
+
   /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist. */
   int mEditorWidth = 0;
   /** The height of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist */

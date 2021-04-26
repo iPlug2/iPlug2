@@ -1824,15 +1824,16 @@ public:
     return -1;
   }
   
-  /** Fill an IRECTList with divions of row and column divisions of an input IRECT 
+  /** Fill an IRECTList with divisons of an input IRECT
    * @param input The input rectangle
    * @param rects The output IRECTList
    * @param rowFractions Initializer list of fractions for the grid rows (should sum to 1.0)
    * @param colFractions Initializer list of fractions for the grid columns (should sum to 1.0)
+   * @param layoutDir By default the cell idx increases horizontally (by row). If set to EDirection::Vertical, cell idx increases vertically (by column).
    * @return \c true if the row and column fractions summed to 1.0, and grid creation was successful */
-  static bool GetFracGrid(const IRECT& input, IRECTList& rects, const std::initializer_list<float>& rowFractions, const std::initializer_list<float>& colFractions)
+  static bool GetFracGrid(const IRECT& input, IRECTList& rects, const std::initializer_list<float>& rowFractions, const std::initializer_list<float>& colFractions, EDirection layoutDir = EDirection::Horizontal)
   {
-    IRECT rowsLeft = input;
+    IRECT spaceLeft = input;
     float y = 0.;
     float x = 0.;
 
@@ -1842,24 +1843,50 @@ public:
     if(std::accumulate(colFractions.begin(), colFractions.end(), 0.f) != 1.)
       return false;
 
-    for (auto& rowFrac : rowFractions)
+    if (layoutDir == EDirection::Horizontal)
     {
-      IRECT thisRow = input.FracRectVertical(rowFrac, true).GetTranslated(0, y);
-      
-      x = 0.;
+      for (auto& rowFrac : rowFractions)
+      {
+        IRECT thisRow = input.FracRectVertical(rowFrac, true).GetTranslated(0, y);
+        
+        x = 0.;
 
+        for (auto& colFrac : colFractions)
+        {
+          IRECT thisCell = thisRow.FracRectHorizontal(colFrac).GetTranslated(x, 0);
+          
+          rects.Add(thisCell);
+          
+          x += thisCell.W();
+        }
+        
+        spaceLeft.Intersect(thisRow);
+        
+        y = rects.Bounds().H();
+      }
+    }
+    
+    if (layoutDir == EDirection::Vertical)
+    {
       for (auto& colFrac : colFractions)
       {
-        IRECT thisCell = thisRow.FracRectHorizontal(colFrac).GetTranslated(x, 0);
+        IRECT thisCol = input.FracRectHorizontal(colFrac).GetTranslated(x, 0);
         
-        rects.Add(thisCell);
+        y = 0.;
+
+        for (auto& rowFrac : rowFractions)
+        {
+          IRECT thisCell = thisCol.FracRectVertical(rowFrac, true).GetTranslated(0, y);
+          
+          rects.Add(thisCell);
+          
+          y += thisCell.H();
+        }
         
-        x += thisCell.W();
+        spaceLeft.Intersect(thisCol);
+        
+        x = rects.Bounds().W();
       }
-      
-      rowsLeft.Intersect(thisRow);
-      
-      y = rects.Bounds().H();
     }
     
     return true;

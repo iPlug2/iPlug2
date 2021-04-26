@@ -129,8 +129,8 @@ private:
 class IVDiskPresetManagerControl : public IDirBrowseControlBase
 {
 public:
-  IVDiskPresetManagerControl(const IRECT& bounds, const char* presetPath, const char* fileExtension, const IVStyle& style = DEFAULT_STYLE)
-  : IDirBrowseControlBase(bounds, fileExtension)
+  IVDiskPresetManagerControl(const IRECT& bounds, const char* presetPath, const char* fileExtension, bool showFileExtensions = true, const IVStyle& style = DEFAULT_STYLE)
+  : IDirBrowseControlBase(bounds, fileExtension, showFileExtensions)
   , mStyle(style)
   {
     mIgnoreMouse = true;

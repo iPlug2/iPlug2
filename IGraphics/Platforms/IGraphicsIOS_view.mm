@@ -205,9 +205,10 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mMTLLayer.frame = self.layer.frame;
   mMTLLayer.opaque = YES;
   mMTLLayer.contentsScale = [UIScreen mainScreen].scale;
+  
   [self.layer addSublayer: mMTLLayer];
 #endif
-  
+
   self.multipleTouchEnabled = NO;
   
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
@@ -231,13 +232,18 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     scale = self.window.screen.scale;
   
   #ifdef IGRAPHICS_METAL
+  [CATransaction begin];
+  [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
   CGSize drawableSize = self.bounds.size;
-  
-  // Since drawable size is in pixels, we need to multiply by the scale to move from points to pixels
+  [self.layer setFrame:frame];
+  mMTLLayer.frame = self.layer.frame;
+
   drawableSize.width *= scale;
   drawableSize.height *= scale;
-    
+
   mMTLLayer.drawableSize = drawableSize;
+  
+  [CATransaction commit];
   #endif
 }
 

@@ -15,7 +15,7 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
-static constexpr int DEFAULT_FPS = 25; // TODO: default 60 FPS?
+static constexpr int DEFAULT_FPS = 60;
 
 // If not dirty for this many timer ticks, we call OnGUIIDle.
 // Only looked at if USE_IDLE_CALLS is defined.
