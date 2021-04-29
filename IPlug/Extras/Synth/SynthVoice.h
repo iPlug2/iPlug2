@@ -109,7 +109,6 @@ protected:
   uint8_t mChannel{0};
   uint8_t mKey{0};
   double mBasePitch{0.};
-  double mAftertouch{0.};
   double mGain{0.}; // used by voice allocator to hard-kill voices.
 
   friend class MidiSynth;
