@@ -30,7 +30,6 @@ IPlugSideChain::IPlugSideChain(const InstanceInfo& info)
 
 }
 
-#if IPLUG_DSP
 void IPlugSideChain::OnIdle()
 {
   mInputPeakSender.TransmitData(*this);
@@ -126,4 +125,3 @@ void IPlugSideChain::ProcessBlock(sample** inputs, sample** outputs, int nFrames
   mInputPeakSender.ProcessBlock(inputs, nFrames, kCtrlTagInputMeter, 4, 0);
   mOutputPeakSender.ProcessBlock(outputs, nFrames, kCtrlTagOutputMeter, 2, 0);
 }
-#endif
