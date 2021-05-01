@@ -4,6 +4,11 @@
 IPlugSideChain::IPlugSideChain(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
+  SetChannelLabel(ERoute::kInput, 0, "Main L");
+  SetChannelLabel(ERoute::kInput, 1, "Main R");
+  SetChannelLabel(ERoute::kInput, 2, "SideChain L");
+  SetChannelLabel(ERoute::kInput, 3, "SideChain R");
+
   GetParam(kGain)->InitGain("Gain");
 
   mMakeGraphicsFunc = [&]() {
