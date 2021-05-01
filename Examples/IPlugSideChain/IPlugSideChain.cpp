@@ -56,8 +56,17 @@ void IPlugSideChain::OnIdle()
 
 void IPlugSideChain::GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const
 {
-  //could customize bus names here
-  IPlugProcessor::GetBusName(direction, busIdx, nBuses, str);
+  if (direction == ERoute::kInput)
+  {
+    if (busIdx == 0)
+      str.Set("Main Input");
+    else
+      str.Set("SideChain");
+  }
+  else
+  {
+    str.Set("Output");
+  }
 }
 
 void IPlugSideChain::OnActivate(bool enable)
