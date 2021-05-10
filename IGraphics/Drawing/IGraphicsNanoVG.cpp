@@ -272,7 +272,11 @@ bool IGraphicsNanoVG::BitmapExtSupported(const char* ext)
 IBitmap IGraphicsNanoVG::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {
   if (targetScale == 0)
+  #ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+    targetScale = GetScreenScale();
+  #else
     targetScale = GetRoundedScreenScale();
+  #endif
 
   // NanoVG does not use the global static cache, since bitmaps are textures linked to a context
   StaticStorage<APIBitmap>::Accessor storage(mBitmapCache);

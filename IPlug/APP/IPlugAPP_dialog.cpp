@@ -534,7 +534,11 @@ static void ClientResize(HWND hWnd, int nWidth, int nHeight)
 }
 
 #ifdef OS_WIN 
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+extern int GetScaleForHWND(HWND hWnd);
+#else
 extern float GetScaleForHWND(HWND hWnd);
+#endif
 #endif
 
 //static
@@ -718,11 +722,19 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
 #endif
 
 #ifdef OS_WIN 
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+      int scale = GetScaleForHWND(hwndDlg);
+      mmi->ptMinTrackSize.x *= scale;
+      mmi->ptMinTrackSize.y *= scale;
+      mmi->ptMaxTrackSize.x *= scale;
+      mmi->ptMaxTrackSize.y *= scale;
+#else
       float scale = GetScaleForHWND(hwndDlg);
       mmi->ptMinTrackSize.x = static_cast<LONG>(static_cast<float>(mmi->ptMinTrackSize.x) * scale);
       mmi->ptMinTrackSize.y = static_cast<LONG>(static_cast<float>(mmi->ptMinTrackSize.y) * scale);
       mmi->ptMaxTrackSize.x = static_cast<LONG>(static_cast<float>(mmi->ptMaxTrackSize.x) * scale);
       mmi->ptMaxTrackSize.y = static_cast<LONG>(static_cast<float>(mmi->ptMaxTrackSize.y) * scale);
+#endif      
 #endif
       
       return 0;
@@ -732,7 +744,11 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
     {
       WORD dpi = HIWORD(wParam);
       RECT* rect = (RECT*)lParam;
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+      int scale = GetScaleForHWND(hwndDlg);
+#else      
       float scale = GetScaleForHWND(hwndDlg);
+#endif      
 
       POINT ptDiff;
       RECT rcClient;
@@ -779,11 +795,19 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       {
         RECT r;
         GetClientRect(hwndDlg, &r);
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+        int scale = 1;
+#else        
         float scale = 1.f;
+#endif        
         #ifdef OS_WIN 
         scale = GetScaleForHWND(hwndDlg);
         #endif
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+        pPlug->OnParentWindowResize(r.right / scale, r.bottom / scale);
+#else        
         pPlug->OnParentWindowResize(static_cast<int>(r.right / scale), static_cast<int>(r.bottom / scale));
+#endif        
         return 1;
       }
       default:

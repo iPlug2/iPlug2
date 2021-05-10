@@ -40,7 +40,11 @@ public:
   //IEditorDelegate
   void* OpenWindow(void* pHandle) final;
   void CloseWindow() final;
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+  void SetScreenScale(double scale) final;
+#else  
   void SetScreenScale(float scale) final;
+#endif  
   
   bool OnKeyDown(const IKeyPress& key) override;
   bool OnKeyUp(const IKeyPress& key) override;

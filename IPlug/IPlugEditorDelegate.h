@@ -345,7 +345,11 @@ public:
   
   /** Can be used by a host API to inform the editor of screen scale changes
    * @param scale The new screen scale*/
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+  virtual void SetScreenScale(double scale) {}
+#else
   virtual void SetScreenScale(float scale) {}
+#endif
 
   friend class IPlugAPP;
   friend class IPlugAAX;

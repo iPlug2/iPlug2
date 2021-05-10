@@ -339,8 +339,13 @@ void IGraphicsSkia::OnViewDestroyed()
 
 void IGraphicsSkia::DrawResize()
 {
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+  auto w = WindowWidth() * GetScreenScale();
+  auto h = WindowHeight() * GetScreenScale();
+#else
   auto w = static_cast<int>(std::ceil(static_cast<float>(WindowWidth()) * GetScreenScale()));
   auto h = static_cast<int>(std::ceil(static_cast<float>(WindowHeight()) * GetScreenScale()));
+#endif
   
 #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
   if (mGrContext.get())
@@ -352,7 +357,11 @@ void IGraphicsSkia::DrawResize()
   #ifdef OS_WIN
     mSurface.reset();
    
+    #ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+    const size_t bmpSize = sizeof(BITMAPINFOHEADER) + (WindowWidth() * GetScreenScale()) * (WindowHeight() * GetScreenScale()) * sizeof(uint32_t);
+    #else
     const size_t bmpSize = sizeof(BITMAPINFOHEADER) + (w * h * sizeof(uint32_t));
+    #endif
     mSurfaceMemory.Resize(bmpSize);
     BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.Get());
     ZeroMemory(bmpInfo, sizeof(BITMAPINFO));

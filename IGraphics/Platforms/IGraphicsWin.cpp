@@ -242,7 +242,11 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
   }
 
   // TODO: move this... listen to the right messages in windows for screen resolution changes, etc.
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+  int scale = GetScaleForHWND(mPlugWnd);
+#else  
   float scale = GetScaleForHWND(mPlugWnd);
+#endif  
   if (scale != GetScreenScale())
     SetScreenScale(scale);
 
@@ -1465,7 +1469,11 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
     }
     DestroyMenu(hMenu);
 
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+    RECT r = { 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale() };
+#else
     RECT r = { 0, 0, static_cast<LONG>(WindowWidth() * GetScreenScale()), static_cast<LONG>(WindowHeight() * GetScreenScale()) };
+#endif    
     InvalidateRect(mPlugWnd, &r, FALSE);
 
     return result;

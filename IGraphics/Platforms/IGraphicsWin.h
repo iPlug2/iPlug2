@@ -34,7 +34,11 @@ public:
   void* GetWinModuleHandle() override { return mHInstance; }
 
   void ForceEndUserEdit() override;
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+  int GetPlatformWindowScale() const override { return GetScreenScale(); }
+#else  
   float GetPlatformWindowScale() const override { return GetScreenScale(); }
+#endif  
 
   void PlatformResize(bool parentHasResized) override;
 

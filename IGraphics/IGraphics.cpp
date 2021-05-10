@@ -1492,8 +1492,13 @@ void IGraphics::OnDragResize(float x, float y)
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 {
   //TODO: bug with # frames!
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+//  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), (GetcreenScale() == 1 && GetDrawScale() > 1.) ? 2 : 0 /* ??? */);
+  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), GetScreenScale());
+#else
 //  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), (GetRoundedScreenScale() == 1 && GetDrawScale() > 1.) ? 2 : 0 /* ??? */);
   return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), GetRoundedScreenScale());
+#endif
 }
 
 void IGraphics::EnableTooltips(bool enable)
@@ -1693,7 +1698,11 @@ WDL_TypedBuf<uint8_t> IGraphics::LoadResource(const char* fileNameOrResID, const
 IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {
   if (targetScale == 0)
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+    targetScale = GetScreenScale();
+#else  
     targetScale = GetRoundedScreenScale();
+#endif
 
   StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   APIBitmap* pAPIBitmap = storage.Find(name, targetScale);
@@ -1755,7 +1764,11 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
 IBitmap IGraphics::LoadBitmap(const char *name, const void *pData, int dataSize, int nStates, bool framesAreHorizontal, int targetScale)
 {
   if (targetScale == 0)
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+    targetScale = GetScreenScale();
+#else  
     targetScale = GetRoundedScreenScale();
+#endif
 
   StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   APIBitmap* pAPIBitmap = storage.Find(name, targetScale);
@@ -1817,7 +1830,11 @@ void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 
 IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int scale)
 {
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+  int screenScale = GetScreenScale();
+#else  
   int screenScale = GetRoundedScreenScale();
+#endif
   float drawScale = GetDrawScale();
 
   mScreenScale = scale;
@@ -1957,7 +1974,11 @@ void IGraphics::StartLayer(IControl* pControl, const IRECT& r, bool cacheable)
   const int w = static_cast<int>(std::ceil(pixelBackingScale * std::ceil(alignedBounds.W())));
   const int h = static_cast<int>(std::ceil(pixelBackingScale * std::ceil(alignedBounds.H())));
 
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale(), cacheable), alignedBounds, pControl, pControl ? pControl->GetRECT() : IRECT()));
+#else
   PushLayer(new ILayer(CreateAPIBitmap(w, h, GetRoundedScreenScale(), GetDrawScale(), cacheable), alignedBounds, pControl, pControl ? pControl->GetRECT() : IRECT()));
+#endif
 }
 
 void IGraphics::ResumeLayer(ILayerPtr& layer)
@@ -2015,7 +2036,11 @@ bool IGraphics::CheckLayer(const ILayerPtr& layer)
     layer->Invalidate();
   }
 
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+  return pBitmap && !layer->mInvalid && pBitmap->GetDrawScale() == GetDrawScale() && pBitmap->GetScale() == GetScreenScale();
+#else
   return pBitmap && !layer->mInvalid && pBitmap->GetDrawScale() == GetDrawScale() && pBitmap->GetScale() == GetRoundedScreenScale();
+#endif
 }
 
 void IGraphics::DrawLayer(const ILayerPtr& layer, const IBlend* pBlend)
