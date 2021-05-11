@@ -3,13 +3,13 @@
 iPlug2 WDL ConvoEngine example, based on IPlug convoengine example by Theo Niessink.
 
 It can use
-    * [r8brain](https://github.com/avaneev/r8brain-free-src)
-    * WDL_Resampler
-    * or linear interpolation
+  * [r8brain](https://github.com/avaneev/r8brain-free-src)
+  * WDL_Resampler
+  * or linear interpolation
 
 you change that behaviour by setting USE_WDL_RESAMPLER or USE_R8BRAIN as a preprocessor macro
 
-r8brain source should be in the following location /IPlugConvoEngine/r8brain
+r8brain source should be in the subdolder r8brain, and you need to add *r8bbase.cpp* to the targets you want to compile
 
 
 
