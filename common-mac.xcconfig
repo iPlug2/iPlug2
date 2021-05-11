@@ -151,7 +151,7 @@ AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework Cor
 VST2_PATH = $(HOME)/Library/Audio/Plug-Ins/VST
 VST3_PATH = $(HOME)/Library/Audio/Plug-Ins/VST3
 AU_PATH = $(HOME)/Library/Audio/Plug-Ins/Components
-AAX_PATH = /Applications/Avid/ProTools_3PDev/Plug-Ins
+AAX_PATH = /Library/Application Support/Avid/Audio/Plug-Ins
 APP_PATH = $(HOME)/Applications
 REAPER_EXT_PATH = $(HOME)/Library/Application Support/REAPER/UserPlugins
 
