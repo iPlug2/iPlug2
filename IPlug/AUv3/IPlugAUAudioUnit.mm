@@ -53,7 +53,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 @synthesize parameterTree = mParameterTree;
 @synthesize factoryPresets = mPresets;
 
-- (NSUInteger)getChannelLayoutTags: (int) dir : (AudioChannelLayoutTag*) pTags
+- (NSUInteger) getChannelLayoutTags: (int) dir : (AudioChannelLayoutTag*) pTags
 {
   WDL_TypedBuf<uint64_t> foundTags;
   
@@ -157,13 +157,17 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   {
     NSMutableArray* pInputBusses = [[NSMutableArray alloc] init];
     
+    NSInteger numTags = [self getChannelLayoutTags:0 :nil];
+    AudioChannelLayoutTag* pTags = new AudioChannelLayoutTag[numTags];
+    [self getChannelLayoutTags:0 :pTags];
+
     for(int busIdx = 0; busIdx < nInputBuses; busIdx++)
     {
       BufferedInputBus* pBufferedInputBus = new BufferedInputBus();
       int busChans = mPlug->MaxNChannelsForBus(ERoute::kInput, busIdx);
       
       AVAudioFormat* pInputBusFormat = nil;
-      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: kAudioChannelLayoutTag_Stereo]; // TODO: get tag
+      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: pTags[busIdx]]; // TODO: pretty sure this is incorrect!
       pInputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout ];
       if(pInputBusFormat)
         pBufferedInputBus->init(pInputBusFormat, busChans);
@@ -173,6 +177,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
       mBufferedInputBuses.Add(pBufferedInputBus);
     }
     
+    delete [] pTags;
+    
     _mInputBusArray  = [[AUAudioUnitBusArray alloc] initWithAudioUnit:self busType:AUAudioUnitBusTypeInput busses: pInputBusses];
   }
   
@@ -180,13 +186,17 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   {
     NSMutableArray* pOutputBusses = [[NSMutableArray alloc] init];
     
+    NSInteger numTags = [self getChannelLayoutTags:1 :nil];
+    AudioChannelLayoutTag* pTags = new AudioChannelLayoutTag[numTags];
+    [self getChannelLayoutTags:1 :pTags];
+    
     for(int busIdx = 0; busIdx < nOutputBuses; busIdx++)
     {
       BufferedOutputBus* pBufferedOutputBus = new BufferedOutputBus();
       int busChans = mPlug->MaxNChannelsForBus(ERoute::kOutput, busIdx);
       
       AVAudioFormat* pOutputBusFormat = nil;
-      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: kAudioChannelLayoutTag_Stereo]; // TODO: get tag
+      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: pTags[busIdx]]; // TODO: pretty sure this is incorrect!
       pOutputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout ];
       if(pOutputBusFormat)
       {
@@ -197,6 +207,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
       
       mBufferedOutputBuses.Add(pBufferedOutputBus);
     }
+    
+    delete [] pTags;
     
     _mOutputBusArray  = [[AUAudioUnitBusArray alloc] initWithAudioUnit:self busType:AUAudioUnitBusTypeOutput busses: pOutputBusses];
   }
