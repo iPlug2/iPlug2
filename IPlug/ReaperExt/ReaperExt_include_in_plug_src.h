@@ -114,7 +114,11 @@ extern "C"
 
 UINT(WINAPI* __GetDpiForWindow)(HWND);
 
+#ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+int GetScaleForHWND(HWND hWnd)
+#else
 float GetScaleForHWND(HWND hWnd)
+#endif
 {
   if (!__GetDpiForWindow)
   {
