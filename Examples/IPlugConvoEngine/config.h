@@ -46,10 +46,8 @@
 
 #define VST3_SUBCATEGORY "Fx"
 
-#define APP_NUM_CHANNELS 2
+#define APP_NUM_CHANNELS 1
 #define APP_N_VECTOR_WAIT 0
 #define APP_MULT 1
 #define APP_COPY_AUV3 0
 #define APP_SIGNAL_VECTOR_SIZE 64
-
-#define ROBOTO_FN "Roboto-Regular.ttf"

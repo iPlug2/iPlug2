@@ -278,36 +278,9 @@
     <ClInclude Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\vst\vstcomponentbase.h" />
     <ClInclude Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\vst\vstparameters.h" />
     <ClInclude Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IPopupMenuControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVDropDownListControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVKeyboardControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVScopeControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.h" />
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h" />
-    <ClInclude Include="..\..\..\IGraphics\IControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphics.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsConstants.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsLiveEdit.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsPopupMenu.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsStructs.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsPrivate.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsUtilities.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_hdr.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_src.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphics_select.h" />
-    <ClInclude Include="..\..\..\IGraphics\ISender.h" />
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsLinux.h" />
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsMac.h" />
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsMac_view.h" />
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWeb.h" />
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWin.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugConstants.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugEditorDelegate.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsEditorDelegate.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugLogger.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugMidi.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h" />
@@ -326,6 +299,9 @@
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_Parameter.h" />
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.h" />
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_View.h" />
+    <ClInclude Include="..\..\..\WDL\convoengine.h" />
+    <ClInclude Include="..\..\..\WDL\fft.h" />
+    <ClInclude Include="..\..\..\WDL\resample.h" />
     <ClInclude Include="..\IPlugConvoEngine.h" />
     <ClInclude Include="..\resources\resource.h" />
   </ItemGroup>
@@ -357,30 +333,7 @@
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\vst\vstinitiids.cpp" />
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\vst\vstparameters.cpp" />
     <ClCompile Include="..\..\..\Dependencies\IPlug\VST3_SDK\public.sdk\source\vst\vstsinglecomponenteffect.cpp" />
-    <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp" />
-    <ClCompile Include="..\..\..\IGraphics\Controls\IPopupMenuControl.cpp" />
-    <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp" />
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\IControl.cpp" />
-    <ClCompile Include="..\..\..\IGraphics\IGraphics.cpp" />
-    <ClCompile Include="..\..\..\IGraphics\Platforms\IGraphicsWin.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp" />
-    <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugPluginBase.cpp" />
@@ -388,6 +341,9 @@
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp" />
     <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3.cpp" />
     <ClCompile Include="..\..\..\IPlug\VST3\IPlugVST3_ProcessorBase.cpp" />
+    <ClCompile Include="..\..\..\WDL\convoengine.cpp" />
+    <ClCompile Include="..\..\..\WDL\fft.c" />
+    <ClCompile Include="..\..\..\WDL\resample.cpp" />
     <ClCompile Include="..\IPlugConvoEngine.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -272,34 +272,6 @@
     <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\include\soundcard.h" />
     <ClInclude Include="..\..\..\Dependencies\IPlug\RTAudio\RtAudio.h" />
     <ClInclude Include="..\..\..\Dependencies\IPlug\RTMidi\RtMidi.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IControls.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IFPSDisplayControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IPopupMenuControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVKeyboardControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVMultiSliderControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\Controls\IVScopeControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.h" />
-    <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h" />
-    <ClInclude Include="..\..\..\IGraphics\IControl.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphics.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsConstants.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsEditorDelegate.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsLiveEdit.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsPopupMenu.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsStructs.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsPrivate.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphicsUtilities.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_hdr.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphics_include_in_plug_src.h" />
-    <ClInclude Include="..\..\..\IGraphics\IGraphics_select.h" />
-    <ClInclude Include="..\..\..\IGraphics\ISender.h" />
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsLinux.h" />
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsMac.h" />
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsMac_view.h" />
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWeb.h" />
-    <ClInclude Include="..\..\..\IGraphics\Platforms\IGraphicsWin.h" />
     <ClInclude Include="..\..\..\IPlug\APP\IPlugAPP.h" />
     <ClInclude Include="..\..\..\IPlug\APP\IPlugAPP_host.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h" />
@@ -317,6 +289,9 @@
     <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h" />
+    <ClInclude Include="..\..\..\WDL\convoengine.h" />
+    <ClInclude Include="..\..\..\WDL\fft.h" />
+    <ClInclude Include="..\..\..\WDL\resample.h" />
     <ClInclude Include="..\IPlugConvoEngine.h" />
     <ClInclude Include="..\resources\resource.h" />
   </ItemGroup>
@@ -327,29 +302,6 @@
     <ClCompile Include="..\..\..\Dependencies\IPlug\RTAudio\include\iasiothiscallresolver.cpp" />
     <ClCompile Include="..\..\..\Dependencies\IPlug\RTAudio\RtAudio.cpp" />
     <ClCompile Include="..\..\..\Dependencies\IPlug\RTMidi\RtMidi.cpp" />
-    <ClCompile Include="..\..\..\IGraphics\Controls\IControls.cpp" />
-    <ClCompile Include="..\..\..\IGraphics\Controls\IPopupMenuControl.cpp" />
-    <ClCompile Include="..\..\..\IGraphics\Controls\ITextEntryControl.cpp" />
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsNanoVG.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Tracer|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\IControl.cpp" />
-    <ClCompile Include="..\..\..\IGraphics\IGraphics.cpp" />
-    <ClCompile Include="..\..\..\IGraphics\IGraphicsEditorDelegate.cpp" />
-    <ClCompile Include="..\..\..\IGraphics\Platforms\IGraphicsWin.cpp" />
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP.cpp" />
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_dialog.cpp" />
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_host.cpp" />
@@ -360,6 +312,9 @@
     <ClCompile Include="..\..\..\IPlug\IPlugPluginBase.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp" />
+    <ClCompile Include="..\..\..\WDL\convoengine.cpp" />
+    <ClCompile Include="..\..\..\WDL\fft.c" />
+    <ClCompile Include="..\..\..\WDL\resample.cpp" />
     <ClCompile Include="..\IPlugConvoEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
