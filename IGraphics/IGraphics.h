@@ -960,11 +960,12 @@ public:
   IGraphics(const IGraphics&) = delete;
   IGraphics& operator=(const IGraphics&) = delete;
     
-  /** Called by the platform IGraphics class when moving to a new screen to set DPI
 #ifdef IGRAPHICS_QUANTISE_SCREENSCALE
+  /** Called by the platform IGraphics class when moving to a new screen to set DPI
    * @param scale The scale of the display, typically 2 on a macOS retina screen, or 2 with 200% scaling on windows */
   void SetScreenScale(int scale);
 #else
+  /** Called by the platform IGraphics class when moving to a new screen to set DPI
    * @param scale The scale of the screen, typically 2 on a macOS retina screen, or 2 with 200% scaling on windows */
   void SetScreenScale(float scale);
 #endif
