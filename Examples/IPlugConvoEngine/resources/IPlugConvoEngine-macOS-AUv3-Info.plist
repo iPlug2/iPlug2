@@ -53,7 +53,7 @@
 			</array>
 		</dict>
 		<key>NSExtensionPointIdentifier</key>
-		<string>com.apple.AudioUnit-UI</string>
+		<string>com.apple.AudioUnit</string>
 		<key>NSExtensionPrincipalClass</key>
 		<string>IPlugAUViewController</string>
 	</dict>

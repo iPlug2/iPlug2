@@ -40,11 +40,11 @@
 					<key>sandboxSafe</key>
 					<true/>
 					<key>subtype</key>
-					<string>PmBl</string>
+					<string>GZDU</string>
 					<key>tags</key>
 					<array>
 						<string>Synth</string>
-						<string>size:{1024,669}</string>
+						<string>size:{335,335}</string>
 					</array>
 					<key>type</key>
 					<string>aumu</string>
