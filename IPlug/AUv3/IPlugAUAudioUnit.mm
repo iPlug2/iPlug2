@@ -46,7 +46,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   AUMIDIOutputEventBlock mMidiOutputEventBlock;
   AUParameterObserverToken mUIUpdateParamObserverToken;
   NSArray<AUAudioUnitPreset*>* mPresets;
-  AUAudioUnitPreset *mCurrentPreset;
+  AUAudioUnitPreset* mCurrentPreset;
   NSInteger mCurrentFactoryPresetIndex;
 }
 
@@ -90,7 +90,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     return foundTags.GetSize();
 }
 
-- (void)populateChannelCapabilitesArray: (NSMutableArray*) pArray
+- (void) populateChannelCapabilitesArray: (NSMutableArray*) pArray
 {
   for (int i = 0; i < mPlug->NIOConfigs(); i++)
   {
@@ -350,7 +350,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     
     AUParameterAddress address = AUParameterAddress(paramIdx);
 
-    AUParameter *pAUParam = [AUParameterTree createParameterWithIdentifier:    [NSString stringWithFormat:@"%d", paramIdx ]
+    AUParameter* pAUParam = [AUParameterTree createParameterWithIdentifier:    [NSString stringWithFormat:@"%d", paramIdx ]
                                                                          name: [NSString stringWithCString:pParam->GetName() encoding:NSUTF8StringEncoding]
                                                                       address: address
                                                                           min: pParam->GetMin()
@@ -456,7 +456,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return self;
 }
 
--(void)dealloc
+-(void) dealloc
 {
   mBufferedInputBuses.Empty(true);
   mBufferedOutputBuses.Empty(true);
@@ -475,12 +475,12 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
 #pragma mark - AUAudioUnit (Overrides)
 
-- (AUAudioUnitBusArray *)inputBusses
+- (AUAudioUnitBusArray *) inputBusses
 {
   return _mInputBusArray;
 }
 
-- (AUAudioUnitBusArray *)outputBusses
+- (AUAudioUnitBusArray *) outputBusses
 {
   return _mOutputBusArray;
 }
@@ -490,7 +490,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return mMidiOutputNames;
 }
 
-- (BOOL)allocateRenderResourcesAndReturnError:(NSError **)ppOutError
+- (BOOL) allocateRenderResourcesAndReturnError:(NSError **) ppOutError
 {
   if (![super allocateRenderResourcesAndReturnError:ppOutError])
   {
@@ -566,7 +566,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
 #pragma mark - AUAudioUnit (AUAudioUnitImplementation)
 
-- (AUInternalRenderBlock)internalRenderBlock
+- (AUInternalRenderBlock) internalRenderBlock
 {
 
   __block IPlugAUv3* pPlug = mPlug;
