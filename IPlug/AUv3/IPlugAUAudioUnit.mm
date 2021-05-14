@@ -69,7 +69,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
       
       for (auto tag = 0; tag < busTypes.GetSize(); tag++)
       {
-        if(foundTags.Find(busTypes.Get()[tag] == -1))
+        if(foundTags.Find(busTypes.Get()[tag]) == -1)
           foundTags.Add(busTypes.Get()[tag]);
       }
     }
@@ -167,7 +167,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
       int busChans = mPlug->MaxNChannelsForBus(ERoute::kInput, busIdx);
       
       AVAudioFormat* pInputBusFormat = nil;
-      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: pTags[busIdx]]; // TODO: pretty sure this is incorrect!
+      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: pTags[0]]; // TODO: pretty sure this is incorrect!
       pInputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout ];
       if(pInputBusFormat)
         pBufferedInputBus->init(pInputBusFormat, busChans);
@@ -196,7 +196,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
       int busChans = mPlug->MaxNChannelsForBus(ERoute::kOutput, busIdx);
       
       AVAudioFormat* pOutputBusFormat = nil;
-      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: pTags[busIdx]]; // TODO: pretty sure this is incorrect!
+      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: pTags[0]]; // TODO: pretty sure this is incorrect!
       pOutputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout ];
       if(pOutputBusFormat)
       {
