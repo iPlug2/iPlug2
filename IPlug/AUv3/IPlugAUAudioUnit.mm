@@ -500,6 +500,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   uint32_t reqNumInputChannels = 0;
   uint32_t reqNumOutputChannels = 0;
   
+  // TODO: multibus support
   if(mBufferedInputBuses.GetSize())
     reqNumInputChannels = mBufferedInputBuses.Get(0)->bus.format.channelCount;
   
@@ -529,7 +530,6 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     mMidiOutputEventBlock = nil;
   }
   
-    
   for (auto bufIdx = 0; bufIdx < mBufferedInputBuses.GetSize(); bufIdx++)
   {
     mBufferedInputBuses.Get(bufIdx)->allocateRenderResources(self.maximumFramesToRender);
@@ -568,7 +568,6 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
 - (AUInternalRenderBlock) internalRenderBlock
 {
-
   __block IPlugAUv3* pPlug = mPlug;
   __block WDL_PtrList<BufferedInputBus>* inputBuses = &mBufferedInputBuses;
   __block WDL_PtrList<BufferedOutputBus>* outputBuses = &mBufferedOutputBuses;
@@ -597,38 +596,57 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     if(inputBuses->GetSize())
       pInAudioBufferList = inputBuses->Get(0)->mutableAudioBufferList; // TODO: buses > 0
     
-    outputBuses->Get(0)->prepareOutputBufferList(outputData, frameCount, true); // TODO: buses > 0
-    pPlug->SetBuffers(pInAudioBufferList, outputData);
+    outputBuses->Get(outputBusNumber)->prepareOutputBufferList(outputData, frameCount, true);
     
-    ITimeInfo timeInfo;
+// seems like they are all connected even if not routed, in AUM & Cubasis
+//    int lastOutputBusConnected = -1;
+//
+//    for (auto busIdx = 0; busIdx < outputBuses->GetSize(); busIdx++)
+//    {
+//      if(outputBuses->Get(busIdx)->bus.isEnabled)
+//      {
+//        lastOutputBusConnected = busIdx;
+//      }
+//      else
+//        break;
+//    }
+    
+    int lastOutputBusConnected = outputBuses->GetSize() - 1;
+    
+    pPlug->SetBuffers(pInAudioBufferList, outputData, static_cast<uint32_t>(outputBusNumber));
 
-    if(_musicalContextCapture)
+    if (outputBusNumber == lastOutputBusConnected)
     {
-      Float64 tempo; Float64 ppqPos; double numerator; NSInteger denominator; double currentMeasureDownbeatPosition; NSInteger sampleOffsetToNextBeat;
+      ITimeInfo timeInfo;
 
-      _musicalContextCapture(&tempo, &numerator, &denominator, &ppqPos, &sampleOffsetToNextBeat, &currentMeasureDownbeatPosition);
+      if(_musicalContextCapture)
+      {
+        Float64 tempo; Float64 ppqPos; double numerator; NSInteger denominator; double currentMeasureDownbeatPosition; NSInteger sampleOffsetToNextBeat;
 
-      timeInfo.mTempo = tempo;
-      timeInfo.mPPQPos = ppqPos;
-      timeInfo.mLastBar = currentMeasureDownbeatPosition; //TODO: is that correct?
-      timeInfo.mNumerator = (int) numerator; //TODO: update ITimeInfo precision?
-      timeInfo.mDenominator = (int) denominator; //TODO: update ITimeInfo precision?
+        _musicalContextCapture(&tempo, &numerator, &denominator, &ppqPos, &sampleOffsetToNextBeat, &currentMeasureDownbeatPosition);
+
+        timeInfo.mTempo = tempo;
+        timeInfo.mPPQPos = ppqPos;
+        timeInfo.mLastBar = currentMeasureDownbeatPosition; //TODO: is that correct?
+        timeInfo.mNumerator = (int) numerator; //TODO: update ITimeInfo precision?
+        timeInfo.mDenominator = (int) denominator; //TODO: update ITimeInfo precision?
+      }
+
+      if(_transportStateCapture)
+      {
+        double samplePos; double cycleStart; double cycleEnd; AUHostTransportStateFlags transportStateFlags;
+
+        _transportStateCapture(&transportStateFlags, &samplePos, &cycleStart, &cycleEnd);
+
+        timeInfo.mSamplePos = samplePos;
+        timeInfo.mCycleStart = cycleStart;
+        timeInfo.mCycleEnd = cycleEnd;
+        timeInfo.mTransportIsRunning = transportStateFlags == AUHostTransportStateMoving || transportStateFlags == AUHostTransportStateRecording;
+        timeInfo.mTransportLoopEnabled = transportStateFlags == AUHostTransportStateCycling;
+      }
+
+      pPlug->ProcessWithEvents(timestamp, frameCount, realtimeEventListHead, timeInfo);
     }
-
-    if(_transportStateCapture)
-    {
-      double samplePos; double cycleStart; double cycleEnd; AUHostTransportStateFlags transportStateFlags;
-
-      _transportStateCapture(&transportStateFlags, &samplePos, &cycleStart, &cycleEnd);
-
-      timeInfo.mSamplePos = samplePos;
-      timeInfo.mCycleStart = cycleStart;
-      timeInfo.mCycleEnd = cycleEnd;
-      timeInfo.mTransportIsRunning = transportStateFlags == AUHostTransportStateMoving || transportStateFlags == AUHostTransportStateRecording;
-      timeInfo.mTransportLoopEnabled = transportStateFlags == AUHostTransportStateCycling;
-    }
-
-    pPlug->ProcessWithEvents(timestamp, frameCount, realtimeEventListHead, timeInfo);
     
     return noErr;
   };
