@@ -49,7 +49,14 @@
     int dpi = __GetDpiForWindow(hWnd);
 
     if (dpi != USER_DEFAULT_SCREEN_DPI)
+    {
+#if defined IGRAPHICS_QUANTISE_SCREENSCALE
+      return std::round(static_cast<float>(dpi) / USER_DEFAULT_SCREEN_DPI);
+#else
       return static_cast<float>(dpi) / USER_DEFAULT_SCREEN_DPI;
+#endif
+    }
+
 
     return 1;
   }
