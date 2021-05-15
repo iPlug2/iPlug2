@@ -20,6 +20,7 @@
 
 #if defined(OS_IOS) || defined(OS_MAC)
 #import <Foundation/Foundation.h>
+#include <TargetConditionals.h>
 #endif
 
 #ifdef IGRAPHICS_METAL
@@ -312,7 +313,13 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
       if(isAppExtension)
         pRootPath = [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
       else
+      {
+#ifdef TARGET_OS_MACCATALYST
+        pRootPath = [pBundle resourcePath];
+#else
         pRootPath = [pBundle bundlePath];
+#endif
+      }
       
       NSString* pPath = [[[[pRootPath stringByAppendingString:@"/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
       
