@@ -31,8 +31,6 @@
 				<dict>
 					<key>description</key>
 					<string>IPlugConvoEngine</string>
-					<key>factoryFunction</key>
-					<string>IPlugAUViewController</string>
 					<key>manufacturer</key>
 					<string>Acme</string>
 					<key>name</key>
@@ -44,7 +42,7 @@
 					<key>tags</key>
 					<array>
 						<string>Effects</string>
-						<string>size:{600,600}</string>
+						<string></string>
 					</array>
 					<key>type</key>
 					<string>aufx</string>
