@@ -237,6 +237,7 @@ public:
   virtual void DrawPointer(IGraphics& g, float angle, float cx, float cy, float radius);
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override { mValueMouseOver = false; IKnobControlBase::OnMouseOut(); }
@@ -278,6 +279,7 @@ public:
   virtual void DrawHandle(IGraphics& g, const IRECT& bounds);
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override { mValueMouseOver = false; ISliderControlBase::OnMouseOut(); }

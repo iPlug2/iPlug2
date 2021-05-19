@@ -249,20 +249,13 @@ void IControl::SetDisabled(bool disable)
 
 void IControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  #ifdef PROTOOLS
-  if (mod.A)
-  {
-    SetValueToDefault(GetValIdxForPos(x, y));
-  }
-  #endif
-
   if (mod.R)
     PromptUserInput(GetValIdxForPos(x, y));
 }
 
 void IControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 {
-  #ifdef PROTOOLS
+  #ifdef AAX_API
   PromptUserInput(GetValIdxForPos(x, y));
   #else
   SetValueToDefault(GetValIdxForPos(x, y));
