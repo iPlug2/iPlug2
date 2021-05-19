@@ -985,6 +985,7 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
             
             if (mAAXViewContainer->HandleParameterMouseDown(paramID.Get(), aaxModifiersForPT) == AAX_SUCCESS)
             {
+                ReleaseMouseCapture();
                 return; // event handled by PT
             }
         }
