@@ -576,12 +576,17 @@ ITextToggleControl::ITextToggleControl(const IRECT& bounds, IActionFunction aF, 
 
 void ITextToggleControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  if(GetValue() < 0.5)
-    SetValue(1.);
+  if (!mod.R)
+  {
+    if(GetValue() < 0.5)
+      SetValue(1.);
+    else
+      SetValue(0.);
+    
+    SetDirty(true);
+  }
   else
-    SetValue(0.);
-  
-  SetDirty(true);
+    PromptUserInput(GetValIdxForPos(x, y));
 }
 
 void ITextToggleControl::SetDirty(bool push, int valIdx)
@@ -753,21 +758,27 @@ void ISwitchControlBase::OnInit()
 }
 
 void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
-{  
-  if (mNumStates == 2)
-    SetValue(!GetValue());
-  else
+{
+  if (!mod.R)
   {
-    const double step = 1. / (double(mNumStates) - 1.);
-    double val = GetValue();
-    val += step;
-    if(val > 1.)
-      val = 0.;
-    SetValue(val);
+    if (mNumStates == 2)
+      SetValue(!GetValue());
+    else
+    {
+      const double step = 1. / (double(mNumStates) - 1.);
+      double val = GetValue();
+      val += step;
+      if(val > 1.)
+        val = 0.;
+      SetValue(val);
+    }
+    
+    mMouseDown = true;
+    
+    SetDirty(true);
   }
-  
-  mMouseDown = true;
-  SetDirty(true);
+  else
+    PromptUserInput(GetValIdxForPos(x, y));
 }
 
 void ISwitchControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
@@ -791,13 +802,18 @@ bool IKnobControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 
 void IKnobControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  mMouseDown = true;
-  mMouseDragValue = GetValue();
+  if (!mod.R)
+  {
+    mMouseDown = true;
+    mMouseDragValue = GetValue();
 
-  if (mHideCursorOnDrag)
-    GetUI()->HideMouseCursor(true, true);
-
-  IControl::OnMouseDown(x, y, mod);
+    if (mHideCursorOnDrag)
+      GetUI()->HideMouseCursor(true, true);
+    
+    SetDirty(false);
+  }
+  else
+    PromptUserInput(GetValIdxForPos(x, y));
 }
 
 void IKnobControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
@@ -880,22 +896,25 @@ void ISliderControlBase::OnResize()
 
 void ISliderControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  mMouseDown = true;
-  
-  if(GetParam())
+  if (!mod.R)
   {
-    if(!GetParam()->GetStepped())
+    mMouseDown = true;
+    
+    if(GetParam())
+    {
+      if(!GetParam()->GetStepped())
+        SnapToMouse(x, y, mDirection, mTrackBounds);
+    }
+    else
       SnapToMouse(x, y, mDirection, mTrackBounds);
+
+    mMouseDragValue = GetValue();
+
+    if (mHideCursorOnDrag)
+      GetUI()->HideMouseCursor(true, true);
   }
   else
-    SnapToMouse(x, y, mDirection, mTrackBounds);
-
-  mMouseDragValue = GetValue();
-
-  if (mHideCursorOnDrag)
-    GetUI()->HideMouseCursor(true, true);
-
-  IControl::OnMouseDown(x, y, mod);
+    PromptUserInput(GetValIdxForPos(x, y));
 }
 
 void ISliderControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)

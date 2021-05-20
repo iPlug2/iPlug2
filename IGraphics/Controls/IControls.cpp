@@ -591,11 +591,12 @@ void IVKnobControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     PromptUserInput(mValueBounds);
   }
   else
-  {    
-    IKnobControlBase::OnMouseDown(x, y, mod);
+  {
+    if (mod.R)
+      PromptUserInput(mValueBounds);
+    else
+      IKnobControlBase::OnMouseDown(x, y, mod);
   }
-
-  SetDirty(false);
 }
 
 void IVKnobControl::OnMouseDblClick(float x, float y, const IMouseMod& mod)
@@ -751,8 +752,11 @@ void IVSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
     PromptUserInput(mValueBounds);
   }
   else
-  { 
-    ISliderControlBase::OnMouseDown(x, y, mod);
+  {
+    if (mod.R)
+      PromptUserInput(mValueBounds);
+    else
+      ISliderControlBase::OnMouseDown(x, y, mod);
   }
 }
 
@@ -1461,15 +1465,22 @@ IBSwitchControl::IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int
 
 void IBSwitchControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  if (mBitmap.N() > 1)
-    SetValue(GetValue() + 1.0 / static_cast<double>(mBitmap.N() - 1));
+  if (!mod.R)
+  {
+    if (mBitmap.N() > 1)
+      SetValue(GetValue() + 1.0 / static_cast<double>(mBitmap.N() - 1));
+    else
+      SetValue(GetValue() + 1.0);
+
+    if (GetValue() > 1.001)
+      SetValue(0.);
+    
+    SetDirty(true);
+  }
   else
-    SetValue(GetValue() + 1.0);
-
-  if (GetValue() > 1.001)
-    SetValue(0.);
-
-  SetDirty();
+  {
+    PromptUserInput(GetValIdxForPos(x, y));
+  }
 }
 
 IBSliderControl::IBSliderControl(float x, float y, float trackLength, const IBitmap& handleBitmap, const IBitmap& trackBitmap, int paramIdx, EDirection dir, double gearing)
