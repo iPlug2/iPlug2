@@ -66,6 +66,9 @@ public:
   void EndInformHostOfParamChange(int idx) override;
   void InformHostOfPresetChange() override;
   void InformHostOfParameterDetailsChange() override;
+  
+  /** Get the name of the track that the plug-in is inserted on */
+  virtual void GetTrackName(WDL_String& str) override { str = mTrackName; };
 
 //IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
@@ -213,7 +216,7 @@ private:
   WDL_PtrList<AURenderCallbackStruct> mRenderNotify;
   AUMIDIOutputCallbackStruct mMidiCallback;
   AudioTimeStamp mLastRenderTimeStamp;
-
+  WDL_String mTrackName;
   template <class Plug, bool DoesMIDIIn>
   friend class IPlugAUFactory;
 };

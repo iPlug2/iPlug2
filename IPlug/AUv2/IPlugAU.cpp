@@ -1251,7 +1251,18 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       return noErr;
     }
     NO_OP(kAudioUnitProperty_FactoryPresets);            // 24,
-    NO_OP(kAudioUnitProperty_ContextName);               // 25,
+    //NO_OP(kAudioUnitProperty_ContextName);               // 25,
+    case kAudioUnitProperty_ContextName:
+    {
+      CFStringRef inStr = *(CFStringRef *)pData;
+      CFIndex bufferSize = CFStringGetLength(inStr) + 1; // The +1 is for having space for the string to be NUL terminated
+      char buffer[bufferSize];
+      if (CFStringGetCString(inStr, buffer, bufferSize, kCFStringEncodingUTF8))
+      {
+          mTrackName.Set(buffer);
+      }
+      return noErr;
+    }
     NO_OP(kAudioUnitProperty_RenderQuality);             // 26,
     case kAudioUnitProperty_HostCallbacks:              // 27,
     {
