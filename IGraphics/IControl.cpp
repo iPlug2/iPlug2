@@ -852,7 +852,7 @@ void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, floa
     {
       const double step = pParam->GetStep();
 
-      v = pParam->FromNormalized(v);
+      v = pParam->FromNormalized(GetValue());
       v += d > 0 ? step : -step;
       v = pParam->ToNormalized(v);
     }
