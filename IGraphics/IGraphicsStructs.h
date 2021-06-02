@@ -580,8 +580,8 @@ struct IFillOptions
   bool mPreserve { false };
 
   IFillOptions(bool preserve = false, EFillRule fillRule = EFillRule::Winding)
-  : mPreserve(preserve)
-  , mFillRule(fillRule)
+  : mFillRule(fillRule)
+  , mPreserve(preserve)
   {
   }
    
@@ -596,8 +596,8 @@ struct IStrokeOptions
   public:
     /** Create a new empty DashOptions */
     DashOptions()
-    : mCount(0)
-    , mOffset(0)
+    : mOffset(0)
+    , mCount(0)
     {}
 
     /** Create a new DashOptions
@@ -681,11 +681,11 @@ struct IText
         const IColor& TEFGColor = DEFAULT_TEXTENTRY_FGCOLOR)
     : mSize(size)
     , mFGColor(color)
-    , mAlign(align)
-    , mVAlign(valign)
-    , mAngle(angle)
     , mTextEntryBGColor(TEBGColor)
     , mTextEntryFGColor(TEFGColor)
+    , mAngle(angle)
+    , mAlign(align)
+    , mVAlign(valign)
   {
     strcpy(mFont, (fontID ? fontID : DEFAULT_FONT));
   }
@@ -770,7 +770,7 @@ struct IRECT
    * @param r Right
    * @param b Bottom */
   IRECT(float l, float t, float r, float b)
-  : L(l), R(r), T(t), B(b)
+  : L(l), T(t), R(r), B(b)
   {}
   
   /** Construct a new IRECT at the given position and with the same size as the bitmap
@@ -2524,12 +2524,9 @@ struct IVStyle
           float shadowOffset = DEFAULT_SHADOW_OFFSET,
           float widgetFrac = DEFAULT_WIDGET_FRAC,
           float angle = DEFAULT_WIDGET_ANGLE)
-  : showLabel(showLabel)
+  : hideCursor(hideCursor)
+  , showLabel(showLabel)
   , showValue(showValue)
-  , colorSpec(colors)
-  , labelText(labelText)
-  , valueText(valueText)
-  , hideCursor(hideCursor)
   , drawFrame(drawFrame)
   , drawShadows(drawShadows)
   , emboss(emboss)
@@ -2538,6 +2535,9 @@ struct IVStyle
   , shadowOffset(shadowOffset)
   , widgetFrac(widgetFrac)
   , angle(angle)
+  , colorSpec(colors)
+  , labelText(labelText)
+  , valueText(valueText)
   {
   }
   

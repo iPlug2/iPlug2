@@ -33,8 +33,8 @@ class IGraphicsLiveEdit : public IControl
 public:
   IGraphicsLiveEdit(bool mouseOversEnabled)
   : IControl(IRECT())
+  , mMouseOversEnabled(mouseOversEnabled)
   , mGridSize(10)
-  , mMouseOversEnabled(mouseOversEnabled) 
   {
     mTargetRECT = mRECT;
   }

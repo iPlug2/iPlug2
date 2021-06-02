@@ -1252,8 +1252,8 @@ public:
   IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int maxNTracks = 1, int nSteps = 0, EDirection dir = EDirection::Horizontal, std::initializer_list<const char*> trackNames = {})
   : IControl(bounds)
   , IVectorBase(style)
-  , mNSteps(nSteps)
   , mDirection(dir)
+  , mNSteps(nSteps)
   {
     SetNVals(maxNTracks);
     mTrackBounds.Resize(maxNTracks);
@@ -1279,8 +1279,8 @@ public:
   IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, int lowParamidx, int maxNTracks = 1, int nSteps = 0, EDirection dir = EDirection::Horizontal, std::initializer_list<const char*> trackNames = {})
   : IControl(bounds)
   , IVectorBase(style)
-  , mNSteps(nSteps)
   , mDirection(dir)
+  , mNSteps(nSteps)
   {
     SetNVals(maxNTracks);
     mTrackBounds.Resize(maxNTracks);
@@ -1306,8 +1306,8 @@ public:
   IVTrackControlBase(const IRECT& bounds, const char* label, const IVStyle& style, const std::initializer_list<int>& params, int nSteps = 0, EDirection dir = EDirection::Horizontal, std::initializer_list<const char*> trackNames = {})
   : IControl(bounds)
   , IVectorBase(style)
-  , mNSteps(nSteps)
   , mDirection(dir)
+  , mNSteps(nSteps)
   {
     int maxNTracks = static_cast<int>(params.size());
     SetNVals(maxNTracks);
@@ -1907,8 +1907,8 @@ class ISVGControl : public IControl
 public:
   ISVGControl(const IRECT& bounds, const ISVG& svg, bool useLayer = false)
   : IControl(bounds)
-  , mSVG(svg)
   , mUseLayer(useLayer)
+  , mSVG(svg)
   {}
 
   virtual ~ISVGControl() {}

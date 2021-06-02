@@ -50,9 +50,9 @@ public:
    * @param strokeColor The stroke color of the bubble */
   IBubbleControl(const IText& text = DEFAULT_TEXT.WithAlign(EAlign::Center), const IColor& fillColor = COLOR_WHITE, const IColor& strokeColor = COLOR_BLACK, float roundness = 5.f)
   : IControl(IRECT())
+  , mRoundness(roundness)
   , mFillColor(fillColor)
   , mStrokeColor(strokeColor)
-  , mRoundness(roundness)
   {
     mText = text;
     mHide = true;
