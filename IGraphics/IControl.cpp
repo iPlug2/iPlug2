@@ -492,9 +492,9 @@ void ITextControl::SetBoundsBasedOnStr()
 IURLControl::IURLControl(const IRECT& bounds, const char* str, const char* urlStr, const IText& text, const IColor& BGColor, const IColor& MOColor, const IColor& CLColor)
 : ITextControl(bounds, str, text, BGColor)
 , mURLStr(urlStr)
+, mOriginalColor(text.mFGColor)
 , mMOColor(MOColor)
 , mCLColor(CLColor)
-, mOriginalColor(text.mFGColor)
 {
   mIgnoreMouse = false;
   IControl::mText = text;
@@ -555,8 +555,8 @@ void IURLControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 ITextToggleControl::ITextToggleControl(const IRECT& bounds, int paramIdx, const char* offText, const char* onText, const IText& text, const IColor& bgColor)
 : ITextControl(bounds, offText, text, bgColor)
-, mOnText(onText)
 , mOffText(offText)
+, mOnText(onText)
 {
   SetParamIdx(paramIdx);
   //TODO: assert boolean?
@@ -566,8 +566,8 @@ ITextToggleControl::ITextToggleControl(const IRECT& bounds, int paramIdx, const 
 
 ITextToggleControl::ITextToggleControl(const IRECT& bounds, IActionFunction aF, const char* offText, const char* onText, const IText& text, const IColor& bgColor)
 : ITextControl(bounds, offText, text, bgColor)
-, mOnText(onText)
 , mOffText(offText)
+, mOnText(onText)
 {
   SetActionFunction(aF);
   mDblAsSingleClick = true;
