@@ -50,7 +50,7 @@ extern std::map<std::string, MTLTexturePtr> gTextureMap;
 class IGraphicsSkia::Bitmap : public APIBitmap
 {
 public:
-  Bitmap(sk_sp<SkSurface> surface, int width, int height, int scale, float drawScale);
+  Bitmap(sk_sp<SkSurface> surface, int width, int height, float scale, float drawScale);
   Bitmap(const char* path, double sourceScale);
   Bitmap(const void* pData, int size, double sourceScale);
   Bitmap(sk_sp<SkImage>, double sourceScale);
@@ -59,7 +59,7 @@ private:
   SkiaDrawable mDrawable;
 };
   
-IGraphicsSkia::Bitmap::Bitmap(sk_sp<SkSurface> surface, int width, int height, int scale, float drawScale)
+IGraphicsSkia::Bitmap::Bitmap(sk_sp<SkSurface> surface, int width, int height, float scale, float drawScale)
 {
   mDrawable.mSurface = surface;
   mDrawable.mIsSurface = true;
@@ -556,7 +556,7 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
   SkiaDrawable* image = bitmap.GetAPIBitmap()->GetBitmap();
 
   double scale1 = 1.0 / (bitmap.GetScale() * bitmap.GetDrawScale());
-  double scale2 = bitmap.GetScale() * bitmap.GetDrawScale();
+  double scale2 = bitmap.GetScale()* bitmap.GetDrawScale();
   
   mCanvas->save();
   mCanvas->clipRect(SkiaRect(dest));
@@ -899,7 +899,7 @@ void IGraphicsSkia::SetClipRegion(const IRECT& r)
   mCanvas->setMatrix(mFinalMatrix);
 }
 
-APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
+APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, float scale, double drawScale, bool cacheable)
 {
   sk_sp<SkSurface> surface;
   
