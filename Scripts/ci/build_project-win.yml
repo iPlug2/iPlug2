@@ -39,7 +39,7 @@ steps:
       solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
       vsVersion: '16.0'
       platform: x64
-      msbuildArgs: /t:${{parameters.name}}-vst2
+      msbuildArgs: /t:Projects/${{parameters.name}}-vst2
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} VST2 x64
     condition: eq(variables.build_vst2, True) 
@@ -49,7 +49,7 @@ steps:
       solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
       vsVersion: '16.0'
       platform: x64
-      msbuildArgs: /t:${{parameters.name}}-vst3
+      msbuildArgs: /t:Projects/${{parameters.name}}-vst3
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} VST3 x64
     condition: eq(variables.build_vst3, True) 
@@ -59,7 +59,7 @@ steps:
       solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
       vsVersion: '16.0'
       platform: x64
-      msbuildArgs: /t:${{parameters.name}}-aax
+      msbuildArgs: /t:Projects/${{parameters.name}}-aax
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} AAX x64
     condition: eq(variables.build_aax, True) 
@@ -69,7 +69,7 @@ steps:
       solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
       vsVersion: '16.0'
       platform: x64
-      msbuildArgs: /t:${{parameters.name}}-app
+      msbuildArgs: /t:Projects/${{parameters.name}}-app
       configuration: '${{parameters.configuration}}'
     displayName: Compile ${{parameters.name}} APP x64
     condition: eq(variables.build_app, True) 
