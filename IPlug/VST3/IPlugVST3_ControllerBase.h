@@ -155,6 +155,42 @@ public:
 #endif
   }
   
+  Steinberg::tresult PLUGIN_API GetProgramName(IPlugAPIBase* pPlug, Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex, Steinberg::Vst::String128 name)
+  {
+    if (pPlug->NPresets() && listId == kPresetParam)
+    {
+      Steinberg::UString(name, 128).fromAscii(pPlug->GetPresetName(programIndex));
+      return Steinberg::kResultTrue;
+    }
+
+    return Steinberg::kResultFalse;
+  }
+  
+  Steinberg::int32 PLUGIN_API GetProgramListCount(IPlugAPIBase* pPlug)
+  {
+#ifdef VST3_PRESET_LIST
+    return (pPlug->NPresets() > 0);
+#else
+    return 0;
+#endif
+  }
+  
+  Steinberg::tresult PLUGIN_API GetProgramListInfo(IPlugAPIBase* pPlug, Steinberg::int32 listIndex, Steinberg::Vst::ProgramListInfo& info)
+  {
+#ifdef VST3_PRESET_LIST
+    if (listIndex == 0 && pPlug->NPresets() > 0)
+    {
+      info.id = kPresetParam;
+      info.programCount = (Steinberg::int32) pPlug->NPresets();
+      Steinberg::UString name(info.name, 128);
+      name.fromAscii("Factory Presets");
+      return Steinberg::kResultTrue;
+    }
+#endif
+
+    return Steinberg::kResultFalse;
+  }
+  
   Steinberg::Vst::ParamValue GetParamNormalized(Steinberg::Vst::ParamID tag)
   {
     Steinberg::Vst::Parameter* parameter = mParameters.getParameter(tag);
