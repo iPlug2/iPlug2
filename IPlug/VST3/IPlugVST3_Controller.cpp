@@ -111,17 +111,6 @@ tresult PLUGIN_API IPlugVST3Controller::getMidiControllerAssignment(int32 busInd
 
 #pragma mark IUnitInfo overrides
 
-tresult PLUGIN_API IPlugVST3Controller::getProgramName(ProgramListID listId, int32 programIndex, String128 name /*out*/)
-{
-  if (NPresets() && listId == kPresetParam)
-  {
-    Steinberg::UString(name, 128).fromAscii(GetPresetName(programIndex));
-    return kResultTrue;
-  }
-
-  return kResultFalse;
-}
-
 //void IPlugVST3Controller::InformHostOfPresetChange()
 //{
 //  if (NPresets())
