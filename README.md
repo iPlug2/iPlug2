@@ -3,7 +3,7 @@
 
 [![Build Status](https://dev.azure.com/iplug2/iPlug2/_apis/build/status/iPlug2?branchName=master)](https://dev.azure.com/iplug2/iPlug2/_build/latest?definitionId=2&branchName=master)
 
-iPlug 2 is a simple-to-use C++ framework for developing cross-platform audio plug-ins/apps and targeting multiple plug-in APIs with the same minimalistic code. It abstracts an audio plug-in (IPlug) and it's drawing engine/GUI toolkit (IGraphics), although IPlug can be used in bring-your-own GUI library mode without IGraphics. IGraphics contains a collection of common controls well suited for audio plug-in GUIs, either using bitmap or vector graphics. 
+iPlug 2 is a simple-to-use C++ framework for developing cross-platform audio plug-ins/apps and targeting multiple plug-in APIs with the same minimalistic code. It abstracts an audio plug-in (IPlug) and its drawing engine/GUI toolkit (IGraphics), although IPlug can be used in bring-your-own GUI library mode without IGraphics. IGraphics contains a collection of common controls well suited for audio plug-in GUIs, either using bitmap or vector graphics. 
 
 The original version of iPlug was released in 2008 as part of Cockos' WDL library. iPlug 2 (2018) is a substantial reworking that brings multiple vector graphics backends to IGraphics (including GPU accelerated options and HiDPI/scaling), a better approach to concurrency, support for distributed plug-in formats and compiling to WebAssembly via [emscripten](https://github.com/kripken/emscripten), amongst many other things.
 
