@@ -5,7 +5,7 @@
 
 ## Adding/modifying resources
 
-One of the most common things people post about on the WDL Forum is how to add a resource, such as an image. Perhaps they tried and got an assertion when they try and run the plug-in or app. Something like:
+One of the most common things people post about on the WDL Forum is how to add a resource, such as an image. Perhaps they got an assertion when they tried to run the plug-in or app. Something like:
 
 ```cpp
 Assertion failed: (resourceFound), function LoadIBitmap...
