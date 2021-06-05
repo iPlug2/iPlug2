@@ -23,7 +23,7 @@ The IPlug Project should exist at the same level as _iPlug2/Examples/IPlugEffect
 
 
 * Firstly, make sure your image is in PNG format. 
-  By default iPlug2 IPlug only works with PNG files.
+  By default iPlug2 only works with PNG files.
 
 * Copy the PNG file to the IPlug Project's image resource folder e.g.
 
