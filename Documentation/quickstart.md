@@ -60,6 +60,6 @@ In order to be able to use cat.png in an IControl that uses a bitmap, e.g. an IB
 
 ### Things that could go wrong:
 
-* On macOS every bundle has an Info.plist file and when image resources are loaded the IGraphics/Lice image loading routines need to have the correct bundle identifier in order to find the file. The elements that make up the bundle identifier are in _config.h_ and are concatenated together in IPlug_include_in_plug_hdr.h. Therefore if you decide to modify `BUNDLE_MFR` or `BUNDLE_NAME` in _config.h_ it is of utmost importance that you also edit the .plist file for the targets to mirror those changes, otherwise the bundle ID will not match.
+* On macOS every bundle has an Info.plist file, and when image resources are loaded the IGraphics/Lice image loading routines need to have the correct bundle identifier in order to find the file. The elements that make up the bundle identifier are in _config.h_ and are concatenated together in IPlug_include_in_plug_hdr.h. Therefore if you decide to modify `BUNDLE_MFR` or `BUNDLE_NAME` in _config.h_ it is of utmost importance that you also edit the .plist file for the targets to mirror those changes, otherwise the bundle ID will not match.
 
 -->
