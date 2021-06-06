@@ -47,7 +47,7 @@
       <PathRunnable
          runnableDebuggingMode = "0"
          BundleIdentifier = "com.steinberg.vst3.plugintesthost"
-         FilePath = "/Applications/REAPER64.app">
+         FilePath = "/Applications/REAPER.app">
       </PathRunnable>
       <MacroExpansion>
          <BuildableReference
