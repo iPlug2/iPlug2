@@ -481,6 +481,7 @@ typedef struct WindowPropRec
 }
 - (id)initModeless:(SWELL_DialogResourceIndex *)resstate Parent:(HWND)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par outputHwnd:(HWND *)hwndOut forceStyles:(unsigned int)smask;
 - (id)initModelessForChild:(HWND)child owner:(HWND)owner styleMask:(unsigned int)smask;
+- (void)keyDown:(NSEvent *)event;
 - (void)swellDestroyAllOwnedWindows;
 - (void)swellRemoveOwnedWindow:(NSWindow *)wnd;
 - (void)swellAddOwnedWindow:(NSWindow*)wnd;
@@ -489,6 +490,8 @@ typedef struct WindowPropRec
 - (void **)swellGetOwnerWindowHead;
 -(void)swellDoDestroyStuff;
 -(void)swellResetOwnedWindowLevels;
+
+-(void)toggleFullScreen:(id)sender;
 @end
 
 @interface SWELL_ModalDialog : NSPanel

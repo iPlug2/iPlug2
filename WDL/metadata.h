@@ -40,7 +40,29 @@ WDL_UINT64 ParseUInt64(const char *val)
   return i;
 }
 
-void XMLCompliantAppend(WDL_FastString *str, const char *txt)
+void InsertMetadataIncrKeyIfNeeded(WDL_StringKeyedArray<char*> *metadata,
+  const char *key, const char *val)
+{
+  if (!metadata->Exists(key))
+  {
+    metadata->Insert(key, strdup(val));
+  }
+  else
+  {
+    for (int i=2; i < 100; ++i)
+    {
+      char str[2048];
+      snprintf(str,sizeof(str), "%s:%d", key, i);
+      if (!metadata->Exists(str))
+      {
+        metadata->Insert(str, strdup(val));
+        break;
+      }
+    }
+  }
+}
+
+void XMLCompliantAppend(WDL_FastString *str, const char *txt, bool is_value)
 {
   if (str && txt) for (;;)
   {
@@ -51,11 +73,11 @@ void XMLCompliantAppend(WDL_FastString *str, const char *txt)
       case '<': str->Append("&lt;"); break;
       case '>': str->Append("&gt;"); break;
       case '&': str->Append("&amp;"); break;
+      case ' ': str->Append(is_value ? " " : "_"); break;
       default: str->Append(&c,1); break;
     }
   }
 }
-
 
 const char *XMLHasOpenTag(WDL_FastString *str, const char *tag) // tag like "<FOO>")
 {
@@ -82,7 +104,7 @@ void UnpackXMLElement(const char *pre, wdl_xml_element *elem,
   }
   if (elem->value.Get()[0])
   {
-    metadata->Insert(key.Get(), strdup(elem->value.Get()));
+    InsertMetadataIncrKeyIfNeeded(metadata, key.Get(), elem->value.Get());
   }
   for (int i=0; i < elem->elements.GetSize(); ++i)
   {
@@ -193,7 +215,7 @@ void UnpackXMPDescription(const char *curkey, wdl_xml_element *elem,
   if (IsXMPMetadata(elem->name, &key)) curkey=key.Get();
   if (curkey && elem->value.Get()[0])
   {
-    metadata->Insert(curkey, strdup(elem->value.Get()));
+    InsertMetadataIncrKeyIfNeeded(metadata, curkey, elem->value.Get());
   }
 
   for (i=0; i < elem->elements.GetSize(); ++i)
@@ -345,9 +367,13 @@ int PackIXMLChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata)
         }
         else
         {
-          ixml.AppendFormatted(2048, "<%s>", elem);
-          XMLCompliantAppend(&ixml, val);
-          ixml.AppendFormatted(2048, "</%s>", elem);
+          ixml.Append("<");
+          XMLCompliantAppend(&ixml, elem, false);
+          ixml.Append(">");
+          XMLCompliantAppend(&ixml, val, true);
+          ixml.Append("</");
+          XMLCompliantAppend(&ixml, elem, false);
+          ixml.Append(">");
         }
       }
     }
@@ -365,20 +391,24 @@ int PackIXMLChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata)
         int klen, vlen;
         ParseUserDefMetadata(key, val, &k, &v, &klen, &vlen);
         ixml.Append("<");
-        XMLCompliantAppend(&ixml, k);
+        XMLCompliantAppend(&ixml, k, false);
         ixml.Append(">");
-        XMLCompliantAppend(&ixml, v);
+        XMLCompliantAppend(&ixml, v, true);
         ixml.Append("</");
-        XMLCompliantAppend(&ixml, k);
+        XMLCompliantAppend(&ixml, k, false);
         ixml.Append(">");
       }
       else
       {
         if (has_user) { has_user=false; ixml.Append("</USER>"); }
 
-        ixml.AppendFormatted(2048, "<%s>", key);
-        XMLCompliantAppend(&ixml, val);
-        ixml.AppendFormatted(2048, "</%s>", key);
+        ixml.Append("<");
+        XMLCompliantAppend(&ixml, key, false);
+        ixml.Append(">");
+        XMLCompliantAppend(&ixml, val, true);
+        ixml.Append("</");
+        XMLCompliantAppend(&ixml, key, false);
+        ixml.Append(">");
       }
       // specs say no specific whitespace or newline needed
     }
@@ -928,6 +958,17 @@ bool HandleMexMetadataRequest(const char *mexkey, char *buf, int buflen,
   WDL_StringKeyedArray<char*> *metadata)
 {
   if (!mexkey || !mexkey[0] || !buf || !buflen || !metadata) return false;
+
+  if (strchr(mexkey, ':'))
+  {
+    const char *val=metadata->Get(mexkey);
+    if (val && val[0])
+    {
+      lstrcpyn(buf, val, buflen);
+      return true;
+    }
+    return false;
+  }
 
   buf[0]=0;
   int i=0;
@@ -1769,7 +1810,7 @@ double ReadMetadataPrefPos(WDL_StringKeyedArray<char*> *metadata, double srate)
   {
     WDL_UINT64 ipos=atoi(v);
     v=metadata->Get("IXML:BEXT:BWF_TIME_REFERENCE_HIGH");
-    if (v[0]) ipos |= ((WDL_UINT64)atoi(v))<<32;
+    if (v && v[0]) ipos |= ((WDL_UINT64)atoi(v))<<32;
     return (double)ipos/srate;
   }
 

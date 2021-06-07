@@ -191,8 +191,12 @@ char g_swell_nomiddleman_cocoa_override=0; // -1 to disable, 1 to force
 
 static BOOL useNoMiddleManCocoa() 
 { 
+#ifdef __ppc__
+  return false;
+#else
   const int v = SWELL_GetOSXVersion();
   return v >= 0x1050 && (g_swell_nomiddleman_cocoa_override ? (g_swell_nomiddleman_cocoa_override>0) : v < 0x10a0);
+#endif
 }
 
 void updateWindowCollection(NSWindow *w)
@@ -2478,6 +2482,8 @@ static void GetInitialWndPos(HWND owner, int h, int* x, int* y)
   *y = r.bottom-h-100;
 }
 
+NSView **g_swell_mac_foreign_key_event_sink;
+
 
 @implementation SWELL_ModelessWindow : NSWindow
 
@@ -2503,6 +2509,8 @@ SWELLDIALOGCOMMONIMPLEMENTS_WND(0)
   [self setAcceptsMouseMovedEvents:YES];
   [self setContentView:(NSView *)child];
   [self useOptimizedDrawing:YES];
+  if (SWELL_GetOSXVersion()>=0x10c0) [self setValue:[NSNumber numberWithInt:2] forKey:@"tabbingMode"];
+
   updateWindowCollection(self);
     
   if (owner && [(id)owner respondsToSelector:@selector(swellAddOwnedWindow:)])
@@ -2551,6 +2559,8 @@ SWELLDIALOGCOMMONIMPLEMENTS_WND(0)
   [self setAcceptsMouseMovedEvents:YES];
   [self useOptimizedDrawing:YES];
   [self setDelegate:(id)self];
+  if (SWELL_GetOSXVersion()>=0x10c0) [self setValue:[NSNumber numberWithInt:2] forKey:@"tabbingMode"];
+
   updateWindowCollection(self);
   
   if (resstate&&resstate->title) SetWindowText((HWND)self, resstate->title);
@@ -2609,6 +2619,24 @@ SWELLDIALOGCOMMONIMPLEMENTS_WND(0)
   }
 }
 #endif
+
+-(void)keyDown:(NSEvent *)event
+{
+  if (g_swell_mac_foreign_key_event_sink && [event window] != self)
+  {
+    *g_swell_mac_foreign_key_event_sink = [self contentView];
+  }
+  else
+  {
+    [super keyDown:event];
+  }
+}
+
+-(void)toggleFullScreen:(id)sender
+{
+  if (!SendMessage((HWND)[self contentView],WM_SWELL_EXTENDED,(WPARAM)"toggleFullScreen",(LPARAM)sender))
+    [super toggleFullScreen:sender];
+}
 
 @end
 

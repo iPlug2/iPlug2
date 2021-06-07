@@ -112,6 +112,7 @@ typedef struct _codeHandleFunctionRec
   opcodeRec *opcodes;
 
   int startptr_size;  // 0=no code. -1 = needs calculation. >0 = size.
+  int startptr_base_size; // initially calculated size of root function
   int tmpspace_req;
     
   int num_params;
@@ -233,15 +234,13 @@ typedef struct _compileContext
   
   struct
   {
+    WDL_UINT64 sign_mask[2];
+    WDL_UINT64 abs_mask[2];
     int needfree;
     int maxblocks;
     double closefact;
     EEL_F *blocks[NSEEL_RAM_BLOCKS];
-  } ram_state
-#ifdef __GNUC__
-    __attribute__ ((aligned (8)))
-#endif
-   ;
+  } *ram_state; // allocated from blocks with 16 byte alignment
 
   void *gram_blocks;
 
