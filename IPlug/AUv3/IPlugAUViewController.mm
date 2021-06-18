@@ -28,7 +28,6 @@
 #ifdef OS_IOS
 #pragma mark - iOS
 @implementation IPlugAUViewController
-#if PLUG_HAS_UI
 - (id) init
 {
   self = [super initWithNibName:@"IPlugAUViewController"
@@ -77,13 +76,6 @@
     [self.audioUnit closeWindow];
   }
 }
-#else // PLUG_HAS_UI==0
-
-- (void) beginRequestWithExtensionContext:(nonnull NSExtensionContext*) context
-{
-}
-
-#endif
 
 - (AUAudioUnit*) getAudioUnit
 {
