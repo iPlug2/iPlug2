@@ -6,7 +6,7 @@ using namespace iplug;
 
 @implementation IPlugCocoaViewController
 
-- (void)setEditorDelegate: (void*) _editorDelegate
+- (void) setEditorDelegate: (void*) _editorDelegate
 {
   editorDelegate = _editorDelegate;
 }

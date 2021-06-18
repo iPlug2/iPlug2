@@ -5,28 +5,19 @@
 #if defined TARGET_OS_MAC
   #if TARGET_OS_IPHONE
     #import <UIKit/UIKit.h>
-    #define VIEW UIView
+    #define PLATFORM_VIEW UIView
+    #define PLATFORM_VC UIViewController
     #define MAKERECT CGRectMake
   #else
-    #define VIEW NSView
-    #define MAKERECT NSMakeRect
     #import <Cocoa/Cocoa.h>
-  #endif
-#endif
-
-#if defined AUv3_API
-  #import "IPlugAUViewController.h"
-  #define VIEW_CONTROLLER IPlugAUViewController
-#else
-  #if defined TARGET_OS_MAC
-    #define VIEW_CONTROLLER NSViewController
-  #elif defined TARGET_OS_IPHONE
-    #define VIEW_CONTROLLER UIViewController
+    #define PLATFORM_VIEW NSView
+    #define PLATFORM_VC NSViewController
+    #define MAKERECT NSMakeRect
   #endif
 #endif
 
 /** An objc view controller base which reproduces some functionality from EditorDelegate in objc */
-@interface IPlugCocoaViewController : VIEW_CONTROLLER
+@interface IPlugCocoaViewController : PLATFORM_VC
 {
   void* editorDelegate;
 }
