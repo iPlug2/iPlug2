@@ -124,7 +124,7 @@ public:
   int N() const { return mN; }
   
   /** @return the scale of the bitmap */
-  float GetScale() const { return mAPIBitmap->GetScale(); }
+  int GetScale() const { return mAPIBitmap->GetScale(); }
 
   /** @return the draw scale of the bitmap */
   float GetDrawScale() const { return mAPIBitmap->GetDrawScale(); }
