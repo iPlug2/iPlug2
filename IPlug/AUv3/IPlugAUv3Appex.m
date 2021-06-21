@@ -10,7 +10,7 @@
 
 #import <AUv3Framework/AUv3Framework.h>
 
-void Dummy()
+void Dummy(void)
 {
   //Dummy code to force compile
 }

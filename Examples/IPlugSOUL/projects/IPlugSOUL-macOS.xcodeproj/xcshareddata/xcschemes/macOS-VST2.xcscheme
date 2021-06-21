@@ -45,7 +45,7 @@
       <PathRunnable
          runnableDebuggingMode = "0"
          BundleIdentifier = "com.cockos.reaper"
-         FilePath = "/Applications/REAPER64.app">
+         FilePath = "/Applications/REAPER.app">
       </PathRunnable>
       <MacroExpansion>
          <BuildableReference

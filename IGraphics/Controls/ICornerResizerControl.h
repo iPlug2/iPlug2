@@ -28,8 +28,8 @@ class ICornerResizerControl : public IControl
 public:
   ICornerResizerControl(const IRECT& graphicsBounds, float size, const IColor& color = COLOR_TRANSLUCENT, const IColor& mouseOverColour = COLOR_BLACK, const IColor& dragColor = COLOR_BLACK)
   : IControl(graphicsBounds.GetFromBRHC(size, size).GetPadded(-1))
-  , mInitialGraphicsBounds(graphicsBounds)
   , mSize(size)
+  , mInitialGraphicsBounds(graphicsBounds)
   , mColor(color)
   , mMouseOverColor(mouseOverColour)
   , mDragColor(dragColor)

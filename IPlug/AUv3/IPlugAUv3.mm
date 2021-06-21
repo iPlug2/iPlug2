@@ -260,11 +260,8 @@ float IPlugAUv3::GetParamStringToValue(uint64_t address, const char* str)
   return val;
 }
 
-void IPlugAUv3::SetBuffers(AudioBufferList* pInBufList, AudioBufferList* pOutBufList)
+void IPlugAUv3::SetBuffers(AudioBufferList* pInBufList, AudioBufferList* pOutBufList, uint32_t outBusNumber)
 {
-  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
-  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), false);
-
   int chanIdx = 0;
   if(pInBufList)
   {
@@ -281,11 +278,13 @@ void IPlugAUv3::SetBuffers(AudioBufferList* pInBufList, AudioBufferList* pOutBuf
   
   if(pOutBufList)
   {
+    int numChannelsInBus = pOutBufList->mNumberBuffers; // TODO: this assumes all busses have the same channel count
+    
     for(int i = 0; i < pOutBufList->mNumberBuffers; i++)
     {
       int nConnected = pOutBufList->mBuffers[i].mNumberChannels;
-      SetChannelConnections(ERoute::kOutput, chanIdx, nConnected, true);
-      AttachBuffers(ERoute::kOutput, chanIdx, nConnected, (float**) &(pOutBufList->mBuffers[i].mData), GetBlockSize());
+      SetChannelConnections(ERoute::kOutput, (outBusNumber * numChannelsInBus) + chanIdx, nConnected, true);
+      AttachBuffers(ERoute::kOutput, (outBusNumber * numChannelsInBus) + chanIdx, nConnected, (float**) &(pOutBufList->mBuffers[i].mData), GetBlockSize());
       chanIdx += nConnected;
     }
   }

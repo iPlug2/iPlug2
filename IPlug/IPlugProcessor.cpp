@@ -22,11 +22,11 @@
 using namespace iplug;
 
 IPlugProcessor::IPlugProcessor(const Config& config, EAPI plugAPI)
-: mLatency(config.latency)
-, mPlugType((EIPlugPluginType) config.plugType)
+: mPlugType((EIPlugPluginType) config.plugType)
 , mDoesMIDIIn(config.plugDoesMidiIn)
 , mDoesMIDIOut(config.plugDoesMidiOut)
 , mDoesMPE(config.plugDoesMPE)
+, mLatency(config.latency)
 {
   int totalNInBuses, totalNOutBuses;
   int totalNInChans, totalNOutChans;

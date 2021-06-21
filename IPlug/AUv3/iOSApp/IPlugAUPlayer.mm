@@ -68,13 +68,14 @@
   [session setPreferredIOBufferDuration:0.005 error:nil];
   AVAudioMixerNode* mainMixer = [audioEngine mainMixerNode];
   mainMixer.outputVolume = 1;
-  AVAudioFormat* format = [mainMixer outputFormatForBus:0];
   [audioEngine attachNode:avAudioUnit];
-  
-#if PLUG_TYPE==0
-  [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: format];
-#endif
-  [audioEngine connect:avAudioUnit to:audioEngine.outputNode format: format];
+  AVAudioFormat* inputFormat = [avAudioUnit inputFormatForBus:0];
+  AVAudioFormat* outputFormat = [avAudioUnit outputFormatForBus:0];
+
+  if (inputFormat != nil)
+    [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: inputFormat];
+
+  [audioEngine connect:avAudioUnit to:audioEngine.outputNode format: outputFormat];
 
   [self start];
   

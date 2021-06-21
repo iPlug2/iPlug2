@@ -44,13 +44,13 @@ static StaticStorage<APIBitmap> sBitmapCache;
 static StaticStorage<SVGHolder> sSVGCache;
 
 IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
-: mDelegate(&dlg)
-, mWidth(w)
+: mWidth(w)
 , mHeight(h)
+, mFPS(fps)
 , mDrawScale(scale)
 , mMinScale(scale / 2)
 , mMaxScale(scale * 2)
-, mFPS(fps)
+, mDelegate(&dlg)
 {
   StaticStorage<APIBitmap>::Accessor bitmapStorage(sBitmapCache);
   bitmapStorage.Retain();
@@ -954,40 +954,41 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
       int paramIdx = pCapturedControl->GetParamIdx((valIdx > kNoValIdx) ? valIdx : 0);
 
 #ifdef AAX_API
-        if (mAAXViewContainer && paramIdx > kNoParameter)
-        {
-            auto GetAAXModifiersFromIMouseMod = [](const IMouseMod& mod) {
-                uint32_t modifiers = 0;
-                
-                if (mod.A) modifiers |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
-                
+      if (mAAXViewContainer && paramIdx > kNoParameter)
+      {
+        auto GetAAXModifiersFromIMouseMod = [](const IMouseMod& mod) {
+          uint32_t modifiers = 0;
+          
+          if (mod.A) modifiers |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
+          
 #ifdef OS_WIN
-                if (mod.C) modifiers |= AAX_eModifiers_Command;
+          if (mod.C) modifiers |= AAX_eModifiers_Command;
 #else
-                if (mod.C) modifiers |= AAX_eModifiers_Control;
-                if (mod.R) modifiers |= AAX_eModifiers_Command;
+          if (mod.C) modifiers |= AAX_eModifiers_Control;
+          if (mod.R) modifiers |= AAX_eModifiers_Command;
 #endif
-                if (mod.S) modifiers |= AAX_eModifiers_Shift;
-                if (mod.R) modifiers |= AAX_eModifiers_SecondaryButton;
-                
-                return modifiers;
-            };
-            
-            uint32_t aaxModifiersForPT = GetAAXModifiersFromIMouseMod(mod);
+          if (mod.S) modifiers |= AAX_eModifiers_Shift;
+          if (mod.R) modifiers |= AAX_eModifiers_SecondaryButton;
+          
+          return modifiers;
+        };
+        
+        uint32_t aaxModifiersForPT = GetAAXModifiersFromIMouseMod(mod);
 #ifdef OS_WIN
-            // required to get start/windows and alt keys
-            uint32_t aaxModifiersFromPT = 0;
-            mAAXViewContainer->GetModifiers(&aaxModifiersFromPT);
-            aaxModifiersForPT |= aaxModifiersFromPT;
+        // required to get start/windows and alt keys
+        uint32_t aaxModifiersFromPT = 0;
+        mAAXViewContainer->GetModifiers(&aaxModifiersFromPT);
+        aaxModifiersForPT |= aaxModifiersFromPT;
 #endif
-            WDL_String paramID;
-            paramID.SetFormatted(32, "%i", paramIdx+1);
-            
-            if (mAAXViewContainer->HandleParameterMouseDown(paramID.Get(), aaxModifiersForPT) == AAX_SUCCESS)
-            {
-                return; // event handled by PT
-            }
+        WDL_String paramID;
+        paramID.SetFormatted(32, "%i", paramIdx+1);
+        
+        if (mAAXViewContainer->HandleParameterMouseDown(paramID.Get(), aaxModifiersForPT) == AAX_SUCCESS)
+        {
+          ReleaseMouseCapture();
+          return; // event handled by PT
         }
+      }
 #endif
 
 #ifndef IGRAPHICS_NO_CONTEXT_MENU

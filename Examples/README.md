@@ -20,3 +20,4 @@ The following examples are more specialized:
 * **IPlugReaperExtension** : This is a template project for making a [Reaper Extension](http://reaper.fm/sdk/plugin/plugin.php). No realtime audio processing code, obviously. Making a reaper extension can be painful since it is all based around the Win32 APIs. This abstracts away some of the nastyness.
 * **IPlugSwift** : An iOS AUv3 project using Swift/UIKit for the user interface 
 * **IPlugWebUI** : An example showing how UI can written in HTML/CSS/JS, using a platform web view
+* **IPlugConvoEngine** : UI-less example of WDL_ConvoEngine that reports a delay to the host for plugin-delay-compensation (PDC)

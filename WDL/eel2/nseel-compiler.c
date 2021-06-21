@@ -79,7 +79,7 @@ FILE *g_eel_dump_fp, *g_eel_dump_fp2;
     P2 EDI
     P3 ECX
     WTP RSI
-    x86_64: r12 is a pointer to ram_state.blocks
+    x86_64: r12 is a pointer to ram_state->blocks
     x86_64: r13 is a pointer to closenessfactor
 
   registers on PPC are:
@@ -87,7 +87,7 @@ FILE *g_eel_dump_fp, *g_eel_dump_fp2;
     P2 r14 
     P3 r15
     WTP r16 (r17 has the original value)
-    r13 is a pointer to ram_state.blocks
+    r13 is a pointer to ram_state->blocks
 
     ppc uses f31 and f30 and others for certain constants
 
@@ -118,7 +118,11 @@ FILE *g_eel_dump_fp, *g_eel_dump_fp2;
 
 #elif defined(_WIN64) || defined(__LP64__)
 
+#ifndef EEL_X64_NO_SSE
+#include "glue_x86_64_sse.h"
+#else
 #include "glue_x86_64.h"
+#endif
 
 #else
 
@@ -436,7 +440,7 @@ static void *NSEEL_PProc_Stack(void *data, int data_size, compileContext *ctx)
     UINT_PTR stackptr = ((UINT_PTR) (&ch->stack));
 
     ch->want_stack=1;
-    if (!ch->stack) ch->stack = newDataBlock(NSEEL_STACK_SIZE*sizeof(EEL_F),sizeof(EEL_F));
+    if (!ch->stack) ch->stack = newDataBlock(NSEEL_STACK_SIZE*sizeof(EEL_F),NSEEL_STACK_SIZE*sizeof(EEL_F)); // stack functions need this alignment
 
     data=EEL_GLUE_set_immediate(data, stackptr);
     data=EEL_GLUE_set_immediate(data, m1); // and
@@ -455,7 +459,7 @@ static void *NSEEL_PProc_Stack_PeekInt(void *data, int data_size, compileContext
     UINT_PTR stackptr = ((UINT_PTR) (&ch->stack));
 
     ch->want_stack=1;
-    if (!ch->stack) ch->stack = newDataBlock(NSEEL_STACK_SIZE*sizeof(EEL_F),sizeof(EEL_F));
+    if (!ch->stack) ch->stack = newDataBlock(NSEEL_STACK_SIZE*sizeof(EEL_F),NSEEL_STACK_SIZE*sizeof(EEL_F)); // stack functions need this alignment
 
     data=EEL_GLUE_set_immediate(data, stackptr);
     data=EEL_GLUE_set_immediate(data, offs);
@@ -473,7 +477,7 @@ static void *NSEEL_PProc_Stack_PeekTop(void *data, int data_size, compileContext
     UINT_PTR stackptr = ((UINT_PTR) (&ch->stack));
 
     ch->want_stack=1;
-    if (!ch->stack) ch->stack = newDataBlock(NSEEL_STACK_SIZE*sizeof(EEL_F),sizeof(EEL_F));
+    if (!ch->stack) ch->stack = newDataBlock(NSEEL_STACK_SIZE*sizeof(EEL_F),NSEEL_STACK_SIZE*sizeof(EEL_F)); // stack functions need this alignment
 
     data=EEL_GLUE_set_immediate(data, stackptr);
   }
@@ -521,11 +525,24 @@ static double eel1sigmoid(double x, double constraint)
 #define BIF_WONTMAKEDENORMAL   0x0100000
 #define BIF_CLEARDENORMAL      0x0200000
 
-#if defined(GLUE_HAS_FXCH) && GLUE_MAX_FPSTACK_SIZE > 0
+#if GLUE_HAS_FPREG2 > 0 && GLUE_MAX_FPSTACK_SIZE > 0
+#error GLUE_HAS_FPREG2 and GLUE_MAX_FPSTACK_SIZE are exclusive
+#endif
+
+#if GLUE_MAX_SPILL_REGS > 0 && GLUE_HAS_FPREG2 <= 0
+#error GLUE_MAX_SPILL_REGS requires GLUE_HAS_FPREG2
+#endif
+
+#if GLUE_MAX_FPSTACK_SIZE > 0 || GLUE_HAS_FPREG2 > 0
   #define BIF_SECONDLASTPARMST 0x0001000 // use with BIF_LASTPARMONSTACK only (last two parameters get passed on fp stack)
   #define BIF_LAZYPARMORDERING 0x0002000 // allow optimizer to avoid fxch when using BIF_TWOPARMSONFPSTACK_LAZY etc
-  #define BIF_REVERSEFPORDER   0x0004000 // force a fxch (reverse order of last two parameters on fp stack, used by comparison functions)
+#else
+  #define BIF_SECONDLASTPARMST 0
+  #define BIF_LAZYPARMORDERING 0
+#endif
 
+#if GLUE_MAX_FPSTACK_SIZE > 0
+  #define BIF_REVERSEFPORDER   0x0004000 // force a fxch (reverse order of last two parameters on fp stack, used by comparison functions)
   #ifndef BIF_FPSTACKUSE
     #define BIF_FPSTACKUSE(x) (((x)>=0&&(x)<8) ? ((7-(x))<<16):0)
   #endif
@@ -533,9 +550,6 @@ static double eel1sigmoid(double x, double constraint)
     #define BIF_GETFPSTACKUSE(x) (7 - (((x)>>16)&7))
   #endif
 #else
-  // do not support fp stack use unless GLUE_HAS_FXCH and GLUE_MAX_FPSTACK_SIZE>0
-  #define BIF_SECONDLASTPARMST 0
-  #define BIF_LAZYPARMORDERING 0
   #define BIF_REVERSEFPORDER   0
   #define BIF_FPSTACKUSE(x) 0
   #define BIF_GETFPSTACKUSE(x) 0
@@ -899,7 +913,11 @@ static void *__newBlock_align(llBlock **start, int size, int align, int is_for_c
       llb = (llBlock *)VirtualAlloc(NULL,alloc_amt,MEM_COMMIT,PAGE_READWRITE);
       if (llb == NULL) return NULL;
     #else
+      #if !defined(MAP_ANONYMOUS) && defined(MAP_ANON)
+      llb = (llBlock *)mmap(NULL,alloc_amt, PROT_READ|PROT_WRITE,MAP_ANON|MAP_PRIVATE,-1,0);
+      #else
       llb = (llBlock *)mmap(NULL,alloc_amt, PROT_READ|PROT_WRITE,MAP_ANONYMOUS|MAP_PRIVATE,-1,0);
+      #endif
       if (llb == MAP_FAILED) return NULL;
     #endif
     alloc_amt -= sizeof(*llb);
@@ -1540,6 +1558,9 @@ opcodeRec *nseel_createSimpleCompiledFunction(compileContext *ctx, int fn, int n
 #define RETURNVALUE_BOOL 4 // P1 is nonzero if true
 #define RETURNVALUE_BOOL_REVERSED 8 // P1 is zero if true
 #define RETURNVALUE_CACHEABLE 16 // only to be used when (at least) RETURNVALUE_NORMAL is set
+#if GLUE_HAS_FPREG2 > 0
+#define RETURNVALUE_FPREG2 32 // only usable for compileOpcodes() on a trivial opcode
+#endif
 
 
 
@@ -1718,34 +1739,26 @@ static void *nseel_getBuiltinFunctionAddress(compileContext *ctx,
       *abiInfo = BIF_RETURNSBOOL;
     RF(bor);
 
-#ifdef GLUE_HAS_FXCH
     case FN_GT:
       *abiInfo = BIF_TWOPARMSONFPSTACK|BIF_RETURNSBOOL|BIF_FPSTACKUSE(2);
     RF(above);
     case FN_GTE:
       *abiInfo = BIF_TWOPARMSONFPSTACK|BIF_RETURNSBOOL|BIF_REVERSEFPORDER|BIF_FPSTACKUSE(2);
-    RF(beloweq);
-    case FN_LT:
-      *abiInfo = BIF_TWOPARMSONFPSTACK|BIF_RETURNSBOOL|BIF_REVERSEFPORDER|BIF_FPSTACKUSE(2);
-    RF(above);
-    case FN_LTE:
-      *abiInfo = BIF_TWOPARMSONFPSTACK|BIF_RETURNSBOOL|BIF_FPSTACKUSE(2);
+#if BIF_REVERSEFPORDER > 0
     RF(beloweq);
 #else
-    case FN_GT:
-      *abiInfo = BIF_RETURNSBOOL|BIF_LASTPARMONSTACK;
-    RF(above);
-    case FN_GTE:
-      *abiInfo = BIF_RETURNSBOOL|BIF_LASTPARMONSTACK;
     RF(aboveeq);
-    case FN_LT:
-      *abiInfo = BIF_RETURNSBOOL|BIF_LASTPARMONSTACK;
-    RF(below);
-    case FN_LTE:
-      *abiInfo = BIF_RETURNSBOOL|BIF_LASTPARMONSTACK;
-    RF(beloweq);
 #endif
-
+    case FN_LT:
+      *abiInfo = BIF_TWOPARMSONFPSTACK|BIF_RETURNSBOOL|BIF_REVERSEFPORDER|BIF_FPSTACKUSE(2);
+#if BIF_REVERSEFPORDER > 0
+    RF(above);
+#else
+    RF(below);
+#endif
+    case FN_LTE:
+      *abiInfo = BIF_TWOPARMSONFPSTACK|BIF_RETURNSBOOL|BIF_FPSTACKUSE(2);
+    RF(beloweq);
 
 #undef RF
 #define RF(x) *endP = _asm_##x##_end; return (void*)_asm_##x
@@ -1911,7 +1924,7 @@ static void *nseel_getEELFunctionAddress(compileContext *ctx,
           &fn->rvMode,&fn->fpStackUsage,&fn->canHaveDenormalOutput);
       if (sz<0) return NULL;
 
-      fn->startptr_size = sz;
+      fn->startptr_base_size = fn->startptr_size = sz;
     }
 
     if (!wantCodeGenerated)
@@ -1925,17 +1938,19 @@ static void *nseel_getEELFunctionAddress(compileContext *ctx,
       *fpStackUse = fn->fpStackUsage;
       if (canHaveDenormalOutput) *canHaveDenormalOutput=fn->canHaveDenormalOutput;
 
-      if (sz <= NSEEL_MAX_FUNCTION_SIZE_FOR_INLINE && !(ctx->optimizeDisableFlags&OPTFLAG_NO_INLINEFUNC))
+      if (fn->startptr_base_size <= NSEEL_MAX_FUNCTION_SIZE_FOR_INLINE &&
+          !(ctx->optimizeDisableFlags&OPTFLAG_NO_INLINEFUNC))
       {
         *isRaw = 1;
-        *endP = ((char *)1) + sz;
+        *endP = ((char *)1) + fn->startptr_base_size;
         return (char *)1;
       }
       *endP = (void*)nseel_asm_fcall_end;
       return (void*)nseel_asm_fcall;
     }
 
-    if (sz <= NSEEL_MAX_FUNCTION_SIZE_FOR_INLINE && !(ctx->optimizeDisableFlags&OPTFLAG_NO_INLINEFUNC))
+    if (fn->startptr_base_size <= NSEEL_MAX_FUNCTION_SIZE_FOR_INLINE &&
+        !(ctx->optimizeDisableFlags&OPTFLAG_NO_INLINEFUNC))
     {
       void *p=newTmpBlock(ctx,sz);
       fn->tmpspace_req=0;
@@ -1986,6 +2001,13 @@ static void *nseel_getEELFunctionAddress(compileContext *ctx,
     *fpStackUse = fn->fpStackUsage;
     if (canHaveDenormalOutput) *canHaveDenormalOutput= fn->canHaveDenormalOutput;
     *endP = (char*)fn->startptr + fn->startptr_size;
+    if (!wantCodeGenerated &&
+        fn->startptr_base_size <= NSEEL_MAX_FUNCTION_SIZE_FOR_INLINE &&
+        !(ctx->optimizeDisableFlags&OPTFLAG_NO_INLINEFUNC))
+    {
+      // report the correct maximum base length for the calculation pass
+      *endP = (char*)fn->startptr + fn->startptr_base_size;
+    }
     *isRaw=1;
     return fn->startptr;
   }
@@ -2820,6 +2842,12 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
   int local_fpstack_use=0; // how many items we have pushed onto the fp stack
   int parm_size=0;
   int restore_stack_amt=0;
+#ifdef GLUE_HAS_FUSE
+  int fuse_flags = 0; // 1 = last parm was trivial (likely mov rax, movsd xmm0 ,[rax])
+#endif
+#if GLUE_MAX_SPILL_REGS > 0
+  int spill_reg = -1;
+#endif
 
   void *func_e=NULL;
   NSEEL_PPPROC preProc=0;
@@ -2975,7 +3003,7 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
   else // not varparm
   {
     int pn;
-  #ifdef GLUE_HAS_FXCH
+  #if GLUE_MAX_FPSTACK_SIZE > 0
     int need_fxch=0;
   #endif
     int last_nt_parm=-1, last_nt_parm_type=-1;
@@ -3092,6 +3120,24 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
 
         if (may_need_fppush>=0)
         {
+#if GLUE_MAX_SPILL_REGS > 0
+          if (local_fpstack_use+subfpstackuse < GLUE_MAX_SPILL_REGS && pn == n_params - 1 && !(ctx->optimizeDisableFlags&OPTFLAG_NO_FPSTACK))
+          {
+            int spill_sz;
+            spill_reg = local_fpstack_use+subfpstackuse;
+            spill_sz = GLUE_SAVE_TO_SPILL_SIZE(spill_reg);
+            if (bufOut_len < parm_size + spill_sz) RET_MINUS1_FAIL("failed on size, savetospilll")
+
+            if (bufOut)
+            {
+              memmove(bufOut + may_need_fppush + spill_sz, bufOut + may_need_fppush, parm_size - may_need_fppush);
+              GLUE_SAVE_TO_SPILL(bufOut + may_need_fppush, spill_reg);
+            }
+            parm_size += spill_sz;
+            local_fpstack_use++;
+          }
+          else
+#endif
           if (local_fpstack_use+subfpstackuse >= (GLUE_MAX_FPSTACK_SIZE-1) || (ctx->optimizeDisableFlags&OPTFLAG_NO_FPSTACK))
           {
             if (bufOut_len < parm_size + (int)sizeof(GLUE_POP_FPSTACK_TOSTACK)) 
@@ -3173,15 +3219,28 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
         {
           if (!local_fpstack_use)
           {
-            if (bufOut_len < parm_size + (int)sizeof(GLUE_POP_STACK_TO_FPSTACK)) RET_MINUS1_FAIL("size, popstacktofpstack 2")
-            if (bufOut) memcpy(bufOut+parm_size,GLUE_POP_STACK_TO_FPSTACK,sizeof(GLUE_POP_STACK_TO_FPSTACK));
-            parm_size += sizeof(GLUE_POP_STACK_TO_FPSTACK);
-            #ifdef GLUE_HAS_FXCH
+            #if GLUE_HAS_FPREG2 > 0
+              if (bufOut_len < parm_size + (int)sizeof(GLUE_POP_STACK_TO_FPREG2)) RET_MINUS1_FAIL("size, popstacktofpstack2 2")
+              if (bufOut) memcpy(bufOut+parm_size,GLUE_POP_STACK_TO_FPREG2,sizeof(GLUE_POP_STACK_TO_FPREG2));
+              parm_size += sizeof(GLUE_POP_STACK_TO_FPREG2);
+            #else
+              if (bufOut_len < parm_size + (int)sizeof(GLUE_POP_STACK_TO_FPSTACK)) RET_MINUS1_FAIL("size, popstacktofpstack 2")
+              if (bufOut) memcpy(bufOut+parm_size,GLUE_POP_STACK_TO_FPSTACK,sizeof(GLUE_POP_STACK_TO_FPSTACK));
+              parm_size += sizeof(GLUE_POP_STACK_TO_FPSTACK);
+            #endif
+            #if GLUE_MAX_FPSTACK_SIZE > 0
               need_fxch = 1;
             #endif
           }
           else
           {
+#if GLUE_MAX_SPILL_REGS > 0
+            if (spill_reg<0) RET_MINUS1_FAIL("spill reg not allocated");
+
+            if (bufOut_len < parm_size + GLUE_RESTORE_SPILL_TO_FPREG2_SIZE(spill_reg)) RET_MINUS1_FAIL("size, copy fps to fpreg2")
+            if (bufOut) GLUE_RESTORE_SPILL_TO_FPREG2(bufOut+parm_size,spill_reg);
+            parm_size += GLUE_RESTORE_SPILL_TO_FPREG2_SIZE(spill_reg);
+#endif
             local_fpstack_use--;
           }
         }
@@ -3201,11 +3260,17 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
       {
         if (pn == n_params-2 && (cfunc_abiinfo&(BIF_SECONDLASTPARMST)))  // second to last parameter
         {
+          #if GLUE_HAS_FPREG2 > 0
+          const int req = RETURNVALUE_FPREG2;
+          #else
+          const int req = RETURNVALUE_FPSTACK;
+          #endif
           int a = compileOpcodes(ctx,op->parms.parms[pn],bufOut ? bufOut+parm_size : NULL,bufOut_len - parm_size,computTableSize,namespacePathToThis,
-                                  RETURNVALUE_FPSTACK,NULL,NULL,canHaveDenormalOutput);
+                                    req,NULL,NULL,canHaveDenormalOutput);
           if (a<0) RET_MINUS1_FAIL("coc call here 2")
           parm_size+=a;
-          #ifdef GLUE_HAS_FXCH
+
+          #if GLUE_MAX_FPSTACK_SIZE > 0
             need_fxch = 1;
           #endif
         }
@@ -3221,6 +3286,15 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
             wantFpStack=-1; // cacheable but non-FP stack
           }
   #endif
+  #if GLUE_HAS_FPREG2 > 0
+          if (pn > 0 && (cfunc_abiinfo&(BIF_SECONDLASTPARMST) && !OPCODE_IS_TRIVIAL(op->parms.parms[pn-1])))
+          {
+            if (bufOut_len < parm_size+(int)sizeof(GLUE_COPY_FPSTACK_TO_FPREG2)) RET_MINUS1_FAIL("fptofpstack2tfp");
+            if (bufOut) memcpy(bufOut+parm_size,GLUE_COPY_FPSTACK_TO_FPREG2,sizeof(GLUE_COPY_FPSTACK_TO_FPREG2));
+            parm_size += sizeof(GLUE_COPY_FPSTACK_TO_FPREG2);
+          }
+  #endif
+
           a = compileOpcodes(ctx,op->parms.parms[pn],bufOut ? bufOut+parm_size : NULL,bufOut_len - parm_size,computTableSize,namespacePathToThis,
             func == nseel_asm_bnot ? (RETURNVALUE_BOOL_REVERSED|RETURNVALUE_BOOL) :
               (cfunc_abiinfo & BIF_LASTPARMONSTACK) ? RETURNVALUE_FPSTACK : 
@@ -3231,6 +3305,9 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
             &rvt, NULL,canHaveDenormalOutput);
            
           if (a<0) RET_MINUS1_FAIL("coc call here 3")
+#ifdef GLUE_HAS_FUSE
+          if (rvt == RETURNVALUE_FPSTACK) fuse_flags |= 1;
+#endif
 
           if (func == nseel_asm_bnot && rvt == RETURNVALUE_BOOL_REVERSED)
           {
@@ -3246,7 +3323,7 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
           }
 
           parm_size+=a;
-          #ifdef GLUE_HAS_FXCH
+          #if GLUE_MAX_FPSTACK_SIZE > 0
             need_fxch = 0;
           #endif
 
@@ -3285,7 +3362,7 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
       }
     }
 
-  #ifdef GLUE_HAS_FXCH
+  #if GLUE_MAX_FPSTACK_SIZE > 0
     if ((cfunc_abiinfo&(BIF_SECONDLASTPARMST)) && !(cfunc_abiinfo&(BIF_LAZYPARMORDERING))&&
         ((!!need_fxch)^!!(cfunc_abiinfo&BIF_REVERSEFPORDER)) 
         )
@@ -3339,6 +3416,16 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
   {
     unsigned char *p=bufOut + parm_size;
     memcpy(p, func, func_size);
+#if GLUE_HAS_FUSE
+    parm_size += GLUE_FUSE(ctx,p,parm_size,func_size,fuse_flags,
+#if GLUE_MAX_SPILL_REGS > 0
+        spill_reg
+#else
+        -1
+#endif
+    );
+    p = bufOut + parm_size;
+#endif
     if (preProc) p=preProc(p,func_size,ctx);
     if (repl)
     {
@@ -3422,8 +3509,9 @@ static int compileEelFunctionCall(compileContext *ctx, opcodeRec *op, unsigned c
   
   if (!func) RET_MINUS1_FAIL("eelfuncaddr")
 
+#if GLUE_MAX_FPSTACK_SIZE > 0
   *fpStackUse += 1;
-
+#endif
 
   if (cfp_numparams>0 && n_params != cfp_numparams)
   {
@@ -3985,9 +4073,11 @@ doNonInlineIf_:
 
         if (bufOut)
         {
-          newblock2=compileCodeBlockWithRet(ctx,op->parms.parms[0],computTableSize,namespacePathToThis, RETURNVALUE_BOOL, NULL, fpStackUse, NULL);
+          int fUse1 = 0;
+          newblock2=compileCodeBlockWithRet(ctx,op->parms.parms[0],computTableSize,namespacePathToThis, RETURNVALUE_BOOL, NULL, &fUse1, NULL);
           if (!newblock2) RET_MINUS1_FAIL("repeatwhile ccbwr fail")
       
+          if (fUse1 > *fpStackUse) *fpStackUse = fUse1;
           memcpy(pwr,stubfunc,stubsz);
           pwr=EEL_GLUE_set_immediate(pwr,(INT_PTR)newblock2); 
         }
@@ -4000,7 +4090,7 @@ doNonInlineIf_:
         unsigned char *jzoutpt;
 #endif
         unsigned char *looppt;
-        int parm_size=0,subsz;
+        int parm_size=0,subsz, fUse1=0;
         if (bufOut_len < parm_size + (int)(GLUE_WHILE_SETUP_SIZE + sizeof(GLUE_WHILE_BEGIN))) RET_MINUS1_FAIL("while size fail 1")
 
         if (bufOut) memcpy(bufOut + parm_size,GLUE_WHILE_SETUP,GLUE_WHILE_SETUP_SIZE);
@@ -4010,7 +4100,8 @@ doNonInlineIf_:
         if (bufOut) memcpy(bufOut + parm_size,GLUE_WHILE_BEGIN,sizeof(GLUE_WHILE_BEGIN));
         parm_size+=sizeof(GLUE_WHILE_BEGIN);
 
-        subsz = compileOpcodes(ctx,op->parms.parms[0],bufOut ? (bufOut + parm_size) : NULL,bufOut_len - parm_size, computTableSize, namespacePathToThis, RETURNVALUE_BOOL, NULL,fpStackUse, NULL);
+        subsz = compileOpcodes(ctx,op->parms.parms[0],bufOut ? (bufOut + parm_size) : NULL,bufOut_len - parm_size, computTableSize, namespacePathToThis, RETURNVALUE_BOOL, NULL,&fUse1, NULL);
+        if (fUse1 > *fpStackUse) *fpStackUse = fUse1;
         if (subsz<0) RET_MINUS1_FAIL("while coc fail")
 
         if (bufOut_len < parm_size + (int)(sizeof(GLUE_WHILE_END) + sizeof(GLUE_WHILE_CHECK_RV))) RET_MINUS1_FAIL("which size fial 2")
@@ -4131,7 +4222,9 @@ doNonInlineIf_:
 #ifdef GLUE_HAS_FLDZ
           if (op->parms.dv.directValue == 0.0)
           {
-            *fpStackUse = 1;
+#if GLUE_MAX_FPSTACK_SIZE > 0
+            if (*fpStackUse < 1) *fpStackUse = 1;
+#endif
             *calledRvType = RETURNVALUE_FPSTACK;
             if (bufOut_len < sizeof(GLUE_FLDZ)) RET_MINUS1_FAIL("direct fp fail 1")
             if (bufOut) memcpy(bufOut,GLUE_FLDZ,sizeof(GLUE_FLDZ));
@@ -4141,7 +4234,9 @@ doNonInlineIf_:
 #ifdef GLUE_HAS_FLD1
           if (op->parms.dv.directValue == 1.0)
           {
-            *fpStackUse = 1;
+#if GLUE_MAX_FPSTACK_SIZE > 0
+            if (*fpStackUse < 1) *fpStackUse = 1;
+#endif
             *calledRvType = RETURNVALUE_FPSTACK;
             if (bufOut_len < sizeof(GLUE_FLD1)) RET_MINUS1_FAIL("direct fp fail 1")
             if (bufOut) memcpy(bufOut,GLUE_FLD1,sizeof(GLUE_FLD1));
@@ -4155,13 +4250,28 @@ doNonInlineIf_:
     case OPCODETYPE_VARPTR:
     case OPCODETYPE_VARPTRPTR:
 
+        #if GLUE_HAS_FPREG2 > 0
+          if (preferredReturnValues & RETURNVALUE_FPREG2)
+          {
+            if (preferredReturnValues != RETURNVALUE_FPREG2) RET_MINUS1_FAIL("RETURNVALUE_FPREG2 but not exact hm")
+            if (bufOut_len < GLUE_MOV_PX_DIRECTVALUE_TOFPREG2_SIZE) RET_MINUS1_FAIL("direct fp2 fail 2")
+            if (bufOut)
+            {
+              if (generateValueToReg(ctx,op,bufOut,-2,namespacePathToThis, 1 /*allow caching*/)<0) RET_MINUS1_FAIL("direct fp2 fail gvr")
+            }
+            *calledRvType = RETURNVALUE_FPREG2;
+            return rv_offset+GLUE_MOV_PX_DIRECTVALUE_TOFPREG2_SIZE;
+          }
+        #endif
 
       #ifdef GLUE_MOV_PX_DIRECTVALUE_TOSTACK_SIZE
         if (OPCODE_IS_TRIVIAL(op))
         {
           if (preferredReturnValues & RETURNVALUE_FPSTACK)
           {
-            *fpStackUse = 1;
+#if GLUE_MAX_FPSTACK_SIZE > 0
+            if (*fpStackUse < 1) *fpStackUse = 1;
+#endif
             if (bufOut_len < GLUE_MOV_PX_DIRECTVALUE_TOSTACK_SIZE) RET_MINUS1_FAIL("direct fp fail 2")
             if (bufOut)
             {
@@ -4194,17 +4304,19 @@ doNonInlineIf_:
       
       if (op->fntype == FUNCTYPE_EELFUNC)
       {
-        int a;
+        int a, fpUse1=0;
         
-        a = compileEelFunctionCall(ctx,op,bufOut,bufOut_len,computTableSize,namespacePathToThis, calledRvType,fpStackUse,canHaveDenormalOutput);
+        a = compileEelFunctionCall(ctx,op,bufOut,bufOut_len,computTableSize,namespacePathToThis, calledRvType,&fpUse1,canHaveDenormalOutput);
         if (a<0) return a;
+        if (fpUse1 > *fpStackUse) *fpStackUse = fpUse1;
         rv_offset += a;
       }
       else
       {
-        int a;
-        a = compileNativeFunctionCall(ctx,op,bufOut,bufOut_len,computTableSize,namespacePathToThis, calledRvType,fpStackUse,preferredReturnValues,canHaveDenormalOutput);
+        int a, fpUse1=0;
+        a = compileNativeFunctionCall(ctx,op,bufOut,bufOut_len,computTableSize,namespacePathToThis, calledRvType,&fpUse1,preferredReturnValues,canHaveDenormalOutput);
         if (a<0)return a;
+        if (fpUse1 > *fpStackUse) *fpStackUse = fpUse1;
         rv_offset += a;
       }        
     return rv_offset;
@@ -4324,6 +4436,13 @@ int compileOpcodes(compileContext *ctx, opcodeRec *op, unsigned char *bufOut, in
 #endif
   if (codesz < 0) return codesz;
 
+#if GLUE_HAS_FPREG2 > 0
+  if (supportedReturnValues & RETURNVALUE_FPREG2)
+  {
+    if (code_returns != RETURNVALUE_FPREG2)
+      RET_MINUS1_FAIL("fpstack2 not return correct fail");
+  }
+#endif
 
   /*
   {
@@ -4949,7 +5068,7 @@ had_error:
 
         if (ctx->gotEndOfInput&4)
         {
-          snprintf(ctx->last_error_string,sizeof(ctx->last_error_string),"%d: %smissing ) or ]",linenumber+lineoffs,cur_err);
+          snprintf(ctx->last_error_string,sizeof(ctx->last_error_string),"%d: %.200smissing ) or ]",linenumber+lineoffs,cur_err);
         }
         else
         {
@@ -4971,11 +5090,11 @@ had_error:
 
           // display left_amt >>>> right_amt_nospace
           if (left_amt_nospace > 0)
-            snprintf(ctx->last_error_string,sizeof(ctx->last_error_string),"%d: %s'%.*s <!> %.*s'",linenumber+lineoffs,cur_err,
+            snprintf(ctx->last_error_string,sizeof(ctx->last_error_string),"%d: %.200s'%.*s <!> %.*s'",linenumber+lineoffs,cur_err,
               left_amt_nospace,p-left_amt_nospace,
               right_amt_nospace,p);
           else
-            snprintf(ctx->last_error_string,sizeof(ctx->last_error_string),"%d: %s'%.*s'",linenumber+lineoffs,cur_err,right_amt_nospace,p);
+            snprintf(ctx->last_error_string,sizeof(ctx->last_error_string),"%d: %.200s'%.*s'",linenumber+lineoffs,cur_err,right_amt_nospace,p);
         }
       }
 
@@ -5119,7 +5238,7 @@ had_error:
   if (handle)
   {
     handle->compile_flags = compile_flags;
-    handle->ramPtr = ctx->ram_state.blocks;
+    handle->ramPtr = ctx->ram_state->blocks;
     memcpy(handle->code_stats,ctx->l_stats,sizeof(ctx->l_stats));
     nseel_evallib_stats[0]+=ctx->l_stats[0];
     nseel_evallib_stats[1]+=ctx->l_stats[1];
@@ -5249,8 +5368,12 @@ NSEEL_VMCTX NSEEL_VM_alloc() // return a handle
 
   if (ctx) 
   {
-    ctx->ram_state.maxblocks = NSEEL_RAM_BLOCKS_DEFAULTMAX;
-    ctx->ram_state.closefact = NSEEL_CLOSEFACTOR;
+    ctx->ram_state = __newBlock_align(&ctx->ctx_pblocks,sizeof(*ctx->ram_state),16,0);
+    memset(ctx->ram_state,0,sizeof(*ctx->ram_state));
+    ctx->ram_state->sign_mask[0] = ctx->ram_state->sign_mask[1] = WDL_UINT64_CONST(0x8000000000000000);
+    ctx->ram_state->abs_mask[0] = ctx->ram_state->abs_mask[1]   = WDL_UINT64_CONST(0x7FFFFFFFFFFFFFFF);
+    ctx->ram_state->maxblocks = NSEEL_RAM_BLOCKS_DEFAULTMAX;
+    ctx->ram_state->closefact = NSEEL_CLOSEFACTOR;
   }
   return ctx;
 }
@@ -5263,10 +5386,10 @@ int NSEEL_VM_setramsize(NSEEL_VMCTX _ctx, int maxent)
   {
     maxent = (maxent + NSEEL_RAM_ITEMSPERBLOCK - 1)/NSEEL_RAM_ITEMSPERBLOCK;
     if (maxent > NSEEL_RAM_BLOCKS) maxent = NSEEL_RAM_BLOCKS;
-    ctx->ram_state.maxblocks = maxent;
+    ctx->ram_state->maxblocks = maxent;
   }
   
-  return ctx->ram_state.maxblocks * NSEEL_RAM_ITEMSPERBLOCK;
+  return ctx->ram_state->maxblocks * NSEEL_RAM_ITEMSPERBLOCK;
 }
 
 void NSEEL_VM_SetFunctionValidator(NSEEL_VMCTX _ctx, const char * (*validateFunc)(const char *fn_name, void *user), void *user)
@@ -5373,7 +5496,7 @@ void NSEEL_VM_SetCustomFuncThis(NSEEL_VMCTX ctx, void *thisptr)
 
 void *NSEEL_PProc_RAM(void *data, int data_size, compileContext *ctx)
 {
-  if (data_size>0) data=EEL_GLUE_set_immediate(data, (INT_PTR)ctx->ram_state.blocks); 
+  if (data_size>0) data=EEL_GLUE_set_immediate(data, (INT_PTR)ctx->ram_state->blocks); 
   return data;
 }
 
