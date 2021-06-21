@@ -39,4 +39,8 @@
 - (void)sendMidiMsgFromUI: (UInt8) status : (UInt8) data1 : (UInt8) data2 : (int) offset NS_SWIFT_NAME(sendMidiMsgFromUI(status:data1:data2:offset:));
 - (void)sendSysexMsgFromUI: (NSData*) msg : (int) offset NS_SWIFT_NAME(sendSysexMsgFromUI(msg:offset:));
 - (void)sendArbitraryMsgFromUI: (int) msgTag : (int) ctrlTag : (NSData*) msg NS_SWIFT_NAME(sendArbitraryMsgFromUI(msgTag:ctrlTag:msg:));
+
+- (int)parameterCount NS_SWIFT_NAME(parameterCount());
+- (NSString*)getParameterName: (int) paramIdx NS_SWIFT_NAME(getParameterName(paramIdx:));
+
 @end

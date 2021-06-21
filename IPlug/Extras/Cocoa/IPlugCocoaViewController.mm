@@ -78,4 +78,15 @@ using namespace iplug;
   ((CocoaEditorDelegate*) editorDelegate)->SendSysexMsgFromUI(smsg);
 }
 
+- (int)parameterCount
+{
+  return ((CocoaEditorDelegate*) editorDelegate)->NParams();
+}
+
+- (NSString*)getParameterName: (int) paramIdx
+{
+  NSString* name = [NSString stringWithUTF8String:((CocoaEditorDelegate*) editorDelegate)->GetParam(paramIdx)->GetName()];
+  return name;
+}
+
 @end
