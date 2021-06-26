@@ -243,6 +243,8 @@ void IGraphicsCanvas::SetCanvasSourcePattern(val& context, const IPattern& patte
       context.set("strokeStyle", gradient);
     }
     break;
+    default:
+    break;
   }
 }
 
