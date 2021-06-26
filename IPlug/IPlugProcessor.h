@@ -122,6 +122,12 @@ public:
   /** @return The tempo in beats per minute */
   double GetTempo() const { return mTimeInfo.mTempo; }
 
+  /** @return The number of beats elapsed since start of project timeline. */
+  double GetPPQPos() const { return mTimeInfo.mPPQPos; }
+
+  /** @return \c true if the transport is running */
+  bool GetTransportIsRunning() const { return mTimeInfo.mTransportIsRunning; }
+  
   /** @return The number of samples in a beat */
   double GetSamplesPerBeat() const;
 
