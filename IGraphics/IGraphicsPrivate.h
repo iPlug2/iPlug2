@@ -94,7 +94,7 @@ public:
   * @param h The height of the bitmap
   * @param scale An integer representing the scale of this bitmap in relation to a 1:1 pixel screen, e.g. 2 for an @2x bitmap
   * @param drawScale The draw scale at which this API bitmap was created (used in the context of layers) */
-  APIBitmap(BitmapData pBitmap, int w, int h, int scale, float drawScale)
+  APIBitmap(BitmapData pBitmap, int w, int h, float scale, float drawScale)
   : mBitmap(pBitmap)
   , mWidth(w)
   , mHeight(h)
@@ -119,9 +119,9 @@ public:
    * @param pBitmap pointer or integer index (NanoVG) to the image data
    * @param w The width of the bitmap
    * @param h The height of the bitmap
-   * @param scale An integer representing the scale of this bitmap in relation to a 1:1 pixel screen, e.g. 2 for an @2x bitmap
+   * @param scale The scale of this bitmap in relation to a 1:1 pixel screen, e.g. 2 for an @2x bitmap
    * @param drawScale The draw scale at which this API bitmap was created (used in the context of layers) */
-  void SetBitmap(BitmapData pBitmap, int w, int h, int scale, float drawScale)
+  void SetBitmap(BitmapData pBitmap, int w, int h, float scale, float drawScale)
   {
     mBitmap = pBitmap;
     mWidth = w;
@@ -140,7 +140,7 @@ public:
   int GetHeight() const { return mHeight; }
 
   /** @return the scale of the bitmap */
-  int GetScale() const { return mScale; }
+  float GetScale() const { return mScale; }
   
   /** @return the draw scale of the bitmap */
   float GetDrawScale() const { return mDrawScale; }
@@ -149,7 +149,7 @@ private:
   BitmapData mBitmap; // for most drawing APIs BitmapData is a pointer. For Nanovg it is an integer index
   int mWidth;
   int mHeight;
-  int mScale;
+  float mScale;
   float mDrawScale;
 };
 

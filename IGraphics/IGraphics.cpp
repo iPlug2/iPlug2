@@ -1958,7 +1958,7 @@ void IGraphics::StartLayer(IControl* pControl, const IRECT& r, bool cacheable)
   const int w = static_cast<int>(std::ceil(pixelBackingScale * std::ceil(alignedBounds.W())));
   const int h = static_cast<int>(std::ceil(pixelBackingScale * std::ceil(alignedBounds.H())));
 
-  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetRoundedScreenScale(), GetDrawScale(), cacheable), alignedBounds, pControl, pControl ? pControl->GetRECT() : IRECT()));
+  PushLayer(new ILayer(CreateAPIBitmap(w, h, GetScreenScale(), GetDrawScale(), cacheable), alignedBounds, pControl, pControl ? pControl->GetRECT() : IRECT()));
 }
 
 void IGraphics::ResumeLayer(ILayerPtr& layer)
@@ -2016,7 +2016,7 @@ bool IGraphics::CheckLayer(const ILayerPtr& layer)
     layer->Invalidate();
   }
 
-  return pBitmap && !layer->mInvalid && pBitmap->GetDrawScale() == GetDrawScale() && pBitmap->GetScale() == GetRoundedScreenScale();
+  return pBitmap && !layer->mInvalid && pBitmap->GetDrawScale() == GetDrawScale() && pBitmap->GetScale() == GetScreenScale();
 }
 
 void IGraphics::DrawLayer(const ILayerPtr& layer, const IBlend* pBlend)

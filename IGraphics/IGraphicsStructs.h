@@ -91,8 +91,8 @@ public:
    @param name Resource name for the bitmap */
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
   : mAPIBitmap(pAPIBitmap)
-  , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
-  , mH(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
+  , mW(static_cast<int>(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale()))
+  , mH(static_cast<int>(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale()))
   , mN(n)
   , mFramesAreHorizontal(framesAreHorizontal)
   , mResourceName(name, static_cast<int>(strlen(name)))
@@ -124,7 +124,7 @@ public:
   int N() const { return mN; }
   
   /** @return the scale of the bitmap */
-  int GetScale() const { return mAPIBitmap->GetScale(); }
+  float GetScale() const { return mAPIBitmap->GetScale(); }
 
   /** @return the draw scale of the bitmap */
   float GetDrawScale() const { return mAPIBitmap->GetDrawScale(); }
