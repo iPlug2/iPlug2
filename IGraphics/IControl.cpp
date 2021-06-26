@@ -839,24 +839,27 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
 
 void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
-  double gearing = IsFineControl(mod, true) ? 0.001 : 0.01;
-
-  double v = GetValue() + gearing * d;
+  const double gearing = IsFineControl(mod, true) ? 0.001 : 0.01;
+  double newValue = 0.0;
+  const double oldValue = GetValue();
   const IParam* pParam = GetParam();
-  
+
   if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
   {
     if (d != 0.f)
     {
       const double step = pParam->GetStep();
-
-      v = pParam->FromNormalized(v);
+      double v = pParam->FromNormalized(oldValue);
       v += d > 0 ? step : -step;
-      v = pParam->ToNormalized(v);
+      newValue = pParam->ToNormalized(v);
     }
   }
+  else
+  {
+    newValue = oldValue + gearing * d;
+  }
 
-  SetValue(v);
+  SetValue(newValue);
   SetDirty();
 }
 
@@ -954,24 +957,27 @@ void ISliderControlBase::OnMouseDrag(float x, float y, float dX, float dY, const
 
 void ISliderControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
-  double gearing = IsFineControl(mod, true) ? 0.001 : 0.01;
-
-  double v = GetValue() + gearing * d;
+  const double gearing = IsFineControl(mod, true) ? 0.001 : 0.01;
+  double newValue = 0.0;
+  const double oldValue = GetValue();
   const IParam* pParam = GetParam();
-  
+
   if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
   {
     if (d != 0.f)
     {
       const double step = pParam->GetStep();
-          
-      v = pParam->FromNormalized(v);
+      double v = pParam->FromNormalized(oldValue);
       v += d > 0 ? step : -step;
-      v = pParam->ToNormalized(v);
+      newValue = pParam->ToNormalized(v);
     }
   }
+  else
+  {
+    newValue = oldValue + gearing * d;
+  }
 
-  SetValue(v);
+  SetValue(newValue);
   SetDirty();
 }
 
