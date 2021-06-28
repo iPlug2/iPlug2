@@ -388,6 +388,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mMouseOutDuringDrag = false;
 
   self.wantsLayer = YES;
+  self.layer.drawsAsynchronously = YES;
   self.layer.opaque = YES;
   self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
   
