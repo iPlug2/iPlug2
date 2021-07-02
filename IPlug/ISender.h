@@ -21,7 +21,6 @@
 #include <array>
 
 BEGIN_IPLUG_NAMESPACE
-BEGIN_IGRAPHICS_NAMESPACE
 
 static const float SENDER_THRESHOLD = (float) DBToAmp(-90.);
 
@@ -165,4 +164,3 @@ protected:
 };
 
 END_IPLUG_NAMESPACE
-END_IGRAPHICS_NAMESPACE
