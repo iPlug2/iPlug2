@@ -980,7 +980,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       *pDataSize = sizeof (AudioUnitParameterNameInfo);
       if (pData && scope == kAudioUnitScope_Global)
       {
-        AudioUnitParameterNameInfo* parameterNameInfo = (AudioUnitParameterNameInfo *) pData;
+        AudioUnitParameterNameInfo* parameterNameInfo = (AudioUnitParameterNameInfo*) pData;
         int clumpId = parameterNameInfo->inID;
         
         if (clumpId < 1)
@@ -1254,7 +1254,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     //NO_OP(kAudioUnitProperty_ContextName);               // 25,
     case kAudioUnitProperty_ContextName:
     {
-      CFStringRef inStr = *(CFStringRef *)pData;
+      CFStringRef inStr = *(CFStringRef*) pData;
       CFIndex bufferSize = CFStringGetLength(inStr) + 1; // The +1 is for having space for the string to be NUL terminated
       char buffer[bufferSize];
       if (CFStringGetCString(inStr, buffer, bufferSize, kCFStringEncodingUTF8))
@@ -2128,7 +2128,7 @@ void IPlugAU::OutputSysexFromEditor()
 
 static IPlugAU* GetPlug(void *x)
 {
-  return (IPlugAU*) &((AudioComponentPlugInInstance *) x)->mInstanceStorage;
+  return (IPlugAU*) &((AudioComponentPlugInInstance*) x)->mInstanceStorage;
 }
 
 //static

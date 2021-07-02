@@ -1253,7 +1253,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 }
 #endif
 
-//- (void)windowResized: (NSNotification *) notification;
+//- (void) windowResized: (NSNotification*) notification;
 //{
 //  if(!mGraphics)
 //    return;

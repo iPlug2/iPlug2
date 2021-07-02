@@ -475,17 +475,17 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
 #pragma mark - AUAudioUnit (Overrides)
 
-- (AUAudioUnitBusArray *) inputBusses
+- (AUAudioUnitBusArray*) inputBusses
 {
   return _mInputBusArray;
 }
 
-- (AUAudioUnitBusArray *) outputBusses
+- (AUAudioUnitBusArray*) outputBusses
 {
   return _mOutputBusArray;
 }
 
-- (NSArray<NSString*> *) MIDIOutputNames
+- (NSArray<NSString*>*) MIDIOutputNames
 {
   return mMidiOutputNames;
 }
@@ -547,7 +547,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return YES;
 }
 
-- (void)deallocateRenderResources
+- (void) deallocateRenderResources
 {
   for (auto bufIdx = 0; bufIdx < mBufferedInputBuses.GetSize(); bufIdx++)
   {
@@ -654,7 +654,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
 #pragma mark- AUAudioUnit (Optional Properties)
 
-- (AUAudioUnitPreset *)currentPreset
+- (AUAudioUnitPreset*) currentPreset
 {
   if (mCurrentPreset.number >= 0)
     return [mPresets objectAtIndex:mPlug->GetCurrentPresetIdx()];
@@ -662,7 +662,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     return mCurrentPreset;
 }
 
-- (void)setCurrentPreset:(AUAudioUnitPreset *)currentPreset
+- (void) setCurrentPreset:(AUAudioUnitPreset*) currentPreset
 {
   if (nil == currentPreset)
   {
@@ -697,23 +697,23 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   });
 }
 
-- (BOOL)canProcessInPlace
+- (BOOL) canProcessInPlace
 {
   return NO;
 }
 
-- (NSArray<NSNumber*>*)channelCapabilities
+- (NSArray<NSNumber*>*) channelCapabilities
 {
   return mChannelCapabilitiesArray;
 }
 
-- (BOOL)shouldChangeToFormat:(AVAudioFormat*)format forBus:(AUAudioUnitBus*)bus
+- (BOOL) shouldChangeToFormat:(AVAudioFormat*)format forBus:(AUAudioUnitBus*)bus
 {
   //TODO: test io configs?
   return [super shouldChangeToFormat:format forBus:bus];
 }
 
-- (NSArray<NSNumber*>*)parametersForOverviewWithCount:(NSInteger)count
+- (NSArray<NSNumber*>*) parametersForOverviewWithCount:(NSInteger)count
 {
   WDL_TypedBuf<int> results;
   NSMutableArray<NSNumber*>* overviewParams = [[NSMutableArray<NSNumber*> alloc] init];
@@ -728,17 +728,17 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return overviewParams;
 }
 
-- (void)setRenderingOffline:(BOOL)renderingOffline
+- (void) setRenderingOffline:(BOOL)renderingOffline
 {
   mPlug->SetOffline(renderingOffline);
 }
 
-- (NSTimeInterval)latency
+- (NSTimeInterval) latency
 {
   return mPlug->GetLatency();
 }
 
-- (NSTimeInterval)tailTime
+- (NSTimeInterval) tailTime
 {
   return (double) mPlug->GetTailSize() / mPlug->GetSampleRate();
 }
@@ -772,7 +772,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return pDict;
 }
 
-- (void)setFullState:(NSDictionary<NSString*, id>*)newFullState
+- (void) setFullState:(NSDictionary<NSString*, id>*)newFullState
 {
   NSMutableDictionary<NSString*, id>* modifiedState = [[NSMutableDictionary<NSString*, id> alloc] init];
   [modifiedState addEntriesFromDictionary:newFullState];
@@ -788,7 +788,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 //  [super setFullState: newFullState]; // this hangs auval
 }
 
-- (NSIndexSet *)supportedViewConfigurations:(NSArray<AUAudioUnitViewConfiguration *> *)availableViewConfigurations  API_AVAILABLE(macos(10.13), ios(11))
+- (NSIndexSet*) supportedViewConfigurations:(NSArray<AUAudioUnitViewConfiguration*>*) availableViewConfigurations API_AVAILABLE(macos(10.13), ios(11))
 {
   TRACE
 
@@ -803,7 +803,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return pSet;
 }
 
-- (void)selectViewConfiguration:(AUAudioUnitViewConfiguration *)viewConfiguration  API_AVAILABLE(macos(10.13), ios(11))
+- (void) selectViewConfiguration:(AUAudioUnitViewConfiguration*) viewConfiguration API_AVAILABLE(macos(10.13), ios(11))
 {
   TRACE
   mPlug->OnHostSelectedViewConfiguration((int) [viewConfiguration width], (int) [viewConfiguration height]);
@@ -844,17 +844,17 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return pView;
 }
 
-- (void)closeWindow
+- (void) closeWindow
 {
   mPlug->CloseWindow();
 }
 
-- (NSInteger)width
+- (NSInteger) width
 {
   return mPlug->GetEditorWidth();
 }
 
-- (NSInteger)height
+- (NSInteger) height
 {
   return mPlug->GetEditorHeight();
 }
@@ -877,7 +877,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return false;
 }
 
-- (BOOL)supportsMPE
+- (BOOL) supportsMPE
 {
   return mPlug->DoesMPE() ? YES : NO;
 }

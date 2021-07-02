@@ -34,7 +34,7 @@ std::vector<ReaperAction> gActions;
 #include "ReaperExtBase.cpp"
 
 // super nasty looking macro here but allows importing functions from Reaper with simple looking code
-#define IMPAPI(x) if (!((*((void **)&(x)) = (void *)pRec->GetFunc(#x)))) gErrorCount++;
+#define IMPAPI(x) if (!((*((void **)&(x)) = (void*) pRec->GetFunc(#x)))) gErrorCount++;
 
 #pragma mark - ENTRY POINT
 extern "C"

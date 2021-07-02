@@ -41,7 +41,7 @@
   [super viewDidLoad];
 }
 
-- (void)viewDidLayoutSubviews
+- (void) viewDidLayoutSubviews
 {
 #if PLUG_HOST_RESIZE
   if(self.audioUnit) {

@@ -176,7 +176,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
 }
 
-- (void)setPreferredContentSize:(CGSize)preferredContentSize
+- (void) setPreferredContentSize:(CGSize)preferredContentSize
 {
   super.preferredContentSize = preferredContentSize;
 }
