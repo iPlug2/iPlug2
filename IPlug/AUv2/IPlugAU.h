@@ -275,7 +275,7 @@ public:
   
   static OSStatus Open(void* pSelf, AudioUnit compInstance)
   {
-    AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance *) pSelf;
+    AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance*) pSelf;
     assert(acpi);
     
     (*acpi->mConstruct)(&acpi->mInstanceStorage, compInstance);
@@ -289,7 +289,7 @@ public:
   
   static OSStatus Close(void* pSelf)
   {
-    AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance *) pSelf;
+    AudioComponentPlugInInstance* acpi = (AudioComponentPlugInInstance*) pSelf;
     assert(acpi);
     (*acpi->mDestruct)(&acpi->mInstanceStorage);
     free(pSelf);

@@ -31,7 +31,7 @@
 
 @implementation AppViewController
 
-- (BOOL)prefersStatusBarHidden
+- (BOOL) prefersStatusBarHidden
 {
   return YES;
 }
