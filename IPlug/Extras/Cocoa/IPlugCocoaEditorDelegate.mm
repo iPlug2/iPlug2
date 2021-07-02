@@ -61,7 +61,9 @@ void CocoaEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double norma
 
 void CocoaEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData)
 {
-  [(IPlugCocoaViewController*) mViewController sendControlMsgFromDelegate: ctrlTag : msgTag : dataSize : pData];
+  NSData* pNSData = [NSData dataWithBytes:pData length:dataSize];
+
+  [(IPlugCocoaViewController*) mViewController sendControlMsgFromDelegate: ctrlTag : msgTag : pNSData];
 }
 
 void CocoaEditorDelegate::SendParameterValueFromDelegate(int paramIdx, double value, bool normalized)
