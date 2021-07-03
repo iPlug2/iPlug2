@@ -30,6 +30,8 @@ extern std::map<std::string, void*> gTextureMap;
 BEGIN_IPLUG_NAMESPACE
 
 #ifdef OS_MAC
+#pragma mark - macOS
+
 void HostPath(WDL_String& path, const char* bundleID)
 {
   @autoreleasepool
@@ -248,7 +250,7 @@ bool IsOOPAuv3AppExtension()
 }
 
 #elif defined OS_IOS
-#pragma mark - IOS
+#pragma mark - iOS
 
 void HostPath(WDL_String& path, const char* bundleID)
 {
@@ -268,17 +270,6 @@ void BundleResourcePath(WDL_String& path, PluginIDType bundleID)
   path.Set([[pBundle resourcePath] UTF8String]);
 }
 
-void AppSupportPath(WDL_String& path, bool isSystem)
-{
-}
-
-void SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID)
-{
-  NSFileManager* mgr = [NSFileManager defaultManager];
-  NSURL* url = [mgr containerURLForSecurityApplicationGroupIdentifier:[NSString stringWithUTF8String:appGroupID]];
-  path.Set([[url path] UTF8String]);
-}
-
 void DesktopPath(WDL_String& path)
 {
 }
@@ -291,6 +282,17 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
 void INIPath(WDL_String& path, const char* pluginName)
 {
   path.Set("");
+}
+
+void AppSupportPath(WDL_String& path, bool isSystem)
+{
+}
+
+void SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID)
+{
+  NSFileManager* mgr = [NSFileManager defaultManager];
+  NSURL* url = [mgr containerURLForSecurityApplicationGroupIdentifier:[NSString stringWithUTF8String:appGroupID]];
+  path.Set([[url path] UTF8String]);
 }
 
 bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_String& fullPath, const char* bundleID)
