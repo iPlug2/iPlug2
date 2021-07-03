@@ -1732,7 +1732,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
       _this->SetChannelConnections(ERoute::kOutput, nConnected, totalNumChans - nConnected, false); // this will disconnect the channels that are on the unconnected buses
     }
 
-    if (_this->GetBypassed())
+    if (_this->GetBypassed() && !_this->GetWillHandleBypass())
     {
       _this->PassThroughBuffers((AudioSampleType) 0, nFrames);
     }

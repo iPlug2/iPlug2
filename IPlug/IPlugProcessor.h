@@ -112,6 +112,9 @@ public:
   /** @return \c true if the plugin is currently bypassed */
   bool GetBypassed() const { return mBypassed; }
 
+  /** @return \c true if ProcessBlock should be called even if the plugin is currently bypassed*/
+  bool GetWillHandleBypass() const { return mWillHandleBypass; }
+
   /** @return \c true if the plugin is currently rendering off-line */
   bool GetRenderingOffline() const { return mRenderingOffline; };
 
@@ -240,6 +243,10 @@ public:
    * @param tailSize the new tailsize in samples*/
   void SetTailSize(int tailSize) { mTailSize = tailSize; }
 
+  /** Call this method if your ProcessBlock() method will handle bypass (defined by GetBypassed()) by itself.
+   * @param handle if true, ProcessBlock() respects GetBypassed() */
+  void SetWillHandleBypass(bool handle) { mWillHandleBypass = handle; }
+
   /** A static method to parse the config.h channel I/O string.
    * @param IOStr Space separated cstring list of I/O configurations for this plug-in in the format ninchans-noutchans.
    * A hypen character \c(-) deliminates input-output. Supports multiple buses, which are indicated using a period \c(.) character.
@@ -293,6 +300,8 @@ private:
   int mTailSize = 0;
   /** \c true if the plug-in is bypassed */
   bool mBypassed = false;
+  /** \c true if the plug-in should call ProcessBlock even if bypassed */
+  bool mWillHandleBypass = false;
   /** \c true if the plug-in is rendering off-line*/
   bool mRenderingOffline = false;
   /** A list of IOConfig structures populated by ParseChannelIOStr in the IPlugProcessor constructor */
