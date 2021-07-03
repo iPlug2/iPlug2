@@ -57,7 +57,7 @@ public:
   void CloseWindow() override;
   bool WindowIsOpen() override { return (mPlugWnd); }
 
-  void UpdateTooltips() override {}
+  void UpdateTooltips() override;
 
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
