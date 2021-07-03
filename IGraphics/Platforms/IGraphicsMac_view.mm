@@ -1218,6 +1218,8 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 {
   NSPasteboard *pPasteBoard = [sender draggingPasteboard];
 
+  mMouseOutDuringDrag = false;
+
   if ([[pPasteBoard types] containsObject:NSFilenamesPboardType])
     return NSDragOperationGeneric;
   else
