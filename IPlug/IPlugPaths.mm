@@ -321,14 +321,15 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
       NSString* pRootPath;
       
       if(isAppExtension)
+      {
         pRootPath = [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
+        #if TARGET_OS_MACCATALYST
+        pRootPath = [pRootPath stringByAppendingString: @"/Resources"];
+        #endif
+      }
       else
       {
-#ifdef TARGET_OS_MACCATALYST
         pRootPath = [pBundle resourcePath];
-#else
-        pRootPath = [pBundle bundlePath];
-#endif
       }
       
       NSString* pPath = [[[[pRootPath stringByAppendingString:@"/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
