@@ -210,7 +210,9 @@ void IGraphicsMac::ScreenToPoint(float& x, float& y) const
 
 void IGraphicsMac::HideMouseCursor(bool hide, bool lock)
 {
+#if AU_API
   if (!IsXPCAuHost())
+#endif
   {
     if (mCursorHidden == hide)
       return;
