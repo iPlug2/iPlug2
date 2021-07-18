@@ -242,6 +242,11 @@ bool IsXPCAuHost()
   return ([[[NSProcessInfo processInfo] processName] containsString:@"XPC"]);
 }
 
+bool IsOOPAuv3AppExtension()
+{
+  return ([[[NSBundle mainBundle] bundleIdentifier] containsString:@"AUv3"]);
+}
+
 #elif defined OS_IOS
 #pragma mark - IOS
 
@@ -257,7 +262,7 @@ void BundleResourcePath(WDL_String& path, PluginIDType bundleID)
 {
   NSBundle* pBundle = [NSBundle mainBundle];
     
-  if(IsAuv3AppExtension())
+  if(IsOOPAuv3AppExtension())
     pBundle = [NSBundle bundleWithPath: [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent]];
 
   path.Set([[pBundle resourcePath] UTF8String]);
@@ -372,7 +377,7 @@ bool IsXPCAuHost()
   return true;
 }
 
-bool IsAuv3AppExtension()
+bool IsOOPAuv3AppExtension()
 {
   return ([[[NSBundle mainBundle] bundleIdentifier] containsString:@"AUv3"]);
 }

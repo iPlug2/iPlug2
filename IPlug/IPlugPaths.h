@@ -97,12 +97,15 @@ extern const void* LoadWinResource(const char* resID, const char* type, int& siz
 /** @return \c true if the app is sandboxed (and therefore file access etc is restricted) */
 extern bool AppIsSandboxed();
 
-/** @return \c true if XPC au host (Typically Logic/Garageband on Apple Silicon)  */
+#if defined OS_MAC || defined OS_IOS
+
+/** @return \c true if XPC AUv2 host (Typically Logic/Garageband on Apple Silicon)  */
 extern bool IsXPCAuHost();
 
-#ifdef OS_IOS
-extern bool IsAuv3AppExtension();
+/** @return \c true if in an out-of-process AUv3  */
+extern bool IsOOPAuv3AppExtension();
+
 #endif
-  
+
 END_IPLUG_NAMESPACE
 
