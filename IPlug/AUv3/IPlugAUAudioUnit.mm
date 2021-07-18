@@ -591,6 +591,11 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
     if (err != 0) { return err; }
     
+    if (frameCount > pPlug->GetBlockSize()) {
+      err = kAudioUnitErr_TooManyFramesToProcess;
+      return err;
+    }
+    
     AudioBufferList* pInAudioBufferList = nil;
     
     if(inputBuses->GetSize())
