@@ -73,7 +73,7 @@
   AVAudioFormat* outputFormat = [avAudioUnit outputFormatForBus:0];
 
   if (inputFormat != nil)
-    [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: inputFormat];
+    [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: [[audioEngine inputNode] inputFormatForBus:0]];
 
   [audioEngine connect:avAudioUnit to:audioEngine.outputNode format: outputFormat];
 
