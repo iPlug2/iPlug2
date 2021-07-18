@@ -237,6 +237,11 @@ bool AppIsSandboxed()
     return false;
 }
 
+bool IsXPCAuHost()
+{
+  return ([[[NSProcessInfo processInfo] processName] containsString:@"XPC"]);
+}
+
 #elif defined OS_IOS
 #pragma mark - IOS
 
@@ -358,6 +363,12 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 
 bool AppIsSandboxed()
 {
+  return true;
+}
+
+bool IsXPCAuHost()
+{
+  // TODO: actually not allways the case if AUv3 is instantiated from framework
   return true;
 }
 

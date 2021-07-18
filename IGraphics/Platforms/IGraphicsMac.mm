@@ -210,7 +210,7 @@ void IGraphicsMac::ScreenToPoint(float& x, float& y) const
 
 void IGraphicsMac::HideMouseCursor(bool hide, bool lock)
 {
-  if (!AppIsSandboxed())
+  if (!IsXPCAuHost())
   {
     if (mCursorHidden == hide)
       return;
