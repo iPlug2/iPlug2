@@ -210,22 +210,25 @@ void IGraphicsMac::ScreenToPoint(float& x, float& y) const
 
 void IGraphicsMac::HideMouseCursor(bool hide, bool lock)
 {
-  if (mCursorHidden == hide)
-    return;
-  
-  mCursorHidden = hide;
-  
-  if (hide)
+  if (!AppIsSandboxed())
   {
-    StoreCursorPosition();
-    CGDisplayHideCursor(kCGDirectMainDisplay);
-    mCursorLock = lock;
-  }
-  else
-  {
-    DoCursorLock(mCursorX, mCursorY, mCursorX, mCursorY);
-    CGDisplayShowCursor(kCGDirectMainDisplay);
-    mCursorLock = false;
+    if (mCursorHidden == hide)
+      return;
+    
+    mCursorHidden = hide;
+    
+    if (hide)
+    {
+      StoreCursorPosition();
+      CGDisplayHideCursor(kCGDirectMainDisplay);
+      mCursorLock = lock;
+    }
+    else
+    {
+      DoCursorLock(mCursorX, mCursorY, mCursorX, mCursorY);
+      CGDisplayShowCursor(kCGDirectMainDisplay);
+      mCursorLock = false;
+    }
   }
 }
 
