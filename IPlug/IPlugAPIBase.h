@@ -77,7 +77,11 @@ public:
    * @param width The width the host offers
    * @param height The height the host offers
    * @return return \c true if your plug-in supports these dimensions */
-  virtual bool OnHostRequestingSupportedViewConfiguration(int width, int height) { return true; }
+  virtual bool OnHostRequestingSupportedViewConfiguration(int width, int height)
+  {
+    // Logic/GB offer one option with 0w, 0h, and if we allow that, our AUv3 has "our" size as its 100% setting
+    return ((width + height) == 0);
+  }
   
   /** Called by some AUv3 plug-in hosts when a particular UI size is selected
    * @param width The selected width
