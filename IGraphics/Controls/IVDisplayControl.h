@@ -43,13 +43,6 @@ public:
     AttachIControl(this, label);
   }
 
-  void Update(float v)
-  {
-    mBuffer[mReadPos] = v;
-    mReadPos = (mReadPos+1) % mBuffer.size();
-    SetDirty(false);
-  }
-  
   void OnResize() override
   {
     SetTargetRECT(MakeRects(mRECT));
@@ -115,6 +108,12 @@ public:
   
   void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
+    auto Update = [&](float v) {
+      mBuffer[mReadPos] = v;
+      mReadPos = (mReadPos+1) % mBuffer.size();
+      SetDirty(false);
+    };
+
     if (!IsDisabled() && msgTag == ISender<>::kUpdateMessage)
     {
       IByteStream stream(pData, dataSize);
@@ -123,7 +122,6 @@ public:
       ISenderData<1> d;
       pos = stream.Get(&d, pos);
       Update(d.vals[0]);
-      SetDirty(false);
     }
   }
   
