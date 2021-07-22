@@ -2477,6 +2477,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				DSTROOT = "$(VST2_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST2_DEFS)",
@@ -2496,6 +2497,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				DSTROOT = "$(VST2_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST2_DEFS)",
@@ -2515,6 +2517,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				DSTROOT = "$(VST2_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST2_DEFS)",
@@ -2546,6 +2549,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_HARDENED_RUNTIME = YES;
 				EXECUTABLE_EXTENSION = "";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -2582,6 +2586,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_EXTENSION = "";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -2618,6 +2623,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_EXTENSION = "";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -2641,6 +2647,7 @@
 			buildSettings = {
 				DEVELOPMENT_TEAM = "";
 				DSTROOT = "$(AU_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AU_DEFS)",
@@ -2669,6 +2676,7 @@
 			buildSettings = {
 				DEVELOPMENT_TEAM = "";
 				DSTROOT = "$(AU_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AU_DEFS)",
@@ -2697,6 +2705,7 @@
 			buildSettings = {
 				DEVELOPMENT_TEAM = "";
 				DSTROOT = "$(AU_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_AU_DEFS)",
@@ -2726,6 +2735,7 @@
 				CODE_SIGN_ENTITLEMENTS = "IPlugWebUI-macOS.entitlements";
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_APP_DEFS)",
 					"$(APP_DEFS)",
@@ -2752,6 +2762,7 @@
 				CODE_SIGN_ENTITLEMENTS = "IPlugWebUI-macOS.entitlements";
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_APP_DEFS)",
 					"$(APP_DEFS)",
@@ -2778,6 +2789,7 @@
 				CODE_SIGN_ENTITLEMENTS = "IPlugWebUI-macOS.entitlements";
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_APP_DEFS)",
 					"$(APP_DEFS)",
@@ -2816,6 +2828,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				FRAMEWORK_VERSION = A;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2869,6 +2882,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_NS_ASSERTIONS = NO;
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				FRAMEWORK_VERSION = A;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2923,6 +2937,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_NS_ASSERTIONS = NO;
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				FRAMEWORK_VERSION = A;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2962,6 +2977,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = "$(DEBUG_OPTIMIZE)";
 				PRODUCT_NAME = "All macOS";
@@ -2973,6 +2989,7 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				PRODUCT_NAME = "All macOS";
 				ZERO_LINK = NO;
 			};
@@ -2981,6 +2998,7 @@
 		4F78DAF413B643610032E0F3 /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				PRODUCT_NAME = "All macOS";
 			};
 			name = Tracer;
@@ -2990,6 +3008,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				DSTROOT = "$(VST3_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3_DEFS)",
@@ -3012,6 +3031,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				DSTROOT = "$(VST3_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3_DEFS)",
@@ -3034,6 +3054,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				DSTROOT = "$(VST3_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3_DEFS)",
@@ -3062,6 +3083,7 @@
 				CODE_SIGN_IDENTITY = "";
 				DEPLOYMENT_LOCATION = YES;
 				DSTROOT = "$(AAX_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3125,6 +3147,7 @@
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = "$(AAX_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3196,6 +3219,7 @@
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = "$(AAX_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3268,6 +3292,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				EXECUTABLE_EXTENSION = a;
 				EXECUTABLE_PREFIX = "";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3303,6 +3328,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_EXTENSION = a;
 				EXECUTABLE_PREFIX = "";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
@@ -3337,6 +3363,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				EXECUTABLE_EXTENSION = a;
 				EXECUTABLE_PREFIX = "";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(VST3C_DEFS)",
@@ -3360,6 +3387,7 @@
 				CODE_SIGN_ENTITLEMENTS = "IPlugWebUI-macOS.entitlements";
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_APP_DEFS)",
 					"$(APP_DEFS)",
@@ -3386,6 +3414,7 @@
 				CODE_SIGN_ENTITLEMENTS = "IPlugWebUI-macOS.entitlements";
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_APP_DEFS)",
 					"$(APP_DEFS)",
@@ -3412,6 +3441,7 @@
 				CODE_SIGN_ENTITLEMENTS = "IPlugWebUI-macOS.entitlements";
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_APP_DEFS)",
 					"$(APP_DEFS)",
@@ -3437,6 +3467,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				DSTROOT = "$(VST3_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3P_DEFS)",
@@ -3459,6 +3490,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				DSTROOT = "$(VST3_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3P_DEFS)",
@@ -3481,6 +3513,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
 				DSTROOT = "$(VST3_PATH)";
+				EXTRA_LNK_FLAGS = "-framework Metal -framework MetalKit -framework OpenGL -framework WebKit";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
 					"$(EXTRA_VST3P_DEFS)",
