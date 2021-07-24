@@ -456,7 +456,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return self;
 }
 
--(void) dealloc
+- (void) dealloc
 {
   mBufferedInputBuses.Empty(true);
   mBufferedOutputBuses.Empty(true);
