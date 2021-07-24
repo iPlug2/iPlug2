@@ -43,11 +43,10 @@
 
 - (void) viewDidLayoutSubviews
 {
-#if PLUG_HOST_RESIZE
-  if(self.audioUnit) {
+  if(self.audioUnit)
+  {
     [self.audioUnit hostResized: self.view.window.frame.size];
   }
-#endif
 }
 
 - (void) viewWillAppear:(BOOL)animated
