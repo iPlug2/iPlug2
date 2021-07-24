@@ -866,7 +866,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
 - (void) hostResized:(CGSize) newSize
 {
-  mPlug->OnParentWindowResize(newSize.width, newSize.height);
+  if (mPlug->GetHostResizeEnabled())
+    mPlug->OnParentWindowResize(newSize.width, newSize.height);
 }
 
 - (bool) sendMidiData:(int64_t) sampleTime : (NSInteger) length : (const uint8_t*) midiBytes
