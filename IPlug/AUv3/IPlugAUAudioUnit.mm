@@ -504,8 +504,14 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   if(mBufferedInputBuses.GetSize())
     reqNumInputChannels = mBufferedInputBuses.Get(0)->bus.format.channelCount;
   
-  if(mBufferedOutputBuses.GetSize())
-    reqNumOutputChannels = mBufferedOutputBuses.Get(0)->bus.format.channelCount;
+  int nOutputBuses = mBufferedOutputBuses.GetSize();
+  
+  if(nOutputBuses) {
+    for (auto busIdx=0; busIdx<nOutputBuses; busIdx++) {
+      reqNumOutputChannels += mBufferedOutputBuses.Get(busIdx)->bus.format.channelCount;
+    }
+  }
+  
   
 //  // TODO: legal io doesn't consider sidechain inputs
 //  if (!mPlug->LegalIO(reqNumInputChannels, reqNumOutputChannels))
@@ -535,7 +541,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     mBufferedInputBuses.Get(bufIdx)->allocateRenderResources(self.maximumFramesToRender);
   }
   
-  for (auto bufIdx = 0; bufIdx < mBufferedOutputBuses.GetSize(); bufIdx++)
+  for (auto bufIdx = 0; bufIdx < nOutputBuses; bufIdx++)
   {
     mBufferedOutputBuses.Get(bufIdx)->allocateRenderResources(self.maximumFramesToRender);
   }
