@@ -150,13 +150,19 @@ void IPlugAUv3::ProcessWithEvents(AudioTimeStamp const* pTimestamp, uint32_t fra
       case AURenderEventParameterRamp:
       {
         const AUParameterEvent& paramEvent = pEvent->parameter;
-        const int paramIdx = GetParamIdx(paramEvent.parameterAddress);
-        const double value = (double) paramEvent.value;
-        const int sampleOffset = (int) (paramEvent.eventSampleTime - now);
-        ENTER_PARAMS_MUTEX
-        GetParam(paramIdx)->Set(value);
-        LEAVE_PARAMS_MUTEX
-        OnParamChange(paramIdx, EParamSource::kHost, sampleOffset);
+        
+        if (paramEvent.parameterAddress < NParams())
+        {
+          const int paramIdx = GetParamIdx(paramEvent.parameterAddress);
+          
+          const double value = (double) paramEvent.value;
+          const int sampleOffset = (int) (paramEvent.eventSampleTime - now);
+          ENTER_PARAMS_MUTEX
+          GetParam(paramIdx)->Set(value);
+          LEAVE_PARAMS_MUTEX
+          OnParamChange(paramIdx, EParamSource::kHost, sampleOffset);
+        }
+
         break;
       }
       break;
@@ -213,21 +219,27 @@ void IPlugAUv3::ProcessWithEvents(AudioTimeStamp const* pTimestamp, uint32_t fra
 // this is called on a secondary thread (not main thread, not audio thread)
 void IPlugAUv3::SetParameterFromValueObserver(uint64_t address, float value)
 {
-  const int paramIdx = GetParamIdx(address);
+  if (address < NParams())
+  {
+    const int paramIdx = GetParamIdx(address);
 
-  ENTER_PARAMS_MUTEX
-  IParam* pParam = GetParam(paramIdx);
-  assert(pParam);
-  pParam->Set((double) value);
-  LEAVE_PARAMS_MUTEX  
-  OnParamChange(paramIdx, kHost, -1);
+    ENTER_PARAMS_MUTEX
+    IParam* pParam = GetParam(paramIdx);
+    assert(pParam);
+    pParam->Set((double) value);
+    LEAVE_PARAMS_MUTEX
+    OnParamChange(paramIdx, kHost, -1);
+  }
 }
 
 void IPlugAUv3::SendParameterValueFromObserver(uint64_t address, float value)
 {
-  const int paramIdx = GetParamIdx(address);
-  
-  SendParameterValueFromAPI(paramIdx, value, false); // will trigger OnParamChangeUI()
+  if (address < NParams())
+  {
+    const int paramIdx = GetParamIdx(address);
+    
+    SendParameterValueFromAPI(paramIdx, value, false); // will trigger OnParamChangeUI()
+  }
 }
 
 float IPlugAUv3::GetParameter(uint64_t address)
