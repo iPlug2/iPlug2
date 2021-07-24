@@ -272,9 +272,10 @@ float IPlugAUv3::GetParamStringToValue(uint64_t address, const char* str)
   return val;
 }
 
-void IPlugAUv3::SetBuffers(AudioBufferList* pInBufList, AudioBufferList* pOutBufList, uint32_t outBusNumber)
+void IPlugAUv3::AttachInputBuffers(AudioBufferList* pInBufList)
 {
   int chanIdx = 0;
+  
   if(pInBufList)
   {
     for(int i = 0; i < pInBufList->mNumberBuffers; i++)
@@ -284,10 +285,15 @@ void IPlugAUv3::SetBuffers(AudioBufferList* pInBufList, AudioBufferList* pOutBuf
       AttachBuffers(ERoute::kInput, chanIdx, nConnected, (float**) &(pInBufList->mBuffers[i].mData), GetBlockSize());
       chanIdx += nConnected;
     }
+    
+    SetChannelConnections(ERoute::kInput, chanIdx, MaxNChannels(kInput) - chanIdx, false);
   }
-  
-  chanIdx = 0;
-  
+}
+
+void IPlugAUv3::AttachOutputBuffers(AudioBufferList* pOutBufList, uint32_t busNumber)
+{
+  int chanIdx = 0;
+
   if(pOutBufList)
   {
     int numChannelsInBus = pOutBufList->mNumberBuffers; // TODO: this assumes all busses have the same channel count
@@ -295,15 +301,18 @@ void IPlugAUv3::SetBuffers(AudioBufferList* pInBufList, AudioBufferList* pOutBuf
     for(int i = 0; i < pOutBufList->mNumberBuffers; i++)
     {
       int nConnected = pOutBufList->mBuffers[i].mNumberChannels;
-      SetChannelConnections(ERoute::kOutput, (outBusNumber * numChannelsInBus) + chanIdx, nConnected, true);
-      AttachBuffers(ERoute::kOutput, (outBusNumber * numChannelsInBus) + chanIdx, nConnected, (float**) &(pOutBufList->mBuffers[i].mData), GetBlockSize());
+      SetChannelConnections(ERoute::kOutput, (busNumber * numChannelsInBus) + chanIdx, nConnected, true);
+      AttachBuffers(ERoute::kOutput, (busNumber * numChannelsInBus) + chanIdx, nConnected, (float**) &(pOutBufList->mBuffers[i].mData), GetBlockSize());
       chanIdx += nConnected;
     }
+    SetChannelConnections(ERoute::kInput, chanIdx, MaxNChannels(kOutput) - chanIdx, false);
   }
 }
 
 void IPlugAUv3::Prepare(double sampleRate, uint32_t blockSize)
 {
+  SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
+  SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), false);
   SetBlockSize(blockSize);
   SetSampleRate(sampleRate);
 }
