@@ -63,7 +63,8 @@ public:
   float GetParameter(uint64_t address);
   const char* GetParamDisplay(uint64_t address, float value);
   float GetParamStringToValue(uint64_t address, const char* str);
-  void SetBuffers(AudioBufferList* pInBufferList, AudioBufferList* pOutBufferList, uint32_t outBusNumber);
+  void AttachInputBuffers(AudioBufferList* pInBufferList);
+  void AttachOutputBuffers(AudioBufferList* pOutBufferList, uint32_t busNumber);
   void Prepare(double sampleRate, uint32_t blockSize);
   void AddParamAddress(int paramIdx, uint64_t paramAddress) { mParamAddressMap.Insert(paramIdx, paramAddress); }
   uint64_t GetParamAddress(int paramIdx) { return mParamAddressMap.Get(paramIdx); }
