@@ -79,13 +79,13 @@
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveNotification:) name:@"LaunchBTMidiDialog" object:nil];
 }
 
--(void) receiveNotification:(NSNotification*) notification
+- (void) receiveNotification:(NSNotification*) notification
 {
   if ([notification.name isEqualToString:@"LaunchBTMidiDialog"])
   {
-    NSDictionary* dic = notification.userInfo;
-    NSNumber* x = (NSNumber*) dic[@"x"];
-    NSNumber* y = (NSNumber*) dic[@"y"];
+    NSDictionary* dict = notification.userInfo;
+    NSNumber* x = (NSNumber*) dict[@"x"];
+    NSNumber* y = (NSNumber*) dict[@"y"];
    
     CABTMIDICentralViewController* vc = [[CABTMIDICentralViewController alloc] init];
     UINavigationController* nc = [[UINavigationController alloc] initWithRootViewController:vc];
@@ -109,7 +109,7 @@
 
   view.translatesAutoresizingMaskIntoConstraints = NO;
 
-  NSArray *constraints = [NSLayoutConstraint constraintsWithVisualFormat: @"H:|[view]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(view)];
+  NSArray* constraints = [NSLayoutConstraint constraintsWithVisualFormat: @"H:|[view]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(view)];
   [auView addConstraints: constraints];
 
   constraints = [NSLayoutConstraint constraintsWithVisualFormat: @"V:|[view]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(view)];
