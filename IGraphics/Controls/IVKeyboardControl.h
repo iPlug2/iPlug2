@@ -197,6 +197,7 @@ public:
     }
 
     mTargetRECT = mRECT;
+    RecreateKeyBounds(true);
     SetDirty(false);
   }
 
