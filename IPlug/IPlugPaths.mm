@@ -147,26 +147,28 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
     
     bool isCorrectType = !strcasecmp(ext, searchExt);
     
+    bool isAppExtension = IsOOPAuv3AppExtension();
+    
     NSBundle* pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
-    NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
-
+    
+    NSString* pFile = [[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] stringByDeletingPathExtension];
+    NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
+    
     if (isCorrectType && pBundle && pFile)
     {
-      NSString* pPath = [pBundle pathForResource:pFile ofType:[NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding]];
-
-      if (!pPath)
+      NSString* pBasePath;
+      
+      if(isAppExtension)
+        pBasePath = [[[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent] stringByAppendingString:@"/Resources/"];
+      else
+        pBasePath = [[pBundle resourcePath] stringByAppendingString:@"/"];
+      
+      NSString* pPath = [[[pBasePath stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
+      
+      if (pPath && [[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
       {
-        pFile = [[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] stringByDeletingPathExtension];
-        pPath = [pBundle pathForResource:pFile ofType:[NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding]];
-      }
-        
-      if (pPath)
-      {
-        if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
-        {
-          fullPath.Set([pPath cString]);
-          return true;
-        }
+        fullPath.Set([pPath cStringUsingEncoding:NSUTF8StringEncoding]);
+        return true;
       }
     }
     
@@ -190,13 +192,13 @@ bool GetResourcePathFromSharedLocation(const char* fileName, const char* searchE
       
     if (isCorrectType && pFile)
     {
-      WDL_String musicFolder;
-      SandboxSafeAppSupportPath(musicFolder);
+      WDL_String musicPath;
+      SharedMusicPath(musicPath);
 
       if(subfolder)
       {
         NSString* pPluginName = [NSString stringWithCString: subfolder encoding:NSUTF8StringEncoding];
-        NSString* pMusicLocation = [NSString stringWithCString: musicFolder.Get() encoding:NSUTF8StringEncoding];
+        NSString* pMusicLocation = [NSString stringWithCString: musicPath.Get() encoding:NSUTF8StringEncoding];
         NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
 
         if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
@@ -216,9 +218,11 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 {
   if(CStringHasContents(name))
   {
+#ifndef AUv3_API
     // first check this bundle
     if(GetResourcePathFromBundle(name, type, result, bundleID))
       return EResourceLocation::kAbsolutePath;
+#endif
     
     // then check ~/Music/sharedResourcesSubPath, which is a shared folder that can be accessed from app sandbox
     if(GetResourcePathFromSharedLocation(name, type, result, sharedResourcesSubPath))
@@ -312,16 +316,15 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
     
     bool isCorrectType = !strcasecmp(ext, searchExt);
     
-    bool isAppExtension = false;
+    bool isAppExtension = IsOOPAuv3AppExtension();
     
-    NSBundle* pBundle = [NSBundle mainBundle];
-    
-    if([[pBundle bundleIdentifier] containsString:@"AUv3"])
-      isAppExtension = true;
+    NSBundle* pBundle;
     
     if(isAppExtension)
       pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
-    
+    else
+      pBundle = [NSBundle mainBundle];
+
     NSString* pFile = [[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] stringByDeletingPathExtension];
     NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
     
