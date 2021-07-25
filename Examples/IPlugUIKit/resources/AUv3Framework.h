@@ -6,10 +6,9 @@
 #import <Cocoa/Cocoa.h>
 #endif
 
-#import "IPlugCocoaViewController.h"
-#import "IPlugAUViewController.h"
-
-#include "IPlugUIKit-Bridging-Header.h"
+#import <AUv3Framework/IPlugCocoaViewController.h>
+#import <AUv3Framework/IPlugAUViewController.h>
+#import <AUv3Framework/IPlugUIKit-Shared.h>
 
 //! Project version number for AUv3Framework.
 FOUNDATION_EXPORT double AUv3FrameworkVersionNumber;

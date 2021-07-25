@@ -1,27 +1,26 @@
 public typealias MIDINoteNumber = UInt8
 public typealias MIDIVelocity = UInt8
 
+func floatValue(data: Data) -> Float {
+  return Float(bitPattern: UInt32(littleEndian: data.withUnsafeBytes { $0.load(fromByteOffset: 12, as: UInt32.self) }))
+}
+
 class IPlugUIKitViewController: IPlugCocoaViewController {
   
   @IBOutlet var Sliders: [UISlider]!
+  @IBOutlet weak var MeterView: UIProgressView!
   
   override func viewDidLoad() {
     super.viewDidLoad()
   }
 
-  override func onMessage(_ msgTag: Int, _ ctrlTag: Int, _ msg: Data!) -> Bool {
-    if(msgTag == kMsgTagData)
-    {
-      msg.withUnsafeBytes { (outputBytes: UnsafeRawBufferPointer) in
-//        let floatData = outputBytes.bindMemory(to: Float.self)
-//        let mutablePtr = UnsafeMutablePointer<Float>.init(mutating: floatData.baseAddress)
-        // TODO: handle incoming buffer data
-      }
-
-      return true
+  override func sendControlMsgFromDelegate(ctrlTag: Int, msgTag: Int, msg: Data!) {
+    if msgTag==kUpdateMessage {
+      let db = 20.0 * log10(floatValue(data: msg) + 0.0001);
+      let val = ((db+80.0)/80.0); // dirty linear to log
+      
+      MeterView.setProgress(val, animated: false)
     }
-    
-    return false
   }
   
   override func onMidiMsgUI(_ status: UInt8, _ data1: UInt8, _ data2: UInt8, _ offset: Int) {
