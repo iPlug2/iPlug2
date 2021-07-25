@@ -17,5 +17,5 @@ public:
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
   void OnParamChange(int paramIdx) override;
   
-  ISender<> mSender;
+  IPeakSender<> mSender;
 };

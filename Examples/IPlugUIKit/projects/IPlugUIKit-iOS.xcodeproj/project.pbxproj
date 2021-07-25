@@ -10,8 +10,8 @@
 		4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103420A0E55900D3092F /* IPlugProcessor.cpp */; };
 		4F10E7C020B17EDB00F5B09B /* IPlugUIKit-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugUIKit-iOS-MainInterface.storyboard */; };
 		4F1115CF2296DA95000CFCBF /* IPlugUIKit-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugUIKit-iOS-MainInterface.storyboard */; };
+		4F246F2026ADEBC2006E881F /* IPlugUIKit-Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F246F1F26ADEAEA006E881F /* IPlugUIKit-Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F2A09C7267A964600098867 /* IPlugCocoaEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F2A09C3267A964600098867 /* IPlugCocoaEditorDelegate.mm */; };
-		4F2A09C8267A964600098867 /* IPlugCocoaEditorDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F2A09C4267A964600098867 /* IPlugCocoaEditorDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F2A09C9267A964600098867 /* IPlugCocoaViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F2A09C5267A964600098867 /* IPlugCocoaViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F2A09CA267A964600098867 /* IPlugCocoaViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F2A09C6267A964600098867 /* IPlugCocoaViewController.mm */; };
 		4F2A09CB267A96E300098867 /* IPlugAUViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FFF105620A0E57100D3092F /* IPlugAUViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -33,7 +33,6 @@
 		4FA61F8622E89B2000A92C58 /* IPlugAUv3.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105820A0E57100D3092F /* IPlugAUv3.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FA61F9222E8A2B500A92C58 /* IPlugUIKit.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF108720A1036200D3092F /* IPlugUIKit.mm */; };
 		4FB2269720A0D3A800614769 /* IPlugUIKit-iOS-LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugUIKit-iOS-LaunchScreen.storyboard */; };
-		4FDCA0C0268E305F007C8124 /* IPlugUIKit-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDCA0BF268E305F007C8124 /* IPlugUIKit-Bridging-Header.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D732267CE540007B686 /* AppViewController.mm */; };
 		4FDF6D792267CE540007B686 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D742267CE540007B686 /* main.m */; };
 		4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D752267CE540007B686 /* AppDelegate.m */; };
@@ -88,6 +87,7 @@
 		4F10E7BF20B17EDB00F5B09B /* IPlugUIKit-iOS-MainInterface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugUIKit-iOS-MainInterface.storyboard"; path = "../resources/IPlugUIKit-iOS-MainInterface.storyboard"; sourceTree = "<group>"; };
 		4F10E7C520B189DD00F5B09B /* IPlugUIKit-iOS.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "IPlugUIKit-iOS.entitlements"; sourceTree = "<group>"; };
 		4F2020F620A1B2B500F22200 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
+		4F246F1F26ADEAEA006E881F /* IPlugUIKit-Shared.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "IPlugUIKit-Shared.h"; path = "../IPlugUIKit-Shared.h"; sourceTree = "<group>"; };
 		4F2602DB2269F79200C7E97E /* tex */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tex; path = ../resources/tex; sourceTree = "<group>"; };
 		4F2A09C3267A964600098867 /* IPlugCocoaEditorDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugCocoaEditorDelegate.mm; sourceTree = "<group>"; };
 		4F2A09C4267A964600098867 /* IPlugCocoaEditorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugCocoaEditorDelegate.h; sourceTree = "<group>"; };
@@ -427,6 +427,7 @@
 			children = (
 				4FFF108420A1036200D3092F /* config.h */,
 				4FDCA0BF268E305F007C8124 /* IPlugUIKit-Bridging-Header.h */,
+				4F246F1F26ADEAEA006E881F /* IPlugUIKit-Shared.h */,
 				4FFF108820A1036200D3092F /* IPlugUIKit.h */,
 				4FFF108720A1036200D3092F /* IPlugUIKit.mm */,
 				4FE2AB12268F5B3800206378 /* IPlugUIKitViewController.swift */,
@@ -455,10 +456,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FDCA0C0268E305F007C8124 /* IPlugUIKit-Bridging-Header.h in Headers */,
-				4F2A09C9267A964600098867 /* IPlugCocoaViewController.h in Headers */,
-				4F2A09C8267A964600098867 /* IPlugCocoaEditorDelegate.h in Headers */,
+				4F246F2026ADEBC2006E881F /* IPlugUIKit-Shared.h in Headers */,
 				4FA61F7C22E89A5900A92C58 /* AUv3Framework.h in Headers */,
+				4F2A09C9267A964600098867 /* IPlugCocoaViewController.h in Headers */,
 				4F2A09CB267A96E300098867 /* IPlugAUViewController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
