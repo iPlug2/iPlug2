@@ -100,7 +100,7 @@ public:
   /** @return Sample rate (in Hz) */
   double GetSampleRate() const { return mSampleRate; }
 
-  /** @return Current block size in samples */
+  /** @return Maximum block size in samples, actual blocksize may vary each ProcessBlock() */
   int GetBlockSize() const { return mBlockSize; }
 
   /** @return Plugin latency (in samples) */
