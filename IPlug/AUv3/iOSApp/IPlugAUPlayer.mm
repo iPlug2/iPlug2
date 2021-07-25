@@ -9,6 +9,7 @@
 */
 
 #import "IPlugAUPlayer.h"
+#include "IPlugConstants.h"
 #include "config.h"
 
 #if !__has_feature(objc_arc)
@@ -30,14 +31,6 @@
     audioEngine = [[AVAudioEngine alloc] init];
     componentType = unitComponentType;
   }
-  
-#if TARGET_OS_IPHONE
-  NSError* error = nil;
-  BOOL success = [[AVAudioSession sharedInstance] setCategory:AVAudioSessionCategoryPlayback error:&error];
-  
-  if (success == NO)
-    NSLog (@"Error setting category: %@", [error localizedDescription]);
-#endif
 
   return self;
 }
@@ -46,8 +39,7 @@
                                    completion:(void (^) (void))completionBlock
 {
   [AVAudioUnit instantiateWithComponentDescription:desc options:0
-                                 completionHandler:^(AVAudioUnit* __nullable audioUnit, NSError* __nullable error)
-                                 {
+                                 completionHandler:^(AVAudioUnit* __nullable audioUnit, NSError* __nullable error) {
                                    [self onAudioUnitInstantiated:audioUnit error:error completion:completionBlock];
                                  }];
 }
@@ -62,29 +54,56 @@
   self.currentAudioUnit = avAudioUnit.AUAudioUnit;
   
   AVAudioSession* session = [AVAudioSession sharedInstance];
+  
+#if PLUG_TYPE == 1
+  [session setCategory: AVAudioSessionCategoryPlayback error:&error];
+#else
   [session setCategory: AVAudioSessionCategoryPlayAndRecord error:&error];
-//  [session overrideOutputAudioPort:AVAudioSessionPortOverrideSpeaker error:&error];
-  [session setPreferredSampleRate:44100. error:nil];
-  [session setPreferredIOBufferDuration:0.005 error:nil];
+#endif
+  
+  [session setPreferredSampleRate:iplug::DEFAULT_SAMPLE_RATE error:nil];
+  [session setPreferredIOBufferDuration:128.0/iplug::DEFAULT_SAMPLE_RATE error:nil];
   AVAudioMixerNode* mainMixer = [audioEngine mainMixerNode];
   mainMixer.outputVolume = 1;
   [audioEngine attachNode:avAudioUnit];
-  AVAudioFormat* inputFormat = [avAudioUnit inputFormatForBus:0];
-  AVAudioFormat* outputFormat = [avAudioUnit outputFormatForBus:0];
-
-  if (inputFormat != nil)
-    [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: [[audioEngine inputNode] inputFormatForBus:0]];
-
-  [audioEngine connect:avAudioUnit to:audioEngine.outputNode format: outputFormat];
-
-  [self start];
   
-  completionBlock();
-}
+#if PLUG_TYPE != 1
+  AVAudioFormat* micInputFormat = [[audioEngine inputNode] inputFormatForBus:0];
+  AVAudioFormat* pluginInputFormat = [avAudioUnit inputFormatForBus:0];
+#endif
+  
+  AVAudioFormat* pluginOutputFormat = [avAudioUnit outputFormatForBus:0];
 
-- (void) start
-{
-  NSError* error = nil;
+  NSLog (@"Session SR: %f", session.sampleRate);
+  NSLog (@"Session IO Buffer: %i", int((session.IOBufferDuration * session.sampleRate)+0.5));
+  
+#if PLUG_TYPE != 1
+  NSLog (@"Mic Input SR: %f", micInputFormat.sampleRate);
+  NSLog (@"Mic Input Chans: %i", micInputFormat.channelCount);
+  NSLog (@"Plugin Input SR: %f", pluginInputFormat.sampleRate);
+  NSLog (@"Plugin Input Chans: %i", pluginInputFormat.channelCount);
+#endif
+  
+#if PLUG_TYPE != 1
+  if (pluginInputFormat != nil)
+    [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: micInputFormat];
+#endif
+  
+  auto numOutputBuses = [avAudioUnit numberOfOutputs];
+  
+  if (numOutputBuses > 1)
+  {
+    // Assume all output buses are the same format
+    for (int busIdx=0; busIdx<numOutputBuses; busIdx++)
+    {
+      [audioEngine connect:avAudioUnit to:mainMixer fromBus: busIdx toBus:[mainMixer nextAvailableInputBus] format:pluginOutputFormat];
+    }
+  }
+  else
+  {
+    [audioEngine connect:avAudioUnit to:audioEngine.outputNode format: pluginOutputFormat];
+  }
+  
   BOOL success = [[AVAudioSession sharedInstance] setActive:TRUE error:nil];
   
   if (success == NO)
@@ -92,6 +111,8 @@
   
   if (![audioEngine startAndReturnError:&error])
     NSLog (@"engine failed to start: %@", error);
+  
+  completionBlock();
 }
 
 @end
