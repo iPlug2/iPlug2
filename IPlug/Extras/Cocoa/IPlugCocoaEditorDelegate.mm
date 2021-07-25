@@ -35,6 +35,7 @@ void* CocoaEditorDelegate::OpenWindow(void* pParent)
 
 void CocoaEditorDelegate::CloseWindow()
 {
+  mViewController = nil;
 }
 
 bool CocoaEditorDelegate::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)

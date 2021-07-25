@@ -32,7 +32,7 @@
   void* editorDelegate;
 }
 
-- (void)setEditorDelegate: (void*) editorDelegate;
+- (void) setEditorDelegate: (void*) editorDelegate;
 
 - (BOOL) onMessage: (NSInteger) msgTag : (NSInteger) ctrlTag : (NSData*) msg;
 - (void) onParamChangeUI: (NSInteger) paramIdx : (double) value;
