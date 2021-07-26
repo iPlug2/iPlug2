@@ -19,7 +19,7 @@
 
 @interface IPlugAUViewController : AUViewController <AUAudioUnitFactory>
 
-@property (nonatomic, retain) IPlugAUAudioUnit *audioUnit;
+@property (nonatomic, retain) IPlugAUAudioUnit* audioUnit;
 - (void) setAudioUnit:(IPlugAUAudioUnit*) audioUnit;
 - (void) audioUnitInitialized;
 - (AUAudioUnit*) getAudioUnit;
