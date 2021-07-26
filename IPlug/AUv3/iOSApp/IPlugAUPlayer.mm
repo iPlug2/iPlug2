@@ -27,7 +27,8 @@
 {
   self = [super init];
   
-  if (self) {
+  if (self)
+  {
     audioEngine = [[AVAudioEngine alloc] init];
     componentType = unitComponentType;
   }
@@ -74,14 +75,14 @@
   
   AVAudioFormat* pluginOutputFormat = [avAudioUnit outputFormatForBus:0];
 
-  NSLog (@"Session SR: %f", session.sampleRate);
-  NSLog (@"Session IO Buffer: %i", int((session.IOBufferDuration * session.sampleRate)+0.5));
+  NSLog(@"Session SR: %i", int(session.sampleRate));
+  NSLog(@"Session IO Buffer: %i", int((session.IOBufferDuration * session.sampleRate)+0.5));
   
 #if PLUG_TYPE != 1
-  NSLog (@"Mic Input SR: %f", micInputFormat.sampleRate);
-  NSLog (@"Mic Input Chans: %i", micInputFormat.channelCount);
-  NSLog (@"Plugin Input SR: %f", pluginInputFormat.sampleRate);
-  NSLog (@"Plugin Input Chans: %i", pluginInputFormat.channelCount);
+  NSLog(@"Mic Input SR: %i", int(micInputFormat.sampleRate));
+  NSLog(@"Mic Input Chans: %i", micInputFormat.channelCount);
+  NSLog(@"Plugin Input SR: %i", int(pluginInputFormat.sampleRate));
+  NSLog(@"Plugin Input Chans: %i", pluginInputFormat.channelCount);
 #endif
   
 #if PLUG_TYPE != 1
@@ -107,10 +108,10 @@
   BOOL success = [[AVAudioSession sharedInstance] setActive:TRUE error:nil];
   
   if (success == NO)
-    NSLog (@"Error setting category: %@", [error localizedDescription]);
+    NSLog(@"Error setting category: %@", [error localizedDescription]);
   
   if (![audioEngine startAndReturnError:&error])
-    NSLog (@"engine failed to start: %@", error);
+    NSLog(@"engine failed to start: %@", error);
   
   completionBlock();
 }
