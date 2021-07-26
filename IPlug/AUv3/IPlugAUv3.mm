@@ -276,9 +276,9 @@ void IPlugAUv3::AttachInputBuffers(AudioBufferList* pInBufList)
 {
   int chanIdx = 0;
   
-  if(pInBufList)
+  if (pInBufList)
   {
-    for(int i = 0; i < pInBufList->mNumberBuffers; i++)
+    for (int i = 0; i < pInBufList->mNumberBuffers; i++)
     {
       int nConnected = pInBufList->mBuffers[i].mNumberChannels;
       SetChannelConnections(ERoute::kInput, chanIdx, nConnected, true);
@@ -294,11 +294,11 @@ void IPlugAUv3::AttachOutputBuffers(AudioBufferList* pOutBufList, uint32_t busNu
 {
   int chanIdx = 0;
 
-  if(pOutBufList)
+  if (pOutBufList)
   {
     int numChannelsInBus = pOutBufList->mNumberBuffers; // TODO: this assumes all busses have the same channel count
     
-    for(int i = 0; i < pOutBufList->mNumberBuffers; i++)
+    for (int i = 0; i < pOutBufList->mNumberBuffers; i++)
     {
       int nConnected = pOutBufList->mBuffers[i].mNumberChannels;
       SetChannelConnections(ERoute::kOutput, (busNumber * numChannelsInBus) + chanIdx, nConnected, true);
