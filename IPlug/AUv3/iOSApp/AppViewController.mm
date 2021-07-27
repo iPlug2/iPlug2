@@ -24,8 +24,8 @@
 @interface AppViewController ()
 {
   IPlugAUPlayer* player;
-  IPlugAUViewController* iplugViewController;
-  IBOutlet UIView *auView;
+  IPlugAUViewController* pluginVC;
+  IBOutlet UIView* auView;
 }
 @end
 
@@ -43,8 +43,8 @@
 #if PLUG_HAS_UI
   NSString* storyBoardName = [NSString stringWithFormat:@"%s-iOS-MainInterface", PLUG_NAME];
   UIStoryboard* storyboard = [UIStoryboard storyboardWithName:storyBoardName bundle: nil];
-  iplugViewController = [storyboard instantiateViewControllerWithIdentifier:@"main"];
-  [self addChildViewController:iplugViewController];
+  pluginVC = [storyboard instantiateViewControllerWithIdentifier:@"main"];
+  [self addChildViewController:pluginVC];
 #endif
   
   AudioComponentDescription desc;
@@ -71,7 +71,7 @@
   player = [[IPlugAUPlayer alloc] initWithComponentType:desc.componentType];
 
   [player loadAudioUnitWithComponentDescription:desc completion:^{
-    self->iplugViewController.audioUnit = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
+    self->pluginVC.audioUnit = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
 
     [self embedPlugInView];
   }];
@@ -103,7 +103,7 @@
 - (void) embedPlugInView
 {
 #if PLUG_HAS_UI
-  UIView* view = iplugViewController.view;
+  UIView* view = pluginVC.view;
   view.frame = auView.bounds;
   [auView addSubview: view];
 
