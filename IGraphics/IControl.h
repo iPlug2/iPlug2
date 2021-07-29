@@ -1715,7 +1715,7 @@ public:
   /** Creates an IDirBrowseControlBase
    * @param bounds The control's bounds
    * @param extension The file extenstion to browse for, e.g excluding the dot e.g. "txt"
-   * @param showFileExtension Should the meu show the file extension */
+   * @param showFileExtension Should the menu show the file extension */
   IDirBrowseControlBase(const IRECT& bounds, const char* extension, bool showFileExtensions = true)
   : IControl(bounds)
   , mShowFileExtensions(showFileExtensions)
