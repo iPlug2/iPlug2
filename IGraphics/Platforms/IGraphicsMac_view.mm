@@ -158,8 +158,8 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
 {
   [self initWithTitle: @""];
 
-  NSMenuItem* nsMenuItem;
-  NSMutableString* nsMenuItemTitle;
+  NSMenuItem* nsMenuItem = nil;
+  NSMutableString* nsMenuItemTitle = nil;
 
   [self setAutoenablesItems:NO];
 
@@ -204,7 +204,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
       [nsMenuItem setTarget:pView];
     }
     
-    if (!pMenuItem->GetIsSeparator())
+    if (nsMenuItem && !pMenuItem->GetIsSeparator())
     {
       [nsMenuItem setIndentationLevel:pMenuItem->GetIsTitle() ? 1 : 0 ];
       [nsMenuItem setEnabled:pMenuItem->GetEnabled() ? YES : NO];
