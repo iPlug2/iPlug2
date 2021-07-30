@@ -4,10 +4,6 @@ struct ContentView: View {
   @EnvironmentObject var state: IPlugSwiftUIState
   var body: some View {
     HStack {
-//      ForEach($state.params) { $param in
-//        Knob(value: $param.value, range: 0...100, title: param.name)
-//      }
-//      Knob(value: $state.params[kParamGain].value, range: 0...1, title: "Hello")
       ParamSliderView(param: state.params[kParamGain])
       ParamSliderView(param: state.params[kParamFreq])
       VUSwiftUIView(onRender: {

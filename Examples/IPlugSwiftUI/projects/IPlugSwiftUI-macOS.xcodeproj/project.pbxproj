@@ -273,14 +273,6 @@
 		4FFF678E268102990002B341 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF676F268102990002B341 /* ContentView.swift */; };
 		4FFF678F268102990002B341 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF676F268102990002B341 /* ContentView.swift */; };
 		4FFF6790268102990002B341 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF676F268102990002B341 /* ContentView.swift */; };
-		4FFF6791268102990002B341 /* KnobView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF6770268102990002B341 /* KnobView.swift */; };
-		4FFF6792268102990002B341 /* KnobView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF6770268102990002B341 /* KnobView.swift */; };
-		4FFF6793268102990002B341 /* KnobView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF6770268102990002B341 /* KnobView.swift */; };
-		4FFF6794268102990002B341 /* KnobView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF6770268102990002B341 /* KnobView.swift */; };
-		4FFF6795268102990002B341 /* KnobView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF6770268102990002B341 /* KnobView.swift */; };
-		4FFF6796268102990002B341 /* KnobView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF6770268102990002B341 /* KnobView.swift */; };
-		4FFF6797268102990002B341 /* KnobView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF6770268102990002B341 /* KnobView.swift */; };
-		4FFF6798268102990002B341 /* KnobView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF6770268102990002B341 /* KnobView.swift */; };
 		6F7CCF1B267A334C00EBB12A /* IPlugCocoaViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6F7CCF1A267A32C500EBB12A /* IPlugCocoaViewController.mm */; };
 		6F7CCF1C267A334C00EBB12A /* IPlugCocoaEditorDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6F7CCF17267A32C500EBB12A /* IPlugCocoaEditorDelegate.mm */; };
 		6F7CCF1D267A334C00EBB12A /* IPlugCocoaViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6F7CCF1A267A32C500EBB12A /* IPlugCocoaViewController.mm */; };
@@ -714,7 +706,6 @@
 		4FFF676D268102990002B341 /* IPlugSwiftUIState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = IPlugSwiftUIState.swift; path = ../UI/IPlugSwiftUIState.swift; sourceTree = "<group>"; };
 		4FFF676E268102990002B341 /* TypeAliases.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TypeAliases.swift; path = ../UI/TypeAliases.swift; sourceTree = "<group>"; };
 		4FFF676F268102990002B341 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = ../UI/ContentView.swift; sourceTree = "<group>"; };
-		4FFF6770268102990002B341 /* KnobView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = KnobView.swift; path = ../UI/KnobView.swift; sourceTree = "<group>"; };
 		4FFF72B8214BB71400839091 /* main.rc */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc; path = ../resources/main.rc; sourceTree = "<group>"; };
 		52FBBED30D0CF143001C8B8A /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
 		6F7CCF17267A32C500EBB12A /* IPlugCocoaEditorDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugCocoaEditorDelegate.mm; sourceTree = "<group>"; };
@@ -1482,7 +1473,6 @@
 				4FFF676F268102990002B341 /* ContentView.swift */,
 				4FFF676D268102990002B341 /* IPlugSwiftUIState.swift */,
 				4FFF676C268102990002B341 /* IPlugSwiftUIViewController.swift */,
-				4FFF6770268102990002B341 /* KnobView.swift */,
 				4FFF676E268102990002B341 /* TypeAliases.swift */,
 				4F54661C2687DBE000C7EDBA /* ParamSliderView.swift */,
 			);
@@ -2074,7 +2064,6 @@
 				4FDAC0EB207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				4FA0334C268E24AB0030C402 /* VUView.swift in Sources */,
 				4F54661E2687DBE000C7EDBA /* ParamSliderView.swift in Sources */,
-				4FFF6792268102990002B341 /* KnobView.swift in Sources */,
 				4F5F344220C0226200487201 /* IPlugPaths.mm in Sources */,
 				4FFF678A268102990002B341 /* ContentView.swift in Sources */,
 				6F7CCF1D267A334C00EBB12A /* IPlugCocoaViewController.mm in Sources */,
@@ -2112,7 +2101,6 @@
 				4F2A0999267A6E3100098867 /* swell-wnd.mm in Sources */,
 				4FFF6780268102990002B341 /* IPlugSwiftUIState.swift in Sources */,
 				4F2A099B267A6E3100098867 /* swell.cpp in Sources */,
-				4FFF6798268102990002B341 /* KnobView.swift in Sources */,
 				4F2A099C267A6E3100098867 /* IPlugAPP_host.cpp in Sources */,
 				4F2A099D267A6E3100098867 /* IPlugAPP.cpp in Sources */,
 				4FA0334A268E24AB0030C402 /* VUView.metal in Sources */,
@@ -2153,7 +2141,6 @@
 				4FFF6784268102990002B341 /* TypeAliases.swift in Sources */,
 				4F993F7423055C96000313AF /* IPlugProcessor.cpp in Sources */,
 				4FA03346268E24AB0030C402 /* VUView.metal in Sources */,
-				4FFF6794268102990002B341 /* KnobView.swift in Sources */,
 				4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				6F7CCF21267A334E00EBB12A /* IPlugCocoaViewController.mm in Sources */,
 				4F78D94513B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
@@ -2180,7 +2167,6 @@
 				4FFF6787268102990002B341 /* TypeAliases.swift in Sources */,
 				4F78BE2222E7406D00AD537E /* IPlugAUAudioUnit.mm in Sources */,
 				4FA03349268E24AB0030C402 /* VUView.metal in Sources */,
-				4FFF6797268102990002B341 /* KnobView.swift in Sources */,
 				4F78BE2322E7406D00AD537E /* IPlugAUv3.mm in Sources */,
 				4F78BE2422E7406D00AD537E /* IPlugAUViewController.mm in Sources */,
 				4F78BE2522E7406D00AD537E /* IPlugPluginBase.cpp in Sources */,
@@ -2215,7 +2201,6 @@
 				4F54661F2687DBE000C7EDBA /* ParamSliderView.swift in Sources */,
 				4F815995205D51F000393585 /* vstpresetfile.cpp in Sources */,
 				4F815983205D50EB00393585 /* timer.cpp in Sources */,
-				4FFF6793268102990002B341 /* KnobView.swift in Sources */,
 				4FFF6783268102990002B341 /* TypeAliases.swift in Sources */,
 				4F815989205D50EB00393585 /* funknown.cpp in Sources */,
 				6F7CCF1F267A334D00EBB12A /* IPlugCocoaViewController.mm in Sources */,
@@ -2272,7 +2257,6 @@
 				4F5466212687DBE000C7EDBA /* ParamSliderView.swift in Sources */,
 				6F7CCF24267A334F00EBB12A /* IPlugCocoaEditorDelegate.mm in Sources */,
 				4FB600261567CB0A0020189A /* AAX_Exports.cpp in Sources */,
-				4FFF6795268102990002B341 /* KnobView.swift in Sources */,
 				4FB600281567CB0A0020189A /* IPlugAAX_Describe.cpp in Sources */,
 				4FA03347268E24AB0030C402 /* VUView.metal in Sources */,
 			);
@@ -2300,7 +2284,6 @@
 				4F10D3D9203A6719003EF82A /* RtMidi.cpp in Sources */,
 				4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */,
 				4F54661D2687DBE000C7EDBA /* ParamSliderView.swift in Sources */,
-				4FFF6791268102990002B341 /* KnobView.swift in Sources */,
 				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
 				4F5C5F6921BED05B00E024A7 /* swellappmain.mm in Sources */,
 				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,
@@ -2355,7 +2338,6 @@
 				4FFBB91120863B0E00DDD0E7 /* fstring.cpp in Sources */,
 				4FFBB91320863B0E00DDD0E7 /* vstpresetfile.cpp in Sources */,
 				4FFBB91520863B0E00DDD0E7 /* timer.cpp in Sources */,
-				4FFF6796268102990002B341 /* KnobView.swift in Sources */,
 				4FFBB91720863B0E00DDD0E7 /* funknown.cpp in Sources */,
 				4FFBB91820863B0E00DDD0E7 /* vstbus.cpp in Sources */,
 				4FFBB91920863B0E00DDD0E7 /* IPlugPluginBase.cpp in Sources */,
