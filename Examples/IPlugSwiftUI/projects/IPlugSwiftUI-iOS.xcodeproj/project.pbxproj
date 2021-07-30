@@ -41,7 +41,6 @@
 		4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D752267CE540007B686 /* AppDelegate.m */; };
 		4FDF6D7F2267CEBA0007B686 /* IPlugAUPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D7D2267CEBA0007B686 /* IPlugAUPlayer.mm */; };
 		4FFF679F268102A70002B341 /* IPlugSwiftUIState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF679A268102A70002B341 /* IPlugSwiftUIState.swift */; };
-		4FFF67A0268102A70002B341 /* KnobView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF679B268102A70002B341 /* KnobView.swift */; };
 		4FFF67A1268102A70002B341 /* IPlugSwiftUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF679C268102A70002B341 /* IPlugSwiftUIViewController.swift */; };
 		4FFF67A2268102A70002B341 /* TypeAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF679D268102A70002B341 /* TypeAliases.swift */; };
 		4FFF67A3268102A70002B341 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF679E268102A70002B341 /* ContentView.swift */; };
@@ -200,7 +199,6 @@
 		4FFF108720A1036200D3092F /* IPlugSwiftUI.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugSwiftUI.mm; path = ../IPlugSwiftUI.mm; sourceTree = "<group>"; };
 		4FFF108820A1036200D3092F /* IPlugSwiftUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugSwiftUI.h; path = ../IPlugSwiftUI.h; sourceTree = "<group>"; };
 		4FFF679A268102A70002B341 /* IPlugSwiftUIState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IPlugSwiftUIState.swift; sourceTree = "<group>"; };
-		4FFF679B268102A70002B341 /* KnobView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KnobView.swift; sourceTree = "<group>"; };
 		4FFF679C268102A70002B341 /* IPlugSwiftUIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IPlugSwiftUIViewController.swift; sourceTree = "<group>"; };
 		4FFF679D268102A70002B341 /* TypeAliases.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypeAliases.swift; sourceTree = "<group>"; };
 		4FFF679E268102A70002B341 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -442,7 +440,6 @@
 				4FA0333C268E235B0030C402 /* VUView.metal */,
 				4FA0333D268E235B0030C402 /* VUView.swift */,
 				4FFF679A268102A70002B341 /* IPlugSwiftUIState.swift */,
-				4FFF679B268102A70002B341 /* KnobView.swift */,
 				4FFF679C268102A70002B341 /* IPlugSwiftUIViewController.swift */,
 				4FFF679D268102A70002B341 /* TypeAliases.swift */,
 				4FFF679E268102A70002B341 /* ContentView.swift */,
@@ -673,7 +670,6 @@
 				4F2A09CD267A992C00098867 /* IPlugAUViewController.mm in Sources */,
 				4FA0333F268E235B0030C402 /* VUView.swift in Sources */,
 				4F5466262687E80100C7EDBA /* ParamSliderView.swift in Sources */,
-				4FFF67A0268102A70002B341 /* KnobView.swift in Sources */,
 				4FA61F8422E89B2000A92C58 /* GenericUI.mm in Sources */,
 				4FA61F8622E89B2000A92C58 /* IPlugAUv3.mm in Sources */,
 				4FA61F8522E89B2000A92C58 /* IPlugAUAudioUnit.mm in Sources */,
