@@ -19,5 +19,8 @@
   #if defined IGRAPHICS_FREETYPE
     #define FONS_USE_FREETYPE
   #endif
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wcomma"
   #include "nanovg.c"
+  #pragma clang diagnostic pop
 #endif
