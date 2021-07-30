@@ -10,7 +10,7 @@ IGraphicsStressTest::IGraphicsStressTest(const InstanceInfo& info)
   
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
-    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
+    return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS);
   };
 #endif
 }
@@ -28,13 +28,16 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
   
   if(pGraphics->NControls()) {
     pGraphics->GetBackgroundControl()->SetTargetAndDrawRECTs(bounds);
-    pGraphics->GetControl(1)->SetTargetAndDrawRECTs(bounds.GetReducedFromBottom(50.f));
-    pGraphics->GetControlWithTag(kCtrlTagNumThings)->SetTargetAndDrawRECTs(bounds.GetFromBLHC(500, 50).GetGridCell(0, 1, 2));
-    pGraphics->GetControlWithTag(kCtrlTagTestNum)->SetTargetAndDrawRECTs(bounds.GetFromBLHC(500, 50).GetGridCell(1, 1, 2));
+    auto visualsArea = bounds.GetReducedFromBottom(50.f);
+    auto labelsArea = visualsArea.GetFromBottom(50.f);
+    pGraphics->GetControl(1)->SetTargetAndDrawRECTs(visualsArea);
+    pGraphics->GetControlWithTag(kCtrlTagNumThings)->SetTargetAndDrawRECTs(labelsArea.GetGridCell(0, 1, 2));
+    pGraphics->GetControlWithTag(kCtrlTagTestNum)->SetTargetAndDrawRECTs(labelsArea.GetGridCell(1, 1, 2));
     
-    auto bottomButtons = bounds.GetFromBRHC(512, 50).GetPadded(-10.);
-    for(int button=0;button<6;button++)
+    auto bottomButtons = bounds.GetFromBRHC(bounds.W(), 50).GetPadded(-5.f);
+    for(int button=0;button<6;button++) {
       pGraphics->GetControlWithTag(kCtrlTagButton1 + button)->SetTargetAndDrawRECTs(bottomButtons.GetGridCell(button, 1, 6));
+    }
     return;
   }
   
@@ -81,7 +84,10 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
     g.FillRect(COLOR_WHITE, r);
     
     if(this->mKindOfThing == 0)
-      g.DrawText(IText(40), "Press tab to go to next test, up/down to change the # of things", r);
+    {
+      g.DrawText(IText(30), "Press tab to go to next test", r);
+      g.DrawText(IText(30), "up/down to change the # of things", r.GetVShifted(40.f));
+    }
     else
     //      if (!g.CheckLayer(pCaller->mLayer))
     {
