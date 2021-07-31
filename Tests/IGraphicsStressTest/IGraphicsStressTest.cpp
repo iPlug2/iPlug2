@@ -25,18 +25,19 @@ void IGraphicsStressTest::OnParentWindowResize(int width, int height)
 void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
 {
   IRECT bounds = pGraphics->GetBounds();
-  
+  auto visualsArea = bounds.GetReducedFromBottom(50.f);
+  auto labelsArea = visualsArea.GetFromBottom(50.f);
+  auto buttonsArea = bounds.GetFromBRHC(bounds.W(), 50).GetPadded(-5.f);
+
   if(pGraphics->NControls()) {
     pGraphics->GetBackgroundControl()->SetTargetAndDrawRECTs(bounds);
-    auto visualsArea = bounds.GetReducedFromBottom(50.f);
-    auto labelsArea = visualsArea.GetFromBottom(50.f);
+
     pGraphics->GetControl(1)->SetTargetAndDrawRECTs(visualsArea);
     pGraphics->GetControlWithTag(kCtrlTagNumThings)->SetTargetAndDrawRECTs(labelsArea.GetGridCell(0, 1, 2));
     pGraphics->GetControlWithTag(kCtrlTagTestNum)->SetTargetAndDrawRECTs(labelsArea.GetGridCell(1, 1, 2));
     
-    auto bottomButtons = bounds.GetFromBRHC(bounds.W(), 50).GetPadded(-5.f);
     for(int button=0;button<6;button++) {
-      pGraphics->GetControlWithTag(kCtrlTagButton1 + button)->SetTargetAndDrawRECTs(bottomButtons.GetGridCell(button, 1, 6));
+      pGraphics->GetControlWithTag(kCtrlTagButton1 + button)->SetTargetAndDrawRECTs(buttonsArea.GetGridCell(button, 1, 6));
     }
     return;
   }
@@ -77,7 +78,7 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
   pGraphics->EnableMouseOver(false);
   pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
   pGraphics->AttachPanelBackground(COLOR_GRAY);
-  pGraphics->AttachControl(new ILambdaControl(bounds.GetReducedFromBottom(50.f), [&](ILambdaControl* pCaller, IGraphics& g, IRECT& r) {
+  pGraphics->AttachControl(new ILambdaControl(visualsArea, [&](ILambdaControl* pCaller, IGraphics& g, IRECT& r) {
     static IBitmap smiley = g.LoadBitmap(SMILEY_FN);
     static ISVG tiger = g.LoadSVG(TIGER_FN);
     
@@ -131,13 +132,12 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
     
   }, 10000, false, false));
   
-  pGraphics->AttachControl(new ITextControl(bounds.GetFromBLHC(512, 50).GetGridCell(0, 1, 2), "", IText(20)), kCtrlTagNumThings);
-  pGraphics->AttachControl(new ITextControl(bounds.GetFromBLHC(512, 50).GetGridCell(1, 1, 2), "", IText(20)), kCtrlTagTestNum);
+  pGraphics->AttachControl(new ITextControl(labelsArea.GetGridCell(0, 1, 2), "", IText(20)), kCtrlTagNumThings);
+  pGraphics->AttachControl(new ITextControl(labelsArea.GetGridCell(1, 1, 2), "", IText(20)), kCtrlTagTestNum);
   
-  auto bottomButtons = bounds.GetFromBRHC(512, 50).GetPadded(-10.);
   int button = 0;
   for (auto buttonLabel : {"Select test", "Next test", "Prev test", "Things++", "Things--"}) {
-    pGraphics->AttachControl(new IVButtonControl(bottomButtons.GetGridCell(button, 1, 6), SplashClickActionFunc, buttonLabel, DEFAULT_STYLE.WithLabelText(DEFAULT_TEXT.WithVAlign(EVAlign::Middle)).WithRoundness(0.2)), kCtrlTagButton1 + button)->SetAnimationEndActionFunction([button, DoFunc, pGraphics](IControl* pCaller) {
+    pGraphics->AttachControl(new IVButtonControl(buttonsArea.GetGridCell(button, 1, 6), SplashClickActionFunc, buttonLabel, DEFAULT_STYLE.WithLabelText(DEFAULT_TEXT.WithVAlign(EVAlign::Middle)).WithRoundness(0.2)), kCtrlTagButton1 + button)->SetAnimationEndActionFunction([button, DoFunc, pGraphics](IControl* pCaller) {
       
       switch (button){
         case 0:
@@ -162,7 +162,7 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
     button++;
   }
   
-  pGraphics->AttachControl(new IVToggleControl(bottomButtons.GetGridCell(button, 1, 6), SplashClickActionFunc, "", DEFAULT_STYLE.WithRoundness(0.2), "FPS OFF", "FPS ON"), kCtrlTagButton6)->SetAnimationEndActionFunction([](IControl* pCaller){
+  pGraphics->AttachControl(new IVToggleControl(buttonsArea.GetGridCell(button, 1, 6), SplashClickActionFunc, "", DEFAULT_STYLE.WithRoundness(0.2), "FPS OFF", "FPS ON"), kCtrlTagButton6)->SetAnimationEndActionFunction([](IControl* pCaller){
       pCaller->GetUI()->ShowFPSDisplay(pCaller->GetValue() > 0.5);
   });
 
