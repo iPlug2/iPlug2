@@ -50,7 +50,14 @@
 - (void) sendSysexMsgFromUI: (NSData*) msg : (NSInteger) offset NS_SWIFT_NAME(sendSysexMsgFromUI(msg:offset:));
 - (void) sendArbitraryMsgFromUI: (NSInteger) msgTag : (NSInteger) ctrlTag : (NSData*) msg NS_SWIFT_NAME(sendArbitraryMsgFromUI(msgTag:ctrlTag:msg:));
 
+// TODO: shared struct?
 - (NSInteger) parameterCount NS_SWIFT_NAME(parameterCount());
-- (NSString*) getParameterName: (NSInteger) paramIdx NS_SWIFT_NAME(getParameterName(paramIdx:));
+- (NSString*) getParameterName: (NSInteger) paramIdx ;//NS_SWIFT_NAME(getParameterName(paramIdx:));
+- (double) getParameterDefault: (NSInteger) paramIdx ;//NS_SWIFT_NAME(getParameterDefault(paramIdx:));
+- (double) getParameterMin: (NSInteger) paramIdx ;//NS_SWIFT_NAME(getParameterMin(paramIdx:));
+- (double) getParameterMax: (NSInteger) paramIdx ;//NS_SWIFT_NAME(getParameterMax(paramIdx:));
+- (double) getParameterStep: (NSInteger) paramIdx ;//NS_SWIFT_NAME(getParameterStep(paramIdx:));
+- (NSString*) getParameterLabel: (NSInteger) paramIdx ;//NS_SWIFT_NAME(getParameterLabel(paramIdx:));
+- (NSString*) getParameterGroup: (NSInteger) paramIdx ;//NS_SWIFT_NAME(getParameterGroup(paramIdx:));
 
 @end

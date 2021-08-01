@@ -37,19 +37,20 @@ func floatValue(data: Data) -> Float {
   override func viewDidLoad() {
     super.viewDidLoad()
       
-    for paramIdx in 0..<parameterCount() {
-      state.params.append(Param(id: paramIdx, name: getParameterName(paramIdx:paramIdx), value: 0.5))
+    for idx in 0..<parameterCount() {
+      state.params.append(Param(id: idx,
+                                name: getParameterName(idx),
+                                defaultValue: getParameterDefault(idx),
+                                minValue: getParameterMin(idx),
+                                maxValue: getParameterMax(idx),
+                                step: getParameterStep(idx),
+                                label: getParameterLabel(idx),
+                                group: getParameterGroup(idx)))
     }
     
     let contentView = ContentView().environmentObject(state)
     let hostingController = PlatformHostingController(rootView: contentView)
-    #if os(macOS)
-    hostingController.view.wantsLayer = true
-    hostingController.view.layer?.backgroundColor = PlatformColor.red.cgColor
-    #else
-    hostingController.view.backgroundColor = UIColor.red
-    #endif
-    
+
     view.addSubview(hostingController.view)
     hostingController.view.pinToSuperviewEdges()
   }

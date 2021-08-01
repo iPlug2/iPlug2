@@ -93,10 +93,42 @@ using namespace iplug;
   return ((CocoaEditorDelegate*) editorDelegate)->NParams();
 }
 
-- (NSString*)getParameterName: (NSInteger) paramIdx
+- (NSString*) getParameterName: (NSInteger) paramIdx
 {
   NSString* name = [NSString stringWithUTF8String:((CocoaEditorDelegate*) editorDelegate)->GetParam(static_cast<int>(paramIdx))->GetName()];
   return name;
+}
+
+- (double) getParameterDefault: (NSInteger) paramIdx
+{
+  return ((CocoaEditorDelegate*) editorDelegate)->GetParam(static_cast<int>(paramIdx))->GetDefault();
+}
+
+- (double) getParameterMin: (NSInteger) paramIdx
+{
+  return ((CocoaEditorDelegate*) editorDelegate)->GetParam(static_cast<int>(paramIdx))->GetMin();
+}
+
+- (double) getParameterMax: (NSInteger) paramIdx
+{
+  return ((CocoaEditorDelegate*) editorDelegate)->GetParam(static_cast<int>(paramIdx))->GetMax();
+}
+
+- (double) getParameterStep: (NSInteger) paramIdx
+{
+  return ((CocoaEditorDelegate*) editorDelegate)->GetParam(static_cast<int>(paramIdx))->GetStep();
+}
+
+- (NSString*) getParameterLabel: (NSInteger) paramIdx
+{
+  NSString* label = [NSString stringWithUTF8String:((CocoaEditorDelegate*) editorDelegate)->GetParam(static_cast<int>(paramIdx))->GetLabel()];
+  return label;
+}
+
+- (NSString*) getParameterGroup: (NSInteger) paramIdx
+{
+  NSString* group = [NSString stringWithUTF8String:((CocoaEditorDelegate*) editorDelegate)->GetParam(static_cast<int>(paramIdx))->GetGroup()];
+  return group;
 }
 
 @end

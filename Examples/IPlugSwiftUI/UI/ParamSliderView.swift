@@ -110,10 +110,11 @@ struct ParamSliderView: View {
   }
 }
 
-//struct ParamSliderView_Previews: PreviewProvider {
-//  @State static var dummyParam = Param(id: 0, name: "Volume", value: 0.5);
-//  static var previews: some View {
-//  ParamSliderView(param: $dummyParam)
-//    .frame(width: 30, height: 100, alignment: .center)
-//  }
-//}
+struct ParamSliderView_Previews: PreviewProvider {
+  @State static var dummyParam = Param(id: 0, name: "Volume", defaultValue: 0.5);
+  static var previews: some View {
+  ParamSliderView(param: dummyParam)
+    .frame(width: 100, height: 300, alignment: .center)
+    .padding()
+  }
+}
