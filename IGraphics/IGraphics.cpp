@@ -321,6 +321,7 @@ void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize
 
 void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
 {
+#ifndef AUv3_API
   assert(!mCornerResizer); // only want one corner resizer
 
   std::unique_ptr<ICornerResizerControl> control(pControl);
@@ -332,6 +333,9 @@ void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerM
     mLayoutOnResize = layoutOnResize;
     mCornerResizer->SetDelegate(*GetDelegate());
   }
+#else
+#warning AttachCornerResizer() is disabled for AUv3
+#endif
 }
 
 void IGraphics::AttachBubbleControl(const IText& text)
