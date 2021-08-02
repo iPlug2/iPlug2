@@ -37,7 +37,7 @@
 {
   if (self.audioUnit)
   {
-    [self.audioUnit hostResized: self.view.window.frame.size];
+    [self.audioUnit hostResized: self.view.frame.size];
   }
 }
 
