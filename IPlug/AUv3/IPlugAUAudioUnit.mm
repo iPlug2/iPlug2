@@ -566,18 +566,18 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     AudioUnitRenderActionFlags pullFlags = 0;
     AUAudioUnitStatus err = 0;
     
+    if (frameCount > pPlug->GetBlockSize())
+    {
+      err = kAudioUnitErr_InvalidPropertyValue;
+      return err;
+    }
+    
     for (auto busIdx = 0; busIdx < inputBuses->GetSize(); busIdx++)
     {
       err = inputBuses->Get(busIdx)->pullInput(&pullFlags, timestamp, frameCount, busIdx, pullInputBlock);
     }
 
     if (err != 0) { return err; }
-    
-    if (frameCount > pPlug->GetBlockSize())
-    {
-      err = kAudioUnitErr_TooManyFramesToProcess;
-      return err;
-    }
     
     AudioBufferList* pInAudioBufferList = nil;
     
