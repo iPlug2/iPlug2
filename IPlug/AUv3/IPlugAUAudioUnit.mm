@@ -713,7 +713,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
 - (NSTimeInterval) latency
 {
-  return mPlug->GetLatency();
+  return (NSTimeInterval) mPlug->GetLatency() / mPlug->GetSampleRate();
 }
 
 - (NSTimeInterval) tailTime
