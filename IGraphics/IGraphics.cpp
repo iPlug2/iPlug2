@@ -334,7 +334,7 @@ void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerM
     mCornerResizer->SetDelegate(*GetDelegate());
   }
 #else
-#warning AttachCornerResizer() is disabled for AUv3
+DBGMSG("AttachCornerResizer() is disabled for AUv3");
 #endif
 }
 
