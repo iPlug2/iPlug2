@@ -1423,6 +1423,13 @@ public:
     SetNSteps(pFirstParam->GetStepped() ? range : 0); // calls OnResize()
   }
   
+  void SetNTracks(int nTracks)
+  {
+    SetNVals(nTracks);
+    mTrackBounds.Resize(nTracks);
+    OnResize();
+  }
+  
   void SetBaseValue(double value)
   {
     mBaseValue = value; OnResize();
