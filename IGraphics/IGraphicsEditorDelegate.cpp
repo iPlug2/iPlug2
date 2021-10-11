@@ -26,6 +26,8 @@ IGEditorDelegate::~IGEditorDelegate()
 
 void* IGEditorDelegate::OpenWindow(void* pParent)
 {
+  mParentWindowHandle = pParent;
+
   if(!mGraphics)
   {
     mGraphics = std::unique_ptr<IGraphics>(CreateGraphics());
@@ -53,9 +55,23 @@ void IGEditorDelegate::CloseWindow()
       mLastScale = mGraphics->GetDrawScale();
       mGraphics->CloseWindow();
       mGraphics = nullptr;
+      mParentWindowHandle = nullptr;
     }
     
     mClosing = false;
+  }  
+}
+
+void IGEditorDelegate::SetBackendMode(EBackendMode mode)
+{
+  if (mode != mBackendMode && BackendModeIsValid(mode))
+  {
+    mBackendMode = mode;
+    mDeferredFunc = [&]() {
+      void* pParentWindowHandle = mParentWindowHandle;
+      CloseWindow();
+      OpenWindow(pParentWindowHandle);
+    };
   }
 }
 

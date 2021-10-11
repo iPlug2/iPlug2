@@ -61,6 +61,17 @@ const char* const DEFAULT_FONT = "Roboto-Regular";
 static constexpr float DEFAULT_TEXT_SIZE = 14.f;
 static constexpr int FONT_LEN = 64;
 
+/** @enum EBackendMode The type of graphics backend. Actual support for these depends on the graphics API/platform */
+enum class EBackendMode
+{
+  Software,
+  OpenGL,
+  Metal,
+  Direct3D
+};
+
+static constexpr EBackendMode DEFAULT_BACKEND_MODE = EBackendMode::Software;
+
 /** @enum EBlend Porter-Duff blend mode/compositing operators */
 enum class EBlend
 {

@@ -13,6 +13,7 @@
 #include <memory>
 
 #include "IPlugEditorDelegate.h"
+#include "IGraphicsConstants.h"
 
 /**
  * @file
@@ -40,6 +41,7 @@ public:
   //IEditorDelegate
   void* OpenWindow(void* pHandle) final;
   void CloseWindow() final;
+
   void SetScreenScale(float scale) final;
   
   bool OnKeyDown(const IKeyPress& key) override;
@@ -87,11 +89,18 @@ public:
    * @param startPos The start position in the chunk where parameter values are stored
    * @return The new chunk position (endPos) */
   int UnserializeEditorSize(const IByteChunk& chunk, int startPos);
-    
+
+  /** Get the current backend mode */
+  EBackendMode GetBackendMode() const { return mBackendMode; }
+
+  /** Set the backend mode */
+  void SetBackendMode(EBackendMode mode);
 protected:
   std::function<IGraphics*()> mMakeGraphicsFunc = nullptr;
   std::function<void(IGraphics* pGraphics)> mLayoutFunc = nullptr;
 private:
+  void* mParentWindowHandle = nullptr;
+  EBackendMode mBackendMode = DEFAULT_BACKEND_MODE;
   std::unique_ptr<IGraphics> mGraphics;
   int mLastWidth = 0;
   int mLastHeight = 0;

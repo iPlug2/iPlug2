@@ -363,7 +363,9 @@ public:
 
   /** @return A CString representing the Drawing API in use e.g. "NanoVG" */
   virtual const char* GetDrawingAPIStr() = 0;
-  
+
+  EBackendMode GetBackendMode() const { return mBackendMode; }
+
   /** Returns a new IBitmap, an integer scaled version of the input, and adds it to the cache
    * @param inbitmap The source bitmap to be scaled
    * @param cacheName The name by which this bitmap is identified int the cache (along with targetScale)
@@ -1802,6 +1804,8 @@ private:
   IDisplayTickFunc mDisplayTickFunc = nullptr;
   IUIAppearanceChangedFunc mAppearanceChangedFunc = nullptr;
   
+  EBackendMode mBackendMode = EBackendMode::Software;
+
 protected:
   IGEditorDelegate* mDelegate;
   bool mCursorHidden = false;

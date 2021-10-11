@@ -51,6 +51,7 @@ IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 , mMinScale(DEFAULT_MIN_DRAW_SCALE)
 , mMaxScale(DEFAULT_MAX_DRAW_SCALE)
 , mDelegate(&dlg)
+, mBackendMode(dlg.GetBackendMode())
 {
   StaticStorage<APIBitmap>::Accessor bitmapStorage(sBitmapCache);
   bitmapStorage.Retain();

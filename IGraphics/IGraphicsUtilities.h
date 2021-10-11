@@ -79,6 +79,23 @@ static float GetLineCrossing(IVec2 p0, IVec2 p1, IVec2 p2, IVec2 p3)
   return -(d.x * b.y - d.y * b.x) / m;
 }
 
+static bool BackendModeIsValid(EBackendMode mode)
+{
+#if defined IGRAPHICS_CPU && defined IGRAPHICS_SKIA
+  if (mode == EBackendMode::Software) return true;
+#endif
+#if defined IGRAPHICS_GL
+  if (mode == EBackendMode::OpenGL) return true;
+#endif
+#if defined OS_MAC || defined OS_IOS && defined IGRAPHICS_METAL
+  if (mode == EBackendMode::Metal) return true;
+#endif
+#if defined OS_WIN && defined IGRAPHICS_D3D
+  if (mode == EBackendMode::Direct3D) return true;
+#endif
+  return false;
+}
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
