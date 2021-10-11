@@ -124,6 +124,7 @@ LIB_SKOTTIE = $(BUILT_LIBS_LIB_PATH)/libskottie.a
 LIB_SKSG = $(BUILT_LIBS_LIB_PATH)/libsksg.a
 LIB_SKSHAPER = $(BUILT_LIBS_LIB_PATH)/libskshaper.a
 LIB_SKPARAGRAPH = $(BUILT_LIBS_LIB_PATH)/libskparagraph.a
+LIB_SKUNICODE = $(BUILT_LIBS_LIB_PATH)/libskunicode.a
 LIB_SVG = $(BUILT_LIBS_LIB_PATH)/libsvg.a
 //LIB_YOGA = $(BUILT_LIBS_LIB_PATH)/libyoga.a
 
@@ -131,7 +132,7 @@ LIB_SVG = $(BUILT_LIBS_LIB_PATH)/libsvg.a
 //YOGA_LNK_FLAGS = $(LIB_YOGA)
 
 // you can optionally include this build setting, by adding it to EXTRA_LNK_FLAGS in your plug-ins xcconfig, in order to get all varieties of IGraphics support
-SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH) $(LIB_SVG)
+SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH) $(LIB_SKUNICODE) $(LIB_SVG)
 FREETYPE_LNK_FLAGS = $(LIB_FT) //$(LIB_PNG) $(LIB_Z)
 IGRAPHICS_LNK_FLAGS = $(SKIA_LNK_FLAGS) $(FREETYPE_LNK_FLAGS)
 

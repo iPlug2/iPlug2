@@ -92,9 +92,10 @@ LIB_SKOTTIE = $(BUILT_LIBS_LIB_PATH)/libskottie.a
 LIB_SKSG = $(BUILT_LIBS_LIB_PATH)/libsksg.a
 LIB_SKSHAPER = $(BUILT_LIBS_LIB_PATH)/libskshaper.a
 LIB_SKPARAGRAPH = $(BUILT_LIBS_LIB_PATH)/libskparagraph.a
+LIB_SKUNICODE = $(BUILT_LIBS_LIB_PATH)/libskunicode.a
 LIB_SVG = $(BUILT_LIBS_LIB_PATH)/libsvg.a
 
-SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH) $(LIB_SVG)
+SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH) $(LIB_SKUNICODE) $(LIB_SVG)
 IGRAPHICS_LNK_FLAGS = $(SKIA_LNK_FLAGS)
 
 AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework CoreAudioKit -framework QuartzCore -framework UIKit -framework CoreText -framework CoreGraphics

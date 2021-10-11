@@ -1,30 +1,27 @@
 diff --git a/BUILD.gn b/BUILD.gn
-index 3985f614c6..c5537043e7 100644
+index 48f6fe598a..e65f536e87 100644
 --- a/BUILD.gn
 +++ b/BUILD.gn
-@@ -1410,6 +1410,7 @@ group("modules") {
-     "modules/skottie",
-     "modules/skparagraph",
-     "modules/skshaper",
-+    "modules/svg",
-   ]
- }
- 
-@@ -3064,15 +3065,3 @@ if (skia_enable_tools) {
-     }
+@@ -3267,20 +3267,4 @@ if (skia_enable_tools) {
    }
  }
--
+ 
 -if (is_ios && skia_use_metal && !skia_enable_flutter_defines) {
 -  group("minimal_ios_mtl_skia_app") {
 -    deps = [ "experimental/minimal_ios_mtl_skia_app" ]
 -  }
 -}
--
+ 
 -if (is_ios && skia_enable_skottie && !skia_enable_flutter_defines) {
 -  group("skottie_ios") {
 -    deps = [ "tools/skottie_ios_app" ]
 -  }
+-}
+-
+-skia_executable("skia_c_api_example") {
+-  sources = [ "experimental/c-api-example/skia-c-example.c" ]
+-  include_dirs = [ "." ]
+-  deps = [ ":skia" ]
 -}
 diff --git a/gn/toolchain/BUILD.gn b/gn/toolchain/BUILD.gn
 index 8029086eff..47eeeca061 100644
@@ -40,14 +37,14 @@ index 8029086eff..47eeeca061 100644
      # ARM64 compiler is incomplete - it relies on DLLs located in the host toolchain directory.
      env_setup = "$shell set \"PATH=%PATH%;$win_vc\\Tools\\MSVC\\$win_toolchain_version\\bin\\HostX64\\x64\" && "
 diff --git a/modules/skparagraph/BUILD.gn b/modules/skparagraph/BUILD.gn
-index e8a8b48df6..7859ff97e7 100644
+index 9d2c903b6f..8a69662ffe 100644
 --- a/modules/skparagraph/BUILD.gn
 +++ b/modules/skparagraph/BUILD.gn
-@@ -21,6 +21,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
- 
-   component("skparagraph") {
-     import("skparagraph.gni")
-+    complete_static_lib = false
-     public_configs = [ ":public_config" ]
-     public = skparagraph_public
-     sources = skparagraph_sources
+@@ -37,6 +37,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
+   if (defined(is_skia_standalone) && skia_enable_tools) {
+     skia_source_set("utils") {
+       import("skparagraph.gni")
++      complete_static_lib = false
+       public_configs = [ ":utils_config" ]
+       configs = [ "../../:skia_private" ]
+       sources = skparagraph_utils

@@ -134,7 +134,7 @@ public:
   {
     mShaderStr = SkString(str);
     
-    auto [effect, errorText] = SkRuntimeEffect::Make(mShaderStr);
+    auto [effect, errorText] = SkRuntimeEffect::MakeForShader(mShaderStr);
     
     if (!effect)
     {
