@@ -38,9 +38,7 @@ public:
 
   void PlatformResize(bool parentHasResized) override;
 
-#ifdef IGRAPHICS_GL
   void DrawResize() override; // overriden here to deal with GL graphics context capture
-#endif
 
   void CheckTabletInput(UINT msg);
   void DestroyEditWindow();
@@ -124,14 +122,15 @@ private:
   bool MouseCursorIsLocked();
 
 #ifdef IGRAPHICS_GL
-  void CreateGLContext(); // OpenGL context management - TODO: RAII instead ?
-  void DestroyGLContext();
-  void ActivateGLContext() override;
-  void DeactivateGLContext() override;
   HGLRC mHGLRC = nullptr;
   HGLRC mStartHGLRC = nullptr;
   HDC mStartHDC = nullptr;
 #endif
+
+  void CreateGPUContext();
+  void DestroyGPUContext();
+  void ActivateGLContext() override;
+  void DeactivateGLContext() override;
 
   HINSTANCE mHInstance = nullptr;
   HWND mPlugWnd = nullptr;

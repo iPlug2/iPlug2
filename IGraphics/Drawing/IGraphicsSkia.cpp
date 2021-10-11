@@ -21,14 +21,15 @@
     #include <OpenGL/gl.h>
   #elif defined IGRAPHICS_GL3
     #include <OpenGL/gl3.h>
-  #elif defined IGRAPHICS_METAL
-  //even though this is a .cpp we are in an objc(pp) compilation unit
+  #endif
+
+  #if defined IGRAPHICS_METAL
+    //even though this is a .cpp we are in an objc(pp) compilation unit
     #import <Metal/Metal.h>
     #import <QuartzCore/CAMetalLayer.h>
     #include "include/gpu/mtl/GrMtlBackendContext.h"
-  #elif !defined IGRAPHICS_CPU
-    #error Define either IGRAPHICS_GL2, IGRAPHICS_GL3, IGRAPHICS_METAL, or IGRAPHICS_CPU for IGRAPHICS_SKIA with OS_MAC
   #endif
+
 #elif defined OS_WIN
   #pragma comment(lib, "libpng.lib")
   #pragma comment(lib, "zlib.lib")
@@ -36,7 +37,36 @@
   #pragma comment(lib, "svg.lib")
   #pragma comment(lib, "skshaper.lib")
   #pragma comment(lib, "skunicode.lib")
+
+  // if the skia static lib is built with SK_GL and SK_DIRECT3D defined,
+  // we need to link these .libs, even though we might not define IGRAPHICS_GL or IGRAPHICS_D3D
   #pragma comment(lib, "opengl32.lib")
+  #pragma comment(lib, "d3d12.lib")
+  #pragma comment(lib, "d3dcompiler.lib")
+
+#if defined IGRAPHICS_D3D
+
+  #pragma comment(lib, "dxgi.lib")
+  #include "include/gpu/d3d/GrD3DBackendContext.h"
+
+  #include <d3d12sdklayers.h>
+  #include <d3d12.h>
+  #include <dxgi1_4.h>
+  #include <wrl/client.h>
+
+  #define GR_D3D_CALL_ERRCHECK(X)                                       \
+      do {                                                              \
+         HRESULT result = X;                                            \
+         SkASSERT(SUCCEEDED(result));                                   \
+         if (!SUCCEEDED(result)) {                                      \
+             SkDebugf("Failed Direct3D call. Error: 0x%08x\n", result); \
+         }                                                              \
+      } while(false)
+
+  using namespace Microsoft::WRL;
+
+#endif
+
 #endif
 
 #if defined IGRAPHICS_GL
@@ -263,13 +293,7 @@ IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float
 {
   mMainPath.setIsVolatile(true);
   
-#if defined IGRAPHICS_CPU
-  DBGMSG("IGraphics Skia CPU @ %i FPS\n", fps);
-#elif defined IGRAPHICS_METAL
-  DBGMSG("IGraphics Skia METAL @ %i FPS\n", fps);
-#elif defined IGRAPHICS_GL
-  DBGMSG("IGraphics Skia GL @ %i FPS\n", fps);
-#endif
+  DBGMSG("%s @ %i FPS\n", GetDrawingAPIStr(), fps);
   StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Retain();
 }
@@ -323,22 +347,152 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* name, const void* pData, int
   return new Bitmap(pData, dataSize, scale);
 }
 
+#if defined IGRAPHICS_D3D
+void get_hardware_adapter(IDXGIFactory4* pFactory, IDXGIAdapter1** ppAdapter) {
+  *ppAdapter = nullptr;
+  for (UINT adapterIndex = 0; ; ++adapterIndex) {
+    IDXGIAdapter1* pAdapter = nullptr;
+    if (DXGI_ERROR_NOT_FOUND == pFactory->EnumAdapters1(adapterIndex, &pAdapter)) {
+      // No more adapters to enumerate.
+      break;
+    }
+
+    // Check to see if the adapter supports Direct3D 12, but don't create the
+    // actual device yet.
+    if (SUCCEEDED(D3D12CreateDevice(pAdapter, D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device),
+      nullptr))) {
+      *ppAdapter = pAdapter;
+      return;
+    }
+    pAdapter->Release();
+  }
+}
+
+bool CreateD3DBackendContext(GrD3DBackendContext* ctx, bool isProtected = false)
+{
+#if defined(SK_ENABLE_D3D_DEBUG_LAYER)
+  // Enable the D3D12 debug layer.
+  {
+    gr_cp<ID3D12Debug> debugController;
+    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+    {
+      debugController->EnableDebugLayer();
+    }
+  }
+#endif
+  // Create the device
+  gr_cp<IDXGIFactory4> factory;
+  if (!SUCCEEDED(CreateDXGIFactory1(IID_PPV_ARGS(&factory)))) {
+    return false;
+  }
+
+  gr_cp<IDXGIAdapter1> hardwareAdapter;
+  get_hardware_adapter(factory.get(), &hardwareAdapter);
+
+  gr_cp<ID3D12Device> device;
+  if (!SUCCEEDED(D3D12CreateDevice(hardwareAdapter.get(),
+    D3D_FEATURE_LEVEL_11_0,
+    IID_PPV_ARGS(&device)))) {
+    return false;
+  }
+
+  // Create the command queue
+  gr_cp<ID3D12CommandQueue> queue;
+  D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+  queueDesc.Flags = D3D12_COMMAND_QUEUE_FLAG_NONE;
+  queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
+
+  if (!SUCCEEDED(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&queue)))) {
+    return false;
+  }
+
+  ctx->fAdapter = hardwareAdapter;
+  ctx->fDevice = device;
+  ctx->fQueue = queue;
+  // TODO: set up protected memory
+  ctx->fProtectedContext = /*isProtected ? GrProtected::kYes :*/ GrProtected::kNo;
+
+  return true;
+}
+#endif //IGRAPHICS_D3D
+
 void IGraphicsSkia::OnViewInitialized(void* pContext)
 {
 #if defined IGRAPHICS_GL
-  auto glInterface = GrGLMakeNativeInterface();
-  mGrContext = GrDirectContext::MakeGL(glInterface);
-#elif defined IGRAPHICS_METAL
-  CAMetalLayer* pMTLLayer = (CAMetalLayer*) pContext;
-  id<MTLDevice> device = pMTLLayer.device;
-  id<MTLCommandQueue> commandQueue = [device newCommandQueue];
-  GrMtlBackendContext backendContext = {};
-  backendContext.fDevice.retain((__bridge GrMTLHandle) device);
-  backendContext.fQueue.retain((__bridge GrMTLHandle) commandQueue);
-  mGrContext = GrDirectContext::MakeMetal(backendContext);
-  mMTLDevice = (void*) device;
-  mMTLCommandQueue = (void*) commandQueue;
-  mMTLLayer = pContext;
+  if (GetBackendMode() == EBackendMode::OpenGL)
+  {
+    auto glInterface = GrGLMakeNativeInterface();
+    mGrContext = GrDirectContext::MakeGL(glInterface);
+  }
+#endif
+  
+#if defined IGRAPHICS_METAL
+  if (GetBackendMode() == EBackendMode::Metal)
+  {
+    CAMetalLayer* pMTLLayer = (CAMetalLayer*) pContext;
+    id<MTLDevice> device = pMTLLayer.device;
+    id<MTLCommandQueue> commandQueue = [device newCommandQueue];
+    
+    GrMtlBackendContext backendContext = {};
+    backendContext.fDevice.retain((__bridge GrMTLHandle) device);
+    backendContext.fQueue.retain((__bridge GrMTLHandle) commandQueue);
+    mGrContext = GrDirectContext::MakeMetal(backendContext);
+    
+    mMTLDevice = (void*) device;
+    mMTLCommandQueue = (void*) commandQueue;
+    mMTLLayer = pContext;
+  }
+#endif
+
+#if defined IGRAPHICS_D3D
+  if (GetBackendMode() == EBackendMode::Direct3D)
+  {
+    GrD3DBackendContext backendContext;
+    CreateD3DBackendContext(&backendContext);
+    mDevice = backendContext.fDevice;
+    mQueue = backendContext.fQueue;
+
+    mGrContext = GrDirectContext::MakeDirect3D(backendContext);
+
+    // Make the swapchain
+    UINT dxgiFactoryFlags = 0;
+    SkDEBUGCODE(dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG);
+
+    gr_cp<IDXGIFactory4> factory;
+    GR_D3D_CALL_ERRCHECK(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&factory)));
+
+    auto w = static_cast<int>(std::ceil(static_cast<float>(WindowWidth()) * GetScreenScale()));
+    auto h = static_cast<int>(std::ceil(static_cast<float>(WindowHeight()) * GetScreenScale()));
+    DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+    swapChainDesc.BufferCount = kNumBuffers;
+    swapChainDesc.Width = w;
+    swapChainDesc.Height = h;
+    swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+    swapChainDesc.SampleDesc.Count = 1;
+
+    HWND hWnd = (HWND) GetWindow();
+    gr_cp<IDXGISwapChain1> swapChain;
+    GR_D3D_CALL_ERRCHECK(factory->CreateSwapChainForHwnd(mQueue.get(), hWnd, &swapChainDesc, nullptr, nullptr, &swapChain));
+
+    // We don't support fullscreen transitions.
+    GR_D3D_CALL_ERRCHECK(factory->MakeWindowAssociation(hWnd, DXGI_MWA_NO_ALT_ENTER));
+
+    GR_D3D_CALL_ERRCHECK(swapChain->QueryInterface(IID_PPV_ARGS(&mSwapChain)));
+
+    mBufferIndex = mSwapChain->GetCurrentBackBufferIndex();
+
+    for (int i = 0; i < kNumBuffers; ++i)
+    {
+      mFenceValues[i] = 10000;   // use a high value to make it easier to track these in PIX
+    }
+
+    GR_D3D_CALL_ERRCHECK(mDevice->CreateFence(mFenceValues[mBufferIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&mFence)));
+
+    mFenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+    SkASSERT(mFenceEvent);
+  }
 #endif
 
   DrawResize();
@@ -348,15 +502,38 @@ void IGraphicsSkia::OnViewDestroyed()
 {
   RemoveAllControls();
 
-#if defined IGRAPHICS_GL
+#if defined IGRAPHICS_GL || defined IGRAPHICS_METAL || defined IGRAPHICS_D3D
   mSurface = nullptr;
   mScreenSurface = nullptr;
   mGrContext = nullptr;
-#elif defined IGRAPHICS_METAL
-  [(id<MTLCommandQueue>) mMTLCommandQueue release];
-  mMTLCommandQueue = nullptr;
-  mMTLLayer = nullptr;
-  mMTLDevice = nullptr;
+#endif
+
+#if defined IGRAPHICS_METAL
+  if (GetBackendMode() == EBackendMode::Metal)
+  {
+    [(id<MTLCommandQueue>) mMTLCommandQueue release];
+    mMTLCommandQueue = nullptr;
+    mMTLLayer = nullptr;
+    mMTLDevice = nullptr;
+  }
+#endif
+
+#if defined IGRAPHICS_D3D
+  if (GetBackendMode() == EBackendMode::Direct3D)
+  {
+    CloseHandle(mFenceEvent);
+    mFence.reset(nullptr);
+
+    for (int i = 0; i < kNumBuffers; ++i)
+    {
+      mSurfaces[i].reset(nullptr);
+      mBuffers[i].reset(nullptr);
+    }
+
+    mSwapChain.reset(nullptr);
+    mQueue.reset(nullptr);
+    mDevice.reset(nullptr);
+  }
 #endif
 }
 
@@ -364,17 +541,62 @@ void IGraphicsSkia::DrawResize()
 {
   auto w = static_cast<int>(std::ceil(static_cast<float>(WindowWidth()) * GetScreenScale()));
   auto h = static_cast<int>(std::ceil(static_cast<float>(WindowHeight()) * GetScreenScale()));
-  
+
 #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
-  if (mGrContext.get())
+  if (mGrContext.get() && GetBackendMode() > EBackendMode::Software)
   {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
     mSurface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
   }
-#else
-  #ifdef OS_WIN
+#endif
+
+#if defined IGRAPHICS_D3D
+  if (mGrContext.get() && GetBackendMode() == EBackendMode::Direct3D)
+  {
+    // Clean up any outstanding resources in command lists
+    mGrContext->flush({});
+    mGrContext->submit(true);
+
+    // release the previous surface and backbuffer resources
+    for (int i = 0; i < kNumBuffers; ++i)
+    {
+      // Let present complete
+      if (mFence->GetCompletedValue() < mFenceValues[i])
+      {
+        GR_D3D_CALL_ERRCHECK(mFence->SetEventOnCompletion(mFenceValues[i], mFenceEvent));
+        WaitForSingleObjectEx(mFenceEvent, INFINITE, FALSE);
+      }
+      mSurfaces[i].reset(nullptr);
+      mBuffers[i].reset(nullptr);
+    }
+
+    GR_D3D_CALL_ERRCHECK(mSwapChain->ResizeBuffers(0, w, h, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+
+    // set up base resource info
+    GrD3DTextureResourceInfo info(nullptr, nullptr, D3D12_RESOURCE_STATE_PRESENT, DXGI_FORMAT_R8G8B8A8_UNORM, 1, 1, 0);
+
+    for (int i = 0; i < kNumBuffers; ++i)
+    {
+      GR_D3D_CALL_ERRCHECK(mSwapChain->GetBuffer(i, IID_PPV_ARGS(&mBuffers[i])));
+
+      SkASSERT(mBuffers[i]->GetDesc().Width == (UINT64)w && mBuffers[i]->GetDesc().Height == (UINT64)h);
+
+      SkSurfaceProps props{ 0, kRGB_H_SkPixelGeometry };
+
+      info.fResource = mBuffers[i];
+
+      GrBackendRenderTarget backendRT(w, h, info);
+      mSurfaces[i] = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, &props);
+    }
+  }
+#endif // IGRAPHICS_D3D
+
+#if defined IGRAPHICS_CPU
+  if (GetBackendMode() == EBackendMode::Software)
+  {
+#if defined OS_WIN
     mSurface.reset();
-   
+
     const size_t bmpSize = sizeof(BITMAPINFOHEADER) + (w * h * sizeof(uint32_t));
     mSurfaceMemory.Resize(bmpSize);
     BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.Get());
@@ -389,10 +611,12 @@ void IGraphicsSkia::DrawResize()
 
     SkImageInfo info = SkImageInfo::Make(w, h, kN32_SkColorType, kPremul_SkAlphaType, nullptr);
     mSurface = SkSurface::MakeRasterDirect(info, pixels, sizeof(uint32_t) * w);
-  #else
+#else
     mSurface = SkSurface::MakeRasterN32Premul(w, h);
-  #endif
 #endif
+  }
+#endif // IGRAPHICS_CPU
+  
   if (mSurface)
   {
     mCanvas = mSurface->getCanvas();
@@ -403,46 +627,54 @@ void IGraphicsSkia::DrawResize()
 void IGraphicsSkia::BeginFrame()
 {
 #if defined IGRAPHICS_GL
-  if (mGrContext.get())
+  if (GetBackendMode() == EBackendMode::OpenGL)
   {
-    int width = WindowWidth() * GetScreenScale();
-    int height = WindowHeight() * GetScreenScale();
-    
-    // Bind to the current main framebuffer
-    int fbo = 0, samples = 0, stencilBits = 0;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
-    glGetIntegerv(GL_SAMPLES, &samples);
-#ifdef IGRAPHICS_GL3
-    glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_STENCIL, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencilBits);
-#else
-    glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
-#endif
-    
-    GrGLFramebufferInfo fbinfo;
-    fbinfo.fFBOID = fbo;
-    fbinfo.fFormat = 0x8058;
+    if (mGrContext.get())
+    {
+      int width = WindowWidth() * GetScreenScale();
+      int height = WindowHeight() * GetScreenScale();
 
-    GrBackendRenderTarget backendRT(width, height, samples, stencilBits, fbinfo);
-    
-    mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRT, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
-    assert(mScreenSurface);
+      // Bind to the current main framebuffer
+      int fbo = 0, samples = 0, stencilBits = 0;
+      glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
+      glGetIntegerv(GL_SAMPLES, &samples);
+#ifdef IGRAPHICS_GL3
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_STENCIL, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencilBits);
+#else
+      glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
+#endif
+
+      GrGLFramebufferInfo fbinfo;
+      fbinfo.fFBOID = fbo;
+      fbinfo.fFormat = 0x8058;
+
+      GrBackendRenderTarget backendRT(width, height, samples, stencilBits, fbinfo);
+
+      mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRT, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
+      assert(mScreenSurface);
+    }
   }
-#elif defined IGRAPHICS_METAL
-  if (mGrContext.get())
+#endif //IGRAPHICS_GL
+
+#if defined IGRAPHICS_METAL
+  if (GetBackendMode() == EBackendMode::Metal)
   {
-    int width = WindowWidth() * GetScreenScale();
-    int height = WindowHeight() * GetScreenScale();
-    
-    id<CAMetalDrawable> drawable = [(CAMetalLayer*) mMTLLayer nextDrawable];
-    
-    GrMtlTextureInfo fbInfo;
-    fbInfo.fTexture.retain((const void*)(drawable.texture));
-    GrBackendRenderTarget backendRT(width, height, 1 /* sample count/MSAA */, fbInfo);
-    
-    mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, nullptr, nullptr);
-    
-    mMTLDrawable = (void*) drawable;
-    assert(mScreenSurface);
+    if (mGrContext.get())
+    {
+      int width = WindowWidth() * GetScreenScale();
+      int height = WindowHeight() * GetScreenScale();
+
+      id<CAMetalDrawable> drawable = [(CAMetalLayer*)mMTLLayer nextDrawable];
+
+      GrMtlTextureInfo fbInfo;
+      fbInfo.fTexture.retain((const void*)(drawable.texture));
+      GrBackendRenderTarget backendRT(width, height, 1 /* sample count/MSAA */, fbInfo);
+
+      mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, nullptr, nullptr);
+
+      mMTLDrawable = (void*)drawable;
+      assert(mScreenSurface);
+    }
   }
 #endif
 
@@ -451,7 +683,9 @@ void IGraphicsSkia::BeginFrame()
 
 void IGraphicsSkia::EndFrame()
 {
-#ifdef IGRAPHICS_CPU
+#if defined IGRAPHICS_CPU
+  if (GetBackendMode() == EBackendMode::Software)
+  {
   #if defined OS_MAC || defined OS_IOS
     SkPixmap pixmap;
     mSurface->peekPixels(&pixmap);
@@ -475,18 +709,72 @@ void IGraphicsSkia::EndFrame()
   #else
     #error NOT IMPLEMENTED
   #endif
-#else // GPU
-  mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, nullptr);
-    
-  mScreenSurface->getCanvas()->flush();
-  
-  #ifdef IGRAPHICS_METAL
-    id<MTLCommandBuffer> commandBuffer = [(id<MTLCommandQueue>) mMTLCommandQueue commandBuffer];
-    commandBuffer.label = @"Present";
-  
-    [commandBuffer presentDrawable:(id<CAMetalDrawable>) mMTLDrawable];
-    [commandBuffer commit];
-  #endif
+  }
+#endif
+
+#if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
+  if ((GetBackendMode() == EBackendMode::OpenGL || GetBackendMode() == EBackendMode::Metal) && mScreenSurface)
+  {
+    mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, nullptr);
+
+    #if defined IGRAPHICS_IMGUI
+    if (mImGuiRenderer)
+    {
+      mImGuiRenderer->NewFrame();
+      DrawImGui(mScreenSurface.get());
+    }
+    #endif
+
+    mScreenSurface->getCanvas()->flush();
+
+    #if defined IGRAPHICS_METAL
+    if (GetBackendMode() == EBackendMode::Metal)
+    {
+      id<MTLCommandBuffer> commandBuffer = [(id<MTLCommandQueue>) mMTLCommandQueue commandBuffer];
+      commandBuffer.label = @"Present";
+
+      [commandBuffer presentDrawable : (id<CAMetalDrawable>) mMTLDrawable];
+      [commandBuffer commit];
+    }
+    #endif
+  }
+#endif
+#if defined IGRAPHICS_D3D
+  if (GetBackendMode() == EBackendMode::Direct3D)
+  {
+    auto getBackbufferSurface = [&]() {
+      // Update the frame index.
+      const UINT64 currentFenceValue = mFenceValues[mBufferIndex];
+      mBufferIndex = mSwapChain->GetCurrentBackBufferIndex();
+
+      // If the last frame for this buffer index is not done, wait until it is ready.
+      if (mFence->GetCompletedValue() < mFenceValues[mBufferIndex])
+      {
+        GR_D3D_CALL_ERRCHECK(mFence->SetEventOnCompletion(mFenceValues[mBufferIndex], mFenceEvent));
+        WaitForSingleObjectEx(mFenceEvent, INFINITE, FALSE);
+      }
+
+      // Set the fence value for the next frame.
+      mFenceValues[mBufferIndex] = currentFenceValue + 1;
+
+      return mSurfaces[mBufferIndex];
+    };
+
+    sk_sp<SkSurface> backbuffer = getBackbufferSurface();
+    mSurface->draw(backbuffer->getCanvas(), 0.0, 0.0, nullptr);
+    backbuffer->flushAndSubmit();
+    // swap buffers
+    SkSurface* surface = mSurfaces[mBufferIndex].get();
+
+    GrFlushInfo info;
+    surface->flush(SkSurface::BackendSurfaceAccess::kPresent, info);
+    mGrContext->submit();
+
+    GR_D3D_CALL_ERRCHECK(mSwapChain->Present(1, 0));
+
+    // Schedule a Signal command in the queue.
+    GR_D3D_CALL_ERRCHECK(mQueue->Signal(mFence.get(), mFenceValues[mBufferIndex]));
+  }
 #endif
 }
 
@@ -496,9 +784,10 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
   
   p.setAntiAlias(true);
   p.setBlendMode(SkiaBlendMode(pBlend));
+
   if (pBlend)
     p.setAlpha(Clip(static_cast<int>(pBlend->mWeight * 255), 0, 255));
-    
+ 
   SkiaDrawable* image = bitmap.GetAPIBitmap()->GetBitmap();
 
   double scale1 = 1.0 / (bitmap.GetScale() * bitmap.GetDrawScale());
@@ -855,20 +1144,29 @@ APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, float scale, do
 {
   sk_sp<SkSurface> surface;
   
-  #ifndef IGRAPHICS_CPU
-  SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
-  if (cacheable)
+#if defined IGRAPHICS_CPU
+  if (GetBackendMode() == EBackendMode::Software)
   {
     surface = SkSurface::MakeRasterN32Premul(width, height);
   }
-  else
+#endif
+  
+#if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
+  if (GetBackendMode() > EBackendMode::Software)
   {
-    surface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
-  }
-  #else
-  surface = SkSurface::MakeRasterN32Premul(width, height);
-  #endif
+    SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
 
+    if (cacheable)
+    {
+      surface = SkSurface::MakeRasterN32Premul(width, height);
+    }
+    else
+    {
+      surface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
+    }
+  }
+#endif
+  
   surface->getCanvas()->save();
 
   return new Bitmap(std::move(surface), width, height, scale, drawScale);
@@ -927,7 +1225,7 @@ void IGraphicsSkia::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
  
   IBlend blend(EBlend::Default, shadow.mOpacity);
   pCanvas->setMatrix(m);
-  pCanvas->drawImage(image.get(), shadow.mXOffset * scale, shadow.mYOffset * scale);
+  pCanvas->drawImage(image, shadow.mXOffset * scale, shadow.mYOffset * scale);
   m = SkMatrix::Scale(scale, scale);
   pCanvas->setMatrix(m);
   pCanvas->translate(-layer->Bounds().L, -layer->Bounds().T);
@@ -956,13 +1254,28 @@ void IGraphicsSkia::DrawFastDropShadow(const IRECT& innerBounds, const IRECT& ou
 
 const char* IGraphicsSkia::GetDrawingAPIStr()
 {
-#ifdef IGRAPHICS_CPU
-  return "SKIA | CPU";
-#elif defined IGRAPHICS_GL2
-  return "SKIA | GL2";
+  if (GetBackendMode() == EBackendMode::Software)
+  {
+    return "SKIA | CPU";
+  }
+  else if (GetBackendMode() == EBackendMode::OpenGL)
+  {
+#if defined IGRAPHICS_GL2
+    return "SKIA | GL2";
 #elif defined IGRAPHICS_GL3
-  return "SKIA | GL3";
-#elif defined IGRAPHICS_METAL
-  return "SKIA | Metal";
+    return "SKIA | GL3";
+#else
+    return "GL not enabled";
 #endif
+  }
+  else if (GetBackendMode() == EBackendMode::Metal)
+  {
+    return "SKIA | Metal";
+  }
+  else if (GetBackendMode() == EBackendMode::Direct3D)
+  {
+    return "SKIA | Direct3D";
+  }
+  
+  return "";
 }

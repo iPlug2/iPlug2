@@ -650,30 +650,27 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           addDrawRect(rects, r);
         }
 
-#if defined IGRAPHICS_GL //|| IGRAPHICS_D2D
+#if defined IGRAPHICS_GL
         PAINTSTRUCT ps;
-        BeginPaint(hWnd, &ps);
-#endif
-
-#ifdef IGRAPHICS_GL
-        pGraphics->ActivateGLContext();
+        if (pGraphics->GetBackendMode() == EBackendMode::OpenGL)
+        {
+          BeginPaint(hWnd, &ps);
+          pGraphics->ActivateGLContext();
+        }
 #endif
 
         pGraphics->Draw(rects);
 
-        #ifdef IGRAPHICS_GL
-        SwapBuffers((HDC) pGraphics->GetPlatformContext());
-        pGraphics->DeactivateGLContext();
-        #endif
-
-#if defined IGRAPHICS_GL || IGRAPHICS_D2D
-        EndPaint(hWnd, &ps);
+#if defined IGRAPHICS_GL
+        if (pGraphics->GetBackendMode() == EBackendMode::OpenGL)
+        {
+          SwapBuffers((HDC) pGraphics->GetPlatformContext());
+          pGraphics->DeactivateGLContext();
+          EndPaint(hWnd, &ps);
+        }
 #endif
       }
 
-      // For the D2D if we don't call endpaint, then you really need to call ValidateRect otherwise
-      // we are just going to get another WM_PAINT to handle.  Bad!  It also exibits the odd property
-      // that windows will be popped under the window.
       ValidateRect(hWnd, 0);
 
       DeleteObject(region);
@@ -920,14 +917,12 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
   }
 }
 
-#ifdef IGRAPHICS_GL
 void IGraphicsWin::DrawResize()
 {
   ActivateGLContext();
   IGRAPHICS_DRAW_CLASS::DrawResize();
   DeactivateGLContext();
 }
-#endif
 
 void IGraphicsWin::HideMouseCursor(bool hide, bool lock)
 {
@@ -1022,86 +1017,109 @@ void IGraphicsWin::GetMouseLocation(float& x, float&y) const
   y = p.y / scale;
 }
 
-#ifdef IGRAPHICS_GL
-void IGraphicsWin::CreateGLContext()
+void IGraphicsWin::CreateGPUContext()
 {
-  PIXELFORMATDESCRIPTOR pfd =
+  if (GetBackendMode() == EBackendMode::Software) return;
+
+#ifdef IGRAPHICS_GL
+  if (GetBackendMode() == EBackendMode::OpenGL)
   {
-    sizeof(PIXELFORMATDESCRIPTOR),
-    1,
-    PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, //Flags
-    PFD_TYPE_RGBA, // The kind of framebuffer. RGBA or palette.
-    32, // Colordepth of the framebuffer.
-    0, 0, 0, 0, 0, 0,
-    0,
-    0,
-    0,
-    0, 0, 0, 0,
-    24, // Number of bits for the depthbuffer
-    8, // Number of bits for the stencilbuffer
-    0, // Number of Aux buffers in the framebuffer.
-    PFD_MAIN_PLANE,
-    0,
-    0, 0, 0
-  };
-
-  HDC dc = GetDC(mPlugWnd);
-  int fmt = ChoosePixelFormat(dc, &pfd);
-  SetPixelFormat(dc, fmt, &pfd);
-  mHGLRC = wglCreateContext(dc);
-  wglMakeCurrent(dc, mHGLRC);
-
-#ifdef IGRAPHICS_GL3
-  // On windows we can't create a 3.3 context directly, since we need the wglCreateContextAttribsARB extension.
-  // We load the extension, then re-create the context.
-  auto wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC) wglGetProcAddress("wglCreateContextAttribsARB");
-
-  if (wglCreateContextAttribsARB)
-  {
-    wglDeleteContext(mHGLRC);
-
-    const int attribList[] = {
-      WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
-      WGL_CONTEXT_MINOR_VERSION_ARB, 3,
-      WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
-      0
+    PIXELFORMATDESCRIPTOR pfd =
+    {
+      sizeof(PIXELFORMATDESCRIPTOR),
+      1,
+      PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER, //Flags
+      PFD_TYPE_RGBA, // The kind of framebuffer. RGBA or palette.
+      32, // Colordepth of the framebuffer.
+      0, 0, 0, 0, 0, 0,
+      0,
+      0,
+      0,
+      0, 0, 0, 0,
+      24, // Number of bits for the depthbuffer
+      8, // Number of bits for the stencilbuffer
+      0, // Number of Aux buffers in the framebuffer.
+      PFD_MAIN_PLANE,
+      0,
+      0, 0, 0
     };
 
-    mHGLRC = wglCreateContextAttribsARB(dc, 0, attribList);
+    HDC dc = GetDC(mPlugWnd);
+    int fmt = ChoosePixelFormat(dc, &pfd);
+    SetPixelFormat(dc, fmt, &pfd);
+    mHGLRC = wglCreateContext(dc);
     wglMakeCurrent(dc, mHGLRC);
+
+#ifdef IGRAPHICS_GL3
+    // On windows we can't create a 3.3 context directly, since we need the wglCreateContextAttribsARB extension.
+    // We load the extension, then re-create the context.
+    auto wglCreateContextAttribsARB = (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+
+    if (wglCreateContextAttribsARB)
+    {
+      wglDeleteContext(mHGLRC);
+
+      const int attribList[] = {
+        WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
+        WGL_CONTEXT_MINOR_VERSION_ARB, 3,
+        WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+        0
+      };
+
+      mHGLRC = wglCreateContextAttribsARB(dc, 0, attribList);
+      wglMakeCurrent(dc, mHGLRC);
+    }
+
+#endif // IGRAPHICS_GL3
+
+    //TODO: return false if GL init fails?
+    if (!gladLoadGL())
+      DBGMSG("Error initializing glad");
+
+    glGetError();
+
+    ReleaseDC(mPlugWnd, dc);
   }
+#endif //IGRAPHICS_GL
 
-#endif
-
-  //TODO: return false if GL init fails?
-  if (!gladLoadGL())
-    DBGMSG("Error initializing glad");
-
-  glGetError();
-
-  ReleaseDC(mPlugWnd, dc);
+//#ifdef IGRAPHICS_D3D
+  //if (GetBackendMode() == EBackendMode::Direct3D)
+  //{
+  
+  //}
+//#endif
 }
 
-void IGraphicsWin::DestroyGLContext()
+void IGraphicsWin::DestroyGPUContext()
 {
-  wglMakeCurrent(NULL, NULL);
-  wglDeleteContext(mHGLRC);
+  if (GetBackendMode() == EBackendMode::Software) return;
+
+#ifdef IGRAPHICS_GL
+  if (GetBackendMode() == EBackendMode::OpenGL)
+  {
+    wglMakeCurrent(NULL, NULL);
+    wglDeleteContext(mHGLRC);
+  }
+#endif
 }
 
 void IGraphicsWin::ActivateGLContext()
 {
+#ifdef IGRAPHICS_GL
   mStartHDC = wglGetCurrentDC();
   mStartHGLRC = wglGetCurrentContext();
   HDC dc = GetDC(mPlugWnd);
   wglMakeCurrent(dc, mHGLRC);
+#endif
 }
 
 void IGraphicsWin::DeactivateGLContext()
 {
+#ifdef IGRAPHICS_GL
   ReleaseDC(mPlugWnd, (HDC) GetPlatformContext());
   wglMakeCurrent(mStartHDC, mStartHGLRC); // return current ctxt to start
-}
 #endif
+}
 
 EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
@@ -1145,10 +1163,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
   SetPlatformContext(dc);
   ReleaseDC(mPlugWnd, dc);
 
-#ifdef IGRAPHICS_GL
-  CreateGLContext();
-#endif
-
+  CreateGPUContext();
   OnViewInitialized((void*) dc);
 
   SetScreenScale(screenScale); // resizes draw context
@@ -1278,16 +1293,10 @@ void IGraphicsWin::CloseWindow()
     else
       KillTimer(mPlugWnd, IPLUG_TIMER_ID);
 
-#ifdef IGRAPHICS_GL
     ActivateGLContext();
-#endif
-
     OnViewDestroyed();
-
-#ifdef IGRAPHICS_GL
     DeactivateGLContext();
-    DestroyGLContext();
-#endif
+    DestroyGPUContext();
 
     SetPlatformContext(nullptr);
 

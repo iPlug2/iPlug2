@@ -394,41 +394,49 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [self registerForDraggedTypes:[NSArray arrayWithObjects: NSFilenamesPboardType, nil]];
   
   #if defined IGRAPHICS_METAL
-  self.layer = [CAMetalLayer new];
-  [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
-  ((CAMetalLayer*) self.layer).device = MTLCreateSystemDefaultDevice();
-  
-  #elif defined IGRAPHICS_GL
-  NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
-  #if defined IGRAPHICS_GL3
-    profile = (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core;
-  #endif
-  const NSOpenGLPixelFormatAttribute attrs[] =  {
-    NSOpenGLPFAAccelerated,
-    NSOpenGLPFANoRecovery,
-    NSOpenGLPFADoubleBuffer,
-    NSOpenGLPFAAlphaSize, 8,
-    NSOpenGLPFAColorSize, 24,
-    NSOpenGLPFADepthSize, 0,
-    NSOpenGLPFAStencilSize, 8,
-    NSOpenGLPFAOpenGLProfile, profile,
-    (NSOpenGLPixelFormatAttribute) 0
-  };
-  NSOpenGLPixelFormat* pPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
-  NSOpenGLContext* pGLContext = [[NSOpenGLContext alloc] initWithFormat:pPixelFormat shareContext:nil];
-  
-  #ifdef DEBUG
-  // CGLEnable([context CGLContextObj], kCGLCECrashOnRemovedFunctions); //SKIA_GL2 will crash
+  if (pGraphics->GetBackendMode() == EBackendMode::Metal)
+  {
+    self.layer = [CAMetalLayer new];
+    [(CAMetalLayer*)[self layer] setPixelFormat:MTLPixelFormatBGRA8Unorm];
+    ((CAMetalLayer*) self.layer).device = MTLCreateSystemDefaultDevice();
+  }
   #endif
 
-  self.pixelFormat = pPixelFormat;
-  self.openGLContext = pGLContext;
-  self.wantsBestResolutionOpenGLSurface = YES;
+  #if defined IGRAPHICS_GL
+  if (pGraphics->GetBackendMode() == EBackendMode::OpenGL)
+  {
+    NSOpenGLPixelFormatAttribute profile = NSOpenGLProfileVersionLegacy;
+    #if defined IGRAPHICS_GL3
+      profile = (NSOpenGLPixelFormatAttribute)NSOpenGLProfileVersion3_2Core;
+    #endif
+    const NSOpenGLPixelFormatAttribute attrs[] =  {
+      NSOpenGLPFAAccelerated,
+      NSOpenGLPFANoRecovery,
+      NSOpenGLPFADoubleBuffer,
+      NSOpenGLPFAAlphaSize, 8,
+      NSOpenGLPFAColorSize, 24,
+      NSOpenGLPFADepthSize, 0,
+      NSOpenGLPFAStencilSize, 8,
+      NSOpenGLPFAOpenGLProfile, profile,
+      (NSOpenGLPixelFormatAttribute) 0
+    };
+    NSOpenGLPixelFormat* pPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
+    NSOpenGLContext* pGLContext = [[NSOpenGLContext alloc] initWithFormat:pPixelFormat shareContext:nil];
+    
+    #ifdef DEBUG
+    // CGLEnable([context CGLContextObj], kCGLCECrashOnRemovedFunctions); //SKIA_GL2 will crash
+    #endif
+
+    self.pixelFormat = pPixelFormat;
+    self.openGLContext = pGLContext;
+    self.wantsBestResolutionOpenGLSurface = YES;
+  }
   #endif // IGRAPHICS_GL
 
-  #if !defined IGRAPHICS_GL
-  [self setTimer];
-  #endif
+  if (pGraphics->GetBackendMode() != EBackendMode::OpenGL)
+  {
+    [self setTimer];
+  }
   
   return self;
 }
@@ -486,7 +494,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   #endif
   
   CGDirectDisplayID viewDisplayID =
-      (CGDirectDisplayID) [self.window.screen.deviceDescription[@"NSScreenNumber"] unsignedIntegerValue];;
+      (CGDirectDisplayID) [self.window.screen.deviceDescription[@"NSScreenNumber"] unsignedIntegerValue];
 
   cvReturn = CVDisplayLinkSetCurrentCGDisplay(mDisplayLink, viewDisplayID);
 
@@ -568,12 +576,10 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     if (mGraphics)
       mGraphics->SetScreenScale(newScale);
     
-    #ifdef IGRAPHICS_METAL
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(frameDidChange:)
                                                  name:NSViewFrameDidChangeNotification
                                                object:self];
-    #endif
     
 //    [[NSNotificationCenter defaultCenter] addObserver:self
 //                                             selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
@@ -604,10 +610,18 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     mGraphics->SetScreenScale(newScale);
 
 #if defined IGRAPHICS_GL
-  self.layer.contentsScale = 1./newScale;
-#elif defined IGRAPHICS_METAL
-  [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * newScale,
-                                                          self.frame.size.height * newScale)];
+  if (mGraphics->GetBackendMode() == EBackendMode::OpenGL)
+  {
+    self.layer.contentsScale = 1./newScale;
+  }
+#endif
+  
+#if defined IGRAPHICS_METAL
+  if (mGraphics->GetBackendMode() == EBackendMode::Metal)
+  {
+    [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * newScale,
+                                                            self.frame.size.height * newScale)];
+  }
 #endif
 }
 
@@ -617,31 +631,31 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   return [NSGraphicsContext graphicsContextWithCGContext: pCGC flipped: YES].CGContext;
 }
 
-// not called for layer backed views
+// not called for layer-backed views
 - (void) drawRect: (NSRect) bounds
 {
-  #if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL
-  if (mGraphics)
+#ifdef IGRAPHICS_CPU
+  if (mGraphics->GetBackendMode() == EBackendMode::Software)
   {
-    mGraphics->SetPlatformContext([self getCGContextRef]);
-      
-    if (mGraphics->GetPlatformContext())
+    if (mGraphics)
     {
-      const NSRect *rects;
-      NSInteger numRects;
-      [self getRectsBeingDrawn:&rects count:&numRects];
-      IRECTList drawRects;
+      mGraphics->SetPlatformContext([self getCGContextRef]);
+        
+      if (mGraphics->GetPlatformContext())
+      {
+        const NSRect *rects;
+        NSInteger numRects;
+        [self getRectsBeingDrawn:&rects count:&numRects];
+        IRECTList drawRects;
 
-      for (int i = 0; i < numRects; i++)
-        drawRects.Add(ToIRECT(mGraphics, &rects[i]));
-      
-      mGraphics->Draw(drawRects);
+        for (int i = 0; i < numRects; i++)
+          drawRects.Add(ToIRECT(mGraphics, &rects[i]));
+        
+        mGraphics->Draw(drawRects);
+      }
     }
   }
-  #else // this gets called on resize
-  //TODO: set GL context/flush?
-  //mGraphics->Draw(mDirtyRects);
-  #endif
+#endif
 }
 
 - (void) render
@@ -652,18 +666,31 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   {
     mGraphics->SetAllControlsClean();
       
-    #if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL // for layer-backed views setNeedsDisplayInRect/drawRect is not called
+    #ifdef IGRAPHICS_CPU
+    if (mGraphics->GetBackendMode() == EBackendMode::Software)
+    {
       for (int i = 0; i < mDirtyRects.Size(); i++)
         [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
-    #else
-      #ifdef IGRAPHICS_GL
-        [[self openGLContext] makeCurrentContext];
-      #endif
-      // so just draw on each frame, if something is dirty
-      mGraphics->Draw(mDirtyRects);
+      
+      return; // mGraphics->Draw() called in drawRect()
+    }
     #endif
+
     #ifdef IGRAPHICS_GL
-    [[self openGLContext] flushBuffer];
+    if (mGraphics->GetBackendMode() == EBackendMode::OpenGL)
+    {
+      [[self openGLContext] makeCurrentContext];
+    }
+    #endif
+    // for layer-backed views setNeedsDisplayInRect/drawRect is not called
+    // so just draw on each frame, if something is dirty
+    mGraphics->Draw(mDirtyRects);
+
+    #ifdef IGRAPHICS_GL
+    if (mGraphics->GetBackendMode() == EBackendMode::OpenGL)
+    {
+      [[self openGLContext] flushBuffer];
+    }
     #endif
   }
 }
@@ -1267,15 +1294,17 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   return YES;
 }
 
-#ifdef IGRAPHICS_METAL
 - (void) frameDidChange:(NSNotification*) pNotification
 {
-  CGFloat scale = [[self window] backingScaleFactor];
-
-  [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * scale,
-                                                          self.frame.size.height * scale)];
-}
+#ifdef IGRAPHICS_METAL
+  if (mGraphics->GetBackendMode() == EBackendMode::Metal)
+  {
+    CGFloat scale = [[self window] backingScaleFactor];
+    [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * scale,
+                                                            self.frame.size.height * scale)];
+  }
 #endif
+}
 
 //- (void) windowResized: (NSNotification*) notification;
 //{
