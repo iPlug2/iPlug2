@@ -11,6 +11,13 @@ SWELL_DEFINE_MENU_RESOURCE_BEGIN(IDR_MENU1)
         MENUITEM "&Show Drawn Area\tCtrl+D",    ID_SHOW_DRAWN
         MENUITEM "&Show FPS\tCtrl+F",           ID_SHOW_FPS
     END
+    POPUP "Renderer"
+    BEGIN
+        MENUITEM "Software",                    ID_RENDERER_SOFTWARE
+        MENUITEM "OpenGL",                      ID_RENDERER_OPENGL
+        MENUITEM "Metal",                       ID_RENDERER_METAL
+        MENUITEM "Direct3D",                    ID_RENDERER_DIRECT3D
+    END
     POPUP "&Help"
     BEGIN
         MENUITEM "&About",                      ID_ABOUT

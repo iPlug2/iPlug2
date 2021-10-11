@@ -91,6 +91,13 @@ BEGIN
         MENUITEM "&Show Drawn Area\tCtrl+D",    ID_SHOW_DRAWN
         MENUITEM "&Show FPS\tCtrl+F",           ID_SHOW_FPS
     END
+    POPUP "Renderer"
+    BEGIN
+        MENUITEM "Software",                    ID_RENDERER_SOFTWARE, INACTIVE
+        MENUITEM "OpenGL",                      ID_RENDERER_OPENGL, INACTIVE
+        MENUITEM "Metal",                       ID_RENDERER_METAL, INACTIVE
+        MENUITEM "Direct3D",                    ID_RENDERER_DIRECT3D, INACTIVE
+    END
     POPUP "&Help"
     BEGIN
         MENUITEM "&About",                      ID_ABOUT
@@ -135,18 +142,18 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
     "#include ""winres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
     "#include ""..\\config.h""\r\n"
     "ROBOTO_FN TTF ROBOTO_FN\0"
@@ -164,6 +171,7 @@ END
 // remains consistent on all systems.
 IDI_ICON1               ICON                    "IPlugEffect.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Accelerator
@@ -178,7 +186,6 @@ BEGIN
     "E",            ID_LIVE_EDIT,           VIRTKEY, CONTROL, NOINVERT
 END
 
-/////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -186,8 +193,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 0,0,1,0
-PRODUCTVERSION 0,0,1,0
+ FILEVERSION 0,0,1,0
+ PRODUCTVERSION 0,0,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
