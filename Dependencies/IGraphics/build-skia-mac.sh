@@ -32,7 +32,6 @@ skia_enable_pdf = false
 skia_enable_particles = true
 skia_enable_gpu = true
 skia_enable_skparagraph = true
-skia_enable_sksl_interpreter = true
 cc = "clang"
 cxx = "clang++"
 target_os = "mac"
@@ -56,6 +55,7 @@ mv ../../tmp/skia/macOS_x86_64/libskottie.a ../../mac/lib_x86_64
 mv ../../tmp/skia/macOS_x86_64/libskshaper.a ../../mac/lib_x86_64
 mv ../../tmp/skia/macOS_x86_64/libsksg.a ../../mac/lib_x86_64
 mv ../../tmp/skia/macOS_x86_64/libskparagraph.a ../../mac/lib_x86_64
+mv ../../tmp/skia/macOS_x86_64/libskunicode.a ../../mac/lib_x86_64
 mv ../../tmp/skia/macOS_x86_64/libsvg.a ../../mac/lib_x86_64
 
 python tools/git-sync-deps
@@ -81,7 +81,6 @@ skia_enable_pdf = false
 skia_enable_particles = true
 skia_enable_gpu = true
 skia_enable_skparagraph = true
-skia_enable_sksl_interpreter = true
 cc = "clang"
 cxx = "clang++"
 target_os = "mac"
@@ -105,6 +104,7 @@ mv ../../tmp/skia/macOS_arm64/libskottie.a ../../mac/lib_arm64
 mv ../../tmp/skia/macOS_arm64/libskshaper.a ../../mac/lib_arm64
 mv ../../tmp/skia/macOS_arm64/libsksg.a ../../mac/lib_arm64
 mv ../../tmp/skia/macOS_arm64/libskparagraph.a ../../mac/lib_arm64
+mv ../../tmp/skia/macOS_arm64/libskunicode.a ../../mac/lib_arm64
 mv ../../tmp/skia/macOS_arm64/libsvg.a ../../mac/lib_arm64
 
 echo 'Creating universal files...'
@@ -115,6 +115,7 @@ if [ -f ../../mac/lib/libskia.a ]; then
   rm ../../mac/lib/libskshaper.a
   rm ../../mac/lib/libsksg.a
   rm ../../mac/lib/libskparagraph.a
+  rm ../../mac/lib/libskunicode.a
   rm ../../mac/lib/libsvg.a
 fi
 
@@ -127,6 +128,7 @@ xcrun lipo -create ../../mac/lib_*/libskottie.a -o "../../mac/lib/libskottie.a"
 xcrun lipo -create ../../mac/lib_*/libskshaper.a -o "../../mac/lib/libskshaper.a"
 xcrun lipo -create ../../mac/lib_*/libsksg.a -o "../../mac/lib/libsksg.a"
 xcrun lipo -create ../../mac/lib_*/libskparagraph.a -o "../../mac/lib/libskparagraph.a"
+xcrun lipo -create ../../mac/lib_*/libskunicode.a -o "../../mac/lib/libskunicode.a"
 xcrun lipo -create ../../mac/lib_*/libsvg.a -o "../../mac/lib/libsvg.a"
 
 if [ -d ../../mac/lib_arm64 ]; then

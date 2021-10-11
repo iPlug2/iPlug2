@@ -215,7 +215,6 @@ void ImGuiRenderer::Init()
     auto fontShader = fontImage->makeShader(&localMatrix);
     fFontPaint.setShader(fontShader);
     fFontPaint.setColor(SK_ColorWHITE);
-    fFontPaint.setFilterQuality(kLow_SkFilterQuality);
     io.Fonts->TexID = &fFontPaint;
   #endif
 #else
@@ -262,7 +261,6 @@ void ImGuiRenderer::NewFrame()
   auto fontShader = fontImage->makeShader(&localMatrix);
   fFontPaint.setShader(fontShader);
   fFontPaint.setColor(SK_ColorWHITE);
-  fFontPaint.setFilterQuality(kLow_SkFilterQuality);
   io.Fonts->TexID = &fFontPaint;
   this->DoFrame();
 #elif defined IGRAPHICS_GL2
