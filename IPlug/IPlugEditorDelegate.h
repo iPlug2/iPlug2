@@ -360,10 +360,13 @@ public:
   friend class IPlugAPIBase;
   friend class IPluginBase;
 
-private:
+protected:
   /** A list of IParam objects. This list is populated in the delegate constructor depending on the number of parameters passed as an argument to MakeConfig() in the plug-in class implementation constructor */
   WDL_PtrList<IParam> mParams;
 
+  /** A function that can be deferred until next timer tick. See IPlugAPIBase::OnTimer() */
+  std::function<void()> mDeferredFunc;
+private:
   /** The width of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist. */
   int mEditorWidth = 0;
   /** The height of the plug-in editor in pixels. Can be updated by resizing, exists here for persistance, even if UI doesn't exist */

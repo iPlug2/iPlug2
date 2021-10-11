@@ -188,6 +188,12 @@ void IPlugAPIBase::OnTimer(Timer& t)
     }
 #endif
   }
+
+  if (mDeferredFunc)
+  {
+    mDeferredFunc();
+    mDeferredFunc = nullptr;
+  }
   
   OnIdle();
 }
