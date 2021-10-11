@@ -76,8 +76,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 
     CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), IPlugAPPHost::MainDlgProc);
 
-#if !defined _DEBUG || defined NO_IGRAPHICS
     HMENU menu = GetMenu(gHWND);
+
+#if defined _DEBUG && defined GRAPHICS_SWITCHES
+#if defined IGRAPHICS_SKIA && defined IGRAPHICS_CPU
+    EnableMenuItem(menu, ID_RENDERER_SOFTWARE, MF_BYCOMMAND | MF_ENABLED);
+#endif
+#if defined IGRAPHICS_SKIA && defined IGRAPHICS_D3D
+    EnableMenuItem(menu, ID_RENDERER_DIRECT3D, MF_BYCOMMAND | MF_ENABLED);
+#endif
+#if defined IGRAPHICS_GL
+    EnableMenuItem(menu, ID_RENDERER_OPENGL, MF_BYCOMMAND | MF_ENABLED);
+#endif
+#else
+    RemoveMenu(menu, 1, MF_BYPOSITION);
     RemoveMenu(menu, 1, MF_BYPOSITION);
     DrawMenuBar(gHWND);
 #endif
@@ -230,26 +242,49 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 #if !defined _DEBUG || defined NO_IGRAPHICS
       if (menu)
       {
-        HMENU sm = GetSubMenu(menu, 1);
-        DeleteMenu(sm, ID_LIVE_EDIT, MF_BYCOMMAND);
-        DeleteMenu(sm, ID_SHOW_DRAWN, MF_BYCOMMAND);
-        DeleteMenu(sm, ID_SHOW_FPS, MF_BYCOMMAND);
+        for (auto menu : { 0, 1 })
+        {
+          HMENU sm = GetSubMenu(menu, 1);
+          DeleteMenu(sm, ID_LIVE_EDIT, MF_BYCOMMAND);
+          DeleteMenu(sm, ID_SHOW_DRAWN, MF_BYCOMMAND);
+          DeleteMenu(sm, ID_SHOW_BOUNDS, MF_BYCOMMAND);
+          DeleteMenu(sm, ID_SHOW_FPS, MF_BYCOMMAND);
 
-        // remove any trailing separators
-        int a = GetMenuItemCount(sm);
+          // remove any trailing separators
+          int a = GetMenuItemCount(sm);
 
-        while (a > 0 && GetMenuItemID(sm, a-1) == 0)
-          DeleteMenu(sm, --a, MF_BYPOSITION);
+          while (a > 0 && GetMenuItemID(sm, a - 1) == 0)
+            DeleteMenu(sm, --a, MF_BYPOSITION);
 
-        DeleteMenu(menu, 1, MF_BYPOSITION); // delete debug menu
+          DeleteMenu(menu, 1, MF_BYPOSITION); // delete renderer and debug menu
+        }
       }
 #else
       SetMenuItemModifier(menu, ID_LIVE_EDIT, MF_BYCOMMAND, 'E', FCONTROL);
       SetMenuItemModifier(menu, ID_SHOW_DRAWN, MF_BYCOMMAND, 'D', FCONTROL);
       SetMenuItemModifier(menu, ID_SHOW_BOUNDS, MF_BYCOMMAND, 'B', FCONTROL);
       SetMenuItemModifier(menu, ID_SHOW_FPS, MF_BYCOMMAND, 'F', FCONTROL);
+      
+#if GRAPHICS_SWITCHES
+      EnableMenuItem(menu, ID_RENDERER_SOFTWARE, MF_BYCOMMAND | MF_GRAYED);
+      EnableMenuItem(menu, ID_RENDERER_OPENGL,   MF_BYCOMMAND | MF_GRAYED);
+      EnableMenuItem(menu, ID_RENDERER_METAL,    MF_BYCOMMAND | MF_GRAYED);
+      EnableMenuItem(menu, ID_RENDERER_DIRECT3D, MF_BYCOMMAND | MF_GRAYED);
+#if defined IGRAPHICS_SKIA && defined IGRAPHICS_CPU
+      EnableMenuItem(menu, ID_RENDERER_SOFTWARE, MF_BYCOMMAND | MF_ENABLED);
 #endif
-
+#if defined IGRAPHICS_SKIA && defined IGRAPHICS_D3D
+      EnableMenuItem(menu, ID_RENDERER_DIRECT3D, MF_BYCOMMAND | MF_ENABLED);
+#endif
+#if defined IGRAPHICS_METAL
+      EnableMenuItem(menu, ID_RENDERER_METAL, MF_BYCOMMAND | MF_ENABLED);
+#endif
+#if defined IGRAPHICS_GL
+      EnableMenuItem(menu, ID_RENDERER_OPENGL, MF_BYCOMMAND | MF_ENABLED);
+#endif
+      
+#endif // GRAPHICS_SWITCHES
+#endif
       HWND hwnd = CreateDialog(gHINST, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, IPlugAPPHost::MainDlgProc);
 
       if (menu)
