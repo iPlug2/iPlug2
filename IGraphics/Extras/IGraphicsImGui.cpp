@@ -212,7 +212,7 @@ void ImGuiRenderer::Init()
     SkPixmap pmap(info, pixels, info.minRowBytes());
     SkMatrix localMatrix = SkMatrix::Scale(1.0f / w, 1.0f / h);
     auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
-    auto fontShader = fontImage->makeShader(&localMatrix);
+    auto fontShader = fontImage->makeShader(SkSamplingOptions(), &localMatrix);
     fFontPaint.setShader(fontShader);
     fFontPaint.setColor(SK_ColorWHITE);
     io.Fonts->TexID = &fFontPaint;
@@ -258,7 +258,7 @@ void ImGuiRenderer::NewFrame()
   SkPixmap pmap(info, pixels, info.minRowBytes());
   SkMatrix localMatrix = SkMatrix::Scale(1.0f / w, 1.0f / h);
   auto fontImage = SkImage::MakeFromRaster(pmap, nullptr, nullptr);
-  auto fontShader = fontImage->makeShader(&localMatrix);
+  auto fontShader = fontImage->makeShader(SkSamplingOptions(), &localMatrix);
   fFontPaint.setShader(fontShader);
   fFontPaint.setColor(SK_ColorWHITE);
   io.Fonts->TexID = &fFontPaint;

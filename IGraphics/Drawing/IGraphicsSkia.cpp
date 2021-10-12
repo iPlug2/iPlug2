@@ -569,10 +569,12 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
   mCanvas->scale(scale1, scale1);
   mCanvas->translate(-srcX * scale2, -srcY * scale2);
   
+  auto samplingOptions = SkSamplingOptions(SkFilterMode::kLinear);
+  
   if (image->mIsSurface)
-    image->mSurface->draw(mCanvas, 0.0, 0.0, &p);
+    image->mSurface->draw(mCanvas, 0.0, 0.0, samplingOptions, &p);
   else
-    mCanvas->drawImage(image->mImage, 0.0, 0.0, SkSamplingOptions(), &p);
+    mCanvas->drawImage(image->mImage, 0.0, 0.0, samplingOptions, &p);
     
   mCanvas->restore();
 }
