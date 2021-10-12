@@ -6,14 +6,6 @@ parameters:
 steps:
 - template: ${{parameters.platform}}
   parameters:
-    name: IPlugEffect
-    path: 'Examples'
-    graphics: ${{parameters.graphics}}
-    artifactName: IPlugEffect_${{parameters.graphics}}
-    platformStr: ${{parameters.platformStr}}
-
-- template: ${{parameters.platform}}
-  parameters:
     name: IPlugInstrument
     path: 'Examples'
     graphics: ${{parameters.graphics}}

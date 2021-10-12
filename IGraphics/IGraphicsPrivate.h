@@ -34,7 +34,6 @@
   #include "include/core/SkStream.h"
   #include "src/xml/SkDOM.h"
   #pragma warning( pop )
-  class SkSVGNode;
 #else
   #include "nanosvg.h"
 #endif
