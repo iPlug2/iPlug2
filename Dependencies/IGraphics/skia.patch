@@ -1,8 +1,8 @@
 diff --git a/BUILD.gn b/BUILD.gn
-index 48f6fe598a..e65f536e87 100644
+index f69f621776..6fa12f44ec 100644
 --- a/BUILD.gn
 +++ b/BUILD.gn
-@@ -3267,20 +3267,4 @@ if (skia_enable_tools) {
+@@ -3275,20 +3275,4 @@ if (skia_enable_tools) {
    }
  }
  
@@ -37,10 +37,10 @@ index 8029086eff..47eeeca061 100644
      # ARM64 compiler is incomplete - it relies on DLLs located in the host toolchain directory.
      env_setup = "$shell set \"PATH=%PATH%;$win_vc\\Tools\\MSVC\\$win_toolchain_version\\bin\\HostX64\\x64\" && "
 diff --git a/modules/skparagraph/BUILD.gn b/modules/skparagraph/BUILD.gn
-index 9d2c903b6f..8a69662ffe 100644
+index 45da5fb297..19c5fed5bd 100644
 --- a/modules/skparagraph/BUILD.gn
 +++ b/modules/skparagraph/BUILD.gn
-@@ -37,6 +37,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
+@@ -39,6 +39,7 @@ if (skia_enable_skparagraph && skia_enable_skshaper && skia_use_icu &&
    if (defined(is_skia_standalone) && skia_enable_tools) {
      skia_source_set("utils") {
        import("skparagraph.gni")
@@ -48,3 +48,15 @@ index 9d2c903b6f..8a69662ffe 100644
        public_configs = [ ":utils_config" ]
        configs = [ "../../:skia_private" ]
        sources = skparagraph_utils
+diff --git a/modules/svg/include/SkSVGDOM.h b/modules/svg/include/SkSVGDOM.h
+index 4c2c9d98de..b97c999c3e 100644
+--- a/modules/svg/include/SkSVGDOM.h
++++ b/modules/svg/include/SkSVGDOM.h
+@@ -14,6 +14,7 @@
+ #include "include/private/SkTemplates.h"
+ #include "modules/skresources/include/SkResources.h"
+ #include "modules/svg/include/SkSVGIDMapper.h"
++#include "modules/svg/include/SkSVGDefs.h"
+ 
+ class SkCanvas;
+ class SkDOM;
