@@ -3,6 +3,8 @@
 rm -r VST3_SDK
 rm -r WAM_AWP
 rm -r WAM_SDK
+rm -r CLAP_SDK
+
 git clone https://github.com/iplug2/audioworklet-polyfill WAM_AWP
 git clone https://github.com/iplug2/api.git WAM_SDK
 
@@ -16,3 +18,5 @@ cd ..
 git checkout ./VST3_SDK/README.md
 git checkout ./WAM_SDK/readme.txt
 git checkout ./WAM_AWP/readme.txt
+
+git clone https://github.com/free-audio/clap.git CLAP_SDK 

@@ -86,6 +86,10 @@
   #include "IPlugVST3_Processor.h"
   #define PLUGIN_API_BASE IPlugVST3Processor
   #define API_EXT "vst3"
+#elif defined CLAP_API
+  #include "IPlugCLAP.h"
+  #define PLUGIN_API_BASE IPlugCLAP
+  #define API_EXT "dylib"
 #else
   #error "No API defined!"
 #endif

@@ -269,6 +269,54 @@
     
     return 0;
   }
+#elif defined CLAP_API
+
+static std::string gPluginPath;
+const clap_plugin_descriptor* gPluginDesc;
+
+static bool clap_init(const char* pluginPath)
+{
+  gPluginPath = pluginPath;
+  return true;
+}
+
+static void clap_deinit(void) { gPluginPath.clear(); }
+
+static uint32_t clap_get_plugin_count(void) { return 1; }
+
+static const clap_plugin_descriptor* clap_get_plugin_descriptor(uint32_t index) { return gPluginDesc; }
+
+static const clap_plugin* clap_create_plugin(const clap_host* host, const char* plugin_id)
+{
+  if (!strcmp(gPluginDesc->id, plugin_id))
+  {
+    const IPlugCLAP* pPlug = MakePlug(InstanceInfo{gPluginDesc, host});
+    return reinterpret_cast<const clap_plugin*>(pPlug);
+  }
+  return nullptr;
+}
+
+static uint32_t clap_get_invalidation_sources_count(void) { return 0; }
+
+static const clap_plugin_invalidation_source* clap_get_invalidation_sources(uint32_t index)
+{
+  return nullptr;
+}
+
+static void clap_refresh(void) {}
+
+CLAP_EXPORT const struct clap_plugin_entry clap_plugin_entry = {
+  CLAP_VERSION,
+  clap_init,
+  clap_deinit,
+  clap_get_plugin_count,
+  clap_get_plugin_descriptor,
+  clap_create_plugin,
+  clap_get_invalidation_sources_count,
+  clap_get_invalidation_sources,
+  clap_refresh,
+};
+
 #elif defined AUv3_API || defined AAX_API || defined APP_API
 // Nothing to do here
 #else
@@ -280,9 +328,9 @@
 BEGIN_IPLUG_NAMESPACE
 
 #pragma mark -
-#pragma mark VST2, VST3, AAX, AUv3, APP, WAM, WEB
+#pragma mark VST2, VST3, AAX, AUv3, APP, WAM, WEB, CLAP
 
-#if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API  || defined WAM_API || defined WEB_API
+#if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API  || defined WAM_API || defined WEB_API || defined CLAP_API
 
 Plugin* MakePlug(const InstanceInfo& info)
 {
@@ -333,7 +381,9 @@ Steinberg::FUnknown* MakeProcessor()
   info.mOtherGUID = Steinberg::FUID(VST3_CONTROLLER_UID);
   return static_cast<Steinberg::Vst::IAudioProcessor*>(new PLUG_CLASS_NAME(info));
 }
-
+#pragma mark - CLAP
+#elif defined CLAP_API
+// TODO?
 #else
 #error "No API defined!"
 #endif
