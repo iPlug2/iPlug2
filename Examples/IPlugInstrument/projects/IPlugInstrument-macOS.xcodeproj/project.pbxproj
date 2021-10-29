@@ -2100,7 +2100,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py\nphp ../../../WDL/swell/mac_resgen.php ../resources/main.rc\n";
+			shellScript = "python ../scripts/prepare_resources-mac.py\nif [[ $(sw_vers -buildVersion) > \"21\" ]]; then \n  php_binary=/opt/homebrew/bin/php\n  \n  if ! test -f $php_binary; then\n    echo \"$php_binary not found, install php via brew\"\n    exit 1\n  fi\nelse\n  php_binary=/usr/bin/php\nfi\n$php_binary ../../../WDL/swell/mac_resgen.php ../resources/main.rc\n";
 		};
 		4F744D4C14005ADA002FAD90 /* Run Script - clear_audiounit_caches.sh */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2162,7 +2162,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py\nphp ../../../WDL/swell/mac_resgen.php ../resources/main.rc\n";
+			shellScript = "python ../scripts/prepare_resources-mac.py\nif [[ $(sw_vers -buildVersion) > \"21\" ]]; then \n  php_binary=/opt/homebrew/bin/php\n  \n  if ! test -f $php_binary; then\n    echo \"$php_binary not found, install php via brew\"\n    exit 1\n  fi\nelse\n  php_binary=/usr/bin/php\nfi\n$php_binary ../../../WDL/swell/mac_resgen.php ../resources/main.rc\n";
 		};
 		4FBCC1B31FD5AE9F00EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
