@@ -1,6 +1,9 @@
 jobs:
 - job: GET_SRC_TREE
 
+  pool:
+    vmImage: 'ubuntu-latest'
+
   steps:
   - checkout: self
 
