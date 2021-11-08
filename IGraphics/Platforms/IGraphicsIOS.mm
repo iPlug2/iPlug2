@@ -325,6 +325,21 @@ void IGraphicsIOS::LaunchBluetoothMidiDialog(float x, float y)
   [[NSNotificationCenter defaultCenter] postNotificationName:@"LaunchBTMidiDialog" object:nil userInfo:dic];
 }
 
+EUIAppearance IGraphicsIOS::GetUIAppearance() const
+{
+  IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+  
+  if (pView)
+  {
+    return [[pView traitCollection] userInterfaceStyle] == UIUserInterfaceStyleDark ? EUIAppearance::Dark
+                                                                                    : EUIAppearance::Light;
+  }
+  else
+  {
+    return EUIAppearance::Light;
+  }
+}
+
 #if defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
 #elif defined IGRAPHICS_SKIA

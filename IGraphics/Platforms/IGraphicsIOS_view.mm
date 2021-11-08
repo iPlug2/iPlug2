@@ -880,6 +880,17 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 }
 #endif
 
+- (void) traitCollectionDidChange: (UITraitCollection*) previousTraitCollection
+{
+  [super traitCollectionDidChange: previousTraitCollection];
+
+  if(mGraphics)
+  {
+    mGraphics->OnAppearanceChanged([self.traitCollection userInterfaceStyle] == UIUserInterfaceStyleDark ? EUIAppearance::Dark
+                                                                                                         : EUIAppearance::Light);
+  }
+}
+
 - (void) getLastTouchLocation: (float&) x : (float&) y
 {
   const float scale = mGraphics->GetDrawScale();

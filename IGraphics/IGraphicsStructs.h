@@ -50,6 +50,7 @@ using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
 using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
 using IDisplayTickFunc = std::function<void()>;
+using IUIAppearanceChangedFunc = std::function<void(EUIAppearance appearance)>;
 using ITouchID = uintptr_t;
 
 /** A click action function that does nothing */
