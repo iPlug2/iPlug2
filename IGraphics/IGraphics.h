@@ -1518,7 +1518,7 @@ public:
 
   /** Called by the platform class if the view changes to dark/light mode
    * @param appearance Light/Dark mode */
-  void OnAppearanceChanged(EUIAppearance appearance) { mAppearanceChangedFunc(appearance); }
+  void OnAppearanceChanged(EUIAppearance appearance);
   
   /** Get the UI Appearance (Light/Dark mode)
    * @return Light/Dark mode */

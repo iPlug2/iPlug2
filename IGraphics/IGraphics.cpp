@@ -1494,6 +1494,12 @@ void IGraphics::OnDragResize(float x, float y)
   }
 }
 
+void IGraphics::OnAppearanceChanged(EUIAppearance appearance)
+{
+  if (mAppearanceChangedFunc)
+    mAppearanceChangedFunc(appearance);
+}
+
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 {
   //TODO: bug with # frames!
