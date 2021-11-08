@@ -1157,6 +1157,10 @@ public:
  * @param func The function to call */
   void SetDisplayTickFunc(IDisplayTickFunc func) { mDisplayTickFunc = func; }
 
+  /** Sets a function that is called when the OS appearance (light/dark mode) is changed
+ * @param func The function to call */
+  void SetUIAppearanceChangedFunc(IUIAppearanceChangedFunc func) { mAppearanceChangedFunc = func; }
+  
   /** Set a function that is called when key presses are not intercepted by any controls
    * @param keyHandlerFunc A std::function conforming to IKeyHandlerFunc  */
   void SetKeyHandlerFunc(IKeyHandlerFunc func) { mKeyHandlerFunc = func; }
@@ -1512,6 +1516,14 @@ public:
   /** Called by ICornerResizerControl as the corner is dragged to resize */
   void OnDragResize(float x, float y);
 
+  /** Called by the platform class if the view changes to dark/light mode
+   * @param appearance Light/Dark mode */
+  void OnAppearanceChanged(EUIAppearance appearance) { mAppearanceChangedFunc(appearance); }
+  
+  /** Get the UI Appearance (Light/Dark mode)
+   * @return Light/Dark mode */
+  virtual EUIAppearance GetUIAppearance() const { return EUIAppearance::Light; }
+  
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
   void EnableMouseOver(bool enable) { mEnableMouseOver = enable; }
 
@@ -1782,7 +1794,8 @@ private:
   double mPrevTimestamp = 0.;
   IKeyHandlerFunc mKeyHandlerFunc = nullptr;
   IDisplayTickFunc mDisplayTickFunc = nullptr;
-
+  IUIAppearanceChangedFunc mAppearanceChangedFunc = nullptr;
+  
 protected:
   IGEditorDelegate* mDelegate;
   bool mCursorHidden = false;

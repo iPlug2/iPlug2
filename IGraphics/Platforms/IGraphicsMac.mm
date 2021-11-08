@@ -624,6 +624,20 @@ bool IGraphicsMac::SetTextInClipboard(const char* str)
   return [[NSPasteboard generalPasteboard] setString:pTextForClipboard forType:NSStringPboardType];
 }
 
+EUIAppearance IGraphicsMac::GetUIAppearance() const
+{
+  if (@available(macOS 10.14, *)) {
+    if(mView)
+    {
+      IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+      BOOL isDarkMode = [[[pView effectiveAppearance] name] isEqualToString: (NSAppearanceNameDarkAqua)];
+      return isDarkMode ? EUIAppearance::Dark :  EUIAppearance::Light;
+    }
+  }
+  
+  return EUIAppearance::Light;
+}
+
 void IGraphicsMac::CreatePlatformImGui()
 {
 #if defined IGRAPHICS_IMGUI

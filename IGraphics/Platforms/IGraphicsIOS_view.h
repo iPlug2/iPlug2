@@ -54,7 +54,9 @@ using namespace igraphics;
 
 @end
 
-@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate, UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate
+@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate,
+                                          UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate,
+                                          UITraitEnvironment
 #ifdef __IPHONE_14_0
 , UIColorPickerViewControllerDelegate
 #endif
@@ -89,7 +91,7 @@ using namespace igraphics;
 
 //gestures
 - (void) attachGestureRecognizer: (EGestureType) type;
--(BOOL) gestureRecognizer:(UIGestureRecognizer*) gestureRecognizer shouldReceiveTouch:(UITouch*)touch;
+- (BOOL) gestureRecognizer:(UIGestureRecognizer*) gestureRecognizer shouldReceiveTouch:(UITouch*)touch;
 - (void) onTapGesture: (UITapGestureRecognizer*) recognizer;
 - (void) onLongPressGesture: (UILongPressGestureRecognizer*) recognizer;
 - (void) onSwipeGesture: (UISwipeGestureRecognizer*) recognizer;
@@ -97,6 +99,8 @@ using namespace igraphics;
 - (void) onRotateGesture: (UIRotationGestureRecognizer*) recognizer;
 
 - (void) getLastTouchLocation: (float&) x : (float&) y;
+
+- (void) traitCollectionDidChange: (UITraitCollection*) previousTraitCollection;
 
 @property (readonly) CAMetalLayer* metalLayer;
 @property (nonatomic, strong) CADisplayLink *displayLink;

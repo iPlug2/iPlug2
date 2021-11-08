@@ -69,6 +69,8 @@ public:
   void AttachGestureRecognizer(EGestureType type) override;
   
   bool PlatformSupportsMultiTouch() const override { return true; }
+  
+  EUIAppearance GetUIAppearance() const override;
 
 protected:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;

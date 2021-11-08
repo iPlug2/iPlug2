@@ -67,6 +67,7 @@ public:
 
   float MeasureText(const IText& text, const char* str, IRECT& bounds) const override;
 
+  EUIAppearance GetUIAppearance() const override;
 protected:
   void CreatePlatformImGui() override;
 
