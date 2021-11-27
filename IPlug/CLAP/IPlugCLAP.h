@@ -116,16 +116,18 @@ private:
   void guiRoundSize(uint32_t *width, uint32_t *height) noexcept override;
 #endif
   
-  // TODO - SELECT AT COMPILE TIME?
-  
+#ifdef OS_WIN
   // clap_plugin_gui_win32
   bool implementsGuiWin32() const noexcept override { return false; }
   bool guiWin32Attach(clap_hwnd window) noexcept override { return GUIWindowAttach(window);  }
-
+#endif
+  
+#ifdef OS_MAC
   // clap_plugin_gui_cocoa
   bool implementsGuiCocoa() const noexcept override { return true; }
   bool guiCocoaAttach(void *nsView) noexcept override { return GUIWindowAttach(nsView); }
-
+#endif
+  
   // Helper to attach GUI Windows
   
   bool GUIWindowAttach(void *parent) noexcept;
