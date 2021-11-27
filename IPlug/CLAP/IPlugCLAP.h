@@ -65,7 +65,7 @@ private:
   //void onMainThread() noexcept override {}
   //const void *extension(const char *id) noexcept override { return nullptr; }
 
-  //clap_plugin_latency
+  // clap_plugin_latency
   bool implementsLatency() const noexcept override { return true; }
   uint32_t latencyGet() const noexcept override { return GetLatency(); }
   
@@ -95,6 +95,29 @@ private:
      
   void paramsFlush(const clap_event_list *input_parameter_changes, const clap_event_list *output_parameter_changes) noexcept override;
   bool isValidParamId(clap_id paramId) const noexcept override { return paramId < NParams(); }
+    
+  // clap_plugin_gui
+  bool implementsGui() const noexcept override { return true; }
+  bool guiCreate() noexcept override { return true; }
+  void guiDestroy() noexcept override {}
+  
+  //void guiSetScale(double scale) noexcept {}
+  void guiShow() noexcept override { OpenWindow(mWindow); }
+  void guiHide() noexcept override { CloseWindow(); }
+  bool guiSize(uint32_t *width, uint32_t *height) noexcept override;
+  //bool guiCanResize() const noexcept { return false; }
+  //void guiRoundSize(uint32_t *width, uint32_t *height) noexcept { guiSize(width, height); }
+  //bool guiSetSize(uint32_t width, uint32_t height) noexcept { return false; }
+  
+  // clap_plugin_gui_win32
+  //bool implementsGuiWin32() const noexcept { return false; }
+  //bool guiWin32Attach(clap_hwnd window) noexcept { return false; }
+
+  // clap_plugin_gui_cocoa
+  bool implementsGuiCocoa() const noexcept override { return true; }
+  bool guiCocoaAttach(void *nsView) noexcept override;
+  
+  void *mWindow = nullptr;
 };
 
 IPlugCLAP* MakePlug(const InstanceInfo& info);
