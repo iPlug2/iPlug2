@@ -99,7 +99,6 @@ private:
   bool isValidParamId(clap_id paramId) const noexcept override { return paramId < NParams(); }
     
   // clap_plugin_gui
-  
 #if PLUG_HAS_UI
   bool implementsGui() const noexcept override { return true; }
   bool guiCreate() noexcept override { return true; }
