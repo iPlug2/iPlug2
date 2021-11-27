@@ -22,6 +22,16 @@ IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
 {
   Trace(TRACELOC, "%s", config.pluginName);
   
+  int version = 0;
+  
+  if (CStringHasContents(info.mHost->version))
+  {
+    int ver, rmaj, rmin;
+    sscanf(info.mHost->version, "%d.%d.%d", &ver, &rmaj, &rmin);
+    version = (ver << 16) + (rmaj << 8) + rmin;
+  }
+  
+  SetHost(info.mHost->name, version);
   CreateTimer();
 }
 
