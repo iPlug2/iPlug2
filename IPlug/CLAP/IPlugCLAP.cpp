@@ -95,6 +95,28 @@ void IPlugCLAP::deactivate() noexcept
 
 clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
 {
+  if (process->transport)
+  {
+    auto transport = process->transport;
+    
+    ITimeInfo timeInfo;
+    
+    // TODO - this upper bit all needs review
+    
+    timeInfo.mTempo = transport->tempo;
+    timeInfo.mSamplePos = -1.0;
+    timeInfo.mPPQPos = -1.0;
+    timeInfo.mLastBar = transport->bar_start;
+    timeInfo.mCycleStart = transport->loop_start_beats;
+    timeInfo.mCycleEnd = transport->loop_end_beats;
+
+    timeInfo.mNumerator = transport->tsig_num;
+    timeInfo.mDenominator = transport->tsig_denom;
+
+    timeInfo.mTransportIsRunning = transport->flags & CLAP_TRANSPORT_IS_PLAYING;
+    timeInfo.mTransportLoopEnabled = transport->flags & CLAP_TRANSPORT_IS_LOOP_ACTIVE;
+  }
+  
   return CLAP_PROCESS_CONTINUE;
 }
 
