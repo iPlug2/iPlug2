@@ -66,21 +66,23 @@ IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
 //
 //  return resized;
 //}
-//
-//void IPlugCLAP::SetLatency(int samples)
-//{
-//  IPlugProcessor::SetLatency(samples);
-//}
-//
+
+// IPlugProcessor
+
+void IPlugCLAP::SetLatency(int samples)
+{
+  IPlugProcessor::SetLatency(samples);
+}
+
 bool IPlugCLAP::SendMidiMsg(const IMidiMsg& msg)
 {
   return false;
 }
-//
-//bool IPlugCLAP::SendSysEx(const ISysEx& msg)
-//{
-//  return false;
-//}
+
+bool IPlugCLAP::SendSysEx(const ISysEx& msg)
+{
+  return false;
+}
 
 // clap_plugin
 
@@ -165,7 +167,7 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
         
         case CLAP_EVENT_MIDI_SYSEX:
         {
-          ISysEx sysEx(event->time, event->midi_sysex.buffer, event->midi_sysex.size);          
+          ISysEx sysEx(event->time, event->midi_sysex.buffer, event->midi_sysex.size);
           ProcessSysEx(sysEx);
         }
         

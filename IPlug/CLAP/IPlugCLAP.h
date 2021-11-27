@@ -46,13 +46,12 @@ public:
 //  void InformHostOfParamChange(int idx, double normalizedValue) override;
 //  void EndInformHostOfParamChange(int idx) override;
 //  void InformHostOfPresetChange() override;
-//  void HostSpecificInit() override;
 //  bool EditorResize(int viewWidth, int viewHeight) override;
 
-  //IPlugProcessor
-//  void SetLatency(int samples) override;
+  // IPlugProcessor
+  void SetLatency(int samples) override;
   bool SendMidiMsg(const IMidiMsg& msg) override;
-//  bool SendSysEx(const ISysEx& msg) override;
+  bool SendSysEx(const ISysEx& msg) override;
 
 private:
   
