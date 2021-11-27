@@ -20,3 +20,4 @@ git checkout ./WAM_SDK/readme.txt
 git checkout ./WAM_AWP/readme.txt
 
 git clone https://github.com/free-audio/clap.git CLAP_SDK 
+git clone https://github.com/free-audio/clap-helpers.git CLAP_HELPERS

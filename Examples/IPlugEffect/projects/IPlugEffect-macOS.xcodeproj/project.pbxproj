@@ -290,7 +290,6 @@
 		4FD869A327206006005A5F28 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6FD2AF22675B6300FC59E6 /* IGraphicsCoreText.mm */; };
 		4FD869A427206006005A5F28 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
 		4FD869DA27206169005A5F28 /* IPlugCLAP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD8698E27205E3C005A5F28 /* IPlugCLAP.cpp */; };
-		4FD86A6927206331005A5F28 /* clap-plugin.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4FD86A6727206331005A5F28 /* clap-plugin.cc */; };
 		4FDAC0EA207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FDAC0EB207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FDAC0EC207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
@@ -772,48 +771,26 @@
 		4FD52134202A5BD000A4D22A /* dfx-au-utilities.c */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.c; name = "dfx-au-utilities.c"; path = "../../../IPlug/AUv2/dfx-au-utilities.c"; sourceTree = "<group>"; tabWidth = 2; };
 		4FD52135202A5BD000A4D22A /* dfx-au-utilities.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = "dfx-au-utilities.h"; path = "../../../IPlug/AUv2/dfx-au-utilities.h"; sourceTree = "<group>"; tabWidth = 2; };
 		4FD7C3A1203372AD009DBA2C /* IPlugEditorDelegate.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugEditorDelegate.h; path = ../../../IPlug/IPlugEditorDelegate.h; sourceTree = "<group>"; tabWidth = 2; };
-		4FD8698327204889005A5F28 /* IPlugCLAP.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugCLAP.h; sourceTree = "<group>"; };
-		4FD8698E27205E3C005A5F28 /* IPlugCLAP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugCLAP.cpp; sourceTree = "<group>"; };
+		4FD8698327204889005A5F28 /* IPlugCLAP.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugCLAP.h; path = ../../../IPlug/CLAP/IPlugCLAP.h; sourceTree = "<group>"; };
+		4FD8698E27205E3C005A5F28 /* IPlugCLAP.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugCLAP.cpp; path = ../../../IPlug/CLAP/IPlugCLAP.cpp; sourceTree = "<group>"; };
 		4FD869AA27206006005A5F28 /* IPlugEffect.dylib */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD869B727206046005A5F28 /* IPlugEffect-CLAP-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-CLAP-Info.plist"; path = "../resources/IPlugEffect-CLAP-Info.plist"; sourceTree = "<group>"; };
-		4FD86A6727206331005A5F28 /* clap-plugin.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "clap-plugin.cc"; path = "../../Dependencies/IPlug/CLAP_SDK/examples/glue/clap-plugin.cc"; sourceTree = "<group>"; };
-		4FD86A6827206331005A5F28 /* clap-plugin.hh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "clap-plugin.hh"; path = "../../Dependencies/IPlug/CLAP_SDK/examples/glue/clap-plugin.hh"; sourceTree = "<group>"; };
-		4FD86AC8272067F2005A5F28 /* param-queue.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = "param-queue.hh"; path = "../../Dependencies/IPlug/CLAP_SDK/examples/common/param-queue.hh"; sourceTree = "<group>"; };
-		4FD86AC9272067F2005A5F28 /* reducing-param-queue.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = "reducing-param-queue.hh"; path = "../../Dependencies/IPlug/CLAP_SDK/examples/common/reducing-param-queue.hh"; sourceTree = "<group>"; };
-		4FD86ACA272067F2005A5F28 /* reducing-param-queue.hxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = "reducing-param-queue.hxx"; path = "../../Dependencies/IPlug/CLAP_SDK/examples/common/reducing-param-queue.hxx"; sourceTree = "<group>"; };
-		4FD86AD62720685E005A5F28 /* hash.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = hash.h; path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/hash.h; sourceTree = "<group>"; };
-		4FD86AD72720685E005A5F28 /* macros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = macros.h; path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/macros.h; sourceTree = "<group>"; };
-		4FD86AD82720685E005A5F28 /* fixedpoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fixedpoint.h; path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/fixedpoint.h; sourceTree = "<group>"; };
-		4FD86AD92720685E005A5F28 /* color.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = color.h; path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/color.h; sourceTree = "<group>"; };
-		4FD86ADA2720685E005A5F28 /* all.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = all.h; path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/all.h; sourceTree = "<group>"; };
-		4FD86ADB2720685E005A5F28 /* stream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = stream.h; path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/stream.h; sourceTree = "<group>"; };
-		4FD86ADC2720685E005A5F28 /* id.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = id.h; path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/id.h; sourceTree = "<group>"; };
-		4FD86ADD2720685E005A5F28 /* chmap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = chmap.h; path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/chmap.h; sourceTree = "<group>"; };
-		4FD86ADE2720685E005A5F28 /* host.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = host.h; path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/host.h; sourceTree = "<group>"; };
-		4FD86ADF2720685E005A5F28 /* clap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = clap.h; path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/clap.h; sourceTree = "<group>"; };
-		4FD86AEC2720685F005A5F28 /* params.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = params.h; sourceTree = "<group>"; };
-		4FD86AED2720685F005A5F28 /* fd-support.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "fd-support.h"; sourceTree = "<group>"; };
-		4FD86AEE2720685F005A5F28 /* note-name.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "note-name.h"; sourceTree = "<group>"; };
-		4FD86AEF2720685F005A5F28 /* gui-x11.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gui-x11.h"; sourceTree = "<group>"; };
-		4FD86AF02720685F005A5F28 /* gui-win32.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gui-win32.h"; sourceTree = "<group>"; };
-		4FD86AF12720685F005A5F28 /* audio-ports-config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "audio-ports-config.h"; sourceTree = "<group>"; };
-		4FD86AF22720685F005A5F28 /* gui-cocoa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gui-cocoa.h"; sourceTree = "<group>"; };
-		4FD86AF32720685F005A5F28 /* thread-check.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "thread-check.h"; sourceTree = "<group>"; };
-		4FD86AF42720685F005A5F28 /* latency.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = latency.h; sourceTree = "<group>"; };
-		4FD86AF52720685F005A5F28 /* timer-support.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "timer-support.h"; sourceTree = "<group>"; };
-		4FD86AF62720685F005A5F28 /* gui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gui.h; sourceTree = "<group>"; };
-		4FD86AF72720685F005A5F28 /* log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
-		4FD86AF82720685F005A5F28 /* gui-free-standing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gui-free-standing.h"; sourceTree = "<group>"; };
-		4FD86AF92720685F005A5F28 /* audio-ports.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "audio-ports.h"; sourceTree = "<group>"; };
-		4FD86AFA2720685F005A5F28 /* state.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = state.h; sourceTree = "<group>"; };
-		4FD86AFB2720685F005A5F28 /* event-filter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "event-filter.h"; sourceTree = "<group>"; };
-		4FD86AFC2720685F005A5F28 /* render.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = render.h; sourceTree = "<group>"; };
-		4FD86AFD2720685F005A5F28 /* plugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = plugin.h; path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/plugin.h; sourceTree = "<group>"; };
-		4FD86AFE2720685F005A5F28 /* version.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = version.h; path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/version.h; sourceTree = "<group>"; };
-		4FD86AFF2720685F005A5F28 /* process.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = process.h; path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/process.h; sourceTree = "<group>"; };
-		4FD86B002720685F005A5F28 /* events.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = events.h; path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/events.h; sourceTree = "<group>"; };
-		4FD86B012720685F005A5F28 /* string-sizes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "string-sizes.h"; path = "../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/string-sizes.h"; sourceTree = "<group>"; };
-		4FD86B022720685F005A5F28 /* audio-buffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "audio-buffer.h"; path = "../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/audio-buffer.h"; sourceTree = "<group>"; };
+		4FD86AD62720685E005A5F28 /* hash.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
+		4FD86AD72720685E005A5F28 /* macros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
+		4FD86AD82720685E005A5F28 /* fixedpoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fixedpoint.h; sourceTree = "<group>"; };
+		4FD86AD92720685E005A5F28 /* color.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = color.h; sourceTree = "<group>"; };
+		4FD86ADA2720685E005A5F28 /* all.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = all.h; sourceTree = "<group>"; };
+		4FD86ADB2720685E005A5F28 /* stream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stream.h; sourceTree = "<group>"; };
+		4FD86ADC2720685E005A5F28 /* id.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = id.h; sourceTree = "<group>"; };
+		4FD86ADD2720685E005A5F28 /* chmap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = chmap.h; sourceTree = "<group>"; };
+		4FD86ADE2720685E005A5F28 /* host.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = host.h; sourceTree = "<group>"; };
+		4FD86ADF2720685E005A5F28 /* clap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = clap.h; sourceTree = "<group>"; };
+		4FD86AFD2720685F005A5F28 /* plugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = plugin.h; sourceTree = "<group>"; };
+		4FD86AFE2720685F005A5F28 /* version.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
+		4FD86AFF2720685F005A5F28 /* process.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = process.h; sourceTree = "<group>"; };
+		4FD86B002720685F005A5F28 /* events.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = events.h; sourceTree = "<group>"; };
+		4FD86B012720685F005A5F28 /* string-sizes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "string-sizes.h"; sourceTree = "<group>"; };
+		4FD86B022720685F005A5F28 /* audio-buffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "audio-buffer.h"; sourceTree = "<group>"; };
 		4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_menu; path = ../resources/main.rc_mac_menu; sourceTree = "<group>"; };
 		4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc_mac_dlg; path = ../resources/main.rc_mac_dlg; sourceTree = "<group>"; };
 		4FDA1E102012CDB30027C868 /* resource.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = resource.h; path = ../resources/resource.h; sourceTree = "<group>"; };
@@ -840,6 +817,38 @@
 		4FFBB94120863E9300DDD0E7 /* IPlugVST3_Parameter.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Parameter.h; path = ../../../IPlug/VST3/IPlugVST3_Parameter.h; sourceTree = "<group>"; tabWidth = 2; };
 		4FFF72B8214BB71400839091 /* main.rc */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc; path = ../resources/main.rc; sourceTree = "<group>"; };
 		52FBBED30D0CF143001C8B8A /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = config.h; path = ../config.h; sourceTree = "<group>"; tabWidth = 2; usesTabs = 0; };
+		B8214CDB274AEF3500DFBE63 /* plugin.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = plugin.hh; sourceTree = "<group>"; };
+		B8214CDC274AEF3500DFBE63 /* param-queue.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "param-queue.hh"; sourceTree = "<group>"; };
+		B8214CDD274AEF3500DFBE63 /* reducing-param-queue.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "reducing-param-queue.hh"; sourceTree = "<group>"; };
+		B8214CDE274AEF3500DFBE63 /* reducing-param-queue.hxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "reducing-param-queue.hxx"; sourceTree = "<group>"; };
+		B8214CDF274AEF3500DFBE63 /* plugin.hxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = plugin.hxx; sourceTree = "<group>"; };
+		B8DF1D6A274AED7C00C80847 /* preset-load.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "preset-load.h"; sourceTree = "<group>"; };
+		B8DF1D6B274AED7C00C80847 /* check-for-update.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "check-for-update.h"; sourceTree = "<group>"; };
+		B8DF1D6C274AED7C00C80847 /* midi-mappings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "midi-mappings.h"; sourceTree = "<group>"; };
+		B8DF1D6D274AED7C00C80847 /* vst3-convert.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "vst3-convert.h"; sourceTree = "<group>"; };
+		B8DF1D6E274AED7C00C80847 /* track-info.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "track-info.h"; sourceTree = "<group>"; };
+		B8DF1D6F274AED7C00C80847 /* vst2-convert.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "vst2-convert.h"; sourceTree = "<group>"; };
+		B8DF1D70274AED7C00C80847 /* quick-controls.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "quick-controls.h"; sourceTree = "<group>"; };
+		B8DF1D71274AED7C00C80847 /* thread-pool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "thread-pool.h"; sourceTree = "<group>"; };
+		B8DF1D72274AED7C00C80847 /* tuning.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tuning.h; sourceTree = "<group>"; };
+		B8DF1D73274AED7C00C80847 /* file-reference.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "file-reference.h"; sourceTree = "<group>"; };
+		B8DF1D74274AED7C00C80847 /* params.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = params.h; sourceTree = "<group>"; };
+		B8DF1D75274AED7C00C80847 /* fd-support.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "fd-support.h"; sourceTree = "<group>"; };
+		B8DF1D76274AED7C00C80847 /* note-name.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "note-name.h"; sourceTree = "<group>"; };
+		B8DF1D77274AED7C00C80847 /* gui-x11.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gui-x11.h"; sourceTree = "<group>"; };
+		B8DF1D78274AED7C00C80847 /* gui-win32.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gui-win32.h"; sourceTree = "<group>"; };
+		B8DF1D79274AED7C00C80847 /* audio-ports-config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "audio-ports-config.h"; sourceTree = "<group>"; };
+		B8DF1D7A274AED7C00C80847 /* gui-cocoa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gui-cocoa.h"; sourceTree = "<group>"; };
+		B8DF1D7B274AED7C00C80847 /* thread-check.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "thread-check.h"; sourceTree = "<group>"; };
+		B8DF1D7C274AED7C00C80847 /* latency.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = latency.h; sourceTree = "<group>"; };
+		B8DF1D7D274AED7C00C80847 /* timer-support.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "timer-support.h"; sourceTree = "<group>"; };
+		B8DF1D7E274AED7C00C80847 /* gui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gui.h; sourceTree = "<group>"; };
+		B8DF1D7F274AED7C00C80847 /* log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
+		B8DF1D80274AED7C00C80847 /* gui-free-standing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gui-free-standing.h"; sourceTree = "<group>"; };
+		B8DF1D81274AED7C00C80847 /* audio-ports.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "audio-ports.h"; sourceTree = "<group>"; };
+		B8DF1D82274AED7C00C80847 /* state.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = state.h; sourceTree = "<group>"; };
+		B8DF1D83274AED7C00C80847 /* event-filter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "event-filter.h"; sourceTree = "<group>"; };
+		B8DF1D84274AED7C00C80847 /* render.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = render.h; sourceTree = "<group>"; };
 		B8E22A0A220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugVST3_ProcessorBase.cpp; path = ../../../IPlug/VST3/IPlugVST3_ProcessorBase.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		B8E22A0B220268C4007CBF4C /* IPlugVST3_ProcessorBase.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_ProcessorBase.h; path = ../../../IPlug/VST3/IPlugVST3_ProcessorBase.h; sourceTree = "<group>"; tabWidth = 2; };
 		B8EA6B932203868500D23A86 /* IPlugVST3_Common.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_Common.h; path = ../../../IPlug/VST3/IPlugVST3_Common.h; sourceTree = "<group>"; tabWidth = 2; };
@@ -1682,19 +1691,18 @@
 				4FD8698327204889005A5F28 /* IPlugCLAP.h */,
 			);
 			name = CLAP;
-			path = ../../../IPlug/CLAP;
 			sourceTree = "<group>";
 		};
 		4FD869E627206186005A5F28 /* CLAP_SDK */ = {
 			isa = PBXGroup;
 			children = (
-				4FD86A642720630E005A5F28 /* examples */,
-				4FD86A3527206300005A5F28 /* include */,
+				B8214CDA274AEF3500DFBE63 /* helpers */,
+				4FD86A3527206300005A5F28 /* clap */,
 			);
 			name = CLAP_SDK;
 			sourceTree = "<group>";
 		};
-		4FD86A3527206300005A5F28 /* include */ = {
+		4FD86A3527206300005A5F28 /* clap */ = {
 			isa = PBXGroup;
 			children = (
 				4FD86ADA2720685E005A5F28 /* all.h */,
@@ -1703,7 +1711,7 @@
 				4FD86ADF2720685E005A5F28 /* clap.h */,
 				4FD86AD92720685E005A5F28 /* color.h */,
 				4FD86B002720685F005A5F28 /* events.h */,
-				4FD86AE02720685F005A5F28 /* ext */,
+				B8DF1D68274AED7C00C80847 /* ext */,
 				4FD86AD82720685E005A5F28 /* fixedpoint.h */,
 				4FD86AD62720685E005A5F28 /* hash.h */,
 				4FD86ADE2720685E005A5F28 /* host.h */,
@@ -1715,61 +1723,8 @@
 				4FD86B012720685F005A5F28 /* string-sizes.h */,
 				4FD86AFE2720685F005A5F28 /* version.h */,
 			);
-			name = include;
-			path = ../../../clap/include;
-			sourceTree = "<group>";
-		};
-		4FD86A642720630E005A5F28 /* examples */ = {
-			isa = PBXGroup;
-			children = (
-				4FD86A6627206320005A5F28 /* glue */,
-				4FD86A6527206318005A5F28 /* common */,
-			);
-			name = examples;
-			sourceTree = "<group>";
-		};
-		4FD86A6527206318005A5F28 /* common */ = {
-			isa = PBXGroup;
-			children = (
-				4FD86AC8272067F2005A5F28 /* param-queue.hh */,
-				4FD86AC9272067F2005A5F28 /* reducing-param-queue.hh */,
-				4FD86ACA272067F2005A5F28 /* reducing-param-queue.hxx */,
-			);
-			name = common;
-			sourceTree = "<group>";
-		};
-		4FD86A6627206320005A5F28 /* glue */ = {
-			isa = PBXGroup;
-			children = (
-				4FD86A6727206331005A5F28 /* clap-plugin.cc */,
-				4FD86A6827206331005A5F28 /* clap-plugin.hh */,
-			);
-			name = glue;
-			sourceTree = "<group>";
-		};
-		4FD86AE02720685F005A5F28 /* ext */ = {
-			isa = PBXGroup;
-			children = (
-				4FD86AEC2720685F005A5F28 /* params.h */,
-				4FD86AED2720685F005A5F28 /* fd-support.h */,
-				4FD86AEE2720685F005A5F28 /* note-name.h */,
-				4FD86AEF2720685F005A5F28 /* gui-x11.h */,
-				4FD86AF02720685F005A5F28 /* gui-win32.h */,
-				4FD86AF12720685F005A5F28 /* audio-ports-config.h */,
-				4FD86AF22720685F005A5F28 /* gui-cocoa.h */,
-				4FD86AF32720685F005A5F28 /* thread-check.h */,
-				4FD86AF42720685F005A5F28 /* latency.h */,
-				4FD86AF52720685F005A5F28 /* timer-support.h */,
-				4FD86AF62720685F005A5F28 /* gui.h */,
-				4FD86AF72720685F005A5F28 /* log.h */,
-				4FD86AF82720685F005A5F28 /* gui-free-standing.h */,
-				4FD86AF92720685F005A5F28 /* audio-ports.h */,
-				4FD86AFA2720685F005A5F28 /* state.h */,
-				4FD86AFB2720685F005A5F28 /* event-filter.h */,
-				4FD86AFC2720685F005A5F28 /* render.h */,
-			);
-			name = ext;
-			path = ../../iPlug2/Dependencies/IPlug/CLAP_SDK/include/clap/ext;
+			name = clap;
+			path = ../../../Dependencies/IPlug/CLAP_SDK/include/clap;
 			sourceTree = "<group>";
 		};
 		4FF01613134E0BCD001447BA /* WDL */ = {
@@ -1785,6 +1740,61 @@
 				4F3D2B4520212D4E00842FF4 /* wdl_base64.h */,
 			);
 			name = WDL;
+			sourceTree = "<group>";
+		};
+		B8214CDA274AEF3500DFBE63 /* helpers */ = {
+			isa = PBXGroup;
+			children = (
+				B8214CDB274AEF3500DFBE63 /* plugin.hh */,
+				B8214CDC274AEF3500DFBE63 /* param-queue.hh */,
+				B8214CDD274AEF3500DFBE63 /* reducing-param-queue.hh */,
+				B8214CDE274AEF3500DFBE63 /* reducing-param-queue.hxx */,
+				B8214CDF274AEF3500DFBE63 /* plugin.hxx */,
+			);
+			name = helpers;
+			path = ../../../Dependencies/IPlug/CLAP_HELPERS/include/clap/helpers;
+			sourceTree = "<group>";
+		};
+		B8DF1D68274AED7C00C80847 /* ext */ = {
+			isa = PBXGroup;
+			children = (
+				B8DF1D69274AED7C00C80847 /* draft */,
+				B8DF1D74274AED7C00C80847 /* params.h */,
+				B8DF1D75274AED7C00C80847 /* fd-support.h */,
+				B8DF1D76274AED7C00C80847 /* note-name.h */,
+				B8DF1D77274AED7C00C80847 /* gui-x11.h */,
+				B8DF1D78274AED7C00C80847 /* gui-win32.h */,
+				B8DF1D79274AED7C00C80847 /* audio-ports-config.h */,
+				B8DF1D7A274AED7C00C80847 /* gui-cocoa.h */,
+				B8DF1D7B274AED7C00C80847 /* thread-check.h */,
+				B8DF1D7C274AED7C00C80847 /* latency.h */,
+				B8DF1D7D274AED7C00C80847 /* timer-support.h */,
+				B8DF1D7E274AED7C00C80847 /* gui.h */,
+				B8DF1D7F274AED7C00C80847 /* log.h */,
+				B8DF1D80274AED7C00C80847 /* gui-free-standing.h */,
+				B8DF1D81274AED7C00C80847 /* audio-ports.h */,
+				B8DF1D82274AED7C00C80847 /* state.h */,
+				B8DF1D83274AED7C00C80847 /* event-filter.h */,
+				B8DF1D84274AED7C00C80847 /* render.h */,
+			);
+			path = ext;
+			sourceTree = "<group>";
+		};
+		B8DF1D69274AED7C00C80847 /* draft */ = {
+			isa = PBXGroup;
+			children = (
+				B8DF1D6A274AED7C00C80847 /* preset-load.h */,
+				B8DF1D6B274AED7C00C80847 /* check-for-update.h */,
+				B8DF1D6C274AED7C00C80847 /* midi-mappings.h */,
+				B8DF1D6D274AED7C00C80847 /* vst3-convert.h */,
+				B8DF1D6E274AED7C00C80847 /* track-info.h */,
+				B8DF1D6F274AED7C00C80847 /* vst2-convert.h */,
+				B8DF1D70274AED7C00C80847 /* quick-controls.h */,
+				B8DF1D71274AED7C00C80847 /* thread-pool.h */,
+				B8DF1D72274AED7C00C80847 /* tuning.h */,
+				B8DF1D73274AED7C00C80847 /* file-reference.h */,
+			);
+			path = draft;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2711,7 +2721,6 @@
 				4FD8699527206006005A5F28 /* IGraphics.cpp in Sources */,
 				4FD8699627206006005A5F28 /* IPlugPaths.mm in Sources */,
 				4FD8699727206006005A5F28 /* IControl.cpp in Sources */,
-				4FD86A6927206331005A5F28 /* clap-plugin.cc in Sources */,
 				4FD8699827206006005A5F28 /* IGraphicsMac.mm in Sources */,
 				4FD8699927206006005A5F28 /* ITextEntryControl.cpp in Sources */,
 				4FD8699A27206006005A5F28 /* IPopupMenuControl.cpp in Sources */,

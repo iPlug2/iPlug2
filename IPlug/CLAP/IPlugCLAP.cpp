@@ -11,6 +11,7 @@
 #include <cstdio>
 #include "IPlugCLAP.h"
 #include "IPlugPluginBase.h"
+#include "plugin.hxx"
 
 using namespace iplug;
 

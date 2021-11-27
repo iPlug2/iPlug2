@@ -19,7 +19,7 @@
 
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
-#include "clap-plugin.hh"
+#include "plugin.hh"
 
 BEGIN_IPLUG_NAMESPACE
 
