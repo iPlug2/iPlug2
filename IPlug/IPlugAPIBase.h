@@ -222,6 +222,7 @@ private:
   friend class IPlugAUv3;
   friend class IPlugWEB;
   friend class IPlugWAM;
+  friend class IPlugCLAP;
 
 private:
   WDL_String mParamDisplayStr;

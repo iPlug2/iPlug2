@@ -107,6 +107,8 @@ void IPlugCLAP::deactivate() noexcept
 
 clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
 {
+  IMidiMsg msg;
+
   // Transport Info
   
   if (process->transport)
@@ -140,9 +142,7 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
     for (int i = 0; i < in_events->size(in_events); i++)
     {
       auto event = in_events->get(in_events, i);
-      
-      IMidiMsg msg;
-      
+            
       switch (event->type)
       {
         case CLAP_EVENT_NOTE_ON:
@@ -185,6 +185,11 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
           break;
       }
     }
+  }
+  
+  while (mMidiMsgsFromEditor.Pop(msg))
+  {
+    ProcessMidiMsg(msg);
   }
   
   return CLAP_PROCESS_CONTINUE;
