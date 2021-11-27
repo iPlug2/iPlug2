@@ -69,6 +69,10 @@ private:
   bool implementsLatency() const noexcept override { return true; }
   uint32_t latencyGet() const noexcept override { return GetLatency(); }
   
+  // clap_plugin_render
+  bool implementsRender() const noexcept override { return true; }
+  void renderSetMode(clap_plugin_render_mode mode) noexcept override;
+  
   // clap_plugin_state
   bool implementsState() const noexcept override { return true; }
   bool stateSave(clap_ostream *stream) noexcept override;

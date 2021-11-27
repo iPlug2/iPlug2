@@ -120,6 +120,13 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
   return CLAP_PROCESS_CONTINUE;
 }
 
+// clap_plugin_render
+
+void IPlugCLAP::renderSetMode(clap_plugin_render_mode mode) noexcept
+{
+  SetRenderingOffline(mode == CLAP_RENDER_OFFLINE);
+}
+
 // clap_plugin_state
 
 bool IPlugCLAP::stateSave(clap_ostream *stream) noexcept
