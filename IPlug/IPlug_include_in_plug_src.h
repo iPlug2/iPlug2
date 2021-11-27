@@ -272,15 +272,45 @@
 #elif defined CLAP_API
 
 static std::string gPluginPath;
-const clap_plugin_descriptor* gPluginDesc;
+clap_plugin_descriptor* gPluginDesc;
 
 static bool clap_init(const char* pluginPath)
 {
+  gPluginDesc = new clap_plugin_descriptor();
   gPluginPath = pluginPath;
+  
+  gPluginDesc->clap_version = CLAP_VERSION;
+  
+#if PLUG_TYPE==0
+  gPluginDesc->plugin_type = CLAP_PLUGIN_AUDIO_EFFECT;
+#elif PLUG_TYPE==1
+  gPluginDesc->plugin_type = CLAP_PLUGIN_INSTRUMENT;
+#elif PLUG_TYPE==2
+  gPluginDesc->plugin_type = CLAP_PLUGIN_EVENT_EFFECT;
+#endif
+  
+  //  clap_version clap_version; // initialized to CLAP_VERSION
+
+  gPluginDesc->id = BUNDLE_DOMAIN "." BUNDLE_MFR "." BUNDLE_NAME;
+  gPluginDesc->name = PLUG_NAME;
+  gPluginDesc->vendor = PLUG_MFR;
+  gPluginDesc->url = PLUG_URL_STR;
+  gPluginDesc->version = PLUG_VERSION_STR;
+  
+  // TODO - unimplemented
+  gPluginDesc->manual_url = "";
+  gPluginDesc->support_url = "";
+  gPluginDesc->description = "";
+  gPluginDesc->keywords = "";
+
   return true;
 }
 
-static void clap_deinit(void) { gPluginPath.clear(); }
+static void clap_deinit(void)
+{
+  gPluginPath.clear();
+  delete gPluginDesc;
+}
 
 static uint32_t clap_get_plugin_count(void) { return 1; }
 
@@ -290,8 +320,8 @@ static const clap_plugin* clap_create_plugin(const clap_host* host, const char* 
 {
   if (!strcmp(gPluginDesc->id, plugin_id))
   {
-    const IPlugCLAP* pPlug = MakePlug(InstanceInfo{gPluginDesc, host});
-    return reinterpret_cast<const clap_plugin*>(pPlug);
+    IPlugCLAP* pPlug = MakePlug(InstanceInfo{gPluginDesc, host});
+    return pPlug->clapPlugin();
   }
   return nullptr;
 }
