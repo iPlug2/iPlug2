@@ -93,7 +93,7 @@ private:
   bool paramsValueToText(clap_id paramId, double value, char *display, uint32_t size) noexcept override;
   bool paramsTextToValue(clap_id paramId, const char *display, double *value) noexcept override;
      
-  void paramsFlush(const clap_event_list *input_parameter_changes, const clap_event_list *output_parameter_changes) noexcept;
+  void paramsFlush(const clap_event_list *input_parameter_changes, const clap_event_list *output_parameter_changes) noexcept override;
   bool isValidParamId(clap_id paramId) const noexcept override { return paramId < NParams(); }
 };
 
