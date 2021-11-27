@@ -105,6 +105,8 @@ void IPlugCLAP::deactivate() noexcept
 
 clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
 {
+  // Transport Info
+  
   if (process->transport)
   {
     auto transport = process->transport;
@@ -125,6 +127,62 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
 
     timeInfo.mTransportIsRunning = transport->flags & CLAP_TRANSPORT_IS_PLAYING;
     timeInfo.mTransportLoopEnabled = transport->flags & CLAP_TRANSPORT_IS_LOOP_ACTIVE;
+  }
+  
+  // Input Events
+  
+  if (process->in_events)
+  {
+    auto in_events = process->in_events;
+
+    for (int i = 0; i < in_events->size(in_events); i++)
+    {
+      auto event = in_events->get(in_events, i);
+      
+      IMidiMsg msg;
+      
+      switch (event->type)
+      {
+        case CLAP_EVENT_NOTE_ON:
+        {
+          // N.B. velocity stored 0-1
+          int velocity = std::round(event->note.velocity * 127.0);
+          msg.MakeNoteOnMsg(event->note.key, velocity, event->time, event->note.channel);
+          ProcessMidiMsg(msg);
+        }
+        
+        case CLAP_EVENT_NOTE_OFF:
+        {
+          msg.MakeNoteOffMsg(event->note.key, event->time, event->note.channel);
+          ProcessMidiMsg(msg);
+        }
+          
+        case CLAP_EVENT_MIDI:
+        {
+          msg = IMidiMsg(event->time, event->midi.data[0], event->midi.data[1], event->midi.data[2]);
+          ProcessMidiMsg(msg);
+        }
+        
+        case CLAP_EVENT_MIDI_SYSEX:
+        {
+          ISysEx sysEx(event->time, event->midi_sysex.buffer, event->midi_sysex.size);          
+          ProcessSysEx(sysEx);
+        }
+        
+        case CLAP_EVENT_PARAM_VALUE:
+        {
+          int paramIdx = event->param_value.param_id;
+          double value = event->param_value.value;
+          
+          GetParam(paramIdx)->Set(value);
+          SendParameterValueFromAPI(paramIdx, value, false);
+          OnParamChange(paramIdx, EParamSource::kHost, event->time);
+        }
+          
+        default:
+          break;
+      }
+    }
   }
   
   return CLAP_PROCESS_CONTINUE;
