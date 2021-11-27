@@ -81,21 +81,21 @@ bool IPlugCLAP::init() noexcept
 
 bool IPlugCLAP::activate(double sampleRate) noexcept
 {
-    SetSampleRate(sampleRate);
-    OnActivate(true);
-    OnReset();
-  
+  SetSampleRate(sampleRate);
+  OnActivate(true);
+  OnReset();
+
   return true;
 }
 
 void IPlugCLAP::deactivate() noexcept
 {
-    OnActivate(false);
+  OnActivate(false);
 }
 
 clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
 {
-    return CLAP_PROCESS_CONTINUE;
+  return CLAP_PROCESS_CONTINUE;
 }
 
 // clap_plugin_state
