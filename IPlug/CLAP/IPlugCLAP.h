@@ -21,6 +21,8 @@
 #include "IPlugProcessor.h"
 #include "plugin.hh"
 
+#include "config.h"   // This is your plugin's config.h.
+
 BEGIN_IPLUG_NAMESPACE
 
 /** Used to pass various instance info to the API class */
@@ -97,27 +99,37 @@ private:
   bool isValidParamId(clap_id paramId) const noexcept override { return paramId < NParams(); }
     
   // clap_plugin_gui
+  
+#if PLUG_HAS_UI
   bool implementsGui() const noexcept override { return true; }
   bool guiCreate() noexcept override { return true; }
-  void guiDestroy() noexcept override {}
+  void guiDestroy() noexcept override { CloseWindow(); }
   
-  //void guiSetScale(double scale) noexcept {}
+  void guiSetScale(double scale) noexcept override { SetScreenScale(scale); }
   void guiShow() noexcept override { OpenWindow(mWindow); }
   void guiHide() noexcept override { CloseWindow(); }
   bool guiSize(uint32_t *width, uint32_t *height) noexcept override;
+  
   //bool guiCanResize() const noexcept { return false; }
-  //void guiRoundSize(uint32_t *width, uint32_t *height) noexcept { guiSize(width, height); }
   //bool guiSetSize(uint32_t width, uint32_t height) noexcept { return false; }
+  //void guiRoundSize(uint32_t *width, uint32_t *height) noexcept { guiSize(width, height); }
+
+  // TODO - SELECT AT COMPILE TIME
   
   // clap_plugin_gui_win32
-  //bool implementsGuiWin32() const noexcept { return false; }
-  //bool guiWin32Attach(clap_hwnd window) noexcept { return false; }
+  bool implementsGuiWin32() const noexcept override { return false; }
+  bool guiWin32Attach(clap_hwnd window) noexcept override { return GUIWindowAttach(window);  }
 
   // clap_plugin_gui_cocoa
   bool implementsGuiCocoa() const noexcept override { return true; }
-  bool guiCocoaAttach(void *nsView) noexcept override;
+  bool guiCocoaAttach(void *nsView) noexcept override { return GUIWindowAttach(nsView); }
+
+  // Helper to attach GUI Windows
   
+  bool GUIWindowAttach(void *parent) noexcept;
+
   void *mWindow = nullptr;
+#endif
 };
 
 IPlugCLAP* MakePlug(const InstanceInfo& info);

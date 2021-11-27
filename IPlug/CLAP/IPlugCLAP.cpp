@@ -223,6 +223,8 @@ void IPlugCLAP::paramsFlush(const clap_event_list *input_parameter_changes, cons
   // ??
 }
 
+#if PLUG_HAS_UI
+
 // clap_plugin_gui
 
 bool IPlugCLAP::guiSize(uint32_t *width, uint32_t *height) noexcept
@@ -235,9 +237,11 @@ bool IPlugCLAP::guiSize(uint32_t *width, uint32_t *height) noexcept
 
 // clap_plugin_gui_cocoa
 
-bool IPlugCLAP::guiCocoaAttach(void *nsView) noexcept
+bool IPlugCLAP::GUIWindowAttach(void *window) noexcept
 {
-  mWindow = nsView;
+  mWindow = window;
   return true;
 }
+
+#endif
 
