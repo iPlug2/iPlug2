@@ -110,11 +110,13 @@ private:
   void guiHide() noexcept override { CloseWindow(); }
   bool guiSize(uint32_t *width, uint32_t *height) noexcept override;
   
-  //bool guiCanResize() const noexcept { return false; }
-  //bool guiSetSize(uint32_t width, uint32_t height) noexcept { return false; }
-  //void guiRoundSize(uint32_t *width, uint32_t *height) noexcept { guiSize(width, height); }
-
-  // TODO - SELECT AT COMPILE TIME
+#if PLUG_HOST_RESIZE
+  bool guiCanResize() const noexcept override { return true; }
+  bool guiSetSize(uint32_t width, uint32_t height) noexcept override;
+  void guiRoundSize(uint32_t *width, uint32_t *height) noexcept override;
+#endif
+  
+  // TODO - SELECT AT COMPILE TIME?
   
   // clap_plugin_gui_win32
   bool implementsGuiWin32() const noexcept override { return false; }

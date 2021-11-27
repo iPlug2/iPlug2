@@ -239,10 +239,15 @@ void IPlugCLAP::paramsFlush(const clap_event_list *input_parameter_changes, cons
 
 bool IPlugCLAP::guiSize(uint32_t *width, uint32_t *height) noexcept
 {
-  *width = GetEditorWidth();
-  *height = GetEditorHeight();
+  if (HasUI())
+  {
+    *width = GetEditorWidth();
+    *height = GetEditorHeight();
+    
+    return true;
+  }
   
-  return true;
+  return false;
 }
 
 // clap_plugin_gui_cocoa
@@ -253,5 +258,27 @@ bool IPlugCLAP::GUIWindowAttach(void *window) noexcept
   return true;
 }
 
-#endif
+#if PLUG_HOST_RESIZE
+bool IPlugCLAP::guiSetSize(uint32_t width, uint32_t height) noexcept
+{
+  SetEditorSize(width, height);
+  
+  return true;
+}
+
+void IPlugCLAP::guiRoundSize(uint32_t *width, uint32_t *height) noexcept
+{
+  if (HasUI())
+  {
+    int w = *width;
+    int h = *height;
+    ConstrainEditorResize(w, h);
+    *width = w;
+    *height = h;
+  }
+}
+
+#endif /* PLUG_HOST_RESIZE */
+
+#endif /* PLUG_HAS_UI */
 
