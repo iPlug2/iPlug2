@@ -183,8 +183,8 @@ bool IPlugCLAP::paramsInfo(int32_t paramIndex, clap_param_info *info) const noex
   // Values
   
   info->min_value = pParam->GetMin();
-  info->min_value = pParam->GetMax();
-  info->min_value = pParam->GetDefault();
+  info->max_value = pParam->GetMax();
+  info->default_value = pParam->GetDefault();
   
   return true;
 }
