@@ -106,6 +106,7 @@ bool IPlugCLAP::activate(double sampleRate, uint32_t minFrameCount, uint32_t max
   SetBlockSize(maxFrameCount);
   SetSampleRate(sampleRate);
   OnActivate(true);
+  OnParamReset(kReset);
   OnReset();
 
   return true;
