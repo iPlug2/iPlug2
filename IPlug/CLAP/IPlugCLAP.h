@@ -85,7 +85,6 @@ private:
   clap_process_status process(const clap_process *process) noexcept override;
   
   //void onMainThread() noexcept override {}
-  //const void *extension(const char *id) noexcept override { return nullptr; }
 
   // clap_plugin_latency
   bool implementsLatency() const noexcept override { return true; }
