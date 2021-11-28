@@ -773,7 +773,7 @@
 		4FD7C3A1203372AD009DBA2C /* IPlugEditorDelegate.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugEditorDelegate.h; path = ../../../IPlug/IPlugEditorDelegate.h; sourceTree = "<group>"; tabWidth = 2; };
 		4FD8698327204889005A5F28 /* IPlugCLAP.h */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugCLAP.h; path = ../../../IPlug/CLAP/IPlugCLAP.h; sourceTree = "<group>"; tabWidth = 2; };
 		4FD8698E27205E3C005A5F28 /* IPlugCLAP.cpp */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugCLAP.cpp; path = ../../../IPlug/CLAP/IPlugCLAP.cpp; sourceTree = "<group>"; tabWidth = 2; };
-		4FD869AA27206006005A5F28 /* IPlugEffect.dylib */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FD869AA27206006005A5F28 /* IPlugEffect.clap */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.clap; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD869B727206046005A5F28 /* IPlugEffect-CLAP-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-CLAP-Info.plist"; path = "../resources/IPlugEffect-CLAP-Info.plist"; sourceTree = "<group>"; };
 		4FD86AD62720685E005A5F28 /* hash.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = hash.h; sourceTree = "<group>"; };
 		4FD86AD72720685E005A5F28 /* macros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
@@ -998,7 +998,7 @@
 				4FC3EFC42086C0A600BD11FA /* IPlugEffectVST3Controller.a */,
 				4F78BE0222E73D0800AD537E /* AUv3Framework.framework */,
 				4F3EE1F0231438D000004786 /* IPlugEffect.app */,
-				4FD869AA27206006005A5F28 /* IPlugEffect.dylib */,
+				4FD869AA27206006005A5F28 /* IPlugEffect.clap */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2033,7 +2033,7 @@
 			name = CLAP;
 			productInstallPath = "$(HOME)/Library/Bundles";
 			productName = IPlugExample;
-			productReference = 4FD869AA27206006005A5F28 /* IPlugEffect.dylib */;
+			productReference = 4FD869AA27206006005A5F28 /* IPlugEffect.clap */;
 			productType = "com.apple.product-type.bundle";
 		};
 		4FFBB8F820863B0E00DDD0E7 /* VST3P */ = {
@@ -2414,7 +2414,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python ../scripts/prepare_resources-mac.py\n";
 			showEnvVarsInLog = 0;
 		};
 		4FFBB8F920863B0E00DDD0E7 /* Run Script - prepare_resources-mac.py */ = {
@@ -3985,7 +3985,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.clap.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = "-Wno-main";
-				WRAPPER_EXTENSION = dylib;
+				WRAPPER_EXTENSION = clap;
 			};
 			name = Debug;
 		};
@@ -4009,7 +4009,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.clap.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = "-Wno-main";
-				WRAPPER_EXTENSION = dylib;
+				WRAPPER_EXTENSION = clap;
 			};
 			name = Release;
 		};
@@ -4033,7 +4033,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.clap.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = "-Wno-main";
-				WRAPPER_EXTENSION = dylib;
+				WRAPPER_EXTENSION = clap;
 			};
 			name = Tracer;
 		};
