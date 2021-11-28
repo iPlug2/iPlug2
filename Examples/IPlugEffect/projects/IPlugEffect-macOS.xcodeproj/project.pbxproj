@@ -3981,7 +3981,7 @@
 					"$(EXTRA_INC_PATHS)",
 					"$(IPLUG_INC_PATHS)",
 				);
-				INFOPLIST_FILE = "../Resources/IPlugEffect-CLAP-Info.plist";
+				INFOPLIST_FILE = "../resources/IPlugEffect-CLAP-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.clap.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = "-Wno-main";
@@ -4005,7 +4005,7 @@
 					"$(EXTRA_INC_PATHS)",
 					"$(IPLUG_INC_PATHS)",
 				);
-				INFOPLIST_FILE = "../Resources/IPlugEffect-CLAP-Info.plist";
+				INFOPLIST_FILE = "../resources/IPlugEffect-CLAP-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.clap.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = "-Wno-main";
@@ -4029,7 +4029,7 @@
 					"$(EXTRA_INC_PATHS)",
 					"$(IPLUG_INC_PATHS)",
 				);
-				INFOPLIST_FILE = "../Resources/IPlugEffect-CLAP-Info.plist";
+				INFOPLIST_FILE = "../resources/IPlugEffect-CLAP-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.clap.${BINARY_NAME}";
 				SKIP_INSTALL = NO;
 				WARNING_CFLAGS = "-Wno-main";
