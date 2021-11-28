@@ -310,6 +310,14 @@ bool IPlugCLAP::paramsValueToText(clap_id paramId, double value, char *display, 
   
   pParam->GetDisplay(value, false, str);
   
+  // Add Label
+  
+  if (CStringHasContents(pParam->GetLabel()))
+  {
+    str.Append(" ");
+    str.Append(pParam->GetLabel());
+  }
+  
   if (size < str.GetLength())
     return false;
     
