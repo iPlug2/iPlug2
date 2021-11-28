@@ -342,6 +342,23 @@ void IPlugCLAP::paramsFlush(const clap_event_list *input_parameter_changes, cons
 
 // clap_plugin_gui
 
+void IPlugCLAP::guiDestroy() noexcept
+{
+  CloseWindow();
+  mGUIOpen = false;
+}
+
+void IPlugCLAP::guiShow() noexcept
+{
+  if (!mGUIOpen)
+    OpenWindow(mWindow);
+}
+
+void IPlugCLAP::guiHide() noexcept
+{
+  guiDestroy();
+}
+
 bool IPlugCLAP::guiSize(uint32_t *width, uint32_t *height) noexcept
 {
   if (HasUI())
@@ -359,7 +376,9 @@ bool IPlugCLAP::guiSize(uint32_t *width, uint32_t *height) noexcept
 
 bool IPlugCLAP::GUIWindowAttach(void *window) noexcept
 {
+  OpenWindow(window);
   mWindow = window;
+  mGUIOpen = true;
   return true;
 }
 

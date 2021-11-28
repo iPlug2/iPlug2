@@ -121,11 +121,11 @@ private:
 #if PLUG_HAS_UI
   bool implementsGui() const noexcept override { return true; }
   bool guiCreate() noexcept override { return true; }
-  void guiDestroy() noexcept override { CloseWindow(); }
+  void guiDestroy() noexcept override;
   
   void guiSetScale(double scale) noexcept override { SetScreenScale(scale); }
-  void guiShow() noexcept override { OpenWindow(mWindow); }
-  void guiHide() noexcept override { CloseWindow(); }
+  void guiShow() noexcept override;
+  void guiHide() noexcept override;
   bool guiSize(uint32_t *width, uint32_t *height) noexcept override;
   
 #if PLUG_HOST_RESIZE
@@ -136,7 +136,7 @@ private:
   
 #ifdef OS_WIN
   // clap_plugin_gui_win32
-  bool implementsGuiWin32() const noexcept override { return false; }
+  bool implementsGuiWin32() const noexcept override { return true; }
   bool guiWin32Attach(clap_hwnd window) noexcept override { return GUIWindowAttach(window);  }
 #endif
   
@@ -151,6 +151,7 @@ private:
   bool GUIWindowAttach(void *parent) noexcept;
 
   void *mWindow = nullptr;
+  bool mGUIOpen = false;
 #endif
   
   IPlugQueue<ParamToHost> mParamInfoToHost {PARAM_TRANSFER_SIZE};
