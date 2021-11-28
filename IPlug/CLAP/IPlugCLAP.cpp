@@ -160,18 +160,21 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
           int velocity = std::round(event->note.velocity * 127.0);
           msg.MakeNoteOnMsg(event->note.key, velocity, event->time, event->note.channel);
           ProcessMidiMsg(msg);
+          mMidiMsgsFromProcessor.Push(msg);
         }
         
         case CLAP_EVENT_NOTE_OFF:
         {
           msg.MakeNoteOffMsg(event->note.key, event->time, event->note.channel);
           ProcessMidiMsg(msg);
+          mMidiMsgsFromProcessor.Push(msg);
         }
           
         case CLAP_EVENT_MIDI:
         {
           msg = IMidiMsg(event->time, event->midi.data[0], event->midi.data[1], event->midi.data[2]);
           ProcessMidiMsg(msg);
+          mMidiMsgsFromProcessor.Push(msg);
         }
         
         case CLAP_EVENT_MIDI_SYSEX:
