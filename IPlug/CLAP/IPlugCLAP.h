@@ -78,7 +78,7 @@ private:
   
   // clap_plugin
   bool init() noexcept override;
-  bool activate(double sampleRate) noexcept override;
+  bool activate(double sampleRate, uint32_t minFrameCount, uint32_t maxFrameCount) noexcept override;
   void deactivate() noexcept override;
   //bool startProcessing() noexcept override { return true; }
   //void stopProcessing() noexcept override {}

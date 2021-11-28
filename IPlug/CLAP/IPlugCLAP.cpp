@@ -100,8 +100,9 @@ bool IPlugCLAP::init() noexcept
   return true;
 }
 
-bool IPlugCLAP::activate(double sampleRate) noexcept
+bool IPlugCLAP::activate(double sampleRate, uint32_t minFrameCount, uint32_t maxFrameCount) noexcept
 {
+  SetBlockSize(maxFrameCount);
   SetSampleRate(sampleRate);
   OnActivate(true);
   OnReset();
@@ -219,7 +220,7 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
     clap_event event;
     event.type = CLAP_EVENT_PARAM_VALUE;
     event.time = 0;
-    event.param_value = clap_event_param_value { nullptr, change.idx(), -1, -1, change.flags(), change.value() };
+    event.param_value = clap_event_param_value { nullptr, change.idx(), -1, -1, -1, change.flags(), change.value() };
     
     out_events->push_back(out_events, &event);
   }
