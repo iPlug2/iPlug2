@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "4FD8698F27206006005A5F28"
-               BuildableName = "IPlugEffect.dylib"
+               BuildableName = "IPlugEffect.clap"
                BlueprintName = "CLAP"
                ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
             </BuildableReference>
@@ -51,7 +51,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4FD8698F27206006005A5F28"
-            BuildableName = "IPlugEffect.dylib"
+            BuildableName = "IPlugEffect.clap"
             BlueprintName = "CLAP"
             ReferencedContainer = "container:IPlugEffect-macOS.xcodeproj">
          </BuildableReference>
