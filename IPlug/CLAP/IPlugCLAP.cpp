@@ -35,17 +35,26 @@ IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
   CreateTimer();
 }
 
-//void IPlugCLAP::BeginInformHostOfParamChange(int idx)
-//{
-//}
-//
-//void IPlugCLAP::InformHostOfParamChange(int idx, double normalizedValue)
-//{
-//}
-//
-//void IPlugCLAP::EndInformHostOfParamChange(int idx)
-//{
-//}
+void IPlugCLAP::BeginInformHostOfParamChange(int idx)
+{
+  ParamToHost change { ParamToHost::Type::Begin, idx, GetParam(idx)->Value() };
+  mParamInfoToHost.Push(change);
+}
+
+void IPlugCLAP::InformHostOfParamChange(int idx, double normalizedValue)
+{
+  const IParam *pParam = GetParam(idx);
+  const double value = pParam->FromNormalized(normalizedValue);
+  ParamToHost change { ParamToHost::Type::Value, idx, value };
+  mParamInfoToHost.Push(change);
+}
+
+void IPlugCLAP::EndInformHostOfParamChange(int idx)
+{
+  ParamToHost change { ParamToHost::Type::End, idx, GetParam(idx)->Value() };
+  mParamInfoToHost.Push(change);
+}
+
 //
 //void IPlugCLAP::InformHostOfPresetChange()
 //{
@@ -190,6 +199,26 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
   while (mMidiMsgsFromEditor.Pop(msg))
   {
     ProcessMidiMsg(msg);
+  }
+  
+  // Do Audio Processing!
+  
+  auto out_events = process->out_events;
+  
+  // Send Parameter Changes
+  
+  ParamToHost change;
+  
+  while (mParamInfoToHost.Pop(change))
+  {
+    // Construct output stream
+    
+    clap_event event;
+    event.type = CLAP_EVENT_PARAM_VALUE;
+    event.time = 0;
+    event.param_value = clap_event_param_value { nullptr, change.idx(), -1, -1, change.flags(), change.value() };
+    
+    out_events->push_back(out_events, &event);
   }
   
   return CLAP_PROCESS_CONTINUE;

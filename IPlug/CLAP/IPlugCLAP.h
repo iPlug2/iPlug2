@@ -38,13 +38,34 @@ class IPlugCLAP : public IPlugAPIBase
                 , public IPlugProcessor
                 , public clap::Plugin
 {
+  struct ParamToHost
+  {
+    enum class Type { Begin, Value, End };
+    
+    uint32_t idx() const { return static_cast<uint32_t>(mIdx); }
+    double value() const { return mValue; }
+    clap_event_param_flags flags() const
+    {
+      switch (mType)
+      {
+        case Type::Begin:   return CLAP_EVENT_PARAM_BEGIN_ADJUST;
+        case Type::Value:   return CLAP_EVENT_PARAM_SHOULD_RECORD;
+        case Type::End:     return CLAP_EVENT_PARAM_END_ADJUST;
+      }
+    }
+    
+    Type mType;
+    int mIdx;
+    double mValue;
+  };
+  
 public:
   IPlugCLAP(const InstanceInfo& info, const Config& config);
 
-  //IPlugAPIBase
-//  void BeginInformHostOfParamChange(int idx) override;
-//  void InformHostOfParamChange(int idx, double normalizedValue) override;
-//  void EndInformHostOfParamChange(int idx) override;
+  // IPlugAPIBase
+  void BeginInformHostOfParamChange(int idx) override;
+  void InformHostOfParamChange(int idx, double normalizedValue) override;
+  void EndInformHostOfParamChange(int idx) override;
 //  void InformHostOfPresetChange() override;
 //  bool EditorResize(int viewWidth, int viewHeight) override;
 
@@ -132,6 +153,8 @@ private:
 
   void *mWindow = nullptr;
 #endif
+  
+  IPlugQueue<ParamToHost> mParamInfoToHost {PARAM_TRANSFER_SIZE};
 };
 
 IPlugCLAP* MakePlug(const InstanceInfo& info);
