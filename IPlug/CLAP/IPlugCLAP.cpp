@@ -26,6 +26,7 @@ IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
   
   if (CStringHasContents(info.mHost->version))
   {
+    // TODO - check host version string
     int ver, rmaj, rmin;
     sscanf(info.mHost->version, "%d.%d.%d", &ver, &rmaj, &rmin);
     version = (ver << 16) + (rmaj << 8) + rmin;
@@ -130,10 +131,10 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
     // TODO - this upper bit all needs review
     
     timeInfo.mTempo = transport->tempo;
-    timeInfo.mSamplePos = -1.0;
-    timeInfo.mPPQPos = -1.0;
-    timeInfo.mLastBar = transport->bar_start;
-    timeInfo.mCycleStart = transport->loop_start_beats;
+    timeInfo.mSamplePos = process->steady_time;
+    timeInfo.mPPQPos = transport->song_pos_beats;       // TODO convert
+    timeInfo.mLastBar = transport->bar_start;           // TODO convert
+    timeInfo.mCycleStart = transport->loop_start_beats; // TODO convert
     timeInfo.mCycleEnd = transport->loop_end_beats;
 
     timeInfo.mNumerator = transport->tsig_num;
@@ -158,6 +159,7 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
         case CLAP_EVENT_NOTE_ON:
         {
           // N.B. velocity stored 0-1
+          // TODO - check velocity
           int velocity = std::round(event->note.velocity * 127.0);
           msg.MakeNoteOnMsg(event->note.key, velocity, event->time, event->note.channel);
           ProcessMidiMsg(msg);
@@ -208,9 +210,9 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
   // Do Audio Processing!
   
   // TODO - can we assume IO has the same format?
-  
-  int nIns = process->audio_inputs_count;
-  int nOuts = process->audio_inputs_count;
+  // TO - get the count from the right place...
+  int nIns = process->audio_inputs->channel_count;
+  int nOuts = process->audio_outputs->channel_count;
   int nFrames = process->frames_count;
   
   bool format64 = process->audio_inputs->data64;
