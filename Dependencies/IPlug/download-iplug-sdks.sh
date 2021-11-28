@@ -4,6 +4,7 @@ rm -r VST3_SDK
 rm -r WAM_AWP
 rm -r WAM_SDK
 rm -r CLAP_SDK
+rm -r CLAP_HELPERS
 
 git clone https://github.com/iplug2/audioworklet-polyfill WAM_AWP
 git clone https://github.com/iplug2/api.git WAM_SDK
