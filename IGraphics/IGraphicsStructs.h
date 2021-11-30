@@ -50,7 +50,6 @@ using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
 using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
 using IDisplayTickFunc = std::function<void()>;
-using IUIAppearanceChangedFunc = std::function<void(EUIAppearance appearance)>;
 using ITouchID = uintptr_t;
 
 /** A click action function that does nothing */
@@ -92,8 +91,8 @@ public:
    @param name Resource name for the bitmap */
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
   : mAPIBitmap(pAPIBitmap)
-  , mW(static_cast<int>(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale()))
-  , mH(static_cast<int>(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale()))
+  , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
+  , mH(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
   , mN(n)
   , mFramesAreHorizontal(framesAreHorizontal)
   , mResourceName(name, static_cast<int>(strlen(name)))
@@ -125,7 +124,7 @@ public:
   int N() const { return mN; }
   
   /** @return the scale of the bitmap */
-  float GetScale() const { return mAPIBitmap->GetScale(); }
+  int GetScale() const { return mAPIBitmap->GetScale(); }
 
   /** @return the draw scale of the bitmap */
   float GetDrawScale() const { return mAPIBitmap->GetDrawScale(); }
@@ -581,8 +580,8 @@ struct IFillOptions
   bool mPreserve { false };
 
   IFillOptions(bool preserve = false, EFillRule fillRule = EFillRule::Winding)
-  : mFillRule(fillRule)
-  , mPreserve(preserve)
+  : mPreserve(preserve)
+  , mFillRule(fillRule)
   {
   }
    
@@ -597,8 +596,8 @@ struct IStrokeOptions
   public:
     /** Create a new empty DashOptions */
     DashOptions()
-    : mOffset(0)
-    , mCount(0)
+    : mCount(0)
+    , mOffset(0)
     {}
 
     /** Create a new DashOptions
@@ -682,11 +681,11 @@ struct IText
         const IColor& TEFGColor = DEFAULT_TEXTENTRY_FGCOLOR)
     : mSize(size)
     , mFGColor(color)
-    , mTextEntryBGColor(TEBGColor)
-    , mTextEntryFGColor(TEFGColor)
-    , mAngle(angle)
     , mAlign(align)
     , mVAlign(valign)
+    , mAngle(angle)
+    , mTextEntryBGColor(TEBGColor)
+    , mTextEntryFGColor(TEFGColor)
   {
     strcpy(mFont, (fontID ? fontID : DEFAULT_FONT));
   }
@@ -771,7 +770,7 @@ struct IRECT
    * @param r Right
    * @param b Bottom */
   IRECT(float l, float t, float r, float b)
-  : L(l), T(t), R(r), B(b)
+  : L(l), R(r), T(t), B(b)
   {}
   
   /** Construct a new IRECT at the given position and with the same size as the bitmap
@@ -2472,9 +2471,17 @@ static constexpr bool DEFAULT_DRAW_SHADOWS = true;
 static constexpr bool DEFAULT_EMBOSS = false;
 static constexpr float DEFAULT_ROUNDNESS = 0.f;
 static constexpr float DEFAULT_FRAME_THICKNESS = 1.f;
+static constexpr float DEFAULT_POINTER_THICKNESS = 1.f;
 static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
 static constexpr float DEFAULT_WIDGET_FRAC = 1.f;
+static constexpr float DEFAULT_INNER_POINTER_FRAC = 0.2f;
+static constexpr float DEFAULT_OUTER_POINTER_FRAC = 0.8f;
 static constexpr float DEFAULT_WIDGET_ANGLE = 0.f;
+static constexpr float DEFAULT_TRACK_SIZE = 2.f;
+static constexpr float DEFAULT_TRACK_BACKGROUND_SIZE = 2.f;
+static constexpr float DEFAULT_TRACK_ZERO_VALUE = 0.f;
+static constexpr float DEFAULT_KNOB_MIN_ANGLE = -135.f;
+static constexpr float DEFAULT_KNOB_MAX_ANGLE = 135.f;
 const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Top};
 const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Bottom};
 
@@ -2489,9 +2496,21 @@ struct IVStyle
   bool emboss = DEFAULT_EMBOSS;
   float roundness = DEFAULT_ROUNDNESS;
   float frameThickness = DEFAULT_FRAME_THICKNESS;
+  float pointerThickness = DEFAULT_POINTER_THICKNESS;
   float shadowOffset = DEFAULT_SHADOW_OFFSET;
+  float shadowOffsetX = DEFAULT_SHADOW_OFFSET;
+  float shadowOffsetY = DEFAULT_SHADOW_OFFSET;
+  float shadowBlur = 0;
+  float shadowAlpha = 1.;
   float widgetFrac = DEFAULT_WIDGET_FRAC;
+  float innerPointerFrac = DEFAULT_INNER_POINTER_FRAC;
+  float outerPointerFrac = DEFAULT_OUTER_POINTER_FRAC;
   float angle = DEFAULT_WIDGET_ANGLE;
+  float trackSize = DEFAULT_TRACK_SIZE;
+  float trackBackgroundSize = DEFAULT_TRACK_BACKGROUND_SIZE;
+  float trackZeroValue = DEFAULT_TRACK_ZERO_VALUE;
+  float knobMinAngle = DEFAULT_KNOB_MIN_ANGLE;
+  float knobMaxAngle = DEFAULT_KNOB_MAX_ANGLE;
   IVColorSpec colorSpec = DEFAULT_COLOR_SPEC;
   IText labelText = DEFAULT_LABEL_TEXT;
   IText valueText = DEFAULT_VALUE_TEXT;
@@ -2522,23 +2541,39 @@ struct IVStyle
           bool emboss = DEFAULT_EMBOSS,
           float roundness = DEFAULT_ROUNDNESS,
           float frameThickness = DEFAULT_FRAME_THICKNESS,
+          float pointerThickness = DEFAULT_POINTER_THICKNESS,
           float shadowOffset = DEFAULT_SHADOW_OFFSET,
           float widgetFrac = DEFAULT_WIDGET_FRAC,
-          float angle = DEFAULT_WIDGET_ANGLE)
-  : hideCursor(hideCursor)
-  , showLabel(showLabel)
+          float innerPointerFrac = DEFAULT_INNER_POINTER_FRAC,
+          float outerPointerFrac = DEFAULT_OUTER_POINTER_FRAC,
+          float angle = DEFAULT_WIDGET_ANGLE,
+          float trackSize = DEFAULT_TRACK_SIZE,
+          float trackBackgroundSize = DEFAULT_TRACK_BACKGROUND_SIZE,
+          float trackZeroValue = DEFAULT_TRACK_ZERO_VALUE,
+          float knobMinAngle = DEFAULT_KNOB_MIN_ANGLE,
+          float knobMaxAngle = DEFAULT_KNOB_MAX_ANGLE)
+  : showLabel(showLabel)
   , showValue(showValue)
+  , colorSpec(colors)
+  , labelText(labelText)
+  , valueText(valueText)
+  , hideCursor(hideCursor)
   , drawFrame(drawFrame)
   , drawShadows(drawShadows)
   , emboss(emboss)
   , roundness(roundness)
   , frameThickness(frameThickness)
+  , pointerThickness(pointerThickness)
   , shadowOffset(shadowOffset)
   , widgetFrac(widgetFrac)
+  , innerPointerFrac(innerPointerFrac)
+  , outerPointerFrac(outerPointerFrac)
   , angle(angle)
-  , colorSpec(colors)
-  , labelText(labelText)
-  , valueText(valueText)
+  , trackSize(trackSize)
+  , trackBackgroundSize(trackBackgroundSize)
+  , trackZeroValue(trackZeroValue)
+  , knobMinAngle(knobMinAngle)
+  , knobMaxAngle(knobMaxAngle)
   {
   }
   
@@ -2558,12 +2593,24 @@ struct IVStyle
   IVStyle WithColors(IVColorSpec spec) const { IVStyle newStyle = *this; newStyle.colorSpec = spec; return newStyle; }
   IVStyle WithRoundness(float v) const { IVStyle newStyle = *this; newStyle.roundness = Clip(v, 0.f, 1.f); return newStyle; }
   IVStyle WithFrameThickness(float v) const { IVStyle newStyle = *this; newStyle.frameThickness = v; return newStyle; }
+  IVStyle WithPointerThickness(float v) const { IVStyle newStyle = *this; newStyle.pointerThickness = v; return newStyle; }
   IVStyle WithShadowOffset(float v) const { IVStyle newStyle = *this; newStyle.shadowOffset = v; return newStyle; }
+  IVStyle WithShadowOffsetX(float v) const { IVStyle newStyle = *this; newStyle.shadowOffsetX = v; return newStyle; }
+  IVStyle WithShadowOffsetY(float v) const { IVStyle newStyle = *this; newStyle.shadowOffsetY = v; return newStyle; }
+  IVStyle WithShadowBlur(float v) const { IVStyle newStyle = *this; newStyle.shadowBlur = v; return newStyle; }
+  IVStyle WithShadowAlpha(float v) const { IVStyle newStyle = *this; newStyle.shadowAlpha = v; return newStyle; }
   IVStyle WithDrawShadows(bool v = true) const { IVStyle newStyle = *this; newStyle.drawShadows = v; return newStyle; }
   IVStyle WithDrawFrame(bool v = true) const { IVStyle newStyle = *this; newStyle.drawFrame = v; return newStyle; }
   IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = Clip(v, 0.f, 1.f); return newStyle; }
+  IVStyle WithInnerPointerFrac(float v) const { IVStyle newStyle = *this; newStyle.innerPointerFrac = v; return newStyle; }
+  IVStyle WithOuterPointerFrac(float v) const { IVStyle newStyle = *this; newStyle.outerPointerFrac = v; return newStyle; }
   IVStyle WithAngle(float v) const { IVStyle newStyle = *this; newStyle.angle = Clip(v, 0.f, 360.f); return newStyle; }
   IVStyle WithEmboss(bool v = true) const { IVStyle newStyle = *this; newStyle.emboss = v; return newStyle; }
+  IVStyle WithTrackSize(float v) const { IVStyle newStyle = *this; newStyle.trackSize = v; return newStyle; }
+  IVStyle WithTrackBackgroundSize(float v) const { IVStyle newStyle = *this; newStyle.trackBackgroundSize = v; return newStyle; }
+  IVStyle WithTrackZeroValue(float v) const { IVStyle newStyle = *this; newStyle.trackZeroValue = v; return newStyle; }
+  IVStyle WithKnobMinAngle(float v) const { IVStyle newStyle = *this; newStyle.knobMinAngle = v; return newStyle; }
+  IVStyle WithKnobMaxAngle(float v) const { IVStyle newStyle = *this; newStyle.knobMaxAngle = v; return newStyle; }
 };
 
 const IVStyle DEFAULT_STYLE = IVStyle();

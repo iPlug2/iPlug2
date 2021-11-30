@@ -219,15 +219,13 @@ public:
                 const char* label = "",
                 const IVStyle& style = DEFAULT_STYLE,
                 bool valueIsEditable = false, bool valueInWidget = false,
-                float a1 = -135.f, float a2 = 135.f, float aAnchor = -135.f,
-                EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING, float trackSize = 2.f);
+                EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   IVKnobControl(const IRECT& bounds, IActionFunction aF,
                 const char* label = "",
                 const IVStyle& style = DEFAULT_STYLE,
                 bool valueIsEditable = false, bool valueInWidget = false,
-                float a1 = -135.f, float a2 = 135.f, float aAnchor = -135.f,
-                EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING, float trackSize = 2.f);
+                EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   virtual ~IVKnobControl() {}
 
@@ -247,9 +245,9 @@ public:
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
   void OnInit() override;
 
-  void SetInnerPointerFrac(float frac) { mInnerPointerFrac = frac; }
-  void SetOuterPointerFrac(float frac) { mOuterPointerFrac = frac; }
-  void SetPointerThickness(float thickness) { mPointerThickness = thickness; }
+  //void SetInnerPointerFrac(float frac) { mInnerPointerFrac = frac; }
+  //void SetOuterPointerFrac(float frac) { mOuterPointerFrac = frac; }
+  //void SetPointerThickness(float thickness) { mPointerThickness = thickness; }
 
 protected:
   virtual IRECT GetKnobDragBounds() override;
