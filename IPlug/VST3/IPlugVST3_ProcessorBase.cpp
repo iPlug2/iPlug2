@@ -286,60 +286,84 @@ void IPlugVST3ProcessorBase::ProcessParameterChanges(ProcessData& data, IPlugQue
       IParamValueQueue* paramQueue = paramChanges->getParameterData(i);
       if (paramQueue)
       {
+        int idx = paramQueue->getParameterId();
         int32 numPoints = paramQueue->getPointCount();
         int32 offsetSamples;
         double value;
-        
-        if (paramQueue->getPoint(numPoints - 1,  offsetSamples, value) == kResultTrue)
+                
+        switch (idx)
         {
-          int idx = paramQueue->getParameterId();
-          
-          switch (idx)
+          case kBypassParam:
           {
-            case kBypassParam:
-            {
-              const bool bypassed = (value > 0.5);
+            paramQueue->getPoint(numPoints - 1,  offsetSamples, value);
 
-              if (bypassed != GetBypassed())
-                SetBypassed(bypassed);
+            const bool bypassed = (value > 0.5);
 
-              break;
-            }
-            default:
+            if (bypassed != GetBypassed())
+              SetBypassed(bypassed);
+
+            break;
+          }
+        
+          default:
+          {
+            if (idx >= 0 && idx < mPlug.NParams())
             {
-              if (idx >= 0 && idx < mPlug.NParams())
-              {
 #ifdef PARAMS_MUTEX
-                mPlug.mParams_mutex.Enter();
+              mPlug.mParams_mutex.Enter();
 #endif
+              for (int32 i = 0; i < numPoints; i++)
+              {
+                paramQueue->getPoint(i,  offsetSamples, value);
                 mPlug.GetParam(idx)->SetNormalized(value);
               
                 // In VST3 non distributed the same parameter value is also set via IPlugVST3Controller::setParamNormalized(ParamID tag, ParamValue value)
                 mPlug.OnParamChange(idx, kHost, offsetSamples);
-#ifdef PARAMS_MUTEX
-                mPlug.mParams_mutex.Leave();
-#endif
               }
-              else if (idx >= kMIDICCParamStartIdx)
+#ifdef PARAMS_MUTEX
+            mPlug.mParams_mutex.Leave();
+#endif
+          }
+          else if (idx >= kMIDICCParamStartIdx)
+          {
+            int index = idx - kMIDICCParamStartIdx;
+            int channel = index / kCountCtrlNumber;
+            int ctrlr = index % kCountCtrlNumber;
+
+            IMidiMsg msg;
+
+            if (ctrlr == kAfterTouch)
+            {
+              for (int32 i = 0; i < numPoints; i++)
               {
-                int index = idx - kMIDICCParamStartIdx;
-                int channel = index / kCountCtrlNumber;
-                int ctrlr = index % kCountCtrlNumber;
-
-                IMidiMsg msg;
-
-                if (ctrlr == kAfterTouch)
-                  msg.MakeChannelATMsg((int) (value * 127.), offsetSamples, channel);
-                else if (ctrlr == kPitchBend)
-                  msg.MakePitchWheelMsg((value * 2.)-1., channel, offsetSamples);
-                else
-                  msg.MakeControlChangeMsg((IMidiMsg::EControlChangeMsg) ctrlr, value, channel, offsetSamples);
-
-                fromProcessor.Push(msg);
+                paramQueue->getPoint(i,  offsetSamples, value);
+                msg.MakeChannelATMsg((int) (value * 127.), offsetSamples, channel);
                 ProcessMidiMsg(msg);
+                fromProcessor.Push(msg);
               }
             }
-              break;
+            else if (ctrlr == kPitchBend)
+            {
+              for (int32 i = 0; i < numPoints; i++)
+              {
+                paramQueue->getPoint(i,  offsetSamples, value);
+                msg.MakePitchWheelMsg((value * 2.)-1., channel, offsetSamples);
+                fromProcessor.Push(msg);
+                ProcessMidiMsg(msg);
+                }
+              }
+              else
+              {
+                for (int32 i = 0; i < numPoints; i++)
+                {
+                  paramQueue->getPoint(i,  offsetSamples, value);
+                  msg.MakeControlChangeMsg((IMidiMsg::EControlChangeMsg) ctrlr, value, channel, offsetSamples);
+                  fromProcessor.Push(msg);
+                  ProcessMidiMsg(msg);
+                }
+              }
+            }
+            break;
           }
         }
       }
