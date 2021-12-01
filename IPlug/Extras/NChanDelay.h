@@ -42,16 +42,13 @@ public:
 
     for (auto s = 0 ; s < nFrames; ++s)
     {
-      int32_t readAddress = mWriteAddress - mDTSamples;
-      readAddress %= mDTSamples;
-
       for (auto c = 0; c < mNInChans; c++)
       {
         if (c < mNOutChans)
         {
-          T input = inputs[c][s];
+          double input = inputs[c][s];
           const int offset = c * mDTSamples;
-          outputs[c][s] = buffer[offset + readAddress];
+          outputs[c][s] = buffer[offset + mWriteAddress];
           buffer[offset + mWriteAddress] = input;
         }
       }
