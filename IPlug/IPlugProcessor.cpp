@@ -509,12 +509,18 @@ void IPlugProcessor::PassThroughBuffers(PLUG_SAMPLE_SRC type, int nFrames)
 
 void IPlugProcessor::ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames)
 {
+  mMeterLevelIn = GetInputBufferMaxValue(nFrames);
+  mMeterLevelGR = 0.;
   ProcessBlock(mScratchData[ERoute::kInput].Get(), mScratchData[ERoute::kOutput].Get(), nFrames);
+  mMeterLevelOut = GetOutputBufferMaxValue(nFrames);
 }
 
 void IPlugProcessor::ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames)
 {
+  mMeterLevelIn = GetInputBufferMaxValue(nFrames);
+  mMeterLevelGR = 0.;
   ProcessBuffers((PLUG_SAMPLE_DST) 0, nFrames);
+  mMeterLevelOut = GetOutputBufferMaxValue(nFrames);
   int i, n = MaxNChannels(ERoute::kOutput);
   IChannelData<>** ppOutChannel = mChannelData[ERoute::kOutput].GetList();
 
@@ -531,7 +537,10 @@ void IPlugProcessor::ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames)
 
 void IPlugProcessor::ProcessBuffersAccumulating(int nFrames)
 {
+  mMeterLevelIn = GetInputBufferMaxValue(nFrames);
+  mMeterLevelGR = 0.;
   ProcessBuffers((PLUG_SAMPLE_DST) 0, nFrames);
+  mMeterLevelOut = GetOutputBufferMaxValue(nFrames);
   int i, n = MaxNChannels(ERoute::kOutput);
   IChannelData<>** ppOutChannel = mChannelData[ERoute::kOutput].GetList();
 
@@ -590,3 +599,45 @@ void IPlugProcessor::SetBlockSize(int blockSize)
     mBlockSize = blockSize;
   }
 }
+
+double IPlugProcessor::GetInputBufferMaxValue (int nFrames)
+{
+    int i, n = MaxNChannels(ERoute::kInput);
+    
+    double mMax = 0.0;
+    IChannelData<>** ppInChannel = mChannelData[ERoute::kInput].GetList();
+    
+    for (i = 0; i < n; ++i, ++ppInChannel)
+    {
+        IChannelData<>* pInChannel = *ppInChannel;
+        double* pSrc = *(pInChannel->mData);
+        for (int j = 0; j < nFrames; ++j, ++pSrc)
+        {
+            mMax = fmax(fabs(*pSrc),mMax);
+        }
+    }
+    return mMax;
+};
+
+double IPlugProcessor::GetOutputBufferMaxValue (int nFrames)
+{
+    int i, n = MaxNChannels(ERoute::kOutput);
+
+    double mMax = 0.0;
+    IChannelData<>** ppOutChannel = mChannelData[ERoute::kOutput].GetList();
+    
+    for (i = 0; i < n; ++i, ++ppOutChannel)
+    {
+        IChannelData<>* pOutChannel = *ppOutChannel;
+        if (pOutChannel->mConnected)
+        {
+            double* pSrc = *(pOutChannel->mData);
+            for (int j = 0; j < nFrames; ++j, ++pSrc)
+            {
+                mMax = fmax(fabs(*pSrc),mMax);
+            }
+        }
+    }
+    return mMax;
+};
+

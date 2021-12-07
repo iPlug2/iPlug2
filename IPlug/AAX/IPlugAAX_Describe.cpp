@@ -244,7 +244,43 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
 #if PLUG_HAS_UI
   err |= pDesc->AddProcPtr((void*) AAX_CEffectGUI_IPLUG::Create, kAAX_ProcPtrID_Create_EffectGUI);
 #endif
-  
+
+  // Describe meter taps
+  AAX_IPropertyMap* meterProperties = pDesc->NewPropertyMap();
+
+  if ( !meterProperties )
+    err |= AAX_ERROR_NULL_OBJECT;
+  else
+  {
+    meterProperties->AddProperty ( AAX_eProperty_Meter_Type, AAX_eMeterType_Input );
+    meterProperties->AddProperty ( AAX_eProperty_Meter_Orientation, AAX_eMeterOrientation_Default );
+    pDesc->AddMeterDescription('mtrI', "Input", meterProperties );
+  }
+
+  meterProperties = pDesc->NewPropertyMap();
+
+  if ( !meterProperties )
+    err |= AAX_ERROR_NULL_OBJECT;
+  else
+  {
+    meterProperties->AddProperty ( AAX_eProperty_Meter_Type, AAX_eMeterType_Output );
+    meterProperties->AddProperty ( AAX_eProperty_Meter_Orientation, AAX_eMeterOrientation_Default );
+    pDesc->AddMeterDescription('mtrO', "Output", meterProperties );
+  }
+  if (category == AAX_ePlugInCategory_Dynamics)
+  {
+    meterProperties = pDesc->NewPropertyMap();
+
+    if ( !meterProperties )
+      err |= AAX_ERROR_NULL_OBJECT;
+    else
+    {
+      meterProperties->AddProperty ( AAX_eProperty_Meter_Type, AAX_eMeterType_CLGain );
+      meterProperties->AddProperty ( AAX_eProperty_Meter_Orientation, AAX_eMeterOrientation_Default );
+      pDesc->AddMeterDescription('mtrG', "GR", meterProperties );
+    }
+  };
+
   if (err == AAX_SUCCESS)
     err = pC->AddEffect(BUNDLE_ID, pDesc);
   

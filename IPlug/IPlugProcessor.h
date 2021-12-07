@@ -306,6 +306,12 @@ protected: // these members are protected because they need to be access by the 
   std::unique_ptr<NChanDelayLine<sample>> mLatencyDelay = nullptr;
   /** Contains detailed information about the transport state */
   ITimeInfo mTimeInfo;
+
+  double mMeterLevelIn, mMeterLevelOut, mMeterLevelGR;
+
+  double GetInputBufferMaxValue (int nFrames);
+  double GetOutputBufferMaxValue (int nFrames);
+  void SetGRBufferMaxValue(double x) { mMeterLevelGR = x; };
 };
 
 END_IPLUG_NAMESPACE

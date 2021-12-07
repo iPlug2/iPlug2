@@ -324,8 +324,15 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo, const TParamValPai
     AttachBuffers(ERoute::kOutput, 0, maxNOutChans, pRenderInfo->mAudioOutputs, numSamples);
   }
   
-  if (bypass) 
+  if (bypass) {
     PassThroughBuffers(0.0f, numSamples);
+    for (int i=0; i < numInChannels; ++i)
+      *pRenderInfo->mMeters[0] = fmax(mMeterLevelIn, (double)(*pRenderInfo->mMeters[0]));
+    for (int i=0; i < numOutChannels; ++i)
+      *pRenderInfo->mMeters[1] = fmax(mMeterLevelOut, (double)(*pRenderInfo->mMeters[1]));
+    if(pRenderInfo->mMeters[2] != NULL)
+      *pRenderInfo->mMeters[2] = fmax(mMeterLevelGR, (double)(*pRenderInfo->mMeters[2]));
+  }
   else 
   {
     int32_t num, denom;
@@ -365,6 +372,12 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo, const TParamValPai
     ENTER_PARAMS_MUTEX
     ProcessBuffers(0.0f, numSamples);
     LEAVE_PARAMS_MUTEX
+    for (int i=0; i < numInChannels; ++i)
+      *pRenderInfo->mMeters[0] = fmax(mMeterLevelIn, (double)(*pRenderInfo->mMeters[0]));
+    for (int i=0; i < numOutChannels; ++i)
+      *pRenderInfo->mMeters[1] = fmax(mMeterLevelOut, (double)(*pRenderInfo->mMeters[1]));
+    if(pRenderInfo->mMeters[2] != NULL)
+      *pRenderInfo->mMeters[2] = fmax(mMeterLevelGR, (double)(*pRenderInfo->mMeters[2]));
   }
   
   // Midi Out
