@@ -23,6 +23,9 @@
 #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR ".aax." BUNDLE_NAME
 #endif
 
+const AAX_CTypeID stdMeterIDs [2] = {'mtrI', 'mtrO'};
+const AAX_CTypeID grMeterIDs [3] = {'mtrI', 'mtrO', 'mtrG'};
+
 using namespace iplug;
 
 #ifndef CUSTOM_BUSTYPE_FUNC
@@ -172,8 +175,19 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
     
     setupInfo.mNeedsTransport = true;
     setupInfo.mLatency = PLUG_LATENCY;
+    if(strcmp(AAX_PLUG_CATEGORY_STR, "Dynamics") == (0))
+    {
+        setupInfo.mNumMeters = 3;
+        setupInfo.mMeterIDs = grMeterIDs;
+    }
+    else
+    {
+        setupInfo.mNumMeters = 2;
+        setupInfo.mMeterIDs = stdMeterIDs;
+    };
   };
-  
+
+
   if((PLUG_TYPE != 1) && (totalNInBuses > 1)) // Effect with sidechain input
   {
     int aaxTypeIdIdx = 0;
