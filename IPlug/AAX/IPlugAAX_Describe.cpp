@@ -267,6 +267,7 @@ AAX_Result GetEffectDescriptions(AAX_ICollection* pC)
     meterProperties->AddProperty ( AAX_eProperty_Meter_Orientation, AAX_eMeterOrientation_Default );
     pDesc->AddMeterDescription('mtrO', "Output", meterProperties );
   }
+  
   if (category == AAX_ePlugInCategory_Dynamics)
   {
     meterProperties = pDesc->NewPropertyMap();

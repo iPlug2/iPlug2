@@ -483,10 +483,13 @@ void IPlugProcessor::AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE
 
 void IPlugProcessor::PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames)
 {
+  mMeterLevelIn = GetInputBufferMaxValue(nFrames);
+  mMeterLevelGR = 0.;
   if (mLatency && mLatencyDelay)
     mLatencyDelay->ProcessBlock(mScratchData[ERoute::kInput].Get(), mScratchData[ERoute::kOutput].Get(), nFrames);
   else
     IPlugProcessor::ProcessBlock(mScratchData[ERoute::kInput].Get(), mScratchData[ERoute::kOutput].Get(), nFrames);
+  mMeterLevelOut = GetOutputBufferMaxValue(nFrames);
 }
 
 void IPlugProcessor::PassThroughBuffers(PLUG_SAMPLE_SRC type, int nFrames)
@@ -520,7 +523,6 @@ void IPlugProcessor::ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames)
   mMeterLevelIn = GetInputBufferMaxValue(nFrames);
   mMeterLevelGR = 0.;
   ProcessBuffers((PLUG_SAMPLE_DST) 0, nFrames);
-  mMeterLevelOut = GetOutputBufferMaxValue(nFrames);
   int i, n = MaxNChannels(ERoute::kOutput);
   IChannelData<>** ppOutChannel = mChannelData[ERoute::kOutput].GetList();
 
@@ -533,6 +535,7 @@ void IPlugProcessor::ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames)
       CastCopy(pOutChannel->mIncomingData, *(pOutChannel->mData), nFrames);
     }
   }
+  mMeterLevelOut = GetOutputBufferMaxValue(nFrames);
 }
 
 void IPlugProcessor::ProcessBuffersAccumulating(int nFrames)
@@ -540,7 +543,6 @@ void IPlugProcessor::ProcessBuffersAccumulating(int nFrames)
   mMeterLevelIn = GetInputBufferMaxValue(nFrames);
   mMeterLevelGR = 0.;
   ProcessBuffers((PLUG_SAMPLE_DST) 0, nFrames);
-  mMeterLevelOut = GetOutputBufferMaxValue(nFrames);
   int i, n = MaxNChannels(ERoute::kOutput);
   IChannelData<>** ppOutChannel = mChannelData[ERoute::kOutput].GetList();
 
@@ -557,6 +559,8 @@ void IPlugProcessor::ProcessBuffersAccumulating(int nFrames)
       }
     }
   }
+  mMeterLevelOut = GetOutputBufferMaxValue(nFrames);
+
 }
 
 void IPlugProcessor::ZeroScratchBuffers()
