@@ -20,6 +20,8 @@
 #include "AAX_CNumberDisplayDelegate.h"
 #include "AAX_CUnitDisplayDelegateDecorator.h"
 
+#include "config.h"
+
 using namespace iplug;
 
 AAX_CEffectParameters *AAX_CALLBACK IPlugAAX::Create()
@@ -326,12 +328,11 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo, const TParamValPai
   
   if (bypass) {
     PassThroughBuffers(0.0f, numSamples);
-    for (int i=0; i < numInChannels; ++i)
-      *pRenderInfo->mMeters[0] = fmax(mMeterLevelIn, (double)(*pRenderInfo->mMeters[0]));
-    for (int i=0; i < numOutChannels; ++i)
-      *pRenderInfo->mMeters[1] = fmax(mMeterLevelOut, (double)(*pRenderInfo->mMeters[1]));
-    if(pRenderInfo->mMeters[2] != NULL)
-      *pRenderInfo->mMeters[2] = fmax(mMeterLevelGR, (double)(*pRenderInfo->mMeters[2]));
+    //*pRenderInfo->mMeters[0] = fmax(mMeterLevelIn, *pRenderInfo->mMeters[0]);
+    //*pRenderInfo->mMeters[1] = fmax(mMeterLevelOut, *pRenderInfo->mMeters[1]);
+    //if(strcmp(AAX_PLUG_CATEGORY_STR, "Dynamics") == 0)
+    //  *pRenderInfo->mMeters[2] = fmax(mMeterLevelGR, *pRenderInfo->mMeters[2]);
+    AAX_ASSERT(*pRenderInfo->mMeters != 0);
   }
   else 
   {
@@ -372,12 +373,11 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo, const TParamValPai
     ENTER_PARAMS_MUTEX
     ProcessBuffers(0.0f, numSamples);
     LEAVE_PARAMS_MUTEX
-    for (int i=0; i < numInChannels; ++i)
-      *pRenderInfo->mMeters[0] = fmax(mMeterLevelIn, (double)(*pRenderInfo->mMeters[0]));
-    for (int i=0; i < numOutChannels; ++i)
-      *pRenderInfo->mMeters[1] = fmax(mMeterLevelOut, (double)(*pRenderInfo->mMeters[1]));
-    if(pRenderInfo->mMeters[2] != NULL)
-      *pRenderInfo->mMeters[2] = fmax(mMeterLevelGR, (double)(*pRenderInfo->mMeters[2]));
+    //*pRenderInfo->mMeters[0] = fmax(mMeterLevelIn, *pRenderInfo->mMeters[0]);
+    //*pRenderInfo->mMeters[1] = fmax(mMeterLevelOut, *pRenderInfo->mMeters[1]);
+    //if(strcmp(AAX_PLUG_CATEGORY_STR, "Dynamics") == 0)
+    //  *pRenderInfo->mMeters[2] = fmax(mMeterLevelGR, *pRenderInfo->mMeters[2]);
+    AAX_ASSERT (*pRenderInfo->mMeters != 0);
   }
   
   // Midi Out
