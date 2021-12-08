@@ -328,11 +328,10 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo, const TParamValPai
   
   if (bypass) {
     PassThroughBuffers(0.0f, numSamples);
-    //*pRenderInfo->mMeters[0] = fmax(mMeterLevelIn, *pRenderInfo->mMeters[0]);
-    //*pRenderInfo->mMeters[1] = fmax(mMeterLevelOut, *pRenderInfo->mMeters[1]);
-    //if(strcmp(AAX_PLUG_CATEGORY_STR, "Dynamics") == 0)
-    //  *pRenderInfo->mMeters[2] = fmax(mMeterLevelGR, *pRenderInfo->mMeters[2]);
-    AAX_ASSERT(*pRenderInfo->mMeters != 0);
+    *pRenderInfo->mMeters[0] = fmax(mMeterLevelIn, *pRenderInfo->mMeters[0]);
+    *pRenderInfo->mMeters[1] = fmax(mMeterLevelOut, *pRenderInfo->mMeters[1]);
+    if(strcmp(AAX_PLUG_CATEGORY_STR, "Dynamics") == 0)
+      *pRenderInfo->mMeters[2] = fmax(mMeterLevelGR, *pRenderInfo->mMeters[2]);
   }
   else 
   {
@@ -373,11 +372,10 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo, const TParamValPai
     ENTER_PARAMS_MUTEX
     ProcessBuffers(0.0f, numSamples);
     LEAVE_PARAMS_MUTEX
-    //*pRenderInfo->mMeters[0] = fmax(mMeterLevelIn, *pRenderInfo->mMeters[0]);
-    //*pRenderInfo->mMeters[1] = fmax(mMeterLevelOut, *pRenderInfo->mMeters[1]);
-    //if(strcmp(AAX_PLUG_CATEGORY_STR, "Dynamics") == 0)
-    //  *pRenderInfo->mMeters[2] = fmax(mMeterLevelGR, *pRenderInfo->mMeters[2]);
-    AAX_ASSERT (*pRenderInfo->mMeters != 0);
+    *pRenderInfo->mMeters[0] = fmax(mMeterLevelIn, *pRenderInfo->mMeters[0]);
+    *pRenderInfo->mMeters[1] = fmax(mMeterLevelOut, *pRenderInfo->mMeters[1]);
+    if(strcmp(AAX_PLUG_CATEGORY_STR, "Dynamics") == 0)
+      *pRenderInfo->mMeters[2] = fmax(mMeterLevelGR, *pRenderInfo->mMeters[2]);
   }
   
   // Midi Out
