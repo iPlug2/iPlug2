@@ -307,13 +307,6 @@ protected: // these members are protected because they need to be access by the 
   /** Contains detailed information about the transport state */
   ITimeInfo mTimeInfo;
 
-  double mMeterLevelIn = 0.;
-  double mMeterLevelOut = 0.;
-  double mMeterLevelGR = 0.;
-
-  double GetInputBufferMaxValue (int nFrames);
-  double GetOutputBufferMaxValue (int nFrames);
-  void SetGRBufferMaxValue(double x) { mMeterLevelGR = x; };
 };
 
 END_IPLUG_NAMESPACE
