@@ -614,7 +614,7 @@ double IPlugProcessor::GetInputBufferMaxValue (int nFrames)
     for (i = 0; i < n; ++i, ++ppInChannel)
     {
         IChannelData<>* pInChannel = *ppInChannel;
-        double* pSrc = *(pInChannel->mData);
+        iplug::PLUG_SAMPLE_DST* pSrc = *(pInChannel->mData);
         for (int j = 0; j < nFrames; ++j, ++pSrc)
         {
             mMax = fmax(fabs(*pSrc),mMax);
@@ -635,7 +635,7 @@ double IPlugProcessor::GetOutputBufferMaxValue (int nFrames)
         IChannelData<>* pOutChannel = *ppOutChannel;
         if (pOutChannel->mConnected)
         {
-            double* pSrc = *(pOutChannel->mData);
+            iplug::PLUG_SAMPLE_DST* pSrc = *(pOutChannel->mData);
             for (int j = 0; j < nFrames; ++j, ++pSrc)
             {
                 mMax = fmax(fabs(*pSrc),mMax);
