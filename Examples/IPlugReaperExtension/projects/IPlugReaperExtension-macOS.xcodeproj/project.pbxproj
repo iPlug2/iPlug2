@@ -457,7 +457,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "php ../../../WDL/swell/mac_resgen.php ../resources/main.rc";
+			shellScript = "if [[ $(sw_vers -buildVersion) > \"21\" ]]; then \n  php_binary=/opt/homebrew/bin/php\n  \n  if ! test -f $php_binary; then\n    echo \"$php_binary not found, install php via brew\"\n    exit 1\n  fi\nelse\n  php_binary=/usr/bin/php\nfi\n$php_binary ../../../WDL/swell/mac_resgen.php ../resources/main.rc\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
