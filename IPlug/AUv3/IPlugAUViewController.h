@@ -15,12 +15,10 @@
 
 #import <CoreAudioKit/AUViewController.h>
 
-@class IPlugAUAudioUnit;
+@interface IPLUG_AUVIEWCONTROLLER : AUViewController <AUAudioUnitFactory>
 
-@interface IPlugAUViewController : AUViewController <AUAudioUnitFactory>
-
-@property (nonatomic, retain) IPlugAUAudioUnit* audioUnit;
-- (void) setAudioUnit:(IPlugAUAudioUnit*) audioUnit;
+@property (nonatomic, retain) AUAudioUnit* audioUnit;
+- (void) setAudioUnit:(AUAudioUnit*) audioUnit;
 - (void) audioUnitInitialized;
 - (AUAudioUnit*) getAudioUnit;
 @end

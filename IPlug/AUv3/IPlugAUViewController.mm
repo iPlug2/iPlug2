@@ -18,14 +18,14 @@
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
-@interface IPlugAUViewController (AUAudioUnitFactory)
+@interface IPLUG_AUVIEWCONTROLLER (AUAudioUnitFactory)
 @end
 
-@implementation IPlugAUViewController
+@implementation IPLUG_AUVIEWCONTROLLER
 
 - (AUAudioUnit*) createAudioUnitWithComponentDescription:(AudioComponentDescription) desc error:(NSError **)error
 {
-  self.audioUnit = [[IPlugAUAudioUnit alloc] initWithComponentDescription:desc error:error];
+  self.audioUnit = [[IPLUG_AUAUDIOUNIT alloc] initWithComponentDescription:desc error:error];
 
   [self audioUnitInitialized];
 
@@ -37,7 +37,7 @@
 {
   if (self.audioUnit)
   {
-    [self.audioUnit hostResized: self.view.frame.size];
+    [(IPLUG_AUAUDIOUNIT*) self.audioUnit hostResized: self.view.frame.size];
   }
 }
 
@@ -47,7 +47,7 @@
   
   if (self.audioUnit)
   {
-    [self.audioUnit openWindow:self.view];
+    [(IPLUG_AUAUDIOUNIT*) self.audioUnit openWindow:self.view];
   }
 }
 
@@ -57,7 +57,7 @@
   
   if (self.audioUnit)
   {
-    [self.audioUnit closeWindow];
+    [(IPLUG_AUAUDIOUNIT*) self.audioUnit closeWindow];
   }
 }
 #else
@@ -65,24 +65,24 @@
 {
   if (self.audioUnit)
   {
-    [self.audioUnit hostResized: self.view.frame.size];
+    [(IPLUG_AUAUDIOUNIT*) self.audioUnit hostResized: self.view.frame.size];
   }
 }
 
 - (void) viewWillAppear
 {
-  [self.audioUnit openWindow:self.view];
+  [(IPLUG_AUAUDIOUNIT*) self.audioUnit openWindow:self.view];
 }
 
 - (void) viewDidDisappear
 {
-  [self.audioUnit closeWindow];
+  [(IPLUG_AUAUDIOUNIT*) self.audioUnit closeWindow];
 }
 
 - (void) loadView
 {
-  int width = (int) [self.audioUnit width];
-  int height = (int) [self.audioUnit height];
+  int width = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit width];
+  int height = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit height];
   self.view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
 }
 
@@ -98,8 +98,8 @@
   dispatch_async(dispatch_get_main_queue(), ^{
     if (self.audioUnit)
     {
-      int viewWidth = (int) [self.audioUnit width];
-      int viewHeight = (int) [self.audioUnit height];
+      int viewWidth = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit width];
+      int viewHeight = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit height];
       self.preferredContentSize = CGSizeMake (viewWidth, viewHeight);
     }
   });
