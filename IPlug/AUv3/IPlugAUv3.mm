@@ -35,20 +35,20 @@ void IPlugAUv3::SetAUAudioUnit(void* pAUAudioUnit)
 void IPlugAUv3::BeginInformHostOfParamChange(int paramIdx)
 {
   const AUParameterAddress address = GetParamAddress(paramIdx);
-  [(__bridge IPlugAUAudioUnit*) mAUAudioUnit beginInformHostOfParamChange:address];
+  [(__bridge IPLUG_AUAUDIOUNIT*) mAUAudioUnit beginInformHostOfParamChange:address];
 }
 
 void IPlugAUv3::InformHostOfParamChange(int paramIdx, double normalizedValue)
 {
   const AUParameterAddress address = GetParamAddress(paramIdx);
 
-  [(__bridge IPlugAUAudioUnit*) mAUAudioUnit informHostOfParamChange:address :(float) GetParam(paramIdx)->FromNormalized(normalizedValue)];
+  [(__bridge IPLUG_AUAUDIOUNIT*) mAUAudioUnit informHostOfParamChange:address :(float) GetParam(paramIdx)->FromNormalized(normalizedValue)];
 }
 
 void IPlugAUv3::EndInformHostOfParamChange(int paramIdx)
 {
   const AUParameterAddress address = GetParamAddress(paramIdx);
-  [(__bridge IPlugAUAudioUnit*) mAUAudioUnit endInformHostOfParamChange:address];
+  [(__bridge IPLUG_AUAUDIOUNIT*) mAUAudioUnit endInformHostOfParamChange:address];
 }
 
 bool IPlugAUv3::SendMidiMsg(const IMidiMsg& msg)
@@ -57,7 +57,7 @@ bool IPlugAUv3::SendMidiMsg(const IMidiMsg& msg)
   
   int64_t sampleTime = mLastTimeStamp.mSampleTime + msg.mOffset;
   
-  return [(__bridge IPlugAUAudioUnit*) mAUAudioUnit sendMidiData: sampleTime : sizeof(data) : data];
+  return [(__bridge IPLUG_AUAUDIOUNIT*) mAUAudioUnit sendMidiData: sampleTime : sizeof(data) : data];
 }
 
 //bool IPlugAUv3::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
@@ -69,7 +69,7 @@ bool IPlugAUv3::SendSysEx(const ISysEx& msg)
 {
   int64_t sampleTime = mLastTimeStamp.mSampleTime + msg.mOffset;
 
-  return [(__bridge IPlugAUAudioUnit*) mAUAudioUnit sendMidiData: sampleTime : msg.mSize : msg.mData];
+  return [(__bridge IPLUG_AUAUDIOUNIT*) mAUAudioUnit sendMidiData: sampleTime : msg.mSize : msg.mData];
 }
 
 //void IPlugAUv3::HandleOneEvent(AURenderEvent const *event, AUEventSampleTime startTime)

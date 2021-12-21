@@ -9,8 +9,13 @@
 */
 
 #ifdef __OBJC__
+  #include <TargetConditionals.h>
+  #if TARGET_OS_IOS == 1
+  #import <UIKit/UIKit.h>
+  #else
   #import <Cocoa/Cocoa.h>
-   
+  #endif
+
   //objective-c has a flat namespace, we need to customise the class name for all of our objective-c classes
   //so that binaries using different versions don't conflict
   #ifndef OBJC_PREFIX
@@ -47,5 +52,7 @@
   #define MNVGtexture CONCAT(MNVGtexture_)
   #define MNVGbuffers CONCAT(MNVGbuffers_)
   #define MNVGcontext CONCAT(MNVGcontext_)
+  #define IPLUG_AUAUDIOUNIT CONCAT(IPlugAUAudioUnit_)
+  #define IPLUG_AUVIEWCONTROLLER CONCAT(IPlugAUViewController_)
 #endif
 

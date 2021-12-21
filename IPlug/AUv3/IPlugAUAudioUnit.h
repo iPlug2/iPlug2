@@ -21,7 +21,7 @@
   #endif
 #endif
 
-@interface IPlugAUAudioUnit : AUAudioUnit
+@interface IPLUG_AUAUDIOUNIT : AUAudioUnit
 - (void) beginInformHostOfParamChange: (uint64_t) address;
 - (void) informHostOfParamChange: (uint64_t) address : (float) realValue;
 - (void) endInformHostOfParamChange: (uint64_t) address;
