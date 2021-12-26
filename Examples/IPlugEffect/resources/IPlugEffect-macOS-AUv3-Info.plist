@@ -55,7 +55,7 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.AudioUnit-UI</string>
 		<key>NSExtensionPrincipalClass</key>
-		<string>IPlugAUViewController_vIPlugEffect_auv3</string>
+		<string>IPlugAUViewController_vIPlugEffect</string>
 	</dict>
 </dict>
 </plist>

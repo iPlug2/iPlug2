@@ -32,7 +32,7 @@
 					<key>description</key>
 					<string>IPlugEffect</string>
 					<key>factoryFunction</key>
-					<string>IPlugAUViewController_vIPlugEffect_auv3</string>
+					<string>IPlugAUViewController_vIPlugEffect</string>
 					<key>manufacturer</key>
 					<string>Acme</string>
 					<key>name</key>
