@@ -14,10 +14,6 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import <Metal/Metal.h>
-#ifdef IGRAPHICS_IMGUI
-#include "imgui.h"
-#import "imgui_impl_metal.h"
-#endif
 
 #import "IGraphicsIOS_view.h"
 
@@ -899,55 +895,4 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 }
 
 @end
-
-#ifdef IGRAPHICS_IMGUI
-
-@implementation IGRAPHICS_IMGUIVIEW
-{
-}
-
-- (id) initWithIGraphicsView: (IGraphicsIOS_View*) pView;
-{
-  mView = pView;
-  self = [super initWithFrame:[pView frame] device: MTLCreateSystemDefaultDevice()];
-  
-  if(self)
-  {
-    _commandQueue = [self.device newCommandQueue];
-    self.layer.opaque = NO;
-  }
-  
-  return self;
-}
-
-- (void) drawRect:(CGRect)rect
-{
-  id<MTLCommandBuffer> commandBuffer = [self.commandQueue commandBuffer];
-  
-  MTLRenderPassDescriptor *renderPassDescriptor = self.currentRenderPassDescriptor;
-  if (renderPassDescriptor != nil)
-  {
-    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0,0,0,0);
-    
-    id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-    [renderEncoder pushDebugGroup:@"ImGui IGraphics"];
-    
-    ImGui_ImplMetal_NewFrame(renderPassDescriptor);
-    
-    mView->mGraphics->mImGuiRenderer->DoFrame();
-    
-    ImDrawData *drawData = ImGui::GetDrawData();
-    ImGui_ImplMetal_RenderDrawData(drawData, commandBuffer, renderEncoder);
-    
-    [renderEncoder popDebugGroup];
-    [renderEncoder endEncoding];
-    
-    [commandBuffer presentDrawable:self.currentDrawable];
-  }
-  [commandBuffer commit];
-}
-
-@end
-
-#endif
 

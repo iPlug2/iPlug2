@@ -69,7 +69,6 @@ public:
 
   EUIAppearance GetUIAppearance() const override;
 protected:
-  void CreatePlatformImGui() override;
 
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
@@ -86,7 +85,6 @@ private:
   void StoreCursorPosition();
   
   void* mView = nullptr;
-  void* mImGuiView = nullptr;
   CGPoint mCursorLockPosition;
   WDL_String mBundleID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);

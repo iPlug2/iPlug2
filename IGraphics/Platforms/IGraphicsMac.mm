@@ -127,17 +127,7 @@ void IGraphicsMac::RemovePlatformView(void* pView)
 void IGraphicsMac::CloseWindow()
 {
   if (mView)
-  {
-#if defined IGRAPHICS_IMGUI
-    if(mImGuiView)
-    {
-      IGRAPHICS_IMGUIVIEW* pImGuiView = (IGRAPHICS_IMGUIVIEW*) mImGuiView;
-      [pImGuiView removeFromSuperview];
-      [pImGuiView release];
-      mImGuiView = nullptr;
-    }
-#endif
-    
+  {    
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
       
 #ifdef IGRAPHICS_GL
@@ -168,11 +158,6 @@ void IGraphicsMac::PlatformResize(bool parentHasResized)
     [NSAnimationContext beginGrouping]; // Prevent animated resizing
     [[NSAnimationContext currentContext] setDuration:0.0];
     [(IGRAPHICS_VIEW*) mView setFrameSize: size ];
-    
-#if defined IGRAPHICS_IMGUI && !defined IGRAPHICS_SKIA && !defined IGRAPHICS_GL
-    if(mImGuiView)
-      [(IGRAPHICS_IMGUIVIEW*) mImGuiView setFrameSize: size ];
-#endif
     
     [NSAnimationContext endGrouping];
   }
@@ -636,30 +621,6 @@ EUIAppearance IGraphicsMac::GetUIAppearance() const
   }
   
   return EUIAppearance::Light;
-}
-
-void IGraphicsMac::CreatePlatformImGui()
-{
-#if defined IGRAPHICS_IMGUI
-  #if defined IGRAPHICS_SKIA && IGRAPHICS_CPU
-    #define USE_IGRAPHICS_IMGUIVIEW 1
-  #elif defined IGRAPHICS_NANOVG && IGRAPHICS_METAL
-    #define USE_IGRAPHICS_IMGUIVIEW 1
-#else
-  #define USE_IGRAPHICS_IMGUIVIEW 0
-#endif
-
-#if USE_IGRAPHICS_IMGUIVIEW
-  if(mView)
-  {
-    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
-    
-    IGRAPHICS_IMGUIVIEW* pImGuiView = [[IGRAPHICS_IMGUIVIEW alloc] initWithIGraphicsView:pView];
-    [pView addSubview: pImGuiView];
-    mImGuiView = pImGuiView;
-  }
-#endif
-#endif // IGRAPHICS_IMGUI
 }
 
 #if defined IGRAPHICS_NANOVG

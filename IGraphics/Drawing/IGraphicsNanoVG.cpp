@@ -531,11 +531,6 @@ void IGraphicsNanoVG::EndFrame()
 #endif
 
   nvgEndFrame(mVG);
-
-#if defined IGRAPHICS_IMGUI && defined IGRAPHICS_GL
-  if(mImGuiRenderer)
-    mImGuiRenderer->NewFrame();
-#endif
   
   mInDraw = false;
   ClearFBOStack();
