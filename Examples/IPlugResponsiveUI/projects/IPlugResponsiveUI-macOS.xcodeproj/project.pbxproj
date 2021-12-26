@@ -217,7 +217,6 @@
 		4F993F7423055C96000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		4F993F7523055C97000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		4F993F7623055C98000313AF /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
-		4F99C48C24CE474900C510E1 /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
 		4F9A82F6213DE80400BE63A4 /* IPopupMenuControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F9A82F3213DE80200BE63A4 /* IPopupMenuControl.h */; };
 		4F9A82F7213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */; };
 		4F9A82F8213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */; };
@@ -270,13 +269,6 @@
 		4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3F13B635A0001D0217 /* swell-misc.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code -Wno-shorten-64-to-32 -Wno-deprecated-implementations"; }; };
 		4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4113B635AB001D0217 /* swell-wnd.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code -Wno-shorten-64-to-32 -Wno-deprecated-implementations"; }; };
 		4FD16D4413B635B2001D0217 /* swell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4313B635B2001D0217 /* swell.cpp */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code -Wno-shorten-64-to-32 -Wno-deprecated-implementations"; }; };
-		4FD18D592470BAF60057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
-		4FD18D5B2470BAFB0057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
-		4FD18D5C2470BAFB0057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
-		4FD18D5D2470BAFB0057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
-		4FD18D5E2470BAFC0057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
-		4FD18D622470BB020057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
-		4FD18D632470BB050057191E /* IGraphicsImGui_src.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc -Wno-nullability-completeness"; }; };
 		4FD52131202A5B9B00A4D22A /* IPlugAU_view_factory.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD5212E202A5B9B00A4D22A /* IPlugAU_view_factory.mm */; };
 		4FD52133202A5B9B00A4D22A /* IPlugAU.r in Rez */ = {isa = PBXBuildFile; fileRef = 4FD52130202A5B9B00A4D22A /* IPlugAU.r */; };
 		4FD52136202A5BD000A4D22A /* dfx-au-utilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 4FD52134202A5BD000A4D22A /* dfx-au-utilities.c */; };
@@ -754,9 +746,6 @@
 		4FD16D4313B635B2001D0217 /* swell.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = swell.cpp; path = ../../../WDL/swell/swell.cpp; sourceTree = SOURCE_ROOT; };
 		4FD16D4513B635C8001D0217 /* swellappmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = swellappmain.h; path = ../../../WDL/swell/swellappmain.h; sourceTree = SOURCE_ROOT; };
 		4FD16D4613B635C8001D0217 /* swellappmain.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = swellappmain.mm; path = ../../../WDL/swell/swellappmain.mm; sourceTree = SOURCE_ROOT; };
-		4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsImGui_src.mm; path = ../../../IGraphics/Extras/IGraphicsImGui_src.mm; sourceTree = "<group>"; };
-		4FD18D572470BAF60057191E /* IGraphicsImGui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsImGui.cpp; path = ../../../IGraphics/Extras/IGraphicsImGui.cpp; sourceTree = "<group>"; };
-		4FD18D582470BAF60057191E /* IGraphicsImGui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsImGui.h; path = ../../../IGraphics/Extras/IGraphicsImGui.h; sourceTree = "<group>"; };
 		4FD290A8137C34D700CEBE7E /* IPlugResponsiveUI.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = IPlugResponsiveUI.icns; path = ../resources/IPlugResponsiveUI.icns; sourceTree = "<group>"; };
 		4FD5212E202A5B9B00A4D22A /* IPlugAU_view_factory.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugAU_view_factory.mm; path = ../../../IPlug/AUv2/IPlugAU_view_factory.mm; sourceTree = "<group>"; tabWidth = 2; };
 		4FD52130202A5B9B00A4D22A /* IPlugAU.r */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.rez; name = IPlugAU.r; path = ../../../IPlug/AUv2/IPlugAU.r; sourceTree = "<group>"; tabWidth = 2; };
@@ -948,9 +937,6 @@
 		4F03A54820A461FD00EBDFFB /* IGraphics */ = {
 			isa = PBXGroup;
 			children = (
-				4FD18D562470BAF50057191E /* IGraphicsImGui_src.mm */,
-				4FD18D572470BAF60057191E /* IGraphicsImGui.cpp */,
-				4FD18D582470BAF60057191E /* IGraphicsImGui.h */,
 				4FB1F57A20E4AFDA004157C8 /* Platforms */,
 				4F63695120A463090022C370 /* Controls */,
 				4F03A54920A4621000EBDFFB /* Drawing */,
@@ -2231,7 +2217,6 @@
 				4FDAC0EB207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				4F63696E20A463090022C370 /* IControls.cpp in Sources */,
 				4F03A5AD20A4621100EBDFFB /* IGraphics.cpp in Sources */,
-				4FD18D5B2470BAFB0057191E /* IGraphicsImGui_src.mm in Sources */,
 				4F5F344220C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F6369EC20A466470022C370 /* IControl.cpp in Sources */,
 				4FB1F58A20E4B005004157C8 /* IGraphicsMac.mm in Sources */,
@@ -2278,7 +2263,6 @@
 				4FD52136202A5BD000A4D22A /* dfx-au-utilities.c in Sources */,
 				4FCE29DA21D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F5F344420C0226200487201 /* IPlugPaths.mm in Sources */,
-				4FD18D5D2470BAFB0057191E /* IGraphicsImGui_src.mm in Sources */,
 				4F35DEB0207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F78D95C13B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
 				4FB1F58C20E4B006004157C8 /* IGraphicsMac.mm in Sources */,
@@ -2307,7 +2291,6 @@
 				4F3EE1D2231438D000004786 /* swell-misc.mm in Sources */,
 				4F3EE1D3231438D000004786 /* swell-wnd.mm in Sources */,
 				4F3EE1D4231438D000004786 /* swell.cpp in Sources */,
-				4FD18D632470BB050057191E /* IGraphicsImGui_src.mm in Sources */,
 				4F3EE1D5231438D000004786 /* IPlugAPP_host.cpp in Sources */,
 				4F3EE1D6231438D000004786 /* IPlugAPP.cpp in Sources */,
 				4F3EE1D7231438D000004786 /* IGraphics.cpp in Sources */,
@@ -2341,7 +2324,6 @@
 				4F78BE1922E7406D00AD537E /* ITextEntryControl.cpp in Sources */,
 				4F78BE1A22E7406D00AD537E /* IPopupMenuControl.cpp in Sources */,
 				4F78BE1B22E7406D00AD537E /* IControls.cpp in Sources */,
-				4FD18D622470BB020057191E /* IGraphicsImGui_src.mm in Sources */,
 				4F78BE1E22E7406D00AD537E /* IGraphicsNanoVG_src.m in Sources */,
 				4F78BE1F22E7406D00AD537E /* IGraphics.cpp in Sources */,
 				4F78BE2022E7406D00AD537E /* IGraphicsEditorDelegate.cpp in Sources */,
@@ -2366,7 +2348,6 @@
 				B8E22A0C220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */,
 				4F3862F12014BBEC0009F402 /* IPlugResponsiveUI.cpp in Sources */,
 				4F81591F205D50EB00393585 /* pluginfactory.cpp in Sources */,
-				4FD18D5C2470BAFB0057191E /* IGraphicsImGui_src.mm in Sources */,
 				4F63696F20A463090022C370 /* IControls.cpp in Sources */,
 				4F6FD2B322675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
 				4F815973205D50EB00393585 /* vstinitiids.cpp in Sources */,

@@ -472,10 +472,6 @@
 		4F1B4AE32014D33600BC64D4 /* IGraphicsTest-macOS-MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = "IGraphicsTest-macOS-MainMenu.xib"; path = "../resources/IGraphicsTest-macOS-MainMenu.xib"; sourceTree = "<group>"; };
 		4F1C2D3E23D72FF60088AE84 /* TestFlexBoxControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestFlexBoxControl.h; sourceTree = "<group>"; };
 		4F1C2D4023D730690088AE84 /* IGraphicsFlexBox.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsFlexBox.cpp; sourceTree = "<group>"; };
-		4F1C2D4123D730690088AE84 /* IGraphicsImGui_src.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsImGui_src.mm; sourceTree = "<group>"; };
-		4F1C2D4223D730690088AE84 /* IGraphicsFlexBox.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsFlexBox.h; sourceTree = "<group>"; };
-		4F1C2D4323D730690088AE84 /* IGraphicsImGui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IGraphicsImGui.h; sourceTree = "<group>"; };
-		4F1C2D4423D730690088AE84 /* IGraphicsImGui.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsImGui.cpp; sourceTree = "<group>"; };
 		4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdlendian.h; path = ../../../WDL/wdlendian.h; sourceTree = SOURCE_ROOT; };
 		4F20EF33132C69FE0030E34C /* IGraphicsTest.vst */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IGraphicsTest.vst; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F23BA1313B647E50097A67E /* IGraphicsTest-AU-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-AU-Info.plist"; path = "../resources/IGraphicsTest-AU-Info.plist"; sourceTree = "<group>"; };
@@ -1051,9 +1047,6 @@
 			children = (
 				4F1C2D4223D730690088AE84 /* IGraphicsFlexBox.h */,
 				4F1C2D4023D730690088AE84 /* IGraphicsFlexBox.cpp */,
-				4F1C2D4123D730690088AE84 /* IGraphicsImGui_src.mm */,
-				4F1C2D4323D730690088AE84 /* IGraphicsImGui.h */,
-				4F1C2D4423D730690088AE84 /* IGraphicsImGui.cpp */,
 			);
 			name = Extras;
 			path = ../../../IGraphics/Extras;

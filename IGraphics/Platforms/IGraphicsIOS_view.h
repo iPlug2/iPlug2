@@ -106,15 +106,3 @@ using namespace igraphics;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 
 @end
-
-#ifdef IGRAPHICS_IMGUI
-#import <MetalKit/MetalKit.h>
-
-@interface IGRAPHICS_IMGUIVIEW : MTKView
-{
-  IGraphicsIOS_View* mView;
-}
-@property (nonatomic, strong) id <MTLCommandQueue> commandQueue;
-- (id) initWithIGraphicsView: (IGraphicsIOS_View*) pView;
-@end
-#endif

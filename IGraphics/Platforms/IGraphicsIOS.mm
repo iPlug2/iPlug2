@@ -120,17 +120,7 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
 void IGraphicsIOS::CloseWindow()
 {
   if (mView)
-  {
-#ifdef IGRAPHICS_IMGUI
-    if(mImGuiView)
-    {
-      IGRAPHICS_IMGUIVIEW* pImGuiView = (IGRAPHICS_IMGUIVIEW*) mImGuiView;
-      [pImGuiView removeFromSuperview];
-      [pImGuiView release];
-      mImGuiView = nullptr;
-    }
-#endif
-    
+  { 
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
     [pView removeFromSuperview];
     [pView release];
@@ -282,20 +272,6 @@ bool IGraphicsIOS::GetTextFromClipboard(WDL_String& str)
 bool IGraphicsIOS::SetTextInClipboard(const char* str)
 {
   return false;
-}
-
-void IGraphicsIOS::CreatePlatformImGui()
-{
-#ifdef IGRAPHICS_IMGUI
-  if(mView)
-  {
-    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
-    
-    IGRAPHICS_IMGUIVIEW* pImGuiView = [[IGRAPHICS_IMGUIVIEW alloc] initWithIGraphicsView:pView];
-    [pView addSubview: pImGuiView];
-    mImGuiView = pImGuiView;
-  }
-#endif
 }
 
 PlatformFontPtr IGraphicsIOS::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)

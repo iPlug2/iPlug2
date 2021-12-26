@@ -64,9 +64,6 @@ IPlugReaperExtension::IPlugReaperExtension(reaper_plugin_info_t* pRec)
                                                    ShowConsoleMsg(valStr.Get());
                                                  }, "Value:", DEFAULT_STYLE, true, EDirection::Horizontal));
     
-//    pGraphics->AttachImGui([](IGraphics* pGraphics) {
-//      ImGui::ShowDemoWindow();
-//    });
   };
 }
 

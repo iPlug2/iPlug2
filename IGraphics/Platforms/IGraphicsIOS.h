@@ -62,8 +62,6 @@ public:
   bool GetTextFromClipboard(WDL_String& str) override;
   bool SetTextInClipboard(const char* str) override;
 
-  void CreatePlatformImGui() override;
-
   void LaunchBluetoothMidiDialog(float x, float y);
   
   void AttachGestureRecognizer(EGestureType type) override;
@@ -83,8 +81,6 @@ protected:
 
 private:
   void* mView = nullptr;
-  void* mImGuiView = nullptr;
-
   WDL_String mBundleID;
 };
 

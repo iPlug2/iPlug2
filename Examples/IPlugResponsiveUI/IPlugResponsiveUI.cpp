@@ -54,26 +54,6 @@ IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
     pGraphics->AttachControl(new IVKeyboardControl(GetBounds(1, b)));
     pGraphics->AttachControl(new IVSliderControl(GetBounds(2, b), kGain));
     pGraphics->AttachControl(new IVScopeControl<>(GetBounds(3, b), "", DEFAULT_STYLE.WithColor(kBG, COLOR_BLACK).WithColor(kFG, COLOR_WHITE)), kCtrlTagScope);
-
-#if !defined OS_IOS && defined IGRAPHICS_IMGUI
-    pGraphics->AttachImGui([](IGraphics* pGraphics){
-      static bool liveEdit = pGraphics->LiveEditEnabled();
-      static bool showFPS = false;
-      static bool showDrawnArea = false;
-      static bool showControlBounds = false;
-      static float bgColor [3] = {0.5f, 0.5f, 0.5f};
-      static float scopeBgColor [3] = {0.f, 0.f, 0.f};
-      static float scopeFgColor [3] = {1.f, 1.f, 1.f};
-      if(ImGui::Checkbox("Live Edit", &liveEdit)) pGraphics->EnableLiveEdit(liveEdit);
-      if(ImGui::Checkbox("Show FPS", &showFPS)) pGraphics->ShowFPSDisplay(showFPS);
-      if(ImGui::Checkbox("Show Drawn Area", &showDrawnArea)) pGraphics->ShowAreaDrawn(showDrawnArea);
-      if(ImGui::Checkbox("Show Ctrl Bounds", &showControlBounds)) pGraphics->ShowControlBounds(showControlBounds);
-      ImGui::SetColorEditOptions(ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoInputs);
-      if(ImGui::ColorEdit3("BG Color", bgColor)) pGraphics->GetBackgroundControl()->As<IPanelControl>()->SetPattern(IColor::FromRGBf(bgColor));
-      if(ImGui::ColorEdit3("Scope BG Color", scopeBgColor)) pGraphics->GetControlWithTag(kCtrlTagScope)->As<IVScopeControl<>>()->SetColor(kBG, IColor::FromRGBf(scopeBgColor));
-      if(ImGui::ColorEdit3("Scope FG Color", scopeFgColor)) pGraphics->GetControlWithTag(kCtrlTagScope)->As<IVScopeControl<>>()->SetColor(kFG, IColor::FromRGBf(scopeFgColor));
-    });
-#endif
   };
 #endif
 }
