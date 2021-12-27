@@ -22,8 +22,6 @@
 
 BEGIN_IPLUG_NAMESPACE
 
-static const float SENDER_THRESHOLD = (float) DBToAmp(-90.);
-
 /** ISenderData is used to represent a typed data packet, that may contain values for multiple channels */
 template <int MAXNC = 1, typename T = float>
 struct ISenderData
@@ -85,6 +83,12 @@ template <int MAXNC = 1, int QUEUE_SIZE = 64>
 class IPeakSender : public ISender<MAXNC, QUEUE_SIZE, float>
 {
 public:
+  IPeakSender(double minThresholdDb = -90.)
+  : ISender<MAXNC, QUEUE_SIZE, float>()
+  , mThreshold(static_cast<float>(DBToAmp(minThresholdDb)))
+  {
+  }
+  
   /** Queue peaks from sample buffers into the sender, checking the data is over the required threshold. This can be called on the realtime audio thread. */
   void ProcessBlock(sample** inputs, int nFrames, int ctrlTag, int nChans = MAXNC, int chanOffset = 0)
   {
@@ -106,13 +110,14 @@ public:
       sum += d.vals[c];
     }
 
-    if(sum > SENDER_THRESHOLD || mPreviousSum > SENDER_THRESHOLD)
+    if(sum > mThreshold || mPreviousSum > mThreshold)
       ISender<MAXNC, QUEUE_SIZE, float>::PushData(d);
 
     mPreviousSum = sum;
   }
 private:
   float mPreviousSum = 1.f;
+  float mThreshold = 0.01f;
 };
 
 /** IBufferSender is a utility class which can be used to defer buffer data for sending to the GUI */
@@ -120,6 +125,11 @@ template <int MAXNC = 1, int QUEUE_SIZE = 64, int MAXBUF = 128>
 class IBufferSender : public ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF>>
 {
 public:
+  IBufferSender(double minThresholdDb = -90.)
+  : ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF>>()
+  , mThreshold(static_cast<float>(DBToAmp(minThresholdDb)))
+  {
+  }
 
   /** Queue sample buffers into the sender, checking the data is over the required threshold. This can be called on the realtime audio thread. */
   void ProcessBlock(sample** inputs, int nFrames, int ctrlTag, int nChans = MAXNC, int chanOffset = 0)
@@ -135,7 +145,7 @@ public:
           mRunningSum[c] = 0.f;
         }
 
-        if (sum > SENDER_THRESHOLD || mPreviousSum > SENDER_THRESHOLD)
+        if (sum > mThreshold || mPreviousSum > mThreshold)
         {
           mBuffer.ctrlTag = ctrlTag;
           mBuffer.nChans = nChans;
@@ -161,6 +171,7 @@ protected:
   int mBufCount = 0;
   std::array<float, MAXNC> mRunningSum {0.};
   float mPreviousSum = 1.f;
+  float mThreshold = 0.01f;
 };
 
 END_IPLUG_NAMESPACE
