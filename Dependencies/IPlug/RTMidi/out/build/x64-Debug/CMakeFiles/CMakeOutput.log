@@ -1,0 +1,33 @@
+The system is: Windows - 10.0.22000 - AMD64
+Compiling the CXX compiler identification source file "CMakeCXXCompilerId.cpp" succeeded.
+Compiler: C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/MSVC/14.29.30133/bin/Hostx64/x64/cl.exe 
+Build flags: 
+Id flags:  
+
+The output was:
+0
+Microsoft (R) C/C++ Optimizing Compiler Version 19.29.30136 for x64
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+CMakeCXXCompilerId.cpp
+Microsoft (R) Incremental Linker Version 14.29.30136.0
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+/out:CMakeCXXCompilerId.exe 
+CMakeCXXCompilerId.obj 
+
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.exe"
+
+Compilation of the CXX compiler identification source "CMakeCXXCompilerId.cpp" produced "CMakeCXXCompilerId.obj"
+
+The CXX compiler identification is MSVC, found in "C:/cygwin64/home/ahann/apps/iplug2-for-merge/Dependencies/IPlug/RTMidi/out/build/x64-Debug/CMakeFiles/3.20.21032501-MSVC_2/CompilerIdCXX/CMakeCXXCompilerId.exe"
+
+Detecting CXX compiler ABI info compiled with the following output:
+Change Dir: C:/cygwin64/home/ahann/apps/iplug2-for-merge/Dependencies/IPlug/RTMidi/out/build/x64-Debug/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/Common7/IDE/CommonExtensions/Microsoft/CMake/Ninja/ninja.exe cmTC_9cd70 && [1/2] Building CXX object CMakeFiles\cmTC_9cd70.dir\CMakeCXXCompilerABI.cpp.obj
+[2/2] Linking CXX executable cmTC_9cd70.exe
+
+
+
