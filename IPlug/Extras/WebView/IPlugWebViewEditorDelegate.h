@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
+
  This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
- 
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -23,14 +23,14 @@ class WebViewEditorDelegate : public IEditorDelegate
                             , public IWebView
 {
   static constexpr int kDefaultMaxJSStringLength = 1024;
-  
+
 public:
   WebViewEditorDelegate(int nParams);
   virtual ~WebViewEditorDelegate();
-  
+
   //IEditorDelegate
   void* OpenWindow(void* pParent) override;
-  
+
   void CloseWindow() override
   {
     CloseWebView();
@@ -66,14 +66,14 @@ public:
     std::vector<char> base64;
     base64.resize(GetBase64Length(dataSize));
     wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.data(), dataSize);
-    str.SetFormatted(mMaxJSStringLength, "SAMFD(%i, %i, %s)", msgTag, dataSize, base64.data());
+    str.SetFormatted(mMaxJSStringLength, "SAMFD(%i, %i, '%s')", msgTag, dataSize, base64.data());
     EvaluateJavaScript(str.Get());
   }
 
   void OnMessageFromWebView(const char* jsonStr) override
   {
     auto json = nlohmann::json::parse(jsonStr, nullptr, false);
-    
+
     if(json["msg"] == "SPVFUI")
     {
       SendParameterValueFromUI(json["paramIdx"], json["value"]);
@@ -94,15 +94,15 @@ public:
       {
         auto dStr = json["data"].get<std::string>();
         int dSize = static_cast<int>(dStr.size());
-        
+
         // calculate the exact size of the decoded base64 data
         int numPaddingBytes = 0;
-        
+
         if(dSize >= 2 && dStr[dSize-2] == '=')
           numPaddingBytes = 2;
         else if(dSize >= 1 && dStr[dSize-1] == '=')
           numPaddingBytes = 1;
-        
+
 
         base64.resize((dSize * 3) / 4 - numPaddingBytes);
         wdl_base64decode(dStr.c_str(), base64.data(), static_cast<int>(base64.size()));
@@ -119,23 +119,23 @@ public:
     if (mEditorInitFunc)
       mEditorInitFunc();
   }
-  
+
   void OnWebContentLoaded() override
   {
     OnUIOpen();
   }
-  
+
   void SetMaxJSStringLength(int length)
   {
     mMaxJSStringLength = length;
   }
-  
+
 protected:
   int GetBase64Length(int dataSize)
   {
     return static_cast<int>(4. * std::ceil((static_cast<double>(dataSize) / 3.)));
   }
-  
+
   int mMaxJSStringLength = kDefaultMaxJSStringLength;
   std::function<void()> mEditorInitFunc = nullptr;
   void* mHelperView = nullptr;
