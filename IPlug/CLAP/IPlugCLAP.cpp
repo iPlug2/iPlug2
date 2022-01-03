@@ -14,9 +14,16 @@
 #include "plugin.hxx"
 #include "host-proxy.hxx"
 
-// Ensure that a concrete class exists
+// Ensure that the template is defined here
 
-class ClapPluginHelper;
+namespace clap
+{
+#ifdef DEBUG
+  template class helpers::Plugin<helpers::MisbehaviourHandler::Terminate,helpers::CheckingLevel::Maximal>;
+#else
+  template class helpers::Plugin<helpers::MisbehaviourHandler::Ignore,helpers::CheckingLevel::None>;
+#endif
+}
 
 using namespace iplug;
 
