@@ -32,11 +32,19 @@ struct InstanceInfo
   const clap_host* mHost;
 };
 
+// Set the level of host checking based on if this is debug build
+
+#ifdef DEBUG
+using ClapPluginHelper = clap::helpers::Plugin<clap::helpers::MisbehaviourHandler::Terminate, clap::helpers::CheckingLevel::Maximal>;
+#else
+using ClapPluginHelper = clap::helpers::Plugin<clap::helpers::MisbehaviourHandler::Ignore, clap::helpers::CheckingLevel::None>;
+#endif
+
 /** CLAP API base class for an IPlug plug-in
 *   @ingroup APIClasses */
 class IPlugCLAP : public IPlugAPIBase
                 , public IPlugProcessor
-                , public clap::Plugin
+                , public ClapPluginHelper
 {
   struct ParamToHost
   {

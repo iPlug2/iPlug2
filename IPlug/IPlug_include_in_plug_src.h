@@ -312,11 +312,13 @@ static void clap_deinit(void)
   delete gPluginDesc;
 }
 
-static uint32_t clap_get_plugin_count(void) { return 1; }
+using clap_plugin_factory_t = struct clap_plugin_factory;
 
-static const clap_plugin_descriptor* clap_get_plugin_descriptor(uint32_t index) { return gPluginDesc; }
+static uint32_t clap_get_plugin_count(const clap_plugin_factory_t *factory) { return 1; }
 
-static const clap_plugin* clap_create_plugin(const clap_host* host, const char* plugin_id)
+static const clap_plugin_descriptor* clap_get_plugin_descriptor(const clap_plugin_factory_t *factory, uint32_t index) { return gPluginDesc; }
+
+static const clap_plugin* clap_create_plugin(const clap_plugin_factory_t *factory, const clap_host* host, const char* plugin_id)
 {
   if (!strcmp(gPluginDesc->id, plugin_id))
   {
@@ -335,16 +337,25 @@ static const clap_plugin_invalidation_source* clap_get_invalidation_sources(uint
 
 static void clap_refresh(void) {}
 
-CLAP_EXPORT const struct clap_plugin_entry clap_plugin_entry = {
-  CLAP_VERSION,
-  clap_init,
-  clap_deinit,
+
+CLAP_EXPORT const clap_plugin_factory_t clap_factory = {
   clap_get_plugin_count,
   clap_get_plugin_descriptor,
   clap_create_plugin,
-  clap_get_invalidation_sources_count,
-  clap_get_invalidation_sources,
-  clap_refresh,
+};
+
+const void *clap_get_factory(const char *factory_id)
+{
+   if (!::strcmp(factory_id, CLAP_PLUGIN_FACTORY_ID))
+      return &clap_factory;
+   return nullptr;
+}
+
+CLAP_EXPORT const clap_plugin_entry_t clap_entry = {
+  CLAP_VERSION,
+  clap_init,
+  clap_deinit,
+  clap_get_factory,
 };
 
 #elif defined AUv3_API || defined AAX_API || defined APP_API

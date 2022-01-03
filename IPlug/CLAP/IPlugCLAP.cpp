@@ -12,13 +12,18 @@
 #include "IPlugCLAP.h"
 #include "IPlugPluginBase.h"
 #include "plugin.hxx"
+#include "host-proxy.hxx"
+
+// Ensure that a concrete class exists
+
+class ClapPluginHelper;
 
 using namespace iplug;
 
 IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
   : IPlugAPIBase(config, kAPICLAP)
   , IPlugProcessor(config, kAPICLAP)
-  , clap::Plugin(info.mDesc, info.mHost)
+  , ClapPluginHelper(info.mDesc, info.mHost)
 {
   Trace(TRACELOC, "%s", config.pluginName);
   
