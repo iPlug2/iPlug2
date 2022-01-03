@@ -312,8 +312,6 @@ static void clap_deinit(void)
   delete gPluginDesc;
 }
 
-using clap_plugin_factory_t = struct clap_plugin_factory;
-
 static uint32_t clap_get_plugin_count(const clap_plugin_factory_t *factory) { return 1; }
 
 static const clap_plugin_descriptor* clap_get_plugin_descriptor(const clap_plugin_factory_t *factory, uint32_t index) { return gPluginDesc; }
