@@ -373,19 +373,18 @@ bool IPlugCLAP::stateSave(clap_ostream *stream) noexcept
 
 bool IPlugCLAP::stateLoad(clap_istream *stream) noexcept
 {
-  constexpr int blockSize = 8192;
+  constexpr int bytesPerBlock = 128;
+  char buffer[bytesPerBlock];
+  int64_t bytesRead = 0;
   
   IByteChunk chunk;
-  IByteChunk blockChunk;
-  
-  blockChunk.Resize(blockSize);
-  
-  while (stream->read(stream, blockChunk.GetData(), blockSize) == blockSize)
-    chunk.PutChunk(&blockChunk);
+    
+  while ((bytesRead = stream->read(stream, buffer, bytesPerBlock)) > 0)
+    chunk.PutBytes(buffer, static_cast<int>(bytesRead));
 
-  if (stream->read(stream, blockChunk.GetData(), blockSize) != 0)
+  if (bytesRead != 0)
     return false;
-  
+      
   return UnserializeState(chunk, 0) >= 0;
 }
 
