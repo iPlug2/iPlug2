@@ -52,13 +52,13 @@ class IPlugCLAP : public IPlugAPIBase
     
     uint32_t idx() const { return static_cast<uint32_t>(mIdx); }
     double value() const { return mValue; }
-    clap_event_param_flags flags() const
+    clap_event_flags flags() const
     {
       switch (mType)
       {
-        case Type::Begin:   return CLAP_EVENT_PARAM_BEGIN_ADJUST;
-        case Type::Value:   return CLAP_EVENT_PARAM_SHOULD_RECORD;
-        case Type::End:     return CLAP_EVENT_PARAM_END_ADJUST;
+        case Type::Begin:   return CLAP_EVENT_BEGIN_ADJUST;
+        case Type::Value:   return CLAP_EVENT_SHOULD_RECORD;
+        case Type::End:     return CLAP_EVENT_END_ADJUST;
       }
     }
     
@@ -122,7 +122,7 @@ private:
   bool paramsValueToText(clap_id paramId, double value, char *display, uint32_t size) noexcept override;
   bool paramsTextToValue(clap_id paramId, const char *display, double *value) noexcept override;
      
-  void paramsFlush(const clap_event_list *input_parameter_changes, const clap_event_list *output_parameter_changes) noexcept override;
+  void paramsFlush(const clap_input_events *input_parameter_changes, const clap_output_events *output_parameter_changes) noexcept override;
   bool isValidParamId(clap_id paramId) const noexcept override { return paramId < NParams(); }
     
   // clap_plugin_gui
@@ -131,7 +131,7 @@ private:
   bool guiCreate() noexcept override { return true; }
   void guiDestroy() noexcept override;
   
-  void guiSetScale(double scale) noexcept override { SetScreenScale(scale); }
+  bool guiSetScale(double scale) noexcept override;
   void guiShow() noexcept override;
   void guiHide() noexcept override;
   bool guiSize(uint32_t *width, uint32_t *height) noexcept override;

@@ -820,6 +820,12 @@
 		B8214CDD274AEF3500DFBE63 /* reducing-param-queue.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "reducing-param-queue.hh"; sourceTree = "<group>"; };
 		B8214CDE274AEF3500DFBE63 /* reducing-param-queue.hxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "reducing-param-queue.hxx"; sourceTree = "<group>"; };
 		B8214CDF274AEF3500DFBE63 /* plugin.hxx */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = plugin.hxx; sourceTree = "<group>"; };
+		B854F0402785F5D400AD81D4 /* event-list.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "event-list.hh"; sourceTree = "<group>"; };
+		B854F0412785F5F300AD81D4 /* heap.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = heap.hh; sourceTree = "<group>"; };
+		B854F0422785F5FF00AD81D4 /* plugin-proxy.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "plugin-proxy.hh"; sourceTree = "<group>"; };
+		B854F0432785F60C00AD81D4 /* keywords.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = keywords.hh; sourceTree = "<group>"; };
+		B854F0442785F67200AD81D4 /* posix-fd-support.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "posix-fd-support.h"; sourceTree = "<group>"; };
+		B854F0452785F6BB00AD81D4 /* event-registry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "event-registry.h"; sourceTree = "<group>"; };
 		B886F4AF278369EC00CBC599 /* align.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = align.h; sourceTree = "<group>"; };
 		B886F4B0278369EC00CBC599 /* macros.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
 		B886F4B1278369EC00CBC599 /* std.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = std.h; sourceTree = "<group>"; };
@@ -835,7 +841,6 @@
 		B886F4BE27836A0E00CBC599 /* tuning.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tuning.h; sourceTree = "<group>"; };
 		B886F4BF27836A0E00CBC599 /* file-reference.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "file-reference.h"; sourceTree = "<group>"; };
 		B886F4C027836A0E00CBC599 /* params.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = params.h; sourceTree = "<group>"; };
-		B886F4C127836A0E00CBC599 /* fd-support.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "fd-support.h"; sourceTree = "<group>"; };
 		B886F4C227836A0E00CBC599 /* note-name.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "note-name.h"; sourceTree = "<group>"; };
 		B886F4C327836A0E00CBC599 /* gui-x11.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gui-x11.h"; sourceTree = "<group>"; };
 		B886F4C427836A0E00CBC599 /* gui-win32.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gui-win32.h"; sourceTree = "<group>"; };
@@ -1760,10 +1765,14 @@
 			isa = PBXGroup;
 			children = (
 				B8C4721F2782AA9D007A3A16 /* checking-level.hh */,
+				B854F0402785F5D400AD81D4 /* event-list.hh */,
+				B854F0412785F5F300AD81D4 /* heap.hh */,
 				B8C472212782AAAC007A3A16 /* host-proxy.hh */,
 				B8C472202782AAAC007A3A16 /* host-proxy.hxx */,
+				B854F0432785F60C00AD81D4 /* keywords.hh */,
 				B8C472222782AAB5007A3A16 /* misbehaviour-handler.hh */,
 				B8214CDC274AEF3500DFBE63 /* param-queue.hh */,
+				B854F0422785F5FF00AD81D4 /* plugin-proxy.hh */,
 				B8214CDB274AEF3500DFBE63 /* plugin.hh */,
 				B8214CDF274AEF3500DFBE63 /* plugin.hxx */,
 				B8214CDD274AEF3500DFBE63 /* reducing-param-queue.hh */,
@@ -1796,26 +1805,27 @@
 		B886F4B627836A0E00CBC599 /* ext */ = {
 			isa = PBXGroup;
 			children = (
-				B886F4B727836A0E00CBC599 /* draft */,
-				B886F4C027836A0E00CBC599 /* params.h */,
-				B886F4C127836A0E00CBC599 /* fd-support.h */,
-				B886F4C227836A0E00CBC599 /* note-name.h */,
-				B886F4C327836A0E00CBC599 /* gui-x11.h */,
-				B886F4C427836A0E00CBC599 /* gui-win32.h */,
-				B886F4C527836A0E00CBC599 /* note-ports.h */,
 				B886F4C627836A0E00CBC599 /* audio-ports-config.h */,
-				B886F4C727836A0E00CBC599 /* gui-cocoa.h */,
-				B886F4C827836A0E00CBC599 /* thread-check.h */,
-				B886F4C927836A0E00CBC599 /* latency.h */,
-				B886F4CA27836A0E00CBC599 /* timer-support.h */,
-				B886F4CB27836A0E00CBC599 /* gui.h */,
-				B886F4CC27836A0E00CBC599 /* log.h */,
-				B886F4CD27836A0E00CBC599 /* gui-free-standing.h */,
-				B886F4CE27836A0E00CBC599 /* thread-pool.h */,
 				B886F4CF27836A0E00CBC599 /* audio-ports.h */,
-				B886F4D027836A0E00CBC599 /* state.h */,
+				B886F4B727836A0E00CBC599 /* draft */,
 				B886F4D127836A0E00CBC599 /* event-filter.h */,
+				B854F0452785F6BB00AD81D4 /* event-registry.h */,
+				B886F4C727836A0E00CBC599 /* gui-cocoa.h */,
+				B886F4CD27836A0E00CBC599 /* gui-free-standing.h */,
+				B886F4C427836A0E00CBC599 /* gui-win32.h */,
+				B886F4C327836A0E00CBC599 /* gui-x11.h */,
+				B886F4CB27836A0E00CBC599 /* gui.h */,
+				B886F4C927836A0E00CBC599 /* latency.h */,
+				B886F4CC27836A0E00CBC599 /* log.h */,
+				B886F4C227836A0E00CBC599 /* note-name.h */,
+				B886F4C527836A0E00CBC599 /* note-ports.h */,
+				B886F4C027836A0E00CBC599 /* params.h */,
+				B854F0442785F67200AD81D4 /* posix-fd-support.h */,
 				B886F4D227836A0E00CBC599 /* render.h */,
+				B886F4D027836A0E00CBC599 /* state.h */,
+				B886F4C827836A0E00CBC599 /* thread-check.h */,
+				B886F4CE27836A0E00CBC599 /* thread-pool.h */,
+				B886F4CA27836A0E00CBC599 /* timer-support.h */,
 			);
 			path = ext;
 			sourceTree = "<group>";

@@ -129,6 +129,12 @@ void IPlugCLAP::deactivate() noexcept
   OnActivate(false);
 }
 
+template <typename T>
+const T* ClapEventCast(const clap_event_header_t *event)
+{
+  return reinterpret_cast<const T*>(event);
+}
+
 clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
 {
   IMidiMsg msg;
@@ -167,43 +173,53 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
     {
       auto event = in_events->get(in_events, i);
             
+      if (event->space_id != CLAP_CORE_EVENT_SPACE_ID)
+        continue;
+      
       switch (event->type)
       {
         case CLAP_EVENT_NOTE_ON:
         {
           // N.B. velocity stored 0-1
           // TODO - check velocity
-          int velocity = std::round(event->note.velocity * 127.0);
-          msg.MakeNoteOnMsg(event->note.key, velocity, event->time, event->note.channel);
+          auto note = ClapEventCast<clap_event_note>(event);
+          int velocity = std::round(note->velocity * 127.0);
+          msg.MakeNoteOnMsg(note->key, velocity, event->time, note->channel);
           ProcessMidiMsg(msg);
           mMidiMsgsFromProcessor.Push(msg);
         }
         
         case CLAP_EVENT_NOTE_OFF:
         {
-          msg.MakeNoteOffMsg(event->note.key, event->time, event->note.channel);
+          auto note = ClapEventCast<clap_event_note>(event);
+          msg.MakeNoteOffMsg(note->key, event->time, note->channel);
           ProcessMidiMsg(msg);
           mMidiMsgsFromProcessor.Push(msg);
         }
           
         case CLAP_EVENT_MIDI:
         {
-          msg = IMidiMsg(event->time, event->midi.data[0], event->midi.data[1], event->midi.data[2]);
+          auto midi = ClapEventCast<clap_event_midi>(event);
+          msg = IMidiMsg(event->time, midi->data[0], midi->data[1], midi->data[2]);
           ProcessMidiMsg(msg);
           mMidiMsgsFromProcessor.Push(msg);
         }
         
         case CLAP_EVENT_MIDI_SYSEX:
         {
-          ISysEx sysEx(event->time, event->midi_sysex.buffer, event->midi_sysex.size);
+          auto midiSysex = ClapEventCast<clap_event_midi_sysex>(event);
+
+          ISysEx sysEx(event->time, midiSysex->buffer, midiSysex->size);
           ProcessSysEx(sysEx);
           //mSysExDataFromProcessor.Push(sysEx);
         }
         
         case CLAP_EVENT_PARAM_VALUE:
         {
-          int paramIdx = event->param_value.param_id;
-          double value = event->param_value.value;
+          auto paramValue = ClapEventCast<clap_event_param_value>(event);
+
+          int paramIdx = paramValue->param_id;
+          double value = paramValue->value;
           
           GetParam(paramIdx)->Set(value);
           SendParameterValueFromAPI(paramIdx, value, false);
@@ -264,12 +280,15 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
   {
     // Construct output stream
     
-    clap_event event;
-    event.type = CLAP_EVENT_PARAM_VALUE;
-    event.time = 0;
-    event.param_value = clap_event_param_value { nullptr, change.idx(), -1, -1, -1, change.flags(), change.value() };
+    clap_event_param_value event;
+    clap_event_header_t header;
+    //clap_event_h
+    //event.type = CLAP_EVENT_PARAM_VALUE;
+    //event.time = 0;
+    //change.flags()
+    event = clap_event_param_value { header, nullptr, change.idx(), -1, -1, -1, change.value() };
     
-    out_events->push_back(out_events, &event);
+    out_events->push_back(out_events, &event.header);
   }
   
   // Send Events Out
@@ -438,7 +457,7 @@ bool IPlugCLAP::paramsTextToValue(clap_id paramId, const char *display, double *
   return true;
 }
 
-void IPlugCLAP::paramsFlush(const clap_event_list *input_parameter_changes, const clap_event_list *output_parameter_changes) noexcept
+void IPlugCLAP::paramsFlush(const clap_input_events *input_parameter_changes, const clap_output_events *output_parameter_changes) noexcept
 {
   // FIX
   // ??
@@ -463,6 +482,12 @@ void IPlugCLAP::guiShow() noexcept
 void IPlugCLAP::guiHide() noexcept
 {
   guiDestroy();
+}
+
+bool IPlugCLAP::guiSetScale(double scale) noexcept
+{
+  SetScreenScale(scale);
+  return true;
 }
 
 bool IPlugCLAP::guiSize(uint32_t *width, uint32_t *height) noexcept
