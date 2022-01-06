@@ -280,13 +280,15 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
   {
     // Construct output stream
     
-    clap_event_param_value event;
     clap_event_header_t header;
-    //clap_event_h
-    //event.type = CLAP_EVENT_PARAM_VALUE;
-    //event.time = 0;
-    //change.flags()
-    event = clap_event_param_value { header, nullptr, change.idx(), -1, -1, -1, change.value() };
+      
+    header.size = sizeof(clap_event_param_value);
+    header.time = 0;
+    header.space_id = CLAP_CORE_EVENT_SPACE_ID;
+    header.type = CLAP_EVENT_PARAM_VALUE;
+    header.flags = change.flags();
+
+    clap_event_param_value event { header, nullptr, change.idx(), -1, -1, -1, change.value() };
     
     out_events->push_back(out_events, &event.header);
   }
