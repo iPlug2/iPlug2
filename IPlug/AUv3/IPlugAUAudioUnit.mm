@@ -861,4 +861,12 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return mPlug->DoesMPE() ? YES : NO;
 }
 
+- (NSData*) getDataFromExternal
+{
+  int dataSize = 0;
+  void* pData = mPlug->GetDataFromExternal(dataSize);
+  
+  return [NSData dataWithBytes:pData length:dataSize];
+}
+
 @end

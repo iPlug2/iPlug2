@@ -9,6 +9,7 @@
 */
 
 #import <AudioToolbox/AudioToolbox.h>
+#import <Foundation/Foundation.h>
 
 #if defined __APPLE__
   #include <TargetConditionals.h>
@@ -33,4 +34,5 @@
 - (PLATFORM_VIEW*) openWindow: (PLATFORM_VIEW*) pParent;
 - (void) closeWindow;
 - (bool) sendMidiData:(int64_t) sampleTime : (NSInteger) length : (const uint8_t*) midiBytes;
+- (NSData*) getDataFromExternal;
 @end
