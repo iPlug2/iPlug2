@@ -87,7 +87,10 @@ public:
    * @return size_t \todo */
   size_t ElementsAvailable() const
   {
-    return (mWriteIndex.load(std::memory_order_acquire) - mReadIndex.load(std::memory_order_relaxed))%mData.GetSize();
+    size_t write = mWriteIndex.load(std::memory_order_acquire);
+    size_t read = mReadIndex.load(std::memory_order_relaxed);
+
+    return (read > write) ? mData.GetSize() - (read - write) : write - read;
   }
 
   /** \todo
