@@ -923,9 +923,11 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
     if (pCapturedControl)
     {
       int nVals = pCapturedControl->NVals();
+#if defined AAX_API || !defined IGRAPHICS_NO_CONTEXT_MENU
       int valIdx = pCapturedControl->GetValIdxForPos(x, y);
       int paramIdx = pCapturedControl->GetParamIdx((valIdx > kNoValIdx) ? valIdx : 0);
-
+#endif
+        
 #ifdef AAX_API
       if (mAAXViewContainer && paramIdx > kNoParameter)
       {
