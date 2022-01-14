@@ -59,6 +59,9 @@ jobs:
 - job: PUBLISH_WIN_DEPS
   condition: and(eq(variables.build_deps, true), eq(variables.build_win, true))
   dependsOn: BUILD_WIN_DEPS
+  pool:
+    vmImage: 'ubuntu-latest'
+    
   steps:
   - checkout: none
 
