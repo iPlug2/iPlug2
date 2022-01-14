@@ -794,8 +794,15 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   IMouseInfo info = [self getMouseRight:pEvent];
   if (mGraphics)
   {
-    std::vector<IMouseInfo> list {info};
-    mGraphics->OnMouseDown(list);
+    if (([pEvent clickCount] - 1) % 2)
+    {
+      mGraphics->OnMouseDblClick(info.x, info.y, info.ms);
+    }
+    else
+    {
+      std::vector<IMouseInfo> list {info};
+      mGraphics->OnMouseDown(list);
+    }
   }
 }
 
