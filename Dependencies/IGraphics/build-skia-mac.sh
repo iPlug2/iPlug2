@@ -38,6 +38,7 @@ target_os = "mac"
 target_cpu = "x86_64"
 extra_cflags = ["-mmacosx-version-min=10.9"]
 extra_cflags_c = ["-Wno-error"]
+extra_asmflags = ["-mmacosx-version-min=10.9"]
 '
 ninja -C ../../tmp/skia/macOS_x86_64
 
@@ -87,6 +88,7 @@ target_os = "mac"
 target_cpu = "arm64"
 extra_cflags = ["-mmacosx-version-min=11.0"]
 extra_cflags_c = ["-Wno-error"]
+extra_asmflags = ["-mmacosx-version-min=11.0"]
 '
 ninja -v -C ../../tmp/skia/macOS_arm64
 
