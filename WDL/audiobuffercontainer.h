@@ -15,11 +15,9 @@
 struct PinMapPin
 {
   enum { PINMAP_PIN_MAX_CHANNELS = CHANNELPINMAPPER_MAXPINS };
-  // currently must be WDL_UINT64 since we cast to WDL_UINT64 for EffectPinConnectDialog
-  // probably should change to unsigned int when we migrate to higher channel counts
-  // (more efficient for 32-bit platforms)
-  enum { STATE_ENT_BITS=64 };
-  WDL_UINT64 state[(PINMAP_PIN_MAX_CHANNELS + STATE_ENT_BITS - 1) / STATE_ENT_BITS];
+
+  enum { STATE_ENT_BITS=64, STATE_SIZE=(PINMAP_PIN_MAX_CHANNELS + STATE_ENT_BITS - 1) / STATE_ENT_BITS };
+  WDL_UINT64 state[STATE_SIZE];
   static WDL_UINT64 make_mask(unsigned int idx) { return WDL_UINT64_CONST(1) << (idx & (STATE_ENT_BITS-1)); }
   static WDL_UINT64 full_mask() { return ~WDL_UINT64_CONST(0); }
 
@@ -31,7 +29,7 @@ struct PinMapPin
   void set_chan_lt(unsigned int cnt)
   {
     if (WDL_NOT_NORMALLY(cnt > PINMAP_PIN_MAX_CHANNELS)) cnt = PINMAP_PIN_MAX_CHANNELS;
-    for (int x = 0; cnt && x < (int) (sizeof(state)/sizeof(state[0])); x ++)
+    for (int x = 0; cnt && x < STATE_SIZE; x ++)
     {
       if (cnt < STATE_ENT_BITS) { state[x] |= make_mask(cnt)-1; cnt=0; }
       else { state[x] = full_mask(); cnt -= STATE_ENT_BITS; }
@@ -43,7 +41,7 @@ struct PinMapPin
   bool has_chan_lt(unsigned int cnt) const
   {
     if (WDL_NOT_NORMALLY(cnt > PINMAP_PIN_MAX_CHANNELS)) cnt = PINMAP_PIN_MAX_CHANNELS;
-    for (int x = 0; cnt && x < (int) (sizeof(state)/sizeof(state[0])); x ++)
+    for (int x = 0; cnt && x < STATE_SIZE; x ++)
     {
       if (cnt < STATE_ENT_BITS) return (state[x] & (make_mask(cnt)-1));
       if (state[x]) return true;
@@ -87,7 +85,7 @@ struct PinMapPin
 
   PinMapPin & operator |= (const PinMapPin &v)
   {
-    for (int x = 0; x < (int) (sizeof(state)/sizeof(state[0])); x ++) state[x]|=v.state[x];
+    for (int x = 0; x < STATE_SIZE; x ++) state[x]|=v.state[x];
     return *this;
   }
 
