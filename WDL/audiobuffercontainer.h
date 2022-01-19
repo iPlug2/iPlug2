@@ -21,6 +21,18 @@ struct PinMapPin
   static WDL_UINT64 make_mask(unsigned int idx) { return WDL_UINT64_CONST(1) << (idx & (STATE_ENT_BITS-1)); }
   static WDL_UINT64 full_mask() { return ~WDL_UINT64_CONST(0); }
 
+  WDL_UINT64 get_64(unsigned int offs=0) const {
+    return WDL_NORMALLY(offs < STATE_SIZE) ? state[offs] : 0;
+  }
+  void set_64(WDL_UINT64 s, unsigned int offs=0) {
+    if (WDL_NORMALLY(offs < STATE_SIZE)) state[offs]=s;
+  }
+  unsigned int get_64_max() const { return STATE_SIZE; }
+  unsigned int get_64_top(unsigned int minv=0) const {
+    unsigned int x = STATE_SIZE;
+    while (x > minv && !state[x-1]) x--;
+    return x;
+  }
 
   void clear() { memset(state,0,sizeof(state)); }
   void clear_chan(unsigned int ch) { if (WDL_NORMALLY(ch < PINMAP_PIN_MAX_CHANNELS)) state[ch/STATE_ENT_BITS] &= ~make_mask(ch); }
@@ -86,6 +98,12 @@ struct PinMapPin
   PinMapPin & operator |= (const PinMapPin &v)
   {
     for (int x = 0; x < STATE_SIZE; x ++) state[x]|=v.state[x];
+    return *this;
+  }
+
+  PinMapPin & operator &= (const PinMapPin &v)
+  {
+    for (int x = 0; x < STATE_SIZE; x ++) state[x]&=v.state[x];
     return *this;
   }
 
