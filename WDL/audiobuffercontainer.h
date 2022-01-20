@@ -11,7 +11,6 @@
 #define CHANNELPINMAPPER_MAXPINS 64
 
 
-// eventually ChannelPinMapper etc should use this instead of WDL_UINT64
 struct PinMapPin
 {
   enum { PINMAP_PIN_MAX_CHANNELS = CHANNELPINMAPPER_MAXPINS };
@@ -132,7 +131,7 @@ public:
   void SetNPins(int nPins);
   void SetNChannels(int nCh, bool auto_passthru=true);
   // or ...
-  void Init(const WDL_UINT64* pMapping, int nPins);
+  void Init(const PinMapPin * pMapping, int nPins);
 
   int GetNPins() const { return m_nPins; }
   int GetNChannels() const { return m_nCh; }
@@ -143,20 +142,19 @@ public:
 
   // true if this pin is mapped to this channel
   bool GetPin(int pinIdx, int chIdx) const;
-  // true if this pin is to any higher channel
-  bool PinHasMoreMappings(int pinIdx, int chIdx) const;
+
   // true if this mapper is a straight 1:1 passthrough
   bool IsStraightPassthrough() const;
 
   const char *SaveStateNew(int* pLen); // owned
   bool LoadState(const char* buf, int len);
 
-  WDL_UINT64 m_mapping[CHANNELPINMAPPER_MAXPINS];
+  PinMapPin m_mapping[CHANNELPINMAPPER_MAXPINS];
+  int m_nCh, m_nPins;
 
 private:
 
   WDL_Queue m_cfgret;
-  int m_nCh, m_nPins;
 };
 
 // converts interleaved buffer to interleaved buffer, using min(len_in,len_out) and zeroing any extra samples
