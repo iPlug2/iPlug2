@@ -1379,7 +1379,9 @@ public:
 
   /** @return Pointer to the special tooltip control, if one has been attached */
   ITooltipControl* GetTooltipControl() { return mTooltipControl.get(); }
-  
+
+  void SetTooltipsDelay(long delayMS) {}
+    
   /** @return Pointer to the special text entry control, if one has been attached */
   ITextEntryControl* GetTextEntryControl() { return mTextEntryControl.get(); }
   
