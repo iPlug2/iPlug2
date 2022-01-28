@@ -149,10 +149,10 @@ bool IGEditorDelegate::SerializeEditorSize(IByteChunk& data) const
   int height = mGraphics ? mGraphics->Height() : mLastHeight;
   float scale = mGraphics ? mGraphics->GetDrawScale() : mLastScale;
     
-  savedOK &= data.Put(&width);
-  savedOK &= data.Put(&height);
-  savedOK &= data.Put(&scale);
-    
+  savedOK &= (data.Put(&width) > 0);
+  savedOK &= (data.Put(&height) > 0);
+  savedOK &= (data.Put(&scale) > 0);
+
   return savedOK;
 }
 
