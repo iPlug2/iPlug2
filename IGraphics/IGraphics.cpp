@@ -1452,7 +1452,7 @@ void IGraphics::EnableLiveEdit(bool enable)
 }
 
 // Skia has its own implementation for SVGs. On all other platforms we use NanoSVG, because it works.
-#ifdef IGRAPHICS_SKIA
+#ifdef SVG_USE_SKIA
 ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
   StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
@@ -2740,7 +2740,7 @@ IPattern IGraphics::GetSVGPattern(const NSVGpaint& paint, float opacity)
 
 void IGraphics::DoDrawSVG(const ISVG& svg, const IBlend* pBlend)
 {
-#ifdef IGRAPHICS_SKIA
+#ifdef SVG_USE_SKIA
   SkCanvas* canvas = static_cast<SkCanvas*>(GetDrawContext());
   svg.mSVGDom->render(canvas); //TODO: blend
 #else

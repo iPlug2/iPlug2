@@ -25,7 +25,11 @@
 #include "ptrlist.h"
 #include "heapbuf.h"
 
-#ifdef IGRAPHICS_SKIA
+#if defined IGRAPHICS_SKIA && !defined IGRAPHICS_NO_SKIA_SVG
+#define SVG_USE_SKIA
+#endif
+
+#ifdef SVG_USE_SKIA
   #pragma warning( push )
   #pragma warning( disable : 4244 )
   #pragma warning( disable : 5030 )
@@ -442,7 +446,7 @@ protected:
 
 using PlatformFontPtr = std::unique_ptr<PlatformFont>;
 
-#ifdef IGRAPHICS_SKIA
+#ifdef SVG_USE_SKIA
 struct SVGHolder
 {
   SVGHolder(sk_sp<SkSVGDOM> svgDom)
@@ -628,7 +632,6 @@ struct IVec2
   IVec2 operator-(const IVec2 b) { return IVec2{x-b.x, y-b.y}; }
   IVec2 operator+(const IVec2 b) { return IVec2{x+b.x, y+b.y}; }
 };
-
 
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
