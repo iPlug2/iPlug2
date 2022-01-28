@@ -528,7 +528,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         pInfo->flags = kAudioUnitParameterFlag_CFNameRelease |
                        kAudioUnitParameterFlag_HasCFNameString |
                        kAudioUnitParameterFlag_IsWritable |
-                       kAudioUnitParameterFlag_IsReadable ;
+                       kAudioUnitParameterFlag_IsReadable;
         
         #ifndef IPLUG1_COMPATIBILITY
         pInfo->flags |= kAudioUnitParameterFlag_IsHighResolution;
@@ -891,7 +891,6 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           {
             if (element < nOut)
             {
-              //TODO: live 5.1 crash?
               WDL_String busName;
               GetBusName(ERoute::kOutput, (int) element, nOut, busName);
               *(CFStringRef*) pData = MakeCFString(busName.Get());
