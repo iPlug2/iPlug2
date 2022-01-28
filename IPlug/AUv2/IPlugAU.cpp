@@ -1748,9 +1748,9 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
       }
       
       _this->PreProcess();
-      ENTER_PARAMS_MUTEX
+      ENTER_PARAMS_MUTEX_STATIC
       _this->ProcessBuffers((AudioSampleType) 0, nFrames);
-      LEAVE_PARAMS_MUTEX
+      LEAVE_PARAMS_MUTEX_STATIC
     }
   }
 
