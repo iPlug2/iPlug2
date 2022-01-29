@@ -160,7 +160,7 @@ private:
 /** User-facing SVG abstraction that you use to manage SVG data
  * ISVG doesn't actually own the image data */
 
-#ifdef IGRAPHICS_SKIA
+#ifdef SVG_USE_SKIA
 struct ISVG
 {
   ISVG(sk_sp<SkSVGDOM> svgDom)
