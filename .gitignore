@@ -34,8 +34,6 @@ Dependencies/IPlug/VST2_SDK/*
 Dependencies/IPlug/AAX_SDK/*
 Dependencies/IPlug/WAM_AWP/*
 Dependencies/IPlug/WAM_SDK/*
-!Dependencies/IGraphics/imgui/README.txt
-Dependencies/IGraphics/imgui/*
 Dependencies/Build/*
 Documentation/html
 Documentation/doxygen_warnings.txt

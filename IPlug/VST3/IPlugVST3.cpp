@@ -243,13 +243,16 @@ void IPlugVST3::SendParameterValueFromUI(int paramIdx, double normalisedValue)
 
 void IPlugVST3::SetLatency(int latency)
 {
+  // N.B. set the latency even if the handler is not yet set
+  
+  IPlugProcessor::SetLatency(latency);
+
   if (componentHandler)
   {
     FUnknownPtr<IComponentHandler> handler(componentHandler);
 
     if (handler)
     {
-      IPlugProcessor::SetLatency(latency);
       handler->restartComponent(kLatencyChanged);
     }
   }

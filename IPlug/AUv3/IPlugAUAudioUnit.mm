@@ -22,7 +22,7 @@
 
 using namespace iplug;
 
-@interface IPlugAUAudioUnit ()
+@interface IPLUG_AUAUDIOUNIT ()
 
 @property AUAudioUnitBusArray* mInputBusArray;
 @property AUAudioUnitBusArray* mOutputBusArray;
@@ -36,7 +36,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return pPreset;
 }
 
-@implementation IPlugAUAudioUnit
+@implementation IPLUG_AUAUDIOUNIT
 {
   IPlugAUv3* mPlug;
   WDL_PtrList<BufferedInputBus> mBufferedInputBuses;
@@ -859,6 +859,14 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 - (BOOL) supportsMPE
 {
   return mPlug->DoesMPE() ? YES : NO;
+}
+
+- (NSData*) getDataFromExternal
+{
+  int dataSize = 0;
+  void* pData = mPlug->GetDataFromExternal(dataSize);
+  
+  return [NSData dataWithBytes:pData length:dataSize];
 }
 
 @end

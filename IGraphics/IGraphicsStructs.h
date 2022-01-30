@@ -50,6 +50,7 @@ using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
 using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
 using IDisplayTickFunc = std::function<void()>;
+using IUIAppearanceChangedFunc = std::function<void(EUIAppearance appearance)>;
 using ITouchID = uintptr_t;
 
 /** A click action function that does nothing */
@@ -159,7 +160,7 @@ private:
 /** User-facing SVG abstraction that you use to manage SVG data
  * ISVG doesn't actually own the image data */
 
-#ifdef IGRAPHICS_SKIA
+#ifdef SVG_USE_SKIA
 struct ISVG
 {
   ISVG(sk_sp<SkSVGDOM> svgDom)

@@ -14,12 +14,6 @@
 #import <Metal/Metal.h>
 #endif
 
-#if defined IGRAPHICS_IMGUI
-#import <Metal/Metal.h>
-#include "imgui.h"
-#import "imgui_impl_metal.h"
-#endif
-
 #include "wdlutf8.h"
 
 #import "IGraphicsMac_view.h"
@@ -542,6 +536,14 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   return YES;
 }
 
+- (void) viewDidChangeEffectiveAppearance
+{
+  if (@available(macOS 10.14, *)) {
+    BOOL isDarkMode = [[[self effectiveAppearance] name] isEqualToString: (NSAppearanceNameDarkAqua)];
+    mGraphics->OnAppearanceChanged(isDarkMode ? EUIAppearance::Dark : EUIAppearance::Light);
+  }
+}
+
 - (BOOL) acceptsFirstResponder
 {
   return YES;
@@ -709,7 +711,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     [mTrackingArea release];
   }
     
-  int opts = (NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways);
+  int opts = (NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways | NSTrackingEnabledDuringMouseDrag);
   mTrackingArea = [ [NSTrackingArea alloc] initWithRect:[self bounds] options:opts owner:self userInfo:nil];
   [self addTrackingArea:mTrackingArea];
 }
@@ -792,8 +794,15 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   IMouseInfo info = [self getMouseRight:pEvent];
   if (mGraphics)
   {
-    std::vector<IMouseInfo> list {info};
-    mGraphics->OnMouseDown(list);
+    if (([pEvent clickCount] - 1) % 2)
+    {
+      mGraphics->OnMouseDblClick(info.x, info.y, info.ms);
+    }
+    else
+    {
+      std::vector<IMouseInfo> list {info};
+      mGraphics->OnMouseDown(list);
+    }
   }
 }
 
@@ -1291,52 +1300,3 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //}
 
 @end
-
-#if defined IGRAPHICS_IMGUI
-
-@implementation IGRAPHICS_IMGUIVIEW
-{
-}
-
-- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
-{
-  mView = pView;
-  self = [super initWithFrame:[pView frame] device: MTLCreateSystemDefaultDevice()];
-  if(self) {
-    _commandQueue = [self.device newCommandQueue];
-    self.layer.opaque = NO;
-  }
-  
-  return self;
-}
-
-- (void) drawRect: (NSRect) dirtyRect
-{
-  id<MTLCommandBuffer> commandBuffer = [self.commandQueue commandBuffer];
-  
-  MTLRenderPassDescriptor *renderPassDescriptor = self.currentRenderPassDescriptor;
-  if (renderPassDescriptor != nil)
-  {
-    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0,0,0,0);
-    
-    id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-    [renderEncoder pushDebugGroup:@"ImGui IGraphics"];
-    
-    ImGui_ImplMetal_NewFrame(renderPassDescriptor);
-    
-    mView->mGraphics->mImGuiRenderer->DoFrame();
-
-    ImDrawData *drawData = ImGui::GetDrawData();
-    ImGui_ImplMetal_RenderDrawData(drawData, commandBuffer, renderEncoder);
-    
-    [renderEncoder popDebugGroup];
-    [renderEncoder endEncoding];
-    
-    [commandBuffer presentDrawable:self.currentDrawable];
-  }
-  [commandBuffer commit];
-}
-
-@end
-
-#endif

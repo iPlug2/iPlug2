@@ -127,17 +127,7 @@ void IGraphicsMac::RemovePlatformView(void* pView)
 void IGraphicsMac::CloseWindow()
 {
   if (mView)
-  {
-#if defined IGRAPHICS_IMGUI
-    if(mImGuiView)
-    {
-      IGRAPHICS_IMGUIVIEW* pImGuiView = (IGRAPHICS_IMGUIVIEW*) mImGuiView;
-      [pImGuiView removeFromSuperview];
-      [pImGuiView release];
-      mImGuiView = nullptr;
-    }
-#endif
-    
+  {    
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
       
 #ifdef IGRAPHICS_GL
@@ -168,11 +158,6 @@ void IGraphicsMac::PlatformResize(bool parentHasResized)
     [NSAnimationContext beginGrouping]; // Prevent animated resizing
     [[NSAnimationContext currentContext] setDuration:0.0];
     [(IGRAPHICS_VIEW*) mView setFrameSize: size ];
-    
-#if defined IGRAPHICS_IMGUI && !defined IGRAPHICS_SKIA && !defined IGRAPHICS_GL
-    if(mImGuiView)
-      [(IGRAPHICS_IMGUIVIEW*) mImGuiView setFrameSize: size ];
-#endif
     
     [NSAnimationContext endGrouping];
   }
@@ -624,28 +609,18 @@ bool IGraphicsMac::SetTextInClipboard(const char* str)
   return [[NSPasteboard generalPasteboard] setString:pTextForClipboard forType:NSStringPboardType];
 }
 
-void IGraphicsMac::CreatePlatformImGui()
+EUIAppearance IGraphicsMac::GetUIAppearance() const
 {
-#if defined IGRAPHICS_IMGUI
-  #if defined IGRAPHICS_SKIA && IGRAPHICS_CPU
-    #define USE_IGRAPHICS_IMGUIVIEW 1
-  #elif defined IGRAPHICS_NANOVG && IGRAPHICS_METAL
-    #define USE_IGRAPHICS_IMGUIVIEW 1
-#else
-  #define USE_IGRAPHICS_IMGUIVIEW 0
-#endif
-
-#if USE_IGRAPHICS_IMGUIVIEW
-  if(mView)
-  {
-    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
-    
-    IGRAPHICS_IMGUIVIEW* pImGuiView = [[IGRAPHICS_IMGUIVIEW alloc] initWithIGraphicsView:pView];
-    [pView addSubview: pImGuiView];
-    mImGuiView = pImGuiView;
+  if (@available(macOS 10.14, *)) {
+    if(mView)
+    {
+      IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+      BOOL isDarkMode = [[[pView effectiveAppearance] name] isEqualToString: (NSAppearanceNameDarkAqua)];
+      return isDarkMode ? EUIAppearance::Dark :  EUIAppearance::Light;
+    }
   }
-#endif
-#endif // IGRAPHICS_IMGUI
+  
+  return EUIAppearance::Light;
 }
 
 #if defined IGRAPHICS_NANOVG

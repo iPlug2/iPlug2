@@ -97,10 +97,10 @@ def main():
     
   if config['PLUG_HAS_UI'] == 1:
     auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['tags'][1] = "size:{" + str(config['PLUG_WIDTH']) + "," + str(config['PLUG_HEIGHT']) + "}"
-    auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['factoryFunction'] = "IPlugAUViewController"
+    auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['factoryFunction'] = "IPlugAUViewController_vIPlugEffect"
     auv3['NSExtension']['NSExtensionMainStoryboard'] = config['BUNDLE_NAME'] + "-iOS-MainInterface"
   else:
-    auv3['NSExtension']['NSExtensionPrincipalClass'] = "IPlugAUViewController"
+    auv3['NSExtension']['NSExtensionPrincipalClass'] = "IPlugAUViewController_vIPlugEffect"
 
   plistlib.writePlist(auv3, plistpath)
 

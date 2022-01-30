@@ -464,6 +464,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       return 0;
     }
     case WM_LBUTTONDBLCLK:
+    case WM_RBUTTONDBLCLK:
     {
       if (IsTouchEvent())
         return 0;

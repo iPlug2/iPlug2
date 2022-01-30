@@ -24,7 +24,7 @@
 @interface AppViewController ()
 {
   IPlugAUPlayer* player;
-  IPlugAUViewController* pluginVC;
+  IPLUG_AUVIEWCONTROLLER* pluginVC;
   IBOutlet UIView* auView;
 }
 @end
@@ -66,12 +66,12 @@
   desc.componentFlags = 0;
   desc.componentFlagsMask = 0;
 
-  [AUAudioUnit registerSubclass: IPlugAUAudioUnit.class asComponentDescription:desc name:@"Local AUv3" version: UINT32_MAX];
+  [AUAudioUnit registerSubclass: IPLUG_AUAUDIOUNIT.class asComponentDescription:desc name:@"Local AUv3" version: UINT32_MAX];
 
   player = [[IPlugAUPlayer alloc] initWithComponentType:desc.componentType];
 
   [player loadAudioUnitWithComponentDescription:desc completion:^{
-    self->pluginVC.audioUnit = (IPlugAUAudioUnit*) self->player.currentAudioUnit;
+    self->pluginVC.audioUnit = (IPLUG_AUAUDIOUNIT*) self->player.currentAudioUnit;
 
     [self embedPlugInView];
   }];

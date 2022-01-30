@@ -41,6 +41,7 @@
 #include <sstream>
 
 #if defined(__MACOSX_CORE__)
+#include <TargetConditionals.h>
   #if TARGET_OS_IPHONE
     #define AudioGetCurrentHostTime CAHostTimeBase::GetCurrentTime
     #define AudioConvertHostTimeToNanos CAHostTimeBase::ConvertToNanos

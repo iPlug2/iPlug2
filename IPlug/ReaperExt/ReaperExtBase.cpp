@@ -8,7 +8,7 @@ ReaperExtBase::ReaperExtBase(reaper_plugin_info_t* pRec)
 ReaperExtBase::~ReaperExtBase()
 {
   mTimer->Stop();
-};
+}
 
 void ReaperExtBase::OnTimer(Timer& t)
 {

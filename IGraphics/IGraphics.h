@@ -49,10 +49,6 @@
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
 
-#ifdef IGRAPHICS_IMGUI
-#include "IGraphicsImGui.h"
-#endif
-
 #include "nanosvg.h"
 
 #include <stack>
@@ -1157,6 +1153,10 @@ public:
  * @param func The function to call */
   void SetDisplayTickFunc(IDisplayTickFunc func) { mDisplayTickFunc = func; }
 
+  /** Sets a function that is called when the OS appearance (light/dark mode) is changed
+ * @param func The function to call */
+  void SetUIAppearanceChangedFunc(IUIAppearanceChangedFunc func) { mAppearanceChangedFunc = func; }
+  
   /** Set a function that is called when key presses are not intercepted by any controls
    * @param keyHandlerFunc A std::function conforming to IKeyHandlerFunc  */
   void SetKeyHandlerFunc(IKeyHandlerFunc func) { mKeyHandlerFunc = func; }
@@ -1164,11 +1164,6 @@ public:
   /** A helper to set the IGraphics KeyHandlerFunc in order to make an instrument playable via QWERTY keys
    * @param func A function to do something when a MIDI message is triggered */
   void SetQwertyMidiKeyHandlerFunc(std::function<void(const IMidiMsg& msg)> func = nullptr);
-  
-  /** Set functions to draw DearImGui widgets on top of the IGraphics context (only relevant when IGRAPHICS_IMGUI is defined) 
-   * @param drawFunc Called at the framerate, where you do the main ImGui
-   * @param setupFunc Called once after ImGui context is created */
-  void AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc = nullptr);
   
   /** Called by platform class to see if the point at x, y is linked to a gesture recognizer */
   bool RespondsToGesture(float x, float y);
@@ -1181,8 +1176,6 @@ public:
   virtual float GetPlatformWindowScale() const { return 1.f; }
 
 private:
-  /* NO-OP to create ImGui when IGRAPHICS_IMGUI is defined */
-  virtual void CreatePlatformImGui() {}
   
   /** \todo */
   virtual void PlatformResize(bool parentHasResized) {}
@@ -1512,6 +1505,14 @@ public:
   /** Called by ICornerResizerControl as the corner is dragged to resize */
   void OnDragResize(float x, float y);
 
+  /** Called by the platform class if the view changes to dark/light mode
+   * @param appearance Light/Dark mode */
+  void OnAppearanceChanged(EUIAppearance appearance);
+  
+  /** Get the UI Appearance (Light/Dark mode)
+   * @return Light/Dark mode */
+  virtual EUIAppearance GetUIAppearance() const { return EUIAppearance::Light; }
+  
   /** @param enable Set \c true if you want to handle mouse over messages. Note: this may increase the amount CPU usage if you redraw on mouse overs etc */
   void EnableMouseOver(bool enable) { mEnableMouseOver = enable; }
 
@@ -1782,7 +1783,8 @@ private:
   double mPrevTimestamp = 0.;
   IKeyHandlerFunc mKeyHandlerFunc = nullptr;
   IDisplayTickFunc mDisplayTickFunc = nullptr;
-
+  IUIAppearanceChangedFunc mAppearanceChangedFunc = nullptr;
+  
 protected:
   IGEditorDelegate* mDelegate;
   bool mCursorHidden = false;
@@ -1802,11 +1804,6 @@ protected:
   IRECT mClipRECT;
   IMatrix mTransform;
   std::stack<IMatrix> mTransformStates;
-  
-#ifdef IGRAPHICS_IMGUI
-public:
-  std::unique_ptr<ImGuiRenderer> mImGuiRenderer;
-#endif
 };
 
 END_IGRAPHICS_NAMESPACE

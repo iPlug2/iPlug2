@@ -102,6 +102,9 @@ static const char* kGestureTypeStrs[12] = { "Unknown", "DoubleTap", "TripleTap",
 /** Distinguised gesture states */
 enum class EGestureState { Unknown, Began, InProcess, Ended };
 
+/** Light/Dark mode on iOS/macOS */
+enum class EUIAppearance { Light, Dark };
+
 /** EVColors are 9 color indices that are used by IVControls and make up an IVColorSpec */
 enum EVColor
 {
