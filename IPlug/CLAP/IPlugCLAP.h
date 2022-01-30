@@ -100,7 +100,7 @@ private:
   
   // clap_plugin_render
   bool implementsRender() const noexcept override { return true; }
-  void renderSetMode(clap_plugin_render_mode mode) noexcept override;
+  bool renderSetMode(clap_plugin_render_mode mode) noexcept override;
   
   // clap_plugin_state
   bool implementsState() const noexcept override { return true; }
@@ -116,7 +116,7 @@ private:
   bool implementsParams() const noexcept override { return true; }
   uint32_t paramsCount() const noexcept override { return NParams(); }
   
-  bool paramsInfo(int32_t paramIndex, clap_param_info *info) const noexcept override;
+  bool paramsInfo(uint32_t paramIndex, clap_param_info *info) const noexcept override;
   
   bool paramsValue(clap_id paramId, double *value) noexcept override;
   bool paramsValueToText(clap_id paramId, double value, char *display, uint32_t size) noexcept override;

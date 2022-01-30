@@ -288,7 +288,7 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
     header.type = CLAP_EVENT_PARAM_VALUE;
     header.flags = change.flags();
 
-    clap_event_param_value event { header, nullptr, change.idx(), -1, -1, -1, change.value() };
+    clap_event_param_value event { header, change.idx(), nullptr, -1, -1, -1, change.value() };
     
     out_events->push_back(out_events, &event.header);
   }
@@ -356,9 +356,10 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
 
 // clap_plugin_render
 
-void IPlugCLAP::renderSetMode(clap_plugin_render_mode mode) noexcept
+bool IPlugCLAP::renderSetMode(clap_plugin_render_mode mode) noexcept
 {
   SetRenderingOffline(mode == CLAP_RENDER_OFFLINE);
+  return true;
 }
 
 // clap_plugin_state
@@ -392,7 +393,7 @@ bool IPlugCLAP::stateLoad(clap_istream *stream) noexcept
 
 // clap_plugin_params
 
-bool IPlugCLAP::paramsInfo(int32_t paramIndex, clap_param_info *info) const noexcept
+bool IPlugCLAP::paramsInfo(uint32_t paramIndex, clap_param_info *info) const noexcept
 {
   assert(MAX_PARAM_NAME_LEN <= CLAP_NAME_SIZE && "iPlug parameter name size exceeds CLAP maximum");
   assert(MAX_PARAM_GROUP_LEN <= CLAP_MODULE_SIZE && "iPlug group name size exceeds CLAP maximum");
