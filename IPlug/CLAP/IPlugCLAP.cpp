@@ -376,7 +376,7 @@ bool IPlugCLAP::stateSave(clap_ostream *stream) noexcept
 
 bool IPlugCLAP::stateLoad(clap_istream *stream) noexcept
 {
-  constexpr int bytesPerBlock = 128;
+  constexpr int bytesPerBlock = 256;
   char buffer[bytesPerBlock];
   int64_t bytesRead = 0;
   
