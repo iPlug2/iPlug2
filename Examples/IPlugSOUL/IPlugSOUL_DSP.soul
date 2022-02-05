@@ -1,0 +1,19 @@
+graph IPlugSOUL_DSP [[ main ]]
+{
+    input stream float32<2> in;
+    output stream float32<2> out;
+    input gainStream.volume [[ name: "Volume", unit: "dB", min: -70, max: 0, init: 0, step: 0.5]];
+
+    let
+    {
+        gainStream = soul::gain::SmoothedGainParameter(0.1f);
+        gain = soul::gain::DynamicGain (float32<2>);
+    }
+
+    connection 
+    {
+        gainStream.gain -> gain.gain;
+        in -> gain.in;
+        gain.out -> out;
+    }
+}

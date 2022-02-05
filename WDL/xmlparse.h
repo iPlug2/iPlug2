@@ -20,7 +20,7 @@
       
 very very very lightweight XML parser
 
-reads: <?xml, <!DOCTYPE, <![CDATA[, &lt;&gt;&amp;&quot;&apos;&#xABC;&#123; ignores unknown <?tag blocks?>
+reads: <?xml, <!DOCTYPE, <![CDATA[, &lt;&gt;&amp;&quot;&apos;&#xABC;&#123; top level <? blocks, ignores unknown <?tag blocks?> inside elements
 always uses 8-bit characters, uses UTF-8 encoding for &#xyz
 relatively strict. for overflow safety, enforces a token length limit of 512MB
 
@@ -32,6 +32,7 @@ relatively strict. for overflow safety, enforces a token length limit of 512MB
 #include "assocarray.h"
 #include "wdlstring.h"
 #include "wdlutf8.h"
+#include "wdlcstring.h"
 
 class wdl_xml_element {
     static int attr_cmp(char **a, char **b) { return strcmp(*a,*b); }
@@ -82,6 +83,7 @@ class wdl_xml_parser {
       delete element_xml; 
       delete element_root; 
       element_doctype_tokens.Empty(true,free); 
+      element_root_meta.Empty(true);
     }
 
     const char *parse() // call only once, returns NULL on success, error message on failure
@@ -91,16 +93,18 @@ class wdl_xml_parser {
       if (!m_tok.ResizeOK(256)) return "token buffer malloc fail";
 
       const char *p = parse_element_body(NULL);
-      if (m_err) return m_err;
-      if (p) return p;
-      if (get_tok()) return "document: extra characters following root element";
-
-      return NULL;
+      if (!m_err) return p;
+      if (!*m_err) m_err="unexpected end of file";
+      if (!p) return m_err;
+      snprintf(m_errbuf,sizeof(m_errbuf),"%s: %s",p,m_err);
+      return m_errbuf;
     }
 
     // output
     WDL_PtrList<char> element_doctype_tokens; // tokens after <!DOCTYPE
     wdl_xml_element *element_xml, *element_root;
+
+    WDL_PtrList<wdl_xml_element> element_root_meta; // any topen level <? elements?> other than <?xml which goes into element_xml
 
     // get location  after parse() returns error
     int getLine() const { return m_last_line; }
@@ -111,7 +115,8 @@ class wdl_xml_parser {
 
     WDL_HeapBuf m_tok;
     const unsigned char *m_rdptr;
-    const char *m_err;
+    const char *m_err; // NULL if no error, "" if EOF
+    char m_errbuf[128];
     int m_rdptr_len, m_line, m_col, m_lastchar, m_last_line,m_last_col;
     bool m_sort_attributes;
 
@@ -251,7 +256,7 @@ class wdl_xml_parser {
           m_err="unexpected whitespace";
         return NULL; 
         default: 
-          m_err="unexpected end of file";
+          m_err=""; // EOF
         return NULL; 
       }
       tok_buf[wrpos]=0;
@@ -389,7 +394,11 @@ class wdl_xml_parser {
 
         const char *tok = get_tok(elem != NULL);
         const int start_line = m_last_line, start_col = m_last_col;
-        if (!tok) return elem ? "unterminated block" : NULL;
+        if (!tok)
+        {
+          if (m_err && *m_err == 0 && !elem) m_err = NULL; // clear m_error if EOF and top level
+          return elem ? "unterminated block" : NULL;
+        }
         if (*tok != '<') return "expected < tag";
     
         tok = get_tok(true);
@@ -409,7 +418,7 @@ class wdl_xml_parser {
             {
               m_last_line=start_line;
               m_last_col=start_col;
-              return m_err = "unterminated comment";
+              return "unterminated comment";
             }
             tok = get_tok(true);
             if (!tok || tok[0] != '>') return "-- not allowed in comment";
@@ -439,7 +448,7 @@ class wdl_xml_parser {
                 m_lastchar = -1;
                 m_last_line=start_line;
                 m_last_col=start_col;
-                return m_err = "unterminated <![CDATA[";
+                return "unterminated <![CDATA[";
               }
             }
             elem->value.SetLen(elem->value.GetLength()-2); // remove ]]
@@ -461,7 +470,7 @@ class wdl_xml_parser {
               {
                 m_last_line=start_line;
                 m_last_col=start_col;
-                return m_err = "unterminated <!DOCTYPE";
+                return "unterminated <!DOCTYPE";
               }
             } while (tok[0] != '>');
           }
@@ -474,7 +483,7 @@ class wdl_xml_parser {
 
           if (!strcmp(tok,"xml"))
           {
-            if (elem || cnt || element_xml) return "<?xml must begin document";
+            if (elem || cnt || element_xml || element_root_meta.GetSize()) return "<?xml must begin document";
 
             element_xml = new wdl_xml_element("xml",start_line,start_col,m_sort_attributes);
             tok = parse_element_attributes(element_xml);
@@ -483,11 +492,22 @@ class wdl_xml_parser {
           }
           else
           {
-            if (!skip_until(tok, "?",">")) 
+            if (!elem)
+            {
+              wdl_xml_element *ne = new wdl_xml_element(tok,start_line,start_col,m_sort_attributes);
+              tok = parse_element_attributes(ne);
+              if (!tok || tok[0] != '?' || !(tok=get_tok(true)) || tok[0] != '>')
+              {
+                delete ne;
+                return "<? element not terminated";
+              }
+              element_root_meta.Add(ne);
+            }
+            else if (!skip_until(tok, "?",">")) // ignore <? inside elements
             {
               m_last_line=start_line;
               m_last_col=start_col;
-              return m_err = "unterminated <? block";
+              return "unterminated <? block";
             }
           }
         }
@@ -509,6 +529,9 @@ class wdl_xml_parser {
         }
         else
         {
+          if (!elem && element_root)
+            return "multiple top level elements";
+
           if (*tok == '-' || *tok == '.' || (*tok >= '0' && *tok <= '9'))
             return "element name must not begin with .- or number";
 
@@ -533,7 +556,6 @@ class wdl_xml_parser {
           {
             return "unknown token in element"; 
           }
-          if (!elem) return NULL; // finish after parsing a top level block
         }
         cnt++;
       }

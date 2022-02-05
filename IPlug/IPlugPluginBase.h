@@ -82,7 +82,7 @@ public:
   /** @return  Returns a CString describing the plug-in API, e.g. "VST2" */
   const char* GetAPIStr() const;
   
-  /** @return  Returns a CString either "x86" or "x64" or "WASM" describing the binary architecture */
+  /** @return  Returns a CString either "x86" or "x64", "arm64" or "WASM" describing the binary architecture */
   const char* GetArchStr() const;
   
   /** Get the build date of the plug-in and architecture/api details in one string
@@ -377,7 +377,19 @@ public:
   /** Default parameter values for a parameter group  */
   void PrintParamValues();
 
-protected:
+  friend class IPlugAPP;
+  friend class IPlugAAX;
+  friend class IPlugVST2;
+  friend class IPlugVST3;
+  friend class IPlugVST3Controller;
+  friend class IPlugVST3Processor;
+  friend class IPlugAU;
+  friend class IPlugAUv3;
+  friend class IPlugWEB;
+  friend class IPlugWAM;
+  friend class IPlugAPIBase;
+  
+private:
   int mCurrentPresetIdx = 0;
   /** \c true if the plug-in does opaque state chunks. If false the host will provide a default interface */
   bool mStateChunks = false;

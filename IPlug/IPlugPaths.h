@@ -60,9 +60,6 @@ extern void UserHomePath(WDL_String& path);
  * @param isSystem Set \c true if you want to obtain the system-wide path, otherwise the path will be in the user's home folder */
 extern void AppSupportPath(WDL_String& path, bool isSystem = false);
 
-/** @param path WDL_String reference where the path will be put on success or empty string on failure */
-extern void SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID = "");
-
 /** @param path WDL_String reference where the path will be put on success or empty string on failure
  * @param mfrName CString to specify the manufacturer name, which will be the top level folder for .vstpreset files for this manufacturer's product
  * @param pluginName CString to specify the plug-in name, which will be the sub folder (beneath mfrName) in which the .vstpreset files are located
@@ -94,12 +91,24 @@ extern EResourceLocation LocateResource(const char* fileNameOrResID, const char*
  * @return const void pointer to the data if successfull on windows. Returns nullptr if unsuccessfull or on platforms other than windows */
 extern const void* LoadWinResource(const char* resID, const char* type, int& sizeInBytes, void* pHInstance);
 
+#if defined OS_MAC || defined OS_IOS
+
 /** @return \c true if the app is sandboxed (and therefore file access etc is restricted) */
 extern bool AppIsSandboxed();
 
-#ifdef OS_IOS
-extern bool IsAuv3AppExtension();
+/** @param path WDL_String reference where the path will be put on success or empty string on failure */
+extern void AppGroupContainerPath(WDL_String& path, const char* appGroupID);
+
+/** @param path WDL_String reference where the path will be put on success or empty string on failure */
+extern void SharedMusicPath(WDL_String& path);
+
+/** @return \c true if XPC AUv2 host (Typically Logic/Garageband on Apple Silicon)  */
+extern bool IsXPCAuHost();
+
+/** @return \c true if in an out-of-process AUv3  */
+extern bool IsOOPAuv3AppExtension();
+
 #endif
-  
+
 END_IPLUG_NAMESPACE
 

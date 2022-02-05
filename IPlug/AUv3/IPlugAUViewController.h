@@ -11,21 +11,14 @@
 #ifndef _IPLUGAUVIEWCONTROLLER_
 #define _IPLUGAUVIEWCONTROLLER_
 
-/** @file AUv3 ViewController */
+/** @file AUv3 ViewController for plug-ins with a UI */
 
 #import <CoreAudioKit/AUViewController.h>
-#include "config.h"
 
-@class IPlugAUAudioUnit;
+@interface IPLUG_AUVIEWCONTROLLER : AUViewController <AUAudioUnitFactory>
 
-#if PLUG_HAS_UI
-@interface IPlugAUViewController : AUViewController <AUAudioUnitFactory>
-#else
-@interface IPlugAUViewController : NSObject <AUAudioUnitFactory>
-#endif
-
-@property (nonatomic, retain) IPlugAUAudioUnit *audioUnit;
-- (void) setAudioUnit:(IPlugAUAudioUnit*) audioUnit;
+@property (nonatomic, retain) AUAudioUnit* audioUnit;
+- (void) setAudioUnit:(AUAudioUnit*) audioUnit;
 - (void) audioUnitInitialized;
 - (AUAudioUnit*) getAudioUnit;
 @end

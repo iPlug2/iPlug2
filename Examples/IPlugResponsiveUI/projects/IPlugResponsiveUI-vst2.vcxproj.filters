@@ -50,9 +50,6 @@
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
       <Filter>IGraphics\Drawing</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IGraphics\Extras\IGraphicsImGui.cpp">
-      <Filter>IGraphics\Extras</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\IGraphics\Extras\IGraphicsFlexBox.cpp">
       <Filter>IGraphics\Extras</Filter>
     </ClCompile>
@@ -200,9 +197,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\ISender.h">
       <Filter>IGraphics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\Extras\IGraphicsImGui.h">
-      <Filter>IGraphics\Extras</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Extras\IGraphicsFlexBox.h">
       <Filter>IGraphics\Extras</Filter>

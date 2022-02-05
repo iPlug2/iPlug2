@@ -47,5 +47,5 @@ private:
   
   std::atomic<int> mStepPos;
   int mPrevPos = -1;
-  float mSteps[kNumSteps] = {};
+  double mSteps[kNumSteps] = {};
 };

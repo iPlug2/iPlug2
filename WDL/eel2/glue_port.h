@@ -6,7 +6,6 @@
 #define GLUE_JMP_TYPE int
 #define GLUE_JMP_SET_OFFSET(endOfInstruction,offset) (((GLUE_JMP_TYPE *)(endOfInstruction))[-1] = (offset))
 
-#define GLUE_HAS_FXCH 
 #define GLUE_MAX_FPSTACK_SIZE 64
 #define BIF_FPSTACKUSE(x) (0) // fp stack is not used within functions
 #define BIF_GETFPSTACKUSE(x) (1)
@@ -139,6 +138,7 @@ enum {
   EEL_BC_GENERIC3PARM,
   EEL_BC_GENERIC1PARM_RETD,
   EEL_BC_GENERIC2PARM_RETD,
+  EEL_BC_GENERIC2XPARM_RETD,
   EEL_BC_GENERIC3PARM_RETD,
 
   EEL_BC_USERSTACK_PUSH,
@@ -437,6 +437,7 @@ BC_DECLASM_N_EXPORT(generic2parm,GENERIC2PARM,2)
 BC_DECLASM_N_EXPORT(generic3parm,GENERIC3PARM,2)
 BC_DECLASM_N_EXPORT(generic1parm_retd,GENERIC1PARM_RETD,2)
 BC_DECLASM_N_EXPORT(generic2parm_retd,GENERIC2PARM_RETD,2)
+BC_DECLASM_N_EXPORT(generic2xparm_retd,GENERIC2XPARM_RETD,3)
 BC_DECLASM_N_EXPORT(generic3parm_retd,GENERIC3PARM_RETD,2)
 
 
@@ -445,6 +446,7 @@ BC_DECLASM_N_EXPORT(generic3parm_retd,GENERIC3PARM_RETD,2)
 #define _asm_generic3parm_end EEL_BC_ENDOF(_asm_generic3parm)
 #define _asm_generic1parm_retd_end EEL_BC_ENDOF(_asm_generic1parm_retd)
 #define _asm_generic2parm_retd_end EEL_BC_ENDOF(_asm_generic2parm_retd)
+#define _asm_generic2xparm_retd_end EEL_BC_ENDOF(_asm_generic2xparm_retd)
 #define _asm_generic3parm_retd_end EEL_BC_ENDOF(_asm_generic3parm_retd)
 
 #define nseel_asm_1pdd_end EEL_BC_ENDOF(nseel_asm_1pdd)
@@ -803,18 +805,18 @@ static void GLUE_CALL_CODE(INT_PTR bp, INT_PTR cp, INT_PTR rt)
         fp_rewind(1);
       break;
       case EEL_BC_AND:
-        fp_top2 = (EEL_F) (((int)fp_top) & (int)(fp_top2));
+        fp_top2 = (EEL_F) (((WDL_INT64)fp_top) & (WDL_INT64)(fp_top2));
         fp_rewind(1);
       break;
       case EEL_BC_OR:
-        fp_top2 = (EEL_F) (((int)fp_top) | (int)(fp_top2));
+        fp_top2 = (EEL_F) (((WDL_INT64)fp_top) | (WDL_INT64)(fp_top2));
         fp_rewind(1);
       break;
       case EEL_BC_OR0:
-        fp_top = (EEL_F) ((int)(fp_top));
+        fp_top = (EEL_F) ((WDL_INT64)(fp_top));
       break;
       case EEL_BC_XOR:
-        fp_top2 = (EEL_F) (((int)fp_top) ^ (int)(fp_top2));
+        fp_top2 = (EEL_F) (((WDL_INT64)fp_top) ^ (WDL_INT64)(fp_top2));
         fp_rewind(1);
       break;
 
@@ -844,15 +846,15 @@ static void GLUE_CALL_CODE(INT_PTR bp, INT_PTR cp, INT_PTR rt)
       break;
       case EEL_BC_AND_OP:
         p1 = p2;
-        *p2 = (EEL_F) (((int)*p2) & (int)fp_pop());
+        *p2 = (EEL_F) (((WDL_INT64)*p2) & (WDL_INT64)fp_pop());
       break;
       case EEL_BC_OR_OP:
         p1 = p2;
-        *p2 = (EEL_F) (((int)*p2) | (int)fp_pop());
+        *p2 = (EEL_F) (((WDL_INT64)*p2) | (WDL_INT64)fp_pop());
       break;
       case EEL_BC_XOR_OP:
         p1 = p2;
-        *p2 = (EEL_F) (((int)*p2) ^ (int)fp_pop());
+        *p2 = (EEL_F) (((WDL_INT64)*p2) ^ (WDL_INT64)fp_pop());
       break;
       case EEL_BC_UMINUS:
         fp_top = -fp_top;
@@ -1023,6 +1025,13 @@ static void GLUE_CALL_CODE(INT_PTR bp, INT_PTR cp, INT_PTR rt)
           EEL_F (*f)(void *,EEL_F*,EEL_F*) = *(EEL_F (**)(void *, EEL_F *, EEL_F *)) (iptr+sizeof(void *));
           fp_push(f(*(void **)iptr,p2, p1));
           iptr += sizeof(void *)*2;
+        }
+      break;
+      case EEL_BC_GENERIC2XPARM_RETD:
+        {
+          EEL_F (*f)(void *,void *,EEL_F*,EEL_F*) = *(EEL_F (**)(void *, void *, EEL_F *, EEL_F *)) (iptr+2*sizeof(void *));
+          fp_push(f(*(void **)iptr,((void **)iptr)[1],p2, p1));
+          iptr += sizeof(void *)*3;
         }
       break;
       case EEL_BC_GENERIC3PARM_RETD:

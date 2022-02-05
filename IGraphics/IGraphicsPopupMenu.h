@@ -61,8 +61,8 @@ public:
     }
     
     Item (const char* str, IPopupMenu* pSubMenu)
-    : mFlags(kNoFlags)
-    , mSubmenu(pSubMenu)
+    : mSubmenu(pSubMenu)
+    , mFlags(kNoFlags)
     {
       SetText(str);
     }

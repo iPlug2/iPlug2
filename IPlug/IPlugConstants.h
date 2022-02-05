@@ -74,7 +74,7 @@ static const double AMP_DB = 8.685889638065036553;
  * @see DBToAmp
 */
 static const double IAMP_DB = 0.11512925464970;
-static const double DEFAULT_SAMPLE_RATE = 44100.0;
+static const double DEFAULT_SAMPLE_RATE = 48000.0;
 static const int MAX_PRESET_NAME_LEN = 256;
 #define UNUSED_PRESET_NAME "empty"
 #define DEFAULT_USER_PRESET_NAME "user preset"

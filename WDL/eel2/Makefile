@@ -29,11 +29,15 @@ ifeq ($(UNAME_S),Darwin)
   CFLAGS += -arch $(ARCH)
 endif
 
-ifneq ($(filter arm%,$(ARCH)),)
-  CFLAGS += -fsigned-char -mfpu=vfp -march=armv6t2 -marm
-endif
-ifeq ($(ARCH),aarch64)
+ifeq ($(ARCH),arm64)
   CFLAGS += -fsigned-char
+else
+  ifneq ($(filter arm%,$(ARCH)),)
+    CFLAGS += -fsigned-char -mfpu=vfp -march=armv6t2 -marm
+  endif
+  ifeq ($(ARCH),aarch64)
+    CFLAGS += -fsigned-char
+  endif
 endif
 
 ifndef ALLOW_WARNINGS
@@ -92,8 +96,8 @@ ifndef NO_GFX
       LFLAGS += $(shell pkg-config --libs gdk-3.0) -lX11 -lXi
     endif
     ifndef NOFREETYPE
-      CFLAGS += -DSWELL_FREETYPE $(shell freetype-config --cflags)
-      LFLAGS += $(shell freetype-config --libs)
+      CFLAGS += -DSWELL_FREETYPE $(shell pkg-config --cflags freetype2)
+      LFLAGS += $(shell pkg-config --libs freetype2)
     endif
 
     OBJS += swell-wnd-generic.o swell-gdi-lice.o swell.o swell-misc-generic.o \
@@ -105,23 +109,41 @@ ifndef NO_GFX
 
 endif
 
-
-asm-nseel-x64.o: a2x64.php asm-nseel-x86-gcc.c
-	php a2x64.php elf64
-
 ifdef PORTABLE
   CFLAGS +=  -DEEL_TARGET_PORTABLE
 else
   ifeq ($(UNAME_S),Darwin)
     ifeq ($(ARCH),x86_64)
-      OBJS2 += asm-nseel-x64-macho.o
+      ASM_FMT = macho64
+      NASM_OPTS = --prefix _
+      ifdef NO_SSE
+      OBJS2 += asm-nseel-x64.o
+      CFLAGS += -DEEL_X64_NO_SSE
+      else
+      OBJS2 += asm-nseel-x64-sse.o
+      endif
     endif
   endif
   ifeq ($(UNAME_S),Linux)
     ifeq ($(ARCH),x86_64)
+      ASM_FMT = elf64
+      NASM_OPTS =
+      ifdef NO_SSE
       OBJS2 += asm-nseel-x64.o
+      CFLAGS += -DEEL_X64_NO_SSE
+      else
+      OBJS2 += asm-nseel-x64-sse.o
+      endif
     endif
   endif
+
+asm-nseel-x64-sse.o: asm-nseel-x64-sse.asm
+	nasm -D AMD64ABI -f $(ASM_FMT) $(NASM_OPTS) asm-nseel-x64-sse.asm
+
+asm-nseel-x64.o: a2x64.php asm-nseel-x86-gcc.c
+	php a2x64.php $(ASM_FMT)
+
+
 endif
 CXXFLAGS=$(CFLAGS)
 

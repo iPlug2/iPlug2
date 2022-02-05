@@ -41,9 +41,11 @@ public:
   
   void Draw(IGraphics& g) override
   {
+    #if defined OS_MAC || defined OS_IOS
     if(AppIsSandboxed())
       g.DrawText(IText(14, EVAlign::Middle), "App is sandboxed... filesystem restricted", mRECT);
     else
+    #endif
     {
       g.DrawDottedRect(COLOR_BLACK, mRECT);
       g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);

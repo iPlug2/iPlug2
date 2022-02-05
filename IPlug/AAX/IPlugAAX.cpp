@@ -528,7 +528,37 @@ AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk* pChunk, AAX_CBoo
   *pIsEqual = CompareState((const unsigned char*) pChunk->fData, 0);
     
   return AAX_SUCCESS;
-}  
+}
+
+AAX_Result IPlugAAX::NotificationReceived (AAX_CTypeID type, const void* pData, uint32_t size)
+{
+  switch (type)
+  {
+    case AAX_eNotificationEvent_TrackNameChanged:
+      if (pData)
+        mTrackName.Set(static_cast<const AAX_IString*>(pData)->Get());
+      break;
+//    case AAX_eNotificationEvent_SessionBeingOpened:
+//      break;
+//    case AAX_eNotificationEvent_PresetOpened:
+//      break;
+    case AAX_eNotificationEvent_EnteringOfflineMode:
+      SetRenderingOffline(true);
+      break;
+    case AAX_eNotificationEvent_ExitingOfflineMode:
+      SetRenderingOffline(false);
+      break;
+//    case AAX_eNotificationEvent_SideChainBeingConnected:
+//      break;
+//    case AAX_eNotificationEvent_SideChainBeingDisconnected:
+//      break;
+//    case AAX_eNotificationEvent_SignalLatencyChanged:
+    default:
+      break;
+  }
+
+  return AAX_CEffectParameters::NotificationReceived (type, pData, size);
+}
 
 void IPlugAAX::BeginInformHostOfParamChange(int idx)
 {
@@ -559,8 +589,13 @@ bool IPlugAAX::EditorResize(int viewWidth, int viewHeight)
     oEffectViewSize.vert = (float) viewHeight;
     
     if (pViewInterface && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
-      pViewInterface->GetViewContainer()->SetViewSize(oEffectViewSize);
-
+    {
+      auto* viewContainer = pViewInterface->GetViewContainer();
+      
+      if (viewContainer)
+        viewContainer->SetViewSize(oEffectViewSize);
+    }
+    
     SetEditorSize(viewWidth, viewHeight);
   }
   

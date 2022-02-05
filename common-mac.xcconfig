@@ -68,7 +68,6 @@ RTAUDIO_PATH = $(DEPS_PATH)/IPlug/RTAudio
 RTMIDI_PATH = $(DEPS_PATH)/IPlug/RTMidi
 
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
-IMGUI_PATH = $(DEPS_PATH)/IGraphics/imgui
 
 //faust is linked as a dynamic library
 FAUST_LIB_PATHS = $(BUILT_LIBS_LIB_PATH)
@@ -91,8 +90,6 @@ REAPER_SDK = $(DEPS_PATH)/IPlug/Reaper
 // this build setting is included at the xcode project level, since we need all these include paths
 IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(SWELL_FOR_IPLUG_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS)
 
-IMGUI_INC_PATHS = $(IMGUI_PATH) $(IMGUI_PATH)/backends
-
 IGRAPHICS_PATH = $(IPLUG2_ROOT)/IGraphics
 
 // IGraphics dependencies
@@ -110,7 +107,7 @@ SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/eff
 YOGA_INC_PATHS = $(YOGA_PATH) $(YOGA_PATH)/yoga
 
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics support
-IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH) $(IMGUI_INC_PATHS) $(SKIA_INC_PATHS) $(YOGA_INC_PATHS)
+IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(IGRAPHICS_PATH)/Controls $(IGRAPHICS_PATH)/Platforms $(IGRAPHICS_PATH)/Drawing $(IGRAPHICS_PATH)/Extras $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(BUILT_LIBS_INC_PATH) $(FT_PATH) $(STB_PATH) $(SKIA_INC_PATHS) $(YOGA_INC_PATHS)
 
 // *****  LINKER/LIBRARY INCLUDE PATHS AND LINKER FLAGS
 
@@ -124,6 +121,7 @@ LIB_SKOTTIE = $(BUILT_LIBS_LIB_PATH)/libskottie.a
 LIB_SKSG = $(BUILT_LIBS_LIB_PATH)/libsksg.a
 LIB_SKSHAPER = $(BUILT_LIBS_LIB_PATH)/libskshaper.a
 LIB_SKPARAGRAPH = $(BUILT_LIBS_LIB_PATH)/libskparagraph.a
+LIB_SKUNICODE = $(BUILT_LIBS_LIB_PATH)/libskunicode.a
 LIB_SVG = $(BUILT_LIBS_LIB_PATH)/libsvg.a
 //LIB_YOGA = $(BUILT_LIBS_LIB_PATH)/libyoga.a
 
@@ -131,7 +129,7 @@ LIB_SVG = $(BUILT_LIBS_LIB_PATH)/libsvg.a
 //YOGA_LNK_FLAGS = $(LIB_YOGA)
 
 // you can optionally include this build setting, by adding it to EXTRA_LNK_FLAGS in your plug-ins xcconfig, in order to get all varieties of IGraphics support
-SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH) $(LIB_SVG)
+SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH) $(LIB_SKUNICODE) $(LIB_SVG)
 FREETYPE_LNK_FLAGS = $(LIB_FT) //$(LIB_PNG) $(LIB_Z)
 IGRAPHICS_LNK_FLAGS = $(SKIA_LNK_FLAGS) $(FREETYPE_LNK_FLAGS)
 
@@ -151,7 +149,7 @@ AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework Cor
 VST2_PATH = $(HOME)/Library/Audio/Plug-Ins/VST
 VST3_PATH = $(HOME)/Library/Audio/Plug-Ins/VST3
 AU_PATH = $(HOME)/Library/Audio/Plug-Ins/Components
-AAX_PATH = /Applications/Avid/ProTools_3PDev/Plug-Ins
+AAX_PATH = /Library/Application Support/Avid/Audio/Plug-Ins
 APP_PATH = $(HOME)/Applications
 REAPER_EXT_PATH = $(HOME)/Library/Application Support/REAPER/UserPlugins
 

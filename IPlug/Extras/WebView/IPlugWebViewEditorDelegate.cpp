@@ -25,17 +25,16 @@ WebViewEditorDelegate::~WebViewEditorDelegate()
   CloseWindow();
 }
 
-extern int GetScaleForHWND(HWND hWnd);
+extern float GetScaleForHWND(HWND hWnd);
 
 void* WebViewEditorDelegate::OpenWindow(void* pParent)
 {
-  RECT r;
-  HWND hWnd = (HWND) pParent;
-  GetClientRect(hWnd, &r);
-  float scale = static_cast<float>(GetScaleForHWND(hWnd));
+  auto scale = GetScaleForHWND((HWND) pParent);
+  return OpenWebView(pParent, 0., 0., static_cast<float>((GetEditorWidth()) / scale), static_cast<float>((GetEditorHeight()) / scale), scale);
+}
 
-  return OpenWebView(pParent, static_cast<float>(r.left / scale),
-                              static_cast<float>(r.top / scale),
-                              static_cast<float>((r.right - r.left) / scale),
-                              static_cast<float>((r.bottom - r.top) / scale), scale);
+void WebViewEditorDelegate::Resize(int width, int height)
+{
+  SetWebViewBounds(0, 0, static_cast<float>(width), static_cast<float>(height));
+  EditorResizeFromUI(width, height, true);
 }

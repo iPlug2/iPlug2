@@ -1,14 +1,15 @@
+/*
+ ==============================================================================
+ 
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+ 
+ See LICENSE.txt for  more info.
+ 
+ ==============================================================================
+*/
+
 #include "IPlugCocoaEditorDelegate.h"
 #import "IPlugCocoaViewController.h"
-
-#if defined OS_MAC
-#define VIEW NSView
-#define MAKERECT NSMakeRect
-#elif defined OS_IOS
-#import <UIKit/UIKit.h>
-#define VIEW UIView
-#define MAKERECT CGRectMake
-#endif
 
 using namespace iplug;
 
@@ -24,9 +25,9 @@ CocoaEditorDelegate::~CocoaEditorDelegate()
 void* CocoaEditorDelegate::OpenWindow(void* pParent)
 {
 #ifdef OS_IOS
-  IPlugCocoaViewController* viewController = (IPlugCocoaViewController*) [(VIEW*) pParent nextResponder];
-  [viewController setEditorDelegate: this];
-  mViewController = viewController;
+  IPlugCocoaViewController* vc = (IPlugCocoaViewController*) [(PLATFORM_VIEW*) pParent nextResponder];
+  [vc setEditorDelegate: this];
+  mViewController = vc;
 #endif
   
   return pParent;
@@ -34,21 +35,22 @@ void* CocoaEditorDelegate::OpenWindow(void* pParent)
 
 void CocoaEditorDelegate::CloseWindow()
 {
+  mViewController = nil;
 }
 
 bool CocoaEditorDelegate::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
-  IPlugCocoaViewController* viewController = (IPlugCocoaViewController*) mViewController;
+  IPlugCocoaViewController* vc = (IPlugCocoaViewController*) mViewController;
   NSData* pNSData = [NSData dataWithBytes:pData length:dataSize];
-  return [viewController onMessage:msgTag : ctrlTag : pNSData];
+  return [vc onMessage:msgTag : ctrlTag : pNSData];
 }
 
 void CocoaEditorDelegate::OnParamChangeUI(int paramIdx, EParamSource source)
 {
-  IPlugCocoaViewController* viewController = (IPlugCocoaViewController*) mViewController;
+  IPlugCocoaViewController* vc = (IPlugCocoaViewController*) mViewController;
   
-  if(viewController)
-    [viewController onParamChangeUI:paramIdx :GetParam(paramIdx)->GetNormalized() ];
+  if(vc)
+    [vc onParamChangeUI:paramIdx :GetParam(paramIdx)->GetNormalized() ];
 }
 
 void CocoaEditorDelegate::OnMidiMsgUI(const IMidiMsg& msg)
@@ -70,7 +72,9 @@ void CocoaEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double norma
 
 void CocoaEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData)
 {
-  [(IPlugCocoaViewController*) mViewController sendControlMsgFromDelegate: ctrlTag : msgTag : dataSize : pData];
+  NSData* pNSData = [NSData dataWithBytes:pData length:dataSize];
+
+  [(IPlugCocoaViewController*) mViewController sendControlMsgFromDelegate: ctrlTag : msgTag : pNSData];
 }
 
 void CocoaEditorDelegate::SendParameterValueFromDelegate(int paramIdx, double value, bool normalized)

@@ -34,13 +34,14 @@ Dependencies/IPlug/VST2_SDK/*
 Dependencies/IPlug/AAX_SDK/*
 Dependencies/IPlug/WAM_AWP/*
 Dependencies/IPlug/WAM_SDK/*
-!Dependencies/IGraphics/imgui/README.txt
-Dependencies/IGraphics/imgui/*
 Dependencies/Build/*
 Documentation/html
 Documentation/doxygen_warnings.txt
 Examples/build_errors.log
-Projects*
+Projects/*
 Examples/IPlugSwift/Pods
 PodFile.lock
 */*/.vscode/ipch
+Examples/*/EBWebView
+Examples/*/packages
+Examples/IPlugConvoEngine/r8brain

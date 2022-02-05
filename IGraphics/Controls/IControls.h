@@ -53,7 +53,7 @@ class IVButtonControl : public IButtonControlBase
 public:
   /** Constructs a vector button control, with an action function
    * @param bounds The control's bounds
-   * @param actionFunc An action function to execute when a button is clicked \see IActionFunction
+   * @param aF An action function to execute when a button is clicked \see IActionFunction
    * @param label The label for the vector control, leave empty for no label
    * @param style The styling of this vector control \see IVStyle
    * @param labelInButton if the label inside or outside the button
@@ -130,24 +130,24 @@ class IVTabSwitchControl : public ISwitchControlBase
 public:
   enum class ETabSegment { Start, Mid, End };
 
- /** Constructs a vector tab switch control, linked to a parameter
- * @param bounds The control's bounds
- * @param paramIdx The parameter index to link this control to
- * @param options An initializer list of CStrings for the button labels to override the parameter display text labels. Supply an empty {} list if you don't want to do that.
- * @param label The IVControl label CString
- * @param style The styling of this vector control \see IVStyle
- * @param shape The buttons shape \see IVShape
- * @param direction The direction of the buttons */
+  /** Constructs a vector tab switch control, linked to a parameter
+   * @param bounds The control's bounds
+   * @param paramIdx The parameter index to link this control to
+   * @param options An initializer list of CStrings for the button labels to override the parameter display text labels. Supply an empty {} list if you don't want to do that.
+   * @param label The IVControl label CString
+   * @param style The styling of this vector control \see IVStyle
+   * @param shape The buttons shape \see IVShape
+   * @param direction The direction of the buttons */
   IVTabSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const std::initializer_list<const char*>& options = {}, const char* label = "", const IVStyle & style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
 
   /** Constructs a vector tab switch control, with an action function (no parameter)
-  * @param bounds The control's bounds
-  * @param actionFunc An action function to execute when a button is clicked \see IActionFunction
-  * @param options An initializer list of CStrings for the button labels. The size of the list decides the number of buttons.
-  * @param label The IVControl label CString
-  * @param style The styling of this vector control \see IVStyle
-  * @param shape The buttons shape \see IVShape
-  * @param direction The direction of the buttons */
+   * @param bounds The control's bounds
+   * @param aF An action function to execute when a button is clicked \see IActionFunction
+   * @param options An initializer list of CStrings for the button labels. The size of the list decides the number of buttons.
+   * @param label The IVControl label CString
+   * @param style The styling of this vector control \see IVStyle
+   * @param shape The buttons shape \see IVShape
+   * @param direction The direction of the buttons */
   IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
   
   virtual ~IVTabSwitchControl() { mTabLabels.Empty(true); }
@@ -191,7 +191,7 @@ public:
 
   /** Constructs a vector radio button control, with an action function (no parameter)
    * @param bounds The control's bounds
-   * @param actionFunc An action function to execute when a button is clicked \see IActionFunction
+   * @param aF An action function to execute when a button is clicked \see IActionFunction
    * @param options An initializer list of CStrings for the button labels. The size of the list decides the number of buttons
    * @param label The label for the vector control, leave empty for no label
    * @param style The styling of this vector control \see IVStyle
@@ -210,7 +210,7 @@ protected:
   bool mOnlyButtonsRespondToMouse = false;
 };
 
-/** A vector knob control drawn using graphics primitves */
+/** A vector knob control drawn using graphics primitives */
 class IVKnobControl : public IKnobControlBase
                     , public IVectorBase
 {
@@ -237,6 +237,7 @@ public:
   virtual void DrawPointer(IGraphics& g, float angle, float cx, float cy, float radius);
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override { mValueMouseOver = false; IKnobControlBase::OnMouseOut(); }
@@ -278,6 +279,7 @@ public:
   virtual void DrawHandle(IGraphics& g, const IRECT& bounds);
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
+  void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override { mValueMouseOver = false; ISliderControlBase::OnMouseOut(); }
@@ -379,7 +381,7 @@ protected:
   float mMax;
   bool mUseLayer = true;
   int mHorizontalDivisions = 10;
-  int mVerticalDivisions = 10; // allways + 2 when drawing
+  int mVerticalDivisions = 10; // always + 2 when drawing
   
   std::vector<float> mPoints;
 };
@@ -441,7 +443,7 @@ public:
   }
 };
 
-/** A control to show a colour swatch of up to 9 colous. */
+/** A control to show a color swatch of up to 9 colors. */
 class IVColorSwatchControl : public IControl
                            , public IVectorBase
 {
@@ -496,7 +498,7 @@ class ISVGButtonControl : public IButtonControlBase
 public:
   /** Constructs a vector button control, with an action function
    * @param bounds The control's bounds
-   * @param actionFunc An action function to execute when a button is clicked \see IActionFunction */
+   * @param aF An action function to execute when a button is clicked \see IActionFunction */
   ISVGButtonControl(const IRECT& bounds, IActionFunction aF, const ISVG& offImage, const ISVG& onImage);
 
   void Draw(IGraphics& g) override;
@@ -512,9 +514,10 @@ class ISVGSwitchControl : public ISwitchControlBase
 {
 public:
   /** Constructs a SVG switch control
-  * @param bounds The control's bounds
-  * @param svgs A list of ISVGs for the control states
-  * @param paramIdx The parameter index to link this control to */
+   * @param bounds The control's bounds
+   * @param svgs A list of ISVGs for the control states
+   * @param paramIdx The parameter index to link this control to
+   * @param aF An action function to execute when a button is clicked \see IActionFunction */
   ISVGSwitchControl(const IRECT& bounds, const std::initializer_list<ISVG>& svgs, int paramIdx = kNoParameter, IActionFunction aF = nullptr);
 
   void Draw(IGraphics& g) override;
@@ -528,12 +531,12 @@ class ISVGSliderControl : public ISliderControlBase
 {
 public:
   /** Constructs an ISVGSliderControl
-  * @param bounds The control's bounds
-  * @param handleSvg An ISVG for the handle part that moves
-  * @param handleSvg An ISVG for the track background
-  * @param paramIdx The parameter index to link this control to 
-  * @param dir The direction of the slider movement 
-  * @param gearing \todo */
+   * @param bounds The control's bounds
+   * @param handleSvg An ISVG for the handle part that moves
+   * @param handleSvg An ISVG for the track background
+   * @param paramIdx The parameter index to link this control to
+   * @param dir The direction of the slider movement
+   * @param gearing \todo */
   ISVGSliderControl(const IRECT& bounds, const ISVG& handleSvg, const ISVG& trackSVG, int paramIdx = kNoParameter, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING);
 
   void Draw(IGraphics& g) override;
@@ -569,16 +572,16 @@ class IBSwitchControl : public ISwitchControlBase
 {
 public:
   /** Constructs a bitmap switch control
-  * @param x The x position of the top left point in the control's bounds (width will be determined by bitmap's dimensions)
-  * @param y The y position of the top left point in the control's bounds (height will be determined by bitmap's dimensions)
-  * @param bitmap The bitmap resource for the control
-  * @param paramIdx The parameter index to link this control to */
+   * @param x The x position of the top left point in the control's bounds (width will be determined by bitmap's dimensions)
+   * @param y The y position of the top left point in the control's bounds (height will be determined by bitmap's dimensions)
+   * @param bitmap The bitmap resource for the control
+   * @param paramIdx The parameter index to link this control to */
   IBSwitchControl(float x, float y, const IBitmap& bitmap, int paramIdx = kNoParameter);
 
   /** Constructs a bitmap switch control
-  * @param bounds The control's bounds
-  * @param bitmap The bitmap resource for the control
-  * @param paramIdx The parameter index to link this control to */
+   * @param bounds The control's bounds
+   * @param bitmap The bitmap resource for the control
+   * @param paramIdx The parameter index to link this control to */
   IBSwitchControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx = kNoParameter);
   
   virtual ~IBSwitchControl() {}

@@ -95,7 +95,7 @@ private:
   long ID = 0;
   ITimerFunction mTimerFunc;
 };
-#elif
+#else
   #error NOT IMPLEMENTED
 #endif
 
