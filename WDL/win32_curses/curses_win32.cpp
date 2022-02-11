@@ -157,6 +157,7 @@ void __init_pair(win32CursesCtx *ctx, int pair, int fcolor, int bcolor)
 }
 
 int *curses_win32_global_user_colortab;
+const char *curses_win32_global_font_face_name;
 
 static LRESULT xlateKey(int msg, WPARAM wParam, LPARAM lParam)
 {
@@ -774,6 +775,7 @@ void reInitializeContext(win32CursesCtx *ctx)
 #else
                                                  0,
 #endif
+                        curses_win32_global_font_face_name ? curses_win32_global_font_face_name :
                         "Courier New");
 
   ctx->need_redraw|=2;
