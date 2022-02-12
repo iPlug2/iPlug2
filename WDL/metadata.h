@@ -921,9 +921,9 @@ const char *EnumMetadataSchemeFromFileType(const char *filetype, int idx)
 }
 
 
-const char *EnumMetadataKeyFromMexKey(const char *mexkey, int idx)
+bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keylen)
 {
-  if (!mexkey || !mexkey[0] || idx < 0) return NULL;
+  if (!mexkey || !mexkey[0] || idx < 0 || !key || !keylen) return false;
 
   // TO_DO_IF_METADATA_UPDATE
   // "TITLE", "ARTIST", "ALBUM", "YEAR", "GENRE", "COMMENT", "DESC", "BPM", "KEY", "DB_CUSTOM", "TRACKNUMBER"
@@ -1071,9 +1071,14 @@ const char *EnumMetadataKeyFromMexKey(const char *mexkey, int idx)
     "CAFINFO:track number",
   };
 
-#define DO_MEXKEY_MAP(K) if (!strcmp(mexkey, #K)) \
-  return idx < sizeof(K##_KEYS)/sizeof(K##_KEYS[0]) ? K##_KEYS[idx] : NULL;
+#define DO_MEXKEY_MAP(K) \
+if (!strcmp(mexkey, #K)) \
+{ \
+  if (idx >= sizeof(K##_KEYS)/sizeof(K##_KEYS[0])) return false; \
+  lstrcpyn(key, K##_KEYS[idx], keylen); return true; \
+}
 
+  key[0]=0;
   DO_MEXKEY_MAP(TITLE);
   DO_MEXKEY_MAP(ARTIST);
   DO_MEXKEY_MAP(ALBUM);
@@ -1088,7 +1093,7 @@ const char *EnumMetadataKeyFromMexKey(const char *mexkey, int idx)
 
 #undef DO_MEXKEY_MAP
 
-  return NULL;
+  return false;
 }
 
 const char *GetMexKeyFromMetadataKey(const char *key)
@@ -1099,8 +1104,8 @@ const char *GetMexKeyFromMetadataKey(const char *key)
   for (int i=0; i < sizeof(mexkeys)/sizeof(mexkeys[0]); ++i)
   {
     int j=0;
-    const char *tkey=NULL;
-    while ((tkey=EnumMetadataKeyFromMexKey(mexkeys[i], j++)))
+    char tkey[256];
+    while (EnumMetadataKeyFromMexKey(mexkeys[i], j++, tkey, sizeof(tkey)) && tkey[0])
     {
       if (!strcmp(key, tkey)) return mexkeys[i];
     }
@@ -1127,8 +1132,8 @@ bool HandleMexMetadataRequest(const char *mexkey, char *buf, int buflen,
 
   buf[0]=0;
   int i=0;
-  const char *key;
-  while ((key=EnumMetadataKeyFromMexKey(mexkey, i++)))
+  char key[256];
+  while (EnumMetadataKeyFromMexKey(mexkey, i++, key, sizeof(key)) && key[0])
   {
     const char *val=metadata->Get(key);
     if (val && val[0])
@@ -1191,8 +1196,8 @@ void AddMexMetadata(WDL_StringKeyedArray<char*> *mex_metadata,
     }
 
     int i=0;
-    const char *key;
-    while ((key=EnumMetadataKeyFromMexKey(mexkey, i++)))
+    char key[256];
+    while (EnumMetadataKeyFromMexKey(mexkey, i++, key, sizeof(key)) && key[0])
     {
       if (val && val[0]) metadata->Insert(key, strdup(val));
       else metadata->Delete(key);
