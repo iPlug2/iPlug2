@@ -929,7 +929,6 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   // "TITLE", "ARTIST", "ALBUM", "YEAR", "GENRE", "COMMENT", "DESC", "BPM", "KEY", "DB_CUSTOM", "TRACKNUMBER"
 
   if (!strcmp(mexkey, "DATE")) mexkey="YEAR";
-  else if (!strcmp(mexkey, "REAPER")) mexkey="DB_CUSTOM";
   // callers handle PREFPOS
 
   // !!!
@@ -1052,13 +1051,6 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
     "XMP:dm/key",
     "CAFINFO:key signature",
   };
-  static const char *DB_CUSTOM_KEYS[]=
-  {
-    "ID3:TXXX:REAPER",
-    "APE:REAPER",
-    "VORBIS:REAPER",
-    "IXML:USER:REAPER",
-  };
   static const char *TRACKNUMBER_KEYS[]=
   {
     "INFO:TRCK",
@@ -1089,11 +1081,20 @@ if (!strcmp(mexkey, #K)) \
   DO_MEXKEY_MAP(DESC);
   DO_MEXKEY_MAP(BPM);
   DO_MEXKEY_MAP(KEY);
-  DO_MEXKEY_MAP(DB_CUSTOM);
 
 #undef DO_MEXKEY_MAP
 
-  return false;
+  static const char *DB_CUSTOM_KEYS[]=
+  {
+    "ID3:TXXX",
+    "APE",
+    "VORBIS",
+    "IXML:USER",
+  };
+  if (idx >= sizeof(DB_CUSTOM_KEYS)/sizeof(DB_CUSTOM_KEYS[0])) return false;
+  if (!strcmp(mexkey, "DB_CUSTOM")) mexkey="REAPER";
+  snprintf(key, keylen, "%s:%s", DB_CUSTOM_KEYS[idx], mexkey);
+  return true;
 }
 
 const char *GetMexKeyFromMetadataKey(const char *key)
@@ -1119,23 +1120,22 @@ bool HandleMexMetadataRequest(const char *mexkey, char *buf, int buflen,
   if (!mexkey || !mexkey[0] || !buf || !buflen || !metadata) return false;
   buf[0]=0;
 
-  if (strchr(mexkey, ':'))
-  {
-    const char *val=metadata->Get(mexkey);
-    if (val && val[0])
-    {
-      lstrcpyn(buf, val, buflen);
-      return true;
-    }
-    return false;
-  }
-
   buf[0]=0;
   int i=0;
   char key[256];
   while (EnumMetadataKeyFromMexKey(mexkey, i++, key, sizeof(key)) && key[0])
   {
     const char *val=metadata->Get(key);
+    if (val && val[0])
+    {
+      lstrcpyn(buf, val, buflen);
+      return true;
+    }
+  }
+
+  if (strchr(mexkey, ':'))
+  {
+    const char *val=metadata->Get(mexkey);
     if (val && val[0])
     {
       lstrcpyn(buf, val, buflen);
