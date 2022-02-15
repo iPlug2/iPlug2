@@ -1639,9 +1639,9 @@ void AddMexID3Raw(WDL_StringKeyedArray<char*> *metadata,
   }
 }
 
-
 int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata,
-  bool want_embed_otherschemes, int *ixml_lenwritten, int ixml_padtolen)
+  bool want_embed_otherschemes, int *ixml_lenwritten, int ixml_padtolen,
+  WDL_PtrList<ID3RawTag> *rawtags)
 {
   if (!hb || !metadata) return false;
 
@@ -1762,6 +1762,18 @@ int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata,
   {
     PackXMPChunk(&xmp, metadata);
     if (xmp.GetSize()) id3len += 10+4+xmp.GetSize();
+  }
+
+  if (rawtags)
+  {
+    for (int i=0; i < rawtags->GetSize(); ++i)
+    {
+      ID3RawTag *rawtag=rawtags->Get(i);
+      if (WDL_NORMALLY(rawtag && rawtag->key && rawtag->key[0] && rawtag->val.GetSize()))
+      {
+        id3len += 8+rawtag->val.GetSize();
+      }
+    }
   }
 
   if (id3len)
@@ -1962,6 +1974,23 @@ int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata,
         p += 4;
         memcpy(p, xmp.Get(), xmp.GetSize());
         p += xmp.GetSize();
+      }
+
+      if (rawtags)
+      {
+        for (int i=0; i < rawtags->GetSize(); ++i)
+        {
+          ID3RawTag *rawtag=rawtags->Get(i);
+          if (WDL_NORMALLY(rawtag && rawtag->key && rawtag->key[0] && rawtag->val.GetSize()))
+          {
+            memcpy(p, rawtag->key, strlen(rawtag->key));
+            p += strlen(rawtag->key);
+            int vallen=rawtag->val.GetSize(); // includes flags
+            _AddSyncSafeInt32(vallen-2);
+            memcpy(p, rawtag->val.Get(), vallen);
+            p += vallen;
+          }
+        }
       }
 
       if (WDL_NOT_NORMALLY(p-buf != id3len)) hb->Resize(olen);
