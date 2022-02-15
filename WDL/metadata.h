@@ -945,11 +945,6 @@ bool EnumMetadataKeyFromMexKey(const char *mexkey, int idx, char *key, int keyle
   if (!strcmp(mexkey, "DATE")) mexkey="YEAR";
   // callers handle PREFPOS
 
-  // !!!
-  // if anything is added here that might get embedded in ID3,
-  // also update AddMexID3Raw()
-  // !!!
-
   // general priority order here:
   // BWF
   // INFO
@@ -1441,201 +1436,37 @@ int ReadID3Raw(WDL_FileRead *fr, WDL_PtrList<ID3RawTag> *rawtags)
   return 0;
 }
 
-int WriteID3Raw(WDL_FileWrite *fw, WDL_PtrList<ID3RawTag> *rawtags)
+void DeleteID3Raw(WDL_PtrList<ID3RawTag> *rawtags, const char *key)
 {
-  if (!fw || !fw->IsOpen() || !rawtags || !rawtags->GetSize()) return 0;
+  if (!rawtags || !rawtags->GetSize()) return;
+  if (strncmp(key, "ID3:", 4)) return;
+  if (WDL_NOT_NORMALLY(strlen(key) < 8)) return;
 
-  WDL_INT64 fpos=fw->GetPosition();
-  fw->Write("ID3\x04\0\0\0\0\0\0", 10);
+  key += 4;
+  const char *subkey=NULL;
+  int suboffs=0, sublen=0;
+  if (key[4])
+  {
+    if (!strncmp(key, "TXXX:", 5)) suboffs=3;
+    else if (!strncmp(key, "PRIV:", 5)) suboffs=2;
+    if (!suboffs || !key[5]) return;
+    subkey=key+5;
+    sublen=strlen(subkey);
+  }
 
-  int id3len=0;
   for (int i=0; i < rawtags->GetSize(); ++i)
   {
     ID3RawTag *rawtag=rawtags->Get(i);
-    int taglen=rawtag->val.GetSize(); // flags included in taglen
-    fw->Write(rawtag->key, 4);
-    WriteSyncSafeInt32(fw, taglen-2);
-    fw->Write(rawtag->val.Get(), taglen);
-
-    id3len += 8+taglen;
-  }
-
-  WDL_INT64 epos=fw->GetPosition();
-  fw->SetPosition(fpos+6);
-  WriteSyncSafeInt32(fw, id3len);
-  fw->SetPosition(epos);
-
-  return id3len;
-}
-
-
-void AddMexID3Raw(WDL_StringKeyedArray<char*> *metadata,
-  WDL_PtrList<ID3RawTag> *rawtags)
-{
-  if (!metadata || !rawtags) return;
-
-  // this is a super specialized function, basically the accumulated
-  // technical debt from all of the abstraction in how we handle metadata
-  // in general and in the media explorer, conflicting with the highly
-  // structured nature of ID3.
-
-  // in theory we could add a general translation layer between
-  // our metadata and ID3RawTag, but there are a lot of specific rules
-  // that are hard to generalize, for example the rule that there
-  // can be multiple TXXX tags but only one with a given variable-length
-  // identifier that starts 2 bytes into the value part of the tag.
-  // also the only application for this translation is rewriting metadata
-  // from the media explorer.
-
-  // TO_DO_IF_METADATA_UPDATE
-  // we just have to know all this, and also how to handle each one
-  static const char *MEXID3KEYS[]=
-  {
-    "ID3:TIT2",
-    "ID3:TPE1",
-    "ID3:TALB",
-    "ID3:TRCK",
-    "ID3:TYER",
-    "ID3:TDRC",
-    "ID3:TCON",
-    "ID3:COMM",
-    "ID3:TIT3",
-    "ID3:TBPM",
-    "ID3:TKEY",
-    "ID3:TXXX:REAPER",
-    "ID3:TXXX:TIME_REFERENCE",
-    "ID3:PRIV:iXML",
-    "ID3:PRIV:XMP",
-  };
-
-  WDL_HeapBuf hb;
-  for (int k=0; k < sizeof(MEXID3KEYS)/sizeof(MEXID3KEYS[0]); ++k)
-  {
-    const char *key=MEXID3KEYS[k];
-    if (!strcmp(key, "ID3:TXXX:TIME_REFERENCE") && !metadata->Exists(key))
+    if (!strncmp(key, rawtag->key, 4))
     {
-      continue; // only clear prefpos if the caller provides it
-    }
-
-    for (int i=0; i < rawtags->GetSize(); ++i)
-    {
-      ID3RawTag *rawtag=rawtags->Get(i);
-      if (!strncmp(rawtag->key, key+4, 4))
+      if (subkey &&
+        (rawtag->val.GetSize() < sublen+suboffs ||
+         memcmp((unsigned char*)rawtag->val.Get()+suboffs, subkey, sublen)))
       {
-        if (!strncmp(key+4, "TXXX", 4))
-        {
-          const char *subkey=key+9;
-          if (rawtag->val.GetSize() < 3+strlen(subkey)+1 ||
-            memcmp((unsigned char*)rawtag->val.Get()+3, subkey, strlen(subkey)))
-          {
-            continue;
-          }
-        }
-        else if (!strncmp(key+4, "PRIV", 4))
-        {
-          const char *subkey=key+9;
-          if (rawtag->val.GetSize() < 2+strlen(subkey)+1 ||
-            memcmp((unsigned char*)rawtag->val.Get()+2, subkey, strlen(subkey)))
-          {
-            continue;
-          }
-        }
-
-        // note that spec allows multiple COMM tags, but we won't
-        rawtags->Delete(i--, true);
+        continue; // key is like ID3:AAAA:BBBB but rawtag->val does not match *BBBB
       }
+      rawtags->Delete(i--, true);
     }
-
-    const char *val=NULL;
-    int vallen=0;
-    if (!strncmp(key+4, "PRIV", 4))
-    {
-      const char *subkey=key+9;
-      hb.Resize(0, false);
-      if (!stricmp(subkey, "IXML")) PackIXMLChunk(&hb, metadata, 0);
-      else if (!stricmp(subkey, "XMP")) PackXMPChunk(&hb, metadata);
-      val=(const char*)hb.Get();
-      vallen=hb.GetSize();
-    }
-    else
-    {
-      val=metadata->Get(key);
-      vallen = val ? strlen(val) : 0;
-    }
-    if (!val || !vallen) continue;
-
-    ID3RawTag *rawtag=new ID3RawTag;
-    memcpy(rawtag->key, key+4, 4);
-    rawtag->key[4]=0;
-
-    if (!strncmp(key+4, "TXXX", 4))
-    {
-      const char *subkey=key+9;
-      int subkeylen=strlen(subkey);
-      unsigned char *p=(unsigned char*)rawtag->val.Resize(3+subkeylen+1+vallen);
-      if (p)
-      {
-        memcpy(p, "\0\0\3", 3); // UTF-8
-        p += 3;
-        memcpy(p, subkey, subkeylen+1);
-        p += subkeylen+1;
-        memcpy(p, val, vallen);
-      }
-    }
-    else if (!strncmp(key+4, "PRIV", 4))
-    {
-      const char *subkey=key+9;
-      int subkeylen=strlen(subkey);
-      unsigned char *p=(unsigned char*)rawtag->val.Resize(2+subkeylen+1+vallen);
-      if (p)
-      {
-        memcpy(p, "\0\0", 2);
-        p += 2;
-        memcpy(p, subkey, subkeylen+1);
-        p += subkeylen+1;
-        memcpy(p, val, vallen);
-      }
-    }
-    else if (!strncmp(key+4, "COMM", 4))
-    {
-      // see comments in PackID3Chunk
-      unsigned char *p=(unsigned char*)rawtag->val.Resize(3+4+vallen);
-      if (p)
-      {
-        memcpy(p, "\0\0\3", 3); // UTF-8
-        p += 3;
-        const char *lang=metadata->Get("ID3:COMM_LANG");
-        if (lang && strlen(lang) >= 3 &&
-          tolower(lang[0]) >= 'a' && tolower(lang[0]) <= 'z' &&
-          tolower(lang[1]) >= 'a' && tolower(lang[1]) <= 'z' &&
-          tolower(lang[2]) >= 'a' && tolower(lang[2]) <= 'z')
-        {
-          *p++=tolower(*lang++);
-          *p++=tolower(*lang++);
-          *p++=tolower(*lang++);
-          *p++=0;
-        }
-        else
-        {
-          memcpy(p, "XXX\0", 4);
-          p += 4;
-        }
-        memcpy(p, val, vallen);
-      }
-    }
-    else if (key[4] == 'T')
-    {
-      unsigned char *p=(unsigned char*)rawtag->val.Resize(2+1+vallen);
-      if (p)
-      {
-        memcpy(p, "\0\0\3", 3); // UTF-8
-        p += 3;
-        memcpy(p, val, vallen);
-      }
-    }
-
-    if (rawtag->val.GetSize()) rawtags->Add(rawtag);
-    else delete rawtag;
   }
 }
 
