@@ -12,6 +12,20 @@
 #include "coreaudio_channel_formats.h"
 
 
+const char *EnumMexKeys(int i, const char **desc=NULL)
+{
+  // TO_DO_IF_METADATA_UPDATE
+  static const char *s_mexkeys[]=
+    {"TITLE", "ARTIST", "ALBUM", "YEAR", "GENRE", "COMMENT", "DESC", "BPM", "KEY", "DB_CUSTOM", "TRACKNUMBER"};
+  static const char *s_mexdesc[]=
+    {"Title", "Artist", "Album", "Track", "Date", "Genre", "Comment", "Description", "BPM", "Key", "Media Explorer Tags"};
+
+  bool ok = i >= 0 && i < sizeof(s_mexkeys)/sizeof(s_mexkeys[0]);
+  if (desc) *desc = ok ? s_mexdesc[i] : NULL;
+  return ok ? s_mexkeys[i] : NULL;
+}
+
+
 int MetadataToArray(WDL_StringKeyedArray<char*> *metadata, WDL_TypedBuf<const char*> *metadata_arr)
 {
   if (!metadata || !metadata_arr) return 0;
@@ -1099,16 +1113,15 @@ if (!strcmp(mexkey, #K)) \
 
 const char *GetMexKeyFromMetadataKey(const char *key)
 {
-  // TO_DO_IF_METADATA_UPDATE
-  static const char *mexkeys[]=
-    {"TITLE", "ARTIST", "ALBUM", "YEAR", "GENRE", "COMMENT", "DESC", "BPM", "KEY", "DB_CUSTOM", "TRACKNUMBER"};
-  for (int i=0; i < sizeof(mexkeys)/sizeof(mexkeys[0]); ++i)
+  int i=0;
+  const char *mexkey;
+  while ((mexkey=EnumMexKeys(i++)))
   {
     int j=0;
     char tkey[256];
-    while (EnumMetadataKeyFromMexKey(mexkeys[i], j++, tkey, sizeof(tkey)) && tkey[0])
+    while (EnumMetadataKeyFromMexKey(mexkey, j++, tkey, sizeof(tkey)) && tkey[0])
     {
-      if (!strcmp(key, tkey)) return mexkeys[i];
+      if (!strcmp(key, tkey)) return mexkey;
     }
   }
   return NULL;
@@ -1213,23 +1226,19 @@ void DumpMetadata(WDL_FastString *str, WDL_StringKeyedArray<char*> *metadata)
   char scheme[256];
   scheme[0]=0;
 
-  // TO_DO_IF_METADATA_UPDATE
-  // note these are for display, so not necessarily in the same order as elsewhere
-  static const char *mexkey[]=
-    {"TITLE", "ARTIST", "ALBUM", "TRACKNUMBER", "YEAR", "GENRE", "COMMENT", "DESC", "BPM", "KEY", "DB_CUSTOM"};
-  static const char *dispkey[]=
-    {"Title", "Artist", "Album", "Track", "Date", "Genre", "Comment", "Description", "BPM", "Key", "Media Explorer Tags"};
   char buf[2048];
-  for (int j=0; j < sizeof(mexkey)/sizeof(mexkey[0]); ++j)
+  int j=0;
+  const char *mexkey, *mexdesc;
+  while ((mexkey=EnumMexKeys(j++, &mexdesc)))
   {
-    if (HandleMexMetadataRequest(mexkey[j], buf, sizeof(buf), metadata))
+    if (HandleMexMetadataRequest(mexkey, buf, sizeof(buf), metadata))
     {
       if (!scheme[0])
       {
         lstrcpyn(scheme, "mex", sizeof(scheme));
         str->Append("Metadata:\r\n");
       }
-      str->AppendFormatted(4096, "    %s: %s\r\n", dispkey[j], buf);
+      str->AppendFormatted(4096, "    %s: %s\r\n", mexdesc, buf);
     }
   }
 
