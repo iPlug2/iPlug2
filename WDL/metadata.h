@@ -1418,6 +1418,7 @@ int ReadID3Raw(WDL_FileRead *fr, WDL_PtrList<ID3RawTag> *rawtags)
   if (!id3len) return 0;
 
   int rdlen=0;
+  WDL_HeapBuf hb;
   while (rdlen < id3len)
   {
     if (fr->Read(buf, 8) != 8) return 0;
@@ -1426,11 +1427,14 @@ int ReadID3Raw(WDL_FileRead *fr, WDL_PtrList<ID3RawTag> *rawtags)
 
     int taglen=_GetSyncSafeInt32(buf+4)+2; // include flags in taglen
 
+    unsigned char *p=(unsigned char*)hb.ResizeOK(taglen);
+    if (!p || fr->Read(p, taglen) != taglen) return 0;
+
     ID3RawTag *rawtag=rawtags->Add(new ID3RawTag);
     memcpy(rawtag->key, buf, 4);
     rawtag->key[4]=0;
-    unsigned char *p=(unsigned char*)rawtag->val.ResizeOK(taglen);
-    if (!p || fr->Read(p, taglen) != taglen) return 0;
+    rawtag->val=hb;
+
     rdlen += 8+taglen;
     if (rdlen == id3len) return 10+id3len;
   }
