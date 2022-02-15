@@ -75,27 +75,29 @@ template<class T> static void double_to_i32(const T *vv, int *i32)
   else *i32 = (int) floor(v + 0.5);
 }
 
+static WDL_STATICFUNC_UNUSED int double_to_int_24(const double vv)
+{
+  const double v = vv * 8388608.0;
+  if (v <= -8388608.0) return -0x800000;
+  if (v >= 8388607.0)  return  0x7fffff;
+  return (int) floor(v + 0.5);
+}
+
+static WDL_STATICFUNC_UNUSED int double_to_int_x(const double vv, int bits)
+{
+  const double sc = (double) (1<<(bits-1));
+  const double v = vv * sc;
+  if (v <= -sc) return -(1<<(bits-1));
+  if (v >= sc-1.0) return (1<<(bits-1))-1;
+  return (int) floor(v + 0.5);
+}
+
 template<class T> static void double_to_i24(const T *vv, unsigned char *i24)
 {
-  // little endian
-  const double v = *vv * 8388608.0;
-  if (v <= -8388608.0)
-  {
-    i24[0]=i24[1]=0x00;
-    i24[2]=0x80;
-  }
-  else if (v >= 8388607.0)
-  {
-    i24[0]=i24[1]=0xff;
-    i24[2]=0x7f;
-  }
-  else
-  {
-    int i=floor(v + 0.5);
-    i24[0]=(i)&0xff;
-    i24[1]=(i>>8)&0xff;
-    i24[2]=(i>>16)&0xff;
-  }
+  const int i = double_to_int_24(*vv);
+  i24[0]=i&0xff;
+  i24[1]=(i>>8)&0xff;
+  i24[2]=(i>>16)&0xff;
 }
 
 template<class T> static void pcmToDoubles(void *src, int items, int bps, int src_spacing, T *dest, int dest_spacing, int byteadvancefor24=0)
