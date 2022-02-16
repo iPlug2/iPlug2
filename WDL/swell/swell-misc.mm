@@ -167,7 +167,6 @@ HANDLE SWELL_CreateProcessIO(const char *exe, int nparams, const char **params, 
   @catch (id ex) {
   }
 
-  if (tsk) [tsk retain];
   [ex release];
   [ar release];
   if (!tsk) return NULL;
