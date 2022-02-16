@@ -117,7 +117,11 @@ void SWELL_MakeProcessFront(HANDLE h)
 void SWELL_ReleaseNSTask(void *p)
 {
   NSTask *a =(NSTask*)p;
-  [a release];
+  if (a)
+  {
+    if (![a isRunning]) [a waitUntilExit]; // workaround for the system keeping a reference held on macOS 12+ at least
+    [a release];
+  }
 }
 DWORD SWELL_WaitForNSTask(void *p, DWORD msTO)
 {
