@@ -1786,7 +1786,17 @@ void SWELL_FillDialogBackground(HDC hdc, const RECT *r, int level)
   if (WDL_NORMALLY(ctx))
   {
     bool ok = false;
-    if (SWELL_GDI_GetOSXVersion()>=0x10d0)
+    if (SWELL_osx_is_dark_mode(1))
+    {
+      CGColorRef col = CreateColor(GetSysColor(COLOR_3DFACE));
+      if (col)
+      {
+        CGContextSetFillColorWithColor(ctx, col);
+        CGColorRelease(col);
+        ok = true;
+      }
+    }
+    else if (SWELL_GDI_GetOSXVersion()>=0x10d0)
     {
       NSColor *c = [NSColor windowBackgroundColor];
       if ([c respondsToSelector:@selector(CGColor)])
