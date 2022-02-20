@@ -228,6 +228,7 @@ void IPlugVST2::SetLatency(int samples)
 {
   mAEffect.initialDelay = samples;
   IPlugProcessor::SetLatency(samples);
+  mHostCallback(&mAEffect, audioMasterIOChanged, 0, 0, 0, 0.0f);
 }
 
 bool IPlugVST2::SendVSTEvent(VstEvent& event)
@@ -765,16 +766,21 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
           _this->mHasVSTExtensions |= VSTEXT_COCKOS;
           return 0xbeef0000;
         }
-        else if (!strcmp((char*) ptr, "hasCockosViewAsConfig"))
+
+        if (!strcmp((char*) ptr, "hasCockosViewAsConfig"))
         {
           _this->mHasVSTExtensions |= VSTEXT_COCOA;
           return 0xbeef0000;
         }
-        else 
-#endif
+
         if (!strcmp((char*) ptr, "wantsChannelCountNotifications"))
         {
           return 1;
+        }
+
+        if (!strcmp((char*)ptr, "MPE"))
+        {
+          return _this->DoesMPE() ? 1 : 0;
         }
         
         return _this->VSTCanDo((char *) ptr);

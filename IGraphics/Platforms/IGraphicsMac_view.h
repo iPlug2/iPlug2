@@ -139,6 +139,7 @@ using namespace igraphics;
 - (void) render;
 - (void) killTimer;
 - (void) onTimer: (NSTimer*) pTimer;
+- (void) viewDidChangeEffectiveAppearance;
 //mouse
 - (void) getMouseXY: (NSEvent*) pEvent : (float&) x : (float&) y;
 - (IMouseInfo) getMouseLeft: (NSEvent*) pEvent;
@@ -176,16 +177,4 @@ using namespace igraphics;
 //
 - (void) setMouseCursor: (ECursor) cursorType;
 @end
-
-#ifdef IGRAPHICS_IMGUI
-#import <MetalKit/MetalKit.h>
-
-@interface IGRAPHICS_IMGUIVIEW : MTKView
-{
-  IGRAPHICS_VIEW* mView;
-}
-@property (nonatomic, strong) id <MTLCommandQueue> commandQueue;
-- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
-@end
-#endif
 

@@ -22,7 +22,7 @@
 
 using namespace iplug;
 
-@interface IPlugAUAudioUnit ()
+@interface IPLUG_AUAUDIOUNIT ()
 
 @property AUAudioUnitBusArray* mInputBusArray;
 @property AUAudioUnitBusArray* mOutputBusArray;
@@ -36,7 +36,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return pPreset;
 }
 
-@implementation IPlugAUAudioUnit
+@implementation IPLUG_AUAUDIOUNIT
 {
   IPlugAUv3* mPlug;
   WDL_PtrList<BufferedInputBus> mBufferedInputBuses;
@@ -46,22 +46,22 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   AUMIDIOutputEventBlock mMidiOutputEventBlock;
   AUParameterObserverToken mUIUpdateParamObserverToken;
   NSArray<AUAudioUnitPreset*>* mPresets;
-  AUAudioUnitPreset *mCurrentPreset;
+  AUAudioUnitPreset* mCurrentPreset;
   NSInteger mCurrentFactoryPresetIndex;
 }
 
 @synthesize parameterTree = mParameterTree;
 @synthesize factoryPresets = mPresets;
 
-- (NSUInteger)getChannelLayoutTags: (int) dir : (AudioChannelLayoutTag*) pTags
+- (NSUInteger) getChannelLayoutTags: (int) dir : (AudioChannelLayoutTag*) pTags
 {
   WDL_TypedBuf<uint64_t> foundTags;
   
-  for(auto configIdx = 0; configIdx < mPlug->NIOConfigs(); configIdx++)
+  for (auto configIdx = 0; configIdx < mPlug->NIOConfigs(); configIdx++)
   {
     const IOConfig* pConfig = mPlug->GetIOConfig(configIdx);
     
-    for(auto busIdx = 0; busIdx < pConfig->NBuses((ERoute) dir); busIdx++)
+    for (auto busIdx = 0; busIdx < pConfig->NBuses((ERoute) dir); busIdx++)
     {
       WDL_TypedBuf<uint64_t> busTypes;
       GetAPIBusTypeForChannelIOConfig(configIdx, (ERoute) dir, busIdx, pConfig, &busTypes);
@@ -69,13 +69,13 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
       
       for (auto tag = 0; tag < busTypes.GetSize(); tag++)
       {
-        if(foundTags.Find(busTypes.Get()[tag] == -1))
+        if (foundTags.Find(busTypes.Get()[tag]) == -1)
           foundTags.Add(busTypes.Get()[tag]);
       }
     }
   }
   
-  if(pTags)
+  if (pTags)
   {
     for (auto v = 0; v < foundTags.GetSize(); v++)
     {
@@ -90,25 +90,25 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     return foundTags.GetSize();
 }
 
-- (void)populateChannelCapabilitesArray: (NSMutableArray*) pArray
+- (void) populateChannelCapabilitesArray: (NSMutableArray*) pArray
 {
   for (int i = 0; i < mPlug->NIOConfigs(); i++)
   {
     const IOConfig* pIO = mPlug->GetIOConfig(i);
     
-    if(pIO->ContainsWildcard(ERoute::kInput))
+    if (pIO->ContainsWildcard(ERoute::kInput))
       [pArray addObject: [NSNumber numberWithInt:-1]];
     else
       [pArray addObject: [NSNumber numberWithInt:pIO->GetTotalNChannels(kInput)]];
 
-    if(pIO->ContainsWildcard(ERoute::kOutput))
+    if (pIO->ContainsWildcard(ERoute::kOutput))
       [pArray addObject: [NSNumber numberWithInt:-1]];
     else
       [pArray addObject: [NSNumber numberWithInt:pIO->GetTotalNChannels(kOutput)]];
   }
 }
 
-- (instancetype)initWithComponentDescription:(AudioComponentDescription)componentDescription
+- (instancetype) initWithComponentDescription:(AudioComponentDescription)componentDescription
                                      options:(AudioComponentInstantiationOptions)options
                                        error:(NSError **)ppOutError {
   
@@ -134,17 +134,16 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   int nInputBuses = mPlug->MaxNBuses(ERoute::kInput);
   int nOutputBuses = mPlug->MaxNBuses(ERoute::kOutput);
 
-  
-  if(nOutputBuses == 0) // MIDI FX
+  if (nOutputBuses == 0) // MIDI FX
   {
     NSMutableArray* pOutputBusses = [[NSMutableArray alloc] init];
     BufferedOutputBus* pBufferedOutputBus = new BufferedOutputBus();
     int busChans = 2;
     AVAudioFormat* pOutputBusFormat = nil;
     AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: kAudioChannelLayoutTag_Stereo];
-    pOutputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout ];
+    pOutputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout];
     
-    if(pOutputBusFormat)
+    if (pOutputBusFormat)
       pBufferedOutputBus->init(pOutputBusFormat, busChans);
     
     [pOutputBusses addObject:pBufferedOutputBus->bus];
@@ -153,19 +152,23 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     _mOutputBusArray  = [[AUAudioUnitBusArray alloc] initWithAudioUnit:self busType:AUAudioUnitBusTypeOutput busses: pOutputBusses];
   }
   
-  if(nInputBuses)
+  if (nInputBuses)
   {
     NSMutableArray* pInputBusses = [[NSMutableArray alloc] init];
     
-    for(int busIdx = 0; busIdx < nInputBuses; busIdx++)
+    NSInteger nTags = [self getChannelLayoutTags:kInput :nil];
+    AudioChannelLayoutTag* pTags = new AudioChannelLayoutTag[nTags];
+    [self getChannelLayoutTags:kInput :pTags];
+
+    for (int busIdx = 0; busIdx < nInputBuses; busIdx++)
     {
       BufferedInputBus* pBufferedInputBus = new BufferedInputBus();
       int busChans = mPlug->MaxNChannelsForBus(ERoute::kInput, busIdx);
       
       AVAudioFormat* pInputBusFormat = nil;
-      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: kAudioChannelLayoutTag_Stereo]; // TODO: get tag
-      pInputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout ];
-      if(pInputBusFormat)
+      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: pTags[nTags-1]]; // assume last tag has most channels
+      pInputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout];
+      if (pInputBusFormat)
         pBufferedInputBus->init(pInputBusFormat, busChans);
       
       [pInputBusses addObject:pBufferedInputBus->bus];
@@ -173,22 +176,28 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
       mBufferedInputBuses.Add(pBufferedInputBus);
     }
     
+    delete [] pTags;
+    
     _mInputBusArray  = [[AUAudioUnitBusArray alloc] initWithAudioUnit:self busType:AUAudioUnitBusTypeInput busses: pInputBusses];
   }
   
-  if(nOutputBuses)
+  if (nOutputBuses)
   {
     NSMutableArray* pOutputBusses = [[NSMutableArray alloc] init];
     
-    for(int busIdx = 0; busIdx < nOutputBuses; busIdx++)
+    NSInteger nTags = [self getChannelLayoutTags:kOutput :nil];
+    AudioChannelLayoutTag* pTags = new AudioChannelLayoutTag[nTags];
+    [self getChannelLayoutTags:kOutput :pTags];
+    
+    for (int busIdx = 0; busIdx < nOutputBuses; busIdx++)
     {
       BufferedOutputBus* pBufferedOutputBus = new BufferedOutputBus();
       int busChans = mPlug->MaxNChannelsForBus(ERoute::kOutput, busIdx);
       
       AVAudioFormat* pOutputBusFormat = nil;
-      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: kAudioChannelLayoutTag_Stereo]; // TODO: get tag
+      AVAudioChannelLayout* pChannelLayout = [[AVAudioChannelLayout alloc] initWithLayoutTag: pTags[nTags-1]];
       pOutputBusFormat = [[AVAudioFormat alloc] initStandardFormatWithSampleRate:DEFAULT_SAMPLE_RATE channelLayout:pChannelLayout ];
-      if(pOutputBusFormat)
+      if (pOutputBusFormat)
       {
         pBufferedOutputBus->init(pOutputBusFormat, busChans);
       }
@@ -198,6 +207,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
       mBufferedOutputBuses.Add(pBufferedOutputBus);
     }
     
+    delete [] pTags;
+    
     _mOutputBusArray  = [[AUAudioUnitBusArray alloc] initWithAudioUnit:self busType:AUAudioUnitBusTypeOutput busses: pOutputBusses];
   }
   
@@ -205,7 +216,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   
   NSMutableArray* midiOutputNames = [[NSMutableArray<NSString*> alloc] init];
   
-  if(mPlug->DoesMIDIOut())
+  if (mPlug->DoesMIDIOut())
     [midiOutputNames addObject:@"MIDI Output"];
   
   mMidiOutputNames = midiOutputNames;
@@ -302,13 +313,13 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     
     NSMutableArray* pValueStrings = nil;
     
-    if(pParam->NDisplayTexts())
+    if (pParam->NDisplayTexts())
     {
       options |= kAudioUnitParameterFlag_ValuesHaveStrings;
 
       pValueStrings = [[NSMutableArray alloc] init];
       
-      for(auto dt = 0; dt < pParam->NDisplayTexts(); dt++)
+      for (auto dt = 0; dt < pParam->NDisplayTexts(); dt++)
       {
         [pValueStrings addObject:[NSString stringWithCString:pParam->GetDisplayText(dt) encoding:NSUTF8StringEncoding]];
       }
@@ -321,9 +332,9 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     {
       options |= kAudioUnitParameterFlag_HasClump;
       
-      for(auto groupIdx = 0; groupIdx< mPlug->NParamGroups(); groupIdx++)
+      for (auto groupIdx = 0; groupIdx< mPlug->NParamGroups(); groupIdx++)
       {
-        if(strcmp(paramGroupName, mPlug->GetParamGroupName(groupIdx)) == 0)
+        if (strcmp(paramGroupName, mPlug->GetParamGroupName(groupIdx)) == 0)
         {
           clumpID = groupIdx+1;
         }
@@ -338,7 +349,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     
     AUParameterAddress address = AUParameterAddress(paramIdx);
 
-    AUParameter *pAUParam = [AUParameterTree createParameterWithIdentifier:    [NSString stringWithFormat:@"%d", paramIdx ]
+    AUParameter* pAUParam = [AUParameterTree createParameterWithIdentifier:    [NSString stringWithFormat:@"%d", paramIdx ]
                                                                          name: [NSString stringWithCString:pParam->GetName() encoding:NSUTF8StringEncoding]
                                                                       address: address
                                                                           min: pParam->GetMin()
@@ -382,13 +393,13 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   // Create factory preset array.
   NSMutableArray* pPresets = [[NSMutableArray alloc] init];
   
-  if(mPlug->NPresets() == 0 )
+  if (mPlug->NPresets() == 0 )
   {
     [pPresets addObject:NewAUPreset(0, @"Default")];
   }
   else
   {
-    for(auto i = 0; i < mPlug->NPresets(); i++)
+    for (auto i = 0; i < mPlug->NPresets(); i++)
     {
       [pPresets addObject:NewAUPreset(i, [NSString stringWithCString: mPlug->GetPresetName(i) encoding:NSUTF8StringEncoding])];
     }
@@ -436,15 +447,13 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 //                  options:NSKeyValueObservingOptionNew
 //                  context:mUIUpdateParamObserverToken];
   }
-  
-//  self.maximumFramesToRender = 512;
-  
+    
   self.currentPreset = mPresets.firstObject;
   
   return self;
 }
 
--(void)dealloc
+- (void) dealloc
 {
   mBufferedInputBuses.Empty(true);
   mBufferedOutputBuses.Empty(true);
@@ -463,79 +472,63 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
 #pragma mark - AUAudioUnit (Overrides)
 
-- (AUAudioUnitBusArray *)inputBusses
+- (AUAudioUnitBusArray*) inputBusses
 {
   return _mInputBusArray;
 }
 
-- (AUAudioUnitBusArray *)outputBusses
+- (AUAudioUnitBusArray*) outputBusses
 {
   return _mOutputBusArray;
 }
 
-- (NSArray<NSString*> *) MIDIOutputNames
+- (NSArray<NSString*>*) MIDIOutputNames
 {
   return mMidiOutputNames;
 }
 
-- (BOOL)allocateRenderResourcesAndReturnError:(NSError **)ppOutError
+- (BOOL) allocateRenderResourcesAndReturnError:(NSError **) ppOutError
 {
   if (![super allocateRenderResourcesAndReturnError:ppOutError])
   {
     return NO;
   }
   
-  uint32_t reqNumInputChannels = 0;
-  uint32_t reqNumOutputChannels = 0;
-  
-  if(mBufferedInputBuses.GetSize())
-    reqNumInputChannels = mBufferedInputBuses.Get(0)->bus.format.channelCount;
-  
-  if(mBufferedOutputBuses.GetSize())
-    reqNumOutputChannels = mBufferedOutputBuses.Get(0)->bus.format.channelCount;
-  
-//  // TODO: legal io doesn't consider sidechain inputs
-//  if (!mPlug->LegalIO(reqNumInputChannels, reqNumOutputChannels))
-//  {
-//    if (ppOutError)
-//      *ppOutError = [NSError errorWithDomain:NSOSStatusErrorDomain code:kAudioUnitErr_FailedInitialization userInfo:nil];
-//
-//    // Notify superclass that initialization was not successful
-//    self.renderResourcesAllocated = NO;
-//
-//    return NO;
-//  }
-  
+  const int nInputBuses = mBufferedInputBuses.GetSize();
+  const int nOutputBuses = mBufferedOutputBuses.GetSize();
+  const int maxBlockSize = self.maximumFramesToRender;
+
   if (@available(macOS 10.13, *))
   {
-    if(self.MIDIOutputEventBlock)
+    if (self.MIDIOutputEventBlock)
       mMidiOutputEventBlock = self.MIDIOutputEventBlock;
     else
       mMidiOutputEventBlock = nil;
-  } else
+  }
+  else
   {
     mMidiOutputEventBlock = nil;
   }
   
-    
-  for (auto bufIdx = 0; bufIdx < mBufferedInputBuses.GetSize(); bufIdx++)
+  for (auto bufIdx = 0; bufIdx < nInputBuses; bufIdx++)
   {
-    mBufferedInputBuses.Get(bufIdx)->allocateRenderResources(self.maximumFramesToRender);
+    mBufferedInputBuses.Get(bufIdx)->allocateRenderResources(maxBlockSize);
   }
   
-  for (auto bufIdx = 0; bufIdx < mBufferedOutputBuses.GetSize(); bufIdx++)
+  for (auto bufIdx = 0; bufIdx < nOutputBuses; bufIdx++)
   {
-    mBufferedOutputBuses.Get(bufIdx)->allocateRenderResources(self.maximumFramesToRender);
+    mBufferedOutputBuses.Get(bufIdx)->allocateRenderResources(maxBlockSize);
   }
 
   double sr = mBufferedOutputBuses.Get(0)->bus.format.sampleRate;
-  mPlug->Prepare(sr, self.maximumFramesToRender);
+  
+  mPlug->Prepare(sr, maxBlockSize);
   mPlug->OnReset();
   
   return YES;
 }
 
-- (void)deallocateRenderResources
+- (void) deallocateRenderResources
 {
   for (auto bufIdx = 0; bufIdx < mBufferedInputBuses.GetSize(); bufIdx++)
   {
@@ -554,9 +547,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
 #pragma mark - AUAudioUnit (AUAudioUnitImplementation)
 
-- (AUInternalRenderBlock)internalRenderBlock
+- (AUInternalRenderBlock) internalRenderBlock
 {
-
   __block IPlugAUv3* pPlug = mPlug;
   __block WDL_PtrList<BufferedInputBus>* inputBuses = &mBufferedInputBuses;
   __block WDL_PtrList<BufferedOutputBus>* outputBuses = &mBufferedOutputBuses;
@@ -574,7 +566,14 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     AudioUnitRenderActionFlags pullFlags = 0;
     AUAudioUnitStatus err = 0;
     
-    for (auto busIdx = 0; busIdx < inputBuses->GetSize(); busIdx++) {
+    if (frameCount > pPlug->GetBlockSize())
+    {
+      err = kAudioUnitErr_InvalidPropertyValue;
+      return err;
+    }
+    
+    for (auto busIdx = 0; busIdx < inputBuses->GetSize(); busIdx++)
+    {
       err = inputBuses->Get(busIdx)->pullInput(&pullFlags, timestamp, frameCount, busIdx, pullInputBlock);
     }
 
@@ -582,41 +581,51 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     
     AudioBufferList* pInAudioBufferList = nil;
     
-    if(inputBuses->GetSize())
+    if (inputBuses->GetSize())
+    {
       pInAudioBufferList = inputBuses->Get(0)->mutableAudioBufferList; // TODO: buses > 0
-    
-    outputBuses->Get(0)->prepareOutputBufferList(outputData, frameCount, true); // TODO: buses > 0
-    pPlug->SetBuffers(pInAudioBufferList, outputData);
-    
-    ITimeInfo timeInfo;
-
-    if(_musicalContextCapture)
-    {
-      Float64 tempo; Float64 ppqPos; double numerator; NSInteger denominator; double currentMeasureDownbeatPosition; NSInteger sampleOffsetToNextBeat;
-
-      _musicalContextCapture(&tempo, &numerator, &denominator, &ppqPos, &sampleOffsetToNextBeat, &currentMeasureDownbeatPosition);
-
-      timeInfo.mTempo = tempo;
-      timeInfo.mPPQPos = ppqPos;
-      timeInfo.mLastBar = currentMeasureDownbeatPosition; //TODO: is that correct?
-      timeInfo.mNumerator = (int) numerator; //TODO: update ITimeInfo precision?
-      timeInfo.mDenominator = (int) denominator; //TODO: update ITimeInfo precision?
+      
+      pPlug->AttachInputBuffers(pInAudioBufferList);
     }
+    
+    outputBuses->Get(outputBusNumber)->prepareOutputBufferList(outputData, frameCount, true);
+    
+    int lastOutputBusConnected = outputBuses->GetSize() - 1; // Buffers are allways connected it seems (AUM, Cubasis)
+    
+    pPlug->AttachOutputBuffers(outputData, static_cast<uint32_t>(outputBusNumber));
 
-    if(_transportStateCapture)
+    if (outputBusNumber == lastOutputBusConnected)
     {
-      double samplePos; double cycleStart; double cycleEnd; AUHostTransportStateFlags transportStateFlags;
+      ITimeInfo timeInfo;
 
-      _transportStateCapture(&transportStateFlags, &samplePos, &cycleStart, &cycleEnd);
+      if (_musicalContextCapture)
+      {
+        Float64 tempo; Float64 ppqPos; double numerator; NSInteger denominator; double currentMeasureDownbeatPosition; NSInteger sampleOffsetToNextBeat;
 
-      timeInfo.mSamplePos = samplePos;
-      timeInfo.mCycleStart = cycleStart;
-      timeInfo.mCycleEnd = cycleEnd;
-      timeInfo.mTransportIsRunning = transportStateFlags == AUHostTransportStateMoving || transportStateFlags == AUHostTransportStateRecording;
-      timeInfo.mTransportLoopEnabled = transportStateFlags == AUHostTransportStateCycling;
+        _musicalContextCapture(&tempo, &numerator, &denominator, &ppqPos, &sampleOffsetToNextBeat, &currentMeasureDownbeatPosition);
+
+        timeInfo.mTempo = tempo;
+        timeInfo.mPPQPos = ppqPos;
+        timeInfo.mLastBar = currentMeasureDownbeatPosition; //TODO: is that correct?
+        timeInfo.mNumerator = (int) numerator; //TODO: update ITimeInfo precision?
+        timeInfo.mDenominator = (int) denominator; //TODO: update ITimeInfo precision?
+      }
+
+      if (_transportStateCapture)
+      {
+        double samplePos; double cycleStart; double cycleEnd; AUHostTransportStateFlags transportStateFlags;
+
+        _transportStateCapture(&transportStateFlags, &samplePos, &cycleStart, &cycleEnd);
+
+        timeInfo.mSamplePos = samplePos;
+        timeInfo.mCycleStart = cycleStart;
+        timeInfo.mCycleEnd = cycleEnd;
+        timeInfo.mTransportIsRunning = transportStateFlags == AUHostTransportStateMoving || transportStateFlags == AUHostTransportStateRecording;
+        timeInfo.mTransportLoopEnabled = transportStateFlags == AUHostTransportStateCycling;
+      }
+
+      pPlug->ProcessWithEvents(timestamp, frameCount, realtimeEventListHead, timeInfo);
     }
-
-    pPlug->ProcessWithEvents(timestamp, frameCount, realtimeEventListHead, timeInfo);
     
     return noErr;
   };
@@ -624,7 +633,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
 #pragma mark- AUAudioUnit (Optional Properties)
 
-- (AUAudioUnitPreset *)currentPreset
+- (AUAudioUnitPreset*) currentPreset
 {
   if (mCurrentPreset.number >= 0)
     return [mPresets objectAtIndex:mPlug->GetCurrentPresetIdx()];
@@ -632,7 +641,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     return mCurrentPreset;
 }
 
-- (void)setCurrentPreset:(AUAudioUnitPreset *)currentPreset
+- (void) setCurrentPreset:(AUAudioUnitPreset*) currentPreset
 {
   if (nil == currentPreset)
   {
@@ -667,23 +676,22 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   });
 }
 
-- (BOOL)canProcessInPlace
+- (BOOL) canProcessInPlace
 {
   return NO;
 }
 
-- (NSArray<NSNumber*>*)channelCapabilities
+- (NSArray<NSNumber*>*) channelCapabilities
 {
   return mChannelCapabilitiesArray;
 }
 
-- (BOOL)shouldChangeToFormat:(AVAudioFormat*)format forBus:(AUAudioUnitBus*)bus
+- (BOOL) shouldChangeToFormat:(AVAudioFormat*)format forBus:(AUAudioUnitBus*)bus
 {
-  //TODO: test io configs?
   return [super shouldChangeToFormat:format forBus:bus];
 }
 
-- (NSArray<NSNumber*>*)parametersForOverviewWithCount:(NSInteger)count
+- (NSArray<NSNumber*>*) parametersForOverviewWithCount:(NSInteger)count
 {
   WDL_TypedBuf<int> results;
   NSMutableArray<NSNumber*>* overviewParams = [[NSMutableArray<NSNumber*> alloc] init];
@@ -698,17 +706,17 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return overviewParams;
 }
 
-- (void)setRenderingOffline:(BOOL)renderingOffline
+- (void) setRenderingOffline:(BOOL)renderingOffline
 {
   mPlug->SetOffline(renderingOffline);
 }
 
-- (NSTimeInterval)latency
+- (NSTimeInterval) latency
 {
-  return mPlug->GetLatency();
+  return (NSTimeInterval) mPlug->GetLatency() / mPlug->GetSampleRate();
 }
 
-- (NSTimeInterval)tailTime
+- (NSTimeInterval) tailTime
 {
   return (double) mPlug->GetTailSize() / mPlug->GetSampleRate();
 }
@@ -742,7 +750,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return pDict;
 }
 
-- (void)setFullState:(NSDictionary<NSString*, id>*)newFullState
+- (void) setFullState:(NSDictionary<NSString*, id>*)newFullState
 {
   NSMutableDictionary<NSString*, id>* modifiedState = [[NSMutableDictionary<NSString*, id> alloc] init];
   [modifiedState addEntriesFromDictionary:newFullState];
@@ -758,14 +766,14 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 //  [super setFullState: newFullState]; // this hangs auval
 }
 
-- (NSIndexSet *)supportedViewConfigurations:(NSArray<AUAudioUnitViewConfiguration *> *)availableViewConfigurations  API_AVAILABLE(macos(10.13), ios(11))
+- (NSIndexSet*) supportedViewConfigurations:(NSArray<AUAudioUnitViewConfiguration*>*) availableViewConfigurations API_AVAILABLE(macos(10.13), ios(11))
 {
   TRACE
 
   NSMutableIndexSet* pSet = [[NSMutableIndexSet alloc] init];
   
   for (AUAudioUnitViewConfiguration* viewConfig in availableViewConfigurations) {
-    if(mPlug->OnHostRequestingSupportedViewConfiguration((int) [viewConfig width], (int) [viewConfig height])) {
+    if (mPlug->OnHostRequestingSupportedViewConfiguration((int) [viewConfig width], (int) [viewConfig height])) {
       [pSet addIndex:[availableViewConfigurations indexOfObject:viewConfig]];
     }
   }
@@ -773,7 +781,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return pSet;
 }
 
-- (void)selectViewConfiguration:(AUAudioUnitViewConfiguration *)viewConfiguration  API_AVAILABLE(macos(10.13), ios(11))
+- (void) selectViewConfiguration:(AUAudioUnitViewConfiguration*) viewConfiguration API_AVAILABLE(macos(10.13), ios(11))
 {
   TRACE
   mPlug->OnHostSelectedViewConfiguration((int) [viewConfiguration width], (int) [viewConfiguration height]);
@@ -814,37 +822,51 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return pView;
 }
 
-- (void)closeWindow
+- (void) closeWindow
 {
   mPlug->CloseWindow();
 }
 
-- (NSInteger)width
+- (NSInteger) width
 {
   return mPlug->GetEditorWidth();
 }
 
-- (NSInteger)height
+- (NSInteger) height
 {
   return mPlug->GetEditorHeight();
 }
 
+- (void) hostResized:(CGSize) newSize
+{
+  if (mPlug->GetHostResizeEnabled())
+    mPlug->OnParentWindowResize(newSize.width, newSize.height);
+}
+
 - (bool) sendMidiData:(int64_t) sampleTime : (NSInteger) length : (const uint8_t*) midiBytes
 {
-  if(mMidiOutputEventBlock)
+  if (mMidiOutputEventBlock)
   {
     OSStatus status = mMidiOutputEventBlock(sampleTime, 0, length, midiBytes);
     
-    if(status == noErr)
+    if (status == noErr)
       return true;
   }
 
   return false;
 }
 
-- (BOOL)supportsMPE
+- (BOOL) supportsMPE
 {
   return mPlug->DoesMPE() ? YES : NO;
+}
+
+- (NSData*) getDataFromExternal
+{
+  int dataSize = 0;
+  void* pData = mPlug->GetDataFromExternal(dataSize);
+  
+  return [NSData dataWithBytes:pData length:dataSize];
 }
 
 @end

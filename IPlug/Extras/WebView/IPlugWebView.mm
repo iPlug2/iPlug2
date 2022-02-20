@@ -176,7 +176,7 @@ void IWebView::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc f
 {
   WKWebView* webView = (__bridge WKWebView*) mWKWebView;
   
-  if (![webView isLoading])
+  if (webView && ![webView isLoading])
   {
     [webView evaluateJavaScript:[NSString stringWithUTF8String:scriptStr] completionHandler:^(NSString *result, NSError *error) {
       if(error != nil)

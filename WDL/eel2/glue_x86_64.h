@@ -1,6 +1,9 @@
 #ifndef _NSEEL_GLUE_X86_64_H_
 #define _NSEEL_GLUE_X86_64_H_
 
+
+// non-SSE version
+//
 #define GLUE_MAX_FPSTACK_SIZE 8
 #define GLUE_JMP_SET_OFFSET(endOfInstruction,offset) (((int *)(endOfInstruction))[-1] = (int) (offset))
 
@@ -301,7 +304,6 @@ static const unsigned char GLUE_SET_P1_Z[] = { 0x48, 0x29, 0xC0 }; // sub rax, r
 static const unsigned char GLUE_SET_P1_NZ[] = { 0xb0, 0x01 }; // mov al, 1
 
 
-#define GLUE_HAS_FXCH
 static const unsigned char GLUE_FXCH[] = {0xd9, 0xc9};
 
 #define GLUE_HAS_FLDZ

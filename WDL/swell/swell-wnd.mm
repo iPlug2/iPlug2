@@ -71,7 +71,7 @@ static void InvalidateSuperViews(NSView *view);
 
 
 int g_swell_osx_readonlytext_wndbg = 0;
-int g_swell_want_nice_style = 1;
+int g_swell_osx_style = 0; // &1 = rounded buttons, &2=big sur styled lists
 static void *SWELL_CStringToCFString_FilterPrefix(const char *str)
 {
   int c=0;
@@ -226,9 +226,28 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("msctls_progress32")
 @implementation SWELL_ListViewCell
 -(NSColor *)highlightColorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView 
 {
-  if ([controlView isKindOfClass:[SWELL_ListView class]] && ((SWELL_ListView *)controlView)->m_selColors) return nil;
-  if ([controlView isKindOfClass:[SWELL_TreeView class]] && ((SWELL_TreeView *)controlView)->m_selColors) return nil;
+  if ([controlView isKindOfClass:[SWELL_ListView class]])
+  {
+    if (((SWELL_ListView *)controlView)->m_selColors) return nil;
+  }
+  else if ([controlView isKindOfClass:[SWELL_TreeView class]])
+  {
+    if (((SWELL_TreeView *)controlView)->m_selColors) return nil;
+  }
+
   return [super highlightColorWithFrame:cellFrame inView:controlView];
+}
+- (NSRect)drawingRectForBounds:(NSRect)rect
+{
+  const NSSize sz = [self cellSizeForBounds:rect];
+  rect = [super drawingRectForBounds:rect];
+  const int offs = (int) floor((rect.size.height - sz.height) * .5);
+  if (offs>0)
+  {
+    rect.origin.y += offs;
+    rect.size.height -= offs*2;
+  }
+  return rect;
 }
 @end
 
@@ -249,20 +268,28 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("msctls_progress32")
 {
   if (status)
   {
-//    [controlView lockFocus];
-    int w=wdl_min(cellFrame.size.width, cellFrame.size.height);
-    [status drawInRect:NSMakeRect(cellFrame.origin.x,cellFrame.origin.y,w,cellFrame.size.height) fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
- //   [controlView unlockFocus];
+    const double fr_h = cellFrame.size.height;
+    const NSSize image_sz = [status size];
+    const double use_h = wdl_min(image_sz.height, fr_h);
+    const double yo = (fr_h-use_h)*.5;
+    double use_w,xo;
+    if (use_h > cellFrame.size.width)
+    {
+      use_w = cellFrame.size.width;
+      xo = 0.0;
+    }
+    else
+    {
+      use_w = use_h;
+      xo = yo;
+    }
+
+    [status drawInRect:NSMakeRect(cellFrame.origin.x + xo,cellFrame.origin.y + yo,use_w,use_h)
+      fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
   }
   cellFrame.origin.x += cellFrame.size.height + 2.0;
   cellFrame.size.width -= cellFrame.size.height + 2.0;
   [super drawWithFrame:cellFrame inView:controlView];
-}
-
--(NSColor *)highlightColorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView 
-{
-  if ([controlView isKindOfClass:[SWELL_ListView class]] && ((SWELL_ListView *)controlView)->m_selColors) return nil;
-  return [super highlightColorWithFrame:cellFrame inView:controlView];
 }
 
 @end
@@ -1089,7 +1116,14 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
         if (wParam)
         {
           if (SWELL_GetOSXVersion() >= 0x1070 && [self respondsToSelector:@selector(endUpdates)])
+          {
             [self endUpdates];
+            // workaround for a weird 10.14.6 bug
+            // if the caller calls this, then invalidaterect()s the parent window right away,
+            // appkit will (sometimes) throw an exception unlocking focus on the NSScrollView.
+            // invalidating our window directly seems to prevent this.
+            [self setNeedsDisplay:YES];
+          }
         }
         else
         {
@@ -1140,7 +1174,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
   NSView *ctl=[self controlView];
   if (!ctl) { [super drawWithFrame:cellFrame inView:controlView]; return; }
   
-  HDC hdc=GetDC((HWND)controlView);
+  HDC hdc=SWELL_CreateGfxContext([NSGraphicsContext currentContext]);
   if (hdc)
   {
     HWND notWnd = GetParent((HWND)ctl);
@@ -1148,7 +1182,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
     NSRECT_TO_RECT(&dis.rcItem,cellFrame);
     SendMessage(notWnd,WM_DRAWITEM,dis.CtlID,(LPARAM)&dis);
   
-    ReleaseDC((HWND)controlView,hdc);
+    SWELL_DeleteGfxContext(hdc);
   }
   
 }
@@ -1169,7 +1203,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
   SWELL_ListView_Row *row=m_ownctl->m_items->Get(itemidx);
   if (row) itemData=row->m_param;
 
-  HDC hdc=GetDC((HWND)controlView);
+  HDC hdc=SWELL_CreateGfxContext([NSGraphicsContext currentContext]);
   if (hdc)
   {
     HWND notWnd = GetParent((HWND)m_ownctl);
@@ -1177,7 +1211,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
     NSRECT_TO_RECT(&dis.rcItem,cellFrame);
     SendMessage(notWnd,WM_DRAWITEM,dis.CtlID,(LPARAM)&dis);
   
-    ReleaseDC((HWND)controlView,hdc);
+    SWELL_DeleteGfxContext(hdc);
   }
 }
 
@@ -3227,16 +3261,22 @@ HWND SWELL_MakeButton(int def, const char *label, int idx, int x, int y, int w, 
   }
   
   [button setTag:idx];
-  if (g_swell_want_nice_style==1)
-    [button setBezelStyle:NSShadowlessSquareBezelStyle ];
-  else
-    [button setBezelStyle:NSRoundedBezelStyle ];
+
   NSRect tr=MakeCoords(x,y,w,h,true);
-  
-  
-  if (g_swell_want_nice_style!=1 && tr.size.height >= 18 && tr.size.height<24)
+  if (g_swell_osx_style&1)
   {
-    tr.size.height=24;
+    [button setBezelStyle:NSRoundedBezelStyle];
+    if (tr.size.height >= 18 && tr.size.height<24)
+    {
+      tr.origin.y -= floor((24-tr.size.height)*0.5);
+      tr.size.height=24;
+    }
+    tr.size.width += 14;
+    tr.origin.x -= 7;
+  }
+  else
+  {
+    [button setBezelStyle:NSShadowlessSquareBezelStyle];
   }
   
   [button setFrame:tr];
@@ -3699,6 +3739,19 @@ void SWELL_UnregisterCustomControlCreator(SWELL_ControlCreatorProc proc)
   }
 }
 
+static void set_listview_bigsur_style(NSTableView *obj)
+{
+  if (SWELL_GetOSXVersion() < 0x1100) return;
+#ifdef MAC_OS_VERSION_11_0
+  // newer SDKs default to NSTableViewStyleAutomatic
+  int style = (g_swell_osx_style & 2) ? -1 : 4 /* NSTableViewStylePlain */;
+#else
+  // old SDKs default to something similar to NSTableViewStylePlain
+  int style = (g_swell_osx_style & 2) ? 0 /* NSTableViewStyleAutomatic */ : -1;
+#endif
+  if (style >= 0) [obj setValue:[NSNumber numberWithInt:style] forKey:@"style"];
+}
+
 
 HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int style, int x, int y, int w, int h, int exstyle)
 {
@@ -3741,6 +3794,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
   else if (!stricmp(classname, "SysListView32")||!stricmp(classname, "SysListView32_LB"))
   {
     SWELL_ListView *obj = [[SWELL_ListView alloc] init];
+    set_listview_bigsur_style(obj);
     [obj setColumnAutoresizingStyle:NSTableViewNoColumnAutoresizing];
     [obj setFocusRingType:NSFocusRingTypeNone];
     [obj setDataSource:(id)obj];
@@ -3814,6 +3868,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
   else if (!stricmp(classname, "SysTreeView32"))
   {
     SWELL_TreeView *obj = [[SWELL_TreeView alloc] init];
+    set_listview_bigsur_style(obj);
     [obj setFocusRingType:NSFocusRingTypeNone];
     [obj setDataSource:(id)obj];
     obj->style=style;
@@ -4047,7 +4102,8 @@ HWND SWELL_MakeCombo(int idx, int x, int y, int w, int h, int flags)
     SWELL_PopUpButton *obj=[[SWELL_PopUpButton alloc] init];
     [obj setTag:idx];
     [obj setFont:[NSFont systemFontOfSize:10.0f]];
-    NSRect rc=MakeCoords(x,y,w,18,true,true);
+    NSRect rc=MakeCoords(x,y,w,(g_swell_osx_style&1) ? 24 : 18,true,true);
+    if (g_swell_osx_style&1) rc.origin.y -= 2;
         
     [obj setSwellStyle:flags];
     [obj setFrame:rc];
@@ -4055,7 +4111,7 @@ HWND SWELL_MakeCombo(int idx, int x, int y, int w, int h, int flags)
     [obj setTarget:ACTIONTARGET];
     [obj setAction:@selector(onSwellCommand:)];
 
-    if (g_swell_want_nice_style==1)
+    if (!(g_swell_osx_style&1))
     {
       [obj setBezelStyle:NSShadowlessSquareBezelStyle ];
       [[obj cell] setArrowPosition:NSPopUpArrowAtBottom];
@@ -4349,12 +4405,13 @@ void ListView_SetColumn(HWND h, int pos, const LVCOLUMN *lvc)
   
   NSTableColumn *col=v->m_cols->Get(pos);
   if (!col) return;
-  
+
   if (lvc->mask&LVCF_FMT)
   {
-    if (lvc->fmt == LVCFMT_LEFT) [[col headerCell] setAlignment:NSLeftTextAlignment];
-    else if (lvc->fmt == LVCFMT_CENTER) [[col headerCell] setAlignment:NSCenterTextAlignment];
-    else if (lvc->fmt == LVCFMT_RIGHT) [[col headerCell] setAlignment:NSRightTextAlignment];
+    NSTextAlignment align = lvc->fmt == LVCFMT_CENTER ? NSCenterTextAlignment :
+      lvc->fmt == LVCFMT_RIGHT ? NSRightTextAlignment : NSLeftTextAlignment;
+    [[col headerCell] setAlignment:align];
+    [[col dataCell] setAlignment:align];
   }
   if (lvc->mask&LVCF_WIDTH)
   {
@@ -4579,6 +4636,24 @@ bool ListView_GetItem(HWND h, LVITEM *item)
   else
   {
     if (item->iItem <0 || item->iItem >= tv->ownermode_cnt) return false;
+
+    int mask = item->mask & (LVIF_PARAM|LVIF_TEXT);
+    if (mask & LVIF_TEXT)
+    {
+      if (!item->pszText || item->cchTextMax < 1) mask &= ~LVIF_TEXT;
+      else *item->pszText = 0;
+    }
+    if (mask)
+    {
+      NMLVDISPINFO nm={{(HWND)tv, (UINT_PTR)[tv tag], LVN_GETDISPINFO}};
+      nm.item.mask = mask;
+      nm.item.iItem = item->iItem;
+      nm.item.iSubItem = item->iSubItem;
+      nm.item.pszText = item->pszText;
+      nm.item.cchTextMax = item->cchTextMax;
+      SendMessage(GetParent(h),WM_NOTIFY,nm.hdr.idFrom,(LPARAM)&nm);
+      if (mask & LVIF_PARAM) item->lParam = nm.item.lParam;
+    }
   }
   if (item->mask & LVIF_STATE)
   {
@@ -4877,13 +4952,19 @@ BOOL ListView_SetColumnOrderArray(HWND h, int cnt, int* arr)
   if (WDL_NOT_NORMALLY(!h || ![(id)h isKindOfClass:[SWELL_ListView class]])) return FALSE;
   SWELL_ListView* lv=(SWELL_ListView*)h;
   if (!lv->m_cols || lv->m_cols->GetSize() != cnt) return FALSE;
-  
-  int i;
+
+  int i, j;
   for (i=0; i < cnt; ++i)
   {
-    int pos=[lv getColumnPos:i];
-    int dest=arr[i];
-    if (dest>=0 && dest<cnt) [lv moveColumn:pos toColumn:dest];
+    for (j=0; j < cnt; ++j)
+    {
+      if (arr[j] == i) break;
+    }
+    if (j < cnt)
+    {
+      int pos=[lv getColumnPos:j];
+      [lv moveColumn:pos toColumn:i];
+    }
   }
 
   return TRUE;
@@ -4979,13 +5060,14 @@ int ListView_HitTest(HWND h, LVHITTESTINFO *pinf)
     pinf->iItem=(int)[(NSTableView *)h rowAtPoint:pt];
     if (pinf->iItem >= 0)
     {
-      if (tv->m_status_imagelist && pt.x <= [tv rowHeight])
+      pinf->flags=LVHT_ONITEMLABEL;
+      if (tv->m_status_imagelist)
       {
-        pinf->flags=LVHT_ONITEMSTATEICON;
-      }
-      else 
-      {
-        pinf->flags=LVHT_ONITEMLABEL;
+        NSRect c0r = [tv frameOfCellAtColumn:[tv getColumnPos:0] row:pinf->iItem];
+        if (pt.x >= c0r.origin.x && pt.x <= c0r.origin.x + [tv rowHeight])
+        {
+          pinf->flags=LVHT_ONITEMSTATEICON;
+        }
       }
     }
     else 
@@ -5002,6 +5084,7 @@ int ListView_SubItemHitTest(HWND h, LVHITTESTINFO *pinf)
   int row = ListView_HitTest(h, pinf);
 
   NSPoint pt=NSMakePoint(pinf->pt.x,pinf->pt.y);
+
   if (row < 0 && pt.y < 0)
   { // Fake the point in the client area of the listview to get the column # (like win32)
     pt.y = 0;
@@ -5900,21 +5983,22 @@ HANDLE RemoveProp(HWND hwnd, const char *name)
 
 int GetSystemMetrics(int p)
 {
-switch (p)
-{
-case SM_CXSCREEN:
-case SM_CYSCREEN:
-{
-  NSScreen *s=[NSScreen mainScreen];
-  if (!s) return 1024;
-  return p==SM_CXSCREEN ? [s frame].size.width : [s frame].size.height;
-}
-case SM_CXHSCROLL: return 16;
-case SM_CYHSCROLL: return 16;
-case SM_CXVSCROLL: return 16;
-case SM_CYVSCROLL: return 16;
-}
-return 0;
+  switch (p)
+  {
+    case SM_CXSCREEN:
+    case SM_CYSCREEN:
+    {
+      NSScreen *s=[NSScreen mainScreen];
+      if (!s) return 1024;
+      return p==SM_CXSCREEN ? [s frame].size.width : [s frame].size.height;
+    }
+    case SM_CXHSCROLL: return 16;
+    case SM_CYHSCROLL: return 16;
+    case SM_CXVSCROLL: return 16;
+    case SM_CYVSCROLL: return 16;
+    case SM_CYMENU: return (int)([[NSApp mainMenu] menuBarHeight] + 0.5);
+  }
+  return 0;
 }
 
 BOOL ScrollWindow(HWND hwnd, int xamt, int yamt, const RECT *lpRect, const RECT *lpClipRect)
@@ -6133,9 +6217,14 @@ void TreeView_DeleteItem(HWND hwnd, HTREEITEM item)
   
   if ([tv findItem:item parOut:&par idxOut:&idx])
   {
+    id retain_obj = [item->m_dh retain]; // workaround for macOS 10.10.5 bug using a cached pointer to this item in -beginUpdates
+
     if (par)
     {
+      HTREEITEM sel = TreeView_GetSelection(hwnd);
+      bool is_sel = sel && (sel == item || item->FindItem(sel,NULL,NULL));
       par->m_children.Delete(idx,true);
+      if (is_sel) TreeView_SelectItem(hwnd, par);
     }
     else if (tv->m_items)
     {
@@ -6154,6 +6243,7 @@ void TreeView_DeleteItem(HWND hwnd, HTREEITEM item)
     {
       [tv reloadData];
     }
+    [retain_obj release];
   }
 }
 

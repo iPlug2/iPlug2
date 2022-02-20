@@ -82,7 +82,7 @@ void swell_on_toplevel_raise(SWELL_OSWINDOW wnd) // called by swell-generic-gdk 
   }
 }
 
-HWND__::HWND__(HWND par, int wID, RECT *wndr, const char *label, bool visible, WNDPROC wndproc, DLGPROC dlgproc, HWND ownerWindow)
+HWND__::HWND__(HWND par, int wID, const RECT *wndr, const char *label, bool visible, WNDPROC wndproc, DLGPROC dlgproc, HWND ownerWindow)
 {
   m_refcnt=1;
   m_private_data=0;
@@ -782,14 +782,35 @@ typedef struct TimerInfoRec
   UINT_PTR timerid;
   HWND hwnd;
   UINT interval;
+
   DWORD lastFire;
+  int refcnt; // 0 normally, 1 if currently processing this timer
+
   TIMERPROC tProc;
   struct TimerInfoRec *_next;
 } TimerInfoRec;
 
 static TimerInfoRec *m_timer_list;
 static WDL_Mutex m_timermutex;
-static pthread_t m_pmq_mainthread;
+
+static TimerInfoRec *spare_timers;
+static void free_timer(TimerInfoRec *rec)
+{
+  int c = 3; // max spares
+  TimerInfoRec *p = spare_timers;
+  while (p)
+  {
+    if (--c <= 0)
+    {
+      free(rec);
+      return;
+    }
+    p = p->_next;
+  }
+  rec->_next=spare_timers;
+  spare_timers=rec;
+}
+
 
 void SWELL_RunMessageLoop()
 {
@@ -801,9 +822,13 @@ void SWELL_RunMessageLoop()
   TimerInfoRec *rec = m_timer_list;
   while (rec)
   {
-    if ((now-rec->lastFire) >= rec->interval)
+    // rec->lastFire might be after now, if the timer was set from another timer
+    // we should run this timer if rec->lastFire is in the interval
+    // [now-rec->interval-some big range,now-rec->interval]
+    if (WDL_TICKS_IN_RANGE_ENDING_AT(rec->lastFire, now - rec->interval, 100000))
     {
-      rec->lastFire = now;
+      rec->lastFire = GetTickCount();
+      ++rec->refcnt;
 
       HWND h = rec->hwnd;
       TIMERPROC tProc = rec->tProc;
@@ -814,18 +839,17 @@ void SWELL_RunMessageLoop()
       else if (h) SendMessage(h,WM_TIMER,tid,0);
 
       m_timermutex.Enter();
-      TimerInfoRec *tr = m_timer_list;
-      while (tr && tr != rec) tr=tr->_next;
-      if (!tr) 
+
+      if (--rec->refcnt < 0)
       {
-        rec = m_timer_list;  // if no longer in the list, then abort
+        free_timer(rec);
+        rec = m_timer_list;
         continue;
       }
     }
     rec=rec->_next;
   } 
 }
-
 
 UINT_PTR SetTimer(HWND hwnd, UINT_PTR timerid, UINT rate, TIMERPROC tProc)
 {
@@ -851,17 +875,20 @@ UINT_PTR SetTimer(HWND hwnd, UINT_PTR timerid, UINT rate, TIMERPROC tProc)
   bool recAdd=false;
   if (!rec) 
   {
-    rec=(TimerInfoRec*)malloc(sizeof(TimerInfoRec));
+    rec = spare_timers;
+    if (!rec) rec = (TimerInfoRec *)malloc(sizeof(TimerInfoRec));
+    else spare_timers = rec->_next;
+    rec->refcnt = 0;
     recAdd=true;
   }
    
+  if (!hwnd) timerid = (UINT_PTR)rec;
+
   rec->tProc = tProc;
-  rec->timerid=timerid;
-  rec->hwnd=hwnd;
+  rec->timerid = timerid;
+  rec->hwnd = hwnd;
   rec->interval = rate<1?1: rate;
   rec->lastFire = GetTickCount();
-  
-  if (!hwnd) timerid = rec->timerid = (UINT_PTR)rec;
 
   if (recAdd)
   {
@@ -893,7 +920,8 @@ BOOL KillTimer(HWND hwnd, UINT_PTR timerid)
         if (lrec) lrec->_next = nrec;
         else m_timer_list = nrec;
         
-        free(rec);
+        if (--rec->refcnt < 0)
+          free_timer(rec);
 
         rv=TRUE;
         if (timerid!=(UINT_PTR)-1) break;
@@ -3497,7 +3525,8 @@ popupMenu:
           hwnd->Retain();
           RECT r;
           GetWindowRect(hwnd,&r);
-          int a = TrackPopupMenu(menu,TPM_NONOTIFY|TPM_RETURNCMD|TPM_LEFTALIGN,r.left,r.bottom,0,hwnd,0);
+          RECT req_r = { 1<<30, 1<<30, 0, s->selidx };
+          int a = TrackPopupMenu(menu,TPM_NONOTIFY|TPM_RETURNCMD|TPM_LEFTALIGN,r.left,r.bottom,0,hwnd,&req_r);
           DestroyMenu(menu);
           if (hwnd->m_private_data && a>=100 && a < s->items.GetSize()+100)
           {
@@ -3942,6 +3971,14 @@ struct listViewState
   bool m_is_multisel, m_is_listbox;
   WDL_PtrList<HGDIOBJ__> *m_status_imagelist;
   int m_status_imagelist_type;
+
+  static int compareRows(const SWELL_ListView_Row **_a, const SWELL_ListView_Row **_b)
+  {
+    const char *a, *b;
+    if (!_a || !(a=(*_a)->m_vals.Get(0))) a="";
+    if (!_b || !(b=(*_b)->m_vals.Get(0))) b="";
+    return strcmp(a,b);
+  }
 };
 
 // returns non-NULL if a searching string occurred
@@ -4941,25 +4978,24 @@ forceMouseMove:
       delete lvs;
     break;
     case LB_ADDSTRING:
-      if (lvs && !lvs->IsOwnerData())
-      {
-         // todo: optional sort
-        int rv=lvs->m_data.GetSize();
-        SWELL_ListView_Row *row=new SWELL_ListView_Row;
-        row->m_vals.Add(strdup((const char *)lParam));
-        lvs->m_data.Add(row); 
-        InvalidateRect(hwnd,NULL,FALSE);
-        return rv;
-      }
-    return LB_ERR;
-     
     case LB_INSERTSTRING:
       if (lvs && !lvs->IsOwnerData())
       {
-        int idx =  (int) wParam;
-        if (idx<0 || idx>lvs->m_data.GetSize()) idx=lvs->m_data.GetSize();
         SWELL_ListView_Row *row=new SWELL_ListView_Row;
         row->m_vals.Add(strdup((const char *)lParam));
+        int idx;
+        if (msg == LB_ADDSTRING && hwnd->m_style & LBS_SORT)
+        {
+          bool isMatch;
+          idx=lvs->m_data.LowerBound(row,&isMatch,listViewState::compareRows);
+        }
+        else if (msg == LB_INSERTSTRING)
+        {
+          idx=(int)wParam;
+          if (idx<0 || idx>lvs->m_data.GetSize()) idx=lvs->m_data.GetSize();
+        }
+        else
+          idx=lvs->m_data.GetSize();
         lvs->m_data.Insert(idx,row); 
         InvalidateRect(hwnd,NULL,FALSE);
         return idx;
@@ -5143,7 +5179,7 @@ struct treeViewState
     return true;
   }
 
-  int navigateSel(int key, int pagesize) // returns 2 force invalidate, 1 if ate key 
+  int navigateSel(HWND hwnd, int key, int pagesize) // returns 2 force invalidate, 1 if ate key
   {
     HTREEITEM par=NULL;
     int idx=0,tmp=1;
@@ -5155,8 +5191,19 @@ struct treeViewState
         {
           if (m_sel->m_haschildren && (m_sel->m_state & TVIS_EXPANDED))
           {
-            m_sel->m_state &= ~TVIS_EXPANDED;
-            return 2;
+            NMTREEVIEW nmhdr={{hwnd,(UINT_PTR)hwnd->m_id,TVN_ITEMEXPANDING},};
+            nmhdr.action = TVE_COLLAPSE;
+            nmhdr.itemNew.hItem=m_sel;
+            nmhdr.itemNew.lParam=m_sel->m_param;
+            if (!SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nmhdr))
+            {
+              m_sel->m_state &= ~TVIS_EXPANDED;
+              return 2;
+            }
+            else
+            {
+              return 1;
+            }
           }
           if (par) m_sel=par;
         }
@@ -5176,8 +5223,19 @@ struct treeViewState
         {
           if (!(m_sel->m_state&TVIS_EXPANDED))
           {
-            m_sel->m_state |= TVIS_EXPANDED;
-            return 2;
+            NMTREEVIEW nmhdr={{hwnd,(UINT_PTR)hwnd->m_id,TVN_ITEMEXPANDING},};
+            nmhdr.action = TVE_EXPAND;
+            nmhdr.itemNew.hItem=m_sel;
+            nmhdr.itemNew.lParam=m_sel->m_param;
+            if (!SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nmhdr))
+            {
+              m_sel->m_state |= TVIS_EXPANDED;
+              return 2;
+            }
+            else
+            {
+              return 1;
+            }
           }
           par = m_sel->m_children.Get(0);
           if (par) m_sel=par;
@@ -5415,7 +5473,7 @@ static LRESULT treeViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         HTREEITEM oldSel = tvs->m_sel;
         RECT r;
         GetClientRect(hwnd,&r);
-        int flag = tvs->navigateSel((int)wParam,tvs->m_last_row_height ? r.bottom / tvs->m_last_row_height : 4); 
+        int flag = tvs->navigateSel(hwnd,(int)wParam,tvs->m_last_row_height ? r.bottom / tvs->m_last_row_height : 4);
         if (oldSel != tvs->m_sel)
         {
           if (tvs->m_sel) tvs->ensureItemVisible(hwnd,tvs->m_sel);
@@ -5469,7 +5527,8 @@ static LRESULT treeViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
             {
               if (GET_X_LPARAM(lParam) < xo + (tvs->m_last_row_height/4)*2+3)
               {
-                NMTREEVIEW nmhdr={{hwnd,(UINT_PTR)hwnd->m_id,TVN_ITEMEXPANDING},};  // todo: better treeview notifications
+                NMTREEVIEW nmhdr={{hwnd,(UINT_PTR)hwnd->m_id,TVN_ITEMEXPANDING},};
+                nmhdr.action = (hit->m_state&TVIS_EXPANDED)!=TVIS_EXPANDED ? TVE_EXPAND : TVE_COLLAPSE;
                 nmhdr.itemNew.hItem=hit;
                 nmhdr.itemNew.lParam=hit->m_param;
                 if (!SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nmhdr))
@@ -6233,6 +6292,24 @@ bool ListView_GetItem(HWND h, LVITEM *item)
   else 
   {
     if (item->iItem < 0 || item->iItem >= lvs->GetNumItems()) return false;
+
+    int mask = item->mask & (LVIF_PARAM|LVIF_TEXT);
+    if (mask & LVIF_TEXT)
+    {
+      if (!item->pszText || item->cchTextMax < 1) mask &= ~LVIF_TEXT;
+      else *item->pszText = 0;
+    }
+    if (mask)
+    {
+      NMLVDISPINFO nm={{h, (UINT_PTR)GetWindowLong(h,GWL_ID), LVN_GETDISPINFO}};
+      nm.item.mask = mask;
+      nm.item.iItem = item->iItem;
+      nm.item.iSubItem = item->iSubItem;
+      nm.item.pszText = item->pszText;
+      nm.item.cchTextMax = item->cchTextMax;
+      SendMessage(GetParent(h),WM_NOTIFY,nm.hdr.idFrom,(LPARAM)&nm);
+      if (mask & LVIF_PARAM) item->lParam = nm.item.lParam;
+    }
   }
 
   if (item->mask & LVIF_STATE) 
@@ -6384,7 +6461,8 @@ void ListView_SetColumnWidth(HWND h, int pos, int wid)
   listViewState *lvs = h ? (listViewState *)h->m_private_data : NULL;
   if (WDL_NOT_NORMALLY(!lvs)) return;
   SWELL_ListView_Col *col = lvs->GetColumnByIndex(pos);
-  if (WDL_NORMALLY(col)) 
+  WDL_ASSERT(col || !pos);
+  if (col)
   {
     col->xwid = wid;
     InvalidateRect(h,NULL,FALSE);
@@ -7387,7 +7465,7 @@ typedef struct PMQ_rec
   struct PMQ_rec *next;
 } PMQ_rec;
 
-static WDL_Mutex *m_pmq_mutex;
+static WDL_Mutex m_pmq_mutex;
 static PMQ_rec *m_pmq, *m_pmq_empty, *m_pmq_tail;
 static int m_pmq_size;
 
@@ -7396,17 +7474,11 @@ static int m_pmq_size;
 
 void SWELL_Internal_PostMessage_Init()
 {
-  if (m_pmq_mutex) return;
-  
-  m_pmq_mainthread=pthread_self();
-  m_pmq_mutex = new WDL_Mutex;
 }
 
 void SWELL_MessageQueue_Flush()
 {
-  if (WDL_NOT_NORMALLY(!m_pmq_mutex)) return;
-  
-  m_pmq_mutex->Enter();
+  m_pmq_mutex.Enter();
   int max_amt = m_pmq_size;
   PMQ_rec *p=m_pmq;
   if (p)
@@ -7415,14 +7487,14 @@ void SWELL_MessageQueue_Flush()
     if (m_pmq_tail == p) m_pmq_tail=NULL;
     m_pmq_size--;
   }
-  m_pmq_mutex->Leave();
+  m_pmq_mutex.Leave();
   
   // process out up to max_amt of queue
   while (p)
   {
     SendMessage(p->hwnd,p->msg,p->wParam,p->lParam); 
 
-    m_pmq_mutex->Enter();
+    m_pmq_mutex.Enter();
     // move this message to empty list
     p->next=m_pmq_empty;
     m_pmq_empty = p;
@@ -7435,15 +7507,13 @@ void SWELL_MessageQueue_Flush()
       if (m_pmq_tail == p) m_pmq_tail=NULL;
       m_pmq_size--;
     }
-    m_pmq_mutex->Leave();
+    m_pmq_mutex.Leave();
   }
 }
 
 void SWELL_Internal_PMQ_ClearAllMessages(HWND hwnd)
 {
-  if (WDL_NOT_NORMALLY(!m_pmq_mutex)) return;
-  
-  m_pmq_mutex->Enter();
+  m_pmq_mutex.Enter();
   PMQ_rec *p=m_pmq;
   PMQ_rec *lastrec=NULL;
   while (p)
@@ -7464,17 +7534,15 @@ void SWELL_Internal_PMQ_ClearAllMessages(HWND hwnd)
       else p = m_pmq = next;
     }
   }
-  m_pmq_mutex->Leave();
+  m_pmq_mutex.Leave();
 }
 
 BOOL SWELL_Internal_PostMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-  if (WDL_NOT_NORMALLY(!hwnd) ||
-      hwnd->m_hashaddestroy ||
-      WDL_NOT_NORMALLY(!m_pmq_mutex)) return FALSE;
+  if (WDL_NOT_NORMALLY(!hwnd) || hwnd->m_hashaddestroy) return FALSE;
 
   BOOL ret=FALSE;
-  m_pmq_mutex->Enter();
+  m_pmq_mutex.Enter();
 
   if (m_pmq_empty||m_pmq_size<MAX_POSTMESSAGE_SIZE)
   {
@@ -7501,7 +7569,7 @@ BOOL SWELL_Internal_PostMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
     ret=TRUE;
   }
 
-  m_pmq_mutex->Leave();
+  m_pmq_mutex.Leave();
 
   return ret;
 }
@@ -7557,6 +7625,7 @@ int GetSystemMetrics(int p)
     case SM_CYHSCROLL:
     case SM_CXVSCROLL:
     case SM_CYVSCROLL: return g_swell_ctheme.smscrollbar_width;
+    case SM_CYMENU: return g_swell_ctheme.menubar_height;
   }
   return 0;
 }
@@ -7636,13 +7705,21 @@ BOOL TreeView_Expand(HWND hwnd, HTREEITEM item, UINT flag)
 {
   treeViewState *tvs = hwnd ? (treeViewState *)hwnd->m_private_data : NULL;
   if (WDL_NOT_NORMALLY(!tvs || !tvs->findItem(item,NULL,NULL))) return FALSE;
+
+  if (flag == TVE_EXPAND && (item->m_state & TVIS_EXPANDED)) return TRUE;
+  if (flag == TVE_COLLAPSE && !(item->m_state & TVIS_EXPANDED)) return TRUE;
  
-  const int os = item->m_state;
+  NMTREEVIEW nmhdr={{hwnd,(UINT_PTR)hwnd->m_id,TVN_ITEMEXPANDING},};
+  nmhdr.action = flag;
+  nmhdr.itemNew.hItem=item;
+  nmhdr.itemNew.lParam=item->m_param;
+  if (SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nmhdr)) return TRUE;
+
   if (flag == TVE_EXPAND) item->m_state |= TVIS_EXPANDED;
   else if (flag == TVE_COLLAPSE) item->m_state &= ~TVIS_EXPANDED;
   else if (flag == TVE_TOGGLE) item->m_state ^= TVIS_EXPANDED;
   
-  if (item->m_state != os) InvalidateRect(hwnd,NULL,FALSE);
+  InvalidateRect(hwnd,NULL,FALSE);
   return TRUE;
 }
 
@@ -7662,7 +7739,7 @@ void TreeView_DeleteItem(HWND hwnd, HTREEITEM item)
   int idx=0;
   if (!tvs->findItem(item,&par,&idx)) return;
 
-  if (tvs->m_sel && (item == tvs->m_sel || item->FindItem(tvs->m_sel,NULL,NULL))) tvs->m_sel=NULL;
+  if (tvs->m_sel && (item == tvs->m_sel || item->FindItem(tvs->m_sel,NULL,NULL))) tvs->m_sel=par;
 
   (par ? par : &tvs->m_root)->m_children.Delete(idx,true);
   InvalidateRect(hwnd,NULL,FALSE);

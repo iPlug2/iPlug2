@@ -1,4 +1,4 @@
-This is the location of various tests, some of which are IPlug Projects, whereas others are simple commandline unit-tests using the catch unit tester.
+This is the location of various tests, which are currently just a few iPlug2 Projects
 
 - **IGraphicsTest** : An IPlug project that includes many controls to test different functionality 
   of IGraphics, with different drawing and platform backends.

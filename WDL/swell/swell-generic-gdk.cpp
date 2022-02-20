@@ -1996,6 +1996,55 @@ static LRESULT xbridgeProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
       }
     break;
     case WM_TIMER:
+
+      if (wParam == 1010)
+      {
+        // callers can SetTimer(hwnd_container,1010,X,NULL) and have the child X window resized to fit the parent
+        // they are only resized once, but it is deferred by timer until the window is actually there.
+        // (if the window was created by another connection to the X server than ours, the window might not yet
+        // be valid on the X server).
+        bridgeState *bs = (bridgeState*)hwnd->m_private_data;
+
+        RECT r;
+        GetClientRect(hwnd,&r);
+        if (r.right>0 && r.bottom>0 && bs)
+        {
+          Window root, par, *list=NULL;
+          unsigned int nlist=0;
+          // if a plug-in created a window on a separate X11 connection, it might not be valid yet.
+          if (XQueryTree(bs->native_disp,bs->native_w,&root,&par,&list, &nlist))
+          {
+            if (!list || !nlist)
+            {
+              if (list) XFree(list);
+              return 0;
+            }
+            XSizeHints *hints = XAllocSizeHints();
+            if (hints)
+            {
+              long hints_ret=0;
+              XGetWMNormalHints(bs->native_disp,list[0],hints,&hints_ret);
+
+              if (hints->flags&PMinSize)
+              {
+                if (r.right < hints->min_width) r.right = hints->min_width;
+                if (r.bottom < hints->min_height) r.bottom = hints->min_height;
+              }
+              if (hints->flags&PMaxSize)
+              {
+                if (hints->max_width > 0 && r.right > hints->max_width) r.right = hints->max_width;
+                if (hints->max_height > 0 && r.bottom > hints->max_height) r.bottom = hints->max_height;
+              }
+              XFree(hints);
+            }
+
+            XResizeWindow(bs->native_disp,list[0],r.right,r.bottom);
+            XFree(list);
+          }
+        }
+        KillTimer(hwnd,wParam);
+      }
+
       if (wParam != 1) break;
     case WM_MOVE:
     case WM_SIZE:
@@ -2115,7 +2164,7 @@ static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpo
   return GDK_FILTER_CONTINUE;
 }
 
-HWND SWELL_CreateXBridgeWindow(HWND viewpar, void **wref, RECT *r)
+HWND SWELL_CreateXBridgeWindow(HWND viewpar, void **wref, const RECT *r)
 {
   HWND hwnd = NULL;
   *wref = NULL;
@@ -2528,6 +2577,7 @@ HCURSOR SWELL_LoadCursor(const char *_idx)
         {
           getHotSpotForFile(buf,&p->hotspot);
           GdkCursor *curs = gdk_cursor_new_from_pixbuf(gdk_display_get_default(),pb,p->hotspot.x,p->hotspot.y);
+          g_object_unref(pb);
           return (p->cachedCursor = (HCURSOR) curs);
         }
       }
@@ -2597,6 +2647,54 @@ void swell_scaling_init(bool no_auto_hidpi)
   #endif
 }
 
+BOOL EnumDisplayMonitors(HDC hdc,const LPRECT r,MONITORENUMPROC proc,LPARAM lParam)
+{
+  GdkScreen *defscr = gdk_screen_get_default();
+  const int nmon = gdk_screen_get_n_monitors(defscr);
+  for (int x = 0; x < nmon; x ++)
+  {
+    GdkRectangle rc={0,0,1024,1024};
+    gdk_screen_get_monitor_geometry(defscr,x,&rc);
+    RECT screen_rect, tmp = { rc.x, rc.y,rc.x+rc.width , rc.y+rc.height };
+    if (r)
+    {
+      if (!IntersectRect(&screen_rect,r,&tmp))
+        continue;
+    }
+    else
+    {
+      screen_rect = tmp;
+    }
+
+    if (!proc((HMONITOR)(INT_PTR) (x+1),hdc,&screen_rect,lParam)) break;
+  }
+  return TRUE;
+}
+BOOL GetMonitorInfo(HMONITOR hmon, void *inf)
+{
+  GdkScreen *defscr = gdk_screen_get_default();
+  const int nmon = gdk_screen_get_n_monitors(defscr);
+  const int monidx = ((int) (INT_PTR) hmon)-1;
+  if (monidx<0 || monidx >= nmon) return FALSE;
+
+  MONITORINFOEX *a = (MONITORINFOEX*)inf;
+  if (a->cbSize < sizeof(MONITORINFO)) return FALSE;
+  a->dwFlags = 0;
+  GdkRectangle rc={0,0,1024,1024};
+  gdk_screen_get_monitor_geometry(defscr,monidx,&rc);
+  RECT tmp = { rc.x, rc.y,rc.x+rc.width , rc.y+rc.height };
+  a->rcMonitor = a->rcWork = tmp;
+
+  if (a->cbSize > sizeof(MONITORINFO))
+  {
+    const int maxlen = (int) (a->cbSize - sizeof(MONITORINFO));
+    const char *s = gdk_screen_get_monitor_plug_name(defscr,monidx);
+    if (!s) return FALSE;
+    lstrcpyn_safe(a->szDevice,s,maxlen);
+  }
+
+  return TRUE;
+}
 
 #endif
 #endif

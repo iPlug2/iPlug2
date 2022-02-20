@@ -71,7 +71,7 @@ static const AudioUnitPropertyID kIPlugObjectPropertyID = UINT32_MAX-100;
   return 0;
 }
 
-- (NSString *) description
+- (NSString*) description
 {
   return [NSString stringWithCString:PLUG_NAME " View" encoding:NSUTF8StringEncoding];
 }

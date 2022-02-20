@@ -107,6 +107,7 @@ typedef unsigned int NSUInteger;
 
 @interface SWELL_DataHold : NSObject
 {
+  @public
   void *m_data;
 }
 -(id) initWithVal:(void *)val;
@@ -170,12 +171,17 @@ typedef struct WindowPropRec
 @interface SWELL_ListViewCell : NSTextFieldCell
 {
 }
+-(NSColor *)highlightColorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView;
+- (NSRect)drawingRectForBounds:(NSRect)rect;
 @end
 
-@interface SWELL_StatusCell : NSTextFieldCell
+@interface SWELL_StatusCell : SWELL_ListViewCell
 {
   NSImage *status;
 }
+-(id)initNewCell;
+-(void)setStatusImage:(NSImage *)img;
+- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView;
 @end
 
 @interface SWELL_TreeView : NSOutlineView
@@ -475,6 +481,7 @@ typedef struct WindowPropRec
 }
 - (id)initModeless:(SWELL_DialogResourceIndex *)resstate Parent:(HWND)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par outputHwnd:(HWND *)hwndOut forceStyles:(unsigned int)smask;
 - (id)initModelessForChild:(HWND)child owner:(HWND)owner styleMask:(unsigned int)smask;
+- (void)keyDown:(NSEvent *)event;
 - (void)swellDestroyAllOwnedWindows;
 - (void)swellRemoveOwnedWindow:(NSWindow *)wnd;
 - (void)swellAddOwnedWindow:(NSWindow*)wnd;
@@ -483,6 +490,8 @@ typedef struct WindowPropRec
 - (void **)swellGetOwnerWindowHead;
 -(void)swellDoDestroyStuff;
 -(void)swellResetOwnedWindowLevels;
+
+-(void)toggleFullScreen:(id)sender;
 @end
 
 @interface SWELL_ModalDialog : NSPanel
@@ -724,8 +733,14 @@ SWELL_IMPLEMENT_GETOSXVERSION int SWELL_GetOSXVersion()
   {
     if (NSAppKitVersionNumber >= 1266.0)
     {
-      if (NSAppKitVersionNumber >= 1670.0)  // unsure if this is correct (10.14.1 is 1671.1)
+      if (NSAppKitVersionNumber >= 2022.0)
+        v = 0x1100;
+      else if (NSAppKitVersionNumber >= 1894.0)
+        v = 0x10e0;
+      else if (NSAppKitVersionNumber >= 1639.10)
         v = 0x10d0;
+      else if (NSAppKitVersionNumber >= 1560)
+        v = 0x10c0;
       else if (NSAppKitVersionNumber >= 1404.0)
         v = 0x10b0;
       else
@@ -800,7 +815,7 @@ typedef void *SWELL_OSWINDOW; // maps to the HWND__ itself on visible, non-GDK, 
 
 struct HWND__
 {
-  HWND__(HWND par, int wID=0, RECT *wndr=NULL, const char *label=NULL, bool visible=false, WNDPROC wndproc=NULL, DLGPROC dlgproc=NULL, HWND ownerWindow=NULL);
+  HWND__(HWND par, int wID=0, const RECT *wndr=NULL, const char *label=NULL, bool visible=false, WNDPROC wndproc=NULL, DLGPROC dlgproc=NULL, HWND ownerWindow=NULL);
   ~HWND__(); // DO NOT USE!!! We would make this private but it breaks PtrList using it on gcc. 
 
   // using this API prevents the HWND from being valid -- it'll still get its resources destroyed via DestroyWindow() though.
@@ -1072,7 +1087,11 @@ HTREEITEM__::~HTREEITEM__()
   free(m_value);
   m_children.Empty(true);
 #ifdef SWELL_TARGET_OSX
-  [m_dh release];
+  if (m_dh)
+  {
+    m_dh->m_data = NULL;
+    [m_dh release];
+  }
 #endif
 }
 

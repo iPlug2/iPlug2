@@ -9,8 +9,13 @@
 */
 
 #ifdef __OBJC__
+  #include <TargetConditionals.h>
+  #if TARGET_OS_IOS == 1
+  #import <UIKit/UIKit.h>
+  #else
   #import <Cocoa/Cocoa.h>
-   
+  #endif
+
   //objective-c has a flat namespace, we need to customise the class name for all of our objective-c classes
   //so that binaries using different versions don't conflict
   #ifndef OBJC_PREFIX
@@ -35,6 +40,11 @@
   #define CONCAT2(a,b,c) CONCAT3(a,b,c)
   #define CONCAT(cname) CONCAT2(cname,OBJC_PREFIX,API)
 
+  #define CONCATAU3(a,b) a##b
+  #define CONCATAU2(a,b) CONCATAU3(a,b)
+  #define CONCATAU(cname) CONCATAU2(cname,OBJC_PREFIX)
+
+  #define HELPER_VIEW CONCAT(IWebViewEditorDelegateHelperView_)
   #define IGRAPHICS_VIEW CONCAT(IGraphicsView_)
   #define IGRAPHICS_MENU CONCAT(IGraphicsMenu_)
   #define IGRAPHICS_MENU_RCVR CONCAT(IGraphicsMenuRcvr_)
@@ -42,9 +52,13 @@
   #define IGRAPHICS_TEXTFIELD CONCAT(IGraphicsTextField_)
   #define IGRAPHICS_TEXTFIELDCELL CONCAT(IGraphicsTextFieldCell_)
   #define IGRAPHICS_GLLAYER CONCAT(IGraphicsLayer_)
-  #define IGRAPHICS_IMGUIVIEW CONCAT(IGraphicsImGuiView_)
+  #define IGRAPHICS_UITABLEVC CONCAT(IGraphicsUITableViewController_)
   #define MNVGtexture CONCAT(MNVGtexture_)
   #define MNVGbuffers CONCAT(MNVGbuffers_)
   #define MNVGcontext CONCAT(MNVGcontext_)
+
+  // these only exist in AUv3 plug-ins, so don't need the API on the end
+  #define IPLUG_AUAUDIOUNIT CONCATAU(IPlugAUAudioUnit_)
+  #define IPLUG_AUVIEWCONTROLLER CONCATAU(IPlugAUViewController_)
 #endif
 

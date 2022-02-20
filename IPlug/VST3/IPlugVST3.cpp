@@ -208,7 +208,7 @@ void IPlugVST3::EndInformHostOfParamChange(int idx)
 
 void IPlugVST3::InformHostOfParameterDetailsChange()
 {
-  FUnknownPtr<IComponentHandler>handler(componentHandler);
+  FUnknownPtr<IComponentHandler> handler(componentHandler);
   handler->restartComponent(kParamTitlesChanged);
 }
 
@@ -229,6 +229,9 @@ bool IPlugVST3::EditorResize(int viewWidth, int viewHeight)
 
 void IPlugVST3::DirtyParametersFromUI()
 {
+  for (int i = 0; i < NParams(); i++)
+    IPlugVST3ControllerBase::SetVST3ParamNormalized(i, GetParam(i)->GetNormalized());
+  
   startGroupEdit();
   IPlugAPIBase::DirtyParametersFromUI();
   finishGroupEdit();
@@ -242,9 +245,18 @@ void IPlugVST3::SendParameterValueFromUI(int paramIdx, double normalisedValue)
 
 void IPlugVST3::SetLatency(int latency)
 {
+  // N.B. set the latency even if the handler is not yet set
+  
   IPlugProcessor::SetLatency(latency);
 
-  FUnknownPtr<IComponentHandler>handler(componentHandler);
-  handler->restartComponent(kLatencyChanged);
+  if (componentHandler)
+  {
+    FUnknownPtr<IComponentHandler> handler(componentHandler);
+
+    if (handler)
+    {
+      handler->restartComponent(kLatencyChanged);
+    }
+  }
 }
 

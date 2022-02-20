@@ -21,12 +21,13 @@ IPlugChunks::IPlugChunks(const InstanceInfo& info)
     const IVStyle style = DEFAULT_STYLE.WithDrawShadows(false);
     pGraphics->AttachControl(new IVBakedPresetManagerControl(b.ReduceFromTop(30.f), style));
     pGraphics->AttachControl(new IVMultiSliderControl<kNumSteps>(b, "", style), kCtrlMultiSlider)->SetActionFunction([pGraphics](IControl* pCaller) {
-      
-      int lastHit = pCaller->As<IVMultiSliderControl<kNumSteps>>()->GetLastSliderHit();
-      if(lastHit > -1) {
-        ParamTuple data = {lastHit, pCaller->GetValue(lastHit)};
-        pGraphics->GetDelegate()->SendArbitraryMsgFromUI(kMsgTagSliderChanged, kCtrlMultiSlider, sizeof(ParamTuple), &data);
+
+      double vals[kNumSteps];
+
+      for (int i = 0; i < kNumSteps; i++) {
+        vals[i] = pCaller->GetValue(i);
       }
+      pGraphics->GetDelegate()->SendArbitraryMsgFromUI(kMsgTagSliderChanged, kCtrlMultiSlider, sizeof(vals), &vals);
     });
   };
 #endif
@@ -108,10 +109,8 @@ bool IPlugChunks::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* p
 {
   if(msgTag == kMsgTagSliderChanged)
   {
-    auto* pConverted = reinterpret_cast<const ParamTuple*>(pData);
-    
-    mSteps[pConverted->idx] = pConverted->value;
-    
+    auto* pVals = reinterpret_cast<const double*>(pData);
+    memcpy(mSteps, pVals, kNumSteps * sizeof(double));
     return true;
   }
   return false;

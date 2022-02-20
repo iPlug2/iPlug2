@@ -56,15 +56,14 @@ static StaticStorage<APIBitmap> sBitmapCache;
 static StaticStorage<SVGHolder> sSVGCache;
 
 IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
-: mDelegate(&dlg)
-, mWidth(w)
+: mWidth(w)
 , mHeight(h)
+, mFPS(fps)
 , mDrawScale(scale)
 , mMinScale(scale / 2)
 , mMaxScale(scale * 2)
+, mDelegate(&dlg)
 {
-  mFPS = (fps > 0 ? fps : DEFAULT_FPS);
-    
   StaticStorage<APIBitmap>::Accessor bitmapStorage(sBitmapCache);
   bitmapStorage.Retain();
   StaticStorage<SVGHolder>::Accessor svgStorage(sSVGCache);
@@ -73,10 +72,6 @@ IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 
 IGraphics::~IGraphics()
 {
-#ifdef IGRAPHICS_IMGUI
-  mImGuiRenderer = nullptr;
-#endif
-  
   // N.B. - the OS levels have destructed, so we can't show/hide the cursor
   // Thus, this prevents a call to a pure virtual in ReleaseMouseCapture
     
@@ -89,7 +84,7 @@ IGraphics::~IGraphics()
   svgStorage.Release();
 }
 
-void IGraphics::SetScreenScale(int scale)
+void IGraphics::SetScreenScale(float scale)
 {
   mScreenScale = scale;
   int windowWidth = WindowWidth() * GetPlatformWindowScale();
@@ -335,6 +330,7 @@ void IGraphics::AttachCornerResizer(EUIResizerMode sizeMode, bool layoutOnResize
 
 void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerMode sizeMode, bool layoutOnResize)
 {
+#ifndef AUv3_API
   assert(!mCornerResizer); // only want one corner resizer
 
   std::unique_ptr<ICornerResizerControl> control(pControl);
@@ -346,6 +342,9 @@ void IGraphics::AttachCornerResizer(ICornerResizerControl* pControl, EUIResizerM
     mLayoutOnResize = layoutOnResize;
     mCornerResizer->SetDelegate(*GetDelegate());
   }
+#else
+DBGMSG("AttachCornerResizer() is disabled for AUv3");
+#endif
 }
 
 void IGraphics::AttachBubbleControl(const IText& text)
@@ -494,7 +493,7 @@ void IGraphics::DisableControl(int paramIdx, bool disable)
   ForMatchingControls(&IControl::SetDisabled, paramIdx, disable);
 }
 
-void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& control)> func)
+void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl* pControl)> func)
 {
   for (auto c = 0; c < NControls(); c++)
   {
@@ -502,13 +501,13 @@ void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl& c
 
     if (pControl->LinkedToParam(paramIdx) > kNoValIdx)
     {
-      func(*pControl);
+      func(pControl);
       // Could be more than one, don't break until we check them all.
     }
   }
 }
 
-void IGraphics::ForControlInGroup(const char* group, std::function<void(IControl& control)> func)
+void IGraphics::ForControlInGroup(const char* group, std::function<void(IControl* pControl)> func)
 {
   for (auto c = 0; c < NControls(); c++)
   {
@@ -517,38 +516,38 @@ void IGraphics::ForControlInGroup(const char* group, std::function<void(IControl
     if (CStringHasContents(pControl->GetGroup()))
     {
       if (strcmp(pControl->GetGroup(), group) == 0)
-        func(*pControl);
+        func(pControl);
       // Could be more than one, don't break until we check them all.
     }
   }
 }
 
-void IGraphics::ForStandardControlsFunc(std::function<void(IControl& control)> func)
+void IGraphics::ForStandardControlsFunc(std::function<void(IControl* pControl)> func)
 {
   for (auto c = 0; c < NControls(); c++)
-    func(*GetControl(c));
+    func(GetControl(c));
 }
 
-void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
+void IGraphics::ForAllControlsFunc(std::function<void(IControl* pControl)> func)
 {
   ForStandardControlsFunc(func);
   
   if (mPerfDisplay)
-    func(*mPerfDisplay);
+    func(mPerfDisplay.get());
   
 #ifndef NDEBUG
   if (mLiveEdit)
-    func(*mLiveEdit);
+    func(mLiveEdit.get());
 #endif
   
   if (mCornerResizer)
-    func(*mCornerResizer);
+    func(mCornerResizer.get());
   
   if (mTextEntryControl)
-    func(*mTextEntryControl);
+    func(mTextEntryControl.get());
   
   if (mPopupControl)
-    func(*mPopupControl);
+    func(mPopupControl.get());
   
   if (mTooltipControl)
     func(*mTooltipControl);
@@ -557,7 +556,7 @@ void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
   {
     for(int i = 0;i<mBubbleControls.GetSize();i++)
     {
-      func(*mBubbleControls.Get(i));
+      func(mBubbleControls.Get(i));
     }
   }
 }
@@ -565,13 +564,13 @@ void IGraphics::ForAllControlsFunc(std::function<void(IControl& control)> func)
 template<typename T, typename... Args>
 void IGraphics::ForAllControls(T method, Args... args)
 {
-  ForAllControlsFunc([method, args...](IControl& control) { (control.*method)(args...); });
+  ForAllControlsFunc([method, args...](IControl* pControl) { (pControl->*method)(args...); });
 }
 
 template<typename T, typename... Args>
 void IGraphics::ForMatchingControls(T method, int paramIdx, Args... args)
 {
-  ForControlWithParam(paramIdx, [method, args...](IControl& control) { (control.*method)(args...); });
+  ForControlWithParam(paramIdx, [method, args...](IControl* pControl) { (pControl->*method)(args...); });
 }
 
 void IGraphics::SetAllControlsDirty()
@@ -586,10 +585,10 @@ void IGraphics::SetAllControlsClean()
 
 void IGraphics::AssignParamNameToolTips()
 {
-  auto func = [](IControl& control)
+  auto func = [](IControl* pControl)
   {
-    if (control.GetParamIdx() > kNoParameter)
-      control.SetTooltip(control.GetParam()->GetName());
+    if (pControl->GetParamIdx() > kNoParameter)
+      pControl->SetTooltip(pControl->GetParam()->GetName());
   };
   
   ForStandardControlsFunc(func);
@@ -600,14 +599,14 @@ void IGraphics::UpdatePeers(IControl* pCaller, int callerValIdx) // TODO: this c
   double value = pCaller->GetValue(callerValIdx);
   int paramIdx = pCaller->GetParamIdx(callerValIdx);
     
-  auto func = [pCaller, paramIdx, value](IControl& control)
+  auto func = [pCaller, paramIdx, value](IControl* pControl)
   {
-    int valIdx = control.LinkedToParam(paramIdx);
+    int valIdx = pControl->LinkedToParam(paramIdx);
 
     // Not actually called from the delegate, but we don't want to push the updates back to the delegate
-    if ((valIdx > kNoValIdx) && (&control != pCaller))
+    if ((valIdx > kNoValIdx) && (pControl != pCaller))
     {
-      control.SetValueFromDelegate(value, valIdx);
+      pControl->SetValueFromDelegate(value, valIdx);
     }
   };
     
@@ -814,15 +813,15 @@ bool IGraphics::IsDirty(IRECTList& rects)
   if (mDisplayTickFunc)
     mDisplayTickFunc();
 
-  ForAllControlsFunc([](IControl& control) { control.Animate(); } );
+  ForAllControlsFunc([](IControl* pControl) { pControl->Animate(); } );
 
   bool dirty = false;
     
-  auto func = [&dirty, &rects](IControl& control) {
-    if (control.IsDirty())
+  auto func = [&dirty, &rects](IControl* pControl) {
+    if (pControl->IsDirty())
     {
       // N.B padding outlines for single line outlines
-      rects.Add(control.GetRECT().GetPadded(0.75));
+      rects.Add(pControl->GetRECT().GetPadded(0.75));
       dirty = true;
     }
   };
@@ -838,15 +837,6 @@ bool IGraphics::IsDirty(IRECTList& rects)
   {
     OnGUIIdle();
     mIdleTicks = 0;
-  }
-#endif
-
-  //TODO: for GL backends, having an ImGui on top currently requires repainting everything on each frame
-#if defined IGRAPHICS_IMGUI && defined IGRAPHICS_GL
-  if (mImGuiRenderer && mImGuiRenderer->GetDrawFunc())
-  {
-    rects.Add(IRECT(0,0,1,1));
-    return true;
   }
 #endif
 
@@ -896,7 +886,7 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
 
 void IGraphics::Draw(const IRECT& bounds, float scale)
 {
-  ForAllControlsFunc([this, bounds, scale](IControl& control) { DrawControl(&control, bounds, scale); });
+  ForAllControlsFunc([this, bounds, scale](IControl* pControl) { DrawControl(pControl, bounds, scale); });
 
 #ifndef NDEBUG
   if (mShowAreaDrawn)
@@ -948,23 +938,6 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
 //  Trace("IGraphics::OnMouseDown", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i", x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
 
   bool singlePoint = points.size() == 1;
-  
-#ifdef IGRAPHICS_IMGUI
-  if(mImGuiRenderer && singlePoint)
-  {
-    IControl* pControl = GetMouseControl(points[0].x, points[0].y, true);
-
-    bool cornerResizer = false;
-    if(mCornerResizer.get() != nullptr)
-      cornerResizer = pControl == mCornerResizer.get();
-
-    if(!cornerResizer && mImGuiRenderer->OnMouseDown(points[0].x, points[0].y, points[0].ms))
-    {
-      ReleaseMouseCapture();
-      return;
-    }
-  }
-#endif
 
   if(singlePoint)
   {
@@ -983,44 +956,47 @@ void IGraphics::OnMouseDown(const std::vector<IMouseInfo>& points)
     if (pCapturedControl)
     {
       int nVals = pCapturedControl->NVals();
+#if defined AAX_API || !defined IGRAPHICS_NO_CONTEXT_MENU
       int valIdx = pCapturedControl->GetValIdxForPos(x, y);
       int paramIdx = pCapturedControl->GetParamIdx((valIdx > kNoValIdx) ? valIdx : 0);
-
+#endif
+        
 #ifdef AAX_API
-        if (mAAXViewContainer && paramIdx > kNoParameter)
-        {
-            auto GetAAXModifiersFromIMouseMod = [](const IMouseMod& mod) {
-                uint32_t modifiers = 0;
-                
-                if (mod.A) modifiers |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
-                
+      if (mAAXViewContainer && paramIdx > kNoParameter)
+      {
+        auto GetAAXModifiersFromIMouseMod = [](const IMouseMod& mod) {
+          uint32_t modifiers = 0;
+          
+          if (mod.A) modifiers |= AAX_eModifiers_Option; // ALT Key on Windows, ALT/Option key on mac
+          
 #ifdef OS_WIN
-                if (mod.C) modifiers |= AAX_eModifiers_Command;
+          if (mod.C) modifiers |= AAX_eModifiers_Command;
 #else
-                if (mod.C) modifiers |= AAX_eModifiers_Control;
-                if (mod.R) modifiers |= AAX_eModifiers_Command;
+          if (mod.C) modifiers |= AAX_eModifiers_Control;
+          if (mod.R) modifiers |= AAX_eModifiers_Command;
 #endif
-                if (mod.S) modifiers |= AAX_eModifiers_Shift;
-                if (mod.R) modifiers |= AAX_eModifiers_SecondaryButton;
-                
-                return modifiers;
-            };
-            
-            uint32_t aaxModifiersForPT = GetAAXModifiersFromIMouseMod(mod);
+          if (mod.S) modifiers |= AAX_eModifiers_Shift;
+          if (mod.R) modifiers |= AAX_eModifiers_SecondaryButton;
+          
+          return modifiers;
+        };
+        
+        uint32_t aaxModifiersForPT = GetAAXModifiersFromIMouseMod(mod);
 #ifdef OS_WIN
-            // required to get start/windows and alt keys
-            uint32_t aaxModifiersFromPT = 0;
-            mAAXViewContainer->GetModifiers(&aaxModifiersFromPT);
-            aaxModifiersForPT |= aaxModifiersFromPT;
+        // required to get start/windows and alt keys
+        uint32_t aaxModifiersFromPT = 0;
+        mAAXViewContainer->GetModifiers(&aaxModifiersFromPT);
+        aaxModifiersForPT |= aaxModifiersFromPT;
 #endif
-            WDL_String paramID;
-            paramID.SetFormatted(32, "%i", paramIdx+1);
-            
-            if (mAAXViewContainer->HandleParameterMouseDown(paramID.Get(), aaxModifiersForPT) == AAX_SUCCESS)
-            {
-                return; // event handled by PT
-            }
+        WDL_String paramID;
+        paramID.SetFormatted(32, "%i", paramIdx+1);
+        
+        if (mAAXViewContainer->HandleParameterMouseDown(paramID.Get(), aaxModifiersForPT) == AAX_SUCCESS)
+        {
+          ReleaseMouseCapture();
+          return; // event handled by PT
         }
+      }
 #endif
 
 #ifndef IGRAPHICS_NO_CONTEXT_MENU
@@ -1070,7 +1046,7 @@ void IGraphics::OnMouseUp(const std::vector<IMouseInfo>& points)
             GetDelegate()->EndInformHostOfParamChangeFromUI(pCapturedControl->GetParamIdx(v));
         }
         
-        mCapturedMap.erase(itr);
+        mCapturedMap.erase(mod.touchID);
       }
     }
   }
@@ -1079,17 +1055,6 @@ void IGraphics::OnMouseUp(const std::vector<IMouseInfo>& points)
   {
     EndDragResize();
   }
-  
-#ifdef IGRAPHICS_IMGUI
-  if(mImGuiRenderer && points.size() == 1)
-  {
-    if(mImGuiRenderer->OnMouseUp(points[0].x, points[0].y, points[0].ms))
-    {
-      ReleaseMouseCapture();
-      return;
-    }
-  }
-#endif
     
   if (points.size() == 1 && !points[0].ms.IsTouch())
     OnMouseOver(points[0].x, points[0].y, points[0].ms);
@@ -1124,11 +1089,6 @@ bool IGraphics::OnMouseOver(float x, float y, const IMouseMod& mod)
 {
   Trace("IGraphics::OnMouseOver", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
-  
-#ifdef IGRAPHICS_IMGUI
-  if(mImGuiRenderer)
-    mImGuiRenderer->OnMouseMove(x, y, mod);
-#endif
   
   // N.B. GetMouseControl handles which controls can receive mouseovers
   IControl* pControl = GetMouseControl(x, y, false, true);
@@ -1201,10 +1161,6 @@ void IGraphics::OnMouseDrag(const std::vector<IMouseInfo>& points)
       }
     }
   }
-#ifdef IGRAPHICS_IMGUI
-  else if(mImGuiRenderer && points.size() == 1)
-    mImGuiRenderer->OnMouseMove(points[0].x, points[0].y, points[0].ms);
-#endif
 }
 
 bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
@@ -1212,14 +1168,6 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
   Trace("IGraphics::OnMouseDblClick", __LINE__, "x:%0.2f, y:%0.2f, mod:LRSCA: %i%i%i%i%i",
         x, y, mod.L, mod.R, mod.S, mod.C, mod.A);
   
-#ifdef IGRAPHICS_IMGUI
-  if(mImGuiRenderer)
-  {
-    mImGuiRenderer->OnMouseDown(x, y, mod);
-    return true;
-  }
-#endif
-
   IControl* pControl = GetMouseControl(x, y, true);
     
   if (pControl)
@@ -1245,14 +1193,6 @@ bool IGraphics::OnMouseDblClick(float x, float y, const IMouseMod& mod)
 
 void IGraphics::OnMouseWheel(float x, float y, const IMouseMod& mod, float d)
 {
-#ifdef IGRAPHICS_IMGUI
-    if(mImGuiRenderer)
-    {
-      mImGuiRenderer->OnMouseWheel(x, y, mod, d);
-      return;
-    }
-#endif
-  
   IControl* pControl = GetMouseControl(x, y, false);
   if (pControl)
     pControl->OnMouseWheel(x, y, mod, d);
@@ -1264,16 +1204,6 @@ bool IGraphics::OnKeyDown(float x, float y, const IKeyPress& key)
         x, y, key.utf8);
 
   bool handled = false;
-
-#ifdef IGRAPHICS_IMGUI
-  if(mImGuiRenderer)
-  {
-    handled = mImGuiRenderer->OnKeyDown(x, y, key);
-    
-    if(handled)
-      return true;
-  }
-#endif
   
   IControl* pControl = GetMouseControl(x, y, false);
   
@@ -1292,16 +1222,6 @@ bool IGraphics::OnKeyUp(float x, float y, const IKeyPress& key)
         x, y, key.utf8);
   
   bool handled = false;
-  
-#ifdef IGRAPHICS_IMGUI
-  if(mImGuiRenderer)
-  {
-    handled = mImGuiRenderer->OnKeyUp(x, y, key);
-    
-    if(handled)
-      return true;
-  }
-#endif
   
   IControl* pControl = GetMouseControl(x, y, false);
   
@@ -1482,9 +1402,13 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
 
         pVST3ContextMenu->addItem(item, pControl);
       }
-
+#ifdef OS_WIN
+      x *= GetTotalScale();
+      y *= GetTotalScale();
+#else
       x *= GetDrawScale();
       y *= GetDrawScale();
+#endif
       pVST3ContextMenu->popup((Steinberg::UCoord) x, (Steinberg::UCoord) y);
       pVST3ContextMenu->release();
     }
@@ -1524,11 +1448,17 @@ void IGraphics::OnDragResize(float x, float y)
   }
 }
 
+void IGraphics::OnAppearanceChanged(EUIAppearance appearance)
+{
+  if (mAppearanceChangedFunc)
+    mAppearanceChangedFunc(appearance);
+}
+
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 {
   //TODO: bug with # frames!
-//  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), (GetScreenScale() == 1 && GetDrawScale() > 1.) ? 2 : 0 /* ??? */);
-  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), GetScreenScale());
+//  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), (GetRoundedScreenScale() == 1 && GetDrawScale() > 1.) ? 2 : 0 /* ??? */);
+  return LoadBitmap(src.GetResourceName().Get(), src.N(), src.GetFramesAreHorizontal(), GetRoundedScreenScale());
 }
 
 void IGraphics::EnableTooltips(bool enable)
@@ -1563,7 +1493,7 @@ void IGraphics::EnableLiveEdit(bool enable)
 }
 
 // Skia has its own implementation for SVGs. On all other platforms we use NanoSVG, because it works.
-#ifdef IGRAPHICS_SKIA
+#ifdef SVG_USE_SKIA
 ISVG IGraphics::LoadSVG(const char* fileName, const char* units, float dpi)
 {
   StaticStorage<SVGHolder>::Accessor storage(sSVGCache);
@@ -1730,7 +1660,7 @@ WDL_TypedBuf<uint8_t> IGraphics::LoadResource(const char* fileNameOrResID, const
 IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHorizontal, int targetScale)
 {
   if (targetScale == 0)
-    targetScale = GetScreenScale();
+    targetScale = GetRoundedScreenScale();
 
   StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   APIBitmap* pAPIBitmap = storage.Find(name, targetScale);
@@ -1792,7 +1722,7 @@ IBitmap IGraphics::LoadBitmap(const char* name, int nStates, bool framesAreHoriz
 IBitmap IGraphics::LoadBitmap(const char *name, const void *pData, int dataSize, int nStates, bool framesAreHorizontal, int targetScale)
 {
   if (targetScale == 0)
-    targetScale = GetScreenScale();
+    targetScale = GetRoundedScreenScale();
 
   StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
   APIBitmap* pAPIBitmap = storage.Find(name, targetScale);
@@ -1854,7 +1784,7 @@ void IGraphics::RetainBitmap(const IBitmap& bitmap, const char* cacheName)
 
 IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int scale)
 {
-  int screenScale = GetScreenScale();
+  int screenScale = GetRoundedScreenScale();
   float drawScale = GetDrawScale();
 
   mScreenScale = scale;
@@ -2409,554 +2339,543 @@ void IGraphics::ClearGestureRegions()
   mGestureRegionFuncs.clear();
 }
 
-#ifdef IGRAPHICS_IMGUI
-void IGraphics::AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc)
+void IGraphics::DrawRotatedBitmap(const IBitmap& bitmap, float destCtrX, float destCtrY, double angle, const IBlend* pBlend)
 {
-  mImGuiRenderer = std::make_unique<ImGuiRenderer>(this, drawFunc, setupFunc);
+  float width = bitmap.W() / bitmap.GetDrawScale();
+  float height = bitmap.H() / bitmap.GetDrawScale();
   
-#if !defined IGRAPHICS_GL
-  CreatePlatformImGui();
-#endif
+  PathTransformSave();
+  PathTransformTranslate(destCtrX, destCtrY);
+  PathTransformRotate((float) angle);
+  DrawBitmap(bitmap, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, pBlend);
+  PathTransformRestore();
 }
-#endif
 
-  void IGraphics::DrawRotatedBitmap(const IBitmap& bitmap, float destCtrX, float destCtrY, double angle, const IBlend* pBlend)
-  {
-    float width = bitmap.W() / bitmap.GetDrawScale();
-    float height = bitmap.H() / bitmap.GetDrawScale();
-    
-    PathTransformSave();
-    PathTransformTranslate(destCtrX, destCtrY);
-    PathTransformRotate((float) angle);
-    DrawBitmap(bitmap, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), 0, 0, pBlend);
-    PathTransformRestore();
-  }
-  
-  void IGraphics::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
-  {
-    FillRect(color, IRECT(x, y, x+1.f, y+1.f), pBlend);
-  }
-  
-  void IGraphics::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness)
-  {
-    PathClear();
-    PathMoveTo(x1, y1);
-    PathLineTo(x2, y2);
-    PathStroke(color, thickness, IStrokeOptions(), pBlend);
-  }
-  
-  void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend, float thickness)
-  {
-    PathClear();
+void IGraphics::DrawPoint(const IColor& color, float x, float y, const IBlend* pBlend)
+{
+  FillRect(color, IRECT(x, y, x+1.f, y+1.f), pBlend);
+}
 
-    // Vertical Lines grid
-    if (gridSizeH > 1.f)
+void IGraphics::DrawLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness)
+{
+  PathClear();
+  PathMoveTo(x1, y1);
+  PathLineTo(x2, y2);
+  PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}
+
+void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, float gridSizeH, float gridSizeV, const IBlend* pBlend, float thickness)
+{
+  PathClear();
+
+  // Vertical Lines grid
+  if (gridSizeH > 1.f)
+  {
+    for (float x = bounds.L + gridSizeH; x < bounds.R; x += gridSizeH)
     {
-      for (float x = bounds.L + gridSizeH; x < bounds.R; x += gridSizeH)
-      {
-        PathMoveTo(x, bounds.T);
-        PathLineTo(x, bounds.B);
-      }
+      PathMoveTo(x, bounds.T);
+      PathLineTo(x, bounds.B);
     }
-    // Horizontal Lines grid
-    if (gridSizeV > 1.f)
+  }
+  // Horizontal Lines grid
+  if (gridSizeV > 1.f)
+  {
+    for (float y = bounds.T + gridSizeV; y < bounds.B; y += gridSizeV)
     {
-      for (float y = bounds.T + gridSizeV; y < bounds.B; y += gridSizeV)
-      {
-        PathMoveTo(bounds.L, y);
-        PathLineTo(bounds.R, y);
-      }
+      PathMoveTo(bounds.L, y);
+      PathLineTo(bounds.R, y);
     }
-    
-    PathStroke(color, thickness, IStrokeOptions(), pBlend);
   }
   
-  void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints, const IBlend* pBlend, float thickness)
-  {
-    PathClear();
-    
-    float xPos = bounds.L;
+  PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}
 
-    PathMoveTo(xPos, bounds.B - (bounds.H() * normYPoints[0]));
+void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints, const IBlend* pBlend, float thickness)
+{
+  PathClear();
+  
+  float xPos = bounds.L;
 
-    for (auto i = 1; i < nPoints; i++)
-    {
-      if(normXPoints)
-        xPos = bounds.L + (bounds.W() * normXPoints[i]);
-      else
-        xPos = bounds.L + ((bounds.W() / (float) (nPoints - 1) * i));
-      
-      PathLineTo(xPos, bounds.B - (bounds.H() * normYPoints[i]));
-    }
-    
-    PathStroke(color, thickness, IStrokeOptions(), pBlend);
-  }
-  
-  void IGraphics::DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen)
-  {
-    PathClear();
-    
-    IStrokeOptions options;
-    options.mDash.SetDash(&dashLen, 0.0, 1);
-    PathMoveTo(x1, y1);
-    PathLineTo(x2, y2);
-    PathStroke(color, thickness, options, pBlend);
-  }
-  
-  void IGraphics::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend, float thickness)
-  {
-    PathClear();
-    PathTriangle(x1, y1, x2, y2, x3, y3);
-    PathStroke(color, thickness, IStrokeOptions(), pBlend);
-  }
-  
-  void IGraphics::DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness)
-  {
-    PathClear();
-    PathRect(bounds);
-    PathStroke(color, thickness, IStrokeOptions(), pBlend);
-  }
-  
-  void IGraphics::DrawRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend, float thickness)
-  {
-    PathClear();
-    PathRoundRect(bounds, cornerRadius);
-    PathStroke(color, thickness, IStrokeOptions(), pBlend);
-  }
-  
-  void IGraphics::DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend, float thickness)
-  {
-    PathClear();
-    PathRoundRect(bounds, cRTL, cRTR, cRBR, cRBL);
-    PathStroke(color, thickness, IStrokeOptions(), pBlend);
-  }
-  
-  void IGraphics::DrawConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend, float thickness)
-  {
-    PathClear();
-    PathConvexPolygon(x, y, nPoints);
-    PathStroke(color, thickness, IStrokeOptions(), pBlend);
-  }
-  
-  void IGraphics::DrawArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend, float thickness)
-  {
-    PathClear();
-    PathArc(cx, cy, r, a1, a2);
-    PathStroke(color, thickness, IStrokeOptions(), pBlend);
-  }
-  
-  void IGraphics::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend, float thickness)
-  {
-    PathClear();
-    PathCircle(cx, cy, r);
-    PathStroke(color, thickness, IStrokeOptions(), pBlend);
-  }
-  
-  void IGraphics::DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen)
-  {
-    PathClear();
-    IStrokeOptions options;
-    options.mDash.SetDash(&dashLen, 0., 1);
-    PathRect(bounds);
-    PathStroke(color, thickness, options, pBlend);
-  }
-  
-  void IGraphics::DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness)
-  {
-    PathClear();
-    PathEllipse(bounds);
-    PathStroke(color, thickness, IStrokeOptions(), pBlend);
-  }
-  
-  void IGraphics::DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend, float thickness)
-  {
-    PathClear();
-    PathEllipse(x, y, r1, r2, angle);
-    PathStroke(color, thickness, IStrokeOptions(), pBlend);
-  }
+  PathMoveTo(xPos, bounds.B - (bounds.H() * normYPoints[0]));
 
-  void IGraphics::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
+  for (auto i = 1; i < nPoints; i++)
   {
-    PathClear();
-    PathTriangle(x1, y1, x2, y2, x3, y3);
-    PathFill(color, IFillOptions(), pBlend);
-  }
-  
-  void IGraphics::FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend)
-  {
-    PathClear();
-    PathRect(bounds);
-    PathFill(color, IFillOptions(), pBlend);
-  }
-  
-  void IGraphics::FillRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend)
-  {
-    PathClear();
-    PathRoundRect(bounds, cornerRadius);
-    PathFill(color, IFillOptions(), pBlend);
-  }
-  
-  void IGraphics::FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend)
-  {
-    PathClear();
-    PathRoundRect(bounds, cRTL, cRTR, cRBR, cRBL);
-    PathFill(color, IFillOptions(), pBlend);
-  }
-  
-  void IGraphics::FillConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend)
-  {
-    PathClear();
-    PathConvexPolygon(x, y, nPoints);
-    PathFill(color, IFillOptions(), pBlend);
-  }
-  
-  void IGraphics::FillArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend)
-  {
-    PathClear();
-    PathMoveTo(cx, cy);
-    PathArc(cx, cy, r, a1, a2);
-    PathClose();
-    PathFill(color, IFillOptions(), pBlend);
-  }
-  
-  void IGraphics::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
-  {
-    PathClear();
-    PathCircle(cx, cy, r);
-    PathFill(color, IFillOptions(), pBlend);
-  }
-  
-  void IGraphics::FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend)
-  {
-    PathClear();
-    PathEllipse(bounds);
-    PathFill(color, IFillOptions(), pBlend);
-  }
-  
-  void IGraphics::FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend)
-  {
-    PathClear();
-    PathEllipse(x, y, r1, r2, angle);
-    PathFill(color, IFillOptions(), pBlend);
-  }
-  
-  void IGraphics::PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
-  {
-    PathMoveTo(x1, y1);
-    PathLineTo(x2, y2);
-    PathLineTo(x3, y3);
-    PathClose();
-  }
-  
-  void IGraphics::PathRect(const IRECT& bounds)
-  {
-    PathMoveTo(bounds.L, bounds.T);
-    PathLineTo(bounds.R, bounds.T);
-    PathLineTo(bounds.R, bounds.B);
-    PathLineTo(bounds.L, bounds.B);
-    PathClose();
-  }
-  
-  void IGraphics::PathRoundRect(const IRECT& bounds, float ctl, float ctr, float cbl, float cbr)
-  {
-    if (ctl <= 0.f && ctr <= 0.f && cbl <= 0.f && cbr <= 0.f)
-    {
-      PathRect(bounds);
-    }
+    if(normXPoints)
+      xPos = bounds.L + (bounds.W() * normXPoints[i]);
     else
-    {
-      const float y = bounds.B - bounds.H();
-      PathMoveTo(bounds.L, y + ctl);
-      PathArc(bounds.L + ctl, y + ctl, ctl, 270.f, 360.f);
-      PathArc(bounds.L + bounds.W() - ctr, y + ctr, ctr, 0.f, 90.f);
-      PathArc(bounds.L + bounds.W() - cbr, y + bounds.H() - cbr, cbr, 90.f, 180.f);
-      PathArc(bounds.L + cbl, y + bounds.H() - cbl, cbl, 180.f, 270.f);
-      PathClose();
-    }
+      xPos = bounds.L + ((bounds.W() / (float) (nPoints - 1) * i));
+    
+    PathLineTo(xPos, bounds.B - (bounds.H() * normYPoints[i]));
   }
   
-  void IGraphics::PathRoundRect(const IRECT& bounds, float cr)
-  {
-    PathRoundRect(bounds, cr, cr, cr, cr);
-  }
+  PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}
+
+void IGraphics::DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen)
+{
+  PathClear();
   
-  void IGraphics::PathEllipse(float x, float y, float r1, float r2, float angle)
+  IStrokeOptions options;
+  options.mDash.SetDash(&dashLen, 0.0, 1);
+  PathMoveTo(x1, y1);
+  PathLineTo(x2, y2);
+  PathStroke(color, thickness, options, pBlend);
+}
+
+void IGraphics::DrawTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend, float thickness)
+{
+  PathClear();
+  PathTriangle(x1, y1, x2, y2, x3, y3);
+  PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}
+
+void IGraphics::DrawRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness)
+{
+  PathClear();
+  PathRect(bounds);
+  PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}
+
+void IGraphics::DrawRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend, float thickness)
+{
+  PathClear();
+  PathRoundRect(bounds, cornerRadius);
+  PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}
+
+void IGraphics::DrawRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend, float thickness)
+{
+  PathClear();
+  PathRoundRect(bounds, cRTL, cRTR, cRBR, cRBL);
+  PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}
+
+void IGraphics::DrawConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend, float thickness)
+{
+  PathClear();
+  PathConvexPolygon(x, y, nPoints);
+  PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}
+
+void IGraphics::DrawArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend, float thickness)
+{
+  PathClear();
+  PathArc(cx, cy, r, a1, a2);
+  PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}
+
+void IGraphics::DrawCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend, float thickness)
+{
+  PathClear();
+  PathCircle(cx, cy, r);
+  PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}
+
+void IGraphics::DrawDottedRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness, float dashLen)
+{
+  PathClear();
+  IStrokeOptions options;
+  options.mDash.SetDash(&dashLen, 0., 1);
+  PathRect(bounds);
+  PathStroke(color, thickness, options, pBlend);
+}
+
+void IGraphics::DrawEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend, float thickness)
+{
+  PathClear();
+  PathEllipse(bounds);
+  PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}
+
+void IGraphics::DrawEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend, float thickness)
+{
+  PathClear();
+  PathEllipse(x, y, r1, r2, angle);
+  PathStroke(color, thickness, IStrokeOptions(), pBlend);
+}
+
+void IGraphics::FillTriangle(const IColor& color, float x1, float y1, float x2, float y2, float x3, float y3, const IBlend* pBlend)
+{
+  PathClear();
+  PathTriangle(x1, y1, x2, y2, x3, y3);
+  PathFill(color, IFillOptions(), pBlend);
+}
+
+void IGraphics::FillRect(const IColor& color, const IRECT& bounds, const IBlend* pBlend)
+{
+  PathClear();
+  PathRect(bounds);
+  PathFill(color, IFillOptions(), pBlend);
+}
+
+void IGraphics::FillRoundRect(const IColor& color, const IRECT& bounds, float cornerRadius, const IBlend* pBlend)
+{
+  PathClear();
+  PathRoundRect(bounds, cornerRadius);
+  PathFill(color, IFillOptions(), pBlend);
+}
+
+void IGraphics::FillRoundRect(const IColor& color, const IRECT& bounds, float cRTL, float cRTR, float cRBR, float cRBL, const IBlend* pBlend)
+{
+  PathClear();
+  PathRoundRect(bounds, cRTL, cRTR, cRBR, cRBL);
+  PathFill(color, IFillOptions(), pBlend);
+}
+
+void IGraphics::FillConvexPolygon(const IColor& color, float* x, float* y, int nPoints, const IBlend* pBlend)
+{
+  PathClear();
+  PathConvexPolygon(x, y, nPoints);
+  PathFill(color, IFillOptions(), pBlend);
+}
+
+void IGraphics::FillArc(const IColor& color, float cx, float cy, float r, float a1, float a2, const IBlend* pBlend)
+{
+  PathClear();
+  PathMoveTo(cx, cy);
+  PathArc(cx, cy, r, a1, a2);
+  PathClose();
+  PathFill(color, IFillOptions(), pBlend);
+}
+
+void IGraphics::FillCircle(const IColor& color, float cx, float cy, float r, const IBlend* pBlend)
+{
+  PathClear();
+  PathCircle(cx, cy, r);
+  PathFill(color, IFillOptions(), pBlend);
+}
+
+void IGraphics::FillEllipse(const IColor& color, const IRECT& bounds, const IBlend* pBlend)
+{
+  PathClear();
+  PathEllipse(bounds);
+  PathFill(color, IFillOptions(), pBlend);
+}
+
+void IGraphics::FillEllipse(const IColor& color, float x, float y, float r1, float r2, float angle, const IBlend* pBlend)
+{
+  PathClear();
+  PathEllipse(x, y, r1, r2, angle);
+  PathFill(color, IFillOptions(), pBlend);
+}
+
+void IGraphics::PathTriangle(float x1, float y1, float x2, float y2, float x3, float y3)
+{
+  PathMoveTo(x1, y1);
+  PathLineTo(x2, y2);
+  PathLineTo(x3, y3);
+  PathClose();
+}
+
+void IGraphics::PathRect(const IRECT& bounds)
+{
+  PathMoveTo(bounds.L, bounds.T);
+  PathLineTo(bounds.R, bounds.T);
+  PathLineTo(bounds.R, bounds.B);
+  PathLineTo(bounds.L, bounds.B);
+  PathClose();
+}
+
+void IGraphics::PathRoundRect(const IRECT& bounds, float ctl, float ctr, float cbl, float cbr)
+{
+  if (ctl <= 0.f && ctr <= 0.f && cbl <= 0.f && cbr <= 0.f)
   {
-    PathTransformSave();
-    
-    if (r1 <= 0.0 || r2 <= 0.0)
-      return;
-    
-    PathTransformTranslate(x, y);
-    PathTransformRotate(angle);
-    PathTransformScale(r1, r2);
-    
-    PathCircle(0.0, 0.0, 1.0);
-    
-    PathTransformRestore();
+    PathRect(bounds);
   }
-  
-  void IGraphics::PathEllipse(const IRECT& bounds)
+  else
   {
-    PathEllipse(bounds.MW(), bounds.MH(), bounds.W() / 2.f, bounds.H() / 2.f);
-  }
-  
-  void IGraphics::PathCircle(float cx, float cy, float r)
-  {
-    PathMoveTo(cx, cy - r);
-    PathArc(cx, cy, r, 0.f, 360.f);
+    const float y = bounds.B - bounds.H();
+    PathMoveTo(bounds.L, y + ctl);
+    PathArc(bounds.L + ctl, y + ctl, ctl, 270.f, 360.f);
+    PathArc(bounds.L + bounds.W() - ctr, y + ctr, ctr, 0.f, 90.f);
+    PathArc(bounds.L + bounds.W() - cbr, y + bounds.H() - cbr, cbr, 90.f, 180.f);
+    PathArc(bounds.L + cbl, y + bounds.H() - cbl, cbl, 180.f, 270.f);
     PathClose();
   }
-  
-  void IGraphics::PathConvexPolygon(float* x, float* y, int nPoints)
-  {
-    PathMoveTo(x[0], y[0]);
-    for(int i = 1; i < nPoints; i++)
-      PathLineTo(x[i], y[i]);
-    PathClose();
-  }
-    
-  void IGraphics::PathTransformSave()
-  {
-    mTransformStates.push(mTransform);
-  }
-  
-  void IGraphics::PathTransformRestore()
-  {
-    if (!mTransformStates.empty())
-    {
-      mTransform = mTransformStates.top();
-      mTransformStates.pop();
-      PathTransformSetMatrix(mTransform);
-    }
-  }
-  
-  void IGraphics::PathTransformReset(bool clearStates)
-  {
-    if (clearStates)
-    {
-      std::stack<IMatrix> newStack;
-      mTransformStates.swap(newStack);
-    }
-    
-    mTransform = IMatrix();
-    PathTransformSetMatrix(mTransform);
-  }
-  
-  void IGraphics::PathTransformTranslate(float x, float y)
-  {
-    mTransform.Translate(x, y);
-    PathTransformSetMatrix(mTransform);
-  }
-  
-  void IGraphics::PathTransformScale(float scaleX, float scaleY)
-  {
-    mTransform.Scale(scaleX, scaleY);
-    PathTransformSetMatrix(mTransform);
-  }
-  
-  void IGraphics::PathTransformScale(float scale)
-  {
-    PathTransformScale(scale, scale);
-  }
-  
-  void IGraphics::PathTransformRotate(float angle)
-  {
-    mTransform.Rotate(angle);
-    PathTransformSetMatrix(mTransform);
-  }
-    
-  void IGraphics::PathTransformSkew(float xAngle, float yAngle)
-  {
-    mTransform.Skew(xAngle, yAngle);
-    PathTransformSetMatrix(mTransform);
-  }
+}
 
-  void IGraphics::PathTransformMatrix(const IMatrix& matrix)
+void IGraphics::PathRoundRect(const IRECT& bounds, float cr)
+{
+  PathRoundRect(bounds, cr, cr, cr, cr);
+}
+
+void IGraphics::PathEllipse(float x, float y, float r1, float r2, float angle)
+{
+  PathTransformSave();
+  
+  if (r1 <= 0.0 || r2 <= 0.0)
+    return;
+  
+  PathTransformTranslate(x, y);
+  PathTransformRotate(angle);
+  PathTransformScale(r1, r2);
+  
+  PathCircle(0.0, 0.0, 1.0);
+  
+  PathTransformRestore();
+}
+
+void IGraphics::PathEllipse(const IRECT& bounds)
+{
+  PathEllipse(bounds.MW(), bounds.MH(), bounds.W() / 2.f, bounds.H() / 2.f);
+}
+
+void IGraphics::PathCircle(float cx, float cy, float r)
+{
+  PathMoveTo(cx, cy - r);
+  PathArc(cx, cy, r, 0.f, 360.f);
+  PathClose();
+}
+
+void IGraphics::PathConvexPolygon(float* x, float* y, int nPoints)
+{
+  PathMoveTo(x[0], y[0]);
+  for(int i = 1; i < nPoints; i++)
+    PathLineTo(x[i], y[i]);
+  PathClose();
+}
+  
+void IGraphics::PathTransformSave()
+{
+  mTransformStates.push(mTransform);
+}
+
+void IGraphics::PathTransformRestore()
+{
+  if (!mTransformStates.empty())
   {
-    mTransform.Transform(matrix);
+    mTransform = mTransformStates.top();
+    mTransformStates.pop();
     PathTransformSetMatrix(mTransform);
   }
+}
 
-  void IGraphics::PathClipRegion(const IRECT r)
+void IGraphics::PathTransformReset(bool clearStates)
+{
+  if (clearStates)
   {
-    IRECT drawArea = mLayers.empty() ? mClipRECT : mLayers.top()->Bounds();
-    IRECT clip = r.Empty() ? drawArea : r.Intersect(drawArea);
-    PathTransformSetMatrix(IMatrix());
-    SetClipRegion(clip);
-    PathTransformSetMatrix(mTransform);
+    std::stack<IMatrix> newStack;
+    mTransformStates.swap(newStack);
   }
   
-  void IGraphics::DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend)
-  {
-    PathTransformSave();
-    PathTransformTranslate(bounds.L, bounds.T);
-    IRECT newBounds(0., 0., static_cast<float>(bitmap.W()), static_cast<float>(bitmap.H()));
-    PathTransformScale(bounds.W() / static_cast<float>(bitmap.W()), bounds.H() / static_cast<float>(bitmap.H()));
-    DrawBitmap(bitmap, newBounds, 0, 0, pBlend);
-    PathTransformRestore();
-  }
-  
-  void IGraphics::DrawSVG(const ISVG& svg, const IRECT& dest, const IBlend* pBlend)
-  {
-    float xScale = dest.W() / svg.W();
-    float yScale = dest.H() / svg.H();
-    float scale = xScale < yScale ? xScale : yScale;
-    
-    PathTransformSave();
-    PathTransformTranslate(dest.L, dest.T);
-    PathTransformScale(scale);
-    DoDrawSVG(svg, pBlend);
-    PathTransformRestore();
-  }
-  
-  void IGraphics::DrawRotatedSVG(const ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
-  {
-    PathTransformSave();
-    PathTransformTranslate(destCtrX, destCtrY);
-    PathTransformRotate((float) angle);
-    DrawSVG(svg, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), pBlend);
-    PathTransformRestore();
-  }
+  mTransform = IMatrix();
+  PathTransformSetMatrix(mTransform);
+}
 
-  IPattern IGraphics::GetSVGPattern(const NSVGpaint& paint, float opacity)
+void IGraphics::PathTransformTranslate(float x, float y)
+{
+  mTransform.Translate(x, y);
+  PathTransformSetMatrix(mTransform);
+}
+
+void IGraphics::PathTransformScale(float scaleX, float scaleY)
+{
+  mTransform.Scale(scaleX, scaleY);
+  PathTransformSetMatrix(mTransform);
+}
+
+void IGraphics::PathTransformScale(float scale)
+{
+  PathTransformScale(scale, scale);
+}
+
+void IGraphics::PathTransformRotate(float angle)
+{
+  mTransform.Rotate(angle);
+  PathTransformSetMatrix(mTransform);
+}
+  
+void IGraphics::PathTransformSkew(float xAngle, float yAngle)
+{
+  mTransform.Skew(xAngle, yAngle);
+  PathTransformSetMatrix(mTransform);
+}
+
+void IGraphics::PathTransformMatrix(const IMatrix& matrix)
+{
+  mTransform.Transform(matrix);
+  PathTransformSetMatrix(mTransform);
+}
+
+void IGraphics::PathClipRegion(const IRECT r)
+{
+  IRECT drawArea = mLayers.empty() ? mClipRECT : mLayers.top()->Bounds();
+  IRECT clip = r.Empty() ? drawArea : r.Intersect(drawArea);
+  PathTransformSetMatrix(IMatrix());
+  SetClipRegion(clip);
+  PathTransformSetMatrix(mTransform);
+}
+
+void IGraphics::DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend)
+{
+  PathTransformSave();
+  PathTransformTranslate(bounds.L, bounds.T);
+  IRECT newBounds(0., 0., static_cast<float>(bitmap.W()), static_cast<float>(bitmap.H()));
+  PathTransformScale(bounds.W() / static_cast<float>(bitmap.W()), bounds.H() / static_cast<float>(bitmap.H()));
+  DrawBitmap(bitmap, newBounds, 0, 0, pBlend);
+  PathTransformRestore();
+}
+
+void IGraphics::DrawSVG(const ISVG& svg, const IRECT& dest, const IBlend* pBlend)
+{
+  float xScale = dest.W() / svg.W();
+  float yScale = dest.H() / svg.H();
+  float scale = xScale < yScale ? xScale : yScale;
+  
+  PathTransformSave();
+  PathTransformTranslate(dest.L, dest.T);
+  PathTransformScale(scale);
+  DoDrawSVG(svg, pBlend);
+  PathTransformRestore();
+}
+
+void IGraphics::DrawRotatedSVG(const ISVG& svg, float destCtrX, float destCtrY, float width, float height, double angle, const IBlend* pBlend)
+{
+  PathTransformSave();
+  PathTransformTranslate(destCtrX, destCtrY);
+  PathTransformRotate((float) angle);
+  DrawSVG(svg, IRECT(-width * 0.5f, - height * 0.5f, width * 0.5f, height * 0.5f), pBlend);
+  PathTransformRestore();
+}
+
+IPattern IGraphics::GetSVGPattern(const NSVGpaint& paint, float opacity)
+{
+  int alpha = std::min(255, std::max(int(roundf(opacity * 255.f)), 0));
+  
+  switch (paint.type)
   {
-    int alpha = std::min(255, std::max(int(roundf(opacity * 255.f)), 0));
-    
-    switch (paint.type)
+    case NSVG_PAINT_COLOR:
+      return IColor(alpha, (paint.color >> 0) & 0xFF, (paint.color >> 8) & 0xFF, (paint.color >> 16) & 0xFF);
+      
+    case NSVG_PAINT_LINEAR_GRADIENT:
+    case NSVG_PAINT_RADIAL_GRADIENT:
     {
-      case NSVG_PAINT_COLOR:
-        return IColor(alpha, (paint.color >> 0) & 0xFF, (paint.color >> 8) & 0xFF, (paint.color >> 16) & 0xFF);
-        
-      case NSVG_PAINT_LINEAR_GRADIENT:
-      case NSVG_PAINT_RADIAL_GRADIENT:
+      NSVGgradient* pGrad = paint.gradient;
+      
+      IPattern pattern(paint.type == NSVG_PAINT_LINEAR_GRADIENT ? EPatternType::Linear : EPatternType::Radial);
+      
+      // Set Extend Rule
+      switch (pGrad->spread)
       {
-        NSVGgradient* pGrad = paint.gradient;
-        
-        IPattern pattern(paint.type == NSVG_PAINT_LINEAR_GRADIENT ? EPatternType::Linear : EPatternType::Radial);
-        
-        // Set Extend Rule
-        switch (pGrad->spread)
-        {
-          case NSVG_SPREAD_PAD:       pattern.mExtend = EPatternExtend::Pad;       break;
-          case NSVG_SPREAD_REFLECT:   pattern.mExtend = EPatternExtend::Reflect;   break;
-          case NSVG_SPREAD_REPEAT:    pattern.mExtend = EPatternExtend::Repeat;    break;
-        }
-        
-        // Copy Stops        
-        for (int i = 0; i < pGrad->nstops; i++)
-        {
-          unsigned int color = pGrad->stops[i].color;
-          pattern.AddStop(IColor(255, (color >> 0) & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF), pGrad->stops[i].offset);
-        }
-        
-        // Copy transform        
-        pattern.SetTransform(pGrad->xform[0], pGrad->xform[1], pGrad->xform[2], pGrad->xform[3], pGrad->xform[4], pGrad->xform[5]);
-        
-        return pattern;
+        case NSVG_SPREAD_PAD:       pattern.mExtend = EPatternExtend::Pad;       break;
+        case NSVG_SPREAD_REFLECT:   pattern.mExtend = EPatternExtend::Reflect;   break;
+        case NSVG_SPREAD_REPEAT:    pattern.mExtend = EPatternExtend::Repeat;    break;
       }
-      default:
-        return IColor(alpha, 0, 0, 0);
-    }
-  }
-  
-  void IGraphics::DoDrawSVG(const ISVG& svg, const IBlend* pBlend)
-  {
-#ifdef IGRAPHICS_SKIA
-    SkCanvas* canvas = static_cast<SkCanvas*>(GetDrawContext());
-    svg.mSVGDom->render(canvas); //TODO: blend
-#else
-    NSVGimage* pImage = svg.mImage;
-    
-    assert(pImage != nullptr);
-    
-    for (NSVGshape* pShape = pImage->shapes; pShape; pShape = pShape->next)
-    {
-      if (!(pShape->flags & NSVG_FLAGS_VISIBLE))
-        continue;
       
-      // Build a new path for each shape
-      PathClear();
-      
-      // iterate subpaths in this shape
-      for (NSVGpath* pPath = pShape->paths; pPath; pPath = pPath->next)
+      // Copy Stops        
+      for (int i = 0; i < pGrad->nstops; i++)
       {
-        PathMoveTo(pPath->pts[0], pPath->pts[1]);
-        
-        for (int i = 1; i < pPath->npts; i += 3)
+        unsigned int color = pGrad->stops[i].color;
+        pattern.AddStop(IColor(255, (color >> 0) & 0xFF, (color >> 8) & 0xFF, (color >> 16) & 0xFF), pGrad->stops[i].offset);
+      }
+      
+      // Copy transform        
+      pattern.SetTransform(pGrad->xform[0], pGrad->xform[1], pGrad->xform[2], pGrad->xform[3], pGrad->xform[4], pGrad->xform[5]);
+      
+      return pattern;
+    }
+    default:
+      return IColor(alpha, 0, 0, 0);
+  }
+}
+
+void IGraphics::DoDrawSVG(const ISVG& svg, const IBlend* pBlend)
+{
+#ifdef SVG_USE_SKIA
+  SkCanvas* canvas = static_cast<SkCanvas*>(GetDrawContext());
+  svg.mSVGDom->render(canvas); //TODO: blend
+#else
+  NSVGimage* pImage = svg.mImage;
+  
+  assert(pImage != nullptr);
+  
+  for (NSVGshape* pShape = pImage->shapes; pShape; pShape = pShape->next)
+  {
+    if (!(pShape->flags & NSVG_FLAGS_VISIBLE))
+      continue;
+    
+    // Build a new path for each shape
+    PathClear();
+    
+    // iterate subpaths in this shape
+    for (NSVGpath* pPath = pShape->paths; pPath; pPath = pPath->next)
+    {
+      PathMoveTo(pPath->pts[0], pPath->pts[1]);
+      
+      for (int i = 1; i < pPath->npts; i += 3)
+      {
+        float *p = &pPath->pts[i*2];
+        PathCubicBezierTo(p[0], p[1], p[2], p[3], p[4], p[5]);
+      }
+      
+      if (pPath->closed)
+        PathClose();
+      
+      // Compute whether this path is a hole or a solid and set the winding direction accordingly.
+      int crossings = 0;
+      IVec2 p0{pPath->pts[0], pPath->pts[1]};
+      IVec2 p1{pPath->bounds[0] - 1.0f, pPath->bounds[1] - 1.0f};
+      // Iterate all other paths
+      for (NSVGpath *pPath2 = pShape->paths; pPath2; pPath2 = pPath2->next)
+      {
+        if (pPath2 == pPath)
+          continue;
+        // Iterate all lines on the path
+        if (pPath2->npts < 4)
+          continue;
+        for (int i = 1; i < pPath2->npts + 3; i += 3)
         {
-          float *p = &pPath->pts[i*2];
-          PathCubicBezierTo(p[0], p[1], p[2], p[3], p[4], p[5]);
-        }
-        
-        if (pPath->closed)
-          PathClose();
-        
-        // Compute whether this path is a hole or a solid and set the winding direction accordingly.
-        int crossings = 0;
-        IVec2 p0{pPath->pts[0], pPath->pts[1]};
-        IVec2 p1{pPath->bounds[0] - 1.0f, pPath->bounds[1] - 1.0f};
-        // Iterate all other paths
-        for (NSVGpath *pPath2 = pShape->paths; pPath2; pPath2 = pPath2->next)
-        {
-          if (pPath2 == pPath)
-            continue;
-          // Iterate all lines on the path
-          if (pPath2->npts < 4)
-            continue;
-          for (int i = 1; i < pPath2->npts + 3; i += 3)
+          float *p = &pPath2->pts[2*i];
+          // The previous point
+          IVec2 p2 {p[-2], p[-1]};
+          // The current point
+          IVec2 p3 = (i < pPath2->npts) ? IVec2{p[4], p[5]} : IVec2{pPath2->pts[0], pPath2->pts[1]};
+          float crossing = GetLineCrossing(p0, p1, p2, p3);
+          float crossing2 = GetLineCrossing(p2, p3, p0, p1);
+          if (0.0 <= crossing && crossing < 1.0 && 0.0 <= crossing2)
           {
-            float *p = &pPath2->pts[2*i];
-            // The previous point
-            IVec2 p2 {p[-2], p[-1]};
-            // The current point
-            IVec2 p3 = (i < pPath2->npts) ? IVec2{p[4], p[5]} : IVec2{pPath2->pts[0], pPath2->pts[1]};
-            float crossing = GetLineCrossing(p0, p1, p2, p3);
-            float crossing2 = GetLineCrossing(p2, p3, p0, p1);
-            if (0.0 <= crossing && crossing < 1.0 && 0.0 <= crossing2)
-            {
-              crossings++;
-            }
+            crossings++;
           }
         }
-        PathSetWinding(crossings % 2 != 0);
       }
-      
-      // Fill combined path using windings set in subpaths
-      if (pShape->fill.type != NSVG_PAINT_NONE)
-      {
-        IFillOptions options;
-        options.mFillRule = EFillRule::Preserve;
-        
-        options.mPreserve = pShape->stroke.type != NSVG_PAINT_NONE;
-        PathFill(GetSVGPattern(pShape->fill, pShape->opacity), options, pBlend);
-      }
-      
-      // Stroke
-      if (pShape->stroke.type != NSVG_PAINT_NONE)
-      {
-        IStrokeOptions options;
-        
-        options.mMiterLimit = pShape->miterLimit;
-        
-        switch (pShape->strokeLineCap)
-        {
-          case NSVG_CAP_BUTT:   options.mCapOption = ELineCap::Butt;    break;
-          case NSVG_CAP_ROUND:  options.mCapOption = ELineCap::Round;   break;
-          case NSVG_CAP_SQUARE: options.mCapOption = ELineCap::Square;  break;
-        }
-        
-        switch (pShape->strokeLineJoin)
-        {
-          case NSVG_JOIN_MITER:   options.mJoinOption = ELineJoin::Miter;   break;
-          case NSVG_JOIN_ROUND:   options.mJoinOption = ELineJoin::Round;   break;
-          case NSVG_JOIN_BEVEL:   options.mJoinOption = ELineJoin::Bevel;   break;
-        }
-        
-        options.mDash.SetDash(pShape->strokeDashArray, pShape->strokeDashOffset, pShape->strokeDashCount);
-        
-        PathStroke(GetSVGPattern(pShape->stroke, pShape->opacity), pShape->strokeWidth, options, pBlend);
-      }
+      PathSetWinding(crossings % 2 != 0);
     }
-  #endif
+    
+    // Fill combined path using windings set in subpaths
+    if (pShape->fill.type != NSVG_PAINT_NONE)
+    {
+      IFillOptions options;
+      options.mFillRule = EFillRule::Preserve;
+      
+      options.mPreserve = pShape->stroke.type != NSVG_PAINT_NONE;
+      PathFill(GetSVGPattern(pShape->fill, pShape->opacity), options, pBlend);
+    }
+    
+    // Stroke
+    if (pShape->stroke.type != NSVG_PAINT_NONE)
+    {
+      IStrokeOptions options;
+      
+      options.mMiterLimit = pShape->miterLimit;
+      
+      switch (pShape->strokeLineCap)
+      {
+        case NSVG_CAP_BUTT:   options.mCapOption = ELineCap::Butt;    break;
+        case NSVG_CAP_ROUND:  options.mCapOption = ELineCap::Round;   break;
+        case NSVG_CAP_SQUARE: options.mCapOption = ELineCap::Square;  break;
+      }
+      
+      switch (pShape->strokeLineJoin)
+      {
+        case NSVG_JOIN_MITER:   options.mJoinOption = ELineJoin::Miter;   break;
+        case NSVG_JOIN_ROUND:   options.mJoinOption = ELineJoin::Round;   break;
+        case NSVG_JOIN_BEVEL:   options.mJoinOption = ELineJoin::Bevel;   break;
+      }
+      
+      options.mDash.SetDash(pShape->strokeDashArray, pShape->strokeDashOffset, pShape->strokeDashCount);
+      
+      PathStroke(GetSVGPattern(pShape->stroke, pShape->opacity), pShape->strokeWidth, options, pBlend);
+    }
+  }
+#endif
   }
