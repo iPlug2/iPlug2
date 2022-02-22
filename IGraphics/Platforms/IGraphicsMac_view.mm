@@ -1307,6 +1307,175 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 }
 #endif
 
+- (void) attachGestureRecognizer: (EGestureType) type
+{
+  NSGestureRecognizer* gestureRecognizer;
+  
+  switch (type)
+  {
+    case EGestureType::DoubleTap:
+    case EGestureType::TripleTap:
+    {
+      gestureRecognizer = [[NSClickGestureRecognizer alloc] initWithTarget:self action:@selector(onTapGesture:)];
+      [(NSClickGestureRecognizer*) gestureRecognizer setNumberOfClicksRequired: type == EGestureType::DoubleTap ? 2 : 3];
+      [(NSClickGestureRecognizer*) gestureRecognizer setNumberOfTouchesRequired:1];
+      break;
+    }
+    case EGestureType::LongPress1:
+    case EGestureType::LongPress2:
+    {
+      gestureRecognizer = [[NSPressGestureRecognizer alloc] initWithTarget:self action:@selector(onLongPressGesture:)];
+      [(NSPressGestureRecognizer*) gestureRecognizer setNumberOfTouchesRequired: type == EGestureType::LongPress1 ? 1 : 2];
+      break;
+    }
+//    case EGestureType::SwipeLeft:
+//    {
+//      gestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeGesture:)];
+//      [(UISwipeGestureRecognizer*) gestureRecognizer setDirection:UISwipeGestureRecognizerDirectionLeft];
+//      break;
+//    }
+//    case EGestureType::SwipeRight:
+//    {
+//      gestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeGesture:)];
+//      [(UISwipeGestureRecognizer*) gestureRecognizer setDirection:UISwipeGestureRecognizerDirectionRight];
+//      break;
+//    }
+//    case EGestureType::SwipeUp:
+//    {
+//      gestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeGesture:)];
+//      [(UISwipeGestureRecognizer*) gestureRecognizer setDirection:UISwipeGestureRecognizerDirectionUp];
+//      break;
+//    }
+//    case EGestureType::SwipeDown:
+//    {
+//      gestureRecognizer = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(onSwipeGesture:)];
+//      [(UISwipeGestureRecognizer*) gestureRecognizer setDirection:UISwipeGestureRecognizerDirectionDown];
+//      break;
+//    }
+    case EGestureType::Pinch:
+    {
+      gestureRecognizer = [[NSMagnificationGestureRecognizer alloc] initWithTarget:self action:@selector(onMagnificationGesture:)];
+      break;
+    }
+    case EGestureType::Rotate:
+    {
+      gestureRecognizer = [[NSRotationGestureRecognizer alloc] initWithTarget:self action:@selector(onRotateGesture:)];
+      break;
+    }
+    default:
+      return;
+  }
+    
+  gestureRecognizer.delegate = self;
+//  gestureRecognizer.delaysPrimaryMouseButtonEvents = YES;
+  [self addGestureRecognizer:gestureRecognizer];
+}
+
+- (void) onClickGesture: (NSClickGestureRecognizer*) recognizer
+{
+  CGPoint p = [recognizer locationInView:self];
+  auto ds = mGraphics->GetDrawScale();
+  IGestureInfo info;
+  info.x = p.x / ds;
+  info.y = p.y / ds;
+  info.type = recognizer.numberOfClicksRequired == 2 ? EGestureType::DoubleTap : EGestureType::TripleTap;
+  
+  mGraphics->OnGestureRecognized(info);
+}
+
+- (void) onPressGesture: (NSPressGestureRecognizer*) recognizer
+{
+  CGPoint p = [recognizer locationInView:self];
+  auto ds = mGraphics->GetDrawScale();
+  IGestureInfo info;
+  info.x = p.x / ds;
+  info.y = p.y / ds;
+  if(recognizer.state == NSGestureRecognizerStateBegan)
+    info.state = EGestureState::Began;
+  else if(recognizer.state == NSGestureRecognizerStateChanged)
+    info.state = EGestureState::InProcess;
+  else if(recognizer.state == NSGestureRecognizerStateEnded)
+    info.state = EGestureState::Ended;
+  
+  info.type = recognizer.numberOfTouchesRequired == 1 ? EGestureType::LongPress1 : EGestureType::LongPress2;
+  
+  mGraphics->OnGestureRecognized(info);
+}
+
+//- (void) onPanGesture: (NSPanGestureRecognizer*) recognizer
+//{
+//  CGPoint p = [recognizer locationInView:self];
+//  auto ds = mGraphics->GetDrawScale();
+//  IGestureInfo info;
+//  info.x = p.x / ds;
+//  info.y = p.y / ds;
+//
+//  switch (recognizer.direction) {
+//    case UISwipeGestureRecognizerDirectionLeft: info.type = EGestureType::SwipeLeft; break;
+//    case UISwipeGestureRecognizerDirectionRight: info.type = EGestureType::SwipeRight; break;
+//    case UISwipeGestureRecognizerDirectionUp: info.type = EGestureType::SwipeUp; break;
+//    case UISwipeGestureRecognizerDirectionDown: info.type = EGestureType::SwipeDown; break;
+//    default:
+//      break;
+//  }
+//  
+//  mGraphics->OnGestureRecognized(info);
+//}
+
+- (void) onMagnificationGesture: (NSMagnificationGestureRecognizer*) recognizer
+{
+  CGPoint p = [recognizer locationInView:self];
+  auto ds = mGraphics->GetDrawScale();
+  IGestureInfo info;
+  info.x = p.x / ds;
+  info.y = p.y / ds;
+  info.scale = recognizer.magnification;
+  
+  if(recognizer.state == NSGestureRecognizerStateBegan)
+    info.state = EGestureState::Began;
+  else if(recognizer.state == NSGestureRecognizerStateChanged)
+    info.state = EGestureState::InProcess;
+  else if(recognizer.state == NSGestureRecognizerStateEnded)
+    info.state = EGestureState::Ended;
+  
+  info.type = EGestureType::Pinch;
+  
+  mGraphics->OnGestureRecognized(info);
+}
+
+- (void) onRotateGesture: (NSRotationGestureRecognizer*) recognizer
+{
+  CGPoint p = [recognizer locationInView:self];
+  auto ds = mGraphics->GetDrawScale();
+  IGestureInfo info;
+  info.x = p.x / ds;
+  info.y = p.y / ds;
+  info.angle = RadToDeg(recognizer.rotation);
+  
+  if(recognizer.state == NSGestureRecognizerStateBegan)
+    info.state = EGestureState::Began;
+  else if(recognizer.state == NSGestureRecognizerStateChanged)
+    info.state = EGestureState::InProcess;
+  else if(recognizer.state == NSGestureRecognizerStateEnded)
+    info.state = EGestureState::Ended;
+  
+  info.type = EGestureType::Rotate;
+
+  mGraphics->OnGestureRecognized(info);
+}
+
+-(BOOL) gestureRecognizer:(NSGestureRecognizer*) gestureRecognizer shouldReceiveTouch:(NSTouch*) touch
+{
+  CGPoint pos = [touch locationInView:self];
+  
+  auto ds = mGraphics->GetDrawScale();
+
+  if(mGraphics->RespondsToGesture(pos.x / ds, pos.y / ds))
+    return TRUE;
+  else
+    return FALSE;
+}
+
 //- (void) windowResized: (NSNotification*) notification;
 //{
 //  if(!mGraphics)

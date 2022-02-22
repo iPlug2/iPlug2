@@ -124,6 +124,12 @@ void IGraphicsMac::RemovePlatformView(void* pView)
   [(NSView*) pView removeFromSuperview];
 }
 
+void IGraphicsMac::AttachGestureRecognizer(EGestureType type)
+{
+  IGraphics::AttachGestureRecognizer(type);
+  [(IGRAPHICS_VIEW*) mView attachGestureRecognizer:type];
+}
+
 void IGraphicsMac::HidePlatformView(void* pView, bool hide)
 {
   [(NSView*) pView setHidden:hide];
