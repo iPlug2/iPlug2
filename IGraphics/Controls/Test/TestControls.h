@@ -31,7 +31,7 @@
 #include "TestCursorControl.h"
 #include "TestKeyboardControl.h"
 #include "TestShadowGradientControl.h"
-#include "TestGLControl.h"
+#include "TestCustomShaderControl.h"
 #include "TestTextOrientationControl.h"
 #include "TestTextSizeControl.h"
 #include "TestSizeControl.h"

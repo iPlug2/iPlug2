@@ -1,67 +1,53 @@
 /*
  ==============================================================================
-
+ 
  This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
-
+ 
  See LICENSE.txt for  more info.
-
+ 
  ==============================================================================
-*/
+ */
 
 #pragma once
 
+#include "IControl.h"
+#if defined IGRAPHICS_NANOVG
+
 /**
  * @file
- * @copydoc TestGLControl
- * @ingroup TestControls
+ * @copydoc TestCustomShaderControl
  */
 
-#include "IControl.h"
-#include "IGraphics_select.h"
+#include "IGraphicsNanoVG.h"
 
-#ifdef IGRAPHICS_NANOVG
-/** Control to test Drawing in using OpenGL in supporting backends */
-class TestGLControl : public IControl
+using namespace iplug;
+using namespace igraphics;
+
+/** Control to test IGraphicsNanoVG with a custom shader (OpenGL/Metal)
+ *   @ingroup TestControls */
+class TestCustomShaderControl : public IKnobControlBase
 {
 public:
-  TestGLControl(const IRECT& rect)
-    : IControl(rect, kNoParameter)
+  TestCustomShaderControl(const IRECT& bounds, int paramIdx)
+  : IKnobControlBase(bounds, paramIdx)
   {
-    SetTooltip("TestGLControl");
-
-//    SetActionFunction([&](IControl* pCaller)
-//    {
-//      SetAnimation([&](IControl* pCaller)
-//      {
-//        auto progress = pCaller->GetAnimationProgress();
-//
-//        mXRotation += progress * 5.;
-//        mYRotation += progress * 10.;
-//
-//        pCaller->SetDirty(false);
-//
-//        if (progress > 1.) {
-//          pCaller->OnEndAnimation();
-//          return;
-//        }
-//
-//      }, 1000);
-//    });
+    SetTooltip("TestCustomShaderControl");
   }
   
-  ~TestGLControl()
+  ~TestCustomShaderControl()
   {
     if (mFBO)
       nvgDeleteFramebuffer(mFBO);
   }
-
+  
+#ifdef IGRAPHICS_GL
   void Draw(IGraphics& g) override
   {
     NVGcontext* vg = static_cast<NVGcontext*>(g.GetDrawContext());
     int w = static_cast<int>(mRECT.W() * g.GetDrawScale());
     int h = static_cast<int>(mRECT.H() * g.GetDrawScale());
     
-    if(invalidateFBO)
+    if (invalidateFBO)
     {
       if (mFBO)
         nvgDeleteFramebuffer(mFBO);
@@ -74,7 +60,6 @@ public:
     g.DrawDottedRect(COLOR_BLACK, mRECT);
     g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
 
-#ifdef IGRAPHICS_GL
     nvgEndFrame(vg);
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mInitialFBO);
 
@@ -88,36 +73,7 @@ public:
     glScissor(0, 0, w, h);
     glClearColor(0.f, 0.f, 0.f, 0.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-    DrawGL();
-    glViewport(vp[0], vp[1], vp[2], vp[3]);
     
-    nvgEndFrame(vg);
-    glBindFramebuffer(GL_FRAMEBUFFER, mInitialFBO);
-    nvgBeginFrame(vg, static_cast<float>(g.WindowWidth()), static_cast<float>(g.WindowHeight()), static_cast<float>(g.GetScreenScale()));
-
-    APIBitmap apibmp {mFBO->image, w, h, 1, 1.};
-    IBitmap bmp {&apibmp, 1, false};
-    
-    g.DrawFittedBitmap(bmp, mRECT);
-#else
-    g.DrawText(mText, "UNSUPPORTED", mRECT);
-#endif
-  }
-  
-  void OnResize() override
-  {
-    invalidateFBO = true;
-  }
-  
-  void OnRescale() override
-  {
-    invalidateFBO = true;
-  }
-
-#ifdef IGRAPHICS_GL
-  void DrawGL()
-  {
     // code from emscripten tests
     
     auto compileShader = [](GLenum shaderType, const char *src) {
@@ -151,6 +107,8 @@ public:
       return program;
     };
     
+    printf("Supported GLSL version is %s.\n", (char *)glGetString(GL_SHADING_LANGUAGE_VERSION));
+
     static const char vs_str[] =
     "attribute vec4 apos;"
     "attribute vec4 acolor;"
@@ -168,7 +126,7 @@ public:
     "varying vec4 color;"
     "uniform vec4 color2;"
     "void main() {"
-    "gl_FragColor = color*color2;"
+    "gl_FragColor = color;"
     "}";
     GLuint fs = compileShader(GL_FRAGMENT_SHADER, fs_str);
     
@@ -176,10 +134,10 @@ public:
     glUseProgram(program);
     
     static const float posAndColor[] = {
-      //     x,     y, r, g, b
-      -0.6f, -0.6f, 1, 0, 0,
-      0.6f, -0.6f, 0, 1, 0,
-      0.f,   0.6f, 0, 0, 1,
+    //     x,     y,    r,     g,  b
+          -0.6f, -0.6f, 1.0, 0.0, 0.0,
+           0.6f, -0.6f, 0.0, 1.0, 0.0,
+           0.f,   0.6f, 0.0, 0.0, 1.0,
     };
     
     GLuint vbo;
@@ -191,27 +149,56 @@ public:
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     
-    float color2[4] = { 0.0f, 1.f, 0.0f, 1.0f };
-    glUniform4fv(glGetUniformLocation(program, "color2"), 1, color2);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+    glViewport(vp[0], vp[1], vp[2], vp[3]);
+    
+    nvgEndFrame(vg);
+    glBindFramebuffer(GL_FRAMEBUFFER, mInitialFBO);
+    nvgBeginFrame(vg, static_cast<float>(g.WindowWidth()),
+                      static_cast<float>(g.WindowHeight()),
+                      static_cast<float>(g.GetScreenScale()));
+
+    APIBitmap apibmp {mFBO->image, w, h, 1, 1.};
+    IBitmap bmp {&apibmp, 1, false};
+    
+    g.DrawFittedBitmap(bmp, mRECT);
   }
+  
+  void OnResize() override
+  {
+    invalidateFBO = true;
+  }
+  
+  void OnRescale() override
+  {
+    invalidateFBO = true;
+  }
+#elif defined IGRAPHICS_METAL
+  void Draw(IGraphics& g) override;
 #endif
 
 private:
   NVGframebuffer* mFBO = nullptr;
+  
+#ifdef IGRAPHICS_METAL
+  void* _renderToTextureRenderPassDescriptor = nullptr;
+  void* _renderToTextureRenderPipeline = nullptr;
+#else
   int mInitialFBO = 0;
   bool invalidateFBO = true;
+#endif
 };
 
 #else
-/** Control to test Drawing in using OpenGL in supporting backends */
-class TestGLControl : public IControl
+/** Control to test IGraphicsNanoVG with Metal Shaders */
+class TestCustomShaderControl : public IControl
 {
 public:
-  TestGLControl(const IRECT& rect)
+  TestCustomShaderControl(IRECT rect, const IBitmap& bmp, int paramIdx)
   : IControl(rect)
   {
-    SetTooltip("TestGLControl");
+    SetTooltip("TestCustomShaderControl");
   }
   
   void Draw(IGraphics& g) override

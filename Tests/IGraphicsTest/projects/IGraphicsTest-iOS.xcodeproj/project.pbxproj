@@ -39,12 +39,16 @@
 		4FA61F9222E8A2B500A92C58 /* IGraphicsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF108720A1036200D3092F /* IGraphicsTest.cpp */; };
 		4FA61F9422E8A71D00A92C58 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4FA61F9722E8A7E900A92C58 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
+		4FAA6AC727C57E280068E432 /* TestCustomShaderControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6AC527C57E280068E432 /* TestCustomShaderControl.mm */; };
+		4FAA6AC827C57E280068E432 /* TestCustomShaderControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FAA6AC627C57E280068E432 /* TestCustomShaderControl.h */; };
+		4FAA6AD727C57EEF0068E432 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6AD627C57EEF0068E432 /* TestMPSControl.mm */; };
+		4FAA6ADC27C57F910068E432 /* ShaderTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FAA6ADA27C57F910068E432 /* ShaderTypes.h */; };
+		4FAA6ADD27C5811C0068E432 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6AD927C57F910068E432 /* Shaders.metal */; };
 		4FB2269720A0D3A800614769 /* IGraphicsTest-iOS-LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IGraphicsTest-iOS-LaunchScreen.storyboard */; };
 		4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D732267CE540007B686 /* AppViewController.mm */; };
 		4FDF6D792267CE540007B686 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D742267CE540007B686 /* main.m */; };
 		4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D752267CE540007B686 /* AppDelegate.m */; };
 		4FDF6D7F2267CEBA0007B686 /* IPlugAUPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D7D2267CEBA0007B686 /* IPlugAUPlayer.mm */; };
-		4FE59A07232033F50012B628 /* TestGLControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE599EB232033F50012B628 /* TestGLControl.h */; };
 		4FE59A08232033F50012B628 /* TestCursorControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE599EC232033F50012B628 /* TestCursorControl.h */; };
 		4FE59A09232033F50012B628 /* TestSizeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE599ED232033F50012B628 /* TestSizeControl.h */; };
 		4FE59A0A232033F50012B628 /* TestAnimationControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE599EE232033F50012B628 /* TestAnimationControl.h */; };
@@ -58,7 +62,6 @@
 		4FE59A12232033F50012B628 /* TestImageControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE599F6232033F50012B628 /* TestImageControl.h */; };
 		4FE59A13232033F50012B628 /* TestDirBrowseControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE599F7232033F50012B628 /* TestDirBrowseControl.h */; };
 		4FE59A14232033F50012B628 /* TestLayerControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE599F8232033F50012B628 /* TestLayerControl.h */; };
-		4FE59A15232033F50012B628 /* TestMouseControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE599F9232033F50012B628 /* TestMouseControl.h */; };
 		4FE59A16232033F50012B628 /* TestControls.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE599FA232033F50012B628 /* TestControls.h */; };
 		4FE59A17232033F50012B628 /* TestTextOrientationControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE599FB232033F50012B628 /* TestTextOrientationControl.h */; };
 		4FE59A18232033F50012B628 /* TestTextSizeControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE599FC232033F50012B628 /* TestTextSizeControl.h */; };
@@ -69,7 +72,6 @@
 		4FE59A1D232033F50012B628 /* TestDropShadowControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE59A01232033F50012B628 /* TestDropShadowControl.h */; };
 		4FE59A1E232033F50012B628 /* TestGFXLabel.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE59A02232033F50012B628 /* TestGFXLabel.h */; };
 		4FE59A1F232033F50012B628 /* TestMultiPathControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE59A03232033F50012B628 /* TestMultiPathControl.h */; };
-		4FE59A20232033F50012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE59A04232033F50012B628 /* TestMPSControl.mm */; };
 		4FE59A21232033F50012B628 /* TestArcControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE59A05232033F50012B628 /* TestArcControl.h */; };
 		4FE59A22232033F50012B628 /* TestPolyControl.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FE59A06232033F50012B628 /* TestPolyControl.h */; };
 		91236D811B08F59300734C5E /* IGraphicsTestAppExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 91236D771B08F59300734C5E /* IGraphicsTestAppExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -149,7 +151,8 @@
 		4F63699120A463AF0022C370 /* IGraphicsIOS_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsIOS_view.mm; sourceTree = "<group>"; };
 		4F63699220A463AF0022C370 /* IGraphicsPopupMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPopupMenu.h; sourceTree = "<group>"; };
 		4F63699320A463AF0022C370 /* IGraphicsUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsUtilities.h; sourceTree = "<group>"; };
-		4F63699420A463AF0022C370 /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };		4F63699F20A463AF0022C370 /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsStructs.h; sourceTree = "<group>"; };
+		4F63699420A463AF0022C370 /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };
+		4F63699F20A463AF0022C370 /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsStructs.h; sourceTree = "<group>"; };
 		4F6369A020A463AF0022C370 /* IGraphicsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsConstants.h; sourceTree = "<group>"; };
 		4F6369A120A463AF0022C370 /* IGraphicsLiveEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLiveEdit.h; sourceTree = "<group>"; };
 		4F6369A220A463AF0022C370 /* IGraphics_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_select.h; sourceTree = "<group>"; };
@@ -204,6 +207,11 @@
 		4FA61F7A22E89A2700A92C58 /* IGraphicsTest-iOS-AUv3Framework-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IGraphicsTest-iOS-AUv3Framework-Info.plist"; path = "../resources/IGraphicsTest-iOS-AUv3Framework-Info.plist"; sourceTree = "<group>"; };
 		4FA61F7B22E89A5900A92C58 /* AUv3Framework.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AUv3Framework.h; path = ../resources/AUv3Framework.h; sourceTree = "<group>"; };
 		4FA758452186222E00F1BCC3 /* IPlugPaths.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPaths.mm; path = ../../../IPlug/IPlugPaths.mm; sourceTree = "<group>"; };
+		4FAA6AC527C57E280068E432 /* TestCustomShaderControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TestCustomShaderControl.mm; sourceTree = "<group>"; };
+		4FAA6AC627C57E280068E432 /* TestCustomShaderControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestCustomShaderControl.h; sourceTree = "<group>"; };
+		4FAA6AD627C57EEF0068E432 /* TestMPSControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TestMPSControl.mm; sourceTree = "<group>"; };
+		4FAA6AD927C57F910068E432 /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		4FAA6ADA27C57F910068E432 /* ShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
 		4FB2269620A0D3A800614769 /* IGraphicsTest-iOS-LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IGraphicsTest-iOS-LaunchScreen.storyboard"; path = "../resources/IGraphicsTest-iOS-LaunchScreen.storyboard"; sourceTree = "<group>"; };
 		4FBBD7F420B6ABE700A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
 		4FC46E58231440C8000045E7 /* web */ = {isa = PBXFileReference; lastKnownFileType = folder; name = web; path = ../resources/web; sourceTree = "<group>"; };
@@ -221,7 +229,6 @@
 		4FDF6D762267CE540007B686 /* AppViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppViewController.h; sourceTree = "<group>"; };
 		4FDF6D7D2267CEBA0007B686 /* IPlugAUPlayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugAUPlayer.mm; sourceTree = "<group>"; };
 		4FDF6D7E2267CEBA0007B686 /* IPlugAUPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugAUPlayer.h; sourceTree = "<group>"; };
-		4FE599EB232033F50012B628 /* TestGLControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestGLControl.h; sourceTree = "<group>"; };
 		4FE599EC232033F50012B628 /* TestCursorControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestCursorControl.h; sourceTree = "<group>"; };
 		4FE599ED232033F50012B628 /* TestSizeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestSizeControl.h; sourceTree = "<group>"; };
 		4FE599EE232033F50012B628 /* TestAnimationControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestAnimationControl.h; sourceTree = "<group>"; };
@@ -235,7 +242,6 @@
 		4FE599F6232033F50012B628 /* TestImageControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestImageControl.h; sourceTree = "<group>"; };
 		4FE599F7232033F50012B628 /* TestDirBrowseControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDirBrowseControl.h; sourceTree = "<group>"; };
 		4FE599F8232033F50012B628 /* TestLayerControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestLayerControl.h; sourceTree = "<group>"; };
-		4FE599F9232033F50012B628 /* TestMouseControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMouseControl.h; sourceTree = "<group>"; };
 		4FE599FA232033F50012B628 /* TestControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestControls.h; sourceTree = "<group>"; };
 		4FE599FB232033F50012B628 /* TestTextOrientationControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestTextOrientationControl.h; sourceTree = "<group>"; };
 		4FE599FC232033F50012B628 /* TestTextSizeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestTextSizeControl.h; sourceTree = "<group>"; };
@@ -246,7 +252,6 @@
 		4FE59A01232033F50012B628 /* TestDropShadowControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDropShadowControl.h; sourceTree = "<group>"; };
 		4FE59A02232033F50012B628 /* TestGFXLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestGFXLabel.h; sourceTree = "<group>"; };
 		4FE59A03232033F50012B628 /* TestMultiPathControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMultiPathControl.h; sourceTree = "<group>"; };
-		4FE59A04232033F50012B628 /* TestMPSControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TestMPSControl.mm; sourceTree = "<group>"; };
 		4FE59A05232033F50012B628 /* TestArcControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestArcControl.h; sourceTree = "<group>"; };
 		4FE59A06232033F50012B628 /* TestPolyControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestPolyControl.h; sourceTree = "<group>"; };
 		4FE8F3AF20BA273800BF938F /* IGraphicsEditorDelegate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsEditorDelegate.cpp; sourceTree = "<group>"; };
@@ -448,6 +453,7 @@
 		4F8BF48D20A12D2E0081DF0A /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4FAA6AD827C57F910068E432 /* shaders */,
 				4FC82B4820BD524700722133 /* fonts */,
 				4FC82B4720BD524700722133 /* img */,
 				4F2602DB2269F79200C7E97E /* tex */,
@@ -468,7 +474,6 @@
 		4F977D3120CC9DD800D19F46 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
-				4F800153252F0AAF00432412 /* LFO.h */,
 				4F6E673521C5613A005991A9 /* Synth */,
 				4F977D3520CC9DD800D19F46 /* Easing.h */,
 				4F977D3620CC9DD800D19F46 /* NChanDelay.h */,
@@ -521,6 +526,16 @@
 			path = Faust;
 			sourceTree = "<group>";
 		};
+		4FAA6AD827C57F910068E432 /* shaders */ = {
+			isa = PBXGroup;
+			children = (
+				4FAA6AD927C57F910068E432 /* Shaders.metal */,
+				4FAA6ADA27C57F910068E432 /* ShaderTypes.h */,
+			);
+			name = shaders;
+			path = ../resources/shaders;
+			sourceTree = "<group>";
+		};
 		4FDF6D712267CE540007B686 /* iOSApp */ = {
 			isa = PBXGroup;
 			children = (
@@ -539,12 +554,12 @@
 		4FE599EA232033F50012B628 /* Test */ = {
 			isa = PBXGroup;
 			children = (
-				4FE599EB232033F50012B628 /* TestGLControl.h */,
 				4FE599EC232033F50012B628 /* TestCursorControl.h */,
 				4FE599ED232033F50012B628 /* TestSizeControl.h */,
 				4FE599EE232033F50012B628 /* TestAnimationControl.h */,
 				4FE599EF232033F50012B628 /* TestFontControl.h */,
 				4FE599F0232033F50012B628 /* TestMPSControl.h */,
+				4FAA6AD627C57EEF0068E432 /* TestMPSControl.mm */,
 				4FE599F1232033F50012B628 /* TestTextControl.h */,
 				4FE599F2232033F50012B628 /* TestDrawContextControl.h */,
 				4FE599F3232033F50012B628 /* TestSVGControl.h */,
@@ -553,7 +568,8 @@
 				4FE599F6232033F50012B628 /* TestImageControl.h */,
 				4FE599F7232033F50012B628 /* TestDirBrowseControl.h */,
 				4FE599F8232033F50012B628 /* TestLayerControl.h */,
-				4FE599F9232033F50012B628 /* TestMouseControl.h */,
+				4FAA6AC627C57E280068E432 /* TestCustomShaderControl.h */,
+				4FAA6AC527C57E280068E432 /* TestCustomShaderControl.mm */,
 				4FE599FA232033F50012B628 /* TestControls.h */,
 				4FE599FB232033F50012B628 /* TestTextOrientationControl.h */,
 				4FE599FC232033F50012B628 /* TestTextSizeControl.h */,
@@ -564,7 +580,6 @@
 				4FE59A01232033F50012B628 /* TestDropShadowControl.h */,
 				4FE59A02232033F50012B628 /* TestGFXLabel.h */,
 				4FE59A03232033F50012B628 /* TestMultiPathControl.h */,
-				4FE59A04232033F50012B628 /* TestMPSControl.mm */,
 				4FE59A05232033F50012B628 /* TestArcControl.h */,
 				4F1C2D5623D731E40088AE84 /* TestFlexboxControl.h */,
 				4FE59A06232033F50012B628 /* TestPolyControl.h */,
@@ -671,7 +686,6 @@
 				4FE59A0A232033F50012B628 /* TestAnimationControl.h in Headers */,
 				4FE59A16232033F50012B628 /* TestControls.h in Headers */,
 				4FA61F7C22E89A5900A92C58 /* AUv3Framework.h in Headers */,
-				4FE59A15232033F50012B628 /* TestMouseControl.h in Headers */,
 				4FE59A10232033F50012B628 /* TestShadowGradientControl.h in Headers */,
 				4FE59A12232033F50012B628 /* TestImageControl.h in Headers */,
 				4FE59A11232033F50012B628 /* TestBezierControl.h in Headers */,
@@ -679,9 +693,9 @@
 				4FE59A08232033F50012B628 /* TestCursorControl.h in Headers */,
 				4FE59A1E232033F50012B628 /* TestGFXLabel.h in Headers */,
 				4FE59A0C232033F50012B628 /* TestMPSControl.h in Headers */,
-				4FE59A07232033F50012B628 /* TestGLControl.h in Headers */,
 				4FE59A21232033F50012B628 /* TestArcControl.h in Headers */,
 				4FE59A1A232033F50012B628 /* TestColorControl.h in Headers */,
+				4FAA6AC827C57E280068E432 /* TestCustomShaderControl.h in Headers */,
 				4FE59A13232033F50012B628 /* TestDirBrowseControl.h in Headers */,
 				4FE59A22232033F50012B628 /* TestPolyControl.h in Headers */,
 				4FE59A1F232033F50012B628 /* TestMultiPathControl.h in Headers */,
@@ -695,6 +709,7 @@
 				4FE59A19232033F50012B628 /* TestKeyboardControl.h in Headers */,
 				4FE59A0B232033F50012B628 /* TestFontControl.h in Headers */,
 				4FE59A0E232033F50012B628 /* TestDrawContextControl.h in Headers */,
+				4FAA6ADC27C57F910068E432 /* ShaderTypes.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -874,6 +889,7 @@
 				4FA61F8622E89B2000A92C58 /* IPlugAUv3.mm in Sources */,
 				4FA61F8522E89B2000A92C58 /* IPlugAUAudioUnit.mm in Sources */,
 				4FA61F8F22E89B4300A92C58 /* IGraphicsIOS_view.mm in Sources */,
+				4FAA6AC727C57E280068E432 /* TestCustomShaderControl.mm in Sources */,
 				4FA61F9022E8A1F500A92C58 /* IGraphics.cpp in Sources */,
 				4FA61F7E22E89AFF00A92C58 /* IPlugPluginBase.cpp in Sources */,
 				4FA61F8C22E89B3700A92C58 /* IControl.cpp in Sources */,
@@ -883,7 +899,7 @@
 				4FA61F8222E89AFF00A92C58 /* IPlugTimer.cpp in Sources */,
 				4FA61F8822E89B3700A92C58 /* ITextEntryControl.cpp in Sources */,
 				4FA61F8E22E89B4300A92C58 /* IGraphicsIOS.mm in Sources */,
-				4FE59A20232033F50012B628 /* TestMPSControl.mm in Sources */,
+				4FAA6AD727C57EEF0068E432 /* TestMPSControl.mm in Sources */,
 				4FA61F8B22E89B3700A92C58 /* IGraphicsEditorDelegate.cpp in Sources */,
 				4FA61F8322E89AFF00A92C58 /* IPlugPaths.mm in Sources */,
 				4FA61F8122E89AFF00A92C58 /* IPlugParameter.cpp in Sources */,
@@ -898,6 +914,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FAA6ADD27C5811C0068E432 /* Shaders.metal in Sources */,
 				4FDF6D7F2267CEBA0007B686 /* IPlugAUPlayer.mm in Sources */,
 				4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */,
 				4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */,
@@ -1246,6 +1263,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(DEBUG_DEFS)",
 					"$(EXTRA_DEBUG_DEFS)",
@@ -1298,6 +1316,7 @@
 				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(RELEASE_DEFS)",
 					"$(EXTRA_RELEASE_DEFS)",

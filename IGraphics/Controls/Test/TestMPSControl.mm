@@ -10,16 +10,16 @@ void TestMPSControl::Draw(IGraphics& g)
 {
   if (@available(macOS 10.13, *))
   {
-    NVGcontext* pCtx = static_cast<NVGcontext*>(g.GetDrawContext());
+    auto* pCtx = static_cast<NVGcontext*>(g.GetDrawContext());
 
-    if(!mFBO) {
+    if (!mFBO) {
       mFBO = nvgCreateFramebuffer(pCtx, mBitmap.W() * mBitmap.GetScale(), mBitmap.H() * mBitmap.GetScale(), 0);
     }
 
-    id<MTLDevice> dev = static_cast<id<MTLDevice>>(mnvgDevice(pCtx));
-    id<MTLCommandQueue> commandQueue = static_cast<id<MTLCommandQueue>>(mnvgCommandQueue(pCtx));
-    id<MTLTexture> srcTex = static_cast<id<MTLTexture>>(mnvgImageHandle(pCtx, mBitmap.GetAPIBitmap()->GetBitmap()));
-    id<MTLTexture> dstTex = static_cast<id<MTLTexture>>(mnvgImageHandle(pCtx, mFBO->image));
+    auto dev = static_cast<id<MTLDevice>>(mnvgDevice(pCtx));
+    auto commandQueue = static_cast<id<MTLCommandQueue>>(mnvgCommandQueue(pCtx));
+    auto srcTex = static_cast<id<MTLTexture>>(mnvgImageHandle(pCtx, mBitmap.GetAPIBitmap()->GetBitmap()));
+    auto dstTex = static_cast<id<MTLTexture>>(mnvgImageHandle(pCtx, mFBO->image));
     id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
   
     MPSUnaryImageKernel* pKernel = nullptr;
