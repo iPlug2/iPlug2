@@ -22,7 +22,7 @@ void TestCustomShaderControl::Draw(IGraphics& g)
     auto dev = static_cast<id<MTLDevice>>(mnvgDevice(pCtx));
     auto dstTex = static_cast<id<MTLTexture>>(mnvgImageHandle(pCtx, mFBO->image));
     
-    auto rpd = (MTLRenderPassDescriptor*) _renderToTextureRenderPassDescriptor;
+    auto rpd = (MTLRenderPassDescriptor*) mRenderPassDescriptor;
 
     // Set up a render pass descriptor for the render pass to render into
     rpd = [MTLRenderPassDescriptor new];
@@ -42,9 +42,9 @@ void TestCustomShaderControl::Draw(IGraphics& g)
     psd.vertexFunction =  [defaultLibrary newFunctionWithName:@"simpleVertexShader"];
     psd.fragmentFunction =  [defaultLibrary newFunctionWithName:@"simpleFragmentShader"];
     psd.colorAttachments[0].pixelFormat = dstTex.pixelFormat;
-    _renderToTextureRenderPipeline = [dev newRenderPipelineStateWithDescriptor:psd error:&error];
+    mRenderPipeline = [dev newRenderPipelineStateWithDescriptor:psd error:&error];
     
-    _renderToTextureRenderPassDescriptor = (void*) rpd;
+    mRenderPassDescriptor = (void*) rpd;
   }
 
 
@@ -64,10 +64,10 @@ void TestCustomShaderControl::Draw(IGraphics& g)
       };
 
       id<MTLRenderCommandEncoder> renderEncoder =
-          [commandBuffer renderCommandEncoderWithDescriptor:(MTLRenderPassDescriptor*) _renderToTextureRenderPassDescriptor];
+          [commandBuffer renderCommandEncoderWithDescriptor:(MTLRenderPassDescriptor*) mRenderPassDescriptor];
     
       renderEncoder.label = @"Offscreen Render Pass";
-      [renderEncoder setRenderPipelineState:(id<MTLRenderPipelineState>) _renderToTextureRenderPipeline];
+      [renderEncoder setRenderPipelineState:(id<MTLRenderPipelineState>) mRenderPipeline];
 
       [renderEncoder setVertexBytes:&triVertices
                              length:sizeof(triVertices)

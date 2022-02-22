@@ -1,12 +1,12 @@
 /*
  ==============================================================================
- 
+
  This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
- 
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
- */
+*/
 
 #pragma once
 
@@ -182,8 +182,8 @@ private:
   NVGframebuffer* mFBO = nullptr;
   
 #ifdef IGRAPHICS_METAL
-  void* _renderToTextureRenderPassDescriptor = nullptr;
-  void* _renderToTextureRenderPipeline = nullptr;
+  void* mRenderPassDescriptor = nullptr;
+  void* mRenderPipeline = nullptr;
 #else
   int mInitialFBO = 0;
   bool invalidateFBO = true;
