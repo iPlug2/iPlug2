@@ -20,7 +20,9 @@ int GetTitleBarOffset()
 {
   int offset = GetSystemMetrics(SM_CYMENU);
   
-  if(SWELL_GetOSXVersion() >= 0x1100)
+  if(SWELL_GetOSXVersion() == 0x1100)
+    offset += 4;
+  else if(SWELL_GetOSXVersion() >= 0x1200)
     offset -= 10;
   
   return offset;
