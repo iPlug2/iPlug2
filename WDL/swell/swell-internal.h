@@ -733,7 +733,9 @@ SWELL_IMPLEMENT_GETOSXVERSION int SWELL_GetOSXVersion()
   {
     if (NSAppKitVersionNumber >= 1266.0)
     {
-      if (NSAppKitVersionNumber >= 2022.0)
+      if (NSAppKitVersionNumber >= 2100.0)
+        v = 0x1200;
+      else if (NSAppKitVersionNumber >= 2022.0)
         v = 0x1100;
       else if (NSAppKitVersionNumber >= 1894.0)
         v = 0x10e0;
@@ -848,7 +850,7 @@ struct HWND__
 
   bool m_israised;
   bool m_has_had_position;
-  bool m_oswindow_fullscreen;
+  int m_oswindow_fullscreen; // may contain preserved style flags
 
   int m_refcnt; 
   int m_oswindow_private; // private state for generic-gtk or whatever
@@ -929,7 +931,7 @@ struct HDC__ {
 };
 
 HWND DialogBoxIsActive(void);
-void DestroyPopupMenus(void);
+bool DestroyPopupMenus(void);
 HWND ChildWindowFromPoint(HWND h, POINT p);
 HWND GetFocusIncludeMenus();
 
@@ -961,7 +963,8 @@ extern const char *g_swell_appname;
 extern SWELL_OSWINDOW SWELL_focused_oswindow; // top level window which has focus (might not map to a HWND__!)
 extern HWND swell_captured_window;
 extern HWND SWELL_topwindows; // front of list = most recently active
-extern bool swell_app_is_inactive;
+
+int swell_is_app_inactive(); // returns >0 if definitely inactive, -1 if maybe
 
 #ifdef _DEBUG
 void VALIDATE_HWND_LIST(HWND list, HWND par);
@@ -1227,9 +1230,12 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   fd(menu_text_sel, RGB(224,224,224), menu_bg) \
   f(menu_scroll, RGB(64,64,64)) \
   fd(menu_scroll_arrow, RGB(96,96,96), _3dshadow) \
-  fd(menu_submenu_arrow, RGB(96,96,96), _3dshadow) \
+  fd(menu_submenu_arrow, RGB(96,96,96), menu_text) \
+  fd(menu_submenu_arrow_sel, RGB(96,96,96), menu_bg) \
   fd(menubar_bg, RGB(192,192,192), menu_bg) \
+  fd(menubar_bg_inactive, RGB(192,192,192), menubar_bg) \
   fd(menubar_text, RGB(0,0,0), menu_text) \
+  fd(menubar_text_inactive, RGB(0,0,0), menubar_text) \
   fd(menubar_text_disabled, RGB(224,224,224), menu_text_disabled) \
   fd(menubar_bg_sel, RGB(0,0,0), menu_bg_sel) \
   fd(menubar_text_sel, RGB(224,224,224), menu_text_sel) \
@@ -1253,6 +1259,8 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   fd(listview_text_sel, RGB(0,0,0), listview_text) \
   fd(listview_grid, RGB(224,224,224), _3dhilight) \
   f(listview_hdr_arrow,RGB(96,96,96)) \
+  fd(listview_shadow, RGB(96,96,96), _3dshadow) \
+  fd(listview_hilight, RGB(224,224,224), _3dhilight) \
   fd(listview_hdr_shadow, RGB(96,96,96), _3dshadow) \
   fd(listview_hdr_hilight, RGB(224,224,224), _3dhilight) \
   fd(listview_hdr_bg, RGB(192,192,192), _3dface) \
@@ -1262,6 +1270,8 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   f(treeview_bg_sel, RGB(128,128,255)) \
   f(treeview_text_sel, RGB(0,0,0)) \
   f(treeview_arrow, RGB(96,96,96)) \
+  fd(treeview_shadow, RGB(96,96,96), _3dshadow) \
+  fd(treeview_hilight, RGB(224,224,224), _3dhilight) \
   fd(tab_shadow, RGB(96,96,96), _3dshadow) \
   fd(tab_hilight, RGB(224,224,224), _3dhilight) \
   fd(tab_text, RGB(0,0,0), button_text) \
@@ -1270,8 +1280,8 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   fd(group_shadow, RGB(96,96,96), _3dshadow) \
   fd(group_hilight, RGB(224,224,224), _3dhilight) \
   f(focus_hilight, RGB(140,190,233)) \
-
   
+
 
 struct swell_colortheme {
 #define __def_theme_ent(x,c) int x;
@@ -1289,5 +1299,35 @@ extern const char *g_swell_deffont_face;
 HFONT SWELL_GetDefaultFont(void);
 
 #endif
+
+
+static WDL_STATICFUNC_UNUSED int ext_valid_for_extlist(const char *thisext, const char *extlist)
+{
+  if (!thisext || *thisext != '.' || !extlist) return -1;
+  int txlen = (int)strlen(thisext), witem = 0;
+  while (*extlist)
+  {
+    while (*extlist) extlist++; // description
+    extlist++;
+
+    while (*extlist)
+    {
+      while (*extlist == ' ' || *extlist == ';') extlist++;
+      if (*extlist == '*')
+      {
+        if (!strnicmp(extlist+1,thisext,txlen) &&
+            (extlist[1+txlen] == ';' ||extlist[1+txlen] == 0))
+          return witem;
+      }
+      while (*extlist && *extlist != ';') extlist++;
+      if (*extlist) extlist++;
+    }
+
+    while (*extlist) extlist++;
+    extlist++;
+    witem++;
+  }
+  return -1;
+}
 
 #endif

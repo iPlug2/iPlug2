@@ -39,12 +39,15 @@
 #include <unistd.h>
 #endif
 
+#ifdef __APPLE__
+#include <libkern/OSCacheControl.h>
+#endif
+
 #define NSEEL_VARS_MALLOC_CHUNKSIZE 8
 
 //#define LOG_OPT
 //#define EEL_PRINT_FAILS
 //#define EEL_VALIDATE_WORKTABLE_USE
-//#define EEL_VALIDATE_FSTUBS
 
 
 #ifdef EEL_PRINT_FAILS
@@ -118,11 +121,7 @@ FILE *g_eel_dump_fp, *g_eel_dump_fp2;
 
 #elif defined(_WIN64) || defined(__LP64__)
 
-#ifndef EEL_X64_NO_SSE
 #include "glue_x86_64_sse.h"
-#else
-#include "glue_x86_64.h"
-#endif
 
 #else
 
@@ -287,6 +286,9 @@ static void eel_set_blocks_allow_execute(llBlock *llb, int exec)
       FlushInstructionCache(GetCurrentProcess(),llb,sz);
     #else
       mprotect(llb,sz,exec ? (PROT_READ|PROT_EXEC) : (PROT_READ|PROT_WRITE));
+      #ifdef __APPLE__
+      if (exec) sys_icache_invalidate(llb,sz);
+      #endif
     #endif
     WDL_ASSERT((((INT_PTR)llb) & (eel_get_page_size()-1)) == 0);
     WDL_ASSERT((sz & (eel_get_page_size()-1)) == 0);
@@ -330,15 +332,11 @@ static int __growbuf_resize(eel_growbuf *buf, int newsize)
 
 
 #ifndef DECL_ASMFUNC
-#define DECL_ASMFUNC(x)         \
-  void nseel_asm_##x(void);        \
-  void nseel_asm_##x##_end(void);
+#define DECL_ASMFUNC(x) void nseel_asm_##x(void); 
 
 
 void _asm_megabuf(void);
-void _asm_megabuf_end(void);
 void _asm_gmegabuf(void);
-void _asm_gmegabuf_end(void);
 
 #endif
 
@@ -368,7 +366,6 @@ void _asm_gmegabuf_end(void);
   DECL_ASMFUNC(band)
   DECL_ASMFUNC(bor)
   DECL_ASMFUNC(bnot)
-  DECL_ASMFUNC(bnotnot)
   DECL_ASMFUNC(if)
   DECL_ASMFUNC(fcall)
   DECL_ASMFUNC(repeat)
@@ -408,13 +405,9 @@ void _asm_gmegabuf_end(void);
   DECL_ASMFUNC(and)
   DECL_ASMFUNC(or_op)
   DECL_ASMFUNC(and_op)
-  DECL_ASMFUNC(uplus)
   DECL_ASMFUNC(uminus)
   DECL_ASMFUNC(invsqrt)
   DECL_ASMFUNC(dbg_getstackptr)
-#ifdef NSEEL_EEL1_COMPAT_MODE
-  DECL_ASMFUNC(exec2)
-#endif
 
   DECL_ASMFUNC(stack_push)
   DECL_ASMFUNC(stack_pop)
@@ -575,65 +568,68 @@ EEL_F NSEEL_CGEN_CALL nseel_int_rand(EEL_F f);
 
 static functionType fnTable1[] = {
 #ifndef GLUE_HAS_NATIVE_TRIGSQRTLOG
-   { "sin",   nseel_asm_1pdd,nseel_asm_1pdd_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_WONTMAKEDENORMAL, {&sin} },
-   { "cos",    nseel_asm_1pdd,nseel_asm_1pdd_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL, {&cos} },
-   { "tan",    nseel_asm_1pdd,nseel_asm_1pdd_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&tan}  },
-   { "sqrt",   nseel_asm_1pdd,nseel_asm_1pdd_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_WONTMAKEDENORMAL, {&sqrt_fabs}, },
-   { "log",    nseel_asm_1pdd,nseel_asm_1pdd_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&log} },
-   { "log10",  nseel_asm_1pdd,nseel_asm_1pdd_end, 1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&log10} },
+   { "sin",   nseel_asm_1pdd,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_WONTMAKEDENORMAL, {&sin} },
+   { "cos",    nseel_asm_1pdd,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL, {&cos} },
+   { "tan",    nseel_asm_1pdd,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&tan}  },
+   { "sqrt",   nseel_asm_1pdd,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_WONTMAKEDENORMAL, {&sqrt_fabs}, },
+   { "log",    nseel_asm_1pdd,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&log} },
+   { "log10",  nseel_asm_1pdd, 1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&log10} },
 #else
-   { "sin",   nseel_asm_sin,nseel_asm_sin_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_WONTMAKEDENORMAL|BIF_FPSTACKUSE(1) },
-   { "cos",    nseel_asm_cos,nseel_asm_cos_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL|BIF_FPSTACKUSE(1) },
-   { "tan",    nseel_asm_tan,nseel_asm_tan_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(1) },
-   { "sqrt",   nseel_asm_sqrt,nseel_asm_sqrt_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(1)|BIF_WONTMAKEDENORMAL },
-   { "log",    nseel_asm_log,nseel_asm_log_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(3), },
-   { "log10",  nseel_asm_log10,nseel_asm_log10_end, 1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(3), },
+   { "sin",   nseel_asm_sin,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_WONTMAKEDENORMAL|BIF_FPSTACKUSE(1) },
+   { "cos",    nseel_asm_cos,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL|BIF_FPSTACKUSE(1) },
+   { "tan",    nseel_asm_tan,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(1) },
+   { "sqrt",   nseel_asm_sqrt,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(1)|BIF_WONTMAKEDENORMAL },
+   { "log",    nseel_asm_log,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(3), },
+   { "log10",  nseel_asm_log10, 1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(3), },
 #endif
 
 
-   { "asin",   nseel_asm_1pdd,nseel_asm_1pdd_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&asin}, },
-   { "acos",   nseel_asm_1pdd,nseel_asm_1pdd_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&acos}, },
-   { "atan",   nseel_asm_1pdd,nseel_asm_1pdd_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&atan}, },
-   { "atan2",  nseel_asm_2pdd,nseel_asm_2pdd_end, 2|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK, {&atan2}, },
-   { "exp",    nseel_asm_1pdd,nseel_asm_1pdd_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&exp}, },
-   { "abs",    nseel_asm_abs,nseel_asm_abs_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(0)|BIF_WONTMAKEDENORMAL },
-   { "sqr",    nseel_asm_sqr,nseel_asm_sqr_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(1) },
-   { "min",    nseel_asm_min,nseel_asm_min_end,   2|NSEEL_NPARAMS_FLAG_CONST|BIF_FPSTACKUSE(3)|BIF_WONTMAKEDENORMAL },
-   { "max",    nseel_asm_max,nseel_asm_max_end,   2|NSEEL_NPARAMS_FLAG_CONST|BIF_FPSTACKUSE(3)|BIF_WONTMAKEDENORMAL },
-   { "sign",   nseel_asm_sign,nseel_asm_sign_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(2)|BIF_CLEARDENORMAL, },
-   { "rand",   nseel_asm_1pdd,nseel_asm_1pdd_end,  1|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL, {&nseel_int_rand}, },
+   { "asin",   nseel_asm_1pdd,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&asin}, },
+   { "acos",   nseel_asm_1pdd,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&acos}, },
+   { "atan",   nseel_asm_1pdd,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&atan}, },
+   { "atan2",  nseel_asm_2pdd, 2|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK, {&atan2}, },
+   { "exp",    nseel_asm_1pdd,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&exp}, },
+   { "abs",    nseel_asm_abs,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(0)|BIF_WONTMAKEDENORMAL },
+   { "sqr",    nseel_asm_sqr,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(1) },
+   { "min",    nseel_asm_min,   2|NSEEL_NPARAMS_FLAG_CONST|BIF_FPSTACKUSE(3)|BIF_WONTMAKEDENORMAL },
+   { "max",    nseel_asm_max,   2|NSEEL_NPARAMS_FLAG_CONST|BIF_FPSTACKUSE(3)|BIF_WONTMAKEDENORMAL },
+   { "sign",   nseel_asm_sign,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(2)|BIF_CLEARDENORMAL, },
+   { "rand",   nseel_asm_1pdd,  1|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL, {&nseel_int_rand}, },
 
-   { "floor",  nseel_asm_1pdd,nseel_asm_1pdd_end, 1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL, {&floor} },
-   { "ceil",   nseel_asm_1pdd,nseel_asm_1pdd_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL, {&ceil} },
+   { "floor",  nseel_asm_1pdd, 1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL, {&floor} },
+   { "ceil",   nseel_asm_1pdd,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_CLEARDENORMAL, {&ceil} },
 
-   { "invsqrt",   nseel_asm_invsqrt,nseel_asm_invsqrt_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(3), {GLUE_INVSQRT_NEEDREPL} },
+   { "invsqrt",   nseel_asm_invsqrt,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(3), {GLUE_INVSQRT_NEEDREPL} },
 
-   { "__dbg_getstackptr",   nseel_asm_dbg_getstackptr,nseel_asm_dbg_getstackptr_end,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(1),  },
+   { "__dbg_getstackptr",   nseel_asm_dbg_getstackptr,  1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(1),  },
 
 #ifdef NSEEL_EEL1_COMPAT_MODE
-  { "sigmoid", nseel_asm_2pdd,nseel_asm_2pdd_end, 2|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK, {&eel1sigmoid}, },
+  { "sigmoid", nseel_asm_2pdd, 2|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK, {&eel1sigmoid}, },
 
   // these differ from _and/_or, they always evaluate both...
-  { "band",  nseel_asm_2pdd,nseel_asm_2pdd_end, 2|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK|BIF_CLEARDENORMAL , {&eel1band}, },
-  { "bor",  nseel_asm_2pdd,nseel_asm_2pdd_end, 2|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK|BIF_CLEARDENORMAL , {&eel1bor}, },
+  { "band",  nseel_asm_2pdd, 2|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK|BIF_CLEARDENORMAL , {&eel1band}, },
+  { "bor",  nseel_asm_2pdd, 2|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK|BIF_CLEARDENORMAL , {&eel1bor}, },
 
-  {"exec2",nseel_asm_exec2,nseel_asm_exec2_end,2|NSEEL_NPARAMS_FLAG_CONST|BIF_WONTMAKEDENORMAL},
-  {"exec3",nseel_asm_exec2,nseel_asm_exec2_end,3|NSEEL_NPARAMS_FLAG_CONST|BIF_WONTMAKEDENORMAL},
+  {"exec2", NULL, 2|NSEEL_NPARAMS_FLAG_CONST|BIF_WONTMAKEDENORMAL},
+  {"exec3", NULL, 3|NSEEL_NPARAMS_FLAG_CONST|BIF_WONTMAKEDENORMAL},
 #endif // end EEL1 compat
 
 
-  {"freembuf",_asm_generic1parm,_asm_generic1parm_end,1,{&__NSEEL_RAM_MemFree},NSEEL_PProc_RAM},
-  {"memcpy",_asm_generic3parm,_asm_generic3parm_end,3,{&__NSEEL_RAM_MemCpy},NSEEL_PProc_RAM},
-  {"memset",_asm_generic3parm,_asm_generic3parm_end,3,{&__NSEEL_RAM_MemSet},NSEEL_PProc_RAM},
-  {"__memtop",_asm_generic1parm,_asm_generic1parm_end,1,{&__NSEEL_RAM_MemTop},NSEEL_PProc_RAM},
-  {"mem_set_values",_asm_generic2parm_retd,_asm_generic2parm_retd_end,2|BIF_TAKES_VARPARM|BIF_RETURNSONSTACK,{&__NSEEL_RAM_Mem_SetValues},NSEEL_PProc_RAM},
-  {"mem_get_values",_asm_generic2parm_retd,_asm_generic2parm_retd_end,2|BIF_TAKES_VARPARM|BIF_RETURNSONSTACK,{&__NSEEL_RAM_Mem_GetValues},NSEEL_PProc_RAM},
+  {"freembuf",_asm_generic1parm,1,{&__NSEEL_RAM_MemFree},NSEEL_PProc_RAM},
+  {"memcpy",_asm_generic3parm,  3,{&__NSEEL_RAM_MemCpy},NSEEL_PProc_RAM},
+  {"memset",_asm_generic3parm,  3,{&__NSEEL_RAM_MemSet},NSEEL_PProc_RAM},
+  {"__memtop",_asm_generic1parm,1,{&__NSEEL_RAM_MemTop},NSEEL_PProc_RAM},
+  {"mem_set_values",_asm_generic2parm_retd,2|BIF_TAKES_VARPARM|BIF_RETURNSONSTACK,{&__NSEEL_RAM_Mem_SetValues},NSEEL_PProc_RAM},
+  {"mem_get_values",_asm_generic2parm_retd,2|BIF_TAKES_VARPARM|BIF_RETURNSONSTACK,{&__NSEEL_RAM_Mem_GetValues},NSEEL_PProc_RAM},
 
-  {"stack_push",nseel_asm_stack_push,nseel_asm_stack_push_end,1|BIF_FPSTACKUSE(0),{0,},NSEEL_PProc_Stack},
-  {"stack_pop",nseel_asm_stack_pop,nseel_asm_stack_pop_end,1|BIF_FPSTACKUSE(1),{0,},NSEEL_PProc_Stack},
-  {"stack_peek",nseel_asm_stack_peek,nseel_asm_stack_peek_end,1|NSEEL_NPARAMS_FLAG_CONST|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(0),{0,},NSEEL_PProc_Stack},
-  {"stack_exch",nseel_asm_stack_exch,nseel_asm_stack_exch_end,1|BIF_FPSTACKUSE(1), {0,},NSEEL_PProc_Stack_PeekTop},
+  {"stack_push",nseel_asm_stack_push,1|BIF_FPSTACKUSE(0),{0,},NSEEL_PProc_Stack},
+  {"stack_pop",nseel_asm_stack_pop,  1|BIF_FPSTACKUSE(1),{0,},NSEEL_PProc_Stack},
+  {"stack_peek",nseel_asm_stack_peek,1|NSEEL_NPARAMS_FLAG_CONST|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(0),{0,},NSEEL_PProc_Stack},
+  {"stack_exch",nseel_asm_stack_exch,1|BIF_FPSTACKUSE(1), {0,},NSEEL_PProc_Stack_PeekTop},
 };
+static functionType fn_min2 = { "min2",    nseel_asm_min_fp, 2|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK_LAZY|BIF_FPSTACKUSE(2)|BIF_WONTMAKEDENORMAL };
+static functionType fn_max2 = { "max2",    nseel_asm_max_fp, 2|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK_LAZY|BIF_FPSTACKUSE(2)|BIF_WONTMAKEDENORMAL };
+static functionType fn_or0  = { "or0",     nseel_asm_or0,    1|NSEEL_NPARAMS_FLAG_CONST|BIF_LASTPARMONSTACK|BIF_RETURNSONSTACK|BIF_CLEARDENORMAL };
 
 static eel_function_table default_user_funcs;
 
@@ -708,34 +704,6 @@ functionType *nseel_enumFunctions(compileContext *ctx, int idx)
 
 int NSEEL_init() // returns 0 on success
 {
-
-#ifdef EEL_VALIDATE_FSTUBS
-  int a;
-  for (a=0;a < sizeof(fnTable1)/sizeof(fnTable1[0]);a++)
-  {
-    char *code_startaddr = (char*)fnTable1[a].afunc;
-    char *endp = (char *)fnTable1[a].func_e;
-    // validate
-    int sz=0;
-    char *f=(char *)GLUE_realAddress(code_startaddr,endp,&sz);
-
-    if (f+sz > endp) 
-    {
-#ifdef _WIN32
-      OutputDebugString("bad eel function stub\n");
-#else
-      printf("bad eel function stub\n");
-#endif
-      *(char *)NULL = 0;
-    }
-  }
-#ifdef _WIN32
-      OutputDebugString("eel function stub (builtin) validation complete\n");
-#else
-      printf("eel function stub (builtin) validation complete\n");
-#endif
-#endif
-
   NSEEL_quit();
   return 0;
 }
@@ -749,20 +717,17 @@ void NSEEL_quit()
 
 void NSEEL_addfunc_varparm_ex(const char *name, int min_np, int want_exact, NSEEL_PPPROC pproc, EEL_F (NSEEL_CGEN_CALL *fptr)(void *, INT_PTR, EEL_F **), eel_function_table *destination)
 {
-  const int sz = (int) ((char *)_asm_generic2parm_retd_end-(char *)_asm_generic2parm_retd);
-  NSEEL_addfunctionex2(name,min_np|(want_exact?BIF_TAKES_VARPARM_EX:BIF_TAKES_VARPARM),(char *)_asm_generic2parm_retd,sz,pproc,fptr,NULL,destination);
+  NSEEL_addfunctionex2(name,min_np|(want_exact?BIF_TAKES_VARPARM_EX:BIF_TAKES_VARPARM),(char *)_asm_generic2parm_retd,0,pproc,fptr,NULL,destination);
 }
 
 void NSEEL_addfunc_varparm_ctxptr(const char *name, int min_np, int want_exact, void *ctxptr, EEL_F (NSEEL_CGEN_CALL *fptr)(void *, INT_PTR, EEL_F **), eel_function_table *destination)
 {
-  const int sz = (int) ((char *)_asm_generic2parm_retd_end-(char *)_asm_generic2parm_retd);
-  NSEEL_addfunctionex2(name,min_np|(want_exact?BIF_TAKES_VARPARM_EX:BIF_TAKES_VARPARM),(char *)_asm_generic2parm_retd,sz,NULL,ctxptr,fptr,destination);
+  NSEEL_addfunctionex2(name,min_np|(want_exact?BIF_TAKES_VARPARM_EX:BIF_TAKES_VARPARM),(char *)_asm_generic2parm_retd,0,NULL,ctxptr,fptr,destination);
 }
 
 void NSEEL_addfunc_varparm_ctxptr2(const char *name, int min_np, int want_exact, NSEEL_PPPROC pproc, void *ctx, EEL_F (NSEEL_CGEN_CALL *fptr)(void *, void *, INT_PTR, EEL_F **), eel_function_table *destination)
 {
-  const int sz = (int) ((char *)_asm_generic2xparm_retd_end-(char *)_asm_generic2xparm_retd);
-  NSEEL_addfunctionex2(name,min_np|(want_exact?BIF_TAKES_VARPARM_EX:BIF_TAKES_VARPARM),(char *)_asm_generic2xparm_retd,sz,pproc,ctx,fptr,destination);
+  NSEEL_addfunctionex2(name,min_np|(want_exact?BIF_TAKES_VARPARM_EX:BIF_TAKES_VARPARM),(char *)_asm_generic2xparm_retd,0,pproc,ctx,fptr,destination);
 }
 
 void NSEEL_addfunc_ret_type(const char *name, int np, int ret_type,  NSEEL_PPPROC pproc, void *fptr, eel_function_table *destination) // ret_type=-1 for bool, 1 for value, 0 for ptr
@@ -771,7 +736,6 @@ void NSEEL_addfunc_ret_type(const char *name, int np, int ret_type,  NSEEL_PPPRO
   int stubsz=0;
 #define DOSTUB(np) { \
     stub = (ret_type == 1 ? (char*)_asm_generic##np##parm_retd : (char*)_asm_generic##np##parm); \
-    stubsz = (int) ((ret_type == 1 ? (char*)_asm_generic##np##parm_retd_end : (char *)_asm_generic##np##parm_end) - stub); \
   }
 
   if (np == 1) DOSTUB(1)
@@ -782,7 +746,8 @@ void NSEEL_addfunc_ret_type(const char *name, int np, int ret_type,  NSEEL_PPPRO
   if (stub) NSEEL_addfunctionex2(name,np|(ret_type == -1 ? BIF_RETURNSBOOL:0), stub, stubsz, pproc,fptr,NULL,destination);
 }
 
-void NSEEL_addfunctionex2(const char *name, int nparms, char *code_startaddr, int code_len, NSEEL_PPPROC pproc, void *fptr, void *fptr2, eel_function_table *destination)
+void NSEEL_addfunctionex2(const char *name, int nparms, char *code_startaddr, int code_len /* ignored*/,
+    NSEEL_PPPROC pproc, void *fptr, void *fptr2, eel_function_table *destination)
 {
   const int list_size_chunk = 128;
   functionType *r;
@@ -799,31 +764,6 @@ void NSEEL_addfunctionex2(const char *name, int nparms, char *code_startaddr, in
     int match,idx;
 
     idx=functable_lowerbound(destination->list,destination->list_size,name,&match);
-
-#ifdef EEL_VALIDATE_FSTUBS
-    {
-      char *endp = code_startaddr+code_len;
-      // validate
-      int sz=0;
-      char *f=(char *)GLUE_realAddress(code_startaddr,endp,&sz);
-
-      if (f+sz > endp) 
-      {
-#ifdef _WIN32
-        OutputDebugString("bad eel function stub\n");
-#else
-        printf("bad eel function stub\n");
-#endif
-        *(char *)NULL = 0;
-      }
-#ifdef _WIN32
-      OutputDebugString(name);
-      OutputDebugString(" - validated eel function stub\n");
-#else
-      printf("eel function stub validation complete for %s\n",name);
-#endif
-    }
-#endif
 
     r = destination->list + idx;
     if (idx < destination->list_size)
@@ -845,7 +785,6 @@ void NSEEL_addfunctionex2(const char *name, int nparms, char *code_startaddr, in
     r->nParams = nparms;
     r->name = name;
     r->afunc = code_startaddr;
-    r->func_e = code_startaddr + code_len;
     r->pProc = pproc;
     r->replptrs[0] = fptr;
     r->replptrs[1] = fptr2;
@@ -1633,15 +1572,14 @@ static void combineNamespaceFields(char *nm, const namespaceInformation *namespa
 static void *nseel_getBuiltinFunctionAddress(compileContext *ctx, 
       int fntype, void *fn, 
       NSEEL_PPPROC *pProc, void ***replList, 
-      void **endP, int *abiInfo, int preferredReturnValues, const EEL_F *hasConstParm1, const EEL_F *hasConstParm2)
+      int *abiInfo, int preferredReturnValues, const EEL_F *hasConstParm1, const EEL_F *hasConstParm2)
 {
   const EEL_F *firstConstParm = hasConstParm1 ? hasConstParm1 : hasConstParm2;
   static void *pow_replptrs[4]={&pow,};      
 
   switch (fntype)
   {
-#define RF(x) *endP = nseel_asm_##x##_end; return (void*)nseel_asm_##x
-
+#define RF(x) return (void*)nseel_asm_##x
 
     case FN_MUL_OP:
       *abiInfo=BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(2)|BIF_CLEARDENORMAL;
@@ -1712,11 +1650,7 @@ static void *nseel_getBuiltinFunctionAddress(compileContext *ctx,
     case FN_SHL:
       *abiInfo = BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK|BIF_FPSTACKUSE(2)|BIF_CLEARDENORMAL;
     RF(shl);
-#ifndef EEL_TARGET_PORTABLE
-    case FN_NOTNOT: *abiInfo = BIF_LASTPARM_ASBOOL|BIF_RETURNSBOOL|BIF_FPSTACKUSE(1); RF(uplus);
-#else
-    case FN_NOTNOT: *abiInfo = BIF_LASTPARM_ASBOOL|BIF_RETURNSBOOL|BIF_FPSTACKUSE(1); RF(bnotnot);
-#endif
+    case FN_NOTNOT: *abiInfo = BIF_LASTPARM_ASBOOL|BIF_RETURNSBOOL|BIF_FPSTACKUSE(1); break;
     case FN_UMINUS: *abiInfo = BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_WONTMAKEDENORMAL; RF(uminus);
     case FN_NOT: *abiInfo = BIF_LASTPARM_ASBOOL|BIF_RETURNSBOOL|BIF_FPSTACKUSE(1); RF(bnot);
 
@@ -1761,7 +1695,7 @@ static void *nseel_getBuiltinFunctionAddress(compileContext *ctx,
     RF(beloweq);
 
 #undef RF
-#define RF(x) *endP = _asm_##x##_end; return (void*)_asm_##x
+#define RF(x) return (void*)_asm_##x
 
     case FN_MEMORY:
       {
@@ -1793,16 +1727,12 @@ static void *nseel_getBuiltinFunctionAddress(compileContext *ctx,
         // if prefers fpstack or bool, or ignoring value, then use fp-stack versions
         if ((preferredReturnValues&(RETURNVALUE_BOOL|RETURNVALUE_FPSTACK)) || !preferredReturnValues)
         {
-          static functionType min2={ "min",    nseel_asm_min_fp,nseel_asm_min_fp_end,   2|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK_LAZY|BIF_FPSTACKUSE(2)|BIF_WONTMAKEDENORMAL };
-          static functionType max2={ "max",    nseel_asm_max_fp,nseel_asm_max_fp_end,   2|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_TWOPARMSONFPSTACK_LAZY|BIF_FPSTACKUSE(2)|BIF_WONTMAKEDENORMAL };
-
-          if (p->afunc == (void*)nseel_asm_min) p = &min2;
-          else if (p->afunc == (void*)nseel_asm_max) p = &max2;
+          if (p->afunc == (void*)nseel_asm_min) p = &fn_min2;
+          else if (p->afunc == (void*)nseel_asm_max) p = &fn_max2;
         }
 
         *replList=p->replptrs;
         *pProc=p->pProc;
-        *endP = p->func_e;
         *abiInfo = p->nParams & BIF_NPARAMS_MASK;
         if (firstConstParm)
         {
@@ -1815,7 +1745,7 @@ static void *nseel_getBuiltinFunctionAddress(compileContext *ctx,
     break;
   }
   
-  return 0;
+  return NULL;
 }
 
 
@@ -1945,7 +1875,6 @@ static void *nseel_getEELFunctionAddress(compileContext *ctx,
         *endP = ((char *)1) + fn->startptr_base_size;
         return (char *)1;
       }
-      *endP = (void*)nseel_asm_fcall_end;
       return (void*)nseel_asm_fcall;
     }
 
@@ -1979,7 +1908,7 @@ static void *nseel_getEELFunctionAddress(compileContext *ctx,
       if (fn->isCommonFunction) ctx->isGeneratingCommonFunction--;
       if (codeCall)
       {
-        void *f=GLUE_realAddress(nseel_asm_fcall,nseel_asm_fcall_end,&sz);
+        void *f=GLUE_realAddress(nseel_asm_fcall,&sz);
         fn->startptr = newTmpBlock(ctx,sz);
         if (fn->startptr)
         {
@@ -2187,11 +2116,9 @@ start_over: // when an opcode changed substantially in optimization, goto here t
               if (!(WDL_INT64)dvalue)
               {
                 // replace with or0
-                static functionType fr={"or0",nseel_asm_or0, nseel_asm_or0_end, 1|NSEEL_NPARAMS_FLAG_CONST|BIF_LASTPARMONSTACK|BIF_RETURNSONSTACK|BIF_CLEARDENORMAL, {0}, NULL};
-
                 op->opcodeType = OPCODETYPE_FUNC1;
                 op->fntype = FUNCTYPE_FUNCTIONTYPEREC;
-                op->fn = &fr;
+                op->fn = &fn_or0;
                 if (dv0) op->parms.parms[0] = op->parms.parms[1];
                 goto start_over;
               }
@@ -2272,7 +2199,12 @@ start_over: // when an opcode changed substantially in optimization, goto here t
                 // opcodeRec *parm0 = op->parms.parms[0];
                 if (dvalue > 0.0)
                 {
-                  static functionType expcpy={ "exp",    nseel_asm_1pdd,nseel_asm_1pdd_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK, {&exp}, };
+                  static functionType *expcpy;
+                  if (!expcpy)
+                  {
+                    expcpy = nseel_getFunctionByName(NULL,"exp",NULL);
+                    if (WDL_NOT_NORMALLY(!expcpy)) break;
+                  }
 
                   // 1^x = 1
                   if (fabs(dvalue-1.0) < 1e-30)
@@ -2304,7 +2236,7 @@ start_over: // when an opcode changed substantially in optimization, goto here t
 
                   op->opcodeType = OPCODETYPE_FUNC1;
                   op->fntype = FUNCTYPE_FUNCTIONTYPEREC;
-                  op->fn = &expcpy;
+                  op->fn = expcpy;
                   goto start_over;
                 }
               }
@@ -2338,12 +2270,12 @@ start_over: // when an opcode changed substantially in optimization, goto here t
                   else
                   {
                     double d = 1.0/dvalue;
-
-                    WDL_DenormalDoubleAccess *p = (WDL_DenormalDoubleAccess*)&d;
+                    WDL_UINT64 w;
+                    memcpy(&w,&d,sizeof(d));
                     // allow conversion to multiply if reciprocal is exact
                     // we could also just look to see if the last few digits of the mantissa were 0, which would probably be good
                     // enough, but if the user really wants it they should do * (1/x) instead to force precalculation of reciprocal.
-                    if (!p->w.lw && !(p->w.hw & 0xfffff)) 
+                    if (!(w & WDL_UINT64_CONST(0xfffffffffffff)))
                     {
                       op->fntype = FN_MULTIPLY;
                       op->parms.parms[1]->parms.dv.directValue = d;
@@ -2511,11 +2443,15 @@ start_over: // when an opcode changed substantially in optimization, goto here t
               }
               if (!second_parm) // switch from x*x to sqr(x)
               {
-                static functionType sqrcpy={ "sqr",    nseel_asm_sqr,nseel_asm_sqr_end,   1|NSEEL_NPARAMS_FLAG_CONST|BIF_RETURNSONSTACK|BIF_LASTPARMONSTACK|BIF_FPSTACKUSE(1) };
-                op->opcodeType = OPCODETYPE_FUNC1;
-                op->fntype = FUNCTYPE_FUNCTIONTYPEREC;
-                op->fn = &sqrcpy;
-                goto start_over;
+                static functionType *sqrcpy;
+                if (!sqrcpy) sqrcpy = nseel_getFunctionByName(NULL,"sqr",NULL);
+                if (WDL_NORMALLY(sqrcpy))
+                {
+                  op->opcodeType = OPCODETYPE_FUNC1;
+                  op->fntype = FUNCTYPE_FUNCTIONTYPEREC;
+                  op->fn = sqrcpy;
+                  goto start_over;
+                }
               }
             }
           }
@@ -2782,11 +2718,7 @@ static int generateValueToReg(compileContext *ctx, opcodeRec *op, unsigned char 
       if (!b) RET_MINUS1_FAIL("error allocating data block")
 
       if (op->opcodeType != OPCODETYPE_VARPTRPTR) op->parms.dv.valuePtr = b;
-      #if EEL_F_SIZE == 8
-        *b = denormal_filter_double2(op->parms.dv.directValue);
-      #else
-        *b = denormal_filter_float2(op->parms.dv.directValue);
-      #endif
+      *b = denormal_filter_double2(op->parms.dv.directValue);
 
       if (allowCache)
       {
@@ -2849,7 +2781,6 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
   int spill_reg = -1;
 #endif
 
-  void *func_e=NULL;
   NSEEL_PPPROC preProc=0;
   void **repl=NULL;
 
@@ -2858,12 +2789,11 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
   const int parm0_dv = op->parms.parms[0]->opcodeType == OPCODETYPE_DIRECTVALUE;
   const int parm1_dv = n_params > 1 && op->parms.parms[1]->opcodeType == OPCODETYPE_DIRECTVALUE;
 
-  void *func = nseel_getBuiltinFunctionAddress(ctx, op->fntype, op->fn, &preProc,&repl,&func_e,&cfunc_abiinfo,preferredReturnValues, 
+  void *func = nseel_getBuiltinFunctionAddress(ctx, op->fntype, op->fn, &preProc,&repl,
+      &cfunc_abiinfo,preferredReturnValues,
        parm0_dv ? &op->parms.parms[0]->parms.dv.directValue : NULL,
        parm1_dv ? &op->parms.parms[1]->parms.dv.directValue : NULL
        );
-
-  if (!func) RET_MINUS1_FAIL("error getting funcaddr")
 
   *fpStackUsage=BIF_GETFPSTACKUSE(cfunc_abiinfo);
   *rvMode = RETURNVALUE_NORMAL;
@@ -3018,7 +2948,7 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
     {
       if (func == nseel_asm_stack_pop)
       {
-        func = GLUE_realAddress(nseel_asm_stack_pop_fast,nseel_asm_stack_pop_fast_end,&func_size);
+        func = GLUE_realAddress(nseel_asm_stack_pop_fast,&func_size);
         if (!func || bufOut_len < func_size) RET_MINUS1_FAIL(func?"failed on popfast size":"failed on popfast addr")
 
         if (bufOut) 
@@ -3033,7 +2963,7 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
         int f = (int) op->parms.parms[0]->parms.dv.directValue;
         if (!f)
         {
-          func = GLUE_realAddress(nseel_asm_stack_peek_top,nseel_asm_stack_peek_top_end,&func_size);
+          func = GLUE_realAddress(nseel_asm_stack_peek_top,&func_size);
           if (!func || bufOut_len < func_size) RET_MINUS1_FAIL(func?"failed on peek size":"failed on peek addr")
 
           if (bufOut) 
@@ -3045,7 +2975,7 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
         }
         else
         {
-          func = GLUE_realAddress(nseel_asm_stack_peek_int,nseel_asm_stack_peek_int_end,&func_size);
+          func = GLUE_realAddress(nseel_asm_stack_peek_int,&func_size);
           if (!func || bufOut_len < func_size) RET_MINUS1_FAIL(func?"failed on peekint size":"failed on peekint addr")
 
           if (bufOut)
@@ -3104,13 +3034,7 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
         if (func == nseel_asm_bnot && rvt==RETURNVALUE_BOOL_REVERSED)
         {
           // remove bnot, compileOpcodes() used fptobool_rev
-#ifndef EEL_TARGET_PORTABLE
-          func = nseel_asm_uplus;
-          func_e = nseel_asm_uplus_end;
-#else
-          func = nseel_asm_bnotnot;
-          func_e = nseel_asm_bnotnot_end;
-#endif
+          func = NULL;
           rvt = RETURNVALUE_BOOL;
         }
 
@@ -3171,12 +3095,10 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
             {
               cfunc_abiinfo |= BIF_LASTPARMONSTACK;
               func = nseel_asm_assign_fast_fromfp;
-              func_e = nseel_asm_assign_fast_fromfp_end;
             }
             else
             {
               func = nseel_asm_assign_fast;
-              func_e = nseel_asm_assign_fast_end;
             }
           }
           else
@@ -3185,7 +3107,6 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
             {
               cfunc_abiinfo |= BIF_LASTPARMONSTACK;
               func = nseel_asm_assign_fromfp;
-              func_e = nseel_asm_assign_fromfp_end;
             }
           }
         
@@ -3281,7 +3202,7 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
   #ifdef GLUE_PREFER_NONFP_DV_ASSIGNS // x86-64, and maybe others, prefer to avoid the fp stack for a simple copy
           if (wantFpStack &&
               (op->parms.parms[pn]->opcodeType != OPCODETYPE_DIRECTVALUE ||
-              (op->parms.parms[pn]->parms.dv.directValue != 1.0 && op->parms.parms[pn]->parms.dv.directValue != 0.0)))
+              op->parms.parms[pn]->parms.dv.directValue != 0.0))
           {
             wantFpStack=-1; // cacheable but non-FP stack
           }
@@ -3312,13 +3233,8 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
           if (func == nseel_asm_bnot && rvt == RETURNVALUE_BOOL_REVERSED)
           {
             // remove bnot, compileOpcodes() used fptobool_rev
-#ifndef EEL_TARGET_PORTABLE
-            func = nseel_asm_uplus;
-            func_e = nseel_asm_uplus_end;
-#else
-            func = nseel_asm_bnotnot;
-            func_e = nseel_asm_bnotnot_end;
-#endif
+            // case: !b ? 2 : 3, for example
+            func = NULL;
             rvt = RETURNVALUE_BOOL;
           }
 
@@ -3334,19 +3250,16 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
               if (!(ctx->optimizeDisableFlags & OPTFLAG_FULL_DENORMAL_CHECKS))
               {
                 func = nseel_asm_assign_fast_fromfp;
-                func_e = nseel_asm_assign_fast_fromfp_end;
               }
               else
               {
                 func = nseel_asm_assign_fromfp;
-                func_e = nseel_asm_assign_fromfp_end;
               }
             }
             else if (!(ctx->optimizeDisableFlags & OPTFLAG_FULL_DENORMAL_CHECKS))
             {
                // assigning a value (from a variable or other non-computer), can use a fast assign (no denormal/result checking)
               func = nseel_asm_assign_fast;
-              func_e = nseel_asm_assign_fast_end;
             }
           }
         }
@@ -3383,23 +3296,19 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
       if (func == (void*)nseel_asm_add_op && parm1_dv && fabs(op->parms.parms[1]->parms.dv.directValue) >= DENORMAL_CLEARING_THRESHOLD)
       {
         func = nseel_asm_add_op_fast;
-        func_e = nseel_asm_add_op_fast_end;
       }
       else if (func == (void*)nseel_asm_sub_op && parm1_dv && fabs(op->parms.parms[1]->parms.dv.directValue) >= DENORMAL_CLEARING_THRESHOLD)
       {
         func = nseel_asm_sub_op_fast;
-        func_e = nseel_asm_sub_op_fast_end;
       }
       // or if mul/div by a fixed value of >= or <= 1.0
       else if (func == (void *)nseel_asm_mul_op && parm1_dv && fabs(op->parms.parms[1]->parms.dv.directValue) >= 1.0)
       {
         func = nseel_asm_mul_op_fast;
-        func_e = nseel_asm_mul_op_fast_end;
       }
       else if (func == (void *)nseel_asm_div_op && parm1_dv && fabs(op->parms.parms[1]->parms.dv.directValue) <= 1.0)
       {
         func = nseel_asm_div_op_fast;
-        func_e = nseel_asm_div_op_fast_end;
       }
     }
   } // not varparm
@@ -3407,8 +3316,15 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
   if (cfunc_abiinfo & (BIF_CLEARDENORMAL | BIF_RETURNSBOOL) ) *canHaveDenormalOutput=0;
   else if (!(cfunc_abiinfo & BIF_WONTMAKEDENORMAL)) *canHaveDenormalOutput=1;
 
-  func = GLUE_realAddress(func,func_e,&func_size);
-  if (!func) RET_MINUS1_FAIL("failrealladdrfunc")
+  if (func)
+  {
+    func = GLUE_realAddress(func,&func_size);
+    if (!func) RET_MINUS1_FAIL("failrealladdrfunc")
+  }
+  else
+  {
+    func_size = 0;
+  }
                    
   if (bufOut_len < parm_size + func_size) RET_MINUS1_FAIL("funcsz")
 
@@ -3505,7 +3421,7 @@ static int compileEelFunctionCall(compileContext *ctx, opcodeRec *op, unsigned c
                                       !!bufOut,namespacePathToThis,rvMode,fpStackUse,canHaveDenormalOutput, parmptrs, n_params);
 
   if (func_raw) func_size = (int) ((char*)func_e  - (char*)func);
-  else if (func) func = GLUE_realAddress(func,func_e,&func_size);
+  else if (func) func = GLUE_realAddress(func,&func_size);
   
   if (!func) RET_MINUS1_FAIL("eelfuncaddr")
 
@@ -3934,11 +3850,11 @@ doNonInlinedAndOr_:
 
       if (op->fntype == FN_LOGICAL_AND) 
       {
-        stub = GLUE_realAddress(nseel_asm_band,nseel_asm_band_end,&stubsize);
+        stub = GLUE_realAddress(nseel_asm_band,&stubsize);
       }
       else 
       {
-        stub = GLUE_realAddress(nseel_asm_bor,nseel_asm_bor_end,&stubsize);
+        stub = GLUE_realAddress(nseel_asm_bor,&stubsize);
       }
     
       if (bufOut_len < parm_size + stubsize) RET_MINUS1_FAIL("band/bor len fail")
@@ -4032,7 +3948,7 @@ doNonInlinedAndOr_:
       int stubsize;
 doNonInlineIf_:
       parm_size = parm_size_pre;
-      stub = GLUE_realAddress(nseel_asm_if,nseel_asm_if_end,&stubsize);
+      stub = GLUE_realAddress(nseel_asm_if,&stubsize);
     
       if (!stub || bufOut_len < parm_size + stubsize) RET_MINUS1_FAIL(stub ? "if sz fail" : "if addr fail")
     
@@ -4068,7 +3984,7 @@ doNonInlineIf_:
         unsigned char *pwr=bufOut;
         unsigned char *newblock2;
         int stubsz;
-        void *stubfunc = GLUE_realAddress(nseel_asm_repeatwhile,nseel_asm_repeatwhile_end,&stubsz);
+        void *stubfunc = GLUE_realAddress(nseel_asm_repeatwhile,&stubsz);
         if (!stubfunc || bufOut_len < stubsz) RET_MINUS1_FAIL(stubfunc ? "repeatwhile size fail" :"repeatwhile addr fail")
 
         if (bufOut)
@@ -4144,7 +4060,7 @@ doNonInlineIf_:
         void *stub;
         int stubsize;        
         unsigned char *newblock2, *p;
-        stub = GLUE_realAddress(nseel_asm_repeat,nseel_asm_repeat_end,&stubsize);
+        stub = GLUE_realAddress(nseel_asm_repeat,&stubsize);
         if (bufOut_len < parm_size + stubsize) RET_MINUS1_FAIL("loop size fail")
         if (bufOut)
         {
@@ -4163,11 +4079,14 @@ doNonInlineIf_:
         int fUse2=0;
         unsigned char *skipptr1,*loopdest;
 
-        if (bufOut_len < parm_size + (int)(sizeof(GLUE_LOOP_LOADCNT) + GLUE_LOOP_CLAMPCNT_SIZE + GLUE_LOOP_BEGIN_SIZE)) RET_MINUS1_FAIL("loop size fail")
+#ifndef GLUE_LOOP_LOADCNT_SIZE
+#define GLUE_LOOP_LOADCNT_SIZE sizeof(GLUE_LOOP_LOADCNT)
+#endif
+        if (bufOut_len < parm_size + (int)(GLUE_LOOP_LOADCNT_SIZE + GLUE_LOOP_CLAMPCNT_SIZE + GLUE_LOOP_BEGIN_SIZE)) RET_MINUS1_FAIL("loop size fail")
 
         // store, convert to int, compare against 1, if less than, skip to end
-        if (bufOut) memcpy(bufOut+parm_size,GLUE_LOOP_LOADCNT,sizeof(GLUE_LOOP_LOADCNT));
-        parm_size += sizeof(GLUE_LOOP_LOADCNT);
+        if (bufOut) memcpy(bufOut+parm_size,GLUE_LOOP_LOADCNT,GLUE_LOOP_LOADCNT_SIZE);
+        parm_size += GLUE_LOOP_LOADCNT_SIZE;
         skipptr1 = bufOut+parm_size; 
 
         // compare aginst max loop length, jump to loop start if not above it
@@ -4465,7 +4384,7 @@ int compileOpcodes(compileContext *ctx, opcodeRec *op, unsigned char *bufOut, in
   if (code_returns == RETURNVALUE_BOOL && !(supportedReturnValues & RETURNVALUE_BOOL) && supportedReturnValues)
   {
     int stubsize;
-    void *stub = GLUE_realAddress(nseel_asm_booltofp,nseel_asm_booltofp_end,&stubsize);
+    void *stub = GLUE_realAddress(nseel_asm_booltofp,&stubsize);
     if (!stub || bufOut_len < stubsize) RET_MINUS1_FAIL(stub?"booltofp size":"booltfp addr")
     if (bufOut) 
     {
@@ -4524,12 +4443,12 @@ int compileOpcodes(compileContext *ctx, opcodeRec *op, unsigned char *bufOut, in
       if (supportedReturnValues & RETURNVALUE_BOOL_REVERSED)
       {
         if (rvType) *rvType = RETURNVALUE_BOOL_REVERSED;
-        stub = GLUE_realAddress(nseel_asm_fptobool_rev,nseel_asm_fptobool_rev_end,&stubsize);
+        stub = GLUE_realAddress(nseel_asm_fptobool_rev,&stubsize);
       }
       else
       {
         if (rvType) *rvType = RETURNVALUE_BOOL;
-        stub = GLUE_realAddress(nseel_asm_fptobool,nseel_asm_fptobool_end,&stubsize);
+        stub = GLUE_realAddress(nseel_asm_fptobool,&stubsize);
       }
 
 
@@ -4751,7 +4670,7 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *_expression
       const char *p = expr;
       const char *tok1 = nseel_simple_tokenizer(&p,endptr,&tmplen,NULL);
       const char *funcname = nseel_simple_tokenizer(&p,endptr,&funcname_len,NULL);
-      if (tok1 && funcname && tmplen == 8 && !strnicmp(tok1,"function",8) && (isalpha(funcname[0]) || funcname[0] == '_'))
+      if (tok1 && funcname && tmplen == 8 && !strnicmp(tok1,"function",8) && (isalpha((unsigned char)funcname[0]) || funcname[0] == '_'))
       {
         int had_parms_locals=0;
         if (funcname_len > sizeof(is_fname)-1) funcname_len=sizeof(is_fname)-1;
@@ -4805,7 +4724,7 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *_expression
               goto had_error;
             }
 
-            if (isalpha(*tok1) || *tok1 == '_' || *tok1 == '#') 
+            if (isalpha((unsigned char)*tok1) || *tok1 == '_' || *tok1 == '#')
             {
               maxcnt++;
               if (p < endptr && *p == '*')
@@ -4845,7 +4764,7 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *_expression
               while (NULL != (tok1 = nseel_simple_tokenizer(&p,endptr,&tmplen,NULL)))
               {
                 if (tok1[0] == ')') break;
-                if (isalpha(*tok1) || *tok1 == '_' || *tok1 == '#') 
+                if (isalpha((unsigned char)*tok1) || *tok1 == '_' || *tok1 == '#')
                 {
                   char *newstr;
                   int l = tmplen;
@@ -5073,28 +4992,23 @@ had_error:
         else
         {
           const char *p = _expression + byteoffs;
-          int x=0, right_amt_nospace=0, left_amt_nospace=0;
-          while (x < 32 && p-x > _expression && p[-x] != '\r' && p[-x] != '\n') 
+          int x=1, right_amt_nospace=0, left_amt_nospace=0;
+          while (x < 32 && p-x >= _expression && p[-x] != '\r' && p[-x] != '\n')
           {
-            if (!isspace(p[-x])) left_amt_nospace=x;
+            if (!isspace((unsigned char)p[-x])) left_amt_nospace=x;
             x++;
           }
           x=0;
-          while (x < 60 && p[x] && p[x] != '\r' && p[x] != '\n') 
+          while (x < 60 && p[x] && p[x] != '\r' && p[x] != '\n')
           {
-            if (!isspace(p[x])) right_amt_nospace=x;
+            if (!isspace((unsigned char)p[x])) right_amt_nospace=x+1;
             x++;
           }
 
-          if (right_amt_nospace<1) right_amt_nospace=1;
-
           // display left_amt >>>> right_amt_nospace
-          if (left_amt_nospace > 0)
-            snprintf(ctx->last_error_string,sizeof(ctx->last_error_string),"%d: %.200s'%.*s <!> %.*s'",linenumber+lineoffs,cur_err,
-              left_amt_nospace,p-left_amt_nospace,
-              right_amt_nospace,p);
-          else
-            snprintf(ctx->last_error_string,sizeof(ctx->last_error_string),"%d: %.200s'%.*s'",linenumber+lineoffs,cur_err,right_amt_nospace,p);
+          snprintf(ctx->last_error_string,sizeof(ctx->last_error_string),"%d: %.200s'%.*s <!> %.*s'",linenumber+lineoffs,cur_err,
+            left_amt_nospace, p-left_amt_nospace,
+            right_amt_nospace ? right_amt_nospace : 5,right_amt_nospace ? p : "<eol>");
         }
       }
 
@@ -5797,11 +5711,11 @@ opcodeRec *nseel_translate(compileContext *ctx, const char *tmp, size_t tmplen) 
       return nseel_createCompiledValue(ctx,(EEL_F)((((WDL_INT64)1) << v) - 1));
     }
     else if (!tmplen ? !stricmp(tmp,"$E") : (tmplen == 2 && !strnicmp(tmp,"$E",2)))
-      return nseel_createCompiledValue(ctx,(EEL_F)2.71828183);
+      return nseel_createCompiledValue(ctx,(EEL_F)2.718281828459045);
     else if (!tmplen ? !stricmp(tmp, "$PI") : (tmplen == 3 && !strnicmp(tmp, "$PI", 3)))
       return nseel_createCompiledValue(ctx,(EEL_F)3.141592653589793);
     else if (!tmplen ? !stricmp(tmp, "$PHI") : (tmplen == 4 && !strnicmp(tmp, "$PHI", 4)))
-      return nseel_createCompiledValue(ctx,(EEL_F)1.61803399);      
+      return nseel_createCompiledValue(ctx,(EEL_F)1.6180339887498948);
     else if ((!tmplen || tmplen == 4) && tmp[1] == '\'' && tmp[2] && tmp[3] == '\'')
       return nseel_createCompiledValue(ctx,(EEL_F)tmp[2]);      
     else return NULL;
@@ -5882,8 +5796,6 @@ void NSEEL_VM_set_var_resolver(NSEEL_VMCTX _ctx, EEL_F *(*res)(void *userctx, co
 
 #if defined(__ppc__) || defined(EEL_TARGET_PORTABLE)
   // blank stubs 
-  void eel_setfp_round() { }
-  void eel_setfp_trunc() { }
   void eel_enterfp(int s[2]) {}
   void eel_leavefp(int s[2]) {}
 #endif

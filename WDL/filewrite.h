@@ -117,6 +117,7 @@ public:
         else if (c <= 0xF4 && str[1] >=0x80 && str[1] <= 0xBF && str[2] >=0x80 && str[2] <= 0xBF) return TRUE;
       }
       str++;
+      if (((const char *)str-_str) >= 256) return TRUE; // long filenames get converted to wide
     }
     return FALSE;
   }
@@ -182,15 +183,21 @@ public:
         if (szreq > 1000)
         {
           WDL_TypedBuf<WCHAR> wfilename;
-          wfilename.Resize(szreq+10);
-          if (MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,filename,-1,wfilename.Get(),wfilename.GetSize()))
+          wfilename.Resize(szreq+20);
+          if (MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,filename,-1,wfilename.Get(),wfilename.GetSize()-10))
+          {
+            correctlongpath(wfilename.Get());
             m_fh = CreateFileW(wfilename.Get(),rwflag,shareFlag,NULL,createFlag,flag,NULL);
+          }
         }
         else
         {
           WCHAR wfilename[1024];
-          if (MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,filename,-1,wfilename,1024))
+          if (MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,filename,-1,wfilename,1024-10))
+          {
+            correctlongpath(wfilename);
             m_fh = CreateFileW(wfilename,rwflag,shareFlag,NULL,createFlag,flag,NULL);
+          }
         }
       }
       
@@ -564,13 +571,16 @@ public:
       if (!ent) break;
       DWORD s=0;
       m_pending.Delete(0);
-      if (!GetOverlappedResult(m_fh,&ent->m_ol,&s,TRUE) && GetLastError()==ERROR_OPERATION_ABORTED)
+      BOOL ok = GetOverlappedResult(m_fh,&ent->m_ol,&s,TRUE);
+      int errcode;
+      if (!ok && (errcode=GetLastError())==ERROR_OPERATION_ABORTED)
       {
         // rewrite this one
         if (!RunAsyncWrite(ent,false)) m_empties.Add(ent);
       }
       else
       {
+        if (!ok) { WDL_FILEWRITE_ON_ERROR(errcode==ERROR_DISK_FULL) }
         m_empties.Add(ent);
         ent->m_bufused=0;
         if (!syncall) break;
@@ -664,6 +674,28 @@ public:
   int GetHandle() { return fileno(m_fp); }
  
   FILE *m_fp;
+#endif
+
+#ifdef _WIN32
+  static void correctlongpath(WCHAR *buf) // this also exists as wdl_utf8_correctlongpath
+  {
+    const WCHAR *insert;
+    WCHAR *wr;
+    int skip = 0;
+    if (!buf || !buf[0] || wcslen(buf) < 256) return;
+    if (buf[1] == ':') insert=L"\\\\?\\";
+    else if (buf[0] == '\\' && buf[1] == '\\') { insert = L"\\\\?\\UNC\\"; skip=2; }
+    else return;
+
+    wr = buf + wcslen(insert);
+    memmove(wr, buf + skip, (wcslen(buf+skip)+1)*2);
+    memmove(buf,insert,wcslen(insert)*2);
+    while (*wr)
+    {
+      if (*wr == '/') *wr = '\\';
+      wr++;
+    }
+  }
 #endif
 } WDL_FIXALIGN;
 

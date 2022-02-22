@@ -1712,6 +1712,9 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("Button")
 
 @end
 
+
+NSFont *SWELL_GetNSFont(HGDIOBJ__ *obj);
+
 LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   if (WDL_NOT_NORMALLY(!hwnd)) return 0;
@@ -1817,6 +1820,12 @@ LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
         // not implemented, because it requires replacing obj within its parent window
         // instead caller explicitly destroy the edit control and create a new one with ES_PASSWORD
       }
+      return 0;
+    }
+    else if (msg == WM_SETFONT && ([obj isKindOfClass:[NSTextField class]]))
+    {
+      NSFont *font = SWELL_GetNSFont((HGDIOBJ__*)wParam);
+      if (font) [obj setFont:font];
       return 0;
     }
     else
@@ -3376,51 +3385,8 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("Edit")
       
     case WM_SETFONT:
     {
-      HGDIOBJ__* obj = (HGDIOBJ__*)wParam;
-      if (obj && obj->type == TYPE_FONT)
-      {
-        if (obj->ct_FontRef)
-        {
-          [self setFont:(NSFont *)obj->ct_FontRef];
-        }
-#ifdef SWELL_ATSUI_TEXT_SUPPORT
-        else if (obj->atsui_font_style)
-        {
-          ATSUFontID fontid = kATSUInvalidFontID;      
-          Fixed fsize = 0;          
-          Boolean isbold = NO;
-          Boolean isital = NO;
-          Boolean isunder = NO;          
-          if (ATSUGetAttribute(obj->atsui_font_style, kATSUFontTag, sizeof(ATSUFontID), &fontid, 0) == noErr &&
-              ATSUGetAttribute(obj->atsui_font_style, kATSUSizeTag, sizeof(Fixed), &fsize, 0) == noErr && fsize &&
-              ATSUGetAttribute(obj->atsui_font_style, kATSUQDBoldfaceTag, sizeof(Boolean), &isbold, 0) == noErr && 
-              ATSUGetAttribute(obj->atsui_font_style, kATSUQDItalicTag, sizeof(Boolean), &isital, 0) == noErr &&
-              ATSUGetAttribute(obj->atsui_font_style, kATSUQDUnderlineTag, sizeof(Boolean), &isunder, 0) == noErr)
-          {
-            char name[255];
-            name[0]=0;
-            ByteCount namelen=0;
-            if (ATSUFindFontName(fontid, kFontFullName, (FontPlatformCode)kFontNoPlatform, kFontNoScriptCode, kFontNoLanguageCode, sizeof(name), name, &namelen, 0) == noErr && name[0] && namelen)
-            {
-              namelen /= 2;
-              int i;
-              for (i = 0; i < namelen; ++i) name[i] = name[2*i];
-              name[namelen]=0;
-
-              // todo bold/ital/underline
-              NSString* str = (NSString*)SWELL_CStringToCFString(name);
-              CGFloat sz = Fix2Long(fsize);
-              NSFont* font = [NSFont fontWithName:str size:sz];
-              [str release];
-              if (font) 
-              {
-                [self setFont:font];
-              }
-            }
-          }            
-        }
-#endif
-      }
+      NSFont *font = SWELL_GetNSFont((HGDIOBJ__*)wParam);
+      if (font) [self setFont:font];
     }
     return 0;
   }
@@ -3490,14 +3456,15 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL([self isSelectable] ? "Edit" : "Static")
   }
   else if (![self isBordered] && ![self drawsBackground]) // looks like a static text control
   {
-    NSColor *col;
+    const float alpha = ([self isEnabled] ? 1.0f : 0.5f);
     if (!m_ctlcolor_set && SWELL_osx_is_dark_mode(1))
-      col = [NSColor textColor];
+    {
+      // NSColor textColor etc produce stale values on Catalina-Monterey
+      const float a = SWELL_osx_is_dark_mode(0) ? 1.0f : 0.0f;
+      [self setTextColor:[NSColor colorWithCalibratedRed:a green:a blue:a alpha:alpha]];
+    }
     else
-      col = [self textColor];
-
-    float alpha = ([self isEnabled] ? 1.0f : 0.5f);
-    [self setTextColor:[col colorWithAlphaComponent:alpha]];
+      [self setTextColor:[[self textColor] colorWithAlphaComponent:alpha]];
   }
   else
   {
@@ -3555,7 +3522,6 @@ HWND SWELL_MakeEditField(int idx, int x, int y, int w, int h, int flags)
       
       [obj setVerticallyResizable:YES];
       NSScrollView *obj2=[[NSScrollView alloc] init];
-      [obj2 setFrame:fr];
       if (flags&WS_VSCROLL) [obj2 setHasVerticalScroller:YES];
       if (flags&WS_HSCROLL) 
       {
@@ -3568,6 +3534,7 @@ HWND SWELL_MakeEditField(int idx, int x, int y, int w, int h, int flags)
       [obj2 setAutohidesScrollers:YES];
       [obj2 setDrawsBackground:NO];
       [obj2 setDocumentView:obj];
+      [obj2 setFrame:fr];
       [m_make_owner addSubview:obj2];
       if (m_doautoright) UpdateAutoCoords([obj2 frame]);
       if (flags&SWELL_NOT_WS_VISIBLE) [obj2 setHidden:YES];
@@ -3742,7 +3709,7 @@ void SWELL_UnregisterCustomControlCreator(SWELL_ControlCreatorProc proc)
 static void set_listview_bigsur_style(NSTableView *obj)
 {
   if (SWELL_GetOSXVersion() < 0x1100) return;
-#ifdef MAC_OS_VERSION_11_0
+#if defined(MAC_OS_VERSION_11_0) && (!defined(SWELL_COCOA_WILL_HAVE_PREBIGSUR_SDK) || defined(__aarch64__))
   // newer SDKs default to NSTableViewStyleAutomatic
   int style = (g_swell_osx_style & 2) ? -1 : 4 /* NSTableViewStylePlain */;
 #else
@@ -5384,8 +5351,20 @@ static void InvalidateSuperViews(NSView *view)
   }
 }
            
+#ifdef _DEBUG
+int g_swell_in_paint;
+#endif
+
 BOOL InvalidateRect(HWND hwnd, const RECT *r, int eraseBk)
 { 
+#ifdef _DEBUG
+  if (g_swell_in_paint)
+  {
+    printf("swell-cocoa: calling InvalidateRect() from within paint, this is allowed but bad form.\n");
+    // WDL_ASSERT(false);
+  }
+#endif
+
   if (WDL_NOT_NORMALLY(!hwnd)) return FALSE;
   id view=(id)hwnd;
   if ([view isKindOfClass:[NSWindow class]]) view=[view contentView];
@@ -5535,7 +5514,27 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     SWELL_END_TRY(;)
     return rv;
   }
-  else if (msg==WM_KEYDOWN || msg==WM_KEYUP) return 69;
+  else if (msg==WM_KEYDOWN || msg==WM_KEYUP)
+  {
+    // if not ctrl/cmd/opt modified, and not tab, and listview/treeview, do not bubble it up
+    // (fixes triggering of menu items when searching for text etc)
+    if (!(lParam & (FCONTROL|FALT|FLWIN)) && !(wParam == VK_TAB && (lParam&FVIRTKEY)))
+    {
+      id fr = [[(NSView *)hwnd window] firstResponder];
+      if ([fr isKindOfClass:[NSTableView class]] ||
+          [fr isKindOfClass:[NSOutlineView class]]) return 1;
+
+      if (wParam >= VK_LEFT && wParam <= VK_DOWN && [fr isKindOfClass:[NSButton class]])
+      {
+        // do not bubble up left/right for any
+        if (wParam == VK_LEFT || wParam == VK_RIGHT) return 1;
+
+        // do not bubble up left/down for non-NSPopUpButton
+        if (![fr isKindOfClass:[NSPopUpButton class]]) return 1;
+      }
+    }
+    return 69;
+  }
   else if (msg == WM_DISPLAYCHANGE)
   {
     if ([(id)hwnd isKindOfClass:[NSView class]])
@@ -5556,8 +5555,7 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
           if (d) SWELL_DoDialogColorUpdates(hwnd,d,true);
         }
       }
-      if ([(id)hwnd respondsToSelector:@selector(swellWantsMetal)] && [(SWELL_hwndChild *)hwnd swellWantsMetal])
-        InvalidateRect((HWND)hwnd,NULL,FALSE);
+      InvalidateRect((HWND)hwnd,NULL,FALSE);
     }
   }
   else if (msg == WM_CTLCOLORSTATIC && wParam)
@@ -5588,9 +5586,6 @@ void SWELL_BroadcastMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
     if (v && [v respondsToSelector:@selector(onSwellMessage:p1:p2:)])
     {
       [(SWELL_hwndChild *)v onSwellMessage:uMsg p1:wParam p2:lParam];
-      
-      if (uMsg == WM_DISPLAYCHANGE)
-        InvalidateRect((HWND)v,NULL,FALSE);
     }
   }  
 }
@@ -7162,6 +7157,41 @@ void SWELL_DisableContextMenu(HWND hwnd, bool dis)
 {
   if (WDL_NORMALLY(hwnd && [(id)hwnd respondsToSelector:@selector(swellDisableContextMenu:)]))
     [(SWELL_TextField*)hwnd swellDisableContextMenu:dis];
+}
+
+extern char g_swell_disable_retina;
+int SWELL_IsRetinaHWND(HWND hwnd)
+{
+  if (!hwnd || SWELL_GetOSXVersion() < 0x1070) return 0;
+
+  int retina_disabled = g_swell_disable_retina;
+  NSWindow *w=NULL;
+  if ([(id)hwnd isKindOfClass:[NSView class]])
+  {
+    if (retina_disabled &&
+        [(id)hwnd isKindOfClass:[SWELL_hwndChild class]] &&
+        ((SWELL_hwndChild*)hwnd)->m_glctx != NULL)
+      retina_disabled = 0;
+
+    w = [(NSView *)hwnd window];
+  }
+  else if ([(id)hwnd isKindOfClass:[NSWindow class]]) w = (NSWindow *)hwnd;
+
+  if (retina_disabled) return 0;
+
+  if (w)
+  {
+    NSRect r=NSMakeRect(0,0,1,1);
+#if MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_6
+    NSRect str = [w convertRectToBacking:r];
+#else
+    NSRect (*tmp)(id receiver, SEL operation, NSRect) = (NSRect (*)(id, SEL, NSRect))objc_msgSend_stret;
+    NSRect str = tmp(w,sel_getUid("convertRectToBacking:"),r);
+#endif
+
+    if (str.size.width > 1.9) return 1;
+  }
+  return 0;
 }
 
 #endif

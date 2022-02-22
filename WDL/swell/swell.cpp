@@ -578,6 +578,8 @@ BOOL SetThreadPriority(HANDLE hand, int prio)
   {
     // this is for darwin, but might work elsewhere
     param.sched_priority = 31 + prio;
+    if (prio >= THREAD_PRIORITY_TIME_CRITICAL) // this could be _HIGHEST eventually
+      pol = SCHED_FIFO;
 
     int mt=sched_get_priority_min(pol);
     if (param.sched_priority<mt||param.sched_priority > (mt=sched_get_priority_max(pol)))param.sched_priority=mt;
@@ -1087,6 +1089,9 @@ void GetTempPath(int bufsz, char *buf)
 const char *g_swell_appname;
 char *g_swell_defini;
 const char *g_swell_fontpangram;
+#ifdef SWELL_TARGET_GDK
+bool swell_gdk_set_fullscreen(HWND, int);
+#endif
 
 void *SWELL_ExtendedAPI(const char *key, void *v)
 {
@@ -1180,16 +1185,13 @@ void *SWELL_ExtendedAPI(const char *key, void *v)
   {
     g_swell_fontpangram = (const char *)v;
   }
-#ifndef SWELL_TARGET_OSX
-#ifndef SWELL_EXTRA_MINIMAL
-  else if (!strcmp(key,"FULLSCREEN") || !strcmp(key,"-FULLSCREEN"))
-  {
-    int swell_fullscreenWindow(HWND, BOOL);
-    return (void*)(INT_PTR)swell_fullscreenWindow((HWND)v, key[0] != '-');
-  }
-#endif
-#endif
 #ifdef SWELL_TARGET_GDK
+  else if (!strcmp(key,"-FULLSCREEN"))
+    return v && swell_gdk_set_fullscreen((HWND)v,0) ? v : NULL;
+  else if (!strcmp(key,"FULLSCREEN"))
+    return v && swell_gdk_set_fullscreen((HWND)v,1) ? v : NULL;
+  else if (!strcmp(key,"oFULLSCREEN"))
+    return v && swell_gdk_set_fullscreen((HWND)v,2) ? v : NULL;
   else if (!strcmp(key,"activate_app"))
   {
     void swell_gdk_reactivate_app(void);

@@ -23,6 +23,9 @@
 
 #ifndef SWELL_PROVIDED_BY_APP
 
+#ifndef WDL_NO_DEFINE_MINMAX
+#define WDL_NO_DEFINE_MINMAX
+#endif
 #include "swell.h"
 
 #define SWELL_INTERNAL_MERGESORT_IMPL
@@ -50,7 +53,6 @@ static bool swell_is_virtkey_char(int c)
   return (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
 }
 
-bool swell_app_is_inactive;
 HWND__ *SWELL_topwindows;
 HWND swell_oswindow_to_hwnd(SWELL_OSWINDOW w)
 {
@@ -89,7 +91,7 @@ HWND__::HWND__(HWND par, int wID, const RECT *wndr, const char *label, bool visi
   m_israised=false;
   m_has_had_position=false;
   m_oswindow_private=0;
-  m_oswindow_fullscreen=false;
+  m_oswindow_fullscreen=0;
 
      m_classname = "unknown";
      m_wndproc=wndproc?wndproc:dlgproc?(WNDPROC)SwellDialogDefaultWindowProc:(WNDPROC)DefWindowProc;
@@ -497,26 +499,24 @@ void SetForegroundWindow(HWND hwnd)
   if (hwnd) swell_oswindow_focus(hwnd);
 }
 
-void SetFocusInternal(HWND hwnd)
+void SetFocus(HWND hwnd)
 {
+  if (!hwnd) return; // windows allows SetFocus(NULL) to defocus, but we do not support that yet
   hwnd->m_focused_child=NULL; // make sure this window has focus, not a child
   SetForegroundWindow(hwnd);
 }
 
-void SetFocus(HWND hwnd)
+void SWELL_OnNavigationFocus(HWND ch)
 {
-  if (!hwnd) return; // windows allows SetFocus(NULL) to defocus...
-  HWND oldfoc = GetFocus();
-  SetFocusInternal(hwnd);
-
-  if (hwnd->m_classname && oldfoc != hwnd)
+  if (ch && ch->m_classname && (
+       !strcmp(ch->m_classname,"Edit") ||
+       !strcmp(ch->m_classname,"combobox")
+     ))
   {
-    if (!strcmp(hwnd->m_classname,"Edit") ||
-        !strcmp(hwnd->m_classname,"combobox"))
-      SendMessage(hwnd,EM_SETSEL,0,-1);
+    SendMessage(ch,EM_SETSEL,0,-1);
   }
-}
 
+}
 
 int IsChild(HWND hwndParent, HWND hwndChild)
 {
@@ -527,11 +527,9 @@ int IsChild(HWND hwndParent, HWND hwndChild)
   return hwndChild == hwndParent;
 }
 
-
-HWND GetFocusIncludeMenus()
+HWND SWELL_GetFocusedChild(HWND h)
 {
-  HWND h = swell_app_is_inactive ? NULL : swell_oswindow_to_hwnd(SWELL_focused_oswindow);
-  while (h) 
+  while (h)
   {
     HWND fc = h->m_focused_child;
     if (!fc) break;
@@ -541,6 +539,12 @@ HWND GetFocusIncludeMenus()
     h = s; // descend to focused child
   }
   return h;
+}
+
+HWND GetFocusIncludeMenus()
+{
+  HWND h = swell_is_app_inactive()>0 ? NULL : swell_oswindow_to_hwnd(SWELL_focused_oswindow);
+  return SWELL_GetFocusedChild(h);
 }
 
 HWND GetForegroundWindow()
@@ -1185,7 +1189,7 @@ static void paintDialogBackground(HWND hwnd, const RECT *r, HDC hdc)
 
 static bool fast_has_focus(HWND hwnd)
 {
-  if (!hwnd || !SWELL_focused_oswindow || swell_app_is_inactive) return false;
+  if (!hwnd || !SWELL_focused_oswindow || swell_is_app_inactive()>0) return false;
   HWND par;
   while ((par=hwnd->m_parent)!=NULL && par->m_focused_child==hwnd)
   {
@@ -1235,7 +1239,7 @@ static LRESULT WINAPI buttonWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
       hwnd->m_private_data=0;
     break;
     case WM_LBUTTONDOWN:
-      SetFocusInternal(hwnd);
+      SetFocus(hwnd);
       SetCapture(hwnd);
       SendMessage(hwnd,WM_USER+100,0,0); // invalidate
     return 0;
@@ -2540,7 +2544,7 @@ static LRESULT WINAPI editWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
         ReleaseDC(hwnd,hdc);
 
       }
-      SetFocusInternal(hwnd);
+      SetFocus(hwnd);
       if (msg == WM_LBUTTONDOWN) SetCapture(hwnd);
 
       InvalidateRect(hwnd,NULL,FALSE);
@@ -3042,7 +3046,7 @@ static LRESULT WINAPI trackbarWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
       }
     return 1;
     case WM_LBUTTONDOWN:
-      SetFocusInternal(hwnd);
+      SetFocus(hwnd);
       SetCapture(hwnd);
 
       if (hwnd->m_private_data)
@@ -3476,7 +3480,7 @@ static LRESULT WINAPI comboWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
           ReleaseDC(hwnd,hdc);
 
-          SetFocusInternal(hwnd);
+          SetFocus(hwnd);
         }
         SetCapture(hwnd);
       }
@@ -3689,6 +3693,37 @@ popupMenu:
           s->editstate.autoScrollToOffset(hwnd,s->editstate.sel2, false, false);
         InvalidateRect(hwnd,NULL,FALSE);
       }
+    return 0;
+    case WM_MOUSEWHEEL:
+      // pass modified mousewheel to parent (not sure if we need to do this but other controls do...)
+      if ((GetAsyncKeyState(VK_CONTROL)&0x8000) || (GetAsyncKeyState(VK_MENU)&0x8000)) break;
+
+      if (s)
+      {
+        int amt = ((short)HIWORD(wParam));
+        if (GetAsyncKeyState(VK_SHIFT)&0x8000)
+        {
+          if (amt<0) amt=-1;
+          else if (amt>0) amt=1;
+        }
+        else
+          amt /= 120;
+
+        if (amt)
+        {
+          int nv = s->selidx + amt;
+          if (nv>=s->items.GetSize()) nv=s->items.GetSize()-1;
+          if (nv < 0) nv=0;
+          if (nv != s->selidx && s->items.Get(nv))
+          {
+            s->selidx=nv;
+            SetWindowText(hwnd,s->items.Get(nv)->desc);
+            InvalidateRect(hwnd,NULL,FALSE);
+            SendMessage(GetParent(hwnd),WM_COMMAND,(GetWindowLong(hwnd,GWL_ID)&0xffff) | (CBN_SELCHANGE<<16),(LPARAM)hwnd);
+          }
+        }
+      }
+
     return 0;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
@@ -4105,7 +4140,7 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
     break;
     case WM_LBUTTONDBLCLK:
     case WM_LBUTTONDOWN:
-      SetFocusInternal(hwnd);
+      SetFocus(hwnd);
       if (msg == WM_LBUTTONDOWN) SetCapture(hwnd);
       else ReleaseCapture();
 
@@ -4659,6 +4694,7 @@ forceMouseMove:
         {
           RECT cr; 
           GetClientRect(hwnd,&cr); 
+          RECT rr = cr;
           HBRUSH bgbr = CreateSolidBrush(lvs->m_color_bg);
           FillRect(ps.hdc,&cr,bgbr);
           DeleteObject(bgbr);
@@ -4967,6 +5003,9 @@ forceMouseMove:
                   totalw,lvs->m_scroll_x);
             }
           }
+          Draw3DBox(ps.hdc,&rr,-1,
+            g_swell_ctheme.listview_hilight,
+            g_swell_ctheme.listview_shadow);
           DeleteObject(bgbr);
 
           EndPaint(hwnd,&ps);
@@ -5489,7 +5528,7 @@ static LRESULT treeViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
       }
     break;
     case WM_LBUTTONDOWN:
-      SetFocusInternal(hwnd);
+      SetFocus(hwnd);
       SetCapture(hwnd);
       if (tvs)
       {
@@ -5656,6 +5695,9 @@ forceMouseMove:
             DeleteObject(br);
 
             drawVerticalScrollbar(ps.hdc,cr,total_h,tvs->m_scroll_y);
+            Draw3DBox(ps.hdc,&cr,-1,
+              g_swell_ctheme.treeview_hilight,
+              g_swell_ctheme.treeview_shadow);
           }
 
           EndPaint(hwnd,&ps);
@@ -5708,7 +5750,7 @@ static LRESULT tabControlWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
       }
     break;
     case WM_KEYDOWN:
-      if (lParam==FVIRTKEY && 
+      if ((lParam&0xff)==FVIRTKEY &&
            (wParam==VK_LEFT || 
             wParam==VK_RIGHT || 
             wParam==VK_HOME || 
@@ -5733,7 +5775,7 @@ static LRESULT tabControlWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
     case WM_LBUTTONDOWN:
       if (GET_Y_LPARAM(lParam) < TABCONTROL_HEIGHT)
       {
-        SetFocusInternal(hwnd);
+        SetFocus(hwnd);
         int xp=GET_X_LPARAM(lParam),tab;
         HDC dc = GetDC(hwnd);
         int tabchg = -1;
@@ -5880,19 +5922,20 @@ void SWELL_RegisterCustomControlCreator(SWELL_ControlCreatorProc proc)
   if (WDL_NOT_NORMALLY(!proc)) return;
   
   ccprocrec *p=m_ccprocs;
-  while (p && p->next)
+  if (p) for (;;)
   {
     if (p->proc == proc)
     {
       p->cnt++;
       return;
     }
+    if (!p->next) break;
     p=p->next;
   }
   ccprocrec *ent = (ccprocrec*)malloc(sizeof(ccprocrec));
   ent->proc=proc;
   ent->cnt=1;
-  ent->next=0;
+  ent->next=NULL;
   
   if (p) p->next=ent;
   else m_ccprocs=ent;
@@ -6753,8 +6796,20 @@ HWND WindowFromPoint(POINT p)
   return NULL;
 }
 
+#ifdef _DEBUG
+int g_swell_in_paint;
+#endif
+
 BOOL InvalidateRect(HWND hwnd, const RECT *r, int eraseBk)
 { 
+#ifdef _DEBUG
+  if (g_swell_in_paint)
+  {
+    printf("swell-generic: calling InvalidateRect() from within paint, this is allowed but bad form.\n");
+    // WDL_ASSERT(false);
+  }
+#endif
+
   if (WDL_NOT_NORMALLY(!hwnd) || hwnd->m_hashaddestroy) return FALSE;
 
 #ifdef SWELL_LICE_GDI
@@ -6956,7 +7011,7 @@ LRESULT SwellDialogDefaultWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
       int navdir = 0;
 
       if (wParam == VK_TAB && (lParam&~FSHIFT) == FVIRTKEY) navdir = (lParam & FSHIFT) ? -1 : 1;
-      else if (lParam == FVIRTKEY)
+      else if ((lParam&0xff) == FVIRTKEY)
       {
         if (wParam == VK_LEFT || wParam == VK_UP) navdir = -1;
         else if (wParam == VK_RIGHT || wParam == VK_DOWN) navdir = 1;
@@ -6967,8 +7022,9 @@ LRESULT SwellDialogDefaultWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
         HWND ch = getNextFocusWindow(hwnd,navdir<0,hwnd->m_focused_child);
         if (ch)
         {
+          HWND oldfoc = GetFocus();
           SetFocus(ch);
-
+          if (oldfoc != ch) SWELL_OnNavigationFocus(ch);
           InvalidateRect(ch,NULL,FALSE);
           return 0;
         }
@@ -6993,7 +7049,10 @@ static bool wantRightAlignedMenuBarItem(const char *p)
   return c > 0 && c != '&' && !isalnum(c);
 }
 
-static int menuBarHitTest(HWND hwnd, int mousex, int mousey, RECT *rOut, int forceItem)
+#define MENUBAR_SELECTED_ITEM_XPAD \
+   wdl_min(g_swell_ctheme.menubar_spacing_width,g_swell_ctheme.menubar_margin_width)
+
+static int menuBarHitTest(HWND hwnd, int mousex, int mousey, RECT *rOut, int forceItem, int expandedItem)
 {
   int rv=-1;
   RECT r;
@@ -7002,6 +7061,7 @@ static int menuBarHitTest(HWND hwnd, int mousex, int mousey, RECT *rOut, int for
   {
     HDC dc = GetWindowDC(hwnd);
 
+    const int xselpad = MENUBAR_SELECTED_ITEM_XPAD, xpad=g_swell_ctheme.menubar_spacing_width;
     int x,xpos=r.left + g_swell_ctheme.menubar_margin_width;
     HMENU__ *menu = (HMENU__*)hwnd->m_menu;
     HGDIOBJ oldfont = dc ? SelectObject(dc,menubar_font) : NULL;
@@ -7020,11 +7080,15 @@ static int menuBarHitTest(HWND hwnd, int mousex, int mousey, RECT *rOut, int for
           cr.right = r.right - g_swell_ctheme.menubar_margin_width - xpos;
         }
 
-        if (forceItem>=0 ? forceItem == x : (mousex >=xpos && mousex< xpos + cr.right + g_swell_ctheme.menubar_spacing_width))
+        if (forceItem >=0 ? forceItem == x :
+            expandedItem < 0 ? (mousex >= xpos - xpad && mousex < xpos + cr.right + (xpad+1)*3/4) :
+            x == expandedItem ? (mousex >= xpos - xselpad && mousex < xpos + cr.right + xselpad) :
+            mousex >= xpos && mousex < xpos + cr.right + xpad - (x == expandedItem-1 ? xselpad : 0)
+           )
         {
           if (!dis) 
           {
-            rOut->left = xpos;
+            rOut->left = xpos - xselpad;
             rOut->right = xpos + cr.right;
             rOut->top = r.top;
             rOut->bottom = r.top + g_swell_ctheme.menubar_height;
@@ -7033,7 +7097,7 @@ static int menuBarHitTest(HWND hwnd, int mousex, int mousey, RECT *rOut, int for
           break;
         }
 
-        xpos+=cr.right+g_swell_ctheme.menubar_spacing_width;
+        xpos+=cr.right+xpad;
       }
     }
     
@@ -7048,7 +7112,6 @@ static int menuBarHitTest(HWND hwnd, int mousex, int mousey, RECT *rOut, int for
 
 static RECT g_menubar_lastrect;
 static HWND g_menubar_active;
-static POINT g_menubar_startpt;
 static bool g_menubar_active_drag;
 
 HWND swell_window_wants_all_input()
@@ -7061,7 +7124,7 @@ int menuBarNavigate(int dir) // -1 if no menu bar active, 0 if did nothing, 1 if
   if (!g_menubar_active || !g_menubar_active->m_menu) return -1;
   HMENU__ *menu = (HMENU__*)g_menubar_active->m_menu;
   RECT r;
-  const int x = menuBarHitTest(g_menubar_active,0,0,&r,menu->sel_vis + dir);
+  const int x = menuBarHitTest(g_menubar_active,0,0,&r,menu->sel_vis + dir, -1);
   if (x>=0)
   {
     MENUITEMINFO *inf = menu->items.Get(x);
@@ -7078,7 +7141,7 @@ int menuBarNavigate(int dir) // -1 if no menu bar active, 0 if did nothing, 1 if
 }
 
 RECT g_trackpopup_yroot;
-static void runMenuBar(HWND hwnd, HMENU__ *menu, int x, const RECT *use_r)
+static void runMenuBar(HWND hwnd, HMENU__ *menu, int x, const RECT *use_r, int flag)
 {
   menu->Retain();
   MENUITEMINFO *inf = menu->items.Get(x);
@@ -7092,13 +7155,12 @@ static void runMenuBar(HWND hwnd, HMENU__ *menu, int x, const RECT *use_r)
   mbr.bottom = 0;
   mbr.top = -g_swell_ctheme.menubar_height;
   menu->sel_vis = x;
-  GetCursorPos(&g_menubar_startpt);
   g_menubar_active = hwnd;
   g_menubar_active_drag=true;
   for (;;)
   {
     InvalidateRect(hwnd,&mbr,FALSE);
-    if (TrackPopupMenu(inf->hSubMenu,0,r.left,r.bottom,0xbeef,hwnd,NULL) || menu->sel_vis == x) break;
+    if (TrackPopupMenu(inf->hSubMenu,0,r.left,r.bottom,flag,hwnd,NULL) || menu->sel_vis == x) break;
 
     x = menu->sel_vis;
     inf = menu->items.Get(x);
@@ -7127,7 +7189,7 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         HMENU__ *menu = (HMENU__*)hwnd->m_menu;
         RECT r;
-        const int x = menuBarHitTest(hwnd,GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam),&r,-1);
+        const int x = menuBarHitTest(hwnd,GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam),&r,-1, menu->sel_vis);
         if (x>=0 && x != menu->sel_vis)
         {
           MENUITEMINFO *inf = menu->items.Get(x);
@@ -7164,8 +7226,15 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
           r.bottom -= r.top; r.top=0;
           if (r.bottom>g_swell_ctheme.menubar_height) r.bottom=g_swell_ctheme.menubar_height;
 
+          bool isactive = false;
+          if (swell_is_app_inactive() == 0) // draw as inactive if maybe inactive
           {
-            HBRUSH br=CreateSolidBrush(g_swell_ctheme.menubar_bg);
+            HWND foc = GetFocus();
+            if (foc && (foc == hwnd || IsChild(hwnd,foc))) isactive = true;
+          }
+
+          {
+            HBRUSH br=CreateSolidBrush(isactive ? g_swell_ctheme.menubar_bg : g_swell_ctheme.menubar_bg_inactive);
             FillRect(dc,&r,br);
             DeleteObject(br);
           }
@@ -7199,12 +7268,16 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
               cr.bottom = r.bottom;
               if (!dis && menu->sel_vis == x)
               {
+                RECT crb = cr;
+                crb.left -= MENUBAR_SELECTED_ITEM_XPAD;
+                crb.right += MENUBAR_SELECTED_ITEM_XPAD;
                 HBRUSH br = CreateSolidBrush(g_swell_ctheme.menubar_bg_sel);
-                FillRect(dc,&cr,br);
+                FillRect(dc,&crb,br);
                 DeleteObject(br);
                 SetTextColor(dc,g_swell_ctheme.menubar_text_sel);
               }
               else SetTextColor(dc,
+                 !isactive ? g_swell_ctheme.menubar_text_inactive :
                  dis ? g_swell_ctheme.menubar_text_disabled :
                    g_swell_ctheme.menubar_text);
 
@@ -7243,16 +7316,19 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
           POINT pt;
           GetCursorPos(&pt);
-          pt.x -= g_menubar_startpt.x;
-          pt.y -= g_menubar_startpt.y;
-          if (pt.x*pt.x+ pt.y*pt.y > 4*4) 
+
+          RECT r;
+          GetWindowContentViewRect(hwnd,&r);
+          r.bottom = r.top + g_swell_ctheme.menubar_height;
+
+          if (!PtInRect(&r,pt))
           {
             DestroyPopupMenus();
             return 0;
           }
         }
         RECT r;
-        const int x = menuBarHitTest(hwnd,GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam),&r,-1);
+        const int x = menuBarHitTest(hwnd,GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam),&r,-1,-1);
         if (x>=0)
         {
           HMENU__ *menu = (HMENU__*)hwnd->m_menu;
@@ -7263,7 +7339,7 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             { 
               if (msg == WM_NCLBUTTONDOWN) 
               {
-                runMenuBar(hwnd,menu,x,&r);
+                runMenuBar(hwnd,menu,x,&r,0xbeef);
               }
             }
             else if (msg == WM_NCLBUTTONUP)
@@ -7317,9 +7393,9 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 if (inf->hSubMenu)
                 {
                   RECT r;
-                  if (menuBarHitTest(hwnd,0,0,&r,x)>=0)
+                  if (menuBarHitTest(hwnd,0,0,&r,x,-1)>=0)
                   {
-                    runMenuBar(hwnd,menu,x,&r);
+                    runMenuBar(hwnd,menu,x,&r,0xbeee);
                   }
                 }
                 else
@@ -8295,16 +8371,6 @@ void SWELL_GenerateDialogFromList(const void *_list, int listsz)
     listsz--;
     list++;
   }
-}
-
-int swell_fullscreenWindow(HWND hwnd, BOOL fs)
-{
-  if (WDL_NORMALLY(hwnd))
-  {
-    hwnd->m_oswindow_fullscreen = fs;
-    return 1;
-  }
-  return 0;
 }
 
 void SWELL_SetClassName(HWND hwnd, const char *p)
