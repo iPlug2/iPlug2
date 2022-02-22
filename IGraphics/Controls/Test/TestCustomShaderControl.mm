@@ -60,7 +60,7 @@ void TestCustomShaderControl::Draw(IGraphics& g)
           // Positions     ,  Colors
           { {  0.5,  -0.5 },  { 1.0, 0.0, 0.0, 1.0 } },
           { { -0.5,  -0.5 },  { 0.0, 1.0, 0.0, 1.0 } },
-          { {  0.0,   0.5 },  { 0.0, 0.0, 1.0, 0.0 } },
+          { {  0.0,   0.5 },  { 0.0, 0.0, 1.0, 1.0 } },
       };
 
       id<MTLRenderCommandEncoder> renderEncoder =
