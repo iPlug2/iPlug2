@@ -33,7 +33,7 @@ TODO: explain
 | makedist-mac.command                      | macOS script to build all binaries and package them in an installer with accompanying files                             |
 | makedist-win.bat                          | Windows script to build all binaries and package them in an installer with accompanying files                           |
 | manual/IPlugEffect_manual.pdf             | Dummy PDF manual that will be included by the installer scripts                                                         |
-| resource.h                                | Source code - plugin's characteristices                                                                                 |
+| resource.h                                | Source code - plugin's characteristics                                                                                 |
 | resources/English.lproj/                  | Interface Builder folder for macOS standalone menu                                                                      |
 | resources/English.lproj/InfoPlist.strings | Interface Builder file for macOS standalone menu                                                                        |
 | resources/English.lproj/MainMenu.xib      | Interface Builder file for macOS standalone menu                                                                        |
