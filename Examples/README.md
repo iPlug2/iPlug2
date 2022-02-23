@@ -3,7 +3,7 @@ These examples all serve as templates, which can be duplicated to form the start
 There are three examples you should check out first:
 
 * **IPlugEffect** : A basic audio effect which is a volume control.
-* **IPlugInstrument** : An MPE-capable polyphonic synthesiser.
+* **IPlugInstrument** : An MPE-capable polyphonic synthesizer.
 * **IPlugControls** : A demonstration of the widgets available in the IControls library.
 
 The following examples are more specialized:
@@ -14,7 +14,7 @@ The following examples are more specialized:
 * **IPlugSurroundEffect** : A  multichannel volume control effect plug-in that should work on different surround buses.
 * **IPlugDrumSynth** : A drum synthesiser example with multiple output buses.
 * **IPlugResponsiveUI** : An example of how to make a responsive UI that adapts to the platform window that can be maximized and resized using the OS window chrome. 
-* **IPlugFaustDSP** : A plug-in that uses FAUST to implent its DSP and JIT-compile FAUST code in debug builds.
+* **IPlugFaustDSP** : A plug-in that uses FAUST to implement its DSP and JIT-compile FAUST code in debug builds.
 * **IPlugSOUL** : An plug-in where the DSP is generated using the SOUL programming language
 * **IPlugOSCEditor** : Demonstrates how to use the Open Sound Control classes in iPlug2, as well as the IWebViewControl
 * **IPlugReaperExtension** : This is a template project for making a [Reaper Extension](http://reaper.fm/sdk/plugin/plugin.php). No realtime audio processing code, obviously. Making a reaper extension can be painful since it is all based around the Win32 APIs. This abstracts away some of the nastyness.
