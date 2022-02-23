@@ -20,7 +20,7 @@ These guidelines exist in order to try and tidy up the IPlug code base. Every de
 
 \todo Expand this
 
-###An example class:
+### An example class:
 
 ```cpp
 class MyClass
