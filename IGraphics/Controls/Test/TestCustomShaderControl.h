@@ -195,8 +195,8 @@ private:
 class TestCustomShaderControl : public IControl
 {
 public:
-  TestCustomShaderControl(IRECT rect, const IBitmap& bmp, int paramIdx)
-  : IControl(rect)
+  TestCustomShaderControl(const IRECT& bounds, int paramIdx)
+  : IControl(bounds)
   {
     SetTooltip("TestCustomShaderControl");
   }
