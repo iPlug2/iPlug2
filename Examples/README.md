@@ -3,7 +3,7 @@ These examples all serve as templates, which can be duplicated to form the start
 There are three examples you should check out first:
 
 * **IPlugEffect** : A basic audio effect which is a volume control.
-* **IPlugInstrument** : An MPE-capable polyphonic synthesiser.
+* **IPlugInstrument** : An MPE-capable polyphonic synthesizer.
 * **IPlugControls** : A demonstration of the widgets available in the IControls library.
 
 The following examples are more specialized:
@@ -12,7 +12,7 @@ The following examples are more specialized:
 * **IPlugMidiEffect** : A basic MIDI effect plugin. Note: only AudioUnits really have a notion of a midi effect.
 * **IPlugSideChain** : Demonstrates how to do a plug-in with two input buses for effects that require sidechain inputs such as compressors/gates.
 * **IPlugSurroundEffect** : A  multichannel volume control effect plug-in that should work on different surround buses.
-* **IPlugDrumSynth** : A drum synthesiser example with multiple output buses.
+* **IPlugDrumSynth** : A drum synthesizer example with multiple output buses.
 * **IPlugResponsiveUI** : An example of how to make a responsive UI that adapts to the platform window that can be maximized and resized using the OS window chrome. 
 * **IPlugFaustDSP** : A plug-in that uses FAUST to implent its DSP and JIT-compile FAUST code in debug builds.
 * **IPlugSOUL** : An plug-in where the DSP is generated using the SOUL programming language
