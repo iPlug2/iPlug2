@@ -1050,17 +1050,21 @@ finish_up_native_render:
     unsigned short c;
     tstr=adv_str(tstr, &tcnt, &c);
 
-    if (c != '\r' && c != '\n')
+    if (c == '\r') continue;
+    if (c == '\n')
     {
-      charEnt *ent=findChar(c);
-      if (!ent)
-      {
-        const int os=m_extracharlist.GetSize();
-        RenderGlyph(c);
-        if (m_extracharlist.GetSize() != os) ent=findChar(c);
-      }
-      if (ent && ent->base_offset == 0) RenderGlyph(c);
+      if (dtFlags & DT_SINGLELINE) c=' ';
+      else continue;
     }
+
+    charEnt *ent=findChar(c);
+    if (!ent)
+    {
+      const int os=m_extracharlist.GetSize();
+      RenderGlyph(c);
+      if (m_extracharlist.GetSize() != os) ent=findChar(c);
+    }
+    if (ent && ent->base_offset == 0) RenderGlyph(c);
   }
 
   if (dtFlags & DT_CALCRECT)
