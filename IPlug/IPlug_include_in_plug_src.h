@@ -20,6 +20,8 @@
 
 #pragma mark - OS_WIN
 
+// clang-format off
+
 #if defined OS_WIN && !defined VST3C_API
   HINSTANCE gHINSTANCE = 0;
   #if defined(VST2_API) || defined(AAX_API)
@@ -363,3 +365,5 @@ END_IPLUG_NAMESPACE
 #if !defined NO_IGRAPHICS && !defined VST3P_API
 #include "IGraphics_include_in_plug_src.h"
 #endif
+
+// clang-format on
