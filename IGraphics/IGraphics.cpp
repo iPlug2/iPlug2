@@ -121,7 +121,7 @@ void IGraphics::SetLayoutOnResize(bool layoutOnResize)
 
 void IGraphics::RemoveControlWithTag(int ctrlTag)
 {
-  mControls.DeletePtr(GetControlWithTag(ctrlTag));
+  mControls.DeletePtr(GetControlWithTag(ctrlTag), true);
   mCtrlTags.erase(ctrlTag);
   SetAllControlsDirty();
 }
