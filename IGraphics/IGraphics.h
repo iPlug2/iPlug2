@@ -1003,7 +1003,7 @@ public:
    * @param valIdx The value index for the control value that the text entry relates to */
   void CreateTextEntry(IControl& control, const IText& text, const IRECT& bounds, const char* str = "", int valIdx = 0);
 
-   /** Called by the platform class after returning from a text entry in order to update a control with a new value. The base class has a record of the control, so it is not needed here.
+   /** Called by the platform class after returning from a text entry in order to update a control with a new value. The base class has a record of the control, so it is not needed here. Clears the mTextEntryControl.
     * @param str The new value as a CString */
   void SetControlValueAfterTextEdit(const char* str);
     
@@ -1088,6 +1088,9 @@ public:
   
   /** @return Ptr to the control that launched the text entry */
   IControl* GetControlInTextEntry() { return mInTextEntry; }
+  
+  /** Called when the text entry is dismissed, to reset mInTextEntry */
+  void ClearTextEntryControl() { mInTextEntry = nullptr; }
   
   /** @return \c true if tool tips are enabled */
   inline bool TooltipsEnabled() const { return mEnableTooltips; }

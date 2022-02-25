@@ -140,7 +140,7 @@ void IGraphics::RemoveControls(int fromIdx)
       ClearMouseOver();
 
     if(pControl == mInTextEntry)
-      mInTextEntry = nullptr;
+      ClearTextEntryControl();
 
     if(pControl == mInPopupMenu)
       mInPopupMenu = nullptr;
@@ -168,8 +168,8 @@ void IGraphics::RemoveControl(IControl* pControl)
     ClearMouseOver();
   
   if(pControl == mInTextEntry)
-    mInTextEntry = nullptr;
-  
+    ClearTextEntryControl();
+
   if(pControl == mInPopupMenu)
     mInPopupMenu = nullptr;
   
@@ -242,7 +242,7 @@ void IGraphics::SetControlValueAfterTextEdit(const char* str)
     mInTextEntry->OnTextEntryCompletion(str, mTextEntryValIdx);
   }
 
-  mInTextEntry = nullptr;
+  ClearTextEntryControl();
 }
 
 void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
