@@ -5,6 +5,32 @@
 #import <Metal/Metal.h>
 #import "ShaderTypes.h"
 
+TestCustomShaderControl::~TestCustomShaderControl()
+{
+  CleanUp();
+}
+
+void TestCustomShaderControl::CleanUp()
+{
+  if (mFBO)
+    nvgDeleteFramebuffer(mFBO);
+  
+  if (mRenderPassDescriptor)
+  {
+    MTLRenderPassDescriptor* rpd = (MTLRenderPassDescriptor*) mRenderPassDescriptor;
+    [rpd release];
+    mRenderPassDescriptor = nullptr;
+  }
+  
+
+  if (mRenderPipeline)
+  {
+    id<MTLRenderPipelineState> renderPipeline = (id<MTLRenderPipelineState>) mRenderPipeline;
+    [renderPipeline release];
+    mRenderPipeline = nullptr;
+  }
+}
+
 void TestCustomShaderControl::Draw(IGraphics& g)
 {
   g.DrawDottedRect(COLOR_BLACK, mRECT);
@@ -15,7 +41,12 @@ void TestCustomShaderControl::Draw(IGraphics& g)
   auto w = mRECT.W() * g.GetTotalScale();
   auto h = mRECT.H() * g.GetTotalScale();
     
-  if (!mFBO) {
+  if (invalidateFBO)
+  {
+    CleanUp();
+    
+    invalidateFBO = false;
+
     NSError *error;
 
     mFBO = nvgCreateFramebuffer(pCtx, w, h, 0);
@@ -43,10 +74,12 @@ void TestCustomShaderControl::Draw(IGraphics& g)
     psd.fragmentFunction =  [defaultLibrary newFunctionWithName:@"simpleFragmentShader"];
     psd.colorAttachments[0].pixelFormat = dstTex.pixelFormat;
     mRenderPipeline = [dev newRenderPipelineStateWithDescriptor:psd error:&error];
-    
+    [psd release];
+    [defaultLibrary release];
     mRenderPassDescriptor = (void*) rpd;
   }
 
+  @autoreleasepool {
 
   auto commandQueue = static_cast<id<MTLCommandQueue>>(mnvgCommandQueue(pCtx));
 
@@ -55,30 +88,29 @@ void TestCustomShaderControl::Draw(IGraphics& g)
   commandBuffer.label = @"Command Buffer";
 
   {
-      static const SimpleVertex triVertices[] =
-      {
-          // Positions     ,  Colors
-          { {  0.5,  -0.5 },  { 1.0, 0.0, 0.0, 1.0 } },
-          { { -0.5,  -0.5 },  { 0.0, 1.0, 0.0, 1.0 } },
-          { {  0.0,   0.5 },  { 0.0, 0.0, 1.0, 1.0 } },
-      };
+    static const SimpleVertex triVertices[] =
+    {
+      // Positions     ,  Colors
+      { {  0.5,  -0.5 },  { 1.0, 0.0, 0.0, 1.0 } },
+      { { -0.5,  -0.5 },  { 0.0, 1.0, 0.0, 1.0 } },
+      { {  0.0,   0.5 },  { 0.0, 0.0, 1.0, 1.0 } },
+    };
 
-      id<MTLRenderCommandEncoder> renderEncoder =
-          [commandBuffer renderCommandEncoderWithDescriptor:(MTLRenderPassDescriptor*) mRenderPassDescriptor];
-    
-      renderEncoder.label = @"Offscreen Render Pass";
-      [renderEncoder setRenderPipelineState:(id<MTLRenderPipelineState>) mRenderPipeline];
+    id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:(MTLRenderPassDescriptor*) mRenderPassDescriptor];
+  
+    renderEncoder.label = @"Offscreen Render Pass";
+    [renderEncoder setRenderPipelineState:(id<MTLRenderPipelineState>) mRenderPipeline];
 
-      [renderEncoder setVertexBytes:&triVertices
-                             length:sizeof(triVertices)
-                            atIndex:VertexInputIndexVertices];
+    [renderEncoder setVertexBytes:&triVertices
+                           length:sizeof(triVertices)
+                          atIndex:VertexInputIndexVertices];
 
-      [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
-                        vertexStart:0
-                        vertexCount:3];
+    [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
+                      vertexStart:0
+                      vertexCount:3];
 
-      // End encoding commands for this render pass.
-      [renderEncoder endEncoding];
+    // End encoding commands for this render pass.
+    [renderEncoder endEncoding];
   }
 
   [commandBuffer commit];
@@ -89,6 +121,8 @@ void TestCustomShaderControl::Draw(IGraphics& g)
   IBitmap bmp {&apibmp, 1, false};
   
   g.DrawFittedBitmap(bmp, mRECT);
+
+  } // @autoreleasepool
 }
 
 #endif // IGRAPHICS_METAL
