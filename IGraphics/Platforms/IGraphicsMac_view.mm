@@ -1188,6 +1188,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [pWindow makeFirstResponder: self];
 
   mTextFieldView = nullptr;
+  mGraphics->ClearTextEntryControl();
 }
 
 - (BOOL) promptForColor: (IColor&) color : (IColorPickerHandlerFunc) func;
