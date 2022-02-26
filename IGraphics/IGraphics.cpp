@@ -550,7 +550,7 @@ void IGraphics::ForAllControlsFunc(std::function<void(IControl* pControl)> func)
     func(mPopupControl.get());
   
   if (mTooltipControl)
-    func(*mTooltipControl);
+    func(mTooltipControl.get());
   
   if (mBubbleControls.GetSize())
   {

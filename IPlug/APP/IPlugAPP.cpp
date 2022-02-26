@@ -16,8 +16,6 @@
 #endif
 #if defined(OS_LINUX)
 const int TITLE_BAR_OFFSET = 17;
-#elif defined(OS_MAC)
-const int TITLE_BAR_OFFSET = 22;
 #endif
 
 #if defined OS_MAC

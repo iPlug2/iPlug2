@@ -213,8 +213,6 @@ private:
   /** \todo */
   virtual void TransmitSysExDataFromProcessor(const SysExData& data) {}
 
-  void OnTimer(Timer& t);
-
   friend class IPlugAPP;
   friend class IPlugAAX;
   friend class IPlugVST2;
