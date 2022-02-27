@@ -8,6 +8,7 @@
 #include "filewrite.h"
 #include "queue.h"
 #include "win32_utf8.h"
+#include "wdl_base64.h"
 #include "coreaudio_channel_formats.h"
 
 
@@ -2099,6 +2100,97 @@ bool GetChannelLayoutFromDesc(const char *desc, int *chan_layout, int *chan_mask
   return false;
 }
 
+
+bool PackFlacPicBase64(WDL_StringKeyedArray<char*> *metadata,
+  int img_w, int img_h, int bpp, WDL_HeapBuf *hb)
+{
+  if (!metadata || !hb || img_w <= 0 || img_h <= 0) return false;
+
+  const char *picfn=metadata->Get("FLACPIC:APIC_FILE");
+  const char *pictype=metadata->Get("FLACPIC:APIC_TYPE");
+  const char *picdesc=metadata->Get("FLACPIC:APIC_DESC");
+
+  if (!picfn || !picfn[0]) return false;
+  if (!pictype) pictype="3";
+  if (!picdesc) picdesc="";
+
+  const char *mime=NULL;
+  const char *ext=WDL_get_fileext(picfn);
+  if (ext && (!stricmp(ext, ".jpg") || !stricmp(ext, ".jpeg"))) mime="image/jpeg";
+  else if (ext && !stricmp(ext, ".png")) mime="image/png";
+  if (!mime) return false;
+
+  WDL_FileRead *fr=new WDL_FileRead(picfn);
+  if (!fr) return false;
+
+  int datalen=fr->GetSize();
+  if (!datalen)
+  {
+    delete fr;
+    return false;
+  }
+  int r8 = (datalen&7) ? 8-(datalen&7) : 0;
+
+  // see opusfile src/info.c opus_picture_tag_parse_impl
+  // for what we are apparently encoding
+
+  int mimelen=strlen(mime);
+  int desclen=strlen(picdesc);
+
+  int binlen =
+    4+ // pictype
+    4+mimelen+
+    4+desclen+
+    4+4+4+4+ // w, h, depth, colors
+    4+datalen+r8;
+
+  WDL_HeapBuf hb_bin;
+  unsigned char *p=(unsigned char*)hb_bin.ResizeOK(binlen);
+  if (!p)
+  {
+    delete fr;
+    return false;
+  }
+  unsigned char *op=p;
+
+  int t=atoi(pictype);
+  _AddInt32(t);
+  _AddInt32(mimelen);
+  memcpy(p, mime, mimelen);
+  p += mimelen;
+  _AddInt32(desclen);
+  memcpy(p, picdesc, desclen);
+  p += desclen;
+  _AddInt32(img_w);
+  _AddInt32(img_h);
+  _AddInt32(bpp);
+  _AddInt32(0);
+  _AddInt32(datalen+r8);
+
+  fr->Read(p, datalen);
+  delete fr;
+  p += datalen;
+
+  memset(p, 0, r8);
+  p += r8;
+
+  if (WDL_NORMALLY(p-op == binlen))
+  {
+    int base64len=binlen*4/3;
+    if (base64len&3) base64len += 4-(base64len&3);
+    ++base64len; // nul terminated return
+
+    int osz=hb->GetSize();
+    char *pout=(char*)hb->ResizeOK(osz+base64len);
+    if (pout)
+    {
+      wdl_base64encode(op, pout, binlen);
+      return true;
+    }
+  }
+
+  return false;
+}
 
 
 #endif // _METADATA_H_
