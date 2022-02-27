@@ -42,9 +42,16 @@
 #include "vorbis/vorbisenc.h"
 #include "vorbis/codec.h"
 
+#include "assocarray.h"
+#include "lice/lice.h"
 
 bool ParseUserDefMetadata(const char *id, const char *val,
   const char **k, const char **v, int *klen, int *vlen);
+bool HasScheme(const char *scheme, WDL_StringKeyedArray<char*> *metadata);
+bool PackFlacPicBase64(WDL_StringKeyedArray<char*> *metadata,
+  int img_w, int img_h, int bpp, WDL_HeapBuf *hb);
+
+extern LICE_IBitmap* (*_LICE_LoadImage)(const char* filename, LICE_IBitmap* bmp, bool tryIgnoreExtension);
 
 
 class VorbisDecoderInterface
@@ -320,6 +327,9 @@ public:
         const char *val=metadata->Enumerate(i, &key);
         if (key && val && key[0] && val[0])
         {
+          if (strncmp(key, "VORBIS:", 7)) continue;
+          key += 7;
+
           if (!strncmp(key, "USER", 4))
           {
             const char *k, *v;
@@ -338,7 +348,24 @@ public:
           }
         }
       }
+
+      if (HasScheme("FLACPIC", metadata) && _LICE_LoadImage)
+      {
+        const char *picfn=metadata->Get("FLACPIC:APIC_FILE");
+        LICE_IBitmap *bmp = picfn && picfn[0] ? _LICE_LoadImage(picfn, NULL, false) : NULL;
+        int img_w = bmp ? bmp->getWidth() : 0, img_h = bmp ? bmp->getHeight() : 0;
+        if (bmp) delete bmp;
+        if (img_w > 0 && img_h > 0)
+        {
+          WDL_HeapBuf hb;
+          if (PackFlacPicBase64(metadata, img_w, img_h, 32, &hb) && hb.GetSize())
+          {
+            vorbis_comment_add_tag(&vc, "METADATA_BLOCK_PICTURE", (const char*)hb.Get());
+          }
+        }
+      }
     }
+
 #endif // VORBISENC_WANT_FULLCONFIG
 
     vorbis_analysis_init(&vd,&vi);
@@ -506,6 +533,7 @@ public:
 
 } WDL_FIXALIGN;
 
-#endif//WDL_VORBIS_INTERFACE_ONLY
+
+#endif//!WDL_VORBIS_INTERFACE_ONLY
 
 #endif//_VORBISENCDEC_H_
