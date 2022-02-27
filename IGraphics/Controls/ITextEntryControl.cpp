@@ -544,7 +544,7 @@ void ITextEntryControl::DismissEdit()
 {
   mEditing = false;
   SetTargetAndDrawRECTs(IRECT());
-  GetUI()->ClearTextEntryControl();
+  GetUI()->ClearInTextEntryControl();
   GetUI()->SetAllControlsDirty();
 }
 
