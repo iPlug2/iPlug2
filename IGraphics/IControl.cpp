@@ -853,6 +853,10 @@ void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, floa
       v += d > 0 ? step : -step;
       newValue = pParam->ToNormalized(v);
     }
+    else
+    {
+      newValue = oldValue;
+    }
   }
   else
   {
@@ -970,6 +974,10 @@ void ISliderControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, fl
       double v = pParam->FromNormalized(oldValue);
       v += d > 0 ? step : -step;
       newValue = pParam->ToNormalized(v);
+    }
+    else
+    {
+      newValue = oldValue;
     }
   }
   else
