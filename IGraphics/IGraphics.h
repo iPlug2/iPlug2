@@ -1089,6 +1089,9 @@ public:
   /** @return Ptr to the control that launched the text entry */
   IControl* GetControlInTextEntry() { return mInTextEntry; }
   
+  /** Called when the text entry is dismissed, to reset mInTextEntry */
+  void ClearInTextEntryControl() { mInTextEntry = nullptr; }
+  
   /** @return \c true if tool tips are enabled */
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
   

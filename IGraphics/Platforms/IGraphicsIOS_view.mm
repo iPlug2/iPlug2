@@ -545,6 +545,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [mTextField setDelegate: nil];
   [mTextField removeFromSuperview];
   mTextField = nullptr;
+  mGraphics->ClearInTextEntryControl();
 }
 
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler
