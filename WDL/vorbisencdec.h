@@ -42,6 +42,11 @@
 #include "vorbis/vorbisenc.h"
 #include "vorbis/codec.h"
 
+
+bool ParseUserDefMetadata(const char *id, const char *val,
+  const char **k, const char **v, int *klen, int *vlen);
+
+
 class VorbisDecoderInterface
 {
 public:
@@ -499,35 +504,6 @@ private:
 public:
   bool m_flushmode;
 
-  static bool ParseUserDefMetadata(const char *id, const char *val, const char **k, const char **v, int *klen, int *vlen)
-  {
-    const char *sep=strchr(id, ':');
-    if (sep) // key encoded in id, version >= 6.12
-    {
-      *k=sep+1;
-      *klen=strlen(sep+1);
-      *v=val;
-      *vlen=strlen(*v);
-      return true;
-    }
-
-    sep=strchr(val, '=');
-    if (sep) // key encoded in value, version <= 6.11
-    {
-      *k=val;
-      *klen=sep-val;
-      *v=sep+1;
-      *vlen=strlen(*v);
-      return true;
-    }
-
-    // no key, version <= 6.11
-    *k="User";
-    *klen=strlen(*k);
-    *v=val;
-    *vlen=strlen(*v);
-    return false;
-  }
 } WDL_FIXALIGN;
 
 #endif//WDL_VORBIS_INTERFACE_ONLY
