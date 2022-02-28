@@ -58,10 +58,10 @@ public:
    * @return \c true in order to indicate that the states are equal. */
   virtual bool CompareState(const uint8_t* pIncomingState, int startPos) const;
 
-  /* implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone app or VST3 plugin */
+  /* Implement this and return true to trigger your custom about box, when someone clicks about in the menu of a standalone app or VST3 plugin */
   virtual bool OnHostRequestingAboutBox() { return false; }
 
-  /* implement this and return true to trigger your custom help info, when someone clicks help in the menu of a standalone app or VST3 plugin */
+  /* Implement this and return true to trigger your custom help info, when someone clicks help in the menu of a standalone app or VST3 plugin */
   virtual bool OnHostRequestingProductHelp() { return false; }
   
   /** Implement this to do something specific when IPlug becomes aware of the particular host that is hosting the plug-in.
@@ -77,7 +77,11 @@ public:
    * @param width The width the host offers
    * @param height The height the host offers
    * @return return \c true if your plug-in supports these dimensions */
-  virtual bool OnHostRequestingSupportedViewConfiguration(int width, int height) { return true; }
+  virtual bool OnHostRequestingSupportedViewConfiguration(int width, int height)
+  {
+    // Logic/GB offer one option with 0w, 0h, and if we allow that, our AUv3 has "our" size as its 100% setting
+    return ((width + height) == 0);
+  }
   
   /** Called by some AUv3 plug-in hosts when a particular UI size is selected
    * @param width The selected width
@@ -208,7 +212,18 @@ private:
 
   void OnTimer(Timer& t);
 
-protected:
+  friend class IPlugAPP;
+  friend class IPlugAAX;
+  friend class IPlugVST2;
+  friend class IPlugVST3;
+  friend class IPlugVST3Controller;
+  friend class IPlugVST3Processor;
+  friend class IPlugAU;
+  friend class IPlugAUv3;
+  friend class IPlugWEB;
+  friend class IPlugWAM;
+
+private:
   WDL_String mParamDisplayStr;
   std::unique_ptr<Timer> mTimer;
   

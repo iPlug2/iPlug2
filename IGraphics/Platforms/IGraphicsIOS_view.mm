@@ -14,10 +14,6 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import <Metal/Metal.h>
-#ifdef IGRAPHICS_IMGUI
-#include "imgui.h"
-#import "imgui_impl_metal.h"
-#endif
 
 #import "IGraphicsIOS_view.h"
 
@@ -176,7 +172,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
 }
 
-- (void)setPreferredContentSize:(CGSize)preferredContentSize
+- (void) setPreferredContentSize:(CGSize)preferredContentSize
 {
   super.preferredContentSize = preferredContentSize;
 }
@@ -205,9 +201,10 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mMTLLayer.frame = self.layer.frame;
   mMTLLayer.opaque = YES;
   mMTLLayer.contentsScale = [UIScreen mainScreen].scale;
+  
   [self.layer addSublayer: mMTLLayer];
 #endif
-  
+
   self.multipleTouchEnabled = NO;
   
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
@@ -231,13 +228,18 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     scale = self.window.screen.scale;
   
   #ifdef IGRAPHICS_METAL
+  [CATransaction begin];
+  [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
   CGSize drawableSize = self.bounds.size;
-  
-  // Since drawable size is in pixels, we need to multiply by the scale to move from points to pixels
+  [self.layer setFrame:frame];
+  mMTLLayer.frame = self.layer.frame;
+
   drawableSize.width *= scale;
   drawableSize.height *= scale;
-    
+
   mMTLLayer.drawableSize = drawableSize;
+  
+  [CATransaction commit];
   #endif
 }
 
@@ -543,6 +545,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [mTextField setDelegate: nil];
   [mTextField removeFromSuperview];
   mTextField = nullptr;
+  mGraphics->ClearInTextEntryControl();
 }
 
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler
@@ -874,6 +877,17 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 }
 #endif
 
+- (void) traitCollectionDidChange: (UITraitCollection*) previousTraitCollection
+{
+  [super traitCollectionDidChange: previousTraitCollection];
+
+  if(mGraphics)
+  {
+    mGraphics->OnAppearanceChanged([self.traitCollection userInterfaceStyle] == UIUserInterfaceStyleDark ? EUIAppearance::Dark
+                                                                                                         : EUIAppearance::Light);
+  }
+}
+
 - (void) getLastTouchLocation: (float&) x : (float&) y
 {
   const float scale = mGraphics->GetDrawScale();
@@ -882,55 +896,4 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 }
 
 @end
-
-#ifdef IGRAPHICS_IMGUI
-
-@implementation IGRAPHICS_IMGUIVIEW
-{
-}
-
-- (id) initWithIGraphicsView: (IGraphicsIOS_View*) pView;
-{
-  mView = pView;
-  self = [super initWithFrame:[pView frame] device: MTLCreateSystemDefaultDevice()];
-  
-  if(self)
-  {
-    _commandQueue = [self.device newCommandQueue];
-    self.layer.opaque = NO;
-  }
-  
-  return self;
-}
-
-- (void) drawRect:(CGRect)rect
-{
-  id<MTLCommandBuffer> commandBuffer = [self.commandQueue commandBuffer];
-  
-  MTLRenderPassDescriptor *renderPassDescriptor = self.currentRenderPassDescriptor;
-  if (renderPassDescriptor != nil)
-  {
-    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0,0,0,0);
-    
-    id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-    [renderEncoder pushDebugGroup:@"ImGui IGraphics"];
-    
-    ImGui_ImplMetal_NewFrame(renderPassDescriptor);
-    
-    mView->mGraphics->mImGuiRenderer->DoFrame();
-    
-    ImDrawData *drawData = ImGui::GetDrawData();
-    ImGui_ImplMetal_RenderDrawData(drawData, commandBuffer, renderEncoder);
-    
-    [renderEncoder popDebugGroup];
-    [renderEncoder endEncoding];
-    
-    [commandBuffer presentDrawable:self.currentDrawable];
-  }
-  [commandBuffer commit];
-}
-
-@end
-
-#endif
 

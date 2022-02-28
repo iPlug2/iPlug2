@@ -1,6 +1,9 @@
 jobs:
 - job: GET_SRC_TREE
 
+  pool:
+    vmImage: 'ubuntu-latest'
+
   steps:
   - checkout: self
 
@@ -25,13 +28,6 @@ jobs:
       cd ./Dependencies/IPlug
       ./download-iplug-sdks.sh
     displayName: Download IPlug SDKs
-
-  - bash: |
-      cd ./Dependencies/IGraphics
-      rm -r imgui
-      git clone https://github.com/ocornut/imgui.git imgui
-      rm -r imgui/.git
-    displayName: Download Dear ImGui
 
   - bash: |
       rm -r .git

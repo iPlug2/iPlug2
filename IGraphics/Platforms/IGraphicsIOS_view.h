@@ -54,7 +54,9 @@ using namespace igraphics;
 
 @end
 
-@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate, UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate
+@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate,
+                                          UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate,
+                                          UITraitEnvironment
 #ifdef __IPHONE_14_0
 , UIColorPickerViewControllerDelegate
 #endif
@@ -89,7 +91,7 @@ using namespace igraphics;
 
 //gestures
 - (void) attachGestureRecognizer: (EGestureType) type;
--(BOOL) gestureRecognizer:(UIGestureRecognizer*) gestureRecognizer shouldReceiveTouch:(UITouch*)touch;
+- (BOOL) gestureRecognizer:(UIGestureRecognizer*) gestureRecognizer shouldReceiveTouch:(UITouch*)touch;
 - (void) onTapGesture: (UITapGestureRecognizer*) recognizer;
 - (void) onLongPressGesture: (UILongPressGestureRecognizer*) recognizer;
 - (void) onSwipeGesture: (UISwipeGestureRecognizer*) recognizer;
@@ -98,19 +100,9 @@ using namespace igraphics;
 
 - (void) getLastTouchLocation: (float&) x : (float&) y;
 
+- (void) traitCollectionDidChange: (UITraitCollection*) previousTraitCollection;
+
 @property (readonly) CAMetalLayer* metalLayer;
 @property (nonatomic, strong) CADisplayLink *displayLink;
 
 @end
-
-#ifdef IGRAPHICS_IMGUI
-#import <MetalKit/MetalKit.h>
-
-@interface IGRAPHICS_IMGUIVIEW : MTKView
-{
-  IGraphicsIOS_View* mView;
-}
-@property (nonatomic, strong) id <MTLCommandQueue> commandQueue;
-- (id) initWithIGraphicsView: (IGraphicsIOS_View*) pView;
-@end
-#endif

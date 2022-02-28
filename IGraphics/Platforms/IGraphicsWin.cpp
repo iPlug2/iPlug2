@@ -145,7 +145,7 @@ StaticStorage<IGraphicsWin::HFontHolder> IGraphicsWin::sHFontCache;
 
 #pragma mark - Mouse and tablet helpers
 
-extern int GetScaleForHWND(HWND hWnd);
+extern float GetScaleForHWND(HWND hWnd);
 
 inline IMouseInfo IGraphicsWin::GetMouseInfo(LPARAM lParam, WPARAM wParam)
 {
@@ -233,6 +233,7 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
       }
       case kCancel:
         DestroyEditWindow();
+        ClearInTextEntryControl();
         break;
     }
 
@@ -242,9 +243,12 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
   }
 
   // TODO: move this... listen to the right messages in windows for screen resolution changes, etc.
-  int scale = GetScaleForHWND(mPlugWnd);
-  if (scale != GetScreenScale())
-    SetScreenScale(scale);
+  if (!GetCapture()) // workaround Windows issues with window sizing during mouse move
+  {
+    float scale = GetScaleForHWND(mPlugWnd);
+    if (scale != GetScreenScale())
+      SetScreenScale(scale);
+  }
 
   // TODO: this is far too aggressive for slow drawing animations and data changing.  We need to
   // gate the rate of updates to a certain percentage of the wall clock time.
@@ -286,7 +290,7 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
         {
           // we are late, skip the next vblank to give us a breather.
           mVBlankSkipUntil = curCount+1;
-          DBGMSG("vblank painting was late by %i frames.", (mVBlankSkipUntil - msgCount));
+          //DBGMSG("vblank painting was late by %i frames.", (mVBlankSkipUntil - msgCount));
         }
       }
     }
@@ -461,6 +465,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       return 0;
     }
     case WM_LBUTTONDBLCLK:
+    case WM_RBUTTONDBLCLK:
     {
       if (IsTouchEvent())
         return 0;
@@ -1465,7 +1470,7 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT&
     }
     DestroyMenu(hMenu);
 
-    RECT r = { 0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale() };
+    RECT r = { 0, 0, static_cast<LONG>(WindowWidth() * GetScreenScale()), static_cast<LONG>(WindowHeight() * GetScreenScale()) };
     InvalidateRect(mPlugWnd, &r, FALSE);
 
     return result;

@@ -436,6 +436,7 @@ typedef struct HTREEITEM__ *HTREEITEM;
 
 #define TVN_FIRST               (0U-400U)       // treeview
 #define TVN_SELCHANGED          (TVN_FIRST-2)
+#define TVN_ITEMEXPANDING       (TVN_FIRST-5)
 
 // swell-extension: WM_MOUSEMOVE set via capture in TVN_BEGINDRAG can return:
 //   -1 = drag not possible
@@ -777,6 +778,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define NM_CLICK                (NM_FIRST-2)    // uses NMCLICK struct
 #define NM_DBLCLK               (NM_FIRST-3)
 #define NM_RCLICK               (NM_FIRST-5)    // uses NMCLICK struct
+#define NM_CUSTOMDRAW           (NM_FIRST-12)
 
 
 #define LVSIL_STATE 1
@@ -988,7 +990,6 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define WM_INITDIALOG                   0x0110
 #define WM_COMMAND                      0x0111
 #define WM_SYSCOMMAND                   0x0112
-#define SC_CLOSE        0xF060
 #define WM_TIMER                        0x0113
 #define WM_HSCROLL                      0x0114
 #define WM_VSCROLL                      0x0115
@@ -1010,7 +1011,10 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define WM_MOUSELAST                    0x020A
 #define WM_CAPTURECHANGED               0x0215
 #define WM_DROPFILES                    0x0233
+#define WM_SWELL_EXTENDED               0x0399 /* wParam = message specific type */
 #define WM_USER                         0x0400
+
+#define SC_CLOSE        0xF060
 
 #define HTCAPTION 2
 #define HTBOTTOMRIGHT 17
@@ -1127,6 +1131,25 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define SIZE_MAXSHOW        3
 #define SIZE_MAXHIDE        4
 
+typedef struct tagNMLVCUSTOMDRAW
+{
+  struct {
+    NMHDR hdr;
+    DWORD dwDrawStage;
+    HDC hdc; // not implemented
+    RECT rc; // not implemented
+    DWORD dwItemSpec;
+    UINT uItemState; // not implemented
+    LPARAM lItemlParam; // not implemented
+  } nmcd;
+
+  COLORREF clrText, clrTextBk;
+  int iSubItem;
+} NMLVCUSTOMDRAW, *LPNMLVCUSTOMDRAW;
+// only currently used by listviews for color override
+#define CDDS_PREPAINT (0x00001)
+#define CDDS_ITEM     (0x10000)
+#define CDDS_ITEMPREPAINT (CDDS_ITEM | CDDS_PREPAINT)
 
 #ifndef MAKEINTRESOURCE
 #define MAKEINTRESOURCE(x) ((const char *)(UINT_PTR)(x))         
@@ -1337,6 +1360,7 @@ extern struct SWELL_MenuResourceIndex *SWELL_curmodule_menuresource_head;
 #define SM_CYSCREEN             1
 #define SM_CXVSCROLL            2
 #define SM_CYHSCROLL            3
+#define SM_CYMENU               15
 #define SM_CYVSCROLL            20
 #define SM_CXHSCROLL            21
 
@@ -1354,7 +1378,6 @@ extern struct SWELL_MenuResourceIndex *SWELL_curmodule_menuresource_head;
 #define SM_CYICON               12
 #define SM_CXCURSOR             13
 #define SM_CYCURSOR             14
-#define SM_CYMENU               15
 #define SM_CXFULLSCREEN         16
 #define SM_CYFULLSCREEN         17
 #define SM_CYKANJIWINDOW        18
@@ -1415,5 +1438,22 @@ typedef struct _COPYDATASTRUCT
   PVOID     lpData;
 } COPYDATASTRUCT, *PCOPYDATASTRUCT;
 
+typedef void *HMONITOR;
+
+typedef struct _MONITORINFO {
+  DWORD cbSize;
+  RECT rcMonitor, rcWork;
+  DWORD dwFlags;
+} MONITORINFO, *LPMONITORINFO;
+
+
+typedef struct _MONITORINFOEX {
+  DWORD cbSize;
+  RECT rcMonitor, rcWork;
+  DWORD dwFlags;
+  char szDevice[256];
+} MONITORINFOEX, *LPMONITORINFOEX;
+
+typedef BOOL (*MONITORENUMPROC)(HMONITOR,HDC,LPRECT,LPARAM);
 
 #endif //_WDL_SWELL_H_TYPES_DEFINED_

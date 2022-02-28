@@ -7,6 +7,10 @@
 // if onlySec_name is set, only loads/returns section in question and does not update global state.
 WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *buf, const char *onlySec_name);
 
+WDL_AssocArray<WDL_UINT64, char *> *WDL_GetLangpackSection(const char *sec);
+
+void WDL_SetLangpackFallbackEntry(const char *src_sec, WDL_UINT64 src_v, const char *dest_sec, WDL_UINT64 dest_v);
+
 #define LOCALIZE_FLAG_VERIFY_FMTS 1 // verifies translated format-string (%d should match %d, etc)
 #define LOCALIZE_FLAG_NOCACHE 2     // must use this if the string passed is not a persistent static string, or if in another thread
 #define LOCALIZE_FLAG_PAIR 4        // one \0 in string needed -- this is not doublenull terminated but just a special case
@@ -19,12 +23,16 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *buf, const 
 #define __LOCALIZE_VERFMT(str, ctx) str
 #define __LOCALIZE_NOCACHE(str, ctx) str
 #define __LOCALIZE_VERFMT_NOCACHE(str, ctx) str
+#define __LOCALIZE_LCACHE(str, ctx, pp) const char *pp = str
+#define __LOCALIZE_VERFMT_LCACHE(str, ctx, pp) const char *pp = str
 #else
 #define __LOCALIZE(str, ctx) __localizeFunc("" str "" , "" ctx "",0)
 #define __LOCALIZE_2N(str,ctx) __localizeFunc("" str "" , "" ctx "",LOCALIZE_FLAG_PAIR)
 #define __LOCALIZE_VERFMT(str, ctx) __localizeFunc("" str "", "" ctx "",LOCALIZE_FLAG_VERIFY_FMTS)
 #define __LOCALIZE_NOCACHE(str, ctx) __localizeFunc("" str "", "" ctx "",LOCALIZE_FLAG_NOCACHE)
 #define __LOCALIZE_VERFMT_NOCACHE(str, ctx) __localizeFunc("" str "", "" ctx "",LOCALIZE_FLAG_VERIFY_FMTS|LOCALIZE_FLAG_NOCACHE)
+#define __LOCALIZE_LCACHE(str, ctx, pp) static const char *pp; if (!pp) pp = __localizeFunc("" str "", "" ctx "",LOCALIZE_FLAG_NOCACHE)
+#define __LOCALIZE_VERFMT_LCACHE(str, ctx, pp) static const char *pp; if (!pp) pp = __localizeFunc("" str "", "" ctx "",LOCALIZE_FLAG_VERIFY_FMTS|LOCALIZE_FLAG_NOCACHE)
 #endif
 
 #define __LOCALIZE_REG_ONLY(str, ctx) str
@@ -62,7 +70,7 @@ DLGPROC __localizePrepareDialog(const char *rescat, HINSTANCE hInstance, const c
 
 
 #undef LoadMenu
-#define LoadMenu(a,b) __localizeLoadMenu(a,b)
+#define LoadMenu __localizeLoadMenu
 #endif
 
 HMENU __localizeLoadMenu(HINSTANCE hInstance, const char *lpMenuName);

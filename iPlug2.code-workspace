@@ -14,7 +14,6 @@
 			"Dependencies/Build*": true,
 			"Dependencies/IGraphics/glad*": true,
 			"Dependencies/IGraphics/GL*": true,
-			"Dependencies/IGraphics/imgui*": true,
 			"Dependencies/IGraphics/STB*": true,
 			"Dependencies/IGraphics/*Nano*": true,
 			"Dependencies/IGraphics/yoga": true,

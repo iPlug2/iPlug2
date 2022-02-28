@@ -63,7 +63,8 @@ public:
   float GetParameter(uint64_t address);
   const char* GetParamDisplay(uint64_t address, float value);
   float GetParamStringToValue(uint64_t address, const char* str);
-  void SetBuffers(AudioBufferList* pInBufferList, AudioBufferList* pOutBufferList);
+  void AttachInputBuffers(AudioBufferList* pInBufferList);
+  void AttachOutputBuffers(AudioBufferList* pOutBufferList, uint32_t busNumber);
   void Prepare(double sampleRate, uint32_t blockSize);
   void AddParamAddress(int paramIdx, uint64_t paramAddress) { mParamAddressMap.Insert(paramIdx, paramAddress); }
   uint64_t GetParamAddress(int paramIdx) { return mParamAddressMap.Get(paramIdx); }
@@ -72,6 +73,11 @@ public:
   void SetAUAudioUnit(void* pAUAudioUnit);
 
   void SetOffline(bool renderingOffline) { IPlugProcessor::SetRenderingOffline(renderingOffline); }
+
+  /** Override this method, in special cases, to request data from the iOS app wrapper
+   * the data must exist!
+   */
+  virtual void* GetDataFromExternal(int& dataSize) { return nullptr; }
 
 private:
 //  void HandleOneEvent(AURenderEvent const* event, int64_t startTime);

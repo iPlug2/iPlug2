@@ -5,7 +5,7 @@
 
 ## Adding/modifying resources
 
-One of the most common things people post about on the WDL Forum is how to add a resource, such as an image. Perhaps they tried and got an assertion when they try and run the plug-in or app. Something like:
+One of the most common things people post about on the WDL Forum is how to add a resource, such as an image. Perhaps they got an assertion when they tried to run the plug-in or app. Something like:
 
 ```cpp
 Assertion failed: (resourceFound), function LoadIBitmap...
@@ -23,9 +23,9 @@ The IPlug Project should exist at the same level as _iPlug2/Examples/IPlugEffect
 
 
 * Firstly, make sure your image is in PNG format. 
-  By default iPlug2 IPlug only works with PNG files.
+  By default iPlug2 only works with PNG files.
 
-* Copy the PNG file to the IPlug Project's image resource folder e.g.
+* Copy the PNG file to the IPlug Project's image resource folder, e.g.
 
   _iPlug2/Projects/MyNewPlugin/Resources/img/cat.png_
 
@@ -60,6 +60,6 @@ In order to be able to use cat.png in an IControl that uses a bitmap, e.g. an IB
 
 ### Things that could go wrong:
 
-* On macOS every bundle has a Info.plist file and when image resources are loaded the IGraphics/Lice image loading routines need to have the correct bundle identifier in order to find the file. The elements that make up the bundle identifier are in _config.h_ and are concatenated together in IPlug_include_in_plug_hdr.h. Therefore if you decide to modify `BUNDLE_MFR` or `BUNDLE_NAME` in _config.h_ it is of utmost importance that you also edit the .plist file for the targets to mirror those changes, otherwise the bundle ID will not match.
+* On macOS every bundle has an Info.plist file, and when image resources are loaded, the IGraphics/Lice image loading routines need to have the correct bundle identifier in order to find the file. The elements that make up the bundle identifier are in _config.h_ and are concatenated together in IPlug_include_in_plug_hdr.h. Therefore if you decide to modify `BUNDLE_MFR` or `BUNDLE_NAME` in _config.h_ it is of utmost importance that you also edit the .plist file for the targets to mirror those changes, otherwise the bundle ID will not match.
 
 -->

@@ -32,7 +32,7 @@
 					<key>description</key>
 					<string>IPlugSideChain</string>
 					<key>factoryFunction</key>
-					<string>IPlugAUViewController</string>
+					<string>IPlugAUViewController_vIPlugSideChain</string>
 					<key>manufacturer</key>
 					<string>Acme</string>
 					<key>name</key>
@@ -40,7 +40,7 @@
 					<key>sandboxSafe</key>
 					<true/>
 					<key>subtype</key>
-					<string>Ipef</string>
+					<string>7Sdp</string>
 					<key>tags</key>
 					<array>
 						<string>Effects</string>

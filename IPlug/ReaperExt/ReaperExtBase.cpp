@@ -8,7 +8,7 @@ ReaperExtBase::ReaperExtBase(reaper_plugin_info_t* pRec)
 ReaperExtBase::~ReaperExtBase()
 {
   mTimer->Stop();
-};
+}
 
 void ReaperExtBase::OnTimer(Timer& t)
 {
@@ -139,13 +139,16 @@ WDL_DLGRET ReaperExtBase::MainDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 //    gPrevBounds = r;
 //  };
 
+  extern float GetScaleForHWND(HWND hWnd);
+
   switch (uMsg)
   {
     case WM_INITDIALOG:
     {
       AttachWindowTopmostButton(hwnd);
       gPlug->OpenWindow(hwnd);
-      ClientResize(hwnd, PLUG_WIDTH, PLUG_HEIGHT);
+      auto scale = GetScaleForHWND(hwnd);
+      ClientResize(hwnd, PLUG_WIDTH * scale, PLUG_HEIGHT * scale);
       ShowWindow(hwnd, SW_SHOW);
       GetWindowRect(hwnd, &gPrevBounds);
       

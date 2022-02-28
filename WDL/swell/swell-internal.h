@@ -107,6 +107,7 @@ typedef unsigned int NSUInteger;
 
 @interface SWELL_DataHold : NSObject
 {
+  @public
   void *m_data;
 }
 -(id) initWithVal:(void *)val;
@@ -143,11 +144,15 @@ typedef struct WindowPropRec
   @public
   bool m_last_dark_mode;
   bool m_ctlcolor_set;
+  bool m_disable_menu;
 }
+- (id) init;
 - (void)setNeedsDisplay:(BOOL)flag;
 - (void)setNeedsDisplayInRect:(NSRect)rect;
 - (void)drawRect:(NSRect)rect;
 - (void)initColors:(int)darkmode; // -1 to not update darkmode but trigger update of colors
+- (void)swellDisableContextMenu:(bool)dis;
+- (NSMenu *)textView:(NSTextView *)view menu:(NSMenu *)menu forEvent:(NSEvent *)event atIndex:(NSUInteger)charIndex;
 @end
 
 @interface SWELL_TabView : NSTabView
@@ -166,12 +171,17 @@ typedef struct WindowPropRec
 @interface SWELL_ListViewCell : NSTextFieldCell
 {
 }
+-(NSColor *)highlightColorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView;
+- (NSRect)drawingRectForBounds:(NSRect)rect;
 @end
 
-@interface SWELL_StatusCell : NSTextFieldCell
+@interface SWELL_StatusCell : SWELL_ListViewCell
 {
   NSImage *status;
 }
+-(id)initNewCell;
+-(void)setStatusImage:(NSImage *)img;
+- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView;
 @end
 
 @interface SWELL_TreeView : NSOutlineView
@@ -298,9 +308,13 @@ typedef struct WindowPropRec
 @interface SWELL_TextView : NSTextView
 {
   NSInteger m_tag;
+  bool m_disable_menu;
 }
+-(id)init;
 -(NSInteger) tag;
 -(void) setTag:(NSInteger)tag;
+- (void)swellDisableContextMenu:(bool)dis;
+- (bool)swellWantsContextMenu;
 @end
 
 @interface SWELL_BoxView : NSBox
@@ -467,6 +481,7 @@ typedef struct WindowPropRec
 }
 - (id)initModeless:(SWELL_DialogResourceIndex *)resstate Parent:(HWND)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par outputHwnd:(HWND *)hwndOut forceStyles:(unsigned int)smask;
 - (id)initModelessForChild:(HWND)child owner:(HWND)owner styleMask:(unsigned int)smask;
+- (void)keyDown:(NSEvent *)event;
 - (void)swellDestroyAllOwnedWindows;
 - (void)swellRemoveOwnedWindow:(NSWindow *)wnd;
 - (void)swellAddOwnedWindow:(NSWindow*)wnd;
@@ -475,6 +490,8 @@ typedef struct WindowPropRec
 - (void **)swellGetOwnerWindowHead;
 -(void)swellDoDestroyStuff;
 -(void)swellResetOwnedWindowLevels;
+
+-(void)toggleFullScreen:(id)sender;
 @end
 
 @interface SWELL_ModalDialog : NSPanel
@@ -553,11 +570,14 @@ HDC SWELL_CreateMetalDC(SWELL_hwndChild *);
   LONG m_style;
   WDL_PtrList<char> *m_ids;
   int m_ignore_selchg; // used to track the last set selection state, to avoid getting feedback notifications
+  bool m_disable_menu;
 }
 -(id)init;
 -(void)dealloc;
 -(void)setSwellStyle:(LONG)style;
 -(LONG)getSwellStyle;
+- (void)swellDisableContextMenu:(bool)dis;
+- (NSMenu *)textView:(NSTextView *)view menu:(NSMenu *)menu forEvent:(NSEvent *)event atIndex:(NSUInteger)charIndex;
 @end
 
 
@@ -713,8 +733,16 @@ SWELL_IMPLEMENT_GETOSXVERSION int SWELL_GetOSXVersion()
   {
     if (NSAppKitVersionNumber >= 1266.0)
     {
-      if (NSAppKitVersionNumber >= 1670.0)  // unsure if this is correct (10.14.1 is 1671.1)
+      if (NSAppKitVersionNumber >= 2100.0)
+        v = 0x1200;
+      else if (NSAppKitVersionNumber >= 2022.0)
+        v = 0x1100;
+      else if (NSAppKitVersionNumber >= 1894.0)
+        v = 0x10e0;
+      else if (NSAppKitVersionNumber >= 1639.10)
         v = 0x10d0;
+      else if (NSAppKitVersionNumber >= 1560)
+        v = 0x10c0;
       else if (NSAppKitVersionNumber >= 1404.0)
         v = 0x10b0;
       else
@@ -789,7 +817,7 @@ typedef void *SWELL_OSWINDOW; // maps to the HWND__ itself on visible, non-GDK, 
 
 struct HWND__
 {
-  HWND__(HWND par, int wID=0, RECT *wndr=NULL, const char *label=NULL, bool visible=false, WNDPROC wndproc=NULL, DLGPROC dlgproc=NULL, HWND ownerWindow=NULL);
+  HWND__(HWND par, int wID=0, const RECT *wndr=NULL, const char *label=NULL, bool visible=false, WNDPROC wndproc=NULL, DLGPROC dlgproc=NULL, HWND ownerWindow=NULL);
   ~HWND__(); // DO NOT USE!!! We would make this private but it breaks PtrList using it on gcc. 
 
   // using this API prevents the HWND from being valid -- it'll still get its resources destroyed via DestroyWindow() though.
@@ -822,7 +850,7 @@ struct HWND__
 
   bool m_israised;
   bool m_has_had_position;
-  bool m_oswindow_fullscreen;
+  int m_oswindow_fullscreen; // may contain preserved style flags
 
   int m_refcnt; 
   int m_oswindow_private; // private state for generic-gtk or whatever
@@ -903,7 +931,7 @@ struct HDC__ {
 };
 
 HWND DialogBoxIsActive(void);
-void DestroyPopupMenus(void);
+bool DestroyPopupMenus(void);
 HWND ChildWindowFromPoint(HWND h, POINT p);
 HWND GetFocusIncludeMenus();
 
@@ -935,7 +963,8 @@ extern const char *g_swell_appname;
 extern SWELL_OSWINDOW SWELL_focused_oswindow; // top level window which has focus (might not map to a HWND__!)
 extern HWND swell_captured_window;
 extern HWND SWELL_topwindows; // front of list = most recently active
-extern bool swell_app_is_inactive;
+
+int swell_is_app_inactive(); // returns >0 if definitely inactive, -1 if maybe
 
 #ifdef _DEBUG
 void VALIDATE_HWND_LIST(HWND list, HWND par);
@@ -1061,7 +1090,11 @@ HTREEITEM__::~HTREEITEM__()
   free(m_value);
   m_children.Empty(true);
 #ifdef SWELL_TARGET_OSX
-  [m_dh release];
+  if (m_dh)
+  {
+    m_dh->m_data = NULL;
+    [m_dh release];
+  }
 #endif
 }
 
@@ -1197,9 +1230,12 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   fd(menu_text_sel, RGB(224,224,224), menu_bg) \
   f(menu_scroll, RGB(64,64,64)) \
   fd(menu_scroll_arrow, RGB(96,96,96), _3dshadow) \
-  fd(menu_submenu_arrow, RGB(96,96,96), _3dshadow) \
+  fd(menu_submenu_arrow, RGB(96,96,96), menu_text) \
+  fd(menu_submenu_arrow_sel, RGB(96,96,96), menu_bg) \
   fd(menubar_bg, RGB(192,192,192), menu_bg) \
+  fd(menubar_bg_inactive, RGB(192,192,192), menubar_bg) \
   fd(menubar_text, RGB(0,0,0), menu_text) \
+  fd(menubar_text_inactive, RGB(0,0,0), menubar_text) \
   fd(menubar_text_disabled, RGB(224,224,224), menu_text_disabled) \
   fd(menubar_bg_sel, RGB(0,0,0), menu_bg_sel) \
   fd(menubar_text_sel, RGB(224,224,224), menu_text_sel) \
@@ -1223,6 +1259,8 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   fd(listview_text_sel, RGB(0,0,0), listview_text) \
   fd(listview_grid, RGB(224,224,224), _3dhilight) \
   f(listview_hdr_arrow,RGB(96,96,96)) \
+  fd(listview_shadow, RGB(96,96,96), _3dshadow) \
+  fd(listview_hilight, RGB(224,224,224), _3dhilight) \
   fd(listview_hdr_shadow, RGB(96,96,96), _3dshadow) \
   fd(listview_hdr_hilight, RGB(224,224,224), _3dhilight) \
   fd(listview_hdr_bg, RGB(192,192,192), _3dface) \
@@ -1232,6 +1270,8 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   f(treeview_bg_sel, RGB(128,128,255)) \
   f(treeview_text_sel, RGB(0,0,0)) \
   f(treeview_arrow, RGB(96,96,96)) \
+  fd(treeview_shadow, RGB(96,96,96), _3dshadow) \
+  fd(treeview_hilight, RGB(224,224,224), _3dhilight) \
   fd(tab_shadow, RGB(96,96,96), _3dshadow) \
   fd(tab_hilight, RGB(224,224,224), _3dhilight) \
   fd(tab_text, RGB(0,0,0), button_text) \
@@ -1240,8 +1280,8 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   fd(group_shadow, RGB(96,96,96), _3dshadow) \
   fd(group_hilight, RGB(224,224,224), _3dhilight) \
   f(focus_hilight, RGB(140,190,233)) \
-
   
+
 
 struct swell_colortheme {
 #define __def_theme_ent(x,c) int x;
@@ -1259,5 +1299,35 @@ extern const char *g_swell_deffont_face;
 HFONT SWELL_GetDefaultFont(void);
 
 #endif
+
+
+static WDL_STATICFUNC_UNUSED int ext_valid_for_extlist(const char *thisext, const char *extlist)
+{
+  if (!thisext || *thisext != '.' || !extlist) return -1;
+  int txlen = (int)strlen(thisext), witem = 0;
+  while (*extlist)
+  {
+    while (*extlist) extlist++; // description
+    extlist++;
+
+    while (*extlist)
+    {
+      while (*extlist == ' ' || *extlist == ';') extlist++;
+      if (*extlist == '*')
+      {
+        if (!strnicmp(extlist+1,thisext,txlen) &&
+            (extlist[1+txlen] == ';' ||extlist[1+txlen] == 0))
+          return witem;
+      }
+      while (*extlist && *extlist != ';') extlist++;
+      if (*extlist) extlist++;
+    }
+
+    while (*extlist) extlist++;
+    extlist++;
+    witem++;
+  }
+  return -1;
+}
 
 #endif

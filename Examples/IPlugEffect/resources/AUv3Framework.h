@@ -12,5 +12,6 @@ FOUNDATION_EXPORT double AUv3FrameworkVersionNumber;
 //! Project version string for AUv3Framework.
 FOUNDATION_EXPORT const unsigned char AUv3FrameworkVersionString[];
 
+@class IPlugAUViewController_vIPlugEffect;
+
 // In this header, you should import all the public headers of your framework using statements like #import <AUv3Framework/PublicHeader.h>
-@class IPlugAUViewController;

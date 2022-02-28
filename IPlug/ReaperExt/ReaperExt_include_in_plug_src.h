@@ -34,7 +34,7 @@ std::vector<ReaperAction> gActions;
 #include "ReaperExtBase.cpp"
 
 // super nasty looking macro here but allows importing functions from Reaper with simple looking code
-#define IMPAPI(x) if (!((*((void **)&(x)) = (void *)pRec->GetFunc(#x)))) gErrorCount++;
+#define IMPAPI(x) if (!((*((void **)&(x)) = (void*) pRec->GetFunc(#x)))) gErrorCount++;
 
 #pragma mark - ENTRY POINT
 extern "C"
@@ -110,4 +110,31 @@ extern "C"
 #undef END
 #include "swell-menugen.h"
 #include "main.rc_mac_menu"
+float iplug::GetScaleForHWND(HWND hWnd)
+{
+  return 1.f;
+}
+#else
+
+UINT(WINAPI* __GetDpiForWindow)(HWND);
+
+float GetScaleForHWND(HWND hWnd)
+{
+  if (!__GetDpiForWindow)
+  {
+    HINSTANCE h = LoadLibraryA("user32.dll");
+    if (h) *(void**)&__GetDpiForWindow = GetProcAddress(h, "GetDpiForWindow");
+
+    if (!__GetDpiForWindow)
+      return 1;
+  }
+
+  int dpi = __GetDpiForWindow(hWnd);
+
+  if (dpi != USER_DEFAULT_SCREEN_DPI)
+    return static_cast<float>(dpi) / USER_DEFAULT_SCREEN_DPI;
+
+  return 1;
+}
+
 #endif

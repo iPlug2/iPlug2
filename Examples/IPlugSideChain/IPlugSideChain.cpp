@@ -4,6 +4,11 @@
 IPlugSideChain::IPlugSideChain(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
+  SetChannelLabel(ERoute::kInput, 0, "Main L");
+  SetChannelLabel(ERoute::kInput, 1, "Main R");
+  SetChannelLabel(ERoute::kInput, 2, "SideChain L");
+  SetChannelLabel(ERoute::kInput, 3, "SideChain R");
+
   GetParam(kGain)->InitGain("Gain");
 
   mMakeGraphicsFunc = [&]() {
@@ -25,7 +30,6 @@ IPlugSideChain::IPlugSideChain(const InstanceInfo& info)
 
 }
 
-#if IPLUG_DSP
 void IPlugSideChain::OnIdle()
 {
   mInputPeakSender.TransmitData(*this);
@@ -51,8 +55,17 @@ void IPlugSideChain::OnIdle()
 
 void IPlugSideChain::GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const
 {
-  //could customize bus names here
-  IPlugProcessor::GetBusName(direction, busIdx, nBuses, str);
+  if (direction == ERoute::kInput)
+  {
+    if (busIdx == 0)
+      str.Set("Main Input");
+    else
+      str.Set("SideChain");
+  }
+  else
+  {
+    str.Set("Output");
+  }
 }
 
 void IPlugSideChain::OnActivate(bool enable)
@@ -112,4 +125,3 @@ void IPlugSideChain::ProcessBlock(sample** inputs, sample** outputs, int nFrames
   mInputPeakSender.ProcessBlock(inputs, nFrames, kCtrlTagInputMeter, 4, 0);
   mOutputPeakSender.ProcessBlock(outputs, nFrames, kCtrlTagOutputMeter, 2, 0);
 }
-#endif

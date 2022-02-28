@@ -47,6 +47,10 @@
 #include <xmmintrin.h>
 #endif
 
+#define LIMIT_METAL_BOUNDS_SIZE(sz) \
+    if ((sz).width > 16384.0) (sz).width = 16384.0; \
+    if ((sz).height > 16384.0) (sz).height = 16384.0;
+
 static id __class_CAMetalLayer, __class_MTLRenderPassDescriptor, __class_MTLTextureDescriptor, __class_MTLRenderPipelineDescriptor, __class_MTLCompileOptions;
 static id<MTLDevice> (*__MTLCreateSystemDefaultDevice)(void);
 static id<MTLDevice> (*__CGDirectDisplayCopyCurrentMetalDevice)(CGDirectDisplayID);
@@ -187,8 +191,12 @@ char g_swell_nomiddleman_cocoa_override=0; // -1 to disable, 1 to force
 
 static BOOL useNoMiddleManCocoa() 
 { 
+#ifdef __ppc__
+  return false;
+#else
   const int v = SWELL_GetOSXVersion();
   return v >= 0x1050 && (g_swell_nomiddleman_cocoa_override ? (g_swell_nomiddleman_cocoa_override>0) : v < 0x10a0);
+#endif
 }
 
 void updateWindowCollection(NSWindow *w)
@@ -377,6 +385,7 @@ void SWELL_DoDialogColorUpdates(HWND hwnd, DLGPROC d, bool isUpdate)
             {
               [[(NSBox*)ch titleCell] setTextColor:staticFg];
               //[(NSBox*)ch setBorderColor:staticFg]; // see comment at SWELL_MakeGroupBox
+              [ch setNeedsDisplay:YES];
             }
             else
             {
@@ -466,6 +475,10 @@ static SWELL_DialogResourceIndex *resById(SWELL_DialogResourceIndex *reshead, co
 
 static void DoPaintStuff(WNDPROC wndproc, HWND hwnd, HDC hdc, NSRect *modrect, bool isMetal)
 {
+#ifdef _DEBUG
+  extern int g_swell_in_paint;
+  g_swell_in_paint++;
+#endif
   RECT r;
   GetWindowRect(hwnd,&r);
   if (r.top>r.bottom) { int tmp=r.top; r.top=r.bottom; r.bottom=tmp; }
@@ -493,6 +506,9 @@ static void DoPaintStuff(WNDPROC wndproc, HWND hwnd, HDC hdc, NSRect *modrect, b
     if (a) SWELL_PopClipRegion(hdc);
   }
   if (isMetal) wndproc(hwnd,WM_NCPAINT,(WPARAM)1,0);
+#ifdef _DEBUG
+  g_swell_in_paint--;
+#endif
 }
 
 
@@ -581,8 +597,34 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
 
 
 
+static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification *notification, int action)
+{
+  NSOutlineView *sender=[notification object];
+  NMTREEVIEW nmhdr={{(HWND)sender,(UINT_PTR)[sender tag],TVN_ITEMEXPANDING},0,};
+  SWELL_DataHold *t=[[notification userInfo] valueForKey:@"NSObject"];
+  HTREEITEM hi = t ? (HTREEITEM)[t getValue] : NULL;
+  if (hi)
+  {
+    nmhdr.action=action;
+    nmhdr.itemNew.hItem=hi;
+    nmhdr.itemNew.lParam=hi->m_param;
+  }
+  if (par->m_wndproc && !par->m_hashaddestroy)
+  {
+    par->m_wndproc((HWND)par, WM_NOTIFY, (int)[sender tag], (LPARAM)&nmhdr);
+  }
+}
+
 
 @implementation SWELL_hwndChild : NSView 
+
+- (NSMenu *)textView:(NSTextView *)view
+                menu:(NSMenu *)menu
+            forEvent:(NSEvent *)event
+             atIndex:(NSUInteger)charIndex
+{
+  return [view respondsToSelector:@selector(swellWantsContextMenu)] && ![(SWELL_TextView *)view swellWantsContextMenu] ? nil : menu;
+}
 
 -(void)viewDidHide
 {
@@ -681,6 +723,28 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
   if ([aTableView isKindOfClass:[SWELL_ListView class]])
   {
     SWELL_ListView *f = (SWELL_ListView *)aTableView;
+
+    const unsigned short tag = (unsigned short)[aTableView tag];
+    NMLVCUSTOMDRAW nmlv={
+      {
+        {(HWND)aTableView,(UINT_PTR)tag, NM_CUSTOMDRAW},
+        CDDS_ITEMPREPAINT,NULL, {0,0,0,0}, (DWORD)rowIndex, 0,0
+      },
+      (COLORREF)-1,
+      (COLORREF)-1,
+      f->m_cols ? f->m_cols->Find(aTableColumn) : 0
+    };
+    if (m_wndproc) m_wndproc((HWND)self,WM_NOTIFY,tag,(LPARAM)&nmlv);
+    // todo clrTextBk too
+    if (nmlv.clrText != (COLORREF)-1)
+    {
+      if ([aCell respondsToSelector:@selector(setTextColor:)])
+      {
+        [aCell setTextColor:NSColorFromCol(nmlv.clrText)];
+      }
+      return;
+    }
+
     if (f->m_selColors&&[aTableView isRowSelected:rowIndex]) 
     {
       const NSInteger cnt = [f->m_selColors count];
@@ -824,6 +888,15 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
     NMCLICK nm={{(HWND)sender,(UINT_PTR)[(NSControl*)sender tag],NM_DBLCLK}, };
     m_wndproc((HWND)self,WM_NOTIFY,[(NSControl*)sender tag],(LPARAM)&nm);
   }
+}
+
+- (void)outlineViewItemWillExpand:(NSNotification*)notification
+{
+  SendTreeViewExpandNotification(self, notification, TVE_EXPAND);
+}
+- (void)outlineViewItemWillCollapse:(NSNotification*)notification
+{
+  SendTreeViewExpandNotification(self, notification, TVE_COLLAPSE);
 }
 
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification
@@ -1003,6 +1076,7 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
   m_metal_commandQueue=NULL;
   if (m_use_metal>0) swell_removeMetalDirty(self);
 #endif
+  SWELL_MessageQueue_Clear((HWND)self);
 
   [super dealloc];
 }
@@ -1586,6 +1660,9 @@ static int DelegateMouseMove(NSView *view, NSEvent *theEvent)
     bounds.size.width *= 2;
     bounds.size.height *= 2;
   }
+
+  LIMIT_METAL_BOUNDS_SIZE(bounds.size)
+
   CGSize oldsc = layer.drawableSize;
   if (oldsc.width != bounds.size.width || oldsc.height != bounds.size.height)
   {
@@ -2413,6 +2490,8 @@ static void GetInitialWndPos(HWND owner, int h, int* x, int* y)
   *y = r.bottom-h-100;
 }
 
+NSView **g_swell_mac_foreign_key_event_sink;
+
 
 @implementation SWELL_ModelessWindow : NSWindow
 
@@ -2438,6 +2517,8 @@ SWELLDIALOGCOMMONIMPLEMENTS_WND(0)
   [self setAcceptsMouseMovedEvents:YES];
   [self setContentView:(NSView *)child];
   [self useOptimizedDrawing:YES];
+  if (SWELL_GetOSXVersion()>=0x10c0) [self setValue:[NSNumber numberWithInt:2] forKey:@"tabbingMode"];
+
   updateWindowCollection(self);
     
   if (owner && [(id)owner respondsToSelector:@selector(swellAddOwnedWindow:)])
@@ -2486,6 +2567,8 @@ SWELLDIALOGCOMMONIMPLEMENTS_WND(0)
   [self setAcceptsMouseMovedEvents:YES];
   [self useOptimizedDrawing:YES];
   [self setDelegate:(id)self];
+  if (SWELL_GetOSXVersion()>=0x10c0) [self setValue:[NSNumber numberWithInt:2] forKey:@"tabbingMode"];
+
   updateWindowCollection(self);
   
   if (resstate&&resstate->title) SetWindowText((HWND)self, resstate->title);
@@ -2544,6 +2627,24 @@ SWELLDIALOGCOMMONIMPLEMENTS_WND(0)
   }
 }
 #endif
+
+-(void)keyDown:(NSEvent *)event
+{
+  if (g_swell_mac_foreign_key_event_sink && [event window] != self)
+  {
+    *g_swell_mac_foreign_key_event_sink = [self contentView];
+  }
+  else
+  {
+    [super keyDown:event];
+  }
+}
+
+-(void)toggleFullScreen:(id)sender
+{
+  if (!SendMessage((HWND)[self contentView],WM_SWELL_EXTENDED,(WPARAM)"toggleFullScreen",(LPARAM)sender))
+    [super toggleFullScreen:sender];
+}
 
 @end
 
@@ -3293,7 +3394,7 @@ HWND SWELL_GetAudioUnitCocoaView(HWND parent, AudioUnit aunit, AudioUnitCocoaVie
 }
 
 
-HWND SWELL_CreateCarbonWindowView(HWND viewpar, void **wref, RECT* r, bool wantcomp)  // window is created with a root control
+HWND SWELL_CreateCarbonWindowView(HWND viewpar, void **wref, const RECT* r, bool wantcomp)  // window is created with a root control
 {
   RECT wndr = *r;
   ClientToScreen(viewpar, (POINT*)&wndr);
@@ -3536,15 +3637,17 @@ bool SWELL_SetGLContextToView(HWND h)
   return false;
 }
 
-void SWELL_SetViewGL(HWND h, bool wantGL)
+void SWELL_SetViewGL(HWND h, char wantGL)
 {
   if (WDL_NORMALLY(h && [(id)h isKindOfClass:[SWELL_hwndChild class]]))
   {
     SWELL_hwndChild *hc = (SWELL_hwndChild*)h;
-    if (wantGL != !!hc->m_glctx)
+    if (!!wantGL != !!hc->m_glctx)
     {
       if (wantGL) 
       {
+        if (wantGL == 2 && SWELL_GetOSXVersion()>=0x1070) [(NSView *)h setWantsBestResolutionOpenGLSurface:YES];
+
         NSOpenGLPixelFormatAttribute atr[] = { 
             (NSOpenGLPixelFormatAttribute)96/*NSOpenGLPFAAllowOfflineRenderers*/, // allows use of NSSupportsAutomaticGraphicsSwitching and no gpu-forcing
             (NSOpenGLPixelFormatAttribute)0
@@ -3818,7 +3921,7 @@ static bool mtl_init()
       if (cnt>0)
       {
         state=1;
-        SetTimer(NULL,1,1,metalUpdateProc);
+        SetTimer(NULL,0,1,metalUpdateProc);
       }
     }
   }
@@ -4013,6 +4116,8 @@ static void SWELL_Metal_WriteTex(SWELL_hwndChild *wnd, const unsigned int *srcbu
       bounds.size.width *= 2.0;
       bounds.size.height *= 2.0;
     }
+
+    LIMIT_METAL_BOUNDS_SIZE(bounds.size)
 
     if (wnd->m_use_metal == 1) // direct
     {
@@ -4256,11 +4361,24 @@ void swell_updateAllMetalDirty() // run from a timer, or called by UpdateWindow(
   if (r) return;
   r=true;
 
+  NSWindow *lw = NULL;
+  bool lw_occluded = false;
+
   int x = s_mtl_dirty_list.GetSize();
   while (--x>=0)
   {
     SWELL_hwndChild *slf = s_mtl_dirty_list.Get(x);
     if (!slf) break; // deleted out from under us?!
+
+    NSWindow *w = [slf window];
+    if (lw != w)
+    {
+      // this might only be needed on macOS12+ and/or M1 (could not duplicate on high sierra)
+      lw = w;
+      NSUInteger (*send_msg)(id, SEL) = (NSUInteger (*)(id, SEL))objc_msgSend;
+      lw_occluded = w && !(send_msg(w, @selector(occlusionState))&2);
+    }
+    if (lw_occluded) continue;
 
     const RECT tr = slf->m_metal_in_needref_rect;
     s_mtl_dirty_list.Delete(x);

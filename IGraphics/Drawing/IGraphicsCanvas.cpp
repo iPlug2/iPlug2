@@ -243,6 +243,8 @@ void IGraphicsCanvas::SetCanvasSourcePattern(val& context, const IPattern& patte
       context.set("strokeStyle", gradient);
     }
     break;
+    default:
+    break;
   }
 }
 
@@ -387,7 +389,7 @@ APIBitmap* IGraphicsCanvas::LoadAPIBitmap(const char* name, const void* pData, i
   return new Bitmap(canvas, name, scale);
 }
 
-APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
+APIBitmap* IGraphicsCanvas::CreateAPIBitmap(int width, int height, float scale, double drawScale, bool cacheable)
 {
   return new Bitmap(width, height, scale, drawScale);
 }

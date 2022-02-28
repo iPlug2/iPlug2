@@ -420,8 +420,14 @@ int eelScriptInst::runcode(const char *codeptr, int showerr, const char *showerr
 #else
   #ifdef __aarch64__
           snprintf(buf2,sizeof(buf2), "objdump -D -b binary -maarch64 \"%s\"",buf);
+  #elif defined(__arm__)
+          snprintf(buf2,sizeof(buf2), "objdump -D -b binary -m arm \"%s\"",buf);
   #elif defined(__LP64__)
-          snprintf(buf2,sizeof(buf2),"distorm3 --b64 \"%s\"",buf);
+          #ifdef __APPLE__
+            snprintf(buf2,sizeof(buf2),"distorm3 --b64 \"%s\"",buf);
+          #else
+            snprintf(buf2,sizeof(buf2),"objdump -D -b binary -m i386:x86-64 \"%s\"",buf);
+          #endif
   #else
           snprintf(buf2,sizeof(buf2),"distorm3 --b32 \"%s\"",buf);
   #endif
@@ -566,14 +572,14 @@ int eelScriptInst::loadfile(const char *fn, const char *callerfn, bool allowstdi
     line[0]=0;
     fgets(line,sizeof(line),fp);
     if (!line[0]) break;
-    if (!strnicmp(line,"@import",7) && isspace(line[7]))
+    if (!strnicmp(line,"@import",7) && isspace((unsigned char)line[7]))
     {
       char *p=line+7;
-      while (isspace(*p)) p++;
+      while (isspace((unsigned char)*p)) p++;
 
       char *ep=p;
       while (*ep) ep++;
-      while (ep>p && isspace(ep[-1])) ep--;
+      while (ep>p && isspace((unsigned char)ep[-1])) ep--;
       *ep=0;
 
       if (*p) loadfile(p,fn,false);

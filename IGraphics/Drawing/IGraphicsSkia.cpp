@@ -11,6 +11,8 @@
 #include "SkFont.h"
 #include "SkFontMetrics.h"
 #include "SkTypeface.h"
+#include "SkVertices.h"
+#include "SkSwizzle.h"
 #pragma warning( pop )
 
 #if defined OS_MAC || defined OS_IOS
@@ -23,6 +25,7 @@
   //even though this is a .cpp we are in an objc(pp) compilation unit
     #import <Metal/Metal.h>
     #import <QuartzCore/CAMetalLayer.h>
+    #include "include/gpu/mtl/GrMtlBackendContext.h"
   #elif !defined IGRAPHICS_CPU
     #error Define either IGRAPHICS_GL2, IGRAPHICS_GL3, IGRAPHICS_METAL, or IGRAPHICS_CPU for IGRAPHICS_SKIA with OS_MAC
   #endif
@@ -31,6 +34,8 @@
   #pragma comment(lib, "zlib.lib")
   #pragma comment(lib, "skia.lib")
   #pragma comment(lib, "svg.lib")
+  #pragma comment(lib, "skshaper.lib")
+  #pragma comment(lib, "skunicode.lib")
   #pragma comment(lib, "opengl32.lib")
 #endif
 
@@ -48,7 +53,7 @@ extern std::map<std::string, MTLTexturePtr> gTextureMap;
 class IGraphicsSkia::Bitmap : public APIBitmap
 {
 public:
-  Bitmap(sk_sp<SkSurface> surface, int width, int height, int scale, float drawScale);
+  Bitmap(sk_sp<SkSurface> surface, int width, int height, float scale, float drawScale);
   Bitmap(const char* path, double sourceScale);
   Bitmap(const void* pData, int size, double sourceScale);
   Bitmap(sk_sp<SkImage>, double sourceScale);
@@ -57,7 +62,7 @@ private:
   SkiaDrawable mDrawable;
 };
   
-IGraphicsSkia::Bitmap::Bitmap(sk_sp<SkSurface> surface, int width, int height, int scale, float drawScale)
+IGraphicsSkia::Bitmap::Bitmap(sk_sp<SkSurface> surface, int width, int height, float scale, float drawScale)
 {
   mDrawable.mSurface = surface;
   mDrawable.mIsSurface = true;
@@ -310,12 +315,15 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
   CAMetalLayer* pMTLLayer = (CAMetalLayer*) pContext;
   id<MTLDevice> device = pMTLLayer.device;
   id<MTLCommandQueue> commandQueue = [device newCommandQueue];
-  mGrContext = GrDirectContext::MakeMetal((void*) device, (void*) commandQueue);
+  GrMtlBackendContext backendContext = {};
+  backendContext.fDevice.retain((__bridge GrMTLHandle) device);
+  backendContext.fQueue.retain((__bridge GrMTLHandle) commandQueue);
+  mGrContext = GrDirectContext::MakeMetal(backendContext);
   mMTLDevice = (void*) device;
   mMTLCommandQueue = (void*) commandQueue;
   mMTLLayer = pContext;
 #endif
-    
+
   DrawResize();
 }
 
@@ -337,8 +345,8 @@ void IGraphicsSkia::OnViewDestroyed()
 
 void IGraphicsSkia::DrawResize()
 {
-  auto w = WindowWidth() * GetScreenScale();
-  auto h = WindowHeight() * GetScreenScale();
+  auto w = static_cast<int>(std::ceil(static_cast<float>(WindowWidth()) * GetScreenScale()));
+  auto h = static_cast<int>(std::ceil(static_cast<float>(WindowHeight()) * GetScreenScale()));
   
 #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
   if (mGrContext.get())
@@ -350,7 +358,7 @@ void IGraphicsSkia::DrawResize()
   #ifdef OS_WIN
     mSurface.reset();
    
-    const size_t bmpSize = sizeof(BITMAPINFOHEADER) + (WindowWidth() * GetScreenScale()) * (WindowHeight() * GetScreenScale()) * sizeof(uint32_t);
+    const size_t bmpSize = sizeof(BITMAPINFOHEADER) + (w * h * sizeof(uint32_t));
     mSurfaceMemory.Resize(bmpSize);
     BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.Get());
     ZeroMemory(bmpInfo, sizeof(BITMAPINFO));
@@ -450,8 +458,9 @@ void IGraphicsSkia::EndFrame()
   #else
     #error NOT IMPLEMENTED
   #endif
-#else
+#else // GPU
   mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, nullptr);
+    
   mScreenSurface->getCanvas()->flush();
   
   #ifdef IGRAPHICS_METAL
@@ -468,7 +477,6 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
 {
   SkPaint p;
   
-  p.setFilterQuality(kHigh_SkFilterQuality);
   p.setAntiAlias(true);
   p.setBlendMode(SkiaBlendMode(pBlend));
   if (pBlend)
@@ -485,10 +493,16 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
   mCanvas->scale(scale1, scale1);
   mCanvas->translate(-srcX * scale2, -srcY * scale2);
   
+#ifdef IGRAPHICS_CPU
+  auto samplingOptions = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
+#else
+  auto samplingOptions = SkSamplingOptions(SkCubicResampler::Mitchell());
+#endif
+    
   if (image->mIsSurface)
-    image->mSurface->draw(mCanvas, 0.0, 0.0, &p);
+    image->mSurface->draw(mCanvas, 0.0, 0.0, samplingOptions, &p);
   else
-    mCanvas->drawImage(image->mImage, 0.0, 0.0, &p);
+    mCanvas->drawImage(image->mImage, 0.0, 0.0, samplingOptions, &p);
     
   mCanvas->restore();
 }
@@ -525,7 +539,11 @@ void IGraphicsSkia::PathArc(float cx, float cy, float r, float a1, float a2, EWi
 
 IColor IGraphicsSkia::GetPoint(int x, int y)
 {
-  return COLOR_BLACK; //TODO:
+  SkBitmap bitmap;
+  bitmap.allocPixels(SkImageInfo::MakeN32Premul(1, 1));
+  mCanvas->readPixels(bitmap, x, y);
+  auto color = bitmap.getColor(0,0);
+  return IColor(SkColorGetA(color), SkColorGetR(color), SkColorGetG(color), SkColorGetB(color));
 }
 
 bool IGraphicsSkia::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
@@ -816,7 +834,7 @@ void IGraphicsSkia::SetClipRegion(const IRECT& r)
   mCanvas->setMatrix(mFinalMatrix);
 }
 
-APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, int scale, double drawScale, bool cacheable)
+APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, float scale, double drawScale, bool cacheable)
 {
   sk_sp<SkSurface> surface;
   

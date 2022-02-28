@@ -59,6 +59,7 @@ using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
 using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
 using IDisplayTickFunc = std::function<void()>;
+using IUIAppearanceChangedFunc = std::function<void(EUIAppearance appearance)>;
 using ITouchID = uintptr_t;
 enum EPropIdxs { kBool = 0, kInt, kFloat, kStr, kColor, kRect, kText, kPattern, kBitmap, kSVG, kColorSpec };
 using IPropVar = std::variant<bool, int, float, const char*, IColor, IRECT, IText, IPattern, IBitmap, ISVG, IVColorSpec>;
@@ -104,8 +105,8 @@ public:
    @param name Resource name for the bitmap */
   IBitmap(APIBitmap* pAPIBitmap, int n, bool framesAreHorizontal, const char* name = "")
   : mAPIBitmap(pAPIBitmap)
-  , mW(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale())
-  , mH(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale())
+  , mW(static_cast<int>(pAPIBitmap->GetWidth() / pAPIBitmap->GetScale()))
+  , mH(static_cast<int>(pAPIBitmap->GetHeight() / pAPIBitmap->GetScale()))
   , mN(n)
   , mFramesAreHorizontal(framesAreHorizontal)
   , mResourceName(name, static_cast<int>(strlen(name)))
@@ -137,7 +138,7 @@ public:
   int N() const { return mN; }
   
   /** @return the scale of the bitmap */
-  int GetScale() const { return mAPIBitmap->GetScale(); }
+  float GetScale() const { return mAPIBitmap->GetScale(); }
 
   /** @return the draw scale of the bitmap */
   float GetDrawScale() const { return mAPIBitmap->GetDrawScale(); }
@@ -172,7 +173,7 @@ private:
 /** User-facing SVG abstraction that you use to manage SVG data
  * ISVG doesn't actually own the image data */
 
-#ifdef IGRAPHICS_SKIA
+#ifdef SVG_USE_SKIA
 struct ISVG
 {
   ISVG(sk_sp<SkSVGDOM> svgDom)
@@ -593,8 +594,8 @@ struct IFillOptions
   bool mPreserve { false };
 
   IFillOptions(bool preserve = false, EFillRule fillRule = EFillRule::Winding)
-  : mPreserve(preserve)
-  , mFillRule(fillRule)
+  : mFillRule(fillRule)
+  , mPreserve(preserve)
   {
   }
    
@@ -609,8 +610,8 @@ struct IStrokeOptions
   public:
     /** Create a new empty DashOptions */
     DashOptions()
-    : mCount(0)
-    , mOffset(0)
+    : mOffset(0)
+    , mCount(0)
     {}
 
     /** Create a new DashOptions
@@ -694,11 +695,11 @@ struct IText
         const IColor& TEFGColor = DEFAULT_TEXTENTRY_FGCOLOR)
     : mSize(size)
     , mFGColor(color)
-    , mAlign(align)
-    , mVAlign(valign)
-    , mAngle(angle)
     , mTextEntryBGColor(TEBGColor)
     , mTextEntryFGColor(TEFGColor)
+    , mAngle(angle)
+    , mAlign(align)
+    , mVAlign(valign)
   {
     strcpy(mFont, (fontID ? fontID : DEFAULT_FONT));
   }
@@ -783,7 +784,7 @@ struct IRECT
    * @param r Right
    * @param b Bottom */
   IRECT(float l, float t, float r, float b)
-  : L(l), R(r), T(t), B(b)
+  : L(l), T(t), R(r), B(b)
   {}
   
   /** Construct a new IRECT at the given position and with the same size as the bitmap
@@ -1837,15 +1838,16 @@ public:
     return -1;
   }
   
-  /** Fill an IRECTList with divions of row and column divisions of an input IRECT 
+  /** Fill an IRECTList with divisons of an input IRECT
    * @param input The input rectangle
    * @param rects The output IRECTList
    * @param rowFractions Initializer list of fractions for the grid rows (should sum to 1.0)
    * @param colFractions Initializer list of fractions for the grid columns (should sum to 1.0)
+   * @param layoutDir By default the cell idx increases horizontally (by row). If set to EDirection::Vertical, cell idx increases vertically (by column).
    * @return \c true if the row and column fractions summed to 1.0, and grid creation was successful */
-  static bool GetFracGrid(const IRECT& input, IRECTList& rects, const std::initializer_list<float>& rowFractions, const std::initializer_list<float>& colFractions)
+  static bool GetFracGrid(const IRECT& input, IRECTList& rects, const std::initializer_list<float>& rowFractions, const std::initializer_list<float>& colFractions, EDirection layoutDir = EDirection::Horizontal)
   {
-    IRECT rowsLeft = input;
+    IRECT spaceLeft = input;
     float y = 0.;
     float x = 0.;
 
@@ -1855,24 +1857,50 @@ public:
     if(std::accumulate(colFractions.begin(), colFractions.end(), 0.f) != 1.)
       return false;
 
-    for (auto& rowFrac : rowFractions)
+    if (layoutDir == EDirection::Horizontal)
     {
-      IRECT thisRow = input.FracRectVertical(rowFrac, true).GetTranslated(0, y);
-      
-      x = 0.;
+      for (auto& rowFrac : rowFractions)
+      {
+        IRECT thisRow = input.FracRectVertical(rowFrac, true).GetTranslated(0, y);
+        
+        x = 0.;
 
+        for (auto& colFrac : colFractions)
+        {
+          IRECT thisCell = thisRow.FracRectHorizontal(colFrac).GetTranslated(x, 0);
+          
+          rects.Add(thisCell);
+          
+          x += thisCell.W();
+        }
+        
+        spaceLeft.Intersect(thisRow);
+        
+        y = rects.Bounds().H();
+      }
+    }
+    
+    if (layoutDir == EDirection::Vertical)
+    {
       for (auto& colFrac : colFractions)
       {
-        IRECT thisCell = thisRow.FracRectHorizontal(colFrac).GetTranslated(x, 0);
+        IRECT thisCol = input.FracRectHorizontal(colFrac).GetTranslated(x, 0);
         
-        rects.Add(thisCell);
+        y = 0.;
+
+        for (auto& rowFrac : rowFractions)
+        {
+          IRECT thisCell = thisCol.FracRectVertical(rowFrac, true).GetTranslated(0, y);
+          
+          rects.Add(thisCell);
+          
+          y += thisCell.H();
+        }
         
-        x += thisCell.W();
+        spaceLeft.Intersect(thisCol);
+        
+        x = rects.Bounds().W();
       }
-      
-      rowsLeft.Intersect(thisRow);
-      
-      y = rects.Bounds().H();
     }
     
     return true;
@@ -2515,12 +2543,9 @@ struct IVStyle
           float shadowOffset = DEFAULT_SHADOW_OFFSET,
           float widgetFrac = DEFAULT_WIDGET_FRAC,
           float angle = DEFAULT_WIDGET_ANGLE)
-  : showLabel(showLabel)
+  : hideCursor(hideCursor)
+  , showLabel(showLabel)
   , showValue(showValue)
-  , colorSpec(colors)
-  , labelText(labelText)
-  , valueText(valueText)
-  , hideCursor(hideCursor)
   , drawFrame(drawFrame)
   , drawShadows(drawShadows)
   , emboss(emboss)
@@ -2529,6 +2554,9 @@ struct IVStyle
   , shadowOffset(shadowOffset)
   , widgetFrac(widgetFrac)
   , angle(angle)
+  , colorSpec(colors)
+  , labelText(labelText)
+  , valueText(valueText)
   {
   }
   

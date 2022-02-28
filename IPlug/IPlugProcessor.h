@@ -100,7 +100,7 @@ public:
   /** @return Sample rate (in Hz) */
   double GetSampleRate() const { return mSampleRate; }
 
-  /** @return Current block size in samples */
+  /** @return Maximum block size in samples, actual blocksize may vary each ProcessBlock() */
   int GetBlockSize() const { return mBlockSize; }
 
   /** @return Plugin latency (in samples) */
@@ -122,6 +122,12 @@ public:
   /** @return The tempo in beats per minute */
   double GetTempo() const { return mTimeInfo.mTempo; }
 
+  /** @return The number of beats elapsed since start of project timeline. */
+  double GetPPQPos() const { return mTimeInfo.mPPQPos; }
+
+  /** @return \c true if the transport is running */
+  bool GetTransportIsRunning() const { return mTimeInfo.mTransportIsRunning; }
+  
   /** @return The number of samples in a beat */
   double GetSamplesPerBeat() const;
 

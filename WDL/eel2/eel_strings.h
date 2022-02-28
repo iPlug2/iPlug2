@@ -246,6 +246,9 @@ class eel_string_context_state
       if (!opaque) return -1.0;
       eel_string_context_state *_this = EEL_STRING_GET_CONTEXT_POINTER(opaque);
       if (!_this) return -1.0;
+#ifdef EEL_STRING_NAMEDSTRINGCALLBACK_HOOK
+      EEL_STRING_NAMEDSTRINGCALLBACK_HOOK
+#endif
 
       EEL_STRING_MUTEXLOCK_SCOPE
       if (!name || !name[0])
@@ -490,20 +493,7 @@ int eel_format_strings(void *opaque, const char *fmt, const char *fmt_end, char 
         }
         else
         {
-#if !defined(_WIN32) && !defined(__arm__) && !defined(__aarch64__)
-          // x86 and x86_64 set rounding to truncate (ugh)
-          // apparently on Windows it doesn't matter for sprintf(), though.
-          // this is safe to call on other platforms, too, just perhaps wasteful
-          int fpstate[2];
-          eel_enterfp(fpstate);
-          eel_setfp_round();
-#endif
-
           snprintf(op,64,fs,v);
-
-#if !defined(_WIN32) && !defined(__arm__) && !defined(__aarch64__)
-          eel_leavefp(fpstate);
-#endif
         }
       }
 

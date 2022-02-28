@@ -33,8 +33,6 @@
 // an app should implement these
 extern int WDL_STYLE_WantGlobalButtonBorders();
 extern bool WDL_STYLE_WantGlobalButtonBackground(int *col);
-extern int WDL_STYLE_GetSysColor(int);
-extern bool WDL_Style_WantTextShadows(int *col);
 
 // this is the default, you can override per painter if you want
 extern bool WDL_STYLE_GetBackgroundGradient(double *gradstart, double *gradslope); // return values 0.0-1.0 for each, return false if no gradient desired
@@ -54,8 +52,6 @@ extern void vwnd_slider_drawknobstack(LICE_IBitmap *drawbm, double val, WDL_Virt
 
 int WDL_STYLE_WantGlobalButtonBorders() { return 0; }
 bool WDL_STYLE_WantGlobalButtonBackground(int *col) { return false; }
-int WDL_STYLE_GetSysColor(int p) { return GetSysColor(p); }
-bool WDL_Style_WantTextShadows(int *col) { return false; }
 bool WDL_STYLE_GetBackgroundGradient(double *gradstart, double *gradslope) { return false; }
 LICE_IBitmap *WDL_STYLE_GetSliderBitmap2(bool vert) { return NULL; }
 bool WDL_STYLE_AllowSliderMouseWheel() { return true; }
@@ -108,7 +104,7 @@ class WDL_VirtualIconButton : public WDL_VWnd
     void SetVMargins(int t, int b) { m_margin_t=t; m_margin_b=b; };
 
     // if icon config is set, check state == 1 will swap the up and down image
-    void SetCheckState(char state); // -1 = no checkbox, 0=unchecked, 1=checked. -10= checked for accessibility/GetCheckState() but does not affect drawing
+    void SetCheckState(char state, bool redraw=true); // -1 = no checkbox, 0=unchecked, 1=checked. -10= checked for accessibility/GetCheckState() but does not affect drawing
     char GetCheckState() { return m_checkstate == -10 ? 1 : m_checkstate; }
     
     WDL_VirtualIconButton_SkinConfig* GetIcon() { return m_iconCfg; } // note button does not own m_iconCfg
@@ -163,7 +159,7 @@ class WDL_VirtualStaticText : public WDL_VWnd
     void SetFont(LICE_IFont *font, LICE_IFont *vfont=NULL) { m_font=font; m_vfont=vfont; }
     LICE_IFont *GetFont(bool vfont=false) { return vfont?m_vfont:m_font; }
     void SetAlign(int align) { m_align=align; } // -1=left,0=center,1=right
-    void SetText(const char *text);
+    void SetText(const char *text, bool redraw=true);
     void SetBorder(bool bor) { m_wantborder=bor; }
     const char *GetText() { return m_text.Get(); }
     void SetColors(int fg=0, int bg=0, bool tint=false) { m_fg=fg; m_bg=bg; m_dotint=tint; }
@@ -187,6 +183,10 @@ class WDL_VirtualStaticText : public WDL_VWnd
     WDL_FastString m_text;
     bool m_didvert; // true if text was drawn vertically on the last paint
     int m_didalign; // the actual alignment used on the last paint
+
+  public:
+    void (*calculate_text)(WDL_VirtualStaticText *ctl, void *ctx, WDL_FastString *fs); // if set, this will be called from paint
+    void *calculate_text_ctx;
 };
 
 class WDL_VirtualComboBox : public WDL_VWnd
@@ -301,6 +301,11 @@ class WDL_VirtualSlider : public WDL_VWnd
     bool m_sendmsgonclick;
     bool m_grayed;
     bool m_is_knob;
+
+  public:
+    int (*calculate_slider_position)(WDL_VirtualSlider *ctl, void *ctx); // if set, this will be called from paint (unless captured)
+    void *calculate_slider_position_ctx;
+
 };
 
 

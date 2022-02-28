@@ -20,6 +20,8 @@
 
 #include "heapbuf.h"
 
+#include "IPlugPlatform.h"
+
 BEGIN_IPLUG_NAMESPACE
 
 /** A lock-free SPSC queue used to transfer data between threads
@@ -85,7 +87,10 @@ public:
    * @return size_t \todo */
   size_t ElementsAvailable() const
   {
-    return (mWriteIndex.load(std::memory_order_acquire) - mReadIndex.load(std::memory_order_relaxed))%mData.GetSize();
+    size_t write = mWriteIndex.load(std::memory_order_acquire);
+    size_t read = mReadIndex.load(std::memory_order_relaxed);
+
+    return (read > write) ? mData.GetSize() - (read - write) : write - read;
   }
 
   /** \todo
@@ -95,7 +100,7 @@ public:
   const T& Peek()
   {
     const auto currentReadIndex = mReadIndex.load(std::memory_order_relaxed);
-    return mData[currentReadIndex];
+    return mData.Get()[currentReadIndex];
   }
 
   /** \todo 

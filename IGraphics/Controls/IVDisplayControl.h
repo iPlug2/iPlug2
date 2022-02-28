@@ -32,24 +32,17 @@ public:
   IVDisplayControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Horizontal, float lo = 0., float hi = 1.f, float defaultVal = 0., uint32_t bufferSize = 100, float strokeThickness = 2.f)
   : IControl(bounds)
   , IVectorBase(style)
+  , mBuffer(bufferSize, defaultVal)
   , mLoValue(lo)
   , mHiValue(hi)
-  , mBuffer(bufferSize, defaultVal)
-  , mDirection(dir)
   , mStrokeThickness(strokeThickness)
+  , mDirection(dir)
   {
     assert(bufferSize > 0 && bufferSize < MAX_BUFFER_SIZE);
 
     AttachIControl(this, label);
   }
 
-  void Update(float v)
-  {
-    mBuffer[mReadPos] = v;
-    mReadPos = (mReadPos+1) % mBuffer.size();
-    SetDirty(false);
-  }
-  
   void OnResize() override
   {
     SetTargetRECT(MakeRects(mRECT));
@@ -115,6 +108,12 @@ public:
   
   void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
+    auto Update = [&](float v) {
+      mBuffer[mReadPos] = v;
+      mReadPos = (mReadPos+1) % mBuffer.size();
+      SetDirty(false);
+    };
+
     if (!IsDisabled() && msgTag == ISender<>::kUpdateMessage)
     {
       IByteStream stream(pData, dataSize);
@@ -123,7 +122,6 @@ public:
       ISenderData<1> d;
       pos = stream.Get(&d, pos);
       Update(d.vals[0]);
-      SetDirty(false);
     }
   }
   

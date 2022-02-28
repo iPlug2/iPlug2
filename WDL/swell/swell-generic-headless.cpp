@@ -226,7 +226,7 @@ DWORD GetMessagePos()
   return 0;
 }
 
-HWND SWELL_CreateXBridgeWindow(HWND viewpar, void **wref, RECT *r)
+HWND SWELL_CreateXBridgeWindow(HWND viewpar, void **wref, const RECT *r)
 {
   *wref = NULL;
   return NULL;
@@ -310,6 +310,7 @@ int SWELL_KeyToASCII(int wParam, int lParam, int *newflags)
   return 0;
 }
 
+int swell_is_app_inactive() { return 0; }
 
 #endif
 #endif
