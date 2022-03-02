@@ -117,7 +117,8 @@
 		4F63699120A463AF0022C370 /* IGraphicsIOS_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsIOS_view.mm; sourceTree = "<group>"; };
 		4F63699220A463AF0022C370 /* IGraphicsPopupMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPopupMenu.h; sourceTree = "<group>"; };
 		4F63699320A463AF0022C370 /* IGraphicsUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsUtilities.h; sourceTree = "<group>"; };
-		4F63699420A463AF0022C370 /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };		4F63699F20A463AF0022C370 /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsStructs.h; sourceTree = "<group>"; };
+		4F63699420A463AF0022C370 /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };
+		4F63699F20A463AF0022C370 /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsStructs.h; sourceTree = "<group>"; };
 		4F6369A020A463AF0022C370 /* IGraphicsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsConstants.h; sourceTree = "<group>"; };
 		4F6369A120A463AF0022C370 /* IGraphicsLiveEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLiveEdit.h; sourceTree = "<group>"; };
 		4F6369A220A463AF0022C370 /* IGraphics_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_select.h; sourceTree = "<group>"; };
@@ -397,7 +398,6 @@
 		4F977D3120CC9DD800D19F46 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
-				4F800153252F0AAF00432412 /* LFO.h */,
 				4F6E673521C5613A005991A9 /* Synth */,
 				4F977D3520CC9DD800D19F46 /* Easing.h */,
 				4F977D3620CC9DD800D19F46 /* NChanDelay.h */,
@@ -634,12 +634,12 @@
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
 					4FA61F6D22E899B500A92C58 = {
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						ProvisioningStyle = Automatic;
 					};
 					91236D0C1B08F42B00734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						LastSwiftMigration = 1010;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -655,7 +655,7 @@
 					};
 					91236D761B08F59300734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						LastSwiftMigration = 1010;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -1115,6 +1115,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(DEBUG_DEFS)",
 					"$(EXTRA_DEBUG_DEFS)",
@@ -1167,6 +1168,7 @@
 				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(RELEASE_DEFS)",
 					"$(EXTRA_RELEASE_DEFS)",

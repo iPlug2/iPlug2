@@ -11,7 +11,7 @@
         <!--IPlugAUViewController-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController storyboardIdentifier="main" id="BYZ-38-t0r" userLabel="IPlugAUViewController" customClass="IPlugAUViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="main" id="BYZ-38-t0r" userLabel="IPlugAUViewController" customClass="IPlugAUViewController_vIPlugCocoaUI" sceneMemberID="viewController">
                     <containerView key="view" opaque="NO" contentMode="scaleToFill" id="VRY-ap-6tV">
                         <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>

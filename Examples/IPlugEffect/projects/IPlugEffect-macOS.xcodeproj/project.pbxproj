@@ -164,7 +164,7 @@
 		4F78BE2A22E7406D00AD537E /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
 		4F78BE2D22E7412300AD537E /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6369DC20A464BB0022C370 /* IGraphicsNanoVG_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F78BE3222E7429B00AD537E /* IPlugAUv3Appex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F78BE3022E7429700AD537E /* IPlugAUv3Appex.m */; };
-		4F78BE3C22E74CD000AD537E /* IPlugAUViewController_vIPlugEffect.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F98C32C20A7678800F120A9 /* IPlugAUViewController_vIPlugEffect.xib */; };
+		4F78BE3C22E74CD000AD537E /* IPlugAUViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */; };
 		4F78D88613B6382B0032E0F3 /* IPlugEffect.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4FD290A8137C34D700CEBE7E /* IPlugEffect.icns */; };
 		4F78D90B13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
 		4F78D91813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
@@ -675,7 +675,7 @@
 		4F97BD8A213760E200541A17 /* IGraphicsCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCanvas.cpp; sourceTree = "<group>"; };
 		4F97BD8B2137629600541A17 /* IFPSDisplayControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IFPSDisplayControl.h; sourceTree = "<group>"; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugEffect.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugEffect.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F98C32C20A7678800F120A9 /* IPlugAUViewController_vIPlugEffect.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugAUViewController_vIPlugEffect.xib; path = ../resources/IPlugAUViewController_vIPlugEffect.xib; sourceTree = "<group>"; };
+		4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugAUViewController.xib; path = ../resources/IPlugAUViewController.xib; sourceTree = "<group>"; };
 		4F993FE32306D581000313AF /* IGraphicsPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphicsPrivate.h; path = ../../../IGraphics/IGraphicsPrivate.h; sourceTree = "<group>"; };
 		4F9A82F3213DE80200BE63A4 /* IPopupMenuControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPopupMenuControl.h; sourceTree = "<group>"; };
 		4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPopupMenuControl.cpp; sourceTree = "<group>"; };
@@ -889,7 +889,7 @@
 				4FC46E57231440B4000045E7 /* web */,
 				4F1B4AE32014D33600BC64D4 /* IPlugEffect-macOS-MainMenu.xib */,
 				4F3FB118202273A500622761 /* IPlugEffect-macOS.entitlements */,
-				4F98C32C20A7678800F120A9 /* IPlugAUViewController_vIPlugEffect.xib */,
+				4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */,
 				4FFF72B8214BB71400839091 /* main.rc */,
 				4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */,
 				4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */,
@@ -2006,7 +2006,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F78BE3C22E74CD000AD537E /* IPlugAUViewController_vIPlugEffect.xib in Resources */,
+				4F78BE3C22E74CD000AD537E /* IPlugAUViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
