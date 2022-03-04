@@ -1517,7 +1517,8 @@ LONG_PTR GetWindowLong(HWND hwnd, int idx)
     if ([pid isKindOfClass:[NSButton class]]) 
     {
       int tmp;
-      if ([pid allowsMixedState]) ret |= BS_AUTO3STATE;
+      if ([pid isKindOfClass:[NSPopUpButton class]]) ret |= CBS_DROPDOWNLIST;
+      else if ([pid allowsMixedState]) ret |= BS_AUTO3STATE;
       else if ([pid isKindOfClass:[SWELL_Button class]] && (tmp = (int)[pid swellGetRadioFlags]))
       {
         ret |= BS_AUTORADIOBUTTON;
