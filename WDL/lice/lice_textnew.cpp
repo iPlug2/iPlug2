@@ -204,9 +204,9 @@ bool LICE_CachedFont::RenderGlyph(unsigned short idx) // return TRUE if ok
   if (m_font) oldFont = SelectObject(s_tempbitmap->getDC(),m_font);
   RECT r={0,0,0,0,};
   int advance;
-  const int right_extra_pad = 2+(m_line_height>=16 ? m_line_height/16 : 0); // overrender right side by this amount, and check to see if it was drawn to
-
-  const int left_extra_pad = right_extra_pad; // overrender on left side too
+  // overrender sides and check to see if it was updated
+  const int right_extra_pad = 2+wdl_max(m_line_height/8,0);
+  const int left_extra_pad = 2+wdl_max(m_line_height/16,0);
 
 #ifdef _WIN32
 #if defined(WDL_SUPPORT_WIN9X)
