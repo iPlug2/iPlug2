@@ -1771,7 +1771,9 @@ static WNDPROC vwndDlgHost_oldProc;
 static LRESULT CALLBACK vwndDlgHost_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   if (msg==WM_ERASEBKGND) return 1;
-  if (msg==WM_PAINT)
+  if (msg==WM_PAINT ||
+      (msg == WM_SETFOCUS && (GetWindowLong(hwnd,GWL_STYLE)&(WS_CHILD|WS_TABSTOP))==(WS_CHILD|WS_TABSTOP))
+      )
   {
     WNDPROC pc=(WNDPROC)GetWindowLongPtr(hwnd,DWLP_DLGPROC);
     if (pc)
