@@ -545,7 +545,11 @@ public:
     if (!vw->IsVisible()) pvarState->lVal |= STATE_SYSTEM_INVISIBLE;
     else
     {
-      if (!vw->GetParent() && vw->GetRealParent() && GetFocus() == vw->GetRealParent())
+      WDL_VWnd *par = vw->GetParent();
+      if (!par || par->m_focused_child != -2)
+        pvarState->lVal |= STATE_SYSTEM_FOCUSABLE;
+
+      if (vw->GetRealParent() && GetFocus() == vw->GetRealParent() && (!par || par->EnumChildren(par->m_focused_child) == vw))
         pvarState->lVal |= STATE_SYSTEM_FOCUSED;
     }
 

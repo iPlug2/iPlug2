@@ -620,6 +620,7 @@ WDL_VWnd::WDL_VWnd()
   m_lastmouseidx=-1;
   m_userdata=0;
   m_curPainter=0;
+  m_focused_child = -2;
 }
 
 WDL_VWnd::~WDL_VWnd() 
