@@ -174,6 +174,9 @@ protected:
   virtual int GSC(int a);
 
   WDL_DestroyState m_destroystate;
+
+public:
+  int m_focused_child; // (currently) only used by caller and read by WDL_VWnd_IAccessibleBridge (-2 is default, if unsupported by caller)
 };
 
 
