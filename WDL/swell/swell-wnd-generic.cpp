@@ -1536,6 +1536,8 @@ fakeButtonClick:
     case WM_USER+100:
     case WM_CAPTURECHANGED:
     case WM_SETTEXT:
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
       InvalidateRect(hwnd,NULL,FALSE);
     break;
   }
@@ -2954,6 +2956,10 @@ forceMouseMove:
         }
       }
     return 0;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
+    break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
 }
@@ -3186,6 +3192,10 @@ static LRESULT WINAPI trackbarWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
           EndPaint(hwnd,&ps);
         }
       }
+    break;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
     break;
   }
 
@@ -3742,6 +3752,10 @@ popupMenu:
       }
 
     return 0;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
+    break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
 }
@@ -5211,6 +5225,10 @@ forceMouseMove:
         return row ? 0 : LB_ERR;
       }
     return LB_ERR;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
+    break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
 }
@@ -5725,6 +5743,10 @@ forceMouseMove:
       hwnd->m_private_data = 0;
       delete tvs;
     break;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
+    break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
 }
@@ -5907,6 +5929,10 @@ static LRESULT tabControlWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
         }
       }
       return 0;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
+    break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
 }
