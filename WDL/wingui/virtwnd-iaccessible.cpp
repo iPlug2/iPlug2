@@ -329,7 +329,10 @@ public:
       if (p && *p && txt && *txt)
       {
         char buf[1024];
-        snprintf(buf,sizeof(buf),"%.500s %.500s",p,txt);
+        if (!strcmp(ctltype,"vwnd_iconbutton"))
+          snprintf(buf,sizeof(buf),"%.500s %.500s",txt,p);
+        else
+          snprintf(buf,sizeof(buf),"%.500s %.500s",p,txt);
         *pszOut= SysAllocStringUTF8(buf);
         if (!*pszOut) return E_OUTOFMEMORY;
       }

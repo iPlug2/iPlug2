@@ -371,7 +371,10 @@ public:
       const char *p = m_br->vwnd->GetAccessDesc();
       if (p && *p)
       {
-        sprintf(buf,"%.512s: %.512s",p,str);
+        if (!strcmp(type,"vwnd_iconbutton"))
+          snprintf(buf,sizeof(buf),"%.512s: %.512s",str,p);
+        else
+          snprintf(buf,sizeof(buf),"%.512s: %.512s",p,str);
         str=buf;
       }
     }
