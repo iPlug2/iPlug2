@@ -3847,8 +3847,10 @@ struct listViewState
 
     m_color_bg = g_swell_ctheme.listview_bg;
     m_color_bg_sel = g_swell_ctheme.listview_bg_sel;
+    m_color_bg_sel_inactive = g_swell_ctheme.listview_bg_sel_inactive;
     m_color_text = g_swell_ctheme.listview_text;
     m_color_text_sel = g_swell_ctheme.listview_text_sel;
+    m_color_text_sel_inactive = g_swell_ctheme.listview_text_sel_inactive;
     m_color_grid = g_swell_ctheme.listview_grid;
     memset(m_color_extras,0xff,sizeof(m_color_extras)); // if !=-1, overrides bg/fg for (focus?0:2)
   } 
@@ -3902,7 +3904,7 @@ struct listViewState
   int m_scroll_x,m_scroll_y, m_capmode_data1,m_capmode_data2;
   int m_extended_style;
 
-  int m_color_bg, m_color_bg_sel, m_color_text, m_color_text_sel, m_color_grid;
+  int m_color_bg, m_color_bg_sel, m_color_bg_sel_inactive, m_color_text, m_color_text_sel, m_color_text_sel_inactive, m_color_grid;
   int m_color_extras[4];
 
   int getTotalWidth() const
@@ -4731,7 +4733,7 @@ forceMouseMove:
           DeleteObject(bgbr);
           const bool focused = GetFocus() == hwnd;
           const int bgsel = lvs->m_color_extras[focused ? 0 : 2 ];
-          bgbr=CreateSolidBrush(bgsel == -1 ? lvs->m_color_bg_sel : bgsel);
+          bgbr=CreateSolidBrush(bgsel == -1 ? focused ? lvs->m_color_bg_sel : lvs->m_color_bg_sel_inactive : bgsel);
           if (lvs) 
           {
             TEXTMETRIC tm; 
@@ -4797,7 +4799,7 @@ forceMouseMove:
               if (sel)
               {
                 int c = lvs->m_color_extras[focused ? 1 : 3 ];
-                text_c = c == -1 ? lvs->m_color_text_sel : c;
+                text_c = c == -1 ? focused ? lvs->m_color_text_sel : lvs->m_color_text_sel_inactive : c;
               }
               else
                 text_c = lvs->m_color_text;
@@ -5371,7 +5373,7 @@ next_item_in_parent:
     return 0;
   }
 
-  void doDrawItem(HTREEITEM item, HDC hdc, RECT *rect) // draws any subitems too, updates rect->top
+  void doDrawItem(HTREEITEM item, HDC hdc, RECT *rect, bool focus) // draws any subitems too, updates rect->top
   {
 #ifdef SWELL_LICE_GDI
     if (!item) return;
@@ -5386,9 +5388,9 @@ next_item_in_parent:
         if (item == m_sel) 
         {
           SetBkMode(hdc,OPAQUE);
-          SetBkColor(hdc,g_swell_ctheme.treeview_bg_sel);
+          SetBkColor(hdc,focus ? g_swell_ctheme.treeview_bg_sel : g_swell_ctheme.treeview_bg_sel_inactive);
           oc = GetTextColor(hdc);
-          SetTextColor(hdc,g_swell_ctheme.treeview_text_sel);
+          SetTextColor(hdc,focus ? g_swell_ctheme.treeview_text_sel : g_swell_ctheme.treeview_text_sel_inactive);
         }
        
         RECT dr = *rect;
@@ -5432,7 +5434,7 @@ next_item_in_parent:
       rect->left += m_last_row_height;
       for (int x=0;x<n && rect->top < rect->bottom;x++)
       {
-        doDrawItem(item->m_children.Get(x),hdc,rect);
+        doDrawItem(item->m_children.Get(x),hdc,rect,focus);
       }
       rect->left -= m_last_row_height;
     } 
@@ -5723,7 +5725,7 @@ forceMouseMove:
             HGDIOBJ oldbr = SelectObject(ps.hdc,br);
 
             r.left -= tvs->m_last_row_height;
-            tvs->doDrawItem(&tvs->m_root,ps.hdc,&r);
+            tvs->doDrawItem(&tvs->m_root,ps.hdc,&r, GetFocus()==hwnd);
 
             SelectObject(ps.hdc,oldbr);
             SelectObject(ps.hdc,oldpen);
