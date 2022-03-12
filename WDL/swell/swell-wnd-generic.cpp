@@ -490,6 +490,7 @@ void SetForegroundWindow(HWND hwnd)
 {
   if (WDL_NOT_NORMALLY(!hwnd)) return;
 
+  HWND oldFoc = GetFocus();
   // if a child window has focus, preserve that focus
   while (hwnd->m_parent && !hwnd->m_oswindow)
   {
@@ -497,13 +498,29 @@ void SetForegroundWindow(HWND hwnd)
     hwnd = hwnd->m_parent;
   }
   if (hwnd) swell_oswindow_focus(hwnd);
+  HWND foc = GetFocus();
+  if (foc && foc != oldFoc)
+    SendMessage(foc,WM_SETFOCUS,(WPARAM)oldFoc,0);
 }
 
 void SetFocus(HWND hwnd)
 {
   if (!hwnd) return; // windows allows SetFocus(NULL) to defocus, but we do not support that yet
+  HWND oldFoc = GetFocus();
+  if (oldFoc && oldFoc != hwnd)
+    SendMessage(oldFoc,WM_KILLFOCUS,(WPARAM)hwnd,0);
   hwnd->m_focused_child=NULL; // make sure this window has focus, not a child
-  SetForegroundWindow(hwnd);
+
+  HWND p = hwnd;
+  while (p->m_parent && !p->m_oswindow)
+  {
+    p->m_parent->m_focused_child = p;
+    p = p->m_parent;
+  }
+  if (p) swell_oswindow_focus(p);
+
+  if (hwnd != oldFoc)
+    SendMessage(hwnd,WM_SETFOCUS,(WPARAM)oldFoc,0);
 }
 
 void SWELL_OnNavigationFocus(HWND ch)
