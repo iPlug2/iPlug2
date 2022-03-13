@@ -96,10 +96,19 @@ public:
   : ISender<MAXNC, QUEUE_SIZE, float>()
   , mThreshold(static_cast<float>(DBToAmp(minThresholdDb)))
   {
+    Reset(DEFAULT_SAMPLE_RATE);
+  }
+  
+  
+  void Reset(double sampleRate)
+  {
+    SetWindowSizeMs(mWindowSizeMs, sampleRate);
+    std::fill(mPeaks.begin(), mPeaks.end(), 0.0f);
   }
   
   void SetWindowSizeMs(double timeMs, double sampleRate)
   {
+    mWindowSizeMs = timeMs;
     mWindowSize = static_cast<int>(timeMs * 0.001 * sampleRate);
   }
   
@@ -139,6 +148,7 @@ public:
 private:
   float mPreviousSum = 1.f;
   float mThreshold = 0.01f;
+  float mWindowSizeMs = 5.0f;
   int mWindowSize = 32;
   int mCount = 0;
   std::array<float, MAXNC> mPeaks = {0.0};
@@ -211,13 +221,13 @@ public:
   void SetAttackTimeMs(double timeMs, double sampleRate)
   {
     mAttackTimeMs = timeMs;
-    mAttackTimeSamples = timeMs * 0.001 * (sampleRate / mWindowSize);
+    mAttackTimeSamples = static_cast<int>(timeMs * 0.001 * (sampleRate / mWindowSize));
   }
   
   void SetDecayTimeMs(double timeMs, double sampleRate)
   {
     mDecayTimeMs = timeMs;
-    mDecayTimeSamples = timeMs * 0.001 * (sampleRate / mWindowSize);
+    mDecayTimeSamples = static_cast<int>(timeMs * 0.001 * (sampleRate / mWindowSize));
   }
   
   void SetWindowSizeMs(double timeMs, double sampleRate)
@@ -235,7 +245,7 @@ public:
   void SetPeakHoldTimeMs(double timeMs, double sampleRate)
   {
     mPeakHoldTimeMs = timeMs;
-    mPeakHoldTime = timeMs * 0.001 * sampleRate;
+    mPeakHoldTime = static_cast<int>(timeMs * 0.001 * sampleRate);
     std::fill(mPeakHoldCounters.begin(), mPeakHoldCounters.end(), mPeakHoldTime);
   }
   
