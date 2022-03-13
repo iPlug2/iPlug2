@@ -26,6 +26,7 @@ enum EControlTags
   kCtrlTagScope,
   kCtrlTagDisplay,
   kCtrlTagMeter,
+  kCtrlTagPeakAvgMeter,
   kCtrlTagRTText,
   kCtrlTagRedLED,
   kCtrlTagGreenLED,
@@ -60,5 +61,6 @@ private:
   IPeakSender<2> mMeterSender;
   ISender<1> mRTTextSender;
   ISenderData<1> mLastOutputData = { kCtrlTagRTText, 1, 0 };
+  IPeakAvgSender<2> mPeakAvgMeterSender { -90.0, 10.0f, true, 5.0f, 100.0f, 1000.0f };
 #endif
 };

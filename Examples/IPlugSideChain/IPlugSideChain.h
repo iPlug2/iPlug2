@@ -43,8 +43,8 @@ public:
   bool mOutputChansConnected[2] = {};
   bool mSendUpdate = false;
   
-  IPeakSender<4> mInputPeakSender;
-  IPeakSender<2> mOutputPeakSender;
+  IPeakAvgSender<4> mInputPeakSender;
+  IPeakAvgSender<2> mOutputPeakSender;
   IVMeterControl<4>* mInputMeter = nullptr;
   IVMeterControl<2>* mOutputMeter = nullptr;
 };
