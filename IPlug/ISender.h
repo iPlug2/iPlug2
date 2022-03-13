@@ -158,7 +158,7 @@ private:
  * It also features an envelope follower to control meter ballistics
  */
 template <int MAXNC = 1, int QUEUE_SIZE = 64>
-class v : public ISender<MAXNC, QUEUE_SIZE, std::pair<float, float>>
+class IPeakAvgSender : public ISender<MAXNC, QUEUE_SIZE, std::pair<float, float>>
 {
 public:
   class EnvelopeFollower
