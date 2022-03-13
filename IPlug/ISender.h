@@ -187,29 +187,42 @@ public:
     float mPreviousOutput = 0.0f;
   };
   
-  IPeakAvgSender(double minThresholdDb = -90.0, float windowSizeMs = 5.0f, bool rmsMode = false, float attackTimeMs = 5.0f, float decayTimeMs = 100.0f, float peakHoldTime = 1000.0f)
+  IPeakAvgSender(double minThresholdDb = -90.0, bool rmsMode = false, float windowSizeMs = 5.0f, float attackTimeMs = 5.0f, float decayTimeMs = 100.0f, float peakHoldTimeMs = 1000.0f)
   : ISender<MAXNC, QUEUE_SIZE, std::pair<float, float>>()
-  , mRMSMode(rmsMode)
   , mThreshold(static_cast<float>(DBToAmp(minThresholdDb)))
+  , mRMSMode(rmsMode)
+  , mWindowSizeMs(windowSizeMs)
+  , mAttackTimeMs(attackTimeMs)
+  , mDecayTimeMs(decayTimeMs)
+  , mPeakHoldTimeMs(peakHoldTimeMs)
   {
-    SetWindowSizeMs(windowSizeMs, DEFAULT_SAMPLE_RATE);
-    SetAttackTimeMs(attackTimeMs, DEFAULT_SAMPLE_RATE);
-    SetDecayTimeMs(decayTimeMs, DEFAULT_SAMPLE_RATE);
-    SetPeakHoldTimeMs(peakHoldTime, DEFAULT_SAMPLE_RATE);
+    Reset(DEFAULT_SAMPLE_RATE);
+  }
+  
+  void Reset(double sampleRate)
+  {
+    SetWindowSizeMs(mWindowSizeMs, sampleRate);
+    SetAttackTimeMs(mAttackTimeMs, sampleRate);
+    SetDecayTimeMs(mDecayTimeMs, sampleRate);
+    SetPeakHoldTimeMs(mPeakHoldTimeMs, sampleRate);
+    std::fill(mHeldPeaks.begin(), mHeldPeaks.end(), 0.0f);
   }
   
   void SetAttackTimeMs(double timeMs, double sampleRate)
   {
+    mAttackTimeMs = timeMs;
     mAttackTimeSamples = timeMs * 0.001 * (sampleRate / mWindowSize);
   }
   
   void SetDecayTimeMs(double timeMs, double sampleRate)
   {
+    mDecayTimeMs = timeMs;
     mDecayTimeSamples = timeMs * 0.001 * (sampleRate / mWindowSize);
   }
   
   void SetWindowSizeMs(double timeMs, double sampleRate)
   {
+    mWindowSizeMs = timeMs;
     mWindowSize = static_cast<int>(timeMs * 0.001 * sampleRate);
 
     for (auto i=0; i<MAXNC; i++)
@@ -221,6 +234,7 @@ public:
   
   void SetPeakHoldTimeMs(double timeMs, double sampleRate)
   {
+    mPeakHoldTimeMs = timeMs;
     mPeakHoldTime = timeMs * 0.001 * sampleRate;
     std::fill(mPeakHoldCounters.begin(), mPeakHoldCounters.end(), mPeakHoldTime);
   }
@@ -344,12 +358,16 @@ public:
     }
   }
 private:
+  float mThreshold = 0.01f;
   bool mRMSMode = false;
   float mPreviousSum = 1.0f;
-  float mThreshold = 0.01f;
   int mWindowSize = 32;
   int mPeakHoldTime = 1 << 16;
   int mCount = 0;
+  float mWindowSizeMs = 5.f;
+  float mAttackTimeMs = 5.f;
+  float mDecayTimeMs = 100.f;
+  float mPeakHoldTimeMs = 100.f;
   float mAttackTimeSamples = 1.0f;
   float mDecayTimeSamples = DEFAULT_SAMPLE_RATE/10.0f;
   std::array<float, MAXNC> mHeldPeaks = {0};

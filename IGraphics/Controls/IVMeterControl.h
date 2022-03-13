@@ -64,6 +64,11 @@ public:
       g.DrawRect(GetColor(kFR), mWidgetBounds, &mBlend, mStyle.frameThickness);
   }
   
+  void DrawPeak(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue) override
+  {
+    g.FillRect(IVTrackControlBase::GetColor(kX1), r, &mBlend);
+  }
+  
   void DrawMarkers(IGraphics& g)
   {
     auto lowPointAbs = std::fabs(mLowRangeDB);
