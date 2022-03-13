@@ -139,7 +139,7 @@ public:
   virtual void OnTouchCancelled(float x, float y, const IMouseMod& mod) {}
 
   /** Implement to do something when something was drag 'n dropped onto this control */
-  virtual void OnDrop(const char* str) {};
+  virtual void OnDrop(const char* str, float x, float y) {};
 
   /** Implement to do something when graphics is scaled globally (e.g. moves to different DPI screen) */
   virtual void OnRescale() {}

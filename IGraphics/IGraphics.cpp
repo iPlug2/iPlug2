@@ -1198,7 +1198,7 @@ bool IGraphics::OnKeyUp(float x, float y, const IKeyPress& key)
 void IGraphics::OnDrop(const char* str, float x, float y)
 {
   IControl* pControl = GetMouseControl(x, y, false);
-  if (pControl) pControl->OnDrop(str);
+  if (pControl) pControl->OnDrop(str, x, y);
 }
 
 void IGraphics::ReleaseMouseCapture()
