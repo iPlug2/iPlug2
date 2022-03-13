@@ -107,12 +107,12 @@ public:
 
       if (mResponse == EResponse::Log)
       {
-        double lowPointAbs = std::fabs(mLowRangeDB);
-        double rangeDB = std::fabs(mHighRangeDB - mLowRangeDB);
+        auto lowPointAbs = std::fabs(mLowRangeDB);
+        auto rangeDB = std::fabs(mHighRangeDB - mLowRangeDB);
         for (auto c = d.chanOffset; c < (d.chanOffset + d.nChans); c++)
         {
-          double ampValue = AmpToDB(static_cast<double>(d.vals[c]));
-          double linearPos = (ampValue + lowPointAbs)/rangeDB;
+          auto ampValue = AmpToDB(static_cast<double>(d.vals[c]));
+          auto linearPos = (ampValue + lowPointAbs)/rangeDB;
           SetValue(Clip(linearPos, 0., 1.), c);
         }
       }

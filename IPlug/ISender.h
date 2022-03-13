@@ -187,7 +187,7 @@ public:
     float mPreviousOutput = 0.0f;
   };
   
-  IPeakAvgSender(double minThresholdDb = -90.0, float windowSizeMs = 5.0f, bool rmsMode = false, float attackTimeMs = 5.0f, float decayTimeMs = 200.0f, float peakHoldTime = 1000.0f)
+  IPeakAvgSender(double minThresholdDb = -90.0, float windowSizeMs = 5.0f, bool rmsMode = false, float attackTimeMs = 5.0f, float decayTimeMs = 100.0f, float peakHoldTime = 1000.0f)
   : ISender<MAXNC, QUEUE_SIZE, std::pair<float, float>>()
   , mRMSMode(rmsMode)
   , mThreshold(static_cast<float>(DBToAmp(minThresholdDb)))
