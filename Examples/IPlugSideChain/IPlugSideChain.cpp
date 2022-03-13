@@ -53,6 +53,12 @@ void IPlugSideChain::OnIdle()
   }
 }
 
+void IPlugSideChain::OnReset()
+{
+  mInputPeakSender.Reset(GetSampleRate());
+  mOutputPeakSender.Reset(GetSampleRate());
+}
+
 void IPlugSideChain::GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const
 {
   if (direction == ERoute::kInput)

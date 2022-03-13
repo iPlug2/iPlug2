@@ -36,7 +36,7 @@ public:
   void OnIdle() override;
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void OnActivate(bool enable) override;
-  
+  void OnReset() override;
   void GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const override;
 
   bool mInputChansConnected[4] = {};

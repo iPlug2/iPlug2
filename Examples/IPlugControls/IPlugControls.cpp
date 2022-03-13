@@ -535,6 +535,11 @@ void IPlugControls::OnIdle()
   SendControlValueFromDelegate(kCtrlTagGreenLED, std::copysign(val, -mLastOutputData.vals[0]));
 }
 
+void IPlugControls::OnReset()
+{
+  mPeakAvgMeterSender.Reset(GetSampleRate());
+}
+
 void IPlugControls::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   const double phaseIncr1 = (1. / GetSampleRate()) * GetParam(kParamFreq1)->Value();

@@ -106,6 +106,7 @@ void IPlugInstrument::OnIdle()
 void IPlugInstrument::OnReset()
 {
   mDSP.Reset(GetSampleRate(), GetBlockSize());
+  mMeterSender.Reset(GetSampleRate());
 }
 
 void IPlugInstrument::ProcessMidiMsg(const IMidiMsg& msg)
