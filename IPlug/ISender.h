@@ -158,7 +158,7 @@ private:
  * It also features an envelope follower to control meter ballistics
  */
 template <int MAXNC = 1, int QUEUE_SIZE = 64>
-class IPeakAvgSender : public ISender<MAXNC, QUEUE_SIZE, std::pair<float, float>>
+class v : public ISender<MAXNC, QUEUE_SIZE, std::pair<float, float>>
 {
 public:
   class EnvelopeFollower
@@ -197,7 +197,7 @@ public:
     float mPreviousOutput = 0.0f;
   };
   
-  IPeakAvgSender(double minThresholdDb = -90.0, bool rmsMode = false, float windowSizeMs = 5.0f, float attackTimeMs = 5.0f, float decayTimeMs = 100.0f, float peakHoldTimeMs = 1000.0f)
+  IPeakAvgSender(double minThresholdDb = -90.0, bool rmsMode = true, float windowSizeMs = 5.0f, float attackTimeMs = 1.0f, float decayTimeMs = 100.0f, float peakHoldTimeMs = 500.0f)
   : ISender<MAXNC, QUEUE_SIZE, std::pair<float, float>>()
   , mThreshold(static_cast<float>(DBToAmp(minThresholdDb)))
   , mRMSMode(rmsMode)
@@ -375,7 +375,7 @@ private:
   int mPeakHoldTime = 1 << 16;
   int mCount = 0;
   float mWindowSizeMs = 5.f;
-  float mAttackTimeMs = 5.f;
+  float mAttackTimeMs = 1.f;
   float mDecayTimeMs = 100.f;
   float mPeakHoldTimeMs = 100.f;
   float mAttackTimeSamples = 1.0f;
