@@ -51,7 +51,7 @@ public:
       SetBitmap(file.Get());
   }
 
-  void OnDrop(const char* str, float x, float y) override
+  void OnDrop(const char* str) override
   {
     SetBitmap(str);
   }

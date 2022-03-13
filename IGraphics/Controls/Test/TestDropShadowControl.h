@@ -48,7 +48,7 @@ public:
     g.DrawLayer(mLayer);
   }
 
-  void OnDrop(const char* str, float x, float y) override
+  void OnDrop(const char* str) override
   {
     SetSVG(GetUI()->LoadSVG(str));
     SetDirty(false);
