@@ -158,6 +158,10 @@ struct WDL_FileBrowse_Dis {
 };
 #endif
 
+#ifdef _WIN32
+bool wdl_use_legacy_filebrowse;
+#endif
+
 bool WDL_ChooseFileForSave(HWND parent, 
                                       const char *text, 
                                       const char *initialdir, 
@@ -189,6 +193,7 @@ bool WDL_ChooseFileForSave(HWND parent,
   WDL_fixfnforopenfn(temp);
 
 #ifdef WDL_FILEBROWSE_WIN7VISTAMODE
+  if (!wdl_use_legacy_filebrowse)
   {
     Win7FileDialog fd(text, 1);
     if(fd.inited())
@@ -319,7 +324,7 @@ char *WDL_ChooseFileForOpen2(HWND parent,
   WDL_FileBrowse_Dis win32disfix(parent);
 
 #ifdef WDL_FILEBROWSE_WIN7VISTAMODE
-  if (allowmul!=1)
+  if (!wdl_use_legacy_filebrowse && allowmul!=1)
   {
     Win7FileDialog fd(text);
     if(fd.inited())
