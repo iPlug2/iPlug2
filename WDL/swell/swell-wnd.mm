@@ -1905,6 +1905,15 @@ void EnableWindow(HWND hwnd, int enable)
     
   if (bla && [bla respondsToSelector:@selector(setEnabled:)])
   {
+    if (!enable)
+    {
+      HWND foc = GetFocus();
+      if (foc && (foc==hwnd || IsChild(hwnd,foc)))
+      {
+        HWND par = GetParent(hwnd);
+        if (par) SetFocus(par);
+      }
+    }
     if (enable == -1000 && [bla respondsToSelector:@selector(setEnabledSwellNoFocus)])
       [(SWELL_hwndChild *)bla setEnabledSwellNoFocus];
     else
