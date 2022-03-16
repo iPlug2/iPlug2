@@ -1,7 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-# Python shell script for Duplicating WDL-OL IPlug Projects
-# Oli Larkin 2012-2019 http://www.olilarkin.co.uk
+# Python shell script for Duplicating iPlug2 Projects
+# Oli Larkin 2012-2022 http://www.olilarkin.co.uk
 # License: WTFPL http://sam.zoy.org/wtfpl/COPYING
 # Modified from this script by Bibha Tripathi http://code.activestate.com/recipes/435904-sedawk-python-script-to-rename-subdirectories-of-a/
 # Author accepts no responsibilty for wiping your hd

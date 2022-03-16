@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # this script will create/update info plist files based on config.h
 
@@ -21,20 +21,20 @@ from parse_config import parse_config, parse_xcconfig
 def main():
   if(len(sys.argv) == 2):
      if(sys.argv[1] == "app"):
-       print "Copying resources ..."
+       print("Copying resources ...")
      
        dst = os.environ["TARGET_BUILD_DIR"] + "/" + os.environ["UNLOCALIZED_RESOURCES_FOLDER_PATH"]
           
        if os.path.exists(projectpath + "/resources/img/"):
          imgs = os.listdir(projectpath + "/resources/img/")
          for img in imgs:
-           print "copying " + img + " to " + dst
+           print("copying " + img + " to " + dst)
            shutil.copy(projectpath + "/resources/img/" + img, dst)
      
        if os.path.exists(projectpath + "/resources/fonts/"):
          fonts = os.listdir(projectpath + "/resources/fonts/")
          for font in fonts:
-           print "copying " + font + " to " + dst
+           print("copying " + font + " to " + dst)
            shutil.copy(projectpath + "/resources/fonts/" + font, dst)
            
   config = parse_config(projectpath)
@@ -46,7 +46,7 @@ def main():
   CSResourcesFileMapped = True
   LSMinimumSystemVersion = xcconfig['DEPLOYMENT_TARGET']
 
-  print "Processing Info.plist files..."
+  print("Processing Info.plist files...")
 
 # AUDIOUNIT v3
 
@@ -71,7 +71,8 @@ def main():
     NSExtensionAttributes = dict(AudioComponents = [{}]),
     NSExtensionPointIdentifier = NSEXTENSIONPOINTIDENTIFIER
   )
-  auv3 = plistlib.readPlist(plistpath)
+  with open(plistpath, 'rb') as fp:
+    auv3 = plistlib.load(fp)
   auv3['CFBundleExecutable'] = config['BUNDLE_NAME'] + "AppExtension"
   auv3['CFBundleIdentifier'] = "$(PRODUCT_BUNDLE_IDENTIFIER)"
   auv3['CFBundleName'] = config['BUNDLE_NAME'] + "AppExtension"
@@ -102,12 +103,13 @@ def main():
   else:
     auv3['NSExtension']['NSExtensionPrincipalClass'] = "IPlugAUViewController_vIPlugSurroundEffect"
 
-  plistlib.writePlist(auv3, plistpath)
-
+  with open(plistpath, 'wb') as fp:
+    plistlib.dump(auv3, fp)
 # Standalone APP
 
   plistpath = projectpath + "/resources/" + config['BUNDLE_NAME'] + "-iOS-Info.plist"
-  iOSapp = plistlib.readPlist(plistpath)
+  with open(plistpath, 'rb') as fp:
+    iOSapp = plistlib.load(fp)
   iOSapp['CFBundleExecutable'] = config['BUNDLE_NAME']
   iOSapp['CFBundleIdentifier'] = "$(PRODUCT_BUNDLE_IDENTIFIER)"
   iOSapp['CFBundleName'] = config['BUNDLE_NAME']
@@ -116,7 +118,7 @@ def main():
   iOSapp['CFBundlePackageType'] = "APPL"
   iOSapp['LSApplicationCategoryType'] = "public.app-category.music"
 
-  plistlib.writePlist(iOSapp, plistpath)
-
+  with open(plistpath, 'wb') as fp:
+    plistlib.dump(iOSapp, fp)
 if __name__ == '__main__':
   main()
