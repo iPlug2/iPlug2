@@ -30,7 +30,7 @@ def main():
   CSResourcesFileMapped = True
   LSMinimumSystemVersion = xcconfig['DEPLOYMENT_TARGET']
 
-  print "Copying resources ..."
+  print("Copying resources ...")
 
   if config['PLUG_SHARED_RESOURCES']:
     dst = os.path.expanduser("~") + "/Music/" + config['BUNDLE_NAME'] + "/Resources"
@@ -38,21 +38,21 @@ def main():
     dst = os.environ["TARGET_BUILD_DIR"] + os.environ["UNLOCALIZED_RESOURCES_FOLDER_PATH"]
 
   if os.path.exists(dst) == False:
-    os.makedirs(dst + "/", 0755 )
+    os.makedirs(dst + "/", 0o755 )
 
   if os.path.exists(projectpath + "/resources/img/"):
     imgs = os.listdir(projectpath + "/resources/img/")
     for img in imgs:
-      print "copying " + img + " to " + dst
+      print("copying " + img + " to " + dst)
       shutil.copy(projectpath + "/resources/img/" + img, dst)
 
   if os.path.exists(projectpath + "/resources/fonts/"):
     fonts = os.listdir(projectpath + "/resources/fonts/")
     for font in fonts:
-      print "copying " + font + " to " + dst
+      print("copying " + font + " to " + dst)
       shutil.copy(projectpath + "/resources/fonts/" + font, dst)
 
-  print "Processing Info.plist files..."
+  print("Processing Info.plist files...")
 
 # VST3
 
