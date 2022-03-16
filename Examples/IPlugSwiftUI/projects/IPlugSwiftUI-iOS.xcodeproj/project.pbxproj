@@ -658,7 +658,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-ios.py app\n";
+			shellScript = "python3 ../scripts/prepare_resources-ios.py app\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

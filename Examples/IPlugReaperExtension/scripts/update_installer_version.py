@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # this script will update the versions in packages and innosetup installer files to match that in config.h
 
@@ -50,10 +50,11 @@ def main():
 
 # MAC INSTALLER
 
-  print "Updating Mac Installer version info..."
+  print("Updating Mac Installer version info...")
   
   plistpath = projectpath + "/installer/" + BUNDLE_NAME + ".pkgproj"
-  installer = plistlib.readPlist(plistpath)
+  with open(plistpath, 'rb') as fp:
+    installer = plistlib.load(fp)
   
   # range  = number of items in the installer (VST 2, VST 3, app, audiounit, aax)
   for x in range(0,5):
@@ -66,11 +67,12 @@ def main():
     installer['PROJECT']['PROJECT_PRESENTATION']['TITLE']['LOCALIZATIONS'][0]['VALUE'] = BUNDLE_NAME
     installer['PROJECT']['PROJECT_PRESENTATION']['INTRODUCTION']['LOCALIZATIONS'][0]['VALUE']['PATH'] = "intro.rtf"
 
-  plistlib.writePlist(installer, plistpath)
-#   replacestrs(plistpath, "//Apple//", "//Apple Computer//");
+  with open(plistpath, 'wb') as fp:
+    plistlib.dump(installer, fp)
+#   replacestrs(plistpath, "//Apple//", "//Apple Computer//")
   
 # WIN INSTALLER
-  print "Updating Windows Installer version info..."
+  print("Updating Windows Installer version info...")
   
   for line in fileinput.input(projectpath + "/installer/" + BUNDLE_NAME + ".iss",inplace=1):
     if "AppVersion" in line:
