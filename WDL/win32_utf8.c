@@ -1173,7 +1173,7 @@ static LRESULT WINAPI cb_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
       MBTOWIDE_FREE(wbuf);
     }
   }
-  else if ((msg == CB_GETLBTEXT || msg == LB_GETTEXT) && lParam)
+  else if ((msg == CB_GETLBTEXT || msg == LB_GETTEXTUTF8) && lParam)
   {
     WNDPROC oldprocW = (WNDPROC)GetProp(hwnd,WDL_UTF8_OLDPROCPROP "W");
     LRESULT l = CallWindowProcW(oldprocW ? oldprocW : oldproc,hwnd,msg == CB_GETLBTEXT ? CB_GETLBTEXTLEN : LB_GETTEXTLEN,wParam,0);
@@ -1183,7 +1183,7 @@ static LRESULT WINAPI cb_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
       WIDETOMB_ALLOC(tmp,l+1);
       if (tmp)
       {
-        LRESULT rv=CallWindowProcW(oldprocW ? oldprocW : oldproc,hwnd,msg,wParam,(LPARAM)tmp);
+        LRESULT rv=CallWindowProcW(oldprocW ? oldprocW : oldproc,hwnd,msg & ~0x8000,wParam,(LPARAM)tmp);
         if (rv>=0)
         {
           *(char *)lParam=0;
@@ -1196,10 +1196,10 @@ static LRESULT WINAPI cb_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
       }
     }
   }
-  else if (msg == CB_GETLBTEXTLEN || msg == LB_GETTEXTLEN)
+  else if (msg == CB_GETLBTEXTLEN || msg == LB_GETTEXTLENUTF8)
   {
     WNDPROC oldprocW = (WNDPROC)GetProp(hwnd,WDL_UTF8_OLDPROCPROP "W");
-    return CallWindowProcW(oldprocW ? oldprocW : oldproc,hwnd,msg,wParam,lParam) * 4 + 32; // make sure caller allocates a lot extra
+    return CallWindowProcW(oldprocW ? oldprocW : oldproc,hwnd,msg & ~0x8000,wParam,lParam) * 4 + 32; // make sure caller allocates a lot extra
   }
 
   return CallWindowProc(oldproc,hwnd,msg,wParam,lParam);
