@@ -153,7 +153,7 @@ def main():
                                AudioComponents = [{}]),
 #                               NSExtensionServiceRoleType = "NSExtensionServiceRoleTypeEditor",
   NSExtensionPointIdentifier = NSEXTENSIONPOINTIDENTIFIER,
-  NSExtensionPrincipalClass = "IPlugAUVIPlugAUViewController_vIPlugCocoaUIiewController"
+  NSExtensionPrincipalClass = "IPlugAUViewController_vIPlugCocoaUI"
                              )
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'] = [{}]
   auv3['NSExtension']['NSExtensionAttributes']['AudioComponents'][0]['description'] = config['PLUG_NAME']
