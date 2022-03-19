@@ -281,6 +281,12 @@ extern "C" {
     }
   }
 
+  static WDL_STATICFUNC_UNUSED int logical_char_order(int ch, int case_sensitive)
+  {
+    if (!case_sensitive && ch >= 'a' && ch <= 'z') return 'A'-'a';
+    return ch;
+  }
+
   _WDL_CSTRING_PREFIX int WDL_strcmp_logical(const char *s1, const char *s2, int case_sensitive)
   {
     // also exists as WDL_LogicalSortStringKeyedArray::_cmpstr()
@@ -309,13 +315,11 @@ extern "C" {
       }
       else
       {
-        char c1 = *s1++, c2 = *s2++;
+        int c1 = *s1++, c2 = *s2++;
         if (c1 != c2)
         {
-          if (case_sensitive) return c1-c2;
-
-          if (c1>='a' && c1<='z') c1+='A'-'a';
-          if (c2>='a' && c2<='z') c2+='A'-'a';
+          c1 = logical_char_order(c1, case_sensitive);
+          c2 = logical_char_order(c2, case_sensitive);
           if (c1 != c2) return c1-c2;
         }
         else if (!c1) return 0;
