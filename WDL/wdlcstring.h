@@ -283,7 +283,11 @@ extern "C" {
 
   static WDL_STATICFUNC_UNUSED int logical_char_order(int ch, int case_sensitive)
   {
-    if (!case_sensitive && ch >= 'a' && ch <= 'z') return 'A'-'a';
+    // _-<>etc, numbers, utf-8 chars, alpha chars
+    if (ch<0) return ch + 384; // utf-8 maps to 256..383
+    if (ch >= '0' && ch <= '9') return ch + 128; // numbers map to 128+'0' etc
+    if (ch >= 'A' && ch <= 'Z') return ch + 384; // alpha goes to 384+'A' or 384+'a' if not ignoring case
+    if (ch >= 'a' && ch <= 'z') return case_sensitive ? (ch + 384) : (ch + 'A' - 'a' + 384);
     return ch;
   }
 
