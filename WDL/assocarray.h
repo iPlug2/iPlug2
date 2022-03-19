@@ -3,6 +3,7 @@
 
 #include "heapbuf.h"
 #include "mergesort.h"
+#include "wdlcstring.h"
 
 // on all of these, if valdispose is set, the array will dispose of values as needed.
 // if keydup/keydispose are set, copies of (any) key data will be made/destroyed as necessary
@@ -422,44 +423,7 @@ private:
 
   static int _cmpstr(const char *s1, const char *s2, bool case_sensitive)
   {
-    // this also exists as WDL_strcmp_logical in wdlcstring.h
-
-    for (;;)
-    {
-      if (*s1 >= '0' && *s1 <= '9' && *s2 >= '0' && *s2 <= '9')
-      {
-        int lzdiff=0, len1=0, len2=0;
-
-        while (*s1 == '0') { s1++; lzdiff--; }
-        while (*s2 == '0') { s2++; lzdiff++; }
-
-        while (s1[len1] >= '0' && s1[len1] <= '9') len1++;
-        while (s2[len2] >= '0' && s2[len2] <= '9') len2++;
-
-        if (len1 != len2) return len1-len2;
-
-        while (len1--)
-        {
-          const int d = *s1++ - *s2++;
-          if (d) return d;
-        }
-
-        if (lzdiff) return lzdiff;
-      }
-      else
-      {
-        char c1 = *s1++, c2 = *s2++;
-        if (c1 != c2)
-        {
-          if (case_sensitive) return c1-c2;
-
-          if (c1>='a' && c1<='z') c1+='A'-'a';
-          if (c2>='a' && c2<='z') c2+='A'-'a';
-          if (c1 != c2) return c1-c2;
-        }
-        else if (!c1) return 0;
-      }
-    }
+    return WDL_strcmp_logical(s1,s2,case_sensitive);
   }
 };
 
