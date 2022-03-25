@@ -17,6 +17,10 @@ uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, 
     case 2: APIBusTypes->Add(kAudioChannelLayoutTag_Stereo); break;
     case 6: APIBusTypes->Add(kAudioChannelLayoutTag_AudioUnit_5_1); break;
     case 8: APIBusTypes->Add(kAudioChannelLayoutTag_AudioUnit_7_1); break;
+#if defined (MAC_OS_VERSION_11_0)
+    case 10: APIBusTypes->Add(kAudioChannelLayoutTag_Atmos_7_1_2); break;
+    case 12: APIBusTypes->Add(kAudioChannelLayoutTag_Atmos_7_1_4); break;
+#endif
     default: APIBusTypes->Add(kAudioChannelLayoutTag_DiscreteInOrder | numChans); break;
   }
   return 0;
@@ -28,6 +32,8 @@ uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, 
     case 2: return Steinberg::Vst::SpeakerArr::kStereo;
     case 6: return Steinberg::Vst::SpeakerArr::k51;
     case 8: return Steinberg::Vst::SpeakerArr::k71CineSideFill;
+    case 10: return Steinberg::Vst::SpeakerArr::k71_2;
+    case 12: return Steinberg::Vst::SpeakerArr::k71_4;
     default: return Steinberg::Vst::SpeakerArr::kEmpty;
   }
 #elif defined AAX_API
@@ -38,6 +44,8 @@ uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, 
     case 2: return AAX_eStemFormat_Stereo;
     case 6: return AAX_eStemFormat_5_1;
     case 8: return AAX_eStemFormat_7_1_DTS;
+    case 10: return AAX_eStemFormat_7_1_2;
+    case 12: return AAX_eStemFormat_7_1_4;
     default: return AAX_eStemFormat_None;
   }
 #endif
@@ -61,8 +69,8 @@ IPlugSurroundEffect::IPlugSurroundEffect(const InstanceInfo& info)
     IRECT s = b.ReduceFromRight(50.f);
 
     const IVStyle meterStyle = DEFAULT_STYLE.WithColor(kFG, COLOR_WHITE.WithOpacity(0.3f));
-    pGraphics->AttachControl(new IVMeterControl<8>(b.FracRectVertical(0.5, true), "Inputs", meterStyle, EDirection::Vertical, {"1", "2", "3", "4", "5", "6", "7", "8"}), kCtrlTagInputMeter);
-    pGraphics->AttachControl(new IVMeterControl<8>(b.FracRectVertical(0.5, false), "Outputs", meterStyle, EDirection::Vertical, {"1", "2", "3", "4", "5", "6", "7", "8"}), kCtrlTagOutputMeter);
+    pGraphics->AttachControl(new IVPeakAvgMeterControl<12>(b.FracRectVertical(0.5, true), "Inputs", meterStyle, EDirection::Vertical, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}), kCtrlTagInputMeter);
+    pGraphics->AttachControl(new IVPeakAvgMeterControl<12>(b.FracRectVertical(0.5, false), "Outputs", meterStyle, EDirection::Vertical, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}), kCtrlTagOutputMeter);
     pGraphics->AttachControl(new IVSliderControl(s, kGain));
   };
 #endif
