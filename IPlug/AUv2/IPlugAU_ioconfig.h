@@ -66,6 +66,7 @@ static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int b
     case 12:
       // Atmos 7.1.4
       APIBusTypes->Add(kAudioChannelLayoutTag_Atmos_7_1_4);
+      break;
     case 9:
     case 16: // 2nd and 3rd order ambisonics
       APIBusTypes->Add(kAudioChannelLayoutTag_HOA_ACN_SN3D | numChans);
