@@ -109,7 +109,7 @@ private:
   
   /*void stateMarkDirty() const noexcept {
      if (canUseState())
-        _hostState->mark_dirty(_host);
+        _host.MarkDirty();
   }*/
   
   // clap_plugin_params
