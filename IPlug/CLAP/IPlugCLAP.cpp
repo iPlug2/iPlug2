@@ -175,7 +175,7 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
   // Do Audio Processing!
   
   // TODO - can we assume IO has the same format?
-  // TO - get the count from the right place...
+  // TODO - get the count from the right place...
   int nIns = process->audio_inputs->channel_count;
   int nOuts = process->audio_outputs->channel_count;
   int nFrames = process->frames_count;
