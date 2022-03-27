@@ -165,72 +165,7 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
   
   // Input Events
   
-  if (process->in_events)
-  {
-    auto in_events = process->in_events;
-
-    for (int i = 0; i < in_events->size(in_events); i++)
-    {
-      auto event = in_events->get(in_events, i);
-            
-      if (event->space_id != CLAP_CORE_EVENT_SPACE_ID)
-        continue;
-      
-      switch (event->type)
-      {
-        case CLAP_EVENT_NOTE_ON:
-        {
-          // N.B. velocity stored 0-1
-          // TODO - check velocity
-          auto note = ClapEventCast<clap_event_note>(event);
-          int velocity = std::round(note->velocity * 127.0);
-          msg.MakeNoteOnMsg(note->key, velocity, event->time, note->channel);
-          ProcessMidiMsg(msg);
-          mMidiMsgsFromProcessor.Push(msg);
-        }
-        
-        case CLAP_EVENT_NOTE_OFF:
-        {
-          auto note = ClapEventCast<clap_event_note>(event);
-          msg.MakeNoteOffMsg(note->key, event->time, note->channel);
-          ProcessMidiMsg(msg);
-          mMidiMsgsFromProcessor.Push(msg);
-        }
-          
-        case CLAP_EVENT_MIDI:
-        {
-          auto midi = ClapEventCast<clap_event_midi>(event);
-          msg = IMidiMsg(event->time, midi->data[0], midi->data[1], midi->data[2]);
-          ProcessMidiMsg(msg);
-          mMidiMsgsFromProcessor.Push(msg);
-        }
-        
-        case CLAP_EVENT_MIDI_SYSEX:
-        {
-          auto midiSysex = ClapEventCast<clap_event_midi_sysex>(event);
-
-          ISysEx sysEx(event->time, midiSysex->buffer, midiSysex->size);
-          ProcessSysEx(sysEx);
-          //mSysExDataFromProcessor.Push(sysEx);
-        }
-        
-        case CLAP_EVENT_PARAM_VALUE:
-        {
-          auto paramValue = ClapEventCast<clap_event_param_value>(event);
-
-          int paramIdx = paramValue->param_id;
-          double value = paramValue->value;
-          
-          GetParam(paramIdx)->Set(value);
-          SendParameterValueFromAPI(paramIdx, value, false);
-          OnParamChange(paramIdx, EParamSource::kHost, event->time);
-        }
-          
-        default:
-          break;
-      }
-    }
-  }
+  ProcessInputEvents(process->in_events);
   
   while (mMidiMsgsFromEditor.Pop(msg))
   {
@@ -274,26 +209,7 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
   
   // Send Parameter Changes
   
-  ParamToHost change;
-  
-  while (mParamInfoToHost.Pop(change))
-  {
-    // Construct output stream
-    
-    clap_event_header_t header;
-      
-    header.size = sizeof(clap_event_param_value);
-    header.time = 0;
-    header.space_id = CLAP_CORE_EVENT_SPACE_ID;
-    header.type = change.type();
-    header.flags = 0;
-
-    clap_event_param_value event { header, change.idx(), nullptr, -1, -1, -1, change.value() };
-    
-    // FIX - respond to a situation in which parameters can't be pushed
-    
-    out_events->try_push(out_events, &event.header);
-  }
+  ProcessOutputParams(out_events);
   
   // Send Events Out
   /*
@@ -463,8 +379,104 @@ bool IPlugCLAP::paramsTextToValue(clap_id paramId, const char *display, double *
 
 void IPlugCLAP::paramsFlush(const clap_input_events *input_parameter_changes, const clap_output_events *output_parameter_changes) noexcept
 {
-  // FIX
-  // ??
+  // TODO - check if any of the input events are not param changes?
+  
+  ProcessInputEvents(input_parameter_changes);
+  ProcessOutputParams(output_parameter_changes);
+}
+
+void IPlugCLAP::ProcessInputEvents(const clap_input_events *in_events) noexcept
+{
+  IMidiMsg msg;
+
+  if (in_events)
+  {
+    for (int i = 0; i < in_events->size(in_events); i++)
+    {
+      auto event = in_events->get(in_events, i);
+      
+      if (event->space_id != CLAP_CORE_EVENT_SPACE_ID)
+        continue;
+      
+      switch (event->type)
+      {
+        case CLAP_EVENT_NOTE_ON:
+        {
+          // N.B. velocity stored 0-1
+          // TODO - check velocity
+          auto note = ClapEventCast<clap_event_note>(event);
+          int velocity = std::round(note->velocity * 127.0);
+          msg.MakeNoteOnMsg(note->key, velocity, event->time, note->channel);
+          ProcessMidiMsg(msg);
+          mMidiMsgsFromProcessor.Push(msg);
+        }
+          
+        case CLAP_EVENT_NOTE_OFF:
+        {
+          auto note = ClapEventCast<clap_event_note>(event);
+          msg.MakeNoteOffMsg(note->key, event->time, note->channel);
+          ProcessMidiMsg(msg);
+          mMidiMsgsFromProcessor.Push(msg);
+        }
+          
+        case CLAP_EVENT_MIDI:
+        {
+          auto midi = ClapEventCast<clap_event_midi>(event);
+          msg = IMidiMsg(event->time, midi->data[0], midi->data[1], midi->data[2]);
+          ProcessMidiMsg(msg);
+          mMidiMsgsFromProcessor.Push(msg);
+        }
+          
+        case CLAP_EVENT_MIDI_SYSEX:
+        {
+          auto midiSysex = ClapEventCast<clap_event_midi_sysex>(event);
+          
+          ISysEx sysEx(event->time, midiSysex->buffer, midiSysex->size);
+          ProcessSysEx(sysEx);
+          //mSysExDataFromProcessor.Push(sysEx);
+        }
+          
+        case CLAP_EVENT_PARAM_VALUE:
+        {
+          auto paramValue = ClapEventCast<clap_event_param_value>(event);
+          
+          int paramIdx = paramValue->param_id;
+          double value = paramValue->value;
+          
+          GetParam(paramIdx)->Set(value);
+          SendParameterValueFromAPI(paramIdx, value, false);
+          OnParamChange(paramIdx, EParamSource::kHost, event->time);
+        }
+          
+        default:
+          break;
+      }
+    }
+  }
+}
+  
+void IPlugCLAP::ProcessOutputParams(const clap_output_events *output_parameter_changes) noexcept
+{
+  ParamToHost change;
+  
+  while (mParamInfoToHost.Pop(change))
+  {
+    // Construct output stream
+    
+    clap_event_header_t header;
+    
+    header.size = sizeof(clap_event_param_value);
+    header.time = 0;
+    header.space_id = CLAP_CORE_EVENT_SPACE_ID;
+    header.type = change.type();
+    header.flags = 0;
+    
+    clap_event_param_value event { header, change.idx(), nullptr, -1, -1, -1, change.value() };
+    
+    // FIX - respond to a situation in which parameters can't be pushed
+    
+    output_parameter_changes->try_push(output_parameter_changes, &event.header);
+  }
 }
 
 #if PLUG_HAS_UI

@@ -158,6 +158,11 @@ private:
   
   bool GUIWindowAttach(void *parent) noexcept;
 
+  // Parameter Helpers
+  
+  void ProcessInputEvents(const clap_input_events *in_events) noexcept;
+  void ProcessOutputParams(const clap_output_events *output_parameter_changes) noexcept;
+  
   void *mWindow = nullptr;
   bool mGUIOpen = false;
 #endif
