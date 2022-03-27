@@ -285,12 +285,14 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
     header.size = sizeof(clap_event_param_value);
     header.time = 0;
     header.space_id = CLAP_CORE_EVENT_SPACE_ID;
-    header.type = CLAP_EVENT_PARAM_VALUE;
-    header.flags = change.flags();
+    header.type = change.type();
+    header.flags = 0;
 
     clap_event_param_value event { header, change.idx(), nullptr, -1, -1, -1, change.value() };
     
-    out_events->push_back(out_events, &event.header);
+    // FIX - respond to a situation in which parameters can't be pushed
+    
+    out_events->try_push(out_events, &event.header);
   }
   
   // Send Events Out
@@ -364,7 +366,7 @@ bool IPlugCLAP::renderSetMode(clap_plugin_render_mode mode) noexcept
 
 // clap_plugin_state
 
-bool IPlugCLAP::stateSave(clap_ostream *stream) noexcept
+bool IPlugCLAP::stateSave(const clap_ostream *stream) noexcept
 {
   IByteChunk chunk;
   
@@ -374,7 +376,7 @@ bool IPlugCLAP::stateSave(clap_ostream *stream) noexcept
   return stream->write(stream, chunk.GetData(), chunk.Size()) == chunk.Size();
 }
 
-bool IPlugCLAP::stateLoad(clap_istream *stream) noexcept
+bool IPlugCLAP::stateLoad(const clap_istream *stream) noexcept
 {
   constexpr int bytesPerBlock = 256;
   char buffer[bytesPerBlock];
@@ -475,15 +477,21 @@ void IPlugCLAP::guiDestroy() noexcept
   mGUIOpen = false;
 }
 
-void IPlugCLAP::guiShow() noexcept
+bool IPlugCLAP::guiShow() noexcept
 {
   if (!mGUIOpen)
+  {
     OpenWindow(mWindow);
+    return true;
+  }
+  
+  return false;
 }
 
-void IPlugCLAP::guiHide() noexcept
+bool IPlugCLAP::guiHide() noexcept
 {
   guiDestroy();
+  return true;
 }
 
 bool IPlugCLAP::guiSetScale(double scale) noexcept
@@ -492,7 +500,7 @@ bool IPlugCLAP::guiSetScale(double scale) noexcept
   return true;
 }
 
-bool IPlugCLAP::guiSize(uint32_t *width, uint32_t *height) noexcept
+bool IPlugCLAP::guiGetSize(uint32_t *width, uint32_t *height) noexcept
 {
   if (HasUI())
   {

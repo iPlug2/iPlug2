@@ -780,7 +780,6 @@
 		4FD86AD92720685E005A5F28 /* color.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = color.h; sourceTree = "<group>"; };
 		4FD86ADB2720685E005A5F28 /* stream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = stream.h; sourceTree = "<group>"; };
 		4FD86ADC2720685E005A5F28 /* id.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = id.h; sourceTree = "<group>"; };
-		4FD86ADD2720685E005A5F28 /* chmap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = chmap.h; sourceTree = "<group>"; };
 		4FD86ADE2720685E005A5F28 /* host.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = host.h; sourceTree = "<group>"; };
 		4FD86ADF2720685E005A5F28 /* clap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = clap.h; sourceTree = "<group>"; };
 		4FD86AFD2720685F005A5F28 /* plugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = plugin.h; sourceTree = "<group>"; };
@@ -823,7 +822,6 @@
 		B854F0402785F5D400AD81D4 /* event-list.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "event-list.hh"; sourceTree = "<group>"; };
 		B854F0412785F5F300AD81D4 /* heap.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = heap.hh; sourceTree = "<group>"; };
 		B854F0422785F5FF00AD81D4 /* plugin-proxy.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "plugin-proxy.hh"; sourceTree = "<group>"; };
-		B854F0432785F60C00AD81D4 /* keywords.hh */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = keywords.hh; sourceTree = "<group>"; };
 		B854F0442785F67200AD81D4 /* posix-fd-support.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "posix-fd-support.h"; sourceTree = "<group>"; };
 		B854F0452785F6BB00AD81D4 /* event-registry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "event-registry.h"; sourceTree = "<group>"; };
 		B886F4AF278369EC00CBC599 /* align.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = align.h; sourceTree = "<group>"; };
@@ -842,17 +840,13 @@
 		B886F4BF27836A0E00CBC599 /* file-reference.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "file-reference.h"; sourceTree = "<group>"; };
 		B886F4C027836A0E00CBC599 /* params.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = params.h; sourceTree = "<group>"; };
 		B886F4C227836A0E00CBC599 /* note-name.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "note-name.h"; sourceTree = "<group>"; };
-		B886F4C327836A0E00CBC599 /* gui-x11.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gui-x11.h"; sourceTree = "<group>"; };
-		B886F4C427836A0E00CBC599 /* gui-win32.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gui-win32.h"; sourceTree = "<group>"; };
 		B886F4C527836A0E00CBC599 /* note-ports.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "note-ports.h"; sourceTree = "<group>"; };
 		B886F4C627836A0E00CBC599 /* audio-ports-config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "audio-ports-config.h"; sourceTree = "<group>"; };
-		B886F4C727836A0E00CBC599 /* gui-cocoa.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gui-cocoa.h"; sourceTree = "<group>"; };
 		B886F4C827836A0E00CBC599 /* thread-check.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "thread-check.h"; sourceTree = "<group>"; };
 		B886F4C927836A0E00CBC599 /* latency.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = latency.h; sourceTree = "<group>"; };
 		B886F4CA27836A0E00CBC599 /* timer-support.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "timer-support.h"; sourceTree = "<group>"; };
 		B886F4CB27836A0E00CBC599 /* gui.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = gui.h; sourceTree = "<group>"; };
 		B886F4CC27836A0E00CBC599 /* log.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
-		B886F4CD27836A0E00CBC599 /* gui-free-standing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "gui-free-standing.h"; sourceTree = "<group>"; };
 		B886F4CE27836A0E00CBC599 /* thread-pool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "thread-pool.h"; sourceTree = "<group>"; };
 		B886F4CF27836A0E00CBC599 /* audio-ports.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "audio-ports.h"; sourceTree = "<group>"; };
 		B886F4D027836A0E00CBC599 /* state.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = state.h; sourceTree = "<group>"; };
@@ -1722,7 +1716,6 @@
 			isa = PBXGroup;
 			children = (
 				4FD86B022720685F005A5F28 /* audio-buffer.h */,
-				4FD86ADD2720685E005A5F28 /* chmap.h */,
 				4FD86ADF2720685E005A5F28 /* clap.h */,
 				4FD86AD92720685E005A5F28 /* color.h */,
 				B886F4B2278369FB00CBC599 /* converters */,
@@ -1769,7 +1762,6 @@
 				B854F0412785F5F300AD81D4 /* heap.hh */,
 				B8C472212782AAAC007A3A16 /* host-proxy.hh */,
 				B8C472202782AAAC007A3A16 /* host-proxy.hxx */,
-				B854F0432785F60C00AD81D4 /* keywords.hh */,
 				B8C472222782AAB5007A3A16 /* misbehaviour-handler.hh */,
 				B8214CDC274AEF3500DFBE63 /* param-queue.hh */,
 				B854F0422785F5FF00AD81D4 /* plugin-proxy.hh */,
@@ -1810,10 +1802,6 @@
 				B886F4B727836A0E00CBC599 /* draft */,
 				B886F4D127836A0E00CBC599 /* event-filter.h */,
 				B854F0452785F6BB00AD81D4 /* event-registry.h */,
-				B886F4C727836A0E00CBC599 /* gui-cocoa.h */,
-				B886F4CD27836A0E00CBC599 /* gui-free-standing.h */,
-				B886F4C427836A0E00CBC599 /* gui-win32.h */,
-				B886F4C327836A0E00CBC599 /* gui-x11.h */,
 				B886F4CB27836A0E00CBC599 /* gui.h */,
 				B886F4C927836A0E00CBC599 /* latency.h */,
 				B886F4CC27836A0E00CBC599 /* log.h */,
@@ -2356,7 +2344,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = $SCRIPTS_PATH/clear_audiounit_caches.command;
+			shellScript = "$SCRIPTS_PATH/clear_audiounit_caches.command\n";
 		};
 		4F78BE3B22E74A7E00AD537E /* Run Script - Touch dummy file */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2388,7 +2376,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python3 ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py\n";
 			showEnvVarsInLog = 0;
 		};
 		4FBCC1B21FD5AE8500EFE550 /* Run Script - prepare_resources-mac.py */ = {
@@ -2462,7 +2450,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py\n";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py\n";
 			showEnvVarsInLog = 0;
 		};
 		4FFBB8F920863B0E00DDD0E7 /* Run Script - prepare_resources-mac.py */ = {

@@ -52,13 +52,13 @@ class IPlugCLAP : public IPlugAPIBase
     
     uint32_t idx() const { return static_cast<uint32_t>(mIdx); }
     double value() const { return mValue; }
-    clap_event_flags flags() const
+    clap_event_type type() const
     {
       switch (mType)
       {
-        case Type::Begin:   return CLAP_EVENT_BEGIN_ADJUST;
-        case Type::Value:   return CLAP_EVENT_SHOULD_RECORD;
-        case Type::End:     return CLAP_EVENT_END_ADJUST;
+        case Type::Begin:   return CLAP_EVENT_PARAM_GESTURE_BEGIN;
+        case Type::Value:   return CLAP_EVENT_PARAM_VALUE;
+        case Type::End:     return CLAP_EVENT_PARAM_GESTURE_END;
       }
     }
     
@@ -104,8 +104,8 @@ private:
   
   // clap_plugin_state
   bool implementsState() const noexcept override { return true; }
-  bool stateSave(clap_ostream *stream) noexcept override;
-  bool stateLoad(clap_istream *stream) noexcept override;
+  bool stateSave(const clap_ostream *stream) noexcept override;
+  bool stateLoad(const clap_istream *stream) noexcept override;
   
   /*void stateMarkDirty() const noexcept {
      if (canUseState())
@@ -128,13 +128,13 @@ private:
   // clap_plugin_gui
 #if PLUG_HAS_UI
   bool implementsGui() const noexcept override { return true; }
-  bool guiCreate() noexcept override { return true; }
+  bool guiCreate(const char *api, bool isFloating) noexcept override { return true; }
   void guiDestroy() noexcept override;
   
   bool guiSetScale(double scale) noexcept override;
-  void guiShow() noexcept override;
-  void guiHide() noexcept override;
-  bool guiSize(uint32_t *width, uint32_t *height) noexcept override;
+  bool guiShow() noexcept override;
+  bool guiHide() noexcept override;
+  bool guiGetSize(uint32_t *width, uint32_t *height) noexcept override;
   
 #if PLUG_HOST_RESIZE
   bool guiCanResize() const noexcept override { return true; }
@@ -144,14 +144,14 @@ private:
   
 #ifdef OS_WIN
   // clap_plugin_gui_win32
-  bool implementsGuiWin32() const noexcept override { return true; }
-  bool guiWin32Attach(clap_hwnd window) noexcept override { return GUIWindowAttach(window);  }
+  bool guiIsApiSupported(const char *api, bool isFloating) noexcept override { return !strcmp(api, CLAP_WINDOW_API_WIN32); }
+  bool guiSetParent(const clap_window *window) noexcept override { return GUIWindowAttach(window->win32);  }
 #endif
   
 #ifdef OS_MAC
   // clap_plugin_gui_cocoa
-  bool implementsGuiCocoa() const noexcept override { return true; }
-  bool guiCocoaAttach(void *nsView) noexcept override { return GUIWindowAttach(nsView); }
+  bool guiIsApiSupported(const char *api, bool isFloating) noexcept override { return !strcmp(api, CLAP_WINDOW_API_COCOA); }
+  bool guiSetParent(const clap_window *window) noexcept override { return GUIWindowAttach(window->cocoa); }
 #endif
   
   // Helper to attach GUI Windows
