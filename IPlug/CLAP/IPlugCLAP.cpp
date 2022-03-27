@@ -323,7 +323,7 @@ bool IPlugCLAP::paramsInfo(uint32_t paramIndex, clap_param_info *info) const noe
   if (pParam->GetStepped())
     flags |= CLAP_PARAM_IS_STEPPED;
   if (pParam->GetCanAutomate())
-    flags |= CLAP_PARAM_IS_MODULATABLE;
+    flags |= CLAP_PARAM_IS_AUTOMATABLE;
   
   info->id = paramIndex;
   info->flags = flags;
