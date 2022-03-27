@@ -409,7 +409,7 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
   static int lcol, rcol, mcol, top_margin, separator_ht, text_ht_pad, bitmap_ht_pad, scroll_margin, item_bm_pad;
   if (!lcol)
   {
-    lcol=SWELL_UI_SCALE(24); rcol=SWELL_UI_SCALE(12); mcol=SWELL_UI_SCALE(10);
+    lcol=SWELL_UI_SCALE(30); rcol=SWELL_UI_SCALE(18); mcol=SWELL_UI_SCALE(10);
     top_margin=SWELL_UI_SCALE(4); separator_ht=SWELL_UI_SCALE(8); 
     text_ht_pad=SWELL_UI_SCALE(4); bitmap_ht_pad=SWELL_UI_SCALE(4);
     scroll_margin=SWELL_UI_SCALE(10);
@@ -486,10 +486,11 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
             g_trackpopup_yroot.bottom > vp.top && 
             g_trackpopup_yroot.top < vp.bottom)
         {
-          if (vp.bottom - g_trackpopup_yroot.bottom < g_trackpopup_yroot.top - vp.top)
+          const int req_h = ht*9/8+32;
+          if (vp.bottom - g_trackpopup_yroot.bottom < req_h && g_trackpopup_yroot.top - vp.top >= req_h)
+          {
             vp.bottom = g_trackpopup_yroot.top;
-          else
-            vp.top = g_trackpopup_yroot.bottom;
+          }
         }
 
         if (tr.bottom > vp.bottom) { tr.top += vp.bottom-tr.bottom; tr.bottom=vp.bottom; }
@@ -514,7 +515,8 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
         SetWindowPos(hwnd,NULL,tr.left,tr.top,tr.right-tr.left,tr.bottom-tr.top,SWP_NOZORDER);
 
         hwnd->m_extra[0] = 0; // Y scroll offset
-        hwnd->m_extra[1] = 0; // &1=allow scroll flag (set from paint), &2=force scroll down (if sel_vis is offscreen positive)
+        hwnd->m_extra[1] = 0; // is currently autoscrolling to sel_vis
+        hwnd->m_extra[2] = 0; // remaining items out of view, if any
       }
 
       ShowWindow(hwnd,SW_SHOW);
@@ -529,35 +531,34 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
         {
           RECT cr;
           GetClientRect(hwnd,&cr);
-          HBRUSH br=CreateSolidBrush(g_swell_ctheme.menu_bg);
+          HBRUSH br = CreateSolidBrush(g_swell_ctheme.menu_bg);
           HBRUSH br2 = CreateSolidBrushAlpha(g_swell_ctheme.menu_scroll,0.5f);
           HBRUSH br3 = CreateSolidBrush(g_swell_ctheme.menu_scroll_arrow);
           HBRUSH br_submenu_arrow = CreateSolidBrush(g_swell_ctheme.menu_submenu_arrow);
-          HPEN pen=CreatePen(PS_SOLID,0,g_swell_ctheme.menu_shadow);
-          HPEN pen2=CreatePen(PS_SOLID,0,g_swell_ctheme.menu_hilight);
+          HBRUSH br_submenu_arrow_sel = CreateSolidBrush(g_swell_ctheme.menu_submenu_arrow_sel);
+          HPEN pen = CreatePen(PS_SOLID,0,g_swell_ctheme.menu_shadow);
+          HPEN pen2 = CreatePen(PS_SOLID,0,g_swell_ctheme.menu_hilight);
           HGDIOBJ oldbr = SelectObject(ps.hdc,br);
           HGDIOBJ oldpen = SelectObject(ps.hdc,pen2);
           Rectangle(ps.hdc,cr.left,cr.top,cr.right,cr.bottom);
           SetBkMode(ps.hdc,TRANSPARENT);
           HMENU__ *menu = (HMENU__*)GetWindowLongPtr(hwnd,GWLP_USERDATA);
-          int x;
           int ypos = top_margin;
 
-          MoveToEx(ps.hdc,cr.left+lcol-SWELL_UI_SCALE(4),cr.top,NULL);
-          LineTo(ps.hdc,cr.left+lcol-SWELL_UI_SCALE(4),cr.bottom);
-          SelectObject(ps.hdc,pen);
-          MoveToEx(ps.hdc,cr.left+lcol-SWELL_UI_SCALE(5),cr.top,NULL);
-          LineTo(ps.hdc,cr.left+lcol-SWELL_UI_SCALE(5),cr.bottom);
-
-          hwnd->m_extra[1]=0;
-          for (x=wdl_max(hwnd->m_extra[0],0); x < (menu->items.GetSize()); x++)
+          int extra_left = 0;
+          bool want_autoscroll_down = false;
+          const int ni = menu->items.GetSize();
+          int x;
+          for (x=wdl_max((int)hwnd->m_extra[0],0); x < ni; x++)
           {
             if (ypos >= cr.bottom)
             {
-              hwnd->m_extra[1] |= 1; // allow scrolling down
+              extra_left = ni-x;
               break;
             }
             MENUITEMINFO *inf = menu->items.Get(x);
+            if (WDL_NOT_NORMALLY(!inf)) break;
+
             RECT r={lcol,ypos,cr.right, };
             bool dis = !!(inf->fState & MF_GRAYED);
             BITMAP bm={16,16}, bm2={0,};
@@ -593,6 +594,8 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
             {
               HBRUSH brs=CreateSolidBrush(g_swell_ctheme.menu_bg_sel);
               RECT r2=r;
+              r2.left = cr.left + 1;
+              r2.right = r2.right - 1;
               FillRect(ps.hdc,&r2,brs);
               DeleteObject(brs);
               SetTextColor(ps.hdc,g_swell_ctheme.menu_text_sel);
@@ -643,18 +646,19 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
             else 
             {
               SelectObject(ps.hdc,pen2);
-              int y = r.top/2+r.bottom/2, right = r.right-rcol*3/2;
-              MoveToEx(ps.hdc,r.left,y,NULL);
+              int margin = rcol / 2;
+              int y = r.top/2+r.bottom/2, left = cr.left+margin, right = r.right-margin;
+              MoveToEx(ps.hdc,left,y,NULL);
               LineTo(ps.hdc,right,y);
               SelectObject(ps.hdc,pen);
 
               y++;
-              MoveToEx(ps.hdc,r.left,y,NULL);
+              MoveToEx(ps.hdc,left,y,NULL);
               LineTo(ps.hdc,right,y);
             }
             if (inf->hSubMenu) 
             {
-               const int sz = (r.bottom-r.top)/4, xp = r.right - sz*2, yp = (r.top + r.bottom)/2;
+               const int sz = (r.bottom-r.top)/5, xp = r.right - rcol/2 - sz, yp = (r.top + r.bottom)/2;
 
                POINT pts[3] = {
                  {xp, yp-sz},
@@ -662,19 +666,31 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
                  {xp + sz,yp}
                };
                HGDIOBJ oldPen = SelectObject(ps.hdc,GetStockObject(NULL_PEN));
-               SelectObject(ps.hdc,br_submenu_arrow);
+
+               if (x == menu->sel_vis && !dis)
+                 SelectObject(ps.hdc,br_submenu_arrow_sel);
+               else
+                 SelectObject(ps.hdc,br_submenu_arrow);
+
                Polygon(ps.hdc,pts,3);
 
                SelectObject(ps.hdc,oldPen);
+
+
             }
             if (inf->fState&MF_CHECKED)
             {
-              const int col = dis ? g_swell_ctheme.menu_text_disabled : g_swell_ctheme.menu_text;
+              int col;
+              if (x == menu->sel_vis && !dis)
+                col = g_swell_ctheme.menu_text_sel;
+              else
+                col = dis ? g_swell_ctheme.menu_text_disabled : g_swell_ctheme.menu_text;
+
               HPEN tpen = CreatePen(PS_SOLID,0, col);
               HBRUSH tbr = CreateSolidBrush(col);
               HGDIOBJ oldBrush = SelectObject(ps.hdc,tbr);
               HGDIOBJ oldPen = SelectObject(ps.hdc,tpen);
-              const int sz = (wdl_min(lcol, r.bottom-r.top) - SWELL_UI_SCALE(6));
+              const int sz = (wdl_min(lcol, r.bottom-r.top) - SWELL_UI_SCALE(10));
               const int xo = SWELL_UI_SCALE(4), yo = (r.bottom+r.top)/2 - sz/2;
               if (inf->fType&MFT_RADIOCHECK)
               {
@@ -682,14 +698,14 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
               }
               else
               {
-                static const unsigned char coords[12] = { 128, 30, 108, 11, 48, 72, 48, 112, 0, 65, 20, 46, };
+                static const unsigned char coords[12] = { 0, 76, 12, 64, 40, 92, 40, 118, 116, 16, 128, 28, };
                 for (int pass=0;pass<2;pass++)
                 {
                   POINT pts[4];
                   for (int i=0;i<4; i ++)
                   {
-                    pts[i].x = xo + ((int)coords[i*2+pass*4] * sz + 63) / 128;
-                    pts[i].y = yo + ((int)coords[i*2+pass*4+1] * sz + 63) / 128;
+                    pts[i].x = lcol/2 + sz * ((int)coords[i*2+pass*4] - 64) / 128;
+                    pts[i].y = (r.bottom+r.top)/2 + sz * ((int)coords[i*2+pass*4+1] - 64) / 128;
                   }
                   Polygon(ps.hdc,pts,4);
                 }
@@ -702,12 +718,16 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
             }
             if ((r.top+ypos)/2 > cr.bottom)
             {
-              hwnd->m_extra[1] |= 1; // allow scrolling down if last item was halfway off
+              extra_left = ni-x;
             }
             if (ypos > cr.bottom && x == menu->sel_vis)
-              hwnd->m_extra[1] |= 3;
+            {
+              want_autoscroll_down = true;
+              extra_left = ni-x;
+            }
           }
-          if (x <= menu->sel_vis) hwnd->m_extra[1]|=2;
+          hwnd->m_extra[1] = want_autoscroll_down || x <= menu->sel_vis;
+          hwnd->m_extra[2] = extra_left;
 
 
           // lower scroll indicator
@@ -717,7 +737,7 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
           POINT pts[3];
           const int smm = SWELL_UI_SCALE(2);
           const int smh = scroll_margin-smm*2;
-          if (hwnd->m_extra[1]&1)
+          if (extra_left>0)
           {
             RECT fr = {cr.left, cr.bottom-scroll_margin, cr.right,cr.bottom};
             FillRect(ps.hdc,&fr,br2);
@@ -744,6 +764,7 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
           DeleteObject(br2);
           DeleteObject(br3);
           DeleteObject(br_submenu_arrow);
+          DeleteObject(br_submenu_arrow_sel);
           DeleteObject(pen);
           DeleteObject(pen2);
           EndPaint(hwnd,&ps); 
@@ -777,15 +798,23 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
         POINT curM;
         GetCursorPos(&curM);
         const bool xmatch = (curM.x >= tr.left && curM.x < tr.right);
-        if (xmatch || (hwnd->m_extra[1]&3)==3)
+        if (xmatch || (hwnd->m_extra[1] && hwnd->m_extra[2]))
         {
           HMENU__ *menu = (HMENU__*)GetWindowLongPtr(hwnd,GWLP_USERDATA);
           int xFirst = wdl_max(hwnd->m_extra[0],0);
           const bool ymatch = curM.y >= tr.bottom-scroll_margin && curM.y < tr.bottom+scroll_margin;
-          if ((hwnd->m_extra[1]&1) && ((hwnd->m_extra[1]&2) || ymatch))
+          if (hwnd->m_extra[2] && (hwnd->m_extra[1] || ymatch))
           {
-            hwnd->m_extra[0]=++xFirst;
-            hwnd->m_extra[1]=0;
+            if (hwnd->m_extra[1] && menu->sel_vis > 0)
+            {
+              const int li = menu->items.GetSize() - (int)hwnd->m_extra[2];
+              const int incr = (menu->sel_vis - li)/2 + 2;
+              xFirst += wdl_max(incr,1);
+            }
+            else
+              xFirst++;
+            hwnd->m_extra[0]=xFirst;
+            hwnd->m_extra[1]=hwnd->m_extra[2]=0;
             if (ymatch) menu->sel_vis=-1;
             InvalidateRect(hwnd,NULL,FALSE);
           }
@@ -800,7 +829,44 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
     break;
     case WM_KEYUP:
     return 1;
+    case WM_MOUSEWHEEL:
+      {
+        RECT tr;
+        GetWindowRect(hwnd,&tr);
+
+        POINT curM;
+        GetCursorPos(&curM);
+        const bool xmatch = (curM.x >= tr.left && curM.x < tr.right);
+        const bool ymatch = curM.y >= tr.bottom-scroll_margin && curM.y < tr.bottom+scroll_margin;
+        if (!xmatch || !ymatch) // if mouse is over scroll area, ignore
+        {
+          int amt = ((short)HIWORD(wParam))/-40;
+          const int xFirst = wdl_max(hwnd->m_extra[0],0);
+          if (amt > hwnd->m_extra[2]) amt = (int) hwnd->m_extra[2];
+          if (amt < 0 ? xFirst > 0 : amt > 0)
+          {
+            hwnd->m_extra[0]=wdl_max(xFirst+amt,0);
+            if (amt>0)
+            {
+              hwnd->m_extra[2] -= amt;
+              if (hwnd->m_extra[2]<0) hwnd->m_extra[2]=0;
+            }
+            HMENU__ *menu = (HMENU__*)GetWindowLongPtr(hwnd,GWLP_USERDATA);
+            menu->sel_vis=-1; // clear selection
+            InvalidateRect(hwnd,NULL,FALSE);
+          }
+        }
+      }
+    return 1;
+
     case WM_KEYDOWN:
+
+      if (wParam >= VK_SPACE && wParam < 0x80)
+      {
+        // ignore mousemoves immediately after most keys
+        swell_menu_ignore_mousemove_from = GetTickCount();
+      }
+
       if (wParam == VK_ESCAPE || wParam == VK_LEFT)
       {
         HWND l = m_trackingMenus.Get(m_trackingMenus.Find(hwnd)-1);
@@ -1070,9 +1136,9 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 
             RECT r;
             GetClientRect(hwnd,&r);
-            m_trackingPt.x=r.right - SWELL_UI_SCALE(3);
+            m_trackingPt.x=r.right;
             m_trackingPt.y=item_ypos;
-            m_trackingPt2.x=r.left + lcol/4;
+            m_trackingPt2.x=r.left;
             m_trackingPt2.y=item_ypos;
             ClientToScreen(hwnd,&m_trackingPt);
             ClientToScreen(hwnd,&m_trackingPt2);
@@ -1124,9 +1190,11 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
   return DefWindowProc(hwnd,uMsg,wParam,lParam);
 }
 
-void DestroyPopupMenus()
+bool DestroyPopupMenus()
 {
-  if (m_trackingMenus.GetSize()) DestroyWindow(m_trackingMenus.Get(0));
+  if (!m_trackingMenus.GetSize()) return false;
+  DestroyWindow(m_trackingMenus.Get(0));
+  return true;
 }
 
 SWELL_OSWINDOW swell_ignore_focus_oswindow;
@@ -1165,7 +1233,7 @@ int TrackPopupMenu(HMENU hMenu, int flags, int xpos, int ypos, int resvd, HWND h
   else
     hMenu->sel_vis=-1;
 
-  if (!resvd) swell_menu_ignore_mousemove_from = GetTickCount();
+  if (!resvd || resvd == 0xbeee) swell_menu_ignore_mousemove_from = GetTickCount();
 
   HWND hh=new HWND__(NULL,0,NULL,"menu",false,submenuWndProc,NULL, hwnd);
 
@@ -1199,9 +1267,11 @@ int TrackPopupMenu(HMENU hMenu, int flags, int xpos, int ypos, int resvd, HWND h
   swell_ignore_focus_oswindow = NULL;
   hMenu->Release();
 
+  m_trackingPar = NULL;
+
   if (flags & TPM_RETURNCMD) return m_trackingRet>0?m_trackingRet:0;
 
-  return resvd!=0xbeef || m_trackingRet>0;
+  return (resvd|1)!=0xbeef || m_trackingRet>0;
 }
 
 

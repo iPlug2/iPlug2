@@ -233,6 +233,7 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
       }
       case kCancel:
         DestroyEditWindow();
+        ClearInTextEntryControl();
         break;
     }
 

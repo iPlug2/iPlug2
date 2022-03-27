@@ -23,8 +23,8 @@ IPlugSideChain::IPlugSideChain(const InstanceInfo& info)
     IRECT s = b.ReduceFromRight(50.f);
     
     const IVStyle meterStyle = DEFAULT_STYLE.WithColor(kFG, COLOR_WHITE.WithOpacity(0.3f));
-    pGraphics->AttachControl(mInputMeter = new IVMeterControl<4>(b.FracRectVertical(0.5, true), "Inputs", meterStyle, EDirection::Horizontal, {"Main L", "Main R", "SideChain L", "SideChain R"}), kCtrlTagInputMeter);
-    pGraphics->AttachControl(mOutputMeter = new IVMeterControl<2>(b.FracRectVertical(0.5, false), "Outputs", meterStyle, EDirection::Vertical, {"Main L", "Main R"}), kCtrlTagOutputMeter);
+    pGraphics->AttachControl(mInputMeter = new IVPeakAvgMeterControl<4>(b.FracRectVertical(0.5, true), "Inputs", meterStyle, EDirection::Horizontal, {"Main L", "Main R", "SideChain L", "SideChain R"}), kCtrlTagInputMeter);
+    pGraphics->AttachControl(mOutputMeter = new IVPeakAvgMeterControl<2>(b.FracRectVertical(0.5, false), "Outputs", meterStyle, EDirection::Vertical, {"Main L", "Main R"}), kCtrlTagOutputMeter);
     pGraphics->AttachControl(new IVSliderControl(s, kGain));
   };
 
@@ -35,7 +35,7 @@ void IPlugSideChain::OnIdle()
   mInputPeakSender.TransmitData(*this);
   mOutputPeakSender.TransmitData(*this);
   
-  if(mSendUpdate)
+  if (mSendUpdate)
   {
     if(GetUI())
     {
@@ -51,6 +51,12 @@ void IPlugSideChain::OnIdle()
     }
     mSendUpdate = false;
   }
+}
+
+void IPlugSideChain::OnReset()
+{
+  mInputPeakSender.Reset(GetSampleRate());
+  mOutputPeakSender.Reset(GetSampleRate());
 }
 
 void IPlugSideChain::GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const

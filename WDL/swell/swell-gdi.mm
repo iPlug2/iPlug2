@@ -146,30 +146,6 @@ static CGColorRef CreateColor(int col, float alpha=1.0f)
 
 char g_swell_disable_retina;
 
-int SWELL_IsRetinaHWND(HWND hwnd)
-{
-  if (g_swell_disable_retina) return 0;
-  if (!hwnd || SWELL_GDI_GetOSXVersion() < 0x1070) return 0;
-
-  NSWindow *w=NULL;
-  if ([(id)hwnd isKindOfClass:[NSView class]]) w = [(NSView *)hwnd window];
-  else if ([(id)hwnd isKindOfClass:[NSWindow class]]) w = (NSWindow *)hwnd;
-
-  if (w)
-  {
-    NSRect r=NSMakeRect(0,0,1,1);
-#if MAC_OS_X_VERSION_MIN_REQUIRED > MAC_OS_X_VERSION_10_6
-    NSRect str = [w convertRectToBacking:r];
-#else
-    NSRect (*tmp)(id receiver, SEL operation, NSRect) = (NSRect (*)(id, SEL, NSRect))objc_msgSend_stret;
-    NSRect str = tmp(w,sel_getUid("convertRectToBacking:"),r);
-#endif
-
-    if (str.size.width > 1.9) return 1;
-  }
-  return 0;
-}
-
 int SWELL_IsRetinaDC(HDC hdc)
 {
   if (g_swell_disable_retina) return 0;
@@ -227,7 +203,10 @@ static void *ALIGN_FBUF(void *inbuf)
 
 HDC SWELL_CreateMemContext(HDC hdc, int w, int h)
 {
-  void *buf=calloc(w*4*h+ALIGN_EXTRA,1);
+  // we always allocate an extra row, because StretchBlt() will sometimes pass
+  // rowspan*h to CGDataProviderCreateWithData() with an X offset (and smaller width),
+  // which confuses guard malloc (and is generally possibly unsafe)
+  void *buf=calloc(w*4*(h+1)+ALIGN_EXTRA,1); 
   if (WDL_NOT_NORMALLY(!buf)) return 0;
   CGContextRef c=CGBitmapContextCreate(ALIGN_FBUF(buf),w,h,8,w*4, __GetBitmapColorSpace(), kCGImageAlphaNoneSkipFirst | kCGBitmapByteOrder32Host);
   if (WDL_NOT_NORMALLY(!c))
@@ -1218,6 +1197,48 @@ int GetGlyphIndicesW(HDC ctx, wchar_t *buf, int len, unsigned short *indices, in
 }
 
 
+NSFont *SWELL_GetNSFont(HGDIOBJ__ *obj)
+{
+  if (HGDIOBJ_VALID(obj,TYPE_FONT))
+  {
+    if (obj->ct_FontRef) return (NSFont *)obj->ct_FontRef;
+#ifdef SWELL_ATSUI_TEXT_SUPPORT
+    else if (obj->atsui_font_style)
+    {
+      ATSUFontID fontid = kATSUInvalidFontID;
+      Fixed fsize = 0;
+      Boolean isbold = NO;
+      Boolean isital = NO;
+      Boolean isunder = NO;
+      if (ATSUGetAttribute(obj->atsui_font_style, kATSUFontTag, sizeof(ATSUFontID), &fontid, 0) == noErr &&
+          ATSUGetAttribute(obj->atsui_font_style, kATSUSizeTag, sizeof(Fixed), &fsize, 0) == noErr && fsize &&
+          ATSUGetAttribute(obj->atsui_font_style, kATSUQDBoldfaceTag, sizeof(Boolean), &isbold, 0) == noErr &&
+          ATSUGetAttribute(obj->atsui_font_style, kATSUQDItalicTag, sizeof(Boolean), &isital, 0) == noErr &&
+          ATSUGetAttribute(obj->atsui_font_style, kATSUQDUnderlineTag, sizeof(Boolean), &isunder, 0) == noErr)
+      {
+        char name[255];
+        name[0]=0;
+        ByteCount namelen=0;
+        if (ATSUFindFontName(fontid, kFontFullName, (FontPlatformCode)kFontNoPlatform, kFontNoScriptCode, kFontNoLanguageCode, sizeof(name), name, &namelen, 0) == noErr && name[0] && namelen)
+        {
+          namelen /= 2;
+          int i;
+          for (i = 0; i < namelen; ++i) name[i] = name[2*i];
+          name[namelen]=0;
+
+          // todo bold/ital/underline
+          NSString* str = (NSString*)SWELL_CStringToCFString(name);
+          CGFloat sz = Fix2Long(fsize);
+          NSFont* font = [NSFont fontWithName:str size:sz];
+          [str release];
+          return font;
+        }
+      }
+    }
+#endif
+  }
+  return NULL;
+}
 
 
 void SetBkColor(HDC ctx, int col)
@@ -1404,42 +1425,20 @@ void *GetNSImageFromHICON(HICON ico)
   return i->bitmapptr;
 }
 
-static int ColorFromNSColor_Actual(NSColor *color, int valifnul)
-{
-  if (!color) return valifnul;
-  CGFloat r,g,b;
-  NSColor *color2=[color colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
-  if (!color2) return valifnul;
-  [color2 getRed:&r green:&g blue:&b alpha:NULL];
-  if (r<0) r=0; else if (r>1) r=1;
-  if (g<0) g=0; else if (g>1) g=1;
-  if (b<0) b=0; else if (b>1) b=1;
-  return RGB((int)(r*255.0),(int)(g*255.0),(int)(b*255.0));
-}
-
-#define ColorFromNSColor(a,b) (b)
-
 int GetSysColor(int idx)
 {
- // NSColors that seem to be valid: textBackgroundColor, selectedTextBackgroundColor, textColor, selectedTextColor
-  
   switch (idx)
   {
-    case COLOR_WINDOW: return ColorFromNSColor([NSColor controlColor],RGB(192,192,192));
-    case COLOR_3DFACE: 
-      if (SWELL_osx_is_dark_mode(1))
-        return ColorFromNSColor_Actual([NSColor windowBackgroundColor],RGB(64,64,64));
-      // fall through
-
-    case COLOR_BTNFACE: return ColorFromNSColor([NSColor controlColor],RGB(192,192,192));
-    case COLOR_SCROLLBAR: return ColorFromNSColor([NSColor controlColor],RGB(32,32,32));
-    case COLOR_3DSHADOW: return ColorFromNSColor([NSColor selectedTextBackgroundColor],RGB(96,96,96));
-    case COLOR_3DHILIGHT: return ColorFromNSColor([NSColor selectedTextBackgroundColor],RGB(224,224,224));
-    case COLOR_BTNTEXT: return ColorFromNSColor([NSColor selectedTextBackgroundColor],RGB(0,0,0));
-    case COLOR_3DDKSHADOW: return (ColorFromNSColor([NSColor selectedTextBackgroundColor],RGB(96,96,96))>>1)&0x7f7f7f;
+    case COLOR_WINDOW:
+    case COLOR_BTNFACE:
+    case COLOR_3DFACE: return SWELL_osx_is_dark_mode(0) ? RGB(37,37,37) : RGB(232,232,232);
+    case COLOR_BTNTEXT: return SWELL_osx_is_dark_mode(0) ? RGB(255,255,255) : RGB(0,0,0);
+    case COLOR_SCROLLBAR: return RGB(32,32,32);
+    case COLOR_3DSHADOW: return RGB(96,96,96);
+    case COLOR_3DHILIGHT: return RGB(224,224,224);
+    case COLOR_3DDKSHADOW: return RGB(48,48,48);
     case COLOR_INFOBK: return RGB(255,240,200);
     case COLOR_INFOTEXT: return RGB(0,0,0);
-      
   }
   return 0;
 }
@@ -1787,7 +1786,17 @@ void SWELL_FillDialogBackground(HDC hdc, const RECT *r, int level)
   if (WDL_NORMALLY(ctx))
   {
     bool ok = false;
-    if (SWELL_GDI_GetOSXVersion()>=0x10d0)
+    if (SWELL_osx_is_dark_mode(1))
+    {
+      CGColorRef col = CreateColor(GetSysColor(COLOR_3DFACE));
+      if (col)
+      {
+        CGContextSetFillColorWithColor(ctx, col);
+        CGColorRelease(col);
+        ok = true;
+      }
+    }
+    else if (SWELL_GDI_GetOSXVersion()>=0x10d0)
     {
       NSColor *c = [NSColor windowBackgroundColor];
       if ([c respondsToSelector:@selector(CGColor)])
@@ -1990,16 +1999,23 @@ int AddFontResourceEx(LPCTSTR str, DWORD fl, void *pdv)
 
 bool SWELL_osx_is_dark_mode(int mode) // mode=0 for enabled, 1=allowed
 {
-  static char c;
+  static DWORD lastchk;
+  static char last_res,c;
   if (!c)
   {
-    NSUserDefaults *def = SWELL_GetOSXVersion() >= 0x10d0 ? [NSUserDefaults standardUserDefaults] : NULL;
+    NSUserDefaults *def = SWELL_GDI_GetOSXVersion() >= 0x10d0 ? [NSUserDefaults standardUserDefaults] : NULL;
     c = (def && [def objectForKey:@"NSRequiresAquaSystemAppearance"] && [def boolForKey:@"NSRequiresAquaSystemAppearance"] == NO) ? 1 : -1;
   }
   if (c<0) return false;
   if (mode == 1) return true;
 
-  return [[[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"] isEqualToString:@"Dark"];
+  const DWORD now = GetTickCount();
+  if (!last_res || (now-lastchk) > 1000)
+  {
+    lastchk = now;
+    last_res = [[[NSUserDefaults standardUserDefaults] stringForKey:@"AppleInterfaceStyle"] isEqualToString:@"Dark"] ? 1 : -1;
+  }
+  return last_res>0;
 }
 
 

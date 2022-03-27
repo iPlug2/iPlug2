@@ -385,6 +385,7 @@ void SWELL_DoDialogColorUpdates(HWND hwnd, DLGPROC d, bool isUpdate)
             {
               [[(NSBox*)ch titleCell] setTextColor:staticFg];
               //[(NSBox*)ch setBorderColor:staticFg]; // see comment at SWELL_MakeGroupBox
+              [ch setNeedsDisplay:YES];
             }
             else
             {
@@ -474,6 +475,10 @@ static SWELL_DialogResourceIndex *resById(SWELL_DialogResourceIndex *reshead, co
 
 static void DoPaintStuff(WNDPROC wndproc, HWND hwnd, HDC hdc, NSRect *modrect, bool isMetal)
 {
+#ifdef _DEBUG
+  extern int g_swell_in_paint;
+  g_swell_in_paint++;
+#endif
   RECT r;
   GetWindowRect(hwnd,&r);
   if (r.top>r.bottom) { int tmp=r.top; r.top=r.bottom; r.bottom=tmp; }
@@ -501,6 +506,9 @@ static void DoPaintStuff(WNDPROC wndproc, HWND hwnd, HDC hdc, NSRect *modrect, b
     if (a) SWELL_PopClipRegion(hdc);
   }
   if (isMetal) wndproc(hwnd,WM_NCPAINT,(WPARAM)1,0);
+#ifdef _DEBUG
+  g_swell_in_paint--;
+#endif
 }
 
 
@@ -3913,7 +3921,7 @@ static bool mtl_init()
       if (cnt>0)
       {
         state=1;
-        SetTimer(NULL,1,1,metalUpdateProc);
+        SetTimer(NULL,0,1,metalUpdateProc);
       }
     }
   }
@@ -4353,11 +4361,24 @@ void swell_updateAllMetalDirty() // run from a timer, or called by UpdateWindow(
   if (r) return;
   r=true;
 
+  NSWindow *lw = NULL;
+  bool lw_occluded = false;
+
   int x = s_mtl_dirty_list.GetSize();
   while (--x>=0)
   {
     SWELL_hwndChild *slf = s_mtl_dirty_list.Get(x);
     if (!slf) break; // deleted out from under us?!
+
+    NSWindow *w = [slf window];
+    if (lw != w)
+    {
+      // this might only be needed on macOS12+ and/or M1 (could not duplicate on high sierra)
+      lw = w;
+      NSUInteger (*send_msg)(id, SEL) = (NSUInteger (*)(id, SEL))objc_msgSend;
+      lw_occluded = w && !(send_msg(w, @selector(occlusionState))&2);
+    }
+    if (lw_occluded) continue;
 
     const RECT tr = slf->m_metal_in_needref_rect;
     s_mtl_dirty_list.Delete(x);

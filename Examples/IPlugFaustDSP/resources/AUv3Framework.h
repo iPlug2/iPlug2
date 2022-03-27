@@ -13,4 +13,4 @@ FOUNDATION_EXPORT double AUv3FrameworkVersionNumber;
 FOUNDATION_EXPORT const unsigned char AUv3FrameworkVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <AUv3Framework/PublicHeader.h>
-@class IPlugAUViewController;
+@class IPlugAUViewController_vIPlugFaustDSP;

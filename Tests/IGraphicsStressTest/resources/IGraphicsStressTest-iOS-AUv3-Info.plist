@@ -32,7 +32,7 @@
 					<key>description</key>
 					<string>IGraphicsStressTest</string>
 					<key>factoryFunction</key>
-					<string>IPlugAUViewController</string>
+					<string>IPlugAUViewController_vIGraphicsStressTest</string>
 					<key>manufacturer</key>
 					<string>Acme</string>
 					<key>name</key>

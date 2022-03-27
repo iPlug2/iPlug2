@@ -17,6 +17,7 @@
 #include "../eel2/ns-eel-int.h"
 
 int g_eel_editor_max_vis_suggestions = 50;
+int g_eel_editor_flags;
 
 EEL_Editor::EEL_Editor(void *cursesCtx) : WDL_CursesEditor(cursesCtx)
 {
@@ -376,16 +377,11 @@ int EEL_Editor::do_draw_line(const char *p, int *c_comment_state, int last_attr)
       int def_attr = A_NORMAL;
       bool isf=true;
       if (tok[0] == '#')
-      {
         def_attr = SYNTAX_STRINGVAR;
-        draw_string(&skipcnt,tok,1,&last_attr,def_attr);
-        tok++;
-        toklen--;
-      }
       while (toklen > 0)
       {
-        // divide up by .s, if any
-        int this_len=0;
+        // divide up by .s, if any, unless we're a string
+        int this_len=def_attr == SYNTAX_STRINGVAR ? toklen : 0;
         while (this_len < toklen && tok[this_len] != '.') this_len++;
         if (this_len > 0)
         {
@@ -1071,6 +1067,17 @@ int EEL_Editor::peek_get_token_info(const char *name, char *sstr, size_t sstr_sz
     }
   }
 
+  if ((chkmask & KEYWORD_MASK_USER_VAR) && name[0] == '#')
+  {
+    char tmp[256];
+    int v = peek_get_named_string_value(name+1,tmp,sizeof(tmp));
+    if (v>=0)
+    {
+      snprintf(sstr,sstr_sz,"%s(%d)=\"%s\"",name,v,tmp);
+      return KEYWORD_MASK_USER_VAR;
+    }
+  }
+
   if (chkmask & (KEYWORD_MASK_BUILTIN_FUNC|KEYWORD_MASK_USER_VAR))
   {
     int rv = 0;
@@ -1099,6 +1106,7 @@ int EEL_Editor::peek_get_token_info(const char *name, char *sstr, size_t sstr_sz
     {
       int good_len=-1;
       snprintf(sstr,sstr_sz,"%s=%.14f",name,v);
+      WDL_remove_trailing_decimal_zeros(sstr,2);
 
       if (v > -1.0 && v < NSEEL_RAM_ITEMSPERBLOCK*NSEEL_RAM_BLOCKS)
       {
@@ -1106,13 +1114,13 @@ int EEL_Editor::peek_get_token_info(const char *name, char *sstr, size_t sstr_sz
         EEL_F *dv = NSEEL_VM_getramptr_noalloc(vm,w,NULL);
         if (dv)
         {
-          snprintf_append(sstr,sstr_sz," [0x%06x]=%.14f",w,*dv);
-          good_len=-2;
+          snprintf_append(sstr,sstr_sz," [%d]=%.14f",w,*dv);
+          WDL_remove_trailing_decimal_zeros(sstr,2);
         }
         else
         {
           good_len = strlen(sstr);
-          snprintf_append(sstr,sstr_sz," [0x%06x]=<uninit>",w);
+          snprintf_append(sstr,sstr_sz," [%d]=<0>",w);
         }
       }
 
@@ -1120,13 +1128,8 @@ int EEL_Editor::peek_get_token_info(const char *name, char *sstr, size_t sstr_sz
       buf[0]=0;
       if (peek_get_numbered_string_value(v,buf,sizeof(buf)))
       {
-        if (good_len==-2)
-          snprintf_append(sstr,sstr_sz," %.0f(str)=%s",v,buf);
-        else
-        {
-          if (good_len>=0) sstr[good_len]=0; // remove [addr]=<uninit> if a string and no ram
-          snprintf_append(sstr,sstr_sz," (str)=%s",buf);
-        }
+        if (good_len>=0) sstr[good_len]=0; // remove [addr]=<uninit> if a string and no ram
+        snprintf_append(sstr,sstr_sz," #=\"%s\"",buf);
       }
     }
 
@@ -1331,11 +1334,14 @@ void EEL_Editor::doWatchInfo(int c)
         WDL_FastString n;
         lp++;
         n.Set(lp,(int)(rp-lp));
-        int idx;
-        if ((idx=peek_get_named_string_value(n.Get(),buf,sizeof(buf)))>=0) snprintf(sstr,sizeof(sstr),"#%s(%d)=%s",n.Get(),idx,buf);
-        else snprintf(sstr,sizeof(sstr),"#%s not found",n.Get());
+        int idx=peek_get_named_string_value(n.Get(),buf,sizeof(buf));
+        if (idx>=0)
+        {
+          snprintf(sstr,sizeof(sstr),"#%s(%d)=%s",n.Get(),idx,buf);
+          lp="";
+        }
       }
-      else if (*lp > 0 && (isalpha(*lp) || *lp == '_') && rp > lp)
+      if (*lp > 0 && (isalpha(*lp) || *lp == '_') && rp > lp)
       {
         WDL_FastString n;
         n.Set(lp,(int)(rp-lp));
@@ -1660,7 +1666,7 @@ run_suggest:
         int state = m_suggestion_curline_comment_state, toklen = 0, bcnt = 0, pcnt = 0;
         const char *tok;
                                        // if no parens/brackets are open, use a peekable token that starts at cursor
-        while ((tok=sh_tokenize(&p,endp,&toklen,&state)) && cursor > tok-(!pcnt && !bcnt && (tok[0] < 0 || tok[0] == '_' || isalpha(tok[0]))))
+        while ((tok=sh_tokenize(&p,endp,&toklen,&state)) && cursor > tok-(!pcnt && !bcnt && (tok[0] < 0 || tok[0] == '_' || isalpha(tok[0]) || tok[0] == '#')))
         {
           if (!state)
           {
@@ -1709,7 +1715,8 @@ run_suggest:
         if (t<0) break;
 
         if (tok[0] == ',') comma_cnt++;
-        else if ((tok[0] < 0 || tok[0] == '_' || isalpha(tok[0])) && (cursor <= tok + toklen || (t < ntok-1 && token_list[t+1].tok[0] == '(')))
+        else if ((tok[0] < 0 || tok[0] == '_' || isalpha(tok[0]) || tok[0] == '#') &&
+            (cursor <= tok + toklen || (t < ntok-1 && token_list[t+1].tok[0] == '(')))
         {
           // if cursor is within or at end of token, or is a function (followed by open-paren)
           char buf[512];
@@ -1923,11 +1930,19 @@ void EEL_Editor::onRightClick(HWND hwnd)
       p += 4;
     }
   }
-  if (flist.GetSize())
+
+  get_extra_filepos_names(&flist,0);
+
+  if (flist.GetSize()>1)
   {
     flist.Resort();
     if (m_case_sensitive) flist.Resort(WDL_LogicalSortStringKeyedArray<int>::cmpistr);
+  }
 
+  get_extra_filepos_names(&flist,1);
+
+  if (flist.GetSize())
+  {
     HMENU hm=CreatePopupMenu();
     int pos=0;
     for (i=0; i < flist.GetSize(); ++i)
@@ -2045,7 +2060,7 @@ LRESULT EEL_Editor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
         }
 
         // ctrl+doubleclicking a function goes to it
-        if (CTRL_KEY_DOWN)
+        if (!(g_eel_editor_flags&1) != !CTRL_KEY_DOWN)
         {
           WDL_FastString *l=m_text.Get(m_curs_y);
           if (l)

@@ -160,7 +160,8 @@ public:
     void format_date(char *buf, int bufsz)
     {
       *buf=0;
-      if (date > 0 && date < WDL_INT64_CONST(0x793406fff))
+      const WDL_INT64 date64 = (WDL_INT64) date;
+      if (date64 > 0 && date64 < WDL_INT64_CONST(0x793406fff))
       {
         struct tm *a=localtime(&date);
         if (a) strftime(buf,bufsz,"%c",a);
@@ -459,7 +460,14 @@ static LRESULT WINAPI swellFileSelectProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
             SendMessage(extlist,CB_SETITEMDATA,a,(LPARAM)p);
             p += strlen(p)+1;
           }
-          SendMessage(extlist,CB_SETCURSEL,0,0);
+
+          int sel = 0;
+          if (parms->initialfile && *parms->initialfile)
+          {
+            sel = ext_valid_for_extlist(WDL_get_fileext(parms->initialfile), parms->extlist);
+            if (sel<0) sel=0;
+          }
+          SendMessage(extlist,CB_SETCURSEL,sel,0);
         }
 
         SWELL_MakeLabel(-1,parms->mode == BrowseFile_State::OPENDIR ? "Directory: " : "File:",IDC_LABEL, 0,0,0,0, 0); 
@@ -556,6 +564,7 @@ get_dir:
             SendMessage(combo,CB_SETCURSEL,0,0);
           } 
         break;
+        case IDC_EXT:
         case 1:
         {
           BrowseFile_State *parms = (BrowseFile_State *)GetWindowLongPtr(hwnd,GWLP_USERDATA);
@@ -569,8 +578,44 @@ get_dir:
             HWND ext = GetDlgItem(hwnd,IDC_EXT);
             if (ext)
             {
-              LRESULT a = SendMessage(ext,CB_GETCURSEL,0,0);
-              if (a != CB_ERR) filt = (const char *)SendMessage(ext,CB_GETITEMDATA,a,0);
+              LRESULT aidx = SendMessage(ext,CB_GETCURSEL,0,0);
+              if (aidx != CB_ERR)
+              {
+                filt = (const char *)SendMessage(ext,CB_GETITEMDATA,aidx,0);
+                if (wParam == IDC_EXT && parms->extlist && *parms->extlist)
+                {
+                  GetDlgItemText(hwnd,IDC_EDIT,buf,sizeof(buf));
+
+                  if (buf[0])
+                  {
+                    const char *erd = filt;
+                    if (*erd == '*' && erd[1] == '.' && erd[2] && erd[2] != '*')
+                    {
+                      const char *a = (erd+=1);
+                      while (*erd && *erd != ';') erd++;
+                      if (erd > a+1)
+                      {
+                        if (ext_valid_for_extlist(WDL_get_fileext(buf),parms->extlist)>=0)
+                        {
+                          WDL_remove_fileext(buf);
+                        }
+                        else
+                        {
+                          char *p = buf;
+                          while (*p) p++;
+                          while (p > buf && (p[-1] == ' ' || p[-1] == '.' || p[-1] == '/' || p[-1] == '\\')) p--;
+                          *p=0;
+                        }
+                        if (buf[0])
+                        {
+                          snprintf_append(buf,sizeof(buf),"%.*s",(int)(erd-a),a);
+                          SetDlgItemText(hwnd,IDC_EDIT,buf);
+                        }
+                      }
+                    }
+                  }
+                }
+              }
             }
 
             GetDlgItemText(hwnd,IDC_DIR,buf,sizeof(buf));
@@ -675,7 +720,7 @@ get_dir:
         case IDC_EXT:
           if (HIWORD(wParam) == CBN_SELCHANGE)
           {
-            SendMessage(hwnd,WM_UPD,1,0);
+            SendMessage(hwnd,WM_UPD,IDC_EXT,0);
           }
         return 0;
         case IDC_PARENTBUTTON:
@@ -842,15 +887,23 @@ treatAsDir:
                    if (buf[strlen(buf)-1] == '/') goto treatAsDir;
 
                    const char *extlist = parms->extlist;
-                   if (extlist && *extlist && WDL_get_fileext(buf)[0] != '.')
+                   if (extlist && *extlist && ext_valid_for_extlist(WDL_get_fileext(buf),extlist) < 0)
                    {
-                      const char *erd = extlist+strlen(extlist)+1;
-                      if (*erd == '*' && erd[1] == '.') // add default extension
-                      {
-                        const char *a = (erd+=1);
-                        while (*erd && *erd != ';') erd++;
-                        if (erd > a+1) snprintf_append(buf,sizeof(buf),"%.*s",(int)(erd-a),a);
-                      }
+                     const char *erd = extlist+strlen(extlist)+1;
+                     LRESULT combo_sel;
+                     HWND combo = GetDlgItem(hwnd, IDC_EXT);
+                     if (combo && (combo_sel=SendMessage(combo,CB_GETCURSEL,0,0)) != CB_ERR)
+                     {
+                       const char *filt = (const char *)SendMessage(combo,CB_GETITEMDATA,combo_sel,0);
+                       if (filt && *filt == '*' && filt[1] == '.' && filt[2] && filt[2] != '*') erd = filt;
+                     }
+
+                     if (*erd == '*' && erd[1] == '.' && erd[2] && erd[2] != '*') // add default extension
+                     {
+                       const char *a = (erd+=1);
+                       while (*erd && *erd != ';') erd++;
+                       if (erd > a+1) snprintf_append(buf,sizeof(buf),"%.*s",(int)(erd-a),a);
+                     }
                    }
                    if (!stat(buf,&st))
                    {
@@ -1007,7 +1060,7 @@ treatAsDir:
         SendMessage(hwnd,WM_COMMAND,IDC_PARENTBUTTON,0);
         return 1;
       }
-      else if (lParam == FVIRTKEY && wParam == VK_RETURN && 
+      else if ((lParam&0xff) == FVIRTKEY && wParam == VK_RETURN &&
                GetFocus() == GetDlgItem(hwnd,IDC_LIST))
       {
         SendMessage(hwnd,WM_COMMAND,IDOK,0);
