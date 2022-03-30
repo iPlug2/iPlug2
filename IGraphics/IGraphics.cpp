@@ -1274,13 +1274,31 @@ bool IGraphics::OnKeyUp(float x, float y, const IKeyPress& key)
 void IGraphics::OnDrop(const char* str, float x, float y)
 {
   IControl* pControl = GetMouseControl(x, y, false);
-  if (pControl) pControl->OnDrop(str);
+
+  if (pControl)
+    pControl->OnDrop(str, x, y);
+}
+
+void IGraphics::OnDropOver(const char* ext, float x, float y)
+{
+  IControl* pControl = GetMouseControl(x, y, false, true);
+
+  if (pControl != mMouseOver)
+  {
+    if (mMouseOver)
+      mMouseOver->OnMouseOut();
+    
+    mMouseOver = pControl;
+  }
+
+  if (mMouseOver)
+    pControl->OnDropOver(ext, x, y);
 }
 
 void IGraphics::OnDropMultiple(const std::vector<const char*>& paths, float x, float y)
 {
   IControl* pControl = GetMouseControl(x, y, false);
-  if (pControl) pControl->OnDropMultiple(paths);
+  if (pControl) pControl->OnDropMultiple(paths, x, y);
 }
 
 void IGraphics::ReleaseMouseCapture()
@@ -1300,7 +1318,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
       IControl* pControl = GetControl(c);
 
 #ifndef NDEBUG
-      if(!mLiveEdit)
+      if (!mLiveEdit)
       {
 #endif
         if (!pControl->IsHidden() && !pControl->GetIgnoreMouse())
@@ -1332,11 +1350,11 @@ IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseO
 
   auto itr = mCapturedMap.find(touchID);
   
-  if(ControlIsCaptured() && itr != mCapturedMap.end())
+  if (ControlIsCaptured() && itr != mCapturedMap.end())
   {
     pControl = itr->second;
     
-    if(pControl)
+    if (pControl)
       return pControl;
   }
   
@@ -1368,7 +1386,7 @@ IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseO
   
   if (capture && pControl)
   {
-    if(MultiTouchEnabled())
+    if (MultiTouchEnabled())
     {
       bool alreadyCaptured = ControlIsCaptured(pControl);
 
