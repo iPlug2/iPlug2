@@ -107,7 +107,7 @@ int length_of_quoted_string(char *p, bool convertRCquotesToSlash)
     {
       l++;
     }
-    if (p[l] == '\r' || p[l] == '\n') break;
+    if (!p[l] || p[l] == '\r' || p[l] == '\n') break;
     l++;
   }
   fprintf(stderr,"ERROR: mismatched quotes in file %s:%d, check input!\n",g_last_file,g_last_linecnt);
@@ -130,7 +130,7 @@ static int isLocalizeCall(const char *p)
   else return 0;
 
   if (*p == '_') while (*p == '_' || (*p >= 'A'  && *p <= 'Z')||(*p>='0' && *p <='9')) p++;
-  while (*p == ' ') p++;
+  while (isblank(*p)) p++;
   return *p == '(' ? rv : 0;
 }
 
@@ -392,16 +392,21 @@ void processCPPfile(FILE *fp, const char *filename)
     else if (!comment_state)
     {
       int hm;
-      if (clocsec[0] && *p == '"')
+      if (*p == '\\') { p++; if (*p) p++; }
+      else if (*p == '\'') { p++; if (*p == '"') p++; }
+      else if (*p == '"')
       {
         int l = length_of_quoted_string(p+1,false);
-        if (l >= 7 && !strncmp(p+1,"MM_CTX_",7))
+        if (clocsec[0])
         {
-          // ignore MM_CTX_* since these are internal strings
-        }
-        else
-        {
-          gotString(p+1,l,clocsec,false, filename, g_last_linecnt);
+          if (l >= 7 && !strncmp(p+1,"MM_CTX_",7))
+          {
+            // ignore MM_CTX_* since these are internal strings
+          }
+          else
+          {
+            gotString(p+1,l,clocsec,false, filename, g_last_linecnt);
+          }
         }
         p += l+2;
       }
@@ -445,6 +450,7 @@ void processCPPfile(FILE *fp, const char *filename)
           p+=l2;
           gotString(sp,l,sec,false, filename, g_last_linecnt);
         }
+        p++;
       }
       else
         p++;
