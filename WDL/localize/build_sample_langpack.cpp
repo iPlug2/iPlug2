@@ -31,7 +31,7 @@ WDL_StringKeyedArray<char *> section_descs;
 WDL_StringKeyedArray< WDL_PtrList<char> * > translations;
 WDL_StringKeyedArray< WDL_StringKeyedArray<bool> * > translations_indexed;
 
-void gotString(const char *str, int len, const char *secname)
+void gotString(const char *str, int len, const char *secname, bool isRC, const char *fn, int line)
 {
   WDL_PtrList<char> *sec=translations.Get(secname);
   if (!sec)
@@ -47,22 +47,42 @@ void gotString(const char *str, int len, const char *secname)
   }
   if (len > (int)strlen(str))
   {
-    fprintf(stderr,"gotString got len>strlen(str)\n");
+    fprintf(stderr,"gotString got len>strlen(str) on %s:%d\n",fn,line);
     exit(1);
   }
-  char buf[8192];
-  if (len > (int) (sizeof(buf)-8))
+
+  WDL_FastString buf;
+  if (!isRC)
   {
-    fprintf(stderr,"argh, got string longer than 8k, adjust code accordingly or check input.\n");
-    exit(1);
+    int st = 0;
+    for (int x = 0; x < len; x ++)
+    {
+      if (!st)
+      {
+        if (str[x] == '\\' && str[x+1])
+        {
+          buf.Append(str+x,2);
+          x++;
+        }
+        else if (str[x] == '\"') st=1;
+        else buf.Append(str+x,1);
+      }
+      else if (str[x] == '\"') st=0;
+      else if (!isblank(str[x]))
+      {
+        fprintf(stderr,"gotString has junk between concatenated strings on %s:%d\n",fn,line);
+        exit(1);
+      }
+    }
   }
+  else
+  {
+    buf.Set(str,len);
+  }
+  if (sec2->Get(buf.Get())) return; //already in list
 
-  memcpy(buf,str,len);
-  buf[len]=0;
-  if (sec2->Get(buf)) return; //already in list
-
-  sec2->Insert(buf,true);
-  sec->Add(strdup(buf));
+  sec2->Insert(buf.Get(),true);
+  sec->Add(strdup(buf.Get()));
 }
 const char *g_last_file;
 int g_last_linecnt;
@@ -73,14 +93,24 @@ int length_of_quoted_string(char *p, bool convertRCquotesToSlash)
   {
     if (convertRCquotesToSlash && p[l] == '\"' && p[l+1] == '\"')  p[l]='\\';
 
-    if (p[l] == '\"') return l;
+    if (p[l] == '\"')
+    {
+      if (convertRCquotesToSlash) return l;
+
+      // scan over whitespace to see if another string begins, concat them
+      int l2 = l+1;
+      while (isblank(p[l2])) l2++;
+      if (p[l2] != '\"') return l;
+      l = l2;
+    }
     if (p[l] == '\\')
     {
       l++;
     }
+    if (p[l] == '\r' || p[l] == '\n') break;
     l++;
   }
-  fprintf(stderr,"ERROR: mismatched quotes in file %s:%d, string '%s', check input!\n",g_last_file,g_last_linecnt,p);
+  fprintf(stderr,"ERROR: mismatched quotes in file %s:%d, check input!\n",g_last_file,g_last_linecnt);
   exit(1);
   return -1;
 }
@@ -239,7 +269,7 @@ const char *getResourceDefinesFromHeader(const char *fn)
   return NULL;
 }
 
-void processRCfile(FILE *fp, const char *dirprefix)
+void processRCfile(FILE *fp, const char *dirprefix, const char *filename)
 {
   char sname[512];
   sname[0]=0;
@@ -289,7 +319,7 @@ void processRCfile(FILE *fp, const char *dirprefix)
         int l = length_of_quoted_string(second_tok+1,true);
         if (l>0)
         {
-          gotString(second_tok+1,l,sname);
+          gotString(second_tok+1,l,sname, true, filename, g_last_linecnt);
 
           // OSX menu support: store a 2nd string w/o \tshortcuts, strip '&' too
           // note: relies on length_of_quoted_string() pre-conversion above
@@ -303,7 +333,7 @@ void processRCfile(FILE *fp, const char *dirprefix)
               if (*m != '&') buf[j++] = *m;
               m++;
             }
-            if (j!=l) gotString(buf,j,sname);
+            if (j!=l) gotString(buf,j,sname,true, filename, g_last_linecnt);
           }
         }
       }
@@ -331,32 +361,58 @@ void processRCfile(FILE *fp, const char *dirprefix)
   }
 }
 
-void processCPPfile(FILE *fp)
+void processCPPfile(FILE *fp, const char *filename)
 {
   char clocsec[512];
   clocsec[0]=0;
+  WDL_FastString fs;
   for (;;)
   {
     char buf[8192];
-    g_last_linecnt++;
     if (!fgets(buf,sizeof(buf),fp)) break;
-    char *p = buf;
-    while (*p) p++;
-    while (p>buf && (p[-1] == '\r'|| p[-1] == '\n' || p[-1] == ' ')) p--;
-    *p=0;
-    char *commentp =strstr(buf,"//");
-    p=buf;
-    while (*p && (!commentp || p < commentp)) // ignore __LOCALIZE after //
+    fs.Append(buf);
+  }
+
+  char *p = (char*)fs.Get();
+  char *comment_state = NULL;
+  g_last_linecnt++;
+  while (*p)
+  {
+    if (!strncmp(p,"//",2))
+    {
+      comment_state = p;
+      p+=2;
+    }
+    else if (*p == '\n')
+    {
+      g_last_linecnt++;
+      comment_state = NULL;
+      p++;
+    }
+    else if (!comment_state)
     {
       int hm;
-      if ((p==buf || (!isalnum(p[-1]) && p[-1] != '_')) && (hm=isLocalizeCall(p)))
+      if (clocsec[0] && *p == '"')
+      {
+        int l = length_of_quoted_string(p+1,false);
+        if (l >= 7 && !strncmp(p+1,"MM_CTX_",7))
+        {
+          // ignore MM_CTX_* since these are internal strings
+        }
+        else
+        {
+          gotString(p+1,l,clocsec,false, filename, g_last_linecnt);
+        }
+        p += l+2;
+      }
+      else if ((p==(char*)fs.Get() || (!isalnum(p[-1]) && p[-1] != '_')) && (hm=isLocalizeCall(p)))
       {
         while (*p != '(') p++;
         p++;
         while (isblank(*p)) p++;
         if (*p++ != '"')
         {
-          fprintf(stderr,"Error: missing \" on '%s'\n",buf);
+          fprintf(stderr,"Error: missing \" on %s:%d\n",filename,g_last_linecnt);
           exit(1);
         }
         int l = length_of_quoted_string(p,false);
@@ -365,20 +421,20 @@ void processCPPfile(FILE *fp)
         while (isblank(*p)) p++;
         if (*p++ != ',')
         {
-          fprintf(stderr,"Error: missing , on '%s'\n",buf);
+          fprintf(stderr,"Error: missing , on %s:%d\n",filename,g_last_linecnt);
           exit(1);
         }
         while (isblank(*p)) p++;
         if (*p++ != '"')
         {
-          fprintf(stderr,"Error: missing second \" on '%s'\n",buf);
+          fprintf(stderr,"Error: missing second \" on %s:%d\n",filename,g_last_linecnt);
           exit(1);
         }
         int l2 = length_of_quoted_string(p,false);
 
         if (hm == HACK_WILDCARD_ENTRY)
         {
-          gotString(p,l2,"render_wildcard");
+          gotString(p,l2,"render_wildcard",false, filename, g_last_linecnt);
           p += l2;
         }
         else
@@ -387,42 +443,51 @@ void processCPPfile(FILE *fp)
           memcpy(sec,p,l2);
           sec[l2]=0;
           p+=l2;
-          gotString(sp,l,sec);
+          gotString(sp,l,sec,false, filename, g_last_linecnt);
         }
       }
-      p++;
-    }
-
-    if (clocsec[0])
-    {
-      p=buf;
-      while (*p)
-      {
-        if (*p == '"')
-        {
-          int l = length_of_quoted_string(p+1,false);
-          if (l >= 7 && !strncmp(p+1,"MM_CTX_",7))
-          {
-            // ignore MM_CTX_* since these are internal strings
-          }
-          else
-          {
-            gotString(p+1,l,clocsec);
-          }
-          p += l+2;
-        }
-        else
-        {
-        if (*p == '\\') p++;
-          if (*p == '/' && p[1] == '/') break; // comment terminates
+      else
         p++;
+    }
+    else if (p > comment_state && p < comment_state + 4)
+    {
+      if (!strncmp(p,"!WANT_LOCALIZE_STRINGS_BEGIN:",29))
+      {
+        p += 29;
+        if (clocsec[0])
+        {
+          fprintf(stderr,"Error: !WANT_LOCALIZE_STRINGS_BEGIN: before WANT_LOCALIZE_STRINGS_END on  %s:%d\n",filename,g_last_linecnt);
+          exit(1);
         }
+        int a = 0;
+        while (*p && !isblank(*p) && a < sizeof(clocsec)) clocsec[a++] = *p++;
+        if (a >= sizeof(clocsec))
+        {
+          fprintf(stderr,"Error: !WANT_LOCALIZE_STRINGS_BEGIN: too long on %s:%d\n",filename,g_last_linecnt);
+          exit(1);
+        }
+        clocsec[a]=0;
+      }
+      else
+      {
+        if (!strncmp(p,"!WANT_LOCALIZE_STRINGS_END",26))
+        {
+          if (!clocsec[0])
+          {
+            fprintf(stderr,"Error: mismatched !WANT_LOCALIZE_STRINGS_END on %s:%d\n",filename,g_last_linecnt);
+            exit(1);
+          }
+          clocsec[0]=0;
+        }
+        p++;
       }
     }
-
-    char *p2;
-    if (commentp && (p2=strstr(commentp,"!WANT_LOCALIZE_STRINGS_BEGIN:"))) strcpy(clocsec,strstr(p2,":")+1);
-    else if (commentp && (strstr(commentp,"!WANT_LOCALIZE_STRINGS_END"))) clocsec[0]=0;
+    else p++;
+  }
+  if (clocsec[0])
+  {
+    fprintf(stderr,"Error: missing !WANT_LOCALIZE_STRINGS_END at eof %s:%d\n",filename,g_last_linecnt);
+    exit(1);
   }
 }
 
@@ -481,11 +546,11 @@ int main(int argc, char **argv)
         fprintf(stderr,"Error reading %s: %s\n",s.Get(),err);
         exit(1);
       }
-      processRCfile(fp,dpre.Get()[0]?dpre.Get():NULL);
+      processRCfile(fp,dpre.Get()[0]?dpre.Get():NULL, argv[x]);
     }
     else
     {
-      processCPPfile(fp);
+      processCPPfile(fp,argv[x]);
     }
 
     fclose(fp);
