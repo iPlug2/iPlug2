@@ -45,7 +45,7 @@ void gotString(const char *str, int len, const char *secname)
     sec2 = new WDL_StringKeyedArray<bool>(true);
     translations_indexed.Insert(secname,sec2);
   }
-  if (len > (int)strlen(str)) 
+  if (len > (int)strlen(str))
   {
     fprintf(stderr,"gotString got len>strlen(str)\n");
     exit(1);
@@ -74,7 +74,7 @@ int length_of_quoted_string(char *p, bool convertRCquotesToSlash)
     if (convertRCquotesToSlash && p[l] == '\"' && p[l+1] == '\"')  p[l]='\\';
 
     if (p[l] == '\"') return l;
-    if (p[l] == '\\') 
+    if (p[l] == '\\')
     {
       l++;
     }
@@ -118,15 +118,15 @@ WDL_UINT64 outputLine(const char *strv, int casemode)
       else if (*p == 'r') h=WDL_FNV64(h,(unsigned char *)"\r",1);
       else if (*p == 't') h=WDL_FNV64(h,(unsigned char *)"\t",1);
       else if (*p == '0') h=WDL_FNV64(h,(unsigned char *)"",1);
-      else if (*p == 'x' && p[1] == 'e' && p[2] == '9') 
+      else if (*p == 'x' && p[1] == 'e' && p[2] == '9')
       {
         h=WDL_FNV64(h,(unsigned char *)"\xe9",1);
         p+=2;
       }
-      else 
+      else
       {
         fprintf(stderr,"ERROR: unknown escape seq in '%s' at '%s'\n",strv,p);
-      	exit(1);
+        exit(1);
       }
       p++;
     }
@@ -140,7 +140,7 @@ WDL_UINT64 outputLine(const char *strv, int casemode)
   {
     int c = *strv++;
     if (lc == '%' || lc == '\\') { /* hacky*/ }
-    else if (c == '\\' && strv[0] == 'x' && strv[1] == 'e' && strv[2] == '9') 
+    else if (c == '\\' && strv[0] == 'x' && strv[1] == 'e' && strv[2] == '9')
     {
       strv+=3;
       c = 0xe9;
@@ -188,7 +188,7 @@ WDL_UINT64 outputLine(const char *strv, int casemode)
       }
     }
     printf("%c",c);
-    if (lc == '%' && (c == '.' || c=='l' || (c>='0' && c<='9'))) 
+    if (lc == '%' && (c == '.' || c=='l' || (c>='0' && c<='9')))
     {
       // ignore .xyz and l between format spec (hacky)
     }
@@ -217,7 +217,7 @@ const char *getResourceDefinesFromHeader(const char *fn)
     while (*p) p++;
     while (p>buf && (p[-1] == '\r'|| p[-1] == '\n' || p[-1] == ' ')) p--;
     *p=0;
-    
+
     if (!strncmp(buf,"#define",7))
     {
       p=buf;
@@ -274,7 +274,7 @@ void processRCfile(FILE *fp, const char *dirprefix)
         exit(1);
       }
       int sec = g_resdefs.Get(first_tok);
-      if (!sec) 
+      if (!sec)
       {
         fprintf(stderr, "unknown dialog %s\n",first_tok);
         exit(1);
@@ -290,7 +290,7 @@ void processRCfile(FILE *fp, const char *dirprefix)
         if (l>0)
         {
           gotString(second_tok+1,l,sname);
-          
+
           // OSX menu support: store a 2nd string w/o \tshortcuts, strip '&' too
           // note: relies on length_of_quoted_string() pre-conversion above
           if (depth && strstr(sname, "MENU_"))
@@ -308,11 +308,11 @@ void processRCfile(FILE *fp, const char *dirprefix)
         }
       }
     }
-    else if (!strcmp(first_tok,"BEGIN")) 
+    else if (!strcmp(first_tok,"BEGIN"))
     {
       depth++;
     }
-    else if (!strcmp(first_tok,"END")) 
+    else if (!strcmp(first_tok,"END"))
     {
       depth--;
       if (depth<0)
@@ -398,24 +398,24 @@ void processCPPfile(FILE *fp)
       p=buf;
       while (*p)
       {
-	      if (*p == '"')
-	      {
-	        int l = length_of_quoted_string(p+1,false);
+        if (*p == '"')
+        {
+          int l = length_of_quoted_string(p+1,false);
           if (l >= 7 && !strncmp(p+1,"MM_CTX_",7))
           {
             // ignore MM_CTX_* since these are internal strings
           }
           else
           {
-  	        gotString(p+1,l,clocsec);
+            gotString(p+1,l,clocsec);
           }
-	        p += l+2;
-	      }
-	      else
-	      {
-    	  if (*p == '\\') p++;
+          p += l+2;
+        }
+        else
+        {
+        if (*p == '\\') p++;
           if (*p == '/' && p[1] == '/') break; // comment terminates
-    	  p++;
+        p++;
         }
       }
     }
@@ -475,7 +475,7 @@ int main(int argc, char **argv)
       if (!strcmp(dpre.Get(),"jesusonic")) dpre.Set("jsfx");
 
       s.Append("resource.h");
-      const char *err=getResourceDefinesFromHeader(s.Get());     
+      const char *err=getResourceDefinesFromHeader(s.Get());
       if (err)
       {
         fprintf(stderr,"Error reading %s: %s\n",s.Get(),err);
@@ -483,22 +483,22 @@ int main(int argc, char **argv)
       }
       processRCfile(fp,dpre.Get()[0]?dpre.Get():NULL);
     }
-    else 
+    else
     {
       processCPPfile(fp);
     }
-      
+
     fclose(fp);
   }
   if (casemode==4) printf("\xef\xbb\xbf");
   printf("#NAME:%s\n",
-       casemode==-1 ? "English (lower case, demo)" : 
-       casemode==1 ? "English (upper case, demo)" : 
-       casemode==2 ? "English (leet-speak, demo)" : 
-       casemode==4 ? "UTF-8 English test (demo)" : 
-       casemode==3 ? "Template (edit-me)" : 
+       casemode==-1 ? "English (lower case, demo)" :
+       casemode==1 ? "English (upper case, demo)" :
+       casemode==2 ? "English (leet-speak, demo)" :
+       casemode==4 ? "UTF-8 English test (demo)" :
+       casemode==3 ? "Template (edit-me)" :
        "English (sample language pack)");
-  if (casemode==3) 
+  if (casemode==3)
   {
     printf("; NOTE: this is the best starting point for making a new langpack.\n"
            "; As you translate a string, remove the ; from the beginning of the\n"
@@ -510,7 +510,7 @@ int main(int argc, char **argv)
            "; 5CA1E00000000000=1.2\n"
            "; This makes the above dialog 1.2x wider than default.\n\n");
   }
-  
+
   WDL_StringKeyedArray<bool> common_found;
   {
     if (!translations_indexed.GetSize())
@@ -528,7 +528,7 @@ int main(int argc, char **argv)
     int pos[4096]={0,};
     printf("[common]\n");
     WDL_FastString matchlist;
-    WDL_AssocArray<WDL_UINT64, bool> ids(uint64cmpfunc); 
+    WDL_AssocArray<WDL_UINT64, bool> ids(uint64cmpfunc);
     int minpos = 0;
     for (;;)
     {
@@ -539,40 +539,40 @@ int main(int argc, char **argv)
       {
         const char *secname;
         WDL_StringKeyedArray<bool> *l = translations_indexed.Enumerate(x,&secname);
-	      int sz=l->GetSize();
+        int sz=l->GetSize();
         if (!str)
-	      {
-          if (x>minpos) 
+        {
+          if (x>minpos)
           {
             memset(pos,0,sizeof(pos)); // start over
             minpos=x;
           }
           while (!str && pos[x]<sz)
           {
-            l->Enumerate(pos[x]++,&str); 
+            l->Enumerate(pos[x]++,&str);
             if (common_found.Get(str)) str=NULL; // skip if we've already analyzed this string
           }
-          if (str) matchlist.Set(secname); 
+          if (str) matchlist.Set(secname);
         }
-	      else 
+        else
         {
           while (pos[x] < sz)
-	        {
-      	    const char *tv=NULL;
-	          l->Enumerate(pos[x],&tv);
-      	    int c = strcmp(tv,str);
-      	    if (c>0) break; 
-      	    pos[x]++;
-      	    if (!c)
-	          {
+          {
+            const char *tv=NULL;
+            l->Enumerate(pos[x],&tv);
+            int c = strcmp(tv,str);
+            if (c>0) break;
+            pos[x]++;
+            if (!c)
+            {
               matchlist.Append(", ");
-	            matchlist.Append(secname);
-	            matchcnt++;
-	            break;
-	          }
-	        }
+              matchlist.Append(secname);
+              matchcnt++;
+              break;
+            }
+          }
         }
-	    }
+      }
       if (matchcnt>0)
       {
         common_found.Insert(str,true);
@@ -601,7 +601,7 @@ int main(int argc, char **argv)
     printf("[%s]%s%s\n",nm,secinfo?" ; ":"", secinfo?secinfo:"");
     int a;
     int y;
-    WDL_AssocArray<WDL_UINT64, bool> ids(uint64cmpfunc); 
+    WDL_AssocArray<WDL_UINT64, bool> ids(uint64cmpfunc);
     for (a=0;a<2;a++)
     {
       for (y=0;y<p->GetSize();y++)
