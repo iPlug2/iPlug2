@@ -399,14 +399,7 @@ void processCPPfile(FILE *fp, const char *filename)
         int l = length_of_quoted_string(p+1,false);
         if (clocsec[0])
         {
-          if (l >= 7 && !strncmp(p+1,"MM_CTX_",7))
-          {
-            // ignore MM_CTX_* since these are internal strings
-          }
-          else
-          {
-            gotString(p+1,l,clocsec,false, filename, g_last_linecnt);
-          }
+          gotString(p+1,l,clocsec,false, filename, g_last_linecnt);
         }
         p += l+2;
       }
