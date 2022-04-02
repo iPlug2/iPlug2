@@ -212,7 +212,8 @@ typedef struct SWELL_CursorResourceIndex
 class SWELL_DialogRegHelper { 
   public:
      SWELL_DialogResourceIndex m_rec;
-     SWELL_DialogRegHelper(SWELL_DialogResourceIndex **h, void (*cf)(HWND,int), int recid, int flags, const char *titlestr, int wid, int hei, double scale)
+     SWELL_DialogRegHelper(SWELL_DialogResourceIndex **h, void (*cf)(HWND,int), int recid, int flags,
+         const char *titlestr, int wid, int hei, double xscale, double yscale)
      {
        if (recid) 
        {
@@ -220,8 +221,8 @@ class SWELL_DialogRegHelper {
          m_rec.title=titlestr; 
          m_rec.windowTypeFlags=flags; 
          m_rec.createFunc=cf; 
-         m_rec.width=(int)((wid)*(scale)); 
-         m_rec.height=(int)((hei)*(scale)); 
+         m_rec.width=(int)(wid*xscale);
+         m_rec.height=(int)(hei*yscale);
          m_rec._next=*h;
          *h = &m_rec;
        } 
@@ -261,15 +262,19 @@ class SWELL_DialogRegHelper {
 #define SWELL_DEFINE_DIALOG_RESOURCE_BEGIN(recid, flags, titlestr, wid, hei, scale) \
                                        static void SWELL__dlg_cf__##recid(HWND view, int wflags); \
                                        const float __swell_dlg_scale__##recid = (float) (scale); \
-                                       static SWELL_DialogRegHelper __swell_dlg_helper_##recid(&SWELL_curmodule_dialogresource_head, SWELL__dlg_cf__##recid, recid,flags,titlestr,wid,hei,scale); \
+                                       static SWELL_DialogRegHelper __swell_dlg_helper_##recid(&SWELL_curmodule_dialogresource_head, SWELL__dlg_cf__##recid, recid,flags,titlestr,wid,hei,scale,(scale)*(SWELL_DLG_SCALE_AUTOGEN_YADJ)); \
                                        static const SWELL_DlgResourceEntry __swell_dlg_list__##recid[]={
 
                                             
 #define SWELL_DEFINE_DIALOG_RESOURCE_END(recid ) }; \
                               SWELL_VALIDATE_DIALOG_RESOURCE( __swell_dlg_validator__##recid, __swell_dlg_list__##recid) \
                               static void SWELL__dlg_cf__##recid(HWND view, int wflags) { \
-                                SWELL_MakeSetCurParms(__swell_dlg_scale__##recid,__swell_dlg_scale__##recid,0,0,view,false,!(wflags&SWELL_DLG_WS_NOAUTOSIZE));  \
+                                SWELL_MakeSetCurParms(__swell_dlg_scale__##recid,__swell_dlg_scale__##recid * (SWELL_DLG_SCALE_AUTOGEN_YADJ),0,0,view,false,!(wflags&SWELL_DLG_WS_NOAUTOSIZE));  \
                                 SWELL_GenerateDialogFromList(__swell_dlg_list__##recid+1,sizeof(__swell_dlg_list__##recid)/sizeof(__swell_dlg_list__##recid[0])-1); \
                               }
+
+#ifndef SWELL_DLG_SCALE_AUTOGEN_YADJ
+#define SWELL_DLG_SCALE_AUTOGEN_YADJ 1.0
+#endif
 
 #endif
