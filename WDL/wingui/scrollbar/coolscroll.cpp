@@ -1937,7 +1937,11 @@ static LRESULT NCPaint(SCROLLWND *sw, HWND hwnd, WPARAM wParam, LPARAM lParam, H
     char tmp[512];
     if (!sw->whichTheme) strcpy(tmp,"scrollbar");
     else wsprintf(tmp,"scrollbar_%d",sw->whichTheme+1);
-    initLiceBmp(theme,(LICE_IBitmap **)GetIconThemePointer(tmp));
+    LICE_IBitmap **p = (LICE_IBitmap **)GetIconThemePointer(tmp);
+
+    static LICE_IBitmap *_z;
+    if (!p) p = &_z;
+    initLiceBmp(theme,p);
   }
 
   GET_WINDOW_RECT(hwnd, &winrect);
