@@ -3385,6 +3385,8 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("Edit")
 
           if (r.length > 0 && !str)
             [ts deleteCharactersInRange:r];
+          else if (str && ![ts length])
+            [self setString:str]; // dark-mode workaround, need default attributes
           else if (str)
             [ts replaceCharactersInRange:r withString:str];
 
