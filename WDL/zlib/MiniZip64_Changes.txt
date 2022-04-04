@@ -1,3 +1,5 @@
+- WDL modifications to fix a shadowed variable warning
+
 
 MiniZip 1.1 was derrived from MiniZip at version 1.01f
 
