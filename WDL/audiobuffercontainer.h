@@ -62,7 +62,7 @@ struct PinMapPin
     if (x >= maxch) return false;
 
     WDL_UINT64 s = state[x / STATE_ENT_BITS] >> (x & (STATE_ENT_BITS-1));
-    do
+    for (;;)
     {
       if (s)
       {
@@ -77,9 +77,9 @@ struct PinMapPin
         break;
       }
       x = (x & ~(STATE_ENT_BITS-1)) + STATE_ENT_BITS;
+      if (x >= maxch) break;
       s = state[x / STATE_ENT_BITS];
     }
-    while (x < maxch);
 
     *ch = x;
     return false;
