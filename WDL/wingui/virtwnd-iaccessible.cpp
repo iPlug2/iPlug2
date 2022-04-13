@@ -616,7 +616,10 @@ public:
         GetFocus()==m_br.vwnd->GetRealParent())
     {
       pvarFocusChild->vt=VT_I4;
-      pvarFocusChild->lVal = CHILDID_SELF;
+      if (m_br.vwnd->m_focused_child >= 0)
+        pvarFocusChild->lVal = 1+m_br.vwnd->m_focused_child;
+      else
+        pvarFocusChild->lVal = CHILDID_SELF;
     }
     return S_OK;
   }
