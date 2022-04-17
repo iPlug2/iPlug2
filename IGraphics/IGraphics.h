@@ -767,6 +767,7 @@ private:
   virtual void CompleteRegion(const IRECT& bounds) {}
 
   virtual void SetClipRegion(const IRECT& r) = 0;
+  virtual void SetClipPath() = 0;
 
 public:
 #pragma mark - Platform implementation
