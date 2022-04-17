@@ -834,6 +834,15 @@ void IGraphicsSkia::SetClipRegion(const IRECT& r)
   mCanvas->setMatrix(mFinalMatrix);
 }
 
+void IGraphicsSkia::SetClipPath()
+{
+  mCanvas->restoreToCount(0);
+  mCanvas->save();
+  mCanvas->setMatrix(mClipMatrix);
+  mCanvas->clipPath(mMainPath);
+  mCanvas->setMatrix(mFinalMatrix);
+}
+
 APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, float scale, double drawScale, bool cacheable)
 {
   sk_sp<SkSurface> surface;
