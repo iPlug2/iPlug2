@@ -151,6 +151,7 @@ private:
   void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const;
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
+  void SetClipPath() override;
   void UpdateLayer() override;
   void ClearFBOStack();
   
