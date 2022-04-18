@@ -137,7 +137,7 @@ private:
 
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
-  void SetClipPath() override;
+  void SetClipPath(const IRECT& r) override;
   
   void RenderPath(SkPaint& paint);
     
