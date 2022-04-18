@@ -2666,8 +2666,9 @@ void IGraphics::PathClipRegion(const IRECT r)
 }
 
 void IGraphics::PathClipPath() {
+  IRECT drawArea = mLayers.empty() ? mClipRECT : mLayers.top()->Bounds();
   PathTransformSetMatrix(IMatrix());
-  SetClipPath();
+  SetClipPath(drawArea);
   PathTransformSetMatrix(mTransform);
 }
 
