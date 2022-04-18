@@ -834,12 +834,13 @@ void IGraphicsSkia::SetClipRegion(const IRECT& r)
   mCanvas->setMatrix(mFinalMatrix);
 }
 
-void IGraphicsSkia::SetClipPath()
+void IGraphicsSkia::SetClipPath(const IRECT& r)
 {
   mCanvas->restoreToCount(0);
   mCanvas->save();
   mCanvas->setMatrix(mClipMatrix);
-  mCanvas->clipPath(mMainPath);
+  mCanvas->clipPath(mMainPath, true);
+  mCanvas->clipRect(SkiaRect(r));
   mCanvas->setMatrix(mFinalMatrix);
 }
 
