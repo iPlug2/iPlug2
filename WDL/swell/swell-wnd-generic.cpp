@@ -526,7 +526,7 @@ void SetFocus(HWND hwnd)
 void SWELL_OnNavigationFocus(HWND ch)
 {
   if (ch && ch->m_classname && (
-       !strcmp(ch->m_classname,"Edit") ||
+       (!strcmp(ch->m_classname,"Edit") && !(ch->m_style & ES_READONLY)) ||
        !strcmp(ch->m_classname,"combobox")
      ))
   {
