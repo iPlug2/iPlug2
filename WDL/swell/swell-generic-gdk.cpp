@@ -611,7 +611,9 @@ void swell_oswindow_manage(HWND hwnd, bool wantfocus)
         attr.wmclass_name = (gchar*)appname;
         attr.wmclass_class = (gchar*)appname;
         attr.window_type = GDK_WINDOW_TOPLEVEL;
-        hwnd->m_oswindow = gdk_window_new(NULL,&attr,GDK_WA_X|GDK_WA_Y|(appname?GDK_WA_WMCLASS:0));
+        if (GetProp(hwnd,"SWELLGdkAlphaChannel"))
+          attr.visual = gdk_screen_get_rgba_visual(gdk_screen_get_default());
+        hwnd->m_oswindow = gdk_window_new(NULL,&attr,GDK_WA_X|GDK_WA_Y|(appname?GDK_WA_WMCLASS:0)|(attr.visual ? GDK_WA_VISUAL : 0));
  
         if (hwnd->m_oswindow) 
         {
