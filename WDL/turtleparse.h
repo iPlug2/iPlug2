@@ -74,7 +74,7 @@ public:
   static void deletePair(wdl_turtle_pair *p) { delete p; }
 
   const char *get_verb() { return verb; } // NULL indicates "a"
-  const char *get_resource() { return mode == MODE_RESOURCE ? value : NULL; } // object is a uri <http://foo>
+  const char *get_resource() { return mode == MODE_RESOURCE ? value : NULL; } // object is a uri <http://foo>, returned as "http://foo", and _not_ URL-decoded (if resolving a path, caller should convert %20 etc)
   const char *get_literal() { return mode >= MODE_LITERAL_TYPELESS ? value : NULL; } // object is a literal "string" or """string""" or 1.2345 or true/false, etc
   const char *get_literal_type() { return mode > MODE_LITERAL_TYPELESS ? (const char *)mode : NULL; }
   WDL_PtrList<wdl_turtle_pair> *get_list() { return mode == MODE_LIST ? ( WDL_PtrList<wdl_turtle_pair>*) value : NULL; } // object is a [] list
