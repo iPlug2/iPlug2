@@ -261,9 +261,12 @@ template<class PTRTYPE> class WDL_TypedBuf
     PTRTYPE *Get() const { return (PTRTYPE *) m_hb.Get(); }
     PTRTYPE *GetFast() const { return (PTRTYPE *) m_hb.GetFast(); }
     int GetSize() const { return m_hb.GetSize()/(unsigned int)sizeof(PTRTYPE); }
+    int GetSizeBytes() const { return m_hb.GetSize(); }
 
     PTRTYPE *Resize(int newsize, bool resizedown = true) { return (PTRTYPE *)m_hb.Resize(newsize*sizeof(PTRTYPE),resizedown); }
     PTRTYPE *ResizeOK(int newsize, bool resizedown = true) { return (PTRTYPE *)m_hb.ResizeOK(newsize*sizeof(PTRTYPE), resizedown);  }
+
+    void SetToZero() { memset(m_hb.Get(), 0, m_hb.GetSize()); }
 
     PTRTYPE *GetAligned(int align) const  { return (PTRTYPE *) m_hb.GetAligned(align); }
 
