@@ -30,7 +30,7 @@ public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void OnIdle() override;
   
-  IPeakSender<8> mInputPeakSender;
-  IPeakSender<8> mOutputPeakSender;
+  IPeakAvgSender<12> mInputPeakSender;
+  IPeakAvgSender<12> mOutputPeakSender;
 #endif
 };

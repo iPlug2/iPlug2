@@ -1203,6 +1203,10 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           SetSampleRate(pASBD->mSampleRate);
         }
       }
+      else
+      {
+        pBus->mNHostChannels = pBus->mNPlugChannels;
+      }
       AssessInputConnections();
       return (connectionOK ? noErr : (int) kAudioUnitErr_InvalidProperty); // casting to int avoids gcc error
     }
