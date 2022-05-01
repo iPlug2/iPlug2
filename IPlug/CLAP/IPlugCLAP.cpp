@@ -94,7 +94,8 @@ void IPlugCLAP::EndInformHostOfParamChange(int idx)
 void IPlugCLAP::SetTailSize(int samples)
 {
   IPlugProcessor::SetTailSize(samples);
-  _host.tailChanged();
+  if (_host.canUseTail())
+    _host.tailChanged();
 }
 
 void IPlugCLAP::SetLatency(int samples)
