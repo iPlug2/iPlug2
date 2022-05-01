@@ -107,7 +107,7 @@ public:
   int GetLatency() const { return mLatency; }
 
   /** @return The tail size in samples (useful for reverberation plug-ins, that may need to decay after the transport stops or an audio item ends) */
-  int GetTailSize() { return mTailSize; }
+  int GetTailSize() const { return mTailSize; }
 
   /** @return \c true if the plugin is currently bypassed */
   bool GetBypassed() const { return mBypassed; }
@@ -238,7 +238,7 @@ public:
    * Some apis have special interpretations of certain numbers. For VST3 set to 0xffffffff for infinite tail, or 0 for none (default)
    * For VST2 setting to 1 means no tail
    * @param tailSize the new tailsize in samples*/
-  void SetTailSize(int tailSize) { mTailSize = tailSize; }
+  virtual void SetTailSize(int tailSize) { mTailSize = tailSize; }
 
   /** A static method to parse the config.h channel I/O string.
    * @param IOStr Space separated cstring list of I/O configurations for this plug-in in the format ninchans-noutchans.
