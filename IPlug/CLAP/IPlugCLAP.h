@@ -78,6 +78,7 @@ public:
 //  bool EditorResize(int viewWidth, int viewHeight) override;
 
   // IPlugProcessor
+  void SetTailSize(int tailSize) override;
   void SetLatency(int samples) override;
   bool SendMidiMsg(const IMidiMsg& msg) override;
   bool SendSysEx(const ISysEx& msg) override;
@@ -97,6 +98,10 @@ private:
   // clap_plugin_latency
   bool implementsLatency() const noexcept override { return true; }
   uint32_t latencyGet() const noexcept override { return GetLatency(); }
+  
+  // clap_plugin_tail
+  bool implementsTail() const noexcept override { return true; }
+  uint32_t tailGet(const clap_plugin_t *plugin) const noexcept override { return GetTailSize(); }
   
   // clap_plugin_render
   bool implementsRender() const noexcept override { return true; }
