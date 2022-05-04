@@ -2957,6 +2957,16 @@ bool SWELL_SetGLContextToView(HWND h)
   return true;
 }
 
+void *SWELL_GetOSWindow(HWND hwnd, const char *type)
+{
+  if (hwnd && !strcmp(type,"GdkWindow")) return hwnd->m_oswindow;
+  return NULL;
+}
+
+void *SWELL_GetOSEvent(const char *type)
+{
+  return !strcmp(type,"GdkEvent") ? s_cur_evt : NULL;
+}
 
 
 #endif

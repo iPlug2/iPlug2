@@ -312,5 +312,8 @@ int SWELL_KeyToASCII(int wParam, int lParam, int *newflags)
 
 int swell_is_app_inactive() { return 0; }
 
+void *SWELL_GetOSWindow(HWND hwnd, const char *type) { return NULL; }
+void *SWELL_GetOSEvent(const char *type) { return NULL; }
+
 #endif
 #endif
