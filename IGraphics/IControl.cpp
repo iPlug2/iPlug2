@@ -763,11 +763,11 @@ void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
     SetValue(!GetValue());
   else
   {
-    const double step = 1. / (double(mNumStates) - 1.);
+    const double step = 1.0 / (double(mNumStates-1));
     double val = GetValue();
     val += step;
-    if(val > 1.)
-      val = 0.;
+    if (val > (1.0 + std::numeric_limits<double>::epsilon()))
+      val = 0.0;
     SetValue(val);
   }
   
