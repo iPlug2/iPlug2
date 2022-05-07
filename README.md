@@ -16,9 +16,7 @@ iPlug 2 is licensed with a liberal zlib-like [license](https://github.com/iPlug2
 You can discuss iPlug 2 on the [iPlug2 forum](https://iplug2.discourse.group
 ) or on the [iPlug user's slack channel.](https://join.slack.com/t/iplug-users/shared_invite/zt-3wftafbp-EzSXPj~I~VoLm0aL06NV7A)
 
-We welcome any help with bug fixes, features or documentation. 
-
-**NOTE: We don't yet consider iPlug2 to be "production ready" since the we (the main devs) didn't ship our products with it yet, but it's nearly there.** Read more [here](https://github.com/iPlug2/iPlug2/wiki/04_FAQ).
+We welcome any help with bug fixes, features or documentation.
 
 You can help support the project financially in several ways, preferably via [github sponsors](https://github.com/sponsors/olilarkin) but also [via patreon](https://www.patreon.com/olilarkin) or [paypal donations](https://paypal.me/olilarkin?locale.x=en_GB). With regular financial support, more time can be spent maintaining and improving the project. Even small contributions are very much appreciated.
 
