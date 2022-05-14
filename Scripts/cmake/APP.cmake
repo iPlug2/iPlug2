@@ -120,9 +120,8 @@ iplug_source_tree(iPlug2_APP)
 macro(iplug_configure_app target)
   iplug_target_add(${target} PUBLIC LINK iPlug2_APP)
 
-  set(res_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}.app/Contents/Resources")
-
   if (WIN32)
+    set(res_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}.app/Contents/Resources")
     set_target_properties(${target} PROPERTIES
       OUTPUT_NAME "${PLUG_NAME}"
       RUNTIME_OUTPUT_DIRECTORY "${PLUG_NAME}-app"
@@ -133,6 +132,7 @@ macro(iplug_configure_app target)
     )
     
   elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+    set(res_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}.app/Contents/Resources")
     # Set the Info.plist file and add required resources
     set(_res 
       "${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}.icns"
@@ -143,6 +143,7 @@ macro(iplug_configure_app target)
       MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}-macOS-Info.plist")
 
   elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
+    set(res_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}-app/resources")
     set_target_properties(${target} PROPERTIES
       OUTPUT_NAME "${PLUG_NAME}"
       RUNTIME_OUTPUT_DIRECTORY "${PLUG_NAME}-app"
