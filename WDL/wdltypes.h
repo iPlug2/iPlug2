@@ -158,8 +158,8 @@ typedef bool WDL_bool;
 #if defined(_DEBUG) || defined(DEBUG)
 #include <assert.h>
 #define WDL_ASSERT(x) assert(x)
-#define WDL_NORMALLY(x) (assert(x),1)
-#define WDL_NOT_NORMALLY(x) (assert(!(x)),0)
+#define WDL_NORMALLY(x)     ((x) ? 1 : (assert(0/*ignorethis*/ && (x)),0))
+#define WDL_NOT_NORMALLY(x) ((x) ? (assert(0/*ignorethis*/ && !(x)),1) : 0)
 #else
 #define WDL_ASSERT(x)
 #define WDL_NORMALLY(x) WDL_likely(x)
