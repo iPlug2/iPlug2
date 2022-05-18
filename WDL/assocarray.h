@@ -416,15 +416,9 @@ public:
   
   ~WDL_LogicalSortStringKeyedArray() { }
 
-  static int cmpstr(const char **a, const char **b) { return _cmpstr(*a, *b, true); }
-  static int cmpistr(const char **a, const char **b) { return _cmpstr(*a, *b, false); }
+  static int cmpstr(const char **a, const char **b) { return WDL_strcmp_logical(*a, *b, 1); }
+  static int cmpistr(const char **a, const char **b) { return WDL_strcmp_logical(*a, *b, 0); }
 
-private:
-
-  static int _cmpstr(const char *s1, const char *s2, bool case_sensitive)
-  {
-    return WDL_strcmp_logical(s1,s2,case_sensitive);
-  }
 };
 
 
