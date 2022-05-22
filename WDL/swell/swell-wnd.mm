@@ -3469,14 +3469,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL([self isSelectable] ? "Edit" : "Static")
   else if (![self isBordered] && ![self drawsBackground]) // looks like a static text control
   {
     const float alpha = ([self isEnabled] ? 1.0f : 0.5f);
-    if (!m_ctlcolor_set && SWELL_osx_is_dark_mode(1))
-    {
-      // NSColor textColor etc produce stale values on Catalina-Monterey
-      const float a = SWELL_osx_is_dark_mode(0) ? 1.0f : 0.0f;
-      [self setTextColor:[NSColor colorWithCalibratedRed:a green:a blue:a alpha:alpha]];
-    }
-    else
-      [self setTextColor:[[self textColor] colorWithAlphaComponent:alpha]];
+    [self setTextColor:[[self textColor] colorWithAlphaComponent:alpha]];
   }
   else
   {
@@ -3488,6 +3481,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL([self isSelectable] ? "Edit" : "Static")
 
 - (void) drawRect:(NSRect)r
 {
+  // we could move this to sendSwellMessage if (uMsg == WM_DISPLAYCHANGE), but meh
   if (!m_ctlcolor_set && SWELL_osx_is_dark_mode(1))
   {
     const bool m = SWELL_osx_is_dark_mode(0);
