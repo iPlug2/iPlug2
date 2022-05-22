@@ -5590,16 +5590,17 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 void SWELL_BroadcastMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  int x;
-  NSArray *ch=[NSApp orderedWindows];
-  for(x=0;x<[ch count]; x ++)
+  NSArray *ch=[NSApp windows];
+  [ch retain];
+  for (int x=0;x<[ch count]; x ++)
   {
     NSView *v = [[ch objectAtIndex:x] contentView];
     if (v && [v respondsToSelector:@selector(onSwellMessage:p1:p2:)])
     {
       [(SWELL_hwndChild *)v onSwellMessage:uMsg p1:wParam p2:lParam];
     }
-  }  
+  }
+  [ch release];
 }
 
 
