@@ -9,7 +9,7 @@ if (WIN32)
     set(_paths "$ENV{ProgramFiles(x86)}/${fn}" "$ENV{ProgramFiles(x86)}/Steinberg/${fn}")
   endif()
   # Append this for x86, x64, and ARM I guess
-  list(APPEND _paths "$ENV{ProgramFiles}/${fn}" "$ENV{ProgramFiles}/Steinberg/${fn}")
+  list(APPEND _paths "'$ENV{ProgramFiles}/${fn}'" "'$ENV{ProgramFiles}/Steinberg/${fn}'")
 elseif (OS_MAC)
   set(fn "VST")
   set(_paths "$ENV{HOME}/Library/Audio/Plug-Ins/${fn}" "/Library/Audio/Plug-Ins/${fn}")
