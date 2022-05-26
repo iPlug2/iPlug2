@@ -546,8 +546,8 @@ struct ISysEx
    * @param size Size of the data in bytes */
   ISysEx(int offset = 0, const uint8_t* pData = nullptr, int size = 0)
   : mOffset(offset)
-  , mData(pData)
   , mSize(size)
+  , mData(pData)
   {}
   
   /** Clear the data pointer and size (does not modify the external data!)  */

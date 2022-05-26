@@ -8,6 +8,7 @@
  ==============================================================================
 */
 
+#include <stddef.h>
 #include <wdlutf8.h>
 
 #include "IPlugParameter.h"

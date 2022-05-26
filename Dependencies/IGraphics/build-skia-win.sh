@@ -49,13 +49,13 @@ if [ "$#" -eq 2 ]; then
   skia_use_expat = true
   skia_use_icu = true
   skia_use_sfntly = false
+  skia_use_gl = true
   skia_enable_svg = true
   skia_enable_skottie = true
   skia_enable_pdf = false
   skia_enable_particles = true
   skia_enable_gpu = true
   skia_enable_skparagraph = true
-  skia_enable_sksl_interpreter = true
   cc = "clang"
   cxx = "clang++"
   clang_win = "C:\Program Files\LLVM"
@@ -91,6 +91,7 @@ if [ "$#" -eq 2 ]; then
   mv ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/sksg.lib ../../win/$DIR_ARCH_STR/$CONFIG_STR
   mv ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/skshaper.lib ../../win/$DIR_ARCH_STR/$CONFIG_STR
   mv ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/skparagraph.lib ../../win/$DIR_ARCH_STR/$CONFIG_STR
+  mv ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/skunicode.lib ../../win/$DIR_ARCH_STR/$CONFIG_STR
   mv ../../tmp/skia/$DIR_ARCH_STR/$CONFIG_STR/svg.lib ../../win/$DIR_ARCH_STR/$CONFIG_STR
 
 else

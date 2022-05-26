@@ -44,7 +44,7 @@ void IPlugFaust::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     assert(mDSP->getSampleRate() != 0); // did you forget to call SetSampleRate?
 
     if (mOverSampler)
-      mOverSampler->ProcessBlock(inputs, outputs, nFrames, 2 /* TODO: flexible channel count */,
+      mOverSampler->ProcessBlock(inputs, outputs, nFrames, 2, 2 /* TODO: flexible channel count */,
         [&](sample** inputs, sample** outputs, int nFrames) //TODO:: badness capture = allocated
         {
           mDSP->compute(nFrames, inputs, outputs);

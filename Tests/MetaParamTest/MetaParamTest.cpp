@@ -94,9 +94,9 @@ MetaParamTest::MetaParamTest(const InstanceInfo& info)
     pGraphics->AttachControl(new IVSwitchControl(b.GetCentredInside(50), kParamLink));
 //    pGraphics->AttachControl(new FourValues(b.GetFromBottom(100).GetPadded(-20), kParamEnum1, kParamLeftX, kParamLeftY, kParamEnum2));
     
-    pGraphics->ForControlInGroup("mux", [&](IControl& control)
+    pGraphics->ForControlInGroup("mux", [&](IControl* pControl)
     {
-      control.SetActionFunction([&](IControl* pCaller)
+      pControl->SetActionFunction([&](IControl* pCaller)
       {
         if(GetParam(kParamLink)->Bool())
         {

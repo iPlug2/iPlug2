@@ -264,11 +264,22 @@ public:
    * @return double The real value */
   double StringToValue(const char* str) const;
 
-  /** Constrains the input value between \c mMin and \c mMax
+  /** Constrains the input value between \c mMin and \c mMax and apply stepping if relevant
    * @param value The input value to constrain
    * @return double The resulting constrained value */
-  inline double Constrain(double value) const { return Clip((mFlags & kFlagStepped ? round(value / mStep) * mStep : value), mMin, mMax); }
+  inline double Constrain(double value) const
+  {
+    return Clip((mFlags & kFlagStepped ? std::round(value / mStep) * mStep : value), mMin, mMax);
+  }
 
+  /** Constrains a normalised input value similarly to Constrain()
+   * @param value The normalised input value to constrain
+   * @return double The resulting constrained value */
+  inline double ConstrainNormalized(double normalizedValue) const
+  {
+    return ToNormalized(mShape->NormalizedToValue(normalizedValue, *this));
+  }
+  
   /** Convert a real value to normalized value for this parameter
    * @param nonNormalizedValue The real input value
    * @return The corresponding normalized value, for this parameter */

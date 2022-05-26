@@ -26,8 +26,9 @@ __attribute__((naked)) void nseel_asm_2pdd(void)
     FUNCTION_MARKER
     "movw r3, 0xdead\n" 
     "movt r3, 0xbeef\n"  
-    "fcpyd d1, d0\n" 
-    "fldd d0, [r1]\n" 
+    "fcpyd d2, d0\n"
+    "fcpyd d0, d1\n"
+    "fcpyd d1, d2\n"
     "str lr, [sp, #-8]!\n"
     "blx r3\n" 
     "ldr lr, [sp], #8\n"
@@ -137,6 +138,18 @@ __attribute__((naked)) void nseel_asm_abs(void)
 }
 __attribute__((naked)) void nseel_asm_abs_end(void) {}
 
+#define FLUSH_TO_ZERO \
+   "ldr r1, [r0, #4]\n" \
+   "movs    r2, #0\n" \
+   "movt    r2, #0x7ff0\n" \
+   "add     r1, r1, #0x00100000\n" \
+   "ands    r1, r1, r2\n" \
+   "cmp     r1, #0x00200000\n" \
+   "bgt 0f\n" \
+   "movs    r2, #0\n" \
+   "movs    r3, #0\n" \
+   "strd    r2, [r0]\n" \
+   "0:\n"
 
 //---------------------------------------------------------------------------------------------------------------
 __attribute__((naked)) void nseel_asm_assign(void)
@@ -146,6 +159,8 @@ __attribute__((naked)) void nseel_asm_assign(void)
    "fldd d0, [r0]\n"
    "mov r0, r1\n"
    "fstd d0, [r1]\n"
+
+    FLUSH_TO_ZERO
     FUNCTION_MARKER
   );
 }
@@ -158,6 +173,7 @@ __attribute__((naked)) void nseel_asm_assign_fromfp(void)
     FUNCTION_MARKER
    "mov r0, r1\n"
    "fstd d0, [r1]\n"
+    FLUSH_TO_ZERO
     FUNCTION_MARKER
   );
 }
@@ -195,7 +211,6 @@ __attribute__((naked)) void nseel_asm_add(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-   "fldd d1, [r1]\n"
    "faddd d0, d1, d0\n"
     FUNCTION_MARKER
   );
@@ -210,6 +225,7 @@ __attribute__((naked)) void nseel_asm_add_op(void)
    "faddd d0, d1, d0\n"
    "mov r0, r1\n"
    "fstd d0, [r1]\n"
+    FLUSH_TO_ZERO
     FUNCTION_MARKER
   );
 }
@@ -234,7 +250,6 @@ __attribute__((naked)) void nseel_asm_sub(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-   "fldd d1, [r1]\n"
    "fsubd d0, d1, d0\n"
     FUNCTION_MARKER
   );
@@ -249,6 +264,7 @@ __attribute__((naked)) void nseel_asm_sub_op(void)
    "fsubd d0, d1, d0\n"
    "mov r0, r1\n"
    "fstd d0, [r1]\n"
+    FLUSH_TO_ZERO
     FUNCTION_MARKER
   );
 }
@@ -272,7 +288,6 @@ __attribute__((naked)) void nseel_asm_mul(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-   "fldd d1, [r1]\n"
    "fmuld d0, d0, d1\n"
     FUNCTION_MARKER
   );
@@ -287,6 +302,7 @@ __attribute__((naked)) void nseel_asm_mul_op(void)
    "fmuld d0, d0, d1\n"
    "mov r0, r1\n"
    "fstd d0, [r1]\n"
+    FLUSH_TO_ZERO
     FUNCTION_MARKER
   );
 }
@@ -310,7 +326,6 @@ __attribute__((naked)) void nseel_asm_div(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-   "fldd d1, [r1]\n"
    "fdivd d0, d1, d0\n"
     FUNCTION_MARKER
   );
@@ -325,6 +340,7 @@ __attribute__((naked)) void nseel_asm_div_op(void)
    "fdivd d0, d1, d0\n"
    "mov r0, r1\n"
    "fstd d0, [r1]\n"
+    FLUSH_TO_ZERO
     FUNCTION_MARKER
   );
 }
@@ -348,7 +364,6 @@ __attribute__((naked)) void nseel_asm_mod(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "ftouizd s0, d0\n" // round to unsigned integers
     "fmrs r3, s0\n"
     "fuitod  d0, s0\n" // divisor
@@ -373,7 +388,6 @@ __attribute__((naked)) void nseel_asm_shl(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "ftosizd s0, d0\n"
     "ftosizd s1, d1\n"
     "fmrs r3, s0\n"
@@ -390,7 +404,6 @@ __attribute__((naked)) void nseel_asm_shr(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "ftosizd s0, d0\n"
     "ftosizd s1, d1\n"
     "fmrs r3, s0\n"
@@ -426,6 +439,7 @@ __attribute__((naked)) void nseel_asm_mod_op(void)
     "0:\n"
     "mov r0, r1\n"
     "fstd d0, [r1]\n"
+    FLUSH_TO_ZERO
     FUNCTION_MARKER
   );
 
@@ -437,7 +451,6 @@ __attribute__((naked)) void nseel_asm_or(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "ftosizd s0, d0\n"
     "ftosizd s1, d1\n"
     "fmrs r3, s0\n"
@@ -485,7 +498,6 @@ __attribute__((naked)) void nseel_asm_xor(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "ftosizd s0, d0\n"
     "ftosizd s1, d1\n"
     "fmrs r3, s0\n"
@@ -522,7 +534,6 @@ __attribute__((naked)) void nseel_asm_and(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "ftosizd s0, d0\n"
     "ftosizd s1, d1\n"
     "fmrs r3, s0\n"
@@ -771,7 +782,6 @@ __attribute__((naked)) void nseel_asm_equal(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "fldd d2, [r6]\n"
     "fsubd d0, d0, d1\n"
     "fabsd d0, d0\n"
@@ -789,7 +799,6 @@ __attribute__((naked)) void nseel_asm_equal_exact(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "fcmpd d0, d1\n"
     "fmstat\n"
     "movne r0, #0\n"
@@ -805,7 +814,6 @@ __attribute__((naked)) void nseel_asm_notequal_exact(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "fcmpd d0, d1\n"
     "fmstat\n"
     "moveq r0, #0\n"
@@ -823,7 +831,6 @@ __attribute__((naked)) void nseel_asm_notequal(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "fldd d2, [r6]\n"
     "fsubd d0, d0, d1\n"
     "fabsd d0, d0\n"
@@ -843,7 +850,6 @@ __attribute__((naked)) void nseel_asm_below(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "fcmpd d1, d0\n"
     "fmstat\n"
     "movlt r0, #1\n"
@@ -859,7 +865,6 @@ __attribute__((naked)) void nseel_asm_beloweq(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "fcmpd d1, d0\n"
     "fmstat\n"
     "movle r0, #1\n"
@@ -876,7 +881,6 @@ __attribute__((naked)) void nseel_asm_above(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "fcmpd d1, d0\n"
     "fmstat\n"
     "movgt r0, #1\n"
@@ -891,7 +895,6 @@ __attribute__((naked)) void nseel_asm_aboveeq(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "fcmpd d1, d0\n"
     "fmstat\n"
     "movge r0, #1\n"
@@ -938,7 +941,6 @@ __attribute__((naked)) void nseel_asm_min_fp(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "fcmpd d1, d0\n"
     "fmstat\n"
     "fcpydlt d0, d1\n"
@@ -951,7 +953,6 @@ __attribute__((naked)) void nseel_asm_max_fp(void)
 {
   __asm__ __volatile__(
     FUNCTION_MARKER
-    "fldd d1, [r1]\n"
     "fcmpd d1, d0\n"
     "fmstat\n"
     "fcpydge d0, d1\n"
@@ -1055,6 +1056,28 @@ __attribute__((naked)) void _asm_generic2parm_retd(void)
  ); 
 }
 __attribute__((naked)) void _asm_generic2parm_retd_end(void) {}
+
+
+__attribute__((naked)) void _asm_generic2xparm_retd(void)
+{
+  __asm__ __volatile__(
+    FUNCTION_MARKER
+    "push {r4, lr}\n"
+    "mov r3, r0\n" // r0 is last parameter
+    "mov r2, r1\n" //
+    "movw r0, 0xdead\n"  // r0 is ctx
+    "movt r0, 0xbeef\n"
+    "movw r1, 0xdead\n"  // r1 is second ctx
+    "movt r1, 0xbeef\n"
+    "movw r4, 0xdead\n"
+    "movt r4, 0xbeef\n"
+    "blx r4\n"
+    "pop {r4, lr}\n"
+    FUNCTION_MARKER
+  ::
+ );
+}
+__attribute__((naked)) void _asm_generic2xparm_retd_end(void) {}
 
 __attribute__((naked)) void _asm_generic1parm(void)
 {

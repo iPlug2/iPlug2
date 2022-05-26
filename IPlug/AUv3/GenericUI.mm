@@ -18,7 +18,7 @@ static void *kvoParameterValue = &kvoParameterValue;
 
 @implementation ParameterView
 
-- (instancetype)initWithParameter:(AUParameter *)parameter
+- (instancetype)initWithParameter:(AUParameter*) parameter
 {
   if (self = [super init])
   {
@@ -68,7 +68,7 @@ static void *kvoParameterValue = &kvoParameterValue;
   return self;
 }
 
-- (UILabel *) pv_labelWithText:(NSString *)text alignment:(NSTextAlignment)alignment
+- (UILabel*) pv_labelWithText:(NSString*) text alignment:(NSTextAlignment) alignment
 {
   UILabel* label = [[UILabel alloc] init];
   label.translatesAutoresizingMaskIntoConstraints = NO;
@@ -79,7 +79,7 @@ static void *kvoParameterValue = &kvoParameterValue;
   return label;
 }
 
-- (void)constrainColumnsToReferenceView:(ParameterView *)referenceView {
+- (void) constrainColumnsToReferenceView:(ParameterView*) referenceView {
   [NSLayoutConstraint activateConstraints:@[
                                             [_nameLabel.widthAnchor constraintEqualToAnchor:referenceView.nameLabel.widthAnchor],
                                             [_minValueLabel.widthAnchor constraintEqualToAnchor:referenceView.minValueLabel.widthAnchor],
@@ -89,28 +89,28 @@ static void *kvoParameterValue = &kvoParameterValue;
                                             ]];
 }
 
-- (void)sliderValueChanged:(UISlider *)slider
+- (void) sliderValueChanged:(UISlider*) slider
 {
   _parameter.value = slider.value;
 }
 
-- (void)updateViews
+- (void) updateViews
 {
   _valueSlider.value = _parameter.value;
   _valueTextField.text = [self stringWithValue:_parameter.value];
 }
 
-- (NSString *)stringWithValue:(double)value
+- (NSString*) stringWithValue:(double) value
 {
   return [NSString stringWithFormat:@"%.4f", value];
 }
 
-- (void)dealloc
+- (void) dealloc
 {
   [_parameter removeObserver:self forKeyPath:@"value" context:kvoParameterValue];
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context
+- (void) observeValueForKeyPath:(NSString*) keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id>*) change context:(void*) context
 {
   if (context == kvoParameterValue)
   {

@@ -35,7 +35,7 @@
 
   UINT(WINAPI *__GetDpiForWindow)(HWND);
 
-  int GetScaleForHWND(HWND hWnd)
+  float GetScaleForHWND(HWND hWnd)
   {
     if (!__GetDpiForWindow)
     {
@@ -47,8 +47,16 @@
     }
 
     int dpi = __GetDpiForWindow(hWnd);
+
     if (dpi != USER_DEFAULT_SCREEN_DPI)
-      return static_cast<int>(std::round(static_cast<double>(dpi) / USER_DEFAULT_SCREEN_DPI));
+    {
+#if defined IGRAPHICS_QUANTISE_SCREENSCALE
+      return std::round(static_cast<float>(dpi) / USER_DEFAULT_SCREEN_DPI);
+#else
+      return static_cast<float>(dpi) / USER_DEFAULT_SCREEN_DPI;
+#endif
+    }
+
 
     return 1;
   }
@@ -392,8 +400,9 @@ Steinberg::FUnknown* MakeController()
   WDL_MutexLock lock(&sMutex);
   IPlugVST3Controller::InstanceInfo info;
   info.mOtherGUID = Steinberg::FUID(VST3_PROCESSOR_UID);
-  //If you are trying to build a distributed VST3 plug-in and you hit an error here "no matching constructor...",
-  //you need to replace all instances of PLUG_CLASS_NAME in your plug-in class, with the macro PLUG_CLASS_NAME
+  // If you are trying to build a distributed VST3 plug-in and you hit an error here like "no matching constructor..." or 
+  // "error: unknown type name 'VST3Controller'", you need to replace all instances of the name of your plug-in class (e.g. IPlugEffect)
+  // with the macro PLUG_CLASS_NAME, as defined in your plug-ins config.h, so IPlugEffect::IPlugEffect() {} becomes PLUG_CLASS_NAME::PLUG_CLASS_NAME().
   return static_cast<Steinberg::Vst::IEditController*>(new PLUG_CLASS_NAME(info));
 }
 

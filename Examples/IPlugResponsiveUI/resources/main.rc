@@ -63,11 +63,11 @@ BEGIN
     COMBOBOX        IDC_COMBO_MIDI_OUT_CHAN,125,250,50,200,CBS_DROPDOWNLIST | CBS_HASSTRINGS
 END
 
-IDD_DIALOG_MAIN DIALOG 0, 0, 300, 300
-STYLE DS_SETFONT | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+IDD_DIALOG_MAIN DIALOGEX 0, 0, 300, 300
+STYLE DS_SETFONT | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "IPlugResponsiveUI"
 MENU IDR_MENU1
-FONT 8, "MS Sans Serif"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
 END
 
@@ -128,6 +128,11 @@ BEGIN
     0
 END
 
+IDD_DIALOG_MAIN AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -135,18 +140,18 @@ END
 // TEXTINCLUDE
 //
 
-1 TEXTINCLUDE
+1 TEXTINCLUDE 
 BEGIN
     "resource.h\0"
 END
 
-2 TEXTINCLUDE
+2 TEXTINCLUDE 
 BEGIN
     "#include ""winres.h""\r\n"
     "\0"
 END
 
-3 TEXTINCLUDE
+3 TEXTINCLUDE 
 BEGIN
     "#include ""..\\config.h""\r\n"
     "ROBOTO_FN TTF ROBOTO_FN\0"
@@ -164,6 +169,7 @@ END
 // remains consistent on all systems.
 IDI_ICON1               ICON                    "IPlugResponsiveUI.ico"
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Accelerator
@@ -178,7 +184,6 @@ BEGIN
     "E",            ID_LIVE_EDIT,           VIRTKEY, CONTROL, NOINVERT
 END
 
-/////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -186,8 +191,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION 0,0,1,0
-PRODUCTVERSION 0,0,1,0
+ FILEVERSION 0,0,1,0
+ PRODUCTVERSION 0,0,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L

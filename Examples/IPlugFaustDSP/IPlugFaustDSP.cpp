@@ -32,12 +32,12 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
     IRECT keyb = viz.ReduceFromBottom(100);
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
+    pGraphics->AttachPanelBackground(COLOR_GRAY);
 
     for (int i = 0; i < kNumParams; i++) {
       pGraphics->AttachControl(new IVKnobControl(knobs.GetGridCell(i, 1, kNumParams).GetPadded(-5.f), i));
     }
     
-    pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->AttachControl(new IVScopeControl<2>(viz, "", DEFAULT_STYLE.WithColor(kBG, COLOR_BLACK).WithColor(kFG, COLOR_GREEN)), kCtrlTagScope);
     pGraphics->AttachControl(new IVKeyboardControl(keyb));
   };

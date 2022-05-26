@@ -3,18 +3,18 @@
 #python shell script to modify common-win.props to select a host for debugging VST plug-ins
 
 SAVIHOST_PATH = "$(ProgramFiles)\\vsthost\savihost.exe"
-LIVE_PATH = "$(ProgramData)\Ableton\Live 10 Suite\Program\Ableton Live 10 Suite.exe"
+LIVE_PATH = "$(ProgramData)\Ableton\Live 11 Suite\Program\Ableton Live 11 Suite.exe"
 FL_PATH = "$(ProgramFiles)\Image-Line\FL Studio 20\FL.exe"
-CUBASE_PATH = "$(ProgramFiles)\Steinberg\Cubase 10.5\Cubase10.5.exe"
+CUBASE_PATH = "$(ProgramFiles)\Steinberg\Cubase 11\Cubase11.exe"
 S1_PATH = "$(ProgramFiles)\PreSonus\Studio One 4\Studio One.exe"
 REAPER_PATH = "$(ProgramFiles)\REAPER\\reaper.exe"
 SONAR_PATH = "$(ProgramFiles)\Cakewalk\SONAR X3 Producer\SONARPDR.exe"
 VST3TESTHOST_PATH = "$(ProgramFiles)\Steinberg\VST3PluginTestHost\VST3PluginTestHost.exe"
 
 SAVIHOST_X64_PATH = "$(ProgramW6432)\\vsthost\savihost.exe"
-LIVE_X64_PATH = "$(ProgramData)\Ableton\Live 10 Suite\Program\Ableton Live 10 Suite.exe"
+LIVE_X64_PATH = "$(ProgramData)\Ableton\Live 11 Suite\Program\Ableton Live 11 Suite.exe"
 FL_X64_PATH = "$(ProgramFiles)\Image-Line\FL Studio 20\FL64.exe"
-CUBASE_X64_PATH = "$(ProgramW6432)\Steinberg\Cubase 10.5\Cubase10.5.exe"
+CUBASE_X64_PATH = "$(ProgramW6432)\Steinberg\Cubase 11\Cubase11.exe"
 S1_X64_PATH = "$(ProgramW6432)\PreSonus\Studio One 4\Studio One.exe"
 REAPER_X64_PATH = "$(ProgramW6432)\REAPER (x64)\\reaper.exe"
 SONAR_X64_PATH = "$(ProgramW6432)\Cakewalk\SONAR X3 Producer\SONARPDR.exe"

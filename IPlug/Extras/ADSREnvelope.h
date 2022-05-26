@@ -8,7 +8,13 @@
  ==============================================================================
  */
 
+#pragma once
+
 #include "IPlugPlatform.h"
+#include "IPlugUtilities.h"
+
+#include <functional>
+#include <cmath>
 
 BEGIN_IPLUG_NAMESPACE
 

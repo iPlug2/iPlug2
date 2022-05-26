@@ -95,6 +95,22 @@ public:
   // IMidiMapping
   Steinberg::tresult PLUGIN_API getMidiControllerAssignment(Steinberg::int32 busIndex, Steinberg::int16 channel, Steinberg::Vst::CtrlNumber midiCCNumber, Steinberg::Vst::ParamID& tag) override;
   
+  // IUnitInfo
+  Steinberg::tresult PLUGIN_API getProgramName(Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex, Steinberg::Vst::String128 name /*out*/) override
+  {
+    return GetProgramName(this, listId, programIndex, name);
+  }
+  
+  Steinberg::int32 PLUGIN_API getProgramListCount() override
+  {
+    return GetProgramListCount(this);
+  }
+  
+  Steinberg::tresult PLUGIN_API getProgramListInfo(Steinberg::int32 listIndex, Steinberg::Vst::ProgramListInfo& info) override
+  {
+    return GetProgramListInfo(this, listIndex, info);
+  }
+  
   // IInfoListener
   Steinberg::tresult PLUGIN_API setChannelContextInfos(Steinberg::Vst::IAttributeList* list) override;
 

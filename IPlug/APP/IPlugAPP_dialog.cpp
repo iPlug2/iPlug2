@@ -21,7 +21,7 @@
 
 using namespace iplug;
 
-#if defined _DEBUG && !defined NO_IGRAPHICS
+#if !defined NO_IGRAPHICS
 #include "IGraphics.h"
 using namespace igraphics;
 #endif
@@ -50,6 +50,10 @@ static void _ComboBoxSetCurSel(HWND hwndDlg, int nIDDlgItem, WPARAM wIdx)
   SendDlgItemMessage(hwndDlg, nIDDlgItem, CB_SETCURSEL, wIdx, 0);
 #endif
 }
+
+#if defined OS_MAC
+extern int GetTitleBarOffset();
+#endif
 
 // check the input and output devices, find matching srs
 void IPlugAPPHost::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inputDevInfo, RtAudio::DeviceInfo* outputDevInfo)
@@ -564,11 +568,10 @@ static void ClientResize(HWND hWnd, int nWidth, int nHeight)
   ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
   
   SetWindowPos(hWnd, 0, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, 0);
-//  MoveWindow(hWnd, x, y, nWidth + ptDiff.x, nHeight + ptDiff.y, FALSE);
 }
 
 #ifdef OS_WIN 
-extern int GetScaleForHWND(HWND hWnd);
+extern float GetScaleForHWND(HWND hWnd);
 #endif
 
 //static
@@ -757,21 +760,62 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       mmi->ptMaxTrackSize.y = pPlug->GetMaxHeight();
       
 #ifdef OS_MAC
-      const int titleBarOffset = 22;
+      const int titleBarOffset = GetTitleBarOffset();
       mmi->ptMinTrackSize.y += titleBarOffset;
       mmi->ptMaxTrackSize.y += titleBarOffset;
 #endif
 
 #ifdef OS_WIN 
-      int scale = GetScaleForHWND(hwndDlg);
-      mmi->ptMinTrackSize.x *= scale;
-      mmi->ptMinTrackSize.y *= scale;
-      mmi->ptMaxTrackSize.x *= scale;
-      mmi->ptMaxTrackSize.y *= scale;
+      float scale = GetScaleForHWND(hwndDlg);
+      mmi->ptMinTrackSize.x = static_cast<LONG>(static_cast<float>(mmi->ptMinTrackSize.x) * scale);
+      mmi->ptMinTrackSize.y = static_cast<LONG>(static_cast<float>(mmi->ptMinTrackSize.y) * scale);
+      mmi->ptMaxTrackSize.x = static_cast<LONG>(static_cast<float>(mmi->ptMaxTrackSize.x) * scale);
+      mmi->ptMaxTrackSize.y = static_cast<LONG>(static_cast<float>(mmi->ptMaxTrackSize.y) * scale);
 #endif
       
       return 0;
     }
+#ifdef OS_WIN
+    case WM_DPICHANGED:
+    {
+      WORD dpi = HIWORD(wParam);
+      RECT* rect = (RECT*)lParam;
+      float scale = GetScaleForHWND(hwndDlg);
+
+      POINT ptDiff;
+      RECT rcClient;
+      RECT rcWindow;
+
+      GetClientRect(hwndDlg, &rcClient);
+      GetWindowRect(hwndDlg, &rcWindow);
+
+      ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
+      ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+
+#ifndef NO_IGRAPHICS
+      IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
+
+      if (pPlug)
+      {
+        IGraphics* pGraphics = pPlug->GetUI();
+
+        if (pGraphics)
+        {
+          pGraphics->SetScreenScale(scale);
+        }
+      }
+#else
+      IEditorDelegate* pPlug = dynamic_cast<IEditorDelegate*>(pAppHost->GetPlug());
+#endif
+
+      int w = pPlug->GetEditorWidth(); 
+      int h = pPlug->GetEditorHeight();
+
+      SetWindowPos(hwndDlg, 0, rect->left, rect->top, w + ptDiff.x, h + ptDiff.y, 0);
+
+      return 0;
+    }
+#endif
     case WM_SIZE:
     {
       IPlugAPP* pPlug = pAppHost->GetPlug();
@@ -783,11 +827,11 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       {
         RECT r;
         GetClientRect(hwndDlg, &r);
-        int scale = 1;
+        float scale = 1.f;
         #ifdef OS_WIN 
         scale = GetScaleForHWND(hwndDlg);
         #endif
-        pPlug->OnParentWindowResize(r.right / scale, r.bottom / scale);
+        pPlug->OnParentWindowResize(static_cast<int>(r.right / scale), static_cast<int>(r.bottom / scale));
         return 1;
       }
       default:

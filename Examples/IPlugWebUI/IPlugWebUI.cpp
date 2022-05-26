@@ -4,12 +4,13 @@
 IPlugWebUI::IPlugWebUI(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
-  GetParam(kGain)->InitGain("Gain", 0., -70, 0.);
+  GetParam(kGain)->InitGain("Gain", -70., -70, 0.);
 
   // Hard-coded paths must be modified!
 #ifdef OS_WIN
-  SetWebViewPaths("C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\WebView2Loader.dll", "C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\");
+  SetWebViewPaths("C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\packages\\Microsoft.Web.WebView2.1.0.824-prerelease\\runtimes\\win-x64\\native\\WebView2Loader.dll", "C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\");
 #endif
+
 
   mEditorInitFunc = [&]() {
 #ifdef OS_WIN
@@ -21,9 +22,9 @@ IPlugWebUI::IPlugWebUI(const InstanceInfo& info)
     EnableScroll(false);
   };
   
-  MakePreset("One", 0.);
+  MakePreset("One", -70.);
   MakePreset("Two", -30.);
-  MakePreset("Three", 40.);
+  MakePreset("Three", 0.);
 }
 
 void IPlugWebUI::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
@@ -60,6 +61,12 @@ bool IPlugWebUI::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pD
     Resize(1024, 335);
   else if(msgTag == kMsgTagButton3)
     Resize(1024, 768);
+  else if (msgTag == kMsgTagBinaryTest)
+  {
+    auto uint8Data = reinterpret_cast<const uint8_t*>(pData);
+    DBGMSG("Data Size %i bytes\n",  dataSize);
+    DBGMSG("Byte values: %i, %i, %i, %i\n", uint8Data[0], uint8Data[1], uint8Data[2], uint8Data[3]);
+  }
 
   return false;
 }
