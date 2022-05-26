@@ -143,7 +143,6 @@ list(APPEND _src
 # Platform-dependent stuff
 if (WIN32)
   list(APPEND _src "${sdk}/main/dllmain.cpp" "${sdk}/main/pluginfactory.cpp" "${sdk}/common/threadchecker_win32.cpp")
-  list(APPEND _inf "${sdk}/main/winexport.def")
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   list(APPEND _def "SWELL_CLEANUP_ON_UNLOAD")
