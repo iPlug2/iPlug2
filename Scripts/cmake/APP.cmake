@@ -121,7 +121,6 @@ macro(iplug_configure_app target)
   iplug_target_add(${target} PUBLIC LINK iPlug2_APP)
 
   if (WIN32)
-    set(res_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}.app/Contents/Resources")
     set_target_properties(${target} PROPERTIES
       OUTPUT_NAME "${PLUG_NAME}"
       RUNTIME_OUTPUT_DIRECTORY "${PLUG_NAME}-app"
