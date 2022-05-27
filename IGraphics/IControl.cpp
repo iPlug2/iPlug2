@@ -56,6 +56,7 @@ void ShowBubbleHorizontalActionFunc(IControl* pCaller)
 {
   IGraphics* pGraphics = pCaller->GetUI();
   const IParam* pParam = pCaller->GetParam();
+  assert(pParam && "ShowBubbleHorizontalActionFunc requires a parameter");
   IRECT bounds = pCaller->GetRECT();
   WDL_String display;
   pParam->GetDisplayWithLabel(display);
@@ -66,6 +67,7 @@ void ShowBubbleVerticalActionFunc(IControl* pCaller)
 {
   IGraphics* pGraphics = pCaller->GetUI();
   const IParam* pParam = pCaller->GetParam();
+  assert(pParam && "ShowBubbleVerticalActionFunc requires a parameter");
   IRECT bounds = pCaller->GetRECT();
   WDL_String display;
   pParam->GetDisplayWithLabel(display);
