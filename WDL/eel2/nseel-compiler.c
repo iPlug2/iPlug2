@@ -51,11 +51,7 @@
 
 
 #ifdef EEL_PRINT_FAILS
-  #ifdef _WIN32
-    #define RET_MINUS1_FAIL(x) { OutputDebugString(x); return -1; }
-  #else
-    #define RET_MINUS1_FAIL(x) { printf("%s\n",x); return -1; }
-  #endif
+  #define RET_MINUS1_FAIL(x) { wdl_log("%s\n",x); return -1; }
 #else
 #define RET_MINUS1_FAIL(x) return -1;
 #endif
@@ -4365,13 +4361,11 @@ int compileOpcodes(compileContext *ctx, opcodeRec *op, unsigned char *bufOut, in
 
   /*
   {
-    char buf[512];
-    sprintf(buf,"opcode %d %d (%s): fpu use: %d\n",op->opcodeType,op->fntype,
+    wdl_log("opcode %d %d (%s): fpu use: %d\n",op->opcodeType,op->fntype,
       op->opcodeType >= OPCODETYPE_FUNC1 && op->fntype == FUNCTYPE_FUNCTIONTYPEREC ? (
       ((functionType *)op->fn)->name
       ) : "",
       fpsu);
-    OutputDebugString(buf);
   }
   */
 
@@ -4845,14 +4839,8 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *_expression
       int rvMode=0, fUse=0;
 
 #ifdef LOG_OPT
-      char buf[512];
       int sd=0;
-      sprintf(buf,"pre opt sz=%d (tsackDepth=%d)\n",compileOpcodes(ctx,start_opcode,NULL,1024*1024*256,NULL, NULL,RETURNVALUE_IGNORE,NULL,&sd,NULL),sd);
-#ifdef _WIN32
-      OutputDebugString(buf);
-#else
-      printf("%s\n",buf);
-#endif
+      wdl_log("pre opt sz=%d (tsackDepth=%d)\n",compileOpcodes(ctx,start_opcode,NULL,1024*1024*256,NULL, NULL,RETURNVALUE_IGNORE,NULL,&sd,NULL),sd);
 #endif
 
 #ifdef EEL_DUMP_OPS
@@ -4866,12 +4854,7 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *_expression
 
       if (!(ctx->optimizeDisableFlags&OPTFLAG_NO_OPTIMIZE)) optimizeOpcodes(ctx,start_opcode,is_fname[0] ? 1 : 0);
 #ifdef LOG_OPT
-      sprintf(buf,"post opt sz=%d, stack depth=%d\n",compileOpcodes(ctx,start_opcode,NULL,1024*1024*256,NULL,NULL, RETURNVALUE_IGNORE,NULL,&sd,NULL),sd);
-#ifdef _WIN32
-      OutputDebugString(buf);
-#else
-      printf("%s\n",buf);
-#endif
+      wdl_log("post opt sz=%d, stack depth=%d\n",compileOpcodes(ctx,start_opcode,NULL,1024*1024*256,NULL,NULL, RETURNVALUE_IGNORE,NULL,&sd,NULL),sd);
 #endif
 
 #ifdef EEL_DUMP_OPS
@@ -5234,13 +5217,7 @@ void NSEEL_code_free(NSEEL_CODEHANDLE code)
       for(x=COMPUTABLE_EXTRA_SPACE*sizeof(EEL_F) - 1;x >= 0; x --)
         if (p[x] != 0x3a)
         {
-          char buf[512];
-          snprintf(buf,sizeof(buf),"worktable overrun at byte %d (wts=%d), value = %f\n",x,h->workTable_size, *(EEL_F*)(p+(x&~(sizeof(EEL_F)-1))));
-#ifdef _WIN32
-          OutputDebugString(buf);
-#else
-          printf("%s",buf);
-#endif
+          wdl_log("worktable overrun at byte %d (wts=%d), value = %f\n",x,h->workTable_size, *(EEL_F*)(p+(x&~(sizeof(EEL_F)-1))));
           break;
         }
     }

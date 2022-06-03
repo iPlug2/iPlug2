@@ -456,9 +456,7 @@ in_string:
   {
     int a=nseellex2(yylval_param,yylloc_param,yyscanner);
 
-    char buf[512];
-    sprintf(buf,"tok: %c (%d)\n",a,a);
-    OutputDebugString(buf);
+    wdl_log("tok: %c (%d)\n",a,a);
     return a;
   }
   #endif//EEL_TRACE_LEX

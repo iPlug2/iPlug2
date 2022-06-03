@@ -207,9 +207,7 @@ int WDL_ConvolutionEngine::SetImpulse(WDL_ImpulseBuffer *impulse, int fft_size, 
 
   int impchunksize=fft_size/2;
   int nblocks=(impulse_len+impchunksize-1)/impchunksize;
-  //char buf[512];
-  //sprintf(buf,"il=%d, ffts=%d, cs=%d, nb=%d\n",impulse_len,fft_size,impchunksize,nblocks);
-  //OutputDebugString(buf);
+  //wdl_log("il=%d, ffts=%d, cs=%d, nb=%d\n",impulse_len,fft_size,impchunksize,nblocks);
 
   const bool smallerSizeMode=sizeof(WDL_CONVO_IMPULSEBUFf)!=sizeof(WDL_FFT_REAL);
  
@@ -762,9 +760,7 @@ int WDL_ConvolutionEngine_Div::SetImpulse(WDL_ImpulseBuffer *impulse, int maxfft
     m_engines.Add(eng);
 
 #ifdef WDLCONVO_ZL_ACCOUNTING
-    char buf[512];
-    wsprintf(buf,"ce%d: offs=%d, len=%d, fftsize=%d\n",m_engines.GetSize(),offs,impulsechunksize,fftsize);
-    OutputDebugString(buf);
+    wdl_log("ce%d: offs=%d, len=%d, fftsize=%d\n",m_engines.GetSize(),offs,impulsechunksize,fftsize);
 #endif
 
     samplesleft -= impulsechunksize;
@@ -886,9 +882,7 @@ int WDL_ConvolutionEngine_Div::Avail(int wantSamples)
     
     if (eng->m_zl_fftcnt && x==m_engines.GetSize()-1 && cnt>1)
     {
-      char buf[512];
-      wsprintf(buf,"fft flags=%08x (%08x=max)\n",h,1<<x);
-      OutputDebugString(buf);
+      wdl_log("fft flags=%08x (%08x=max)\n",h,1<<x);
     }
 #endif
 #endif
@@ -901,9 +895,7 @@ int WDL_ConvolutionEngine_Div::Avail(int wantSamples)
   if (GetTickCount()>lastt+1000)
   {
     lastt=GetTickCount();
-    char buf[512];
-    wsprintf(buf,"maxcnt=%d\n",maxcnt);
-    OutputDebugString(buf);
+    wdl_log("maxcnt=%d\n",maxcnt);
     maxcnt=-1;
   }
 #endif
