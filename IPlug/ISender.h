@@ -99,7 +99,6 @@ public:
     Reset(DEFAULT_SAMPLE_RATE);
   }
   
-  
   void Reset(double sampleRate)
   {
     SetWindowSizeMs(mWindowSizeMs, sampleRate);
@@ -391,10 +390,11 @@ template <int MAXNC = 1, int QUEUE_SIZE = 64, int MAXBUF = 128>
 class IBufferSender : public ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF>>
 {
 public:
-  IBufferSender(double minThresholdDb = -90.)
+  IBufferSender(double minThresholdDb = -90., int bufferSize = MAXBUF)
   : ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF>>()
   , mThreshold(static_cast<float>(DBToAmp(minThresholdDb)))
   {
+    SetBufferSize(bufferSize);
   }
 
   /** Queue sample buffers into the sender, checking the data is over the required threshold. This can be called on the realtime audio thread. */
@@ -402,13 +402,13 @@ public:
   {
     for (auto s = 0; s < nFrames; s++)
     {
-      if(mBufCount == MAXBUF)
+      if (mBufCount == mBufferSize)
       {
-        float sum = 0.f;
+        float sum = 0.0f;
         for (auto c = chanOffset; c < (chanOffset + nChans); c++)
         {
           sum += mRunningSum[c];
-          mRunningSum[c] = 0.f;
+          mRunningSum[c] = 0.0f;
         }
 
         if (sum > mThreshold || mPreviousSum > mThreshold)
@@ -425,16 +425,30 @@ public:
       
       for (auto c = chanOffset; c < (chanOffset + nChans); c++)
       {
-        mBuffer.vals[c][mBufCount] = (float) inputs[c][s];
-        mRunningSum[c] += std::fabs( (float) inputs[c][s]);
+        const float inputSample = static_cast<float>(inputs[c][s]);
+        mBuffer.vals[c][mBufCount] = inputSample;
+        mRunningSum[c] += std::fabs(inputSample);
       }
 
       mBufCount++;
     }
   }
-protected:
+  
+  void SetBufferSize(int bufferSize)
+  {
+    assert(bufferSize > 0);
+    assert(bufferSize <= MAXBUF);
+
+    mBufferSize = bufferSize;
+    mBufCount = 0;
+  }
+
+  int GetBufferSize() const { return mBufferSize; }
+  
+private:
   ISenderData<MAXNC, std::array<float, MAXBUF>> mBuffer;
   int mBufCount = 0;
+  int mBufferSize = MAXBUF;
   std::array<float, MAXNC> mRunningSum {0.};
   float mPreviousSum = 1.f;
   float mThreshold = 0.01f;
