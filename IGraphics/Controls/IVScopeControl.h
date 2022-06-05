@@ -47,7 +47,7 @@ public:
     DrawWidget(g);
     DrawLabel(g);
     
-    if(mStyle.drawFrame)
+    if (mStyle.drawFrame)
       g.DrawRect(GetColor(kFR), mWidgetBounds, &mBlend, mStyle.frameThickness);
   }
 
@@ -59,7 +59,7 @@ public:
 
     const float maxY = (r.H() / 2.f); // y +/- centre
 
-    float xPerData = r.W() / (float) MAXBUF;
+    float xPerData = r.W() / (float) mBufferSize;
 
     for (int c = 0; c < mBuf.nChans; c++)
     {
@@ -68,7 +68,7 @@ public:
       yHi = Clip(yHi, -maxY, maxY);
 
       g.PathMoveTo(r.L + xHi, r.MH() - yHi);
-      for (int s = 1; s < MAXBUF; s++)
+      for (int s = 1; s < mBufferSize; s++)
       {
         xHi = ((float) s * xPerData);
         yHi = mBuf.vals[c][s] * maxY;
@@ -98,10 +98,18 @@ public:
       SetDirty(false);
     }
   }
+  
+  void SetBufferSize(int bufferSize)
+  {
+    assert(bufferSize > 0);
+    assert(bufferSize <= MAXBUF);
+    mBufferSize = bufferSize;
+  }
 
 private:
   ISenderData<MAXNC, std::array<float, MAXBUF>> mBuf;
   float mPadding = 2.f;
+  int mBufferSize = MAXBUF;
 };
 
 END_IGRAPHICS_NAMESPACE
