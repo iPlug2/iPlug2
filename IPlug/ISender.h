@@ -17,6 +17,7 @@
  */
 
 #include "denormal.h"
+#include "fft.h"
 
 #include "IPlugPlatform.h"
 #include "IPlugQueue.h"
@@ -25,6 +26,7 @@
 #if defined OS_IOS || defined OS_MAC
 #include <accelerate/accelerate.h>
 #endif
+
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -251,7 +253,7 @@ public:
     std::fill(mPeakHoldCounters.begin(), mPeakHoldCounters.end(), mPeakHoldTime);
   }
   
-  /** Queue peaks from sample buffers into the sender This can be called on the realtime audio thread. */
+  /** Queue peaks from sample buffers into the sender. This can be called on the realtime audio thread. */
   void ProcessBlock(sample** inputs, int nFrames, int ctrlTag, int nChans = MAXNC, int chanOffset = 0)
   {
     for (auto s = 0; s < nFrames; s++)
@@ -455,6 +457,181 @@ private:
   std::array<float, MAXNC> mRunningSum {0.};
   float mPreviousSum = 1.f;
   float mThreshold = 0.01f;
+};
+
+template <int MAXNC = 1, int QUEUE_SIZE = 64, int MAX_FFT_SIZE = 4096>
+class ISpectrumSender : public IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>
+{
+public:
+  using TDataPacket = std::array<float, MAX_FFT_SIZE>;
+  
+  enum class EWindowType {
+    Hann = 0,
+    BlackmanHarris,
+    Hamming,
+    Flattop,
+    Rectangular
+  };
+  
+  ISpectrumSender(int fftSize = 1024, int overlap = 2, EWindowType window = EWindowType::Hann)
+  : IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>(-90.0, fftSize)
+  , mWindowType(window)
+  {
+    WDL_fft_init();
+    SetFFTSizeAndOverlap(fftSize, overlap);
+  }
+
+  void SetFFTSizeAndOverlap(int fftSize, int overlap)
+  {
+    mOverlap = overlap;
+    IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>::SetBufferSize(fftSize);
+    SetFFTSize();
+    CalculateWindow();
+    CalculateScalingFactors();
+  }
+  
+  void SetWindowType(EWindowType windowType)
+  {
+    mWindowType = windowType;
+    CalculateWindow();
+  }
+  
+  void PrepareDataForUI(ISenderData<MAXNC, TDataPacket>& d) override
+  {
+    auto fftSize = IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>::GetBufferSize();
+
+    for (auto s = 0; s < fftSize; s++)
+    {
+      for (int stftFrameIdx = 0; stftFrameIdx < mOverlap; stftFrameIdx++)
+      {
+        auto& stftFrame = mSTFTFrames[stftFrameIdx];
+        
+        for (auto ch = 0; ch < MAXNC; ch++)
+        {
+          auto windowedValue = (float) d.vals[ch][s] * mWindow[stftFrame.pos];
+          stftFrame.bins[ch][stftFrame.pos].re = windowedValue;
+          stftFrame.bins[ch][stftFrame.pos].im = 0.0f;
+        }
+        
+        stftFrame.pos++;
+
+        if (stftFrame.pos >= fftSize)
+        {
+          stftFrame.pos = 0;
+          
+          for (auto ch = 0; ch < MAXNC; ch++)
+          {
+            Permute(ch, stftFrameIdx);
+            memcpy(d.vals[ch].data(), mSTFTOutput[ch].data(), fftSize * sizeof(float));
+          }
+        }
+      }
+    }
+  }
+  
+private:
+  void SetFFTSize()
+  {
+    if (mSTFTFrames.size() != mOverlap)
+    {
+      mSTFTFrames.resize(mOverlap);
+    }
+    
+    for (auto&& frame : mSTFTFrames)
+    {
+      for (auto ch = 0; ch < MAXNC; ch++)
+      {
+        std::fill(frame.bins[ch].begin(), frame.bins[ch].end(), WDL_FFT_COMPLEX{0.0f, 0.0f});
+      }
+      
+      frame.pos = 0;
+    }
+    
+    for (auto ch = 0; ch < MAXNC; ch++)
+    {
+      std::fill(mSTFTOutput[ch].begin(), mSTFTOutput[ch].end(), 0.0f);
+    }
+  }
+  
+  void CalculateWindow()
+  {
+    const auto fftSize = IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>::GetBufferSize();
+
+    const float M = static_cast<float>(fftSize - 1);
+    
+    switch (mWindowType)
+    {
+      case EWindowType::Hann:
+        for (auto i = 0; i < fftSize; i++) { mWindow[i] = 0.5f * (1.0f - std::cos(PI * 2.0f * i / M)); }
+        break;
+      case EWindowType::BlackmanHarris:
+        for (auto i = 0; i < fftSize; i++) {
+          mWindow[i] = 0.35875 - (0.48829f * std::cos(2.0f * PI * i / M)) +
+                                 (0.14128f * std::cos(4.0f * PI * i / M)) -
+                                 (0.01168f * std::cos(6.0f * PI * i / M));
+        }
+        break;
+      case EWindowType::Hamming:
+        for (auto i = 0; i < fftSize; i++) { mWindow[i] = 0.54f - 0.46f * std::cos(2.0f * PI * i / M); }
+        break;
+      case EWindowType::Flattop:
+        for (auto i = 0; i < fftSize; i++) {
+          mWindow[i] = 0.21557895f - 0.41663158f * std::cos(2.0f * PI * i / M) +
+                                    0.277263158f * std::cos(4.0f * PI * i / M) -
+                                    0.083578947f * std::cos(6.0f * PI * i / M) +
+                                    0.006947368f * std::cos(8.0f * PI * i / M);
+        }
+        break;
+      case EWindowType::Rectangular:
+        std::fill(mWindow.begin(), mWindow.end(), 1.0f);
+        break;
+      default:
+        break;
+    }
+  }
+  
+  void CalculateScalingFactors()
+  {
+    const auto fftSize = IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>::GetBufferSize();
+    const float M = static_cast<float>(fftSize - 1);
+
+    auto scaling = 0.0f;
+    
+    for (auto i = 0; i < fftSize; i++)
+    {
+      auto v = 0.5f * (1.0f - std::cos(2.0f * PI * i / M));
+      scaling += v;
+    }
+    
+    mScalingFactor = scaling * scaling;
+  }
+  
+  void Permute(int ch, int frameIdx)
+  {
+    const auto fftSize = IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>::GetBufferSize();
+    WDL_fft(mSTFTFrames[frameIdx].bins[ch].data(), fftSize, false);
+
+    for (auto i = 0; i < fftSize; ++i)
+    {
+      int sortIdx = WDL_fft_permute(fftSize, i);
+      WDL_FFT_REAL re = mSTFTFrames[frameIdx].bins[ch][sortIdx].re;
+      WDL_FFT_REAL im = mSTFTFrames[frameIdx].bins[ch][sortIdx].im;
+      mSTFTOutput[ch][i] = std::sqrt(2.0f * (re * re + im * im) / mScalingFactor);
+    }
+  }
+  
+  struct STFTFrame
+  {
+    int pos;
+    std::array<std::array<WDL_FFT_COMPLEX, MAX_FFT_SIZE>, MAXNC> bins;
+  };
+  
+  int mOverlap = 2;
+  EWindowType mWindowType = EWindowType::Hann;
+  std::array<float, MAX_FFT_SIZE> mWindow;
+  std::vector<STFTFrame> mSTFTFrames;
+  std::array<std::array<float, MAX_FFT_SIZE>, MAXNC> mSTFTOutput;
+  float mScalingFactor = 0.0f;
 };
 
 END_IPLUG_NAMESPACE
