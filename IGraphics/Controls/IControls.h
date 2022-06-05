@@ -20,6 +20,7 @@
 #include "IColorPickerControl.h"
 #include "IVKeyboardControl.h"
 #include "IVMeterControl.h"
+#include "IVSpectrumAnalyzerControl.h"
 #include "IVScopeControl.h"
 #include "IVMultiSliderControl.h"
 #include "IRTTextControl.h"
