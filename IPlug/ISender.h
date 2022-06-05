@@ -72,15 +72,18 @@ public:
     mQueue.Push(d);
   }
 
+  virtual void PrepareDataForUI(ISenderData<MAXNC, T>& d) { /* NO-OP*/ }
+  
   /** Pops elements off the queue and sends messages to controls.
    *  This must be called on the main thread - typically in MyPlugin::OnIdle() */
   void TransmitData(IEditorDelegate& dlg)
   {
-    while(mQueue.ElementsAvailable())
+    while (mQueue.ElementsAvailable())
     {
       ISenderData<MAXNC, T> d;
       mQueue.Pop(d);
       assert(d.ctrlTag != kNoTag && "You must supply a control tag");
+      PrepareDataForUI(d);
       dlg.SendControlMsgFromDelegate(d.ctrlTag, kUpdateMessage, sizeof(ISenderData<MAXNC, T>), (void*) &d);
     }
   }
