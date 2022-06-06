@@ -2351,6 +2351,9 @@ void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, float gridSiz
 
 void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints, const IBlend* pBlend, float thickness, const IColor* pFillColor)
 {
+  if (nPoints == 0)
+    return;
+  
   PathClear();
   
   float xPos = bounds.L;
