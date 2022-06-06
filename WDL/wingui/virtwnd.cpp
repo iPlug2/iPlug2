@@ -808,7 +808,7 @@ void WDL_VWnd::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_y, RECT *c
   if (m_children) for (x = m_children->GetSize()-1; x >=0; x --)
   {
     WDL_VWnd *ch=m_children->Get(x);
-    if (ch->IsVisible())
+    if (PrepareToDrawChild(ch,0) && ch->IsVisible())
     {
       RECT re;
       ch->GetPosition(&re);
@@ -845,7 +845,7 @@ void WDL_VWnd::OnPaintOver(LICE_IBitmap *drawbm, int origin_x, int origin_y, REC
   if (m_children) for (x = m_children->GetSize()-1; x >=0; x --)
   {
     WDL_VWnd *ch=m_children->Get(x);
-    if (ch->IsVisible() && ch->WantsPaintOver())
+    if (PrepareToDrawChild(ch,1) && ch->IsVisible() && ch->WantsPaintOver())
     {
       RECT re;
       ch->GetPosition(&re);
