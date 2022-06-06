@@ -144,6 +144,8 @@ public:
 
   virtual bool GetAccessValueDesc(char *buf, int bufsz) { return false; } // allow control to format value string
 
+  virtual bool PrepareToDrawChild(WDL_VWnd *child, int stage) { return true; } // stage=0 for onPaint, 1=onPaintOver, the rest are reserved
+
   static void ScaleRect(RECT *r, int sc)
   {
     if (sc != WDL_VWND_SCALEBASE)
