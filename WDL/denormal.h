@@ -30,7 +30,7 @@ static WDL_DENORMAL_INLINE unsigned int WDL_DENORMAL_DOUBLE_HW(const double *a) 
 //
 #ifdef WDL_DENORMAL_WANTS_SCOPED_FTZ
 
-#if defined(__SSE2__) || _M_IX86_FP >= 2 || defined(_WIN64)
+#if defined(__SSE2__) || _M_IX86_FP >= 2 || defined(_M_X64)
   #define WDL_DENORMAL_FTZMODE
   #define WDL_DENORMAL_FTZSTATE_TYPE unsigned int
   #ifdef _MSC_VER
