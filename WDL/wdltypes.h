@@ -163,11 +163,12 @@ typedef bool WDL_bool;
     static LONG WDL_ASSERT_INTERNALCNT;
     static int WDL_ASSERT_END() { WDL_ASSERT_INTERNALCNT=0; return 0; }
     static int WDL_ASSERT_BEGIN() { return InterlockedCompareExchange(&WDL_ASSERT_INTERNALCNT,1,0) == 0; }
+    #define WDL_ASSERT(x) do { if (WDL_ASSERT_BEGIN()) { assert(x); WDL_ASSERT_END(); } } while(0)
   #else
     #define WDL_ASSERT_BEGIN() (1)
     #define WDL_ASSERT_END() (0)
+    #define WDL_ASSERT(x) assert(x)
   #endif
-  #define WDL_ASSERT(x) do { if (WDL_ASSERT_BEGIN()) { assert(x); WDL_ASSERT_END(); } } while(0)
   #define WDL_NORMALLY(x)     ((x) ? 1 : (WDL_ASSERT_BEGIN() && (assert(0/*ignorethis*/ && (x)),WDL_ASSERT_END())))
   #define WDL_NOT_NORMALLY(x) ((x) ? !WDL_ASSERT_BEGIN() || (assert(0/*ignorethis*/ && !(x)),!WDL_ASSERT_END()) : 0)
 #else
