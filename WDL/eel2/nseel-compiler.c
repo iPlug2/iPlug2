@@ -107,7 +107,7 @@ FILE *g_eel_dump_fp, *g_eel_dump_fp2;
 
 #include "glue_ppc.h"
 
-#elif defined(__aarch64__)
+#elif defined(__aarch64__) || defined(_M_ARM64)
 
 #include "glue_aarch64.h"
 
@@ -2804,7 +2804,7 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
     const int max_params=16384; // arm uses up to two instructions, should be good for at leaast 64k (16384*4)
 #elif defined(__ppc__)
     const int max_params=4096; // 32kb max offset addressing for stack, so 4096*4 = 16384, should be safe
-#elif defined(__aarch64__)
+#elif defined(__aarch64__) || defined(_M_ARM64)
     const int max_params=32768; 
 #else
     const int max_params=32768; // sanity check, the stack is free to grow on x86/x86-64
