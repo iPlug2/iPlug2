@@ -826,6 +826,18 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
           }
         }
       }
+      else if (wParam == 5)
+      {
+        KillTimer(hwnd,5);
+
+        RECT r;
+        POINT pt;
+        GetCursorPos(&pt);
+        ScreenToClient(hwnd,&pt);
+        GetClientRect(hwnd,&r);
+        if (PtInRect(&r,pt))
+          SendMessage(hwnd,WM_USER+100,4,pt.y);
+      }
     break;
     case WM_KEYUP:
     return 1;
@@ -1101,12 +1113,25 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
           }
         }
         ReleaseDC(hwnd,hdc);
-        if (wParam == 3 || wParam == 4)
+        if (wParam == 4)
         {
           MENUITEMINFO *inf = menu->items.Get(which);
-          HWND next = m_trackingMenus.Get(m_trackingMenus.Find(hwnd)+1);
-          if (next && inf && (!inf->hSubMenu || (LPARAM)inf->hSubMenu != GetWindowLongPtr(next,GWLP_USERDATA))) DestroyWindow(next); 
+          if (inf)
+          {
+            HWND next = m_trackingMenus.Get(m_trackingMenus.Find(hwnd)+1);
+            if (next && (!inf->hSubMenu || (LPARAM)inf->hSubMenu != GetWindowLongPtr(next,GWLP_USERDATA)))
+              DestroyWindow(next);
+          }
           menu->sel_vis = which;
+          return 0;
+        }
+        if (wParam == 3)
+        {
+          if (menu->sel_vis != which)
+          {
+            SetTimer(hwnd,5,300,NULL);
+            menu->sel_vis = which;
+          }
           return 0;
         }
 
@@ -1163,7 +1188,7 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
         const int oldsel = menu->sel_vis;
         if (GET_X_LPARAM(lParam)>=r.left && GET_X_LPARAM(lParam)<r.right)
         {
-          int mode = 4;//GET_X_LPARAM(lParam) >= r.right - rcol*2 ? 4 : 3;
+          int mode = 3; // 4 was old-style super-fast menus
           SendMessage(hwnd,WM_USER+100,mode,GET_Y_LPARAM(lParam));
         }
         else menu->sel_vis = -1;
