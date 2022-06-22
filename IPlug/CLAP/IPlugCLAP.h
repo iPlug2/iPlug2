@@ -89,8 +89,8 @@ private:
   bool init() noexcept override;
   bool activate(double sampleRate, uint32_t minFrameCount, uint32_t maxFrameCount) noexcept override;
   void deactivate() noexcept override;
-  //bool startProcessing() noexcept override { return true; }
-  //void stopProcessing() noexcept override {}
+  bool startProcessing() noexcept override { return true; }
+  void stopProcessing() noexcept override {}
   clap_process_status process(const clap_process *process) noexcept override;
   
   //void onMainThread() noexcept override {}
@@ -116,6 +116,11 @@ private:
      if (canUseState())
         _host.MarkDirty();
   }*/
+  
+  // clap_plugin_audio_ports
+  bool implementsAudioPorts() const noexcept override { return MaxNBuses(ERoute::kInput) && MaxNBuses(ERoute::kOutput); }
+  uint32_t audioPortsCount(bool isInput) const noexcept override { return MaxNBuses(isInput ? ERoute::kInput : ERoute::kOutput); }
+  bool audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_info *info) const noexcept override;
   
   // clap_plugin_params
   bool implementsParams() const noexcept override { return true; }

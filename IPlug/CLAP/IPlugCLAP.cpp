@@ -486,6 +486,21 @@ void IPlugCLAP::ProcessOutputParams(const clap_output_events *output_parameter_c
   }
 }
 
+bool IPlugCLAP::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_info *info) const noexcept
+{
+  const auto route = isInput ? ERoute::kInput : ERoute::kOutput;
+  const auto nBuses = MaxNBuses(route);
+  const auto maxNChans = MaxNChannelsForBus(route, index);
+  WDL_String busName;
+  GetBusName(route, index, nBuses, busName);
+  info->id = 0;
+  strncpy(info->name, busName.Get(), sizeof(info->name));
+  info->flags = index == 0 ? CLAP_AUDIO_PORT_IS_MAIN : 0;
+  info->channel_count = maxNChans;
+  info->port_type = CLAP_PORT_STEREO; // TODO
+  return true;
+}
+
 #if PLUG_HAS_UI
 
 // clap_plugin_gui
