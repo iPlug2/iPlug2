@@ -2959,8 +2959,9 @@ forceMouseMove:
         }
       }
     return 0;
-    case WM_SETFOCUS:
     case WM_KILLFOCUS:
+      SendMessage(GetParent(hwnd),WM_COMMAND,(EN_KILLFOCUS<<16) | (hwnd->m_id&0xffff),(LPARAM)hwnd);
+    case WM_SETFOCUS:
       InvalidateRect(hwnd,NULL,FALSE);
     break;
   }
