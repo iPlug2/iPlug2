@@ -52,7 +52,7 @@ class IPlugCLAP : public IPlugAPIBase
     
     uint32_t idx() const { return static_cast<uint32_t>(mIdx); }
     double value() const { return mValue; }
-    clap_event_type type() const
+    uint16_t type() const
     {
       switch (mType)
       {

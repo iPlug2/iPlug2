@@ -321,7 +321,7 @@ bool IPlugCLAP::stateLoad(const clap_istream *stream) noexcept
 bool IPlugCLAP::paramsInfo(uint32_t paramIndex, clap_param_info *info) const noexcept
 {
   assert(MAX_PARAM_NAME_LEN <= CLAP_NAME_SIZE && "iPlug parameter name size exceeds CLAP maximum");
-  assert(MAX_PARAM_GROUP_LEN <= CLAP_MODULE_SIZE && "iPlug group name size exceeds CLAP maximum");
+//  assert(MAX_PARAM_GROUP_LEN <= CLAP_MODULE_SIZE && "iPlug group name size exceeds CLAP maximum");
 
   const IParam *pParam = GetParam(paramIndex);
   
@@ -478,7 +478,7 @@ void IPlugCLAP::ProcessOutputParams(const clap_output_events *output_parameter_c
     header.type = change.type();
     header.flags = 0;
     
-    clap_event_param_value event { header, change.idx(), nullptr, -1, -1, -1, change.value() };
+    clap_event_param_value event { header, change.idx(), nullptr, -1, -1, -1, -1, change.value() };
     
     // FIX - respond to a situation in which parameters can't be pushed
     
