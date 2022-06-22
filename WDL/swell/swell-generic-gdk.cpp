@@ -1126,6 +1126,10 @@ static void OnKeyEvent(GdkEventKey *k)
       swell_is_likely_capslock = (modifiers&FSHIFT)==0;
       modifiers |= FVIRTKEY;
     }
+    else if (kv == ' ')
+    {
+      kv = VK_SPACE;
+    }
     else if (kv >= '0' && kv <= '9')
     {
       modifiers |= FVIRTKEY;
