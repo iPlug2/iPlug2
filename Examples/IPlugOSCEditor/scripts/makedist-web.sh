@@ -53,45 +53,52 @@ mkdir build-web/scripts
 
 echo BUNDLING RESOURCES -----------------------------
 
-cd build-web
+if [ -f ./build-web/imgs.js ]; then rm ./build-web/imgs.js; fi
+if [ -f ./build-web/imgs@2x.js ]; then rm ./build-web/imgs@2x.js; fi
+if [ -f ./build-web/svgs.js ]; then rm ./build-web/svgs.js; fi
+if [ -f ./build-web/fonts.js ]; then rm ./build-web/fonts.js; fi
 
-if [ -f imgs.js ]; then rm imgs.js; fi
-if [ -f imgs@2x.js ]; then rm imgs@2x.js; fi
-if [ -f svgs.js ]; then rm svgs.js; fi
-if [ -f fonts.js ]; then rm fonts.js; fi
-
+FILE_PACKAGER=$EMSDK/upstream/emscripten/tools/file_packager.py
 #package fonts
 FOUND_FONTS=0
-if [ "$(ls -A ../resources/fonts/*.ttf)" ]; then
+if [ "$(ls -A ./resources/fonts/*.ttf)" ]; then
   FOUND_FONTS=1
-  python3 $EMSDK/upstream/emscripten/tools/file_packager.py fonts.data --preload ../resources/fonts/ --exclude *DS_Store --js-output=fonts.js
+  python3 $FILE_PACKAGER fonts.data --preload ./resources/fonts/ --exclude *DS_Store --js-output=./fonts.js
 fi
 
 #package svgs
 FOUND_SVGS=0
-if [ "$(ls -A ../resources/img/*.svg)" ]; then
+if [ "$(ls -A ./resources/img/*.svg)" ]; then
   FOUND_SVGS=1
-  python3 $EMSDK/upstream/emscripten/tools/file_packager.py svgs.data --preload ../resources/img/ --exclude *.png --exclude *DS_Store --js-output=svgs.js
+  python3 $FILE_PACKAGER svgs.data --preload ./resources/img/ --exclude *.png --exclude *DS_Store --js-output=./svgs.js
 fi
 
 #package @1x pngs
 FOUND_PNGS=0
-if [ "$(ls -A ../resources/img/*.png)" ]; then
+if [ "$(ls -A ./resources/img/*.png)" ]; then
   FOUND_PNGS=1
-  python3 $EMSDK/upstream/emscripten/tools/file_packager.py imgs.data --use-preload-plugins --preload ../resources/img/ --use-preload-cache --indexedDB-name="/$PROJECT_NAME_pkg" --exclude *DS_Store --exclude  *@2x.png --exclude  *.svg >> imgs.js
+  python3 $FILE_PACKAGER imgs.data --use-preload-plugins --preload ./resources/img/ --use-preload-cache --indexedDB-name="/$PROJECT_NAME_pkg" --exclude *DS_Store --exclude  *@2x.png --exclude  *.svg >> ./imgs.js
 fi
 
 # package @2x pngs into separate .data file
 FOUND_2XPNGS=0
-if [ "$(ls -A ../resources/img/*@2x*.png)" ]; then
+if [ "$(ls -A ./resources/img/*@2x*.png)" ]; then
   FOUND_2XPNGS=1
-  mkdir ./2x/
-  cp ../resources/img/*@2x* ./2x
-  python3 $EMSDK/upstream/emscripten/tools/file_packager.py imgs@2x.data --use-preload-plugins --preload ./2x@/resources/img/ --use-preload-cache --indexedDB-name="/$PROJECT_NAME_pkg" --exclude *DS_Store >> imgs@2x.js
-  rm -r ./2x
+  mkdir ./build-web/2x/
+  cp ./resources/img/*@2x* ./build-web/2x
+  python3 $FILE_PACKAGER imgs@2x.data --use-preload-plugins --preload ./2x@/resources/img/ --use-preload-cache --indexedDB-name="/$PROJECT_NAME_pkg" --exclude *DS_Store >> ./imgs@2x.js
+  rm -r ./build-web/2x
 fi
 
-cd ..
+if [ -f ./imgs.js ]; then mv ./imgs.js ./build-web/imgs.js; fi
+if [ -f ./imgs@2x.js ]; then mv ./imgs@2x.js ./build-web/imgs@2x.js; fi
+if [ -f ./svgs.js ]; then mv ./svgs.js ./build-web/svgs.js; fi
+if [ -f ./fonts.js ]; then mv ./fonts.js ./build-web/fonts.js; fi
+
+if [ -f ./imgs.data ]; then mv ./imgs.data ./build-web/imgs.data; fi
+if [ -f ./imgs@2x.data ]; then mv ./imgs@2x.data ./build-web/imgs@2x.data; fi
+if [ -f ./svgs.data ]; then mv ./svgs.data ./build-web/svgs.data; fi
+if [ -f ./fonts.data ]; then mv ./fonts.data ./build-web/fonts.data; fi
 
 if [ "$WEBSOCKET_MODE" -eq "0" ]; then
   echo MAKING  - WAM WASM MODULE -----------------------------
