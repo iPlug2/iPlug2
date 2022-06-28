@@ -135,19 +135,12 @@ public:
 
   // endian-management stuff 
 
-  static void WDL_Queue__bswap_buffer(void *buf, int len)
+  static void WDL_Queue__bswap_buffer(void *buf, int len) // poorly named! only bswaps on BE, deprecated, use wdl_memcpy_le()
   {
-  #ifdef __ppc__
-    char *p=(char *)buf;
-    char *ep=p+len;
-    while ((len-=2) >= 0)
-    {
-      char tmp=*p; *p++=*--ep; *ep=tmp;
-    }
-  #endif
+    wdl_memcpy_le(buf,buf,1,len);
   }
 
-  // older API of static functions (that endedu p warning a bit anyway)
+  // older API of static functions (that ended up warning a bit anyway)
 #define WDL_Queue__AddToLE(q, v) (q)->AddToLE(v)
 #define WDL_Queue__AddDataToLE(q,d,ds,us) (q)->AddDataToLE(d,ds,us)
 #define WDL_Queue__GetTFromLE(q,v) (q)->GetTFromLE(v)
@@ -155,31 +148,29 @@ public:
 
   template<class T> void AddToLE(T *val)
   {
-    WDL_Queue__bswap_buffer(AddT(val),sizeof(T));
+    void *w = Add(NULL, sizeof(T));
+    if (WDL_NORMALLY(w != NULL) && val != NULL)
+      wdl_memcpy_le(w, val, 1, sizeof(T));
   }
-  void AddDataToLE(void *data, int datasize, int unitsize)
+  void AddDataToLE(const void *data, int datasize, int unitsize)
   {
-    #ifdef __ppc__
-    char *dout = (char *)Add(data,datasize);
-    while (datasize >= unitsize)
-    {
-      WDL_Queue__bswap_buffer(dout,unitsize);
-      dout+=unitsize;
-      datasize-=unitsize;
-    }
-    #else
-    Add(data,datasize);
-    #endif
+    char *w = (char *)Add(NULL,datasize);
+    if (WDL_NOT_NORMALLY(w == NULL)) return;
+
+    if (WDL_NOT_NORMALLY(unitsize<1)) unitsize=1;
+    WDL_ASSERT((datasize % unitsize) == 0);
+    if (data) wdl_memcpy_le(w,data,datasize/unitsize,unitsize);
   }
 
 
-  // NOTE: these thrash the contents of the queue if on LE systems. So for example if you are going to rewind it later or use it elsewhere, 
-  // then get ready to get unhappy.
+  // NOTE: these thrash the contents of the queue if on BE systems, do not use if you
+  // will rewind etc. better to use Get() and wdl_memcpy_le().
   template<class T> T *GetTFromLE(T* val=0)
   {
     T *p = GetT(val);
-    if (p) {
-      WDL_Queue__bswap_buffer(p,sizeof(T));
+    if (p)
+    {
+      wdl_memcpy_le(p,p,1,sizeof(T));
       if (val) *val = *p;
     }
     return p;
@@ -188,15 +179,8 @@ public:
   void *GetDataFromLE(int datasize, int unitsize)
   {
     void *data=Get(datasize);
-    #ifdef __ppc__
-    char *dout=(char *)data;
-    if (dout) while (datasize >= unitsize)
-    {
-      WDL_Queue__bswap_buffer(dout,unitsize);
-      dout+=unitsize;
-      datasize-=unitsize;
-    }
-    #endif
+    WDL_ASSERT((datasize % unitsize) == 0);
+    if (data && WDL_NORMALLY(unitsize>0)) wdl_memcpy_le(data,data,datasize/unitsize,unitsize);
     return data;
   }
 
