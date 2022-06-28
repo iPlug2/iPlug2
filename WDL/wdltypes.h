@@ -44,6 +44,7 @@ typedef unsigned long long WDL_UINT64;
 typedef intptr_t INT_PTR;
 typedef uintptr_t UINT_PTR;
 #endif
+#include <string.h>
 
 #if defined(__ppc__) || !defined(__cplusplus)
 typedef char WDL_bool;
@@ -71,6 +72,18 @@ typedef bool WDL_bool;
 #define GCLP_HICONSM GCL_HICONSM
 #define SetClassLongPtr(a,b,c) SetClassLong(a,b,c)
 #define GetClassLongPtr(a,b) GetClassLong(a,b)
+#endif
+
+#if !defined(WDL_BIG_ENDIAN) && !defined(WDL_LITTLE_ENDIAN)
+  #ifdef __ppc__
+    #define WDL_BIG_ENDIAN
+  #else
+    #define WDL_LITTLE_ENDIAN
+  #endif
+#endif
+
+#if defined(WDL_BIG_ENDIAN) && defined(WDL_LITTLE_ENDIAN)
+#error WDL_BIG_ENDIAN and WDL_LITTLE_ENDIAN both defined
 #endif
 
 
@@ -235,5 +248,46 @@ typedef char wdl_assert_failed_unsigned_char[((char)-1) > 0 ? -1 : 1];
 #else
   #define wdl_log printf
 #endif
+
+static void WDL_STATICFUNC_UNUSED wdl_bswap_copy(void *bout, const void *bin, size_t nelem, size_t elemsz)
+{
+  char p[8], po[8];
+  WDL_ASSERT(elemsz > 0);
+  if (elemsz > 1 && WDL_NORMALLY(elemsz <= sizeof(p)))
+  {
+    size_t i,x;
+    for (i = 0; i < nelem; i ++)
+    {
+      memcpy(p,bin,elemsz);
+      for (x = 0; x < elemsz; x ++) po[x]=p[elemsz-1-x];
+      memcpy(bout,po,elemsz);
+      bin = (const char *)bin + elemsz;
+      bout = (char *)bout + elemsz;
+    }
+  }
+  else if (bout != bin)
+    memmove(bout,bin,elemsz * nelem);
+}
+
+static void WDL_STATICFUNC_UNUSED wdl_memcpy_le(void *bout, const void *bin, size_t nelem, size_t elemsz)
+{
+  WDL_ASSERT(elemsz > 0 && elemsz <= 8);
+#ifdef WDL_BIG_ENDIAN
+  if (elemsz > 1) wdl_bswap_copy(bout,bin,nelem,elemsz);
+  else
+#endif
+  if (bout != bin) memmove(bout,bin,elemsz * nelem);
+}
+
+static void WDL_STATICFUNC_UNUSED wdl_memcpy_be(void *bout, const void *bin, size_t nelem, size_t elemsz)
+{
+  WDL_ASSERT(elemsz > 0 && elemsz <= 8);
+#ifdef WDL_LITTLE_ENDIAN
+  if (elemsz > 1) wdl_bswap_copy(bout,bin,nelem,elemsz);
+  else
+#endif
+  if (bout != bin) memmove(bout,bin,elemsz * nelem);
+}
+
 
 #endif
