@@ -186,11 +186,13 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
   int nIns = process->audio_inputs->channel_count;
   int nOuts = process->audio_outputs->channel_count;
   int nFrames = process->frames_count;
-  
-  bool format64 = process->audio_inputs->data64;
-  
+
+  // does not seem to be safe...
+  //bool format64 = process->audio_inputs->data64;
+  bool format64 = process->audio_outputs->data64;
+
   assert(format64 == (bool) process->audio_outputs->data64);
-  
+
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
   SetChannelConnections(ERoute::kInput, 0, nIns, true);
   
@@ -316,6 +318,34 @@ bool IPlugCLAP::stateLoad(const clap_istream *stream) noexcept
   return UnserializeState(chunk, 0) >= 0;
 }
 
+// clap_plugin_note_ports
+
+uint32_t IPlugCLAP::notePortsCount(bool is_input) const noexcept
+{
+  if (is_input)
+    return PLUG_DOES_MIDI_IN;
+  else
+    return PLUG_DOES_MIDI_OUT;
+}
+bool IPlugCLAP::notePortsInfo(uint32_t index, bool is_input, clap_note_port_info *info) const noexcept
+{
+  if (is_input)
+  {
+    info->id = 1 << 5U;
+    info->supported_dialects = CLAP_NOTE_DIALECT_MIDI;
+    info->preferred_dialect = CLAP_NOTE_DIALECT_MIDI;
+    strncpy(info->name, "iPlug Note Input", CLAP_NAME_SIZE);
+  }
+  else
+  {
+    info->id = 1 << 2U;
+    info->supported_dialects = CLAP_NOTE_DIALECT_MIDI;
+    info->preferred_dialect = CLAP_NOTE_DIALECT_MIDI;
+    strncpy(info->name, "iPlug Note Output", CLAP_NAME_SIZE);
+  }
+  return true;
+}
+
 // clap_plugin_params
 
 bool IPlugCLAP::paramsInfo(uint32_t paramIndex, clap_param_info *info) const noexcept
@@ -416,6 +446,7 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *in_events) noexcept
           msg.MakeNoteOnMsg(note->key, velocity, event->time, note->channel);
           ProcessMidiMsg(msg);
           mMidiMsgsFromProcessor.Push(msg);
+          break;
         }
           
         case CLAP_EVENT_NOTE_OFF:
@@ -424,6 +455,7 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *in_events) noexcept
           msg.MakeNoteOffMsg(note->key, event->time, note->channel);
           ProcessMidiMsg(msg);
           mMidiMsgsFromProcessor.Push(msg);
+          break;
         }
           
         case CLAP_EVENT_MIDI:
@@ -432,6 +464,7 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *in_events) noexcept
           msg = IMidiMsg(event->time, midi->data[0], midi->data[1], midi->data[2]);
           ProcessMidiMsg(msg);
           mMidiMsgsFromProcessor.Push(msg);
+          break;
         }
           
         case CLAP_EVENT_MIDI_SYSEX:
@@ -441,6 +474,7 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *in_events) noexcept
           ISysEx sysEx(event->time, midiSysex->buffer, midiSysex->size);
           ProcessSysEx(sysEx);
           //mSysExDataFromProcessor.Push(sysEx);
+          break;
         }
           
         case CLAP_EVENT_PARAM_VALUE:
@@ -448,11 +482,15 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *in_events) noexcept
           auto paramValue = ClapEventCast<clap_event_param_value>(event);
           
           int paramIdx = paramValue->param_id;
-          double value = paramValue->value;
-          
-          GetParam(paramIdx)->Set(value);
-          SendParameterValueFromAPI(paramIdx, value, false);
-          OnParamChange(paramIdx, EParamSource::kHost, event->time);
+          if (paramIdx >= 0 && paramIdx < this->NParams())
+          {
+            double value = paramValue->value;
+
+            GetParam(paramIdx)->Set(value);
+            SendParameterValueFromAPI(paramIdx, value, false);
+            OnParamChange(paramIdx, EParamSource::kHost, event->time);
+          }
+          break;
         }
           
         default:
@@ -580,4 +618,3 @@ void IPlugCLAP::guiRoundSize(uint32_t *width, uint32_t *height) noexcept
 #endif /* PLUG_HOST_RESIZE */
 
 #endif /* PLUG_HAS_UI */
-

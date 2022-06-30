@@ -24,7 +24,7 @@
 
 #if defined OS_WIN && !defined VST3C_API
   HINSTANCE gHINSTANCE = 0;
-  #if defined(VST2_API) || defined(AAX_API)
+  #if defined(VST2_API) || defined(AAX_API) || defined(CLAP_API)
   #ifdef __MINGW32__
   extern "C"
   #endif
@@ -280,20 +280,20 @@ static bool clap_init(const char* pluginPath)
 {
   gPluginDesc = new clap_plugin_descriptor();
   gPluginPath = pluginPath;
-  
+
   gPluginDesc->clap_version = CLAP_VERSION;
-  
+
 #if PLUG_TYPE==0
   static const char *clap_features = "audio_effect";
   gPluginDesc->features = &clap_features;
 #elif PLUG_TYPE==1
-  static const char *clap_features = "instrument"
+  static const char *clap_features = "instrument";
   gPluginDesc->features = &clap_features;
 #elif PLUG_TYPE==2
-  static const char *clap_features = "note_effect"
+  static const char *clap_features = "note_effect";
   gPluginDesc->features = &clap_features;
 #endif
-  
+
   //  clap_version clap_version; // initialized to CLAP_VERSION
 
   gPluginDesc->id = BUNDLE_DOMAIN "." BUNDLE_MFR "." BUNDLE_NAME;
@@ -301,12 +301,12 @@ static bool clap_init(const char* pluginPath)
   gPluginDesc->vendor = PLUG_MFR;
   gPluginDesc->url = PLUG_URL_STR;
   gPluginDesc->version = PLUG_VERSION_STR;
-  
+
   // TODO - unimplemented
   gPluginDesc->manual_url = "";
   gPluginDesc->support_url = "";
   gPluginDesc->description = "";
-  
+
   // TODO - more to add here
   //gPluginDesc->features = "";
 
@@ -351,9 +351,9 @@ CLAP_EXPORT const clap_plugin_factory_t clap_factory = {
 
 const void *clap_get_factory(const char *factory_id)
 {
-   if (!::strcmp(factory_id, CLAP_PLUGIN_FACTORY_ID))
-      return &clap_factory;
-   return nullptr;
+  if (!::strcmp(factory_id, CLAP_PLUGIN_FACTORY_ID))
+    return &clap_factory;
+  return nullptr;
 }
 
 CLAP_EXPORT const clap_plugin_entry_t clap_entry = {
