@@ -501,6 +501,32 @@ bool IPlugCLAP::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_inf
   return true;
 }
 
+uint32_t IPlugCLAP::notePortsCount(bool is_input) const noexcept
+{
+  if (is_input)
+    return PLUG_DOES_MIDI_IN;
+  else
+    return PLUG_DOES_MIDI_OUT;
+}
+bool IPlugCLAP::notePortsInfo(uint32_t index, bool is_input, clap_note_port_info *info) const noexcept
+{
+  if (is_input)
+  {
+    info->id = 1 << 5U;
+    info->supported_dialects = CLAP_NOTE_DIALECT_MIDI;
+    info->preferred_dialect = CLAP_NOTE_DIALECT_MIDI;
+    strncpy(info->name, "iPlug Note Input", CLAP_NAME_SIZE);
+  }
+  else
+  {
+    info->id = 1 << 2U;
+    info->supported_dialects = CLAP_NOTE_DIALECT_MIDI;
+    info->preferred_dialect = CLAP_NOTE_DIALECT_MIDI;
+    strncpy(info->name, "iPlug Note Output", CLAP_NAME_SIZE);
+  }
+  return true;
+}
+
 #if PLUG_HAS_UI
 
 // clap_plugin_gui

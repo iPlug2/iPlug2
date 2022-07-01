@@ -122,6 +122,11 @@ private:
   uint32_t audioPortsCount(bool isInput) const noexcept override { return MaxNBuses(isInput ? ERoute::kInput : ERoute::kOutput); }
   bool audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_info *info) const noexcept override;
   
+  // clap_plugin_note_ports
+  bool implementsNotePorts() const noexcept override { return DoesMIDIIn() || DoesMIDIOut(); }
+  uint32_t notePortsCount(bool is_input) const noexcept override;
+  bool notePortsInfo(uint32_t index, bool is_input, clap_note_port_info *info) const noexcept override;
+  
   // clap_plugin_params
   bool implementsParams() const noexcept override { return true; }
   uint32_t paramsCount() const noexcept override { return NParams(); }
