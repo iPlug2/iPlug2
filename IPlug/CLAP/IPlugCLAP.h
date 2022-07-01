@@ -75,8 +75,8 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
 //  void InformHostOfPresetChange() override;
-//  bool EditorResize(int viewWidth, int viewHeight) override;
-
+  bool EditorResize(int viewWidth, int viewHeight) override;
+  
   // IPlugProcessor
   void SetTailSize(int tailSize) override;
   void SetLatency(int samples) override;

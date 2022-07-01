@@ -588,6 +588,19 @@ bool IPlugCLAP::GUIWindowAttach(void *window) noexcept
   return true;
 }
 
+bool IPlugCLAP::EditorResize(int viewWidth, int viewHeight)
+{
+  if (HasUI())
+  {
+    if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
+      _host.guiRequestResize(viewWidth, viewHeight);
+
+    SetEditorSize(viewWidth, viewHeight);
+  }
+  
+  return true;
+}
+
 #if PLUG_HOST_RESIZE
 bool IPlugCLAP::guiSetSize(uint32_t width, uint32_t height) noexcept
 {
@@ -607,7 +620,6 @@ void IPlugCLAP::guiRoundSize(uint32_t *width, uint32_t *height) noexcept
     *height = h;
   }
 }
-
 #endif /* PLUG_HOST_RESIZE */
 
 #endif /* PLUG_HAS_UI */
