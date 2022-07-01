@@ -89,7 +89,7 @@
 #elif defined CLAP_API
   #include "IPlugCLAP.h"
   #define PLUGIN_API_BASE IPlugCLAP
-  #define API_EXT "dylib"
+  #define API_EXT "clap"
 #else
   #error "No API defined!"
 #endif
