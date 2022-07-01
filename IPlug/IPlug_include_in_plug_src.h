@@ -287,10 +287,10 @@ static bool clap_init(const char* pluginPath)
   static const char *clap_features = "audio_effect";
   gPluginDesc->features = &clap_features;
 #elif PLUG_TYPE==1
-  static const char *clap_features = "instrument"
+  static const char *clap_features = "instrument";
   gPluginDesc->features = &clap_features;
 #elif PLUG_TYPE==2
-  static const char *clap_features = "note_effect"
+  static const char *clap_features = "note_effect";
   gPluginDesc->features = &clap_features;
 #endif
   
