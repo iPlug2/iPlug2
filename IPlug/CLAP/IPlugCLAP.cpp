@@ -416,6 +416,7 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *in_events) noexcept
           msg.MakeNoteOnMsg(note->key, velocity, event->time, note->channel);
           ProcessMidiMsg(msg);
           mMidiMsgsFromProcessor.Push(msg);
+          break;
         }
           
         case CLAP_EVENT_NOTE_OFF:
@@ -424,6 +425,7 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *in_events) noexcept
           msg.MakeNoteOffMsg(note->key, event->time, note->channel);
           ProcessMidiMsg(msg);
           mMidiMsgsFromProcessor.Push(msg);
+          break;
         }
           
         case CLAP_EVENT_MIDI:
@@ -432,6 +434,7 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *in_events) noexcept
           msg = IMidiMsg(event->time, midi->data[0], midi->data[1], midi->data[2]);
           ProcessMidiMsg(msg);
           mMidiMsgsFromProcessor.Push(msg);
+          break;
         }
           
         case CLAP_EVENT_MIDI_SYSEX:
@@ -441,6 +444,7 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *in_events) noexcept
           ISysEx sysEx(event->time, midiSysex->buffer, midiSysex->size);
           ProcessSysEx(sysEx);
           //mSysExDataFromProcessor.Push(sysEx);
+          break;
         }
           
         case CLAP_EVENT_PARAM_VALUE:
@@ -453,6 +457,7 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *in_events) noexcept
           GetParam(paramIdx)->Set(value);
           SendParameterValueFromAPI(paramIdx, value, false);
           OnParamChange(paramIdx, EParamSource::kHost, event->time);
+          break;
         }
           
         default:
