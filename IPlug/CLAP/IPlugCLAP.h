@@ -118,7 +118,7 @@ private:
   }*/
   
   // clap_plugin_audio_ports
-  bool implementsAudioPorts() const noexcept override { return MaxNBuses(ERoute::kInput) && MaxNBuses(ERoute::kOutput); }
+  bool implementsAudioPorts() const noexcept override { return MaxNBuses(ERoute::kInput) || MaxNBuses(ERoute::kOutput); }
   uint32_t audioPortsCount(bool isInput) const noexcept override { return MaxNBuses(isInput ? ERoute::kInput : ERoute::kOutput); }
   bool audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_info *info) const noexcept override;
   
