@@ -72,22 +72,21 @@ void IPlugCLAP::EndInformHostOfParamChange(int idx)
 //void IPlugCLAP::InformHostOfPresetChange()
 //{
 //}
-//
-//bool IPlugCLAP::EditorResize(int viewWidth, int viewHeight)
-//{
-//  bool resized = false;
-//
-//  if (HasUI())
-//  {
-//    if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
-//    {
-//      SetEditorSize(viewWidth, viewHeight);
-//
-//    }
-//  }
-//
-//  return resized;
-//}
+
+bool IPlugCLAP::EditorResize(int viewWidth, int viewHeight)
+{
+  if (HasUI())
+  {
+    if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
+    {
+      _host.guiRequestResize(viewWidth, viewHeight);
+    }
+    
+    SetEditorSize(viewWidth, viewHeight);
+  }
+  
+  return true;
+}
 
 // IPlugProcessor
 
@@ -565,8 +564,10 @@ bool IPlugCLAP::guiSetScale(double scale) noexcept
   return true;
 }
 
-bool IPlugCLAP::guiGetSize(uint32_t *width, uint32_t *height) noexcept
+bool IPlugCLAP::guiGetSize(uint32_t* width, uint32_t* height) noexcept
 {
+  TRACE
+  
   if (HasUI())
   {
     *width = GetEditorWidth();
@@ -588,29 +589,20 @@ bool IPlugCLAP::GUIWindowAttach(void *window) noexcept
   return true;
 }
 
-bool IPlugCLAP::EditorResize(int viewWidth, int viewHeight)
-{
-  if (HasUI())
-  {
-    if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
-      _host.guiRequestResize(viewWidth, viewHeight);
-
-    SetEditorSize(viewWidth, viewHeight);
-  }
-  
-  return true;
-}
-
 #if PLUG_HOST_RESIZE
 bool IPlugCLAP::guiSetSize(uint32_t width, uint32_t height) noexcept
 {
-  SetEditorSize(width, height);
+  Trace(TRACELOC, "width:%i height:%i\n", width, height);
+
+  OnParentWindowResize(width, height);
   
   return true;
 }
 
-void IPlugCLAP::guiRoundSize(uint32_t *width, uint32_t *height) noexcept
+bool IPlugCLAP::guiAdjustSize(uint32_t* width, uint32_t* height) noexcept
 {
+  Trace(TRACELOC, "width:%i height:%i\n", *width, *height);
+
   if (HasUI())
   {
     int w = *width;
@@ -618,7 +610,11 @@ void IPlugCLAP::guiRoundSize(uint32_t *width, uint32_t *height) noexcept
     ConstrainEditorResize(w, h);
     *width = w;
     *height = h;
+
+    return true;
   }
+  
+  return false;
 }
 #endif /* PLUG_HOST_RESIZE */
 
