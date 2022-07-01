@@ -34,7 +34,7 @@ sys.path.insert(0, scriptpath + '/../Scripts/')
 
 from parse_config import parse_config, parse_xcconfig, set_uniqueid
 
-VERSION = "0.95"
+VERSION = "0.96"
 
 # binary files that we don't want to do find and replace inside
 FILTERED_FILE_EXTENSIONS = [".ico",".icns", ".pdf", ".png", ".zip", ".exe", ".wav", ".aif"]
@@ -242,7 +242,7 @@ def main():
   pp = pprint.PrettyPrinter(indent=4)
   pp.pprint(config)
 
-  print("\ndone - don't forget to change PLUG_MFR_UID in config.h")
+  print("\ndone - don't forget to change PLUG_UNIQUE_ID and PLUG_MFR_ID in config.h")
 
 if __name__ == '__main__':
   main()

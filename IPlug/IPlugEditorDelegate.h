@@ -116,13 +116,13 @@ public:
    * WARNING: this method can in some cases be called on the realtime audio thread */
   virtual void OnParamChange(int paramIdx) {}
   
-  /** Override this method to do something to your UI when a parameter changes.
+  /** Override this method to do something when a parameter changes on the main/UI thread
    * Like OnParamChange, OnParamChangeUI will be called when a parameter changes. However, whereas OnParamChange may be called on the audio thread and should be used to update DSP state, OnParamChangeUI is always called on the low-priority thread, should be used to update UI (e.g. for hiding or showing controls).
    * You should not update parameter objects using this method.
    * @param paramIdx The index of the parameter that changed */
   virtual void OnParamChangeUI(int paramIdx, EParamSource source = kUnknown) {};
   
-  /** Called when parameteres have changed to inform the plugin of the changes
+  /** Called when parameters have changed to inform the plugin of the changes
    * Override only if you need to handle notifications and updates in a specialist manner (e.g. if the ordering of updating parameters has an effect or if you need to avoid multiple settings of linked parameters). This must update both DSP and UI. The default implementation calls OnParamChange() and OnParamChangeUI() for each parameter.
    * @param source Specifies the source of the parameter changes */
   virtual void OnParamReset(EParamSource source)

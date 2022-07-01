@@ -33,7 +33,7 @@ static val GetCanvas()
 
 static val GetPreloadedImages()
 {
-  return val::global("Module")["preloadedImages"];
+  return val::global("preloadedImages");
 }
 
 extern void GetScreenDimensions(int& width, int& height);
