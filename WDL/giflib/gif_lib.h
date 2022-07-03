@@ -88,7 +88,6 @@ typedef struct GifFileType {
     ColorMapObject *SColorMap;  /* NULL if not exists. */
     int ImageCount;             /* Number of current image */
     GifImageDesc Image;         /* Block describing current image */
-    struct SavedImage *SavedImages; /* Use this to accumulate file state */
     VoidPtr UserData;           /* hook to attach user data (TVT) */
     VoidPtr Private;            /* Don't mess with this! */
 } GifFileType;
@@ -271,64 +270,6 @@ extern ColorMapObject *UnionColorMap(const ColorMapObject * ColorIn1,
                                      const ColorMapObject * ColorIn2,
                                      GifPixelType ColorTransIn2[]);
 extern int BitSize(int n);
-
-/******************************************************************************
- * Support for the in-core structures allocation (slurp mode).              
- *****************************************************************************/
-
-/* This is the in-core version of an extension record */
-typedef struct {
-    int ByteCount;
-    char *Bytes;    /* on malloc(3) heap */
-    int Function;   /* Holds the type of the Extension block. */
-} ExtensionBlock;
-
-/* This holds an image header, its unpacked raster bits, and extensions */
-typedef struct SavedImage {
-    GifImageDesc ImageDesc;
-    unsigned char *RasterBits;  /* on malloc(3) heap */
-    int Function;   /* DEPRECATED: Use ExtensionBlocks[x].Function instead */
-    int ExtensionBlockCount;
-    ExtensionBlock *ExtensionBlocks;    /* on malloc(3) heap */
-} SavedImage;
-
-extern void ApplyTranslation(SavedImage * Image, GifPixelType Translation[]);
-extern void MakeExtension(SavedImage * New, int Function);
-extern int AddExtensionBlock(SavedImage * New, int Len,
-                             unsigned char ExtData[]);
-extern void FreeExtension(SavedImage * Image);
-extern SavedImage *MakeSavedImage(GifFileType * GifFile,
-                                  const SavedImage * CopyFrom);
-extern void FreeSavedImages(GifFileType * GifFile);
-
-/******************************************************************************
- * The library's internal utility font                          
- *****************************************************************************/
-
-#define GIF_FONT_WIDTH  8
-#define GIF_FONT_HEIGHT 8
-extern unsigned char AsciiTable[][GIF_FONT_WIDTH];
-
-#ifdef _WIN32
-    extern void DrawGifText(SavedImage * Image,
-#else
-    extern void DrawText(SavedImage * Image,
-#endif
-                     const int x, const int y,
-                     const char *legend, const int color);
-
-extern void DrawBox(SavedImage * Image,
-                    const int x, const int y,
-                    const int w, const int d, const int color);
-
-void DrawRectangle(SavedImage * Image,
-                   const int x, const int y,
-                   const int w, const int d, const int color);
-
-extern void DrawBoxedText(SavedImage * Image,
-                          const int x, const int y,
-                          const char *legend,
-                          const int border, const int bg, const int fg);
 
 #ifdef __cplusplus
 }
