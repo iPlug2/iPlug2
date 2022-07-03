@@ -284,14 +284,14 @@ static bool clap_init(const char* pluginPath)
   gPluginDesc->clap_version = CLAP_VERSION;
   
 #if PLUG_TYPE==0
-  static const char *clap_features = "audio_effect";
-  gPluginDesc->features = &clap_features;
+  static const char *clap_features[] = {"audio_effect",NULL};
+  gPluginDesc->features = clap_features;
 #elif PLUG_TYPE==1
-  static const char *clap_features = "instrument";
-  gPluginDesc->features = &clap_features;
+  static const char *clap_features[] = {"instrument",NULL};
+  gPluginDesc->features = clap_features;
 #elif PLUG_TYPE==2
-  static const char *clap_features = "note_effect";
-  gPluginDesc->features = &clap_features;
+  static const char *clap_features[] = {"note_effect",NULL};
+  gPluginDesc->features = clap_features;
 #endif
   
   //  clap_version clap_version; // initialized to CLAP_VERSION
@@ -306,7 +306,7 @@ static bool clap_init(const char* pluginPath)
   gPluginDesc->manual_url = "";
   gPluginDesc->support_url = "";
   gPluginDesc->description = "";
-  
+
   // TODO - more to add here
   //gPluginDesc->features = "";
 
@@ -351,9 +351,9 @@ CLAP_EXPORT const clap_plugin_factory_t clap_factory = {
 
 const void *clap_get_factory(const char *factory_id)
 {
-   if (!::strcmp(factory_id, CLAP_PLUGIN_FACTORY_ID))
-      return &clap_factory;
-   return nullptr;
+  if (!::strcmp(factory_id, CLAP_PLUGIN_FACTORY_ID))
+    return &clap_factory;
+  return nullptr;
 }
 
 CLAP_EXPORT const clap_plugin_entry_t clap_entry = {
@@ -366,7 +366,7 @@ CLAP_EXPORT const clap_plugin_entry_t clap_entry = {
 #elif defined AUv3_API || defined AAX_API || defined APP_API
 // Nothing to do here
 #else
-  #error "No API defined!"
+#error "No API defined!"
 #endif
 
 #pragma mark - ** Instantiation **
@@ -383,7 +383,7 @@ Plugin* MakePlug(const InstanceInfo& info)
   // From VST3 - is this necessary?
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
-  
+
   return new PLUG_CLASS_NAME(info);
 }
 
@@ -394,7 +394,7 @@ Plugin* MakePlug(void* pMemory)
 {
   InstanceInfo info;
   info.mCocoaViewFactoryClassName.Set(AUV2_VIEW_CLASS_STR);
-    
+
   if (pMemory)
     return new(pMemory) PLUG_CLASS_NAME(info);
   else
@@ -460,4 +460,4 @@ END_IPLUG_NAMESPACE
 #include "IGraphics_include_in_plug_src.h"
 #endif
 
-// clang-format on
+ // clang-format on
