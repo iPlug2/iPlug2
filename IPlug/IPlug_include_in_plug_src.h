@@ -284,14 +284,14 @@ static bool clap_init(const char* pluginPath)
   gPluginDesc->clap_version = CLAP_VERSION;
   
 #if PLUG_TYPE==0
-  static const char *clap_features = "audio_effect";
-  gPluginDesc->features = &clap_features;
+  static const char *clap_features[] = {"audio_effect",NULL};
+  gPluginDesc->features = clap_features;
 #elif PLUG_TYPE==1
-  static const char *clap_features = "instrument";
-  gPluginDesc->features = &clap_features;
+  static const char *clap_features[] = {"instrument",NULL};
+  gPluginDesc->features = clap_features;
 #elif PLUG_TYPE==2
-  static const char *clap_features = "note_effect";
-  gPluginDesc->features = &clap_features;
+  static const char *clap_features[] = {"note_effect",NULL};
+  gPluginDesc->features = clap_features;
 #endif
   
   //  clap_version clap_version; // initialized to CLAP_VERSION
