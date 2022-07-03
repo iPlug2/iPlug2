@@ -182,29 +182,39 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
   
   // TODO - can we assume IO has the same format?
   // TODO - get the count from the right place...
-  int nIns = process->audio_inputs->channel_count;
-  int nOuts = process->audio_outputs->channel_count;
+  int nIns = (process->audio_inputs_count > 0 ? process->audio_inputs->channel_count : 0);
+  int nOuts = (process->audio_outputs_count > 0 ? process->audio_outputs->channel_count : 0);
   int nFrames = process->frames_count;
-  
-  bool format64 = process->audio_inputs->data64;
-  
-  assert(format64 == (bool) process->audio_outputs->data64);
-  
+
+  bool format64 = false;
+  if (process->audio_inputs)
+    format64 = process->audio_inputs->data64;
+  else if (process->audio_outputs)
+    format64 = process->audio_outputs->data64;
+
+  // assert(format64 == (bool) process->audio_outputs->data64);
+
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
   SetChannelConnections(ERoute::kInput, 0, nIns, true);
-  
-  if (format64)
-    AttachBuffers(ERoute::kInput, 0, nIns, process->audio_inputs->data64, nFrames);
-  else
-    AttachBuffers(ERoute::kInput, 0, nIns, process->audio_inputs->data32, nFrames);
+
+  if (nIns > 0)
+  {
+    if (format64)
+      AttachBuffers(ERoute::kInput, 0, nIns, process->audio_inputs->data64, nFrames);
+    else
+      AttachBuffers(ERoute::kInput, 0, nIns, process->audio_inputs->data32, nFrames);
+  }
 
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), false);
   SetChannelConnections(ERoute::kOutput, 0, nOuts, true);
-  
-  if (format64)
-    AttachBuffers(ERoute::kOutput, 0, nOuts, process->audio_outputs->data64, nFrames);
-  else
-    AttachBuffers(ERoute::kOutput, 0, nOuts, process->audio_outputs->data32, nFrames);
+
+  if (nOuts > 0)
+  {
+    if (format64)
+      AttachBuffers(ERoute::kOutput, 0, nOuts, process->audio_outputs->data64, nFrames);
+    else
+      AttachBuffers(ERoute::kOutput, 0, nOuts, process->audio_outputs->data32, nFrames);
+  }
 
   if (format64)
     ProcessBuffers(0.0, nFrames);
