@@ -394,7 +394,7 @@ Plugin* MakePlug(void* pMemory)
 {
   InstanceInfo info;
   info.mCocoaViewFactoryClassName.Set(AUV2_VIEW_CLASS_STR);
-    
+   
   if (pMemory)
     return new(pMemory) PLUG_CLASS_NAME(info);
   else
