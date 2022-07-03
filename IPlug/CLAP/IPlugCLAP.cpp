@@ -330,7 +330,7 @@ bool IPlugCLAP::stateLoad(const clap_istream *stream) noexcept
 bool IPlugCLAP::paramsInfo(uint32_t paramIndex, clap_param_info *info) const noexcept
 {
   assert(MAX_PARAM_NAME_LEN <= CLAP_NAME_SIZE && "iPlug parameter name size exceeds CLAP maximum");
-//  assert(MAX_PARAM_GROUP_LEN <= CLAP_MODULE_SIZE && "iPlug group name size exceeds CLAP maximum");
+  assert(MAX_PARAM_GROUP_LEN <= CLAP_PATH_SIZE && "iPlug group name size exceeds CLAP maximum");
 
   const IParam *pParam = GetParam(paramIndex);
   
