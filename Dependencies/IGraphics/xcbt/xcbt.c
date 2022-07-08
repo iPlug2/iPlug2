@@ -841,7 +841,7 @@ xcbt_window xcbt_window_gl_create(xcbt px, xcb_window_t prt, const xcbt_rect *po
                   XCB_EVENT_MASK_STRUCTURE_NOTIFY | // get varius notification messages like configure, reparent, etc.
                   XCB_EVENT_MASK_PROPERTY_CHANGE | // useful when something will change our property
                   XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE  |  // mouse clicks
-                  //XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE  |      // keyboard is questionable according to XEMBED
+                  XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE  |      // keyboard is questionable according to XEMBED
                   XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW |   // mouse entering/leaving
                   XCB_EVENT_MASK_POINTER_MOTION // mouse motion
                   ;
@@ -936,7 +936,7 @@ xcbt_window xcbt_window_create(xcbt px, xcb_window_t prt, const xcbt_rect *pos){
                   XCB_EVENT_MASK_STRUCTURE_NOTIFY | // get varius notification messages like configure, reparent, etc.
                   XCB_EVENT_MASK_PROPERTY_CHANGE | // useful when something will change our property
                   XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE  |  // mouse clicks
-                  //XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE  |      // keyboard is questionable accordung to XEMBED
+                  XCB_EVENT_MASK_KEY_PRESS | XCB_EVENT_MASK_KEY_RELEASE  |      // keyboard is questionable accordung to XEMBED
                   XCB_EVENT_MASK_ENTER_WINDOW   | XCB_EVENT_MASK_LEAVE_WINDOW |   // mouse entering/leaving
                   XCB_EVENT_MASK_POINTER_MOTION // mouse motion
                   ;
@@ -1318,6 +1318,8 @@ static void xcbt_event_process(_xcbt *x, xcb_generic_event_t *evt){
       // TODO: all events with window in the first position
       wnd = (xcb_window_t)evt->pad[0];
       break;
+    case XCB_KEY_PRESS:
+    case XCB_KEY_RELEASE:  
     case XCB_MOTION_NOTIFY:
     case XCB_ENTER_NOTIFY:
     case XCB_LEAVE_NOTIFY:
