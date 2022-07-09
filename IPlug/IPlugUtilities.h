@@ -216,7 +216,8 @@ static EHost LookUpHost(const char* inHost)
   if (strstr(host, "izotope rx"))           return kHostiZotopeRX;
   if (strstr(host, "savihost"))             return kHostSAVIHost;
   if (strstr(host, "blue cat's vst host"))  return kHostBlueCat;
-  
+  if (strstr(host, "mixbus"))               return kHostMixbus32C;
+
   if (strstr(host, "standalone"))           return kHostStandalone;
   if (strstr(host, "www"))                  return kHostWWW;
 
@@ -278,7 +279,8 @@ static void GetHostNameStr(EHost host, WDL_String& str)
       case kHostiZotopeRX:          str.Set("izotope rx");          break;
       case kHostSAVIHost:           str.Set("savihost");            break;
       case kHostBlueCat:            str.Set("blue cat's vst host"); break;
-      
+      case kHostMixbus32C:          str.Set("mixbus");              break;
+
       case kHostStandalone:         str.Set("standalone");          break;
       case kHostWWW:                str.Set("www");                 break;
 
