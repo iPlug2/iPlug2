@@ -231,15 +231,16 @@ enum EHost
   kHostBitwig,
   kHostWWW,
   
-  kHostReason,			
-  kHostGoldWave5x,	
-  kHostWaveform,		
-  kHostAudacity,		
-  kHostAcoustica,		
+  kHostReason,
+  kHostGoldWave5x,
+  kHostWaveform,
+  kHostAudacity,
+  kHostAcoustica,
   kHostPluginDoctor,
-  kHostiZotopeRX,		
-  kHostSAVIHost,		
-  kHostBlueCat,			
+  kHostiZotopeRX,
+  kHostSAVIHost,
+  kHostBlueCat,
+  kHostMixbus32C
 
   // These hosts don't report the host name:
   // EnergyXT2
