@@ -611,7 +611,9 @@ void swell_oswindow_manage(HWND hwnd, bool wantfocus)
         attr.wmclass_name = (gchar*)appname;
         attr.wmclass_class = (gchar*)appname;
         attr.window_type = GDK_WINDOW_TOPLEVEL;
-        hwnd->m_oswindow = gdk_window_new(NULL,&attr,GDK_WA_X|GDK_WA_Y|(appname?GDK_WA_WMCLASS:0));
+        if (GetProp(hwnd,"SWELLGdkAlphaChannel"))
+          attr.visual = gdk_screen_get_rgba_visual(gdk_screen_get_default());
+        hwnd->m_oswindow = gdk_window_new(NULL,&attr,GDK_WA_X|GDK_WA_Y|(appname?GDK_WA_WMCLASS:0)|(attr.visual ? GDK_WA_VISUAL : 0));
  
         if (hwnd->m_oswindow) 
         {
@@ -1123,6 +1125,10 @@ static void OnKeyEvent(GdkEventKey *k)
     {
       swell_is_likely_capslock = (modifiers&FSHIFT)==0;
       modifiers |= FVIRTKEY;
+    }
+    else if (kv == ' ')
+    {
+      kv = VK_SPACE;
     }
     else if (kv >= '0' && kv <= '9')
     {
@@ -2386,7 +2392,10 @@ HWND SWELL_CreateXBridgeWindow(HWND viewpar, void **wref, const RECT *r)
   }
 
   Display *disp = gdk_x11_display_get_xdisplay(gdk_window_get_display(ospar));
-  Window w = XCreateWindow(disp,GDK_WINDOW_XID(ospar),0,0,r->right-r->left,r->bottom-r->top,0,CopyFromParent, InputOutput, CopyFromParent, 0, NULL);
+  Window w = XCreateWindow(disp,GDK_WINDOW_XID(ospar),0,0,
+      wdl_max(r->right-r->left,1),
+      wdl_max(r->bottom-r->top,1),
+      0,CopyFromParent, InputOutput, CopyFromParent, 0, NULL);
   GdkWindow *gdkw = w ? gdk_x11_window_foreign_new_for_display(gdk_display_get_default(),w) : NULL;
 
   hwnd = new HWND__(viewpar,0,r,NULL, true, xbridgeProc);
@@ -2955,6 +2964,16 @@ bool SWELL_SetGLContextToView(HWND h)
   return true;
 }
 
+void *SWELL_GetOSWindow(HWND hwnd, const char *type)
+{
+  if (hwnd && !strcmp(type,"GdkWindow")) return hwnd->m_oswindow;
+  return NULL;
+}
+
+void *SWELL_GetOSEvent(const char *type)
+{
+  return !strcmp(type,"GdkEvent") ? s_cur_evt : NULL;
+}
 
 
 #endif

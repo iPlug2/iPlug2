@@ -490,6 +490,7 @@ void SetForegroundWindow(HWND hwnd)
 {
   if (WDL_NOT_NORMALLY(!hwnd)) return;
 
+  HWND oldFoc = GetFocus();
   // if a child window has focus, preserve that focus
   while (hwnd->m_parent && !hwnd->m_oswindow)
   {
@@ -497,19 +498,35 @@ void SetForegroundWindow(HWND hwnd)
     hwnd = hwnd->m_parent;
   }
   if (hwnd) swell_oswindow_focus(hwnd);
+  HWND foc = GetFocus();
+  if (foc && foc != oldFoc)
+    SendMessage(foc,WM_SETFOCUS,(WPARAM)oldFoc,0);
 }
 
 void SetFocus(HWND hwnd)
 {
   if (!hwnd) return; // windows allows SetFocus(NULL) to defocus, but we do not support that yet
+  HWND oldFoc = GetFocus();
+  if (oldFoc && oldFoc != hwnd)
+    SendMessage(oldFoc,WM_KILLFOCUS,(WPARAM)hwnd,0);
   hwnd->m_focused_child=NULL; // make sure this window has focus, not a child
-  SetForegroundWindow(hwnd);
+
+  HWND p = hwnd;
+  while (p->m_parent && !p->m_oswindow)
+  {
+    p->m_parent->m_focused_child = p;
+    p = p->m_parent;
+  }
+  if (p) swell_oswindow_focus(p);
+
+  if (hwnd != oldFoc)
+    SendMessage(hwnd,WM_SETFOCUS,(WPARAM)oldFoc,0);
 }
 
 void SWELL_OnNavigationFocus(HWND ch)
 {
   if (ch && ch->m_classname && (
-       !strcmp(ch->m_classname,"Edit") ||
+       (!strcmp(ch->m_classname,"Edit") && !(ch->m_style & ES_READONLY)) ||
        !strcmp(ch->m_classname,"combobox")
      ))
   {
@@ -1519,6 +1536,8 @@ fakeButtonClick:
     case WM_USER+100:
     case WM_CAPTURECHANGED:
     case WM_SETTEXT:
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
       InvalidateRect(hwnd,NULL,FALSE);
     break;
   }
@@ -2869,7 +2888,10 @@ forceMouseMove:
     case WM_SETTEXT:
       if (es) 
       {
-        es->cursor_pos = WDL_utf8_get_charlen(hwnd->m_title.Get());
+        es->cursor_pos =
+          (hwnd->m_style & (ES_READONLY|ES_MULTILINE)) == (ES_READONLY|ES_MULTILINE) ? 0 :
+            WDL_utf8_get_charlen(hwnd->m_title.Get());
+
         es->sel1=es->sel2=-1;
         es->cache_linelen_w=es->cache_linelen_strlen=0;
         if ((hwnd->m_style & (ES_MULTILINE|ES_AUTOHSCROLL))==ES_AUTOHSCROLL &&
@@ -2937,6 +2959,11 @@ forceMouseMove:
         }
       }
     return 0;
+    case WM_KILLFOCUS:
+      SendMessage(GetParent(hwnd),WM_COMMAND,(EN_KILLFOCUS<<16) | (hwnd->m_id&0xffff),(LPARAM)hwnd);
+    case WM_SETFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
+    break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
 }
@@ -3169,6 +3196,10 @@ static LRESULT WINAPI trackbarWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
           EndPaint(hwnd,&ps);
         }
       }
+    break;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
     break;
   }
 
@@ -3725,6 +3756,10 @@ popupMenu:
       }
 
     return 0;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
+    break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
 }
@@ -3816,8 +3851,10 @@ struct listViewState
 
     m_color_bg = g_swell_ctheme.listview_bg;
     m_color_bg_sel = g_swell_ctheme.listview_bg_sel;
+    m_color_bg_sel_inactive = g_swell_ctheme.listview_bg_sel_inactive;
     m_color_text = g_swell_ctheme.listview_text;
     m_color_text_sel = g_swell_ctheme.listview_text_sel;
+    m_color_text_sel_inactive = g_swell_ctheme.listview_text_sel_inactive;
     m_color_grid = g_swell_ctheme.listview_grid;
     memset(m_color_extras,0xff,sizeof(m_color_extras)); // if !=-1, overrides bg/fg for (focus?0:2)
   } 
@@ -3871,7 +3908,7 @@ struct listViewState
   int m_scroll_x,m_scroll_y, m_capmode_data1,m_capmode_data2;
   int m_extended_style;
 
-  int m_color_bg, m_color_bg_sel, m_color_text, m_color_text_sel, m_color_grid;
+  int m_color_bg, m_color_bg_sel, m_color_bg_sel_inactive, m_color_text, m_color_text_sel, m_color_text_sel_inactive, m_color_grid;
   int m_color_extras[4];
 
   int getTotalWidth() const
@@ -4700,7 +4737,7 @@ forceMouseMove:
           DeleteObject(bgbr);
           const bool focused = GetFocus() == hwnd;
           const int bgsel = lvs->m_color_extras[focused ? 0 : 2 ];
-          bgbr=CreateSolidBrush(bgsel == -1 ? lvs->m_color_bg_sel : bgsel);
+          bgbr=CreateSolidBrush(bgsel == -1 ? focused ? lvs->m_color_bg_sel : lvs->m_color_bg_sel_inactive : bgsel);
           if (lvs) 
           {
             TEXTMETRIC tm; 
@@ -4766,7 +4803,7 @@ forceMouseMove:
               if (sel)
               {
                 int c = lvs->m_color_extras[focused ? 1 : 3 ];
-                text_c = c == -1 ? lvs->m_color_text_sel : c;
+                text_c = c == -1 ? focused ? lvs->m_color_text_sel : lvs->m_color_text_sel_inactive : c;
               }
               else
                 text_c = lvs->m_color_text;
@@ -5194,6 +5231,10 @@ forceMouseMove:
         return row ? 0 : LB_ERR;
       }
     return LB_ERR;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
+    break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
 }
@@ -5336,7 +5377,7 @@ next_item_in_parent:
     return 0;
   }
 
-  void doDrawItem(HTREEITEM item, HDC hdc, RECT *rect) // draws any subitems too, updates rect->top
+  void doDrawItem(HTREEITEM item, HDC hdc, RECT *rect, bool focus) // draws any subitems too, updates rect->top
   {
 #ifdef SWELL_LICE_GDI
     if (!item) return;
@@ -5351,9 +5392,9 @@ next_item_in_parent:
         if (item == m_sel) 
         {
           SetBkMode(hdc,OPAQUE);
-          SetBkColor(hdc,g_swell_ctheme.treeview_bg_sel);
+          SetBkColor(hdc,focus ? g_swell_ctheme.treeview_bg_sel : g_swell_ctheme.treeview_bg_sel_inactive);
           oc = GetTextColor(hdc);
-          SetTextColor(hdc,g_swell_ctheme.treeview_text_sel);
+          SetTextColor(hdc,focus ? g_swell_ctheme.treeview_text_sel : g_swell_ctheme.treeview_text_sel_inactive);
         }
        
         RECT dr = *rect;
@@ -5397,7 +5438,7 @@ next_item_in_parent:
       rect->left += m_last_row_height;
       for (int x=0;x<n && rect->top < rect->bottom;x++)
       {
-        doDrawItem(item->m_children.Get(x),hdc,rect);
+        doDrawItem(item->m_children.Get(x),hdc,rect,focus);
       }
       rect->left -= m_last_row_height;
     } 
@@ -5688,7 +5729,7 @@ forceMouseMove:
             HGDIOBJ oldbr = SelectObject(ps.hdc,br);
 
             r.left -= tvs->m_last_row_height;
-            tvs->doDrawItem(&tvs->m_root,ps.hdc,&r);
+            tvs->doDrawItem(&tvs->m_root,ps.hdc,&r, GetFocus()==hwnd);
 
             SelectObject(ps.hdc,oldbr);
             SelectObject(ps.hdc,oldpen);
@@ -5707,6 +5748,10 @@ forceMouseMove:
     case WM_NCDESTROY:
       hwnd->m_private_data = 0;
       delete tvs;
+    break;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
     break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
@@ -5890,6 +5935,10 @@ static LRESULT tabControlWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
         }
       }
       return 0;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
+    break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
 }

@@ -20,267 +20,87 @@
       
 */
 
-/*
-
-  This file provides some simple functions for dealing with PCM audio.
-  Specifically: 
-    + convert between 16/24/32 bit integer samples and flaots (only really tested on little-endian (i.e. x86) systems)
-    + mix (and optionally resample, using low quality linear interpolation) a block of floats to another.
- 
-*/
-
 #ifndef _PCMFMTCVT_H_
 #define _PCMFMTCVT_H_
 
 
 #include "wdltypes.h"
+#include <math.h>
 
 #ifndef PCMFMTCVT_DBL_TYPE
 #define PCMFMTCVT_DBL_TYPE double
 #endif
 
-static inline int float2int(PCMFMTCVT_DBL_TYPE d)
+#define INT16_TO_float INT16_TO_double
+#define float_TO_INT16 double_TO_INT16
+#define float_to_i32 double_to_i32
+#define float_to_i24 double_to_i24
+#define i24_to_float i24_to_double
+#define i32_to_float i32_to_double
+
+#define pcmToFloats pcmToDoubles
+#define floatsToPcm doublesToPcm
+
+
+template<class T> static void INT16_TO_double(T &out, int in)
 {
-  return (int) d;
-//	  int tmp;
-  //  __asm__ __volatile__ ("fistpl %0" : "=m" (tmp) : "t" (d) : "st") ;
-  //  return tmp;
+  out = (T) (in/32768.0);
+}
+template<class T> static void double_TO_INT16(T &out, double in)
+{
+  in *= 32768.0;
+  if (in <= -32768.0) out = -32768;
+  else if (in >= 32767.0) out = 32767;
+  else out = (T) floor(in + 0.5);
 }
 
-
-#define float_TO_INT16(out,in) \
-		if ((in)<0.0) { if ((in) <= -1.0) (out) = -32768; else (out) = (short) (float2int(((in) * 32768.0)-0.5)); } \
-		else { if ((in) >= (32766.5f/32768.0f)) (out) = 32767; else (out) = (short) float2int((in) * 32768.0 + 0.5); }
-
-#define INT16_TO_float(out,in) { (out) = (float)(((double)in)/32768.0);  }
-
-#define double_TO_INT16(out,in) \
-		if ((in)<0.0) { if ((in) <= -1.0) (out) = -32768; else (out) = (short) (float2int(((in) * 32768.0)-0.5)); } \
-		else { if ((in) >= (32766.5/32768.0)) (out) = 32767; else (out) = (short) float2int((in) * 32768.0 + 0.5); }
-
-#define INT16_TO_double(out,in) { (out) = (((PCMFMTCVT_DBL_TYPE)in)/32768.0); }
-
-
-static inline void i32_to_float(int i32, float *p)
+template<class T> static void i32_to_double(int i32, T *p)
 {
-  *p = (float) ((((double) i32)) * (1.0 / (2147483648.0)));
+  *p = i32 * (1.0 / 2147483648.0);
 }
 
-static inline void float_to_i32(float *vv, int *i32)
+template<class T> static void i24_to_double(const unsigned char *i24, T *p)
 {
-  float v = *vv;
-  if (v < 0.0) 
-  {
-	  if (v < -1.0) *i32 = 0x80000000;
-	  else *i32=float2int(v*2147483648.0-0.5);
-  }
-  else
-  {
-	  if (v >= (2147483646.5f/2147483648.0f)) *i32 = 0x7FFFFFFF;
-	  else *i32=float2int(v*2147483648.0+0.5);
-  }
-}
-
-
-static inline void i32_to_double(int i32, PCMFMTCVT_DBL_TYPE *p)
-{
-  *p = ((((PCMFMTCVT_DBL_TYPE) i32)) * (1.0 / (2147483648.0)));
-}
-
-static inline void double_to_i32(PCMFMTCVT_DBL_TYPE *vv, int *i32)
-{
-  PCMFMTCVT_DBL_TYPE v = *vv;
-  if (v < 0.0) 
-  {
-	  if (v < -1.0) *i32 = 0x80000000;
-	  else *i32=float2int(v*2147483648.0-0.5);
-  }
-  else
-  {
-	  if (v >= (2147483646.5/2147483648.0)) *i32 = 0x7FFFFFFF;
-	  else *i32=float2int(v*2147483648.0+0.5);
-  }
-}
-
-
-
-static inline void i24_to_float(unsigned char *i24, float *p)
-{
+  // little endian
   int val=(i24[0]) | (i24[1]<<8) | (i24[2]<<16);
-  if (val&0x800000) 
-  {
-	  val|=0xFF000000;
-  	  *p = (float) ((((double) val)) * (1.0 / (8388608.0)));
-  }
-  else 
-  {
-	  val&=0xFFFFFF;
-  	  *p = (float) ((((double) val)) * (1.0 / (8388608.0)));
-  }
-
+  if (val&0x800000) val|=0xFF000000;
+  *p = (T) (((double) val) * (1.0 / 8388608.0));
 }
 
-static inline void float_to_i24(float *vv, unsigned char *i24)
+template<class T> static void double_to_i32(const T *vv, int *i32)
 {
-  float v = *vv;
-  if (v < 0.0) 
-  {
-	  if (v < -1.0)
-	  {
-    		i24[0]=i24[1]=0x00;
-    		i24[2]=0x80;
-	  }
-	  else
-	  {
-    		int i=float2int(v*8388608.0-0.5);
-    		i24[0]=(i)&0xff;
-    		i24[1]=(i>>8)&0xff;
-    		i24[2]=(i>>16)&0xff;
-	  }
-  }
-  else
-  {
-	  if (v >= (8388606.5f/8388608.0f))
-	  {
-    		i24[0]=i24[1]=0xff;
-    		i24[2]=0x7f;
-	  }
-	  else
-	  {
-  		
-    		int i=float2int(v*8388608.0+0.5);
-    		i24[0]=(i)&0xff;
-    		i24[1]=(i>>8)&0xff;
-    		i24[2]=(i>>16)&0xff;
-	  }
-  }
+  const double v = *vv * 2147483648.0;
+  if (v <= -2147483648.0) *i32 = 0x80000000;
+  else if (v >= 2147483647.0) *i32 = 0x7FFFFFFF;
+  else *i32 = (int) floor(v + 0.5);
 }
 
-
-static inline void i24_to_double(unsigned char *i24, PCMFMTCVT_DBL_TYPE *p)
+static WDL_STATICFUNC_UNUSED int double_to_int_24(const double vv)
 {
-  int val=(i24[0]) | (i24[1]<<8) | (i24[2]<<16);
-  if (val&0x800000) 
-  {
-	  val|=0xFF000000;
-  	  *p = ((((PCMFMTCVT_DBL_TYPE) val)) * (1.0 / (8388608.0)));
-  }
-  else 
-  {
-	  val&=0xFFFFFF;
-  	  *p = ((((PCMFMTCVT_DBL_TYPE) val)) * (1.0 / (8388608.0)));
-  }
-
+  const double v = vv * 8388608.0;
+  if (v <= -8388608.0) return -0x800000;
+  if (v >= 8388607.0)  return  0x7fffff;
+  return (int) floor(v + 0.5);
 }
 
-static inline void double_to_i24(PCMFMTCVT_DBL_TYPE *vv, unsigned char *i24)
+static WDL_STATICFUNC_UNUSED int double_to_int_x(const double vv, int bits)
 {
-  PCMFMTCVT_DBL_TYPE v = *vv;
-  if (v < 0.0) 
-  {
-	  if (v < -1.0)
-	  {
-    		i24[0]=i24[1]=0x00;
-    		i24[2]=0x80;
-	  }
-	  else
-	  {
-    		int i=float2int(v*8388608.0-0.5);
-    		i24[0]=(i)&0xff;
-    		i24[1]=(i>>8)&0xff;
-    		i24[2]=(i>>16)&0xff;
-	  }
-  }
-  else
-  {
-	  if (v >= (8388606.5/8388608.0))
-	  {
-    		i24[0]=i24[1]=0xff;
-    		i24[2]=0x7f;
-	  }
-	  else
-	  {
-  		
-    		int i=float2int(v*8388608.0+0.5);
-    		i24[0]=(i)&0xff;
-    		i24[1]=(i>>8)&0xff;
-    		i24[2]=(i>>16)&0xff;
-	  }
-  }
+  const double sc = (double) (1<<(bits-1));
+  const double v = vv * sc;
+  if (v <= -sc) return -(1<<(bits-1));
+  if (v >= sc-1.0) return (1<<(bits-1))-1;
+  return (int) floor(v + 0.5);
 }
 
-static WDL_STATICFUNC_UNUSED void pcmToFloats(void *src, int items, int bps, int src_spacing, float *dest, int dest_spacing)
+template<class T> static void double_to_i24(const T *vv, unsigned char *i24)
 {
-  if (bps == 32)
-  {
-    int *i1=(int *)src;
-    while (items--)
-    {          
-      i32_to_float(*i1,dest);
-      i1+=src_spacing;
-      dest+=dest_spacing;      
-    }
-  }
-  else if (bps == 24)
-  {
-    unsigned char *i1=(unsigned char *)src;
-    int adv=3*src_spacing;
-    while (items--)
-    {          
-      i24_to_float(i1,dest);
-      dest+=dest_spacing;
-      i1+=adv;
-    }
-  }
-  else if (bps == 16)
-  {
-    short *i1=(short *)src;
-    while (items--)
-    {          
-      INT16_TO_float(*dest,*i1);
-      i1+=src_spacing;
-      dest+=dest_spacing;
-    }
-  }
+  const int i = double_to_int_24(*vv);
+  i24[0]=i&0xff;
+  i24[1]=(i>>8)&0xff;
+  i24[2]=(i>>16)&0xff;
 }
 
-static WDL_STATICFUNC_UNUSED void floatsToPcm(float *src, int src_spacing, int items, void *dest, int bps, int dest_spacing)
-{
-  if (bps==32)
-  {
-    int *o1=(int*)dest;
-    while (items--)
-    {
-      float_to_i32(src,o1);
-      src+=src_spacing;
-      o1+=dest_spacing;
-    }
-  }
-  else if (bps == 24)
-  {
-    unsigned char *o1=(unsigned char*)dest;
-    int adv=dest_spacing*3;
-    while (items--)
-    {
-      float_to_i24(src,o1);
-      src+=src_spacing;
-      o1+=adv;
-    }
-  }
-  else if (bps==16)
-  {
-    short *o1=(short*)dest;
-    while (items--)
-    {
-      float_TO_INT16(*o1,*src);
-      src+=src_spacing;
-      o1+=dest_spacing;
-    }
-  }
-}
-
-
-static WDL_STATICFUNC_UNUSED void pcmToDoubles(void *src, int items, int bps, int src_spacing, PCMFMTCVT_DBL_TYPE *dest, int dest_spacing, int byteadvancefor24=0)
+template<class T> static void pcmToDoubles(void *src, int items, int bps, int src_spacing, T *dest, int dest_spacing, int byteadvancefor24=0)
 {
   if (bps == 32)
   {
@@ -315,7 +135,7 @@ static WDL_STATICFUNC_UNUSED void pcmToDoubles(void *src, int items, int bps, in
   }
 }
 
-static WDL_STATICFUNC_UNUSED void doublesToPcm(PCMFMTCVT_DBL_TYPE *src, int src_spacing, int items, void *dest, int bps, int dest_spacing, int byteadvancefor24=0)
+template<class T> static void doublesToPcm(const T *src, int src_spacing, int items, void *dest, int bps, int dest_spacing, int byteadvancefor24=0)
 {
   if (bps==32)
   {

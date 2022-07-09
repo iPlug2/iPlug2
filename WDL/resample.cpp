@@ -1110,6 +1110,7 @@ void WDL_Resampler::Reset(double fracpos)
   m_filtlatency=0;
   m_fracpos=fracpos; 
   m_samples_in_rsinbuf=0; 
+  m_rsinbuf_nch=0;
   if (m_sinc_ideal_calced == -2) m_sinc_ideal_calced = -1;
   if (m_pre_filter) m_pre_filter->Reset();
   if (m_post_filter) m_post_filter->Reset();
@@ -1286,6 +1287,40 @@ double WDL_Resampler::GetCurrentLatency()
   return v;
 }
 
+static void wdl_rs_reinterleave_buffer(WDL_ResampleSample *rdptr, int in_nch, int out_nch, int len)
+{
+  if (len < 1 || !rdptr) return;
+
+  int x=len-1;
+  WDL_ResampleSample *wrptr = rdptr;
+  if (out_nch < in_nch)
+  {
+    const int sz1=out_nch*sizeof(WDL_ResampleSample);
+    while (x--)
+    {
+      rdptr += in_nch;
+      wrptr += out_nch;
+      memmove(wrptr,rdptr,sz1);
+    }
+  }
+  else if (out_nch > in_nch)
+  {
+    const int sz1=in_nch*sizeof(WDL_ResampleSample);
+    const int sz2=(out_nch-in_nch)*sizeof(WDL_ResampleSample);
+    rdptr += in_nch*x;
+    wrptr += out_nch*x;
+    while(x--)
+    {
+      memmove(wrptr,rdptr,sz1);
+      memset(wrptr+in_nch,0,sz2);
+
+      rdptr-=in_nch;
+      wrptr-=out_nch;
+    }
+    memset(wrptr+in_nch,0,sz2); // last iteration doesnt need memcpy (but does need clear)
+  }
+}
+
 int WDL_Resampler::ResamplePrepare(int out_samples, int nch, WDL_ResampleSample **inbuffer) 
 {   
   if (nch < 1) return 0;
@@ -1322,6 +1357,10 @@ int WDL_Resampler::ResamplePrepare(int out_samples, int nch, WDL_ResampleSample 
 
   if (sreq<0)sreq=0;
   
+  // if decreasing channel count, reinterleave before realloc
+  if (nch < m_rsinbuf_nch && m_rsinbuf_nch > 0 && m_samples_in_rsinbuf)
+    wdl_rs_reinterleave_buffer(m_rsinbuf.Get(), m_rsinbuf_nch, nch, m_samples_in_rsinbuf);
+
 again:
   m_rsinbuf.Resize((m_samples_in_rsinbuf+sreq)*nch,false);
 
@@ -1336,6 +1375,12 @@ again:
     // todo: notify of error?
     sreq=sz;
   }
+
+  // if increasing channel count, reinterleave after realloc
+  if (m_rsinbuf_nch < nch && m_rsinbuf_nch > 0 && m_samples_in_rsinbuf)
+    wdl_rs_reinterleave_buffer(m_rsinbuf.Get(), m_rsinbuf_nch, nch, m_samples_in_rsinbuf);
+
+  m_rsinbuf_nch = nch;
 
   *inbuffer = m_rsinbuf.Get() + m_samples_in_rsinbuf*nch;
 

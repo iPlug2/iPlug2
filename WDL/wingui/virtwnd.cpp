@@ -620,6 +620,7 @@ WDL_VWnd::WDL_VWnd()
   m_lastmouseidx=-1;
   m_userdata=0;
   m_curPainter=0;
+  m_focused_child = -2;
 }
 
 WDL_VWnd::~WDL_VWnd() 
@@ -807,7 +808,7 @@ void WDL_VWnd::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_y, RECT *c
   if (m_children) for (x = m_children->GetSize()-1; x >=0; x --)
   {
     WDL_VWnd *ch=m_children->Get(x);
-    if (ch->IsVisible())
+    if (PrepareToDrawChild(ch,0) && ch->IsVisible())
     {
       RECT re;
       ch->GetPosition(&re);
@@ -844,7 +845,7 @@ void WDL_VWnd::OnPaintOver(LICE_IBitmap *drawbm, int origin_x, int origin_y, REC
   if (m_children) for (x = m_children->GetSize()-1; x >=0; x --)
   {
     WDL_VWnd *ch=m_children->Get(x);
-    if (ch->IsVisible() && ch->WantsPaintOver())
+    if (PrepareToDrawChild(ch,1) && ch->IsVisible() && ch->WantsPaintOver())
     {
       RECT re;
       ch->GetPosition(&re);
@@ -1771,7 +1772,9 @@ static WNDPROC vwndDlgHost_oldProc;
 static LRESULT CALLBACK vwndDlgHost_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   if (msg==WM_ERASEBKGND) return 1;
-  if (msg==WM_PAINT)
+  if (msg==WM_PAINT ||
+      (msg == WM_SETFOCUS && (GetWindowLong(hwnd,GWL_STYLE)&(WS_CHILD|WS_TABSTOP))==(WS_CHILD|WS_TABSTOP))
+      )
   {
     WNDPROC pc=(WNDPROC)GetWindowLongPtr(hwnd,DWLP_DLGPROC);
     if (pc)

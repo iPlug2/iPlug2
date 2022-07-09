@@ -94,6 +94,7 @@ private:
   int m_last_requested;
   int m_filtlatency;
   int m_samples_in_rsinbuf;
+  int m_rsinbuf_nch;
   int m_lp_oversize;
   int m_sinc_ideal_calced; // -1=not yet calced
 

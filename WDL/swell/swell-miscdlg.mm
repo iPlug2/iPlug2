@@ -173,8 +173,8 @@ static LRESULT fileTypeChooseProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
                 );
             if ([fileTypes count]>0) 
             {
-              NSSavePanel *par = (NSSavePanel*)[(NSView *)hwnd window];
-              if ([par isKindOfClass:[NSSavePanel class]]) [(NSSavePanel *)par setAllowedFileTypes:fileTypes];
+              NSSavePanel *par = (NSSavePanel*)GetWindowLongPtr(hwnd,0);
+              if (par && [par isKindOfClass:[NSSavePanel class]]) [(NSSavePanel *)par setAllowedFileTypes:fileTypes];
             }
             [fileTypes release];
           }
@@ -217,6 +217,7 @@ bool BrowseForSaveFile(const char *text, const char *initialdir, const char *ini
     const char *ar[2]={extlist,initialfile};
     av_parent = SWELL_CreateDialog(NULL,0,NULL,fileTypeChooseProc,(LPARAM)ar);
     if (!av_parent) av_parent = (HWND)panel;
+    else SetWindowLongPtr(av_parent, 0, (LPARAM)panel);
   }
 
   HWND oh=NULL;
@@ -296,7 +297,6 @@ bool BrowseForSaveFile(const char *text, const char *initialdir, const char *ini
     SWELL_CFStringToCString(str,fn,fnsize);
     if (fn[0])
     {
-      // this nonsense only seems to be necessary on 10.15 (and possibly future macOS versions?)
       char tmp[256];
 
       const NSUInteger nft = [fileTypes count];
@@ -320,15 +320,18 @@ bool BrowseForSaveFile(const char *text, const char *initialdir, const char *ini
 
       if (x == nft)
       {
-        // not in list, apply default extension if specified, or first extension from list
-        if (initialfile && *initialfile == '.')
-        {
-          lstrcatn(fn,initialfile,fnsize);
-        }
-        else if (s_browse_extsel && *s_browse_extsel)
+        // this might no longer be necessary -- it was at one point when [accessoryview window] was not a NSSavePanel,
+        // but we fixed that, so the extension should always be applied (probably)
+
+        // not in list: apply last-selected extension, then default extension, if specified, or first extension from list
+        if (s_browse_extsel && *s_browse_extsel)
         {
           lstrcatn(fn,".",fnsize);
           lstrcatn(fn,s_browse_extsel,fnsize);
+        }
+        else if (initialfile && *initialfile == '.')
+        {
+          lstrcatn(fn,initialfile,fnsize);
         }
         else if (nft > 0)
         {

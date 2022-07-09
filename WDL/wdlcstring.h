@@ -70,6 +70,10 @@ C string manipulation utilities -- [v]snprintf for Win32, also snprintf_append, 
 extern "C" {
 #endif
 
+#ifndef WDL_STRCMP_LOGICAL_EX_FLAG_OLDSORT
+#define WDL_STRCMP_LOGICAL_EX_FLAG_OLDSORT 1
+#endif
+
 #ifdef _WDL_CSTRING_IF_ONLY_
 
   void lstrcpyn_safe(char *o, const char *in, INT_PTR count);
@@ -94,6 +98,7 @@ extern "C" {
   #endif
 
   int WDL_strcmp_logical(const char *s1, const char *s2, int case_sensitive);
+  int WDL_strcmp_logical_ex(const char *s1, const char *s2, int case_sensitive, int flags); // flags: WDL_STRCMP_LOGICAL_EX_FLAG_OLDSORT
   const char *WDL_stristr(const char* a, const char* b);
 #else
 
@@ -281,10 +286,19 @@ extern "C" {
     }
   }
 
-  _WDL_CSTRING_PREFIX int WDL_strcmp_logical(const char *s1, const char *s2, int case_sensitive)
+  static WDL_STATICFUNC_UNUSED int logical_char_order(int ch, int case_sensitive)
   {
-    // also exists as WDL_LogicalSortStringKeyedArray::_cmpstr()
+    // _-<>etc, numbers, utf-8 chars, alpha chars
+    if (ch<0) return ch + 384; // utf-8 maps to 256..383
+    if (ch >= '0' && ch <= '9') return ch + 128; // numbers map to 128+'0' etc
+    if (ch >= 'A' && ch <= 'Z') return ch + 384; // alpha goes to 384+'A' or 384+'a' if not ignoring case
+    if (ch >= 'a' && ch <= 'z') return case_sensitive ? (ch + 384) : (ch + 'A' - 'a' + 384);
+    return ch;
+  }
 
+   // flags: WDL_STRCMP_LOGICAL_EX_FLAG_OLDSORT
+  _WDL_CSTRING_PREFIX int WDL_strcmp_logical_ex(const char *s1, const char *s2, int case_sensitive, int flags)
+  {
     for (;;)
     {
       if (*s1 >= '0' && *s1 <= '9' && *s2 >= '0' && *s2 <= '9')
@@ -309,18 +323,32 @@ extern "C" {
       }
       else
       {
-        char c1 = *s1++, c2 = *s2++;
+        int c1 = *s1++, c2 = *s2++;
         if (c1 != c2)
         {
-          if (case_sensitive) return c1-c2;
-
-          if (c1>='a' && c1<='z') c1+='A'-'a';
-          if (c2>='a' && c2<='z') c2+='A'-'a';
+          if (flags & WDL_STRCMP_LOGICAL_EX_FLAG_OLDSORT)
+          {
+            if (!case_sensitive)
+            {
+              if (c1>='a' && c1<='z') c1+='A'-'a';
+              if (c2>='a' && c2<='z') c2+='A'-'a';
+            }
+          }
+          else
+          {
+            c1 = logical_char_order(c1, case_sensitive);
+            c2 = logical_char_order(c2, case_sensitive);
+          }
           if (c1 != c2) return c1-c2;
         }
         else if (!c1) return 0;
       }
     }
+  }
+
+  _WDL_CSTRING_PREFIX int WDL_strcmp_logical(const char *s1, const char *s2, int case_sensitive)
+  {
+    return WDL_strcmp_logical_ex(s1,s2,case_sensitive,0);
   }
   _WDL_CSTRING_PREFIX const char *WDL_stristr(const char* a, const char* b)
   {

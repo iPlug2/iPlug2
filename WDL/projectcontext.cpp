@@ -1128,11 +1128,7 @@ void cfg_encode_binary(ProjectStateContext *ctx, const void *ptr, int len)
         if (lpos>0) *wr++=0;
 
         #ifdef _DEBUG
-          #ifdef _WIN32
-              if (wr != wr_end) OutputDebugString("cfg_encode_binary: block mode size mismatch!\n");
-          #else
-              if (wr != wr_end) printf("cfg_encode_binary: block mode size mismatch %d!\n", (int)(wr-wr_end));
-          #endif
+          if (wr != wr_end) wdl_log("cfg_encode_binary: block mode size mismatch %d!\n", (int)(wr-wr_end));
         #endif
         return;
       }

@@ -204,9 +204,9 @@ bool LICE_CachedFont::RenderGlyph(unsigned short idx) // return TRUE if ok
   if (m_font) oldFont = SelectObject(s_tempbitmap->getDC(),m_font);
   RECT r={0,0,0,0,};
   int advance;
-  const int right_extra_pad = 2+(m_line_height>=16 ? m_line_height/16 : 0); // overrender right side by this amount, and check to see if it was drawn to
-
-  const int left_extra_pad = right_extra_pad; // overrender on left side too
+  // overrender sides and check to see if it was updated
+  const int right_extra_pad = 2+wdl_max(m_line_height/8,0);
+  const int left_extra_pad = 2+wdl_max(m_line_height/16,0);
 
 #ifdef _WIN32
 #if defined(WDL_SUPPORT_WIN9X)
@@ -1050,17 +1050,21 @@ finish_up_native_render:
     unsigned short c;
     tstr=adv_str(tstr, &tcnt, &c);
 
-    if (c != '\r' && c != '\n')
+    if (c == '\r') continue;
+    if (c == '\n')
     {
-      charEnt *ent=findChar(c);
-      if (!ent)
-      {
-        const int os=m_extracharlist.GetSize();
-        RenderGlyph(c);
-        if (m_extracharlist.GetSize() != os) ent=findChar(c);
-      }
-      if (ent && ent->base_offset == 0) RenderGlyph(c);
+      if (dtFlags & DT_SINGLELINE) c=' ';
+      else continue;
     }
+
+    charEnt *ent=findChar(c);
+    if (!ent)
+    {
+      const int os=m_extracharlist.GetSize();
+      RenderGlyph(c);
+      if (m_extracharlist.GetSize() != os) ent=findChar(c);
+    }
+    if (ent && ent->base_offset == 0) RenderGlyph(c);
   }
 
   if (dtFlags & DT_CALCRECT)

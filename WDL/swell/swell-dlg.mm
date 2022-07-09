@@ -1925,19 +1925,16 @@ static void MakeGestureInfo(NSEvent* evt, GESTUREINFO* gi, HWND hwnd, int type)
     if ([[self window] contentView]==self) en = 1; // accept focus if we're enabled-without-focus and the contentview
   }
   if (en <= 0 || ![super becomeFirstResponder]) return NO;
+  SendMessage((HWND)self, WM_SETFOCUS, 0, 0);
   SendMessage((HWND)self, WM_MOUSEACTIVATE, 0, 0);
   return YES;
 }
 
-/*
 - (BOOL)resignFirstResponder
 {
-  HWND foc=GetFocus();
-  if (![super resignFirstResponder]) return NO;
-  [self onSwellMessage:WM_ACTIVATE p1:WA_INACTIVE p2:(LPARAM)foc];
-  return YES;
+  SendMessage((HWND)self, WM_KILLFOCUS, 0, 0);
+  return [super resignFirstResponder];
 }
-*/
 
 - (BOOL)acceptsFirstResponder 
 {

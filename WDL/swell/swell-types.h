@@ -944,6 +944,8 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define WM_MOVE                         0x0003
 #define WM_SIZE                         0x0005
 #define WM_ACTIVATE                     0x0006
+#define WM_SETFOCUS                     0x0007
+#define WM_KILLFOCUS                    0x0008
 #define WM_SETREDRAW                    0x000B // implemented on macOS NSTableViews, maybe elsewhere?
 #define WM_SETTEXT			0x000C // not implemented on OSX, used internally on Linux
 #define WM_PAINT                        0x000F
