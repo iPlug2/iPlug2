@@ -72,7 +72,7 @@ typedef union { double f; WDL_UINT64   int64; } WDL_EndianDouble;
 	#error Unsupported endian
 #endif
 
-#ifndef EMSCRIPTEN
+#if defined(__FLOAT_WORD_ORDER__) && defined(__BYTE_ORDER__)
   #if __FLOAT_WORD_ORDER__ != __BYTE_ORDER__
     #error Unsupported float endian
   #endif
@@ -128,11 +128,16 @@ typedef union { double f; WDL_UINT64   int64; } WDL_EndianDouble;
 
 // Linux
 #elif defined(__linux) || defined(__linux__) || defined(linux)
+#ifdef __clang__
+#define WDL_bswap16(x) __bswap_16 (x)
+#define WDL_bswap32(x) __bswap_32 (x)
+#define WDL_bswap64(x) __bswap_64 (x)
+#else
 #include <endian.h>
-#define WDL_bswap16(x) bswap16(x)
-#define WDL_bswap32(x) bswap32(x)
-#define WDL_bswap64(x) bswap64(x)
-
+#define WDL_bswap16(x) bswap16 (x)
+#define WDL_bswap32(x) bswap32 (x)
+#define WDL_bswap64(x) bswap64 (x)
+#endif
 #endif // WDL_bswapXX
 
 // If none of the supported intrinsics were found, then revert to generic C

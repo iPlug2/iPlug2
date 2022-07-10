@@ -42,11 +42,20 @@ using VST3_API_BASE = iplug::IPlugVST3Controller;
 /*
  * Up to GCC 8 they have "forgotten" to transport C++11 standard expf into std:: namespace
  */
+#ifdef __clang__
+namespace std {
+ inline _GLIBCXX_CONSTEXPR float
+  expf(float __x)
+  { return expf(__x); }
+};
+
+#else
 namespace std {
   inline _GLIBCXX_CONSTEXPR float
   expf(float __x)
   { return __builtin_expf(__x); }
 };
+#endif
 #endif
 
 using namespace iplug;
