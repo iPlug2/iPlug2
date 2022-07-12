@@ -79,12 +79,13 @@
   [(IPLUG_AUAUDIOUNIT*) self.audioUnit closeWindow];
 }
 
-- (void) loadView
+- (instancetype) initWithNibName:(NSNibName)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
-  int width = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit width];
-  int height = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit height];
-  self.view = [[NSView alloc] initWithFrame:NSMakeRect(0, 0, width, height)];
+  self = [super initWithNibName:nibNameOrNil bundle:[NSBundle bundleForClass:self.class]];
+  
+  return self;
 }
+
 
 #endif
 
@@ -98,9 +99,9 @@
   dispatch_async(dispatch_get_main_queue(), ^{
     if (self.audioUnit)
     {
-      int viewWidth = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit width];
-      int viewHeight = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit height];
-      self.preferredContentSize = CGSizeMake (viewWidth, viewHeight);
+      int width = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit width];
+      int height = (int) [(IPLUG_AUAUDIOUNIT*) self.audioUnit height];
+      self.preferredContentSize = CGSizeMake(width, height);
     }
   });
 }

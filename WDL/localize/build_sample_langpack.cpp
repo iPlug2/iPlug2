@@ -31,7 +31,7 @@ WDL_StringKeyedArray<char *> section_descs;
 WDL_StringKeyedArray< WDL_PtrList<char> * > translations;
 WDL_StringKeyedArray< WDL_StringKeyedArray<bool> * > translations_indexed;
 
-void gotString(const char *str, int len, const char *secname)
+void gotString(const char *str, int len, const char *secname, bool isRC, const char *fn, int line)
 {
   WDL_PtrList<char> *sec=translations.Get(secname);
   if (!sec)
@@ -45,24 +45,44 @@ void gotString(const char *str, int len, const char *secname)
     sec2 = new WDL_StringKeyedArray<bool>(true);
     translations_indexed.Insert(secname,sec2);
   }
-  if (len > (int)strlen(str)) 
+  if (len > (int)strlen(str))
   {
-    fprintf(stderr,"gotString got len>strlen(str)\n");
-    exit(1);
-  }
-  char buf[8192];
-  if (len > (int) (sizeof(buf)-8))
-  {
-    fprintf(stderr,"argh, got string longer than 8k, adjust code accordingly or check input.\n");
+    fprintf(stderr,"gotString got len>strlen(str) on %s:%d\n",fn,line);
     exit(1);
   }
 
-  memcpy(buf,str,len);
-  buf[len]=0;
-  if (sec2->Get(buf)) return; //already in list
+  WDL_FastString buf;
+  if (!isRC)
+  {
+    int st = 0;
+    for (int x = 0; x < len; x ++)
+    {
+      if (!st)
+      {
+        if (str[x] == '\\' && str[x+1])
+        {
+          buf.Append(str+x,2);
+          x++;
+        }
+        else if (str[x] == '\"') st=1;
+        else buf.Append(str+x,1);
+      }
+      else if (str[x] == '\"') st=0;
+      else if (!isblank(str[x]))
+      {
+        fprintf(stderr,"gotString has junk between concatenated strings on %s:%d\n",fn,line);
+        exit(1);
+      }
+    }
+  }
+  else
+  {
+    buf.Set(str,len);
+  }
+  if (sec2->Get(buf.Get())) return; //already in list
 
-  sec2->Insert(buf,true);
-  sec->Add(strdup(buf));
+  sec2->Insert(buf.Get(),true);
+  sec->Add(strdup(buf.Get()));
 }
 const char *g_last_file;
 int g_last_linecnt;
@@ -73,14 +93,24 @@ int length_of_quoted_string(char *p, bool convertRCquotesToSlash)
   {
     if (convertRCquotesToSlash && p[l] == '\"' && p[l+1] == '\"')  p[l]='\\';
 
-    if (p[l] == '\"') return l;
-    if (p[l] == '\\') 
+    if (p[l] == '\"')
+    {
+      if (convertRCquotesToSlash) return l;
+
+      // scan over whitespace to see if another string begins, concat them
+      int l2 = l+1;
+      while (isblank(p[l2])) l2++;
+      if (p[l2] != '\"') return l;
+      l = l2;
+    }
+    if (p[l] == '\\')
     {
       l++;
     }
+    if (!p[l] || p[l] == '\r' || p[l] == '\n') break;
     l++;
   }
-  fprintf(stderr,"ERROR: mismatched quotes in file %s:%d, string '%s', check input!\n",g_last_file,g_last_linecnt,p);
+  fprintf(stderr,"ERROR: mismatched quotes in file %s:%d, check input!\n",g_last_file,g_last_linecnt);
   exit(1);
   return -1;
 }
@@ -100,7 +130,7 @@ static int isLocalizeCall(const char *p)
   else return 0;
 
   if (*p == '_') while (*p == '_' || (*p >= 'A'  && *p <= 'Z')||(*p>='0' && *p <='9')) p++;
-  while (*p == ' ') p++;
+  while (isblank(*p)) p++;
   return *p == '(' ? rv : 0;
 }
 
@@ -118,15 +148,15 @@ WDL_UINT64 outputLine(const char *strv, int casemode)
       else if (*p == 'r') h=WDL_FNV64(h,(unsigned char *)"\r",1);
       else if (*p == 't') h=WDL_FNV64(h,(unsigned char *)"\t",1);
       else if (*p == '0') h=WDL_FNV64(h,(unsigned char *)"",1);
-      else if (*p == 'x' && p[1] == 'e' && p[2] == '9') 
+      else if (*p == 'x' && p[1] == 'e' && p[2] == '9')
       {
         h=WDL_FNV64(h,(unsigned char *)"\xe9",1);
         p+=2;
       }
-      else 
+      else
       {
         fprintf(stderr,"ERROR: unknown escape seq in '%s' at '%s'\n",strv,p);
-      	exit(1);
+        exit(1);
       }
       p++;
     }
@@ -140,7 +170,7 @@ WDL_UINT64 outputLine(const char *strv, int casemode)
   {
     int c = *strv++;
     if (lc == '%' || lc == '\\') { /* hacky*/ }
-    else if (c == '\\' && strv[0] == 'x' && strv[1] == 'e' && strv[2] == '9') 
+    else if (c == '\\' && strv[0] == 'x' && strv[1] == 'e' && strv[2] == '9')
     {
       strv+=3;
       c = 0xe9;
@@ -188,7 +218,7 @@ WDL_UINT64 outputLine(const char *strv, int casemode)
       }
     }
     printf("%c",c);
-    if (lc == '%' && (c == '.' || c=='l' || (c>='0' && c<='9'))) 
+    if (lc == '%' && (c == '.' || c=='l' || (c>='0' && c<='9')))
     {
       // ignore .xyz and l between format spec (hacky)
     }
@@ -217,7 +247,7 @@ const char *getResourceDefinesFromHeader(const char *fn)
     while (*p) p++;
     while (p>buf && (p[-1] == '\r'|| p[-1] == '\n' || p[-1] == ' ')) p--;
     *p=0;
-    
+
     if (!strncmp(buf,"#define",7))
     {
       p=buf;
@@ -239,7 +269,7 @@ const char *getResourceDefinesFromHeader(const char *fn)
   return NULL;
 }
 
-void processRCfile(FILE *fp, const char *dirprefix)
+void processRCfile(FILE *fp, const char *dirprefix, const char *filename)
 {
   char sname[512];
   sname[0]=0;
@@ -274,7 +304,7 @@ void processRCfile(FILE *fp, const char *dirprefix)
         exit(1);
       }
       int sec = g_resdefs.Get(first_tok);
-      if (!sec) 
+      if (!sec)
       {
         fprintf(stderr, "unknown dialog %s\n",first_tok);
         exit(1);
@@ -289,8 +319,8 @@ void processRCfile(FILE *fp, const char *dirprefix)
         int l = length_of_quoted_string(second_tok+1,true);
         if (l>0)
         {
-          gotString(second_tok+1,l,sname);
-          
+          gotString(second_tok+1,l,sname, true, filename, g_last_linecnt);
+
           // OSX menu support: store a 2nd string w/o \tshortcuts, strip '&' too
           // note: relies on length_of_quoted_string() pre-conversion above
           if (depth && strstr(sname, "MENU_"))
@@ -303,16 +333,16 @@ void processRCfile(FILE *fp, const char *dirprefix)
               if (*m != '&') buf[j++] = *m;
               m++;
             }
-            if (j!=l) gotString(buf,j,sname);
+            if (j!=l) gotString(buf,j,sname,true, filename, g_last_linecnt);
           }
         }
       }
     }
-    else if (!strcmp(first_tok,"BEGIN")) 
+    else if (!strcmp(first_tok,"BEGIN"))
     {
       depth++;
     }
-    else if (!strcmp(first_tok,"END")) 
+    else if (!strcmp(first_tok,"END"))
     {
       depth--;
       if (depth<0)
@@ -331,32 +361,56 @@ void processRCfile(FILE *fp, const char *dirprefix)
   }
 }
 
-void processCPPfile(FILE *fp)
+void processCPPfile(FILE *fp, const char *filename)
 {
   char clocsec[512];
   clocsec[0]=0;
+  WDL_FastString fs;
   for (;;)
   {
     char buf[8192];
-    g_last_linecnt++;
     if (!fgets(buf,sizeof(buf),fp)) break;
-    char *p = buf;
-    while (*p) p++;
-    while (p>buf && (p[-1] == '\r'|| p[-1] == '\n' || p[-1] == ' ')) p--;
-    *p=0;
-    char *commentp =strstr(buf,"//");
-    p=buf;
-    while (*p && (!commentp || p < commentp)) // ignore __LOCALIZE after //
+    fs.Append(buf);
+  }
+
+  char *p = (char*)fs.Get();
+  char *comment_state = NULL;
+  g_last_linecnt++;
+  while (*p)
+  {
+    if (!strncmp(p,"//",2))
+    {
+      comment_state = p;
+      p+=2;
+    }
+    else if (*p == '\n')
+    {
+      g_last_linecnt++;
+      comment_state = NULL;
+      p++;
+    }
+    else if (!comment_state)
     {
       int hm;
-      if ((p==buf || (!isalnum(p[-1]) && p[-1] != '_')) && (hm=isLocalizeCall(p)))
+      if (*p == '\\') { p++; if (*p) p++; }
+      else if (*p == '\'') { p++; if (*p == '"') p++; }
+      else if (*p == '"')
+      {
+        int l = length_of_quoted_string(p+1,false);
+        if (clocsec[0])
+        {
+          gotString(p+1,l,clocsec,false, filename, g_last_linecnt);
+        }
+        p += l+2;
+      }
+      else if ((p==(char*)fs.Get() || (!isalnum(p[-1]) && p[-1] != '_')) && (hm=isLocalizeCall(p)))
       {
         while (*p != '(') p++;
         p++;
         while (isblank(*p)) p++;
         if (*p++ != '"')
         {
-          fprintf(stderr,"Error: missing \" on '%s'\n",buf);
+          fprintf(stderr,"Error: missing \" on %s:%d\n",filename,g_last_linecnt);
           exit(1);
         }
         int l = length_of_quoted_string(p,false);
@@ -365,20 +419,20 @@ void processCPPfile(FILE *fp)
         while (isblank(*p)) p++;
         if (*p++ != ',')
         {
-          fprintf(stderr,"Error: missing , on '%s'\n",buf);
+          fprintf(stderr,"Error: missing , on %s:%d\n",filename,g_last_linecnt);
           exit(1);
         }
         while (isblank(*p)) p++;
         if (*p++ != '"')
         {
-          fprintf(stderr,"Error: missing second \" on '%s'\n",buf);
+          fprintf(stderr,"Error: missing second \" on %s:%d\n",filename,g_last_linecnt);
           exit(1);
         }
         int l2 = length_of_quoted_string(p,false);
 
         if (hm == HACK_WILDCARD_ENTRY)
         {
-          gotString(p,l2,"render_wildcard");
+          gotString(p,l2,"render_wildcard",false, filename, g_last_linecnt);
           p += l2;
         }
         else
@@ -387,42 +441,52 @@ void processCPPfile(FILE *fp)
           memcpy(sec,p,l2);
           sec[l2]=0;
           p+=l2;
-          gotString(sp,l,sec);
+          gotString(sp,l,sec,false, filename, g_last_linecnt);
         }
+        p++;
       }
-      p++;
+      else
+        p++;
     }
-
-    if (clocsec[0])
+    else if (p > comment_state && p < comment_state + 4)
     {
-      p=buf;
-      while (*p)
+      if (!strncmp(p,"!WANT_LOCALIZE_STRINGS_BEGIN:",29))
       {
-	      if (*p == '"')
-	      {
-	        int l = length_of_quoted_string(p+1,false);
-          if (l >= 7 && !strncmp(p+1,"MM_CTX_",7))
-          {
-            // ignore MM_CTX_* since these are internal strings
-          }
-          else
-          {
-  	        gotString(p+1,l,clocsec);
-          }
-	        p += l+2;
-	      }
-	      else
-	      {
-    	  if (*p == '\\') p++;
-          if (*p == '/' && p[1] == '/') break; // comment terminates
-    	  p++;
+        p += 29;
+        if (clocsec[0])
+        {
+          fprintf(stderr,"Error: !WANT_LOCALIZE_STRINGS_BEGIN: before WANT_LOCALIZE_STRINGS_END on  %s:%d\n",filename,g_last_linecnt);
+          exit(1);
         }
+        int a = 0;
+        while (*p && !isblank(*p) && a < sizeof(clocsec)) clocsec[a++] = *p++;
+        if (a >= sizeof(clocsec))
+        {
+          fprintf(stderr,"Error: !WANT_LOCALIZE_STRINGS_BEGIN: too long on %s:%d\n",filename,g_last_linecnt);
+          exit(1);
+        }
+        clocsec[a]=0;
+      }
+      else
+      {
+        if (!strncmp(p,"!WANT_LOCALIZE_STRINGS_END",26))
+        {
+          if (!clocsec[0])
+          {
+            fprintf(stderr,"Error: mismatched !WANT_LOCALIZE_STRINGS_END on %s:%d\n",filename,g_last_linecnt);
+            exit(1);
+          }
+          clocsec[0]=0;
+        }
+        p++;
       }
     }
-
-    char *p2;
-    if (commentp && (p2=strstr(commentp,"!WANT_LOCALIZE_STRINGS_BEGIN:"))) strcpy(clocsec,strstr(p2,":")+1);
-    else if (commentp && (strstr(commentp,"!WANT_LOCALIZE_STRINGS_END"))) clocsec[0]=0;
+    else p++;
+  }
+  if (clocsec[0])
+  {
+    fprintf(stderr,"Error: missing !WANT_LOCALIZE_STRINGS_END at eof %s:%d\n",filename,g_last_linecnt);
+    exit(1);
   }
 }
 
@@ -475,30 +539,30 @@ int main(int argc, char **argv)
       if (!strcmp(dpre.Get(),"jesusonic")) dpre.Set("jsfx");
 
       s.Append("resource.h");
-      const char *err=getResourceDefinesFromHeader(s.Get());     
+      const char *err=getResourceDefinesFromHeader(s.Get());
       if (err)
       {
         fprintf(stderr,"Error reading %s: %s\n",s.Get(),err);
         exit(1);
       }
-      processRCfile(fp,dpre.Get()[0]?dpre.Get():NULL);
+      processRCfile(fp,dpre.Get()[0]?dpre.Get():NULL, argv[x]);
     }
-    else 
+    else
     {
-      processCPPfile(fp);
+      processCPPfile(fp,argv[x]);
     }
-      
+
     fclose(fp);
   }
   if (casemode==4) printf("\xef\xbb\xbf");
   printf("#NAME:%s\n",
-       casemode==-1 ? "English (lower case, demo)" : 
-       casemode==1 ? "English (upper case, demo)" : 
-       casemode==2 ? "English (leet-speak, demo)" : 
-       casemode==4 ? "UTF-8 English test (demo)" : 
-       casemode==3 ? "Template (edit-me)" : 
+       casemode==-1 ? "English (lower case, demo)" :
+       casemode==1 ? "English (upper case, demo)" :
+       casemode==2 ? "English (leet-speak, demo)" :
+       casemode==4 ? "UTF-8 English test (demo)" :
+       casemode==3 ? "Template (edit-me)" :
        "English (sample language pack)");
-  if (casemode==3) 
+  if (casemode==3)
   {
     printf("; NOTE: this is the best starting point for making a new langpack.\n"
            "; As you translate a string, remove the ; from the beginning of the\n"
@@ -510,7 +574,7 @@ int main(int argc, char **argv)
            "; 5CA1E00000000000=1.2\n"
            "; This makes the above dialog 1.2x wider than default.\n\n");
   }
-  
+
   WDL_StringKeyedArray<bool> common_found;
   {
     if (!translations_indexed.GetSize())
@@ -528,7 +592,7 @@ int main(int argc, char **argv)
     int pos[4096]={0,};
     printf("[common]\n");
     WDL_FastString matchlist;
-    WDL_AssocArray<WDL_UINT64, bool> ids(uint64cmpfunc); 
+    WDL_AssocArray<WDL_UINT64, bool> ids(uint64cmpfunc);
     int minpos = 0;
     for (;;)
     {
@@ -539,40 +603,40 @@ int main(int argc, char **argv)
       {
         const char *secname;
         WDL_StringKeyedArray<bool> *l = translations_indexed.Enumerate(x,&secname);
-	      int sz=l->GetSize();
+        int sz=l->GetSize();
         if (!str)
-	      {
-          if (x>minpos) 
+        {
+          if (x>minpos)
           {
             memset(pos,0,sizeof(pos)); // start over
             minpos=x;
           }
           while (!str && pos[x]<sz)
           {
-            l->Enumerate(pos[x]++,&str); 
+            l->Enumerate(pos[x]++,&str);
             if (common_found.Get(str)) str=NULL; // skip if we've already analyzed this string
           }
-          if (str) matchlist.Set(secname); 
+          if (str) matchlist.Set(secname);
         }
-	      else 
+        else
         {
           while (pos[x] < sz)
-	        {
-      	    const char *tv=NULL;
-	          l->Enumerate(pos[x],&tv);
-      	    int c = strcmp(tv,str);
-      	    if (c>0) break; 
-      	    pos[x]++;
-      	    if (!c)
-	          {
+          {
+            const char *tv=NULL;
+            l->Enumerate(pos[x],&tv);
+            int c = strcmp(tv,str);
+            if (c>0) break;
+            pos[x]++;
+            if (!c)
+            {
               matchlist.Append(", ");
-	            matchlist.Append(secname);
-	            matchcnt++;
-	            break;
-	          }
-	        }
+              matchlist.Append(secname);
+              matchcnt++;
+              break;
+            }
+          }
         }
-	    }
+      }
       if (matchcnt>0)
       {
         common_found.Insert(str,true);
@@ -601,7 +665,7 @@ int main(int argc, char **argv)
     printf("[%s]%s%s\n",nm,secinfo?" ; ":"", secinfo?secinfo:"");
     int a;
     int y;
-    WDL_AssocArray<WDL_UINT64, bool> ids(uint64cmpfunc); 
+    WDL_AssocArray<WDL_UINT64, bool> ids(uint64cmpfunc);
     for (a=0;a<2;a++)
     {
       for (y=0;y<p->GetSize();y++)

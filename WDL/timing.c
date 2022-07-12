@@ -53,33 +53,17 @@ void _timingPrint(void)
   int x,p=0;
   for (x = 0; x < (int) (sizeof(__wdl_timingInfo)/sizeof(__wdl_timingInfo[0])); x ++)
   {
-    char buf[512];
     if (__wdl_timingInfo[x].calls)
     {
       p++;
-      snprintf(buf,sizeof(buf),"wdl_timing: %d: %.0f calls, %.0f " TIMING_UNITS "/call (min=%.0f, max=%.0f). %.0f " TIMING_UNITS " of CPU time spent\n",
+      wdl_log("wdl_timing: %d: %.0f calls, %.0f " TIMING_UNITS "/call (min=%.0f, max=%.0f). %.0f " TIMING_UNITS " of CPU time spent\n",
         x,(double)__wdl_timingInfo[x].calls,(__wdl_timingInfo[x].cycles/(double)__wdl_timingInfo[x].calls),
         (double)__wdl_timingInfo[x].mint,(double)__wdl_timingInfo[x].maxt,
         (double)__wdl_timingInfo[x].cycles 
       );
-#ifdef _WIN32
-      OutputDebugStringA(buf);
-#elif defined(__APPLE__) && defined(__OBJC__)
-      NSLog(@"%s",buf);
-#else
-      printf("%s",buf);
-#endif
     }
   }
-  if (!p)
-#ifdef _WIN32
-  OutputDebugString(
-#elif defined(__APPLE__) && defined(__OBJC__)
-  NSLog(@
-#else
-  printf(
-#endif
-  "wdl_timing: no calls to timing lib\n");
+  if (!p) wdl_log("wdl_timing: no calls to timing lib\n");
 }
 	
 void _timingEnter(int which)

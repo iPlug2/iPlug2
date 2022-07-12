@@ -57,7 +57,7 @@
       </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "$(SRCROOT)/../$(PRODUCT_NAME).RPP"
+            argument = "&quot;$(SRCROOT)/../$(PRODUCT_NAME).RPP&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

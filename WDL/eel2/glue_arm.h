@@ -296,7 +296,7 @@ static const unsigned int GLUE_SET_P1_Z[] =  { 0xe3a00000 }; // mov r0, #0
 static const unsigned int GLUE_SET_P1_NZ[] = { 0xe3a00001 }; // mov r0, #1
 
 
-static void *GLUE_realAddress(void *fn, void *fn_e, int *size)
+static void *GLUE_realAddress(void *fn, int *size)
 {
   static const unsigned int sig[3] = { 0xe1a00000, 0xe1a01001, 0xe1a02002 };
   unsigned char *p = (unsigned char *)fn;
@@ -321,18 +321,6 @@ static void  __attribute__((unused)) glue_setscr(unsigned int v)
   asm volatile ( "fmxr fpscr, %0" :: "r"(v));
 }
 
-void eel_setfp_round() 
-{ 
-  const unsigned int s = glue_getscr();
-  if (s & (1<<24))
-    glue_setscr(s ^ (1<<24));
-}
-void eel_setfp_trunc() 
-{ 
-  const unsigned int s = glue_getscr();
-  if (!(s & (1<<24)))
-    glue_setscr(s ^ (1<<24));
-}
 void eel_enterfp(int s[2]) 
 {
   s[0] = glue_getscr();

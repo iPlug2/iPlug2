@@ -138,7 +138,7 @@ void EndDialog(HWND wnd, int ret)
         s_spare = wnd->m_oswindow;
         wnd->m_oswindow = NULL;
         s_spare_timer = SetTimer(NULL,0,
-                             swell_app_is_inactive ? 500 : 100,
+                             swell_is_app_inactive()>0 ? 500 : 100,
                              spareTimer);
       }
     #endif
@@ -167,6 +167,11 @@ int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND 
   if (hwnd)
   {
     hwnd->Retain();
+
+    void SWELL_OnNavigationFocus(HWND ch);
+    HWND SWELL_GetFocusedChild(HWND h);
+    SWELL_OnNavigationFocus(SWELL_GetFocusedChild(hwnd));
+
     ReleaseCapture(); // force end of any captures
 
     WDL_PtrKeyedArray<int> restwnds;

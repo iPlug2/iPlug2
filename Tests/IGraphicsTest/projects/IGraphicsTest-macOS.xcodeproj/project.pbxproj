@@ -173,7 +173,7 @@
 		4F78BE2A22E7406D00AD537E /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
 		4F78BE2D22E7412300AD537E /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6369DC20A464BB0022C370 /* IGraphicsNanoVG_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F78BE3222E7429B00AD537E /* IPlugAUv3Appex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F78BE3022E7429700AD537E /* IPlugAUv3Appex.m */; };
-		4F78BE3C22E74CD000AD537E /* IPlugAUViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */; };
+		4F78BE3C22E74CD000AD537E /* IPlugAUViewController_vIGraphicsTest.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F98C32C20A7678800F120A9 /* IPlugAUViewController_vIGraphicsTest.xib */; };
 		4F78D88613B6382B0032E0F3 /* IGraphicsTest.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4FD290A8137C34D700CEBE7E /* IGraphicsTest.icns */; };
 		4F78D90B13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
 		4F78D91813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
@@ -233,6 +233,25 @@
 		4F9A82FA213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */; };
 		4F9A82FB213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */; };
 		4F9A82FD213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */; };
+		4FAA6AAF27C55AE10068E432 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6AAE27C55AE10068E432 /* TestMPSControl.mm */; };
+		4FAA6AB027C55AE10068E432 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6AAE27C55AE10068E432 /* TestMPSControl.mm */; };
+		4FAA6AB127C55AE10068E432 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6AAE27C55AE10068E432 /* TestMPSControl.mm */; };
+		4FAA6AB227C55AE10068E432 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6AAE27C55AE10068E432 /* TestMPSControl.mm */; };
+		4FAA6AB327C55AE10068E432 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6AAE27C55AE10068E432 /* TestMPSControl.mm */; };
+		4FAA6AB427C55AE10068E432 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6AAE27C55AE10068E432 /* TestMPSControl.mm */; };
+		4FAA6AB527C55AE10068E432 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6AAE27C55AE10068E432 /* TestMPSControl.mm */; };
+		4FAA6AB627C55AE10068E432 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6AAE27C55AE10068E432 /* TestMPSControl.mm */; };
+		4FAA6AB727C55AE10068E432 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6AAE27C55AE10068E432 /* TestMPSControl.mm */; };
+		4FAA6ACC27C57E600068E432 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6ACA27C57E600068E432 /* Shaders.metal */; };
+		4FAA6ACD27C57E600068E432 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6ACA27C57E600068E432 /* Shaders.metal */; };
+		4FAA6ACE27C57E600068E432 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6ACA27C57E600068E432 /* Shaders.metal */; };
+		4FAA6ACF27C57E600068E432 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6ACA27C57E600068E432 /* Shaders.metal */; };
+		4FAA6AD027C57E600068E432 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6ACA27C57E600068E432 /* Shaders.metal */; };
+		4FAA6AD127C57E600068E432 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6ACA27C57E600068E432 /* Shaders.metal */; };
+		4FAA6AD227C57E600068E432 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6ACA27C57E600068E432 /* Shaders.metal */; };
+		4FAA6AD327C57E600068E432 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6ACA27C57E600068E432 /* Shaders.metal */; };
+		4FAA6AD427C57E600068E432 /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4FAA6ACA27C57E600068E432 /* Shaders.metal */; };
+		4FAA6AD527C57E600068E432 /* ShaderTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FAA6ACB27C57E600068E432 /* ShaderTypes.h */; };
 		4FAFFE5821495A4800A6E72D /* RtAudio.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F10D3D3203A6711003EF82A /* RtAudio.cpp */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code -Wno-shorten-64-to-32 -Wno-deprecated-implementations"; }; };
 		4FB1F58920E4B004004157C8 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB1F58120E4AFEE004157C8 /* IGraphicsMac.mm */; };
 		4FB1F58A20E4B005004157C8 /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FB1F58120E4AFEE004157C8 /* IGraphicsMac.mm */; };
@@ -286,14 +305,14 @@
 		4FDAC0EC207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4FDAC0EE207D76C600299363 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
-		4FE599E62320323A0012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
-		4FE59A232320345A0012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
-		4FE59A242320345A0012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
-		4FE59A252320345B0012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
-		4FE59A262320345C0012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
-		4FE59A272320345D0012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
-		4FE59A282320345F0012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
-		4FE59A29232034600012B628 /* TestMPSControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestMPSControl.mm */; };
+		4FE599E62320323A0012B628 /* TestCustomShaderControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestCustomShaderControl.mm */; };
+		4FE59A232320345A0012B628 /* TestCustomShaderControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestCustomShaderControl.mm */; };
+		4FE59A242320345A0012B628 /* TestCustomShaderControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestCustomShaderControl.mm */; };
+		4FE59A252320345B0012B628 /* TestCustomShaderControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestCustomShaderControl.mm */; };
+		4FE59A262320345C0012B628 /* TestCustomShaderControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestCustomShaderControl.mm */; };
+		4FE59A272320345D0012B628 /* TestCustomShaderControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestCustomShaderControl.mm */; };
+		4FE59A282320345F0012B628 /* TestCustomShaderControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestCustomShaderControl.mm */; };
+		4FE59A29232034600012B628 /* TestCustomShaderControl.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FE599E3232032390012B628 /* TestCustomShaderControl.mm */; };
 		4FF0A83221BE708700B2C9D1 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0B13B634BF001D0217 /* swell-gdi.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code"; }; };
 		4FF3205820B2BFAB00269268 /* IPlugPaths.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF3204F20B2BFAB00269268 /* IPlugPaths.h */; };
 		4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8158BF205D50EB00393585 /* baseiids.cpp */; };
@@ -694,12 +713,16 @@
 		4F97BD8A213760E200541A17 /* IGraphicsCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCanvas.cpp; sourceTree = "<group>"; };
 		4F97BD8B2137629600541A17 /* IFPSDisplayControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IFPSDisplayControl.h; sourceTree = "<group>"; };
 		4F9828E0140A9EB700F3FCC1 /* IGraphicsTest.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IGraphicsTest.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugAUViewController.xib; path = ../resources/IPlugAUViewController.xib; sourceTree = "<group>"; };
+		4F98C32C20A7678800F120A9 /* IPlugAUViewController_vIGraphicsTest.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugAUViewController_vIGraphicsTest.xib; path = ../resources/IPlugAUViewController_vIGraphicsTest.xib; sourceTree = "<group>"; };
 		4F993FE32306D581000313AF /* IGraphicsPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphicsPrivate.h; path = ../../../IGraphics/IGraphicsPrivate.h; sourceTree = "<group>"; };
 		4F9A82F3213DE80200BE63A4 /* IPopupMenuControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPopupMenuControl.h; sourceTree = "<group>"; };
 		4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPopupMenuControl.cpp; sourceTree = "<group>"; };
 		4F9C097E224D26B40050309D /* IPlugVST3_ControllerBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_ControllerBase.h; path = ../../../IPlug/VST3/IPlugVST3_ControllerBase.h; sourceTree = "<group>"; };
 		4FA61F9922E8A96300A92C58 /* tex */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tex; path = ../resources/tex; sourceTree = "<group>"; };
+		4FAA6AAE27C55AE10068E432 /* TestMPSControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TestMPSControl.mm; sourceTree = "<group>"; };
+		4FAA6AB827C55AF90068E432 /* TestCustomShaderControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestCustomShaderControl.h; sourceTree = "<group>"; };
+		4FAA6ACA27C57E600068E432 /* Shaders.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
+		4FAA6ACB27C57E600068E432 /* ShaderTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderTypes.h; sourceTree = "<group>"; };
 		4FB1F57B20E4AFEE004157C8 /* IGraphicsIOS_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsIOS_view.mm; path = ../../../IGraphics/Platforms/IGraphicsIOS_view.mm; sourceTree = "<group>"; };
 		4FB1F57C20E4AFEE004157C8 /* IGraphicsWeb.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsWeb.cpp; path = ../../../IGraphics/Platforms/IGraphicsWeb.cpp; sourceTree = "<group>"; };
 		4FB1F57D20E4AFEE004157C8 /* IGraphicsLinux.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IGraphicsLinux.cpp; path = ../../../IGraphics/Platforms/IGraphicsLinux.cpp; sourceTree = "<group>"; };
@@ -779,7 +802,6 @@
 		4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugTimer.cpp; path = ../../../IPlug/IPlugTimer.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		4FDAC0E8207D76C600299363 /* IPlugQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugQueue.h; path = ../../../IPlug/IPlugQueue.h; sourceTree = "<group>"; tabWidth = 2; };
 		4FDAC0E9207D76C600299363 /* IPlugTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugTimer.h; path = ../../../IPlug/IPlugTimer.h; sourceTree = "<group>"; tabWidth = 2; };
-		4FE599CA232032390012B628 /* TestGLControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestGLControl.h; sourceTree = "<group>"; };
 		4FE599CB232032390012B628 /* TestCursorControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestCursorControl.h; sourceTree = "<group>"; };
 		4FE599CC232032390012B628 /* TestSizeControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestSizeControl.h; sourceTree = "<group>"; };
 		4FE599CD232032390012B628 /* TestAnimationControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestAnimationControl.h; sourceTree = "<group>"; };
@@ -803,7 +825,7 @@
 		4FE599E0232032390012B628 /* TestDropShadowControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDropShadowControl.h; sourceTree = "<group>"; };
 		4FE599E1232032390012B628 /* TestGFXLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestGFXLabel.h; sourceTree = "<group>"; };
 		4FE599E2232032390012B628 /* TestMultiPathControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMultiPathControl.h; sourceTree = "<group>"; };
-		4FE599E3232032390012B628 /* TestMPSControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TestMPSControl.mm; sourceTree = "<group>"; };
+		4FE599E3232032390012B628 /* TestCustomShaderControl.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TestCustomShaderControl.mm; sourceTree = "<group>"; };
 		4FE599E4232032390012B628 /* TestArcControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestArcControl.h; sourceTree = "<group>"; };
 		4FE599E5232032390012B628 /* TestPolyControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestPolyControl.h; sourceTree = "<group>"; };
 		4FEFB7ED208496C800515434 /* IPlugWeb.cpp */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugWeb.cpp; path = ../../../IPlug/WEB/IPlugWeb.cpp; sourceTree = "<group>"; tabWidth = 2; };
@@ -929,13 +951,14 @@
 		089C167CFE841241C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4FAA6AC927C57E600068E432 /* shaders */,
 				4FC82B4620BD522B00722133 /* fonts */,
 				4FC82B4520BD522B00722133 /* img */,
 				4FA61F9922E8A96300A92C58 /* tex */,
 				4FC46E57231440B4000045E7 /* web */,
 				4F1B4AE32014D33600BC64D4 /* IGraphicsTest-macOS-MainMenu.xib */,
 				4F3FB118202273A500622761 /* IGraphicsTest-macOS.entitlements */,
-				4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */,
+				4F98C32C20A7678800F120A9 /* IPlugAUViewController_vIGraphicsTest.xib */,
 				4FFF72B8214BB71400839091 /* main.rc */,
 				4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */,
 				4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */,
@@ -1045,7 +1068,6 @@
 		4F1C2D3F23D730690088AE84 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
-				4F1C2D4223D730690088AE84 /* IGraphicsFlexBox.h */,
 				4F1C2D4023D730690088AE84 /* IGraphicsFlexBox.cpp */,
 			);
 			name = Extras;
@@ -1575,6 +1597,16 @@
 			path = vst;
 			sourceTree = "<group>";
 		};
+		4FAA6AC927C57E600068E432 /* shaders */ = {
+			isa = PBXGroup;
+			children = (
+				4FAA6ACA27C57E600068E432 /* Shaders.metal */,
+				4FAA6ACB27C57E600068E432 /* ShaderTypes.h */,
+			);
+			name = shaders;
+			path = ../resources/shaders;
+			sourceTree = "<group>";
+		};
 		4FB1F57A20E4AFDA004157C8 /* Platforms */ = {
 			isa = PBXGroup;
 			children = (
@@ -1665,12 +1697,12 @@
 			children = (
 				4F3439452417A99C00960500 /* TestMaskControl.h */,
 				4F1C2D3E23D72FF60088AE84 /* TestFlexBoxControl.h */,
-				4FE599CA232032390012B628 /* TestGLControl.h */,
 				4FE599CB232032390012B628 /* TestCursorControl.h */,
 				4FE599CC232032390012B628 /* TestSizeControl.h */,
 				4FE599CD232032390012B628 /* TestAnimationControl.h */,
 				4FE599CE232032390012B628 /* TestFontControl.h */,
 				4FE599CF232032390012B628 /* TestMPSControl.h */,
+				4FAA6AAE27C55AE10068E432 /* TestMPSControl.mm */,
 				4FE599D0232032390012B628 /* TestTextControl.h */,
 				4FE599D1232032390012B628 /* TestDrawContextControl.h */,
 				4FE599D2232032390012B628 /* TestSVGControl.h */,
@@ -1689,7 +1721,8 @@
 				4FE599E0232032390012B628 /* TestDropShadowControl.h */,
 				4FE599E1232032390012B628 /* TestGFXLabel.h */,
 				4FE599E2232032390012B628 /* TestMultiPathControl.h */,
-				4FE599E3232032390012B628 /* TestMPSControl.mm */,
+				4FAA6AB827C55AF90068E432 /* TestCustomShaderControl.h */,
+				4FE599E3232032390012B628 /* TestCustomShaderControl.mm */,
 				4FE599E4232032390012B628 /* TestArcControl.h */,
 				4FE599E5232032390012B628 /* TestPolyControl.h */,
 			);
@@ -1719,6 +1752,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F78BE1222E73DD900AD537E /* AUv3Framework.h in Headers */,
+				4FAA6AD527C57E600068E432 /* ShaderTypes.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2099,7 +2133,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F78BE3C22E74CD000AD537E /* IPlugAUViewController.xib in Resources */,
+				4F78BE3C22E74CD000AD537E /* IPlugAUViewController_vIGraphicsTest.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2167,6 +2201,7 @@
 		};
 		4F3EE1BD231438D000004786 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2177,7 +2212,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py\nif [[ $(sw_vers -buildVersion) > \"21\" ]]; then \n  php_binary=/opt/homebrew/bin/php\n  \n  if ! test -f $php_binary; then\n    echo \"$php_binary not found, install php via brew\"\n    exit 1\n  fi\nelse\n  php_binary=/usr/bin/php\nfi\n$php_binary ../../../WDL/swell/mac_resgen.php ../resources/main.rc\n";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py\n./../../../WDL/swell/swell_resgen.sh ../resources/main.rc\n";
 		};
 		4F744D4C14005ADA002FAD90 /* Run Script - clear_audiounit_caches.sh */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2214,6 +2249,7 @@
 		};
 		4FBCC1A21FD59C7300EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2224,11 +2260,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 		4FBCC1B21FD5AE8500EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2239,10 +2276,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py\nif [[ $(sw_vers -buildVersion) > \"21\" ]]; then \n  php_binary=/opt/homebrew/bin/php\n  \n  if ! test -f $php_binary; then\n    echo \"$php_binary not found, install php via brew\"\n    exit 1\n  fi\nelse\n  php_binary=/usr/bin/php\nfi\n$php_binary ../../../WDL/swell/mac_resgen.php ../resources/main.rc\n";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py\n./../../../WDL/swell/swell_resgen.sh ../resources/main.rc\n";
 		};
 		4FBCC1B31FD5AE9F00EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2253,11 +2291,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 		4FBCC1B41FD5AEB700EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2268,11 +2307,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 		4FBCC1B51FD5AED400EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2283,11 +2323,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 		4FFBB8F920863B0E00DDD0E7 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2298,7 +2339,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -2316,11 +2357,13 @@
 				4FB1F58A20E4B005004157C8 /* IGraphicsMac.mm in Sources */,
 				4F1C2D4623D730720088AE84 /* IGraphicsFlexBox.cpp in Sources */,
 				4FCE29D821D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
+				4FAA6ACD27C57E600068E432 /* Shaders.metal in Sources */,
 				4F9A82F8213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */,
 				4F8C10E120BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
 				4F6369DE20A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
-				4FE59A232320345A0012B628 /* TestMPSControl.mm in Sources */,
+				4FAA6AB027C55AE10068E432 /* TestMPSControl.mm in Sources */,
+				4FE59A232320345A0012B628 /* TestCustomShaderControl.mm in Sources */,
 				4F8D9707209EF5AC006E2A11 /* IGraphicsTest.cpp in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FB1F59020E4B010004157C8 /* IGraphicsMac_view.mm in Sources */,
@@ -2335,6 +2378,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FAA6AD227C57E600068E432 /* Shaders.metal in Sources */,
+				4FAA6AB527C55AE10068E432 /* TestMPSControl.mm in Sources */,
 				4F78BE3222E7429B00AD537E /* IPlugAUv3Appex.m in Sources */,
 				4F1C2D4B23D730750088AE84 /* IGraphicsFlexBox.cpp in Sources */,
 			);
@@ -2344,6 +2389,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FAA6ACF27C57E600068E432 /* Shaders.metal in Sources */,
 				4F03A5AF20A4621100EBDFFB /* IGraphics.cpp in Sources */,
 				4F6369E020A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
 				4F6369EE20A466470022C370 /* IControl.cpp in Sources */,
@@ -2357,8 +2403,9 @@
 				4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				4F78D94513B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FB1F59320E4B013004157C8 /* IGraphicsMac_view.mm in Sources */,
-				4FE59A252320345B0012B628 /* TestMPSControl.mm in Sources */,
+				4FE59A252320345B0012B628 /* TestCustomShaderControl.mm in Sources */,
 				4FD52136202A5BD000A4D22A /* dfx-au-utilities.c in Sources */,
+				4FAA6AB227C55AE10068E432 /* TestMPSControl.mm in Sources */,
 				4FCE29DA21D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F5F344420C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F35DEB0207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
@@ -2374,11 +2421,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F3EE1C2231438D000004786 /* IPlugProcessor.cpp in Sources */,
+				4FAA6AD427C57E600068E432 /* Shaders.metal in Sources */,
 				4F3EE1C3231438D000004786 /* RtMidi.cpp in Sources */,
 				4F3EE1C5231438D000004786 /* IGraphicsNanoVG_src.m in Sources */,
 				4F3EE1C6231438D000004786 /* IControl.cpp in Sources */,
 				4F3EE1C7231438D000004786 /* swell-dlg.mm in Sources */,
 				4F3EE1C8231438D000004786 /* swell-ini.cpp in Sources */,
+				4FAA6AB727C55AE10068E432 /* TestMPSControl.mm in Sources */,
 				4F3EE1C9231438D000004786 /* swellappmain.mm in Sources */,
 				4F3EE1CA231438D000004786 /* swell-kb.mm in Sources */,
 				4F3EE1CB231438D000004786 /* ITextEntryControl.cpp in Sources */,
@@ -2401,7 +2450,7 @@
 				4F3EE1DD231438D000004786 /* IGraphicsMac.mm in Sources */,
 				4F3EE1DE231438D000004786 /* IGraphicsTest.cpp in Sources */,
 				4F3EE1DF231438D000004786 /* IPopupMenuControl.cpp in Sources */,
-				4FE59A29232034600012B628 /* TestMPSControl.mm in Sources */,
+				4FE59A29232034600012B628 /* TestCustomShaderControl.mm in Sources */,
 				4F3EE1E0231438D000004786 /* IPlugAPIBase.cpp in Sources */,
 				4F3EE1E1231438D000004786 /* IPlugPluginBase.cpp in Sources */,
 				4F3EE1E2231438D000004786 /* IGraphicsEditorDelegate.cpp in Sources */,
@@ -2431,13 +2480,15 @@
 				4F78BE2222E7406D00AD537E /* IPlugAUAudioUnit.mm in Sources */,
 				4F78BE2322E7406D00AD537E /* IPlugAUv3.mm in Sources */,
 				4F78BE2422E7406D00AD537E /* IPlugAUViewController.mm in Sources */,
-				4FE59A282320345F0012B628 /* TestMPSControl.mm in Sources */,
+				4FE59A282320345F0012B628 /* TestCustomShaderControl.mm in Sources */,
 				4F1C2D4E23D730780088AE84 /* IGraphicsFlexBox.cpp in Sources */,
+				4FAA6AB627C55AE10068E432 /* TestMPSControl.mm in Sources */,
 				4F78BE2522E7406D00AD537E /* IPlugPluginBase.cpp in Sources */,
 				4F78BE2622E7406D00AD537E /* IPlugAPIBase.cpp in Sources */,
 				4F78BE2822E7406D00AD537E /* IPlugParameter.cpp in Sources */,
 				4F78BE2922E7406D00AD537E /* IPlugTimer.cpp in Sources */,
 				4F78BE2A22E7406D00AD537E /* IPlugPaths.mm in Sources */,
+				4FAA6AD327C57E600068E432 /* Shaders.metal in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2447,6 +2498,7 @@
 			files = (
 				4F81597C205D50EB00393585 /* baseiids.cpp in Sources */,
 				4FDAC0EC207D76C600299363 /* IPlugTimer.cpp in Sources */,
+				4FAA6AB127C55AE10068E432 /* TestMPSControl.mm in Sources */,
 				B8E22A0C220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */,
 				4F1C2D4723D730730088AE84 /* IGraphicsFlexBox.cpp in Sources */,
 				4F3862F12014BBEC0009F402 /* IGraphicsTest.cpp in Sources */,
@@ -2470,7 +2522,7 @@
 				4F35DEAF207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F81591E205D50EB00393585 /* macmain.cpp in Sources */,
 				4F993F7323055C96000313AF /* IPlugProcessor.cpp in Sources */,
-				4FE59A242320345A0012B628 /* TestMPSControl.mm in Sources */,
+				4FE59A242320345A0012B628 /* TestCustomShaderControl.mm in Sources */,
 				4F815986205D50EB00393585 /* flock.cpp in Sources */,
 				4FCE29D921D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F5F344320C0226200487201 /* IPlugPaths.mm in Sources */,
@@ -2495,6 +2547,7 @@
 				4F81597D205D50EB00393585 /* fbuffer.cpp in Sources */,
 				4F1A527E205D911A00CF2908 /* IPlugVST3.cpp in Sources */,
 				4F815988205D50EB00393585 /* coreiids.cpp in Sources */,
+				4FAA6ACE27C57E600068E432 /* Shaders.metal in Sources */,
 				4F815993205D51F000393585 /* vstnoteexpressiontypes.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2520,12 +2573,14 @@
 				4F3862F32014BBEC0009F402 /* IGraphicsTest.cpp in Sources */,
 				4FCE29DB21D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4FB600231567CB0A0020189A /* IPlugParameter.cpp in Sources */,
-				4FE59A262320345C0012B628 /* TestMPSControl.mm in Sources */,
+				4FE59A262320345C0012B628 /* TestCustomShaderControl.mm in Sources */,
+				4FAA6AB327C55AE10068E432 /* TestMPSControl.mm in Sources */,
 				4F1C2D4923D730740088AE84 /* IGraphicsFlexBox.cpp in Sources */,
 				4FB600261567CB0A0020189A /* AAX_Exports.cpp in Sources */,
 				4F6FD2B522675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
 				4FB600281567CB0A0020189A /* IPlugAAX_Describe.cpp in Sources */,
 				4FB1F58D20E4B007004157C8 /* IGraphicsMac.mm in Sources */,
+				4FAA6AD027C57E600068E432 /* Shaders.metal in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2556,6 +2611,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FAA6ACC27C57E600068E432 /* Shaders.metal in Sources */,
 				B885CBC52304AE7300D73128 /* IPlugProcessor.cpp in Sources */,
 				4F10D3D9203A6719003EF82A /* RtMidi.cpp in Sources */,
 				4F6369DD20A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
@@ -2585,7 +2641,8 @@
 				4FB1F58920E4B004004157C8 /* IGraphicsMac.mm in Sources */,
 				4F3862EF2014BBEC0009F402 /* IGraphicsTest.cpp in Sources */,
 				4F9A82F7213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
-				4FE599E62320323A0012B628 /* TestMPSControl.mm in Sources */,
+				4FE599E62320323A0012B628 /* TestCustomShaderControl.mm in Sources */,
+				4FAA6AAF27C55AE10068E432 /* TestMPSControl.mm in Sources */,
 				4F78D90B13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4F35DEAD207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F8C10E020BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
@@ -2602,7 +2659,7 @@
 				4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */,
 				4F1C2D4A23D730740088AE84 /* IGraphicsFlexBox.cpp in Sources */,
 				4FFBB90620863B0E00DDD0E7 /* IPlugTimer.cpp in Sources */,
-				4FE59A272320345D0012B628 /* TestMPSControl.mm in Sources */,
+				4FE59A272320345D0012B628 /* TestCustomShaderControl.mm in Sources */,
 				4FFBB90720863B0E00DDD0E7 /* IGraphicsTest.cpp in Sources */,
 				4FFBB90820863B0E00DDD0E7 /* pluginfactory.cpp in Sources */,
 				4FFBB90920863B0E00DDD0E7 /* vstinitiids.cpp in Sources */,
@@ -2622,6 +2679,7 @@
 				4FFBB91A20863B0E00DDD0E7 /* macmain.cpp in Sources */,
 				4FFBB91B20863B0E00DDD0E7 /* flock.cpp in Sources */,
 				4FFBB91D20863B0E00DDD0E7 /* ustring.cpp in Sources */,
+				4FAA6AB427C55AE10068E432 /* TestMPSControl.mm in Sources */,
 				4FFBB91E20863B0E00DDD0E7 /* fobject.cpp in Sources */,
 				4FFBB91F20863B0E00DDD0E7 /* vstparameters.cpp in Sources */,
 				4FFBB92120863B0E00DDD0E7 /* vstcomponentbase.cpp in Sources */,
@@ -2634,6 +2692,7 @@
 				4FFBB92820863B0E00DDD0E7 /* vstcomponent.cpp in Sources */,
 				4FFBB92C20863B0E00DDD0E7 /* fstreamer.cpp in Sources */,
 				4FFBB92D20863B0E00DDD0E7 /* vstrepresentation.cpp in Sources */,
+				4FAA6AD127C57E600068E432 /* Shaders.metal in Sources */,
 				4FFBB92E20863B0E00DDD0E7 /* fcondition.cpp in Sources */,
 				4FFBB93020863B0E00DDD0E7 /* fbuffer.cpp in Sources */,
 				4FFBB93420863B0E00DDD0E7 /* coreiids.cpp in Sources */,

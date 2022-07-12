@@ -36,15 +36,15 @@ public:
   void OnIdle() override;
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void OnActivate(bool enable) override;
-  
+  void OnReset() override;
   void GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const override;
 
   bool mInputChansConnected[4] = {};
   bool mOutputChansConnected[2] = {};
   bool mSendUpdate = false;
   
-  IPeakSender<4> mInputPeakSender;
-  IPeakSender<2> mOutputPeakSender;
+  IPeakAvgSender<4> mInputPeakSender;
+  IPeakAvgSender<2> mOutputPeakSender;
   IVMeterControl<4>* mInputMeter = nullptr;
   IVMeterControl<2>* mOutputMeter = nullptr;
 };

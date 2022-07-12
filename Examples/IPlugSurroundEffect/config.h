@@ -15,7 +15,7 @@
 
 #define SHARED_RESOURCES_SUBPATH "IPlugSurroundEffect"
 
-#define PLUG_CHANNEL_IO "1-1 2-2 6-6 8-8"
+#define PLUG_CHANNEL_IO "1-1 2-2 6-6 8-8 10-10 12-12"
 
 #define PLUG_LATENCY 0
 #define PLUG_TYPE 0

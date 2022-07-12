@@ -38,6 +38,7 @@
 #include "wdlcstring.h"
 #include "lameencdec.h"
 #include "win32_utf8.h"
+#include "ptrlist.h"
 
 #ifdef __APPLE__
   #include <Carbon/Carbon.h>
@@ -47,7 +48,10 @@
 #endif
 
 // note: calling code should include WDL/metadata.h from somewhere to implement these functions
-int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata, bool want_ixml_xmp);
+struct ID3RawTag;
+int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata,
+  bool want_embed_otherschemes, int *ixml_lenwritten, int ixml_padtolen,
+  WDL_PtrList<ID3RawTag> *rawtags=NULL);
 int PackApeChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata);
 int PackXMPChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata);
 bool ParseUserDefMetadata(const char *id, const char *val,
@@ -265,7 +269,7 @@ LameEncoder::LameEncoder(int srate, int nch, int bitrate, int stereomode, int qu
   errorstat=0;
   m_nch=nch;
   m_encoder_nch = stereomode == 3 ? 1 : m_nch;
-  m_id3_len=0;
+  m_id3_len=m_ixml_len=0;
 
   m_lamestate=lame.init();
   if (!m_lamestate)
@@ -314,7 +318,7 @@ LameEncoder::LameEncoder(int srate, int nch, int bitrate, int stereomode, int qu
   if (metadata && metadata->GetSize())
   {
     WDL_HeapBuf hb;
-    if (PackID3Chunk(&hb, metadata, true))
+    if (PackID3Chunk(&hb, metadata, true, &m_ixml_len, 0))
     {
       outqueue.Add(hb.Get(), hb.GetSize());
       m_id3_len=hb.GetSize();

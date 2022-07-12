@@ -52,12 +52,12 @@ class LineParserInt // version which does not have any temporary space for buffe
     // parse functions return <0 on error (-1=mem, -2=unterminated quotes), ignore_commentchars = true means don't treat #; as comments
       int parseDestroyBuffer(char *line, bool ignore_commentchars = true, bool backtickquote = true, bool allowunterminatedquotes = false); 
 
-      double gettoken_float(int token, int *success=NULL) const;
-      int gettoken_int(int token, int *success=NULL) const;
-      unsigned int gettoken_uint(int token, int *success=NULL) const;
+      double gettoken_float(int token) const;
+      int gettoken_int(int token) const;
+      unsigned int gettoken_uint(int token) const; // deprecated
       const char *gettoken_str(int token) const;
       char gettoken_quotingchar(int token) const;
-      int gettoken_enum(int token, const char *strlist) const; // null seperated list
+      int gettoken_enum(int token, const char *strlist) const; // null separated list
     #endif
 
     void eattoken() { if (m_eat<m_nt) m_eat++; }
@@ -153,64 +153,34 @@ class LineParserInt // version which does not have any temporary space for buffe
     }
 
 
-    double WDL_LINEPARSE_PREFIX gettoken_float(int token, int *success WDL_LINEPARSE_DEFPARM(NULL)) const
+    double WDL_LINEPARSE_PREFIX gettoken_float(int token) const
     {
-      token+=m_eat;
-      if ((unsigned int)token >= m_nt)
-      {
-        if (success) *success=0;
-        return 0.0;
-      }
-      const char *t=m_tokens[token];
-      if (success)
-        *success=*t?1:0;
+      const char *t = gettoken_str(token);
+      if (!*t) return 0.0;
 
-      // todo: detect d or f prefix for double/float base64 encodings
       char buf[512];
       int ot = 0;
       while (*t&&ot<(int)sizeof(buf)-1) 
       {
         char c=*t++;
         if (c == ',') c = '.';
-        else if (success && (c < '0' || c > '9') && c != '.') *success=0;
         buf[ot++]=c;
       }
       buf[ot] = 0;
       return atof(buf);
     }
 
-    int WDL_LINEPARSE_PREFIX gettoken_int(int token, int *success WDL_LINEPARSE_DEFPARM(NULL)) const
+    int WDL_LINEPARSE_PREFIX gettoken_int(int token) const
     { 
-      token+=m_eat;
-      const char *tok;
-      if ((unsigned int)token >= m_nt || !((tok=m_tokens[token])[0])) 
-      {
-        if (success) *success=0;
-        return 0;
-      }
-      char *tmp;
-      int l;
-      if (tok[0] == '-') l=(int)strtol(tok,&tmp,0);
-      else l=(int)strtoul(tok,&tmp,0);
-      if (success) *success=! (int)(*tmp);
-      return l;
+      const char *tok = gettoken_str(token);
+      return tok[0] == '-' ? (int)strtol(tok,NULL,10) : (int)strtoul(tok, NULL, strnicmp(tok,"0x",2) ? 10 : 16);
     }
 
-    unsigned int WDL_LINEPARSE_PREFIX gettoken_uint(int token, int *success WDL_LINEPARSE_DEFPARM(NULL)) const
+    unsigned int WDL_LINEPARSE_PREFIX gettoken_uint(int token) const // deprecated
     { 
-      token+=m_eat;
-      const char *tok;
-      if ((unsigned int)token >= m_nt || !((tok=m_tokens[token])[0]))
-      {
-        if (success) *success=0;
-        return 0;
-      }
-      char *tmp;      
-      const char* p=tok;
-      if (p[0] == '-') ++p;
-      unsigned int val=(int)strtoul(p, &tmp, 0);
-      if (success) *success=! (int)(*tmp);
-      return val;
+      const char *tok = gettoken_str(token);
+      if (WDL_NOT_NORMALLY(tok[0] == '-')) tok++; // legacy behavior, yuck
+      return (unsigned int) (int) strtoul(tok, NULL, strnicmp(tok,"0x",2) ? 10 : 16);
     }
 
     const char * WDL_LINEPARSE_PREFIX gettoken_str(int token) const
@@ -235,20 +205,13 @@ class LineParserInt // version which does not have any temporary space for buffe
       return 0;
     }
 
-    int WDL_LINEPARSE_PREFIX gettoken_enum(int token, const char *strlist) const // null seperated list
+    int WDL_LINEPARSE_PREFIX gettoken_enum(int token, const char *strlist) const // null separated list
     {
-      token+=m_eat;
-      if ((unsigned int)token >= m_nt) return -1;
-
       int x=0;
-      const char *tt=m_tokens[token];
+      const char *tt=gettoken_str(token);
       if (*tt) while (*strlist)
       {
-#ifdef _WIN32
         if (!stricmp(tt,strlist)) return x;
-#else
-        if (!strcasecmp(tt,strlist)) return x;
-#endif
         while (*strlist) strlist++;
         strlist++;
         x++;

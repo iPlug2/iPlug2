@@ -196,16 +196,6 @@ int GetMenuItemID(HMENU hMenu, int pos)
 bool SetMenuItemModifier(HMENU hMenu, int idx, int flag, int code, unsigned int mask)
 {
   if (WDL_NOT_NORMALLY(hMenu == NULL)) return false;
-
-#if 0 // enable this once we make SWELL_KeyToASCII decent
-  int n2=0;
-  int n1 = SWELL_KeyToASCII(code,flag,&n2);
-  if (n1)
-  {
-    code=n1;
-    flag=n2;
-  }
-#endif
   
   NSMenu *menu=(NSMenu *)hMenu;
   
@@ -229,31 +219,20 @@ bool SetMenuItemModifier(HMENU hMenu, int idx, int flag, int code, unsigned int 
     }
     return false;
   }
-  
+
   bool suppressShift = false;
   unichar arrowKey = 0;
-  int codelow = code&127;
-  if ((code>='A' && code <='Z') ||
-      (code>='0' && code <= '9') ||   
-      ( !(mask&FVIRTKEY) && 
-       ( 
-         codelow == '\'' ||
-         codelow == '/' ||
-         codelow == '\\' ||
-         codelow == '|' ||
-         codelow == '"' || 
-         codelow == ',' ||
-         codelow == '.' || 
-         codelow == '!' ||
-         codelow == '?' ||
-         codelow == '[' || 
-         codelow == ']' 
-        )))      
+
+  if (code >= 'A' && code <= 'Z')
   {
-    arrowKey=codelow;
-    if (!(mask & FSHIFT) && arrowKey < 256) arrowKey=tolower(arrowKey);
-    
-    if (code>='A' && code<='Z') suppressShift=true;
+    arrowKey = (mask & FSHIFT) ? code : (code + 'a' - 'A');
+    suppressShift=true;
+  }
+  else if ((code>='0' && code <= '9') ||
+           code== ' ' ||
+           (!(mask&FVIRTKEY) && (code >= '!' && code <= '~')))
+  {
+    arrowKey=code;
   }
   else if (code >= VK_F1 && code <= VK_F24)
   {
@@ -268,22 +247,24 @@ bool SetMenuItemModifier(HMENU hMenu, int idx, int flag, int code, unsigned int 
     DEFKP(VK_RIGHT,NSRightArrowFunctionKey)
     DEFKP(VK_INSERT,NSInsertFunctionKey)
     DEFKP(VK_DELETE,NSDeleteCharacter)
-    DEFKP(VK_BACK,NSBackspaceCharacter) 
+    DEFKP(VK_BACK,NSBackspaceCharacter)
     DEFKP(VK_HOME,NSHomeFunctionKey)
     DEFKP(VK_END,NSEndFunctionKey)
     DEFKP(VK_NEXT,NSPageDownFunctionKey)
     DEFKP(VK_PRIOR,NSPageUpFunctionKey)
     DEFKP(VK_SUBTRACT,'-')
     DEFKP(VK_RETURN,'\r')
+    DEFKP(VK_TAB,'\t')
+    DEFKP(VK_ESCAPE,27)
     // hmm numpad enter, what to do: DEFKP(VK_RETURN|32768, '\r')
   }
-   
+
   unsigned int mask2=0;
   if (mask&FALT) mask2|=NSAlternateKeyMask;
   if (!suppressShift) if (mask&FSHIFT) mask2|=NSShiftKeyMask;
   if (mask&FCONTROL) mask2|=NSCommandKeyMask;
   if (mask&FLWIN) mask2|=NSControlKeyMask;
-     
+
   [item setKeyEquivalentModifierMask:mask2];
   [item setKeyEquivalent:arrowKey?[NSString stringWithCharacters:&arrowKey length:1]:@""];
   return true;

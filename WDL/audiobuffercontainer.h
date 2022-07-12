@@ -27,6 +27,7 @@ struct PinMapPin
   void clear() { memset(state,0,sizeof(state)); }
   void clear_chan(unsigned int ch) { if (WDL_NORMALLY(ch < PINMAP_PIN_MAX_CHANNELS)) state[ch/STATE_ENT_BITS] &= ~make_mask(ch); }
   void set_chan(unsigned int ch) { if (WDL_NORMALLY(ch < PINMAP_PIN_MAX_CHANNELS)) state[ch/STATE_ENT_BITS] |= make_mask(ch); }
+  void tog_chan(unsigned int ch) { if (WDL_NORMALLY(ch < PINMAP_PIN_MAX_CHANNELS)) state[ch/STATE_ENT_BITS] ^= make_mask(ch); }
   void set_chan_lt(unsigned int cnt)
   {
     if (WDL_NOT_NORMALLY(cnt > PINMAP_PIN_MAX_CHANNELS)) cnt = PINMAP_PIN_MAX_CHANNELS;
@@ -36,6 +37,7 @@ struct PinMapPin
       else { state[x] = full_mask(); cnt -= STATE_ENT_BITS; }
     }
   }
+  void set_excl(unsigned int ch) { clear(); set_chan(ch); }
 
   bool has_chan(unsigned int ch) const { return WDL_NORMALLY(ch < PINMAP_PIN_MAX_CHANNELS) && (state[ch/STATE_ENT_BITS] & make_mask(ch)); }
   bool has_chan_lt(unsigned int cnt) const
@@ -60,7 +62,7 @@ struct PinMapPin
     if (x >= maxch) return false;
 
     WDL_UINT64 s = state[x / STATE_ENT_BITS] >> (x & (STATE_ENT_BITS-1));
-    do
+    for (;;)
     {
       if (s)
       {
@@ -75,10 +77,9 @@ struct PinMapPin
         break;
       }
       x = (x & ~(STATE_ENT_BITS-1)) + STATE_ENT_BITS;
+      if (x >= maxch) break;
       s = state[x / STATE_ENT_BITS];
     }
-    while (x < maxch);
-
 
     *ch = x;
     return false;
@@ -131,7 +132,7 @@ public:
   // true if this mapper is a straight 1:1 passthrough
   bool IsStraightPassthrough() const;
 
-  char* SaveStateNew(int* pLen); // owned
+  const char *SaveStateNew(int* pLen); // owned
   bool LoadState(const char* buf, int len);
 
   WDL_UINT64 m_mapping[CHANNELPINMAPPER_MAXPINS];

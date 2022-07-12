@@ -56,6 +56,7 @@ void ShowBubbleHorizontalActionFunc(IControl* pCaller)
 {
   IGraphics* pGraphics = pCaller->GetUI();
   const IParam* pParam = pCaller->GetParam();
+  assert(pParam && "ShowBubbleHorizontalActionFunc requires a parameter");
   IRECT bounds = pCaller->GetRECT();
   WDL_String display;
   pParam->GetDisplayWithLabel(display);
@@ -66,6 +67,7 @@ void ShowBubbleVerticalActionFunc(IControl* pCaller)
 {
   IGraphics* pGraphics = pCaller->GetUI();
   const IParam* pParam = pCaller->GetParam();
+  assert(pParam && "ShowBubbleVerticalActionFunc requires a parameter");
   IRECT bounds = pCaller->GetRECT();
   WDL_String display;
   pParam->GetDisplayWithLabel(display);
@@ -763,11 +765,11 @@ void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
     SetValue(!GetValue());
   else
   {
-    const double step = 1. / (double(mNumStates) - 1.);
+    const double step = 1.0 / (double(mNumStates-1));
     double val = GetValue();
     val += step;
-    if(val > 1.)
-      val = 0.;
+    if (val > (1.0 + std::numeric_limits<double>::epsilon()))
+      val = 0.0;
     SetValue(val);
   }
   
@@ -852,6 +854,10 @@ void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, floa
       double v = pParam->FromNormalized(oldValue);
       v += d > 0 ? step : -step;
       newValue = pParam->ToNormalized(v);
+    }
+    else
+    {
+      newValue = oldValue;
     }
   }
   else
@@ -970,6 +976,10 @@ void ISliderControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, fl
       double v = pParam->FromNormalized(oldValue);
       v += d > 0 ? step : -step;
       newValue = pParam->ToNormalized(v);
+    }
+    else
+    {
+      newValue = oldValue;
     }
   }
   else

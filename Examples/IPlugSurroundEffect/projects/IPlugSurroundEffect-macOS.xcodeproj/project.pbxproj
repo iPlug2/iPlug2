@@ -164,7 +164,7 @@
 		4F78BE2A22E7406D00AD537E /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
 		4F78BE2D22E7412300AD537E /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F6369DC20A464BB0022C370 /* IGraphicsNanoVG_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F78BE3222E7429B00AD537E /* IPlugAUv3Appex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F78BE3022E7429700AD537E /* IPlugAUv3Appex.m */; };
-		4F78BE3C22E74CD000AD537E /* IPlugAUViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */; };
+		4F78BE3C22E74CD000AD537E /* IPlugAUViewController_vIPlugSurroundEffect.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F98C32C20A7678800F120A9 /* IPlugAUViewController_vIPlugSurroundEffect.xib */; };
 		4F78D88613B6382B0032E0F3 /* IPlugSurroundEffect.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4FD290A8137C34D700CEBE7E /* IPlugSurroundEffect.icns */; };
 		4F78D90B13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
 		4F78D91813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
@@ -674,7 +674,7 @@
 		4F97BD8A213760E200541A17 /* IGraphicsCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphicsCanvas.cpp; sourceTree = "<group>"; };
 		4F97BD8B2137629600541A17 /* IFPSDisplayControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IFPSDisplayControl.h; sourceTree = "<group>"; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugSurroundEffect.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugSurroundEffect.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugAUViewController.xib; path = ../resources/IPlugAUViewController.xib; sourceTree = "<group>"; };
+		4F98C32C20A7678800F120A9 /* IPlugAUViewController_vIPlugSurroundEffect.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugAUViewController_vIPlugSurroundEffect.xib; path = ../resources/IPlugAUViewController_vIPlugSurroundEffect.xib; sourceTree = "<group>"; };
 		4F993FE32306D581000313AF /* IGraphicsPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IGraphicsPrivate.h; path = ../../../IGraphics/IGraphicsPrivate.h; sourceTree = "<group>"; };
 		4F9A82F3213DE80200BE63A4 /* IPopupMenuControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPopupMenuControl.h; sourceTree = "<group>"; };
 		4F9A82F5213DE80300BE63A4 /* IPopupMenuControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPopupMenuControl.cpp; sourceTree = "<group>"; };
@@ -888,7 +888,7 @@
 				4FC46E57231440B4000045E7 /* web */,
 				4F1B4AE32014D33600BC64D4 /* IPlugSurroundEffect-macOS-MainMenu.xib */,
 				4F3FB118202273A500622761 /* IPlugSurroundEffect-macOS.entitlements */,
-				4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */,
+				4F98C32C20A7678800F120A9 /* IPlugAUViewController_vIPlugSurroundEffect.xib */,
 				4FFF72B8214BB71400839091 /* main.rc */,
 				4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */,
 				4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */,
@@ -2004,7 +2004,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F78BE3C22E74CD000AD537E /* IPlugAUViewController.xib in Resources */,
+				4F78BE3C22E74CD000AD537E /* IPlugAUViewController_vIPlugSurroundEffect.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2072,6 +2072,7 @@
 		};
 		4F3EE1BD231438D000004786 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2082,7 +2083,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py\nif [[ $(sw_vers -buildVersion) > \"21\" ]]; then \n  php_binary=/opt/homebrew/bin/php\n  \n  if ! test -f $php_binary; then\n    echo \"$php_binary not found, install php via brew\"\n    exit 1\n  fi\nelse\n  php_binary=/usr/bin/php\nfi\n$php_binary ../../../WDL/swell/mac_resgen.php ../resources/main.rc\n";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py\n./../../../WDL/swell/swell_resgen.sh ../resources/main.rc\n";
 		};
 		4F744D4C14005ADA002FAD90 /* Run Script - clear_audiounit_caches.sh */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2119,6 +2120,7 @@
 		};
 		4FBCC1A21FD59C7300EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2129,11 +2131,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 		4FBCC1B21FD5AE8500EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2144,10 +2147,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py\nif [[ $(sw_vers -buildVersion) > \"21\" ]]; then \n  php_binary=/opt/homebrew/bin/php\n  \n  if ! test -f $php_binary; then\n    echo \"$php_binary not found, install php via brew\"\n    exit 1\n  fi\nelse\n  php_binary=/usr/bin/php\nfi\n$php_binary ../../../WDL/swell/mac_resgen.php ../resources/main.rc\n";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py\n./../../../WDL/swell/swell_resgen.sh ../resources/main.rc\n";
 		};
 		4FBCC1B31FD5AE9F00EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2158,11 +2162,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 		4FBCC1B41FD5AEB700EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2173,11 +2178,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 		4FBCC1B51FD5AED400EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2188,11 +2194,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 		4FFBB8F920863B0E00DDD0E7 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2203,7 +2210,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

@@ -16,6 +16,9 @@ extern "C" {
 #include <sys/stat.h>
 #include <stdio.h>
 
+#define LB_GETTEXTUTF8 (LB_GETTEXT|0x8000)
+#define LB_GETTEXTLENUTF8 (LB_GETTEXTLEN|0x8000)
+
 WDL_WIN32_UTF8_IMPL BOOL SetWindowTextUTF8(HWND hwnd, LPCTSTR str);
 WDL_WIN32_UTF8_IMPL BOOL SetDlgItemTextUTF8(HWND hDlg, int nIDDlgItem, LPCTSTR lpString);
 WDL_WIN32_UTF8_IMPL int GetWindowTextUTF8(HWND hWnd, LPTSTR lpString, int nMaxCount);
@@ -284,6 +287,10 @@ typedef char wdl_utf8_chk_stat_types_assert_failed[sizeof(struct stat) == sizeof
 #define WDL_UTF8_HookTreeView(x)
 #define WDL_UTF8_HookTabCtrl(x)
 #define WDL_UTF8_ListViewConvertDispInfoToW(x)
+
+#define LB_GETTEXTUTF8 LB_GETTEXT
+#define LB_GETTEXTLENUTF8 LB_GETTEXTLEN
+
 
 #endif
 

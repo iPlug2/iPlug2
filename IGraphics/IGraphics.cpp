@@ -133,7 +133,7 @@ void IGraphics::SetLayoutOnResize(bool layoutOnResize)
 
 void IGraphics::RemoveControlWithTag(int ctrlTag)
 {
-  mControls.DeletePtr(GetControlWithTag(ctrlTag));
+  mControls.DeletePtr(GetControlWithTag(ctrlTag), true);
   mCtrlTags.erase(ctrlTag);
   SetAllControlsDirty();
 }
@@ -152,7 +152,7 @@ void IGraphics::RemoveControls(int fromIdx)
       ClearMouseOver();
 
     if(pControl == mInTextEntry)
-      mInTextEntry = nullptr;
+      ClearInTextEntryControl();
 
     if(pControl == mInPopupMenu)
       mInPopupMenu = nullptr;
@@ -180,8 +180,8 @@ void IGraphics::RemoveControl(IControl* pControl)
     ClearMouseOver();
   
   if(pControl == mInTextEntry)
-    mInTextEntry = nullptr;
-  
+    ClearInTextEntryControl();
+
   if(pControl == mInPopupMenu)
     mInPopupMenu = nullptr;
   
@@ -255,7 +255,7 @@ void IGraphics::SetControlValueAfterTextEdit(const char* str)
     mInTextEntry->OnTextEntryCompletion(str, mTextEntryValIdx);
   }
 
-  mInTextEntry = nullptr;
+  ClearInTextEntryControl();
 }
 
 void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)

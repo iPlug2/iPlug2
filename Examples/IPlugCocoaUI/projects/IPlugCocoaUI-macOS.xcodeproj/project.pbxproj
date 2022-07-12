@@ -45,6 +45,10 @@
 		4F35DEAF207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
 		4F35DEB0207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
 		4F35DEB1207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
+		4F36298C27E66B160081397C /* IPlugCocoaViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F0A0F9B271214E2000F66B0 /* IPlugCocoaViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4F36298D27E66B310081397C /* IPlugAUViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FF93DF8209C68A400310D7C /* IPlugAUViewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4F36298E27E66B3D0081397C /* IPlugCocoaUI-Shared.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FD0539C276E3CFF00DD2053 /* IPlugCocoaUI-Shared.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4F36298F27E66DF50081397C /* IPlugCocoaUI-macOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FD0539F276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard */; };
 		4F3862EF2014BBEC0009F402 /* IPlugCocoaUI.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugCocoaUI.mm */; };
 		4F3862F12014BBEC0009F402 /* IPlugCocoaUI.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugCocoaUI.mm */; };
 		4F3862F22014BBEC0009F402 /* IPlugCocoaUI.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugCocoaUI.mm */; };
@@ -103,7 +107,7 @@
 		4F78BE2922E7406D00AD537E /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */; };
 		4F78BE2A22E7406D00AD537E /* IPlugPaths.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F344020C0226200487201 /* IPlugPaths.mm */; };
 		4F78BE3222E7429B00AD537E /* IPlugAUv3Appex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F78BE3022E7429700AD537E /* IPlugAUv3Appex.m */; };
-		4F78BE3C22E74CD000AD537E /* IPlugAUViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */; };
+		4F78BE3C22E74CD000AD537E /* IPlugAUViewController_vIPlugCocoaUI.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F98C32C20A7678800F120A9 /* IPlugAUViewController_vIPlugCocoaUI.xib */; };
 		4F78D88613B6382B0032E0F3 /* IPlugCocoaUI.icns in Resources */ = {isa = PBXBuildFile; fileRef = 4FD290A8137C34D700CEBE7E /* IPlugCocoaUI.icns */; };
 		4F78D90B13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D8ED13B63BA40032E0F3 /* IPlugAPIBase.cpp */; };
 		4F78D91813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F78D90413B63BA50032E0F3 /* IPlugParameter.cpp */; };
@@ -175,8 +179,6 @@
 		4FD05376276DF57400DD2053 /* IPlugCocoaUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A0FA0271215E5000F66B0 /* IPlugCocoaUIViewController.swift */; };
 		4FD05377276DF57500DD2053 /* TypeAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A0FA227121630000F66B0 /* TypeAliases.swift */; };
 		4FD05378276DF57500DD2053 /* IPlugCocoaUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A0FA0271215E5000F66B0 /* IPlugCocoaUIViewController.swift */; };
-		4FD0537B276DF57700DD2053 /* TypeAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A0FA227121630000F66B0 /* TypeAliases.swift */; };
-		4FD0537C276DF57700DD2053 /* IPlugCocoaUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A0FA0271215E5000F66B0 /* IPlugCocoaUIViewController.swift */; };
 		4FD0537D276DF57900DD2053 /* TypeAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A0FA227121630000F66B0 /* TypeAliases.swift */; };
 		4FD0537E276DF57900DD2053 /* IPlugCocoaUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A0FA0271215E5000F66B0 /* IPlugCocoaUIViewController.swift */; };
 		4FD0537F276DF57A00DD2053 /* TypeAliases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F0A0FA227121630000F66B0 /* TypeAliases.swift */; };
@@ -204,8 +206,6 @@
 		4FD053A2276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FD0539F276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard */; };
 		4FD053A3276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FD0539F276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard */; };
 		4FD053A4276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FD0539F276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard */; };
-		4FD053A5276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FD0539F276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard */; };
-		4FD053A6276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FD0539F276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard */; };
 		4FD053A7276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FD0539F276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard */; };
 		4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0413B634AA001D0217 /* swell-dlg.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code -Wno-shorten-64-to-32 -Wno-deprecated-implementations"; }; };
 		4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D1513B634D2001D0217 /* swell-ini.cpp */; };
@@ -602,7 +602,7 @@
 		4F914A5126B4A4F100E19BD1 /* ISender.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ISender.h; path = ../../../IPlug/ISender.h; sourceTree = "<group>"; };
 		4F9313232315CA1100DB2383 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		4F9828E0140A9EB700F3FCC1 /* IPlugCocoaUI.vst3 */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugCocoaUI.vst3; sourceTree = BUILT_PRODUCTS_DIR; };
-		4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugAUViewController.xib; path = ../resources/IPlugAUViewController.xib; sourceTree = "<group>"; };
+		4F98C32C20A7678800F120A9 /* IPlugAUViewController_vIPlugCocoaUI.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = IPlugAUViewController_vIPlugCocoaUI.xib; path = ../resources/IPlugAUViewController_vIPlugCocoaUI.xib; sourceTree = "<group>"; };
 		4F9C097E224D26B40050309D /* IPlugVST3_ControllerBase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugVST3_ControllerBase.h; path = ../../../IPlug/VST3/IPlugVST3_ControllerBase.h; sourceTree = "<group>"; };
 		4FA61F9922E8A96300A92C58 /* tex */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tex; path = ../resources/tex; sourceTree = "<group>"; };
 		4FB600331567CB0A0020189A /* IPlugCocoaUI.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugCocoaUI.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -798,7 +798,7 @@
 				4FC46E57231440B4000045E7 /* web */,
 				4F1B4AE32014D33600BC64D4 /* IPlugCocoaUI-macOS-MainMenu.xib */,
 				4F3FB118202273A500622761 /* IPlugCocoaUI-macOS.entitlements */,
-				4F98C32C20A7678800F120A9 /* IPlugAUViewController.xib */,
+				4F98C32C20A7678800F120A9 /* IPlugAUViewController_vIPlugCocoaUI.xib */,
 				4FFF72B8214BB71400839091 /* main.rc */,
 				4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */,
 				4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */,
@@ -1476,7 +1476,10 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F36298D27E66B310081397C /* IPlugAUViewController.h in Headers */,
 				4F78BE1222E73DD900AD537E /* AUv3Framework.h in Headers */,
+				4F36298C27E66B160081397C /* IPlugCocoaViewController.h in Headers */,
+				4F36298E27E66B3D0081397C /* IPlugCocoaUI-Shared.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1825,7 +1828,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FD053A5276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard in Resources */,
+				4F36298F27E66DF50081397C /* IPlugCocoaUI-macOS-MainInterface.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1843,8 +1846,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4F78BE3C22E74CD000AD537E /* IPlugAUViewController.xib in Resources */,
-				4FD053A6276E41B500DD2053 /* IPlugCocoaUI-macOS-MainInterface.storyboard in Resources */,
+				4F78BE3C22E74CD000AD537E /* IPlugAUViewController_vIPlugCocoaUI.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1915,6 +1917,7 @@
 		};
 		4F3EE1BD231438D000004786 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -1925,7 +1928,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py\nif [[ $(sw_vers -buildVersion) > \"21\" ]]; then \n  php_binary=/opt/homebrew/bin/php\n  \n  if ! test -f $php_binary; then\n    echo \"$php_binary not found, install php via brew\"\n    exit 1\n  fi\nelse\n  php_binary=/usr/bin/php\nfi\n$php_binary ../../../WDL/swell/mac_resgen.php ../resources/main.rc\n";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py\n./../../../WDL/swell/swell_resgen.sh ../resources/main.rc\n";
 		};
 		4F744D4C14005ADA002FAD90 /* Run Script - clear_audiounit_caches.sh */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1962,6 +1965,7 @@
 		};
 		4FBCC1A21FD59C7300EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -1972,11 +1976,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 		4FBCC1B21FD5AE8500EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -1987,10 +1992,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py\nif [[ $(sw_vers -buildVersion) > \"21\" ]]; then \n  php_binary=/opt/homebrew/bin/php\n  \n  if ! test -f $php_binary; then\n    echo \"$php_binary not found, install php via brew\"\n    exit 1\n  fi\nelse\n  php_binary=/usr/bin/php\nfi\n$php_binary ../../../WDL/swell/mac_resgen.php ../resources/main.rc\n";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py\n./../../../WDL/swell/swell_resgen.sh ../resources/main.rc\n";
 		};
 		4FBCC1B31FD5AE9F00EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2001,11 +2007,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 		4FBCC1B41FD5AEB700EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2016,11 +2023,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 		4FBCC1B51FD5AED400EFE550 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2031,11 +2039,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 		4FFBB8F920863B0E00DDD0E7 /* Run Script - prepare_resources-mac.py */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -2046,7 +2055,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-mac.py";
+			shellScript = "python3 ../scripts/prepare_resources-mac.py";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -2075,9 +2084,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FD0537B276DF57700DD2053 /* TypeAliases.swift in Sources */,
 				4F78BE3222E7429B00AD537E /* IPlugAUv3Appex.m in Sources */,
-				4FD0537C276DF57700DD2053 /* IPlugCocoaUIViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2806,7 +2813,7 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugCocoaUI-macOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -2834,7 +2841,7 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugCocoaUI-macOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -2862,7 +2869,7 @@
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugCocoaUI-macOS-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -2904,6 +2911,7 @@
 					"$(EXTRA_AUv3_DEFS)",
 					"$(AUv3_DEFS)",
 					"$(inherited)",
+					FRAMEWORK_BUILD,
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -2924,6 +2932,8 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "IPlugCocoaUI-Swift.h";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 				WRAPPER_EXTENSION = framework;
@@ -2962,6 +2972,7 @@
 					"$(AUv3_DEFS)",
 					"$(EXTRA_AUv3_DEFS)",
 					"$(PLUGIN_DEFS)",
+					FRAMEWORK_BUILD,
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -2982,6 +2993,8 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "IPlugCocoaUI-Swift.h";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 				WRAPPER_EXTENSION = framework;
@@ -3020,6 +3033,7 @@
 					"$(PLUGIN_DEFS)",
 					"$(EXTRA_AUv3_DEFS)",
 					"$(AUv3_DEFS)",
+					FRAMEWORK_BUILD,
 				);
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -3040,6 +3054,8 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
+				SWIFT_OBJC_INTERFACE_HEADER_NAME = "IPlugCocoaUI-Swift.h";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 				WRAPPER_EXTENSION = framework;

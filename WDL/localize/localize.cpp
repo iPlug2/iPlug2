@@ -21,6 +21,7 @@
 #include "../chunkalloc.h"
 #include "../fnv64.h"
 #include "../win32_utf8.h"
+#include "../wdlcstring.h"
 
 
 #define LANGPACK_SCALE_CONSTANT WDL_UINT64_CONST(0x5CA1E00000000000)
@@ -180,9 +181,7 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
         sumtimes[1]+=startTime;
         if (!(stats[1]%100))
         {
-          char buf[512];
-          sprintf(buf,"cached, avg was %fuS\n",sumtimes[1]*10000.0);
-          OutputDebugString(buf);
+          wdl_log("cached, avg was %fuS\n",sumtimes[1]*10000.0);
           sumtimes[1]=0;
         }
 #endif
@@ -245,9 +244,7 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
   sumtimes[0]+=startTime;
   if (!(stats[0]%100))
   {
-    char buf[512];
-    sprintf(buf,"uncached , avg was %f\n",sumtimes[0]*10000.0);
-    OutputDebugString(buf);
+    wdl_log("uncached , avg was %f\n",sumtimes[0]*10000.0);
     sumtimes[0]=0;
   }
 #endif
@@ -946,6 +943,11 @@ void WDL_fgets_as_utf8(char *linebuf, int linebuf_size, FILE *fp, int *format_fl
   }
 }
 
+WDL_AssocArray<WDL_UINT64, char *> *WDL_GetLangpackSection(const char *sec)
+{
+  return g_translations.Get(sec);
+}
+
 WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const char *onlySec_name)
 {
   WDL_AssocArray<WDL_UINT64, char *> *rv=NULL;
@@ -1080,6 +1082,22 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const c
   }
 
   return rv;
+}
+
+void WDL_SetLangpackFallbackEntry(const char *src_sec, WDL_UINT64 src_v, const char *dest_sec, WDL_UINT64 dest_v)
+{
+  WDL_AssocArray<WDL_UINT64, char *> *sec = g_translations.Get(src_sec);
+  char *v = sec ? sec->Get(src_v) : NULL;
+  if (!v) return;
+  sec = g_translations.Get(dest_sec);
+  if (!sec)
+  {
+    sec = new WDL_AssocArray<WDL_UINT64, char *>(uint64cmpfunc);
+    g_translations.Insert(dest_sec,sec);
+  }
+  else if (sec->Get(dest_v)) return;
+
+  sec->Insert(dest_v,v);
 }
 
 

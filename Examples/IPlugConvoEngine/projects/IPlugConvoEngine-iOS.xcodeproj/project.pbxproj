@@ -619,7 +619,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "python ../scripts/prepare_resources-ios.py app\n";
+			shellScript = "python3 ../scripts/prepare_resources-ios.py app\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -996,6 +996,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREFIX_HEADER = $IPLUG_PATH/IPlugOBJCPrefix.pch;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(DEBUG_DEFS)",
 					"$(EXTRA_DEBUG_DEFS)",
