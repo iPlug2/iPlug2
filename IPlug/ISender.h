@@ -71,6 +71,7 @@ public:
     mQueue.Push(d);
   }
 
+  /** This is called on the main thread and can be used to transform the data, e.g. take an FFT. */
   virtual void PrepareDataForUI(ISenderData<MAXNC, T>& d) { /* NO-OP*/ }
   
   /** Pops elements off the queue and sends messages to controls.
@@ -395,10 +396,21 @@ template <int MAXNC = 1, int QUEUE_SIZE = 64, int MAXBUF = 128>
 class IBufferSender : public ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF>>
 {
 public:
+  using TDataPacket = std::array<float, MAXBUF>;
+  using TSender = ISender<MAXNC, QUEUE_SIZE, TDataPacket>;
+  
   IBufferSender(double minThresholdDb = -90., int bufferSize = MAXBUF)
-  : ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF>>()
-  , mThreshold(static_cast<float>(DBToAmp(minThresholdDb)))
+  : TSender()
   {
+    if (minThresholdDb == -std::numeric_limits<double>::infinity())
+    {
+      mThreshold = -1.0f;
+    }
+    else
+    {
+      mThreshold = static_cast<float>(DBToAmp(minThresholdDb));
+    }
+    
     SetBufferSize(bufferSize);
   }
 
@@ -421,7 +433,7 @@ public:
           mBuffer.ctrlTag = ctrlTag;
           mBuffer.nChans = nChans;
           mBuffer.chanOffset = chanOffset;
-          ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF>>::PushData(mBuffer);
+          TSender::PushData(mBuffer);
         }
 
         mPreviousSum = sum;
@@ -451,7 +463,7 @@ public:
   int GetBufferSize() const { return mBufferSize; }
   
 private:
-  ISenderData<MAXNC, std::array<float, MAXBUF>> mBuffer;
+  ISenderData<MAXNC, TDataPacket> mBuffer;
   int mBufCount = 0;
   int mBufferSize = MAXBUF;
   std::array<float, MAXNC> mRunningSum {0.};
@@ -464,6 +476,7 @@ class ISpectrumSender : public IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>
 {
 public:
   using TDataPacket = std::array<float, MAX_FFT_SIZE>;
+  using TBufferSender = IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>;
   
   enum class EWindowType {
     Hann = 0,
@@ -473,9 +486,15 @@ public:
     Rectangular
   };
   
-  ISpectrumSender(int fftSize = 1024, int overlap = 2, EWindowType window = EWindowType::Hann)
-  : IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>(-90.0, fftSize)
+  enum class EOutputType {
+    Complex = 0,
+    MagPhase,
+  };
+  
+  ISpectrumSender(int fftSize = 1024, int overlap = 2, EWindowType window = EWindowType::Hann, EOutputType outputType = EOutputType::MagPhase)
+  : TBufferSender(-std::numeric_limits<double>::infinity(), fftSize)
   , mWindowType(window)
+  , mOutputType(outputType)
   {
     WDL_fft_init();
     SetFFTSizeAndOverlap(fftSize, overlap);
@@ -484,7 +503,7 @@ public:
   void SetFFTSizeAndOverlap(int fftSize, int overlap)
   {
     mOverlap = overlap;
-    IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>::SetBufferSize(fftSize);
+    TBufferSender::SetBufferSize(fftSize);
     SetFFTSize();
     CalculateWindow();
     CalculateScalingFactors();
@@ -498,7 +517,7 @@ public:
   
   void PrepareDataForUI(ISenderData<MAXNC, TDataPacket>& d) override
   {
-    auto fftSize = IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>::GetBufferSize();
+    auto fftSize = TBufferSender::GetBufferSize();
 
     for (auto s = 0; s < fftSize; s++)
     {
@@ -555,7 +574,7 @@ private:
   
   void CalculateWindow()
   {
-    const auto fftSize = IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>::GetBufferSize();
+    const auto fftSize = TBufferSender::GetBufferSize();
 
     const float M = static_cast<float>(fftSize - 1);
     
@@ -592,7 +611,7 @@ private:
   
   void CalculateScalingFactors()
   {
-    const auto fftSize = IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>::GetBufferSize();
+    const auto fftSize = TBufferSender::GetBufferSize();
     const float M = static_cast<float>(fftSize - 1);
 
     auto scaling = 0.0f;
@@ -608,15 +627,28 @@ private:
   
   void Permute(int ch, int frameIdx)
   {
-    const auto fftSize = IBufferSender<MAXNC, QUEUE_SIZE, MAX_FFT_SIZE>::GetBufferSize();
+    const auto fftSize = TBufferSender::GetBufferSize();
     WDL_fft(mSTFTFrames[frameIdx].bins[ch].data(), fftSize, false);
 
-    for (auto i = 0; i < fftSize; ++i)
+    if (mOutputType == EOutputType::Complex)
     {
-      int sortIdx = WDL_fft_permute(fftSize, i);
-      WDL_FFT_REAL re = mSTFTFrames[frameIdx].bins[ch][sortIdx].re;
-      WDL_FFT_REAL im = mSTFTFrames[frameIdx].bins[ch][sortIdx].im;
-      mSTFTOutput[ch][i] = std::sqrt(2.0f * (re * re + im * im) / mScalingFactor);
+      auto nBins = fftSize/2;
+      for (auto i = 0; i < nBins; ++i)
+      {
+        int sortIdx = WDL_fft_permute(fftSize, i);
+        mSTFTOutput[ch][i] = mSTFTFrames[frameIdx].bins[ch][sortIdx].re;
+        mSTFTOutput[ch][i + nBins] = mSTFTFrames[frameIdx].bins[ch][sortIdx].im;
+      }
+    }
+    else // magPhase
+    {
+      for (auto i = 0; i < fftSize; ++i)
+      {
+        int sortIdx = WDL_fft_permute(fftSize, i);
+        auto re = mSTFTFrames[frameIdx].bins[ch][sortIdx].re;
+        auto im = mSTFTFrames[frameIdx].bins[ch][sortIdx].im;
+        mSTFTOutput[ch][i] = std::sqrt(2.0f * (re * re + im * im) / mScalingFactor);
+      }
     }
   }
   
@@ -627,7 +659,8 @@ private:
   };
   
   int mOverlap = 2;
-  EWindowType mWindowType = EWindowType::Hann;
+  EWindowType mWindowType;
+  EOutputType mOutputType;
   std::array<float, MAX_FFT_SIZE> mWindow;
   std::vector<STFTFrame> mSTFTFrames;
   std::array<std::array<float, MAX_FFT_SIZE>, MAXNC> mSTFTOutput;
