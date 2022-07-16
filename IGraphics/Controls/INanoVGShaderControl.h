@@ -35,6 +35,7 @@ public:
   : IControl(bounds)
   {
     SetVertexShaderStr(
+#if defined IGRAPHICS_GL2
     R"(
       attribute vec4 apos;
       attribute vec4 acolor;
@@ -43,16 +44,25 @@ public:
         color = acolor;
         gl_Position = apos;
       }
-    )");
+    )"
+#elif defined IGRAPHICS_GL3
+#elif defined IGRAPHICS_METAL
+#endif
+    );
     
     // "precision lowp float;"
     SetFragmentShaderStr(
+#if defined IGRAPHICS_GL2
     R"(
       varying vec4 color;
       void main() {
         gl_FragColor = color;
       }
-    )");
+    )"
+#elif defined IGRAPHICS_GL3
+#elif defined IGRAPHICS_GL3
+#endif
+   );
   }
   
   virtual ~INanoVGShaderControl()
