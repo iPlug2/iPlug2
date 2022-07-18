@@ -111,14 +111,14 @@ public:
   
   void SetFreqRange(float freqLo, float freqHi, float sampleRate)
   {
-    mLogXLo = std::logf(freqLo / (sampleRate / 2.f));
-    mLogXHi = std::logf(freqHi / (sampleRate / 2.f));
+    mLogXLo = std::log(freqLo / (sampleRate / 2.f));
+    mLogXHi = std::log(freqHi / (sampleRate / 2.f));
   }
   
   void SetDBRange(float dbLo, float dbHi)
   {
-    mLogYLo = std::logf(std::powf(10.f, dbLo / 10.0));
-    mLogYHi = std::logf(std::powf(10.f, dbHi / 10.0));
+    mLogYLo = std::log(std::pow(10.f, dbLo / 10.0));
+    mLogYHi = std::log(std::pow(10.f, dbHi / 10.0));
   }
   
 protected:
@@ -231,8 +231,8 @@ protected:
     
   float XCalc(float xNorm) const { return mWidgetBounds.L + (mWidgetBounds.W() * xNorm); }
   float YCalc(float yNorm) const { return mWidgetBounds.B - (mWidgetBounds.H() * yNorm); }
-  float CalcXNorm(float x) const { return (std::logf(x) - mLogXLo) / (mLogXHi - mLogXLo); }
-  float CalcYNorm(float y) const { return (std::logf(y) - mLogYLo) / (mLogYHi - mLogYLo); }
+  float CalcXNorm(float x) const { return (std::log(x) - mLogXLo) / (mLogXHi - mLogXLo); }
+  float CalcYNorm(float y) const { return (std::log(y) - mLogYLo) / (mLogYHi - mLogYLo); }
   int NPoints(int ch) const { return static_cast<int>(mXPoints[ch].size()); }
 
   float mOptimiseX = 1.f;
