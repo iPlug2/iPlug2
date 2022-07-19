@@ -266,7 +266,6 @@ private:
     glGenerateMipmap(GL_TEXTURE_2D);
   }
 
-  float CalcXNorm(float x) const { return (std::log(x) - mLogXLo) / (mLogXHi - mLogXLo); }
   float CalcXNormInv(float x) const { return (std::exp(mLogXLo + x/(mLogXHi - mLogXLo))); }
   float CalcYNorm(float y) const { return (std::log(y) - mLogYLo) / (mLogYHi - mLogYLo); }
   
