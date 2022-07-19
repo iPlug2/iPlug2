@@ -89,7 +89,9 @@ public:
 #endif
 
     // tmp
-    // Change the path here to point to your colormap
+    // Clone thishttps://github.com/kbinani/colormap-shaders
+    // into Dependencies/IGraphics
+    // and change the path here to point to one of the colormap files
     std::string shaderColormap = AppendColormap(shader, "/home/nibbler/dev/freelance/oli/iPlug2/Dependencies/IGraphics/colormap-shaders/shaders/glsl/MATLAB_jet.frag");
     
     SetFragmentShaderStr(shaderColormap.c_str());
