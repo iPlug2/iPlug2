@@ -55,9 +55,12 @@ public:
 #if defined IGRAPHICS_GL2
     R"(
       uniform sampler2D texid;
+      uniform float xorigin;
       varying vec2 texcoord;
       void main() {
-        vec4 col = texture2D(texid, vec2(texcoord.y, texcoord.x));
+        float u = texcoord.x + xorigin;
+        if (u > 1.0) u -= 1.0;
+        vec4 col = texture2D(texid, vec2(texcoord.y, u));
         gl_FragColor = vec4(col.r, col.r, col.r, 1.0);
       }
     )"
@@ -133,9 +136,12 @@ public:
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mTexId);
-    GLint loc = glGetUniformLocation(mProgram, "texid");
-    glUniform1i(loc, 0);
- 
+    GLint texLoc = glGetUniformLocation(mProgram, "texid");
+    glUniform1i(texLoc, 0);
+
+    GLint xOriginLog = glGetUniformLocation(mProgram, "xorigin");
+    glUniform1f(xOriginLog, ((float)mTextureBufWriteIndex)/mNumRows);
+    
     glDrawArrays(GL_QUADS, 0, 4);
   }
   
