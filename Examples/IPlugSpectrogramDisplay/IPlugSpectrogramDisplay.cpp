@@ -17,7 +17,7 @@ IPlugSpectrogramDisplay::IPlugSpectrogramDisplay(const InstanceInfo& info)
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT b = pGraphics->GetBounds();
-    pGraphics->AttachControl(new IVSpectrumAnalyzerControl<>(b), 0);
+    pGraphics->AttachControl(new ISpectrogramControl<>(b), 0);
   };
 #endif
 }
