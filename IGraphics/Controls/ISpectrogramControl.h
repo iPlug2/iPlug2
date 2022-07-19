@@ -55,12 +55,24 @@ public:
 #if defined IGRAPHICS_GL2
     R"(
       uniform sampler2D texid;
-      uniform float xorigin;
+      uniform float texorigin;
+      uniform int dir;
       varying vec2 texcoord;
       void main() {
-        float u = texcoord.x + xorigin;
-        if (u > 1.0) u -= 1.0;
-        vec4 col = texture2D(texid, vec2(texcoord.y, u));
+        vec2 tc;
+        if (dir == 0)
+        {
+          float t = texcoord.y + texorigin;
+          if (t > 1.0) t -= 1.0;
+          tc = vec2(texcoord.x, t);
+        }
+        else
+        {
+          float t = texcoord.x + texorigin;
+          if (t > 1.0) t -= 1.0;
+          tc = vec2(texcoord.y, t);
+        }
+        vec4 col = texture2D(texid, tc);
         gl_FragColor = vec4(col.r, col.r, col.r, 1.0);
       }
     )"
@@ -139,8 +151,11 @@ public:
     GLint texLoc = glGetUniformLocation(mProgram, "texid");
     glUniform1i(texLoc, 0);
 
-    GLint xOriginLog = glGetUniformLocation(mProgram, "xorigin");
+    GLint xOriginLog = glGetUniformLocation(mProgram, "texorigin");
     glUniform1f(xOriginLog, ((float)mTextureBufWriteIndex)/mNumRows);
+
+    GLint dirLoc = glGetUniformLocation(mProgram, "dir");
+    glUniform1i(dirLoc, (int)mDirection);
     
     glDrawArrays(GL_QUADS, 0, 4);
   }
