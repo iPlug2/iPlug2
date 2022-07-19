@@ -16,6 +16,11 @@
  * @copydoc ISpectrogramControl
  */
 
+#include <string>
+#include <fstream>
+#include <streambuf>
+#include <sstream>
+
 #include "INanoVGShaderControl.h"
 
 BEGIN_IPLUG_NAMESPACE
@@ -51,13 +56,15 @@ public:
 #endif
     );
      
-    SetFragmentShaderStr(
 #if defined IGRAPHICS_GL2
-    R"(
+    const char *shader = R"(
       uniform sampler2D texid;
       uniform float texorigin;
       uniform int dir;
       varying vec2 texcoord;
+
+      vec4 colormap(float x);
+
       void main() {
         vec2 tc;
         if (dir == 0)
@@ -73,14 +80,20 @@ public:
           tc = vec2(texcoord.y, t);
         }
         vec4 col = texture2D(texid, tc);
-        gl_FragColor = vec4(col.r, col.r, col.r, 1.0);
+        float x = col.r;
+        gl_FragColor = colormap(x);
       }
-    )"
+    )";
 #elif defined IGRAPHICS_GL3
 #elif defined IGRAPHICS_GL3
 #endif
-   );
 
+    // tmp
+    // Change the path here to point to your colormap
+    std::string shaderColormap = AppendColormap(shader, "/home/nibbler/dev/freelance/oli/iPlug2/Dependencies/IGraphics/colormap-shaders/shaders/glsl/MATLAB_jet.frag");
+    
+    SetFragmentShaderStr(shaderColormap.c_str());
+      
     CheckSpectrogramDataSize();
 
     SetFreqRange(20.f, 20000.f, 44100.f);
@@ -152,7 +165,8 @@ public:
     glUniform1i(texLoc, 0);
 
     GLint xOriginLog = glGetUniformLocation(mProgram, "texorigin");
-    glUniform1f(xOriginLog, ((float)mTextureBufWriteIndex)/mNumRows);
+    glUniform1f(xOriginLog,
+                ((float)mTextureBufWriteIndex)/(mNumRows - 1));
 
     GLint dirLoc = glGetUniformLocation(mProgram, "dir");
     glUniform1i(dirLoc, (int)mDirection);
@@ -268,7 +282,19 @@ private:
 
   float CalcXNormInv(float x) const { return (std::exp(mLogXLo + x/(mLogXHi - mLogXLo))); }
   float CalcYNorm(float y) const { return (std::log(y) - mLogYLo) / (mLogYHi - mLogYLo); }
-  
+
+  std::string AppendColormap(const char *shader, const char *colormapFile)
+  {
+    std::ifstream strm(colormapFile);
+    std::string str((std::istreambuf_iterator<char>(strm)),
+                    std::istreambuf_iterator<char>());
+    
+    std::string shstr(shader);
+    shstr += str;
+    
+    return shstr;
+  }
+                       
   // Raw buffer used to generate the texture
   // (kind of circular buffer)
   WDL_TypedBuf<float> mTextureBuf;
