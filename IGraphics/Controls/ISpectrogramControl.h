@@ -33,6 +33,7 @@ public:
   , mNumRows(numRows)
   , mDirection(direction)
   , mNeedUpdateTexture(true)
+  , mTextureBufWriteIndex(0)
   {
     SetVertexShaderStr(
 #if defined IGRAPHICS_GL2
@@ -56,7 +57,7 @@ public:
       uniform sampler2D texid;
       varying vec2 texcoord;
       void main() {
-        vec4 col = texture2D(texid, texcoord);
+        vec4 col = texture2D(texid, vec2(texcoord.y, texcoord.x));
         gl_FragColor = vec4(col.r, col.r, col.r, 1.0);
       }
     )"
@@ -65,7 +66,10 @@ public:
 #endif
    );
 
-    mSpectrogramData.resize((mFFTSize / 2)*mNumRows);
+    CheckSpectrogramDataSize();
+
+    SetFreqRange(20.f, 20000.f, 44100.f);
+    SetDBRange(-90.f, 0.f);
   }
   
   ~ISpectrogramControl()
@@ -75,7 +79,7 @@ public:
   void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
     if (!IsDisabled() && msgTag == ISender<>::kUpdateMessage)
-    {
+    { 
       IByteStream stream(pData, dataSize);
       
       int pos = 0;
@@ -84,7 +88,8 @@ public:
       
       for (auto c = d.chanOffset; c < (d.chanOffset + d.nChans); c++)
       {
-        CalculateSpectrogram(c, d.vals[c].data(), (mFFTSize / 2));
+        ScaleSpectrogramData(c, d.vals[c].data(), mFFTSize / 2);
+        UpdateSpectrogram(c, d.vals[c].data());
       }
       
       SetDirty(false);
@@ -96,9 +101,8 @@ public:
     assert(fftSize > 0);
     assert(fftSize <= MAX_FFT_SIZE);
     mFFTSize = fftSize;
-    
-    if (mSpectrogramData.size() != (mFFTSize / 2)*mNumRows)
-      mSpectrogramData.resize((mFFTSize / 2)*mNumRows);
+
+    CheckSpectrogramDataSize();
   }
   
   void DrawToFBO(int w, int h) override
@@ -146,29 +150,79 @@ public:
     g.DrawText(mText, "Spectrogram", mRECT);
   }
 
+  void SetFreqRange(float freqLo, float freqHi, float sampleRate)
+  {
+    mLogXLo = std::log(freqLo / (sampleRate / 2.f));
+    mLogXHi = std::log(freqHi / (sampleRate / 2.f));
+  }
+  
+  void SetDBRange(float dbLo, float dbHi)
+  {
+    mLogYLo = std::log(std::pow(10.f, dbLo / 10.0));
+    mLogYHi = std::log(std::pow(10.f, dbHi / 10.0));
+  }
+  
   //void OnMouseDown(float x, float y, const IMouseMod& mod) override {}
   //void OnMouseUp(float x, float y, const IMouseMod& mod) override {}
   //void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override {}
 
 protected:
-  void CalculateSpectrogram(int ch, const float* powerSpectrum, int size)
+  virtual void ScaleSpectrogramData(int ch, float* powerSpectrum, int size)
   {
-    // Generate random texture
-    for (int i = 0; i < mSpectrogramData.size(); i++)
-    {
-      float rnd = ((float)rand())/RAND_MAX;
-      mSpectrogramData[i] = rnd;
-    }
+    // Scale X
+    if (mTmpBuf.GetSize() != size)
+      mTmpBuf.Resize(size);
+    memcpy(mTmpBuf.Get(), powerSpectrum, size*sizeof(float));
 
+    float xRecip = 1.f / static_cast<float>(size);
+    // Start at 1, don't use the DC bin
+    for (int i = 1; i < size; i++)
+    {
+      // Possible improvement: interpolation with the 2 closest values
+      float x = CalcXNormInv(i * xRecip);
+      powerSpectrum[(int)(x * size)] = mTmpBuf.Get()[i];
+    }
+    
+    // Scale Y
+    for (int i = 0; i < size; i++)
+      powerSpectrum[i] = CalcYNorm(powerSpectrum[i]);
+  }
+    
+  void UpdateSpectrogram(int ch, const float* powerSpectrum)
+  {
+    // tmp
+    if (ch != 0)
+      return;
+    
+    int rowIndex = mTextureBufWriteIndex++ % mNumRows;
+    memcpy(&mTextureBuf.Get()[rowIndex*(mFFTSize / 2)],
+           powerSpectrum,
+           (mFFTSize / 2)*sizeof(float));
+    
     mNeedUpdateTexture = true;
   }
 
-  int mFFTSize = 2048;
+  int mFFTSize = 1024;
   int mNumRows = 128;
+
+  float mLogXLo;
+  float mLogXHi;
+  float mLogYLo;
+  float mLogYHi;
   
 private:
-  void CreateTexture()
+  void CheckSpectrogramDataSize()
   {
+    if (mTextureBuf.GetSize() != (mFFTSize / 2)*mNumRows)
+    {
+      mTextureBuf.Resize((mFFTSize / 2)*mNumRows);
+      memset(mTextureBuf.Get(), 0,
+             (mFFTSize / 2)*mNumRows*sizeof(float));
+    }
+  }
+  
+  void CreateTexture()
+  {    
     glGenTextures(1, &mTexId);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mTexId);
@@ -181,22 +235,31 @@ private:
 
     // Float format texture, 1 component
 #ifdef  __APPLE__ // Apple
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, mNumRows, (mFFTSize / 2),
-                 0, GL_RED, GL_FLOAT, &mSpectrogramData[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, (mFFTSize / 2), mNumRows,
+                 0, GL_RED, GL_FLOAT, mTextureBuf.Get());
 #else // Windows or Linux
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mNumRows, (mFFTSize / 2),
-                 0, GL_RED, GL_FLOAT, &mSpectrogramData[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (mFFTSize / 2), mNumRows,
+                 0, GL_RED, GL_FLOAT, mTextureBuf.Get());
 #endif
     
     glGenerateMipmap(GL_TEXTURE_2D);
   }
+
+  float CalcXNorm(float x) const { return (std::log(x) - mLogXLo) / (mLogXHi - mLogXLo); }
+  float CalcXNormInv(float x) const { return (std::exp(mLogXLo + x/(mLogXHi - mLogXLo))); }
+  float CalcYNorm(float y) const { return (std::log(y) - mLogYLo) / (mLogYHi - mLogYLo); }
   
-  std::vector<float> mSpectrogramData;
+  // Raw buffer used to generate the texture
+  // (kind of circular buffer)
+  WDL_TypedBuf<float> mTextureBuf;
+  int mTextureBufWriteIndex;
   
   EDirection mDirection;
 
   bool mNeedUpdateTexture;
   unsigned int mTexId;
+
+  WDL_TypedBuf<float> mTmpBuf;
 };
 
 END_IGRAPHICS_NAMESPACE
