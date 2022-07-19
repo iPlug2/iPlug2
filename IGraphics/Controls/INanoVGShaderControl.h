@@ -20,6 +20,8 @@
  * @copydoc INanoVGShaderControl
  */
 
+#include "IGraphics_select.h"
+
 #include "IControl.h"
 
 #include "IGraphicsNanoVG.h"
@@ -199,14 +201,17 @@ private:
     glAttachShader(program, vertexShader);
     glAttachShader(program, fragmentShader);
     glBindAttribLocation(program, 0, "apos");
-    glBindAttribLocation(program, 1, "acolor");
+    //glBindAttribLocation(program, 1, "acolor");
+    glBindAttribLocation(program, 1, "atexcoord"); // tmp
     glLinkProgram(program);
     return program;
   };
   
   WDL_String mVertexShaderStr;
   WDL_String mFragmentShaderStr;
+protected: // tmp
   GLuint mProgram;
+private:
   NVGframebuffer* mFBO = nullptr;
   int mInitialFBO = 0;
   bool invalidateFBO = true;
