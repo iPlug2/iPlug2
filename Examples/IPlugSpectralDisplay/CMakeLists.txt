@@ -18,6 +18,8 @@ set(IPLUG2_DIR ${CMAKE_SOURCE_DIR}/../..)
 include(${IPLUG2_DIR}/iPlug2.cmake)
 find_package(iPlug2 REQUIRED)
 
+include(${IPLUG2_DIR}/Scripts/cmake/WDL.cmake)
+
 set(dir "${CMAKE_SOURCE_DIR}")
 set(SRC_FILES
   "${dir}/config.h"
@@ -48,17 +50,17 @@ endif()
 # For typing convenience the target name is put into a variable.
 set(tgt ${CMAKE_PROJECT_NAME}-app)
 add_executable(${tgt} WIN32 MACOSX_BUNDLE ${SRC_FILES})
-iplug_target_add(${tgt} PUBLIC LINK iPlug2_APP _base RESOURCE ${RES_FILES})
+iplug_target_add(${tgt} PUBLIC LINK iPlug2_APP _base _wdl RESOURCE ${RES_FILES})
 # You MUST call iplug_configure_target(<target_name> <app|vst2|vst3|...>) for things to build correctly.
 iplug_configure_target(${tgt} app)
 
 set(tgt ${CMAKE_PROJECT_NAME}-vst2)
 add_library(${tgt} MODULE ${SRC_FILES})
-iplug_target_add(${tgt} PUBLIC LINK iPlug2_VST2 _base RESOURCE ${RES_FILES})
+iplug_target_add(${tgt} PUBLIC LINK iPlug2_VST2 _base _wdl RESOURCE ${RES_FILES})
 iplug_configure_target(${tgt} vst2)
 
 set(tgt ${CMAKE_PROJECT_NAME}-vst3)
 add_library(${tgt} MODULE ${SRC_FILES})
-iplug_target_add(${tgt} PUBLIC LINK iPlug2_VST3 _base RESOURCE ${RES_FILES})
+iplug_target_add(${tgt} PUBLIC LINK iPlug2_VST3 _base _wdl RESOURCE ${RES_FILES})
 iplug_configure_target(${tgt} vst3)
 
