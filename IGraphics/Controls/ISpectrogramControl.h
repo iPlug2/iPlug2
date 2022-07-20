@@ -83,19 +83,45 @@ public:
         float x = col.r;
         gl_FragColor = colormap(x);
       }
+    
+    // MATLAB_jet.frag
+    float colormap_red(float x) {
+        if (x < 0.7) {
+            return 4.0 * x - 1.5;
+        } else {
+            return -4.0 * x + 4.5;
+        }
+    }
+
+    float colormap_green(float x) {
+        if (x < 0.5) {
+            return 4.0 * x - 0.5;
+        } else {
+            return -4.0 * x + 3.5;
+        }
+    }
+
+    float colormap_blue(float x) {
+        if (x < 0.3) {
+           return 4.0 * x + 0.5;
+        } else {
+           return -4.0 * x + 2.5;
+        }
+    }
+
+    vec4 colormap(float x) {
+        float r = clamp(colormap_red(x), 0.0, 1.0);
+        float g = clamp(colormap_green(x), 0.0, 1.0);
+        float b = clamp(colormap_blue(x), 0.0, 1.0);
+        return vec4(r, g, b, 1.0);
+    }
+    
     )";
-#elif defined IGRAPHICS_GL3
 #elif defined IGRAPHICS_GL3
 #endif
 
-    // tmp
-    // Clone this: https://github.com/kbinani/colormap-shaders
-    // into Dependencies/IGraphics
-    // and change the path here to point to one of the colormap files
-    std::string shaderColormap = AppendColormap(shader, "/home/nibbler/dev/freelance/oli/iPlug2/Dependencies/IGraphics/colormap-shaders/shaders/glsl/MATLAB_jet.frag");
+    SetFragmentShaderStr(shader);
     
-    SetFragmentShaderStr(shaderColormap.c_str());
-      
     CheckSpectrogramDataSize();
 
     SetFreqRange(20.f, 20000.f, 44100.f);
@@ -285,18 +311,6 @@ private:
   float CalcXNormInv(float x) const { return (std::exp(mLogXLo + x/(mLogXHi - mLogXLo))); }
   float CalcYNorm(float y) const { return (std::log(y) - mLogYLo) / (mLogYHi - mLogYLo); }
 
-  std::string AppendColormap(const char *shader, const char *colormapFile)
-  {
-    std::ifstream strm(colormapFile);
-    std::string str((std::istreambuf_iterator<char>(strm)),
-                    std::istreambuf_iterator<char>());
-    
-    std::string shstr(shader);
-    shstr += str;
-    
-    return shstr;
-  }
-                       
   // Raw buffer used to generate the texture
   // (kind of circular buffer)
   WDL_TypedBuf<float> mTextureBuf;
