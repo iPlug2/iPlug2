@@ -63,6 +63,17 @@ spin() {
     printf "    \b\b\b\b"
 }
 
+git_clone_commit() {
+    # git_clone_commit <git_url> <dest_dir> <commit_hash>
+    mkdir -p "$2"
+    pushd "$2"
+    git init
+    git remote add origin "$1"
+    git fetch --depth 1 origin "$3"
+    git checkout FETCH_HEAD
+    popd
+}
+
 cd "${0%/*}"
 
 echo
@@ -171,9 +182,8 @@ then
   echo "Found skia"
 else
   echo "Downloading skia"
-  git clone $SKIA_URL "$SRC_DIR/skia"
+  git_clone_commit $SKIA_URL "$SRC_DIR/skia" $SKIA_VERSION
   cd "$SRC_DIR/skia"
-  git checkout $SKIA_VERSION
   echo "Patching skia"
   git apply "$IGRAPHICS_DEPS_DIR/skia.patch" 
   rm -r -f .git

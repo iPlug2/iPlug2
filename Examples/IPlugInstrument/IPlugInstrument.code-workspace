@@ -6,7 +6,20 @@
 	],
 	"settings": {
 		"files.associations": {
-			"algorithm": "cpp"
-		}
+			"algorithm": "cpp",
+			"cstdlib": "cpp",
+			"cstring": "cpp"
+		},
+		"editor.tabSize": 2,
+		"C_Cpp.default.cppStandard": "c++17",
+		"C_Cpp.default.defines": [
+			"IGRAPHICS_GL=1",
+			"IGRAPHICS_GL3=1",
+			"IGRAPHICS_NANOVG=1",
+			"APP_API",
+			"SWELL_TARGET_GDK",
+			"OS_LINUX",
+			"_DEBUG"
+		]
 	}
 }

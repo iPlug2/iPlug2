@@ -23,6 +23,10 @@
 #include <windows.h>
 #include <Shlobj.h>
 #include <Shlwapi.h>
+#elif defined OS_LINUX
+#include <dlfcn.h>
+#include <limits.h>
+#include <sys/stat.h>
 #endif
 
 BEGIN_IPLUG_NAMESPACE
@@ -275,6 +279,93 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
     }
   }
   return EResourceLocation::kNotFound;
+}
+
+#elif defined OS_LINUX
+#pragma mark - OS_LINUX
+
+// Get the file path for the module where specified symbol is defined
+static bool GetFileNameFor(void* code, char* path, int size)
+{
+  Dl_info info;
+
+  if(!code || !path || !size)
+  {
+    return false;
+  }
+
+  if(!dladdr(code, &info) || (strlen(info.dli_fname) + 1 > size))
+  {
+    *path = 0; // the path is too long
+    return false;
+  }
+
+  strcpy(path, info.dli_fname);
+  return true;
+}
+
+EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance, const char*)
+{
+  char path[PATH_MAX];
+  
+  if (CStringHasContents(name) && GetFileNameFor(reinterpret_cast<void*>(GetFileNameFor), path, PATH_MAX))
+  {
+    for (char *s = path + strlen(path) - 1; s >= path; --s)
+    {
+      if(*s == WDL_DIRCHAR)
+      {
+        *s = 0;
+        break;
+      }
+    }
+
+    const char *subdir = "";
+    if(strcmp(type, "png") == 0) //TODO: lowercase/uppercase png
+      subdir = "img";
+    else if(strcmp(type, "ttf") == 0) //TODO: lowercase/uppercase ttf
+      subdir = "fonts";
+    else if(strcmp(type, "svg") == 0) //TODO: lowercase/uppercase svg
+      subdir = "img";
+
+    result.SetFormatted(PATH_MAX, "%s%s%s%s%s", path, WDL_DIRCHAR_STR "resources" WDL_DIRCHAR_STR, subdir, WDL_DIRCHAR_STR, name);
+    struct stat st;
+
+    if (!stat(result.Get(), &st))
+      return EResourceLocation::kAbsolutePath;
+
+#ifdef VST3_API
+    // VST3 bundle since 3.6.10
+    result.SetFormatted(PATH_MAX, "%s%s%s%s%s", path, WDL_DIRCHAR_STR ".." WDL_DIRCHAR_STR "Resources" WDL_DIRCHAR_STR, subdir, WDL_DIRCHAR_STR, name);
+    if (!stat(result.Get(), &st))
+      return EResourceLocation::kAbsolutePath;
+#endif
+  }
+  return EResourceLocation::kNotFound;
+}
+
+bool AppIsSandboxed()
+{
+  return false;
+}
+
+void AppSupportPath(WDL_String& path, bool isSystem)
+{
+  path.Set("~");
+}
+
+void SandboxSafeAppSupportPath(WDL_String& path, const char* appGroupID)
+{
+  AppSupportPath(path);
+}
+
+void DesktopPath(WDL_String& path)
+{
+  path.Set("");
+}
+
+void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginName, bool isSystem)
+{
+  path.Set("~/Presets");
 }
 
 #endif

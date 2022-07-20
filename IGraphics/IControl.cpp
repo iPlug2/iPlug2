@@ -810,7 +810,7 @@ void IKnobControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
 void IKnobControlBase::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
   if (mHideCursorOnDrag)
-    GetUI()->HideMouseCursor(false);
+    GetUI()->HideMouseCursor(false, false);
   
   mMouseDown = false;
   SetDirty(false);

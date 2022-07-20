@@ -33,12 +33,14 @@ public:
     kRelease
   };
 
-  static constexpr T EARLY_RELEASE_TIME = 20.; // ms
-  static constexpr T RETRIGGER_RELEASE_TIME = 3.; // ms
-  static constexpr T MIN_ENV_TIME_MS = 0.022675736961451; // 1 sample @44100
-  static constexpr T MAX_ENV_TIME_MS = 60000.;
-  static constexpr T ENV_VALUE_LOW = 0.000001; // -120dB
-  static constexpr T ENV_VALUE_HIGH = 0.999;
+  static constexpr T EARLY_RELEASE_TIME = T(20.); // ms
+  static constexpr T RETRIGGER_RELEASE_TIME = T(3.); // ms
+  static constexpr T MIN_ENV_TIME_MS = T(0.022675736961451); // 1 sample @44100
+  static constexpr T MAX_ENV_TIME_MS = T(60000.);
+  static constexpr T ENV_VALUE_LOW = T(0.000001); // -120dB
+  static constexpr T ENV_VALUE_HIGH = T(0.999);
+  static constexpr T T_0 = 0.;
+  static constexpr T T_1 = 1.;
   
 private:
 #if DEBUG_ENV
@@ -46,20 +48,20 @@ private:
 #endif
   
   const char* mName;
-  T mEarlyReleaseIncr = 0.;
-  T mRetriggerReleaseIncr = 0.;
-  T mAttackIncr = 0.;
-  T mDecayIncr = 0.;
-  T mReleaseIncr = 0.;
+  T mEarlyReleaseIncr = T_0;
+  T mRetriggerReleaseIncr = T_0;
+  T mAttackIncr = T_0;
+  T mDecayIncr = T_0;
+  T mReleaseIncr = T_0;
   T mSampleRate;
-  T mEnvValue = 0.;          // current normalized value of the envelope
+  T mEnvValue = T_0;         // current normalized value of the envelope
   int mStage = kIdle;        // the current stage
-  T mLevel = 0.;             // envelope depth from velocity
-  T mReleaseLevel = 0.;      // the level when the env is released
-  T mNewStartLevel = 0.;     // envelope depth from velocity when retriggering
-  T mPrevResult = 0.;        // last value BEFORE velocity scaling
-  T mPrevOutput = 0.;        // last value AFTER velocity scaling
-  T mScalar = 1.;            // for key-follow scaling
+  T mLevel = T_0;            // envelope depth from velocity
+  T mReleaseLevel = T_0;     // the level when the env is released
+  T mNewStartLevel = T_0;    // envelope depth from velocity when retriggering
+  T mPrevResult = T_0;       // last value BEFORE velocity scaling
+  T mPrevOutput = T_0;       // last value AFTER velocity scaling
+  T mScalar = T_1;           // for key-follow scaling
   bool mReleased = true;
   bool mSustainEnabled = true; // when false env is AD only
   
@@ -76,7 +78,7 @@ public:
   , mResetFunc(resetFunc)
   , mSustainEnabled(sustainEnabled)
   {
-    SetSampleRate(44100.);
+    SetSampleRate(T(44100.));
   }
 
   /** Sets the time for a particular envelope stage 
@@ -122,12 +124,12 @@ public:
   /** Trigger/Start the envelope 
    * @param level The overall depth of the envelope (usually linked to MIDI velocity)  
    * @param timeScalar Factor to scale the envelope's rates. Use this, for example to adjust the envelope stage rates based on the key pressed */
-  inline void Start(T level, T timeScalar = 1.)
+  inline void Start(T level, T timeScalar = T(1.))
   {
     mStage = kAttack;
     mEnvValue = 0.;
     mLevel = level;
-    mScalar = 1./timeScalar;
+    mScalar = T_1/timeScalar;
     mReleased = false;
   }
 
@@ -136,7 +138,7 @@ public:
   {
     mStage = kRelease;
     mReleaseLevel = mPrevResult;
-    mEnvValue = 1.;
+    mEnvValue = T_1;
     mReleased = true;
   }
   
@@ -145,9 +147,9 @@ public:
   * @param timeScalar Factor to scale the envelope's rates. Use this, for example to adjust the envelope stage rates based on the key pressed */
   inline void Retrigger(T newStartLevel, T timeScalar = 1.)
   {
-    mEnvValue = 1.;
+    mEnvValue = T_1;
     mNewStartLevel = newStartLevel;
-    mScalar = 1./timeScalar;
+    mScalar = T_1/timeScalar;
     mReleaseLevel = mPrevResult;
     mStage = kReleasedToRetrigger;
     mReleased = false;
@@ -165,9 +167,9 @@ public:
     {
       if (mStage != kIdle)
       {
-        mReleaseLevel = 0.;
+        mReleaseLevel = T_0;
         mStage = kIdle;
-        mEnvValue = 0.;
+        mEnvValue = T_0;
       }
 
       #if DEBUG_ENV
@@ -180,7 +182,7 @@ public:
       {
         mReleaseLevel = mPrevResult;
         mStage = kReleasedToEndEarly;
-        mEnvValue = 1.;
+        mEnvValue = T_1;
       }
 
       #if DEBUG_ENV
@@ -211,7 +213,7 @@ public:
   
   /** Process the envelope, returning the value according to the current envelope stage
   * @param sustainLevel Since the sustain level could be changed during processing, it is supplied as an argument, so that it can be smoothed extenally if nessecary, to avoid discontinuities */
-  inline T Process(T sustainLevel = 0.)
+  inline T Process(T sustainLevel = T(0.))
   {
     T result = 0.;
 
@@ -231,7 +233,7 @@ public:
         break;
       case kDecay:
         mEnvValue -= ((mDecayIncr*mEnvValue) * mScalar);
-        result = (mEnvValue * (1.-sustainLevel)) + sustainLevel;
+        result = (mEnvValue * (T(1.)-sustainLevel)) + sustainLevel;
         if (mEnvValue < ENV_VALUE_LOW)
         {
           if(mSustainEnabled)
@@ -301,8 +303,8 @@ public:
 private:
   inline T CalcIncrFromTimeLinear(T timeMS, T sr) const
   {
-    if (timeMS <= 0.) return 0.;
-    else return (1./sr) / (timeMS/1000.);
+    if (timeMS <= T(0.)) return T(0.);
+    else return T((1./sr) / (timeMS/1000.));
   }
   
   inline T CalcIncrFromTimeExp(T timeMS, T sr) const

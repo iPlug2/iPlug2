@@ -171,6 +171,9 @@ IPlugVST2::IPlugVST2(const InstanceInfo& info, const Config& config)
   {
     mAEffect.flags |= effFlagsHasEditor;
     UpdateEditRect();
+#ifdef OS_LINUX
+    mEmbed = xcbt_embed_idle();
+#endif
   }
   
   CreateTimer();
@@ -462,7 +465,13 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     }
     case effEditOpen:
     {
-#if defined OS_WIN || defined ARCH_64BIT
+#if defined OS_LINUX
+      _this->SetIntegration(_this->mEmbed);
+      if (_this->OpenWindow(ptr))
+      {
+        return 1;
+      }
+#elif defined OS_WIN || defined ARCH_64BIT
       if (_this->OpenWindow(ptr))
       {
         return 1;
@@ -485,6 +494,20 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       }
       return 0;
     }
+#ifdef OS_LINUX
+    case effEditIdle:
+    case __effIdleDeprecated:
+    {
+      if (_this->HasUI())
+      {
+        xcbt_embed_idle_cb(_this->mEmbed);
+      }
+//    #ifdef USE_IDLE_CALLS
+    _this->OnIdle();
+//    #endif
+      return 0;
+    }
+#endif
     case __effIdentifyDeprecated:
     {
       return 'NvEf';  // Random deprecated magic.
@@ -734,6 +757,9 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
             return 1;
           }
         }
+#ifndef OS_LINUX
+        // A bit more should be done on LINUX for REAPER extensions... 
+
         // Support Reaper VST extensions: http://www.reaper.fm/sdk/vst/
         if (!strcmp((char*) ptr, "hasCockosExtensions"))
         {
@@ -746,7 +772,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
           _this->mHasVSTExtensions |= VSTEXT_COCOA;
           return 0xbeef0000;
         }
-
+#endif
         if (!strcmp((char*) ptr, "wantsChannelCountNotifications"))
         {
           return 1;

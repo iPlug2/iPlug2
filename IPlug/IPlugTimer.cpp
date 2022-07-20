@@ -14,6 +14,7 @@
  */
 
 #include "IPlugTimer.h"
+#include "IPlugTaskThread.h"
 
 using namespace iplug;
 
@@ -61,7 +62,7 @@ void Timer_impl::TimerProc(CFRunLoopTimerRef timer, void *info)
   itimer->mTimerFunc(*itimer);
 }
 
-#elif defined OS_WIN
+#elif defined OS_WIN || (defined OS_LINUX && defined APP_API)
 
 Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
 {
@@ -116,6 +117,109 @@ void CALLBACK Timer_impl::TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
     }
   }
 }
+#elif defined OS_LINUX
+
+#if IPLUG_EDITOR
+static IPlugTaskThread sMainThread;
+#endif
+
+WDL_Mutex Timer_impl::sMutex;
+WDL_PtrList<Timer_impl> Timer_impl::sTimers;
+
+Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
+{
+  return new Timer_impl(func, intervalMs);
+}
+
+#if IPLUG_EDITOR
+Timer_impl::Timer_impl(ITimerFunction func, uint32_t intervalMs)
+: mTimerFunc(func)
+, mIntervalMs(intervalMs)
+, mID(0)
+{
+  auto cb = [&](uint64_t time) -> bool { mTimerFunc(*this); return true; };
+  Task task = Task::FromMs(intervalMs, intervalMs, cb);
+  mID = sMainThread.Push(task);
+}
+
+Timer_impl::~Timer_impl()
+{
+  Stop();
+}
+
+void Timer_impl::Stop()
+{
+  if (mID)
+  {
+    sMainThread.Cancel(mID);
+    mID = 0;
+  }
+}
+
+#else // No IPLUG_EDITOR
+void Timer_impl::NotifyCallback(union sigval v)
+{
+  Timer_impl* timer = (Timer_impl*)v.sival_ptr;
+  timer->mTimerFunc(*timer);
+}
+
+Timer_impl::Timer_impl(ITimerFunction func, uint32_t intervalMs)
+: mTimerFunc(func)
+, mIntervalMs(intervalMs)
+, mID(0)
+{
+  int err;
+  struct sigevent evt;
+  evt.sigev_notify = SIGEV_THREAD;
+  evt.sigev_signo = 0;
+  evt.sigev_value.sival_ptr = this;
+  evt.sigev_notify_function = &Timer_impl::NotifyCallback;
+  evt.sigev_notify_attributes = nullptr;
+
+  err = timer_create(CLOCK_MONOTONIC, &evt, &mID);
+  if (err != 0)
+  {
+    mID = 0;
+    return;
+  }
+
+  auto MakeTimespec = [](uint32_t ms) -> struct timespec {
+    struct timespec t = { ms / 1000, (ms % 1000) * 1000000 }; return t;
+  };
+
+  struct itimerspec ntime;
+  ntime.it_value = MakeTimespec(intervalMs);
+  ntime.it_interval = MakeTimespec(intervalMs);
+  err = timer_settime(mID, 0, &ntime, nullptr);
+  if (err != 0)
+  {
+    timer_delete(mID);
+    mID = 0;
+    return;
+  }
+
+  WDL_MutexLock lock(&sMutex);
+  sTimers.Add(this);
+}
+
+Timer_impl::~Timer_impl()
+{
+  Stop();
+}
+
+void Timer_impl::Stop()
+{
+  if (mID)
+  {
+    // NB. timer_delete returns an error code. Should we check it?
+    timer_delete(mID);
+    WDL_MutexLock lock(&sMutex);
+    sTimers.DeletePtr(this);
+    mID = 0;
+  }
+}
+#endif // IPLUG_EDITOR
+
 #elif defined OS_WEB
 Timer* Timer::Create(ITimerFunction func, uint32_t intervalMs)
 {

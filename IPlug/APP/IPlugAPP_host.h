@@ -29,7 +29,7 @@
  */
 
 #include <cstdlib>
-#include <string>
+#include <cstring>
 #include <vector>
 #include <limits>
 #include <memory>
@@ -57,6 +57,8 @@
   #define DEFAULT_OUTPUT_DEV "Built-in Output"
 #elif defined(OS_LINUX)
   #include "IPlugSWELL.h"
+  #define DEFAULT_INPUT_DEV "Built-in Input"
+  #define DEFAULT_OUTPUT_DEV "Built-in Output"
 #endif
 
 #include "RtAudio.h"
@@ -73,6 +75,7 @@ const int kNumBufferSizeOptions = 11;
 const std::string kBufferSizeOptions[kNumBufferSizeOptions] = {"32", "64", "96", "128", "192", "256", "512", "1024", "2048", "4096", "8192" };
 const int kDeviceDS = 0; const int kDeviceCoreAudio = 0; const int kDeviceAlsa = 0;
 const int kDeviceASIO = 1; const int kDeviceJack = 1;
+const int kDevicePulse = 2;
 extern UINT gSCROLLMSG;
 
 class IPlugAPP;
@@ -170,8 +173,9 @@ public:
   
   IPlugAPPHost();
   ~IPlugAPPHost();
-  
-  bool OpenWindow(HWND pParent);
+
+  /* pParent is HWND on OSX/Windows but XID on Linux */
+  bool OpenWindow(void *pParent);
   void CloseWindow();
 
   bool Init();
@@ -255,6 +259,12 @@ private:
   WDL_PtrList<double> mInputBufPtrs;
   WDL_PtrList<double> mOutputBufPtrs;
 
+#ifdef OS_LINUX
+  /** Site for embedding plug-in */
+  HWND mSite = nullptr;
+  void* mSiteWnd = 0; // XID
+#endif
+  
   friend class IPlugAPP;
 };
 

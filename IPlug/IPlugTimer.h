@@ -14,8 +14,8 @@
 /** @file
  * @brief This file includes classes for implementing timers - in order to get a regular callback on the main thread
  * The interface is partially based on the api of Steinberg's timer.cpp from the VST3_SDK for compatibility,
- * base/source/timer.cpp, so thanks to them 
- * */
+ * rewritten using SWELL: base/source/timer.cpp, so thanks to them
+*/
 
 #include <cstring>
 #include <stdint.h>
@@ -26,6 +26,13 @@
 #include "mutex.h"
 
 #include "IPlugPlatform.h"
+
+#if defined OS_LINUX && defined APP_API
+#include "swell.h"
+#elif defined OS_LINUX
+#include <signal.h>
+#include <time.h>
+#endif
 
 #if defined OS_MAC || defined OS_IOS
 #include <CoreFoundation/CoreFoundation.h>
@@ -45,6 +52,7 @@ struct Timer
   using ITimerFunction = std::function<void(Timer& t)>;
 
   static Timer* Create(ITimerFunction func, uint32_t intervalMs);
+
   virtual ~Timer() {};
   virtual void Stop() = 0;
 };
@@ -54,7 +62,6 @@ struct Timer
 class Timer_impl : public Timer
 {
 public:
-  
   Timer_impl(ITimerFunction func, uint32_t intervalMs);
   ~Timer_impl();
   
@@ -66,7 +73,7 @@ private:
   ITimerFunction mTimerFunc;
   uint32_t mIntervalMs;
 };
-#elif defined OS_WIN
+#elif defined OS_WIN || (defined OS_LINUX && defined APP_API)
 class Timer_impl : public Timer
 {
 public:
@@ -78,10 +85,36 @@ public:
 private:
   static WDL_Mutex sMutex;
   static WDL_PtrList<Timer_impl> sTimers;
+
   UINT_PTR ID = 0;
   ITimerFunction mTimerFunc;
   uint32_t mIntervalMs;
 };
+#elif defined OS_LINUX
+// other API on Linux do not support unrelated timers
+class Timer_impl : public Timer
+{
+public:
+  Timer_impl(ITimerFunction func, uint32_t intervalMs);
+  ~Timer_impl();
+
+  void Stop() override;
+  static void NotifyCallback(union sigval v);
+
+
+private:
+  static WDL_Mutex sMutex;
+  static WDL_PtrList<Timer_impl> sTimers;
+
+#if IPLUG_EDITOR
+  uint32_t mID;
+#else
+  timer_t mID;
+#endif
+  ITimerFunction mTimerFunc;
+  uint32_t mIntervalMs;
+};
+
 #elif defined OS_WEB
 class Timer_impl : public Timer
 {

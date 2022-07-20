@@ -118,13 +118,14 @@ ifndef NOGDK
         LINKEXTRA += $(shell $(PKG_CONFIG) --libs gdk-3.0)
       endif
     else
-      LINKEXTRA += -lX11 -lXi
       ifdef SWELL_SUPPORT_GTK
         CFLAGS += -DSWELL_PRELOAD="libgtk+-3.so.0"
       else
         CFLAGS += -DSWELL_PRELOAD="libgdk-3.so.0"
       endif
     endif
+    # AZ: I guess some time ago these was included automatically by pkg-config, but that does not work for me (used by swell-generic-gdk)
+    LINKEXTRA += -lX11 -lXi
   endif
   CFLAGS += -DSWELL_LICE_GDI
   OBJS += $(LICE_OBJS)

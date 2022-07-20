@@ -172,7 +172,25 @@ public:
 protected:
   void AddOrUpdateParam(IParam::EParamType type, const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init = 0., FAUSTFLOAT min = 0., FAUSTFLOAT max = 0., FAUSTFLOAT step = 1.);
   
-  void BuildParameterMap();
+  void BuildParameterMap()
+  {
+    for(auto p = 0; p < NParams(); p++)
+    {
+      mMap.Insert(mParams.Get(p)->GetName(), mZones.Get(p)); // insert will overwrite keys with the same name
+    }
+    
+    if(mIPlugParamStartIdx > -1 && mPlug != nullptr) // if we've already linked parameters
+    {
+      CreateIPlugParameters(mPlug, mIPlugParamStartIdx);
+    }
+
+    DBGMSG("Faust Params: %s\n", mName.Get());
+    
+    for(auto p = 0; p < NParams(); p++)
+    {
+      DBGMSG("%i %s\n", p, mParams.Get(p)->GetName());
+    }
+  }
 
   int FindExistingParameterWithName(const char* name);
     

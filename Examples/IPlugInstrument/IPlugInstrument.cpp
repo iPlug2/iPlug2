@@ -2,6 +2,34 @@
 #include "IPlug_include_in_plug_src.h"
 #include "LFO.h"
 
+
+class ContextMenuButton : public IVButtonControl
+{
+public:
+  ContextMenuButton(const IRECT& bounds, IActionFunction aF, const char* label)
+  : IVButtonControl(bounds, aF, label)
+  {
+    mMenu.SetRootTitle("Menu Root");
+    mMenu.AddItem("Item 1");
+    mMenu.AddItem("Item 2");
+    mMenu.AddItem("Item 3");
+  }
+
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    if (mod.R)
+    {
+      GetUI()->CreatePopupMenu(*this, mMenu, mRECT);
+    }
+    else
+    {
+      IVButtonControl::OnMouseDown(x, y, mod);
+    }
+  }
+
+  IPopupMenu mMenu;
+};
+
 IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
@@ -43,7 +71,7 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     pGraphics->AttachControl(new IWheelControl(wheelsBounds.FracRectHorizontal(0.5, true), IMidiMsg::EControlChangeMsg::kModWheel));
 //    pGraphics->AttachControl(new IVMultiSliderControl<4>(b.GetGridCell(0, 2, 2).GetPadded(-30), "", DEFAULT_STYLE, kParamAttack, EDirection::Vertical, 0.f, 1.f));
     const IRECT controls = b.GetGridCell(1, 2, 2);
-    pGraphics->AttachControl(new IVKnobControl(controls.GetGridCell(0, 2, 6).GetCentredInside(90), kParamGain, "Gain"));
+    pGraphics->AttachControl(new IVKnobControl(controls.GetGridCell(0, 2, 6).GetCentredInside(90), kParamGain, "Gain"))->DisablePrompt(false);
     pGraphics->AttachControl(new IVKnobControl(controls.GetGridCell(1, 2, 6).GetCentredInside(90), kParamNoteGlideTime, "Glide"));
     const IRECT sliders = controls.GetGridCell(2, 2, 6).Union(controls.GetGridCell(3, 2, 6)).Union(controls.GetGridCell(4, 2, 6));
     pGraphics->AttachControl(new IVSliderControl(sliders.GetGridCell(0, 1, 4).GetMidHPadded(30.), kParamAttack, "Attack"));
@@ -85,6 +113,38 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
     pGraphics->SetQwertyMidiKeyHandlerFunc([pGraphics](const IMidiMsg& msg) {
                                               pGraphics->GetControlWithTag(kCtrlTagKeyboard)->As<IVKeyboardControl>()->SetNoteFromMidi(msg.NoteNumber(), msg.StatusMsg() == IMidiMsg::kNoteOn);
                                            });
+
+    pGraphics->EnableTooltips(true);
+    pGraphics->ShowFPSDisplay(true);
+    IRECT testPanel = b.GetFromTLHC(260, 40).GetTranslated(80, 80);
+    const int TEST_COLS = 4;
+    pGraphics->AttachControl(new IVButtonControl(testPanel.GetGridCell(0, 1, TEST_COLS), [&](IControl* ctrl) {
+      WDL_String contents;
+      if (ctrl->GetUI()->GetTextFromClipboard(contents))
+      {
+        printf("Clipboard: %s\n", contents.Get());
+      }
+    }, "Test ClipGet"))->SetTooltip("Tooltip test");
+    pGraphics->AttachControl(new IVButtonControl(testPanel.GetGridCell(1, 1, TEST_COLS), [&](IControl* ctrl) {
+      ctrl->GetUI()->SetTextInClipboard("Clipboard text set test.");
+    }, "Test ClipSet"));
+    
+    auto ctrlTest3 = pGraphics->AttachControl(new ContextMenuButton(testPanel.GetGridCell(2, 1, TEST_COLS), [&](IControl* ctrl) {
+      IColor col = COLOR_RED;
+      if (ctrl->GetUI()->PromptForColor(col, "Memes"))
+      {
+        printf("Color selected: rgba(%d,%d,%d,%d)\n", col.R, col.G, col.B, col.A);
+      }
+      else
+      {
+        printf("No color selected.\n");
+      }
+    }, "Test Color"));
+    
+    pGraphics->AttachControl(new IVButtonControl(testPanel.GetGridCell(3, 1, TEST_COLS), [&](IControl* ctrl) {
+      int result = ctrl->GetUI()->ShowMessageBox("A message for you", "Testy Testerson Title", EMsgBoxType::kMB_OKCANCEL);
+      printf("MsgBox result: %d\n", result);
+    }, "Test MsgBox"));
   };
 #endif
 }

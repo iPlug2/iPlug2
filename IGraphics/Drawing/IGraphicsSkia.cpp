@@ -151,6 +151,11 @@ SkBlendMode SkiaBlendMode(const IBlend* pBlend)
 
 SkTileMode SkiaTileMode(const IPattern& pattern)
 {
+  // X11 defines None, which breaks this
+#ifdef OS_LINUX
+#pragma push_macro("None")
+#undef None
+#endif
   switch (pattern.mExtend)
   {
     case EPatternExtend::None:      return SkTileMode::kDecal;
@@ -160,6 +165,9 @@ SkTileMode SkiaTileMode(const IPattern& pattern)
   }
 
   return SkTileMode::kClamp;
+#ifdef OS_LINUX
+#pragma pop_macro("None")
+#endif
 }
 
 SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend)

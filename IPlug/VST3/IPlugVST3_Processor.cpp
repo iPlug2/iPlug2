@@ -21,7 +21,9 @@ IPlugVST3Processor::IPlugVST3Processor(const InstanceInfo& info, const Config& c
 , IPlugVST3ProcessorBase(config, *this)
 {
   setControllerClass(info.mOtherGUID);
+#ifndef OS_LINUX
   CreateTimer();
+#endif
 }
 
 IPlugVST3Processor::~IPlugVST3Processor() {}

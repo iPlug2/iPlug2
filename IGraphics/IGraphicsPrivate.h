@@ -75,6 +75,9 @@
   #define FONT_DESCRIPTOR_TYPE HFONT
 #elif defined OS_WEB
   #define FONT_DESCRIPTOR_TYPE std::pair<WDL_String, WDL_String>*
+#elif defined OS_LINUX
+  // #include "swell-types.h"
+  #define FONT_DESCRIPTOR_TYPE void*
 #else 
   // NO_IGRAPHICS
 #endif
@@ -631,6 +634,8 @@ struct IVec2
   
   IVec2 operator-(const IVec2 b) { return IVec2{x-b.x, y-b.y}; }
   IVec2 operator+(const IVec2 b) { return IVec2{x+b.x, y+b.y}; }
+  bool operator==(const IVec2 &rhs) const { return x == rhs.x && y == rhs.y; }
+  bool operator!=(const IVec2 &rhs) const { return x != rhs.x || y == rhs.y; }
 };
 
 END_IGRAPHICS_NAMESPACE

@@ -40,8 +40,11 @@ Documentation/doxygen_warnings.txt
 Examples/build_errors.log
 Projects/*
 Examples/IPlugSwift/Pods
-PodFile.lock
+Podfile.lock
 */*/.vscode/ipch
 Examples/*/EBWebView
 Examples/*/packages
 Examples/IPlugConvoEngine/r8brain
+#.vscode/launch.json
+*/*/.vscode/launch.json
+Examples/Build

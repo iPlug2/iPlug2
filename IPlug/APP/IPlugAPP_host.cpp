@@ -72,7 +72,7 @@ bool IPlugAPPHost::Init()
   return true;
 }
 
-bool IPlugAPPHost::OpenWindow(HWND pParent)
+bool IPlugAPPHost::OpenWindow(void* pParent)
 {
   return mIPlug->OpenWindow(pParent) != nullptr;
 }
@@ -90,8 +90,10 @@ bool IPlugAPPHost::InitState()
   mINIPath.SetFormatted(MAX_PATH_LEN, "%s\\%s\\", strPath, BUNDLE_NAME);
 #elif defined OS_MAC
   mINIPath.SetFormatted(MAX_PATH_LEN, "%s/Library/Application Support/%s/", getenv("HOME"), BUNDLE_NAME);
+#elif defined OS_LINUX
+  mINIPath.SetFormatted(MAX_PATH_LEN, "%s/.config/%s/", getenv("HOME"), BUNDLE_NAME);
 #else
-  #error NOT IMPLEMENTED
+  #warning NOT IMPLEMENTED
 #endif
 
   struct stat st;
@@ -139,7 +141,7 @@ bool IPlugAPPHost::InitState()
     CreateDirectory(mINIPath.Get(), NULL);
     mINIPath.Append("settings.ini");
     UpdateINI(); // will write file if doesn't exist
-#elif defined OS_MAC
+#elif defined OS_MAC || defined OS_LINUX
     mode_t process_mask = umask(0);
     int result_code = mkdir(mINIPath.Get(), S_IRWXU | S_IRWXG | S_IRWXO);
     umask(process_mask);
@@ -154,7 +156,7 @@ bool IPlugAPPHost::InitState()
       return false;
     }
 #else
-  #error NOT IMPLEMENTED
+  #warning NOT IMPLEMENTED
 #endif
   }
 
@@ -201,7 +203,9 @@ void IPlugAPPHost::UpdateINI()
 
 std::string IPlugAPPHost::GetAudioDeviceName(int idx) const
 {
-  return mAudioIDDevNames.at(idx);
+  if ( mAudioIDDevNames.size() )
+    return mAudioIDDevNames.at(idx);
+  return "";
 }
 
 int IPlugAPPHost::GetAudioDeviceIdx(const char* deviceNameToTest) const
@@ -381,8 +385,15 @@ bool IPlugAPPHost::TryToChangeAudioDriverType()
     mDAC = std::make_unique<RtAudio>(RtAudio::MACOSX_CORE);
   //else
   //mDAC = std::make_unique<RtAudio>(RtAudio::UNIX_JACK);
+#elif defined OS_LINUX
+  if(mState.mAudioDriverType == kDeviceAlsa)
+    mDAC = std::make_unique<RtAudio>(RtAudio::LINUX_ALSA);
+  else if(mState.mAudioDriverType == kDeviceJack)
+    mDAC = std::make_unique<RtAudio>(RtAudio::UNIX_JACK);
+  else
+    mDAC = std::make_unique<RtAudio>(RtAudio::LINUX_PULSE);
 #else
-  #error NOT IMPLEMENTED
+  #warning NOT IMPLEMENTED
 #endif
 
   if(mDAC)
@@ -401,10 +412,10 @@ bool IPlugAPPHost::TryToChangeAudio()
     inputID = GetAudioDeviceIdx(mState.mAudioOutDev.Get());
   else
     inputID = GetAudioDeviceIdx(mState.mAudioInDev.Get());
-#elif defined OS_MAC
+#elif defined OS_MAC || defined OS_LINUX
   inputID = GetAudioDeviceIdx(mState.mAudioInDev.Get());
 #else
-  #error NOT IMPLEMENTED
+  #warning NOT IMPLEMENTED
 #endif
   outputID = GetAudioDeviceIdx(mState.mAudioOutDev.Get());
 
@@ -480,7 +491,7 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
       {
         return true;
       }
-  #if defined OS_WIN
+  #if defined OS_WIN || defined OS_LINUX
       else
       {
         mMidiIn->openPort(port-1);
@@ -500,7 +511,7 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
         return true;
       }
   #else
-   #error NOT IMPLEMENTED
+   #warning NOT IMPLEMENTED
   #endif
     }
   }
@@ -520,7 +531,7 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
       
       if (port == 0)
         return true;
-#if defined OS_WIN
+#if defined OS_WIN || defined OS_LINUX
       else
       {
         mMidiOut->openPort(port-1);
@@ -540,7 +551,7 @@ bool IPlugAPPHost::SelectMIDIDevice(ERoute direction, const char* pPortName)
         return true;
       }
 #else
-  #error NOT IMPLEMENTED
+  #warning NOT IMPLEMENTED
 #endif
     }
   }
@@ -658,7 +669,11 @@ bool IPlugAPPHost::InitMidi()
   }
 
   mMidiIn->setCallback(&MIDICallback, this);
+
+#if not defined OS_LINUX
+  // AZ: TODO: cryptically segfaulting here...
   mMidiIn->ignoreTypes(false, true, false );
+#endif
 
   return true;
 }

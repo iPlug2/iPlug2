@@ -31,6 +31,11 @@ void* IGEditorDelegate::OpenWindow(void* pParent)
     mGraphics = std::unique_ptr<IGraphics>(CreateGraphics());
     if (mLastWidth && mLastHeight && mLastScale)
       GetUI()->Resize(mLastWidth, mLastHeight, mLastScale);
+    
+    if (mGraphics && mMainLoop)
+    {
+      mGraphics->SetIntegration(mMainLoop);
+    }
   }
   
   if(mGraphics)
@@ -63,6 +68,14 @@ void IGEditorDelegate::SetScreenScale(float scale)
 {
   if (GetUI())
     mGraphics->SetScreenScale(scale);
+}
+
+void IGEditorDelegate::SetIntegration(void* pMainLoop)
+{
+  mMainLoop = pMainLoop;
+
+  if(mGraphics)
+    mGraphics->SetIntegration(pMainLoop);
 }
 
 void IGEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)

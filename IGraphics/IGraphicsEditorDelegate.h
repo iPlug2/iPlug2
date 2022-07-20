@@ -41,7 +41,8 @@ public:
   void* OpenWindow(void* pHandle) final;
   void CloseWindow() final;
   void SetScreenScale(float scale) final;
-  
+  void SetIntegration(void* pMainLoop) final;
+
   bool OnKeyDown(const IKeyPress& key) override;
   bool OnKeyUp(const IKeyPress& key) override;
     
@@ -97,6 +98,7 @@ private:
   int mLastHeight = 0;
   float mLastScale = 0.f;
   bool mClosing = false; // used to prevent re-entrancy on closing
+  void* mMainLoop = nullptr;
 };
 
 END_IGRAPHICS_NAMESPACE

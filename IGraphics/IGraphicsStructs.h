@@ -465,7 +465,7 @@ struct IColor
     };
 
     IColor col;
-    h = std::fmodf(h, 1.0f);
+    h = ::fmodf(h, 1.0f); // std::fmodf not found with g++
     if (h < 0.0f) h += 1.0f;
     s = Clip(s, 0.0f, 1.0f);
     l = Clip(l, 0.0f, 1.0f);

@@ -184,7 +184,8 @@ enum EAPI
   kAPIAAX = 4,
   kAPIAPP = 5,
   kAPIWAM = 6,
-  kAPIWEB = 7
+  kAPIWEB = 7,
+  kAPILV2 = 8
 };
 
 /** @enum EHost
