@@ -1490,6 +1490,15 @@ LONG_PTR GetWindowLong(HWND hwnd, int idx)
   }
   if (idx==GWL_USERDATA && [pid isKindOfClass:[NSText class]])
   {
+    NSView *par = [pid superview];
+    if (par)
+    {
+      if (![par isKindOfClass:[SWELL_TextField class]])
+        par = [par superview];
+      if ([par isKindOfClass:[SWELL_TextField class]])
+        return [(SWELL_TextField*)par getSwellUserData];
+    }
+
     return 0xdeadf00b;
   }
   
@@ -3433,6 +3442,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL([self isSelectable] ? "Edit" : "Static")
     m_disable_menu = false;
     m_ctlcolor_set = false;
     m_last_dark_mode = false;
+    m_userdata = 0;
   }
   return self;
 }
@@ -3503,6 +3513,14 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL([self isSelectable] ? "Edit" : "Static")
   return m_disable_menu ? nil : menu;
 }
 
+-(LONG_PTR)getSwellUserData
+{
+  return m_userdata;
+}
+-(void)setSwellUserData:(LONG_PTR)val
+{
+  m_userdata = val;
+}
 
 @end
 

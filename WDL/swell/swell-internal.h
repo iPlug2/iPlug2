@@ -145,6 +145,7 @@ typedef struct WindowPropRec
   bool m_last_dark_mode;
   bool m_ctlcolor_set;
   bool m_disable_menu;
+  LONG_PTR m_userdata;
 }
 - (id) init;
 - (void)setNeedsDisplay:(BOOL)flag;
@@ -153,6 +154,8 @@ typedef struct WindowPropRec
 - (void)initColors:(int)darkmode; // -1 to not update darkmode but trigger update of colors
 - (void)swellDisableContextMenu:(bool)dis;
 - (NSMenu *)textView:(NSTextView *)view menu:(NSMenu *)menu forEvent:(NSEvent *)event atIndex:(NSUInteger)charIndex;
+-(LONG_PTR)getSwellUserData;
+-(void)setSwellUserData:(LONG_PTR)val;
 @end
 
 @interface SWELL_TabView : NSTabView
