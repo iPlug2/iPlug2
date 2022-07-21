@@ -256,7 +256,7 @@ public:
       for (x=0;x<n;x++)
       {
         KeyVal *kv=m_data.Get()+x;
-        if (kv->key) kv->key = m_keydup(kv->key);
+        kv->key = m_keydup(kv->key);
       }
     }
   }
