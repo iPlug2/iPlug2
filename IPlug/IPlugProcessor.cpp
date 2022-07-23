@@ -35,6 +35,8 @@ IPlugProcessor::IPlugProcessor(const Config& config, EAPI plugAPI)
 
   mScratchData[ERoute::kInput].Resize(totalNInChans);
   mScratchData[ERoute::kOutput].Resize(totalNOutChans);
+  mOffsetScratchData[ERoute::kInput].Resize(totalNInChans);
+  mOffsetScratchData[ERoute::kOutput].Resize(totalNOutChans);
 
   sample** ppInData = mScratchData[ERoute::kInput].Get();
 
@@ -515,6 +517,36 @@ void IPlugProcessor::ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames)
 void IPlugProcessor::ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames)
 {
   ProcessBuffers((PLUG_SAMPLE_DST) 0, nFrames);
+  int i, n = MaxNChannels(ERoute::kOutput);
+  IChannelData<>** ppOutChannel = mChannelData[ERoute::kOutput].GetList();
+
+  for (i = 0; i < n; ++i, ++ppOutChannel)
+  {
+    IChannelData<>* pOutChannel = *ppOutChannel;
+
+    if (pOutChannel->mConnected)
+    {
+      CastCopy(pOutChannel->mIncomingData, *(pOutChannel->mData), nFrames);
+    }
+  }
+}
+
+void IPlugProcessor::ProcessBuffersWithOffset(PLUG_SAMPLE_DST type, int offset, int nFrames)
+{
+  for (auto i=0; i<MaxNChannels(ERoute::kInput); i++) {
+    mOffsetScratchData[ERoute::kInput].Get()[i] = mScratchData[ERoute::kInput].Get()[i] + offset;
+  }
+  
+  for (auto i=0; i<MaxNChannels(ERoute::kOutput); i++) {
+    mOffsetScratchData[ERoute::kOutput].Get()[i] = mScratchData[ERoute::kOutput].Get()[i] + offset;
+  }
+  
+  ProcessBlock(mOffsetScratchData[ERoute::kInput].Get(), mOffsetScratchData[ERoute::kOutput].Get(), nFrames);
+}
+
+void IPlugProcessor::ProcessBuffersWithOffset(PLUG_SAMPLE_SRC type, int offset, int nFrames)
+{
+  ProcessBuffersWithOffset((PLUG_SAMPLE_DST) 0, offset, nFrames);
   int i, n = MaxNChannels(ERoute::kOutput);
   IChannelData<>** ppOutChannel = mChannelData[ERoute::kOutput].GetList();
 

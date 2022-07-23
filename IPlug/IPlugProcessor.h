@@ -265,6 +265,8 @@ protected:
   void PassThroughBuffers(PLUG_SAMPLE_DST type, int nFrames);
   void ProcessBuffers(PLUG_SAMPLE_SRC type, int nFrames);
   void ProcessBuffers(PLUG_SAMPLE_DST type, int nFrames);
+  void ProcessBuffersWithOffset(PLUG_SAMPLE_SRC type, int offset, int nFrames);
+  void ProcessBuffersWithOffset(PLUG_SAMPLE_DST type, int offset, int nFrames);
   void ProcessBuffersAccumulating(int nFrames); // only for VST2 deprecated method single precision
   void ZeroScratchBuffers();
   void SetSampleRate(double sampleRate) { mSampleRate = sampleRate; }
@@ -299,6 +301,8 @@ private:
   WDL_PtrList<IOConfig> mIOConfigs;
   /* Manages pointers to the actual data for each channel */
   WDL_TypedBuf<sample*> mScratchData[2];
+  WDL_TypedBuf<sample*> mOffsetScratchData[2];
+
   /* A list of IChannelData structures corresponding to every input/output channel */
   WDL_PtrList<IChannelData<>> mChannelData[2];
 protected: // these members are protected because they need to be access by the API classes, and don't want a setter/getter

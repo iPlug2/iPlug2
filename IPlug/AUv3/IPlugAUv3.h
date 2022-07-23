@@ -80,9 +80,9 @@ public:
   virtual void* GetDataFromExternal(int& dataSize) { return nullptr; }
 
 private:
-//  void HandleOneEvent(AURenderEvent const* event, int64_t startTime);
-//  void PerformAllSimultaneousEvents(int64_t now, AURenderEvent const*& event);
   WDL_IntKeyedArray<uint64_t> mParamAddressMap;
+  void HandleOneEvent(AURenderEvent const* event, int64_t startTime);
+  void PerformAllSimultaneousEvents(int64_t now, AURenderEvent const*& event);
   void* mAUAudioUnit = nullptr;
   AudioTimeStamp mLastTimeStamp;
 };
