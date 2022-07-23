@@ -18,6 +18,7 @@
  */
 
 #include <cstring>
+#include <unordered_map>
 
 #include <CoreAudio/CoreAudioTypes.h>
 
@@ -66,9 +67,14 @@ public:
   void AttachInputBuffers(AudioBufferList* pInBufferList);
   void AttachOutputBuffers(AudioBufferList* pOutBufferList, uint32_t busNumber);
   void Prepare(double sampleRate, uint32_t blockSize);
-  void AddParamAddress(int paramIdx, uint64_t paramAddress) { mParamAddressMap.Insert(paramIdx, paramAddress); }
-  uint64_t GetParamAddress(int paramIdx) { return mParamAddressMap.Get(paramIdx); }
-  int GetParamIdx(uint64_t paramAddress) { return mParamAddressMap.ReverseLookup(paramAddress); }
+  void AddParamAddress(int paramIdx, uint64_t paramAddress)
+  {
+    mParamAddressMap.insert({paramIdx, paramAddress});
+    mAddressParamMap.insert({paramAddress, paramIdx});
+  }
+  
+  uint64_t GetParamAddress(int paramIdx) { return mParamAddressMap[paramIdx]; }
+  int GetParamIdx(uint64_t paramAddress) { return mAddressParamMap[paramAddress]; }
   
   void SetAUAudioUnit(void* pAUAudioUnit);
 
@@ -80,9 +86,10 @@ public:
   virtual void* GetDataFromExternal(int& dataSize) { return nullptr; }
 
 private:
-//  void HandleOneEvent(AURenderEvent const* event, int64_t startTime);
-//  void PerformAllSimultaneousEvents(int64_t now, AURenderEvent const*& event);
-  WDL_IntKeyedArray<uint64_t> mParamAddressMap;
+  void HandleOneEvent(AURenderEvent const* event, int64_t startTime);
+  void PerformAllSimultaneousEvents(int64_t now, AURenderEvent const*& event);
+  std::unordered_map<int, uint64_t> mParamAddressMap;
+  std::unordered_map<uint64_t, int> mAddressParamMap;
   void* mAUAudioUnit = nullptr;
   AudioTimeStamp mLastTimeStamp;
 };
