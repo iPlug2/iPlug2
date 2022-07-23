@@ -21,7 +21,7 @@
 #include "IVKeyboardControl.h"
 #include "IVMeterControl.h"
 #include "IVSpectrumAnalyzerControl.h"
-#include "ISpectrogramControl.h"
+//#include "ISpectrogramControl.h"
 #include "IVScopeControl.h"
 #include "IVMultiSliderControl.h"
 #include "IRTTextControl.h"
