@@ -86,8 +86,8 @@ public:
   virtual void* GetDataFromExternal(int& dataSize) { return nullptr; }
 
 private:
-  void HandleOneEvent(AURenderEvent const* event, int64_t startTime);
-  void PerformAllSimultaneousEvents(int64_t now, AURenderEvent const*& event);
+  // void HandleOneEvent(AURenderEvent const* event, int64_t startTime);
+  // void PerformAllSimultaneousEvents(int64_t now, AURenderEvent const*& event);
   std::unordered_map<int, uint64_t> mParamAddressMap;
   std::unordered_map<uint64_t, int> mAddressParamMap;
   void* mAUAudioUnit = nullptr;
