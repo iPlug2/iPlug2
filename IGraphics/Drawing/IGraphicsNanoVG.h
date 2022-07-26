@@ -45,7 +45,7 @@
   #define nvgCreateContext(flags) nvgCreateGLES3(flags)
   #define nvgDeleteContext(context) nvgDeleteGLES3(context)
 #elif defined IGRAPHICS_METAL
-  #define nvgCreateContext(layer, flags) nvgCreateMTL(layer, flags)
+  #define nvgCreateContext(layer, flags) nvgCreateMTL(layer, metal_command_queue(), flags)
   #define nvgDeleteContext(context) nvgDeleteMTL(context)
   #define nvgBindFramebuffer(fb) mnvgBindFramebuffer(fb)
   #define nvgCreateFramebuffer(ctx, w, h, flags) mnvgCreateFramebuffer(ctx, w, h, flags)

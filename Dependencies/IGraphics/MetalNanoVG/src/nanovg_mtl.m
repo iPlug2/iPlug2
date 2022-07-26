@@ -437,7 +437,7 @@ static void mtlnvg__xformToMat3x3(matrix_float3x3* m3, float* t) {
                             (vector_float3){t[4], t[5], 1.0f});
 }
 
-NVGcontext* nvgCreateMTL(void* metalLayer, int flags) {
+NVGcontext* nvgCreateMTL(void* metalLayer, void *commandQueue, int flags) {
 #ifdef MNVG_INVALID_TARGET
   printf("Metal is only supported on iOS, macOS, and tvOS.\n");
   return NULL;
@@ -528,11 +528,6 @@ void mnvgClearWithColor(NVGcontext* ctx, NVGcolor color) {
                                      (float)color.b * alpha,
                                      (float)color.a);
   mtl.clearBufferOnFlush = YES;
-}
-
-void* mnvgCommandQueue(NVGcontext* ctx) {
-  MNVGcontext* mtl = (__bridge MNVGcontext*)nvgInternalParams(ctx)->userPtr;
-  return (__bridge void*)mtl.commandQueue;
 }
 
 int mnvgCreateImageFromHandle(NVGcontext* ctx, void* textureId, int imageFlags) {

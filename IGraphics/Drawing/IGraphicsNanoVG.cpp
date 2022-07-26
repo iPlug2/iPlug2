@@ -56,6 +56,7 @@
   #include "nanovg_gl_utils.h"
 #elif defined IGRAPHICS_METAL
   #include "nanovg_mtl.h"
+  #include "metal.h"
   #if defined OS_MAC
     //even though this is a .cpp we are in an objc(pp) compilation unit
     #import <Metal/Metal.h>
