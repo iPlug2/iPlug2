@@ -12,6 +12,7 @@
 
 #include "colormap/colormap.h"
 #include "IGraphicsStructs.h"
+#include "IPopupMenuControl.h"
 #include <map>
 
 BEGIN_IPLUG_NAMESPACE
@@ -113,6 +114,65 @@ public:
 private:
   ColorMapPtr mCurrentColorMap;
   std::map<std::string, ColorMapPtr> mSelectedColorMaps;
+};
+
+class ColorMapPopupControl : public IPopupMenuControl
+{
+public:
+  ColorMapPopupControl(const IRECT& bounds)
+  : IPopupMenuControl(kNoParameter, IText(10), bounds)
+  {
+    SetCallout(true);
+  }
+  
+  void OnAttached() override
+  {
+    auto names = mColorMaps.GetNames();
+    
+    for (auto& name : names)
+    {
+      auto bitmapName = name + ".png";
+      mBitmaps.insert({name, GetUI()->LoadBitmap(bitmapName.c_str())});
+    }
+  }
+  
+  void DrawTick(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* pBlend) override
+  {
+    g.DrawRect(COLOR_BLACK, bounds);
+  }
+  
+  void DrawCellBackground(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* pBlend) override
+  {
+    if (sel) {
+      g.DrawRect(COLOR_GRAY, bounds);
+    }
+  }
+  
+  void DrawCellText(IGraphics& g, const IRECT& bounds, const IPopupMenu::Item* pItem, bool sel, IBlend* pBlend) override
+  {
+    auto fullName = std::string(pItem->GetText());
+    g.DrawFittedBitmap(mBitmaps[fullName], bounds);
+//    g.DrawText(mText, pItem->GetText(), bounds);
+  }
+
+  IColorMapList mColorMaps {{
+    
+    "MATLAB_autumn",
+    "MATLAB_bone",
+    "MATLAB_cool",
+    "MATLAB_copper",
+    "MATLAB_hot",
+    "MATLAB_hsv",
+    "MATLAB_jet",
+    "MATLAB_parula",
+    "MATLAB_pink",
+    "MATLAB_spring",
+    "MATLAB_summer",
+    "MATLAB_winter"
+    
+
+    }, "MATLAB_jet"};
+  std::map<std::string, IBitmap> mBitmaps;
 };
 
 END_IPLUG_NAMESPACE
