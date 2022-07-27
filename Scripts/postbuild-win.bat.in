@@ -3,7 +3,7 @@ setlocal EnableDelayedExpansion
 setlocal EnableExtensions
 
 set FORMAT=%2
-set NAME="@IPLUG2_APP_NAME@"
+set NAME="@PLUG_NAME@"
 set PLATFORM="@PROCESSOR_ARCH@"
 set COPY_VST2="1"
 set BUILT_BINARY=%1
