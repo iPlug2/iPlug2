@@ -419,7 +419,7 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *in_events) noexcept
           // N.B. velocity stored 0-1
           // TODO - check velocity
           auto note = ClapEventCast<clap_event_note>(event);
-          int velocity = std::round(note->velocity * 127.0);
+          auto velocity = static_cast<int>(std::round(note->velocity * 127.0));
           msg.MakeNoteOnMsg(note->key, velocity, event->time, note->channel);
           ProcessMidiMsg(msg);
           mMidiMsgsFromProcessor.Push(msg);
@@ -568,7 +568,7 @@ bool IPlugCLAP::guiHide() noexcept
 
 bool IPlugCLAP::guiSetScale(double scale) noexcept
 {
-  SetScreenScale(scale);
+  SetScreenScale(static_cast<float>(scale));
   return true;
 }
 
