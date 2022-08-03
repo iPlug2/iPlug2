@@ -152,18 +152,16 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
     auto transport = process->transport;
     
     ITimeInfo timeInfo;
-    
-    // TODO - this upper bit all needs review
-    
+        
     timeInfo.mTempo = transport->tempo;
-    timeInfo.mSamplePos = process->steady_time;
-    timeInfo.mPPQPos = transport->song_pos_beats;       // TODO convert
-    timeInfo.mLastBar = transport->bar_start;           // TODO convert
-    timeInfo.mCycleStart = transport->loop_start_beats; // TODO convert
-    timeInfo.mCycleEnd = transport->loop_end_beats;
+    timeInfo.mSamplePos = static_cast<double>(process->steady_time);
+    timeInfo.mPPQPos = static_cast<double>(transport->song_pos_beats / CLAP_BEATTIME_FACTOR);
+    timeInfo.mLastBar = static_cast<double>(transport->bar_start / CLAP_BEATTIME_FACTOR);
+    timeInfo.mCycleStart = static_cast<double>(transport->loop_start_beats / CLAP_BEATTIME_FACTOR);
+    timeInfo.mCycleEnd = static_cast<double>(transport->loop_end_beats / CLAP_BEATTIME_FACTOR);
 
-    timeInfo.mNumerator = transport->tsig_num;
-    timeInfo.mDenominator = transport->tsig_denom;
+    timeInfo.mNumerator = static_cast<int>(transport->tsig_num);
+    timeInfo.mDenominator = static_cast<int>(transport->tsig_denom);
 
     timeInfo.mTransportIsRunning = transport->flags & CLAP_TRANSPORT_IS_PLAYING;
     timeInfo.mTransportLoopEnabled = transport->flags & CLAP_TRANSPORT_IS_LOOP_ACTIVE;
