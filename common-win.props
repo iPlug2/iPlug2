@@ -42,6 +42,7 @@
     <VST2_64_PATH Condition="'$(VST2_64_PATH)'==''">$(ProgramW6432)\VstPlugins</VST2_64_PATH>
     <AAX_32_PATH Condition="'$(AAX_32_PATH)'==''">$(CommonProgramFiles)\Avid\Audio\Plug-Ins</AAX_32_PATH>
     <AAX_64_PATH Condition="'$(AAX_64_PATH)'==''">$(CommonProgramW6432)\Avid\Audio\Plug-Ins</AAX_64_PATH>
+    <CLAP_PATH>$(CommonProgramW6432)\CLAP</CLAP_PATH>
     <REAPER_EXT_PATH>$(APPDATA)\REAPER\UserPlugins</REAPER_EXT_PATH>
     <APP_DEFS>APP_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;IPLUG_EDITOR=1;IPLUG_DSP=1</APP_DEFS>
     <CLAP_DEFS>CLAP_API;IPLUG_EDITOR=1;IPLUG_DSP=1</CLAP_DEFS>
@@ -290,6 +291,9 @@
     </BuildMacro>
     <BuildMacro Include="FAUST_LIB_PATH">
       <Value>$(FAUST_LIB_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="CLAP_PATH">
+      <Value>$(CLAP_PATH)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
