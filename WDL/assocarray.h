@@ -358,7 +358,7 @@ public:
 
 private:
 
-  static int cmpint(int *i1, int *i2) { return *i1-*i2; }
+  static int cmpint(int *i1, int *i2) { return *i1 > *i2 ? 1 : *i1 < *i2 ? -1 : 0; }
 };
 
 template <class VAL> class WDL_IntKeyedArray2 : public WDL_AssocArrayImpl<int, VAL>
@@ -370,7 +370,7 @@ public:
 
 private:
 
-  static int cmpint(int *i1, int *i2) { return *i1-*i2; }
+  static int cmpint(int *i1, int *i2) { return *i1 > *i2 ? 1 : *i1 < *i2 ? -1 : 0; }
 };
 
 template <class VAL> class WDL_StringKeyedArray : public WDL_AssocArray<const char *, VAL>
@@ -432,7 +432,7 @@ public:
 
 private:
   
-  static int cmpptr(INT_PTR* a, INT_PTR* b) { const INT_PTR d = *a - *b; return d<0?-1:(d!=0); }
+  static int cmpptr(INT_PTR* a, INT_PTR* b) { return *a > *b ? 1 : *a < *b ? -1 : 0; }
 };
 
 
