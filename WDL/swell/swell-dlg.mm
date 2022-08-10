@@ -2018,8 +2018,6 @@ static void MakeGestureInfo(NSEvent* evt, GESTUREINFO* gi, HWND hwnd, int type)
   if (!m_supports_ddrop) return 0;
   
   NSPasteboard *pboard;
-  NSDragOperation sourceDragMask;
-  sourceDragMask = [sender draggingSourceOperationMask];
   pboard = [sender draggingPasteboard];
  
   enum { PB_FILEREF=1, PB_FILEPROMISE };
