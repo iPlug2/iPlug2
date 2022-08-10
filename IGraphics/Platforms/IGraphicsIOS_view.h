@@ -54,7 +54,7 @@ using namespace igraphics;
 
 @end
 
-@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate,
+@interface IGRAPHICS_VIEW : UIView <UITextFieldDelegate,
                                           UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate,
                                           UITraitEnvironment
 #ifdef __IPHONE_14_0
@@ -67,6 +67,7 @@ using namespace igraphics;
   IGRAPHICS_UITABLEVC* mMenuTableController;
   UINavigationController* mMenuNavigationController;
   UITextField* mTextField;
+  UIAlertController* mAlertController;
   CAMetalLayer* mMTLLayer;
   int mTextFieldLength;
   IColorPickerHandlerFunc mColorPickerHandlerFunc;
