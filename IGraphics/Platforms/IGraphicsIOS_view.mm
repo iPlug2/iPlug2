@@ -188,12 +188,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics = pGraphics;
   CGRect r = CGRectMake(0.f, 0.f, (float) pGraphics->WindowWidth(), (float) pGraphics->WindowHeight());
   self = [super initWithFrame:r];
-  
-  //scrollview
-  [self setContentSize:r.size];
-  self.delegate = self;
-  self.scrollEnabled = NO;
-  
+    
 #ifdef IGRAPHICS_METAL
   mMTLLayer = [[CAMetalLayer alloc] init];
   mMTLLayer.device = MTLCreateSystemDefaultDevice();
@@ -207,8 +202,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
   self.multipleTouchEnabled = NO;
   
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillBeHidden:) name:UIKeyboardWillHideNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidEnterBackgroundNotification:) name:UIApplicationDidEnterBackgroundNotification object:nil];
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForegroundNotification:) name:UIApplicationWillEnterForegroundNotification object:nil];
   mColorPickerHandlerFunc = nullptr;
@@ -400,7 +393,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (BOOL) textFieldShouldReturn:(UITextField*) textField
 {
-  if(textField == mTextField)
+  if (textField == mTextField)
   {
     mGraphics->SetControlValueAfterTextEdit([[mTextField text] UTF8String]);
     mGraphics->SetAllControlsDirty();
@@ -490,60 +483,32 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   if (mTextField)
     return;
+  
+  mAlertController = [UIAlertController alertControllerWithTitle:@"Input a value:" message:@"" preferredStyle:UIAlertControllerStyleAlert];
 
-  mTextField = [[UITextField alloc] initWithFrame:areaRect];
-  mTextFieldLength = length;
+  UIAlertAction* okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil];
+  [mAlertController addAction:okAction];
   
-  CoreTextFontDescriptor* CTFontDescriptor = CoreTextHelpers::GetCTFontDescriptor(text, sFontDescriptorCache);
-  UIFontDescriptor* fontDescriptor = (__bridge UIFontDescriptor*) CTFontDescriptor->GetDescriptor();
-  UIFont* font = [UIFont fontWithDescriptor: fontDescriptor size: text.mSize * 0.75];
-  [mTextField setFont: font];
+  UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleDefault handler:nil];
+  [mAlertController addAction:cancelAction];
   
-  [mTextField setText:[NSString stringWithUTF8String:str]];
-  [mTextField setTextColor:ToUIColor(text.mTextEntryFGColor)];
-  [mTextField setBackgroundColor:ToUIColor(text.mTextEntryBGColor)];
-  [mTextField setAutocorrectionType:UITextAutocorrectionTypeNo];
-  [mTextField setDelegate:self];
-  
-  switch (text.mVAlign)
-  {
-    case EVAlign::Top:
-      [mTextField setContentVerticalAlignment:UIControlContentVerticalAlignmentTop];
-      break;
-    case EVAlign::Middle:
-      [mTextField setContentVerticalAlignment:UIControlContentVerticalAlignmentCenter];
-      break;
-    case EVAlign::Bottom:
-      [mTextField setContentVerticalAlignment:UIControlContentVerticalAlignmentBottom];
-      break;
-    default:
-      break;
-  }
-  
-  switch (text.mAlign)
-  {
-    case EAlign::Near:
-      [mTextField setTextAlignment: NSTextAlignmentLeft];
-      break;
-    case EAlign::Center:
-      [mTextField setTextAlignment: NSTextAlignmentCenter];
-      break;
-    case EAlign::Far:
-      [mTextField setTextAlignment: NSTextAlignmentRight];
-      break;
-    default:
-      break;
-  }
-  
-  [self addSubview: mTextField];
-  [mTextField becomeFirstResponder];
+  __weak IGRAPHICS_VIEW* weakSelf = self;
+  [mAlertController addTextFieldWithConfigurationHandler:^(UITextField* aTextField) {
+    IGRAPHICS_VIEW* strongSelf = weakSelf;
+    strongSelf->mTextField = aTextField;
+    strongSelf->mTextFieldLength = length;
+    aTextField.delegate = strongSelf;
+    [aTextField setText:[NSString stringWithUTF8String:str]];
+  }];
+  [self.window.rootViewController presentViewController:mAlertController animated:YES completion:nil];
 }
 
 - (void) endUserInput
 {
   [self becomeFirstResponder];
+  [self.window.rootViewController dismissViewControllerAnimated:NO completion:nil];
   [mTextField setDelegate: nil];
-  [mTextField removeFromSuperview];
+  mAlertController = nullptr;
   mTextField = nullptr;
   mGraphics->ClearInTextEntryControl();
 }
@@ -805,34 +770,10 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   auto ds = mGraphics->GetDrawScale();
 
-  if(mGraphics->RespondsToGesture(pos.x / ds, pos.y / ds))
+  if (mGraphics->RespondsToGesture(pos.x / ds, pos.y / ds))
     return TRUE;
   else
     return FALSE;
-}
-
-- (void) keyboardWillShow:(NSNotification*) notification
-{
-  NSDictionary* info = [notification userInfo];
-  CGSize kbSize = [[info objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue].size;
-  
-  UIEdgeInsets contentInsets = UIEdgeInsetsMake(0.0, 0.0, kbSize.height, 0.0);
-  self.contentInset = contentInsets;
-  self.scrollIndicatorInsets = contentInsets;
-  
-  CGRect r = self.frame;
-  r.size.height -= kbSize.height;
-  
-  if (!CGRectContainsPoint(r, CGPointMake(mTextField.frame.origin.x + mTextField.frame.size.width, mTextField.frame.origin.y + mTextField.frame.size.height)) ) {
-    [self scrollRectToVisible:mTextField.frame animated:YES];
-  }
-}
-
-- (void) keyboardWillBeHidden:(NSNotification*) notification
-{
-  UIEdgeInsets contentInsets = UIEdgeInsetsZero;
-  self.contentInset = contentInsets;
-  self.scrollIndicatorInsets = contentInsets;
 }
 
 - (void) applicationDidEnterBackgroundNotification:(NSNotification*) notification
@@ -848,12 +789,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 - (BOOL) delaysContentTouches
 {
   return NO;
-}
-
-- (void) scrollViewDidScroll:(UIScrollView*) scrollView
-{
-  mGraphics->SetTranslation(0, -self.contentOffset.y);
-  mGraphics->SetAllControlsDirty();
 }
 
 - (void) presentationControllerDidDismiss: (UIPresentationController*) presentationController
