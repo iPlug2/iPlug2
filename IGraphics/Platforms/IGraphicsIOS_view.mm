@@ -104,12 +104,12 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
   
-  if(pItem->GetChecked())
+  if (pItem->GetChecked())
     cell.accessoryType = UITableViewCellAccessoryCheckmark;
   else
     cell.accessoryType = pItem->GetSubmenu() ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
 
-  if(!pItem->GetEnabled())
+  if (!pItem->GetEnabled())
   {
     cell.userInteractionEnabled = NO;
     cell.textLabel.enabled = NO;
@@ -124,8 +124,20 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
   IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
 
-  if(pItem->GetIsSeparator())
-    return 0.5f;
+  if (pItem->GetIsSeparator())
+    return 0.5;
+  else
+    return self.tableView.rowHeight;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+  int cellIndex = static_cast<int>(indexPath.row);
+
+  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+
+  if (pItem->GetIsSeparator())
+    return 0.5;
   else
     return self.tableView.rowHeight;
 }
