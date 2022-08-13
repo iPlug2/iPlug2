@@ -7,6 +7,7 @@
  
  ==============================================================================
 */
+#pragma once
 
 #include "denormal.h"
 #include "IPlugConstants.h"
