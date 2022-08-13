@@ -3817,6 +3817,7 @@ struct SWELL_ListView_Col
   int xwid;
   int sortindicator;
   int col_index;
+  int fmt;  // LVCFMT_
 };
 
 enum { LISTVIEW_HDR_YMARGIN = 2 };
@@ -4906,14 +4907,34 @@ forceMouseMove:
                   }
                   else ar.right = cr.right;
 
-                  if (ar.right > ar.left)
+                  if (ar.right > ar.left && str)
                   {
                     const int adj = (ar.right-ar.left)/16;
                     const int maxadj = SWELL_UI_SCALE(4);
-                    ar.left += wdl_min(adj,maxadj);
+                    int fmt = cols[col].fmt & 3;
+                    if (fmt != LVCFMT_LEFT)
+                    {
+                      RECT mr={0,};
+                      DrawText(ps.hdc,str,-1,&mr,DT_CALCRECT|DT_SINGLELINE|DT_NOPREFIX);
+                      if (mr.right-mr.left > ar.right-ar.left-maxadj) fmt = LVCFMT_LEFT;
+                    }
 
-                    if(str)
+                    if (fmt == LVCFMT_CENTER)
+                    {
+                      ar.left += maxadj/2;
+                      ar.right -= maxadj/2;
+                      DrawText(ps.hdc,str,-1,&ar,DT_CENTER|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+                    }
+                    else if (fmt == LVCFMT_RIGHT)
+                    {
+                      ar.right -= wdl_min(adj,maxadj);
+                      DrawText(ps.hdc,str,-1,&ar,DT_RIGHT|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+                    }
+                    else
+                    {
+                      ar.left += wdl_min(adj,maxadj);
                       DrawText(ps.hdc,str,-1,&ar,DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+                    }
                   }
                 }
               }
@@ -4996,8 +5017,30 @@ forceMouseMove:
 
                   if (cols[col].name) 
                   {
-                    tr.left += wdl_min((tr.right-tr.left)/4,4);
-                    DrawText(ps.hdc,cols[col].name,-1,&tr,DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+                    const int maxadj = SWELL_UI_SCALE(4);
+                    int fmt = cols[col].fmt & 3;
+                    if (fmt != LVCFMT_LEFT)
+                    {
+                      RECT mr={0,};
+                      DrawText(ps.hdc,cols[col].name,-1,&mr,DT_SINGLELINE|DT_NOPREFIX|DT_CALCRECT);
+                      if (mr.right - mr.left > tr.right-tr.left-maxadj) fmt = LVCFMT_LEFT;
+                    }
+                    if (fmt == LVCFMT_CENTER)
+                    {
+                      tr.left += maxadj/2;
+                      tr.right -= maxadj/2;
+                      DrawText(ps.hdc,cols[col].name,-1,&tr,DT_CENTER|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+                    }
+                    else if (fmt == LVCFMT_RIGHT)
+                    {
+                      tr.right -= wdl_min((tr.right-tr.left)/4,maxadj);
+                      DrawText(ps.hdc,cols[col].name,-1,&tr,DT_RIGHT|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+                    }
+                    else
+                    {
+                      tr.left += wdl_min((tr.right-tr.left)/4,maxadj);
+                      DrawText(ps.hdc,cols[col].name,-1,&tr,DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+                    }
                   }
                 }
                 if (xpos >= cr.right) break;
@@ -6261,6 +6304,7 @@ void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
   SWELL_ListView_Col col = { 0, 100 };
   if (lvc->mask & LVCF_WIDTH) col.xwid = lvc->cx;
   if (lvc->mask & LVCF_TEXT) col.name = lvc->pszText ? strdup(lvc->pszText) : NULL;
+  if (lvc->mask & LVCF_FMT) col.fmt = lvc->fmt;
 
   for (int x = 0; x < lvs->m_cols.GetSize(); x++)
     if (lvs->m_cols.Get()[x].col_index>=pos)
@@ -6285,6 +6329,7 @@ void ListView_SetColumn(HWND h, int pos, const LVCOLUMN *lvc)
     free(col->name);
     col->name = lvc->pszText ? strdup(lvc->pszText) : NULL;
   }
+  if (lvc->mask & LVCF_FMT) col->fmt = lvc->fmt;
 }
 
 void ListView_GetItemText(HWND hwnd, int item, int subitem, char *text, int textmax)
