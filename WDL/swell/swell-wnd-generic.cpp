@@ -3857,6 +3857,7 @@ struct listViewState
     m_color_text_sel_inactive = g_swell_ctheme.listview_text_sel_inactive;
     m_color_grid = g_swell_ctheme.listview_grid;
     memset(m_color_extras,0xff,sizeof(m_color_extras)); // if !=-1, overrides bg/fg for (focus?0:2)
+    m_fastclick_mask = 0;
   } 
   ~listViewState()
   { 
@@ -3907,6 +3908,8 @@ struct listViewState
   ListViewCapMode m_capmode_state;
   int m_scroll_x,m_scroll_y, m_capmode_data1,m_capmode_data2;
   int m_extended_style;
+
+  int m_fastclick_mask;
 
   int m_color_bg, m_color_bg_sel, m_color_bg_sel_inactive, m_color_text, m_color_text_sel, m_color_text_sel_inactive, m_color_grid;
   int m_color_extras[4];
@@ -4267,6 +4270,7 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         const int hit = ypos >= 0 ? ((ypos+lvs->m_scroll_y) / row_height) : -1;
         if (hit < 0) return 1;
 
+        int subitem_col = 0;
         int subitem = 0; // display index
 
         {
@@ -4277,11 +4281,24 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
           for (int x=0;x<ncol;x++)
           {
             const int xwid = lvs->m_cols.Get()[x].xwid;
-            if (xpt >= xpos && xpt < xpos+xwid) { subitem = x; break; }
+            if (xpt >= xpos && xpt < xpos+xwid)
+            {
+              subitem_col = lvs->m_cols.Get()[x].col_index;
+              subitem = x;
+              break;
+            }
             xpos += xwid;
           }
         }
 
+        if ((subitem_col >= 0 && subitem_col < 32 && (lvs->m_fastclick_mask & (1u<<subitem_col))) || // fastclick mode
+            (lvs->m_status_imagelist && GET_X_LPARAM(lParam) + lvs->m_scroll_x < lvs->m_last_row_height) // image click
+            )
+        {
+          NMLISTVIEW nm={{hwnd,hwnd->m_id,msg == WM_LBUTTONDBLCLK ? NM_DBLCLK : NM_CLICK},hit,lvs->GetColumnIndex(subitem),0,0,0, {s_clickpt.x, s_clickpt.y }};
+          SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
+          return 0;
+        }
 
         if (!lvs->m_is_multisel)
         {
@@ -6216,6 +6233,9 @@ void ListView_SetExtendedListViewStyleEx(HWND h, int flag, int mask)
 
 void SWELL_SetListViewFastClickMask(HWND hList, int mask)
 {
+  listViewState *lvs = hList ? (listViewState *)hList->m_private_data : NULL;
+  if (WDL_NOT_NORMALLY(!lvs)) return;
+  lvs->m_fastclick_mask = mask;
 }
 
 void ListView_SetImageList(HWND h, HIMAGELIST imagelist, int which)
