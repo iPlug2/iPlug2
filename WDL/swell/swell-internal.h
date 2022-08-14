@@ -23,12 +23,35 @@
 
 #include "../ptrlist.h"
 
+struct SWELL_ListView_Rec
+{
+  char *txt;
+};
+
 class SWELL_ListView_Row
 {
 public:
   SWELL_ListView_Row() : m_param(0), m_imageidx(0), m_tmp(0) { }
-  ~SWELL_ListView_Row() { m_vals.Empty(true,free); }
-  WDL_PtrList<char> m_vals;
+  ~SWELL_ListView_Row()
+  {
+    for (int x = 0; x < m_cols.GetSize(); x ++)
+    {
+      free(m_cols.Get()[x].txt);
+    }
+    m_cols.Resize(0);
+  }
+  int get_num_cols() const { return m_cols.GetSize(); }
+  char *get_col_txt(int x) const { return x >= 0 && x < m_cols.GetSize() ? m_cols.Get()[x].txt : NULL; }
+  void add_col(const char *p) { SWELL_ListView_Rec r = { p ? strdup(p) : NULL }; m_cols.Add(r); }
+  void set_col_txt(int x, const char *p)
+  {
+    if (WDL_NORMALLY(x >= 0 && x < m_cols.GetSize()))
+    {
+      free(m_cols.Get()[x].txt);
+      m_cols.Get()[x].txt = p ? strdup(p) : NULL;
+    }
+  }
+  WDL_TypedBuf<SWELL_ListView_Rec> m_cols;
 
   LPARAM m_param;
   int m_imageidx;

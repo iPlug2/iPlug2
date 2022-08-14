@@ -126,7 +126,7 @@ static int _listviewrowSearchFunc(const void *_a, const void *_b, const void *ct
   const char *a = (const char *)_a;
   SWELL_ListView_Row *row = (SWELL_ListView_Row *)_b;
   const char *b="";
-  if (!row || !(b=row->m_vals.Get(0))) b="";
+  if (!row || !(b=row->get_col_txt(0))) b="";
   return strcmp(a,b);
 }
 static int _listviewrowSearchFunc2(const void *_a, const void *_b, const void *ctx)
@@ -134,7 +134,7 @@ static int _listviewrowSearchFunc2(const void *_a, const void *_b, const void *c
   const char *a = (const char *)_a;
   SWELL_ListView_Row *row = (SWELL_ListView_Row *)_b;
   const char *b="";
-  if (!row || !(b=row->m_vals.Get(0))) b="";
+  if (!row || !(b=row->get_col_txt(0))) b="";
   return strcmp(b,a);
 }
 
@@ -799,11 +799,11 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
   }
   else
   {
-    char *p=NULL;
+    const char *p=NULL;
     SWELL_ListView_Row *r=0;
     if (m_items && m_cols && (r=m_items->Get(rowIndex))) 
     {
-      p=r->m_vals.Get(m_cols->Find(aTableColumn));
+      p=r->get_col_txt(m_cols->Find(aTableColumn));
       if (m_status_imagelist_type == LVSIL_STATE || m_status_imagelist_type == LVSIL_SMALL)
       {
         image_idx=r->m_imageidx;
@@ -1086,10 +1086,11 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
         {
           SWELL_ListView_Row *row=self->m_items ? self->m_items->Get(wParam) : NULL;
           *(char *)lParam = 0;
-          if (row && row->m_vals.Get(0))
+          const char *p;
+          if (row && (p=row->get_col_txt(0)))
           {
-            strcpy((char *)lParam, row->m_vals.Get(0));
-            return (LRESULT)strlen(row->m_vals.Get(0));
+            strcpy((char *)lParam, p);
+            return (LRESULT)strlen(p);
           }
         }
       return LB_ERR;
@@ -1098,7 +1099,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
           SWELL_ListView_Row *row=self->m_items ? self->m_items->Get(wParam) : NULL;
           if (row) 
           {
-            const char *p=row->m_vals.Get(0);
+            const char *p=row->get_col_txt(0);
             return p?strlen(p):0;
           }
         }
@@ -1114,7 +1115,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
             SWELL_ListView_Row *row=self->m_items->Get(x);
             if (row)
             {
-              const char *p = row->m_vals.Get(0);
+              const char *p = row->get_col_txt(0);
               if (p && !stricmp(p,(const char *)lParam)) return x;
             }
             if (++x >= n) x=0;
@@ -4518,7 +4519,7 @@ int ListView_InsertItem(HWND h, const LVITEM *item)
   }
   
   SWELL_ListView_Row *nr=new SWELL_ListView_Row;
-  nr->m_vals.Add(strdup((item->mask & LVIF_TEXT) ? item->pszText : ""));
+  nr->add_col((item->mask & LVIF_TEXT) ? item->pszText : "");
   if (item->mask & LVIF_PARAM) nr->m_param = item->lParam;
   tv->m_items->Insert(a,nr);
   
@@ -4572,16 +4573,15 @@ void ListView_SetItemText(HWND h, int ipos, int cpos, const char *txt)
   SWELL_ListView_Row *p=tv->m_items->Get(ipos);
   if (!p) return;
   int x;
-  for (x = p->m_vals.GetSize(); x < cpos; x ++)
+  for (x = p->get_num_cols(); x < cpos; x ++)
   {
-    p->m_vals.Add(strdup(""));
+    p->add_col("");
   }
-  if (cpos < p->m_vals.GetSize())
+  if (cpos < p->get_num_cols())
   {
-    free(p->m_vals.Get(cpos));
-    p->m_vals.Set(cpos,strdup(txt));
+    p->set_col_txt(cpos,strdup(txt));
   }
-  else p->m_vals.Add(strdup(txt));
+  else p->add_col(txt);
     
   [tv setNeedsDisplay];
 }
@@ -4663,7 +4663,7 @@ bool ListView_GetItem(HWND h, LVITEM *item)
     if (item->mask & LVIF_PARAM) item->lParam=row->m_param;
     if (item->mask & LVIF_TEXT) if (item->pszText && item->cchTextMax>0)
     {
-      char *p=row->m_vals.Get(item->iSubItem);
+      const char *p=row->get_col_txt(item->iSubItem);
       lstrcpyn_safe(item->pszText,p?p:"",item->cchTextMax);
     }
       if (item->mask & LVIF_STATE)

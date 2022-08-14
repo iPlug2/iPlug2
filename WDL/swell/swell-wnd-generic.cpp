@@ -4055,8 +4055,8 @@ struct listViewState
   static int compareRows(const SWELL_ListView_Row **_a, const SWELL_ListView_Row **_b)
   {
     const char *a, *b;
-    if (!_a || !(a=(*_a)->m_vals.Get(0))) a="";
-    if (!_b || !(b=(*_b)->m_vals.Get(0))) b="";
+    if (!_a || !(a=(*_a)->get_col_txt(0))) a="";
+    if (!_b || !(b=(*_b)->get_col_txt(0))) b="";
     return strcmp(a,b);
   }
 };
@@ -4586,7 +4586,7 @@ forceMouseMove:
             if (!lvs->IsOwnerData())
             {
               SWELL_ListView_Row *row = lvs->m_data.Get(offs);
-              if (row) v = row->m_vals.Get(col);
+              if (row) v = row->get_col_txt(col);
             }
             else
             {
@@ -4864,7 +4864,7 @@ forceMouseMove:
                 else
                 {
                   if (!col && has_image) image_idx = row->m_imageidx;
-                  if (row) str = row->m_vals.Get(col_idx);
+                  if (row) str = row->get_col_txt(col_idx);
                 }
 
                 RECT ar = { xpos,ypos, cr.right, ypos + row_height };
@@ -5122,7 +5122,7 @@ forceMouseMove:
       if (lvs && !lvs->IsOwnerData())
       {
         SWELL_ListView_Row *row=new SWELL_ListView_Row;
-        row->m_vals.Add(strdup((const char *)lParam));
+        row->add_col((const char *)lParam);
         int idx;
         if (msg == LB_ADDSTRING && hwnd->m_style & LBS_SORT)
         {
@@ -5157,10 +5157,11 @@ forceMouseMove:
       if (lvs && !lvs->IsOwnerData())
       {
         SWELL_ListView_Row *row = lvs->m_data.Get(wParam);
-        if (row && row->m_vals.Get(0))
+        const char *p;
+        if (row && (p=row->get_col_txt(0)))
         {
-          strcpy((char *)lParam, row->m_vals.Get(0));
-          return (LRESULT)strlen(row->m_vals.Get(0));
+          strcpy((char *)lParam, p);
+          return (LRESULT)strlen(p);
         }
       }
     return LB_ERR;
@@ -5169,7 +5170,7 @@ forceMouseMove:
           SWELL_ListView_Row *row=lvs->m_data.Get(wParam);
           if (row) 
           {
-            const char *p=row->m_vals.Get(0);
+            const char *p=row->get_col_txt(0);
             return p?strlen(p):0;
           }
         }
@@ -5185,7 +5186,7 @@ forceMouseMove:
           SWELL_ListView_Row *row=lvs->m_data.Get(x);
           if (row)
           {
-            const char *p = row->m_vals.Get(0);
+            const char *p = row->get_col_txt(0);
             if (p && !stricmp(p,(const char *)lParam)) return x;
           }
           if (++x >= n) x=0;
@@ -6350,7 +6351,7 @@ int ListView_InsertItem(HWND h, const LVITEM *item)
   int idx =  (int) item->iItem;
   if (idx<0 || idx>lvs->m_data.GetSize()) idx=lvs->m_data.GetSize();
   SWELL_ListView_Row *row=new SWELL_ListView_Row;
-  row->m_vals.Add((item->mask&LVIF_TEXT) && item->pszText ? strdup(item->pszText) : NULL);
+  row->add_col((item->mask&LVIF_TEXT) ? item->pszText : NULL);
   row->m_param = (item->mask&LVIF_PARAM) ? item->lParam : 0;
   row->m_tmp = ((item->mask & LVIF_STATE) && (item->state & LVIS_SELECTED)) ? 1:0;
   lvs->m_data.Insert(idx,row); 
@@ -6372,9 +6373,8 @@ void ListView_SetItemText(HWND h, int ipos, int cpos, const char *txt)
 
   SWELL_ListView_Row *row=lvs->m_data.Get(ipos);
   if (!row) return;
-  while (row->m_vals.GetSize()<=cpos) row->m_vals.Add(NULL);
-  free(row->m_vals.Get(cpos));
-  row->m_vals.Set(cpos,txt?strdup(txt):NULL);
+  while (row->get_num_cols()<=cpos) row->add_col(NULL);
+  row->set_col_txt(cpos,txt);
   InvalidateRect(h,NULL,FALSE);
 }
 
@@ -6405,11 +6405,10 @@ bool ListView_SetItem(HWND h, LVITEM *item)
     const int ncol = wdl_max(lvs->m_cols.GetSize(),1);
     if (item->iSubItem >= 0 && item->iSubItem < ncol)
     {
-      while (row->m_vals.GetSize()<=item->iSubItem) row->m_vals.Add(NULL);
+      while (row->get_num_cols()<=item->iSubItem) row->add_col(NULL);
       if (item->mask&LVIF_TEXT) 
       {
-        free(row->m_vals.Get(item->iSubItem));
-        row->m_vals.Set(item->iSubItem,item->pszText?strdup(item->pszText):NULL);
+        row->set_col_txt(item->iSubItem,item->pszText);
       }
     }
     if (item->mask & LVIF_PARAM) 
@@ -6445,7 +6444,7 @@ bool ListView_GetItem(HWND h, LVITEM *item)
     if (!row) return false;
     if ((item->mask&LVIF_TEXT)&&item->pszText && item->cchTextMax > 0) 
     {
-      const char *v=row->m_vals.Get(item->iSubItem);
+      const char *v=row->get_col_txt(item->iSubItem);
       lstrcpyn_safe(item->pszText, v?v:"",item->cchTextMax);
     }
     if (item->mask & LVIF_PARAM) item->lParam = row->m_param;
