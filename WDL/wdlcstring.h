@@ -89,6 +89,7 @@ extern "C" {
   size_t WDL_remove_trailing_crlf(char *str); // returns new length
   size_t WDL_remove_trailing_whitespace(char *str); // returns new length, removes crlf space tab
   const char *WDL_sanitize_ini_key_start(const char *p); // used for sanitizing the start of the "key" parameter to Write/GetPrivateProfile*. note does not fully santiize
+  char *WDL_sanitize_ini_key_full(const char *p, char *buf, int bufsz, int extra_filters); // converts = and leading [ to _. removes leading/trailing whitespace. if extra_filters&1, converts all [] to _.
 
   char *WDL_remove_trailing_decimal_zeros(char *str, unsigned int keep); // returns pointer to decimal point or end of string. removes final zeros after final decimal point only, keep=0 makes min length X, keep=1 X., keep=2 X.0, keep=3 X.00 etc, and also treats commas as decimal points
 
@@ -263,6 +264,21 @@ extern "C" {
   {
     while (*p == ' ' || *p == '\t' || *p == '[') p++;
     return p;
+  }
+
+  _WDL_CSTRING_PREFIX char *WDL_sanitize_ini_key_full(const char *p, char *buf, int bufsz, int extra_filters)
+  {
+    // converts = and leading [ to _. removes leading/trailing whitespace. if extra_filters&1, converts all [] to _.
+    char *w=buf;
+    lstrcpyn_safe(buf,WDL_sanitize_ini_key_start(p),bufsz);
+    while (*w)
+    {
+      if (*w == '=' || ((extra_filters&1) && (*w=='[' || *w == ']'))) *w = '_';
+      w++;
+    }
+    while (w > buf && (w[-1] == ' ' || w[-1] == '\t' || w[-1] == '\r' || w[-1] == '\n')) *--w = 0;
+    while (--w >= buf) if (*w == '\r' || *w == '\n' || *w == '\t') *w = '_';
+    return buf;
   }
 
   _WDL_CSTRING_PREFIX void WDL_VARARG_WARN(printf,3,4) snprintf_append(char *o, INT_PTR count, const char *format, ...)

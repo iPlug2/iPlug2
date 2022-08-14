@@ -1600,7 +1600,7 @@ int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata,
     for (int i=0; i < rawtags->GetSize(); ++i)
     {
       ID3RawTag *rawtag=rawtags->Get(i);
-      if (WDL_NORMALLY(rawtag && rawtag->key && rawtag->key[0] && rawtag->val.GetSize()))
+      if (WDL_NORMALLY(rawtag && rawtag->key[0] && rawtag->val.GetSize()))
       {
         id3len += 8+rawtag->val.GetSize();
       }
@@ -1812,7 +1812,7 @@ int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata,
         for (int i=0; i < rawtags->GetSize(); ++i)
         {
           ID3RawTag *rawtag=rawtags->Get(i);
-          if (WDL_NORMALLY(rawtag && rawtag->key && rawtag->key[0] && rawtag->val.GetSize()))
+          if (WDL_NORMALLY(rawtag && rawtag->key[0] && rawtag->val.GetSize()))
           {
             memcpy(p, rawtag->key, strlen(rawtag->key));
             p += strlen(rawtag->key);

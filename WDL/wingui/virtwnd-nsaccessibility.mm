@@ -348,7 +348,6 @@ public:
   if ([attribute isEqual:NSAccessibilityTitleAttribute] || [attribute isEqual:NSAccessibilityDescriptionAttribute])// || [attribute isEqual:NSAccessibilityValueDescriptionAttribute])
   {
     const char *str=NULL;
-    int cs=-1;
     if (!strcmp(type,"vwnd_statictext"))
     {
       WDL_VirtualStaticText *t = (WDL_VirtualStaticText *)m_br->vwnd;
@@ -363,7 +362,6 @@ public:
     {
       WDL_VirtualIconButton *b = (WDL_VirtualIconButton *)m_br->vwnd;
       str = b->GetTextLabel();
-      cs = b->GetCheckState();
     }
     if (!str || !*str) str= m_br->vwnd->GetAccessDesc();
     else
@@ -378,20 +376,6 @@ public:
         str=buf;
       }
     }
-
-  
-#if 0
-    if (cs>=0)
-    {
-      if (str!=buf)
-      {
-        lstrcpyn(buf,str?str:"",sizeof(buf)-128);
-        str=buf;
-      }
-//      strcat(buf,cs>0 ? " checked" : " unchecked");
-      
-    }
-#endif
     
     if (str && *str) return [(id)SWELL_CStringToCFString(str) autorelease];
   }
