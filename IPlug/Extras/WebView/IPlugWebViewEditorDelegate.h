@@ -69,6 +69,13 @@ public:
     str.SetFormatted(mMaxJSStringLength, "SAMFD(%i, %i, %s)", msgTag, dataSize, base64.data());
     EvaluateJavaScript(str.Get());
   }
+  
+  void SendMidiMsgFromDelegate(const IMidiMsg& msg) override
+  {
+    WDL_String str;
+    str.SetFormatted(mMaxJSStringLength, "SMMFD(%i, %i, %i)", msg.mStatus, msg.mData1, msg.mData2);
+    EvaluateJavaScript(str.Get());
+  }
 
   void OnMessageFromWebView(const char* jsonStr) override
   {
