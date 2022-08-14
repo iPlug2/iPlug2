@@ -55,8 +55,8 @@ using namespace igraphics;
 @end
 
 @interface IGRAPHICS_VIEW : UIView <UITextFieldDelegate,
-                                          UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate,
-                                          UITraitEnvironment
+                                    UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate,
+                                    UITraitEnvironment
 #ifdef __IPHONE_14_0
 , UIColorPickerViewControllerDelegate
 #endif
