@@ -73,27 +73,33 @@ public:
 
   void OnWebViewReady() override
   {
-    if(mOnReadyFunc)
+    if (mOnReadyFunc)
       mOnReadyFunc(this);
   }
   
   void OnMessageFromWebView(const char* json) override
   {
-    if(mOnMessageFunc)
+    if (mOnMessageFunc)
       mOnMessageFunc(this, json);
   }
 
   void OnRescale() override
   {
-    SetWebViewBounds(mRECT.L, mRECT.T, mRECT.W(), mRECT.H(), GetUI()->GetTotalScale());
+    UpdateWebViewBounds();
   }
 
   void OnResize() override
   {
-    SetWebViewBounds(mRECT.L, mRECT.T, mRECT.W(), mRECT.H(), GetUI()->GetTotalScale());
+    UpdateWebViewBounds();
   }
   
 private:
+  void UpdateWebViewBounds()
+  {
+    auto ds = GetUI()->GetDrawScale();
+    SetWebViewBounds(mRECT.L * ds, mRECT.T * ds, mRECT.W() * ds, mRECT.H() * ds, ds);
+  }
+  
   void* mPlatformView = nullptr;
   onReadyFunc mOnReadyFunc;
   onMessageFunc mOnMessageFunc;

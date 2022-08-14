@@ -35,7 +35,7 @@ using namespace iplug;
 {
   self = [super init];
   
-  if(self)
+  if (self)
     mWebView = webView;
   
   return self;
@@ -43,7 +43,7 @@ using namespace iplug;
 
 - (void) userContentController:(nonnull WKUserContentController*) userContentController didReceiveScriptMessage:(nonnull WKScriptMessage*) message
 {
-  if([[message name] isEqualToString:@"callback"])
+  if ([[message name] isEqualToString:@"callback"])
   {
     NSDictionary* dict = (NSDictionary*) message.body;
     NSData* data = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil];
@@ -87,7 +87,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
   [controller addUserScript:script1];
 
   // this script prevents view scaling on iOS
-  WKUserScript* script2 = [[WKUserScript alloc] initWithSource:@"var meta = document.createElement('meta'); meta.name = 'viewport'; meta.content = 'width=device-width, initial-scale=1.0, maximum- scale=1.0, user-scalable=no, shrink-to-fit=YES'; var head = document.getElementsByTagName('head')[0]; head.appendChild(meta);"
+  WKUserScript* script2 = [[WKUserScript alloc] initWithSource:@"var meta = document.createElement('meta'); meta.name = 'viewport'; meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=YES'; var head = document.getElementsByTagName('head')[0]; head.appendChild(meta);"
                                                  injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:YES];
   [controller addUserScript:script2];
   
@@ -96,7 +96,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
   
 
 #if defined OS_IOS
-  if(!mOpaque)
+  if (!mOpaque)
   {
     webView.backgroundColor = [UIColor clearColor];
     webView.scrollView.backgroundColor = [UIColor clearColor];
@@ -105,7 +105,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
 #endif
 
 #if defined OS_MAC
-  if(!mOpaque)
+  if (!mOpaque)
     [webView setValue:@(NO) forKey:@"drawsBackground"];
 //    [webView setValue:[NSNumber numberWithBool:YES]  forKey:@"drawsTransparentBackground"]; // deprecated
   
@@ -179,7 +179,7 @@ void IWebView::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc f
   if (webView && ![webView isLoading])
   {
     [webView evaluateJavaScript:[NSString stringWithUTF8String:scriptStr] completionHandler:^(NSString *result, NSError *error) {
-      if(error != nil)
+      if (error != nil)
         NSLog(@"Error %@",error);
       else if(func)
       {
@@ -202,6 +202,9 @@ void IWebView::SetWebViewBounds(float x, float y, float w, float h, float scale)
 //  [NSAnimationContext beginGrouping]; // Prevent animated resizing
 //  [[NSAnimationContext currentContext] setDuration:0.0];
   [(__bridge WKWebView*) mWKWebView setFrame: MAKERECT(x, y, w, h) ];
+#ifdef OS_MAC
+  [(__bridge WKWebView*) mWKWebView setMagnification: scale ];
+#endif
 //  [NSAnimationContext endGrouping];
 }
 
