@@ -1829,16 +1829,16 @@ public:
   
   void Draw(IGraphics& g) override
   {
-    if(mDrawFunc)
+    if (mDrawFunc)
       mDrawFunc(this, g, mRECT);
   }
   
   virtual void OnEndAnimation() override // if you override this you must call the base implementation, to free mAnimationFunc
   {
-    if(mLoopAnimation && mAnimationDuration)
+    if (mLoopAnimation && mAnimationDuration)
       StartAnimation(mAnimationDuration);
     else
-      SetAnimation(nullptr);
+      IControl::OnEndAnimation();
     
     SetDirty(false);
   }
