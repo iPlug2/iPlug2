@@ -4911,7 +4911,7 @@ forceMouseMove:
                   {
                     const int adj = (ar.right-ar.left)/16;
                     const int maxadj = SWELL_UI_SCALE(4);
-                    int fmt = cols[col].fmt & 3;
+                    int fmt = ncols > 0 ? cols[col].fmt & 3 : LVCFMT_LEFT;
                     if (fmt != LVCFMT_LEFT)
                     {
                       RECT mr={0,};
