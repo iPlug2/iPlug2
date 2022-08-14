@@ -830,6 +830,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define LVN_GETDISPINFO         (LVN_FIRST-50)
 
 #define LVS_EX_GRIDLINES 0x01
+#define LVS_EX_SUBITEMIMAGES 0x02
 #define LVS_EX_HEADERDRAGDROP 0x10
 #define LVS_EX_FULLROWSELECT 0x20 // ignored for now (enabled by default on OSX)
 

@@ -26,12 +26,13 @@
 struct SWELL_ListView_Rec
 {
   char *txt;
+  int image_idx;
 };
 
 class SWELL_ListView_Row
 {
 public:
-  SWELL_ListView_Row() : m_param(0), m_imageidx(0), m_tmp(0) { }
+  SWELL_ListView_Row() : m_param(0), m_tmp(0) { }
   ~SWELL_ListView_Row()
   {
     for (int x = 0; x < m_cols.GetSize(); x ++)
@@ -51,10 +52,15 @@ public:
       m_cols.Get()[x].txt = p ? strdup(p) : NULL;
     }
   }
+  int get_img_idx(int x) const { return x >= 0 && x < m_cols.GetSize() ? m_cols.Get()[x].image_idx : 0; }
+  void set_img_idx(int x, int index)
+  {
+    if (WDL_NORMALLY(x >= 0 && x < m_cols.GetSize()))
+      m_cols.Get()[x].image_idx = index;
+  }
   WDL_TypedBuf<SWELL_ListView_Rec> m_cols;
 
   LPARAM m_param;
-  int m_imageidx;
   int m_tmp; // Cocoa uses this temporarily, generic uses it as a mask (1= selected)
 };
 
@@ -285,6 +291,7 @@ typedef struct WindowPropRec
   // these are for the new yosemite mouse handling code
   int m_last_plainly_clicked_item, m_last_shift_clicked_item;
 
+  bool m_subitem_images;
 }
 -(LONG)getSwellStyle;
 -(void)setSwellStyle:(LONG)st;

@@ -660,6 +660,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
 {
   if ((self = [super init]))
   {
+    m_subitem_images = false;
     m_selColors=0;
     m_fgColor = 0;
     ownermode_cnt=0;
@@ -803,10 +804,12 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
     SWELL_ListView_Row *r=0;
     if (m_items && m_cols && (r=m_items->Get(rowIndex))) 
     {
-      p=r->get_col_txt(m_cols->Find(aTableColumn));
+      int col_idx = m_cols->Find(aTableColumn);
+      p=r->get_col_txt(col_idx);
       if (m_status_imagelist_type == LVSIL_STATE || m_status_imagelist_type == LVSIL_SMALL)
       {
-        image_idx=r->m_imageidx;
+        if (col_idx==0 || m_subitem_images)
+          image_idx=r->get_img_idx(col_idx);
       }
     }
     
@@ -4316,6 +4319,11 @@ void ListView_SetExtendedListViewStyleEx(HWND h, int mask, int style)
 {
   if (WDL_NOT_NORMALLY(!h || ![(id)h isKindOfClass:[SWELL_ListView class]])) return;
   SWELL_ListView *tv=(SWELL_ListView*)h;
+
+  if (mask & LVS_EX_SUBITEMIMAGES)
+  {
+    tv->m_subitem_images = (style & LVS_EX_SUBITEMIMAGES) != 0;
+  }
   
   if (mask&LVS_EX_GRIDLINES)
   {
@@ -4353,15 +4361,20 @@ void ListView_SetImageList(HWND h, HIMAGELIST imagelist, int which)
   
   v->m_status_imagelist_type=which;
   v->m_status_imagelist=(WDL_PtrList<HGDIOBJ__> *)imagelist;
-  if (v->m_cols && v->m_cols->GetSize()>0)
+  if (v->m_cols)
   {
-    NSTableColumn *col=(NSTableColumn*)v->m_cols->Get(0);
-    if (![col isKindOfClass:[SWELL_StatusCell class]])
+    for (int x = 0; x < v->m_cols->GetSize(); x ++)
     {
-      SWELL_StatusCell *cell=[[SWELL_StatusCell alloc] initNewCell];
-      [cell setWraps:NO];
-      [col setDataCell:cell];
-      [cell release];
+      NSTableColumn *col=(NSTableColumn*)v->m_cols->Get(x);
+      if (![col isKindOfClass:[SWELL_StatusCell class]])
+      {
+        SWELL_StatusCell *cell=[[SWELL_StatusCell alloc] initNewCell];
+        [cell setWraps:NO];
+        [col setDataCell:cell];
+        [cell release];
+      }
+      if (!v->m_subitem_images)
+        break;
     }
   }  
 }
@@ -4401,8 +4414,8 @@ void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
     [[col headerCell] setStringValue:lbl];
     [lbl release];
   }
-  
-  if (!pos && v->m_status_imagelist) 
+
+  if ((!pos || v->m_subitem_images) && v->m_status_imagelist)
   {
     SWELL_StatusCell *cell=[[SWELL_StatusCell alloc] initNewCell];
     [cell setWraps:NO];
@@ -4527,7 +4540,7 @@ int ListView_InsertItem(HWND h, const LVITEM *item)
   
   if ((item->mask&LVIF_STATE) && (item->stateMask & (0xff<<16)))
   {
-    nr->m_imageidx=(item->state>>16)&0xff;
+    nr->set_img_idx(0,(item->state>>16)&0xff);
   }
   
   [tv reloadData];
@@ -4633,7 +4646,7 @@ bool ListView_SetItem(HWND h, LVITEM *item)
     }
     if ((item->mask&LVIF_IMAGE) && item->iImage >= 0)
     {
-      row->m_imageidx=item->iImage+1;
+      row->set_img_idx(item->iSubItem,item->iImage+1);
       ListView_RedrawItems(h, item->iItem, item->iItem);
     }
   }
@@ -4670,7 +4683,7 @@ bool ListView_GetItem(HWND h, LVITEM *item)
       {
         if (item->stateMask & (0xff<<16))
         {
-          item->state|=row->m_imageidx<<16;
+          item->state|=row->get_img_idx(item->iSubItem)<<16;
         }
       }
   }
@@ -4716,7 +4729,7 @@ int ListView_GetItemState(HWND h, int ipos, UINT mask)
     if (!row) return 0;  
     if (mask & (0xff<<16))
     {
-      flag|=row->m_imageidx<<16;
+      flag|=row->get_img_idx(0)<<16;
     }
   }
   else
@@ -4802,9 +4815,9 @@ bool ListView_SetItemState(HWND h, int ipos, UINT state, UINT statemask)
     if (!row) return false;  
     if (statemask & (0xff<<16))
     {
-      if (row->m_imageidx!=((state>>16)&0xff))
+      if (row->get_img_idx(0)!=((state>>16)&0xff))
       {
-        row->m_imageidx=(state>>16)&0xff;
+        row->set_img_idx(0,(state>>16)&0xff);
         doref=1;
       }
     }

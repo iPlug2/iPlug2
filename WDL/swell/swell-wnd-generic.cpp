@@ -4781,6 +4781,7 @@ forceMouseMove:
 
             const bool has_image = lvs->hasAnyImage();
             const bool has_status_image = lvs->hasStatusImage();
+            const bool has_subitem_image = (lvs->m_extended_style & LVS_EX_SUBITEMIMAGES)!=0;
             const int xo = lvs->m_scroll_x;
 
             const int totalw = lvs->getTotalWidth();
@@ -4846,16 +4847,15 @@ forceMouseMove:
                 if (owner_data)
                 {
                   NMLVDISPINFO nm={{hwnd,hwnd->m_id,LVN_GETDISPINFO},{LVIF_TEXT, rowidx,col_idx, 0,0, buf, sizeof(buf), -1 }};
-                  if (!col && has_image)
+                  if ((!col || has_subitem_image) && has_image)
                   {
                     if (lvs->m_status_imagelist_type == LVSIL_STATE) nm.item.mask |= LVIF_STATE;
                     else if (lvs->m_status_imagelist_type == LVSIL_SMALL) nm.item.mask |= LVIF_IMAGE;
-
                   }
                   buf[0]=0;
                   SendMessage(par,WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
                   str=nm.item.pszText;
-                  if (!col && has_image)
+                  if ((!col || has_subitem_image) && has_image)
                   {
                     if (lvs->m_status_imagelist_type == LVSIL_STATE) image_idx=STATEIMAGEMASKTOINDEX(nm.item.state);
                     else if (lvs->m_status_imagelist_type == LVSIL_SMALL) image_idx = nm.item.iImage + 1;
@@ -4863,12 +4863,12 @@ forceMouseMove:
                 }
                 else
                 {
-                  if (!col && has_image) image_idx = row->m_imageidx;
+                  if (!col && has_image) image_idx = row->get_img_idx(0);
                   if (row) str = row->get_col_txt(col_idx);
                 }
 
                 RECT ar = { xpos,ypos, cr.right, ypos + row_height };
-                if (!col && has_image)
+                if ((!col || has_subitem_image) && has_image)
                 {
                   if (image_idx>0) 
                   {
@@ -6357,7 +6357,7 @@ int ListView_InsertItem(HWND h, const LVITEM *item)
   lvs->m_data.Insert(idx,row); 
   if (item->mask&LVIF_STATE)
   {
-    if (item->stateMask & LVIS_STATEIMAGEMASK) row->m_imageidx=STATEIMAGEMASKTOINDEX(item->state);
+    if (item->stateMask & LVIS_STATEIMAGEMASK) row->set_img_idx(0,STATEIMAGEMASKTOINDEX(item->state));
     if (item->stateMask & LVIS_SELECTED) lvs->set_sel(idx,!!(item->state&LVIS_SELECTED));
   }
   InvalidateRect(h,NULL,FALSE);
@@ -6417,7 +6417,7 @@ bool ListView_SetItem(HWND h, LVITEM *item)
     }
     if (item->mask&LVIF_IMAGE)
     {
-      row->m_imageidx=item->iImage+1;
+      row->set_img_idx(item->iSubItem,item->iImage+1);
     }
   }
   else 
@@ -6481,7 +6481,7 @@ bool ListView_GetItem(HWND h, LVITEM *item)
     {
       SWELL_ListView_Row *row = lvs->m_data.Get(item->iItem);
       if (row)
-        item->state |= INDEXTOSTATEIMAGEMASK(row->m_imageidx);
+        item->state |= INDEXTOSTATEIMAGEMASK(row->get_img_idx(0));
     }
   }
 
@@ -6498,7 +6498,7 @@ int ListView_GetItemState(HWND h, int ipos, UINT mask)
   {
     SWELL_ListView_Row *row = lvs->m_data.Get(ipos);
     if (row)
-      ret |= INDEXTOSTATEIMAGEMASK(row->m_imageidx);
+      ret |= INDEXTOSTATEIMAGEMASK(row->get_img_idx(0));
   }
   return ret;
 }
@@ -6542,9 +6542,9 @@ bool ListView_SetItemState(HWND h, int ipos, UINT state, UINT statemask)
     SWELL_ListView_Row *row = lvs->m_data.Get(ipos);
     if (row)
     {
-      const int idx= row->m_imageidx;
-      row->m_imageidx=STATEIMAGEMASKTOINDEX(state);
-      if (!changed && idx != row->m_imageidx) ListView_RedrawItems(h,ipos,ipos);
+      const int idx= row->get_img_idx(0);
+      row->set_img_idx(0,STATEIMAGEMASKTOINDEX(state));
+      if (!changed && idx != row->get_img_idx(0)) ListView_RedrawItems(h,ipos,ipos);
     }
   }
 
