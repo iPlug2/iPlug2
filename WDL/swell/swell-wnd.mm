@@ -305,8 +305,11 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("msctls_progress32")
     [status drawInRect:NSMakeRect(cellFrame.origin.x + xo,cellFrame.origin.y + yo,use_w,use_h)
       fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0];
   }
-  cellFrame.origin.x += cellFrame.size.height + 2.0;
-  cellFrame.size.width -= cellFrame.size.height + 2.0;
+  if (m_always_indent || status)
+  {
+    cellFrame.origin.x += cellFrame.size.height + 2.0;
+    cellFrame.size.width -= cellFrame.size.height + 2.0;
+  }
   [super drawWithFrame:cellFrame inView:controlView];
 }
 
@@ -4369,6 +4372,7 @@ void ListView_SetImageList(HWND h, HIMAGELIST imagelist, int which)
       if (![col isKindOfClass:[SWELL_StatusCell class]])
       {
         SWELL_StatusCell *cell=[[SWELL_StatusCell alloc] initNewCell];
+        cell->m_always_indent = !x;
         [cell setWraps:NO];
         [col setDataCell:cell];
         [cell release];
@@ -4418,6 +4422,7 @@ void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
   if ((!pos || v->m_subitem_images) && v->m_status_imagelist)
   {
     SWELL_StatusCell *cell=[[SWELL_StatusCell alloc] initNewCell];
+    cell->m_always_indent = !pos;
     [cell setWraps:NO];
     [col setDataCell:cell];
     [cell release];

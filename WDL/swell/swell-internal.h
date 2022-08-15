@@ -210,6 +210,8 @@ typedef struct WindowPropRec
 @interface SWELL_StatusCell : SWELL_ListViewCell
 {
   NSImage *status;
+@public
+  bool m_always_indent;
 }
 -(id)initNewCell;
 -(void)setStatusImage:(NSImage *)img;
