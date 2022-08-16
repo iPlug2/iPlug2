@@ -270,10 +270,11 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("msctls_progress32")
 @end
 
 @implementation SWELL_StatusCell
--(id)initNewCell
+-(id)initNewCell:(bool)always_indent
 {
   if ((self=[super initTextCell:@""]))
   {
+    m_always_indent=always_indent;
     status=0;
   }
   return self;
@@ -4371,8 +4372,10 @@ void ListView_SetImageList(HWND h, HIMAGELIST imagelist, int which)
       NSTableColumn *col=(NSTableColumn*)v->m_cols->Get(x);
       if (![col isKindOfClass:[SWELL_StatusCell class]])
       {
-        SWELL_StatusCell *cell=[[SWELL_StatusCell alloc] initNewCell];
-        cell->m_always_indent = !x;
+        SWELL_StatusCell *cell=[[SWELL_StatusCell alloc] initNewCell:!x];
+        NSTextFieldCell *oldcell = [col dataCell];
+        if (oldcell) [cell setAlignment:[oldcell alignment]];
+
         [cell setWraps:NO];
         [col setDataCell:cell];
         [cell release];
@@ -4419,24 +4422,20 @@ void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
     [lbl release];
   }
 
+  SWELL_ListViewCell *cell;
   if ((!pos || v->m_subitem_images) && v->m_status_imagelist)
   {
-    SWELL_StatusCell *cell=[[SWELL_StatusCell alloc] initNewCell];
-    cell->m_always_indent = !pos;
-    [cell setWraps:NO];
-    [col setDataCell:cell];
-    [cell release];
+    cell = [[SWELL_StatusCell alloc] initNewCell:!pos];
   }
   else
   {  
-    SWELL_ListViewCell *cell = [[SWELL_ListViewCell alloc] initTextCell:@""];
-    [col setDataCell:cell];
-    [cell setWraps:NO];
-   
-    if (lvc->fmt == LVCFMT_CENTER) [cell setAlignment:NSCenterTextAlignment];
-    else if (lvc->fmt == LVCFMT_RIGHT) [cell setAlignment:NSRightTextAlignment];
-    [cell release];
+    cell = [[SWELL_ListViewCell alloc] initTextCell:@""];
   }
+  [cell setWraps:NO];
+  if (lvc->fmt == LVCFMT_CENTER) [cell setAlignment:NSCenterTextAlignment];
+  else if (lvc->fmt == LVCFMT_RIGHT) [cell setAlignment:NSRightTextAlignment];
+  [col setDataCell:cell];
+  [cell release];
 
   [v addTableColumn:col];
   if (pos >= 0 && pos < v->m_cols->GetSize())
