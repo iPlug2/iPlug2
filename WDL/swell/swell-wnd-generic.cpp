@@ -4870,9 +4870,9 @@ forceMouseMove:
                 RECT ar = { xpos,ypos, cr.right, ypos + row_height };
                 if ((!col || has_subitem_image) && has_image)
                 {
-                  if (image_idx>0) 
+                  if (image_idx>0)
                   {
-                    HICON icon = lvs->m_status_imagelist->Get(image_idx-1);      
+                    HICON icon = lvs->m_status_imagelist->Get(image_idx-1);
                     if (icon)
                     {
                       if (has_status_image || col >= ncols)
@@ -4882,14 +4882,17 @@ forceMouseMove:
                       DrawImageInRect(ps.hdc,icon,&ar);
                     }
                   }
-
-                  if (has_status_image) 
+                  if (has_status_image)
                   {
                     xpos += row_height;
+                    ar.left += row_height;
                   }
-                  ar.left += row_height;
+                  else if (image_idx > 0)
+                  {
+                    ar.left += row_height;
+                  }
                 }
-  
+
                 if (lvs->m_is_listbox && (hwnd->m_style & LBS_OWNERDRAWFIXED))
                 {
                   if (hwnd->m_parent)
