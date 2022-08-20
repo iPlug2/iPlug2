@@ -320,7 +320,12 @@ bool IPlugCLAP::stateLoad(const clap_istream *stream) noexcept
   if (bytesRead != 0)
     return false;
       
-  return UnserializeState(chunk, 0) >= 0;
+  bool restoredOK = UnserializeState(chunk, 0) >= 0;
+  
+  if (restoredOK)
+    OnRestoreState();
+  
+  return restoredOK;
 }
 
 // clap_plugin_params
