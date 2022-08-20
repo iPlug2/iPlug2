@@ -137,7 +137,7 @@ private:
   bool paramsValueToText(clap_id paramId, double value, char *display, uint32_t size) noexcept override;
   bool paramsTextToValue(clap_id paramId, const char *display, double *value) noexcept override;
      
-  void paramsFlush(const clap_input_events *input_parameter_changes, const clap_output_events *output_parameter_changes) noexcept override;
+  void paramsFlush(const clap_input_events *input_parameter_changes, const clap_output_events *outputParamChanges) noexcept override;
   bool isValidParamId(clap_id paramId) const noexcept override { return paramId < NParams(); }
     
   // clap_plugin_gui
@@ -175,14 +175,16 @@ private:
 
   // Parameter Helpers
   
-  void ProcessInputEvents(const clap_input_events *in_events) noexcept;
-  void ProcessOutputParams(const clap_output_events *output_parameter_changes) noexcept;
-  
+  void ProcessInputEvents(const clap_input_events *inputEvents) noexcept;
+  void ProcessOutputParams(const clap_output_events *outputParamChanges) noexcept;
+  void ProcessOutputEvents(const clap_output_events *outputEvents, int nFrames) noexcept;
+
   void *mWindow = nullptr;
   bool mGUIOpen = false;
 #endif
   
   IPlugQueue<ParamToHost> mParamInfoToHost {PARAM_TRANSFER_SIZE};
+  IMidiQueue mMidiOutputQueue;
 };
 
 IPlugCLAP* MakePlug(const InstanceInfo& info);

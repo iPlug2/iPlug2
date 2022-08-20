@@ -104,8 +104,8 @@ void IPlugCLAP::SetLatency(int samples)
 
 bool IPlugCLAP::SendMidiMsg(const IMidiMsg& msg)
 {
-  return false;
-}
+  mMidiOutputQueue.Add(msg);
+  return true;}
 
 bool IPlugCLAP::SendSysEx(const ISysEx& msg)
 {
@@ -223,71 +223,11 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
     ProcessBuffers(0.0, nFrames);
   else
     ProcessBuffers(0.f, nFrames);
+    
+  // Send Events Out (Parameters and Midi)
+    
+  ProcessOutputEvents(process->out_events, nFrames);
   
-  auto out_events = process->out_events;
-  
-  // Send Parameter Changes
-  
-  ProcessOutputParams(out_events);
-  
-  // Send Events Out
-  /*
-   if (process->out_events)
-   {
-     auto out_events = process->out_events;
-
-     for (int i = 0; i < in_events->size(in_events); i++)
-     {
-       auto event = in_events->get(in_events, i);
-             
-       switch (event->type)
-       {
-         case CLAP_EVENT_NOTE_ON:
-         {
-           // N.B. velocity stored 0-1
-           int velocity = std::round(event->note.velocity * 127.0);
-           msg.MakeNoteOnMsg(event->note.key, velocity, event->time, event->note.channel);
-           ProcessMidiMsg(msg);
-           mMidiMsgsFromProcessor.Push(msg);
-         }
-         
-         case CLAP_EVENT_NOTE_OFF:
-         {
-           msg.MakeNoteOffMsg(event->note.key, event->time, event->note.channel);
-           ProcessMidiMsg(msg);
-           mMidiMsgsFromProcessor.Push(msg);
-         }
-           
-         case CLAP_EVENT_MIDI:
-         {
-           msg = IMidiMsg(event->time, event->midi.data[0], event->midi.data[1], event->midi.data[2]);
-           ProcessMidiMsg(msg);
-           mMidiMsgsFromProcessor.Push(msg);
-         }
-         
-         case CLAP_EVENT_MIDI_SYSEX:
-         {
-           ISysEx sysEx(event->time, event->midi_sysex.buffer, event->midi_sysex.size);
-           ProcessSysEx(sysEx);
-           //mSysExDataFromProcessor.Push(sysEx);
-         }
-         
-         case CLAP_EVENT_PARAM_VALUE:
-         {
-           int paramIdx = event->param_value.param_id;
-           double value = event->param_value.value;
-           
-           GetParam(paramIdx)->Set(value);
-           SendParameterValueFromAPI(paramIdx, value, false);
-           OnParamChange(paramIdx, EParamSource::kHost, event->time);
-         }
-           
-         default:
-           break;
-       }
-     }
-   }
-   */
   return CLAP_PROCESS_CONTINUE;
 }
 
@@ -409,15 +349,15 @@ void IPlugCLAP::paramsFlush(const clap_input_events *input_parameter_changes, co
   ProcessOutputParams(output_parameter_changes);
 }
 
-void IPlugCLAP::ProcessInputEvents(const clap_input_events *in_events) noexcept
+void IPlugCLAP::ProcessInputEvents(const clap_input_events *inputEvents) noexcept
 {
   IMidiMsg msg;
 
-  if (in_events)
+  if (inputEvents)
   {
-    for (int i = 0; i < in_events->size(in_events); i++)
+    for (int i = 0; i < inputEvents->size(inputEvents); i++)
     {
-      auto event = in_events->get(in_events, i);
+      auto event = inputEvents->get(inputEvents, i);
       
       if (event->space_id != CLAP_CORE_EVENT_SPACE_ID)
         continue;
@@ -484,7 +424,7 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *in_events) noexcept
   }
 }
   
-void IPlugCLAP::ProcessOutputParams(const clap_output_events *output_parameter_changes) noexcept
+void IPlugCLAP::ProcessOutputParams(const clap_output_events *outputParamChanges) noexcept
 {
   ParamToHost change;
   
@@ -495,16 +435,76 @@ void IPlugCLAP::ProcessOutputParams(const clap_output_events *output_parameter_c
     clap_event_header_t header;
     
     header.size = sizeof(clap_event_param_value);
-    header.time = 0;
+    header.time = 0; // TODO - check this
     header.space_id = CLAP_CORE_EVENT_SPACE_ID;
     header.type = change.type();
-    header.flags = 0;
+    header.flags = 0; // TODO - check this
+    
+    // TODO - respond to situations in which parameters can't be pushed
     
     clap_event_param_value event { header, change.idx(), nullptr, -1, -1, -1, -1, change.value() };
+    outputParamChanges->try_push(outputParamChanges, &event.header);
+  }
+}
+
+void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int nFrames) noexcept
+{
+  // TODO - ordering of events!!!
+  
+  ProcessOutputParams(outputEvents);
+  
+  if (outputEvents)
+  {
+    while (mMidiOutputQueue.ToDo())
+    {
+      auto msg = mMidiOutputQueue.Peek();
+      auto status = msg.mStatus;
+      
+      // Construct output stream
+      
+      clap_event_header_t header;
+      
+      header.size = sizeof(clap_event_param_value);
+      header.time = msg.mOffset;
+      header.space_id = CLAP_CORE_EVENT_SPACE_ID;
+      header.type = CLAP_EVENT_MIDI;
+      header.flags = 0; // TODO - check this
+      
+      if (msg.StatusMsg() == IMidiMsg::kNoteOn)
+        header.type = CLAP_EVENT_NOTE_ON;
+      
+      if (msg.StatusMsg() == IMidiMsg::kNoteOff)
+        header.type = CLAP_EVENT_NOTE_OFF;
+      
+      // TODO - respond to situations in which parameters can't be pushed
+
+      if (header.type == CLAP_EVENT_NOTE_ON || header.type == CLAP_EVENT_NOTE_OFF)
+      {
+        int16_t channel = static_cast<int16_t>(msg.Channel());
+        clap_event_note note_event { header, -1, 0,  channel, msg.mData1, static_cast<double>(msg.mData2) / 127.0};
+        outputEvents->try_push(outputEvents, &note_event.header);
+      }
+      else
+      {
+        clap_event_midi midi_event { header, 0, { status, msg.mData1, msg.mData2 } };
+        outputEvents->try_push(outputEvents, &midi_event.header);
+      }
+      
+      mMidiOutputQueue.Remove();
+    }
     
-    // FIX - respond to a situation in which parameters can't be pushed
-    
-    output_parameter_changes->try_push(output_parameter_changes, &event.header);
+    mMidiOutputQueue.Flush(nFrames);
+
+    /*
+      case CLAP_EVENT_MIDI_SYSEX:
+      {
+        auto midiSysex = ClapEventCast<clap_event_midi_sysex>(event);
+        
+        ISysEx sysEx(event->time, midiSysex->buffer, midiSysex->size);
+        ProcessSysEx(sysEx);
+        //mSysExDataFromProcessor.Push(sysEx);
+      }
+    */
   }
 }
 
