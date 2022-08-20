@@ -16,15 +16,6 @@
 
 // Ensure that the template is defined here
 
-namespace clap
-{
-#ifdef DEBUG
-  template class helpers::Plugin<helpers::MisbehaviourHandler::Terminate,helpers::CheckingLevel::Maximal>;
-#else
-  template class helpers::Plugin<helpers::MisbehaviourHandler::Ignore,helpers::CheckingLevel::None>;
-#endif
-}
-
 using namespace iplug;
 
 IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
