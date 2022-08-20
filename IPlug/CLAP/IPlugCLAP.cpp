@@ -149,22 +149,27 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
   
   if (process->transport)
   {
-    auto transport = process->transport;
-    
     ITimeInfo timeInfo;
-        
+
+    auto &transport = process->transport;
+
+    constexpr double beatFactor = static_cast<double>(CLAP_BEATTIME_FACTOR);
+    constexpr double secFactor = static_cast<double>(CLAP_SECTIME_FACTOR);
+            
     timeInfo.mTempo = transport->tempo;
-    timeInfo.mSamplePos = static_cast<double>(process->steady_time);
-    timeInfo.mPPQPos = static_cast<double>(transport->song_pos_beats / CLAP_BEATTIME_FACTOR);
-    timeInfo.mLastBar = static_cast<double>(transport->bar_start / CLAP_BEATTIME_FACTOR);
-    timeInfo.mCycleStart = static_cast<double>(transport->loop_start_beats / CLAP_BEATTIME_FACTOR);
-    timeInfo.mCycleEnd = static_cast<double>(transport->loop_end_beats / CLAP_BEATTIME_FACTOR);
+    timeInfo.mSamplePos = (GetSampleRate() * static_cast<double>(transport->song_pos_seconds) / secFactor);
+    timeInfo.mPPQPos = static_cast<double>(transport->song_pos_beats) / beatFactor;
+    timeInfo.mLastBar = static_cast<double>(transport->bar_start) / beatFactor;
+    timeInfo.mCycleStart = static_cast<double>(transport->loop_start_beats) / beatFactor;
+    timeInfo.mCycleEnd = static_cast<double>(transport->loop_end_beats) / beatFactor;
 
     timeInfo.mNumerator = static_cast<int>(transport->tsig_num);
     timeInfo.mDenominator = static_cast<int>(transport->tsig_denom);
 
     timeInfo.mTransportIsRunning = transport->flags & CLAP_TRANSPORT_IS_PLAYING;
     timeInfo.mTransportLoopEnabled = transport->flags & CLAP_TRANSPORT_IS_LOOP_ACTIVE;
+    
+    SetTimeInfo(timeInfo);
   }
   
   // Input Events
