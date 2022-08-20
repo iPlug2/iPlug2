@@ -343,8 +343,6 @@ bool IPlugCLAP::paramsTextToValue(clap_id paramId, const char *display, double *
 
 void IPlugCLAP::paramsFlush(const clap_input_events *input_parameter_changes, const clap_output_events *output_parameter_changes) noexcept
 {
-  // TODO - check if any of the input events are not param changes?
-  
   ProcessInputEvents(input_parameter_changes);
   ProcessOutputParams(output_parameter_changes);
 }
@@ -367,7 +365,6 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *inputEvents) noexcep
         case CLAP_EVENT_NOTE_ON:
         {
           // N.B. velocity stored 0-1
-          // TODO - check velocity
           auto note = ClapEventCast<clap_event_note>(event);
           auto velocity = static_cast<int>(std::round(note->velocity * 127.0));
           msg.MakeNoteOnMsg(note->key, velocity, event->time, note->channel);
