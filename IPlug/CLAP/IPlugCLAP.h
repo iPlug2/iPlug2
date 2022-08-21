@@ -105,6 +105,7 @@ private:
 
   // clap_plugin_render
   bool implementsRender() const noexcept override { return true; }
+  bool renderHasHardRealtimeRequirement() noexcept override { return false; }
   bool renderSetMode(clap_plugin_render_mode mode) noexcept override;
   
   // clap_plugin_state
