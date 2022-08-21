@@ -692,14 +692,14 @@ bool IPlugCLAP::notePortsInfo(uint32_t index, bool is_input, clap_note_port_info
 {
   if (is_input)
   {
-    info->id = 0;
+    info->id = index;
     info->supported_dialects = CLAP_NOTE_DIALECT_MIDI;
     info->preferred_dialect = CLAP_NOTE_DIALECT_MIDI;
     ClapNameCopy(info->name, "MIDI Input");
   }
   else
   {
-    info->id = 0;
+    info->id = index;
     info->supported_dialects = CLAP_NOTE_DIALECT_MIDI;
     info->preferred_dialect = CLAP_NOTE_DIALECT_MIDI;
     ClapNameCopy(info->name, "MIDI Output");
