@@ -298,7 +298,7 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
     
   ProcessOutputEvents(process->out_events, nFrames);
   
-  return CLAP_PROCESS_CONTINUE;
+  return CLAP_PROCESS_CONTINUE; // TODO - review
 }
 
 // clap_plugin_render
