@@ -683,26 +683,26 @@ bool IPlugCLAP::audioPortsSetConfig(clap_id configId) noexcept
 uint32_t IPlugCLAP::notePortsCount(bool is_input) const noexcept
 {
   if (is_input)
-    return PLUG_DOES_MIDI_IN;
+    return PLUG_DOES_MIDI_IN ? 1 : 0;
   else
-    return PLUG_DOES_MIDI_OUT;
+    return PLUG_DOES_MIDI_OUT ? 1 : 0;
 }
 
 bool IPlugCLAP::notePortsInfo(uint32_t index, bool is_input, clap_note_port_info *info) const noexcept
 {
   if (is_input)
   {
-    info->id = 1 << 5U;
+    info->id = 0;
     info->supported_dialects = CLAP_NOTE_DIALECT_MIDI;
     info->preferred_dialect = CLAP_NOTE_DIALECT_MIDI;
-    ClapNameCopy(info->name, "iPlug Note Input");
+    ClapNameCopy(info->name, "MIDI Input");
   }
   else
   {
-    info->id = 1 << 2U;
+    info->id = 0;
     info->supported_dialects = CLAP_NOTE_DIALECT_MIDI;
     info->preferred_dialect = CLAP_NOTE_DIALECT_MIDI;
-    ClapNameCopy(info->name, "iPlug Note Output");
+    ClapNameCopy(info->name, "MIDI Output");
   }
   return true;
 }
