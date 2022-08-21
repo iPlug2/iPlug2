@@ -18,6 +18,12 @@
 
 using namespace iplug;
 
+void ClapNameCopy(char *destination, const char *source)
+{
+  strncpy(destination, source, CLAP_NAME_SIZE);
+  destination[CLAP_NAME_SIZE - 1] = 0;
+}
+
 IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
   : IPlugAPIBase(config, kAPICLAP)
   , IPlugProcessor(config, kAPICLAP)
@@ -34,6 +40,12 @@ IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
     sscanf(info.mHost->version, "%d.%d.%d", &ver, &rmaj, &rmin);
     version = (ver << 16) + (rmaj << 8) + rmin;
   }
+  
+  // Create space to store audio pointers
+  
+  int nChans = std::max(MaxNChannels(kInput), MaxNChannels(kOutput));
+  mAudioIO32.Resize(nChans);
+  mAudioIO64.Resize(nChans);
   
   SetHost(info.mHost->name, version);
   CreateTimer();
@@ -174,29 +186,75 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
   
   // Do Audio Processing!
   
-  // TODO - can we assume IO has the same format?
-  // TODO - get the count from the right place...
-  int nIns = (process->audio_inputs_count > 0 ? process->audio_inputs->channel_count : 0);
-  int nOuts = (process->audio_outputs_count > 0 ? process->audio_outputs->channel_count : 0);
+  int nIns = 0;
+  int nOuts = 0;
   int nFrames = process->frames_count;
 
+  // Sum IO channels
+  
+  for (uint32_t i = 0; i < process->audio_inputs_count; i++)
+    nIns += static_cast<int>(process->audio_inputs[i].channel_count);
+  
+  for (uint32_t i = 0; i < process->audio_outputs_count; i++)
+    nOuts += static_cast<int>(process->audio_outputs[i].channel_count);
+  
+  // Check the format
+  
   bool format64 = false;
-  if (process->audio_inputs)
-    format64 = process->audio_inputs->data64;
-  else if (process->audio_outputs)
-    format64 = process->audio_outputs->data64;
-
-  // assert(format64 == (bool) process->audio_outputs->data64);
+  
+  if (process->audio_inputs_count && process->audio_inputs && process->audio_inputs[0].channel_count)
+    format64 = process->audio_inputs[0].data64;
+  else if (process->audio_outputs_count && process->audio_outputs && process->audio_outputs[0].channel_count)
+    format64 = process->audio_outputs[0].data64;
+      
+  // Assert that all formats match
+  
+#ifndef NDEBUG
+  for (uint32_t i = 0; i < process->audio_inputs_count; i++)
+  {
+    auto bus = process->audio_inputs[i];
+    assert(!bus.channel_count || format64 == static_cast<bool>(bus.data64));
+  }
+  
+  for (uint32_t i = 0; i < process->audio_outputs_count; i++)
+  {
+    auto bus = process->audio_outputs[i];
+    assert(!bus.channel_count ||  format64 == static_cast<bool>(bus.data64));
+  }
+#endif
+  
+  for (uint32_t i = 0; i < process->audio_outputs_count; i++)
+    nIns += static_cast<int>(process->audio_outputs->channel_count);
 
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
   SetChannelConnections(ERoute::kInput, 0, nIns, true);
 
   if (nIns > 0)
   {
+    // Copy and attach buffer pointers
+    
     if (format64)
-      AttachBuffers(ERoute::kInput, 0, nIns, process->audio_inputs->data64, nFrames);
+    {
+      for (uint32_t i = 0, k = 0; i < process->audio_inputs_count; i++)
+      {
+        auto bus = process->audio_inputs[i];
+        for (uint32_t j = 0; j < bus.channel_count; j++, k++)
+          mAudioIO64.Get()[k] = bus.data64[j];
+      }
+      
+      AttachBuffers(ERoute::kInput, 0, nIns, mAudioIO64.Get(), nFrames);
+    }
     else
-      AttachBuffers(ERoute::kInput, 0, nIns, process->audio_inputs->data32, nFrames);
+    {
+      for (uint32_t i = 0, k = 0; i < process->audio_inputs_count; i++)
+      {
+        auto bus = process->audio_inputs[i];
+        for (uint32_t j = 0; j < bus.channel_count; j++, k++)
+          mAudioIO32.Get()[k] = bus.data32[j];
+      }
+      
+      AttachBuffers(ERoute::kInput, 0, nIns, mAudioIO32.Get(), nFrames);
+    }
   }
 
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), false);
@@ -204,10 +262,30 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
 
   if (nOuts > 0)
   {
+    // Copy and attach buffer pointers
+
     if (format64)
-      AttachBuffers(ERoute::kOutput, 0, nOuts, process->audio_outputs->data64, nFrames);
+    {
+      for (uint32_t i = 0, k = 0; i < process->audio_outputs_count; i++)
+      {
+        auto bus = process->audio_outputs[i];
+        for (uint32_t j = 0; j < bus.channel_count; j++, k++)
+          mAudioIO64.Get()[k] = bus.data64[j];
+      }
+      
+      AttachBuffers(ERoute::kOutput, 0, nOuts, mAudioIO64.Get(), nFrames);
+    }
     else
-      AttachBuffers(ERoute::kOutput, 0, nOuts, process->audio_outputs->data32, nFrames);
+    {
+      for (uint32_t i = 0, k = 0; i < process->audio_outputs_count; i++)
+      {
+        auto bus = process->audio_outputs[i];
+        for (uint32_t j = 0; j < bus.channel_count; j++, k++)
+          mAudioIO32.Get()[k] = bus.data32[j];
+      }
+
+      AttachBuffers(ERoute::kOutput, 0, nOuts, mAudioIO32.Get(), nFrames);
+    }
   }
 
   if (format64)
@@ -496,18 +574,109 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
   }
 }
 
+const char *ClapPortType(uint32_t nChans)
+{
+  return nChans == 2 ? CLAP_PORT_STEREO : (nChans == 1 ? CLAP_PORT_MONO : nullptr);
+}
+
+bool IPlugCLAP::implementsAudioPorts() const noexcept
+{
+  return MaxNBuses(ERoute::kInput) || MaxNBuses(ERoute::kOutput);
+}
+
+uint32_t IPlugCLAP::audioPortsCount(bool isInput) const noexcept
+{
+  return MaxNBuses(isInput ? ERoute::kInput : ERoute::kOutput);
+}
+
 bool IPlugCLAP::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_info *info) const noexcept
 {
-  const auto route = isInput ? ERoute::kInput : ERoute::kOutput;
-  const auto nBuses = MaxNBuses(route);
-  const auto maxNChans = MaxNChannelsForBus(route, index);
+  // TODO - wildcards return as -1 chans...
+  // TODO - what if the config hasn't been set??
+  // TODO - both sets of ids below
+  
+  const auto direction = isInput ? ERoute::kInput : ERoute::kOutput;
+  const auto nBuses = MaxNBuses(direction);
+  const auto nChans = mConfigIdx < 0 ? MaxNChannelsForBus(direction, index) : GetIOConfig(mConfigIdx)->NChansOnBusSAFE(direction, static_cast<int>(index));
   WDL_String busName;
-  GetBusName(route, index, nBuses, busName);
-  info->id = 0;
-  strncpy(info->name, busName.Get(), sizeof(info->name));
-  info->flags = index == 0 ? CLAP_AUDIO_PORT_IS_MAIN : 0;
-  info->channel_count = maxNChans;
-  info->port_type = CLAP_PORT_STEREO; // TODO
+  GetBusName(direction, index, nBuses, busName);
+  
+  constexpr uint32_t bitFlags = CLAP_AUDIO_PORT_SUPPORTS_64BITS
+                              | CLAP_AUDIO_PORT_PREFERS_64BITS
+                              | CLAP_AUDIO_PORT_REQUIRES_COMMON_SAMPLE_SIZE;
+  
+  info->id = index;
+  ClapNameCopy(info->name, busName.Get());
+  info->flags = !index ? bitFlags | CLAP_AUDIO_PORT_IS_MAIN : bitFlags;
+  info->channel_count = static_cast<uint32_t>(nChans);
+  info->port_type = ClapPortType(info->channel_count);
+  info->in_place_pair = CLAP_INVALID_ID;
+  return true;
+}
+
+bool IPlugCLAP::implementsAudioPortsConfig() const noexcept
+{
+  return audioPortsConfigCount();
+}
+
+uint32_t IPlugCLAP::audioPortsConfigCount() const noexcept
+{
+  return static_cast<uint32_t>(NIOConfigs());
+}
+
+bool IPlugCLAP::audioPortsGetConfig(uint32_t index, clap_audio_ports_config *config) const noexcept
+{
+  const IOConfig* ioConfig = GetIOConfig(index);
+
+  WDL_String configName;
+
+  // TODO - wildcards return as -1 chans...
+  // TODO - configs in iPlug have no names so we reconstruct the iplug io style strings for now...
+
+  auto getChans = [&](ERoute direction, int idx)
+  {
+    return static_cast<uint32_t>(ioConfig->GetBusInfo(direction, idx)->NChans());
+  };
+  
+  auto getDirectionName = [&](ERoute direction)
+  {
+    configName.AppendFormatted(CLAP_NAME_SIZE, "%d", getChans(kInput, 0));
+    
+    for (int i = 0; i < ioConfig->NBuses(direction); i++)
+      configName.AppendFormatted(CLAP_NAME_SIZE, ".%d", getChans(kInput, i));
+  };
+  
+  if (index >= audioPortsConfigCount())
+    return false;
+  
+  getDirectionName(kInput);
+  configName.Append("-");
+  getDirectionName(kOutput);
+
+  config->id = index;
+  ClapNameCopy(config->name, configName.Get());
+ 
+  config->input_port_count = static_cast<uint32_t>(ioConfig->NBuses(kInput));
+  config->output_port_count = static_cast<uint32_t>(ioConfig->NBuses(kInput));
+
+  config->has_main_input = config->input_port_count > 1;
+  config->main_input_channel_count = config->has_main_input ? getChans(kInput, 0) : 0;
+  config->main_input_port_type = ClapPortType(config->main_input_channel_count);
+  
+  config->has_main_input = config->output_port_count > 1;
+  config->main_output_channel_count = config->has_main_input ? getChans(kOutput, 0) : 0;
+  config->main_output_port_type = ClapPortType(config->main_output_channel_count);
+
+  return true;
+}
+
+bool IPlugCLAP::audioPortsSetConfig(clap_id configId) noexcept
+{
+  if (configId >= audioPortsConfigCount())
+    return false;
+  
+  mConfigIdx = static_cast<int>(configId);
+  
   return true;
 }
 
@@ -518,6 +687,7 @@ uint32_t IPlugCLAP::notePortsCount(bool is_input) const noexcept
   else
     return PLUG_DOES_MIDI_OUT;
 }
+
 bool IPlugCLAP::notePortsInfo(uint32_t index, bool is_input, clap_note_port_info *info) const noexcept
 {
   if (is_input)
@@ -525,14 +695,14 @@ bool IPlugCLAP::notePortsInfo(uint32_t index, bool is_input, clap_note_port_info
     info->id = 1 << 5U;
     info->supported_dialects = CLAP_NOTE_DIALECT_MIDI;
     info->preferred_dialect = CLAP_NOTE_DIALECT_MIDI;
-    strncpy(info->name, "iPlug Note Input", CLAP_NAME_SIZE);
+    ClapNameCopy(info->name, "iPlug Note Input");
   }
   else
   {
     info->id = 1 << 2U;
     info->supported_dialects = CLAP_NOTE_DIALECT_MIDI;
     info->preferred_dialect = CLAP_NOTE_DIALECT_MIDI;
-    strncpy(info->name, "iPlug Note Output", CLAP_NAME_SIZE);
+    ClapNameCopy(info->name, "iPlug Note Output");
   }
   return true;
 }

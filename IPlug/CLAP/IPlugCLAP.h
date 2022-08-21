@@ -118,9 +118,15 @@ private:
   }*/
   
   // clap_plugin_audio_ports
-  bool implementsAudioPorts() const noexcept override { return MaxNBuses(ERoute::kInput) || MaxNBuses(ERoute::kOutput); }
-  uint32_t audioPortsCount(bool isInput) const noexcept override { return MaxNBuses(isInput ? ERoute::kInput : ERoute::kOutput); }
+  bool implementsAudioPorts() const noexcept override;
+  uint32_t audioPortsCount(bool isInput) const noexcept override;
   bool audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_info *info) const noexcept override;
+  
+  // clap_plugin_audio_ports_config
+  bool implementsAudioPortsConfig() const noexcept override;
+  uint32_t audioPortsConfigCount() const noexcept override;
+  bool audioPortsGetConfig(uint32_t index, clap_audio_ports_config *config) const noexcept override;
+  bool audioPortsSetConfig(clap_id configId) noexcept override;
   
   // clap_plugin_note_ports
   bool implementsNotePorts() const noexcept override { return DoesMIDIIn() || DoesMIDIOut(); }
@@ -185,6 +191,9 @@ private:
   
   IPlugQueue<ParamToHost> mParamInfoToHost {PARAM_TRANSFER_SIZE};
   IMidiQueue mMidiOutputQueue;
+  WDL_TypedBuf<float *> mAudioIO32;
+  WDL_TypedBuf<double *> mAudioIO64;
+  int mConfigIdx = -1;
 };
 
 IPlugCLAP* MakePlug(const InstanceInfo& info);
