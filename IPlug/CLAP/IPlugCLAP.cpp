@@ -108,7 +108,8 @@ void IPlugCLAP::SetLatency(int samples)
 bool IPlugCLAP::SendMidiMsg(const IMidiMsg& msg)
 {
   mMidiOutputQueue.Add(msg);
-  return true;}
+  return true;
+}
 
 bool IPlugCLAP::SendSysEx(const ISysEx& msg)
 {
@@ -795,4 +796,3 @@ bool IPlugCLAP::guiAdjustSize(uint32_t* width, uint32_t* height) noexcept
 #endif /* PLUG_HOST_RESIZE */
 
 #endif /* PLUG_HAS_UI */
-
