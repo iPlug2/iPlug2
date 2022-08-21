@@ -82,7 +82,7 @@ bool IPlugCLAP::EditorResize(int viewWidth, int viewHeight)
   {
     if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
     {
-      _host.guiRequestResize(viewWidth, viewHeight);
+      GetClapHost().guiRequestResize(viewWidth, viewHeight);
     }
     
     SetEditorSize(viewWidth, viewHeight);
@@ -96,8 +96,8 @@ bool IPlugCLAP::EditorResize(int viewWidth, int viewHeight)
 void IPlugCLAP::SetTailSize(int samples)
 {
   IPlugProcessor::SetTailSize(samples);
-  if (_host.canUseTail())
-    _host.tailChanged();
+  if (GetClapHost().canUseTail())
+    GetClapHost().tailChanged();
 }
 
 void IPlugCLAP::SetLatency(int samples)

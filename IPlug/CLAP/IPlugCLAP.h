@@ -36,8 +36,10 @@ struct InstanceInfo
 
 #ifdef DEBUG
 using ClapPluginHelper = clap::helpers::Plugin<clap::helpers::MisbehaviourHandler::Terminate, clap::helpers::CheckingLevel::Maximal>;
+using ClapHost = clap::helpers::HostProxy<clap::helpers::MisbehaviourHandler::Terminate, clap::helpers::CheckingLevel::Maximal>;
 #else
 using ClapPluginHelper = clap::helpers::Plugin<clap::helpers::MisbehaviourHandler::Ignore, clap::helpers::CheckingLevel::None>;
+using ClapHost = clap::helpers::HostProxy<clap::helpers::MisbehaviourHandler::Ignore, clap::helpers::CheckingLevel::None>;
 #endif
 
 /** CLAP API base class for an IPlug plug-in
@@ -115,7 +117,7 @@ private:
   
   /*void stateMarkDirty() const noexcept {
      if (canUseState())
-        _host.MarkDirty();
+    GetClapHost().MarkDirty();
   }*/
   
   // clap_plugin_audio_ports
@@ -175,6 +177,10 @@ private:
   bool guiIsApiSupported(const char *api, bool isFloating) noexcept override { return !strcmp(api, CLAP_WINDOW_API_COCOA); }
   bool guiSetParent(const clap_window *window) noexcept override { return GUIWindowAttach(window->cocoa); }
 #endif
+  
+  // IPlug2-style host retrieval
+  
+  ClapHost GetClapHost() { return _host; }
   
   // Helper to attach GUI Windows
   
