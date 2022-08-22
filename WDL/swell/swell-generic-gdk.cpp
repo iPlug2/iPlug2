@@ -1286,6 +1286,19 @@ static void OnButtonEvent(GdkEventButton *b)
   {
     msg++; // convert WM_xBUTTONDOWN to WM_xBUTTONUP
     SendMouseMessage(hwnd2, msg, 0, MAKELPARAM(p2.x, p2.y));
+
+    // if capture was released by WM_LBUTTONUP, allow the DBLCLICK to go to the correct window
+    HWND hwnd3 = getMouseTarget(b->window,p,&hwnd);
+    if (hwnd3 != hwnd2)
+    {
+      if (hwnd2) hwnd2->Release();
+      hwnd2 = hwnd3;
+      if (hwnd2) hwnd2->Retain();
+      p2.x = (int)b->x_root;
+      p2.y = (int)b->y_root;
+      ScreenToClient(hwnd2, &p2);
+    }
+
     msg++; // convert WM_xBUTTONUP to WM_xBUTTONDBLCLK
   }
 
