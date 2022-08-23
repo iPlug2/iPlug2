@@ -416,7 +416,7 @@ public:
   bool has_sc;
 };
 
-static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s, char *buf, int bufsz)
+static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s, char *buf, int bufsz, bool prefix_handling)
 {
   buf[0]=0;
   GetWindowText(hwnd,buf,bufsz);
@@ -426,8 +426,41 @@ static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s,
     WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)buf,strlen(buf)+1);
     const char *newptr = s ? s->Get(hash,0) : NULL;
     if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
+
+#ifdef __APPLE__
+    bool filter_prefix = false;
+    if (!newptr && prefix_handling)
+    {
+      extern const char *SWELL_GetRecentPrefixRemoval(const char *p);
+      const char *p = SWELL_GetRecentPrefixRemoval(buf);
+      if (p)
+      {
+        hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)p,strlen(p)+1);
+        newptr = s ? s->Get(hash,0) : NULL;
+        if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
+        filter_prefix = true;
+      }
+    }
+#endif
+
     if (newptr && strcmp(newptr,buf))
     {
+#ifdef __APPLE__
+      if (filter_prefix)
+      {
+        const char *rd=newptr;
+        int widx=0;
+        while (widx < bufsz-1)
+        {
+          if (*rd == '&') rd++;
+          if (!*rd) break;
+          buf[widx++]=*rd++;
+        }
+        buf[widx]=0;
+        SetWindowText(hwnd,buf);
+        return newptr;
+      }
+#endif
       SetWindowText(hwnd,newptr);
       return newptr;
     }
@@ -580,7 +613,7 @@ static void localize_dialog(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *sec)
   windowReorgState s(hwnd,scx,scy);
 
   char buf[8192];
-  xlateWindow(hwnd,sec,buf,sizeof(buf)); // translate window title
+  xlateWindow(hwnd,sec,buf,sizeof(buf),false); // translate window title
   EnumChildWindows(hwnd,xlateGetRects,(LPARAM)&s);
 
 #ifdef _WIN32
@@ -597,7 +630,7 @@ static void localize_dialog(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *sec)
     windowReorgEnt *rec=s.cws.Get()+x;
     if (rec->hwnd)
     {
-      const char *newText=xlateWindow(rec->hwnd,sec,buf,sizeof(buf));
+      const char *newText=xlateWindow(rec->hwnd,sec,buf,sizeof(buf), rec->mode != windowReorgEnt::WRET_MISC);
       if (newText && rec->mode == windowReorgEnt::WRET_SIZEADJ)
       {
         RECT r1={0},r2={0};
