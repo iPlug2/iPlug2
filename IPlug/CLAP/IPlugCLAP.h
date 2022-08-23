@@ -162,8 +162,8 @@ private:
   
 #if PLUG_HOST_RESIZE
   bool guiCanResize() const noexcept override { return true; }
-  bool guiSetSize(uint32_t width, uint32_t height) noexcept override;
   bool guiAdjustSize(uint32_t *width, uint32_t *height) noexcept override;
+  bool guiSetSize(uint32_t width, uint32_t height) noexcept override;
 #endif
   
 #ifdef OS_WIN

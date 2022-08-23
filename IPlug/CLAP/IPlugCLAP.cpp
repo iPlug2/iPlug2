@@ -777,19 +777,10 @@ bool IPlugCLAP::GUIWindowAttach(void *window) noexcept
 }
 
 #if PLUG_HOST_RESIZE
-bool IPlugCLAP::guiSetSize(uint32_t width, uint32_t height) noexcept
-{
-  Trace(TRACELOC, "width:%i height:%i\n", width, height);
-
-  OnParentWindowResize(width, height);
-  
-  return true;
-}
-
 bool IPlugCLAP::guiAdjustSize(uint32_t* width, uint32_t* height) noexcept
 {
   Trace(TRACELOC, "width:%i height:%i\n", *width, *height);
-
+  
   if (HasUI())
   {
     int w = *width;
@@ -797,11 +788,20 @@ bool IPlugCLAP::guiAdjustSize(uint32_t* width, uint32_t* height) noexcept
     ConstrainEditorResize(w, h);
     *width = w;
     *height = h;
-
+    
     return true;
   }
   
   return false;
+}
+
+bool IPlugCLAP::guiSetSize(uint32_t width, uint32_t height) noexcept
+{
+  Trace(TRACELOC, "width:%i height:%i\n", width, height);
+
+  OnParentWindowResize(width, height);
+  
+  return true;
 }
 #endif /* PLUG_HOST_RESIZE */
 
