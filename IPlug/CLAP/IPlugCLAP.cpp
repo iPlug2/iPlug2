@@ -499,9 +499,11 @@ void IPlugCLAP::ProcessOutputParams(const clap_output_events *outputParamChanges
   {
     // Construct output stream
     
+    bool isValue = change.type() == CLAP_EVENT_PARAM_VALUE;
+    
     clap_event_header_t header;
     
-    header.size = sizeof(clap_event_param_value);
+    header.size = isValue ? sizeof(clap_event_param_value) : sizeof(clap_event_param_gesture);
     header.time = 0; // TODO - check this
     header.space_id = CLAP_CORE_EVENT_SPACE_ID;
     header.type = change.type();
@@ -509,8 +511,16 @@ void IPlugCLAP::ProcessOutputParams(const clap_output_events *outputParamChanges
     
     // TODO - respond to situations in which parameters can't be pushed
     
-    clap_event_param_value event { header, change.idx(), nullptr, -1, -1, -1, -1, change.value() };
-    outputParamChanges->try_push(outputParamChanges, &event.header);
+    if (isValue)
+    {
+      clap_event_param_value event { header, change.idx(), nullptr, -1, -1, -1, -1, change.value() };
+      outputParamChanges->try_push(outputParamChanges, &event.header);
+    }
+    else
+    {
+      clap_event_param_gesture event { header, change.idx() };
+      outputParamChanges->try_push(outputParamChanges, &event.header);
+    }
   }
 }
 
