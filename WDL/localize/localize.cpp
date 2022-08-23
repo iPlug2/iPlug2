@@ -345,13 +345,14 @@ struct windowReorgEnt
     WRET_MISC, // dont analyze for size changes, but move around
 
   };
-  windowReorgEnt(HWND _hwnd, RECT _r)
+  windowReorgEnt(HWND _hwnd, RECT _r, int wc)
   {
     hwnd=_hwnd;
     orig_r=r=_r;
     mode=WRET_MISC;
     move_amt=0;
     wantsizeincrease=0;
+    scaled_width_change = wc;
   }
   ~windowReorgEnt() { }
 
@@ -360,6 +361,7 @@ struct windowReorgEnt
   windowReorgEntType mode;
   int move_amt;
   int wantsizeincrease;
+  int scaled_width_change;
 
   static int Sort(const void *_a, const void *_b)
   {
@@ -443,19 +445,22 @@ static BOOL CALLBACK xlateGetRects(HWND hwnd, LPARAM lParam)
   GetWindowRect(hwnd,&r);
   ScreenToClient(s->par,(LPPOINT)&r);
   ScreenToClient(s->par,((LPPOINT)&r)+1);
+  int width_change = 0;
 
   if (s->has_sc) // scaling happens before all of the ripple-code
   {
     if (r.top > r.bottom) { const int t = r.top; r.top = r.bottom; r.bottom = t; }
 
+    width_change = r.right-r.left;
     r.left = (int) (r.left * s->scx + 0.5);
     r.top = (int) (r.top * s->scy + 0.5);
     r.right = (int) (r.right * s->scx + 0.5);
     r.bottom = (int) (r.bottom * s->scy + 0.5);
     SetWindowPos(hwnd,NULL, r.left,r.top, r.right-r.left, r.bottom-r.top, SWP_NOACTIVATE|SWP_NOZORDER);
+    width_change = (r.right-r.left) - width_change;
   }
 
-  windowReorgEnt t(hwnd,r);
+  windowReorgEnt t(hwnd,r,width_change);
 
 #ifdef _WIN32
   char buf[128];
@@ -599,6 +604,7 @@ static void localize_dialog(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *sec)
 #ifdef _WIN32
         DrawText(hdc,buf,-1,&r1,DT_CALCRECT);
         DrawText(hdc,newText,-1,&r2,DT_CALCRECT);
+        r1.right += rec->scaled_width_change;
 #else
         GetClientRect(rec->hwnd,&r1);
         SWELL_GetDesiredControlSize(rec->hwnd,&r2);
