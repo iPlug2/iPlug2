@@ -515,8 +515,11 @@ void IPlugCLAP::ProcessOutputParams(const clap_output_events *outputParamChanges
     
     clap_event_header_t header;
     
+    // N.B. - paramaters output here almost certainly come from the UI
+    // They cannot be set with a sample offset (this is a limitation of the current IPlug2 API)
+    
     header.size = isValue ? sizeof(clap_event_param_value) : sizeof(clap_event_param_gesture);
-    header.time = 0; // TODO - check this
+    header.time = 0;
     header.space_id = CLAP_CORE_EVENT_SPACE_ID;
     header.type = change.type();
     header.flags = 0; // TODO - check this
@@ -539,6 +542,8 @@ void IPlugCLAP::ProcessOutputParams(const clap_output_events *outputParamChanges
 void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int nFrames) noexcept
 {
   // TODO - ordering of events!!!
+  // N.B. Midi events are ordered by the queue
+  // We should not output anything beyond the current frame...
   
   ProcessOutputParams(outputEvents);
   
