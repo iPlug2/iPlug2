@@ -55,7 +55,7 @@ void IPlugWebUI::OnReset()
 
 bool IPlugWebUI::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
-  if(msgTag == kMsgTagButton1)
+  if (msgTag == kMsgTagButton1)
     Resize(512, 335);
   else if(msgTag == kMsgTagButton2)
     Resize(1024, 335);
@@ -73,11 +73,19 @@ bool IPlugWebUI::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pD
 
 void IPlugWebUI::OnIdle()
 {
-  if(mLastPeak > 0.01)
+  if (mLastPeak > 0.01)
     SendControlValueFromDelegate(kCtrlTagMeter, mLastPeak);
 }
 
 void IPlugWebUI::OnParamChange(int paramIdx)
 {
   DBGMSG("gain %f\n", GetParam(paramIdx)->Value());
+}
+
+void IPlugWebUI::ProcessMidiMsg(const IMidiMsg& msg)
+{
+  TRACE;
+  
+  msg.PrintMsg();
+  SendMidiMsg(msg);
 }

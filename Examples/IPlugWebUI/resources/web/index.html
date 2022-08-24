@@ -55,6 +55,13 @@
       SAMFUI(3, -1, window.btoa(bin));
     }
     
+    function SendTestMIDIData() {
+      SMMFUI(0x90, 60, 0x7f);
+      setTimeout(function(){
+        SMMFUI(0x90, 60, 0x00);
+      }, 1000);
+    }
+    
     function OnParamChange(param, value) {
       if(param == 0) {
         document.getElementById("gain_knob").value = value * 100.;
@@ -82,6 +89,7 @@
     <!-- <input id="slider" type="range" onmousedown="BPCFUI(0)" oninput="SPVFUI(0, this.value/100.)" onmouseup="EPCFUI(0)"> -->
     <webaudio-knob id="gain_knob" min="0" max="100"></webaudio-knob>
     <button onclick="SendTestBinaryData()">Binary Test</button>
+    <button onclick="SendTestMIDIData()">MIDI Test</button>
     <progress id="meter">
   </div>
   <div class="right">
