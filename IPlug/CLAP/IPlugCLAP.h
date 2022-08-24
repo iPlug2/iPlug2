@@ -168,14 +168,27 @@ private:
   
 #ifdef OS_WIN
   // clap_plugin_gui_win32
-  bool guiIsApiSupported(const char *api, bool isFloating) noexcept override { return !strcmp(api, CLAP_WINDOW_API_WIN32); }
-  bool guiSetParent(const clap_window *window) noexcept override { return GUIWindowAttach(window->win32);  }
+  bool guiIsApiSupported(const char *api, bool isFloating) noexcept override
+  {
+    return !isFloating && !strcmp(api, CLAP_WINDOW_API_WIN32);
+  }
+  
+  bool guiSetParent(const clap_window *window) noexcept override
+  {
+    return GUIWindowAttach(window->win32);
+  }
 #endif
   
 #ifdef OS_MAC
   // clap_plugin_gui_cocoa
-  bool guiIsApiSupported(const char *api, bool isFloating) noexcept override { return !strcmp(api, CLAP_WINDOW_API_COCOA); }
-  bool guiSetParent(const clap_window *window) noexcept override { return GUIWindowAttach(window->cocoa); }
+  bool guiIsApiSupported(const char *api, bool isFloating) noexcept override
+  {
+    return !isFloating && !strcmp(api, CLAP_WINDOW_API_COCOA);
+  }
+  bool guiSetParent(const clap_window *window) noexcept override
+  {
+    return GUIWindowAttach(window->cocoa);
+  }
 #endif
   
   // IPlug2-style host retrieval
