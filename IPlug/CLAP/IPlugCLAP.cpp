@@ -160,15 +160,27 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
     constexpr double beatFactor = static_cast<double>(CLAP_BEATTIME_FACTOR);
     constexpr double secFactor = static_cast<double>(CLAP_SECTIME_FACTOR);
             
-    timeInfo.mTempo = transport->tempo;
-    timeInfo.mSamplePos = (GetSampleRate() * static_cast<double>(transport->song_pos_seconds) / secFactor);
-    timeInfo.mPPQPos = static_cast<double>(transport->song_pos_beats) / beatFactor;
-    timeInfo.mLastBar = static_cast<double>(transport->bar_start) / beatFactor;
-    timeInfo.mCycleStart = static_cast<double>(transport->loop_start_beats) / beatFactor;
-    timeInfo.mCycleEnd = static_cast<double>(transport->loop_end_beats) / beatFactor;
+    if (transport->flags & CLAP_TRANSPORT_HAS_TEMPO)
+      timeInfo.mTempo = transport->tempo;
+    
+    // N.B. If there is no seconds timeline there is no way to get the sample position (the plugin one is not global)
+      
+    if (transport->flags & CLAP_TRANSPORT_HAS_SECONDS_TIMELINE)
+      timeInfo.mSamplePos = (GetSampleRate() * static_cast<double>(transport->song_pos_seconds) / secFactor);
+    
+    if (transport->flags & CLAP_TRANSPORT_HAS_BEATS_TIMELINE)
+    {
+      timeInfo.mPPQPos = static_cast<double>(transport->song_pos_beats) / beatFactor;
+      timeInfo.mLastBar = static_cast<double>(transport->bar_start) / beatFactor;
+      timeInfo.mCycleStart = static_cast<double>(transport->loop_start_beats) / beatFactor;
+      timeInfo.mCycleEnd = static_cast<double>(transport->loop_end_beats) / beatFactor;
+    }
 
-    timeInfo.mNumerator = static_cast<int>(transport->tsig_num);
-    timeInfo.mDenominator = static_cast<int>(transport->tsig_denom);
+    if (transport->flags & CLAP_TRANSPORT_HAS_TIME_SIGNATURE)
+    {
+      timeInfo.mNumerator = static_cast<int>(transport->tsig_num);
+      timeInfo.mDenominator = static_cast<int>(transport->tsig_denom);
+    }
 
     timeInfo.mTransportIsRunning = transport->flags & CLAP_TRANSPORT_IS_PLAYING;
     timeInfo.mTransportLoopEnabled = transport->flags & CLAP_TRANSPORT_IS_LOOP_ACTIVE;
