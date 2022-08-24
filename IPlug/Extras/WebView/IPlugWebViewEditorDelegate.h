@@ -117,6 +117,13 @@ public:
 
       SendArbitraryMsgFromUI(json["msgTag"], json["ctrlTag"], static_cast<int>(base64.size()), base64.data());
     }
+    else if(json["msg"] == "SMMFUI")
+    {
+      IMidiMsg msg {0, json["statusByte"].get<uint8_t>(),
+                       json["dataByte1"].get<uint8_t>(),
+                       json["dataByte2"].get<uint8_t>()};
+      SendMidiMsgFromUI(msg);
+    }
   }
 
   void Resize(int width, int height);
