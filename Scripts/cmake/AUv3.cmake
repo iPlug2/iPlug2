@@ -8,7 +8,6 @@ add_library(iPlug2_AUv3 INTERFACE)
 iplug_target_add(iPlug2_AUv3 INTERFACE
   INCLUDE ${_sdk}
   SOURCE
-    ${_sdk}/GenericUI.mm
     ${_sdk}/IPlugAUAudioUnit.mm
     ${_sdk}/IPlugAUv3.mm
     ${_sdk}/IPlugAUv3Appex.m

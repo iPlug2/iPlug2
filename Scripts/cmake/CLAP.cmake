@@ -1,48 +1,47 @@
 cmake_minimum_required(VERSION 3.11)
 
-set(VST2_SDK "${IPLUG2_DIR}/Dependencies/IPlug/VST2_SDK" CACHE PATH "VST2 SDK directory.")
+set(CLAP_SDK "${IPLUG2_DIR}/Dependencies/IPlug/CLAP_SDK" CACHE PATH "CLAP SDK directory.")
 
 if (WIN32)
   set(fn "VstPlugins")
   if (PROCESSOR_ARCH STREQUAL "Win32")
-    set(_paths "$ENV{ProgramFiles(x86)}/${fn}" "$ENV{ProgramFiles(x86)}/Steinberg/${fn}")
+    # set(_paths "$ENV{ProgramFiles(x86)}/${fn}" "$ENV{ProgramFiles(x86)}/Steinberg/${fn}")
   endif()
   # Append this for x86, x64, and ARM I guess
-  list(APPEND _paths "'$ENV{ProgramFiles}/${fn}'" "'$ENV{ProgramFiles}/Steinberg/${fn}'")
+  # list(APPEND _paths "'$ENV{ProgramFiles}/${fn}'" "'$ENV{ProgramFiles}/Steinberg/${fn}'")
 elseif (OS_MAC)
-  set(fn "VST")
+  set(fn "CLAP")
   set(_paths "$ENV{HOME}/Library/Audio/Plug-Ins/${fn}" "/Library/Audio/Plug-Ins/${fn}")
 elseif (OS_LINUX)
-  set(_paths "$ENV{HOME}/.vst" "/usr/local/lib/vst" "/usr/local/vst")
+  # set(_paths "$ENV{HOME}/.vst" "/usr/local/lib/vst" "/usr/local/vst")
 endif()
 
-iplug_find_path(VST2_INSTALL_PATH REQUIRED DIR DEFAULT_IDX 0 
-  DOC "Path to install VST2 plugins"
+iplug_find_path(CLAP_INSTALL_PATH REQUIRED DIR DEFAULT_IDX 0 
+  DOC "Path to install CLAP plugins"
   PATHS ${_paths})
 
-set(sdk ${IPLUG2_DIR}/IPlug/VST2)
-add_library(iPlug2_VST2 INTERFACE)
-iplug_target_add(iPlug2_VST2 INTERFACE
-  INCLUDE ${sdk} ${VST2_SDK}
+set(sdk ${IPLUG2_DIR}/IPlug/CLAP)
+add_library(iPlug2_CLAP INTERFACE)
+iplug_target_add(iPlug2_CLAP INTERFACE
+  INCLUDE ${sdk} ${CLAP_SDK}
   SOURCE ${sdk}/IPlugVST2.cpp
-  DEFINE "VST2_API" "VST_FORCE_DEPRECATED" "IPLUG_DSP=1" "IPLUG_EDITOR=1"
+  DEFINE "CLAP_API" "IPLUG_DSP=1" "IPLUG_EDITOR=1"
   LINK iPlug2_Core
 )
 # if (OS_LINUX)
-#   iplug_target_add(iPlug2_VST2 INTERFACE
-#     DEFINE "SMTG_OS_LINUX"
+#   iplug_target_add(iPlug2_CLAP INTERFACE
 #   )
 #   # CMake doesn't like __cdecl, so instead of having people modify their aeffect.h
 #   # file, just redefine __cdecl.
 #   if ("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
-#     iplug_target_add(iPlug2_VST2 INTERFACE DEFINE "__cdecl=__attribute__((__cdecl__))")
+#     iplug_target_add(iPlug2_CLAP INTERFACE DEFINE "__cdecl=__attribute__((__cdecl__))")
 #   endif()
 # endif()
 
-list(APPEND IPLUG2_TARGETS iPlug2_VST2)
+list(APPEND IPLUG2_TARGETS iPlug2_CLAP)
 
-function(iplug_configure_vst2 target)
-  iplug_target_add(${target} PUBLIC LINK iPlug2_VST2)
+function(iplug_configure_clap target)
+  iplug_target_add(${target} PUBLIC LINK iPlug2_CLAP)
 
   if (WIN32)
     set(out_dir "${CMAKE_BINARY_DIR}/${target}")
@@ -64,8 +63,8 @@ function(iplug_configure_vst2 target)
     set_target_properties(${target} PROPERTIES
       BUNDLE TRUE
       MACOSX_BUNDLE TRUE
-      MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}-VST2-Info.plist
-      BUNDLE_EXTENSION "vst"
+      MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}-CLAP-Info.plist
+      BUNDLE_EXTENSION "clap"
       PREFIX ""
       SUFFIX "")
 
@@ -78,17 +77,17 @@ function(iplug_configure_vst2 target)
       COMMAND ${CMAKE_COMMAND} ARGS "-E" "copy_directory" "${out_dir}" "${install_dir}")
 
   elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
-    set(out_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}.vst2")
+    set(out_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}.clap")
     set_target_properties(${target} PROPERTIES
       OUTPUT_NAME "${PLUG_NAME}"
       LIBRARY_OUTPUT_DIRECTORY "${out_dir}"
       PREFIX ""
       SUFFIX ".so"
     )
-    set(res_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}.vst2/resources")
+    set(res_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}.clap/resources")
 
     add_custom_command(TARGET ${target} POST_BUILD
-      COMMAND ${CMAKE_COMMAND} ARGS "-E" "copy_directory" "${out_dir}" "${VST2_INSTALL_PATH}/${PLUG_NAME}")
+      COMMAND ${CMAKE_COMMAND} ARGS "-E" "copy_directory" "${out_dir}" "${CLAP_INSTALL_PATH}/${PLUG_NAME}")
   endif()
 
   # Handle resources
