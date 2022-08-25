@@ -604,6 +604,8 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
 
 const char *ClapPortType(uint32_t nChans)
 {
+  // TODO - add support for surround/ambisonics or allow user setting?
+  
   return nChans == 2 ? CLAP_PORT_STEREO : (nChans == 1 ? CLAP_PORT_MONO : nullptr);
 }
 
@@ -614,19 +616,22 @@ bool IPlugCLAP::implementsAudioPorts() const noexcept
 
 uint32_t IPlugCLAP::audioPortsCount(bool isInput) const noexcept
 {
-  return MaxNBuses(isInput ? ERoute::kInput : ERoute::kOutput);
+  const auto direction = isInput ? ERoute::kInput : ERoute::kOutput;
+  return mConfigIdx < 0 ? MaxNBuses(direction) : GetIOConfig(mConfigIdx)->NBuses(direction);
 }
 
 bool IPlugCLAP::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_info *info) const noexcept
 {
   // TODO - wildcards return as -1 chans...
   // TODO - what if the config hasn't been set??
-  // TODO - both sets of ids below
+  // TODO - both sets of ids below (should we use in place pairs)
   
-  const auto direction = isInput ? ERoute::kInput : ERoute::kOutput;
-  const auto nBuses = MaxNBuses(direction);
-  const auto nChans = mConfigIdx < 0 ? MaxNChannelsForBus(direction, index) : GetIOConfig(mConfigIdx)->NChansOnBusSAFE(direction, static_cast<int>(index));
   WDL_String busName;
+
+  const auto direction = isInput ? ERoute::kInput : ERoute::kOutput;
+  const auto nBuses = mConfigIdx < 0 ? MaxNBuses(direction) : GetIOConfig(mConfigIdx)->NBuses(direction);
+  const auto nChans = mConfigIdx < 0 ? MaxNChannelsForBus(direction, index) : GetIOConfig(mConfigIdx)->NChansOnBusSAFE(direction, static_cast<int>(index));
+
   GetBusName(direction, index, nBuses, busName);
   
   constexpr uint32_t bitFlags = CLAP_AUDIO_PORT_SUPPORTS_64BITS
