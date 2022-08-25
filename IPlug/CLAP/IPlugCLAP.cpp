@@ -488,8 +488,8 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *inputEvents) noexcep
           int paramIdx = paramValue->param_id;
           double value = paramValue->value;
           
-          GetParam(paramIdx)->Set(value);
-          SendParameterValueFromAPI(paramIdx, value, false);
+          GetParam(paramIdx)->SetNormalized(value);
+          SendParameterValueFromAPI(paramIdx, value, true);
           OnParamChange(paramIdx, EParamSource::kHost, event->time);
           break;
         }
