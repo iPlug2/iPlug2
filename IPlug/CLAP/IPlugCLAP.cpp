@@ -364,8 +364,8 @@ bool IPlugCLAP::paramsInfo(uint32_t paramIndex, clap_param_info *info) const noe
 
   const IParam *pParam = GetParam(paramIndex);
   
-  clap_param_info_flags flags = 0;
-
+  clap_param_info_flags flags = CLAP_PARAM_REQUIRES_PROCESS; // TO DO - check this with Alex B
+  
   if (pParam->GetStepped())
     flags |= CLAP_PARAM_IS_STEPPED;
   if (pParam->GetCanAutomate())
