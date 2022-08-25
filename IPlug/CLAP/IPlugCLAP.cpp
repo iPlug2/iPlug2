@@ -380,9 +380,9 @@ bool IPlugCLAP::paramsInfo(uint32_t paramIndex, clap_param_info *info) const noe
 
   // Values
   
-  info->min_value = pParam->GetMin();
-  info->max_value = pParam->GetMax();
-  info->default_value = pParam->GetDefault();
+  info->min_value = 0.0;
+  info->max_value = 1.0;
+  info->default_value = pParam->GetDefault(true);
   
   return true;
 }
@@ -390,7 +390,7 @@ bool IPlugCLAP::paramsInfo(uint32_t paramIndex, clap_param_info *info) const noe
 bool IPlugCLAP::paramsValue(clap_id paramId, double *value) noexcept
 {
   const IParam *pParam = GetParam(paramId);
-  *value = pParam->Value();
+  *value = pParam->GetNormalized();
   return true;
 }
 
@@ -399,7 +399,7 @@ bool IPlugCLAP::paramsValueToText(clap_id paramId, double value, char *display, 
   const IParam *pParam = GetParam(paramId);
   WDL_String str;
   
-  pParam->GetDisplay(value, false, str);
+  pParam->GetDisplay(value, true, str);
   
   // Add Label
   
