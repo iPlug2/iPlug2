@@ -24,7 +24,7 @@ set(sdk ${IPLUG2_DIR}/IPlug/CLAP)
 add_library(iPlug2_CLAP INTERFACE)
 iplug_target_add(iPlug2_CLAP INTERFACE
   INCLUDE ${sdk} ${CLAP_SDK}
-  SOURCE ${sdk}/IPlugVST2.cpp
+  SOURCE ${sdk}/IPlugCLAP.cpp
   DEFINE "CLAP_API" "IPLUG_DSP=1" "IPLUG_EDITOR=1"
   LINK iPlug2_Core
 )
