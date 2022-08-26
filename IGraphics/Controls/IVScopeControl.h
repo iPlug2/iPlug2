@@ -75,8 +75,10 @@ public:
         yHi = Clip(yHi, -maxY, maxY);
         g.PathLineTo(r.L + xHi, r.MH() - yHi);
       }
-      
-      g.PathStroke(GetColor(kFG), mTrackSize, IStrokeOptions(), &mBlend);
+
+      IStrokeOptions strokeOptions;
+      strokeOptions.mJoinOption = ELineJoin::Bevel;
+      g.PathStroke(GetColor(kFG), mTrackSize, strokeOptions, &mBlend);
     }
   }
   
