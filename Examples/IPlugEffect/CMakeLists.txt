@@ -40,33 +40,33 @@ iplug_target_add(_base INTERFACE
   FEATURE cxx_std_17)
 
 # For typing convenience the TARGET name is put into a variable.
-set(TARGET app)
-add_executable(${TARGET} WIN32 MACOSX_BUNDLE ${SRC_FILES})
-iplug_target_add(${TARGET} PUBLIC LINK iPlug2_APP _base RESOURCE ${RESOURCES})
-# You MUST call iplug_configure_target(<target_name> <app|vst2|vst3|...>) for things to build correctly.
-iplug_configure_target(${TARGET} app)
+# set(TARGET app)
+# add_executable(${TARGET} WIN32 MACOSX_BUNDLE ${SRC_FILES})
+# iplug_target_add(${TARGET} PUBLIC LINK iPlug2_APP _base RESOURCE ${RESOURCES})
+# # You MUST call iplug_configure_target(<target_name> <app|vst2|vst3|...>) for things to build correctly.
+# iplug_configure_target(${TARGET} app)
 
 # set(TARGET vst2)
 # add_library(${TARGET} MODULE ${SRC_FILES})
 # iplug_target_add(${TARGET} PUBLIC LINK iPlug2_VST2 _base RESOURCE ${RESOURCES})
 # iplug_configure_target(${TARGET} vst2)
 
-# set(TARGET clap)
-# add_library(${TARGET} MODULE ${SRC_FILES})
-# iplug_target_add(${TARGET} PUBLIC LINK iPlug2_CLAP _base RESOURCE ${RESOURCES})
-# iplug_configure_target(${TARGET} clap)
-
-set(TARGET vst3)
+set(TARGET clap)
 add_library(${TARGET} MODULE ${SRC_FILES})
-iplug_target_add(${TARGET} PUBLIC LINK iPlug2_VST3 _base RESOURCE ${RESOURCES})
-iplug_configure_target(${TARGET} vst3)
+iplug_target_add(${TARGET} PUBLIC LINK iPlug2_CLAP _base RESOURCE ${RESOURCES})
+iplug_configure_target(${TARGET} clap)
 
-if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-  set(TARGET auv2)
-  add_library(${TARGET} MODULE ${SRC_FILES})
-  iplug_target_add(${TARGET} PUBLIC LINK iPlug2_AUv2 _base RESOURCE ${RESOURCES})
-  iplug_configure_target(${TARGET} auv2)
-endif()
+# set(TARGET vst3)
+# add_library(${TARGET} MODULE ${SRC_FILES})
+# iplug_target_add(${TARGET} PUBLIC LINK iPlug2_VST3 _base RESOURCE ${RESOURCES})
+# iplug_configure_target(${TARGET} vst3)
+
+# if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+#   set(TARGET auv2)
+#   add_library(${TARGET} MODULE ${SRC_FILES})
+#   iplug_target_add(${TARGET} PUBLIC LINK iPlug2_AUv2 _base RESOURCE ${RESOURCES})
+#   iplug_configure_target(${TARGET} auv2)
+# endif()
 
 if (WIN32)
   set(CMAKE_RC_FLAGS "/I${PROJECT_DIR}/resources /I${PROJECT_DIR}/resources/fonts /I${PROJECT_DIR}/resources/img ${CMAKE_RC_FLAGS}")
