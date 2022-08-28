@@ -59,7 +59,11 @@ void IPlugCLAP::BeginInformHostOfParamChange(int idx)
 
 void IPlugCLAP::InformHostOfParamChange(int idx, double normalizedValue)
 {
-  ParamToHost change { ParamToHost::Type::Value, idx, normalizedValue };
+  const IParam* pParam = GetParam(idx);
+  const bool isDoubleType = pParam->Type() == IParam::kTypeDouble;
+  const double value = isDoubleType ? normalizedValue : pParam->FromNormalized(normalizedValue);
+  
+  ParamToHost change { ParamToHost::Type::Value, idx, value };
   mParamInfoToHost.Push(change);
 }
 
@@ -361,10 +365,11 @@ bool IPlugCLAP::paramsInfo(uint32_t paramIdx, clap_param_info *info) const noexc
   assert(MAX_PARAM_GROUP_LEN <= CLAP_PATH_SIZE && "iPlug group name size exceeds CLAP maximum");
 
   const IParam *pParam = GetParam(paramIdx);
+  const bool isDoubleType = pParam->Type() == IParam::kTypeDouble;
   
   clap_param_info_flags flags = CLAP_PARAM_REQUIRES_PROCESS; // TO DO - check this with Alex B
   
-  if (pParam->GetStepped())
+  if (!isDoubleType)
     flags |= CLAP_PARAM_IS_STEPPED;
   if (pParam->GetCanAutomate())
     flags |= CLAP_PARAM_IS_AUTOMATABLE;
@@ -378,9 +383,9 @@ bool IPlugCLAP::paramsInfo(uint32_t paramIdx, clap_param_info *info) const noexc
 
   // Values
   
-  info->min_value = 0.0;
-  info->max_value = 1.0;
-  info->default_value = pParam->GetDefault(true);
+  info->min_value = isDoubleType ? 0.0 : pParam->GetMin();
+  info->max_value = isDoubleType ? 1.0 : pParam->GetMax();
+  info->default_value = pParam->GetDefault(isDoubleType);
   
   return true;
 }
@@ -388,16 +393,19 @@ bool IPlugCLAP::paramsInfo(uint32_t paramIdx, clap_param_info *info) const noexc
 bool IPlugCLAP::paramsValue(clap_id paramIdx, double *value) noexcept
 {
   const IParam *pParam = GetParam(paramIdx);
-  *value = pParam->GetNormalized();
+  const bool isDoubleType = pParam->Type() == IParam::kTypeDouble;
+  *value = isDoubleType ? pParam->GetNormalized() : pParam->Value();
   return true;
 }
 
 bool IPlugCLAP::paramsValueToText(clap_id paramIdx, double value, char *display, uint32_t size) noexcept
 {
   const IParam *pParam = GetParam(paramIdx);
+  const bool isDoubleType = pParam->Type() == IParam::kTypeDouble;
+
   WDL_String str;
   
-  pParam->GetDisplay(value, true, str);
+  pParam->GetDisplay(value, isDoubleType, str);
   
   // Add Label
   
@@ -417,7 +425,10 @@ bool IPlugCLAP::paramsValueToText(clap_id paramIdx, double value, char *display,
 bool IPlugCLAP::paramsTextToValue(clap_id paramIdx, const char *display, double *value) noexcept
 {
   const IParam *pParam = GetParam(paramIdx);
-  *value = pParam->StringToValue(display);
+  const bool isDoubleType = pParam->Type() == IParam::kTypeDouble;
+  const double paramValue = pParam->StringToValue(display);
+  
+  *value = isDoubleType ? pParam->ToNormalized(paramValue) : paramValue;
   return true;
 }
 
@@ -488,8 +499,15 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *inputEvents) noexcep
           int paramIdx = paramValue->param_id;
           double value = paramValue->value;
           
-          GetParam(paramIdx)->SetNormalized(value);
-          SendParameterValueFromAPI(paramIdx, value, true);
+          IParam *pParam = GetParam(paramIdx);
+          const bool isDoubleType = pParam->Type() == IParam::kTypeDouble;
+          
+          if (isDoubleType)
+            pParam->SetNormalized(value);
+          else
+            pParam->Set(value);
+          
+          SendParameterValueFromAPI(paramIdx, value, isDoubleType);
           OnParamChange(paramIdx, EParamSource::kHost, event->time);
           break;
         }
