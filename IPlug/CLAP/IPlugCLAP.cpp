@@ -113,7 +113,10 @@ bool IPlugCLAP::SendMidiMsg(const IMidiMsg& msg)
 
 bool IPlugCLAP::SendSysEx(const ISysEx& msg)
 {
-  return false;
+  // TODO - I think this will do a double copy...
+  mSysExToHost.Push(SysExData{ msg.mOffset, msg.mSize, msg.mData } );
+  return true;
+}
 }
 
 // clap_plugin
@@ -150,7 +153,8 @@ const T* ClapEventCast(const clap_event_header_t *event)
 clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
 {
   IMidiMsg msg;
-
+  SysExData sysEx;
+  
   // Transport Info
   
   if (process->transport)
@@ -197,6 +201,11 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
   while (mMidiMsgsFromEditor.Pop(msg))
   {
     ProcessMidiMsg(msg);
+  }
+  
+  while (mSysExDataFromEditor.Pop(sysEx))
+  {
+    ProcessSysEx(ISysEx(sysEx.mOffset, sysEx.mData, sysEx.mSize) );
   }
   
   // Do Audio Processing!
@@ -487,7 +496,8 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *inputEvents) noexcep
           
           ISysEx sysEx(event->time, midiSysex->buffer, midiSysex->size);
           ProcessSysEx(sysEx);
-          //mSysExDataFromProcessor.Push(sysEx);
+          // TODO - this will do a double copy...
+          mSysExDataFromProcessor.Push(SysExData{ sysEx.mOffset, sysEx.mSize, sysEx.mData } );
           break;
         }
           
@@ -597,6 +607,8 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
     
     mMidiOutputQueue.Flush(nFrames);
 
+    // TODO - fix
+    
     /*
       case CLAP_EVENT_MIDI_SYSEX:
       {
