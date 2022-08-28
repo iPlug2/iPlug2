@@ -220,6 +220,7 @@ private:
   WDL_TypedBuf<float *> mAudioIO32;
   WDL_TypedBuf<double *> mAudioIO64;
   int mConfigIdx = -1;
+  bool mTailUpdate = false;
 };
 
 IPlugCLAP* MakePlug(const InstanceInfo& info);

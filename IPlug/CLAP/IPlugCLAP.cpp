@@ -97,7 +97,7 @@ void IPlugCLAP::SetTailSize(int samples)
 {
   IPlugProcessor::SetTailSize(samples);
   if (GetClapHost().canUseTail())
-    GetClapHost().tailChanged();
+    mTailUpdate = true;
 }
 
 void IPlugCLAP::SetLatency(int samples)
@@ -137,6 +137,8 @@ bool IPlugCLAP::activate(double sampleRate, uint32_t minFrameCount, uint32_t max
 void IPlugCLAP::deactivate() noexcept
 {
   OnActivate(false);
+  
+  // TODO - should we clear mTailChanged here or elsewhere?
 }
 
 template <typename T>
@@ -310,7 +312,13 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
     
   ProcessOutputEvents(process->out_events, nFrames);
   
-  return CLAP_PROCESS_CONTINUE; // TODO - review
+  if (mTailUpdate)
+  {
+    GetClapHost().tailChanged();
+    mTailUpdate = false;
+  }
+  
+  return CLAP_PROCESS_TAIL; // CLAP_PROCESS_CONTINUE; // TODO - review - is this allowed if tail is not supported?
 }
 
 // clap_plugin_render
