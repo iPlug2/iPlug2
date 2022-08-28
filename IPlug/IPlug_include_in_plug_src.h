@@ -271,6 +271,8 @@
     
     return 0;
   }
+
+#pragma mark - CLAP
 #elif defined CLAP_API
 
 std::string gPluginPath;
@@ -428,9 +430,6 @@ Steinberg::FUnknown* MakeProcessor()
   info.mOtherGUID = Steinberg::FUID(VST3_CONTROLLER_UID);
   return static_cast<Steinberg::Vst::IAudioProcessor*>(new PLUG_CLASS_NAME(info));
 }
-#pragma mark - CLAP
-#elif defined CLAP_API
-// TODO?
 #else
 #error "No API defined!"
 #endif
