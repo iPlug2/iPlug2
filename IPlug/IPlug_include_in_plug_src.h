@@ -333,16 +333,6 @@ static const clap_plugin* clap_create_plugin(const clap_plugin_factory_t *factor
   return nullptr;
 }
 
-static uint32_t clap_get_invalidation_sources_count(void) { return 0; }
-
-static const clap_plugin_invalidation_source* clap_get_invalidation_sources(uint32_t index)
-{
-  return nullptr;
-}
-
-static void clap_refresh(void) {}
-
-
 CLAP_EXPORT const clap_plugin_factory_t clap_factory = {
   clap_get_plugin_count,
   clap_get_plugin_descriptor,
