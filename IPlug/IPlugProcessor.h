@@ -69,7 +69,7 @@ public:
 
   /** Override this method to handle incoming MIDI System Exclusive (SysEx) messages. The method is called prior to ProcessBlock().
    * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts */
-  virtual void ProcessSysEx(ISysEx& msg) {}
+  virtual void ProcessSysEx(const ISysEx& msg) {}
 
   /** Override this method in your plug-in class to do something prior to playback etc. (e.g.clear buffers, update internal DSP with the latest sample rate) */
   virtual void OnReset() { TRACE }
