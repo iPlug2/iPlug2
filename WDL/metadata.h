@@ -1998,15 +1998,15 @@ bool PackFlacPicBase64(WDL_StringKeyedArray<char*> *metadata,
   else if (ext && !stricmp(ext, ".png")) mime="image/png";
   if (!mime) return false;
 
-  WDL_FileRead *fr=new WDL_FileRead(picfn);
-  if (!fr) return false;
+  WDL_FileRead fr(picfn);
+  if (!fr.IsOpen()) return false;
 
-  int datalen=fr->GetSize();
-  if (!datalen)
+  WDL_INT64 datalen64=fr.GetSize();
+  if (datalen64 < 1 || datalen64 >= (1<<30))
   {
-    delete fr;
     return false;
   }
+  int datalen = (int)datalen64;
   int r8 = (datalen&7) ? 8-(datalen&7) : 0;
 
   // see opusfile src/info.c opus_picture_tag_parse_impl
@@ -2026,7 +2026,6 @@ bool PackFlacPicBase64(WDL_StringKeyedArray<char*> *metadata,
   unsigned char *p=(unsigned char*)hb_bin.ResizeOK(binlen);
   if (!p)
   {
-    delete fr;
     return false;
   }
   unsigned char *op=p;
@@ -2045,8 +2044,7 @@ bool PackFlacPicBase64(WDL_StringKeyedArray<char*> *metadata,
   _AddInt32(0);
   _AddInt32(datalen+r8);
 
-  fr->Read(p, datalen);
-  delete fr;
+  fr.Read(p, datalen);
   p += datalen;
 
   memset(p, 0, r8);
