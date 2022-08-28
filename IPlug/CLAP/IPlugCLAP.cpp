@@ -43,7 +43,7 @@ IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
   
   // Create space to store audio pointers
   
-  int nChans = std::max(MaxNChannels(kInput), MaxNChannels(kOutput));
+  int nChans = RequiredChannels();
   mAudioIO32.Resize(nChans);
   mAudioIO64.Resize(nChans);
   
@@ -616,21 +616,18 @@ bool IPlugCLAP::implementsAudioPorts() const noexcept
 
 uint32_t IPlugCLAP::audioPortsCount(bool isInput) const noexcept
 {
-  const auto direction = isInput ? ERoute::kInput : ERoute::kOutput;
-  return mConfigIdx < 0 ? MaxNBuses(direction) : GetIOConfig(mConfigIdx)->NBuses(direction);
+  return NBuses(isInput ? ERoute::kInput : ERoute::kOutput);
 }
 
 bool IPlugCLAP::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_info *info) const noexcept
 {
-  // TODO - wildcards return as -1 chans...
-  // TODO - what if the config hasn't been set??
   // TODO - both sets of ids below (should we use in place pairs)
   
   WDL_String busName;
 
   const auto direction = isInput ? ERoute::kInput : ERoute::kOutput;
-  const auto nBuses = mConfigIdx < 0 ? MaxNBuses(direction) : GetIOConfig(mConfigIdx)->NBuses(direction);
-  const auto nChans = mConfigIdx < 0 ? MaxNChannelsForBus(direction, index) : GetIOConfig(mConfigIdx)->NChansOnBusSAFE(direction, static_cast<int>(index));
+  const auto nBuses = NBuses(direction);
+  const auto nChans = NChannels(direction, index);
 
   GetBusName(direction, index, nBuses, busName);
   
@@ -641,7 +638,7 @@ bool IPlugCLAP::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_inf
   info->id = index;
   ClapNameCopy(info->name, busName.Get());
   info->flags = !index ? bitFlags | CLAP_AUDIO_PORT_IS_MAIN : bitFlags;
-  info->channel_count = static_cast<uint32_t>(nChans);
+  info->channel_count = nChans;
   info->port_type = ClapPortType(info->channel_count);
   info->in_place_pair = CLAP_INVALID_ID;
   return true;
@@ -828,3 +825,21 @@ bool IPlugCLAP::guiSetSize(uint32_t width, uint32_t height) noexcept
 #endif /* PLUG_HOST_RESIZE */
 
 #endif /* PLUG_HAS_UI */
+
+// TODO - wildcards (return as -1 chans...)
+// TODO - default config
+
+int IPlugCLAP::RequiredChannels() const
+{
+  return std::max(MaxNChannels(kInput), MaxNChannels(kOutput));
+}
+
+uint32_t IPlugCLAP::NBuses(ERoute direction) const
+{
+  return mConfigIdx < 0 ? MaxNBuses(direction) : GetIOConfig(mConfigIdx)->NBuses(direction);
+}
+
+uint32_t IPlugCLAP::NChannels(ERoute direction, uint32_t bus) const
+{
+  return mConfigIdx < 0 ? MaxNChannelsForBus(direction, bus) : GetIOConfig(mConfigIdx)->NChansOnBusSAFE(direction, static_cast<int>(bus));
+}
