@@ -191,10 +191,6 @@ private:
   }
 #endif
   
-  // IPlug2-style host retrieval
-  
-  ClapHost GetClapHost() { return _host; }
-  
   // Helper to attach GUI Windows
   
   bool GUIWindowAttach(void *parent) noexcept;
@@ -208,6 +204,10 @@ private:
   void *mWindow = nullptr;
   bool mGUIOpen = false;
 #endif
+  
+  // IPlug2-style host retrieval
+  
+  ClapHost GetClapHost() { return _host; }
   
   IPlugQueue<ParamToHost> mParamInfoToHost {PARAM_TRANSFER_SIZE};
   IMidiQueue mMidiOutputQueue;
