@@ -355,12 +355,12 @@ bool IPlugCLAP::stateLoad(const clap_istream *stream) noexcept
 
 // clap_plugin_params
 
-bool IPlugCLAP::paramsInfo(uint32_t paramIndex, clap_param_info *info) const noexcept
+bool IPlugCLAP::paramsInfo(uint32_t paramIdx, clap_param_info *info) const noexcept
 {
   assert(MAX_PARAM_NAME_LEN <= CLAP_NAME_SIZE && "iPlug parameter name size exceeds CLAP maximum");
   assert(MAX_PARAM_GROUP_LEN <= CLAP_PATH_SIZE && "iPlug group name size exceeds CLAP maximum");
 
-  const IParam *pParam = GetParam(paramIndex);
+  const IParam *pParam = GetParam(paramIdx);
   
   clap_param_info_flags flags = CLAP_PARAM_REQUIRES_PROCESS; // TO DO - check this with Alex B
   
@@ -369,7 +369,7 @@ bool IPlugCLAP::paramsInfo(uint32_t paramIndex, clap_param_info *info) const noe
   if (pParam->GetCanAutomate())
     flags |= CLAP_PARAM_IS_AUTOMATABLE;
   
-  info->id = paramIndex;
+  info->id = paramIdx;
   info->flags = flags;
   info->cookie = nullptr;
 
@@ -385,16 +385,16 @@ bool IPlugCLAP::paramsInfo(uint32_t paramIndex, clap_param_info *info) const noe
   return true;
 }
 
-bool IPlugCLAP::paramsValue(clap_id paramId, double *value) noexcept
+bool IPlugCLAP::paramsValue(clap_id paramIdx, double *value) noexcept
 {
-  const IParam *pParam = GetParam(paramId);
+  const IParam *pParam = GetParam(paramIdx);
   *value = pParam->GetNormalized();
   return true;
 }
 
-bool IPlugCLAP::paramsValueToText(clap_id paramId, double value, char *display, uint32_t size) noexcept
+bool IPlugCLAP::paramsValueToText(clap_id paramIdx, double value, char *display, uint32_t size) noexcept
 {
-  const IParam *pParam = GetParam(paramId);
+  const IParam *pParam = GetParam(paramIdx);
   WDL_String str;
   
   pParam->GetDisplay(value, true, str);
@@ -414,9 +414,9 @@ bool IPlugCLAP::paramsValueToText(clap_id paramId, double value, char *display, 
   return true;
 }
 
-bool IPlugCLAP::paramsTextToValue(clap_id paramId, const char *display, double *value) noexcept
+bool IPlugCLAP::paramsTextToValue(clap_id paramIdx, const char *display, double *value) noexcept
 {
-  const IParam *pParam = GetParam(paramId);
+  const IParam *pParam = GetParam(paramIdx);
   *value = pParam->StringToValue(display);
   return true;
 }

@@ -140,14 +140,14 @@ private:
   bool implementsParams() const noexcept override { return true; }
   uint32_t paramsCount() const noexcept override { return NParams(); }
   
-  bool paramsInfo(uint32_t paramIndex, clap_param_info *info) const noexcept override;
+  bool paramsInfo(uint32_t paramIdx, clap_param_info *info) const noexcept override;
   
-  bool paramsValue(clap_id paramId, double *value) noexcept override;
-  bool paramsValueToText(clap_id paramId, double value, char *display, uint32_t size) noexcept override;
-  bool paramsTextToValue(clap_id paramId, const char *display, double *value) noexcept override;
+  bool paramsValue(clap_id paramIdx, double *value) noexcept override;
+  bool paramsValueToText(clap_id paramIdx, double value, char *display, uint32_t size) noexcept override;
+  bool paramsTextToValue(clap_id paramIdx, const char *display, double *value) noexcept override;
      
   void paramsFlush(const clap_input_events *input_parameter_changes, const clap_output_events *outputParamChanges) noexcept override;
-  bool isValidParamId(clap_id paramId) const noexcept override { return paramId < NParams(); }
+  bool isValidParamId(clap_id paramIdx) const noexcept override { return paramIdx < NParams(); }
     
   // clap_plugin_gui
 #if PLUG_HAS_UI
