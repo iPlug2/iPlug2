@@ -212,7 +212,13 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
   {
     len += strlen(str + len) + 1;
   }
-  WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)str,len);
+
+  WDL_UINT64 hash;
+  if ((flags & LOCALIZE_FLAG_PAIR) && len == 18 && !memcmp(str,"__LOCALIZE_SCALE\0",18))
+    hash = WDL_UINT64_CONST(0x5CA1E00000000000);
+  else
+    hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)str,len);
+
   for (trycnt=0;trycnt<2 && !newptr;trycnt++)
   {
     WDL_AssocArray<WDL_UINT64, char *> *section = trycnt == 1 ? g_translations_commonsec : g_translations.Get(subctx);
