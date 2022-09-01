@@ -275,6 +275,18 @@
 #pragma mark - CLAP
 #elif defined CLAP_API
 
+// Make sure optional fields are defined
+
+#ifndef CLAP_MANUAL_URL
+#define CLAP_MANUAL_URL ""
+#endif
+#ifndef CLAP_SUPPORT_URL
+#define CLAP_SUPPORT_URL ""
+#endif
+#ifndef CLAP_DESCRIPTION
+#define CLAP_DESCRIPTION ""
+#endif
+
 std::string gPluginPath;
 clap_plugin_descriptor* gPluginDesc = nullptr;
 
@@ -294,11 +306,10 @@ static bool clap_init(const char* pluginPath)
   gPluginDesc->vendor = PLUG_MFR;
   gPluginDesc->url = PLUG_URL_STR;
   
-  // TODO - some unimplemented (go into config.h??)
-  gPluginDesc->manual_url = "";
+  gPluginDesc->manual_url = CLAP_MANUAL_URL;
   gPluginDesc->version = PLUG_VERSION_STR;
-  gPluginDesc->support_url = "";
-  gPluginDesc->description = "";
+  gPluginDesc->support_url = CLAP_SUPPORT_URL;
+  gPluginDesc->description = CLAP_DESCRIPTION;
   
   // TODO - more to add here
   
