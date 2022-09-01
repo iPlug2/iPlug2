@@ -563,18 +563,20 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
   // N.B. Midi events are ordered by the queue
   // We should not output anything beyond the current frame...
   
+  SysExData data;
+  
   ProcessOutputParams(outputEvents);
   
   if (outputEvents)
   {
-    while (mMidiOutputQueue.ToDo())
+    clap_event_header_t header;
+
+    while (mMidiToHost.ToDo())
     {
       auto msg = mMidiToHost.Peek();
       auto status = msg.mStatus;
       
       // Construct output stream
-      
-      clap_event_header_t header;
       
       header.size = sizeof(clap_event_param_value);
       header.time = msg.mOffset;
@@ -607,18 +609,22 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
     
     mMidiToHost.Flush(nFrames);
 
-    // TODO - fix
+    // TODO - NB. Pop will copy
     
-    /*
-      case CLAP_EVENT_MIDI_SYSEX:
-      {
-        auto midiSysex = ClapEventCast<clap_event_midi_sysex>(event);
-        
-        ISysEx sysEx(event->time, midiSysex->buffer, midiSysex->size);
-        ProcessSysEx(sysEx);
-        //mSysExDataFromProcessor.Push(sysEx);
-      }
-    */
+    while (mSysExToHost.Pop(data))
+    {
+      uint32_t dataSize = static_cast<uint32_t>(data.mSize);
+      
+      header.size = sizeof(clap_event_midi_sysex);
+      header.time = data.mOffset;
+      header.space_id = CLAP_CORE_EVENT_SPACE_ID;
+      header.type = CLAP_EVENT_MIDI_SYSEX;
+      header.flags = 0; // TODO - check this
+      
+      clap_event_midi_sysex sysex_event { header, 0, data.mData, dataSize };
+      
+      outputEvents->try_push(outputEvents, &sysex_event.header);
+    }
   }
 }
 
