@@ -107,7 +107,7 @@ void IPlugCLAP::SetLatency(int samples)
 
 bool IPlugCLAP::SendMidiMsg(const IMidiMsg& msg)
 {
-  mMidiOutputQueue.Add(msg);
+  mMidiToHost.Add(msg);
   return true;
 }
 
@@ -569,7 +569,7 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
   {
     while (mMidiOutputQueue.ToDo())
     {
-      auto msg = mMidiOutputQueue.Peek();
+      auto msg = mMidiToHost.Peek();
       auto status = msg.mStatus;
       
       // Construct output stream
@@ -602,10 +602,10 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
         outputEvents->try_push(outputEvents, &midi_event.header);
       }
       
-      mMidiOutputQueue.Remove();
+      mMidiToHost.Remove();
     }
     
-    mMidiOutputQueue.Flush(nFrames);
+    mMidiToHost.Flush(nFrames);
 
     // TODO - fix
     

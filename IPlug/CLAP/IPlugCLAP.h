@@ -217,7 +217,7 @@ private:
   
   IPlugQueue<ParamToHost> mParamValuesToHost {PARAM_TRANSFER_SIZE};
   IPlugQueue<SysExData> mSysExToHost {SYSEX_TRANSFER_SIZE};
-  IMidiQueue mMidiOutputQueue;
+  IMidiQueue mMidiToHost;
   WDL_TypedBuf<float *> mAudioIO32;
   WDL_TypedBuf<double *> mAudioIO64;
   int mConfigIdx = -1;
