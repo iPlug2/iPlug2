@@ -117,7 +117,6 @@ bool IPlugCLAP::SendSysEx(const ISysEx& msg)
   mSysExToHost.Push(SysExData{ msg.mOffset, msg.mSize, msg.mData } );
   return true;
 }
-}
 
 // clap_plugin
 
