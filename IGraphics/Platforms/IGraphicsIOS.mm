@@ -190,7 +190,7 @@ void IGraphicsIOS::GetMouseLocation(float& x, float&y) const
   [(IGRAPHICS_VIEW*) mView getLastTouchLocation: x : y];
 }
 
-void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext)
+void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHanderFunc completionHander)
 {
 }
 

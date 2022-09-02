@@ -46,6 +46,7 @@ using IAnimationFunction = std::function<void(IControl*)>;
 using ILambdaDrawFunction = std::function<void(ILambdaControl*, IGraphics&, IRECT&)>;
 using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
 using IMsgBoxCompletionHanderFunc = std::function<void(EMsgBoxResult result)>;
+using IFileDialogCompletionHanderFunc = std::function<void(WDL_String& fileName, WDL_String& path)>;
 using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
 using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;

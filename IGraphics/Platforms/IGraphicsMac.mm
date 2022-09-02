@@ -404,7 +404,7 @@ bool IGraphicsMac::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   return (bool) success;
 }
 
-void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext)
+void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHanderFunc completionHander)
 {
   if (!WindowIsOpen())
   {

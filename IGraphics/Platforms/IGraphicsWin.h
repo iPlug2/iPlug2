@@ -60,7 +60,7 @@ public:
   void UpdateTooltips() override {}
 
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
-  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
+  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHanderFunc completionHander) override;
   void PromptForDirectory(WDL_String& dir) override;
   bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
 

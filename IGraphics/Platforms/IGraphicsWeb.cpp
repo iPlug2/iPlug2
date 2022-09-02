@@ -766,7 +766,7 @@ EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption,
   return result;
 }
 
-void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)
+void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHanderFunc completionHander)
 {
   //TODO
   // val inputEl = val::global("document").call<val>("createElement", std::string("input"));

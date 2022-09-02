@@ -1572,7 +1572,7 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   return success;
 }
 
-void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* extensions)
+void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* extensions, IFileDialogCompletionHanderFunc completionHander)
 {
   if (!WindowIsOpen())
   {
