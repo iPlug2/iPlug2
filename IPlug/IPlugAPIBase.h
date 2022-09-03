@@ -178,8 +178,7 @@ public:
   
   void DeferSysexMsg(const ISysEx& msg) override
   {
-    SysExData data(msg.mOffset, msg.mSize, msg.mData); // copies data
-    mSysExDataFromEditor.Push(data);
+    mSysExDataFromEditor.PushFromArgs(msg.mOffset, msg.mSize, msg.mData); // copies data
   }
 
   /** Called by the API class to create the timer that pumps the parameter/message queues */
