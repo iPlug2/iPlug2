@@ -419,63 +419,65 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   if (fileName.GetLength())
     pDefaultFileName = [NSString stringWithCString:fileName.Get() encoding:NSUTF8StringEncoding];
 
-  if(path.GetLength())
+  if (path.GetLength())
     pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
 
   fileName.Set(""); // reset it
 
   if (CStringHasContents(ext))
     pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
-
-  if (action == EFileAction::Save)
-  {
-    NSSavePanel* pSavePanel = [NSSavePanel savePanel];
-
-    //[panelOpen setTitle:title];
-    [pSavePanel setAllowedFileTypes: pFileTypes];
-    [pSavePanel setAllowsOtherFileTypes: NO];
-
-    long result = [pSavePanel runModalForDirectory:pDefaultPath file:pDefaultFileName];
-
-    if (result == NSOKButton)
+  
+  auto doHandleResponse = [](NSPanel* pPanel, NSModalResponse response, WDL_String& fileName, WDL_String& path, IFileDialogCompletionHanderFunc completionHander){
+    if (response == NSOKButton)
     {
-      NSString* pFullPath = [pSavePanel filename] ;
+      NSString* pFullPath = [(NSSavePanel*) pPanel filename] ;
       fileName.Set([pFullPath UTF8String]);
-
+      
       NSString* pTruncatedPath = [pFullPath stringByDeletingLastPathComponent];
-
+      
       if (pTruncatedPath)
       {
         path.Set([pTruncatedPath UTF8String]);
         path.Append("/");
       }
     }
+  
+    if (completionHander)
+      completionHander(fileName, path);
+  };
+
+
+  NSPanel* pPanel = nullptr;
+  
+  if (action == EFileAction::Save)
+  {
+    pPanel = [NSSavePanel savePanel];
+    
+    [(NSSavePanel*) pPanel setDirectoryURL: [NSURL fileURLWithPath: pDefaultPath]];
+    [(NSSavePanel*) pPanel setNameFieldStringValue: pDefaultFileName];
+    [(NSSavePanel*) pPanel setAllowedFileTypes: pFileTypes];
+    [(NSSavePanel*) pPanel setAllowsOtherFileTypes: NO];
   }
   else
   {
-    NSOpenPanel* pOpenPanel = [NSOpenPanel openPanel];
-
-    //[pOpenPanel setTitle:title];
-    //[pOpenPanel setAllowsMultipleSelection:(allowmul?YES:NO)];
-    [pOpenPanel setCanChooseFiles:YES];
-    [pOpenPanel setCanChooseDirectories:NO];
-    [pOpenPanel setResolvesAliases:YES];
-
-    long result = [pOpenPanel runModalForDirectory:pDefaultPath file:pDefaultFileName types:pFileTypes];
-
-    if (result == NSOKButton)
-    {
-      NSString* pFullPath = [pOpenPanel filename] ;
-      fileName.Set([pFullPath UTF8String]);
-
-      NSString* pTruncatedPath = [pFullPath stringByDeletingLastPathComponent];
-
-      if (pTruncatedPath)
-      {
-        path.Set([pTruncatedPath UTF8String]);
-        path.Append("/");
-      }
-    }
+    pPanel = [NSOpenPanel openPanel];
+    
+    [(NSOpenPanel*) pPanel setCanChooseFiles:YES];
+    [(NSOpenPanel*) pPanel setCanChooseDirectories:NO];
+    [(NSOpenPanel*) pPanel setResolvesAliases:YES];
+  }
+  
+  if (completionHander)
+  {
+    [(NSSavePanel*) pPanel beginWithCompletionHandler:^(NSModalResponse response){
+      WDL_String fileNameAsync, pathAsync;
+      doHandleResponse(pPanel, response, fileNameAsync, pathAsync, completionHander);
+    }];
+  }
+  else
+  {
+    NSModalResponse response = [(NSSavePanel*) pPanel runModal];
+    doHandleResponse(pPanel, response, fileName, path, nullptr);
   }
 }
 
