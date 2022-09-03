@@ -113,8 +113,7 @@ bool IPlugCLAP::SendMidiMsg(const IMidiMsg& msg)
 
 bool IPlugCLAP::SendSysEx(const ISysEx& msg)
 {
-  // TODO - I think this will do a double copy...
-  mSysExToHost.Push(SysExData{ msg.mOffset, msg.mSize, msg.mData } );
+  mSysExToHost.PushFromArgs(msg.mOffset, msg.mSize, msg.mData);
   return true;
 }
 
@@ -495,8 +494,7 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *inputEvents) noexcep
           
           ISysEx sysEx(event->time, midiSysex->buffer, midiSysex->size);
           ProcessSysEx(sysEx);
-          // TODO - this will do a double copy...
-          mSysExDataFromProcessor.Push(SysExData{ sysEx.mOffset, sysEx.mSize, sysEx.mData } );
+          mSysExDataFromProcessor.PushFromArgs(sysEx.mOffset, sysEx.mSize, sysEx.mData);
           break;
         }
           
