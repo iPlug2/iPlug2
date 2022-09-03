@@ -271,45 +271,58 @@
     
     return 0;
   }
+
+#pragma mark - CLAP
 #elif defined CLAP_API
 
-static std::string gPluginPath;
-clap_plugin_descriptor* gPluginDesc;
+// Make sure optional fields are defined
+
+#ifndef CLAP_MANUAL_URL
+#define CLAP_MANUAL_URL ""
+#endif
+#ifndef CLAP_SUPPORT_URL
+#define CLAP_SUPPORT_URL ""
+#endif
+#ifndef CLAP_DESCRIPTION
+#define CLAP_DESCRIPTION ""
+#endif
+#ifndef CLAP_FEATURES
+  #if PLUG_TYPE==0
+  #define CLAP_FEATURES "audio_effect"
+  #elif PLUG_TYPE==1
+  #define CLAP_FEATURES "instrument"
+  #elif PLUG_TYPE==2
+  #define CLAP_FEATURES "note_effect"
+  #endif
+#endif
+
+std::string gPluginPath;
+clap_plugin_descriptor* gPluginDesc = nullptr;
 
 static bool clap_init(const char* pluginPath)
 {
-  gPluginDesc = new clap_plugin_descriptor();
+  // Init globals
+  
   gPluginPath = pluginPath;
+  gPluginDesc = new clap_plugin_descriptor();
+  
+  // Init the descriptor
   
   gPluginDesc->clap_version = CLAP_VERSION;
-  
-#if PLUG_TYPE==0
-  static const char *clap_features[] = { "audio_effect", NULL };
-  gPluginDesc->features = clap_features;
-#elif PLUG_TYPE==1
-  static const char *clap_features[] = { "instrument", NULL };
-  gPluginDesc->features = clap_features;
-#elif PLUG_TYPE==2
-  static const char *clap_features[] = { "note_effect" ,NULL };
-  gPluginDesc->features = clap_features;
-#endif
-  
-  //  clap_version clap_version; // initialized to CLAP_VERSION
 
   gPluginDesc->id = BUNDLE_DOMAIN "." BUNDLE_MFR "." BUNDLE_NAME;
   gPluginDesc->name = PLUG_NAME;
   gPluginDesc->vendor = PLUG_MFR;
   gPluginDesc->url = PLUG_URL_STR;
+  
+  gPluginDesc->manual_url = CLAP_MANUAL_URL;
   gPluginDesc->version = PLUG_VERSION_STR;
+  gPluginDesc->support_url = CLAP_SUPPORT_URL;
+  gPluginDesc->description = CLAP_DESCRIPTION;
   
-  // TODO - unimplemented
-  gPluginDesc->manual_url = "";
-  gPluginDesc->support_url = "";
-  gPluginDesc->description = "";
+  static const char *clap_features[] = { CLAP_FEATURES, NULL };
+  gPluginDesc->features = clap_features;
   
-  // TODO - more to add here
-  //gPluginDesc->features = "";
-
   return true;
 }
 
@@ -319,9 +332,18 @@ static void clap_deinit(void)
   delete gPluginDesc;
 }
 
-static uint32_t clap_get_plugin_count(const clap_plugin_factory_t *factory) { return 1; }
+static uint32_t clap_get_plugin_count(const clap_plugin_factory_t *factory)
+{
+  return 1;
+}
 
-static const clap_plugin_descriptor* clap_get_plugin_descriptor(const clap_plugin_factory_t *factory, uint32_t index) { return gPluginDesc; }
+static const clap_plugin_descriptor* clap_get_plugin_descriptor(const clap_plugin_factory_t *factory, uint32_t index)
+{
+  if (!index)
+    return gPluginDesc;
+  
+  return nullptr;
+}
 
 static const clap_plugin* clap_create_plugin(const clap_plugin_factory_t *factory, const clap_host* host, const char* plugin_id)
 {
@@ -330,18 +352,9 @@ static const clap_plugin* clap_create_plugin(const clap_plugin_factory_t *factor
     IPlugCLAP* pPlug = MakePlug(InstanceInfo{gPluginDesc, host});
     return pPlug->clapPlugin();
   }
+  
   return nullptr;
 }
-
-static uint32_t clap_get_invalidation_sources_count(void) { return 0; }
-
-static const clap_plugin_invalidation_source* clap_get_invalidation_sources(uint32_t index)
-{
-  return nullptr;
-}
-
-static void clap_refresh(void) {}
-
 
 CLAP_EXPORT const clap_plugin_factory_t clap_factory = {
   clap_get_plugin_count,
@@ -353,6 +366,7 @@ const void *clap_get_factory(const char *factory_id)
 {
    if (!::strcmp(factory_id, CLAP_PLUGIN_FACTORY_ID))
       return &clap_factory;
+    
    return nullptr;
 }
 
@@ -427,9 +441,6 @@ Steinberg::FUnknown* MakeProcessor()
   info.mOtherGUID = Steinberg::FUID(VST3_CONTROLLER_UID);
   return static_cast<Steinberg::Vst::IAudioProcessor*>(new PLUG_CLASS_NAME(info));
 }
-#pragma mark - CLAP
-#elif defined CLAP_API
-// TODO?
 #else
 #error "No API defined!"
 #endif

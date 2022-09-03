@@ -191,10 +191,6 @@ private:
   }
 #endif
   
-  // IPlug2-style host retrieval
-  
-  ClapHost GetClapHost() { return _host; }
-  
   // Helper to attach GUI Windows
   
   bool GUIWindowAttach(void *parent) noexcept;
@@ -209,11 +205,23 @@ private:
   bool mGUIOpen = false;
 #endif
   
-  IPlugQueue<ParamToHost> mParamInfoToHost {PARAM_TRANSFER_SIZE};
-  IMidiQueue mMidiOutputQueue;
+  // IPlug2-style host retrieval
+  
+  ClapHost GetClapHost() { return _host; }
+  
+  // IPlug Config Helpers
+  
+  int RequiredChannels() const;
+  uint32_t NBuses(ERoute direction) const;
+  uint32_t NChannels(ERoute direction, uint32_t bus) const;
+  
+  IPlugQueue<ParamToHost> mParamValuesToHost {PARAM_TRANSFER_SIZE};
+  IPlugQueue<SysExData> mSysExToHost {SYSEX_TRANSFER_SIZE};
+  IMidiQueue mMidiToHost;
   WDL_TypedBuf<float *> mAudioIO32;
   WDL_TypedBuf<double *> mAudioIO64;
   int mConfigIdx = -1;
+  bool mTailUpdate = false;
 };
 
 IPlugCLAP* MakePlug(const InstanceInfo& info);

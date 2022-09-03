@@ -43,7 +43,7 @@ IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
   
   // Create space to store audio pointers
   
-  int nChans = std::max(MaxNChannels(kInput), MaxNChannels(kOutput));
+  int nChans = RequiredChannels();
   mAudioIO32.Resize(nChans);
   mAudioIO64.Resize(nChans);
   
@@ -54,7 +54,7 @@ IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
 void IPlugCLAP::BeginInformHostOfParamChange(int idx)
 {
   ParamToHost change { ParamToHost::Type::Begin, idx, 0.0 };
-  mParamInfoToHost.Push(change);
+  mParamValuesToHost.Push(change);
 }
 
 void IPlugCLAP::InformHostOfParamChange(int idx, double normalizedValue)
@@ -64,13 +64,13 @@ void IPlugCLAP::InformHostOfParamChange(int idx, double normalizedValue)
   const double value = isDoubleType ? normalizedValue : pParam->FromNormalized(normalizedValue);
   
   ParamToHost change { ParamToHost::Type::Value, idx, value };
-  mParamInfoToHost.Push(change);
+  mParamValuesToHost.Push(change);
 }
 
 void IPlugCLAP::EndInformHostOfParamChange(int idx)
 {
   ParamToHost change { ParamToHost::Type::End, idx, 0.0 };
-  mParamInfoToHost.Push(change);
+  mParamValuesToHost.Push(change);
 }
 
 //
@@ -99,7 +99,7 @@ void IPlugCLAP::SetTailSize(int samples)
 {
   IPlugProcessor::SetTailSize(samples);
   if (GetClapHost().canUseTail())
-    GetClapHost().tailChanged();
+    mTailUpdate = true;
 }
 
 void IPlugCLAP::SetLatency(int samples)
@@ -109,13 +109,15 @@ void IPlugCLAP::SetLatency(int samples)
 
 bool IPlugCLAP::SendMidiMsg(const IMidiMsg& msg)
 {
-  mMidiOutputQueue.Add(msg);
+  mMidiToHost.Add(msg);
   return true;
 }
 
 bool IPlugCLAP::SendSysEx(const ISysEx& msg)
 {
-  return false;
+  // TODO - I think this will do a double copy...
+  mSysExToHost.Push(SysExData{ msg.mOffset, msg.mSize, msg.mData } );
+  return true;
 }
 
 // clap_plugin
@@ -139,6 +141,8 @@ bool IPlugCLAP::activate(double sampleRate, uint32_t minFrameCount, uint32_t max
 void IPlugCLAP::deactivate() noexcept
 {
   OnActivate(false);
+  
+  // TODO - should we clear mTailChanged here or elsewhere?
 }
 
 template <typename T>
@@ -150,7 +154,8 @@ const T* ClapEventCast(const clap_event_header_t *event)
 clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
 {
   IMidiMsg msg;
-
+  SysExData sysEx;
+  
   // Transport Info
   
   if (process->transport)
@@ -197,6 +202,11 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
   while (mMidiMsgsFromEditor.Pop(msg))
   {
     ProcessMidiMsg(msg);
+  }
+  
+  while (mSysExDataFromEditor.Pop(sysEx))
+  {
+    ProcessSysEx(ISysEx(sysEx.mOffset, sysEx.mData, sysEx.mSize) );
   }
   
   // Do Audio Processing!
@@ -312,7 +322,13 @@ clap_process_status IPlugCLAP::process(const clap_process *process) noexcept
     
   ProcessOutputEvents(process->out_events, nFrames);
   
-  return CLAP_PROCESS_CONTINUE; // TODO - review
+  if (mTailUpdate)
+  {
+    GetClapHost().tailChanged();
+    mTailUpdate = false;
+  }
+  
+  return CLAP_PROCESS_TAIL; // CLAP_PROCESS_CONTINUE; // TODO - review - is this allowed if tail is not supported?
 }
 
 // clap_plugin_render
@@ -488,7 +504,8 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *inputEvents) noexcep
           
           ISysEx sysEx(event->time, midiSysex->buffer, midiSysex->size);
           ProcessSysEx(sysEx);
-          //mSysExDataFromProcessor.Push(sysEx);
+          // TODO - this will do a double copy...
+          mSysExDataFromProcessor.Push(SysExData{ sysEx.mOffset, sysEx.mSize, sysEx.mData } );
           break;
         }
           
@@ -523,7 +540,7 @@ void IPlugCLAP::ProcessOutputParams(const clap_output_events *outputParamChanges
 {
   ParamToHost change;
   
-  while (mParamInfoToHost.Pop(change))
+  while (mParamValuesToHost.Pop(change))
   {
     // Construct output stream
     
@@ -561,18 +578,20 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
   // N.B. Midi events are ordered by the queue
   // We should not output anything beyond the current frame...
   
+  SysExData data;
+  
   ProcessOutputParams(outputEvents);
   
   if (outputEvents)
   {
-    while (mMidiOutputQueue.ToDo())
+    clap_event_header_t header;
+
+    while (mMidiToHost.ToDo())
     {
-      auto msg = mMidiOutputQueue.Peek();
+      auto msg = mMidiToHost.Peek();
       auto status = msg.mStatus;
       
       // Construct output stream
-      
-      clap_event_header_t header;
       
       header.size = sizeof(clap_event_param_value);
       header.time = msg.mOffset;
@@ -600,26 +619,34 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
         outputEvents->try_push(outputEvents, &midi_event.header);
       }
       
-      mMidiOutputQueue.Remove();
+      mMidiToHost.Remove();
     }
     
-    mMidiOutputQueue.Flush(nFrames);
+    mMidiToHost.Flush(nFrames);
 
-    /*
-      case CLAP_EVENT_MIDI_SYSEX:
-      {
-        auto midiSysex = ClapEventCast<clap_event_midi_sysex>(event);
-        
-        ISysEx sysEx(event->time, midiSysex->buffer, midiSysex->size);
-        ProcessSysEx(sysEx);
-        //mSysExDataFromProcessor.Push(sysEx);
-      }
-    */
+    // TODO - NB. Pop will copy
+    
+    while (mSysExToHost.Pop(data))
+    {
+      uint32_t dataSize = static_cast<uint32_t>(data.mSize);
+      
+      header.size = sizeof(clap_event_midi_sysex);
+      header.time = data.mOffset;
+      header.space_id = CLAP_CORE_EVENT_SPACE_ID;
+      header.type = CLAP_EVENT_MIDI_SYSEX;
+      header.flags = 0; // TODO - check this
+      
+      clap_event_midi_sysex sysex_event { header, 0, data.mData, dataSize };
+      
+      outputEvents->try_push(outputEvents, &sysex_event.header);
+    }
   }
 }
 
 const char *ClapPortType(uint32_t nChans)
 {
+  // TODO - add support for surround/ambisonics or allow user setting?
+  
   return nChans == 2 ? CLAP_PORT_STEREO : (nChans == 1 ? CLAP_PORT_MONO : nullptr);
 }
 
@@ -630,19 +657,19 @@ bool IPlugCLAP::implementsAudioPorts() const noexcept
 
 uint32_t IPlugCLAP::audioPortsCount(bool isInput) const noexcept
 {
-  return MaxNBuses(isInput ? ERoute::kInput : ERoute::kOutput);
+  return NBuses(isInput ? ERoute::kInput : ERoute::kOutput);
 }
 
 bool IPlugCLAP::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_info *info) const noexcept
 {
-  // TODO - wildcards return as -1 chans...
-  // TODO - what if the config hasn't been set??
-  // TODO - both sets of ids below
+  // TODO - both sets of ids below (should we use in place pairs)
   
-  const auto direction = isInput ? ERoute::kInput : ERoute::kOutput;
-  const auto nBuses = MaxNBuses(direction);
-  const auto nChans = mConfigIdx < 0 ? MaxNChannelsForBus(direction, index) : GetIOConfig(mConfigIdx)->NChansOnBusSAFE(direction, static_cast<int>(index));
   WDL_String busName;
+
+  const auto direction = isInput ? ERoute::kInput : ERoute::kOutput;
+  const auto nBuses = NBuses(direction);
+  const auto nChans = NChannels(direction, index);
+
   GetBusName(direction, index, nBuses, busName);
   
   constexpr uint32_t bitFlags = CLAP_AUDIO_PORT_SUPPORTS_64BITS
@@ -652,7 +679,7 @@ bool IPlugCLAP::audioPortsInfo(uint32_t index, bool isInput, clap_audio_port_inf
   info->id = index;
   ClapNameCopy(info->name, busName.Get());
   info->flags = !index ? bitFlags | CLAP_AUDIO_PORT_IS_MAIN : bitFlags;
-  info->channel_count = static_cast<uint32_t>(nChans);
+  info->channel_count = nChans;
   info->port_type = ClapPortType(info->channel_count);
   info->in_place_pair = CLAP_INVALID_ID;
   return true;
@@ -839,3 +866,21 @@ bool IPlugCLAP::guiSetSize(uint32_t width, uint32_t height) noexcept
 #endif /* PLUG_HOST_RESIZE */
 
 #endif /* PLUG_HAS_UI */
+
+// TODO - wildcards (return as -1 chans...)
+// TODO - default config
+
+int IPlugCLAP::RequiredChannels() const
+{
+  return std::max(MaxNChannels(kInput), MaxNChannels(kOutput));
+}
+
+uint32_t IPlugCLAP::NBuses(ERoute direction) const
+{
+  return mConfigIdx < 0 ? MaxNBuses(direction) : GetIOConfig(mConfigIdx)->NBuses(direction);
+}
+
+uint32_t IPlugCLAP::NChannels(ERoute direction, uint32_t bus) const
+{
+  return mConfigIdx < 0 ? MaxNChannelsForBus(direction, bus) : GetIOConfig(mConfigIdx)->NChansOnBusSAFE(direction, static_cast<int>(bus));
+}
