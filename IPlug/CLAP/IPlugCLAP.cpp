@@ -14,7 +14,7 @@
 #include "plugin.hxx"
 #include "host-proxy.hxx"
 
-// Ensure that the template is defined here
+// TODO - respond to situations in which parameters can't be pushed (search try_push)
 
 using namespace iplug;
 
@@ -538,9 +538,7 @@ void IPlugCLAP::ProcessOutputParams(const clap_output_events *outputParamChanges
     header.space_id = CLAP_CORE_EVENT_SPACE_ID;
     header.type = change.type();
     header.flags = 0; // TODO - check this
-    
-    // TODO - respond to situations in which parameters can't be pushed
-    
+        
     if (isValue)
     {
       clap_event_param_value event { header, change.idx(), nullptr, -1, -1, -1, -1, change.value() };
@@ -591,8 +589,6 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
       
       if (msg.StatusMsg() == IMidiMsg::kNoteOff)
         header.type = CLAP_EVENT_NOTE_OFF;
-      
-      // TODO - respond to situations in which parameters can't be pushed
 
       if (header.type == CLAP_EVENT_NOTE_ON || header.type == CLAP_EVENT_NOTE_OFF)
       {
