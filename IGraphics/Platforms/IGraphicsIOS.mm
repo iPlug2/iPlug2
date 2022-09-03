@@ -10,6 +10,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import <MetalKit/MetalKit.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 #include "IGraphicsIOS.h"
 #include "IGraphicsCoreText.h"
@@ -18,6 +19,7 @@
 
 #include <map>
 #include <string>
+#include <cassert>
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
@@ -192,6 +194,32 @@ void IGraphicsIOS::GetMouseLocation(float& x, float&y) const
 
 void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHanderFunc completionHander)
 {
+  assert(completionHander != nullptr && "You must provide a completion handler on iOS");
+  
+  NSString* pDefaultFileName = nil;
+  NSString* pDefaultPath = nil;
+  NSMutableArray* pFileTypes = [[NSMutableArray alloc] init];
+
+  if (fileName.GetLength())
+    pDefaultFileName = [NSString stringWithCString:fileName.Get() encoding:NSUTF8StringEncoding];
+
+  if (path.GetLength())
+    pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+
+  fileName.Set(""); // reset it
+
+  if (CStringHasContents(ext))
+  {
+    NSArray* pFileExtensions = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
+    
+    for (NSString* pFileExtension in pFileExtensions)
+    {
+      UTType* pUTType = [UTType typeWithFilenameExtension:pFileExtension];
+      [pFileTypes addObject:pUTType];
+    }
+  }
+  
+  [(IGRAPHICS_VIEW*) mView promptForFile: pDefaultFileName : pDefaultPath : action : pFileTypes : completionHander];
 }
 
 void IGraphicsIOS::PromptForDirectory(WDL_String& dir)

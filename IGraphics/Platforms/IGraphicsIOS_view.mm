@@ -527,6 +527,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler
 {
+  [self endUserInput];
+
   NSString* titleNString = [NSString stringWithUTF8String:str];
   NSString* captionNString = [NSString stringWithUTF8String:caption];
   
@@ -585,9 +587,35 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [self.window.rootViewController presentViewController:alertController animated:YES completion:nil];
 }
 
+- (void) promptForFile: (NSString*) fileName : (NSString*) path : (EFileAction) action : (NSArray*) contentTypes : (IFileDialogCompletionHanderFunc) completionHander
+{
+  [self endUserInput];
+
+  mFileDialogFunc = completionHander;
+
+  UIDocumentPickerViewController* vc = NULL;
+  
+  if (action == EFileAction::Open)
+  {
+    vc = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:contentTypes asCopy:YES];
+  }
+  else
+  {
+    NSURL* url = [[NSURL alloc] initFileURLWithPath:path];
+    
+    vc = [[UIDocumentPickerViewController alloc] initForExportingURLs:@[url]];
+  }
+  
+  [vc setDelegate:self];
+  
+  [self.window.rootViewController presentViewController:vc animated:YES completion:nil];
+}
+
 - (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func
 {
 #ifdef __IPHONE_14_0
+  [self endUserInput];
+
   UIColorPickerViewController* colorSelectionController = [[UIColorPickerViewController alloc] init];
   
   UIUserInterfaceIdiom idiom = [[UIDevice currentDevice] userInterfaceIdiom];
@@ -808,10 +836,47 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics->SetControlValueAfterPopupMenu(nullptr);
 }
 
+- (void) documentPicker:(UIDocumentPickerViewController*) controller didPickDocumentsAtURLs:(NSArray <NSURL*>*) urls
+{
+  WDL_String fileName, path;
+  
+  if (urls.count == 1)
+  {
+    NSURL* pSource = urls[0];
+    NSString* pFullPath = [pSource path];
+    fileName.Set([pFullPath UTF8String]);
+    
+    NSString* pTruncatedPath = [pFullPath stringByDeletingLastPathComponent];
+
+    if (pTruncatedPath)
+    {
+      path.Set([pTruncatedPath UTF8String]);
+      path.Append("/");
+    }
+
+    if (mFileDialogFunc)
+      mFileDialogFunc(fileName, path);
+  }
+  else
+  {
+    // call with empty values
+    if (mFileDialogFunc)
+      mFileDialogFunc(fileName, path);
+  }
+}
+
+- (void) documentPickerWasCancelled:(UIDocumentPickerViewController*) controller
+{
+  WDL_String fileName, path;
+  
+  if (mFileDialogFunc)
+    mFileDialogFunc(fileName, path);
+}
+
 #ifdef __IPHONE_14_0
 - (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
 {
-  if(mColorPickerHandlerFunc)
+  if (mColorPickerHandlerFunc)
   {
     IColor c = FromUIColor([viewController selectedColor]);
     mColorPickerHandlerFunc(c);

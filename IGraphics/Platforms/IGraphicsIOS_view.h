@@ -54,9 +54,12 @@ using namespace igraphics;
 
 @end
 
-@interface IGRAPHICS_VIEW : UIView <UITextFieldDelegate,
-                                    UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate,
-                                    UITraitEnvironment
+@interface IGRAPHICS_VIEW : UIView
+<UITextFieldDelegate,
+UIPopoverPresentationControllerDelegate,
+UIGestureRecognizerDelegate,
+UITraitEnvironment,
+UIDocumentPickerDelegate
 #ifdef __IPHONE_14_0
 , UIColorPickerViewControllerDelegate
 #endif
@@ -71,6 +74,7 @@ using namespace igraphics;
   CAMetalLayer* mMTLLayer;
   int mTextFieldLength;
   IColorPickerHandlerFunc mColorPickerHandlerFunc;
+  IFileDialogCompletionHanderFunc mFileDialogFunc;
   float mPrevX, mPrevY;
 }
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics;
@@ -82,8 +86,12 @@ using namespace igraphics;
 - (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect;
 - (void) endUserInput;
 - (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
+- (void) promptForFile: (NSString*) fileName : (NSString*) path : (EFileAction) action : (NSArray*) contentTypes : (IFileDialogCompletionHanderFunc) completionHander;
 - (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func;
 - (void) presentationControllerDidDismiss: (UIPresentationController*) presentationController;
+
+- (void) documentPicker:(UIDocumentPickerViewController*) controller didPickDocumentsAtURLs:(NSArray <NSURL *>*)urls;
+- (void) documentPickerWasCancelled:(UIDocumentPickerViewController*) controller;
 
 #ifdef __IPHONE_14_0
 - (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
