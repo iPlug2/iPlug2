@@ -134,7 +134,7 @@ void IPlugAPIBase::SendParameterValueFromAPI(int paramIdx, double value, bool no
   if (normalized)
     value = GetParam(paramIdx)->FromNormalized(value);
   
-  mParamChangeFromProcessor.Push(ParamTuple { paramIdx, value } );
+  mParamChangeFromProcessor.PushFromArgs(paramIdx, value);
 }
 
 void IPlugAPIBase::OnTimer(Timer& t)

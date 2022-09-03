@@ -14,7 +14,7 @@
 #include "plugin.hxx"
 #include "host-proxy.hxx"
 
-// Ensure that the template is defined here
+// TODO - respond to situations in which parameters can't be pushed (search try_push)
 
 using namespace iplug;
 
@@ -53,8 +53,7 @@ IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
 
 void IPlugCLAP::BeginInformHostOfParamChange(int idx)
 {
-  ParamToHost change { ParamToHost::Type::Begin, idx, 0.0 };
-  mParamValuesToHost.Push(change);
+  mParamValuesToHost.PushFromArgs(ParamToHost::Type::Begin, idx, 0.0);
 }
 
 void IPlugCLAP::InformHostOfParamChange(int idx, double normalizedValue)
@@ -63,14 +62,12 @@ void IPlugCLAP::InformHostOfParamChange(int idx, double normalizedValue)
   const bool isDoubleType = pParam->Type() == IParam::kTypeDouble;
   const double value = isDoubleType ? normalizedValue : pParam->FromNormalized(normalizedValue);
   
-  ParamToHost change { ParamToHost::Type::Value, idx, value };
-  mParamValuesToHost.Push(change);
+  mParamValuesToHost.PushFromArgs(ParamToHost::Type::Value, idx, value);
 }
 
 void IPlugCLAP::EndInformHostOfParamChange(int idx)
 {
-  ParamToHost change { ParamToHost::Type::End, idx, 0.0 };
-  mParamValuesToHost.Push(change);
+  mParamValuesToHost.PushFromArgs(ParamToHost::Type::End, idx, 0.0);
 }
 
 //
@@ -115,8 +112,7 @@ bool IPlugCLAP::SendMidiMsg(const IMidiMsg& msg)
 
 bool IPlugCLAP::SendSysEx(const ISysEx& msg)
 {
-  // TODO - I think this will do a double copy...
-  mSysExToHost.Push(SysExData{ msg.mOffset, msg.mSize, msg.mData } );
+  mSysExToHost.PushFromArgs(msg.mOffset, msg.mSize, msg.mData);
   return true;
 }
 
@@ -504,8 +500,7 @@ void IPlugCLAP::ProcessInputEvents(const clap_input_events *inputEvents) noexcep
           
           ISysEx sysEx(event->time, midiSysex->buffer, midiSysex->size);
           ProcessSysEx(sysEx);
-          // TODO - this will do a double copy...
-          mSysExDataFromProcessor.Push(SysExData{ sysEx.mOffset, sysEx.mSize, sysEx.mData } );
+          mSysExDataFromProcessor.PushFromArgs(sysEx.mOffset, sysEx.mSize, sysEx.mData);
           break;
         }
           
@@ -556,9 +551,7 @@ void IPlugCLAP::ProcessOutputParams(const clap_output_events *outputParamChanges
     header.space_id = CLAP_CORE_EVENT_SPACE_ID;
     header.type = change.type();
     header.flags = 0; // TODO - check this
-    
-    // TODO - respond to situations in which parameters can't be pushed
-    
+        
     if (isValue)
     {
       clap_event_param_value event { header, change.idx(), nullptr, -1, -1, -1, -1, change.value() };
@@ -576,7 +569,7 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
 {
   // TODO - ordering of events!!!
   // N.B. Midi events are ordered by the queue
-  // We should not output anything beyond the current frame...
+  // However, sysex messsages are not restricted in this way (is there a good solution?)
   
   SysExData data;
   
@@ -591,6 +584,11 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
       auto msg = mMidiToHost.Peek();
       auto status = msg.mStatus;
       
+      // Don't move beyond the current frame
+      
+      if (msg.mOffset > nFrames)
+        break;
+      
       // Construct output stream
       
       header.size = sizeof(clap_event_param_value);
@@ -604,8 +602,6 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
       
       if (msg.StatusMsg() == IMidiMsg::kNoteOff)
         header.type = CLAP_EVENT_NOTE_OFF;
-      
-      // TODO - respond to situations in which parameters can't be pushed
 
       if (header.type == CLAP_EVENT_NOTE_ON || header.type == CLAP_EVENT_NOTE_OFF)
       {
