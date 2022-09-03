@@ -280,6 +280,12 @@ END_IPLUG_NAMESPACE
   #endif
 #endif
 
+#ifdef AUv3_API
+  #ifndef AUV3_SUPPORTS_USER_PRESETS
+    #define AUV3_SUPPORTS_USER_PRESETS 0
+  #endif
+#endif
+
 #ifdef AAX_API
   #ifndef AAX_TYPE_IDS
     #error AAX_TYPE_IDS not defined - list of comma separated four char IDs, that correspond to the different possible channel layouts of your plug-in, e.g. 'EFN1', 'EFN2'

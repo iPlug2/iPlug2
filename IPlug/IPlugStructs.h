@@ -414,6 +414,7 @@ struct Config
   bool plugHostResize;
   const char* bundleID;
   const char* appGroupID;
+  bool supportsAUv3UserPresets;
   
   Config(int nParams,
          int nPresets,
@@ -439,7 +440,8 @@ struct Config
          int plugMinHeight,
          int plugMaxHeight,
          const char* bundleID,
-         const char* appGroupID)
+         const char* appGroupID,
+         bool auv3UserPresets)
               
   : nParams(nParams)
   , nPresets(nPresets)
@@ -466,6 +468,7 @@ struct Config
   , plugHostResize(plugHostResize)
   , bundleID(bundleID)
   , appGroupID(appGroupID)
+  , supportsAUv3UserPresets(auv3UserPresets)
   {};
 };
 
