@@ -286,6 +286,15 @@
 #ifndef CLAP_DESCRIPTION
 #define CLAP_DESCRIPTION ""
 #endif
+#ifndef CLAP_FEATURES
+  #if PLUG_TYPE==0
+  #define CLAP_FEATURES "audio_effect"
+  #elif PLUG_TYPE==1
+  #define CLAP_FEATURES "instrument"
+  #elif PLUG_TYPE==2
+  #define CLAP_FEATURES "note_effect"
+  #endif
+#endif
 
 std::string gPluginPath;
 clap_plugin_descriptor* gPluginDesc = nullptr;
@@ -311,16 +320,7 @@ static bool clap_init(const char* pluginPath)
   gPluginDesc->support_url = CLAP_SUPPORT_URL;
   gPluginDesc->description = CLAP_DESCRIPTION;
   
-  // TODO - more to add here
-  
-#if PLUG_TYPE==0
-  static const char *clap_features[] = { "audio_effect", NULL };
-#elif PLUG_TYPE==1
-  static const char *clap_features[] = { "instrument", NULL };
-#elif PLUG_TYPE==2
-  static const char *clap_features[] = { "note_effect" ,NULL };
-#endif
-  
+  static const char *clap_features[] = { CLAP_FEATURES, NULL };
   gPluginDesc->features = clap_features;
   
   return true;
