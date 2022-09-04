@@ -222,8 +222,9 @@ void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   [(IGRAPHICS_VIEW*) mView promptForFile: pDefaultFileName : pDefaultPath : action : pFileTypes : completionHandler];
 }
 
-void IGraphicsIOS::PromptForDirectory(WDL_String& dir)
+void IGraphicsIOS::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler)
 {
+  // Not implemented, since you can't do anything outside the app sandbox anyway
 }
 
 bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)

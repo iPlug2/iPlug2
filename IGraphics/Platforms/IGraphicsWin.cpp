@@ -1687,7 +1687,7 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   ReleaseMouseCapture();
 }
 
-void IGraphicsWin::PromptForDirectory(WDL_String& dir)
+void IGraphicsWin::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler)
 {
   BROWSEINFO bi;
   memset(&bi, 0, sizeof(bi));
@@ -1700,11 +1700,11 @@ void IGraphicsWin::PromptForDirectory(WDL_String& dir)
   ::OleInitialize(NULL);
   LPITEMIDLIST pIDL = ::SHBrowseForFolder(&bi);
   
-  if(pIDL != NULL)
+  if (pIDL != NULL)
   {
     char buffer[_MAX_PATH] = {'\0'};
     
-    if(::SHGetPathFromIDList(pIDL, buffer) != 0)
+    if (::SHGetPathFromIDList(pIDL, buffer) != 0)
     {
       dir.Set(buffer);
       dir.Append("\\");
@@ -1716,6 +1716,12 @@ void IGraphicsWin::PromptForDirectory(WDL_String& dir)
   else
   {
     dir.Set("");
+  }
+  
+  if (completionHandler)
+  {
+    WDL_String fileName; // not used
+    completionHandler(fileName, dir);
   }
 
   ReleaseMouseCapture();

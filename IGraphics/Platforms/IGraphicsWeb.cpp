@@ -778,7 +778,7 @@ void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
   // inputEl.call<void>("addEventListener", std::string("onChange"), val::module_property("file_dialog_callback"), false);
 }
 
-void IGraphicsWeb::PromptForDirectory(WDL_String& path)
+void IGraphicsWeb::PromptForDirectory(WDL_String& path, IFileDialogCompletionHandlerFunc completionHandler)
 {
   //TODO
   // val inputEl = val::global("document").call<val>("createElement", std::string("input"));

@@ -481,7 +481,7 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   }
 }
 
-void IGraphicsMac::PromptForDirectory(WDL_String& dir)
+void IGraphicsMac::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler)
 {
   NSString* defaultPath;
 
@@ -504,16 +504,37 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir)
   [panelOpen setCanCreateDirectories:YES];
 
   [panelOpen setDirectoryURL: [NSURL fileURLWithPath: defaultPath]];
+  
+  auto doHandleResponse = [](NSOpenPanel* pPanel, NSModalResponse response, WDL_String& chosenDir, IFileDialogCompletionHandlerFunc completionHandler){
+    if (response == NSOKButton)
+    {
+      NSString* fullPath = [pPanel filename] ;
+      chosenDir.Set([fullPath UTF8String]);
+      chosenDir.Append("/");
+    }
+    else
+    {
+      chosenDir.Set("");
+    }
+    
+    if (completionHandler)
+    {
+      WDL_String fileName; // not used
+      completionHandler(fileName, chosenDir);
+    }
+  };
 
-  if ([panelOpen runModal] == NSOKButton)
+  if (completionHandler)
   {
-    NSString* fullPath = [ panelOpen filename ] ;
-    dir.Set( [fullPath UTF8String] );
-    dir.Append("/");
+    NSModalResponse response = [panelOpen runModal];
+    doHandleResponse(panelOpen, response, dir, completionHandler);
   }
   else
   {
-    dir.Set("");
+    [panelOpen beginWithCompletionHandler:^(NSModalResponse response) {
+      WDL_String path;
+      doHandleResponse(panelOpen, response, path, nullptr);
+    }];
   }
 }
 
