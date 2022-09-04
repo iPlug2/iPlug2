@@ -446,7 +446,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 4), kNoParameter, setValueTextSize, "Value Text Size", style, (double) style.valueText.mSize, 12., 100.));
 
     auto promptLabelFont = [pGraphics](IControl* pCaller) {
-      auto completionHandler = [pGraphics](WDL_String& fileName, WDL_String& path) {
+      auto completionHandler = [pGraphics](const WDL_String& fileName, const WDL_String& path) {
         if (fileName.GetLength())
         {
           if (pGraphics->LoadFont(fileName.get_filepart(), fileName.Get()))
@@ -469,7 +469,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IVButtonControl(nextCell().SubRectVertical(5, 1), SplashClickActionFunc, "Choose label font...", style))->SetAnimationEndActionFunction(promptLabelFont);
     
     auto promptValueFont = [pGraphics](IControl* pCaller) {
-      auto completionHandler = [pGraphics](WDL_String& fileName, WDL_String& path){
+      auto completionHandler = [pGraphics](const WDL_String& fileName, const WDL_String& path){
         if (fileName.GetLength())
         {
           if (pGraphics->LoadFont(fileName.get_filepart(), fileName.Get()))
