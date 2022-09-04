@@ -462,8 +462,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
         }
       };
       
-      WDL_String fileName;
-      WDL_String path;
+      WDL_String fileName, path;
       pGraphics->PromptForFile(fileName, path, EFileAction::Open, "ttf", completionHandler);
     };
     
@@ -487,8 +486,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
         }
       };
       
-      WDL_String fileName;
-      WDL_String path;
+      WDL_String fileName, path;
       pGraphics->PromptForFile(fileName, path, EFileAction::Open, "ttf", completionHandler);
     };
     
