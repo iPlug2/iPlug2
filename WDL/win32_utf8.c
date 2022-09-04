@@ -86,7 +86,12 @@ static ATOM s_combobox_atom;
 
 int GetWindowTextUTF8(HWND hWnd, LPTSTR lpString, int nMaxCount)
 {
-  if (!lpString) return 0;
+  if (WDL_NOT_NORMALLY(!lpString || nMaxCount < 1)) return 0;
+  if (WDL_NOT_NORMALLY(hWnd == NULL))
+  {
+    *lpString = 0;
+    return 0;
+  }
   if (nMaxCount>0 AND_IS_NOT_WIN9X)
   {
     int alloc_size=nMaxCount;
@@ -155,7 +160,7 @@ int GetWindowTextUTF8(HWND hWnd, LPTSTR lpString, int nMaxCount)
 UINT GetDlgItemTextUTF8(HWND hDlg, int nIDDlgItem, LPTSTR lpString, int nMaxCount)
 {
   HWND h = GetDlgItem(hDlg,nIDDlgItem);
-  if (h) return GetWindowTextUTF8(h,lpString,nMaxCount);
+  if (WDL_NORMALLY(h!=NULL)) return GetWindowTextUTF8(h,lpString,nMaxCount);
   return 0;
 }
 
@@ -163,7 +168,11 @@ UINT GetDlgItemTextUTF8(HWND hDlg, int nIDDlgItem, LPTSTR lpString, int nMaxCoun
 BOOL SetDlgItemTextUTF8(HWND hDlg, int nIDDlgItem, LPCTSTR lpString)
 {
   HWND h = GetDlgItem(hDlg,nIDDlgItem);
-  if (!h) return FALSE;
+  if (WDL_NOT_NORMALLY(!h)) return FALSE;
+
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!lpString)) return FALSE;
+#endif
 
   if (WDL_HasUTF8(lpString) AND_IS_NOT_WIN9X)
   {
@@ -200,6 +209,9 @@ static LRESULT WINAPI __forceUnicodeWndProc(HWND hwnd, UINT uMsg, WPARAM wParam,
 
 BOOL SetWindowTextUTF8(HWND hwnd, LPCTSTR str)
 {
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!hwnd || !str)) return FALSE;
+#endif
   if (WDL_HasUTF8(str) AND_IS_NOT_WIN9X)
   {
     DWORD pid;
@@ -428,6 +440,9 @@ BOOL GetSaveFileNameUTF8(LPOPENFILENAME lpofn)
 
 BOOL SHGetSpecialFolderPathUTF8(HWND hwndOwner, LPTSTR lpszPath, int pszPathLen, int csidl, BOOL create)
 {
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!lpszPath)) return 0;
+#endif
   if (lpszPath AND_IS_NOT_WIN9X)
   {
     WCHAR tmp[4096];
@@ -446,6 +461,9 @@ BOOL SHGetPathFromIDListUTF8(const struct _ITEMIDLIST __unaligned *pidl, LPSTR p
 BOOL SHGetPathFromIDListUTF8(const struct _ITEMIDLIST *pidl, LPSTR pszPath, int pszPathLen)
 #endif
 {
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!pszPath)) return FALSE;
+#endif
   if (pszPath AND_IS_NOT_WIN9X)
   {
     const int alloc_sz = pszPathLen < 4096 ? 4096 : pszPathLen;
@@ -466,6 +484,9 @@ BOOL SHGetPathFromIDListUTF8(const struct _ITEMIDLIST *pidl, LPSTR pszPath, int 
 
 struct _ITEMIDLIST *SHBrowseForFolderUTF8(struct _browseinfoA *bi)
 {
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!bi)) return NULL;
+#endif
   if (bi && (WDL_HasUTF8(bi->pszDisplayName) || WDL_HasUTF8(bi->lpszTitle)) AND_IS_NOT_WIN9X)
   {
     MBTOWIDE(wfn,bi->pszDisplayName);
@@ -644,6 +665,9 @@ BOOL CopyFileUTF8(LPCTSTR existfn, LPCTSTR newfn, BOOL fie)
 
 DWORD GetModuleFileNameUTF8(HMODULE hModule, LPTSTR lpBuffer, DWORD nBufferLength)
 {
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!lpBuffer||!nBufferLength)) return 0;
+#endif
   if (lpBuffer && nBufferLength > 1 AND_IS_NOT_WIN9X)
   {
 
@@ -931,6 +955,9 @@ HINSTANCE ShellExecuteUTF8(HWND hwnd, LPCTSTR lpOp, LPCTSTR lpFile, LPCTSTR lpPa
 
 BOOL GetUserNameUTF8(LPTSTR lpString, LPDWORD nMaxCount)
 {
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!lpString||!nMaxCount)) return FALSE;
+#endif
   if (IS_NOT_WIN9X_AND lpString && nMaxCount)
   {
     WIDETOMB_ALLOC(wtmp,*nMaxCount);
@@ -957,6 +984,9 @@ BOOL GetUserNameUTF8(LPTSTR lpString, LPDWORD nMaxCount)
 
 BOOL GetComputerNameUTF8(LPTSTR lpString, LPDWORD nMaxCount)
 {
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!lpString||!nMaxCount)) return 0;
+#endif
   if (IS_NOT_WIN9X_AND lpString && nMaxCount)
   {
     WIDETOMB_ALLOC(wtmp,*nMaxCount);
@@ -1007,6 +1037,10 @@ BOOL GetComputerNameUTF8(LPTSTR lpString, LPDWORD nMaxCount)
 
 UINT GetPrivateProfileIntUTF8(LPCTSTR appStr, LPCTSTR keyStr, INT def, LPCTSTR fnStr)
 {
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!fnStr || !keyStr || !appStr)) return 0;
+#endif
+
   PROFILESTR_COMMON
 
   const UINT rv = GetPrivateProfileIntW(wapp,wkey,def,wfn);
@@ -1058,6 +1092,9 @@ BOOL WritePrivateProfileStringUTF8(LPCTSTR appStr, LPCTSTR keyStr, LPCTSTR str, 
 
 BOOL GetPrivateProfileStructUTF8(LPCTSTR appStr, LPCTSTR keyStr, LPVOID pStruct, UINT uSize, LPCTSTR fnStr)
 {
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!fnStr || !keyStr || !appStr)) return 0;
+#endif
   PROFILESTR_COMMON
 
   const BOOL rv = GetPrivateProfileStructW(wapp,wkey,pStruct,uSize,wfn);
@@ -1068,6 +1105,10 @@ BOOL GetPrivateProfileStructUTF8(LPCTSTR appStr, LPCTSTR keyStr, LPVOID pStruct,
 
 BOOL WritePrivateProfileStructUTF8(LPCTSTR appStr, LPCTSTR keyStr, LPVOID pStruct, UINT uSize, LPCTSTR fnStr)
 {
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!fnStr || !keyStr || !appStr)) return 0;
+#endif
+
   PROFILESTR_COMMON
 
   const BOOL rv = WritePrivateProfileStructW(wapp,wkey,pStruct,uSize,wfn);
