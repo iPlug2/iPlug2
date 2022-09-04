@@ -55,14 +55,13 @@ using namespace igraphics;
 @end
 
 @interface IGRAPHICS_VIEW : UIView
-<UITextFieldDelegate,
+<
+UITextFieldDelegate,
 UIPopoverPresentationControllerDelegate,
 UIGestureRecognizerDelegate,
 UITraitEnvironment,
-UIDocumentPickerDelegate
-#ifdef __IPHONE_14_0
-, UIColorPickerViewControllerDelegate
-#endif
+UIDocumentPickerDelegate,
+UIColorPickerViewControllerDelegate
 >
 {
 @public
@@ -90,13 +89,13 @@ UIDocumentPickerDelegate
 - (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func;
 - (void) presentationControllerDidDismiss: (UIPresentationController*) presentationController;
 
+//UIDocumentPickerDelegate,
 - (void) documentPicker:(UIDocumentPickerViewController*) controller didPickDocumentsAtURLs:(NSArray <NSURL *>*)urls;
 - (void) documentPickerWasCancelled:(UIDocumentPickerViewController*) controller;
 
-#ifdef __IPHONE_14_0
+//UIColorPickerViewControllerDelegate
 - (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
 - (void) colorPickerViewControllerDidFinish:(UIColorPickerViewController*) viewController;
-#endif
 
 //gestures
 - (void) attachGestureRecognizer: (EGestureType) type;

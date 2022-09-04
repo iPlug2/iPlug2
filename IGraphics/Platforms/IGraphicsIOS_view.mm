@@ -613,7 +613,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func
 {
-#ifdef __IPHONE_14_0
   [self endUserInput];
 
   UIColorPickerViewController* colorSelectionController = [[UIColorPickerViewController alloc] init];
@@ -639,7 +638,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mColorPickerHandlerFunc = func;
   
   [self.window.rootViewController presentViewController:colorSelectionController animated:YES completion:nil];
-#endif
 
   return false;
 }
@@ -873,7 +871,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     mFileDialogFunc(fileName, path);
 }
 
-#ifdef __IPHONE_14_0
 - (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
 {
   if (mColorPickerHandlerFunc)
@@ -887,7 +884,6 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   mColorPickerHandlerFunc = nullptr;
 }
-#endif
 
 - (void) traitCollectionDidChange: (UITraitCollection*) previousTraitCollection
 {
