@@ -841,14 +841,14 @@ public:
    * @param caption The title of the message box window \todo check
    * @param type EMsgBoxType describing the button options available \see EMsgBoxType
    * @return \todo check */
-  virtual EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler = nullptr) = 0;
+  virtual EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler = nullptr) = 0;
 
   /** Create a platform file prompt dialog to choose a file/directory path for opening/saving a file/directory. NOTE: this method will block the main thread
    * @param fileName Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For load dialogs, on successful selection of a file this will get set to the file’s name.
    * @param path WDL_String reference where the path will be put on success or empty string on failure/user cancelled
    * @param action Determines whether this is an open dialog or a save dialog
    * @param extensions A comma separated CString list of file extensions to filter in the dialog (e.g. “.wav, .aif” \todo check */
-  virtual void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action = EFileAction::Open, const char* extensions = 0, IFileDialogCompletionHanderFunc completionHander = nullptr) = 0;
+  virtual void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action = EFileAction::Open, const char* extensions = 0, IFileDialogCompletionHandlerFunc completionHander = nullptr) = 0;
 
   /** Create a platform file prompt dialog to choose a directory path for opening/saving a directory. NOTE: this method will block the main thread
    * @param dir Non const WDL_String reference specifying the directory path. Set this prior to calling the method for save dialogs, to provide a default path. For load dialogs, on successful selection of a directory this will get set to the full path. */

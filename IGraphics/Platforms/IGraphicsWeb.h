@@ -66,9 +66,9 @@ public:
   bool GetTextFromClipboard(WDL_String& str) override { str.Set(mClipboardText.Get()); return true; }
   bool SetTextInClipboard(const char* str) override { mClipboardText.Set(str); return true; }
   void UpdateTooltips() override {} // TODO:
-  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
   
-  void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHanderFunc completionHander) override;
+  void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler) override;
   void PromptForDirectory(WDL_String& path) override;
   bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;

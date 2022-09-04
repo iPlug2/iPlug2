@@ -277,7 +277,7 @@ void IGraphicsMac::GetMouseLocation(float& x, float&y) const
   ScreenToPoint(x, y);
 }
 
-EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
+EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
 
@@ -404,7 +404,7 @@ bool IGraphicsMac::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   return (bool) success;
 }
 
-void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHanderFunc completionHander)
+void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler)
 {
   if (!WindowIsOpen())
   {
@@ -427,7 +427,7 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   if (CStringHasContents(ext))
     pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
   
-  auto doHandleResponse = [](NSPanel* pPanel, NSModalResponse response, WDL_String& fileName, WDL_String& path, IFileDialogCompletionHanderFunc completionHander){
+  auto doHandleResponse = [](NSPanel* pPanel, NSModalResponse response, WDL_String& fileName, WDL_String& path, IFileDialogCompletionHandlerFunc completionHandler){
     if (response == NSOKButton)
     {
       NSString* pFullPath = [(NSSavePanel*) pPanel filename] ;
@@ -442,8 +442,8 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
       }
     }
   
-    if (completionHander)
-      completionHander(fileName, path);
+    if (completionHandler)
+      completionHandler(fileName, path);
   };
 
 
@@ -467,11 +467,11 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     [(NSOpenPanel*) pPanel setResolvesAliases:YES];
   }
   
-  if (completionHander)
+  if (completionHandler)
   {
     [(NSSavePanel*) pPanel beginWithCompletionHandler:^(NSModalResponse response){
       WDL_String fileNameAsync, pathAsync;
-      doHandleResponse(pPanel, response, fileNameAsync, pathAsync, completionHander);
+      doHandleResponse(pPanel, response, fileNameAsync, pathAsync, completionHandler);
     }];
   }
   else

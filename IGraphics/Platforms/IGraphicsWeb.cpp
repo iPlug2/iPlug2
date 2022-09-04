@@ -735,7 +735,7 @@ void IGraphicsWeb::OnMainLoopTimer()
   }
 }
 
-EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
+EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
   
@@ -766,7 +766,7 @@ EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption,
   return result;
 }
 
-void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHanderFunc completionHander)
+void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler)
 {
   //TODO
   // val inputEl = val::global("document").call<val>("createElement", std::string("input"));

@@ -38,14 +38,14 @@ public:
 
   void GetMouseLocation(float& x, float&y) const override;
 
-  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
 
   void UpdateTooltips() override {};
 
-  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHanderFunc completionHander) override;
+  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler) override;
   void PromptForDirectory(WDL_String& dir) override;
   bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
   

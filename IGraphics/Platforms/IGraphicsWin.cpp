@@ -1099,7 +1099,7 @@ void IGraphicsWin::DeactivateGLContext()
 }
 #endif
 
-EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
+EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
   
@@ -1572,7 +1572,7 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   return success;
 }
 
-void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHanderFunc completionHander)
+void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler)
 {
   if (!WindowIsOpen())
   {
@@ -1679,9 +1679,9 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   }
 
   // Async is not required on windows, but call the completion handler anyway
-  if (completionHander)
+  if (completionHandler)
   {
-    completionHander(fileName, path);
+    completionHandler(fileName, path);
   }
 
   ReleaseMouseCapture();

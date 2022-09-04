@@ -73,7 +73,7 @@ UIColorPickerViewControllerDelegate
   CAMetalLayer* mMTLLayer;
   int mTextFieldLength;
   IColorPickerHandlerFunc mColorPickerHandlerFunc;
-  IFileDialogCompletionHanderFunc mFileDialogFunc;
+  IFileDialogCompletionHandlerFunc mFileDialogFunc;
   float mPrevX, mPrevY;
 }
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics;
@@ -84,8 +84,8 @@ UIColorPickerViewControllerDelegate
 - (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (CGRect) bounds;
 - (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect;
 - (void) endUserInput;
-- (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
-- (void) promptForFile: (NSString*) fileName : (NSString*) path : (EFileAction) action : (NSArray*) contentTypes : (IFileDialogCompletionHanderFunc) completionHander;
+- (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHandlerFunc) completionHandler;
+- (void) promptForFile: (NSString*) fileName : (NSString*) path : (EFileAction) action : (NSArray*) contentTypes : (IFileDialogCompletionHandlerFunc) completionHandler;
 - (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func;
 - (void) presentationControllerDidDismiss: (UIPresentationController*) presentationController;
 

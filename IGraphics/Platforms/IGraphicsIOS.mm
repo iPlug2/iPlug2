@@ -161,7 +161,7 @@ void IGraphicsIOS::RemovePlatformView(void* pView)
   [(UIView*) pView removeFromSuperview];
 }
 
-EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
+EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
   [(IGRAPHICS_VIEW*) mView showMessageBox:str :caption :type :completionHandler];
@@ -192,9 +192,9 @@ void IGraphicsIOS::GetMouseLocation(float& x, float&y) const
   [(IGRAPHICS_VIEW*) mView getLastTouchLocation: x : y];
 }
 
-void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHanderFunc completionHander)
+void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler)
 {
-  assert(completionHander != nullptr && "You must provide a completion handler on iOS");
+  assert(completionHandler != nullptr && "You must provide a completion handler on iOS");
   
   NSString* pDefaultFileName = nil;
   NSString* pDefaultPath = nil;
@@ -219,7 +219,7 @@ void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     }
   }
   
-  [(IGRAPHICS_VIEW*) mView promptForFile: pDefaultFileName : pDefaultPath : action : pFileTypes : completionHander];
+  [(IGRAPHICS_VIEW*) mView promptForFile: pDefaultFileName : pDefaultPath : action : pFileTypes : completionHandler];
 }
 
 void IGraphicsIOS::PromptForDirectory(WDL_String& dir)

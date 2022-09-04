@@ -525,7 +525,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics->ClearInTextEntryControl();
 }
 
-- (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler
+- (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHandlerFunc) completionHandler
 {
   [self endUserInput];
 
@@ -587,11 +587,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [self.window.rootViewController presentViewController:alertController animated:YES completion:nil];
 }
 
-- (void) promptForFile: (NSString*) fileName : (NSString*) path : (EFileAction) action : (NSArray*) contentTypes : (IFileDialogCompletionHanderFunc) completionHander
+- (void) promptForFile: (NSString*) fileName : (NSString*) path : (EFileAction) action : (NSArray*) contentTypes : (IFileDialogCompletionHandlerFunc) completionHandler
 {
   [self endUserInput];
 
-  mFileDialogFunc = completionHander;
+  mFileDialogFunc = completionHandler;
 
   UIDocumentPickerViewController* vc = NULL;
   
