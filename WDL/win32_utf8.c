@@ -1248,7 +1248,7 @@ static LRESULT WINAPI cb_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
   return CallWindowProc(oldproc,hwnd,msg,wParam,lParam);
 }
 
-void WDL_UTF8_HookComboBox(HWND h)
+void WDL_UTF8_HookListBox(HWND h)
 {
   if (!h||
     #ifdef WDL_SUPPORT_WIN9X
@@ -1257,13 +1257,12 @@ void WDL_UTF8_HookComboBox(HWND h)
     GetProp(h,WDL_UTF8_OLDPROCPROP)) return;
   SetProp(h,WDL_UTF8_OLDPROCPROP "W",(HANDLE)GetWindowLongPtrW(h,GWLP_WNDPROC));
   SetProp(h,WDL_UTF8_OLDPROCPROP,(HANDLE)SetWindowLongPtr(h,GWLP_WNDPROC,(INT_PTR)cb_newProc));
-
-  if (!s_combobox_atom) s_combobox_atom = (ATOM)GetClassWord(h,GCW_ATOM);
 }
 
-void WDL_UTF8_HookListBox(HWND h)
+void WDL_UTF8_HookComboBox(HWND h)
 {
-  WDL_UTF8_HookComboBox(h);
+  WDL_UTF8_HookListBox(h);
+  if (h && !s_combobox_atom) s_combobox_atom = (ATOM)GetClassWord(h,GCW_ATOM);
 }
 
 static LRESULT WINAPI tc_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
