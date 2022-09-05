@@ -945,10 +945,10 @@ protected:
   
   /** Calls the platform backend to create the platform popup menu
    * @param menu The source IPopupMenu
-   * @param bounds \todo
+   * @param bounds The rectangular area in which to create the menu
    * @param isAsync This gets set true on platforms where popupmenu creation is asyncronous
    * @return A ptr to the chosen IPopupMenu or nullptr in the case of async or dismissed menu */
-  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) = 0;
+  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) = 0;
 
 #pragma mark - Base implementation
 public:
