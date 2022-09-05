@@ -133,10 +133,14 @@ HWND__::HWND__(HWND par, int wID, const RECT *wndr, const char *label, bool visi
      }
 }
 
+static HWND s_last_rbuttondown;
+
 HWND__::~HWND__()
 {
   if (m_wndproc)
     m_wndproc(this,WM_NCDESTROY,0,0);
+
+  if (this == s_last_rbuttondown) s_last_rbuttondown = NULL;
 }
 
 
@@ -7416,7 +7420,8 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
           HWND h=WindowFromPoint(p);
           if (h && IsChild(hwnd,h)) hwndDest=h;
         }
-        SendMessage(hwnd,WM_CONTEXTMENU,(WPARAM)hwndDest,(p.x&0xffff)|(p.y<<16));
+        if (hwnd == s_last_rbuttondown)
+          SendMessage(hwnd,WM_CONTEXTMENU,(WPARAM)hwndDest,(p.x&0xffff)|(p.y<<16));
       }
     return 1;
     case WM_NCLBUTTONDOWN:
@@ -8545,6 +8550,8 @@ LRESULT SWELL_SendMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam
     }
     return -1;
   }
+
+  if (msg == WM_RBUTTONDOWN) s_last_rbuttondown = hwnd;
 
   LRESULT htc=0;
   if (msg != WM_MOUSEWHEEL && !GetCapture())
