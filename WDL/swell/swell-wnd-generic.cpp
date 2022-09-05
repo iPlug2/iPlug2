@@ -8532,5 +8532,60 @@ void VALIDATE_HWND_LIST(HWND listHead, HWND par)
 #endif
 
 
+LRESULT SWELL_SendMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+  if (!hwnd || !hwnd->m_wndproc) return -1;
+  if (!IsWindowEnabled(hwnd))
+  {
+    if (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN ||
+        msg == WM_LBUTTONDBLCLK || msg == WM_RBUTTONDBLCLK || msg == WM_MBUTTONDBLCLK)
+    {
+      HWND h = DialogBoxIsActive();
+      if (h) SetForegroundWindow(h);
+    }
+    return -1;
+  }
+
+  LRESULT htc=0;
+  if (msg != WM_MOUSEWHEEL && !GetCapture())
+  {
+    DWORD p=GetMessagePos();
+
+    htc=hwnd->m_wndproc(hwnd,WM_NCHITTEST,0,p);
+    if (hwnd->m_hashaddestroy||!hwnd->m_wndproc)
+    {
+      return -1; // if somehow WM_NCHITTEST destroyed us, bail
+    }
+
+    if (htc!=HTCLIENT || swell_window_wants_all_input() == hwnd)
+    {
+      if (msg==WM_MOUSEMOVE) return hwnd->m_wndproc(hwnd,WM_NCMOUSEMOVE,htc,p);
+//      if (msg==WM_MOUSEWHEEL) return hwnd->m_wndproc(hwnd,WM_NCMOUSEWHEEL,htc,p);
+//      if (msg==WM_MOUSEHWHEEL) return hwnd->m_wndproc(hwnd,WM_NCMOUSEHWHEEL,htc,p);
+      if (msg==WM_LBUTTONUP) return hwnd->m_wndproc(hwnd,WM_NCLBUTTONUP,htc,p);
+      if (msg==WM_LBUTTONDOWN) return hwnd->m_wndproc(hwnd,WM_NCLBUTTONDOWN,htc,p);
+      if (msg==WM_LBUTTONDBLCLK) return hwnd->m_wndproc(hwnd,WM_NCLBUTTONDBLCLK,htc,p);
+      if (msg==WM_RBUTTONUP) return hwnd->m_wndproc(hwnd,WM_NCRBUTTONUP,htc,p);
+      if (msg==WM_RBUTTONDOWN) return hwnd->m_wndproc(hwnd,WM_NCRBUTTONDOWN,htc,p);
+      if (msg==WM_RBUTTONDBLCLK) return hwnd->m_wndproc(hwnd,WM_NCRBUTTONDBLCLK,htc,p);
+      if (msg==WM_MBUTTONUP) return hwnd->m_wndproc(hwnd,WM_NCMBUTTONUP,htc,p);
+      if (msg==WM_MBUTTONDOWN) return hwnd->m_wndproc(hwnd,WM_NCMBUTTONDOWN,htc,p);
+      if (msg==WM_MBUTTONDBLCLK) return hwnd->m_wndproc(hwnd,WM_NCMBUTTONDBLCLK,htc,p);
+    }
+  }
+
+
+  LRESULT ret=hwnd->m_wndproc(hwnd,msg,wParam,lParam);
+
+  if (msg==WM_LBUTTONUP || msg==WM_RBUTTONUP || msg==WM_MOUSEMOVE || msg==WM_MBUTTONUP)
+  {
+    if (!GetCapture() && (hwnd->m_hashaddestroy || !hwnd->m_wndproc || !hwnd->m_wndproc(hwnd,WM_SETCURSOR,(WPARAM)hwnd,htc | (msg<<16))))
+    {
+      SetCursor(SWELL_LoadCursor(IDC_ARROW));
+    }
+  }
+
+  return ret;
+}
 
 #endif
