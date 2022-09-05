@@ -1252,6 +1252,61 @@ static LRESULT WINAPI cb_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 
   return CallWindowProc(oldproc,hwnd,msg,wParam,lParam);
 }
+static int compareUTF8ToFilteredASCII(const char *utf, const char *ascii)
+{
+  for (;;)
+  {
+    char c1 = *ascii++;
+    int c2;
+    if (!*utf || !c1) return *utf || c1;
+    utf += wdl_utf8_parsechar(utf, &c2);
+    if (c1 != (c2 >= 128 ? '?' : c2)) return 1;
+  }
+}
+
+static LRESULT WINAPI cbedit_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+  WNDPROC oldproc = (WNDPROC)GetProp(hwnd,WDL_UTF8_OLDPROCPROP);
+  if (!oldproc) return 0;
+
+  if (msg==WM_NCDESTROY)
+  {
+    SetWindowLongPtr(hwnd, GWLP_WNDPROC,(INT_PTR)oldproc);
+    RemoveProp(hwnd,WDL_UTF8_OLDPROCPROP);
+    RemoveProp(hwnd,WDL_UTF8_OLDPROCPROP "W");
+  }
+  else if (msg == WM_SETTEXT && lParam && *(const char *)lParam)
+  {
+    WNDPROC oldproc2 = (WNDPROC)GetProp(hwnd,WDL_UTF8_OLDPROCPROP "W");
+    HWND par = GetParent(hwnd);
+
+    int sel = (int) SendMessage(par,CB_GETCURSEL,0,0);
+    if (sel>=0)
+    {
+      const int len = (int) SendMessage(par,CB_GETLBTEXTLEN,sel,0);
+      char tmp[1024], *p = (len+1) <= sizeof(tmp) ? tmp : (char*)calloc(len+1,1);
+      if (p)
+      {
+        SendMessage(par,CB_GETLBTEXT,sel,(LPARAM)p);
+        if (WDL_DetectUTF8(p)>0 && !compareUTF8ToFilteredASCII(p,(const char *)lParam))
+        {
+          MBTOWIDE(wbuf,p);
+          if (wbuf_ok)
+          {
+            LRESULT ret = CallWindowProcW(oldproc2 ? oldproc2 : oldproc,hwnd,msg,wParam,(LPARAM)wbuf);
+            MBTOWIDE_FREE(wbuf);
+            if (p != tmp) free(p);
+            return ret;
+          }
+          MBTOWIDE_FREE(wbuf);
+        }
+        if (p != tmp) free(p);
+      }
+    }
+  }
+
+  return CallWindowProc(oldproc,hwnd,msg,wParam,lParam);
+}
 
 void WDL_UTF8_HookListBox(HWND h)
 {
@@ -1268,6 +1323,16 @@ void WDL_UTF8_HookComboBox(HWND h)
 {
   WDL_UTF8_HookListBox(h);
   if (h && !s_combobox_atom) s_combobox_atom = (ATOM)GetClassWord(h,GCW_ATOM);
+
+  if (h)
+  {
+    h = FindWindowEx(h,NULL,"Edit",NULL);
+    if (h && !GetProp(h,WDL_UTF8_OLDPROCPROP))
+    {
+      SetProp(h,WDL_UTF8_OLDPROCPROP "W",(HANDLE)GetWindowLongPtrW(h,GWLP_WNDPROC));
+      SetProp(h,WDL_UTF8_OLDPROCPROP,(HANDLE)SetWindowLongPtr(h,GWLP_WNDPROC,(INT_PTR)cbedit_newProc));
+    }
+  }
 }
 
 static LRESULT WINAPI tc_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
