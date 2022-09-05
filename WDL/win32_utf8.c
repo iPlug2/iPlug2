@@ -1199,7 +1199,12 @@ static LRESULT WINAPI cb_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
     RemoveProp(hwnd,WDL_UTF8_OLDPROCPROP);
     RemoveProp(hwnd,WDL_UTF8_OLDPROCPROP "W");
   }
-  else if (msg == CB_ADDSTRING || msg == CB_INSERTSTRING || msg == LB_ADDSTRING || msg == LB_INSERTSTRING)
+  else if (msg == CB_ADDSTRING ||
+           msg == CB_INSERTSTRING ||
+           msg == CB_FINDSTRINGEXACT ||
+           msg == CB_FINDSTRING ||
+           msg == LB_ADDSTRING ||
+           msg == LB_INSERTSTRING)
   {
     char *str=(char*)lParam;
     if (lParam && WDL_HasUTF8(str))
