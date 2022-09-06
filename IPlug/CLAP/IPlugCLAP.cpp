@@ -54,19 +54,22 @@ IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
 
 void IPlugCLAP::BeginInformHostOfParamChange(int idx)
 {
-  mParamValuesToHost.PushFromArgs(ParamToHost::Type::Begin, idx, GetParam(idx)->Value());
+  ParamToHost change { ParamToHost::Type::Begin, idx, GetParam(idx)->Value() };
+  mParamValuesToHost.Push(change);
 }
 
 void IPlugCLAP::InformHostOfParamChange(int idx, double normalizedValue)
 {
   const IParam *pParam = GetParam(idx);
   const double value = pParam->FromNormalized(normalizedValue);
-  mParamValuesToHost.PushFromArgs(ParamToHost::Type::Value, idx, value);
+  ParamToHost change { ParamToHost::Type::Value, idx, value };
+  mParamValuesToHost.Push(change);
 }
 
 void IPlugCLAP::EndInformHostOfParamChange(int idx)
 {
-  mParamValuesToHost.PushFromArgs(ParamToHost::Type::End, idx, GetParam(idx)->Value());
+  ParamToHost change { ParamToHost::Type::End, idx, GetParam(idx)->Value() };
+  mParamValuesToHost.Push(change);
 }
 
 //
