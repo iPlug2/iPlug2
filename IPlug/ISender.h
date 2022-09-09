@@ -77,7 +77,26 @@ public:
     {
       ISenderData<MAXNC, T> d;
       mQueue.Pop(d);
+      assert(d.ctrlTag != kNoTag && "You must supply a control tag");
       dlg.SendControlMsgFromDelegate(d.ctrlTag, kUpdateMessage, sizeof(ISenderData<MAXNC, T>), (void*) &d);
+    }
+  }
+  
+  /** This variation can be used if you need to supply multiple controls with the same ISenderData, overrideing the tags in the data packet
+   @param dlg The editor delegate
+   @param ctrlTags A list of control tags that should receive the updates from this sender */
+  void TransmitDataToControlsWithTags(IEditorDelegate& dlg, const std::initializer_list<int>& ctrlTags)
+  {
+    while(mQueue.ElementsAvailable())
+    {
+      ISenderData<MAXNC, T> d;
+      mQueue.Pop(d);
+      
+      for (auto tag : ctrlTags)
+      {
+        d.ctrlTag = tag;
+        dlg.SendControlMsgFromDelegate(tag, kUpdateMessage, sizeof(ISenderData<MAXNC, T>), (void*) &d);
+      }
     }
   }
 
@@ -112,8 +131,13 @@ public:
     mWindowSize = static_cast<int>(timeMs * 0.001 * sampleRate);
   }
   
-  /** Queue peaks from sample buffers into the sender. This can be called on the realtime audio thread. */
-  void ProcessBlock(sample** inputs, int nFrames, int ctrlTag, int nChans = MAXNC, int chanOffset = 0)
+  /** Queue peaks from sample buffers into the sender This can be called on the realtime audio thread.
+   @param inputs the sample buffers to analyze
+   @param nFrames the number of sample frames in the input buffers
+   @param ctrlTag a control tag to indicate which control to send the buffers to. Note: if you don't supply the control tag here, you must use TransmitDataToControlsWithTags() and specify one or more tags there
+   @param nChans the number of channels of data that should be sent
+   @param chanOffset the starting channel */
+  void ProcessBlock(sample** inputs, int nFrames, int ctrlTag = kNoTag, int nChans = MAXNC, int chanOffset = 0)
   {
     for (auto s = 0; s < nFrames; s++)
     {
@@ -249,8 +273,13 @@ public:
     std::fill(mPeakHoldCounters.begin(), mPeakHoldCounters.end(), mPeakHoldTime);
   }
   
-  /** Queue peaks from sample buffers into the sender This can be called on the realtime audio thread. */
-  void ProcessBlock(sample** inputs, int nFrames, int ctrlTag, int nChans = MAXNC, int chanOffset = 0)
+  /** Queue peaks from sample buffers into the sender This can be called on the realtime audio thread.
+   @param inputs the sample buffers to analyze
+   @param nFrames the number of sample frames in the input buffers
+   @param ctrlTag a control tag to indicate which control to send the buffers to. Note: if you don't supply the control tag here, you must use TransmitDataToControlsWithTags() and specify one or more tags there
+   @param nChans the number of channels of data that should be sent
+   @param chanOffset the starting channel */
+  void ProcessBlock(sample** inputs, int nFrames, int ctrlTag = kNoTag, int nChans = MAXNC, int chanOffset = 0)
   {
     for (auto s = 0; s < nFrames; s++)
     {
@@ -397,12 +426,17 @@ public:
   {
   }
 
-  /** Queue sample buffers into the sender, checking the data is over the required threshold. This can be called on the realtime audio thread. */
-  void ProcessBlock(sample** inputs, int nFrames, int ctrlTag, int nChans = MAXNC, int chanOffset = 0)
+  /** Queue sample buffers into the sender, checking the data is over the required threshold. This can be called on the realtime audio thread.
+   @param inputs the sample buffers
+   @param nFrames the number of sample frames in the input buffers
+   @param ctrlTag a control tag to indicate which control to send the buffers to. Note: if you don't supply the control tag here, you must use TransmitDataToControlsWithTags() and specify one or more tags there
+   @param nChans the number of channels of data that should be sent
+   @param chanOffset the starting channel */
+  void ProcessBlock(sample** inputs, int nFrames, int ctrlTag = kNoTag, int nChans = MAXNC, int chanOffset = 0)
   {
     for (auto s = 0; s < nFrames; s++)
     {
-      if(mBufCount == MAXBUF)
+      if (mBufCount == MAXBUF)
       {
         float sum = 0.f;
         for (auto c = chanOffset; c < (chanOffset + nChans); c++)
