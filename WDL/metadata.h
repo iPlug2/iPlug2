@@ -906,7 +906,7 @@ const char *EnumMetadataSchemeFromFileType(const char *filetype, int idx)
   };
   static const char *AIF_SCHEMES[]=
   {
-    "IFF", "XMP",
+    "IFF", "XMP", "ID3"
   };
   static const char *CAF_SCHEMES[]=
   {
