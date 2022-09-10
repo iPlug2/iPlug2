@@ -2090,7 +2090,7 @@ bool ExportMetadataImageToTmpFile(const char *srcfn, const char *infostr,
     else if (!strncmp(p+i, "length:", 7)) { if (i) p[i-1]=0; i += 7; len=p+i; }
   }
 
-  WDL_INT64 ioffs = offs ? strtoll(offs, NULL, 10) : 0; // may not work on all toolsets
+  WDL_INT64 ioffs = offs ? (WDL_INT64)atof(offs) : 0;
   int ilen = len ? atoi(len) : 0;
 
   bool ok=false;
