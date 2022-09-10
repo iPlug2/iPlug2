@@ -2068,5 +2068,61 @@ bool PackFlacPicBase64(WDL_StringKeyedArray<char*> *metadata,
   return false;
 }
 
+bool ExportMetadataImageToTmpFile(const char *srcfn, const char *infostr,
+  WDL_FastString *imgdesc, WDL_FastString *imgtype, WDL_FastString *imgfn)
+{
+  if (!srcfn || !srcfn[0] || !infostr || !infostr[0] || !imgfn) return false;
+
+  WDL_HeapBuf tmp;
+  int tmplen=strlen(infostr);
+  if (!tmp.ResizeOK(tmplen+1)) return false;
+  memcpy(tmp.Get(), infostr, tmplen+1);
+
+  const char *ext=NULL, *mime=NULL, *desc=NULL, *type=NULL, *offs=NULL, *len=NULL;
+  char *p=(char*)tmp.Get();
+  for (int i=0; i < tmplen; ++i)
+  {
+    if (!strncmp(p+i, "ext:", 4)) { if (i) p[i-1]=0; i += 4; ext=p+i; }
+    else if (!strncmp(p+i, "mime:", 5)) { if (i) p[i-1]=0; i += 5; mime=p+i; }
+    else if (!strncmp(p+i, "desc:", 5)) { if (i) p[i-1]=0; i += 5; desc=p+i; }
+    else if (!strncmp(p+i, "type:", 5)) { if (i) p[i-1]=0; i += 5; type=p+i; }
+    else if (!strncmp(p+i, "offset:", 7)) { if (i) p[i-1]=0; i += 7; offs=p+i; }
+    else if (!strncmp(p+i, "length:", 7)) { if (i) p[i-1]=0; i += 7; len=p+i; }
+  }
+
+  WDL_INT64 ioffs = offs ? strtoll(offs, NULL, 10) : 0; // may not work on all toolsets
+  int ilen = len ? atoi(len) : 0;
+
+  bool ok=false;
+  if ((ext || mime) && ioffs > 0 && ilen > 0)
+  {
+    WDL_FileRead fr(srcfn);
+    if (fr.IsOpen() && fr.GetSize() >= ioffs+ilen)
+    {
+      fr.SetPosition(ioffs);
+
+      char tmppath[2048];
+      tmppath[0]=0;
+      GetTempPath(sizeof(tmppath), tmppath);
+      imgfn->Set(tmppath);
+      imgfn->Append(WDL_get_filepart(srcfn));
+      imgfn->Append(".");
+      if (ext) imgfn->Append(ext);
+      else if (mime && !strncmp(mime, "image/", 6)) imgfn->Append(mime+6);
+
+      WDL_FileWrite fw(imgfn->Get());
+      if (fw.IsOpen() && CopyFileData(&fr, &fw, ilen))
+      {
+        if (desc && imgdesc) imgdesc->Set(desc);
+        if (type && imgtype) imgtype->Set(type);
+        ok=true;
+      }
+    }
+  }
+
+  return ok;
+}
+
+
 
 #endif // _METADATA_H_
