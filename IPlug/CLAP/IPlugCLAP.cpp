@@ -15,6 +15,7 @@
 #include "host-proxy.hxx"
 
 // TODO - respond to situations in which parameters can't be pushed (search try_push)
+// TODO - check event header flags (search header.flags)
 
 using namespace iplug;
 
@@ -550,7 +551,7 @@ void IPlugCLAP::ProcessOutputParams(const clap_output_events *outputParamChanges
     header.time = 0;
     header.space_id = CLAP_CORE_EVENT_SPACE_ID;
     header.type = change.type();
-    header.flags = 0; // TODO - check this
+    header.flags = 0;
         
     if (isValue)
     {
@@ -595,7 +596,7 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
       header.time = msg.mOffset;
       header.space_id = CLAP_CORE_EVENT_SPACE_ID;
       header.type = CLAP_EVENT_MIDI;
-      header.flags = 0; // TODO - check this
+      header.flags = 0;
       
       if (msg.StatusMsg() == IMidiMsg::kNoteOn)
         header.type = CLAP_EVENT_NOTE_ON;
@@ -630,7 +631,7 @@ void IPlugCLAP::ProcessOutputEvents(const clap_output_events *outputEvents, int 
       header.time = data.mOffset;
       header.space_id = CLAP_CORE_EVENT_SPACE_ID;
       header.type = CLAP_EVENT_MIDI_SYSEX;
-      header.flags = 0; // TODO - check this
+      header.flags = 0;
       
       clap_event_midi_sysex sysex_event { header, 0, data.mData, dataSize };
       

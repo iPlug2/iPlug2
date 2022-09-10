@@ -73,6 +73,7 @@ const char* IPluginBase::GetAPIStr() const
     case kAPIAUv3: return "AUv3";
     case kAPIAAX: return "AAX";
     case kAPIAPP: return "APP";
+    case kAPICLAP: return "CLAP";
     case kAPIWAM: return "WAM";
     case kAPIWEB: return "WEB";
     default: return "";

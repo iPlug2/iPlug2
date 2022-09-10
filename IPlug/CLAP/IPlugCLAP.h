@@ -51,7 +51,19 @@ class IPlugCLAP : public IPlugAPIBase
   struct ParamToHost
   {
     enum class Type { Begin, Value, End };
-    
+
+    ParamToHost()
+      : mType(Type::Value)
+      , mIdx(-1)
+      , mValue(0.0)
+    {}
+
+    ParamToHost(Type type, int idx, double value)
+      : mType(type)
+      , mIdx(idx)
+      , mValue(value)
+    {}
+
     uint32_t idx() const { return static_cast<uint32_t>(mIdx); }
     double value() const { return mValue; }
     uint16_t type() const
