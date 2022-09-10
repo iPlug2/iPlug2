@@ -141,12 +141,12 @@ private:
   bool implementsAudioPortsConfig() const noexcept override;
   uint32_t audioPortsConfigCount() const noexcept override;
   bool audioPortsGetConfig(uint32_t index, clap_audio_ports_config *config) const noexcept override;
-  bool audioPortsSetConfig(clap_id configId) noexcept override;
+  bool audioPortsSetConfig(clap_id configIdx) noexcept override;
   
   // clap_plugin_note_ports
   bool implementsNotePorts() const noexcept override { return DoesMIDIIn() || DoesMIDIOut(); }
-  uint32_t notePortsCount(bool is_input) const noexcept override;
-  bool notePortsInfo(uint32_t index, bool is_input, clap_note_port_info *info) const noexcept override;
+  uint32_t notePortsCount(bool isInput) const noexcept override;
+  bool notePortsInfo(uint32_t index, bool isInput, clap_note_port_info *info) const noexcept override;
   
   // clap_plugin_params
   bool implementsParams() const noexcept override { return true; }
@@ -158,7 +158,7 @@ private:
   bool paramsValueToText(clap_id paramIdx, double value, char *display, uint32_t size) noexcept override;
   bool paramsTextToValue(clap_id paramIdx, const char *display, double *value) noexcept override;
      
-  void paramsFlush(const clap_input_events *input_parameter_changes, const clap_output_events *outputParamChanges) noexcept override;
+  void paramsFlush(const clap_input_events *inputParamChanges, const clap_output_events *outputParamChanges) noexcept override;
   bool isValidParamId(clap_id paramIdx) const noexcept override { return paramIdx < NParams(); }
     
   // clap_plugin_gui
