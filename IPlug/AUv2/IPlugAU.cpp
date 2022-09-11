@@ -785,7 +785,10 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       
       if (pData)
       {
-        *((Float64*) pData) = (double) GetTailSize() / GetSampleRate();
+        if (GetTailIsInfinite())
+          *((Float64*) pData) = std::numeric_limits<double>::infinity();
+        else
+          *((Float64*) pData) = static_cast<double>(GetTailSize()) / GetSampleRate();
       }
       return noErr;
     }

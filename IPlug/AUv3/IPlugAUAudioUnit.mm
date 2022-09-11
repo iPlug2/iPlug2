@@ -716,12 +716,15 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
 - (NSTimeInterval) latency
 {
-  return (NSTimeInterval) mPlug->GetLatency() / mPlug->GetSampleRate();
+  return static_cast<NSTimeInterval>(mPlug->GetLatency()) / mPlug->GetSampleRate();
 }
 
 - (NSTimeInterval) tailTime
 {
-  return (double) mPlug->GetTailSize() / mPlug->GetSampleRate();
+  if (mPlug->GetTailIsInfinite())
+    return std::numeric_limits<NSTimeInterval>::infinity();
+  else
+    return static_cast<NSTimeInterval>(mPlug->GetTailSize()) / mPlug->GetSampleRate();
 }
 
 - (NSDictionary<NSString*, id>*)fullState
