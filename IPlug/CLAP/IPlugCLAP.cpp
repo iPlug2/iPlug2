@@ -52,6 +52,11 @@ IPlugCLAP::IPlugCLAP(const InstanceInfo& info, const Config& config)
   CreateTimer();
 }
 
+uint32_t IPlugCLAP::tailGet() const noexcept
+{
+  return GetTailIsInfinite() ? std::numeric_limits<uint32_t>::max() : GetTailSize();
+}
+
 void IPlugCLAP::BeginInformHostOfParamChange(int idx)
 {
   mParamValuesToHost.PushFromArgs(ParamToHost::Type::Begin, idx, 0.0);

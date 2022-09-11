@@ -115,7 +115,7 @@ private:
   
   // clap_plugin_tail
   bool implementsTail() const noexcept override { return true; }
-  uint32_t tailGet() const noexcept override { return GetTailSize(); }
+  uint32_t tailGet() const noexcept override;
 
   // clap_plugin_render
   bool implementsRender() const noexcept override { return true; }

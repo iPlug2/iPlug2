@@ -54,7 +54,7 @@ public:
   Steinberg::tresult PLUGIN_API process(Steinberg::Vst::ProcessData& data) override;
   Steinberg::tresult PLUGIN_API canProcessSampleSize(Steinberg::int32 symbolicSampleSize) override;
   Steinberg::uint32 PLUGIN_API getLatencySamples() override { return GetLatency(); }
-  Steinberg::uint32 PLUGIN_API getTailSamples() override { return GetTailSize(); } //TODO - infinite tail
+  Steinberg::uint32 PLUGIN_API getTailSamples() override;
   Steinberg::tresult PLUGIN_API setState(Steinberg::IBStream* pState) override;
   Steinberg::tresult PLUGIN_API getState(Steinberg::IBStream* pState) override;
   

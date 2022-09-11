@@ -39,6 +39,11 @@ IPlugVST3::~IPlugVST3() {}
 
 #pragma mark AudioEffect overrides
 
+Steinberg::uint32 PLUGIN_API IPlugVST3::getTailSamples()
+{
+  return GetTailIsInfinite() ? kInfiniteTail : GetTailSize();
+}
+
 tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
 {
   TRACE
