@@ -61,8 +61,14 @@ IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
 #if IPLUG_EDITOR
 void IPlugResponsiveUI::OnParentWindowResize(int width, int height)
 {
-  if(GetUI())
+  if (GetUI())
     GetUI()->Resize(width, height, 1.f, false);
+}
+
+void IPlugResponsiveUI::OnHostSelectedViewConfiguration(int width, int height)
+{
+  if (GetUI())
+    GetUI()->Resize(width, height, 1.f, true);
 }
 #endif
 
