@@ -31,7 +31,7 @@ public:
 
 #if IPLUG_EDITOR
   void OnParentWindowResize(int width, int height) override;
-  bool OnHostRequestingSupportedViewConfiguration(int width, int height) override { return true; }
+  bool OnHostRequestingSupportedViewConfiguration(int width, int height) override;
   void OnHostSelectedViewConfiguration(int width, int height) override;
 #endif
   
