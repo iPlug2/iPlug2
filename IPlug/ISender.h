@@ -35,7 +35,7 @@ struct ISenderData
   int ctrlTag = kNoTag;
   int nChans = MAXNC;
   int chanOffset = 0;
-  std::array<T, MAXNC> vals;
+  std::array<T, MAXNC> vals = {0};
   
   ISenderData() {}
   
