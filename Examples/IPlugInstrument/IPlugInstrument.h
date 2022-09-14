@@ -26,15 +26,20 @@ enum EParams
 #include "IPlugInstrument_DSP.h"
 #endif
 
-enum EControlTags
+enum ECtrlTags
 {
   kCtrlTagMeter = 0,
   kCtrlTagLFOVis,
   kCtrlTagScope,
   kCtrlTagRTText,
   kCtrlTagKeyboard,
-  kCtrlTagBender,
   kNumCtrlTags
+};
+
+enum EMsgTags
+{
+  kMsgTagEnableMPE = 0,
+  kNumMsgTags
 };
 
 using namespace iplug;
@@ -54,10 +59,12 @@ public:
   void OnParamChangeUI(int paramIdx, EParamSource source) override;
   void OnIdle() override;
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
+  bool OnKeyDown(const IKeyPress& key) override;
+  bool OnKeyUp(const IKeyPress& key) override;
 
 private:
   IPlugInstrumentDSP<sample> mDSP {16};
-  IPeakAvgSender<2> mMeterSender;
+  IPeakSender<1> mMeterSender;
   ISender<1> mLFOVisSender;
 #endif
 };
