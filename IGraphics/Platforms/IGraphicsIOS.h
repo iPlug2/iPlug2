@@ -49,7 +49,6 @@ public:
 
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler) override;
   void PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler) override;
-  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
   
   void HideMouseCursor(bool hide, bool lock) override {}; // NOOP
   void MoveMouseCursor(float x, float y) override {}; // NOOP
@@ -80,6 +79,7 @@ protected:
   PlatformFontPtr LoadPlatformFont(const char* fontID, void* pData, int dataSize) override;
   void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) override;
   
+  bool CreatePlatformColorPicker(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
 

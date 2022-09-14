@@ -62,7 +62,6 @@ public:
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler) override;
   void PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler) override;
-  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
 
   IPopupMenu* GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, IPopupMenu& baseMenu);
   HMENU CreateMenu(IPopupMenu& menu, long* pOffsetIdx);
@@ -90,6 +89,7 @@ public:
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
+  bool CreatePlatformColorPicker(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
 
   void SetTooltip(const char* tooltip);
   void ShowTooltip();

@@ -55,8 +55,7 @@ public:
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler) override;
   void PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler) override;
-  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
-    
+
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
   void* GetWindow() override;
@@ -75,7 +74,7 @@ public:
 
   EUIAppearance GetUIAppearance() const override;
 protected:
-
+  bool CreatePlatformColorPicker(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
   

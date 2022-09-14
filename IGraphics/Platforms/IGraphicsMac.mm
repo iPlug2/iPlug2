@@ -581,7 +581,7 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHand
   }
 }
 
-bool IGraphicsMac::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
+bool IGraphicsMac::CreatePlatformColorPicker(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
   if (mView)
     return [(IGRAPHICS_VIEW*) mView promptForColor:color : func];

@@ -41,7 +41,6 @@ public:
 
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
   void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action,  const char* ext, IColorPickerHandlerFunc func) override;
-  bool PromptForColor(IColor& color, const char* str) override;
 
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
@@ -50,7 +49,7 @@ public:
   bool SetTextInClipboard(const char* str) override { return false; } // TODO
 
 protected:
-  IPopupMenu* CreatePlatformPopupMenu(const IPopupMenu& menu, IRECT& bounds) override;
+  IPopupMenu* CreatePlatformPopupMenu(const IPopupMenu& menu, const IRECT bounds) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
 }
 

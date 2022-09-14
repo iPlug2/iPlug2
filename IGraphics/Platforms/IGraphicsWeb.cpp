@@ -791,7 +791,7 @@ void IGraphicsWeb::PromptForDirectory(WDL_String& path, IFileDialogCompletionHan
   // inputEl.call<void>("addEventListener", std::string("onChange"), val::module_property("file_dialog_callback"), false);
 }
 
-bool IGraphicsWeb::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
+bool IGraphicsWeb::CreatePlatformColorPicker(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
   ReleaseMouseCapture();
 

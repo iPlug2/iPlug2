@@ -77,6 +77,7 @@ class ITextEntryControl;
 class ICornerResizerControl;
 class IFPSDisplayControl;
 class IBubbleControl;
+class IVColorPickerControl;
 
 /**  The lowest level base class of an IGraphics context */
 class IGraphics
@@ -895,12 +896,12 @@ public:
    * @param completionHandler an IFileDialogCompletionHandlerFunc that will be called when a file is selected or the dialog is cancelled. Only the path argument will be populated. */
   virtual void PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler = nullptr) = 0;
 
-  /** Create a platform color chooser dialog. NOTE: this method will block the main thread
+  /** Create a color chooser dialog.
    * @param color When a color is chosen the IColor referenced will be updated with the new color
    * @param str The text to display in the dialog box e.g. "Please choose a color... (Windows only)"
    * @param IColorPickerHandlerFunc func callback for asynchronous color pickers
    * @return /c true if prompt completed successfully */
-  virtual bool PromptForColor(IColor& color, const char* str = "", IColorPickerHandlerFunc func = nullptr) = 0;
+  virtual bool PromptForColor(IColor& color, const char* str = "", IColorPickerHandlerFunc func = nullptr);
 
   /** Open a URL in the platform’s default browser
    * @param url CString specifying the URL to open
@@ -991,6 +992,13 @@ protected:
    * @param isAsync This gets set true on platforms where popupmenu creation is asyncronous
    * @return A ptr to the chosen IPopupMenu or nullptr in the case of async or dismissed menu */
   virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) = 0;
+
+  /** Create a platform color chooser dialog
+   * @param color When a color is chosen the IColor referenced will be updated with the new color
+   * @param str The text to display in the dialog box e.g. "Please choose a color... (Windows only)"
+   * @param IColorPickerHandlerFunc func callback for asynchronous color pickers
+   * @return /c true if prompt completed successfully */
+  virtual bool CreatePlatformColorPicker(IColor& color, const char* str, IColorPickerHandlerFunc func) = 0;
 
 #pragma mark - Base implementation
 public:
@@ -1330,11 +1338,17 @@ public:
   /** Remove the IGraphics text entry, use platform text entry if available */
   void RemoveTextEntryControl();
   
-  /** Attach the default control to show text as a control changes*/
+  /** Attach the default control to show text as a control changes */
   void AttachBubbleControl(const IText& text = DEFAULT_TEXT);
 
-  /** Attach a custom control to show text as a control changes*/
+  /** Attach a custom control to show text as a control changes */
   void AttachBubbleControl(IBubbleControl* pControl);
+  
+  /** Attach a custom control to pick colors */
+  void AttachColorPickerControl();
+  
+  /** Remove the IGraphics color picker, use platform picker if available */
+  void RemoveColorPickerControl();
   
   /* Called by controls to display text in the bubble control */
   void ShowBubbleControl(IControl* pCaller, float x, float y, const char* str, EDirection dir = EDirection::Horizontal, IRECT minimumContentBounds = IRECT());
@@ -1801,6 +1815,7 @@ private:
   std::unique_ptr<IPopupMenuControl> mPopupControl;
   std::unique_ptr<IFPSDisplayControl> mPerfDisplay;
   std::unique_ptr<ITextEntryControl> mTextEntryControl;
+  std::unique_ptr<IVColorPickerControl> mColorPickerControl;
   std::unique_ptr<IControl> mLiveEdit;
   
   IPopupMenu mPromptPopupMenu;

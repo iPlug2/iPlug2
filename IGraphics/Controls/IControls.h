@@ -18,10 +18,10 @@
 
 #include "IControl.h"
 
-#include "IColorPickerControl.h"
 #include "ILEDControl.h"
 #include "IPopupMenuControl.h"
 #include "IRTTextControl.h"
+
 #include "IVKeyboardControl.h"
 #include "IVMeterControl.h"
 #include "IVScopeControl.h"

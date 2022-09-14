@@ -249,7 +249,7 @@ void IGraphicsIOS::PromptForDirectory(WDL_String& path, IFileDialogCompletionHan
   [(IGRAPHICS_VIEW*) mView promptForDirectory:pDefaultPath : completionHandler];
 }
 
-bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
+bool IGraphicsIOS::CreatePlatformColorPicker(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
   [(IGRAPHICS_VIEW*) mView promptForColor: color: str: func];
   return false;

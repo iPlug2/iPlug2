@@ -1747,7 +1747,7 @@ static UINT_PTR CALLBACK CCHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM
   return 0;
 }
 
-bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt, IColorPickerHandlerFunc func)
+bool IGraphicsWin::CreatePlatformColorPicker(IColor& color, const char* prompt, IColorPickerHandlerFunc func)
 {
   ReleaseMouseCapture();
 
