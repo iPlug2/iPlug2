@@ -929,8 +929,10 @@ void IVSliderControl::OnInit()
 IVRangeSliderControl::IVRangeSliderControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label, const IVStyle& style, EDirection dir, bool onlyHandle, float handleSize, float trackSize)
 : IVTrackControlBase(bounds, label, style, params, 0, dir)
 , mHandleSize(handleSize)
+, mTrackSize(trackSize)
 {
-  mTrackSize = trackSize;
+  assert(params.size() == 2);
+  SetWantsMultiTouch(true);
 }
 
 void IVRangeSliderControl::Draw(IGraphics& g)
@@ -954,7 +956,6 @@ void IVRangeSliderControl::MakeTrackRects(const IRECT& bounds)
 
 void IVRangeSliderControl::DrawTrack(IGraphics& g, const IRECT& r, int chIdx)
 {
-  bool thisTrack = mMouseOverHandle == chIdx;
   float angle = 0.f;
   
   if(mDirection == EDirection::Horizontal)
@@ -962,10 +963,30 @@ void IVRangeSliderControl::DrawTrack(IGraphics& g, const IRECT& r, int chIdx)
   else
     angle = chIdx % 2 ? 270.f : 90.f;
     
-  DrawPressableTriangle(g, GetHandleBounds(chIdx), thisTrack && mMouseIsDown, thisTrack, angle, IsDisabled());
+  DrawPressableTriangle(g, GetHandleBounds(chIdx), mHandlePressed[chIdx], mMouseOverHandle == chIdx, angle, IsDisabled());
 }
 
-IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx)
+void IVRangeSliderControl::DrawWidget(IGraphics& g)
+{
+  IRECT r = mTrackBounds.Get()[0];
+  
+  DrawTrackBackground(g, r, 0);
+  
+  IRECT filled1 = mTrackBounds.Get()[0].FracRect(mDirection, (float) GetValue(0));
+  IRECT filled2 = mTrackBounds.Get()[1].FracRect(mDirection, (float) GetValue(1));
+  
+  if(mDirection == EDirection::Vertical)
+    g.FillRect(GetColor(kX1), IRECT(filled1.L, filled1.T < filled2.T ? filled1.T : filled2.T, filled1.R, filled1.T > filled2.T ? filled1.T : filled2.T), &mBlend);
+  else
+    g.FillRect(GetColor(kX1), IRECT(filled1.R < filled2.R ? filled1.R : filled2.R, filled1.T, filled1.R > filled2.R ? filled1.R : filled2.R, filled1.B), &mBlend);
+  
+  if(mStyle.drawFrame && mDrawTrackFrame)
+    g.DrawRect(GetColor(kFR), r, &mBlend, mStyle.frameThickness);
+  
+  IVTrackControlBase::DrawWidget(g);
+}
+
+IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx, bool hitTest)
 {
   IRECT filledTrack = mTrackBounds.Get()[trackIdx].FracRect(mDirection, (float) GetValue(trackIdx));
   float cx, cy;
@@ -976,9 +997,19 @@ IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx)
     cy = filledTrack.T;
     
     if(trackIdx % 2)
-      return IRECT(cx+mTrackSize, cy-mHandleSize, cx+(2.f*mHandleSize)+mTrackSize, cy+mHandleSize);
+    {
+      if(hitTest)
+        return IRECT(cx+mTrackSize, mWidgetBounds.T, mWidgetBounds.R, mWidgetBounds.B);
+      else
+        return IRECT(cx+mTrackSize, cy-mHandleSize, cx+(2.f*mHandleSize)+mTrackSize, cy+mHandleSize);
+    }
     else
-      return IRECT(cx-(2.f*mHandleSize), cy-mHandleSize, cx, cy+mHandleSize);
+    {
+      if(hitTest)
+        return IRECT(mWidgetBounds.L, mWidgetBounds.T, cx, mWidgetBounds.B);
+      else
+        return IRECT(cx-(2.f*mHandleSize), cy-mHandleSize, cx, cy+mHandleSize);
+    }
   }
   else
   {
@@ -986,43 +1017,31 @@ IRECT IVRangeSliderControl::GetHandleBounds(int trackIdx)
     cy = filledTrack.MH() + offset;
     
     if(trackIdx % 2)
-      return IRECT(cx-mHandleSize, cy-(2.f*mHandleSize), cx+mHandleSize, cy);
+    {
+      if(hitTest)
+        return IRECT(mWidgetBounds.L, mWidgetBounds.T, mWidgetBounds.R, cy);
+      else
+        return IRECT(cx-mHandleSize, cy-(2.f*mHandleSize), cx+mHandleSize, cy);
+    }
     else
-      return IRECT(cx-mHandleSize, cy+mTrackSize, cx+mHandleSize, cy+(2.f*mHandleSize)+mTrackSize);
+    {
+      if(hitTest)
+        return IRECT(mWidgetBounds.L, cy+mTrackSize, mWidgetBounds.R, mWidgetBounds.B);
+      else
+        return IRECT(cx-mHandleSize, cy+mTrackSize, cx+mHandleSize, cy+(2.f*mHandleSize)+mTrackSize);
+    }
   }
 }
 
-void IVRangeSliderControl::DrawWidget(IGraphics& g)
-{
-  IRECT r = mTrackBounds.Get()[0];
-  
-  DrawTrackBackground(g, r, 0);
-  
-  for(int i=0;i<NVals()-1;i++)
-  {
-    IRECT filled1 = mTrackBounds.Get()[i].FracRect(mDirection, (float) GetValue(i));
-    IRECT filled2 = mTrackBounds.Get()[i+1].FracRect(mDirection, (float) GetValue(i+1));
-    
-    if(mDirection == EDirection::Vertical)
-      g.FillRect(GetColor(kX1), IRECT(filled1.L, filled1.T < filled2.T ? filled1.T : filled2.T, filled1.R, filled1.T > filled2.T ? filled1.T : filled2.T), &mBlend);
-    else
-      g.FillRect(GetColor(kX1), IRECT(filled1.R < filled2.R ? filled1.R : filled2.R, filled1.T, filled1.R > filled2.R ? filled1.R : filled2.R, filled1.B), &mBlend);
-  }
-  
-  if(mStyle.drawFrame && mDrawTrackFrame)
-    g.DrawRect(GetColor(kFR), r, &mBlend, mStyle.frameThickness);
-  
-  IVTrackControlBase::DrawWidget(g);
-}
-
-void IVRangeSliderControl::OnMouseOver(float x, float y, const IMouseMod& mod)
+int IVRangeSliderControl::HitTestHandles(float x, float y)
 {
   IRECT bounds;
   int hitHandle = -1;
   
-  for(int i=0;i<NVals();i++)
+  for(int i=0;i<2;i++)
   {
-    bounds = GetHandleBounds(i);
+    bounds = GetHandleBounds(i, true);
+    
     if(bounds.Contains(x, y))
     {
       hitHandle = i;
@@ -1030,28 +1049,64 @@ void IVRangeSliderControl::OnMouseOver(float x, float y, const IMouseMod& mod)
     }
   }
   
-  mMouseOverHandle = hitHandle;
-  
+  return hitHandle;
+}
+
+void IVRangeSliderControl::OnMouseOver(float x, float y, const IMouseMod& mod)
+{
+  mMouseOverHandle = HitTestHandles(x, y);
   IVTrackControlBase::OnMouseOver(x, y, mod);
   SetDirty(false);
 }
 
+void IVRangeSliderControl::OnMouseOut()
+{
+  mMouseOverHandle = -1;
+  IVTrackControlBase::OnMouseOut();
+}
+
 void IVRangeSliderControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  mMouseIsDown = true;
-  OnMouseDrag(x, y, 0., 0., mod);
-}
-
-void IVRangeSliderControl::OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod)
-{
-  if(mMouseOverHandle == -1)
-    return;
+  int hitHandle = HitTestHandles(x, y);
   
-  auto minClip = mMouseOverHandle == 0 ? 0. : GetValue(mMouseOverHandle-1);
-  auto maxClip = mMouseOverHandle == NVals()-1 ? 1. : GetValue(mMouseOverHandle+1);
-  SnapToMouse(x, y, mDirection, mWidgetBounds, mMouseOverHandle, minClip, maxClip);
+  if(hitHandle > -1)
+  {
+    mHandlePressed[hitHandle] = true;
+    AddTouch(mod.touchID, x, y, mod.touchRadius, hitHandle);
+    
+    OnMouseDrag(x, y, 0.f, 0.f, mod);
+  }
 }
 
+void IVRangeSliderControl::OnMouseUp(float x, float y, const IMouseMod& mod)
+{
+  auto* pTouch = GetTouchWithIdentifier(mod.touchID);
+
+  mHandlePressed[pTouch->extra] = false;
+  
+  ReleaseTouch(mod.touchID);
+  
+  SetDirty(true);
+}
+
+void IVRangeSliderControl::OnTouchCancelled(float x, float y, const IMouseMod& mod)
+{
+  OnMouseUp(x, y, mod);
+}
+
+void IVRangeSliderControl::OnMouseDrag(float x, float y, float dx, float dy, const IMouseMod& mod)
+{
+  UpdateTouch(mod.touchID, x, y, mod.touchRadius);
+  
+  auto* pTouch = GetTouchWithIdentifier(mod.touchID);
+
+  auto minClip = pTouch->extra == 0 ? 0. : GetValue(0);
+  auto maxClip = pTouch->extra == 1 ? 1. : GetValue(1);
+  
+  SnapToMouse(pTouch->x, pTouch->y, mDirection, mWidgetBounds, pTouch->extra, minClip, maxClip);
+  
+  SetDirty(true);
+}
 
 IVXYPadControl::IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label, const IVStyle& style, float handleRadius, bool trackClipsHandle, bool drawCross)
 : IControl(bounds, params)
