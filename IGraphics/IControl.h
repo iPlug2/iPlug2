@@ -1286,10 +1286,11 @@ public:
     float sx = 0.f;
     float sy = 0.f;
     float radius = 1.f;
+    int extra = -1;  // extra can be used to keep track of e.g. which track of an IVTrackControlBase was clicked
     TimePoint startTime;
     
-    TrackedTouch(int index, float x, float y, float radius, TimePoint time)
-    : index(index), x(x), y(y), sx(x), sy(y), radius(radius), startTime(time)
+    TrackedTouch(int index, float x, float y, float radius, TimePoint time, int extra)
+    : index(index), x(x), y(y), sx(x), sy(y), radius(radius), startTime(time), extra(extra)
     {}
     
     TrackedTouch()
@@ -1298,7 +1299,7 @@ public:
   
   virtual ~IMultiTouchControlBase() {}
   
-  virtual void AddTouch(ITouchID touchID, float x, float y, float radius)
+  virtual void AddTouch(ITouchID touchID, float x, float y, float radius, int extra = -1)
   {
     int touchIndex = 0;
     for (int i = 0; i < MAX_TOUCHES; i++)
@@ -1311,8 +1312,8 @@ public:
       }
     }
 
-    if(NTrackedTouches() < MAX_TOUCHES)
-      mTrackedTouches.insert(std::make_pair(touchID, TrackedTouch(touchIndex, x, y, radius, std::chrono::high_resolution_clock::now())));
+    if (NTrackedTouches() < MAX_TOUCHES)
+      mTrackedTouches.insert(std::make_pair(touchID, TrackedTouch(touchIndex, x, y, radius, std::chrono::high_resolution_clock::now(), extra)));
   }
   
   virtual void ReleaseTouch(ITouchID touchID)
@@ -1346,7 +1347,7 @@ public:
       return(element.second.index == index);
     });
 
-    if(itr != mTrackedTouches.end())
+    if (itr != mTrackedTouches.end())
       return &itr->second;
     else
       return nullptr;
@@ -1356,7 +1357,7 @@ public:
   {
     auto itr = mTrackedTouches.find(touchID);
     
-    if(itr != mTrackedTouches.end())
+    if (itr != mTrackedTouches.end())
       return &itr->second;
     else
       return nullptr;
