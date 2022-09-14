@@ -1428,21 +1428,21 @@ public:
   void SetAllControlsClean();
     
   /** Reposition a control, redrawing the interface correctly
-   @param idx The index of the control
-   @param x The new x position
-   @param y The new y position */
-  void SetControlPosition(int idx, float x, float y);
+   * @param pControl The control
+   * @param x The new x position
+   * @param y The new y position */
+  void SetControlPosition(IControl* pControl, float x, float y);
   
   /** Resize a control, redrawing the interface correctly
-   @param idx The index of the control
-   @param w The new width
-   @param h The new height */
-  void SetControlSize(int idx, float w, float h);
+   * @param pControl The control
+   * @param w The new width
+   * @param h The new height */
+  void SetControlSize(IControl* pControl, float w, float h);
   
   /** Set a controls target and draw rect to r, redrawing the interface correctly
-   @param idx The index of the control 
-   @param r The new bounds for the control's target and draw rect */
-  void SetControlBounds(int idx, const IRECT& r);
+   * @param idx The index of the control
+   * @param r The new bounds for the control's target and draw rect */
+  void SetControlBounds(IControl* pControl, const IRECT& r);
   
 private:
   /** Get the index of the control at x and y coordinates on mouse event

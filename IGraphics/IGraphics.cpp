@@ -203,25 +203,22 @@ void IGraphics::RemoveAllControls()
   mControls.Empty(true);
 }
 
-void IGraphics::SetControlPosition(int idx, float x, float y)
+void IGraphics::SetControlPosition(IControl* pControl, float x, float y)
 {
-  IControl* pControl = GetControl(idx);
   pControl->SetPosition(x, y);
   if (!pControl->IsHidden())
     SetAllControlsDirty();
 }
 
-void IGraphics::SetControlSize(int idx, float w, float h)
+void IGraphics::SetControlSize(IControl* pControl, float w, float h)
 {
-  IControl* pControl = GetControl(idx);
   pControl->SetSize(w, h);
   if (!pControl->IsHidden())
     SetAllControlsDirty();
 }
 
-void IGraphics::SetControlBounds(int idx, const IRECT& r)
+void IGraphics::SetControlBounds(IControl* pControl, const IRECT& r)
 {
-  IControl* pControl = GetControl(idx);
   pControl->SetTargetAndDrawRECTs(r);
   if (!pControl->IsHidden())
     SetAllControlsDirty();
@@ -805,7 +802,14 @@ bool IGraphics::IsDirty(IRECTList& rects)
     if (pControl->IsDirty())
     {
       // N.B padding outlines for single line outlines
-      rects.Add(pControl->GetRECT().GetPadded(0.75));
+      auto rectToAdd = pControl->GetRECT().GetPadded(0.75);
+      
+      if (pControl->GetParent())
+      {
+        rectToAdd.Clank(pControl->GetParent()->GetRECT().GetPadded(0.75));
+      }
+      
+      rects.Add(rectToAdd);
       dirty = true;
     }
   };
@@ -849,6 +853,20 @@ void IGraphics::DrawControl(IControl* pControl, const IRECT& bounds, float scale
 
     if (clipBounds.W() <= 0.0 || clipBounds.H() <= 0)
       return;
+    
+    IControl* pParent = pControl->GetParent();
+    
+    while (pParent)
+    {
+      IRECT parentBounds = pParent->GetRECT().GetPadded(0.75).GetPixelAligned(scale);
+
+      if(!clipBounds.Intersects(parentBounds))
+        return;
+
+      clipBounds.Clank(parentBounds);
+      
+      pParent = pParent->GetParent();
+    }
     
     PrepareRegion(clipBounds);
     pControl->Draw(*this);
@@ -1250,7 +1268,7 @@ int IGraphics::GetMouseControlIdx(float x, float y, bool mouseOver)
         }
 #ifndef NDEBUG
       }
-      else if (pControl->GetRECT().Contains(x, y))
+      else if (pControl->GetRECT().Contains(x, y) && pControl->GetParent() == nullptr)
       {
         return c;
       }
@@ -1282,6 +1300,7 @@ IControl* IGraphics::GetMouseControl(float x, float y, bool capture, bool mouseO
   
   if (!pControl && mTextEntryControl && mTextEntryControl->EditInProgress())
     pControl = mTextEntryControl.get();
+  
   
 #if !defined(NDEBUG)
   if (!pControl && mLiveEdit)
