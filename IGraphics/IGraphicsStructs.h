@@ -1412,8 +1412,8 @@ struct IRECT
       return IRECT(L, T, R, T + h);
   }
   
-  /** \todo 
-   * @param rhs \todo */
+  /** Clank will limit this IRECT's bounds based on the boundaries of the IRECT passed in as an argument
+   * @param rhs The rectangle to limit with  */
   void Clank(const IRECT& rhs)
   {
     if (L < rhs.L)
