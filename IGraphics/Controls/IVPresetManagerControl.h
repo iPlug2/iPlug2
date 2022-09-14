@@ -25,13 +25,23 @@ BEGIN_IGRAPHICS_NAMESPACE
 /** A "meta control" for a "preset manager" for "baked in" factory presets
  * It adds several child buttons
  * @ingroup IControls */
-class IVBakedPresetManagerControl : public IControl
+class IVBakedPresetManagerControl : public IContainerBase
+                                  , public IVectorBase
 {
 public:
-  IVBakedPresetManagerControl(const IRECT& bounds, const IVStyle& style = DEFAULT_STYLE)
-  : IControl(bounds)
-  , mStyle(style)
+  enum class ESubControl
   {
+    LeftButton = 0,
+    RightButton,
+    PresetMenu,
+    LoadButton
+  };
+  
+  IVBakedPresetManagerControl(const IRECT& bounds, const IVStyle& style = DEFAULT_STYLE)
+  : IContainerBase(bounds)
+  , IVectorBase(style)
+  {
+    AttachIControl(this, "");
     mIgnoreMouse = true;
   }
   
@@ -62,8 +72,6 @@ public:
 
   void OnAttached() override
   {
-    IRECT sections = mRECT.GetPadded(-5.f);
-    
     auto prevPresetFunc = [&](IControl* pCaller) {
       IPluginBase* pluginBase = dynamic_cast<IPluginBase*>(pCaller->GetDelegate());
 
@@ -111,16 +119,39 @@ public:
       pCaller->GetUI()->CreatePopupMenu(*this, mMenu, pCaller->GetRECT());
     };
 
-    GetUI()->AttachControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, "<", mStyle))->SetAnimationEndActionFunction(prevPresetFunc);
-    GetUI()->AttachControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, ">", mStyle))->SetAnimationEndActionFunction(nextPresetFunc);
-//    GetUI()->AttachControl(new IVButtonControl(sections.ReduceFromRight(100), SplashClickActionFunc, "Load", mStyle))->SetAnimationEndActionFunction(loadPresetFunc);
-    GetUI()->AttachControl(mPresetNameButton = new IVButtonControl(sections, SplashClickActionFunc, "Choose Preset...", mStyle))->SetAnimationEndActionFunction(choosePresetFunc);
+    AddChildControl(new IVButtonControl(GetSubControlBounds(ESubControl::LeftButton), SplashClickActionFunc, "<", mStyle))
+    ->SetAnimationEndActionFunction(prevPresetFunc);
+    AddChildControl(new IVButtonControl(GetSubControlBounds(ESubControl::RightButton), SplashClickActionFunc, ">", mStyle))
+    ->SetAnimationEndActionFunction(nextPresetFunc);
+//   AddChildControl(new IVButtonControl(IRECT(), SplashClickActionFunc, "Load", mStyle))->SetAnimationEndActionFunction(loadPresetFunc);
+    AddChildControl(mPresetNameButton = new IVButtonControl(GetSubControlBounds(ESubControl::PresetMenu), SplashClickActionFunc, "Choose Preset...", mStyle))->SetAnimationEndActionFunction(choosePresetFunc);
   }
-
+  
+  void OnResize() override
+  {
+    ForAllChildrenFunc([&](int childIdx, IControl* pChild){
+      pChild->SetTargetAndDrawRECTs(GetSubControlBounds((ESubControl) childIdx));
+    });
+  }
+  
 private:
+  IRECT GetSubControlBounds(ESubControl control)
+  {
+    auto sections = mRECT;
+    
+    std::array<IRECT, 4> rects = {
+      sections.ReduceFromLeft(50),
+      sections.ReduceFromLeft(50),
+//      sections.ReduceFromRight(50),
+      sections
+    };
+    
+    return rects[(int) control];
+  }
+  
+  
   IPopupMenu mMenu;
   IVButtonControl* mPresetNameButton = nullptr;
-  IVStyle mStyle;
 };
 
 /** A "meta control" for a "preset manager" for disk-based preset files
@@ -187,10 +218,10 @@ public:
 
     auto choosePresetFunc = [&](IControl* pCaller) { pCaller->GetUI()->CreatePopupMenu(*this, mMainMenu, pCaller->GetRECT()); };
 
-    GetUI()->AttachControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, "<", mStyle))->SetAnimationEndActionFunction(prevPresetFunc);
-    GetUI()->AttachControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, ">", mStyle))->SetAnimationEndActionFunction(nextPresetFunc);
-    GetUI()->AttachControl(new IVButtonControl(sections.ReduceFromRight(100), SplashClickActionFunc, "Load", mStyle))->SetAnimationEndActionFunction(loadPresetFunc);
-    GetUI()->AttachControl(mPresetNameButton = new IVButtonControl(sections, SplashClickActionFunc, "Choose Preset...", mStyle))->SetAnimationEndActionFunction(choosePresetFunc);
+    AddChildControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, "<", mStyle))->SetAnimationEndActionFunction(prevPresetFunc);
+    AddChildControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, ">", mStyle))->SetAnimationEndActionFunction(nextPresetFunc);
+    AddChildControl(new IVButtonControl(sections.ReduceFromRight(100), SplashClickActionFunc, "Load", mStyle))->SetAnimationEndActionFunction(loadPresetFunc);
+    AddChildControl(mPresetNameButton = new IVButtonControl(sections, SplashClickActionFunc, "Choose Preset...", mStyle))->SetAnimationEndActionFunction(choosePresetFunc);  
   }
 
   void LoadPresetAtCurrentIndex()
