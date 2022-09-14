@@ -45,11 +45,11 @@ IPlugOSCEditor::IPlugOSCEditor(const InstanceInfo& info)
     pGraphics->AttachControl(new IVLabelControl(topRow.SubRectHorizontal(3, 0).GetPadded(-10.f), "Send IP", DEFAULT_STYLE.WithValueText(DEFAULT_LABEL_TEXT).WithDrawShadows(false)));
     pGraphics->AttachControl(new IEditableTextControl(topRow.SubRectHorizontal(3, 0).GetPadded(-10.f).GetFromBottom(44.f), "127.0.0.1"), kCtrlTagSendIP)->SetActionFunction(setSendIPAndPort)->SetTextEntryLength(32);
     
-    pGraphics->AttachControl(new IVNumberBoxControl(topRow.SubRectHorizontal(3, 1).GetPadded(-10.f), kNoParameter, setSendIPAndPort, "Send Port", DEFAULT_STYLE, 8001, 4000, 10000), kCtrlTagSendPort);
+    pGraphics->AttachControl(new IVNumberBoxControl(topRow.SubRectHorizontal(3, 1).GetPadded(-10.f), kNoParameter, setSendIPAndPort, "Send Port", DEFAULT_STYLE, true, 8001, 4000, 10000, "%0.0f", false), kCtrlTagSendPort);
     
     pGraphics->AttachControl(new IVNumberBoxControl(topRow.SubRectHorizontal(3, 2).GetPadded(-10.f), kNoParameter, [&](IControl* pCaller){
       SetReceivePort(static_cast<int>(pCaller->As<IVNumberBoxControl>()->GetRealValue()));
-    }, "Receive Port", DEFAULT_STYLE, 8000, 4000, 10000));
+    }, "Receive Port", DEFAULT_STYLE, true, 8000, 4000, 10000, "%0.0f", false));
     
     pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100), [&](IControl* pCaller) {
                                                 OscMessageWrite msg;

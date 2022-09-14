@@ -21,20 +21,24 @@ BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
 /** A "meta control" for a number box with an Inc/Dec button
- * It adds several child buttons 
+ * It adds several child buttons if buttons = true
  * @ingroup IControls */
-class IVNumberBoxControl : public IControl
+class IVNumberBoxControl : public IContainerBase
                          , public IVectorBase
 {
 public:
-  IVNumberBoxControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr, const char* label = "", const IVStyle& style = DEFAULT_STYLE, double defaultValue = 50.f, double minValue = 1.f, double maxValue = 100.f, const char* fmtStr = "%0.0f")
-  : IControl(bounds, paramIdx, actionFunc)
+  IVNumberBoxControl(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool buttons = false, double defaultValue = 50.f, double minValue = 1.f, double maxValue = 100.f, const char* fmtStr = "%0.0f", bool drawTriangle = true)
+  : IContainerBase(bounds, paramIdx, actionFunc)
   , IVectorBase(style.WithDrawShadows(false)
-                .WithValueText(style.valueText.WithVAlign(EVAlign::Middle)))
+                .WithDrawFrame(true)
+                .WithValueText(style.valueText.WithVAlign(EVAlign::Middle))
+                .WithLabelText(style.labelText.WithVAlign(EVAlign::Middle)))
   , mFmtStr(fmtStr)
+  , mButtons(buttons)
   , mMinValue(minValue)
   , mMaxValue(maxValue)
   , mRealValue(defaultValue)
+  , mDrawTriangle(drawTriangle)
   {
     assert(defaultValue >= minValue && defaultValue <= maxValue);
     
@@ -43,7 +47,7 @@ public:
    
   void OnInit() override
   {
-    if(GetParam())
+    if (GetParam())
     {
       mMinValue = GetParam()->GetMin();
       mMaxValue = GetParam()->GetMax();
@@ -55,21 +59,37 @@ public:
   {
     DrawLabel(g);
     
-    if(mMouseIsOver)
+    if (mMouseIsOver)
       g.FillRect(GetColor(kHL), mTextReadout->GetRECT());
+    
+    if (mMouseIsDown)
+      g.FillRect(GetColor(kFG), mTextReadout->GetRECT());
+    
+    if (mDrawTriangle)
+    {
+      auto triangleRect = mTextReadout->GetRECT().GetPadded(-2.0f);
+      
+      g.FillTriangle(GetColor(mMouseIsOver ? kX1 : kSH), triangleRect.L, triangleRect.T, triangleRect.L + triangleRect.H(), triangleRect.MH(), triangleRect.L, triangleRect.B);
+    }
   }
   
   void OnResize() override
   {
     MakeRects(mRECT, false);
     
-    if(mIncButton && mDecButton)
+    IRECT sections = mWidgetBounds;
+    sections.Pad(-1.f);
+  
+    if (mTextReadout)
     {
-      IRECT sections = mWidgetBounds;
-      mTextReadout->SetTargetAndDrawRECTs(sections.ReduceFromLeft(sections.W() * 0.75f));
-      sections.Pad(-1.f, 1.f, 0.f, 1.f);
-      mIncButton->SetTargetAndDrawRECTs(sections.FracRectVertical(0.5f, true));
-      mDecButton->SetTargetAndDrawRECTs(sections.FracRectVertical(0.5f, false));
+      mTextReadout->SetTargetAndDrawRECTs(sections.ReduceFromLeft(sections.W() * (mButtons ? 0.75f : 1.f)));
+      
+      if (mButtons)
+      {
+        mIncButton->SetTargetAndDrawRECTs(sections.FracRectVertical(0.5f, true).GetPadded(-2.f, 0.f, 0.f, -1.f));
+        mDecButton->SetTargetAndDrawRECTs(sections.FracRectVertical(0.5f, false).GetPadded(-2.f, -1.f, 0.f, 0.f));
+      }
+      
       SetTargetRECT(mTextReadout->GetRECT());
     }
   }
@@ -77,13 +97,17 @@ public:
   void OnAttached() override
   {
     IRECT sections = mWidgetBounds;
-    GetUI()->AttachControl(mTextReadout = new IVLabelControl(sections.ReduceFromLeft(sections.W() * 0.75f), "0", mStyle.WithDrawFrame(true)));
+    sections.Pad(-1.f);
+
+    AddChildControl(mTextReadout = new IVLabelControl(sections.ReduceFromLeft(sections.W() * (mButtons ? 0.75f : 1.f)), "0", mStyle.WithDrawFrame(true)));
     
     mTextReadout->SetStrFmt(32, mFmtStr.Get(), mRealValue);
-    
-    sections.Pad(-1.f, 1.f, 0.f, 1.f);
-    GetUI()->AttachControl(mIncButton = new IVButtonControl(sections.FracRectVertical(0.5f, true), SplashClickActionFunc, "+", mStyle))->SetAnimationEndActionFunction(mIncrementFunc);
-    GetUI()->AttachControl(mDecButton = new IVButtonControl(sections.FracRectVertical(0.5f, false), SplashClickActionFunc, "-", mStyle))->SetAnimationEndActionFunction(mDecrementFunc);
+
+    if (mButtons)
+    {
+      AddChildControl(mIncButton = new IVButtonControl(sections.FracRectVertical(0.5f, true).GetPadded(-2.f, 0.f, 0.f, -1.f), SplashClickActionFunc, "+", mStyle))->SetAnimationEndActionFunction(mIncrementFunc);
+      AddChildControl(mDecButton = new IVButtonControl(sections.FracRectVertical(0.5f, false).GetPadded(-2.f, -1.f, 0.f, 0.f), SplashClickActionFunc, "-", mStyle))->SetAnimationEndActionFunction(mDecrementFunc);
+    }
   }
   
   void OnMouseDown(float x, float y, const IMouseMod &mod) override
@@ -91,8 +115,10 @@ public:
     if (mHideCursorOnDrag)
       GetUI()->HideMouseCursor(true, true);
 
-    if(GetParam())
+    if (GetParam())
       GetDelegate()->BeginInformHostOfParamChangeFromUI(GetParamIdx());
+    
+    mMouseIsDown = true;
   }
   
   void OnMouseUp(float x, float y, const IMouseMod &mod) override
@@ -100,8 +126,12 @@ public:
     if (mHideCursorOnDrag)
       GetUI()->HideMouseCursor(false);
     
-    if(GetParam())
+    if (GetParam())
       GetDelegate()->EndInformHostOfParamChangeFromUI(GetParamIdx());
+    
+    mMouseIsDown = false;
+    
+    SetDirty(true);
   }
   
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod &mod) override
@@ -113,7 +143,7 @@ public:
   
   void OnMouseDblClick(float x, float y, const IMouseMod &mod) override
   {
-    if(mTextReadout->GetRECT().Contains(x, y))
+    if (!IsDisabled() && mTextReadout->GetRECT().Contains(x, y))
       GetUI()->CreateTextEntry(*this, mText, mTextReadout->GetRECT(), mTextReadout->GetStr());
   }
   
@@ -133,7 +163,7 @@ public:
   
   void SetValueFromDelegate(double value, int valIdx = 0) override
   {
-    if(GetParam())
+    if (GetParam())
     {
       mRealValue = GetParam()->FromNormalized(value);
       OnValueChanged(true);
@@ -144,7 +174,7 @@ public:
   
   void SetValueFromUserInput(double value, int valIdx = 0) override
   {
-    if(GetParam())
+    if (GetParam())
     {
       mRealValue = GetParam()->FromNormalized(value);
       OnValueChanged(true);
@@ -157,8 +187,12 @@ public:
   {
     IVectorBase::SetStyle(style);
     mTextReadout->SetStyle(style);
-    mIncButton->SetStyle(style);
-    mDecButton->SetStyle(style);
+    
+    if (mButtons)
+    {
+      mIncButton->SetStyle(style);
+      mDecButton->SetStyle(style);
+    }
   }
   
   bool IsFineControl(const IMouseMod& mod, bool wheel) const
@@ -180,13 +214,15 @@ public:
     
     mTextReadout->SetStrFmt(32, mFmtStr.Get(), mRealValue);
     
-    if(!preventAction && GetParam())
+    if (!preventAction && GetParam())
       SetValue(GetParam()->ToNormalized(mRealValue));
     
     SetDirty(!preventAction);
   }
   
   double GetRealValue() const { return mRealValue; }
+  
+  void SetDrawTriangle(bool draw) { mDrawTriangle = draw; SetDirty(false); }
   
 protected:
   
@@ -202,6 +238,9 @@ protected:
   double mMaxValue;
   double mRealValue = 0.f;
   bool mHideCursorOnDrag = true;
+  bool mButtons = false;
+  bool mDrawTriangle = true;
+  bool mMouseIsDown = false;
 };
 
 END_IGRAPHICS_NAMESPACE
