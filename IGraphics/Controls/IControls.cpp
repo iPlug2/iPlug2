@@ -663,10 +663,12 @@ void IVKnobControl::OnInit()
   }
 }
 
-IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, double gearing, float handleSize, float trackSize, bool handleInsideTrack)
+IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, double gearing, float handleSize, float trackSize, bool handleInsideTrack, float handleXOffset, float handleYOffset)
 : ISliderControlBase(bounds, paramIdx, dir, gearing, handleSize)
 , IVectorBase(style)
 , mHandleInsideTrack(handleInsideTrack)
+, mHandleXOffset(handleXOffset)
+, mHandleYOffset(handleYOffset)
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
@@ -676,10 +678,12 @@ IVSliderControl::IVSliderControl(const IRECT& bounds, int paramIdx, const char* 
   AttachIControl(this, label);
 }
 
-IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, double gearing, float handleSize, float trackSize, bool handleInsideTrack)
+IVSliderControl::IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, EDirection dir, double gearing, float handleSize, float trackSize, bool handleInsideTrack, float handleXOffset, float handleYOffset)
 : ISliderControlBase(bounds, aF, dir, gearing, handleSize)
 , IVectorBase(style)
 , mHandleInsideTrack(handleInsideTrack)
+, mHandleXOffset(handleXOffset)
+, mHandleYOffset(handleYOffset)
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
@@ -735,7 +739,7 @@ void IVSliderControl::DrawWidget(IGraphics& g)
   
   if(mHandleSize > 0.f)
   {
-    DrawHandle(g, {cx-mHandleSize, cy-mHandleSize, cx+mHandleSize, cy+mHandleSize});
+    DrawHandle(g, {cx+mHandleXOffset-mHandleSize, cy+mHandleYOffset-mHandleSize, cx+mHandleXOffset+mHandleSize, cy+mHandleYOffset+mHandleSize});
   }
 }
 
