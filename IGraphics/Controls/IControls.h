@@ -320,11 +320,10 @@ protected:
 };
 
 /** A vector XY Pad slider control */
-class IVXYPadControl : public IControl
-                     , public IVectorBase
+class IVXYPadControl : public IControl, public IVectorBase
 {
 public:
-  IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float handleRadius = 10.f);
+  IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float handleRadius = 10.f, bool trackClipsHandle = true, bool drawCross = true);
 
   void Draw(IGraphics& g) override;
   void DrawWidget(IGraphics& g) override;
@@ -338,6 +337,7 @@ protected:
   float mHandleRadius;
   bool mMouseDown = false;
   bool mTrackClipsHandle = true;
+  bool mDrawCross = true;
 };
 
 /** A vector plot to display functions and waveforms */

@@ -958,10 +958,13 @@ void IVRangeSliderControl::OnMouseDrag(float x, float y, float dX, float dY, con
   SnapToMouse(x, y, mDirection, mWidgetBounds, mMouseOverHandle, minClip, maxClip);
 }
 
-IVXYPadControl::IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label, const IVStyle& style, float handleRadius)
+
+IVXYPadControl::IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label, const IVStyle& style, float handleRadius, bool trackClipsHandle, bool drawCross)
 : IControl(bounds, params)
 , IVectorBase(style)
 , mHandleRadius(handleRadius)
+, mTrackClipsHandle(trackClipsHandle)
+, mDrawCross(drawCross)
 {
   mShape = EVShape::Ellipse;
   AttachIControl(this, label);
@@ -993,7 +996,7 @@ void IVXYPadControl::DrawWidget(IGraphics& g)
 
 void IVXYPadControl::DrawHandle(IGraphics& g, const IRECT& trackBounds, const IRECT& handleBounds)
 {
-  if(mTrackClipsHandle)
+  if (mTrackClipsHandle)
     g.PathClipRegion(trackBounds.GetPadded(-0.5f * mStyle.frameThickness));
   
   DrawPressableShape(g, mShape, handleBounds, mMouseDown, mMouseIsOver, IsDisabled());
@@ -1001,14 +1004,17 @@ void IVXYPadControl::DrawHandle(IGraphics& g, const IRECT& trackBounds, const IR
 
 void IVXYPadControl::DrawTrack(IGraphics& g)
 {
-  g.DrawVerticalLine(GetColor(kSH), mWidgetBounds, 0.5);
-  g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5);
+  if (mDrawCross)
+  {
+    g.DrawVerticalLine(GetColor(kSH), mWidgetBounds, 0.5);
+    g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5);
+  }
 }
 
 void IVXYPadControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
   mMouseDown = true;
-  if(mStyle.hideCursor)
+  if (mStyle.hideCursor)
     GetUI()->HideMouseCursor(true, false);
 
   OnMouseDrag(x, y, 0., 0., mod);
@@ -1016,7 +1022,7 @@ void IVXYPadControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 
 void IVXYPadControl::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
-  if(mStyle.hideCursor)
+  if (mStyle.hideCursor)
     GetUI()->HideMouseCursor(false);
 
   mMouseDown = false;
