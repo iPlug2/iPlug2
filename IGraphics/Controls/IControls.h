@@ -268,9 +268,9 @@ class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
 {
 public:
-  IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 8.f, float trackSize = 2.f, bool handleInsideTrack = false);
+  IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 8.f, float trackSize = 2.f, bool handleInsideTrack = false, float handleXOffset = 0.f, float handleYOffset = 0.f);
   
-  IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 8.f, float trackSize = 2.f, bool handleInsideTrack = false);
+  IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 8.f, float trackSize = 2.f, bool handleInsideTrack = false, float handleXOffset = 0.f, float handleYOffset = 0.f);
 
   virtual ~IVSliderControl() {}
   void Draw(IGraphics& g) override;
@@ -291,6 +291,8 @@ public:
 protected:
   bool mHandleInsideTrack = false;
   bool mValueMouseOver = false;
+  float mHandleXOffset = 0.f;
+  float mHandleYOffset = 0.f;
 };
 
 /** A vector range slider control, with two handles */
@@ -318,11 +320,10 @@ protected:
 };
 
 /** A vector XY Pad slider control */
-class IVXYPadControl : public IControl
-                     , public IVectorBase
+class IVXYPadControl : public IControl, public IVectorBase
 {
 public:
-  IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float handleRadius = 10.f);
+  IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float handleRadius = 10.f, bool trackClipsHandle = true, bool drawCross = true);
 
   void Draw(IGraphics& g) override;
   void DrawWidget(IGraphics& g) override;
@@ -336,6 +337,7 @@ protected:
   float mHandleRadius;
   bool mMouseDown = false;
   bool mTrackClipsHandle = true;
+  bool mDrawCross = true;
 };
 
 /** A vector plot to display functions and waveforms */

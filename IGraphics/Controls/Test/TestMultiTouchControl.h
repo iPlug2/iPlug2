@@ -24,7 +24,7 @@ class TestMTControl : public IControl
                     , public IMultiTouchControlBase
 {
 public:
-  TestMTControl(IRECT bounds)
+  TestMTControl(const IRECT& bounds)
    : IControl(bounds)
   {
     SetWantsMultiTouch(true);

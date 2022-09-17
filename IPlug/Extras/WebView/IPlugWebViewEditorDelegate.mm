@@ -97,5 +97,5 @@ void WebViewEditorDelegate::Resize(int width, int height)
   HELPER_VIEW* pHelperView = (HELPER_VIEW*) mHelperView;
   [pHelperView setFrame:CGRectMake(0, 0, w, h)];
   SetWebViewBounds(0, 0, w, h);
-  EditorResizeFromUI(width, height, false);
+  EditorResizeFromUI(width, height, true);
 }

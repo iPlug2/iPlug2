@@ -787,7 +787,9 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 - (void) selectViewConfiguration:(AUAudioUnitViewConfiguration*) viewConfiguration API_AVAILABLE(macos(10.13), ios(11))
 {
   TRACE
-  mPlug->OnHostSelectedViewConfiguration((int) [viewConfiguration width], (int) [viewConfiguration height]);
+  dispatch_async(dispatch_get_main_queue(), ^{
+    self->mPlug->OnHostSelectedViewConfiguration((int) [viewConfiguration width], (int) [viewConfiguration height]);
+  });
 }
 
 #pragma mark - IPlugAUAudioUnit
