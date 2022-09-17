@@ -149,7 +149,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
   IPopupMenu* pSubMenu = pItem->GetSubmenu();
   
-  if(pSubMenu)
+  if (pSubMenu)
   {
     IGRAPHICS_UITABLEVC* newViewController = [[IGRAPHICS_UITABLEVC alloc] initWithIPopupMenuAndIGraphics: pSubMenu : mGraphics];
     [newViewController setTitle:[NSString stringWithUTF8String:CStringHasContents(pSubMenu->GetRootTitle()) ? pSubMenu->GetRootTitle() : pItem->GetText()]];
@@ -158,11 +158,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     return;
   }
 
-  if(pItem->GetIsChoosable())
+  if (pItem->GetIsChoosable())
   {
     mMenu->SetChosenItemIdx(cellIndex);
     
-    if(mMenu->GetFunction())
+    if (mMenu->GetFunction())
       mMenu->ExecFunction();
     
     mGraphics->SetControlValueAfterPopupMenu(mMenu);

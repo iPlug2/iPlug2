@@ -804,16 +804,16 @@ void IPopupMenuControl::CollapseEverything()
   
   pClickedMenu->SetChosenItemIdx(-1);
 
-  for(auto i = 0; i < mActiveMenuPanel->mCellBounds.GetSize(); i++)
+  for (auto i = 0; i < mActiveMenuPanel->mCellBounds.GetSize(); i++)
   {
     IRECT* pR = mActiveMenuPanel->mCellBounds.Get(i);
     
-    if(mMouseCellBounds == pR)
+    if (mMouseCellBounds == pR)
     {
       int itemChosen = mActiveMenuPanel->mScrollItemOffset + i;
       IPopupMenu::Item* pItem = pClickedMenu->GetItem(itemChosen);
 
-      if(pItem->GetIsChoosable())
+      if (pItem->GetIsChoosable())
       {
         pClickedMenu->SetChosenItemIdx(itemChosen);
         mActiveMenuPanel->mClickedCell = pR;
@@ -821,7 +821,7 @@ void IPopupMenuControl::CollapseEverything()
     }
   }
   
-  if(pClickedMenu->GetFunction())
+  if (pClickedMenu->GetFunction())
     pClickedMenu->ExecFunction();
   
   GetUI()->SetControlValueAfterPopupMenu(pClickedMenu);
