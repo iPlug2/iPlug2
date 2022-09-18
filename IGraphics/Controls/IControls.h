@@ -139,7 +139,7 @@ public:
    * @param style The styling of this vector control \see IVStyle
    * @param shape The buttons shape \see IVShape
    * @param direction The direction of the buttons */
-  IVTabSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const std::initializer_list<const char*>& options = {}, const char* label = "", const IVStyle & style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
+  IVTabSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const std::vector<const char*>& options = {}, const char* label = "", const IVStyle & style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
 
   /** Constructs a vector tab switch control, with an action function (no parameter)
    * @param bounds The control's bounds
@@ -149,7 +149,7 @@ public:
    * @param style The styling of this vector control \see IVStyle
    * @param shape The buttons shape \see IVShape
    * @param direction The direction of the buttons */
-  IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
+  IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::vector<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
   
   virtual ~IVTabSwitchControl() { mTabLabels.Empty(true); }
   void Draw(IGraphics& g) override;
