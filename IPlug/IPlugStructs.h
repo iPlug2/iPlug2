@@ -604,7 +604,7 @@ struct IPreset
 
   IPreset()
   {
-    sprintf(mName, "%s", UNUSED_PRESET_NAME);
+    snprintf(mName, MAX_PRESET_NAME_LEN, "%s", UNUSED_PRESET_NAME);
   }
 };
 

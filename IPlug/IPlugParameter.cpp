@@ -295,7 +295,7 @@ void IParam::GetDisplay(double value, bool normalized, WDL_String& str, bool wit
   else if ((mFlags & kFlagSignDisplay) && displayValue)
   {
     char fmt[16];
-    sprintf(fmt, "%%+.%df", mDisplayPrecision);
+    snprintf(fmt, 16, "%%+.%df", mDisplayPrecision);
     str.SetFormatted(MAX_PARAM_DISPLAY_LEN, fmt, displayValue);
   }
   else
