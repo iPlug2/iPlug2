@@ -161,6 +161,8 @@ UINT GetDlgItemTextUTF8(HWND hDlg, int nIDDlgItem, LPTSTR lpString, int nMaxCoun
 {
   HWND h = GetDlgItem(hDlg,nIDDlgItem);
   if (WDL_NORMALLY(h!=NULL)) return GetWindowTextUTF8(h,lpString,nMaxCount);
+  if (lpString && nMaxCount > 0)
+    *lpString = 0;
   return 0;
 }
 
