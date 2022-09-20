@@ -329,7 +329,11 @@ static bool clap_init(const char* pluginPath)
 static void clap_deinit(void)
 {
   gPluginPath.clear();
-  delete gPluginDesc;
+  if (gPluginDesc != nullptr)
+  {
+    delete gPluginDesc;
+    gPluginDesc = nullptr;
+  }
 }
 
 static uint32_t clap_get_plugin_count(const clap_plugin_factory_t *factory)
