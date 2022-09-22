@@ -47,6 +47,23 @@ public:
   void Draw(IGraphics& g) override;
 };
 
+/** A label that can display a string that exceeds the bounds of the control. Mouse over to scroll the full text.
+ *  You must enable IGraphics mouse-overs to use this control
+ */
+class IVMarqueeLabelControl : public IVLabelControl
+{
+public:
+  IVMarqueeLabelControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false));
+  
+  void OnMouseOver(float x, float y, const IMouseMod& mod) override;
+  void OnMouseOut() override;
+  void Draw(IGraphics& g) override;
+  
+private:
+  ILayerPtr mLayer;
+  float mScrollPosition = 0.f;
+};
+
 /** A vector button/momentary switch control. */
 class IVButtonControl : public IButtonControlBase
                       , public IVectorBase

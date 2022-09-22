@@ -51,6 +51,85 @@ void IVLabelControl::Draw(IGraphics& g)
     g.DrawRect(GetColor(kFR), mRECT, &mBlend, mStyle.frameThickness);
 }
 
+IVMarqueeLabelControl::IVMarqueeLabelControl(const IRECT& bounds, const char* label, const IVStyle& style)
+: IVLabelControl(bounds, label, style)
+{
+  mIgnoreMouse = false;
+}
+
+void IVMarqueeLabelControl::OnMouseOver(float x, float y, const IMouseMod& mod)
+{
+  SetAnimation([&](IControl* pCaller){
+    
+    if (pCaller->GetAnimationProgress() > 1.)
+    {
+      mScrollPosition = 0;
+      pCaller->OnEndAnimation();
+      return;
+    }
+    
+    mScrollPosition = pCaller->GetAnimationProgress();
+    
+  }, 10000);
+  
+  SetDirty();
+}
+
+void IVMarqueeLabelControl::OnMouseOut()
+{
+  SetAnimation(nullptr);
+  mScrollPosition = 0;
+  SetDirty();
+}
+
+void IVMarqueeLabelControl::Draw(IGraphics& g)
+{
+  DrawBackground(g, mRECT);
+
+  if (mStr.GetLength())
+  {
+    IRECT textBounds;
+    g.MeasureText(mStyle.valueText, mStr.Get(), textBounds);
+    auto difference = textBounds.W() - mRECT.W();
+    
+    WDL_String drawString = {mStr};
+    
+    if (difference > 0)
+      drawString.Ellipsize(5, 17);
+    
+    auto layerRect = IRECT::MakeXYWH(mRECT.L - difference, mRECT.T, textBounds.W(), mRECT.H());
+    
+    auto doDrawText = [&](const WDL_String& str, const IRECT& r) {
+      if (mStyle.drawShadows && !IsDisabled())
+        g.DrawText(mStyle.valueText.WithFGColor(GetColor(kSH)), str.Get(),
+                   r.GetTranslated(mStyle.shadowOffset, mStyle.shadowOffset), &mBlend);
+      
+      g.DrawText(mStyle.valueText, str.Get(), r, &mBlend);
+    };
+
+    if (GetAnimationFunction())
+    {
+      if (!g.CheckLayer(mLayer))
+      {
+        g.StartLayer(this, layerRect);
+        
+        doDrawText(mStr, layerRect);
+        
+        mLayer = g.EndLayer();
+      }
+      
+      g.DrawBitmap(mLayer->GetBitmap(), mRECT, layerRect.W() * mScrollPosition, 0);
+    }
+    else
+    {
+      doDrawText(drawString, mRECT);
+    }
+  }
+
+  if (mStyle.drawFrame)
+    g.DrawRect(GetColor(kFR), mRECT, &mBlend, mStyle.frameThickness);
+}
+
 IVButtonControl::IVButtonControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool labelInButton, bool valueInButton, EVShape shape)
 : IButtonControlBase(bounds, aF)
 , IVectorBase(style, labelInButton, valueInButton)
