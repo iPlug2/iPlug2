@@ -23,7 +23,7 @@
 #include <array>
 
 #if defined OS_IOS || defined OS_MAC
-#include <accelerate/accelerate.h>
+#include <Accelerate/Accelerate.h>
 #endif
 
 BEGIN_IPLUG_NAMESPACE
