@@ -1921,19 +1921,21 @@ protected:
  */
 
 /** A basic control to fill a rectangle with a color or gradient */
-class IPanelControl : public IControl
+class IPanelControl : public IContainerBase
 {
 public:
-  IPanelControl(const IRECT& bounds, const IColor& color, bool drawFrame = false)
-  : IControl(bounds, kNoParameter)
+  IPanelControl(const IRECT& bounds, const IColor& color, bool drawFrame = false,
+                AttachFunc attachFunc = nullptr, ResizeFunc resizeFunc = nullptr)
+  : IContainerBase(bounds, attachFunc, resizeFunc)
   , mPattern(color)
   , mDrawFrame(drawFrame)
   {
     mIgnoreMouse = true;
   }
   
-  IPanelControl(const IRECT& bounds, const IPattern& pattern, bool drawFrame = false)
-  : IControl(bounds, kNoParameter)
+  IPanelControl(const IRECT& bounds, const IPattern& pattern, bool drawFrame = false,
+                AttachFunc attachFunc = nullptr, ResizeFunc resizeFunc = nullptr)
+  : IContainerBase(bounds, attachFunc, resizeFunc)
   , mPattern(pattern)
   , mDrawFrame(drawFrame)
   {
