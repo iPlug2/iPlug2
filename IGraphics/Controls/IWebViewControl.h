@@ -49,6 +49,9 @@ public:
   , mOnReadyFunc(readyFunc)
   , mOnMessageFunc(msgFunc)
   {
+    // The IControl should not receive mouse messages
+    mIgnoreMouse = true;
+    
 #ifdef OS_WIN
     SetWebViewPaths(dllPath, tmpPath);
 #endif
