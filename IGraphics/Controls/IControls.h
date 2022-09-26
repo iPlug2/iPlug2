@@ -675,7 +675,7 @@ public:
    * @param x The x position of the top left point in the control's bounds (width will be determined by bitmap's dimensions)
    * @param y The y position of the top left point in the control's bounds (height will be determined by bitmap's dimensions)
    * @param bitmap The bitmap resource for the control */
-  IBMeterControl(float x, float y, const IBitmap& bitmap, EResponse response = EResponse::Linear, float lowRangeDB = -72.f, float highRangeDB = 12.f)
+  IBMeterControl(float x, float y, const IBitmap& bitmap, EResponse response = EResponse::Log, float lowRangeDB = -72.f, float highRangeDB = 12.f)
   : IBitmapControl(x, y, bitmap)
   , mResponse(response)
   , mLowRangeDB(lowRangeDB)
@@ -685,7 +685,7 @@ public:
   /** Constructs a bitmap meter control
    * @param bounds The control's bounds
    * @param bitmap The bitmap resource for the control */
-  IBMeterControl(const IRECT& bounds, const IBitmap& bitmap, EResponse response = EResponse::Linear, float lowRangeDB = -72.f, float highRangeDB = 12.f)
+  IBMeterControl(const IRECT& bounds, const IBitmap& bitmap, EResponse response = EResponse::Log, float lowRangeDB = -72.f, float highRangeDB = 12.f)
   : IBitmapControl(bounds, bitmap)
   , mResponse(response)
   , mLowRangeDB(lowRangeDB)
