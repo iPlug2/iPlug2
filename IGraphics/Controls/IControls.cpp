@@ -1573,3 +1573,38 @@ void IBTextControl::Draw(IGraphics& g)
 {
   g.DrawBitmapedText(mBitmap, mRECT, mText, &mBlend, mStr.Get(), mVCentre, mMultiLine, mCharWidth, mCharHeight, mCharOffset);
 }
+
+void IBMeterControl::OnMsgFromDelegate(int msgTag, int dataSize, const void* pData)
+{
+  if (!IsDisabled() && msgTag == ISender<>::kUpdateMessage)
+  {
+    IByteStream stream(pData, dataSize);
+
+    int pos = 0;
+    ISenderData<1, std::pair<float, float>> d;
+    pos = stream.Get(&d, pos);
+    
+    if (mResponse == EResponse::Log)
+    {
+      auto lowPointAbs = std::fabs(mLowRangeDB);
+      auto rangeDB = std::fabs(mHighRangeDB - mLowRangeDB);
+      for (auto c = d.chanOffset; c < (d.chanOffset + d.nChans); c++)
+      {
+        auto [peak, avg] = d.vals[c];
+        auto ampValue = AmpToDB(avg);
+        auto linearPos = (ampValue + lowPointAbs)/rangeDB;
+        SetValue(Clip(linearPos, 0., 1.), c);
+      }
+    }
+    else
+    {
+      for (auto c = d.chanOffset; c < (d.chanOffset + d.nChans); c++)
+      {
+        auto [peak, avg] = d.vals[c];
+        SetValue(Clip(avg, 0.f, 1.f), c);
+      }
+    }
+    
+    SetDirty(false);
+  }
+}
