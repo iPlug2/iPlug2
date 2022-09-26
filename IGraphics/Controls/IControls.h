@@ -718,7 +718,7 @@ END_IPLUG_NAMESPACE
 // Meta controls that use the above controls
 #include "IVPresetManagerControl.h"
 #include "IVNumberBoxControl.h"
-#include "IVAboutBoxControl.h"
+#include "IAboutBoxControl.h"
 
 /**@}*/
 
