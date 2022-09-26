@@ -725,8 +725,10 @@ protected:
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
+// Meta controls that use the above controls
 #include "IVPresetManagerControl.h"
 #include "IVNumberBoxControl.h"
+#include "IAboutBoxControl.h"
 
 /**@}*/
 
