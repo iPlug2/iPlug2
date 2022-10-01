@@ -13,8 +13,7 @@ iPlug 2 includes support for [the FAUST programming language](http://faust.grame
 
 iPlug 2 is licensed with a liberal zlib-like [license](https://github.com/iPlug2/iPlug2/blob/master/LICENSE.txt), which means that it is free to use in closed source projects and is free from corporate interference.
 
-You can discuss iPlug 2 on the [iPlug2 forum](https://iplug2.discourse.group
-) or on the [iPlug user's slack channel.](https://join.slack.com/t/iplug-users/shared_invite/zt-3wftafbp-EzSXPj~I~VoLm0aL06NV7A)
+iPlug2 discussions happen at the [iPlug2 forum](https://iplug2.discourse.group) and on the [iPlug2 discord server](https://discord.com/invite/yGgrZkje) - see you there!
 
 We welcome any help with bug fixes, features or documentation.
 
