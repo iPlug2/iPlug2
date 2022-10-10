@@ -13,10 +13,8 @@ iPlug 2 includes support for [the FAUST programming language](http://faust.grame
 
 iPlug 2 is licensed with a liberal zlib-like [license](https://github.com/iPlug2/iPlug2/blob/master/LICENSE.txt), which means that it is free to use in closed source projects and is free from corporate interference.
 
-iPlug2 discussions happen at the [iPlug2 forum](https://iplug2.discourse.group) and on the [iPlug2 discord server](https://discord.com/invite/yGgrZkje) - see you there!
+iPlug2 discussions happen at the [iPlug2 forum](https://iplug2.discourse.group) and on the [iPlug2 discord server](https://discord.gg/7h9HW8N9Ke) - see you there!
 
 We welcome any help with bug fixes, features or documentation.
 
-You can help support the project financially in several ways, preferably via [github sponsors](https://github.com/sponsors/olilarkin) but also [via patreon](https://www.patreon.com/olilarkin) or [paypal donations](https://paypal.me/olilarkin?locale.x=en_GB). With regular financial support, more time can be spent maintaining and improving the project. Even small contributions are very much appreciated.
-
-[![patreon](Documentation/img/become_a_patron_button.png)](https://www.patreon.com/olilarkin) [![paypal](Documentation/img/paypal_donate_button.gif)](https://paypal.me/olilarkin?locale.x=en_GB)[![slack](Documentation/img/join_slack_button.png)](https://join.slack.com/t/iplug-users/shared_invite/zt-3wftafbp-EzSXPj~I~VoLm0aL06NV7A)
+You can help support the project financially via [github sponsors](https://github.com/sponsors/iplug2). With regular financial support, more time can be spent maintaining and improving the project. Even small contributions are very much appreciated.
