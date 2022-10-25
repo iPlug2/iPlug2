@@ -1140,9 +1140,38 @@ void* IGraphicsWin::OpenWindow(void* pParent)
   SetPlatformContext(dc);
   ReleaseDC(mPlugWnd, dc);
 
+  bool validWindow = true;
 #ifdef IGRAPHICS_GL
   CreateGLContext();
+
+  // check openGl version
+  const char* ver = (char*)glGetString(GL_VERSION);
+  int maj = ver[0] - '0';
+  int min = ver[2] - '0';
+  int majReq = 2;
+  int minReq = 1;
+  std::string msgTitle = "OpenGL 2.1 needed";
+  std::string msgBody = "Unsupported OpenGL version, this software requires a video adapter supporting at least OpenGL 2.1.\n\nPlease check your video driver.";
+#ifdef IGRAPHICS_GL3
+  majReq = 3;
+  minReq = 3;
+  msgTitle = "OpenGL 3.3 needed";
+  msgBody = "Unsupported OpenGL version, this software requires a video adapter supporting at least OpenGL 3.3.\n\nPlease check your video driver.";
 #endif
+  
+  if(maj < majReq || maj > majReq || (maj == majReq && min < minReq)) {
+    validWindow = false;
+    ShowMessageBox(msgBody.c_str(),
+                   msgTitle.c_str(),
+                   EMsgBoxType::kMB_OK,
+                   [](EMsgBoxResult result){});
+  }
+#endif
+
+  if(validWindow == false) {
+    mPlugWnd = nullptr;
+    return mPlugWnd;
+  }
 
   OnViewInitialized((void*) dc);
 
