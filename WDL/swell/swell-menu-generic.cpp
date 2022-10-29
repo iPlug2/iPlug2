@@ -1186,7 +1186,10 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
         GetClientRect(hwnd,&r);
         HMENU__ *menu = (HMENU__*)GetWindowLongPtr(hwnd,GWLP_USERDATA);
         const int oldsel = menu->sel_vis;
-        if (GET_X_LPARAM(lParam)>=r.left && GET_X_LPARAM(lParam)<r.right)
+        if (GET_X_LPARAM(lParam)>=r.left &&
+            GET_X_LPARAM(lParam)<r.right &&
+            GET_Y_LPARAM(lParam)>top_margin
+            )
         {
           int mode = 3; // 4 was old-style super-fast menus
           SendMessage(hwnd,WM_USER+100,mode,GET_Y_LPARAM(lParam));
@@ -1203,7 +1206,10 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
 
         RECT r;
         GetClientRect(hwnd,&r);
-        if (GET_X_LPARAM(lParam)>=r.left && GET_X_LPARAM(lParam)<r.right)
+        if (GET_X_LPARAM(lParam)>=r.left &&
+            GET_X_LPARAM(lParam)<r.right &&
+            GET_Y_LPARAM(lParam)>top_margin
+            )
         {
           SendMessage(hwnd,WM_USER+100,2,GET_Y_LPARAM(lParam));
           return 0;

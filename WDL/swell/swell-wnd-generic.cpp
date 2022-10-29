@@ -133,10 +133,14 @@ HWND__::HWND__(HWND par, int wID, const RECT *wndr, const char *label, bool visi
      }
 }
 
+static HWND s_last_rbuttondown;
+
 HWND__::~HWND__()
 {
   if (m_wndproc)
     m_wndproc(this,WM_NCDESTROY,0,0);
+
+  if (this == s_last_rbuttondown) s_last_rbuttondown = NULL;
 }
 
 
@@ -4911,7 +4915,7 @@ forceMouseMove:
                   {
                     const int adj = (ar.right-ar.left)/16;
                     const int maxadj = SWELL_UI_SCALE(4);
-                    int fmt = cols[col].fmt & 3;
+                    int fmt = ncols > 0 ? cols[col].fmt & 3 : LVCFMT_LEFT;
                     if (fmt != LVCFMT_LEFT)
                     {
                       RECT mr={0,};
@@ -7416,7 +7420,8 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
           HWND h=WindowFromPoint(p);
           if (h && IsChild(hwnd,h)) hwndDest=h;
         }
-        SendMessage(hwnd,WM_CONTEXTMENU,(WPARAM)hwndDest,(p.x&0xffff)|(p.y<<16));
+        if (hwnd == s_last_rbuttondown)
+          SendMessage(hwnd,WM_CONTEXTMENU,(WPARAM)hwndDest,(p.x&0xffff)|(p.y<<16));
       }
     return 1;
     case WM_NCLBUTTONDOWN:
@@ -8532,5 +8537,62 @@ void VALIDATE_HWND_LIST(HWND listHead, HWND par)
 #endif
 
 
+LRESULT SWELL_SendMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+  if (!hwnd || !hwnd->m_wndproc) return -1;
+  if (!IsWindowEnabled(hwnd))
+  {
+    if (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN ||
+        msg == WM_LBUTTONDBLCLK || msg == WM_RBUTTONDBLCLK || msg == WM_MBUTTONDBLCLK)
+    {
+      HWND h = DialogBoxIsActive();
+      if (h) SetForegroundWindow(h);
+    }
+    return -1;
+  }
+
+  if (msg == WM_RBUTTONDOWN) s_last_rbuttondown = hwnd;
+
+  LRESULT htc=0;
+  if (msg != WM_MOUSEWHEEL && !GetCapture())
+  {
+    DWORD p=GetMessagePos();
+
+    htc=hwnd->m_wndproc(hwnd,WM_NCHITTEST,0,p);
+    if (hwnd->m_hashaddestroy||!hwnd->m_wndproc)
+    {
+      return -1; // if somehow WM_NCHITTEST destroyed us, bail
+    }
+
+    if (htc!=HTCLIENT || swell_window_wants_all_input() == hwnd)
+    {
+      if (msg==WM_MOUSEMOVE) return hwnd->m_wndproc(hwnd,WM_NCMOUSEMOVE,htc,p);
+//      if (msg==WM_MOUSEWHEEL) return hwnd->m_wndproc(hwnd,WM_NCMOUSEWHEEL,htc,p);
+//      if (msg==WM_MOUSEHWHEEL) return hwnd->m_wndproc(hwnd,WM_NCMOUSEHWHEEL,htc,p);
+      if (msg==WM_LBUTTONUP) return hwnd->m_wndproc(hwnd,WM_NCLBUTTONUP,htc,p);
+      if (msg==WM_LBUTTONDOWN) return hwnd->m_wndproc(hwnd,WM_NCLBUTTONDOWN,htc,p);
+      if (msg==WM_LBUTTONDBLCLK) return hwnd->m_wndproc(hwnd,WM_NCLBUTTONDBLCLK,htc,p);
+      if (msg==WM_RBUTTONUP) return hwnd->m_wndproc(hwnd,WM_NCRBUTTONUP,htc,p);
+      if (msg==WM_RBUTTONDOWN) return hwnd->m_wndproc(hwnd,WM_NCRBUTTONDOWN,htc,p);
+      if (msg==WM_RBUTTONDBLCLK) return hwnd->m_wndproc(hwnd,WM_NCRBUTTONDBLCLK,htc,p);
+      if (msg==WM_MBUTTONUP) return hwnd->m_wndproc(hwnd,WM_NCMBUTTONUP,htc,p);
+      if (msg==WM_MBUTTONDOWN) return hwnd->m_wndproc(hwnd,WM_NCMBUTTONDOWN,htc,p);
+      if (msg==WM_MBUTTONDBLCLK) return hwnd->m_wndproc(hwnd,WM_NCMBUTTONDBLCLK,htc,p);
+    }
+  }
+
+
+  LRESULT ret=hwnd->m_wndproc(hwnd,msg,wParam,lParam);
+
+  if (msg==WM_LBUTTONUP || msg==WM_RBUTTONUP || msg==WM_MOUSEMOVE || msg==WM_MBUTTONUP)
+  {
+    if (!GetCapture() && (hwnd->m_hashaddestroy || !hwnd->m_wndproc || !hwnd->m_wndproc(hwnd,WM_SETCURSOR,(WPARAM)hwnd,htc | (msg<<16))))
+    {
+      SetCursor(SWELL_LoadCursor(IDC_ARROW));
+    }
+  }
+
+  return ret;
+}
 
 #endif

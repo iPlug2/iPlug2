@@ -313,7 +313,7 @@ class _LICE_Template_Blit1 // these controlled by LICE_FAVOR_SIZE_EXTREME
 #endif
   public:
     static void solidBlit(LICE_pixel_chan *dest, int w, int h, 
-                         int ir, int ig, int ib, int ia,
+                         int ir, int ig, int ib, int pxa, int ia,
                          int dest_span
 #ifdef LICE_FAVOR_SIZE_EXTREME
                           , LICE_COMBINEFUNC combFunc
@@ -326,7 +326,7 @@ class _LICE_Template_Blit1 // these controlled by LICE_FAVOR_SIZE_EXTREME
         int n=w;
         while (n--)
         {
-          DOPIX(pout,ir,ig,ib,ia,ia);          
+          DOPIX(pout,ir,ig,ib,pxa,ia);
           pout += sizeof(LICE_pixel)/sizeof(LICE_pixel_chan);
         }
         dest+=dest_span;
@@ -2167,7 +2167,7 @@ void LICE_FillRect(LICE_IBitmap *dest, int x, int y, int w, int h, LICE_pixel co
   LICE_COMBINEFUNC blitfunc=NULL;      
   #define __LICE__ACTION(comb) blitfunc=comb::doPix;
 #else
-  #define __LICE__ACTION(comb) _LICE_Template_Blit1<comb>::solidBlit((LICE_pixel_chan*)p,w,h,LICE_GETR(color),LICE_GETG(color),LICE_GETB(color),ia,sp*sizeof(LICE_pixel))
+  #define __LICE__ACTION(comb) _LICE_Template_Blit1<comb>::solidBlit((LICE_pixel_chan*)p,w,h,LICE_GETR(color),LICE_GETG(color),LICE_GETB(color),LICE_GETA(color),ia,sp*sizeof(LICE_pixel))
 #endif
 
     // we use __LICE_ACTION_NOSRCALPHA even though __LICE_ACTION_CONSTANTALPHA
@@ -2176,7 +2176,7 @@ void LICE_FillRect(LICE_IBitmap *dest, int x, int y, int w, int h, LICE_pixel co
   #undef __LICE__ACTION
 
 #ifdef LICE_FAVOR_SIZE_EXTREME
-  if (blitfunc) _LICE_Template_Blit1::solidBlit((LICE_pixel_chan*)p,w,h,LICE_GETR(color),LICE_GETG(color),LICE_GETB(color),ia,sp*sizeof(LICE_pixel),blitfunc);
+  if (blitfunc) _LICE_Template_Blit1::solidBlit((LICE_pixel_chan*)p,w,h,LICE_GETR(color),LICE_GETG(color),LICE_GETB(color),LICE_GETA(color),ia,sp*sizeof(LICE_pixel),blitfunc);
 #endif
 }
 

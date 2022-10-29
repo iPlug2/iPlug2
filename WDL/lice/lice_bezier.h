@@ -156,7 +156,7 @@ void LICE_Bezier_FindCardinalCtlPts(double alpha, T x1, T x2, T x3, T y1, T y2, 
 // pDest must be passed in with size (int) (*(pX+n-1) - *pX).
 // pX must be monotonically increasing and no duplicates.
 template <class T>
-inline void LICE_QNurbs(T* pDest, int pDest_sz, int *pX, T* pY, int n)
+inline void LICE_QNurbs(T* pDest, int pDest_sz, int *pX, T* pY, int n, bool hit_each_point=false)
 {
   int x1 = *pX++, x2 = *pX++;
   T y1 = *pY++, y2 = *pY++;
@@ -194,10 +194,16 @@ inline void LICE_QNurbs(T* pDest, int pDest_sz, int *pX, T* pY, int n)
     }
     else 
     {    
+      double y1u = y1;
+      if (hit_each_point)
+      {
+        // y1 = LICE_Bezier_GetY(0,0.5,1.0, ym1,y1u,ym2,0.5), this is the inverse
+        y1u = 2.0 * y1 - 0.5 * (ym1 + ym2);
+      }
       for (; xi < iend; xi++)
       {
         if (--pDest_sz<0) return;
-        *pDest++ = (T) LICE_Bezier_GetY(xm1, (double)x1, xm2, ym1, (double)y1, ym2, (double)xi);
+        *pDest++ = (T) LICE_Bezier_GetY(xm1, (double)x1, xm2, ym1, (double)y1u, ym2, (double)xi);
       }
     }
   }

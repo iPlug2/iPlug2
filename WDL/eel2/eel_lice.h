@@ -2526,6 +2526,22 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         return 0;
       }
     break;
+    case WM_USER+1001:
+      if (wParam == 0xdddd && lParam)
+      {
+        eel_lice_state *ctx=(eel_lice_state*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+        if (ctx)
+        {
+          ctx->m_ddrop_files.Empty(true,free);
+          const char *r = (const char *)lParam;
+          while (*r)
+          {
+            ctx->m_ddrop_files.Add(strdup(r));
+            r += strlen(r)+1;
+          }
+        }
+      }
+    return 0;
     case WM_DROPFILES:
       {
         eel_lice_state *ctx=(eel_lice_state*)GetWindowLongPtr(hwnd, GWLP_USERDATA);

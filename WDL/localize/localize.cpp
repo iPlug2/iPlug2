@@ -212,7 +212,13 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
   {
     len += strlen(str + len) + 1;
   }
-  WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)str,len);
+
+  WDL_UINT64 hash;
+  if ((flags & LOCALIZE_FLAG_PAIR) && len == 18 && !memcmp(str,"__LOCALIZE_SCALE\0",18))
+    hash = WDL_UINT64_CONST(0x5CA1E00000000000);
+  else
+    hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)str,len);
+
   for (trycnt=0;trycnt<2 && !newptr;trycnt++)
   {
     WDL_AssocArray<WDL_UINT64, char *> *section = trycnt == 1 ? g_translations_commonsec : g_translations.Get(subctx);
@@ -345,13 +351,14 @@ struct windowReorgEnt
     WRET_MISC, // dont analyze for size changes, but move around
 
   };
-  windowReorgEnt(HWND _hwnd, RECT _r)
+  windowReorgEnt(HWND _hwnd, RECT _r, int wc)
   {
     hwnd=_hwnd;
     orig_r=r=_r;
     mode=WRET_MISC;
     move_amt=0;
     wantsizeincrease=0;
+    scaled_width_change = wc;
   }
   ~windowReorgEnt() { }
 
@@ -360,6 +367,7 @@ struct windowReorgEnt
   windowReorgEntType mode;
   int move_amt;
   int wantsizeincrease;
+  int scaled_width_change;
 
   static int Sort(const void *_a, const void *_b)
   {
@@ -414,7 +422,7 @@ public:
   bool has_sc;
 };
 
-static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s, char *buf, int bufsz)
+static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s, char *buf, int bufsz, bool prefix_handling)
 {
   buf[0]=0;
   GetWindowText(hwnd,buf,bufsz);
@@ -424,8 +432,41 @@ static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s,
     WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)buf,strlen(buf)+1);
     const char *newptr = s ? s->Get(hash,0) : NULL;
     if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
+
+#ifdef __APPLE__
+    bool filter_prefix = false;
+    if (!newptr && prefix_handling)
+    {
+      extern const char *SWELL_GetRecentPrefixRemoval(const char *p);
+      const char *p = SWELL_GetRecentPrefixRemoval(buf);
+      if (p)
+      {
+        hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)p,strlen(p)+1);
+        newptr = s ? s->Get(hash,0) : NULL;
+        if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
+        filter_prefix = true;
+      }
+    }
+#endif
+
     if (newptr && strcmp(newptr,buf))
     {
+#ifdef __APPLE__
+      if (filter_prefix)
+      {
+        const char *rd=newptr;
+        int widx=0;
+        while (widx < bufsz-1)
+        {
+          if (*rd == '&') rd++;
+          if (!*rd) break;
+          buf[widx++]=*rd++;
+        }
+        buf[widx]=0;
+        SetWindowText(hwnd,buf);
+        return newptr;
+      }
+#endif
       SetWindowText(hwnd,newptr);
       return newptr;
     }
@@ -443,19 +484,22 @@ static BOOL CALLBACK xlateGetRects(HWND hwnd, LPARAM lParam)
   GetWindowRect(hwnd,&r);
   ScreenToClient(s->par,(LPPOINT)&r);
   ScreenToClient(s->par,((LPPOINT)&r)+1);
+  int width_change = 0;
 
   if (s->has_sc) // scaling happens before all of the ripple-code
   {
     if (r.top > r.bottom) { const int t = r.top; r.top = r.bottom; r.bottom = t; }
 
+    width_change = r.right-r.left;
     r.left = (int) (r.left * s->scx + 0.5);
     r.top = (int) (r.top * s->scy + 0.5);
     r.right = (int) (r.right * s->scx + 0.5);
     r.bottom = (int) (r.bottom * s->scy + 0.5);
     SetWindowPos(hwnd,NULL, r.left,r.top, r.right-r.left, r.bottom-r.top, SWP_NOACTIVATE|SWP_NOZORDER);
+    width_change = (r.right-r.left) - width_change;
   }
 
-  windowReorgEnt t(hwnd,r);
+  windowReorgEnt t(hwnd,r,width_change);
 
 #ifdef _WIN32
   char buf[128];
@@ -575,7 +619,7 @@ static void localize_dialog(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *sec)
   windowReorgState s(hwnd,scx,scy);
 
   char buf[8192];
-  xlateWindow(hwnd,sec,buf,sizeof(buf)); // translate window title
+  xlateWindow(hwnd,sec,buf,sizeof(buf),false); // translate window title
   EnumChildWindows(hwnd,xlateGetRects,(LPARAM)&s);
 
 #ifdef _WIN32
@@ -592,13 +636,14 @@ static void localize_dialog(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *sec)
     windowReorgEnt *rec=s.cws.Get()+x;
     if (rec->hwnd)
     {
-      const char *newText=xlateWindow(rec->hwnd,sec,buf,sizeof(buf));
+      const char *newText=xlateWindow(rec->hwnd,sec,buf,sizeof(buf), rec->mode != windowReorgEnt::WRET_MISC);
       if (newText && rec->mode == windowReorgEnt::WRET_SIZEADJ)
       {
         RECT r1={0},r2={0};
 #ifdef _WIN32
         DrawText(hdc,buf,-1,&r1,DT_CALCRECT);
         DrawText(hdc,newText,-1,&r2,DT_CALCRECT);
+        r1.right += rec->scaled_width_change;
 #else
         GetClientRect(rec->hwnd,&r1);
         SWELL_GetDesiredControlSize(rec->hwnd,&r2);

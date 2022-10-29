@@ -70,6 +70,8 @@ static void InvalidateSuperViews(NSView *view);
   }
 
 
+static WDL_PtrList<char> s_prefix_removals;
+
 int g_swell_osx_readonlytext_wndbg = 0;
 int g_swell_osx_style = 0; // &1 = rounded buttons, &2=big sur styled lists
 static void *SWELL_CStringToCFString_FilterPrefix(const char *str)
@@ -87,6 +89,22 @@ static void *SWELL_CStringToCFString_FilterPrefix(const char *str)
     *op++=*p++;
   }
   *op=0;
+
+  // add to recent prefix removal cache for localization
+  if (WDL_NOT_NORMALLY(s_prefix_removals.GetSize() > 256))
+    s_prefix_removals.Delete(0,true,free);
+
+  {
+    const size_t sz1 = strlen(buf), sz2 = strlen(str);
+    char *p = (char *)malloc(sz1+sz2+2);
+    if (WDL_NORMALLY(p!=NULL))
+    {
+      memcpy(p,buf,sz1+1);
+      memcpy(p+sz1+1,str,sz2+1);
+      s_prefix_removals.Add(p);
+    }
+  }
+
   return SWELL_CStringToCFString(buf);
 
 }
@@ -3209,6 +3227,7 @@ static int m_make_radiogroupcnt;
 
 void SWELL_MakeSetCurParms(float xscale, float yscale, float xtrans, float ytrans, HWND parent, bool doauto, bool dosizetofit)
 {
+  if (parent) s_prefix_removals.Empty(true,free);
   m_make_radiogroupcnt=0;
   m_sizetofits=dosizetofit;
   m_lastdoauto.origin.x = 0;
@@ -7217,6 +7236,16 @@ int SWELL_IsRetinaHWND(HWND hwnd)
     if (str.size.width > 1.9) return 1;
   }
   return 0;
+}
+
+const char *SWELL_GetRecentPrefixRemoval(const char *p)
+{
+  for (int x = 0; x < s_prefix_removals.GetSize(); x ++)
+  {
+    const char *s = s_prefix_removals.Get(x);
+    if (!strcmp(s,p)) return s+strlen(s)+1;
+  }
+  return NULL;
 }
 
 #endif

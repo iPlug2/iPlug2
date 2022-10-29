@@ -920,16 +920,15 @@ void WDL_CursesEditor::draw(int lineidx)
   const int pane_divy=GetPaneDims(paney, paneh);
 
 #ifdef WDL_IS_FAKE_CURSES
-  if (m_cursesCtx)
-  {
-    CURSES_INSTANCE->offs_y[0]=m_paneoffs_y[0];
-    CURSES_INSTANCE->offs_y[1]=m_paneoffs_y[1];
-    CURSES_INSTANCE->div_y=pane_divy;
-    CURSES_INSTANCE->tot_y=m_text.GetSize();
+  if (!m_cursesCtx) return;
 
-    CURSES_INSTANCE->scrollbar_topmargin = m_top_margin;
-    CURSES_INSTANCE->scrollbar_botmargin = m_bottom_margin;
-  }
+  CURSES_INSTANCE->offs_y[0]=m_paneoffs_y[0];
+  CURSES_INSTANCE->offs_y[1]=m_paneoffs_y[1];
+  CURSES_INSTANCE->div_y=pane_divy;
+  CURSES_INSTANCE->tot_y=m_text.GetSize();
+
+  CURSES_INSTANCE->scrollbar_topmargin = m_top_margin;
+  CURSES_INSTANCE->scrollbar_botmargin = m_bottom_margin;
 #endif
 
   attrset(A_NORMAL);
