@@ -607,38 +607,46 @@ void WDL_CursesEditor::loadLines(FILE *fh)
   int rdcnt=0;
   for (;;)
   {
-    char line[4096];
-    line[0]=0;
-    fgets(line,sizeof(line),fh);
-    if (!line[0]) break;
+    WDL_FastString *fs = NULL;
 
-    int l=strlen(line);
+    for (;;)
+    {
+      char line[4096];
+      line[0]=0;
+      fgets(line,sizeof(line),fh);
+      if (!line[0]) break;
+
+      if (!fs) fs = new WDL_FastString(line);
+      else fs->Append(line);
+
+      if (fs->Get()[fs->GetLength()-1] == '\n' || fs->GetLength() > 32*1024*1024) break;
+    }
+    if (!fs) break;
 
     if (!rdcnt++)
     {
-      if ((unsigned char)line[0] == 0xef && 
-          (unsigned char)line[1] == 0xbb && 
-          (unsigned char)line[2] == 0xbf)
+      if ((unsigned char)fs->Get()[0] == 0xef && 
+          (unsigned char)fs->Get()[1] == 0xbb && 
+          (unsigned char)fs->Get()[2] == 0xbf)
       {
         // remove BOM (could track it, but currently EEL/etc don't support reading it anyway)
-        l -= 3;
-        memmove(line,line+3,l+1);
-        if (!line[0]) break;
+        fs->DeleteSub(0,3);
+        if (!fs->GetLength()) break;
       }
     }
 
-    while(l>0 && (line[l-1]=='\r' || line[l-1]=='\n'))
+    while (fs->GetLength()>0)
     {
-      if (line[l-1] == '\r') crcnt++;
-
-      line[l-1]=0;
-      l--;
+      char c = fs->Get()[fs->GetLength()-1];
+      if (c == '\r') crcnt++;
+      else if (c != '\n') break;
+      fs->DeleteSub(fs->GetLength()-1,1);
     }
-    m_text.Add(new WDL_FastString(line));
+    m_text.Add(fs);
 
     if (tabstate>=0)
     {
-      const char *p = line;
+      const char *p = fs->Get();
       if (*p == '\t' && !tabstate) tabstate=1; 
       while (*p == '\t') p++;
 
