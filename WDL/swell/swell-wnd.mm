@@ -312,6 +312,25 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("msctls_progress32")
 
 @end
 
+static HTREEITEM FindTreeItemByDataHold(const WDL_PtrList<HTREEITEM__> *list, SWELL_DataHold *srch)
+{
+  for (int x = 0; x < list->GetSize(); x ++)
+  {
+    HTREEITEM item = list->Get(x);
+    if (item && item->m_dh == srch) return item;
+  }
+  for (int x = 0; x < list->GetSize(); x ++)
+  {
+    HTREEITEM item = list->Get(x);
+    if (item && item->m_children.GetSize())
+    {
+      item = FindTreeItemByDataHold(&item->m_children,srch);
+      if (item) return item;
+    }
+  }
+  return NULL;
+}
+
 @implementation SWELL_TreeView
 STANDARD_CONTROL_NEEDSDISPLAY_IMPL("SysTreeView32")
 
@@ -452,11 +471,23 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("SysTreeView32")
   HWND hwnd = (HWND)self, par = GetParent(hwnd);
   if (par)
   {
-    TVHITTESTINFO tht;
-    memset(&tht,0,sizeof(tht));
-    GetCursorPos(&tht.pt);
-    ScreenToClient(hwnd, &tht.pt);
-    HTREEITEM sel = TreeView_GetSelection(hwnd), hit = TreeView_HitTest(hwnd, &tht);
+    HTREEITEM hit = NULL;
+    if (m_items && [draggedItems count] > 0)
+    {
+      id obj = [draggedItems objectAtIndex:0];
+      if ([obj isKindOfClass:[SWELL_DataHold class]])
+        hit = FindTreeItemByDataHold(m_items, (SWELL_DataHold *)obj);
+    }
+    if (!hit)
+    {
+      TVHITTESTINFO tht;
+      memset(&tht,0,sizeof(tht));
+      GetCursorPos(&tht.pt);
+      ScreenToClient(hwnd, &tht.pt);
+      hit = TreeView_HitTest(hwnd, &tht);
+    }
+
+    HTREEITEM sel = TreeView_GetSelection(hwnd);
     if (hit && hit != sel) 
     {
       TreeView_SelectItem(hwnd,hit);
