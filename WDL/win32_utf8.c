@@ -1551,27 +1551,38 @@ void WDL_UTF8_ListViewConvertDispInfoToW(void *_di)
   NMLVDISPINFO *di = (NMLVDISPINFO *)_di;
   if (di && (di->item.mask & LVIF_TEXT) && di->item.pszText && di->item.cchTextMax>0)
   {
-    char tmp_buf[1024], *tmp=tmp_buf;
-    char *src = di->item.pszText;
+    // note: this will leak if called from threads which are later destroyed.
+    // who writes multithreaded UIs anyway?
+    static __declspec(thread) WCHAR *buf;
+    static __declspec(thread) size_t buf_sz;
+    const char *src = (const char *)di->item.pszText;
+    const size_t src_sz = strlen(src);
 
-    if (strlen(src) < 1024) strcpy(tmp,src);
-    else tmp = strdup(src);
-
-    if (!MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,tmp,-1,(LPWSTR)di->item.pszText,di->item.cchTextMax))
+    if (!buf || buf_sz < src_sz)
     {
-      if (GetLastError()==ERROR_INSUFFICIENT_BUFFER)
+      free(buf);
+      buf = (WCHAR *)malloc((buf_sz = src_sz * 2 + 256) * sizeof(WCHAR));
+    }
+    if (WDL_NOT_NORMALLY(!buf))
+    {
+      di->item.pszText = (char*)L"";
+      return;
+    }
+
+    di->item.pszText = (char*)buf;
+
+    if (!MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,src,-1,buf,buf_sz))
+    {
+      if (WDL_NOT_NORMALLY(GetLastError()==ERROR_INSUFFICIENT_BUFFER))
       {
-        ((WCHAR *)di->item.pszText)[di->item.cchTextMax-1] = 0;
+        buf[buf_sz-1] = 0;
       }
       else
       {
-        if (!MultiByteToWideChar(CP_ACP,MB_ERR_INVALID_CHARS,tmp,-1,(LPWSTR)di->item.pszText,di->item.cchTextMax))
-          ((WCHAR *)di->item.pszText)[di->item.cchTextMax-1] = 0;
+        if (!MultiByteToWideChar(CP_ACP,MB_ERR_INVALID_CHARS,src,-1,buf,buf_sz))
+          buf[buf_sz-1] = 0;
       }
     }   
-
-    if (tmp!=tmp_buf) free(tmp);
-
   }
 }
 
