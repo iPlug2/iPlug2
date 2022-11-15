@@ -4593,7 +4593,7 @@ forceMouseMove:
               buf[0]=0;
               NMLVDISPINFO nm={{hwnd,hwnd->m_id,LVN_GETDISPINFO},{LVIF_TEXT, offs,col, 0,0, buf, sizeof(buf), -1 }};
               SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
-              v = buf;
+              v = nm.item.pszText;
             }
 
             if (v && !strnicmp(v,s,strlen(s))) 
@@ -4854,7 +4854,7 @@ forceMouseMove:
                   }
                   buf[0]=0;
                   SendMessage(par,WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
-                  str=buf;
+                  str=nm.item.pszText;
                   if (!col && has_image)
                   {
                     if (lvs->m_status_imagelist_type == LVSIL_STATE) image_idx=STATEIMAGEMASKTOINDEX(nm.item.state);
