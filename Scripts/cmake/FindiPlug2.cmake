@@ -275,7 +275,6 @@ set(_src
 
 # Platform Settings
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
-  list(APPEND _src ${IGRAPHICS_SRC}/Platforms/IGraphicsWin.cpp)
   target_link_libraries(iPlug2_Core INTERFACE "Shlwapi.lib" "comctl32.lib" "wininet.lib")
   
   # postbuild-win.bat is used by VST2/VST3/AAX on Windows, so we just always configure it on Windows
@@ -292,12 +291,6 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
   list(APPEND _opts "-Wno-multichar")
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-  list(APPEND _src 
-    ${IPLUG_SRC}/IPlugPaths.mm
-    ${IGRAPHICS_SRC}/Platforms/IGraphicsMac.mm
-    ${IGRAPHICS_SRC}/Platforms/IGraphicsMac_view.mm
-    ${IGRAPHICS_SRC}/Platforms/IGraphicsCoreText.mm
-  )
   list(APPEND _inc ${WDL_DIR}/swell)
   list(APPEND _lib
     "-framework CoreFoundation" "-framework CoreData" "-framework Foundation" "-framework CoreServices"
