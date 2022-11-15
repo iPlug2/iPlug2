@@ -16,7 +16,7 @@ const char *EnumMexKeys(int i, const char **desc=NULL)
 {
   // TO_DO_IF_METADATA_UPDATE
   static const char *s_mexkeys[]=
-    {"TITLE", "ARTIST", "ALBUM", "YEAR", "GENRE", "COMMENT", "DESC", "BPM", "KEY", "DB_CUSTOM", "TRACKNUMBER"};
+    {"TITLE", "ARTIST", "ALBUM", "TRACKNUMBER", "YEAR", "GENRE", "COMMENT", "DESC", "BPM", "KEY", "DB_CUSTOM"};
   static const char *s_mexdesc[]=
     {"Title", "Artist", "Album", "Track", "Date", "Genre", "Comment", "Description", "BPM", "Key", "Media Explorer Tags"};
 
