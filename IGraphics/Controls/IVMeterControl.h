@@ -156,10 +156,17 @@ public:
   void DrawPeak(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue) override
   {
     IBlend blend = IVTrackControlBase::GetBlend();
-    const float trackPos = mPeakValues[chIdx];
+    float trackPos = mPeakValues[chIdx];
+    EVColor colorIdx = kX1;
     
     if (trackPos < 0.0001)
       return;
+    
+    if (trackPos > 1.0)
+    {
+      trackPos = 1.0f;
+      colorIdx = kX2;
+    }
     
     const auto widgetBounds = IVTrackControlBase::mWidgetBounds;
     const auto dir = IVTrackControlBase::mDirection;
@@ -177,7 +184,7 @@ public:
       peakRect.T = r.T;
       peakRect.B = r.B;
     }
-    g.FillRect(IVTrackControlBase::GetColor(kX1), peakRect, &blend);
+    g.FillRect(IVTrackControlBase::GetColor(colorIdx), peakRect, &blend);
   }
 
   void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
