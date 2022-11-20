@@ -805,7 +805,7 @@ HINSTANCE LoadLibraryGlobals(const char *fn, bool symbolsAsGlobals)
 
 #ifdef SWELL_TARGET_OSX
   struct stat ss;
-  if (stat(fn,&ss) || (ss.st_mode&S_IFDIR))
+  if (stat(fn,&ss) || (ss.st_mode&S_IFMT) == S_IFDIR)
   {
     CFStringRef str=(CFStringRef)SWELL_CStringToCFString(fn); 
     CFURLRef r=CFURLCreateWithFileSystemPath(NULL,str,kCFURLPOSIXPathStyle,true);
@@ -834,7 +834,7 @@ HINSTANCE LoadLibraryGlobals(const char *fn, bool symbolsAsGlobals)
     {
 #ifndef SWELL_TARGET_OSX
       struct stat ss;
-      if (fn[0] == '/' && !stat(fn,&ss) && !(ss.st_mode&S_IFDIR))
+      if (fn[0] == '/' && !stat(fn,&ss) && (ss.st_mode&S_IFMT) != S_IFDIR)
       {
         const char *err = dlerror();
         printf("swell: dlopen() failed: %s\n",err ? err : fn);
