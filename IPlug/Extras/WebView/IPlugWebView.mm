@@ -132,7 +132,10 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
 
 void IWebView::CloseWebView()
 {
-  mWKWebView = nullptr;
+  WKWebView* webView = (__bridge WKWebView*) mWKWebView;
+  [webView removeFromSuperview];
+  
+  mWebConfig = nullptr;
   mWKWebView = nullptr;
   mScriptHandler = nullptr;
 }
