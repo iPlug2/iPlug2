@@ -26,6 +26,7 @@
   #include <wrl.h>
   #include <wil/com.h>
   #include "WebView2.h"
+  #include "WebView2EnvironmentOptions.h"
 #endif
 
 BEGIN_IPLUG_NAMESPACE
@@ -50,9 +51,12 @@ public:
   void LoadURL(const char* url);
   
   /** Load a file on disk into the web view
-   * @param fileName On windows this should be an absolute path to the file you want to load. On macOS/iOS it can just be the file name if the file is packaged into a subfolder "web" of the bundle resources
-   * @param bundleID The NSBundleID of the macOS/iOS bundle, not required on Windows */
-  void LoadFile(const char* fileName, const char* bundleID = "");
+   * @param fileName On windows this should be an absolute path to the file you want to load. 
+   * On macOS/iOS it can just be the file name if the file is packaged into a subfolder "web" of the bundle resources
+   * @param bundleID The NSBundleID of the macOS/iOS bundle, not required on Windows
+   * @param useCustomScheme If true, uses a custom url scheme
+   * This means that the webview content is served as if it was on a web server (required for some web frameworks */
+  void LoadFile(const char* fileName, const char* bundleID = "", bool useCustomScheme = false);
   
   /** Runs some JavaScript in the webview
    * @param scriptStr UTF8 encoded JavaScript code to run
@@ -86,7 +90,8 @@ private:
 #elif defined OS_WIN
   HWND mParentWnd = NULL;
   wil::com_ptr<ICoreWebView2Controller> mWebViewCtrlr;
-  wil::com_ptr<ICoreWebView2> mWebViewWnd;
+  wil::com_ptr<ICoreWebView2> mCoreWebView;
+  wil::com_ptr<ICoreWebView2Environment> mWebViewEnvironment;
   EventRegistrationToken mWebMessageReceivedToken;
   EventRegistrationToken mNavigationCompletedToken;
   EventRegistrationToken mContextMenuRequestedToken;

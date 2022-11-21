@@ -114,7 +114,7 @@ using namespace iplug;
 
 @end
 
-@interface IPLUG_WKSCRIPTHANDLER : NSObject <WKScriptMessageHandler, WKNavigationDelegate>
+@interface IPLUG_WKSCRIPTHANDLER : NSObject <WKScriptMessageHandler, WKNavigationDelegate, WKURLSchemeHandler>
 {
   IWebView* mWebView;
 }
@@ -146,6 +146,52 @@ using namespace iplug;
 - (void) webView:(IPLUG_WKWEBVIEW*) webView didFinishNavigation:(WKNavigation*) navigation
 {
   mWebView->OnWebContentLoaded();
+}
+
+- (NSURL*) changeURLScheme:(NSURL*) url toScheme:(NSString*) newScheme
+{
+  NSURLComponents* components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+  components.scheme = newScheme;
+  return components.URL;
+}
+
+- (void) webView:(nonnull WKWebView *)webView startURLSchemeTask:(nonnull id<WKURLSchemeTask>)urlSchemeTask  API_AVAILABLE(macos(10.13)){
+
+  if ([urlSchemeTask.request.URL.absoluteString containsString:@"iplug2:"])
+  {
+    NSURL* customFileURL = urlSchemeTask.request.URL;
+    NSURL* fileURL = [self changeURLScheme:customFileURL toScheme:@"file"];
+    NSHTTPURLResponse* response = NULL;
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:fileURL.path])
+    {
+      NSData* data = [[NSData alloc] initWithContentsOfURL:fileURL];
+      NSString* contentLengthStr = [[NSString alloc] initWithFormat:@"%lu", [data length]];
+      NSString* contentTypeStr = @"text/plain";
+      NSString* extStr = [[fileURL path] pathExtension];
+      if ([extStr isEqualToString:@"html"]) contentTypeStr = @"text/html";
+      else if ([extStr isEqualToString:@"css"]) contentTypeStr = @"text/css";
+      else if ([extStr isEqualToString:@"js"]) contentTypeStr = @"text/javascript";
+      else if ([extStr isEqualToString:@"jpg"]) contentTypeStr = @"image/jpeg";
+      else if ([extStr isEqualToString:@"jpeg"]) contentTypeStr = @"image/jpeg";
+      else if ([extStr isEqualToString:@"svg"]) contentTypeStr = @"image/svg+xml";
+
+      NSDictionary* headerFields = [NSDictionary dictionaryWithObjects:@[contentLengthStr, contentTypeStr] forKeys:@[@"Content-Length", @"Content-Type"]];
+      response = [[NSHTTPURLResponse alloc] initWithURL:customFileURL statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:headerFields];
+      [urlSchemeTask didReceiveResponse:response];
+      [urlSchemeTask didReceiveData:data];
+    }
+    else
+    {
+      response = [[NSHTTPURLResponse alloc] initWithURL:customFileURL statusCode:404 HTTPVersion:@"HTTP/1.1" headerFields:nil];
+      [urlSchemeTask didReceiveResponse:response];
+    }
+    [urlSchemeTask didFinish];
+  }
+}
+
+- (void) webView:(nonnull WKWebView *)webView stopURLSchemeTask:(nonnull id<WKURLSchemeTask>)urlSchemeTask  API_AVAILABLE(macos(10.13)){
+  
 }
 
 @end
@@ -180,6 +226,11 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
   [preferences setValue:@YES forKey:@"javaScriptCanAccessClipboard"];
   
   webConfig.preferences = preferences;
+  if (@available(macOS 10.13, *)) {
+    [webConfig setURLSchemeHandler:scriptHandler forURLScheme:@"iplug2"];
+  } else {
+    // Fallback on earlier versions
+  }
   
   // this script adds a function IPlugSendMsg that is used to call the platform webview messaging function in JS
   WKUserScript* script1 = [[WKUserScript alloc] initWithSource:
@@ -250,12 +301,12 @@ void IWebView::LoadURL(const char* url)
 {
   IPLUG_WKWEBVIEW* webView = (__bridge IPLUG_WKWEBVIEW*) mWKWebView;
   
-  NSURL* nsurl = [NSURL URLWithString:[NSString stringWithUTF8String:url] relativeToURL:nil];
-  NSURLRequest* req = [[NSURLRequest alloc] initWithURL:nsurl];
+  NSURL* nsURL = [NSURL URLWithString:[NSString stringWithUTF8String:url] relativeToURL:nil];
+  NSURLRequest* req = [[NSURLRequest alloc] initWithURL:nsURL];
   [webView loadRequest:req];
 }
 
-void IWebView::LoadFile(const char* fileName, const char* bundleID)
+void IWebView::LoadFile(const char* fileName, const char* bundleID, bool useCustomScheme)
 {
   IPLUG_WKWEBVIEW* webView = (__bridge IPLUG_WKWEBVIEW*) mWKWebView;
 
@@ -267,12 +318,21 @@ void IWebView::LoadFile(const char* fileName, const char* bundleID)
   
   NSString* pPath = [NSString stringWithUTF8String:fullPath.Get()];
 
-  NSString* str = @"file:";
+  NSString* str = useCustomScheme ? @"iplug2:" : @"file:";
   NSString* webroot = [str stringByAppendingString:[pPath stringByReplacingOccurrencesOfString:[NSString stringWithUTF8String:fileName] withString:@""]];
-  NSURL* pageUrl = [NSURL URLWithString:[webroot stringByAppendingString:[NSString stringWithUTF8String:fileName]] relativeToURL:nil];
-  NSURL* rootUrl = [NSURL URLWithString:webroot relativeToURL:nil];
 
-  [webView loadFileURL:pageUrl allowingReadAccessToURL:rootUrl];
+  NSURL* pageUrl = [NSURL URLWithString:[webroot stringByAppendingString:[NSString stringWithUTF8String:fileName]] relativeToURL:nil];
+
+  if (useCustomScheme)
+  {
+    NSURLRequest* req = [[NSURLRequest alloc] initWithURL:pageUrl];
+    [webView loadRequest:req];
+  }
+  else
+  {
+    NSURL* rootUrl = [NSURL URLWithString:webroot relativeToURL:nil];
+    [webView loadFileURL:pageUrl allowingReadAccessToURL:rootUrl];
+  }
 }
 
 void IWebView::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc func)
