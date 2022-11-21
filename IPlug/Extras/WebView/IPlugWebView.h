@@ -26,6 +26,7 @@
   #include <wrl.h>
   #include <wil/com.h>
   #include "WebView2.h"
+  #include "WebView2EnvironmentOptions.h"
 #endif
 
 BEGIN_IPLUG_NAMESPACE
@@ -51,8 +52,11 @@ public:
   
   /** Load a file on disk into the web view
    * @param fileName On windows this should be an absolute path to the file you want to load. On macOS/iOS it can just be the file name if the file is packaged into a subfolder "web" of the bundle resources
-   * @param bundleID The NSBundleID of the macOS/iOS bundle, not required on Windows */
-  void LoadFile(const char* fileName, const char* bundleID = "");
+   * @param bundleID The NSBundleID of the macOS/iOS bundle, not required on Windows
+   * @param useCustomScheme If true, uses a custom url scheme "iplug2:/index.html" etc rather than "file:/index.html".
+   * This means that the webview content is served as if it was on a web server (required for some web frameworks and
+   * e.g. p5.js" */
+  void LoadFile(const char* fileName, const char* bundleID = "", bool useCustomScheme = false);
   
   /** Runs some JavaScript in the webview
    * @param scriptStr UTF8 encoded JavaScript code to run
@@ -87,9 +91,11 @@ private:
   BOOL mContainsFullscreenElement = false;
   HWND mParentWnd = NULL;
   wil::com_ptr<ICoreWebView2Controller> mWebViewCtrlr;
-  wil::com_ptr<ICoreWebView2> mWebViewWnd;
+  wil::com_ptr<ICoreWebView2> mCoreWebView;
+  wil::com_ptr<ICoreWebView2Environment> mWebViewEnvironment;
   EventRegistrationToken mWebMessageReceivedToken;
   EventRegistrationToken mNavigationCompletedToken;
+  // EventRegistrationToken mWebResourceRequestedToken;
 #endif
 };
 
