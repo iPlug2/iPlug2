@@ -47,8 +47,9 @@ extern "C" {
 
 #if !defined(SWELL_TARGET_GDK_NO_CURSOR_HACK)
   #define SWELL_TARGET_GDK_CURSORHACK
-  #include <X11/extensions/XInput2.h>
 #endif
+
+#include <X11/extensions/XInput2.h>
 
 #include <X11/Xatom.h>
 
@@ -2084,13 +2085,14 @@ DWORD GetMessagePos()
 }
 
 struct bridgeState {
-  bridgeState(bool needrep, GdkWindow *_w, Window _nw, Display *_disp, GdkWindow *_curpar);
+  bridgeState(bool needrep, GdkWindow *_w, Window _nw, Display *_disp, GdkWindow *_curpar, HWND _hwnd_child);
   ~bridgeState();
 
   GdkWindow *w;
   Window native_w;
   Display *native_disp;
   GdkWindow *cur_parent;
+  HWND hwnd_child;
 
   bool lastvis;
   bool need_reparent;
@@ -2128,8 +2130,9 @@ bridgeState::~bridgeState()
     XDestroyWindow(native_disp,native_w);
   }
 }
-bridgeState::bridgeState(bool needrep, GdkWindow *_w, Window _nw, Display *_disp, GdkWindow *_curpar)
+bridgeState::bridgeState(bool needrep, GdkWindow *_w, Window _nw, Display *_disp, GdkWindow *_curpar, HWND _hwnd_child)
 {
+  hwnd_child = _hwnd_child;
   gl_ctx = NULL;
   w=_w;
   native_w=_nw;
@@ -2306,28 +2309,167 @@ static LRESULT xbridgeProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   return DefWindowProc(hwnd,uMsg,wParam,lParam);
 }
 
+static const char * const bridge_class_name = "__swell_xbridgewndclass";
+
+static bool want_key_embed_redirect(Display *disp, Window scan_id, Window *new_dest, int keycode, int modstate)
+{
+  for (int x=0;x<filter_windows.GetSize(); x++)
+  {
+    bridgeState *bs = filter_windows.Get(x);
+    if (bs && bs->cur_parent &&
+        GDK_WINDOW_XID(bs->cur_parent) == scan_id &&
+        bs->native_disp == disp)
+    {
+      HWND foc = GetFocus();
+      if (foc &&
+          foc->m_classname &&
+          !strcmp(foc->m_classname,bridge_class_name) &&
+          foc->m_private_data == (INT_PTR)bs
+          )
+      {
+        void *p = GetProp(foc,"SWELL_XBRIDGE_KBHOOK_CHECK");
+        if (p && SendMessage(GetParent(foc),(int)(INT_PTR)p,keycode,modstate))
+          return false;
+
+        Window root, par, *list=NULL;
+        unsigned int nlist=0;
+        if (XQueryTree(bs->native_disp,bs->native_w,&root,&par,&list, &nlist) && list)
+        {
+          if (nlist) *new_dest = list[0];
+          XFree(list);
+          if (nlist) return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpointer data)
 {
   const XEvent *xevent = (XEvent *)xev;
-  if (xevent && xevent->type == CreateNotify)
+  if (WDL_NOT_NORMALLY(!xev)) return GDK_FILTER_CONTINUE;
+
+  switch (xevent->type)
   {
-    for (int x=0;x<filter_windows.GetSize(); x++)
-    {
-      bridgeState *bs = filter_windows.Get(x);
-      if (bs && bs->native_w == xevent->xany.window && bs->native_disp == xevent->xany.display)
+    case KeyPress:
+    case KeyRelease:
       {
-        //gint w=0,hh=0;
-        //gdk_window_get_geometry(bs->w,NULL,NULL,&w,&hh);
-        XMapWindow(bs->native_disp, xevent->xcreatewindow.window);
-        //XResizeWindow(bs->native_disp, xevent->xcreatewindow.window,w,hh);
-        return GDK_FILTER_REMOVE;
+        // only used if gdk_disable_multidevice() was called prior to gdk_init_ (maybe some env var too?)
+        Window dest;
+        Display *disp = xevent->xany.display;
+        if (want_key_embed_redirect(disp,xevent->xkey.window - 1, &dest, xevent->xkey.keycode, xevent->xkey.state))
+        {
+          XEvent k;
+          memset(&k,0,sizeof(k));
+          k.xkey = xevent->xkey;
+          k.xkey.window = dest;
+          XSendEvent(disp, dest, False, NoEventMask, &k);
+          return GDK_FILTER_REMOVE;
+        }
       }
-    }
+    break;
+    case FocusIn:
+      {
+        // only used if gdk_disable_multidevice() was called prior to gdk_init_ (maybe some env var too?)
+        Display *disp = xevent->xany.display;
+        Window scan_id = xevent->xfocus.window - 1;
+        for (int x=0;x<filter_windows.GetSize(); x++)
+        {
+          bridgeState *bs = filter_windows.Get(x);
+          if (bs && bs->cur_parent &&
+              GDK_WINDOW_XID(bs->cur_parent) == scan_id &&
+              bs->native_disp == disp)
+          {
+            POINT pt;
+            GetCursorPos(&pt);
+            RECT r;
+            GetWindowRect(bs->hwnd_child,&r);
+            if (PtInRect(&r,pt))
+            {
+              SetFocus(bs->hwnd_child);
+              return GDK_FILTER_REMOVE;
+            }
+          }
+        }
+      }
+    break;
+    case GenericEvent:
+      // XInput2
+      {
+        XIDeviceEvent *xievent = (XIDeviceEvent*)xevent->xcookie.data;
+        if (xievent && (xievent->evtype == XI_KeyPress || xievent->evtype == XI_KeyRelease))
+        {
+          Window dest;
+          Display *disp = xevent->xany.display;
+          if (want_key_embed_redirect(disp,xievent->event-1, &dest, xievent->detail, xievent->mods.effective))
+          {
+            XEvent k;
+            if (xievent->evtype == XI_KeyPress) k.xkey.type = KeyPress;
+            else k.xkey.type = KeyRelease;
+            k.xkey.serial = xievent->serial;
+            k.xkey.send_event = xievent->send_event;
+            k.xkey.display = disp;
+            k.xkey.window = dest;
+            k.xkey.root = xievent->root;
+            k.xkey.subwindow = xievent->child;
+            k.xkey.time = xievent->time;
+            k.xkey.x = xievent->event_x;
+            k.xkey.y = xievent->event_y;
+            k.xkey.x_root = xievent->root_x;
+            k.xkey.y_root = xievent->root_y;
+            k.xkey.state = xievent->mods.effective;
+            k.xkey.keycode = xievent->detail;
+            k.xkey.same_screen = 1;
+            XSendEvent(disp, dest, False, NoEventMask, &k);
+            return GDK_FILTER_REMOVE;
+          }
+        }
+        else if (xievent && xievent->evtype == XI_FocusIn)
+        {
+          Display *disp = xevent->xany.display;
+          XIFocusInEvent *foc = (XIFocusInEvent *)xievent;
+          Window scan_id = foc->event - 1;
+          for (int x=0;x<filter_windows.GetSize(); x++)
+          {
+            bridgeState *bs = filter_windows.Get(x);
+            if (bs && bs->cur_parent &&
+                GDK_WINDOW_XID(bs->cur_parent) == scan_id &&
+                bs->native_disp == disp)
+            {
+              POINT pt = { (int) foc->root_x, (int) foc->root_y };
+              RECT r;
+              GetWindowRect(bs->hwnd_child,&r);
+              if (PtInRect(&r,pt))
+              {
+                SetFocus(bs->hwnd_child);
+                return GDK_FILTER_REMOVE;
+              }
+            }
+          }
+        }
+      }
+    break;
+    case CreateNotify:
+      {
+        for (int x=0;x<filter_windows.GetSize(); x++)
+        {
+          bridgeState *bs = filter_windows.Get(x);
+          if (bs && bs->native_w == xevent->xany.window && bs->native_disp == xevent->xany.display)
+          {
+            //gint w=0,hh=0;
+            //gdk_window_get_geometry(bs->w,NULL,NULL,&w,&hh);
+            XMapWindow(bs->native_disp, xevent->xcreatewindow.window);
+            //XResizeWindow(bs->native_disp, xevent->xcreatewindow.window,w,hh);
+            return GDK_FILTER_REMOVE;
+          }
+        }
+      }
+    break;
   }
   return GDK_FILTER_CONTINUE;
 }
 
-static const char * const bridge_class_name = "__swell_xbridgewndclass";
 HWND SWELL_CreateXBridgeWindow(HWND viewpar, void **wref, const RECT *r)
 {
   HWND hwnd = NULL;
@@ -2358,7 +2500,7 @@ HWND SWELL_CreateXBridgeWindow(HWND viewpar, void **wref, const RECT *r)
   GdkWindow *gdkw = w ? gdk_x11_window_foreign_new_for_display(gdk_display_get_default(),w) : NULL;
 
   hwnd = new HWND__(viewpar,0,r,NULL, true, xbridgeProc);
-  bridgeState *bs = gdkw ? new bridgeState(need_reparent,gdkw,w,disp, ospar) : NULL;
+  bridgeState *bs = gdkw ? new bridgeState(need_reparent,gdkw,w,disp, ospar, hwnd) : NULL;
   hwnd->m_classname = bridge_class_name;
   hwnd->m_private_data = (INT_PTR) bs;
   if (gdkw)
