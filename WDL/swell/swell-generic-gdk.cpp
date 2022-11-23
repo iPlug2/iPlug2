@@ -2358,7 +2358,8 @@ static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpo
         // only used if gdk_disable_multidevice() was called prior to gdk_init_ (maybe some env var too?)
         Window dest;
         Display *disp = xevent->xany.display;
-        if (want_key_embed_redirect(disp,xevent->xkey.window - 1, &dest, xevent->xkey.keycode, xevent->xkey.state))
+        if (!xevent->xany.send_event &&
+            want_key_embed_redirect(disp,xevent->xkey.window - 1, &dest, xevent->xkey.keycode, xevent->xkey.state))
         {
           XEvent k;
           memset(&k,0,sizeof(k));
@@ -2398,7 +2399,9 @@ static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpo
       // XInput2
       {
         XIDeviceEvent *xievent = (XIDeviceEvent*)xevent->xcookie.data;
-        if (xievent && (xievent->evtype == XI_KeyPress || xievent->evtype == XI_KeyRelease))
+        if (!xevent->xany.send_event &&
+            xievent &&
+            (xievent->evtype == XI_KeyPress || xievent->evtype == XI_KeyRelease))
         {
           Window dest;
           Display *disp = xevent->xany.display;
