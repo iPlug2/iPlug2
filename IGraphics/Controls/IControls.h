@@ -210,6 +210,27 @@ protected:
   bool mOnlyButtonsRespondToMouse = false;
 };
 
+/** A vector button that pops up a menu. */
+class IVMenuButtonControl : public IContainerBase
+                          , public IVectorBase
+{
+public:
+  /** Constructs a vector button control, with an action function
+   * @param bounds The control's bounds
+   * @param paramIdx The parameter index to link this control to
+   * @param label The label for the vector control, leave empty for no label
+   * @param style The styling of this vector control \see IVStyle
+   * @param shape The shape of the button */
+  IVMenuButtonControl(const IRECT& bounds, int paramIdx, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle);
+  
+  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override;
+  void SetValueFromDelegate(double value, int valIdx = 0) override;
+  void SetStyle(const IVStyle& style) override;
+
+private:
+  IVButtonControl* mButtonControl = nullptr;
+};
+
 /** A vector knob control drawn using graphics primitives */
 class IVKnobControl : public IKnobControlBase
                     , public IVectorBase

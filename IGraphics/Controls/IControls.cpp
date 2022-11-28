@@ -500,6 +500,54 @@ int IVRadioButtonControl::GetButtonForPoint(float x, float y) const
     return IVTabSwitchControl::GetButtonForPoint(x, y);
 }
 
+IVMenuButtonControl::IVMenuButtonControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, EVShape shape)
+: IContainerBase(bounds, paramIdx)
+, IVectorBase(style)
+{
+  AttachIControl(this, "");
+  
+  mDisablePrompt = false;
+  
+  SetAttachFunc([&, label, style, shape](IContainerBase* pContainer, const IRECT& bounds) {
+    AddChildControl(mButtonControl = new IVButtonControl(bounds, SplashClickActionFunc, label, style.WithValueText(style.valueText.WithVAlign(EVAlign::Middle)), false, true, shape), kNoTag, GetGroup());
+    
+    WDL_String str;
+    GetParam()->GetDisplay(str);
+    mButtonControl->SetValueStr(str.Get());
+    
+    mButtonControl->SetAnimationEndActionFunction([&](IControl* pCaller){
+      PromptUserInput(mButtonControl->GetWidgetBounds());
+    });
+  });
+  
+  SetResizeFunc([&](IContainerBase* pContainer, const IRECT& bounds) {
+    mButtonControl->SetTargetAndDrawRECTs(bounds);
+  });
+}
+
+void IVMenuButtonControl::SetStyle(const IVStyle& style)
+{
+  IVectorBase::SetStyle(style);
+  mButtonControl->SetStyle(style.WithValueText(style.valueText.WithVAlign(EVAlign::Middle)));
+}
+
+void IVMenuButtonControl::SetValueFromDelegate(double value, int valIdx)
+{
+  IContainerBase::SetValueFromDelegate(value, valIdx);
+  WDL_String str;
+  GetParam()->GetDisplay(str);
+  mButtonControl->SetValueStr(str.Get());
+}
+
+void IVMenuButtonControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx)
+{
+  if (pSelectedMenu)
+  {
+    mButtonControl->SetValueStr(pSelectedMenu->GetChosenItem()->GetText());
+  }
+  IControl::OnPopupMenuSelection(pSelectedMenu, valIdx);
+}
+
 IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, bool valueInWidget, float a1, float a2, float aAnchor,  EDirection direction, double gearing, float trackSize)
 : IKnobControlBase(bounds, paramIdx, direction, gearing)
 , IVectorBase(style, false, valueInWidget)
