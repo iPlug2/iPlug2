@@ -850,6 +850,10 @@ public:
       return mStyle.roundness * (bounds.H() / 2.f);
   }
   
+  IRECT GetWidgetBounds() const { return mWidgetBounds; }
+  IRECT GetLabelBounds() const { return mLabelBounds; }
+  IRECT GetValueBounds() const { return mValueBounds; }
+  
   /** Draw a splash effect when a widget handle is clicked (via SplashClickAnimationFunc)
    * @param g The graphics context
    * @param clipRegion Optional clip region for the splash */
