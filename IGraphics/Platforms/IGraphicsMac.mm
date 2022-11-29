@@ -466,6 +466,7 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     [(NSOpenPanel*) pPanel setCanChooseDirectories:NO];
     [(NSOpenPanel*) pPanel setResolvesAliases:YES];
   }
+  [pPanel setFloatingPanel: YES];
   
   if (completionHandler)
   {
