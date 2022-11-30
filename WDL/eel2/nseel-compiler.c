@@ -734,6 +734,8 @@ void NSEEL_addfunc_ret_type(const char *name, int np, int ret_type,  NSEEL_PPPRO
     stub = (ret_type == 1 ? (char*)_asm_generic##np##parm_retd : (char*)_asm_generic##np##parm); \
   }
 
+  WDL_ASSERT(np >= 1 && np <= 3); // use np=1 if you want "zero" parameters
+
   if (np == 1) DOSTUB(1)
   else if (np == 2) DOSTUB(2)
   else if (np == 3) DOSTUB(3)
