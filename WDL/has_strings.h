@@ -41,6 +41,26 @@ static int hasStrings_casecmp(const char *a, const char *b, unsigned int n)
   return 0;
 }
 
+static const char *hasStrings_scan_for_char_match(const char *p, char v)
+{
+  if (v < 'a' || v > 'z')
+    for (;;)
+    {
+      char c = *p;
+      if (!c) return NULL;
+      if (c == v) return p;
+      p++;
+    }
+
+  for (;;)
+  {
+    char c = *p;
+    if (!c) return NULL;
+    if ((c|0x20) == v) return p;
+    p++;
+  }
+}
+
 WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_list_size,
     const LineParser *lp,
     int (*cmp_func)(const char *a, int apos, const char *b, int blen)  // if set, returns length of matched string (0 if no match)
@@ -213,8 +233,11 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
             }
             else
             {
+              const char n0 = n[0];
               for (;;)
               {
+                t = hasStrings_scan_for_char_match(t,n0);
+                if (!t) break;
                 int v = hasStrings_casecmp(t,n,ln);
                 if (!v && MATCH_RIGHT_CHECK_WORD(ln)) { matched = true; break; }
                 if (v<0) break;
