@@ -33,7 +33,11 @@ WDL_HASSTRINGS_EXPORT bool hasStrings_isNonWordChar(int c)
 #define IS_UTF8_BYTE2_U(cc,ccf) ((cc) >= 0x99 && (cc) <= 0x9c)
 #define IS_UTF8_BYTE2_Y(cc,ccf) ((cc) == 0x9d || (ccf) == 0x9f)
 
-static int hasStrings_utf8cmp(const unsigned char * const a, const unsigned char *b, unsigned int n)
+// returns negative if does not match but more of a is available to search
+// returns 0 if done searching without match
+// returns >0 if matches (return bytelen of match)
+// note that this assumes that b was preprocessed by WDL_makeSearchFilter and that strlen(b) >= n
+WDL_HASSTRINGS_EXPORT int hasStrings_utf8cmp(const unsigned char * const a, const unsigned char *b, unsigned int n)
 {
   int aidx=0;
   while (n)
