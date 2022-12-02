@@ -281,22 +281,27 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
           }
           else
           {
+            const char n0 = n[0];
             if (wc_left>0)
             {
               for (;;)
               {
-                const int v = hasStrings_utf8cmp((const unsigned char *)t,(const unsigned char *)n,ln);
-                if (v>=0)
+                t = hasStrings_scan_for_char_match(t,n0);
+                if (!t) break;
+                if (t==name || t[-1] == 1 || (wc_left>1 && hasStrings_isNonWordChar(t[-1])))
                 {
-                  if (!v) break;
-                  if (MATCH_RIGHT_CHECK_WORD(v)) { matched = true; break; }
+                  const int v = hasStrings_utf8cmp((const unsigned char *)t,(const unsigned char *)n,ln);
+                  if (v>=0)
+                  {
+                    if (!v) break;
+                    if (MATCH_RIGHT_CHECK_WORD(v)) { matched = true; break; }
+                  }
                 }
-                MATCH_LEFT_SKIP_TO_WORD();
+                t++;
               }
             }
             else
             {
-              const char n0 = n[0];
               for (;;)
               {
                 t = hasStrings_scan_for_char_match(t,n0);
