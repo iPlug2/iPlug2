@@ -24,21 +24,56 @@ WDL_HASSTRINGS_EXPORT bool hasStrings_isNonWordChar(int c)
   }
 }
 
-static int hasStrings_casecmp(const char *a, const char *b, unsigned int n)
+#define IS_UTF8_BYTE2_A(cc,ccf) ((cc) >= 0x80 && (cc) <= 0x85)
+#define IS_UTF8_BYTE2_C(cc,ccf) ((cc) == 0x87)
+#define IS_UTF8_BYTE2_E(cc,ccf) ((cc) >= 0x88 && (cc) <= 0x8b)
+#define IS_UTF8_BYTE2_I(cc,ccf) ((cc) >= 0x8c && (cc) <= 0x8f)
+#define IS_UTF8_BYTE2_N(cc,ccf) ((cc) == 0x91)
+#define IS_UTF8_BYTE2_O(cc,ccf) ((cc) >= 0x92 && (cc) <= 0x96)
+#define IS_UTF8_BYTE2_U(cc,ccf) ((cc) >= 0x99 && (cc) <= 0x9c)
+#define IS_UTF8_BYTE2_Y(cc,ccf) ((cc) == 0x9d || (ccf) == 0x9f)
+
+static int hasStrings_utf8cmp(const unsigned char * const a, const unsigned char *b, unsigned int n)
 {
+  int aidx=0;
   while (n)
   {
-    char ca=*a, cb=*b;
-    // ca may be any character (including A-Z), cb will never be A-Z or NUL
+    int ca=a[aidx], cb=b[0];
+    // ca may be any character (including A-Z), utf8, cb will never be A-Z or NUL
     WDL_ASSERT(cb != 0 && !(cb >= 'A' && cb <= 'Z'));
     cb -= ca;
     // if ca is A, and cb is a, cb will be 'a'-'A'
-    if (cb && (cb != 'a'-'A' || ca < 'A' || ca > 'Z')) return ca ? 1 : -1;
-    ++a;
+    if (cb)
+    {
+      if (cb != 'a'-'A')
+      {
+        if (ca != 0xc3) return -ca;
+
+        const int ccf = a[++aidx];
+        if (ccf < 0x80) return -ca;
+
+        const int cc = ccf & ~0x20;
+        switch (*b)
+        {
+#define SCAN(ch, CH) case ch: if (!IS_UTF8_BYTE2_##CH(cc,ccf)) return -ca; break;
+          SCAN('a',A)
+          SCAN('c',C)
+          SCAN('e',E)
+          SCAN('i',I)
+          SCAN('n',N)
+          SCAN('o',O)
+          SCAN('u',U)
+          SCAN('y',Y)
+#undef SCAN
+        }
+      }
+      else if (ca < 'A' || ca > 'Z') return -ca;
+    }
+    ++aidx;
     ++b;
     --n;
   }
-  return 0;
+  return aidx;
 }
 
 static const char *hasStrings_scan_for_char_match(const char *p, char v)
@@ -51,6 +86,31 @@ static const char *hasStrings_scan_for_char_match(const char *p, char v)
       if (c == v) return p;
       p++;
     }
+
+  switch (v)
+  {
+#define SCAN(ch, CH) case (ch): for (;;) { \
+      unsigned char c = *(const unsigned char *)p; \
+      if (!c) return NULL; \
+      if ((c|0x20) == (ch)) return p; \
+      p++; \
+      if (c == 0xc3) { \
+        const unsigned char ccf = *(const unsigned char*)p; \
+        const unsigned char cc = ccf & ~0x20; \
+        if (IS_UTF8_BYTE2_##CH(cc,ccf)) return p; \
+        p++; \
+      } \
+    }
+    SCAN('a',A)
+    SCAN('c',C)
+    SCAN('e',E)
+    SCAN('i',I)
+    SCAN('n',N)
+    SCAN('o',O)
+    SCAN('u',U)
+    SCAN('y',Y)
+#undef SCAN
+  }
 
   for (;;)
   {
@@ -225,9 +285,12 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
             {
               for (;;)
               {
-                int v = hasStrings_casecmp(t,n,ln);
-                if (!v && MATCH_RIGHT_CHECK_WORD(ln)) { matched = true; break; }
-                if (v<0) break;
+                const int v = hasStrings_utf8cmp((const unsigned char *)t,(const unsigned char *)n,ln);
+                if (v>=0)
+                {
+                  if (!v) break;
+                  if (MATCH_RIGHT_CHECK_WORD(v)) { matched = true; break; }
+                }
                 MATCH_LEFT_SKIP_TO_WORD();
               }
             }
@@ -238,9 +301,12 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
               {
                 t = hasStrings_scan_for_char_match(t,n0);
                 if (!t) break;
-                int v = hasStrings_casecmp(t,n,ln);
-                if (!v && MATCH_RIGHT_CHECK_WORD(ln)) { matched = true; break; }
-                if (v<0) break;
+                const int v = hasStrings_utf8cmp((const unsigned char *)t,(const unsigned char *)n,ln);
+                if (v>=0)
+                {
+                  if (!v) break;
+                  if (MATCH_RIGHT_CHECK_WORD(v)) { matched = true; break; }
+                }
                 t++;
               }
             }
@@ -298,11 +364,30 @@ WDL_HASSTRINGS_EXPORT bool WDL_makeSearchFilter(const char *flt, LineParser *lp)
     char *p = (char *)lp->gettoken_str(x);
     if (lp->gettoken_quotingchar(x) || (strcmp(p,"NOT") && strcmp(p,"AND") && strcmp(p,"OR")))
     {
+      char *wr = p;
       while (*p)
       {
-        if (*p >= 'A' && *p <= 'Z') *p+='a'-'A';
-        p++;
+        unsigned char c = *(unsigned char*)p++;
+        if (c >= 'A' && c <= 'Z') c+='a'-'A';
+        else if (c == 0xC3)
+        {
+          const unsigned char ccf = *(unsigned char*)p;
+          const unsigned char cc = ccf & ~0x20;
+          if (IS_UTF8_BYTE2_A(cc,ccf)) c = 'a';
+          else if (IS_UTF8_BYTE2_C(cc,ccf)) c = 'c';
+          else if (IS_UTF8_BYTE2_E(cc,ccf)) c = 'e';
+          else if (IS_UTF8_BYTE2_I(cc,ccf)) c = 'i';
+          else if (IS_UTF8_BYTE2_N(cc,ccf)) c = 'n';
+          else if (IS_UTF8_BYTE2_O(cc,ccf)) c = 'o';
+          else if (IS_UTF8_BYTE2_U(cc,ccf)) c = 'u';
+          else if (IS_UTF8_BYTE2_Y(cc,ccf)) c = 'y';
+
+          if (c != 0xC3) p++;
+        }
+        if (wr != p-1) *wr = c;
+        wr++;
       }
+      *wr=0;
     }
   }
 
