@@ -503,7 +503,7 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHand
   [panelOpen setCanChooseDirectories:YES];
   [panelOpen setResolvesAliases:YES];
   [panelOpen setCanCreateDirectories:YES];
-
+  [panelOpen setFloatingPanel: YES];
   [panelOpen setDirectoryURL: [NSURL fileURLWithPath: defaultPath]];
   
   auto doHandleResponse = [](NSOpenPanel* pPanel, NSModalResponse response, WDL_String& chosenDir, IFileDialogCompletionHandlerFunc completionHandler){
