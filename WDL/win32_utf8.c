@@ -1433,6 +1433,11 @@ static LRESULT WINAPI tv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
   return CallWindowProc(oldproc,hwnd,msg,wParam,lParam);
 }
 
+struct lv_tmpbuf_state {
+  WCHAR *buf;
+  int buf_sz;
+};
+
 static LRESULT WINAPI lv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   WNDPROC oldproc = (WNDPROC)GetProp(hwnd,WDL_UTF8_OLDPROCPROP);
@@ -1440,6 +1445,14 @@ static LRESULT WINAPI lv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 
   if (msg==WM_NCDESTROY)
   {
+    struct lv_tmpbuf_state *buf = (struct lv_tmpbuf_state *)GetProp(hwnd,WDL_UTF8_OLDPROCPROP "B");
+    if (buf)
+    {
+      free(buf->buf);
+      free(buf);
+    }
+    RemoveProp(hwnd,WDL_UTF8_OLDPROCPROP "B");
+
     SetWindowLongPtr(hwnd, GWLP_WNDPROC,(INT_PTR)oldproc);
     RemoveProp(hwnd,WDL_UTF8_OLDPROCPROP);
   }
@@ -1526,6 +1539,8 @@ void WDL_UTF8_HookListView(HWND h)
     #endif
     GetProp(h,WDL_UTF8_OLDPROCPROP)) return;
   SetProp(h,WDL_UTF8_OLDPROCPROP,(HANDLE)SetWindowLongPtr(h,GWLP_WNDPROC,(INT_PTR)lv_newProc));
+
+  SetProp(h,WDL_UTF8_OLDPROCPROP "B", (HANDLE)calloc(sizeof(struct lv_tmpbuf_state),1));
 }
 
 void WDL_UTF8_HookTreeView(HWND h)
@@ -1555,36 +1570,35 @@ void WDL_UTF8_ListViewConvertDispInfoToW(void *_di)
   NMLVDISPINFO *di = (NMLVDISPINFO *)_di;
   if (di && (di->item.mask & LVIF_TEXT) && di->item.pszText && di->item.cchTextMax>0)
   {
-    // note: this will leak if called from threads which are later destroyed.
-    // who writes multithreaded UIs anyway?
-    static __declspec(thread) WCHAR *buf;
-    static __declspec(thread) size_t buf_sz;
+    static struct lv_tmpbuf_state s_buf;
     const char *src = (const char *)di->item.pszText;
     const size_t src_sz = strlen(src);
+    struct lv_tmpbuf_state *sb = (struct lv_tmpbuf_state *)GetProp(di->hdr.hwndFrom,WDL_UTF8_OLDPROCPROP "B");
+    if (WDL_NOT_NORMALLY(!sb)) sb = &s_buf; // if the caller forgot to call HookListView...
 
-    if (!buf || buf_sz < src_sz)
+    if (!sb->buf || sb->buf_sz < src_sz)
     {
-      free(buf);
-      buf = (WCHAR *)malloc((buf_sz = src_sz * 2 + 256) * sizeof(WCHAR));
+      free(sb->buf);
+      sb->buf = (WCHAR *)malloc((sb->buf_sz = src_sz * 2 + 256) * sizeof(WCHAR));
     }
-    if (WDL_NOT_NORMALLY(!buf))
+    if (WDL_NOT_NORMALLY(!sb->buf))
     {
       di->item.pszText = (char*)L"";
       return;
     }
 
-    di->item.pszText = (char*)buf;
+    di->item.pszText = (char*)sb->buf;
 
-    if (!MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,src,-1,buf,buf_sz))
+    if (!MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,src,-1,sb->buf,sb->buf_sz))
     {
       if (WDL_NOT_NORMALLY(GetLastError()==ERROR_INSUFFICIENT_BUFFER))
       {
-        buf[buf_sz-1] = 0;
+        sb->buf[sb->buf_sz-1] = 0;
       }
       else
       {
-        if (!MultiByteToWideChar(CP_ACP,MB_ERR_INVALID_CHARS,src,-1,buf,buf_sz))
-          buf[buf_sz-1] = 0;
+        if (!MultiByteToWideChar(CP_ACP,MB_ERR_INVALID_CHARS,src,-1,sb->buf,sb->buf_sz))
+          sb->buf[sb->buf_sz-1] = 0;
       }
     }   
   }
