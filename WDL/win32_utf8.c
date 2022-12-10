@@ -1466,7 +1466,11 @@ static LRESULT WINAPI lv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
   {
     LPLVITEMA pItem = (LPLVITEMA) lParam;
     char *str;
-    if (pItem && (str=pItem->pszText) && (msg==LVM_SETITEMTEXTA || (pItem->mask&LVIF_TEXT)) && WDL_HasUTF8(str))
+    if (pItem &&
+        pItem->pszText != LPSTR_TEXTCALLBACK &&
+        (str=pItem->pszText) &&
+        (msg==LVM_SETITEMTEXTA || (pItem->mask&LVIF_TEXT)) &&
+        WDL_HasUTF8(str))
     {
       MBTOWIDE(wbuf,str);
       if (wbuf_ok)
