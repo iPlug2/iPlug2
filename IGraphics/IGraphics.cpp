@@ -2349,7 +2349,7 @@ void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, float gridSiz
   PathStroke(color, thickness, IStrokeOptions(), pBlend);
 }
 
-void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints, const IBlend* pBlend, float thickness)
+void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints, const IBlend* pBlend, float thickness, const IColor* pFillColor)
 {
   PathClear();
   
@@ -2359,7 +2359,7 @@ void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYP
 
   for (auto i = 1; i < nPoints; i++)
   {
-    if(normXPoints)
+    if (normXPoints)
       xPos = bounds.L + (bounds.W() * normXPoints[i]);
     else
       xPos = bounds.L + ((bounds.W() / (float) (nPoints - 1) * i));
@@ -2367,6 +2367,11 @@ void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYP
     PathLineTo(xPos, bounds.B - (bounds.H() * normYPoints[i]));
   }
   
+  if (pFillColor)
+  {
+    PathFill(*pFillColor, IFillOptions(true), pBlend);
+  }
+    
   PathStroke(color, thickness, IStrokeOptions(), pBlend);
 }
 

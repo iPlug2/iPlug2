@@ -475,8 +475,9 @@ public:
    * @param nPoints The number of points in the normYPoints / normXPoints
    * @param normXPoints Optional normailzed X positions of the points
    * @param pBlend Optional blend method
-   * @param thickness Optional line thickness */
-  virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f);
+   * @param thickness Optional line thickness
+   * @param pFillColor Optional color for the fill area */
+  virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f, const IColor* pFillColor = nullptr);
   
   /** Load a font to be used by the graphics context
    * @param fontID A CString that will be used to reference the font
