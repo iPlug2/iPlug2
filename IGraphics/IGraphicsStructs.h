@@ -575,7 +575,7 @@ const IBlend BLEND_01 = IBlend(EBlend::Default, 0.01f);
 const IBlend BLEND_DST_IN = IBlend(EBlend::DstIn, 1.f);
 const IBlend BLEND_DST_OVER = IBlend(EBlend::DstOver, 1.f);
 
-/** Used to manage fill behaviour for path based drawing back ends */
+/** Used to manage fill behaviour */
 struct IFillOptions
 {
   EFillRule mFillRule { EFillRule::Winding };
