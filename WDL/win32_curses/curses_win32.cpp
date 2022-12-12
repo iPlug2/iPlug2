@@ -216,6 +216,20 @@ static LRESULT xlateKey(int msg, WPARAM wParam, LPARAM lParam)
       case VK_CONTROL: break;
 
       default:
+#ifdef _WIN32
+        if ((GetAsyncKeyState(VK_CONTROL)&0x8000) && (GetAsyncKeyState(VK_MENU)&0x8000))
+        {
+          // only for alt-gr
+          unsigned char State[256];
+          if (GetKeyboardState(State))
+          {
+            WCHAR asckey[4]={0,};
+            int len = ToUnicode(wParam, (lParam>>16)&0xff, State, asckey, 4, 0);
+            if (len==1 && asckey[0]>=0x100) // characters between 0x80 and 0xff will get sent as WM_CHAR
+              return asckey[0];
+          }
+        }
+#endif
         if ((GetAsyncKeyState(VK_CONTROL)&0x8000) && !(GetAsyncKeyState(VK_MENU)&0x8000))
         {
           if (wParam>='a' && wParam<='z')
@@ -237,7 +251,7 @@ static LRESULT xlateKey(int msg, WPARAM wParam, LPARAM lParam)
 #ifdef _WIN32 // todo : fix for nonwin32
   if (msg == WM_CHAR)
   {
-    if(wParam>=32) return wParam;
+    if(wParam>=32 && wParam != 0x80) return wParam;
   }
 #else
   //osx/linux

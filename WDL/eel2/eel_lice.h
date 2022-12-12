@@ -2107,8 +2107,25 @@ static int eel_lice_key_xlate(int msg, int wParam, int lParam, bool *isAltOut)
         {
           const bool isctrl = !!(GetAsyncKeyState(VK_CONTROL)&0x8000);
           const bool isalt = !!(GetAsyncKeyState(VK_MENU)&0x8000);
+
+#ifdef _WIN32
+          if (isctrl && isalt)
+          {
+            // only if alt-gr pressed
+            unsigned char State[256];
+            if (GetKeyboardState(State))
+            {
+              WCHAR asckey[4]={0,};
+              int len = ToUnicode(wParam, (lParam>>16)&0xff, State, asckey, 4, 0);
+              if (len==1 && asckey[0]>=0x100) // 0x81-0xff will be sent via WM_CHAR anyway
+                return asckey[0];
+            }
+          }
+#endif
+
           if(isctrl || isalt)
           {
+
             if (wParam>='a' && wParam<='z') 
             {
               if (isctrl) wParam += 1-'a';
@@ -2138,7 +2155,7 @@ static int eel_lice_key_xlate(int msg, int wParam, int lParam, bool *isAltOut)
   if(wParam>=32) 
   {
     #ifdef _WIN32
-      if (msg == WM_CHAR) return wParam;
+      if (msg == WM_CHAR && wParam != 0x80) return wParam;
     #else
       if (!(GetAsyncKeyState(VK_SHIFT)&0x8000))
       {
@@ -2582,6 +2599,13 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     case WM_CHAR:
       {
         eel_lice_state *ctx=(eel_lice_state*)GetWindowLongPtr(hwnd,GWLP_USERDATA);
+#ifdef __APPLE__
+        {
+          int f=0;
+          wParam = SWELL_MacKeyToWindowsKeyEx(NULL,&f,1);
+          lParam=f;
+        }
+#endif
 
         bool hadAltAdj=false;
         int a=eel_lice_key_xlate(uMsg,(int)wParam,(int)lParam, &hadAltAdj);
