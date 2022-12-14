@@ -1023,6 +1023,200 @@ static void OnConfigureEvent(GdkEventConfigure *cfg)
   if (!hwnd->m_hashaddestroy && hwnd->m_oswindow) swell_recalcMinMaxInfo(hwnd);
 }
 
+#define IS_DEAD_KEY(x) ((x) >= DEF_GKY(dead_grave) && (x) <= DEF_GKY(dead_greek))
+
+#include "gtkimcontextsimpleseqs.h"
+
+static guint find_compose_sequence_compact(const guint16 *state, int state_size) // returns 0 if sequence not found, 1 if partial match, otherwise unicode character
+{
+  WDL_ASSERT(state_size > 0);
+
+  const int max_seq_len = 5;
+  if (WDL_NOT_NORMALLY(state_size > max_seq_len)) return 0;
+
+  const int index_size = 30, index_stride = 6;
+  const guint16 fc = state[0];
+  const guint16 *index = gtk_compose_seqs_compact;
+
+  int x;
+  for (x = 0; x < index_size && index[0] != fc; x ++, index += index_stride);
+  if (x == index_size) return 0;
+  if (!--state_size) return 1;
+  state++;
+
+  x = index[1];
+  for (int l = 2; l < index_stride; l ++)
+  {
+    const int mv = index[l];
+    const int sl = l-1;
+    while (x < mv)
+    {
+      WDL_ASSERT(x >= index_stride * index_size);
+      WDL_ASSERT(x < (int) (sizeof(gtk_compose_seqs_compact) / sizeof(gtk_compose_seqs_compact[0])));
+      // gtk_compose_seqs_compact+x is the remaining sequence
+      if (state_size <= sl && !memcmp(state,gtk_compose_seqs_compact+x,state_size*sizeof(state[0])))
+      {
+        return state_size == sl ? gtk_compose_seqs_compact[x + sl] : 1;
+      }
+      x += l;
+    }
+  }
+
+  return 0;
+}
+
+static guint find_compose_sequence_alg(const guint16 *state, int state_size) // returns 0 if sequence not found, 1 if partial match, otherwise unicode character
+{
+  if (state_size < 2) return state_size==1 && IS_DEAD_KEY(state[0]) ? 1 : 0;
+  int i;
+  for (i = 0; i < state_size && IS_DEAD_KEY(state[i]); i++);
+  if (i != state_size-1) return 0; // must be all dead keys + one non-dead
+
+  gunichar uc = gdk_keyval_to_unicode(state[state_size-1]);
+  if (!g_unichar_isalpha(uc)) return 0;
+
+  // this is borrowed from GTK+'s impl
+  GString *input = g_string_sized_new(4 * state_size);
+  g_string_append_unichar(input, uc);
+  while (--i >= 0)
+  {
+    switch (state[i])
+    {
+#define CASE(keysym, unicode) case DEF_GKY(dead_##keysym): g_string_append_unichar(input, unicode); break
+      CASE (grave, 0x0300);
+      CASE (acute, 0x0301);
+      CASE (circumflex, 0x0302);
+      case GDK_KEY_dead_tilde:
+        if (g_unichar_get_script (uc) == G_UNICODE_SCRIPT_GREEK)
+          g_string_append_unichar (input, 0x342); /* combining perispomeni */
+        else
+          g_string_append_unichar (input, 0x303); /* combining tilde */
+        break;
+      CASE (macron, 0x0304);
+      CASE (breve, 0x0306);
+      CASE (abovedot, 0x0307);
+      CASE (diaeresis, 0x0308);
+      CASE (abovering, 0x30A);
+      CASE (hook, 0x0309);
+      CASE (doubleacute, 0x030B);
+      CASE (caron, 0x030C);
+      CASE (cedilla, 0x0327);
+      CASE (ogonek, 0x0328);      /* Legacy use for dasia, 0x314.*/
+      CASE (iota, 0x0345);
+      CASE (voiced_sound, 0x3099);        /* Per Markus Kuhn keysyms.txt file. */
+      CASE (semivoiced_sound, 0x309A);    /* Per Markus Kuhn keysyms.txt file. */
+      CASE (belowdot, 0x0323);
+      CASE (horn, 0x031B);        /* Legacy use for psili, 0x313 (or 0x343). */
+      CASE (stroke, 0x335);
+      CASE (abovecomma, 0x0313);  /* Equivalent to psili */
+      CASE (abovereversedcomma, 0x0314);   /* Equivalent to dasia */
+      CASE (doublegrave, 0x30F);
+      CASE (belowring, 0x325);
+      CASE (belowmacron, 0x331);
+      CASE (belowcircumflex, 0x32D);
+      CASE (belowtilde, 0x330);
+      CASE (belowbreve, 0x32e);
+      CASE (belowdiaeresis, 0x324);
+      CASE (invertedbreve, 0x32f);
+      CASE (belowcomma, 0x326);
+      CASE (lowline, 0x332);
+      CASE (aboveverticalline, 0x30D);
+      CASE (belowverticalline, 0x329);
+      CASE (longsolidusoverlay, 0x338);
+      CASE (a, 0x363);
+      CASE (A, 0x363);
+      CASE (e, 0x364);
+      CASE (E, 0x364);
+      CASE (i, 0x365);
+      CASE (I, 0x365);
+      CASE (o, 0x366);
+      CASE (O, 0x366);
+      CASE (u, 0x367);
+      CASE (U, 0x367);
+      CASE (small_schwa, 0x1DEA);
+      CASE (capital_schwa, 0x1DEA);
+#undef CASE
+      default:
+        g_string_append_unichar (input, gdk_keyval_to_unicode(state[i]));
+      break;
+    }
+  }
+  char *nfc = g_utf8_normalize(input->str, input->len, G_NORMALIZE_NFC);
+
+  int rv = 0;
+  if (nfc) wdl_utf8_parsechar(nfc,&rv);
+
+  g_string_free(input, TRUE);
+  g_free(nfc);
+
+  return rv;
+}
+
+static guint swell_gdkComposeKeys(GdkEventKey *k) // return 0 if not in composition, 1 if mid-composition, >1 if composed
+{
+  const int state_max = 16;
+  static guint16 state[state_max], state_pos;
+  static GdkWindow *lw;
+  if (k->window != lw)
+  {
+    state_pos=0;
+    lw = k->window;
+  }
+
+  if (!IS_DEAD_KEY(k->keyval) && !state_pos) return 0;
+
+  static const guint16 mods[] = {
+    DEF_GKY(Overlay1_Enable),
+    DEF_GKY(Overlay2_Enable),
+    DEF_GKY(Shift_L),
+    DEF_GKY(Shift_R),
+    DEF_GKY(Control_L),
+    DEF_GKY(Control_R),
+    DEF_GKY(Caps_Lock),
+    DEF_GKY(Shift_Lock),
+    DEF_GKY(Meta_L),
+    DEF_GKY(Meta_R),
+    DEF_GKY(Alt_L),
+    DEF_GKY(Alt_R),
+    DEF_GKY(Super_L),
+    DEF_GKY(Super_R),
+    DEF_GKY(Hyper_L),
+    DEF_GKY(Hyper_R),
+    DEF_GKY(Mode_switch),
+    DEF_GKY(ISO_Level3_Shift),
+    DEF_GKY(ISO_Level3_Latch),
+    DEF_GKY(ISO_Level5_Shift),
+    DEF_GKY(ISO_Level5_Latch),
+  };
+
+  if (!k->keyval) return 1;
+  for (size_t x = 0; x < sizeof(mods)/sizeof(mods[0]);x++)
+    if (mods[x] == k->keyval) return 1;
+
+  if (k->type == GDK_KEY_PRESS)
+  {
+    if (k->keyval == DEF_GKY(BackSpace) || k->keyval == DEF_GKY(Escape))
+      return 1;
+
+    state[state_pos++] = k->keyval;
+  }
+  else
+  {
+    if (k->keyval == DEF_GKY(Escape))
+      state_pos = 0;
+    else if (k->keyval == DEF_GKY(BackSpace))
+      state_pos--;
+  }
+
+  if (!state_pos) return 1;
+
+  guint rv = find_compose_sequence_compact(state,state_pos);
+  if (rv == 0) rv = find_compose_sequence_alg(state,state_pos);
+  if (rv!=1 || WDL_NOT_NORMALLY(state_pos >= state_max)) state_pos = 0;
+  return rv ? rv : 1;
+}
+
+
 static void OnKeyEvent(GdkEventKey *k)
 {
   HWND hwnd = swell_oswindow_to_hwnd(k->window);
@@ -1037,8 +1231,14 @@ static void OnKeyEvent(GdkEventKey *k)
   UINT msgtype = k->type == GDK_KEY_PRESS ? WM_KEYDOWN : WM_KEYUP;
 
   bool is_extended = false;
-  guint kv = swell_gdkConvertKey(k->keyval, &is_extended);
-  if (kv) 
+  guint kv;
+
+  if ((kv = swell_gdkComposeKeys(k)))
+  {
+    if (kv==1) return;
+    modifiers = 0;
+  }
+  else if ((kv = swell_gdkConvertKey(k->keyval, &is_extended)))
   {
     modifiers |= FVIRTKEY;
 
