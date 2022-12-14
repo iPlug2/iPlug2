@@ -61,6 +61,10 @@ class eel_net_state;
 class eel_lice_state;
 #endif
 
+#ifndef EELSCRIPT_NO_PREPROC
+#include "eel_pproc.h"
+#endif
+
 class eelScriptInst {
   public:
 
@@ -159,6 +163,10 @@ class eelScriptInst {
 
 
     WDL_StringKeyedArray<bool> m_loaded_fnlist; // imported file list (to avoid repeats)
+
+#ifndef EELSCRIPT_NO_PREPROC
+    EEL2_PreProcessor m_preproc;
+#endif
 };
 
 //#define EEL_STRINGS_MUTABLE_LITERALS
@@ -357,6 +365,23 @@ NSEEL_CODEHANDLE eelScriptInst::compile_code(const char *code, const char **err)
     *err = "EEL VM not initialized";
     return NULL;
   }
+
+#ifndef EELSCRIPT_NO_PREPROC
+  WDL_FastString str;
+  if (strstr(code,EEL2_PREPROCESS_OPEN_TOKEN))
+  {
+    const char *pperr = m_preproc.preprocess(code,&str);
+    if (pperr)
+    {
+      *err = pperr;
+      return NULL;
+    }
+    code = str.Get();
+  }
+  else
+    m_preproc.clear_line_info();
+#endif
+
   NSEEL_CODEHANDLE ch = NSEEL_code_compile_ex(m_vm, code, 0, NSEEL_CODE_COMPILE_FLAG_COMMONFUNCS);
   if (ch)
   {
@@ -365,6 +390,9 @@ NSEEL_CODEHANDLE eelScriptInst::compile_code(const char *code, const char **err)
     return ch;
   }
   *err = NSEEL_code_getcodeerror(m_vm);
+#ifndef EELSCRIPT_NO_PREPROC
+  if (*err) *err = m_preproc.translate_error_line(*err);
+#endif
   return NULL;
 }
 
@@ -372,13 +400,30 @@ int eelScriptInst::runcode(const char *codeptr, int showerr, const char *showerr
 {
   if (m_vm) 
   {
-    NSEEL_CODEHANDLE code = NSEEL_code_compile_ex(m_vm,codeptr,0,canfree ? 0 : NSEEL_CODE_COMPILE_FLAG_COMMONFUNCS);
+    const char *err = NULL;
+    NSEEL_CODEHANDLE code = NULL;
+#ifndef EELSCRIPT_NO_PREPROC
+    WDL_FastString str;
+    if (strstr(codeptr,EEL2_PREPROCESS_OPEN_TOKEN))
+    {
+      err = m_preproc.preprocess(codeptr,&str);
+      if (err) goto on_preproc_error;
+      codeptr = str.Get();
+    }
+    else
+      m_preproc.clear_line_info();
+#endif
+
+    code = NSEEL_code_compile_ex(m_vm,codeptr,0,canfree ? 0 : NSEEL_CODE_COMPILE_FLAG_COMMONFUNCS);
     if (code) m_string_context->update_named_vars(m_vm);
 
-    char *err;
     if (!code && (err=NSEEL_code_getcodeerror(m_vm)))
     {
       if (!ignoreEndOfInputChk && (NSEEL_code_geterror_flag(m_vm)&1)) return 1;
+#ifndef EELSCRIPT_NO_PREPROC
+      err = m_preproc.translate_error_line(err);
+on_preproc_error:
+#endif
       if (showerr) 
       {
 #ifdef EEL_STRING_DEBUGOUT
