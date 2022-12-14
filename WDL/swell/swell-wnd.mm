@@ -80,15 +80,17 @@ static void *SWELL_CStringToCFString_FilterPrefix(const char *str)
   while (str[c] && str[c] != '&' && c++<1024);
   if (!str[c] || c>=1024 || strlen(str)>=1024) return SWELL_CStringToCFString(str);
   char buf[1500];
-  const char *p=str;
-  char *op=buf;
-  while (*p)
   {
-    if (*p == '&')  p++;
-    if (!*p) break;
-    *op++=*p++;
+    const char *p=str;
+    char *op=buf;
+    while (*p)
+    {
+      if (*p == '&')  p++;
+      if (!*p) break;
+      *op++=*p++;
+    }
+    *op=0;
   }
-  *op=0;
 
   // add to recent prefix removal cache for localization
   if (WDL_NOT_NORMALLY(s_prefix_removals.GetSize() > 256))
