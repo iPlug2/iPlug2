@@ -52,7 +52,7 @@ ifndef DEPRECATED_WARNINGS
 endif
 
 
-default: loose_eel
+default: loose_eel eel_pp
 
 nseel-compiler.o: glue*.h ns-eel*.h
 nseel-cfunc.o:  asm*.c ns-eel*.h
@@ -155,7 +155,10 @@ gen-lex:  # the output of this, lex.nseel.c, is unused because we have a handwri
 loose_eel: loose_eel.o $(OBJS) $(OBJS2)
 	g++ -o $@ $^ $(CXXFLAGS) $(LFLAGS)
 
+eel_pp: eel_pp.o $(OBJS) $(OBJS2)
+	g++ -o $@ $^ $(CXXFLAGS) $(LFLAGS)
+
 clean:
-	-rm -f -- loose_eel loose_eel.o $(OBJS)
+	-rm -f -- loose_eel loose_eel.o eel_pp.o eel_pp $(OBJS)
 
 .PHONY: clean gen-lex gen-yacc
