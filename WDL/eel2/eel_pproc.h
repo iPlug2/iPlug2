@@ -25,6 +25,8 @@ public:
 
   ~EEL2_PreProcessor()
   {
+    for (int x = 0; x < m_code_handles.GetSize(); x ++)
+      NSEEL_code_free((NSEEL_CODEHANDLE) m_code_handles.Get(x));
     m_literal_strings.Empty(true,free);
     if (m_vm) NSEEL_VM_free(m_vm);
     m_suppress = NULL;
@@ -85,7 +87,7 @@ public:
       if (str > tag)
       {
         m_tmp.Set(tag,(int)(str-tag));
-        NSEEL_CODEHANDLE ch = NSEEL_code_compile_ex(m_vm, m_tmp.Get(), 0, 0);
+        NSEEL_CODEHANDLE ch = NSEEL_code_compile_ex(m_vm, m_tmp.Get(), 0, NSEEL_CODE_COMPILE_FLAG_COMMONFUNCS);
         if (!ch)
         {
           const char *err = NSEEL_code_getcodeerror(m_vm);
@@ -104,8 +106,8 @@ public:
           m_fsout = fs;
           NSEEL_code_execute(ch);
           m_fsout = NULL;
+          m_code_handles.Add(ch);
           for (int x = oldlen; x < fs->GetLength(); x ++) if (fs->Get()[x] == '\n') lc++;
-          NSEEL_code_free(ch);
           if (lc)
           {
             add_line_inf(output_linecnt,-lc);
@@ -155,6 +157,7 @@ public:
   EEL_F *m_suppress;
   int m_max_sz;
   static eel_function_table m_ftab;
+  WDL_PtrList<void> m_code_handles;
 
   void add_line_inf(int output_linecnt, int lc)
   {
