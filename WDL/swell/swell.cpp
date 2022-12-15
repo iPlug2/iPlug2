@@ -803,8 +803,8 @@ HINSTANCE LoadLibraryGlobals(const char *fn, bool symbolsAsGlobals)
   
   void *inst = NULL, *bundleinst=NULL;
 
-#ifdef SWELL_TARGET_OSX
   struct stat ss;
+#ifdef SWELL_TARGET_OSX
   if (stat(fn,&ss) || (ss.st_mode&S_IFMT) == S_IFDIR)
   {
     CFStringRef str=(CFStringRef)SWELL_CStringToCFString(fn); 
@@ -832,7 +832,6 @@ HINSTANCE LoadLibraryGlobals(const char *fn, bool symbolsAsGlobals)
     inst=dlopen(fn,RTLD_NOW|(symbolsAsGlobals?RTLD_GLOBAL:RTLD_LOCAL));
     if (!inst) 
     {
-      struct stat ss;
       if (fn[0] == '/' && !stat(fn,&ss) && (ss.st_mode&S_IFMT) != S_IFDIR)
       {
         const char *err = dlerror();
