@@ -1647,6 +1647,9 @@ int EEL_Editor::onChar(int c)
 
   rv = WDL_CursesEditor::onChar(c);
 
+  if (!CURSES_INSTANCE)
+    return rv;
+
 run_suggest:
   if (do_sug)
   {
