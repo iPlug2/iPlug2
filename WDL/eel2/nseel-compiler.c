@@ -617,6 +617,8 @@ static functionType fnTable1[] = {
   {"__memtop",_asm_generic1parm,1,{&__NSEEL_RAM_MemTop},NSEEL_PProc_RAM},
   {"mem_set_values",_asm_generic2parm_retd,2|BIF_TAKES_VARPARM|BIF_RETURNSONSTACK,{&__NSEEL_RAM_Mem_SetValues},NSEEL_PProc_RAM},
   {"mem_get_values",_asm_generic2parm_retd,2|BIF_TAKES_VARPARM|BIF_RETURNSONSTACK,{&__NSEEL_RAM_Mem_GetValues},NSEEL_PProc_RAM},
+  {"mem_multiply_sum",_asm_generic3parm_retd, 3|BIF_RETURNSONSTACK,{&__NSEEL_RAM_MemSumProducts},NSEEL_PProc_RAM},
+  {"mem_insert_shuffle",_asm_generic3parm_retd, 3|BIF_RETURNSONSTACK, {&__NSEEL_RAM_MemInsertShuffle},NSEEL_PProc_RAM},
 
   {"stack_push",nseel_asm_stack_push,1|BIF_FPSTACKUSE(0),{0,},NSEEL_PProc_Stack},
   {"stack_pop",nseel_asm_stack_pop,  1|BIF_FPSTACKUSE(1),{0,},NSEEL_PProc_Stack},
