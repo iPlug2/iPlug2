@@ -1119,10 +1119,12 @@ static guint find_compose_sequence_alg(const guint16 *state, int state_size) // 
       CASE (belowdiaeresis, 0x324);
       CASE (invertedbreve, 0x32f);
       CASE (belowcomma, 0x326);
+#ifdef GDK_KEY_dead_longsolidusoverlay // requires a particularly recent GTK+3, I guess
       CASE (lowline, 0x332);
       CASE (aboveverticalline, 0x30D);
       CASE (belowverticalline, 0x329);
       CASE (longsolidusoverlay, 0x338);
+#endif
       CASE (a, 0x363);
       CASE (A, 0x363);
       CASE (e, 0x364);
