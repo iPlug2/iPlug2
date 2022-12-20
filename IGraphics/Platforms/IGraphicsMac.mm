@@ -124,6 +124,11 @@ void IGraphicsMac::RemovePlatformView(void* pView)
   [(NSView*) pView removeFromSuperview];
 }
 
+void IGraphicsMac::HidePlatformView(void* pView, bool hide)
+{
+  [(NSView*) pView setHidden:hide];
+}
+
 void IGraphicsMac::CloseWindow()
 {
   if (mView)

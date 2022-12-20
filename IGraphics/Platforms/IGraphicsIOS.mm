@@ -161,6 +161,11 @@ void IGraphicsIOS::RemovePlatformView(void* pView)
   [(UIView*) pView removeFromSuperview];
 }
 
+void IGraphicsIOS::HidePlatformView(void* pView, bool hide)
+{
+  [(UIView*) pView setHidden:hide];
+}
+
 EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
