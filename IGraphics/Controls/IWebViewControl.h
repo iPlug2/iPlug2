@@ -90,6 +90,12 @@ public:
     UpdateWebViewBounds();
   }
   
+  void Hide(bool hide) override
+  {
+    if (mPlatformView)
+      GetUI()->HidePlatformView(mPlatformView, hide);
+  }
+  
 private:
   void UpdateWebViewBounds()
   {
