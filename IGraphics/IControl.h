@@ -1815,10 +1815,10 @@ public:
   void Draw(IGraphics& g) override
   {
     g.PathRect(mRECT);
-    g.PathFill(mPattern);
+    g.PathFill(mPattern, IFillOptions(), &mBlend);
   
-    if(mDrawFrame)
-      g.DrawRect(COLOR_LIGHT_GRAY, mRECT);
+    if (mDrawFrame)
+      g.DrawRect(COLOR_LIGHT_GRAY, mRECT, &mBlend);
   }
   
   void SetPattern(const IPattern& pattern)
