@@ -1293,7 +1293,7 @@ void EEL_Editor::doWatchInfo(int c)
             bool lb=true;
             for (x=0;x<code.GetLength();x++)
             {
-              if (isspace(code.Get()[x]))
+              if (code.Get()[x]>0 && isspace(code.Get()[x]))
               {
                 if (lb) code.DeleteSub(x--,1);
                 lb=true;
@@ -2055,7 +2055,7 @@ LRESULT EEL_Editor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
         WDL_FastString *fs=m_text.Get(y + m_paneoffs_y[m_curpane]);
         if (fs && y >= 0)
         {
-          if (!strncmp(fs->Get(),"import",6) && isspace(fs->Get()[6]))
+          if (!strncmp(fs->Get(),"import",6) && fs->Get()[6]>0 && isspace(fs->Get()[6]))
           {
             open_import_line();
             return 1;
