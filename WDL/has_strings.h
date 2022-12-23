@@ -393,8 +393,7 @@ WDL_HASSTRINGS_EXPORT bool WDL_makeSearchFilter(const char *flt, LineParser *lp)
 
           if (c != 0xC3) p++;
         }
-        if (wr != p-1) *wr = c;
-        wr++;
+        *wr++ = c;
       }
       *wr=0;
     }
