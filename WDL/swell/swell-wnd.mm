@@ -5975,7 +5975,7 @@ HANDLE GetClipboardData(UINT type)
           if ([url isFileURL])
           {
             const char *ptr = [[url path] UTF8String];
-            if (ptr && *ptr) flist.Add(ptr, strlen(ptr)+1);
+            if (ptr && *ptr) flist.Add(ptr, (int)strlen(ptr)+1);
           }
         }
         if (flist.GetSize()>sizeof(DROPFILES))
