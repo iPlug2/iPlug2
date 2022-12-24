@@ -1,0 +1,7 @@
+Win32/Debug/
+Win32/Release/
+x64/Debug/
+x64/Release/
+*.sdf
+*.opensdf
+*.v12.suo
