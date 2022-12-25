@@ -217,5 +217,9 @@ enum EMsgBoxResult
 
 static const char* kMessageResultStrs[8] = {"", "OK", "CANCEL", "ABORT", "RETRY", "IGNORE", "YES", "NO"};
 
+/** Scale types */
+enum class EFrequencyScale { Linear, Log, Mel };
+enum class EAmplitudeScale { Linear, Decibel };
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
