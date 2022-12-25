@@ -178,3 +178,20 @@ class SWELL_AutoReleaseHelper  // no-op on non-apple
 #define LoadLibraryGlobals(a,b) LoadLibrary(a)
 #endif
 
+#ifndef SWELLAPP_ONLOAD
+
+#define SWELLAPP_ONLOAD 0x0001 // initialization of app vars etc
+#define SWELLAPP_LOADED 0x0002 // create dialogs etc
+#define SWELLAPP_DESTROY 0x0003 // about to destroy (cleanup etc)
+#define SWELLAPP_SHOULDDESTROY 0x0004 // return 0 to allow app to terminate, >0 to prevent
+
+#define SWELLAPP_OPENFILE 0x0050 // parm1= (const char *)string, return >0 if allowed
+#define SWELLAPP_NEWFILE 0x0051 // new file, return >0 if allowed
+#define SWELLAPP_SHOULDOPENNEWFILE 0x0052 // allow opening new file? >0 if allowed
+
+#define SWELLAPP_ONCOMMAND 0x0099 // parm1 = (int) command ID, parm2 = (id) sender 
+#define SWELLAPP_PROCESSMESSAGE 0x0100 // parm1=(MSG *)msg (loosely), parm2= (NSEvent *) the event . return >0 to eat
+
+#define SWELLAPP_ACTIVATE 0x1000  // parm1 = (bool) isactive. return nonzero to prevent WM_ACTIVATEAPP from being broadcasted
+
+#endif
