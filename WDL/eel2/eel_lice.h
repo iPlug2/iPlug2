@@ -2119,6 +2119,8 @@ static int eel_lice_key_xlate(int msg, int wParam, int lParam, bool *isAltOut)
               int len = ToUnicode(wParam, (lParam>>16)&0xff, State, asckey, 4, 0);
               if (len==1 && asckey[0]>=0x100) // 0x81-0xff will be sent via WM_CHAR anyway
                 return asckey[0];
+
+              if (len > 0) return -1; // let it get converted to WM_CHAR
             }
           }
 #endif
@@ -2609,6 +2611,7 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 
         bool hadAltAdj=false;
         int a=eel_lice_key_xlate(uMsg,(int)wParam,(int)lParam, &hadAltAdj);
+        if (a == -1) return 0;
 #ifdef _WIN32
         if (!a && (uMsg == WM_KEYUP || uMsg == WM_SYSKEYUP) && wParam >= 'A' && wParam <= 'Z') a=(int)wParam + 'a' - 'A';
 #endif
