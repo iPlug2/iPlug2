@@ -21,14 +21,17 @@
 #ifdef _WIN32
 #include <windows.h>
 #include "../WDL/win32_utf8.h"
-#else
-#include "../WDL/swell/swell.h"
-#include "../WDL/swell/swell-internal.h"
 #endif
+
+#include "../WDL/swell/swell.h"
 
 #include "../WDL/wingui/wndsize.h"
 
 #include "resource.h"
+
+#if !defined(_WIN32) && !defined(__APPLE__)
+bool g_quit;
+#endif
 
 HINSTANCE g_hInstance;
 HWND g_hwnd;
@@ -57,6 +60,10 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       g_hwnd=NULL;
 #ifdef __APPLE__
       SWELL_PostQuitMessage(0);
+#elif defined(_WIN32)
+      PostQuitMessage(0);
+#else
+      g_quit = true;
 #endif
     break;
     case WM_SIZE:
@@ -74,35 +81,6 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
   }
   return 0;
 }
-
-
-
-#ifdef _WIN32
-
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
-{
-  g_hInstance = hInstance;
-
-  DialogBox(hInstance,MAKEINTRESOURCE(IDD_DIALOG1), GetDesktopWindow(), mainProc);
-
-  ExitProcess(0);
-  
-  return 0;
-}
-
-#else
-/************** SWELL stuff ********** */
-
-#ifdef __APPLE__
-extern "C" {
-#endif
-
-const char **g_argv;
-int g_argc;
-
-#ifdef __APPLE__
-};
-#endif
 
 INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 {
@@ -126,12 +104,67 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 }
 
 
+
+#ifdef _WIN32
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+{
+  g_hInstance = hInstance;
+
+  SWELLAppMain(SWELLAPP_ONLOAD,0,0);
+  SWELLAppMain(SWELLAPP_LOADED,0,0);
+
+  for(;;)
+  {
+    MSG msg={0,};
+    int vvv = GetMessage(&msg,NULL,0,0);
+    if (!vvv) break;
+
+    if (vvv<0)
+    {
+      Sleep(10);
+      continue;
+    }
+    if (!msg.hwnd)
+    {
+      DispatchMessage(&msg);
+      continue;
+    }
+    if (SWELLAppMain(SWELLAPP_PROCESSMESSAGE, (INT_PTR) &msg, 0)) continue;
+
+    if (g_hwnd && IsDialogMessage(g_hwnd,&msg)) continue;
+
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
+  }
+
+  SWELLAppMain(SWELLAPP_DESTROY,0,0);
+
+  ExitProcess(0);
+  
+  return 0;
+}
+
+#else
+
+/************** SWELL stuff ********** */
+
+#ifdef __APPLE__
+extern "C" {
+#endif
+
+const char **g_argv;
+int g_argc;
+
+#ifdef __APPLE__
+};
+#endif
+
+
 #ifndef __APPLE__
 
 int main(int argc, const char **argv)
 {
-  extern HWND g_hwnd;
-
   g_argc=argc;
   g_argv=argv;
   SWELL_initargs(&argc,(char***)&argv);
@@ -139,7 +172,7 @@ int main(int argc, const char **argv)
   SWELL_ExtendedAPI("APPNAME",(void*)"MyApp");
   SWELLAppMain(SWELLAPP_ONLOAD,0,0);
   SWELLAppMain(SWELLAPP_LOADED,0,0);
-  while (g_hwnd && !g_hwnd->m_hashaddestroy) {
+  while (!g_quit) {
     SWELL_RunMessageLoop();
     Sleep(10);
   }
