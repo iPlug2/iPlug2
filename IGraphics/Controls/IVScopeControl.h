@@ -57,28 +57,10 @@ public:
     
     IRECT r = mWidgetBounds.GetPadded(-mPadding);
 
-    const float maxY = (r.H() / 2.f); // y +/- centre
-
-    float xPerData = r.W() / (float) mBufferSize;
-
-    for (int c = 0; c < mBuf.nChans; c++)
+    for (int c=0; c<mBuf.nChans; c++)
     {
-      float xHi = 0.f;
-      float yHi = mBuf.vals[c][0] * maxY;
-      yHi = Clip(yHi, -maxY, maxY);
-
-      g.PathMoveTo(r.L + xHi, r.MH() - yHi);
-      for (int s = 1; s < mBufferSize; s++)
-      {
-        xHi = ((float) s * xPerData);
-        yHi = mBuf.vals[c][s] * maxY;
-        yHi = Clip(yHi, -maxY, maxY);
-        g.PathLineTo(r.L + xHi, r.MH() - yHi);
-      }
-
-      IStrokeOptions strokeOptions;
-      strokeOptions.mJoinOption = ELineJoin::Bevel;
-      g.PathStroke(GetColor(kFG), mTrackSize, strokeOptions, &mBlend);
+      // drawdata expects normalized values and buffer contains unnormalized, so draw in the top half
+      g.DrawData(GetColor(kFG), r.FracRectVertical(0.5, true), mBuf.vals[c].data(), mBufferSize, nullptr, &mBlend, mTrackSize);
     }
   }
   
