@@ -22,11 +22,11 @@ private:
   T mOutM1[NC];
 
 public:
-  LogParamSmooth(double timeMs = 5., T initalValue = 0.)
+  LogParamSmooth(double timeMs = 5., T initialValue = 0.)
   {
     for (auto i = 0; i < NC; i++)
     {
-      mOutM1[i] = initalValue;
+      mOutM1[i] = initialValue;
     }
     
     SetSmoothTime(timeMs, DEFAULT_SAMPLE_RATE);
