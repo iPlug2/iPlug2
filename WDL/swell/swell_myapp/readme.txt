@@ -19,3 +19,7 @@ LICENSE:
     3. This notice may not be removed or altered from any source distribution.
 
 Minimal SWELL win32/linux/macOS GUI application starting point, feel free to base your applications on this.
+
+NOTE: this project is not configured to be compiled in-place, you should move it to be alongside WDL, e.g.
+
+cp -a ./WDL/swell/swell_myapp ./my_new_app
