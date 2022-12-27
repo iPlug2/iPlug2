@@ -73,6 +73,7 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_COMMAND:
       switch (LOWORD(wParam))
       {
+        case ID_QUIT:
         case IDCANCEL:
           DestroyWindow(hwndDlg);
         break;
@@ -99,6 +100,11 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
     case SWELLAPP_DESTROY:
       if (g_hwnd) DestroyWindow(g_hwnd);
     break;
+    case SWELLAPP_ONCOMMAND:
+      // this is to catch commands coming from the system menu etc
+      if (g_hwnd && parm1) SendMessage(g_hwnd,WM_COMMAND,parm1,0);
+    break;
+
   }
   return 0;
 }

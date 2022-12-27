@@ -1,6 +1,6 @@
 SWELL_MyApp
 Copyright (C) 2022 and onwards, Cockos Incorporated
-LICENSE: 
+LICENSE:
 
     This software is provided 'as-is', without any express or implied
     warranty.  In no event will the authors be held liable for any damages
@@ -23,3 +23,44 @@ Minimal SWELL win32/linux/macOS GUI application starting point, feel free to bas
 NOTE: this project is not configured to be compiled in-place, you should move it to be alongside WDL, e.g.
 
 cp -a ./WDL/swell/swell_myapp ./my_new_app
+
+
+------
+
+Previous sample project xcode instructions:
+
+  How we created the xcode project that compiles this, too:
+
+  New Project -> Mac OS X -> Application -> Cocoa Application
+
+  Save as...
+
+  Add to "Other sources/SWELL": (from swell path) swell-dlg.mm swell-gdi.mm swell-ini.cpp swell-kb.mm swell-menu.mm swell-misc.mm swell-miscdlg.mm swell-wnd.mm swell.cpp swell-appstub.mm swellappmain.mm
+
+  Add app_main.cpp main_dialog.cpp to "Other sources"
+
+  Go to Frameworks -> Linked Frameworks, add existing framework, Carbon.Framework
+
+  go to terminal, to project dir, and run php <pathtoswell>/swell_resgen.php sample_project.rc
+
+  Open mainmenu.xib in Interface Builder (doubleclick it in XCode)
+
+    + Delete the default "Window"
+    + File->Read class files, find and select "swellappmain.h"
+    + Go to Library, Objects, scroll to "Object" , drag to "MainMenu.xib", rename to "Controller", then open its
+      properties (Cmd+Shift+I, go to class identity tab), choose for Class "SWELLAppController".
+    + Select "Application" in MainMenu.xib, go to (Cmd+Shift+I) application identity tab, select "SWELLApplication" for the class.
+
+    + Customize the "NewApplication" menu.
+       + Properties on "About NewApplication":
+         + set the tag to 40002 (matching resource.h for about)
+         + on the connection tab, "Sent Actions", remove the default connection, then drag a new connection to controller (onSysMenuCommand).
+       + Properties on "Quit NewApplication":
+         + set the tag to 40001 (matching resource.h for quit)
+         + on the connection tab, "Sent Actions", remove the default connection, then drag a new connection to controller (onSysMenuCommand).
+    + Delete the file/edit/format/view/window/help menus, if you like (or keep some of them if you want)
+
+    + Save and quit IB
+
+  Go to Targets->sample_project, hit cmd+I, go to "Properties", and change Principal class to "SWELLApplication"
+

@@ -55,9 +55,9 @@
                             <menuItem isSeparatorItem="YES" id="149">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="Quit MyApp" keyEquivalent="q" id="136">
+                            <menuItem title="Quit MyApp" tag="40000" keyEquivalent="q" id="136">
                                 <connections>
-                                    <action selector="terminate:" target="-3" id="449"/>
+                                    <action selector="onSysMenuCommand:" target="494" id="gT6-4H-hSd"/>
                                 </connections>
                             </menuItem>
                         </items>
