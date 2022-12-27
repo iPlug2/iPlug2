@@ -357,7 +357,7 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
           {
             while (t[0])
             {
-              const int lln = cmp_func(t,t-name,n,ln);
+              const int lln = cmp_func(t,(int) (t-name),n,ln);
               if (lln && MATCH_RIGHT_CHECK_WORD(lln)) { matched = true; break; }
               if (wc_left > 0)
                 MATCH_LEFT_SKIP_TO_WORD();
