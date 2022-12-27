@@ -993,7 +993,13 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_GetLangpackSection(const char *sec)
   return g_translations.Get(sec);
 }
 
-WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const char *onlySec_name)
+WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *fn,
+    WDL_StringKeyedArray< WDL_AssocArray<WDL_UINT64, char *> * > *dest,
+    const char *onlySec_name,
+    bool include_commented_lines,
+    bool no_escape_strings,
+    WDL_StringKeyedArray<char *> *extra_metadata
+    )
 {
   WDL_AssocArray<WDL_UINT64, char *> *rv=NULL;
   FILE *fp = fopenUTF8(fn,"r");
@@ -1005,6 +1011,7 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const c
 
   WDL_TypedBuf<char> procbuf;
   char linebuf[16384];
+  int ic_lines = 0;
   for (;;)
   {
     WDL_fgets_as_utf8(linebuf,sizeof(linebuf),fp,&format_flag);
@@ -1018,17 +1025,50 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const c
     while (p >= lbstart && (*p == '\t' || *p == '\n' || *p == '\r')) p--;
     p++;
     *p=0;
-    if (!*lbstart || *lbstart == ';' || *lbstart == '#') continue;
+
+    if (include_commented_lines)
+    {
+      if (*lbstart == ';')
+      {
+        int x, offs = (lbstart[1] == '^') ? 2 : 1;
+        for (x = 0; x < 16; x ++)
+        {
+          char c = lbstart[offs+x];
+          if (c >= 'A' && c <= 'F') { }
+          else if (c >= '0' && c <= '9') { }
+          else break;
+        }
+        if (x == 16 && lbstart[offs+16] == '=')
+          lbstart += offs;
+      }
+    }
+    if (!*lbstart || *lbstart == ';' || *lbstart == '#')
+    {
+      if (ic_lines >= 0 && extra_metadata)
+      {
+        char tmp[128];
+        snprintf(tmp,sizeof(tmp),"_initial_comment_%d",ic_lines++);
+        extra_metadata->Insert(tmp,strdup(linebuf));
+      }
+      continue;
+    }
 
     if (*lbstart == '[')
     {
+      ic_lines = -1;
       if (cursec) cursec->Resort();
 
       lbstart++;
       {
         char *tmp = lbstart;
         while (*tmp && *tmp != ']') tmp++;
-        *tmp=0;
+        *tmp++=0;
+        if (extra_metadata)
+        {
+          while (*tmp == ' ') tmp++;
+          if (*tmp)
+            extra_metadata->Insert(lbstart,strdup(tmp));
+        }
       }
 
       if (onlySec_name)
@@ -1042,11 +1082,11 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const c
       }
       else
       {
-        cursec = g_translations.Get(lbstart);
+        cursec = dest->Get(lbstart);
         if (!cursec)
         {
           cursec = new WDL_AssocArray<WDL_UINT64, char *>(uint64cmpfunc);
-          g_translations.Insert(lbstart,cursec);
+          dest->Insert(lbstart,cursec);
         }
       }
     }
@@ -1072,7 +1112,7 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const c
           }
           if (x==16)
           {
-            if (strstr(eq,"\\"))
+            if (strstr(eq,"\\") && !no_escape_strings)
             {
               procbuf.Resize(0,false);
               while (*eq)
@@ -1121,11 +1161,14 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const c
 
   fclose(fp);
 
-  if (!onlySec_name)
-  {
-    g_translations_commonsec = g_translations.Get("common");
-  }
+  return rv;
+}
 
+WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const char *onlySec_name)
+{
+  WDL_AssocArray<WDL_UINT64, char *> *rv = WDL_LoadLanguagePackInternal(fn,&g_translations, onlySec_name,false,false, NULL);
+  if (!onlySec_name)
+    g_translations_commonsec = g_translations.Get("common");
   return rv;
 }
 
