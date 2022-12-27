@@ -195,14 +195,14 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
   char *newptr = NULL;
 
   int trycnt;
-  int len = strlen(str)+1;
+  size_t len = strlen(str)+1;
 
   if (flags & LOCALIZE_FLAG_DOUBLENULL)
   {
     // need to test this
     for (;;)
     {
-      int a = strlen(str+len);
+      size_t a = strlen(str+len);
       if (!a) break;
       len += a+1;
     }
@@ -217,7 +217,7 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
   if ((flags & LOCALIZE_FLAG_PAIR) && len == 18 && !memcmp(str,"__LOCALIZE_SCALE\0",18))
     hash = WDL_UINT64_CONST(0x5CA1E00000000000);
   else
-    hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)str,len);
+    hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)str,(int)len);
 
   for (trycnt=0;trycnt<2 && !newptr;trycnt++)
   {
@@ -278,7 +278,7 @@ static void __localProcMenu(HMENU menu, WDL_AssocArray<WDL_UINT64, char *> *s)
         mod[0]=0;
         tryagain:
   #endif
-        WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)buf,strlen(buf)+1);
+        WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)buf,(int)strlen(buf)+1);
         const char *newptr = s ? s->Get(hash,0) : NULL;
         if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
 
@@ -429,7 +429,7 @@ static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s,
   if (buf[0])
   {
     buf[bufsz-1]=0;
-    WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)buf,strlen(buf)+1);
+    WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)buf,(int)strlen(buf)+1);
     const char *newptr = s ? s->Get(hash,0) : NULL;
     if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
 
@@ -441,7 +441,7 @@ static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s,
       const char *p = SWELL_GetRecentPrefixRemoval(buf);
       if (p)
       {
-        hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)p,strlen(p)+1);
+        hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)p,(int)strlen(p)+1);
         newptr = s ? s->Get(hash,0) : NULL;
         if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
         filter_prefix = true;
@@ -1142,7 +1142,7 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *fn,
             }
             else
             {
-              int eqlen = strlen(eq);
+              int eqlen = (int)strlen(eq);
               char *pc = (char *)ChunkAlloc(eqlen+2);
               if (pc)
               {
