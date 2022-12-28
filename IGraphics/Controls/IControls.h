@@ -308,6 +308,15 @@ public:
   void OnResize() override;
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
   void OnInit() override;
+  
+  IRECT GetTrackBounds() const
+  {
+    auto offset = -mHandleSize + (mStyle.frameThickness / 2.0f);
+    return mWidgetBounds.GetPadded(mDirection == EDirection::Horizontal ? offset : 0,
+                                   mDirection == EDirection::Vertical ? offset : 0,
+                                   mDirection == EDirection::Horizontal ? offset : 0,
+                                   mDirection == EDirection::Vertical ? offset : 0);
+  }
 
 protected:
   bool mHandleInsideTrack = false;
