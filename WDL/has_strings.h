@@ -97,13 +97,12 @@ static const char *hasStrings_scan_for_char_match(const char *p, char v)
       unsigned char c = *(const unsigned char *)p; \
       if (!c) return NULL; \
       if ((c|0x20) == (ch)) return p; \
-      p++; \
       if (c == 0xc3) { \
-        const unsigned char ccf = *(const unsigned char*)p; \
+        const unsigned char ccf = ((const unsigned char*)p)[1]; \
         const unsigned char cc = ccf & ~0x20; \
         if (IS_UTF8_BYTE2_##CH(cc,ccf)) return p; \
-        p++; \
       } \
+      p++; \
     }
     SCAN('a',A)
     SCAN('c',C)
