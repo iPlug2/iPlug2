@@ -34,6 +34,28 @@ WDL_HASSTRINGS_EXPORT bool hasStrings_isNonWordChar(int c)
 #define IS_UTF8_BYTE2_LATIN1S_U(cc,ccf) ((cc) >= 0x99 && (cc) <= 0x9c)
 #define IS_UTF8_BYTE2_LATIN1S_Y(cc,ccf) ((cc) == 0x9d || (ccf) == 0x9f)
 
+// latin extended A
+#define IS_UTF8_EXT1A_A(b1, b2) ((b1)==0xc4 && (b2) >= 0x80 && (b2) <= 0x85)
+#define IS_UTF8_EXT1A_C(b1, b2) ((b1)==0xc4 && (b2) >= 0x86 && (b2) <= 0x8D)
+#define IS_UTF8_EXT1A_D(b1, b2) ((b1)==0xc4 && (b2) >= 0x8E && (b2) <= 0x91)
+#define IS_UTF8_EXT1A_E(b1, b2) ((b1)==0xc4 && (b2) >= 0x92 && (b2) <= 0x9B)
+#define IS_UTF8_EXT1A_G(b1, b2) ((b1)==0xc4 && (b2) >= 0x9C && (b2) <= 0xa3)
+#define IS_UTF8_EXT1A_H(b1, b2) ((b1)==0xc4 && (b2) >= 0xa4 && (b2) <= 0xa7)
+#define IS_UTF8_EXT1A_I(b1, b2) ((b1)==0xc4 && (b2) >= 0xa8 && (b2) <= 0xb1)
+#define IS_UTF8_EXT1A_J(b1, b2) ((b1)==0xc4 && (b2) >= 0xb4 && (b2) <= 0xb5)
+#define IS_UTF8_EXT1A_K(b1, b2) ((b1)==0xc4 && (b2) >= 0xb6 && (b2) <= 0xb8)
+#define IS_UTF8_EXT1A_L(b1, b2) ((b1)==0xc4 ? ((b2) >= 0xb9 && (b2) <= 0xbf) : \
+                                ((b1)==0xc5 && (b2) >= 0x80 && (b2) <= 0x82))
+#define IS_UTF8_EXT1A_N(b1, b2) ((b1)==0xc5 && (b2) >= 0x83 && (b2) <= 0x89)
+#define IS_UTF8_EXT1A_O(b1, b2) ((b1)==0xc5 && (b2) >= 0x8c && (b2) <= 0x91)
+#define IS_UTF8_EXT1A_R(b1, b2) ((b1)==0xc5 && (b2) >= 0x94 && (b2) <= 0x99)
+#define IS_UTF8_EXT1A_S(b1, b2) ((b1)==0xc5 && (b2) >= 0x9a && (b2) <= 0xa1)
+#define IS_UTF8_EXT1A_T(b1, b2) ((b1)==0xc5 && (b2) >= 0xa2 && (b2) <= 0xa7)
+#define IS_UTF8_EXT1A_U(b1, b2) ((b1)==0xc5 && (b2) >= 0xa8 && (b2) <= 0xb3)
+#define IS_UTF8_EXT1A_W(b1, b2) ((b1)==0xc5 && (b2) >= 0xb4 && (b2) <= 0xb5)
+#define IS_UTF8_EXT1A_Y(b1, b2) ((b1)==0xc5 && (b2) >= 0xb6 && (b2) <= 0xb8)
+#define IS_UTF8_EXT1A_Z(b1, b2) ((b1)==0xc5 && (b2) >= 0xb9 && (b2) <= 0xbe)
+
 // returns negative if does not match but more of a is available to search
 // returns 0 if done searching without match
 // returns >0 if matches (return bytelen of match)
@@ -52,14 +74,17 @@ WDL_HASSTRINGS_EXPORT int hasStrings_utf8cmp(const unsigned char * const a, cons
     {
       if (cb != 'a'-'A')
       {
-        if (ca != 0xc3) return -ca;
+        if (ca < 0xc3 || ca > 0xc5) return -ca;
 
         const int ccf = a[++aidx];
         if (ccf < 0x80) return -ca;
 
-        const int cc = ccf & ~0x20;
-        switch (*b)
+        if (ca == 0xc3)
         {
+          // latin-1 supplemental
+          const int cc = ccf & ~0x20;
+          switch (*b)
+          {
 #define SCAN(ch, CH) case ch: if (!IS_UTF8_BYTE2_LATIN1S_##CH(cc,ccf)) return -ca; break;
           SCAN('a',A)
           SCAN('c',C)
@@ -70,6 +95,35 @@ WDL_HASSTRINGS_EXPORT int hasStrings_utf8cmp(const unsigned char * const a, cons
           SCAN('u',U)
           SCAN('y',Y)
 #undef SCAN
+          }
+        }
+        else
+        {
+          // latin extended A
+          switch (*b)
+          {
+#define SCAN(ch, CH) case ch: if (!IS_UTF8_EXT1A_##CH(ca,ccf)) return -ca; break;
+          SCAN('a',A)
+          SCAN('c',C)
+          SCAN('d',D)
+          SCAN('e',E)
+          SCAN('g',G)
+          SCAN('h',H)
+          SCAN('i',I)
+          SCAN('j',J)
+          SCAN('k',K)
+          SCAN('l',L)
+          SCAN('n',N)
+          SCAN('o',O)
+          SCAN('r',R)
+          SCAN('s',S)
+          SCAN('t',T)
+          SCAN('u',U)
+          SCAN('w',W)
+          SCAN('y',Y)
+          SCAN('z',Z)
+#undef SCAN
+          }
         }
       }
       else if (ca < 'A' || ca > 'Z') return -ca;
@@ -98,10 +152,14 @@ static const char *hasStrings_scan_for_char_match(const char *p, char v)
       unsigned char c = *(const unsigned char *)p; \
       if (!c) return NULL; \
       if ((c|0x20) == (ch)) return p; \
-      if (c == 0xc3) { \
-        const unsigned char ccf = ((const unsigned char*)p)[1]; \
-        const unsigned char cc = ccf & ~0x20; \
-        if (IS_UTF8_BYTE2_LATIN1S_##CH(cc,ccf)) return p; \
+      if (c >= 0xc3) { \
+        if (c == 0xc3) { \
+          const unsigned char ccf = ((const unsigned char*)p)[1]; \
+          const unsigned char cc = ccf & ~0x20; \
+          if (IS_UTF8_BYTE2_LATIN1S_##CH(cc,ccf)) return p; \
+        } else { \
+          if (IS_UTF8_EXT1A_##CH(c, ((const unsigned char*)p)[1])) return p; \
+        } \
       } \
       p++; \
     }
@@ -113,6 +171,30 @@ static const char *hasStrings_scan_for_char_match(const char *p, char v)
     SCAN('o',O)
     SCAN('u',U)
     SCAN('y',Y)
+#undef SCAN
+
+    // latin extended A only
+#define SCAN(ch, CH) case (ch): for (;;) { \
+      unsigned char c = *(const unsigned char *)p; \
+      if (!c) return NULL; \
+      if ((c|0x20) == (ch)) return p; \
+      if (IS_UTF8_EXT1A_##CH(c, ((const unsigned char*)p)[1])) return p; \
+      p++; \
+    }
+
+    SCAN('d',D)
+    SCAN('g',G)
+    SCAN('h',H)
+    SCAN('j',J)
+    SCAN('k',K)
+    SCAN('l',L)
+    SCAN('r',R)
+    SCAN('s',S)
+    SCAN('t',T)
+    SCAN('w',W)
+    SCAN('z',Z)
+#undef SCAN
+
 #undef SCAN
   }
 
@@ -393,6 +475,7 @@ WDL_HASSTRINGS_EXPORT bool WDL_makeSearchFilter(const char *flt, LineParser *lp)
 
           if (c != 0xC3) p++;
         }
+        // we could also convert latin extended A characters to ascii here, but meh
         *wr++ = c;
       }
       *wr=0;
