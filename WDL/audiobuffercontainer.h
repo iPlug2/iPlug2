@@ -118,7 +118,6 @@ struct PinMapPin
     return true;
   }
 };
-typedef char assert_pinmappin_is_sizeofuint64[sizeof(PinMapPin) == sizeof(WDL_UINT64) ? 1 : -1];
 
 
 class ChannelPinMapper
