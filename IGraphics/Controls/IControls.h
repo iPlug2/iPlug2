@@ -17,7 +17,7 @@
  */
 
 #include "IControl.h"
-
+#include "IControlMarkers.h"
 #include "IColorPickerControl.h"
 #include "ILEDControl.h"
 #include "IPopupMenuControl.h"
@@ -310,6 +310,42 @@ protected:
   bool mValueMouseOver = false;
 };
 
+class IVKnobControlWithMarks : public IContainerBase
+                             , public IVectorBase
+{
+public:
+  IVKnobControlWithMarks(const IRECT& bounds, int paramIdx, const char* label = "",
+                const IVStyle& style = DEFAULT_STYLE.WithWidgetFrac(0.5f),
+                bool valueIsEditable = false, bool valueInWidget = false,
+                float a1 = -135.f, float a2 = 135.f, float aAnchor = -135.f,
+                EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING, float trackSize = 2.f,
+                bool showMarkLabels = false)
+  : IContainerBase(bounds, paramIdx)
+  , IVectorBase(style)
+  {
+    AttachIControl(this, "");
+        
+    SetAttachFunc([=](IContainerBase* pContainer, const IRECT& bounds) {
+      AddChildControl(mRadialMarks = new IRadialMarks(bounds, {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, showMarkLabels, a1, a2, 0.5f));
+      AddChildControl(mKnobControl = new IVKnobControl(bounds, paramIdx, label, style, valueIsEditable, valueInWidget, a1, a2, aAnchor, direction, gearing, trackSize), kNoTag, GetGroup());
+    });
+    
+    SetResizeFunc([=](IContainerBase* pContainer, const IRECT& bounds) {
+      mKnobControl->SetTargetAndDrawRECTs(bounds);
+      mRadialMarks->SetTargetAndDrawRECTs(bounds);
+      mRadialMarks->SetTrackBounds(mKnobControl->GetTrackBounds());
+    });
+  }
+  
+  // override these, so that the knob control triggers actions
+  IControl* SetActionFunction(IActionFunction actionFunc) override { return mKnobControl->SetActionFunction(actionFunc); }
+  IControl* SetAnimationEndActionFunction(IActionFunction actionFunc) override { return mKnobControl->SetAnimationEndActionFunction(actionFunc); }
+
+private:
+  IVKnobControl* mKnobControl = nullptr;
+  IRadialMarks* mRadialMarks = nullptr;
+};
+
 /** A vector slider control */
 class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
@@ -349,6 +385,37 @@ protected:
   bool mValueMouseOver = false;
   float mHandleXOffset = 0.f;
   float mHandleYOffset = 0.f;
+};
+
+class IVSliderControlWithMarks : public IContainerBase
+                               , public IVectorBase
+{
+public:
+  IVSliderControlWithMarks(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = true, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 8.0f, float trackSize = 2.0f, bool handleInsideTrack = false, float handleXOffset = 0.0f, float handleYOffset = 0.0f)
+  : IContainerBase(bounds, paramIdx)
+  , IVectorBase(style)
+  {
+    AttachIControl(this, "");
+        
+    SetAttachFunc([&, paramIdx, label, style, valueIsEditable, dir, gearing, handleSize, trackSize, handleInsideTrack, handleXOffset, handleYOffset](IContainerBase* pContainer, const IRECT& bounds) {
+      AddChildControl(mLinearMarks = new ILinearMarks(bounds, style.colorSpec.GetColor(kFG), dir));
+      AddChildControl(mSliderControl = new IVSliderControl(bounds, paramIdx, label, style, valueIsEditable, dir, gearing, handleSize, trackSize, handleInsideTrack, handleXOffset, handleYOffset), kNoTag, GetGroup());
+    });
+    
+    SetResizeFunc([&](IContainerBase* pContainer, const IRECT& bounds) {
+      mSliderControl->SetTargetAndDrawRECTs(bounds);
+      mLinearMarks->SetTargetAndDrawRECTs(bounds);
+      mLinearMarks->SetTrackBounds(mSliderControl->GetTrackBounds());
+    });
+  }
+  
+  // override these, so that the slider control triggers actions
+  IControl* SetActionFunction(IActionFunction actionFunc) override { return mSliderControl->SetActionFunction(actionFunc); }
+  IControl* SetAnimationEndActionFunction(IActionFunction actionFunc) override { return mSliderControl->SetAnimationEndActionFunction(actionFunc); }
+
+private:
+  IVSliderControl* mSliderControl = nullptr;
+  ILinearMarks* mLinearMarks = nullptr;
 };
 
 /** A vector range slider control, with two handles */
