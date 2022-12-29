@@ -1001,6 +1001,9 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *fn,
     WDL_StringKeyedArray<char *> *extra_metadata
     )
 {
+#ifdef _DEBUG
+  g_debug_langpack_has_loaded = true;
+#endif
   WDL_AssocArray<WDL_UINT64, char *> *rv=NULL;
   FILE *fp = fopenUTF8(fn,"r");
   if (!fp) return rv;
