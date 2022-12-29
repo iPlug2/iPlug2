@@ -38,11 +38,19 @@ ifndef DEPRECATED_WARNINGS
   CFLAGS +=  -Wno-deprecated-declarations
 endif
 
-ifneq ($(filter arm%,$(ARCH)),)
-  CFLAGS += -fsigned-char -marm
+ifeq ($(ARCH),arm64)
+  CFLAGS += -fsigned-char
+else
+  ifneq ($(filter arm%,$(ARCH)),)
+    CFLAGS += -fsigned-char -mfpu=vfp -march=armv6t2 -marm
+  endif
+  ifeq ($(ARCH),aarch64)
+    CFLAGS += -fsigned-char
+  endif
 endif
 
-ifdef DEBUG
+
+ifndef RELEASE
   CFLAGS += -O0 -g -D_DEBUG -DWDL_CHECK_FOR_NON_UTF8_FOPEN
 else
   CFLAGS += -O2 -DNDEBUG

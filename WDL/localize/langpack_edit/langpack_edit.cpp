@@ -22,11 +22,11 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <CommCtrl.h>
-#include "../../win32_utf8.h"
 #endif
 
 #include "../../swell/swell.h"
 
+#include "../../win32_utf8.h"
 #include "../../wingui/wndsize.h"
 #include "../../filebrowse.h"
 #include "../../wdlstring.h"
@@ -293,6 +293,7 @@ void editor_instance::load_file(const char *filename, bool is_template)
       {
         WDL_UINT64 id;
         const char *value = sec->Enumerate(i,&id);
+        if (WDL_NOT_NORMALLY(!value)) break;
 
         char rec_buf[256], key_desc[256];
         format_section_id(rec_buf,sizeof(rec_buf),sec_name, id);
@@ -396,8 +397,9 @@ void editor_instance::refresh_list(bool refilter)
     const bool do_filt = lp.getnumtokens()>0;
     for (int x = 0; x < m_recs.GetSize(); x ++)
     {
-      const char *k;
+      const char *k = NULL;
       pack_rec *r = m_recs.EnumeratePtr(x,&k);
+      if (WDL_NOT_NORMALLY(!r)) break;
 
       if (strnicmp(k,"common:",7))
       {
@@ -857,6 +859,14 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
         WDL_remove_filepart(buf);
         lstrcatn(buf,WDL_DIRCHAR_STR "LangPackEdit.ini",sizeof(buf));
         g_ini_file.Set(buf);
+
+        WDL_remove_filepart(buf);
+        lstrcatn(buf,WDL_DIRCHAR_STR "LangPackEdit.LangPack",sizeof(buf));
+
+        extern bool g_debug_langpack_has_loaded;
+        g_debug_langpack_has_loaded=true;
+        WDL_LoadLanguagePack(buf,NULL);
+
         HWND h=CreateDialog(NULL,MAKEINTRESOURCE(IDD_DIALOG1),NULL,mainProc);
         ShowWindow(h,SW_SHOW);
       }
