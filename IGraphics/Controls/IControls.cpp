@@ -591,7 +591,7 @@ IRECT IVKnobControl::GetKnobDragBounds()
 {
   IRECT r;
   
-  if(mWidgetBounds.W() > mWidgetBounds.H())
+  if (mWidgetBounds.W() > mWidgetBounds.H())
     r = mWidgetBounds.GetCentredInside(mWidgetBounds.H()/2.f, mWidgetBounds.H());
   else
     r = mWidgetBounds.GetCentredInside(mWidgetBounds.W(), mWidgetBounds.W()/2.f);
@@ -599,19 +599,29 @@ IRECT IVKnobControl::GetKnobDragBounds()
   return r;
 }
 
-void IVKnobControl::DrawWidget(IGraphics& g)
+float IVKnobControl::GetRadius() const
 {
-  float widgetRadius; // The radius out to the indicator track arc
+  float widgetRadius;
   
-  if(mWidgetBounds.W() > mWidgetBounds.H())
+  if (mWidgetBounds.W() > mWidgetBounds.H())
     widgetRadius = (mWidgetBounds.H()/2.f);
   else
     widgetRadius = (mWidgetBounds.W()/2.f);
-  
-  const float cx = mWidgetBounds.MW(), cy = mWidgetBounds.MH();
-  
+    
   widgetRadius -= (mTrackSize/2.f);
 
+  return widgetRadius;
+}
+
+IRECT IVKnobControl::GetTrackBounds() const
+{
+  return mWidgetBounds.GetCentredInside((GetRadius() + mTrackSize) * 2.f );
+}
+
+void IVKnobControl::DrawWidget(IGraphics& g)
+{
+  float widgetRadius = GetRadius();// The radius out to the indicator track arc
+  const float cx = mWidgetBounds.MW(), cy = mWidgetBounds.MH();
   IRECT knobHandleBounds = mWidgetBounds.GetCentredInside((widgetRadius - mTrackToHandleDistance) * 2.f );
   const float angle = mAngle1 + (static_cast<float>(GetValue()) * (mAngle2 - mAngle1));
   DrawIndicatorTrack(g, angle, cx, cy, widgetRadius);
