@@ -751,6 +751,14 @@ void IGraphics::DrawBitmapedText(const IBitmap& bitmap, const IRECT& bounds, ITe
   }
 }
 
+void IGraphics::DrawLineAcross(const IColor& color, const IRECT& bounds, EDirection dir, float pos, const IBlend* pBlend, float thickness)
+{
+  if (dir == EDirection::Horizontal)
+    DrawHorizontalLine(color, bounds, pos, pBlend, thickness);
+  else
+    DrawVerticalLine(color, bounds, pos, pBlend, thickness);
+}
+
 void IGraphics::DrawVerticalLine(const IColor& color, const IRECT& bounds, float x, const IBlend* pBlend, float thickness)
 {
   x = Clip(x, 0.0f, 1.0f);
