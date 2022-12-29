@@ -101,6 +101,7 @@ IGraphicsNanoVG::Bitmap::Bitmap(NVGcontext* pContext, const char* path, double s
 
 IGraphicsNanoVG::Bitmap::Bitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, float scale, float drawScale)
 {
+  assert(width > 0 && height > 0);
   mGraphics = pGraphics;
   mVG = pContext;
   mFBO = nvgCreateFramebuffer(pContext, width, height, 0);
