@@ -2418,8 +2418,23 @@ int WDL_CursesEditor::onChar(int c)
   break;
   case KEY_HOME:
     {
-      m_curs_x=0;
-      if (CTRL_KEY_DOWN) m_curs_y=0;
+      if (CTRL_KEY_DOWN)
+      {
+        m_curs_x=0;
+        m_curs_y=0;
+      }
+      else
+      {
+        const WDL_FastString *ln = m_text.Get(m_curs_y);
+        if (ln)
+        {
+          int i = 0;
+          while (ln->Get()[i] == ' ' || ln->Get()[i] == '\t') i++;
+          m_curs_x = ln->Get()[i] && i != m_curs_x ? i : 0;
+        }
+        else m_curs_x=0;
+      }
+
       if (m_selecting) { setCursor(); m_select_x2=m_curs_x; m_select_y2=m_curs_y; draw(); }
       setCursor();
     }
