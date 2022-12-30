@@ -295,6 +295,11 @@
     <ClInclude Include="..\..\..\IPlug\ISender.h" />
     <ClInclude Include="..\..\..\IPlug\VST2\IPlugVST2.h" />
     <ClInclude Include="..\IPlugControls.h" />
+    <ClInclude Include="..\PageIBControls.h" />
+    <ClInclude Include="..\PageISVGControls.h" />
+    <ClInclude Include="..\PageIVControls.h" />
+    <ClInclude Include="..\PageMiscControls.h" />
+    <ClInclude Include="..\PageVisualizerControls.h" />
     <ClInclude Include="..\resources\resource.h" />
   </ItemGroup>
   <ItemGroup>

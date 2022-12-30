@@ -210,6 +210,11 @@
     <ClInclude Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.h">
       <Filter>IGraphics\Drawing</Filter>
     </ClInclude>
+    <ClInclude Include="..\PageIBControls.h" />
+    <ClInclude Include="..\PageISVGControls.h" />
+    <ClInclude Include="..\PageIVControls.h" />
+    <ClInclude Include="..\PageMiscControls.h" />
+    <ClInclude Include="..\PageVisualizerControls.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
