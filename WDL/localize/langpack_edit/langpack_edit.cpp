@@ -216,8 +216,6 @@ void editor_instance::save_file(const char *filename)
   buf[0]=0;
   if (WDL_NORMALLY(m_hwnd))
     GetDlgItemText(m_hwnd,IDC_COMMENTS,buf,sizeof(buf));
-  unsigned char bom[3] = { 0xEF,0xBB,0xBF };
-  fwrite(bom,3,1,fp);
   fprintf(fp,"%s\r\n",buf);
 
   char last_sec[1024];
