@@ -18,6 +18,7 @@
 #define CURSOR_BLINK_TIMER_ZEROEVERY 3
 
 #define WIN32CURSES_CLASS_NAME "WDLCursesWindow"
+#define LWIN32CURSES_CLASS_NAME L"WDLCursesWindow"
 
 static void doFontCalc(win32CursesCtx*, HDC);
 static void reInitializeContext(win32CursesCtx *ctx);
@@ -216,20 +217,6 @@ static LRESULT xlateKey(int msg, WPARAM wParam, LPARAM lParam)
       case VK_CONTROL: break;
 
       default:
-#ifdef _WIN32
-        if ((GetAsyncKeyState(VK_CONTROL)&0x8000) && (GetAsyncKeyState(VK_MENU)&0x8000))
-        {
-          // only for alt-gr
-          unsigned char State[256];
-          if (GetKeyboardState(State))
-          {
-            WCHAR asckey[4]={0,};
-            int len = ToUnicode(wParam, (lParam>>16)&0xff, State, asckey, 4, 0);
-            if (len==1 && asckey[0]>=0x100) // characters between 0x80 and 0xff will get sent as WM_CHAR
-              return asckey[0];
-          }
-        }
-#endif
         if ((GetAsyncKeyState(VK_CONTROL)&0x8000) && !(GetAsyncKeyState(VK_MENU)&0x8000))
         {
           if (wParam>='a' && wParam<='z')
@@ -248,10 +235,10 @@ static LRESULT xlateKey(int msg, WPARAM wParam, LPARAM lParam)
     }
   }
 
-#ifdef _WIN32 // todo : fix for nonwin32
+#ifdef _WIN32
   if (msg == WM_CHAR)
   {
-    if(wParam>=32 && wParam != 0x80) return wParam;
+    if(wParam>=32) return wParam;
   }
 #else
   //osx/linux
@@ -733,7 +720,11 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
       }
     return 0;
   }
+#ifdef _WIN32
+  return DefWindowProcW(hwnd,uMsg,wParam,lParam);
+#else
   return DefWindowProc(hwnd,uMsg,wParam,lParam);
+#endif
 }
 
 static void doFontCalc(win32CursesCtx *ctx, HDC hdcIn)
@@ -905,13 +896,13 @@ void curses_registerChildClass(HINSTANCE hInstance)
 #ifdef _WIN32
   if (!m_regcnt++)
   {
-    WNDCLASS wc={CS_DBLCLKS,};
+    WNDCLASSW wc={CS_DBLCLKS,};
     wc.lpfnWndProc = cursesWindowProc;
     wc.hInstance = hInstance;
     wc.hCursor = LoadCursor(NULL,IDC_ARROW);
-    wc.lpszClassName = WIN32CURSES_CLASS_NAME;
+    wc.lpszClassName = LWIN32CURSES_CLASS_NAME;
 
-    RegisterClass(&wc);
+    RegisterClassW(&wc);
   }
 #endif
 }

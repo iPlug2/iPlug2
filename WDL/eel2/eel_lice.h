@@ -1997,11 +1997,13 @@ static EEL_F * NSEEL_CGEN_CALL _gfx_update(void *opaque, EEL_F *n)
 
 
 
-static EEL_F NSEEL_CGEN_CALL _gfx_getchar(void *opaque, EEL_F *p)
+static EEL_F NSEEL_CGEN_CALL _gfx_getchar(void *opaque, INT_PTR np, EEL_F **plist)
 {
   eel_lice_state *ctx=EEL_LICE_GET_CONTEXT(opaque);
+  if (np > 1) plist[1][0] = 0.0;
   if (ctx)
   {
+    EEL_F *p = plist[0];
     ctx->m_has_had_getch=true;
     if (*p >= 2.0)
     {
@@ -2028,9 +2030,33 @@ static EEL_F NSEEL_CGEN_CALL _gfx_getchar(void *opaque, EEL_F *p)
     if (ctx->m_kb_queue_valid)
     {
       const int qsize = sizeof(ctx->m_kb_queue)/sizeof(ctx->m_kb_queue[0]);
-      const int a = ctx->m_kb_queue[ctx->m_kb_queue_pos & (qsize-1)];
+      int a = ctx->m_kb_queue[ctx->m_kb_queue_pos & (qsize-1)];
       ctx->m_kb_queue_pos++;
       ctx->m_kb_queue_valid--;
+
+#ifdef _WIN32
+      if (np > 1 && (a>>24) != 'u' && ctx->m_kb_queue_valid > 0)
+      {
+        int a2 = ctx->m_kb_queue[ctx->m_kb_queue_pos & (qsize-1)];
+        if ((a2>>24)=='u')
+        {
+          ctx->m_kb_queue_pos++;
+          ctx->m_kb_queue_valid--;
+          plist[1][0] = (a2&0xffffff);
+        }
+        return a;
+      }
+#else
+      if (a > 32 && a < 256 && np > 1)
+        plist[1][0] = a;
+#endif
+      if ((a>>24) == 'u')
+      {
+        if ((a&0xffffff) < 256)
+          a &= 0xff;
+        if (np > 1) plist[1][0] = a&0xffffff;
+      }
+
       return a;
     }
   }
@@ -2108,23 +2134,6 @@ static int eel_lice_key_xlate(int msg, int wParam, int lParam, bool *isAltOut)
           const bool isctrl = !!(GetAsyncKeyState(VK_CONTROL)&0x8000);
           const bool isalt = !!(GetAsyncKeyState(VK_MENU)&0x8000);
 
-#ifdef _WIN32
-          if (isctrl && isalt)
-          {
-            // only if alt-gr pressed
-            unsigned char State[256];
-            if (GetKeyboardState(State))
-            {
-              WCHAR asckey[4]={0,};
-              int len = ToUnicode(wParam, (lParam>>16)&0xff, State, asckey, 4, 0);
-              if (len==1 && asckey[0]>=0x100) // 0x81-0xff will be sent via WM_CHAR anyway
-                return asckey[0];
-
-              if (len > 0) return -1; // let it get converted to WM_CHAR
-            }
-          }
-#endif
-
           if(isctrl || isalt)
           {
 
@@ -2143,12 +2152,6 @@ static int eel_lice_key_xlate(int msg, int wParam, int lParam, bool *isAltOut)
               return wParam;
             }
           }
-
-          if (isctrl)
-          {
-            if ((wParam&~0x80) == '[') return 27;
-            if ((wParam&~0x80) == ']') return 29;
-          }
         }
       break;
     }
@@ -2157,7 +2160,10 @@ static int eel_lice_key_xlate(int msg, int wParam, int lParam, bool *isAltOut)
   if(wParam>=32) 
   {
     #ifdef _WIN32
-      if (msg == WM_CHAR && wParam != 0x80) return wParam;
+      if (msg == WM_CHAR)
+      {
+        return (wParam&0xffffff) | ('u'<<24); // windows encodes all wm_chars as 'u'<<24
+      }
     #else
       if (!(GetAsyncKeyState(VK_SHIFT)&0x8000))
       {
@@ -2168,6 +2174,8 @@ static int eel_lice_key_xlate(int msg, int wParam, int lParam, bool *isAltOut)
             wParam += 'a'-'A';
         }
       }
+      if (wParam >= 0x100)
+        return (wParam&0xffffff) | ('u'<<24);
       return wParam;
     #endif
   }      
@@ -2613,17 +2621,14 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         int a=eel_lice_key_xlate(uMsg,(int)wParam,(int)lParam, &hadAltAdj);
         if (a == -1) return 0;
 #ifdef _WIN32
-        if (!a && (uMsg == WM_KEYUP || uMsg == WM_SYSKEYUP) && wParam >= 'A' && wParam <= 'Z') a=(int)wParam + 'a' - 'A';
-#endif
-        const int mask = hadAltAdj ? ~256 : ~0;
-
-#ifdef _WIN32
         if (!a && (uMsg == WM_KEYUP || uMsg == WM_SYSKEYUP))
         {
-          // not ideal, doesn't properly support all modifiers but better than nothing
-          a = (int)MapVirtualKey((UINT)wParam,2/*MAPVK_VK_TO_CHAR*/);
+          // will not end up in queue, just for state tracking
+          if (wParam >= 'A' && wParam <= 'Z') a=(int)wParam + 'a' - 'A';
+          else a = (int)MapVirtualKey((UINT)wParam,2/*MAPVK_VK_TO_CHAR*/);
         }
 #endif
+        const int mask = hadAltAdj ? ~256 : ~0;
 
         if (a & mask)
         {
@@ -2650,12 +2655,6 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             st[zp]=lowera;
           }
         }
-#ifdef _WIN32
-        if (!a && (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN) && ((GetAsyncKeyState(VK_CONTROL)&0x8000)||(GetAsyncKeyState(VK_MENU)&0x8000)))
-        {
-          a = (int)MapVirtualKey((UINT)wParam,2/*MAPVK_VK_TO_CHAR*/);
-        }
-#endif
 
         if (a && uMsg != WM_KEYUP
 #ifdef _WIN32
@@ -2810,7 +2809,11 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     return 0;
   }
 
+#ifdef _WIN32
+  return DefWindowProcW(hwnd,uMsg,wParam,lParam);
+#else
   return DefWindowProc(hwnd,uMsg,wParam,lParam);
+#endif
 }
 
 
@@ -2823,8 +2826,18 @@ void eel_lice_register_standalone(HINSTANCE hInstance, const char *classname, HW
   if (!reg)
   {
     eel_lice_hinstance=hInstance;
-    WNDCLASS wc={CS_DBLCLKS,eel_lice_wndproc,0,0,hInstance,icon,LoadCursor(NULL,IDC_ARROW), NULL, NULL,eel_lice_standalone_classname};
-    RegisterClass(&wc);
+    WCHAR tmp[256];
+    int x = 0;
+    while (eel_lice_standalone_classname[x])
+    {
+      if (WDL_NOT_NORMALLY(x == 255)) break;
+      tmp[x] = eel_lice_standalone_classname[x];
+      x++;
+    }
+    tmp[x]=0;
+
+    WNDCLASSW wc={CS_DBLCLKS,eel_lice_wndproc,0,0,hInstance,icon,LoadCursor(NULL,IDC_ARROW), NULL, NULL,tmp};
+    RegisterClassW(&wc);
     reg = true;
   }
 #endif
@@ -2847,7 +2860,7 @@ void eel_lice_register_standalone(HINSTANCE hInstance, const char *classname, HW
   NSEEL_addfunc_retptr("gfx_update",1,NSEEL_PProc_THIS,&_gfx_update);
 #endif
 
-  NSEEL_addfunc_retval("gfx_getchar",1,NSEEL_PProc_THIS,&_gfx_getchar);
+  NSEEL_addfunc_varparm("gfx_getchar",1,NSEEL_PProc_THIS,&_gfx_getchar);
 #endif
 }
 
@@ -2974,7 +2987,7 @@ static const char *eel_lice_function_reference =
   "\2"
   "\2\0"
 
-"gfx_getchar\t[char]\tIf char is 0 or omitted, returns a character from the keyboard queue, or 0 if no character is available, or -1 if the graphics window is not open. "
+"gfx_getchar\t[char, unichar]\tIf char is 0 or omitted, returns a character from the keyboard queue, or 0 if no character is available, or -1 if the graphics window is not open. "
      "If char is specified and nonzero, that character's status will be checked, and the function will return greater than 0 if it is pressed. Note that calling gfx_getchar() at least once causes mouse_cap to reflect keyboard modifiers even when the mouse is not captured.\n\n"
      "Common values are standard ASCII, such as 'a', 'A', '=' and '1', but for many keys multi-byte values are used, including 'home', 'up', 'down', 'left', 'rght', 'f1'.. 'f12', 'pgup', 'pgdn', 'ins', and 'del'. \n\n"
      "Modified and special keys can also be returned, including:\3\n"
@@ -2985,6 +2998,7 @@ static const char *eel_lice_function_reference =
      "\4" "13 for Enter\n"
      "\4' ' for space\n"
      "\4" "65536 for query of special flags, returns: &1 (supported), &2=window has focus, &4=window is visible\n"
+     "\4If unichar is specified, it will be set to the unicode value of the key if available (and the return value may be the unicode value or a raw key value as described above, depending). If unichar is not specified, unicode codepoints greater than 255 will be returned as 'u'<<24 + value\n"
      "\2\0"
     
   "gfx_showmenu\t\"str\"\tShows a popup menu at gfx_x,gfx_y. str is a list of fields separated by | characters. "
