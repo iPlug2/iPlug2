@@ -107,7 +107,11 @@ public:
       return program;
     };
     
-    printf("Supported GLSL version is %s.\n", (char *)glGetString(GL_SHADING_LANGUAGE_VERSION));
+    static bool sLoggedGLSLVersion = false;
+    if (!sLoggedGLSLVersion) {
+      DBGMSG("Supported GLSL version is %s.\n", (char *)glGetString(GL_SHADING_LANGUAGE_VERSION));
+      sLoggedGLSLVersion = true;
+    }
 
     #ifdef IGRAPHICS_GL2
     static const char vs_str[] =
@@ -120,10 +124,23 @@ public:
         "}";
     #else
     static const char vs_str[] =
+#ifdef IGRAPHICS_GLES3
+        "#version 300 es\n"
+        "precision highp float;\n"
+        "in vec4 apos;\n"
+        "in vec4 acolor;\n"
+        "out vec4 color;\n"
+#elif defined(IGRAPHICS_GLES2)
+        "precision highp float;\n"
+        "attribute vec4 apos;\n"
+        "attribute vec4 acolor;\n"
+        "varying vec4 color;\n"
+#else
         "#version 330 core\n"
         "in vec4 apos;\n"
         "in vec4 acolor;\n"
         "out vec4 color;\n"
+#endif
         "void main() {\n"
         "    color = acolor;\n"
         "    gl_Position = apos;\n"
@@ -140,13 +157,32 @@ public:
         "}";
     #else
     static const char fs_str[] =
+#ifdef IGRAPHICS_GLES3
+        "#version 300 es\n"
+        "precision mediump float;\n"
+        "in vec4 color;\n"
+        "out vec4 FragColor;\n"
+        "uniform vec4 color2;\n"
+        "void main() {\n"
+        "    FragColor = color;\n"
+        "}\n"
+#elif defined(IGRAPHICS_GLES2)
+        "precision mediump float;\n"
+        "varying vec4 color;\n"
+        "uniform vec4 color2;\n"
+        "void main() {\n"
+        "    gl_FragColor = color;\n"
+        "}\n"
+#else
         "#version 330 core\n"
         "in vec4 color;\n"
         "out vec4 FragColor;\n"
         "uniform vec4 color2;\n"
         "void main() {\n"
         "    FragColor = color;\n"
-        "}";
+        "}\n"
+#endif
+        ;
     #endif
     GLuint fs = compileShader(GL_FRAGMENT_SHADER, fs_str);
 
@@ -160,7 +196,7 @@ public:
           0.f,   0.6f, 0.0f, 0.0f, 1.0f,
     };
 
-    #ifndef IGRAPHICS_GL2
+    #if !defined(IGRAPHICS_GL2) && !defined(IGRAPHICS_GLES2)
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
