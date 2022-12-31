@@ -283,7 +283,7 @@ static void WDL_STATICFUNC_UNUSED wdl_utf8_set_char_case(char *p, int upper) // 
         else if (cc >= 0x39 && cc < 0x3f)
         {
           // u+139 to u+13e, odd is uppercase
-          if ((cc & 1) != upper) p[1] += upper;
+          if ((cc & 1) != (upper>0)) p[1] -= upper;
         }
         else if (cc == 0x3f && upper<0) // u+139 convert to u+140
         {
@@ -306,7 +306,7 @@ static void WDL_STATICFUNC_UNUSED wdl_utf8_set_char_case(char *p, int upper) // 
         else if ((cc > 0 && cc <= 8) || (cc >= 0x39 && cc <= 0x3e))
         {
           // u+141 to u+148 and u+179 to u+17e have odd=uppercase
-          if ((cc & 1) != upper) p[1] += upper;
+          if ((cc & 1) != (upper>0)) p[1] -= upper;
         }
       break;
     }
