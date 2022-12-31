@@ -736,7 +736,10 @@ void WDL_CursesEditor::setCursor(int isVscroll, double ycenter)
   {
     if (m_want_x >= 0) m_curs_x=m_want_x;
   }
-  else m_want_x=-1;
+  else
+  {
+    if (m_curs_x < maxx) m_want_x=-1;
+  }
 
   if(m_curs_x>maxx)
   {
@@ -2433,6 +2436,7 @@ int WDL_CursesEditor::onChar(int c)
       else m_curs_y=0;
 
       if (m_selecting) { setCursor(); m_select_x2=m_curs_x; m_select_y2=m_curs_y; draw(); }
+      m_want_x=-1; // clear in case we're already at the start of the line
       setCursor();
     }
   break;
@@ -2441,6 +2445,7 @@ int WDL_CursesEditor::onChar(int c)
       if (m_text.Get(m_curs_y)) m_curs_x=WDL_utf8_get_charlen(m_text.Get(m_curs_y)->Get());
       if (CTRL_KEY_DOWN) m_curs_y=m_text.GetSize();
       if (m_selecting) { setCursor(); m_select_x2=m_curs_x; m_select_y2=m_curs_y; draw(); }
+      m_want_x=-1; // clear in case we're already at the end of the line
       setCursor();
     }
   break;
