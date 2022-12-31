@@ -220,8 +220,19 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mMTLLayer.frame = self.layer.frame;
   mMTLLayer.opaque = YES;
   mMTLLayer.contentsScale = [UIScreen mainScreen].scale;
-  
   [self.layer addSublayer: mMTLLayer];
+#elif defined IGRAPHICS_GL
+  mMGLLayer = [[MGLLayer alloc] init];
+  mMGLLayer.opaque = YES;
+  mMGLLayer.frame = self.layer.frame;
+  mMGLLayer.contentsScale = [UIScreen mainScreen].scale;
+  [self.layer addSublayer: mMGLLayer];
+#if defined IGRAPHICS_GLES2
+  _glContext = [[MGLContext alloc] initWithAPI:kMGLRenderingAPIOpenGLES2];
+#elif defined IGRAPHICS_GLES3
+  _glContext = [[MGLContext alloc] initWithAPI:kMGLRenderingAPIOpenGLES3];
+#endif
+  [MGLContext setCurrentContext:_glContext];
 #endif
 
   self.multipleTouchEnabled = NO;
@@ -257,12 +268,17 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mMTLLayer.drawableSize = drawableSize;
   
   [CATransaction commit];
+  #elif defined IGRAPHICS_GL
+  [MGLContext setCurrentContext:_glContext forLayer:mMGLLayer];
+  [self.layer setFrame:frame];
+  mMGLLayer.frame = self.layer.frame;
+  CGSize drawableSize = mMGLLayer.drawableSize;
   #endif
 }
 
 - (void) onTouchEvent:(ETouchEvent) eventType withTouches:(NSSet*) touches withEvent:(UIEvent*) event
 {
-  if(mGraphics == nullptr) //TODO: why?
+  if (mGraphics == nullptr) //TODO: why?
     return;
   
   NSEnumerator* pEnumerator = [[event allTouches] objectEnumerator];
@@ -331,10 +347,17 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [self onTouchEvent:ETouchEvent::Cancelled withTouches:touches withEvent:event];
 }
 
+#if defined IGRAPHICS_METAL
 - (CAMetalLayer*) metalLayer
 {
   return mMTLLayer;
 }
+#elif defined IGRAPHICS_GL
+- (MGLLayer*) glLayer
+{
+  return mMGLLayer;
+}
+#endif
 
 - (void) didMoveToSuperview
 {
@@ -356,8 +379,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   IRECTList rects;
   
-  if(mGraphics)
+  if (mGraphics)
   {
+#if defined IGRAPHICS_GL
+    [MGLContext setCurrentContext:_glContext forLayer:mMGLLayer];
+#endif
     mGraphics->SetPlatformContext(UIGraphicsGetCurrentContext());
     
     if (mGraphics->IsDirty(rects))
@@ -365,12 +391,16 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
       mGraphics->SetAllControlsClean();
       mGraphics->Draw(rects);
     }
+    
+#if defined IGRAPHICS_GL
+  [mMGLLayer present];
+#endif
   }
 }
 
 - (void) redraw:(CADisplayLink*) displayLink
 {
-#ifdef IGRAPHICS_CPU
+#if defined IGRAPHICS_CPU
   [self setNeedsDisplay];
 #else
   [self drawRect:CGRect()];
@@ -400,8 +430,13 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics = nil;
   mMenuTableController = nil;
   mMenuNavigationController = nil;
+#if defined IGRAPHICS_METAL
   [mMTLLayer removeFromSuperlayer];
   mMTLLayer = nil;
+#elif defined IGRAPHICS_GL
+  [mMGLLayer removeFromSuperlayer];
+  mMGLLayer = nil;
+#endif
 }
 
 - (BOOL) textFieldShouldReturn:(UITextField*) textField
