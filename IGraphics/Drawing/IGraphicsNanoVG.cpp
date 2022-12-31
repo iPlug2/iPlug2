@@ -20,18 +20,23 @@
     #elif defined IGRAPHICS_GL3
       #include <OpenGL/gl3.h>
       #define NANOVG_GL3_IMPLEMENTATION
-    #else
-      #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 for IGRAPHICS_NANOVG with OS_MAC
+    #elif defined IGRAPHICS_GLES2
+      #include <GLES2/gl2.h>
+      #define NANOVG_GLES2_IMPLEMENTATION
+    #elif defined IGRAPHICS_GLES3
+      #include <GLES3/gl32.h>
+      #define NANOVG_GLES3_IMPLEMENTATION
     #endif
   #elif defined OS_IOS
-//    #if defined IGRAPHICS_GLES2
-//      #define NANOVG_GLES2_IMPLEMENTATION
-//    #elif defined IGRAPHICS_GLES3
-//      #define NANOVG_GLES2_IMPLEMENTATION
-//    #else
-//      #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_IOS
-//    #endif
-    #error NOT IMPLEMENTED
+    #if defined IGRAPHICS_GLES2
+      #include <GLES2/gl2.h>
+      #define NANOVG_GLES2_IMPLEMENTATION
+    #elif defined IGRAPHICS_GLES3
+      #include <GLES3/gl3.h>
+      #define NANOVG_GLES3_IMPLEMENTATION
+    #else
+      #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 for IGRAPHICS_NANOVG with OS_IOS
+    #endif
   #elif defined OS_WIN
     #pragma comment(lib, "opengl32.lib")
     #if defined IGRAPHICS_GL2
@@ -313,7 +318,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
   int idx = 0;
   int nvgImageFlags = 0;
   
-#ifdef OS_IOS
+#if defined OS_IOS && defined IGRAPHICS_METAL
   if (location == EResourceLocation::kPreloadedTexture)
   {
     idx = mnvgCreateImageFromHandle(mVG, gTextureMap[fileNameOrResID], nvgImageFlags);

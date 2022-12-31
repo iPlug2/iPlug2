@@ -11,6 +11,11 @@
 #import <UIKit/UIKit.h>
 #include "IGraphicsIOS.h"
 
+#if defined IGRAPHICS_GL
+  #include "MGLLayer.h"
+  #import "MGLContext.h"
+#endif
+
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
@@ -70,7 +75,12 @@ UIColorPickerViewControllerDelegate
   UINavigationController* mMenuNavigationController;
   UITextField* mTextField;
   UIAlertController* mAlertController;
+  
+#ifdef IGRAPHICS_METAL
   CAMetalLayer* mMTLLayer;
+#elif defined IGRAPHICS_GL
+  MGLLayer* mMGLLayer;
+#endif
   int mTextFieldLength;
   IColorPickerHandlerFunc mColorPickerHandlerFunc;
   IFileDialogCompletionHandlerFunc mFileDialogFunc;
@@ -111,7 +121,12 @@ UIColorPickerViewControllerDelegate
 
 - (void) traitCollectionDidChange: (UITraitCollection*) previousTraitCollection;
 
+#if defined IGRAPHICS_METAL
 @property (readonly) CAMetalLayer* metalLayer;
-@property (nonatomic, strong) CADisplayLink *displayLink;
+#else
+@property (readonly) MGLLayer* glLayer;
+@property (nonatomic, strong) MGLContext* glContext;
+#endif
+@property (nonatomic, strong) CADisplayLink* displayLink;
 
 @end
