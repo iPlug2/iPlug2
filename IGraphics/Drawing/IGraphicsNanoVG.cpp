@@ -20,18 +20,23 @@
     #elif defined IGRAPHICS_GL3
       #include <OpenGL/gl3.h>
       #define NANOVG_GL3_IMPLEMENTATION
-    #else
-      #error Define either IGRAPHICS_GL2 or IGRAPHICS_GL3 for IGRAPHICS_NANOVG with OS_MAC
+    #elif defined IGRAPHICS_GLES2
+      #include <libGLESv2/angle_gl.h>
+      #define NANOVG_GLES2_IMPLEMENTATION
+    #elif defined IGRAPHICS_GLES3
+      #include <libGLESv2/angle_gl.h>
+      #define NANOVG_GLES3_IMPLEMENTATION
     #endif
   #elif defined OS_IOS
-//    #if defined IGRAPHICS_GLES2
-//      #define NANOVG_GLES2_IMPLEMENTATION
-//    #elif defined IGRAPHICS_GLES3
-//      #define NANOVG_GLES2_IMPLEMENTATION
-//    #else
-//      #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 when using IGRAPHICS_GL and IGRAPHICS_NANOVG with OS_IOS
-//    #endif
-    #error NOT IMPLEMENTED
+    #if defined IGRAPHICS_GLES2
+      #include <libGLESv2/angle_gl.h>
+      #define NANOVG_GLES2_IMPLEMENTATION
+    #elif defined IGRAPHICS_GLES3
+      #include <libGLESv2/angle_gl.h>
+      #define NANOVG_GLES3_IMPLEMENTATION
+    #else
+      #error Define either IGRAPHICS_GLES2 or IGRAPHICS_GLES3 for IGRAPHICS_NANOVG with OS_IOS
+    #endif
   #elif defined OS_WIN
     #pragma comment(lib, "opengl32.lib")
     #if defined IGRAPHICS_GL2
@@ -313,7 +318,7 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* fileNameOrResID, int scale
   int idx = 0;
   int nvgImageFlags = 0;
   
-#ifdef OS_IOS
+#if defined OS_IOS && defined IGRAPHICS_METAL
   if (location == EResourceLocation::kPreloadedTexture)
   {
     idx = mnvgCreateImageFromHandle(mVG, gTextureMap[fileNameOrResID], nvgImageFlags);
@@ -505,7 +510,7 @@ void IGraphicsNanoVG::BeginFrame()
     glViewport(0, 0, WindowWidth() * GetScreenScale(), WindowHeight() * GetScreenScale());
     glClearColor(0.f, 0.f, 0.f, 0.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-  #if defined OS_MAC
+  #if defined OS_MAC || defined OS_IOS
     glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mInitialFBO); // stash apple fbo
   #endif
 #endif
@@ -531,7 +536,7 @@ void IGraphicsNanoVG::EndFrame()
   nvgFill(mVG);
   nvgRestore(mVG);
   
-#if defined OS_MAC && defined IGRAPHICS_GL
+#if (defined OS_MAC || defined OS_IOS) && defined IGRAPHICS_GL
   glBindFramebuffer(GL_FRAMEBUFFER, mInitialFBO); // restore apple fbo
 #endif
 
