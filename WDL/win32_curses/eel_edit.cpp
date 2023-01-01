@@ -1437,6 +1437,15 @@ static LRESULT WINAPI suggestionProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
           }
           else if (sel != hit)
           {
+            POINT pt;
+            GetCursorPos(&pt);
+            if (wdl_abs(pt.x - editor->m_suggestion_hwnd_initmousepos.x) +
+                wdl_abs(pt.y - editor->m_suggestion_hwnd_initmousepos.y) < ctx->m_font_h*3/4)
+            {
+              return 0;
+            }
+            editor->m_suggestion_hwnd_initmousepos.x = pt.x + 0x10000000;
+
             editor->m_suggestion_hwnd_sel = hit;
             InvalidateRect(hwnd,NULL,FALSE);
 
@@ -1844,6 +1853,8 @@ run_suggest:
                 SetWindowPos(m_suggestion_hwnd,NULL,xpos,ypos,use_w,use_h, SWP_NOZORDER|SWP_NOACTIVATE);
                 InvalidateRect(m_suggestion_hwnd,NULL,FALSE);
                 ShowWindow(m_suggestion_hwnd,SW_SHOWNA);
+
+                GetCursorPos(&m_suggestion_hwnd_initmousepos);
               }
               did_fuzzy = true;
               const char *p = m_suggestion_list.get(wdl_max(m_suggestion_hwnd_sel,0));
