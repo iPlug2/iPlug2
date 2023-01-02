@@ -6876,6 +6876,11 @@ HWND ChildWindowFromPoint(HWND h, POINT p)
   return h;
 }
 
+static bool isHitTestOpaque(HWND h, const POINT p)
+{
+  return h->m_visible && HTTRANSPARENT != SendMessage(h, WM_NCHITTEST, 0, MAKELPARAM(p.x, p.y));
+}
+
 static HWND recurseOwnedWindowHitTest(HWND h, POINT p, int maxdepth)
 {
   RECT r;
@@ -6888,7 +6893,7 @@ static HWND recurseOwnedWindowHitTest(HWND h, POINT p, int maxdepth)
     HWND owned = h->m_owned_list;
     while (owned)
     {
-      if (owned->m_visible)
+      if (isHitTestOpaque(owned, p))
       {
         HWND hit = recurseOwnedWindowHitTest(owned,p,maxdepth-1);
         if (hit) return hit;
@@ -6906,7 +6911,7 @@ HWND WindowFromPoint(POINT p)
   HWND h = SWELL_topwindows;
   while (h)
   {
-    if (h->m_visible)
+    if (isHitTestOpaque(h, p))
     {
       HWND hit = recurseOwnedWindowHitTest(h,p,20);
       if (hit) return hit;

@@ -5363,7 +5363,7 @@ HWND WindowFromPoint(POINT p)
   {
     NSWindow *wnd = kw;
     if (x>=0) wnd=[windows objectAtIndex:x];
-    if (wnd && [wnd isVisible])
+    if (wnd && [wnd isVisible] && HTTRANSPARENT != SendMessage((HWND)wnd, WM_NCHITTEST, 0, MAKELPARAM(p.x, p.y)))
     {
       NSRect fr=[wnd frame];
       if (p.x >= fr.origin.x && p.x < fr.origin.x + fr.size.width &&

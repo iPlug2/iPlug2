@@ -1004,6 +1004,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 
 #define SC_CLOSE        0xF060
 
+#define HTTRANSPARENT (-1)
 #define HTCAPTION 2
 #define HTBOTTOMRIGHT 17
 
