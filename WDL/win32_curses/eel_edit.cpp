@@ -1612,6 +1612,33 @@ int EEL_Editor::onChar(int c)
             WDL_NORMALLY(m_suggestion_tokpos+m_suggestion_toklen <= l->GetLength()))
         {
           preSaveUndoState();
+          if (sug_mode == suggested_matchlist::MODE_USERFUNC)
+          {
+            const char *tok = l->Get() + m_suggestion_tokpos;
+            for (int j = m_suggestion_toklen - 1; j >= 0; j --)
+            {
+              if (tok[j] == '.')
+              {
+                const char *be = buf;
+                while (*be) be++;
+                while (be > buf && *be != '.') be--;
+                if (be > buf)
+                {
+                  // buf is foo.bar, lead_sz=3, if j>=3 check for common prefix
+                  const int lead_sz = (int) (be-buf);
+                  if (j == lead_sz || (j > lead_sz && tok[j-lead_sz-1] == '.'))
+                  {
+                    // prefixes match, ignore
+                    if (!strnicmp(buf, tok + j - lead_sz, lead_sz+1)) continue;
+                  }
+                }
+
+                m_suggestion_tokpos += j+1;
+                m_suggestion_toklen -= j+1;
+                break;
+              }
+            }
+          }
           l->DeleteSub(m_suggestion_tokpos,m_suggestion_toklen);
           l->Insert(buf,m_suggestion_tokpos);
           int pos = m_suggestion_tokpos + strlen(buf);
