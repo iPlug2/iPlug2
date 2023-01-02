@@ -696,7 +696,7 @@ void WDL_CursesEditor::draw_status_state()
     whichpane,
     m_curs_y+1, m_text.GetSize(),
     pane_offs+1, wdl_min(pane_offs+1+paneh[!!m_curpane],m_text.GetSize()),
-    m_curs_x,
+    m_curs_x+1,
     (s_overwrite ? "OVR" : "INS"), (m_clean_undopos == m_undoStack_pos ? "" : "*"));
 
   int len=strlen(str);
@@ -1475,7 +1475,7 @@ void WDL_CursesEditor::runSearch(bool backwards, bool replaceAll)
         setCursor();
 
         m_curs_x = m_select_x1;
-        snprintf(buf,sizeof(buf),"Found @ Line %d Col %d %s'%s' (Shift+)F3|" CONTROL_KEY_NAME "+G:(prev)next",m_curs_y+1,m_curs_x,wrapflag?"(wrapped) ":"",ellipsify(m_search_string.Get(),elbuf,sizeof(elbuf)));
+        snprintf(buf,sizeof(buf),"Found @ Line %d Col %d %s'%s' (Shift+)F3|" CONTROL_KEY_NAME "+G:(prev)next",m_curs_y+1,m_curs_x+1,wrapflag?"(wrapped) ":"",ellipsify(m_search_string.Get(),elbuf,sizeof(elbuf)));
         break;
       }
     }
@@ -2442,8 +2442,9 @@ int WDL_CursesEditor::onChar(int c)
   break;
   case KEY_END:
     {
-      if (m_text.Get(m_curs_y)) m_curs_x=WDL_utf8_get_charlen(m_text.Get(m_curs_y)->Get());
-      if (CTRL_KEY_DOWN) m_curs_y=m_text.GetSize();
+      if (CTRL_KEY_DOWN) m_curs_y=wdl_max(m_text.GetSize()-1,0);
+      const WDL_FastString *ln = m_text.Get(m_curs_y);
+      if (ln) m_curs_x=WDL_utf8_get_charlen(ln->Get());
       if (m_selecting) { setCursor(); m_select_x2=m_curs_x; m_select_y2=m_curs_y; draw(); }
       m_want_x=-1; // clear in case we're already at the end of the line
       setCursor();
