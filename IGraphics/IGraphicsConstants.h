@@ -11,6 +11,7 @@
 #pragma once
 
 #include "IPlugPlatform.h"
+#include "config.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
