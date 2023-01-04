@@ -219,7 +219,9 @@ BOOL SetWindowTextUTF8(HWND hwnd, LPCTSTR str)
     DWORD pid;
     if (GetWindowThreadProcessId(hwnd,&pid) == GetCurrentThreadId() && 
         pid == GetCurrentProcessId() && 
-        !(GetWindowLong(hwnd,GWL_STYLE)&WS_CHILD))
+        !IsWindowUnicode(hwnd) &&
+        !(GetWindowLong(hwnd,GWL_STYLE)&WS_CHILD)
+        )
     {
       LPARAM tmp = SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LPARAM)__forceUnicodeWndProc);
       BOOL rv = SetWindowTextA(hwnd, str);
