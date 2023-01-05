@@ -1344,6 +1344,11 @@ public:
     return kNoTag;
   }
   
+  /** Get the first control with a parameter index that matches paramIdx
+   * @param idx The paramater index of the control to get
+   * @return A pointer to the IControl object at idx or nullptr if not found */
+  IControl* GetControlWithParamIdx(int paramIdx);
+  
   /** Check to see if any control is captured */
   bool ControlIsCaptured() const { return mCapturedMap.size() > 0; }
   

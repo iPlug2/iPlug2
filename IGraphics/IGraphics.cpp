@@ -453,6 +453,21 @@ IControl* IGraphics::GetControlWithTag(int ctrlTag) const
   }
 }
 
+IControl* IGraphics::GetControlWithParamIdx(int paramIdx)
+{
+  for (auto c = 0; c < NControls(); c++)
+  {
+    IControl* pControl = GetControl(c);
+
+    if (pControl->LinkedToParam(paramIdx) > kNoValIdx)
+    {
+      return pControl;
+    }
+  }
+  
+  return nullptr;
+}
+
 void IGraphics::HideControl(int paramIdx, bool hide)
 {
   ForMatchingControls(&IControl::Hide, paramIdx, hide);
