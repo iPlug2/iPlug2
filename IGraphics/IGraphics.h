@@ -1306,11 +1306,13 @@ public:
    * @return The index of the control (and the number of controls in the stack) */
   IControl* AttachControl(IControl* pControl, int ctrlTag = kNoTag, const char* group = "");
 
-  /** @param idx The index of the control to get
+  /** Get the control at a certain index in the control stack
+   * @param idx The index of the control to get
    * @return A pointer to the IControl object at idx or nullptr if not found */
   IControl* GetControl(int idx) { return mControls.Get(idx); }
 
-  /** @param pControl Pointer to the control to get
+  /** Get the index of a particular IControl in the control stack
+   * @param pControl Pointer to the control to get
    * @return integer index of the control in mControls array or -1 if not found */
   int GetControlIdx(IControl* pControl) const { return mControls.Find(pControl); }
   
@@ -1323,7 +1325,8 @@ public:
     return pControl ? GetControlIdx(pControl) : -1;
   }
   
-  /** @param ctrlTag The tag to look for
+  /** Get the control with a particular tag
+   * @param ctrlTag The tag to look for
    * @return A pointer to the IControl object with the tag of nullptr if not found */
   IControl* GetControlWithTag(int ctrlTag) const;
   
