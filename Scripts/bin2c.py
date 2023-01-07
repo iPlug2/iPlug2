@@ -88,7 +88,7 @@ def process(entries, src_file, header_file=None, array_name=None, line_length=50
   with open(src_file, "w") as fd:
     # Add our include statement
     if header_file:
-      fd.write('#include "%s"\n\n' % header_file)
+      fd.write('#include "%s"\n\n' % os.path.basename(header_file))
     # Process each entry
     for en in entries:
       msg = []
@@ -124,6 +124,7 @@ def process(entries, src_file, header_file=None, array_name=None, line_length=50
   if header_file:
     with open(header_file, 'w') as fd:
       fd.write('#pragma once\n\n')
+      fd.write("#include <stdint.h>\n\n")
       # Guard for multiple headers defining resource_t
       guard_def = array_type.upper() + '_DEFINED'
       fd.write('#ifndef {0}\n#define {0}\n'.format(guard_def))
