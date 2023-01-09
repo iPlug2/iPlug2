@@ -2688,6 +2688,7 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             ctx->m_kb_queue_pos++;
           }
           ctx->m_kb_queue[(ctx->m_kb_queue_pos + ctx->m_kb_queue_valid++) & (qsize-1)] = a;
+          ctx->m_last_menu_cnt = 0;
         }
 
       }
@@ -2720,6 +2721,7 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
           if (GetAsyncKeyState(VK_LWIN)&0x8000) f|=32;
 
           ctx->m_has_cap|=f;
+          ctx->m_last_menu_cnt = 0;
         }
       }
     }
@@ -2738,6 +2740,7 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         }
         else 
         {
+          ctx->m_last_menu_cnt = 0;
           if (uMsg == WM_LBUTTONUP) ctx->m_has_cap &= ~0x10000;
           else if (uMsg == WM_RBUTTONUP) ctx->m_has_cap &= ~0x20000;
           else if (uMsg == WM_MBUTTONUP) ctx->m_has_cap &= ~0x40000;
