@@ -1579,9 +1579,9 @@ EEL_F eel_lice_state::gfx_showmenu(void* opaque, EEL_F** parms, int nparms)
   const char* p=EEL_STRING_GET_FOR_INDEX(parms[0][0], NULL);
   if (!p || !p[0]) return 0.0;
 
-  if ((GetTickCount()-m_last_menu_time) < 1000)
+  if ((GetTickCount()-m_last_menu_time) < (m_last_menu_cnt>=5 ? 3000 : 500))
   {
-    if (m_last_menu_cnt >= 10) return 0;
+    if (m_last_menu_cnt >= 5) return 0;
     m_last_menu_cnt++;
   }
   else
@@ -1617,6 +1617,7 @@ EEL_F eel_lice_state::gfx_showmenu(void* opaque, EEL_F** parms, int nparms)
 
     ret=TrackPopupMenu(hm, TPM_NONOTIFY|TPM_RETURNCMD, pt.x, pt.y, 0, hwnd_standalone, NULL);
     m_last_menu_time = GetTickCount();
+    if (ret) m_last_menu_cnt = 0;
     DestroyMenu(hm);
   }
   return (EEL_F)ret;
@@ -2688,7 +2689,7 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             ctx->m_kb_queue_pos++;
           }
           ctx->m_kb_queue[(ctx->m_kb_queue_pos + ctx->m_kb_queue_valid++) & (qsize-1)] = a;
-          ctx->m_last_menu_cnt = 0;
+          if (ctx->m_last_menu_cnt && (GetTickCount()-ctx->m_last_menu_time)>250) ctx->m_last_menu_cnt = 0;
         }
 
       }
@@ -2721,7 +2722,7 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
           if (GetAsyncKeyState(VK_LWIN)&0x8000) f|=32;
 
           ctx->m_has_cap|=f;
-          ctx->m_last_menu_cnt = 0;
+          if (ctx->m_last_menu_cnt && (GetTickCount()-ctx->m_last_menu_time)>250) ctx->m_last_menu_cnt = 0;
         }
       }
     }
@@ -2740,7 +2741,7 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         }
         else 
         {
-          ctx->m_last_menu_cnt = 0;
+          if (ctx->m_last_menu_cnt && (GetTickCount()-ctx->m_last_menu_time)>250) ctx->m_last_menu_cnt = 0;
           if (uMsg == WM_LBUTTONUP) ctx->m_has_cap &= ~0x10000;
           else if (uMsg == WM_RBUTTONUP) ctx->m_has_cap &= ~0x20000;
           else if (uMsg == WM_MBUTTONUP) ctx->m_has_cap &= ~0x40000;
