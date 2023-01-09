@@ -315,6 +315,10 @@ public:
 #endif
 
 #endif
+
+  DWORD m_last_menu_time;
+  int m_last_menu_cnt;
+
   int m_has_cap; // high 16 bits are current capture state, low 16 bits are temporary flags from mousedown
   bool m_has_had_getch; // set on first gfx_getchar(), makes mouse_cap updated with modifiers even when no mouse click is down
 
@@ -377,6 +381,8 @@ eel_lice_state::eel_lice_state(NSEEL_VMCTX vm, void *ctx, int image_slots, int f
 
   m_has_cap=0;
   m_has_had_getch=false;
+  m_last_menu_time = GetTickCount() - 100000;
+  m_last_menu_cnt = 0;
 }
 eel_lice_state::~eel_lice_state()
 {
@@ -1573,6 +1579,16 @@ EEL_F eel_lice_state::gfx_showmenu(void* opaque, EEL_F** parms, int nparms)
   const char* p=EEL_STRING_GET_FOR_INDEX(parms[0][0], NULL);
   if (!p || !p[0]) return 0.0;
 
+  if ((GetTickCount()-m_last_menu_time) < 1000)
+  {
+    if (m_last_menu_cnt >= 10) return 0;
+    m_last_menu_cnt++;
+  }
+  else
+  {
+    m_last_menu_cnt=0;
+  }
+
   int id=1;
   HMENU hm=PopulateMenuFromStr(&p, &id);
 
@@ -1598,7 +1614,9 @@ EEL_F eel_lice_state::gfx_showmenu(void* opaque, EEL_F** parms, int nparms)
     }
     else
       GetCursorPos(&pt);
+
     ret=TrackPopupMenu(hm, TPM_NONOTIFY|TPM_RETURNCMD, pt.x, pt.y, 0, hwnd_standalone, NULL);
+    m_last_menu_time = GetTickCount();
     DestroyMenu(hm);
   }
   return (EEL_F)ret;
