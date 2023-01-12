@@ -106,7 +106,7 @@ ifndef NO_GFX
             swell-dlg-generic.o swell-menu-generic.o swell-kb-generic.o \
             swell-gdi-generic.o swell-ini.o swell-generic-gdk.o
 
-    LFLAGS += -ldl
+    LFLAGS += -ldl -lGL
   endif
 
 endif
@@ -143,7 +143,11 @@ ifeq ($(CXX),g++)
   endif
 endif
 
+gen-yacc:
+	yacc -v -d eel2.y
 
+gen-lex:  # the output of this, lex.nseel.c, is unused because we have a handwritten parser instead
+	flex eel2.l
 
 %.o : %.mm
 	$(CXX) $(CXXFLAGS) -c -o $@ $^
@@ -154,4 +158,4 @@ loose_eel: loose_eel.o $(OBJS) $(OBJS2)
 clean:
 	-rm -f -- loose_eel loose_eel.o $(OBJS)
 
-.PHONY: clean
+.PHONY: clean gen-lex gen-yacc

@@ -7,6 +7,14 @@
 // if onlySec_name is set, only loads/returns section in question and does not update global state.
 WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *buf, const char *onlySec_name);
 
+WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *buf,
+    WDL_StringKeyedArray< WDL_AssocArray<WDL_UINT64, char *> * > *dest,
+    const char *onlySec_name, // if set, will not touch dest
+    bool include_commented_lines,
+    bool no_escape_strings,
+    WDL_StringKeyedArray<char *> *extra_metadata
+    );
+
 WDL_AssocArray<WDL_UINT64, char *> *WDL_GetLangpackSection(const char *sec);
 
 void WDL_SetLangpackFallbackEntry(const char *src_sec, WDL_UINT64 src_v, const char *dest_sec, WDL_UINT64 dest_v);

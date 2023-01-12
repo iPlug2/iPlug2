@@ -44,7 +44,7 @@
 class WDL_Resampler::WDL_Resampler_Filter // pre/post filter
 {
 public:
-  WDL_Resampler_Filter() : m_fpos(-1.0), m_state(-1), m_filtsz(0) { }
+  WDL_Resampler_Filter() : m_fpos(-1.0), m_filtsz(0), m_state(-1) { }
 
   void Reset() 
   { 

@@ -11,18 +11,27 @@
 #define CHANNELPINMAPPER_MAXPINS 64
 
 
-// eventually ChannelPinMapper etc should use this instead of WDL_UINT64
 struct PinMapPin
 {
   enum { PINMAP_PIN_MAX_CHANNELS = CHANNELPINMAPPER_MAXPINS };
-  // currently must be WDL_UINT64 since we cast to WDL_UINT64 for EffectPinConnectDialog
-  // probably should change to unsigned int when we migrate to higher channel counts
-  // (more efficient for 32-bit platforms)
-  enum { STATE_ENT_BITS=64 };
-  WDL_UINT64 state[(PINMAP_PIN_MAX_CHANNELS + STATE_ENT_BITS - 1) / STATE_ENT_BITS];
+
+  enum { STATE_ENT_BITS=64, STATE_SIZE=(PINMAP_PIN_MAX_CHANNELS + STATE_ENT_BITS - 1) / STATE_ENT_BITS };
+  WDL_UINT64 state[STATE_SIZE];
   static WDL_UINT64 make_mask(unsigned int idx) { return WDL_UINT64_CONST(1) << (idx & (STATE_ENT_BITS-1)); }
   static WDL_UINT64 full_mask() { return ~WDL_UINT64_CONST(0); }
 
+  WDL_UINT64 get_64(unsigned int offs=0) const {
+    return WDL_NORMALLY(offs < STATE_SIZE) ? state[offs] : 0;
+  }
+  void set_64(WDL_UINT64 s, unsigned int offs=0) {
+    if (WDL_NORMALLY(offs < STATE_SIZE)) state[offs]=s;
+  }
+  unsigned int get_64_max() const { return STATE_SIZE; }
+  unsigned int get_64_top(unsigned int minv=0) const {
+    unsigned int x = STATE_SIZE;
+    while (x > minv && !state[x-1]) x--;
+    return x;
+  }
 
   void clear() { memset(state,0,sizeof(state)); }
   void clear_chan(unsigned int ch) { if (WDL_NORMALLY(ch < PINMAP_PIN_MAX_CHANNELS)) state[ch/STATE_ENT_BITS] &= ~make_mask(ch); }
@@ -31,7 +40,7 @@ struct PinMapPin
   void set_chan_lt(unsigned int cnt)
   {
     if (WDL_NOT_NORMALLY(cnt > PINMAP_PIN_MAX_CHANNELS)) cnt = PINMAP_PIN_MAX_CHANNELS;
-    for (int x = 0; cnt && x < (int) (sizeof(state)/sizeof(state[0])); x ++)
+    for (int x = 0; cnt && x < STATE_SIZE; x ++)
     {
       if (cnt < STATE_ENT_BITS) { state[x] |= make_mask(cnt)-1; cnt=0; }
       else { state[x] = full_mask(); cnt -= STATE_ENT_BITS; }
@@ -43,7 +52,7 @@ struct PinMapPin
   bool has_chan_lt(unsigned int cnt) const
   {
     if (WDL_NOT_NORMALLY(cnt > PINMAP_PIN_MAX_CHANNELS)) cnt = PINMAP_PIN_MAX_CHANNELS;
-    for (int x = 0; cnt && x < (int) (sizeof(state)/sizeof(state[0])); x ++)
+    for (int x = 0; cnt && x < STATE_SIZE; x ++)
     {
       if (cnt < STATE_ENT_BITS) return (state[x] & (make_mask(cnt)-1));
       if (state[x]) return true;
@@ -87,7 +96,13 @@ struct PinMapPin
 
   PinMapPin & operator |= (const PinMapPin &v)
   {
-    for (int x = 0; x < (int) (sizeof(state)/sizeof(state[0])); x ++) state[x]|=v.state[x];
+    for (int x = 0; x < STATE_SIZE; x ++) state[x]|=v.state[x];
+    return *this;
+  }
+
+  PinMapPin & operator &= (const PinMapPin &v)
+  {
+    for (int x = 0; x < STATE_SIZE; x ++) state[x]&=v.state[x];
     return *this;
   }
 
@@ -103,7 +118,6 @@ struct PinMapPin
     return true;
   }
 };
-typedef char assert_pinmappin_is_sizeofuint64[sizeof(PinMapPin) == sizeof(WDL_UINT64) ? 1 : -1];
 
 
 class ChannelPinMapper
@@ -116,7 +130,7 @@ public:
   void SetNPins(int nPins);
   void SetNChannels(int nCh, bool auto_passthru=true);
   // or ...
-  void Init(const WDL_UINT64* pMapping, int nPins);
+  void Init(const PinMapPin * pMapping, int nPins);
 
   int GetNPins() const { return m_nPins; }
   int GetNChannels() const { return m_nCh; }
@@ -127,20 +141,19 @@ public:
 
   // true if this pin is mapped to this channel
   bool GetPin(int pinIdx, int chIdx) const;
-  // true if this pin is to any higher channel
-  bool PinHasMoreMappings(int pinIdx, int chIdx) const;
+
   // true if this mapper is a straight 1:1 passthrough
   bool IsStraightPassthrough() const;
 
   const char *SaveStateNew(int* pLen); // owned
   bool LoadState(const char* buf, int len);
 
-  WDL_UINT64 m_mapping[CHANNELPINMAPPER_MAXPINS];
+  PinMapPin m_mapping[CHANNELPINMAPPER_MAXPINS];
+  int m_nCh, m_nPins;
 
 private:
 
   WDL_Queue m_cfgret;
-  int m_nCh, m_nPins;
 };
 
 // converts interleaved buffer to interleaved buffer, using min(len_in,len_out) and zeroing any extra samples

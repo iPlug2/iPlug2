@@ -77,6 +77,7 @@ int main(int argc, char **argv)
   eelScriptInst inst;
   if (want_args)
   {
+#ifndef EELSCRIPT_DO_DISASSEMBLE
     const int argv_offs = 1<<22;
     code.SetFormatted(64,"argc=0; argv=%d;\n",argv_offs);
     int x;
@@ -86,6 +87,7 @@ int main(int argc, char **argv)
           inst.m_string_context->AddString(new WDL_FastString(x<argpos ? scriptfn : argv[x])));
     }
     inst.runcode(code.Get(),2,"__cmdline__",true,true,true);
+#endif
   }
 
   if (g_interactive)
@@ -120,9 +122,15 @@ int main(int argc, char **argv)
       if (!strcmp(line,"quit")) break;
       if (!strcmp(line,"abort")) code.Set("");
 
+#ifndef EELSCRIPT_DO_DISASSEMBLE
       t.Set("__result = (");
+#else
+      t.Set("");
+#endif
       t.Append(code.Get());
+#ifndef EELSCRIPT_DO_DISASSEMBLE
       t.Append(");");
+#endif
       int res=inst.runcode(t.Get(),false,"",true,true,true); // allow free, since functions can't be defined locally
       if (!res)
       {

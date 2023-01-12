@@ -264,7 +264,7 @@ int SWELL_ReadWriteProcessIO(HANDLE hand, int w/*stdin,stdout,stderr*/, char *bu
         struct pollfd pl = { handle, POLLIN };
         if (poll(&pl,1,0)<1) return 0;
 
-        return read(handle,buf,bufsz);
+        return (int)read(handle,buf,bufsz);
       }
     }
     NSData *d = NULL;
@@ -814,8 +814,8 @@ BOOL EnumDisplayMonitors(HDC hdc, const LPRECT r, MONITORENUMPROC proc,LPARAM lP
 {
   // ignores hdc
   NSArray *screens = [NSScreen screens];
-  const int ns = [screens count];
-  for (int x = 0; x < ns; x ++)
+  const unsigned int ns = (unsigned int) [screens count];
+  for (unsigned int x = 0; x < ns; x ++)
   {
     NSScreen *mon = [screens objectAtIndex:x];
     if (mon)

@@ -315,6 +315,10 @@ public:
 #endif
 
 #endif
+
+  DWORD m_last_menu_time;
+  int m_last_menu_cnt;
+
   int m_has_cap; // high 16 bits are current capture state, low 16 bits are temporary flags from mousedown
   bool m_has_had_getch; // set on first gfx_getchar(), makes mouse_cap updated with modifiers even when no mouse click is down
 
@@ -377,6 +381,8 @@ eel_lice_state::eel_lice_state(NSEEL_VMCTX vm, void *ctx, int image_slots, int f
 
   m_has_cap=0;
   m_has_had_getch=false;
+  m_last_menu_time = GetTickCount() - 100000;
+  m_last_menu_cnt = 0;
 }
 eel_lice_state::~eel_lice_state()
 {
@@ -1573,6 +1579,16 @@ EEL_F eel_lice_state::gfx_showmenu(void* opaque, EEL_F** parms, int nparms)
   const char* p=EEL_STRING_GET_FOR_INDEX(parms[0][0], NULL);
   if (!p || !p[0]) return 0.0;
 
+  if ((GetTickCount()-m_last_menu_time) < (m_last_menu_cnt>=5 ? 3000 : 500))
+  {
+    if (m_last_menu_cnt >= 5) return 0;
+    m_last_menu_cnt++;
+  }
+  else
+  {
+    m_last_menu_cnt=0;
+  }
+
   int id=1;
   HMENU hm=PopulateMenuFromStr(&p, &id);
 
@@ -1598,7 +1614,10 @@ EEL_F eel_lice_state::gfx_showmenu(void* opaque, EEL_F** parms, int nparms)
     }
     else
       GetCursorPos(&pt);
+
     ret=TrackPopupMenu(hm, TPM_NONOTIFY|TPM_RETURNCMD, pt.x, pt.y, 0, hwnd_standalone, NULL);
+    m_last_menu_time = GetTickCount();
+    if (ret) m_last_menu_cnt = 0;
     DestroyMenu(hm);
   }
   return (EEL_F)ret;
@@ -1997,11 +2016,13 @@ static EEL_F * NSEEL_CGEN_CALL _gfx_update(void *opaque, EEL_F *n)
 
 
 
-static EEL_F NSEEL_CGEN_CALL _gfx_getchar(void *opaque, EEL_F *p)
+static EEL_F NSEEL_CGEN_CALL _gfx_getchar(void *opaque, INT_PTR np, EEL_F **plist)
 {
   eel_lice_state *ctx=EEL_LICE_GET_CONTEXT(opaque);
+  if (np > 1) plist[1][0] = 0.0;
   if (ctx)
   {
+    EEL_F *p = plist[0];
     ctx->m_has_had_getch=true;
     if (*p >= 2.0)
     {
@@ -2028,9 +2049,33 @@ static EEL_F NSEEL_CGEN_CALL _gfx_getchar(void *opaque, EEL_F *p)
     if (ctx->m_kb_queue_valid)
     {
       const int qsize = sizeof(ctx->m_kb_queue)/sizeof(ctx->m_kb_queue[0]);
-      const int a = ctx->m_kb_queue[ctx->m_kb_queue_pos & (qsize-1)];
+      int a = ctx->m_kb_queue[ctx->m_kb_queue_pos & (qsize-1)];
       ctx->m_kb_queue_pos++;
       ctx->m_kb_queue_valid--;
+
+#ifdef _WIN32
+      if (np > 1 && (a>>24) != 'u' && ctx->m_kb_queue_valid > 0)
+      {
+        int a2 = ctx->m_kb_queue[ctx->m_kb_queue_pos & (qsize-1)];
+        if ((a2>>24)=='u')
+        {
+          ctx->m_kb_queue_pos++;
+          ctx->m_kb_queue_valid--;
+          plist[1][0] = (a2&0xffffff);
+        }
+        return a;
+      }
+#else
+      if (a > 32 && a < 256 && np > 1)
+        plist[1][0] = a;
+#endif
+      if ((a>>24) == 'u')
+      {
+        if ((a&0xffffff) < 256)
+          a &= 0xff;
+        if (np > 1) plist[1][0] = a&0xffffff;
+      }
+
       return a;
     }
   }
@@ -2107,8 +2152,10 @@ static int eel_lice_key_xlate(int msg, int wParam, int lParam, bool *isAltOut)
         {
           const bool isctrl = !!(GetAsyncKeyState(VK_CONTROL)&0x8000);
           const bool isalt = !!(GetAsyncKeyState(VK_MENU)&0x8000);
+
           if(isctrl || isalt)
           {
+
             if (wParam>='a' && wParam<='z') 
             {
               if (isctrl) wParam += 1-'a';
@@ -2124,12 +2171,6 @@ static int eel_lice_key_xlate(int msg, int wParam, int lParam, bool *isAltOut)
               return wParam;
             }
           }
-
-          if (isctrl)
-          {
-            if ((wParam&~0x80) == '[') return 27;
-            if ((wParam&~0x80) == ']') return 29;
-          }
         }
       break;
     }
@@ -2138,7 +2179,10 @@ static int eel_lice_key_xlate(int msg, int wParam, int lParam, bool *isAltOut)
   if(wParam>=32) 
   {
     #ifdef _WIN32
-      if (msg == WM_CHAR) return wParam;
+      if (msg == WM_CHAR)
+      {
+        return (wParam&0xffffff) | ('u'<<24); // windows encodes all wm_chars as 'u'<<24
+      }
     #else
       if (!(GetAsyncKeyState(VK_SHIFT)&0x8000))
       {
@@ -2149,6 +2193,8 @@ static int eel_lice_key_xlate(int msg, int wParam, int lParam, bool *isAltOut)
             wParam += 'a'-'A';
         }
       }
+      if (wParam >= 0x100)
+        return (wParam&0xffffff) | ('u'<<24);
       return wParam;
     #endif
   }      
@@ -2582,21 +2628,26 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     case WM_CHAR:
       {
         eel_lice_state *ctx=(eel_lice_state*)GetWindowLongPtr(hwnd,GWLP_USERDATA);
+#ifdef __APPLE__
+        {
+          int f=0;
+          wParam = SWELL_MacKeyToWindowsKeyEx(NULL,&f,1);
+          lParam=f;
+        }
+#endif
 
         bool hadAltAdj=false;
         int a=eel_lice_key_xlate(uMsg,(int)wParam,(int)lParam, &hadAltAdj);
-#ifdef _WIN32
-        if (!a && (uMsg == WM_KEYUP || uMsg == WM_SYSKEYUP) && wParam >= 'A' && wParam <= 'Z') a=(int)wParam + 'a' - 'A';
-#endif
-        const int mask = hadAltAdj ? ~256 : ~0;
-
+        if (a == -1) return 0;
 #ifdef _WIN32
         if (!a && (uMsg == WM_KEYUP || uMsg == WM_SYSKEYUP))
         {
-          // not ideal, doesn't properly support all modifiers but better than nothing
-          a = (int)MapVirtualKey((UINT)wParam,2/*MAPVK_VK_TO_CHAR*/);
+          // will not end up in queue, just for state tracking
+          if (wParam >= 'A' && wParam <= 'Z') a=(int)wParam + 'a' - 'A';
+          else a = (int)MapVirtualKey((UINT)wParam,2/*MAPVK_VK_TO_CHAR*/);
         }
 #endif
+        const int mask = hadAltAdj ? ~256 : ~0;
 
         if (a & mask)
         {
@@ -2623,12 +2674,6 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             st[zp]=lowera;
           }
         }
-#ifdef _WIN32
-        if (!a && (uMsg == WM_KEYDOWN || uMsg == WM_SYSKEYDOWN) && ((GetAsyncKeyState(VK_CONTROL)&0x8000)||(GetAsyncKeyState(VK_MENU)&0x8000)))
-        {
-          a = (int)MapVirtualKey((UINT)wParam,2/*MAPVK_VK_TO_CHAR*/);
-        }
-#endif
 
         if (a && uMsg != WM_KEYUP
 #ifdef _WIN32
@@ -2644,6 +2689,7 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
             ctx->m_kb_queue_pos++;
           }
           ctx->m_kb_queue[(ctx->m_kb_queue_pos + ctx->m_kb_queue_valid++) & (qsize-1)] = a;
+          if (ctx->m_last_menu_cnt && (GetTickCount()-ctx->m_last_menu_time)>250) ctx->m_last_menu_cnt = 0;
         }
 
       }
@@ -2676,6 +2722,7 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
           if (GetAsyncKeyState(VK_LWIN)&0x8000) f|=32;
 
           ctx->m_has_cap|=f;
+          if (ctx->m_last_menu_cnt && (GetTickCount()-ctx->m_last_menu_time)>250) ctx->m_last_menu_cnt = 0;
         }
       }
     }
@@ -2694,6 +2741,7 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
         }
         else 
         {
+          if (ctx->m_last_menu_cnt && (GetTickCount()-ctx->m_last_menu_time)>250) ctx->m_last_menu_cnt = 0;
           if (uMsg == WM_LBUTTONUP) ctx->m_has_cap &= ~0x10000;
           else if (uMsg == WM_RBUTTONUP) ctx->m_has_cap &= ~0x20000;
           else if (uMsg == WM_MBUTTONUP) ctx->m_has_cap &= ~0x40000;
@@ -2783,7 +2831,11 @@ LRESULT WINAPI eel_lice_wndproc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
     return 0;
   }
 
+#ifdef _WIN32
+  return DefWindowProcW(hwnd,uMsg,wParam,lParam);
+#else
   return DefWindowProc(hwnd,uMsg,wParam,lParam);
+#endif
 }
 
 
@@ -2796,8 +2848,18 @@ void eel_lice_register_standalone(HINSTANCE hInstance, const char *classname, HW
   if (!reg)
   {
     eel_lice_hinstance=hInstance;
-    WNDCLASS wc={CS_DBLCLKS,eel_lice_wndproc,0,0,hInstance,icon,LoadCursor(NULL,IDC_ARROW), NULL, NULL,eel_lice_standalone_classname};
-    RegisterClass(&wc);
+    WCHAR tmp[256];
+    int x = 0;
+    while (eel_lice_standalone_classname[x])
+    {
+      if (WDL_NOT_NORMALLY(x == 255)) break;
+      tmp[x] = eel_lice_standalone_classname[x];
+      x++;
+    }
+    tmp[x]=0;
+
+    WNDCLASSW wc={CS_DBLCLKS,eel_lice_wndproc,0,0,hInstance,icon,LoadCursor(NULL,IDC_ARROW), NULL, NULL,tmp};
+    RegisterClassW(&wc);
     reg = true;
   }
 #endif
@@ -2820,7 +2882,7 @@ void eel_lice_register_standalone(HINSTANCE hInstance, const char *classname, HW
   NSEEL_addfunc_retptr("gfx_update",1,NSEEL_PProc_THIS,&_gfx_update);
 #endif
 
-  NSEEL_addfunc_retval("gfx_getchar",1,NSEEL_PProc_THIS,&_gfx_getchar);
+  NSEEL_addfunc_varparm("gfx_getchar",1,NSEEL_PProc_THIS,&_gfx_getchar);
 #endif
 }
 
@@ -2947,7 +3009,7 @@ static const char *eel_lice_function_reference =
   "\2"
   "\2\0"
 
-"gfx_getchar\t[char]\tIf char is 0 or omitted, returns a character from the keyboard queue, or 0 if no character is available, or -1 if the graphics window is not open. "
+"gfx_getchar\t[char, unichar]\tIf char is 0 or omitted, returns a character from the keyboard queue, or 0 if no character is available, or -1 if the graphics window is not open. "
      "If char is specified and nonzero, that character's status will be checked, and the function will return greater than 0 if it is pressed. Note that calling gfx_getchar() at least once causes mouse_cap to reflect keyboard modifiers even when the mouse is not captured.\n\n"
      "Common values are standard ASCII, such as 'a', 'A', '=' and '1', but for many keys multi-byte values are used, including 'home', 'up', 'down', 'left', 'rght', 'f1'.. 'f12', 'pgup', 'pgdn', 'ins', and 'del'. \n\n"
      "Modified and special keys can also be returned, including:\3\n"
@@ -2958,6 +3020,7 @@ static const char *eel_lice_function_reference =
      "\4" "13 for Enter\n"
      "\4' ' for space\n"
      "\4" "65536 for query of special flags, returns: &1 (supported), &2=window has focus, &4=window is visible\n"
+     "\4If unichar is specified, it will be set to the unicode value of the key if available (and the return value may be the unicode value or a raw key value as described above, depending). If unichar is not specified, unicode codepoints greater than 255 will be returned as 'u'<<24 + value\n"
      "\2\0"
     
   "gfx_showmenu\t\"str\"\tShows a popup menu at gfx_x,gfx_y. str is a list of fields separated by | characters. "

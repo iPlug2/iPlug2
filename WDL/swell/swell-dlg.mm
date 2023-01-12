@@ -801,7 +801,7 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
     if ([sender isKindOfClass:[SWELL_ComboBox class]])
     {
       SWELL_ComboBox *p = (SWELL_ComboBox *)sender;
-      const int sel = [p indexOfSelectedItem];
+      const int sel = (int)[p indexOfSelectedItem];
       if (sel == p->m_ignore_selchg) return;
       p->m_ignore_selchg = sel;
     }
