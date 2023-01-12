@@ -2,6 +2,7 @@ jobs:
 - job: BUILD_MAC_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_mac, true))
   dependsOn: GET_SRC_TREE
+  timeoutInMinutes: 120
 
   strategy:
     matrix:
@@ -53,6 +54,7 @@ jobs:
     - GET_SRC_TREE
     # comment this dependency if not building with AAX_SDK.zip secure file
     # - BUILD_WIN_AAX_LIBS
+  timeoutInMinutes: 120
 
   strategy:
     matrix:
@@ -83,6 +85,7 @@ jobs:
 - job: BUILD_WEB_PROJECTS
   condition: and(eq(variables.build_deps, false), eq(variables.build_web, true))
   dependsOn: GET_SRC_TREE
+  timeoutInMinutes: 120
 
   strategy:
     matrix:
