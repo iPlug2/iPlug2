@@ -279,8 +279,11 @@ bool BrowseForSaveFile(const char *text, const char *initialdir, const char *ini
   }
 	
   HMENU hm=SWELL_GetDefaultModalWindowMenu();
-  if (hm) hm=SWELL_DuplicateMenu(hm);
-  SWELL_SetCurrentMenu(hm);
+  if (hm)
+  {
+    hm=SWELL_DuplicateMenu(hm);
+    SWELL_SetCurrentMenu(hm);
+  }
 
   NSInteger result = [panel runModalForDirectory:idir file:ifn];
   restoreMenuForFocus();
@@ -386,8 +389,11 @@ bool BrowseForDirectory(const char *text, const char *initialdir, char *fn, int 
   }
 	
   HMENU hm=SWELL_GetDefaultModalWindowMenu();
-  if (hm) hm=SWELL_DuplicateMenu(hm);
-  SWELL_SetCurrentMenu(hm);
+  if (hm)
+  {
+    hm=SWELL_DuplicateMenu(hm);
+    SWELL_SetCurrentMenu(hm);
+  }
   NSInteger result = [panel runModalForDirectory:idir file:nil types:nil];
   restoreMenuForFocus();
   if (hm) DestroyMenu(hm);
@@ -462,9 +468,11 @@ char *BrowseForFiles(const char *text, const char *initialdir,
   }
 	
   HMENU hm=SWELL_GetDefaultModalWindowMenu();
-  if (hm) hm=SWELL_DuplicateMenu(hm);
-  SWELL_SetCurrentMenu(hm);
-  
+  if (hm)
+  {
+    hm=SWELL_DuplicateMenu(hm);
+    SWELL_SetCurrentMenu(hm);
+  }
   NSInteger result = [panel runModalForDirectory:idir file:ifn types:([fileTypes count]>0 ? fileTypes : nil)];
 
   restoreMenuForFocus();

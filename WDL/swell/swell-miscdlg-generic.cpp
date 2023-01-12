@@ -978,7 +978,7 @@ treatAsDir:
                 switch (lpdi->item.iSubItem)
                 {
                   case 0:
-                    lstrcpyn_safe(lpdi->item.pszText,rec->name,lpdi->item.cchTextMax);
+                    lpdi->item.pszText = rec->name;
                   break;
                   case 1:
                     rec->format_size(lpdi->item.pszText,lpdi->item.cchTextMax);

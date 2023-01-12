@@ -614,7 +614,7 @@ int main(int argc, char **argv)
           while (!str && pos[x]<sz)
           {
             l->Enumerate(pos[x]++,&str);
-            if (common_found.Get(str)) str=NULL; // skip if we've already analyzed this string
+            if (!*str || common_found.Get(str)) str=NULL; // skip if we've already analyzed this string
           }
           if (str) matchlist.Set(secname);
         }
@@ -671,6 +671,7 @@ int main(int argc, char **argv)
       for (y=0;y<p->GetSize();y++)
       {
         char *strv=p->Get(y);
+        if (!*strv) continue;
         if ((common_found.Get(strv)?1:0) != a) continue;
 
         if (a) printf(";^");

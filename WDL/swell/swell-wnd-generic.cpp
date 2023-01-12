@@ -4055,8 +4055,8 @@ struct listViewState
   static int compareRows(const SWELL_ListView_Row **_a, const SWELL_ListView_Row **_b)
   {
     const char *a, *b;
-    if (!_a || !(a=(*_a)->m_vals.Get(0))) a="";
-    if (!_b || !(b=(*_b)->m_vals.Get(0))) b="";
+    if (!_a || !(a=(*_a)->get_col_txt(0))) a="";
+    if (!_b || !(b=(*_b)->get_col_txt(0))) b="";
     return strcmp(a,b);
   }
 };
@@ -4586,14 +4586,14 @@ forceMouseMove:
             if (!lvs->IsOwnerData())
             {
               SWELL_ListView_Row *row = lvs->m_data.Get(offs);
-              if (row) v = row->m_vals.Get(col);
+              if (row) v = row->get_col_txt(col);
             }
             else
             {
               buf[0]=0;
               NMLVDISPINFO nm={{hwnd,hwnd->m_id,LVN_GETDISPINFO},{LVIF_TEXT, offs,col, 0,0, buf, sizeof(buf), -1 }};
               SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
-              v = buf;
+              v = nm.item.pszText;
             }
 
             if (v && !strnicmp(v,s,strlen(s))) 
@@ -4781,6 +4781,7 @@ forceMouseMove:
 
             const bool has_image = lvs->hasAnyImage();
             const bool has_status_image = lvs->hasStatusImage();
+            const bool has_subitem_image = (lvs->m_extended_style & LVS_EX_SUBITEMIMAGES)!=0;
             const int xo = lvs->m_scroll_x;
 
             const int totalw = lvs->getTotalWidth();
@@ -4846,16 +4847,15 @@ forceMouseMove:
                 if (owner_data)
                 {
                   NMLVDISPINFO nm={{hwnd,hwnd->m_id,LVN_GETDISPINFO},{LVIF_TEXT, rowidx,col_idx, 0,0, buf, sizeof(buf), -1 }};
-                  if (!col && has_image)
+                  if ((!col || has_subitem_image) && has_image)
                   {
                     if (lvs->m_status_imagelist_type == LVSIL_STATE) nm.item.mask |= LVIF_STATE;
                     else if (lvs->m_status_imagelist_type == LVSIL_SMALL) nm.item.mask |= LVIF_IMAGE;
-
                   }
                   buf[0]=0;
                   SendMessage(par,WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
-                  str=buf;
-                  if (!col && has_image)
+                  str=nm.item.pszText;
+                  if ((!col || has_subitem_image) && has_image)
                   {
                     if (lvs->m_status_imagelist_type == LVSIL_STATE) image_idx=STATEIMAGEMASKTOINDEX(nm.item.state);
                     else if (lvs->m_status_imagelist_type == LVSIL_SMALL) image_idx = nm.item.iImage + 1;
@@ -4863,16 +4863,16 @@ forceMouseMove:
                 }
                 else
                 {
-                  if (!col && has_image) image_idx = row->m_imageidx;
-                  if (row) str = row->m_vals.Get(col_idx);
+                  if (!col && has_image) image_idx = row->get_img_idx(0);
+                  if (row) str = row->get_col_txt(col_idx);
                 }
 
                 RECT ar = { xpos,ypos, cr.right, ypos + row_height };
-                if (!col && has_image)
+                if ((!col || has_subitem_image) && has_image)
                 {
-                  if (image_idx>0) 
+                  if (image_idx>0)
                   {
-                    HICON icon = lvs->m_status_imagelist->Get(image_idx-1);      
+                    HICON icon = lvs->m_status_imagelist->Get(image_idx-1);
                     if (icon)
                     {
                       if (has_status_image || col >= ncols)
@@ -4882,14 +4882,17 @@ forceMouseMove:
                       DrawImageInRect(ps.hdc,icon,&ar);
                     }
                   }
-
-                  if (has_status_image) 
+                  if (has_status_image)
                   {
                     xpos += row_height;
+                    ar.left += row_height;
                   }
-                  ar.left += row_height;
+                  else if (image_idx > 0)
+                  {
+                    ar.left += row_height;
+                  }
                 }
-  
+
                 if (lvs->m_is_listbox && (hwnd->m_style & LBS_OWNERDRAWFIXED))
                 {
                   if (hwnd->m_parent)
@@ -5122,7 +5125,7 @@ forceMouseMove:
       if (lvs && !lvs->IsOwnerData())
       {
         SWELL_ListView_Row *row=new SWELL_ListView_Row;
-        row->m_vals.Add(strdup((const char *)lParam));
+        row->add_col((const char *)lParam);
         int idx;
         if (msg == LB_ADDSTRING && hwnd->m_style & LBS_SORT)
         {
@@ -5157,10 +5160,11 @@ forceMouseMove:
       if (lvs && !lvs->IsOwnerData())
       {
         SWELL_ListView_Row *row = lvs->m_data.Get(wParam);
-        if (row && row->m_vals.Get(0))
+        const char *p;
+        if (row && (p=row->get_col_txt(0)))
         {
-          strcpy((char *)lParam, row->m_vals.Get(0));
-          return (LRESULT)strlen(row->m_vals.Get(0));
+          strcpy((char *)lParam, p);
+          return (LRESULT)strlen(p);
         }
       }
     return LB_ERR;
@@ -5169,7 +5173,7 @@ forceMouseMove:
           SWELL_ListView_Row *row=lvs->m_data.Get(wParam);
           if (row) 
           {
-            const char *p=row->m_vals.Get(0);
+            const char *p=row->get_col_txt(0);
             return p?strlen(p):0;
           }
         }
@@ -5185,7 +5189,7 @@ forceMouseMove:
           SWELL_ListView_Row *row=lvs->m_data.Get(x);
           if (row)
           {
-            const char *p = row->m_vals.Get(0);
+            const char *p = row->get_col_txt(0);
             if (p && !stricmp(p,(const char *)lParam)) return x;
           }
           if (++x >= n) x=0;
@@ -6350,13 +6354,13 @@ int ListView_InsertItem(HWND h, const LVITEM *item)
   int idx =  (int) item->iItem;
   if (idx<0 || idx>lvs->m_data.GetSize()) idx=lvs->m_data.GetSize();
   SWELL_ListView_Row *row=new SWELL_ListView_Row;
-  row->m_vals.Add((item->mask&LVIF_TEXT) && item->pszText ? strdup(item->pszText) : NULL);
+  row->add_col((item->mask&LVIF_TEXT) ? item->pszText : NULL);
   row->m_param = (item->mask&LVIF_PARAM) ? item->lParam : 0;
   row->m_tmp = ((item->mask & LVIF_STATE) && (item->state & LVIS_SELECTED)) ? 1:0;
   lvs->m_data.Insert(idx,row); 
   if (item->mask&LVIF_STATE)
   {
-    if (item->stateMask & LVIS_STATEIMAGEMASK) row->m_imageidx=STATEIMAGEMASKTOINDEX(item->state);
+    if (item->stateMask & LVIS_STATEIMAGEMASK) row->set_img_idx(0,STATEIMAGEMASKTOINDEX(item->state));
     if (item->stateMask & LVIS_SELECTED) lvs->set_sel(idx,!!(item->state&LVIS_SELECTED));
   }
   InvalidateRect(h,NULL,FALSE);
@@ -6372,9 +6376,8 @@ void ListView_SetItemText(HWND h, int ipos, int cpos, const char *txt)
 
   SWELL_ListView_Row *row=lvs->m_data.Get(ipos);
   if (!row) return;
-  while (row->m_vals.GetSize()<=cpos) row->m_vals.Add(NULL);
-  free(row->m_vals.Get(cpos));
-  row->m_vals.Set(cpos,txt?strdup(txt):NULL);
+  while (row->get_num_cols()<=cpos) row->add_col(NULL);
+  row->set_col_txt(cpos,txt);
   InvalidateRect(h,NULL,FALSE);
 }
 
@@ -6405,11 +6408,10 @@ bool ListView_SetItem(HWND h, LVITEM *item)
     const int ncol = wdl_max(lvs->m_cols.GetSize(),1);
     if (item->iSubItem >= 0 && item->iSubItem < ncol)
     {
-      while (row->m_vals.GetSize()<=item->iSubItem) row->m_vals.Add(NULL);
+      while (row->get_num_cols()<=item->iSubItem) row->add_col(NULL);
       if (item->mask&LVIF_TEXT) 
       {
-        free(row->m_vals.Get(item->iSubItem));
-        row->m_vals.Set(item->iSubItem,item->pszText?strdup(item->pszText):NULL);
+        row->set_col_txt(item->iSubItem,item->pszText);
       }
     }
     if (item->mask & LVIF_PARAM) 
@@ -6418,7 +6420,7 @@ bool ListView_SetItem(HWND h, LVITEM *item)
     }
     if (item->mask&LVIF_IMAGE)
     {
-      row->m_imageidx=item->iImage+1;
+      row->set_img_idx(item->iSubItem,item->iImage+1);
     }
   }
   else 
@@ -6445,7 +6447,7 @@ bool ListView_GetItem(HWND h, LVITEM *item)
     if (!row) return false;
     if ((item->mask&LVIF_TEXT)&&item->pszText && item->cchTextMax > 0) 
     {
-      const char *v=row->m_vals.Get(item->iSubItem);
+      const char *v=row->get_col_txt(item->iSubItem);
       lstrcpyn_safe(item->pszText, v?v:"",item->cchTextMax);
     }
     if (item->mask & LVIF_PARAM) item->lParam = row->m_param;
@@ -6482,7 +6484,7 @@ bool ListView_GetItem(HWND h, LVITEM *item)
     {
       SWELL_ListView_Row *row = lvs->m_data.Get(item->iItem);
       if (row)
-        item->state |= INDEXTOSTATEIMAGEMASK(row->m_imageidx);
+        item->state |= INDEXTOSTATEIMAGEMASK(row->get_img_idx(0));
     }
   }
 
@@ -6499,7 +6501,7 @@ int ListView_GetItemState(HWND h, int ipos, UINT mask)
   {
     SWELL_ListView_Row *row = lvs->m_data.Get(ipos);
     if (row)
-      ret |= INDEXTOSTATEIMAGEMASK(row->m_imageidx);
+      ret |= INDEXTOSTATEIMAGEMASK(row->get_img_idx(0));
   }
   return ret;
 }
@@ -6543,9 +6545,9 @@ bool ListView_SetItemState(HWND h, int ipos, UINT state, UINT statemask)
     SWELL_ListView_Row *row = lvs->m_data.Get(ipos);
     if (row)
     {
-      const int idx= row->m_imageidx;
-      row->m_imageidx=STATEIMAGEMASKTOINDEX(state);
-      if (!changed && idx != row->m_imageidx) ListView_RedrawItems(h,ipos,ipos);
+      const int idx= row->get_img_idx(0);
+      row->set_img_idx(0,STATEIMAGEMASKTOINDEX(state));
+      if (!changed && idx != row->get_img_idx(0)) ListView_RedrawItems(h,ipos,ipos);
     }
   }
 
@@ -6874,6 +6876,11 @@ HWND ChildWindowFromPoint(HWND h, POINT p)
   return h;
 }
 
+static bool isHitTestOpaque(HWND h, const POINT p)
+{
+  return h->m_visible && HTTRANSPARENT != SendMessage(h, WM_NCHITTEST, 0, MAKELPARAM(p.x, p.y));
+}
+
 static HWND recurseOwnedWindowHitTest(HWND h, POINT p, int maxdepth)
 {
   RECT r;
@@ -6886,7 +6893,7 @@ static HWND recurseOwnedWindowHitTest(HWND h, POINT p, int maxdepth)
     HWND owned = h->m_owned_list;
     while (owned)
     {
-      if (owned->m_visible)
+      if (isHitTestOpaque(owned, p))
       {
         HWND hit = recurseOwnedWindowHitTest(owned,p,maxdepth-1);
         if (hit) return hit;
@@ -6904,7 +6911,7 @@ HWND WindowFromPoint(POINT p)
   HWND h = SWELL_topwindows;
   while (h)
   {
-    if (h->m_visible)
+    if (isHitTestOpaque(h, p))
     {
       HWND hit = recurseOwnedWindowHitTest(h,p,20);
       if (hit) return hit;
