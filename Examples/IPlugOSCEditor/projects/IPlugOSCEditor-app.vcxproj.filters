@@ -276,9 +276,6 @@
     <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\ISender.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IPlug\Extras\OSC\IPlugOSC.h">
       <Filter>IPlug\Extras\OSC</Filter>
     </ClInclude>
@@ -376,6 +373,7 @@
       <Filter>config</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="$(MSBuildThisFileDirectory)$(EffectivePlatform)\WebView2Loader.dll" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\resources\IPlugOSCEditor.ico">
