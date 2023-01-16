@@ -137,13 +137,15 @@ if (Skia IN_LIST iPlug2_FIND_COMPONENTS)
     set(sdk "${BUILD_DEPS}/win/${PROCESSOR_ARCH}/$<IF:$<CONFIG:DEBUG>,Debug,Release>")
     iplug_target_add(iPlug2_Skia INTERFACE
       LINK
+        "${sdk}/libpng.lib"
         "${sdk}/skia.lib"
         "${sdk}/skottie.lib"
         "${sdk}/skparagraph.lib"
         "${sdk}/sksg.lib"
         "${sdk}/skshaper.lib"
         "${sdk}/skunicode.lib"
-        "${sdk}/svg.lib")
+        "${sdk}/svg.lib"
+        "${sdk}/zlib.lib")
 
   elseif (OS_MAC)
     set(sdk "${BUILD_DEPS}/mac/lib")
