@@ -273,6 +273,9 @@ set(_src
   ${sdk}/IPlugUtilities.h
 )
 
+set(plugin_build_dir "${CMAKE_BINARY_DIR}/out")
+file(MAKE_DIRECTORY ${plugin_build_dir})
+
 # Platform Settings
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
   list(APPEND _src ${IGRAPHICS_SRC}/Platforms/IGraphicsWin.cpp)
@@ -280,7 +283,6 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
   
   # postbuild-win.bat is used by VST2/VST3/AAX on Windows, so we just always configure it on Windows
   # Note: For visual studio, we COULD use $(TargetPath) for the target, but for all other generators, no.
-  set(plugin_build_dir "${CMAKE_BINARY_DIR}/out")
   set(create_bundle_script "${IPLUG2_DIR}/Scripts/create_bundle.bat")
   configure_file("${IPLUG2_DIR}/Scripts/postbuild-win.bat.in" "${CMAKE_BINARY_DIR}/postbuild-win.bat")
 
