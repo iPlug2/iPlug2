@@ -57,7 +57,7 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   list(APPEND _inc ${WDL_DIR}/swell)
   list(APPEND _lib
     "-framework Cocoa" "-framework Carbon" "-framework Metal" "-framework MetalKit" "-framework QuartzCore"
-    "-framework OpenGL"
+    "-framework OpenGL" "-framework Accelerate"
   )
   list(APPEND _opts "-Wno-deprecated-declarations")
 else()
@@ -142,11 +142,20 @@ if (Skia IN_LIST iPlug2_FIND_COMPONENTS)
         "${sdk}/skparagraph.lib"
         "${sdk}/sksg.lib"
         "${sdk}/skshaper.lib"
+        "${sdk}/skunicode.lib"
         "${sdk}/svg.lib")
 
   elseif (OS_MAC)
-    # TODO MAC: Check if this is the real path
-    set(sdk "${IPLUG_DEPS}/../Build/mac/${PROCESSOR_ARCH}/lib")
+    set(sdk "${BUILD_DEPS}/mac/lib")
+    iplug_target_add(iPlug2_Skia INTERFACE
+      LINK
+        "${sdk}/libskia.a"
+        "${sdk}/libskottie.a"
+        "${sdk}/libskparagraph.a"
+        "${sdk}/libsksg.a"
+        "${sdk}/libskshaper.a"
+        "${sdk}/libskunicode.a"
+        "${sdk}/libsvg.a")
 
   # elseif (OS_LINUX)
   #   set(sdk "${IPLUG_DEPS}/../Build/linux/lib")
@@ -168,8 +177,10 @@ if (Skia IN_LIST iPlug2_FIND_COMPONENTS)
       ${BUILD_DEPS}/src/skia/include/effects
       ${BUILD_DEPS}/src/skia/include/config
       ${BUILD_DEPS}/src/skia/include/utils
+      ${BUILD_DEPS}/src/skia/include/utils/mac # should be included on mac only?
       ${BUILD_DEPS}/src/skia/include/gpu
-      ${BUILD_DEPS}/src/skia/modules/svg)
+      ${BUILD_DEPS}/src/skia/modules/svg
+      ${BUILD_DEPS}/src/skia/modules/svg/include)
 
   add_library(iPlug2_Skia_GL2 INTERFACE)
   target_link_libraries(iPlug2_Skia_GL2 INTERFACE iPlug2_Skia iPlug2_GL2)
