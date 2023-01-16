@@ -63,7 +63,7 @@ function(iplug_configure_clap target)
     set_target_properties(${target} PROPERTIES
       BUNDLE TRUE
       MACOSX_BUNDLE TRUE
-      MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}-CLAP-Info.plist
+      MACOSX_BUNDLE_INFO_PLIST ${PLUG_RESOURCES_DIR}/${PLUG_NAME}-CLAP-Info.plist
       BUNDLE_EXTENSION "clap"
       PREFIX ""
       SUFFIX "")

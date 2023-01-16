@@ -273,6 +273,11 @@ set(_src
   ${sdk}/IPlugUtilities.h
 )
 
+if (NOT PLUG_RESOURCES_DIR)
+  set(PLUG_RESOURCES_DIR ${CMAKE_SOURCE_DIR}/resources)
+  message("Setting PLUG_RESOURCES_DIR to ${PLUG_RESOURCES_DIR}")
+endif()
+
 # Platform Settings
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
   target_link_libraries(iPlug2_Core INTERFACE "Shlwapi.lib" "comctl32.lib" "wininet.lib")
@@ -386,7 +391,7 @@ function(iplug_configure_target target target_type)
   if (WIN32)
     # On Windows ours fonts are included in the RC file, meaning we need to include main.rc
     # in ALL our builds. Yay for platform-specific bundling!
-    set(_res "${CMAKE_SOURCE_DIR}/resources/main.rc")
+    set(_res "${PLUG_RESOURCES_DIR}/main.rc")
     iplug_target_add(${target} PUBLIC RESOURCE ${_res})
     source_group("Resources" FILES ${_res})
     
