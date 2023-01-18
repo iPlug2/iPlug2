@@ -1915,7 +1915,10 @@ static void MakeGestureInfo(NSEvent* evt, GESTUREINFO* gi, HWND hwnd, int type)
   NSArray* SWELL_DoDragDrop(NSURL*);
   return SWELL_DoDragDrop(dropdestination); 
 }
-
+- (BOOL)ignoreModifierKeysWhileDragging
+{
+  return GetProp((HWND)self,"SWELL_IgnoreModifierKeysWhileDragging") != NULL ? YES : NO;
+}
 
 - (BOOL)becomeFirstResponder 
 {
