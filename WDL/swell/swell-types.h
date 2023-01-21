@@ -58,7 +58,7 @@ typedef uintptr_t UINT_PTR, *PUINT_PTR, ULONG_PTR, *PULONG_PTR, DWORD_PTR, *PDWO
 
 
 // the byte ordering of RGB() etc is different than on win32 
-#define RGB(r,g,b) (((r)<<16)|((g)<<8)|(b))
+#define RGB(r,g,b) ((((BYTE)(r))<<16)|(((BYTE)(g))<<8)|((BYTE)(b)))
 #define GetRValue(x) (((x)>>16)&0xff)
 #define GetGValue(x) (((x)>>8)&0xff)
 #define GetBValue(x) ((x)&0xff)
