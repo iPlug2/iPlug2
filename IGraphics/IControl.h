@@ -790,6 +790,7 @@ public:
       break;
     case EVShape::AllRounded:
       DrawPressableRectangle(g, bounds, pressed, mouseOver, disabled, true, true, true, true);
+      break;
     default:
       break;
     }
