@@ -607,7 +607,7 @@ public:
 
     if (mBitmap.N() > 1)
     {
-      i = 1 + int(0.5 + mControl->GetValue() * (double) (mBitmap.N() - 1));
+      i = 1 + int(0.5 + mControl->GetValue() * static_cast<double>(mBitmap.N() - 1));
       i = Clip(i, 1, mBitmap.N());
     }
     IBlend blend = mControl->GetBlend();

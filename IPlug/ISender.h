@@ -129,7 +129,7 @@ public:
   
   void SetWindowSizeMs(double timeMs, double sampleRate)
   {
-    mWindowSizeMs = timeMs;
+    mWindowSizeMs = static_cast<float>(timeMs);
     mWindowSize = static_cast<int>(timeMs * 0.001 * sampleRate);
   }
   
@@ -164,7 +164,7 @@ public:
       
       for (auto c = chanOffset; c < (chanOffset + nChans); c++)
       {
-        mPeaks[c] += std::fabs(inputs[c][s]);
+        mPeaks[c] += std::fabs(static_cast<float>(inputs[c][s]));
       }
       
       mCount++;
@@ -246,19 +246,19 @@ public:
   
   void SetAttackTimeMs(double timeMs, double sampleRate)
   {
-    mAttackTimeMs = timeMs;
-    mAttackTimeSamples = static_cast<int>(timeMs * 0.001 * (sampleRate / mWindowSize));
+    mAttackTimeMs = static_cast<float>(timeMs);
+    mAttackTimeSamples = static_cast<float>(timeMs * 0.001 * (sampleRate / double(mWindowSize)));
   }
   
   void SetDecayTimeMs(double timeMs, double sampleRate)
   {
-    mDecayTimeMs = timeMs;
-    mDecayTimeSamples = static_cast<int>(timeMs * 0.001 * (sampleRate / mWindowSize));
+    mDecayTimeMs = static_cast<float>(timeMs);
+    mDecayTimeSamples = static_cast<float>(timeMs * 0.001 * (sampleRate / mWindowSize));
   }
   
   void SetWindowSizeMs(double timeMs, double sampleRate)
   {
-    mWindowSizeMs = timeMs;
+    mWindowSizeMs = static_cast<float>(timeMs);
     mWindowSize = static_cast<int>(timeMs * 0.001 * sampleRate);
 
     for (auto i=0; i<MAXNC; i++)
@@ -270,7 +270,7 @@ public:
   
   void SetPeakHoldTimeMs(double timeMs, double sampleRate)
   {
-    mPeakHoldTimeMs = timeMs;
+    mPeakHoldTimeMs = static_cast<float>(timeMs);
     mPeakHoldTime = static_cast<int>(timeMs * 0.001 * sampleRate);
     std::fill(mPeakHoldCounters.begin(), mPeakHoldCounters.end(), mPeakHoldTime);
   }
@@ -289,7 +289,7 @@ public:
       
       for (auto c = chanOffset; c < (chanOffset + nChans); c++)
       {
-        mBuffers[c][windowPos] = inputs[c][s];
+        mBuffers[c][windowPos] = static_cast<float>(inputs[c][s]);
       }
       
       if (mCount == 0)

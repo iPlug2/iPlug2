@@ -323,7 +323,7 @@ struct IMidiMsg
     if (StatusMsg() == kPitchWheel)
     {
       int iVal = (mData2 << 7) + mData1;
-      return (double) (iVal - 8192) / 8192.0;
+      return static_cast<double>(iVal - 8192) / 8192.0;
     }
     return 0.0;
   }
