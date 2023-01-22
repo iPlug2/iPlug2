@@ -1683,11 +1683,6 @@ protected:
   /** @return bool \c true if the drawing backend flips images (e.g. OpenGL) */
   virtual bool FlippedBitmap() const = 0;
 
-  /** Utility used by SearchImageResource/SearchBitmapInCache
-   * @param sourceScale \todo
-   * @param targetScale \todo */
-  inline void SearchNextScale(int& sourceScale, int targetScale);
-
   /** Search for a bitmap image resource matching the target scale 
    * @param fileName \todo
    * @param type \todo 
