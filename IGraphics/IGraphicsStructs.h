@@ -1719,8 +1719,8 @@ struct IMouseMod
 /** Used to group mouse coordinates with mouse modifier information */
 struct IMouseInfo
 {
-  float x, y;
-  float dX, dY;
+  float x = 0.0, y = 0.0;
+  float dX = 0.0, dY = 0.0;
   IMouseMod ms;
 };
 
