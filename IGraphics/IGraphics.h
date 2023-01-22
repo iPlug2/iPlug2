@@ -937,11 +937,12 @@ protected:
   /* Implemented on Windows to restore previous GL context calls ReleaseDC */
   virtual void DeactivateGLContext() {};
 
-  /** \todo
-   * @param control \todo
-   * @param text \todo
-   * @param bounds \todo
-   * @param str \todo */
+  /** Creates a platform native text entry field.
+  * @param paramIdx The index of the parameter associated with the text entry field.
+  * @param text The text to be displayed in the text entry field.
+  * @param bounds The rectangle that defines the size and position of the text entry field.
+  * @param length The maximum allowed length of the text in the text entry field.
+  * @param str The initial string to be displayed in the text entry field. */
   virtual void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) = 0;
   
   /** Calls the platform backend to create the platform popup menu
@@ -1631,7 +1632,7 @@ public:
 
   /** Registers a gesture recognizer with the graphics context
    * @param type The type of gesture recognizer */
-  virtual void AttachGestureRecognizer(EGestureType type); //TODO: should be protected?
+  virtual void AttachGestureRecognizer(EGestureType type);
   
   /** Attach a gesture recognizer to a rectangular region of the GUI, i.e. not linked to an IControl
    * @param bounds The area that should recognize the gesture
