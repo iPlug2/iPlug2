@@ -332,7 +332,7 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
     {
       NSString* pRootPath;
       
-      if(isAppExtension)
+      if (isAppExtension)
       {
         pRootPath = [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
         #if TARGET_OS_MACCATALYST
@@ -346,7 +346,7 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
       
       NSString* pPath = [[[[pRootPath stringByAppendingString:@"/"] stringByAppendingString:pFile] stringByAppendingString: @"."] stringByAppendingString:pExt];
       
-      if (pPath)
+      if (pPath && [[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
       {
         fullPath.Set([pPath cStringUsingEncoding:NSUTF8StringEncoding]);
         return true;
@@ -360,7 +360,7 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
 
 EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char* bundleID, void*, const char*)
 {
-  if(CStringHasContents(name))
+  if (CStringHasContents(name))
   {
 #ifdef IGRAPHICS_METAL
     auto itr = gTextureMap.find(name);
@@ -372,7 +372,7 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
     }
 #endif
     
-    if(GetResourcePathFromBundle(name, type, result, bundleID))
+    if (GetResourcePathFromBundle(name, type, result, bundleID))
       return EResourceLocation::kAbsolutePath;
   }
   
