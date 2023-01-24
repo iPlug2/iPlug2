@@ -278,6 +278,9 @@ if (NOT PLUG_RESOURCES_DIR)
   message("Setting PLUG_RESOURCES_DIR to ${PLUG_RESOURCES_DIR}")
 endif()
 
+set(plugin_build_dir "${CMAKE_BINARY_DIR}/out")
+file(MAKE_DIRECTORY ${plugin_build_dir})
+
 # Platform Settings
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
   target_link_libraries(iPlug2_Core INTERFACE "Shlwapi.lib" "comctl32.lib" "wininet.lib")
