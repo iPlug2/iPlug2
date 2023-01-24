@@ -92,8 +92,8 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
       LICE_Core LICE_PNG LICE_ZLIB PkgConfig::Gtk_30 PkgConfig::Gdk_30 PkgConfig::Glib_20 "X11" "Xi"
     SOURCE
       ${swell_src}
-      ${CMAKE_SOURCE_DIR}/resources/main.rc_mac_dlg
-      ${CMAKE_SOURCE_DIR}/resources/main.rc_mac_menu
+      ${PLUG_RESOURCES_DIR}/main.rc_mac_dlg
+      ${PLUG_RESOURCES_DIR}/main.rc_mac_menu
   )
 
   # RtAudio
@@ -136,12 +136,12 @@ macro(iplug_configure_app target)
     set(res_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}.app/Contents/Resources")
     # Set the Info.plist file and add required resources
     set(_res 
-      "${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}.icns"
-      "${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}-macOS-MainMenu.xib")
+      "${PLUG_RESOURCES_DIR}/${PLUG_NAME}.icns"
+      "${PLUG_RESOURCES_DIR}/${PLUG_NAME}-macOS-MainMenu.xib")
     source_group("Resources" FILES ${_res})
     iplug_target_add(${target} PUBLIC SOURCE ${_res} RESOURCE ${_res})
     set_target_properties(${target} PROPERTIES 
-      MACOSX_BUNDLE_INFO_PLIST "${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}-macOS-Info.plist")
+      MACOSX_BUNDLE_INFO_PLIST "${PLUG_RESOURCES_DIR}/${PLUG_NAME}-macOS-Info.plist")
 
   elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(res_dir "${CMAKE_BINARY_DIR}/${PLUG_NAME}-app/resources")
