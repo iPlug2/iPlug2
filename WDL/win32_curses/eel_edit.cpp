@@ -1420,10 +1420,17 @@ static LRESULT WINAPI suggestionProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
         win32CursesCtx *ctx = (win32CursesCtx *)editor->m_cursesCtx;
         if (ctx && ctx->m_font_h)
         {
+          HWND par = GetParent(hwnd);
+          if (uMsg == WM_MOUSEMOVE)
+          {
+            HWND foc = GetFocus();
+            if (!foc || (foc != hwnd && foc != par)) return 0;
+          }
+
           RECT r;
           GetClientRect(hwnd,&r);
-          SetForegroundWindow(GetParent(hwnd));
-          SetFocus(GetParent(hwnd));
+          SetForegroundWindow(par);
+          SetFocus(par);
 
           const int max_vis = r.bottom / ctx->m_font_h - 1, sel = editor->m_suggestion_hwnd_sel;
           int hit = GET_Y_LPARAM(lParam) / ctx->m_font_h;
