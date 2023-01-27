@@ -57,7 +57,7 @@ static LRESULT sendSwellMessage(id obj, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 static void InvalidateSuperViews(NSView *view);
 #define STANDARD_CONTROL_NEEDSDISPLAY_IMPL(classname) \
-  - (const char *)swellGetClass { return ( classname ); } \
+  - (const char *)getSwellClass { return ( classname ); } \
   - (void)setNeedsDisplay:(BOOL)flag \
   { \
   [super setNeedsDisplay:flag]; \
