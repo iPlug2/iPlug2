@@ -996,7 +996,7 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
     else if ([sender isKindOfClass:[SWELL_Button class]])
     {
       int rf;
-      if ((rf=(int)[(SWELL_Button*)sender swellGetRadioFlags]))
+      if ((rf=(int)[(SWELL_Button*)sender swellGetRadioFlags]) & ~4096)
       {
         NSView *par=(NSView *)GetParent((HWND)sender);
         if (par && [par isKindOfClass:[NSWindow class]]) par=[(NSWindow *)par contentView];

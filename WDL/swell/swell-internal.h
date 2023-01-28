@@ -329,7 +329,7 @@ typedef struct WindowPropRec
 {
   void *m_swellGDIimage;
   LONG_PTR m_userdata;
-  int m_radioflags;
+  int m_radioflags; // =4096 if not a checkbox/radiobox. &2=new group, &1=radio
 }
 -(int)swellGetRadioFlags;
 -(void)swellSetRadioFlags:(int)f;

@@ -1590,8 +1590,11 @@ LONG_PTR GetWindowLong(HWND hwnd, int idx)
       else if ([pid allowsMixedState]) ret |= BS_AUTO3STATE;
       else if ([pid isKindOfClass:[SWELL_Button class]] && (tmp = (int)[pid swellGetRadioFlags]))
       {
-        ret |= BS_AUTORADIOBUTTON;
-        if (tmp&2) ret|=WS_GROUP;
+        if (tmp != 4096)
+        {
+          ret |= BS_AUTORADIOBUTTON;
+          if (tmp&2) ret|=WS_GROUP;
+        }
       }
       else ret |= BS_AUTOCHECKBOX; 
     }
@@ -1762,7 +1765,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("Button")
   if (self != nil) {
     m_userdata=0;
     m_swellGDIimage=0;
-    m_radioflags=0;
+    m_radioflags=0; // =4096 if not a checkbox at all
   }
   return self;
 }
@@ -3337,6 +3340,7 @@ HWND SWELL_MakeButton(int def, const char *label, int idx, int x, int y, int w, 
   UINT_PTR a=(UINT_PTR)label;
   if (a < 65536) label = "ICONTEMP";
   SWELL_Button *button=[[SWELL_Button alloc] init];
+  [button swellSetRadioFlags:4096];
   if (flags & BS_BITMAP)
   {
     SWELL_ImageButtonCell * cell = [[SWELL_ImageButtonCell alloc] init];
@@ -4093,6 +4097,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
       [button setCell:cell];
       [cell release];
       //NSButtonCell
+      [button swellSetRadioFlags:4096];
     }
     else // normal button
     {
@@ -4104,6 +4109,7 @@ HWND SWELL_MakeControl(const char *cname, int idx, const char *classname, int st
       }
       if ((style & BS_XPOSITION_MASK) == BS_LEFT) [button setAlignment:NSLeftTextAlignment];
 //      fr.size.width+=8;
+      [button swellSetRadioFlags:4096];
     }
     
     if (m_transform.size.width < minwidfontadjust)
