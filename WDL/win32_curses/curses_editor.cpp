@@ -2979,7 +2979,7 @@ void WDL_CursesEditor::do_paste_lines(WDL_PtrList<const char> &lines)
 {
   WDL_FastString poststr;
   int x;
-  int indent_to_pos = -1;
+  int indent_to_pos = 0;
   int skip_source_indent=0; // number of characters of whitespace to (potentially) ignore when pasting
 
   for (x = 0; x < lines.GetSize(); x ++)
@@ -3000,24 +3000,19 @@ void WDL_CursesEditor::do_paste_lines(WDL_PtrList<const char> &lines)
         poststr.Set(str->Get()+bytepos);
         str->SetLen(bytepos);
 
-        const char *p = str->Get();
-        while (*p == ' ' || *p == '\t') p++;
-        if (!*p && p > str->Get()) // if all whitespace leading up to this
+        if (bytepos > 0 && lines.GetSize()>1)
         {
-          if (bytepos > 0)
-          {
-            int i;
-            skip_source_indent=1024;
-            for (i = 0; skip_source_indent > 0 && i < lines.GetSize(); i ++)
-            {
-              int a=0;
-              const char *p = lines.Get(i);
-              while (a < skip_source_indent && p[a] == ' ') a++;
-              if (a < skip_source_indent && p[a]) skip_source_indent=a;
-            }
-          }
+          indent_to_pos = 0;
+          while (str->Get()[indent_to_pos] == ' ') indent_to_pos++;
 
-          indent_to_pos = bytepos;
+          skip_source_indent=1024;
+          for (int i = 0; skip_source_indent > 0 && i < lines.GetSize(); i ++)
+          {
+            int a=0;
+            const char *p = lines.Get(i);
+            while (a < skip_source_indent && p[a] == ' ') a++;
+            if (a < skip_source_indent && p[a]) skip_source_indent=a;
+          }
         }
 
         str->Append(skip_indent(tstr,skip_source_indent));
