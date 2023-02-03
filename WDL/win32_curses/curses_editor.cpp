@@ -414,12 +414,16 @@ LRESULT WDL_CursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
         return 0;
       }
 
+      int ox=m_curs_x , oy=m_curs_y;
+      if (m_selecting && ox == m_select_x2 && oy == m_select_y2)
+      {
+        ox = m_select_x1;
+        oy = m_select_y1;
+      }
+
       if (uMsg == WM_LBUTTONDOWN) m_selecting=0;
 
       if (pane >= 0) m_curpane=pane;           
-
-      int ox=m_curs_x;
-      int oy=m_curs_y;
 
       m_curs_x=cx+m_offs_x;
       m_curs_y=cy+m_paneoffs_y[m_curpane]-paney[m_curpane];
