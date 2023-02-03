@@ -2028,7 +2028,6 @@ int WDL_CursesEditor::onChar(int c)
 
       if (minx != maxx|| miny != maxy) 
       {
-        int bytescopied=0;
         s_fake_clipboard.Set("");
 
         int lht=0,fht=0;
@@ -2040,14 +2039,45 @@ int WDL_CursesEditor::onChar(int c)
           if (s) 
           {
             const char *str=s->Get();
-            const int sx=x == miny ? WDL_utf8_charpos_to_bytepos(s->Get(),minx) : 0;
+            int sx=x == miny ? WDL_utf8_charpos_to_bytepos(s->Get(),minx) : 0;
             const int ex=x == maxy ? WDL_utf8_charpos_to_bytepos(s->Get(),maxx) : s->GetLength();
       
-            bytescopied += ex-sx + (x!=maxy);
-            if (s_fake_clipboard.Get() && s_fake_clipboard.Get()[0]) s_fake_clipboard.Append("\r\n");
+            if (x != miny) s_fake_clipboard.Append("\r\n");
 
             const int oldlen = s_fake_clipboard.GetLength();
-            s_fake_clipboard.Append(ex-sx?str+sx:"",ex-sx);
+            if (x == miny && maxy > miny && sx > 0)
+            {
+              // first line of multi-line copy, not starting at first byte of line
+              int icnt = 0;
+              while (str[icnt] == ' ') icnt++;
+
+              for (int nl = x+1; icnt > 0 && nl <= maxy; nl ++)
+              {
+                WDL_FastString *cs = m_text.Get(nl);
+                if (cs)
+                {
+                  int c = 0;
+                  while (c < icnt && cs->Get()[c] == ' ') c++;
+                  if (c < icnt && cs->Get()[c])
+                  {
+                    if (nl == maxy && c >= WDL_utf8_charpos_to_bytepos(cs->Get(),maxx)) break; // last line, ignore if whitespace exceeds what we're copying anyway
+                    icnt = 0;
+                  }
+                }
+              }
+
+              // if all later copied lines do not have non-whitespace in the first line's indentation
+              if (icnt > 0)
+              {
+                // then we'll copy that line's indentation
+                s_fake_clipboard.Append(str,icnt);
+                // and skip any whitespace in our selection
+                while (str[sx] == ' ') sx++;
+              }
+            }
+
+            if (ex>sx) s_fake_clipboard.Append(str+sx,ex-sx);
+
             if (m_write_leading_tabs>0 && sx==0 && oldlen < s_fake_clipboard.GetLength())
             {
               const char *p = s_fake_clipboard.Get() + oldlen;
@@ -2090,10 +2120,10 @@ int WDL_CursesEditor::onChar(int c)
           if (m_curs_y < 0) m_curs_y=0;
           m_curs_x=minx;
           saveUndoState();
-          snprintf(statusbuf,sizeof(statusbuf),"Cut %d bytes",bytescopied);
+          snprintf(statusbuf,sizeof(statusbuf),"Cut %d bytes",s_fake_clipboard.GetLength());
         }
         else
-          snprintf(statusbuf,sizeof(statusbuf),"Copied %d bytes",bytescopied);
+          snprintf(statusbuf,sizeof(statusbuf),"Copied %d bytes",s_fake_clipboard.GetLength());
 
 #ifdef WDL_IS_FAKE_CURSES
         if (CURSES_INSTANCE)
