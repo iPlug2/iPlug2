@@ -79,12 +79,12 @@ WEB_CFLAGS = -DWEB_API \
 -DIPLUG_EDITOR=1
 
 WAM_EXPORTS = "[\
-  '_createModule','_wam_init','_wam_terminate','_wam_resize', \
+  '_malloc', '_free', '_createModule','_wam_init','_wam_terminate','_wam_resize', \
   '_wam_onprocess', '_wam_onmidi', '_wam_onsysex', '_wam_onparam', \
   '_wam_onmessageN', '_wam_onmessageS', '_wam_onmessageA', '_wam_onpatch' \
   ]"
 
-WEB_EXPORTS = "['_main', '_iplug_fsready', '_iplug_syncfs']"
+WEB_EXPORTS = "['_malloc', '_free', '_main', '_iplug_fsready', '_iplug_syncfs']"
 
 # LDFLAGS for both WAM and WEB targets
 LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 --bind
