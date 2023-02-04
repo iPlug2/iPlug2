@@ -705,11 +705,7 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       g_editor.m_resize.init(hwndDlg);
       g_editor.m_resize.init_item(IDC_FILTER,0,0,1,0);
       g_editor.m_resize.init_item(IDC_TEMPLATE,0,0,1,0);
-      g_editor.m_resize.init_item(IDC_TEMPLATE_LOAD,1,0,1,0);
       g_editor.m_resize.init_item(IDC_PACK,0,0,1,0);
-      g_editor.m_resize.init_item(IDC_PACK_LOAD,1,0,1,0);
-      g_editor.m_resize.init_item(IDC_PACK_SAVE,1,0,1,0);
-      g_editor.m_resize.init_item(IDC_PACK_SAVE_AS,1,0,1,0);
       g_editor.m_resize.init_item(IDC_COMMENTS,0,0,1,0);
       g_editor.m_resize.init_item(IDC_LIST,0,0,1,1);
 
