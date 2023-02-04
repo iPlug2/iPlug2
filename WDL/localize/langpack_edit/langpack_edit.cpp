@@ -900,9 +900,10 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
         HWND h=CreateDialog(NULL,MAKEINTRESOURCE(IDD_DIALOG1),NULL,mainProc);
         ShowWindow(h,SW_SHOW);
 
-#ifdef __APPLE__
+#ifndef _WIN32
       {
         HMENU menu = LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU1));
+#ifdef __APPLE__
         {
           HMENU sm=GetSubMenu(menu,0);
           DeleteMenu(sm,ID_QUIT,MF_BYCOMMAND); // remove QUIT from our file menu, since it is in the system menu on OSX
@@ -918,10 +919,11 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
           HMENU nm=SWELL_DuplicateMenu(SWELL_app_stocksysmenu);
           if (nm)
           {
-            MENUITEMINFO mi={sizeof(mi),MIIM_STATE|MIIM_SUBMENU|MIIM_TYPE,MFT_STRING,0,0,nm,NULL,NULL,0,"LangPackEdit"};
+            MENUITEMINFO mi={sizeof(mi),MIIM_STATE|MIIM_SUBMENU|MIIM_TYPE,MFT_STRING,0,0,nm,NULL,NULL,0,(char*)"LangPackEdit"};
             InsertMenuItem(menu,0,TRUE,&mi);
           }
         }
+#endif
 
         SetMenu(h,menu);
       }
@@ -941,10 +943,10 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
     case SWELLAPP_PROCESSMESSAGE:
      if (parm1)
      {
-       const MSG *msg = (MSG *)parm1;
-       if (msg->message == WM_KEYDOWN && msg->hwnd)
+       const MSG *m = (MSG *)parm1;
+       if (m->message == WM_KEYDOWN && m->hwnd)
        {
-         if (g_editor.on_key(msg->hwnd, msg->message, msg->wParam, msg->lParam))
+         if (g_editor.on_key(m->hwnd, m->message, m->wParam, m->lParam))
            return 1;
        }
      }
