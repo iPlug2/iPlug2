@@ -151,6 +151,8 @@ struct editor_instance {
   }
 
   bool edit_row(int rec_idx, int other_action=IDC_LOCALIZED_STRING);
+  bool on_key(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+  void item_context_menu(int cmd=0);
 
   void set_dirty()
   {
@@ -596,6 +598,75 @@ bool editor_instance::edit_row(int row, int other_action)
   return false;
 }
 
+
+bool editor_instance::on_key(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+  HWND hlist = m_hwnd ? GetDlgItem(m_hwnd,IDC_LIST) : NULL;
+  if (hwnd == hlist || IsChild(hlist,hwnd))
+  {
+    if (msg == WM_KEYDOWN) switch (wParam)
+    {
+      case VK_RETURN:
+        item_context_menu(IDC_LOCALIZED_STRING);
+      return true;
+      break;
+#ifdef _WIN32
+      case VK_APPS:
+        item_context_menu();
+      return true;
+#endif
+      case VK_BACK:
+      case VK_DELETE:
+        item_context_menu(IDC_REMOVE_LOCALIZATION);
+      return true;
+    }
+  }
+  return false;
+}
+
+void editor_instance::item_context_menu(int cmd)
+{
+  int ret = cmd;
+  if (!ret)
+  {
+    HMENU menu = LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXTMENU));
+    POINT p;
+    GetCursorPos(&p);
+    ret = TrackPopupMenu(GetSubMenu(menu,0),TPM_NONOTIFY|TPM_RETURNCMD,p.x,p.y,0,m_hwnd,NULL);
+    DestroyMenu(menu);
+  }
+  if (ret)
+  {
+    HWND list = GetDlgItem(m_hwnd,IDC_LIST);
+    int cnt = 0;
+    const int n = ListView_GetItemCount(list);
+    for (int x = 0; x < n; x ++)
+    {
+      if (ListView_GetItemState(list,x,LVIS_SELECTED) & LVIS_SELECTED)
+      {
+        if (edit_row(x,ret)) cnt++;
+        if (ret == ID_SCALING_ADD)
+          ListView_SetItemState(list,x,0,LVIS_SELECTED);
+      }
+    }
+    if (cnt && ret != IDC_LOCALIZED_STRING)
+    {
+      refresh_list(false);
+      set_dirty();
+    }
+    if (ret == ID_SCALING_ADD)
+    {
+      const int nn = ListView_GetItemCount(list);
+      if (n < nn)
+      {
+        ListView_EnsureVisible(list,n,false);
+        for (int i = n; i < nn; i ++)
+          ListView_SetItemState(list,i,LVIS_SELECTED,LVIS_SELECTED);
+      }
+    }
+  }
+}
+
 const char *COL_DESCS[COL_MAX] = {
   // !WANT_LOCALIZE_STRINGS_BEGIN:langpackedit
   "State",
@@ -780,44 +851,7 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           case NM_RCLICK:
             if (ListView_GetSelectedCount(lv->hdr.hwndFrom)>0)
             {
-              HMENU menu = LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXTMENU));
-
-              POINT p;
-              GetCursorPos(&p);
-              int ret = TrackPopupMenu(menu,TPM_NONOTIFY|TPM_RETURNCMD,p.x,p.y,0,hwndDlg,NULL);
-              DestroyMenu(menu);
-
-              if (ret)
-              {
-                int cnt = 0;
-                HWND list = lv->hdr.hwndFrom;
-                const int n = ListView_GetItemCount(list);
-                for (int x = 0; x < n; x ++)
-                {
-                  if (ListView_GetItemState(list,x,LVIS_SELECTED) & LVIS_SELECTED)
-                  {
-                    if (g_editor.edit_row(x,ret)) cnt++;
-                    if (ret == ID_SCALING_ADD)
-                      ListView_SetItemState(list,x,0,LVIS_SELECTED);
-                  }
-                }
-                if (cnt && ret != IDC_LOCALIZED_STRING)
-                {
-                  g_editor.refresh_list(false);
-                  g_editor.set_dirty();
-                }
-                if (ret == ID_SCALING_ADD)
-                {
-                  const int nn = ListView_GetItemCount(list);
-                  if (n < nn)
-                  {
-                    ListView_EnsureVisible(list,n,false);
-                    for (int i = n; i < nn; i ++)
-                      ListView_SetItemState(list,i,LVIS_SELECTED,LVIS_SELECTED);
-                  }
-                }
-              }
-
+              g_editor.item_context_menu();
             }
           return 0;
           case LVN_GETDISPINFO:
@@ -861,8 +895,10 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
         WDL_remove_filepart(buf);
         lstrcatn(buf,WDL_DIRCHAR_STR "LangPackEdit.LangPack",sizeof(buf));
 
+#ifdef _DEBUG
         extern bool g_debug_langpack_has_loaded;
         g_debug_langpack_has_loaded=true;
+#endif
         WDL_LoadLanguagePack(buf,NULL);
 
         HWND h=CreateDialog(NULL,MAKEINTRESOURCE(IDD_DIALOG1),NULL,mainProc);
@@ -877,6 +913,17 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
     case SWELLAPP_ONCOMMAND:
       if (g_editor.m_hwnd)
         SendMessage(g_editor.m_hwnd,WM_COMMAND,parm1,0);
+    return 0;
+    case SWELLAPP_PROCESSMESSAGE:
+     if (parm1)
+     {
+       const MSG *msg = (MSG *)parm1;
+       if (msg->message == WM_KEYDOWN && msg->hwnd)
+       {
+         if (g_editor.on_key(msg->hwnd, msg->message, msg->wParam, msg->lParam))
+           return 1;
+       }
+     }
     return 0;
   }
   return 0;

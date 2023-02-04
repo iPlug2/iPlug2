@@ -107,12 +107,15 @@ END
 
 IDR_CONTEXTMENU MENU DISCARDABLE 
 BEGIN
-    MENUITEM "Edit localization", IDC_LOCALIZED_STRING
-    MENUITEM "Edit [common] localization", IDC_COMMON_STRING
-    MENUITEM "Add dialog scaling item for context", ID_SCALING_ADD
-    MENUITEM "Set localization to template value if not set (mark as localized)", IDC_COPY_TEMPLATE
-    MENUITEM "Remove localization", IDC_REMOVE_LOCALIZATION
-    MENUITEM "Remove localization from items that match template", IDC_REMOVE_NONLOCALIZATION
+    POPUP "Context"
+    BEGIN
+        MENUITEM "Edit localization\tEnter", IDC_LOCALIZED_STRING
+        MENUITEM "Edit [common] localization", IDC_COMMON_STRING
+        MENUITEM "Add dialog scaling item for context", ID_SCALING_ADD
+        MENUITEM "Set localization to template value if not set (mark as localized)", IDC_COPY_TEMPLATE
+        MENUITEM "Remove localization\tDelete", IDC_REMOVE_LOCALIZATION
+        MENUITEM "Remove localization from items that match template", IDC_REMOVE_NONLOCALIZATION
+    END
 END
 
 /////////////////////////////////////////////////////////////////////////////
