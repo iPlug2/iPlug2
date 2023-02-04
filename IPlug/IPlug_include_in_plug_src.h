@@ -75,7 +75,7 @@
     {
       using namespace iplug;
 
-      IPlugVST2* pPlug = MakePlug(InstanceInfo{hostCallback});
+      IPlugVST2* pPlug = iplug::MakePlug(iplug::InstanceInfo{hostCallback});
 
       if (pPlug)
       {
@@ -135,7 +135,7 @@
   #if defined VST3_API
   static Steinberg::FUnknown* createInstance(void*)
   {
-    return (Steinberg::Vst::IAudioProcessor*) MakePlug(InstanceInfo());
+    return (Steinberg::Vst::IAudioProcessor*) iplug::MakePlug(iplug::InstanceInfo());
   }
 
   BEGIN_FACTORY_DEF(PLUG_MFR, PLUG_URL_STR, PLUG_EMAIL_STR)
@@ -195,14 +195,14 @@
     //Component Manager
     EXPORT ComponentResult AUV2_ENTRY(ComponentParameters* pParams, void* pPlug)
     {
-      return IPlugAU::IPlugAUEntry(pParams, pPlug);
+      return iplug::IPlugAU::IPlugAUEntry(pParams, pPlug);
     }
     #endif
 
     //>10.7 SDK AUPlugin
     EXPORT void* AUV2_FACTORY(const AudioComponentDescription* pInDesc)
     {
-      return IPlugAUFactory<PLUG_CLASS_NAME, PLUG_DOES_MIDI_IN>::Factory(pInDesc);
+      return iplug::IPlugAUFactory<PLUG_CLASS_NAME, PLUG_DOES_MIDI_IN>::Factory(pInDesc);
     }
   };
 #pragma mark - WAM
@@ -211,7 +211,7 @@
   {
     EMSCRIPTEN_KEEPALIVE void* createModule()
     {
-      Processor* pWAM = dynamic_cast<Processor*>(iplug::MakePlug(InstanceInfo()));
+      Processor* pWAM = dynamic_cast<Processor*>(iplug::MakePlug(iplug::InstanceInfo()));
       return (void*) pWAM;
     }
   }
@@ -240,7 +240,7 @@
     
     EMSCRIPTEN_KEEPALIVE void iplug_fsready()
     {
-      gPlug = std::unique_ptr<iplug::IPlugWeb>(iplug::MakePlug(InstanceInfo()));
+      gPlug = std::unique_ptr<iplug::IPlugWeb>(iplug::MakePlug(iplug::InstanceInfo()));
       gPlug->SetHost("www", 0);
       gPlug->OpenWindow(nullptr);
       iplug_syncfs(); // plug in may initialise settings in constructor, write to persistent data after init
@@ -286,7 +286,7 @@ BEGIN_IPLUG_NAMESPACE
 
 #if defined VST2_API || defined VST3_API || defined AAX_API || defined AUv3_API || defined APP_API  || defined WAM_API || defined WEB_API
 
-Plugin* MakePlug(const InstanceInfo& info)
+Plugin* MakePlug(const iplug::InstanceInfo& info)
 {
   // From VST3 - is this necessary?
   static WDL_Mutex sMutex;
@@ -300,7 +300,7 @@ Plugin* MakePlug(const InstanceInfo& info)
 
 Plugin* MakePlug(void* pMemory)
 {
-  InstanceInfo info;
+  iplug::InstanceInfo info;
   info.mCocoaViewFactoryClassName.Set(AUV2_VIEW_CLASS_STR);
     
   if (pMemory)
@@ -316,7 +316,7 @@ Steinberg::FUnknown* MakeController()
 {
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
-  IPlugVST3Controller::InstanceInfo info;
+  IPlugVST3Controller::iplug::InstanceInfo info;
   info.mOtherGUID = Steinberg::FUID(VST3_PROCESSOR_UID);
   // If you are trying to build a distributed VST3 plug-in and you hit an error here like "no matching constructor..." or 
   // "error: unknown type name 'VST3Controller'", you need to replace all instances of the name of your plug-in class (e.g. IPlugEffect)
@@ -331,7 +331,7 @@ Steinberg::FUnknown* MakeProcessor()
 {
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
-  IPlugVST3Processor::InstanceInfo info;
+  IPlugVST3Processor::iplug::InstanceInfo info;
   info.mOtherGUID = Steinberg::FUID(VST3_CONTROLLER_UID);
   return static_cast<Steinberg::Vst::IAudioProcessor*>(new PLUG_CLASS_NAME(info));
 }

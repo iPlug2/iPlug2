@@ -24,12 +24,12 @@ void ChannelPinMapper::SetNChannels(int nCh, bool auto_passthru)
   m_nCh = nCh;
 }
 
-void ChannelPinMapper::Init(const WDL_UINT64* pMapping, int nPins)
+void ChannelPinMapper::Init(const PinMapPin * pMapping, int nPins)
 {
   if (nPins<0) nPins=0;
   else if (nPins>CHANNELPINMAPPER_MAXPINS) nPins=CHANNELPINMAPPER_MAXPINS;
-  memcpy(m_mapping, pMapping, nPins*sizeof(WDL_UINT64));
-  memset(m_mapping+nPins, 0, (CHANNELPINMAPPER_MAXPINS-nPins)*sizeof(WDL_UINT64));
+  memcpy(m_mapping, pMapping, nPins*sizeof(PinMapPin));
+  memset(m_mapping+nPins, 0, (CHANNELPINMAPPER_MAXPINS-nPins)*sizeof(PinMapPin));
   m_nPins = m_nCh = nPins;
 }
 
@@ -37,7 +37,7 @@ void ChannelPinMapper::Init(const WDL_UINT64* pMapping, int nPins)
  
 void ChannelPinMapper::ClearPin(int pinIdx)
 {
-  if (pinIdx >=0 && pinIdx < CHANNELPINMAPPER_MAXPINS) m_mapping[pinIdx] = 0;
+  if (pinIdx >=0 && pinIdx < CHANNELPINMAPPER_MAXPINS) m_mapping[pinIdx].clear();
 }
 
 void ChannelPinMapper::SetPin(int pinIdx, int chIdx, bool on)
@@ -46,11 +46,11 @@ void ChannelPinMapper::SetPin(int pinIdx, int chIdx, bool on)
   {
     if (on) 
     {
-      m_mapping[pinIdx] |= BITMASK64(chIdx);
+      m_mapping[pinIdx].set_chan(chIdx);
     }
     else 
     {
-      m_mapping[pinIdx] &= ~BITMASK64(chIdx);
+      m_mapping[pinIdx].clear_chan(chIdx);
     }
   }
 }
@@ -67,20 +67,21 @@ bool ChannelPinMapper::GetPin(int pinIdx, int chIdx) const
 {
   if (pinIdx >= 0 && pinIdx < CHANNELPINMAPPER_MAXPINS)
   {
-    WDL_UINT64 map = m_mapping[pinIdx];
-    return !!(map & BITMASK64(chIdx));
+    return m_mapping[pinIdx].has_chan(chIdx);
   }
   return false;
 }
 
-
 bool ChannelPinMapper::IsStraightPassthrough() const
 {
   if (m_nCh != m_nPins) return false;
-  const WDL_UINT64* pMap = m_mapping;
-  int i;
-  for (i = 0; i < m_nPins; ++i, ++pMap) {
-    if (*pMap != BITMASK64(i)) return false;
+  PinMapPin tmp;
+  tmp.clear();
+  for (int i = 0; i < m_nPins; ++i)
+  {
+    tmp.set_chan(i);
+    if (!tmp.equal_to(m_mapping[i])) return false;
+    tmp.clear_chan(i);
   }
   return true;
 }
@@ -94,7 +95,15 @@ const char *ChannelPinMapper::SaveStateNew(int* pLen)
   WDL_Queue__AddToLE(&m_cfgret, &magic);
   WDL_Queue__AddToLE(&m_cfgret, &m_nCh);
   WDL_Queue__AddToLE(&m_cfgret, &m_nPins);
-  WDL_Queue__AddDataToLE(&m_cfgret, m_mapping, m_nPins*sizeof(WDL_UINT64), sizeof(WDL_UINT64));
+  const int num64 = wdl_max(1,(wdl_min(m_nCh,CHANNELPINMAPPER_MAXPINS) + 63)/64);
+  for (int y = 0; y < num64; y ++)
+  {
+    for (int x = 0; x < m_nPins; x ++)
+    {
+      const WDL_UINT64 v = m_mapping[x].get_64(y);
+      WDL_Queue__AddToLE(&m_cfgret, &v);
+    }
+  }
   *pLen = m_cfgret.GetSize();
   return (const char*)m_cfgret.Get();
 }
@@ -108,15 +117,21 @@ bool ChannelPinMapper::LoadState(const char* buf, int len)
   int* pNCh = WDL_Queue__GetTFromLE(&chunk, (int*) 0);
   int* pNPins = WDL_Queue__GetTFromLE(&chunk, (int*) 0);
   if (!pNCh || !pNPins) return false;
-  SetNPins(*pNPins);
+  const int src_pins = *pNPins;
+  SetNPins(src_pins);
   SetNChannels(*pNCh);
-  int maplen = *pNPins*sizeof(WDL_UINT64);
-  if (chunk.Available() < maplen) return false;
-  void* pMap = WDL_Queue__GetDataFromLE(&chunk, maplen, sizeof(WDL_UINT64));
-  
-  int sz= m_nPins*sizeof(WDL_UINT64);
-  if (sz>maplen) sz=maplen;
-  memcpy(m_mapping, pMap, sz);
+  const int num64 = wdl_max(1,(wdl_min(m_nCh,CHANNELPINMAPPER_MAXPINS)+63)/64);
+  const int maplen = src_pins * sizeof(WDL_UINT64);
+  for (int y = 0; y < num64; y ++)
+  {
+    if (chunk.Available() < maplen) return y>0;
+    const WDL_UINT64 *pMap = (const WDL_UINT64 *)WDL_Queue__GetDataFromLE(&chunk, maplen, sizeof(WDL_UINT64));
+    const int sz = wdl_min(m_nPins,src_pins);
+    for (int x = 0; x < sz; x ++)
+    {
+      m_mapping[x].set_64(pMap[x], y);
+    }
+  }
 
   return true;
 }
@@ -130,7 +145,6 @@ AudioBufferContainer::AudioBufferContainer()
   m_interleaved = true;
   m_hasData = false;
 }
-
 
 // converts interleaved buffer to interleaved buffer, using min(len_in,len_out) and zeroing any extra samples
 // isInput means it reads from track channels and writes to plugin pins
@@ -174,52 +188,47 @@ void PinMapperConvertBuffers(const double *buf, int len_in, int nch_in,
     const int nchan = isInput ? nch_in : nch_out;
 
     int p;
-    WDL_UINT64 clearmask=0;
+    PinMapPin clearmask;
+    clearmask.clear();
     for (p = 0; p < npins; p ++)
     {
-      WDL_UINT64 map = pinmap->m_mapping[p];
-      int x;
-      for (x = 0; x < nchan && map; x ++)
+      const PinMapPin &map = pinmap->m_mapping[p];
+      for (unsigned int x = 0; map.enum_chans(&x,nchan); x ++)
       {
-        if (map & 1)
+        int i=len_in;
+        const double *ip = buf + (isInput ? x : p);
+        const int out_idx = (isInput ? p : x);
+
+        bool want_zero=false;
+        if (!wantZeroExcessOutput)
         {
-          int i=len_in;
-          const double *ip = buf + (isInput ? x : p);
-          const int out_idx = (isInput ? p : x);
-
-          bool want_zero=false;
-          if (!wantZeroExcessOutput)
+          if (!clearmask.has_chan(out_idx))
           {
-            WDL_UINT64 m = ((WDL_UINT64)1)<<out_idx;
-            if (!(clearmask & m))
-            {
-              clearmask|=m;
-              want_zero=true;
-            }
-          }
-
-          double *op = buf_out + out_idx;
-
-          if (want_zero)
-          {
-            while (i-- > 0) 
-            {
-              *op = *ip;
-              op += nch_out;
-              ip += nch_in;
-            }
-          }
-          else
-          {
-            while (i-- > 0) 
-            {
-              *op += *ip;
-              op += nch_out;
-              ip += nch_in;
-            }
+            clearmask.set_chan(out_idx);
+            want_zero=true;
           }
         }
-        map >>= 1;
+
+        double *op = buf_out + out_idx;
+
+        if (want_zero)
+        {
+          while (i-- > 0) 
+          {
+            *op = *ip;
+            op += nch_out;
+            ip += nch_in;
+          }
+        }
+        else
+        {
+          while (i-- > 0) 
+          {
+            *op += *ip;
+            op += nch_out;
+            ip += nch_in;
+          }
+        }
       }
     }
   }

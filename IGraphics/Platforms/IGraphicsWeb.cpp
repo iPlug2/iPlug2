@@ -735,7 +735,7 @@ void IGraphicsWeb::OnMainLoopTimer()
   }
 }
 
-EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
+EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
   
@@ -766,7 +766,7 @@ EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption,
   return result;
 }
 
-void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext)
+void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler)
 {
   //TODO
   // val inputEl = val::global("document").call<val>("createElement", std::string("input"));
@@ -778,7 +778,7 @@ void IGraphicsWeb::PromptForFile(WDL_String& filename, WDL_String& path, EFileAc
   // inputEl.call<void>("addEventListener", std::string("onChange"), val::module_property("file_dialog_callback"), false);
 }
 
-void IGraphicsWeb::PromptForDirectory(WDL_String& path)
+void IGraphicsWeb::PromptForDirectory(WDL_String& path, IFileDialogCompletionHandlerFunc completionHandler)
 {
   //TODO
   // val inputEl = val::global("document").call<val>("createElement", std::string("input"));
@@ -866,7 +866,7 @@ void IGraphicsWeb::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   emscripten_set_keydown_callback("textEntry", this, 1, text_entry_keydown);
 }
 
-IPopupMenu* IGraphicsWeb::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
+IPopupMenu* IGraphicsWeb::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync)
 {
   return nullptr;
 }

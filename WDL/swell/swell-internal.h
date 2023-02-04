@@ -23,15 +23,44 @@
 
 #include "../ptrlist.h"
 
+struct SWELL_ListView_Rec
+{
+  char *txt;
+  int image_idx;
+};
+
 class SWELL_ListView_Row
 {
 public:
-  SWELL_ListView_Row() : m_param(0), m_imageidx(0), m_tmp(0) { }
-  ~SWELL_ListView_Row() { m_vals.Empty(true,free); }
-  WDL_PtrList<char> m_vals;
+  SWELL_ListView_Row() : m_param(0), m_tmp(0) { }
+  ~SWELL_ListView_Row()
+  {
+    for (int x = 0; x < m_cols.GetSize(); x ++)
+    {
+      free(m_cols.Get()[x].txt);
+    }
+    m_cols.Resize(0);
+  }
+  int get_num_cols() const { return m_cols.GetSize(); }
+  char *get_col_txt(int x) const { return x >= 0 && x < m_cols.GetSize() ? m_cols.Get()[x].txt : NULL; }
+  void add_col(const char *p) { SWELL_ListView_Rec r = { p ? strdup(p) : NULL }; m_cols.Add(r); }
+  void set_col_txt(int x, const char *p)
+  {
+    if (WDL_NORMALLY(x >= 0 && x < m_cols.GetSize()))
+    {
+      free(m_cols.Get()[x].txt);
+      m_cols.Get()[x].txt = p ? strdup(p) : NULL;
+    }
+  }
+  int get_img_idx(int x) const { return x >= 0 && x < m_cols.GetSize() ? m_cols.Get()[x].image_idx : 0; }
+  void set_img_idx(int x, int index)
+  {
+    if (WDL_NORMALLY(x >= 0 && x < m_cols.GetSize()))
+      m_cols.Get()[x].image_idx = index;
+  }
+  WDL_TypedBuf<SWELL_ListView_Rec> m_cols;
 
   LPARAM m_param;
-  int m_imageidx;
   int m_tmp; // Cocoa uses this temporarily, generic uses it as a mask (1= selected)
 };
 
@@ -145,6 +174,7 @@ typedef struct WindowPropRec
   bool m_last_dark_mode;
   bool m_ctlcolor_set;
   bool m_disable_menu;
+  LONG_PTR m_userdata;
 }
 - (id) init;
 - (void)setNeedsDisplay:(BOOL)flag;
@@ -153,6 +183,8 @@ typedef struct WindowPropRec
 - (void)initColors:(int)darkmode; // -1 to not update darkmode but trigger update of colors
 - (void)swellDisableContextMenu:(bool)dis;
 - (NSMenu *)textView:(NSTextView *)view menu:(NSMenu *)menu forEvent:(NSEvent *)event atIndex:(NSUInteger)charIndex;
+-(LONG_PTR)getSwellUserData;
+-(void)setSwellUserData:(LONG_PTR)val;
 @end
 
 @interface SWELL_TabView : NSTabView
@@ -178,8 +210,9 @@ typedef struct WindowPropRec
 @interface SWELL_StatusCell : SWELL_ListViewCell
 {
   NSImage *status;
+  bool m_always_indent;
 }
--(id)initNewCell;
+-(id)initNewCell:(bool)always_indent;
 -(void)setStatusImage:(NSImage *)img;
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView;
 @end
@@ -259,6 +292,7 @@ typedef struct WindowPropRec
   // these are for the new yosemite mouse handling code
   int m_last_plainly_clicked_item, m_last_shift_clicked_item;
 
+  bool m_subitem_images;
 }
 -(LONG)getSwellStyle;
 -(void)setSwellStyle:(LONG)st;
@@ -1256,7 +1290,9 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   f(listview_bg, RGB(255,255,255)) \
   f(listview_bg_sel, RGB(128,128, 255)) \
   f(listview_text, RGB(0,0,0)) \
-  fd(listview_text_sel, RGB(0,0,0), listview_text) \
+  fd(listview_text_sel, RGB(255,255,255), listview_text) \
+  fd(listview_bg_sel_inactive, RGB(200,200,200), listview_bg_sel) \
+  fd(listview_text_sel_inactive, RGB(0,0,0), listview_text_sel) \
   fd(listview_grid, RGB(224,224,224), _3dhilight) \
   f(listview_hdr_arrow,RGB(96,96,96)) \
   fd(listview_shadow, RGB(96,96,96), _3dshadow) \
@@ -1268,7 +1304,9 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   f(treeview_text,RGB( 0,0,0)) \
   f(treeview_bg, RGB(255,255,255)) \
   f(treeview_bg_sel, RGB(128,128,255)) \
-  f(treeview_text_sel, RGB(0,0,0)) \
+  f(treeview_text_sel, RGB(255,255,255)) \
+  fd(treeview_bg_sel_inactive, RGB(200,200,200), treeview_bg_sel) \
+  fd(treeview_text_sel_inactive, RGB(0,0,0), treeview_text_sel) \
   f(treeview_arrow, RGB(96,96,96)) \
   fd(treeview_shadow, RGB(96,96,96), _3dshadow) \
   fd(treeview_hilight, RGB(224,224,224), _3dhilight) \

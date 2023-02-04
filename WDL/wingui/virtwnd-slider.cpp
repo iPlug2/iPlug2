@@ -39,11 +39,9 @@ void vwnd_slider_drawknobstack(LICE_IBitmap *drawbm, double val, WDL_VirtualWnd_
 
   const int ni=((v ? knobimage->bgimage->getHeight() : knobimage->bgimage->getWidth())-ks_offs*2) / (v ? ksh : ksw);
 
-  if (val<0.0)val=0.0;
-  else if (val>1.0)val=1.0;
-  int p=(int) (val * (ni-1));
+  int p=(int) floor(wdl_clamp(val,0.0,1.0) * (ni-1) + 0.49999);
+  if (p > ni-1) p=ni-1;
   if (p<0) p=0;
-  else if (p> ni-1) p=ni-1;
 
   p *= (v ? ksh : ksw);
 

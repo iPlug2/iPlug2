@@ -8,6 +8,7 @@
  ==============================================================================
 */
 
+#include <memory>
 #include "wdltypes.h"
 #include "wdlstring.h"
 
@@ -43,7 +44,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     {
       HWND hWnd = FindWindow(0, BUNDLE_NAME);
       SetForegroundWindow(hWnd);
-      return 0; // should return 1?
+      return 0;
     }
 #endif
     gHINSTANCE = hInstance;
@@ -134,9 +135,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     ReleaseMutex(hMutex);
 #endif
   }
-  catch(...)
+  catch(std::exception e)
   {
-    DBGMSG("another instance running\n");
+    DBGMSG("Exception: %s", e.what());
+    return 1;
   }
   return 0;
 }

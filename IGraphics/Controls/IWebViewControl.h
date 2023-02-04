@@ -24,8 +24,8 @@ BEGIN_IGRAPHICS_NAMESPACE
 
 class IWebViewControl;
 
-using onReadyFunc = std::function<void(IWebViewControl* pWebView)>;
-using onMessageFunc = std::function<void(IWebViewControl* pWebView, const char* jsonMsg)>;
+using OnReadyFunc = std::function<void(IWebViewControl* pWebView)>;
+using OnMessageFunc = std::function<void(IWebViewControl* pWebView, const char* jsonMsg)>;
 
 /** A control that allows the embedding of HTML UI inside an IGraphics context using a platform-native webview and bi-directional communication with that content
  * NOTE: this control attaches a sub view on top of the IGraphics view, so it will render all content on-top
@@ -43,12 +43,15 @@ public:
    * @param msgFunc A function conforming to onMessageFunc, that will be called when messages are posted from the webview
    * @param dllPath (Windows only) an absolute path to the WebView2Loader.dll that is required to use the WebView2 on windows
    * @param tmpPath (Windows only) an absolute path to the folder that should be used */
-  IWebViewControl(const IRECT& bounds, bool opaque, onReadyFunc readyFunc, onMessageFunc msgFunc = nullptr, const char* dllPath = "", const char* tmpPath = "")
+  IWebViewControl(const IRECT& bounds, bool opaque, OnReadyFunc readyFunc, OnMessageFunc msgFunc = nullptr, const char* dllPath = "", const char* tmpPath = "")
   : IControl(bounds)
   , IWebView(opaque)
   , mOnReadyFunc(readyFunc)
   , mOnMessageFunc(msgFunc)
   {
+    // The IControl should not receive mouse messages
+    mIgnoreMouse = true;
+    
 #ifdef OS_WIN
     SetWebViewPaths(dllPath, tmpPath);
 #endif
@@ -73,30 +76,36 @@ public:
 
   void OnWebViewReady() override
   {
-    if(mOnReadyFunc)
+    if (mOnReadyFunc)
       mOnReadyFunc(this);
   }
   
   void OnMessageFromWebView(const char* json) override
   {
-    if(mOnMessageFunc)
+    if (mOnMessageFunc)
       mOnMessageFunc(this, json);
   }
 
   void OnRescale() override
   {
-    SetWebViewBounds(mRECT.L, mRECT.T, mRECT.W(), mRECT.H(), GetUI()->GetTotalScale());
+    UpdateWebViewBounds();
   }
 
   void OnResize() override
   {
-    SetWebViewBounds(mRECT.L, mRECT.T, mRECT.W(), mRECT.H(), GetUI()->GetTotalScale());
+    UpdateWebViewBounds();
   }
   
 private:
+  void UpdateWebViewBounds()
+  {
+    auto ds = GetUI()->GetDrawScale();
+    SetWebViewBounds(mRECT.L * ds, mRECT.T * ds, mRECT.W() * ds, mRECT.H() * ds, ds);
+  }
+  
   void* mPlatformView = nullptr;
-  onReadyFunc mOnReadyFunc;
-  onMessageFunc mOnMessageFunc;
+  OnReadyFunc mOnReadyFunc;
+  OnMessageFunc mOnMessageFunc;
 };
 
 END_IGRAPHICS_NAMESPACE

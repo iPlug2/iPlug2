@@ -463,15 +463,20 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
           break;
 
         case IDC_BUTTON_OS_DEV_SETTINGS:
-          if (HIWORD(wParam) == BN_CLICKED)
+          if (HIWORD(wParam) == BN_CLICKED) {
             #ifdef OS_WIN
             if( (_this->mState.mAudioDriverType == kDeviceASIO) && (_this->mDAC->isStreamRunning() == true)) // TODO: still not right
               ASIOControlPanel();
             #elif defined OS_MAC
-            system("open \"/Applications/Utilities/Audio MIDI Setup.app\"");
+            if(SWELL_GetOSXVersion() >= 0x1200) {
+              system("open \"/System/Applications/Utilities/Audio MIDI Setup.app\"");
+            } else {
+              system("open \"/Applications/Utilities/Audio MIDI Setup.app\"");
+            }
             #else
               #error NOT IMPLEMENTED
             #endif
+          }
           break;
 
         case IDC_COMBO_MIDI_IN_DEV:

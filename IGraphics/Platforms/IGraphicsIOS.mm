@@ -10,6 +10,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import <MetalKit/MetalKit.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 #include "IGraphicsIOS.h"
 #include "IGraphicsCoreText.h"
@@ -18,6 +19,7 @@
 
 #include <map>
 #include <string>
+#include <cassert>
 
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
@@ -159,7 +161,7 @@ void IGraphicsIOS::RemovePlatformView(void* pView)
   [(UIView*) pView removeFromSuperview];
 }
 
-EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
+EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
   [(IGRAPHICS_VIEW*) mView showMessageBox:str :caption :type :completionHandler];
@@ -190,12 +192,39 @@ void IGraphicsIOS::GetMouseLocation(float& x, float&y) const
   [(IGRAPHICS_VIEW*) mView getLastTouchLocation: x : y];
 }
 
-void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext)
+void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler)
 {
+  assert(completionHandler != nullptr && "You must provide a completion handler on iOS");
+  
+  NSString* pDefaultFileName = nil;
+  NSString* pDefaultPath = nil;
+  NSMutableArray* pFileTypes = [[NSMutableArray alloc] init];
+
+  if (fileName.GetLength())
+    pDefaultFileName = [NSString stringWithCString:fileName.Get() encoding:NSUTF8StringEncoding];
+
+  if (path.GetLength())
+    pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+
+  fileName.Set(""); // reset it
+
+  if (CStringHasContents(ext))
+  {
+    NSArray* pFileExtensions = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
+    
+    for (NSString* pFileExtension in pFileExtensions)
+    {
+      UTType* pUTType = [UTType typeWithFilenameExtension:pFileExtension];
+      [pFileTypes addObject:pUTType];
+    }
+  }
+  
+  [(IGRAPHICS_VIEW*) mView promptForFile: pDefaultFileName : pDefaultPath : action : pFileTypes : completionHandler];
 }
 
-void IGraphicsIOS::PromptForDirectory(WDL_String& dir)
+void IGraphicsIOS::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler)
 {
+  // Not implemented, since you can't do anything outside the app sandbox anyway
 }
 
 bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
@@ -204,7 +233,7 @@ bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHa
   return false;
 }
 
-IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
+IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync)
 {
   IPopupMenu* pReturnMenu = nullptr;
   isAsync = true;

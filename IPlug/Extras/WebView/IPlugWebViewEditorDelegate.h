@@ -69,6 +69,13 @@ public:
     str.SetFormatted(mMaxJSStringLength, "SAMFD(%i, %i, %s)", msgTag, dataSize, base64.data());
     EvaluateJavaScript(str.Get());
   }
+  
+  void SendMidiMsgFromDelegate(const IMidiMsg& msg) override
+  {
+    WDL_String str;
+    str.SetFormatted(mMaxJSStringLength, "SMMFD(%i, %i, %i)", msg.mStatus, msg.mData1, msg.mData2);
+    EvaluateJavaScript(str.Get());
+  }
 
   void OnMessageFromWebView(const char* jsonStr) override
   {
@@ -109,6 +116,13 @@ public:
       }
 
       SendArbitraryMsgFromUI(json["msgTag"], json["ctrlTag"], static_cast<int>(base64.size()), base64.data());
+    }
+    else if(json["msg"] == "SMMFUI")
+    {
+      IMidiMsg msg {0, json["statusByte"].get<uint8_t>(),
+                       json["dataByte1"].get<uint8_t>(),
+                       json["dataByte2"].get<uint8_t>()};
+      SendMidiMsgFromUI(msg);
     }
   }
 

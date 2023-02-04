@@ -167,12 +167,12 @@ public:
   
   /** Implement this method to handle popup menu selection after IGraphics::CreatePopupMenu/IControl::PromptUserInput
    * @param pSelectedMenu If pSelectedMenu is invalid it means the user didn't select anything
-   * @param valIdx An index that indicates which of the controls vals the menu relates to */
+   * @param valIdx An index that indicates which of the control's vals the menu relates to */
   virtual void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx);
 
   /** Implement this method to handle text input after IGraphics::CreateTextEntry/IControl::PromptUserInput
    * @param str A CString with the inputted text
-   * @param valIdx An index that indicates which of the controls vals the text completion relates to */
+   * @param valIdx An index that indicates which of the control's values the text completion relates to */
   virtual void OnTextEntryCompletion(const char* str, int valIdx) {}
 
   /** Implement this to respond to a menu selection from CreateContextMenu(); @see CreateContextMenu() */
@@ -187,12 +187,12 @@ public:
   virtual void DrawPTHighlight(IGraphics& g);
 
   /** Call this method in response to a mouse event to create an edit box so the user can enter a value, or pop up a pop-up menu, if the control is linked to a parameter (mParamIdx > kNoParameter)
-   * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
+   * @param valIdx An index to choose which of the control's linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
   void PromptUserInput(int valIdx = 0);
   
   /** Create a text entry box so the user can enter a value, or pop up a pop-up menu, if the control is linked to a parameter (mParamIdx > kNoParameter) specifying the bounds
    * @param bounds The rectangle for the text entry. Pop-up menu's will appear below the rectangle.
-   * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
+   * @param valIdx An index to choose which of the control's linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
   void PromptUserInput(const IRECT& bounds, int valIdx = 0);
   
   /** Set an Action Function for this control. 
@@ -214,14 +214,14 @@ public:
 
   /** Get the index of a parameter that the control is linked to
    * Normaly controls are either linked to a single parameter or no parameter but some may be linked to multiple parameters
-   * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0
+   * @param valIdx An index to choose which of the control's linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0
    * @return Parameter index, or kNoParameter if there is no parameter linked with this control at valIdx */
   int GetParamIdx(int valIdx = 0) const;
   
   /** Set the index of a parameter that the control is linked to
    * If you are calling this "manually" to reuse a control for multiple parameters, you probably want to call IEditorDelegate::SendCurrentParamValuesFromDelegate() afterward, to update the control values
    * @param paramIdx Parameter index, or kNoParameter if there is no parameter linked with this control at valIdx
-   * @param valIdx An index to choose which of the controls vals to set */
+   * @param valIdx An index to choose which of the control's values to set */
   virtual void SetParamIdx(int paramIdx, int valIdx = 0);
  
   /** Check if the control is linked to a particular parameter
@@ -251,7 +251,7 @@ public:
   /** Set the control's value after user input.
    * This method is called after a text entry or popup menu prompt triggered by PromptUserInput(), calling SetDirty(true), which will mean that the new value gets sent back to the delegate
    * @param value the normalised value after user input via text entry or pop-up menu
-   * @param valIdx An index to choose which of the controls linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
+   * @param valIdx An index to choose which of the control's linked parameters to retrieve. NOTE: since controls usually have only 1 parameter you can omit this argument and use the default index of 0 */
   virtual void SetValueFromUserInput(double value, int valIdx = 0);
     
   /** Set one or all of the control's values to the default value of the associated parameter.
@@ -463,7 +463,7 @@ public:
    * @param y The Y coordinate for snapping
    * @param direction The direction of the control's travel- horizontal or vertical fader
    * @param bounds The area in which the track of e.g. a slider should be snapped
-   * @param valIdx \todo */
+   * @param valIdx The value that the current mouse gesture should snap */
   virtual void SnapToMouse(float x, float y, EDirection direction, const IRECT& bounds, int valIdx = -1, double minClip = 0., double maxClip = 1.);
 
   /* if you override this you must call the base implementation, to free mAnimationFunc */
@@ -478,7 +478,7 @@ public:
   
   /** Set the animation function and starts it
    * @param func A std::function conforming to IAnimationFunction
-   * @param duration Duration in milliseconds for the animation  */
+   * @param duration Duration in milliseconds for the animation */
   void SetAnimation(IAnimationFunction func, int duration) { mAnimationFunc = func; StartAnimation(duration); }
 
   /** Get the control's animation function, if it exists */
@@ -506,7 +506,7 @@ protected:
   
   /** A helper template function to call a method for an individual value, or for all values
    * @param valIdx If this is > kNoValIdx execute the function for an individual value. If equal to kNoValIdx call the function for all values
-   * @param func A function that takes a single integer argument, the valIdx \todo
+   * @param func A function that takes a single integer argument, the value index
    * @param args Arguments to the function */
   template<typename T, typename... Args>
   void ForValIdx(int valIdx, T func, Args... args)
@@ -607,7 +607,7 @@ public:
 
     if (mBitmap.N() > 1)
     {
-      i = 1 + int(0.5 + mControl->GetValue() * (double) (mBitmap.N() - 1));
+      i = 1 + int(0.5 + mControl->GetValue() * static_cast<double>(mBitmap.N() - 1));
       i = Clip(i, 1, mBitmap.N());
     }
     IBlend blend = mControl->GetBlend();
@@ -790,6 +790,7 @@ public:
       break;
     case EVShape::AllRounded:
       DrawPressableRectangle(g, bounds, pressed, mouseOver, disabled, true, true, true, true);
+      break;
     default:
       break;
     }
@@ -1829,16 +1830,16 @@ public:
   
   void Draw(IGraphics& g) override
   {
-    if(mDrawFunc)
+    if (mDrawFunc)
       mDrawFunc(this, g, mRECT);
   }
   
   virtual void OnEndAnimation() override // if you override this you must call the base implementation, to free mAnimationFunc
   {
-    if(mLoopAnimation && mAnimationDuration)
+    if (mLoopAnimation && mAnimationDuration)
       StartAnimation(mAnimationDuration);
     else
-      SetAnimation(nullptr);
+      IControl::OnEndAnimation();
     
     SetDirty(false);
   }
@@ -1971,7 +1972,7 @@ public:
   /** @return Cstring with the text that the control displays */
   const char* GetStr() const { return mStr.Get(); }
   
-  /** Measures the bounds of the text that the control displays and compacts/expands the controls bounds to fit */
+  /** Measures the bounds of the text that the control displays and compacts/expands the control's bounds to fit */
   void SetBoundsBasedOnStr();
   
 protected:

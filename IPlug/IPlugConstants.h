@@ -81,7 +81,6 @@ static const int MAX_PRESET_NAME_LEN = 256;
 
 #define AU_MAX_IO_CHANNELS 128
 
-//TODO: check this shit really?
 #define MAX_MACOS_PATH_LEN 1024
 #define MAX_WIN32_PATH_LEN 256
 #define MAX_WIN32_PARAM_LEN 256
@@ -230,15 +229,16 @@ enum EHost
   kHostBitwig,
   kHostWWW,
   
-  kHostReason,			
-  kHostGoldWave5x,	
-  kHostWaveform,		
-  kHostAudacity,		
-  kHostAcoustica,		
+  kHostReason,
+  kHostGoldWave5x,
+  kHostWaveform,
+  kHostAudacity,
+  kHostAcoustica,
   kHostPluginDoctor,
-  kHostiZotopeRX,		
-  kHostSAVIHost,		
-  kHostBlueCat,			
+  kHostiZotopeRX,
+  kHostSAVIHost,
+  kHostBlueCat,
+  kHostMixbus32C
 
   // These hosts don't report the host name:
   // EnergyXT2

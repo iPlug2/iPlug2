@@ -80,11 +80,11 @@ void* WebViewEditorDelegate::OpenWindow(void* pParent)
   HELPER_VIEW* pHelperView = [[HELPER_VIEW alloc] initWithEditorDelegate: this];
   mHelperView = (void*) pHelperView;
 
-  if(pParentView) {
+  if (pParentView) {
     [pParentView addSubview: pHelperView];
   }
   
-  if(mEditorInitFunc)
+  if (mEditorInitFunc)
     mEditorInitFunc();
 
   return mHelperView;

@@ -38,6 +38,7 @@
 #include "wdlcstring.h"
 #include "lameencdec.h"
 #include "win32_utf8.h"
+#include "ptrlist.h"
 
 #ifdef __APPLE__
   #include <Carbon/Carbon.h>
@@ -47,8 +48,10 @@
 #endif
 
 // note: calling code should include WDL/metadata.h from somewhere to implement these functions
+struct ID3RawTag;
 int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata,
-  bool want_embed_otherschemes, int *ixml_lenwritten, int ixml_padtolen);
+  bool want_embed_otherschemes, int *ixml_lenwritten, int ixml_padtolen,
+  WDL_PtrList<ID3RawTag> *rawtags=NULL);
 int PackApeChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata);
 int PackXMPChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata);
 bool ParseUserDefMetadata(const char *id, const char *val,

@@ -54,12 +54,14 @@ using namespace igraphics;
 
 @end
 
-@interface IGRAPHICS_VIEW : UIScrollView <UITextFieldDelegate, UIScrollViewDelegate,
-                                          UIPopoverPresentationControllerDelegate, UIGestureRecognizerDelegate,
-                                          UITraitEnvironment
-#ifdef __IPHONE_14_0
-, UIColorPickerViewControllerDelegate
-#endif
+@interface IGRAPHICS_VIEW : UIView
+<
+UITextFieldDelegate,
+UIPopoverPresentationControllerDelegate,
+UIGestureRecognizerDelegate,
+UITraitEnvironment,
+UIDocumentPickerDelegate,
+UIColorPickerViewControllerDelegate
 >
 {
 @public
@@ -67,9 +69,11 @@ using namespace igraphics;
   IGRAPHICS_UITABLEVC* mMenuTableController;
   UINavigationController* mMenuNavigationController;
   UITextField* mTextField;
+  UIAlertController* mAlertController;
   CAMetalLayer* mMTLLayer;
   int mTextFieldLength;
   IColorPickerHandlerFunc mColorPickerHandlerFunc;
+  IFileDialogCompletionHandlerFunc mFileDialogFunc;
   float mPrevX, mPrevY;
 }
 - (id) initWithIGraphics: (IGraphicsIOS*) pGraphics;
@@ -80,14 +84,18 @@ using namespace igraphics;
 - (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (CGRect) bounds;
 - (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect;
 - (void) endUserInput;
-- (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHanderFunc) completionHandler;
+- (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHandlerFunc) completionHandler;
+- (void) promptForFile: (NSString*) fileName : (NSString*) path : (EFileAction) action : (NSArray*) contentTypes : (IFileDialogCompletionHandlerFunc) completionHandler;
 - (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func;
 - (void) presentationControllerDidDismiss: (UIPresentationController*) presentationController;
 
-#ifdef __IPHONE_14_0
+//UIDocumentPickerDelegate,
+- (void) documentPicker:(UIDocumentPickerViewController*) controller didPickDocumentsAtURLs:(NSArray <NSURL *>*)urls;
+- (void) documentPickerWasCancelled:(UIDocumentPickerViewController*) controller;
+
+//UIColorPickerViewControllerDelegate
 - (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
 - (void) colorPickerViewControllerDidFinish:(UIColorPickerViewController*) viewController;
-#endif
 
 //gestures
 - (void) attachGestureRecognizer: (EGestureType) type;

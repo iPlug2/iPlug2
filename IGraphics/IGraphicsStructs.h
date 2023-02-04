@@ -45,7 +45,8 @@ using IActionFunction = std::function<void(IControl*)>;
 using IAnimationFunction = std::function<void(IControl*)>;
 using ILambdaDrawFunction = std::function<void(ILambdaControl*, IGraphics&, IRECT&)>;
 using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
-using IMsgBoxCompletionHanderFunc = std::function<void(EMsgBoxResult result)>;
+using IMsgBoxCompletionHandlerFunc = std::function<void(EMsgBoxResult result)>;
+using IFileDialogCompletionHandlerFunc = std::function<void(const WDL_String& fileName, const WDL_String& path)>;
 using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
 using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
@@ -574,7 +575,7 @@ const IBlend BLEND_01 = IBlend(EBlend::Default, 0.01f);
 const IBlend BLEND_DST_IN = IBlend(EBlend::DstIn, 1.f);
 const IBlend BLEND_DST_OVER = IBlend(EBlend::DstOver, 1.f);
 
-/** Used to manage fill behaviour for path based drawing back ends */
+/** Used to manage fill behaviour */
 struct IFillOptions
 {
   EFillRule mFillRule { EFillRule::Winding };
@@ -1718,8 +1719,8 @@ struct IMouseMod
 /** Used to group mouse coordinates with mouse modifier information */
 struct IMouseInfo
 {
-  float x, y;
-  float dX, dY;
+  float x = 0.0, y = 0.0;
+  float dX = 0.0, dY = 0.0;
   IMouseMod ms;
 };
 
@@ -2177,8 +2178,8 @@ struct IPattern
     IPattern pattern(EPatternType::Linear);
     
     // Calculate the affine transform from one line segment to another!
-    const double xd = x2 - x1;
-    const double yd = y2 - y1;
+    const double xd = double(x2 - x1);
+    const double yd = double(y2 - y1);
     const double d = sqrt(xd * xd + yd * yd);
     const double a = atan2(xd, yd);
     const double s = std::sin(a) / d;

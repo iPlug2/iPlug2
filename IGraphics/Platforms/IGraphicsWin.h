@@ -51,7 +51,7 @@ public:
   
   void GetMouseLocation(float& x, float&y) const override;
 
-  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
 
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override;
@@ -60,8 +60,8 @@ public:
   void UpdateTooltips() override {}
 
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
-  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
-  void PromptForDirectory(WDL_String& dir) override;
+  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler) override;
+  void PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler) override;
   bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
 
   IPopupMenu* GetItemMenu(long idx, long& idxInMenu, long& offsetIdx, IPopupMenu& baseMenu);
@@ -92,7 +92,7 @@ public:
   DWORD OnVBlankRun();
 
 protected:
-  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) override;
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
 
   void SetTooltip(const char* tooltip);

@@ -199,8 +199,8 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IVMultiSliderControl<4>(nextCell(), "IVMultiSliderControl", style), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVMeterControl<2>(nextCell(), "IVMeterControl - Lin", style.WithColor(kFG, COLOR_WHITE.WithOpacity(0.3f)), EDirection::Vertical, {"L", "R"}), kCtrlTagMeter, "vcontrols");
     pGraphics->AttachControl(new IVPeakAvgMeterControl<2>(nextCell(), "IVPeakAvgMeterControl - Log", style.WithColor(kFG, COLOR_WHITE.WithOpacity(0.3f))), kCtrlTagPeakAvgMeter, "vcontrols");
-    pGraphics->AttachControl(new IVScopeControl<2>(nextCell(), "IVScopeControl", style.WithColor(kFG, COLOR_BLACK)), kCtrlTagScope, "vcontrols");
-    pGraphics->AttachControl(new IVDisplayControl(nextCell(), "IVDisplayControl", style, EDirection::Horizontal, -1., 1., 0., 512), kCtrlTagDisplay, "vcontrols");
+    pGraphics->AttachControl(new IVScopeControl<2, kScopeBufferSize*2>(nextCell(), "IVScopeControl", style.WithColor(kFG, COLOR_BLACK)), kCtrlTagScope, "vcontrols");
+    pGraphics->AttachControl(new IVDisplayControl(nextCell(), "IVDisplayControl", style, EDirection::Vertical, -1., 1., 0., 512), kCtrlTagDisplay, "vcontrols");
     pGraphics->AttachControl(new IVLabelControl(nextCell().SubRectVertical(3, 0).GetMidVPadded(10.f), "IVLabelControl"), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVColorSwatchControl(sameCell().SubRectVertical(3, 1), "IVColorSwatchControl", [](int, IColor){}, style, IVColorSwatchControl::ECellLayout::kHorizontal, {kX1, kX2, kX3}, {"", "", ""}), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(3, 2), kParamGain, nullptr, "IVNumberBoxControl", style), kNoTag, "vcontrols");
@@ -446,46 +446,48 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 4), kNoParameter, setValueTextSize, "Value Text Size", style, (double) style.valueText.mSize, 12., 100.));
 
     auto promptLabelFont = [pGraphics](IControl* pCaller) {
-      WDL_String fileName;
-      WDL_String path;
-      pGraphics->PromptForFile(fileName, path, EFileAction::Open, "ttf");
-      
-      if(fileName.GetLength())
-      {
-        if(pGraphics->LoadFont(fileName.get_filepart(), fileName.Get()))
+      auto completionHandler = [pGraphics](const WDL_String& fileName, const WDL_String& path) {
+        if (fileName.GetLength())
         {
-          pGraphics->ForControlInGroup("vcontrols", [fileName](IControl* pControl) {
-            IVectorBase* pVControl = pControl->As<IVectorBase>();
-            IText newText = pVControl->GetStyle().labelText.WithFont(fileName.get_filepart());
-            pVControl->SetStyle(pVControl->GetStyle().WithLabelText(newText));
-            pControl->OnResize();
-            pControl->SetDirty(false);
-          });
+          if (pGraphics->LoadFont(fileName.get_filepart(), fileName.Get()))
+          {
+            pGraphics->ForControlInGroup("vcontrols", [fileName](IControl* pControl) {
+              IVectorBase* pVControl = pControl->As<IVectorBase>();
+              IText newText = pVControl->GetStyle().labelText.WithFont(fileName.get_filepart());
+              pVControl->SetStyle(pVControl->GetStyle().WithLabelText(newText));
+              pControl->OnResize();
+              pControl->SetDirty(false);
+            });
+          }
         }
-      }
+      };
+      
+      WDL_String fileName, path;
+      pGraphics->PromptForFile(fileName, path, EFileAction::Open, "ttf", completionHandler);
     };
     
     pGraphics->AttachControl(new IVButtonControl(nextCell().SubRectVertical(5, 1), SplashClickActionFunc, "Choose label font...", style))->SetAnimationEndActionFunction(promptLabelFont);
     
     auto promptValueFont = [pGraphics](IControl* pCaller) {
-      WDL_String fileName;
-      WDL_String path;
-      pGraphics->PromptForFile(fileName, path, EFileAction::Open, "ttf");
-      
-      if(fileName.GetLength())
-      {
-        if(pGraphics->LoadFont(fileName.get_filepart(), fileName.Get()))
+      auto completionHandler = [pGraphics](const WDL_String& fileName, const WDL_String& path){
+        if (fileName.GetLength())
         {
-          pGraphics->ForControlInGroup("vcontrols", [fileName](IControl* pControl) {
-            IVectorBase* pVControl = pControl->As<IVectorBase>();
-            IText newText = pVControl->GetStyle().valueText.WithFont(fileName.get_filepart());
-            pVControl->SetStyle(pVControl->GetStyle().WithValueText(newText));
-            pControl->OnResize();
-            pControl->SetText(newText);
-            pControl->SetDirty(false);
-          });
+          if (pGraphics->LoadFont(fileName.get_filepart(), fileName.Get()))
+          {
+            pGraphics->ForControlInGroup("vcontrols", [fileName](IControl* pControl) {
+              IVectorBase* pVControl = pControl->As<IVectorBase>();
+              IText newText = pVControl->GetStyle().valueText.WithFont(fileName.get_filepart());
+              pVControl->SetStyle(pVControl->GetStyle().WithValueText(newText));
+              pControl->OnResize();
+              pControl->SetText(newText);
+              pControl->SetDirty(false);
+            });
+          }
         }
-      }
+      };
+      
+      WDL_String fileName, path;
+      pGraphics->PromptForFile(fileName, path, EFileAction::Open, "ttf", completionHandler);
     };
     
     pGraphics->AttachControl(new IVButtonControl(sameCell().SubRectVertical(5, 2), SplashClickActionFunc, "Choose value font...", style))->SetAnimationEndActionFunction(promptValueFont);

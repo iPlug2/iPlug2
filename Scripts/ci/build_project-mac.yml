@@ -49,51 +49,51 @@ steps:
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.15'
+      sdk: 'macosx12.3'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-target VST2 -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
-      xcodeVersion: '11'
+      xcodeVersion: '13'
     condition: eq(variables.build_vst2, True)
     displayName: Build Xcode project VST2 Scheme
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.15'
+      sdk: 'macosx12.3'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-UseModernBuildSystem=NO -target VST3 -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
-      xcodeVersion: '11'
+      xcodeVersion: '13'
     condition: eq(variables.build_vst3, True)
     displayName: Build Xcode project VST3 Scheme
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.15'
+      sdk: 'macosx12.3'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-UseModernBuildSystem=NO -target AAX -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: '${{parameters.configuration}}'
-      xcodeVersion: '11'
+      xcodeVersion: '13'
     condition: eq(variables.build_aax, True)
     displayName: Build Xcode project AAX Scheme
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.15'
+      sdk: 'macosx12.3'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-UseModernBuildSystem=NO -target AU -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
-      xcodeVersion: '11'
+      xcodeVersion: '13'
     condition: eq(variables.build_auv2, True)
     displayName: Build Xcode project AUv2 Scheme
 
   - task: Xcode@5
     inputs:
-      sdk: 'macosx10.15'
+      sdk: 'macosx12.3'
       xcWorkspacePath: '${{parameters.path}}/${{parameters.name}}/projects/${{parameters.name}}-macOS.xcodeproj'
       args: '-UseModernBuildSystem=NO -target APP -xcconfig ${{parameters.path}}/${{parameters.name}}/config/${{parameters.name}}-mac.xcconfig'
       configuration: 'Release'
-      xcodeVersion: '11'
+      xcodeVersion: '13'
       signingOption: 'manual'
       signingIdentity: $(APPLE_CERTIFICATE_SIGNING_IDENTITY)
 

@@ -118,11 +118,16 @@ public:
   
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    if(mod.S) {
-      WDL_String file;
-      WDL_String path {"~/Desktop"};
-      GetUI()->PromptForFile(file, path);
-      LoadFile(file.Get());
+    if (mod.S)
+    {
+      WDL_String fileName, path {"~/Desktop"};
+
+      GetUI()->PromptForFile(fileName, path, EFileAction::Open, "svg", 
+      [this](const WDL_String& fileName, const WDL_String& path) {
+        if (fileName.GetLength())
+          LoadFile(fileName.Get());
+          SetDirty(false);
+      });
     }
     else
       SetDirty(true);

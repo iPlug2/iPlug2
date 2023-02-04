@@ -268,9 +268,9 @@ class IVSliderControl : public ISliderControlBase
                       , public IVectorBase
 {
 public:
-  IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 8.f, float trackSize = 2.f, bool handleInsideTrack = false);
+  IVSliderControl(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 8.f, float trackSize = 2.f, bool handleInsideTrack = false, float handleXOffset = 0.f, float handleYOffset = 0.f);
   
-  IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 8.f, float trackSize = 2.f, bool handleInsideTrack = false);
+  IVSliderControl(const IRECT& bounds, IActionFunction aF, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = false, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 8.f, float trackSize = 2.f, bool handleInsideTrack = false, float handleXOffset = 0.f, float handleYOffset = 0.f);
 
   virtual ~IVSliderControl() {}
   void Draw(IGraphics& g) override;
@@ -291,6 +291,8 @@ public:
 protected:
   bool mHandleInsideTrack = false;
   bool mValueMouseOver = false;
+  float mHandleXOffset = 0.f;
+  float mHandleYOffset = 0.f;
 };
 
 /** A vector range slider control, with two handles */
@@ -318,11 +320,10 @@ protected:
 };
 
 /** A vector XY Pad slider control */
-class IVXYPadControl : public IControl
-                     , public IVectorBase
+class IVXYPadControl : public IControl, public IVectorBase
 {
 public:
-  IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float handleRadius = 10.f);
+  IVXYPadControl(const IRECT& bounds, const std::initializer_list<int>& params, const char* label = "", const IVStyle& style = DEFAULT_STYLE, float handleRadius = 10.f, bool trackClipsHandle = true, bool drawCross = true);
 
   void Draw(IGraphics& g) override;
   void DrawWidget(IGraphics& g) override;
@@ -336,6 +337,7 @@ protected:
   float mHandleRadius;
   bool mMouseDown = false;
   bool mTrackClipsHandle = true;
+  bool mDrawCross = true;
 };
 
 /** A vector plot to display functions and waveforms */
@@ -658,6 +660,47 @@ protected:
   int mCharWidth, mCharHeight, mCharOffset;
   bool mMultiLine;
   bool mVCentre;
+};
+
+/** A bitmap meter control, that can be used for VUMeters. Use with IPeakAvgSender<1> */
+class IBMeterControl : public IBitmapControl
+{
+public:
+  enum class EResponse {
+    Linear,
+    Log,
+  };
+  
+  /** Constructs a bitmap meter control
+   * @param x The x position of the top left point in the control's bounds (width will be determined by bitmap's dimensions)
+   * @param y The y position of the top left point in the control's bounds (height will be determined by bitmap's dimensions)
+   * @param bitmap The bitmap resource for the control */
+  IBMeterControl(float x, float y, const IBitmap& bitmap, EResponse response = EResponse::Log, float lowRangeDB = -72.f, float highRangeDB = 12.f)
+  : IBitmapControl(x, y, bitmap)
+  , mResponse(response)
+  , mLowRangeDB(lowRangeDB)
+  , mHighRangeDB(highRangeDB)
+  {}
+  
+  /** Constructs a bitmap meter control
+   * @param bounds The control's bounds
+   * @param bitmap The bitmap resource for the control */
+  IBMeterControl(const IRECT& bounds, const IBitmap& bitmap, EResponse response = EResponse::Log, float lowRangeDB = -72.f, float highRangeDB = 12.f)
+  : IBitmapControl(bounds, bitmap)
+  , mResponse(response)
+  , mLowRangeDB(lowRangeDB)
+  , mHighRangeDB(highRangeDB)
+  {}
+  
+  virtual ~IBMeterControl() {}
+  void Draw(IGraphics& g) override { DrawBitmap(g); }
+  void OnRescale() override { mBitmap = GetUI()->GetScaledBitmap(mBitmap); }
+  void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override;
+  
+protected:
+  float mHighRangeDB;
+  float mLowRangeDB;
+  EResponse mResponse = EResponse::Linear;
 };
 
 END_IGRAPHICS_NAMESPACE

@@ -204,7 +204,7 @@ public:
         double linearAvgPos = (avgValue + lowPointAbs)/rangeDB;
 
         IVTrackControlBase::SetValue(Clip(linearAvgPos, 0., 1.), c);
-        mPeakValues[c] = linearPeakPos;
+        mPeakValues[c] = static_cast<float>(linearPeakPos);
       }
 
       IVTrackControlBase::SetDirty(false);

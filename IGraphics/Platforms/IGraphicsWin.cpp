@@ -1105,7 +1105,7 @@ void IGraphicsWin::DeactivateGLContext()
 }
 #endif
 
-EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
+EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
   
@@ -1432,7 +1432,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
   return hMenu;
 }
 
-IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
+IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync)
 {
   long offsetIdx = 0;
   HMENU hMenu = CreateMenu(menu, &offsetIdx);
@@ -1578,7 +1578,7 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   return success;
 }
 
-void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* extensions)
+void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler)
 {
   if (!WindowIsOpen())
   {
@@ -1611,11 +1611,11 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   ofn.lpstrInitialDir = dirCStr;
   ofn.Flags = OFN_PATHMUSTEXIST;
     
-  if (CStringHasContents(extensions))
+  if (CStringHasContents(ext))
   {
     wchar_t extStr[256];
     wchar_t defExtStr[16];
-    int i, p, n = strlen(extensions);
+    int i, p, n = strlen(ext);
     bool seperator = true;
         
     for (i = 0, p = 0; i < n; ++i)
@@ -1630,10 +1630,10 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
         extStr[p++] = '.';
       }
 
-      if (extensions[i] == ' ')
+      if (ext[i] == ' ')
         seperator = true;
       else
-        extStr[p++] = extensions[i];
+        extStr[p++] = ext[i];
     }
     extStr[p++] = '\0';
         
@@ -1641,8 +1641,8 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     extStr[p + p] = '\0';
     ofn.lpstrFilter = extStr;
         
-    for (i = 0, p = 0; i < n && extensions[i] != ' '; ++i)
-      defExtStr[p++] = extensions[i];
+    for (i = 0, p = 0; i < n && ext[i] != ' '; ++i)
+      defExtStr[p++] = ext[i];
     
     defExtStr[p++] = '\0';
     ofn.lpstrDefExt = defExtStr;
@@ -1684,10 +1684,16 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     fileName.Set("");
   }
 
+  // Async is not required on windows, but call the completion handler anyway
+  if (completionHandler)
+  {
+    completionHandler(fileName, path);
+  }
+
   ReleaseMouseCapture();
 }
 
-void IGraphicsWin::PromptForDirectory(WDL_String& dir)
+void IGraphicsWin::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler)
 {
   BROWSEINFO bi;
   memset(&bi, 0, sizeof(bi));
@@ -1700,11 +1706,11 @@ void IGraphicsWin::PromptForDirectory(WDL_String& dir)
   ::OleInitialize(NULL);
   LPITEMIDLIST pIDL = ::SHBrowseForFolder(&bi);
   
-  if(pIDL != NULL)
+  if (pIDL != NULL)
   {
     char buffer[_MAX_PATH] = {'\0'};
     
-    if(::SHGetPathFromIDList(pIDL, buffer) != 0)
+    if (::SHGetPathFromIDList(pIDL, buffer) != 0)
     {
       dir.Set(buffer);
       dir.Append("\\");
@@ -1716,6 +1722,12 @@ void IGraphicsWin::PromptForDirectory(WDL_String& dir)
   else
   {
     dir.Set("");
+  }
+  
+  if (completionHandler)
+  {
+    WDL_String fileName; // not used
+    completionHandler(fileName, dir);
   }
 
   ReleaseMouseCapture();

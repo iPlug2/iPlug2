@@ -453,6 +453,21 @@ IControl* IGraphics::GetControlWithTag(int ctrlTag) const
   }
 }
 
+IControl* IGraphics::GetControlWithParamIdx(int paramIdx)
+{
+  for (auto c = 0; c < NControls(); c++)
+  {
+    IControl* pControl = GetControl(c);
+
+    if (pControl->LinkedToParam(paramIdx) > kNoValIdx)
+    {
+      return pControl;
+    }
+  }
+  
+  return nullptr;
+}
+
 void IGraphics::HideControl(int paramIdx, bool hide)
 {
   ForMatchingControls(&IControl::Hide, paramIdx, hide);
@@ -1762,20 +1777,17 @@ IBitmap IGraphics::ScaleBitmap(const IBitmap& inBitmap, const char* name, int sc
   return outBitmap;
 }
 
-inline void IGraphics::SearchNextScale(int& sourceScale, int targetScale)
-{
-  // Search downwards from MAX_IMG_SCALE, skipping targetScale before trying again
+auto SearchNextScale = [](int& sourceScale, int targetScale) {
   if (sourceScale == targetScale && (targetScale != MAX_IMG_SCALE))
     sourceScale = MAX_IMG_SCALE;
   else if (sourceScale == targetScale + 1)
     sourceScale = targetScale - 1;
   else
     sourceScale--;
-}
+};
 
 EResourceLocation IGraphics::SearchImageResource(const char* name, const char* type, WDL_String& result, int targetScale, int& sourceScale)
 {
-  // Search target scale, then descending
   for (sourceScale = targetScale ; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
   {
     WDL_String fullName(name);
@@ -1800,7 +1812,6 @@ APIBitmap* IGraphics::SearchBitmapInCache(const char* name, int targetScale, int
 {
   StaticStorage<APIBitmap>::Accessor storage(sBitmapCache);
     
-  // Search target scale, then descending
   for (sourceScale = targetScale; sourceScale > 0; SearchNextScale(sourceScale, targetScale))
   {
     APIBitmap* pBitmap = storage.Find(name, sourceScale);
@@ -1845,7 +1856,7 @@ void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRE
   mPopupMenuValIdx = valIdx;
   mIsContextMenu = isContext;
   
-  if(mPopupControl) // if we are not using platform pop-up menus
+  if (mPopupControl) // if we are not using platform pop-up menus
   {
     mPopupControl->CreatePopupMenu(menu, bounds);
   }
@@ -1854,7 +1865,7 @@ void IGraphics::DoCreatePopupMenu(IControl& control, IPopupMenu& menu, const IRE
     bool isAsync = false;
     IPopupMenu* pReturnMenu = CreatePlatformPopupMenu(menu, bounds, isAsync);
     
-    if(!isAsync)
+    if (!isAsync)
       SetControlValueAfterPopupMenu(pReturnMenu);
   }
 }
@@ -2349,8 +2360,11 @@ void IGraphics::DrawGrid(const IColor& color, const IRECT& bounds, float gridSiz
   PathStroke(color, thickness, IStrokeOptions(), pBlend);
 }
 
-void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints, const IBlend* pBlend, float thickness)
+void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints, const IBlend* pBlend, float thickness, const IColor* pFillColor)
 {
+  if (nPoints == 0)
+    return;
+  
   PathClear();
   
   float xPos = bounds.L;
@@ -2359,7 +2373,7 @@ void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYP
 
   for (auto i = 1; i < nPoints; i++)
   {
-    if(normXPoints)
+    if (normXPoints)
       xPos = bounds.L + (bounds.W() * normXPoints[i]);
     else
       xPos = bounds.L + ((bounds.W() / (float) (nPoints - 1) * i));
@@ -2367,6 +2381,11 @@ void IGraphics::DrawData(const IColor& color, const IRECT& bounds, float* normYP
     PathLineTo(xPos, bounds.B - (bounds.H() * normYPoints[i]));
   }
   
+  if (pFillColor)
+  {
+    PathFill(*pFillColor, IFillOptions(true), pBlend);
+  }
+    
   PathStroke(color, thickness, IStrokeOptions(), pBlend);
 }
 

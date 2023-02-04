@@ -42,13 +42,13 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    WDL_String file;
-    WDL_String path;
+    WDL_String fileName, path;
 
-    GetUI()->PromptForFile(file, path, EFileAction::Open, "");
-
-    if(file.GetLength())
-      SetBitmap(file.Get());
+    GetUI()->PromptForFile(fileName, path, EFileAction::Open, "bmp jpg png", 
+    [this](const WDL_String& fileName, const WDL_String& path) {
+      if (fileName.GetLength())
+        SetBitmap(fileName.Get());
+    });
   }
 
   void OnDrop(const char* str) override

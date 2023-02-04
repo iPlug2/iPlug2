@@ -23,7 +23,7 @@
 #include <array>
 
 #if defined OS_IOS || defined OS_MAC
-#include <accelerate/accelerate.h>
+#include <Accelerate/Accelerate.h>
 #endif
 
 BEGIN_IPLUG_NAMESPACE
@@ -37,7 +37,10 @@ struct ISenderData
   int chanOffset = 0;
   std::array<T, MAXNC> vals;
   
-  ISenderData() {}
+  ISenderData()
+  {
+    memset(vals.data(), 0, sizeof(vals));
+  }
   
   ISenderData(int ctrlTag, int nChans, int chanOffset)
   : ctrlTag(ctrlTag)
@@ -77,7 +80,26 @@ public:
     {
       ISenderData<MAXNC, T> d;
       mQueue.Pop(d);
+      assert(d.ctrlTag != kNoTag && "You must supply a control tag");
       dlg.SendControlMsgFromDelegate(d.ctrlTag, kUpdateMessage, sizeof(ISenderData<MAXNC, T>), (void*) &d);
+    }
+  }
+  
+  /** This variation can be used if you need to supply multiple controls with the same ISenderData, overrideing the tags in the data packet
+   @param dlg The editor delegate
+   @param ctrlTags A list of control tags that should receive the updates from this sender */
+  void TransmitDataToControlsWithTags(IEditorDelegate& dlg, const std::initializer_list<int>& ctrlTags)
+  {
+    while(mQueue.ElementsAvailable())
+    {
+      ISenderData<MAXNC, T> d;
+      mQueue.Pop(d);
+      
+      for (auto tag : ctrlTags)
+      {
+        d.ctrlTag = tag;
+        dlg.SendControlMsgFromDelegate(tag, kUpdateMessage, sizeof(ISenderData<MAXNC, T>), (void*) &d);
+      }
     }
   }
 
@@ -99,7 +121,6 @@ public:
     Reset(DEFAULT_SAMPLE_RATE);
   }
   
-  
   void Reset(double sampleRate)
   {
     SetWindowSizeMs(mWindowSizeMs, sampleRate);
@@ -108,12 +129,17 @@ public:
   
   void SetWindowSizeMs(double timeMs, double sampleRate)
   {
-    mWindowSizeMs = timeMs;
+    mWindowSizeMs = static_cast<float>(timeMs);
     mWindowSize = static_cast<int>(timeMs * 0.001 * sampleRate);
   }
   
-  /** Queue peaks from sample buffers into the sender. This can be called on the realtime audio thread. */
-  void ProcessBlock(sample** inputs, int nFrames, int ctrlTag, int nChans = MAXNC, int chanOffset = 0)
+  /** Queue peaks from sample buffers into the sender This can be called on the realtime audio thread.
+   @param inputs the sample buffers to analyze
+   @param nFrames the number of sample frames in the input buffers
+   @param ctrlTag a control tag to indicate which control to send the buffers to. Note: if you don't supply the control tag here, you must use TransmitDataToControlsWithTags() and specify one or more tags there
+   @param nChans the number of channels of data that should be sent
+   @param chanOffset the starting channel */
+  void ProcessBlock(sample** inputs, int nFrames, int ctrlTag = kNoTag, int nChans = MAXNC, int chanOffset = 0)
   {
     for (auto s = 0; s < nFrames; s++)
     {
@@ -138,7 +164,7 @@ public:
       
       for (auto c = chanOffset; c < (chanOffset + nChans); c++)
       {
-        mPeaks[c] += std::fabs(inputs[c][s]);
+        mPeaks[c] += std::fabs(static_cast<float>(inputs[c][s]));
       }
       
       mCount++;
@@ -220,19 +246,19 @@ public:
   
   void SetAttackTimeMs(double timeMs, double sampleRate)
   {
-    mAttackTimeMs = timeMs;
-    mAttackTimeSamples = static_cast<int>(timeMs * 0.001 * (sampleRate / mWindowSize));
+    mAttackTimeMs = static_cast<float>(timeMs);
+    mAttackTimeSamples = static_cast<float>(timeMs * 0.001 * (sampleRate / double(mWindowSize)));
   }
   
   void SetDecayTimeMs(double timeMs, double sampleRate)
   {
-    mDecayTimeMs = timeMs;
-    mDecayTimeSamples = static_cast<int>(timeMs * 0.001 * (sampleRate / mWindowSize));
+    mDecayTimeMs = static_cast<float>(timeMs);
+    mDecayTimeSamples = static_cast<float>(timeMs * 0.001 * (sampleRate / mWindowSize));
   }
   
   void SetWindowSizeMs(double timeMs, double sampleRate)
   {
-    mWindowSizeMs = timeMs;
+    mWindowSizeMs = static_cast<float>(timeMs);
     mWindowSize = static_cast<int>(timeMs * 0.001 * sampleRate);
 
     for (auto i=0; i<MAXNC; i++)
@@ -244,13 +270,18 @@ public:
   
   void SetPeakHoldTimeMs(double timeMs, double sampleRate)
   {
-    mPeakHoldTimeMs = timeMs;
+    mPeakHoldTimeMs = static_cast<float>(timeMs);
     mPeakHoldTime = static_cast<int>(timeMs * 0.001 * sampleRate);
     std::fill(mPeakHoldCounters.begin(), mPeakHoldCounters.end(), mPeakHoldTime);
   }
   
-  /** Queue peaks from sample buffers into the sender This can be called on the realtime audio thread. */
-  void ProcessBlock(sample** inputs, int nFrames, int ctrlTag, int nChans = MAXNC, int chanOffset = 0)
+  /** Queue peaks from sample buffers into the sender This can be called on the realtime audio thread.
+   @param inputs the sample buffers to analyze
+   @param nFrames the number of sample frames in the input buffers
+   @param ctrlTag a control tag to indicate which control to send the buffers to. Note: if you don't supply the control tag here, you must use TransmitDataToControlsWithTags() and specify one or more tags there
+   @param nChans the number of channels of data that should be sent
+   @param chanOffset the starting channel */
+  void ProcessBlock(sample** inputs, int nFrames, int ctrlTag = kNoTag, int nChans = MAXNC, int chanOffset = 0)
   {
     for (auto s = 0; s < nFrames; s++)
     {
@@ -258,7 +289,7 @@ public:
       
       for (auto c = chanOffset; c < (chanOffset + nChans); c++)
       {
-        mBuffers[c][windowPos] = inputs[c][s];
+        mBuffers[c][windowPos] = static_cast<float>(inputs[c][s]);
       }
       
       if (mCount == 0)
@@ -391,24 +422,30 @@ template <int MAXNC = 1, int QUEUE_SIZE = 64, int MAXBUF = 128>
 class IBufferSender : public ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF>>
 {
 public:
-  IBufferSender(double minThresholdDb = -90.)
+  IBufferSender(double minThresholdDb = -90., int bufferSize = MAXBUF)
   : ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF>>()
   , mThreshold(static_cast<float>(DBToAmp(minThresholdDb)))
   {
+    SetBufferSize(bufferSize);
   }
 
-  /** Queue sample buffers into the sender, checking the data is over the required threshold. This can be called on the realtime audio thread. */
-  void ProcessBlock(sample** inputs, int nFrames, int ctrlTag, int nChans = MAXNC, int chanOffset = 0)
+  /** Queue sample buffers into the sender, checking the data is over the required threshold. This can be called on the realtime audio thread.
+   @param inputs the sample buffers
+   @param nFrames the number of sample frames in the input buffers
+   @param ctrlTag a control tag to indicate which control to send the buffers to. Note: if you don't supply the control tag here, you must use TransmitDataToControlsWithTags() and specify one or more tags there
+   @param nChans the number of channels of data that should be sent
+   @param chanOffset the starting channel */
+  void ProcessBlock(sample** inputs, int nFrames, int ctrlTag = kNoTag, int nChans = MAXNC, int chanOffset = 0)
   {
     for (auto s = 0; s < nFrames; s++)
     {
-      if(mBufCount == MAXBUF)
+      if (mBufCount == mBufferSize)
       {
-        float sum = 0.f;
+        float sum = 0.0f;
         for (auto c = chanOffset; c < (chanOffset + nChans); c++)
         {
           sum += mRunningSum[c];
-          mRunningSum[c] = 0.f;
+          mRunningSum[c] = 0.0f;
         }
 
         if (sum > mThreshold || mPreviousSum > mThreshold)
@@ -425,16 +462,30 @@ public:
       
       for (auto c = chanOffset; c < (chanOffset + nChans); c++)
       {
-        mBuffer.vals[c][mBufCount] = (float) inputs[c][s];
-        mRunningSum[c] += std::fabs( (float) inputs[c][s]);
+        const float inputSample = static_cast<float>(inputs[c][s]);
+        mBuffer.vals[c][mBufCount] = inputSample;
+        mRunningSum[c] += std::fabs(inputSample);
       }
 
       mBufCount++;
     }
   }
-protected:
+  
+  void SetBufferSize(int bufferSize)
+  {
+    assert(bufferSize > 0);
+    assert(bufferSize <= MAXBUF);
+
+    mBufferSize = bufferSize;
+    mBufCount = 0;
+  }
+
+  int GetBufferSize() const { return mBufferSize; }
+  
+private:
   ISenderData<MAXNC, std::array<float, MAXBUF>> mBuffer;
   int mBufCount = 0;
+  int mBufferSize = MAXBUF;
   std::array<float, MAXNC> mRunningSum {0.};
   float mPreviousSum = 1.f;
   float mThreshold = 0.01f;

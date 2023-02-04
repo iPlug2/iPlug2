@@ -781,7 +781,6 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     case kAudioUnitProperty_TailTime:                    // 20,   // listenable
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
-      *pWriteable = GetTailSize() > 0;
       *pDataSize = sizeof(Float64);
       
       if (pData)

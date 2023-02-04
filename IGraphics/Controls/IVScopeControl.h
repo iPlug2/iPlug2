@@ -47,7 +47,7 @@ public:
     DrawWidget(g);
     DrawLabel(g);
     
-    if(mStyle.drawFrame)
+    if (mStyle.drawFrame)
       g.DrawRect(GetColor(kFR), mWidgetBounds, &mBlend, mStyle.frameThickness);
   }
 
@@ -57,26 +57,10 @@ public:
     
     IRECT r = mWidgetBounds.GetPadded(-mPadding);
 
-    const float maxY = (r.H() / 2.f); // y +/- centre
-
-    float xPerData = r.W() / (float) MAXBUF;
-
-    for (int c = 0; c < mBuf.nChans; c++)
+    for (int c=0; c<mBuf.nChans; c++)
     {
-      float xHi = 0.f;
-      float yHi = mBuf.vals[c][0] * maxY;
-      yHi = Clip(yHi, -maxY, maxY);
-
-      g.PathMoveTo(r.L + xHi, r.MH() - yHi);
-      for (int s = 1; s < MAXBUF; s++)
-      {
-        xHi = ((float) s * xPerData);
-        yHi = mBuf.vals[c][s] * maxY;
-        yHi = Clip(yHi, -maxY, maxY);
-        g.PathLineTo(r.L + xHi, r.MH() - yHi);
-      }
-      
-      g.PathStroke(GetColor(kFG), mTrackSize, IStrokeOptions(), &mBlend);
+      // drawdata expects normalized values and buffer contains unnormalized, so draw in the top half
+      g.DrawData(GetColor(kFG), r.FracRectVertical(0.5, true), mBuf.vals[c].data(), mBufferSize, nullptr, &mBlend, mTrackSize);
     }
   }
   
@@ -98,10 +82,18 @@ public:
       SetDirty(false);
     }
   }
+  
+  void SetBufferSize(int bufferSize)
+  {
+    assert(bufferSize > 0);
+    assert(bufferSize <= MAXBUF);
+    mBufferSize = bufferSize;
+  }
 
 private:
   ISenderData<MAXNC, std::array<float, MAXBUF>> mBuf;
   float mPadding = 2.f;
+  int mBufferSize = MAXBUF;
 };
 
 END_IGRAPHICS_NAMESPACE

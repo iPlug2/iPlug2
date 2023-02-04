@@ -442,6 +442,7 @@ int LICE_GIF_UpdateFrame(void *handle, LICE_IBitmap *bm)
                 transparent_pix = Extension[4];
               }
               has_delay = ((int)Extension[3] << 8) + Extension[2];
+              if (has_delay == 1) has_delay = 10; // https://www.biphelps.com/blog/The-Fastest-GIF-Does-Not-Exist
             }
 
             if (DGifGetExtensionNext(fp, &Extension) == GIF_ERROR) return h->state = -8;

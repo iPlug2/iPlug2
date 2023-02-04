@@ -19,11 +19,7 @@
 int GetTitleBarOffset()
 {
   int offset = GetSystemMetrics(SM_CYMENU);
-  
-  if(SWELL_GetOSXVersion() == 0x1100)
-    offset += 4;
-  else if(SWELL_GetOSXVersion() >= 0x1200)
-    offset -= 10;
+  offset += 4;
   
   return offset;
 }
@@ -56,12 +52,19 @@ bool IPlugAPP::EditorResize(int viewWidth, int viewHeight)
   if (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight())
   {
     #ifdef OS_MAC
-    const int titleBarOffset = GetTitleBarOffset();
-    RECT r;
-    GetWindowRect(gHWND, &r);
-    SetWindowPos(gHWND, 0, r.left, r.bottom - viewHeight - titleBarOffset, viewWidth, viewHeight + titleBarOffset, 0);
+    RECT rcClient, rcWindow;
+    POINT ptDiff;
+    
+    GetClientRect(gHWND, &rcClient);
+    GetWindowRect(gHWND, &rcWindow);
+    
+    ptDiff.x = (rcWindow.right - rcWindow.left) - rcClient.right;
+    ptDiff.y = (rcWindow.bottom - rcWindow.top) - rcClient.bottom;
+    
+    SetWindowPos(gHWND, 0, rcWindow.left, rcWindow.bottom - viewHeight - ptDiff.y, viewWidth + ptDiff.x, viewHeight + ptDiff.y, 0);
     parentResized = true;
     #endif
+    
     SetEditorSize(viewWidth, viewHeight);
   }
   

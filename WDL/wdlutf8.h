@@ -248,4 +248,70 @@ static int WDL_STATICFUNC_UNUSED WDL_utf8_bytepos_to_charpos(const char *str, in
 
 #define WDL_utf8_get_charlen(rd) WDL_utf8_bytepos_to_charpos((rd), 0x7fffffff)
 
+static void WDL_STATICFUNC_UNUSED wdl_utf8_set_char_case(char *p, int upper) // upper 1 or -1 only
+{
+  const unsigned char c1 = (unsigned char)*p;
+  WDL_ASSERT(upper == 1 || upper == -1);
+  if (c1 >= 'a' && c1 <= 'z')
+  {
+    if (upper>0) *p += 'A'-'a';
+  }
+  else if (c1 >= 'A' && c1 <= 'Z')
+  {
+    if (upper<0) *p -= 'A'-'a';
+  }
+  else if (c1 >= 0x80)
+  {
+    const unsigned char cc = (unsigned char)p[1] - 0x80;
+    switch (c1)
+    {
+      case 0xc3: // u+0c0 to u+0ff as 0..0x3f
+        if ((cc&~0x20) != 0x17) // all values except 0xc7 and 0xf7
+        {
+          if (upper>0) p[1] &= ~0x20;
+          else p[1] |= 0x20;
+        }
+      break;
+      case 0xc4: // u+100 to u+13f
+        if (cc <= 0x37)
+        {
+          // u+100 to u+137 low bit is lowercase
+          if (upper>0) p[1] &= ~1;
+          else p[1] |= 1;
+        }
+        // u+138 is not cased
+        else if (cc >= 0x39 && cc < 0x3f)
+        {
+          // u+139 to u+13e, odd is uppercase
+          if ((cc & 1) != (upper>0)) p[1] -= upper;
+        }
+        else if (cc == 0x3f && upper<0) // u+139 convert to u+140
+        {
+          p[0]++;
+          p[1] -= 0x3f;
+        }
+      break;
+      case 0xc5: // u+140 to u+17f
+        // u+149 and u+178 and u+17f are not cased
+        if (cc == 0 && upper>0) // u+140 -> u+13f
+        {
+          p[0]--;
+          p[1] |= 0x3f;
+        }
+        else if (cc >= 0xa && cc <= 0x37) // u+14a to u+177 low bit is lowercase
+        {
+          if (upper>0) p[1] &= ~1;
+          else p[1] |= 1;
+        }
+        else if ((cc > 0 && cc <= 8) || (cc >= 0x39 && cc <= 0x3e))
+        {
+          // u+141 to u+148 and u+179 to u+17e have odd=uppercase
+          if ((cc & 1) != (upper>0)) p[1] -= upper;
+        }
+      break;
+    }
+  }
+}
+
+
 #endif

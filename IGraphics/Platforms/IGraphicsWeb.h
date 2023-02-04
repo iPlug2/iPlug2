@@ -66,10 +66,10 @@ public:
   bool GetTextFromClipboard(WDL_String& str) override { str.Set(mClipboardText.Get()); return true; }
   bool SetTextInClipboard(const char* str) override { mClipboardText.Set(str); return true; }
   void UpdateTooltips() override {} // TODO:
-  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
   
-  void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext) override;
-  void PromptForDirectory(WDL_String& path) override;
+  void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler) override;
+  void PromptForDirectory(WDL_String& path, IFileDialogCompletionHandlerFunc completionHandler) override;
   bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
@@ -81,7 +81,7 @@ public:
   double mPrevY = 0.;
   
 protected:
-  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) override;
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
     
 private:

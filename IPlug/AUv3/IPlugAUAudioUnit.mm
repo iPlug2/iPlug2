@@ -660,7 +660,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
           self->mPlug->RestorePreset(int(pFactoryPreset.number));
           self->mCurrentPreset = pFactoryPreset;
           
-          for (int paramIdx = 0; paramIdx < self->mPlug->NParams(); paramIdx++) {
+          for (int paramIdx = 0; paramIdx < self->mPlug->NParams(); paramIdx++)
+          {
             AUParameter* parameterToChange = [self->mParameterTree parameterWithAddress:self->mPlug->GetParamAddress(paramIdx)];
             parameterToChange.value = self->mPlug->GetParam(paramIdx)->Value();
           }
@@ -772,8 +773,10 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
   NSMutableIndexSet* pSet = [[NSMutableIndexSet alloc] init];
   
-  for (AUAudioUnitViewConfiguration* viewConfig in availableViewConfigurations) {
-    if (mPlug->OnHostRequestingSupportedViewConfiguration((int) [viewConfig width], (int) [viewConfig height])) {
+  for (AUAudioUnitViewConfiguration* viewConfig in availableViewConfigurations)
+  {
+    if (mPlug->OnHostRequestingSupportedViewConfiguration((int) [viewConfig width], (int) [viewConfig height]))
+    {
       [pSet addIndex:[availableViewConfigurations indexOfObject:viewConfig]];
     }
   }
@@ -784,7 +787,9 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 - (void) selectViewConfiguration:(AUAudioUnitViewConfiguration*) viewConfiguration API_AVAILABLE(macos(10.13), ios(11))
 {
   TRACE
-  mPlug->OnHostSelectedViewConfiguration((int) [viewConfiguration width], (int) [viewConfiguration height]);
+  dispatch_async(dispatch_get_main_queue(), ^{
+    self->mPlug->OnHostSelectedViewConfiguration((int) [viewConfiguration width], (int) [viewConfiguration height]);
+  });
 }
 
 #pragma mark - IPlugAUAudioUnit
