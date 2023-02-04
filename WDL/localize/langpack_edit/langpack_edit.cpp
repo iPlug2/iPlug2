@@ -899,6 +899,34 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 
         HWND h=CreateDialog(NULL,MAKEINTRESOURCE(IDD_DIALOG1),NULL,mainProc);
         ShowWindow(h,SW_SHOW);
+
+#ifdef __APPLE__
+      {
+        HMENU menu = LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU1));
+        {
+          HMENU sm=GetSubMenu(menu,0);
+          DeleteMenu(sm,ID_QUIT,MF_BYCOMMAND); // remove QUIT from our file menu, since it is in the system menu on OSX
+
+          // remove any trailing separators
+          int a= GetMenuItemCount(sm);
+          while (a > 0 && GetMenuItemID(sm,a-1)==0) DeleteMenu(sm,--a,MF_BYPOSITION);
+        }
+
+        extern HMENU SWELL_app_stocksysmenu;
+        if (SWELL_app_stocksysmenu) // insert the stock system menu
+        {
+          HMENU nm=SWELL_DuplicateMenu(SWELL_app_stocksysmenu);
+          if (nm)
+          {
+            MENUITEMINFO mi={sizeof(mi),MIIM_STATE|MIIM_SUBMENU|MIIM_TYPE,MFT_STRING,0,0,nm,NULL,NULL,0,"LangPackEdit"};
+            InsertMenuItem(menu,0,TRUE,&mi);
+          }
+        }
+
+        SetMenu(h,menu);
+      }
+#endif
+
       }
     break;
     case SWELLAPP_DESTROY:
