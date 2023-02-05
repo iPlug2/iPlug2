@@ -74,6 +74,8 @@ public:
   
   EUIAppearance GetUIAppearance() const override;
 
+  void TriggerHapticFeedback() const override;
+
 protected:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;

@@ -255,6 +255,13 @@ bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHa
   return false;
 }
 
+void IGraphicsIOS::TriggerHapticFeedback() const
+{
+  UISelectionFeedbackGenerator* pGenerator = [[UISelectionFeedbackGenerator alloc] init];
+  [pGenerator selectionChanged];
+  [pGenerator release];
+}
+
 IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync)
 {
   IPopupMenu* pReturnMenu = nullptr;

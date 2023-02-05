@@ -970,13 +970,15 @@ public:
   /** Get the app group ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetAppGroupID() const { return ""; }
 
+  /** Called from controls to trigger haptics on supported platforms (iOS) */
+  virtual void TriggerHapticFeedback() const {};
 protected:
   /* Activate the context for the view (GL only) */
   virtual void ActivateGLContext() {};
 
   /* Deactivate the context for the view (GL only) */
   virtual void DeactivateGLContext() {};
-
+  
   /** Creates a platform native text entry field.
   * @param paramIdx The index of the parameter associated with the text entry field.
   * @param text The text to be displayed in the text entry field.
