@@ -463,6 +463,11 @@ WDL_DLGRET editorProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
               common_str = r2->pack_str;
             }
           }
+          else if (!strnicmp(k,"common:",7))
+          {
+            ShowWindow(GetDlgItem(hwndDlg,IDC_COMMON_LABEL),SW_HIDE);
+            ShowWindow(GetDlgItem(hwndDlg,IDC_COMMON_STRING),SW_HIDE);
+          }
           else
             SetDlgItemText(hwndDlg,IDC_COMMON_STRING,__LOCALIZE("(not in [common])","langpackedit"));
 
