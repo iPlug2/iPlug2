@@ -841,13 +841,27 @@ void IKnobControlBase::OnMouseDrag(float x, float y, float dX, float dY, const I
     mMouseDragValue += static_cast<double>(dX / static_cast<double>(dragBounds.R - dragBounds.L) / gearing);
 
   mMouseDragValue = Clip(mMouseDragValue, 0., 1.);
+  
+  if ((mMouseDragValue == 0.0 && GetValue() != 0.0) || 
+      (mMouseDragValue == 1.0 && GetValue() != 1.0))
+  {
+    GetUI()->TriggerHapticFeedback();
+  }
 
   double v = mMouseDragValue;
   const IParam* pParam = GetParam();
   
   if (pParam && pParam->GetStepped() && pParam->GetStep() > 0)
+  {
     v = pParam->ConstrainNormalized(mMouseDragValue);
-
+    
+    if (v != mLastConstrainedValue)
+    {
+      GetUI()->TriggerHapticFeedback();
+      mLastConstrainedValue = v;
+    }
+  }
+  
   SetValue(v);
   SetDirty();
 }
