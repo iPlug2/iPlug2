@@ -233,18 +233,6 @@ void editor_instance::save_file(const char *filename)
     const char *id = parse_section_id(k,sec,sizeof(sec));
     if (WDL_NORMALLY(id))
     {
-      if (rec->common_idx>=0 && WDL_NORMALLY(stricmp(sec,"common")))
-      {
-        // optimize and don't write out duplicate strings which are already in [common]
-        const char *k2;
-        pack_rec *r2 = m_recs.EnumeratePtr(rec->common_idx,&k2);
-        if (WDL_NORMALLY(r2 && k2))
-        {
-          if (r2->pack_str && !strcmp(r2->pack_str,rec->pack_str))
-            continue;
-        }
-      }
-
       if (stricmp(last_sec,sec))
       {
         lstrcpyn_safe(last_sec,sec,sizeof(last_sec));
