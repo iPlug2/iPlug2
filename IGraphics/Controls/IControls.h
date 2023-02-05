@@ -260,6 +260,7 @@ public:
 
   void Draw(IGraphics& g) override;
   virtual void DrawWidget(IGraphics& g) override;
+  virtual void DrawHandle(IGraphics& g, const IRECT& bounds);
   virtual void DrawIndicatorTrack(IGraphics& g, float angle, float cx, float cy, float radius);
   virtual void DrawPointer(IGraphics& g, float angle, float cx, float cy, float radius);
 

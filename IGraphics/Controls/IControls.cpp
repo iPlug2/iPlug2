@@ -656,8 +656,13 @@ void IVKnobControl::DrawWidget(IGraphics& g)
   IRECT knobHandleBounds = mWidgetBounds.GetCentredInside((widgetRadius - mTrackToHandleDistance) * 2.f );
   const float angle = mAngle1 + (static_cast<float>(GetValue()) * (mAngle2 - mAngle1));
   DrawIndicatorTrack(g, angle, cx, cy, widgetRadius);
-  DrawPressableShape(g, /*mShape*/ EVShape::Ellipse, knobHandleBounds, mMouseDown, mMouseIsOver, IsDisabled());
+  DrawHandle(g, knobHandleBounds);
   DrawPointer(g, angle, cx, cy, knobHandleBounds.W() / 2.f);
+}
+
+void IVKnobControl::DrawHandle(IGraphics& g, const IRECT& bounds)
+{
+  DrawPressableShape(g, /*mShape*/ EVShape::Ellipse, bounds, mMouseDown, mMouseIsOver, IsDisabled());
 }
 
 void IVKnobControl::DrawIndicatorTrack(IGraphics& g, float angle, float cx, float cy, float radius)
