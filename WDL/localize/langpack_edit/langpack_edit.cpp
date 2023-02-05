@@ -601,7 +601,32 @@ bool editor_instance::edit_row(int row, int other_action)
 
 bool editor_instance::on_key(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-  HWND hlist = m_hwnd ? GetDlgItem(m_hwnd,IDC_LIST) : NULL;
+  if (!m_hwnd || (hwnd != m_hwnd && !IsChild(m_hwnd,hwnd)))
+    return false;
+
+#ifndef __APPLE__
+  if (msg == WM_KEYDOWN && (wParam=='S' || wParam == 'O' || wParam == 'T'))
+  {
+    bool shift = !!(GetAsyncKeyState(VK_SHIFT)&0x8000);
+    bool ctrl = !!(GetAsyncKeyState(VK_CONTROL)&0x8000);
+    if (!shift && ctrl)
+    {
+      bool alt = !!(GetAsyncKeyState(VK_MENU)&0x8000);
+      int cmd = 0;
+      if (wParam == 'S' && ctrl) cmd = alt ? IDC_PACK_SAVE_AS : IDC_PACK_SAVE;
+      else if (wParam == 'O') cmd = IDC_PACK_LOAD;
+      else if (wParam == 'T') cmd = IDC_TEMPLATE_LOAD;
+
+      if (cmd)
+      {
+        SendMessage(m_hwnd,WM_COMMAND,cmd,0);
+        return 1;
+      }
+    }
+  }
+#endif
+
+  HWND hlist = GetDlgItem(m_hwnd,IDC_LIST);
   if (hwnd == hlist || IsChild(hlist,hwnd))
   {
     if (msg == WM_KEYDOWN) switch (wParam)
@@ -923,6 +948,10 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
             InsertMenuItem(menu,0,TRUE,&mi);
           }
         }
+        SetMenuItemModifier(menu,IDC_TEMPLATE_LOAD,MF_BYCOMMAND,'T',FCONTROL);
+        SetMenuItemModifier(menu,IDC_PACK_LOAD,MF_BYCOMMAND,'O',FCONTROL);
+        SetMenuItemModifier(menu,IDC_PACK_SAVE,MF_BYCOMMAND,'S',FCONTROL);
+        SetMenuItemModifier(menu,IDC_PACK_SAVE_AS,MF_BYCOMMAND,'S',FCONTROL|FALT);
 #endif
 
         SetMenu(h,menu);
@@ -946,6 +975,17 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
        const MSG *m = (MSG *)parm1;
        if (m->message == WM_KEYDOWN && m->hwnd)
        {
+#ifndef __APPLE__
+         if (m->wParam == 'Q' && 
+             (GetAsyncKeyState(VK_CONTROL)&0x8000) &&
+             !(GetAsyncKeyState(VK_SHIFT)&0x8000) &&
+             !(GetAsyncKeyState(VK_MENU)&0x8000))
+         {
+           if (g_editor.m_hwnd)
+             SendMessage(g_editor.m_hwnd,WM_COMMAND,ID_QUIT,0);
+           return 1;
+         }
+#endif
          if (g_editor.on_key(m->hwnd, m->message, m->wParam, m->lParam))
            return 1;
        }

@@ -126,12 +126,12 @@ IDR_MENU1 MENU DISCARDABLE
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "Load &Template...",           IDC_TEMPLATE_LOAD
-        MENUITEM "&Load Pack...",               IDC_PACK_LOAD
-        MENUITEM "&Save Pack",                  IDC_PACK_SAVE
-        MENUITEM "Save Pack &As...",            IDC_PACK_SAVE_AS
+        MENUITEM "Load &Template...\tCtrl+T",   IDC_TEMPLATE_LOAD
+        MENUITEM "&Load Pack...\tCtrl+O",       IDC_PACK_LOAD
+        MENUITEM "&Save Pack\tCtrl+S",          IDC_PACK_SAVE
+        MENUITEM "Save Pack &As...\tCtrl+Alt+S", IDC_PACK_SAVE_AS
         MENUITEM SEPARATOR
-        MENUITEM "&Quit",                       ID_QUIT
+        MENUITEM "&Quit\tCtrl+Q",               ID_QUIT
     END
 END
 
