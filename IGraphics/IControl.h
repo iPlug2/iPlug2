@@ -1422,6 +1422,7 @@ protected:
   double mGearing;
   bool mMouseDown = false;
   double mMouseDragValue;
+  double mLastConstrainedValue = 0.0;
 };
 
 /** A base class for mult-strip/track controls, such as multi-sliders, meters
