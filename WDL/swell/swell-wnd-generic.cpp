@@ -42,6 +42,9 @@
 
 #include "swell-dlggen.h"
 
+#define EDIT_CURSOR_BLINK_LEN 500
+#define EDIT_CURSOR_CYCLE_INTERVAL 3
+
 bool swell_is_likely_capslock; // only used when processing dit events for a-zA-Z
 SWELL_OSWINDOW SWELL_focused_oswindow; // top level window which has focus (might not map to a HWND__!)
 HWND swell_captured_window;
@@ -2697,7 +2700,7 @@ forceMouseMove:
     case WM_TIMER:
       if (es && wParam == 100)
       {
-        if (++es->cursor_state >= 8) es->cursor_state=0;
+        if (++es->cursor_state >= EDIT_CURSOR_CYCLE_INTERVAL) es->cursor_state=0;
         if (GetFocusIncludeMenus()!=hwnd || es->cursor_state<2) InvalidateRect(hwnd,NULL,FALSE);
       }
     return 0;
@@ -2752,7 +2755,7 @@ forceMouseMove:
         {
           if (focused)
           {
-            if (!es->cursor_timer) { SetTimer(hwnd,100,100,NULL); es->cursor_timer=1; }
+            if (!es->cursor_timer) { SetTimer(hwnd,100,EDIT_CURSOR_BLINK_LEN,NULL); es->cursor_timer=1; }
           }
           else
           {
@@ -3478,7 +3481,7 @@ static LRESULT WINAPI comboWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
     case WM_TIMER:
       if (wParam == 100)
       {
-        if (++s->editstate.cursor_state >= 8) s->editstate.cursor_state=0;
+        if (++s->editstate.cursor_state >= EDIT_CURSOR_CYCLE_INTERVAL) s->editstate.cursor_state=0;
         if (GetFocusIncludeMenus()!=hwnd || s->editstate.cursor_state<2) InvalidateRect(hwnd,NULL,FALSE);
       }
       else if (wParam==1)
@@ -3630,7 +3633,7 @@ popupMenu:
             focused = GetFocusIncludeMenus()==hwnd;
             if (focused)
             {
-              if (!s->editstate.cursor_timer) { SetTimer(hwnd,100,100,NULL); s->editstate.cursor_timer=1; }
+              if (!s->editstate.cursor_timer) { SetTimer(hwnd,100,EDIT_CURSOR_BLINK_LEN,NULL); s->editstate.cursor_timer=1; }
             }
             else
             {
