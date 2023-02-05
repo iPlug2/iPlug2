@@ -229,6 +229,7 @@ static void on_deactivate()
     PostMessage(h,WM_ACTIVATEAPP,0,0);
     h=h->m_next;
   }
+  swell_on_toplevel_raise(NULL);
   DestroyPopupMenus();
 }
 
