@@ -1580,8 +1580,12 @@ void WDL_UTF8_ListViewConvertDispInfoToW(void *_di)
 
     if (!sb->buf || sb->buf_sz < src_sz)
     {
-      free(sb->buf);
-      sb->buf = (WCHAR *)malloc((sb->buf_sz = src_sz * 2 + 256) * sizeof(WCHAR));
+      const int newsz = (int) wdl_min(src_sz * 2 + 256, 0x7fffFFFF);
+      if (!sb->buf || sb->buf_sz < newsz)
+      {
+        free(sb->buf);
+        sb->buf = (WCHAR *)malloc((sb->buf_sz = newsz) * sizeof(WCHAR));
+      }
     }
     if (WDL_NOT_NORMALLY(!sb->buf))
     {
