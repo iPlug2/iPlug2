@@ -4157,11 +4157,22 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
             ListView_SetItemState(hwnd,x,(x==row)?(LVIS_SELECTED|LVIS_FOCUSED):0,LVIS_SELECTED|LVIS_FOCUSED);
           }
         }
-
-        NMLISTVIEW nm={{hwnd,hwnd->m_id,NM_RCLICK},row,inf.iSubItem,0,0,0, {inf.pt.x,inf.pt.y}};
-        SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
       }
     return 1;
+    case WM_RBUTTONUP:
+      if (lvs && lvs->m_last_row_height>0 && !lvs->m_is_listbox)
+      {
+        const int hdr_size = lvs->GetColumnHeaderHeight(hwnd);
+        if (hdr_size > 0 && GET_Y_LPARAM(lParam) < hdr_size) break; // let it get converted to WM_CONTEXTMENU
+
+        LVHITTESTINFO inf = { { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) }, };
+
+        const int row = ListView_SubItemHitTest(hwnd, &inf);
+        NMLISTVIEW nm={{hwnd,hwnd->m_id,NM_RCLICK},row,inf.iSubItem,0,0,0, {inf.pt.x,inf.pt.y}};
+        if (SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm))
+          return 1;
+      }
+    break;
     case WM_SETCURSOR:
       if (lvs)
       {
@@ -5760,13 +5771,14 @@ forceMouseMove:
         ReleaseCapture();
       }
     return 1;
-    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
       if (tvs && tvs->m_last_row_height>0)
       {
         NMLISTVIEW nm={{hwnd,hwnd->m_id,NM_RCLICK},0,0,0,};
-        SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
+        if (SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm))
+          return 1;
       }
-    return 1;
+    break;
     case WM_PAINT:
       { 
         PAINTSTRUCT ps;
