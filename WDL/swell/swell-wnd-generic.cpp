@@ -3670,7 +3670,7 @@ popupMenu:
           HGDIOBJ oldpen=SelectObject(ps.hdc,GetStockObject(NULL_PEN));
           const int dw = SWELL_UI_SCALE(8);
           const int dh = SWELL_UI_SCALE(4);
-          const int cx = r.right-dw/2-SWELL_UI_SCALE(4);
+          const int cx = r.right-dw/2-SWELL_UI_SCALE(5);
           const int cy = (r.bottom+r.top)/2;
 
           POINT pts[3] = {
