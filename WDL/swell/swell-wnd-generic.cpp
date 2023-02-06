@@ -1118,6 +1118,8 @@ static void Draw3DBox(HDC hdc, const RECT *r, int bgc, int topc, int botc, bool 
     tr.top--;
   }
 
+  if (topc == -1 && botc == -1) return;
+
   HPEN pen = CreatePen(PS_SOLID,0,swap?botc:topc);
   HPEN pen2 = CreatePen(PS_SOLID,0,swap?topc:botc);
   HGDIOBJ oldpen = SelectObject(hdc,pen);
@@ -2779,17 +2781,12 @@ forceMouseMove:
         {
           RECT r; 
           GetClientRect(hwnd,&r); 
+          const RECT orig_r2 = r;
           RECT orig_r = r;
           WDL_FastString *title = &hwnd->m_title;
           if (hwnd->m_style & ES_PASSWORD) passwordify(&title);
 
-          Draw3DBox(ps.hdc,&r,
-            hwnd->m_enabled ? 
-              //(hwnd->m_style & ES_READONLY) ? g_swell_ctheme._3dface :
-                g_swell_ctheme.edit_bg :
-                g_swell_ctheme.edit_bg_disabled,
-            g_swell_ctheme.edit_shadow,
-            g_swell_ctheme.edit_hilight);
+          Draw3DBox(ps.hdc,&orig_r, hwnd->m_enabled ?  g_swell_ctheme.edit_bg : g_swell_ctheme.edit_bg_disabled,-1,-1);
 
           SetTextColor(ps.hdc,
             hwnd->m_enabled ? 
@@ -2901,6 +2898,7 @@ forceMouseMove:
                 do_cursor ? cursor_pos : -1, sel1, sel2, &r, DT_VCENTER);
           }
 
+          Draw3DBox(ps.hdc,&orig_r2,-1, g_swell_ctheme.edit_shadow, g_swell_ctheme.edit_hilight);
           EndPaint(hwnd,&ps);
         }
       }
