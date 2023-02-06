@@ -2786,6 +2786,8 @@ forceMouseMove:
           WDL_FastString *title = &hwnd->m_title;
           if (hwnd->m_style & ES_PASSWORD) passwordify(&title);
 
+          bool is_secpass = false;
+again:
           Draw3DBox(ps.hdc,&orig_r, hwnd->m_enabled ?  g_swell_ctheme.edit_bg : g_swell_ctheme.edit_bg_disabled,-1,-1);
 
           SetTextColor(ps.hdc,
@@ -2795,6 +2797,8 @@ forceMouseMove:
                       g_swell_ctheme.edit_text_disabled
           );
           SetBkMode(ps.hdc,TRANSPARENT);
+          if (!focused && es->scroll_x > 0 && es->scroll_x < 4)
+            es->scroll_x=0;
           r.left+=2 - es->scroll_x; r.right-=2;
 
           const bool do_cursor = es->cursor_state!=0;
@@ -2896,6 +2900,19 @@ forceMouseMove:
           {
             es->max_width = editControlPaintLine(ps.hdc, title->Get(), title->GetLength(),
                 do_cursor ? cursor_pos : -1, sel1, sel2, &r, DT_VCENTER);
+
+            if (es->scroll_x > 0 && !is_secpass)
+            {
+              int max_x = es->max_width - (r.right-2 - (orig_r2.bottom-orig_r2.top)/2);
+              if (max_x < 0) max_x = 0;
+              if (es->scroll_x > max_x)
+              {
+                es->scroll_x = max_x;
+                r = orig_r = orig_r2;
+                is_secpass = true;
+                goto again;
+              }
+            }
           }
 
           Draw3DBox(ps.hdc,&orig_r2,-1, g_swell_ctheme.edit_shadow, g_swell_ctheme.edit_hilight);
