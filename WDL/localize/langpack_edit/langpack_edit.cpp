@@ -152,7 +152,7 @@ struct editor_instance {
 
   bool edit_row(int rec_idx, int other_action=IDC_LOCALIZED_STRING);
   bool on_key(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-  void item_context_menu(int cmd=0);
+  void item_context_menu();
 
   void set_dirty()
   {
@@ -218,6 +218,7 @@ void editor_instance::save_file(const char *filename)
   buf[0]=0;
   if (WDL_NORMALLY(m_hwnd))
     GetDlgItemText(m_hwnd,IDC_COMMENTS,buf,sizeof(buf));
+  WDL_remove_trailing_whitespace(buf);
   fprintf(fp,"%s\r\n",buf);
 
   char last_sec[1024];
@@ -344,6 +345,8 @@ void editor_instance::load_file(const char *filename, bool is_template)
         if (fs.GetLength()) fs.Append("\r\n");
         fs.Append(p);
       }
+      if (fs.GetLength())
+        WDL_remove_trailing_whitespace((char *)fs.Get());
       SetDlgItemText(m_hwnd,IDC_COMMENTS,fs.Get());
     }
   }
@@ -625,7 +628,7 @@ bool editor_instance::on_key(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     if (msg == WM_KEYDOWN) switch (wParam)
     {
       case VK_RETURN:
-        item_context_menu(IDC_LOCALIZED_STRING);
+        SendMessage(m_hwnd,WM_COMMAND,IDC_LOCALIZED_STRING,0);
       return true;
       break;
 #ifdef _WIN32
@@ -635,54 +638,20 @@ bool editor_instance::on_key(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 #endif
       case VK_BACK:
       case VK_DELETE:
-        item_context_menu(IDC_REMOVE_LOCALIZATION);
+        SendMessage(m_hwnd,WM_COMMAND,IDC_REMOVE_LOCALIZATION,0);
       return true;
     }
   }
   return false;
 }
 
-void editor_instance::item_context_menu(int cmd)
+void editor_instance::item_context_menu()
 {
-  int ret = cmd;
-  if (!ret)
-  {
-    HMENU menu = LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXTMENU));
-    POINT p;
-    GetCursorPos(&p);
-    ret = TrackPopupMenu(GetSubMenu(menu,0),TPM_NONOTIFY|TPM_RETURNCMD,p.x,p.y,0,m_hwnd,NULL);
-    DestroyMenu(menu);
-  }
-  if (ret)
-  {
-    HWND list = GetDlgItem(m_hwnd,IDC_LIST);
-    int cnt = 0;
-    const int n = ListView_GetItemCount(list);
-    for (int x = 0; x < n; x ++)
-    {
-      if (ListView_GetItemState(list,x,LVIS_SELECTED) & LVIS_SELECTED)
-      {
-        if (edit_row(x,ret)) cnt++;
-        if (ret == ID_SCALING_ADD)
-          ListView_SetItemState(list,x,0,LVIS_SELECTED);
-      }
-    }
-    if (cnt && ret != IDC_LOCALIZED_STRING)
-    {
-      refresh_list(false);
-      set_dirty();
-    }
-    if (ret == ID_SCALING_ADD)
-    {
-      const int nn = ListView_GetItemCount(list);
-      if (n < nn)
-      {
-        ListView_EnsureVisible(list,n,false);
-        for (int i = n; i < nn; i ++)
-          ListView_SetItemState(list,i,LVIS_SELECTED,LVIS_SELECTED);
-      }
-    }
-  }
+  HMENU menu = LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXTMENU));
+  POINT p;
+  GetCursorPos(&p);
+  TrackPopupMenu(GetSubMenu(menu,0),0,p.x,p.y,0,m_hwnd,NULL);
+  DestroyMenu(menu);
 }
 
 const char *COL_DESCS[COL_MAX] = {
@@ -852,6 +821,59 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
           }
         break;
+        case IDC_LOCALIZED_STRING:
+        case IDC_COMMON_STRING:
+        case ID_SCALING_ADD:
+        case IDC_COPY_TEMPLATE:
+        case IDC_REMOVE_LOCALIZATION:
+        case IDC_REMOVE_NONLOCALIZATION:
+          {
+            HWND list = GetDlgItem(hwndDlg,IDC_LIST);
+            int cnt = 0;
+            const int n = ListView_GetItemCount(list);
+            for (int x = 0; x < n; x ++)
+            {
+              if (ListView_GetItemState(list,x,LVIS_SELECTED) & LVIS_SELECTED)
+              {
+                if (g_editor.edit_row(x,(int)wParam)) cnt++;
+                if (wParam == ID_SCALING_ADD)
+                  ListView_SetItemState(list,x,0,LVIS_SELECTED);
+              }
+            }
+            if (cnt && wParam != IDC_LOCALIZED_STRING)
+            {
+              g_editor.refresh_list(false);
+              g_editor.set_dirty();
+            }
+            if (wParam == ID_SCALING_ADD)
+            {
+              const int nn = ListView_GetItemCount(list);
+              if (n < nn)
+              {
+                ListView_EnsureVisible(list,n,false);
+                for (int i = n; i < nn; i ++)
+                  ListView_SetItemState(list,i,LVIS_SELECTED,LVIS_SELECTED);
+              }
+            }
+          }
+        break;
+      }
+    break;
+    case WM_INITMENUPOPUP:
+      if (wParam)
+      {
+        HMENU menu = (HMENU) wParam;
+        static const unsigned short tab[]={
+          IDC_LOCALIZED_STRING,
+          IDC_COMMON_STRING,
+          ID_SCALING_ADD,
+          IDC_COPY_TEMPLATE,
+          IDC_REMOVE_LOCALIZATION,
+          IDC_REMOVE_NONLOCALIZATION,
+        };
+        bool en = ListView_GetSelectedCount(GetDlgItem(hwndDlg,IDC_LIST))>0;
+        for (size_t x = 0; x < sizeof(tab)/sizeof(tab[0]); x ++)
+          EnableMenuItem(menu,tab[x],MF_BYCOMMAND|(en ? 0 : MF_GRAYED));
       }
     break;
     case WM_NOTIFY:
