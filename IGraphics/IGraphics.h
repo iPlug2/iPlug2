@@ -1868,5 +1868,20 @@ protected:
   std::stack<IMatrix> mTransformStates;
 };
 
+/** RAII helper for layer drawing */
+class IScopedLayer
+{
+public:
+  IScopedLayer(IControl* pOwner, const IRECT& rect, IScopedLayerDrawFunction drawFunc, const IShadow& shadow = IShadow());
+  
+  ~IScopedLayer();
+  
+private:
+  IScopedLayerDrawFunction mDrawFunc;
+  IControl* mPOwner;
+  const IRECT mRECT;
+  IShadow mShadow;
+};
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
