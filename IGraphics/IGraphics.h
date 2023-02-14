@@ -970,6 +970,17 @@ public:
   /** Get the app group ID on macOS and iOS, returns emtpy string on other OSs */
   virtual const char* GetAppGroupID() const { return ""; }
 
+  // An RAII helper to manage the IGraphics GL context
+  class ScopedGLContext
+  {
+  public:
+    ScopedGLContext(IGraphics* pGraphics)
+    : mIGraphics(*pGraphics) { mIGraphics.ActivateGLContext(); }
+    ~ScopedGLContext() { mIGraphics.DeactivateGLContext(); }
+  private:
+    IGraphics& mIGraphics;
+  };
+  
 protected:
   /* Activate the context for the view (GL only) */
   virtual void ActivateGLContext() {};
