@@ -231,7 +231,6 @@ int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND 
         swell_oswindow_resize(w, flags, hwnd->m_position);
       }
       hwnd->m_oswindow = w;
-      SWELL_focused_oswindow = w;
 
       if (!flags)
       {
@@ -243,8 +242,10 @@ int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND 
           swell_recalcMinMaxInfo(hwnd);
         }
       }
+      swell_oswindow_focus(hwnd);
 
       ShowWindow(hwnd,SW_SHOWNA);
+      InvalidateRect(hwnd,NULL,FALSE);
     }
     else  
     {
