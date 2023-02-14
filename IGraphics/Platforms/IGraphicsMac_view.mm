@@ -650,6 +650,18 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   #endif
 }
 
+- (void) activateGLContext
+{
+#ifdef IGRAPHICS_GL
+  [[self openGLContext] makeCurrentContext];
+#endif
+}
+
+- (void) deactivateGLContext
+{
+  /* NO-OP ? */
+}
+
 - (void) render
 {
   mDirtyRects.Clear();
