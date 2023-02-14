@@ -654,16 +654,11 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         BeginPaint(hWnd, &ps);
 #endif
 
-#ifdef IGRAPHICS_GL
-        pGraphics->ActivateGLContext();
-#endif
-
-        pGraphics->Draw(rects);
-
-        #ifdef IGRAPHICS_GL
-        SwapBuffers((HDC) pGraphics->GetPlatformContext());
-        pGraphics->DeactivateGLContext();
-        #endif
+        {
+          ScopedActivateGLContext activateGLCtx {this};
+          pGraphics->Draw(rects);
+          SwapBuffers((HDC) pGraphics->GetPlatformContext());
+        }
 
 #if defined IGRAPHICS_GL || IGRAPHICS_D2D
         EndPaint(hWnd, &ps);
@@ -937,15 +932,6 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
   }
 }
 
-#ifdef IGRAPHICS_GL
-void IGraphicsWin::DrawResize()
-{
-  ActivateGLContext();
-  IGRAPHICS_DRAW_CLASS::DrawResize();
-  DeactivateGLContext();
-}
-#endif
-
 void IGraphicsWin::HideMouseCursor(bool hide, bool lock)
 {
   if (mCursorHidden == hide)
@@ -1107,16 +1093,20 @@ void IGraphicsWin::DestroyGLContext()
 
 void IGraphicsWin::ActivateGLContext()
 {
+#ifdef IGRAPHICS_GL
   mStartHDC = wglGetCurrentDC();
   mStartHGLRC = wglGetCurrentContext();
   HDC dc = GetDC(mPlugWnd);
   wglMakeCurrent(dc, mHGLRC);
+#endif
 }
 
 void IGraphicsWin::DeactivateGLContext()
 {
+#ifdef IGRAPHICS_GL
   ReleaseDC(mPlugWnd, (HDC) GetPlatformContext());
   wglMakeCurrent(mStartHDC, mStartHGLRC); // return current ctxt to start
+#endif
 }
 #endif
 
@@ -1287,14 +1277,12 @@ void IGraphicsWin::CloseWindow()
     else
       KillTimer(mPlugWnd, IPLUG_TIMER_ID);
 
+    {
+      ScopedActivateGLContext activateGLCtx {this};
+      OnViewDestroyed();
+    }
+    
 #ifdef IGRAPHICS_GL
-    ActivateGLContext();
-#endif
-
-    OnViewDestroyed();
-
-#ifdef IGRAPHICS_GL
-    DeactivateGLContext();
     DestroyGLContext();
 #endif
 

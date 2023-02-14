@@ -141,7 +141,7 @@ void IGraphicsMac::CloseWindow()
     [pView killTimer];
     [pView removeFromSuperview];
     [pView release];
-      
+
     mView = nullptr;
     OnViewDestroyed();
   }

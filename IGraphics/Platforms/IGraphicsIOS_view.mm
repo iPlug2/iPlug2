@@ -978,7 +978,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   [super traitCollectionDidChange: previousTraitCollection];
 
-  if(mGraphics)
+  if (mGraphics)
   {
     mGraphics->OnAppearanceChanged([self.traitCollection userInterfaceStyle] == UIUserInterfaceStyleDark ? EUIAppearance::Dark
                                                                                                          : EUIAppearance::Light);
