@@ -121,6 +121,10 @@ UIColorPickerViewControllerDelegate
 
 - (void) traitCollectionDidChange: (UITraitCollection*) previousTraitCollection;
 
+// GL handling
+- (void) activateGLContext;
+- (void) deactivateGLContext;
+
 #if defined IGRAPHICS_METAL
 @property (readonly) CAMetalLayer* metalLayer;
 #else
