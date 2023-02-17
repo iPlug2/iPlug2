@@ -715,12 +715,6 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       mmi->ptMinTrackSize.y = pPlug->GetMinHeight();
       mmi->ptMaxTrackSize.x = pPlug->GetMaxWidth();
       mmi->ptMaxTrackSize.y = pPlug->GetMaxHeight();
-      
-#ifdef OS_MAC
-      const int titleBarOffset = GetTitleBarOffset();
-      mmi->ptMinTrackSize.y += titleBarOffset;
-      mmi->ptMaxTrackSize.y += titleBarOffset;
-#endif
 
 #ifdef OS_WIN 
       float scale = GetScaleForHWND(hwndDlg);
