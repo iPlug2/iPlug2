@@ -289,5 +289,41 @@ static void WDL_STATICFUNC_UNUSED wdl_memcpy_be(void *bout, const void *bin, siz
   if (bout != bin) memmove(bout,bin,elemsz * nelem);
 }
 
+static void WDL_STATICFUNC_UNUSED wdl_mem_store_int(void *bout, int v)
+{
+  memcpy(bout,&v,sizeof(v));
+}
+
+static void WDL_STATICFUNC_UNUSED wdl_mem_store_int_le(void *bout, int v)
+{
+  wdl_memcpy_le(bout,&v,1,sizeof(v));
+}
+
+static void WDL_STATICFUNC_UNUSED wdl_mem_store_int_be(void *bout, int v)
+{
+  wdl_memcpy_be(bout,&v,1,sizeof(v));
+}
+
+static int WDL_STATICFUNC_UNUSED wdl_mem_load_int(const void *rd)
+{
+  int v;
+  memcpy(&v,rd,sizeof(v));
+  return v;
+}
+
+static int WDL_STATICFUNC_UNUSED wdl_mem_load_int_le(const void *rd)
+{
+  int v;
+  wdl_memcpy_le(&v,rd,1,sizeof(v));
+  return v;
+}
+
+static int WDL_STATICFUNC_UNUSED wdl_mem_load_int_be(const void *rd)
+{
+  int v;
+  wdl_memcpy_be(&v,rd,1,sizeof(v));
+  return v;
+}
+
 
 #endif
