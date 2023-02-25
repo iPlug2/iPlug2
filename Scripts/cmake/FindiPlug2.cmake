@@ -279,6 +279,8 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows")
   # postbuild-win.bat is used by VST2/VST3/AAX on Windows, so we just always configure it on Windows
   # Note: For visual studio, we COULD use $(TargetPath) for the target, but for all other generators, no.
   set(create_bundle_script "${IPLUG2_DIR}/Scripts/create_bundle.bat")
+  set(plugin_build_dir ${CMAKE_BINARY_DIR})
+  set(CMAKE_PDB_OUTPUT_DIRECTORY $<$<CONFIG:Release>:${CMAKE_BINARY_DIR}/pdbs>)
   configure_file("${IPLUG2_DIR}/Scripts/postbuild-win.bat.in" "${CMAKE_BINARY_DIR}/postbuild-win.bat")
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
@@ -289,7 +291,8 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "Linux")
   list(APPEND _opts "-Wno-multichar")
 
 elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
-  list(APPEND _src 
+  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym")
+  list(APPEND _src
     ${IPLUG_SRC}/IPlugPaths.mm
   )
   list(APPEND _inc ${WDL_DIR}/swell)
@@ -389,8 +392,12 @@ function(iplug_configure_target target target_type)
     set(_res "${CMAKE_SOURCE_DIR}/resources/main.rc")
     iplug_target_add(${target} PUBLIC RESOURCE ${_res})
     source_group("Resources" FILES ${_res})
-    
-  elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin") 
+    target_compile_options(${TARGET} PRIVATE /Zi)
+    set_target_properties(${TARGET} PROPERTIES
+      COMPILE_PDB_NAME "${TARGET}_${PROCESSOR_ARCH}"
+    )
+
+  elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
     # For MacOS we make sure the output name is the same as the app name.
     # This is basically required for bundles.
     set_property(TARGET ${target} PROPERTY OUTPUT_NAME "${PLUG_NAME}")
