@@ -3818,21 +3818,19 @@ static int compileOpcodesInternal(compileContext *ctx, opcodeRec *op, unsigned c
 
     {
       int sz2, fUse2=0;
-      unsigned char *destbuf;
       const int testsz=op->fntype == FN_LOGICAL_OR ? sizeof(GLUE_JMP_IF_P1_NZ) : sizeof(GLUE_JMP_IF_P1_Z);
       if (bufOut_len < parm_size+testsz) RET_MINUS1_FAIL_FALLBACK("band/bor size fail",doNonInlinedAndOr_)
 
-      if (bufOut)  memcpy(bufOut+parm_size,op->fntype == FN_LOGICAL_OR ? GLUE_JMP_IF_P1_NZ : GLUE_JMP_IF_P1_Z,testsz); 
+      if (bufOut) memcpy(bufOut+parm_size,op->fntype == FN_LOGICAL_OR ? GLUE_JMP_IF_P1_NZ : GLUE_JMP_IF_P1_Z,testsz); 
       parm_size += testsz;
-      destbuf = bufOut + parm_size;
 
-      sz2= compileOpcodes(ctx,op->parms.parms[1],bufOut?bufOut+parm_size:NULL,bufOut_len-parm_size, computTableSize, namespacePathToThis, retType, NULL,&fUse2, NULL);
+      sz2 = compileOpcodes(ctx,op->parms.parms[1],bufOut?bufOut+parm_size:NULL,bufOut_len-parm_size, computTableSize, namespacePathToThis, retType, NULL,&fUse2, NULL);
 
       CHECK_SIZE_FORJMP(sz2,doNonInlinedAndOr_)
       if (sz2<0) RET_MINUS1_FAIL("band/bor coc fail")
 
+      if (bufOut) GLUE_JMP_SET_OFFSET(bufOut + parm_size, sz2);
       parm_size+=sz2;
-      if (bufOut) GLUE_JMP_SET_OFFSET(destbuf, (bufOut + parm_size) - destbuf);
 
       if (fUse2 > *fpStackUse) *fpStackUse=fUse2;
       return rv_offset + parm_size;
