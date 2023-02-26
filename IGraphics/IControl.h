@@ -639,6 +639,8 @@ public:
     SetStyle(style);
   }
   
+  virtual ~IVectorBase() {}
+  
   /** Call in the constructor of your IVControl to link the IVectorBase and IControl
    * @param pControl Ptr to the control
    * @param label CString for the IVControl label */
@@ -1121,6 +1123,8 @@ public:
     TrackedTouch()
     {}
   };
+  
+  virtual ~IMultiTouchControlBase() {}
   
   virtual void AddTouch(ITouchID touchID, float x, float y, float radius)
   {
