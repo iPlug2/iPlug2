@@ -2251,9 +2251,11 @@ void SetWindowPos(HWND hwnd, HWND hwndAfter, int x, int y, int cx, int cy, int f
             [v retain];
             [v removeFromSuperviewWithoutNeedingDisplay];
             [par addSubview:v positioned:omode relativeTo:viewafter];
-            [v release];
           
-            if (oldfoc) [[v window] makeFirstResponder:oldfoc];
+            if (oldfoc && [oldfoc isKindOfClass:[NSView class]] && [oldfoc window] == [v window])
+              [[v window] makeFirstResponder:oldfoc];
+
+            [v release];
           }
         }
       }
