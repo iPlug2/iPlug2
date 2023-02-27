@@ -391,13 +391,8 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="..\config\IPlugOSCEditor-mac.xcconfig" />
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets" Condition="Exists('..\packages\Microsoft.Windows.ImplementationLibrary.1.0.220914.1\build\native\Microsoft.Windows.ImplementationLibrary.targets')" />
-    <Import Project="..\packages\Microsoft.Web.WebView2.1.0.1462.37\build\native\Microsoft.Web.WebView2.targets" Condition="Exists('..\packages\Microsoft.Web.WebView2.1.0.1462.37\build\native\Microsoft.Web.WebView2.targets')" />
-  </ImportGroup>
   <Target Name="AfterBuild">
     <PaceFixLogs Condition="Exists('$(PACE_FUSION_HOME)PaceFusionUi2013.dll')" LogDirectory="$(IntDir)" />
   </Target>
