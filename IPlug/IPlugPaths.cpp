@@ -143,6 +143,12 @@ void INIPath(WDL_String& path, const char * pluginName)
   path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\%s", pluginName);
 }
 
+void WebViewCachePath(WDL_String& path)
+{
+  GetKnownFolder(path, CSIDL_APPDATA);
+  path.Append("\\iPlug2\\WebViewCache"); // tmp
+}
+
 static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR param)
 {
   if (IS_INTRESOURCE(name)) return true; // integer resources not wanted

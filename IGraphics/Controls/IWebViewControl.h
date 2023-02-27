@@ -40,10 +40,8 @@ public:
    * @param bounds The control's bounds
    * @param opaque Should the web view background be opaque
    * @param readyFunc A function conforming to onReadyFunc, that will be called asyncronously when the webview has been initialized
-   * @param msgFunc A function conforming to onMessageFunc, that will be called when messages are posted from the webview
-   * @param dllPath (Windows only) an absolute path to the WebView2Loader.dll that is required to use the WebView2 on windows
-   * @param tmpPath (Windows only) an absolute path to the folder that should be used */
-  IWebViewControl(const IRECT& bounds, bool opaque, OnReadyFunc readyFunc, OnMessageFunc msgFunc = nullptr, const char* dllPath = "", const char* tmpPath = "")
+   * @param msgFunc A function conforming to onMessageFunc, that will be called when messages are posted from the webview */
+  IWebViewControl(const IRECT& bounds, bool opaque, OnReadyFunc readyFunc, OnMessageFunc msgFunc = nullptr)
   : IControl(bounds)
   , IWebView(opaque)
   , mOnReadyFunc(readyFunc)
@@ -51,10 +49,6 @@ public:
   {
     // The IControl should not receive mouse messages
     mIgnoreMouse = true;
-    
-#ifdef OS_WIN
-    SetWebViewPaths(dllPath, tmpPath);
-#endif
   }
   
   ~IWebViewControl()
