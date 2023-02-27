@@ -210,9 +210,6 @@
     <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\ISender.h">
-      <Filter>IGraphics</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h">
       <Filter>IPlug</Filter>
     </ClInclude>
@@ -321,5 +318,6 @@
     <None Include="..\config\IPlugOSCEditor-mac.xcconfig">
       <Filter>config</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
