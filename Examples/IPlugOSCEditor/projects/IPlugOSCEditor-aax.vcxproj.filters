@@ -321,5 +321,6 @@
     <None Include="..\config\IPlugOSCEditor-mac.xcconfig">
       <Filter>config</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
