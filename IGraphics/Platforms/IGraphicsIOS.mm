@@ -202,9 +202,13 @@ void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
 
   if (fileName.GetLength())
     pDefaultFileName = [NSString stringWithCString:fileName.Get() encoding:NSUTF8StringEncoding];
-
+  else
+    pDefaultFileName = @"";
+  
   if (path.GetLength())
     pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+  else
+    pDefaultPath = @"";
 
   fileName.Set(""); // reset it
 
