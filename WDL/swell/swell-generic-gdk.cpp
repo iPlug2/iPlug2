@@ -715,6 +715,17 @@ void swell_oswindow_manage(HWND hwnd, bool wantfocus)
   if (wantVis) swell_oswindow_update_text(hwnd);
 }
 
+void swell_oswindow_maximize(HWND hwnd, bool wantmax) // false=restore
+{
+  if (WDL_NORMALLY(hwnd && hwnd->m_oswindow))
+  {
+    if (wantmax)
+      gdk_window_maximize(hwnd->m_oswindow);
+    else
+      gdk_window_unmaximize(hwnd->m_oswindow);
+  }
+}
+
 void swell_oswindow_updatetoscreen(HWND hwnd, RECT *rect)
 {
 #ifdef SWELL_LICE_GDI
@@ -1020,8 +1031,21 @@ static void OnConfigureEvent(GdkEventConfigure *cfg)
   hwnd->m_position.right = cfg->x + cfg->width;
   hwnd->m_position.bottom = cfg->y + cfg->height;
   if (flag&1) SendMessage(hwnd,WM_MOVE,0,0);
-  if (flag&2) SendMessage(hwnd,WM_SIZE,0,0);
+  if (flag&2) SendMessage(hwnd,WM_SIZE,hwnd->m_is_maximized ? SIZE_MAXIMIZED : SIZE_RESTORED,0);
   if (!hwnd->m_hashaddestroy && hwnd->m_oswindow) swell_recalcMinMaxInfo(hwnd);
+}
+
+static void OnWindowStateEvent(GdkEventWindowState *evt)
+{
+  HWND hwnd = swell_oswindow_to_hwnd(evt->window);
+  if (!hwnd) return;
+
+  if (evt->changed_mask & GDK_WINDOW_STATE_MAXIMIZED)
+  {
+    hwnd->m_is_maximized = (evt->new_window_state & GDK_WINDOW_STATE_MAXIMIZED)!=0;
+    SendMessage(hwnd,WM_SIZE,
+        (evt->new_window_state & GDK_WINDOW_STATE_MAXIMIZED) ? SIZE_MAXIMIZED : SIZE_RESTORED, 0);
+  }
 }
 
 #define IS_DEAD_KEY(x) ((x) >= DEF_GKY(dead_grave) && (x) <= DEF_GKY(dead_greek))
@@ -1720,7 +1744,7 @@ static void swell_gdkEventHandler(GdkEvent *evt, gpointer data)
       OnConfigureEvent((GdkEventConfigure*)evt);
     break;
     case GDK_WINDOW_STATE: /// GdkEventWindowState for min/max
-          //printf("minmax\n");
+      OnWindowStateEvent((GdkEventWindowState*)evt);
     break;
     case GDK_GRAB_BROKEN:
       if (swell_oswindow_to_hwnd(((GdkEventAny*)evt)->window))
@@ -2723,7 +2747,7 @@ HWND SWELL_CreateXBridgeWindow(HWND viewpar, void **wref, const RECT *r)
       gdk_window_add_filter(NULL, filterCreateShowProc, NULL);
     }
     SetTimer(hwnd,1,100,NULL);
-    if (!need_reparent) SendMessage(hwnd,WM_SIZE,0,0);
+    if (!need_reparent) SendMessage(hwnd,WM_SIZE,SIZE_RESTORED,0);
   }
   return hwnd;
 }

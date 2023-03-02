@@ -3156,6 +3156,10 @@ void ShowWindow(HWND hwnd, int cmd)
     {
       [pid orderOut:pid];
     }
+    else if (cmd==SW_SHOWMAXIMIZED || cmd == SW_RESTORE)
+    {
+      [pid orderFront:pid]; // todo fixme
+    }
     else if (cmd == SW_SHOWMINIMIZED)
     {   
       // this ought to work

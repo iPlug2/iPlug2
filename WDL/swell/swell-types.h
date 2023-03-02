@@ -864,21 +864,21 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define BST_INDETERMINATE 2
 
 // note: these differ in values from their win32 counterparts, because we got them
-// wrong to begin with, and we'd like to keep backwards compatability for things compiled
+// wrong to begin with, and we'd like to keep backwards compatibility for things compiled
 // against an old swell.h (and using the SWELL API via an exported mechanism, i.e. third party
 // plug-ins). 
 #define SW_HIDE 0
 #define SW_SHOWNA 1        // 8 on win32
 #define SW_SHOW 2          // 1 on win32
 #define SW_SHOWMINIMIZED 3 // 2 on win32
+#define SW_SHOWMAXIMIZED 4
+#define SW_RESTORE 5
 
 // aliases (todo implement these as needed)
 #define SW_SHOWNOACTIVATE SW_SHOWNA 
 #define SW_NORMAL SW_SHOW 
 #define SW_SHOWNORMAL SW_SHOW
-#define SW_SHOWMAXIMIZED SW_SHOW
 #define SW_SHOWDEFAULT SW_SHOWNORMAL
-#define SW_RESTORE SW_SHOWNA
 
 #define SWP_NOMOVE 1
 #define SWP_NOSIZE 2

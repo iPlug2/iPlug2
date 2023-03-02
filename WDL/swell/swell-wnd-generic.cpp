@@ -105,6 +105,7 @@ HWND__::HWND__(HWND par, int wID, const RECT *wndr, const char *label, bool visi
   m_private_data=0;
   m_israised=false;
   m_has_had_position=false;
+  m_is_maximized = false;
   m_oswindow_private=0;
   m_oswindow_fullscreen=0;
 
@@ -729,11 +730,11 @@ void SetWindowPos(HWND hwnd, HWND zorder, int x, int y, int cx, int cy, int flag
     if (hwnd->m_oswindow && !hwnd->m_oswindow_fullscreen)
     {
       swell_oswindow_resize(hwnd->m_oswindow,reposflag,f);
-      if (reposflag&2) SendMessage(hwnd,WM_SIZE,0,0);
+      if (reposflag&2) SendMessage(hwnd,WM_SIZE,SIZE_RESTORED,0);
     }
     else
     {
-      if (reposflag&2) SendMessage(hwnd,WM_SIZE,0,0);
+      if (reposflag&2) SendMessage(hwnd,WM_SIZE,SIZE_RESTORED,0);
       InvalidateRect(hwnd->m_parent ? hwnd->m_parent : hwnd,NULL,FALSE);
     }
   }
@@ -1059,6 +1060,10 @@ void ShowWindow(HWND hwnd, int cmd)
     if (hwnd->m_visible) cmd = SW_SHOWNA; // do not take focus if already visible
     hwnd->m_visible=true;
   }
+  else if (cmd == SW_RESTORE || cmd == SW_SHOWMAXIMIZED)
+  {
+    hwnd->m_visible=true;
+  }
   else if (cmd==SW_HIDE) 
   {
     if (hwnd->m_visible)
@@ -1070,10 +1075,13 @@ void ShowWindow(HWND hwnd, int cmd)
   }
 
   swell_oswindow_manage(hwnd,cmd==SW_SHOW);
+
   if (cmd == SW_SHOW) 
   {
     SetForegroundWindow(hwnd);
   }
+  else if (cmd == SW_RESTORE || cmd == SW_SHOWMAXIMIZED)
+    swell_oswindow_maximize(hwnd,cmd == SW_SHOWMAXIMIZED);
 
   InvalidateRect(hwnd,NULL,FALSE);
 

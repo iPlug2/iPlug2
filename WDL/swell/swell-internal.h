@@ -884,6 +884,7 @@ struct HWND__
 
   bool m_israised;
   bool m_has_had_position;
+  bool m_is_maximized; // only valid if m_oswindow is set
   int m_oswindow_fullscreen; // may contain preserved style flags
 
   int m_refcnt; 
@@ -987,6 +988,7 @@ void swell_oswindow_postresize(HWND hwnd, RECT f);
 void swell_oswindow_invalidate(HWND hwnd, const RECT *r);
 void swell_oswindow_destroy(HWND hwnd);
 void swell_oswindow_manage(HWND hwnd, bool wantfocus);
+void swell_oswindow_maximize(HWND, bool wantmax); // false=restore
 void swell_oswindow_updatetoscreen(HWND hwnd, RECT *rect);
 HWND swell_window_wants_all_input(); // window with an active drag of menubar will have this set, to route all mouse events to nonclient area of window
 int swell_delegate_menu_message(HWND src, LPARAM lParam, int msg, bool screencoords); // menubar/menus delegate to submenus during drag.
