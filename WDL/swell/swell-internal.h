@@ -512,6 +512,7 @@ typedef struct WindowPropRec
   BOOL m_enabled;
   int m_wantraiseamt;
   bool  m_wantInitialKeyWindowOnShow;
+  bool m_lastZoom;
 }
 - (id)initModeless:(SWELL_DialogResourceIndex *)resstate Parent:(HWND)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par outputHwnd:(HWND *)hwndOut forceStyles:(unsigned int)smask;
 - (id)initModelessForChild:(HWND)child owner:(HWND)owner styleMask:(unsigned int)smask;
@@ -537,6 +538,7 @@ typedef struct WindowPropRec
   int m_rv;
   bool m_hasrv;
   BOOL m_enabled;
+  bool m_lastZoom;
 }
 - (id)initDialogBox:(SWELL_DialogResourceIndex *)resstate Parent:(HWND)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par;
 - (void)swellDestroyAllOwnedWindows;

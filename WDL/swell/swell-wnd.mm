@@ -3156,9 +3156,15 @@ void ShowWindow(HWND hwnd, int cmd)
     {
       [pid orderOut:pid];
     }
-    else if (cmd==SW_SHOWMAXIMIZED || cmd == SW_RESTORE)
+    else if (cmd==SW_SHOWMAXIMIZED)
     {
-      [pid orderFront:pid]; // todo fixme
+      if (![pid isZoomed]) [pid zoom:nil];
+      [pid orderFront:pid];
+    }
+    else if (cmd == SW_RESTORE)
+    {
+      if ([pid isZoomed]) [pid zoom:nil];
+      [pid orderFront:pid];
     }
     else if (cmd == SW_SHOWMINIMIZED)
     {   

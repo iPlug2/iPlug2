@@ -2307,9 +2307,13 @@ static HMENU swell_getEffectiveMenuForWindow(NSView *cv, NSWindow *window, bool 
 - (void)setFrame:(NSRect)frameRect display:(BOOL)displayFlag \
 { \
   [super setFrame:frameRect display:displayFlag]; \
-  if((int)frameRect.size.width != (int)lastFrameSize.width || (int)frameRect.size.height != (int)lastFrameSize.height) { \
+  bool z = !![self isZoomed]; \
+  if((int)frameRect.size.width != (int)lastFrameSize.width || \
+     (int)frameRect.size.height != (int)lastFrameSize.height || \
+      z != m_lastZoom) { \
     SWELL_hwndChild *hc = (SWELL_hwndChild*)[self contentView]; \
-    sendSwellMessage(hc,WM_SIZE,0,0); \
+    sendSwellMessage(hc,WM_SIZE,z!=m_lastZoom ? z ? SIZE_MAXIMIZED : SIZE_RESTORED : 0,0); \
+    m_lastZoom=z; \
     if ([hc isOpaque]) InvalidateRect((HWND)hc,NULL,FALSE); \
     lastFrameSize=frameRect.size; \
    } \
@@ -2463,7 +2467,8 @@ static HMENU swell_getEffectiveMenuForWindow(NSView *cv, NSWindow *window, bool 
 #define INIT_COMMON_VARS \
   m_enabled=TRUE; \
   m_owner=0; \
-  m_ownedwnds=0; 
+  m_ownedwnds=0; \
+  m_lastZoom=false; \
 
 
 #if 0
