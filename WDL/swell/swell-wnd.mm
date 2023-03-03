@@ -3186,6 +3186,8 @@ void ShowWindow(HWND hwnd, int cmd)
   
   switch (cmd)
   {
+    case SW_RESTORE:
+    case SW_SHOWMAXIMIZED:
     case SW_SHOW:
     case SW_SHOWNA:
       [((NSView *)pid) setHidden:NO];
