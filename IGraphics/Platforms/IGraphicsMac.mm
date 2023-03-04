@@ -466,6 +466,7 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   {
     pPanel = [NSOpenPanel openPanel];
     
+    [(NSOpenPanel*) pPanel setAllowedFileTypes: pFileTypes];
     [(NSOpenPanel*) pPanel setCanChooseFiles:YES];
     [(NSOpenPanel*) pPanel setCanChooseDirectories:NO];
     [(NSOpenPanel*) pPanel setResolvesAliases:YES];
