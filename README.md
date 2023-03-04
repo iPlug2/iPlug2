@@ -7,6 +7,8 @@ iPlug 2 is a simple-to-use C++ framework for developing cross-platform audio plu
 
 The recommended starting point for an iPlug2 project in 2023 can be found in a separate repo, [iPlug2OOS (out-of-source)](https://github.com/iPlug2/iPlug2OOS)
 
+iPlug2 API Documentation is published [here](https://iplug2.github.io/docs) and be sure to check out the [iPlug2 Wiki](https://github.com/iPlug2/iPlug2/wiki)
+
 The original version of iPlug was released in 2008 as part of Cockos' WDL library. iPlug 2 (2018) is a substantial reworking that brings multiple vector graphics backends to IGraphics (including GPU accelerated options and HiDPI/scaling), a better approach to concurrency, support for distributed plug-in formats and compiling to WebAssembly via [emscripten](https://github.com/kripken/emscripten), amongst many other things.
 
 iPlug 2 targets the VST2, VST3, AUv2, AUv3, AAX (Native) and the [Web Audio Module](https://webaudiomodules.org) (WAM) plug-in APIs. It can also produce standalone win32/macOS apps with audio and MIDI I/O, as well as [Reaper extensions](https://www.reaper.fm/sdk/plugin/plugin.php). Windows 8, macOS 10.11, and iOS 14 are the official minimum target platforms, but depending on the graphics backend used, you may be able to make it work on earlier operating systems.
