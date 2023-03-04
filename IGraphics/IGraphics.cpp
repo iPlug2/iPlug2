@@ -77,7 +77,9 @@ void IGraphics::SetScreenScale(float scale)
   mScreenScale = scale;
   int windowWidth = WindowWidth() * GetPlatformWindowScale();
   int windowHeight = WindowHeight() * GetPlatformWindowScale();
-    
+  
+  assert(windowWidth > 0 && windowHeight > 0 && "Window dimensions invalid");
+
   PlatformResize(GetDelegate()->EditorResizeFromUI(windowWidth, windowHeight, true));
   ForAllControls(&IControl::OnRescale);
   SetAllControlsDirty();
