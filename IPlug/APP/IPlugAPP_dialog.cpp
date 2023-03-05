@@ -45,7 +45,7 @@ void IPlugAPPHost::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inp
     {
       for (int j=0; j<outputDevInfo->sampleRates.size(); j++)
       {
-        if(inputDevInfo->sampleRates[i] == outputDevInfo->sampleRates[j])
+        if (inputDevInfo->sampleRates[i] == outputDevInfo->sampleRates[j])
           matchedSRs.push_back(inputDevInfo->sampleRates[i]);
       }
     }
@@ -67,7 +67,7 @@ void IPlugAPPHost::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inp
 
 void IPlugAPPHost::PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
 {
-  if(!info->probed)
+  if (!info->probed)
     return;
 
   WDL_String buf;
@@ -94,7 +94,7 @@ void IPlugAPPHost::PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* inf
 
 void IPlugAPPHost::PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
 {
-  if(!info->probed)
+  if (!info->probed)
     return;
 
   WDL_String buf;
@@ -124,7 +124,7 @@ void IPlugAPPHost::PopulateDriverSpecificControls(HWND hwndDlg)
 {
 #ifdef OS_WIN
   int driverType = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_DRIVER, CB_GETCURSEL, 0, 0);
-  if(driverType == kDeviceASIO)
+  if (driverType == kDeviceASIO)
   {
     ComboBox_Enable(GetDlgItem(hwndDlg, IDC_COMBO_AUDIO_IN_DEV), FALSE);
     Button_Enable(GetDlgItem(hwndDlg, IDC_BUTTON_OS_DEV_SETTINGS), TRUE);
@@ -146,7 +146,7 @@ void IPlugAPPHost::PopulateDriverSpecificControls(HWND hwndDlg)
   {
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_DEV,CB_ADDSTRING,0,(LPARAM)GetAudioDeviceName(mAudioInputDevs[i]).c_str());
 
-    if(!strcmp(GetAudioDeviceName(mAudioInputDevs[i]).c_str(), mState.mAudioInDev.Get()))
+    if (!strcmp(GetAudioDeviceName(mAudioInputDevs[i]).c_str(), mState.mAudioInDev.Get()))
       indevidx = i;
   }
 
@@ -154,12 +154,12 @@ void IPlugAPPHost::PopulateDriverSpecificControls(HWND hwndDlg)
   {
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_DEV,CB_ADDSTRING,0,(LPARAM)GetAudioDeviceName(mAudioOutputDevs[i]).c_str());
 
-    if(!strcmp(GetAudioDeviceName(mAudioOutputDevs[i]).c_str(), mState.mAudioOutDev.Get()))
+    if (!strcmp(GetAudioDeviceName(mAudioOutputDevs[i]).c_str(), mState.mAudioOutDev.Get()))
       outdevidx = i;
   }
 
 #ifdef OS_WIN
-  if(driverType == kDeviceASIO)
+  if (driverType == kDeviceASIO)
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_DEV,CB_SETCURSEL, outdevidx, 0);
   else
 #endif
@@ -225,7 +225,7 @@ bool IPlugAPPHost::PopulateMidiDialogs(HWND hwndDlg)
     LRESULT indevidx = SendDlgItemMessage(hwndDlg,IDC_COMBO_MIDI_IN_DEV,CB_FINDSTRINGEXACT, -1, (LPARAM)mState.mMidiInDev.Get());
 
     // if the midi port name wasn't found update the ini file, and set to off
-    if(indevidx == -1)
+    if (indevidx == -1)
     {
       mState.mMidiInDev.Set("off");
       UpdateINI();
@@ -242,7 +242,7 @@ bool IPlugAPPHost::PopulateMidiDialogs(HWND hwndDlg)
     LRESULT outdevidx = SendDlgItemMessage(hwndDlg,IDC_COMBO_MIDI_OUT_DEV,CB_FINDSTRINGEXACT, -1, (LPARAM)mState.mMidiOutDev.Get());
 
     // if the midi port name wasn't found update the ini file, and set to off
-    if(outdevidx == -1)
+    if (outdevidx == -1)
     {
       mState.mMidiOutDev.Set("off");
       UpdateINI();
@@ -325,7 +325,7 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
       switch (LOWORD(wParam))
       {
         case IDOK:
-          if(mActiveState != mState)
+          if (mActiveState != mState)
             _this->TryToChangeAudio();
 
           EndDialog(hwndDlg, IDOK); // INI file will be changed see MainDialogProc
@@ -354,7 +354,7 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
           {
             v = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_DRIVER, CB_GETCURSEL, 0, 0);
 
-            if(v != mState.mAudioDriverType)
+            if (v != mState.mAudioDriverType)
             {
               mState.mAudioDriverType = v;
 
@@ -465,10 +465,10 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
         case IDC_BUTTON_OS_DEV_SETTINGS:
           if (HIWORD(wParam) == BN_CLICKED) {
             #ifdef OS_WIN
-            if( (_this->mState.mAudioDriverType == kDeviceASIO) && (_this->mDAC->isStreamRunning() == true)) // TODO: still not right
+            if ( (_this->mState.mAudioDriverType == kDeviceASIO) && (_this->mDAC->isStreamRunning() == true)) // TODO: still not right
               ASIOControlPanel();
             #elif defined OS_MAC
-            if(SWELL_GetOSXVersion() >= 0x1200) {
+            if (SWELL_GetOSXVersion() >= 0x1200) {
               system("open \"/System/Applications/Utilities/Audio MIDI Setup.app\"");
             } else {
               system("open \"/Applications/Utilities/Audio MIDI Setup.app\"");
@@ -622,7 +622,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
         {
           INT_PTR ret = DialogBox(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_PREF), hwndDlg, IPlugAPPHost::PreferencesDlgProc);
 
-          if(ret == IDOK)
+          if (ret == IDOK)
             pAppHost->UpdateINI();
 
           return 0;
@@ -632,11 +632,11 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
         {
           IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
         
-          if(pPlug)
+          if (pPlug)
           {
             IGraphics* pGraphics = pPlug->GetUI();
             
-            if(pGraphics)
+            if (pGraphics)
             {
               bool enabled = pGraphics->LiveEditEnabled();
               pGraphics->EnableLiveEdit(!enabled);
@@ -650,11 +650,11 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
         {
           IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
           
-          if(pPlug)
+          if (pPlug)
           {
             IGraphics* pGraphics = pPlug->GetUI();
             
-            if(pGraphics)
+            if (pGraphics)
             {
               bool enabled = pGraphics->ShowAreaDrawnEnabled();
               pGraphics->ShowAreaDrawn(!enabled);
@@ -668,11 +668,11 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
         {
           IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
           
-          if(pPlug)
+          if (pPlug)
           {
             IGraphics* pGraphics = pPlug->GetUI();
             
-            if(pGraphics)
+            if (pGraphics)
             {
               bool enabled = pGraphics->ShowControlBoundsEnabled();
               pGraphics->ShowControlBounds(!enabled);
@@ -686,11 +686,11 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
         {
           IGEditorDelegate* pPlug = dynamic_cast<IGEditorDelegate*>(pAppHost->GetPlug());
           
-          if(pPlug)
+          if (pPlug)
           {
             IGraphics* pGraphics = pPlug->GetUI();
             
-            if(pGraphics)
+            if (pGraphics)
             {
               bool enabled = pGraphics->ShowingFPSDisplay();
               pGraphics->ShowFPSDisplay(!enabled);
@@ -705,7 +705,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
       return 0;
     case WM_GETMINMAXINFO:
     {
-      if(!pAppHost)
+      if (!pAppHost)
         return 1;
       
       IPlugAPP* pPlug = pAppHost->GetPlug();

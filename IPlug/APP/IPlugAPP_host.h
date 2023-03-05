@@ -182,8 +182,7 @@ public:
    * @param idx The index RTAudio has given the audio device
    * @return The device name. Core Audio device names are truncated. */
   std::string GetAudioDeviceName(int idx) const;
-  // returns the rtaudio device ID, based on the (truncated) device name
-  
+
   /** Returns the audio device index linked to a particular name
   * @param name The name of the audio device to test
   * @return The integer index RTAudio has given the audio device */
