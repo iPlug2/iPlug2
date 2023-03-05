@@ -320,6 +320,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h" />
+    <ClInclude Include="..\..\..\IPlug\ISender.h" />
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3.h" />
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_Common.h" />
     <ClInclude Include="..\..\..\IPlug\VST3\IPlugVST3_ControllerBase.h" />
