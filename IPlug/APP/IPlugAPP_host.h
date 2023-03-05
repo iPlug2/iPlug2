@@ -221,7 +221,6 @@ private:
   std::unique_ptr<RtMidiOut> mMidiOut = nullptr;
   int mMidiOutChannel = -1;
   int mMidiInChannel = -1;
-  
   /**  */
   AppState mState;
   /** When the preferences dialog is opened the existing state is cached here, and restored if cancel is pressed */
@@ -237,6 +236,8 @@ private:
   bool mExiting = false;
   bool mAudioEnding = false;
   bool mAudioDone = false;
+  int mNumAvailableAudioInputs = 0;
+  int mNumAvailableAudioOutputs = 0;
 
   /** The index of the operating systems default input device, -1 if not detected */
   int32_t mDefaultInputDev = -1;

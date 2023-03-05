@@ -194,7 +194,7 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
       if (menu)
       {
         // work on a new menu
-        menu = SWELL_DuplicateMenu(menu);
+        menu = SWELL_DuplicateMenu(menu); 
         HMENU src = LoadMenu(NULL, MAKEINTRESOURCE(IDR_MENU1));
 
         for (int x = 0; x < GetMenuItemCount(src)-1; x++)

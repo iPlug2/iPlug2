@@ -116,7 +116,6 @@ bool IPlugAPPHost::InitState()
       mState.mAudioInChanR = GetPrivateProfileInt("audio", "in2", 2, mINIPath.Get());
       mState.mAudioOutChanL = GetPrivateProfileInt("audio", "out1", 1, mINIPath.Get()); // 1 is first audio output
       mState.mAudioOutChanR = GetPrivateProfileInt("audio", "out2", 2, mINIPath.Get());
-      //mState.mAudioInIsMono = GetPrivateProfileInt("audio", "monoinput", 0, mINIPath.Get());
 
       mState.mBufferSize = GetPrivateProfileInt("audio", "buffer", 512, mINIPath.Get());
       mState.mAudioSR = GetPrivateProfileInt("audio", "sr", 44100, mINIPath.Get());
@@ -180,8 +179,6 @@ void IPlugAPPHost::UpdateINI()
   WritePrivateProfileString("audio", "out1", buf, ini);
   sprintf(buf, "%u", mState.mAudioOutChanR);
   WritePrivateProfileString("audio", "out2", buf, ini);
-  //sprintf(buf, "%u", mState.mAudioInIsMono);
-  //WritePrivateProfileString("audio", "monoinput", buf, ini);
 
   WDL_String str;
   str.SetFormatted(32, "%i", mState.mBufferSize);
@@ -347,7 +344,6 @@ bool IPlugAPPHost::AudioSettingsInStateAreEqual(AppState& os, AppState& ns)
   if (os.mAudioInChanR != ns.mAudioInChanR) return false;
   if (os.mAudioOutChanL != ns.mAudioOutChanL) return false;
   if (os.mAudioOutChanR != ns.mAudioOutChanR) return false;
-//  if (os.mAudioInIsMono != ns.mAudioInIsMono) return false;
 
   return true;
 }
@@ -579,12 +575,14 @@ bool IPlugAPPHost::InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_
 
   RtAudio::StreamParameters iParams, oParams;
   iParams.deviceId = inId;
-  iParams.nChannels = GetPlug()->MaxNChannels(ERoute::kInput); // TODO: flexible channel count
-  iParams.firstChannel = 0; // TODO: flexible channel count
+  mNumAvailableAudioInputs = iParams.nChannels =
+    std::min(GetPlug()->MaxNChannels(ERoute::kInput), int(mDAC->getDeviceInfo(inId).inputChannels));
+  iParams.firstChannel = 0;
 
   oParams.deviceId = outId;
-  oParams.nChannels = GetPlug()->MaxNChannels(ERoute::kOutput); // TODO: flexible channel count
-  oParams.firstChannel = 0; // TODO: flexible channel count
+  mNumAvailableAudioOutputs = oParams.nChannels  =
+  std::min(GetPlug()->MaxNChannels(ERoute::kOutput), int(mDAC->getDeviceInfo(outId).outputChannels));
+  oParams.firstChannel = 0;
 
   mBufferSize = iovs; // mBufferSize may get changed by stream
 
@@ -687,8 +685,8 @@ int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_
 {
   IPlugAPPHost* _this = (IPlugAPPHost*) pUserData;
 
-  int nins = _this->GetPlug()->MaxNChannels(ERoute::kInput);
-  int nouts = _this->GetPlug()->MaxNChannels(ERoute::kOutput);
+  const auto nins = _this->mNumAvailableAudioInputs;
+  const auto nouts = _this->mNumAvailableAudioOutputs;
   
   double* pInputBufferD = static_cast<double*>(pInputBuffer);
   double* pOutputBufferD = static_cast<double*>(pOutputBuffer);
