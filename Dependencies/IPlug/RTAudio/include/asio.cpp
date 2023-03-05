@@ -98,7 +98,8 @@ ASIOError ASIOExit(void)
 	if(theAsioDriver)
 	{
 #if WINDOWS
-		asioDrivers->removeCurrentDriver();
+    if ( asioDrivers ) // added by Axel Holzinger
+      asioDrivers->removeCurrentDriver();
 #else
 		delete theAsioDriver;
 #endif

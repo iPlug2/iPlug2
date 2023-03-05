@@ -5,7 +5,7 @@
 
   This program starts and stops an RtAudio
   stream many times in succession and in
-  different ways to to test its functionality.
+  different ways to test its functionality.
 */
 /******************************************/
 
@@ -35,11 +35,29 @@ void usage( void ) {
   std::cout << "\nuseage: teststops N fs <iDevice> <oDevice> <iChannelOffset> <oChannelOffset>\n";
   std::cout << "    where N = number of channels,\n";
   std::cout << "    fs = the sample rate,\n";
-  std::cout << "    iDevice = optional input device to use (default = 0),\n";
-  std::cout << "    oDevice = optional output device to use (default = 0),\n";
+  std::cout << "    iDevice = optional input device index to use (default = 0),\n";
+  std::cout << "    oDevice = optional output device index to use (default = 0),\n";
   std::cout << "    iChannelOffset = an optional input channel offset (default = 0),\n";
   std::cout << "    and oChannelOffset = optional output channel offset (default = 0).\n\n";
   exit( 0 );
+}
+
+unsigned int getDeviceIndex( std::vector<std::string> deviceNames, bool isInput = false )
+{
+  unsigned int i;
+  std::string keyHit;
+  std::cout << '\n';
+  for ( i=0; i<deviceNames.size(); i++ )
+    std::cout << "  Device #" << i << ": " << deviceNames[i] << '\n';
+  do {
+    if ( isInput )
+      std::cout << "\nChoose an input device #: ";
+    else
+      std::cout << "\nChoose an output device #: ";
+    std::cin >> i;
+  } while ( i >= deviceNames.size() );
+  std::getline( std::cin, keyHit );  // used to clear out stdin
+  return i;
 }
 
 struct MyData {
@@ -87,10 +105,11 @@ int main( int argc, char *argv[] )
   if (argc < 3 || argc > 7 ) usage();
 
   RtAudio *adc = new RtAudio();
-  if ( adc->getDeviceCount() < 1 ) {
+  std::vector<unsigned int> deviceIds = adc->getDeviceIds();
+  if ( deviceIds.size() < 1 ) {
     std::cout << "\nNo audio devices found!\n";
     exit( 1 );
-  }
+  }  
 
   MyData mydata;
   mydata.channels = (unsigned int) atoi( argv[1] );
@@ -113,154 +132,173 @@ int main( int argc, char *argv[] )
   // Set our stream parameters for a duplex stream.
   bufferFrames = 512;
   RtAudio::StreamParameters oParams, iParams;
-  oParams.deviceId = oDevice;
   oParams.nChannels = mydata.channels;
   oParams.firstChannel = oOffset;
-
-  iParams.deviceId = iDevice;
   iParams.nChannels = mydata.channels;
   iParams.firstChannel = iOffset;
 
   if ( iDevice == 0 )
     iParams.deviceId = adc->getDefaultInputDevice();
+  else {
+    if ( iDevice >= deviceIds.size() )
+      iDevice = getDeviceIndex( adc->getDeviceNames(), true );
+    iParams.deviceId = deviceIds[iDevice];
+  }
   if ( oDevice == 0 )
     oParams.deviceId = adc->getDefaultOutputDevice();
-
+  else {
+    if ( oDevice >= deviceIds.size() )
+      oDevice = getDeviceIndex( adc->getDeviceNames() );
+    oParams.deviceId = deviceIds[oDevice];
+  }
+  
   // First, test external stopStream() calls.
   mydata.pulseCount = static_cast<unsigned int>(PULSE_RATE * fs);
   mydata.nFrames = 50 * fs;
   mydata.returnValue = 0;
-  try {
-    adc->openStream( &oParams, &iParams, RTAUDIO_SINT32, fs, &bufferFrames, &pulse, (void *)&mydata );
 
-    std::cout << "Press <enter> to start test.\n";
-    std::cin.get( input );
+  if ( adc->openStream( &oParams, &iParams, RTAUDIO_SINT32, fs, &bufferFrames, &pulse, (void *)&mydata ) ) {
+    std::cout << "Error during openStream (test external stopStream)\n";
+    goto next2;
+  }
 
-    for (int i=0; i<REPETITIONS; i++ ) {
-      mydata.frameCounter = 0;
-      adc->startStream();
-      std::cout << "Stream started ... ";
-      SLEEP( runtime );
-      adc->stopStream();
-      std::cout << "stream externally stopped.\n";
-      SLEEP( pausetime );
+  std::cout << "Press <enter> to start test.\n";
+  std::cin.get( input );
+
+  for (int i=0; i<REPETITIONS; i++ ) {
+    mydata.frameCounter = 0;
+    if ( adc->startStream() ) {
+        std::cout << "Error during startSream (test external stopStream)\n";
+      goto next1;
     }
-  }
-  catch ( RtAudioError& e ) {
-    e.printMessage();
-    goto cleanup;
+    std::cout << "Stream started ... ";
+    SLEEP( runtime );
+    adc->stopStream();
+    std::cout << "stream externally stopped.\n";
+    SLEEP( pausetime );
   }
 
+next1:
   adc->closeStream();
+next2:
 
   // Next, test internal stopStream() calls.
   mydata.nFrames = (unsigned int) (RUNTIME * fs);
   mydata.returnValue = 1;
-  try {
-    adc->openStream( &oParams, &iParams, RTAUDIO_SINT32, fs, &bufferFrames, &pulse, (void *)&mydata );
 
-    std::cin.clear();
-    fflush(stdin);
-    std::cout << "\nPress <enter> to continue test.\n";
-    std::cin.get( input );
+  if ( adc->openStream( &oParams, &iParams, RTAUDIO_SINT32, fs, &bufferFrames, &pulse, (void *)&mydata ) ) {
+    std::cout << "Error during openStream (test internal stopStream)\n";
+    goto next4;
+  }
 
-    for (int i=0; i<REPETITIONS; i++ ) {
-      mydata.frameCounter = 0;
-      adc->startStream();
-      std::cout << "Stream started ... ";
-      while ( adc->isStreamRunning() ) SLEEP( 5 );
-      std::cout << "stream stopped via callback return value = 1.\n";
-      SLEEP( pausetime );
+  std::cin.clear();
+  fflush(stdin);
+  std::cout << "\nPress <enter> to continue test.\n";
+  std::cin.get( input );
+
+  for (int i=0; i<REPETITIONS; i++ ) {
+    mydata.frameCounter = 0;
+    if ( adc->startStream() ) {
+      std::cout << "Error during startSream (test internal stopStream)\n";
+      goto next3;
     }
-  }
-  catch ( RtAudioError& e ) {
-    e.printMessage();
-    goto cleanup;
+    std::cout << "Stream started ... ";
+    while ( adc->isStreamRunning() ) SLEEP( 5 );
+    std::cout << "stream stopped via callback return value = 1.\n";
+    SLEEP( pausetime );
   }
 
+next3:
   adc->closeStream();
+next4:
 
   // Test internal abortStream() calls.
   mydata.returnValue = 2;
-  try {
-    adc->openStream( &oParams, &iParams, RTAUDIO_SINT32, fs, &bufferFrames, &pulse, (void *)&mydata );
-    std::cin.clear();
-    fflush(stdin);
-    std::cout << "\nPress <enter> to continue test.\n";
-    std::cin.get( input );
 
-    for (int i=0; i<REPETITIONS; i++ ) {
-      mydata.frameCounter = 0;
-      adc->startStream();
-      std::cout << "Stream started ... ";
-      while ( adc->isStreamRunning() ) SLEEP( 5 );
-      std::cout << "stream aborted via callback return value = 2.\n";
-      SLEEP( pausetime );
+  if ( adc->openStream( &oParams, &iParams, RTAUDIO_SINT32, fs, &bufferFrames, &pulse, (void *)&mydata ) ) {
+    std::cout << "Error during openSream (test internal abortStream)\n";
+    goto next6;
+  }
+
+  std::cin.clear();
+  fflush(stdin);
+  std::cout << "\nPress <enter> to continue test.\n";
+  std::cin.get( input );
+
+  for (int i=0; i<REPETITIONS; i++ ) {
+    mydata.frameCounter = 0;
+    if ( adc->startStream() ) {
+      std::cout << "Error during startSream (test internal abortStream)\n";
+      goto next5;
     }
-  }
-  catch ( RtAudioError& e ) {
-    e.printMessage();
-    goto cleanup;
+    std::cout << "Stream started ... ";
+    while ( adc->isStreamRunning() ) SLEEP( 5 );
+    std::cout << "stream aborted via callback return value = 2.\n";
+    SLEEP( pausetime );
   }
 
+next5:
   adc->closeStream();
+next6:
 
   // Test consecutive stream re-opening.
   mydata.returnValue = 0;
   mydata.nFrames = 50 * fs;
-  try {
 
-    std::cin.clear();
-    fflush(stdin);
-    std::cout << "\nPress <enter> to continue test.\n";
-    std::cin.get( input );
+  std::cin.clear();
+  fflush(stdin);
+  std::cout << "\nPress <enter> to continue test.\n";
+  std::cin.get( input );
 
-    for (int i=0; i<REPETITIONS; i++ ) {
-      adc->openStream( &oParams, &iParams, RTAUDIO_SINT32, fs, &bufferFrames, &pulse, (void *)&mydata );
-      mydata.frameCounter = 0;
-      adc->startStream();
-      std::cout << "New stream started ... ";
-      SLEEP( runtime );
-      adc->stopStream();
-      adc->closeStream();
-      std::cout << "stream stopped externally and closed.\n";
-      SLEEP( pausetime );
+  for (int i=0; i<REPETITIONS; i++ ) {
+    if ( adc->openStream( &oParams, &iParams, RTAUDIO_SINT32, fs, &bufferFrames, &pulse, (void *)&mydata ) ) {
+      std::cout << "Error during openStream (test consecutive re-opening)\n";
+      goto next7;
     }
-  }
-  catch ( RtAudioError& e ) {
-    e.printMessage();
-    goto cleanup;
+
+    mydata.frameCounter = 0;
+    if ( adc->startStream() ) {
+      std::cout << "Error during startStream (test consecutive re-opening)\n";
+      goto next7;
+    }
+    std::cout << "New stream started ... ";
+    SLEEP( runtime );
+    adc->stopStream();
+    adc->closeStream();
+    std::cout << "stream stopped externally and closed.\n";
+    SLEEP( pausetime );
   }
 
+next7:
   delete adc;
   adc = 0;
 
   // Test consecutive RtAudio creating and deletion.
-  try {
+  std::cin.clear();
+  fflush(stdin);
+  std::cout << "\nPress <enter> to continue test.\n";
+  std::cin.get( input );
 
-    std::cin.clear();
-    fflush(stdin);
-    std::cout << "\nPress <enter> to continue test.\n";
-    std::cin.get( input );
-
-    for (int i=0; i<REPETITIONS; i++ ) {
-      adc = new RtAudio();      
-      adc->openStream( &oParams, &iParams, RTAUDIO_SINT32, fs, &bufferFrames, &pulse, (void *)&mydata );
-      mydata.frameCounter = 0;
-      adc->startStream();
-      std::cout << "New instance and stream started ... ";
-      SLEEP( runtime );
-      adc->stopStream();
-      adc->closeStream();
-      delete adc;
-      adc = 0;
-      std::cout << "stream stopped and instance deleted.\n";
-      SLEEP( pausetime );
+  for (int i=0; i<REPETITIONS; i++ ) {
+    adc = new RtAudio();
+    if ( adc->openStream( &oParams, &iParams, RTAUDIO_SINT32, fs, &bufferFrames, &pulse, (void *)&mydata ) ) {
+      printf("Error during openStream (test consecutive creation and deletion)\n");
+      goto cleanup;
     }
-  }
-  catch ( RtAudioError& e ) {
-    e.printMessage();
-    goto cleanup;
+
+    mydata.frameCounter = 0;
+    if ( adc->startStream() ) {
+      std::cout << "Error during startStream (test consecutive creation and deletion)\n";
+      goto cleanup;
+    }
+    std::cout << "New instance and stream started ... ";
+    SLEEP( runtime );
+    adc->stopStream();
+    adc->closeStream();
+    delete adc;
+    adc = 0;
+    std::cout << "stream stopped and instance deleted.\n";
+    SLEEP( pausetime );
   }
 
  cleanup:

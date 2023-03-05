@@ -23,7 +23,8 @@ int record( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
 int main()
 {
   RtAudio adc;
-  if ( adc.getDeviceCount() < 1 ) {
+  std::vector<unsigned int> deviceIds = adc.getDeviceIds();
+  if ( deviceIds.size() < 1 ) {
     std::cout << "\nNo audio devices found!\n";
     exit( 0 );
   }
@@ -35,28 +36,27 @@ int main()
   unsigned int sampleRate = 44100;
   unsigned int bufferFrames = 256; // 256 sample frames
 
-  try {
-    adc.openStream( NULL, &parameters, RTAUDIO_SINT16,
-                    sampleRate, &bufferFrames, &record );
-    adc.startStream();
+  if ( adc.openStream( NULL, &parameters, RTAUDIO_SINT16,
+                       sampleRate, &bufferFrames, &record ) ) {
+    std::cout << '\n' << adc.getErrorText() << '\n' << std::endl;
+    exit( 0 ); // problem with device settings
   }
-  catch ( RtAudioError& e ) {
-    e.printMessage();
-    exit( 0 );
+
+  // Stream is open ... now start it.
+  if ( adc.startStream() ) {
+    std::cout << adc.getErrorText() << std::endl;
+    goto cleanup;
   }
   
   char input;
   std::cout << "\nRecording ... press <enter> to quit.\n";
   std::cin.get( input );
 
-  try {
-    // Stop the stream
-    adc.stopStream();
-  }
-  catch (RtAudioError& e) {
-    e.printMessage();
-  }
+  // Block released ... stop the stream
+  if ( adc.isStreamRunning() )
+    adc.stopStream();  // or could call adc.abortStream();
 
+ cleanup:
   if ( adc.isStreamOpen() ) adc.closeStream();
 
   return 0;

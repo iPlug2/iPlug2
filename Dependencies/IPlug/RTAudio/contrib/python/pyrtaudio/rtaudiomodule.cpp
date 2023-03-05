@@ -40,7 +40,12 @@ extern "C" {
 
     typedef struct 
     {
-        PyObject_HEAD;
+        PyObject_HEAD
+#if PY_MAJOR_VERSION < 3
+        void *padding; // python 2.7 seems to set dac to bad value
+                       // after print_function, causing a crash, no
+                       // idea why, but this fixes it.
+#endif
         RtAudio *dac;
         RtAudioFormat _format;
         int _bufferSize;
@@ -70,8 +75,13 @@ extern "C" {
         if (py_callback_func) {
             PyGILState_STATE gstate = PyGILState_Ensure();
 
+#if PY_MAJOR_VERSION >= 3
+            PyObject* iBuffer = PyMemoryView_FromMemory((char*)in, sizeof(float) * self->inputChannels * nBufferFrames, PyBUF_READ);
+            PyObject* oBuffer = PyMemoryView_FromMemory((char*)out, sizeof(float) * nBufferFrames, PyBUF_WRITE);
+#else
             PyObject* iBuffer = PyBuffer_FromMemory(in, sizeof(float) * self->inputChannels * nBufferFrames);
             PyObject* oBuffer = PyBuffer_FromReadWriteMemory(out, sizeof(float) * nBufferFrames);
+#endif
             PyObject *arglist =  Py_BuildValue("(O,O)", oBuffer, iBuffer);
 
             if (arglist == NULL) {
@@ -87,9 +97,17 @@ extern "C" {
             if (PyErr_Occurred() != NULL) {
                 PyErr_Print();
             }
-            else if PyInt_Check(result) {
+#if PY_MAJOR_VERSION >= 3
+            else if (result == NULL)
+              retval = 0;
+            else if (PyLong_Check(result)) {
+              retval = PyLong_AsLong(result);
+            }
+#else
+            else if (PyInt_Check(result)) {
               retval = PyInt_AsLong(result);
             }
+#endif
             
             Py_DECREF(arglist);
             Py_DECREF(oBuffer);
@@ -115,7 +133,7 @@ extern "C" {
             delete self->dac;
         }
 
-        self->ob_type->tp_free((PyObject *) self);
+        Py_TYPE(self)->tp_free((PyObject *) self);
     }
 
 
@@ -196,6 +214,20 @@ extern "C" {
         oParams.firstChannel = 0;
 
         if (PyDict_Check(oParamsObj)) {
+#if PY_MAJOR_VERSION >= 3
+            if (PyDict_Contains(oParamsObj, PyUnicode_FromString("deviceId"))) {
+                PyObject *value = PyDict_GetItem(oParamsObj, PyUnicode_FromString("deviceId"));
+                oParams.deviceId = PyLong_AsLong(value);
+            }
+            if (PyDict_Contains(oParamsObj, PyUnicode_FromString("nChannels"))) {
+                PyObject *value = PyDict_GetItem(oParamsObj, PyUnicode_FromString("nChannels"));
+                oParams.nChannels = PyLong_AsLong(value);
+            }
+            if (PyDict_Contains(oParamsObj, PyUnicode_FromString("firstChannel"))) {
+                PyObject *value = PyDict_GetItem(oParamsObj, PyUnicode_FromString("firstChannel"));
+                oParams.firstChannel = PyLong_AsLong(value);
+            }
+#else
             if (PyDict_Contains(oParamsObj, PyString_FromString("deviceId"))) {
                 PyObject *value = PyDict_GetItem(oParamsObj, PyString_FromString("deviceId"));
                 oParams.deviceId = PyInt_AsLong(value);
@@ -208,6 +240,7 @@ extern "C" {
                 PyObject *value = PyDict_GetItem(oParamsObj, PyString_FromString("firstChannel"));
                 oParams.firstChannel = PyInt_AsLong(value);
             }
+#endif
         }
         else {
             printf("First argument must be a dictionary. Default values will be used.\n");
@@ -219,6 +252,20 @@ extern "C" {
         iParams.firstChannel = 0;
 
         if (PyDict_Check(iParamsObj)) {
+#if PY_MAJOR_VERSION >= 3
+            if (PyDict_Contains(iParamsObj, PyUnicode_FromString("deviceId"))) {
+                PyObject *value = PyDict_GetItem(iParamsObj, PyUnicode_FromString("deviceId"));
+                iParams.deviceId = PyLong_AsLong(value);
+            }
+            if (PyDict_Contains(iParamsObj, PyUnicode_FromString("nChannels"))) {
+                PyObject *value = PyDict_GetItem(iParamsObj, PyUnicode_FromString("nChannels"));
+                iParams.nChannels = PyLong_AsLong(value);
+            }
+            if (PyDict_Contains(iParamsObj, PyUnicode_FromString("firstChannel"))) {
+                PyObject *value = PyDict_GetItem(iParamsObj, PyUnicode_FromString("firstChannel"));
+                iParams.firstChannel = PyLong_AsLong(value);
+            }
+#else
             if (PyDict_Contains(iParamsObj, PyString_FromString("deviceId"))) {
                 PyObject *value = PyDict_GetItem(iParamsObj, PyString_FromString("deviceId"));
                 iParams.deviceId = PyInt_AsLong(value);
@@ -231,6 +278,7 @@ extern "C" {
                 PyObject *value = PyDict_GetItem(iParamsObj, PyString_FromString("firstChannel"));
                 iParams.firstChannel = PyInt_AsLong(value);
             }
+#endif
         }
         else {
             printf("Second argument must be a dictionary. Default values will be used.\n");
@@ -371,7 +419,11 @@ extern "C" {
     {
         if (self == NULL || self->dac == NULL) return NULL;
 
+#if PY_MAJOR_VERSION >= 3
+        return PyLong_FromLong(self->dac->getDeviceCount());
+#else
         return PyInt_FromLong(self->dac->getDeviceCount());
+#endif
     }
 
     static PyObject* RtAudio_getDeviceInfo(PyRtAudio *self, PyObject *args)
@@ -397,6 +449,19 @@ extern "C" {
             }
             PyObject* obj;
 
+#if PY_MAJOR_VERSION >= 3
+            obj = PyUnicode_FromString(info.name.c_str());
+            PyDict_SetItemString(info_dict, "name", obj);
+
+            obj = PyLong_FromLong(info.outputChannels);
+            PyDict_SetItemString(info_dict, "outputChannels", obj);
+
+            obj = PyLong_FromLong(info.inputChannels);
+            PyDict_SetItemString(info_dict, "inputChannels", obj);
+
+            obj = PyLong_FromLong(info.duplexChannels);
+            PyDict_SetItemString(info_dict, "duplexChannels", obj);
+#else
             obj = PyString_FromString(info.name.c_str());
             PyDict_SetItemString(info_dict, "name", obj);
 
@@ -408,6 +473,7 @@ extern "C" {
 
             obj = PyInt_FromLong(info.duplexChannels);
             PyDict_SetItemString(info_dict, "duplexChannels", obj);
+#endif
 
             if (info.isDefaultOutput) {
                 Py_INCREF(Py_True);
@@ -440,13 +506,21 @@ extern "C" {
     static PyObject* RtAudio_getDefaultOutputDevice(PyRtAudio *self, PyObject *args)
     {
         if (self == NULL || self->dac == NULL) return NULL;
+#if PY_MAJOR_VERSION >= 3
+        return PyLong_FromLong(self->dac->getDefaultOutputDevice());
+#else
         return PyInt_FromLong(self->dac->getDefaultOutputDevice());
+#endif
     }
 
     static PyObject* RtAudio_getDefaultInputDevice(PyRtAudio *self, PyObject *args)
     {
         if (self == NULL || self->dac == NULL) return NULL;
+#if PY_MAJOR_VERSION >= 3
+        return PyLong_FromLong(self->dac->getDefaultInputDevice());
+#else
         return PyInt_FromLong(self->dac->getDefaultInputDevice());
+#endif
     }
 
     static PyObject* RtAudio_getStreamTime(PyRtAudio *self, PyObject *args)
@@ -458,13 +532,21 @@ extern "C" {
     static PyObject* RtAudio_getStreamLatency(PyRtAudio *self, PyObject *args)
     {
         if (self == NULL || self->dac == NULL) return NULL;
+#if PY_MAJOR_VERSION >= 3
+        return PyLong_FromLong( self->dac->getStreamLatency() );
+#else
         return PyInt_FromLong( self->dac->getStreamLatency() );
+#endif
     }
 
     static PyObject* RtAudio_getStreamSampleRate(PyRtAudio *self, PyObject *args)
     {
         if (self == NULL || self->dac == NULL) return NULL;
+#if PY_MAJOR_VERSION >= 3
+        return PyLong_FromLong( self->dac->getStreamSampleRate() );
+#else
         return PyInt_FromLong( self->dac->getStreamSampleRate() );
+#endif
     }
 
     static PyObject* RtAudio_showWarnings(PyRtAudio *self, PyObject *args)
@@ -526,10 +608,8 @@ extern "C" {
         {NULL}
     };
 
-
     static PyTypeObject RtAudio_type = {
-        PyObject_HEAD_INIT(NULL)
-        0,                         /*ob_size*/
+        PyVarObject_HEAD_INIT(NULL, 0)
         "rtaudio.RtAudio",             /*tp_name*/
         sizeof(RtAudio), /*tp_basicsize*/
         0,                         /*tp_itemsize*/
@@ -578,22 +658,43 @@ extern "C" {
         //0,	/* Type attribute cache version tag. Added in version 2.6 */
     };
 
-
+#if PY_MAJOR_VERSION >= 3
+    static PyModuleDef RtAudio_module = {
+        PyModuleDef_HEAD_INIT,
+        "RtAudio",
+        "RtAudio wrapper.",
+    };
+#endif
 
 #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
 #define PyMODINIT_FUNC void
 #endif
     PyMODINIT_FUNC
-    initrtaudio(void) 
+#if PY_MAJOR_VERSION >= 3
+    PyInit_rtaudio(void)
+#else
+    initrtaudio(void)
+#endif
     {
-        PyEval_InitThreads();
+        if (!PyEval_ThreadsInitialized())
+            PyEval_InitThreads();
 
         if (PyType_Ready(&RtAudio_type) < 0)
+#if PY_MAJOR_VERSION >= 3
+            return NULL;
+#else
             return;
+#endif
 
+#if PY_MAJOR_VERSION >= 3
+        PyObject* module = PyModule_Create(&RtAudio_module);
+        if (module == NULL)
+            return NULL;
+#else
         PyObject* module = Py_InitModule3("rtaudio", NULL, "RtAudio wrapper.");
         if (module == NULL)
             return;
+#endif
 
         Py_INCREF(&RtAudio_type);
         PyModule_AddObject(module, "RtAudio", (PyObject *)&RtAudio_type);
@@ -601,5 +702,10 @@ extern "C" {
         RtAudioErrorException = PyErr_NewException("rtaudio.RtError", NULL, NULL);
         Py_INCREF(RtAudioErrorException);
         PyModule_AddObject(module, "RtError", RtAudioErrorException);
+#if PY_MAJOR_VERSION >= 3
+        return module;
+#else
+        return;
+#endif
     }
 }

@@ -53,9 +53,24 @@ void usage( void ) {
   std::cout << "    where N = number of channels,\n";
   std::cout << "    fs = the sample rate,\n";
   std::cout << "    duration = optional time in seconds to record (default = 2.0),\n";
-  std::cout << "    device = optional device to use (default = 0),\n";
+  std::cout << "    device = optional device index to use (default = 0),\n";
   std::cout << "    and channelOffset = an optional channel offset on the device (default = 0).\n\n";
   exit( 0 );
+}
+
+unsigned int getDeviceIndex( std::vector<std::string> deviceNames )
+{
+  unsigned int i;
+  std::string keyHit;
+  std::cout << '\n';
+  for ( i=0; i<deviceNames.size(); i++ )
+    std::cout << "  Device #" << i << ": " << deviceNames[i] << '\n';
+  do {
+    std::cout << "\nChoose a device #: ";
+    std::cin >> i;
+  } while ( i >= deviceNames.size() );
+  std::getline( std::cin, keyHit );  // used to clear out stdin
+  return i;
 }
 
 struct InputData {
@@ -97,7 +112,8 @@ int main( int argc, char *argv[] )
   if ( argc < 3 || argc > 6 ) usage();
 
   RtAudio adc;
-  if ( adc.getDeviceCount() < 1 ) {
+  std::vector<unsigned int> deviceIds = adc.getDeviceIds();
+  if ( deviceIds.size() < 1 ) {
     std::cout << "\nNo audio devices found!\n";
     exit( 1 );
   }
@@ -117,22 +133,23 @@ int main( int argc, char *argv[] )
   // Set our stream parameters for input only.
   bufferFrames = 512;
   RtAudio::StreamParameters iParams;
-  if ( device == 0 )
-    iParams.deviceId = adc.getDefaultInputDevice();
-  else
-    iParams.deviceId = device;
   iParams.nChannels = channels;
   iParams.firstChannel = offset;
 
+  if ( device == 0 )
+    iParams.deviceId = adc.getDefaultInputDevice();
+  else {
+    if ( device >= deviceIds.size() )
+      device = getDeviceIndex( adc.getDeviceNames() );
+    iParams.deviceId = deviceIds[device];
+  }
+
   InputData data;
   data.buffer = 0;
-  try {
-    adc.openStream( NULL, &iParams, FORMAT, fs, &bufferFrames, &input, (void *)&data );
-  }
-  catch ( RtAudioError& e ) {
-    std::cout << '\n' << e.getMessage() << '\n' << std::endl;
+  if ( adc.openStream( NULL, &iParams, FORMAT, fs, &bufferFrames, &input, (void *)&data ) )
     goto cleanup;
-  }
+
+  if ( adc.isStreamOpen() == false ) goto cleanup;
 
   data.bufferBytes = bufferFrames * channels * sizeof( MY_TYPE );
   data.totalFrames = (unsigned long) (fs * time);
@@ -148,13 +165,7 @@ int main( int argc, char *argv[] )
     goto cleanup;
   }
 
-  try {
-    adc.startStream();
-  }
-  catch ( RtAudioError& e ) {
-    std::cout << '\n' << e.getMessage() << '\n' << std::endl;
-    goto cleanup;
-  }
+  if ( adc.startStream() ) goto cleanup;
 
   std::cout << "\nRecording for " << time << " seconds ... writing file 'record.raw' (buffer frames = " << bufferFrames << ")." << std::endl;
   while ( adc.isStreamRunning() ) {

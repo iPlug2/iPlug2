@@ -2,7 +2,7 @@
 
 \section debug Debugging
 
-If you are having problems getting RtAudio to run on your system, make sure to pass a value of \e true to the RtAudio::showWarnings() function (this is the default setting).  A variety of warning messages will be displayed which may help in determining the problem.  Also, try using the programs included in the <tt>tests</tt> directory.  The program <tt>audioprobe</tt> displays the queried capabilities of all hardware devices found for all APIs compiled.  When using the ALSA and JACK APIs, further information can be displayed by defining the preprocessor definition __RTAUDIO_DEBUG__.
+If you are having problems getting RtAudio to run on your system, make sure to pass a value of \e true to the RtAudio::showWarnings() function (this is the default setting).  A variety of warning messages will be displayed that may help in determining the problem.  Also, try using the programs included in the <tt>tests</tt> directory.  The program <tt>audioprobe</tt> displays the queried capabilities of all hardware devices found for all APIs compiled.  When using the ALSA and JACK APIs, further information can be displayed by defining the preprocessor definition __RTAUDIO_DEBUG__.
 
 \section compile Compiling
 
