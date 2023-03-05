@@ -418,9 +418,13 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
 
   if (fileName.GetLength())
     pDefaultFileName = [NSString stringWithCString:fileName.Get() encoding:NSUTF8StringEncoding];
-
+  else
+    pDefaultFileName = @"";
+  
   if (path.GetLength())
     pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+  else
+    pDefaultPath = @"";
 
   fileName.Set(""); // reset it
 
@@ -462,6 +466,7 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   {
     pPanel = [NSOpenPanel openPanel];
     
+    [(NSOpenPanel*) pPanel setAllowedFileTypes: pFileTypes];
     [(NSOpenPanel*) pPanel setCanChooseFiles:YES];
     [(NSOpenPanel*) pPanel setCanChooseDirectories:NO];
     [(NSOpenPanel*) pPanel setResolvesAliases:YES];

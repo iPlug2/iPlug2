@@ -398,7 +398,7 @@ void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& 
   {
     PushLayer(layer.get());
     nvgReadPixels(mVG, pBitmap->GetBitmap(), 0, 0, pBitmap->GetWidth(), pBitmap->GetHeight(), data.Get());
-    PopLayer();    
+    PopLayer();
   }
 }
 

@@ -61,7 +61,3 @@ jobs:
 # if publish_downloads == true, publises the binaries for the examples hosted on the releases page of the iPlug2 website github https://github.com/iPlug2/iPlug2.github.io/releases
 # this Job will produce non-fatal errors when artefacts are not found
 - template: Scripts/ci/publish_site.yml
-
-# publish_docs.yml
-# if publish_docs == true, generates doxygen html from the iPlug2/Documentation/doxyfile and publishes it to https://iplug2.github.io/docs
-- template: Scripts/ci/publish_docs.yml

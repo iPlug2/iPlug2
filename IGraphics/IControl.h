@@ -372,6 +372,10 @@ public:
   /** @return \c true if the control ignores mouse events */
   bool GetIgnoreMouse() const { return mIgnoreMouse; }
   
+  /** Specify whether the control should respond to mouse events
+   * @param ignore \c true if it should ignore mouse events */
+  void SetIgnoreMouse(bool ignore) { mIgnoreMouse = ignore; }
+  
   /** @return \c true if the control should show parameter labels/units e.g. "Hz" in text entry prompts */
   bool GetPromptShowsParamLabel() const { return mPromptShowsParamLabel; }
 
@@ -634,6 +638,8 @@ public:
   {
     SetStyle(style);
   }
+  
+  virtual ~IVectorBase() {}
   
   /** Call in the constructor of your IVControl to link the IVectorBase and IControl
    * @param pControl Ptr to the control
@@ -1117,6 +1123,8 @@ public:
     TrackedTouch()
     {}
   };
+  
+  virtual ~IMultiTouchControlBase() {}
   
   virtual void AddTouch(ITouchID touchID, float x, float y, float radius)
   {
