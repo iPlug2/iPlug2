@@ -5,12 +5,19 @@ name: Build Doxygen Docs
 on:
   workflow_dispatch:
   push:
-    branches:
-      - master
+    branches: [ master ]
     paths:
       - 'IPlug/**'
       - 'IGraphics/**'
       - 'Documentation/**'
+      - '.github/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'IPlug/**'
+      - 'IGraphics/**'
+      - 'Documentation/**'
+      - '.github/**'
 
 jobs:
   build-docs:
