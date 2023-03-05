@@ -5,8 +5,9 @@ name: Build Doxygen Docs
 on:
   workflow_dispatch:
   push:
-    master:
-      paths:
+    branches:
+      - master
+    paths:
       - 'IPlug/**'
       - 'IGraphics/**'
       - 'Documentation/**'
