@@ -1,0 +1,10 @@
+apinames = executable('apinames', 'apinames.cpp', dependencies: rtaudio_dep)
+test('API names', apinames)
+
+audioprobe = executable('audioprobe', 'audioprobe.cpp', dependencies: rtaudio_dep)
+duplex = executable('duplex', 'duplex.cpp', dependencies: rtaudio_dep)
+playraw = executable('playraw', 'playraw.cpp', dependencies: rtaudio_dep)
+playsaw = executable('playsaw', 'playsaw.cpp', dependencies: rtaudio_dep)
+record = executable('record', 'record.cpp', dependencies: rtaudio_dep)
+testall = executable('testall', 'testall.cpp', dependencies: rtaudio_dep)
+teststops = executable('teststops', 'teststops.cpp', dependencies: rtaudio_dep)
