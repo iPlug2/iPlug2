@@ -15,16 +15,6 @@
 #include <IPlugSWELL.h>
 #endif
 
-#if defined OS_MAC
-int GetTitleBarOffset()
-{
-  int offset = GetSystemMetrics(SM_CYMENU);
-  offset += 4;
-  
-  return offset;
-}
-#endif
-
 using namespace iplug;
 
 extern HWND gHWND;
