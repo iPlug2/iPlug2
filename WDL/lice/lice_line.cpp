@@ -1800,14 +1800,13 @@ void LICE_FillConvexPolygon(LICE_IBitmap* dest, const int* x, const int* y, int 
 
   int destbm_w = dest->getWidth(), destbm_h = dest->getHeight();
 
-  if (IGNORE_SCALING(mode))
+  int __sc = (int)dest->Extended(LICE_EXT_GET_SCALING,NULL);
+  if (__sc)
   {
-    const int __sc = (int)dest->Extended(LICE_EXT_GET_SCALING,NULL);
-    if (__sc)
-    {
-      __LICE_SCU(destbm_w);
-      __LICE_SCU(destbm_h);
-    }
+    __LICE_SCU(destbm_w);
+    __LICE_SCU(destbm_h);
+    if (IGNORE_SCALING(mode)) __sc = 0; // input is already scaled, ignore
+    mode |= LICE_BLIT_IGNORE_SCALING;
   }
 
   int* xy = 0;
@@ -1822,6 +1821,11 @@ void LICE_FillConvexPolygon(LICE_IBitmap* dest, const int* x, const int* y, int 
     for (i = 0; i < npoints; ++i)
     {
       int tx = x[i], ty=y[i];
+      if (__sc)
+      {
+        __LICE_SC(tx);
+        __LICE_SC(ty);
+      }
       if (tx < min_x) min_x=tx;
       if (tx > max_x) max_x=tx;
       _X(i) = tx;
