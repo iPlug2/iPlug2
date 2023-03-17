@@ -372,8 +372,8 @@
     <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\ISender.h">
-      <Filter>IGraphics</Filter>
+    <ClInclude Include="..\..\..\IPlug\ISender.h">
+      <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\IPlugDrumSynth_DSP.h" />
   </ItemGroup>

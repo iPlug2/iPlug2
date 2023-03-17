@@ -330,8 +330,8 @@
     <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\ISender.h">
-      <Filter>IGraphics</Filter>
+    <ClInclude Include="..\..\..\IPlug\ISender.h">
+      <Filter>IPlug</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestMultiTouchControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestFlexBoxControl.h">

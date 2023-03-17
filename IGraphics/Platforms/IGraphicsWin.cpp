@@ -22,6 +22,11 @@
 #include <wininet.h>
 #include <VersionHelpers.h>
 
+#if defined __clang__
+#undef CCSIZEOF_STRUCT
+#define CCSIZEOF_STRUCT(structname, member) (__builtin_offsetof(structname, member) + sizeof(((structname*)0)->member))
+#endif
+
 using namespace iplug;
 using namespace igraphics;
 
