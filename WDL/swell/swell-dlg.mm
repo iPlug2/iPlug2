@@ -1024,8 +1024,8 @@ static bool s_mtl_in_update;
     }
     else if ([sender isKindOfClass:[NSMenuItem class]])
     {
-//      [[sender menu] update];
-      // wish we could force the top level menu to update here, meh
+      m_wndproc((HWND)self,WM_COMMAND,[sender tag],0);
+      return;
     }
     m_wndproc((HWND)self,WM_COMMAND,MAKELONG([sender tag],cw),(LPARAM)sender);
   }
