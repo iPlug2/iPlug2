@@ -23,6 +23,12 @@ public:
     m_suppress = NSEEL_VM_regvar(m_vm, "_suppress");
   }
 
+  void define(const char *name, double val)
+  {
+    EEL_F *v = NSEEL_VM_regvar(m_vm,name);
+    if (v) *v = val;
+  }
+
   ~EEL2_PreProcessor()
   {
     for (int x = 0; x < m_code_handles.GetSize(); x ++)
