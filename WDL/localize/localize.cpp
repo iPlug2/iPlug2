@@ -307,6 +307,9 @@ static void __localProcMenu(HMENU menu, WDL_AssocArray<WDL_UINT64, char *> *s)
           }
   #endif
           mii.fMask = MIIM_TYPE;
+#ifdef __APPLE__
+          mii.fMask |= MIIM_SWELL_DO_NOT_CALC_MODIFIERS;
+#endif
           mii.dwTypeData = (char*)newptr;
           SetMenuItemInfo(menu,x,TRUE,&mii);
         }
