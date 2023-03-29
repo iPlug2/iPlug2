@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -31,34 +31,33 @@ struct InstanceInfo
 class IPlugAPPHost;
 
 /**  Standalone application base class for an IPlug plug-in
-*   @ingroup APIClasses */
-class IPlugAPP : public IPlugAPIBase
-               , public IPlugProcessor
+ *   @ingroup APIClasses */
+class IPlugAPP : public IPlugAPIBase, public IPlugProcessor
 {
 public:
   IPlugAPP(const InstanceInfo& info, const Config& config);
-  
-  //IPlugAPIBase
-  void BeginInformHostOfParamChange(int idx) override {};
-  void InformHostOfParamChange(int idx, double normalizedValue) override {};
-  void EndInformHostOfParamChange(int idx) override {};
-  void InformHostOfPresetChange() override {};
+
+  // IPlugAPIBase
+  void BeginInformHostOfParamChange(int idx) override{};
+  void InformHostOfParamChange(int idx, double normalizedValue) override{};
+  void EndInformHostOfParamChange(int idx) override{};
+  void InformHostOfPresetChange() override{};
   bool EditorResize(int viewWidth, int viewHeight) override;
 
-  //IEditorDelegate
+  // IEditorDelegate
   void SendSysexMsgFromUI(const ISysEx& msg) override;
-  
-  //IPlugProcessor
+
+  // IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
   bool SendSysEx(const ISysEx& msg) override;
-  
-  //IPlugAPP
+
+  // IPlugAPP
   void AppProcess(double** inputs, double** outputs, int nFrames);
 
 private:
   IPlugAPPHost* mAppHost = nullptr;
-  IPlugQueue<IMidiMsg> mMidiMsgsFromCallback {MIDI_TRANSFER_SIZE};
-  IPlugQueue<SysExData> mSysExMsgsFromCallback {SYSEX_TRANSFER_SIZE};
+  IPlugQueue<IMidiMsg> mMidiMsgsFromCallback{MIDI_TRANSFER_SIZE};
+  IPlugQueue<SysExData> mSysExMsgsFromCallback{SYSEX_TRANSFER_SIZE};
 
   friend class IPlugAPPHost;
 };

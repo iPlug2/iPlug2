@@ -27,14 +27,15 @@ public:
   {
     SetTooltip("TestColorControl");
   }
-  
+
   void OnResize() override
   {
     mPattern = IPattern::CreateLinearGradient(mRECT.L, mRECT.MH(), mRECT.R, mRECT.MH());
     const int nstops = 7;
-    
-    for (int i=0; i<nstops; i++) {
-      float pos = (1.f/(float) nstops) * i;
+
+    for (int i = 0; i < nstops; i++)
+    {
+      float pos = (1.f / (float)nstops) * i;
       mPattern.AddStop(IColor::FromHSLA(pos, 1., 0.5), pos);
     }
   }

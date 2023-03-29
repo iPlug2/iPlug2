@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -42,26 +42,26 @@ struct AAX_SIPlugSetupInfo
   uint32_t mGlobalMIDIEventMask;
   bool mNeedsInputMIDI;
   const char* mInputMIDINodeName;
-  uint32_t  mInputMIDIChannelMask;
+  uint32_t mInputMIDIChannelMask;
   int32_t mNumAdditionalInputMIDINodes;
   bool mNeedsOutputMIDI;
   const char* mOutputMIDINodeName;
   uint32_t mOutputMIDIChannelMask;
   int32_t mNumAdditionalOutputMIDINodes;
-  
+
   bool mNeedsTransport;
   const char* mTransportMIDINodeName;
-  
+
   int32_t mNumMeters;
   const AAX_CTypeID* mMeterIDs;
-  
+
   int32_t mNumAuxOutputStems;
   const char* mAuxOutputStemNames[kMaxAuxOutputStems];
   AAX_EStemFormat mAuxOutputStemFormats[kMaxAuxOutputStems];
-  
+
   AAX_EStemFormat mHybridInputStemFormat;
   AAX_EStemFormat mHybridOutputStemFormat;
-  
+
   AAX_EStemFormat mInputStemFormat;
   AAX_EStemFormat mOutputStemFormat;
   bool mUseHostGeneratedGUI;
@@ -72,9 +72,9 @@ struct AAX_SIPlugSetupInfo
   AAX_CTypeID mPluginID;
   AAX_CTypeID mAudiosuiteID;
   AAX_CBoolean mMultiMonoSupport;
-  
+
   int32_t mLatency;
-  
+
   AAX_SIPlugSetupInfo()
   {
     mNeedsGlobalMIDI = false;
@@ -83,7 +83,7 @@ struct AAX_SIPlugSetupInfo
     mNeedsInputMIDI = false;
     mInputMIDINodeName = "InputMIDI";
     mInputMIDIChannelMask = 0xffff;
-    
+
     mNeedsOutputMIDI = false;
     mOutputMIDINodeName = "OutputMIDI";
     mOutputMIDIChannelMask = 0xffff;
@@ -105,13 +105,13 @@ struct AAX_SIPlugSetupInfo
     mMultiMonoSupport = true;
     mWantsSideChain = false;
     mNumAuxOutputStems = 0;
-    
-    for (int32_t i=0; i<kMaxAuxOutputStems; i++)
+
+    for (int32_t i = 0; i < kMaxAuxOutputStems; i++)
     {
       mAuxOutputStemNames[i] = 0;
       mAuxOutputStemFormats[i] = AAX_eStemFormat_Mono;
     }
-    
+
     mHybridInputStemFormat = AAX_eStemFormat_None;
     mHybridOutputStemFormat = AAX_eStemFormat_None;
   }
@@ -138,7 +138,7 @@ struct AAX_SIPlugRenderInfo
 
   AAX_SIPlugPrivateData* mPrivateData;
   float** mMeters;
-  
+
   int64_t* mCurrentStateNum;
   int32_t* mSideChainP;
 };
@@ -146,36 +146,38 @@ struct AAX_SIPlugRenderInfo
 class AAX_CIPlugParameters : public AAX_CEffectParameters
 {
 public:
-  AAX_CIPlugParameters (void);
-  ~AAX_CIPlugParameters (void) override;
- 
+  AAX_CIPlugParameters(void);
+  ~AAX_CIPlugParameters(void) override;
+
 protected:
   typedef std::pair<AAX_CParamID const, const AAX_IParameterValue*> TParamValPair;
-  virtual void RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo, const TParamValPair* inSynchronizedParamValues[], int32_t inNumSynchronizedParamValues) {}
+  virtual void RenderAudio(AAX_SIPlugRenderInfo* ioRenderInfo, const TParamValPair* inSynchronizedParamValues[],
+                           int32_t inNumSynchronizedParamValues)
+  {
+  }
   void AddSynchronizedParameter(const AAX_IParameter& inParameter);
-  
+
 public:
   AAX_Result UpdateParameterNormalizedValue(AAX_CParamID iParamID, double aValue, AAX_EUpdateSource inSource) override;
   AAX_Result GenerateCoefficients() override;
-  AAX_Result ResetFieldData (AAX_CFieldIndex iFieldIndex, void * oData, uint32_t iDataSize) const override;
+  AAX_Result ResetFieldData(AAX_CFieldIndex iFieldIndex, void* oData, uint32_t iDataSize) const override;
   AAX_Result TimerWakeup() override;
 
-  static AAX_Result StaticDescribe (AAX_IEffectDescriptor * ioDescriptor, const AAX_SIPlugSetupInfo & setupInfo);
+  static AAX_Result StaticDescribe(AAX_IEffectDescriptor* ioDescriptor, const AAX_SIPlugSetupInfo& setupInfo);
 
-  static void AAX_CALLBACK  StaticRenderAudio(AAX_SIPlugRenderInfo* const  inInstancesBegin [], const void* inInstancesEnd);
+  static void AAX_CALLBACK StaticRenderAudio(AAX_SIPlugRenderInfo* const inInstancesBegin[],
+                                             const void* inInstancesEnd);
+
 private:
   struct SParamValList
   {
-    static const int32_t sCap = 4*kSynchronizedParameterQueueSize;
-    
+    static const int32_t sCap = 4 * kSynchronizedParameterQueueSize;
+
     TParamValPair* mElem[sCap];
     int32_t mSize;
-    
-    SParamValList()
-    {
-      Clear();
-    }
-    
+
+    SParamValList() { Clear(); }
+
     void Add(TParamValPair* inElem)
     {
       AAX_ASSERT(sCap > mSize);
@@ -184,7 +186,7 @@ private:
         mElem[mSize++] = inElem;
       }
     }
-    
+
     void Append(const SParamValList& inOther)
     {
       AAX_ASSERT(sCap >= mSize + inOther.mSize);
@@ -193,7 +195,7 @@ private:
         Add(inOther.mElem[i]);
       }
     }
-    
+
     void Append(const std::list<TParamValPair*>& inOther)
     {
       AAX_ASSERT(sCap >= mSize + (int64_t)inOther.size());
@@ -202,41 +204,43 @@ private:
         Add(*iter);
       }
     }
-    
+
     void Merge(AAX_IPointerQueue<TParamValPair>& inOther)
     {
       do
       {
         TParamValPair* const val = inOther.Pop();
-        if (NULL == val) { break; }
+        if (NULL == val)
+        {
+          break;
+        }
         Add(val);
       } while (1);
     }
-    
+
     void Clear()
     {
       std::memset(mElem, 0x0, sizeof(mElem));
       mSize = 0;
     }
   };
-  
+
   typedef std::set<const AAX_IParameter*> TParamSet;
-  typedef std::pair<int64_t, std::list<TParamValPair*> > TNumberedParamStateList;
+  typedef std::pair<int64_t, std::list<TParamValPair*>> TNumberedParamStateList;
   typedef AAX_CAtomicQueue<TNumberedParamStateList, 256> TNumberedStateListQueue;
-  typedef AAX_CAtomicQueue<const TParamValPair, 16*kSynchronizedParameterQueueSize> TParamValPairQueue;
-  
-  
+  typedef AAX_CAtomicQueue<const TParamValPair, 16 * kSynchronizedParameterQueueSize> TParamValPairQueue;
+
+
   SParamValList GetUpdatesForState(int64_t inTargetStateNum);
   void DeleteUsedParameterChanges();
-  
+
 private:
   std::set<std::string> mSynchronizedParameters;
   int64_t mStateCounter;
   TParamSet mDirtyParameters;
   TNumberedStateListQueue mQueuedParameterChanges;
   TNumberedStateListQueue mFinishedParameterChanges;
-  TParamValPairQueue mFinishedParameterValues; 
+  TParamValPairQueue mFinishedParameterValues;
 };
 
 END_IPLUG_NAMESPACE
-

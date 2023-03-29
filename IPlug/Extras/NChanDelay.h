@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -14,14 +14,15 @@
 BEGIN_IPLUG_NAMESPACE
 
 // A static delayline used to delay bypassed signals to match mLatency in AAX/VST3/AU
-template<typename T>
+template <typename T>
 class NChanDelayLine
 {
 public:
   NChanDelayLine(int nInputChans = 2, int nOutputChans = 2)
   : mNInChans(nInputChans)
   , mNOutChans(nOutputChans)
-  {}
+  {
+  }
 
   void SetDelayTime(int delayTimeSamples)
   {
@@ -31,16 +32,13 @@ public:
     ClearBuffer();
   }
 
-  void ClearBuffer()
-  {
-    memset(mBuffer.Get(), 0, mNInChans * mDTSamples * sizeof(T));
-  }
+  void ClearBuffer() { memset(mBuffer.Get(), 0, mNInChans * mDTSamples * sizeof(T)); }
 
   void ProcessBlock(T** inputs, T** outputs, int nFrames)
   {
     T* buffer = mBuffer.Get();
 
-    for (auto s = 0 ; s < nFrames; ++s)
+    for (auto s = 0; s < nFrames; ++s)
     {
       int32_t readAddress = mWriteAddress - mDTSamples;
       readAddress %= mDTSamples;

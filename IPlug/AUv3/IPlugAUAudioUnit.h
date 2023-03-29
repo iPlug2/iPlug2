@@ -1,11 +1,11 @@
- /*
- ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
- See LICENSE.txt for  more info.
- 
- ==============================================================================
+/*
+==============================================================================
+
+This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+See LICENSE.txt for  more info.
+
+==============================================================================
 */
 
 #import <AudioToolbox/AudioToolbox.h>
@@ -23,16 +23,16 @@
 #endif
 
 @interface IPLUG_AUAUDIOUNIT : AUAudioUnit
-- (void) beginInformHostOfParamChange: (uint64_t) address;
-- (void) informHostOfParamChange: (uint64_t) address : (float) realValue;
-- (void) endInformHostOfParamChange: (uint64_t) address;
-- (NSUInteger) getChannelLayoutTags: (int) dir : (AudioChannelLayoutTag*) pTags;
-- (void) populateChannelCapabilitesArray: (NSMutableArray*) pArray;
-- (NSInteger) width;
-- (NSInteger) height;
-- (void) hostResized: (CGSize) newSize;
-- (PLATFORM_VIEW*) openWindow: (PLATFORM_VIEW*) pParent;
-- (void) closeWindow;
-- (bool) sendMidiData:(int64_t) sampleTime : (NSInteger) length : (const uint8_t*) midiBytes;
-- (NSData*) getDataFromExternal;
+- (void)beginInformHostOfParamChange:(uint64_t)address;
+- (void)informHostOfParamChange:(uint64_t)address:(float)realValue;
+- (void)endInformHostOfParamChange:(uint64_t)address;
+- (NSUInteger)getChannelLayoutTags:(int)dir:(AudioChannelLayoutTag*)pTags;
+- (void)populateChannelCapabilitesArray:(NSMutableArray*)pArray;
+- (NSInteger)width;
+- (NSInteger)height;
+- (void)hostResized:(CGSize)newSize;
+- (PLATFORM_VIEW*)openWindow:(PLATFORM_VIEW*)pParent;
+- (void)closeWindow;
+- (bool)sendMidiData:(int64_t)sampleTime:(NSInteger)length:(const uint8_t*)midiBytes;
+- (NSData*)getDataFromExternal;
 @end

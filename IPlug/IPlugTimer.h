@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -14,7 +14,7 @@
 /** @file
  * @brief This file includes classes for implementing timers - in order to get a regular callback on the main thread
  * The interface is partially based on the api of Steinberg's timer.cpp from the VST3_SDK for compatibility,
- * base/source/timer.cpp, so thanks to them 
+ * base/source/timer.cpp, so thanks to them
  * */
 
 #include <cstring>
@@ -28,9 +28,9 @@
 #include "IPlugPlatform.h"
 
 #if defined OS_MAC || defined OS_IOS
-#include <CoreFoundation/CoreFoundation.h>
+  #include <CoreFoundation/CoreFoundation.h>
 #elif defined OS_WEB
-#include <emscripten/html5.h>
+  #include <emscripten/html5.h>
 #endif
 
 BEGIN_IPLUG_NAMESPACE
@@ -41,11 +41,11 @@ struct Timer
   Timer() = default;
   Timer(const Timer&) = delete;
   Timer& operator=(const Timer&) = delete;
-  
+
   using ITimerFunction = std::function<void(Timer& t)>;
 
   static Timer* Create(ITimerFunction func, uint32_t intervalMs);
-  virtual ~Timer() {};
+  virtual ~Timer(){};
   virtual void Stop() = 0;
 };
 
@@ -54,13 +54,12 @@ struct Timer
 class Timer_impl : public Timer
 {
 public:
-  
   Timer_impl(ITimerFunction func, uint32_t intervalMs);
   ~Timer_impl();
-  
+
   void Stop() override;
-  static void TimerProc(CFRunLoopTimerRef timer, void *info);
-  
+  static void TimerProc(CFRunLoopTimerRef timer, void* info);
+
 private:
   CFRunLoopTimerRef mOSTimer;
   ITimerFunction mTimerFunc;
@@ -74,7 +73,7 @@ public:
   ~Timer_impl();
   void Stop() override;
   static void CALLBACK TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWORD dwTime);
-  
+
 private:
   static WDL_Mutex sMutex;
   static WDL_PtrList<Timer_impl> sTimers;
@@ -89,8 +88,8 @@ public:
   Timer_impl(ITimerFunction func, uint32_t intervalMs);
   ~Timer_impl();
   void Stop() override;
-  static void TimerProc(void *userData);
-  
+  static void TimerProc(void* userData);
+
 private:
   long ID = 0;
   ITimerFunction mTimerFunc;

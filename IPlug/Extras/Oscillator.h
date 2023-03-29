@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -26,28 +26,16 @@ public:
 
   virtual inline T Process(double freqHz) = 0;
 
-  inline void SetFreqCPS(double freqHz)
-  {
-    mPhaseIncr = (1./mSampleRate) * freqHz;
-  }
+  inline void SetFreqCPS(double freqHz) { mPhaseIncr = (1. / mSampleRate) * freqHz; }
 
-  void SetSampleRate(double sampleRate)
-  {
-    mSampleRate = sampleRate;
-  }
+  void SetSampleRate(double sampleRate) { mSampleRate = sampleRate; }
 
-  void Reset()
-  {
-    mPhase = mStartPhase;
-  }
-  
-  void SetPhase(double phase)
-  {
-    mPhase = phase;
-  }
+  void Reset() { mPhase = mStartPhase; }
+
+  void SetPhase(double phase) { mPhase = phase; }
 
 protected:
-  double mPhase = 0.;  // float phase (goes between 0. and 1.)
+  double mPhase = 0.; // float phase (goes between 0. and 1.)
   double mPhaseIncr = 0.; // how much to add to the phase on each T
   double mSampleRate = 44100.;
   double mStartPhase;
@@ -61,7 +49,7 @@ public:
   : IOscillator<T>(startPhase, startFreq)
   {
   }
-  
+
   inline T Process()
   {
     IOscillator<T>::mPhase = IOscillator<T>::mPhase + IOscillator<T>::mPhaseIncr;
@@ -77,7 +65,8 @@ public:
 };
 
 /*
- FastSinOscillator - fast sinusoidal oscillator / table look up, based on an approach and code used by Miller Puckette in Pure Data, originally by Robert Höldrich
+ FastSinOscillator - fast sinusoidal oscillator / table look up, based on an approach and code used by Miller Puckette
+ in Pure Data, originally by Robert Höldrich
 
  From some correspondence with M.S.P...
 
@@ -110,16 +99,16 @@ public:
  point representation of the fractional part.
  */
 
-#define UNITBIT32 1572864.  /* 3*2^19; bit 32 has place value 1 */
+#define UNITBIT32 1572864. /* 3*2^19; bit 32 has place value 1 */
 #define HIOFFSET 1
 #define LOWOFFSET 0
 
 #ifdef _MSC_VER
-#define ALIGN16 __declspec(align(16))
-#define ALIGNED(x)
+  #define ALIGN16 __declspec(align(16))
+  #define ALIGNED(x)
 #else
-#define ALIGN16 alignas(16)
-#define ALIGNED(x) __attribute__ ((aligned (x)))
+  #define ALIGN16 alignas(16)
+  #define ALIGNED(x) __attribute__((aligned(x)))
 #endif
 
 template <typename T>
@@ -159,7 +148,7 @@ public:
   {
     double tPhase = phaseRadians / (PI * 2.) * tableSizeM1;
 
-    tPhase += (double) UNITBIT32;
+    tPhase += (double)UNITBIT32;
 
     union tabfudge tf;
     tf.d = UNITBIT32;
@@ -176,7 +165,7 @@ public:
 
   void ProcessBlock(T* pOutput, int nFrames)
   {
-    double phase = IOscillator<T>::mPhase + (double) UNITBIT32;
+    double phase = IOscillator<T>::mPhase + (double)UNITBIT32;
     const double phaseIncr = IOscillator<T>::mPhaseIncr * tableSize;
 
     union tabfudge tf;
@@ -204,6 +193,7 @@ public:
   }
 
   T mLastOutput = 0.;
+
 private:
   static const int tableSize = 512; // 2^9
   static const int tableSizeM1 = 511; // 2^9 -1

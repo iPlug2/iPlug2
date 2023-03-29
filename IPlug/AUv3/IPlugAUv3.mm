@@ -1,11 +1,11 @@
- /*
- ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
- See LICENSE.txt for  more info.
- 
- ==============================================================================
+/*
+==============================================================================
+
+This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+See LICENSE.txt for  more info.
+
+==============================================================================
 */
 
 #import <AudioToolbox/AudioToolbox.h>
@@ -15,7 +15,7 @@
 #import "IPlugAUAudioUnit.h"
 
 #if !__has_feature(objc_arc)
-#error This file must be compiled with Arc. Use -fobjc-arc flag
+  #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
 
 using namespace iplug;
@@ -35,103 +35,106 @@ void IPlugAUv3::SetAUAudioUnit(void* pAUAudioUnit)
 void IPlugAUv3::BeginInformHostOfParamChange(int paramIdx)
 {
   const AUParameterAddress address = GetParamAddress(paramIdx);
-  [(__bridge IPLUG_AUAUDIOUNIT*) mAUAudioUnit beginInformHostOfParamChange:address];
+  [(__bridge IPLUG_AUAUDIOUNIT*)mAUAudioUnit beginInformHostOfParamChange:address];
 }
 
 void IPlugAUv3::InformHostOfParamChange(int paramIdx, double normalizedValue)
 {
   const AUParameterAddress address = GetParamAddress(paramIdx);
 
-  [(__bridge IPLUG_AUAUDIOUNIT*) mAUAudioUnit informHostOfParamChange:address :(float) GetParam(paramIdx)->FromNormalized(normalizedValue)];
+  [(__bridge IPLUG_AUAUDIOUNIT*)mAUAudioUnit
+    informHostOfParamChange:
+                    address:(float)GetParam(paramIdx)->FromNormalized(normalizedValue)];
 }
 
 void IPlugAUv3::EndInformHostOfParamChange(int paramIdx)
 {
   const AUParameterAddress address = GetParamAddress(paramIdx);
-  [(__bridge IPLUG_AUAUDIOUNIT*) mAUAudioUnit endInformHostOfParamChange:address];
+  [(__bridge IPLUG_AUAUDIOUNIT*)mAUAudioUnit endInformHostOfParamChange:address];
 }
 
 bool IPlugAUv3::SendMidiMsg(const IMidiMsg& msg)
 {
-  uint8_t data[3] = { msg.mStatus, msg.mData1, msg.mData2 };
-  
+  uint8_t data[3] = {msg.mStatus, msg.mData1, msg.mData2};
+
   int64_t sampleTime = mLastTimeStamp.mSampleTime + msg.mOffset;
-  
-  return [(__bridge IPLUG_AUAUDIOUNIT*) mAUAudioUnit sendMidiData: sampleTime : sizeof(data) : data];
+
+  return [(__bridge IPLUG_AUAUDIOUNIT*)mAUAudioUnit sendMidiData:sampleTime:sizeof(data):data];
 }
 
-//bool IPlugAUv3::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
+// bool IPlugAUv3::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
 //{
-//  return false;
-//}
+//   return false;
+// }
 
 bool IPlugAUv3::SendSysEx(const ISysEx& msg)
 {
   int64_t sampleTime = mLastTimeStamp.mSampleTime + msg.mOffset;
 
-  return [(__bridge IPLUG_AUAUDIOUNIT*) mAUAudioUnit sendMidiData: sampleTime : msg.mSize : msg.mData];
+  return [(__bridge IPLUG_AUAUDIOUNIT*)mAUAudioUnit sendMidiData:sampleTime:msg.mSize:msg.mData];
 }
 
-//void IPlugAUv3::HandleOneEvent(AURenderEvent const *event, AUEventSampleTime startTime)
+// void IPlugAUv3::HandleOneEvent(AURenderEvent const *event, AUEventSampleTime startTime)
 //{
-//  switch (event->head.eventType)
-//  {
-//    case AURenderEventParameter:
-//    case AURenderEventParameterRamp:
-//    {
-//      AUParameterEvent const& paramEvent = event->parameter;
-//      const int paramIdx = GetParamIdx(paramEvent.parameterAddress);
-//      const double value = (double) paramEvent.value;
-//      const int sampleOffset = (int) (paramEvent.eventSampleTime - startTime);
-//      ENTER_PARAMS_MUTEX
-//      GetParam(paramIdx)->Set(value);
-//      LEAVE_PARAMS_MUTEX
-//      OnParamChange(paramIdx, EParamSource::kHost, sampleOffset);
-//      break;
-//    }
+//   switch (event->head.eventType)
+//   {
+//     case AURenderEventParameter:
+//     case AURenderEventParameterRamp:
+//     {
+//       AUParameterEvent const& paramEvent = event->parameter;
+//       const int paramIdx = GetParamIdx(paramEvent.parameterAddress);
+//       const double value = (double) paramEvent.value;
+//       const int sampleOffset = (int) (paramEvent.eventSampleTime - startTime);
+//       ENTER_PARAMS_MUTEX
+//       GetParam(paramIdx)->Set(value);
+//       LEAVE_PARAMS_MUTEX
+//       OnParamChange(paramIdx, EParamSource::kHost, sampleOffset);
+//       break;
+//     }
 //
-//    case AURenderEventMIDI:
-//    {
-//      IMidiMsg msg;
-//      msg.mStatus = event->MIDI.data[0];
-//      msg.mData1 = event->MIDI.data[1];
-//      msg.mData2 = event->MIDI.data[2];
-//      msg.mOffset = (int) (event->MIDI.eventSampleTime - startTime);
-//      ProcessMidiMsg(msg);
-//      mMidiMsgsFromProcessor.Push(msg);
-//      break;
-//    }
-//    default:
-//      break;
-//  }
-//}
+//     case AURenderEventMIDI:
+//     {
+//       IMidiMsg msg;
+//       msg.mStatus = event->MIDI.data[0];
+//       msg.mData1 = event->MIDI.data[1];
+//       msg.mData2 = event->MIDI.data[2];
+//       msg.mOffset = (int) (event->MIDI.eventSampleTime - startTime);
+//       ProcessMidiMsg(msg);
+//       mMidiMsgsFromProcessor.Push(msg);
+//       break;
+//     }
+//     default:
+//       break;
+//   }
+// }
 //
-//void IPlugAUv3::PerformAllSimultaneousEvents(AUEventSampleTime now, AURenderEvent const *&event)
+// void IPlugAUv3::PerformAllSimultaneousEvents(AUEventSampleTime now, AURenderEvent const *&event)
 //{
-//  do {
-//    HandleOneEvent(event, now);
+//   do {
+//     HandleOneEvent(event, now);
 //
-//    // Go to next event.
-//    event = event->head.next;
+//     // Go to next event.
+//     event = event->head.next;
 //
-//    // While event is not null and is simultaneous (or late).
-//  } while (event && event->head.eventSampleTime <= now);
-//}
+//     // While event is not null and is simultaneous (or late).
+//   } while (event && event->head.eventSampleTime <= now);
+// }
 
-void IPlugAUv3::ProcessWithEvents(AudioTimeStamp const* pTimestamp, uint32_t frameCount, AURenderEvent const* pEvents, ITimeInfo& timeInfo)
+void IPlugAUv3::ProcessWithEvents(AudioTimeStamp const* pTimestamp, uint32_t frameCount, AURenderEvent const* pEvents,
+                                  ITimeInfo& timeInfo)
 {
   SetTimeInfo(timeInfo);
-  
+
   IMidiMsg midiMsg;
   while (mMidiMsgsFromEditor.Pop(midiMsg))
   {
     ProcessMidiMsg(midiMsg);
   }
-  
+
   mLastTimeStamp = *pTimestamp;
   AUEventSampleTime now = AUEventSampleTime(pTimestamp->mSampleTime);
   uint32_t framesRemaining = frameCount;
-  
+
   for (const AURenderEvent* pEvent = pEvents; pEvent != nullptr; pEvent = pEvent->head.next)
   {
     switch (pEvent->head.eventType)
@@ -140,7 +143,8 @@ void IPlugAUv3::ProcessWithEvents(AudioTimeStamp const* pTimestamp, uint32_t fra
       {
         const AUMIDIEvent& midiEvent = pEvent->MIDI;
 
-        midiMsg = {static_cast<int>(midiEvent.eventSampleTime - now), midiEvent.data[0], midiEvent.data[1], midiEvent.data[2] };
+        midiMsg = {
+          static_cast<int>(midiEvent.eventSampleTime - now), midiEvent.data[0], midiEvent.data[1], midiEvent.data[2]};
         ProcessMidiMsg(midiMsg);
         mMidiMsgsFromProcessor.Push(midiMsg);
       }
@@ -150,13 +154,13 @@ void IPlugAUv3::ProcessWithEvents(AudioTimeStamp const* pTimestamp, uint32_t fra
       case AURenderEventParameterRamp:
       {
         const AUParameterEvent& paramEvent = pEvent->parameter;
-        
+
         if (paramEvent.parameterAddress < NParams())
         {
           const int paramIdx = GetParamIdx(paramEvent.parameterAddress);
-          
-          const double value = (double) paramEvent.value;
-          const int sampleOffset = (int) (paramEvent.eventSampleTime - now);
+
+          const double value = (double)paramEvent.value;
+          const int sampleOffset = (int)(paramEvent.eventSampleTime - now);
           ENTER_PARAMS_MUTEX
           GetParam(paramIdx)->Set(value);
           LEAVE_PARAMS_MUTEX
@@ -167,53 +171,52 @@ void IPlugAUv3::ProcessWithEvents(AudioTimeStamp const* pTimestamp, uint32_t fra
       }
       break;
 
-      default:
-        break;
+      default: break;
     }
   }
 
   ENTER_PARAMS_MUTEX;
   ProcessBuffers(0.f, framesRemaining); // what about bufferOffset
   LEAVE_PARAMS_MUTEX;
-    
-  //Output SYSEX from the editor, which has bypassed ProcessSysEx()
+
+  // Output SYSEX from the editor, which has bypassed ProcessSysEx()
   while (mSysExDataFromEditor.Pop(mSysexBuf))
   {
-    ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
+    ISysEx smsg{mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
     SendSysEx(smsg);
   }
-  
 
-//  while (framesRemaining > 0) {
-//    // If there are no more events, we can process the entire remaining segment and exit.
-//    if (event == nullptr) {
-////      uint32_t const bufferOffset = frameCount - framesRemaining;
-// TODO - ProcessBuffers should be within param mutex lock
-//      ProcessBuffers(0.f, framesRemaining); // what about bufferOffset
-//      return;
-//    }
-//
-//    // **** start late events late.
-//    auto timeZero = AUEventSampleTime(0);
-//    auto headEventTime = event->head.eventSampleTime;
-//    uint32_t const framesThisSegment = uint32_t(std::max(timeZero, headEventTime - now));
-//
-//    // Compute everything before the next event.
-//    if (framesThisSegment > 0)
-//    {
-////      uint32_t const bufferOffset = frameCount - framesRemaining;
-// TODO - ProcessBuffers should be within param mutex lock
-//      ProcessBuffers(0.f, framesThisSegment); // what about bufferOffset
-//
-//      // Advance frames.
-//      framesRemaining -= framesThisSegment;
-//
-//      // Advance time.
-//      now += AUEventSampleTime(framesThisSegment);
-//    }
-//
-//    PerformAllSimultaneousEvents(now, event);
-//  }
+
+  //  while (framesRemaining > 0) {
+  //    // If there are no more events, we can process the entire remaining segment and exit.
+  //    if (event == nullptr) {
+  ////      uint32_t const bufferOffset = frameCount - framesRemaining;
+  // TODO - ProcessBuffers should be within param mutex lock
+  //      ProcessBuffers(0.f, framesRemaining); // what about bufferOffset
+  //      return;
+  //    }
+  //
+  //    // **** start late events late.
+  //    auto timeZero = AUEventSampleTime(0);
+  //    auto headEventTime = event->head.eventSampleTime;
+  //    uint32_t const framesThisSegment = uint32_t(std::max(timeZero, headEventTime - now));
+  //
+  //    // Compute everything before the next event.
+  //    if (framesThisSegment > 0)
+  //    {
+  ////      uint32_t const bufferOffset = frameCount - framesRemaining;
+  // TODO - ProcessBuffers should be within param mutex lock
+  //      ProcessBuffers(0.f, framesThisSegment); // what about bufferOffset
+  //
+  //      // Advance frames.
+  //      framesRemaining -= framesThisSegment;
+  //
+  //      // Advance time.
+  //      now += AUEventSampleTime(framesThisSegment);
+  //    }
+  //
+  //    PerformAllSimultaneousEvents(now, event);
+  //  }
 }
 
 // this is called on a secondary thread (not main thread, not audio thread)
@@ -226,7 +229,7 @@ void IPlugAUv3::SetParameterFromValueObserver(uint64_t address, float value)
     ENTER_PARAMS_MUTEX
     IParam* pParam = GetParam(paramIdx);
     assert(pParam);
-    pParam->Set((double) value);
+    pParam->Set((double)value);
     LEAVE_PARAMS_MUTEX
     OnParamChange(paramIdx, kHost, -1);
   }
@@ -237,7 +240,7 @@ void IPlugAUv3::SendParameterValueFromObserver(uint64_t address, float value)
   if (address < NParams())
   {
     const int paramIdx = GetParamIdx(address);
-    
+
     SendParameterValueFromAPI(paramIdx, value, false); // will trigger OnParamChangeUI()
   }
 }
@@ -247,7 +250,7 @@ float IPlugAUv3::GetParameter(uint64_t address)
   const int paramIdx = GetParamIdx(address);
 
   ENTER_PARAMS_MUTEX
-  const float val = (float) GetParam(paramIdx)->Value();
+  const float val = (float)GetParam(paramIdx)->Value();
   LEAVE_PARAMS_MUTEX
   return val;
 }
@@ -259,33 +262,33 @@ const char* IPlugAUv3::GetParamDisplay(uint64_t address, float value)
   ENTER_PARAMS_MUTEX
   GetParam(paramIdx)->GetDisplay(value, false, mParamDisplayStr);
   LEAVE_PARAMS_MUTEX
-  return (const char*) mParamDisplayStr.Get();
+  return (const char*)mParamDisplayStr.Get();
 }
 
 float IPlugAUv3::GetParamStringToValue(uint64_t address, const char* str)
 {
   const int paramIdx = GetParamIdx(address);
-  
+
   ENTER_PARAMS_MUTEX
-  float val = (float) GetParam(paramIdx)->StringToValue(str);
-  LEAVE_PARAMS_MUTEX  
+  float val = (float)GetParam(paramIdx)->StringToValue(str);
+  LEAVE_PARAMS_MUTEX
   return val;
 }
 
 void IPlugAUv3::AttachInputBuffers(AudioBufferList* pInBufList)
 {
   int chanIdx = 0;
-  
+
   if (pInBufList)
   {
     for (int i = 0; i < pInBufList->mNumberBuffers; i++)
     {
       int nConnected = pInBufList->mBuffers[i].mNumberChannels;
       SetChannelConnections(ERoute::kInput, chanIdx, nConnected, true);
-      AttachBuffers(ERoute::kInput, chanIdx, nConnected, (float**) &(pInBufList->mBuffers[i].mData), GetBlockSize());
+      AttachBuffers(ERoute::kInput, chanIdx, nConnected, (float**)&(pInBufList->mBuffers[i].mData), GetBlockSize());
       chanIdx += nConnected;
     }
-    
+
     SetChannelConnections(ERoute::kInput, chanIdx, MaxNChannels(kInput) - chanIdx, false);
   }
 }
@@ -297,12 +300,13 @@ void IPlugAUv3::AttachOutputBuffers(AudioBufferList* pOutBufList, uint32_t busNu
   if (pOutBufList)
   {
     int numChannelsInBus = pOutBufList->mNumberBuffers; // TODO: this assumes all busses have the same channel count
-    
+
     for (int i = 0; i < pOutBufList->mNumberBuffers; i++)
     {
       int nConnected = pOutBufList->mBuffers[i].mNumberChannels;
       SetChannelConnections(ERoute::kOutput, (busNumber * numChannelsInBus) + chanIdx, nConnected, true);
-      AttachBuffers(ERoute::kOutput, (busNumber * numChannelsInBus) + chanIdx, nConnected, (float**) &(pOutBufList->mBuffers[i].mData), GetBlockSize());
+      AttachBuffers(ERoute::kOutput, (busNumber * numChannelsInBus) + chanIdx, nConnected,
+                    (float**)&(pOutBufList->mBuffers[i].mData), GetBlockSize());
       chanIdx += nConnected;
     }
     SetChannelConnections(ERoute::kInput, chanIdx, MaxNChannels(kOutput) - chanIdx, false);

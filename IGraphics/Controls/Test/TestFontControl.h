@@ -22,10 +22,13 @@
 class TestFontControl : public IControl
 {
   static const int size = 36;
-    
+
 public:
-    TestFontControl(const IRECT& bounds)
-  : IControl(bounds), mCount(-1), mFontCount(0), mStrCount(0)
+  TestFontControl(const IRECT& bounds)
+  : IControl(bounds)
+  , mCount(-1)
+  , mFontCount(0)
+  , mStrCount(0)
   {
     SetTooltip("TestFontControl");
     mDblAsSingleClick = true;
@@ -36,16 +39,16 @@ public:
   {
     int pos = mCount / 3;
     IRECT rect = mRECT;
-    
+
     if (pos == 0)
       rect = mRECT.GetFromTop(size);
     else if (pos == 1)
       rect = mRECT.GetCentredInside(mRECT.W(), size);
     else
       rect = mRECT.GetFromBottom(size);
-      
+
     const char* str = mStrCount ? "Quickly dog" : "Font Test";
-      
+
     g.FillRect(COLOR_WHITE, mRECT);
     g.FillRect(COLOR_MID_GRAY, rect);
     g.DrawText(mText, str, mRECT);
@@ -64,9 +67,9 @@ public:
       mCount = 0;
       mFontCount = 1 - mFontCount;
     }
-    
+
     mStrCount = 1 - mStrCount;
-      
+
     IColor c = DEFAULT_TEXT_FGCOLOR;
     const char* font = mFontCount ? "Roboto-Regular" : "Alternative Font";
     if (mCount == 0)
@@ -90,7 +93,6 @@ public:
   }
 
 private:
-
   int mCount;
   int mFontCount;
   int mStrCount;

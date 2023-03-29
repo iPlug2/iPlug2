@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -24,11 +24,10 @@ BEGIN_IPLUG_NAMESPACE
 
 #define SVFMODES_VALIST "LowPass", "HighPass", "BandPass", "Notch", "Peak", "Bell", "LowPassShelf", "HighPassShelf"
 
-template<typename T = double, int NC = 1>
+template <typename T = double, int NC = 1>
 class SVF
 {
 public:
-
   enum EMode
   {
     kLowPass = 0,
@@ -49,7 +48,8 @@ public:
     UpdateCoefficients();
   }
 
-  static double PlotResponse(double freqCPS, double Q, EMode mode, double x, double gain = 0., double minHz = 1., double maxHz = 20000)
+  static double PlotResponse(double freqCPS, double Q, EMode mode, double x, double gain = 0., double minHz = 1.,
+                             double maxHz = 20000)
   {
     using cdouble = std::complex<double>;
 
@@ -73,14 +73,15 @@ public:
       // case kNotch: result = (g * g) + (s * s) / (g * g + g * k * s + s * s); break;
       case kPeak: result = (g - s) * (g + s) / (g * g + g * k * s + s * s); break;
       // case kBell:  result = A * (1. + A * k * s + (s * s)) / A + k * s + A * (s * s); break;
-      // case kLowPassShelf: result = A * (A + std::sqrt(A) * k * s + (s * s)) / 1. + std::sqrt(A) * k * s + A * (s * s); break;
-      // case kHighPassShelf: result = A * (1. + std::sqrt(A) * k * s + A * (s * s)) / A + std::sqrt(A) * k * s + (s * s); break;
+      // case kLowPassShelf: result = A * (A + std::sqrt(A) * k * s + (s * s)) / 1. + std::sqrt(A) * k * s + A * (s *
+      // s); break; case kHighPassShelf: result = A * (1. + std::sqrt(A) * k * s + A * (s * s)) / A + std::sqrt(A) * k *
+      // s + (s * s); break;
       default: return 0.;
     }
 
     const double magnitude = 20. * std::log10(std::abs(std::real(result)));
 
-    //DBGMSG("%f\n", magnitude);
+    // DBGMSG("%f\n", magnitude);
 
     return magnitude;
   }
@@ -92,29 +93,29 @@ public:
   void SetGain(double gainDB) { mNewState.gain = Clip(gainDB, -36.0, 36.0); }
 
   void SetMode(EMode mode) { mNewState.mode = mode; }
-  
+
   void SetSampleRate(double sampleRate) { mNewState.sampleRate = sampleRate; }
 
   void ProcessBlock(T** inputs, T** outputs, int nChans, int nFrames)
   {
     assert(nChans <= NC);
 
-    if(mState != mNewState)
+    if (mState != mNewState)
       UpdateCoefficients();
 
     for (auto c = 0; c < nChans; c++)
     {
       for (auto s = 0; s < nFrames; s++)
       {
-        const double v0 = (double) inputs[c][s];
+        const double v0 = (double)inputs[c][s];
 
         mV3[c] = v0 - mIc2eq[c];
-        mV1[c] = m_a1 * mIc1eq[c] + m_a2*mV3[c];
+        mV1[c] = m_a1 * mIc1eq[c] + m_a2 * mV3[c];
         mV2[c] = mIc2eq[c] + m_a2 * mIc1eq[c] + m_a3 * mV3[c];
         mIc1eq[c] = 2. * mV1[c] - mIc1eq[c];
         mIc2eq[c] = 2. * mV2[c] - mIc2eq[c];
 
-        outputs[c][s] = (T) m_m0 * v0 + m_m1 * mV1[c] + m_m2 * mV2[c];
+        outputs[c][s] = (T)m_m0 * v0 + m_m1 * mV1[c] + m_m2 * mV2[c];
       }
     }
   }
@@ -136,15 +137,15 @@ private:
   {
     mState = mNewState;
 
-    const double w = std::tan(PI * mState.freq/mState.sampleRate);
+    const double w = std::tan(PI * mState.freq / mState.sampleRate);
 
-    switch(mState.mode)
+    switch (mState.mode)
     {
       case kLowPass:
       {
         const double g = w;
         const double k = 1. / mState.Q;
-        m_a1 = 1./(1. + g * (g + k));
+        m_a1 = 1. / (1. + g * (g + k));
         m_a2 = g * m_a1;
         m_a3 = g * m_a2;
         m_m0 = 0;
@@ -156,7 +157,7 @@ private:
       {
         const double g = w;
         const double k = 1. / mState.Q;
-        m_a1 = 1./(1. + g * (g + k));
+        m_a1 = 1. / (1. + g * (g + k));
         m_a2 = g * m_a1;
         m_a3 = g * m_a2;
         m_m0 = 1.;
@@ -168,7 +169,7 @@ private:
       {
         const double g = w;
         const double k = 1. / mState.Q;
-        m_a1 = 1./(1. + g * (g + k));
+        m_a1 = 1. / (1. + g * (g + k));
         m_a2 = g * m_a1;
         m_a3 = g * m_a2;
         m_m0 = 0.;
@@ -180,7 +181,7 @@ private:
       {
         const double g = w;
         const double k = 1. / mState.Q;
-        m_a1 = 1./(1. + g * (g + k));
+        m_a1 = 1. / (1. + g * (g + k));
         m_a2 = g * m_a1;
         m_a3 = g * m_a2;
         m_m0 = 1.;
@@ -192,7 +193,7 @@ private:
       {
         const double g = w;
         const double k = 1. / mState.Q;
-        m_a1 = 1./(1. + g * (g + k));
+        m_a1 = 1. / (1. + g * (g + k));
         m_a2 = g * m_a1;
         m_a3 = g * m_a2;
         m_m0 = 1.;
@@ -202,10 +203,10 @@ private:
       }
       case kBell:
       {
-        const double A = std::pow(10., mState.gain/40.);
+        const double A = std::pow(10., mState.gain / 40.);
         const double g = w;
         const double k = 1 / mState.Q;
-        m_a1 = 1./(1. + g * (g + k));
+        m_a1 = 1. / (1. + g * (g + k));
         m_a2 = g * m_a1;
         m_a3 = g * m_a2;
         m_m0 = 1.;
@@ -215,10 +216,10 @@ private:
       }
       case kLowPassShelf:
       {
-        const double A = std::pow(10., mState.gain/40.);
+        const double A = std::pow(10., mState.gain / 40.);
         const double g = w / std::sqrt(A);
         const double k = 1. / mState.Q;
-        m_a1 = 1./(1. + g * (g + k));
+        m_a1 = 1. / (1. + g * (g + k));
         m_a2 = g * m_a1;
         m_a3 = g * m_a2;
         m_m0 = 1.;
@@ -228,19 +229,18 @@ private:
       }
       case kHighPassShelf:
       {
-        const double A = std::pow(10., mState.gain/40.);
+        const double A = std::pow(10., mState.gain / 40.);
         const double g = w / std::sqrt(A);
         const double k = 1. / mState.Q;
-        m_a1 = 1./(1. + g * (g + k));
+        m_a1 = 1. / (1. + g * (g + k));
         m_a2 = g * m_a1;
         m_a3 = g * m_a2;
-        m_m0 = A*A;
-        m_m1 = k*(1. - A)*A;
-        m_m2 = (1. - A*A);
+        m_m0 = A * A;
+        m_m1 = k * (1. - A) * A;
+        m_m2 = (1. - A * A);
         break;
       }
-      default:
-        break;
+      default: break;
     }
   }
 
@@ -265,9 +265,10 @@ private:
     double gain = 1.;
     double sampleRate = 44100.;
 
-    bool operator != (const Settings &other) const
+    bool operator!=(const Settings& other) const
     {
-      return !(mode == other.mode && freq == other.freq && Q == other.Q && gain == other.gain && sampleRate == other.sampleRate);
+      return !(mode == other.mode && freq == other.freq && Q == other.Q && gain == other.gain
+               && sampleRate == other.sampleRate);
     }
   };
 

@@ -3,13 +3,13 @@
 #include "IPlug_include_in_plug_hdr.h"
 
 #if IPLUG_DSP
-#include "IPlugFaustGen.h"
+  #include "IPlugFaustGen.h"
 #endif
 
 #include "IControls.h"
 
 #ifndef DSP_FILE
-#define DSP_FILE ""
+  #define DSP_FILE ""
 #endif
 
 enum EControlTags
@@ -34,6 +34,7 @@ public:
   void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnParamChange(int paramIdx) override;
   void OnIdle() override;
+
 private:
   FAUST_BLOCK(Faust1, mFaustProcessor, DSP_FILE, 1, 1);
   IBufferSender<2> mScopeSender;

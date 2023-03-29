@@ -34,16 +34,13 @@ public:
   void Draw(IGraphics& g) override
   {
     g.FillRect(COLOR_WHITE, mRECT);
-    const float alpha = (float) GetValue();
+    const float alpha = (float)GetValue();
 
     int cell = 0;
-    auto nextCell = [&]() {
-      return mRECT.GetGridCell(cell++, 4, 4).GetPadded(-5.f);
-    };
+    auto nextCell = [&]() { return mRECT.GetGridCell(cell++, 4, 4).GetPadded(-5.f); };
 
-    auto drawBlendPic = [this](IGraphics& g, IRECT r, EBlend blend, const char* name, float alpha)
-    {
-      IBlend blendMode { blend, alpha };
+    auto drawBlendPic = [this](IGraphics& g, IRECT r, EBlend blend, const char* name, float alpha) {
+      IBlend blendMode{blend, alpha};
       g.DrawFittedBitmap(mDst, r.GetPadded(-2.f));
       g.DrawFittedBitmap(mSrc, r.GetPadded(-2.f), &blendMode);
       g.DrawRect(COLOR_BLACK, r, nullptr, 1.f);
@@ -66,7 +63,7 @@ public:
     mLayer = g.EndLayer();
     g.DrawLayer(mLayer);
   }
-    
+
 private:
   IBitmap mSrc;
   IBitmap mDst;

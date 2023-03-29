@@ -35,7 +35,7 @@ public:
     IRECT r1 = mRECT.GetCentredInside(100);
 
 #if defined IGRAPHICS_NANOVG
-    NVGcontext* vg = (NVGcontext*) g.GetDrawContext();
+    NVGcontext* vg = (NVGcontext*)g.GetDrawContext();
     nvgSave(vg);
     nvgTranslate(vg, r1.MW(), r1.MH());
     nvgRotate(vg, nvgDegToRad(30));
@@ -46,18 +46,18 @@ public:
     nvgFill(vg);
     nvgRestore(vg);
 #elif defined IGRAPHICS_SKIA
-    SkCanvas* canvas = (SkCanvas*) g.GetDrawContext();
+    SkCanvas* canvas = (SkCanvas*)g.GetDrawContext();
     SkPaint paint;
     paint.setAntiAlias(true);
     paint.setColor(SK_ColorRED);
-    
+
     SkRect rect = SkiaRect(r1);
     canvas->translate(r1.MW(), r1.MH());
     canvas->rotate(30);
     canvas->translate(-r1.MW(), -r1.MH());
     canvas->drawRect(rect, paint);
 #elif defined IGRAPHICS_CANVAS
-    
+
 #else
     g.DrawText(mText, "UNSUPPORTED", mRECT);
 #endif

@@ -17,24 +17,20 @@ See LICENSE.txt for  more info.
 using namespace iplug;
 using namespace Microsoft::WRL;
 
-IWebView::IWebView(bool opaque)
-{
-}
+IWebView::IWebView(bool opaque) {}
 
 IWebView::~IWebView()
 {
   CloseWebView();
 }
 
-typedef HRESULT(*TCCWebView2EnvWithOptions)(
-  PCWSTR browserExecutableFolder,
-  PCWSTR userDataFolder,
-  PCWSTR additionalBrowserArguments,
+typedef HRESULT (*TCCWebView2EnvWithOptions)(
+  PCWSTR browserExecutableFolder, PCWSTR userDataFolder, PCWSTR additionalBrowserArguments,
   ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler* environment_created_handler);
 
 void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, float scale)
 {
-  HWND hWnd = (HWND) pParent;
+  HWND hWnd = (HWND)pParent;
 
   x *= scale;
   y *= scale;
@@ -45,69 +41,81 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
 
   mDLLHandle = LoadLibraryA(mDLLPath.Get());
 
-  TCCWebView2EnvWithOptions handle = (TCCWebView2EnvWithOptions) GetProcAddress(mDLLHandle, "CreateCoreWebView2EnvironmentWithOptions");
+  TCCWebView2EnvWithOptions handle =
+    (TCCWebView2EnvWithOptions)GetProcAddress(mDLLHandle, "CreateCoreWebView2EnvironmentWithOptions");
 
   if (handle != NULL)
   {
     WCHAR tmpPathWide[IPLUG_WIN_MAX_WIDE_PATH];
     UTF8ToUTF16(tmpPathWide, mTmpPath.Get(), IPLUG_WIN_MAX_WIDE_PATH);
 
-    HRESULT  v = handle(nullptr, tmpPathWide, nullptr,
+    HRESULT v = handle(
+      nullptr, tmpPathWide, nullptr,
 
-      Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
-        [&, hWnd, x, y, w, h](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
-          env->CreateCoreWebView2Controller(hWnd,
-            Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-              [&, hWnd, x, y, w, h](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
-                if (controller != nullptr) {
-                  mWebViewCtrlr = controller;
-                  mWebViewCtrlr->get_CoreWebView2(&mWebViewWnd);
-                }
+      Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>([&, hWnd, x, y, w, h](
+                                                                             HRESULT result,
+                                                                             ICoreWebView2Environment* env) -> HRESULT {
+        env->CreateCoreWebView2Controller(
+          hWnd,
+          Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>([&, hWnd, x, y, w, h](
+                                                                                HRESULT result,
+                                                                                ICoreWebView2Controller* controller)
+                                                                                -> HRESULT {
+            if (controller != nullptr)
+            {
+              mWebViewCtrlr = controller;
+              mWebViewCtrlr->get_CoreWebView2(&mWebViewWnd);
+            }
 
-                ICoreWebView2Settings* Settings;
-                mWebViewWnd->get_Settings(&Settings);
-                Settings->put_IsScriptEnabled(TRUE);
-                Settings->put_AreDefaultScriptDialogsEnabled(TRUE);
-                Settings->put_IsWebMessageEnabled(TRUE);
+            ICoreWebView2Settings* Settings;
+            mWebViewWnd->get_Settings(&Settings);
+            Settings->put_IsScriptEnabled(TRUE);
+            Settings->put_AreDefaultScriptDialogsEnabled(TRUE);
+            Settings->put_IsWebMessageEnabled(TRUE);
 
-                // this script adds a function IPlugSendMsg that is used to call the platform webview messaging function in JS
-                mWebViewWnd->AddScriptToExecuteOnDocumentCreated(L"function IPlugSendMsg(m) {window.chrome.webview.postMessage(m)};",
-                  Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>(
-                    [this](HRESULT error, PCWSTR id) -> HRESULT {
-                      return S_OK;
-                    }).Get());
-
-                mWebViewWnd->add_WebMessageReceived(
-                  Callback<ICoreWebView2WebMessageReceivedEventHandler>(
-                    [this](ICoreWebView2* sender, ICoreWebView2WebMessageReceivedEventArgs* args) {
-                      wil::unique_cotaskmem_string jsonString;
-                      args->get_WebMessageAsJson(&jsonString);
-                      std::wstring jsonWString = jsonString.get();
-                      WDL_String cStr;
-                      UTF16ToUTF8(cStr, jsonWString.c_str());
-                      OnMessageFromWebView(cStr.Get());
-                      return S_OK;
-                    }).Get(), &mWebMessageReceivedToken);
-
-                mWebViewWnd->add_NavigationCompleted(
-                  Callback<ICoreWebView2NavigationCompletedEventHandler>(
-                    [this](ICoreWebView2* sender, ICoreWebView2NavigationCompletedEventArgs* args) -> HRESULT {
-                      BOOL success;
-                      args->get_IsSuccess(&success);
-                      if (success)
-                      {
-                        OnWebContentLoaded();
-                      }
-                      return S_OK;
-                    })
-                  .Get(), &mNavigationCompletedToken);
-
-                mWebViewCtrlr->put_Bounds({ (LONG)x, (LONG)y, (LONG)(x + w), (LONG)(y + h) });
-                OnWebViewReady();
+            // this script adds a function IPlugSendMsg that is used to call the platform webview messaging function in
+            // JS
+            mWebViewWnd->AddScriptToExecuteOnDocumentCreated(
+              L"function IPlugSendMsg(m) {window.chrome.webview.postMessage(m)};",
+              Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>([this](HRESULT error,
+                                                                                                PCWSTR id) -> HRESULT {
                 return S_OK;
               }).Get());
-          return S_OK;
-        }).Get());
+
+            mWebViewWnd->add_WebMessageReceived(
+              Callback<ICoreWebView2WebMessageReceivedEventHandler>([this](
+                                                                      ICoreWebView2* sender,
+                                                                      ICoreWebView2WebMessageReceivedEventArgs* args) {
+                wil::unique_cotaskmem_string jsonString;
+                args->get_WebMessageAsJson(&jsonString);
+                std::wstring jsonWString = jsonString.get();
+                WDL_String cStr;
+                UTF16ToUTF8(cStr, jsonWString.c_str());
+                OnMessageFromWebView(cStr.Get());
+                return S_OK;
+              }).Get(),
+              &mWebMessageReceivedToken);
+
+            mWebViewWnd->add_NavigationCompleted(
+              Callback<ICoreWebView2NavigationCompletedEventHandler>(
+                [this](ICoreWebView2* sender, ICoreWebView2NavigationCompletedEventArgs* args) -> HRESULT {
+                  BOOL success;
+                  args->get_IsSuccess(&success);
+                  if (success)
+                  {
+                    OnWebContentLoaded();
+                  }
+                  return S_OK;
+                })
+                .Get(),
+              &mNavigationCompletedToken);
+
+            mWebViewCtrlr->put_Bounds({(LONG)x, (LONG)y, (LONG)(x + w), (LONG)(y + h)});
+            OnWebViewReady();
+            return S_OK;
+          }).Get());
+        return S_OK;
+      }).Get());
   }
 
   return nullptr;
@@ -141,7 +149,7 @@ void IWebView::LoadHTML(const char* html)
 
 void IWebView::LoadURL(const char* url)
 {
-  //TODO: error check url?
+  // TODO: error check url?
   if (mWebViewWnd)
   {
     WCHAR urlWide[IPLUG_WIN_MAX_WIDE_PATH]; // TODO: error check/size
@@ -169,15 +177,17 @@ void IWebView::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc f
     WCHAR scriptWide[IPLUG_WIN_MAX_WIDE_PATH]; // TODO: error check/size
     UTF8ToUTF16(scriptWide, scriptStr, IPLUG_WIN_MAX_WIDE_PATH); // TODO: error check/size
 
-    mWebViewWnd->ExecuteScript(scriptWide, Callback<ICoreWebView2ExecuteScriptCompletedHandler>(
-      [func](HRESULT errorCode, LPCWSTR resultObjectAsJson) -> HRESULT {
-        if (func && resultObjectAsJson) {
-          WDL_String str;
-          UTF16ToUTF8(str, resultObjectAsJson);
-          func(str.Get());
-        }
-        return S_OK;
-      }).Get());
+    mWebViewWnd->ExecuteScript(
+      scriptWide, Callback<ICoreWebView2ExecuteScriptCompletedHandler>([func](HRESULT errorCode,
+                                                                              LPCWSTR resultObjectAsJson) -> HRESULT {
+                    if (func && resultObjectAsJson)
+                    {
+                      WDL_String str;
+                      UTF16ToUTF8(str, resultObjectAsJson);
+                      func(str.Get());
+                    }
+                    return S_OK;
+                  }).Get());
   }
 }
 
@@ -195,6 +205,6 @@ void IWebView::SetWebViewBounds(float x, float y, float w, float h, float scale)
     w *= scale;
     h *= scale;
 
-    mWebViewCtrlr->put_Bounds({ (LONG)x, (LONG)y, (LONG)(x + w), (LONG)(y + h) });
+    mWebViewCtrlr->put_Bounds({(LONG)x, (LONG)y, (LONG)(x + w), (LONG)(y + h)});
   }
 }

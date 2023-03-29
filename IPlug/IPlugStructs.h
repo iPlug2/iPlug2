@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -33,14 +33,16 @@ struct ParamTuple
 {
   int idx;
   double value;
-  
+
   ParamTuple(int idx = kNoParameter, double value = 0.)
   : idx(idx)
   , value(value)
-  {}
+  {
+  }
 };
 
-/** This structure is used when queueing Sysex messages. You may need to set MAX_SYSEX_SIZE to reflect the max sysex payload in bytes */
+/** This structure is used when queueing Sysex messages. You may need to set MAX_SYSEX_SIZE to reflect the max sysex
+ * payload in bytes */
 struct SysExData
 {
   SysExData(int offset = 0, int size = 0, const void* pData = 0)
@@ -48,13 +50,13 @@ struct SysExData
   , mSize(size)
   {
     assert(size < MAX_SYSEX_SIZE);
-    
+
     if (pData)
       memcpy(mData, pData, size);
     else
       memset(mData, 0, MAX_SYSEX_SIZE);
   }
-  
+
   int mOffset;
   int mSize;
   uint8_t mData[MAX_SYSEX_SIZE];
@@ -69,7 +71,8 @@ struct IByteGetter
    * @param pDst The destination buffer
    * @param nBytesToCopy The number of bytes to copy from pSrc
    * @param startPos The starting position in bytes in pSrc
-   * @return int The end position in bytes after the copy, or -1 if the copy would have copied more data than in the src buffer  */
+   * @return int The end position in bytes after the copy, or -1 if the copy would have copied more data than in the src
+   * buffer  */
   static inline int GetBytes(const uint8_t* pSrc, int srcSize, void* pDst, int nBytesToCopy, int startPos)
   {
     int endPos = startPos + nBytesToCopy;
@@ -80,13 +83,14 @@ struct IByteGetter
     }
     return -1;
   }
-  
+
   /** Get a string from a byte array, to a WDL_String, returning the new position for subsequent calls
    * @param pSrc The source buffer
    * @param dstSize The size of the source data in bytes
    * @param str WDL_String to fill with the extracted string
    * @param startPos The starting position in bytes in pSrc
-   * @return int The end position in bytes after the copy, or -1 if the copy would have copied more data than in the src buffer  */
+   * @return int The end position in bytes after the copy, or -1 if the copy would have copied more data than in the src
+   * buffer  */
   static inline int GetStr(const uint8_t* pSrc, int srcSize, WDL_String& str, int startPos)
   {
     int len;
@@ -97,7 +101,7 @@ struct IByteGetter
       if (strEndPos <= srcSize)
       {
         if (len > 0)
-          str.Set((char*) (pSrc + strStartPos), len);
+          str.Set((char*)(pSrc + strStartPos), len);
         else
           str.Set("");
       }
@@ -106,15 +110,16 @@ struct IByteGetter
     return -1;
   }
 };
-  
+
 /** Manages a block of memory, for plug-in settings store/recall */
 class IByteChunk : private IByteGetter
 {
 public:
   IByteChunk() {}
   ~IByteChunk() {}
-  
-  /** This method is used in order to place the IPlug version number in the chunk when serialising data. In theory this is for backwards compatibility.
+
+  /** This method is used in order to place the IPlug version number in the chunk when serialising data. In theory this
+   * is for backwards compatibility.
    * @param chunk reference to the chunk where the version number will be placed */
   static void InitChunkWithIPlugVer(IByteChunk& chunk)
   {
@@ -124,7 +129,7 @@ public:
     int ver = IPLUG_VERSION;
     chunk.Put(&ver);
   }
-  
+
   /** Helper method to retrieve the IPlug version number from the beginning of the byte chunk
    * @param chunk The incoming byte chunk that contains the version number
    * @param position The position (in bytes) to start looking
@@ -133,13 +138,13 @@ public:
   {
     int magic = 0, ver = 0;
     int magicpos = chunk.Get(&magic, position);
-    
+
     if (magicpos > position && magic == IPLUG_VERSION_MAGIC)
       position = chunk.Get(&ver, magicpos);
-    
+
     return ver;
   }
-  
+
   /** Copies data into the chunk, placing it at the end, resizing if nessecary
    * @param pSrc Pointer to the data to copy
    * @param nBytesToCopy Number of bytes to copy
@@ -151,17 +156,18 @@ public:
     memcpy(mBytes.Get() + n, pSrc, nBytesToCopy);
     return mBytes.GetSize();
   }
-  
+
   /** Copy raw bytes from the IByteChunk, returning the new position for subsequent calls
    * @param pDst The destination buffer
    * @param nBytesToCopy The number of bytes to copy from the chunk
    * @param startPos The starting position in bytes in the chunk
-   * @return int The end position in the chunk (in bytes) after the copy, or -1 if the copy would have copied more data than in the chunk  */
+   * @return int The end position in the chunk (in bytes) after the copy, or -1 if the copy would have copied more data
+   * than in the chunk  */
   inline int GetBytes(void* pDst, int nBytesToCopy, int startPos) const
   {
     return IByteGetter::GetBytes(mBytes.Get(), Size(), pDst, nBytesToCopy, startPos);
   }
-  
+
   /** Copies arbitary typed data into the IByteChunk
    * @tparam T The type of data to be stored
    * @param pVal Ptr to the data to be stored
@@ -171,58 +177,51 @@ public:
   {
     return PutBytes(pVal, sizeof(T));
   }
-  
+
   /** Get arbitary typed data from the IByteChunk
    * @tparam T The type of data to be extracted
    * @param pDst Ptr to the destination where the data will be extracted
    * @param startPos The starting position in bytes in the chunk
-   * @return int The end position in the chunk (in bytes) after the copy, or -1 if the copy would have copied  more data than in the chunk  */
+   * @return int The end position in the chunk (in bytes) after the copy, or -1 if the copy would have copied  more data
+   * than in the chunk  */
   template <class T>
   inline int Get(T* pDst, int startPos) const
   {
     return GetBytes(pDst, sizeof(T), startPos);
   }
-  
+
   /** Put a string into the IByteChunk
    * @param str CString to insert into the chunk
    * @return int The size of the chunk after insertion  */
   inline int PutStr(const char* str)
   {
-    int slen = (int) strlen(str);
+    int slen = (int)strlen(str);
     Put(&slen);
     return PutBytes(str, slen);
   }
-  
+
   /** Get a string from the IByteChunk
    * @param str WDL_String to fill
    * @param startPos The starting position in bytes in the chunk
-   * @return int The end position in the chunk (in bytes) after the copy, or -1 if the copy would have copied  more data than in the chunk  */
+   * @return int The end position in the chunk (in bytes) after the copy, or -1 if the copy would have copied  more data
+   * than in the chunk  */
   inline int GetStr(WDL_String& str, int startPos) const
   {
     return IByteGetter::GetStr(mBytes.Get(), Size(), str, startPos);
   }
-  
+
   /** Put another IByteChunk into this one
    * @param pRHS Ptr to the IByteChunk to copy in
    * @return int The size of the chunk after insertion  */
-  inline int PutChunk(const IByteChunk* pRHS)
-  {
-    return PutBytes(pRHS->GetData(), pRHS->Size());
-  }
-  
+  inline int PutChunk(const IByteChunk* pRHS) { return PutBytes(pRHS->GetData(), pRHS->Size()); }
+
   /** Clears the chunk (resizes to 0) */
-  inline void Clear()
-  {
-    mBytes.Resize(0);
-  }
-  
+  inline void Clear() { mBytes.Resize(0); }
+
   /** Returns the current size of the chunk
    * @return Current size (in bytes) */
-  inline int Size() const
-  {
-    return mBytes.GetSize();
-  }
-  
+  inline int Size() const { return mBytes.GetSize(); }
+
   /** Resizes the chunk
    * @param newSize Desired size (in bytes)
    * @return Old size (in bytes) */
@@ -236,21 +235,15 @@ public:
     }
     return n;
   }
-  
+
   /** Gets a ptr to the chunk data
    * @return uint8_t* Ptr to the chunk data */
-  inline uint8_t* GetData()
-  {
-    return mBytes.Get();
-  }
-  
+  inline uint8_t* GetData() { return mBytes.Get(); }
+
   /** Gets a const ptr to the chunk data
    * @return const uint8_t* const Ptr to the chunk data */
-  inline const uint8_t* GetData() const
-  {
-    return mBytes.Get();
-  }
-  
+  inline const uint8_t* GetData() const { return mBytes.Get(); }
+
   /** Compares the size & values of the data of another chunk with this one
    * @param otherChunk The chunk to compare with
    * @return \c true if the chunks are equal */
@@ -258,7 +251,7 @@ public:
   {
     return (otherChunk.Size() == Size() && !memcmp(otherChunk.mBytes.Get(), mBytes.Get(), Size()));
   }
-  
+
 private:
   WDL_TypedBuf<uint8_t> mBytes;
 };
@@ -267,46 +260,47 @@ private:
 class IByteStream : private IByteGetter
 {
 public:
-  IByteStream(const void *pData, int dataSize) : mBytes(reinterpret_cast<const uint8_t *>(pData)), mSize(dataSize) {}
+  IByteStream(const void* pData, int dataSize)
+  : mBytes(reinterpret_cast<const uint8_t*>(pData))
+  , mSize(dataSize)
+  {
+  }
   ~IByteStream() {}
-  
+
   /** Copy raw bytes from the stream, returning the new position for subsequent calls
    * @param pDst The destination buffer
    * @param nBytesToCopy The number of bytes to copy from the stream
    * @param startPos The starting position in bytes in the stream
-   * @return int The end position in the stream (in bytes) after the copy, or -1 if the copy would have copied more data than in the stream  */
+   * @return int The end position in the stream (in bytes) after the copy, or -1 if the copy would have copied more data
+   * than in the stream  */
   inline int GetBytes(void* pDst, int nBytesToCopy, int startPos) const
   {
     return IByteGetter::GetBytes(mBytes, Size(), pDst, nBytesToCopy, startPos);
   }
-  
+
   /** Get arbitary typed data from the stream
    * @tparam T The type of data to be extracted
    * @param pDst Ptr to the destination where the data will be extracted
    * @param startPos The starting position in bytes in the stream
-   * @return int The end position in the stream (in bytes) after the copy, or -1 if the copy would have copied  more data than in the stream  */
+   * @return int The end position in the stream (in bytes) after the copy, or -1 if the copy would have copied  more
+   * data than in the stream  */
   template <class T>
   inline int Get(T* pDst, int startPos) const
   {
     return GetBytes(pDst, sizeof(T), startPos);
   }
-  
+
   /** Get a string from the stream
    * @param str WDL_String to fill
    * @param startPos The starting position in bytes in the stream
-   * @return int The end position in the stream (in bytes) after the copy, or -1 if the copy would have copied  more data than in the stream  */
-  inline int GetStr(WDL_String& str, int startPos) const
-  {
-    return IByteGetter::GetStr(mBytes, Size(), str, startPos);
-  }
-  
+   * @return int The end position in the stream (in bytes) after the copy, or -1 if the copy would have copied  more
+   * data than in the stream  */
+  inline int GetStr(WDL_String& str, int startPos) const { return IByteGetter::GetStr(mBytes, Size(), str, startPos); }
+
   /** Returns the  size of the stream
    * @return size (in bytes) */
-  inline int Size() const
-  {
-    return mSize;
-  }
-  
+  inline int Size() const { return mSize; }
+
   /** Compares the size & values of the data of another stream with this one
    * @param otherChunk The stream to compare with
    * @return \c true if the streams are equal */
@@ -314,14 +308,11 @@ public:
   {
     return (otherStream.Size() == Size() && !memcmp(otherStream.mBytes, mBytes, Size()));
   }
-  
+
   /** Gets a const ptr to the stream data
    * @return uint8_t* const ptr to the stream data */
-  inline const uint8_t* GetData()
-  {
-    return mBytes;
-  }
-  
+  inline const uint8_t* GetData() { return mBytes; }
+
 private:
   const uint8_t* mBytes;
   int mSize;
@@ -336,7 +327,7 @@ public:
   , mPos(startPos)
   {
   }
-  
+
   /** Copy \c nBytesToCopy bytes from the managed IByteChunk into \c pBuf .
    * @param pBuf Destination buffer
    * @param nBytesToCopy Number of bytes to copy
@@ -346,7 +337,7 @@ public:
     mPos = mChunk.GetBytes(pBuf, nBytesToCopy, mPos);
     return mPos;
   }
-  
+
   /** Copy arbitary typed data out of the managed IByteChunk at the current position and update the position
    * @tparam T type of the variable to get
    * @param pDst Pointer to the destination where the value will be stored
@@ -357,7 +348,7 @@ public:
     mPos = mChunk.Get(pDst, mPos);
     return mPos;
   }
-  
+
   /** Retrieve a string from the managed IByteChunk and put it in \c str .
    * @param str Destination for the string
    * @return int Next read position in the IByteChunk */
@@ -366,20 +357,14 @@ public:
     mPos = mChunk.GetStr(str, mPos);
     return mPos;
   }
-  
+
   /** Return the current position in the managed IByteChunk
    * @return The current position in the IByteChunk */
-  inline int Tell() const
-  {
-    return mPos;
-  }
+  inline int Tell() const { return mPos; }
 
   /** Set the current position in the managed IByteChunk.
    * @param pos The new IByteChunk position */
-  inline void Seek(int pos)
-  {
-    mPos = pos;
-  }
+  inline void Seek(int pos) { mPos = pos; }
 
 private:
   const IByteChunk& mChunk;
@@ -413,32 +398,13 @@ struct Config
   int plugMaxHeight;
   bool plugHostResize;
   const char* bundleID;
-  
-  Config(int nParams,
-         int nPresets,
-         const char* channelIOStr,
-         const char* pluginName,
-         const char* productName,
-         const char* mfrName,
-         int vendorVersion,
-         int uniqueID,
-         int mfrID,
-         int latency,
-         bool plugDoesMidiIn,
-         bool plugDoesMidiOut,
-         bool plugDoesMPE,
-         bool plugDoesChunks,
-         int plugType,
-         bool plugHasUI,
-         int plugWidth,
-         int plugHeight,
-         bool plugHostResize,
-         int plugMinWidth,
-         int plugMaxWidth,
-         int plugMinHeight,
-         int plugMaxHeight,
+
+  Config(int nParams, int nPresets, const char* channelIOStr, const char* pluginName, const char* productName,
+         const char* mfrName, int vendorVersion, int uniqueID, int mfrID, int latency, bool plugDoesMidiIn,
+         bool plugDoesMidiOut, bool plugDoesMPE, bool plugDoesChunks, int plugType, bool plugHasUI, int plugWidth,
+         int plugHeight, bool plugHostResize, int plugMinWidth, int plugMaxWidth, int plugMinHeight, int plugMaxHeight,
          const char* bundleID)
-              
+
   : nParams(nParams)
   , nPresets(nPresets)
   , channelIOStr(channelIOStr)
@@ -462,16 +428,17 @@ struct Config
   , plugMinHeight(plugMinHeight)
   , plugMaxHeight(plugMaxHeight)
   , plugHostResize(plugHostResize)
-  , bundleID(bundleID)
-  {};
+  , bundleID(bundleID){};
 };
 
-/** Used to manage scratch buffers for each channel of I/O, which may involve converting from single to double precision */
-template<class TIN = PLUG_SAMPLE_SRC, class TOUT = PLUG_SAMPLE_DST>
+/** Used to manage scratch buffers for each channel of I/O, which may involve converting from single to double precision
+ */
+template <class TIN = PLUG_SAMPLE_SRC, class TOUT = PLUG_SAMPLE_DST>
 struct IChannelData
 {
   bool mConnected = false;
-  TOUT** mData = nullptr; // If this is for an input channel, points into IPlugProcessor::mInData, if it's for an output channel points into IPlugProcessor::mOutData
+  TOUT** mData = nullptr; // If this is for an input channel, points into IPlugProcessor::mInData, if it's for an output
+                          // channel points into IPlugProcessor::mOutData
   TIN* mIncomingData = nullptr;
   WDL_TypedBuf<TOUT> mScratchBuf;
   WDL_String mLabel;
@@ -486,7 +453,7 @@ public:
   , mNChans(nchans)
   {
   }
-  
+
   int NChans() const { return mNChans; }
 
   ERoute GetDirection() const { return mDirection; }
@@ -499,23 +466,20 @@ private:
 /** An IOConfig is used to store bus info for each input/output configuration defined in the channel io string */
 struct IOConfig
 {
-  WDL_PtrList<IBusInfo> mBusInfo[2];  // A particular valid io config may have multiple input buses or output busses
-  
+  WDL_PtrList<IBusInfo> mBusInfo[2]; // A particular valid io config may have multiple input buses or output busses
+
   ~IOConfig()
   {
     mBusInfo[0].Empty(true);
     mBusInfo[1].Empty(true);
   }
-  
-  /** \todo 
+
+  /** \todo
    * @param direction \todo
    * @param NChans \todo
    * @param label \todo */
-  void AddBusInfo(ERoute direction, int NChans)
-  {
-    mBusInfo[direction].Add(new IBusInfo(direction, NChans));
-  }
-  
+  void AddBusInfo(ERoute direction, int NChans) { mBusInfo[direction].Add(new IBusInfo(direction, NChans)); }
+
   /** \todo
    * @param direction \todo
    * @param index \todo
@@ -525,51 +489,48 @@ struct IOConfig
     assert(index >= 0 && index < mBusInfo[direction].GetSize());
     return mBusInfo[direction].Get(index);
   }
-  
-  /** \todo 
+
+  /** \todo
    * @param direction \todo
    * @param index \todo
    * @return int \todo */
   int NChansOnBusSAFE(ERoute direction, int index) const
   {
     int NChans = 0;
-    
-    if(index >= 0 && index < mBusInfo[direction].GetSize())
+
+    if (index >= 0 && index < mBusInfo[direction].GetSize())
       NChans = mBusInfo[direction].Get(index)->NChans();
 
     return NChans;
   }
-  
-  /** \todo  
+
+  /** \todo
    * @param direction \todo
    * @return int \todo */
-  int NBuses(ERoute direction) const
-  {
-    return mBusInfo[direction].GetSize();
-  }
-  
+  int NBuses(ERoute direction) const { return mBusInfo[direction].GetSize(); }
+
   /** Get the total number of channels across all direction buses for this IOConfig
    * @param direction \todo
    * @return int \todo */
   int GetTotalNChannels(ERoute direction) const
   {
     int total = 0;
-    
-    for(int i = 0; i < mBusInfo[direction].GetSize(); i++)
+
+    for (int i = 0; i < mBusInfo[direction].GetSize(); i++)
       total += mBusInfo[direction].Get(i)->NChans();
-    
+
     return total;
   }
-  
-  /** \todo  
+
+  /** \todo
    * @param direction \todo
    * @return true \todo
    * @return false \todo */
   bool ContainsWildcard(ERoute direction) const
   {
-    for(auto i = 0; i < mBusInfo[direction].GetSize(); i++)
+    for (auto i = 0; i < mBusInfo[direction].GetSize(); i++)
     {
-      if(mBusInfo[direction].Get(i)->NChans() < 0)
+      if (mBusInfo[direction].Get(i)->NChans() < 0)
         return true;
     }
 
@@ -602,17 +563,14 @@ struct IPreset
 
   IByteChunk mChunk;
 
-  IPreset()
-  {
-    snprintf(mName, MAX_PRESET_NAME_LEN, "%s", UNUSED_PRESET_NAME);
-  }
+  IPreset() { snprintf(mName, MAX_PRESET_NAME_LEN, "%s", UNUSED_PRESET_NAME); }
 };
 
 /** Used for key press info, such as ASCII representation, virtual key (mapped to win32 codes) and modifiers */
 struct IKeyPress
 {
   int VK; // Windows VK_XXX
-  char utf8[5] = { 0 }; // UTF8 key
+  char utf8[5] = {0}; // UTF8 key
   bool S, C, A; // SHIFT / CTRL(WIN) or CMD (MAC) / ALT
 
   /** \todo
@@ -622,8 +580,10 @@ struct IKeyPress
    * @param c \todo
    * @param a \todo */
   IKeyPress(const char* _utf8, int vk, bool s = false, bool c = false, bool a = false)
-    : VK(vk)
-    , S(s), C(c), A(a)
+  : VK(vk)
+  , S(s)
+  , C(c)
+  , A(a)
   {
     strcpy(utf8, _utf8);
   }

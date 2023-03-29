@@ -2,11 +2,12 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 
-uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, const IOConfig* pConfig, WDL_TypedBuf<uint64_t>* APIBusTypes)
+uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, const IOConfig* pConfig,
+                                         WDL_TypedBuf<uint64_t>* APIBusTypes)
 {
   assert(pConfig != nullptr);
   assert(busIdx >= 0 && busIdx < pConfig->NBuses(dir));
-  
+
   int numChans = pConfig->GetBusInfo(dir, busIdx)->NChans();
 
 #if defined AU_API || defined AUv3_API
@@ -17,10 +18,10 @@ uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int busIdx, 
     case 2: APIBusTypes->Add(kAudioChannelLayoutTag_Stereo); break;
     case 6: APIBusTypes->Add(kAudioChannelLayoutTag_AudioUnit_5_1); break;
     case 8: APIBusTypes->Add(kAudioChannelLayoutTag_AudioUnit_7_1); break;
-#if defined (MAC_OS_VERSION_11_0)
+  #if defined(MAC_OS_VERSION_11_0)
     case 10: APIBusTypes->Add(kAudioChannelLayoutTag_Atmos_7_1_2); break;
     case 12: APIBusTypes->Add(kAudioChannelLayoutTag_Atmos_7_1_4); break;
-#endif
+  #endif
     default: APIBusTypes->Add(kAudioChannelLayoutTag_DiscreteInOrder | numChans); break;
   }
   return 0;
@@ -60,7 +61,7 @@ IPlugSurroundEffect::IPlugSurroundEffect(const InstanceInfo& info)
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
-  
+
   mLayoutFunc = [&](IGraphics* pGraphics) {
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
@@ -69,8 +70,14 @@ IPlugSurroundEffect::IPlugSurroundEffect(const InstanceInfo& info)
     IRECT s = b.ReduceFromRight(50.f);
 
     const IVStyle meterStyle = DEFAULT_STYLE.WithColor(kFG, COLOR_WHITE.WithOpacity(0.3f));
-    pGraphics->AttachControl(new IVPeakAvgMeterControl<12>(b.FracRectVertical(0.5, true), "Inputs", meterStyle, EDirection::Vertical, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}), kCtrlTagInputMeter);
-    pGraphics->AttachControl(new IVPeakAvgMeterControl<12>(b.FracRectVertical(0.5, false), "Outputs", meterStyle, EDirection::Vertical, {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}), kCtrlTagOutputMeter);
+    pGraphics->AttachControl(
+      new IVPeakAvgMeterControl<12>(b.FracRectVertical(0.5, true), "Inputs", meterStyle, EDirection::Vertical,
+                                    {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}),
+      kCtrlTagInputMeter);
+    pGraphics->AttachControl(
+      new IVPeakAvgMeterControl<12>(b.FracRectVertical(0.5, false), "Outputs", meterStyle, EDirection::Vertical,
+                                    {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}),
+      kCtrlTagOutputMeter);
     pGraphics->AttachControl(new IVSliderControl(s, kGain));
   };
 #endif
@@ -87,9 +94,11 @@ void IPlugSurroundEffect::ProcessBlock(sample** inputs, sample** outputs, int nF
 {
   const double gain = GetParam(kGain)->Value() / 100.;
   const int nChans = NOutChansConnected();
-  
-  for (int s = 0; s < nFrames; s++) {
-    for (int c = 0; c < nChans; c++) {
+
+  for (int s = 0; s < nFrames; s++)
+  {
+    for (int c = 0; c < nChans; c++)
+    {
       outputs[c][s] = inputs[c][s] * gain;
     }
   }

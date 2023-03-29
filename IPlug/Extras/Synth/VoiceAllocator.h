@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <functional>
 #include <bitset>
-//#include <iostream>
+// #include <iostream>
 
 #include "IPlugLogger.h"
 #include "IPlugQueue.h"
@@ -81,7 +81,6 @@ struct VoiceInputEvent
 class VoiceAllocator final
 {
 public:
-
   enum EATMode
   {
     kATModeChannel = 0,
@@ -109,9 +108,21 @@ public:
 
   void Clear();
 
-  void SetSampleRateAndBlockSize(double sampleRate, int blockSize) { mSampleRate = sampleRate; CalcGlideTimesInSamples(); }
-  void SetNoteGlideTime(double t) { mNoteGlideTime = t; CalcGlideTimesInSamples(); }
-  void SetControlGlideTime(double t) { mControlGlideTime = t; CalcGlideTimesInSamples(); }
+  void SetSampleRateAndBlockSize(double sampleRate, int blockSize)
+  {
+    mSampleRate = sampleRate;
+    CalcGlideTimesInSamples();
+  }
+  void SetNoteGlideTime(double t)
+  {
+    mNoteGlideTime = t;
+    CalcGlideTimesInSamples();
+  }
+  void SetControlGlideTime(double t)
+  {
+    mControlGlideTime = t;
+    CalcGlideTimesInSamples();
+  }
 
   /** Add a synth voice to the allocator. We do not take ownership ot the voice.
    @param pv Pointer to the voice to add.
@@ -130,15 +141,15 @@ public:
   /** Stop all voices from making sound immdiately. */
   void HardKillAllVoices();
 
-  void SetKeyToPitchFunction(const std::function<float(int)>& fn) {mKeyToPitchFn = fn;}
+  void SetKeyToPitchFunction(const std::function<float(int)>& fn) { mKeyToPitchFn = fn; }
 
   /** Send the event to the voices matching its address.*/
   void SendEventToVoices(VoiceInputEvent event);
 
   void ProcessVoices(sample** inputs, sample** outputs, int nInputs, int nOutputs, int startIndex, int blockSize);
 
-  size_t GetNVoices() const {return mVoicePtrs.size();}
-  SynthVoice* GetVoice(int voiceIndex) const {return mVoicePtrs[voiceIndex];}
+  size_t GetNVoices() const { return mVoicePtrs.size(); }
+  SynthVoice* GetVoice(int voiceIndex) const { return mVoicePtrs[voiceIndex]; }
   void SetPitchOffset(float offset) { mPitchOffset = offset; }
 
 private:
@@ -150,8 +161,10 @@ private:
   void SendControlToVoicesDirect(VoiceBitsArray v, int ctlIdx, float val);
   void SendProgramChangeToVoices(VoiceBitsArray v, int pgm);
 
-  void StartVoice(int voiceIdx, int channel, int key, float pitch, float velocity, int sampleOffset, int64_t sampleTime, bool retrig);
-  void StartVoices(VoiceBitsArray voices, int channel, int key, float pitch, float velocity, int sampleOffset, int64_t sampleTime, bool retrig);
+  void StartVoice(int voiceIdx, int channel, int key, float pitch, float velocity, int sampleOffset, int64_t sampleTime,
+                  bool retrig);
+  void StartVoices(VoiceBitsArray voices, int channel, int key, float pitch, float velocity, int sampleOffset,
+                   int64_t sampleTime, bool retrig);
 
   void StopVoice(int voiceIdx, int sampleOffset);
   void StopVoices(VoiceBitsArray voices, int sampleOffset);
@@ -188,8 +201,8 @@ private:
   float mMinHeldVelocity{1.f};
 
 public:
-  EPolyMode mPolyMode {kPolyModePoly};
-  EATMode mATMode {kATModeChannel};
+  EPolyMode mPolyMode{kPolyModePoly};
+  EATMode mATMode{kATModeChannel};
 };
 
 END_IPLUG_NAMESPACE

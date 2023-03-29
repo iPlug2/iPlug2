@@ -13,7 +13,7 @@ void IPlugConvoEngine::ProcessBlock(sample** inputs, sample** outputs, int nFram
 {
   sample* inputL = inputs[0];
   sample* outputL = outputs[0];
-  
+
   mEngine.Add(inputs, nFrames, 1);
 
   int nAvailableSamples = std::min(mEngine.Avail(nFrames), nFrames);
@@ -52,12 +52,12 @@ void IPlugConvoEngine::OnReset()
     static constexpr double irSampleRate = 44100.;
     mImpulse.SetNumChannels(1);
 
-#if defined USE_WDL_RESAMPLER
+  #if defined USE_WDL_RESAMPLER
     mResampler.SetMode(false, 0, true); // Sinc, default size
     mResampler.SetFeedMode(true); // Input driven
-#elif defined USE_R8BRAIN
+  #elif defined USE_R8BRAIN
     mResampler = std::make_unique<CDSPResampler16IR>(irSampleRate, mSampleRate, mBlockLength);
-#endif
+  #endif
 
     // Resample the impulse response.
     auto len = mImpulse.SetLength(ResampleLength(irLength, irSampleRate, mSampleRate));
@@ -65,10 +65,10 @@ void IPlugConvoEngine::OnReset()
     {
       Resample(mIR, irLength, irSampleRate, mImpulse.impulses[0].Get(), len, mSampleRate);
     }
-    
+
     // Tie the impulse response to the convolution engine.
     mEngine.SetImpulse(&mImpulse);
-    
+
     SetLatency(mEngine.GetLatency());
   }
 }
@@ -79,7 +79,8 @@ void IPlugConvoEngine::Resample(const I* pSrc, int srcLength, double srcRate, O*
   if (dstLength == srcLength)
   {
     // Copy
-    for (int i = 0; i < dstLength; ++i) *pDest++ = (O)*pSrc++;
+    for (int i = 0; i < dstLength; ++i)
+      *pDest++ = (O)*pSrc++;
     return;
   }
 
@@ -91,16 +92,21 @@ void IPlugConvoEngine::Resample(const I* pSrc, int srcLength, double srcRate, O*
   {
     WDL_ResampleSample* p;
     int n = mResampler.ResamplePrepare(mBlockLength, 1, &p), m = n;
-    if (n > srcLength) n = srcLength;
-    for (int i = 0; i < n; ++i) *p++ = (WDL_ResampleSample)*pSrc++;
-    if (n < m) memset(p, 0, (m - n) * sizeof(WDL_ResampleSample));
+    if (n > srcLength)
+      n = srcLength;
+    for (int i = 0; i < n; ++i)
+      *p++ = (WDL_ResampleSample)*pSrc++;
+    if (n < m)
+      memset(p, 0, (m - n) * sizeof(WDL_ResampleSample));
     srcLength -= n;
 
     WDL_ResampleSample buf[mBlockLength];
     n = mResampler.ResampleOut(buf, m, m, 1);
-    if (n > dstLength) n = dstLength;
+    if (n > dstLength)
+      n = dstLength;
     p = buf;
-    for (int i = 0; i < n; ++i) *pDest++ = (O)(scale * *p++);
+    for (int i = 0; i < n; ++i)
+      *pDest++ = (O)(scale * *p++);
     dstLength -= n;
   }
   mResampler.Reset();
@@ -112,14 +118,19 @@ void IPlugConvoEngine::Resample(const I* pSrc, int srcLength, double srcRate, O*
   {
     double buf[mBlockLength], *p = buf;
     int n = mBlockLength;
-    if (n > srcLength) n = srcLength;
-    for (int i = 0; i < n; ++i) *p++ = (double)*pSrc++;
-    if (n < mBlockLength) memset(p, 0, (mBlockLength - n) * sizeof(double));
+    if (n > srcLength)
+      n = srcLength;
+    for (int i = 0; i < n; ++i)
+      *p++ = (double)*pSrc++;
+    if (n < mBlockLength)
+      memset(p, 0, (mBlockLength - n) * sizeof(double));
     srcLength -= n;
 
     n = mResampler->process(buf, mBlockLength, p);
-    if (n > dstLength) n = dstLength;
-    for (int i = 0; i < n; ++i) *pDest++ = (O)(scale * *p++);
+    if (n > dstLength)
+      n = dstLength;
+    for (int i = 0; i < n; ++i)
+      *pDest++ = (O)(scale * *p++);
     dstLength -= n;
   }
   mResampler->clear();
@@ -135,7 +146,8 @@ void IPlugConvoEngine::Resample(const I* pSrc, int srcLength, double srcRate, O*
     {
       double frac = pos - floor(pos);
       double interp = (1. - frac) * pSrc[idx];
-      if (++idx < srcLength) interp += frac * pSrc[idx];
+      if (++idx < srcLength)
+        interp += frac * pSrc[idx];
       pos += delta;
       *pDest++ = (O)(delta * interp);
     }
@@ -147,9 +159,7 @@ void IPlugConvoEngine::Resample(const I* pSrc, int srcLength, double srcRate, O*
   #endif
 }
 
-const float IPlugConvoEngine::mIR[] =
-{
+const float IPlugConvoEngine::mIR[] = {
   #include "ir.h"
 };
 #endif
-

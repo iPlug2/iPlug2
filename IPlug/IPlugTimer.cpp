@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -55,9 +55,9 @@ void Timer_impl::Stop()
   }
 }
 
-void Timer_impl::TimerProc(CFRunLoopTimerRef timer, void *info)
+void Timer_impl::TimerProc(CFRunLoopTimerRef timer, void* info)
 {
-  Timer_impl* itimer = (Timer_impl*) info;
+  Timer_impl* itimer = (Timer_impl*)info;
   itimer->mTimerFunc(*itimer);
 }
 
@@ -76,8 +76,8 @@ Timer_impl::Timer_impl(ITimerFunction func, uint32_t intervalMs)
 , mIntervalMs(intervalMs)
 
 {
-  ID = SetTimer(0, 0, intervalMs, TimerProc); //TODO: timer ID correct?
-  
+  ID = SetTimer(0, 0, intervalMs, TimerProc); // TODO: timer ID correct?
+
   if (ID)
   {
     WDL_MutexLock lock(&sMutex);
@@ -108,7 +108,7 @@ void CALLBACK Timer_impl::TimerProc(HWND hwnd, UINT uMsg, UINT_PTR idEvent, DWOR
   for (auto i = 0; i < sTimers.GetSize(); i++)
   {
     Timer_impl* pTimer = sTimers.Get(i);
-    
+
     if (pTimer->ID == idEvent)
     {
       pTimer->mTimerFunc(*pTimer);
@@ -140,7 +140,7 @@ void Timer_impl::Stop()
 
 void Timer_impl::TimerProc(void* userData)
 {
-  Timer_impl* itimer = (Timer_impl*) userData;
+  Timer_impl* itimer = (Timer_impl*)userData;
   itimer->mTimerFunc(*itimer);
 }
 #endif

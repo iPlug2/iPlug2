@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -51,7 +51,7 @@ tresult PLUGIN_API IPlugVST3::initialize(FUnknown* context)
     IPlugVST3GetHost(this, context);
     OnHostIdentified();
     OnParamReset(kReset);
-    
+
     return kResultOk;
   }
 
@@ -65,18 +65,22 @@ tresult PLUGIN_API IPlugVST3::terminate()
   return SingleComponentEffect::terminate();
 }
 
-tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* pInputBusArrangements, int32 numInBuses, SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses)
+tresult PLUGIN_API IPlugVST3::setBusArrangements(SpeakerArrangement* pInputBusArrangements, int32 numInBuses,
+                                                 SpeakerArrangement* pOutputBusArrangements, int32 numOutBuses)
 {
   TRACE
- 
-  return IPlugVST3ProcessorBase::SetBusArrangements(this, pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses) ? kResultTrue : kResultFalse;
+
+  return IPlugVST3ProcessorBase::SetBusArrangements(
+           this, pInputBusArrangements, numInBuses, pOutputBusArrangements, numOutBuses)
+           ? kResultTrue
+           : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::setActive(TBool state)
 {
   TRACE
 
-  OnActivate((bool) state);
+  OnActivate((bool)state);
   return SingleComponentEffect::setActive(state);
 }
 
@@ -91,14 +95,15 @@ tresult PLUGIN_API IPlugVST3::setProcessing(TBool state)
 {
   Trace(TRACELOC, " state: %i", state);
 
-  return SetProcessing((bool) state) ? kResultOk : kResultFalse;
+  return SetProcessing((bool)state) ? kResultOk : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::process(ProcessData& data)
 {
   TRACE
 
-  Process(data, processSetup, audioInputs, audioOutputs, mMidiMsgsFromEditor, mMidiMsgsFromProcessor, mSysExDataFromEditor, mSysexBuf);
+  Process(data, processSetup, audioInputs, audioOutputs, mMidiMsgsFromEditor, mMidiMsgsFromProcessor,
+          mSysExDataFromEditor, mSysexBuf);
   return kResultOk;
 }
 
@@ -110,15 +115,15 @@ tresult PLUGIN_API IPlugVST3::canProcessSampleSize(int32 symbolicSampleSize)
 tresult PLUGIN_API IPlugVST3::setState(IBStream* pState)
 {
   TRACE
-  
-  return IPlugVST3State::SetState(this, pState) ? kResultOk :kResultFalse;
+
+  return IPlugVST3State::SetState(this, pState) ? kResultOk : kResultFalse;
 }
 
 tresult PLUGIN_API IPlugVST3::getState(IBStream* pState)
 {
   TRACE
-  
-  return IPlugVST3State::GetState(this, pState) ? kResultOk :kResultFalse;
+
+  return IPlugVST3State::GetState(this, pState) ? kResultOk : kResultFalse;
 }
 
 #pragma mark IEditController overrides
@@ -142,7 +147,7 @@ IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
     mView = new ViewType(*this);
     return mView;
   }
-  
+
   return 0;
 }
 
@@ -166,7 +171,8 @@ tresult PLUGIN_API IPlugVST3::setComponentState(IBStream* pState)
 
 #pragma mark IMidiMapping overrides
 
-tresult PLUGIN_API IPlugVST3::getMidiControllerAssignment(int32 busIndex, int16 midiChannel, CtrlNumber midiCCNumber, ParamID& tag)
+tresult PLUGIN_API IPlugVST3::getMidiControllerAssignment(int32 busIndex, int16 midiChannel, CtrlNumber midiCCNumber,
+                                                          ParamID& tag)
 {
   if (busIndex == 0 && midiChannel < VST3_NUM_CC_CHANS)
   {
@@ -219,7 +225,7 @@ bool IPlugVST3::EditorResize(int viewWidth, int viewHeight)
 
     SetEditorSize(viewWidth, viewHeight);
   }
-  
+
   return true;
 }
 
@@ -229,7 +235,7 @@ void IPlugVST3::DirtyParametersFromUI()
 {
   for (int i = 0; i < NParams(); i++)
     IPlugVST3ControllerBase::SetVST3ParamNormalized(i, GetParam(i)->GetNormalized());
-  
+
   startGroupEdit();
   IPlugAPIBase::DirtyParametersFromUI();
   finishGroupEdit();
@@ -244,7 +250,7 @@ void IPlugVST3::SendParameterValueFromUI(int paramIdx, double normalisedValue)
 void IPlugVST3::SetLatency(int latency)
 {
   // N.B. set the latency even if the handler is not yet set
-  
+
   IPlugProcessor::SetLatency(latency);
 
   if (componentHandler)

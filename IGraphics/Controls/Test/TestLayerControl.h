@@ -49,7 +49,8 @@ public:
     }
 
     g.FillCircle(COLOR_BLUE, mRECT.MW(), mRECT.MH(), mRECT.H() / 4.f);
-    g.DrawRadialLine(COLOR_BLACK, mRECT.MW(), mRECT.MH(), -120.f + static_cast<float>(GetValue()) * 240.f, 0.f, mRECT.H() / 4.f, nullptr, 3.f);
+    g.DrawRadialLine(COLOR_BLACK, mRECT.MW(), mRECT.MH(), -120.f + static_cast<float>(GetValue()) * 240.f, 0.f,
+                     mRECT.H() / 4.f, nullptr, 3.f);
   }
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override

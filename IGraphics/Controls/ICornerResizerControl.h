@@ -26,7 +26,8 @@ BEGIN_IGRAPHICS_NAMESPACE
 class ICornerResizerControl : public IControl
 {
 public:
-  ICornerResizerControl(const IRECT& graphicsBounds, float size, const IColor& color = COLOR_TRANSLUCENT, const IColor& mouseOverColour = COLOR_BLACK, const IColor& dragColor = COLOR_BLACK)
+  ICornerResizerControl(const IRECT& graphicsBounds, float size, const IColor& color = COLOR_TRANSLUCENT,
+                        const IColor& mouseOverColour = COLOR_BLACK, const IColor& dragColor = COLOR_BLACK)
   : IControl(graphicsBounds.GetFromBRHC(size, size).GetPadded(-1))
   , mSize(size)
   , mInitialGraphicsBounds(graphicsBounds)
@@ -38,16 +39,13 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    const IColor &color = GetUI()->mResizingInProcess ? mDragColor : GetMouseIsOver()? mMouseOverColor : mColor;
-    
+    const IColor& color = GetUI()->mResizingInProcess ? mDragColor : GetMouseIsOver() ? mMouseOverColor : mColor;
+
     g.FillTriangle(color, mRECT.L, mRECT.B, mRECT.R, mRECT.T, mRECT.R, mRECT.B);
   }
 
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override
-  {
-    GetUI()->StartDragResize();
-  }
-    
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override { GetUI()->StartDragResize(); }
+
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override
   {
     GetUI()->Resize(static_cast<int>(mInitialGraphicsBounds.W()), static_cast<int>(mInitialGraphicsBounds.H()), 1.f);
@@ -55,7 +53,7 @@ public:
 
   void OnRescale() override
   {
-    float size = mSize * (1.f/GetUI()->GetDrawScale());
+    float size = mSize * (1.f / GetUI()->GetDrawScale());
     IRECT r = GetUI()->GetBounds().GetFromBRHC(size, size);
     SetTargetAndDrawRECTs(r);
   }
@@ -75,6 +73,7 @@ public:
     mMouseOver = false;
     IControl::OnMouseOut();
   }
+
 private:
   float mSize;
   bool mMouseOver = false;

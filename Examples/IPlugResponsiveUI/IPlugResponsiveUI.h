@@ -3,8 +3,8 @@
 #include "IPlug_include_in_plug_hdr.h"
 
 #if IPLUG_DSP
-#include "Oscillator.h"
-#include "ISender.h"
+  #include "Oscillator.h"
+  #include "ISender.h"
 #endif
 
 const int kNumPresets = 1;
@@ -34,13 +34,14 @@ public:
   bool OnHostRequestingSupportedViewConfiguration(int width, int height) override;
   void OnHostSelectedViewConfiguration(int width, int height) override;
 #endif
-  
+
 #if IPLUG_DSP // http://bit.ly/2S64BDd
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnIdle() override;
+
 private:
-  FastSinOscillator<sample> mOsc {440.f};
+  FastSinOscillator<sample> mOsc{440.f};
   IBufferSender<> mScopeSender;
 #endif
 };

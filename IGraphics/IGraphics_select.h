@@ -51,8 +51,8 @@
     #include "IGraphicsSkia.h"
     #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsSkia
   #elif defined IGRAPHICS_CANVAS
-     #include "IGraphicsCanvas.h"
-     #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsCanvas
+    #include "IGraphicsCanvas.h"
+    #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsCanvas
     #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
       #error When using IGRAPHICS_CANVAS, don't define IGRAPHICS_METAL or IGRAPHICS_GL*
     #endif
@@ -66,4 +66,3 @@ BEGIN_IGRAPHICS_NAMESPACE
 using IGRAPHICS_DRAW_CLASS = IGRAPHICS_DRAW_CLASS_TYPE;
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
-

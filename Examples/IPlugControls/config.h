@@ -36,7 +36,7 @@
 #define AUV2_VIEW_CLASS_STR "IPlugControls_View"
 
 #define AAX_TYPE_IDS 'IPCT'
-//#define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'
+// #define AAX_TYPE_IDS_AUDIOSUITE 'EFA1', 'EFA2'
 #define AAX_PLUG_MFR_STR "Acme"
 #define AAX_PLUG_NAME_STR "IPlugControls\nIPCT"
 #define AAX_PLUG_CATEGORY_STR "Synth"
@@ -70,4 +70,3 @@
 #define SVGKNOBROTATE_FN "vector-knob.svg"
 #define SVGHSLIDERHANDLE_FN "hslider-handle.svg"
 #define SVGHSLIDERTRACK_FN "hslider-track.svg"
-

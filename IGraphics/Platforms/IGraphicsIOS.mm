@@ -37,7 +37,7 @@ float GetScaleForScreen(int plugWidth, int plugHeight)
 {
   int width, height;
   GetScreenDimensions(width, height);
-  return std::min((float) width / (float) plugWidth, (float) height / (float) plugHeight);
+  return std::min((float)width / (float)plugWidth, (float)height / (float)plugHeight);
 }
 
 END_IGRAPHICS_NAMESPACE
@@ -56,33 +56,36 @@ NSArray<id<MTLTexture>>* gTextures;
 IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGRAPHICS_DRAW_CLASS(dlg, w, h, fps, scale)
 {
- 
+
 #if defined IGRAPHICS_METAL && !defined IGRAPHICS_SKIA
-  if(!gTextureMap.size())
+  if (!gTextureMap.size())
   {
     NSBundle* pBundle = [NSBundle mainBundle];
 
-    if(IsOOPAuv3AppExtension())
-      pBundle = [NSBundle bundleWithPath: [[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent]];
-    
+    if (IsOOPAuv3AppExtension())
+      pBundle = [NSBundle
+        bundleWithPath:[[[pBundle bundlePath] stringByDeletingLastPathComponent] stringByDeletingLastPathComponent]];
+
     NSArray<NSURL*>* pTextureFiles = [pBundle URLsForResourcesWithExtension:@"ktx" subdirectory:@""];
-    
+
     if ([pTextureFiles count])
     {
       MTKTextureLoader* textureLoader = [[MTKTextureLoader alloc] initWithDevice:MTLCreateSystemDefaultDevice()];
-      
+
       NSError* pError = nil;
-      NSDictionary* textureOptions = @{ MTKTextureLoaderOptionSRGB: [NSNumber numberWithBool:NO] };
+      NSDictionary* textureOptions = @{MTKTextureLoaderOptionSRGB : [NSNumber numberWithBool:NO]};
 
       gTextures = [textureLoader newTexturesWithContentsOfURLs:pTextureFiles options:textureOptions error:&pError];
-    
-      for(int i=0; i < gTextures.count; i++)
+
+      for (int i = 0; i < gTextures.count; i++)
       {
-        gTextureMap.insert(std::make_pair([[[pTextureFiles[i] lastPathComponent] stringByDeletingPathExtension] cStringUsingEncoding:NSUTF8StringEncoding], (MTLTexturePtr) gTextures[i]));
+        gTextureMap.insert(std::make_pair([[[pTextureFiles[i] lastPathComponent] stringByDeletingPathExtension]
+                                            cStringUsingEncoding:NSUTF8StringEncoding],
+                                          (MTLTexturePtr)gTextures[i]));
       }
-    
-      DBGMSG("Preloaded %i textures\n", (int) [pTextureFiles count]);
-    
+
+      DBGMSG("Preloaded %i textures\n", (int)[pTextureFiles count]);
+
       [textureLoader release];
       textureLoader = nil;
     }
@@ -99,21 +102,21 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
 {
   TRACE
   CloseWindow();
-  IGRAPHICS_VIEW* view = [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
-  mView = (void*) view;
-  
-  OnViewInitialized((void*) [view metalLayer]);
-  
+  IGRAPHICS_VIEW* view = [[IGRAPHICS_VIEW alloc] initWithIGraphics:this];
+  mView = (void*)view;
+
+  OnViewInitialized((void*)[view metalLayer]);
+
   SetScreenScale([UIScreen mainScreen].scale);
-  
+
   GetDelegate()->LayoutUI(this);
   GetDelegate()->OnUIOpen();
-  
+
   [view setMultipleTouchEnabled:MultiTouchEnabled()];
 
   if (pParent)
   {
-    [(UIView*) pParent addSubview: view];
+    [(UIView*)pParent addSubview:view];
   }
 
   return mView;
@@ -122,8 +125,8 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
 void IGraphicsIOS::CloseWindow()
 {
   if (mView)
-  { 
-    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+  {
+    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*)mView;
     [pView removeFromSuperview];
     [pView release];
     mView = nullptr;
@@ -142,15 +145,15 @@ void IGraphicsIOS::PlatformResize(bool parentHasResized)
   if (mView)
   {
     CGRect r = CGRectMake(0., 0., static_cast<CGFloat>(WindowWidth()), static_cast<CGFloat>(WindowHeight()));
-    [(IGRAPHICS_VIEW*) mView setFrame: r ];
+    [(IGRAPHICS_VIEW*)mView setFrame:r];
   }
 }
 
 void IGraphicsIOS::AttachPlatformView(const IRECT& r, void* pView)
 {
-  IGRAPHICS_VIEW* pMainView = (IGRAPHICS_VIEW*) mView;
-  
-  UIView* pNewSubView = (UIView*) pView;
+  IGRAPHICS_VIEW* pMainView = (IGRAPHICS_VIEW*)mView;
+
+  UIView* pNewSubView = (UIView*)pView;
   [pNewSubView setFrame:ToCGRect(this, r)];
 
   [pMainView addSubview:pNewSubView];
@@ -158,27 +161,28 @@ void IGraphicsIOS::AttachPlatformView(const IRECT& r, void* pView)
 
 void IGraphicsIOS::RemovePlatformView(void* pView)
 {
-  [(UIView*) pView removeFromSuperview];
+  [(UIView*)pView removeFromSuperview];
 }
 
-EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
+EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type,
+                                           IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
-  [(IGRAPHICS_VIEW*) mView showMessageBox:str :caption :type :completionHandler];
+  [(IGRAPHICS_VIEW*)mView showMessageBox:str:caption:type:completionHandler];
   return EMsgBoxResult::kNoResult; // we need to rely on completionHandler
 }
 
 void IGraphicsIOS::AttachGestureRecognizer(EGestureType type)
 {
   IGraphics::AttachGestureRecognizer(type);
-  [(IGRAPHICS_VIEW*) mView attachGestureRecognizer:type];
+  [(IGRAPHICS_VIEW*)mView attachGestureRecognizer:type];
 }
 
 void IGraphicsIOS::ForceEndUserEdit()
 {
   if (mView)
   {
-    [(IGRAPHICS_VIEW*) mView endUserInput];
+    [(IGRAPHICS_VIEW*)mView endUserInput];
   }
 }
 
@@ -187,15 +191,16 @@ const char* IGraphicsIOS::GetPlatformAPIStr()
   return "iOS";
 }
 
-void IGraphicsIOS::GetMouseLocation(float& x, float&y) const
+void IGraphicsIOS::GetMouseLocation(float& x, float& y) const
 {
-  [(IGRAPHICS_VIEW*) mView getLastTouchLocation: x : y];
+  [(IGRAPHICS_VIEW*)mView getLastTouchLocation:x:y];
 }
 
-void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler)
+void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext,
+                                 IFileDialogCompletionHandlerFunc completionHandler)
 {
   assert(completionHandler != nullptr && "You must provide a completion handler on iOS");
-  
+
   NSString* pDefaultFileName = nil;
   NSString* pDefaultPath = nil;
   NSMutableArray* pFileTypes = [[NSMutableArray alloc] init];
@@ -204,7 +209,7 @@ void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     pDefaultFileName = [NSString stringWithCString:fileName.Get() encoding:NSUTF8StringEncoding];
   else
     pDefaultFileName = @"";
-  
+
   if (path.GetLength())
     pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
   else
@@ -214,16 +219,16 @@ void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
 
   if (CStringHasContents(ext))
   {
-    NSArray* pFileExtensions = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
-    
+    NSArray* pFileExtensions = [[NSString stringWithUTF8String:ext] componentsSeparatedByString:@" "];
+
     for (NSString* pFileExtension in pFileExtensions)
     {
       UTType* pUTType = [UTType typeWithFilenameExtension:pFileExtension];
       [pFileTypes addObject:pUTType];
     }
   }
-  
-  [(IGRAPHICS_VIEW*) mView promptForFile: pDefaultFileName : pDefaultPath : action : pFileTypes : completionHandler];
+
+  [(IGRAPHICS_VIEW*)mView promptForFile:pDefaultFileName:pDefaultPath:action:pFileTypes:completionHandler];
 }
 
 void IGraphicsIOS::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler)
@@ -233,7 +238,7 @@ void IGraphicsIOS::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHand
 
 bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
-  [(IGRAPHICS_VIEW*) mView promptForColor: color: str: func];
+  [(IGRAPHICS_VIEW*)mView promptForColor:color:str:func];
   return false;
 }
 
@@ -244,24 +249,26 @@ IPopupMenu* IGraphicsIOS::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT 
   if (mView)
   {
     CGRect areaRect = ToCGRect(this, bounds);
-    pReturnMenu = [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
+    pReturnMenu = [(IGRAPHICS_VIEW*)mView createPopupMenu:menu:areaRect];
   }
-  
-  //synchronous
-  if(pReturnMenu && pReturnMenu->GetFunction())
+
+  // synchronous
+  if (pReturnMenu && pReturnMenu->GetFunction())
     pReturnMenu->ExecFunction();
-  
+
   return pReturnMenu;
 }
 
-void IGraphicsIOS::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
+void IGraphicsIOS::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length,
+                                           const char* str)
 {
   ReleaseMouseCapture();
   CGRect areaRect = ToCGRect(this, bounds);
-  [(IGRAPHICS_VIEW*) mView createTextEntry: paramIdx : text: str: length: areaRect];
+  [(IGRAPHICS_VIEW*)mView createTextEntry:paramIdx:text:str:length:areaRect];
 }
 
-bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
+bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg,
+                           const char* errMsgOnFailure)
 {
   NSURL* pNSURL = nullptr;
   if (strstr(url, "http"))
@@ -271,10 +278,11 @@ bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const ch
 
   if (pNSURL)
   {
-    UIResponder* pResponder = (UIResponder*) mView;
-    while(pResponder) {
-      if ([pResponder respondsToSelector: @selector(openURL:)])
-        [pResponder performSelector: @selector(openURL:) withObject: pNSURL];
+    UIResponder* pResponder = (UIResponder*)mView;
+    while (pResponder)
+    {
+      if ([pResponder respondsToSelector:@selector(openURL:)])
+        [pResponder performSelector:@selector(openURL:) withObject:pNSURL];
 
       pResponder = [pResponder nextResponder];
     }
@@ -294,7 +302,7 @@ void* IGraphicsIOS::GetWindow()
 // static
 int IGraphicsIOS::GetUserOSVersion()
 {
-  return (int) 0; //TODO
+  return (int)0; // TODO
 }
 
 bool IGraphicsIOS::GetTextFromClipboard(WDL_String& str)
@@ -330,14 +338,14 @@ void IGraphicsIOS::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
 void IGraphicsIOS::LaunchBluetoothMidiDialog(float x, float y)
 {
   ReleaseMouseCapture();
-  NSDictionary* dic = @{@"x": @(x), @"y": @(y)};
+  NSDictionary* dic = @{@"x" : @(x), @"y" : @(y)};
   [[NSNotificationCenter defaultCenter] postNotificationName:@"LaunchBTMidiDialog" object:nil userInfo:dic];
 }
 
 EUIAppearance IGraphicsIOS::GetUIAppearance() const
 {
-  IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
-  
+  IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*)mView;
+
   if (pView)
   {
     return [[pView traitCollection] userInterfaceStyle] == UIUserInterfaceStyleDark ? EUIAppearance::Dark

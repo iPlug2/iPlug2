@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -15,7 +15,7 @@
  * @brief IPlug header include
  * Include this file in the main header for your plugin
  * A preprocessor macro for a particular API such as VST2_API should be defined at project level
-*/
+ */
 
 #include <cstdio>
 #include "IPlugPlatform.h"
@@ -23,26 +23,26 @@
 
 #define API_EXT2
 #ifdef VST2_API
-#ifdef REAPER_PLUGIN
-  #define LICE_PROVIDED_BY_APP
-//  #define SWELL_PROVIDED_BY_APP
-  #include "IPlugReaperVST2.h"
-  #define PLUGIN_API_BASE IPlugReaperVST2
+  #ifdef REAPER_PLUGIN
+    #define LICE_PROVIDED_BY_APP
+  //  #define SWELL_PROVIDED_BY_APP
+    #include "IPlugReaperVST2.h"
+    #define PLUGIN_API_BASE IPlugReaperVST2
 
-  #ifdef FillRect
-  #undef FillRect
-  #endif
-  #ifdef DrawText
-  #undef DrawText
-  #endif
-  #ifdef Polygon
-  #undef Polygon
-  #endif
+    #ifdef FillRect
+      #undef FillRect
+    #endif
+    #ifdef DrawText
+      #undef DrawText
+    #endif
+    #ifdef Polygon
+      #undef Polygon
+    #endif
 
-#else
-  #include "IPlugVST2.h"
-  #define PLUGIN_API_BASE IPlugVST2
-#endif
+  #else
+    #include "IPlugVST2.h"
+    #define PLUGIN_API_BASE IPlugVST2
+  #endif
   #define API_EXT "vst"
 #elif defined AU_API
   #include "IPlugAU.h"
@@ -99,12 +99,12 @@ END_IPLUG_NAMESPACE
   #define BUNDLE_ID ""
 #elif defined OS_MAC
   #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME API_EXT2
-  #define EXPORT __attribute__ ((visibility("default")))
+  #define EXPORT __attribute__((visibility("default")))
 #elif defined OS_IOS
   #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." BUNDLE_NAME API_EXT2
-  #define EXPORT __attribute__ ((visibility("default")))
+  #define EXPORT __attribute__((visibility("default")))
 #elif defined OS_LINUX
-  //TODO:
+// TODO:
 #elif defined OS_WEB
   #define BUNDLE_ID ""
 #else
@@ -112,7 +112,7 @@ END_IPLUG_NAMESPACE
 #endif
 
 #if !defined NO_IGRAPHICS && !defined VST3P_API
-#include "IGraphics_include_in_plug_hdr.h"
+  #include "IGraphics_include_in_plug_hdr.h"
 #endif
 
 #define STRINGISE_IMPL(x) #x
@@ -120,10 +120,10 @@ END_IPLUG_NAMESPACE
 
 // Use: #pragma message WARN("My message")
 #if _MSC_VER
-#   define FILE_LINE_LINK __FILE__ "(" STRINGISE(__LINE__) ") : "
-#   define WARN(exp) (FILE_LINE_LINK "WARNING: " exp)
-#else//__GNUC__ - may need other defines for different compilers
-#   define WARN(exp) ("WARNING: " exp)
+  #define FILE_LINE_LINK __FILE__ "(" STRINGISE(__LINE__) ") : "
+  #define WARN(exp) (FILE_LINE_LINK "WARNING: " exp)
+#else //__GNUC__ - may need other defines for different compilers
+  #define WARN(exp) ("WARNING: " exp)
 #endif
 
 #ifndef PLUG_NAME

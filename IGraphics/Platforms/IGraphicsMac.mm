@@ -34,8 +34,8 @@ static int GetSystemVersion()
     else
     {
       SInt32 a = 0x1040;
-      Gestalt(gestaltSystemVersion,&a);
-      v=a;
+      Gestalt(gestaltSystemVersion, &a);
+      v = a;
     }
   }
   return v;
@@ -57,7 +57,7 @@ IGraphicsMac::~IGraphicsMac()
 {
   StaticStorage<CoreTextFontDescriptor>::Accessor storage(sFontDescriptorCache);
   storage.Release();
-  
+
   CloseWindow();
 }
 
@@ -90,22 +90,22 @@ void* IGraphicsMac::OpenWindow(void* pParent)
 {
   TRACE
   CloseWindow();
-  IGRAPHICS_VIEW* pView = [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
-  mView = (void*) pView;
-    
+  IGRAPHICS_VIEW* pView = [[IGRAPHICS_VIEW alloc] initWithIGraphics:this];
+  mView = (void*)pView;
+
 #ifdef IGRAPHICS_GL
   [[pView openGLContext] makeCurrentContext];
 #endif
-    
+
   OnViewInitialized([pView layer]);
   SetScreenScale([[NSScreen mainScreen] backingScaleFactor]);
   GetDelegate()->LayoutUI(this);
   UpdateTooltips();
   GetDelegate()->OnUIOpen();
-  
+
   if (pParent)
   {
-    [(NSView*) pParent addSubview: pView];
+    [(NSView*)pParent addSubview:pView];
   }
 
   return mView;
@@ -113,32 +113,32 @@ void* IGraphicsMac::OpenWindow(void* pParent)
 
 void IGraphicsMac::AttachPlatformView(const IRECT& r, void* pView)
 {
-  NSView* pNewSubView = (NSView*) pView;
+  NSView* pNewSubView = (NSView*)pView;
   [pNewSubView setFrame:ToNSRect(this, r)];
-  
-  [(IGRAPHICS_VIEW*) mView addSubview:(NSView*) pNewSubView];
+
+  [(IGRAPHICS_VIEW*)mView addSubview:(NSView*)pNewSubView];
 }
 
 void IGraphicsMac::RemovePlatformView(void* pView)
 {
-  [(NSView*) pView removeFromSuperview];
+  [(NSView*)pView removeFromSuperview];
 }
 
 void IGraphicsMac::CloseWindow()
 {
   if (mView)
-  {    
-    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
-      
+  {
+    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*)mView;
+
 #ifdef IGRAPHICS_GL
     [[pView openGLContext] makeCurrentContext];
 #endif
-      
+
     [pView removeAllToolTips];
     [pView killTimer];
     [pView removeFromSuperview];
     [pView release];
-      
+
     mView = nullptr;
     OnViewDestroyed();
   }
@@ -153,15 +153,15 @@ void IGraphicsMac::PlatformResize(bool parentHasResized)
 {
   if (mView)
   {
-    NSSize size = { static_cast<CGFloat>(WindowWidth()), static_cast<CGFloat>(WindowHeight()) };
+    NSSize size = {static_cast<CGFloat>(WindowWidth()), static_cast<CGFloat>(WindowHeight())};
 
     [NSAnimationContext beginGrouping]; // Prevent animated resizing
     [[NSAnimationContext currentContext] setDuration:0.0];
-    [(IGRAPHICS_VIEW*) mView setFrameSize: size ];
-    
+    [(IGRAPHICS_VIEW*)mView setFrameSize:size];
+
     [NSAnimationContext endGrouping];
   }
-    
+
   UpdateTooltips();
 }
 
@@ -171,10 +171,10 @@ void IGraphicsMac::PointToScreen(float& x, float& y) const
   {
     x *= GetDrawScale();
     y *= GetDrawScale();
-    NSWindow* pWindow = [(IGRAPHICS_VIEW*) mView window];
-    NSPoint wndpt = [(IGRAPHICS_VIEW*) mView convertPoint:NSMakePoint(x, y) toView:nil];
-    NSPoint pt = [pWindow convertRectToScreen: NSMakeRect(wndpt.x, wndpt.y, 0.0, 0.0)].origin;
-      
+    NSWindow* pWindow = [(IGRAPHICS_VIEW*)mView window];
+    NSPoint wndpt = [(IGRAPHICS_VIEW*)mView convertPoint:NSMakePoint(x, y) toView:nil];
+    NSPoint pt = [pWindow convertRectToScreen:NSMakeRect(wndpt.x, wndpt.y, 0.0, 0.0)].origin;
+
     x = pt.x;
     y = pt.y;
   }
@@ -184,9 +184,9 @@ void IGraphicsMac::ScreenToPoint(float& x, float& y) const
 {
   if (mView)
   {
-    NSWindow* pWindow = [(IGRAPHICS_VIEW*) mView window];
-    NSPoint wndpt = [pWindow convertRectFromScreen: NSMakeRect(x, y, 0.0, 0.0)].origin;
-    NSPoint pt = [(IGRAPHICS_VIEW*) mView convertPoint:NSMakePoint(wndpt.x, wndpt.y) fromView:nil];
+    NSWindow* pWindow = [(IGRAPHICS_VIEW*)mView window];
+    NSPoint wndpt = [pWindow convertRectFromScreen:NSMakeRect(x, y, 0.0, 0.0)].origin;
+    NSPoint pt = [(IGRAPHICS_VIEW*)mView convertPoint:NSMakePoint(wndpt.x, wndpt.y) fromView:nil];
 
     x = pt.x / GetDrawScale();
     y = pt.y / GetDrawScale();
@@ -203,9 +203,9 @@ void IGraphicsMac::HideMouseCursor(bool hide, bool lock)
   {
     if (mCursorHidden == hide)
       return;
-    
+
     mCursorHidden = hide;
-    
+
     if (hide)
     {
       StoreCursorPosition();
@@ -225,7 +225,7 @@ void IGraphicsMac::MoveMouseCursor(float x, float y)
 {
   if (mTabletInput)
     return;
-    
+
   PointToScreen(x, y);
   RepositionCursor(CGPoint{x, y});
   StoreCursorPosition();
@@ -261,37 +261,40 @@ void IGraphicsMac::StoreCursorPosition()
   mCursorX = mouse.x = std::round(mouse.x);
   mCursorY = mouse.y = std::round(mouse.y);
   mCursorLockPosition = CGPoint{mouse.x, mouse.y};
-  
+
   // Convert to IGraphics coordinates
   ScreenToPoint(mCursorX, mCursorY);
 }
 
-void IGraphicsMac::GetMouseLocation(float& x, float&y) const
+void IGraphicsMac::GetMouseLocation(float& x, float& y) const
 {
   // Get position in screen coordinates
   NSPoint mouse = [NSEvent mouseLocation];
   x = mouse.x;
   y = mouse.y;
-  
+
   // Convert to IGraphics coordinates
   ScreenToPoint(x, y);
 }
 
-EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
+EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type,
+                                           IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
 
-  long result = (long) kCANCEL;
-  
-  if (!str) str= "";
-  if (!caption) caption= "";
-  
-  NSString* msg = (NSString*) CFStringCreateWithCString(NULL,str,kCFStringEncodingUTF8);
-  NSString* cap = (NSString*) CFStringCreateWithCString(NULL,caption,kCFStringEncodingUTF8);
- 
-  msg = msg ? msg : (NSString*) CFStringCreateWithCString(NULL, str, kCFStringEncodingASCII);
-  cap = cap ? cap : (NSString*) CFStringCreateWithCString(NULL, caption, kCFStringEncodingASCII);
-  
+  long result = (long)kCANCEL;
+
+  if (!str)
+    str = "";
+  if (!caption)
+    caption = "";
+
+  NSString* msg = (NSString*)CFStringCreateWithCString(NULL, str, kCFStringEncodingUTF8);
+  NSString* cap = (NSString*)CFStringCreateWithCString(NULL, caption, kCFStringEncodingUTF8);
+
+  msg = msg ? msg : (NSString*)CFStringCreateWithCString(NULL, str, kCFStringEncodingASCII);
+  cap = cap ? cap : (NSString*)CFStringCreateWithCString(NULL, caption, kCFStringEncodingASCII);
+
   switch (type)
   {
     case kMB_OK:
@@ -315,13 +318,13 @@ EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption,
       result = (result == 1) ? kYES : (result == -1) ? kNO : kCANCEL;
       break;
   }
-  
+
   [msg release];
   [cap release];
-  
-  if(completionHandler)
+
+  if (completionHandler)
     completionHandler(static_cast<EMsgBoxResult>(result));
-  
+
   return static_cast<EMsgBoxResult>(result);
 }
 
@@ -329,7 +332,7 @@ void IGraphicsMac::ForceEndUserEdit()
 {
   if (mView)
   {
-    [(IGRAPHICS_VIEW*) mView endUserInput];
+    [(IGRAPHICS_VIEW*)mView endUserInput];
   }
 }
 
@@ -338,29 +341,28 @@ void IGraphicsMac::UpdateTooltips()
   if (!(mView && TooltipsEnabled()))
     return;
 
-  @autoreleasepool {
-
-  [(IGRAPHICS_VIEW*) mView removeAllToolTips];
-
-  if (GetPopupMenuControl() && GetPopupMenuControl()->GetState() > IPopupMenuControl::kCollapsed)
+  @autoreleasepool
   {
-    return;
-  }
 
-  auto func = [this](IControl* pControl)
-  {
-    if (pControl->GetTooltip() && !pControl->IsHidden())
+    [(IGRAPHICS_VIEW*)mView removeAllToolTips];
+
+    if (GetPopupMenuControl() && GetPopupMenuControl()->GetState() > IPopupMenuControl::kCollapsed)
     {
-      IRECT pR = pControl->GetTargetRECT();
-      if (!pR.Empty())
-      {
-        [(IGRAPHICS_VIEW*) mView registerToolTip: pR];
-      }
+      return;
     }
-  };
 
-  ForStandardControlsFunc(func);
-  
+    auto func = [this](IControl* pControl) {
+      if (pControl->GetTooltip() && !pControl->IsHidden())
+      {
+        IRECT pR = pControl->GetTargetRECT();
+        if (!pR.Empty())
+        {
+          [(IGRAPHICS_VIEW*)mView registerToolTip:pR];
+        }
+      }
+    };
+
+    ForStandardControlsFunc(func);
   }
 }
 
@@ -373,38 +375,39 @@ bool IGraphicsMac::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
 {
   BOOL success = FALSE;
 
-  @autoreleasepool {
-    
-  if(path.GetLength())
+  @autoreleasepool
   {
-    NSString* pPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
 
-    if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
+    if (path.GetLength())
     {
-      if (select)
+      NSString* pPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+
+      if ([[NSFileManager defaultManager] fileExistsAtPath:pPath] == YES)
       {
-        NSString* pParentDirectoryPath = [pPath stringByDeletingLastPathComponent];
-
-        if (pParentDirectoryPath)
+        if (select)
         {
-          success = [[NSWorkspace sharedWorkspace] openFile:pParentDirectoryPath];
+          NSString* pParentDirectoryPath = [pPath stringByDeletingLastPathComponent];
 
-          if (success)
-            success = [[NSWorkspace sharedWorkspace] selectFile: pPath inFileViewerRootedAtPath:pParentDirectoryPath];
+          if (pParentDirectoryPath)
+          {
+            success = [[NSWorkspace sharedWorkspace] openFile:pParentDirectoryPath];
+
+            if (success)
+              success = [[NSWorkspace sharedWorkspace] selectFile:pPath inFileViewerRootedAtPath:pParentDirectoryPath];
+          }
+        }
+        else
+        {
+          success = [[NSWorkspace sharedWorkspace] openFile:pPath];
         }
       }
-      else {
-        success = [[NSWorkspace sharedWorkspace] openFile:pPath];
-      }
-
     }
   }
-
-  }
-  return (bool) success;
+  return (bool)success;
 }
 
-void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler)
+void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext,
+                                 IFileDialogCompletionHandlerFunc completionHandler)
 {
   if (!WindowIsOpen())
   {
@@ -420,7 +423,7 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     pDefaultFileName = [NSString stringWithCString:fileName.Get() encoding:NSUTF8StringEncoding];
   else
     pDefaultFileName = @"";
-  
+
   if (path.GetLength())
     pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
   else
@@ -429,60 +432,61 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   fileName.Set(""); // reset it
 
   if (CStringHasContents(ext))
-    pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
-  
-  auto doHandleResponse = [](NSPanel* pPanel, NSModalResponse response, WDL_String& fileName, WDL_String& path, IFileDialogCompletionHandlerFunc completionHandler){
+    pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString:@" "];
+
+  auto doHandleResponse = [](NSPanel* pPanel, NSModalResponse response, WDL_String& fileName, WDL_String& path,
+                             IFileDialogCompletionHandlerFunc completionHandler) {
     if (response == NSOKButton)
     {
-      NSString* pFullPath = [(NSSavePanel*) pPanel filename] ;
+      NSString* pFullPath = [(NSSavePanel*)pPanel filename];
       fileName.Set([pFullPath UTF8String]);
-      
+
       NSString* pTruncatedPath = [pFullPath stringByDeletingLastPathComponent];
-      
+
       if (pTruncatedPath)
       {
         path.Set([pTruncatedPath UTF8String]);
         path.Append("/");
       }
     }
-  
+
     if (completionHandler)
       completionHandler(fileName, path);
   };
 
 
   NSPanel* pPanel = nullptr;
-  
+
   if (action == EFileAction::Save)
   {
     pPanel = [NSSavePanel savePanel];
-    
-    [(NSSavePanel*) pPanel setDirectoryURL: [NSURL fileURLWithPath: pDefaultPath]];
-    [(NSSavePanel*) pPanel setNameFieldStringValue: pDefaultFileName];
-    [(NSSavePanel*) pPanel setAllowedFileTypes: pFileTypes];
-    [(NSSavePanel*) pPanel setAllowsOtherFileTypes: NO];
+
+    [(NSSavePanel*)pPanel setDirectoryURL:[NSURL fileURLWithPath:pDefaultPath]];
+    [(NSSavePanel*)pPanel setNameFieldStringValue:pDefaultFileName];
+    [(NSSavePanel*)pPanel setAllowedFileTypes:pFileTypes];
+    [(NSSavePanel*)pPanel setAllowsOtherFileTypes:NO];
   }
   else
   {
     pPanel = [NSOpenPanel openPanel];
-    
-    [(NSOpenPanel*) pPanel setAllowedFileTypes: pFileTypes];
-    [(NSOpenPanel*) pPanel setCanChooseFiles:YES];
-    [(NSOpenPanel*) pPanel setCanChooseDirectories:NO];
-    [(NSOpenPanel*) pPanel setResolvesAliases:YES];
+
+    [(NSOpenPanel*)pPanel setAllowedFileTypes:pFileTypes];
+    [(NSOpenPanel*)pPanel setCanChooseFiles:YES];
+    [(NSOpenPanel*)pPanel setCanChooseDirectories:NO];
+    [(NSOpenPanel*)pPanel setResolvesAliases:YES];
   }
-  [pPanel setFloatingPanel: YES];
-  
+  [pPanel setFloatingPanel:YES];
+
   if (completionHandler)
   {
-    [(NSSavePanel*) pPanel beginWithCompletionHandler:^(NSModalResponse response){
+    [(NSSavePanel*)pPanel beginWithCompletionHandler:^(NSModalResponse response) {
       WDL_String fileNameAsync, pathAsync;
       doHandleResponse(pPanel, response, fileNameAsync, pathAsync, completionHandler);
     }];
   }
   else
   {
-    NSModalResponse response = [(NSSavePanel*) pPanel runModal];
+    NSModalResponse response = [(NSSavePanel*)pPanel runModal];
     doHandleResponse(pPanel, response, fileName, path, nullptr);
   }
 }
@@ -508,13 +512,14 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHand
   [panelOpen setCanChooseDirectories:YES];
   [panelOpen setResolvesAliases:YES];
   [panelOpen setCanCreateDirectories:YES];
-  [panelOpen setFloatingPanel: YES];
-  [panelOpen setDirectoryURL: [NSURL fileURLWithPath: defaultPath]];
-  
-  auto doHandleResponse = [](NSOpenPanel* pPanel, NSModalResponse response, WDL_String& chosenDir, IFileDialogCompletionHandlerFunc completionHandler){
+  [panelOpen setFloatingPanel:YES];
+  [panelOpen setDirectoryURL:[NSURL fileURLWithPath:defaultPath]];
+
+  auto doHandleResponse = [](NSOpenPanel* pPanel, NSModalResponse response, WDL_String& chosenDir,
+                             IFileDialogCompletionHandlerFunc completionHandler) {
     if (response == NSOKButton)
     {
-      NSString* fullPath = [pPanel filename] ;
+      NSString* fullPath = [pPanel filename];
       chosenDir.Set([fullPath UTF8String]);
       chosenDir.Append("/");
     }
@@ -522,7 +527,7 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHand
     {
       chosenDir.Set("");
     }
-    
+
     if (completionHandler)
     {
       WDL_String fileName; // not used
@@ -547,7 +552,7 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHand
 bool IGraphicsMac::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
 {
   if (mView)
-    return [(IGRAPHICS_VIEW*) mView promptForColor:color : func];
+    return [(IGRAPHICS_VIEW*)mView promptForColor:color:func];
 
   return false;
 }
@@ -555,45 +560,47 @@ bool IGraphicsMac::PromptForColor(IColor& color, const char* str, IColorPickerHa
 IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync)
 {
   isAsync = true;
-  
+
   dispatch_async(dispatch_get_main_queue(), ^{
     IPopupMenu* pReturnMenu = nullptr;
 
     if (mView)
     {
       NSRect areaRect = ToNSRect(this, bounds);
-      pReturnMenu = [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
+      pReturnMenu = [(IGRAPHICS_VIEW*)mView createPopupMenu:menu:areaRect];
     }
 
     if (pReturnMenu && pReturnMenu->GetFunction())
       pReturnMenu->ExecFunction();
-    
+
     this->SetControlValueAfterPopupMenu(pReturnMenu);
   });
 
   return nullptr;
 }
 
-void IGraphicsMac::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
+void IGraphicsMac::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length,
+                                           const char* str)
 {
   if (mView)
   {
     NSRect areaRect = ToNSRect(this, bounds);
-    [(IGRAPHICS_VIEW*) mView createTextEntry: paramIdx : text: str: length: areaRect];
+    [(IGRAPHICS_VIEW*)mView createTextEntry:paramIdx:text:str:length:areaRect];
   }
 }
 
 ECursor IGraphicsMac::SetMouseCursor(ECursor cursorType)
 {
   if (mView)
-    [(IGRAPHICS_VIEW*) mView setMouseCursor: cursorType];
-    
+    [(IGRAPHICS_VIEW*)mView setMouseCursor:cursorType];
+
   return IGraphics::SetMouseCursor(cursorType);
 }
 
-bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
+bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg,
+                           const char* errMsgOnFailure)
 {
-  #pragma REMINDER("Warning and error messages for OpenURL not implemented")
+#pragma REMINDER("Warning and error messages for OpenURL not implemented")
   NSURL* pNSURL = nullptr;
   if (strstr(url, "http"))
     pNSURL = [NSURL URLWithString:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
@@ -610,19 +617,21 @@ bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const ch
 
 void* IGraphicsMac::GetWindow()
 {
-  if (mView) return mView;
-  else return 0;
+  if (mView)
+    return mView;
+  else
+    return 0;
 }
 
 // static
-int IGraphicsMac::GetUserOSVersion()   // Returns a number like 0x1050 (10.5).
+int IGraphicsMac::GetUserOSVersion() // Returns a number like 0x1050 (10.5).
 {
-  return (int) GetSystemVersion();
+  return (int)GetSystemVersion();
 }
 
 bool IGraphicsMac::GetTextFromClipboard(WDL_String& str)
 {
-  NSString* pTextOnClipboard = [[NSPasteboard generalPasteboard] stringForType: NSStringPboardType];
+  NSString* pTextOnClipboard = [[NSPasteboard generalPasteboard] stringForType:NSStringPboardType];
 
   if (pTextOnClipboard == nil)
   {
@@ -645,15 +654,16 @@ bool IGraphicsMac::SetTextInClipboard(const char* str)
 
 EUIAppearance IGraphicsMac::GetUIAppearance() const
 {
-  if (@available(macOS 10.14, *)) {
-    if(mView)
+  if (@available(macOS 10.14, *))
+  {
+    if (mView)
     {
-      IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
-      BOOL isDarkMode = [[[pView effectiveAppearance] name] isEqualToString: (NSAppearanceNameDarkAqua)];
-      return isDarkMode ? EUIAppearance::Dark :  EUIAppearance::Light;
+      IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*)mView;
+      BOOL isDarkMode = [[[pView effectiveAppearance] name] isEqualToString:(NSAppearanceNameDarkAqua)];
+      return isDarkMode ? EUIAppearance::Dark : EUIAppearance::Light;
     }
   }
-  
+
   return EUIAppearance::Light;
 }
 

@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
+
  This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
- 
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -25,7 +25,8 @@ IFlexBox::~IFlexBox()
   YGConfigFree(mConfigRef);
 }
 
-void IFlexBox::Init(const IRECT& r, YGFlexDirection direction, YGJustify justify, YGWrap wrap, float padding, float margin)
+void IFlexBox::Init(const IRECT& r, YGFlexDirection direction, YGJustify justify, YGWrap wrap, float padding,
+                    float margin)
 {
   YGNodeStyleSetWidth(mRootNodeRef, r.W());
   YGNodeStyleSetHeight(mRootNodeRef, r.H());
@@ -45,29 +46,29 @@ YGNodeRef IFlexBox::AddItem(float width, float height, YGAlign alignSelf, float 
 {
   int index = mNodeCounter;
   YGNodeRef child = YGNodeNew();
-  
-  if(width == YGUndefined)
+
+  if (width == YGUndefined)
     YGNodeStyleSetWidthAuto(child);
-  else if(width < 0.f)
+  else if (width < 0.f)
     YGNodeStyleSetWidthPercent(child, width * -1.f);
   else
     YGNodeStyleSetWidth(child, width);
-  
-  if(height == YGUndefined)
+
+  if (height == YGUndefined)
     YGNodeStyleSetHeightAuto(child);
-  else if(height < 0.f)
+  else if (height < 0.f)
     YGNodeStyleSetHeightPercent(child, height * -1.f);
   else
     YGNodeStyleSetHeight(child, height);
-  
+
   YGNodeStyleSetAlignSelf(child, alignSelf);
   YGNodeStyleSetMargin(child, YGEdgeAll, margin);
   YGNodeStyleSetFlexGrow(child, grow);
   YGNodeStyleSetFlexShrink(child, shrink);
   YGNodeInsertChild(mRootNodeRef, child, index);
-  
+
   mNodeCounter++;
-  
+
   return child;
 }
 
@@ -78,19 +79,18 @@ void IFlexBox::AddItem(YGNodeRef child)
 
 IRECT IFlexBox::GetRootBounds() const
 {
-  return IRECT(YGNodeLayoutGetLeft(mRootNodeRef),
-               YGNodeLayoutGetTop(mRootNodeRef),
+  return IRECT(YGNodeLayoutGetLeft(mRootNodeRef), YGNodeLayoutGetTop(mRootNodeRef),
                YGNodeLayoutGetLeft(mRootNodeRef) + YGNodeLayoutGetWidth(mRootNodeRef),
-               YGNodeLayoutGetTop(mRootNodeRef)  + YGNodeLayoutGetHeight(mRootNodeRef));
+               YGNodeLayoutGetTop(mRootNodeRef) + YGNodeLayoutGetHeight(mRootNodeRef));
 }
 
 IRECT IFlexBox::GetItemBounds(int nodeIndex) const
 {
   YGNodeRef child = YGNodeGetChild(mRootNodeRef, nodeIndex);
   return IRECT(YGNodeLayoutGetLeft(mRootNodeRef) + YGNodeLayoutGetLeft(child),
-               YGNodeLayoutGetTop(mRootNodeRef)  + YGNodeLayoutGetTop(child),
+               YGNodeLayoutGetTop(mRootNodeRef) + YGNodeLayoutGetTop(child),
                YGNodeLayoutGetLeft(mRootNodeRef) + YGNodeLayoutGetLeft(child) + YGNodeLayoutGetWidth(child),
-               YGNodeLayoutGetTop(mRootNodeRef)  + YGNodeLayoutGetTop(child)  + YGNodeLayoutGetHeight(child));
+               YGNodeLayoutGetTop(mRootNodeRef) + YGNodeLayoutGetTop(child) + YGNodeLayoutGetHeight(child));
 };
 
 // TODO: eventually build Yoga as a static library,

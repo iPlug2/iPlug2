@@ -31,7 +31,7 @@ public:
 
   void Draw(IGraphics& g) override
   {
-    const char* words[] = { "there", "are many" , "possible", "ways", "to display text", "here" };
+    const char* words[] = {"there", "are many", "possible", "ways", "to display text", "here"};
 
     g.FillRect(COLOR_WHITE, mRECT);
     g.DrawText(mText, words[mStringIndex], mRECT);
@@ -42,7 +42,7 @@ public:
     Randomise();
     SetDirty(false);
   }
-    
+
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override
   {
     GetUI()->CreateTextEntry(*this, mText, mRECT);
@@ -57,9 +57,9 @@ public:
     int type = (std::rand() % 2);
     mStringIndex = (std::rand() % 6);
 
-    const char* types[] = { "Roboto-Regular", "Montserrat-LightItalic" };
+    const char* types[] = {"Roboto-Regular", "Montserrat-LightItalic"};
 
-    mText = IText(static_cast<float>(size), IColor::GetRandomColor(), types[type], (EAlign) align, (EVAlign) valign);
+    mText = IText(static_cast<float>(size), IColor::GetRandomColor(), types[type], (EAlign)align, (EVAlign)valign);
   }
 
 private:

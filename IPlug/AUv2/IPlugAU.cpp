@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
+
  This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
- 
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -29,21 +29,15 @@ static inline CFStringRef MakeCFString(const char* cStr)
 class IPlugAU::CFStrLocal
 {
 public:
-  CFStrLocal(const char* cStr)
-  {
-    mCFStr = MakeCFString(cStr);
-  }
-    
-  ~CFStrLocal()
-  {
-    CFRelease(mCFStr);
-  }
-    
+  CFStrLocal(const char* cStr) { mCFStr = MakeCFString(cStr); }
+
+  ~CFStrLocal() { CFRelease(mCFStr); }
+
   CFStrLocal(const CFStrLocal&) = delete;
   CFStrLocal& operator=(const CFStrLocal&) = delete;
-    
+
   CFStringRef Get() { return mCFStr; }
-    
+
 private:
   CFStringRef mCFStr;
 };
@@ -54,7 +48,7 @@ struct IPlugAU::CStrLocal : WDL_TypedBuf<char>
   {
     if (cfStr)
     {
-      Resize((int) CFStringGetLength(cfStr) + 1);
+      Resize((int)CFStringGetLength(cfStr) + 1);
       CFStringGetCString(cfStr, Get(), GetSize(), kCFStringEncodingUTF8);
     }
   }
@@ -88,7 +82,7 @@ inline void IPlugAU::PutDataInDict(CFMutableDictionaryRef pDict, const char* key
 inline bool IPlugAU::GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type)
 {
   CFStrLocal cfKey(key);
-  CFNumberRef pValue = (CFNumberRef) CFDictionaryGetValue(pDict, cfKey.Get());
+  CFNumberRef pValue = (CFNumberRef)CFDictionaryGetValue(pDict, cfKey.Get());
   if (pValue)
   {
     CFNumberGetValue(pValue, type, pNumber);
@@ -100,7 +94,7 @@ inline bool IPlugAU::GetNumberFromDict(CFDictionaryRef pDict, const char* key, v
 inline bool IPlugAU::GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value)
 {
   CFStrLocal cfKey(key);
-  CFStringRef pValue = (CFStringRef) CFDictionaryGetValue(pDict, cfKey.Get());
+  CFStringRef pValue = (CFStringRef)CFDictionaryGetValue(pDict, cfKey.Get());
   if (pValue)
   {
     CStrLocal cStr(pValue);
@@ -114,11 +108,11 @@ inline bool IPlugAU::GetStrFromDict(CFDictionaryRef pDict, const char* key, char
 inline bool IPlugAU::GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk)
 {
   CFStrLocal cfKey(key);
-  CFDataRef pData = (CFDataRef) CFDictionaryGetValue(pDict, cfKey.Get());
+  CFDataRef pData = (CFDataRef)CFDictionaryGetValue(pDict, cfKey.Get());
   if (pData)
   {
     CFIndex n = CFDataGetLength(pData);
-    pChunk->Resize((int) n);
+    pChunk->Resize((int)n);
     memcpy(pChunk->GetData(), CFDataGetBytePtr(pData), n);
     return true;
   }
@@ -177,12 +171,13 @@ static int PtrListInitialize(WDL_PtrList<C>* pList, int size)
   #define GET_COMP_PARAM(TYPE, IDX, NUM) *((TYPE*)&(params->params[IDX]))
 #endif
 
-#define NO_OP(select) case select: return badComponentSelector;
+#define NO_OP(select)                                                                                                  \
+  case select: return badComponentSelector;
 
 #ifndef AU_NO_COMPONENT_ENTRY
-#pragma mark - COMPONENT MANAGER ENTRY POINT
+  #pragma mark - COMPONENT MANAGER ENTRY POINT
 // static
-OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
+OSStatus IPlugAU::IPlugAUEntry(ComponentParameters* params, void* pPlug)
 {
   int select = params->what;
 
@@ -192,15 +187,15 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
   {
     // N.B. calling this with nullptr will call through to new (hence the delete below)
     IPlugAU* _this = MakePlug(nullptr);
-    
+
     _this->PruneUninitializedPresets();
     _this->mCI = GET_COMP_PARAM(ComponentInstance, 0, 1);
-    SetComponentInstanceStorage(_this->mCI, (Handle) _this);
+    SetComponentInstanceStorage(_this->mCI, (Handle)_this);
     return noErr;
   }
 
-  IPlugAU* _this = (IPlugAU*) pPlug;
-  
+  IPlugAU* _this = (IPlugAU*)pPlug;
+
   if (select == kComponentCloseSelect)
   {
     _this->ClearConnections();
@@ -239,7 +234,7 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       AudioUnitElement element = GET_COMP_PARAM(AudioUnitElement, 2, 5);
       void* pData = GET_COMP_PARAM(void*, 1, 5);
       UInt32* pDataSize = GET_COMP_PARAM(UInt32*, 0, 5);
-      
+
       return _this->DoGetProperty(_this, propID, scope, element, pData, pDataSize);
     }
     case kAudioUnitSetPropertySelect:
@@ -249,7 +244,7 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       AudioUnitElement element = GET_COMP_PARAM(AudioUnitElement, 2, 5);
       const void* pData = GET_COMP_PARAM(const void*, 1, 5);
       UInt32* pDataSize = GET_COMP_PARAM(UInt32*, 0, 5);
-      
+
       return _this->DoSetProperty(_this, propID, scope, element, pData, pDataSize);
     }
     case kAudioUnitAddPropertyListenerSelect:
@@ -257,7 +252,7 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       AudioUnitPropertyID propID = GET_COMP_PARAM(AudioUnitPropertyID, 2, 3);
       AudioUnitPropertyListenerProc proc = GET_COMP_PARAM(AudioUnitPropertyListenerProc, 1, 3);
       void* userData = GET_COMP_PARAM(void*, 0, 3);
-      
+
       return _this->DoAddPropertyListener(_this, propID, proc, userData);
     }
     case kAudioUnitRemovePropertyListenerSelect:
@@ -272,7 +267,7 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
       AudioUnitPropertyID propID = GET_COMP_PARAM(AudioUnitPropertyID, 2, 3);
       AudioUnitPropertyListenerProc proc = GET_COMP_PARAM(AudioUnitPropertyListenerProc, 1, 3);
       void* userData = GET_COMP_PARAM(void*, 0, 3);
-      
+
       return _this->DoRemovePropertyListenerWithUserData(_this, propID, proc, userData);
     }
     case kAudioUnitAddRenderNotifySelect:
@@ -325,7 +320,8 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
     }
     case kMusicDeviceMIDIEventSelect:
     {
-      return _this->DoMIDIEvent(_this, GET_COMP_PARAM(UInt32, 3, 4), GET_COMP_PARAM(UInt32, 2, 4), GET_COMP_PARAM(UInt32, 1, 4), GET_COMP_PARAM(UInt32, 0, 4));
+      return _this->DoMIDIEvent(_this, GET_COMP_PARAM(UInt32, 3, 4), GET_COMP_PARAM(UInt32, 2, 4),
+                                GET_COMP_PARAM(UInt32, 1, 4), GET_COMP_PARAM(UInt32, 0, 4));
     }
     case kMusicDeviceSysExSelect:
     {
@@ -341,20 +337,20 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
     }
     case kMusicDeviceStartNoteSelect:
     {
-//      MusicDeviceInstrumentID deviceID = GET_COMP_PARAM(MusicDeviceInstrumentID, 4, 5);
-//      MusicDeviceGroupID groupID = GET_COMP_PARAM(MusicDeviceGroupID, 3, 5);
+      //      MusicDeviceInstrumentID deviceID = GET_COMP_PARAM(MusicDeviceInstrumentID, 4, 5);
+      //      MusicDeviceGroupID groupID = GET_COMP_PARAM(MusicDeviceGroupID, 3, 5);
       NoteInstanceID* pNoteID = GET_COMP_PARAM(NoteInstanceID*, 2, 5);
       UInt32 offset = GET_COMP_PARAM(UInt32, 1, 5);
       MusicDeviceNoteParams* pNoteParams = GET_COMP_PARAM(MusicDeviceNoteParams*, 0, 5);
-      int note = (int) pNoteParams->mPitch;
+      int note = (int)pNoteParams->mPitch;
       *pNoteID = note;
       IMidiMsg msg;
-      msg.MakeNoteOnMsg(note, (int) pNoteParams->mVelocity, offset);
+      msg.MakeNoteOnMsg(note, (int)pNoteParams->mVelocity, offset);
       return noErr;
     }
     case kMusicDeviceStopNoteSelect:
     {
-//      MusicDeviceGroupID groupID = GET_COMP_PARAM(MusicDeviceGroupID, 2, 3);
+      //      MusicDeviceGroupID groupID = GET_COMP_PARAM(MusicDeviceGroupID, 2, 3);
       NoteInstanceID noteID = GET_COMP_PARAM(NoteInstanceID, 1, 3);
       UInt32 offset = GET_COMP_PARAM(UInt32, 0, 3);
       // noteID is supposed to be some incremented unique ID, but we're just storing note number in it.
@@ -379,208 +375,215 @@ OSStatus IPlugAU::IPlugAUEntry(ComponentParameters *params, void* pPlug)
         case kAudioUnitRenderSelect:
         case kAudioUnitAddRenderNotifySelect:
         case kAudioUnitRemoveRenderNotifySelect:
-        case kAudioUnitScheduleParametersSelect:
-          return 1;
-        default:
-          return 0;
+        case kAudioUnitScheduleParametersSelect: return 1;
+        default: return 0;
       }
     }
     default: return badComponentSelector;
   }
 }
-#endif //AU_NO_COMPONENT_ENTRY
+#endif // AU_NO_COMPONENT_ENTRY
 
 #pragma mark - GetChannelLayoutTags
 
 UInt32 IPlugAU::GetChannelLayoutTags(AudioUnitScope scope, AudioUnitElement element, AudioChannelLayoutTag* tags)
 {
-  switch(scope)
+  switch (scope)
   {
     case kAudioUnitScope_Input:
     case kAudioUnitScope_Output:
     {
-      ERoute dir = (ERoute) (scope - 1);
-      
+      ERoute dir = (ERoute)(scope - 1);
+
       WDL_TypedBuf<uint64_t> foundTags;
-      
-      for(auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
+
+      for (auto configIdx = 0; configIdx < NIOConfigs(); configIdx++)
       {
         const IOConfig* pConfig = GetIOConfig(configIdx);
-        
-        for(auto busIdx = 0; busIdx < pConfig->NBuses(dir); busIdx++)
+
+        for (auto busIdx = 0; busIdx < pConfig->NBuses(dir); busIdx++)
         {
-          if(busIdx == element)
+          if (busIdx == element)
           {
             WDL_TypedBuf<uint64_t> busTypes;
             GetAPIBusTypeForChannelIOConfig(configIdx, dir, busIdx, pConfig, &busTypes);
-  //          DBGMSG("Found %i different tags for an %s bus with %i channels\n", busTypes.GetSize(), RoutingDirStrs[dir], pConfig->GetBusInfo(dir, busIdx)->NChans());
+            //          DBGMSG("Found %i different tags for an %s bus with %i channels\n", busTypes.GetSize(),
+            //          RoutingDirStrs[dir], pConfig->GetBusInfo(dir, busIdx)->NChans());
 
             for (auto tag = 0; tag < busTypes.GetSize(); tag++)
             {
-              if(foundTags.Find(busTypes.Get()[tag]) == -1)
-                 foundTags.Add(busTypes.Get()[tag]);
+              if (foundTags.Find(busTypes.Get()[tag]) == -1)
+                foundTags.Add(busTypes.Get()[tag]);
             }
           }
         }
       }
-      
-      if(tags)
+
+      if (tags)
       {
         for (auto v = 0; v < foundTags.GetSize(); v++)
         {
-          tags[v] = (AudioChannelLayoutTag) foundTags.Get()[v];
+          tags[v] = (AudioChannelLayoutTag)foundTags.Get()[v];
         }
-        
-//        DBGMSG("Adding %i tags\n", foundTags.GetSize());
-        
+
+        //        DBGMSG("Adding %i tags\n", foundTags.GetSize());
+
         return 1; // success
       }
       else
         return foundTags.GetSize();
-      
-//      TODO: what about wild cards?
+
+      //      TODO: what about wild cards?
     }
-    default:
-      return 0;
+    default: return 0;
   }
 }
 
-#define ASSERT_SCOPE(reqScope) if (scope != reqScope) { return kAudioUnitErr_InvalidProperty; }
-#define ASSERT_ELEMENT(numElements) if (element >= numElements) { return kAudioUnitErr_InvalidElement; }
-#define ASSERT_INPUT_OR_GLOBAL_SCOPE \
-  if (scope != kAudioUnitScope_Input && scope != kAudioUnitScope_Global) { \
-    return kAudioUnitErr_InvalidProperty; \
+#define ASSERT_SCOPE(reqScope)                                                                                         \
+  if (scope != reqScope)                                                                                               \
+  {                                                                                                                    \
+    return kAudioUnitErr_InvalidProperty;                                                                              \
+  }
+#define ASSERT_ELEMENT(numElements)                                                                                    \
+  if (element >= numElements)                                                                                          \
+  {                                                                                                                    \
+    return kAudioUnitErr_InvalidElement;                                                                               \
+  }
+#define ASSERT_INPUT_OR_GLOBAL_SCOPE                                                                                   \
+  if (scope != kAudioUnitScope_Input && scope != kAudioUnitScope_Global)                                               \
+  {                                                                                                                    \
+    return kAudioUnitErr_InvalidProperty;                                                                              \
   }
 #undef NO_OP
-#define NO_OP(propID) case propID: return kAudioUnitErr_InvalidProperty;
+#define NO_OP(propID)                                                                                                  \
+  case propID: return kAudioUnitErr_InvalidProperty;
 
 // pData == 0 means return property info only.
 OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element,
-                                     UInt32* pDataSize, Boolean* pWriteable, void* pData)
+                              UInt32* pDataSize, Boolean* pWriteable, void* pData)
 {
-  Trace(TRACELOC, "%s(%d:%s):(%d:%s):%d", (pData ? "" : "info:"), propID, AUPropertyStr(propID), scope, AUScopeStr(scope), element);
+  Trace(TRACELOC, "%s(%d:%s):(%d:%s):%d", (pData ? "" : "info:"), propID, AUPropertyStr(propID), scope,
+        AUScopeStr(scope), element);
 
   switch (propID)
   {
     case kIPlugObjectPropertyID:
     {
-      *pDataSize = sizeof (void*);
+      *pDataSize = sizeof(void*);
       if (pData)
       {
-        ((void**) pData)[0] = (void*) static_cast<IPlugAPIBase*> (this);
+        ((void**)pData)[0] = (void*)static_cast<IPlugAPIBase*>(this);
       }
-      else {
+      else
+      {
         *pWriteable = false;
       }
       return noErr;
     }
-    case kAudioUnitProperty_ClassInfo:                    // 0,
+    case kAudioUnitProperty_ClassInfo: // 0,
     {
       *pDataSize = sizeof(CFPropertyListRef);
       if (pData)
       {
-        CFPropertyListRef* pList = (CFPropertyListRef*) pData;
+        CFPropertyListRef* pList = (CFPropertyListRef*)pData;
         *pWriteable = true;
         return GetState(pList);
       }
       return noErr;
     }
-    case kAudioUnitProperty_MakeConnection:               // 1,
+    case kAudioUnitProperty_MakeConnection: // 1,
     {
       ASSERT_INPUT_OR_GLOBAL_SCOPE;
       *pDataSize = sizeof(AudioUnitConnection);
       *pWriteable = true;
       return noErr;
     }
-    case kAudioUnitProperty_SampleRate:                  // 2,
+    case kAudioUnitProperty_SampleRate: // 2,
     {
       *pDataSize = sizeof(Float64);
       *pWriteable = true;
       if (pData)
       {
-        *((Float64*) pData) = GetSampleRate();
+        *((Float64*)pData) = GetSampleRate();
       }
       return noErr;
     }
-    case kAudioUnitProperty_ParameterList:               // 3,  listenable
+    case kAudioUnitProperty_ParameterList: // 3,  listenable
     {
       int n = (scope == kAudioUnitScope_Global ? NParams() : 0);
       *pDataSize = n * sizeof(AudioUnitParameterID);
       if (pData && n)
       {
-        AudioUnitParameterID* pParamID = (AudioUnitParameterID*) pData;
+        AudioUnitParameterID* pParamID = (AudioUnitParameterID*)pData;
         for (int i = 0; i < n; ++i, ++pParamID)
         {
-          *pParamID = (AudioUnitParameterID) i;
+          *pParamID = (AudioUnitParameterID)i;
         }
       }
       return noErr;
     }
-    case kAudioUnitProperty_ParameterInfo:               // 4,  listenable
+    case kAudioUnitProperty_ParameterInfo: // 4,  listenable
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
       ASSERT_ELEMENT(NParams());
       *pDataSize = sizeof(AudioUnitParameterInfo);
       if (pData)
       {
-        AudioUnitParameterInfo* pInfo = (AudioUnitParameterInfo*) pData;
+        AudioUnitParameterInfo* pInfo = (AudioUnitParameterInfo*)pData;
         memset(pInfo, 0, sizeof(AudioUnitParameterInfo));
-        pInfo->flags = kAudioUnitParameterFlag_CFNameRelease |
-                       kAudioUnitParameterFlag_HasCFNameString |
-                       kAudioUnitParameterFlag_IsWritable |
-                       kAudioUnitParameterFlag_IsReadable;
-        
-        #ifndef IPLUG1_COMPATIBILITY
+        pInfo->flags = kAudioUnitParameterFlag_CFNameRelease | kAudioUnitParameterFlag_HasCFNameString
+                       | kAudioUnitParameterFlag_IsWritable | kAudioUnitParameterFlag_IsReadable;
+
+#ifndef IPLUG1_COMPATIBILITY
         pInfo->flags |= kAudioUnitParameterFlag_IsHighResolution;
-        #endif
-        
+#endif
+
         ENTER_PARAMS_MUTEX
         IParam* pParam = GetParam(element);
-        
-        if (!pParam->GetCanAutomate())  pInfo->flags |= kAudioUnitParameterFlag_NonRealTime;
-        if (pParam->GetMeta()) pInfo->flags |= kAudioUnitParameterFlag_IsElementMeta;
-        if (pParam->NDisplayTexts()) pInfo->flags |= kAudioUnitParameterFlag_ValuesHaveStrings;
+
+        if (!pParam->GetCanAutomate())
+          pInfo->flags |= kAudioUnitParameterFlag_NonRealTime;
+        if (pParam->GetMeta())
+          pInfo->flags |= kAudioUnitParameterFlag_IsElementMeta;
+        if (pParam->NDisplayTexts())
+          pInfo->flags |= kAudioUnitParameterFlag_ValuesHaveStrings;
 
         const char* paramName = pParam->GetName();
         pInfo->cfNameString = CFStringCreateWithCString(0, pParam->GetName(), kCFStringEncodingUTF8);
-        strcpy(pInfo->name, paramName);   // Max 52.
+        strcpy(pInfo->name, paramName); // Max 52.
 
         switch (pParam->Type())
         {
-          case IParam::kTypeBool:
-            pInfo->unit = kAudioUnitParameterUnit_Boolean;
-            break;
+          case IParam::kTypeBool: pInfo->unit = kAudioUnitParameterUnit_Boolean; break;
           case IParam::kTypeEnum:
-            //fall through
-          case IParam::kTypeInt:
-            pInfo->unit = kAudioUnitParameterUnit_Indexed;
-            break;
+            // fall through
+          case IParam::kTypeInt: pInfo->unit = kAudioUnitParameterUnit_Indexed; break;
           default:
           {
             switch (pParam->Unit())
             {
-              case IParam::kUnitPercentage:     pInfo->unit = kAudioUnitParameterUnit_Percent;            break;
-              case IParam::kUnitSeconds:        pInfo->unit = kAudioUnitParameterUnit_Seconds;            break;
-              case IParam::kUnitMilliseconds:   pInfo->unit = kAudioUnitParameterUnit_Milliseconds;       break;
-              case IParam::kUnitSamples:        pInfo->unit = kAudioUnitParameterUnit_SampleFrames;       break;
-              case IParam::kUnitDB:             pInfo->unit = kAudioUnitParameterUnit_Decibels;           break;
-              case IParam::kUnitLinearGain:     pInfo->unit = kAudioUnitParameterUnit_LinearGain;         break;
-              case IParam::kUnitPan:            pInfo->unit = kAudioUnitParameterUnit_Pan;                break;
-              case IParam::kUnitPhase:          pInfo->unit = kAudioUnitParameterUnit_Phase;              break;
-              case IParam::kUnitDegrees:        pInfo->unit = kAudioUnitParameterUnit_Degrees;            break;
-              case IParam::kUnitMeters:         pInfo->unit = kAudioUnitParameterUnit_Meters;             break;
-              case IParam::kUnitRate:           pInfo->unit = kAudioUnitParameterUnit_Rate;               break;
-              case IParam::kUnitRatio:          pInfo->unit = kAudioUnitParameterUnit_Ratio;              break;
-              case IParam::kUnitFrequency:      pInfo->unit = kAudioUnitParameterUnit_Hertz;              break;
-              case IParam::kUnitOctaves:        pInfo->unit = kAudioUnitParameterUnit_Octaves;            break;
-              case IParam::kUnitCents:          pInfo->unit = kAudioUnitParameterUnit_Cents;              break;
-              case IParam::kUnitAbsCents:       pInfo->unit = kAudioUnitParameterUnit_AbsoluteCents;      break;
-              case IParam::kUnitSemitones:      pInfo->unit = kAudioUnitParameterUnit_RelativeSemiTones;  break;
-              case IParam::kUnitMIDINote:       pInfo->unit = kAudioUnitParameterUnit_MIDINoteNumber;     break;
-              case IParam::kUnitMIDICtrlNum:    pInfo->unit = kAudioUnitParameterUnit_MIDIController;     break;
-              case IParam::kUnitBPM:            pInfo->unit = kAudioUnitParameterUnit_BPM;                break;
-              case IParam::kUnitBeats:          pInfo->unit = kAudioUnitParameterUnit_Beats;              break;
-                
+              case IParam::kUnitPercentage: pInfo->unit = kAudioUnitParameterUnit_Percent; break;
+              case IParam::kUnitSeconds: pInfo->unit = kAudioUnitParameterUnit_Seconds; break;
+              case IParam::kUnitMilliseconds: pInfo->unit = kAudioUnitParameterUnit_Milliseconds; break;
+              case IParam::kUnitSamples: pInfo->unit = kAudioUnitParameterUnit_SampleFrames; break;
+              case IParam::kUnitDB: pInfo->unit = kAudioUnitParameterUnit_Decibels; break;
+              case IParam::kUnitLinearGain: pInfo->unit = kAudioUnitParameterUnit_LinearGain; break;
+              case IParam::kUnitPan: pInfo->unit = kAudioUnitParameterUnit_Pan; break;
+              case IParam::kUnitPhase: pInfo->unit = kAudioUnitParameterUnit_Phase; break;
+              case IParam::kUnitDegrees: pInfo->unit = kAudioUnitParameterUnit_Degrees; break;
+              case IParam::kUnitMeters: pInfo->unit = kAudioUnitParameterUnit_Meters; break;
+              case IParam::kUnitRate: pInfo->unit = kAudioUnitParameterUnit_Rate; break;
+              case IParam::kUnitRatio: pInfo->unit = kAudioUnitParameterUnit_Ratio; break;
+              case IParam::kUnitFrequency: pInfo->unit = kAudioUnitParameterUnit_Hertz; break;
+              case IParam::kUnitOctaves: pInfo->unit = kAudioUnitParameterUnit_Octaves; break;
+              case IParam::kUnitCents: pInfo->unit = kAudioUnitParameterUnit_Cents; break;
+              case IParam::kUnitAbsCents: pInfo->unit = kAudioUnitParameterUnit_AbsoluteCents; break;
+              case IParam::kUnitSemitones: pInfo->unit = kAudioUnitParameterUnit_RelativeSemiTones; break;
+              case IParam::kUnitMIDINote: pInfo->unit = kAudioUnitParameterUnit_MIDINoteNumber; break;
+              case IParam::kUnitMIDICtrlNum: pInfo->unit = kAudioUnitParameterUnit_MIDIController; break;
+              case IParam::kUnitBPM: pInfo->unit = kAudioUnitParameterUnit_BPM; break;
+              case IParam::kUnitBeats: pInfo->unit = kAudioUnitParameterUnit_Beats; break;
+
               case IParam::kUnitCustom:
               {
                 if (CStringHasContents(pParam->GetCustomUnit()))
@@ -600,47 +603,34 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
 
         switch (pParam->DisplayType())
         {
-          case IParam::kDisplayLinear:
-            break;
-          case IParam::kDisplaySquared:
-            pInfo->flags |= kAudioUnitParameterFlag_DisplaySquared;
-            break;
-          case IParam::kDisplaySquareRoot:
-            pInfo->flags |= kAudioUnitParameterFlag_DisplaySquareRoot;
-            break;
-          case IParam::kDisplayCubed:
-            pInfo->flags |= kAudioUnitParameterFlag_DisplayCubed;
-            break;
-          case IParam::kDisplayCubeRoot:
-            pInfo->flags |= kAudioUnitParameterFlag_DisplayCubeRoot;
-            break;
-          case IParam::kDisplayExp:
-            pInfo->flags |= kAudioUnitParameterFlag_DisplayExponential;
-            break;
-          case IParam::kDisplayLog:
-            pInfo->flags |= kAudioUnitParameterFlag_DisplayLogarithmic;
-            break;
+          case IParam::kDisplayLinear: break;
+          case IParam::kDisplaySquared: pInfo->flags |= kAudioUnitParameterFlag_DisplaySquared; break;
+          case IParam::kDisplaySquareRoot: pInfo->flags |= kAudioUnitParameterFlag_DisplaySquareRoot; break;
+          case IParam::kDisplayCubed: pInfo->flags |= kAudioUnitParameterFlag_DisplayCubed; break;
+          case IParam::kDisplayCubeRoot: pInfo->flags |= kAudioUnitParameterFlag_DisplayCubeRoot; break;
+          case IParam::kDisplayExp: pInfo->flags |= kAudioUnitParameterFlag_DisplayExponential; break;
+          case IParam::kDisplayLog: pInfo->flags |= kAudioUnitParameterFlag_DisplayLogarithmic; break;
         }
-        
+
         pInfo->minValue = pParam->GetMin();
         pInfo->maxValue = pParam->GetMax();
         pInfo->defaultValue = pParam->GetDefault();
-        
+
         const char* paramGroupName = pParam->GetGroup();
 
         if (CStringHasContents(paramGroupName))
         {
           int clumpID = 0;
-          
-          for(int i = 0; i< NParamGroups(); i++)
+
+          for (int i = 0; i < NParamGroups(); i++)
           {
-            if(strcmp(paramGroupName, GetParamGroupName(i)) == 0)
-              clumpID = i+1;
+            if (strcmp(paramGroupName, GetParamGroupName(i)) == 0)
+              clumpID = i + 1;
           }
-          
+
           if (clumpID == 0) // new clump
             clumpID = AddParamGroup(paramGroupName);
-          
+
           pInfo->flags = pInfo->flags | kAudioUnitParameterFlag_HasClump;
           pInfo->clumpID = clumpID;
         }
@@ -648,12 +638,12 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       }
       return noErr;
     }
-    case kAudioUnitProperty_FastDispatch:                // 5,
+    case kAudioUnitProperty_FastDispatch: // 5,
     {
       return GetProc(element, pDataSize, pData);
     }
-    NO_OP(kAudioUnitProperty_CPULoad);                   // 6,
-    case kAudioUnitProperty_StreamFormat:                // 8,
+      NO_OP(kAudioUnitProperty_CPULoad); // 6,
+    case kAudioUnitProperty_StreamFormat: // 8,
     {
       BusChannels* pBus = GetBus(scope, element);
       if (!pBus)
@@ -664,85 +654,84 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       *pWriteable = true;
       if (pData)
       {
-        int nChannels = pBus->mNHostChannels;  // Report how many channels the host has connected.
-        if (nChannels < 0)    // Unless the host hasn't connected any yet, in which case report the default.
+        int nChannels = pBus->mNHostChannels; // Report how many channels the host has connected.
+        if (nChannels < 0) // Unless the host hasn't connected any yet, in which case report the default.
         {
           nChannels = pBus->mNPlugChannels;
         }
-        STREAM_DESC* pASBD = (STREAM_DESC*) pData;
+        STREAM_DESC* pASBD = (STREAM_DESC*)pData;
         MakeDefaultASBD(pASBD, GetSampleRate(), nChannels, false);
       }
       return noErr;
     }
-    case kAudioUnitProperty_ElementCount:                // 11,
+    case kAudioUnitProperty_ElementCount: // 11,
     {
       *pDataSize = sizeof(UInt32);
       if (pData)
       {
         int n = 0;
-        
+
         if (scope == kAudioUnitScope_Input)
           n = mInBuses.GetSize();
         else if (scope == kAudioUnitScope_Output)
           n = mOutBuses.GetSize();
         else if (scope == kAudioUnitScope_Global)
           n = 1;
-        
-        *((UInt32*) pData) = n;
+
+        *((UInt32*)pData) = n;
       }
       return noErr;
     }
-    case kAudioUnitProperty_Latency:                      // 12,  // listenable
+    case kAudioUnitProperty_Latency: // 12,  // listenable
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
       *pDataSize = sizeof(Float64);
       if (pData)
       {
-        *((Float64*) pData) = (double) GetLatency() / GetSampleRate();
+        *((Float64*)pData) = (double)GetLatency() / GetSampleRate();
       }
       return noErr;
     }
-    case kAudioUnitProperty_SupportedNumChannels:        // 13,
+    case kAudioUnitProperty_SupportedNumChannels: // 13,
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
-      int n = NIOConfigs(); //TODO: THIS IS INCORRECT!
+      int n = NIOConfigs(); // TODO: THIS IS INCORRECT!
       *pDataSize = n * sizeof(AUChannelInfo);
       if (pData)
       {
-        AUChannelInfo* pChInfo = (AUChannelInfo*) pData;
+        AUChannelInfo* pChInfo = (AUChannelInfo*)pData;
         for (int i = 0; i < n; ++i, ++pChInfo)
         {
           const IOConfig* pIO = GetIOConfig(i);
-          
-          if(pIO->ContainsWildcard(ERoute::kInput))
-             pChInfo->inChannels = -1;
+
+          if (pIO->ContainsWildcard(ERoute::kInput))
+            pChInfo->inChannels = -1;
           else
             pChInfo->inChannels = pIO->GetTotalNChannels(kInput);
-          
-          if(pIO->ContainsWildcard(ERoute::kOutput))
+
+          if (pIO->ContainsWildcard(ERoute::kOutput))
             pChInfo->outChannels = -1;
           else
             pChInfo->outChannels = pIO->GetTotalNChannels(kOutput);
-          
-          Trace(TRACELOC, "IO:%d:%d", pChInfo->inChannels, pChInfo->outChannels);
 
+          Trace(TRACELOC, "IO:%d:%d", pChInfo->inChannels, pChInfo->outChannels);
         }
       }
       return noErr;
     }
-    case kAudioUnitProperty_MaximumFramesPerSlice:       // 14,
+    case kAudioUnitProperty_MaximumFramesPerSlice: // 14,
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
       *pDataSize = sizeof(UInt32);
       *pWriteable = true;
       if (pData)
       {
-        *((UInt32*) pData) = GetBlockSize();
+        *((UInt32*)pData) = GetBlockSize();
       }
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_SetExternalBuffer);         // 15,
-    case kAudioUnitProperty_ParameterValueStrings:       // 16,
+      NO_OP(kAudioUnitProperty_SetExternalBuffer); // 15,
+    case kAudioUnitProperty_ParameterValueStrings: // 16,
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
       ASSERT_ELEMENT(NParams());
@@ -765,12 +754,12 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           CFStrLocal cfstr(str);
           CFArrayAppendValue(nameArray, cfstr.Get());
         }
-        *((CFArrayRef*) pData) = nameArray;
+        *((CFArrayRef*)pData) = nameArray;
       }
       LEAVE_PARAMS_MUTEX
       return noErr;
     }
-    case kAudioUnitProperty_GetUIComponentList:          // 18,
+    case kAudioUnitProperty_GetUIComponentList: // 18,
     {
       return kAudioUnitErr_InvalidProperty;
     }
@@ -778,39 +767,39 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     {
       return kAudioUnitErr_InvalidPropertyValue;
     }
-    case kAudioUnitProperty_TailTime:                    // 20,   // listenable
+    case kAudioUnitProperty_TailTime: // 20,   // listenable
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
       *pDataSize = sizeof(Float64);
-      
+
       if (pData)
       {
-        *((Float64*) pData) = (double) GetTailSize() / GetSampleRate();
+        *((Float64*)pData) = (double)GetTailSize() / GetSampleRate();
       }
       return noErr;
     }
-    case kAudioUnitProperty_BypassEffect:                // 21,
+    case kAudioUnitProperty_BypassEffect: // 21,
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
       *pWriteable = true;
       *pDataSize = sizeof(UInt32);
       if (pData)
       {
-        *((UInt32*) pData) = (GetBypassed() ? 1 : 0);
+        *((UInt32*)pData) = (GetBypassed() ? 1 : 0);
       }
       return noErr;
     }
-    case kAudioUnitProperty_LastRenderError:             // 22,
+    case kAudioUnitProperty_LastRenderError: // 22,
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
       *pDataSize = sizeof(OSStatus);
       if (pData)
       {
-        *((OSStatus*) pData) = noErr;
+        *((OSStatus*)pData) = noErr;
       }
       return noErr;
     }
-    case kAudioUnitProperty_SetRenderCallback:           // 23,
+    case kAudioUnitProperty_SetRenderCallback: // 23,
     {
       ASSERT_INPUT_OR_GLOBAL_SCOPE;
       if (element >= mInBuses.GetSize())
@@ -821,17 +810,17 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       *pWriteable = true;
       return noErr;
     }
-    case kAudioUnitProperty_FactoryPresets:              // 24,   // listenable
+    case kAudioUnitProperty_FactoryPresets: // 24,   // listenable
     {
       *pDataSize = sizeof(CFArrayRef);
       if (pData)
       {
-        #ifdef AU_NO_PRESETS
+#ifdef AU_NO_PRESETS
         int i, n = 0;
-        #else
+#else
         int i, n = NPresets();
-        #endif
-        
+#endif
+
         CFMutableArrayRef presetArray = CFArrayCreateMutable(kCFAllocatorDefault, n, &kCFAUPresetArrayCallBacks);
 
         if (presetArray == NULL)
@@ -840,7 +829,8 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         for (i = 0; i < n; ++i)
         {
           CFStrLocal presetName(GetPresetName(i));
-          CFAUPresetRef newPreset = CFAUPresetCreate(kCFAllocatorDefault, i, presetName.Get()); // todo should i be 0 based?
+          CFAUPresetRef newPreset =
+            CFAUPresetCreate(kCFAllocatorDefault, i, presetName.Get()); // todo should i be 0 based?
 
           if (newPreset != NULL)
           {
@@ -849,20 +839,20 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           }
         }
 
-        *((CFMutableArrayRef*) pData) = presetArray;
+        *((CFMutableArrayRef*)pData) = presetArray;
       }
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_ContextName);                // 25,
-    NO_OP(kAudioUnitProperty_RenderQuality);              // 26,
-    case kAudioUnitProperty_HostCallbacks:                // 27,
+      NO_OP(kAudioUnitProperty_ContextName); // 25,
+      NO_OP(kAudioUnitProperty_RenderQuality); // 26,
+    case kAudioUnitProperty_HostCallbacks: // 27,
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
       *pDataSize = sizeof(HostCallbackInfo);
       *pWriteable = true;
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_InPlaceProcessing);          // 29,
+      NO_OP(kAudioUnitProperty_InPlaceProcessing); // 29,
     case kAudioUnitProperty_ElementName:
     {
       *pDataSize = sizeof(CFStringRef);
@@ -871,16 +861,16 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       {
         const int nIn = MaxNBuses(kInput);
         const int nOut = MaxNBuses(kOutput);
-          
-        switch(scope)
+
+        switch (scope)
         {
           case kAudioUnitScope_Input:
           {
             if (element < nIn)
             {
               WDL_String busName;
-              GetBusName(ERoute::kInput, (int) element, nIn, busName);
-              *(CFStringRef*) pData = MakeCFString(busName.Get());
+              GetBusName(ERoute::kInput, (int)element, nIn, busName);
+              *(CFStringRef*)pData = MakeCFString(busName.Get());
               return noErr;
             }
             else
@@ -891,32 +881,32 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
             if (element < nOut)
             {
               WDL_String busName;
-              GetBusName(ERoute::kOutput, (int) element, nOut, busName);
-              *(CFStringRef*) pData = MakeCFString(busName.Get());
+              GetBusName(ERoute::kOutput, (int)element, nOut, busName);
+              *(CFStringRef*)pData = MakeCFString(busName.Get());
               return noErr;
             }
             else
               return kAudioUnitErr_InvalidElement;
           }
-          default:
-            return kAudioUnitErr_InvalidScope;
+          default: return kAudioUnitErr_InvalidScope;
         }
       }
       return kAudioUnitErr_InvalidProperty;
     }
-    case kAudioUnitProperty_CocoaUI:                      // 31,
+    case kAudioUnitProperty_CocoaUI: // 31,
     {
       if (HasUI()) // this won't work < 10.5 SDK but barely anyone will use that these days
       {
-        *pDataSize = sizeof(AudioUnitCocoaViewInfo);  // Just one view.
+        *pDataSize = sizeof(AudioUnitCocoaViewInfo); // Just one view.
         if (pData)
         {
-          AudioUnitCocoaViewInfo* pViewInfo = (AudioUnitCocoaViewInfo*) pData;
+          AudioUnitCocoaViewInfo* pViewInfo = (AudioUnitCocoaViewInfo*)pData;
           CFStrLocal bundleID(mBundleID.Get());
           CFBundleRef pBundle = CFBundleGetBundleWithIdentifier(bundleID.Get());
           CFURLRef url = CFBundleCopyBundleURL(pBundle);
           pViewInfo->mCocoaAUViewBundleLocation = url;
-          pViewInfo->mCocoaAUViewClass[0] = CFStringCreateWithCString(0, mCocoaViewFactoryClassName.Get(), kCFStringEncodingUTF8);
+          pViewInfo->mCocoaAUViewClass[0] =
+            CFStringCreateWithCString(0, mCocoaViewFactoryClassName.Get(), kCFStringEncodingUTF8);
         }
         return noErr;
       }
@@ -954,12 +944,12 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
 
       return kAudioUnitErr_InvalidProperty;
     }
-    case kAudioUnitProperty_ParameterIDName:             // 34,
+    case kAudioUnitProperty_ParameterIDName: // 34,
     {
       *pDataSize = sizeof(AudioUnitParameterIDName);
       if (pData && scope == kAudioUnitScope_Global)
       {
-        AudioUnitParameterIDName* pIDName = (AudioUnitParameterIDName*) pData;
+        AudioUnitParameterIDName* pIDName = (AudioUnitParameterIDName*)pData;
         char cStr[MAX_PARAM_NAME_LEN];
         ENTER_PARAMS_MUTEX
         strcpy(cStr, GetParam(pIDName->inID)->GetName());
@@ -973,69 +963,70 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       }
       return noErr;
     }
-    case kAudioUnitProperty_ParameterClumpName:          // 35,
+    case kAudioUnitProperty_ParameterClumpName: // 35,
     {
-      *pDataSize = sizeof (AudioUnitParameterNameInfo);
+      *pDataSize = sizeof(AudioUnitParameterNameInfo);
       if (pData && scope == kAudioUnitScope_Global)
       {
-        AudioUnitParameterNameInfo* parameterNameInfo = (AudioUnitParameterNameInfo*) pData;
+        AudioUnitParameterNameInfo* parameterNameInfo = (AudioUnitParameterNameInfo*)pData;
         int clumpId = parameterNameInfo->inID;
-        
+
         if (clumpId < 1)
           return kAudioUnitErr_PropertyNotInUse;
-        
-        parameterNameInfo->outName = CFStringCreateWithCString(0, GetParamGroupName(clumpId-1), kCFStringEncodingUTF8);
+
+        parameterNameInfo->outName =
+          CFStringCreateWithCString(0, GetParamGroupName(clumpId - 1), kCFStringEncodingUTF8);
       }
       return noErr;
     }
-    case kAudioUnitProperty_CurrentPreset:               // 28,
-    case kAudioUnitProperty_PresentPreset:               // 36,       // listenable
+    case kAudioUnitProperty_CurrentPreset: // 28,
+    case kAudioUnitProperty_PresentPreset: // 36,       // listenable
     {
       *pDataSize = sizeof(AUPreset);
       *pWriteable = true;
       if (pData)
       {
-        AUPreset* pAUPreset = (AUPreset*) pData;
+        AUPreset* pAUPreset = (AUPreset*)pData;
         pAUPreset->presetNumber = GetCurrentPresetIdx();
         const char* name = GetPresetName(pAUPreset->presetNumber);
         pAUPreset->presetName = CFStringCreateWithCString(0, name, kCFStringEncodingUTF8);
       }
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_OfflineRender);             // 37,
-    case kAudioUnitProperty_ParameterStringFromValue:     // 33,
+      NO_OP(kAudioUnitProperty_OfflineRender); // 37,
+    case kAudioUnitProperty_ParameterStringFromValue: // 33,
     {
       *pDataSize = sizeof(AudioUnitParameterStringFromValue);
       if (pData && scope == kAudioUnitScope_Global)
       {
-        AudioUnitParameterStringFromValue* pSFV = (AudioUnitParameterStringFromValue*) pData;
+        AudioUnitParameterStringFromValue* pSFV = (AudioUnitParameterStringFromValue*)pData;
         ENTER_PARAMS_MUTEX
         GetParam(pSFV->inParamID)->GetDisplay(*(pSFV->inValue), false, mParamDisplayStr);
         LEAVE_PARAMS_MUTEX
-        pSFV->outString = MakeCFString((const char*) mParamDisplayStr.Get());
+        pSFV->outString = MakeCFString((const char*)mParamDisplayStr.Get());
       }
       return noErr;
     }
-    case kAudioUnitProperty_ParameterValueFromString:     // 38,
+    case kAudioUnitProperty_ParameterValueFromString: // 38,
     {
       *pDataSize = sizeof(AudioUnitParameterValueFromString);
       if (pData)
       {
-        AudioUnitParameterValueFromString* pVFS = (AudioUnitParameterValueFromString*) pData;
+        AudioUnitParameterValueFromString* pVFS = (AudioUnitParameterValueFromString*)pData;
         if (scope == kAudioUnitScope_Global)
         {
           CStrLocal cStr(pVFS->inString);
           ENTER_PARAMS_MUTEX
           const double v = GetParam(pVFS->inParamID)->StringToValue(cStr.Get());
           LEAVE_PARAMS_MUTEX
-          pVFS->outValue = (AudioUnitParameterValue) v;
+          pVFS->outValue = (AudioUnitParameterValue)v;
         }
       }
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_IconLocation);               // 39,
-    NO_OP(kAudioUnitProperty_PresentationLatency);        // 40,
-    NO_OP(kAudioUnitProperty_DependentParameters);        // 45,
+      NO_OP(kAudioUnitProperty_IconLocation); // 39,
+      NO_OP(kAudioUnitProperty_PresentationLatency); // 40,
+      NO_OP(kAudioUnitProperty_DependentParameters); // 45,
     case kMusicDeviceProperty_InstrumentCount:
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
@@ -1044,7 +1035,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         *pDataSize = sizeof(UInt32);
         if (pData)
         {
-          *((UInt32*) pData) = 1; //(mIsBypassed ? 1 : 0);
+          *((UInt32*)pData) = 1; //(mIsBypassed ? 1 : 0);
         }
         return noErr;
       }
@@ -1054,10 +1045,10 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       }
     }
 
-    NO_OP(kAudioUnitProperty_AUHostIdentifier);         // 46,
-    case kAudioUnitProperty_MIDIOutputCallbackInfo:     // 47,
+      NO_OP(kAudioUnitProperty_AUHostIdentifier); // 46,
+    case kAudioUnitProperty_MIDIOutputCallbackInfo: // 47,
     {
-      if(pData == 0)
+      if (pData == 0)
       {
         *pWriteable = false;
         *pDataSize = sizeof(CFArrayRef);
@@ -1065,34 +1056,34 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       else
       {
         CFStringRef outputName = CFSTR("midiOut");
-        CFArrayRef array = CFArrayCreate(kCFAllocatorDefault, (const void**) &outputName, 1, nullptr);
+        CFArrayRef array = CFArrayCreate(kCFAllocatorDefault, (const void**)&outputName, 1, nullptr);
         CFRelease(outputName);
-        *((CFArrayRef*) pData) = array;
+        *((CFArrayRef*)pData) = array;
       }
       return noErr;
     }
-    case kAudioUnitProperty_MIDIOutputCallback:         // 48,
+    case kAudioUnitProperty_MIDIOutputCallback: // 48,
     {
-      if(pData == 0)
+      if (pData == 0)
       {
         *pWriteable = true;
         *pDataSize = sizeof(AUMIDIOutputCallbackStruct);
-        
+
         return noErr;
       }
     }
-    NO_OP(kAudioUnitProperty_InputSamplesInOutput);       // 49,
-    NO_OP(kAudioUnitProperty_ClassInfoFromDocument);      // 50
+      NO_OP(kAudioUnitProperty_InputSamplesInOutput); // 49,
+      NO_OP(kAudioUnitProperty_ClassInfoFromDocument); // 50
     case kAudioUnitProperty_SupportsMPE: // 58
     {
-      if(pData == 0)
+      if (pData == 0)
       {
         *pWriteable = false;
         *pDataSize = sizeof(UInt32);
       }
       else
       {
-        *((UInt32*) pData) = (DoesMPE() ? 1 : 0);
+        *((UInt32*)pData) = (DoesMPE() ? 1 : 0);
       }
       return noErr;
     }
@@ -1104,7 +1095,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
 }
 
 OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, AudioUnitElement element,
-                                     UInt32* pDataSize, const void* pData)
+                              UInt32* pDataSize, const void* pData)
 {
   Trace(TRACELOC, "(%d:%s):(%d:%s):%d", propID, AUPropertyStr(propID), scope, AUScopeStr(scope), element);
 
@@ -1112,14 +1103,14 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
 
   switch (propID)
   {
-    case kAudioUnitProperty_ClassInfo:                  // 0,
+    case kAudioUnitProperty_ClassInfo: // 0,
     {
-      return SetState(*((CFPropertyListRef*) pData));
+      return SetState(*((CFPropertyListRef*)pData));
     }
-    case kAudioUnitProperty_MakeConnection:              // 1,
+    case kAudioUnitProperty_MakeConnection: // 1,
     {
       ASSERT_INPUT_OR_GLOBAL_SCOPE;
-      AudioUnitConnection* pAUC = (AudioUnitConnection*) pData;
+      AudioUnitConnection* pAUC = (AudioUnitConnection*)pData;
       if (pAUC->destInputNumber >= mInBusConnections.GetSize())
       {
         return kAudioUnitErr_InvalidProperty;
@@ -1127,52 +1118,54 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       InputBusConnection* pInBusConn = mInBusConnections.Get(pAUC->destInputNumber);
       memset(pInBusConn, 0, sizeof(InputBusConnection));
       bool negotiatedOK = true;
-      if (pAUC->sourceAudioUnit)      // Opening connection.
+      if (pAUC->sourceAudioUnit) // Opening connection.
       {
         AudioStreamBasicDescription srcASBD;
         UInt32 size = sizeof(AudioStreamBasicDescription);
-        negotiatedOK =   // Ask whoever is sending us audio what the format is.
-          (AudioUnitGetProperty(pAUC->sourceAudioUnit, kAudioUnitProperty_StreamFormat,
-                                kAudioUnitScope_Output, pAUC->sourceOutputNumber, &srcASBD, &size) == noErr);
+        negotiatedOK = // Ask whoever is sending us audio what the format is.
+          (AudioUnitGetProperty(pAUC->sourceAudioUnit, kAudioUnitProperty_StreamFormat, kAudioUnitScope_Output,
+                                pAUC->sourceOutputNumber, &srcASBD, &size)
+           == noErr);
         negotiatedOK &= // Try to set our own format to match.
-          (SetProperty(kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input,
-                       pAUC->destInputNumber, &size, &srcASBD) == noErr);
-        if (negotiatedOK)     // Connection terms successfully negotiated.
+          (SetProperty(kAudioUnitProperty_StreamFormat, kAudioUnitScope_Input, pAUC->destInputNumber, &size, &srcASBD)
+           == noErr);
+        if (negotiatedOK) // Connection terms successfully negotiated.
         {
           pInBusConn->mUpstreamUnit = pAUC->sourceAudioUnit;
           pInBusConn->mUpstreamBusIdx = pAUC->sourceOutputNumber;
           // Will the upstream unit give us a fast render proc for input?
           AudioUnitRenderProc srcRenderProc;
           size = sizeof(AudioUnitRenderProc);
-          if (AudioUnitGetProperty(pAUC->sourceAudioUnit, kAudioUnitProperty_FastDispatch, kAudioUnitScope_Global, kAudioUnitRenderSelect,
-                                   &srcRenderProc, &size) == noErr)
+          if (AudioUnitGetProperty(pAUC->sourceAudioUnit, kAudioUnitProperty_FastDispatch, kAudioUnitScope_Global,
+                                   kAudioUnitRenderSelect, &srcRenderProc, &size)
+              == noErr)
           {
             // Yes, we got a fast render proc, and we also need to store the pointer to the upstream audio unit object.
             pInBusConn->mUpstreamRenderProc = srcRenderProc;
             pInBusConn->mUpstreamObj = GetComponentInstanceStorage(pAUC->sourceAudioUnit);
           }
-          // Else no fast render proc, so leave the input bus connection struct's upstream render proc and upstream object empty,
-          // and we will need to make a component call through the component manager to get input data.
+          // Else no fast render proc, so leave the input bus connection struct's upstream render proc and upstream
+          // object empty, and we will need to make a component call through the component manager to get input data.
         }
-        // Else this is a call to close the connection, which we effectively did by clearing the InputBusConnection struct,
-        // which counts as a successful negotiation.
+        // Else this is a call to close the connection, which we effectively did by clearing the InputBusConnection
+        // struct, which counts as a successful negotiation.
       }
       AssessInputConnections();
-      return (negotiatedOK ? noErr : (int) kAudioUnitErr_InvalidProperty);  // casting to int avoids gcc error
+      return (negotiatedOK ? noErr : (int)kAudioUnitErr_InvalidProperty); // casting to int avoids gcc error
     }
-    case kAudioUnitProperty_SampleRate:                  // 2,
+    case kAudioUnitProperty_SampleRate: // 2,
     {
-      SetSampleRate(*((Float64*) pData));
+      SetSampleRate(*((Float64*)pData));
       OnReset();
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_ParameterList);             // 3,
-    NO_OP(kAudioUnitProperty_ParameterInfo);             // 4,
-    NO_OP(kAudioUnitProperty_FastDispatch);              // 5,
-    NO_OP(kAudioUnitProperty_CPULoad);                   // 6,
-    case kAudioUnitProperty_StreamFormat:                // 8,
+      NO_OP(kAudioUnitProperty_ParameterList); // 3,
+      NO_OP(kAudioUnitProperty_ParameterInfo); // 4,
+      NO_OP(kAudioUnitProperty_FastDispatch); // 5,
+      NO_OP(kAudioUnitProperty_CPULoad); // 6,
+    case kAudioUnitProperty_StreamFormat: // 8,
     {
-      AudioStreamBasicDescription* pASBD = (AudioStreamBasicDescription*) pData;
+      AudioStreamBasicDescription* pASBD = (AudioStreamBasicDescription*)pData;
       int nHostChannels = pASBD->mChannelsPerFrame;
       BusChannels* pBus = GetBus(scope, element);
       if (!pBus)
@@ -1187,8 +1180,7 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       connectionOK &= CheckLegalIO(scope, element, nHostChannels);
       connectionOK &= (pASBD->mFormatID == kAudioFormatLinearPCM && pASBD->mFormatFlags & kAudioFormatFlagsCanonical);
 
-      Trace(TRACELOC, "%d:%d:%s:%s:%s",
-            nHostChannels, pBus->mNPlugChannels,
+      Trace(TRACELOC, "%d:%d:%s:%s:%s", nHostChannels, pBus->mNPlugChannels,
             (pASBD->mFormatID == kAudioFormatLinearPCM ? "linearPCM" : "notLinearPCM"),
             (pASBD->mFormatFlags & kAudioFormatFlagsCanonical ? "canonicalFormat" : "notCanonicalFormat"),
             (connectionOK ? "connectionOK" : "connectionNotOK"));
@@ -1207,44 +1199,44 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         pBus->mNHostChannels = pBus->mNPlugChannels;
       }
       AssessInputConnections();
-      return (connectionOK ? noErr : (int) kAudioUnitErr_InvalidProperty); // casting to int avoids gcc error
+      return (connectionOK ? noErr : (int)kAudioUnitErr_InvalidProperty); // casting to int avoids gcc error
     }
-    NO_OP(kAudioUnitProperty_ElementCount);              // 11,
-    NO_OP(kAudioUnitProperty_Latency);                   // 12,
-    NO_OP(kAudioUnitProperty_SupportedNumChannels);      // 13,
-    case kAudioUnitProperty_MaximumFramesPerSlice:       // 14,
+      NO_OP(kAudioUnitProperty_ElementCount); // 11,
+      NO_OP(kAudioUnitProperty_Latency); // 12,
+      NO_OP(kAudioUnitProperty_SupportedNumChannels); // 13,
+    case kAudioUnitProperty_MaximumFramesPerSlice: // 14,
     {
-      SetBlockSize(*((UInt32*) pData));
+      SetBlockSize(*((UInt32*)pData));
       ResizeScratchBuffers();
       OnReset();
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_SetExternalBuffer);         // 15,
-    NO_OP(kAudioUnitProperty_ParameterValueStrings);     // 16,
-    NO_OP(kAudioUnitProperty_GetUIComponentList);        // 18,
-    NO_OP(kAudioUnitProperty_AudioChannelLayout);        // 19, //TODO?: Set kAudioUnitProperty_AudioChannelLayout
-    NO_OP(kAudioUnitProperty_TailTime);                  // 20,
-    case kAudioUnitProperty_BypassEffect:                // 21,
+      NO_OP(kAudioUnitProperty_SetExternalBuffer); // 15,
+      NO_OP(kAudioUnitProperty_ParameterValueStrings); // 16,
+      NO_OP(kAudioUnitProperty_GetUIComponentList); // 18,
+      NO_OP(kAudioUnitProperty_AudioChannelLayout); // 19, //TODO?: Set kAudioUnitProperty_AudioChannelLayout
+      NO_OP(kAudioUnitProperty_TailTime); // 20,
+    case kAudioUnitProperty_BypassEffect: // 21,
     {
-      const bool bypassed = *((UInt32*) pData) != 0;
+      const bool bypassed = *((UInt32*)pData) != 0;
       SetBypassed(bypassed);
-      
+
       // TODO: should the following be called here?
       OnActivate(!bypassed);
       OnReset();
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_LastRenderError);           // 22,
-    case kAudioUnitProperty_SetRenderCallback:           // 23,
+      NO_OP(kAudioUnitProperty_LastRenderError); // 22,
+    case kAudioUnitProperty_SetRenderCallback: // 23,
     {
-      ASSERT_SCOPE(kAudioUnitScope_Input);    // if global scope, set all
+      ASSERT_SCOPE(kAudioUnitScope_Input); // if global scope, set all
       if (element >= mInBusConnections.GetSize())
       {
         return kAudioUnitErr_InvalidProperty;
       }
       InputBusConnection* pInBusConn = mInBusConnections.Get(element);
       memset(pInBusConn, 0, sizeof(InputBusConnection));
-      AURenderCallbackStruct* pCS = (AURenderCallbackStruct*) pData;
+      AURenderCallbackStruct* pCS = (AURenderCallbackStruct*)pData;
       if (pCS->inputProc != 0)
       {
         pInBusConn->mUpstreamRenderCallback = *pCS;
@@ -1252,71 +1244,71 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       AssessInputConnections();
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_FactoryPresets);            // 24,
-    //NO_OP(kAudioUnitProperty_ContextName);               // 25,
+      NO_OP(kAudioUnitProperty_FactoryPresets); // 24,
+    // NO_OP(kAudioUnitProperty_ContextName);               // 25,
     case kAudioUnitProperty_ContextName:
     {
-      CFStringRef inStr = *(CFStringRef*) pData;
-      CFIndex bufferSize = CFStringGetLength(inStr) + 1; // The +1 is for having space for the string to be NUL terminated
+      CFStringRef inStr = *(CFStringRef*)pData;
+      CFIndex bufferSize =
+        CFStringGetLength(inStr) + 1; // The +1 is for having space for the string to be NUL terminated
       char buffer[bufferSize];
       if (CFStringGetCString(inStr, buffer, bufferSize, kCFStringEncodingUTF8))
       {
-          mTrackName.Set(buffer);
+        mTrackName.Set(buffer);
       }
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_RenderQuality);             // 26,
-    case kAudioUnitProperty_HostCallbacks:              // 27,
+      NO_OP(kAudioUnitProperty_RenderQuality); // 26,
+    case kAudioUnitProperty_HostCallbacks: // 27,
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
       memcpy(&mHostCallbacks, pData, sizeof(HostCallbackInfo));
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_InPlaceProcessing);         // 29,
-    NO_OP(kAudioUnitProperty_ElementName);               // 30,
-    NO_OP(kAudioUnitProperty_CocoaUI);                   // 31,
-    NO_OP(kAudioUnitProperty_SupportedChannelLayoutTags); // 32,
-    NO_OP(kAudioUnitProperty_ParameterIDName);           // 34,
-    NO_OP(kAudioUnitProperty_ParameterClumpName);        // 35,
-    case kAudioUnitProperty_CurrentPreset:               // 28,
-    case kAudioUnitProperty_PresentPreset:               // 36,
+      NO_OP(kAudioUnitProperty_InPlaceProcessing); // 29,
+      NO_OP(kAudioUnitProperty_ElementName); // 30,
+      NO_OP(kAudioUnitProperty_CocoaUI); // 31,
+      NO_OP(kAudioUnitProperty_SupportedChannelLayoutTags); // 32,
+      NO_OP(kAudioUnitProperty_ParameterIDName); // 34,
+      NO_OP(kAudioUnitProperty_ParameterClumpName); // 35,
+    case kAudioUnitProperty_CurrentPreset: // 28,
+    case kAudioUnitProperty_PresentPreset: // 36,
     {
-      int presetIdx = ((AUPreset*) pData)->presetNumber;
+      int presetIdx = ((AUPreset*)pData)->presetNumber;
       RestorePreset(presetIdx);
       return noErr;
     }
-    case kAudioUnitProperty_OfflineRender:                // 37,
+    case kAudioUnitProperty_OfflineRender: // 37,
     {
-      const bool renderingOffline = (*((UInt32*) pData) != 0);
+      const bool renderingOffline = (*((UInt32*)pData) != 0);
       SetRenderingOffline(renderingOffline);
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_ParameterStringFromValue);  // 33,
-    NO_OP(kAudioUnitProperty_ParameterValueFromString);  // 38,
-    NO_OP(kAudioUnitProperty_IconLocation);              // 39,
-    NO_OP(kAudioUnitProperty_PresentationLatency);       // 40,
-    NO_OP(kAudioUnitProperty_DependentParameters);       // 45,
-    case kAudioUnitProperty_AUHostIdentifier:            // 46,
+      NO_OP(kAudioUnitProperty_ParameterStringFromValue); // 33,
+      NO_OP(kAudioUnitProperty_ParameterValueFromString); // 38,
+      NO_OP(kAudioUnitProperty_IconLocation); // 39,
+      NO_OP(kAudioUnitProperty_PresentationLatency); // 40,
+      NO_OP(kAudioUnitProperty_DependentParameters); // 45,
+    case kAudioUnitProperty_AUHostIdentifier: // 46,
     {
       if (GetHost() == kHostUninit)
       {
-        AUHostIdentifier* pHostID = (AUHostIdentifier*) pData;
+        AUHostIdentifier* pHostID = (AUHostIdentifier*)pData;
         CStrLocal hostStr(pHostID->hostName);
-        int version = (pHostID->hostVersion.majorRev << 16)
-                    + ((pHostID->hostVersion.minorAndBugRev & 0xF0) << 4)
-                    + ((pHostID->hostVersion.minorAndBugRev & 0x0F));
+        int version = (pHostID->hostVersion.majorRev << 16) + ((pHostID->hostVersion.minorAndBugRev & 0xF0) << 4)
+                      + ((pHostID->hostVersion.minorAndBugRev & 0x0F));
         SetHost(hostStr.Get(), version);
       }
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_MIDIOutputCallbackInfo);   // 47,
-    case kAudioUnitProperty_MIDIOutputCallback:         // 48,
+      NO_OP(kAudioUnitProperty_MIDIOutputCallbackInfo); // 47,
+    case kAudioUnitProperty_MIDIOutputCallback: // 48,
     {
-      mMidiCallback = *((AUMIDIOutputCallbackStruct*) pData);
+      mMidiCallback = *((AUMIDIOutputCallbackStruct*)pData);
       return noErr;
     }
-    NO_OP(kAudioUnitProperty_InputSamplesInOutput);       // 49,
-    NO_OP(kAudioUnitProperty_ClassInfoFromDocument)       // 50
+      NO_OP(kAudioUnitProperty_InputSamplesInOutput); // 49,
+      NO_OP(kAudioUnitProperty_ClassInfoFromDocument) // 50
     default:
     {
       return kAudioUnitErr_InvalidProperty;
@@ -1324,16 +1316,16 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
   }
 }
 
-//static
+// static
 const char* IPlugAU::AUInputTypeStr(int type)
 {
-  switch ((IPlugAU::EAUInputType) type)
+  switch ((IPlugAU::EAUInputType)type)
   {
-    case IPlugAU::eDirectFastProc:     return "DirectFastProc";
-    case IPlugAU::eDirectNoFastProc:   return "DirectNoFastProc";
-    case IPlugAU::eRenderCallback:     return "RenderCallback";
+    case IPlugAU::eDirectFastProc: return "DirectFastProc";
+    case IPlugAU::eDirectNoFastProc: return "DirectNoFastProc";
+    case IPlugAU::eRenderCallback: return "RenderCallback";
     case IPlugAU::eNotConnected:
-    default:                           return "NotConnected";
+    default: return "NotConnected";
   }
 }
 
@@ -1341,7 +1333,7 @@ int IPlugAU::NHostChannelsConnected(WDL_PtrList<BusChannels>* pBuses, int exclud
 {
   bool init = false;
   int nCh = 0, n = pBuses->GetSize();
-  
+
   for (int i = 0; i < n; ++i)
   {
     if (i != excludeIdx)
@@ -1354,12 +1346,12 @@ int IPlugAU::NHostChannelsConnected(WDL_PtrList<BusChannels>* pBuses, int exclud
       }
     }
   }
-  
+
   if (init)
   {
     return nCh;
   }
-  
+
   return -1;
 }
 
@@ -1437,7 +1429,8 @@ void IPlugAU::AssessInputConnections()
       SetChannelConnections(ERoute::kInput, startChannelIdx + nConnected, nUnconnected, false);
     }
 
-    Trace(TRACELOC, "%d:%s:%d:%d:%d", i, AUInputTypeStr(pInBusConn->mInputType), startChannelIdx, pInBus->mNPlugChannels, pInBus->mNHostChannels);
+    Trace(TRACELOC, "%d:%s:%d:%d:%d", i, AUInputTypeStr(pInBusConn->mInputType), startChannelIdx,
+          pInBus->mNPlugChannels, pInBus->mNHostChannels);
   }
 }
 
@@ -1447,7 +1440,8 @@ OSStatus IPlugAU::GetState(CFPropertyListRef* ppPropList)
   int plugSubType = GetUniqueID();
   int plugManID = GetMfrID();
 
-  CFMutableDictionaryRef pDict = CFDictionaryCreateMutable(0, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+  CFMutableDictionaryRef pDict =
+    CFDictionaryCreateMutable(0, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
   int version = GetPluginVersion(false);
   PutNumberInDict(pDict, kAUPresetVersionKey, &version, kCFNumberSInt32Type);
   PutNumberInDict(pDict, kAUPresetTypeKey, &(plugType), kCFNumberSInt32Type);
@@ -1456,7 +1450,7 @@ OSStatus IPlugAU::GetState(CFPropertyListRef* ppPropList)
   PutStrInDict(pDict, kAUPresetNameKey, GetPresetName(GetCurrentPresetIdx()));
 
   IByteChunk chunk;
-  //InitChunkWithIPlugVer(&IPlugChunk); // TODO: IPlugVer should be in chunk!
+  // InitChunkWithIPlugVer(&IPlugChunk); // TODO: IPlugVer should be in chunk!
 
   if (SerializeState(chunk))
   {
@@ -1470,22 +1464,20 @@ OSStatus IPlugAU::GetState(CFPropertyListRef* ppPropList)
 
 OSStatus IPlugAU::SetState(CFPropertyListRef pPropList)
 {
-  CFDictionaryRef pDict = (CFDictionaryRef) pPropList;
+  CFDictionaryRef pDict = (CFDictionaryRef)pPropList;
   int version, type, subtype, mfr;
   char presetName[64];
-  if (!GetNumberFromDict(pDict, kAUPresetVersionKey, &version, kCFNumberSInt32Type) ||
-      !GetNumberFromDict(pDict, kAUPresetTypeKey, &type, kCFNumberSInt32Type) ||
-      !GetNumberFromDict(pDict, kAUPresetSubtypeKey, &subtype, kCFNumberSInt32Type) ||
-      !GetNumberFromDict(pDict, kAUPresetManufacturerKey, &mfr, kCFNumberSInt32Type) ||
-      !GetStrFromDict(pDict, kAUPresetNameKey, presetName) ||
-      //version != GetPluginVersion(false) ||
-      type != GetAUPluginType() ||
-      subtype != GetUniqueID() ||
-      mfr != GetMfrID())
+  if (!GetNumberFromDict(pDict, kAUPresetVersionKey, &version, kCFNumberSInt32Type)
+      || !GetNumberFromDict(pDict, kAUPresetTypeKey, &type, kCFNumberSInt32Type)
+      || !GetNumberFromDict(pDict, kAUPresetSubtypeKey, &subtype, kCFNumberSInt32Type)
+      || !GetNumberFromDict(pDict, kAUPresetManufacturerKey, &mfr, kCFNumberSInt32Type)
+      || !GetStrFromDict(pDict, kAUPresetNameKey, presetName) ||
+      // version != GetPluginVersion(false) ||
+      type != GetAUPluginType() || subtype != GetUniqueID() || mfr != GetMfrID())
   {
     return kAudioUnitErr_InvalidPropertyValue;
   }
-  
+
   RestorePreset(presetName);
 
   IByteChunk chunk;
@@ -1498,7 +1490,7 @@ OSStatus IPlugAU::SetState(CFPropertyListRef pPropList)
   // TODO: IPlugVer should be in chunk!
   //  int pos;
   //  IByteChunk::GetIPlugVerFromChunk(chunk, pos)
-  
+
   if (!UnserializeState(chunk, 0))
   {
     return kAudioUnitErr_InvalidPropertyValue;
@@ -1515,46 +1507,46 @@ OSStatus IPlugAU::GetProc(AudioUnitElement element, UInt32* pDataSize, void* pDa
 
   switch (element)
   {
-      //TODO: WHAT ABOUT THESE!!!
-//    case kAudioUnitGetParameterSelect:
-//    {
-//      *pDataSize = sizeof(AudioUnitGetParameterProc);
-//      if (pData)
-//      {
-//        *((AudioUnitGetParameterProc*) pData) = (AudioUnitGetParameterProc) IPlugAU::GetParamProc;
-//      }
-//      return noErr;
-//    }
-//    case kAudioUnitSetParameterSelect:
-//    {
-//      *pDataSize = sizeof(AudioUnitSetParameterProc);
-//      if (pData)
-//      {
-//        *((AudioUnitSetParameterProc*) pData) = (AudioUnitSetParameterProc) IPlugAU::SetParamProc;
-//      }
-//      return noErr;
-//    }
-//    case kAudioUnitRenderSelect:
-//    {
-//      *pDataSize = sizeof(AudioUnitRenderProc);
-//      if (pData)
-//      {
-//        *((AudioUnitRenderProc*) pData) = (AudioUnitRenderProc) IPlugAU::RenderProc;
-//      }
-//      return noErr;
-//    }
-    default:
-      return kAudioUnitErr_InvalidElement;
+      // TODO: WHAT ABOUT THESE!!!
+      //    case kAudioUnitGetParameterSelect:
+      //    {
+      //      *pDataSize = sizeof(AudioUnitGetParameterProc);
+      //      if (pData)
+      //      {
+      //        *((AudioUnitGetParameterProc*) pData) = (AudioUnitGetParameterProc) IPlugAU::GetParamProc;
+      //      }
+      //      return noErr;
+      //    }
+      //    case kAudioUnitSetParameterSelect:
+      //    {
+      //      *pDataSize = sizeof(AudioUnitSetParameterProc);
+      //      if (pData)
+      //      {
+      //        *((AudioUnitSetParameterProc*) pData) = (AudioUnitSetParameterProc) IPlugAU::SetParamProc;
+      //      }
+      //      return noErr;
+      //    }
+      //    case kAudioUnitRenderSelect:
+      //    {
+      //      *pDataSize = sizeof(AudioUnitRenderProc);
+      //      if (pData)
+      //      {
+      //        *((AudioUnitRenderProc*) pData) = (AudioUnitRenderProc) IPlugAU::RenderProc;
+      //      }
+      //      return noErr;
+      //    }
+    default: return kAudioUnitErr_InvalidElement;
   }
 }
 
 // static
-OSStatus IPlugAU::GetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioUnitScope scope, AudioUnitElement element, AudioUnitParameterValue* pValue)
+OSStatus IPlugAU::GetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioUnitScope scope,
+                               AudioUnitElement element, AudioUnitParameterValue* pValue)
 {
   Trace(TRACELOC, "%d:(%d:%s):%d", paramID, scope, AUScopeStr(scope), element);
 
   ASSERT_SCOPE(kAudioUnitScope_Global);
-  IPlugAU* _this = (IPlugAU*) pPlug;
+  IPlugAU* _this = (IPlugAU*)pPlug;
   assert(_this != NULL);
   ENTER_PARAMS_MUTEX_STATIC
   *pValue = _this->GetParam(paramID)->Value();
@@ -1563,13 +1555,14 @@ OSStatus IPlugAU::GetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
 }
 
 // static
-OSStatus IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioUnitScope scope, AudioUnitElement element, AudioUnitParameterValue value, UInt32 offsetFrames)
+OSStatus IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioUnitScope scope,
+                               AudioUnitElement element, AudioUnitParameterValue value, UInt32 offsetFrames)
 {
   Trace(TRACELOC, "%d:(%d:%s):%d", paramID, scope, AUScopeStr(scope), element);
 
   // In the SDK, offset frames is only looked at in group scope.
   ASSERT_SCOPE(kAudioUnitScope_Global);
-  IPlugAU* _this = (IPlugAU*) pPlug;
+  IPlugAU* _this = (IPlugAU*)pPlug;
   ENTER_PARAMS_MUTEX_STATIC
   _this->GetParam(paramID)->Set(value);
   _this->SendParameterValueFromAPI(paramID, value, false);
@@ -1578,7 +1571,9 @@ OSStatus IPlugAU::SetParamProc(void* pPlug, AudioUnitParameterID paramID, AudioU
   return noErr;
 }
 
-static inline OSStatus RenderCallback(AURenderCallbackStruct* pCB, AudioUnitRenderActionFlags* pFlags, const AudioTimeStamp* pTimestamp, UInt32 inputBusIdx, UInt32 nFrames, AudioBufferList* pOutBufList)
+static inline OSStatus RenderCallback(AURenderCallbackStruct* pCB, AudioUnitRenderActionFlags* pFlags,
+                                      const AudioTimeStamp* pTimestamp, UInt32 inputBusIdx, UInt32 nFrames,
+                                      AudioBufferList* pOutBufList)
 {
   TRACE
   return pCB->inputProc(pCB->inputProcRefCon, pFlags, pTimestamp, inputBusIdx, nFrames, pOutBufList);
@@ -1586,15 +1581,16 @@ static inline OSStatus RenderCallback(AURenderCallbackStruct* pCB, AudioUnitRend
 
 // static
 OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, const AudioTimeStamp* pTimestamp,
-                                    UInt32 outputBusIdx, UInt32 nFrames, AudioBufferList* pOutBufList)
+                             UInt32 outputBusIdx, UInt32 nFrames, AudioBufferList* pOutBufList)
 {
   Trace(TRACELOC, "%d:%d:%d", outputBusIdx, pOutBufList->mNumberBuffers, nFrames);
 
-  IPlugAU* _this = (IPlugAU*) pPlug;
-  
+  IPlugAU* _this = (IPlugAU*)pPlug;
+
   _this->mLastRenderTimeStamp = *pTimestamp;
 
-  if (!(pTimestamp->mFlags & kAudioTimeStampSampleTimeValid) /*|| outputBusIdx >= _this->mOutBuses.GetSize()*/ || nFrames > _this->GetBlockSize())
+  if (!(pTimestamp->mFlags & kAudioTimeStampSampleTimeValid) /*|| outputBusIdx >= _this->mOutBuses.GetSize()*/
+      || nFrames > _this->GetBlockSize())
   {
     return kAudioUnitErr_InvalidPropertyValue;
   }
@@ -1613,7 +1609,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
 
   int lastConnectedOutputBus = -1;
 
-  if(!_this->IsMidiEffect())
+  if (!_this->IsMidiEffect())
   {
     double renderSampleTime = pTimestamp->mSampleTime;
 
@@ -1621,7 +1617,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
     if (renderSampleTime != _this->mLastRenderSampleTime)
     {
       BufferList bufList;
-      AudioBufferList* pInBufList = (AudioBufferList*) &bufList;
+      AudioBufferList* pInBufList = (AudioBufferList*)&bufList;
 
       int nIn = _this->mInBuses.GetSize();
 
@@ -1649,12 +1645,14 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
           {
             case eDirectFastProc:
             {
-              r = pInBusConn->mUpstreamRenderProc(pInBusConn->mUpstreamObj, &flags, pTimestamp, pInBusConn->mUpstreamBusIdx, nFrames, pInBufList);
+              r = pInBusConn->mUpstreamRenderProc(
+                pInBusConn->mUpstreamObj, &flags, pTimestamp, pInBusConn->mUpstreamBusIdx, nFrames, pInBufList);
               break;
             }
             case eDirectNoFastProc:
             {
-              r = AudioUnitRender(pInBusConn->mUpstreamUnit, &flags, pTimestamp, pInBusConn->mUpstreamBusIdx, nFrames, pInBufList);
+              r = AudioUnitRender(
+                pInBusConn->mUpstreamUnit, &flags, pTimestamp, pInBusConn->mUpstreamBusIdx, nFrames, pInBufList);
               break;
             }
             case eRenderCallback:
@@ -1669,36 +1667,38 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
               r = RenderCallback(&(pInBusConn->mUpstreamRenderCallback), &flags, pTimestamp, i, nFrames, pInBufList);
               break;
             }
-            default:
-              break;
+            default: break;
           }
-          
+
           if (r != noErr)
           {
-            return r;   // Something went wrong upstream.
+            return r; // Something went wrong upstream.
           }
 
           for (int c = 0, chIdx = pInBus->mPlugChannelStartIdx; c < pInBus->mNHostChannels; ++c, ++chIdx)
           {
-            _this->AttachBuffers(ERoute::kInput, chIdx, 1, (AudioSampleType**) &(pInBufList->mBuffers[c].mData), nFrames);
+            _this->AttachBuffers(
+              ERoute::kInput, chIdx, 1, (AudioSampleType**)&(pInBufList->mBuffers[c].mData), nFrames);
           }
         }
       }
       _this->mLastRenderSampleTime = renderSampleTime;
     }
-  
+
     BusChannels* pOutBus = _this->mOutBuses.Get(outputBusIdx);
 
-    // if this bus is not connected OR the number of buffers that the host has given are not equal to the number the bus expects
+    // if this bus is not connected OR the number of buffers that the host has given are not equal to the number the bus
+    // expects
     if (!(pOutBus->mConnected) || pOutBus->mNHostChannels != pOutBufList->mNumberBuffers)
     {
       const int startChannelIdx = pOutBus->mPlugChannelStartIdx;
       const int nConnected = std::max(pOutBus->mNHostChannels, static_cast<int>(pOutBufList->mNumberBuffers));
       const int nUnconnected = std::max(pOutBus->mNPlugChannels - nConnected, 0);
-      
+
       assert(nConnected > -1);
       _this->SetChannelConnections(ERoute::kOutput, startChannelIdx, nConnected, true);
-      _this->SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected, false); // This will disconnect the right hand channel on a single stereo bus
+      _this->SetChannelConnections(ERoute::kOutput, startChannelIdx + nConnected, nUnconnected,
+                                   false); // This will disconnect the right hand channel on a single stereo bus
       pOutBus->mConnected = true;
     }
 
@@ -1707,12 +1707,12 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
       if (!(pOutBufList->mBuffers[c].mData)) // Downstream unit didn't give us buffers.
         pOutBufList->mBuffers[c].mData = _this->mOutScratchBuf.Get() + chIdx * nFrames;
 
-      _this->AttachBuffers(ERoute::kOutput, chIdx, 1, (AudioSampleType**) &(pOutBufList->mBuffers[c].mData), nFrames);
+      _this->AttachBuffers(ERoute::kOutput, chIdx, 1, (AudioSampleType**)&(pOutBufList->mBuffers[c].mData), nFrames);
     }
 
-    for(int i = 0; i < _this->mOutBuses.GetSize(); i++)
+    for (int i = 0; i < _this->mOutBuses.GetSize(); i++)
     {
-      if(!_this->mOutBuses.Get(i)->mConnected)
+      if (!_this->mOutBuses.Get(i)->mConnected)
       {
         break;
       }
@@ -1725,34 +1725,35 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
 
   if (_this->IsMidiEffect() || outputBusIdx == lastConnectedOutputBus)
   {
-    int busIdx1based = outputBusIdx+1;
+    int busIdx1based = outputBusIdx + 1;
 
     if (busIdx1based < _this->mOutBuses.GetSize() /*&& (_this->GetHost() != kHostAbletonLive)*/)
     {
       int totalNumChans = _this->mOutBuses.GetSize() * 2; // stereo only for the time being
       int nConnected = busIdx1based * 2;
-      _this->SetChannelConnections(ERoute::kOutput, nConnected, totalNumChans - nConnected, false); // this will disconnect the channels that are on the unconnected buses
+      _this->SetChannelConnections(ERoute::kOutput, nConnected, totalNumChans - nConnected,
+                                   false); // this will disconnect the channels that are on the unconnected buses
     }
 
     if (_this->GetBypassed())
     {
-      _this->PassThroughBuffers((AudioSampleType) 0, nFrames);
+      _this->PassThroughBuffers((AudioSampleType)0, nFrames);
     }
     else
     {
-      if(_this->mMidiMsgsFromEditor.ElementsAvailable())
+      if (_this->mMidiMsgsFromEditor.ElementsAvailable())
       {
         IMidiMsg msg;
-        
+
         while (_this->mMidiMsgsFromEditor.Pop(msg))
         {
           _this->ProcessMidiMsg(msg);
         }
       }
-      
+
       _this->PreProcess();
       ENTER_PARAMS_MUTEX_STATIC
-      _this->ProcessBuffers((AudioSampleType) 0, nFrames);
+      _this->ProcessBuffers((AudioSampleType)0, nFrames);
       LEAVE_PARAMS_MUTEX_STATIC
     }
   }
@@ -1766,7 +1767,7 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
       RenderCallback(pRN, &flags, pTimestamp, outputBusIdx, nFrames, pOutBufList);
     }
   }
-  
+
   _this->OutputSysexFromEditor();
 
   return noErr;
@@ -1824,44 +1825,45 @@ IPlugAU::IPlugAU(const InstanceInfo& info, const Config& config)
   mCocoaViewFactoryClassName.Set(info.mCocoaViewFactoryClassName.Get());
 
   int maxNIBuses = MaxNBuses(ERoute::kInput);
-  
-  // for an instrument with no sidechain input, we'll have 1 bus with 0 channels in the channel configs, but we don't want input bus here
-  if(maxNIBuses == 1 && MaxNChannelsForBus(kInput, 0) == 0)
+
+  // for an instrument with no sidechain input, we'll have 1 bus with 0 channels in the channel configs, but we don't
+  // want input bus here
+  if (maxNIBuses == 1 && MaxNChannelsForBus(kInput, 0) == 0)
   {
     maxNIBuses = 0;
   }
-  
+
   const int maxNOBuses = MaxNBuses(ERoute::kOutput);
 
-  if(maxNIBuses)
+  if (maxNIBuses)
   {
     PtrListInitialize(&mInBusConnections, maxNIBuses);
     PtrListInitialize(&mInBuses, maxNIBuses);
   }
-  
+
   int chansSoFar = 0;
-  
+
   for (auto bus = 0; bus < maxNIBuses; bus++)
   {
     BusChannels* pInBus = mInBuses.Get(bus);
     pInBus->mNHostChannels = -1;
     pInBus->mPlugChannelStartIdx = chansSoFar;
     pInBus->mNPlugChannels = std::abs(MaxNChannelsForBus(ERoute::kInput, bus));
-    
+
     chansSoFar += pInBus->mNPlugChannels;
   }
-  
+
   PtrListInitialize(&mOutBuses, maxNOBuses);
-  
+
   chansSoFar = 0;
-  
+
   for (auto bus = 0; bus < maxNOBuses; bus++)
   {
     BusChannels* pOutBus = mOutBuses.Get(bus);
     pOutBus->mNHostChannels = -1;
     pOutBus->mPlugChannelStartIdx = chansSoFar;
     pOutBus->mNPlugChannels = std::abs(MaxNChannelsForBus(ERoute::kOutput, bus));
-    
+
     chansSoFar += pOutBus->mNPlugChannels;
   }
 
@@ -1869,7 +1871,7 @@ IPlugAU::IPlugAU(const InstanceInfo& info, const Config& config)
 
   SetBlockSize(DEFAULT_BLOCK_SIZE);
   ResizeScratchBuffers();
-  
+
   CreateTimer();
 }
 
@@ -1914,7 +1916,7 @@ void IPlugAU::EndInformHostOfParamChange(int idx)
 
 void IPlugAU::InformHostOfPresetChange()
 {
-  //InformListeners(kAudioUnitProperty_CurrentPreset, kAudioUnitScope_Global);
+  // InformListeners(kAudioUnitProperty_CurrentPreset, kAudioUnitScope_Global);
   InformListeners(kAudioUnitProperty_PresentPreset, kAudioUnitScope_Global);
 }
 
@@ -1927,7 +1929,7 @@ void IPlugAU::InformHostOfParameterDetailsChange()
 void IPlugAU::PreProcess()
 {
   ITimeInfo timeInfo;
-  
+
   if (mHostCallbacks.beatAndTempoProc)
   {
     double currentBeat = 0.0, tempo = 0.0;
@@ -1935,26 +1937,27 @@ void IPlugAU::PreProcess()
 
     if (tempo > 0.0)
       timeInfo.mTempo = tempo;
-    
+
     if (currentBeat >= 0.0)
       timeInfo.mPPQPos = currentBeat;
   }
 
   if (mHostCallbacks.transportStateProc)
   {
-    double samplePos = 0.0, loopStartBeat=0.0, loopEndBeat=0.0;
+    double samplePos = 0.0, loopStartBeat = 0.0, loopEndBeat = 0.0;
     Boolean playing, changed, looping;
-    mHostCallbacks.transportStateProc(mHostCallbacks.hostUserData, &playing, &changed, &samplePos, &looping, &loopStartBeat, &loopEndBeat);
+    mHostCallbacks.transportStateProc(
+      mHostCallbacks.hostUserData, &playing, &changed, &samplePos, &looping, &loopStartBeat, &loopEndBeat);
 
     if (samplePos > 0.0)
       timeInfo.mSamplePos = samplePos;
-    
+
     if (loopStartBeat > 0.0)
       timeInfo.mCycleStart = loopStartBeat;
-    
+
     if (loopEndBeat > 0.0)
       timeInfo.mCycleEnd = loopEndBeat;
-    
+
     timeInfo.mTransportIsRunning = playing;
     timeInfo.mTransportLoopEnabled = looping;
   }
@@ -1962,17 +1965,18 @@ void IPlugAU::PreProcess()
   UInt32 sampleOffsetToNextBeat = 0, tsDenom = 0;
   float tsNum = 0.0f;
   double currentMeasureDownBeat = 0.0;
-  
+
   if (mHostCallbacks.musicalTimeLocationProc)
   {
-    mHostCallbacks.musicalTimeLocationProc(mHostCallbacks.hostUserData, &sampleOffsetToNextBeat, &tsNum, &tsDenom, &currentMeasureDownBeat);
+    mHostCallbacks.musicalTimeLocationProc(
+      mHostCallbacks.hostUserData, &sampleOffsetToNextBeat, &tsNum, &tsDenom, &currentMeasureDownBeat);
 
-    timeInfo.mNumerator = (int) tsNum;
-    timeInfo.mDenominator = (int) tsDenom;
-    if (currentMeasureDownBeat>0.0)
-      timeInfo.mLastBar=currentMeasureDownBeat;
+    timeInfo.mNumerator = (int)tsNum;
+    timeInfo.mDenominator = (int)tsDenom;
+    if (currentMeasureDownBeat > 0.0)
+      timeInfo.mLastBar = currentMeasureDownBeat;
   }
-    
+
   SetTimeInfo(timeInfo);
 }
 
@@ -1991,11 +1995,11 @@ void IPlugAU::InformListeners(AudioUnitPropertyID propID, AudioUnitScope scope)
 {
   TRACE
   int i, n = mPropertyListeners.GetSize();
-  
+
   for (i = 0; i < n; ++i)
   {
     PropertyListener* pListener = mPropertyListeners.Get(i);
-    
+
     if (pListener->mPropID == propID)
     {
       pListener->mListenerProc(pListener->mProcArgs, mCI, propID, scope, 0);
@@ -2012,41 +2016,41 @@ void IPlugAU::SetLatency(int samples)
 
 bool IPlugAU::SendMidiMsg(const IMidiMsg& msg)
 {
-  if(mMidiCallback.midiOutputCallback == nullptr)
+  if (mMidiCallback.midiOutputCallback == nullptr)
     return false;
-  
+
   MIDIPacketList packetList;
-  
+
   packetList.packet[0].data[0] = msg.mStatus;
   packetList.packet[0].data[1] = msg.mData1;
   packetList.packet[0].data[2] = msg.mData2;
   packetList.packet[0].length = 3;
   packetList.packet[0].timeStamp = msg.mOffset;
   packetList.numPackets = 1;
-  
-  if(mMidiCallback.midiOutputCallback)
+
+  if (mMidiCallback.midiOutputCallback)
   {
     OSStatus status = mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, &packetList);
-    
+
     if (status == noErr)
       return true;
   }
-  
+
   return false;
 }
 
 bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
 {
   bool result = false;
-  
-  if(mMidiCallback.midiOutputCallback == nullptr)
+
+  if (mMidiCallback.midiOutputCallback == nullptr)
     return false;
-  
+
   WDL_HeapBuf heapBuf;
-  MIDIPacketList* pPktlist = (MIDIPacketList*) heapBuf.ResizeOK(msgs.GetSize() * 3);
+  MIDIPacketList* pPktlist = (MIDIPacketList*)heapBuf.ResizeOK(msgs.GetSize() * 3);
   MIDIPacket* pPkt = MIDIPacketListInit(pPktlist);
   ByteCount listSize = heapBuf.GetSize();
-    
+
   IMidiMsg* pMsg = msgs.Get();
   for (int i = 0; i < msgs.GetSize(); ++i, ++pMsg)
   {
@@ -2054,15 +2058,15 @@ bool IPlugAU::SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs)
     pPkt = MIDIPacketListAdd(pPktlist, listSize, pPkt, pMsg->mOffset /* TODO: is this correct? */, 1, &pMsg->mData1);
     pPkt = MIDIPacketListAdd(pPktlist, listSize, pPkt, pMsg->mOffset /* TODO: is this correct? */, 1, &pMsg->mData2);
   }
-  
-  if(mMidiCallback.midiOutputCallback)
+
+  if (mMidiCallback.midiOutputCallback)
   {
     OSStatus status = mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, pPktlist);
-    
+
     if (status == noErr)
       result = true;
   }
-  
+
   return result;
 }
 
@@ -2070,45 +2074,47 @@ bool IPlugAU::SendSysEx(const ISysEx& sysEx)
 {
   bool result = false;
 
-  if(mMidiCallback.midiOutputCallback == nullptr)
+  if (mMidiCallback.midiOutputCallback == nullptr)
     return false;
 
   assert(sysEx.mSize <= 65536); // maximum packet list size
-  
+
   WDL_HeapBuf heapBuf;
-  MIDIPacketList* pPktlist = (MIDIPacketList*) heapBuf.ResizeOK(sysEx.mSize);
+  MIDIPacketList* pPktlist = (MIDIPacketList*)heapBuf.ResizeOK(sysEx.mSize);
   MIDIPacket* pPkt = MIDIPacketListInit(pPktlist);
-  
+
   ByteCount listSize = heapBuf.GetSize();
   ByteCount bytesLeft = listSize;
-  
-  while (bytesLeft) {
+
+  while (bytesLeft)
+  {
     ByteCount packetSize = listSize < 256 ? listSize : 256;
-    pPkt = MIDIPacketListAdd(pPktlist, listSize, pPkt, sysEx.mOffset /* TODO: is this correct? */, packetSize, sysEx.mData);
+    pPkt =
+      MIDIPacketListAdd(pPktlist, listSize, pPkt, sysEx.mOffset /* TODO: is this correct? */, packetSize, sysEx.mData);
     bytesLeft -= packetSize;
   }
-  
+
   assert(pPkt != nullptr);
-  
-  if(mMidiCallback.midiOutputCallback)
+
+  if (mMidiCallback.midiOutputCallback)
   {
     OSStatus status = mMidiCallback.midiOutputCallback(mMidiCallback.userData, &mLastRenderTimeStamp, 0, pPktlist);
-    
+
     if (status == noErr)
       result = true;
   }
-  
+
   return result;
 }
 
 void IPlugAU::OutputSysexFromEditor()
 {
-  //Output SYSEX from the editor, which has bypassed ProcessSysEx()
-  if(mSysExDataFromEditor.ElementsAvailable())
+  // Output SYSEX from the editor, which has bypassed ProcessSysEx()
+  if (mSysExDataFromEditor.ElementsAvailable())
   {
     while (mSysExDataFromEditor.Pop(mSysexBuf))
     {
-      ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
+      ISysEx smsg{mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
       SendSysEx(smsg);
     }
   }
@@ -2118,115 +2124,126 @@ void IPlugAU::OutputSysexFromEditor()
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED >= 1070
 
-static IPlugAU* GetPlug(void *x)
+static IPlugAU* GetPlug(void* x)
 {
-  return (IPlugAU*) &((AudioComponentPlugInInstance*) x)->mInstanceStorage;
+  return (IPlugAU*)&((AudioComponentPlugInInstance*)x)->mInstanceStorage;
 }
 
-//static
+// static
 OSStatus IPlugAU::AUMethodInitialize(void* pSelf)
 {
   return DoInitialize(GetPlug(pSelf));
 }
 
-//static
+// static
 OSStatus IPlugAU::AUMethodUninitialize(void* pSelf)
 {
   return DoUninitialize(GetPlug(pSelf));
 }
 
-//static
-OSStatus IPlugAU::AUMethodGetPropertyInfo(void* pSelf, AudioUnitPropertyID prop, AudioUnitScope scope, AudioUnitElement elem, UInt32* outDataSize, Boolean* outWritable)
+// static
+OSStatus IPlugAU::AUMethodGetPropertyInfo(void* pSelf, AudioUnitPropertyID prop, AudioUnitScope scope,
+                                          AudioUnitElement elem, UInt32* outDataSize, Boolean* outWritable)
 {
   return DoGetPropertyInfo(GetPlug(pSelf), prop, scope, elem, outDataSize, outWritable);
 }
 
-//static
-OSStatus IPlugAU::AUMethodGetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, void* outData, UInt32* ioDataSize)
+// static
+OSStatus IPlugAU::AUMethodGetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope,
+                                      AudioUnitElement inElement, void* outData, UInt32* ioDataSize)
 {
   return DoGetProperty(GetPlug(pSelf), inID, inScope, inElement, outData, ioDataSize);
 }
 
-//static
-OSStatus IPlugAU::AUMethodSetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* inData, UInt32* inDataSize)
+// static
+OSStatus IPlugAU::AUMethodSetProperty(void* pSelf, AudioUnitPropertyID inID, AudioUnitScope inScope,
+                                      AudioUnitElement inElement, const void* inData, UInt32* inDataSize)
 {
   return DoSetProperty(GetPlug(pSelf), inID, inScope, inElement, inData, inDataSize);
 }
 
-//static
-OSStatus IPlugAU::AUMethodAddPropertyListener(void* pSelf, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void* userData)
+// static
+OSStatus IPlugAU::AUMethodAddPropertyListener(void* pSelf, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc,
+                                              void* userData)
 {
   return DoAddPropertyListener(GetPlug(pSelf), prop, proc, userData);
 }
 
-//static
-OSStatus IPlugAU::AUMethodRemovePropertyListener(void* pSelf, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc)
+// static
+OSStatus IPlugAU::AUMethodRemovePropertyListener(void* pSelf, AudioUnitPropertyID prop,
+                                                 AudioUnitPropertyListenerProc proc)
 {
   return DoRemovePropertyListener(GetPlug(pSelf), prop, proc);
 }
 
-//static
-OSStatus IPlugAU::AUMethodRemovePropertyListenerWithUserData(void* pSelf, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void* userData)
+// static
+OSStatus IPlugAU::AUMethodRemovePropertyListenerWithUserData(void* pSelf, AudioUnitPropertyID prop,
+                                                             AudioUnitPropertyListenerProc proc, void* userData)
 {
   return DoRemovePropertyListenerWithUserData(GetPlug(pSelf), prop, proc, userData);
 }
 
-//static
+// static
 OSStatus IPlugAU::AUMethodAddRenderNotify(void* pSelf, AURenderCallback proc, void* userData)
 {
   return DoAddRenderNotify(GetPlug(pSelf), proc, userData);
 }
 
-//static
+// static
 OSStatus IPlugAU::AUMethodRemoveRenderNotify(void* pSelf, AURenderCallback proc, void* userData)
 {
   return DoRemoveRenderNotify(GetPlug(pSelf), proc, userData);
 }
 
-//static
-OSStatus IPlugAU::AUMethodGetParameter(void* pSelf, AudioUnitParameterID param, AudioUnitScope scope, AudioUnitElement elem, AudioUnitParameterValue* value)
+// static
+OSStatus IPlugAU::AUMethodGetParameter(void* pSelf, AudioUnitParameterID param, AudioUnitScope scope,
+                                       AudioUnitElement elem, AudioUnitParameterValue* value)
 {
   return DoGetParameter(GetPlug(pSelf), param, scope, elem, value);
 }
 
-//static
-OSStatus IPlugAU::AUMethodSetParameter(void* pSelf, AudioUnitParameterID param, AudioUnitScope scope, AudioUnitElement elem, AudioUnitParameterValue value, UInt32 bufferOffset)
+// static
+OSStatus IPlugAU::AUMethodSetParameter(void* pSelf, AudioUnitParameterID param, AudioUnitScope scope,
+                                       AudioUnitElement elem, AudioUnitParameterValue value, UInt32 bufferOffset)
 {
   return DoSetParameter(GetPlug(pSelf), param, scope, elem, value, bufferOffset);
 }
 
-//static
-OSStatus IPlugAU::AUMethodScheduleParameters(void* pSelf, const AudioUnitParameterEvent *pEvent, UInt32 nEvents)
+// static
+OSStatus IPlugAU::AUMethodScheduleParameters(void* pSelf, const AudioUnitParameterEvent* pEvent, UInt32 nEvents)
 {
   return DoScheduleParameters(GetPlug(pSelf), pEvent, nEvents);
 }
 
-//static
-OSStatus IPlugAU::AUMethodRender(void* pSelf, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp, UInt32 inOutputBusNumber, UInt32 inNumberFrames, AudioBufferList* ioData)
+// static
+OSStatus IPlugAU::AUMethodRender(void* pSelf, AudioUnitRenderActionFlags* ioActionFlags,
+                                 const AudioTimeStamp* inTimeStamp, UInt32 inOutputBusNumber, UInt32 inNumberFrames,
+                                 AudioBufferList* ioData)
 {
   return DoRender(GetPlug(pSelf), ioActionFlags, inTimeStamp, inOutputBusNumber, inNumberFrames, ioData);
 }
 
-//static
+// static
 OSStatus IPlugAU::AUMethodReset(void* pSelf, AudioUnitScope scope, AudioUnitElement elem)
 {
   return DoReset(GetPlug(pSelf));
 }
 
-//static
-OSStatus IPlugAU::AUMethodMIDIEvent(void* pSelf, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame)
+// static
+OSStatus IPlugAU::AUMethodMIDIEvent(void* pSelf, UInt32 inStatus, UInt32 inData1, UInt32 inData2,
+                                    UInt32 inOffsetSampleFrame)
 {
   return DoMIDIEvent(GetPlug(pSelf), inStatus, inData1, inData2, inOffsetSampleFrame);
 }
 
-//static
+// static
 OSStatus IPlugAU::AUMethodSysEx(void* pSelf, const UInt8* inData, UInt32 inLength)
 {
   return DoSysEx(GetPlug(pSelf), inData, inLength);
 }
 #endif
 
-//static
+// static
 OSStatus IPlugAU::DoInitialize(IPlugAU* _this)
 {
   if (_this->GetHost() == kHostUninit)
@@ -2234,23 +2251,23 @@ OSStatus IPlugAU::DoInitialize(IPlugAU* _this)
     CFBundleRef mainBundle = CFBundleGetMainBundle();
     CFStringRef id = nullptr;
     int version = 0;
-      
+
     if (mainBundle)
     {
       id = CFBundleGetIdentifier(mainBundle);
-      CStrLocal versionStr((CFStringRef) CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey));
-      
-      char *pStr;
+      CStrLocal versionStr((CFStringRef)CFBundleGetValueForInfoDictionaryKey(mainBundle, kCFBundleVersionKey));
+
+      char* pStr;
       long ver = versionStr.Get() ? strtol(versionStr.Get(), &pStr, 10) : 0;
       long verRevMaj = versionStr.Get() && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
       long verRevMin = versionStr.Get() && *pStr ? strtol(pStr + 1, &pStr, 10) : 0;
 
-      version = (int) (((ver & 0xFFFF) << 16) | ((verRevMaj &  0xFF) << 8) | (verRevMin & 0xFF));
+      version = (int)(((ver & 0xFFFF) << 16) | ((verRevMaj & 0xFF) << 8) | (verRevMin & 0xFF));
     }
 
     _this->SetHost(id ? CStrLocal(id).Get() : "", version);
   }
-    
+
   if (!(_this->CheckLegalIO()))
   {
     return badComponentSelector;
@@ -2259,11 +2276,11 @@ OSStatus IPlugAU::DoInitialize(IPlugAU* _this)
   _this->mActive = true;
   _this->OnParamReset(kReset);
   _this->OnActivate(true);
-  
+
   return noErr;
 }
 
-//static
+// static
 OSStatus IPlugAU::DoUninitialize(IPlugAU* _this)
 {
   _this->mActive = false;
@@ -2271,45 +2288,49 @@ OSStatus IPlugAU::DoUninitialize(IPlugAU* _this)
   return noErr;
 }
 
-//static
-OSStatus IPlugAU::DoGetPropertyInfo(IPlugAU* _this, AudioUnitPropertyID prop, AudioUnitScope scope, AudioUnitElement elem, UInt32* outDataSize, Boolean* outWritable)
+// static
+OSStatus IPlugAU::DoGetPropertyInfo(IPlugAU* _this, AudioUnitPropertyID prop, AudioUnitScope scope,
+                                    AudioUnitElement elem, UInt32* outDataSize, Boolean* outWritable)
 {
   UInt32 dataSize = 0;
-  
+
   if (!outDataSize)
     outDataSize = &dataSize;
-  
+
   Boolean writeable;
-  
+
   if (!outWritable)
     outWritable = &writeable;
-  
+
   *outWritable = false;
-  
+
   return _this->GetProperty(prop, scope, elem, outDataSize, outWritable, 0 /* indicates info */);
 }
 
-//static
-OSStatus IPlugAU::DoGetProperty(IPlugAU* _this, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, void* outData, UInt32 *ioDataSize)
+// static
+OSStatus IPlugAU::DoGetProperty(IPlugAU* _this, AudioUnitPropertyID inID, AudioUnitScope inScope,
+                                AudioUnitElement inElement, void* outData, UInt32* ioDataSize)
 {
   UInt32 dataSize = 0;
-  
+
   if (!ioDataSize)
     ioDataSize = &dataSize;
-  
+
   Boolean writeable = false;
-  
+
   return _this->GetProperty(inID, inScope, inElement, ioDataSize, &writeable, outData);
 }
 
-//static
-OSStatus IPlugAU::DoSetProperty(IPlugAU* _this, AudioUnitPropertyID inID, AudioUnitScope inScope, AudioUnitElement inElement, const void* inData, UInt32* inDataSize)
+// static
+OSStatus IPlugAU::DoSetProperty(IPlugAU* _this, AudioUnitPropertyID inID, AudioUnitScope inScope,
+                                AudioUnitElement inElement, const void* inData, UInt32* inDataSize)
 {
   return _this->SetProperty(inID, inScope, inElement, inDataSize, inData);
 }
 
-//static
-OSStatus IPlugAU::DoAddPropertyListener(IPlugAU* _this, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void* userData)
+// static
+OSStatus IPlugAU::DoAddPropertyListener(IPlugAU* _this, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc,
+                                        void* userData)
 {
   PropertyListener listener;
   listener.mPropID = prop;
@@ -2328,7 +2349,7 @@ OSStatus IPlugAU::DoAddPropertyListener(IPlugAU* _this, AudioUnitPropertyID prop
   return noErr;
 }
 
-//static
+// static
 OSStatus IPlugAU::DoRemovePropertyListener(IPlugAU* _this, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc)
 {
   PropertyListener listener;
@@ -2347,8 +2368,9 @@ OSStatus IPlugAU::DoRemovePropertyListener(IPlugAU* _this, AudioUnitPropertyID p
   return noErr;
 }
 
-//static
-OSStatus IPlugAU::DoRemovePropertyListenerWithUserData(IPlugAU* _this, AudioUnitPropertyID prop, AudioUnitPropertyListenerProc proc, void* userData)
+// static
+OSStatus IPlugAU::DoRemovePropertyListenerWithUserData(IPlugAU* _this, AudioUnitPropertyID prop,
+                                                       AudioUnitPropertyListenerProc proc, void* userData)
 {
   PropertyListener listener;
   listener.mPropID = prop;
@@ -2358,8 +2380,8 @@ OSStatus IPlugAU::DoRemovePropertyListenerWithUserData(IPlugAU* _this, AudioUnit
   for (i = 0; i < n; ++i)
   {
     PropertyListener* pListener = _this->mPropertyListeners.Get(i);
-    if (listener.mPropID == pListener->mPropID &&
-        listener.mListenerProc == pListener->mListenerProc && listener.mProcArgs == pListener->mProcArgs)
+    if (listener.mPropID == pListener->mPropID && listener.mListenerProc == pListener->mListenerProc
+        && listener.mProcArgs == pListener->mProcArgs)
     {
       _this->mPropertyListeners.Delete(i, true);
       break;
@@ -2368,25 +2390,25 @@ OSStatus IPlugAU::DoRemovePropertyListenerWithUserData(IPlugAU* _this, AudioUnit
   return noErr;
 }
 
-//static
+// static
 OSStatus IPlugAU::DoAddRenderNotify(IPlugAU* _this, AURenderCallback proc, void* userData)
 {
   AURenderCallbackStruct acs;
   acs.inputProc = proc;
   acs.inputProcRefCon = userData;
-  
+
   PtrListAddFromStack(&(_this->mRenderNotify), &acs);
   return noErr;
 }
 
-//static
+// static
 OSStatus IPlugAU::DoRemoveRenderNotify(IPlugAU* _this, AURenderCallback proc, void* userData)
 {
-  
+
   AURenderCallbackStruct acs;
   acs.inputProc = proc;
   acs.inputProcRefCon = userData;
-  
+
   int i, n = _this->mRenderNotify.GetSize();
   for (i = 0; i < n; ++i)
   {
@@ -2400,24 +2422,26 @@ OSStatus IPlugAU::DoRemoveRenderNotify(IPlugAU* _this, AURenderCallback proc, vo
   return noErr;
 }
 
-//static
-OSStatus IPlugAU::DoGetParameter(IPlugAU* _this, AudioUnitParameterID param, AudioUnitScope scope, AudioUnitElement elem, AudioUnitParameterValue *value)
+// static
+OSStatus IPlugAU::DoGetParameter(IPlugAU* _this, AudioUnitParameterID param, AudioUnitScope scope,
+                                 AudioUnitElement elem, AudioUnitParameterValue* value)
 {
-  //mutex locked below
+  // mutex locked below
   return _this->GetParamProc(_this, param, scope, elem, value);
 }
 
-//static
-OSStatus IPlugAU::DoSetParameter(IPlugAU* _this, AudioUnitParameterID param, AudioUnitScope scope, AudioUnitElement elem, AudioUnitParameterValue value, UInt32 bufferOffset)
+// static
+OSStatus IPlugAU::DoSetParameter(IPlugAU* _this, AudioUnitParameterID param, AudioUnitScope scope,
+                                 AudioUnitElement elem, AudioUnitParameterValue value, UInt32 bufferOffset)
 {
-  //mutex locked below
+  // mutex locked below
   return _this->SetParamProc(_this, param, scope, elem, value, bufferOffset);
 }
 
-//static
-OSStatus IPlugAU::DoScheduleParameters(IPlugAU* _this, const AudioUnitParameterEvent *pEvent, UInt32 nEvents)
+// static
+OSStatus IPlugAU::DoScheduleParameters(IPlugAU* _this, const AudioUnitParameterEvent* pEvent, UInt32 nEvents)
 {
-  //mutex locked below
+  // mutex locked below
   for (int i = 0; i < nEvents; ++i, ++pEvent)
   {
     if (pEvent->eventType == kParameterEvent_Immediate)
@@ -2433,23 +2457,25 @@ OSStatus IPlugAU::DoScheduleParameters(IPlugAU* _this, const AudioUnitParameterE
   return noErr;
 }
 
-//static
-OSStatus IPlugAU::DoRender(IPlugAU* _this, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp, UInt32 inOutputBusNumber, UInt32 inNumberFrames, AudioBufferList* ioData)
+// static
+OSStatus IPlugAU::DoRender(IPlugAU* _this, AudioUnitRenderActionFlags* ioActionFlags, const AudioTimeStamp* inTimeStamp,
+                           UInt32 inOutputBusNumber, UInt32 inNumberFrames, AudioBufferList* ioData)
 {
   return RenderProc(_this, ioActionFlags, inTimeStamp, inOutputBusNumber, inNumberFrames, ioData);
 }
 
-//static
+// static
 OSStatus IPlugAU::DoReset(IPlugAU* _this)
 {
   _this->OnReset();
   return noErr;
 }
 
-//static
-OSStatus IPlugAU::DoMIDIEvent(IPlugAU* _this, UInt32 inStatus, UInt32 inData1, UInt32 inData2, UInt32 inOffsetSampleFrame)
+// static
+OSStatus IPlugAU::DoMIDIEvent(IPlugAU* _this, UInt32 inStatus, UInt32 inData1, UInt32 inData2,
+                              UInt32 inOffsetSampleFrame)
 {
-  if(_this->DoesMIDIIn())
+  if (_this->DoesMIDIIn())
   {
     IMidiMsg msg;
     msg.mStatus = inStatus;
@@ -2464,10 +2490,10 @@ OSStatus IPlugAU::DoMIDIEvent(IPlugAU* _this, UInt32 inStatus, UInt32 inData1, U
     return badComponentSelector;
 }
 
-//static
+// static
 OSStatus IPlugAU::DoSysEx(IPlugAU* _this, const UInt8* inData, UInt32 inLength)
 {
-  if(_this->DoesMIDIIn())
+  if (_this->DoesMIDIIn())
   {
     ISysEx sysex;
     sysex.mData = inData;
@@ -2479,4 +2505,3 @@ OSStatus IPlugAU::DoSysEx(IPlugAU* _this, const UInt8* inData, UInt32 inLength)
   else
     return badComponentSelector;
 }
-

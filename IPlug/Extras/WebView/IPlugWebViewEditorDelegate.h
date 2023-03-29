@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
+
  This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
- 
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -19,22 +19,18 @@
 BEGIN_IPLUG_NAMESPACE
 
 /** This Editor Delegate allows using a platform native web view as the UI for an iPlug plugin */
-class WebViewEditorDelegate : public IEditorDelegate
-                            , public IWebView
+class WebViewEditorDelegate : public IEditorDelegate, public IWebView
 {
   static constexpr int kDefaultMaxJSStringLength = 1024;
-  
+
 public:
   WebViewEditorDelegate(int nParams);
   virtual ~WebViewEditorDelegate();
-  
-  //IEditorDelegate
+
+  // IEditorDelegate
   void* OpenWindow(void* pParent) override;
-  
-  void CloseWindow() override
-  {
-    CloseWebView();
-  }
+
+  void CloseWindow() override { CloseWebView(); }
 
   void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override
   {
@@ -69,7 +65,7 @@ public:
     str.SetFormatted(mMaxJSStringLength, "SAMFD(%i, %i, %s)", msgTag, dataSize, base64.data());
     EvaluateJavaScript(str.Get());
   }
-  
+
   void SendMidiMsgFromDelegate(const IMidiMsg& msg) override
   {
     WDL_String str;
@@ -80,8 +76,8 @@ public:
   void OnMessageFromWebView(const char* jsonStr) override
   {
     auto json = nlohmann::json::parse(jsonStr, nullptr, false);
-    
-    if(json["msg"] == "SPVFUI")
+
+    if (json["msg"] == "SPVFUI")
     {
       SendParameterValueFromUI(json["paramIdx"], json["value"]);
     }
@@ -97,19 +93,19 @@ public:
     {
       std::vector<unsigned char> base64;
 
-      if(json.count("data") > 0 && json["data"].is_string())
+      if (json.count("data") > 0 && json["data"].is_string())
       {
         auto dStr = json["data"].get<std::string>();
         int dSize = static_cast<int>(dStr.size());
-        
+
         // calculate the exact size of the decoded base64 data
         int numPaddingBytes = 0;
-        
-        if(dSize >= 2 && dStr[dSize-2] == '=')
+
+        if (dSize >= 2 && dStr[dSize - 2] == '=')
           numPaddingBytes = 2;
-        else if(dSize >= 1 && dStr[dSize-1] == '=')
+        else if (dSize >= 1 && dStr[dSize - 1] == '=')
           numPaddingBytes = 1;
-        
+
 
         base64.resize((dSize * 3) / 4 - numPaddingBytes);
         wdl_base64decode(dStr.c_str(), base64.data(), static_cast<int>(base64.size()));
@@ -117,11 +113,10 @@ public:
 
       SendArbitraryMsgFromUI(json["msgTag"], json["ctrlTag"], static_cast<int>(base64.size()), base64.data());
     }
-    else if(json["msg"] == "SMMFUI")
+    else if (json["msg"] == "SMMFUI")
     {
-      IMidiMsg msg {0, json["statusByte"].get<uint8_t>(),
-                       json["dataByte1"].get<uint8_t>(),
-                       json["dataByte2"].get<uint8_t>()};
+      IMidiMsg msg{
+        0, json["statusByte"].get<uint8_t>(), json["dataByte1"].get<uint8_t>(), json["dataByte2"].get<uint8_t>()};
       SendMidiMsgFromUI(msg);
     }
   }
@@ -133,23 +128,14 @@ public:
     if (mEditorInitFunc)
       mEditorInitFunc();
   }
-  
-  void OnWebContentLoaded() override
-  {
-    OnUIOpen();
-  }
-  
-  void SetMaxJSStringLength(int length)
-  {
-    mMaxJSStringLength = length;
-  }
-  
+
+  void OnWebContentLoaded() override { OnUIOpen(); }
+
+  void SetMaxJSStringLength(int length) { mMaxJSStringLength = length; }
+
 protected:
-  int GetBase64Length(int dataSize)
-  {
-    return static_cast<int>(4. * std::ceil((static_cast<double>(dataSize) / 3.)));
-  }
-  
+  int GetBase64Length(int dataSize) { return static_cast<int>(4. * std::ceil((static_cast<double>(dataSize) / 3.))); }
+
   int mMaxJSStringLength = kDefaultMaxJSStringLength;
   std::function<void()> mEditorInitFunc = nullptr;
   void* mHelperView = nullptr;

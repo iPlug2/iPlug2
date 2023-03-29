@@ -34,7 +34,7 @@ public:
     g.DrawDottedRect(COLOR_BLACK, mRECT);
     g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
 
-    if(mBitmap.IsValid())
+    if (mBitmap.IsValid())
       g.DrawFittedBitmap(mBitmap, mRECT);
     else
       g.DrawText(DEFAULT_TEXT, "Invalid Bitmap", mRECT);
@@ -44,18 +44,15 @@ public:
   {
     WDL_String fileName, path;
 
-    GetUI()->PromptForFile(fileName, path, EFileAction::Open, "bmp jpg png", 
-    [this](const WDL_String& fileName, const WDL_String& path) {
-      if (fileName.GetLength())
-        SetBitmap(fileName.Get());
-    });
+    GetUI()->PromptForFile(
+      fileName, path, EFileAction::Open, "bmp jpg png", [this](const WDL_String& fileName, const WDL_String& path) {
+        if (fileName.GetLength())
+          SetBitmap(fileName.Get());
+      });
   }
 
-  void OnDrop(const char* str) override
-  {
-    SetBitmap(str);
-  }
-  
+  void OnDrop(const char* str) override { SetBitmap(str); }
+
   void SetBitmap(const char* str)
   {
     mBitmap = GetUI()->LoadBitmap(str);

@@ -1,11 +1,11 @@
- /*
- ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
- See LICENSE.txt for  more info.
- 
- ==============================================================================
+/*
+==============================================================================
+
+This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+See LICENSE.txt for  more info.
+
+==============================================================================
 */
 
 #ifndef _IPLUGAUVIEWCONTROLLER_
@@ -17,10 +17,10 @@
 
 @interface IPLUG_AUVIEWCONTROLLER : AUViewController <AUAudioUnitFactory>
 
-@property (nonatomic, retain) AUAudioUnit* audioUnit;
-- (void) setAudioUnit:(AUAudioUnit*) audioUnit;
-- (void) audioUnitInitialized;
-- (AUAudioUnit*) getAudioUnit;
+@property(nonatomic, retain) AUAudioUnit* audioUnit;
+- (void)setAudioUnit:(AUAudioUnit*)audioUnit;
+- (void)audioUnitInitialized;
+- (AUAudioUnit*)getAudioUnit;
 @end
 
 #endif /* _IPLUGAUVIEWCONTROLLER_ */

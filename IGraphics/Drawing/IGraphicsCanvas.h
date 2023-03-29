@@ -26,13 +26,13 @@ BEGIN_IGRAPHICS_NAMESPACE
 std::string CanvasColor(const IColor& color, float alpha = 1.0);
 
 /** IGraphics draw class HTML5 canvas
-* @ingroup DrawClasses */
+ * @ingroup DrawClasses */
 class IGraphicsCanvas : public IGraphics
 {
 private:
   class Bitmap;
   struct Font;
-  
+
 public:
   IGraphicsCanvas(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsCanvas();
@@ -41,7 +41,7 @@ public:
 
   void DrawBitmap(const IBitmap& bitmap, const IRECT& bounds, int srcX, int srcY, const IBlend* pBlend) override;
 
-  void DrawResize() override {};
+  void DrawResize() override{};
 
   void PathClear() override;
   void PathClose() override;
@@ -50,16 +50,18 @@ public:
   void PathLineTo(float x, float y) override;
   void PathCubicBezierTo(float c1x, float c1y, float c2x, float c2y, float x2, float y2) override;
   void PathQuadraticBezierTo(float cx, float cy, float x2, float y2) override;
-  void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options, const IBlend* pBlend) override;
+  void PathStroke(const IPattern& pattern, float thickness, const IStrokeOptions& options,
+                  const IBlend* pBlend) override;
   void PathFill(const IPattern& pattern, const IFillOptions& options, const IBlend* pBlend) override;
 
   IColor GetPoint(int x, int y) override { return COLOR_BLACK; } // TODO:
   void* GetDrawContext() override { return nullptr; }
 
   bool BitmapExtSupported(const char* ext) override;
-    
+
 protected:
-  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location, const char* ext) override;
+  APIBitmap* LoadAPIBitmap(const char* fileNameOrResID, int scale, EResourceLocation location,
+                           const char* ext) override;
   APIBitmap* LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale) override;
   APIBitmap* CreateAPIBitmap(int width, int height, float scale, double drawScale, bool cacheable = false) override;
 
@@ -75,30 +77,31 @@ protected:
 
   float DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
   void DoDrawText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
-    
+
 private:
-  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double & y) const;
-    
+  void PrepareAndMeasureText(const IText& text, const char* str, IRECT& r, double& x, double& y) const;
+
   val GetContext() const
   {
-    val canvas = mLayers.empty() ? val::global("document").call<val>("getElementById", std::string("canvas")) : *(mLayers.top()->GetAPIBitmap()->GetBitmap());
-      
+    val canvas = mLayers.empty() ? val::global("document").call<val>("getElementById", std::string("canvas"))
+                                 : *(mLayers.top()->GetAPIBitmap()->GetBitmap());
+
     return canvas.call<val>("getContext", std::string("2d"));
   }
-    
+
   void GetFontMetrics(const char* font, const char* style, double& ascenderRatio, double& EMRatio);
   bool CompareFontMetrics(const char* style, const char* font1, const char* font2);
   bool FontExists(const char* font, const char* style);
-    
+
   double XTranslate() { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().L; }
   double YTranslate() { return mLayers.empty() ? 0 : -mLayers.top()->Bounds().T; }
 
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
-    
+
   void SetCanvasSourcePattern(val& context, const IPattern& pattern, const IBlend* pBlend = nullptr);
   void SetCanvasBlendMode(val& context, const IBlend* pBlend);
-    
+
   std::vector<val> mLoadingFonts;
 
   static StaticStorage<Font> sFontCache;
@@ -106,4 +109,3 @@ private:
 
 END_IPLUG_NAMESPACE
 END_IGRAPHICS_NAMESPACE
-

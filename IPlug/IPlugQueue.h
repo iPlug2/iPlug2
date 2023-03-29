@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -27,30 +27,24 @@ BEGIN_IPLUG_NAMESPACE
 /** A lock-free SPSC queue used to transfer data between threads
  * based on MLQueue.h by Randy Jones
  * based on https://kjellkod.wordpress.com/2012/11/28/c-debt-paid-in-full-wait-free-lock-free-queue/ */
-template<typename T>
+template <typename T>
 class IPlugQueue final
 {
 public:
-  /** IPlugQueue constructor 
+  /** IPlugQueue constructor
    * @param size \todo */
-  IPlugQueue(int size)
-  {
-    Resize(size);
-  }
+  IPlugQueue(int size) { Resize(size); }
 
-  ~IPlugQueue(){}
+  ~IPlugQueue() {}
 
   IPlugQueue(const IPlugQueue&) = delete;
   IPlugQueue& operator=(const IPlugQueue&) = delete;
-    
-  /** \todo 
-   * @param size \todo */
-  void Resize(int size)
-  {
-    mData.Resize(size + 1);
-  }
 
-  /** \todo 
+  /** \todo
+   * @param size \todo */
+  void Resize(int size) { mData.Resize(size + 1); }
+
+  /** \todo
    * @param item \todo
    * @return true \todo
    * @return false \todo */
@@ -58,7 +52,7 @@ public:
   {
     const auto currentWriteIndex = mWriteIndex.load(std::memory_order_relaxed);
     const auto nextWriteIndex = Increment(currentWriteIndex);
-    if(nextWriteIndex != mReadIndex.load(std::memory_order_acquire))
+    if (nextWriteIndex != mReadIndex.load(std::memory_order_acquire))
     {
       mData.Get()[currentWriteIndex] = item;
       mWriteIndex.store(nextWriteIndex, std::memory_order_release);
@@ -67,14 +61,14 @@ public:
     return false;
   }
 
-  /** \todo 
+  /** \todo
    * @param item \todo
    * @return true \todo
    * @return false \todo */
   bool Pop(T& item)
   {
     const auto currentReadIndex = mReadIndex.load(std::memory_order_relaxed);
-    if(currentReadIndex == mWriteIndex.load(std::memory_order_acquire))
+    if (currentReadIndex == mWriteIndex.load(std::memory_order_acquire))
     {
       return false; // empty the queue
     }
@@ -83,7 +77,7 @@ public:
     return true;
   }
 
-  /** \todo 
+  /** \todo
    * @return size_t \todo */
   size_t ElementsAvailable() const
   {
@@ -103,15 +97,12 @@ public:
     return mData.Get()[currentReadIndex];
   }
 
-  /** \todo 
+  /** \todo
    * @return true \todo
    * @return false \todo */
-  bool WasEmpty() const
-  {
-    return (mWriteIndex.load() == mReadIndex.load());
-  }
+  bool WasEmpty() const { return (mWriteIndex.load() == mReadIndex.load()); }
 
-  /** \todo 
+  /** \todo
    * @return true \todo
    * @return false \todo */
   bool WasFull() const
@@ -121,13 +112,10 @@ public:
   }
 
 private:
-  /** \todo 
+  /** \todo
    * @param idx \todo
    * @return size_t \todo */
-  size_t Increment(size_t idx) const
-  {
-    return (idx + 1) % (mData.GetSize());
-  }
+  size_t Increment(size_t idx) const { return (idx + 1) % (mData.GetSize()); }
 
   WDL_TypedBuf<T> mData;
   std::atomic<size_t> mWriteIndex{0};

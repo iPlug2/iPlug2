@@ -14,8 +14,8 @@
  * @file
  * @ingroup SpecialControls
  * @brief A Text entry widget drawn by IGraphics to optionally override platform text entries.
- * This allows better matching of text rendering during text input and display, but has disadvantages in terms of accessibility.
- * This code is largely based on VSTGUI's generictextedit, using stb_textedit
+ * This allows better matching of text rendering during text input and display, but has disadvantages in terms of
+ * accessibility. This code is largely based on VSTGUI's generictextedit, using stb_textedit
  */
 
 #define STB_TEXTEDIT_CHARTYPE char16_t
@@ -39,8 +39,8 @@ class ITextEntryControl : public IControl
 {
 public:
   ITextEntryControl();
-  
-  //IControl
+
+  // IControl
   void Draw(IGraphics& g) override;
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   bool OnKeyDown(float x, float y, const IKeyPress& key) override;
@@ -48,7 +48,7 @@ public:
   void OnMouseUp(float x, float y, const IMouseMod& mod) override;
   void OnMouseDblClick(float x, float y, const IMouseMod& mod) override;
   void OnEndAnimation() override;
-  
+
   static int DeleteChars(ITextEntryControl* _this, size_t pos, size_t num);
   static int InsertChars(ITextEntryControl* _this, size_t pos, const char16_t* text, size_t num);
   static void Layout(StbTexteditRow* row, ITextEntryControl* _this, int start_i);
@@ -63,10 +63,9 @@ public:
   void CreateTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str);
 
 private:
-    
   void SetStr(const char* str);
 
-  template<typename Proc>
+  template <typename Proc>
   bool CallSTB(Proc proc);
   void OnStateChanged();
   void OnTextChange();
@@ -77,7 +76,7 @@ private:
   void Paste();
   void Cut();
   void SelectAll();
-  
+
   bool mDrawCursor = false;
   bool mEditing = false;
   bool mRecursiveKeyGuard = false;

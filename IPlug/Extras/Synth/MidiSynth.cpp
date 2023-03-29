@@ -17,23 +17,21 @@ MidiSynth::MidiSynth(VoiceAllocator::EPolyMode mode, int blockSize)
 {
   SetPolyMode(mode);
 
-  for(int i=0; i<128; i++)
+  for (int i = 0; i < 128; i++)
   {
     mVelocityLUT[i] = i / 127.f;
     mAfterTouchLUT[i] = i / 127.f;
   }
 
   // initialize Channel states
-  for(int i=0; i<16; ++i)
+  for (int i = 0; i < 16; ++i)
   {
     mChannelStates[i] = ChannelState{0};
     mChannelStates[i].pitchBendRange = kDefaultPitchBendRange;
   }
 }
 
-MidiSynth::~MidiSynth()
-{
-}
+MidiSynth::~MidiSynth() {}
 
 VoiceInputEvent MidiSynth::MidiMessageToEventBasic(const IMidiMsg& msg)
 {
@@ -83,7 +81,7 @@ VoiceInputEvent MidiSynth::MidiMessageToEventBasic(const IMidiMsg& msg)
     {
       event.mControllerNumber = msg.ControlChangeIdx();
       event.mValue = static_cast<float>(msg.ControlChange(msg.ControlChangeIdx()));
-      switch(event.mControllerNumber)
+      switch (event.mControllerNumber)
       {
         // handle special controllers
         case IMidiMsg::kCutoffFrequency:
@@ -136,11 +134,11 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
   bool isPitchBend = status == IMidiMsg::kPitchWheel;
   bool isChannelPressure = status == IMidiMsg::kChannelAftertouch;
   bool isTimbre = (status == IMidiMsg::kControlChange) && (msg.ControlChangeIdx() == IMidiMsg::kCutoffFrequency);
-  if(isPitchBend || isChannelPressure || isTimbre)
+  if (isPitchBend || isChannelPressure || isTimbre)
   {
     float* pChannelDestValue{};
     float masterChannelStoredValue{};
-    if(isPitchBend)
+    if (isPitchBend)
     {
       event.mAction = kPitchBendAction;
       float bendRange = mChannelStates[event.mAddress.mChannel].pitchBendRange;
@@ -149,14 +147,14 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
       pChannelDestValue = &(mChannelStates[event.mAddress.mChannel].pitchBend);
       masterChannelStoredValue = mChannelStates[MasterChannelFor(event.mAddress.mChannel)].pitchBend;
     }
-    else if(isChannelPressure)
+    else if (isChannelPressure)
     {
       event.mAction = kPressureAction;
       event.mValue = mAfterTouchLUT[msg.ChannelAfterTouch()];
       pChannelDestValue = &(mChannelStates[event.mAddress.mChannel].pressure);
       masterChannelStoredValue = mChannelStates[MasterChannelFor(event.mAddress.mChannel)].pressure;
     }
-    else if(isTimbre)
+    else if (isTimbre)
     {
       event.mAction = kTimbreAction;
       event.mValue = static_cast<float>(msg.ControlChange(msg.ControlChangeIdx()));
@@ -164,7 +162,7 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
       masterChannelStoredValue = mChannelStates[MasterChannelFor(event.mAddress.mChannel)].timbre;
     }
 
-    if(IsMasterChannel(event.mAddress.mChannel))
+    if (IsMasterChannel(event.mAddress.mChannel))
     {
       // store value in master channel
       *pChannelDestValue = event.mValue;
@@ -194,7 +192,7 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
     // affects all voices within the zone. Program changes sent to member channels are ignored.
     case IMidiMsg::kProgramChange:
     {
-      if(IsMasterChannel(event.mAddress.mChannel))
+      if (IsMasterChannel(event.mAddress.mChannel))
       {
         event.mAction = kProgramChangeAction;
         event.mControllerNumber = msg.Program();
@@ -222,7 +220,7 @@ VoiceInputEvent MidiSynth::MidiMessageToEventMPE(const IMidiMsg& msg)
     case IMidiMsg::kControlChange:
     {
       event.mControllerNumber = msg.ControlChangeIdx();
-      switch(event.mControllerNumber)
+      switch (event.mControllerNumber)
       {
         case IMidiMsg::kAllNotesOff:
         {
@@ -263,7 +261,7 @@ void MidiSynth::SetMPEZones(int channel, int nChans)
   // totalChannels is never 1.
   int memberChannels = Clip(nChans, 0, 15);
   int totalChannels = memberChannels ? (memberChannels + 1) : 0;
-  if(channel == 0)
+  if (channel == 0)
   {
     mMPELowerZoneChannels = totalChannels;
     mMPEUpperZoneChannels = Clip(mMPEUpperZoneChannels, 0, 16 - mMPELowerZoneChannels);
@@ -276,7 +274,7 @@ void MidiSynth::SetMPEZones(int channel, int nChans)
 
   // activate / deactivate MPE mode if needed
   bool anyMPEChannelsActive = (mMPELowerZoneChannels || mMPEUpperZoneChannels);
-  if(anyMPEChannelsActive && (!mMPEMode))
+  if (anyMPEChannelsActive && (!mMPEMode))
   {
     mMPEMode = true;
   }
@@ -286,9 +284,9 @@ void MidiSynth::SetMPEZones(int channel, int nChans)
   }
 
   // reset pitch bend ranges as per MPE spec
-  if(mMPEMode)
+  if (mMPEMode)
   {
-    if(channel == 0)
+    if (channel == 0)
     {
       SetChannelPitchBendRange(kMPELowerZoneMasterChannel, 2);
       SetChannelPitchBendRange(kMPELowerZoneMasterChannel + 1, 48);
@@ -301,7 +299,7 @@ void MidiSynth::SetMPEZones(int channel, int nChans)
   }
   else
     SetPitchBendRange(mNonMPEPitchBendRange);
-  
+
   std::cout << "MPE mode: " << (mMPEMode ? "ON" : "OFF") << "\n";
   std::cout << "MPE channels: \n    lo: " << mMPELowerZoneChannels << " hi " << mMPEUpperZoneChannels << "\n";
 }
@@ -309,7 +307,7 @@ void MidiSynth::SetMPEZones(int channel, int nChans)
 void MidiSynth::SetChannelPitchBendRange(int channelParam, int rangeParam)
 {
   int channelLo, channelHi;
-  if(IsInLowerZone(channelParam))
+  if (IsInLowerZone(channelParam))
   {
     channelLo = LowerZoneStart();
     channelHi = LowerZoneEnd();
@@ -326,7 +324,7 @@ void MidiSynth::SetChannelPitchBendRange(int channelParam, int rangeParam)
 
   int range = Clip(rangeParam, 0, 96);
 
-  for(int i=channelLo; i <= channelHi; ++i)
+  for (int i = channelLo; i <= channelHi; ++i)
   {
     mChannelStates[i].pitchBendRange = range;
   }
@@ -334,9 +332,10 @@ void MidiSynth::SetChannelPitchBendRange(int channelParam, int rangeParam)
 
 bool IsRPNMessage(IMidiMsg msg)
 {
-  if(msg.StatusMsg() != IMidiMsg::kControlChange) return false;
+  if (msg.StatusMsg() != IMidiMsg::kControlChange)
+    return false;
   int cc = msg.mData1;
-  return(cc == 0x64)||(cc == 0x65)||(cc == 0x26)||(cc == 0x06);
+  return (cc == 0x64) || (cc == 0x65) || (cc == 0x26) || (cc == 0x06);
 }
 
 void MidiSynth::HandleRPN(IMidiMsg msg)
@@ -356,41 +355,37 @@ void MidiSynth::HandleRPN(IMidiMsg msg)
       state.paramMSB = valueByte;
       state.valueMSB = state.valueLSB = 0xff;
       break;
-    case 0x26:
-      state.valueLSB = valueByte;
-      break;
+    case 0x26: state.valueLSB = valueByte; break;
     case 0x06:
       // whenever the value MSB byte is received we constuct the value and take action on the RPN.
       // if only the MSB has been received, it is used as the entire value so the maximum possible value is 127.
       state.valueMSB = valueByte;
-      param = ((state.paramMSB&0xFF) << 7) + (state.paramLSB&0xFF);
-      if(state.valueLSB != 0xff)
+      param = ((state.paramMSB & 0xFF) << 7) + (state.paramLSB & 0xFF);
+      if (state.valueLSB != 0xff)
       {
-        value = ((state.valueMSB&0xFF) << 7) + (state.valueLSB&0xFF);
+        value = ((state.valueMSB & 0xFF) << 7) + (state.valueLSB & 0xFF);
       }
       else
       {
-        value = state.valueMSB&0xFF;
+        value = state.valueMSB & 0xFF;
       }
       std::cout << "RPN received: channel " << channel << ", param " << param << ", value " << value << "\n";
-      switch(param)
+      switch (param)
       {
         case 0: // RPN 0 : pitch bend range
           SetChannelPitchBendRange(channel, value);
           break;
         case 6: // RPN 6 : MPE zone configuration. These messages may turn MPE mode on or off.
-          if(IsMasterChannel(channel))
+          if (IsMasterChannel(channel))
           {
             SetMPEZones(channel, value);
           }
           break;
-        default:
-          break;
+        default: break;
       }
       break;
 
-    default:
-      break;
+    default: break;
   }
 }
 
@@ -404,9 +399,9 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int
     int samplesRemaining = nFrames;
     int startIndex = 0;
 
-    while(samplesRemaining > 0)
+    while (samplesRemaining > 0)
     {
-      if(samplesRemaining < blockSize)
+      if (samplesRemaining < blockSize)
         blockSize = samplesRemaining;
 
       while (!mMidiQueue.Empty())
@@ -414,9 +409,10 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int
         IMidiMsg msg = mMidiQueue.Peek();
 
         // we assume the messages are in chronological order. If we find one later than the current block we are done.
-        if (msg.mOffset > startIndex + blockSize) break;
+        if (msg.mOffset > startIndex + blockSize)
+          break;
 
-        if(IsRPNMessage(msg))
+        if (IsRPNMessage(msg))
         {
           HandleRPN(msg);
         }
@@ -441,15 +437,17 @@ bool MidiSynth::ProcessBlock(sample** inputs, sample** outputs, int nInputs, int
     bool voicesbusy = false;
     int activeCount = 0;
 
-    for(int v = 0; v < NVoices(); v++)
+    for (int v = 0; v < NVoices(); v++)
     {
       bool busy = GetVoice(v)->GetBusy();
       voicesbusy |= busy;
 
-      activeCount += (busy==true);
+      activeCount += (busy == true);
 #if DEBUG_VOICE_COUNT
-      if(GetVoice(v)->GetBusy()) printf("X");
-      else DBGMSG("_");
+      if (GetVoice(v)->GetBusy())
+        printf("X");
+      else
+        DBGMSG("_");
     }
     DBGMSG("\n");
     DBGMSG("Num Voices busy %i\n", activeCount);
@@ -477,7 +475,7 @@ void MidiSynth::SetSampleRateAndBlockSize(double sampleRate, int blockSize)
   mMidiQueue.Resize(blockSize);
   mVoiceAllocator.SetSampleRateAndBlockSize(sampleRate, blockSize);
 
-  for(int v = 0; v < NVoices(); v++)
+  for (int v = 0; v < NVoices(); v++)
   {
     GetVoice(v)->SetSampleRateAndBlockSize(sampleRate, blockSize);
   }

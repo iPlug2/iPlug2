@@ -30,6 +30,7 @@ public:
 #if IPLUG_EDITOR
   void LayoutUI(IGraphics* pGraphics) override;
   void OnParentWindowResize(int width, int height) override;
+
 public:
   int mNumberOfThings = 16;
   int mKindOfThing = 0;

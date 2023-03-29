@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
+
  This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
- 
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
  */
 
@@ -12,7 +12,7 @@
  * @file
  * @brief ITextEntryControl implementation
  * @ingroup SpecialControls
-*/
+ */
 
 #include "ITextEntryControl.h"
 #include "IPlugPlatform.h"
@@ -22,12 +22,12 @@
 #include <locale>
 
 #ifdef _MSC_VER
-#if (_MSC_VER >= 1900 /* VS 2015*/) && (_MSC_VER < 1920 /* pre VS 2019 */)
+  #if (_MSC_VER >= 1900 /* VS 2015*/) && (_MSC_VER < 1920 /* pre VS 2019 */)
 std::locale::id std::codecvt<char16_t, char, _Mbstatet>::id;
-#endif
+  #endif
 #endif
 
-//TODO: use either wdlutf8, iplug2 UTF8/UTF16 or cpp11 wstring_convert
+// TODO: use either wdlutf8, iplug2 UTF8/UTF16 or cpp11 wstring_convert
 using StringConvert = std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t>;
 
 using namespace iplug;
@@ -56,12 +56,12 @@ using namespace igraphics;
 #define STB_TEXTEDIT_K_PGUP (VIRTUAL_KEY_BIT | kVK_PRIOR)
 #define STB_TEXTEDIT_K_PGDOWN (VIRTUAL_KEY_BIT | kVK_NEXT)
 // functions
-#define STB_TEXTEDIT_STRINGLEN(tc) ITextEntryControl::GetLength (tc)
+#define STB_TEXTEDIT_STRINGLEN(tc) ITextEntryControl::GetLength(tc)
 #define STB_TEXTEDIT_LAYOUTROW ITextEntryControl::Layout
-#define STB_TEXTEDIT_GETWIDTH(tc, n, i) ITextEntryControl::GetCharWidth (tc, n, i)
-#define STB_TEXTEDIT_KEYTOTEXT(key)                                                                \
-((key & VIRTUAL_KEY_BIT) ? 0 : ((key & STB_TEXTEDIT_K_CONTROL) ? 0 : (key & (~0xF0000000))));
-#define STB_TEXTEDIT_GETCHAR(tc, i) ITextEntryControl::GetChar (tc, i)
+#define STB_TEXTEDIT_GETWIDTH(tc, n, i) ITextEntryControl::GetCharWidth(tc, n, i)
+#define STB_TEXTEDIT_KEYTOTEXT(key)                                                                                    \
+  ((key & VIRTUAL_KEY_BIT) ? 0 : ((key & STB_TEXTEDIT_K_CONTROL) ? 0 : (key & (~0xF0000000))));
+#define STB_TEXTEDIT_GETCHAR(tc, i) ITextEntryControl::GetChar(tc, i)
 #define STB_TEXTEDIT_NEWLINE '\n'
 #define STB_TEXTEDIT_IS_SPACE(ch) isspace(ch)
 #define STB_TEXTEDIT_DELETECHARS ITextEntryControl::DeleteChars
@@ -75,26 +75,27 @@ ITextEntryControl::ITextEntryControl()
 : IControl(IRECT())
 {
   stb_textedit_initialize_state(&mEditState, true);
-  
+
   SetActionFunction([&](IControl* pCaller) {
-    
     mDrawCursor = true;
-    
-    SetAnimation([&](IControl* pCaller) {
-      auto progress = pCaller->GetAnimationProgress();
-      
-      if(progress > 0.5) {
-        mDrawCursor = false;
-        pCaller->SetDirty(false);
-      }
-   
-      if(progress > 1.) {
-        pCaller->OnEndAnimation();
-        return;
-      }
-      
-    },
-    1000);
+
+    SetAnimation(
+      [&](IControl* pCaller) {
+        auto progress = pCaller->GetAnimationProgress();
+
+        if (progress > 0.5)
+        {
+          mDrawCursor = false;
+          pCaller->SetDirty(false);
+        }
+
+        if (progress > 1.)
+        {
+          pCaller->OnEndAnimation();
+          return;
+        }
+      },
+      1000);
   });
 }
 
@@ -119,13 +120,13 @@ void ITextEntryControl::Draw(IGraphics& g)
       selectionEnd += mCharWidths.Get()[i];
     }
     IRECT selectionRect(selectionStart, mRECT.T + row.ymin, selectionEnd, mRECT.T + row.ymax);
-    selectionRect = selectionRect.GetVPadded(-mText.mSize*0.1f);
+    selectionRect = selectionRect.GetVPadded(-mText.mSize * 0.1f);
     IBlend blend(EBlend::Default, 0.2f);
     g.FillRect(mText.mTextEntryFGColor, selectionRect, &blend);
   }
 
   g.DrawText(mText, StringConvert{}.to_bytes(mEditString).c_str(), mRECT);
-  
+
   if (mDrawCursor && !hasSelection)
   {
     float cursorPos = row.x0;
@@ -133,55 +134,52 @@ void ITextEntryControl::Draw(IGraphics& g)
     {
       cursorPos += mCharWidths.Get()[i];
     }
-    IRECT cursorRect(roundf(cursorPos-1), mRECT.T + row.ymin, roundf(cursorPos), mRECT.T + row.ymax);
-    cursorRect = cursorRect.GetVPadded(-mText.mSize*0.1f);
+    IRECT cursorRect(roundf(cursorPos - 1), mRECT.T + row.ymin, roundf(cursorPos), mRECT.T + row.ymax);
+    cursorRect = cursorRect.GetVPadded(-mText.mSize * 0.1f);
     g.FillRect(mText.mTextEntryFGColor, cursorRect);
   }
 }
 
-template<typename Proc>
+template <typename Proc>
 bool ITextEntryControl::CallSTB(Proc proc)
 {
   auto oldState = mEditState;
   proc();
-  
-  if(memcmp(&oldState, &mEditState, sizeof (STB_TexteditState)) != 0)
+
+  if (memcmp(&oldState, &mEditState, sizeof(STB_TexteditState)) != 0)
   {
-    OnStateChanged(); //TODO:
+    OnStateChanged(); // TODO:
     return true;
   }
- 
+
   return false;
 }
 
 void ITextEntryControl::OnMouseDown(float x, float y, const IMouseMod& mod)
 {
-  if(!mRECT.Contains(x, y))
+  if (!mRECT.Contains(x, y))
   {
     CommitEdit();
     return;
   }
-    
-  if(mod.L)
+
+  if (mod.L)
   {
-    CallSTB ([&]() {
-      stb_textedit_click(this, &mEditState, x, y);
-    });
+    CallSTB([&]() { stb_textedit_click(this, &mEditState, x, y); });
   }
-  
-  if(mod.R)
+
+  if (mod.R)
   {
-    static IPopupMenu menu {"", {"Cut", "Copy", "Paste"}, [&](IPopupMenu* pMenu) {
-      switch (pMenu->GetChosenItemIdx()) {
-        case 0: Cut(); break;
-        case 1: CopySelection(); break;
-        case 2: Paste(); break;
-        default:
-          break;
-      }
-    }
-    };
-    
+    static IPopupMenu menu{"", {"Cut", "Copy", "Paste"}, [&](IPopupMenu* pMenu) {
+                             switch (pMenu->GetChosenItemIdx())
+                             {
+                               case 0: Cut(); break;
+                               case 1: CopySelection(); break;
+                               case 2: Paste(); break;
+                               default: break;
+                             }
+                           }};
+
     GetUI()->CreatePopupMenu(*this, menu, x, y);
   }
 }
@@ -190,9 +188,7 @@ void ITextEntryControl::OnMouseDrag(float x, float y, float dX, float dY, const 
 {
   if (mod.L)
   {
-    CallSTB([&]() {
-      stb_textedit_drag(this, &mEditState, x, y);
-    });
+    CallSTB([&]() { stb_textedit_drag(this, &mEditState, x, y); });
   }
 }
 
@@ -205,9 +201,7 @@ void ITextEntryControl::OnMouseUp(float x, float y, const IMouseMod& mod)
 {
   if (mod.L)
   {
-    CallSTB([&]() {
-      stb_textedit_drag(this, &mEditState, x, y);
-    });
+    CallSTB([&]() { stb_textedit_drag(this, &mEditState, x, y); });
 
     SetDirty(true);
   }
@@ -247,16 +241,15 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
           CallSTB([&]() { stb_textedit_key(this, &mEditState, STB_TEXTEDIT_K_UNDO); });
         return true;
       }
-    
-      default:
-        break;
+
+      default: break;
     }
   }
-  
+
   int stbKey;
-  
+
   wdl_utf8_parsechar(key.utf8, &stbKey);
-  
+
   switch (key.VK)
   {
     case kVK_SPACE: stbKey = ' '; break;
@@ -277,13 +270,13 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
     {
       // validate input based on param type
       IControl* pControlInTextEntry = GetUI()->GetControlInTextEntry();
-      
-      if(!pControlInTextEntry)
+
+      if (!pControlInTextEntry)
         return false;
-      
+
       const IParam* pParam = pControlInTextEntry->GetParam();
 
-      if(pParam)
+      if (pParam)
       {
         switch (pParam->Type())
         {
@@ -311,8 +304,7 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
             stbKey = 0;
             break;
           }
-          default:
-            break;
+          default: break;
         }
       }
 
@@ -330,13 +322,13 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
     stbKey |= STB_TEXTEDIT_K_ALT;
   if (key.S)
     stbKey |= STB_TEXTEDIT_K_SHIFT;
-  
+
   return CallSTB([&]() { stb_textedit_key(this, &mEditState, stbKey); }) ? true : false;
 }
 
 void ITextEntryControl::OnEndAnimation()
 {
-  if(mEditing)
+  if (mEditing)
     SetDirty(true);
 }
 
@@ -356,8 +348,8 @@ void ITextEntryControl::Paste()
   if (GetUI()->GetTextFromClipboard(fromClipboard))
   {
     CallSTB([&] {
-      auto uText = StringConvert{}.from_bytes (fromClipboard.Get(), fromClipboard.Get() + fromClipboard.GetLength());
-      stb_textedit_paste (this, &mEditState, uText.data(), (int) uText.size());
+      auto uText = StringConvert{}.from_bytes(fromClipboard.Get(), fromClipboard.Get() + fromClipboard.GetLength());
+      stb_textedit_paste(this, &mEditState, uText.data(), (int)uText.size());
     });
   }
 }
@@ -365,9 +357,7 @@ void ITextEntryControl::Paste()
 void ITextEntryControl::Cut()
 {
   CopySelection();
-  CallSTB([&] {
-    stb_textedit_cut(this, &mEditState);
-  });
+  CallSTB([&] { stb_textedit_cut(this, &mEditState); });
 }
 
 void ITextEntryControl::SelectAll()
@@ -378,7 +368,7 @@ void ITextEntryControl::SelectAll()
   });
 }
 
-//static
+// static
 int ITextEntryControl::DeleteChars(ITextEntryControl* _this, size_t pos, size_t num)
 {
   _this->mEditString.erase(pos, num);
@@ -387,7 +377,7 @@ int ITextEntryControl::DeleteChars(ITextEntryControl* _this, size_t pos, size_t 
   return true; // TODO: Error checking
 }
 
-//static
+// static
 int ITextEntryControl::InsertChars(ITextEntryControl* _this, size_t pos, const char16_t* text, size_t num)
 {
   _this->mEditString.insert(pos, text, num);
@@ -396,31 +386,31 @@ int ITextEntryControl::InsertChars(ITextEntryControl* _this, size_t pos, const c
   return true;
 }
 
-//static
+// static
 char16_t ITextEntryControl::GetChar(ITextEntryControl* _this, int pos)
 {
   return _this->mEditString[pos];
 }
 
-//static
+// static
 int ITextEntryControl::GetLength(ITextEntryControl* _this)
 {
   return static_cast<int>(_this->mEditString.size());
 }
 
-//static
+// static
 void ITextEntryControl::Layout(StbTexteditRow* row, ITextEntryControl* _this, int start_i)
 {
-  assert (start_i == 0);
+  assert(start_i == 0);
 
   _this->FillCharWidthCache();
   float textWidth = 0.;
-  
+
   for (int i = 0; i < _this->mCharWidths.GetSize(); i++)
   {
     textWidth += _this->mCharWidths.Get()[i];
   }
-  
+
   row->num_chars = GetLength(_this);
   row->baseline_y_delta = 1.25;
 
@@ -454,7 +444,7 @@ void ITextEntryControl::Layout(StbTexteditRow* row, ITextEntryControl* _this, in
     }
     case EVAlign::Middle:
     {
-      row->ymin = _this->GetRECT().H()*0.5f - _this->GetText().mSize * 0.5f;
+      row->ymin = _this->GetRECT().H() * 0.5f - _this->GetText().mSize * 0.5f;
       break;
     }
     case EVAlign::Bottom:
@@ -464,10 +454,10 @@ void ITextEntryControl::Layout(StbTexteditRow* row, ITextEntryControl* _this, in
     }
   }
 
-  row->ymax = row->ymin + static_cast<float> (_this->GetText().mSize);
+  row->ymax = row->ymin + static_cast<float>(_this->GetText().mSize);
 }
 
-//static
+// static
 float ITextEntryControl::GetCharWidth(ITextEntryControl* _this, int n, int i)
 {
   _this->FillCharWidthCache();
@@ -501,7 +491,7 @@ void ITextEntryControl::FillCharWidthCache()
 
 void ITextEntryControl::CalcCursorSizes()
 {
-  //TODO: cache cursor size and location?
+  // TODO: cache cursor size and location?
 }
 
 // the width of character 'c' should include the kerning between it and the next character,
@@ -516,18 +506,19 @@ float ITextEntryControl::MeasureCharWidth(char16_t c, char16_t nc)
 
   if (nc)
   {
-    std::string str (StringConvert{}.to_bytes (nc));
+    std::string str(StringConvert{}.to_bytes(nc));
     float ncWidth = GetUI()->MeasureText(mText, str.c_str(), bounds);
-    str += StringConvert{}.to_bytes (c);
+    str += StringConvert{}.to_bytes(c);
     float tcWidth = GetUI()->MeasureText(mText, str.c_str(), bounds);
     return tcWidth - ncWidth;
   }
-  
-  std::string str (StringConvert{}.to_bytes (c));
+
+  std::string str(StringConvert{}.to_bytes(c));
   return GetUI()->MeasureText(mText, str.c_str(), bounds);
 }
 
-void ITextEntryControl::CreateTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
+void ITextEntryControl::CreateTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length,
+                                        const char* str)
 {
   SetTargetAndDrawRECTs(bounds);
   SetText(text);

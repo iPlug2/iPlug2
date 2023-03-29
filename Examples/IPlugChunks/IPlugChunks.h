@@ -30,10 +30,10 @@ class IPlugChunks final : public Plugin
 public:
   IPlugChunks(const InstanceInfo& info);
 
-  bool SerializeState(IByteChunk &chunk) const override;
-  int UnserializeState(const IByteChunk &chunk, int startPos) override;
-//  bool CompareState(const uint8_t* pIncomingState, int startPos) const override;
-  
+  bool SerializeState(IByteChunk& chunk) const override;
+  int UnserializeState(const IByteChunk& chunk, int startPos) override;
+  //  bool CompareState(const uint8_t* pIncomingState, int startPos) const override;
+
   void OnIdle() override;
   void OnUIOpen() override;
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
@@ -41,10 +41,10 @@ public:
 #if IPLUG_DSP // http://bit.ly/2S64BDd
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
 #endif
-  
+
 private:
   void UpdateUIControls();
-  
+
   std::atomic<int> mStepPos;
   int mPrevPos = -1;
   double mSteps[kNumSteps] = {};

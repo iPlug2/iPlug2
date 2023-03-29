@@ -4,26 +4,26 @@
 IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, 1))
 {
-  InitParamRange(0, kNumParams-1, 1, "Param %i", 0., 0., 1., 0.01, "", IParam::kFlagsNone); // initialize kNumParams generic iplug params
-  
+  InitParamRange(0, kNumParams - 1, 1, "Param %i", 0., 0., 1., 0.01, "",
+                 IParam::kFlagsNone); // initialize kNumParams generic iplug params
+
 #if IPLUG_DSP
   mFaustProcessor.SetMaxChannelCount(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput));
   mFaustProcessor.Init();
   mFaustProcessor.CompileCPP();
   mFaustProcessor.SetAutoRecompile(true);
- // mFaustProcessor.CreateIPlugParameters(this, 0, mFaustProcessor.NParams()); // in order to create iplug params, based on faust .dsp params, uncomment this
-#ifndef FAUST_COMPILED
-  mFaustProcessor.SetCompileFunc([&](){
-    OnParamReset(EParamSource::kRecompile);
-  });
+  // mFaustProcessor.CreateIPlugParameters(this, 0, mFaustProcessor.NParams()); // in order to create iplug params,
+  // based on faust .dsp params, uncomment this
+  #ifndef FAUST_COMPILED
+  mFaustProcessor.SetCompileFunc([&]() { OnParamReset(EParamSource::kRecompile); });
+  #endif
 #endif
-#endif
-  
+
 #if IPLUG_EDITOR
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
-  
+
   mLayoutFunc = [&](IGraphics* pGraphics) {
     IRECT b = pGraphics->GetBounds().GetPadded(-20);
 
@@ -34,11 +34,14 @@ IPlugFaustDSP::IPlugFaustDSP(const InstanceInfo& info)
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
 
-    for (int i = 0; i < kNumParams; i++) {
+    for (int i = 0; i < kNumParams; i++)
+    {
       pGraphics->AttachControl(new IVKnobControl(knobs.GetGridCell(i, 1, kNumParams).GetPadded(-5.f), i));
     }
-    
-    pGraphics->AttachControl(new IVScopeControl<2>(viz, "", DEFAULT_STYLE.WithColor(kBG, COLOR_BLACK).WithColor(kFG, COLOR_GREEN)), kCtrlTagScope);
+
+    pGraphics->AttachControl(
+      new IVScopeControl<2>(viz, "", DEFAULT_STYLE.WithColor(kBG, COLOR_BLACK).WithColor(kFG, COLOR_GREEN)),
+      kCtrlTagScope);
     pGraphics->AttachControl(new IVKeyboardControl(keyb));
   };
 #endif

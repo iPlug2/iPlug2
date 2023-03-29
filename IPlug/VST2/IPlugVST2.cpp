@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -18,9 +18,12 @@ static const int VST_VERSION = 2400;
 
 static int VSTSpkrArrType(int nchan)
 {
-  if (!nchan) return kSpeakerArrEmpty;
-  if (nchan == 1) return kSpeakerArrMono;
-  if (nchan == 2) return kSpeakerArrStereo;
+  if (!nchan)
+    return kSpeakerArrEmpty;
+  if (nchan == 1)
+    return kSpeakerArrMono;
+  if (nchan == 2)
+    return kSpeakerArrStereo;
   return kSpeakerArrUserDefined;
 }
 
@@ -120,9 +123,9 @@ static int VSTKeyCodeToVK(int code, int ascii)
 }
 
 IPlugVST2::IPlugVST2(const InstanceInfo& info, const Config& config)
-  : IPlugAPIBase(config, kAPIVST2)
-  , IPlugProcessor(config, kAPIVST2)
-  , mHostCallback(info.mVSTHostCallback)
+: IPlugAPIBase(config, kAPIVST2)
+, IPlugProcessor(config, kAPIVST2)
+, mHostCallback(info.mVSTHostCallback)
 {
   Trace(TRACELOC, "%s", config.pluginName);
 
@@ -149,9 +152,18 @@ IPlugVST2::IPlugVST2(const InstanceInfo& info, const Config& config)
   mAEffect.initialDelay = config.latency;
   mAEffect.flags = effFlagsCanReplacing | effFlagsCanDoubleReplacing;
 
-  if (config.plugDoesChunks) { mAEffect.flags |= effFlagsProgramChunks; }
-  if (LegalIO(1, -1)) { mAEffect.flags |= __effFlagsCanMonoDeprecated; }
-  if (config.plugType == EIPlugPluginType::kInstrument) { mAEffect.flags |= effFlagsIsSynth; }
+  if (config.plugDoesChunks)
+  {
+    mAEffect.flags |= effFlagsProgramChunks;
+  }
+  if (LegalIO(1, -1))
+  {
+    mAEffect.flags |= __effFlagsCanMonoDeprecated;
+  }
+  if (config.plugType == EIPlugPluginType::kInstrument)
+  {
+    mAEffect.flags |= effFlagsIsSynth;
+  }
 
   memset(&mEditRect, 0, sizeof(ERect));
   memset(&mInputSpkrArr, 0, sizeof(VstSpeakerArrangement));
@@ -172,7 +184,7 @@ IPlugVST2::IPlugVST2(const InstanceInfo& info, const Config& config)
     mAEffect.flags |= effFlagsHasEditor;
     UpdateEditRect();
   }
-  
+
   CreateTimer();
 }
 
@@ -183,7 +195,7 @@ void IPlugVST2::BeginInformHostOfParamChange(int idx)
 
 void IPlugVST2::InformHostOfParamChange(int idx, double normalizedValue)
 {
-  mHostCallback(&mAEffect, audioMasterAutomate, idx, 0, 0, (float) normalizedValue);
+  mHostCallback(&mAEffect, audioMasterAutomate, idx, 0, 0, (float)normalizedValue);
 }
 
 void IPlugVST2::EndInformHostOfParamChange(int idx)
@@ -206,7 +218,7 @@ bool IPlugVST2::EditorResize(int viewWidth, int viewHeight)
     {
       SetEditorSize(viewWidth, viewHeight);
       UpdateEditRect();
-  
+
       resized = mHostCallback(&mAEffect, audioMasterSizeWindow, viewWidth, viewHeight, 0, 0.f);
     }
   }
@@ -246,13 +258,13 @@ bool IPlugVST2::SendMidiMsg(const IMidiMsg& msg)
   memset(&midiEvent, 0, sizeof(VstMidiEvent));
 
   midiEvent.type = kVstMidiType;
-  midiEvent.byteSize = sizeof(VstMidiEvent);  // Should this be smaller?
+  midiEvent.byteSize = sizeof(VstMidiEvent); // Should this be smaller?
   midiEvent.deltaFrames = msg.mOffset;
   midiEvent.midiData[0] = msg.mStatus;
   midiEvent.midiData[1] = msg.mData1;
   midiEvent.midiData[2] = msg.mData2;
 
-  return SendVSTEvent((VstEvent&) midiEvent);
+  return SendVSTEvent((VstEvent&)midiEvent);
 }
 
 bool IPlugVST2::SendSysEx(const ISysEx& msg)
@@ -264,9 +276,9 @@ bool IPlugVST2::SendSysEx(const ISysEx& msg)
   sysexEvent.byteSize = sizeof(VstMidiSysexEvent);
   sysexEvent.deltaFrames = msg.mOffset;
   sysexEvent.dumpBytes = msg.mSize;
-  sysexEvent.sysexDump = (char*) msg.mData;
+  sysexEvent.sysexDump = (char*)msg.mData;
 
-  return SendVSTEvent((VstEvent&) sysexEvent);
+  return SendVSTEvent((VstEvent&)sysexEvent);
 }
 
 void IPlugVST2::HostSpecificInit()
@@ -277,10 +289,9 @@ void IPlugVST2::HostSpecificInit()
     case kHostOrion:
     case kHostForte:
     case kHostSAWStudio:
-      LimitToStereoIO(); //TODO:  is this still necessary?
+      LimitToStereoIO(); // TODO:  is this still necessary?
       break;
-    default:
-      break;
+    default: break;
   }
 
   // This won't always solve a picky host problem -- for example Forte
@@ -289,27 +300,28 @@ void IPlugVST2::HostSpecificInit()
   mAEffect.numOutputs = mOutputSpkrArr.numChannels = MaxNChannels(ERoute::kOutput);
 }
 
-VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode, VstInt32 idx, VstIntPtr value, void *ptr, float opt)
+VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect* pEffect, VstInt32 opCode, VstInt32 idx, VstIntPtr value,
+                                               void* ptr, float opt)
 {
   // VSTDispatcher is an IPlugVST class member, we can access anything in IPlugVST from here.
-  IPlugVST2* _this = (IPlugVST2*) pEffect->object;
+  IPlugVST2* _this = (IPlugVST2*)pEffect->object;
   if (!_this)
   {
     return 0;
   }
 
   // Handle a couple of opcodes here to make debugging easier.
-//  switch (opCode)
-//  {
-//    case effEditIdle:
-//    case __effIdleDeprecated:
-//    #ifdef USE_IDLE_CALLS
-//    _this->OnIdle();
-//    #endif
-//    return 0;
-//  }
+  //  switch (opCode)
+  //  {
+  //    case effEditIdle:
+  //    case __effIdleDeprecated:
+  //    #ifdef USE_IDLE_CALLS
+  //    _this->OnIdle();
+  //    #endif
+  //    return 0;
+  //  }
 
-  Trace(TRACELOC, "%d(%s):%d:%d", opCode, VSTOpcodeStr(opCode), idx, (int) value);
+  Trace(TRACELOC, "%d(%s):%d:%d", opCode, VSTOpcodeStr(opCode), idx, (int)value);
 
   switch (opCode)
   {
@@ -321,16 +333,16 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         productStr[0] = '\0';
         int version = 0;
         _this->mHostCallback(&_this->mAEffect, audioMasterGetProductString, 0, 0, productStr, 0.0f);
-        
+
         if (CStringHasContents(productStr))
         {
-          int decVer = (int) _this->mHostCallback(&_this->mAEffect, audioMasterGetVendorVersion, 0, 0, 0, 0.0f);
+          int decVer = (int)_this->mHostCallback(&_this->mAEffect, audioMasterGetVendorVersion, 0, 0, 0, 0.0f);
           int ver = decVer / 10000;
           int rmaj = (decVer - 10000 * ver) / 100;
           int rmin = (decVer - 10000 * ver - 100 * rmaj);
           version = (ver << 16) + (rmaj << 8) + rmin;
         }
-        
+
         _this->SetHost(productStr, version);
       }
       _this->OnParamReset(kReset);
@@ -346,7 +358,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       if (idx >= 0 && idx < _this->NParams())
       {
         ENTER_PARAMS_MUTEX_STATIC
-        strcpy((char*) ptr, _this->GetParam(idx)->GetLabel());
+        strcpy((char*)ptr, _this->GetParam(idx)->GetLabel());
         LEAVE_PARAMS_MUTEX_STATIC
       }
       return 0;
@@ -358,7 +370,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         ENTER_PARAMS_MUTEX_STATIC
         _this->GetParam(idx)->GetDisplay(_this->mParamDisplayStr);
         LEAVE_PARAMS_MUTEX_STATIC
-        strcpy((char*) ptr, _this->mParamDisplayStr.Get());
+        strcpy((char*)ptr, _this->mParamDisplayStr.Get());
       }
       return 0;
     }
@@ -367,7 +379,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       if (idx >= 0 && idx < _this->NParams())
       {
         ENTER_PARAMS_MUTEX_STATIC
-        strcpy((char*) ptr, _this->GetParam(idx)->GetName());
+        strcpy((char*)ptr, _this->GetParam(idx)->GetName());
         LEAVE_PARAMS_MUTEX_STATIC
       }
       return 0;
@@ -376,7 +388,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (idx >= 0 && idx < _this->NParams())
       {
-        VstParameterProperties* props = (VstParameterProperties*) ptr;
+        VstParameterProperties* props = (VstParameterProperties*)ptr;
 
         ENTER_PARAMS_MUTEX_STATIC
         IParam* pParam = _this->GetParam(idx);
@@ -385,17 +397,15 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
           case IParam::kTypeInt:
           case IParam::kTypeEnum:
             props->flags = kVstParameterUsesIntStep | kVstParameterUsesIntegerMinMax;
-            props->minInteger = (int) pParam->GetMin();
-            props->maxInteger = (int) pParam->GetMax();
+            props->minInteger = (int)pParam->GetMin();
+            props->maxInteger = (int)pParam->GetMax();
             props->stepInteger = props->largeStepInteger = 1;
             break;
-          case IParam::kTypeBool:
-            props->flags = kVstParameterIsSwitch;
-            break;
+          case IParam::kTypeBool: props->flags = kVstParameterIsSwitch; break;
           case IParam::kTypeDouble:
           default:
             props->flags = kVstParameterUsesFloatStep;
-            props->largeStepFloat = props->smallStepFloat = props->stepFloat = (float) pParam->GetStep();
+            props->largeStepFloat = props->smallStepFloat = props->stepFloat = (float)pParam->GetStep();
             break;
         }
 
@@ -414,7 +424,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         {
           ENTER_PARAMS_MUTEX_STATIC
           IParam* pParam = _this->GetParam(idx);
-          const double v = pParam->StringToValue((const char *)ptr);
+          const double v = pParam->StringToValue((const char*)ptr);
           pParam->Set(v);
           _this->SendParameterValueFromAPI(idx, v, false);
           _this->OnParamChange(idx, kHost);
@@ -432,7 +442,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     }
     case effSetBlockSize:
     {
-      _this->SetBlockSize((int) value);
+      _this->SetBlockSize((int)value);
       _this->OnReset();
       return 0;
     }
@@ -454,7 +464,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       if (ptr && _this->HasUI())
       {
         _this->UpdateEditRect();
-        *(ERect**) ptr = &(_this->mEditRect);
+        *(ERect**)ptr = &(_this->mEditRect);
         return 1;
       }
       ptr = 0;
@@ -467,8 +477,8 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       {
         return 1;
       }
-#else   // OSX 32 bit, check if we are in a Cocoa VST host, otherwise tough luck
-      bool iscocoa = (_this->mHasVSTExtensions&VSTEXT_COCOA);
+#else // OSX 32 bit, check if we are in a Cocoa VST host, otherwise tough luck
+      bool iscocoa = (_this->mHasVSTExtensions & VSTEXT_COCOA);
       if (iscocoa && _this->OpenWindow(ptr))
       {
         return 1; // cocoa supported open cocoa
@@ -487,11 +497,11 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     }
     case __effIdentifyDeprecated:
     {
-      return 'NvEf';  // Random deprecated magic.
+      return 'NvEf'; // Random deprecated magic.
     }
     case effGetChunk:
     {
-      uint8_t** ppData = (uint8_t**) ptr;
+      uint8_t** ppData = (uint8_t**)ptr;
       if (ppData)
       {
         bool isBank = (!idx);
@@ -523,7 +533,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       {
         bool isBank = (!idx);
         IByteChunk& chunk = (isBank ? _this->mBankState : _this->mState);
-        chunk.Resize((int) value);
+        chunk.Resize((int)value);
         memcpy(chunk.GetData(), ptr, value);
         int pos = 0;
         int iplugVer = IByteChunk::GetIPlugVerFromChunk(chunk, pos);
@@ -549,7 +559,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     }
     case effProcessEvents:
     {
-      VstEvents* pEvents = (VstEvents*) ptr;
+      VstEvents* pEvents = (VstEvents*)ptr;
       if (pEvents)
       {
         for (int i = 0; i < pEvents->numEvents; ++i)
@@ -559,18 +569,18 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
           {
             if (pEvent->type == kVstMidiType)
             {
-              VstMidiEvent* pME = (VstMidiEvent*) pEvent;
+              VstMidiEvent* pME = (VstMidiEvent*)pEvent;
               IMidiMsg msg(pME->deltaFrames, pME->midiData[0], pME->midiData[1], pME->midiData[2]);
               _this->ProcessMidiMsg(msg);
               _this->mMidiMsgsFromProcessor.Push(msg);
 
-              //#ifdef TRACER_BUILD
-              //  msg.LogMsg();
-              //#endif
+              // #ifdef TRACER_BUILD
+              //   msg.LogMsg();
+              // #endif
             }
             else if (pEvent->type == kVstSysExType)
             {
-              VstMidiSysexEvent* pSE = (VstMidiSysexEvent*) pEvent;
+              VstMidiSysexEvent* pSE = (VstMidiSysexEvent*)pEvent;
               ISysEx sysex(pSE->deltaFrames, (const uint8_t*)pSE->sysexDump, pSE->dumpBytes);
               _this->ProcessSysEx(sysex);
             }
@@ -591,10 +601,10 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (ptr && idx >= 0 && idx < _this->MaxNChannels(ERoute::kInput))
       {
-        VstPinProperties* pp = (VstPinProperties*) ptr;
+        VstPinProperties* pp = (VstPinProperties*)ptr;
         pp->flags = kVstPinIsActive;
 
-        if (!(idx%2) && idx < _this->MaxNChannels(ERoute::kInput)-1)
+        if (!(idx % 2) && idx < _this->MaxNChannels(ERoute::kInput) - 1)
           pp->flags |= kVstPinIsStereo;
 
         if (_this->GetChannelLabel(ERoute::kInput, idx).GetLength())
@@ -610,10 +620,10 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (ptr && idx >= 0 && idx < _this->MaxNChannels(ERoute::kOutput))
       {
-        VstPinProperties* pp = (VstPinProperties*) ptr;
+        VstPinProperties* pp = (VstPinProperties*)ptr;
         pp->flags = kVstPinIsActive;
 
-        if (!(idx%2) && idx < _this->MaxNChannels(ERoute::kOutput)-1)
+        if (!(idx % 2) && idx < _this->MaxNChannels(ERoute::kOutput) - 1)
           pp->flags |= kVstPinIsStereo;
 
         if (_this->GetChannelLabel(ERoute::kOutput, idx).GetLength())
@@ -627,7 +637,8 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     }
     case effGetPlugCategory:
     {
-      if (_this->IsInstrument()) return kPlugCategSynth;
+      if (_this->IsInstrument())
+        return kPlugCategSynth;
       return kPlugCategEffect;
     }
     case effProcessVarIo:
@@ -637,8 +648,8 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     }
     case effSetSpeakerArrangement:
     {
-      VstSpeakerArrangement* pInputArr = (VstSpeakerArrangement*) value;
-      VstSpeakerArrangement* pOutputArr = (VstSpeakerArrangement*) ptr;
+      VstSpeakerArrangement* pInputArr = (VstSpeakerArrangement*)value;
+      VstSpeakerArrangement* pOutputArr = (VstSpeakerArrangement*)ptr;
 
       if (pInputArr)
       {
@@ -666,8 +677,8 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     }
     case effGetSpeakerArrangement:
     {
-      VstSpeakerArrangement** ppInputArr = (VstSpeakerArrangement**) value;
-      VstSpeakerArrangement** ppOutputArr = (VstSpeakerArrangement**) ptr;
+      VstSpeakerArrangement** ppInputArr = (VstSpeakerArrangement**)value;
+      VstSpeakerArrangement** ppOutputArr = (VstSpeakerArrangement**)ptr;
       if (ppInputArr)
       {
         *ppInputArr = &(_this->mInputSpkrArr);
@@ -682,7 +693,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (ptr)
       {
-        strcpy((char*) ptr, _this->GetPluginName());
+        strcpy((char*)ptr, _this->GetPluginName());
         return 1;
       }
       return 0;
@@ -691,7 +702,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (ptr)
       {
-        strcpy((char*) ptr, _this->GetProductName());
+        strcpy((char*)ptr, _this->GetProductName());
         return 1;
       }
       return 0;
@@ -700,7 +711,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (ptr)
       {
-        strcpy((char*) ptr, _this->GetMfrName());
+        strcpy((char*)ptr, _this->GetMfrName());
         return 1;
       }
       return 0;
@@ -713,41 +724,39 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (ptr)
       {
-        Trace(TRACELOC, "VSTCanDo(%s)", (char*) ptr);
-        if (!strcmp((char*) ptr, "receiveVstTimeInfo"))
+        Trace(TRACELOC, "VSTCanDo(%s)", (char*)ptr);
+        if (!strcmp((char*)ptr, "receiveVstTimeInfo"))
         {
           return 1;
         }
         if (_this->DoesMIDIIn())
         {
-          if (!strcmp((char*) ptr, "receiveVstEvents") ||
-              !strcmp((char*) ptr, "receiveVstMidiEvent"))
+          if (!strcmp((char*)ptr, "receiveVstEvents") || !strcmp((char*)ptr, "receiveVstMidiEvent"))
           {
             return 1;
           }
         }
         if (_this->DoesMIDIOut())
         {
-          if (!strcmp((char*) ptr, "sendVstEvents") ||
-              !strcmp((char*) ptr, "sendVstMidiEvent"))
+          if (!strcmp((char*)ptr, "sendVstEvents") || !strcmp((char*)ptr, "sendVstMidiEvent"))
           {
             return 1;
           }
         }
         // Support Reaper VST extensions: http://www.reaper.fm/sdk/vst/
-        if (!strcmp((char*) ptr, "hasCockosExtensions"))
+        if (!strcmp((char*)ptr, "hasCockosExtensions"))
         {
           _this->mHasVSTExtensions |= VSTEXT_COCKOS;
           return 0xbeef0000;
         }
 
-        if (!strcmp((char*) ptr, "hasCockosViewAsConfig"))
+        if (!strcmp((char*)ptr, "hasCockosViewAsConfig"))
         {
           _this->mHasVSTExtensions |= VSTEXT_COCOA;
           return 0xbeef0000;
         }
 
-        if (!strcmp((char*) ptr, "wantsChannelCountNotifications"))
+        if (!strcmp((char*)ptr, "wantsChannelCountNotifications"))
         {
           return 1;
         }
@@ -756,8 +765,8 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         {
           return _this->DoesMPE() ? 1 : 0;
         }
-        
-        return _this->VSTCanDo((char *) ptr);
+
+        return _this->VSTCanDo((char*)ptr);
       }
       return 0;
     }
@@ -770,17 +779,17 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       switch (idx)
       {
           // Mouse wheel
-//        case 0x73744341:
-//        {
-//          if (value == 0x57686565)
-//          {
-//            IGraphics* pGraphics = _this->GetUI();
-//            if (pGraphics) {
-//              return pGraphics->ProcessMouseWheel(opt);
-//            }
-//          }
-//          break;
-//        }
+          //        case 0x73744341:
+          //        {
+          //          if (value == 0x57686565)
+          //          {
+          //            IGraphics* pGraphics = _this->GetUI();
+          //            if (pGraphics) {
+          //              return pGraphics->ProcessMouseWheel(opt);
+          //            }
+          //          }
+          //          break;
+          //        }
           // Support Reaper VST extensions: http://www.reaper.fm/sdk/vst/
         case effGetParamDisplay:
         {
@@ -788,8 +797,8 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
           {
             if (value >= 0 && value < _this->NParams())
             {
-              _this->GetParam((int) value)->GetDisplay((double) opt, true, _this->mParamDisplayStr);
-              strcpy((char*) ptr, _this->mParamDisplayStr.Get());
+              _this->GetParam((int)value)->GetDisplay((double)opt, true, _this->mParamDisplayStr);
+              strcpy((char*)ptr, _this->mParamDisplayStr.Get());
             }
             return 0xbeef;
           }
@@ -799,10 +808,10 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         {
           if (ptr && value >= 0 && value < _this->NParams())
           {
-            if (*(char*) ptr != '\0')
+            if (*(char*)ptr != '\0')
             {
-              IParam* pParam = _this->GetParam((int) value);
-              sprintf((char*) ptr, "%.17f", pParam->ToNormalized(pParam->StringToValue((const char*) ptr)));
+              IParam* pParam = _this->GetParam((int)value);
+              sprintf((char*)ptr, "%.17f", pParam->ToNormalized(pParam->StringToValue((const char*)ptr)));
             }
             return 0xbeef;
           }
@@ -812,11 +821,10 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
         {
           if (value >= 0 && value < _this->NParams())
           {
-            IParam* pParam = _this->GetParam((int) value);
+            IParam* pParam = _this->GetParam((int)value);
             switch (pParam->Type())
             {
-              case IParam::kTypeBool:
-                return 0xbeef;
+              case IParam::kTypeBool: return 0xbeef;
               case IParam::kTypeInt:
               case IParam::kTypeEnum:
               {
@@ -827,8 +835,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
 
                 break;
               }
-              default:
-                break;
+              default: break;
             }
           }
           break;
@@ -844,21 +851,22 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (_this->DoesStateChunks() == false)
       {
-        _this->ModifyCurrentPreset(); // TODO: test, something is funny about this http://forum.cockos.com/showpost.php?p=485113&postcount=22
+        _this->ModifyCurrentPreset(); // TODO: test, something is funny about this
+                                      // http://forum.cockos.com/showpost.php?p=485113&postcount=22
       }
-      _this->RestorePreset((int) value);
+      _this->RestorePreset((int)value);
       return 0;
     }
     case effGetProgramNameIndexed:
     {
-      strcpy((char*) ptr, _this->GetPresetName(idx));
-      return (CStringHasContents((char*) ptr) ? 1 : 0);
+      strcpy((char*)ptr, _this->GetPresetName(idx));
+      return (CStringHasContents((char*)ptr) ? 1 : 0);
     }
     case effSetProgramName:
     {
       if (ptr)
       {
-        _this->ModifyCurrentPreset((char*) ptr);
+        _this->ModifyCurrentPreset((char*)ptr);
         _this->OnPresetsModified();
       }
       return 0;
@@ -868,7 +876,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       if (ptr)
       {
         int idx = _this->GetCurrentPresetIdx();
-        strcpy((char*) ptr, _this->GetPresetName(idx));
+        strcpy((char*)ptr, _this->GetPresetName(idx));
       }
       return 0;
     }
@@ -876,7 +884,7 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     {
       if (ptr)
       {
-        MidiKeyName* pMKN = (MidiKeyName*) ptr;
+        MidiKeyName* pMKN = (MidiKeyName*)ptr;
         pMKN->keyName[0] = '\0';
         if (_this->GetMidiNoteText(pMKN->thisKeyNumber, pMKN->keyName))
         {
@@ -899,10 +907,9 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       int vk = VSTKeyCodeToVK(value, idx);
       int modifiers = (int)opt;
 
-      IKeyPress keyPress{ str, static_cast<int>(vk),
-                          static_cast<bool>(modifiers & MODIFIER_SHIFT),
-                          static_cast<bool>(modifiers & MODIFIER_CONTROL),
-                          static_cast<bool>(modifiers & MODIFIER_ALTERNATE) };
+      IKeyPress keyPress{str, static_cast<int>(vk), static_cast<bool>(modifiers & MODIFIER_SHIFT),
+                         static_cast<bool>(modifiers & MODIFIER_CONTROL),
+                         static_cast<bool>(modifiers & MODIFIER_ALTERNATE)};
 
       bool handled;
       if (opCode == effEditKeyDown)
@@ -935,7 +942,9 @@ void IPlugVST2::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt3
   AttachBuffers(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), inputs, nFrames);
   AttachBuffers(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), outputs, nFrames);
 
-  VstTimeInfo* pTI = (VstTimeInfo*) mHostCallback(&mAEffect, audioMasterGetTime, 0, kVstPpqPosValid | kVstTempoValid | kVstBarsValid | kVstCyclePosValid | kVstTimeSigValid, 0, 0);
+  VstTimeInfo* pTI = (VstTimeInfo*)mHostCallback(
+    &mAEffect, audioMasterGetTime, 0,
+    kVstPpqPosValid | kVstTempoValid | kVstBarsValid | kVstCyclePosValid | kVstTimeSigValid, 0, 0);
 
   ITimeInfo timeInfo;
 
@@ -943,9 +952,12 @@ void IPlugVST2::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt3
   {
     timeInfo.mSamplePos = pTI->samplePos;
 
-    if ((pTI->flags & kVstPpqPosValid) && pTI->ppqPos >= 0.0) timeInfo.mPPQPos = pTI->ppqPos;
-    if ((pTI->flags & kVstTempoValid) && pTI->tempo > 0.0) timeInfo.mTempo = pTI->tempo;
-    if ((pTI->flags & kVstBarsValid) && pTI->barStartPos >= 0.0) timeInfo.mLastBar = pTI->barStartPos;
+    if ((pTI->flags & kVstPpqPosValid) && pTI->ppqPos >= 0.0)
+      timeInfo.mPPQPos = pTI->ppqPos;
+    if ((pTI->flags & kVstTempoValid) && pTI->tempo > 0.0)
+      timeInfo.mTempo = pTI->tempo;
+    if ((pTI->flags & kVstBarsValid) && pTI->barStartPos >= 0.0)
+      timeInfo.mLastBar = pTI->barStartPos;
     if ((pTI->flags & kVstCyclePosValid) && pTI->cycleStartPos >= 0.0 && pTI->cycleEndPos >= 0.0)
     {
       timeInfo.mCycleStart = pTI->cycleStartPos;
@@ -960,7 +972,8 @@ void IPlugVST2::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt3
     timeInfo.mTransportLoopEnabled = pTI->flags & kVstTransportCycleActive;
   }
 
-  const bool renderingOffline = mHostCallback(&mAEffect, audioMasterGetCurrentProcessLevel, 0, 0, 0, 0.0f) == kVstProcessLevelOffline;
+  const bool renderingOffline =
+    mHostCallback(&mAEffect, audioMasterGetCurrentProcessLevel, 0, 0, 0, 0.0f) == kVstProcessLevelOffline;
 
   SetTimeInfo(timeInfo);
   SetRenderingOffline(renderingOffline);
@@ -977,7 +990,7 @@ void IPlugVST2::VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt3
 void VSTCALLBACK IPlugVST2::VSTProcess(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
 {
   TRACE
-  IPlugVST2* _this = (IPlugVST2*) pEffect->object;
+  IPlugVST2* _this = (IPlugVST2*)pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
   ENTER_PARAMS_MUTEX_STATIC
   _this->ProcessBuffersAccumulating(nFrames);
@@ -988,33 +1001,34 @@ void VSTCALLBACK IPlugVST2::VSTProcess(AEffect* pEffect, float** inputs, float**
 void VSTCALLBACK IPlugVST2::VSTProcessReplacing(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames)
 {
   TRACE
-  IPlugVST2* _this = (IPlugVST2*) pEffect->object;
+  IPlugVST2* _this = (IPlugVST2*)pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
   ENTER_PARAMS_MUTEX_STATIC
-  _this->ProcessBuffers((float) 0.0f, nFrames);
+  _this->ProcessBuffers((float)0.0f, nFrames);
   LEAVE_PARAMS_MUTEX_STATIC
   _this->OutputSysexFromEditor();
 }
 
-void VSTCALLBACK IPlugVST2::VSTProcessDoubleReplacing(AEffect* pEffect, double** inputs, double** outputs, VstInt32 nFrames)
+void VSTCALLBACK IPlugVST2::VSTProcessDoubleReplacing(AEffect* pEffect, double** inputs, double** outputs,
+                                                      VstInt32 nFrames)
 {
   TRACE
-  IPlugVST2* _this = (IPlugVST2*) pEffect->object;
+  IPlugVST2* _this = (IPlugVST2*)pEffect->object;
   _this->VSTPreProcess(inputs, outputs, nFrames);
   ENTER_PARAMS_MUTEX_STATIC
-  _this->ProcessBuffers((double) 0.0, nFrames);
+  _this->ProcessBuffers((double)0.0, nFrames);
   LEAVE_PARAMS_MUTEX_STATIC
   _this->OutputSysexFromEditor();
 }
 
-float VSTCALLBACK IPlugVST2::VSTGetParameter(AEffect *pEffect, VstInt32 idx)
+float VSTCALLBACK IPlugVST2::VSTGetParameter(AEffect* pEffect, VstInt32 idx)
 {
   Trace(TRACELOC, "%d", idx);
-  IPlugVST2* _this = (IPlugVST2*) pEffect->object;
+  IPlugVST2* _this = (IPlugVST2*)pEffect->object;
   if (idx >= 0 && idx < _this->NParams())
   {
     ENTER_PARAMS_MUTEX_STATIC
-    const float val = (float) _this->GetParam(idx)->GetNormalized();
+    const float val = (float)_this->GetParam(idx)->GetNormalized();
     LEAVE_PARAMS_MUTEX_STATIC
 
     return val;
@@ -1022,10 +1036,10 @@ float VSTCALLBACK IPlugVST2::VSTGetParameter(AEffect *pEffect, VstInt32 idx)
   return 0.0f;
 }
 
-void VSTCALLBACK IPlugVST2::VSTSetParameter(AEffect *pEffect, VstInt32 idx, float value)
+void VSTCALLBACK IPlugVST2::VSTSetParameter(AEffect* pEffect, VstInt32 idx, float value)
 {
   Trace(TRACELOC, "%d:%f", idx, value);
-  IPlugVST2* _this = (IPlugVST2*) pEffect->object;
+  IPlugVST2* _this = (IPlugVST2*)pEffect->object;
   if (idx >= 0 && idx < _this->NParams())
   {
     ENTER_PARAMS_MUTEX_STATIC
@@ -1038,12 +1052,12 @@ void VSTCALLBACK IPlugVST2::VSTSetParameter(AEffect *pEffect, VstInt32 idx, floa
 
 void IPlugVST2::OutputSysexFromEditor()
 {
-  //Output SYSEX from the editor, which has bypassed ProcessSysEx()
-  if(mSysExDataFromEditor.ElementsAvailable())
+  // Output SYSEX from the editor, which has bypassed ProcessSysEx()
+  if (mSysExDataFromEditor.ElementsAvailable())
   {
     while (mSysExDataFromEditor.Pop(mSysexBuf))
     {
-      ISysEx smsg {mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
+      ISysEx smsg{mSysexBuf.mOffset, mSysexBuf.mData, mSysexBuf.mSize};
       SendSysEx(smsg);
     }
   }

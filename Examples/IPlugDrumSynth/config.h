@@ -13,7 +13,8 @@
 #define BUNDLE_MFR "AcmeInc"
 #define BUNDLE_DOMAIN "com"
 
-#define PLUG_CHANNEL_IO " \
+#define PLUG_CHANNEL_IO                                                                                                \
+  " \
 0-2 \
 0-2.2 \
 0-2.2.2 \

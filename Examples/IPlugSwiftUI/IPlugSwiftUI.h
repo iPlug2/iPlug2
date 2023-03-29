@@ -11,7 +11,7 @@ public:
   IPlugSwiftUI(const InstanceInfo& info);
 
   void* OpenWindow(void* pParent) override;
-  
+
   void OnParentWindowResize(int width, int height) override;
   bool OnHostRequestingSupportedViewConfiguration(int width, int height) override;
 

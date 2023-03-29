@@ -16,8 +16,8 @@ BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
 /** IGraphics platform class for linux
-*   @ingroup PlatformClasses
-*/
+ *   @ingroup PlatformClasses
+ */
 class IGraphicsLinux final : public IGRAPHICS_DRAW_CLASS
 {
 public:
@@ -32,7 +32,8 @@ public:
   void HideMouseCursor() override;
   void ShowMouseCursor() override;
 
-  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type,
+                               IMsgBoxCompletionHandlerFunc completionHandler) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
@@ -40,10 +41,12 @@ public:
   void UpdateTooltips() override;
 
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
-  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action,  const char* ext, IColorPickerHandlerFunc func) override;
+  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext,
+                     IColorPickerHandlerFunc func) override;
   bool PromptForColor(IColor& color, const char* str) override;
 
-  bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
+  bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg,
+               const char* errMsgOnFailure) override;
 
   static int GetUserOSVersion();
   bool GetTextFromClipboard(WDL_String& str) override;
@@ -51,8 +54,8 @@ public:
 
 protected:
   IPopupMenu* CreatePlatformPopupMenu(const IPopupMenu& menu, IRECT& bounds) override;
-  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
+  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length,
+                               const char* str) override;
 }
 
-END_IGRAPHICS_NAMESPACE
-END_IPLUG_NAMESPACE
+END_IGRAPHICS_NAMESPACE END_IPLUG_NAMESPACE

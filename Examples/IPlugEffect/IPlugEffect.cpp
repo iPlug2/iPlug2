@@ -11,7 +11,7 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
-  
+
   mLayoutFunc = [&](IGraphics* pGraphics) {
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
@@ -28,9 +28,11 @@ void IPlugEffect::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   const double gain = GetParam(kGain)->Value() / 100.;
   const int nChans = NOutChansConnected();
-  
-  for (int s = 0; s < nFrames; s++) {
-    for (int c = 0; c < nChans; c++) {
+
+  for (int s = 0; s < nFrames; s++)
+  {
+    for (int c = 0; c < nChans; c++)
+    {
       outputs[c][s] = inputs[c][s] * gain;
     }
   }

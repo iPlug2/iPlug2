@@ -31,7 +31,7 @@ class IPlugWebUI final : public Plugin
 {
 public:
   IPlugWebUI(const InstanceInfo& info);
-  
+
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnReset() override;
@@ -41,6 +41,6 @@ public:
 
 private:
   float mLastPeak = 0.;
-  FastSinOscillator<sample> mOscillator {0., 440.};
+  FastSinOscillator<sample> mOscillator{0., 440.};
   LogParamSmooth<sample, 1> mGainSmoother;
 };

@@ -29,12 +29,16 @@ template <int MAXNC = 1>
 class IVMeterControl : public IVTrackControlBase
 {
 public:
-  enum class EResponse {
+  enum class EResponse
+  {
     Linear,
     Log,
   };
-  
-  IVMeterControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical, std::initializer_list<const char*> trackNames = {}, int totalNSegs = 0, EResponse response = EResponse::Linear, float lowRangeDB = -72.f, float highRangeDB = 12.f, std::initializer_list<int> markers = {0, -6, -12, -24, -48})
+
+  IVMeterControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE,
+                 EDirection dir = EDirection::Vertical, std::initializer_list<const char*> trackNames = {},
+                 int totalNSegs = 0, EResponse response = EResponse::Linear, float lowRangeDB = -72.f,
+                 float highRangeDB = 12.f, std::initializer_list<int> markers = {0, -6, -12, -24, -48})
   : IVTrackControlBase(bounds, label, style, MAXNC, totalNSegs, dir, trackNames)
   , mResponse(response)
   , mLowRangeDB(lowRangeDB)
@@ -42,7 +46,7 @@ public:
   , mMarkers(markers)
   {
   }
-  
+
   void SetResponse(EResponse response)
   {
     mResponse = response;
@@ -54,43 +58,43 @@ public:
     DrawBackground(g, mRECT);
     DrawWidget(g);
     DrawLabel(g);
-    
+
     if (mResponse == EResponse::Log)
     {
       DrawMarkers(g);
     }
-    
+
     if (mStyle.drawFrame)
       g.DrawRect(GetColor(kFR), mWidgetBounds, &mBlend, mStyle.frameThickness);
   }
-  
+
   void DrawPeak(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue) override
   {
     g.FillRect(IVTrackControlBase::GetColor(kX1), r, &mBlend);
   }
-  
+
   void DrawMarkers(IGraphics& g)
   {
     auto lowPointAbs = std::fabs(mLowRangeDB);
     auto rangeDB = std::fabs(mHighRangeDB - mLowRangeDB);
-    
+
     for (auto pt : mMarkers)
     {
-      auto linearPos = (pt + lowPointAbs)/rangeDB;
+      auto linearPos = (pt + lowPointAbs) / rangeDB;
 
       auto r = mWidgetBounds.FracRect(IVTrackControlBase::mDirection, linearPos);
-      
+
       if (IVTrackControlBase::mDirection == EDirection::Vertical)
       {
         r.B = r.T + 10.f;
-        g.DrawLine(IVTrackControlBase::GetColor(kHL), r.L , r.T, r.R, r.T);
+        g.DrawLine(IVTrackControlBase::GetColor(kHL), r.L, r.T, r.R, r.T);
       }
       else
       {
         r.L = r.R - 10.f;
         g.DrawLine(IVTrackControlBase::GetColor(kHL), r.MW(), r.T, r.MW(), r.B);
       }
-      
+
       if (mStyle.showValue)
       {
         WDL_String str;
@@ -117,7 +121,7 @@ public:
         for (auto c = d.chanOffset; c < (d.chanOffset + d.nChans); c++)
         {
           auto ampValue = AmpToDB(static_cast<double>(d.vals[c]));
-          auto linearPos = (ampValue + lowPointAbs)/rangeDB;
+          auto linearPos = (ampValue + lowPointAbs) / rangeDB;
           SetValue(Clip(linearPos, 0., 1.), c);
         }
       }
@@ -132,6 +136,7 @@ public:
       SetDirty(false);
     }
   }
+
 protected:
   float mHighRangeDB;
   float mLowRangeDB;
@@ -146,25 +151,27 @@ template <int MAXNC = 1>
 class IVPeakAvgMeterControl : public IVMeterControl<MAXNC>
 {
 public:
-  IVPeakAvgMeterControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical,
-                        std::initializer_list<const char*> trackNames = {}, int totalNSegs = 0, float lowRangeDB = -60.f, float highRangeDB = 12.f,
+  IVPeakAvgMeterControl(const IRECT& bounds, const char* label, const IVStyle& style = DEFAULT_STYLE,
+                        EDirection dir = EDirection::Vertical, std::initializer_list<const char*> trackNames = {},
+                        int totalNSegs = 0, float lowRangeDB = -60.f, float highRangeDB = 12.f,
                         std::initializer_list<int> markers = {0, -6, -12, -24, -48})
-  : IVMeterControl<MAXNC>(bounds, label, style, dir, trackNames, totalNSegs, IVMeterControl<MAXNC>::EResponse::Log, lowRangeDB, highRangeDB, markers)
+  : IVMeterControl<MAXNC>(bounds, label, style, dir, trackNames, totalNSegs, IVMeterControl<MAXNC>::EResponse::Log,
+                          lowRangeDB, highRangeDB, markers)
   {
   }
-  
+
   void DrawPeak(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue) override
   {
     IBlend blend = IVTrackControlBase::GetBlend();
     const float trackPos = mPeakValues[chIdx];
-    
+
     if (trackPos < 0.0001)
       return;
-    
+
     const auto widgetBounds = IVTrackControlBase::mWidgetBounds;
     const auto dir = IVTrackControlBase::mDirection;
     IRECT peakRect = widgetBounds.FracRect(dir, trackPos);
-    
+
     if (dir == EDirection::Vertical)
     {
       peakRect = peakRect.GetFromTop(IVTrackControlBase::mPeakSize);
@@ -189,19 +196,19 @@ public:
       int pos = 0;
       ISenderData<MAXNC, std::pair<float, float>> d;
       pos = stream.Get(&d, pos);
-      
+
       const auto lowRangeDB = IVPeakAvgMeterControl::mLowRangeDB;
       const auto highRangeDB = IVPeakAvgMeterControl::mHighRangeDB;
 
       double lowPointAbs = std::fabs(lowRangeDB);
       double rangeDB = std::fabs(highRangeDB - lowRangeDB);
-      
+
       for (auto c = d.chanOffset; c < (d.chanOffset + d.nChans); c++)
       {
         double peakValue = AmpToDB(static_cast<double>(std::get<0>(d.vals[c])));
         double avgValue = AmpToDB(static_cast<double>(std::get<1>(d.vals[c])));
-        double linearPeakPos = (peakValue + lowPointAbs)/rangeDB;
-        double linearAvgPos = (avgValue + lowPointAbs)/rangeDB;
+        double linearPeakPos = (peakValue + lowPointAbs) / rangeDB;
+        double linearAvgPos = (avgValue + lowPointAbs) / rangeDB;
 
         IVTrackControlBase::SetValue(Clip(linearAvgPos, 0., 1.), c);
         mPeakValues[c] = static_cast<float>(linearPeakPos);
@@ -210,7 +217,7 @@ public:
       IVTrackControlBase::SetDirty(false);
     }
   }
-  
+
 protected:
   std::array<float, MAXNC> mPeakValues;
 };
@@ -235,7 +242,7 @@ public:
     float highRangeDB; // The upper bounds of the decibel range for this group of LED segments
     int nSegs; // The number of LED segments
     IColor color; // The color of the LEDs in this range
-    
+
     LEDRange(float lowRangeDB, float highRangeDB, int nSegs, IColor color)
     : lowRangeDB(lowRangeDB)
     , highRangeDB(highRangeDB)
@@ -245,53 +252,53 @@ public:
     }
   };
 
-  IVLEDMeterControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EDirection dir = EDirection::Vertical,
-                    std::initializer_list<const char*> trackNames = {}, int totalNSegs = 13,
-                    const std::vector<LEDRange>& ranges = {
-                                                            {0., 6., 1, LED5},
-                                                            {-18., 0., 3, LED4},
-                                                            {-36., -18., 3, LED3},
-                                                            {-54., -36., 3, LED2},
-                                                            {-72., -54., 3, LED1}
-                                                          })
+  IVLEDMeterControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE,
+                    EDirection dir = EDirection::Vertical, std::initializer_list<const char*> trackNames = {},
+                    int totalNSegs = 13,
+                    const std::vector<LEDRange>& ranges = {{0., 6., 1, LED5},
+                                                           {-18., 0., 3, LED4},
+                                                           {-36., -18., 3, LED3},
+                                                           {-54., -36., 3, LED2},
+                                                           {-72., -54., 3, LED1}})
   : IVPeakAvgMeterControl<MAXNC>(bounds, label, style, dir, trackNames, totalNSegs)
   , mLEDRanges(ranges)
   {
     IVMeterControl<MAXNC>::mZeroValueStepHasBounds = false;
-    
+
     float minRange = 0.;
     float maxRange = 0.;
     int nSegs = 0;
-    
+
     for (auto ledRange : ranges)
     {
       if (ledRange.lowRangeDB < minRange)
         minRange = ledRange.lowRangeDB;
-      
+
       if (ledRange.highRangeDB > maxRange)
         maxRange = ledRange.highRangeDB;
-      
+
       nSegs += ledRange.nSegs;
     }
-    
+
     assert(totalNSegs == nSegs); // The ranges argument must contain the same number of segments as totalNSegs
-    
+
     IVMeterControl<MAXNC>::mLowRangeDB = minRange;
     IVMeterControl<MAXNC>::mHighRangeDB = maxRange;
   }
-  
+
   void DrawTrackHandle(IGraphics& g, const IRECT& r, int chIdx, bool aboveBaseValue) override
-  {
-    /* NO-OP, TODO: could draw peak hold */
+  { /* NO-OP, TODO: could draw peak hold */
   }
-  
-  void DrawTrackBackground(IGraphics &g, const IRECT &r, int chIdx) override
+
+  void DrawTrackBackground(IGraphics& g, const IRECT& r, int chIdx) override
   {
     const int totalNSegs = IVMeterControl<MAXNC>::mNSteps;
     const EDirection dir = IVMeterControl<MAXNC>::mDirection;
     const float val = IVMeterControl<MAXNC>::GetValue(chIdx);
-    const float valPos = (dir == EDirection::Vertical) ? r.B - (val * r.H()) : r.R - ((1.f-val) * r.W()); // threshold position for testing segment
-    
+    const float valPos = (dir == EDirection::Vertical)
+                           ? r.B - (val * r.H())
+                           : r.R - ((1.f - val) * r.W()); // threshold position for testing segment
+
     int segIdx = 0; // keep track of how many segments have been drawn
 
     for (auto ledRange : mLEDRanges)
@@ -302,14 +309,14 @@ public:
         if (dir == EDirection::Vertical)
         {
           segRect = r.GetGridCell(segIdx + i, totalNSegs, 1, dir, 1);
-        
+
           if (segRect.MH() > valPos)
             g.FillRect(ledRange.color, segRect.GetPadded(-1.f));
         }
         else
         {
           segRect = r.GetGridCell(totalNSegs - 1 - (segIdx + i), 1, totalNSegs, dir, 1);
-        
+
           if (segRect.MW() < valPos)
             g.FillRect(ledRange.color, segRect.GetPadded(-1.f));
         }

@@ -19,7 +19,7 @@ BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
 /** IGraphics platform class for macOS
-*   @ingroup PlatformClasses */
+ *   @ingroup PlatformClasses */
 class IGraphicsMac final : public IGRAPHICS_DRAW_CLASS
 {
 public:
@@ -38,12 +38,13 @@ public:
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
   ECursor SetMouseCursor(ECursor cursorType) override;
-  
-  void GetMouseLocation(float& x, float&y) const override;
+
+  void GetMouseLocation(float& x, float& y) const override;
 
   void DoCursorLock(float x, float y, float& prevX, float& prevY);
-    
-  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
+
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type,
+                               IMsgBoxCompletionHandlerFunc completionHandler) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
@@ -51,11 +52,13 @@ public:
   void UpdateTooltips() override;
 
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
-  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler) override;
+  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext,
+                     IFileDialogCompletionHandlerFunc completionHandler) override;
   void PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler) override;
   bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
-    
-  bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
+
+  bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg,
+               const char* errMsgOnFailure) override;
 
   void* GetWindow() override;
 
@@ -68,10 +71,12 @@ public:
   float MeasureText(const IText& text, const char* str, IRECT& bounds) const override;
 
   EUIAppearance GetUIAppearance() const override;
-protected:
 
+protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) override;
-  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
+  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length,
+                               const char* str) override;
+
 private:
   void PointToScreen(float& x, float& y) const;
   void ScreenToPoint(float& x, float& y) const;
@@ -83,7 +88,7 @@ private:
 
   void RepositionCursor(CGPoint point);
   void StoreCursorPosition();
-  
+
   void* mView = nullptr;
   CGPoint mCursorLockPosition;
   WDL_String mBundleID;

@@ -17,9 +17,8 @@ public:
   IPlugReaperExtension(reaper_plugin_info_t* pRec);
   void OnIdle() override;
   void OnUIClose() override { mGUIToggle = 0; }
-  
+
 private:
   int mPrevTrackCount = 0;
   int mGUIToggle = 0;
 };
-

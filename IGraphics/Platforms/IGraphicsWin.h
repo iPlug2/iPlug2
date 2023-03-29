@@ -20,17 +20,18 @@ BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
 /** IGraphics platform class for Windows
-* @ingroup PlatformClasses */
+ * @ingroup PlatformClasses */
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
   class Font;
   class InstalledFont;
   struct HFontHolder;
+
 public:
   IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWin();
 
-  void SetWinModuleHandle(void* pInstance) override { mHInstance = (HINSTANCE) pInstance; }
+  void SetWinModuleHandle(void* pInstance) override { mHInstance = (HINSTANCE)pInstance; }
   void* GetWinModuleHandle() override { return mHInstance; }
 
   void ForceEndUserEdit() override;
@@ -44,14 +45,15 @@ public:
 
   void CheckTabletInput(UINT msg);
   void DestroyEditWindow();
-    
+
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
   ECursor SetMouseCursor(ECursor cursorType) override;
-  
-  void GetMouseLocation(float& x, float&y) const override;
 
-  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
+  void GetMouseLocation(float& x, float& y) const override;
+
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type,
+                               IMsgBoxCompletionHandlerFunc completionHandler) override;
 
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override;
@@ -60,7 +62,8 @@ public:
   void UpdateTooltips() override {}
 
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
-  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler) override;
+  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext,
+                     IFileDialogCompletionHandlerFunc completionHandler) override;
   void PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler) override;
   bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
 
@@ -73,7 +76,7 @@ public:
   HWND GetParentWindow() const { return mParentWnd; }
   HWND GetMainWnd();
   void SetMainWndClassName(const char* name) { mMainWndClassName.Set(name); }
-//  void GetMainWndClassName(char* name) { strcpy(name, mMainWndClassName.Get()); }
+  //  void GetMainWndClassName(char* name) { strcpy(name, mMainWndClassName.Get()); }
   IRECT GetWindowRECT();
   void SetWindowTitle(const char* str);
 
@@ -84,7 +87,7 @@ public:
 
   bool PlatformSupportsMultiTouch() const override;
 
-  
+
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK FindMainWindow(HWND hWnd, LPARAM lParam);
@@ -93,16 +96,16 @@ public:
 
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) override;
-  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
+  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length,
+                               const char* str) override;
 
   void SetTooltip(const char* tooltip);
   void ShowTooltip();
   void HideTooltip();
 
 private:
-
   /** Called either in response to WM_TIMER tick or user message WM_VBLANK, triggered by VSYNC thread
-    * @param vBlankCount will allow redraws to get paced by the vblank message. Passing 0 is a WM_TIMER fallback. */
+   * @param vBlankCount will allow redraws to get paced by the vblank message. Passing 0 is a WM_TIMER fallback. */
   void OnDisplayTimer(int vBlankCount = 0);
 
   enum EParamEditMsg
@@ -148,11 +151,12 @@ private:
   void VBlankNotify();
   HWND mVBlankWindow = 0; // Window to post messages to for every vsync
   volatile bool mVBlankShutdown = false; // Flag to indiciate that the vsync thread should shutdown
-  HANDLE mVBlankThread = INVALID_HANDLE_VALUE; //ID of thread.
+  HANDLE mVBlankThread = INVALID_HANDLE_VALUE; // ID of thread.
   volatile DWORD mVBlankCount = 0; // running count of vblank events since the start of the window.
-  int mVBlankSkipUntil = 0; // support for skipping vblank notification if the last callback took  too long.  This helps keep the message pump clear in the case of overload.
+  int mVBlankSkipUntil = 0; // support for skipping vblank notification if the last callback took  too long.  This helps
+                            // keep the message pump clear in the case of overload.
   bool mVSYNCEnabled = false;
-  
+
   const IParam* mEditParam = nullptr;
   IText mEditText;
   IRECT mEditRECT;
@@ -164,14 +168,13 @@ private:
   int mTooltipIdx = -1;
 
   WDL_String mMainWndClassName;
-    
+
   static StaticStorage<InstalledFont> sPlatformFontCache;
   static StaticStorage<HFontHolder> sHFontCache;
 
-  std::unordered_map<ITouchID, IMouseInfo> mDeltaCapture; // associative array of touch id pointers to IMouseInfo structs, so that we can get deltas
+  std::unordered_map<ITouchID, IMouseInfo>
+    mDeltaCapture; // associative array of touch id pointers to IMouseInfo structs, so that we can get deltas
 };
 
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
-
-

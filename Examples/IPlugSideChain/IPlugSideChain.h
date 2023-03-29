@@ -42,7 +42,7 @@ public:
   bool mInputChansConnected[4] = {};
   bool mOutputChansConnected[2] = {};
   bool mSendUpdate = false;
-  
+
   IPeakAvgSender<4> mInputPeakSender;
   IPeakAvgSender<2> mOutputPeakSender;
   IVMeterControl<4>* mInputMeter = nullptr;

@@ -15,7 +15,8 @@
 
 #define SHARED_RESOURCES_SUBPATH "IPlugSideChain"
 
-#define PLUG_CHANNEL_IO "\
+#define PLUG_CHANNEL_IO                                                                                                \
+  "\
 1-1 \
 1.1-1 \
 1.2-1 \

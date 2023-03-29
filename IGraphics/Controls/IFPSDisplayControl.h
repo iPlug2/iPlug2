@@ -24,11 +24,11 @@ BEGIN_IGRAPHICS_NAMESPACE
 /** Performance display meter, based on code from NanoVG
  *  This is a special control that lives outside the main IGraphics control stack.
  * @ingroup SpecialControls */
-class IFPSDisplayControl : public IControl
-                         , public IVectorBase
+class IFPSDisplayControl : public IControl, public IVectorBase
 {
 private:
   static constexpr int MAXBUF = 100;
+
 public:
   enum EStyle
   {
@@ -55,18 +55,15 @@ public:
   {
     mStyle++;
 
-    if(mStyle == kNumStyles)
+    if (mStyle == kNumStyles)
       mStyle = kFPS;
   }
 
-  bool IsDirty() override
-  {
-    return true;
-  }
+  bool IsDirty() override { return true; }
 
   void Update(float frameTime)
   {
-    mReadPos = (mReadPos+1) % MAXBUF;
+    mReadPos = (mReadPos + 1) % MAXBUF;
     mBuffer[mReadPos] = frameTime;
   }
 
@@ -90,37 +87,43 @@ public:
 
     // TODO: replace with IGraphics::DrawData, make it work with lice
 
-    g.PathMoveTo(x, y+h);
+    g.PathMoveTo(x, y + h);
 
     if (mStyle == kFPS)
     {
-      for (int i = 0; i < MAXBUF; i++) {
-        float v = 1.0f / (0.00001f + mBuffer[(mReadPos+i) % MAXBUF]);
+      for (int i = 0; i < MAXBUF; i++)
+      {
+        float v = 1.0f / (0.00001f + mBuffer[(mReadPos + i) % MAXBUF]);
         float vx, vy;
-        if (v > 80.0f) v = 80.0f;
-        vx = x + ((float)i/(MAXBUF-1)) * w;
+        if (v > 80.0f)
+          v = 80.0f;
+        vx = x + ((float)i / (MAXBUF - 1)) * w;
         vy = y + h - ((v / 80.0f) * h);
         g.PathLineTo(vx, vy);
       }
     }
     else if (mStyle == kPercentage)
     {
-      for (int i = 0; i < MAXBUF; i++) {
-        float v = mBuffer[(mReadPos+i) % MAXBUF] * 1.0f;
+      for (int i = 0; i < MAXBUF; i++)
+      {
+        float v = mBuffer[(mReadPos + i) % MAXBUF] * 1.0f;
         float vx, vy;
-        if (v > 100.0f) v = 100.0f;
-        vx = x + ((float)i/(MAXBUF-1)) * w;
+        if (v > 100.0f)
+          v = 100.0f;
+        vx = x + ((float)i / (MAXBUF - 1)) * w;
         vy = y + h - ((v / 100.0f) * h);
         g.PathLineTo(vx, vy);
       }
     }
     else
     {
-      for (int i = 0; i < MAXBUF; i++) {
-        float v = mBuffer[(mReadPos+i) % MAXBUF] * 1000.0f;
+      for (int i = 0; i < MAXBUF; i++)
+      {
+        float v = mBuffer[(mReadPos + i) % MAXBUF] * 1000.0f;
         float vx, vy;
-        if (v > 20.0f) v = 20.0f;
-        vx = x + ((float)i/(MAXBUF-1)) * w;
+        if (v > 20.0f)
+          v = 20.0f;
+        vx = x + ((float)i / (MAXBUF - 1)) * w;
         vy = y + h - ((v / 20.0f) * h);
         g.PathLineTo(vx, vy);
       }
@@ -155,6 +158,7 @@ public:
       g.DrawText(mTopLabelText, str.Get(), padded);
     }
   }
+
 private:
   int mStyle;
   WDL_String mNameLabel;

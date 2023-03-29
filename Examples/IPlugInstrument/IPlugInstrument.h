@@ -22,8 +22,8 @@ enum EParams
 };
 
 #if IPLUG_DSP
-// will use EParams in IPlugInstrument_DSP.h
-#include "IPlugInstrument_DSP.h"
+  // will use EParams in IPlugInstrument_DSP.h
+  #include "IPlugInstrument_DSP.h"
 #endif
 
 enum EControlTags
@@ -55,7 +55,7 @@ public:
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
 
 private:
-  IPlugInstrumentDSP<sample> mDSP {16};
+  IPlugInstrumentDSP<sample> mDSP{16};
   IPeakAvgSender<2> mMeterSender;
   ISender<1> mLFOVisSender;
 #endif

@@ -35,13 +35,13 @@ public:
   void Draw(IGraphics& g) override
   {
     g.FillRect(COLOR_WHITE, mRECT);
-    
+
 
     g.FillRect(COLOR_BLACK, mP1.GetCentredInside(5.f));
     g.FillRect(COLOR_BLACK, mP2.GetCentredInside(5.f));
     g.FillRect(COLOR_RED, mC1.GetCentredInside(5.f));
     g.FillRect(COLOR_RED, mC2.GetCentredInside(5.f));
-    
+
     g.PathMoveTo(mP1.MW(), mP1.MH());
     g.PathCubicBezierTo(mC1.MW(), mC1.MH(), mC2.MW(), mC2.MH(), mP2.MW(), mP2.MH());
 
@@ -51,37 +51,31 @@ public:
     g.PathQuadraticBezierTo(mC1.MW(), mC1.MH(), mP2.MW(), mP2.MH());
     g.PathStroke(COLOR_GREEN, 2.f);
 
-    
-    if(mMouseOverRect)
+
+    if (mMouseOverRect)
       g.DrawRect(COLOR_BLACK, mMouseOverRect->GetCentredInside(8.f));
   }
-  
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override
-  {
-    OnMouseDrag(x, y, 0., 0., mod);
-  }
 
-  void OnMouseUp(float x, float y, const IMouseMod& mod) override
-  {
-    mMouseOverRect = nullptr;
-  }
-  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override { OnMouseDrag(x, y, 0., 0., mod); }
+
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override { mMouseOverRect = nullptr; }
+
   void OnMouseDrag(float x, float y, float, float, const IMouseMod& mod) override
   {
-    if(mMouseOverRect)
-      *mMouseOverRect = IRECT(x-2.5f, y-2.5f, x+2.5f, y+2.5f);
+    if (mMouseOverRect)
+      *mMouseOverRect = IRECT(x - 2.5f, y - 2.5f, x + 2.5f, y + 2.5f);
     SetDirty(false);
   }
-  
+
   void OnMouseOver(float x, float y, const IMouseMod& mod) override
   {
-    if(mP1.Contains(x, y))
+    if (mP1.Contains(x, y))
       mMouseOverRect = &mP1;
-    else if(mP2.Contains(x, y))
+    else if (mP2.Contains(x, y))
       mMouseOverRect = &mP2;
-    else if(mC1.Contains(x, y))
+    else if (mC1.Contains(x, y))
       mMouseOverRect = &mC1;
-    else if(mC2.Contains(x, y))
+    else if (mC2.Contains(x, y))
       mMouseOverRect = &mC2;
     else
       mMouseOverRect = nullptr;

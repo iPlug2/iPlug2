@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -18,17 +18,17 @@
 #include "IPlugPaths.h"
 
 #if defined OS_WEB
-#include <emscripten/val.h>
+  #include <emscripten/val.h>
 #elif defined OS_WIN
-#include <windows.h>
-#include <Shlobj.h>
-#include <Shlwapi.h>
+  #include <windows.h>
+  #include <Shlobj.h>
+  #include <Shlwapi.h>
 #endif
 
 BEGIN_IPLUG_NAMESPACE
 
 #if defined OS_WIN
-#pragma mark - OS_WIN
+  #pragma mark - OS_WIN
 
 // Unicode helpers
 void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
@@ -57,8 +57,8 @@ void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
   utf8Str.Set("");
 }
 
- // Helper for getting a known folder in UTF8
-void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
+// Helper for getting a known folder in UTF8
+void GetKnownFolder(WDL_String& path, int identifier, int flags = 0)
 {
   wchar_t wideBuffer[1024];
 
@@ -100,15 +100,15 @@ void PluginPath(WDL_String& path, HMODULE pExtra)
 
 void BundleResourcePath(WDL_String& path, HMODULE pExtra)
 {
-#ifdef VST3_API
+  #ifdef VST3_API
   GetModulePath(pExtra, path);
-#ifdef ARCH_64BIT
+    #ifdef ARCH_64BIT
   path.SetLen(path.GetLength() - strlen("x86_64-win/"));
-#else
+    #else
   path.SetLen(path.GetLength() - strlen("x86-win/"));
-#endif
+    #endif
   path.Append("Resources\\");
-#endif
+  #endif
 }
 
 void DesktopPath(WDL_String& path)
@@ -116,7 +116,7 @@ void DesktopPath(WDL_String& path)
   GetKnownFolder(path, CSIDL_DESKTOP);
 }
 
-void UserHomePath(WDL_String & path)
+void UserHomePath(WDL_String& path)
 {
   GetKnownFolder(path, CSIDL_PROFILE);
 }
@@ -132,11 +132,11 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
     GetKnownFolder(path, CSIDL_PERSONAL, SHGFP_TYPE_CURRENT);
   else
     AppSupportPath(path, true);
-  
+
   path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\VST3 Presets\\%s\\%s", mfrName, pluginName);
 }
 
-void INIPath(WDL_String& path, const char * pluginName)
+void INIPath(WDL_String& path, const char* pluginName)
 {
   GetKnownFolder(path, CSIDL_LOCAL_APPDATA);
 
@@ -145,12 +145,14 @@ void INIPath(WDL_String& path, const char * pluginName)
 
 static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR param)
 {
-  if (IS_INTRESOURCE(name)) return true; // integer resources not wanted
-  else {
+  if (IS_INTRESOURCE(name))
+    return true; // integer resources not wanted
+  else
+  {
     WDL_String* search = (WDL_String*)param;
     if (search != 0 && name != 0)
     {
-      //strip off extra quotes
+      // strip off extra quotes
       WDL_String strippedName(strlwr(name + 1));
       strippedName.SetLen(strippedName.GetLength() - 1);
 
@@ -165,7 +167,8 @@ static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR p
   return true; // keep enumerating
 }
 
-EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance, const char*)
+EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance,
+                                 const char*)
 {
   if (CStringHasContents(name))
   {
@@ -226,7 +229,7 @@ const void* LoadWinResource(const char* resid, const char* type, int& sizeInByte
 }
 
 #elif defined OS_WEB
-#pragma mark - OS_WEB
+  #pragma mark - OS_WEB
 
 void AppSupportPath(WDL_String& path, bool isSystem)
 {
@@ -243,32 +246,37 @@ void VST3PresetsPath(WDL_String& path, const char* mfrName, const char* pluginNa
   path.Set("Presets");
 }
 
-EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void*, const char*)
+EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void*,
+                                 const char*)
 {
   if (CStringHasContents(name))
   {
     WDL_String plusSlash;
     WDL_String path(name);
     const char* file = path.get_filepart();
-      
+
     bool foundResource = false;
-    
-    //TODO: FindResource is not sufficient here
-    
-    if(strcmp(type, "png") == 0) { //TODO: lowercase/uppercase png
+
+    // TODO: FindResource is not sufficient here
+
+    if (strcmp(type, "png") == 0)
+    { // TODO: lowercase/uppercase png
       plusSlash.SetFormatted(strlen("/resources/img/") + strlen(file) + 1, "/resources/img/%s", file);
-      foundResource = emscripten::val::global("preloadedImages").call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
+      foundResource =
+        emscripten::val::global("preloadedImages").call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
     }
-    else if(strcmp(type, "ttf") == 0) { //TODO: lowercase/uppercase ttf
+    else if (strcmp(type, "ttf") == 0)
+    { // TODO: lowercase/uppercase ttf
       plusSlash.SetFormatted(strlen("/resources/fonts/") + strlen(file) + 1, "/resources/fonts/%s", file);
       foundResource = true; // TODO: check ttf
     }
-    else if(strcmp(type, "svg") == 0) { //TODO: lowercase/uppercase svg
+    else if (strcmp(type, "svg") == 0)
+    { // TODO: lowercase/uppercase svg
       plusSlash.SetFormatted(strlen("/resources/img/") + strlen(file) + 1, "/resources/img/%s", file);
       foundResource = true; // TODO: check svg
     }
-    
-    if(foundResource)
+
+    if (foundResource)
     {
       result.Set(plusSlash.Get());
       return EResourceLocation::kAbsolutePath;

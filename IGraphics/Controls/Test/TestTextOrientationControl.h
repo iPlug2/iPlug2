@@ -22,10 +22,11 @@
 class TestTextOrientationControl : public IKnobControlBase
 {
   static const int size = 36;
-    
+
 public:
-    TestTextOrientationControl(const IRECT& bounds, int paramIdx)
-  : IKnobControlBase(bounds, paramIdx), mCount(-1)
+  TestTextOrientationControl(const IRECT& bounds, int paramIdx)
+  : IKnobControlBase(bounds, paramIdx)
+  , mCount(-1)
   {
     SetTooltip("TestTextOrientationControl");
     mDblAsSingleClick = true;
@@ -38,18 +39,15 @@ public:
     IRECT drawRECT = mRECT;
     const char* str = "Some Text To Rotate";
     mText.mAngle = static_cast<float>(GetValue()) * 360.f - 180.f;
-    
+
     g.MeasureText(mText, str, drawRECT);
     g.FillRect(COLOR_WHITE, mRECT);
     g.FillRect(COLOR_MID_GRAY, drawRECT);
     g.DrawText(mText, str, mRECT);
   }
 
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override
-  {
-    mDrag = false;
-  }
-    
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override { mDrag = false; }
+
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
     if (!mDrag)
@@ -58,7 +56,7 @@ public:
       SetDirty(false);
     }
   }
-    
+
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
   {
     mDrag = true;
@@ -69,7 +67,7 @@ public:
   {
     if (++mCount > 8)
       mCount = 0;
-      
+
     IColor c = DEFAULT_TEXT_FGCOLOR;
     const char* font = "Roboto-Regular";
     if (mCount == 0)

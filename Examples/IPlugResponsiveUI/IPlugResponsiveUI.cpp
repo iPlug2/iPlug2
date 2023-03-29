@@ -10,13 +10,13 @@ IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
 
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
-#ifdef OS_WEB
+  #ifdef OS_WEB
     int w, h;
     GetScreenDimensions(w, h);
     return MakeGraphics(*this, w, h, 1.f);
-#else
+  #else
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS);
-#endif
+  #endif
   };
 
   mLayoutFunc = [&](IGraphics* pGraphics) {
@@ -27,7 +27,8 @@ IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
       IRECT keys = main.FracRectVertical(0.25, false);
       IRECT scope = main.FracRectVertical(0.75, true).GetPadded(-10.f);
       IRECT gain = scope.ReduceFromRight(100.f);
-      switch (ctrlIdx) {
+      switch (ctrlIdx)
+      {
         case 1: return keys;
         case 2: return gain;
         case 3: return scope;
@@ -37,8 +38,10 @@ IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
     };
 
     // Layout controls on resize
-    if(pGraphics->NControls()) {
-      for (int ctrlIdx = 0; ctrlIdx < pGraphics->NControls(); ctrlIdx++) {
+    if (pGraphics->NControls())
+    {
+      for (int ctrlIdx = 0; ctrlIdx < pGraphics->NControls(); ctrlIdx++)
+      {
         pGraphics->GetControl(ctrlIdx)->SetTargetAndDrawRECTs(GetBounds(ctrlIdx, b));
       }
       return;
@@ -49,11 +52,13 @@ IPlugResponsiveUI::IPlugResponsiveUI(const InstanceInfo& info)
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     pGraphics->AttachPopupMenuControl();
 
-    //Create controls
+    // Create controls
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->AttachControl(new IVKeyboardControl(GetBounds(1, b)));
     pGraphics->AttachControl(new IVSliderControl(GetBounds(2, b), kGain));
-    pGraphics->AttachControl(new IVScopeControl<>(GetBounds(3, b), "", DEFAULT_STYLE.WithColor(kBG, COLOR_BLACK).WithColor(kFG, COLOR_WHITE)), kCtrlTagScope);
+    pGraphics->AttachControl(
+      new IVScopeControl<>(GetBounds(3, b), "", DEFAULT_STYLE.WithColor(kBG, COLOR_BLACK).WithColor(kFG, COLOR_WHITE)),
+      kCtrlTagScope);
   };
 #endif
 }
@@ -81,38 +86,36 @@ void IPlugResponsiveUI::OnHostSelectedViewConfiguration(int width, int height)
 void IPlugResponsiveUI::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   const double gain = GetParam(kGain)->DBToAmp();
-  
-  for (int s = 0; s < nFrames; s++) {
+
+  for (int s = 0; s < nFrames; s++)
+  {
     outputs[0][s] = mOsc.Process() * gain;
     outputs[1][s] = outputs[0][s];
   }
-  
+
   mScopeSender.ProcessBlock(outputs, nFrames, kCtrlTagScope, 1);
 }
 
 void IPlugResponsiveUI::ProcessMidiMsg(const IMidiMsg& msg)
 {
   TRACE;
-  
+
   int status = msg.StatusMsg();
-  
+
   switch (status)
   {
     case IMidiMsg::kNoteOn:
-//    case IMidiMsg::kNoteOff:
-    {
-      goto handle;
-    }
-    default:
-      return;
+      //    case IMidiMsg::kNoteOff:
+      {
+        goto handle;
+      }
+    default: return;
   }
-  
+
 handle:
-  
-  auto midi2CPS = [](int pitch) {
-    return 440. * pow(2., (pitch - 69.) / 12.);
-  };
-  
+
+  auto midi2CPS = [](int pitch) { return 440. * pow(2., (pitch - 69.) / 12.); };
+
   mOsc.SetFreqCPS(midi2CPS(msg.NoteNumber()));
   SendMidiMsg(msg);
 }

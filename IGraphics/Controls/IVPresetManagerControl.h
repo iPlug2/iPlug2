@@ -34,9 +34,11 @@ public:
   {
     mIgnoreMouse = true;
   }
-  
-  void Draw(IGraphics& g) override { /* NO-OP */ }
-  
+
+  void Draw(IGraphics& g) override
+  { /* NO-OP */
+  }
+
   void RestorePreset(IPluginBase* pluginBase, int presetIdx)
   {
     pluginBase->RestorePreset(presetIdx);
@@ -45,7 +47,7 @@ public:
     str.SetFormatted(32, "Preset %i: %s", presetIdx + 1, pluginBase->GetPresetName(presetIdx));
     mPresetNameButton->SetLabelStr(str.Get());
   }
-  
+
   void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override
   {
     if (pSelectedMenu)
@@ -63,7 +65,7 @@ public:
   void OnAttached() override
   {
     IRECT sections = mRECT.GetPadded(-5.f);
-    
+
     auto prevPresetFunc = [&](IControl* pCaller) {
       IPluginBase* pluginBase = dynamic_cast<IPluginBase*>(pCaller->GetDelegate());
 
@@ -71,10 +73,10 @@ public:
       int nPresets = pluginBase->NPresets();
 
       presetIdx--;
-      
+
       if (presetIdx < 0)
         presetIdx = nPresets - 1;
-      
+
       RestorePreset(pluginBase, presetIdx);
     };
 
@@ -94,27 +96,36 @@ public:
 
     auto choosePresetFunc = [&](IControl* pCaller) {
       mMenu.Clear();
-      
+
       IPluginBase* pluginBase = dynamic_cast<IPluginBase*>(pCaller->GetDelegate());
 
       int currentPresetIdx = pluginBase->GetCurrentPresetIdx();
       int nPresets = pluginBase->NPresets();
-      
-      for (int i = 0; i < nPresets; i++) {
+
+      for (int i = 0; i < nPresets; i++)
+      {
         const char* str = pluginBase->GetPresetName(i);
         if (i == currentPresetIdx)
           mMenu.AddItem(str, -1, IPopupMenu::Item::kChecked);
         else
           mMenu.AddItem(str);
       }
-      
+
       pCaller->GetUI()->CreatePopupMenu(*this, mMenu, pCaller->GetRECT());
     };
 
-    GetUI()->AttachControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, "<", mStyle))->SetAnimationEndActionFunction(prevPresetFunc);
-    GetUI()->AttachControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, ">", mStyle))->SetAnimationEndActionFunction(nextPresetFunc);
-//    GetUI()->AttachControl(new IVButtonControl(sections.ReduceFromRight(100), SplashClickActionFunc, "Load", mStyle))->SetAnimationEndActionFunction(loadPresetFunc);
-    GetUI()->AttachControl(mPresetNameButton = new IVButtonControl(sections, SplashClickActionFunc, "Choose Preset...", mStyle))->SetAnimationEndActionFunction(choosePresetFunc);
+    GetUI()
+      ->AttachControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, "<", mStyle))
+      ->SetAnimationEndActionFunction(prevPresetFunc);
+    GetUI()
+      ->AttachControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, ">", mStyle))
+      ->SetAnimationEndActionFunction(nextPresetFunc);
+    //    GetUI()->AttachControl(new IVButtonControl(sections.ReduceFromRight(100), SplashClickActionFunc, "Load",
+    //    mStyle))->SetAnimationEndActionFunction(loadPresetFunc);
+    GetUI()
+      ->AttachControl(mPresetNameButton =
+                        new IVButtonControl(sections, SplashClickActionFunc, "Choose Preset...", mStyle))
+      ->SetAnimationEndActionFunction(choosePresetFunc);
   }
 
 private:
@@ -124,12 +135,13 @@ private:
 };
 
 /** A "meta control" for a "preset manager" for disk-based preset files
- * It adds several child buttons 
+ * It adds several child buttons
  * @ingroup IControls */
 class IVDiskPresetManagerControl : public IDirBrowseControlBase
 {
 public:
-  IVDiskPresetManagerControl(const IRECT& bounds, const char* presetPath, const char* fileExtension, bool showFileExtensions = true, const IVStyle& style = DEFAULT_STYLE)
+  IVDiskPresetManagerControl(const IRECT& bounds, const char* presetPath, const char* fileExtension,
+                             bool showFileExtensions = true, const IVStyle& style = DEFAULT_STYLE)
   : IDirBrowseControlBase(bounds, fileExtension, showFileExtensions)
   , mStyle(style)
   {
@@ -137,8 +149,10 @@ public:
     AddPath(presetPath, "");
     SetupMenu();
   }
-  
-  void Draw(IGraphics& g) override { /* NO-OP */ }
+
+  void Draw(IGraphics& g) override
+  { /* NO-OP */
+  }
 
   void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override
   {
@@ -185,12 +199,23 @@ public:
         mPresetNameButton->SetLabelStr(fileName.Get());
     };
 
-    auto choosePresetFunc = [&](IControl* pCaller) { pCaller->GetUI()->CreatePopupMenu(*this, mMainMenu, pCaller->GetRECT()); };
+    auto choosePresetFunc = [&](IControl* pCaller) {
+      pCaller->GetUI()->CreatePopupMenu(*this, mMainMenu, pCaller->GetRECT());
+    };
 
-    GetUI()->AttachControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, "<", mStyle))->SetAnimationEndActionFunction(prevPresetFunc);
-    GetUI()->AttachControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, ">", mStyle))->SetAnimationEndActionFunction(nextPresetFunc);
-    GetUI()->AttachControl(new IVButtonControl(sections.ReduceFromRight(100), SplashClickActionFunc, "Load", mStyle))->SetAnimationEndActionFunction(loadPresetFunc);
-    GetUI()->AttachControl(mPresetNameButton = new IVButtonControl(sections, SplashClickActionFunc, "Choose Preset...", mStyle))->SetAnimationEndActionFunction(choosePresetFunc);
+    GetUI()
+      ->AttachControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, "<", mStyle))
+      ->SetAnimationEndActionFunction(prevPresetFunc);
+    GetUI()
+      ->AttachControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, ">", mStyle))
+      ->SetAnimationEndActionFunction(nextPresetFunc);
+    GetUI()
+      ->AttachControl(new IVButtonControl(sections.ReduceFromRight(100), SplashClickActionFunc, "Load", mStyle))
+      ->SetAnimationEndActionFunction(loadPresetFunc);
+    GetUI()
+      ->AttachControl(mPresetNameButton =
+                        new IVButtonControl(sections, SplashClickActionFunc, "Choose Preset...", mStyle))
+      ->SetAnimationEndActionFunction(choosePresetFunc);
   }
 
   void LoadPresetAtCurrentIndex()
@@ -199,11 +224,11 @@ public:
     {
       IPopupMenu::Item* pItem = mItems.Get(mSelectedIndex);
 
-      //if (PLUG()->LoadPresetFromVSTPreset(mFiles.Get(pItem->GetTag())->Get()))
+      // if (PLUG()->LoadPresetFromVSTPreset(mFiles.Get(pItem->GetTag())->Get()))
       //{
-      //  PLUG()->ModifyCurrentPreset(PLUG()->GetPatchName());
-      //  PLUG()->InformHostOfPresetChange();
-        mPresetNameButton->SetLabelStr(pItem->GetText());
+      //   PLUG()->ModifyCurrentPreset(PLUG()->GetPatchName());
+      //   PLUG()->InformHostOfPresetChange();
+      mPresetNameButton->SetLabelStr(pItem->GetText());
       //}
     }
   }
@@ -215,5 +240,3 @@ private:
 
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
-
-

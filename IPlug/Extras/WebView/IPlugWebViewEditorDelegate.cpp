@@ -1,11 +1,11 @@
- /*
- ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
- 
- See LICENSE.txt for  more info.
- 
- ==============================================================================
+/*
+==============================================================================
+
+This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+See LICENSE.txt for  more info.
+
+==============================================================================
 */
 
 #pragma once
@@ -15,8 +15,8 @@
 using namespace iplug;
 
 WebViewEditorDelegate::WebViewEditorDelegate(int nParams)
-  : IEditorDelegate(nParams)
-  , IWebView()
+: IEditorDelegate(nParams)
+, IWebView()
 {
 }
 
@@ -29,8 +29,9 @@ extern float GetScaleForHWND(HWND hWnd);
 
 void* WebViewEditorDelegate::OpenWindow(void* pParent)
 {
-  auto scale = GetScaleForHWND((HWND) pParent);
-  return OpenWebView(pParent, 0., 0., static_cast<float>((GetEditorWidth()) / scale), static_cast<float>((GetEditorHeight()) / scale), scale);
+  auto scale = GetScaleForHWND((HWND)pParent);
+  return OpenWebView(pParent, 0., 0., static_cast<float>((GetEditorWidth()) / scale),
+                     static_cast<float>((GetEditorHeight()) / scale), scale);
 }
 
 void WebViewEditorDelegate::Resize(int width, int height)

@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -22,35 +22,35 @@
 
 using namespace iplug;
 
-AAX_CEffectParameters *AAX_CALLBACK IPlugAAX::Create()
+AAX_CEffectParameters* AAX_CALLBACK IPlugAAX::Create()
 {
   return MakePlug(InstanceInfo());
 }
 
-void AAX_CEffectGUI_IPLUG::CreateViewContents() 
+void AAX_CEffectGUI_IPLUG::CreateViewContents()
 {
   TRACE
-  mPlug = dynamic_cast<IPlugAAX*>(GetEffectParameters());  
+  mPlug = dynamic_cast<IPlugAAX*>(GetEffectParameters());
 }
 
 void AAX_CEffectGUI_IPLUG::CreateViewContainer()
 {
   TRACE
-  
+
   void* pWindow = GetViewContainerPtr();
-  
+
   if (pWindow && mPlug->HasUI())
   {
     mPlug->OpenWindow(pWindow);
-    
-    IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
-    
-    if(pViewInterface)
+
+    IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*)mPlug->GetAAXViewInterface();
+
+    if (pViewInterface)
       pViewInterface->SetViewContainer(GetViewContainer());
   }
 }
 
-void AAX_CEffectGUI_IPLUG::DeleteViewContainer() 
+void AAX_CEffectGUI_IPLUG::DeleteViewContainer()
 {
   mPlug->CloseWindow();
 }
@@ -59,35 +59,36 @@ AAX_Result AAX_CEffectGUI_IPLUG::GetViewSize(AAX_Point* pNewViewSize) const
 {
   if (mPlug->HasUI())
   {
-    pNewViewSize->horz = (float) mPlug->GetEditorWidth();
-    pNewViewSize->vert = (float) mPlug->GetEditorHeight();
+    pNewViewSize->horz = (float)mPlug->GetEditorWidth();
+    pNewViewSize->vert = (float)mPlug->GetEditorHeight();
   }
-  
-  return AAX_SUCCESS; 
+
+  return AAX_SUCCESS;
 }
 
 AAX_Result AAX_CEffectGUI_IPLUG::ParameterUpdated(AAX_CParamID paramID)
 {
   return AAX_SUCCESS;
-} 
+}
 
 AAX_IEffectGUI* AAX_CALLBACK AAX_CEffectGUI_IPLUG::Create()
 {
   return new AAX_CEffectGUI_IPLUG;
 }
 
-AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, AAX_CBoolean iIsHighlighted, AAX_EHighlightColor iColor)
+AAX_Result AAX_CEffectGUI_IPLUG::SetControlHighlightInfo(AAX_CParamID paramID, AAX_CBoolean iIsHighlighted,
+                                                         AAX_EHighlightColor iColor)
 {
-  IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) mPlug->GetAAXViewInterface();
-  
+  IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*)mPlug->GetAAXViewInterface();
+
   if (pViewInterface)
   {
     int paramIdx = atoi(paramID) - kAAXParamIdxOffset;
 
-    pViewInterface->SetPTParameterHighlight(paramIdx, (bool) iIsHighlighted, (int) iColor);
+    pViewInterface->SetPTParameterHighlight(paramIdx, (bool)iIsHighlighted, (int)iColor);
     return AAX_SUCCESS;
   }
-  
+
   return AAX_ERROR_INVALID_PARAMETER_ID;
 }
 
@@ -101,17 +102,18 @@ IPlugAAX::IPlugAAX(const InstanceInfo& info, const Config& config)
 
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
-  
-  if (MaxNChannels(ERoute::kInput)) 
+
+  if (MaxNChannels(ERoute::kInput))
   {
-    mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
+    mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(
+      new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
     mLatencyDelay->SetDelayTime(config.latency);
   }
-  
+
   SetBlockSize(DEFAULT_BLOCK_SIZE);
-  
+
   mMaxNChansForMainInputBus = MaxNChannelsForBus(kInput, 0);
-  
+
   CreateTimer();
 }
 
@@ -121,122 +123,115 @@ IPlugAAX::~IPlugAAX()
 }
 
 AAX_Result IPlugAAX::EffectInit()
-{ 
+{
   TRACE
 
   if (GetHost() == kHostUninit)
     SetHost("ProTools", 0); // TODO:vendor version correct?
-    
+
   AAX_CString bypassID = NULL;
   this->GetMasterBypassParameter(&bypassID);
-  mBypassParameter = new AAX_CParameter<bool>(bypassID.CString(), 
-                                              AAX_CString("Master Bypass"), 
-                                              false, 
-                                              AAX_CBinaryTaperDelegate<bool>(),
-                                              AAX_CBinaryDisplayDelegate<bool>("bypass", "on"), 
-                                              true);
+  mBypassParameter =
+    new AAX_CParameter<bool>(bypassID.CString(), AAX_CString("Master Bypass"), false, AAX_CBinaryTaperDelegate<bool>(),
+                             AAX_CBinaryDisplayDelegate<bool>("bypass", "on"), true);
   mBypassParameter->SetNumberOfSteps(2);
   mBypassParameter->SetType(AAX_eParameterType_Discrete);
   mParameterManager.AddParameter(mBypassParameter);
-      
-  for (int i=0; i<NParams(); i++)
+
+  for (int i = 0; i < NParams(); i++)
   {
     IParam* pParam = GetParam(i);
     AAX_IParameter* pAAXParam = nullptr;
-    
+
     WDL_String* pParamIDStr = new WDL_String("_", 1);
-    pParamIDStr->SetFormatted(MAX_AAX_PARAMID_LEN, "%i", i+kAAXParamIdxOffset);
+    pParamIDStr->SetFormatted(MAX_AAX_PARAMID_LEN, "%i", i + kAAXParamIdxOffset);
     mParamIDs.Add(pParamIDStr);
-    
+
     switch (pParam->Type())
     {
       case IParam::kTypeDouble:
       {
-        pAAXParam = new AAX_CParameter<double>(pParamIDStr->Get(),
-                                          AAX_CString(pParam->GetName()),
-                                          pParam->GetDefault(),
-                                          AAX_CIPlugTaperDelegate<double>(*pParam),
-                                          AAX_CUnitDisplayDelegateDecorator<double>(AAX_CNumberDisplayDelegate<double>(), AAX_CString(pParam->GetLabel())),
-                                          pParam->GetCanAutomate());
-        
-        pAAXParam->SetNumberOfSteps(128); // TODO: check this https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
+        pAAXParam = new AAX_CParameter<double>(pParamIDStr->Get(), AAX_CString(pParam->GetName()), pParam->GetDefault(),
+                                               AAX_CIPlugTaperDelegate<double>(*pParam),
+                                               AAX_CUnitDisplayDelegateDecorator<double>(
+                                                 AAX_CNumberDisplayDelegate<double>(), AAX_CString(pParam->GetLabel())),
+                                               pParam->GetCanAutomate());
+
+        pAAXParam->SetNumberOfSteps(
+          128); // TODO: check this https://developer.digidesign.com/index.php?L1=5&L2=13&L3=56
         pAAXParam->SetType(AAX_eParameterType_Continuous);
 
         break;
       }
       case IParam::kTypeInt:
       {
-        pAAXParam = new AAX_CParameter<int>(pParamIDStr->Get(),
-                                        AAX_CString(pParam->GetName()),
-                                        (int)pParam->GetDefault(),
-                                        AAX_CLinearTaperDelegate<int,1>((int)pParam->GetMin(), (int)pParam->GetMax()),
-                                        AAX_CUnitDisplayDelegateDecorator<int>(AAX_CNumberDisplayDelegate<int,0>(), AAX_CString(pParam->GetLabel())),
-                                        pParam->GetCanAutomate());
-        
+        pAAXParam = new AAX_CParameter<int>(
+          pParamIDStr->Get(), AAX_CString(pParam->GetName()), (int)pParam->GetDefault(),
+          AAX_CLinearTaperDelegate<int, 1>((int)pParam->GetMin(), (int)pParam->GetMax()),
+          AAX_CUnitDisplayDelegateDecorator<int>(AAX_CNumberDisplayDelegate<int, 0>(), AAX_CString(pParam->GetLabel())),
+          pParam->GetCanAutomate());
+
         pAAXParam->SetNumberOfSteps(128);
         pAAXParam->SetType(AAX_eParameterType_Continuous);
 
         break;
       }
       case IParam::kTypeEnum:
-      case IParam::kTypeBool: 
+      case IParam::kTypeBool:
       {
         int nTexts = pParam->NDisplayTexts();
-        
+
         std::map<int, AAX_CString> displayTexts;
-        
-        for (int j=0; j<pParam->NDisplayTexts(); j++)
+
+        for (int j = 0; j < pParam->NDisplayTexts(); j++)
         {
           double value;
           const char* text = pParam->GetDisplayTextAtIdx(j, &value);
-          
+
           displayTexts.insert(std::pair<int, AAX_CString>(value, AAX_CString(text)));
         }
-        
-        pAAXParam = new AAX_CParameter<int>(pParamIDStr->Get(),
-                                        AAX_CString(pParam->GetName()),
-                                        (int)pParam->GetDefault(),
-                                        AAX_CLinearTaperDelegate<int,1>((int) pParam->GetMin(), (int) pParam->GetMax()),
-                                        AAX_CStringDisplayDelegate<int>(displayTexts),
-                                        pParam->GetCanAutomate());
-        
+
+        pAAXParam =
+          new AAX_CParameter<int>(pParamIDStr->Get(), AAX_CString(pParam->GetName()), (int)pParam->GetDefault(),
+                                  AAX_CLinearTaperDelegate<int, 1>((int)pParam->GetMin(), (int)pParam->GetMax()),
+                                  AAX_CStringDisplayDelegate<int>(displayTexts), pParam->GetCanAutomate());
+
         pAAXParam->SetNumberOfSteps(nTexts);
         pAAXParam->SetType(AAX_eParameterType_Discrete);
-                
-        break; 
-      }
-      default:
+
         break;
+      }
+      default: break;
     }
-    
+
     mParameterManager.AddParameter(pAAXParam);
   }
-  
+
   AAX_CSampleRate sr;
   Controller()->GetSampleRate(&sr);
   SetSampleRate(sr);
   OnReset();
-  
+
   return AAX_SUCCESS;
 }
 
 AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double iValue, AAX_EUpdateSource iSource)
 {
   TRACE
-  
-  AAX_Result  result = AAX_SUCCESS;
-  
+
+  AAX_Result result = AAX_SUCCESS;
+
   AAX_IParameter* pAAXParameter = mParameterManager.GetParameterByID(paramID);
-    
+
   if (pAAXParameter == nullptr)
     return AAX_ERROR_INVALID_PARAMETER_ID;
-  
+
   // Store the value into the AAX parameter
   pAAXParameter->UpdateNormalizedValue(iValue);
-  
+
   int paramIdx = atoi(paramID) - kAAXParamIdxOffset;
-  
-  if ((paramIdx > kNoParameter) && (paramIdx < NParams())) 
+
+  if ((paramIdx > kNoParameter) && (paramIdx < NParams()))
   {
     ENTER_PARAMS_MUTEX
     GetParam(paramIdx)->SetNormalized(iValue);
@@ -244,42 +239,43 @@ AAX_Result IPlugAAX::UpdateParameterNormalizedValue(AAX_CParamID paramID, double
     OnParamChange(paramIdx, kHost);
     LEAVE_PARAMS_MUTEX
   }
-  
+
   // Now the control has changed
   result = mPacketDispatcher.SetDirty(paramID);
-  
+
   mNumPlugInChanges++;
-  
+
   return result;
 }
 
-void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo, const TParamValPair* inSynchronizedParamValues[], int32_t inNumSynchronizedParamValues)
+void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo, const TParamValPair* inSynchronizedParamValues[],
+                           int32_t inNumSynchronizedParamValues)
 {
   TRACE
 
   // Get bypass parameter value
   bool bypass;
   mBypassParameter->GetValueAsBool(&bypass);
-  
+
   AAX_EStemFormat inFormat, outFormat;
   Controller()->GetInputStemFormat(&inFormat);
   Controller()->GetOutputStemFormat(&outFormat);
-  
-  if (DoesMIDIIn()) 
+
+  if (DoesMIDIIn())
   {
     AAX_IMIDINode* pMidiIn = pRenderInfo->mInputNode;
     AAX_CMidiStream* pMidiBuffer = pMidiIn->GetNodeBuffer();
     AAX_CMidiPacket* pMidiPacket = pMidiBuffer->mBuffer;
     uint32_t packets_count = pMidiBuffer->mBufferSize;
-    
-    for (auto i = 0; i<packets_count; i++, pMidiPacket++)
+
+    for (auto i = 0; i < packets_count; i++, pMidiPacket++)
     {
       IMidiMsg msg(pMidiPacket->mTimestamp, pMidiPacket->mData[0], pMidiPacket->mData[1], pMidiPacket->mData[2]);
       ProcessMidiMsg(msg);
       mMidiMsgsFromProcessor.Push(msg);
     }
   }
-  
+
   AAX_IMIDINode* pTransportNode = pRenderInfo->mTransportNode;
   mTransport = pTransportNode->GetTransport();
 
@@ -297,23 +293,24 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo, const TParamValPai
   {
     SetChannelConnections(ERoute::kInput, 0, numInChannels, true);
     SetChannelConnections(ERoute::kInput, numInChannels, MaxNChannels(ERoute::kInput) - numInChannels, false);
-    
+
     int sideChainChannel = HasSidechainInput() ? *pRenderInfo->mSideChainP : 0;
 
     if (sideChainChannel)
     {
       SetChannelConnections(ERoute::kInput, mMaxNChansForMainInputBus, 1, true);
       AttachBuffers(ERoute::kInput, 0, numInChannels, pRenderInfo->mAudioInputs, numSamples);
-      AttachBuffers(ERoute::kInput, mMaxNChansForMainInputBus, 1, pRenderInfo->mAudioInputs + sideChainChannel, numSamples);
+      AttachBuffers(
+        ERoute::kInput, mMaxNChansForMainInputBus, 1, pRenderInfo->mAudioInputs + sideChainChannel, numSamples);
     }
     else
       AttachBuffers(ERoute::kInput, 0, numInChannels, pRenderInfo->mAudioInputs, numSamples);
   }
-    
+
   int maxNOutChans = MaxNChannels(ERoute::kOutput);
-  
+
   SetChannelConnections(ERoute::kOutput, 0, maxNOutChans, true);
-  
+
   if (MaxNBuses(kOutput) == 1) // single output bus, only connect available channels
   {
     SetChannelConnections(ERoute::kOutput, numOutChannels, maxNOutChans - numOutChannels, false);
@@ -323,108 +320,108 @@ void IPlugAAX::RenderAudio(AAX_SIPlugRenderInfo* pRenderInfo, const TParamValPai
   {
     AttachBuffers(ERoute::kOutput, 0, maxNOutChans, pRenderInfo->mAudioOutputs, numSamples);
   }
-  
-  if (bypass) 
+
+  if (bypass)
     PassThroughBuffers(0.0f, numSamples);
-  else 
+  else
   {
     int32_t num, denom;
     int64_t ppqPos, samplePos, cStart, cEnd;
     ITimeInfo timeInfo;
-    
+
     mTransport->GetCurrentTempo(&timeInfo.mTempo);
     mTransport->IsTransportPlaying(&timeInfo.mTransportIsRunning);
-    
+
     mTransport->GetCurrentMeter(&num, &denom);
-    timeInfo.mNumerator = (int) num;
-    timeInfo.mDenominator = (int) denom;
-    
+    timeInfo.mNumerator = (int)num;
+    timeInfo.mDenominator = (int)denom;
+
     mTransport->GetCurrentTickPosition(&ppqPos);
-    timeInfo.mPPQPos = (double) ppqPos / 960000.0;
-    
-    if(timeInfo.mPPQPos < 0)
+    timeInfo.mPPQPos = (double)ppqPos / 960000.0;
+
+    if (timeInfo.mPPQPos < 0)
       timeInfo.mPPQPos = 0;
- 
+
     mTransport->GetCurrentNativeSampleLocation(&samplePos);
-    timeInfo.mSamplePos = (double) samplePos;
-    
+    timeInfo.mSamplePos = (double)samplePos;
+
     mTransport->GetCurrentLoopPosition(&timeInfo.mTransportLoopEnabled, &cStart, &cEnd);
-    timeInfo.mCycleStart = (double) cStart / 960000.0;
-    timeInfo.mCycleEnd = (double) cEnd / 960000.0;
-    
+    timeInfo.mCycleStart = (double)cStart / 960000.0;
+    timeInfo.mCycleEnd = (double)cEnd / 960000.0;
+
     SetTimeInfo(timeInfo);
-    //timeInfo.mLastBar ??
-    
+    // timeInfo.mLastBar ??
+
     IMidiMsg msg;
-    
+
     while (mMidiMsgsFromEditor.Pop(msg))
     {
       ProcessMidiMsg(msg);
     }
-    
+
     ENTER_PARAMS_MUTEX
     ProcessBuffers(0.0f, numSamples);
     LEAVE_PARAMS_MUTEX
   }
-  
+
   // Midi Out
   if (DoesMIDIOut())
   {
     AAX_IMIDINode* midiOut = pRenderInfo->mOutputNode;
-    
-    if(midiOut)
+
+    if (midiOut)
     {
-      //MIDI
+      // MIDI
       if (!mMidiOutputQueue.Empty())
-      {        
+      {
         while (!mMidiOutputQueue.Empty())
         {
           IMidiMsg& msg = mMidiOutputQueue.Peek();
-          
+
           AAX_CMidiPacket packet;
-          
+
           packet.mIsImmediate = true; // TODO: how does this affect sample accuracy?
-          
-          packet.mTimestamp = (uint32_t) msg.mOffset;
+
+          packet.mTimestamp = (uint32_t)msg.mOffset;
           packet.mLength = 3;
-          
+
           packet.mData[0] = msg.mStatus;
           packet.mData[1] = msg.mData1;
           packet.mData[2] = msg.mData2;
-          
-          midiOut->PostMIDIPacket (&packet);
-          
+
+          midiOut->PostMIDIPacket(&packet);
+
           mMidiOutputQueue.Remove();
         }
       }
-      
+
       mMidiOutputQueue.Flush(numSamples);
-      
-      //Output SYSEX from the editor, which has bypassed ProcessSysEx()
-      if(mSysExDataFromEditor.ElementsAvailable())
+
+      // Output SYSEX from the editor, which has bypassed ProcessSysEx()
+      if (mSysExDataFromEditor.ElementsAvailable())
       {
         while (mSysExDataFromEditor.Pop(mSysexBuf))
         {
-          int numPackets = (int) ceil((float) mSysexBuf.mSize/4.); // each packet can store 4 bytes of data
+          int numPackets = (int)ceil((float)mSysexBuf.mSize / 4.); // each packet can store 4 bytes of data
           int bytesPos = 0;
-          
+
           for (int p = 0; p < numPackets; p++)
           {
             AAX_CMidiPacket packet;
-            
-            packet.mTimestamp = (uint32_t) mSysexBuf.mOffset;
+
+            packet.mTimestamp = (uint32_t)mSysexBuf.mOffset;
             packet.mIsImmediate = true;
-            
+
             int b = 0;
-            
+
             while (b < 4 && bytesPos < mSysexBuf.mSize)
             {
               packet.mData[b++] = mSysexBuf.mData[bytesPos++];
             }
-            
-            packet.mLength = (uint32_t) b;
-            
-            midiOut->PostMIDIPacket (&packet);
+
+            packet.mLength = (uint32_t)b;
+
+            midiOut->PostMIDIPacket(&packet);
           }
         }
       }
@@ -448,21 +445,21 @@ AAX_Result IPlugAAX::GetChunkIDFromIndex(int32_t index, AAX_CTypeID* pChunkID) c
 AAX_Result IPlugAAX::GetChunkSize(AAX_CTypeID chunkID, uint32_t* pSize) const
 {
   TRACE
-    
+
   if (chunkID == GetUniqueID())
   {
     IByteChunk chunk;
-    
-    //IByteChunk::InitChunkWithIPlugVer(&IPlugChunk);
-    
+
+    // IByteChunk::InitChunkWithIPlugVer(&IPlugChunk);
+
     if (SerializeState(chunk))
     {
       *pSize = chunk.Size();
     }
-    
+
     return AAX_SUCCESS;
   }
-  else 
+  else
   {
     *pSize = 0;
     return AAX_ERROR_INVALID_CHUNK_ID;
@@ -476,9 +473,9 @@ AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk* pChunk) con
   if (chunkID == GetUniqueID())
   {
     IByteChunk chunk;
-    
-    //IByteChunk::InitChunkWithIPlugVer(&IPlugChunk); // TODO: IPlugVer should be in chunk!
-    
+
+    // IByteChunk::InitChunkWithIPlugVer(&IPlugChunk); // TODO: IPlugVer should be in chunk!
+
     if (SerializeState(chunk))
     {
       pChunk->fSize = chunk.Size();
@@ -486,7 +483,7 @@ AAX_Result IPlugAAX::GetChunk(AAX_CTypeID chunkID, AAX_SPlugInChunk* pChunk) con
       return AAX_SUCCESS;
     }
   }
-  
+
   return AAX_ERROR_INVALID_CHUNK_ID;
 }
 
@@ -494,24 +491,25 @@ AAX_Result IPlugAAX::SetChunk(AAX_CTypeID chunkID, const AAX_SPlugInChunk* pChun
 {
   TRACE
   // TODO: UI thread only?
-  
+
   if (chunkID == GetUniqueID())
-  {    
+  {
     IByteChunk chunk;
     chunk.PutBytes(pChunk->fData, pChunk->fSize);
     int pos = 0;
-    //IByteChunk::GetIPlugVerFromChunk(chunk, pos); // TODO: IPlugVer should be in chunk!
+    // IByteChunk::GetIPlugVerFromChunk(chunk, pos); // TODO: IPlugVer should be in chunk!
     pos = UnserializeState(chunk, pos);
-    
-    for (int i = 0; i< NParams(); i++)
+
+    for (int i = 0; i < NParams(); i++)
       SetParameterNormalizedValue(mParamIDs.Get(i)->Get(), GetParam(i)->GetNormalized());
-    
+
     OnRestoreState();
-    mNumPlugInChanges++; // necessary in order to cause CompareActiveChunk() to get called again and turn off the compare light 
-    
+    mNumPlugInChanges++; // necessary in order to cause CompareActiveChunk() to get called again and turn off the
+                         // compare light
+
     return AAX_SUCCESS;
   }
-  
+
   return AAX_ERROR_INVALID_CHUNK_ID;
 }
 
@@ -525,12 +523,12 @@ AAX_Result IPlugAAX::CompareActiveChunk(const AAX_SPlugInChunk* pChunk, AAX_CBoo
     return AAX_SUCCESS;
   }
 
-  *pIsEqual = CompareState((const unsigned char*) pChunk->fData, 0);
-    
+  *pIsEqual = CompareState((const unsigned char*)pChunk->fData, 0);
+
   return AAX_SUCCESS;
 }
 
-AAX_Result IPlugAAX::NotificationReceived (AAX_CTypeID type, const void* pData, uint32_t size)
+AAX_Result IPlugAAX::NotificationReceived(AAX_CTypeID type, const void* pData, uint32_t size)
 {
   switch (type)
   {
@@ -538,26 +536,23 @@ AAX_Result IPlugAAX::NotificationReceived (AAX_CTypeID type, const void* pData, 
       if (pData)
         mTrackName.Set(static_cast<const AAX_IString*>(pData)->Get());
       break;
-//    case AAX_eNotificationEvent_SessionBeingOpened:
-//      break;
-//    case AAX_eNotificationEvent_PresetOpened:
-//      break;
-    case AAX_eNotificationEvent_EnteringOfflineMode:
-      SetRenderingOffline(true);
-      break;
+      //    case AAX_eNotificationEvent_SessionBeingOpened:
+      //      break;
+      //    case AAX_eNotificationEvent_PresetOpened:
+      //      break;
+    case AAX_eNotificationEvent_EnteringOfflineMode: SetRenderingOffline(true); break;
     case AAX_eNotificationEvent_ExitingOfflineMode:
       SetRenderingOffline(false);
       break;
-//    case AAX_eNotificationEvent_SideChainBeingConnected:
-//      break;
-//    case AAX_eNotificationEvent_SideChainBeingDisconnected:
-//      break;
-//    case AAX_eNotificationEvent_SignalLatencyChanged:
-    default:
-      break;
+      //    case AAX_eNotificationEvent_SideChainBeingConnected:
+      //      break;
+      //    case AAX_eNotificationEvent_SideChainBeingDisconnected:
+      //      break;
+      //    case AAX_eNotificationEvent_SignalLatencyChanged:
+    default: break;
   }
 
-  return AAX_CEffectParameters::NotificationReceived (type, pData, size);
+  return AAX_CEffectParameters::NotificationReceived(type, pData, size);
 }
 
 void IPlugAAX::BeginInformHostOfParamChange(int idx)
@@ -582,30 +577,30 @@ bool IPlugAAX::EditorResize(int viewWidth, int viewHeight)
 {
   if (HasUI())
   {
-    IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*) GetAAXViewInterface();
+    IPlugAAXView_Interface* pViewInterface = (IPlugAAXView_Interface*)GetAAXViewInterface();
     AAX_Point oEffectViewSize;
-      
-    oEffectViewSize.horz = (float) viewWidth;
-    oEffectViewSize.vert = (float) viewHeight;
-    
+
+    oEffectViewSize.horz = (float)viewWidth;
+    oEffectViewSize.vert = (float)viewHeight;
+
     if (pViewInterface && (viewWidth != GetEditorWidth() || viewHeight != GetEditorHeight()))
     {
       auto* viewContainer = pViewInterface->GetViewContainer();
-      
+
       if (viewContainer)
         viewContainer->SetViewSize(oEffectViewSize);
     }
-    
+
     SetEditorSize(viewWidth, viewHeight);
   }
-  
+
   return true;
 }
 
 void IPlugAAX::SetLatency(int latency)
 {
   Controller()->SetSignalLatency(latency);
-  
+
   IPlugProcessor::SetLatency(latency); // will update delay time
 }
 

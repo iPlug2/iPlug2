@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
+
  This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
- 
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
  */
 
@@ -18,15 +18,14 @@
  * @copydoc TestMPSControl
  */
 
-#include "IGraphicsNanoVG.h"
+  #include "IGraphicsNanoVG.h"
 
 using namespace iplug;
 using namespace igraphics;
 
 /** Control to test IGraphicsNanoVG with Metal Performance Shaders
  *   @ingroup TestControls */
-class TestMPSControl : public IKnobControlBase
-                     , public IBitmapBase
+class TestMPSControl : public IKnobControlBase, public IBitmapBase
 {
 public:
   TestMPSControl(const IRECT& bounds, const IBitmap& bitmap, int paramIdx)
@@ -35,32 +34,32 @@ public:
   {
     SetTooltip("TestMPSControl");
   }
-  
+
   ~TestMPSControl()
   {
     if (mFBO)
       nvgDeleteFramebuffer(mFBO);
   }
-  
+
   void Draw(IGraphics& g) override;
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
     GetUI()->CreatePopupMenu(*this, mMenu, x, y);
-    
+
     SetDirty(false);
   }
-  
+
   void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override
   {
-    if(pSelectedMenu)
+    if (pSelectedMenu)
       mKernelType = pSelectedMenu->GetChosenItemIdx();
   }
-  
+
 private:
   int mKernelType = 0;
   NVGframebuffer* mFBO = nullptr;
-  IPopupMenu mMenu {"MPS Type", 0, false, {"MPSImageGaussianBlur", "MPSImageSobel", "MPSImageThresholdToZero"}};
+  IPopupMenu mMenu{"MPS Type", 0, false, {"MPSImageGaussianBlur", "MPSImageSobel", "MPSImageThresholdToZero"}};
 };
 
 #else
@@ -73,10 +72,7 @@ public:
   {
     SetTooltip("TestMPSControl");
   }
-  
-  void Draw(IGraphics& g) override
-  {
-    g.DrawText(mText, "UNSUPPORTED", mRECT);
-  }
+
+  void Draw(IGraphics& g) override { g.DrawText(mText, "UNSUPPORTED", mRECT); }
 };
 #endif

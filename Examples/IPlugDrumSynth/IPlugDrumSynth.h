@@ -34,7 +34,7 @@ public:
 #if IPLUG_EDITOR // // http://bit.ly/2S64BDd
   void OnMidiMsgUI(const IMidiMsg& msg) override;
 #endif
-  
+
 #if IPLUG_DSP // http://bit.ly/2S64BDd
 public:
   void GetBusName(ERoute direction, int busIdx, int nBuses, WDL_String& str) const override;
@@ -45,6 +45,7 @@ public:
   void OnParamChange(int paramIdx) override;
   bool GetMidiNoteText(int noteNumber, char* text) const override;
   void OnIdle() override;
+
 private:
   DrumSynthDSP mDSP;
   IPeakSender<8> mSender;

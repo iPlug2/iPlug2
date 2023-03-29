@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
+
  This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
- 
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -26,12 +26,14 @@ BEGIN_IPLUG_NAMESPACE
 class IPlugVST3ControllerBase
 {
 public:
-    
-  IPlugVST3ControllerBase(Steinberg::Vst::ParameterContainer& parameters) : mParameters(parameters) {}
-  
+  IPlugVST3ControllerBase(Steinberg::Vst::ParameterContainer& parameters)
+  : mParameters(parameters)
+  {
+  }
+
   IPlugVST3ControllerBase(const IPlugVST3ControllerBase&) = delete;
   IPlugVST3ControllerBase& operator=(const IPlugVST3ControllerBase&) = delete;
-    
+
   void Initialize(IPlugAPIBase* pPlug, bool plugIsInstrument, bool midiIn)
   {
     Steinberg::Vst::EditControllerEx1* pEditController = dynamic_cast<Steinberg::Vst::EditControllerEx1*>(pPlug);
@@ -41,30 +43,32 @@ public:
     unitInfo.parentUnitId = Steinberg::Vst::kNoParentUnitId;
     Steinberg::UString unitNameSetter(unitInfo.name, 128);
     unitNameSetter.fromAscii("Root");
-    
+
     Steinberg::Vst::UnitID unitID = Steinberg::Vst::kRootUnitId;
-    
-    #ifdef VST3_PRESET_LIST
+
+#ifdef VST3_PRESET_LIST
     if (pPlug->NPresets())
     {
       unitInfo.programListId = kPresetParam;
       mParameters.addParameter(new IPlugVST3PresetParameter(pPlug->NPresets()));
-      
-      Steinberg::Vst::ProgramListWithPitchNames* pList = new Steinberg::Vst::ProgramListWithPitchNames(STR16("Factory Presets"), 0 /* list id */, Steinberg::Vst::kRootUnitId);
-      
+
+      Steinberg::Vst::ProgramListWithPitchNames* pList = new Steinberg::Vst::ProgramListWithPitchNames(
+        STR16("Factory Presets"), 0 /* list id */, Steinberg::Vst::kRootUnitId);
+
       Steinberg::Vst::String128 programName;
       Steinberg::Vst::String128 pitchName;
 
-      for (int programIdx=0; programIdx<pPlug->NPresets(); programIdx++)
+      for (int programIdx = 0; programIdx < pPlug->NPresets(); programIdx++)
       {
-        Steinberg::UString(programName, str16BufferSize(Steinberg::Vst::String128)).assign(pPlug->GetPresetName(programIdx));
-        pList->addProgram (programName);
-        
-        //Set named notes. This could be different per-preset in VST3
+        Steinberg::UString(programName, str16BufferSize(Steinberg::Vst::String128))
+          .assign(pPlug->GetPresetName(programIdx));
+        pList->addProgram(programName);
+
+        // Set named notes. This could be different per-preset in VST3
         for (int pitch = 0; pitch < 128; pitch++)
         {
           char pNoteText[32] = "";
-          if(pPlug->GetMidiNoteText(pitch, pNoteText))
+          if (pPlug->GetMidiNoteText(pitch, pNoteText))
           {
             Steinberg::UString(pitchName, str16BufferSize(Steinberg::Vst::String128)).assign(pNoteText);
             pList->setPitchName(programIdx, pitch, pitchName);
@@ -75,21 +79,21 @@ public:
       pEditController->addProgramList(pList);
     }
     else
-    #endif
+#endif
       unitInfo.programListId = Steinberg::Vst::kNoProgramListId;
-    
+
     if (!plugIsInstrument)
       mParameters.addParameter(mBypassParameter = new IPlugVST3BypassParameter());
-    
+
     pEditController->addUnit(new Steinberg::Vst::Unit(unitInfo));
 
     for (int i = 0; i < pPlug->NParams(); i++)
     {
       IParam* pParam = pPlug->GetParam(i);
       unitID = Steinberg::Vst::kRootUnitId; // reset unitID
-    
+
       const char* paramGroupName = pParam->GetGroup();
-      
+
       if (CStringHasContents(paramGroupName)) // if the parameter has a group
       {
         for (int j = 0; j < pPlug->NParamGroups(); j++) // loop through previously added groups
@@ -99,24 +103,26 @@ public:
             unitID = j + 1; // increment unitID
           }
         }
-        
-        if (unitID == Steinberg::Vst::kRootUnitId) // if unitID was still kRootUnitId, we found a new group, so add it and add the unit
+
+        if (unitID == Steinberg::Vst::kRootUnitId) // if unitID was still kRootUnitId, we found a new group, so add it
+                                                   // and add the unit
         {
           unitID = pPlug->AddParamGroup(paramGroupName); // updates unitID
           unitInfo.id = unitID;
           unitInfo.parentUnitId = Steinberg::Vst::kRootUnitId;
           unitInfo.programListId = Steinberg::Vst::kNoProgramListId;
           unitNameSetter.fromAscii(paramGroupName);
-          pEditController->addUnit (new Steinberg::Vst::Unit (unitInfo));
+          pEditController->addUnit(new Steinberg::Vst::Unit(unitInfo));
         }
       }
-      
+
       Steinberg::Vst::Parameter* pVST3Parameter = new IPlugVST3Parameter(pParam, i, unitID);
       mParameters.addParameter(pVST3Parameter);
     }
 
-    assert(VST3_NUM_CC_CHANS <= VST3_NUM_MIDI_IN_CHANS && "VST3_NUM_CC_CHANS must be less than or equal to VST3_NUM_MIDI_IN_CHANS");
-    
+    assert(VST3_NUM_CC_CHANS <= VST3_NUM_MIDI_IN_CHANS
+           && "VST3_NUM_CC_CHANS must be less than or equal to VST3_NUM_MIDI_IN_CHANS");
+
 #if VST3_NUM_CC_CHANS > 0
     if (midiIn)
     {
@@ -154,8 +160,9 @@ public:
     }
 #endif
   }
-  
-  Steinberg::tresult PLUGIN_API GetProgramName(IPlugAPIBase* pPlug, Steinberg::Vst::ProgramListID listId, Steinberg::int32 programIndex, Steinberg::Vst::String128 name)
+
+  Steinberg::tresult PLUGIN_API GetProgramName(IPlugAPIBase* pPlug, Steinberg::Vst::ProgramListID listId,
+                                               Steinberg::int32 programIndex, Steinberg::Vst::String128 name)
   {
     if (pPlug->NPresets() && listId == kPresetParam)
     {
@@ -165,7 +172,7 @@ public:
 
     return Steinberg::kResultFalse;
   }
-  
+
   Steinberg::int32 PLUGIN_API GetProgramListCount(IPlugAPIBase* pPlug)
   {
 #ifdef VST3_PRESET_LIST
@@ -174,14 +181,15 @@ public:
     return 0;
 #endif
   }
-  
-  Steinberg::tresult PLUGIN_API GetProgramListInfo(IPlugAPIBase* pPlug, Steinberg::int32 listIndex, Steinberg::Vst::ProgramListInfo& info)
+
+  Steinberg::tresult PLUGIN_API GetProgramListInfo(IPlugAPIBase* pPlug, Steinberg::int32 listIndex,
+                                                   Steinberg::Vst::ProgramListInfo& info)
   {
 #ifdef VST3_PRESET_LIST
     if (listIndex == 0 && pPlug->NPresets() > 0)
     {
       info.id = kPresetParam;
-      info.programCount = (Steinberg::int32) pPlug->NPresets();
+      info.programCount = (Steinberg::int32)pPlug->NPresets();
       Steinberg::UString name(info.name, 128);
       name.fromAscii("Factory Presets");
       return Steinberg::kResultTrue;
@@ -190,18 +198,18 @@ public:
 
     return Steinberg::kResultFalse;
   }
-  
+
   Steinberg::Vst::ParamValue GetParamNormalized(Steinberg::Vst::ParamID tag)
   {
     Steinberg::Vst::Parameter* parameter = mParameters.getParameter(tag);
     return parameter ? parameter->getNormalized() : 0.0;
   }
-    
+
   bool SetParamNormalized(IPlugAPIBase* pPlug, Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value)
   {
     if (!SetVST3ParamNormalized(tag, value))
       return false;
-    
+
     if (tag >= kBypassParam)
     {
       switch (tag)
@@ -211,14 +219,13 @@ public:
           pPlug->RestorePreset(std::round((pPlug->NPresets() - 1) * value));
           break;
         }
-        default:
-          break;
+        default: break;
       }
     }
     else
     {
       IParam* pParam = pPlug->GetParam(tag);
-      
+
       if (pParam)
       {
         pParam->SetNormalized(value);
@@ -226,7 +233,7 @@ public:
         pPlug->SendParameterValueFromDelegate(tag, value, true);
       }
     }
-    
+
     return true;
   }
 
@@ -245,8 +252,10 @@ public:
         // Note: length is multiplied by two because Ableton Live 10.1.13 is buggy
         // and pList->getString() size parameter is interpreted as TChar instead
         // of byte: end of string zero value is written in an out of memory position
-        std::vector<TChar> name((length+1)*2);
-        if (pList->getString(ChannelContext::kChannelNameKey, name.data(),  static_cast<Steinberg::uint32>(length+1)*sizeof(TChar)) == kResultTrue)
+        std::vector<TChar> name((length + 1) * 2);
+        if (pList->getString(
+              ChannelContext::kChannelNameKey, name.data(), static_cast<Steinberg::uint32>(length + 1) * sizeof(TChar))
+            == kResultTrue)
         {
           Steinberg::String str(name.data());
           str.toMultiByte(kCP_Utf8);
@@ -261,8 +270,10 @@ public:
         // Note: length is multiplied by two because Ableton Live 10.1.13 is buggy
         // and pList->getString() size parameter is interpreted as TChar instead
         // of byte: end of string zero value is written in an out of memory position
-        std::vector<TChar> name((length+1)*2);
-        if (pList->getString(ChannelContext::kChannelUIDKey, name.data(), static_cast<Steinberg::uint32>(length+1)*sizeof(TChar)) == kResultTrue)
+        std::vector<TChar> name((length + 1) * 2);
+        if (pList->getString(
+              ChannelContext::kChannelUIDKey, name.data(), static_cast<Steinberg::uint32>(length + 1) * sizeof(TChar))
+            == kResultTrue)
         {
           Steinberg::String str(name.data());
           str.toMultiByte(kCP_Utf8);
@@ -281,7 +292,7 @@ public:
       int64 color;
       if (pList->getInt(ChannelContext::kChannelColorKey, color) == kResultTrue)
       {
-        mChannelColor = (uint32) color;
+        mChannelColor = (uint32)color;
       }
 
       // get channel index namespace order of the current used index namespace
@@ -297,8 +308,10 @@ public:
         // Note: length is multiplied by two because Ableton Live 10.1.13 is buggy
         // and pList->getString() size parameter is interpreted as TChar instead
         // of byte: end of string zero value is written in an out of memory position
-        std::vector<TChar> name((length+1)*2);
-        if (pList->getString(ChannelContext::kChannelIndexNamespaceKey, name.data(), static_cast<Steinberg::uint32>(length+1)*sizeof(TChar)) == kResultTrue)
+        std::vector<TChar> name((length + 1) * 2);
+        if (pList->getString(ChannelContext::kChannelIndexNamespaceKey, name.data(),
+                             static_cast<Steinberg::uint32>(length + 1) * sizeof(TChar))
+            == kResultTrue)
         {
           Steinberg::String str(name.data());
           str.toMultiByte(kCP_Utf8);
@@ -313,17 +326,10 @@ public:
         String128 string128;
         switch (location)
         {
-        case ChannelContext::kPreVolumeFader:
-          Steinberg::UString(string128, 128).fromAscii("PreVolFader");
-          break;
-        case ChannelContext::kPostVolumeFader:
-          Steinberg::UString(string128, 128).fromAscii("PostVolFader");
-          break;
-        case ChannelContext::kUsedAsPanner:
-          Steinberg::UString(string128, 128).fromAscii("UsedAsPanner");
-          break;
-        default: Steinberg::UString(string128, 128).fromAscii("unknown!");
-          break;
+          case ChannelContext::kPreVolumeFader: Steinberg::UString(string128, 128).fromAscii("PreVolFader"); break;
+          case ChannelContext::kPostVolumeFader: Steinberg::UString(string128, 128).fromAscii("PostVolFader"); break;
+          case ChannelContext::kUsedAsPanner: Steinberg::UString(string128, 128).fromAscii("UsedAsPanner"); break;
+          default: Steinberg::UString(string128, 128).fromAscii("unknown!"); break;
         }
       }
 
@@ -332,7 +338,7 @@ public:
 
     return false;
   }
-  
+
   void UpdateParams(IPlugAPIBase* pPlug, int savedBypass)
   {
     for (int i = 0; i < pPlug->NParams(); i++)
@@ -340,24 +346,23 @@ public:
       double normalized = pPlug->GetParam(i)->GetNormalized();
       mParameters.getParameter(i)->setNormalized(normalized);
     }
-    
+
     if (mBypassParameter)
       mBypassParameter->setNormalized(savedBypass);
   }
-  
+
 protected:
-  
   bool SetVST3ParamNormalized(Steinberg::Vst::ParamID tag, Steinberg::Vst::ParamValue value)
   {
     Steinberg::Vst::Parameter* parameter = mParameters.getParameter(tag);
-    
+
     if (!parameter)
       return false;
-    
+
     parameter->setNormalized(value);
     return true;
   }
-  
+
 public:
   Steinberg::Vst::ParameterContainer& mParameters;
   IPlugVST3BypassParameter* mBypassParameter = nullptr;

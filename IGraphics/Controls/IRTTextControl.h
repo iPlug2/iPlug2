@@ -28,13 +28,14 @@ template <int MAXNC = 1, typename T = double>
 class IRTTextControl : public ITextControl
 {
 public:
-  IRTTextControl(const IRECT& bounds, const char* fmtStr = "%f", const char* separatorStr = ", ", const char* initStr = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
+  IRTTextControl(const IRECT& bounds, const char* fmtStr = "%f", const char* separatorStr = ", ",
+                 const char* initStr = "", const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
   : ITextControl(bounds, initStr, text, BGColor)
   , mFMTStr(fmtStr)
   , mSeparatorStr(separatorStr)
   {
   }
-  
+
   void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override
   {
     if (!IsDisabled() && msgTag == ISender<>::kUpdateMessage)
@@ -46,19 +47,19 @@ public:
       pos = stream.Get(&d, pos);
 
       WDL_String str;
-      
-      for(int i=0; i<d.nChans-1; i++)
+
+      for (int i = 0; i < d.nChans - 1; i++)
       {
         str.AppendFormatted(256, mFMTStr.Get(), d.vals[i]);
         str.Append(mSeparatorStr.Get());
       }
-      str.AppendFormatted(256, mFMTStr.Get(), d.vals[d.nChans-1]);
-      
+      str.AppendFormatted(256, mFMTStr.Get(), d.vals[d.nChans - 1]);
+
       SetStr(str.Get());
       SetDirty(false);
     }
   }
-  
+
 protected:
   WDL_String mFMTStr;
   WDL_String mSeparatorStr;

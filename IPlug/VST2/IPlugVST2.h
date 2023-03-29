@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -30,14 +30,13 @@ struct InstanceInfo
 };
 
 /**  VST2.4 API base class for an IPlug plug-in
-*   @ingroup APIClasses */
-class IPlugVST2 : public IPlugAPIBase
-                , public IPlugProcessor
+ *   @ingroup APIClasses */
+class IPlugVST2 : public IPlugAPIBase, public IPlugProcessor
 {
 public:
   IPlugVST2(const InstanceInfo& info, const Config& config);
 
-  //IPlugAPIBase
+  // IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
@@ -45,12 +44,12 @@ public:
   void HostSpecificInit() override;
   bool EditorResize(int viewWidth, int viewHeight) override;
 
-  //IPlugProcessor
+  // IPlugProcessor
   void SetLatency(int samples) override;
   bool SendMidiMsg(const IMidiMsg& msg) override;
   bool SendSysEx(const ISysEx& msg) override;
 
-  //IPlugVST
+  // IPlugVST
   audioMasterCallback& GetHostCallback() { return mHostCallback; }
   AEffect& GetAEffect() { return mAEffect; }
   void OutputSysexFromEditor();
@@ -58,7 +57,7 @@ public:
 private:
   virtual VstIntPtr VSTVendorSpecific(VstInt32 idx, VstIntPtr value, void* ptr, float opt) { return 0; }
   virtual VstIntPtr VSTCanDo(const char* hostString) { return 0; }
-    
+
   /**
    Called prior to every ProcessBlock call in order to update certain properties and connect buffers if necessary
 
@@ -68,26 +67,34 @@ private:
    */
   template <class SAMPLETYPE>
   void VSTPreProcess(SAMPLETYPE** inputs, SAMPLETYPE** outputs, VstInt32 nFrames);
-  
-  static VstIntPtr VSTCALLBACK VSTDispatcher(AEffect *pEffect, VstInt32 opCode, VstInt32 idx, VstIntPtr value, void *ptr, float opt);
-  static void VSTCALLBACK VSTProcess(AEffect *pEffect, float **inputs, float **outputs, VstInt32 nFrames);  // Deprecated.
-  static void VSTCALLBACK VSTProcessReplacing(AEffect *pEffect, float **inputs, float **outputs, VstInt32 nFrames);
-  static void VSTCALLBACK VSTProcessDoubleReplacing(AEffect *pEffect, double **inputs, double **outputs, VstInt32 nFrames);
-  static float VSTCALLBACK VSTGetParameter(AEffect *pEffect, VstInt32 idx);
-  static void VSTCALLBACK VSTSetParameter(AEffect *pEffect, VstInt32 idx, float value);
-  
+
+  static VstIntPtr VSTCALLBACK VSTDispatcher(AEffect* pEffect, VstInt32 opCode, VstInt32 idx, VstIntPtr value,
+                                             void* ptr, float opt);
+  static void VSTCALLBACK VSTProcess(AEffect* pEffect, float** inputs, float** outputs,
+                                     VstInt32 nFrames); // Deprecated.
+  static void VSTCALLBACK VSTProcessReplacing(AEffect* pEffect, float** inputs, float** outputs, VstInt32 nFrames);
+  static void VSTCALLBACK VSTProcessDoubleReplacing(AEffect* pEffect, double** inputs, double** outputs,
+                                                    VstInt32 nFrames);
+  static float VSTCALLBACK VSTGetParameter(AEffect* pEffect, VstInt32 idx);
+  static void VSTCALLBACK VSTSetParameter(AEffect* pEffect, VstInt32 idx, float value);
+
   bool SendVSTEvent(VstEvent& event);
   bool SendVSTEvents(WDL_TypedBuf<VstEvent>* pEvents);
-  
+
   void UpdateEditRect();
-    
+
   ERect mEditRect;
   VstSpeakerArrangement mInputSpkrArr, mOutputSpkrArr;
 
-  enum { VSTEXT_NONE=0, VSTEXT_COCKOS, VSTEXT_COCOA }; // list of VST extensions supported by host
+  enum
+  {
+    VSTEXT_NONE = 0,
+    VSTEXT_COCKOS,
+    VSTEXT_COCOA
+  }; // list of VST extensions supported by host
   int mHasVSTExtensions;
 
-  IByteChunk mState;     // Persistent storage if the host asks for plugin state.
+  IByteChunk mState; // Persistent storage if the host asks for plugin state.
   IByteChunk mBankState; // Persistent storage if the host asks for bank state.
 protected:
   AEffect mAEffect;

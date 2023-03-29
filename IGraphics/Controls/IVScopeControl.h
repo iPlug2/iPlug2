@@ -26,11 +26,10 @@ BEGIN_IGRAPHICS_NAMESPACE
 /** Vectorial multi-channel capable oscilloscope control
  * @ingroup IControls */
 template <int MAXNC = 1, int MAXBUF = 128>
-class IVScopeControl : public IControl
-                     , public IVectorBase
+class IVScopeControl : public IControl, public IVectorBase
 {
 public:
-  /** Constructs an IVScopeControl 
+  /** Constructs an IVScopeControl
    * @param bounds The rectangular area that the control occupies
    * @param label A CString to label the control
    * @param style, /see IVStyle */
@@ -40,13 +39,13 @@ public:
   {
     AttachIControl(this, label);
   }
-  
+
   void Draw(IGraphics& g) override
   {
     DrawBackground(g, mRECT);
     DrawWidget(g);
     DrawLabel(g);
-    
+
     if (mStyle.drawFrame)
       g.DrawRect(GetColor(kFR), mWidgetBounds, &mBlend, mStyle.frameThickness);
   }
@@ -54,16 +53,17 @@ public:
   void DrawWidget(IGraphics& g) override
   {
     g.DrawHorizontalLine(GetColor(kSH), mWidgetBounds, 0.5, &mBlend, mStyle.frameThickness);
-    
+
     IRECT r = mWidgetBounds.GetPadded(-mPadding);
 
-    for (int c=0; c<mBuf.nChans; c++)
+    for (int c = 0; c < mBuf.nChans; c++)
     {
       // drawdata expects normalized values and buffer contains unnormalized, so draw in the top half
-      g.DrawData(GetColor(kFG), r.FracRectVertical(0.5, true), mBuf.vals[c].data(), mBufferSize, nullptr, &mBlend, mTrackSize);
+      g.DrawData(
+        GetColor(kFG), r.FracRectVertical(0.5, true), mBuf.vals[c].data(), mBufferSize, nullptr, &mBlend, mTrackSize);
     }
   }
-  
+
   void OnResize() override
   {
     SetTargetRECT(MakeRects(mRECT));
@@ -82,7 +82,7 @@ public:
       SetDirty(false);
     }
   }
-  
+
   void SetBufferSize(int bufferSize)
   {
     assert(bufferSize > 0);
@@ -98,4 +98,3 @@ private:
 
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
-

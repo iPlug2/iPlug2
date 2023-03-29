@@ -34,14 +34,14 @@ public:
   {
     g.FillRect(COLOR_WHITE, mRECT.GetPadded(-2));
     g.DrawRect(COLOR_BLACK, mRECT.GetPadded(-2));
-    float angle = mAngle1 + (float) GetValue() * (mAngle2 - mAngle1);
+    float angle = mAngle1 + (float)GetValue() * (mAngle2 - mAngle1);
     g.FillArc(COLOR_BLUE, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.44f, mAngle1, angle);
     g.DrawArc(COLOR_BLACK, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.44f, mAngle1, angle);
     g.DrawRadialLine(COLOR_BLACK, mRECT.MW(), mRECT.MH(), angle, 0.f, mRECT.W() * 0.49f);
     g.FillCircle(COLOR_WHITE, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.1f);
     g.DrawCircle(COLOR_BLACK, mRECT.MW(), mRECT.MH(), mRECT.W() * 0.1f);
 
-    angle = DegToRad(angle-90.f);
+    angle = DegToRad(angle - 90.f);
 
     float x1 = mRECT.MW() + cosf(angle - 0.3f) * mRECT.W() * 0.3f;
     float y1 = mRECT.MH() + sinf(angle - 0.3f) * mRECT.W() * 0.3f;

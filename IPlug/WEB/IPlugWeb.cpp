@@ -27,10 +27,14 @@ static const int kNumSAMFUIBytes = 18; // + data size
 IPlugWeb::IPlugWeb(const InstanceInfo& info, const Config& config)
 : IPlugAPIBase(config, kAPIWEB)
 {
-  mSPVFUIBuf.Resize(kNumSPVFUIBytes); memcpy(mSPVFUIBuf.GetData(), "SPVFUI", kNumMsgHeaderBytes);
-  mSMMFUIBuf.Resize(kNumSMMFUIBytes); memcpy(mSMMFUIBuf.GetData(), "SMMFUI", kNumMsgHeaderBytes);
-  mSSMFUIBuf.Resize(kNumSSMFUIBytes); memcpy(mSSMFUIBuf.GetData(), "SSMFUI", kNumMsgHeaderBytes);
-  mSAMFUIBuf.Resize(kNumSAMFUIBytes); memcpy(mSAMFUIBuf.GetData(), "SAMFUI", kNumMsgHeaderBytes);
+  mSPVFUIBuf.Resize(kNumSPVFUIBytes);
+  memcpy(mSPVFUIBuf.GetData(), "SPVFUI", kNumMsgHeaderBytes);
+  mSMMFUIBuf.Resize(kNumSMMFUIBytes);
+  memcpy(mSMMFUIBuf.GetData(), "SMMFUI", kNumMsgHeaderBytes);
+  mSSMFUIBuf.Resize(kNumSSMFUIBytes);
+  memcpy(mSSMFUIBuf.GetData(), "SSMFUI", kNumMsgHeaderBytes);
+  mSAMFUIBuf.Resize(kNumSAMFUIBytes);
+  memcpy(mSAMFUIBuf.GetData(), "SAMFUI", kNumMsgHeaderBytes);
 
   mWAMCtrlrJSObjectName.SetFormatted(32, "%s_WAM", GetPluginName());
 }
@@ -39,32 +43,42 @@ void IPlugWeb::SendParameterValueFromUI(int paramIdx, double value)
 {
 #if WEBSOCKET_CLIENT
   int pos = kNumMsgHeaderBytes;
-  *((int*)(mSPVFUIBuf.GetData() + pos)) = paramIdx; pos += sizeof(int);
-  *((double*)(mSPVFUIBuf.GetData() + pos)) = value; pos += sizeof(double);
+  *((int*)(mSPVFUIBuf.GetData() + pos)) = paramIdx;
+  pos += sizeof(int);
+  *((double*)(mSPVFUIBuf.GetData() + pos)) = value;
+  pos += sizeof(double);
 
-  EM_ASM({
-    var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
-    ws.send(jsbuff);
-  }, (int) mSPVFUIBuf.GetData(), kNumSPVFUIBytes);
+  EM_ASM(
+    {
+      var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
+      ws.send(jsbuff);
+    },
+    (int)mSPVFUIBuf.GetData(), kNumSPVFUIBytes);
 
 #else
   val::global(mWAMCtrlrJSObjectName.Get()).call<void>("setParam", paramIdx, value);
 #endif
-  IPlugAPIBase::SendParameterValueFromUI(paramIdx, value); // call super class in order to make sure OnParamChangeUI() gets triggered
+  IPlugAPIBase::SendParameterValueFromUI(
+    paramIdx, value); // call super class in order to make sure OnParamChangeUI() gets triggered
 };
 
 void IPlugWeb::SendMidiMsgFromUI(const IMidiMsg& msg)
 {
 #if WEBSOCKET_CLIENT
   int pos = kNumMsgHeaderBytes;
-  mSMMFUIBuf.GetData()[pos] = msg.mStatus; pos++;
-  mSMMFUIBuf.GetData()[pos] = msg.mData1; pos++;
-  mSMMFUIBuf.GetData()[pos] = msg.mData2; pos++;
+  mSMMFUIBuf.GetData()[pos] = msg.mStatus;
+  pos++;
+  mSMMFUIBuf.GetData()[pos] = msg.mData1;
+  pos++;
+  mSMMFUIBuf.GetData()[pos] = msg.mData2;
+  pos++;
 
-  EM_ASM({
-    var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
-    ws.send(jsbuff);
-  }, (int) mSMMFUIBuf.GetData(), kNumSMMFUIBytes);
+  EM_ASM(
+    {
+      var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
+      ws.send(jsbuff);
+    },
+    (int)mSMMFUIBuf.GetData(), kNumSMMFUIBytes);
 
 #else
   WDL_String dataStr;
@@ -77,27 +91,27 @@ void IPlugWeb::SendSysexMsgFromUI(const ISysEx& msg)
 {
   DBGMSG("TODO: SendSysexMsgFromUI");
 
-//   EM_ASM({
-//     window[Module.UTF8ToString($0)]["midiOut"].send(0x90, 0x45, 0x7f);
-//   }, mWAMCtrlrJSObjectName.Get());
-//  val::global(mWAMCtrlrJSObjectName.Get())["midiOut"].call<void>("send", {0x90, 0x45, 0x7f} );
+  //   EM_ASM({
+  //     window[Module.UTF8ToString($0)]["midiOut"].send(0x90, 0x45, 0x7f);
+  //   }, mWAMCtrlrJSObjectName.Get());
+  //  val::global(mWAMCtrlrJSObjectName.Get())["midiOut"].call<void>("send", {0x90, 0x45, 0x7f} );
 
-// #if WEBSOCKET_CLIENT
-//   mSSMFUIBuf.Resize(kNumSSMFUIBytes + msg.mSize);
-//   int pos = kNumMsgHeaderBytes;
-//
-//   *((int*)(mSSMFUIBuf.GetData() + pos)) = msg.mSize; pos += sizeof(int);
-//   memcpy(mSSMFUIBuf.GetData() + pos, msg.mData, msg.mSize);
-//
-//   EM_ASM({
-//     var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
-//     ws.send(jsbuff);
-//   }, (int) mSSMFUIBuf.GetData(), mSSMFUIBuf.Size());
-// #else
-//   EM_ASM({
-//     window[Module.UTF8ToString($0)].sendMessage('SSMFUI', $1, Module.HEAPU8.slice($1, $1 + $2).buffer);
-//   }, mWAMCtrlrJSObjectName.Get(), (int) msg.mData, msg.mSize);
-// #endif
+  // #if WEBSOCKET_CLIENT
+  //   mSSMFUIBuf.Resize(kNumSSMFUIBytes + msg.mSize);
+  //   int pos = kNumMsgHeaderBytes;
+  //
+  //   *((int*)(mSSMFUIBuf.GetData() + pos)) = msg.mSize; pos += sizeof(int);
+  //   memcpy(mSSMFUIBuf.GetData() + pos, msg.mData, msg.mSize);
+  //
+  //   EM_ASM({
+  //     var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
+  //     ws.send(jsbuff);
+  //   }, (int) mSSMFUIBuf.GetData(), mSSMFUIBuf.Size());
+  // #else
+  //   EM_ASM({
+  //     window[Module.UTF8ToString($0)].sendMessage('SSMFUI', $1, Module.HEAPU8.slice($1, $1 + $2).buffer);
+  //   }, mWAMCtrlrJSObjectName.Get(), (int) msg.mData, msg.mSize);
+  // #endif
 }
 
 void IPlugWeb::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int dataSize, const void* pData)
@@ -105,39 +119,53 @@ void IPlugWeb::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int dataSize, con
   mSAMFUIBuf.Resize(kNumSAMFUIBytes + dataSize);
   int pos = kNumMsgHeaderBytes;
 
-  *((int*)(mSAMFUIBuf.GetData() + pos)) = msgTag; pos += sizeof(int);
-  *((int*)(mSAMFUIBuf.GetData() + pos)) = ctrlTag; pos += sizeof(int);
-  *((int*)(mSAMFUIBuf.GetData() + pos)) = dataSize; pos += sizeof(int);
+  *((int*)(mSAMFUIBuf.GetData() + pos)) = msgTag;
+  pos += sizeof(int);
+  *((int*)(mSAMFUIBuf.GetData() + pos)) = ctrlTag;
+  pos += sizeof(int);
+  *((int*)(mSAMFUIBuf.GetData() + pos)) = dataSize;
+  pos += sizeof(int);
 
   memcpy(mSAMFUIBuf.GetData() + pos, pData, dataSize);
 
 #if WEBSOCKET_CLIENT
-  EM_ASM({
-    var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
-    ws.send(jsbuff);
-  }, (int) mSAMFUIBuf.GetData(), mSAMFUIBuf.Size());
+  EM_ASM(
+    {
+      var jsbuff = Module.HEAPU8.subarray($0, $0 + $1);
+      ws.send(jsbuff);
+    },
+    (int)mSAMFUIBuf.GetData(), mSAMFUIBuf.Size());
 #else
-  EM_ASM({
-    if(typeof window[Module.UTF8ToString($0)] === 'undefined' ) {
-      console.log("warning - SAMFUI called before controller exists");
-    }
-    else { 
-      window[Module.UTF8ToString($0)].sendMessage('SAMFUI', "", Module.HEAPU8.slice($1, $1 + $2).buffer);
-    }
-  }, mWAMCtrlrJSObjectName.Get(), (int) mSAMFUIBuf.GetData() + kNumMsgHeaderBytes, mSAMFUIBuf.Size() - kNumMsgHeaderBytes); // Non websocket doesn't need "SAMFUI" bytes at beginning
+  EM_ASM(
+    {
+      if (typeof window[Module.UTF8ToString($0)] == = 'undefined')
+      {
+        console.log("warning - SAMFUI called before controller exists");
+      }
+      else
+      {
+        window[Module.UTF8ToString($0)].sendMessage('SAMFUI', "", Module.HEAPU8.slice($1, $1 + $2).buffer);
+      }
+    },
+    mWAMCtrlrJSObjectName.Get(), (int)mSAMFUIBuf.GetData() + kNumMsgHeaderBytes,
+    mSAMFUIBuf.Size() - kNumMsgHeaderBytes); // Non websocket doesn't need "SAMFUI" bytes at beginning
 #endif
 }
 
 void IPlugWeb::SendDSPIdleTick()
 {
-  EM_ASM({
-    if(typeof window[Module.UTF8ToString($0)] === 'undefined' ) {
-      console.log("warning - SendDSPIdleTick called before controller exists");
-    }
-    else {
-      window[Module.UTF8ToString($0)].sendMessage("TICK", "", 0.);
-    }
-  }, mWAMCtrlrJSObjectName.Get());
+  EM_ASM(
+    {
+      if (typeof window[Module.UTF8ToString($0)] == = 'undefined')
+      {
+        console.log("warning - SendDSPIdleTick called before controller exists");
+      }
+      else
+      {
+        window[Module.UTF8ToString($0)].sendMessage("TICK", "", 0.);
+      }
+    },
+    mWAMCtrlrJSObjectName.Get());
 }
 
 extern std::unique_ptr<IPlugWeb> gPlug;
@@ -168,7 +196,7 @@ static void _SendParameterValueFromDelegate(int paramIdx, double normalizedValue
 
 static void _SendMidiMsgFromDelegate(int status, int data1, int data2)
 {
-  IMidiMsg msg {0, (uint8_t) status, (uint8_t) data1, (uint8_t) data2};
+  IMidiMsg msg{0, (uint8_t)status, (uint8_t)data1, (uint8_t)data2};
   gPlug->SendMidiMsgFromDelegate(msg);
 }
 
@@ -184,7 +212,8 @@ static void _StartIdleTimer()
   gPlug->CreateTimer();
 }
 
-EMSCRIPTEN_BINDINGS(IPlugWeb) {
+EMSCRIPTEN_BINDINGS(IPlugWeb)
+{
   function("SPVFD", &_SendParameterValueFromDelegate);
   function("SAMFD", &_SendArbitraryMsgFromDelegate);
   function("SCMFD", &_SendControlMsgFromDelegate);

@@ -39,12 +39,13 @@ static val GetPreloadedImages()
 extern void GetScreenDimensions(int& width, int& height);
 
 /** IGraphics platform class for the web
-* @ingroup PlatformClasses */
+ * @ingroup PlatformClasses */
 class IGraphicsWeb final : public IGRAPHICS_DRAW_CLASS
 {
   class Font;
   class FileFont;
   class MemoryFont;
+
 public:
   IGraphicsWeb(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWeb();
@@ -54,36 +55,50 @@ public:
   const char* GetPlatformAPIStr() override { return "WEB"; }
 
   void HideMouseCursor(bool hide, bool lock) override;
-  void MoveMouseCursor(float x, float y) override { /* NOT SUPPORTABLE*/ }
+  void MoveMouseCursor(float x, float y) override
+  { /* NOT SUPPORTABLE*/
+  }
   ECursor SetMouseCursor(ECursor cursorType) override;
-  void GetMouseLocation(float& x, float&y) const override;
+  void GetMouseLocation(float& x, float& y) const override;
 
   void ForceEndUserEdit() override {} // TODO:
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override {} // TODO:
   void* GetWindow() override { return nullptr; } // TODO:
   bool WindowIsOpen() override { return GetWindow(); } // TODO: ??
-  bool GetTextFromClipboard(WDL_String& str) override { str.Set(mClipboardText.Get()); return true; }
-  bool SetTextInClipboard(const char* str) override { mClipboardText.Set(str); return true; }
+  bool GetTextFromClipboard(WDL_String& str) override
+  {
+    str.Set(mClipboardText.Get());
+    return true;
+  }
+  bool SetTextInClipboard(const char* str) override
+  {
+    mClipboardText.Set(str);
+    return true;
+  }
   void UpdateTooltips() override {} // TODO:
-  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
-  
-  void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type,
+                               IMsgBoxCompletionHandlerFunc completionHandler) override;
+
+  void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext,
+                     IFileDialogCompletionHandlerFunc completionHandler) override;
   void PromptForDirectory(WDL_String& path, IFileDialogCompletionHandlerFunc completionHandler) override;
   bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
-  bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
+  bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg,
+               const char* errMsgOnFailure) override;
 
   bool PlatformSupportsMultiTouch() const override { return true; }
-  
-  //IGraphicsWeb
+
+  // IGraphicsWeb
   static void OnMainLoopTimer();
   double mPrevX = 0.;
   double mPrevY = 0.;
-  
+
 protected:
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) override;
-  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
-    
+  void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length,
+                               const char* str) override;
+
 private:
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fileNameOrResID) override;
   PlatformFontPtr LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style) override;
@@ -95,4 +110,3 @@ private:
 
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
-

@@ -47,18 +47,14 @@ public:
     RandomiseGradient();
     SetDirty(false);
   }
-  
-  void OnResize() override
-  {
-    RandomiseGradient();
-  }
+
+  void OnResize() override { RandomiseGradient(); }
 
 private:
-  
   void RandomiseGradient()
   {
-    //IPattern tmp(EPatternType::Linear);
-    //tmp.SetTransform(1.0/mRECT.W(), 0, 0, 1.0/mRECT.W(), 1.0/mRECT.W()*-mRECT.L, 1.0/mRECT.W()*-mRECT.T);
+    // IPattern tmp(EPatternType::Linear);
+    // tmp.SetTransform(1.0/mRECT.W(), 0, 0, 1.0/mRECT.W(), 1.0/mRECT.W()*-mRECT.L, 1.0/mRECT.W()*-mRECT.T);
     IPattern tmp(EPatternType::Solid);
 
     if (std::rand() & 0x100)
@@ -66,7 +62,8 @@ private:
     else
       tmp = IPattern::CreateLinearGradient(mRECT.L, mRECT.MH(), mRECT.L + mRECT.W() * 0.5f, mRECT.MH());
 
-    tmp.mExtend = (std::rand() & 0x10) ? ((std::rand() & 0x1000) ? EPatternExtend::None : EPatternExtend::Pad) : ((std::rand() & 0x1000) ? EPatternExtend::Repeat : EPatternExtend::Reflect);
+    tmp.mExtend = (std::rand() & 0x10) ? ((std::rand() & 0x1000) ? EPatternExtend::None : EPatternExtend::Pad)
+                                       : ((std::rand() & 0x1000) ? EPatternExtend::Repeat : EPatternExtend::Reflect);
 
     tmp.AddStop(IColor::GetRandomColor(), 0.0f);
     tmp.AddStop(IColor::GetRandomColor(), 0.1f);

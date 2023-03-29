@@ -76,7 +76,8 @@ public:
     else if (mShape == 3)
     {
       g.PathMoveTo(mRECT.L, mRECT.B);
-      g.PathCubicBezierTo(mRECT.L + mRECT.W() * 0.125f, mRECT.T + mRECT.H() * 0.725f, mRECT.L + mRECT.W() * 0.25f, mRECT.T + mRECT.H() * 0.35f, mRECT.MW(), mRECT.MH());
+      g.PathCubicBezierTo(mRECT.L + mRECT.W() * 0.125f, mRECT.T + mRECT.H() * 0.725f, mRECT.L + mRECT.W() * 0.25f,
+                          mRECT.T + mRECT.H() * 0.35f, mRECT.MW(), mRECT.MH());
       g.PathLineTo(mRECT.MW(), mRECT.B);
       g.PathClose();
     }
@@ -136,7 +137,7 @@ public:
       float width = radius * 0.75f;
       float startAngle = -90.0f;
       float endAngle = +90.0f;
-        
+
       g.PathArc(centerX, centerY, radius - width * 0.5f, startAngle, endAngle);
       g.PathArc(centerX, centerY, radius + width * 0.5f, endAngle, startAngle, EWinding::CCW);
       g.PathClose();
@@ -149,17 +150,17 @@ public:
       float width = radius * 0.75f;
       float startAngle = -90.0f;
       float endAngle = +90.0f;
-        
+
       g.PathArc(centerX, centerY, radius - width * 0.5f, startAngle, endAngle);
       g.PathArc(centerX, centerY, radius + width * 0.5f, endAngle, startAngle, EWinding::CW);
       g.PathClose();
     }
-    
+
     IFillOptions fillOptions;
     fillOptions.mFillRule = value > 0.5 ? EFillRule::EvenOdd : EFillRule::Winding;
     fillOptions.mPreserve = true;
     IStrokeOptions strokeOptions;
-    float dashes[] = { 11, 4, 7 };
+    float dashes[] = {11, 4, 7};
     strokeOptions.mDash.SetDash(dashes, 0.0, 2);
     g.PathFill(COLOR_BLACK, fillOptions);
     g.PathStroke(COLOR_WHITE, 1, strokeOptions);

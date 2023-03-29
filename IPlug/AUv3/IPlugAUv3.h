@@ -1,11 +1,11 @@
- /*
- ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
- See LICENSE.txt for  more info.
- 
- ==============================================================================
+/*
+==============================================================================
+
+This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
+See LICENSE.txt for  more info.
+
+==============================================================================
 */
 
 #ifndef _IPLUGAPI_
@@ -40,25 +40,25 @@ struct InstanceInfo
 
 /**  AudioUnit v3 API base class for an IPlug plug-in
  *   @ingroup APIClasses */
-class IPlugAUv3 : public IPlugAPIBase
-                , public IPlugProcessor
+class IPlugAUv3 : public IPlugAPIBase, public IPlugProcessor
 {
 public:
   IPlugAUv3(const InstanceInfo& info, const Config& config);
-  
-  //IPlugAPIBase
+
+  // IPlugAPIBase
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
-  void InformHostOfPresetChange() override {};
+  void InformHostOfPresetChange() override{};
 
-  //IPlugProcessor
+  // IPlugProcessor
   bool SendMidiMsg(const IMidiMsg& msg) override;
-//  bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs) override;
+  //  bool SendMidiMsgs(WDL_TypedBuf<IMidiMsg>& msgs) override;
   bool SendSysEx(const ISysEx& msg) override;
 
-  //IPlugAUv3
-  void ProcessWithEvents(AudioTimeStamp const* timestamp, uint32_t frameCount, AURenderEvent const* events, ITimeInfo& timeInfo);
+  // IPlugAUv3
+  void ProcessWithEvents(AudioTimeStamp const* timestamp, uint32_t frameCount, AURenderEvent const* events,
+                         ITimeInfo& timeInfo);
   void SetParameterFromValueObserver(uint64_t address, float value);
   void SendParameterValueFromObserver(uint64_t address, float value);
   float GetParameter(uint64_t address);
@@ -72,10 +72,10 @@ public:
     mParamAddressMap.insert({paramIdx, paramAddress});
     mAddressParamMap.insert({paramAddress, paramIdx});
   }
-  
+
   uint64_t GetParamAddress(int paramIdx) { return mParamAddressMap[paramIdx]; }
   int GetParamIdx(uint64_t paramAddress) { return mAddressParamMap[paramAddress]; }
-  
+
   void SetAUAudioUnit(void* pAUAudioUnit);
 
   void SetOffline(bool renderingOffline) { IPlugProcessor::SetRenderingOffline(renderingOffline); }

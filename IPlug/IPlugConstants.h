@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -24,7 +24,7 @@
 BEGIN_IPLUG_NAMESPACE
 
 #if !defined(SAMPLE_TYPE_FLOAT) && !defined(SAMPLE_TYPE_DOUBLE)
-#define SAMPLE_TYPE_DOUBLE
+  #define SAMPLE_TYPE_DOUBLE
 #endif
 
 #ifdef SAMPLE_TYPE_DOUBLE
@@ -61,18 +61,18 @@ enum EVST3ParamIDs
 #endif
 };
 
-//TODO: these should be in a namespace, to avoid conflicts with third-party libraries
+// TODO: these should be in a namespace, to avoid conflicts with third-party libraries
 static const double PI = 3.1415926535897932384626433832795;
 
 /** @brief Magic number for gain to dB conversion.
  * Approximates \f$ 20*log_{10}(x) \f$
  * @see AmpToDB
-*/
+ */
 static const double AMP_DB = 8.685889638065036553;
 /** @brief Magic number for dB to gain conversion.
  * Approximates \f$ 10^{\frac{x}{20}} \f$
  * @see DBToAmp
-*/
+ */
 static const double IAMP_DB = 0.11512925464970;
 static const double DEFAULT_SAMPLE_RATE = 48000.0;
 static const int MAX_PRESET_NAME_LEN = 256;
@@ -104,15 +104,15 @@ static const int MAX_PARAM_DISPLAY_PRECISION = 6;
 #define PARAM_UNINIT 99.99e-9
 
 #ifndef MAX_BLOB_LENGTH
-#define MAX_BLOB_LENGTH 2048
+  #define MAX_BLOB_LENGTH 2048
 #endif
 
 #ifndef IDLE_TIMER_RATE
-#define IDLE_TIMER_RATE 20 // this controls the frequency of data going from processor to editor (and OnIdle calls)
+  #define IDLE_TIMER_RATE 20 // this controls the frequency of data going from processor to editor (and OnIdle calls)
 #endif
 
 #ifndef MAX_SYSEX_SIZE
-#define MAX_SYSEX_SIZE 512
+  #define MAX_SYSEX_SIZE 512
 #endif
 
 #define PARAM_TRANSFER_SIZE 512
@@ -131,20 +131,20 @@ static const int kNoTag = -1;
 
 #define MAX_BUS_CHANS 64 // wild cards in channel i/o strings will result in this many channels
 
-//#if defined VST3_API || defined VST3C_API || defined VST3P_API
-//#undef stricmp
-//#undef strnicmp
-//#include "pluginterfaces/vst/vsttypes.h"
-//static const uint64_t kInvalidBusType = Steinberg::Vst::SpeakerArr::kEmpty;
-//#elif defined AU_API || AUv3_API
-//#include <CoreAudio/CoreAudio.h>
-//static const uint64_t kInvalidBusType = kAudioChannelLayoutTag_Unknown;
-//#elif defined AAX_API
-//#include "AAX_Enums.h"
-//static const uint64_t kInvalidBusType = AAX_eStemFormat_None;
-//#else
-//static const uint64_t kInvalidBusType = 0;
-//#endif
+// #if defined VST3_API || defined VST3C_API || defined VST3P_API
+// #undef stricmp
+// #undef strnicmp
+// #include "pluginterfaces/vst/vsttypes.h"
+//  static const uint64_t kInvalidBusType = Steinberg::Vst::SpeakerArr::kEmpty;
+// #elif defined AU_API || AUv3_API
+// #include <CoreAudio/CoreAudio.h>
+//  static const uint64_t kInvalidBusType = kAudioChannelLayoutTag_Unknown;
+// #elif defined AAX_API
+// #include "AAX_Enums.h"
+//  static const uint64_t kInvalidBusType = AAX_eStemFormat_None;
+// #else
+//  static const uint64_t kInvalidBusType = 0;
+// #endif
 
 /** @enum EParamSource
  * Used to identify the source of a parameter change
@@ -161,7 +161,8 @@ enum EParamSource
   kNumParamSources
 };
 
-static const char* ParamSourceStrs[kNumParamSources] = { "Reset", "Host", "Preset", "UI", "Editor Delegate", "Recompile", "Unknown"};
+static const char* ParamSourceStrs[kNumParamSources] = {
+  "Reset", "Host", "Preset", "UI", "Editor Delegate", "Recompile", "Unknown"};
 
 /** @enum ERoute
  * Used to identify whether a bus/channel connection is an input or an output
@@ -172,7 +173,7 @@ enum ERoute
   kOutput = 1
 };
 
-static const char* RoutingDirStrs[2]  = { "Input", "Output" };
+static const char* RoutingDirStrs[2] = {"Input", "Output"};
 
 enum EAPI
 {
@@ -228,7 +229,7 @@ enum EHost
   kHostTwistedWave,
   kHostBitwig,
   kHostWWW,
-  
+
   kHostReason,
   kHostGoldWave5x,
   kHostWaveform,
@@ -268,19 +269,19 @@ enum ChunkType
 };
 
 static const ChunkID commonChunks[kNumPresetChunks] = {
-  {'V', 'S', 'T', '3'},  // kHeader
-  {'C', 'o', 'm', 'p'},  // kComponentState
-  {'C', 'o', 'n', 't'},  // kControllerState
-  {'P', 'r', 'o', 'g'},  // kProgramData
-  {'I', 'n', 'f', 'o'},  // kMetaInfo
-  {'L', 'i', 's', 't'}   // kChunkList
+  {'V', 'S', 'T', '3'}, // kHeader
+  {'C', 'o', 'm', 'p'}, // kComponentState
+  {'C', 'o', 'n', 't'}, // kControllerState
+  {'P', 'r', 'o', 'g'}, // kProgramData
+  {'I', 'n', 'f', 'o'}, // kMetaInfo
+  {'L', 'i', 's', 't'} // kChunkList
 };
 
 // Preset Header: header id + version + class id + list offset
 static const int32_t kFormatVersion = 1;
 static const int32_t kClassIDSize = 32; // ASCII-encoded FUID
-static const int32_t kHeaderSize = sizeof (ChunkID) + sizeof (int32_t) + kClassIDSize + sizeof (int64_t);
-//static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
+static const int32_t kHeaderSize = sizeof(ChunkID) + sizeof(int32_t) + kClassIDSize + sizeof(int64_t);
+// static const int32_t kListOffsetPos = kHeaderSize - sizeof (int64_t);
 
 // Preset Version Constants
 static const int kFXPVersionNum = 1;
@@ -422,5 +423,3 @@ enum EVirtualKey
 END_IPLUG_NAMESPACE
 
 /**@}*/
-
-

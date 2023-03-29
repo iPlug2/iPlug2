@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -37,8 +37,10 @@ public:
 
     Steinberg::int32 flags = 0;
 
-    if (pParam->GetCanAutomate()) flags |= Steinberg::Vst::ParameterInfo::kCanAutomate;
-    if (pParam->Type() == IParam::kTypeEnum) flags |= Steinberg::Vst::ParameterInfo::kIsList;
+    if (pParam->GetCanAutomate())
+      flags |= Steinberg::Vst::ParameterInfo::kCanAutomate;
+    if (pParam->Type() == IParam::kTypeEnum)
+      flags |= Steinberg::Vst::ParameterInfo::kIsList;
 
     info.defaultNormalizedValue = valueNormalized = pParam->ToNormalized(pParam->GetDefault());
     info.flags = flags;
@@ -55,7 +57,7 @@ public:
 
   bool fromString(const Steinberg::Vst::TChar* string, Steinberg::Vst::ParamValue& valueNormalized) const override
   {
-    Steinberg::String str((Steinberg::Vst::TChar*) string);
+    Steinberg::String str((Steinberg::Vst::TChar*)string);
     valueNormalized = mIPlugParam->ToNormalized(mIPlugParam->StringToValue(str.text8()));
 
     return true;
@@ -82,19 +84,21 @@ class IPlugVST3PresetParameter : public Steinberg::Vst::Parameter
 {
 public:
   IPlugVST3PresetParameter(int nPresets)
-  : Steinberg::Vst::Parameter(STR16("Preset"), kPresetParam, STR16(""), 0, nPresets - 1, Steinberg::Vst::ParameterInfo::kIsProgramChange)
-  {}
-  
+  : Steinberg::Vst::Parameter(
+    STR16("Preset"), kPresetParam, STR16(""), 0, nPresets - 1, Steinberg::Vst::ParameterInfo::kIsProgramChange)
+  {
+  }
+
   Steinberg::Vst::ParamValue toPlain(Steinberg::Vst::ParamValue valueNormalized) const override
   {
     return std::round(valueNormalized * info.stepCount);
   }
-  
+
   Steinberg::Vst::ParamValue toNormalized(Steinberg::Vst::ParamValue plainValue) const override
   {
     return plainValue / info.stepCount;
   }
-  
+
   OBJ_METHODS(IPlugVST3PresetParameter, Steinberg::Vst::Parameter)
 };
 
@@ -103,14 +107,16 @@ class IPlugVST3BypassParameter : public Steinberg::Vst::StringListParameter
 {
 public:
   IPlugVST3BypassParameter()
-  : Steinberg::Vst::StringListParameter(STR16("Bypass"), kBypassParam, 0, Steinberg::Vst::ParameterInfo::kCanAutomate | Steinberg::Vst::ParameterInfo::kIsBypass | Steinberg::Vst::ParameterInfo::kIsList)
+  : Steinberg::Vst::StringListParameter(STR16("Bypass"), kBypassParam, 0,
+                                        Steinberg::Vst::ParameterInfo::kCanAutomate
+                                          | Steinberg::Vst::ParameterInfo::kIsBypass
+                                          | Steinberg::Vst::ParameterInfo::kIsList)
   {
     appendString(STR16("off"));
     appendString(STR16("on"));
   }
-  
+
   OBJ_METHODS(IPlugVST3BypassParameter, StringListParameter)
 };
 
 END_IPLUG_NAMESPACE
-

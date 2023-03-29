@@ -16,25 +16,25 @@
 
 using namespace iplug;
 
-std::ostream& operator<< (std::ostream& out, const VoiceInputEvent& r)
+std::ostream& operator<<(std::ostream& out, const VoiceInputEvent& r)
 {
-  out << "[z" << (int)r.mAddress.mZone << " c" << (int)r.mAddress.mChannel << " k" << (int)r.mAddress.mKey << " f" << (int)r.mAddress.mFlags << "]"  ;
-  out << "[action:" << r.mAction << " ctl:" << r.mControllerNumber << " val:" << r.mValue << " off:" << r.mSampleOffset << "]";
+  out << "[z" << (int)r.mAddress.mZone << " c" << (int)r.mAddress.mChannel << " k" << (int)r.mAddress.mKey << " f"
+      << (int)r.mAddress.mFlags << "]";
+  out << "[action:" << r.mAction << " ctl:" << r.mControllerNumber << " val:" << r.mValue << " off:" << r.mSampleOffset
+      << "]";
   return out;
 }
 
 VoiceAllocator::VoiceAllocator()
 {
   // setup default key->pitch fn
-  mKeyToPitchFn = [](int k){return (k - 69.f)/12.f;};
+  mKeyToPitchFn = [](int k) { return (k - 69.f) / 12.f; };
 
   mSustainedNotes.reserve(128);
   mHeldKeys.reserve(128);
 }
 
-VoiceAllocator::~VoiceAllocator()
-{
-}
+VoiceAllocator::~VoiceAllocator() {}
 
 void VoiceAllocator::Clear()
 {
@@ -45,7 +45,7 @@ void VoiceAllocator::Clear()
 
 void VoiceAllocator::ClearVoiceInputs(SynthVoice* pVoice)
 {
-  for(int i=0; i<kNumVoiceControlRamps; ++i)
+  for (int i = 0; i < kNumVoiceControlRamps; ++i)
   {
     pVoice->mInputs[i].Clear();
   }
@@ -53,7 +53,7 @@ void VoiceAllocator::ClearVoiceInputs(SynthVoice* pVoice)
 
 void VoiceAllocator::AddVoice(SynthVoice* pVoice, uint8_t zone)
 {
-  if(mVoicePtrs.size() + 1 < UCHAR_MAX)
+  if (mVoicePtrs.size() + 1 < UCHAR_MAX)
   {
     mVoicePtrs.push_back(pVoice);
     ClearVoiceInputs(pVoice);
@@ -75,7 +75,7 @@ VoiceAllocator::VoiceBitsArray VoiceAllocator::VoicesMatchingAddress(VoiceAddres
   VoiceBitsArray v;
 
   // set all bits to true
-  for(int i=0; i<n; ++i)
+  for (int i = 0; i < n; ++i)
   {
     v[i] = true;
   }
@@ -83,55 +83,56 @@ VoiceAllocator::VoiceBitsArray VoiceAllocator::VoicesMatchingAddress(VoiceAddres
   // for each criterion present in address, clear any voice bits not matching
 
   // zone
-  if(addr.mZone != kAllZones)
+  if (addr.mZone != kAllZones)
   {
-    for(int i=0; i<n; ++i)
+    for (int i = 0; i < n; ++i)
     {
       v[i] = v[i] & (mVoicePtrs[i]->mZone == addr.mZone);
     }
   }
 
   // setting the flag kVoicesAll returns all voices matching the zone of the address.
-  if(addr.mFlags & kVoicesAll) return v;
+  if (addr.mFlags & kVoicesAll)
+    return v;
 
   // channel
-  if(addr.mChannel != kAllChannels)
+  if (addr.mChannel != kAllChannels)
   {
-    for(int i=0; i<n; ++i)
+    for (int i = 0; i < n; ++i)
     {
       v[i] = v[i] & (mVoicePtrs[i]->mChannel == addr.mChannel);
     }
   }
 
   // Key
-  if(addr.mKey != kAllKeys)
+  if (addr.mKey != kAllKeys)
   {
-    for(int i=0; i<n; ++i)
+    for (int i = 0; i < n; ++i)
     {
       v[i] = v[i] & (mVoicePtrs[i]->mKey == addr.mKey);
     }
   }
 
   // busy flag
-  if(addr.mFlags & kVoicesBusy)
+  if (addr.mFlags & kVoicesBusy)
   {
-    for(int i=0; i<n; ++i)
+    for (int i = 0; i < n; ++i)
     {
       v[i] = v[i] & mVoicePtrs[i]->GetBusy();
     }
   }
 
   // most recent
-  if(addr.mFlags & kVoicesMostRecent)
+  if (addr.mFlags & kVoicesMostRecent)
   {
     int64_t maxT = -1;
     int maxIdx = -1;
-    for(int i=0; i<n; ++i)
+    for (int i = 0; i < n; ++i)
     {
-      if(v[i])
+      if (v[i])
       {
         int64_t vt = mVoicePtrs[i]->mLastTriggeredTime;
-        if(vt > maxT)
+        if (vt > maxT)
         {
           maxT = vt;
           maxIdx = i;
@@ -140,13 +141,13 @@ VoiceAllocator::VoiceBitsArray VoiceAllocator::VoicesMatchingAddress(VoiceAddres
     }
 
     // set all bits to false
-    //v.reset();
-    for(int i=0; i<n; ++i)
+    // v.reset();
+    for (int i = 0; i < n; ++i)
     {
       v[i] = 0;
     }
 
-    if(maxIdx >= 0)
+    if (maxIdx >= 0)
     {
       v[maxIdx] = true;
     }
@@ -157,9 +158,9 @@ VoiceAllocator::VoiceBitsArray VoiceAllocator::VoicesMatchingAddress(VoiceAddres
 void VoiceAllocator::SendControlToVoiceInputs(VoiceBitsArray v, int ctlIdx, float val, int glideSamples)
 {
   // send control change to all matched voices through glide generators
-  for(int i=0; i<mVoicePtrs.size(); ++i)
+  for (int i = 0; i < mVoicePtrs.size(); ++i)
   {
-    if(v[i])
+    if (v[i])
     {
       mVoiceGlides[i]->at(ctlIdx).SetTarget(val, 0, glideSamples, mBlockSize);
     }
@@ -169,9 +170,9 @@ void VoiceAllocator::SendControlToVoiceInputs(VoiceBitsArray v, int ctlIdx, floa
 void VoiceAllocator::SendControlToVoicesDirect(VoiceBitsArray v, int ctlIdx, float val)
 {
   // send generic control change directly to voice
-  for(int i=0; i<mVoicePtrs.size(); ++i)
+  for (int i = 0; i < mVoicePtrs.size(); ++i)
   {
-    if(v[i])
+    if (v[i])
     {
       mVoicePtrs[i]->SetControl(ctlIdx, val);
     }
@@ -180,9 +181,9 @@ void VoiceAllocator::SendControlToVoicesDirect(VoiceBitsArray v, int ctlIdx, flo
 
 void VoiceAllocator::SendProgramChangeToVoices(VoiceBitsArray v, int pgm)
 {
-  for(int i=0; i<mVoicePtrs.size(); ++i)
+  for (int i = 0; i < mVoicePtrs.size(); ++i)
   {
-    if(v[i])
+    if (v[i])
     {
       mVoicePtrs[i]->SetProgramNumber(pgm);
     }
@@ -191,13 +192,13 @@ void VoiceAllocator::SendProgramChangeToVoices(VoiceBitsArray v, int pgm)
 
 void VoiceAllocator::ProcessEvents(int blockSize, int64_t sampleTime)
 {
-  while(mInputQueue.ElementsAvailable())
+  while (mInputQueue.ElementsAvailable())
   {
     VoiceInputEvent event;
     mInputQueue.Pop(event);
     VoiceAllocator::VoiceBitsArray voices = VoicesMatchingAddress(event.mAddress);
 
-    switch(event.mAction)
+    switch (event.mAction)
     {
       case kNoteOnAction:
       {
@@ -206,7 +207,7 @@ void VoiceAllocator::ProcessEvents(int blockSize, int64_t sampleTime)
       }
       case kNoteOffAction:
       {
-        if(event.mAddress.mFlags == kVoicesAll)
+        if (event.mAddress.mFlags == kVoicesAll)
         {
           SoftKillAllVoices();
         }
@@ -233,7 +234,7 @@ void VoiceAllocator::ProcessEvents(int blockSize, int64_t sampleTime)
       }
       case kSustainAction:
       {
-        mSustainPedalDown = (bool) (event.mValue >= 0.5);
+        mSustainPedalDown = (bool)(event.mValue >= 0.5);
         if (!mSustainPedalDown) // sustain pedal released
         {
           // if notes are sustaining, check that they're not still held and if not then stop voice
@@ -275,9 +276,9 @@ void VoiceAllocator::ProcessEvents(int blockSize, int64_t sampleTime)
   }
 
   // update any glides in progress, writing voice control outputs
-  for(auto& glides : mVoiceGlides)
+  for (auto& glides : mVoiceGlides)
   {
-    for(int i=0; i<kNumVoiceControlRamps; ++i)
+    for (int i = 0; i < kNumVoiceControlRamps; ++i)
     {
       glides->at(i).Process(blockSize);
     }
@@ -293,11 +294,11 @@ void VoiceAllocator::CalcGlideTimesInSamples()
 int VoiceAllocator::FindFreeVoiceIndex(int startIndex) const
 {
   size_t voices = mVoicePtrs.size();
-  for(int i=0; i<voices; ++i)
+  for (int i = 0; i < voices; ++i)
   {
-    int j = (startIndex + i)%voices;
+    int j = (startIndex + i) % voices;
     SynthVoice* pv = mVoicePtrs[j];
-    if(!pv->GetBusy())
+    if (!pv->GetBusy())
     {
       return j;
     }
@@ -310,10 +311,10 @@ int VoiceAllocator::FindVoiceIndexToSteal(int64_t sampleTime) const
   size_t voices = mVoicePtrs.size();
   int64_t earliestTime = sampleTime;
   int longestPlayingVoiceIdx = 0;
-  for(int i=0; i<voices; ++i)
+  for (int i = 0; i < voices; ++i)
   {
     SynthVoice* pv = mVoicePtrs[i];
-    if(pv->mLastTriggeredTime < earliestTime)
+    if (pv->mLastTriggeredTime < earliestTime)
     {
       earliestTime = pv->mLastTriggeredTime;
       longestPlayingVoiceIdx = i;
@@ -323,9 +324,10 @@ int VoiceAllocator::FindVoiceIndexToSteal(int64_t sampleTime) const
 }
 
 // start a single voice and set its current channel and key.
-void VoiceAllocator::StartVoice(int voiceIdx, int channel, int key, float pitch, float velocity, int sampleOffset, int64_t sampleTime, bool retrig)
+void VoiceAllocator::StartVoice(int voiceIdx, int channel, int key, float pitch, float velocity, int sampleOffset,
+                                int64_t sampleTime, bool retrig)
 {
-  if(!retrig)
+  if (!retrig)
   {
     // add immediate sample-accurate change for trigger
     mVoiceGlides[voiceIdx]->at(kVoiceControlGate).SetTarget(velocity, sampleOffset, 1, mBlockSize);
@@ -346,11 +348,12 @@ void VoiceAllocator::StartVoice(int voiceIdx, int channel, int key, float pitch,
 }
 
 // start all of the voice indexes marked in the VoieBitsArray and set the current channel and key of each.
-void VoiceAllocator::StartVoices(VoiceBitsArray vbits, int channel, int key, float pitch, float velocity, int sampleOffset, int64_t sampleTime, bool retrig)
+void VoiceAllocator::StartVoices(VoiceBitsArray vbits, int channel, int key, float pitch, float velocity,
+                                 int sampleOffset, int64_t sampleTime, bool retrig)
 {
-  for(int i=0; i<mVoicePtrs.size(); ++i)
+  for (int i = 0; i < mVoicePtrs.size(); ++i)
   {
-    if(vbits[i])
+    if (vbits[i])
     {
       StartVoice(i, channel, key, pitch, velocity, sampleOffset, sampleTime, retrig);
     }
@@ -367,9 +370,9 @@ void VoiceAllocator::StopVoice(int voiceIdx, int sampleOffset)
 // stop all voices marked in the VoiceBitsArray.
 void VoiceAllocator::StopVoices(VoiceBitsArray vbits, int sampleOffset)
 {
-  for(int i=0; i<mVoicePtrs.size(); ++i)
+  for (int i = 0; i < mVoicePtrs.size(); ++i)
   {
-    if(vbits[i])
+    if (vbits[i])
     {
       StopVoice(i, sampleOffset);
     }
@@ -406,7 +409,7 @@ void VoiceAllocator::NoteOn(VoiceInputEvent e, int64_t sampleTime)
   float velocity = e.mValue;
   float pitch = mKeyToPitchFn(key + static_cast<int>(mPitchOffset));
 
-  switch(mPolyMode)
+  switch (mPolyMode)
   {
     case kPolyModeMono:
     {
@@ -414,7 +417,8 @@ void VoiceAllocator::NoteOn(VoiceInputEvent e, int64_t sampleTime)
       bool retrig = false;
 
       // trigger all voices in zone
-      StartVoices(VoicesMatchingAddress({e.mAddress.mZone, kAllChannels, kAllKeys, 0}), channel, key, pitch, velocity, offset, sampleTime, retrig);
+      StartVoices(VoicesMatchingAddress({e.mAddress.mZone, kAllChannels, kAllKeys, 0}), channel, key, pitch, velocity,
+                  offset, sampleTime, retrig);
 
       // in mono modes only ever 1 sustained note
       mSustainedNotes.clear();
@@ -423,15 +427,15 @@ void VoiceAllocator::NoteOn(VoiceInputEvent e, int64_t sampleTime)
     case kPolyModePoly:
     {
       int i = FindFreeVoiceIndex(mVoiceRotateIndex);
-      if(i < 0)
+      if (i < 0)
       {
         i = FindVoiceIndexToSteal(sampleTime);
       }
-      if(mRotateVoices)
+      if (mRotateVoices)
       {
         mVoiceRotateIndex = i + 1;
       }
-      if(i >= 0)
+      if (i >= 0)
       {
         bool retrig = false;
         StartVoice(i, channel, key, pitch, velocity, offset, sampleTime, retrig);
@@ -439,19 +443,18 @@ void VoiceAllocator::NoteOn(VoiceInputEvent e, int64_t sampleTime)
       break;
     }
 
-    default:
-      break;
+    default: break;
   }
 
   // add to held keys
-  if(std::find(mHeldKeys.begin(), mHeldKeys.end(), key) == mHeldKeys.end())
+  if (std::find(mHeldKeys.begin(), mHeldKeys.end(), key) == mHeldKeys.end())
   {
     mHeldKeys.push_back(key);
     mMinHeldVelocity = std::min(velocity, mMinHeldVelocity);
   }
 
   // add to sustained notes
-  if(std::find(mSustainedNotes.begin(), mSustainedNotes.end(), key) == mSustainedNotes.end())
+  if (std::find(mSustainedNotes.begin(), mSustainedNotes.end(), key) == mSustainedNotes.end())
   {
     mSustainedNotes.push_back(key);
   }
@@ -465,24 +468,24 @@ void VoiceAllocator::NoteOff(VoiceInputEvent e, int64_t sampleTime)
 
   // remove from held keys
   mHeldKeys.erase(std::remove(mHeldKeys.begin(), mHeldKeys.end(), key), mHeldKeys.end());
-  if(mHeldKeys.empty())
+  if (mHeldKeys.empty())
   {
     mMinHeldVelocity = 1.0f;
   }
 
-  if(mPolyMode == kPolyModeMono)
+  if (mPolyMode == kPolyModeMono)
   {
     bool doPlayQueuedKey = false;
     int queuedKey = 0;
 
     // if there are still held keys...
-    if(!mHeldKeys.empty())
+    if (!mHeldKeys.empty())
     {
       queuedKey = mHeldKeys.back();
       if (queuedKey != mVoicePtrs[0]->mKey)
       {
         doPlayQueuedKey = true;
-        if(mSustainPedalDown)
+        if (mSustainPedalDown)
         {
           // in mono modes only ever 1 sustained note
           mSustainedNotes.clear();
@@ -490,9 +493,9 @@ void VoiceAllocator::NoteOff(VoiceInputEvent e, int64_t sampleTime)
         }
       }
     }
-    else if(mSustainPedalDown)
+    else if (mSustainPedalDown)
     {
-      if(!mSustainedNotes.empty())
+      if (!mSustainedNotes.empty())
       {
         queuedKey = mSustainedNotes.back();
         if (queuedKey != mVoicePtrs[0]->mKey)
@@ -507,14 +510,15 @@ void VoiceAllocator::NoteOff(VoiceInputEvent e, int64_t sampleTime)
       StopVoices(VoicesMatchingAddress({e.mAddress.mZone, kAllChannels, kAllKeys, 0}), offset);
     }
 
-    if(doPlayQueuedKey)
+    if (doPlayQueuedKey)
     {
       // trigger the queued key for all voices in the zone at the minimum held velocity.
       // alternatively the release velocity of the note off could be used here.
       float pitch = mKeyToPitchFn(queuedKey + static_cast<int>(mPitchOffset));
       bool retrig = false;
 
-      StartVoices(VoicesMatchingAddress({e.mAddress.mZone, kAllChannels, kAllKeys, 0}), channel, queuedKey, pitch, mMinHeldVelocity, offset, sampleTime, retrig);
+      StartVoices(VoicesMatchingAddress({e.mAddress.mZone, kAllChannels, kAllKeys, 0}), channel, queuedKey, pitch,
+                  mMinHeldVelocity, offset, sampleTime, retrig);
     }
   }
   else // poly
@@ -527,12 +531,13 @@ void VoiceAllocator::NoteOff(VoiceInputEvent e, int64_t sampleTime)
   }
 }
 
-void VoiceAllocator::ProcessVoices(sample** inputs, sample** outputs, int nInputs, int nOutputs, int startIndex, int blockSize)
+void VoiceAllocator::ProcessVoices(sample** inputs, sample** outputs, int nInputs, int nOutputs, int startIndex,
+                                   int blockSize)
 {
-  for(auto pVoice : mVoicePtrs)
+  for (auto pVoice : mVoicePtrs)
   {
     // TODO distribute voices across cores
-    if(pVoice->GetBusy())
+    if (pVoice->GetBusy())
     {
       pVoice->ProcessSamplesAccumulating(inputs, outputs, nInputs, nOutputs, startIndex, blockSize);
     }

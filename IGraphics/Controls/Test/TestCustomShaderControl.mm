@@ -1,9 +1,9 @@
 #if defined IGRAPHICS_NANOVG && defined IGRAPHICS_METAL
 
-#include "TestCustomShaderControl.h"
-#include "nanovg_mtl.h"
-#import <Metal/Metal.h>
-#import "ShaderTypes.h"
+  #include "TestCustomShaderControl.h"
+  #include "nanovg_mtl.h"
+  #import <Metal/Metal.h>
+  #import "ShaderTypes.h"
 
 TestCustomShaderControl::~TestCustomShaderControl()
 {
@@ -14,18 +14,18 @@ void TestCustomShaderControl::CleanUp()
 {
   if (mFBO)
     nvgDeleteFramebuffer(mFBO);
-  
+
   if (mRenderPassDescriptor)
   {
-    MTLRenderPassDescriptor* rpd = (MTLRenderPassDescriptor*) mRenderPassDescriptor;
+    MTLRenderPassDescriptor* rpd = (MTLRenderPassDescriptor*)mRenderPassDescriptor;
     [rpd release];
     mRenderPassDescriptor = nullptr;
   }
-  
+
 
   if (mRenderPipeline)
   {
-    id<MTLRenderPipelineState> renderPipeline = (id<MTLRenderPipelineState>) mRenderPipeline;
+    id<MTLRenderPipelineState> renderPipeline = (id<MTLRenderPipelineState>)mRenderPipeline;
     [renderPipeline release];
     mRenderPipeline = nullptr;
   }
@@ -37,23 +37,23 @@ void TestCustomShaderControl::Draw(IGraphics& g)
   g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
 
   auto* pCtx = static_cast<NVGcontext*>(g.GetDrawContext());
-  
+
   auto w = mRECT.W() * g.GetTotalScale();
   auto h = mRECT.H() * g.GetTotalScale();
-    
+
   if (invalidateFBO)
   {
     CleanUp();
-    
+
     invalidateFBO = false;
 
-    NSError *error;
+    NSError* error;
 
     mFBO = nvgCreateFramebuffer(pCtx, w, h, 0);
     auto dev = static_cast<id<MTLDevice>>(mnvgDevice(pCtx));
     auto dstTex = static_cast<id<MTLTexture>>(mnvgImageHandle(pCtx, mFBO->image));
-    
-    auto rpd = (MTLRenderPassDescriptor*) mRenderPassDescriptor;
+
+    auto rpd = (MTLRenderPassDescriptor*)mRenderPassDescriptor;
 
     // Set up a render pass descriptor for the render pass to render into
     rpd = [MTLRenderPassDescriptor new];
@@ -70,57 +70,54 @@ void TestCustomShaderControl::Draw(IGraphics& g)
     MTLRenderPipelineDescriptor* psd = [[MTLRenderPipelineDescriptor alloc] init];
     psd.label = @"Offscreen Render Pipeline";
     psd.sampleCount = 1;
-    psd.vertexFunction =  [defaultLibrary newFunctionWithName:@"simpleVertexShader"];
-    psd.fragmentFunction =  [defaultLibrary newFunctionWithName:@"simpleFragmentShader"];
+    psd.vertexFunction = [defaultLibrary newFunctionWithName:@"simpleVertexShader"];
+    psd.fragmentFunction = [defaultLibrary newFunctionWithName:@"simpleFragmentShader"];
     psd.colorAttachments[0].pixelFormat = dstTex.pixelFormat;
     mRenderPipeline = [dev newRenderPipelineStateWithDescriptor:psd error:&error];
     [psd release];
     [defaultLibrary release];
-    mRenderPassDescriptor = (void*) rpd;
+    mRenderPassDescriptor = (void*)rpd;
   }
 
-  @autoreleasepool {
-
-  auto commandQueue = static_cast<id<MTLCommandQueue>>(mnvgCommandQueue(pCtx));
-
-  id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
-
-  commandBuffer.label = @"Command Buffer";
-
+  @autoreleasepool
   {
-    static const SimpleVertex triVertices[] =
+
+    auto commandQueue = static_cast<id<MTLCommandQueue>>(mnvgCommandQueue(pCtx));
+
+    id<MTLCommandBuffer> commandBuffer = [commandQueue commandBuffer];
+
+    commandBuffer.label = @"Command Buffer";
+
     {
-      // Positions     ,  Colors
-      { {  0.5,  -0.5 },  { 1.0, 0.0, 0.0, 1.0 } },
-      { { -0.5,  -0.5 },  { 0.0, 1.0, 0.0, 1.0 } },
-      { {  0.0,   0.5 },  { 0.0, 0.0, 1.0, 1.0 } },
-    };
+      static const SimpleVertex triVertices[] = {
+        // Positions     ,  Colors
+        {{0.5, -0.5}, {1.0, 0.0, 0.0, 1.0}},
+        {{-0.5, -0.5}, {0.0, 1.0, 0.0, 1.0}},
+        {{0.0, 0.5}, {0.0, 0.0, 1.0, 1.0}},
+      };
 
-    id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:(MTLRenderPassDescriptor*) mRenderPassDescriptor];
-  
-    renderEncoder.label = @"Offscreen Render Pass";
-    [renderEncoder setRenderPipelineState:(id<MTLRenderPipelineState>) mRenderPipeline];
+      id<MTLRenderCommandEncoder> renderEncoder =
+        [commandBuffer renderCommandEncoderWithDescriptor:(MTLRenderPassDescriptor*)mRenderPassDescriptor];
 
-    [renderEncoder setVertexBytes:&triVertices
-                           length:sizeof(triVertices)
-                          atIndex:VertexInputIndexVertices];
+      renderEncoder.label = @"Offscreen Render Pass";
+      [renderEncoder setRenderPipelineState:(id<MTLRenderPipelineState>)mRenderPipeline];
 
-    [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle
-                      vertexStart:0
-                      vertexCount:3];
+      [renderEncoder setVertexBytes:&triVertices length:sizeof(triVertices) atIndex:VertexInputIndexVertices];
 
-    // End encoding commands for this render pass.
-    [renderEncoder endEncoding];
-  }
+      [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:3];
 
-  [commandBuffer commit];
-  [commandBuffer waitUntilCompleted];
+      // End encoding commands for this render pass.
+      [renderEncoder endEncoding];
+    }
 
-  
-  APIBitmap apibmp {mFBO->image, int(w), int(h), 1, 1.};
-  IBitmap bmp {&apibmp, 1, false};
-  
-  g.DrawFittedBitmap(bmp, mRECT);
+    [commandBuffer commit];
+    [commandBuffer waitUntilCompleted];
+
+
+    APIBitmap apibmp{mFBO->image, int(w), int(h), 1, 1.};
+    IBitmap bmp{&apibmp, 1, false};
+
+    g.DrawFittedBitmap(bmp, mRECT);
 
   } // @autoreleasepool
 }

@@ -29,19 +29,20 @@ public:
     SetTooltip("TestAnimationControl");
 
     SetActionFunction([&](IControl* pCaller) {
+      SetAnimation(
+        [&](IControl* pCaller) {
+          auto progress = static_cast<float>(pCaller->GetAnimationProgress());
 
-      SetAnimation([&](IControl* pCaller) {
-        auto progress = static_cast<float>(pCaller->GetAnimationProgress());
+          if (progress > 1.f)
+          {
+            pCaller->OnEndAnimation();
+            return;
+          }
 
-        if(progress > 1.f) {
-          pCaller->OnEndAnimation();
-          return;
-        }
-
-        mDrawnRect = IRECT::LinearInterpolateBetween(mStartRect, mEndRect, EaseQuadraticIn(progress));
-        mDrawnColor = IColor::LinearInterpolateBetween(mStartColor, mEndColor, progress);
-      },
-      1000);
+          mDrawnRect = IRECT::LinearInterpolateBetween(mStartRect, mEndRect, EaseQuadraticIn(progress));
+          mDrawnColor = IColor::LinearInterpolateBetween(mStartColor, mEndColor, progress);
+        },
+        1000);
     });
 
     mStartRect = mDrawnRect = mRECT.GetRandomSubRect();

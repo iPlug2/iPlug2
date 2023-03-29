@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -26,7 +26,8 @@ IPlugFaust::IPlugFaust(const char* name, int nVoices, int rate)
 {
   if (rate > 1)
   {
-    mOverSampler = std::make_unique<OverSampler<sample>>(OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */);
+    mOverSampler = std::make_unique<OverSampler<sample>>(
+      OverSampler<sample>::RateToFactor(rate), true, 2 /* TODO: flexible channel count */);
   }
 
   mName.Set(name);
@@ -44,11 +45,10 @@ void IPlugFaust::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     assert(mDSP->getSampleRate() != 0); // did you forget to call SetSampleRate?
 
     if (mOverSampler)
-      mOverSampler->ProcessBlock(inputs, outputs, nFrames, 2, 2 /* TODO: flexible channel count */,
-        [&](sample** inputs, sample** outputs, int nFrames) //TODO:: badness capture = allocated
-        {
-          mDSP->compute(nFrames, inputs, outputs);
-        });
+      mOverSampler->ProcessBlock(
+        inputs, outputs, nFrames, 2, 2 /* TODO: flexible channel count */,
+        [&](sample** inputs, sample** outputs, int nFrames) // TODO:: badness capture = allocated
+        { mDSP->compute(nFrames, inputs, outputs); });
     else
       mDSP->compute(nFrames, inputs, outputs);
   }
@@ -74,7 +74,8 @@ void IPlugFaust::SetParameterValueNormalised(int paramIdx, double normalizedValu
 
 void IPlugFaust::SetParameterValue(int paramIdx, double nonNormalizedValue)
 {
-  if (NParams()) {
+  if (NParams())
+  {
 
     assert(paramIdx < NParams()); // Seems like we don't have enough parameters!
 
@@ -131,7 +132,8 @@ int IPlugFaust::CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx, int end
   return plugParamIdx;
 }
 
-void IPlugFaust::AddOrUpdateParam(IParam::EParamType type, const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
+void IPlugFaust::AddOrUpdateParam(IParam::EParamType type, const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init,
+                                  FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
 {
   IParam* pParam = nullptr;
 
@@ -144,21 +146,16 @@ void IPlugFaust::AddOrUpdateParam(IParam::EParamType type, const char* label, FA
 
   switch (type)
   {
-  case IParam::EParamType::kTypeBool:
-    pParam->InitBool(label, 0);
-    break;
-  case IParam::EParamType::kTypeInt:
-    pParam->InitInt(label, static_cast<int>(init), static_cast<int>(min), static_cast<int>(max));
-    break;
-  case IParam::EParamType::kTypeEnum:
-    pParam->InitEnum(label, static_cast<int>(init), static_cast<int>(max - min));
-    //TODO: metadata
-    break;
-  case IParam::EParamType::kTypeDouble:
-    pParam->InitDouble(label, init, min, max, step);
-    break;
-  default:
-    break;
+    case IParam::EParamType::kTypeBool: pParam->InitBool(label, 0); break;
+    case IParam::EParamType::kTypeInt:
+      pParam->InitInt(label, static_cast<int>(init), static_cast<int>(min), static_cast<int>(max));
+      break;
+    case IParam::EParamType::kTypeEnum:
+      pParam->InitEnum(label, static_cast<int>(init), static_cast<int>(max - min));
+      // TODO: metadata
+      break;
+    case IParam::EParamType::kTypeDouble: pParam->InitDouble(label, init, min, max, step); break;
+    default: break;
   }
 
   if (idx == -1)
@@ -185,7 +182,8 @@ void IPlugFaust::BuildParameterMap()
   }
 }
 
-int IPlugFaust::FindExistingParameterWithName(const char* name) // TODO: this needs to check meta data too - incase of grouping
+int IPlugFaust::FindExistingParameterWithName(
+  const char* name) // TODO: this needs to check meta data too - incase of grouping
 {
   for (auto p = 0; p < NParams(); p++)
   {

@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -20,11 +20,12 @@ BEGIN_IPLUG_NAMESPACE
 class IPlugAAXView_Interface
 {
 public:
-  IPlugAAXView_Interface() {};
+  IPlugAAXView_Interface(){};
   virtual ~IPlugAAXView_Interface() {}
-  virtual void SetPTParameterHighlight(int paramIdx, bool isHighlighted, int colour) {};
+  virtual void SetPTParameterHighlight(int paramIdx, bool isHighlighted, int colour){};
   void SetViewContainer(AAX_IViewContainer* viewContainer) { mAAXViewContainer = viewContainer; }
   AAX_IViewContainer* GetViewContainer() { return mAAXViewContainer; }
+
 protected:
   AAX_IViewContainer* mAAXViewContainer = nullptr;
 };

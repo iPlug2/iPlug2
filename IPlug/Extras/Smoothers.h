@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
- This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
- 
+
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 #pragma once
@@ -14,7 +14,7 @@
 
 BEGIN_IPLUG_NAMESPACE
 
-template<typename T, int NC = 1>
+template <typename T, int NC = 1>
 class LogParamSmooth
 {
 private:
@@ -28,7 +28,7 @@ public:
     {
       mOutM1[i] = initialValue;
     }
-    
+
     SetSmoothTime(timeMs, DEFAULT_SAMPLE_RATE);
   }
 
@@ -61,7 +61,7 @@ public:
   void SetSmoothTime(double timeMs, double sampleRate)
   {
     static constexpr double TWO_PI = 6.283185307179586476925286766559;
-    
+
     mA = exp(-TWO_PI / (timeMs * 0.001 * sampleRate));
     mB = 1.0 - mA;
   }
@@ -87,7 +87,7 @@ public:
 
 } WDL_FIXALIGN;
 
-template<typename T>
+template <typename T>
 class SmoothedGain
 {
 public:
@@ -96,14 +96,14 @@ public:
     for (auto s = 0; s < nFrames; ++s)
     {
       const double smoothedGain = mSmoother.Process(gainValue);
-      
+
       for (auto c = 0; c < nChans; c++)
       {
         outputs[c][s] = inputs[c][s] * smoothedGain;
       }
     }
   }
-  
+
 private:
   LogParamSmooth<double, 1> mSmoother;
 };

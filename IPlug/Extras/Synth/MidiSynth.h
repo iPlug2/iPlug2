@@ -33,7 +33,8 @@
 BEGIN_IPLUG_NAMESPACE
 
 /** A monophonic/polyphonic synthesiser base class which can be supplied with a custom voice.
- *  Supports different kinds of after touch, pitch bend, velocity and after touch curves, unison (currently monophonic mode only) */
+ *  Supports different kinds of after touch, pitch bend, velocity and after touch curves, unison (currently monophonic
+ * mode only) */
 class MidiSynth
 {
 public:
@@ -48,7 +49,7 @@ public:
 
   MidiSynth(const MidiSynth&) = delete;
   MidiSynth& operator=(const MidiSynth&) = delete;
-    
+
   void Reset()
   {
     mSampleTime = 0;
@@ -57,93 +58,57 @@ public:
 
   void SetSampleRateAndBlockSize(double sampleRate, int blockSize);
 
-  /** If you are using this class in a non-traditional mode of polyphony (e.g.to stack loads of voices) you might want to manually SetVoicesActive()
-   * usually this would happen when you trigger notes
+  /** If you are using this class in a non-traditional mode of polyphony (e.g.to stack loads of voices) you might want
+   * to manually SetVoicesActive() usually this would happen when you trigger notes
    * @param active should the class report that voices are active */
-  void SetVoicesActive(bool active)
-  {
-    mVoicesAreActive = active;
-  }
-  
-  void InitBasicMPE()
-  {
-    SetMPEZones(0, 16);
-  }
-  
+  void SetVoicesActive(bool active) { mVoicesAreActive = active; }
+
+  void InitBasicMPE() { SetMPEZones(0, 16); }
+
   /** Set the pitch bend range for non-MPE mode */
   void SetPitchBendRange(int pitchBendRange)
   {
     mNonMPEPitchBendRange = pitchBendRange;
-    
-    if(!mMPEMode)
+
+    if (!mMPEMode)
     {
-      for(int i=0; i<16; ++i)
+      for (int i = 0; i < 16; ++i)
       {
         mChannelStates[i].pitchBendRange = pitchBendRange;
       }
     }
   }
 
-  void SetPolyMode(VoiceAllocator::EPolyMode mode)
-  {
-    mVoiceAllocator.mPolyMode = mode;
-  }
+  void SetPolyMode(VoiceAllocator::EPolyMode mode) { mVoiceAllocator.mPolyMode = mode; }
 
-  void SetATMode(VoiceAllocator::EATMode mode)
-  {
-    mVoiceAllocator.mATMode = mode;
-  }
+  void SetATMode(VoiceAllocator::EATMode mode) { mVoiceAllocator.mATMode = mode; }
 
   /** Set this function to something other than the default
    * if you need to implement a tuning table for microtonal support
    * @param fn A function taking an integer key value and returning a double-precision
    *  pitch value, where 0.5 = 220Hz, 1.0 = 440 Hz, 2.0 = 880 Hz ("1v / octave"). */
-  void SetKeyToPitchFn(const std::function<float(int)>& fn)
-  {
-    mVoiceAllocator.SetKeyToPitchFunction(fn);
-  }
+  void SetKeyToPitchFn(const std::function<float(int)>& fn) { mVoiceAllocator.SetKeyToPitchFunction(fn); }
 
-  void SetNoteOffset(double offset)
-  {
-    mVoiceAllocator.SetPitchOffset(static_cast<float>(offset));
-  }
+  void SetNoteOffset(double offset) { mVoiceAllocator.SetPitchOffset(static_cast<float>(offset)); }
 
-  void SetNoteGlideTime(double t)
-  {
-    mVoiceAllocator.SetNoteGlideTime(t);
-  }
+  void SetNoteGlideTime(double t) { mVoiceAllocator.SetNoteGlideTime(t); }
 
-  void SetControlGlideTime(double t)
-  {
-    mVoiceAllocator.SetControlGlideTime(t);
-  }
+  void SetControlGlideTime(double t) { mVoiceAllocator.SetControlGlideTime(t); }
 
-  SynthVoice* GetVoice(int voiceIdx)
-  {
-    return mVoiceAllocator.GetVoice(voiceIdx);
-  }
-  
+  SynthVoice* GetVoice(int voiceIdx) { return mVoiceAllocator.GetVoice(voiceIdx); }
+
   void ForEachVoice(std::function<void(SynthVoice& voice)> func)
   {
     for (auto v = 0; v < NVoices(); v++)
       func(*GetVoice(v));
   }
-  
-  size_t NVoices() const
-  {
-    return mVoiceAllocator.GetNVoices();
-  }
+
+  size_t NVoices() const { return mVoiceAllocator.GetNVoices(); }
 
   /** adds a SynthVoice to this MidiSynth, taking ownership of the object. */
-  void AddVoice(SynthVoice* pVoice, uint8_t zone)
-  {
-    mVoiceAllocator.AddVoice(pVoice, zone);
-  }
+  void AddVoice(SynthVoice* pVoice, uint8_t zone) { mVoiceAllocator.AddVoice(pVoice, zone); }
 
-  void AddMidiMsgToQueue(const IMidiMsg& msg)
-  {
-    mMidiQueue.Add(msg);
-  }
+  void AddMidiMsgToQueue(const IMidiMsg& msg) { mMidiQueue.Add(msg); }
 
   /** Processes a block of audio samples
    * @param inputs Pointer to input Arrays
@@ -155,7 +120,6 @@ public:
   bool ProcessBlock(sample** inputs, sample** outputs, int nInputs, int nOutputs, int nFrames);
 
 private:
-
   // maintain the state for one MIDI channel including RPN receipt state and pitch bend range.
   struct ChannelState
   {
@@ -172,16 +136,19 @@ private:
   // MPE helper functions
   const int kMPELowerZoneMasterChannel = 0;
   const int kMPEUpperZoneMasterChannel = 15;
-  inline bool IsMasterChannel(int c) const { return ((c == 0)||(c == 15)); }
-  bool IsInLowerZone(int c) const { return ((c > 0)&&(c < mMPELowerZoneChannels)); }
-  bool IsInUpperZone(int c) const { return ((c < 15)&&(c > 15 - mMPEUpperZoneChannels)); }
-  int MasterChannelFor(int memberChan) const { return IsInUpperZone(memberChan) ? kMPEUpperZoneMasterChannel : kMPELowerZoneMasterChannel; }
+  inline bool IsMasterChannel(int c) const { return ((c == 0) || (c == 15)); }
+  bool IsInLowerZone(int c) const { return ((c > 0) && (c < mMPELowerZoneChannels)); }
+  bool IsInUpperZone(int c) const { return ((c < 15) && (c > 15 - mMPEUpperZoneChannels)); }
+  int MasterChannelFor(int memberChan) const
+  {
+    return IsInUpperZone(memberChan) ? kMPEUpperZoneMasterChannel : kMPELowerZoneMasterChannel;
+  }
   int MasterZoneFor(int memberChan) const { return IsInUpperZone(memberChan) ? 1 : 0; }
 
   // handy functions for writing loops on lower and upper Zone member channels
   int LowerZoneStart() const { return 1; }
   int LowerZoneEnd() const { return mMPELowerZoneChannels - 1; }
-  int UpperZoneStart() const {  return 15 - mMPEUpperZoneChannels; }
+  int UpperZoneStart() const { return 15 - mMPEUpperZoneChannels; }
   int UpperZoneEnd() const { return 15; }
 
   void SetMPEZones(int channel, int nChans);
@@ -204,7 +171,7 @@ private:
   double mSampleRate = DEFAULT_SAMPLE_RATE;
   bool mVoicesAreActive = false;
   int mNonMPEPitchBendRange = kDefaultPitchBendRange;
-  
+
   // the synth will startup in basic MIDI mode. When an MPE Zone setup message is received, MPE mode is entered.
   // To leave MPE mode, use RPNs to set all MPE zone channel counts to 0 as per the MPE spec.
   bool mMPEMode{false};
@@ -215,4 +182,3 @@ private:
 };
 
 END_IPLUG_NAMESPACE
-

@@ -1,10 +1,10 @@
 /*
  ==============================================================================
- 
+
  This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
- 
+
  See LICENSE.txt for  more info.
- 
+
  ==============================================================================
 */
 
@@ -24,7 +24,7 @@ public:
 
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override;
-  
+
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
   void OnParamChangeUI(int paramIdx, EParamSource source) override;
   void OnMidiMsgUI(const IMidiMsg& msg) override;
@@ -32,6 +32,7 @@ public:
   void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override;
   void SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData) override;
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override;
+
 protected:
   void* mViewController = nullptr;
 };

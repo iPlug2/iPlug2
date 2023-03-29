@@ -27,8 +27,8 @@ class IPlugOSCEditor final : public Plugin, public OSCReceiver, public OSCSender
 {
 public:
   IPlugOSCEditor(const InstanceInfo& info);
-  
+
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
-  
+
   void OnOSCMessage(OscMessageRead& msg) override;
 };

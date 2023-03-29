@@ -53,12 +53,12 @@ public:
   {
     WDL_String fileName, path;
 
-    GetUI()->PromptForFile(fileName, path, EFileAction::Open, "svg", 
-    [this](const WDL_String& fileName, const WDL_String& path) {
-      if (fileName.GetLength())
-        SetSVG(GetUI()->LoadSVG(fileName.Get()));
+    GetUI()->PromptForFile(
+      fileName, path, EFileAction::Open, "svg", [this](const WDL_String& fileName, const WDL_String& path) {
+        if (fileName.GetLength())
+          SetSVG(GetUI()->LoadSVG(fileName.Get()));
         SetDirty(false);
-    });
+      });
   }
 
   void OnDrop(const char* str) override

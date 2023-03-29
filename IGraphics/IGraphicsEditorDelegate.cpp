@@ -17,23 +17,21 @@ using namespace igraphics;
 
 IGEditorDelegate::IGEditorDelegate(int nParams)
 : IEditorDelegate(nParams)
-{  
-}
-
-IGEditorDelegate::~IGEditorDelegate()
 {
 }
+
+IGEditorDelegate::~IGEditorDelegate() {}
 
 void* IGEditorDelegate::OpenWindow(void* pParent)
 {
-  if(!mGraphics)
+  if (!mGraphics)
   {
     mGraphics = std::unique_ptr<IGraphics>(CreateGraphics());
     if (mLastWidth && mLastHeight && mLastScale)
       GetUI()->Resize(mLastWidth, mLastHeight, mLastScale);
   }
-  
-  if(mGraphics)
+
+  if (mGraphics)
     return mGraphics->OpenWindow(pParent);
   else
     return nullptr;
@@ -45,7 +43,7 @@ void IGEditorDelegate::CloseWindow()
   {
     mClosing = true;
     IEditorDelegate::CloseWindow();
-  
+
     if (mGraphics)
     {
       mLastWidth = mGraphics->Width();
@@ -54,7 +52,7 @@ void IGEditorDelegate::CloseWindow()
       mGraphics->CloseWindow();
       mGraphics = nullptr;
     }
-    
+
     mClosing = false;
   }
 }
@@ -67,14 +65,14 @@ void IGEditorDelegate::SetScreenScale(float scale)
 
 void IGEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normalizedValue)
 {
-  if(!mGraphics)
+  if (!mGraphics)
     return;
 
   IControl* pControl = mGraphics->GetControlWithTag(ctrlTag);
-  
+
   assert(pControl);
-  
-  if(pControl)
+
+  if (pControl)
   {
     pControl->SetValueFromDelegate(normalizedValue);
   }
@@ -82,14 +80,14 @@ void IGEditorDelegate::SendControlValueFromDelegate(int ctrlTag, double normaliz
 
 void IGEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int dataSize, const void* pData)
 {
-  if(!mGraphics)
+  if (!mGraphics)
     return;
-  
+
   IControl* pControl = mGraphics->GetControlWithTag(ctrlTag);
-  
+
   assert(pControl);
-  
-  if(pControl)
+
+  if (pControl)
   {
     pControl->OnMsgFromDelegate(msgTag, dataSize, pData);
   }
@@ -97,7 +95,7 @@ void IGEditorDelegate::SendControlMsgFromDelegate(int ctrlTag, int msgTag, int d
 
 void IGEditorDelegate::SendParameterValueFromDelegate(int paramIdx, double value, bool normalized)
 {
-  if(mGraphics)
+  if (mGraphics)
   {
     if (!normalized)
       value = GetParam(paramIdx)->ToNormalized(value);
@@ -105,10 +103,10 @@ void IGEditorDelegate::SendParameterValueFromDelegate(int paramIdx, double value
     for (int c = 0; c < mGraphics->NControls(); c++)
     {
       IControl* pControl = mGraphics->GetControl(c);
-      
+
       int nVals = pControl->NVals();
-      
-      for(int v = 0; v < nVals; v++)
+
+      for (int v = 0; v < nVals; v++)
       {
         if (pControl->GetParamIdx(v) == paramIdx)
         {
@@ -116,39 +114,38 @@ void IGEditorDelegate::SendParameterValueFromDelegate(int paramIdx, double value
           // Could be more than one, don't break until we check them all.
         }
       }
-
     }
   }
-  
+
   IEditorDelegate::SendParameterValueFromDelegate(paramIdx, value, normalized);
 }
 
 void IGEditorDelegate::SendMidiMsgFromDelegate(const IMidiMsg& msg)
 {
-  if(mGraphics)
+  if (mGraphics)
   {
     for (auto c = 0; c < mGraphics->NControls(); c++) // TODO: could keep a map
     {
       IControl* pControl = mGraphics->GetControl(c);
-      
+
       if (pControl->GetWantsMidi())
       {
         pControl->OnMidi(msg);
       }
     }
   }
-  
+
   IEditorDelegate::SendMidiMsgFromDelegate(msg);
 }
 
 bool IGEditorDelegate::SerializeEditorSize(IByteChunk& data) const
 {
   bool savedOK = true;
-    
+
   int width = mGraphics ? mGraphics->Width() : mLastWidth;
   int height = mGraphics ? mGraphics->Height() : mLastHeight;
   float scale = mGraphics ? mGraphics->GetDrawScale() : mLastScale;
-    
+
   savedOK &= (data.Put(&width) > 0);
   savedOK &= (data.Put(&height) > 0);
   savedOK &= (data.Put(&scale) > 0);
@@ -161,11 +158,11 @@ int IGEditorDelegate::UnserializeEditorSize(const IByteChunk& data, int startPos
   int width = 0;
   int height = 0;
   float scale = 0.f;
-    
+
   startPos = data.Get(&width, startPos);
   startPos = data.Get(&height, startPos);
   startPos = data.Get(&scale, startPos);
-    
+
   if (GetUI())
   {
     if (width && height && scale)
@@ -177,7 +174,7 @@ int IGEditorDelegate::UnserializeEditorSize(const IByteChunk& data, int startPos
     mLastHeight = height;
     mLastScale = scale;
   }
-    
+
   return startPos;
 }
 
@@ -194,7 +191,7 @@ int IGEditorDelegate::UnserializeEditorState(const IByteChunk& chunk, int startP
 bool IGEditorDelegate::OnKeyDown(const IKeyPress& key)
 {
   IGraphics* pGraphics = GetUI();
-  
+
   if (pGraphics)
   {
     float x, y;

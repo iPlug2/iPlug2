@@ -22,9 +22,9 @@
 class TestTextSizeControl : public IKnobControlBase
 {
   static const int size = 14;
-    
+
 public:
-    TestTextSizeControl(const IRECT& bounds, int paramIdx)
+  TestTextSizeControl(const IRECT& bounds, int paramIdx)
   : IKnobControlBase(bounds, paramIdx)
   , mCount(-1)
   {
@@ -38,16 +38,13 @@ public:
   {
     const char* str = "Some Text To Resize";
     mText.mSize = static_cast<float>(GetValue()) * 100.f + 12.f;
-    
+
     g.FillRect(COLOR_WHITE, mRECT);
     g.DrawText(mText, str, mRECT);
   }
 
-  void OnMouseDown(float x, float y, const IMouseMod& mod) override
-  {
-    mDrag = false;
-  }
-    
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override { mDrag = false; }
+
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
     if (!mDrag)
@@ -56,7 +53,7 @@ public:
       SetDirty(false);
     }
   }
-    
+
   void OnMouseDrag(float x, float y, float dX, float dY, const IMouseMod& mod) override
   {
     mDrag = true;
@@ -67,7 +64,7 @@ public:
   {
     if (++mCount > 8)
       mCount = 0;
-      
+
     IColor c = DEFAULT_TEXT_FGCOLOR;
     const char* font = "Roboto-Regular";
     if (mCount == 0)

@@ -66,10 +66,8 @@ public:
   static const IColor DEFAULT_HK_COLOR;
 
   IVKeyboardControl(const IRECT& bounds, int minNote = 48, int maxNote = 72, bool roundedKeys = false,
-                    const IColor& WK_COLOR = DEFAULT_WK_COLOR,
-                    const IColor& BK_COLOR = DEFAULT_BK_COLOR,
-                    const IColor& PK_COLOR = DEFAULT_PK_COLOR,
-                    const IColor& FR_COLOR = DEFAULT_FR_COLOR,
+                    const IColor& WK_COLOR = DEFAULT_WK_COLOR, const IColor& BK_COLOR = DEFAULT_BK_COLOR,
+                    const IColor& PK_COLOR = DEFAULT_PK_COLOR, const IColor& FR_COLOR = DEFAULT_FR_COLOR,
                     const IColor& HK_COLOR = DEFAULT_HK_COLOR)
   : IControl(bounds, kNoParameter)
   , mWK_COLOR(WK_COLOR)
@@ -101,11 +99,11 @@ public:
 
     mMouseOverKey = mLastTouchedKey;
 
-    if(mLastTouchedKey != prevKey)
+    if (mLastTouchedKey != prevKey)
     {
       mLastVelocity = GetVelocity(y);
 
-      TriggerMidiMsgFromKeyPress(mLastTouchedKey, (int) (mLastVelocity * 127.f));
+      TriggerMidiMsgFromKeyPress(mLastTouchedKey, (int)(mLastVelocity * 127.f));
     }
 
     SetDirty(true);
@@ -146,18 +144,17 @@ public:
 
     mMouseOverKey = mLastTouchedKey;
 
-    if(mLastTouchedKey != prevKey)
+    if (mLastTouchedKey != prevKey)
     {
       mLastVelocity = GetVelocity(y);
 
-      TriggerMidiMsgFromKeyPress(mLastTouchedKey, (int) (mLastVelocity * 127.f));
+      TriggerMidiMsgFromKeyPress(mLastTouchedKey, (int)(mLastVelocity * 127.f));
 
       TriggerMidiMsgFromKeyPress(prevKey, 0);
       SetKeyIsPressed(prevKey, false);
     }
 
     SetDirty(true);
-
   }
 
   void OnMouseOver(float x, float y, const IMouseMod& mod) override
@@ -168,7 +165,7 @@ public:
       SetDirty(false);
     }
   }
-    
+
   void OnTouchCancelled(float x, float y, const IMouseMod& mod) override
   {
     if (mLastTouchedKey > -1)
@@ -205,14 +202,10 @@ public:
   {
     switch (msg.StatusMsg())
     {
-      case IMidiMsg::kNoteOn:
-        SetNoteFromMidi(msg.NoteNumber(), (msg.Velocity() != 0));
-        break;
-      case IMidiMsg::kNoteOff:
-        SetNoteFromMidi(msg.NoteNumber(), false);
-        break;
+      case IMidiMsg::kNoteOn: SetNoteFromMidi(msg.NoteNumber(), (msg.Velocity() != 0)); break;
+      case IMidiMsg::kNoteOff: SetNoteFromMidi(msg.NoteNumber(), false); break;
       case IMidiMsg::kControlChange:
-        if(msg.ControlChangeIdx() == IMidiMsg::kAllNotesOff)
+        if (msg.ControlChangeIdx() == IMidiMsg::kAllNotesOff)
           ClearNotesFromMidi();
         break;
       default: break;
@@ -223,12 +216,12 @@ public:
 
   void DrawKey(IGraphics& g, const IRECT& bounds, const IColor& color)
   {
-    if(mRoundedKeys)
+    if (mRoundedKeys)
     {
-      g.FillRoundRect(color, bounds, 0., 0., mRoundness, mRoundness/*, &blend*/);
+      g.FillRoundRect(color, bounds, 0., 0., mRoundness, mRoundness /*, &blend*/);
     }
     else
-      g.FillRect(color, bounds/*, &blend*/);
+      g.FillRect(color, bounds /*, &blend*/);
   }
 
   void Draw(IGraphics& g) override
@@ -257,11 +250,13 @@ public:
           {
             IRECT shadowBounds = keyBounds;
             shadowBounds.R = shadowBounds.L + 0.35f * shadowBounds.W();
-            
-            if(!mRoundedKeys)
+
+            if (!mRoundedKeys)
               g.FillRect(shadowColor, shadowBounds, &mBlend);
-            else {
-              g.FillRoundRect(shadowColor, shadowBounds, 0., 0., mRoundness, mRoundness, &mBlend); // this one looks strange with rounded corners
+            else
+            {
+              g.FillRoundRect(shadowColor, shadowBounds, 0., 0., mRoundness, mRoundness,
+                              &mBlend); // this one looks strange with rounded corners
             }
           }
         }
@@ -296,17 +291,18 @@ public:
           shadowBounds.R = shadowBounds.L + w;
           DrawKey(g, shadowBounds, shadowColor);
         }
-        DrawKey(g, keyBounds, (i == mHighlight ? mHK_COLOR : mBK_COLOR.WithContrast(IsDisabled() ? GRAYED_ALPHA : 0.f)));
+        DrawKey(
+          g, keyBounds, (i == mHighlight ? mHK_COLOR : mBK_COLOR.WithContrast(IsDisabled() ? GRAYED_ALPHA : 0.f)));
 
         if (GetKeyIsPressed(i))
         {
           // draw pressed black key
           IColor cBP = mPK_COLOR;
-          cBP.A = (int) mBKAlpha;
+          cBP.A = (int)mBKAlpha;
           g.FillRect(cBP, keyBounds, &mBlend);
         }
 
-        if(!mRoundedKeys)
+        if (!mRoundedKeys)
         {
           // draw l, r and bottom if they don't overlay the mRECT borders
           if (mBKHeightRatio != 1.0)
@@ -349,11 +345,11 @@ public:
     }
 
 #ifdef _DEBUG
-    //g.DrawRect(COLOR_GREEN, mTargetRECT);
-    //g.DrawRect(COLOR_BLUE, mRECT);
+    // g.DrawRect(COLOR_GREEN, mTargetRECT);
+    // g.DrawRect(COLOR_BLUE, mRECT);
     WDL_String ti;
     ti.SetFormatted(32, "key: %d, vel: %3.2f", mLastTouchedKey, mLastVelocity * 127.f);
-    //ti.SetFormatted(16, "mBAlpha: %d", mBAlpha);
+    // ti.SetFormatted(16, "mBAlpha: %d", mBAlpha);
     IText txt(20, COLOR_RED);
     IRECT tr(mRECT.L + 20, mRECT.B - 20, mRECT.L + 160, mRECT.B);
     g.DrawText(txt, ti.Get(), tr, &mBlend);
@@ -364,7 +360,8 @@ public:
 
   void SetNoteRange(int min, int max, bool keepWidth = true)
   {
-    if (min < 0 || max < 0) return;
+    if (min < 0 || max < 0)
+      return;
     if (min < max)
     {
       mMinNote = min;
@@ -384,7 +381,8 @@ public:
 
   void SetNoteFromMidi(int noteNum, bool played)
   {
-    if (noteNum < mMinNote || noteNum > mMaxNote) return;
+    if (noteNum < mMinNote || noteNum > mMaxNote)
+      return;
     SetKeyIsPressed(noteNum - mMinNote, played);
   }
 
@@ -393,7 +391,7 @@ public:
     mPressedKeys.Get()[key] = pressed;
     SetDirty(false);
   }
-  
+
   void SetKeyHighlight(int key)
   {
     mHighlight = key;
@@ -433,7 +431,8 @@ public:
 
   void SetHeight(float h, bool keepAspectRatio = false)
   {
-    if (h <= 0.0) return;
+    if (h <= 0.0)
+      return;
     float r = h / mRECT.H();
     mRECT.B = mRECT.T + mRECT.H() * r;
 
@@ -446,7 +445,8 @@ public:
 
   void SetWidth(float w, bool keepAspectRatio = false)
   {
-    if (w <= 0.0) return;
+    if (w <= 0.0)
+      return;
     float r = w / mRECT.W();
     mRECT.R = mRECT.L + mRECT.W() * r;
     mWKWidth *= r;
@@ -465,19 +465,17 @@ public:
     SetDirty(false);
   }
 
-  void SetShowNotesAndVelocity(bool show)
-  {
-    mShowNoteAndVel = show;
-  }
+  void SetShowNotesAndVelocity(bool show) { mShowNoteAndVel = show; }
 
-  void SetColors(const IColor BKColor, const IColor& WKColor, const IColor& PKColor = DEFAULT_PK_COLOR, const IColor& FRColor = DEFAULT_FR_COLOR)
+  void SetColors(const IColor BKColor, const IColor& WKColor, const IColor& PKColor = DEFAULT_PK_COLOR,
+                 const IColor& FRColor = DEFAULT_FR_COLOR)
   {
     mBK_COLOR = BKColor;
     mWK_COLOR = WKColor;
     mPK_COLOR = PKColor;
     mFR_COLOR = FRColor;
 
-    mBKAlpha = (float) PKColor.A;
+    mBKAlpha = (float)PKColor.A;
 
     if (mBKAlpha < 240.f)
     {
@@ -505,11 +503,13 @@ public:
   // returns pressed Midi note number
   int GetMidiNoteNumberForKey(int key) const
   {
-    if (key > -1) return mMinNote + key;
-    else return -1;
+    if (key > -1)
+      return mMinNote + key;
+    else
+      return -1;
   }
 
-//  double GetVelocity() const { return mVelocity * 127.f; }
+  //  double GetVelocity() const { return mVelocity * 127.f; }
 
 private:
   void RecreateKeyBounds(bool keepWidth)
@@ -537,18 +537,25 @@ private:
 
     // black key middle isn't aligned exactly between whites
     float WKPadStart = 0.f; // 1st note may be black
-    float WKPadEnd = 0.f;   // last note may be black
+    float WKPadEnd = 0.f; // last note may be black
 
     auto GetShiftForPitchClass = [this](int pitch) {
       // usually black key width + distance to the closest black key = white key width,
       // and often b width is ~0.6 * w width
-      if (pitch == 0) return 0.f;
-      else if (pitch % 12 == 1)  return 7.f / 12.f;
-      else if (pitch % 12 == 3)  return 5.f / 12.f;
-      else if (pitch % 12 == 6)  return 2.f / 3.f;
-      else if (pitch % 12 == 8)  return 0.5f;
-      else if (pitch % 12 == 10) return 1.f / 3.f;
-      else return 0.f;
+      if (pitch == 0)
+        return 0.f;
+      else if (pitch % 12 == 1)
+        return 7.f / 12.f;
+      else if (pitch % 12 == 3)
+        return 5.f / 12.f;
+      else if (pitch % 12 == 6)
+        return 2.f / 3.f;
+      else if (pitch % 12 == 8)
+        return 0.5f;
+      else if (pitch % 12 == 10)
+        return 1.f / 3.f;
+      else
+        return 0.f;
     };
 
     WKPadStart = GetShiftForPitchClass(mMinNote);
@@ -583,7 +590,8 @@ private:
         {
           l -= GetShiftForPitchClass(mMinNote + k) * BKWidth;
         }
-        else prevWKLeft += WKPadStart * BKWidth;
+        else
+          prevWKLeft += WKPadStart * BKWidth;
         mKeyXPos.Get()[k] = l;
       }
       else
@@ -664,7 +672,7 @@ private:
   {
     int oct = midiNoteNum / 12;
     midiNoteNum -= 12 * oct;
-    const char* notes[12] = { "C","C#","D","D#","E","F","F#","G","G#","A","A#","B" };
+    const char* notes[12] = {"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
     const char* n = notes[midiNoteNum];
     str.Set(n);
     if (addOctave)
@@ -693,7 +701,7 @@ private:
 
     const int nn = GetMidiNoteNumberForKey(key);
 
-    if(velocity > 0)
+    if (velocity > 0)
       msg.MakeNoteOnMsg(nn, velocity, 0);
     else
       msg.MakeNoteOffMsg(nn, 0);
@@ -729,18 +737,20 @@ protected:
 };
 
 /** Vectorial "wheel" control for pitchbender/modwheel
-* @ingroup IControls */
+ * @ingroup IControls */
 class IWheelControl : public ISliderControlBase
 {
   static constexpr int kSpringAnimationTime = 50;
   static constexpr int kNumRungs = 10;
+
 public:
   static constexpr int kMessageTagSetPitchBendRange = 0;
 
   /** Create a WheelControl
    * @param bounds The control's bounds
    * @param cc A Midi CC to link, defaults to kNoCC which is interpreted as pitch bend */
-  IWheelControl(const IRECT& bounds, IMidiMsg::EControlChangeMsg cc = IMidiMsg::EControlChangeMsg::kNoCC, int initBendRange = 12)
+  IWheelControl(const IRECT& bounds, IMidiMsg::EControlChangeMsg cc = IMidiMsg::EControlChangeMsg::kNoCC,
+                int initBendRange = 12)
   : ISliderControlBase(bounds, kNoParameter, EDirection::Vertical, DEFAULT_GEARING, 40.f)
   , mPitchBendRange(initBendRange)
   , mCC(cc)
@@ -752,68 +762,66 @@ public:
 
     SetValue(cc == IMidiMsg::EControlChangeMsg::kNoCC ? 0.5 : 0.);
     SetWantsMidi(true);
-    SetActionFunction([cc](IControl* pControl){
+    SetActionFunction([cc](IControl* pControl) {
       IMidiMsg msg;
-      if(cc == IMidiMsg::EControlChangeMsg::kNoCC) // pitchbend
+      if (cc == IMidiMsg::EControlChangeMsg::kNoCC) // pitchbend
         msg.MakePitchWheelMsg((pControl->GetValue() * 2.) - 1.);
       else
         msg.MakeControlChangeMsg(cc, pControl->GetValue());
-      
+
       pControl->GetDelegate()->SendMidiMsgFromUI(msg);
     });
   }
-  
+
   void Draw(IGraphics& g) override
   {
     IRECT handleBounds = mRECT.GetPadded(-10.f);
-    const float stepSize = handleBounds.H() / (float) kNumRungs;
+    const float stepSize = handleBounds.H() / (float)kNumRungs;
     g.FillRoundRect(DEFAULT_SHCOLOR, mRECT.GetPadded(-5.f));
-    
-    if(!g.CheckLayer(mLayer))
+
+    if (!g.CheckLayer(mLayer))
     {
       const IRECT layerRect = handleBounds.GetMidVPadded(handleBounds.H() + stepSize);
-      
-      if(layerRect.W() > 0 && layerRect.H() > 0)
+
+      if (layerRect.W() > 0 && layerRect.H() > 0)
       {
         g.StartLayer(this, layerRect);
         g.DrawGrid(COLOR_BLACK.WithOpacity(0.5f), layerRect, 0.f, stepSize, nullptr, 2.f);
         mLayer = g.EndLayer();
       }
     }
-    
+
     // NanoVG only has 2 stop gradients
     IRECT r = handleBounds.FracRectVertical(0.5, true);
     g.PathRect(r);
-    g.PathFill(IPattern::CreateLinearGradient(r, EDirection::Vertical, {{COLOR_BLACK, 0.f},{COLOR_MID_GRAY, 1.f}}));
+    g.PathFill(IPattern::CreateLinearGradient(r, EDirection::Vertical, {{COLOR_BLACK, 0.f}, {COLOR_MID_GRAY, 1.f}}));
     r = handleBounds.FracRectVertical(0.51f, false); // slight overlap
     g.PathRect(r);
-    g.PathFill(IPattern::CreateLinearGradient(r, EDirection::Vertical, {{COLOR_MID_GRAY, 0.f},{COLOR_BLACK, 1.f}}));
+    g.PathFill(IPattern::CreateLinearGradient(r, EDirection::Vertical, {{COLOR_MID_GRAY, 0.f}, {COLOR_BLACK, 1.f}}));
 
     const float value = static_cast<float>(GetValue());
     const float y = (handleBounds.H() - (stepSize)) * value;
-    const float triangleRamp = std::fabs(value-0.5f) * 2.f;
-    
-    g.DrawBitmap(mLayer->GetBitmap(), handleBounds, 0, (int) y);
-  
+    const float triangleRamp = std::fabs(value - 0.5f) * 2.f;
+
+    g.DrawBitmap(mLayer->GetBitmap(), handleBounds, 0, (int)y);
+
     const IRECT cutoutBounds = handleBounds.GetFromBottom(stepSize).GetTranslated(0, -y);
     g.PathRect(cutoutBounds);
     g.PathFill(IPattern::CreateLinearGradient(cutoutBounds, EDirection::Vertical,
-    {
-      //TODO: this can be improved
-      {COLOR_BLACK.WithContrast(iplug::Lerp(0.f, 0.5f, triangleRamp)), 0.f},
-      {COLOR_BLACK.WithContrast(iplug::Lerp(0.5f, 0.f, triangleRamp)), 1.f}
-    }));
-    
+                                              {// TODO: this can be improved
+                                               {COLOR_BLACK.WithContrast(iplug::Lerp(0.f, 0.5f, triangleRamp)), 0.f},
+                                               {COLOR_BLACK.WithContrast(iplug::Lerp(0.5f, 0.f, triangleRamp)), 1.f}}));
+
     g.DrawVerticalLine(COLOR_BLACK, cutoutBounds, 0.f);
     g.DrawVerticalLine(COLOR_BLACK, cutoutBounds, 1.f);
     g.DrawRect(COLOR_BLACK, handleBounds);
   }
-  
+
   void OnMidi(const IMidiMsg& msg) override
   {
-    if(mCC == IMidiMsg::EControlChangeMsg::kNoCC)
+    if (mCC == IMidiMsg::EControlChangeMsg::kNoCC)
     {
-      if(msg.StatusMsg() == IMidiMsg::kPitchWheel)
+      if (msg.StatusMsg() == IMidiMsg::kPitchWheel)
       {
         SetValue((msg.PitchWheel() + 1.) * 0.5);
         SetDirty(false);
@@ -821,75 +829,75 @@ public:
     }
     else
     {
-      if(msg.ControlChangeIdx() == mCC)
+      if (msg.ControlChangeIdx() == mCC)
       {
         SetValue(msg.ControlChange(mCC));
         SetDirty(false);
       }
     }
   }
-  
-  void OnMouseWheel(float x, float y, const IMouseMod &mod, float d) override
-  {
-    /* NO-OP */
+
+  void OnMouseWheel(float x, float y, const IMouseMod& mod, float d) override
+  { /* NO-OP */
   }
 
   void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int) override
   {
-    if(pSelectedMenu) 
+    if (pSelectedMenu)
     {
-      switch (pSelectedMenu->GetChosenItemIdx()) 
+      switch (pSelectedMenu->GetChosenItemIdx())
       {
         case 0: mPitchBendRange = 1; break;
         case 1: mPitchBendRange = 2; break;
         case 2: mPitchBendRange = 7; break;
         case 3:
-        default:
-          mPitchBendRange = 12; break;
+        default: mPitchBendRange = 12; break;
       }
-      
+
       GetDelegate()->SendArbitraryMsgFromUI(kMessageTagSetPitchBendRange, GetTag(), sizeof(int), &mPitchBendRange);
     }
   }
-  
-  void OnMouseDown(float x, float y, const IMouseMod &mod) override
+
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    if(mod.R && mCC == IMidiMsg::EControlChangeMsg::kNoCC)
+    if (mod.R && mCC == IMidiMsg::EControlChangeMsg::kNoCC)
     {
-      switch (mPitchBendRange) 
+      switch (mPitchBendRange)
       {
         case 1: mMenu.CheckItemAlone(0); break;
         case 2: mMenu.CheckItemAlone(1); break;
         case 7: mMenu.CheckItemAlone(2); break;
         case 12: mMenu.CheckItemAlone(3); break;
-        default:
-          break;
+        default: break;
       }
-      
+
       GetUI()->CreatePopupMenu(*this, mMenu, x, y);
     }
     else
       ISliderControlBase::OnMouseDown(x, y, mod);
   }
-  
-  void OnMouseUp(float x, float y, const IMouseMod &mod) override
+
+  void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
-    if(mCC == IMidiMsg::EControlChangeMsg::kNoCC) // pitchbend
+    if (mCC == IMidiMsg::EControlChangeMsg::kNoCC) // pitchbend
     {
       double startValue = GetValue();
-      SetAnimation([startValue](IControl* pCaller) {
-        pCaller->SetValue(iplug::Lerp(startValue, 0.5, Clip(pCaller->GetAnimationProgress(), 0., 1.)));
-        if(pCaller->GetAnimationProgress() > 1.) {
-          pCaller->SetDirty(true);
-          pCaller->OnEndAnimation();
-          return;
-        }
-      }, kSpringAnimationTime);
+      SetAnimation(
+        [startValue](IControl* pCaller) {
+          pCaller->SetValue(iplug::Lerp(startValue, 0.5, Clip(pCaller->GetAnimationProgress(), 0., 1.)));
+          if (pCaller->GetAnimationProgress() > 1.)
+          {
+            pCaller->SetDirty(true);
+            pCaller->OnEndAnimation();
+            return;
+          }
+        },
+        kSpringAnimationTime);
     }
-    
+
     ISliderControlBase::OnMouseUp(x, y, mod);
   }
-  
+
 private:
   IPopupMenu mMenu;
   int mPitchBendRange;
