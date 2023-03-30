@@ -60,7 +60,7 @@ IPlugOSCEditor::IPlugOSCEditor(const InstanceInfo& info)
     
     pGraphics->AttachControl(new IWebViewControl(bottomRow, true, [](IWebViewControl* pWebView){
       pWebView->LoadHTML("OSC Console");
-      }, nullptr, R"(C:\Users\oli\Dev\iPlug2\Examples\IPlugOSCEditor\packages\Microsoft.Web.WebView2.1.0.1462.37\build\native\x64\WebView2Loader.dll)", R"(C:\Users\oli\Dev\iPlug2\Examples\IPlugOSCEditor\)"), kCtrlTagWebView);
+      }, nullptr), kCtrlTagWebView);
     
   };
 #endif

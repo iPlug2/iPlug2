@@ -136,6 +136,5 @@
       <Filter>config</Filter>
     </None>
     <None Include="packages.config" />
-    <None Include="$(MSBuildThisFileDirectory)$(EffectivePlatform)\WebView2Loader.dll" />
   </ItemGroup>
 </Project>

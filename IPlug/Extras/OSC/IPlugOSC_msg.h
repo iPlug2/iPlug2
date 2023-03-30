@@ -22,6 +22,7 @@
 BEGIN_IPLUG_NAMESPACE
 
 #define MAX_OSC_MSG_LEN 1024
+#undef GetMessage 
 
 static void OSC_BSWAPINTMEM(void *buf)
 {
