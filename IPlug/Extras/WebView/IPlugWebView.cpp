@@ -110,7 +110,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
       return S_OK;
     }).Get());
 
-  return nullptr;
+  return mParentWnd;
 }
 
 void IWebView::CloseWebView()
