@@ -21,6 +21,7 @@ using namespace Microsoft::WRL;
 extern float GetScaleForHWND(HWND hWnd);
 
 IWebView::IWebView(bool opaque)
+: mOpaque(opaque)
 {
 }
 
@@ -102,6 +103,14 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
                   return S_OK;
                 })
               .Get(), &mNavigationCompletedToken);
+
+            if (!mOpaque)
+            {
+              wil::com_ptr<ICoreWebView2Controller2> controller2 = mWebViewCtrlr.query<ICoreWebView2Controller2>();
+              COREWEBVIEW2_COLOR color;
+              memset(&color, 0, sizeof(COREWEBVIEW2_COLOR));
+              controller2->put_DefaultBackgroundColor(color);
+            }
 
             mWebViewCtrlr->put_Bounds({ (LONG)x, (LONG)y, (LONG)(x + w), (LONG)(y + h) });
             OnWebViewReady();
