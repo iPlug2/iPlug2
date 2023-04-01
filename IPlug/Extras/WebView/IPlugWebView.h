@@ -61,8 +61,8 @@ public:
   /** Enable scrolling on the webview. NOTE: currently only implemented for iOS */
   void EnableScroll(bool enable);
   
-  /** Set the bounds of the webview in the parent window. xywh are specifed in relation to a 1:1 non retina screen. On Windows the screen scale is passed in. */
-  void SetWebViewBounds(float x, float y, float w, float h, float scale = 1.); //TODO: get screen scale in impl?
+  /** Set the bounds of the webview in the parent window. xywh are specifed in relation to a 1:1 non retina screen */
+  void SetWebViewBounds(float x, float y, float w, float h, float scale = 1.);
 
   /** Called when the web view is ready to receive navigation instructions*/
   virtual void OnWebViewReady() {}
@@ -80,6 +80,7 @@ private:
   void* mWebConfig = nullptr;
   void* mScriptHandler = nullptr;
 #elif defined OS_WIN
+  HWND mParentWnd = NULL;
   wil::com_ptr<ICoreWebView2Controller> mWebViewCtrlr;
   wil::com_ptr<ICoreWebView2> mWebViewWnd;
   EventRegistrationToken mWebMessageReceivedToken;
