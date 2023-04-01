@@ -18,6 +18,8 @@ See LICENSE.txt for  more info.
 using namespace iplug;
 using namespace Microsoft::WRL;
 
+extern float GetScaleForHWND(HWND hWnd);
+
 IWebView::IWebView(bool opaque)
 {
 }
@@ -35,12 +37,14 @@ typedef HRESULT(*TCCWebView2EnvWithOptions)(
 
 void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, float scale)
 {
-  HWND hWnd = (HWND) pParent;
+  mParentWnd = (HWND)pParent;
 
-  x *= scale;
-  y *= scale;
-  w *= scale;
-  h *= scale;
+  float ss = GetScaleForHWND(mParentWnd);
+
+  x *= ss;
+  y *= ss;
+  w *= ss;
+  h *= ss;
 
   WDL_String cachePath;
   WebViewCachePath(cachePath);
@@ -50,10 +54,12 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
   CreateCoreWebView2EnvironmentWithOptions(
     nullptr, cachePathWide, nullptr,
   Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
-    [&, hWnd, x, y, w, h](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
-      env->CreateCoreWebView2Controller(hWnd,
+    [&, x, y, w, h](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
+      env
+        ->CreateCoreWebView2Controller(
+          mParentWnd,
         Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-          [&, hWnd, x, y, w, h](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
+          [&, x, y, w, h](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
             if (controller != nullptr) {
               mWebViewCtrlr = controller;
               mWebViewCtrlr->get_CoreWebView2(&mWebViewWnd);
@@ -184,11 +190,13 @@ void IWebView::SetWebViewBounds(float x, float y, float w, float h, float scale)
 {
   if (mWebViewCtrlr)
   {
-    x *= scale;
-    y *= scale;
-    w *= scale;
-    h *= scale;
+    float ss = GetScaleForHWND(mParentWnd);
 
-    mWebViewCtrlr->put_Bounds({ (LONG)x, (LONG)y, (LONG)(x + w), (LONG)(y + h) });
+    x *= ss;
+    y *= ss;
+    w *= ss;
+    h *= ss;
+
+    mWebViewCtrlr->SetBoundsAndZoomFactor({ (LONG)x, (LONG)y, (LONG)(x + w), (LONG)(y + h) }, scale);
   }
 }

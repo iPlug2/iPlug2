@@ -119,7 +119,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
 //#else
 //  [webView setAutoresizingMask: UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin | UIViewAutoresizingFlexibleBottomMargin | UIViewAutoresizingFlexibleTopMargin];
 //#endif
-//  [parentView setAutoresizesSubviews:YES];
+//  [(__bridge NSView*) pParent setAutoresizesSubviews:YES];
   
   mWebConfig = (__bridge void*) webConfig;
   mWKWebView = (__bridge void*) webView;
@@ -205,9 +205,11 @@ void IWebView::SetWebViewBounds(float x, float y, float w, float h, float scale)
 //  [NSAnimationContext beginGrouping]; // Prevent animated resizing
 //  [[NSAnimationContext currentContext] setDuration:0.0];
   [(__bridge WKWebView*) mWKWebView setFrame: MAKERECT(x, y, w, h) ];
-#ifdef OS_MAC
-  [(__bridge WKWebView*) mWKWebView setMagnification: scale ];
-#endif
+
+  if (@available(macOS 11.0, ios 14.0, *)) {
+    [(__bridge WKWebView*) mWKWebView setPageZoom:scale ];
+  }
+
 //  [NSAnimationContext endGrouping];
 }
 

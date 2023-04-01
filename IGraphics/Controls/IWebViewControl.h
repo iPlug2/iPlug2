@@ -59,8 +59,9 @@ public:
   
   void OnAttached() override
   {
-    mPlatformView = OpenWebView(GetUI()->GetWindow(), mRECT.L, mRECT.T, mRECT.W(), mRECT.H(), GetUI()->GetTotalScale());
-    GetUI()->AttachPlatformView(mRECT, mPlatformView);
+    IGraphics* pGraphics = GetUI();
+    mPlatformView = OpenWebView(pGraphics->GetWindow(), mRECT.L, mRECT.T, mRECT.W(), mRECT.H(), pGraphics->GetDrawScale());
+    pGraphics->AttachPlatformView(mRECT, mPlatformView);
   }
   
   void Draw(IGraphics& g) override
