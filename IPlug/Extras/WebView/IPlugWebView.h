@@ -85,7 +85,6 @@ private:
   wil::com_ptr<ICoreWebView2> mWebViewWnd;
   EventRegistrationToken mWebMessageReceivedToken;
   EventRegistrationToken mNavigationCompletedToken;
-  HMODULE mDLLHandle = nullptr;
 #endif
 };
 
