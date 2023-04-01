@@ -56,6 +56,9 @@
     <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebViewEditorDelegate.cpp">
       <Filter>IPlug\Extras\WebView</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPlatformDialogsWin.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugWebUI.h" />
@@ -159,6 +162,10 @@
     <ClInclude Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.h">
       <Filter>IPlug\Extras\WebView</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\ISender.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatformDialogs.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
@@ -185,6 +192,9 @@
     <Filter Include="IPlug\Extras\WebView">
       <UniqueIdentifier>{e6e2b8b9-5c3a-49f8-9588-0e9f32686cbe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="resources\web">
+      <UniqueIdentifier>{efafc85b-8dff-4809-af33-f30ce0fc50fb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc">
@@ -205,10 +215,31 @@
       <Filter>config</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="..\resources\web\script.js">
+      <Filter>resources\web</Filter>
+    </None>
+    <None Include="..\resources\web\bitmap-knob.js">
+      <Filter>resources\web</Filter>
+    </None>
+    <None Include="..\resources\web\color-picker-button.js">
+      <Filter>resources\web</Filter>
+    </None>
+    <None Include="..\resources\web\custom-button.js">
+      <Filter>resources\web</Filter>
+    </None>
+    <None Include="..\resources\web\index.html">
+      <Filter>resources\web</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\resources\IPlugWebUI.ico">
       <Filter>resources</Filter>
     </Image>
+    <Image Include="..\resources\web\knob%402x.png">
+      <Filter>resources\web</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>

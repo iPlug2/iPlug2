@@ -1,102 +1,386 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <style type="text/css">
-    * {
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-    }
-  
-    p, h1 {
-      pointer-events: none;
-    }
-  
-    .left {
-      width: 50%;
-      position: absolute;
-      left: 0;
-      display: table-cell;
-      vertical-align: middle;
-    }
-  
-    .left span, .left input {
-      vertical-align: middle;
-    }
-  
-    .right {
-      width: 50%;
-      position: absolute;
-      right: 0;
-      display: table-cell;
-      vertical-align: middle;
-    }
-  
-    .right span {
-      vertical-align: middle;
-    }
-  
-    .right input {
-      vertical-align: baseline;
-    }
-  
-    button {
-      display: block;
-    }
-  </style>
-  
-  <script src="script.js"></script>
-  <script src="webaudio-controls.js"></script>
-  <script>
-    function SendTestBinaryData() {
-      let uint8 = new Uint8Array([0, 0, 0, 0]);
-      uint8.fill(4, 1, 3);
-      var bin = String.fromCharCode.apply(null, uint8);
-      SAMFUI(3, -1, window.btoa(bin));
-    }
-    
-    function SendTestMIDIData() {
-      SMMFUI(0x90, 60, 0x7f);
-      setTimeout(function(){
-        SMMFUI(0x90, 60, 0x00);
-      }, 1000);
-    }
-    
-    function OnParamChange(param, value) {
-      if(param == 0) {
-        document.getElementById("gain_knob").value = value * 100.;
-      }
-    }
-  
-    function OnControlChange(ctrlTag, value) {
-      if(ctrlTag == 0) {
-        document.getElementById("meter").value = value;
-      }
-    }
-  
-    function onLoad() {
-      document.getElementById("gain_knob").addEventListener('input', function(e) {
-                                                          SPVFUI(0, e.target.value/100.)
-                                                          });
-    }
-  </script>
+  <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style type="text/css">
+        @font-face {
+          font-family: "Roboto";
+          src: url("Roboto-Regular.ttf") format("ttf");
+          font-weight: 400; /* Normal */
+          font-style: normal;
+        }
+
+        * {
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+        }
+      
+        p, h1 {
+          pointer-events: none;
+          color: white;
+        }
+        
+        body {
+          font-family: "Roboto", sans-serif;
+          overflow: hidden;
+          -webkit-overflow-scrolling: touch;
+          background-color: #000; /* Change this to your desired color */
+        }
+        
+        .midi-keyboard {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 100px; /* Set the height of the MIDI keyboard as needed */
+          background-color: #2b2b2b; /* Add a background color for visualization */
+        }
+
+        .panel-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          width: 100%;
+        }
+
+        .panel {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          /* justify-content: center; */
+          align-items: center;
+          box-sizing: border-box;
+          margin: 20px;
+          padding: 20px;
+          background-color: #1d1a1f;
+          border-radius: 20px;
+          border: 2px solid white;
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          min-width: 600px;
+          min-height: 420px;
+        }
+
+        .product-title {
+          flex-grow: 0;
+          font-size: 24px;
+          font-weight: bold;
+          text-align: center;
+          margin: 20px;
+          color: #fff;
+          pointer-events: none;
+        }
+
+        .help-button {
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 20px;
+          height: 20px;
+          padding: 10px;
+        }
+
+        .knobs {
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+        }
+
+        knob-control {
+          flex: 0 0 auto;
+          width: 70px;
+          padding: 10px;
+          text-align: center;
+          user-select: none;
+          white-space: nowrap;
+        }
+
+        .switches {
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+          width: 100%;
+          margin: 20px;
+        }
+        
+        .switch-placeholder {
+          flex: 0 0 auto;
+          width: 70px;
+          padding: 10px;
+          margin-top: 10px;
+          margin-bottom: 10px;
+        }
+
+        .hidden {
+          display: none;
+        }
+
+        .flex-holder {
+          flex-grow: 1;
+        }
+
+        #nam-browser {
+          flex-grow: 1;
+          flex-shrink: 2;
+          width: 100%;
+          border-radius: 5px;
+          border: 2px solid white;
+        }
+
+        .model-selection {
+          flex-grow: 0;
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+          border-radius: 5px;
+          border: 2px solid white;
+          height: 25px;
+          width: 100%;
+          margin-top: 10px;
+        }
+
+        .ir-selection {
+          flex-grow: 0;
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+          border-radius: 5px;
+          border: 2px solid white;
+          height: 25px;
+          width: 100%;  
+          margin-top: 10px;
+        }
+
+        .file-button {
+            width: 20px;
+            height: 20px;
+            margin: px;
+        }
+
+        .selection-label {
+          font-size: 12px;
+          color: #fff;
+          flex-grow: 1;
+          text-align: center;
+          vertical-align: middle;
+        }
+      </style>
+      <script type="module" src="knob-control.js"></script>
+      <script type="module" src="slide-switch.js"></script>
+      <script type="module" src="svg-button.js"></script>
+      <script type="module" src="nam-browser.js"></script>
+      <script src="script.js"></script>
+      <script>
+        function midiNoteToBytes(channel, pitch, velocity) {
+          if (channel < 0 || channel > 15) {
+            throw new Error("Invalid MIDI channel. Must be between 0 and 15.");
+          }
+          if (pitch < 0 || pitch > 127) {
+            throw new Error("Invalid MIDI pitch. Must be between 0 and 127.");
+          }
+          if (velocity < 0 || velocity > 127) {
+            throw new Error("Invalid MIDI velocity. Must be between 0 and 127.");
+          }
+
+          const noteOnStatus = 0x90 | (channel & 0x0F);
+          const noteOffStatus = 0x80 | (channel & 0x0F);
+
+          return {
+            status: velocity > 0 ? noteOnStatus : noteOffStatus,
+            data1: pitch,
+            data2: velocity
+          };
+        }
+
+        function SendTestBinaryData() {
+          let uint8 = new Uint8Array([0, 0, 0, 0]);
+          uint8.fill(4, 1, 3);
+          var bin = String.fromCharCode.apply(null, uint8);
+          SAMFUI(3, -1, window.btoa(bin));
+        }
+      
+        function onLoad() {
+        }
+        
+        function sendJSON(msg) {
+          SAMFUI(-1, 0, window.btoa(JSON.stringify(msg)));
+        }
+        
+        function showAboutBox() {
+          msg = {
+            "id": "show_about"
+          }
+          sendJSON(msg);
+        }
+
+        function selectNAM() {
+          msg = {
+            "id": "load_model",
+            "extensions": "nam",
+          }
+          sendJSON(msg);
+        }
+
+        function selectIR() {
+          msg = {
+            "id": "load_ir",
+            "extensions": "wav aif aiff",
+          }
+          sendJSON(msg);
+        }
+
+        function clearNAM() {
+          msg = {
+            "id": "clear_model",
+          }
+          sendJSON(msg);
+        }
+
+        function clearIR() {
+          msg = {
+            "id": "clear_ir",
+          }
+          sendJSON(msg);
+        }
+        
+        function OnParamChange(param, value) {
+          const allElements = document.querySelectorAll('*');
+
+          allElements.forEach(element => {
+            if (element.tagName == "KNOB-CONTROL") {
+            }
+          });
+
+        }
+        
+        function OnControlChange(ctrlTag, value) {
+          if (ctrlTag == 0) {
+          }
+        }
+
+        // This fires when the C++ side sends a message to the UI.
+        function OnMessage(msgTag, dataSize, data) {
+          if (msgTag == -1 && dataSize > 0) {
+
+          let json = JSON.parse(window.atob(data));
+
+          switch (json["id"])
+          {
+            case "load_model":
+              document.getElementById("select-model").innerHTML = json["selected_model"];
+              break;
+            case "load_ir":
+              document.getElementById("select-ir").innerHTML = json["selected_ir"];
+              break;
+            case "params":
+              window["parameters"] = json["params"];
+
+              const allElements = document.querySelectorAll('*');
+
+              allElements.forEach(element => {
+                if (element.tagName == "KNOB-CONTROL") {
+                  const paramInfo = json["params"][element.paramId];
+                  element.setAttribute("min", paramInfo["min"]);
+                  element.setAttribute("max", paramInfo["max"]);
+                  element.setAttribute("label", paramInfo["name"]);
+                  element.setAttribute("default-value", paramInfo["default"]);
+                }
+              });
+              
+              break;
+            }
+          }
+        }
+      </script>
 </head>
 <body onload="onLoad()">
-<!--<h1>IPlugWebView</h1>-->
-<div>
-  <div class="left">
-    <p>Gain</p>
-    <!-- <input id="slider" type="range" onmousedown="BPCFUI(0)" oninput="SPVFUI(0, this.value/100.)" onmouseup="EPCFUI(0)"> -->
-    <webaudio-knob id="gain_knob" min="0" max="100"></webaudio-knob>
-    <button onclick="SendTestBinaryData()">Binary Test</button>
-    <button onclick="SendTestMIDIData()">MIDI Test</button>
-    <progress id="meter">
+  <div class="panel-container">
+    <div class="panel">
+      <svg-button class="help-button" svg-url="help.svg" callback="showAboutBox"></svg-button>
+      <div class="product-title">Neural Amp Modeler</div>
+      <div class="knobs">
+        <knob-control label="Input" param-id=0></knob-control>
+        <knob-control label="Gate" param-id=1></knob-control>
+        <knob-control label="Bass" param-id=2></knob-control>
+        <knob-control label="Mid" param-id=3></knob-control>
+        <knob-control label="Treble" param-id=4></knob-control>
+        <knob-control label="Output" param-id=5></knob-control>
+      </div>
+      <div class="switches">
+        <div class="switch-placeholder"></div>
+        <slide-switch label="Gate"></slide-switch>
+        <div class="switch-placeholder"></div>
+        <slide-switch label="EQ"></slide-switch>
+        <div class="switch-placeholder"></div>
+        <slide-switch label="Normalize"></slide-switch>
+      </div>
+      <nam-browser id="nam-browser"></nam-browser>
+      <!-- <div class="flex-holder"></div> -->
+       <!-- <iframe id="nam-browser" src="https://tonehunt.org" style="width: 100%; height: 100%"></iframe> -->
+      <div class="model-selection">
+        <svg-button class="file-button" svg-url="folder.svg" callback="selectNAM"></svg-button>
+        <div class="selection-label" id="select-model" onclick="selectNAM">Select Model...</div>
+        <svg-button class="file-button" svg-url="up-arrow.svg" callback="nextNAM"></svg-button>
+        <svg-button class="file-button" svg-url="down-arrow.svg" callback="prevNAM"></svg-button>
+        <svg-button class="file-button" svg-url="close-button.svg" callback="clearNAM"></svg-button>
+      </div>
+      <div class="ir-selection">
+        <svg-button class="file-button" svg-url="folder.svg" callback="selectIR"></svg-button>
+        <div class="selection-label" id="select-ir">Select IR...</div>
+        <svg-button class="file-button" svg-url="up-arrow.svg" callback="nextIR"></svg-button>
+        <svg-button class="file-button" svg-url="down-arrow.svg" callback="prevIR"></svg-button>
+        <svg-button class="file-button" svg-url="close-button.svg" callback="clearIR"></svg-button>
+      </div>
+    </div>
   </div>
-  <div class="right">
-    <button onclick="SAMFUI(0)">Small GUI</button>
-    <button onclick="SAMFUI(1)">Medium GUI</button>
-    <button onclick="SAMFUI(2)">Large GUI</button>
-  </div>
-</div>
+
+  <script>
+    // Example usage:
+    const data = [
+      { name: "Item 1", author: "Author 1", dateCreated: "2023-04-16", import: "Yes", download: "No" },
+      { name: "Item 2", author: "Author 2", dateCreated: "2023-04-16", import: "Yes", download: "No" },
+      { name: "Item 3", author: "Author 1", dateCreated: "2023-04-16", import: "Yes", download: "No" },
+      { name: "Item 4", author: "Author 4", dateCreated: "2023-04-16", import: "Yes", download: "No" },
+      { name: "Item 5", author: "Author 5", dateCreated: "2023-04-16", import: "Yes", download: "No" },
+    ];
+
+    const namBrowser = document.querySelector("nam-browser");
+    namBrowser.setAttribute("data", JSON.stringify(data));
+  </script>
+  <script>
+    function updateDivVisibility() {
+      // Get the viewport height
+      const viewportHeight = window.innerHeight;
+
+      // Set the threshold for showing or hiding the div
+      const minHeightToShowDiv = 600;
+
+      // Get the div element
+      const browser = document.getElementById("nam-browser");
+
+      // Show or hide the div based on the viewport height
+      if (viewportHeight >= minHeightToShowDiv) {
+        browser.classList.remove("hidden");
+      } else {
+        browser.classList.add("hidden");
+      }
+    }
+
+    // Call the function initially to set the correct visibility
+    updateDivVisibility();
+
+    // Listen for window resize events
+    window.addEventListener("resize", updateDivVisibility);
+</script>
 </body>
 </html>

@@ -10,7 +10,18 @@ const int kNumPresets = 3;
 
 enum EParams
 {
-  kGain = 0,
+  // These need to be the first ones because I use their indices to place
+  // their rects in the GUI.
+  kInputLevel = 0,
+  kNoiseGateThreshold,
+  kToneBass,
+  kToneMid,
+  kToneTreble,
+  kOutputLevel,
+  // The rest is fine though.
+  kNoiseGateActive,
+  kEQActive,
+  kOutNorm,
   kNumParams
 };
 
@@ -19,7 +30,9 @@ enum EMsgTags
   kMsgTagButton1 = 0,
   kMsgTagButton2 = 1,
   kMsgTagButton3 = 2,
-  kMsgTagBinaryTest = 3
+  kMsgTagBinaryTest = 3,
+  kMsgTagMouseDown = 4,
+  kMsgTagMouseUp = 5,
 };
 
 enum EControlTags
@@ -39,6 +52,7 @@ public:
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
   void OnParamChange(int paramIdx) override;
 
+  bool OnHostRequestingSupportedViewConfiguration(int width, int height) override { return true; }
 private:
   float mLastPeak = 0.;
   FastSinOscillator<sample> mOscillator {0., 440.};

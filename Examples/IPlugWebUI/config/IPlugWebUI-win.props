@@ -10,7 +10,7 @@
     <PDB_FILE>$(SolutionDir)build-win\pdbs\$(TargetName)_$(Platform).pdb</PDB_FILE>
     <BUILD_DIR>$(SolutionDir)build-win</BUILD_DIR>
     <CREATE_BUNDLE_SCRIPT>$(IPLUG2_ROOT)\Scripts\create_bundle.bat</CREATE_BUNDLE_SCRIPT>
-    <EXTRA_INC_PATHS>$(IPLUG2_ROOT)\Dependencies\Extras\json11</EXTRA_INC_PATHS>
+    <EXTRA_INC_PATHS>$(JSON_PATH);$(CHOC_INC_PATHS)</EXTRA_INC_PATHS>
   </PropertyGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(IPLUG2_ROOT)\common-win.props" />

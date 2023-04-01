@@ -1,7 +1,7 @@
 #define PLUG_NAME "IPlugWebUI"
 #define PLUG_MFR "AcmeInc"
-#define PLUG_VERSION_HEX 0x00010000
-#define PLUG_VERSION_STR "1.0.0"
+#define PLUG_VERSION_HEX 0x00010001
+#define PLUG_VERSION_STR "1.0.1"
 #define PLUG_UNIQUE_ID 'hnve'
 #define PLUG_MFR_ID 'Acme'
 #define PLUG_URL_STR "https://iplug2.github.io"
@@ -15,20 +15,22 @@
 
 #define SHARED_RESOURCES_SUBPATH "IPlugWebUI"
 
-#define PLUG_CHANNEL_IO "2-2"
+#define PLUG_CHANNEL_IO "1-2"
 
 #define PLUG_LATENCY 0
 #define PLUG_TYPE 0
-#define PLUG_DOES_MIDI_IN 1
+#define PLUG_DOES_MIDI_IN 0
 #define PLUG_DOES_MIDI_OUT 1
 #define PLUG_DOES_MPE 0
 #define PLUG_DOES_STATE_CHUNKS 0
 #define PLUG_HAS_UI 1
-#define PLUG_WIDTH 600
-#define PLUG_HEIGHT 600
+#define PLUG_WIDTH 640
+#define PLUG_HEIGHT 500
 #define PLUG_FPS 60
 #define PLUG_SHARED_RESOURCES 0
 #define PLUG_HOST_RESIZE 1
+#define PLUG_MIN_WIDTH 640
+#define PLUG_MIN_HEIGHT 500
 
 #define AUV2_ENTRY IPlugWebUI_Entry
 #define AUV2_ENTRY_STR "IPlugWebUI_Entry"

@@ -44,10 +44,10 @@
 					<key>tags</key>
 					<array>
 						<string>Effects</string>
-						<string>size:{600,600}</string>
+						<string>size:{700,450}</string>
 					</array>
 					<key>type</key>
-					<string>aufx</string>
+					<string>aumf</string>
 					<key>version</key>
 					<integer>65536</integer>
 				</dict>

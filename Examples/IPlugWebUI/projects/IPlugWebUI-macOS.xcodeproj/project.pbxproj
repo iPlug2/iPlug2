@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 47;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -26,6 +26,15 @@
 
 /* Begin PBXBuildFile section */
 		4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F0848252015129300F9E881 /* IPlugAAX_Parameters.cpp */; };
+		4F096AA229E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F096AA029E97244002B45C0 /* IPlugPlatformDialogsMac.mm */; };
+		4F096AA329E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F096AA029E97244002B45C0 /* IPlugPlatformDialogsMac.mm */; };
+		4F096AA429E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F096AA029E97244002B45C0 /* IPlugPlatformDialogsMac.mm */; };
+		4F096AA529E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F096AA029E97244002B45C0 /* IPlugPlatformDialogsMac.mm */; };
+		4F096AA629E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F096AA029E97244002B45C0 /* IPlugPlatformDialogsMac.mm */; };
+		4F096AA729E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F096AA029E97244002B45C0 /* IPlugPlatformDialogsMac.mm */; };
+		4F096AA829E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F096AA029E97244002B45C0 /* IPlugPlatformDialogsMac.mm */; };
+		4F096AA929E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F096AA029E97244002B45C0 /* IPlugPlatformDialogsMac.mm */; };
+		4F096AAA29E97244002B45C0 /* IPlugPlatformDialogs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F096AA129E97244002B45C0 /* IPlugPlatformDialogs.h */; };
 		4F0AB11B259C04BB00653315 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
 		4F0AB11C259C050300653315 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
 		4F0AB11D259C050B00653315 /* web in Resources */ = {isa = PBXBuildFile; fileRef = 4FC46E57231440B4000045E7 /* web */; };
@@ -174,6 +183,15 @@
 		4FB64D0A247956AC006B3013 /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F7DB9CB247890B700ACF64B /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FB64D0B247956AF006B3013 /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F7DB9CB247890B700ACF64B /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FB64D0C247956B3006B3013 /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F7DB9CB247890B700ACF64B /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4FBA63FA29EABD3F0056476B /* IPlugDialogHandlerViewMac.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FBA63F829EABD3F0056476B /* IPlugDialogHandlerViewMac.h */; };
+		4FBA63FB29EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA63F929EABD3F0056476B /* IPlugDialogHandlerViewMac.mm */; };
+		4FBA63FC29EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA63F929EABD3F0056476B /* IPlugDialogHandlerViewMac.mm */; };
+		4FBA63FD29EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA63F929EABD3F0056476B /* IPlugDialogHandlerViewMac.mm */; };
+		4FBA63FE29EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA63F929EABD3F0056476B /* IPlugDialogHandlerViewMac.mm */; };
+		4FBA63FF29EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA63F929EABD3F0056476B /* IPlugDialogHandlerViewMac.mm */; };
+		4FBA640029EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA63F929EABD3F0056476B /* IPlugDialogHandlerViewMac.mm */; };
+		4FBA640129EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA63F929EABD3F0056476B /* IPlugDialogHandlerViewMac.mm */; };
+		4FBA640229EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA63F929EABD3F0056476B /* IPlugDialogHandlerViewMac.mm */; };
 		4FC3EFCB2086C27800BD11FA /* IPlugWebUI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugWebUI.cpp */; };
 		4FC3EFCE2086C35D00BD11FA /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
 		4FC3EFD42086C49D00BD11FA /* IPlugWebUIVST3Controller.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FC3EFC42086C0A600BD11FA /* IPlugWebUIVST3Controller.a */; };
@@ -350,6 +368,8 @@
 		4F0848262015129400F9E881 /* IPlugAAX_Parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_Parameters.h; path = ../../../IPlug/AAX/IPlugAAX_Parameters.h; sourceTree = "<group>"; tabWidth = 2; };
 		4F0848272015129400F9E881 /* IPlugAAX_view_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_view_interface.h; path = ../../../IPlug/AAX/IPlugAAX_view_interface.h; sourceTree = "<group>"; tabWidth = 2; };
 		4F0848282015129400F9E881 /* IPlugAAX_TaperDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_TaperDelegate.h; path = ../../../IPlug/AAX/IPlugAAX_TaperDelegate.h; sourceTree = "<group>"; tabWidth = 2; };
+		4F096AA029E97244002B45C0 /* IPlugPlatformDialogsMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPlatformDialogsMac.mm; path = ../../../IPlug/IPlugPlatformDialogsMac.mm; sourceTree = "<group>"; };
+		4F096AA129E97244002B45C0 /* IPlugPlatformDialogs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPlatformDialogs.h; path = ../../../IPlug/IPlugPlatformDialogs.h; sourceTree = "<group>"; };
 		4F10D3D2203A6710003EF82A /* RtAudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtAudio.h; path = ../../../Dependencies/IPlug/RTAudio/RtAudio.h; sourceTree = "<group>"; };
 		4F10D3D3203A6711003EF82A /* RtAudio.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtAudio.cpp; path = ../../../Dependencies/IPlug/RTAudio/RtAudio.cpp; sourceTree = "<group>"; };
 		4F10D3D6203A6719003EF82A /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = ../../../Dependencies/IPlug/RTMidi/RtMidi.h; sourceTree = "<group>"; };
@@ -577,6 +597,9 @@
 		4FA0FB16247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWebViewEditorDelegate.mm; sourceTree = "<group>"; };
 		4FA61F9922E8A96300A92C58 /* tex */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tex; path = ../resources/tex; sourceTree = "<group>"; };
 		4FB600331567CB0A0020189A /* IPlugWebUI.aaxplugin */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = IPlugWebUI.aaxplugin; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FBA63F829EABD3F0056476B /* IPlugDialogHandlerViewMac.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugDialogHandlerViewMac.h; path = ../../../IPlug/IPlugDialogHandlerViewMac.h; sourceTree = "<group>"; };
+		4FBA63F929EABD3F0056476B /* IPlugDialogHandlerViewMac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugDialogHandlerViewMac.mm; path = ../../../IPlug/IPlugDialogHandlerViewMac.mm; sourceTree = "<group>"; };
+		4FBA649829EAC32A0056476B /* IPlugPopupMenu.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugPopupMenu.h; path = ../../../IPlug/IPlugPopupMenu.h; sourceTree = "<group>"; };
 		4FBAA593207918230054E717 /* IPlugDelegate_select.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugDelegate_select.h; path = ../../../IPlug/IPlugDelegate_select.h; sourceTree = "<group>"; tabWidth = 2; };
 		4FBBD7F320B6AB9800A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
 		4FC3EFC42086C0A600BD11FA /* IPlugWebUIVST3Controller.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = IPlugWebUIVST3Controller.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -984,6 +1007,11 @@
 				4FDAC0E6207D76C600299363 /* IPlugTimer.cpp */,
 				4FDAC0E9207D76C600299363 /* IPlugTimer.h */,
 				4F6D9DEB2016B7F7009E1E3E /* IPlugPlatform.h */,
+				4F096AA129E97244002B45C0 /* IPlugPlatformDialogs.h */,
+				4F096AA029E97244002B45C0 /* IPlugPlatformDialogsMac.mm */,
+				4FBA649829EAC32A0056476B /* IPlugPopupMenu.h */,
+				4FBA63F829EABD3F0056476B /* IPlugDialogHandlerViewMac.h */,
+				4FBA63F929EABD3F0056476B /* IPlugDialogHandlerViewMac.mm */,
 				4F4237201FC852FE0067D58C /* IPlugConstants.h */,
 				4F4237231FC863060067D58C /* IPlugUtilities.h */,
 				4F78D8FE13B63BA50032E0F3 /* IPlugStructs.h */,
@@ -1401,6 +1429,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FBA63FA29EABD3F0056476B /* IPlugDialogHandlerViewMac.h in Headers */,
+				4F096AAA29E97244002B45C0 /* IPlugPlatformDialogs.h in Headers */,
 				4FA0FB17247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.h in Headers */,
 				4F78BE1222E73DD900AD537E /* AUv3Framework.h in Headers */,
 			);
@@ -1642,7 +1672,6 @@
 						};
 					};
 					4F3AE17812C0E5E2001FD7A4 = {
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
 						ProvisioningStyle = Automatic;
 					};
 					4F3EE1BA231438D000004786 = {
@@ -1655,9 +1684,6 @@
 						ProvisioningStyle = Automatic;
 					};
 					4F78DAF113B643600032E0F3 = {
-						DevelopmentTeam = 686EDA2T8T;
-					};
-					4F9828AA140A9EB700F3FCC1 = {
 						DevelopmentTeam = 686EDA2T8T;
 					};
 					4FB600121567CB0A0020189A = {
@@ -1994,6 +2020,8 @@
 				4F8D9707209EF5AC006E2A11 /* IPlugWebUI.cpp in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FB64D06247956AA006B3013 /* IPlugWebView.mm in Sources */,
+				4F096AA329E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */,
+				4FBA63FC29EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */,
 				4FA0FB19247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
 				4F993F7223055C96000313AF /* IPlugProcessor.cpp in Sources */,
 				4F35DEAE207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
@@ -2018,12 +2046,14 @@
 				4F993F7423055C96000313AF /* IPlugProcessor.cpp in Sources */,
 				4FA0FB1B247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
 				4FB64D08247956AA006B3013 /* IPlugWebView.mm in Sources */,
+				4FBA63FE29EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */,
 				4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				4F78D94513B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FD52136202A5BD000A4D22A /* dfx-au-utilities.c in Sources */,
 				4F5F344420C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F35DEB0207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F78D95C13B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
+				4F096AA529E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */,
 				4F3862F22014BBEC0009F402 /* IPlugWebUI.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2036,6 +2066,7 @@
 				4FB64D0C247956B3006B3013 /* IPlugWebView.mm in Sources */,
 				4F3EE1C3231438D000004786 /* RtMidi.cpp in Sources */,
 				4F3EE1C7231438D000004786 /* swell-dlg.mm in Sources */,
+				4F096AA929E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */,
 				4F3EE1C8231438D000004786 /* swell-ini.cpp in Sources */,
 				4F3EE1C9231438D000004786 /* swellappmain.mm in Sources */,
 				4FA0FB20247D4D2C00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
@@ -2050,6 +2081,7 @@
 				4F3EE1D5231438D000004786 /* IPlugAPP_host.cpp in Sources */,
 				4F3EE1D6231438D000004786 /* IPlugAPP.cpp in Sources */,
 				4F3EE1D8231438D000004786 /* IPlugAPP_dialog.cpp in Sources */,
+				4FBA640229EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */,
 				4F3EE1D9231438D000004786 /* RtAudio.cpp in Sources */,
 				4F3EE1DB231438D000004786 /* IPlugAPP_main.cpp in Sources */,
 				4F3EE1DE231438D000004786 /* IPlugWebUI.cpp in Sources */,
@@ -2071,9 +2103,11 @@
 				4F78BE1522E7406D00AD537E /* IPlugWebUI.cpp in Sources */,
 				4F78BE2222E7406D00AD537E /* IPlugAUAudioUnit.mm in Sources */,
 				4F78BE2322E7406D00AD537E /* IPlugAUv3.mm in Sources */,
+				4F096AA829E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */,
 				4F78BE2422E7406D00AD537E /* IPlugAUViewController.mm in Sources */,
 				4FA0FB1F247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
 				4F78BE2522E7406D00AD537E /* IPlugPluginBase.cpp in Sources */,
+				4FBA640129EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */,
 				4F78BE2622E7406D00AD537E /* IPlugAPIBase.cpp in Sources */,
 				4F78BE2822E7406D00AD537E /* IPlugParameter.cpp in Sources */,
 				4F78BE2922E7406D00AD537E /* IPlugTimer.cpp in Sources */,
@@ -2116,9 +2150,11 @@
 				4F815987205D50EB00393585 /* conststringtable.cpp in Sources */,
 				4F722020225C1EB100FF0E7C /* commoniids.cpp in Sources */,
 				4F81598D205D51F000393585 /* vstaudioeffect.cpp in Sources */,
+				4FBA63FD29EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */,
 				4F81598C205D51CF00393585 /* vstsinglecomponenteffect.cpp in Sources */,
 				4F815984205D50EB00393585 /* updatehandler.cpp in Sources */,
 				4F815990205D51F000393585 /* vstcomponent.cpp in Sources */,
+				4F096AA429E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */,
 				4F815981205D50EB00393585 /* fstreamer.cpp in Sources */,
 				4F815996205D51F000393585 /* vstrepresentation.cpp in Sources */,
 				4F815985205D50EB00393585 /* fcondition.cpp in Sources */,
@@ -2139,9 +2175,11 @@
 				4FB6001A1567CB0A0020189A /* IPlugAPIBase.cpp in Sources */,
 				4F35DEB1207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F5F344520C0226200487201 /* IPlugPaths.mm in Sources */,
+				4F096AA629E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */,
 				4F1A5285205D914A00CF2908 /* IPlugAAX.cpp in Sources */,
 				4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */,
 				4F3862F32014BBEC0009F402 /* IPlugWebUI.cpp in Sources */,
+				4FBA63FF29EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */,
 				4FB600231567CB0A0020189A /* IPlugParameter.cpp in Sources */,
 				4FA0FB1C247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
 				4FB600261567CB0A0020189A /* AAX_Exports.cpp in Sources */,
@@ -2169,6 +2207,7 @@
 				4F10D3D9203A6719003EF82A /* RtMidi.cpp in Sources */,
 				4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */,
 				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
+				4F096AA229E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */,
 				4F5C5F6921BED05B00E024A7 /* swellappmain.mm in Sources */,
 				4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */,
 				4FA0FB18247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
@@ -2183,6 +2222,7 @@
 				4F1A5282205D913300CF2908 /* IPlugAPP.cpp in Sources */,
 				4F2EA978203A50EA008E4850 /* IPlugAPP_dialog.cpp in Sources */,
 				4FAFFE5821495A4800A6E72D /* RtAudio.cpp in Sources */,
+				4FBA63FB29EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */,
 				4F7DB9CC247890B700ACF64B /* IPlugWebView.mm in Sources */,
 				4F690C9B203A345100A4A13E /* IPlugAPP_main.cpp in Sources */,
 				4F3862EF2014BBEC0009F402 /* IPlugWebUI.cpp in Sources */,
@@ -2217,6 +2257,7 @@
 				4FFBB91720863B0E00DDD0E7 /* funknown.cpp in Sources */,
 				4FB64D09247956AB006B3013 /* IPlugWebView.mm in Sources */,
 				4FFBB91820863B0E00DDD0E7 /* vstbus.cpp in Sources */,
+				4FBA640029EABD3F0056476B /* IPlugDialogHandlerViewMac.mm in Sources */,
 				4FFBB91920863B0E00DDD0E7 /* IPlugPluginBase.cpp in Sources */,
 				4FFBB91A20863B0E00DDD0E7 /* macmain.cpp in Sources */,
 				4FFBB91B20863B0E00DDD0E7 /* flock.cpp in Sources */,
@@ -2231,6 +2272,7 @@
 				4FFBB92520863B0E00DDD0E7 /* vstsinglecomponenteffect.cpp in Sources */,
 				4FFBB92620863B0E00DDD0E7 /* updatehandler.cpp in Sources */,
 				4FFBB92820863B0E00DDD0E7 /* vstcomponent.cpp in Sources */,
+				4F096AA729E97244002B45C0 /* IPlugPlatformDialogsMac.mm in Sources */,
 				4FFBB92C20863B0E00DDD0E7 /* fstreamer.cpp in Sources */,
 				4FFBB92D20863B0E00DDD0E7 /* vstrepresentation.cpp in Sources */,
 				4FFBB92E20863B0E00DDD0E7 /* fcondition.cpp in Sources */,
@@ -2527,7 +2569,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBC_FLATTEN_NIBS = NO;
 				INFOPLIST_FILE = "../resources/IPlugWebUI-macOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
@@ -2563,7 +2609,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBC_FLATTEN_NIBS = NO;
 				INFOPLIST_FILE = "../resources/IPlugWebUI-macOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
@@ -2599,7 +2649,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBC_FLATTEN_NIBS = NO;
 				INFOPLIST_FILE = "../resources/IPlugWebUI-macOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
@@ -2614,7 +2668,7 @@
 		4F3AE1DD12C0E5E2001FD7A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
@@ -2629,7 +2683,6 @@
 				);
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.audiounit.${BINARY_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
 					$CA_SDK/AudioUnits/AUPublic/AUBase,
@@ -2642,7 +2695,7 @@
 		4F3AE1DE12C0E5E2001FD7A4 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
@@ -2657,7 +2710,6 @@
 				);
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.audiounit.${BINARY_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
 					$CA_SDK/AudioUnits/AUPublic/AUBase,
@@ -2670,7 +2722,7 @@
 		4F3AE1DF12C0E5E2001FD7A4 /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(AU_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
@@ -2685,7 +2737,6 @@
 				);
 				OTHER_REZFLAGS = "-d ppc_$ppc -d i386_$i386 -I /System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers -I $CA_SDK/AudioUnits/AUPublic/AUBase";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.audiounit.${BINARY_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				REZ_SEARCH_PATHS = (
 					/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Versions/A/Headers,
 					$CA_SDK/AudioUnits/AUPublic/AUBase,
@@ -2708,7 +2759,11 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugWebUI-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -2733,7 +2788,11 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugWebUI-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -2758,7 +2817,11 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugWebUI-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -2803,7 +2866,10 @@
 				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugWebUI-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -2857,7 +2923,10 @@
 				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugWebUI-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -2911,7 +2980,10 @@
 				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugWebUI-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -2960,7 +3032,9 @@
 		4F9828DD140A9EB700F3FCC1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
@@ -2974,6 +3048,7 @@
 				);
 				INFOPLIST_FILE = "../resources/IPlugWebUI-VST3-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = vst3;
 			};
@@ -2982,7 +3057,9 @@
 		4F9828DE140A9EB700F3FCC1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
@@ -2996,6 +3073,7 @@
 				);
 				INFOPLIST_FILE = "../resources/IPlugWebUI-VST3-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = vst3;
 			};
@@ -3004,7 +3082,9 @@
 		4F9828DF140A9EB700F3FCC1 /* Tracer */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 686EDA2T8T;
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
@@ -3018,6 +3098,7 @@
 				);
 				INFOPLIST_FILE = "../resources/IPlugWebUI-VST3-Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.vst3.${BINARY_NAME}";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = vst3;
 			};
@@ -3339,7 +3420,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugWebUI-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -3364,7 +3448,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugWebUI-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -3389,7 +3476,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugWebUI-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",

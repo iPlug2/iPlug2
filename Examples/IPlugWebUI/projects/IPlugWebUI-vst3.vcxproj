@@ -286,6 +286,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugParameter.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugPaths.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugPlatform.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatformDialogs.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugPluginBase.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugProcessor.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugStructs.h" />
@@ -336,6 +337,7 @@
     <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugParameter.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp" />
+    <ClCompile Include="..\..\..\IPlug\IPlugPlatformDialogsWin.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugPluginBase.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugProcessor.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugTimer.cpp" />
@@ -353,7 +355,15 @@
     <None Include="..\config\IPlugWebUI-win.props">
       <SubType>Designer</SubType>
     </None>
+    <None Include="..\resources\web\bitmap-knob.js" />
+    <None Include="..\resources\web\color-picker-button.js" />
+    <None Include="..\resources\web\custom-button.js" />
+    <None Include="..\resources\web\index.html" />
+    <None Include="..\resources\web\script.js" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\resources\web\knob%402x.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Target Name="AfterBuild">
