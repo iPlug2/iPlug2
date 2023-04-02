@@ -140,6 +140,11 @@ void IWebView::CloseWebView()
   mScriptHandler = nullptr;
 }
 
+void IWebView::HideWebView(bool hide)
+{
+  /* NO-OP */
+}
+
 void IWebView::LoadHTML(const char* html)
 {
   WKWebView* webView = (__bridge WKWebView*) mWKWebView;

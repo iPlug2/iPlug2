@@ -41,6 +41,7 @@ public:
   
   void* OpenWebView(void* pParent, float x, float y, float w, float h, float scale = 1.);
   void CloseWebView();
+  void HideWebView(bool hide);
   
   /** Load an HTML string into the webview */
   void LoadHTML(const char* html);
@@ -85,6 +86,7 @@ private:
   wil::com_ptr<ICoreWebView2> mWebViewWnd;
   EventRegistrationToken mWebMessageReceivedToken;
   EventRegistrationToken mNavigationCompletedToken;
+  bool mShowOnLoad = true;
 #endif
 };
 

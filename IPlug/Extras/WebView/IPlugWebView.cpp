@@ -66,6 +66,8 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
               mWebViewCtrlr->get_CoreWebView2(&mWebViewWnd);
             }
 
+            mWebViewCtrlr->put_IsVisible(mShowOnLoad);
+
             ICoreWebView2Settings* Settings;
             mWebViewWnd->get_Settings(&Settings);
             Settings->put_IsScriptEnabled(TRUE);
@@ -129,6 +131,20 @@ void IWebView::CloseWebView()
     mWebViewCtrlr->Close();
     mWebViewCtrlr = nullptr;
     mWebViewWnd = nullptr;
+  }
+}
+
+void IWebView::HideWebView(bool hide)
+{
+  if (mWebViewCtrlr.get() != nullptr)
+  {
+    mWebViewCtrlr->put_IsVisible(!hide);
+  }
+  else
+  {
+    // the controller is set asynchonously, so we store the state 
+    // to apply it when the controller is created
+    mShowOnLoad = !hide;
   }
 }
 
