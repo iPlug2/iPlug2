@@ -58,8 +58,8 @@ IPlugOSCEditor::IPlugOSCEditor(const InstanceInfo& info)
                                                 SendOSCMessage(msg);}
                                                , "Gain"), kCtrlTagGain);
     
-    pGraphics->AttachControl(new IWebViewControl(bottomRow, true, [](IWebViewControl* pWebView){
-      pWebView->LoadHTML("OSC Console");
+    pGraphics->AttachControl(new IWebViewControl(bottomRow, true, [](IWebViewControl* pControl){
+      pControl->LoadHTML("OSC Console");
       }, nullptr), kCtrlTagWebView);
     
   };
