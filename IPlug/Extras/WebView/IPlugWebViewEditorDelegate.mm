@@ -92,10 +92,21 @@ void* WebViewEditorDelegate::OpenWindow(void* pParent)
 
 void WebViewEditorDelegate::Resize(int width, int height)
 {
+  ResizeWebViewAndHelper(width, height);
+  EditorResizeFromUI(width, height, true);
+}
+
+void WebViewEditorDelegate::OnParentWindowResize(int width, int height)
+{
+  ResizeWebViewAndHelper(width, height);
+  EditorResizeFromUI(width, height, false);
+}
+
+void WebViewEditorDelegate::ResizeWebViewAndHelper(float width, float height)
+{
   CGFloat w = static_cast<float>(width);
   CGFloat h = static_cast<float>(height);
   HELPER_VIEW* pHelperView = (HELPER_VIEW*) mHelperView;
   [pHelperView setFrame:CGRectMake(0, 0, w, h)];
   SetWebViewBounds(0, 0, w, h);
-  EditorResizeFromUI(width, height, true);
 }

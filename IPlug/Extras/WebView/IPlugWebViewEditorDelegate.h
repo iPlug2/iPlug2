@@ -130,6 +130,8 @@ public:
   }
 
   void Resize(int width, int height);
+  
+  void OnParentWindowResize(int width, int height) override;
 
   void OnWebViewReady() override
   {
@@ -147,15 +149,19 @@ public:
     mMaxJSStringLength = length;
   }
   
-protected:
+private:
+  void ResizeWebViewAndHelper(float width, float height);
+  
   int GetBase64Length(int dataSize)
   {
     return static_cast<int>(4. * std::ceil((static_cast<double>(dataSize) / 3.)));
   }
   
-  int mMaxJSStringLength = kDefaultMaxJSStringLength;
-  std::function<void()> mEditorInitFunc = nullptr;
   void* mHelperView = nullptr;
+  int mMaxJSStringLength = kDefaultMaxJSStringLength;
+
+protected:
+  std::function<void()> mEditorInitFunc = nullptr;
 };
 
 END_IPLUG_NAMESPACE
