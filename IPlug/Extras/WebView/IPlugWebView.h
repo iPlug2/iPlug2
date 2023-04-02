@@ -72,13 +72,6 @@ public:
   
   /** When a script in the web view posts a message, it will arrive as a UTF8 json string here */
   virtual void OnMessageFromWebView(const char* json) {}
-
-#if defined OS_WIN
-  /** Set the paths required for the Windows ICoreWebView2 component
-   * @param dllPath (Windows only) an absolute path to the WebView2Loader.dll that is required to use the WebView2 on windows
-   * @param tmpPath (Windows only) an absolute path to the folder that should be used */
-  void SetWebViewPaths(const char* dllPath, const char* tmpPath) { mDLLPath.Set(dllPath); mTmpPath.Set(tmpPath); }
-#endif
   
 private:
   bool mOpaque = true;
@@ -91,8 +84,6 @@ private:
   wil::com_ptr<ICoreWebView2> mWebViewWnd;
   EventRegistrationToken mWebMessageReceivedToken;
   EventRegistrationToken mNavigationCompletedToken;
-  WDL_String mDLLPath;
-  WDL_String mTmpPath;
   HMODULE mDLLHandle = nullptr;
 #endif
 };
