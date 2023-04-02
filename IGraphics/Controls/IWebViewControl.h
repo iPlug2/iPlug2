@@ -24,8 +24,8 @@ BEGIN_IGRAPHICS_NAMESPACE
 
 class IWebViewControl;
 
-using OnReadyFunc = std::function<void(IWebViewControl* pWebView)>;
-using OnMessageFunc = std::function<void(IWebViewControl* pWebView, const char* jsonMsg)>;
+using OnReadyFunc = std::function<void(IWebViewControl* pControl)>;
+using OnMessageFunc = std::function<void(IWebViewControl* pControl, const char* jsonMsg)>;
 
 /** A control that allows the embedding of HTML UI inside an IGraphics context using a platform-native webview and bi-directional communication with that content
  * NOTE: this control attaches a sub view on top of the IGraphics view, so it will render all content on-top
