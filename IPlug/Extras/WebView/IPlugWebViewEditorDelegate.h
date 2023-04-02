@@ -130,6 +130,8 @@ public:
   }
 
   void Resize(int width, int height);
+  
+  void OnParentWindowResize(int width, int height) override;
 
   void OnWebViewReady() override
   {
@@ -164,7 +166,10 @@ private:
   {
     return static_cast<int>(4. * std::ceil((static_cast<double>(dataSize) / 3.)));
   }
-  
+
+#if defined OS_MAC || defined OS_IOS
+  void ResizeWebViewAndHelper(float width, float height);
+#endif
   bool mEnableDevTools = false;
 };
 

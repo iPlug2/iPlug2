@@ -38,3 +38,9 @@ void WebViewEditorDelegate::Resize(int width, int height)
   SetWebViewBounds(0, 0, static_cast<float>(width), static_cast<float>(height));
   EditorResizeFromUI(width, height, true);
 }
+
+void WebViewEditorDelegate::OnParentWindowResize(int width, int height)
+{
+  SetWebViewBounds(0, 0, static_cast<float>(width), static_cast<float>(height));
+  EditorResizeFromUI(width, height, false);
+}
