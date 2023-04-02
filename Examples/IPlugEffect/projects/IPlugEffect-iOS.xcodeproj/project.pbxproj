@@ -39,6 +39,7 @@
 		4FA61F9422E8A71D00A92C58 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4FA61F9722E8A7E900A92C58 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4FB2269720A0D3A800614769 /* IPlugEffect-iOS-LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugEffect-iOS-LaunchScreen.storyboard */; };
+		4FC7193029D99363007B5129 /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FC7192E29D99358007B5129 /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D732267CE540007B686 /* AppViewController.mm */; };
 		4FDF6D792267CE540007B686 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D742267CE540007B686 /* main.m */; };
 		4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D752267CE540007B686 /* AppDelegate.m */; };
@@ -185,6 +186,12 @@
 		4FB2269620A0D3A800614769 /* IPlugEffect-iOS-LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugEffect-iOS-LaunchScreen.storyboard"; path = "../resources/IPlugEffect-iOS-LaunchScreen.storyboard"; sourceTree = "<group>"; };
 		4FBBD7F420B6ABE700A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
 		4FC46E58231440C8000045E7 /* web */ = {isa = PBXFileReference; lastKnownFileType = folder; name = web; path = ../resources/web; sourceTree = "<group>"; };
+		4FC7192929D99358007B5129 /* IPlugWebView.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugWebView.cpp; sourceTree = "<group>"; };
+		4FC7192A29D99358007B5129 /* IPlugWebViewEditorDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWebViewEditorDelegate.mm; sourceTree = "<group>"; };
+		4FC7192B29D99358007B5129 /* IPlugWebView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWebView.h; sourceTree = "<group>"; };
+		4FC7192C29D99358007B5129 /* IPlugWebViewEditorDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWebViewEditorDelegate.h; sourceTree = "<group>"; };
+		4FC7192D29D99358007B5129 /* IPlugWebViewEditorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugWebViewEditorDelegate.cpp; sourceTree = "<group>"; };
+		4FC7192E29D99358007B5129 /* IPlugWebView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWebView.mm; sourceTree = "<group>"; };
 		4FC82B4720BD524700722133 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../resources/img; sourceTree = "<group>"; };
 		4FC82B4820BD524700722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
 		4FCE29DE21D6ED81004BCBA1 /* ITextEntryControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITextEntryControl.h; sourceTree = "<group>"; };
@@ -407,6 +414,7 @@
 		4F977D3120CC9DD800D19F46 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
+				4FC7192829D99358007B5129 /* WebView */,
 				4F800153252F0AAF00432412 /* LFO.h */,
 				4F6E673521C5613A005991A9 /* Synth */,
 				4F977D3520CC9DD800D19F46 /* Easing.h */,
@@ -458,6 +466,19 @@
 				4F977D4E20CC9DD800D19F46 /* IPlugFaustGen.h */,
 			);
 			path = Faust;
+			sourceTree = "<group>";
+		};
+		4FC7192829D99358007B5129 /* WebView */ = {
+			isa = PBXGroup;
+			children = (
+				4FC7192929D99358007B5129 /* IPlugWebView.cpp */,
+				4FC7192A29D99358007B5129 /* IPlugWebViewEditorDelegate.mm */,
+				4FC7192B29D99358007B5129 /* IPlugWebView.h */,
+				4FC7192C29D99358007B5129 /* IPlugWebViewEditorDelegate.h */,
+				4FC7192D29D99358007B5129 /* IPlugWebViewEditorDelegate.cpp */,
+				4FC7192E29D99358007B5129 /* IPlugWebView.mm */,
+			);
+			path = WebView;
 			sourceTree = "<group>";
 		};
 		4FDF6D712267CE540007B686 /* iOSApp */ = {
@@ -768,6 +789,7 @@
 				4FA61F8B22E89B3700A92C58 /* IGraphicsEditorDelegate.cpp in Sources */,
 				4FA61F8322E89AFF00A92C58 /* IPlugPaths.mm in Sources */,
 				4FA61F8122E89AFF00A92C58 /* IPlugParameter.cpp in Sources */,
+				4FC7193029D99363007B5129 /* IPlugWebView.mm in Sources */,
 				4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */,
 				4FA61F7F22E89AFF00A92C58 /* IPlugAPIBase.cpp in Sources */,
 				4FA61F9222E8A2B500A92C58 /* IPlugEffect.cpp in Sources */,

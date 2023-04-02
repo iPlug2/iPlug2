@@ -1,6 +1,7 @@
 #include "IPlugEffect.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
+#include "IWebViewControl.h"
 
 IPlugEffect::IPlugEffect(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
@@ -17,8 +18,26 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT b = pGraphics->GetBounds();
-    pGraphics->AttachControl(new ITextControl(b.GetMidVPadded(50), "Hello iPlug 2!", IText(50)));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-100), kGain));
+    pGraphics->AttachControl(new IVButtonControl(b.GetFromTop(300).GetCentredInside(100,100),
+    [](IControl* pControl){
+      SplashClickActionFunc(pControl);
+    }))->SetAnimationEndActionFunction([](IControl* pControl){
+      pControl->GetUI()->GetControlWithTag(0)->Hide(!pControl->GetUI()->GetControlWithTag(0)->IsHidden());
+    });
+//    pGraphics->AttachControl(new ITextControl(b.GetMidVPadded(50), "Hello iPlug 2!", IText(50)));
+//    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-100), kGain));
+    
+    bool showDevTools = false;
+    
+#if DEBUG
+    showDevTools = true;
+#endif
+    
+    IWebViewControl* pWebViewControl;
+    pGraphics->AttachControl(pWebViewControl = new IWebViewControl(b.GetFromBottom(300), false, [](IWebViewControl* pWebView){
+      pWebView->LoadHTML("OSC Console");
+    }, nullptr, showDevTools), 0);
+    pWebViewControl->SetIgnoreMouse(true);
   };
 #endif
 }

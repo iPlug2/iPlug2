@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 47;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -141,6 +141,7 @@
 		4F6FD2B722675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6FD2AF22675B6300FC59E6 /* IGraphicsCoreText.mm */; };
 		4F722020225C1EB100FF0E7C /* commoniids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F72201E225C1EB100FF0E7C /* commoniids.cpp */; };
 		4F722021225C1EB100FF0E7C /* commoniids.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F72201E225C1EB100FF0E7C /* commoniids.cpp */; };
+		4F73C56D29D8CE4200D88F43 /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F73C56B29D8CE4200D88F43 /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F78BE1222E73DD900AD537E /* AUv3Framework.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F78BE1022E73DD900AD537E /* AUv3Framework.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F78BE1422E7406D00AD537E /* IPlugEffect.h in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862EE2014BBEC0009F402 /* IPlugEffect.h */; };
 		4F78BE1522E7406D00AD537E /* IPlugEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */; };
@@ -528,6 +529,8 @@
 		4F6FD2AD22675B6300FC59E6 /* IGraphicsCoreText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsCoreText.h; path = ../../../IGraphics/Platforms/IGraphicsCoreText.h; sourceTree = "<group>"; };
 		4F6FD2AF22675B6300FC59E6 /* IGraphicsCoreText.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsCoreText.mm; path = ../../../IGraphics/Platforms/IGraphicsCoreText.mm; sourceTree = "<group>"; };
 		4F72201E225C1EB100FF0E7C /* commoniids.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = commoniids.cpp; sourceTree = "<group>"; };
+		4F73C56B29D8CE4200D88F43 /* IPlugWebView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugWebView.mm; path = ../../../IPlug/Extras/WebView/IPlugWebView.mm; sourceTree = "<group>"; };
+		4F73C56C29D8CE4200D88F43 /* IPlugWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugWebView.h; path = ../../../IPlug/Extras/WebView/IPlugWebView.h; sourceTree = "<group>"; };
 		4F78BE0222E73D0800AD537E /* AUv3Framework.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AUv3Framework.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F78BE1022E73DD900AD537E /* AUv3Framework.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AUv3Framework.h; path = ../resources/AUv3Framework.h; sourceTree = "<group>"; };
 		4F78BE1122E73DD900AD537E /* IPlugEffect-macOS-AUv3Framework-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugEffect-macOS-AUv3Framework-Info.plist"; path = "../resources/IPlugEffect-macOS-AUv3Framework-Info.plist"; sourceTree = "<group>"; };
@@ -861,6 +864,8 @@
 				52FBBED30D0CF143001C8B8A /* config.h */,
 				4F3862EE2014BBEC0009F402 /* IPlugEffect.h */,
 				4F3862ED2014BBEC0009F402 /* IPlugEffect.cpp */,
+				4F73C56C29D8CE4200D88F43 /* IPlugWebView.h */,
+				4F73C56B29D8CE4200D88F43 /* IPlugWebView.mm */,
 				4F9313232315CA1100DB2383 /* README.md */,
 				089C167CFE841241C02AAC07 /* Resources */,
 				32C88E010371C26100C91783 /* Other Sources */,
@@ -2480,6 +2485,7 @@
 				4F2EA978203A50EA008E4850 /* IPlugAPP_dialog.cpp in Sources */,
 				4FAFFE5821495A4800A6E72D /* RtAudio.cpp in Sources */,
 				4F6FD2B122675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
+				4F73C56D29D8CE4200D88F43 /* IPlugWebView.mm in Sources */,
 				4F690C9B203A345100A4A13E /* IPlugAPP_main.cpp in Sources */,
 				4F63696D20A463090022C370 /* IControls.cpp in Sources */,
 				4FB1F58920E4B004004157C8 /* IGraphicsMac.mm in Sources */,
@@ -2826,7 +2832,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBC_FLATTEN_NIBS = NO;
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
@@ -2863,7 +2873,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBC_FLATTEN_NIBS = NO;
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
@@ -2900,7 +2914,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBC_FLATTEN_NIBS = NO;
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
@@ -3010,7 +3028,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
@@ -3037,7 +3058,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
@@ -3064,7 +3088,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
@@ -3113,7 +3140,10 @@
 				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -3171,7 +3201,10 @@
 				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -3229,7 +3262,10 @@
 				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugEffect-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -3658,7 +3694,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
@@ -3684,7 +3723,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
@@ -3710,7 +3752,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugEffect-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.9;
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
