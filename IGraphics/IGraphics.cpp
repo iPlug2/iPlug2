@@ -80,7 +80,8 @@ void IGraphics::SetScreenScale(float scale)
   
   assert(windowWidth > 0 && windowHeight > 0 && "Window dimensions invalid");
 
-  PlatformResize(GetDelegate()->EditorResizeFromUI(windowWidth, windowHeight, true));
+  bool parentResized = GetDelegate()->EditorResizeFromUI(windowWidth, windowHeight, true);
+  PlatformResize(parentResized);
   ForAllControls(&IControl::OnRescale);
   SetAllControlsDirty();
   DrawResize();
@@ -106,8 +107,9 @@ void IGraphics::Resize(int w, int h, float scale, bool needsPlatformResize)
 
   int windowWidth = WindowWidth() * GetPlatformWindowScale();
   int windowHeight = WindowHeight() * GetPlatformWindowScale();
-    
-  PlatformResize(GetDelegate()->EditorResizeFromUI(windowWidth, windowHeight, needsPlatformResize));
+
+  bool parentResized = GetDelegate()->EditorResizeFromUI(windowWidth, windowHeight, needsPlatformResize);
+  PlatformResize(parentResized);
   ForAllControls(&IControl::OnResize);
   SetAllControlsDirty();
   DrawResize();
