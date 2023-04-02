@@ -132,6 +132,14 @@ void IWebView::CloseWebView()
   }
 }
 
+void IWebView::HideWebView(bool hide)
+{
+  if (mWebViewCtrlr.get() != nullptr)
+  {
+    mWebViewCtrlr->put_IsVisible(!hide);
+  }
+}
+
 void IWebView::LoadHTML(const char* html)
 {
   if (mWebViewWnd)

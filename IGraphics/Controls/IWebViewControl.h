@@ -93,6 +93,8 @@ public:
   
   void Hide(bool hide) override
   {
+    HideWebView(hide);
+
     if (mPlatformView)
       GetUI()->HidePlatformView(mPlatformView, hide);
     
