@@ -15,7 +15,7 @@
 
 #define SHARED_RESOURCES_SUBPATH "IPlugWebUI"
 
-#define PLUG_CHANNEL_IO "2-2"
+#define PLUG_CHANNEL_IO "1-2"
 
 #define PLUG_LATENCY 0
 #define PLUG_TYPE 0
@@ -29,6 +29,7 @@
 #define PLUG_FPS 60
 #define PLUG_SHARED_RESOURCES 0
 #define PLUG_HOST_RESIZE 1
+#define PLUG_MIN_WIDTH 512
 
 #define AUV2_ENTRY IPlugWebUI_Entry
 #define AUV2_ENTRY_STR "IPlugWebUI_Entry"

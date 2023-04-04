@@ -6,16 +6,21 @@ IPlugWebUI::IPlugWebUI(const InstanceInfo& info)
 {
   GetParam(kGain)->InitGain("Gain", -70., -70, 0.);
   
-#ifdef DEBUG
+#ifdef _DEBUG
   SetEnableDevTools(true);
 #endif
   
-  // Hard-coded paths must be modified!
   mEditorInitFunc = [&]() {
-#ifdef OS_WIN
-    LoadFile(R"(C:\Users\oli\Dev\iPlug2\Examples\IPlugWebUI\resources\web\index.html)", nullptr);
+    
+    // Hard-coded paths must be modified!
+#ifdef _DEBUG
+  #ifdef OS_WIN
+      LoadFile(R"(C:\Users\oli\Dev\iPlug2\Examples\IPlugWebUI\resources\web\index.html)", nullptr);
+  #else
+      LoadFile(R"(/Users/oli/Dev/iPlug2/Examples/IPlugWebUI/resources/web/index.html)", nullptr, true);
+  #endif
 #else
-    LoadFile("index.html", GetBundleID());
+    LoadFile("index.html", GetBundleID(), true); // TODO: make this work for windows
 #endif
     
     EnableScroll(false);
@@ -63,8 +68,48 @@ bool IPlugWebUI::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pD
   else if (msgTag == kMsgTagBinaryTest)
   {
     auto uint8Data = reinterpret_cast<const uint8_t*>(pData);
-    DBGMSG("Data Size %i bytes\n",  dataSize);
-    DBGMSG("Byte values: %i, %i, %i, %i\n", uint8Data[0], uint8Data[1], uint8Data[2], uint8Data[3]);
+    WDL_String msg;
+    msg.SetFormatted(64, "Received Data Size %i bytes\n",  dataSize);
+    WDL_String caption;
+    caption.SetFormatted(64, "Byte values: %i, %i, %i, %i\n", uint8Data[0], uint8Data[1], uint8Data[2], uint8Data[3]);
+//    ShowMessageBox(msg.Get(), caption.Get(), EMsgBoxType::kMB_OK,
+//    [&](EMsgBoxResult result){
+//      SendJSONFromDelegate({"msgboxresult", result});
+//    });
+    WDL_String fileName;
+    WDL_String path;
+//    PromptForDirectory(path,
+//    [&](const WDL_String& fileName, const WDL_String& path){
+//      SendJSONFromDelegate({"chosen_path", path.Get()});
+//    });
+//
+//    PromptForFile(fileName, path, EFileAction::Open, "",
+//    [&](const WDL_String& fileName, const WDL_String& path){
+//      SendJSONFromDelegate({"chosen_file", fileName.Get(), "chosen_path", path.Get()});
+//    });
+    
+//    OpenURL("https://www.olilarkin.co.uk");
+    IPopupMenu menu {"test"};
+    menu.AddItem("Hello");
+    menu.AddItem("GoodBye");
+    CreatePopupMenu(menu, 100, 100, [&](IPopupMenu* pMenu) {
+      if (pMenu && pMenu->GetChosenItem())
+      {
+        SendJSONFromDelegate({"chosen_item", pMenu->GetChosenItem()->GetText()});
+      }
+      else
+      {
+        SendJSONFromDelegate({"chosen_item", ""});
+      }
+    });
+  }
+  else if (msgTag == kMsgTagMouseUp)
+  {
+    HideMouseCursor(false, true);
+  }
+  else if (msgTag == kMsgTagMouseDown)
+  {
+    HideMouseCursor(true, true);
   }
 
   return false;

@@ -33,6 +33,10 @@
 		4FA61F9422E8A71D00A92C58 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4FA61F9722E8A7E900A92C58 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4FB2269720A0D3A800614769 /* IPlugWebUI-iOS-LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugWebUI-iOS-LaunchScreen.storyboard */; };
+		4FBA63F129EAAB200056476B /* IPlugPlatformDialogs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FBA63EF29EAAB200056476B /* IPlugPlatformDialogs.h */; };
+		4FBA63F229EAAB200056476B /* IPlugPlatformDialogsIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA63F029EAAB200056476B /* IPlugPlatformDialogsIOS.mm */; };
+		4FBA63F629EAB72E0056476B /* IPlugDialogHandlerViewIOS.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FBA63F429EAB72E0056476B /* IPlugDialogHandlerViewIOS.h */; };
+		4FBA63F729EAB72E0056476B /* IPlugDialogHandlerViewIOS.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA63F529EAB72E0056476B /* IPlugDialogHandlerViewIOS.mm */; };
 		4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D732267CE540007B686 /* AppViewController.mm */; };
 		4FDF6D792267CE540007B686 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D742267CE540007B686 /* main.m */; };
 		4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D752267CE540007B686 /* AppDelegate.m */; };
@@ -133,6 +137,10 @@
 		4FA61F7B22E89A5900A92C58 /* AUv3Framework.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AUv3Framework.h; path = ../resources/AUv3Framework.h; sourceTree = "<group>"; };
 		4FA758452186222E00F1BCC3 /* IPlugPaths.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPaths.mm; path = ../../../IPlug/IPlugPaths.mm; sourceTree = "<group>"; };
 		4FB2269620A0D3A800614769 /* IPlugWebUI-iOS-LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugWebUI-iOS-LaunchScreen.storyboard"; path = "../resources/IPlugWebUI-iOS-LaunchScreen.storyboard"; sourceTree = "<group>"; };
+		4FBA63EF29EAAB200056476B /* IPlugPlatformDialogs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugPlatformDialogs.h; path = ../../../IPlug/IPlugPlatformDialogs.h; sourceTree = "<group>"; };
+		4FBA63F029EAAB200056476B /* IPlugPlatformDialogsIOS.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPlatformDialogsIOS.mm; path = ../../../IPlug/IPlugPlatformDialogsIOS.mm; sourceTree = "<group>"; };
+		4FBA63F429EAB72E0056476B /* IPlugDialogHandlerViewIOS.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = IPlugDialogHandlerViewIOS.h; path = ../../../IPlug/IPlugDialogHandlerViewIOS.h; sourceTree = "<group>"; };
+		4FBA63F529EAB72E0056476B /* IPlugDialogHandlerViewIOS.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugDialogHandlerViewIOS.mm; path = ../../../IPlug/IPlugDialogHandlerViewIOS.mm; sourceTree = "<group>"; };
 		4FBBD7F420B6ABE700A37DE2 /* config */ = {isa = PBXFileReference; lastKnownFileType = folder; name = config; path = ../config; sourceTree = "<group>"; };
 		4FC46E58231440C8000045E7 /* web */ = {isa = PBXFileReference; lastKnownFileType = folder; name = web; path = ../resources/web; sourceTree = "<group>"; };
 		4FC82B4720BD524700722133 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../resources/img; sourceTree = "<group>"; };
@@ -357,6 +365,8 @@
 				4F977D3120CC9DD800D19F46 /* Extras */,
 				4FFF105220A0E56400D3092F /* AUv3 */,
 				4FFF106920A0E58600D3092F /* IPlugDelegate_select.h */,
+				4FBA63F429EAB72E0056476B /* IPlugDialogHandlerViewIOS.h */,
+				4FBA63F529EAB72E0056476B /* IPlugDialogHandlerViewIOS.mm */,
 				4FFF106820A0E58600D3092F /* IPlugEditorDelegate.h */,
 				4FFF106620A0E58600D3092F /* IPlugPluginBase.cpp */,
 				4FFF106720A0E58600D3092F /* IPlugPluginBase.h */,
@@ -372,6 +382,8 @@
 				4FFF103920A0E55900D3092F /* IPlugTimer.cpp */,
 				4FFF104020A0E55A00D3092F /* IPlugTimer.h */,
 				4FFF103320A0E55900D3092F /* IPlugPlatform.h */,
+				4FBA63EF29EAAB200056476B /* IPlugPlatformDialogs.h */,
+				4FBA63F029EAAB200056476B /* IPlugPlatformDialogsIOS.mm */,
 				4FFF103020A0E55900D3092F /* IPlugConstants.h */,
 				4FFF103C20A0E55A00D3092F /* IPlugUtilities.h */,
 				4FFF103B20A0E55A00D3092F /* IPlugStructs.h */,
@@ -447,6 +459,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F7DB9D3247895C200ACF64B /* IPlugWebView.h in Headers */,
+				4FBA63F629EAB72E0056476B /* IPlugDialogHandlerViewIOS.h in Headers */,
+				4FBA63F129EAAB200056476B /* IPlugPlatformDialogs.h in Headers */,
 				4FA61F7C22E89A5900A92C58 /* AUv3Framework.h in Headers */,
 				4F7DB9D4247895C200ACF64B /* IPlugWebViewEditorDelegate.h in Headers */,
 			);
@@ -629,6 +643,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FBA63F229EAAB200056476B /* IPlugPlatformDialogsIOS.mm in Sources */,
 				4FA61F8422E89B2000A92C58 /* GenericUI.mm in Sources */,
 				4FF8974C24782DE9004845AC /* IPlugWebUI.cpp in Sources */,
 				4FA61F8622E89B2000A92C58 /* IPlugAUv3.mm in Sources */,
@@ -637,6 +652,7 @@
 				4F7DB9D5247895C200ACF64B /* IPlugWebView.mm in Sources */,
 				4FA61F8222E89AFF00A92C58 /* IPlugTimer.cpp in Sources */,
 				4FA61F8322E89AFF00A92C58 /* IPlugPaths.mm in Sources */,
+				4FBA63F729EAB72E0056476B /* IPlugDialogHandlerViewIOS.mm in Sources */,
 				4FA61F8122E89AFF00A92C58 /* IPlugParameter.cpp in Sources */,
 				4FA0FB22247D4E5600E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
 				4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */,

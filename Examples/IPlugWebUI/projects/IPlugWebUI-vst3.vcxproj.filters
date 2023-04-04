@@ -113,6 +113,9 @@
     <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebViewEditorDelegate.cpp">
       <Filter>IPlug\Extras\WebView</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\IPlugPlatformDialogsWin.cpp">
+      <Filter>IPlug</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="../config.h" />
@@ -261,6 +264,10 @@
     <ClInclude Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.h">
       <Filter>IPlug\Extras\WebView</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\ISender.h" />
+    <ClInclude Include="..\..\..\IPlug\IPlugPlatformDialogs.h">
+      <Filter>IPlug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
@@ -314,6 +321,9 @@
     <Filter Include="IPlug\Extras\WebView">
       <UniqueIdentifier>{208b5a1d-9e44-4998-8311-ef027a7f18ee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="resources\web">
+      <UniqueIdentifier>{dfcd2936-83ab-42ac-a018-ae96559c80ce}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc">
@@ -334,5 +344,28 @@
       <Filter>config</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="..\resources\web\bitmap-knob.js">
+      <Filter>resources\web</Filter>
+    </None>
+    <None Include="..\resources\web\color-picker-button.js">
+      <Filter>resources\web</Filter>
+    </None>
+    <None Include="..\resources\web\custom-button.js">
+      <Filter>resources\web</Filter>
+    </None>
+    <None Include="..\resources\web\index.html">
+      <Filter>resources\web</Filter>
+    </None>
+    <None Include="..\resources\web\script.js">
+      <Filter>resources\web</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\resources\web\knob%402x.png">
+      <Filter>resources\web</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -19,7 +19,9 @@ enum EMsgTags
   kMsgTagButton1 = 0,
   kMsgTagButton2 = 1,
   kMsgTagButton3 = 2,
-  kMsgTagBinaryTest = 3
+  kMsgTagBinaryTest = 3,
+  kMsgTagMouseDown = 4,
+  kMsgTagMouseUp = 5,
 };
 
 enum EControlTags

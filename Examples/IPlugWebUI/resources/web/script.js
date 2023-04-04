@@ -16,8 +16,16 @@ function SCMFD(ctrlTag, msgTag, msg) {
 }
 
 function SAMFD(msgTag, dataSize, msg) {
-  //  var decodedData = window.atob(msg);
-  console.log("SAMFD msgTag:" + msgTag + " msg:" + msg);
+  
+  if (dataSize) {
+    var decodedData = window.atob(msg);
+    OnMessage(msgTag, dataSize, decodedData);
+//    console.log("SAMFD msgTag:" + msgTag + " msg:" + decodedData);
+  }
+  else {
+    OnMessage(msgTag, 0, 0);
+//    console.log("SAMFD msgTag:" + msgTag);
+  }
 }
 
 function SMMFD(statusByte, dataByte1, dataByte2) {
