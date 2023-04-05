@@ -645,6 +645,14 @@ const char *EEL_Editor::sh_tokenize(const char **ptr, const char *endptr, int *l
   }
   else
   {
+    if (*state == STATE_BEFORE_CODE && *lenOut == 4 && p + 7 < endptr && !strnicmp(p,"http://",7))
+    {
+      int nl = 7;
+      while (p+nl < endptr && p[nl] && p[nl] != ' ' && p[nl] != '\t') nl++;
+      *ptr += nl-*lenOut;
+      *lenOut = nl;
+    }
+
     if (*lenOut >= 1 && p+1 < endptr && is_preproc_token(p) > 0)
     {
       *ptr += 2 - *lenOut;
