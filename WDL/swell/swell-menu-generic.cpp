@@ -1191,6 +1191,36 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
             GET_Y_LPARAM(lParam)>top_margin
             )
         {
+          int a = m_trackingMenus.Find(hwnd);
+          if (a>=0)
+          {
+            // step back through and make sure each menu has the correct item selected
+            HMENU__ *m = menu;
+            while (--a>=0)
+            {
+              HWND h = m_trackingMenus.Get(a);
+              if (WDL_NOT_NORMALLY(!h)) break;
+              HMENU__ *m2 = (HMENU__*)GetWindowLongPtr(h,GWLP_USERDATA);
+              if (WDL_NOT_NORMALLY(!m2)) break;
+
+              MENUITEMINFO *s = m2->items.Get(m2->sel_vis);
+              if (!s || s->hSubMenu != m)
+              {
+                // find m in menu, select, invalidate
+                for (int x = 0; x < m2->items.GetSize(); x ++)
+                {
+                  s = m2->items.Get(x);
+                  if (s && s->hSubMenu == m)
+                  {
+                    m2->sel_vis = x;
+                    InvalidateRect(h,NULL,FALSE);
+                    break;
+                  }
+                }
+              }
+              m = m2;
+            }
+          }
           int mode = 3; // 4 was old-style super-fast menus
           SendMessage(hwnd,WM_USER+100,mode,GET_Y_LPARAM(lParam));
         }
