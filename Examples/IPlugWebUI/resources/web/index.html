@@ -79,6 +79,18 @@
                                                           SPVFUI(0, e.target.value/100.)
                                                           });
     }
+    
+    function makeFullScreen() {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      } else if (document.documentElement.mozRequestFullScreen) { // Firefox
+        document.documentElement.mozRequestFullScreen();
+      } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
+        document.documentElement.webkitRequestFullscreen();
+      } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+        document.documentElement.msRequestFullscreen();
+      }
+    }
   </script>
 </head>
 <body onload="onLoad()">
@@ -96,6 +108,7 @@
     <button onclick="SAMFUI(0)">Small GUI</button>
     <button onclick="SAMFUI(1)">Medium GUI</button>
     <button onclick="SAMFUI(2)">Large GUI</button>
+    <button onclick="makeFullScreen()">Full Screen</button>
   </div>
 </div>
 </body>
