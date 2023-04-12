@@ -174,6 +174,10 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
     [preferences setValue:@YES forKey:@"developerExtrasEnabled"];
   }
   
+  [preferences setValue:@YES forKey:@"fullScreenEnabled"];
+  [preferences setValue:@YES forKey:@"DOMPasteAllowed"];
+  [preferences setValue:@YES forKey:@"javaScriptCanAccessClipboard"];
+  
   webConfig.preferences = preferences;
   
   // this script adds a function IPlugSendMsg that is used to call the platform webview messaging function in JS
