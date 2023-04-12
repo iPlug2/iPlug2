@@ -5,7 +5,11 @@ IPlugWebUI::IPlugWebUI(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kGain)->InitGain("Gain", -70., -70, 0.);
-
+  
+#ifdef DEBUG
+  SetEnableDevTools(true);
+#endif
+  
   // Hard-coded paths must be modified!
   mEditorInitFunc = [&]() {
 #ifdef OS_WIN
