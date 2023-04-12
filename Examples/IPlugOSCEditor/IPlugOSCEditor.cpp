@@ -13,7 +13,7 @@ IPlugOSCEditor::IPlugOSCEditor(const InstanceInfo& info)
   auto logFunc = [&](WDL_String& log) {
     IGraphics* pGraphics = GetUI();
     
-    if(pGraphics)
+    if (pGraphics)
       pGraphics->GetControlWithTag(kCtrlTagWebView)->As<IWebViewControl>()->LoadHTML(log.Get());
     
     DBGMSG("%s\n", log.Get());
@@ -58,9 +58,15 @@ IPlugOSCEditor::IPlugOSCEditor(const InstanceInfo& info)
                                                 SendOSCMessage(msg);}
                                                , "Gain"), kCtrlTagGain);
     
+    bool showDevTools = false;
+    
+#if DEBUG
+    showDevTools = true;
+#endif
+
     pGraphics->AttachControl(new IWebViewControl(bottomRow, true, [](IWebViewControl* pControl){
       pControl->LoadHTML("OSC Console");
-      }, nullptr), kCtrlTagWebView);
+      }, nullptr, showDevTools), kCtrlTagWebView);
     
   };
 #endif
