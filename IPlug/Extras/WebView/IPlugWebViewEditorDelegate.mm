@@ -16,13 +16,15 @@
 
 #ifdef OS_MAC
 #import <AppKit/AppKit.h>
+#import "IPlugDialogHandlerViewMac.h"
 #elif defined(OS_IOS)
 #import <UIKit/UIKit.h>
+#import "IPlugDialogHandlerViewIOS.h"
 #endif
 
 using namespace iplug;
 
-@interface HELPER_VIEW : PLATFORM_VIEW
+@interface HELPER_VIEW : IPLUG_DIALOG_HANDLER_VIEW
 {
   WebViewEditorDelegate* mDelegate;
 }
@@ -81,6 +83,8 @@ void* WebViewEditorDelegate::OpenWindow(void* pParent)
     
   HELPER_VIEW* pHelperView = [[HELPER_VIEW alloc] initWithEditorDelegate: this];
   mHelperView = (void*) pHelperView;
+  
+  SetOwningView(mHelperView);
 
   if (pParentView) {
     [pParentView addSubview: pHelperView];

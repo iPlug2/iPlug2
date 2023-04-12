@@ -24,11 +24,13 @@
 #include <functional>
 #include <filesystem>
 
+
 BEGIN_IPLUG_NAMESPACE
 
 /** This Editor Delegate allows using a platform native web view as the UI for an iPlug plugin */
 class WebViewEditorDelegate : public IEditorDelegate
                             , public IWebView
+                            , public IPlatformDialogs
 {
   static constexpr int kDefaultMaxJSStringLength = 8192;
   
@@ -105,7 +107,7 @@ public:
   {
     auto json = nlohmann::json::parse(jsonStr, nullptr, false);
     
-    if(json["msg"] == "SPVFUI")
+    if (json["msg"] == "SPVFUI")
     {
       SendParameterValueFromUI(json["paramIdx"], json["value"]);
     }
@@ -121,7 +123,7 @@ public:
     {
       std::vector<unsigned char> base64;
 
-      if(json.count("data") > 0 && json["data"].is_string())
+      if (json.count("data") > 0 && json["data"].is_string())
       {
         auto dStr = json["data"].get<std::string>();
         int dSize = static_cast<int>(dStr.size());
@@ -129,9 +131,9 @@ public:
         // calculate the exact size of the decoded base64 data
         int numPaddingBytes = 0;
         
-        if(dSize >= 2 && dStr[dSize-2] == '=')
+        if (dSize >= 2 && dStr[dSize-2] == '=')
           numPaddingBytes = 2;
-        else if(dSize >= 1 && dStr[dSize-1] == '=')
+        else if (dSize >= 1 && dStr[dSize-1] == '=')
           numPaddingBytes = 1;
         
         base64.resize((dSize * 3) / 4 - numPaddingBytes);
