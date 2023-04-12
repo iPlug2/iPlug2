@@ -40,12 +40,14 @@ public:
    * @param bounds The control's bounds
    * @param opaque Should the web view background be opaque
    * @param readyFunc A function conforming to onReadyFunc, that will be called asyncronously when the webview has been initialized
-   * @param msgFunc A function conforming to onMessageFunc, that will be called when messages are posted from the webview */
-  IWebViewControl(const IRECT& bounds, bool opaque, OnReadyFunc readyFunc, OnMessageFunc msgFunc = nullptr)
+   * @param msgFunc A function conforming to onMessageFunc, that will be called when messages are posted from the webview
+   * @param enableDevTools Should the webview developer tools be available via context menu */
+  IWebViewControl(const IRECT& bounds, bool opaque, OnReadyFunc readyFunc, OnMessageFunc msgFunc = nullptr, bool enableDevTools = false)
   : IControl(bounds)
   , IWebView(opaque)
   , mOnReadyFunc(readyFunc)
   , mOnMessageFunc(msgFunc)
+  , mEnableDevTools(enableDevTools)
   {
     // The IControl should not receive mouse messages
     mIgnoreMouse = true;
@@ -60,7 +62,7 @@ public:
   void OnAttached() override
   {
     IGraphics* pGraphics = GetUI();
-    mPlatformView = OpenWebView(pGraphics->GetWindow(), mRECT.L, mRECT.T, mRECT.W(), mRECT.H(), pGraphics->GetDrawScale());
+    mPlatformView = OpenWebView(pGraphics->GetWindow(), mRECT.L, mRECT.T, mRECT.W(), mRECT.H(), pGraphics->GetDrawScale(), mEnableDevTools);
     pGraphics->AttachPlatformView(mRECT, mPlatformView);
   }
   
@@ -100,7 +102,7 @@ public:
     
     IControl::Hide(hide);
   }
-  
+
 private:
   void UpdateWebViewBounds()
   {
@@ -111,6 +113,7 @@ private:
   void* mPlatformView = nullptr;
   OnReadyFunc mOnReadyFunc;
   OnMessageFunc mOnMessageFunc;
+  bool mEnableDevTools = false;
 };
 
 END_IGRAPHICS_NAMESPACE

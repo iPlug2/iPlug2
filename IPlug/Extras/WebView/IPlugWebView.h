@@ -39,7 +39,7 @@ public:
   IWebView(bool opaque = true);
   virtual ~IWebView();
   
-  void* OpenWebView(void* pParent, float x, float y, float w, float h, float scale = 1.);
+  void* OpenWebView(void* pParent, float x, float y, float w, float h, float scale = 1.0f, bool enableDevTools = true);
   void CloseWebView();
   void HideWebView(bool hide);
   

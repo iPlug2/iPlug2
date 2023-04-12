@@ -40,7 +40,7 @@ using namespace iplug;
   CGRect r = CGRectMake(0, 0, w, h);
   self = [super initWithFrame:r];
   
-  void* pWebView = pDelegate->OpenWebView(self, 0, 0, w, h);
+  void* pWebView = pDelegate->OpenWebView(self, 0, 0, w, h, 1.0f, pDelegate->GetEnableDevTools());
 
   [self addSubview: (PLATFORM_VIEW*) pWebView];
 
