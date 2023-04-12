@@ -171,7 +171,7 @@ protected:
   std::function<void()> mEditorInitFunc = nullptr;
   
 private:
-  bool mEnableDevTools = true;
+  bool mEnableDevTools = false;
 };
 
 END_IPLUG_NAMESPACE

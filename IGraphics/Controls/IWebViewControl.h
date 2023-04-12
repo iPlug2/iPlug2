@@ -42,7 +42,7 @@ public:
    * @param readyFunc A function conforming to onReadyFunc, that will be called asyncronously when the webview has been initialized
    * @param msgFunc A function conforming to onMessageFunc, that will be called when messages are posted from the webview
    * @param enableDevTools Should the webview developer tools be available via context menu */
-  IWebViewControl(const IRECT& bounds, bool opaque, OnReadyFunc readyFunc, OnMessageFunc msgFunc = nullptr, bool enableDevTools = true)
+  IWebViewControl(const IRECT& bounds, bool opaque, OnReadyFunc readyFunc, OnMessageFunc msgFunc = nullptr, bool enableDevTools = false)
   : IControl(bounds)
   , IWebView(opaque)
   , mOnReadyFunc(readyFunc)
@@ -129,7 +129,7 @@ private:
   void* mPlatformView = nullptr;
   OnReadyFunc mOnReadyFunc;
   OnMessageFunc mOnMessageFunc;
-  bool mEnableDevTools = true;
+  bool mEnableDevTools = false;
   bool mEnableInteraction = true;
 };
 
