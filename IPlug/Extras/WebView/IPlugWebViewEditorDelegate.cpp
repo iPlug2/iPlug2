@@ -27,7 +27,9 @@ WebViewEditorDelegate::~WebViewEditorDelegate()
 
 void* WebViewEditorDelegate::OpenWindow(void* pParent)
 {
-  return OpenWebView(pParent, 0., 0., GetEditorWidth(), GetEditorHeight(), 1.f);
+  void* pWebView = OpenWebView(pParent, 0.0f, 0.0f, static_cast<float>(GetEditorWidth()), static_cast<float>(GetEditorHeight()), 1.0f);;
+  SetOwningView(pWebView);
+  return pWebView;
 }
 
 void WebViewEditorDelegate::Resize(int width, int height)

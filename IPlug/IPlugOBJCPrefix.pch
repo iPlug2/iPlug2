@@ -61,5 +61,9 @@
   // these only exist in AUv3 plug-ins, so don't need the API on the end
   #define IPLUG_AUAUDIOUNIT CONCATAU(IPlugAUAudioUnit_)
   #define IPLUG_AUVIEWCONTROLLER CONCATAU(IPlugAUViewController_)
+
+  #define IPLUG_DIALOG_HANDLER_VIEW CONCAT(IPlugDialogHandlerView_)
+  #define IPLUG_MENU CONCAT(IPlugMenu_)
+  #define IPLUG_MENU_RCVR CONCAT(IPlugMenuRcvr_)
 #endif
 

@@ -73,9 +73,6 @@ enum class EBlend
 };
 
 /** \todo */
-enum class EFileAction { Open, Save };
-
-/** \todo */
 enum class EDirection { Vertical, Horizontal };
 
 /** Used to specify text styles when loading fonts. */
@@ -179,32 +176,6 @@ enum class ECursor
 
 /** \todo */
 enum class ETouchEvent { Began, Moved, Ended, Cancelled, Invalid };
-
-// This enumeration must match win32 message box options
-enum EMsgBoxType
-{
-  kMB_OK = 0,
-  kMB_OKCANCEL = 1,
-  kMB_YESNOCANCEL = 3,
-  kMB_YESNO = 4,
-  kMB_RETRYCANCEL = 5
-};
-
-// This enumeration must match win32 message box results
- //If IGraphics::ShowMessageBox can't return inline, it returns kNoResult (e.g. because it requires an asynchronous call)
-enum EMsgBoxResult
-{
-  kNoResult,
-  kOK = 1,
-  kCANCEL = 2,
-  kABORT = 3,
-  kRETRY = 4,
-  kIGNORE = 5,
-  kYES = 6,
-  kNO = 7
-};
-
-static const char* kMessageResultStrs[8] = {"", "OK", "CANCEL", "ABORT", "RETRY", "IGNORE", "YES", "NO"};
 
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
