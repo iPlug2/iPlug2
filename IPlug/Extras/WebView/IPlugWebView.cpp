@@ -36,7 +36,7 @@ typedef HRESULT(*TCCWebView2EnvWithOptions)(
   PCWSTR additionalBrowserArguments,
   ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler* environment_created_handler);
 
-void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, float scale)
+void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, float scale, bool enableDevTools)
 {
   mParentWnd = (HWND)pParent;
 
@@ -71,6 +71,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
             Settings->put_IsScriptEnabled(TRUE);
             Settings->put_AreDefaultScriptDialogsEnabled(TRUE);
             Settings->put_IsWebMessageEnabled(TRUE);
+            Settings->put_AreDevToolsEnabled(enableDevTools);
 
             // this script adds a function IPlugSendMsg that is used to call the platform webview messaging function in JS
             mWebViewWnd->AddScriptToExecuteOnDocumentCreated(L"function IPlugSendMsg(m) {window.chrome.webview.postMessage(m)};",

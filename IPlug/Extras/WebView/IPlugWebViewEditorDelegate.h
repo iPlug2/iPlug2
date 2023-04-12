@@ -149,6 +149,13 @@ public:
     mMaxJSStringLength = length;
   }
   
+  void SetEnableDevTools(bool enable)
+  {
+    mEnableDevTools = enable;
+  }
+  
+  bool GetEnableDevTools() const { return mEnableDevTools; }
+  
 private:
   void ResizeWebViewAndHelper(float width, float height);
   
@@ -162,6 +169,9 @@ private:
 
 protected:
   std::function<void()> mEditorInitFunc = nullptr;
+  
+private:
+  bool mEnableDevTools = true;
 };
 
 END_IPLUG_NAMESPACE
