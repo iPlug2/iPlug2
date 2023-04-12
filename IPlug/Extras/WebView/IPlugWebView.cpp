@@ -71,6 +71,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
             Settings->put_IsScriptEnabled(TRUE);
             Settings->put_AreDefaultScriptDialogsEnabled(TRUE);
             Settings->put_IsWebMessageEnabled(TRUE);
+            Settings->put_AreDefaultContextMenusEnabled(FALSE);
             Settings->put_AreDevToolsEnabled(enableDevTools);
 
             // this script adds a function IPlugSendMsg that is used to call the platform webview messaging function in JS
