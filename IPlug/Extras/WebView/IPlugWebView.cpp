@@ -203,7 +203,12 @@ void IWebView::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc f
 
 void IWebView::EnableScroll(bool enable)
 {
-  // TODO?
+  /* NO-OP */
+}
+
+void IWebView::EnableInteraction(bool enable)
+{
+  /* NO-OP */
 }
 
 void IWebView::SetWebViewBounds(float x, float y, float w, float h, float scale)
