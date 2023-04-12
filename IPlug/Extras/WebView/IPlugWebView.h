@@ -62,6 +62,9 @@ public:
   /** Enable scrolling on the webview. NOTE: currently only implemented for iOS */
   void EnableScroll(bool enable);
   
+  /** Sets whether the webview is interactive */
+  void SetEnableInteraction(bool enable);
+  
   /** Set the bounds of the webview in the parent window. xywh are specifed in relation to a 1:1 non retina screen */
   void SetWebViewBounds(float x, float y, float w, float h, float scale = 1.);
 

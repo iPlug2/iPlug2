@@ -49,7 +49,8 @@ public:
   , mOnMessageFunc(msgFunc)
   , mEnableDevTools(enableDevTools)
   {
-    // The IControl should not receive mouse messages
+    // The IControl itself should never receive mouse messages
+    // they need to go to the webview
     mIgnoreMouse = true;
   }
   
@@ -64,6 +65,8 @@ public:
     IGraphics* pGraphics = GetUI();
     mPlatformView = OpenWebView(pGraphics->GetWindow(), mRECT.L, mRECT.T, mRECT.W(), mRECT.H(), pGraphics->GetDrawScale(), mEnableDevTools);
     pGraphics->AttachPlatformView(mRECT, mPlatformView);
+    
+    EnableScroll(false);
   }
   
   void Draw(IGraphics& g) override
@@ -75,6 +78,11 @@ public:
   {
     if (mOnReadyFunc)
       mOnReadyFunc(this);
+  }
+  
+  void OnWebContentLoaded() override
+  {
+    SetEnableInteraction(mEnableInteraction);
   }
   
   void OnMessageFromWebView(const char* json) override
@@ -91,6 +99,14 @@ public:
   void OnResize() override
   {
     UpdateWebViewBounds();
+  }
+  
+  void SetIgnoreMouse(bool ignore) override
+  {
+    // The IControl itself should never receive mouse messages
+    // they need to go to the webview
+    mEnableInteraction = !ignore;
+    SetEnableInteraction(mEnableInteraction);
   }
   
   void Hide(bool hide) override
@@ -114,6 +130,7 @@ private:
   OnReadyFunc mOnReadyFunc;
   OnMessageFunc mOnMessageFunc;
   bool mEnableDevTools = true;
+  bool mEnableInteraction = true;
 };
 
 END_IGRAPHICS_NAMESPACE

@@ -23,6 +23,95 @@ extern bool GetResourcePathFromBundle(const char* fileName, const char* searchEx
 
 using namespace iplug;
 
+@interface IPLUG_WKWEBVIEW : WKWebView
+{
+  bool mEnableInteraction;
+}
+- (void)setEnableInteraction:(bool)enable;
+
+@end
+
+@implementation IPLUG_WKWEBVIEW
+
+- (instancetype)initWithFrame:(CGRect)frame configuration:(WKWebViewConfiguration *)configuration
+{
+  self = [super initWithFrame:frame configuration:configuration];
+  
+  if (self)
+  {
+    mEnableInteraction = true;
+  }
+  return self;
+}
+
+#ifdef OS_MAC
+- (NSView *)hitTest:(NSPoint)point
+{
+  if (!mEnableInteraction)
+  {
+    return nil;
+  }
+  else
+    return [super hitTest:point];
+}
+
+- (void)willOpenMenu:(NSMenu *)menu withEvent:(NSEvent *)event
+{
+  [super willOpenMenu:menu withEvent:event];
+  
+  NSArray<NSString *> *WKStrings = @[
+   @"WKMenuItemIdentifierCopy",
+   @"WKMenuItemIdentifierCopyImage",
+   @"WKMenuItemIdentifierCopyLink",
+   @"WKMenuItemIdentifierDownloadImage",
+   @"WKMenuItemIdentifierDownloadLinkedFile",
+   @"WKMenuItemIdentifierGoBack",
+   @"WKMenuItemIdentifierGoForward",
+//   @"WKMenuItemIdentifierInspectElement",
+   @"WKMenuItemIdentifierLookUp",
+   @"WKMenuItemIdentifierOpenFrameInNewWindow",
+   @"WKMenuItemIdentifierOpenImageInNewWindow",
+   @"WKMenuItemIdentifierOpenLink",
+   @"WKMenuItemIdentifierOpenLinkInNewWindow",
+   @"WKMenuItemIdentifierPaste",
+   @"WKMenuItemIdentifierReload",
+   @"WKMenuItemIdentifierSearchWeb",
+   @"WKMenuItemIdentifierShowHideMediaControls",
+   @"WKMenuItemIdentifierToggleFullScreen",
+   @"WKMenuItemIdentifierTranslate",
+   @"WKMenuItemIdentifierShareMenu",
+   @"WKMenuItemIdentifierSpeechMenu"
+  ];
+  
+  for (NSInteger itemIndex = 0; itemIndex < menu.itemArray.count; itemIndex++)
+  {
+    if ([WKStrings containsObject:menu.itemArray[itemIndex].identifier])
+    {
+      [menu removeItemAtIndex:itemIndex];
+    }
+  }
+}
+
+#endif
+
+- (void)setEnableInteraction:(bool)enable
+{
+  mEnableInteraction = enable;
+  
+#ifdef OS_MAC
+  if (!mEnableInteraction)
+  {
+    for (NSTrackingArea* trackingArea in self.trackingAreas)
+    {
+      [self removeTrackingArea:trackingArea];
+    }
+  }
+#endif
+}
+
+
+@end
+
 @interface ScriptHandler : NSObject <WKScriptMessageHandler, WKNavigationDelegate>
 {
   IWebView* mWebView;
@@ -52,7 +141,7 @@ using namespace iplug;
   }
 }
 
-- (void) webView:(WKWebView*) webView didFinishNavigation:(WKNavigation*) navigation
+- (void) webView:(IPLUG_WKWEBVIEW*) webView didFinishNavigation:(WKNavigation*) navigation
 {
   mWebView->OnWebContentLoaded();
 }
@@ -97,8 +186,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
   [controller addUserScript:script2];
   
   
-  WKWebView* webView = [[WKWebView alloc] initWithFrame: MAKERECT(x, y, w, h) configuration:webConfig];
-  
+  IPLUG_WKWEBVIEW* webView = [[IPLUG_WKWEBVIEW alloc] initWithFrame: MAKERECT(x, y, w, h) configuration:webConfig];
 
 #if defined OS_IOS
   if (!mOpaque)
@@ -118,7 +206,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
 #endif
   
   [webView setNavigationDelegate:scriptHandler];
-    
+
 //#ifdef OS_MAC
 //  [webView setAutoresizingMask: NSViewHeightSizable|NSViewWidthSizable|NSViewMinXMargin|NSViewMaxXMargin|NSViewMinYMargin|NSViewMaxYMargin ];
 //#else
@@ -137,7 +225,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
 
 void IWebView::CloseWebView()
 {
-  WKWebView* webView = (__bridge WKWebView*) mWKWebView;
+  IPLUG_WKWEBVIEW* webView = (__bridge IPLUG_WKWEBVIEW*) mWKWebView;
   [webView removeFromSuperview];
   
   mWebConfig = nullptr;
@@ -151,13 +239,13 @@ void IWebView::HideWebView(bool hide)
 
 void IWebView::LoadHTML(const char* html)
 {
-  WKWebView* webView = (__bridge WKWebView*) mWKWebView;
+  IPLUG_WKWEBVIEW* webView = (__bridge IPLUG_WKWEBVIEW*) mWKWebView;
   [webView loadHTMLString:[NSString stringWithUTF8String:html] baseURL:nil];
 }
 
 void IWebView::LoadURL(const char* url)
 {
-  WKWebView* webView = (__bridge WKWebView*) mWKWebView;
+  IPLUG_WKWEBVIEW* webView = (__bridge IPLUG_WKWEBVIEW*) mWKWebView;
   
   NSURL* nsurl = [NSURL URLWithString:[NSString stringWithUTF8String:url] relativeToURL:nil];
   NSURLRequest* req = [[NSURLRequest alloc] initWithURL:nsurl];
@@ -166,7 +254,7 @@ void IWebView::LoadURL(const char* url)
 
 void IWebView::LoadFile(const char* fileName, const char* bundleID)
 {
-  WKWebView* webView = (__bridge WKWebView*) mWKWebView;
+  IPLUG_WKWEBVIEW* webView = (__bridge IPLUG_WKWEBVIEW*) mWKWebView;
 
   WDL_String fullPath;
   WDL_String fileNameWeb("web/");
@@ -186,7 +274,7 @@ void IWebView::LoadFile(const char* fileName, const char* bundleID)
 
 void IWebView::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc func)
 {
-  WKWebView* webView = (__bridge WKWebView*) mWKWebView;
+  IPLUG_WKWEBVIEW* webView = (__bridge IPLUG_WKWEBVIEW*) mWKWebView;
   
   if (webView && ![webView isLoading])
   {
@@ -204,19 +292,25 @@ void IWebView::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc f
 void IWebView::EnableScroll(bool enable)
 {
 #ifdef OS_IOS
-  WKWebView* webView = (__bridge WKWebView*) mWKWebView;
+  IPLUG_WKWEBVIEW* webView = (__bridge IPLUG_WKWEBVIEW*) mWKWebView;
   [webView.scrollView setScrollEnabled:enable];
 #endif
+}
+
+void IWebView::SetEnableInteraction(bool enable)
+{
+  IPLUG_WKWEBVIEW* webView = (__bridge IPLUG_WKWEBVIEW*) mWKWebView;
+  [webView setEnableInteraction:enable];
 }
 
 void IWebView::SetWebViewBounds(float x, float y, float w, float h, float scale)
 {
 //  [NSAnimationContext beginGrouping]; // Prevent animated resizing
 //  [[NSAnimationContext currentContext] setDuration:0.0];
-  [(__bridge WKWebView*) mWKWebView setFrame: MAKERECT(x, y, w, h) ];
+  [(__bridge IPLUG_WKWEBVIEW*) mWKWebView setFrame: MAKERECT(x, y, w, h) ];
 
   if (@available(macOS 11.0, ios 14.0, *)) {
-    [(__bridge WKWebView*) mWKWebView setPageZoom:scale ];
+    [(__bridge IPLUG_WKWEBVIEW*) mWKWebView setPageZoom:scale ];
   }
 
 //  [NSAnimationContext endGrouping];
