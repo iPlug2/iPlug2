@@ -84,6 +84,7 @@ private:
   void* mWebConfig = nullptr;
   void* mScriptHandler = nullptr;
 #elif defined OS_WIN
+  BOOL mContainsFullscreenElement = false;
   HWND mParentWnd = NULL;
   wil::com_ptr<ICoreWebView2Controller> mWebViewCtrlr;
   wil::com_ptr<ICoreWebView2> mWebViewWnd;

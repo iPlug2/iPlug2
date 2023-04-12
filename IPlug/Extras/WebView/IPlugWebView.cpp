@@ -106,6 +106,21 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
                 })
               .Get(), &mNavigationCompletedToken);
 
+            mWebViewWnd->add_ContainsFullScreenElementChanged(
+              Callback<ICoreWebView2ContainsFullScreenElementChangedEventHandler>([this](ICoreWebView2* sender, IUnknown* args) -> HRESULT {
+                sender->get_ContainsFullScreenElement(&mContainsFullscreenElement);
+                if (mContainsFullscreenElement)
+                {
+                  //TODO: EnterFullScreen();
+                }
+                else
+                {
+                  //TODO: ExitFullScreen();
+                }
+                return S_OK;
+              }).Get(),
+              nullptr);
+
             if (!mOpaque)
             {
               wil::com_ptr<ICoreWebView2Controller2> controller2 = mWebViewCtrlr.query<ICoreWebView2Controller2>();
