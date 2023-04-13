@@ -457,9 +457,9 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   {
     pPanel = [NSSavePanel savePanel];
     
+    [(NSSavePanel*) pPanel setAllowedFileTypes: pFileTypes];
     [(NSSavePanel*) pPanel setDirectoryURL: [NSURL fileURLWithPath: pDefaultPath]];
     [(NSSavePanel*) pPanel setNameFieldStringValue: pDefaultFileName];
-    [(NSSavePanel*) pPanel setAllowedFileTypes: pFileTypes];
     [(NSSavePanel*) pPanel setAllowsOtherFileTypes: NO];
   }
   else
@@ -467,6 +467,7 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     pPanel = [NSOpenPanel openPanel];
     
     [(NSOpenPanel*) pPanel setAllowedFileTypes: pFileTypes];
+    [(NSOpenPanel*) pPanel setDirectoryURL: [NSURL fileURLWithPath: pDefaultPath]];
     [(NSOpenPanel*) pPanel setCanChooseFiles:YES];
     [(NSOpenPanel*) pPanel setCanChooseDirectories:NO];
     [(NSOpenPanel*) pPanel setResolvesAliases:YES];
