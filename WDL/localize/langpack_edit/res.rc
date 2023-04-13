@@ -62,20 +62,18 @@ END
 //
 
 IDD_DIALOG1 DIALOG DISCARDABLE  0, 0, 600, 400
-STYLE DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MAXIMIZEBOX | WS_MINIMIZEBOX
+STYLE DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | 
+    WS_SYSMENU | WS_THICKFRAME
 CAPTION "LangPackEdit"
+MENU IDR_MENU1
 FONT 8, "MS Sans Serif"
 BEGIN
     LTEXT           "Template:",IDC_TEMPLATE_LABEL,3,10,35,8
-    EDITTEXT        IDC_TEMPLATE,41,8,496,12,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "Load Template...",IDC_TEMPLATE_LOAD,540,8,57,12
+    EDITTEXT        IDC_TEMPLATE,41,8,556,12,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "Pack:",IDC_PACK_LABEL,3,26,35,8
-    EDITTEXT        IDC_PACK,41,24,496,12,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "Load Pack...",IDC_PACK_LOAD,540,24,57,12
+    EDITTEXT        IDC_PACK,41,24,556,12,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "Comments:",IDC_COMMENTS_LABEL,3,40,35,8
-    EDITTEXT        IDC_COMMENTS,41,40,416,37,ES_AUTOHSCROLL | ES_MULTILINE
-    PUSHBUTTON      "Save pack",IDC_PACK_SAVE,540,45,57,12
-    PUSHBUTTON      "Save pack as...",IDC_PACK_SAVE_AS,540,61,57,12
+    EDITTEXT        IDC_COMMENTS,41,40,556,37,ES_MULTILINE | ES_AUTOHSCROLL
     LTEXT           "Filter:",IDC_FILTERLBL,3,83,35,8,SS_NOTIFY
     EDITTEXT        IDC_FILTER,41,80,556,14,ES_AUTOHSCROLL
     CONTROL         "List1",IDC_LIST,"SysListView32",LVS_REPORT | 
@@ -89,16 +87,20 @@ CAPTION "Localize: "
 FONT 8, "MS Shell Dlg"
 BEGIN
     LTEXT           "Localized string:",IDC_STATIC,7,41,61,8
-    EDITTEXT        IDC_LOCALIZED_STRING,65,39,328,14,ES_AUTOHSCROLL|WS_TABSTOP
+    EDITTEXT        IDC_LOCALIZED_STRING,65,39,328,14,ES_AUTOHSCROLL
     DEFPUSHBUTTON   "OK",IDOK,118,61,44,14
     PUSHBUTTON      "Cancel",IDCANCEL,167,61,44,14
-    PUSHBUTTON      "Remove Localization",IDC_REMOVE_LOCALIZATION,220,61,84,14
+    PUSHBUTTON      "Remove Localization",IDC_REMOVE_LOCALIZATION,220,61,84,
+                    14
     PUSHBUTTON      "Set to Template String",IDC_COPY_TEMPLATE,309,61,84,14
     LTEXT           "Template string:",IDC_STATIC,7,9,61,8
-    EDITTEXT        IDC_TEMPLATE_STRING,65,7,328,14,ES_AUTOHSCROLL|ES_READONLY
+    EDITTEXT        IDC_TEMPLATE_STRING,65,7,328,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
     LTEXT           "[common] string:",IDC_COMMON_LABEL,7,25,61,8
-    EDITTEXT        IDC_COMMON_STRING,65,23,328,14,ES_AUTOHSCROLL|ES_READONLY
+    EDITTEXT        IDC_COMMON_STRING,65,23,328,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
 END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -107,13 +109,43 @@ END
 
 IDR_CONTEXTMENU MENU DISCARDABLE 
 BEGIN
-    MENUITEM "Edit localization", IDC_LOCALIZED_STRING
-    MENUITEM "Edit [common] localization", IDC_COMMON_STRING
-    MENUITEM "Add dialog scaling item for context", ID_SCALING_ADD
-    MENUITEM "Set localization to template value if not set (mark as localized)", IDC_COPY_TEMPLATE
-    MENUITEM "Remove localization", IDC_REMOVE_LOCALIZATION
-    MENUITEM "Remove localization from items that match template", IDC_REMOVE_NONLOCALIZATION
+    POPUP "Context"
+    BEGIN
+        MENUITEM "Edit localization\tEnter",    IDC_LOCALIZED_STRING
+        MENUITEM "Edit [common] localization",  IDC_COMMON_STRING
+        MENUITEM "Add dialog scaling item for context", ID_SCALING_ADD
+        MENUITEM "Set localization to template value if not set (mark as localized)", 
+                                                IDC_COPY_TEMPLATE
+        MENUITEM "Remove localization\tDelete", IDC_REMOVE_LOCALIZATION
+        MENUITEM "Remove localization from items that match template", 
+                                                IDC_REMOVE_NONLOCALIZATION
+    END
 END
+
+IDR_MENU1 MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "Load &Template...\tCtrl+T",   IDC_TEMPLATE_LOAD
+        MENUITEM "&Load Pack...\tCtrl+O",       IDC_PACK_LOAD
+        MENUITEM "&Save Pack\tCtrl+S",          IDC_PACK_SAVE
+        MENUITEM "Save Pack &As...\tCtrl+Alt+S", IDC_PACK_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "&Quit\tCtrl+Q",               ID_QUIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "Edit localization\tEnter",    IDC_LOCALIZED_STRING
+        MENUITEM "Edit [common] localization",  IDC_COMMON_STRING
+        MENUITEM "Add dialog scaling item for context", ID_SCALING_ADD
+        MENUITEM "Set localization to template value if not set (mark as localized)", 
+                                                IDC_COPY_TEMPLATE
+        MENUITEM "Remove localization\tDelete", IDC_REMOVE_LOCALIZATION
+        MENUITEM "Remove localization from items that match template", 
+                                                IDC_REMOVE_NONLOCALIZATION
+    END
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -126,7 +158,7 @@ BEGIN
     IDD_DIALOG1, DIALOG
     BEGIN
         LEFTMARGIN, 4
-        RIGHTMARGIN, 374
+        RIGHTMARGIN, 597
         TOPMARGIN, 3
         BOTTOMMARGIN, 258
     END

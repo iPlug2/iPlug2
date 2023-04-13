@@ -3639,7 +3639,6 @@ int  WINAPI CoolSB_SetScrollInfo (HWND hwnd, int fnBar, LPSCROLLINFO lpsi, BOOL 
   if(lpsi->fMask & SIF_POS)
   {
     int maxv = mysi->nMax - wdl_max((int) mysi->nPage - 1, 0);
-    if (maxv < mysi->nMin) maxv = mysi->nMin;
     mysi->nPos = wdl_clamp(lpsi->nPos, mysi->nMin, maxv);
   }
 
@@ -3700,7 +3699,6 @@ int WINAPI CoolSB_SetScrollPos(HWND hwnd, int nBar, int nPos, BOOL fRedraw)
 
   //validate and set the scollbar position
   maxv = mysi->nMax - wdl_max((int) mysi->nPage - 1, 0);
-  if (maxv < mysi->nMin) maxv = mysi->nMin;
 
   oldpos = mysi->nPos;
   mysi->nPos = wdl_clamp(nPos, mysi->nMin, maxv);

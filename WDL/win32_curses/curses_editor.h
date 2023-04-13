@@ -229,10 +229,7 @@ protected:
 
     int m_offs_x[2];
     int m_curs_x[2], m_curs_y[2];
-
-    int m_curpane[2];
-    double m_pane_div[2];
-    int m_paneoffs_y[2][2];
+    int m_curpaneoffs_y[2];
   };
   void do_paste_lines(WDL_PtrList<const char> &lines);
   public:

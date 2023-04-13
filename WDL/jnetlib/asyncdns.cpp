@@ -69,7 +69,7 @@ unsigned int JNL_AsyncDNS::_threadfunc(void *_d)
           hostentry=::gethostbyname(_this->m_cache[x].hostname);
           if (hostentry)
           {
-            _this->m_cache[x].addr=*((int*)hostentry->h_addr);
+            memcpy(&_this->m_cache[x].addr,hostentry->h_addr,sizeof(int));
           }
           else
             _this->m_cache[x].addr=INADDR_NONE;

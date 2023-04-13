@@ -2153,6 +2153,15 @@ static int eel_lice_key_xlate(int msg, int wParam, int lParam, bool *isAltOut)
           const bool isctrl = !!(GetAsyncKeyState(VK_CONTROL)&0x8000);
           const bool isalt = !!(GetAsyncKeyState(VK_MENU)&0x8000);
 
+#ifdef __APPLE__
+          // SWELL_MacKeyToWindowsKeyEx maps control(FLWIN)+A-Z to 1-26
+          if (wParam > 0 && wParam <= 26 && !(lParam&FVIRTKEY))
+          {
+            *isAltOut=isalt;
+            return wParam;
+          }
+#endif
+
           if(isctrl || isalt)
           {
 

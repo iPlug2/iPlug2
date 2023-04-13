@@ -13,6 +13,9 @@ CFLAGS += -D_FILE_OFFSET_BITS=64
 
 OBJS=nseel-caltab.o nseel-compiler.o nseel-eval.o nseel-lextab.o nseel-ram.o nseel-yylex.o nseel-cfunc.o fft.o
 
+SWELL_OBJS=
+LICE_OBJS=
+
 OBJS2=
 
 UNAME_S := $(shell uname -s)
@@ -52,7 +55,7 @@ ifndef DEPRECATED_WARNINGS
 endif
 
 
-default: loose_eel
+default: loose_eel eel_pp
 
 nseel-compiler.o: glue*.h ns-eel*.h
 nseel-cfunc.o:  asm*.c ns-eel*.h
@@ -74,7 +77,7 @@ ifdef DISASSEMBLE
 endif
 
 ifndef NO_GFX
-    OBJS += lice.o lice_image.o lice_line.o lice_ico.o lice_bmp.o lice_textnew.o lice_text.o lice_arc.o
+    LICE_OBJS += lice.o lice_image.o lice_line.o lice_ico.o lice_bmp.o lice_textnew.o lice_text.o lice_arc.o
     CFLAGS += -DEEL_LICE_WANT_STANDALONE 
 
   ifeq ($(UNAME_S),Darwin)
@@ -85,7 +88,7 @@ ifndef NO_GFX
     else
       CFLAGS += -mmacosx-version-min=10.5
     endif
-    OBJS += swell-wnd.o swell-gdi.o swell.o swell-misc.o swell-dlg.o swell-menu.o swell-kb.o
+    SWELL_OBJS += swell-wnd.o swell-gdi.o swell.o swell-misc.o swell-dlg.o swell-menu.o swell-kb.o
     LFLAGS += -lobjc -framework Cocoa -framework Carbon
   else
 
@@ -102,7 +105,7 @@ ifndef NO_GFX
       LFLAGS += $(shell pkg-config --libs freetype2)
     endif
 
-    OBJS += swell-wnd-generic.o swell-gdi-lice.o swell.o swell-misc-generic.o \
+    SWELL_OBJS += swell-wnd-generic.o swell-gdi-lice.o swell.o swell-misc-generic.o \
             swell-dlg-generic.o swell-menu-generic.o swell-kb-generic.o \
             swell-gdi-generic.o swell-ini.o swell-generic-gdk.o
 
@@ -152,10 +155,13 @@ gen-lex:  # the output of this, lex.nseel.c, is unused because we have a handwri
 %.o : %.mm
 	$(CXX) $(CXXFLAGS) -c -o $@ $^
 
-loose_eel: loose_eel.o $(OBJS) $(OBJS2)
+loose_eel: loose_eel.o $(OBJS) $(OBJS2) $(SWELL_OBJS) $(LICE_OBJS)
+	g++ -o $@ $^ $(CXXFLAGS) $(LFLAGS)
+
+eel_pp: eel_pp.o $(OBJS) $(OBJS2)
 	g++ -o $@ $^ $(CXXFLAGS) $(LFLAGS)
 
 clean:
-	-rm -f -- loose_eel loose_eel.o $(OBJS)
+	-rm -f -- loose_eel loose_eel.o eel_pp.o eel_pp $(OBJS) $(SWELL_OBJS) $(LICE_OBJS)
 
 .PHONY: clean gen-lex gen-yacc
