@@ -90,4 +90,6 @@ HWND __localizeDialog(HINSTANCE hInstance, const char * lpTemplate, HWND hwndPar
 #define __localizeDialogBoxParam(a,b,c,d,e) ((INT_PTR)__localizeDialog(a,b,c,d,e,1))
 #define __localizeCreateDialogParam(a,b,c,d,e) __localizeDialog(a,b,c,d,e,0)
 
+extern void (*localizePreInitDialogHook)(HWND hwndDlg);
+
 #endif

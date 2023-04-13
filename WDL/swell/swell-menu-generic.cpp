@@ -1221,6 +1221,11 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
   return DefWindowProc(hwnd,uMsg,wParam,lParam);
 }
 
+bool PopupMenuIsActive(void)
+{
+  return m_trackingMenus.GetSize()>0;
+}
+
 bool DestroyPopupMenus()
 {
   if (!m_trackingMenus.GetSize()) return false;

@@ -151,6 +151,8 @@ struct editor_instance {
   }
 
   bool edit_row(int rec_idx, int other_action=IDC_LOCALIZED_STRING);
+  bool on_key(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+  void item_context_menu();
 
   void set_dirty()
   {
@@ -216,6 +218,7 @@ void editor_instance::save_file(const char *filename)
   buf[0]=0;
   if (WDL_NORMALLY(m_hwnd))
     GetDlgItemText(m_hwnd,IDC_COMMENTS,buf,sizeof(buf));
+  WDL_remove_trailing_whitespace(buf);
   fprintf(fp,"%s\r\n",buf);
 
   char last_sec[1024];
@@ -231,18 +234,6 @@ void editor_instance::save_file(const char *filename)
     const char *id = parse_section_id(k,sec,sizeof(sec));
     if (WDL_NORMALLY(id))
     {
-      if (rec->common_idx>=0 && WDL_NORMALLY(stricmp(sec,"common")))
-      {
-        // optimize and don't write out duplicate strings which are already in [common]
-        const char *k2;
-        pack_rec *r2 = m_recs.EnumeratePtr(rec->common_idx,&k2);
-        if (WDL_NORMALLY(r2 && k2))
-        {
-          if (r2->pack_str && !strcmp(r2->pack_str,rec->pack_str))
-            continue;
-        }
-      }
-
       if (stricmp(last_sec,sec))
       {
         lstrcpyn_safe(last_sec,sec,sizeof(last_sec));
@@ -354,6 +345,8 @@ void editor_instance::load_file(const char *filename, bool is_template)
         if (fs.GetLength()) fs.Append("\r\n");
         fs.Append(p);
       }
+      if (fs.GetLength())
+        WDL_remove_trailing_whitespace((char *)fs.Get());
       SetDlgItemText(m_hwnd,IDC_COMMENTS,fs.Get());
     }
   }
@@ -472,6 +465,11 @@ WDL_DLGRET editorProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
               SetDlgItemText(hwndDlg,IDC_COMMON_STRING,r2->pack_str ? r2->pack_str : __LOCALIZE("(not yet localized)","langpackedit"));
               common_str = r2->pack_str;
             }
+          }
+          else if (!strnicmp(k,"common:",7))
+          {
+            ShowWindow(GetDlgItem(hwndDlg,IDC_COMMON_LABEL),SW_HIDE);
+            ShowWindow(GetDlgItem(hwndDlg,IDC_COMMON_STRING),SW_HIDE);
           }
           else
             SetDlgItemText(hwndDlg,IDC_COMMON_STRING,__LOCALIZE("(not in [common])","langpackedit"));
@@ -596,6 +594,66 @@ bool editor_instance::edit_row(int row, int other_action)
   return false;
 }
 
+
+bool editor_instance::on_key(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+  if (!m_hwnd || (hwnd != m_hwnd && !IsChild(m_hwnd,hwnd)))
+    return false;
+
+#ifndef __APPLE__
+  if (msg == WM_KEYDOWN && (wParam=='S' || wParam == 'O' || wParam == 'T'))
+  {
+    bool shift = !!(GetAsyncKeyState(VK_SHIFT)&0x8000);
+    bool ctrl = !!(GetAsyncKeyState(VK_CONTROL)&0x8000);
+    if (!shift && ctrl)
+    {
+      bool alt = !!(GetAsyncKeyState(VK_MENU)&0x8000);
+      int cmd = 0;
+      if (wParam == 'S' && ctrl) cmd = alt ? IDC_PACK_SAVE_AS : IDC_PACK_SAVE;
+      else if (wParam == 'O') cmd = IDC_PACK_LOAD;
+      else if (wParam == 'T') cmd = IDC_TEMPLATE_LOAD;
+
+      if (cmd)
+      {
+        SendMessage(m_hwnd,WM_COMMAND,cmd,0);
+        return 1;
+      }
+    }
+  }
+#endif
+
+  HWND hlist = GetDlgItem(m_hwnd,IDC_LIST);
+  if (hwnd == hlist || IsChild(hlist,hwnd))
+  {
+    if (msg == WM_KEYDOWN) switch (wParam)
+    {
+      case VK_RETURN:
+        SendMessage(m_hwnd,WM_COMMAND,IDC_LOCALIZED_STRING,0);
+      return true;
+      break;
+#ifdef _WIN32
+      case VK_APPS:
+        item_context_menu();
+      return true;
+#endif
+      case VK_BACK:
+      case VK_DELETE:
+        SendMessage(m_hwnd,WM_COMMAND,IDC_REMOVE_LOCALIZATION,0);
+      return true;
+    }
+  }
+  return false;
+}
+
+void editor_instance::item_context_menu()
+{
+  HMENU menu = LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXTMENU));
+  POINT p;
+  GetCursorPos(&p);
+  TrackPopupMenu(GetSubMenu(menu,0),0,p.x,p.y,0,m_hwnd,NULL);
+  DestroyMenu(menu);
+}
+
 const char *COL_DESCS[COL_MAX] = {
   // !WANT_LOCALIZE_STRINGS_BEGIN:langpackedit
   "State",
@@ -634,11 +692,7 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       g_editor.m_resize.init(hwndDlg);
       g_editor.m_resize.init_item(IDC_FILTER,0,0,1,0);
       g_editor.m_resize.init_item(IDC_TEMPLATE,0,0,1,0);
-      g_editor.m_resize.init_item(IDC_TEMPLATE_LOAD,1,0,1,0);
       g_editor.m_resize.init_item(IDC_PACK,0,0,1,0);
-      g_editor.m_resize.init_item(IDC_PACK_LOAD,1,0,1,0);
-      g_editor.m_resize.init_item(IDC_PACK_SAVE,1,0,1,0);
-      g_editor.m_resize.init_item(IDC_PACK_SAVE_AS,1,0,1,0);
       g_editor.m_resize.init_item(IDC_COMMENTS,0,0,1,0);
       g_editor.m_resize.init_item(IDC_LIST,0,0,1,1);
 
@@ -767,6 +821,59 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
           }
         break;
+        case IDC_LOCALIZED_STRING:
+        case IDC_COMMON_STRING:
+        case ID_SCALING_ADD:
+        case IDC_COPY_TEMPLATE:
+        case IDC_REMOVE_LOCALIZATION:
+        case IDC_REMOVE_NONLOCALIZATION:
+          {
+            HWND list = GetDlgItem(hwndDlg,IDC_LIST);
+            int cnt = 0;
+            const int n = ListView_GetItemCount(list);
+            for (int x = 0; x < n; x ++)
+            {
+              if (ListView_GetItemState(list,x,LVIS_SELECTED) & LVIS_SELECTED)
+              {
+                if (g_editor.edit_row(x,(int)wParam)) cnt++;
+                if (wParam == ID_SCALING_ADD)
+                  ListView_SetItemState(list,x,0,LVIS_SELECTED);
+              }
+            }
+            if (cnt && wParam != IDC_LOCALIZED_STRING)
+            {
+              g_editor.refresh_list(false);
+              g_editor.set_dirty();
+            }
+            if (wParam == ID_SCALING_ADD)
+            {
+              const int nn = ListView_GetItemCount(list);
+              if (n < nn)
+              {
+                ListView_EnsureVisible(list,n,false);
+                for (int i = n; i < nn; i ++)
+                  ListView_SetItemState(list,i,LVIS_SELECTED,LVIS_SELECTED);
+              }
+            }
+          }
+        break;
+      }
+    break;
+    case WM_INITMENUPOPUP:
+      if (wParam)
+      {
+        HMENU menu = (HMENU) wParam;
+        static const unsigned short tab[]={
+          IDC_LOCALIZED_STRING,
+          IDC_COMMON_STRING,
+          ID_SCALING_ADD,
+          IDC_COPY_TEMPLATE,
+          IDC_REMOVE_LOCALIZATION,
+          IDC_REMOVE_NONLOCALIZATION,
+        };
+        bool en = ListView_GetSelectedCount(GetDlgItem(hwndDlg,IDC_LIST))>0;
+        for (size_t x = 0; x < sizeof(tab)/sizeof(tab[0]); x ++)
+          EnableMenuItem(menu,tab[x],MF_BYCOMMAND|(en ? 0 : MF_GRAYED));
       }
     break;
     case WM_NOTIFY:
@@ -780,44 +887,7 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           case NM_RCLICK:
             if (ListView_GetSelectedCount(lv->hdr.hwndFrom)>0)
             {
-              HMENU menu = LoadMenu(g_hInstance, MAKEINTRESOURCE(IDR_CONTEXTMENU));
-
-              POINT p;
-              GetCursorPos(&p);
-              int ret = TrackPopupMenu(menu,TPM_NONOTIFY|TPM_RETURNCMD,p.x,p.y,0,hwndDlg,NULL);
-              DestroyMenu(menu);
-
-              if (ret)
-              {
-                int cnt = 0;
-                HWND list = lv->hdr.hwndFrom;
-                const int n = ListView_GetItemCount(list);
-                for (int x = 0; x < n; x ++)
-                {
-                  if (ListView_GetItemState(list,x,LVIS_SELECTED) & LVIS_SELECTED)
-                  {
-                    if (g_editor.edit_row(x,ret)) cnt++;
-                    if (ret == ID_SCALING_ADD)
-                      ListView_SetItemState(list,x,0,LVIS_SELECTED);
-                  }
-                }
-                if (cnt && ret != IDC_LOCALIZED_STRING)
-                {
-                  g_editor.refresh_list(false);
-                  g_editor.set_dirty();
-                }
-                if (ret == ID_SCALING_ADD)
-                {
-                  const int nn = ListView_GetItemCount(list);
-                  if (n < nn)
-                  {
-                    ListView_EnsureVisible(list,n,false);
-                    for (int i = n; i < nn; i ++)
-                      ListView_SetItemState(list,i,LVIS_SELECTED,LVIS_SELECTED);
-                  }
-                }
-              }
-
+              g_editor.item_context_menu();
             }
           return 0;
           case LVN_GETDISPINFO:
@@ -861,12 +931,48 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
         WDL_remove_filepart(buf);
         lstrcatn(buf,WDL_DIRCHAR_STR "LangPackEdit.LangPack",sizeof(buf));
 
+#ifdef _DEBUG
         extern bool g_debug_langpack_has_loaded;
         g_debug_langpack_has_loaded=true;
+#endif
         WDL_LoadLanguagePack(buf,NULL);
 
         HWND h=CreateDialog(NULL,MAKEINTRESOURCE(IDD_DIALOG1),NULL,mainProc);
         ShowWindow(h,SW_SHOW);
+
+#ifndef _WIN32
+      {
+        HMENU menu = LoadMenu(NULL,MAKEINTRESOURCE(IDR_MENU1));
+#ifdef __APPLE__
+        {
+          HMENU sm=GetSubMenu(menu,0);
+          DeleteMenu(sm,ID_QUIT,MF_BYCOMMAND); // remove QUIT from our file menu, since it is in the system menu on OSX
+
+          // remove any trailing separators
+          int a= GetMenuItemCount(sm);
+          while (a > 0 && GetMenuItemID(sm,a-1)==0) DeleteMenu(sm,--a,MF_BYPOSITION);
+        }
+
+        extern HMENU SWELL_app_stocksysmenu;
+        if (SWELL_app_stocksysmenu) // insert the stock system menu
+        {
+          HMENU nm=SWELL_DuplicateMenu(SWELL_app_stocksysmenu);
+          if (nm)
+          {
+            MENUITEMINFO mi={sizeof(mi),MIIM_STATE|MIIM_SUBMENU|MIIM_TYPE,MFT_STRING,0,0,nm,NULL,NULL,0,(char*)"LangPackEdit"};
+            InsertMenuItem(menu,0,TRUE,&mi);
+          }
+        }
+        SetMenuItemModifier(menu,IDC_TEMPLATE_LOAD,MF_BYCOMMAND,'T',FCONTROL);
+        SetMenuItemModifier(menu,IDC_PACK_LOAD,MF_BYCOMMAND,'O',FCONTROL);
+        SetMenuItemModifier(menu,IDC_PACK_SAVE,MF_BYCOMMAND,'S',FCONTROL);
+        SetMenuItemModifier(menu,IDC_PACK_SAVE_AS,MF_BYCOMMAND,'S',FCONTROL|FALT);
+#endif
+
+        SetMenu(h,menu);
+      }
+#endif
+
       }
     break;
     case SWELLAPP_DESTROY:
@@ -877,6 +983,28 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
     case SWELLAPP_ONCOMMAND:
       if (g_editor.m_hwnd)
         SendMessage(g_editor.m_hwnd,WM_COMMAND,parm1,0);
+    return 0;
+    case SWELLAPP_PROCESSMESSAGE:
+     if (parm1)
+     {
+       const MSG *m = (MSG *)parm1;
+       if (m->message == WM_KEYDOWN && m->hwnd)
+       {
+#ifndef __APPLE__
+         if (m->wParam == 'Q' && 
+             (GetAsyncKeyState(VK_CONTROL)&0x8000) &&
+             !(GetAsyncKeyState(VK_SHIFT)&0x8000) &&
+             !(GetAsyncKeyState(VK_MENU)&0x8000))
+         {
+           if (g_editor.m_hwnd)
+             SendMessage(g_editor.m_hwnd,WM_COMMAND,ID_QUIT,0);
+           return 1;
+         }
+#endif
+         if (g_editor.on_key(m->hwnd, m->message, m->wParam, m->lParam))
+           return 1;
+       }
+     }
     return 0;
   }
   return 0;

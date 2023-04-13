@@ -1,0 +1,10 @@
+
+<?  x=37; ?>
+<?  printf("y=%d;",x); ?>
+
+<? _suppress += 1; ?>
+
+printf("this will not get compiled\n");
+
+<? _suppress -= 1; ?>
+printf("apparently y is now %d but x is %d\n",y,x);

@@ -42,6 +42,9 @@
 
 #include "swell-dlggen.h"
 
+#define EDIT_CURSOR_BLINK_LEN 500
+#define EDIT_CURSOR_CYCLE_INTERVAL 3
+
 bool swell_is_likely_capslock; // only used when processing dit events for a-zA-Z
 SWELL_OSWINDOW SWELL_focused_oswindow; // top level window which has focus (might not map to a HWND__!)
 HWND swell_captured_window;
@@ -62,9 +65,16 @@ HWND swell_oswindow_to_hwnd(SWELL_OSWINDOW w)
   return a;
 }
 
+HWND SWELL_GetFocusedChild(HWND h);
+
 void swell_on_toplevel_raise(SWELL_OSWINDOW wnd) // called by swell-generic-gdk when a window is focused
 {
   HWND hwnd = swell_oswindow_to_hwnd(wnd);
+  if (SWELL_topwindows && hwnd != SWELL_topwindows)
+  {
+    HWND c = SWELL_GetFocusedChild(SWELL_topwindows);
+    if (c) SendMessage(c,WM_KILLFOCUS,0,0);
+  }
   if (hwnd && hwnd != SWELL_topwindows)
   {
     // implies hwnd->m_prev
@@ -82,6 +92,11 @@ void swell_on_toplevel_raise(SWELL_OSWINDOW wnd) // called by swell-generic-gdk 
     SWELL_topwindows = hwnd;
     VALIDATE_HWND_LIST(SWELL_topwindows,NULL);
   }
+  if (hwnd)
+  {
+    HWND c = SWELL_GetFocusedChild(hwnd);
+    if (c) SendMessage(c,WM_SETFOCUS,0,0);
+  }
 }
 
 HWND__::HWND__(HWND par, int wID, const RECT *wndr, const char *label, bool visible, WNDPROC wndproc, DLGPROC dlgproc, HWND ownerWindow)
@@ -90,6 +105,7 @@ HWND__::HWND__(HWND par, int wID, const RECT *wndr, const char *label, bool visi
   m_private_data=0;
   m_israised=false;
   m_has_had_position=false;
+  m_is_maximized = false;
   m_oswindow_private=0;
   m_oswindow_fullscreen=0;
 
@@ -714,11 +730,11 @@ void SetWindowPos(HWND hwnd, HWND zorder, int x, int y, int cx, int cy, int flag
     if (hwnd->m_oswindow && !hwnd->m_oswindow_fullscreen)
     {
       swell_oswindow_resize(hwnd->m_oswindow,reposflag,f);
-      if (reposflag&2) SendMessage(hwnd,WM_SIZE,0,0);
+      if (reposflag&2) SendMessage(hwnd,WM_SIZE,SIZE_RESTORED,0);
     }
     else
     {
-      if (reposflag&2) SendMessage(hwnd,WM_SIZE,0,0);
+      if (reposflag&2) SendMessage(hwnd,WM_SIZE,SIZE_RESTORED,0);
       InvalidateRect(hwnd->m_parent ? hwnd->m_parent : hwnd,NULL,FALSE);
     }
   }
@@ -1044,6 +1060,10 @@ void ShowWindow(HWND hwnd, int cmd)
     if (hwnd->m_visible) cmd = SW_SHOWNA; // do not take focus if already visible
     hwnd->m_visible=true;
   }
+  else if (cmd == SW_RESTORE || cmd == SW_SHOWMAXIMIZED)
+  {
+    hwnd->m_visible=true;
+  }
   else if (cmd==SW_HIDE) 
   {
     if (hwnd->m_visible)
@@ -1055,10 +1075,13 @@ void ShowWindow(HWND hwnd, int cmd)
   }
 
   swell_oswindow_manage(hwnd,cmd==SW_SHOW);
+
   if (cmd == SW_SHOW) 
   {
     SetForegroundWindow(hwnd);
   }
+  else if (cmd == SW_RESTORE || cmd == SW_SHOWMAXIMIZED)
+    swell_oswindow_maximize(hwnd,cmd == SW_SHOWMAXIMIZED);
 
   InvalidateRect(hwnd,NULL,FALSE);
 
@@ -1102,6 +1125,8 @@ static void Draw3DBox(HDC hdc, const RECT *r, int bgc, int topc, int botc, bool 
     tr.left--;
     tr.top--;
   }
+
+  if (topc == -1 && botc == -1) return;
 
   HPEN pen = CreatePen(PS_SOLID,0,swap?botc:topc);
   HPEN pen2 = CreatePen(PS_SOLID,0,swap?topc:botc);
@@ -2697,7 +2722,7 @@ forceMouseMove:
     case WM_TIMER:
       if (es && wParam == 100)
       {
-        if (++es->cursor_state >= 8) es->cursor_state=0;
+        if (++es->cursor_state >= EDIT_CURSOR_CYCLE_INTERVAL) es->cursor_state=0;
         if (GetFocusIncludeMenus()!=hwnd || es->cursor_state<2) InvalidateRect(hwnd,NULL,FALSE);
       }
     return 0;
@@ -2752,7 +2777,7 @@ forceMouseMove:
         {
           if (focused)
           {
-            if (!es->cursor_timer) { SetTimer(hwnd,100,100,NULL); es->cursor_timer=1; }
+            if (!es->cursor_timer) { SetTimer(hwnd,100,EDIT_CURSOR_BLINK_LEN,NULL); es->cursor_timer=1; }
           }
           else
           {
@@ -2764,17 +2789,14 @@ forceMouseMove:
         {
           RECT r; 
           GetClientRect(hwnd,&r); 
+          const RECT orig_r2 = r;
           RECT orig_r = r;
           WDL_FastString *title = &hwnd->m_title;
           if (hwnd->m_style & ES_PASSWORD) passwordify(&title);
 
-          Draw3DBox(ps.hdc,&r,
-            hwnd->m_enabled ? 
-              //(hwnd->m_style & ES_READONLY) ? g_swell_ctheme._3dface :
-                g_swell_ctheme.edit_bg :
-                g_swell_ctheme.edit_bg_disabled,
-            g_swell_ctheme.edit_shadow,
-            g_swell_ctheme.edit_hilight);
+          bool is_secpass = false;
+again:
+          Draw3DBox(ps.hdc,&orig_r, hwnd->m_enabled ?  g_swell_ctheme.edit_bg : g_swell_ctheme.edit_bg_disabled,-1,-1);
 
           SetTextColor(ps.hdc,
             hwnd->m_enabled ? 
@@ -2783,6 +2805,8 @@ forceMouseMove:
                       g_swell_ctheme.edit_text_disabled
           );
           SetBkMode(ps.hdc,TRANSPARENT);
+          if (!focused && es->scroll_x > 0 && es->scroll_x < 4)
+            es->scroll_x=0;
           r.left+=2 - es->scroll_x; r.right-=2;
 
           const bool do_cursor = es->cursor_state!=0;
@@ -2851,7 +2875,7 @@ forceMouseMove:
               if (vis)
               {
                 int wid = editControlPaintLine(ps.hdc,buf,lb,
-                   (do_cursor && cursor_pos >= bytepos && cursor_pos <= bytepos + lb) ? cursor_pos - bytepos : -1, 
+                   (do_cursor && cursor_pos >= bytepos && cursor_pos <= bytepos + lb) ? cursor_pos - bytepos : -1,
                    sel1 >= 0 ? (sel1 - bytepos) : -1,
                    sel2 >= 0 ? (sel2 - bytepos) : -1, 
                    &r, DT_TOP);
@@ -2882,9 +2906,24 @@ forceMouseMove:
           }
           else
           {
-            es->max_width = editControlPaintLine(ps.hdc, title->Get(), title->GetLength(), cursor_pos, sel1, sel2, &r, DT_VCENTER);
+            es->max_width = editControlPaintLine(ps.hdc, title->Get(), title->GetLength(),
+                do_cursor ? cursor_pos : -1, sel1, sel2, &r, DT_VCENTER);
+
+            if (es->scroll_x > 0 && !is_secpass)
+            {
+              int max_x = es->max_width - (r.right-2 - (orig_r2.bottom-orig_r2.top)/2);
+              if (max_x < 0) max_x = 0;
+              if (es->scroll_x > max_x)
+              {
+                es->scroll_x = max_x;
+                r = orig_r = orig_r2;
+                is_secpass = true;
+                goto again;
+              }
+            }
           }
 
+          Draw3DBox(ps.hdc,&orig_r2,-1, g_swell_ctheme.edit_shadow, g_swell_ctheme.edit_hilight);
           EndPaint(hwnd,&ps);
         }
       }
@@ -3477,7 +3516,7 @@ static LRESULT WINAPI comboWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
     case WM_TIMER:
       if (wParam == 100)
       {
-        if (++s->editstate.cursor_state >= 8) s->editstate.cursor_state=0;
+        if (++s->editstate.cursor_state >= EDIT_CURSOR_CYCLE_INTERVAL) s->editstate.cursor_state=0;
         if (GetFocusIncludeMenus()!=hwnd || s->editstate.cursor_state<2) InvalidateRect(hwnd,NULL,FALSE);
       }
       else if (wParam==1)
@@ -3629,7 +3668,7 @@ popupMenu:
             focused = GetFocusIncludeMenus()==hwnd;
             if (focused)
             {
-              if (!s->editstate.cursor_timer) { SetTimer(hwnd,100,100,NULL); s->editstate.cursor_timer=1; }
+              if (!s->editstate.cursor_timer) { SetTimer(hwnd,100,EDIT_CURSOR_BLINK_LEN,NULL); s->editstate.cursor_timer=1; }
             }
             else
             {
@@ -3654,7 +3693,7 @@ popupMenu:
           HGDIOBJ oldpen=SelectObject(ps.hdc,GetStockObject(NULL_PEN));
           const int dw = SWELL_UI_SCALE(8);
           const int dh = SWELL_UI_SCALE(4);
-          const int cx = r.right-dw/2-SWELL_UI_SCALE(4);
+          const int cx = r.right-dw/2-SWELL_UI_SCALE(5);
           const int cy = (r.bottom+r.top)/2;
 
           POINT pts[3] = {
@@ -3681,7 +3720,8 @@ popupMenu:
           if ((hwnd->m_style & CBS_DROPDOWNLIST) != CBS_DROPDOWNLIST)
           {
             r.right -= SWELL_UI_SCALE(buttonwid+2);
-            editControlPaintLine(ps.hdc, hwnd->m_title.Get(), hwnd->m_title.GetLength(), cursor_pos, 
+            editControlPaintLine(ps.hdc, hwnd->m_title.Get(), hwnd->m_title.GetLength(),
+                s->editstate.cursor_state!=0 ? cursor_pos : -1,
                 focused ? s->editstate.sel1 : -1, focused ? s->editstate.sel2 : -1, &r, DT_VCENTER);
           }
           else
@@ -4152,11 +4192,22 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
             ListView_SetItemState(hwnd,x,(x==row)?(LVIS_SELECTED|LVIS_FOCUSED):0,LVIS_SELECTED|LVIS_FOCUSED);
           }
         }
-
-        NMLISTVIEW nm={{hwnd,hwnd->m_id,NM_RCLICK},row,inf.iSubItem,0,0,0, {inf.pt.x,inf.pt.y}};
-        SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
       }
     return 1;
+    case WM_RBUTTONUP:
+      if (lvs && lvs->m_last_row_height>0 && !lvs->m_is_listbox)
+      {
+        const int hdr_size = lvs->GetColumnHeaderHeight(hwnd);
+        if (hdr_size > 0 && GET_Y_LPARAM(lParam) < hdr_size) break; // let it get converted to WM_CONTEXTMENU
+
+        LVHITTESTINFO inf = { { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) }, };
+
+        const int row = ListView_SubItemHitTest(hwnd, &inf);
+        NMLISTVIEW nm={{hwnd,hwnd->m_id,NM_RCLICK},row,inf.iSubItem,0,0,0, {inf.pt.x,inf.pt.y}};
+        if (SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm))
+          return 1;
+      }
+    break;
     case WM_SETCURSOR:
       if (lvs)
       {
@@ -5755,13 +5806,14 @@ forceMouseMove:
         ReleaseCapture();
       }
     return 1;
-    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
       if (tvs && tvs->m_last_row_height>0)
       {
         NMLISTVIEW nm={{hwnd,hwnd->m_id,NM_RCLICK},0,0,0,};
-        SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
+        if (SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm))
+          return 1;
       }
-    return 1;
+    break;
     case WM_PAINT:
       { 
         PAINTSTRUCT ps;
