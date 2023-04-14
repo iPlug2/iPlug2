@@ -66,7 +66,7 @@ public:
     std::vector<char> base64;
     if (dataSize)
     {
-      base64.resize(GetBase64Length(dataSize));
+      base64.resize(GetBase64Length(dataSize) + 1);
       wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.data(), dataSize);
     }
     str.SetFormatted(mMaxJSStringLength, "SAMFD(%i, %i, '%s')", msgTag, static_cast<int>(base64.size()), base64.data());
