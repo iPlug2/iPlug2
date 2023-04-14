@@ -80,6 +80,11 @@ public:
     str.SetFormatted(mMaxJSStringLength, "SMMFD(%i, %i, %i)", msg.mStatus, msg.mData1, msg.mData2);
     EvaluateJavaScript(str.Get());
   }
+  
+  void SendJSONFromDelegate(const nlohmann::json& jsonMessage)
+  {
+    SendArbitraryMsgFromDelegate(-1, static_cast<int>(jsonMessage.dump().size()), jsonMessage.dump().c_str());
+  }
 
   void OnMessageFromWebView(const char* jsonStr) override
   {
