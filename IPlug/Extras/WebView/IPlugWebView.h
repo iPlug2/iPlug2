@@ -58,6 +58,9 @@ public:
    * e.g. p5.js" */
   void LoadFile(const char* fileName, const char* bundleID = "", bool useCustomScheme = false);
   
+  /** Trigger a reload of the webview's content */
+  void ReloadPageContent();
+  
   /** Runs some JavaScript in the webview
    * @param scriptStr UTF8 encoded JavaScript code to run
    * @param func A function conforming to completionHandlerFunc that should be called on successful execution of the script */
@@ -72,7 +75,7 @@ public:
   /** Set the bounds of the webview in the parent window. xywh are specifed in relation to a 1:1 non retina screen */
   void SetWebViewBounds(float x, float y, float w, float h, float scale = 1.);
 
-  /** Called when the web view is ready to receive navigation instructions*/
+  /** Called when the web view is ready to receive navigation instructions */
   virtual void OnWebViewReady() {}
   
   /** Called after navigation instructions have been exectued and e.g. a page has loaded */
@@ -81,7 +84,11 @@ public:
   /** When a script in the web view posts a message, it will arrive as a UTF8 json string here */
   virtual void OnMessageFromWebView(const char* json) {}
   
+  /** Fills the path where web content is being served from, when LoadFile() is used */
+  void GetWebRoot(WDL_String& path) const { path.Set(mWebRoot.Get()); }
+  
 private:
+  WDL_String mWebRoot;
   bool mOpaque = true;
 #if defined OS_MAC || defined OS_IOS
   void* mWKWebView = nullptr;

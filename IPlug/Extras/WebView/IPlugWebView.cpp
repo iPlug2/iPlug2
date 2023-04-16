@@ -285,6 +285,15 @@ void IWebView::LoadFile(const char* fileName, const char* bundleID, bool /*useCu
   }
 }
 
+
+void IWebView::ReloadPageContent()
+{
+  if (mCoreWebView)
+  {
+    mCoreWebView->Reload();
+  }
+}
+
 void IWebView::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc func)
 {
   if (mCoreWebView)
