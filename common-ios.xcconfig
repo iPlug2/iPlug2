@@ -52,8 +52,11 @@ EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR
 
 JSON_INC_PATH = $(DEPS_PATH)/Extras/nlohmann
 
+CHOC_PATH = $(DEPS_PATH)/Extras/choc
+CHOC_INC_PATHS = $(CHOC_PATH)/platform
+
 // this build setting is included at the xcode project level, since we need all these include paths
-IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS) $(AUv3_PATH) $(JSON_INC_PATH)
+IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS) $(AUv3_PATH) $(JSON_INC_PATH) $(CHOC_INC_PATHS)
 
 BUILT_LIBS_PATH = $(DEPS_PATH)/Build/ios
 BUILT_LIBS_INC_PATH = $(BUILT_LIBS_PATH)/include
