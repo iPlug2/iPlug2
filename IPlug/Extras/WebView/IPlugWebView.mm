@@ -311,15 +311,26 @@ void IWebView::LoadFile(const char* fileName, const char* bundleID, bool useCust
   IPLUG_WKWEBVIEW* webView = (__bridge IPLUG_WKWEBVIEW*) mWKWebView;
 
   WDL_String fullPath;
-  WDL_String fileNameWeb("web/");
-  fileNameWeb.Append(fileName);
-
-  GetResourcePathFromBundle(fileNameWeb.Get(), fileNameWeb.get_fileext() + 1 /* remove . */, fullPath, bundleID);
+  
+  if (bundleID != nullptr && strlen(bundleID) != 0)
+  {
+    WDL_String fileNameWeb("web/");
+    fileNameWeb.Append(fileName);
+    
+    GetResourcePathFromBundle(fileNameWeb.Get(), fileNameWeb.get_fileext() + 1 /* remove . */, fullPath, bundleID);
+  }
+  else
+  {
+    fullPath.Set(fileName);
+  }
   
   NSString* pPath = [NSString stringWithUTF8String:fullPath.Get()];
+  
+  fullPath.remove_filepart();
+  mWebRoot.Set(fullPath.Get());
 
-  NSString* str = useCustomScheme ? @"iplug2:" : @"file:";
-  NSString* webroot = [str stringByAppendingString:[pPath stringByReplacingOccurrencesOfString:[NSString stringWithUTF8String:fileName] withString:@""]];
+  NSString* urlScheme = useCustomScheme ? @"iplug2:" : @"file:";
+  NSString* webroot = [urlScheme stringByAppendingString:[pPath stringByReplacingOccurrencesOfString:[NSString stringWithUTF8String:fileName] withString:@""]];
 
   NSURL* pageUrl = [NSURL URLWithString:[webroot stringByAppendingString:[NSString stringWithUTF8String:fileName]] relativeToURL:nil];
 
@@ -332,6 +343,16 @@ void IWebView::LoadFile(const char* fileName, const char* bundleID, bool useCust
   {
     NSURL* rootUrl = [NSURL URLWithString:webroot relativeToURL:nil];
     [webView loadFileURL:pageUrl allowingReadAccessToURL:rootUrl];
+  }
+}
+
+void IWebView::ReloadPageContent()
+{
+  IPLUG_WKWEBVIEW* webView = (__bridge IPLUG_WKWEBVIEW*) mWKWebView;
+  
+  if (webView)
+  {
+    [webView reload];
   }
 }
 
