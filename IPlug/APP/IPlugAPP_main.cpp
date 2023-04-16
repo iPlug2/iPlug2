@@ -76,7 +76,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 
     CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), IPlugAPPHost::MainDlgProc);
 
-#ifndef _DEBUG
+#if !defined _DEBUG || defined NO_IGRAPHICS
     HMENU menu = GetMenu(gHWND);
     RemoveMenu(menu, 1, MF_BYPOSITION);
     DrawMenuBar(gHWND);
@@ -227,7 +227,7 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 
         DeleteMenu(menu, 1, MF_BYPOSITION); // delete file menu
       }
-#ifndef _DEBUG
+#if !defined _DEBUG || defined NO_IGRAPHICS
       if (menu)
       {
         HMENU sm = GetSubMenu(menu, 1);
