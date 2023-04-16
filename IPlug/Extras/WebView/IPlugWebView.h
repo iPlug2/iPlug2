@@ -89,6 +89,7 @@ private:
   wil::com_ptr<ICoreWebView2> mWebViewWnd;
   EventRegistrationToken mWebMessageReceivedToken;
   EventRegistrationToken mNavigationCompletedToken;
+  EventRegistrationToken mContextMenuRequestedToken;
   bool mShowOnLoad = true;
 #endif
 };

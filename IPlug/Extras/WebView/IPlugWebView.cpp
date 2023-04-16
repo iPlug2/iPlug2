@@ -60,8 +60,9 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
         ->CreateCoreWebView2Controller(
           mParentWnd,
         Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-          [&, x, y, w, h](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
-            if (controller != nullptr) {
+          [&, x, y, w, h, enableDevTools](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
+            if (controller != nullptr)
+            {
               mWebViewCtrlr = controller;
               mWebViewCtrlr->get_CoreWebView2(&mWebViewWnd);
             }
@@ -73,15 +74,16 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
             Settings->put_IsScriptEnabled(TRUE);
             Settings->put_AreDefaultScriptDialogsEnabled(TRUE);
             Settings->put_IsWebMessageEnabled(TRUE);
-            Settings->put_AreDefaultContextMenusEnabled(FALSE);
+            Settings->put_AreDefaultContextMenusEnabled(enableDevTools);
             Settings->put_AreDevToolsEnabled(enableDevTools);
 
             // this script adds a function IPlugSendMsg that is used to call the platform webview messaging function in JS
-            mWebViewWnd->AddScriptToExecuteOnDocumentCreated(L"function IPlugSendMsg(m) {window.chrome.webview.postMessage(m)};",
-              Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>(
-                [this](HRESULT error, PCWSTR id) -> HRESULT {
-                  return S_OK;
-                }).Get());
+            mCoreWebView->AddScriptToExecuteOnDocumentCreated(
+              L"function IPlugSendMsg(m) {window.chrome.webview.postMessage(m)};",
+              Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>([this](HRESULT error,
+                                                                                                PCWSTR id) -> HRESULT {
+                return S_OK;
+              }).Get());
 
             mWebViewWnd->add_WebMessageReceived(
               Callback<ICoreWebView2WebMessageReceivedEventHandler>(
