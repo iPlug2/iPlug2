@@ -13,8 +13,11 @@
 #include "IPlugEditorDelegate.h"
 #include "IPlugWebView.h"
 #include "IPlugPlatformDialogs.h"
+
 #include "wdl_base64.h"
 #include "json.hpp"
+#include "choc_FileWatcher.h"
+
 #include <functional>
 
 
@@ -145,6 +148,20 @@ public:
   {
     if (mEditorInitFunc)
       mEditorInitFunc();
+    
+#if defined _DEBUG
+    using namespace choc::file;
+    WDL_String webRoot;
+    GetWebRoot(webRoot);
+    if (webRoot.GetLength())
+    {
+      mPFileWatcher = std::make_unique<Watcher>(webRoot.Get(), [&](const Watcher::Event& e) {
+        DBGMSG("hot-reloading webview content\n");
+        ReloadPageContent();
+        OnUIOpen();
+      }, 500);
+    }
+#endif
   }
   
   void OnWebContentLoaded() override
@@ -180,6 +197,10 @@ protected:
   
 private:
   bool mEnableDevTools = false;
+  
+#ifdef _DEBUG
+  std::unique_ptr<choc::file::Watcher> mPFileWatcher;
+#endif
 };
 
 END_IPLUG_NAMESPACE
