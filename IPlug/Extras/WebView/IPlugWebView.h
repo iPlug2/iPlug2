@@ -102,6 +102,7 @@ private:
   wil::com_ptr<ICoreWebView2Environment> mWebViewEnvironment;
   EventRegistrationToken mWebMessageReceivedToken;
   EventRegistrationToken mNavigationCompletedToken;
+  EventRegistrationToken mContextMenuRequestedToken;
   // EventRegistrationToken mWebResourceRequestedToken;
 #endif
 };

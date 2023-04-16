@@ -78,7 +78,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
       mWebViewEnvironment->CreateCoreWebView2Controller(
         mParentWnd,
         Callback<ICoreWebView2CreateCoreWebView2ControllerCompletedHandler>(
-          [&, x, y, w, h](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
+          [&, x, y, w, h, enableDevTools](HRESULT result, ICoreWebView2Controller* controller) -> HRESULT {
             if (controller != nullptr)
             {
               mWebViewCtrlr = controller;
@@ -90,11 +90,10 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
             Settings->put_IsScriptEnabled(TRUE);
             Settings->put_AreDefaultScriptDialogsEnabled(TRUE);
             Settings->put_IsWebMessageEnabled(TRUE);
-            // Settings->put_AreDefaultContextMenusEnabled(FALSE);
+            Settings->put_AreDefaultContextMenusEnabled(enableDevTools);
             Settings->put_AreDevToolsEnabled(enableDevTools);
 
-            // this script adds a function IPlugSendMsg that is used to call the platform webview messaging function in
-            // JS
+            // this script adds a function IPlugSendMsg that is used to call the platform webview messaging function in JS
             mCoreWebView->AddScriptToExecuteOnDocumentCreated(
               L"function IPlugSendMsg(m) {window.chrome.webview.postMessage(m)};",
               Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>([this](HRESULT error,
@@ -199,6 +198,32 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
             //     }
 
             //   return S_OK; }).Get(), &mWebResourceRequestedToken);
+
+            wil::com_ptr<ICoreWebView2_11> webView2_11 = mCoreWebView.try_query<ICoreWebView2_11>();
+            webView2_11->add_ContextMenuRequested(Callback<ICoreWebView2ContextMenuRequestedEventHandler>([this](ICoreWebView2* sender, ICoreWebView2ContextMenuRequestedEventArgs* args) {
+                                                    wil::com_ptr<ICoreWebView2ContextMenuItemCollection> items;
+                                                    args->get_MenuItems(&items);
+                                                    wil::com_ptr<ICoreWebView2ContextMenuTarget> target;
+                                                    args->get_ContextMenuTarget(&target);
+                                                    UINT32 itemsCount;
+                                                    items->get_Count(&itemsCount);
+
+                                                    wil::com_ptr<ICoreWebView2ContextMenuItem> current;
+                                                    for (UINT32 i = 0; i < itemsCount; i++)
+                                                    {
+                                                      items->GetValueAtIndex(i, &current);
+                                                      wil::unique_cotaskmem_string name;
+                                                      current->get_Name(&name);
+                                                      WDL_String utf8str;
+                                                      UTF16ToUTF8(utf8str, name.get());
+                                                      if (strcmp(utf8str.Get(), "inspectElement") == 0)
+                                                      {
+                                                        break;
+                                                      }
+                                                      items->RemoveValueAtIndex(i);
+                                                    }
+                                                    return S_OK;
+                                                  }).Get(), &mContextMenuRequestedToken);
 
             if (!mOpaque)
             {
