@@ -18,11 +18,22 @@
 
 BEGIN_IPLUG_NAMESPACE
 
+#ifndef DEFAULT_PATH
+static const char* DEFAULT_PATH = "~/Desktop";
+#endif
+
+// calculate the size of 'output' buffer required for a 'input' buffer of length x during Base64 encoding operation
+#define B64ENCODE_OUT_SAFESIZE(x) ((((x) + 3 - 1)/3) * 4 + 1)
+
+// calculate the size of 'output' buffer required for a 'input' buffer of length x during Base64 decoding operation
+#define B64DECODE_OUT_SAFESIZE(x) (((x)*3)/4)
+
+
 /** This Editor Delegate allows using a platform native web view as the UI for an iPlug plugin */
 class WebViewEditorDelegate : public IEditorDelegate
                             , public IWebView
 {
-  static constexpr int kDefaultMaxJSStringLength = 1024;
+  static constexpr int kDefaultMaxJSStringLength = 1048576;
   
 public:
   WebViewEditorDelegate(int nParams);
@@ -47,14 +58,17 @@ public:
   {
     WDL_String str;
     std::vector<char> base64;
-    base64.resize(GetBase64Length(dataSize) + 1);
+    base64.resize(B64ENCODE_OUT_SAFESIZE(dataSize));
     wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.data(), dataSize);
-    str.SetFormatted(mMaxJSStringLength, "SCMFD(%i, %i, %i, '%s')", ctrlTag, msgTag, dataSize, base64.data());
+    str.SetFormatted(mMaxJSStringLength, "SCMFD(%i, %i, %i, \"%s\")", ctrlTag, msgTag, base64.size(), base64.data());
     EvaluateJavaScript(str.Get());
   }
 
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override
   {
+    if(!normalized) {
+      value = GetParam(paramIdx)->ToNormalized(value);
+    }
     WDL_String str;
     str.SetFormatted(mMaxJSStringLength, "SPVFD(%i, %f)", paramIdx, value);
     EvaluateJavaScript(str.Get());
@@ -64,13 +78,11 @@ public:
   {
     WDL_String str;
     std::vector<char> base64;
-    if (dataSize)
-    {
-      base64.resize(GetBase64Length(dataSize) + 1);
-      wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.data(), dataSize);
-    }
-    str.SetFormatted(mMaxJSStringLength, "SAMFD(%i, %i, '%s')", msgTag, static_cast<int>(base64.size()), base64.data());
+    base64.resize(B64ENCODE_OUT_SAFESIZE(dataSize));
+    wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.data(), dataSize);
+    str.SetFormatted(mMaxJSStringLength, "SAMFD(%i, %lu, \"%s\")", msgTag, base64.size(), base64.data());
     EvaluateJavaScript(str.Get());
+    
   }
   
   void SendMidiMsgFromDelegate(const IMidiMsg& msg) override
@@ -99,26 +111,16 @@ public:
     else if (json["msg"] == "SAMFUI")
     {
       std::vector<unsigned char> base64;
-
+      
       if(json.count("data") > 0 && json["data"].is_string())
       {
         auto dStr = json["data"].get<std::string>();
         int dSize = static_cast<int>(dStr.size());
-        
-        // calculate the exact size of the decoded base64 data
-        int numPaddingBytes = 0;
-        
-        if(dSize >= 2 && dStr[dSize-2] == '=')
-          numPaddingBytes = 2;
-        else if(dSize >= 1 && dStr[dSize-1] == '=')
-          numPaddingBytes = 1;
-        
-
-        base64.resize((dSize * 3) / 4 - numPaddingBytes);
+        base64.resize(B64DECODE_OUT_SAFESIZE(dSize));
         wdl_base64decode(dStr.c_str(), base64.data(), static_cast<int>(base64.size()));
+        SendArbitraryMsgFromUI(json["msgTag"], json["ctrlTag"], static_cast<int>(base64.size()), base64.data());
       }
-
-      SendArbitraryMsgFromUI(json["msgTag"], json["ctrlTag"], static_cast<int>(base64.size()), base64.data());
+      
     }
     else if(json["msg"] == "SMMFUI")
     {
@@ -155,7 +157,7 @@ public:
   {
     mMaxJSStringLength = length;
   }
-  
+
 protected:
   int GetBase64Length(int dataSize)
   {
