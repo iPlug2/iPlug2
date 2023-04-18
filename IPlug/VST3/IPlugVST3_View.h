@@ -118,6 +118,9 @@ public:
       else // Carbon
         return Steinberg::kResultFalse;
 #endif
+#ifndef WEBVIEW_EDITOR_DELEGATE
+      if(pView == nullptr) return Steinberg::kResultFalse;
+#endif
       return Steinberg::kResultTrue;
     }
     
