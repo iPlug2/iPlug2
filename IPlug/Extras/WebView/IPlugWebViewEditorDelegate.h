@@ -143,7 +143,11 @@ public:
   
   void OnWebContentLoaded() override
   {
-    
+    for (int i = 0; i < NParams(); i++) {
+      WDL_String json;
+      GetParam(i)->GetJSON(json, i);
+      SendControlMsgFromDelegate(i, -1, sizeof(char)*json.GetLength(), (void*)json.Get());
+    }
     OnUIOpen();
   }
   
