@@ -410,7 +410,8 @@ void IParam::GetJSON(WDL_String& json, int idx) const
   json.AppendFormatted(8192, "\"min\":%f, ", GetMin());
   json.AppendFormatted(8192, "\"max\":%f, ", GetMax());
   json.AppendFormatted(8192, "\"default\":%f, ", GetDefault());
-  json.AppendFormatted(8192, "\"rate\":\"control\"");
+  json.AppendFormatted(8192, "\"rate\":\"control\",");
+  json.AppendFormatted(8192, "\"displayType\":%i", mShape->GetDisplayType());
   json.AppendFormatted(8192, "}");
 }
 
