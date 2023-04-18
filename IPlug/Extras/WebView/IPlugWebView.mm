@@ -79,7 +79,11 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
 
   ScriptHandler* scriptHandler = [[ScriptHandler alloc] initWithIWebView: this];
   [controller addScriptMessageHandler: scriptHandler name:@"callback"];
+#ifdef _DEBUG
   [preferences setValue:@YES forKey:@"developerExtrasEnabled"];
+#endif
+  [preferences setValue:@YES forKey:@"universalAccessFromFileURLsAllowed"];
+  [preferences setValue:@NO forKey:@"webSecurityEnabled"];
   webConfig.preferences = preferences;
   
   // this script adds a function IPlugSendMsg that is used to call the platform webview messaging function in JS
