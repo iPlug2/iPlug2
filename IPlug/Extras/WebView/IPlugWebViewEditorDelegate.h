@@ -119,7 +119,6 @@ public:
         else if(dSize >= 1 && dStr[dSize-1] == '=')
           numPaddingBytes = 1;
         
-
         base64.resize((dSize * 3) / 4 - numPaddingBytes);
         wdl_base64decode(dStr.c_str(), base64.data(), static_cast<int>(base64.size()));
       }
@@ -147,6 +146,22 @@ public:
   
   void OnWebContentLoaded() override
   {
+    nlohmann::json msg;
+    
+    msg["id"] = "params";
+    std::vector<nlohmann::json> params;
+    for (int idx = 0; idx < NParams(); idx++)
+    {
+      WDL_String jsonStr;
+      IParam* pParam = GetParam(idx);
+      pParam->GetJSON(jsonStr, idx);
+      nlohmann::json paramMsg = nlohmann::json::parse(jsonStr.Get(), nullptr, true);
+      params.push_back(paramMsg);
+    }
+    msg["params"] = params;
+
+    SendJSONFromDelegate(msg);
+    
     OnUIOpen();
   }
   
