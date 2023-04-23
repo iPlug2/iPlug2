@@ -15,6 +15,7 @@
 #include "wdl_base64.h"
 #include "json.hpp"
 #include <functional>
+#include <filesystem>
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -156,7 +157,21 @@ public:
   
   bool GetEnableDevTools() const { return mEnableDevTools; }
 
-protected:  
+  void LoadIndexHtml(const char* pathOfPluginSrc)
+  {
+#ifdef _DEBUG
+    namespace fs = std::filesystem;
+    
+    fs::path mainPath(pathOfPluginSrc);
+    fs::path indexRelativePath = mainPath.parent_path() / "Resources" / "web" / "index.html";
+
+    LoadFile(indexRelativePath.string().c_str(), nullptr, true);
+#else
+    LoadFile("index.html", GetBundleID(), true); // TODO: make this work for windows
+#endif
+  }
+
+protected:
   int mMaxJSStringLength = kDefaultMaxJSStringLength;
   std::function<void()> mEditorInitFunc = nullptr;
   void* mHelperView = nullptr;
