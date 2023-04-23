@@ -23,7 +23,7 @@ BEGIN_IPLUG_NAMESPACE
 class WebViewEditorDelegate : public IEditorDelegate
                             , public IWebView
 {
-  static constexpr int kDefaultMaxJSStringLength = 1024;
+  static constexpr int kDefaultMaxJSStringLength = 8192;
   
 public:
   WebViewEditorDelegate(int nParams);
