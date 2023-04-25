@@ -25,7 +25,7 @@
 
   Usage:
 
-  See: swell_resgen.php etc
+  See: swell_resgen.pl etc
 
   */
 

@@ -41,7 +41,7 @@ Previous sample project xcode instructions:
 
   Go to Frameworks -> Linked Frameworks, add existing framework, Carbon.Framework
 
-  go to terminal, to project dir, and run php <pathtoswell>/swell_resgen.php sample_project.rc
+  go to terminal, to project dir, and run <pathtoswell>/swell_resgen.pl sample_project.rc
 
   Open mainmenu.xib in Interface Builder (doubleclick it in XCode)
 

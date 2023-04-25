@@ -98,7 +98,7 @@ default: $(APPNAME)
 .PHONY: clean run
 
 $(RESFILES): res.rc
-	php $(WDL_PATH)/swell/swell_resgen.php $^
+	$(WDL_PATH)/swell/swell_resgen.pl $^
 
 $(APPNAME): $(RESFILES) $(OBJS)
 	$(CXX) -o $@ $(CFLAGS) $(OBJS) $(LINKEXTRA)

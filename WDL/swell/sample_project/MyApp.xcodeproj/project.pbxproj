@@ -216,7 +216,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "./swell_resgen.sh res.rc";
+			shellScript = "/usr/bin/perl ../WDL/swell/swell_resgen.sh res.rc";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
