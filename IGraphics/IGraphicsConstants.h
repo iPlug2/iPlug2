@@ -43,7 +43,9 @@ static constexpr double DEFAULT_GEARING = 4.0;
 #define MAX_CLASSNAME_LEN 128
 //
 
+#ifndef GRAYED_ALPHA
 static constexpr float GRAYED_ALPHA = 0.25f;
+#endif
 
 #ifndef DEFAULT_PATH
 static const char* DEFAULT_PATH = "~/Desktop";
