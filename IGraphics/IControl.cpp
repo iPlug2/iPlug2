@@ -1007,10 +1007,7 @@ bool ISliderControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 
 IDirBrowseControlBase::~IDirBrowseControlBase()
 {
-  mFiles.Empty(true);
-  mPaths.Empty(true);
-  mPathLabels.Empty(true);
-  mItems.Empty(false);
+  ClearPathList();
 }
 
 int IDirBrowseControlBase::NItems()

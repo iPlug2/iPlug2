@@ -1744,6 +1744,8 @@ public:
   int NItems();
 
   void AddPath(const char* path, const char* label);
+  
+  void ClearPathList();
 
   void SetupMenu();
 
