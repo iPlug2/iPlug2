@@ -1031,7 +1031,7 @@ void IDirBrowseControlBase::CollectSortedItems(IPopupMenu* pMenu)
   {
     IPopupMenu::Item* pItem = pMenu->GetItem(i);
     
-    if(pItem->GetSubmenu())
+    if (pItem->GetSubmenu())
       CollectSortedItems(pItem->GetSubmenu());
     else
       mItems.Add(pItem);
@@ -1065,28 +1065,51 @@ void IDirBrowseControlBase::SetupMenu()
   CollectSortedItems(&mMainMenu);
 }
 
-//void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
-//{
-//  if (mSelectedMenu != nullptr) {
-//    if(mSelectedIndex > -1)
-//      label.Set(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
-//  }
-//  else
-//    label.Set("");
-//}
-//
-//void IDirBrowseControlBase::GetSelectedItemPath(WDL_String& path)
-//{
-//  if (mSelectedMenu != nullptr) {
-//    if(mSelectedIndex > -1) {
-//      path.Set(mPaths.Get(0)->Get()); //TODO: what about multiple paths
-//      path.AppendFormatted(1024, "/%s", mSelectedMenu->GetItem(mSelectedIndex)->GetText());
-//      path.Append(mExtension.Get());
-//    }
-//  }
-//  else
-//    path.Set("");
-//}
+void IDirBrowseControlBase::ClearPathList()
+{
+  mPaths.Empty(true);
+  mPathLabels.Empty(true);
+  mFiles.Empty(true);
+  mItems.Empty(false);
+}
+
+void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
+{
+  // TODO: support multiple base-paths
+  if (mPaths.GetSize() == 1)
+  {
+    if (mSelectedIndex > -1)
+    {
+      label.Set(mMainMenu.GetItem(mSelectedIndex)->GetText());
+    }
+  }
+  else
+  {
+    label.Set("");
+  }
+}
+
+void IDirBrowseControlBase::GetSelectedItemPath(WDL_String& path)
+{
+  // TODO: support multiple base-paths
+  if (mPaths.GetSize() == 1)
+  {
+    if (mSelectedIndex > -1)
+    {
+      path.Set(mPaths.Get(0)->Get());
+      path.AppendFormatted(MAX_MACOS_PATH_LEN, "%s", mMainMenu.GetItem(mSelectedIndex)->GetText());
+      
+      if (!mShowFileExtensions)
+      {
+        path.AppendFormatted(MAX_MACOS_PATH_LEN, ".%s", mExtension.Get());
+      }
+    }
+  }
+  else
+  {
+    path.Set("");
+  }
+}
 
 void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
 {
@@ -1127,7 +1150,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
       }
     } while (!d.Next());
   }
-  
-  if(!mShowEmptySubmenus)
+
+  if (!mShowEmptySubmenus)
     menuToAddTo.RemoveEmptySubmenus();
 }

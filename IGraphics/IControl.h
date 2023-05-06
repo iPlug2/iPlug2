@@ -1749,8 +1749,8 @@ public:
 
   void SetupMenu();
 
-//  void GetSelectedItemLabel(WDL_String& label);
-//  void GetSelectedItemPath(WDL_String& path);
+  void GetSelectedItemLabel(WDL_String& label);
+  void GetSelectedItemPath(WDL_String& path);
 
 private:
   void ScanDirectory(const char* path, IPopupMenu& menuToAddTo);
@@ -1760,7 +1760,6 @@ protected:
   bool mShowEmptySubmenus = false;
   bool mShowFileExtensions = true;
   int mSelectedIndex = -1;
-  IPopupMenu* mSelectedMenu = nullptr;
   IPopupMenu mMainMenu;
   WDL_PtrList<WDL_String> mPaths;
   WDL_PtrList<WDL_String> mPathLabels;
