@@ -634,7 +634,7 @@ bool IPlugAAX::SendMidiMsg(const IMidiMsg& msg)
 
 double IPlugAAX::GetInputBufferMaxValue (AAX_SIPlugRenderInfo* pRenderInfo, int nFrames)
 {
-    int i, n = MaxNChannels(ERoute::kInput);
+    int i, n = NChannelsConnected(ERoute::kInput);
     
     double mMax = 0.0;
     float** ppInChannel = pRenderInfo->mAudioInputs; //mChannelData[ERoute::kInput].GetList();
@@ -653,7 +653,7 @@ double IPlugAAX::GetInputBufferMaxValue (AAX_SIPlugRenderInfo* pRenderInfo, int 
 
 double IPlugAAX::GetOutputBufferMaxValue (AAX_SIPlugRenderInfo* pRenderInfo, int nFrames)
 {
-    int i, n = MaxNChannels(ERoute::kOutput);
+    int i, n = NChannelsConnected(ERoute::kOutput);
 
     double mMax = 0.0;
     float** ppOutChannel = pRenderInfo->mAudioOutputs; //mChannelData[ERoute::kOutput].GetList();
