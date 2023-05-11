@@ -1895,11 +1895,22 @@ LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
       }
       return 0;
     }
-    else if (msg == WM_SETFONT && ([obj isKindOfClass:[NSTextField class]]))
+    else if (msg == WM_SETFONT && ([obj isKindOfClass:[NSTextField class]] ||
+                                   [obj isKindOfClass:[NSTextView class]]))
     {
       NSFont *font = SWELL_GetNSFont((HGDIOBJ__*)wParam);
       if (font) [obj setFont:font];
       return 0;
+    }
+    else if (msg == WM_SETFONT && ([obj isKindOfClass:[NSScrollView class]]))
+    {
+      NSView *cv=[(NSScrollView *)obj documentView];
+      if (cv && [cv isKindOfClass:[NSTextView class]])
+      {
+        NSFont *font = SWELL_GetNSFont((HGDIOBJ__*)wParam);
+        if (font) [(NSTextView *)cv setFont:font];
+        return 0;
+      }
     }
     else
     {
