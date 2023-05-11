@@ -3640,6 +3640,7 @@ HWND SWELL_MakeEditField(int idx, int x, int y, int w, int h, int flags)
   if ((flags&WS_VSCROLL) || (flags&WS_HSCROLL)) // || (flags & ES_READONLY))
   {
     SWELL_TextView *obj=[[SWELL_TextView alloc] init];
+    [obj setAutomaticQuoteSubstitutionEnabled:NO];
     [obj setEditable:(flags & ES_READONLY)?NO:YES];
     if (m_transform.size.width < minwidfontadjust)
       [obj setFont:[NSFont systemFontOfSize:TRANSFORMFONTSIZE]];
