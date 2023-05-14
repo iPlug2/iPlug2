@@ -289,6 +289,27 @@ public:
     }
   }
   
+  void CheckItemAlone(Item* pItemToCheck)
+  {
+    int n = mMenuItems.GetSize();
+    
+    for (int i = 0; i < n; i++)
+    {
+      IPopupMenu::Item* pItem = GetItem(i);
+      pItem->SetChecked(false);
+      IPopupMenu* pSubmenu = pItem->GetSubmenu();
+      
+      if (pSubmenu)
+      {
+        pSubmenu->CheckItemAlone(pItemToCheck);
+      }
+      else if (pItem == pItemToCheck)
+      {
+        pItem->SetChecked(true);
+      }
+    }
+  }
+  
   bool IsItemChecked(int index)
   {
     Item* pItem = mMenuItems.Get(index);
