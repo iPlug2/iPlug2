@@ -1724,7 +1724,11 @@ protected:
   bool mMouseDown = false;
 };
 
-/** An abstract IControl base class that you can inherit from in order to make a control that pops up a menu to browse files */
+/** An abstract IControl base class that you can inherit from in order to make a control that pops up a menu to browse files
+ * Optionally with a specific extension. Add paths which will appear as subfolders at the root level menu.
+ * If only one path is added there will be no submenu. When you call SetupMenu() the added paths are scanned and any
+ * matching files in those paths are added to the menu.
+ */
 class IDirBrowseControlBase : public IControl
 {
 public:
@@ -1743,14 +1747,25 @@ public:
 
   int NItems();
 
-  void AddPath(const char* path, const char* label);
+  /** Used to add a path to scan for files.
+   * @param path CString with the full path to the folder to scan
+   * @param displayText CString to name the path in the top level menu */
+  void AddPath(const char* path, const char* displayText);
   
+  /** Clear the menu */
   void ClearPathList();
 
+  /** Call after adding one or more paths, to populate the menu */
   void SetupMenu();
-
-  void GetSelectedItemLabel(WDL_String& label);
-  void GetSelectedItemPath(WDL_String& path);
+  
+  /** Set the selected file based on a file path. Does nothing if the file has not been added */
+  void SetSelectedFile(const char* filePath);
+  
+  /** Get the full path to the file if something has been selected in the menu */
+  void GetSelectedFile(WDL_String& path) const;
+  
+  /** Check the currently selected menu item. Does nothing if mSelectedIndex == -1 */
+  void CheckSelectedItem();
 
 private:
   void ScanDirectory(const char* path, IPopupMenu& menuToAddTo);

@@ -1073,41 +1073,47 @@ void IDirBrowseControlBase::ClearPathList()
   mItems.Empty(false);
 }
 
-void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
+void IDirBrowseControlBase::SetSelectedFile(const char* filePath)
 {
-  // TODO: support multiple base-paths
-  if (mPaths.GetSize() == 1)
+  for (auto fileIdx = 0; fileIdx < mFiles.GetSize(); fileIdx ++)
   {
-    if (mSelectedIndex > -1)
+    if (strcmp(mFiles.Get(fileIdx)->Get(), filePath) == 0)
     {
-      label.Set(mMainMenu.GetItem(mSelectedIndex)->GetText());
-    }
-  }
-  else
-  {
-    label.Set("");
-  }
-}
-
-void IDirBrowseControlBase::GetSelectedItemPath(WDL_String& path)
-{
-  // TODO: support multiple base-paths
-  if (mPaths.GetSize() == 1)
-  {
-    if (mSelectedIndex > -1)
-    {
-      path.Set(mPaths.Get(0)->Get());
-      path.AppendFormatted(MAX_MACOS_PATH_LEN, "%s", mMainMenu.GetItem(mSelectedIndex)->GetText());
-      
-      if (!mShowFileExtensions)
+      for (auto itemIdx = 0; itemIdx < mItems.GetSize(); itemIdx++)
       {
-        path.AppendFormatted(MAX_MACOS_PATH_LEN, ".%s", mExtension.Get());
+        IPopupMenu::Item* pItem = mItems.Get(itemIdx);
+
+        if (pItem->GetTag() == fileIdx)
+        {
+          mSelectedIndex = itemIdx;
+          return;
+        }
       }
     }
+  }
+  
+  mSelectedIndex = -1;
+}
+
+void IDirBrowseControlBase::GetSelectedFile(WDL_String& path) const
+{
+  if (mSelectedIndex > -1)
+  {
+    IPopupMenu::Item* pItem = mItems.Get(mSelectedIndex);
+    path.Set(mFiles.Get(pItem->GetTag()));
   }
   else
   {
     path.Set("");
+  }
+}
+
+void IDirBrowseControlBase::CheckSelectedItem()
+{
+  if (mSelectedIndex > -1)
+  {
+    IPopupMenu::Item* pItem = mItems.Get(mSelectedIndex);
+    mMainMenu.CheckItemAlone(pItem);
   }
 }
 
