@@ -6,6 +6,8 @@
 #include "Test/TestControls.h"
 #endif
 
+#include <filesystem>
+
 enum EParam
 {
   kParamDummy = 0,
@@ -104,8 +106,16 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     };
     
     WDL_String resourcePath;
+
+    #ifdef OS_MAC
     BundleResourcePath(resourcePath, BUNDLE_ID);
-    
+    #else
+    namespace fs = std::filesystem;
+    fs::path mainPath(__FILE__);
+    fs::path imgResourcesPath = mainPath.parent_path() / "Resources" / "img";
+    resourcePath.Set(imgResourcesPath.string().c_str());
+    #endif
+
     auto chooseTestControl = [&, pGraphics, testRect, resourcePath](int idx) {
       
       IControl* pNewControl = nullptr;
