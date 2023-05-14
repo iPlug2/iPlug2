@@ -46,10 +46,7 @@ public:
     g.FillRect(COLOR_WHITE, mButtonRect);
     g.DrawText(mText, mLabel.Get(), mButtonRect);
     g.FillTriangle(COLOR_GRAY, mArrowRect.L, mArrowRect.T, mArrowRect.R, mArrowRect.T, mArrowRect.MW(), mArrowRect.B);
-    
-    
     g.DrawText(IText(DEFAULT_TEXT_SIZE, EAlign::Near), "Use platform menu", mUsePlatformMenuTextRect);
-    
     g.DrawRect(COLOR_BLACK, mUsePlatformMenuButtonRect);
 
     if (mUsePlatformMenu)
@@ -64,8 +61,9 @@ public:
       
       if (pItem)
       {
-        mSelectedIndex = pItem->GetTag();
+        mSelectedIndex = mItems.Find(pItem);
         mLabel.Set(pItem->GetText());
+        CheckSelectedItem();
       }
     }
     
@@ -84,6 +82,8 @@ public:
       
       if (!mUsePlatformMenu)
         GetUI()->AttachPopupMenuControl();
+      else
+        GetUI()->RemovePopupMenuControl();
     }
     
     SetDirty(false);
