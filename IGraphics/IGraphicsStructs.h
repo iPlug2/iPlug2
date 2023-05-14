@@ -172,19 +172,15 @@ struct ISVG
   /** The width of the SVG */
   float W() const
   {
-    if (mSVGDom)
-      return mSVGDom->containerSize().width();
-    else
-      return 0;
+    assert(mSVGDom);
+    return mSVGDom->containerSize().width();
   }
   
   /** The height of the SVG */
   float H() const
   {
-    if (mSVGDom)
-      return mSVGDom->containerSize().height();
-    else
-      return 0;
+    assert(mSVGDom);
+    return mSVGDom->containerSize().height();
   }
   
   /** @return \true if the SVG has valid data */
@@ -203,19 +199,15 @@ struct ISVG
   /** @return The width of the SVG */
   float W() const
   {
-    if (mImage)
-      return mImage->width;
-    else
-      return 0;
+    assert(mImage);
+    return mImage->width;
   }
 
   /** @return The height of the SVG */
   float H() const
   {
-    if (mImage)
-      return mImage->height;
-    else
-      return 0;
+    assert(mImage);
+    return mImage->height;
   }
   
   /** @return \true if the SVG has valid data */
