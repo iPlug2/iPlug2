@@ -203,7 +203,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachControl(new IVDisplayControl(nextCell(), "IVDisplayControl", style, EDirection::Vertical, -1., 1., 0., 512), kCtrlTagDisplay, "vcontrols");
     pGraphics->AttachControl(new IVLabelControl(nextCell().SubRectVertical(3, 0).GetMidVPadded(10.f), "IVLabelControl"), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVColorSwatchControl(sameCell().SubRectVertical(3, 1), "IVColorSwatchControl", [](int, IColor){}, style, IVColorSwatchControl::ECellLayout::kHorizontal, {kX1, kX2, kX3}, {"", "", ""}), kNoTag, "vcontrols");
-    pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(3, 2), kParamGain, nullptr, "IVNumberBoxControl", style), kNoTag, "vcontrols");
+    pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(3, 2), kParamGain, nullptr, "IVNumberBoxControl", style, true, 50.f, 1.f, 100.f, "%0.0f", false), kNoTag, "vcontrols");
     pGraphics->AttachControl(new IVPlotControl(nextCell(), {{COLOR_RED,  [](double x){ return std::sin(x * 6.2);} },
                                                             {COLOR_BLUE, [](double x){ return std::cos(x * 6.2);} },
                                                             {COLOR_GREEN, [](double x){ return x > 0.5;} }
@@ -429,7 +429,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       });
     };
     
-    pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 3), kNoParameter, setLabelTextSize, "Label Text Size", style, (double) style.labelText.mSize, 12., 100.));
+    pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 3).FracRectHorizontal(0.5f), kNoParameter, setLabelTextSize, "Label", style, false, (double) style.labelText.mSize, 12., 100.));
     
     auto setValueTextSize = [pGraphics](IControl* pCaller) {
       float newSize = (float) pCaller->As<IVNumberBoxControl>()->GetRealValue();
@@ -443,7 +443,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       });
     };
     
-    pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 4), kNoParameter, setValueTextSize, "Value Text Size", style, (double) style.valueText.mSize, 12., 100.));
+    pGraphics->AttachControl(new IVNumberBoxControl(sameCell().SubRectVertical(5, 3).FracRectHorizontal(0.5f, true), kNoParameter, setValueTextSize, "Value", style, false, (double) style.valueText.mSize, 12., 100.));
 
     auto promptLabelFont = [pGraphics](IControl* pCaller) {
       auto completionHandler = [pGraphics](const WDL_String& fileName, const WDL_String& path) {
@@ -466,7 +466,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       pGraphics->PromptForFile(fileName, path, EFileAction::Open, "ttf", completionHandler);
     };
     
-    pGraphics->AttachControl(new IVButtonControl(nextCell().SubRectVertical(5, 1), SplashClickActionFunc, "Choose label font...", style))->SetAnimationEndActionFunction(promptLabelFont);
+    pGraphics->AttachControl(new IVButtonControl(sameCell().SubRectVertical(5, 4).FracRectHorizontal(0.5f), SplashClickActionFunc, "font...", style.WithDrawShadows(false)))->SetAnimationEndActionFunction(promptLabelFont);
     
     auto promptValueFont = [pGraphics](IControl* pCaller) {
       auto completionHandler = [pGraphics](const WDL_String& fileName, const WDL_String& path){
@@ -490,7 +490,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
       pGraphics->PromptForFile(fileName, path, EFileAction::Open, "ttf", completionHandler);
     };
     
-    pGraphics->AttachControl(new IVButtonControl(sameCell().SubRectVertical(5, 2), SplashClickActionFunc, "Choose value font...", style))->SetAnimationEndActionFunction(promptValueFont);
+    pGraphics->AttachControl(new IVButtonControl(sameCell().SubRectVertical(5, 4).FracRectHorizontal(0.5f, true), SplashClickActionFunc, "font...", style.WithDrawShadows(false)))->SetAnimationEndActionFunction(promptValueFont);
   };
 #endif
 }

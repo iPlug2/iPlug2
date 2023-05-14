@@ -59,12 +59,12 @@ public:
       mMouseDownRECT = pControl->GetRECT();
       mMouseDownTargetRECT = pControl->GetTargetRECT();
 
-      if(!mod.S)
+      if (!mod.S)
         mSelectedControls.Empty();
       
       mSelectedControls.Add(pControl);
 
-      if(mod.A)
+      if (mod.A)
       {
         GetUI()->AttachControl(new PlaceHolder(mMouseDownRECT));
         mClickedOnControl = GetUI()->NControls() - 1;
@@ -79,13 +79,13 @@ public:
       {
         mClickedOnControl = c;
         
-        if(GetHandleRect(mMouseDownRECT).Contains(x, y))
+        if (GetHandleRect(mMouseDownRECT).Contains(x, y))
         {
           mMouseClickedOnResizeHandle = true;
         }
       }
     }
-    else if(mod.R)
+    else if (mod.R)
     {
       GetUI()->CreatePopupMenu(*this, mRightClickOutsideControlMenu, x, y);
     }
@@ -99,14 +99,14 @@ public:
   
   void OnMouseUp(float x, float y, const IMouseMod& mod) override
   {
-    if(mMouseClickedOnResizeHandle)
+    if (mMouseClickedOnResizeHandle)
     {
       IControl* pControl = GetUI()->GetControl(mClickedOnControl);
       IRECT r = pControl->GetRECT();
       float w = r.R - r.L;
       float h = r.B - r.T;
       
-      if(w < 0.f || h < 0.f)
+      if (w < 0.f || h < 0.f)
       {
         pControl->SetRECT(mMouseDownRECT);
         pControl->SetTargetRECT(mMouseDownTargetRECT);
@@ -131,7 +131,7 @@ public:
       IRECT cr = GetUI()->GetControl(c)->GetRECT();
       IRECT h = GetHandleRect(cr);
       
-      if(h.Contains(x, y))
+      if (h.Contains(x, y))
       {
         GetUI()->SetMouseCursor(ECursor::SIZENWSE);
         return;
@@ -148,27 +148,27 @@ public:
     float mouseDownX, mouseDownY;
     GetUI()->GetMouseDownPoint(mouseDownX, mouseDownY);
     
-    if(mClickedOnControl > 0)
+    if (mClickedOnControl > 0)
     {
       IControl* pControl = GetUI()->GetControl(mClickedOnControl);
       
-      if(mMouseClickedOnResizeHandle)
+      if (mMouseClickedOnResizeHandle)
       {
         IRECT r = pControl->GetRECT();
         r.R = SnapToGrid(mMouseDownRECT.R + (x - mouseDownX));
         r.B = SnapToGrid(mMouseDownRECT.B + (y - mouseDownY));
         
-        if(r.R < mMouseDownRECT.L +mGridSize) r.R = mMouseDownRECT.L+mGridSize;
-        if(r.B < mMouseDownRECT.T +mGridSize) r.B = mMouseDownRECT.T+mGridSize;
+        if (r.R < mMouseDownRECT.L +mGridSize) r.R = mMouseDownRECT.L+mGridSize;
+        if (r.B < mMouseDownRECT.T +mGridSize) r.B = mMouseDownRECT.T+mGridSize;
           
-        GetUI()->SetControlSize(mClickedOnControl, r.W(), r.H());
+        GetUI()->SetControlSize(pControl, r.W(), r.H());
       }
       else
       {
         const float x1 = SnapToGrid(mMouseDownRECT.L + (x - mouseDownX));
         const float y1 = SnapToGrid(mMouseDownRECT.T + (y - mouseDownY));
           
-        GetUI()->SetControlPosition(mClickedOnControl, x1, y1);
+        GetUI()->SetControlPosition(pControl, x1, y1);
       }
     }
     else
@@ -181,13 +181,13 @@ public:
       mDragRegion.B = y < mouseDownY ? mouseDownY : y;
       
       GetUI()->ForStandardControlsFunc([&](IControl* pControl) {
-                                         if(mDragRegion.Contains(pControl->GetRECT())) {
-                                           if(mSelectedControls.FindR(pControl) == -1)
+                                         if (mDragRegion.Contains(pControl->GetRECT())) {
+                                           if (mSelectedControls.FindR(pControl) == -1)
                                              mSelectedControls.Add(pControl);
                                          }
                                          else {
                                            int idx = mSelectedControls.FindR(pControl);
-                                           if(idx > -1)
+                                           if (idx > -1)
                                              mSelectedControls.Delete(idx);
                                          }
                                        });
@@ -198,11 +198,11 @@ public:
   {
     GetUI()->ReleaseMouseCapture();
     
-    if(key.VK == kVK_BACK || key.VK == kVK_DELETE)
+    if (key.VK == kVK_BACK || key.VK == kVK_DELETE)
     {
-      if(mSelectedControls.GetSize())
+      if (mSelectedControls.GetSize())
       {
-        for(int i = 0; i < mSelectedControls.GetSize(); i++)
+        for (int i = 0; i < mSelectedControls.GetSize(); i++)
         {
           IControl* pControl = mSelectedControls.Get(i);
           GetUI()->RemoveControl(pControl);
@@ -220,7 +220,7 @@ public:
   
   void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override
   {
-    if(pSelectedMenu && pSelectedMenu == &mRightClickOutsideControlMenu)
+    if (pSelectedMenu && pSelectedMenu == &mRightClickOutsideControlMenu)
     {
       auto idx = pSelectedMenu->GetChosenItemIdx();
       float x, y;
@@ -260,29 +260,32 @@ public:
     IBlend b {EBlend::Add, 0.25f};
     g.DrawGrid(mGridColor, g.GetBounds(), mGridSize, mGridSize, &b);
     
-    for(int i = 1; i < g.NControls(); i++)
+    for (int i = 1; i < g.NControls(); i++)
     {
       IControl* pControl = g.GetControl(i);
       IRECT cr = pControl->GetRECT();
-
-      if(pControl->IsHidden())
-        g.DrawDottedRect(COLOR_RED, cr);
-      else if(pControl->IsDisabled())
-        g.DrawDottedRect(COLOR_GREEN, cr);
-      else
-        g.DrawDottedRect(COLOR_BLUE, cr);
       
-      IRECT h = GetHandleRect(cr);
-      g.FillTriangle(mRectColor, h.L, h.B, h.R, h.B, h.R, h.T);
-      g.DrawTriangle(COLOR_BLACK, h.L, h.B, h.R, h.B, h.R, h.T);
+      if (!pControl->GetParent()) // don't allow reszing sub controls
+      {
+        if (pControl->IsHidden())
+          g.DrawDottedRect(COLOR_RED, cr);
+        else if (pControl->IsDisabled())
+          g.DrawDottedRect(COLOR_GREEN, cr);
+        else
+          g.DrawDottedRect(COLOR_BLUE, cr);
+        
+        IRECT h = GetHandleRect(cr);
+        g.FillTriangle(mRectColor, h.L, h.B, h.R, h.B, h.R, h.T);
+        g.DrawTriangle(COLOR_BLACK, h.L, h.B, h.R, h.B, h.R, h.T);
+      }
     }
     
-    for(int i = 0; i< mSelectedControls.GetSize(); i++)
+    for (int i = 0; i< mSelectedControls.GetSize(); i++)
     {
       g.DrawDottedRect(COLOR_WHITE, mSelectedControls.Get(i)->GetRECT());
     }
     
-    if(!mDragRegion.Empty())
+    if (!mDragRegion.Empty())
     {
       g.DrawDottedRect(COLOR_RED, mDragRegion);
     }

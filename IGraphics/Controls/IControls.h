@@ -424,12 +424,12 @@ protected:
 };
 
 /** A panel control which can be styled with emboss etc. */
-class IVPanelControl : public IControl
+class IVPanelControl : public IContainerBase
                      , public IVectorBase
 {
 public:
   IVPanelControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE.WithColor(kFG, COLOR_TRANSLUCENT).WithEmboss(true))
-  : IControl(bounds)
+  : IContainerBase(bounds)
   , IVectorBase(style)
   {
     mIgnoreMouse = true;
@@ -448,10 +448,19 @@ public:
   {
     DrawPressableRectangle(g, mWidgetBounds, false, false, false);
   }
+
+  void OnAttached() override
+  {
+    if (mAttachFunc)
+      mAttachFunc(this, mWidgetBounds);
+  }
   
   void OnResize() override
   {
     SetTargetRECT(MakeRects(mRECT));
+
+    if (mResizeFunc && mChildren.GetSize())
+      mResizeFunc(this, mWidgetBounds);
   }
 };
 
