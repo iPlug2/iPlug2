@@ -102,8 +102,8 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
         static bool dir = 0;
         static float thickness = 5.f;
         static float roundness = 5.f;
-        float rrad1 = rand() % 360;
-        float rrad2 = rand() % 360;
+        float rrad1 = static_cast<float>(rand() % 360);
+        float rrad2 = static_cast<float>(rand() % 360);
         
         switch (this->mKindOfThing)
         {
@@ -137,7 +137,9 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
   
   int button = 0;
   for (auto buttonLabel : {"Select test", "Next test", "Prev test", "Things++", "Things--"}) {
-    pGraphics->AttachControl(new IVButtonControl(buttonsArea.GetGridCell(button, 1, 6), SplashClickActionFunc, buttonLabel, DEFAULT_STYLE.WithLabelText(DEFAULT_TEXT.WithVAlign(EVAlign::Middle)).WithRoundness(0.2)), kCtrlTagButton1 + button)->SetAnimationEndActionFunction([button, DoFunc, pGraphics](IControl* pCaller) {
+    pGraphics->AttachControl(new IVButtonControl(buttonsArea.GetGridCell(button, 1, 6), 
+      SplashClickActionFunc, buttonLabel, DEFAULT_STYLE.WithLabelText(DEFAULT_TEXT.WithVAlign(EVAlign::Middle)).WithRoundness(0.2f)), kCtrlTagButton1 + button)
+      ->SetAnimationEndActionFunction([button, DoFunc, pGraphics](IControl* pCaller) {
       
       switch (button){
         case 0:
@@ -162,7 +164,9 @@ void IGraphicsStressTest::LayoutUI(IGraphics* pGraphics)
     button++;
   }
   
-  pGraphics->AttachControl(new IVToggleControl(buttonsArea.GetGridCell(button, 1, 6), SplashClickActionFunc, "", DEFAULT_STYLE.WithRoundness(0.2), "FPS OFF", "FPS ON"), kCtrlTagButton6)->SetAnimationEndActionFunction([](IControl* pCaller){
+  pGraphics->AttachControl(new IVToggleControl(buttonsArea.GetGridCell(button, 1, 6), 
+    SplashClickActionFunc, "", DEFAULT_STYLE.WithRoundness(0.2f), "FPS OFF", "FPS ON"), kCtrlTagButton6)
+    ->SetAnimationEndActionFunction([](IControl* pCaller){
       pCaller->GetUI()->ShowFPSDisplay(pCaller->GetValue() > 0.5);
   });
 
