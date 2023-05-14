@@ -99,10 +99,14 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     "Gesture Recognizers (iOS only)",
     "MultiTouch (iOS/Win/Web only)",
     "FlexBox",
-    "Mask"
+    "Mask",
+    "DirBrowse",
     };
     
-    auto chooseTestControl = [&, pGraphics, testRect](int idx) {
+    WDL_String resourcePath;
+    BundleResourcePath(resourcePath, BUNDLE_ID);
+    
+    auto chooseTestControl = [&, pGraphics, testRect, resourcePath](int idx) {
       
       IControl* pNewControl = nullptr;
       
@@ -133,6 +137,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
         case 23: pNewControl = new TestMTControl(testRect); pNewControl->SetWantsMultiTouch(true); break;
         case 24: pNewControl = new TestFlexBoxControl(testRect); break;
         case 25: pNewControl = new TestMaskControl(testRect, pGraphics->LoadBitmap(SMILEY_FN)); break;
+        case 26: pNewControl = new TestDirBrowseControl(testRect, "png", resourcePath.Get()); break;
       }
       
       if(pNewControl)
