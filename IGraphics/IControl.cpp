@@ -390,7 +390,7 @@ void IControl::DrawPTHighlight(IGraphics& g)
 {
   if (mPTisHighlighted)
   {
-    g.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2);
+    g.FillCircle(mPTHighlightColor, mTargetRECT.R-5, mTargetRECT.T+5, 2);
   }
 }
 
