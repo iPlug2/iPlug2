@@ -17,6 +17,7 @@
  */
 
 #include "IControl.h"
+#include "IControlMarkers.h"
 #include "IColorPickerControl.h"
 #include "IVKeyboardControl.h"
 #include "IVMeterControl.h"
@@ -139,7 +140,7 @@ public:
    * @param style The styling of this vector control \see IVStyle
    * @param shape The buttons shape \see IVShape
    * @param direction The direction of the buttons */
-  IVTabSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const std::initializer_list<const char*>& options = {}, const char* label = "", const IVStyle & style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
+  IVTabSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const std::vector<const char*>& options = {}, const char* label = "", const IVStyle & style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
 
   /** Constructs a vector tab switch control, with an action function (no parameter)
    * @param bounds The control's bounds
@@ -149,7 +150,7 @@ public:
    * @param style The styling of this vector control \see IVStyle
    * @param shape The buttons shape \see IVShape
    * @param direction The direction of the buttons */
-  IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
+  IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::vector<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
   
   virtual ~IVTabSwitchControl() { mTabLabels.Empty(true); }
   void Draw(IGraphics& g) override;
@@ -211,6 +212,27 @@ protected:
   bool mOnlyButtonsRespondToMouse = false;
 };
 
+/** A vector button that pops up a menu. */
+class IVMenuButtonControl : public IContainerBase
+                          , public IVectorBase
+{
+public:
+  /** Constructs a vector button control, with an action function
+   * @param bounds The control's bounds
+   * @param paramIdx The parameter index to link this control to
+   * @param label The label for the vector control, leave empty for no label
+   * @param style The styling of this vector control \see IVStyle
+   * @param shape The shape of the button */
+  IVMenuButtonControl(const IRECT& bounds, int paramIdx, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle);
+  
+  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override;
+  void SetValueFromDelegate(double value, int valIdx = 0) override;
+  void SetStyle(const IVStyle& style) override;
+
+private:
+  IVButtonControl* mButtonControl = nullptr;
+};
+
 /** A vector knob control drawn using graphics primitives */
 class IVKnobControl : public IKnobControlBase
                     , public IVectorBase
@@ -252,6 +274,9 @@ public:
   void SetOuterPointerFrac(float frac) { mOuterPointerFrac = frac; }
   void SetPointerThickness(float thickness) { mPointerThickness = thickness; }
 
+  float GetRadius() const;
+  IRECT GetTrackBounds() const;
+  
 protected:
   virtual IRECT GetKnobDragBounds() override;
 
@@ -262,6 +287,42 @@ protected:
   float mAngle1, mAngle2;
   float mAnchorAngle; // for bipolar arc
   bool mValueMouseOver = false;
+};
+
+class IVKnobControlWithMarks : public IContainerBase
+                             , public IVectorBase
+{
+public:
+  IVKnobControlWithMarks(const IRECT& bounds, int paramIdx, const char* label = "",
+                const IVStyle& style = DEFAULT_STYLE.WithWidgetFrac(0.5f),
+                bool valueIsEditable = false, bool valueInWidget = false,
+                float a1 = -135.f, float a2 = 135.f, float aAnchor = -135.f,
+                EDirection direction = EDirection::Vertical, double gearing = DEFAULT_GEARING, float trackSize = 2.f,
+                bool showMarkLabels = false)
+  : IContainerBase(bounds, paramIdx)
+  , IVectorBase(style)
+  {
+    AttachIControl(this, "");
+        
+    SetAttachFunc([&, paramIdx, label, style, valueIsEditable, valueInWidget, a1, a2, aAnchor, direction, gearing, trackSize](IContainerBase* pContainer, const IRECT& bounds) {
+      AddChildControl(mRadialMarks = new IRadialMarks(bounds, {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}, showMarkLabels, a1, a2));
+      AddChildControl(mKnobControl = new IVKnobControl(bounds, paramIdx, label, style, valueIsEditable, valueInWidget, a1, a2, aAnchor, direction, gearing, trackSize), kNoTag, GetGroup());
+    });
+    
+    SetResizeFunc([&](IContainerBase* pContainer, const IRECT& bounds) {
+      mKnobControl->SetTargetAndDrawRECTs(bounds);
+      mRadialMarks->SetTargetAndDrawRECTs(bounds);
+      mRadialMarks->SetTrackBounds(mKnobControl->GetTrackBounds());
+    });
+  }
+  
+  // override these, so that the knob control triggers actions
+  IControl* SetActionFunction(IActionFunction actionFunc) override { return mKnobControl->SetActionFunction(actionFunc); }
+  IControl* SetAnimationEndActionFunction(IActionFunction actionFunc) override { return mKnobControl->SetAnimationEndActionFunction(actionFunc); }
+
+private:
+  IVKnobControl* mKnobControl = nullptr;
+  IRadialMarks* mRadialMarks = nullptr;
 };
 
 /** A vector slider control */
@@ -303,6 +364,37 @@ protected:
   bool mValueMouseOver = false;
   float mHandleXOffset = 0.f;
   float mHandleYOffset = 0.f;
+};
+
+class IVSliderControlWithMarks : public IContainerBase
+                               , public IVectorBase
+{
+public:
+  IVSliderControlWithMarks(const IRECT& bounds, int paramIdx = kNoParameter, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueIsEditable = true, EDirection dir = EDirection::Vertical, double gearing = DEFAULT_GEARING, float handleSize = 8.0f, float trackSize = 2.0f, bool handleInsideTrack = false, float handleXOffset = 0.0f, float handleYOffset = 0.0f)
+  : IContainerBase(bounds, paramIdx)
+  , IVectorBase(style)
+  {
+    AttachIControl(this, "");
+        
+    SetAttachFunc([&, paramIdx, label, style, valueIsEditable, dir, gearing, handleSize, trackSize, handleInsideTrack, handleXOffset, handleYOffset](IContainerBase* pContainer, const IRECT& bounds) {
+      AddChildControl(mLinearMarks = new ILinearMarks(bounds, style.colorSpec.GetColor(kFG), dir));
+      AddChildControl(mSliderControl = new IVSliderControl(bounds, paramIdx, label, style, valueIsEditable, dir, gearing, handleSize, trackSize, handleInsideTrack, handleXOffset, handleYOffset), kNoTag, GetGroup());
+    });
+    
+    SetResizeFunc([&](IContainerBase* pContainer, const IRECT& bounds) {
+      mSliderControl->SetTargetAndDrawRECTs(bounds);
+      mLinearMarks->SetTargetAndDrawRECTs(bounds);
+      mLinearMarks->SetTrackBounds(mSliderControl->GetTrackBounds());
+    });
+  }
+  
+  // override these, so that the slider control triggers actions
+  IControl* SetActionFunction(IActionFunction actionFunc) override { return mSliderControl->SetActionFunction(actionFunc); }
+  IControl* SetAnimationEndActionFunction(IActionFunction actionFunc) override { return mSliderControl->SetAnimationEndActionFunction(actionFunc); }
+
+private:
+  IVSliderControl* mSliderControl = nullptr;
+  ILinearMarks* mLinearMarks = nullptr;
 };
 
 /** A vector range slider control, with two handles */
@@ -725,8 +817,10 @@ protected:
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
+// Meta controls that use the above controls
 #include "IVPresetManagerControl.h"
 #include "IVNumberBoxControl.h"
+#include "IAboutBoxControl.h"
 
 /**@}*/
 
