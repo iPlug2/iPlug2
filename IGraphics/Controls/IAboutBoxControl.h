@@ -71,21 +71,21 @@ public:
     }
 
     SetAnimation([&](IControl* pCaller) {
-      auto progress = pCaller->GetAnimationProgress();
+      float progress = (float) pCaller->GetAnimationProgress();
 
       if (mWillHide)
-        SetBlend(IBlend(EBlend::Default, 1.0-progress));
+        SetBlend(IBlend(EBlend::Default, 1.0f - progress));
       else
         SetBlend(IBlend(EBlend::Default, progress));
 
-      if (progress > 1.) {
+      if (progress > 1.0f) {
         pCaller->OnEndAnimation();
         IPanelControl::Hide(mWillHide);
         GetUI()->SetAllControlsDirty();
         return;
       }
-
-    }, mAnimationTime);
+    }, 
+    (int)mAnimationTime);
 
     SetDirty(true);
   }
