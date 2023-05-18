@@ -482,10 +482,13 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   
   mAlertController = [UIAlertController alertControllerWithTitle:@"Input a value:" message:@"" preferredStyle:UIAlertControllerStyleAlert];
 
+  __weak IGRAPHICS_VIEW* weakSelf = self;
+
   void (^cancelHandler)(UIAlertAction*) = ^(UIAlertAction *action)
   {
-    self->mGraphics->SetAllControlsDirty();
-    [self endUserInput];
+    __strong IGRAPHICS_VIEW* strongSelf = weakSelf;
+    strongSelf->mGraphics->SetAllControlsDirty();
+    [strongSelf endUserInput];
   };
     
   UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleDefault handler:cancelHandler];
@@ -493,18 +496,18 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
   void (^okHandler)(UIAlertAction*) = ^(UIAlertAction *action)
   {
-    self->mGraphics->SetControlValueAfterTextEdit([[self->mTextField text] UTF8String]);
-    self->mGraphics->SetAllControlsDirty();
-    [self endUserInput];
+    __strong IGRAPHICS_VIEW* strongSelf = weakSelf;
+    strongSelf->mGraphics->SetControlValueAfterTextEdit([[strongSelf->mTextField text] UTF8String]);
+    strongSelf->mGraphics->SetAllControlsDirty();
+    [strongSelf endUserInput];
   };
     
   UIAlertAction* okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:okHandler];
   [mAlertController addAction:okAction];
   [mAlertController setPreferredAction:okAction];
     
-  __weak IGRAPHICS_VIEW* weakSelf = self;
   [mAlertController addTextFieldWithConfigurationHandler:^(UITextField* aTextField) {
-    IGRAPHICS_VIEW* strongSelf = weakSelf;
+    __strong IGRAPHICS_VIEW* strongSelf = weakSelf;
     strongSelf->mTextField = aTextField;
     strongSelf->mTextFieldLength = length;
     aTextField.delegate = strongSelf;
