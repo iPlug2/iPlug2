@@ -160,14 +160,14 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
   if (pItem->GetIsChoosable())
   {
+    [self dismissViewControllerAnimated:YES completion:nil];
+
     mMenu->SetChosenItemIdx(cellIndex);
     
     if (mMenu->GetFunction())
       mMenu->ExecFunction();
     
     mGraphics->SetControlValueAfterPopupMenu(mMenu);
-    
-    [self dismissViewControllerAnimated:YES completion:nil];
   }
 }
 
