@@ -68,6 +68,19 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [self.view addSubview:self.tableView];
 }
 
+- (void) viewDidAppear:(BOOL)animated
+{
+  auto selectedItemIdx = mMenu->GetChosenItemIdx();
+
+  if (selectedItemIdx > -1)
+  {
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:selectedItemIdx inSection:0];
+    [self.tableView scrollToRowAtIndexPath:indexPath
+                           atScrollPosition:UITableViewScrollPositionMiddle
+                             animated:NO];
+  }
+}
+
 - (id) initWithIPopupMenuAndIGraphics:(IPopupMenu*) pMenu :(IGraphicsIOS*) pGraphics
 {
   self = [super init];
