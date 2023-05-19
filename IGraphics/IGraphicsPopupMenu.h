@@ -260,8 +260,9 @@ public:
 
   void Clear(bool resetEverything = true)
   {
-    if(resetEverything)
+    if (resetEverything)
     {
+      SetChosenItemIdx(-1);
       SetPrefix(0);
       mCanMultiCheck = false;
     }
