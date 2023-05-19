@@ -595,11 +595,9 @@ private:
  */
 
 /** IContainerBase allows a control to nest sub controls and it clips the drawing of those subcontrols
- * Inheritors can add child controls by overriding AttachChildControls() and calling AddChildControl(), or passing in an AttachFunc lambda to the construtor.
+ * Inheritors can add child controls by overriding OnAttached() and calling AddChildControl(), or passing in an AttachFunc lambda to the construtor.
  * Child controls should not have been added elsewhere
- * OnResized() should also be overriden if the parent control bounds will change (this can also be specified in a ResizeFunc lambda)
- * If you are laying out controls in OnResized() or via the ResizeFunc, you can provide an invalid rect when creating the \
- * child controls, since they will be resized immediately */
+ * OnResized() should also be overriden if the control bounds will change (can also be specified in a ResizeFunc lambda) */
 class IContainerBase : public IControl
 {
 public:
@@ -646,21 +644,18 @@ public:
     mChildren.Empty(false);
   }
   
-  virtual void OnInit() override
+  virtual void OnAttached() override
   {
-    AttachChildControls();
+    if (mAttachFunc)
+      mAttachFunc(this, mRECT);
+    
+    OnResize();
   }
   
   virtual void OnResize() override
   {
     if (mResizeFunc && mChildren.GetSize())
       mResizeFunc(this, mRECT);
-  }
-  
-  virtual void AttachChildControls()
-  {
-    if (mAttachFunc)
-      mAttachFunc(this, mRECT);
   }
   
   void SetDisabled(bool disable) override
