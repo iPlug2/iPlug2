@@ -135,7 +135,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     ReleaseMutex(hMutex);
 #endif
   }
-  catch(std::exception e)
+  catch(std::exception& e)
   {
     DBGMSG("Exception: %s", e.what());
     return 1;
