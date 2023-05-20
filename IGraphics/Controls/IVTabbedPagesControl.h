@@ -53,7 +53,7 @@ public:
 class IVTabbedPagesControl : public IContainerBase, public IVectorBase
 {
 public:
-  IVTabbedPagesControl(const IRECT& bounds, std::map<const char*, IVTabbedPageBase*> pages, const char* label = "",
+  IVTabbedPagesControl(const IRECT& bounds, const std::map<const char*, IVTabbedPageBase*>& pages, const char* label = "",
                        const IVStyle& style = DEFAULT_STYLE.WithDrawFrame(false), float tabBarSize = 20.0f, float tabBarFrac = 0.5, EAlign tabsAlign = EAlign::Near)
   : IContainerBase(bounds)
   , IVectorBase(style.WithDrawShadows(false))
@@ -112,14 +112,11 @@ public:
       g.DrawRoundRect(GetColor(kFR), mRECT, rcr);
   }
 
-
   void SelectPage(int index)
   {
     GetTabsControl()->SetValue(index, 0);
     ShowSelectedPage();
   }
-
-
 
   void OnAttached() override
   {    
