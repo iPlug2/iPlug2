@@ -40,10 +40,10 @@ static void DrawRadialMarks(IGraphics& g, const IRECT& track, int numMajor, floa
 //      markWidth = minorThickness;
 //    }
 
-    float angle = a1r - (float)(iplug::PI / 2.0f) + (i * div);
-    float sinX = std::sin(angle);
-    float cosX = std::cos(angle);
-    float to = radius - markSize;
+    auto angle = a1r - (iplug::PI / 2.0f) + (i * div);
+    auto sinX = std::sin(angle);
+    auto cosX = std::cos(angle);
+    auto to = radius - markSize;
     
     from = radius;
     to = radius * 1.5f;
@@ -85,21 +85,21 @@ static void DrawLinearMarks(IGraphics& g, const IRECT& track, int numMajor, int 
 static void DrawRadialLabels(IGraphics& g, const IRECT& track, const std::vector<std::string>& labels, float a1 = -135.0f, float a2 = 135.0f, const IText& text = DEFAULT_VALUE_TEXT)
 {
   auto radius = track.W() / 2.0f;
-  float a1r = DegToRad(a1);
-  float a2r = DegToRad(a2);
+  auto a1r = DegToRad(a1);
+  auto a2r = DegToRad(a2);
   
   auto numMajor = labels.size();
   
-  float div = (a2r - a1r) / float(numMajor - 1);
+  auto div = (a2r-a1r) / float(numMajor-1);
   
   for (auto i = 0; i < numMajor; ++i)
   {
-    float angle = a1r - (float)(iplug::PI / 2.0f) + (i * div);
-    float sinX = (float)std::sin(angle);
-    float cosX = (float)std::cos(angle);
+    auto angle = a1r - (iplug::PI / 2.0f) + (i * div);
+    auto sinX = std::sin(angle);
+    auto cosX = std::cos(angle);
 
-    float x = track.MW() + (radius * 1.75f) * cosX;
-    float y = track.MH() + (radius * 1.75f) * sinX;
+    auto x = track.MW() + (radius * 1.75) * cosX;
+    auto y = track.MH() + (radius * 1.75) * sinX;
 
     g.DrawText(text, labels[i].c_str(), x, y);
   }
@@ -110,9 +110,9 @@ static void DrawLinearLabels(IGraphics& g, const IRECT& track, int numMajor, EDi
   IRECT labelRect;
   
   if (dir == EDirection::Horizontal)
-    labelRect = track.GetTranslated(-(track.W() / numMajor) / 2.0f, distanceFromTrackCentre);
+    labelRect = track.GetTranslated(-(track.W() / numMajor) / 2.0, distanceFromTrackCentre);
   else
-    labelRect = track.GetTranslated(distanceFromTrackCentre, -(track.H() / numMajor) / 2.0f);
+    labelRect = track.GetTranslated(distanceFromTrackCentre, -(track.H() / numMajor) / 2.0);
 
   for (int i = 0; i <= numMajor; i++)
   {
@@ -188,10 +188,10 @@ public:
     if (!g.CheckLayer(mLayer))
     {
       g.StartLayer(this, mRECT);
-      DrawRadialMarks(g, mTrackBounds, static_cast<int>(mLabels.size()), (float)mAngle1, (float)mAngle2, (float)mMarkSize);
+      DrawRadialMarks(g, mTrackBounds, static_cast<int>(mLabels.size()), mAngle1, mAngle2, mMarkSize);
       
       if (mShowMarkLabels)
-        DrawRadialLabels(g, mTrackBounds, mLabels, (float)mAngle1, (float)mAngle2, mText);
+        DrawRadialLabels(g, mTrackBounds, mLabels, mAngle1, mAngle2, mText);
       
       mLayer = g.EndLayer();
     }

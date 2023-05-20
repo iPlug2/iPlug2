@@ -200,12 +200,12 @@ public:
   /** Set an Action Function for this control. 
    * @param actionFunc A std::function conforming to IActionFunction
    * @return Ptr to this control, for chaining */
-  inline IControl* SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; return this; }
+  virtual inline IControl* SetActionFunction(IActionFunction actionFunc) { mActionFunc = actionFunc; return this; }
 
   /** Set an Action Function to be called at the end of an animation.
    * @param actionFunc A std::function conforming to IActionFunction
    * @return Ptr to this control, for chaining */
-  inline IControl* SetAnimationEndActionFunction(IActionFunction actionFunc) { mAnimationEndActionFunc = actionFunc; return this; }
+  virtual inline IControl* SetAnimationEndActionFunction(IActionFunction actionFunc) { mAnimationEndActionFunc = actionFunc; return this; }
   
   /** Set a tooltip for the control
    * @param str CString tooltip to be displayed */
@@ -797,6 +797,7 @@ public:
   }
   
   void SetLabelStr(const char* label) { mLabelStr.Set(label); mControl->SetDirty(false); }
+  const char* GetLabelStr() const { return mLabelStr.Get(); }
   void SetValueStr(const char* value) { mValueStr.Set(value); mControl->SetDirty(false); }
   void SetWidgetFrac(float frac) { mStyle.widgetFrac = Clip(frac, 0.f, 1.f);  mControl->OnResize(); mControl->SetDirty(false); }
   void SetAngle(float angle) { mStyle.angle = Clip(angle, 0.f, 360.f);  mControl->SetDirty(false); }

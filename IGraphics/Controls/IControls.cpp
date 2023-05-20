@@ -295,7 +295,7 @@ void IVSlideSwitchControl::SetDirty(bool push, int valIdx)
     UpdateRects();
 }
 
-IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
+IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const std::vector<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
 : ISwitchControlBase(bounds, paramIdx, SplashClickActionFunc, (int) options.size())
 , IVectorBase(style)
 , mDirection(direction)
@@ -312,7 +312,7 @@ IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const 
   }
 }
 
-IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
+IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::vector<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
 : ISwitchControlBase(bounds, kNoParameter, aF, static_cast<int>(options.size()))
 , IVectorBase(style)
 , mDirection(direction)
@@ -505,6 +505,54 @@ int IVRadioButtonControl::GetButtonForPoint(float x, float y) const
     return IVTabSwitchControl::GetButtonForPoint(x, y);
 }
 
+IVMenuButtonControl::IVMenuButtonControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, EVShape shape)
+: IContainerBase(bounds, paramIdx)
+, IVectorBase(style)
+{
+  AttachIControl(this, "");
+  
+  mDisablePrompt = false;
+  
+  SetAttachFunc([&, label, style, shape](IContainerBase* pContainer, const IRECT& bounds) {
+    AddChildControl(mButtonControl = new IVButtonControl(bounds, SplashClickActionFunc, label, style.WithValueText(style.valueText.WithVAlign(EVAlign::Middle)), false, true, shape), kNoTag, GetGroup());
+    
+    WDL_String str;
+    GetParam()->GetDisplay(str);
+    mButtonControl->SetValueStr(str.Get());
+    
+    mButtonControl->SetAnimationEndActionFunction([&](IControl* pCaller){
+      PromptUserInput(mButtonControl->GetWidgetBounds());
+    });
+  });
+  
+  SetResizeFunc([&](IContainerBase* pContainer, const IRECT& bounds) {
+    mButtonControl->SetTargetAndDrawRECTs(bounds);
+  });
+}
+
+void IVMenuButtonControl::SetStyle(const IVStyle& style)
+{
+  IVectorBase::SetStyle(style);
+  mButtonControl->SetStyle(style.WithValueText(style.valueText.WithVAlign(EVAlign::Middle)));
+}
+
+void IVMenuButtonControl::SetValueFromDelegate(double value, int valIdx)
+{
+  IContainerBase::SetValueFromDelegate(value, valIdx);
+  WDL_String str;
+  GetParam()->GetDisplay(str);
+  mButtonControl->SetValueStr(str.Get());
+}
+
+void IVMenuButtonControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx)
+{
+  if (pSelectedMenu)
+  {
+    mButtonControl->SetValueStr(pSelectedMenu->GetChosenItem()->GetText());
+  }
+  IControl::OnPopupMenuSelection(pSelectedMenu, valIdx);
+}
+
 IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, bool valueInWidget, float a1, float a2, float aAnchor,  EDirection direction, double gearing, float trackSize)
 : IKnobControlBase(bounds, paramIdx, direction, gearing)
 , IVectorBase(style, false, valueInWidget)
@@ -548,7 +596,7 @@ IRECT IVKnobControl::GetKnobDragBounds()
 {
   IRECT r;
   
-  if(mWidgetBounds.W() > mWidgetBounds.H())
+  if (mWidgetBounds.W() > mWidgetBounds.H())
     r = mWidgetBounds.GetCentredInside(mWidgetBounds.H()/2.f, mWidgetBounds.H());
   else
     r = mWidgetBounds.GetCentredInside(mWidgetBounds.W(), mWidgetBounds.W()/2.f);
@@ -556,19 +604,29 @@ IRECT IVKnobControl::GetKnobDragBounds()
   return r;
 }
 
-void IVKnobControl::DrawWidget(IGraphics& g)
+float IVKnobControl::GetRadius() const
 {
-  float widgetRadius; // The radius out to the indicator track arc
+  float widgetRadius;
   
-  if(mWidgetBounds.W() > mWidgetBounds.H())
+  if (mWidgetBounds.W() > mWidgetBounds.H())
     widgetRadius = (mWidgetBounds.H()/2.f);
   else
     widgetRadius = (mWidgetBounds.W()/2.f);
-  
-  const float cx = mWidgetBounds.MW(), cy = mWidgetBounds.MH();
-  
+    
   widgetRadius -= (mTrackSize/2.f);
 
+  return widgetRadius;
+}
+
+IRECT IVKnobControl::GetTrackBounds() const
+{
+  return mWidgetBounds.GetCentredInside((GetRadius() + mTrackSize) * 2.f );
+}
+
+void IVKnobControl::DrawWidget(IGraphics& g)
+{
+  float widgetRadius = GetRadius();// The radius out to the indicator track arc
+  const float cx = mWidgetBounds.MW(), cy = mWidgetBounds.MH();
   IRECT knobHandleBounds = mWidgetBounds.GetCentredInside((widgetRadius - mTrackToHandleDistance) * 2.f );
   const float angle = mAngle1 + (static_cast<float>(GetValue()) * (mAngle2 - mAngle1));
   DrawIndicatorTrack(g, angle, cx, cy, widgetRadius);
