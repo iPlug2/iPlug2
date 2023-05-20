@@ -53,7 +53,7 @@ public:
 class IVTabbedPagesControl : public IContainerBase, public IVectorBase
 {
 public:
-  IVTabbedPagesControl(const IRECT& bounds, std::map<const char*, IVTabbedPageBase*> pages, const char* label = "",
+  IVTabbedPagesControl(const IRECT& bounds, const std::map<const char*, IVTabbedPageBase*>& pages, const char* label = "",
                        const IVStyle& style = DEFAULT_STYLE.WithDrawFrame(false), float tabBarSize = 20.0f, float tabBarFrac = 0.5, EAlign tabsAlign = EAlign::Near)
   : IContainerBase(bounds)
   , IVectorBase(style.WithDrawShadows(false))
@@ -69,7 +69,7 @@ public:
     }
   }
   
-  ~IVTabbedPagesControl()
+  ~IVTabbedPagesControl() override
   {
     mPages.Empty(false);
   }
@@ -100,29 +100,33 @@ public:
   {
     DrawLabel(g);
     
-    auto rcr = GetRoundedCornerRadius(GetTabBarArea());
+    float rcr = GetRoundedCornerRadius(GetTabBarArea());
   
-    auto rcrForTabCorners = mTabBarFrac == 1.0 ? 0.0 : rcr;
+    float rcrForTabCorners = mTabBarFrac == 1.0f ? 0.0f : rcr;
     
-    g.FillRoundRect(GetColor(kPR), GetPageArea(), mTabsAlign == EAlign::Near ? 0.0 : rcrForTabCorners,
-                                                  mTabsAlign == EAlign::Far ? 0.0 : rcrForTabCorners,
+    g.FillRoundRect(GetColor(kPR), GetPageArea(), mTabsAlign == EAlign::Near ? 0.0f : rcrForTabCorners,
+                                                  mTabsAlign == EAlign::Far ? 0.0f : rcrForTabCorners,
                                                   rcr, rcr);
     
     if (mStyle.drawFrame)
       g.DrawRoundRect(GetColor(kFR), mRECT, rcr);
   }
 
+
+  void SelectPage(int index)
+  {
+    GetTabsControl()->SetValue(index, 0);
+    ShowSelectedPage();
+  }
+
+
+
   void OnAttached() override
   {    
     // Set up tabs
     AddChildControl(new IVTabSwitchControl(GetTabBarArea(),
-    [&](IControl* pCaller) {
-      ForAllPagesFunc([&](IVTabbedPageBase* pPage) {
-        bool tabForControl = strcmp(GetTabsControl()->GetSelectedLabelStr(),
-                                    pPage->GetLabelStr());
-        pPage->Hide(tabForControl);
-      });
-      GetUI()->GetBubbleControl()->Hide(true);
+      [&](IControl* pCaller) {
+        ShowSelectedPage();
     }, mPageNames, "", GetStyle()));
     
     GetTabsControl()->SetShape(EVShape::EndsRounded);
@@ -183,6 +187,24 @@ private:
   IVTabSwitchControl* GetTabsControl() { return GetChild(0)->As<IVTabSwitchControl>(); }
   
   IVTabbedPageBase* GetPage(int pageIdx) { return mPages.Get(pageIdx); }
+
+  void ShowSelectedPage()
+  {
+    const char* selected = GetTabsControl()->GetSelectedLabelStr();
+    int idx = GetTabsControl()->GetSelectedIdx();
+
+    ForAllPagesFunc([&](IVTabbedPageBase* pPage) {
+      const char* pageLabel = pPage->GetLabelStr();
+      bool hideTab = strcmp(selected, pageLabel) != 0;
+      pPage->Hide(hideTab);
+    });
+
+    IBubbleControl* bc = GetUI()->GetBubbleControl();
+    if (bc != nullptr)
+    {
+      bc->Hide(true);
+    }
+  }
 
 private:
   WDL_PtrList<IVTabbedPageBase> mPages;
