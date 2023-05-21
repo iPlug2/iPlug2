@@ -1079,7 +1079,21 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   NSMenu* pNSMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReceiver:&menu : pDummyView] autorelease];
   NSPoint wp = {bounds.origin.x, bounds.origin.y + bounds.size.height + 4};
 
-  [pNSMenu popUpMenuPositioningItem:nil atLocation:wp inView:self];
+  NSMenuItem* pSelectedItem = nil;
+  
+  auto selectedItemIdx = menu.GetChosenItemIdx();
+
+  if (selectedItemIdx > -1)
+  {
+    pSelectedItem = [pNSMenu itemAtIndex:selectedItemIdx];
+  }
+  
+  if (pSelectedItem != nil)
+  {
+    wp = {bounds.origin.x, bounds.origin.y};
+  }
+  
+  [pNSMenu popUpMenuPositioningItem:pSelectedItem atLocation:wp inView:self];
   
   NSMenuItem* pChosenItem = [pDummyView menuItem];
   NSMenu* pChosenMenu = [pChosenItem menu];

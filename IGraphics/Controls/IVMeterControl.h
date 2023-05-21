@@ -296,7 +296,7 @@ public:
   {
     const int totalNSegs = IVMeterControl<MAXNC>::mNSteps;
     const EDirection dir = IVMeterControl<MAXNC>::mDirection;
-    const float val = IVMeterControl<MAXNC>::GetValue(chIdx);
+    const float val = static_cast<float>(IVMeterControl<MAXNC>::GetValue(chIdx));
     const float valPos = (dir == EDirection::Vertical) ? r.B - (val * r.H()) : r.R - ((1.f-val) * r.W()); // threshold position for testing segment
     
     int segIdx = 0; // keep track of how many segments have been drawn

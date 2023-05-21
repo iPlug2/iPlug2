@@ -260,8 +260,9 @@ public:
 
   void Clear(bool resetEverything = true)
   {
-    if(resetEverything)
+    if (resetEverything)
     {
+      SetChosenItemIdx(-1);
       SetPrefix(0);
       mCanMultiCheck = false;
     }
@@ -286,6 +287,18 @@ public:
     for (int i = 0; i < mMenuItems.GetSize(); i++)
     {
       mMenuItems.Get(i)->SetChecked(i == index);
+    }
+  }
+
+  void CheckItemWithText(const char* str, bool state = true)
+  {
+    for (int i = 0; i < mMenuItems.GetSize(); i++)
+    {
+      if (strcmp(mMenuItems.Get(i)->GetText(), str) == 0)
+      {
+        mMenuItems.Get(i)->SetChecked(state);
+        break;
+      }
     }
   }
   
