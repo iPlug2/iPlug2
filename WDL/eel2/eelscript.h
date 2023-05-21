@@ -610,6 +610,12 @@ int eelScriptInst::loadfile(const char *fn, const char *callerfn, bool allowstdi
     return -1;
   }
 
+#ifndef EELSCRIPT_NO_PREPROC
+  WDL_FastString incpath(fn);
+  incpath.remove_filepart();
+  m_preproc.m_include_paths.Add(incpath.Get());
+#endif
+
   WDL_FastString code;
   char line[4096];
   for (;;)
@@ -636,7 +642,13 @@ int eelScriptInst::loadfile(const char *fn, const char *callerfn, bool allowstdi
   }
   if (fp != stdin) fclose(fp);
 
-  return runcode(code.Get(),callerfn ? 2 : 1, fn,false,true,!callerfn);
+  int rv = runcode(code.Get(),callerfn ? 2 : 1, fn,false,true,!callerfn);
+
+#ifndef EELSCRIPT_NO_PREPROC
+  m_preproc.m_include_paths.Delete(m_preproc.m_include_paths.GetSize()-1);
+#endif
+
+  return rv;
 }
 
 char *eelScriptInst::evalCacheGet(const char *str, NSEEL_CODEHANDLE *ch)
