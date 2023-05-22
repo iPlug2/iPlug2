@@ -2464,6 +2464,7 @@ static constexpr float DEFAULT_FRAME_THICKNESS = 1.f;
 static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
 static constexpr float DEFAULT_WIDGET_FRAC = 1.f;
 static constexpr float DEFAULT_WIDGET_ANGLE = 0.f;
+static constexpr EOrientation DEFAULT_LABEL_ORIENTATION = EOrientation::North;
 const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Top};
 const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Bottom};
 
@@ -2484,6 +2485,7 @@ struct IVStyle
   IVColorSpec colorSpec = DEFAULT_COLOR_SPEC;
   IText labelText = DEFAULT_LABEL_TEXT;
   IText valueText = DEFAULT_VALUE_TEXT;
+  EOrientation labelOrientation = DEFAULT_LABEL_ORIENTATION;
   
   /** Create a new IVStyle to configure common styling for IVControls
    * @param showLabel Show the label
@@ -2513,7 +2515,8 @@ struct IVStyle
           float frameThickness = DEFAULT_FRAME_THICKNESS,
           float shadowOffset = DEFAULT_SHADOW_OFFSET,
           float widgetFrac = DEFAULT_WIDGET_FRAC,
-          float angle = DEFAULT_WIDGET_ANGLE)
+          float angle = DEFAULT_WIDGET_ANGLE,
+          EOrientation labelOrientation = DEFAULT_LABEL_ORIENTATION)
   : hideCursor(hideCursor)
   , showLabel(showLabel)
   , showValue(showValue)
@@ -2553,6 +2556,7 @@ struct IVStyle
   IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = Clip(v, 0.f, 1.f); return newStyle; }
   IVStyle WithAngle(float v) const { IVStyle newStyle = *this; newStyle.angle = Clip(v, 0.f, 360.f); return newStyle; }
   IVStyle WithEmboss(bool v = true) const { IVStyle newStyle = *this; newStyle.emboss = v; return newStyle; }
+  IVStyle WithLabelOrientation(EOrientation v) const { IVStyle newStyle = *this; newStyle.labelOrientation = v; return newStyle; }
 };
 
 const IVStyle DEFAULT_STYLE = IVStyle();

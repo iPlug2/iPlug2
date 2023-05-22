@@ -837,7 +837,7 @@ public:
    * @return IRECT The adjusted bounds */
   IRECT GetAdjustedHandleBounds(IRECT handleBounds) const
   {
-    if(mStyle.drawFrame)
+    if (mStyle.drawFrame)
       handleBounds.Pad(- 0.5f * mStyle.frameThickness);
     
     if (mStyle.drawShadows)
@@ -851,7 +851,7 @@ public:
    * @return float The radius */ 
   float GetRoundedCornerRadius(const IRECT& bounds) const
   {
-    if(bounds.W() < bounds.H())
+    if (bounds.W() < bounds.H())
       return mStyle.roundness * (bounds.W() / 2.f);
     else
       return mStyle.roundness * (bounds.H() / 2.f);
@@ -1002,10 +1002,10 @@ public:
       }
     }
     
-    if(pressed && mControl->GetAnimationFunction())
+    if (pressed && mControl->GetAnimationFunction())
       DrawSplash(g, handleBounds);
     
-    if(mStyle.drawFrame)
+    if (mStyle.drawFrame)
       g.DrawEllipse(GetColor(kFR), handleBounds, &blend, mStyle.frameThickness);
   }
   
@@ -1055,7 +1055,7 @@ public:
     }
     else
     {
-      //outer shadow
+      // outer shadow
       if (mStyle.drawShadows)
         g.FillRoundRect(GetColor(kSH), shadowBounds, tlr, trr, blr, brr, &blend);
 
@@ -1085,10 +1085,10 @@ public:
       }
     }
     
-    if(pressed && mControl->GetAnimationFunction())
+    if (pressed && mControl->GetAnimationFunction())
       DrawSplash(g, handleBounds);
     
-    if(mStyle.drawFrame)
+    if (mStyle.drawFrame)
       g.DrawRoundRect(GetColor(kFR), handleBounds, tlr, trr, blr, brr, &blend, mStyle.frameThickness);
     
     return handleBounds;
@@ -1165,13 +1165,43 @@ public:
         IRECT textRect;
         mControl->GetUI()->MeasureText(mStyle.labelText, mLabelStr.Get(), textRect);
 
-        mLabelBounds = parent.GetFromTop(textRect.H()).GetCentredInside(textRect.W(), textRect.H());
+        switch (mStyle.labelOrientation)
+        {
+          case EOrientation::North:
+            mLabelBounds = parent.GetFromTop(textRect.H()).GetCentredInside(textRect.W(), textRect.H());
+            break;
+          case EOrientation::East:
+            mLabelBounds = parent.GetFromRight(textRect.W()).GetCentredInside(textRect.W(), textRect.H());
+            break;
+          case EOrientation::South:
+            mLabelBounds = parent.GetFromBottom(textRect.H()).GetCentredInside(textRect.W(), textRect.H());
+            break;
+          case EOrientation::West:
+            mLabelBounds = parent.GetFromLeft(textRect.W()).GetCentredInside(textRect.W(), textRect.H());
+            break;
+        }
       }
       else
         mLabelBounds = IRECT();
       
-      if(mLabelBounds.H())
-        clickableArea = parent.GetReducedFromTop(mLabelBounds.H());
+      if (!mLabelBounds.Empty())
+      {
+        switch (mStyle.labelOrientation)
+        {
+          case EOrientation::North:
+            clickableArea = parent.GetReducedFromTop(mLabelBounds.H());
+            break;
+          case EOrientation::East:
+            clickableArea = parent.GetReducedFromRight(mLabelBounds.W());
+            break;
+          case EOrientation::South:
+            clickableArea = parent.GetReducedFromBottom(mLabelBounds.H());
+            break;
+          case EOrientation::West:
+            clickableArea = parent.GetReducedFromLeft(mLabelBounds.W());
+            break;
+        }
+      }
     }
     
     if (mStyle.showValue && !mValueInWidget)
