@@ -1270,11 +1270,15 @@ static int compareUTF8ToFilteredASCII(const char *utf, const char *ascii)
 {
   for (;;)
   {
-    char c1 = *ascii++;
+    unsigned char c1 = (unsigned char)*ascii++;
     int c2;
     if (!*utf || !c1) return *utf || c1;
     utf += wdl_utf8_parsechar(utf, &c2);
-    if (c1 != (c2 >= 128 ? '?' : c2)) return 1;
+    if (c1 != c2)
+    {
+      if (c2 < 128) return 1; // if not UTF-8 character, strings differ
+      if (c1 != '?') return 1; // if UTF-8 and ASCII is not ?, strings differ
+    }
   }
 }
 
