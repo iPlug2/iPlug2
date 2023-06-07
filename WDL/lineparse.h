@@ -58,6 +58,7 @@ class LineParserInt // version which does not have any temporary space for buffe
       const char *gettoken_str(int token) const;
       char gettoken_quotingchar(int token) const;
       int gettoken_enum(int token, const char *strlist) const; // null separated list
+      void insert_token_raw(int token, const char *p); // first character of p is quoting character!
     #endif
 
     void eattoken() { if (m_eat<m_nt) m_eat++; }
@@ -123,17 +124,8 @@ class LineParserInt // version which does not have any temporary space for buffe
         const char oldterm = *line;
         *line=0; // null terminate this token
 
-        if (m_nt >= (int) (sizeof(m_toklist_small)/sizeof(m_toklist_small[0])))
-        {
-          m_tokens = m_toklist_big.ResizeOK(m_nt+1,false);
-          if (!m_tokens) 
-          {
-            m_nt=0;
-            return -1;
-          }
-          if (m_nt == (int) (sizeof(m_toklist_small)/sizeof(m_toklist_small[0])))
-            memcpy(m_tokens,m_toklist_small,m_nt*sizeof(const char *));         
-        }
+        if (!adding_token_alloc()) return -1;
+
         m_tokens[m_nt++] = basep;
 
         if (!oldterm) 
@@ -219,6 +211,16 @@ class LineParserInt // version which does not have any temporary space for buffe
       return -1;
     }
 
+    void WDL_LINEPARSE_PREFIX insert_token_raw(int token, const char *p) // first character of p is quoting character!
+    {
+      if (WDL_NOT_NORMALLY((unsigned int)token > m_nt)) return;
+      if (WDL_NOT_NORMALLY(!adding_token_alloc())) return;
+      if ((unsigned int)token < m_nt)
+        memmove(m_tokens + token + 1, m_tokens + token, (m_nt-token) * sizeof(const char *));
+      m_tokens[token] = p+1;
+      m_nt++;
+    }
+
 #ifndef WDL_LINEPARSE_IMPL_ONLY
   private:
 #endif
@@ -230,6 +232,23 @@ class LineParserInt // version which does not have any temporary space for buffe
     
 #ifndef WDL_LINEPARSE_IMPL_ONLY
   protected:
+
+    bool adding_token_alloc()
+    {
+      if (m_nt < (int) (sizeof(m_toklist_small)/sizeof(m_toklist_small[0])))
+        return true;
+
+      m_tokens = m_toklist_big.ResizeOK(m_nt+1,false);
+      if (!m_tokens)
+      {
+        m_nt=0;
+        return false;
+      }
+      if (m_nt == (int) (sizeof(m_toklist_small)/sizeof(m_toklist_small[0])))
+        memcpy(m_tokens,m_toklist_small,m_nt*sizeof(const char *));
+
+      return true;
+    }
 
     WDL_TypedBuf<const char *> m_toklist_big;
 
