@@ -209,10 +209,7 @@ static const char *hasStrings_scan_for_char_match(const char *p, char v)
   }
 }
 
-WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_list_size,
-    const LineParser *lp,
-    int (*cmp_func)(const char *a, int apos, const char *b, int blen)  // if set, returns length of matched string (0 if no match)
-    )
+WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_list_size, const LineParser *lp)
 {
   if (!lp) return true;
   const int ntok = lp->getnumtokens();
@@ -320,8 +317,6 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
           }
         }
 
-        bool use_cmp_func = cmp_func != NULL && !(TOP_OF_STACK&1);
-
         if (!wc_left && !wc_right && *n)
         {
           switch (lp->gettoken_quotingchar(x))
@@ -334,7 +329,6 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
                 if (!*p)
                 {
                   wc_left=wc_right=2;
-                  use_cmp_func = false;
                 }
               }
             break;
@@ -355,19 +349,6 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
                 if (lastchar < 2 || (wc_left>1 && hasStrings_isNonWordChar(lastchar))) break; \
               } while (t[0])
 
-          if (use_cmp_func)
-          {
-            while (t[0])
-            {
-              const int lln = cmp_func(t,(int) (t-name),n,ln);
-              if (lln && MATCH_RIGHT_CHECK_WORD(lln)) { matched = true; break; }
-              if (wc_left > 0)
-                MATCH_LEFT_SKIP_TO_WORD();
-              else
-                t++;
-            }
-          }
-          else
           {
             const char n0 = n[0];
             if (wc_left>0)
@@ -426,16 +407,14 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
 #undef PUSH_STACK
 }
 
-WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx(const char *name, const LineParser *lp,
-     int (*cmp_func)(const char *a, int apos, const char *b, int blen)  // if set, returns length of matched string (0 if no match)
-    )
+WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx(const char *name, const LineParser *lp)
 {
-  return WDL_hasStringsEx2(&name,1,lp,cmp_func);
+  return WDL_hasStringsEx2(&name,1,lp);
 }
 
 WDL_HASSTRINGS_EXPORT bool WDL_hasStrings(const char *name, const LineParser *lp)
 {
-  return WDL_hasStringsEx(name,lp,NULL);
+  return WDL_hasStringsEx2(&name,1,lp);
 }
 
 WDL_HASSTRINGS_EXPORT bool WDL_makeSearchFilter(const char *flt, LineParser *lp)
