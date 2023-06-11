@@ -170,18 +170,16 @@ void WDL_VirtualIconButton::OnPaintOver(LICE_IBitmap *drawbm, int origin_x, int 
 
       if (m_iconCfg->image_ltrb_used.flags&2) // use main image's stretch areas (outer areas become unstretched)
       {
-        WDL_VirtualWnd_BGCfg cfg={0,};
-        LICE_SubBitmap sb(m_iconCfg->olimage,sx,sy,w,h);
-        cfg.bgimage = &sb;
-        cfg.bgimage_lt[0] = m_iconCfg->image_ltrb_main[0]+1; // image_ltrb_main expects 1-based number
-        cfg.bgimage_lt[1] = m_iconCfg->image_ltrb_main[1]+1;
-        cfg.bgimage_rb[0] = m_iconCfg->image_ltrb_main[2]+1;
-        cfg.bgimage_rb[1] = m_iconCfg->image_ltrb_main[3]+1;
-        cfg.bgimage_lt_out[0] = m_iconCfg->image_ltrb_ol[0]+1;
-        cfg.bgimage_lt_out[1] = m_iconCfg->image_ltrb_ol[1]+1;
-        cfg.bgimage_rb_out[0] = m_iconCfg->image_ltrb_ol[2]+1;
-        cfg.bgimage_rb_out[1] = m_iconCfg->image_ltrb_ol[3]+1;
-        cfg.bgimage_noalphaflags=0;
+        // does not handle the case where main image has stretch but overlay doesn't, but who uses overlay that way?
+        LICE_SubBitmap sb(m_iconCfg->olimage,sx-1,sy-1,w+2,h+2);
+        WDL_VirtualWnd_BGCfg cfg = {
+          &sb,
+          { m_iconCfg->image_ltrb_main[0]+1, m_iconCfg->image_ltrb_main[1]+1 }, // image_ltrb_main is 0-based
+          { m_iconCfg->image_ltrb_main[2]+1, m_iconCfg->image_ltrb_main[3]+1 },
+          { m_iconCfg->image_ltrb_ol[0]+1, m_iconCfg->image_ltrb_ol[1]+1 },
+          { m_iconCfg->image_ltrb_ol[2]+1, m_iconCfg->image_ltrb_ol[3]+1 },
+          0
+        };
 
         RECT r=m_position,r2;
         ScaleRect(&r,rscale);
@@ -243,14 +241,15 @@ void WDL_VirtualIconButton::OnPaint(LICE_IBitmap *drawbm, int origin_x, int orig
 
       if (m_iconCfg->image_ltrb_used.flags&2)
       {
-        WDL_VirtualWnd_BGCfg cfg={0,};
-        LICE_SubBitmap sb(m_iconCfg->image,sx+1,sy+1,w,h-2);
-        cfg.bgimage = &sb;
-        cfg.bgimage_lt[0] = m_iconCfg->image_ltrb_main[0]+1; // image_ltrb_main expects 1-based number
-        cfg.bgimage_lt[1] = m_iconCfg->image_ltrb_main[1]+1;
-        cfg.bgimage_rb[0] = m_iconCfg->image_ltrb_main[2]+1;
-        cfg.bgimage_rb[1] = m_iconCfg->image_ltrb_main[3]+1;
-        cfg.bgimage_noalphaflags=0;
+        LICE_SubBitmap sb(m_iconCfg->image,sx,sy,w+2,h);
+        WDL_VirtualWnd_BGCfg cfg = {
+          &sb,
+          { m_iconCfg->image_ltrb_main[0]+1, m_iconCfg->image_ltrb_main[1]+1 }, // image_ltrb_main is 0-based
+          { m_iconCfg->image_ltrb_main[2]+1, m_iconCfg->image_ltrb_main[3]+1 },
+          { 1,1 },
+          { 1,1 },
+          0
+        };
 
         WDL_VirtualWnd_ScaledBlitBG(drawbm,&cfg,
           r.left+origin_x,r.top+origin_y,r.right-r.left,r.bottom-r.top,

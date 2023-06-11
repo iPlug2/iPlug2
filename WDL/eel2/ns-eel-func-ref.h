@@ -41,6 +41,8 @@ const char *nseel_builtin_function_reference=
     "memset\toffset,value,length\tSets length items of memory at offset to value.\0"
     "mem_get_values\toffset, ...\tReads values from memory starting at offset into variables specified. Slower than regular memory reads for less than a few variables, faster for more than a few. Undefined behavior if used with more than 32767 variables.\0"
     "mem_set_values\toffset, ...\tWrites values to memory starting at offset from variables specified. Slower than regular memory writes for less than a few variables, faster for more than a few. Undefined behavior if used with more than 32767 variables.\0"
+    "mem_multiply_sum\tsrc1,src2,length\tCalculates the sum of the products of values pointed to by src1 and src2. If src2 is -1, then calculates the sum of squares of src1, if -2, the sum of the absolute values of src, if -3, calculates the sum of the values of src1. Other negative values are undefined.\0"
+    "mem_insert_shuffle\tbuf,len,value\tShuffles contents of buf right by 1, inserts value at buf[0], returns previous buf[len-1].\0"
     "stack_push\t&value\tPushes value onto the user stack, returns a reference to the parameter.\0"
     "stack_pop\t&value\tPops a value from the user stack into value, or into a temporary buffer if value is not specified, and returns a reference to where the stack was popped. Note that no checking is done to determine if the stack is empty, and as such stack_pop() will never fail.\0"
     "stack_peek\tindex\tReturns a reference to the item on the top of the stack (if index is 0), or to the Nth item on the stack if index is greater than 0. \0"

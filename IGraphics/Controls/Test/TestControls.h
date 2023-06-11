@@ -42,3 +42,4 @@
 #include "TestGesturesControl.h"
 #include "TestFlexBoxControl.h"
 #include "TestMaskControl.h"
+#include "TestDirBrowseControl.h"

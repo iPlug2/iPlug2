@@ -133,7 +133,7 @@ void EndDialog(HWND wnd, int ret)
       if (wnd->m_oswindow && wnd->m_visible)
       {
         swell_dlg_destroyspare();
-        GetWindowRect(wnd,&s_spare_rect);
+        s_spare_rect = wnd->m_position;
         s_spare_style = wnd->m_style;
         s_spare = wnd->m_oswindow;
         wnd->m_oswindow = NULL;
@@ -231,7 +231,21 @@ int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND 
         swell_oswindow_resize(w, flags, hwnd->m_position);
       }
       hwnd->m_oswindow = w;
+
+      if (!flags)
+      {
+        hwnd->m_has_had_position = true;
+        hwnd->m_position = s_spare_rect;
+        if (!hwnd->m_hashaddestroy)
+        {
+          void swell_recalcMinMaxInfo(HWND hwnd);
+          swell_recalcMinMaxInfo(hwnd);
+        }
+      }
+      swell_oswindow_focus(hwnd);
+
       ShowWindow(hwnd,SW_SHOWNA);
+      InvalidateRect(hwnd,NULL,FALSE);
     }
     else  
     {

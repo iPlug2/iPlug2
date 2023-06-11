@@ -751,6 +751,8 @@ void __localizeInitializeDialog(HWND hwnd, const char *desc)
   if (s) localize_dialog(hwnd,s);
 }
 
+void (*localizePreInitDialogHook)(HWND hwndDlg);
+
 static WDL_DLGRET __localDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   switch (uMsg)
@@ -758,6 +760,9 @@ static WDL_DLGRET __localDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     case WM_INITDIALOG:
       {
         void **l = (void **)lParam;
+
+        if (localizePreInitDialogHook)
+          localizePreInitDialogHook(hwnd);
 
         if (l[2])
           localize_dialog(hwnd,(WDL_AssocArray<WDL_UINT64, char *> *)l[2]);
@@ -809,12 +814,14 @@ static WORD __getMenuIdFromDlgResource(HINSTANCE hInstance, const char * lpTempl
 DLGPROC __localizePrepareDialog(const char *rescat, HINSTANCE hInstance, const char *lpTemplate, DLGPROC dlgProc, LPARAM lParam, void **ptrs, int nptrs)
 {
   INT_PTR a = (INT_PTR) lpTemplate;
-  if (nptrs>=4 && a>0&&a<65536)
+  if (WDL_NOT_NORMALLY(nptrs<4)) return NULL;
+
+  WDL_AssocArray<WDL_UINT64, char *> *s = NULL, *s2 = NULL;
+  if (a>0&&a<65536)
   {
     char buf[128];
     snprintf(buf,sizeof(buf),"%sDLG_%d",rescat?rescat:"",(int)a);
-    WDL_AssocArray<WDL_UINT64, char *> *s = g_translations.Get(buf);
-    WDL_AssocArray<WDL_UINT64, char *> *s2 = NULL;
+    s = g_translations.Get(buf);
 #ifdef _WIN32
     int menuid = __getMenuIdFromDlgResource(hInstance,lpTemplate);
     if (menuid)
@@ -823,16 +830,16 @@ DLGPROC __localizePrepareDialog(const char *rescat, HINSTANCE hInstance, const c
       s2=g_translations.Get(buf);
     }
 #endif
-    ptrs[0] = (void*)dlgProc;
-    ptrs[1] = (void*)(INT_PTR)lParam;
-    ptrs[2] = s;
-    ptrs[3] = s2;
-#ifdef WDL_LOCALIZE_HOOK_DLGPROC
-    WDL_LOCALIZE_HOOK_DLGPROC
-#endif
-    if (s||s2) return __localDlgProc;
   }
-  return 0;
+
+  ptrs[0] = (void*)dlgProc;
+  ptrs[1] = (void*)(INT_PTR)lParam;
+  ptrs[2] = s;
+  ptrs[3] = s2;
+#ifdef WDL_LOCALIZE_HOOK_DLGPROC
+  WDL_LOCALIZE_HOOK_DLGPROC
+#endif
+  return (s||s2||(a>0 && localizePreInitDialogHook)) ? __localDlgProc : NULL;
 }
 
 HWND __localizeDialog(HINSTANCE hInstance, const char *lpTemplate, HWND hwndParent, DLGPROC dlgProc, LPARAM lParam, int mode)

@@ -273,13 +273,18 @@ void IVSlideSwitchControl::Draw(IGraphics& g)
 void IVSlideSwitchControl::DrawWidget(IGraphics& g)
 {
   DrawTrack(g, mWidgetBounds);
-  DrawPressableShape(g, mShape, mHandleBounds, mMouseDown, mMouseIsOver, IsDisabled());
+  DrawHandle(g, mHandleBounds);
 }
 
 void IVSlideSwitchControl::DrawTrack(IGraphics& g, const IRECT& filledArea)
 {
   float cR = GetRoundedCornerRadius(mHandleBounds);
   g.FillRoundRect(GetColor(kSH), mWidgetBounds, cR);
+}
+
+void IVSlideSwitchControl::DrawHandle(IGraphics& g, const IRECT& filledArea)
+{
+  DrawPressableShape(g, mShape, filledArea, mMouseDown, mMouseIsOver, IsDisabled());
 }
 
 void IVSlideSwitchControl::SetDirty(bool push, int valIdx)
@@ -1590,7 +1595,7 @@ void IBMeterControl::OnMsgFromDelegate(int msgTag, int dataSize, const void* pDa
       auto rangeDB = std::fabs(mHighRangeDB - mLowRangeDB);
       for (auto c = d.chanOffset; c < (d.chanOffset + d.nChans); c++)
       {
-        auto [peak, avg] = d.vals[c];
+        auto avg = d.vals[c].second;
         auto ampValue = AmpToDB(avg);
         auto linearPos = (ampValue + lowPointAbs)/rangeDB;
         SetValue(Clip(linearPos, 0., 1.), c);
@@ -1600,7 +1605,7 @@ void IBMeterControl::OnMsgFromDelegate(int msgTag, int dataSize, const void* pDa
     {
       for (auto c = d.chanOffset; c < (d.chanOffset + d.nChans); c++)
       {
-        auto [peak, avg] = d.vals[c];
+        auto avg = d.vals[c].second;
         SetValue(Clip(avg, 0.f, 1.f), c);
       }
     }

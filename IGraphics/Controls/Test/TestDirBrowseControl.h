@@ -33,47 +33,37 @@ public:
   
   void OnResize() override
   {
-    but = mRECT.GetCentredInside(mRECT.W()-10.f, 20.f);
-    arrow = but.GetFromRight(20.).GetPadded(-5.);
-    useplat = mRECT.GetFromBottom(30).GetPadded(-5);
-    useplatbut = useplat.GetFromRight(20.).GetPadded(-5.);
+    mButtonRect = mRECT.GetCentredInside(mRECT.W()-10.f, 20.f);
+    mArrowRect = mButtonRect.GetFromRight(20.).GetPadded(-5.);
+    mUsePlatformMenuTextRect = mRECT.GetFromBottom(30).GetPadded(-5);
+    mUsePlatformMenuButtonRect = mUsePlatformMenuTextRect.GetFromRight(20.).GetPadded(-5.);
   }
   
   void Draw(IGraphics& g) override
   {
-    #if defined OS_MAC || defined OS_IOS
-    if(AppIsSandboxed())
-      g.DrawText(IText(14, EVAlign::Middle), "App is sandboxed... filesystem restricted", mRECT);
-    else
-    #endif
-    {
-      g.DrawDottedRect(COLOR_BLACK, mRECT);
-      g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
-      g.FillRect(COLOR_WHITE, but);
-      g.DrawText(mText, mLabel.Get(), but);
-      g.FillTriangle(COLOR_GRAY, arrow.L, arrow.T, arrow.R, arrow.T, arrow.MW(), arrow.B);
-      
-      
-      g.DrawText(IText(DEFAULT_TEXT_SIZE, EAlign::Near), "Use platform menu", useplat);
-      
-      g.DrawRect(COLOR_BLACK, useplatbut);
+    g.DrawDottedRect(COLOR_BLACK, mRECT);
+    g.FillRect(mMouseIsOver ? COLOR_TRANSLUCENT : COLOR_TRANSPARENT, mRECT);
+    g.FillRect(COLOR_WHITE, mButtonRect);
+    g.DrawText(mText, mLabel.Get(), mButtonRect);
+    g.FillTriangle(COLOR_GRAY, mArrowRect.L, mArrowRect.T, mArrowRect.R, mArrowRect.T, mArrowRect.MW(), mArrowRect.B);
+    g.DrawText(IText(DEFAULT_TEXT_SIZE, EAlign::Near), "Use platform menu", mUsePlatformMenuTextRect);
+    g.DrawRect(COLOR_BLACK, mUsePlatformMenuButtonRect);
 
-      if(mUsePlatform)
-        g.FillRect(COLOR_BLACK, useplatbut.GetPadded(-2));
-    }
+    if (mUsePlatformMenu)
+      g.FillRect(COLOR_BLACK, mUsePlatformMenuButtonRect.GetPadded(-2));
   }
   
   void OnPopupMenuSelection(IPopupMenu* pMenu, int valIdx) override
   {
-    if(pMenu)
+    if (pMenu)
     {
       IPopupMenu::Item* pItem = pMenu->GetChosenItem();
       
-      if(pItem)
+      if (pItem)
       {
-        mSelectedIndex = pItem->GetTag();
-        mSelectedMenu = pMenu; // TODO: what if this is a submenu do we end up with pointer to an invalid object?
+        mSelectedIndex = mItems.Find(pItem);
         mLabel.Set(pItem->GetText());
+        CheckSelectedItem();
       }
     }
     
@@ -82,16 +72,18 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    if(but.Contains(x, y))
+    if (mButtonRect.Contains(x, y))
     {
       GetUI()->CreatePopupMenu(*this, mMainMenu, x, y);
     }
-    else if(useplatbut.Contains(x, y))
+    else if (mUsePlatformMenuButtonRect.Contains(x, y))
     {
-      mUsePlatform = !mUsePlatform;
+      mUsePlatformMenu = !mUsePlatformMenu;
       
-      if(!mUsePlatform)
+      if (!mUsePlatformMenu)
         GetUI()->AttachPopupMenuControl();
+      else
+        GetUI()->RemovePopupMenuControl();
     }
     
     SetDirty(false);
@@ -105,9 +97,9 @@ public:
 
 private:
   WDL_String mLabel;
-  bool mUsePlatform = true;
-  IRECT but;
-  IRECT arrow;
-  IRECT useplat;
-  IRECT useplatbut;
+  bool mUsePlatformMenu = true;
+  IRECT mButtonRect;
+  IRECT mArrowRect;
+  IRECT mUsePlatformMenuTextRect;
+  IRECT mUsePlatformMenuButtonRect;
 };

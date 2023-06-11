@@ -1525,11 +1525,6 @@ void WDL_VirtualWnd_ScaledBlitBG(LICE_IBitmap *dest,
   int right_margin=src->bgimage_rb[0];
   int bottom_margin=src->bgimage_rb[1];
 
-  int left_margin_out=src->bgimage_lt_out[0];
-  int top_margin_out=src->bgimage_lt_out[1];
-  int right_margin_out=src->bgimage_rb_out[0];
-  int bottom_margin_out=src->bgimage_rb_out[1];
-
   int sw=src->bgimage->getWidth();
   int sh=src->bgimage->getHeight();
 
@@ -1566,9 +1561,18 @@ void WDL_VirtualWnd_ScaledBlitBG(LICE_IBitmap *dest,
     return;
   }
 
+  WDL_ASSERT(src->bgimage_lt_out[0]>0); // if pinklines are nonzero, yellowlines must be too (they are all 1-based)
+  WDL_ASSERT(src->bgimage_lt_out[1]>0); // if these fire, check for uninitialized bgimage_lt_out etc
+  WDL_ASSERT(src->bgimage_rb_out[0]>0);
+  WDL_ASSERT(src->bgimage_rb_out[1]>0);
+
+  const int left_margin_out   = src->bgimage_lt_out[0]-1;
+  const int top_margin_out    = src->bgimage_lt_out[1]-1;
+  const int right_margin_out  = src->bgimage_rb_out[0]-1;
+  const int bottom_margin_out = src->bgimage_rb_out[1]-1;
+
   // remove 1px additional margins from calculations
   left_margin--; top_margin--; right_margin--; bottom_margin--;
-  left_margin_out--; top_margin_out--; right_margin_out--; bottom_margin_out--;
 
   if (left_margin+right_margin>destw) 
   { 

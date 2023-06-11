@@ -109,7 +109,8 @@ public:
   IVSlideSwitchControl(const IRECT& bounds, IActionFunction aF = EmptyClickActionFunc, const char* label = "", const IVStyle& style = DEFAULT_STYLE, bool valueInButton = false, EDirection direction = EDirection::Horizontal, int numStates = 2, int initialState = 0);
   
   void Draw(IGraphics& g) override;
-  void DrawWidget(IGraphics& g) override;
+  virtual void DrawWidget(IGraphics& g) override;
+  virtual void DrawHandle(IGraphics& g, const IRECT& filledArea);
   virtual void DrawTrack(IGraphics& g, const IRECT& filledArea);
 
   void OnResize() override;
@@ -287,6 +288,15 @@ public:
   void OnResize() override;
   void SetDirty(bool push, int valIdx = kNoValIdx) override;
   void OnInit() override;
+  
+  IRECT GetTrackBounds() const
+  {
+    auto offset = -mHandleSize + (mStyle.frameThickness / 2.0f);
+    return mWidgetBounds.GetPadded(mDirection == EDirection::Horizontal ? offset : 0,
+                                   mDirection == EDirection::Vertical ? offset : 0,
+                                   mDirection == EDirection::Horizontal ? offset : 0,
+                                   mDirection == EDirection::Vertical ? offset : 0);
+  }
 
 protected:
   bool mHandleInsideTrack = false;
@@ -414,12 +424,12 @@ protected:
 };
 
 /** A panel control which can be styled with emboss etc. */
-class IVPanelControl : public IControl
+class IVPanelControl : public IContainerBase
                      , public IVectorBase
 {
 public:
   IVPanelControl(const IRECT& bounds, const char* label = "", const IVStyle& style = DEFAULT_STYLE.WithColor(kFG, COLOR_TRANSLUCENT).WithEmboss(true))
-  : IControl(bounds)
+  : IContainerBase(bounds)
   , IVectorBase(style)
   {
     mIgnoreMouse = true;
@@ -438,10 +448,19 @@ public:
   {
     DrawPressableRectangle(g, mWidgetBounds, false, false, false);
   }
+
+  void OnAttached() override
+  {
+    if (mAttachFunc)
+      mAttachFunc(this, mWidgetBounds);
+  }
   
   void OnResize() override
   {
     SetTargetRECT(MakeRects(mRECT));
+
+    if (mResizeFunc && mChildren.GetSize())
+      mResizeFunc(this, mWidgetBounds);
   }
 };
 

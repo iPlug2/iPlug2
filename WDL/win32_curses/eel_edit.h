@@ -1,7 +1,7 @@
 #ifndef __WDL_EEL_EDITOR_H_
 #define __WDL_EEL_EDITOR_H_
 
-#define STATE_BEFORE_CODE -1
+#define STATE_BEFORE_CODE 255
 
 #include "curses_editor.h"
 #include "../assocarray.h"

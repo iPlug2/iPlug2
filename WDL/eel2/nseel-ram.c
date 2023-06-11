@@ -185,8 +185,125 @@ EEL_F * NSEEL_CGEN_CALL __NSEEL_RAM_MemTop(void *blocks, EEL_F *which)
 }
 
 
+EEL_F NSEEL_CGEN_CALL __NSEEL_RAM_MemInsertShuffle(EEL_F **blocks,EEL_F *buf, EEL_F *lenptr, EEL_F *value)
+{
+  int src_offs = (int)*buf;
+  int len = (int)*lenptr;
+  int copy_len;
 
+  EEL_F ret = *value;
 
+  unsigned int sbidx = (unsigned int)src_offs / NSEEL_RAM_ITEMSPERBLOCK;
+
+  if (len < 1 || src_offs < 0) return 0.0;
+
+  src_offs = src_offs&(NSEEL_RAM_ITEMSPERBLOCK-1);
+  copy_len = wdl_min(len,NSEEL_RAM_ITEMSPERBLOCK - src_offs);
+
+  for (;;)
+  {
+    EEL_F *srcptr;
+    if (sbidx >= NSEEL_RAM_BLOCKS) break;
+
+    srcptr = blocks[sbidx];
+
+    if (WDL_unlikely(!srcptr))
+    {
+      srcptr = __NSEEL_RAMAlloc(blocks,sbidx * NSEEL_RAM_ITEMSPERBLOCK);
+      if (srcptr==&nseel_ramalloc_onfail) break;
+    }
+
+    len-=copy_len;
+    srcptr += src_offs;
+    while (copy_len-- > 0)
+    {
+      EEL_F v = *srcptr;
+      *srcptr++ = ret;
+      ret = v;
+    }
+    if (!len) break;
+
+    sbidx++;
+    src_offs=0;
+    copy_len = wdl_min(len,NSEEL_RAM_ITEMSPERBLOCK);
+  }
+  return ret;
+}
+
+EEL_F NSEEL_CGEN_CALL __NSEEL_RAM_MemSumProducts(EEL_F **blocks,EEL_F *dest, EEL_F *src, EEL_F *lenptr)
+{
+  int src_offs = (int)*src;
+  int len = (int)*lenptr;
+
+  EEL_F sum = 0.0;
+
+  if (len < 1 || src_offs < 0) return 0.0;
+
+  if (*dest < 0.0)
+  {
+    int copy_len;
+    unsigned int sbidx = (unsigned int)src_offs / NSEEL_RAM_ITEMSPERBLOCK;
+    src_offs = src_offs&(NSEEL_RAM_ITEMSPERBLOCK-1);
+    copy_len = wdl_min(len,NSEEL_RAM_ITEMSPERBLOCK - src_offs);
+    for (;;)
+    {
+      const EEL_F *srcptr;
+      if (sbidx >= NSEEL_RAM_BLOCKS) break;
+
+      srcptr = blocks[sbidx];
+
+      if (WDL_likely(srcptr))
+      {
+        int i;
+        srcptr += src_offs;
+        if (*dest == -1.0)
+          for (i = 0; i < copy_len; i ++) sum += srcptr[i] * srcptr[i];
+        else if (*dest == -2.0)
+          for (i = 0; i < copy_len; i ++) sum += fabs(srcptr[i]);
+        else
+          for (i = 0; i < copy_len; i ++) sum += srcptr[i];
+      }
+      len-=copy_len;
+      if (!len) break;
+
+      sbidx++;
+      src_offs=0;
+      copy_len = wdl_min(len,NSEEL_RAM_ITEMSPERBLOCK);
+    }
+  }
+  else
+  {
+    unsigned int dest_offs = (unsigned int) (int)*dest;
+    for (;;)
+    {
+      unsigned int sbidx = (unsigned int)src_offs / NSEEL_RAM_ITEMSPERBLOCK;
+      const int sbo = (src_offs&(NSEEL_RAM_ITEMSPERBLOCK-1));
+      unsigned int dbidx = dest_offs / NSEEL_RAM_ITEMSPERBLOCK;
+      const int dbo = (dest_offs&(NSEEL_RAM_ITEMSPERBLOCK-1));
+
+      const int copy_len = wdl_min(len,NSEEL_RAM_ITEMSPERBLOCK - wdl_max(dbo,sbo));
+
+      const EEL_F *srcptr, *destptr;
+
+      if (sbidx >= NSEEL_RAM_BLOCKS || dbidx >= NSEEL_RAM_BLOCKS) break;
+      srcptr = blocks[sbidx];
+      destptr = blocks[dbidx];
+      if (WDL_likely(srcptr && destptr))
+      {
+        int i;
+        srcptr += sbo;
+        destptr += dbo;
+        for (i = 0; i < copy_len; i ++) sum += destptr[i] * srcptr[i];
+      }
+      len-=copy_len;
+      if (!len) break;
+
+      src_offs += copy_len;
+      dest_offs += copy_len;
+    }
+  }
+  return sum;
+}
 
 
 EEL_F * NSEEL_CGEN_CALL __NSEEL_RAM_MemCpy(EEL_F **blocks,EEL_F *dest, EEL_F *src, EEL_F *lenptr)

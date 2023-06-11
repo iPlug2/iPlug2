@@ -47,7 +47,7 @@ public:
   {
     WDL_String str;
     std::vector<char> base64;
-    base64.resize(GetBase64Length(dataSize));
+    base64.resize(GetBase64Length(dataSize) + 1);
     wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.data(), dataSize);
     str.SetFormatted(mMaxJSStringLength, "SCMFD(%i, %i, %i, '%s')", ctrlTag, msgTag, dataSize, base64.data());
     EvaluateJavaScript(str.Get());
@@ -64,9 +64,12 @@ public:
   {
     WDL_String str;
     std::vector<char> base64;
-    base64.resize(GetBase64Length(dataSize));
-    wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.data(), dataSize);
-    str.SetFormatted(mMaxJSStringLength, "SAMFD(%i, %i, %s)", msgTag, dataSize, base64.data());
+    if (dataSize)
+    {
+      base64.resize(GetBase64Length(dataSize) + 1);
+      wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.data(), dataSize);
+    }
+    str.SetFormatted(mMaxJSStringLength, "SAMFD(%i, %i, '%s')", msgTag, static_cast<int>(base64.size()), base64.data());
     EvaluateJavaScript(str.Get());
   }
   

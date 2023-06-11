@@ -1007,10 +1007,7 @@ bool ISliderControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 
 IDirBrowseControlBase::~IDirBrowseControlBase()
 {
-  mFiles.Empty(true);
-  mPaths.Empty(true);
-  mPathLabels.Empty(true);
-  mItems.Empty(false);
+  ClearPathList();
 }
 
 int IDirBrowseControlBase::NItems()
@@ -1034,7 +1031,7 @@ void IDirBrowseControlBase::CollectSortedItems(IPopupMenu* pMenu)
   {
     IPopupMenu::Item* pItem = pMenu->GetItem(i);
     
-    if(pItem->GetSubmenu())
+    if (pItem->GetSubmenu())
       CollectSortedItems(pItem->GetSubmenu());
     else
       mItems.Add(pItem);
@@ -1068,28 +1065,57 @@ void IDirBrowseControlBase::SetupMenu()
   CollectSortedItems(&mMainMenu);
 }
 
-//void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
-//{
-//  if (mSelectedMenu != nullptr) {
-//    if(mSelectedIndex > -1)
-//      label.Set(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
-//  }
-//  else
-//    label.Set("");
-//}
-//
-//void IDirBrowseControlBase::GetSelectedItemPath(WDL_String& path)
-//{
-//  if (mSelectedMenu != nullptr) {
-//    if(mSelectedIndex > -1) {
-//      path.Set(mPaths.Get(0)->Get()); //TODO: what about multiple paths
-//      path.AppendFormatted(1024, "/%s", mSelectedMenu->GetItem(mSelectedIndex)->GetText());
-//      path.Append(mExtension.Get());
-//    }
-//  }
-//  else
-//    path.Set("");
-//}
+void IDirBrowseControlBase::ClearPathList()
+{
+  mPaths.Empty(true);
+  mPathLabels.Empty(true);
+  mFiles.Empty(true);
+  mItems.Empty(false);
+}
+
+void IDirBrowseControlBase::SetSelectedFile(const char* filePath)
+{
+  for (auto fileIdx = 0; fileIdx < mFiles.GetSize(); fileIdx ++)
+  {
+    if (strcmp(mFiles.Get(fileIdx)->Get(), filePath) == 0)
+    {
+      for (auto itemIdx = 0; itemIdx < mItems.GetSize(); itemIdx++)
+      {
+        IPopupMenu::Item* pItem = mItems.Get(itemIdx);
+
+        if (pItem->GetTag() == fileIdx)
+        {
+          mSelectedIndex = itemIdx;
+          return;
+        }
+      }
+    }
+  }
+  
+  mSelectedIndex = -1;
+}
+
+void IDirBrowseControlBase::GetSelectedFile(WDL_String& path) const
+{
+  if (mSelectedIndex > -1)
+  {
+    IPopupMenu::Item* pItem = mItems.Get(mSelectedIndex);
+    path.Set(mFiles.Get(pItem->GetTag()));
+  }
+  else
+  {
+    path.Set("");
+  }
+}
+
+void IDirBrowseControlBase::CheckSelectedItem()
+{
+  if (mSelectedIndex > -1)
+  {
+    IPopupMenu::Item* pItem = mItems.Get(mSelectedIndex);
+    mMainMenu.CheckItemAlone(pItem);
+  }
+}
 
 void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
 {
@@ -1130,7 +1156,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
       }
     } while (!d.Next());
   }
-  
-  if(!mShowEmptySubmenus)
+
+  if (!mShowEmptySubmenus)
     menuToAddTo.RemoveEmptySubmenus();
 }

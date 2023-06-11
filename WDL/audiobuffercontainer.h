@@ -106,6 +106,11 @@ struct PinMapPin
     return *this;
   }
 
+  void invert()
+  {
+    for (int x = 0; x < STATE_SIZE; x ++) state[x]^=full_mask();
+  }
+
   bool equal_to(const PinMapPin &v, unsigned int nch_top = PINMAP_PIN_MAX_CHANNELS) const
   {
     if (WDL_NOT_NORMALLY(nch_top > PINMAP_PIN_MAX_CHANNELS)) nch_top = PINMAP_PIN_MAX_CHANNELS;
