@@ -1128,7 +1128,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
       const char* f = d.GetCurrentFN();
       if (f && f[0] != '.')
       {
-        if (d.GetCurrentIsDirectory())
+        if (mScanRecursively && d.GetCurrentIsDirectory())
         {
           WDL_String subdir;
           d.GetCurrentFullFN(&subdir);
