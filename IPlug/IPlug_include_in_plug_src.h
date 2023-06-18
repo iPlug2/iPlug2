@@ -316,7 +316,7 @@ Steinberg::FUnknown* MakeController()
 {
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
-  IPlugVST3Controller::iplug::InstanceInfo info;
+  iplug::IPlugVST3Controller::InstanceInfo info;
   info.mOtherGUID = Steinberg::FUID(VST3_PROCESSOR_UID);
   // If you are trying to build a distributed VST3 plug-in and you hit an error here like "no matching constructor..." or 
   // "error: unknown type name 'VST3Controller'", you need to replace all instances of the name of your plug-in class (e.g. IPlugEffect)
@@ -331,7 +331,7 @@ Steinberg::FUnknown* MakeProcessor()
 {
   static WDL_Mutex sMutex;
   WDL_MutexLock lock(&sMutex);
-  IPlugVST3Processor::iplug::InstanceInfo info;
+  iplug::IPlugVST3Processor::InstanceInfo info;
   info.mOtherGUID = Steinberg::FUID(VST3_CONTROLLER_UID);
   return static_cast<Steinberg::Vst::IAudioProcessor*>(new PLUG_CLASS_NAME(info));
 }
