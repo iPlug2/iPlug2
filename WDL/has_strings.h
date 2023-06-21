@@ -427,6 +427,34 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStrings(const char *name, const LineParser *lp
   return WDL_hasStringsEx2(&name,1,lp);
 }
 
+WDL_HASSTRINGS_EXPORT char *WDL_hasstrings_preproc_searchitem(char *wr, const char *src)
+{
+  while (*src)
+  {
+    unsigned char c = *(unsigned char*)src++;
+    if (c >= 'A' && c <= 'Z') c+='a'-'A';
+    else if (c == 0xC3)
+    {
+      const unsigned char ccf = *(unsigned char*)src;
+      const unsigned char cc = ccf & ~0x20;
+      if (IS_UTF8_BYTE2_LATIN1S_A(cc,ccf)) c = 'a';
+      else if (IS_UTF8_BYTE2_LATIN1S_C(cc,ccf)) c = 'c';
+      else if (IS_UTF8_BYTE2_LATIN1S_E(cc,ccf)) c = 'e';
+      else if (IS_UTF8_BYTE2_LATIN1S_I(cc,ccf)) c = 'i';
+      else if (IS_UTF8_BYTE2_LATIN1S_N(cc,ccf)) c = 'n';
+      else if (IS_UTF8_BYTE2_LATIN1S_O(cc,ccf)) c = 'o';
+      else if (IS_UTF8_BYTE2_LATIN1S_U(cc,ccf)) c = 'u';
+      else if (IS_UTF8_BYTE2_LATIN1S_Y(cc,ccf)) c = 'y';
+
+      if (c != 0xC3) src++;
+    }
+    // we could also convert latin extended A characters to ascii here, but meh
+    *wr++ = c;
+  }
+  *wr=0;
+  return wr;
+}
+
 WDL_HASSTRINGS_EXPORT bool WDL_makeSearchFilter(const char *flt, LineParser *lp)
 {
   if (WDL_NOT_NORMALLY(!lp)) return false;
@@ -446,30 +474,7 @@ WDL_HASSTRINGS_EXPORT bool WDL_makeSearchFilter(const char *flt, LineParser *lp)
     char *p = (char *)lp->gettoken_str(x);
     if (lp->gettoken_quotingchar(x) || (strcmp(p,"NOT") && strcmp(p,"AND") && strcmp(p,"OR")))
     {
-      char *wr = p;
-      while (*p)
-      {
-        unsigned char c = *(unsigned char*)p++;
-        if (c >= 'A' && c <= 'Z') c+='a'-'A';
-        else if (c == 0xC3)
-        {
-          const unsigned char ccf = *(unsigned char*)p;
-          const unsigned char cc = ccf & ~0x20;
-          if (IS_UTF8_BYTE2_LATIN1S_A(cc,ccf)) c = 'a';
-          else if (IS_UTF8_BYTE2_LATIN1S_C(cc,ccf)) c = 'c';
-          else if (IS_UTF8_BYTE2_LATIN1S_E(cc,ccf)) c = 'e';
-          else if (IS_UTF8_BYTE2_LATIN1S_I(cc,ccf)) c = 'i';
-          else if (IS_UTF8_BYTE2_LATIN1S_N(cc,ccf)) c = 'n';
-          else if (IS_UTF8_BYTE2_LATIN1S_O(cc,ccf)) c = 'o';
-          else if (IS_UTF8_BYTE2_LATIN1S_U(cc,ccf)) c = 'u';
-          else if (IS_UTF8_BYTE2_LATIN1S_Y(cc,ccf)) c = 'y';
-
-          if (c != 0xC3) p++;
-        }
-        // we could also convert latin extended A characters to ascii here, but meh
-        *wr++ = c;
-      }
-      *wr=0;
+      WDL_hasstrings_preproc_searchitem(p, p);
     }
   }
 
