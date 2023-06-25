@@ -1026,14 +1026,10 @@ public:
    * @param pMenu The menu that was clicked */
   void SetControlValueAfterPopupMenu(IPopupMenu* pMenu);
     
-  /** \todo 
-   * @param lo \todo
-   * @param hi \todo */
-  void SetScaleConstraints(float lo, float hi)
-  {
-    mMinScale = std::min(lo, hi);
-    mMaxScale = std::max(lo, hi);
-  }
+  /** Sets the minimum and maximum (draw) scaling values
+   * @param lo The minimum scalar that the IGraphics context can be scaled down to
+   * @param hi The maxiumum scalar that the IGraphics context can be scaled up to */
+  void SetScaleConstraints(float lo, float hi);
   
   /** \todo detailed description of how this works
    * @param w New width in pixels
