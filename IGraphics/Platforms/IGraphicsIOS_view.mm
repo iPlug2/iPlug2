@@ -608,15 +608,15 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mFileDialogFunc = completionHandler;
 
   UIDocumentPickerViewController* vc = NULL;
-  
+  NSURL* url = [[NSURL alloc] initFileURLWithPath:path];
+
   if (action == EFileAction::Open)
   {
     vc = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:contentTypes asCopy:YES];
+    [vc setDirectoryURL:url];
   }
   else
   {
-    NSURL* url = [[NSURL alloc] initFileURLWithPath:path];
-    
     vc = [[UIDocumentPickerViewController alloc] initForExportingURLs:@[url]];
   }
   
