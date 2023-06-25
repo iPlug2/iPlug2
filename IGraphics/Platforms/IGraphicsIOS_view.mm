@@ -842,12 +842,17 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   CGPoint pos = [touch locationInView:touch.view];
   
-  auto ds = mGraphics->GetDrawScale();
-
-  if (mGraphics->RespondsToGesture(pos.x / ds, pos.y / ds))
-    return TRUE;
-  else
-    return FALSE;
+  if (mGraphics)
+  {
+    auto ds = mGraphics->GetDrawScale();
+    
+    if (mGraphics->RespondsToGesture(pos.x / ds, pos.y / ds))
+    {
+      return TRUE;
+    }
+  }
+  
+  return FALSE;
 }
 
 - (void) applicationDidEnterBackgroundNotification:(NSNotification*) notification
