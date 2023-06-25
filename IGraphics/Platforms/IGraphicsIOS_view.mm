@@ -14,6 +14,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import <Metal/Metal.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 
 #import "IGraphicsIOS_view.h"
 
@@ -620,6 +621,27 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     vc = [[UIDocumentPickerViewController alloc] initForExportingURLs:@[url]];
   }
   
+  [vc setDelegate:self];
+  
+  [self.window.rootViewController presentViewController:vc animated:YES completion:nil];
+}
+
+- (void) promptForDirectory: (NSString*) path : (IFileDialogCompletionHandlerFunc) completionHandler
+{
+  [self endUserInput];
+
+  mFileDialogFunc = completionHandler;
+
+  UIDocumentPickerViewController* vc = NULL;
+  NSURL* url = [[NSURL alloc] initFileURLWithPath:path];
+
+  NSMutableArray* pFileTypes = [[NSMutableArray alloc] init];
+  UTType* directoryType = [UTType typeWithIdentifier:@"public.folder"];
+  [pFileTypes addObject:directoryType];
+  
+  vc = [[UIDocumentPickerViewController alloc] initForOpeningContentTypes:pFileTypes];
+  [vc setDirectoryURL:url];
+
   [vc setDelegate:self];
   
   [self.window.rootViewController presentViewController:vc animated:YES completion:nil];

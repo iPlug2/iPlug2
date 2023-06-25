@@ -226,9 +226,22 @@ void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   [(IGRAPHICS_VIEW*) mView promptForFile: pDefaultFileName : pDefaultPath : action : pFileTypes : completionHandler];
 }
 
-void IGraphicsIOS::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler)
+void IGraphicsIOS::PromptForDirectory(WDL_String& path, IFileDialogCompletionHandlerFunc completionHandler)
 {
-  // Not implemented, since you can't do anything outside the app sandbox anyway
+  assert(completionHandler != nullptr && "You must provide a completion handler on iOS");
+  
+  NSString* pDefaultFileName = nil;
+  NSString* pDefaultPath = nil;
+  NSMutableArray* pFileTypes = [[NSMutableArray alloc] init];
+
+  if (path.GetLength())
+    pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+  else
+    pDefaultPath = @"";
+
+  path.Set(""); // reset it
+
+  [(IGRAPHICS_VIEW*) mView promptForDirectory:pDefaultPath : completionHandler];
 }
 
 bool IGraphicsIOS::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
