@@ -24,6 +24,7 @@ WDL_HASSTRINGS_EXPORT bool hasStrings_isNonWordChar(int c)
     case '}':
     case '[':
     case ']':
+    case '_':
     case '"':
     case '/':
     case '\\':
