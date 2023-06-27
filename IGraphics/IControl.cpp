@@ -1117,6 +1117,27 @@ void IDirBrowseControlBase::CheckSelectedItem()
   }
 }
 
+// Find the last occurrence of str2 in str1.
+// Return a pointer to the first character of the match.
+// Return a pointer to the start of str1 if str2 is empty.
+// Return a nullptr if str2 isn't found in str1.
+const char* strrstr(const char* str1, const char* str2) {
+  if (*str2 == '\0')
+    return str1;
+  
+  const char* result = nullptr;
+  
+  while (*str1 != '\0')
+  {
+    if (std::strncmp(str1, str2, std::strlen(str2)) == 0)
+      result = str1;
+    
+    str1++;
+  }
+  
+  return result;
+}
+
 void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
 {
   WDL_DirScan d;
@@ -1138,7 +1159,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
         }
         else
         {
-          const char* a = strstr(f, mExtension.Get());
+          const char* a = strrstr(f, mExtension.Get());
           if (a && a > f && strlen(a) == strlen(mExtension.Get()))
           {
             WDL_String menuEntry {f};
