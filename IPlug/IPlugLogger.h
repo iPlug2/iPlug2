@@ -29,6 +29,7 @@
 
 #include "wdlstring.h"
 #include "mutex.h"
+#include "wdlutf8.h"
 
 #include "IPlugConstants.h"
 #include "IPlugUtilities.h"
@@ -41,11 +42,6 @@ BEGIN_IPLUG_NAMESPACE
   #if defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB) || defined(OS_IOS)
     #define DBGMSG(...) printf(__VA_ARGS__)
   #elif defined OS_WIN
-    #ifdef OutputDebugString
-    #undef OutputDebugString
-    #define OutputDebugString OutputDebugStringA
-    #endif
-
     static void DBGMSG(const char* format, ...)
     {
       char buf[4096], * p = buf;
@@ -65,7 +61,9 @@ BEGIN_IPLUG_NAMESPACE
       *p++ = '\n';
       *p = '\0';
 
-      OutputDebugString(buf);
+      wchar_t bufW[4096];
+      UTF8ToUTF16(bufW, buf, WDL_utf8_get_charlen(buf));
+      OutputDebugStringW(bufW);
     }
   #endif
 #endif
