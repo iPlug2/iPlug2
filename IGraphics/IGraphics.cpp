@@ -48,8 +48,8 @@ IGraphics::IGraphics(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 , mHeight(h)
 , mFPS(fps)
 , mDrawScale(scale)
-, mMinScale(scale / 2)
-, mMaxScale(scale * 2)
+, mMinScale(DEFAULT_MIN_DRAW_SCALE)
+, mMaxScale(DEFAULT_MAX_DRAW_SCALE)
 , mDelegate(&dlg)
 {
   StaticStorage<APIBitmap>::Accessor bitmapStorage(sBitmapCache);
@@ -119,6 +119,12 @@ void IGraphics::Resize(int w, int h, float scale, bool needsPlatformResize)
 void IGraphics::SetLayoutOnResize(bool layoutOnResize)
 {
   mLayoutOnResize = layoutOnResize;
+}
+
+void IGraphics::SetScaleConstraints(float lo, float hi)
+{
+  mMinScale = std::min(lo, hi);
+  mMaxScale = std::max(lo, hi);
 }
 
 void IGraphics::RemoveControlWithTag(int ctrlTag)
