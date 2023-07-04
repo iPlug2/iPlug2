@@ -30,33 +30,6 @@ BEGIN_IPLUG_NAMESPACE
 #if defined OS_WIN
 #pragma mark - OS_WIN
 
-// Unicode helpers
-void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
-{
-  int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
-
-  if (requiredSize > 0 && requiredSize <= maxLen)
-  {
-    MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize);
-    return;
-  }
-
-  utf16Str[0] = 0;
-}
-
-void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
-{
-  int requiredSize = WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, NULL, 0, NULL, NULL);
-
-  if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
-  {
-    WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, utf8Str.Get(), requiredSize, NULL, NULL);
-    return;
-  }
-
-  utf8Str.Set("");
-}
-
  // Helper for getting a known folder in UTF8
 void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
 {
