@@ -214,9 +214,16 @@ public:
 
       if (fileName.GetLength())
         mPresetNameButton->SetLabelStr(fileName.Get());
+      
+      SetSelectedFile(fileName.Get());
+      LoadPresetAtCurrentIndex();
     };
 
-    auto choosePresetFunc = [&](IControl* pCaller) { pCaller->GetUI()->CreatePopupMenu(*this, mMainMenu, pCaller->GetRECT()); };
+    auto choosePresetFunc = [&](IControl* pCaller) {
+      CheckSelectedItem();
+      mMainMenu.SetChosenItemIdx(mSelectedIndex);
+      pCaller->GetUI()->CreatePopupMenu(*this, mMainMenu, pCaller->GetRECT());
+    };
 
     AddChildControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, "<", mStyle))->SetAnimationEndActionFunction(prevPresetFunc);
     AddChildControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, ">", mStyle))->SetAnimationEndActionFunction(nextPresetFunc);
@@ -228,14 +235,9 @@ public:
   {
     if (mSelectedIndex > -1 && mSelectedIndex < mItems.GetSize())
     {
-      IPopupMenu::Item* pItem = mItems.Get(mSelectedIndex);
-
-      //if (PLUG()->LoadPresetFromVSTPreset(mFiles.Get(pItem->GetTag())->Get()))
-      //{
-      //  PLUG()->ModifyCurrentPreset(PLUG()->GetPatchName());
-      //  PLUG()->InformHostOfPresetChange();
-        mPresetNameButton->SetLabelStr(pItem->GetText());
-      //}
+      WDL_String fileName, path;
+      GetSelectedFile(fileName);
+      mPresetNameButton->SetLabelStr(fileName.Get());
     }
   }
 
