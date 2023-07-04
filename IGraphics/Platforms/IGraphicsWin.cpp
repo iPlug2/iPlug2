@@ -1430,12 +1430,16 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
         HMENU submenu = CreateMenu(*pMenuItem->GetSubmenu(), pOffsetIdx);
         if (submenu)
         {
-          AppendMenu(hMenu, flags|MF_POPUP, (UINT_PTR)submenu, (const TCHAR*)entryText.Get());
+          WCHAR bufW[4096];
+          UTF8ToUTF16(bufW, entryText.Get(), 4096);
+          AppendMenuW(hMenu, flags | MF_POPUP, (UINT_PTR)submenu, bufW);
         }
       }
       else
       {
-        AppendMenu(hMenu, flags, offset + inc, entryText.Get());
+        WCHAR bufW[4096];
+        UTF8ToUTF16(bufW, entryText.Get(), 4096);
+        AppendMenuW(hMenu, flags, offset + inc, bufW);
       }
     }
     inc++;
@@ -1480,7 +1484,7 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT 
               result->SetChosenItemIdx(idx);
                 
               //synchronous
-              if(pReturnMenu && pReturnMenu->GetFunction())
+              if (pReturnMenu && pReturnMenu->GetFunction())
                 pReturnMenu->ExecFunction();
             }
           }
