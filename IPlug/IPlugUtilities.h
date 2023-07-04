@@ -31,6 +31,7 @@
 #include "IPlugPlatform.h"
 
 #ifdef OS_WIN
+#include <windows.h>
 #pragma warning(disable:4018 4267)	// size_t/signed/unsigned mismatch..
 #pragma warning(disable:4800)		// if (pointer) ...
 #pragma warning(disable:4805)		// Compare bool and BOOL.
@@ -311,6 +312,36 @@ static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = fa
     noteName.SetFormatted(32, "%s%i", noteNames[pitchClass], octave);
   }
 }
+
+#if defined OS_WIN
+
+static void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
+{
+  int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+
+  if (requiredSize > 0 && requiredSize <= maxLen)
+  {
+    MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize);
+    return;
+  }
+
+  utf16Str[0] = 0;
+}
+
+static void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
+{
+  int requiredSize = WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, NULL, 0, NULL, NULL);
+
+  if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
+  {
+    WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, utf8Str.Get(), requiredSize, NULL, NULL);
+    return;
+  }
+
+  utf8Str.Set("");
+}
+
+#endif
 
 END_IPLUG_NAMESPACE
 
