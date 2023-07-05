@@ -94,6 +94,7 @@ WDL_HASSTRINGS_EXPORT int hasStrings_utf8cmp(const unsigned char * const a, cons
           SCAN('o',O)
           SCAN('u',U)
           SCAN('y',Y)
+          default: return -ca; break;
 #undef SCAN
           }
         }
@@ -122,6 +123,7 @@ WDL_HASSTRINGS_EXPORT int hasStrings_utf8cmp(const unsigned char * const a, cons
           SCAN('w',W)
           SCAN('y',Y)
           SCAN('z',Z)
+          default: return -ca; break;
 #undef SCAN
           }
         }

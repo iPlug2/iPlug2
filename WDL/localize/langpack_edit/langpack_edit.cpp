@@ -49,6 +49,7 @@ WDL_FastString g_ini_file;
 enum {
   COL_STATE=0,
   COL_ID,
+  COL_ROW_IDX,
   COL_TEMPLATE,
   COL_LOCALIZED,
   COL_COMMON_LOCALIZED,
@@ -658,6 +659,7 @@ const char *COL_DESCS[COL_MAX] = {
   // !WANT_LOCALIZE_STRINGS_BEGIN:langpackedit
   "State",
   "ID",
+  "Row",
   "Template",
   "Localized",
   "Common Localized",
@@ -667,6 +669,7 @@ const char *COL_DESCS[COL_MAX] = {
 int COL_SIZES[COL_MAX] = {
   120,
   120,
+  30,
   240,
   240,
   240,
@@ -898,7 +901,10 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             NMLVDISPINFO *lpdi = (NMLVDISPINFO*) lParam;
             if (lpdi->item.mask & LVIF_TEXT)
             {
-              lpdi->item.pszText = (char*) g_editor.get_row_value(lpdi->item.iItem, lpdi->item.iSubItem);
+              if (lpdi->item.iSubItem == COL_ROW_IDX)
+                snprintf(lpdi->item.pszText,lpdi->item.cchTextMax,"%d",lpdi->item.iItem+1);
+              else
+                lpdi->item.pszText = (char*) g_editor.get_row_value(lpdi->item.iItem, lpdi->item.iSubItem);
 #ifdef _WIN32
               if (lv->hdr.code == LVN_GETDISPINFOW)
                 WDL_UTF8_ListViewConvertDispInfoToW(lpdi);

@@ -1,10 +1,10 @@
-APPNAME=langpack_edit
+APPNAME=myapp
 
-WDL_PATH = ../..
+WDL_PATH = ../WDL
 vpath swell%.cpp $(WDL_PATH)/swell
 vpath lice%.cpp $(WDL_PATH)/lice
 vpath %.c $(WDL_PATH)
-vpath %.cpp $(WDL_PATH) $(WDL_PATH)/wingui $(WDL_PATH)/localize
+vpath %.cpp $(WDL_PATH) $(WDL_PATH)/wingui
 
 ###### Objects and resources (probably too many)
 SWELL_OBJS = swell.o swell-ini.o swell-miscdlg-generic.o swell-wnd-generic.o \
@@ -15,11 +15,11 @@ SWELL_OBJS = swell.o swell-ini.o swell-miscdlg-generic.o swell-wnd-generic.o \
 LICE_OBJS = lice_image.o lice_arc.o lice_line.o lice_text.o \
             lice_textnew.o lice.o lice_colorspace.o
 
-OTHER_OBJS = wndsize.o localize.o filebrowse.o
+OTHER_OBJS = wndsize.o
 
 RESFILES = res.rc_mac_dlg res.rc_mac_menu
 
-OBJS += langpack_edit.o $(SWELL_OBJS) $(OTHER_OBJS)
+OBJS += myapp.o $(SWELL_OBJS) $(OTHER_OBJS)
 
 
 ###### Compiler/Linker flags
@@ -38,19 +38,11 @@ ifndef DEPRECATED_WARNINGS
   CFLAGS +=  -Wno-deprecated-declarations
 endif
 
-ifeq ($(ARCH),arm64)
-  CFLAGS += -fsigned-char
-else
-  ifneq ($(filter arm%,$(ARCH)),)
-    CFLAGS += -fsigned-char -mfpu=vfp -march=armv6t2 -marm
-  endif
-  ifeq ($(ARCH),aarch64)
-    CFLAGS += -fsigned-char
-  endif
+ifneq ($(filter arm%,$(ARCH)),)
+  CFLAGS += -fsigned-char -marm
 endif
 
-
-ifndef RELEASE
+ifdef DEBUG
   CFLAGS += -O0 -g -D_DEBUG -DWDL_CHECK_FOR_NON_UTF8_FOPEN
 else
   CFLAGS += -O2 -DNDEBUG

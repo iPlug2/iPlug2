@@ -1977,29 +1977,65 @@ int SWELL_SetWindowLevel(HWND hwnd, int newlevel)
 
 void SWELL_GetViewPort(RECT *r, const RECT *sourcerect, bool wantWork)
 {
-  if (swell_initwindowsys())
+  r->left=r->top=0;
+  r->right=1024;
+  r->bottom=768;
+  if (!swell_initwindowsys()) return;
+  GdkScreen *defscr = gdk_screen_get_default();
+  if (!defscr) return;
+  const gint n = gdk_screen_get_n_monitors(defscr);
+  if (n < 1) return;
+
+  const gint prim = gdk_screen_get_primary_monitor(defscr);
+  double best_score = -1e20;
+  RECT sr;
+  if (sourcerect) sr = *sourcerect;
+
+  for (gint idx = 0; idx < n; idx ++)
   {
-    GdkScreen *defscr = gdk_screen_get_default();
-    if (!defscr) { r->left=r->top=0; r->right=r->bottom=1024; return; }
-    gint idx = sourcerect ? gdk_screen_get_monitor_at_point(defscr,
-           (sourcerect->left+sourcerect->right)/2,
-           (sourcerect->top+sourcerect->bottom)/2) : 0;
     GdkRectangle rc={0,0,1024,1024};
+    if (!sourcerect && prim>0) idx = prim;
+
 #if SWELL_TARGET_GDK != 2
     if (wantWork)
       gdk_screen_get_monitor_workarea(defscr,idx,&rc);
     else
 #endif
       gdk_screen_get_monitor_geometry(defscr,idx,&rc);
-    r->left=rc.x;
-    r->top = rc.y;
-    r->right=rc.x+rc.width;
-    r->bottom=rc.y+rc.height;
-    return;
+
+    RECT tmp;
+    tmp.left=rc.x;
+    tmp.top = rc.y;
+    tmp.right=rc.x+rc.width;
+    tmp.bottom=rc.y+rc.height;
+    if (!sourcerect || n < 2)
+    {
+      *r = tmp;
+      break;
+    }
+
+    double score;
+    RECT res;
+    if (IntersectRect(&res, &tmp, &sr))
+    {
+      score = wdl_abs((res.right-res.left) * (res.bottom-res.top));
+    }
+    else
+    {
+      int dx = 0, dy = 0;
+      if (tmp.left > sr.right) dx = tmp.left - sr.right;
+      else if (tmp.right < sr.left) dx = sr.left - tmp.right;
+      if (tmp.bottom < sr.top) dy = tmp.bottom - sr.top;
+      else if (tmp.top > sr.bottom) dy = tmp.top - sr.bottom;
+      score = - (dx*dx + dy*dy);
+    }
+
+    if (!idx || score > best_score)
+    {
+      best_score = score;
+      *r = tmp;
+    }
   }
-  r->left=r->top=0;
-  r->right=1024;
-  r->bottom=768;
 }
 
 

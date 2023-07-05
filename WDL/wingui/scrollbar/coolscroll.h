@@ -58,6 +58,7 @@ extern "C"{
 BOOL  WINAPI InitializeCoolSB(HWND hwnd);
 HRESULT WINAPI UninitializeCoolSB(HWND hwnd); // call in WM_DESTROY -- not strictly required, but recommended
 
+int WINAPI CoolSB_IsScrollCaptured(HWND hwnd); // LOWORD()==1 if hscroll, 2, if vscroll. hiword is element or 0
 BOOL WINAPI CoolSB_SetMinThumbSize(HWND hwnd, UINT wBar, UINT size);
 BOOL WINAPI CoolSB_IsThumbTracking(HWND hwnd);
 BOOL WINAPI CoolSB_IsCoolScrollEnabled(HWND hwnd);

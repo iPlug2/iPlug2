@@ -819,14 +819,20 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
 - (void)textDidEndEditing:(NSNotification *)aNotification
 {
   id sender=[aNotification object];
-  int code=EN_CHANGE;
   if ([sender isKindOfClass:[NSComboBox class]]) return;
   if (m_wndproc&&!m_hashaddestroy)
   {
-    m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
-    code=EN_KILLFOCUS;
+    int code=EN_KILLFOCUS;
     m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
   }
+}
+
+- (void)textDidChange:(NSNotification *)aNotification
+{
+  id sender=[aNotification object];
+  int code=EN_CHANGE;
+  if ([sender isKindOfClass:[NSComboBox class]]) return;
+  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],code),(LPARAM)sender);
 }
 
 - (void)controlTextDidChange:(NSNotification *)aNotification

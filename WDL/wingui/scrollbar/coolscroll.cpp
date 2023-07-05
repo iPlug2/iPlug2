@@ -3683,6 +3683,22 @@ int  WINAPI CoolSB_SetScrollInfo (HWND hwnd, int fnBar, LPSCROLLINFO lpsi, BOOL 
 }
 
 
+int WINAPI CoolSB_IsScrollCaptured(HWND hwnd) // returns loword 1 if hscroll-related, 2 if vscroll-related, hiword hit info
+{
+  SCROLLWND *sw = GetScrollWndFromHwnd(hwnd);
+  if (sw && GetCapture()==hwnd)
+  {
+    if (sw->fThumbTracking || sw->uCurrentScrollPortion != HTSCROLL_NONE)
+    {
+      int t = sw->fThumbTracking ? 0 : sw->uCurrentScrollPortion;
+      if (t > 1024) t = 1024;
+      return (sw->uCurrentScrollbar == SB_HORZ ? 1 : 2) | (t<<16);
+    }
+  }
+  return 0;
+}
+
+
 int WINAPI CoolSB_SetScrollPos(HWND hwnd, int nBar, int nPos, BOOL fRedraw)
 {
   SCROLLINFO *mysi;
