@@ -128,6 +128,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     cell.userInteractionEnabled = NO;
     cell.textLabel.enabled = NO;
   }
+  else
+  {
+    cell.userInteractionEnabled = YES;
+    cell.textLabel.enabled = YES;
+  }
   
   return cell;
 }
