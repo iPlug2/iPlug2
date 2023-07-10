@@ -49,8 +49,10 @@ using namespace igraphics;
   IGraphicsIOS* mGraphics;
 }
 @property (strong, nonatomic) UITableView* tableView;
-@property (strong, nonatomic) NSMutableArray* items;
+@property (strong, nonatomic) NSMutableArray<NSMutableArray*>* items;
 - (id) initWithIPopupMenuAndIGraphics: (IPopupMenu*) pMenu : (IGraphicsIOS*) pGraphics;
+- (int) menuIdxFromIndexPath: (NSIndexPath*) indexPath;
+- (NSIndexPath*) indexPathFromMenuIdx: (int) menuIdx;
 
 @end
 

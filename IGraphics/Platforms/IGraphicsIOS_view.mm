@@ -26,6 +26,32 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 @implementation IGRAPHICS_UITABLEVC
 
+- (int) menuIdxFromIndexPath:(NSIndexPath*) indexPath
+{
+  int menuIdx = (int) indexPath.row;
+  
+  for (int i = 0; i < indexPath.section; ++i)
+    menuIdx += self.items[i].count + 1;
+  
+  return menuIdx;
+}
+
+- (NSIndexPath*) indexPathFromMenuIdx:(int) menuIdx
+{
+  int sectionIdx = 0;
+  int rowIdx = menuIdx;
+  
+  // Calculate index path
+  
+  while (rowIdx >= self.items[sectionIdx].count)
+  {
+    rowIdx -= self.items[sectionIdx].count + 1;
+    sectionIdx++;
+  }
+  
+  return [NSIndexPath indexPathForRow:rowIdx inSection:sectionIdx];
+}
+
 - (void) viewDidLoad
 {
   [super viewDidLoad];
@@ -35,7 +61,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   self.tableView.scrollEnabled = YES;
   self.tableView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
   self.items = [[NSMutableArray alloc] init];
-  
+  [self.items addObject:[[NSMutableArray alloc] init]];
+
+  int numSections = 1;
   int numItems = mMenu->NItems();
 
   NSMutableString* elementTitle;
@@ -44,26 +72,38 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   {
     IPopupMenu::Item* pMenuItem = mMenu->GetItem(i);
 
-    elementTitle = [[NSMutableString alloc] initWithCString:pMenuItem->GetText() encoding:NSUTF8StringEncoding];
-
-    if (mMenu->GetPrefix())
+    if (pMenuItem->GetIsSeparator())
     {
-      NSString* prefixString = nil;
-
-      switch (mMenu->GetPrefix())
-      {
-        case 1: prefixString = [NSString stringWithFormat:@"%1d: ", i+1]; break;
-        case 2: prefixString = [NSString stringWithFormat:@"%02d: ", i+1]; break;
-        case 3: prefixString = [NSString stringWithFormat:@"%03d: ", i+1]; break;
-        case 0:
-        default:
-          prefixString = [NSString stringWithUTF8String:""]; break;
-      }
-
-      [elementTitle insertString:prefixString atIndex:0];
+      // Add a new section
+      
+      [self.items addObject:[[NSMutableArray alloc] init]];
+      numSections++;
     }
+    else
+    {
+      // Add a new item
+      
+      elementTitle = [[NSMutableString alloc] initWithCString:pMenuItem->GetText() encoding:NSUTF8StringEncoding];
 
-    [self.items addObject:elementTitle];
+      if (mMenu->GetPrefix())
+      {
+        NSString* prefixString = nil;
+
+        switch (mMenu->GetPrefix())
+        {
+          case 1: prefixString = [NSString stringWithFormat:@"%1d: ", i+1]; break;
+          case 2: prefixString = [NSString stringWithFormat:@"%02d: ", i+1]; break;
+          case 3: prefixString = [NSString stringWithFormat:@"%03d: ", i+1]; break;
+          case 0:
+          default:
+            prefixString = [NSString stringWithUTF8String:""]; break;
+        }
+        
+        [elementTitle insertString:prefixString atIndex:0];
+      }
+      
+      [self.items[numSections - 1] addObject:elementTitle];
+    }
   }
   
   [self.view addSubview:self.tableView];
@@ -75,7 +115,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
   if (selectedItemIdx > -1)
   {
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:selectedItemIdx inSection:0];
+    NSIndexPath *indexPath = [self indexPathFromMenuIdx:selectedItemIdx];
     [self.tableView scrollToRowAtIndexPath:indexPath
                            atScrollPosition:UITableViewScrollPositionMiddle
                              animated:NO];
@@ -94,12 +134,12 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (NSInteger) tableView:(UITableView*) tableView numberOfRowsInSection:(NSInteger) section
 {
-  return self.items.count;
+  return self.items[section].count;
 }
 
 - (NSInteger) numberOfSectionsInTableView:(UITableView*) tableView
 {
-  return 1;
+  return self.items.count;
 }
 
 - (UITableViewCell*) tableView:(UITableView*) tableView cellForRowAtIndexPath:(NSIndexPath*) indexPath
@@ -112,11 +152,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifer];
   }
   
-  int cellIndex = static_cast<int>(indexPath.row);
+  int menuIdx = [self menuIdxFromIndexPath:indexPath];
+
+  cell.textLabel.text = [NSString stringWithFormat:@"%@", self.items[indexPath.section][indexPath.row]];
   
-  cell.textLabel.text = [NSString stringWithFormat:@"%@", self.items[indexPath.row]];
-  
-  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+  IPopupMenu::Item* pItem = mMenu->GetItem(menuIdx);
   
   if (pItem->GetChecked())
     cell.accessoryType = UITableViewCellAccessoryCheckmark;
@@ -139,33 +179,19 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (CGFloat) tableView:(UITableView*) tableView heightForRowAtIndexPath:(NSIndexPath*) indexPath
 {
-  int cellIndex = static_cast<int>(indexPath.row);
-
-  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
-
-  if (pItem->GetIsSeparator())
-    return 0.5;
-  else
-    return self.tableView.rowHeight;
+  return self.tableView.rowHeight;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  int cellIndex = static_cast<int>(indexPath.row);
-
-  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
-
-  if (pItem->GetIsSeparator())
-    return 0.5;
-  else
-    return self.tableView.rowHeight;
+  return self.tableView.rowHeight;
 }
 
 - (void) tableView:(UITableView*) tableView didSelectRowAtIndexPath:(NSIndexPath*) indexPath
 {
-  int cellIndex = static_cast<int>(indexPath.row);
+  int menuIdx = [self menuIdxFromIndexPath:indexPath];
 
-  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+  IPopupMenu::Item* pItem = mMenu->GetItem(menuIdx);
   IPopupMenu* pSubMenu = pItem->GetSubmenu();
   
   if (pSubMenu)
@@ -181,7 +207,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   {
     [self dismissViewControllerAnimated:YES completion:nil];
 
-    mMenu->SetChosenItemIdx(cellIndex);
+    mMenu->SetChosenItemIdx(menuIdx);
     
     if (mMenu->GetFunction())
       mMenu->ExecFunction();
