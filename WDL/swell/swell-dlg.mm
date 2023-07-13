@@ -1571,7 +1571,11 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
     m_metal_drawable = NULL;
   }
 
-  if (!device) return;
+  if (!device)
+  {
+    NSLog(@"swell-cocoa: no metal device\n");
+    return;
+  }
 
   if (!direct_mode)
   {
@@ -1579,7 +1583,11 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
     {
       id<MTLFunction> vertex = NULL, frag = NULL;
       get_dev_shaders(device, &vertex, &frag);
-      if (!vertex || !frag) return; // fail
+      if (!vertex || !frag)
+      {
+        NSLog(@"swell-cocoa: failed getting metal device shaders\n");
+        return; // fail
+      }
 
       MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[__class_MTLRenderPipelineDescriptor alloc] init];
 
@@ -1659,7 +1667,11 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
   if (!tex) return; // this can happen if GetDC()/ReleaseDC() are called before the first WM_PAINT
 
   NSRect bounds = [self bounds];
-  if (bounds.size.width < 1 || bounds.size.height < 1) return;
+  if (bounds.size.width < 1 || bounds.size.height < 1)
+  {
+    NSLog(@"swell-cocoa: metal with empty bounds\n");
+    return;
+  }
 
   if (m_metal_retina)
   {
