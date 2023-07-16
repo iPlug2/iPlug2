@@ -1,6 +1,7 @@
 #ifndef _LICE_COMBINE_H_
 #define _LICE_COMBINE_H_
 
+#include "../wdltypes.h"
 
 #if defined(_MSC_VER)
 #pragma warning(disable:4244) // float-to-int
@@ -820,7 +821,7 @@ public:
      
 typedef void (*LICE_COMBINEFUNC)(LICE_pixel_chan *dest, int r, int g, int b, int a, int alpha);
    
-#define __LICE_SC(x) do { (x) = ((x)*(__sc))/256; } while (0)
-#define __LICE_SCU(x) do { (x) = ((x)*(__sc))>>8; } while (0)
+#define __LICE_SC(x) do { WDL_INT64 lice_tmp_ = (((WDL_INT64) (x)*(__sc))/256); (x) = (int) wdl_clamp(lice_tmp_, -WDL_INT64_CONST(0x80000000), WDL_INT64_CONST(0x7fffffff)); } while (0)
+#define __LICE_SCU(x) do { WDL_UINT64 lice_tmp_ = (((WDL_UINT64) (x)*(__sc))>>8); (x) = (unsigned int) wdl_min(lice_tmp_, WDL_UINT64_CONST(0xffffffff)); } while (0)
 
 #endif // _LICE_COMBINE_H_
