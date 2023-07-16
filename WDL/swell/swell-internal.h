@@ -420,8 +420,7 @@ typedef struct WindowPropRec
 
   id m_metal_texture; // id<MTLTexture> -- owned if in full pipeline mode, otherwise reference to m_metal_drawable
   id m_metal_drawable; // id<CAMetalDrawable> -- only used in normal mode
-
-  struct swell_metal_device_ctx *m_metal_device;
+  id m_metal_device; // id<MTLDevice> -- set to last-used-device
   DWORD m_metal_device_lastchkt;
 
 }
