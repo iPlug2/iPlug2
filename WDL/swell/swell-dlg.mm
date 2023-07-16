@@ -1544,6 +1544,8 @@ static WDL_PtrKeyedArray<swell_metal_device_ctx *> s_metal_devices; // indexed b
     m_metal_device_lastchkt = now;
     CGDirectDisplayID viewDisplayID = (CGDirectDisplayID) [self.window.screen.deviceDescription[@"NSScreenNumber"] unsignedIntegerValue];
     device = __CGDirectDisplayCopyCurrentMetalDevice(viewDisplayID);
+    if (device == m_metal_device)
+      [device release];
   }
 
   if (!device)
