@@ -476,7 +476,7 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   
   if (completionHandler)
   {
-    [(NSSavePanel*) pPanel beginWithCompletionHandler:^(NSModalResponse response){
+    [(NSSavePanel*) pPanel beginWithCompletionHandler:^(NSModalResponse response) {
       WDL_String fileNameAsync, pathAsync;
       doHandleResponse(pPanel, response, fileNameAsync, pathAsync, completionHandler);
     }];
@@ -533,15 +533,15 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHand
 
   if (completionHandler)
   {
-    NSModalResponse response = [panelOpen runModal];
-    doHandleResponse(panelOpen, response, dir, completionHandler);
+    [panelOpen beginWithCompletionHandler:^(NSModalResponse response) {
+      WDL_String path;
+      doHandleResponse(panelOpen, response, path, completionHandler);
+    }];
   }
   else
   {
-    [panelOpen beginWithCompletionHandler:^(NSModalResponse response) {
-      WDL_String path;
-      doHandleResponse(panelOpen, response, path, nullptr);
-    }];
+    NSModalResponse response = [panelOpen runModal];
+    doHandleResponse(panelOpen, response, dir, nullptr);
   }
 }
 
