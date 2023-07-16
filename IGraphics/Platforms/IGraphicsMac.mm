@@ -512,30 +512,30 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHand
   [panelOpen setFloatingPanel: YES];
   [panelOpen setDirectoryURL: [NSURL fileURLWithPath: defaultPath]];
   
-  auto doHandleResponse = [](NSOpenPanel* pPanel, NSModalResponse response, WDL_String& chosenDir, IFileDialogCompletionHandlerFunc completionHandler){
+  auto doHandleResponse = [](NSOpenPanel* pPanel, NSModalResponse response, WDL_String& pathAsync, IFileDialogCompletionHandlerFunc completionHandler){
     if (response == NSOKButton)
     {
       NSString* fullPath = [pPanel filename] ;
-      chosenDir.Set([fullPath UTF8String]);
-      chosenDir.Append("/");
+      pathAsync.Set([fullPath UTF8String]);
+      pathAsync.Append("/");
     }
     else
     {
-      chosenDir.Set("");
+      pathAsync.Set("");
     }
     
     if (completionHandler)
     {
-      WDL_String fileName; // not used
-      completionHandler(fileName, chosenDir);
+      WDL_String fileNameAsync; // not used
+      completionHandler(fileNameAsync, pathAsync);
     }
   };
 
   if (completionHandler)
   {
     [panelOpen beginWithCompletionHandler:^(NSModalResponse response) {
-      WDL_String path;
-      doHandleResponse(panelOpen, response, path, completionHandler);
+      WDL_String pathAsync;
+      doHandleResponse(panelOpen, response, pathAsync, completionHandler);
     }];
   }
   else
