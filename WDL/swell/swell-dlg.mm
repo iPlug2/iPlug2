@@ -624,6 +624,8 @@ struct swell_metal_device_ctx {
 };
 static WDL_PtrKeyedArray<swell_metal_device_ctx *> s_metal_devices; // indexed by id<MTLDevice>
 static int s_metal_devicelist_updcnt;
+static WDL_PtrList<void> s_mtl_need_commit; // id<MTLCommandBuffer>
+static bool s_mtl_in_update;
 
 @interface SWELL_MetalNotificationHandler : NSObject
 - (void)handleDisplayChanges:(NSNotification *)notification;
@@ -660,6 +662,7 @@ static int s_metal_devicelist_updcnt;
 #ifndef SWELL_NO_METAL
   if (m_use_metal>0) 
   {
+    SWELL_AutoReleaseHelper arparp;
     [self swellDrawMetal:NULL];
     swell_removeMetalDirty(self);
   }
@@ -1530,7 +1533,6 @@ static int s_metal_devicelist_updcnt;
 -(void) swellDrawMetal:(const RECT *)forRect
 {
 #ifndef SWELL_NO_METAL
-  SWELL_AutoReleaseHelper arparp;
 
 #define swell_metal_set_layer_gravity(layer, g) do { \
   const int grav = (g); \
@@ -1765,7 +1767,17 @@ static int s_metal_devicelist_updcnt;
   [renderEncoder endEncoding];
 
   [commandBuffer presentDrawable:drawable];
-  [commandBuffer commit];
+
+  if (s_mtl_in_update)
+  {
+    [commandBuffer enqueue];
+    [commandBuffer retain];
+    s_mtl_need_commit.Add(commandBuffer);
+  }
+  else
+  {
+    [commandBuffer commit];
+  }
 #endif
 }
 
@@ -4407,9 +4419,10 @@ int SWELL_EnableMetal(HWND hwnd, int mode)
 void swell_updateAllMetalDirty() // run from a timer, or called by UpdateWindow()
 {
 #ifndef SWELL_NO_METAL
-  static bool r;
-  if (r) return;
-  r=true;
+  if (s_mtl_in_update || !s_mtl_dirty_list.GetSize()) return;
+  SWELL_AutoReleaseHelper arparp;
+
+  s_mtl_in_update = true;
 
   NSWindow *lw = NULL;
   bool lw_occluded = false;
@@ -4438,7 +4451,15 @@ void swell_updateAllMetalDirty() // run from a timer, or called by UpdateWindow(
     [slf swellDrawMetal:&tr];
   }
 
-  r=false;
+  for (int i = 0; i < s_mtl_need_commit.GetSize(); i ++)
+  {
+    id<MTLCommandBuffer> c = (id<MTLCommandBuffer>) s_mtl_need_commit.Get(i);
+    [c commit];
+    [c release];
+  }
+  s_mtl_need_commit.Empty();
+
+  s_mtl_in_update = false;
 #endif
 }
 
