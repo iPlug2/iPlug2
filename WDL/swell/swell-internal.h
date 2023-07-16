@@ -112,7 +112,7 @@ struct HTREEITEM__;
 #define SWELL_PopupMenuRecv __SWELL_PREFIX_CLASSNAME(_trackpopupmenurecv)
 
 #define SWELL_TimerFuncTarget __SWELL_PREFIX_CLASSNAME(_tft)
-
+#define SWELL_MetalNotificationHandler __SWELL_PREFIX_CLASSNAME(_mnfh)
 
 #define SWELL_Menu __SWELL_PREFIX_CLASSNAME(_menu)
 
@@ -421,7 +421,7 @@ typedef struct WindowPropRec
   id m_metal_texture; // id<MTLTexture> -- owned if in full pipeline mode, otherwise reference to m_metal_drawable
   id m_metal_drawable; // id<CAMetalDrawable> -- only used in normal mode
   id m_metal_device; // id<MTLDevice> -- set to last-used-device
-  DWORD m_metal_device_lastchkt;
+  int m_metal_devicelist_updcnt;
 
 }
 - (id)initChild:(SWELL_DialogResourceIndex *)resstate Parent:(NSView *)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par;

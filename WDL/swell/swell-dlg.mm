@@ -623,8 +623,19 @@ struct swell_metal_device_ctx {
   id<MTLCommandQueue> m_commandQueue;
 };
 static WDL_PtrKeyedArray<swell_metal_device_ctx *> s_metal_devices; // indexed by id<MTLDevice>
-#endif
+static int s_metal_devicelist_updcnt;
 
+@interface SWELL_MetalNotificationHandler : NSObject
+- (void)handleDisplayChanges:(NSNotification *)notification;
+@end
+
+@implementation SWELL_MetalNotificationHandler : NSObject
+- (void)handleDisplayChanges:(NSNotification *)notification
+{
+  s_metal_devicelist_updcnt++;
+}
+@end
+#endif
 
 @implementation SWELL_hwndChild : NSView 
 
@@ -1253,7 +1264,7 @@ static WDL_PtrKeyedArray<swell_metal_device_ctx *> s_metal_devices; // indexed b
   m_metal_dc_dirty=0;
   m_metal_retina=false;
   m_metal_device=NULL;
-  m_metal_device_lastchkt=0;
+  m_metal_devicelist_updcnt=0;
   m_metal_texture=NULL;
   m_metal_drawable=NULL;
   m_metal_in_needref_list=false;
@@ -1533,15 +1544,25 @@ static WDL_PtrKeyedArray<swell_metal_device_ctx *> s_metal_devices; // indexed b
 
   id<MTLDevice> device = m_metal_device;
 
-  // support multiple devices. only check every second for device changes (it will use the old device and be slower in that duration)
-  // (checking the device takes about 20uS, which isn't a lot but also isn't nothing)
-
-  // this seems to work correclty, *except* - if you're using the high-performance card, the system will never go back to integrated,
-  // presumably because our metal devices are open. Maybe we can flag them as "non-essential" ?
-  const DWORD now = GetTickCount();
-  if (__CGDirectDisplayCopyCurrentMetalDevice && (!device || (now-m_metal_device_lastchkt)>1000))
+  static bool reg;
+  if (!reg)
   {
-    m_metal_device_lastchkt = now;
+    reg = true;
+    id s = [[SWELL_MetalNotificationHandler alloc] init];
+    [[NSNotificationCenter defaultCenter] addObserver:s
+                                             selector:@selector(handleDisplayChanges:)
+                                                 name:NSWindowDidChangeScreenNotification
+                                               object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:s
+                                             selector:@selector(handleDisplayChanges:)
+                                                 name:NSApplicationDidChangeScreenParametersNotification
+                                               object:nil];
+  }
+
+  if (__CGDirectDisplayCopyCurrentMetalDevice && (!device || m_metal_devicelist_updcnt != s_metal_devicelist_updcnt))
+  {
+    m_metal_devicelist_updcnt = s_metal_devicelist_updcnt;
     CGDirectDisplayID viewDisplayID = (CGDirectDisplayID) [self.window.screen.deviceDescription[@"NSScreenNumber"] unsignedIntegerValue];
     device = __CGDirectDisplayCopyCurrentMetalDevice(viewDisplayID);
     if (device == m_metal_device)
