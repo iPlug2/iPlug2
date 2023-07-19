@@ -72,6 +72,8 @@
     <REAPER_INC_PATHS>$(IPLUG_DEPS_PATH)\REAPER_SDK;$(IPLUG_PATH)\ReaperExt;</REAPER_INC_PATHS>
     <AAX_ICON>$(AAX_SDK)\Utilities\PlugIn.ico</AAX_ICON>
     <VST_ICON>$(IPLUG2_ROOT)\Scripts\icons\VST_Logo_Steinberg.ico</VST_ICON>
+    <PUGL_PATH>$(DEPS_PATH)\Extras\pugl</PUGL_PATH>
+    <PUGL_INC_PATHS>$(PUGL_PATH)\include;$(PUGL_PATH)\bindings\cpp\include</PUGL_INC_PATHS>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
@@ -298,6 +300,12 @@
     </BuildMacro>
     <BuildMacro Include="CLAP_PATH">
       <Value>$(CLAP_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PUGL_PATH">
+      <Value>$(PUGL_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PUGL_INC_PATHS">
+      <Value>$(PUGL_INC_PATHS)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
