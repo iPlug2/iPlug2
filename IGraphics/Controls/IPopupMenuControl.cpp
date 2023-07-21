@@ -919,7 +919,7 @@ IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, IPopupMenu& 
     if(control.mMaxColumnItems > 0 && i > 1)
       newColumn = !(i % control.mMaxColumnItems);
     
-    if((top + toAddY + control.PAD) > control.mMaxBounds.B || newColumn) // it's gonna go off the bottom
+    if ((std::abs(top + toAddY + control.PAD) > control.mMaxBounds.H()) || newColumn) // it's gonna go out of bounds
     {
       if(control.mScrollIfTooBig)
       {
