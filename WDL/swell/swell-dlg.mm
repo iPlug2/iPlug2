@@ -602,14 +602,29 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
 
 #ifndef SWELL_NO_METAL
 struct swell_metal_device_ctx {
-  swell_metal_device_ctx() { m_pipelineState = NULL; m_commandQueue = NULL; }
+  swell_metal_device_ctx()
+  {
+    m_pipelineState = NULL;
+    m_commandQueue = NULL;
+    m_commandBuffer = NULL;
+  }
 
   id<MTLRenderPipelineState> m_pipelineState;
   id<MTLCommandQueue> m_commandQueue;
+  id<MTLCommandBuffer> m_commandBuffer;
+
+  void present()
+  {
+    if (m_commandBuffer)
+    {
+      [m_commandBuffer commit];
+      [m_commandBuffer release];
+      m_commandBuffer = NULL;
+    }
+  }
 };
 static WDL_PtrKeyedArray<swell_metal_device_ctx *> s_metal_devices; // indexed by id<MTLDevice>
 static int s_metal_devicelist_updcnt;
-static WDL_PtrList<void> s_mtl_need_commit; // id<MTLCommandBuffer>
 static bool s_mtl_in_update;
 
 @interface SWELL_MetalNotificationHandler : NSObject
@@ -1733,12 +1748,16 @@ static bool s_mtl_in_update;
   if (!ctx->m_commandQueue)
     ctx->m_commandQueue = [device newCommandQueue];
 
-  id<MTLCommandBuffer> commandBuffer = [ctx->m_commandQueue commandBuffer];
+  if (!ctx->m_commandBuffer)
+  {
+    ctx->m_commandBuffer = [ctx->m_commandQueue commandBuffer];
+    [ctx->m_commandBuffer retain];
+  }
 
   MTLRenderPassDescriptor *renderPassDescriptor = [__class_MTLRenderPassDescriptor renderPassDescriptor];
   renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
 
-  id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+  id<MTLRenderCommandEncoder> renderEncoder = [ctx->m_commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
 
   // Set the region of the drawable to draw into.
   [renderEncoder setViewport:(MTLViewport){0.0, 0.0, (double)r.right,(double)r.bottom, -1.0, 1.0 }];
@@ -1751,18 +1770,10 @@ static bool s_mtl_in_update;
 
   [renderEncoder endEncoding];
 
-  [commandBuffer presentDrawable:drawable];
+  [ctx->m_commandBuffer presentDrawable:drawable];
 
-  if (s_mtl_in_update)
-  {
-    [commandBuffer enqueue];
-    [commandBuffer retain];
-    s_mtl_need_commit.Add(commandBuffer);
-  }
-  else
-  {
-    [commandBuffer commit];
-  }
+  if (!s_mtl_in_update)
+    ctx->present();
 #endif
 }
 
@@ -4436,13 +4447,12 @@ void swell_updateAllMetalDirty() // run from a timer, or called by UpdateWindow(
     [slf swellDrawMetal:&tr];
   }
 
-  for (int i = 0; i < s_mtl_need_commit.GetSize(); i ++)
+  for (int i = 0; ; i ++)
   {
-    id<MTLCommandBuffer> c = (id<MTLCommandBuffer>) s_mtl_need_commit.Get(i);
-    [c commit];
-    [c release];
+    swell_metal_device_ctx *c = s_metal_devices.Enumerate(i);
+    if (!c) break;
+    c->present();
   }
-  s_mtl_need_commit.Empty();
 
   s_mtl_in_update = false;
 #endif
