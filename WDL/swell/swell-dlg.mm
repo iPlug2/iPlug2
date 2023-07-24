@@ -55,47 +55,6 @@ static id __class_CAMetalLayer, __class_MTLRenderPassDescriptor, __class_MTLText
 static id<MTLDevice> (*__MTLCreateSystemDefaultDevice)(void);
 static id<MTLDevice> (*__CGDirectDisplayCopyCurrentMetalDevice)(CGDirectDisplayID);
 
-static void get_dev_shaders(id<MTLDevice> dev, id<MTLFunction> *vertex, id<MTLFunction> *frag)
-{
-  // open device, compiler shaders
-  id opt = (id)[[__class_MTLCompileOptions alloc] init];
-  NSError *err=NULL;
-  NSString *code = 
-@"#include <metal_stdlib>\n"
-@"#include <simd/simd.h>\n"
-@"using namespace metal;\n"
-@"typedef struct { float4 position [[position]]; float2 textureCoordinate; } RasterizerData;\n"
-@"vertex RasterizerData\n"
-@"vertexShader(uint vertexID [[ vertex_id ]], constant vector_float2 *vertexArray [[ buffer(0) ]]) {\n"
-@"    RasterizerData out;\n"
-@"    out.position = vector_float4(0.0, 0.0, 0.0, 1.0);\n"
-@"    out.position.xy = vertexArray[vertexID*2].xy;\n"
-@"    out.textureCoordinate = vertexArray[vertexID*2+1].xy;\n"
-@"    return out;\n"
-@"}\n"
-@"fragment float4\n"
-@"samplingShader(RasterizerData in [[stage_in]], texture2d<half> colorTexture [[ texture(0) ]]) { \n"
-@"   constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);\n"
-@"   const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);\n"
-@"   return float4(colorSample);\n"
-@"}\n";
-
-  id<MTLLibrary> mtl_lib = [dev newLibraryWithSource:code options:opt error:&err];
-  if (err) NSLog(@"swell-cocoa: error compiling metal shaders for device %p %@: %@\n",dev,dev.name,err);
-  [opt release];
-
-  if (mtl_lib &&
-      (*vertex = [mtl_lib newFunctionWithName:@"vertexShader"]) &&
-      (*frag = [mtl_lib newFunctionWithName:@"samplingShader"]))
-  {
-    NSLog(@"swell-cocoa: mtl ok for device %p %@!\n", dev, dev.name);
-  }
-  else
-  {
-    NSLog(@"swell-cocoa: mtl failed functions for device %p %@!\n", dev, dev.name);
-  }
-}
-
 #endif
 
 @interface NSRectSet : NSObject
@@ -604,12 +563,10 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
 struct swell_metal_device_ctx {
   swell_metal_device_ctx()
   {
-    m_pipelineState = NULL;
     m_commandQueue = NULL;
     m_commandBuffer = NULL;
   }
 
-  id<MTLRenderPipelineState> m_pipelineState;
   id<MTLCommandQueue> m_commandQueue;
   id<MTLCommandBuffer> m_commandBuffer;
 
@@ -1543,6 +1500,7 @@ static bool s_mtl_in_update;
   const bool direct_mode = m_use_metal == 1;
 
   CAMetalLayer *layer = (CAMetalLayer *)[self layer];
+  layer.framebufferOnly = NO;
 
   id<MTLDevice> device = m_metal_device;
 
@@ -1606,30 +1564,6 @@ static bool s_mtl_in_update;
   {
     ctx = new swell_metal_device_ctx;
     s_metal_devices.Insert((INT_PTR)device, ctx);
-  }
-
-  if (!direct_mode)
-  {
-    if (!ctx->m_pipelineState)
-    {
-      id<MTLFunction> vertex = NULL, frag = NULL;
-      get_dev_shaders(device, &vertex, &frag);
-      if (!vertex || !frag)
-      {
-        NSLog(@"swell-cocoa: failed getting metal device shaders\n");
-        return; // fail
-      }
-
-      MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[__class_MTLRenderPipelineDescriptor alloc] init];
-
-      pipelineStateDescriptor.vertexFunction = vertex;
-      pipelineStateDescriptor.fragmentFunction = frag;
-      pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-
-      NSError *error = NULL;
-      ctx->m_pipelineState = [device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
-      [pipelineStateDescriptor release];
-    }
   }
 
   RECT cr;
@@ -1729,22 +1663,6 @@ static bool s_mtl_in_update;
   }
 
 
-  RECT r = {0,0, (int)bounds.size.width, (int)bounds.size.height };
-
-  const float x_sc = (float) (r.right / (double)tex.width);
-  const float y_sc = (float) (r.bottom / (double)tex.height);
-
-  vector_float2 quads[] =
-  {
-    {  1,  -1 }, {x_sc, y_sc}, 
-    { -1,  -1 }, {0, y_sc},
-    { -1,   1 }, {0, 0},
-
-    {  1,  -1 }, {x_sc, y_sc},
-    { -1,   1 }, {0, 0},
-    {  1,   1 }, {x_sc, 0},
-  };
-
   if (!ctx->m_commandQueue)
     ctx->m_commandQueue = [device newCommandQueue];
 
@@ -1754,21 +1672,15 @@ static bool s_mtl_in_update;
     [ctx->m_commandBuffer retain];
   }
 
-  MTLRenderPassDescriptor *renderPassDescriptor = [__class_MTLRenderPassDescriptor renderPassDescriptor];
-  renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
+  id<MTLBlitCommandEncoder> encoder = [ctx->m_commandBuffer blitCommandEncoder];
 
-  id<MTLRenderCommandEncoder> renderEncoder = [ctx->m_commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
+  [encoder copyFromTexture:m_metal_texture
+    sourceSlice:0 sourceLevel:0 sourceOrigin:MTLOriginMake(0,0,0)
+      sourceSize:MTLSizeMake(bounds.size.width,bounds.size.height,1.0)
+      toTexture:drawable.texture
+      destinationSlice:0 destinationLevel:0 destinationOrigin:MTLOriginMake(0,0,0)];
 
-  // Set the region of the drawable to draw into.
-  [renderEncoder setViewport:(MTLViewport){0.0, 0.0, (double)r.right,(double)r.bottom, -1.0, 1.0 }];
-
-  [renderEncoder setRenderPipelineState:ctx->m_pipelineState];
-  [renderEncoder setVertexBytes:quads length:sizeof(quads) atIndex:0];
-  [renderEncoder setFragmentTexture:m_metal_texture atIndex:0];
-
-  [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
-
-  [renderEncoder endEncoding];
+  [encoder endEncoding];
 
   [ctx->m_commandBuffer presentDrawable:drawable];
 
