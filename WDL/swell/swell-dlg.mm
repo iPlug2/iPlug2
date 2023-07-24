@@ -55,22 +55,8 @@ static id __class_CAMetalLayer, __class_MTLRenderPassDescriptor, __class_MTLText
 static id<MTLDevice> (*__MTLCreateSystemDefaultDevice)(void);
 static id<MTLDevice> (*__CGDirectDisplayCopyCurrentMetalDevice)(CGDirectDisplayID);
 
-struct mtl_dev_rec {
-  id<MTLFunction> vertexFunction,fragmentFunction;
-};
-
 static void get_dev_shaders(id<MTLDevice> dev, id<MTLFunction> *vertex, id<MTLFunction> *frag)
 {
-  static WDL_PtrKeyedArray<mtl_dev_rec> s_mtl_device_recs;
-  mtl_dev_rec *p = s_mtl_device_recs.GetPtr((INT_PTR)dev);
-  if (p)
-  {
-    *vertex = p->vertexFunction;
-    *frag = p->fragmentFunction;
-    return;
-  }
-
-  mtl_dev_rec rec={NULL, };
   // open device, compiler shaders
   id opt = (id)[[__class_MTLCompileOptions alloc] init];
   NSError *err=NULL;
@@ -99,8 +85,8 @@ static void get_dev_shaders(id<MTLDevice> dev, id<MTLFunction> *vertex, id<MTLFu
   [opt release];
 
   if (mtl_lib &&
-      (*vertex = rec.vertexFunction = [mtl_lib newFunctionWithName:@"vertexShader"]) &&
-      (*frag = rec.fragmentFunction = [mtl_lib newFunctionWithName:@"samplingShader"]))
+      (*vertex = [mtl_lib newFunctionWithName:@"vertexShader"]) &&
+      (*frag = [mtl_lib newFunctionWithName:@"samplingShader"]))
   {
     NSLog(@"swell-cocoa: mtl ok for device %p %@!\n", dev, dev.name);
   }
@@ -108,7 +94,6 @@ static void get_dev_shaders(id<MTLDevice> dev, id<MTLFunction> *vertex, id<MTLFu
   {
     NSLog(@"swell-cocoa: mtl failed functions for device %p %@!\n", dev, dev.name);
   }
-  s_mtl_device_recs.Insert((INT_PTR)dev, rec);
 }
 
 #endif
