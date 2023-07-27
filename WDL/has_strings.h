@@ -85,7 +85,17 @@ WDL_HASSTRINGS_EXPORT int hasStrings_utf8cmp(const unsigned char * const a, cons
     {
       if (cb != 'a'-'A')
       {
-        if (ca < 0xc3 || ca > 0xc5) return -ca;
+        if (ca < 0xc3 || ca > 0xc5)
+        {
+          if (ca == 0xE2 && cb == ('\''-0xE2) && a[aidx+1] == 0x80 && (a[aidx+2]&~1) == 0x98)
+          {
+            aidx+=3;
+            ++b;
+            --n;
+            continue;
+          }
+          return -ca;
+        }
 
         const int ccf = a[++aidx];
         if (ccf < 0x80) return -ca;
@@ -161,6 +171,16 @@ static const char *hasStrings_scan_for_char_match(const char *p, char v)
 
   switch (v)
   {
+    case '\'':
+      for (;;) {
+        unsigned char c = *(const unsigned char *)p;
+        if (!c) return NULL;
+        if (c == '\'') return p;
+        if (c == 0xE2 && ((unsigned char*)p)[1] == 0x80 && (((unsigned char*)p)[2]&~1) == 0x98)
+          return p;
+        p++;
+      }
+
 #define SCAN(ch, CH) case (ch): for (;;) { \
       unsigned char c = *(const unsigned char *)p; \
       if (!c) return NULL; \
@@ -447,6 +467,15 @@ WDL_HASSTRINGS_EXPORT char *WDL_hasstrings_preproc_searchitem(char *wr, const ch
       else if (IS_UTF8_BYTE2_LATIN1S_Y(cc,ccf)) c = 'y';
 
       if (c != 0xC3) src++;
+    }
+    else if (c == 0xE2)
+    {
+      // convert u+2018/2019 to '
+      if (*(unsigned char*)src == 0x80 && (((unsigned char*)src)[1]&~1) == 0x98)
+      {
+        c = '\'';
+        src+=2;
+      }
     }
     // we could also convert latin extended A characters to ascii here, but meh
     *wr++ = c;
