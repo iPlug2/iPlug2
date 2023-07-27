@@ -208,7 +208,6 @@ static const char *hasStrings_scan_for_char_match(const char *p, char v)
     SCAN('z',Z)
 #undef SCAN
 
-#undef SCAN
   }
 
   for (;;)
