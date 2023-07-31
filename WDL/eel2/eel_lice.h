@@ -1596,7 +1596,8 @@ EEL_F eel_lice_state::gfx_showmenu(void* opaque, EEL_F** parms, int nparms)
   if (hm)
   {
     POINT pt;
-    if (hwnd_standalone)
+    HWND par = hwnd_standalone;
+    if (par)
     {
 #ifdef __APPLE__
       if (*m_gfx_ext_retina > 1.0) 
@@ -1610,12 +1611,17 @@ EEL_F eel_lice_state::gfx_showmenu(void* opaque, EEL_F** parms, int nparms)
         pt.x = (short)*m_gfx_x;
         pt.y = (short)*m_gfx_y;
       }
-      ClientToScreen(hwnd_standalone, &pt);
+      ClientToScreen(par, &pt);
     }
     else
+    {
+#ifdef EEL_LICE_STANDALONE_PARENT
+      par = EEL_LICE_STANDALONE_PARENT(opaque);
+#endif
       GetCursorPos(&pt);
+    }
 
-    ret=TrackPopupMenu(hm, TPM_NONOTIFY|TPM_RETURNCMD, pt.x, pt.y, 0, hwnd_standalone, NULL);
+    ret=TrackPopupMenu(hm, TPM_NONOTIFY|TPM_RETURNCMD, pt.x, pt.y, 0, par, NULL);
     m_last_menu_time = GetTickCount();
     if (ret) m_last_menu_cnt = 0;
     DestroyMenu(hm);
