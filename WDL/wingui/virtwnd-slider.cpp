@@ -719,36 +719,20 @@ int WDL_VirtualSlider::OnMouseDown(int xpos, int ypos)
     m_click_pos=m_pos;
     if (!m_is_knob && (m_move_offset < 0 || m_move_offset >= bm_h))
     {
-      int xcent=xpos - vieww/2;
-      bool hit;
+      m_move_offset=bm_h/2;
+      int pos=(int)(m_minr+((viewh-bm_h - (ypos-m_move_offset))*rsize)/(double)(viewh-bm_h));
+      if (pos < m_minr)pos=m_minr;
+      else if (pos > m_maxr)pos=m_maxr;
+      m_pos=pos;
 
-      if (m_skininfo && m_skininfo->bgimagecfg[1].bgimage)
+      needsendcmd=false;
+      WDL_VWND_DCHK(chk);
+      SendCommand(m_scrollmsg?m_scrollmsg:WM_VSCROLL,SB_THUMBTRACK,GetID(),this);
+      if (chk.isOK())
       {
-        LICE_pixel pix=WDL_VirtualWnd_ScaledBG_GetPix(&m_skininfo->bgimagecfg[1],
-          vieww,viewh,xpos,ypos);
-
-        hit = LICE_GETA(pix)>=64;
+        RequestRedraw(NULL);
+        if (m__iaccess) m__iaccess->OnStateChange();
       }
-      else hit= (xcent >= -2 && xcent < 3 && ypos >= bm_h/3 && ypos <= viewh-bm_h/3);
-
-      if (hit)
-      {
-        m_move_offset=bm_h/2;
-        int pos=(int)(m_minr+((viewh-bm_h - (ypos-m_move_offset))*rsize)/(double)(viewh-bm_h));
-        if (pos < m_minr)pos=m_minr;
-        else if (pos > m_maxr)pos=m_maxr;
-        m_pos=pos;
-
-        needsendcmd=false;
-        WDL_VWND_DCHK(chk);
-        SendCommand(m_scrollmsg?m_scrollmsg:WM_VSCROLL,SB_THUMBTRACK,GetID(),this);
-        if (chk.isOK()) 
-        {
-          RequestRedraw(NULL);
-          if (m__iaccess) m__iaccess->OnStateChange();
-        }
-      }
-      else return 0;
     }
   }
   else
@@ -757,36 +741,20 @@ int WDL_VirtualSlider::OnMouseDown(int xpos, int ypos)
     m_click_pos=m_pos;
     if (m_move_offset < 0 || m_move_offset >= bm_w)
     {
-      int ycent=ypos - viewh/2;
+      m_move_offset=bm_w/2;
+      int pos=(int) (m_minr+((xpos-m_move_offset)*rsize)/(double)(vieww-bm_w));
+      if (pos < m_minr)pos=m_minr;
+      else if (pos > m_maxr)pos=m_maxr;
+      m_pos=pos;
 
-      bool hit;
-      if (m_skininfo && m_skininfo->bgimagecfg[0].bgimage)
+      needsendcmd=false;
+      WDL_VWND_DCHK(chk);
+      SendCommand(m_scrollmsg?m_scrollmsg:WM_HSCROLL,SB_THUMBTRACK,GetID(),this);
+      if (chk.isOK())
       {
-        LICE_pixel pix=WDL_VirtualWnd_ScaledBG_GetPix(&m_skininfo->bgimagecfg[0],
-          vieww,viewh,xpos,ypos);
-
-        hit = LICE_GETA(pix)>=64;
+        RequestRedraw(NULL);
+        if (m__iaccess) m__iaccess->OnStateChange();
       }
-      else hit = (ycent >= -2 && ycent < 3 && xpos >= bm_w/3 && xpos <= vieww-bm_w/3);
-
-      if (hit)
-      {
-        m_move_offset=bm_w/2;
-        int pos=(int) (m_minr+((xpos-m_move_offset)*rsize)/(double)(vieww-bm_w));
-        if (pos < m_minr)pos=m_minr;
-        else if (pos > m_maxr)pos=m_maxr;
-        m_pos=pos;
-
-        needsendcmd=false;
-        WDL_VWND_DCHK(chk);
-        SendCommand(m_scrollmsg?m_scrollmsg:WM_HSCROLL,SB_THUMBTRACK,GetID(),this);
-        if (chk.isOK())
-        {
-          RequestRedraw(NULL);
-          if (m__iaccess) m__iaccess->OnStateChange();
-        }
-      }
-      else return 0;
     }
   }
 
