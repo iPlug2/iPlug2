@@ -450,6 +450,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     
   self.currentPreset = mPresets.firstObject;
   
+  mPlug->OnParamReset(kReset);
+  
   return self;
 }
 
