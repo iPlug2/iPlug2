@@ -5,10 +5,15 @@
 #define WDL_HASSTRINGS_EXPORT
 #endif
 
-WDL_HASSTRINGS_EXPORT bool hasStrings_isNonWordChar(int c)
+static const char *hasStrings_rewutf8(const char *str, const char *base)
+{
+  while (str > base && (*(unsigned char *)str & 0xC0) == 0x80) str--;
+  return str;
+}
+WDL_HASSTRINGS_EXPORT int hasStrings_isNonWordChar(const char *cptr)
 {
   // treat as whitespace when searching for " foo "
-  switch (c)
+  switch (*(const unsigned char *)cptr)
   {
     case 0:
     case 1:
@@ -30,10 +35,11 @@ WDL_HASSTRINGS_EXPORT bool hasStrings_isNonWordChar(int c)
     case '\\':
     case '\'':
     case '-':
-      return true;
-
+      return 1;
+    case 0xE2: // UTF-8 apostrophes
+      return (((unsigned char*)cptr)[1] == 0x80 && (((unsigned char*)cptr)[2]&~1) == 0x98) ? 3 : 0;
     default:
-      return false;
+      return 0;
   }
 }
 
@@ -374,11 +380,12 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
           const char *t = name;
 
 #define MATCH_RIGHT_CHECK_WORD(SZ) \
-                (wc_right == 0 || ((const unsigned char*)(t))[SZ] < 2 || (wc_right > 1 && hasStrings_isNonWordChar((t)[SZ])))
+                (wc_right == 0 || ((const unsigned char*)(t))[SZ] < 2 || (wc_right > 1 && hasStrings_isNonWordChar((t)+(SZ))))
 
 #define MATCH_LEFT_SKIP_TO_WORD() do { \
-                unsigned char lastchar = *(unsigned char*)t++; \
-                if (lastchar < 2 || (wc_left>1 && hasStrings_isNonWordChar(lastchar))) break; \
+                if (*(unsigned char*)t < 2) { t++; break; } \
+                if (wc_left>1) { const int l = hasStrings_isNonWordChar(t); if (l > 0) { t+=l; break; } } \
+                t++; \
               } while (t[0])
 
           {
@@ -389,7 +396,7 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
               {
                 t = hasStrings_scan_for_char_match(t,n0);
                 if (!t) break;
-                if (t==name || t[-1] == 1 || (wc_left>1 && hasStrings_isNonWordChar(t[-1])))
+                if (t==name || t[-1] == 1 || (wc_left>1 && hasStrings_isNonWordChar(hasStrings_rewutf8(t-1,name))))
                 {
                   const int v = hasStrings_utf8cmp((const unsigned char *)t,(const unsigned char *)n,ln);
                   if (v>=0)
