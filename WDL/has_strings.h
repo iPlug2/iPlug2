@@ -28,6 +28,8 @@ WDL_HASSTRINGS_EXPORT bool hasStrings_isNonWordChar(int c)
     case '"':
     case '/':
     case '\\':
+    case '\'':
+    case '-':
       return true;
 
     default:
