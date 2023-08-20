@@ -5,7 +5,7 @@
 #define WDL_HASSTRINGS_EXPORT
 #endif
 
-static const char *hasStrings_rewutf8(const char *str, const char *base)
+WDL_HASSTRINGS_EXPORT const char *hasStrings_rewutf8(const char *str, const char *base)
 {
   while (str > base && (*(unsigned char *)str & 0xC0) == 0x80) str--;
   return str;
