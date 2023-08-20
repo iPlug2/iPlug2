@@ -198,6 +198,11 @@ protected:
   static bool GetNumberFromDict(CFDictionaryRef pDict, const char* key, void* pNumber, CFNumberType type);
   static bool GetStrFromDict(CFDictionaryRef pDict, const char* key, char* value);
   static bool GetDataFromDict(CFDictionaryRef pDict, const char* key, IByteChunk* pChunk);
+  
+
+#pragma mark - Specialist Use
+public:
+  AudioTimeStamp GetLastAudioTimeStamp() const { return mLastRenderTimeStamp; }
 
 private:
 
