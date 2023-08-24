@@ -83,6 +83,7 @@ public:
 #pragma mark - Specialist Use
 public:
   virtual void* GetNamedMessageChannel(const char* name) { return nullptr; }
+  AudioTimeStamp GetLastAudioTimeStamp() const { return mLastTimeStamp; }
 private:
   // void HandleOneEvent(AURenderEvent const* event, int64_t startTime);
   // void PerformAllSimultaneousEvents(int64_t now, AURenderEvent const*& event);
