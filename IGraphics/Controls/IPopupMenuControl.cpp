@@ -452,7 +452,7 @@ void IPopupMenuControl::CreatePopupMenu(IPopupMenu& menu, const IRECT& bounds)
   
   if (mMaxBounds.W() == 0)
     mMaxBounds = GetUI()->GetBounds();
-    
+
   if (GetState() == kCollapsed)
     Expand(bounds);
 }
@@ -788,6 +788,11 @@ void IPopupMenuControl::Expand(const IRECT& anchorArea)
   }
   
   mActiveMenuPanel = mAppearingMenuPanel = mMenuPanels.Add(new MenuPanel(*this, *mMenu, x, y, -1));
+  
+  if (mMenu->GetChosenItemIdx() > -1)
+  {
+    mMouseCellBounds = mActiveMenuPanel->mCellBounds.Get(mMenu->GetChosenItemIdx());
+  }
 
   SetTargetRECT(mActiveMenuPanel->mTargetRECT);
   SetRECT(mActiveMenuPanel->mRECT);
@@ -890,8 +895,18 @@ IPopupMenuControl::MenuPanel::MenuPanel(IPopupMenuControl& control, IPopupMenu& 
 {
   mSingleCellBounds = control.GetLargestCellRectForMenu(menu, x, y);
   
+  float yOffset = 0.0f;
+  
+  if (menu.GetChosenItemIdx() > -1)
+  {
+    mInitiallySelectedOffset = menu.GetChosenItemIdx();
+    auto heightOfOffsetCells = mSingleCellBounds.H() * (mInitiallySelectedOffset + 1);
+    yOffset = -heightOfOffsetCells;
+    mScrollItemOffset = 1;
+  }
+  
   float left = x + control.PAD;
-  float top = y + control.PAD;
+  float top = yOffset + y + control.PAD;
   
   // cell height can change depending on if cell is a separator or not
   auto GetIncrements = [&](IPopupMenu::Item* pMenuItem, float& incX, float& incY)

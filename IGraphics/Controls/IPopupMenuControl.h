@@ -197,8 +197,8 @@ private:
     IRECT* mClickedCell = nullptr; // A pointer to one of the IRECTs in mCellBounds, if one has been clicked
     int mParentIdx = 0; // An index into the IPopupMenuControl::mMenuPanels lists, representing the parent menu panel
     bool mScroller = false;
-    int mScrollItemOffset = 0;
-      
+    int mScrollItemOffset = 0; // An offset that affects the range of menu items displayed if scrolling
+    int mInitiallySelectedOffset = 0; // An offset that affects the centering of the menu, if a single item is selected
 #ifndef IGRAPHICS_NANOVG
     ILayerPtr mShadowLayer;
 #endif

@@ -17,8 +17,34 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT b = pGraphics->GetBounds();
-    pGraphics->AttachControl(new ITextControl(b.GetMidVPadded(50), "Hello iPlug 2!", IText(50)));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-100), kGain));
+
+    static IPopupMenu menu {"mymenu", {}, [](IPopupMenu* pMenu){
+      
+      if (pMenu->GetChosenItem())
+        pMenu->CheckItemAlone(pMenu->GetChosenItem());
+    }};
+        
+    for (auto i=0; i<100; i++)
+    {
+      if (i==10)
+      {
+        menu.AddItem("Item_10", new IPopupMenu("submenu", {"one", "two", "three"}));
+      }
+      else
+      {
+        WDL_String itemStr;
+        itemStr.SetFormatted(32, "Item_%i", i);
+        menu.AddItem(itemStr.Get());
+      }
+    }
+    
+    menu.SetChosenItemIdx(0);
+    
+    pGraphics->AttachControl(new IVButtonControl(b.GetCentredInside(100, 30)))->SetAnimationEndActionFunction([&](IControl* pControl){
+      pControl->GetUI()->CreatePopupMenu(*pControl, menu, pControl->GetRECT());
+    });
+    
+    pGraphics->AttachPopupMenuControl({20});
   };
 #endif
 }
