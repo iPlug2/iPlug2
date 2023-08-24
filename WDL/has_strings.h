@@ -12,35 +12,28 @@ WDL_HASSTRINGS_EXPORT const char *hasStrings_rewutf8(const char *str, const char
 }
 WDL_HASSTRINGS_EXPORT int hasStrings_isNonWordChar(const char *cptr)
 {
-  // treat as whitespace when searching for " foo "
-  switch (*(const unsigned char *)cptr)
+  // treat non-alnum non-utf-8 as whitespace when searching for " foo "
+  const unsigned char c = *(const unsigned char *)cptr;
+  if (c < 128)
   {
-    case 0:
-    case 1:
-    case ' ':
-    case '\t':
-    case '.':
-    case ',':
-    case ':':
-    case ';':
-    case '(':
-    case ')':
-    case '{':
-    case '}':
-    case '[':
-    case ']':
-    case '_':
-    case '"':
-    case '/':
-    case '\\':
-    case '\'':
-    case '-':
-      return 1;
-    case 0xE2: // UTF-8 apostrophes
-      return (((unsigned char*)cptr)[1] == 0x80 && (((unsigned char*)cptr)[2]&~1) == 0x98) ? 3 : 0;
-    default:
+    if ((c >= 'a' && c <= 'z') ||
+        (c >= 'A' && c <= 'Z') ||
+        (c >= '0' && c <= '9'))
+    {
       return 0;
+    }
+
+    return 1; // non-alnum ascii are non-word chars
   }
+
+  // most UTF-8 characters are word characters
+  if (c == 0xE2)
+  {
+    // except UTF-8 apostrophes
+    if (((unsigned char*)cptr)[1] == 0x80 && (((unsigned char*)cptr)[2]&~1) == 0x98) return 3;
+  }
+
+  return 0;
 }
 
 // these are latin-1 supplemental (first utf-8 byte must be 0xc3), pass second byte&~0x20, second byte
