@@ -205,6 +205,9 @@ public:
       case kParamLFOShape:
         mLFO.SetShape(static_cast<int>(value));
         break;
+      case kParamLegato:
+        mSynth.SetLegato(value > 0.5);
+        break;
       default:
         break;
     }

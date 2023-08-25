@@ -16,6 +16,7 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
   GetParam(kParamLFORateTempo)->InitEnum("LFO Rate", LFO<>::k1, {LFO_TEMPODIV_VALIST});
   GetParam(kParamLFORateMode)->InitBool("LFO Sync", true);
   GetParam(kParamLFODepth)->InitPercentage("LFO Depth");
+  GetParam(kParamLegato)->InitBool("Legato Mode", false);
     
 #if IPLUG_EDITOR // http://bit.ly/2S64BDd
   mMakeGraphicsFunc = [&]() {
