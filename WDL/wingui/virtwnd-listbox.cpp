@@ -354,10 +354,6 @@ void WDL_VirtualListBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_
                                     1.0,LICE_BLIT_USE_ALPHA|LICE_BLIT_MODE_COPY|LICE_BLIT_FILTER_BILINEAR);
     }
   }
-  else
-  {
-    LICE_FillRect(drawbm,r.left,r.top,r.right-r.left,r.bottom-r.top,bgc,1.0f,LICE_BLIT_MODE_COPY);
-  }
 
   LICE_pixel pencol = GSC(COLOR_3DSHADOW);
   LICE_pixel pencol2 = GSC(COLOR_3DHILIGHT);
