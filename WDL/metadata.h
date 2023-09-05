@@ -1323,7 +1323,8 @@ void DumpMetadata(WDL_FastString *str, WDL_StringKeyedArray<char*> *metadata)
         lstrcpyn(scheme, "mex", sizeof(scheme));
         str->Append("Metadata:\r\n");
       }
-      str->AppendFormatted(4096, "    %s: %s\r\n", mexdesc, buf);
+      str->AppendFormatted(4096, "    %s:%s%s\r\n",
+        mexdesc, strchr(buf, '\n') ? "\r\n" : " ", buf);
     }
   }
 
@@ -1345,7 +1346,8 @@ void DumpMetadata(WDL_FastString *str, WDL_StringKeyedArray<char*> *metadata)
       }
       key += slen+1;
     }
-    str->AppendFormatted(4096, "    %s: %s\r\n", key, val);
+    str->AppendFormatted(4096, "    %s:%s%s\r\n",
+      key, strchr(val, '\n') ? "\r\n" : " ", val);
   }
 
   int unk_cnt=0;
