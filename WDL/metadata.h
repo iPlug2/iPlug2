@@ -1599,7 +1599,7 @@ int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata,
     {
       id3len += 10+1+strlen(val);
     }
-    else if (!strcmp(key, "COMM"))
+    else if (!strcmp(key, "COMM") || !strcmp(key, "USLT"))
     {
       id3len += 10+5+strlen(val);
     }
@@ -1759,11 +1759,14 @@ int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata,
           memcpy(p, val, len);
           p += len;
         }
-        else if (!strcmp(key, "COMM"))
+        else if (!strcmp(key, "COMM") || !strcmp(key, "USLT"))
         {
           // http://www.loc.gov/standards/iso639-2/php/code_list.php
           // most apps ignore this, itunes wants "eng" or something locale-specific
-          const char *lang=metadata->Get("ID3:COMM_LANG");
+          const char *lang=NULL;
+          if (!strcmp(key, "USLT")) lang=metadata->Get("ID3:LYRIC_LANG");
+          if (!lang) lang=metadata->Get("ID3:COMM_LANG");
+          if (!lang) lang=metadata->Get("ID3:COMMENT_LANG");
 
           memcpy(p, key, 4);
           p += 4;
