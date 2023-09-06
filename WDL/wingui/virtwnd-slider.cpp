@@ -542,7 +542,17 @@ void WDL_VirtualSlider::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_y
         int cy=origin_y+viewh/2;
         float rd = (float) (vieww/2-4 + m_knob_lineextrasize);
         float r2=rd*0.125f;
-        if (!back_image) LICE_Circle(drawbm, (float)cx, (float)cy, rd, col, lalpha, LICE_BLIT_MODE_COPY, true);
+        if (!back_image)
+        {
+          LICE_pixel bgcol = col;
+          if (m_bgcol1_msg)
+          {
+            int brcol=-100;
+            SendCommand(m_bgcol1_msg,(INT_PTR)&brcol,GetID(),this);
+            if (brcol != -100) bgcol = LICE_RGBA_FROMNATIVE(brcol);
+          }
+          LICE_Circle(drawbm, (float)cx, (float)cy, rd, bgcol, lalpha, LICE_BLIT_MODE_COPY, true);
+        }
       
         #define KNOBANGLE_MAX (3.14159*7.0/8.0);
         float a = val*(float)KNOBANGLE_MAX;
