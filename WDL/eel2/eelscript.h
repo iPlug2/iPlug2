@@ -10,6 +10,7 @@
 #include "../wdlstring.h"
 #include "../assocarray.h"
 #include "../queue.h"
+#include "../mutex.h"
 #include "../win32_utf8.h"
 #include "ns-eel.h"
 
