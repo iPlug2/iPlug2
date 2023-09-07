@@ -332,11 +332,11 @@ void nseel_asm_mod(void)
     FUNCTION_MARKER
     "fabs d0, d0\n"
     "fabs d1, d1\n"
-    "fcvtzu w1, d0\n"
-    "fcvtzu w0, d1\n"
-    "udiv w2, w0, w1\n"
-    "msub w0, w2, w1, w0\n"
-    "ucvtf d0, w0\n"
+    "fcvtzu x1, d0\n"
+    "fcvtzu x0, d1\n"
+    "udiv x2, x0, x1\n"
+    "msub x0, x2, x1, x0\n"
+    "ucvtf d0, x0\n"
     FUNCTION_MARKER
   );
 }
@@ -373,11 +373,11 @@ void nseel_asm_mod_op(void)
     "ldr d1, [x1]\n"
     "fabs d0, d0\n"
     "fabs d1, d1\n"
-    "fcvtzu w3, d0\n"
-    "fcvtzu w0, d1\n"
-    "udiv w2, w0, w3\n"
-    "msub w0, w2, w3, w0\n"
-    "ucvtf d0, w0\n"
+    "fcvtzu x3, d0\n"
+    "fcvtzu x0, d1\n"
+    "udiv x2, x0, x3\n"
+    "msub x0, x2, x3, x0\n"
+    "ucvtf d0, x0\n"
 
     "str d0, [x1]\n"
     "mov x0, x1\n"
