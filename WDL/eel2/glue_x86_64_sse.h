@@ -2,7 +2,7 @@
 #define _NSEEL_GLUE_X86_64_SSE_H_
 
 // SSE version (needs the appropriate .o linked!)
-
+#define GLUE_MOD_IS_64
 #define GLUE_PREFER_NONFP_DV_ASSIGNS
 #define GLUE_HAS_FPREG2 1
 

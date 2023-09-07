@@ -1,6 +1,8 @@
 #ifndef _NSEEL_GLUE_AARCH64_H_
 #define _NSEEL_GLUE_AARCH64_H_
 
+#define GLUE_MOD_IS_64
+
 // x0=return value, first parm, x1-x2 parms (x3-x7 more params)
 // x8 return struct?
 // x9-x15 temporary

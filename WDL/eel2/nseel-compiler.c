@@ -2071,13 +2071,18 @@ start_over: // when an opcode changed substantially in optimization, goto here t
           {
             case FN_MOD:
               {
-                int a = (int) op->parms.parms[1]->parms.dv.directValue;
+                EEL_F ret = 0.0;
+                int a = (int) fabs(op->parms.parms[1]->parms.dv.directValue);
                 if (a) 
                 {
-                  a = (int) op->parms.parms[0]->parms.dv.directValue % a;
-                  if (a<0) a=-a;
+#ifdef GLUE_MOD_IS_64
+                  ret = ((WDL_INT64) fabs(op->parms.parms[0]->parms.dv.directValue)) % a;
+#else
+                  ret = ((int) fabs(op->parms.parms[0]->parms.dv.directValue)) % a;
+#endif
+                  if (WDL_NOT_NORMALLY(ret<0)) ret = -ret;
                 }
-                RESTART_DIRECTVALUE((EEL_F)a);
+                RESTART_DIRECTVALUE(ret);
               }
             break;
             case FN_SHL:      RESTART_DIRECTVALUE(((int)op->parms.parms[0]->parms.dv.directValue) << ((int)op->parms.parms[1]->parms.dv.directValue));

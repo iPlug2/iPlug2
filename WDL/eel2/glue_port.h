@@ -1,6 +1,7 @@
 #ifndef _EEL_GLUE_PORTABLE_H_
 #define _EEL_GLUE_PORTABLE_H_
 
+#define GLUE_MOD_IS_64
 
 #define DECL_ASMFUNC(x) 
 #define GLUE_JMP_TYPE int
