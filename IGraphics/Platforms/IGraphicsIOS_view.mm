@@ -176,10 +176,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   if (self.presentingViewController && self.tableView != nil)
   {
-    CGSize tempSize = self.presentingViewController.view.bounds.size;
-    tempSize.width = 300;
-    CGSize size = [self.tableView sizeThatFits:tempSize];
-    return size;
+    return [self.tableView sizeThatFits:self.presentingViewController.view.bounds.size];
   } else {
     return [super preferredContentSize];
   }
