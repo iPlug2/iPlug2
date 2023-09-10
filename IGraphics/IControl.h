@@ -1877,7 +1877,7 @@ public:
 
   virtual ~IDirBrowseControlBase();
 
-  int NItems();
+  int NItems() const;
 
   /** Used to add a path to scan for files.
    * @param path CString with the full path to the folder to scan

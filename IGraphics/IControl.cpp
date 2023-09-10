@@ -1010,7 +1010,7 @@ IDirBrowseControlBase::~IDirBrowseControlBase()
   ClearPathList();
 }
 
-int IDirBrowseControlBase::NItems()
+int IDirBrowseControlBase::NItems() const
 {
   return mItems.GetSize();
 }
