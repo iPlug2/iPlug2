@@ -763,10 +763,6 @@ void DrawAdHocVScrollbarEx(LICE_IBitmap* dest, RECT* r, int pos, int page, int m
                   116, 181, 17, 17,
                   1.0f, LICE_BLIT_FILTER_BILINEAR);
 }
-void DrawAdHocVScrollbar(LICE_IBitmap* dest, RECT* r, int pos, int page, int max)
-{
-  DrawAdHocVScrollbarEx(dest,r,pos,page,max,0);
-}
 
 
 //
