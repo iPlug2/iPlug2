@@ -220,7 +220,7 @@ int IPlugAPPHost::GetAudioDeviceId(const char* deviceNameToTest) const
   {
     auto name = GetAudioDeviceName(deviceId);
 
-    if (name == std::string_view(deviceNameToTest))
+    if (std::string_view(deviceNameToTest) == name)
     {
       return (int) deviceId;
     }
@@ -233,33 +233,35 @@ int IPlugAPPHost::GetMIDIPortNumber(ERoute direction, const char* nameToTest) co
 {
   int start = 1;
   
+  auto nameStrView = std::string_view(nameToTest);
+  
   if (direction == ERoute::kInput)
   {
-    if (!strcmp(nameToTest, OFF_TEXT)) return 0;
+    if (nameStrView == OFF_TEXT) return 0;
     
   #ifdef OS_MAC
     start = 2;
-    if (!strcmp(nameToTest, "virtual input")) return 1;
+    if (nameStrView == "virtual input") return 1;
   #endif
     
     for (int i = 0; i < mMidiIn->getPortCount(); i++)
     {
-      if (!strcmp(nameToTest, mMidiIn->getPortName(i).c_str()))
+      if (nameStrView == mMidiIn->getPortName(i).c_str())
         return (i + start);
     }
   }
   else
   {
-    if (!strcmp(nameToTest, OFF_TEXT)) return 0;
+    if (nameStrView == OFF_TEXT) return 0;
   
   #ifdef OS_MAC
     start = 2;
-    if (!strcmp(nameToTest, "virtual output")) return 1;
+    if (nameStrView == "virtual output") return 1;
   #endif
   
     for (int i = 0; i < mMidiOut->getPortCount(); i++)
     {
-      if (!strcmp(nameToTest, mMidiOut->getPortName(i).c_str()))
+      if (nameStrView == mMidiOut->getPortName(i).c_str())
         return (i + start);
     }
   }
@@ -281,35 +283,25 @@ void IPlugAPPHost::ProbeAudioIO()
   for (auto deviceId : deviceIds)
   {
     info = mDAC->getDeviceInfo(deviceId);
-    std::string deviceName = info.name;
-    
-#ifdef OS_MAC
-    size_t colonIdx = deviceName.rfind(": ");
 
-    if (colonIdx != std::string::npos && deviceName.length() >= 2)
-      deviceName = deviceName.substr(colonIdx + 2, deviceName.length() - colonIdx - 2);
-
-#endif
-    
-    if (!strcmp("Generic Low Latency ASIO Driver", deviceName.c_str()))
-      std::cout << deviceName << ": Probe Status = Unsuccessful\n";
-    else
+    if (info.inputChannels > 0)
     {
-      if (info.inputChannels > 0)
-      {
-        mAudioInputDevIds.push_back(deviceId);
-      }
+      mAudioInputDevIds.push_back(deviceId);
+    }
 
-      if (info.outputChannels > 0)
-      {
-        mAudioOutputDevIds.push_back(deviceId);
-      }
+    if (info.outputChannels > 0)
+    {
+      mAudioOutputDevIds.push_back(deviceId);
+    }
 
-      if (info.isDefaultInput)
-        mDefaultInputDev = deviceId;
+    if (info.isDefaultInput)
+    {
+      mDefaultInputDev = deviceId;
+    }
 
-      if (info.isDefaultOutput)
-        mDefaultOutputDev = deviceId;
+    if (info.isDefaultOutput)
+    {
+      mDefaultOutputDev = deviceId;
     }
   }
 }
@@ -328,7 +320,7 @@ void IPlugAPPHost::ProbeMidiIO()
     mMidiInputDevNames.push_back("virtual input");
 #endif
 
-    for (int i=0; i<nInputPorts; i++ )
+    for (int i=0; i<nInputPorts; i++)
     {
       mMidiInputDevNames.push_back(mMidiIn->getPortName(i));
     }
@@ -341,7 +333,7 @@ void IPlugAPPHost::ProbeMidiIO()
     mMidiOutputDevNames.push_back("virtual output");
 #endif
 
-    for (int i=0; i<nOutputPorts; i++ )
+    for (int i=0; i<nOutputPorts; i++)
     {
       mMidiOutputDevNames.push_back(mMidiOut->getPortName(i));
       //This means the virtual output port wont be added as an input
