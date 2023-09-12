@@ -8,7 +8,7 @@
  ==============================================================================
 */
 
-#include "IPlugAPP_host.h"
+#include "IPlugAPP_dialog.h"
 #include "config.h"
 #include "resource.h"
 
@@ -27,7 +27,7 @@ using namespace igraphics;
 #endif
 
 // check the input and output devices, find matching srs
-void IPlugAPPHost::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inputDevInfo, RtAudio::DeviceInfo* outputDevInfo)
+void IPlugAPPDialog::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inputDevInfo, RtAudio::DeviceInfo* outputDevInfo)
 {
   WDL_String buf;
 
@@ -35,15 +35,12 @@ void IPlugAPPHost::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inp
 
   std::vector<int> matchedSRs;
 
-  if (inputDevInfo->probed && outputDevInfo->probed)
+  for (int i=0; i<inputDevInfo->sampleRates.size(); i++)
   {
-    for (int i=0; i<inputDevInfo->sampleRates.size(); i++)
+    for (int j=0; j<outputDevInfo->sampleRates.size(); j++)
     {
-      for (int j=0; j<outputDevInfo->sampleRates.size(); j++)
-      {
-        if (inputDevInfo->sampleRates[i] == outputDevInfo->sampleRates[j])
-          matchedSRs.push_back(inputDevInfo->sampleRates[i]);
-      }
+      if (inputDevInfo->sampleRates[i] == outputDevInfo->sampleRates[j])
+        matchedSRs.push_back(inputDevInfo->sampleRates[i]);
     }
   }
 
@@ -61,11 +58,8 @@ void IPlugAPPHost::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inp
   SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SR, CB_SETCURSEL, sridx, 0);
 }
 
-void IPlugAPPHost::PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
+void IPlugAPPDialog::PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
 {
-  if (!info->probed)
-    return;
-
   WDL_String buf;
 
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_L,CB_RESETCONTENT,0,0);
@@ -82,19 +76,14 @@ void IPlugAPPHost::PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* inf
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_SETCURSEL, mState.mAudioInChanR - 1, 0);
 }
 
-void IPlugAPPHost::PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
+void IPlugAPPDialog::PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
 {
-  if (!info->probed)
-    return;
-
   WDL_String buf;
 
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_L,CB_RESETCONTENT,0,0);
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_R,CB_RESETCONTENT,0,0);
 
-  int i;
-
-  for (i=0; i<info->outputChannels -1; i++)
+  for (int i=0; i<info->outputChannels; i++)
   {
     buf.SetFormatted(20, "%i", i+1);
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_L,CB_ADDSTRING,0,(LPARAM)buf.Get());
@@ -106,7 +95,7 @@ void IPlugAPPHost::PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* in
 }
 
 // This has to get called after any change to audio driver/in dev/out dev
-void IPlugAPPHost::PopulateDriverSpecificControls(HWND hwndDlg)
+void IPlugAPPDialog::PopulateDriverSpecificControls(HWND hwndDlg)
 {
 #ifdef OS_WIN
   int driverType = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_DRIVER, CB_GETCURSEL, 0, 0);
@@ -128,19 +117,19 @@ void IPlugAPPHost::PopulateDriverSpecificControls(HWND hwndDlg)
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_DEV,CB_RESETCONTENT,0,0);
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_DEV,CB_RESETCONTENT,0,0);
 
-  for (int i = 0; i<mAudioInputDevs.size(); i++)
+  for (int i = 0; i<mAudioInputDevIds.size(); i++)
   {
-    SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_DEV,CB_ADDSTRING,0,(LPARAM)GetAudioDeviceName(mAudioInputDevs[i]).c_str());
+    SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_DEV,CB_ADDSTRING,0,(LPARAM)GetAudioDeviceName(mAudioInputDevIds[i]).c_str());
 
-    if (!strcmp(GetAudioDeviceName(mAudioInputDevs[i]).c_str(), mState.mAudioInDev.Get()))
+    if (!strcmp(GetAudioDeviceName(mAudioInputDevIds[i]).c_str(), mState.mAudioInDev.Get()))
       indevidx = i;
   }
 
-  for (int i = 0; i<mAudioOutputDevs.size(); i++)
+  for (int i = 0; i<mAudioOutputDevIds.size(); i++)
   {
-    SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_DEV,CB_ADDSTRING,0,(LPARAM)GetAudioDeviceName(mAudioOutputDevs[i]).c_str());
+    SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_OUT_DEV,CB_ADDSTRING,0,(LPARAM)GetAudioDeviceName(mAudioOutputDevIds[i]).c_str());
 
-    if (!strcmp(GetAudioDeviceName(mAudioOutputDevs[i]).c_str(), mState.mAudioOutDev.Get()))
+    if (!strcmp(GetAudioDeviceName(mAudioOutputDevIds[i]).c_str(), mState.mAudioOutDev.Get()))
       outdevidx = i;
   }
 
@@ -156,22 +145,22 @@ void IPlugAPPHost::PopulateDriverSpecificControls(HWND hwndDlg)
   RtAudio::DeviceInfo inputDevInfo;
   RtAudio::DeviceInfo outputDevInfo;
 
-  if (mAudioInputDevs.size())
+  if (mAudioInputDevIds.size())
   {
-    inputDevInfo = mDAC->getDeviceInfo(mAudioInputDevs[indevidx]);
+    inputDevInfo = mDAC->getDeviceInfo(mAudioInputDevIds[indevidx]);
     PopulateAudioInputList(hwndDlg, &inputDevInfo);
   }
 
-  if (mAudioOutputDevs.size())
+  if (mAudioOutputDevIds.size())
   {
-    outputDevInfo = mDAC->getDeviceInfo(mAudioOutputDevs[outdevidx]);
+    outputDevInfo = mDAC->getDeviceInfo(mAudioOutputDevIds[outdevidx]);
     PopulateAudioOutputList(hwndDlg, &outputDevInfo);
   }
 
   PopulateSampleRateList(hwndDlg, &inputDevInfo, &outputDevInfo);
 }
 
-void IPlugAPPHost::PopulateAudioDialogs(HWND hwndDlg)
+void IPlugAPPDialog::PopulateAudioDialogs(HWND hwndDlg)
 {
   PopulateDriverSpecificControls(hwndDlg);
 
@@ -184,7 +173,8 @@ void IPlugAPPHost::PopulateAudioDialogs(HWND hwndDlg)
 //    SendDlgItemMessage(hwndDlg,IDC_CB_MONO_INPUT,BM_SETCHECK, BST_UNCHECKED,0);
 //  }
 
-//  Populate buffer size combobox
+  SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_BUF_SIZE, CB_RESETCONTENT, 0, 0);
+    //  Populate buffer size combobox
   for (int i = 0; i< kNumBufferSizeOptions; i++)
   {
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_BUF_SIZE,CB_ADDSTRING,0,(LPARAM)kBufferSizeOptions[i].c_str());
@@ -197,7 +187,7 @@ void IPlugAPPHost::PopulateAudioDialogs(HWND hwndDlg)
   SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_BUF_SIZE, CB_SETCURSEL, iovsidx, 0);
 }
 
-bool IPlugAPPHost::PopulateMidiDialogs(HWND hwndDlg)
+bool IPlugAPPDialog::PopulateMidiDialogs(HWND hwndDlg)
 {
   if ( !mMidiIn || !mMidiOut )
     return false;
@@ -259,10 +249,11 @@ bool IPlugAPPHost::PopulateMidiDialogs(HWND hwndDlg)
 }
 
 #ifdef OS_WIN
-void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)
+void IPlugAPPDialog::PopulatePreferencesDialog(HWND hwndDlg)
 {
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"DirectSound");
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"ASIO");
+  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"WASAPI");
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_SETCURSEL, mState.mAudioDriverType, 0);
 
   PopulateAudioDialogs(hwndDlg);
@@ -270,7 +261,7 @@ void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)
 }
 
 #elif defined OS_MAC
-void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)
+void IPlugAPPDialog::PopulatePreferencesDialog(HWND hwndDlg)
 {
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"CoreAudio");
   //SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"Jack");
@@ -283,9 +274,9 @@ void IPlugAPPHost::PopulatePreferencesDialog(HWND hwndDlg)
   #error NOT IMPLEMENTED
 #endif
 
-WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+WDL_DLGRET IPlugAPPDialog::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  IPlugAPPHost* _this = sInstance.get();
+  IPlugAPPDialog* _this = (IPlugAPPDialog*) sInstance.get();
   AppState& mState = _this->mState;
   AppState& mTempState = _this->mTempState;
   AppState& mActiveState = _this->mActiveState;
@@ -347,11 +338,11 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
               _this->TryToChangeAudioDriverType();
               _this->ProbeAudioIO();
 
-              if (_this->mAudioInputDevs.size())
-                mState.mAudioInDev.Set(_this->GetAudioDeviceName(_this->mAudioInputDevs[0]).c_str());
+              if (_this->mAudioInputDevIds.size())
+                mState.mAudioInDev.Set(_this->GetAudioDeviceName(_this->mAudioInputDevIds[0]).c_str());
 
-              if (_this->mAudioOutputDevs.size())
-                mState.mAudioOutDev.Set(_this->GetAudioDeviceName(_this->mAudioOutputDevs[0]).c_str());
+              if (_this->mAudioOutputDevIds.size())
+                mState.mAudioOutDev.Set(_this->GetAudioDeviceName(_this->mAudioOutputDevIds[0]).c_str());
 
               // Reset IO
               mState.mAudioOutChanL = 1;
@@ -514,9 +505,9 @@ extern float GetScaleForHWND(HWND hWnd);
 #endif
 
 //static
-WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+WDL_DLGRET IPlugAPPDialog::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  IPlugAPPHost* pAppHost = IPlugAPPHost::sInstance.get();
+  IPlugAPPHost* pAppHost = IPlugAPPDialog::sInstance.get();
 
   int width = 0;
   int height = 0;
@@ -542,7 +533,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
     case WM_DESTROY:
       pAppHost->CloseWindow();
       gHWND = NULL;
-      IPlugAPPHost::sInstance = nullptr;
+      IPlugAPPDialog::sInstance = nullptr;
       
       #ifdef OS_WIN
       PostQuitMessage(0);
@@ -591,7 +582,7 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
         }
         case ID_PREFERENCES:
         {
-          INT_PTR ret = DialogBox(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_PREF), hwndDlg, IPlugAPPHost::PreferencesDlgProc);
+          INT_PTR ret = DialogBox(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_PREF), hwndDlg, IPlugAPPDialog::PreferencesDlgProc);
 
           if (ret == IDOK)
             pAppHost->UpdateINI();
