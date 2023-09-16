@@ -171,6 +171,20 @@ void IGraphicsMac::PlatformResize(bool parentHasResized)
   UpdateTooltips();
 }
 
+void IGraphicsMac::SetFullScreen(bool fullScreen)
+{
+  NSApplicationPresentationOptions options = NSApplicationPresentationDefault;
+
+  if (fullScreen)
+  {
+    [(IGRAPHICS_VIEW*) mView enterFullScreenMode:[NSScreen mainScreen] withOptions:@{ NSFullScreenModeApplicationPresentationOptions : @(options)}];
+  }
+  else
+  {
+    [(IGRAPHICS_VIEW*) mView exitFullScreenModeWithOptions: nil];
+  }
+}
+
 void IGraphicsMac::PointToScreen(float& x, float& y) const
 {
   if (mView)

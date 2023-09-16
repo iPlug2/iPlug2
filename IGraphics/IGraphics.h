@@ -1074,6 +1074,8 @@ public:
    * if being called from IEditorDelegate::OnParentWindowResize(), in order to avoid feedback */
   void Resize(int w, int h, float scale, bool needsPlatformResize = true);
   
+  virtual void SetFullScreen(bool fullScreen) {}
+  
   /** Enables strict drawing mode. \todo explain strict drawing
    * @param strict Set /c true to enable strict drawing mode */
   void SetStrictDrawing(bool strict);
