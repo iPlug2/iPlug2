@@ -46,7 +46,7 @@
 
 #ifdef OS_WIN
   #include <WindowsX.h>
-  #include <commctrl.h>
+//  #include <commctrl.h>
   #include <shlobj.h>
   #define DEFAULT_INPUT_DEV "Default Device"
   #define DEFAULT_OUTPUT_DEV "Default Device"
@@ -55,6 +55,7 @@
   #define SLEEP( milliseconds ) usleep( (unsigned long) (milliseconds * 1000.0) )
   #define DEFAULT_INPUT_DEV "Built-in Input"
   #define DEFAULT_OUTPUT_DEV "Built-in Output"
+  #include "IPlugAPP_host_notifications.h"
 #elif defined(OS_LINUX)
   #include "IPlugSWELL.h"
 #endif
