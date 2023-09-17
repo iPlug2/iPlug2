@@ -40,6 +40,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   self.tableView.scrollEnabled = YES;
   self.tableView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
   self.items = [[NSMutableArray alloc] init];
+  self.tableView.overrideUserInterfaceStyle = UIUserInterfaceStyleLight;
+
   
   int numItems = mMenu->NItems();
 
