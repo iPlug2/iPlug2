@@ -31,6 +31,8 @@
 - (NSInteger) width;
 - (NSInteger) height;
 - (void) hostResized: (CGSize) newSize;
+- (void) vcKeyDown: (int) keyCode : (int) flags : (int) unichar;
+- (void) vcKeyUp: (int) keyCode : (int) flags : (int) unichar;
 - (PLATFORM_VIEW*) openWindow: (PLATFORM_VIEW*) pParent;
 - (void) closeWindow;
 - (bool) sendMidiData:(int64_t) sampleTime : (NSInteger) length : (const uint8_t*) midiBytes;

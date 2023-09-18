@@ -853,6 +853,30 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     mPlug->OnParentWindowResize(newSize.width, newSize.height);
 }
 
+- (void) vcKeyDown: (int) keyCode : (int) flags : (int) unichar;
+{
+  char utf8[5];
+  WDL_MakeUTFChar(utf8, unichar, 4);
+  
+  IKeyPress keyPress {utf8, keyCode, static_cast<bool>(flags & kFSHIFT),
+                                  static_cast<bool>(flags & kFCONTROL),
+                                  static_cast<bool>(flags & kFALT)};
+  
+  mPlug->OnKeyDown(keyPress);
+}
+
+- (void) vcKeyUp: (int) keyCode : (int) flags : (int) unichar;
+{
+  char utf8[5];
+  WDL_MakeUTFChar(utf8, unichar, 4);
+  
+  IKeyPress keyPress {utf8, keyCode, static_cast<bool>(flags & kFSHIFT),
+                                  static_cast<bool>(flags & kFCONTROL),
+                                  static_cast<bool>(flags & kFALT)};
+  
+  mPlug->OnKeyUp(keyPress);
+}
+
 - (bool) sendMidiData:(int64_t) sampleTime : (NSInteger) length : (const uint8_t*) midiBytes
 {
   if (mMidiOutputEventBlock)
