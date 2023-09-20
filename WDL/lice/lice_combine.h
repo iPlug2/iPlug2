@@ -820,8 +820,20 @@ public:
     }
      
 typedef void (*LICE_COMBINEFUNC)(LICE_pixel_chan *dest, int r, int g, int b, int a, int alpha);
-   
-#define __LICE_SC(x) do { WDL_INT64 lice_tmp_ = (((WDL_INT64) (x)*(__sc))/256); (x) = (int) wdl_clamp(lice_tmp_, -WDL_INT64_CONST(0x80000000), WDL_INT64_CONST(0x7fffffff)); } while (0)
-#define __LICE_SCU(x) do { WDL_UINT64 lice_tmp_ = (((WDL_UINT64) (x)*(__sc))>>8); (x) = (unsigned int) wdl_min(lice_tmp_, WDL_UINT64_CONST(0xffffffff)); } while (0)
+
+static void WDL_STATICFUNC_UNUSED __LICE_SC_INTERNAL(int &x, int __sc) {
+  const WDL_INT64 t = (((WDL_INT64) x*(__sc))/256);
+  x = (int) wdl_clamp(t, -WDL_INT64_CONST(0x80000000), WDL_INT64_CONST(0x7fffffff));
+}
+static void __LICE_SCU_INTERNAL(int &x, int __sc) {
+  const WDL_UINT64 t = (((WDL_UINT64) x*(__sc))>>8);
+  x = (unsigned int) wdl_min(t, WDL_UINT64_CONST(0xffffffff));
+}
+
+static void WDL_STATICFUNC_UNUSED __LICE_SC_INTERNAL(float &x, int __sc) { x = (float) (((double)x * __sc) / 256.0); }
+static void WDL_STATICFUNC_UNUSED __LICE_SC_INTERNAL(double &x, int __sc) { x = (x * __sc) / 256.0; }
+
+#define __LICE_SC(x) __LICE_SC_INTERNAL(x,__sc)
+#define __LICE_SCU(x) __LICE_SCU_INTERNAL(x,__sc)
 
 #endif // _LICE_COMBINE_H_
