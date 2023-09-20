@@ -830,6 +830,13 @@ static void __LICE_SCU_INTERNAL(int &x, int __sc) {
   x = (unsigned int) wdl_min(t, WDL_UINT64_CONST(0xffffffff));
 }
 
+#ifdef _WIN32
+static void WDL_STATICFUNC_UNUSED __LICE_SC_INTERNAL(LONG &x, int __sc) {
+  const WDL_INT64 t = (((WDL_INT64) x*(__sc))/256);
+  x = (LONG) wdl_clamp(t, -WDL_INT64_CONST(0x80000000), WDL_INT64_CONST(0x7fffffff));
+}
+#endif
+
 static void WDL_STATICFUNC_UNUSED __LICE_SC_INTERNAL(float &x, int __sc) { x = (float) (((double)x * __sc) / 256.0); }
 static void WDL_STATICFUNC_UNUSED __LICE_SC_INTERNAL(double &x, int __sc) { x = (x * __sc) / 256.0; }
 
