@@ -1863,17 +1863,21 @@ public:
   /** Creates an IDirBrowseControlBase
    * @param bounds The control's bounds
    * @param extension The file extenstion to browse for, e.g excluding the dot e.g. "txt"
-   * @param showFileExtension Should the menu show the file extension */
-  IDirBrowseControlBase(const IRECT& bounds, const char* extension, bool showFileExtensions = true)
+   * @param showFileExtension Should the menu show the file extension
+   * @param scanRecursively Should the paths be scanned recursively, creating submenus
+   * @param showEmptySubmenus If scanRecursively, should empty folders be shown in the menu */
+  IDirBrowseControlBase(const IRECT& bounds, const char* extension, bool showFileExtensions = true, bool scanRecursively = true, bool showEmptySubmenus = false)
   : IContainerBase(bounds)
+  , mExtension(extension)
   , mShowFileExtensions(showFileExtensions)
+  , mScanRecursively(scanRecursively)
+  , mShowEmptySubmenus(showEmptySubmenus)
   {
-    mExtension.Set(extension);
   }
 
   virtual ~IDirBrowseControlBase();
 
-  int NItems();
+  int NItems() const;
 
   /** Used to add a path to scan for files.
    * @param path CString with the full path to the folder to scan
@@ -1900,8 +1904,9 @@ private:
   void CollectSortedItems(IPopupMenu* pMenu);
   
 protected:
-  bool mShowEmptySubmenus = false;
-  bool mShowFileExtensions = true;
+  const bool mScanRecursively;
+  const bool mShowFileExtensions;
+  const bool mShowEmptySubmenus;
   int mSelectedIndex = -1;
   IPopupMenu mMainMenu;
   WDL_PtrList<WDL_String> mPaths;

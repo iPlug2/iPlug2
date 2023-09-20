@@ -450,6 +450,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     
   self.currentPreset = mPresets.firstObject;
   
+  mPlug->OnParamReset(kReset);
+  
   return self;
 }
 
@@ -613,15 +615,15 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
       if (_transportStateCapture)
       {
-        double samplePos; double cycleStart; double cycleEnd; AUHostTransportStateFlags transportStateFlags;
+        double samplePos; double cycleStart; double cycleEnd; AUHostTransportStateFlags flags;
 
-        _transportStateCapture(&transportStateFlags, &samplePos, &cycleStart, &cycleEnd);
+        _transportStateCapture(&flags, &samplePos, &cycleStart, &cycleEnd);
 
         timeInfo.mSamplePos = samplePos;
         timeInfo.mCycleStart = cycleStart;
         timeInfo.mCycleEnd = cycleEnd;
-        timeInfo.mTransportIsRunning = transportStateFlags == AUHostTransportStateMoving || transportStateFlags == AUHostTransportStateRecording;
-        timeInfo.mTransportLoopEnabled = transportStateFlags == AUHostTransportStateCycling;
+        timeInfo.mTransportIsRunning = ((flags & AUHostTransportStateMoving) != 0);
+        timeInfo.mTransportLoopEnabled = ((flags & AUHostTransportStateCycling) != 0);
       }
 
       pPlug->ProcessWithEvents(timestamp, frameCount, realtimeEventListHead, timeInfo);

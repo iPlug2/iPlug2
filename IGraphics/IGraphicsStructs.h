@@ -412,7 +412,7 @@ struct IColor
   {
     WDL_String str(hexStr);
     
-    if(str.GetLength() == 7 && str.Get()[0] == '#')
+    if ((str.GetLength() == 7 || str.GetLength() == 9) && str.Get()[0] == '#')
     {
       str.DeleteSub(0, 1);
 
@@ -432,9 +432,12 @@ struct IColor
   }
   
   /** Convert the IColor to a hex string e.g. "#ffffffff" */
-  void ToColorCodeStr(WDL_String& str) const
+  void ToColorCodeStr(WDL_String& str, bool withAlpha = true) const
   {
-    str.SetFormatted(32, "#%02x%02x%02x%02x", R, G, B, A);
+    if (withAlpha)
+      str.SetFormatted(32, "#%02x%02x%02x%02x", R, G, B, A);
+    else
+      str.SetFormatted(32, "#%02x%02x%02x", R, G, B);
   }
   
   /** Create an IColor from Hue Saturation and Luminance values

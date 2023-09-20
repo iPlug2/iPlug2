@@ -1873,6 +1873,10 @@ static const ChanLayout CHAN_LAYOUTS[]=
     kAudioChannelLayoutTag_UseChannelBitmap,
     kAudioChannelBit_Left | kAudioChannelBit_Right },
 
+  { "cw", 3, "L R C",
+    kAudioChannelLayoutTag_UseChannelBitmap,
+    kAudioChannelBit_Left | kAudioChannelBit_Right | kAudioChannelBit_Center },
+
   { "cw", 4, "L R Ls Rs",
     kAudioChannelLayoutTag_UseChannelBitmap,
     kAudioChannelBit_Left | kAudioChannelBit_Right |

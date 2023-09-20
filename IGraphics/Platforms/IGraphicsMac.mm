@@ -476,7 +476,9 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   
   if (completionHandler)
   {
-    [(NSSavePanel*) pPanel beginWithCompletionHandler:^(NSModalResponse response){
+    NSWindow* pWindow = [(IGRAPHICS_VIEW*) mView window];
+
+    [(NSSavePanel*) pPanel beginSheetModalForWindow:pWindow completionHandler:^(NSModalResponse response) {
       WDL_String fileNameAsync, pathAsync;
       doHandleResponse(pPanel, response, fileNameAsync, pathAsync, completionHandler);
     }];
@@ -512,36 +514,38 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHand
   [panelOpen setFloatingPanel: YES];
   [panelOpen setDirectoryURL: [NSURL fileURLWithPath: defaultPath]];
   
-  auto doHandleResponse = [](NSOpenPanel* pPanel, NSModalResponse response, WDL_String& chosenDir, IFileDialogCompletionHandlerFunc completionHandler){
+  auto doHandleResponse = [](NSOpenPanel* pPanel, NSModalResponse response, WDL_String& pathAsync, IFileDialogCompletionHandlerFunc completionHandler){
     if (response == NSOKButton)
     {
       NSString* fullPath = [pPanel filename] ;
-      chosenDir.Set([fullPath UTF8String]);
-      chosenDir.Append("/");
+      pathAsync.Set([fullPath UTF8String]);
+      pathAsync.Append("/");
     }
     else
     {
-      chosenDir.Set("");
+      pathAsync.Set("");
     }
     
     if (completionHandler)
     {
-      WDL_String fileName; // not used
-      completionHandler(fileName, chosenDir);
+      WDL_String fileNameAsync; // not used
+      completionHandler(fileNameAsync, pathAsync);
     }
   };
 
   if (completionHandler)
   {
-    NSModalResponse response = [panelOpen runModal];
-    doHandleResponse(panelOpen, response, dir, completionHandler);
+    NSWindow* pWindow = [(IGRAPHICS_VIEW*) mView window];
+
+    [panelOpen beginSheetModalForWindow:pWindow completionHandler:^(NSModalResponse response) {
+      WDL_String pathAsync;
+      doHandleResponse(panelOpen, response, pathAsync, completionHandler);
+    }];
   }
   else
   {
-    [panelOpen beginWithCompletionHandler:^(NSModalResponse response) {
-      WDL_String path;
-      doHandleResponse(panelOpen, response, path, nullptr);
-    }];
+    NSModalResponse response = [panelOpen runModal];
+    doHandleResponse(panelOpen, response, dir, nullptr);
   }
 }
 

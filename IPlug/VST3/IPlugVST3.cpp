@@ -137,13 +137,13 @@ tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
 
 IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
 {
-  if (name && strcmp(name, "editor") == 0)
+  if (HasUI() && name && strcmp(name, "editor") == 0)
   {
     mView = new ViewType(*this);
     return mView;
   }
   
-  return 0;
+  return nullptr;
 }
 
 tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* pState)

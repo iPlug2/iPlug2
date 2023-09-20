@@ -1895,11 +1895,22 @@ LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
       }
       return 0;
     }
-    else if (msg == WM_SETFONT && ([obj isKindOfClass:[NSTextField class]]))
+    else if (msg == WM_SETFONT && ([obj isKindOfClass:[NSTextField class]] ||
+                                   [obj isKindOfClass:[NSTextView class]]))
     {
       NSFont *font = SWELL_GetNSFont((HGDIOBJ__*)wParam);
       if (font) [obj setFont:font];
       return 0;
+    }
+    else if (msg == WM_SETFONT && ([obj isKindOfClass:[NSScrollView class]]))
+    {
+      NSView *cv=[(NSScrollView *)obj documentView];
+      if (cv && [cv isKindOfClass:[NSTextView class]])
+      {
+        NSFont *font = SWELL_GetNSFont((HGDIOBJ__*)wParam);
+        if (font) [(NSTextView *)cv setFont:font];
+        return 0;
+      }
     }
     else
     {
@@ -2034,31 +2045,61 @@ void SWELL_GetViewPort(RECT *r, const RECT *sourcerect, bool wantWork)
   NSArray *ar=[NSScreen screens];
   
   const NSInteger cnt=[ar count];
-  int cx=0;
-  int cy=0;
-  if (sourcerect)
+  if (!sourcerect || cnt < 2)
   {
-    cx=(sourcerect->left+sourcerect->right)/2;
-    cy=(sourcerect->top+sourcerect->bottom)/2;
-  }
-  for (NSInteger x = 0; x < cnt; x ++)
-  {
-    NSScreen *sc=[ar objectAtIndex:x];
+    NSScreen *sc=[NSScreen mainScreen];
     if (sc)
     {
       NSRect tr=wantWork ? [sc visibleFrame] : [sc frame];
-      if (!x || (cx >= tr.origin.x && cx < tr.origin.x+tr.size.width  &&
-                cy >= tr.origin.y && cy < tr.origin.y+tr.size.height))
-      {
-        NSRECT_TO_RECT(r,tr);
-      }
+      NSRECT_TO_RECT(r,tr);
+    }
+    else
+    {
+      r->left=r->top=0;
+      r->right=1600;
+      r->bottom=1200;
     }
   }
-  if (!cnt)
+  else
   {
-    r->left=r->top=0;
-    r->right=1600;
-    r->bottom=1200;
+    double best_score = -1e20;
+    // find screen of best intersection
+    RECT sr = *sourcerect;
+    if (sr.top > sr.bottom) { sr.top = sourcerect->bottom; sr.bottom = sourcerect->top; }
+    if (sr.left > sr.right) { sr.left = sourcerect->right; sr.right = sourcerect->left; }
+    for (NSInteger x = 0; x < cnt; x ++)
+    {
+      NSScreen *sc=[ar objectAtIndex:x];
+      if (sc)
+      {
+        NSRect tr=wantWork ? [sc visibleFrame] : [sc frame];
+        RECT tmp;
+        NSRECT_TO_RECT(&tmp,tr);
+
+        double score;
+        RECT res;
+        if (IntersectRect(&res, &tmp, &sr))
+        {
+          score = wdl_abs((res.right-res.left) * (res.bottom-res.top));
+        }
+        else
+        {
+          int dx = 0, dy = 0;
+          if (tmp.left > sr.right) dx = tmp.left - sr.right;
+          else if (tmp.right < sr.left) dx = sr.left - tmp.right;
+          if (tmp.bottom < sr.top) dy = tmp.bottom - sr.top;
+          else if (tmp.top > sr.bottom) dy = tmp.top - sr.bottom;
+          score = - (dx*dx + dy*dy);
+        }
+
+
+        if (!x || score > best_score)
+        {
+          best_score = score;
+          *r = tmp;
+        }
+      }
+    }
   }
   SWELL_END_TRY(;)
 }
@@ -3610,6 +3651,7 @@ HWND SWELL_MakeEditField(int idx, int x, int y, int w, int h, int flags)
   if ((flags&WS_VSCROLL) || (flags&WS_HSCROLL)) // || (flags & ES_READONLY))
   {
     SWELL_TextView *obj=[[SWELL_TextView alloc] init];
+    [obj setAutomaticQuoteSubstitutionEnabled:NO];
     [obj setEditable:(flags & ES_READONLY)?NO:YES];
     if (m_transform.size.width < minwidfontadjust)
       [obj setFont:[NSFont systemFontOfSize:TRANSFORMFONTSIZE]];

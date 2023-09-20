@@ -390,7 +390,7 @@ void IControl::DrawPTHighlight(IGraphics& g)
 {
   if (mPTisHighlighted)
   {
-    g.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2);
+    g.FillCircle(mPTHighlightColor, mTargetRECT.R-5, mTargetRECT.T+5, 2);
   }
 }
 
@@ -1010,7 +1010,7 @@ IDirBrowseControlBase::~IDirBrowseControlBase()
   ClearPathList();
 }
 
-int IDirBrowseControlBase::NItems()
+int IDirBrowseControlBase::NItems() const
 {
   return mItems.GetSize();
 }
@@ -1128,7 +1128,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
       const char* f = d.GetCurrentFN();
       if (f && f[0] != '.')
       {
-        if (d.GetCurrentIsDirectory())
+        if (mScanRecursively && d.GetCurrentIsDirectory())
         {
           WDL_String subdir;
           d.GetCurrentFullFN(&subdir);
@@ -1138,12 +1138,32 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
         }
         else
         {
-          const char* a = strstr(f, mExtension.Get());
+          // Find the last occurrence of str2 in str1.
+          // Return a pointer to the first character of the match.
+          // Return a pointer to the start of str1 if str2 is empty.
+          // Return a nullptr if str2 isn't found in str1.
+          auto strrstr = [](const char* str1, const char* str2) -> const char* {
+            if (*str2 == '\0')
+              return str1;
+
+            const char* result = nullptr;
+
+            while (*str1 != '\0') {
+              if (std::strncmp(str1, str2, std::strlen(str2)) == 0)
+                result = str1;
+
+              str1++;
+            }
+
+            return result;
+          };
+
+          const char* a = strrstr(f, mExtension.Get());
           if (a && a > f && strlen(a) == strlen(mExtension.Get()))
           {
             WDL_String menuEntry {f};
             
-            if(!mShowFileExtensions)
+            if (!mShowFileExtensions)
               menuEntry.Set(f, (int) (a - f) - 1);
             
             IPopupMenu::Item* pItem = new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize());

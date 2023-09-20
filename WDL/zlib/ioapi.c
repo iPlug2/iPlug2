@@ -183,7 +183,7 @@ static long ZCALLBACK fseek_file_func (voidpf  opaque, voidpf stream, uLong offs
     default: return -1;
     }
     ret = 0;
-    if (fseek((FILE *)stream, (long)offset, fseek_origin) != 0)
+    if (fseek((FILE *)stream, offset, fseek_origin) != 0)
         ret = -1;
     return ret;
 }
@@ -208,7 +208,7 @@ static long ZCALLBACK fseek64_file_func (voidpf  opaque, voidpf stream, ZPOS64_T
     }
     ret = 0;
 
-    if(FSEEKO_FUNC((FILE *)stream, (long)offset, fseek_origin) != 0)
+    if(FSEEKO_FUNC((FILE *)stream, offset, fseek_origin) != 0)
                         ret = -1;
 
     return ret;
