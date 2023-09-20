@@ -1,6 +1,7 @@
 #include "IPlugEffect.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
+#include <filesystem>
 
 IPlugEffect::IPlugEffect(const InstanceInfo& info)
 : iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
@@ -14,11 +15,27 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
-    pGraphics->AttachPanelBackground(COLOR_GRAY);
+    pGraphics->AttachPanelBackground(COLOR_WHITE);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT b = pGraphics->GetBounds();
-    pGraphics->AttachControl(new ITextControl(b.GetMidVPadded(50), "Hello iPlug 2!", IText(50)));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-100), kGain));
+    
+    WDL_String resourcePath;
+    #ifdef OS_MAC
+    BundleResourcePath(resourcePath, BUNDLE_ID);
+    #else
+    namespace fs = std::filesystem;
+    fs::path mainPath(__FILE__);
+    fs::path imgResourcesPath = mainPath.parent_path() / "Resources" / "img";
+    resourcePath.Set(imgResourcesPath.string().c_str());
+    #endif
+    
+    auto bmp = pGraphics->LoadBitmap(KNOB01_FN, 100);
+    pGraphics->AttachControl(new IBKnobControl(b.GetCentredInside(100), bmp, kGain), 0);
+  
+    pGraphics->AttachControl(new IVDiskPresetManagerControl(b.GetFromTop(40), resourcePath.Get(), "png", true, "", DEFAULT_STYLE, [pGraphics](const WDL_String& path) {
+      auto bmp = pGraphics->LoadBitmap(path.Get(), 100);
+      pGraphics->GetControlWithTag(0)->As<IBKnobControl>()->SetBitmap(bmp);
+    }));
   };
 #endif
 }
