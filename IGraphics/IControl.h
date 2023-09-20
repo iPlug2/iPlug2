@@ -750,6 +750,12 @@ public:
     IBlend blend = mControl->GetBlend();
     g.DrawBitmap(mBitmap, mControl->GetRECT().GetCentredInside(IRECT(0, 0, mBitmap)), i, &blend);
   }
+  
+  void SetBitmap(const IBitmap& bmp)
+  {
+    mBitmap = bmp;
+    mControl->SetDirty(true);
+  }
 
 protected:
   IBitmap mBitmap;
