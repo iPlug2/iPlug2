@@ -198,21 +198,18 @@ static LRESULT SWELL_SendMouseMessageImpl(SWELL_hwndChild *slf, int msg, NSEvent
   if (msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL)
   {
     float dw = (msg == WM_MOUSEWHEEL ? [theEvent deltaY] : [theEvent deltaX]);
-    //if (!dy) dy=[theEvent deltaX]; // shift+mousewheel sends deltaX instead of deltaY
-    l = (int)(dw*60.0);
-    l <<= 16;
-    
+    l = MAKELONG(0, (int)(dw*60.0));
     // put todo: modifiers into low word of l?
     
     POINT p;
     GetCursorPos(&p);
-    return slf->m_wndproc((HWND)slf,msg,l,(p.x&0xffff) + (p.y<<16));
+    return slf->m_wndproc((HWND)slf,msg,l,MAKELONG(p.x&0xffff,p.y));
   }
 
-  LRESULT ret=slf->m_wndproc((HWND)slf,msg,l,(xpos&0xffff) + (ypos<<16));
+  LRESULT ret=slf->m_wndproc((HWND)slf,msg,l,MAKELONG(xpos&0xffff,ypos));
   
   if (msg==WM_LBUTTONUP || msg==WM_RBUTTONUP || msg==WM_MOUSEMOVE || msg==WM_MBUTTONUP) {
-    if (!GetCapture() && (slf->m_hashaddestroy || !slf->m_wndproc || !slf->m_wndproc((HWND)slf,WM_SETCURSOR,(WPARAM)slf,htc | (msg<<16)))) {
+    if (!GetCapture() && (slf->m_hashaddestroy || !slf->m_wndproc || !slf->m_wndproc((HWND)slf,WM_SETCURSOR,(WPARAM)slf,MAKELONG(htc,msg)))) {
       NSCursor *arr= [NSCursor arrowCursor];
       if (GetCursor() != (HCURSOR)arr) SetCursor((HCURSOR)arr);
     }
@@ -770,7 +767,7 @@ static bool s_mtl_in_update;
 {
   id sender=[notification object];
   int code=CBN_DROPDOWN;
-  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
+  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],code),(LPARAM)sender);
 }
 
 - (void)comboBoxSelectionDidChange:(NSNotification *)notification
@@ -786,7 +783,7 @@ static bool s_mtl_in_update;
       if (sel == p->m_ignore_selchg) return;
       p->m_ignore_selchg = sel;
     }
-    m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
+    m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],code),(LPARAM)sender);
   }
 }
 
@@ -794,7 +791,7 @@ static bool s_mtl_in_update;
 {
   id sender=[notification object];
   int code=CBN_CLOSEUP;
-  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
+  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],code),(LPARAM)sender);
 }
 
 - (void)textDidEndEditing:(NSNotification *)aNotification
@@ -804,7 +801,7 @@ static bool s_mtl_in_update;
   if (m_wndproc&&!m_hashaddestroy)
   {
     int code=EN_KILLFOCUS;
-    m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
+    m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],code),(LPARAM)sender);
   }
 }
 
@@ -821,14 +818,14 @@ static bool s_mtl_in_update;
   id sender=[aNotification object];
   int code=EN_CHANGE;
   if ([sender isKindOfClass:[NSComboBox class]]) code=CBN_EDITCHANGE;
-  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
+  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],code),(LPARAM)sender);
 }
 
 - (void)controlTextDidEndEditing:(NSNotification *)aNotification
 {
   id sender=[aNotification object];
   int code=EN_KILLFOCUS;
-  if (m_wndproc && !m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
+  if (m_wndproc && !m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],code),(LPARAM)sender);
 }
 
 - (void)menuNeedsUpdate:(NSMenu *)menu
@@ -844,7 +841,7 @@ static bool s_mtl_in_update;
       [sender respondsToSelector:@selector(getSwellNotificationMode)])
   {
     if ([(SWELL_ListView*)sender getSwellNotificationMode])
-      m_wndproc((HWND)self,WM_COMMAND,(LBN_DBLCLK<<16)|[(NSControl*)sender tag],(LPARAM)sender);
+      m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],LBN_DBLCLK),(LPARAM)sender);
     else
     {
       SWELL_ListView *lv = (SWELL_ListView*)sender;
@@ -904,7 +901,7 @@ static bool s_mtl_in_update;
       NSTableView *sender=[aNotification object];
       if ([sender respondsToSelector:@selector(getSwellNotificationMode)] && [(SWELL_ListView*)sender getSwellNotificationMode])
       {
-        if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,(int)[sender tag] | (LBN_SELCHANGE<<16),(LPARAM)sender);
+        if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,MAKELONG((int)[sender tag],LBN_SELCHANGE),(LPARAM)sender);
       }
       else
       {
@@ -1030,7 +1027,7 @@ static bool s_mtl_in_update;
 //      [[sender menu] update];
       // wish we could force the top level menu to update here, meh
     }
-    m_wndproc((HWND)self,WM_COMMAND,[sender tag]|(cw<<16),(LPARAM)sender);
+    m_wndproc((HWND)self,WM_COMMAND,MAKELONG([sender tag],cw),(LPARAM)sender);
   }
 
 }
