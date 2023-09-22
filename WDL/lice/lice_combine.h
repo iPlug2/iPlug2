@@ -830,7 +830,7 @@ static void __LICE_SCU_INTERNAL(int &x, int __sc) {
   x = (unsigned int) wdl_min(t, WDL_UINT64_CONST(0xffffffff));
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) || (defined(__APPLE__) && !defined(__LP64__))
 static void WDL_STATICFUNC_UNUSED __LICE_SC_INTERNAL(LONG &x, int __sc) {
   const WDL_INT64 t = (((WDL_INT64) x*(__sc))/256);
   x = (LONG) wdl_clamp(t, -WDL_INT64_CONST(0x80000000), WDL_INT64_CONST(0x7fffffff));
