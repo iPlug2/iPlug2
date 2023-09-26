@@ -1652,6 +1652,8 @@ static bool s_mtl_in_update;
     layer.drawableSize = ns;
     layer.contentsScale = m_metal_retina ? 2.0 : 1.0;
   }
+  else if (layer.contentsScale != (m_metal_retina ? 2.0 : 1.0))
+    layer.contentsScale = m_metal_retina ? 2.0 : 1.0;
   id<CAMetalDrawable> drawable = [layer nextDrawable];
   if (!drawable)
   {
@@ -4100,6 +4102,8 @@ static void SWELL_Metal_WriteTex(SWELL_hwndChild *wnd, const unsigned int *srcbu
           layer.drawableSize = ns;
           layer.contentsScale = retina_hint ? 2.0 : 1.0;
         }
+        else if (layer.contentsScale != (retina_hint ? 2.0 : 1.0))
+          layer.contentsScale = retina_hint ? 2.0 : 1.0;
         tex = [(wnd->m_metal_drawable = [layer nextDrawable]) texture];
         wnd->m_metal_texture = tex;
       }
