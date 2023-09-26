@@ -1210,6 +1210,9 @@ finish_up_native_render:
     if (dtFlags & DT_VCENTER)
     {
       ypos += (use_rect.bottom-use_rect.top-tr.bottom)/2;
+#ifdef __APPLE__
+      ypos+=2;
+#endif
     }
     else if (dtFlags & DT_BOTTOM)
     {
