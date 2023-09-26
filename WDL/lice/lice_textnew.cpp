@@ -796,7 +796,7 @@ int LICE_CachedFont::DrawTextImpl(LICE_IBitmap *bm, const char *str, int strcnt,
 
   if (dtFlags&DT_SINGLELINE) dtFlags &= ~DT_WORDBREAK;
 
-#ifdef __APPLE__
+#ifndef _WIN32
   const int lsadj = m_lsadj+3;
 #else
   const int lsadj = m_lsadj;
