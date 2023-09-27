@@ -95,12 +95,19 @@ int GetWindowTextUTF8(HWND hWnd, LPTSTR lpString, int nMaxCount)
   if (nMaxCount>0 AND_IS_NOT_WIN9X)
   {
     int alloc_size=nMaxCount;
+    LPARAM restore_wndproc = 0;
 
     // if a hooked combo box, and has an edit child, ask it directly
     if (s_combobox_atom && s_combobox_atom == GetClassWord(hWnd,GCW_ATOM) && GetProp(hWnd,WDL_UTF8_OLDPROCPROP))
     {
       HWND h2=FindWindowEx(hWnd,NULL,"Edit",NULL);
-      if (h2) hWnd=h2;
+      if (h2)
+      {
+        LPARAM resp = (LPARAM) GetProp(h2,WDL_UTF8_OLDPROCPROP);
+        if (resp)
+          restore_wndproc = SetWindowLongPtr(h2,GWLP_WNDPROC,resp);
+        hWnd=h2;
+      }
       else
       {
         // get via selection
@@ -150,9 +157,14 @@ int GetWindowTextUTF8(HWND hWnd, LPTSTR lpString, int nMaxCount)
 
         WIDETOMB_FREE(wbuf);
 
+        if (restore_wndproc)
+          SetWindowLongPtr(hWnd,GWLP_WNDPROC,restore_wndproc);
+
         return (int)strlen(lpString);
       }
     }
+    if (restore_wndproc)
+      SetWindowLongPtr(hWnd,GWLP_WNDPROC,restore_wndproc);
   }
   return GetWindowTextA(hWnd,lpString,nMaxCount);
 }
@@ -1258,11 +1270,15 @@ static int compareUTF8ToFilteredASCII(const char *utf, const char *ascii)
 {
   for (;;)
   {
-    char c1 = *ascii++;
+    unsigned char c1 = (unsigned char)*ascii++;
     int c2;
     if (!*utf || !c1) return *utf || c1;
     utf += wdl_utf8_parsechar(utf, &c2);
-    if (c1 != (c2 >= 128 ? '?' : c2)) return 1;
+    if (c1 != c2)
+    {
+      if (c2 < 128) return 1; // if not UTF-8 character, strings differ
+      if (c1 != '?') return 1; // if UTF-8 and ASCII is not ?, strings differ
+    }
   }
 }
 

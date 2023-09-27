@@ -124,6 +124,8 @@ EEL_F NSEEL_CGEN_CALL nseel_int_rand(EEL_F f)
 #include "asm-nseel-ppc-gcc.c"
 #elif defined(__aarch64__)
 #include "asm-nseel-aarch64-gcc.c"
+#elif defined(_M_ARM64)
+// add asm-nseel-aarch64-msvc.obj to project
 #elif defined(__arm__)
 #include "asm-nseel-arm-gcc.c"
 #elif defined (_M_ARM) && _M_ARM  == 7

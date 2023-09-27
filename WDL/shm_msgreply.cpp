@@ -233,8 +233,8 @@ bool SHM_MsgReplyConnection::RunInternal(int checkForReplyID, WaitingMessage **r
 
     while (m_shm->recv_queue.GetSize()>=12)
     {
-      int datasz = *(int *)((char *)m_shm->recv_queue.Get()+8);
-      WDL_Queue::WDL_Queue__bswap_buffer(&datasz,4); // convert to LE if needed
+      int datasz;
+      wdl_memcpy_le(&datasz,(char *)m_shm->recv_queue.Get()+8, 1, sizeof(int));
 
       if (m_shm->recv_queue.GetSize() < 12 + datasz) break;
 
@@ -242,15 +242,14 @@ bool SHM_MsgReplyConnection::RunInternal(int checkForReplyID, WaitingMessage **r
       if (m_shm->recv_queue.GetSize() < 12 + datasz + WDL_SHA1SIZE) break;
 #endif
 
-      int type = *(int *)((char *)m_shm->recv_queue.Get());
-      WDL_Queue::WDL_Queue__bswap_buffer(&type,4); // convert to LE if needed
+      int type;
+      wdl_memcpy_le(&type,(char *)m_shm->recv_queue.Get(), 1, sizeof(int));
       
       WaitingMessage *msg = m_spares;
       if (msg) m_spares = m_spares->_next;
       else msg = new WaitingMessage;
 
-      msg->m_msgid = *(int *)((char *)m_shm->recv_queue.Get() + 4);
-      WDL_Queue::WDL_Queue__bswap_buffer(&msg->m_msgid,4); // convert to LE if needed
+      wdl_memcpy_le(&msg->m_msgid,(char *)m_shm->recv_queue.Get() + 4,1, sizeof(int));
 
       msg->m_msgtype = type;
       memcpy(msg->m_msgdata.Resize(datasz,false),(char *)m_shm->recv_queue.Get()+12, datasz);

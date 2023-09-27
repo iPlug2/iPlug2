@@ -23,6 +23,12 @@ EEL_SOURCE = $(EEL_SOURCE) asm-nseel-x64.obj
 !endif
 !endif
 
+!ifdef arm64
+!ifndef PORTABLE
+EEL_SOURCE = $(EEL_SOURCE) asm-nseel-aarch64-msvc.obj
+!endif
+!endif
+
 
 default: loose_eel.exe
 
@@ -40,6 +46,9 @@ loose_eel.exe: loose_eel.cpp $(EEL_SOURCE) $(FFT_SOURCE) $(LICE_SOURCE) ..\win32
 
 eel_disasm.exe: eel_disasm.cpp $(EEL_SOURCE)
 	cl $(CFLAGS) $**  /link wsock32.lib user32.lib gdi32.lib advapi32.lib $(LFLAGS) /out:$@ 
+
+asm-nseel-aarch64-msvc.obj: asm-nseel-aarch64-msvc.asm
+	armasm64 asm-nseel-aarch64-msvc.asm
 
 test: eel_disasm.exe
 	eel_disasm "buf[a] = x*y"

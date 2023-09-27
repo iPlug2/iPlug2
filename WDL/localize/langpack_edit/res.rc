@@ -192,14 +192,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "unknown\0"
             VALUE "FileDescription", "LangPackEdit\0"
-            VALUE "FileVersion", "0, 0, 0, 1\0"
+            VALUE "FileVersion", "0, 0, 0, 5\0"
             VALUE "InternalName", "LangPackEdit\0"
             VALUE "LegalCopyright", "Copyright � 2022 and onwards Cockos Inc\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "LangPackEdit.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "LangPackEdit\0"
-            VALUE "ProductVersion", "0, 0, l, 1\0"
+            VALUE "ProductVersion", "0, 0, 0, 5\0"
             VALUE "SpecialBuild", "\0"
         END
     END

@@ -244,7 +244,7 @@ bool BrowseForSaveFile(const char *text, const char *initialdir, const char *ini
 
     NSWindow *oldw = [(NSView *)av_parent window];
     [panel setAccessoryView:(NSView *)av_parent]; // we resized our accessory view
-    SendMessage(av_parent,WM_COMMAND,(CBN_SELCHANGE<<16) | 1000,0);
+    SendMessage(av_parent,WM_COMMAND,(CBN_SELCHANGE<<16) | 1000,(LPARAM)GetDlgItem(av_parent,1000));
     [(NSView *)av_parent setHidden:NO];
     [oldw release];
   }

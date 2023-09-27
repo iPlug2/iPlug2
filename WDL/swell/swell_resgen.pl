@@ -88,6 +88,18 @@ sub swell_rc2cpp_dialog
     if ($dlg_state>=2)
     {
       $y = "RTEXT" . $1 if $y =~ /^LTEXT(.*), *WS_EX_RIGHT$/;
+      if ($dlg_contents =~ /, *\n$/)
+      {
+        $dlg_contents =~ s/ *\n$//;
+      }
+      elsif ($dlg_contents =~ /[|] *\n$/)
+      {
+        $dlg_contents =~ s/ *\n$/ /;
+      }
+      elsif ($dlg_contents =~ /NOT *\n$/)
+      {
+        $dlg_contents =~ s/NOT *\n$/NOT /;
+      }
       $dlg_contents .= $y . "\n";
       if ($y eq "END")
       {
@@ -219,8 +231,14 @@ sub swell_rc2cpp_menu
         }
         $menu_symbol="" if $menu_depth < 1;
       }
+
       if ($menu_depth>0)
       {
+        if (($retstr =~ /,\s*$/) || ($x =~ /^\s*,/)) {
+          $retstr =~ s/\s*\n$//;
+          $x =~ s/^\s*//;
+        }
+
         $x =~ s/, HELP\s*/\n/;
         $retstr .= $x;
       }

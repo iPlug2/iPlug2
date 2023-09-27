@@ -688,84 +688,109 @@ static COLORREF GetSBBackColor(const SCROLLWND *sw, HWND hwnd)
 }
 
 
-void DrawAdHocVScrollbarEx(LICE_IBitmap* dest, RECT* r, int pos, int page, int max, int wtheme)
+void DrawAdHocVScrollbarEx(LICE_IBitmap* dest, RECT* r, int pos, int page, int max, int wtheme, int mode)
 {
+  // mode 1: want zoom buttons
+
   const wdlscrollbar_themestate *theme = &s_scrollbar_theme[wtheme < 0 || wtheme >= MAX_SCROLLBAR_THEMES ? 0 : wtheme];
   LICE_IBitmap* src=*theme->bmp;
   if (!src) return;
+
+  bool can_scroll = max > 0 && (pos > 0 || pos+page < max);
+  if (mode == 0 && !can_scroll) return;
 
   int x=r->left;
   int y=r->top;
   int w=r->right-r->left;
   int h=r->bottom-r->top;
 
-  int range=h-17*2;
-  int thumb=range*page/max;
-  int tpos=(range*pos)/max;
+  bool want_zoom = mode == 1 && h >= w*2;
+  bool want_updown = can_scroll && h >= w*(want_zoom ? 4 : 2);
+  bool want_thumb = can_scroll && h >= w*(want_zoom ? 6 : 4);
 
-  if (theme->hasPink)
+  if (want_zoom) h -= 17*2;
+
+  if (want_thumb)
+  {
+    int range=h-17*2;
+    int thumb=range*page/max;
+    int tpos=(range*pos)/max;
+
+    if (theme->hasPink)
+    {
+      LICE_ScaledBlit(dest, src,
+                      x, y, w, theme->bkgvt,
+                      170, 37, 17, theme->bkgvt,
+                      1.0f, LICE_BLIT_FILTER_BILINEAR);
+      LICE_ScaledBlit(dest, src,
+                      x, y+theme->bkgvt, w, h-theme->bkgvt-theme->bkgvb,
+                      170, 37+theme->bkgvt, 17, 238-37-theme->bkgvt-theme->bkgvb,
+                      1.0f, LICE_BLIT_FILTER_BILINEAR);
+      LICE_ScaledBlit(dest, src, x, y+h-theme->bkgvb, w, theme->bkgvb,
+                      170, 238-theme->bkgvb, 17, theme->bkgvb,
+                      1.0f, LICE_BLIT_FILTER_BILINEAR);
+
+      int th=(thumb-theme->thumbVV[0]-theme->thumbVV[2]-theme->thumbVV[4])/2;
+      if (th < 0) th=0;
+
+      LICE_ScaledBlit(dest, src,
+                      x, y+17+tpos, w, theme->thumbVV[0],
+                      0, 91, 17, theme->thumbVV[0],
+                      1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
+      LICE_ScaledBlit(dest, src,
+                      x, y+17+tpos+theme->thumbVV[0], w, th,
+                      0, 91+theme->thumbVV[0], 17, theme->thumbVV[1],
+                      1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
+      LICE_ScaledBlit(dest, src,
+                      x, y+17+tpos+theme->thumbVV[0]+th, w, theme->thumbVV[2],
+                      0, 91+theme->thumbVV[0]+theme->thumbVV[1], 17, theme->thumbVV[2],
+                      1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
+      LICE_ScaledBlit(dest, src,
+                      x, y+17+tpos+theme->thumbVV[0]+th+theme->thumbVV[2], w, th,
+                      0, 91+theme->thumbVV[0]+theme->thumbVV[1]+theme->thumbVV[2], 17, theme->thumbVV[3],
+                      1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
+      LICE_ScaledBlit(dest, src,
+                      x, y+17+tpos+theme->thumbVV[0]+th+theme->thumbVV[2]+th, w, theme->thumbVV[4],
+                      0, 91+theme->thumbVV[0]+theme->thumbVV[1]+theme->thumbVV[2]+theme->thumbVV[3], 17, theme->thumbVV[4],
+                      1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
+    }
+    else
+    {
+      LICE_ScaledBlit(dest, src,
+                      x, y, w, h,
+                      170, 34, 17, 238-34,
+                      1.0f, LICE_BLIT_FILTER_BILINEAR);
+
+      LICE_ScaledBlit(dest, src,
+                      x, y+17+tpos, w, thumb,
+                      0, 90, 17, 238-90, 1.0f,
+                      LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
+    }
+  }
+
+  if (want_updown)
   {
     LICE_ScaledBlit(dest, src,
-                    x, y, w, theme->bkgvt,
-                    170, 37, 17, theme->bkgvt,
+                    x, y, w, w,
+                    116, 121, 17, 17,
                     1.0f, LICE_BLIT_FILTER_BILINEAR);
     LICE_ScaledBlit(dest, src,
-                    x, y+theme->bkgvt, w, h-theme->bkgvt-theme->bkgvb,
-                    170, 37+theme->bkgvt, 17, 238-37-theme->bkgvt-theme->bkgvb,
+                    x, y+h-w, w, w,
+                    116, 181, 17, 17,
                     1.0f, LICE_BLIT_FILTER_BILINEAR);
-    LICE_ScaledBlit(dest, src, x, y+h-theme->bkgvb, w, theme->bkgvb,
-                    170, 238-theme->bkgvb, 17, theme->bkgvb,
-                    1.0f, LICE_BLIT_FILTER_BILINEAR);
-
-    int th=(thumb-theme->thumbVV[0]-theme->thumbVV[2]-theme->thumbVV[4])/2;
-    if (th < 0) th=0;
-
-    LICE_ScaledBlit(dest, src,
-                    x, y+17+tpos, w, theme->thumbVV[0],
-                    0, 91, 17, theme->thumbVV[0],
-                    1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
-    LICE_ScaledBlit(dest, src,
-                    x, y+17+tpos+theme->thumbVV[0], w, th,
-                    0, 91+theme->thumbVV[0], 17, theme->thumbVV[1],
-                    1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
-    LICE_ScaledBlit(dest, src,
-                    x, y+17+tpos+theme->thumbVV[0]+th, w, theme->thumbVV[2],
-                    0, 91+theme->thumbVV[0]+theme->thumbVV[1], 17, theme->thumbVV[2],
-                    1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
-    LICE_ScaledBlit(dest, src,
-                    x, y+17+tpos+theme->thumbVV[0]+th+theme->thumbVV[2], w, th,
-                    0, 91+theme->thumbVV[0]+theme->thumbVV[1]+theme->thumbVV[2], 17, theme->thumbVV[3],
-                    1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
-    LICE_ScaledBlit(dest, src,
-                    x, y+17+tpos+theme->thumbVV[0]+th+theme->thumbVV[2]+th, w, theme->thumbVV[4],
-                    0, 91+theme->thumbVV[0]+theme->thumbVV[1]+theme->thumbVV[2]+theme->thumbVV[3], 17, theme->thumbVV[4],
-                    1.0f, LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
   }
-  else
+
+  if (want_zoom)
   {
     LICE_ScaledBlit(dest, src,
-                    x, y, w, h,
-                    170, 34, 17, 238-34,
-                    1.0f, LICE_BLIT_FILTER_BILINEAR);
-
+      x, y+h, w, w,
+      116, 201, 17, 17,
+      1.0f, LICE_BLIT_FILTER_BILINEAR);
     LICE_ScaledBlit(dest, src,
-                    x, y+17+tpos, w, thumb,
-                    0, 90, 17, 238-90, 1.0f,
-                    LICE_BLIT_FILTER_BILINEAR|LICE_BLIT_USE_ALPHA);
+      x, y+h+w, w, w,
+      116, 221, 17, 17,
+      1.0f, LICE_BLIT_FILTER_BILINEAR);
   }
-
-  LICE_ScaledBlit(dest, src,
-                  x, y, w, w,
-                  116, 121, 17, 17,
-                  1.0f, LICE_BLIT_FILTER_BILINEAR);
-  LICE_ScaledBlit(dest, src,
-                  x, y+h-w, w, w,
-                  116, 181, 17, 17,
-                  1.0f, LICE_BLIT_FILTER_BILINEAR);
-}
-void DrawAdHocVScrollbar(LICE_IBitmap* dest, RECT* r, int pos, int page, int max)
-{
-  DrawAdHocVScrollbarEx(dest,r,pos,page,max,0);
 }
 
 
