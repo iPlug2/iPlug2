@@ -88,7 +88,7 @@ void WDL_VirtualListBox::CalcLayout(int num_items, layout_info *layout)
   if (m_mincolwidth>0) 
   {
     max_cols = w / m_mincolwidth;
-    max_cols2 = (w - m_scrollbar_size - m_colgap) / m_mincolwidth;
+    max_cols2 = (w - m_scrollbar_size - m_colgap) / m_mincolwidth; // maximum column count when a scrollbar is visible
     if (max_cols < 1) max_cols = 1;
     if (max_cols2 < 1) max_cols2 = 1;
   }
@@ -101,6 +101,7 @@ void WDL_VirtualListBox::CalcLayout(int num_items, layout_info *layout)
 
   static WDL_TypedBuf<int> s_heights;
 
+again:
   s_heights.Resize(0,false);
 
   int maxvis = 1;
@@ -159,11 +160,10 @@ void WDL_VirtualListBox::CalcLayout(int num_items, layout_info *layout)
   }
   const bool has_scroll = item < num_items || startitem > 0;
 
-  if (has_scroll && cols > 1)
+  if (has_scroll && cols > 1 && max_cols > max_cols2)
   {
     max_cols = max_cols2;
-    if (max_cols < min_cols) max_cols = min_cols;
-    if (cols > max_cols) cols = max_cols;
+    goto again;
   }
   if (cols < min_cols) cols = min_cols;
   layout->startpos = startitem;
