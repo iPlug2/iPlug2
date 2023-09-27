@@ -185,6 +185,8 @@ class WDL_VirtualStaticText : public WDL_VWnd
     int m_didalign; // the actual alignment used on the last paint
 
   public:
+    int m_scale_for_text;
+
     void (*calculate_text)(WDL_VirtualStaticText *ctl, void *ctx, WDL_FastString *fs); // if set, this will be called from paint
     void *calculate_text_ctx;
 };
