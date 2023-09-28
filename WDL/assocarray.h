@@ -439,6 +439,46 @@ public:
     : WDL_AssocArray<KEY, VAL>(WDL_AssocArray<KEY, VAL>::keycmp_ptr, NULL, NULL, valdispose) {}
 };
 
+struct WDL_Set_DummyRec { };
+template <class KEY> class WDL_Set : public WDL_AssocArrayImpl<KEY,WDL_Set_DummyRec>
+{
+  public:
+  explicit WDL_Set(int (*keycmp)(KEY *k1, KEY *k2),
+                            KEY (*keydup)(KEY)=NULL,
+                            void (*keydispose)(KEY)=NULL
+      )
+    : WDL_AssocArrayImpl<KEY, WDL_Set_DummyRec>(keycmp,keydup,keydispose)
+  {
+  }
+
+  int Insert(KEY key)
+  {
+    WDL_Set_DummyRec r;
+    return WDL_AssocArrayImpl<KEY, WDL_Set_DummyRec>::Insert(key,r);
+  }
+  void AddUnsorted(KEY key)
+  {
+    WDL_Set_DummyRec r;
+    WDL_AssocArrayImpl<KEY, WDL_Set_DummyRec>::AddUnsorted(key,r);
+  }
+
+  bool Get(KEY key) const
+  {
+    return WDL_AssocArrayImpl<KEY, WDL_Set_DummyRec>::Exists(key);
+  }
+  bool Enumerate(int i, KEY *key=NULL)
+  {
+    return WDL_AssocArrayImpl<KEY, WDL_Set_DummyRec>::EnumeratePtr(i,key) != NULL;
+  }
+};
+
+template <class KEY> class WDL_PtrSet : public WDL_Set<KEY>
+{
+public:
+  explicit WDL_PtrSet() : WDL_Set<KEY>( WDL_AssocArray<KEY, WDL_Set_DummyRec>::keycmp_ptr ) { }
+};
+
+
 
 #endif
 
