@@ -432,6 +432,13 @@ public:
     : WDL_AssocArray<INT_PTR, VAL>(WDL_AssocArray<INT_PTR, VAL>::keycmp_ptr, NULL, NULL, valdispose) {}
 };
 
+template <class KEY, class VAL> class WDL_PointerKeyedArray : public WDL_AssocArray<KEY, VAL>
+{
+public:
+  explicit WDL_PointerKeyedArray(void (*valdispose)(VAL)=NULL)
+    : WDL_AssocArray<KEY, VAL>(WDL_AssocArray<KEY, VAL>::keycmp_ptr, NULL, NULL, valdispose) {}
+};
+
 
 #endif
 
