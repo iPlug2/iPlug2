@@ -726,6 +726,7 @@ WDL_VirtualStaticText::WDL_VirtualStaticText()
   m_didvert=0;
   m_didalign=-1;
   m_wantabbr=false;
+  m_scale_for_text=0;
 }
 
 WDL_VirtualStaticText::~WDL_VirtualStaticText()
@@ -788,6 +789,12 @@ int WDL_VirtualStaticText::OnMouseDown(int xpos, int ypos)
 void WDL_VirtualStaticText::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_y, RECT *cliprect, int rscale)
 {
   if (calculate_text) calculate_text(this,calculate_text_ctx, &m_text);
+  if (drawbm)
+  {
+    m_scale_for_text = (int)drawbm->Extended(LICE_EXT_GET_ANY_SCALING,NULL);
+    if (rscale && rscale != 256) // only used on macOS
+      m_scale_for_text = ((m_scale_for_text ? m_scale_for_text:256) * 256) / rscale;
+  }
   RECT r=m_position;
   ScaleRect(&r,rscale);
   r.left+=origin_x;
