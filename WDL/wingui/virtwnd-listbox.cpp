@@ -394,8 +394,11 @@ void WDL_VirtualListBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_
         y += rh;
         if (y > r.top+endpos) 
         {
-          if (y+ ((flag&ITEMH_FLAG_NOSQUISH) ? 0 : -rh + rh_base) > r.top+endpos) break;
-          if (colpos < num_cols-1) break;
+          if (ly != r.top)
+          {
+            if (y+ ((flag&ITEMH_FLAG_NOSQUISH) ? 0 : -rh + rh_base) > r.top+endpos) break;
+            if (colpos < num_cols-1) break;
+          }
           y = r.top+endpos; // size expanded-sized item to fit
         }
       }
