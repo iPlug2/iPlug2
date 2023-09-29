@@ -295,6 +295,7 @@ again:
       char *p = tmp;
       while (*p && *p != ' ' && *p != ',') p++;
       bool was_comma = *p == ',';
+      if (was_comma && p == tmp) p++;
       *p=0;
       if (WDL_NOT_NORMALLY(!tmp[0])) return;
 
@@ -341,6 +342,7 @@ again:
         else if (!stricmp(tmp,"Enter")||!stricmp(tmp,"Return")) arrowKey = '\r';
         else if (!stricmp(tmp,"Tab")) arrowKey = '\t';
         else if (!strnicmp(tmp,"Esc",3)) arrowKey = 27;
+        else if (!strcmp(tmp,",")) arrowKey = tmp[0];
         else if (!stricmp(tmp,"Click")||!stricmp(tmp,"(Click)")) arrowKey = NSUpArrowFunctionKey;
         else if (!stricmp(tmp,"Doubleclick")||!stricmp(tmp,"(Doubleclick)")) arrowKey = NSHomeFunctionKey;
         else if (tmp[0] >= 'A' && tmp[0] <= 'Z' && !tmp[1])
