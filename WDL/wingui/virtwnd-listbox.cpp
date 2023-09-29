@@ -419,7 +419,7 @@ void WDL_VirtualListBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_
         buf[0]=0;
         int color=tcol;
 
-        if (m_GetItemInfo(this,itempos++,buf,sizeof(buf),&color,&bkbm))
+        if (m_GetItemInfo(this,itempos,buf,sizeof(buf),&color,&bkbm))
         {
           color=LICE_RGBA_FROMNATIVE(color,0);
           RECT thisr;
@@ -429,12 +429,12 @@ void WDL_VirtualListBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_
           thisr.bottom = y-1;
           int rev=0;
           int bkbmstate=0;
-          if (m_cap_state==1 && m_cap_startitem==itempos-1)
+          if (m_cap_state==1 && m_cap_startitem==itempos)
           {
             if (bkbm) bkbmstate=1;
             else color = ((color>>1)&0x7f7f7f7f)+LICE_RGBA(0x7f,0x7f,0x7f,0);
           }
-          if (m_cap_state>=0x1000 && m_cap_startitem==itempos-1)
+          if (m_cap_state>=0x1000 && m_cap_startitem==itempos)
           {
             if (bkbm) bkbmstate=2;
             else
@@ -453,7 +453,7 @@ void WDL_VirtualListBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_
           }
           if (m_CustomDraw)
           {
-            m_CustomDraw(this,itempos-1,&thisr,drawbm,rscale);
+            m_CustomDraw(this,itempos,&thisr,drawbm,rscale);
           }
 
           if (buf[0])
@@ -476,6 +476,7 @@ void WDL_VirtualListBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_
           }
         }
       }
+      itempos++;
 
       if (!bkbm)
       {
