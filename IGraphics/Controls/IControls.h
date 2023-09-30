@@ -513,21 +513,33 @@ private:
   float mEndAngle = 135.f;
 };
 
-/** A vector button/momentary switch control which shows two SVG states */
+/** A vector button/momentary switch control which shows an SVG image */
 class ISVGButtonControl : public IButtonControlBase
 {
 public:
-  /** Constructs a vector button control, with an action function
+  /** Constructs an SVG button control, with an action function
    * @param bounds The control's bounds
-   * @param aF An action function to execute when a button is clicked \see IActionFunction */
+   * @param aF An action function to execute when a button is clicked \see IActionFunction 
+   * @param offImage An SVG for the off state of the button
+   * @param onImage An SVG for the on state of the button */
   ISVGButtonControl(const IRECT& bounds, IActionFunction aF, const ISVG& offImage, const ISVG& onImage);
+  
+  /** Constructs an SVG button control, with an action function and a single image, with color overrides
+   * @param bounds The control's bounds
+   * @param aF An action function to execute when a button is clicked \see IActionFunction
+   * @param image An SVG for the on/off state of the button  
+   * @param colors Colors to replace the SVG's fill/stroke in the off/on/mouse-over-off/mouse-over-on states
+   * @param colorReplacement Should the fill or stroke in the SVG be colored */
+  ISVGButtonControl(const IRECT& bounds, IActionFunction aF, const ISVG& image, const std::array<IColor, 4> colors = {COLOR_BLACK, COLOR_WHITE, COLOR_DARK_GRAY, COLOR_LIGHT_GRAY}, EColorReplacement colorReplacement = EColorReplacement::Fill);
 
   void Draw(IGraphics& g) override;
-  //void OnResize() override;
 
 protected:
   ISVG mOffSVG;
   ISVG mOnSVG;
+  IColor mOffColor {0,0,0,0};
+  IColor mOnColor {0,0,0,0};
+  bool mReplaceFill = true;
 };
 
 /** A vector switch control which shows one of multiple SVG states. Click to cycle through states. */

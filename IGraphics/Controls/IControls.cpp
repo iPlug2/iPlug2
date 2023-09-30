@@ -1343,12 +1343,43 @@ ISVGButtonControl::ISVGButtonControl(const IRECT& bounds, IActionFunction aF, co
 {
 }
 
+
+ISVGButtonControl::ISVGButtonControl(const IRECT& bounds, IActionFunction aF, const ISVG& image, const std::array<IColor, 4> colors, EColorReplacement colorReplacement)
+: IButtonControlBase(bounds, aF)
+, mOffSVG(image)
+, mOnSVG(image)
+, mColors(colors)
+, mColorReplacement(colorReplacement)
+{
+}
+
 void ISVGButtonControl::Draw(IGraphics& g)
 {
+  IColor* pOnColorFill = nullptr;
+  IColor* pOffColorFill = nullptr;
+  IColor* pOnColorStroke = nullptr;
+  IColor* pOffColorStroke = nullptr;
+  
+  switch (mColorReplacement) {
+    
+    case EColorReplacement::None:
+      break;
+    case EColorReplacement::Fill:
+      pOnColorFill = mMouseIsOver ? &mColors[3] : &mColors[1];
+      pOffColorFill = mMouseIsOver ? &mColors[2] : &mColors[0];
+      break;
+    case EColorReplacement::Stroke:
+      pOnColorStroke = mMouseIsOver ? &mColors[3] : &mColors[1];
+      pOffColorStroke = mMouseIsOver ? &mColors[2] : &mColors[0];
+      break;
+  }
+  
   if (GetValue() > 0.5)
-    g.DrawSVG(mOnSVG, mRECT, &mBlend);
+    g.DrawSVG(mOnSVG, mRECT, &mBlend, pOnColorStroke, pOnColorFill);
   else
-    g.DrawSVG(mOffSVG, mRECT, &mBlend);
+    g.DrawSVG(mOffSVG, mRECT, &mBlend, pOffColorStroke, pOffColorFill);
+}
+  }
 }
 
 ISVGKnobControl::ISVGKnobControl(const IRECT& bounds, const ISVG& svg, int paramIdx)
