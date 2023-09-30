@@ -161,6 +161,9 @@ enum class EPatternType { Solid, Linear, Radial, Sweep };
 enum class EPatternExtend { None, Pad, Reflect, Repeat };
 
 /** \todo */
+enum class EColorReplacement { None, Fill, Stroke };
+
+/** \todo */
 enum class EUIResizerMode { Scale, Size };
 
 /** \todo */
