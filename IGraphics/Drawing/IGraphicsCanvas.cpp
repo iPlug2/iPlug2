@@ -346,6 +346,18 @@ void IGraphicsCanvas::SetClipRegion(const IRECT& r)
   context.call<void>("beginPath");
 }
 
+void IGraphicsCanvas::SetClipPath(const IRECT& r)
+{
+  //TODO clipping with paths
+  val context = GetContext();
+  context.call<void>("restore");
+  context.call<void>("save");
+  context.call<void>("beginPath");
+  context.call<void>("rect", r.L, r.T, r.W(), r.H());
+  context.call<void>("clip");
+  context.call<void>("beginPath");
+}
+
 bool IGraphicsCanvas::BitmapExtSupported(const char* ext)
 {
   char extLower[32];

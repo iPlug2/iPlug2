@@ -744,6 +744,9 @@ public:
   /** Clip the current path to a particular region
    * @param r The rectangular region to clip */
   void PathClipRegion(const IRECT r = IRECT());
+
+    /** Clip the current path to the MainPath*/
+   void PathClipPath();
   
   virtual void PathTransformSetMatrix(const IMatrix& matrix) = 0;
 
@@ -780,6 +783,7 @@ private:
   virtual void CompleteRegion(const IRECT& bounds) {}
 
   virtual void SetClipRegion(const IRECT& r) = 0;
+  virtual void SetClipPath(const IRECT& r) = 0;
 
 public:
 #pragma mark - Platform implementation

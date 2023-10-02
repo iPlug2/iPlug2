@@ -806,6 +806,12 @@ void IGraphicsNanoVG::SetClipRegion(const IRECT& r)
   nvgScissor(mVG, r.L, r.T, r.W(), r.H());
 }
 
+void IGraphicsNanoVG::SetClipPath(const IRECT& r)
+{
+  //TODO NanoVG Clip with MainPath
+  nvgScissor(mVG, r.L, r.T, r.W(), r.H());
+}
+
 void IGraphicsNanoVG::DrawDottedLine(const IColor& color, float x1, float y1, float x2, float y2, const IBlend* pBlend, float thickness, float dashLen)
 {
   const float xd = x1 - x2;

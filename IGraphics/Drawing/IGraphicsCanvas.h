@@ -95,6 +95,7 @@ private:
 
   void PathTransformSetMatrix(const IMatrix& m) override;
   void SetClipRegion(const IRECT& r) override;
+  void SetClipPath(const IRECT& r) override;
     
   void SetCanvasSourcePattern(val& context, const IPattern& pattern, const IBlend* pBlend = nullptr);
   void SetCanvasBlendMode(val& context, const IBlend* pBlend);

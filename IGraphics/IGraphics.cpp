@@ -2719,6 +2719,13 @@ void IGraphics::PathClipRegion(const IRECT r)
   PathTransformSetMatrix(mTransform);
 }
 
+void IGraphics::PathClipPath() {
+  IRECT drawArea = mLayers.empty() ? mClipRECT : mLayers.top()->Bounds();
+  PathTransformSetMatrix(IMatrix());
+  SetClipPath(drawArea);
+  PathTransformSetMatrix(mTransform);
+}
+
 void IGraphics::DrawFittedBitmap(const IBitmap& bitmap, const IRECT& bounds, const IBlend* pBlend)
 {
   PathTransformSave();
