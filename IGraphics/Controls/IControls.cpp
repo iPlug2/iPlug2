@@ -505,35 +505,33 @@ int IVRadioButtonControl::GetButtonForPoint(float x, float y) const
     return IVTabSwitchControl::GetButtonForPoint(x, y);
 }
 
-IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, bool valueInWidget, float a1, float a2, float aAnchor,  EDirection direction, double gearing, float trackSize)
+IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, bool valueInWidget,  EDirection direction, double gearing)
 : IKnobControlBase(bounds, paramIdx, direction, gearing)
 , IVectorBase(style, false, valueInWidget)
-, mAngle1(a1)
-, mAngle2(a2)
-, mAnchorAngle(aAnchor)
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
   mHideCursorOnDrag = mStyle.hideCursor;
   mShape = EVShape::Ellipse;
-  mTrackSize = trackSize;
   AttachIControl(this, label);
+  mAngle1 = mStyle.knobMinAngle;
+  mAngle2 = mStyle.knobMaxAngle;
+  mAnchorAngle = mAngle1 + (static_cast<float>(mStyle.trackZeroValue) * (mAngle2 - mAngle1));
 }
 
-IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, bool valueInWidget,  float a1, float a2, float aAnchor, EDirection direction, double gearing, float trackSize)
+IVKnobControl::IVKnobControl(const IRECT& bounds, IActionFunction aF, const char* label, const IVStyle& style, bool valueIsEditable, bool valueInWidget, EDirection direction, double gearing)
 : IKnobControlBase(bounds, kNoParameter, direction, gearing)
 , IVectorBase(style, false, valueInWidget)
-, mAngle1(a1)
-, mAngle2(a2)
-, mAnchorAngle(aAnchor)
 {
   DisablePrompt(!valueIsEditable);
   mText = style.valueText;
   mHideCursorOnDrag = mStyle.hideCursor;
   mShape = EVShape::Ellipse;
-  mTrackSize = trackSize;
   SetActionFunction(aF);
   AttachIControl(this, label);
+  mAngle1 = mStyle.knobMinAngle;
+  mAngle2 = mStyle.knobMaxAngle;
+  mAnchorAngle = mAngle1 + (static_cast<float>(mStyle.trackZeroValue) * (mAngle2 - mAngle1));
 }
 
 void IVKnobControl::Draw(IGraphics& g)
@@ -578,15 +576,20 @@ void IVKnobControl::DrawWidget(IGraphics& g)
 
 void IVKnobControl::DrawIndicatorTrack(IGraphics& g, float angle, float cx, float cy, float radius)
 {
-  if (mTrackSize > 0.f)
+  if (mStyle.trackBackgroundSize > 0.f)
   {
-    g.DrawArc(GetColor(kX1), cx, cy, radius, angle >= mAnchorAngle ? mAnchorAngle : mAnchorAngle - (mAnchorAngle - angle), angle >= mAnchorAngle ? angle : mAnchorAngle, &mBlend, mTrackSize);
+    g.DrawArc(GetColor(kX3), cx, cy, radius, mAngle1, mAngle2, &mBlend, mStyle.trackBackgroundSize);
+  }
+  
+  if (mStyle.trackSize > 0.f)
+  {
+    g.DrawArc(GetColor(kX1), cx, cy, radius, angle >= mAnchorAngle ? mAnchorAngle : mAnchorAngle - (mAnchorAngle - angle), angle >= mAnchorAngle ? angle : mAnchorAngle, &mBlend, mStyle.trackSize);
   }
 }
 
 void IVKnobControl::DrawPointer(IGraphics& g, float angle, float cx, float cy, float radius)
 {
-  g.DrawRadialLine(GetColor(kFR), cx, cy, angle, mInnerPointerFrac * radius, mOuterPointerFrac * radius, &mBlend, mPointerThickness);
+  g.DrawRadialLine(GetColor(kX2), cx, cy, angle, mStyle.innerPointerFrac * radius, mStyle.outerPointerFrac * radius, &mBlend, mStyle.pointerThickness);
 }
 
 void IVKnobControl::OnMouseDown(float x, float y, const IMouseMod& mod)
