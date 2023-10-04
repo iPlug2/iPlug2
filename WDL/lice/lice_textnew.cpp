@@ -553,7 +553,7 @@ bool LICE_CachedFont::DrawGlyph(LICE_IBitmap *bm, unsigned short c,
   if (xpos >= clipR->right || 
       ypos >= clipR->bottom ||
       xpos+ch->width <= clipR->left || 
-      ypos+ch->height <= clipR->top) return false;
+      ypos+ch->height <= clipR->top) return true; // would have drawn but out of bounds
 
   unsigned char *gsrc = m_cachestore.Get() + ch->base_offset-1;
   int src_span = ch->width;
