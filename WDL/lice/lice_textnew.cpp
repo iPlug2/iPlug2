@@ -532,7 +532,7 @@ LICE_CachedFont::charEnt *LICE_CachedFont::findChar(unsigned short c)
 }
 
 bool LICE_CachedFont::DrawGlyph(LICE_IBitmap *bm, unsigned short c, 
-                                int xpos, int ypos, RECT *clipR)
+                                int xpos, int ypos, const RECT *clipR)
 {
   charEnt *ch = findChar(c);
 
