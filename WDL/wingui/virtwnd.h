@@ -218,6 +218,7 @@ public:
   void GetPaintInfo(RECT *rclip, int *xoffsdraw, int *yoffsdraw);
   void SetRenderScale(int render_scale, int advisory_scale=WDL_VWND_SCALEBASE) { m_render_scale = render_scale; m_advisory_scale = advisory_scale; }
   int GetRenderScale() const { return m_render_scale; }
+  int GetAdvisoryScale() const { return m_advisory_scale; }
 
   void RenderScaleRect(RECT *r) const
   {
