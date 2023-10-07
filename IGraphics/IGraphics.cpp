@@ -1595,9 +1595,8 @@ ISVG IGraphics::LoadSVG(const char* name, const void* pData, int dataSize, const
   {
     NSVGimage* pImage = nullptr;
 
-    // Because we're taking a const void* pData, but NanoSVG takes a void*, 
     WDL_String svgStr;
-    svgStr.Set((const char*)pData, dataSize);
+    svgStr.Set(reinterpret_cast<const char*>(pData), dataSize);
     pImage = nsvgParse(svgStr.Get(), units, dpi);
 
     if (!pImage)
