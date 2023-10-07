@@ -74,6 +74,7 @@
 		4F35DEAF207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
 		4F35DEB0207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
 		4F35DEB1207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
+		4F35E1392AD1911900B6E970 /* IPlugOSC_internal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35E1372AD1911800B6E970 /* IPlugOSC_internal.cpp */; };
 		4F3862EF2014BBEC0009F402 /* IPlugOSCEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugOSCEditor.cpp */; };
 		4F3862F12014BBEC0009F402 /* IPlugOSCEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugOSCEditor.cpp */; };
 		4F3862F22014BBEC0009F402 /* IPlugOSCEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F3862ED2014BBEC0009F402 /* IPlugOSCEditor.cpp */; };
@@ -528,6 +529,8 @@
 		4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAPP_dialog.cpp; path = ../../../IPlug/APP/IPlugAPP_dialog.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPluginBase.cpp; path = ../../../IPlug/IPlugPluginBase.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		4F35DEAC207E5C5A00867D8F /* IPlugPluginBase.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugPluginBase.h; path = ../../../IPlug/IPlugPluginBase.h; sourceTree = "<group>"; tabWidth = 2; };
+		4F35E1372AD1911800B6E970 /* IPlugOSC_internal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugOSC_internal.cpp; sourceTree = "<group>"; };
+		4F35E1382AD1911800B6E970 /* IPlugOSC_internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugOSC_internal.h; sourceTree = "<group>"; };
 		4F3862ED2014BBEC0009F402 /* IPlugOSCEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugOSCEditor.cpp; path = ../IPlugOSCEditor.cpp; sourceTree = "<group>"; };
 		4F3862EE2014BBEC0009F402 /* IPlugOSCEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugOSCEditor.h; path = ../IPlugOSCEditor.h; sourceTree = "<group>"; };
 		4F3862FF2014BCC70009F402 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
@@ -1169,6 +1172,8 @@
 		4F5369BE20C446430089212E /* OSC */ = {
 			isa = PBXGroup;
 			children = (
+				4F35E1372AD1911800B6E970 /* IPlugOSC_internal.cpp */,
+				4F35E1382AD1911800B6E970 /* IPlugOSC_internal.h */,
 				4F5369C020C446430089212E /* IPlugOSC.h */,
 				4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */,
 				4F5369BF20C446430089212E /* IPlugOSC_msg.h */,
@@ -2584,6 +2589,7 @@
 				4FCEAB1924BEFF470016EF6C /* util.cpp in Sources */,
 				4FCEAB7B24BEFFEB0016EF6C /* IPlugOSC_msg.cpp in Sources */,
 				4F6369EB20A466470022C370 /* IControl.cpp in Sources */,
+				4F35E1392AD1911900B6E970 /* IPlugOSC_internal.cpp in Sources */,
 				4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */,
 				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
 				4F5C5F6921BED05B00E024A7 /* swellappmain.mm in Sources */,
