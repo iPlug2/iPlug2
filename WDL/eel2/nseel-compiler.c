@@ -1850,7 +1850,7 @@ static void *nseel_getEELFunctionAddress(compileContext *ctx,
       fn->canHaveDenormalOutput=0;
 
       sz = compileOpcodes(ctx,fn->opcodes,NULL,128*1024*1024,&fn->tmpspace_req,
-          wantCodeGenerated ? &local_namespace : NULL,RETURNVALUE_NORMAL|RETURNVALUE_FPSTACK,
+          wantCodeGenerated ? &local_namespace : NULL,RETURNVALUE_FPSTACK,
           &fn->rvMode,&fn->fpStackUsage,&fn->canHaveDenormalOutput);
       if (sz<0) return NULL;
 
@@ -1887,7 +1887,7 @@ static void *nseel_getEELFunctionAddress(compileContext *ctx,
       {
         fn->canHaveDenormalOutput=0;
         if (fn->isCommonFunction) ctx->isGeneratingCommonFunction++;
-        sz=compileOpcodes(ctx,fn->opcodes,(unsigned char*)p,sz,&fn->tmpspace_req,&local_namespace,RETURNVALUE_NORMAL|RETURNVALUE_FPSTACK,&fn->rvMode,&fn->fpStackUsage,&fn->canHaveDenormalOutput);
+        sz=compileOpcodes(ctx,fn->opcodes,(unsigned char*)p,sz,&fn->tmpspace_req,&local_namespace,RETURNVALUE_FPSTACK,&fn->rvMode,&fn->fpStackUsage,&fn->canHaveDenormalOutput);
         if (fn->isCommonFunction) ctx->isGeneratingCommonFunction--;
         // recompile function with native context pointers
         if (sz>0)
@@ -1904,7 +1904,7 @@ static void *nseel_getEELFunctionAddress(compileContext *ctx,
       fn->fpStackUsage=0;
       fn->canHaveDenormalOutput=0;
       if (fn->isCommonFunction) ctx->isGeneratingCommonFunction++;
-      codeCall=compileCodeBlockWithRet(ctx,fn->opcodes,&fn->tmpspace_req,&local_namespace,RETURNVALUE_NORMAL|RETURNVALUE_FPSTACK,&fn->rvMode,&fn->fpStackUsage,&fn->canHaveDenormalOutput);
+      codeCall=compileCodeBlockWithRet(ctx,fn->opcodes,&fn->tmpspace_req,&local_namespace,RETURNVALUE_FPSTACK,&fn->rvMode,&fn->fpStackUsage,&fn->canHaveDenormalOutput);
       if (fn->isCommonFunction) ctx->isGeneratingCommonFunction--;
       if (codeCall)
       {
