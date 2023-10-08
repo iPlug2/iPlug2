@@ -400,6 +400,7 @@ LRESULT WDL_CursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
         {
           m_paneoffs_y[pane] += paneh[pane];
           int maxscroll=m_text.GetSize()-paneh[pane]+4;
+          if (maxscroll < 0) maxscroll = 0;
           if (m_paneoffs_y[pane] > maxscroll) m_paneoffs_y[pane]=maxscroll;
         }
         
