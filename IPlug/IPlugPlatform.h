@@ -23,6 +23,8 @@
     #define OS_IOS
   #elif TARGET_OS_MAC
     #define OS_MAC
+  #elif TARGET_OS_VISION
+    #define OS_VISION
   #endif
 #elif defined __linux || defined __linux__ || defined linux
   #define OS_LINUX
