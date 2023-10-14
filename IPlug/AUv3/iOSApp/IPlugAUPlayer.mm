@@ -9,6 +9,7 @@
 */
 
 #import "IPlugAUPlayer.h"
+#import "IPlugIOSMIDI.h"
 #include "IPlugConstants.h"
 #include "config.h"
 
@@ -21,6 +22,7 @@
   AVAudioEngine* audioEngine;
   AVAudioUnit* avAudioUnit;
   UInt32 componentType;
+  IPlugIOSMIDIHost* midiCommunication;
 }
 
 - (instancetype) initWithComponentType: (UInt32) unitComponentType
@@ -31,6 +33,7 @@
   {
     audioEngine = [[AVAudioEngine alloc] init];
     componentType = unitComponentType;
+    midiCommunication = [[IPlugIOSMIDIHost alloc] init];
   }
 
   return self;
@@ -62,6 +65,22 @@
   [session setCategory: AVAudioSessionCategoryPlayAndRecord error:&error];
 #endif
   
+  if (@available(iOS 15.0, *))
+  {
+    avAudioUnit.AUAudioUnit.hostMIDIProtocol = kMIDIProtocol_1_0;
+
+#if PLUG_DOES_MIDI_IN
+    [midiCommunication setMIDIReceiveBlock:avAudioUnit.AUAudioUnit.scheduleMIDIEventListBlock];
+#endif
+    
+#if PLUG_DOES_MIDI_OUT
+    avAudioUnit.AUAudioUnit.MIDIOutputEventListBlock = ^(AUEventSampleTime eventSampleTime, uint8_t cable, const struct MIDIEventList * list)
+    {
+      return [self->midiCommunication sendMIDI:list];
+    };
+#endif
+  }
+    
   [session setPreferredSampleRate:iplug::DEFAULT_SAMPLE_RATE error:nil];
   [session setPreferredIOBufferDuration:128.0/iplug::DEFAULT_SAMPLE_RATE error:nil];
   AVAudioMixerNode* mainMixer = [audioEngine mainMixerNode];
