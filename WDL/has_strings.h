@@ -240,7 +240,11 @@ static const char *hasStrings_scan_for_char_match(const char *p, char v)
   }
 }
 
-WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_list_size, const LineParser *lp)
+WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_list_size, const LineParser *lp
+#ifdef WDL_HASSTRINGS_EXTRA_PARAMETERS
+   WDL_HASSTRINGS_EXTRA_PARAMETERS
+#endif
+    )
 {
   if (!lp) return true;
   const int ntok = lp->getnumtokens();
@@ -367,6 +371,12 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
         }
 
         bool matched = false;
+
+#ifdef WDL_HASSTRINGS_PRE_MATCH
+        if (!wc_left && !wc_right && WDL_HASSTRINGS_PRE_MATCH(n))
+          matched = true;
+        else
+#endif
         for (int i = 0; i < name_list_size; i ++)
         {
           const char *name = name_list[i];
@@ -439,6 +449,7 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
 #undef PUSH_STACK
 }
 
+#ifndef WDL_HASSTRINGS_EXTRA_PARAMETERS
 WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx(const char *name, const LineParser *lp)
 {
   return WDL_hasStringsEx2(&name,1,lp);
@@ -448,6 +459,7 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStrings(const char *name, const LineParser *lp
 {
   return WDL_hasStringsEx2(&name,1,lp);
 }
+#endif
 
 WDL_HASSTRINGS_EXPORT char *WDL_hasstrings_preproc_searchitem(char *wr, const char *src)
 {
