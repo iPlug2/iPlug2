@@ -111,8 +111,6 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ERoute route)
 @implementation IPlugIOSMIDIHost
 {
   MIDIClientRef mClient;
-  MIDIPortRef mInPort;
-  MIDIPortRef mOutPort;
   IPlugIOSMIDI::MIDICachedSource mSource;
   IPlugIOSMIDI::MIDICachedDestination mDestination;
   AUMIDIEventListBlock mReceiveBlock;
@@ -131,17 +129,21 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ERoute route)
   CFRelease(midiClientName);
   
 #if PLUG_DOES_MIDI_IN
-  CFStringRef midiInputPortName = CFStringCreateWithCString(NULL, "MIDI Input", kCFStringEncodingUTF8);
-  MIDIInputPortCreateWithProtocol(mClient, midiInputPortName, kMIDIProtocol_1_0, &mInPort, ^(const MIDIEventList *list, void * __nullable refCon) {
+  MIDIPortRef inPort;
+  CFStringRef inPortName = CFStringCreateWithCString(NULL, "MIDI Input", kCFStringEncodingUTF8);
+  MIDIInputPortCreateWithProtocol(mClient, inPortName, kMIDIProtocol_1_0, &inPort, ^(const MIDIEventList *list, void * __nullable refCon) {
     [self receiveMIDI:list];
   });
-  CFRelease(midiInputPortName);
+  CFRelease(inPortName);
+  mSource.SetPort(inPort);
 #endif
   
 #if PLUG_DOES_MIDI_OUT
-  CFStringRef midiOutputPortName = CFStringCreateWithCString(NULL, "MIDI Output", kCFStringEncodingUTF8);
-  MIDIOutputPortCreate(mClient, midiOutputPortName, &mOutPort);
-  CFRelease(midiOutputPortName);
+  MIDIPortRef outPort;
+  CFStringRef outPortName = CFStringCreateWithCString(NULL, "MIDI Output", kCFStringEncodingUTF8);
+  MIDIOutputPortCreate(mClient, outPortName, &outPort);
+  CFRelease(outPortName);
+  mDestination.SetPort(outPort);
 #endif
   
   [self updateConnections];
@@ -159,7 +161,7 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ERoute route)
 
 - (OSStatus) sendMIDI:(const struct MIDIEventList*) list
 {
-  return MIDISendEventList(mOutPort, mDestination.Get(), list);
+  return MIDISendEventList(mDestination.GetPort(), mDestination.Get(), list);
 }
 
 - (void) setAUAudioUnit:(AUAudioUnit*) audiounit
@@ -186,7 +188,7 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ERoute route)
 
 - (void) updateConnections
 {
-  mSource.Update(mInPort);
+  mSource.Update();
   mDestination.Update();
 }
 
@@ -199,7 +201,7 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ERoute route)
     NSString* direction = (NSString*) dict[@"direction"];
     
     if ([direction compare:[[NSString alloc] initWithUTF8String:"source"]] == NSOrderedSame)
-      mSource.SetName([name cStringUsingEncoding:NSUTF8StringEncoding], mInPort);
+      mSource.SetName([name cStringUsingEncoding:NSUTF8StringEncoding]);
     else
       mDestination.SetName([name cStringUsingEncoding:NSUTF8StringEncoding]);
   }

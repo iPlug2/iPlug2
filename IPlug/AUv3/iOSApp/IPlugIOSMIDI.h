@@ -26,13 +26,21 @@ public:
   {
   public:
     
-    MIDICachedEndpoint() {}
-    ~MIDICachedEndpoint() { CFRelease(mLastName); }
+    MIDICachedEndpoint()
+    : mEndpoint(NULL)
+    , mLastName(NULL)
+    , mPort(NULL)
+    {}
+    
+    ~MIDICachedEndpoint() 
+    { 
+      CFRelease(mLastName);
+    }
     
     MIDICachedEndpoint(const MIDICachedEndpoint&) = delete;
     MIDICachedEndpoint& operator=(const MIDICachedEndpoint&) = delete;
     
-    void Update(MIDIPortRef port = NULL)
+    void Update()
     {
       long idx = mLastName ? GetIndexFromName(mLastName, Route) : (GetNumSourcesOrDestinations(Route) ? 0 : -1);
       
@@ -42,16 +50,29 @@ public:
         
         if (mEndpoint != endpoint)
         {
-          if (port && mEndpoint)
-            MIDIPortDisconnectSource(port, mEndpoint);
+          // Disconnect input ports if needed
+
+          if (Route == iplug::kInput && mEndpoint)
+            MIDIPortDisconnectSource(mPort, mEndpoint);
+          
+          // Flush outputs if needed
           
           if (Route == iplug::kOutput)
             MIDIFlushOutput(endpoint);
           
-          UpdateEndpoint(endpoint);
+          // Update endpoint
           
-          if (port)
-            MIDIPortConnectSource(port, endpoint, NULL);
+          mEndpoint = endpoint;
+          
+          if (mLastName)
+            CFRelease(mLastName);
+          
+          mLastName = CreateNameFromMIDEndpoint(mEndpoint);
+          
+          // Connect input ports if needed
+          
+          if (Route == iplug::kInput)
+            MIDIPortConnectSource(mPort, endpoint, NULL);
         }
       }
       else
@@ -60,10 +81,10 @@ public:
     
     MIDIEndpointRef Get() { return mEndpoint; }
     
-    void SetName(const char *name, MIDIPortRef port = NULL)
+    void SetName(const char *name)
     {
       mLastName = CFStringCreateWithCString(NULL, name, kCFStringEncodingUTF8);
-      Update(port);
+      Update();
     }
     
     void GetName(WDL_String& name)
@@ -74,20 +95,21 @@ public:
       name.Set(cString);
     }
     
-  private:
-    
-    void UpdateEndpoint(MIDIEndpointRef endpoint)
+    void SetPort(MIDIPortRef port)
     {
-      mEndpoint = endpoint;
-      
-      if (mLastName)
-        CFRelease(mLastName);
-      
-      mLastName = CreateNameFromMIDEndpoint(mEndpoint);
+      mPort = port;
     }
     
-    MIDIEndpointRef mEndpoint = NULL;
-    CFStringRef mLastName = NULL;
+    MIDIPortRef GetPort()
+    {
+      return mPort;
+    }
+    
+  private:
+  
+    MIDIEndpointRef mEndpoint;
+    CFStringRef mLastName;
+    MIDIPortRef mPort;
   };
   
   using MIDICachedSource = IPlugIOSMIDI::MIDICachedEndpoint<ERoute::kInput>;
