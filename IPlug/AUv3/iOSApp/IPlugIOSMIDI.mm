@@ -37,13 +37,22 @@ CFStringRef IPlugIOSMIDI::CreateNameFromMIDEndpoint(MIDIEndpointRef endpoint)
   MIDIObjectGetStringProperty(device, kMIDIPropertyName, names + 0);
   MIDIObjectGetStringProperty(endpoint, kMIDIPropertyName, names + 1);
   
-  CFStringRef separator = CFStringCreateWithCString(NULL, ": ", kCFStringEncodingUTF8);
+  CFStringRef name;
   
-  CFArrayRef array = CFArrayCreate(NULL, (const void **) names, 2, NULL);
-  CFStringRef name = CFStringCreateByCombiningStrings(NULL, array, separator);
-  
-  CFRelease(array);
-  CFRelease(separator);
+  if (CFStringCompare(names[0], names[1], kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+  {
+    name = CFStringCreateCopy(NULL, names[0]);
+  }
+  else
+  {
+    CFStringRef separator = CFStringCreateWithCString(NULL, ": ", kCFStringEncodingUTF8);
+    CFArrayRef array = CFArrayCreate(NULL, (const void **) names, 2, NULL);
+    
+    name = CFStringCreateByCombiningStrings(NULL, array, separator);
+    
+    CFRelease(array);
+    CFRelease(separator);
+  }
   
   return name;
 }
