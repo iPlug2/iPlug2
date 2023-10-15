@@ -9,8 +9,8 @@ class MIDISelector : public IControl
 {
 public:
   
-  MIDISelector(IRECT bounds, IPlugIOSMIDI::ConnectionType type)
-  : mType(type)
+  MIDISelector(IRECT bounds, ERoute route)
+  : mRoute(route)
   , IControl(bounds.GetPadded(-0.5f))
   {}
   
@@ -18,21 +18,21 @@ public:
   {
     WDL_String lastChoice;
     
-    IPlugIOSMIDI::GetMidiPort(lastChoice, mType);
+    IPlugIOSMIDI::GetMidiPort(lastChoice, mRoute);
     
     mMenu.Clear();
-    if (mType == IPlugIOSMIDI::ConnectionType::Source)
+    if (mRoute == kInput)
       mMenu.SetRootTitle("MIDI Input");
     else
       mMenu.SetRootTitle("MIDI Output");
     
-    int items = static_cast<int>(IPlugIOSMIDI::GetNumSourcesOrDestinations(mType));
+    int items = static_cast<int>(IPlugIOSMIDI::GetNumSourcesOrDestinations(mRoute));
     bool matched = false;
     
     for (int i = 0; i < items; i++)
     {
       WDL_String name;
-      IPlugIOSMIDI::GetNameFromIndex(name, i, mType);
+      IPlugIOSMIDI::GetNameFromIndex(name, i, mRoute);
       
       if (!strcmp(lastChoice.Get(), name.Get()))
       {
@@ -54,7 +54,7 @@ public:
   {
     WDL_String lastChoice;
     
-    IPlugIOSMIDI::GetMidiPort(lastChoice, mType);
+    IPlugIOSMIDI::GetMidiPort(lastChoice, mRoute);
     
     g.FillRect(COLOR_LIGHT_GRAY, mRECT);
     g.DrawRect(COLOR_BLACK, mRECT);
@@ -68,12 +68,12 @@ public:
     
     if (pSelectedMenu->GetChosenItemIdx() >= 0)
     {
-      IPlugIOSMIDI::SetMidiPort(pSelectedMenu->GetChosenItem()->GetText(), mType);
+      IPlugIOSMIDI::SetMidiPort(pSelectedMenu->GetChosenItem()->GetText(), mRoute);
       SetDirty();
     }
   }
   
-  IPlugIOSMIDI::ConnectionType mType;
+  ERoute mRoute;
   IPopupMenu mMenu;
 };
 #endif
@@ -158,8 +158,8 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
         SplashClickActionFunc(pCaller);
       }, "BTMIDI", style));
       
-      pGraphics->AttachControl(new MIDISelector(IRECT(140, 300, 280, 330), IPlugIOSMIDI::ConnectionType::Source));
-      pGraphics->AttachControl(new MIDISelector(IRECT(300, 300, 440, 330), IPlugIOSMIDI::ConnectionType::Destination));
+      pGraphics->AttachControl(new MIDISelector(IRECT(140, 300, 280, 330), kInput));
+      pGraphics->AttachControl(new MIDISelector(IRECT(300, 300, 440, 330), kOutput));
     }
 #endif
     

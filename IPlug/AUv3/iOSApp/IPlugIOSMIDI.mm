@@ -7,18 +7,18 @@
 // Static Helpers
 
 //static
-ItemCount IPlugIOSMIDI::GetNumSourcesOrDestinations(ConnectionType type)
+ItemCount IPlugIOSMIDI::GetNumSourcesOrDestinations(ERoute route)
 {
-  if (type == ConnectionType::Source)
+  if (route == iplug::kInput)
     return MIDIGetNumberOfSources();
   else
     return MIDIGetNumberOfDestinations();
 }
 
 //static
-MIDIEndpointRef IPlugIOSMIDI::GetEndpoint(ItemCount idx, ConnectionType type)
+MIDIEndpointRef IPlugIOSMIDI::GetEndpoint(ItemCount idx, ERoute route)
 {
-  if (type == ConnectionType::Source)
+  if (route == iplug::kInput)
     return MIDIGetSource(idx);
   else
     return MIDIGetDestination(idx);
@@ -49,31 +49,31 @@ CFStringRef IPlugIOSMIDI::CreateNameFromMIDEndpoint(MIDIEndpointRef endpoint)
 }
 
 //static
-CFStringRef IPlugIOSMIDI::CreateNameFromIndex(ItemCount idx, ConnectionType type)
+CFStringRef IPlugIOSMIDI::CreateNameFromIndex(ItemCount idx, ERoute route)
 {
-  return CreateNameFromMIDEndpoint(GetEndpoint(idx, type));
+  return CreateNameFromMIDEndpoint(GetEndpoint(idx, route));
 }
 
 //static
-void IPlugIOSMIDI::GetNameFromIndex(WDL_String &string, int idx, ConnectionType type)
+void IPlugIOSMIDI::GetNameFromIndex(WDL_String &string, int idx, ERoute route)
 {
   char cString[2048];
   
-  CFStringRef str = CreateNameFromIndex(idx, type);
+  CFStringRef str = CreateNameFromIndex(idx, route);
   CFStringGetCString(str, cString, sizeof(cString), kCFStringEncodingUTF8);
   CFRelease(str);
   string.Set(cString);
 }
 
 //static
-long IPlugIOSMIDI::GetIndexFromName(CFStringRef name, ConnectionType type)
+long IPlugIOSMIDI::GetIndexFromName(CFStringRef name, ERoute route)
 {
-  auto numEndPoints = GetNumSourcesOrDestinations(type);
+  auto numEndPoints = GetNumSourcesOrDestinations(route);
   long idx = -1;
   
   for (long i = 0; i < numEndPoints && idx < 0; i++)
   {
-    auto str = CreateNameFromMIDEndpoint(GetEndpoint(i, type));
+    auto str = CreateNameFromMIDEndpoint(GetEndpoint(i, route));
     if (CFStringCompare(name, str, 0) == kCFCompareEqualTo)
       idx = i;
     CFRelease(str);
@@ -83,26 +83,26 @@ long IPlugIOSMIDI::GetIndexFromName(CFStringRef name, ConnectionType type)
 }
 
 //static
-long IPlugIOSMIDI::GetIndexFromName(WDL_String name, ConnectionType type)
+long IPlugIOSMIDI::GetIndexFromName(WDL_String name, ERoute route)
 {
   CFStringRef str = CFStringCreateWithCString(NULL, name.Get(), kCFStringEncodingUTF8);
-  long idx = GetIndexFromName(str, type);
+  long idx = GetIndexFromName(str, route);
   CFRelease(str);
   
   return idx;
 }
 
 //static
-void IPlugIOSMIDI::SetMidiPort(const char *name, ConnectionType type)
+void IPlugIOSMIDI::SetMidiPort(const char *name, ERoute route)
 {
-  NSDictionary* dic = @{@"name": @(name), @"direction": @(type == ConnectionType::Source ? "source" : "destination")};
+  NSDictionary* dic = @{@"name": @(name), @"direction": @(route == iplug::kInput ? "source" : "destination")};
   [[NSNotificationCenter defaultCenter] postNotificationName:@"SetMIDIPort" object:nil userInfo:dic];
 }
 
 //static
-void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ConnectionType type)
+void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ERoute route)
 {
-  NSDictionary* dic = @{@"name": [NSValue valueWithPointer:&name], @"direction": @(type == ConnectionType::Source ? "source" : "destination")};
+  NSDictionary* dic = @{@"name": [NSValue valueWithPointer:&name], @"direction": @(route == iplug::kInput ? "source" : "destination")};
   [[NSNotificationCenter defaultCenter] postNotificationName:@"GetMIDIPort" object:nil userInfo:dic];
 }
 
