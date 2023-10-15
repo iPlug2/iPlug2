@@ -95,14 +95,14 @@ long IPlugIOSMIDI::GetIndexFromName(WDL_String name, ConnectionType type)
 //static
 void IPlugIOSMIDI::SetMidiPort(const char *name, ConnectionType type)
 {
-  NSDictionary* dic = @{@"name": @(name), @"direction": @(type == ConnectionType::Source ? "Source" : "Destination")};
+  NSDictionary* dic = @{@"name": @(name), @"direction": @(type == ConnectionType::Source ? "source" : "destination")};
   [[NSNotificationCenter defaultCenter] postNotificationName:@"SetMIDIPort" object:nil userInfo:dic];
 }
 
 //static
 void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ConnectionType type)
 {
-  NSDictionary* dic = @{@"name": [NSValue valueWithPointer:&name], @"direction": @(type == ConnectionType::Source ? "Source" : "Destination")};
+  NSDictionary* dic = @{@"name": [NSValue valueWithPointer:&name], @"direction": @(type == ConnectionType::Source ? "source" : "destination")};
   [[NSNotificationCenter defaultCenter] postNotificationName:@"GetMIDIPort" object:nil userInfo:dic];
 }
 
@@ -198,7 +198,7 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ConnectionType type)
     NSString* name = (NSString*) dict[@"name"];
     NSString* direction = (NSString*) dict[@"direction"];
     
-    if ([direction compare:[[NSString alloc] initWithUTF8String:"Source"]] == NSOrderedSame)
+    if ([direction compare:[[NSString alloc] initWithUTF8String:"source"]] == NSOrderedSame)
       mSource.SetName([name cStringUsingEncoding:NSUTF8StringEncoding], mInPort);
     else
       mDestination.SetName([name cStringUsingEncoding:NSUTF8StringEncoding]);
@@ -209,7 +209,7 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ConnectionType type)
     WDL_String* name = (WDL_String*) [(NSValue*) dict[@"name"] pointerValue];
     NSString* direction = (NSString*) dict[@"direction"];
     
-    if ([direction compare:[[NSString alloc] initWithUTF8String:"Source"]] == NSOrderedSame)
+    if ([direction compare:[[NSString alloc] initWithUTF8String:"source"]] == NSOrderedSame)
       mSource.GetName(*name);
     else
       mDestination.GetName(*name);
