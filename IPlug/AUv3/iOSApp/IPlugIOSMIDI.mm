@@ -123,8 +123,7 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ConnectionType type)
 {
   CFStringRef midiClientName = CFStringCreateWithCString(NULL, "MIDI Client", kCFStringEncodingUTF8);
   
-  MIDIClientCreateWithBlock(midiClientName, &mClient, ^(const MIDINotification *message)
-                            {
+  MIDIClientCreateWithBlock(midiClientName, &mClient, ^(const MIDINotification* message) {
     if (message->messageID == kMIDIMsgSetupChanged)
       [self updateConnections];
   });
@@ -133,9 +132,8 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ConnectionType type)
   
 #if PLUG_DOES_MIDI_IN
   CFStringRef midiInputPortName = CFStringCreateWithCString(NULL, "MIDI Input", kCFStringEncodingUTF8);
-  MIDIInputPortCreateWithProtocol(mClient, midiInputPortName, kMIDIProtocol_1_0, &mInPort, ^(const MIDIEventList *evtlist, void * __nullable srcConnRefCon)
-                                  {
-    [self receiveMIDI:evtlist];
+  MIDIInputPortCreateWithProtocol(mClient, midiInputPortName, kMIDIProtocol_1_0, &mInPort, ^(const MIDIEventList *list, void * __nullable refCon) {
+    [self receiveMIDI:list];
   });
   CFRelease(midiInputPortName);
 #endif
@@ -175,15 +173,13 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ConnectionType type)
 #endif
     
 #if PLUG_DOES_MIDI_OUT
-    audiounit.MIDIOutputEventListBlock = ^(AUEventSampleTime eventSampleTime, uint8_t cable, const struct MIDIEventList * list)
-    {
+    audiounit.MIDIOutputEventListBlock = ^(AUEventSampleTime eventSampleTime, uint8_t cable, const struct MIDIEventList* list) {
       return [self sendMIDI:list];
     };
 #endif
   }
   
-  [audiounit tokenByAddingRenderObserver:^(AudioUnitRenderActionFlags actionFlags, const AudioTimeStamp * _Nonnull timestamp, AUAudioFrameCount frameCount, NSInteger outputBusNumber) 
-   {
+  [audiounit tokenByAddingRenderObserver:^(AudioUnitRenderActionFlags actionFlags, const AudioTimeStamp * _Nonnull timestamp, AUAudioFrameCount frameCount, NSInteger outputBusNumber) {
     self->mTime = timestamp->mSampleTime;
   }];
 }
