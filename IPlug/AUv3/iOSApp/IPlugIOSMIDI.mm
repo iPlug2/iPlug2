@@ -116,6 +116,7 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ConnectionType type)
   IPlugIOSMIDI::MIDICachedSource mSource;
   IPlugIOSMIDI::MIDICachedDestination mDestination;
   AUMIDIEventListBlock mReceiveBlock;
+  AUEventSampleTime mTime;
 };
 
 - (IPlugIOSMIDIHost*) init
@@ -155,7 +156,7 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ConnectionType type)
 
 - (void) receiveMIDI:(const struct MIDIEventList*) list
 {
-  mReceiveBlock(0, 0, list);
+  mReceiveBlock(mTime, 0, list);
 }
 
 - (OSStatus) sendMIDI:(const struct MIDIEventList*) list
@@ -180,6 +181,11 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ConnectionType type)
     };
 #endif
   }
+  
+  [audiounit tokenByAddingRenderObserver:^(AudioUnitRenderActionFlags actionFlags, const AudioTimeStamp * _Nonnull timestamp, AUAudioFrameCount frameCount, NSInteger outputBusNumber) 
+   {
+    self->mTime = timestamp->mSampleTime;
+  }];
 }
 
 - (void) updateConnections
