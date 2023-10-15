@@ -455,25 +455,12 @@ void WDL_VirtualIconButton::OnMouseMove(int xpos, int ypos)
   {
     int wp=m_pressed;
 
-    WDL_VWnd *parhit = GetParent();
-    if (parhit)
-    {
-      parhit = parhit->VirtWndFromPoint(m_position.left+xpos,m_position.top+ypos,0);
-    }
-    else if (!parhit)
-    {
-      // special case if no parent
-      if (xpos >= 0 && xpos < m_position.right-m_position.left && ypos >= 0 && ypos < m_position.bottom-m_position.top) parhit=this;      
-    }
-    
-    if (parhit == this)
-    {
+    RECT r;
+    GetPosition(&r);
+    if (xpos >= 0 && xpos < r.right-r.left && ypos >= 0 && ypos < r.bottom-r.top)
       m_pressed|=2;
-    }
     else
-    {
       m_pressed&=~2;
-    }
 
     if ((m_pressed&3)!=(wp&3))
     {
