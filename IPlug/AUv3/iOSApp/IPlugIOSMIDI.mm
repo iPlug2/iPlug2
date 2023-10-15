@@ -163,9 +163,23 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ConnectionType type)
   return MIDISendEventList(mOutPort, mDestination.Get(), list);
 }
 
-- (void) setMIDIReceiveBlock:(AUMIDIEventListBlock) block
+- (void) setAUAudioUnit:(AUAudioUnit*) audiounit
 {
-  mReceiveBlock = block;
+  if (@available(iOS 15.0, *))
+  {
+    audiounit.hostMIDIProtocol = kMIDIProtocol_1_0;
+    
+#if PLUG_DOES_MIDI_IN
+    mReceiveBlock = audiounit.scheduleMIDIEventListBlock;
+#endif
+    
+#if PLUG_DOES_MIDI_OUT
+    audiounit.MIDIOutputEventListBlock = ^(AUEventSampleTime eventSampleTime, uint8_t cable, const struct MIDIEventList * list)
+    {
+      return [self sendMIDI:list];
+    };
+#endif
+  }
 }
 
 - (void) updateConnections

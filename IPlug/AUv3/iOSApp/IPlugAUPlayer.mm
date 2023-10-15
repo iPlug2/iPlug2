@@ -22,7 +22,7 @@
   AVAudioEngine* audioEngine;
   AVAudioUnit* avAudioUnit;
   UInt32 componentType;
-  IPlugIOSMIDIHost* midiCommunication;
+  IPlugIOSMIDIHost* midiHost;
 }
 
 - (instancetype) initWithComponentType: (UInt32) unitComponentType
@@ -33,7 +33,7 @@
   {
     audioEngine = [[AVAudioEngine alloc] init];
     componentType = unitComponentType;
-    midiCommunication = [[IPlugIOSMIDIHost alloc] init];
+    midiHost = [[IPlugIOSMIDIHost alloc] init];
   }
 
   return self;
@@ -64,22 +64,8 @@
 #else
   [session setCategory: AVAudioSessionCategoryPlayAndRecord error:&error];
 #endif
-  
-  if (@available(iOS 15.0, *))
-  {
-    avAudioUnit.AUAudioUnit.hostMIDIProtocol = kMIDIProtocol_1_0;
 
-#if PLUG_DOES_MIDI_IN
-    [midiCommunication setMIDIReceiveBlock:avAudioUnit.AUAudioUnit.scheduleMIDIEventListBlock];
-#endif
-    
-#if PLUG_DOES_MIDI_OUT
-    avAudioUnit.AUAudioUnit.MIDIOutputEventListBlock = ^(AUEventSampleTime eventSampleTime, uint8_t cable, const struct MIDIEventList * list)
-    {
-      return [self->midiCommunication sendMIDI:list];
-    };
-#endif
-  }
+  [midiHost setAUAudioUnit:avAudioUnit.AUAudioUnit];
     
   [session setPreferredSampleRate:iplug::DEFAULT_SAMPLE_RATE error:nil];
   [session setPreferredIOBufferDuration:128.0/iplug::DEFAULT_SAMPLE_RATE error:nil];

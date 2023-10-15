@@ -103,11 +103,7 @@ public:
 
 @interface IPlugIOSMIDIHost : NSObject
 - (IPlugIOSMIDIHost*) init;
-- (void) receiveMIDI:(const struct MIDIEventList*) list;
-- (OSStatus) sendMIDI:(const struct MIDIEventList*) list;
-- (void) setMIDIReceiveBlock:(AUMIDIEventListBlock) block;
-- (void) updateConnections;
-- (void) receiveNotification:(NSNotification*) notification;
+- (void) setAUAudioUnit:(AUAudioUnit*) audiounit;
 @end
 
 #endif
