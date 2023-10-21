@@ -98,6 +98,7 @@ void WDL_VirtualListBox::CalcLayout(int num_items, layout_info *layout)
     if (min_cols < 1) min_cols = 1;
   }
   if (max_cols < min_cols) max_cols = min_cols;
+  if (max_cols2 < min_cols) max_cols2 = min_cols;
 
   static WDL_TypedBuf<int> s_heights;
 
@@ -122,7 +123,7 @@ again:
     int rh = GetItemHeight(item, &flag);
     if (y > 0 && y + rh > h) 
     {
-      if (max_cols == 1 && !(flag&ITEMH_FLAG_NOSQUISH) && y + rh_base <= h) s_heights.Add(rh | flag); // allow partial of larger item in single column mode
+      if (cols == max_cols && !(flag&ITEMH_FLAG_NOSQUISH) && y + rh_base <= h) s_heights.Add(rh | flag); // allow partial of larger item in single column mode
       if (cols >= max_cols) break;
       cols++;
       y=0;
@@ -160,7 +161,7 @@ again:
   }
   const bool has_scroll = item < num_items || startitem > 0;
 
-  if (has_scroll && cols > 1 && max_cols > max_cols2)
+  if (has_scroll && cols > wdl_max(min_cols,1) && max_cols > max_cols2)
   {
     max_cols = max_cols2;
     goto again;
@@ -858,7 +859,7 @@ bool WDL_VirtualListBox::GetItemRect(int item, RECT *r)
       {
         int flag = 0;
         const int rh = x < layout.heights->GetSize() ? layout.GetHeight(x,&flag) : rh_base;
-        if (y > 0 && y + rh > layout.item_area_h && (col < layout.columns || (flag&ITEMH_FLAG_NOSQUISH) || y+rh_base > layout.item_area_h)) { col++; y = 0; }
+        if (y > 0 && y + rh > layout.item_area_h && (col < layout.columns-1 || (flag&ITEMH_FLAG_NOSQUISH) || y+rh_base > layout.item_area_h)) { col++; y = 0; }
         y += rh;
       }
     }
@@ -868,7 +869,7 @@ bool WDL_VirtualListBox::GetItemRect(int item, RECT *r)
 
     if (!do_wordwise)
     {
-      if (y > 0 && y + rh > layout.item_area_h && (col < layout.columns || (flag&ITEMH_FLAG_NOSQUISH) || y+rh_base > layout.item_area_h)) { col++; y = 0; }
+      if (y > 0 && y + rh > layout.item_area_h && (col < layout.columns-1 || (flag&ITEMH_FLAG_NOSQUISH) || y+rh_base > layout.item_area_h)) { col++; y = 0; }
     }
     if (col >= layout.columns)  { if (r) memset(r,0,sizeof(RECT)); return false; }
 
@@ -932,12 +933,12 @@ int WDL_VirtualListBox::IndexFromPtInt(int x, int y, const layout_info &layout)
   {
     if (x < xpos) return -1;
     int ypos = 0;
-    const int nx = (++col * usewid) / layout.columns;
+    const int nx = ((col+1) * usewid) / layout.columns;
     for (;;)
     {
       int flag = 0;
       const int rh = idx < layout.heights->GetSize() ? layout.GetHeight(idx,&flag) : rh_base;
-      if (ypos > 0 && ypos + rh > layout.item_area_h && (col < layout.columns || (flag & ITEMH_FLAG_NOSQUISH) || ypos+rh_base > layout.item_area_h))
+      if (ypos > 0 && ypos + rh > layout.item_area_h && (col < layout.columns-1 || (flag & ITEMH_FLAG_NOSQUISH) || ypos+rh_base > layout.item_area_h))
       {
         // item doesn't fit in this column
         if (x < nx) return -1; // stop looking we didn't hit anything
@@ -947,6 +948,7 @@ int WDL_VirtualListBox::IndexFromPtInt(int x, int y, const layout_info &layout)
       ypos += rh;
       idx++;
     }
+    if (++col >= layout.columns) return -1;
     if (x < nx && y >= ypos) return -1; // empty space at bottom of column
     xpos = nx;
   }
