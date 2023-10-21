@@ -453,7 +453,6 @@ public:
 
   int AsyncRead(char *buf, int maxlen)
   {
-    char *obuf=buf;
     int lenout=0;
     if (m_file_position+maxlen > m_fsize)
     {
