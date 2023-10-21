@@ -5290,6 +5290,25 @@ int NSEEL_VM_setramsize(NSEEL_VMCTX _ctx, int maxent)
   return ctx->ram_state->maxblocks * NSEEL_RAM_ITEMSPERBLOCK;
 }
 
+void NSEEL_VM_preallocram(NSEEL_VMCTX _ctx, int maxent)
+{
+  compileContext *ctx = (compileContext *)_ctx;
+  int x;
+  if (!ctx || !maxent) return;
+
+  if (maxent < 0)
+  {
+    maxent = ctx->ram_state->maxblocks;
+  }
+  else
+  {
+    maxent = (maxent + NSEEL_RAM_ITEMSPERBLOCK - 1)/NSEEL_RAM_ITEMSPERBLOCK;
+    if (maxent > ctx->ram_state->maxblocks) maxent = ctx->ram_state->maxblocks;
+  }
+  for (x = 0; x < maxent; x ++)
+    __NSEEL_RAMAlloc(ctx->ram_state->blocks,x * NSEEL_RAM_ITEMSPERBLOCK);
+}
+
 void NSEEL_VM_SetFunctionValidator(NSEEL_VMCTX _ctx, const char * (*validateFunc)(const char *fn_name, void *user), void *user)
 {
   if (_ctx)

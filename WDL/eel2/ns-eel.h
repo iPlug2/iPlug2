@@ -155,6 +155,7 @@ EEL_F *NSEEL_VM_getramptr_noalloc(NSEEL_VMCTX ctx, unsigned int offs, int *valid
 
 // set 0 to query. returns actual value used (limits, granularity apply -- see NSEEL_RAM_BLOCKS)
 int NSEEL_VM_setramsize(NSEEL_VMCTX ctx, int maxent);
+void NSEEL_VM_preallocram(NSEEL_VMCTX ctx, int maxent); // maxent=-1 for all allocated
 
 
 struct eelStringSegmentRec {
