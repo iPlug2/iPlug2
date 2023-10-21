@@ -1065,8 +1065,17 @@ static bool s_mtl_in_update;
 -(void)setTag:(NSInteger)t { m_tag=t; }
 -(LONG_PTR)getSwellUserData { return m_userdata; }
 -(void)setSwellUserData:(LONG_PTR)val {   m_userdata=val; }
--(LPARAM)getSwellExtraData:(int)idx { idx/=sizeof(INT_PTR); if (idx>=0&&idx<sizeof(m_extradata)/sizeof(m_extradata[0])) return m_extradata[idx]; return 0; }
--(void)setSwellExtraData:(int)idx value:(LPARAM)val { idx/=sizeof(INT_PTR); if (idx>=0&&idx<sizeof(m_extradata)/sizeof(m_extradata[0])) m_extradata[idx] = val; }
+-(LPARAM)getSwellExtraData:(int)idx {
+  idx/=sizeof(INT_PTR);
+  if (WDL_NORMALLY(idx>=0&&idx<sizeof(m_extradata)/sizeof(m_extradata[0])))
+    return m_extradata[idx];
+  return 0;
+}
+-(void)setSwellExtraData:(int)idx value:(LPARAM)val {
+  idx/=sizeof(INT_PTR);
+  if (WDL_NORMALLY(idx>=0&&idx<sizeof(m_extradata)/sizeof(m_extradata[0])))
+    m_extradata[idx] = val;
+}
 -(void)setSwellWindowProc:(WNDPROC)val { m_wndproc=val; }
 -(WNDPROC)getSwellWindowProc { return m_wndproc; }
 -(void)setSwellDialogProc:(DLGPROC)val { m_dlgproc=val; }
