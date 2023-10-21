@@ -79,7 +79,10 @@ public:
         mEndpoint = NULL;
     }
     
-    MIDIEndpointRef Get() { return mEndpoint; }
+    MIDIEndpointRef GetEndpoint()
+    {
+      return mEndpoint;
+    }
     
     void SetName(const char *name)
     {

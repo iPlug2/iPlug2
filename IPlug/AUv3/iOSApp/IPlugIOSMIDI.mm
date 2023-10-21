@@ -170,7 +170,7 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ERoute route)
 
 - (OSStatus) sendMIDI:(const struct MIDIEventList*) list
 {
-  return MIDISendEventList(mDestination.GetPort(), mDestination.Get(), list);
+  return MIDISendEventList(mDestination.GetPort(), mDestination.GetEndpoint(), list);
 }
 
 - (void) setAUAudioUnit:(AUAudioUnit*) audiounit
