@@ -6873,8 +6873,20 @@ void SWELL_DrawFocusRect(HWND hwndPar, RECT *rct, void **handle)
 @implementation SWELL_PopUpButton
 STANDARD_CONTROL_NEEDSDISPLAY_IMPL("combobox")
 
+
+-(id) init {
+  self = [super init];
+  if (self != nil) {
+    m_userdata=0;
+    m_style=0;
+  }
+  return self;
+}
+
 -(void)setSwellStyle:(LONG)style { m_style=style; }
 -(LONG)getSwellStyle { return m_style; }
+-(LONG_PTR)getSwellUserData { return m_userdata; }
+-(void)setSwellUserData:(LONG_PTR)val {   m_userdata=val; }
 @end
 
 @implementation SWELL_ComboBox
@@ -6889,6 +6901,8 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("combobox")
     m_ids=new WDL_PtrList<char>;
     m_ignore_selchg = -1;
     m_disable_menu = false;
+    m_userdata=0;
+    m_style=0;
   }
   return self;
 }
@@ -6912,6 +6926,8 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("combobox")
 {
   m_disable_menu=dis;
 }
+-(LONG_PTR)getSwellUserData { return m_userdata; }
+-(void)setSwellUserData:(LONG_PTR)val {   m_userdata=val; }
 
 @end
 

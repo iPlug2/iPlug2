@@ -593,15 +593,20 @@ HDC SWELL_CreateMetalDC(SWELL_hwndChild *);
 @interface SWELL_PopUpButton : NSPopUpButton
 {
   LONG m_style;
+  LONG_PTR m_userdata;
 }
+-(id)init;
 -(void)setSwellStyle:(LONG)style;
 -(LONG)getSwellStyle;
+-(LONG_PTR)getSwellUserData;
+-(void)setSwellUserData:(LONG_PTR)val;
 @end
 
 @interface SWELL_ComboBox : NSComboBox
 {
 @public
   LONG m_style;
+  LONG_PTR m_userdata;
   WDL_PtrList<char> *m_ids;
   int m_ignore_selchg; // used to track the last set selection state, to avoid getting feedback notifications
   bool m_disable_menu;
@@ -612,6 +617,8 @@ HDC SWELL_CreateMetalDC(SWELL_hwndChild *);
 -(LONG)getSwellStyle;
 - (void)swellDisableContextMenu:(bool)dis;
 - (NSMenu *)textView:(NSTextView *)view menu:(NSMenu *)menu forEvent:(NSEvent *)event atIndex:(NSUInteger)charIndex;
+-(LONG_PTR)getSwellUserData;
+-(void)setSwellUserData:(LONG_PTR)val;
 @end
 
 
