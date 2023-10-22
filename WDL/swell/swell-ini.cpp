@@ -218,6 +218,8 @@ static iniFileContext *GetFileContext(const char *name)
         if (t)
         {
           *t++=0;
+          // for maximum win32 compat, we should skip leading whitespace on t, and also trim quotes if any
+          WDL_remove_trailing_whitespace(p);
           if (*p) 
             cursec->AddUnsorted(p,strdup(t));
         }
