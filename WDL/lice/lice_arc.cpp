@@ -340,8 +340,8 @@ public:
   {
     int r = LICE_GETR(color), g = LICE_GETG(color), b = LICE_GETB(color), a = LICE_GETA(color);
     
-    const int cx0=(int)(cx+0.5f);
-    const int cy0=(int)(cy+0.5f);
+    const int cx0=(int)floor(cx+0.5f);
+    const int cy0=(int)floor(cy+0.5f);
 
     int y=(int)rad;
     double w=rad-floor(rad);
@@ -428,8 +428,8 @@ public:
   {
     const int r = LICE_GETR(color), g = LICE_GETG(color), b = LICE_GETB(color), a = LICE_GETA(color);
 
-    const int cx0=(int)(cx+0.5f);
-    const int cy0=(int)(cy+0.5f);
+    const int cx0=(int)floor(cx+0.5f);
+    const int cy0=(int)floor(cy+0.5f);
     const int r0=(int)(rad+0.5f);
    
     if (filled)
@@ -534,16 +534,16 @@ static void __DrawArc(int w, int h, LICE_IBitmap* dest, float cx, float cy, floa
 
   double next_ang = anglo - fmod(anglo,0.5*_PI);
 
-  int ly = (int)(cy - rad*cos(anglo) + 0.5);
-  int lx = (int)(cx + rad*sin(anglo) + 0.5);
+  int ly = (int)floor(cy - rad*cos(anglo) + 0.5);
+  int lx = (int)floor(cx + rad*sin(anglo) + 0.5);
 
   while (anglo < anghi)
   {
     next_ang += 0.5*_PI;
     if (next_ang > anghi) next_ang = anghi;
 
-    int yhi = (int) (cy-rad*cos(next_ang)+0.5);
-    int xhi = (int) (cx+rad*sin(next_ang)+0.5);
+    int yhi = (int) floor(cy-rad*cos(next_ang)+0.5);
+    int xhi = (int) floor(cx+rad*sin(next_ang)+0.5);
     int ylo = ly;
     int xlo = lx;
 
