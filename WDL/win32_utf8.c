@@ -1090,6 +1090,7 @@ DWORD GetPrivateProfileStringUTF8(LPCTSTR appStr, LPCTSTR keyStr, LPCTSTR defStr
     memset(retStr + rv,0,nullsz);
   }
   
+  MBTOWIDE_FREE(wdef);
   WIDETOMB_FREE(buf);
   PROFILESTR_COMMON_END
   return GetPrivateProfileStringA(appStr,keyStr,defStr,retStr,nSize,fnStr);
