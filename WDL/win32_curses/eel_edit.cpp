@@ -1596,10 +1596,29 @@ void EEL_Editor::draw_bottom_line()
 #define SHIFT_KEY_DOWN (GetAsyncKeyState(VK_SHIFT)&0x8000)
 #define ALT_KEY_DOWN (GetAsyncKeyState(VK_MENU)&0x8000)
 
+#ifndef WM_MOUSEWHEEL
+#define WM_MOUSEWHEEL 0x20A
+#endif
+
 static const char *suggestion_help_text = "(up/down to select, tab to insert)";
 static const char *suggestion_help_text2 = "(tab or return to insert)";
 static LRESULT WINAPI suggestionProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+#ifdef _WIN32
+
+  static int Scroll_Message;
+  if (!Scroll_Message)
+  {
+    Scroll_Message = (int)RegisterWindowMessage("MSWHEEL_ROLLMSG");
+    if (!Scroll_Message) Scroll_Message=-1;
+  }
+  if (Scroll_Message > 0 && uMsg == (UINT)Scroll_Message)
+  {
+    uMsg=WM_MOUSEWHEEL;
+    wParam<<=16;
+  }
+#endif
+
   EEL_Editor *editor;
   switch (uMsg)
   {
@@ -1607,6 +1626,35 @@ static LRESULT WINAPI suggestionProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
       editor = (EEL_Editor *)GetWindowLongPtr(hwnd,GWLP_USERDATA);
       if (editor) editor->m_suggestion_hwnd = NULL;
     break;
+    case WM_MOUSEWHEEL:
+    {
+      editor = (EEL_Editor *)GetWindowLongPtr(hwnd,GWLP_USERDATA);
+      if (editor && editor->m_cursesCtx)
+      {
+        win32CursesCtx *ctx = (win32CursesCtx *)editor->m_cursesCtx;
+        int a = (int)(short)HIWORD(wParam);
+        if (a < 0) { a /= 120; if (a==0) a--; }
+        else if (a>0) { a /= 120; if (a==0) a++; }
+        else return 1;
+
+        RECT r;
+        GetClientRect(hwnd,&r);
+        const int fonth = wdl_max(ctx->m_font_h,1);
+        const int maxv = wdl_max(r.bottom / fonth - 1,1);
+        const int ni = editor->m_suggestion_list.get_size();
+        if (ni > maxv)
+        {
+          const int nv = wdl_clamp(editor->m_suggestion_hwnd_scroll - a, 0, ni - maxv);
+          if (nv != editor->m_suggestion_hwnd_scroll)
+          {
+            editor->m_suggestion_hwnd_scroll = nv;
+            editor->m_suggestion_hwnd_sel = wdl_clamp(editor->m_suggestion_hwnd_sel,nv,nv+maxv-1);
+            InvalidateRect(hwnd,NULL,FALSE);
+          }
+        }
+      }
+    }
+    return 1;
     case WM_LBUTTONDOWN:
     case WM_MOUSEMOVE:
       editor = (EEL_Editor *)GetWindowLongPtr(hwnd,GWLP_USERDATA);
