@@ -28,6 +28,8 @@ EEL_Editor::EEL_Editor(void *cursesCtx) : WDL_CursesEditor(cursesCtx)
   m_function_prefix = "function ";
 
   m_suggestion_hwnd=NULL;
+  m_suggestion_hwnd_scroll=0;
+  m_suggestion_hwnd_sel=-1;
   m_code_func_cache_lines=0;
   m_code_func_cache_time=0;
 }
@@ -1628,7 +1630,7 @@ static LRESULT WINAPI suggestionProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
           const int max_vis = r.bottom / ctx->m_font_h - 1, sel = editor->m_suggestion_hwnd_sel;
           int hit = GET_Y_LPARAM(lParam) / ctx->m_font_h;
           if (hit >= max_vis) return 0;
-          if (sel >= max_vis) hit += 1 + sel - max_vis;
+          hit += editor->m_suggestion_hwnd_scroll;
 
           if (uMsg == WM_LBUTTONDOWN && !SHIFT_KEY_DOWN && !ALT_KEY_DOWN && !CTRL_KEY_DOWN)
           {
@@ -1683,13 +1685,17 @@ static LRESULT WINAPI suggestionProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
           SetBkMode(ps.hdc,TRANSPARENT);
 
           const int fonth = wdl_max(ctx->m_font_h,1);
-          const int maxv = r.bottom / fonth - 1;
+          const int maxv = wdl_max(r.bottom / fonth - 1,1);
           const int selpos = wdl_max(editor->m_suggestion_hwnd_sel,0);
           int ypos = 0;
 
+          editor->m_suggestion_hwnd_scroll = wdl_clamp(editor->m_suggestion_hwnd_scroll, selpos-maxv + 1,selpos);
+          if (editor->m_suggestion_hwnd_scroll < 0)
+            editor->m_suggestion_hwnd_scroll = 0;
+
           const bool show_scores = (GetAsyncKeyState(VK_SHIFT)&0x8000) && (GetAsyncKeyState(VK_CONTROL)&0x8000) && (GetAsyncKeyState(VK_MENU)&0x8000);
 
-          for (int x = (selpos >= maxv ? 1+selpos-maxv : 0); x < ml->get_size() && ypos <= r.bottom-fonth*2; x ++)
+          for (int x = editor->m_suggestion_hwnd_scroll; x < ml->get_size() && ypos <= r.bottom-fonth*2; x ++)
           {
             int mode, score;
             const char *p = ml->get(x,&mode,&score);
