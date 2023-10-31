@@ -2127,6 +2127,9 @@ static EEL_F NSEEL_CGEN_CALL _gfx_getchar(void *opaque, INT_PTR np, EEL_F **plis
         {
           if (ctx->hwnd_standalone==GetFocus()) rv|=2;
           if (IsWindowVisible(ctx->hwnd_standalone)) rv|=4;
+          POINT p;
+          GetCursorPos(&p);
+          if (WindowFromPoint(p) == ctx->hwnd_standalone) rv|=8;
         }
         return rv;
       }
@@ -3122,7 +3125,7 @@ static const char *eel_lice_function_reference =
      "\4" "27 for ESC\n"
      "\4" "13 for Enter\n"
      "\4' ' for space\n"
-     "\4" "65536 for query of special flags, returns: &1 (supported), &2=window has focus, &4=window is visible\n"
+     "\4" "65536 for query of special flags, returns: &1 (supported), &2=window has focus, &4=window is visible, &8=mouse click would hit window\n"
      "\4If unichar is specified, it will be set to the unicode value of the key if available (and the return value may be the unicode value or a raw key value as described above, depending). If unichar is not specified, unicode codepoints greater than 255 will be returned as 'u'<<24 + value\n"
      "\2\0"
     
