@@ -107,7 +107,7 @@ FILE *g_eel_dump_fp, *g_eel_dump_fp2;
 
 #include "glue_ppc.h"
 
-#elif defined(__aarch64__)
+#elif defined(__aarch64__) || defined(_M_ARM64)
 
 #include "glue_aarch64.h"
 
@@ -2071,13 +2071,18 @@ start_over: // when an opcode changed substantially in optimization, goto here t
           {
             case FN_MOD:
               {
-                int a = (int) op->parms.parms[1]->parms.dv.directValue;
+                EEL_F ret = 0.0;
+                int a = (int) fabs(op->parms.parms[1]->parms.dv.directValue);
                 if (a) 
                 {
-                  a = (int) op->parms.parms[0]->parms.dv.directValue % a;
-                  if (a<0) a=-a;
+#ifdef GLUE_MOD_IS_64
+                  ret = ((WDL_INT64) fabs(op->parms.parms[0]->parms.dv.directValue)) % a;
+#else
+                  ret = ((int) fabs(op->parms.parms[0]->parms.dv.directValue)) % a;
+#endif
+                  if (WDL_NOT_NORMALLY(ret<0)) ret = -ret;
                 }
-                RESTART_DIRECTVALUE((EEL_F)a);
+                RESTART_DIRECTVALUE(ret);
               }
             break;
             case FN_SHL:      RESTART_DIRECTVALUE(((int)op->parms.parms[0]->parms.dv.directValue) << ((int)op->parms.parms[1]->parms.dv.directValue));
@@ -2804,7 +2809,7 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
     const int max_params=16384; // arm uses up to two instructions, should be good for at leaast 64k (16384*4)
 #elif defined(__ppc__)
     const int max_params=4096; // 32kb max offset addressing for stack, so 4096*4 = 16384, should be safe
-#elif defined(__aarch64__)
+#elif defined(__aarch64__) || defined(_M_ARM64)
     const int max_params=32768; 
 #else
     const int max_params=32768; // sanity check, the stack is free to grow on x86/x86-64

@@ -8,7 +8,7 @@
 #include "queue.h"
 
 
-#define CHANNELPINMAPPER_MAXPINS 64
+#define CHANNELPINMAPPER_MAXPINS 128
 
 
 struct PinMapPin

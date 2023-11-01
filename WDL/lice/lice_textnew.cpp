@@ -796,6 +796,12 @@ int LICE_CachedFont::DrawTextImpl(LICE_IBitmap *bm, const char *str, int strcnt,
 
   if (dtFlags&DT_SINGLELINE) dtFlags &= ~DT_WORDBREAK;
 
+#ifndef _WIN32
+  const int lsadj = m_lsadj+3;
+#else
+  const int lsadj = m_lsadj;
+#endif
+
   // if using line-spacing adjustments (m_lsadj), don't allow native rendering 
   // todo: split rendering up into invidual lines and DrawText calls
 #ifndef LICE_TEXT_NONATIVE
@@ -808,7 +814,7 @@ int LICE_CachedFont::DrawTextImpl(LICE_IBitmap *bm, const char *str, int strcnt,
 #endif
       !(dtFlags & LICE_DT_USEFGALPHA) &&
       !(m_flags&LICE_FONT_FLAG_PRECALCALL) && !LICE_FONT_FLAGS_HAS_FX(m_flags) &&
-      (!m_lsadj || (dtFlags&DT_SINGLELINE))) || 
+      (!lsadj || (dtFlags&DT_SINGLELINE))) ||
       (m_line_height >= USE_NATIVE_RENDERING_FOR_FONTS_HIGHER_THAN) ) 
   {
 
@@ -1092,12 +1098,12 @@ finish_up_native_render:
         {
           if (m_flags&LICE_FONT_FLAG_VERTICAL)
           {
-            xpos+=m_line_height+m_lsadj;
+            xpos+=m_line_height+lsadj;
             ypos=0;
           }
           else
           {
-            ypos+=m_line_height+m_lsadj;
+            ypos+=m_line_height+lsadj;
             xpos=0;
           }
           if (dtFlags&DT_WORDBREAK) next_break=NULL;
@@ -1131,7 +1137,7 @@ finish_up_native_render:
           {
             if (str == next_break)
             {
-              xpos += m_line_height+m_lsadj;
+              xpos += m_line_height+lsadj;
               ypos=0;
               next_break=NULL;
             }
@@ -1144,7 +1150,7 @@ finish_up_native_render:
           {
             if (str == next_break)
             {
-              ypos += m_line_height+m_lsadj;
+              ypos += m_line_height+lsadj;
               xpos=0;
               next_break=NULL;
             }
@@ -1210,6 +1216,9 @@ finish_up_native_render:
     if (dtFlags & DT_VCENTER)
     {
       ypos += (use_rect.bottom-use_rect.top-tr.bottom)/2;
+#ifdef __APPLE__
+      ypos+=2;
+#endif
     }
     else if (dtFlags & DT_BOTTOM)
     {
@@ -1274,12 +1283,12 @@ finish_up_native_render:
       {
         if (m_flags&LICE_FONT_FLAG_VERTICAL) 
         {
-          xpos+=m_line_height+m_lsadj;
+          xpos+=m_line_height+lsadj;
           ypos=start_y;
         }
         else
         {
-          ypos+=m_line_height+m_lsadj;
+          ypos+=m_line_height+lsadj;
           xpos=start_x;
         }
         if (dtFlags&DT_WORDBREAK) next_break=NULL;
@@ -1315,7 +1324,7 @@ finish_up_native_render:
         {
           if (str == next_break)
           {
-            xpos += m_line_height+m_lsadj;
+            xpos += m_line_height+lsadj;
             ypos=start_y;
             next_break=NULL;
           }
@@ -1328,7 +1337,7 @@ finish_up_native_render:
         {
           if (str == next_break)
           {
-            ypos += m_line_height+m_lsadj;
+            ypos += m_line_height+lsadj;
             xpos=start_x;
             next_break=NULL;
           }

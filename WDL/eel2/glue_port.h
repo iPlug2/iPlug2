@@ -1,6 +1,7 @@
 #ifndef _EEL_GLUE_PORTABLE_H_
 #define _EEL_GLUE_PORTABLE_H_
 
+#define GLUE_MOD_IS_64
 
 #define DECL_ASMFUNC(x) 
 #define GLUE_JMP_TYPE int
@@ -789,14 +790,14 @@ static void GLUE_CALL_CODE(INT_PTR bp, INT_PTR cp, INT_PTR rt)
       break;
       case EEL_BC_MOD:
         {
-          int a = (int) (fp_pop());
-          fp_top = a ? (EEL_F) ((int)fp_top % a) : 0.0;
+          int a = (int) fabs(fp_pop());
+          fp_top = a ? (EEL_F) (((WDL_INT64)fabs(fp_top)) % a) : 0.0;
         }
       break;
       case EEL_BC_MOD_OP:
         {
-          int a = (int) (fp_pop());
-          *p2 = a ? (EEL_F) ((int)*p2 % a) : 0.0;
+          int a = (int) fabs(fp_pop());
+          *p2 = a ? (EEL_F) (((WDL_INT64)fabs(*p2)) % a) : 0.0;
           p1=p2;
 
         }

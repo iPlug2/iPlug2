@@ -912,6 +912,9 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define MIIM_SUBMENU 8
 #define MIIM_DATA 16
 #define MIIM_BITMAP 0x80
+#ifdef __APPLE__
+#define MIIM_SWELL_DO_NOT_CALC_MODIFIERS (1<<30)
+#endif
 
 #define MF_ENABLED 0
 #define MF_GRAYED 1
@@ -924,6 +927,9 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define MF_BYCOMMAND 0
 #define MF_BYPOSITION 0x400
 #define MF_SEPARATOR 0x800
+#ifdef __APPLE__
+#define MF_SWELL_DO_NOT_CALC_MODIFIERS (1<<30)
+#endif
 
 #define MFT_STRING MF_STRING
 #define MFT_BITMAP MF_BITMAP

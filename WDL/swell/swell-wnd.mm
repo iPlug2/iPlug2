@@ -588,7 +588,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("SysTreeView32")
   {
     POINT p;
     GetCursorPos(&p);
-    SendMessage((HWND)[self target],WM_CONTEXTMENU,(WPARAM)self,(p.x&0xffff)|(p.y<<16));
+    SendMessage((HWND)[self target],WM_CONTEXTMENU,(WPARAM)self,MAKELONG(p.x&0xffff,p.y));
   }
   
   m_fakerightmouse=0;
@@ -917,7 +917,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
     GetCursorPos(&p);
     ScreenToClient(tgt,&p);
     
-    SendMessage(tgt,WM_MOUSEMOVE,0,(p.x&0xffff) + (((int)p.y)<<16));
+    SendMessage(tgt,WM_MOUSEMOVE,0,MAKELONG(p.x&0xffff,p.y));
   }
 }
 
@@ -1009,7 +1009,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
         POINT p;
         GetCursorPos(&p);
         ScreenToClient(tgt,&p);      
-        SendMessage(tgt,WM_LBUTTONUP,0,(p.x&0xffff) + (((int)p.y)<<16));      
+        SendMessage(tgt,WM_LBUTTONUP,0,MAKELONG(p.x&0xffff,p.y));
       }
     }
   }
@@ -1051,7 +1051,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL( m_lbMode ? "SysListView32_LB" : "SysListView
   {
     POINT p;
     GetCursorPos(&p);
-    SendMessage((HWND)[self target],WM_CONTEXTMENU,(WPARAM)self,(p.x&0xffff)|(p.y<<16));
+    SendMessage((HWND)[self target],WM_CONTEXTMENU,(WPARAM)self,MAKELONG(p.x&0xffff,p.y));
   }
   m_fakerightmouse=0;
 }
@@ -2696,7 +2696,7 @@ BOOL SetDlgItemText(HWND hwnd, int idx, const char *text)
       {
         HWND par = GetParent((HWND)obj);
         if (par)
-          SendMessage(par,WM_COMMAND,[(NSControl *)obj tag]|(EN_CHANGE<<16),(LPARAM)obj);
+          SendMessage(par,WM_COMMAND,MAKELONG([(NSControl *)obj tag],EN_CHANGE),(LPARAM)obj);
       }
     }
   }
@@ -2835,7 +2835,7 @@ void SWELL_TB_SetRange(HWND hwnd, int idx, int low, int hi)
   }
   else 
   {
-    sendSwellMessage(p,TBM_SETRANGE,1,((low&0xffff)|(hi<<16)));
+    sendSwellMessage(p,TBM_SETRANGE,1,MAKELONG(low&0xffff,hi));
   }
   
 }
@@ -3537,7 +3537,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("Edit")
 - (BOOL)becomeFirstResponder;
 {
   BOOL didBecomeFirstResponder = [super becomeFirstResponder];
-  if (didBecomeFirstResponder) SendMessage(GetParent((HWND)self),WM_COMMAND,[self tag]|(EN_SETFOCUS<<16),(LPARAM)self);
+  if (didBecomeFirstResponder) SendMessage(GetParent((HWND)self),WM_COMMAND,MAKELONG([self tag],EN_SETFOCUS),(LPARAM)self);
   return didBecomeFirstResponder;
 }
 
@@ -3570,7 +3570,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL([self isSelectable] ? "Edit" : "Static")
 - (BOOL)becomeFirstResponder;
 {
   BOOL didBecomeFirstResponder = [super becomeFirstResponder];
-  if (didBecomeFirstResponder) SendMessage(GetParent((HWND)self),WM_COMMAND,[self tag]|(EN_SETFOCUS<<16),(LPARAM)self);
+  if (didBecomeFirstResponder) SendMessage(GetParent((HWND)self),WM_COMMAND,MAKELONG([self tag],EN_SETFOCUS),(LPARAM)self);
   return didBecomeFirstResponder;
 }
 - (void)initColors:(int)darkmode
@@ -5632,7 +5632,7 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
       HWND h=WindowFromPoint(p);
       if (h && IsChild(hwnd,h)) hwndDest=h;
     }
-    SendMessage(hwnd,WM_CONTEXTMENU,(WPARAM)hwndDest,(p.x&0xffff)|(p.y<<16));
+    SendMessage(hwnd,WM_CONTEXTMENU,(WPARAM)hwndDest,MAKELONG(p.x&0xffff,p.y));
     return 1;
   }
   else if (msg==WM_CONTEXTMENU || msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL || msg == WM_GESTURE)
@@ -6896,7 +6896,7 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("combobox")
 - (BOOL)becomeFirstResponder;
 {
   BOOL didBecomeFirstResponder = [super becomeFirstResponder];
-  if (didBecomeFirstResponder) SendMessage(GetParent((HWND)self),WM_COMMAND,[self tag]|(EN_SETFOCUS<<16),(LPARAM)self);
+  if (didBecomeFirstResponder) SendMessage(GetParent((HWND)self),WM_COMMAND,MAKELONG([self tag],EN_SETFOCUS),(LPARAM)self);
   return didBecomeFirstResponder;
 }
 

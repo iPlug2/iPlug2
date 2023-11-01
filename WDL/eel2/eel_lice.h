@@ -205,7 +205,73 @@ public:
 
   LICE_IBitmap *m_framebuffer, *m_framebuffer_extra;
   int m_framebuffer_dirty;
-  WDL_TypedBuf<LICE_IBitmap *> m_gfx_images;
+
+  struct img_shared_state
+  {
+    LICE_IBitmap *bm;
+    int refcnt;
+
+    img_shared_state(LICE_IBitmap *b) : bm(b), refcnt(1) { }
+
+    void release()
+    {
+      if (wdl_atomic_decr(&refcnt)==0) delete this;
+    }
+
+    private:
+
+    ~img_shared_state()
+    {
+      s_img_cache_mutex.Enter();
+      for (int x = 0; x < s_img_cache.GetSize(); x ++)
+      {
+        if (s_img_cache.Enumerate(x) == this)
+        {
+          s_img_cache.DeleteByIndex(x);
+          break;
+        }
+      }
+      s_img_cache_mutex.Leave();
+      if (LICE_FUNCTION_VALID(LICE__Destroy)) 
+        LICE__Destroy(bm);
+    }
+  };
+
+  static WDL_StringKeyedArray<img_shared_state *> s_img_cache;
+  static WDL_Mutex s_img_cache_mutex;
+
+  struct img_state
+  {
+    LICE_IBitmap *bm;
+    img_shared_state *shared;
+
+    void clear(LICE_IBitmap *bmnew=NULL, img_shared_state *sharednew=NULL)
+    {
+      if (shared) shared->release();
+      if (bm && LICE_FUNCTION_VALID(LICE__Destroy)) 
+        LICE__Destroy(bm);
+      bm = bmnew;
+      shared = sharednew;
+    }
+    void on_write()
+    {
+      if (shared && WDL_NORMALLY(shared->bm))
+      {
+        const int bmw = LICE__GetWidth(shared->bm), bmh = LICE__GetHeight(shared->bm);
+        bm = __LICE_CreateBitmap(1,bmw,bmh);
+        LICE_ScaledBlit(bm,shared->bm, // copy the entire image
+          0,0,bmw,bmh,
+          0.0f,0.0f,(float)bmw,(float)bmh,
+          1.0f,LICE_BLIT_MODE_COPY);
+        shared->release();
+        shared = NULL;
+      }
+    }
+  };
+
+  bool do_load_image(int img, const char *str);
+
+  WDL_TypedBuf<img_state> m_gfx_images;
   struct gfxFontStruct {
     LICE_IFont *font;
     char last_fontname[128];
@@ -226,14 +292,19 @@ public:
   int m_gfx_font_active; // -1 for default, otherwise index into gfx_fonts (NOTE: this differs from the exposed API, which defines 0 as default, 1-n)
   LICE_IFont *GetActiveFont() { return m_gfx_font_active>=0&&m_gfx_font_active<m_gfx_fonts.GetSize() && m_gfx_fonts.Get()[m_gfx_font_active].use_fonth ? m_gfx_fonts.Get()[m_gfx_font_active].font : NULL; }
 
-  LICE_IBitmap *GetImageForIndex(EEL_F idx, const char *callername) 
+  LICE_IBitmap *GetImageForIndex(EEL_F idx, const char *callername, bool is_wr=true) 
   { 
     if (idx>-2.0)
     {
       if (idx < 0.0) return m_framebuffer;
 
       const int a = (int)idx;
-      if (a >= 0 && a < m_gfx_images.GetSize()) return m_gfx_images.Get()[a];
+      if (a >= 0 && a < m_gfx_images.GetSize())
+      {
+        img_state *rec = m_gfx_images.Get() + a;
+        if (is_wr) rec->on_write();
+        return rec->shared ? rec->shared->bm : rec->bm;
+      }
     }
     return NULL;
   };
@@ -328,6 +399,9 @@ public:
 
 #ifndef EEL_LICE_API_ONLY
 
+WDL_StringKeyedArray<eel_lice_state::img_shared_state *> eel_lice_state::s_img_cache(true);
+WDL_Mutex eel_lice_state::s_img_cache_mutex;
+
 eel_lice_state::eel_lice_state(NSEEL_VMCTX vm, void *ctx, int image_slots, int font_slots)
 {
 #ifdef EEL_LICE_WANT_STANDALONE
@@ -393,16 +467,12 @@ eel_lice_state::~eel_lice_state()
   {
     LICE__Destroy(m_framebuffer_extra);
     LICE__Destroy(m_framebuffer);
-    int x;
-    for (x=0;x<m_gfx_images.GetSize();x++)
-    {
-      LICE__Destroy(m_gfx_images.Get()[x]);
-    }
   }
+  for (int x=0;x<m_gfx_images.GetSize();x++)
+    m_gfx_images.Get()[x].clear();
   if (LICE_FUNCTION_VALID(LICE__DestroyFont))
   {
-    int x;
-    for (x=0;x<m_gfx_fonts.GetSize();x++)
+    for (int x=0;x<m_gfx_fonts.GetSize();x++)
     {
       if (m_gfx_fonts.Get()[x].font) LICE__DestroyFont(m_gfx_fonts.Get()[x].font);
     }
@@ -970,7 +1040,7 @@ void eel_lice_state::gfx_getimgdim(EEL_F img, EEL_F *w, EEL_F *h)
   if (!LICE__GetWidth || !LICE__GetHeight) return;
 #endif
 
-  LICE_IBitmap *bm=GetImageForIndex(img,"gfx_getimgdim"); 
+  LICE_IBitmap *bm=GetImageForIndex(img,"gfx_getimgdim",false); 
   if (bm)
   {
     *w=LICE__GetWidth(bm);
@@ -998,6 +1068,31 @@ EEL_F eel_lice_state::gfx_getdropfile(void *opaque, int np, EEL_F **parms)
   return 1.0;
 }
 
+bool eel_lice_state::do_load_image(int img, const char *str)
+{
+  s_img_cache_mutex.Enter();
+  img_shared_state *s = s_img_cache.Get(str);
+  if (s)
+  {
+    wdl_atomic_incr(&s->refcnt);
+  }
+  else
+  {
+    s_img_cache_mutex.Leave();
+
+    LICE_IBitmap *bm = LICE_LoadImage(str,NULL,false);
+    if (!bm) return false;
+
+    s = new img_shared_state(bm);
+    s_img_cache_mutex.Enter();
+    s_img_cache.Insert(str,s);
+  }
+  s_img_cache_mutex.Leave();
+  m_gfx_images.Get()[img].clear(NULL,s);
+
+  return true;
+}
+
 EEL_F eel_lice_state::gfx_loadimg(void *opaque, int img, EEL_F loadFrom)
 {
 #ifdef DYNAMIC_LICE
@@ -1011,13 +1106,8 @@ EEL_F eel_lice_state::gfx_loadimg(void *opaque, int img, EEL_F loadFrom)
 
     if (ok && fs.GetLength())
     {
-      LICE_IBitmap *bm = LICE_LoadImage(fs.Get(),NULL,false);
-      if (bm)
-      {
-        LICE__Destroy(m_gfx_images.Get()[img]);
-        m_gfx_images.Get()[img]=bm;
+      if (do_load_image(img,fs.Get()))
         return img;
-      }
     }
   }
   return -1.0;
@@ -1040,10 +1130,11 @@ EEL_F eel_lice_state::gfx_setimgdim(int img, EEL_F *w, EEL_F *h)
   LICE_IBitmap *bm=NULL;
   if (img >= 0 && img < m_gfx_images.GetSize()) 
   {
-    bm=m_gfx_images.Get()[img];  
+    m_gfx_images.Get()[img].on_write();
+    bm=m_gfx_images.Get()[img].bm;
     if (!bm) 
     {
-      m_gfx_images.Get()[img] = bm = __LICE_CreateBitmap(1,use_w,use_h);
+      m_gfx_images.Get()[img].bm = bm = __LICE_CreateBitmap(1,use_w,use_h);
       rv=!!bm;
     }
     else 
@@ -1096,7 +1187,7 @@ void eel_lice_state::gfx_transformblit(EEL_F **parms, int div_w, int div_h, EEL_
 #endif 
     ) return;
 
-  LICE_IBitmap *bm=GetImageForIndex(parms[0][0],"gfx_transformblit:src"); 
+  LICE_IBitmap *bm=GetImageForIndex(parms[0][0],"gfx_transformblit:src",false); 
   if (!bm) return;
 
   const int bmw=LICE__GetWidth(bm);
@@ -1271,7 +1362,7 @@ void eel_lice_state::gfx_blitext2(int np, EEL_F **parms, int blitmode)
 #endif 
     ) return;
 
-  LICE_IBitmap *bm=GetImageForIndex(parms[0][0],"gfx_blitext2:src"); 
+  LICE_IBitmap *bm=GetImageForIndex(parms[0][0],"gfx_blitext2:src",false); 
   if (!bm) return;
 
   const int bmw=LICE__GetWidth(bm);
@@ -1353,7 +1444,7 @@ void eel_lice_state::gfx_blitext(EEL_F img, EEL_F *coords, EEL_F angle)
 #endif 
     ) return;
 
-  LICE_IBitmap *bm=GetImageForIndex(img,"gfx_blitext:src");
+  LICE_IBitmap *bm=GetImageForIndex(img,"gfx_blitext:src",false);
   if (!bm) return;
   
   SetImageDirty(dest);
@@ -1404,7 +1495,7 @@ void eel_lice_state::gfx_set(int np, EEL_F **parms)
 
 void eel_lice_state::gfx_getpixel(EEL_F *r, EEL_F *g, EEL_F *b)
 {
-  LICE_IBitmap *dest = GetImageForIndex(*m_gfx_dest,"gfx_getpixel");
+  LICE_IBitmap *dest = GetImageForIndex(*m_gfx_dest,"gfx_getpixel",false);
   if (!dest) return;
 
   int ret=LICE_FUNCTION_VALID(LICE_GetPixel)?LICE_GetPixel(dest,(int)*m_gfx_x, (int)*m_gfx_y):0;
@@ -1596,7 +1687,8 @@ EEL_F eel_lice_state::gfx_showmenu(void* opaque, EEL_F** parms, int nparms)
   if (hm)
   {
     POINT pt;
-    if (hwnd_standalone)
+    HWND par = hwnd_standalone;
+    if (par)
     {
 #ifdef __APPLE__
       if (*m_gfx_ext_retina > 1.0) 
@@ -1610,12 +1702,17 @@ EEL_F eel_lice_state::gfx_showmenu(void* opaque, EEL_F** parms, int nparms)
         pt.x = (short)*m_gfx_x;
         pt.y = (short)*m_gfx_y;
       }
-      ClientToScreen(hwnd_standalone, &pt);
+      ClientToScreen(par, &pt);
     }
     else
+    {
+#ifdef EEL_LICE_STANDALONE_PARENT
+      par = EEL_LICE_STANDALONE_PARENT(opaque);
+#endif
       GetCursorPos(&pt);
+    }
 
-    ret=TrackPopupMenu(hm, TPM_NONOTIFY|TPM_RETURNCMD, pt.x, pt.y, 0, hwnd_standalone, NULL);
+    ret=TrackPopupMenu(hm, TPM_NONOTIFY|TPM_RETURNCMD, pt.x, pt.y, 0, par, NULL);
     m_last_menu_time = GetTickCount();
     if (ret) m_last_menu_cnt = 0;
     DestroyMenu(hm);

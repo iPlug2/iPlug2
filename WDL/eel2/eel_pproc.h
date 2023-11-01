@@ -1,6 +1,7 @@
 #ifndef _EEL2_PREPROC_H_
 #define _EEL2_PREPROC_H_
 #include "ns-eel-int.h"
+#include "../win32_utf8.h"
 
 #define EEL2_PREPROCESS_OPEN_TOKEN "<?"
 
@@ -8,16 +9,20 @@ class EEL2_PreProcessor
 {
   enum { LITERAL_BASE = 100000 };
 public:
-  EEL2_PreProcessor(int max_sz = 64<<20)
+  EEL2_PreProcessor(int max_sz = 64<<20, int max_include_depth=20)
   {
     m_max_sz = max_sz;
     m_fsout = NULL;
     m_vm = NSEEL_VM_alloc();
+    m_max_include_depth = max_include_depth;
+    m_output_linecnt = 0;
+    m_cur_depth = 0;
     NSEEL_VM_SetCustomFuncThis(m_vm, this);
     NSEEL_VM_SetStringFunc(m_vm, addStringCallback, NULL);
     if (!m_ftab.list_size)
     {
       NSEEL_addfunc_varparm_ex("printf",1,0,NSEEL_PProc_THIS,&pp_printf,&m_ftab);
+      NSEEL_addfunc_varparm_ex("include",1,1,NSEEL_PProc_THIS,&pp_include,&m_ftab);
     }
     NSEEL_VM_SetFunctionTable(m_vm, &m_ftab);
     m_suppress = NSEEL_VM_regvar(m_vm, "_suppress");
@@ -46,9 +51,13 @@ public:
   {
     if (!m_vm || !m_suppress)
       return "preprocessor: memory error";
-    m_line_tab.Resize(0);
-    int input_linecnt = 0, output_linecnt = 0;
-    *m_suppress = 0.0;
+    if (!m_cur_depth)
+    {
+      m_line_tab.Resize(0);
+      m_output_linecnt = 0;
+      *m_suppress = 0.0;
+    }
+    int input_linecnt = 0;
     for (;;)
     {
       const bool suppress = m_suppress && *m_suppress > 0.0;
@@ -61,9 +70,9 @@ public:
       {
         input_linecnt += lc;
         if (suppress)
-          add_line_inf(output_linecnt,lc);
+          add_line_inf(m_output_linecnt,lc);
         else
-          output_linecnt += lc;
+          m_output_linecnt += lc;
       }
 
       if (!*tag)
@@ -88,7 +97,7 @@ public:
       if (lc)
       {
         input_linecnt += lc;
-        add_line_inf(output_linecnt,lc);
+        add_line_inf(m_output_linecnt,lc);
       }
       if (str > tag)
       {
@@ -116,8 +125,8 @@ public:
           for (int x = oldlen; x < fs->GetLength(); x ++) if (fs->Get()[x] == '\n') lc++;
           if (lc)
           {
-            add_line_inf(output_linecnt,-lc);
-            output_linecnt += lc;
+            add_line_inf(m_output_linecnt,-lc);
+            m_output_linecnt += lc;
           }
         }
       }
@@ -162,13 +171,19 @@ public:
   WDL_TypedBuf<int> m_line_tab; // expose this in case the caller wants to keep copies around
   EEL_F *m_suppress;
   int m_max_sz;
+  int m_cur_depth, m_max_include_depth;
+  int m_output_linecnt;
   static eel_function_table m_ftab;
   WDL_PtrList<void> m_code_handles;
+  WDL_PtrList<const char> m_include_paths;
 
   void add_line_inf(int output_linecnt, int lc)
   {
-    m_line_tab.Add(output_linecnt); // log lc lines of input skipped
-    m_line_tab.Add(lc);
+    if (!m_cur_depth)
+    {
+      m_line_tab.Add(output_linecnt); // log lc lines of input skipped
+      m_line_tab.Add(lc);
+    }
   }
 
   static EEL_F addStringCallback(void *opaque, struct eelStringSegmentRec *list)
@@ -393,6 +408,56 @@ public:
           return 1.0;
         }
       }
+    }
+    return 0.0;
+  }
+
+  static EEL_F NSEEL_CGEN_CALL pp_include(void *opaque, INT_PTR num_param, EEL_F **parms)
+  {
+    if (num_param>0 && opaque)
+    {
+      EEL2_PreProcessor *_this = (EEL2_PreProcessor*)opaque;
+      if (_this->m_cur_depth >= _this->m_max_include_depth) return -1.0;
+
+      const char *fn = _this->GetString(parms[0][0]);
+      if (!fn || !*fn) return -2.0;
+
+      WDL_FastString fullfn;
+      for (int x = _this->m_include_paths.GetSize()-1; x >= 0; x--)
+      {
+        const char *p = _this->m_include_paths.Get(x);
+        if (p && *p)
+        {
+          fullfn.Set(p);
+          fullfn.Append(WDL_DIRCHAR_STR);
+          fullfn.Append(fn);
+          FILE *fp = fopenUTF8(fullfn.Get(),"rb");
+          if (fp)
+          {
+            double rv = 0.0;
+            _this->m_cur_depth++;
+            fullfn.Set("");
+            while (fullfn.GetLength() < (4<<20))
+            {
+              char buf[512];
+              if (!fgets(buf,sizeof(buf),fp)) break;
+              fullfn.Append(buf);
+            }
+            fclose(fp);
+
+            WDL_FastString *outp = _this->m_fsout;
+            if (_this->preprocess(fullfn.Get(),outp))
+            {
+              rv = -3.0;
+            }
+            _this->m_fsout = outp;
+
+            _this->m_cur_depth--;
+            return rv;
+          }
+        }
+      }
+      return -4.0;
     }
     return 0.0;
   }

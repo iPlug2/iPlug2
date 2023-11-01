@@ -32,21 +32,7 @@
 #include "swell-internal.h"
 
 
-static void __filtnametobuf(char *out, const char *in, int outsz)
-{
-  while (*in && outsz>1)
-  {
-    if (*in == '\t') break;
-    if (*in == '&')
-    {
-      in++;
-    }
-    *out++=*in++;
-    outsz--;
-  }
-  *out=0;
-}
-
+static void __filtnametobuf(char *out, const char *in, int outsz, NSString **eqout=NULL, unsigned int *eqmaskout=NULL);
 
 
 bool SetMenuItemText(HMENU hMenu, int idx, int flag, const char *text)
@@ -75,11 +61,19 @@ bool SetMenuItemText(HMENU hMenu, int idx, int flag, const char *text)
     return false;
   }
   char buf[1024];
-  __filtnametobuf(buf,text?text:"",sizeof(buf));
+  NSString *eq = NULL;
+  unsigned int eqmask = 0;
+  __filtnametobuf(buf,text?text:"",sizeof(buf),
+      (flag&MF_SWELL_DO_NOT_CALC_MODIFIERS) ? NULL : &eq,&eqmask);
   NSString *label=(NSString *)SWELL_CStringToCFString(buf);
   
   [item setTitle:label];
   if ([item hasSubmenu] && [item submenu]) [[item submenu] setTitle:label];
+  if (eq)
+  {
+    [item setKeyEquivalentModifierMask:eqmask];
+    [item setKeyEquivalent:eq];
+  }
 
   [label release];
   return true;
@@ -268,6 +262,109 @@ bool SetMenuItemModifier(HMENU hMenu, int idx, int flag, int code, unsigned int 
   [item setKeyEquivalentModifierMask:mask2];
   [item setKeyEquivalent:arrowKey?[NSString stringWithCharacters:&arrowKey length:1]:@""];
   return true;
+}
+
+static void __filtnametobuf(char *out, const char *input, int outsz, NSString **eqout, unsigned int *eqmaskout)
+{
+  const char *inp = input;
+  while (*inp && *inp != '\t' && outsz>1)
+  {
+    if (*inp == '&') inp++;
+    *out++=*inp++;
+    outsz--;
+  }
+  *out=0;
+  if (eqout && eqmaskout && *inp)
+  {
+    while (*inp && *inp != '\t') inp++;
+    if (*inp++ == '\t')
+    {
+again:
+      while (*inp)
+      {
+        if (!strnicmp(inp,"Ctrl+",5)) { inp += 5; *eqmaskout |= NSCommandKeyMask; }
+        else if (!strnicmp(inp,"Alt+",4)) { inp += 4; *eqmaskout |= NSAlternateKeyMask; }
+        else if (!strnicmp(inp,"Shift+",6)) { inp += 6; *eqmaskout |= NSShiftKeyMask; }
+        else if (!strnicmp(inp,"Win+",4)) { inp += 4; *eqmaskout |= NSControlKeyMask; }
+        else break;
+      }
+      if (WDL_NOT_NORMALLY(!*inp)) return;
+
+      char tmp[128];
+      lstrcpyn(tmp,inp,sizeof(tmp));
+      char *p = tmp;
+      while (*p && *p != ' ' && *p != ',') p++;
+      bool was_comma = *p == ',';
+      if (was_comma && p == tmp) p++;
+      *p=0;
+      if (WDL_NOT_NORMALLY(!tmp[0])) return;
+
+      unichar arrowKey = 0;
+      int idx;
+      if (tmp[0] == 'F' && (idx=atoi(tmp+1))> 0 && idx <= 24)
+        arrowKey = NSF1FunctionKey + idx - 1;
+      else if (tmp[0] >= '0' && tmp[0] <= '9')
+        arrowKey = tmp[0];
+      else
+      {
+        if (!stricmp(tmp,"Up")) arrowKey = NSUpArrowFunctionKey;
+        else if (!stricmp(tmp,"Down")) arrowKey = NSDownArrowFunctionKey;
+        else if (!stricmp(tmp,"Left")) arrowKey = NSLeftArrowFunctionKey;
+        else if (!stricmp(tmp,"Right")) arrowKey = NSRightArrowFunctionKey;
+        else if (!strnicmp(tmp,"Ins",3))
+        {
+          if (was_comma)
+          {
+            while (*inp && *inp != ',') inp++;
+            if (*inp)
+            {
+              inp++;
+              while (*inp == ' ') inp++;
+              if (*inp)
+              {
+                *eqmaskout = 0;
+                goto again;
+              }
+            }
+          }
+
+          arrowKey = NSInsertFunctionKey;
+        }
+        else if (!strnicmp(tmp,"Del",3)) arrowKey = NSDeleteFunctionKey;
+        else if (!strnicmp(tmp,"Back",4)) arrowKey = NSBackspaceCharacter;
+        else if (!stricmp(tmp,"Home")) arrowKey = NSHomeFunctionKey;
+        else if (!stricmp(tmp,"End")) arrowKey = NSEndFunctionKey;
+        else if (!stricmp(tmp,"PageDown") || !stricmp(tmp,"PgDn")) arrowKey = NSPageDownFunctionKey;
+        else if (!stricmp(tmp,"PageUp") || !stricmp(tmp,"PgUp")) arrowKey = NSPageUpFunctionKey;
+        else if (!stricmp(tmp,"PageUp") || !stricmp(tmp,"PgUp")) arrowKey = NSPageUpFunctionKey;
+        else if (!stricmp(tmp,"-")) arrowKey = '-';
+        else if (!stricmp(tmp,"+")) arrowKey = '+';
+        else if (!stricmp(tmp,"Enter")||!stricmp(tmp,"Return")) arrowKey = '\r';
+        else if (!stricmp(tmp,"Tab")) arrowKey = '\t';
+        else if (!strnicmp(tmp,"Esc",3)) arrowKey = 27;
+        else if (!strcmp(tmp,",")) arrowKey = tmp[0];
+        else if (!stricmp(tmp,"Click")||!stricmp(tmp,"(Click)")) arrowKey = NSUpArrowFunctionKey;
+        else if (!stricmp(tmp,"Doubleclick")||!stricmp(tmp,"(Doubleclick)")) arrowKey = NSHomeFunctionKey;
+        else if (tmp[0] >= 'A' && tmp[0] <= 'Z' && !tmp[1])
+        {
+          arrowKey = tmp[0];
+          if (*eqmaskout & NSShiftKeyMask)
+            *eqmaskout &= ~NSShiftKeyMask;
+          else
+            arrowKey += 'a' - 'A';
+        }
+        else if (!strcmp(tmp,"Ctrl")) { arrowKey=NSUpArrowFunctionKey; *eqmaskout |= NSCommandKeyMask; }
+        else if (!strcmp(tmp,"Alt")) { arrowKey=NSUpArrowFunctionKey; *eqmaskout |= NSAlternateKeyMask; }
+        else if (!strcmp(tmp,"Shift")) { arrowKey=NSUpArrowFunctionKey; *eqmaskout |= NSShiftKeyMask; }
+        else if (!strcmp(tmp,"Win")) { arrowKey=NSUpArrowFunctionKey; *eqmaskout |= NSControlKeyMask; }
+        else
+        {
+          wdl_log("swell-cocoa: unknown key in menu text: '%s' orig '%s'\n",tmp,input);
+        }
+      }
+      if (arrowKey) *eqout = [NSString stringWithCharacters:&arrowKey length:1];
+    }
+  }
 }
 
 // #define SWELL_MENU_ACCOUNTING
@@ -461,7 +558,10 @@ BOOL SetMenuItemInfo(HMENU hMenu, int pos, BOOL byPos, MENUITEMINFO *mi)
     if (mi->fType == MFT_STRING && mi->dwTypeData)
     {
       char buf[1024];
-      __filtnametobuf(buf,mi->dwTypeData?mi->dwTypeData:"(null)",sizeof(buf));
+      NSString *eq=NULL;
+      unsigned int eqmask = 0;
+      __filtnametobuf(buf,mi->dwTypeData?mi->dwTypeData:"(null)",sizeof(buf),
+          (mi->fMask & MIIM_SWELL_DO_NOT_CALC_MODIFIERS) ? NULL : &eq,&eqmask);
       NSString *label=(NSString *)SWELL_CStringToCFString(buf); 
       
       [item setTitle:label];
@@ -470,6 +570,11 @@ BOOL SetMenuItemInfo(HMENU hMenu, int pos, BOOL byPos, MENUITEMINFO *mi)
       {
         NSMenu *subm=[item submenu];
         if (subm) [subm setTitle:label];
+      }
+      if (eq)
+      {
+        [item setKeyEquivalentModifierMask:eqmask];
+        [item setKeyEquivalent:eq];
       }
       
       [label release];      
@@ -624,9 +729,17 @@ void InsertMenuItem(HMENU hMenu, int pos, BOOL byPos, MENUITEMINFO *mi)
   if (mi->fType == MFT_STRING)
   {
     char buf[1024];
-    __filtnametobuf(buf,mi->dwTypeData?mi->dwTypeData:"(null)",sizeof(buf));
+    NSString *eq=NULL;
+    unsigned int eqmask = 0;
+    __filtnametobuf(buf,mi->dwTypeData?mi->dwTypeData:"(null)",sizeof(buf),
+        (mi->fMask & MIIM_SWELL_DO_NOT_CALC_MODIFIERS) ? NULL : &eq,&eqmask);
     label=(NSString *)SWELL_CStringToCFString(buf); 
     item=[m insertItemWithTitle:label action:NULL keyEquivalent:@"" atIndex:pos];
+    if (eq)
+    {
+      [item setKeyEquivalentModifierMask:eqmask];
+      [item setKeyEquivalent:eq];
+    }
   }
   else if (mi->fType == MFT_BITMAP)
   {
