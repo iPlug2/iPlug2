@@ -10,7 +10,7 @@
 			"Dependencies/IPlug/*_SDK": true,
 			"Dependencies/IPlug/WAM*": true,
 			"Dependencies/IPlug/RT*": true,
-			"Dependencies/IPlug/Reaper*": true,
+			"Dependencies/IPlug/REAPER_SDK*": true,
 			"Dependencies/Build*": true,
 			"Dependencies/IGraphics/glad*": true,
 			"Dependencies/IGraphics/GL*": true,

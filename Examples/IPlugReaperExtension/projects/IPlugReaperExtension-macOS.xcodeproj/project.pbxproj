@@ -10,6 +10,7 @@
 		4F56E31B227F43A400F3E839 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F56E319227F43A400F3E839 /* IGraphicsCoreText.mm */; };
 		4F56E325227F9C3200F3E839 /* IGraphicsNanoVG_src.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C2521EA55BD00C1EF1B /* IGraphicsNanoVG_src.m */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F56E32A227FA3C400F3E839 /* IPlugTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F56E328227FA3C400F3E839 /* IPlugTimer.cpp */; };
+		4F7D28BD2AF2913A0033871E /* roboto.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F7D28BB2AF2913A0033871E /* roboto.cpp */; };
 		4FBA83B120ECB19100423B90 /* IPlugReaperExtension.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA837B20ECAE7B00423B90 /* IPlugReaperExtension.cpp */; };
 		4FBA83B420ECB63400423B90 /* swell-modstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBA83A720ECAED000423B90 /* swell-modstub.mm */; };
 		4FBB8C7421EA55BD00C1EF1B /* IGraphicsMac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FBB8C3221EA55BD00C1EF1B /* IGraphicsMac.mm */; };
@@ -42,15 +43,20 @@
 		4F74D1D922AA8E760079E7DF /* ReaperExtBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReaperExtBase.h; sourceTree = "<group>"; };
 		4F74D1DA22AA8E760079E7DF /* ReaperExtBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReaperExtBase.cpp; sourceTree = "<group>"; };
 		4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wdltypes.h; path = ../../../WDL/wdltypes.h; sourceTree = SOURCE_ROOT; };
+		4F7D28BB2AF2913A0033871E /* roboto.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = roboto.cpp; path = ../resources/roboto.cpp; sourceTree = "<group>"; };
+		4F7D28BC2AF2913A0033871E /* roboto.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = roboto.hpp; path = ../resources/roboto.hpp; sourceTree = "<group>"; };
+		4F7D28C92AF2ED640033871E /* localize-import.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "localize-import.h"; sourceTree = "<group>"; };
+		4F7D28CA2AF2ED640033871E /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		4F7D28CB2AF2ED640033871E /* video_frame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = video_frame.h; sourceTree = "<group>"; };
+		4F7D28CC2AF2ED640033871E /* reaper_plugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = reaper_plugin.h; sourceTree = "<group>"; };
+		4F7D28CD2AF2ED640033871E /* reaper_plugin_functions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = reaper_plugin_functions.h; sourceTree = "<group>"; };
+		4F7D28CE2AF2ED640033871E /* video_processor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = video_processor.h; sourceTree = "<group>"; };
+		4F7D28CF2AF2ED640033871E /* reaper_plugin_fx_embed.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = reaper_plugin_fx_embed.h; sourceTree = "<group>"; };
+		4F7D28D02AF2ED640033871E /* reaper_vst3_interfaces.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = reaper_vst3_interfaces.h; sourceTree = "<group>"; };
 		4FBA837B20ECAE7B00423B90 /* IPlugReaperExtension.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = IPlugReaperExtension.cpp; path = ../IPlugReaperExtension.cpp; sourceTree = "<group>"; };
 		4FBA83A720ECAED000423B90 /* swell-modstub.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-modstub.mm"; path = "../../../WDL/swell/swell-modstub.mm"; sourceTree = "<group>"; };
 		4FBA83AC20ECAF0B00423B90 /* reaper_IPlugReaperExtension.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = reaper_IPlugReaperExtension.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FBA83B220ECB28900423B90 /* main.rc */ = {isa = PBXFileReference; lastKnownFileType = text; name = main.rc; path = ../resources/main.rc; sourceTree = "<group>"; };
-		4FBA83C020ECBBBE00423B90 /* video_frame.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = video_frame.h; sourceTree = "<group>"; };
-		4FBA83C120ECBBBE00423B90 /* reaper_plugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = reaper_plugin.h; sourceTree = "<group>"; };
-		4FBA83C220ECBBBE00423B90 /* reaper_plugin_functions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = reaper_plugin_functions.h; sourceTree = "<group>"; };
-		4FBA83C320ECBBBE00423B90 /* video_processor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = video_processor.h; sourceTree = "<group>"; };
-		4FBA83C420ECBBBE00423B90 /* README.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
 		4FBA83C720ECD9BD00423B90 /* swell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = swell.h; path = ../../../WDL/swell/swell.h; sourceTree = "<group>"; };
 		4FBA83C820ECD9DA00423B90 /* swell-dlggen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-dlggen.h"; path = "../../../WDL/swell/swell-dlggen.h"; sourceTree = "<group>"; };
 		4FBA83C920ECD9DA00423B90 /* swell-types.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "swell-types.h"; path = "../../../WDL/swell/swell-types.h"; sourceTree = "<group>"; };
@@ -167,9 +173,9 @@
 		089C1671FE841209C02AAC07 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4F7D28C82AF2ED640033871E /* REAPER_SDK */,
 				4FBB8C8021EA56AF00C1EF1B /* IPlug */,
 				4FBB8C1921EA55BD00C1EF1B /* IGraphics */,
-				4FBA83BF20ECBBBE00423B90 /* Reaper */,
 				4FF01613134E0BCD001447BA /* WDL */,
 			);
 			name = Frameworks;
@@ -178,6 +184,8 @@
 		089C167CFE841241C02AAC07 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4F7D28BB2AF2913A0033871E /* roboto.cpp */,
+				4F7D28BC2AF2913A0033871E /* roboto.hpp */,
 				4FBA83B220ECB28900423B90 /* main.rc */,
 				4FDA1E0F2012CDB30027C868 /* main.rc_mac_dlg */,
 				4FDA1E0E2012CDB30027C868 /* main.rc_mac_menu */,
@@ -217,23 +225,25 @@
 			path = ../../../IPlug/ReaperExt;
 			sourceTree = "<group>";
 		};
-		4FBA83BF20ECBBBE00423B90 /* Reaper */ = {
+		4F7D28C82AF2ED640033871E /* REAPER_SDK */ = {
 			isa = PBXGroup;
 			children = (
-				4FBA83C020ECBBBE00423B90 /* video_frame.h */,
-				4FBA83C120ECBBBE00423B90 /* reaper_plugin.h */,
-				4FBA83C220ECBBBE00423B90 /* reaper_plugin_functions.h */,
-				4FBA83C320ECBBBE00423B90 /* video_processor.h */,
-				4FBA83C420ECBBBE00423B90 /* README.txt */,
+				4F7D28C92AF2ED640033871E /* localize-import.h */,
+				4F7D28CA2AF2ED640033871E /* LICENSE */,
+				4F7D28CB2AF2ED640033871E /* video_frame.h */,
+				4F7D28CC2AF2ED640033871E /* reaper_plugin.h */,
+				4F7D28CD2AF2ED640033871E /* reaper_plugin_functions.h */,
+				4F7D28CE2AF2ED640033871E /* video_processor.h */,
+				4F7D28CF2AF2ED640033871E /* reaper_plugin_fx_embed.h */,
+				4F7D28D02AF2ED640033871E /* reaper_vst3_interfaces.h */,
 			);
-			name = Reaper;
-			path = ../../../Dependencies/IPlug/Reaper;
+			name = REAPER_SDK;
+			path = ../../../Dependencies/IPlug/REAPER_SDK;
 			sourceTree = "<group>";
 		};
 		4FBB8C1921EA55BD00C1EF1B /* IGraphics */ = {
 			isa = PBXGroup;
 			children = (
-				4FDDFDE7229171CF007519F4 /* Extras */,
 				4FBB8C1A21EA55BD00C1EF1B /* Drawing */,
 				4FBB8C2B21EA55BD00C1EF1B /* Platforms */,
 				4FBB8C4021EA55BD00C1EF1B /* Controls */,
@@ -402,11 +412,11 @@
 		089C1669FE841209C02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
 					4FBA83AB20ECAF0B00423B90 = {
 						CreatedOnToolsVersion = 9.4.1;
+						DevelopmentTeam = 686EDA2T8T;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -444,7 +454,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [[ $(sw_vers -buildVersion) > \"21\" ]]; then \n  php_binary=/usr/local/bin/php\n  \n  if ! test -f $php_binary; then\n    echo \"$php_binary not found, install php via brew\"\n    exit 1\n  fi\nelse\n  php_binary=/usr/bin/php\nfi\n$php_binary ../../../WDL/swell/swell_resgen.php ../resources/main.rc\n";
+			shellScript = "./../../../WDL/swell/swell_resgen.sh ../resources/main.rc\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -460,6 +470,7 @@
 				4FBA83B420ECB63400423B90 /* swell-modstub.mm in Sources */,
 				4FBB8C8621EA56C600C1EF1B /* IPlugPaths.mm in Sources */,
 				4FBB8C7E21EA55BD00C1EF1B /* IControls.cpp in Sources */,
+				4F7D28BD2AF2913A0033871E /* roboto.cpp in Sources */,
 				4FBB8C7B21EA55BD00C1EF1B /* IGraphics.cpp in Sources */,
 				4FBA83B120ECB19100423B90 /* IPlugReaperExtension.cpp in Sources */,
 				4FBB8C7A21EA55BD00C1EF1B /* IGraphicsEditorDelegate.cpp in Sources */,
