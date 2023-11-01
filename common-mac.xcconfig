@@ -85,7 +85,7 @@ EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Synth $(EXTRAS_PATH)/Faust $(EX
 VST2_SDK = $(DEPS_PATH)/IPlug/VST2_SDK
 VST3_SDK = $(DEPS_PATH)/IPlug/VST3_SDK
 AAX_SDK = $(DEPS_PATH)/IPlug/AAX_SDK
-REAPER_SDK = $(DEPS_PATH)/IPlug/Reaper
+REAPER_SDK = $(DEPS_PATH)/IPlug/REAPER_SDK
 
 // this build setting is included at the xcode project level, since we need all these include paths
 IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(SWELL_FOR_IPLUG_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS)
