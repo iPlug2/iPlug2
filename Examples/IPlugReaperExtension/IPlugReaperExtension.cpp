@@ -2,6 +2,7 @@
 #include "ReaperExt_include_in_plug_src.h"
 
 #include "IControls.h"
+#include "roboto.hpp"
 
 IPlugReaperExtension::IPlugReaperExtension(reaper_plugin_info_t* pRec)
 : ReaperExtBase(pRec)
@@ -32,12 +33,12 @@ IPlugReaperExtension::IPlugReaperExtension(reaper_plugin_info_t* pRec)
   mLayoutFunc = [&](IGraphics* pGraphics) {
     const IRECT bounds = pGraphics->GetBounds();
     
-    if(pGraphics->NControls()) {
+    if (pGraphics->NControls()) {
       pGraphics->GetBackgroundControl()->SetTargetAndDrawRECTs(bounds);
       return;
     }
     
-    pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
+      pGraphics->LoadFont("Roboto-Regular", (void*) ROBOTO_REGULAR, ROBOTO_REGULAR_length);
     pGraphics->AttachPanelBackground(COLOR_GRAY);
 //    pGraphics->AttachCornerResizer(kUIResizerSize, true);
     pGraphics->AttachControl(new IVButtonControl(bounds.GetGridCell(0, 3, 1).GetPadded(-20.).SubRectVertical(2, 0).GetMidVPadded(20),
