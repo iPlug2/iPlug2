@@ -2,15 +2,19 @@
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
 
+#ifdef VST2_API
 extern int (*GetPlayState)();
+#endif
 
 IPlugReaperPlugin::IPlugReaperPlugin(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
 
+#ifdef VST2_API
   // Get function pointers to the APIs you need
   *(VstIntPtr*)&GetPlayState = GetHostCallback()(NULL, 0xdeadbeef, 0xdeadf00d, 0, (void*) "GetPlayState", 0.0);
+#endif
 
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
