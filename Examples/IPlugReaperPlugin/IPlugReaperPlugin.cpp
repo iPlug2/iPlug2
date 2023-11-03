@@ -25,7 +25,8 @@ IPlugReaperPlugin::IPlugReaperPlugin(const InstanceInfo& info)
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT b = pGraphics->GetBounds();
-    
+
+    #ifdef VST2_API
     pGraphics->AttachControl(new ILambdaControl(b,
       [](ILambdaControl* pCaller, IGraphics& g, IRECT& rect) {
       
@@ -38,7 +39,10 @@ IPlugReaperPlugin::IPlugReaperPlugin(const InstanceInfo& info)
           g.DrawText({30}, "STOPPED", rect);
         }
       
-    }, DEFAULT_ANIMATION_DURATION, true /*loop*/, true /*start immediately*/));      
+    }, DEFAULT_ANIMATION_DURATION, true /*loop*/, true /*start immediately*/));
+    #else
+    pGraphics->AttachControl(new ITextControl(b, "Please build the VST2 plugin"));
+    #endif
   };
 }
 
