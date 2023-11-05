@@ -110,11 +110,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   else
     cell.accessoryType = pItem->GetSubmenu() ? UITableViewCellAccessoryDisclosureIndicator : UITableViewCellAccessoryNone;
 
-  if (!pItem->GetEnabled())
-  {
-    cell.userInteractionEnabled = NO;
-    cell.textLabel.enabled = NO;
-  }
+  cell.textLabel.enabled = cell.userInteractionEnabled = pItem->GetEnabled();
   
   return cell;
 }
