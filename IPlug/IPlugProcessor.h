@@ -256,7 +256,8 @@ public:
 protected:
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
   void SetChannelConnections(ERoute direction, int idx, int n, bool connected);
-
+  void InitLatencyDelay();
+  
   //The following methods are duplicated, in order to deal with either single or double precision processing,
   //depending on the value of arguments passed in
   void AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_DST** ppData, int nFrames);
@@ -301,9 +302,9 @@ private:
   WDL_TypedBuf<sample*> mScratchData[2];
   /* A list of IChannelData structures corresponding to every input/output channel */
   WDL_PtrList<IChannelData<>> mChannelData[2];
-protected: // these members are protected because they need to be access by the API classes, and don't want a setter/getter
   /** A multi-channel delay line used to delay the bypassed signal when a plug-in with latency is bypassed. */
   std::unique_ptr<NChanDelayLine<sample>> mLatencyDelay = nullptr;
+protected: // protected because it needs to be access by the API classes, and don't want a setter/getter
   /** Contains detailed information about the transport state */
   ITimeInfo mTimeInfo;
 };

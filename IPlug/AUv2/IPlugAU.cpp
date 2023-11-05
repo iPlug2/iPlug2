@@ -1869,7 +1869,8 @@ IPlugAU::IPlugAU(const InstanceInfo& info, const Config& config)
 
   SetBlockSize(DEFAULT_BLOCK_SIZE);
   ResizeScratchBuffers();
-  
+  InitLatencyDelay();
+
   CreateTimer();
 }
 
