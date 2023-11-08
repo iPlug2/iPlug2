@@ -68,6 +68,10 @@ WDL_HASSTRINGS_EXPORT int hasStrings_isNonWordChar(const char *cptr)
 #define IS_UTF8_EXT1A_Y(b1, b2) ((b1)==0xc5 && (b2) >= 0xb6 && (b2) <= 0xb8)
 #define IS_UTF8_EXT1A_Z(b1, b2) ((b1)==0xc5 && (b2) >= 0xb9 && (b2) <= 0xbe)
 
+// U+300..U+36F are combining accents and get filtered/ignored
+#define IS_UTF8_SKIPPABLE(ca, nextc) \
+       (((((ca)&~1) == 0xCC) && ((nextc) >= 0x80 && (nextc) < ((ca) == 0xCD ? 0xAF : 0xc0))) ? 2 : 0)
+
 // returns negative if does not match but more of a is available to search
 // returns 0 if done searching without match
 // returns >0 if matches (return bytelen of match)
@@ -93,6 +97,12 @@ WDL_HASSTRINGS_EXPORT int hasStrings_utf8cmp(const unsigned char * const a, cons
             aidx+=3;
             ++b;
             --n;
+            continue;
+          }
+          const int skipl = IS_UTF8_SKIPPABLE(ca,a[aidx+1]);
+          if (skipl)
+          {
+            aidx += skipl;
             continue;
           }
           return -ca;
@@ -491,6 +501,16 @@ WDL_HASSTRINGS_EXPORT char *WDL_hasstrings_preproc_searchitem(char *wr, const ch
         src+=2;
       }
     }
+    else
+    {
+      const int skipl = IS_UTF8_SKIPPABLE(c, *(unsigned char*)src);
+      if (skipl > 0)
+      {
+        src += skipl-1;
+        continue;
+      }
+    }
+
     // we could also convert latin extended A characters to ascii here, but meh
     *wr++ = c;
   }
