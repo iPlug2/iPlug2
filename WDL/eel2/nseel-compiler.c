@@ -107,7 +107,7 @@ FILE *g_eel_dump_fp, *g_eel_dump_fp2;
 
 #include "glue_ppc.h"
 
-#elif defined(__aarch64__) || defined(_M_ARM64)
+#elif defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
 
 #include "glue_aarch64.h"
 
@@ -849,7 +849,22 @@ static void *__newBlock_align(llBlock **start, int size, int align, int is_for_c
     const int code_page_size = eel_get_page_size();
     alloc_amt = (sizeof(*llb) + size + code_page_size - 1) & ~(code_page_size-1);
     #ifdef _WIN32
-      llb = (llBlock *)VirtualAlloc(NULL,alloc_amt,MEM_COMMIT,PAGE_READWRITE);
+      #ifdef _M_ARM64EC
+      {
+        MEM_EXTENDED_PARAMETER ext;
+        memset(&ext,0,sizeof(ext));
+        ext.Type = MemExtendedParameterAttributeFlags;
+        ext.ULong64 = MEM_EXTENDED_PARAMETER_EC_CODE;
+        llb = (llBlock *)VirtualAlloc2(NULL,NULL,alloc_amt,MEM_COMMIT,PAGE_EXECUTE_READ,&ext,1);
+        if (WDL_NORMALLY(llb))
+        {
+          DWORD ov;
+          VirtualProtect(llb, alloc_amt, PAGE_READWRITE, &ov);
+        }
+      }
+      #else
+        llb = (llBlock *)VirtualAlloc(NULL,alloc_amt,MEM_COMMIT,PAGE_READWRITE);
+      #endif
       if (llb == NULL) return NULL;
     #else
       #if !defined(MAP_ANONYMOUS) && defined(MAP_ANON)
@@ -2809,7 +2824,7 @@ static int compileNativeFunctionCall(compileContext *ctx, opcodeRec *op, unsigne
     const int max_params=16384; // arm uses up to two instructions, should be good for at leaast 64k (16384*4)
 #elif defined(__ppc__)
     const int max_params=4096; // 32kb max offset addressing for stack, so 4096*4 = 16384, should be safe
-#elif defined(__aarch64__) || defined(_M_ARM64)
+#elif defined(__aarch64__) || defined(_M_ARM64) || defined(_M_ARM64EC)
     const int max_params=32768; 
 #else
     const int max_params=32768; // sanity check, the stack is free to grow on x86/x86-64

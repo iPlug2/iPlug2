@@ -5,3 +5,4 @@
 
 !/asm-nseel-x64-macho.o
 !/asm-nseel-x64.obj
+!/asm-nseel-arm64ec.obj

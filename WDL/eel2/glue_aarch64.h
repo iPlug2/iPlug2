@@ -414,5 +414,35 @@ static int GLUE_FUSE(compileContext *ctx, unsigned char *code, int left_size, in
   return 0;
 }
 
+#ifdef _M_ARM64EC
+#define DEF_F1(n) static double eel_##n(double a) { return n(a); }
+#define DEF_F2(n) static double eel_##n(double a, double b) { return n(a,b); }
+DEF_F1(cos)
+#define cos eel_cos
+DEF_F1(sin)
+#define sin eel_sin
+DEF_F1(tan)
+#define tan eel_tan
+DEF_F1(log)
+#define log eel_log
+DEF_F1(log10)
+#define log10 eel_log10
+DEF_F1(acos)
+#define acos eel_acos
+DEF_F1(asin)
+#define asin eel_asin
+DEF_F1(atan)
+#define atan eel_atan
+DEF_F1(exp)
+#define exp eel_exp
+DEF_F2(pow)
+#define pow eel_pow
+DEF_F2(atan2)
+#define atan2 eel_atan2
+// ceil and floor will be wrapped by defs in nseel-compiler.c
+
+#pragma comment(lib,"onecore.lib")
+#endif
+
 
 #endif
