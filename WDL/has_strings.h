@@ -250,6 +250,13 @@ static const char *hasStrings_scan_for_char_match(const char *p, char v)
   }
 }
 
+WDL_HASSTRINGS_EXPORT const char *hasStrings_skipSkippable(const char *cptr)
+{
+  int skip;
+  while ((skip=IS_UTF8_SKIPPABLE(((unsigned char*)cptr)[0],((unsigned char*)cptr)[1]))>0) cptr+=skip;
+  return cptr;
+}
+
 WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_list_size, const LineParser *lp
 #ifdef WDL_HASSTRINGS_EXTRA_PARAMETERS
    WDL_HASSTRINGS_EXTRA_PARAMETERS
@@ -393,7 +400,10 @@ WDL_HASSTRINGS_EXPORT bool WDL_hasStringsEx2(const char **name_list, int name_li
           const char *t = name;
 
 #define MATCH_RIGHT_CHECK_WORD(SZ) \
-                (wc_right == 0 || ((const unsigned char*)(t))[SZ] < 2 || (wc_right > 1 && hasStrings_isNonWordChar((t)+(SZ))))
+                (wc_right == 0 || \
+                  ((const unsigned char*)(t))[SZ] < 2 || \
+                  (wc_right > 1 && hasStrings_isNonWordChar(hasStrings_skipSkippable((t)+(SZ)))) \
+                )
 
 #define MATCH_LEFT_SKIP_TO_WORD() do { \
                 if (*(unsigned char*)t < 2) { t++; break; } \
