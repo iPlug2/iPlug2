@@ -1816,7 +1816,7 @@ int EEL_Editor::onChar(int c)
          draw_message("Error writing file, changes not saved!");
      }
      if (chk.isOK())
-       setCursor();
+       setCursorIfVisible();
    }
   return 0;
 
