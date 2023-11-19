@@ -767,6 +767,7 @@ const char *LICE_CachedFont::NextWordBreak(const char *str, int strcnt, int w)
 int LICE_CachedFont::DrawTextImpl(LICE_IBitmap *bm, const char *str, int strcnt, 
                                RECT *rect, UINT dtFlags)
 {
+  WDL_ASSERT((dtFlags & DT_SINGLELINE) || !(dtFlags & (DT_BOTTOM|DT_VCENTER))); // if DT_BOTTOM or DT_VCENTER used, must have DT_SINGLELINE
   if (!bm && !(dtFlags&DT_CALCRECT)) return 0;
 
   const int __sc = bm ? (int)bm->Extended(LICE_EXT_GET_SCALING,NULL) : 0;
