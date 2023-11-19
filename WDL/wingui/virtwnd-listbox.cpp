@@ -468,18 +468,16 @@ void WDL_VirtualListBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_
             {
               m_font->SetTextColor(rev?bgc:color);
               m_font->SetCombineMode(LICE_BLIT_MODE_COPY, alpha); // maybe gray text only if !bkbm->bgimage
-              RECT dr = thisr;
+              RECT r2={0,}, dr=thisr;
+              m_font->DrawText(drawbm,buf,-1,&r2,DT_CALCRECT|DT_NOPREFIX);
+              OffsetRect(&dr,0,((dr.bottom-dr.top) - (r2.bottom-r2.top))/2
 #ifdef __APPLE__
-              OffsetRect(&dr,0,2);
+                  +2
 #endif
-              if (m_align == 0)
-              {
-                RECT r2={0,};
-                m_font->DrawText(drawbm,buf,-1,&r2,DT_CALCRECT|DT_NOPREFIX);
-                m_font->DrawText(drawbm,buf,-1,&dr,DT_VCENTER|((r2.right <= thisr.right-thisr.left) ? DT_CENTER : DT_LEFT)|DT_NOPREFIX);
-              }
-              else
-                m_font->DrawText(drawbm,buf,-1,&dr,DT_VCENTER|(m_align<0?DT_LEFT:DT_RIGHT)|DT_NOPREFIX);
+                  );
+              m_font->DrawText(drawbm,buf,-1,&dr,DT_TOP|DT_NOPREFIX|
+                  (m_align > 0 ? DT_RIGHT : ((m_align == 0 && r2.right <= thisr.right-thisr.left) ? DT_CENTER : DT_LEFT))
+                  );
             }
           }
         }
