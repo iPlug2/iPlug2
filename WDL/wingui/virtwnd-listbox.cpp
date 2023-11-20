@@ -468,16 +468,28 @@ void WDL_VirtualListBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_
             {
               m_font->SetTextColor(rev?bgc:color);
               m_font->SetCombineMode(LICE_BLIT_MODE_COPY, alpha); // maybe gray text only if !bkbm->bgimage
-              RECT r2={0,}, dr=thisr;
-              m_font->DrawText(drawbm,buf,-1,&r2,DT_CALCRECT|DT_NOPREFIX);
-              OffsetRect(&dr,0,((dr.bottom-dr.top) - (r2.bottom-r2.top))/2
+              RECT dr=thisr;
 #ifdef __APPLE__
-                  +2
+              OffsetRect(&dr,0,2);
 #endif
-                  );
-              m_font->DrawText(drawbm,buf,-1,&dr,DT_TOP|DT_NOPREFIX|
-                  (m_align > 0 ? DT_RIGHT : ((m_align == 0 && r2.right <= thisr.right-thisr.left) ? DT_CENTER : DT_LEFT))
-                  );
+              const bool has_nl = strchr(buf,'\n') != NULL;
+              RECT r2 = { 0, };
+              if (has_nl || m_align == 0)
+                m_font->DrawText(drawbm,buf,-1,&r2,DT_CALCRECT|DT_NOPREFIX);
+
+              int f = (m_align > 0 ? DT_RIGHT : ((m_align == 0 && r2.right <= thisr.right-thisr.left) ? DT_CENTER : DT_LEFT));
+
+              if (has_nl)
+              {
+                // can't use DT_VCENTER
+                OffsetRect(&dr,0,((dr.bottom-dr.top) - (r2.bottom-r2.top))/2);
+              }
+              else
+              {
+                f |= DT_SINGLELINE | DT_VCENTER;
+              }
+
+              m_font->DrawText(drawbm,buf,-1,&dr,f | DT_NOPREFIX);
             }
           }
         }
