@@ -222,7 +222,7 @@ struct IColor
 {
   int A, R, G, B;
   
-    /** Create an IColor 
+  /** Create an IColor from ARGB values
    * @param a Alpha value (valid range 0-255)
    * @param r Red value (valid range 0-255)
    * @param g Green value (valid range 0-255)
@@ -746,14 +746,7 @@ const IText DEFAULT_TEXT = IText();
  * In IGraphics 0,0 is top left. */
 struct IRECT
 {
-  /** Left side of the rectangle (X) */
-  float L;
-  /** Top of the rectangle (Y) */
-  float T;
-  /** Right side of the rectangle (X + W) */
-  float R;
-  /** Bottom of the rectangle (Y + H) */
-  float B;
+  float L, T, R, B;
 
   /** Construct an empty IRECT  */
   IRECT()
@@ -1682,7 +1675,7 @@ struct IRECT
     return result;
   }
   
-  /** Print the IRECT's detailes to the console in Debug builds */
+  /** Print the IRECT's details to the console in Debug builds */
   void DBGPrint() { DBGMSG("L: %f, T: %f, R: %f, B: %f,: W: %f, H: %f\n", L, T, R, B, W(), H()); }
 };
 
