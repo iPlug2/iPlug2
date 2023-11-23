@@ -225,6 +225,8 @@ public:
   IVMenuButtonControl(const IRECT& bounds, int paramIdx, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle);
   
   void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override;
+  void SetValueFromUserInput(double value, int valIdx) override;
+
   void SetValueFromDelegate(double value, int valIdx = 0) override;
   void SetStyle(const IVStyle& style) override;
 

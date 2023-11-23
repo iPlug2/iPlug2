@@ -511,13 +511,14 @@ IVMenuButtonControl::IVMenuButtonControl(const IRECT& bounds, int paramIdx, cons
 {
   AttachIControl(this, "");
   
+  mText = style.valueText;
   mDisablePrompt = false;
   
   SetAttachFunc([&, label, style, shape](IContainerBase* pContainer, const IRECT& bounds) {
     AddChildControl(mButtonControl = new IVButtonControl(bounds, SplashClickActionFunc, label, style.WithValueText(style.valueText.WithVAlign(EVAlign::Middle)), false, true, shape), kNoTag, GetGroup());
     
     WDL_String str;
-    GetParam()->GetDisplay(str);
+    GetParam()->GetDisplayWithLabel(str);
     mButtonControl->SetValueStr(str.Get());
     
     mButtonControl->SetAnimationEndActionFunction([&](IControl* pCaller){
@@ -540,7 +541,7 @@ void IVMenuButtonControl::SetValueFromDelegate(double value, int valIdx)
 {
   IContainerBase::SetValueFromDelegate(value, valIdx);
   WDL_String str;
-  GetParam()->GetDisplay(str);
+  GetParam()->GetDisplayWithLabel(str);
   mButtonControl->SetValueStr(str.Get());
 }
 
@@ -551,6 +552,19 @@ void IVMenuButtonControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int va
     mButtonControl->SetValueStr(pSelectedMenu->GetChosenItem()->GetText());
   }
   IControl::OnPopupMenuSelection(pSelectedMenu, valIdx);
+}
+
+void IVMenuButtonControl::SetValueFromUserInput(double value, int valIdx)
+{
+  if (GetValue(valIdx) != value)
+  {
+    SetValue(value, valIdx);
+    SetDirty(true, valIdx);
+    
+    WDL_String val;
+    GetParam()->GetDisplayWithLabel(val);
+    mButtonControl->SetValueStr(val.Get());
+  }
 }
 
 IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, bool valueInWidget, float a1, float a2, float aAnchor,  EDirection direction, double gearing, float trackSize)
