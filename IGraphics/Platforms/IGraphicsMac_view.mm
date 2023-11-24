@@ -268,8 +268,14 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
     // Center that in the proposed rect
     float heightDelta = outRect.size.height - textSize.height;
     
-    outRect.size.height -= heightDelta;
-    outRect.origin.y += (heightDelta / 2);
+    outRect.origin.x += 3;
+    outRect.size.width -= 6;
+    
+    if (heightDelta > 0) 
+    {
+      outRect.size.height -= heightDelta;
+      outRect.origin.y += (heightDelta / 2);
+    }
   }
   
   return outRect;
