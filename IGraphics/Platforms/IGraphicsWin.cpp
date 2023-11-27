@@ -697,14 +697,28 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_DROPFILES:
     {
       HDROP hdrop = (HDROP)wParam;
-      
-      char pathToFile[1025];
-      DragQueryFile(hdrop, 0, pathToFile, 1024);
-      
-      POINT point;
-      DragQueryPoint(hdrop, &point);
-      
-      pGraphics->OnDrop(pathToFile, point.x, point.y);
+
+      int numDroppedFiles = DragQueryFile(hdrop, -1, nullptr, 0);
+
+      std::vector<std::vector<char>> pathBuffers(numDroppedFiles, std::vector<char>(1025, 0));
+      std::vector<const char*> pathPtrs(numDroppedFiles);
+      for (int i = 0; i < numDroppedFiles; i++) 
+      {
+        DragQueryFile(hdrop, i, &pathBuffers[i][0], 1024);
+        pathPtrs[i] = &pathBuffers[i][0];
+      }
+      POINT p;
+      DragQueryPoint(hdrop, &p);
+
+      const float scale = pGraphics->GetTotalScale();
+
+      if (numDroppedFiles==1) 
+      {
+        pGraphics->OnDrop(&pathPtrs[0][0], p.x / scale, p.y / scale);
+      } else 
+      {
+        pGraphics->OnDropMultiple(pathPtrs, p.x / scale, p.y / scale);
+      }
       
       return 0;
     }

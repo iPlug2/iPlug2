@@ -1250,6 +1250,12 @@ void IGraphics::OnDrop(const char* str, float x, float y)
   if (pControl) pControl->OnDrop(str);
 }
 
+void IGraphics::OnDropMultiple(const std::vector<const char*>& paths, float x, float y)
+{
+  IControl* pControl = GetMouseControl(x, y, false);
+  if (pControl) pControl->OnDropMultiple(paths);
+}
+
 void IGraphics::ReleaseMouseCapture()
 {
   mCapturedMap.clear();
