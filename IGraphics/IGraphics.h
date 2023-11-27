@@ -1523,6 +1523,11 @@ public:
    * @param y The Y coordinate where the drag and drop occurred */
   void OnDrop(const char* str, float x, float y);
 
+  /** @param paths A vector with the absolute paths of the dropped items
+   * @param x The X coordinate where the drag and drop occurred
+   * @param y The Y coordinate where the drag and drop occurred */
+  void OnDropMultiple(std::vector<const char*> &paths, float x, float y);
+
   /** This is an idle timer tick call on the GUI thread, only active if USE_IDLE_CALLS is defined */
   void OnGUIIdle();
   

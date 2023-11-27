@@ -1261,15 +1261,26 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   if ([[pPasteBoard types] containsObject:NSFilenamesPboardType])
   {
     NSArray *pFiles = [pPasteBoard propertyListForType:NSFilenamesPboardType];
-    NSString *pFirstFile = [pFiles firstObject];
     NSPoint point = [sender draggingLocation];
     NSPoint relativePoint = [self convertPoint: point fromView:nil];
     // TODO - fix or remove these values
     float x = relativePoint.x;// - 2.f;
     float y = relativePoint.y;// - 3.f;
-    mGraphics->OnDrop([pFirstFile UTF8String], x, y);
+    if ([pFiles count] == 1)
+    {
+      NSString *pFirstFile = [pFiles firstObject];
+      mGraphics->OnDrop([pFirstFile UTF8String], x, y);
+    }
+    else if ([pFiles count] > 1)
+    {
+      std::vector<const char*> pathsVector([pFiles count]);
+      for (int i = 0; i < (int)[pFiles count]; i++) {
+        NSString *file_i = [pFiles objectAtIndex: i];
+        pathsVector[i] = [file_i UTF8String];
+      }
+      mGraphics->OnDropMultiple(pathsVector, x, y);
+    }
   }
-
   return YES;
 }
 
