@@ -1386,7 +1386,7 @@ fakeButtonClick:
           if (!hwnd->m_enabled) 
             SetTextColor(ps.hdc, g_swell_ctheme.button_text_disabled);
 
-          int f=DT_VCENTER;
+          int f=DT_VCENTER|DT_SINGLELINE;
           int sf = (hwnd->m_style & 0xf);
           if (sf == BS_OWNERDRAW)
           {
@@ -3344,7 +3344,7 @@ static LRESULT WINAPI labelWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
             DrawText(ps.hdc,text,-1,&r,
                 ((hwnd->m_style & SS_CENTER) ? DT_CENTER :
                  (hwnd->m_style & SS_RIGHT) ? DT_RIGHT : 0)|
-                DT_VCENTER);
+                (strstr(text,"\n") ? 0 : (DT_SINGLELINE|DT_VCENTER)));
           }
           EndPaint(hwnd,&ps);
         }
@@ -3729,7 +3729,7 @@ popupMenu:
             char buf[512];
             buf[0]=0;
             GetWindowText(hwnd,buf,sizeof(buf));
-            if (buf[0]) DrawText(ps.hdc,buf,-1,&r,DT_VCENTER);
+            if (buf[0]) DrawText(ps.hdc,buf,-1,&r,DT_VCENTER|DT_SINGLELINE);
           }
 
           if (draw_focus_indicator(hwnd,ps.hdc,NULL))
@@ -7429,7 +7429,7 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
               bool dis = !!(inf->fState & MF_GRAYED);
               RECT cr={0};
-              DrawText(dc,inf->dwTypeData,-1,&cr,DT_CALCRECT);
+              DrawText(dc,inf->dwTypeData,-1,&cr,DT_CALCRECT|DT_SINGLELINE);
 
               if (x == n-1 && wantRightAlignedMenuBarItem(inf->dwTypeData))
               {
@@ -7458,7 +7458,7 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                  dis ? g_swell_ctheme.menubar_text_disabled :
                    g_swell_ctheme.menubar_text);
 
-              DrawText(dc,inf->dwTypeData,-1,&cr,DT_VCENTER|DT_LEFT);
+              DrawText(dc,inf->dwTypeData,-1,&cr,DT_VCENTER|DT_LEFT|DT_SINGLELINE);
               xpos=cr.right+g_swell_ctheme.menubar_spacing_width;
             }
           }
