@@ -987,6 +987,7 @@ bool swell_isOSwindowmenu(SWELL_OSWINDOW osw);
 void swell_on_toplevel_raise(SWELL_OSWINDOW wnd); // called by swell-generic-gdk when a window is focused
 
 HWND swell_oswindow_to_hwnd(SWELL_OSWINDOW w);
+SWELL_OSWINDOW swell_oswindow_from_hwnd(HWND hwnd);
 void swell_oswindow_focus(HWND hwnd);
 void swell_oswindow_update_style(HWND hwnd, LONG oldstyle);
 void swell_oswindow_update_enable(HWND hwnd);

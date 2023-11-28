@@ -65,6 +65,13 @@ HWND swell_oswindow_to_hwnd(SWELL_OSWINDOW w)
   return a;
 }
 
+SWELL_OSWINDOW swell_oswindow_from_hwnd(HWND hwnd)
+{
+  while (hwnd && !hwnd->m_oswindow)
+    hwnd = hwnd->m_parent;
+  return hwnd ? hwnd->m_oswindow : NULL;
+}
+
 HWND SWELL_GetFocusedChild(HWND h);
 
 void swell_on_toplevel_raise(SWELL_OSWINDOW wnd) // called by swell-generic-gdk when a window is focused
