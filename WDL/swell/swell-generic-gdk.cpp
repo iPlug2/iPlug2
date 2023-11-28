@@ -2938,6 +2938,7 @@ static LRESULT WINAPI dropSourceWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
 
 void SWELL_InitiateDragDrop(HWND hwnd, RECT* srcrect, const char* srcfn, void (*callback)(const char* dropfn))
 {
+  const bool is_osw_cursor = s_last_setcursor_oswnd && swell_oswindow_from_hwnd(hwnd) == s_last_setcursor_oswnd;
   dropSourceInfo info;
   info.srcfn = strdup(srcfn);
   info.callback = callback;
@@ -2956,11 +2957,18 @@ void SWELL_InitiateDragDrop(HWND hwnd, RECT* srcrect, const char* srcfn, void (*
   
   swell_dragsrc_hwnd=NULL;
   DestroyWindow(h);
+
+  if (is_osw_cursor && hwnd && GetFocus() != hwnd)
+  {
+    SWELL_OSWINDOW osw = swell_oswindow_from_hwnd(hwnd);
+    gdk_window_set_cursor(osw,NULL);
+  }
 }
 
 // owner owns srclist, make copies here etc
 void SWELL_InitiateDragDropOfFileList(HWND hwnd, RECT *srcrect, const char **srclist, int srccount, HICON icon)
 {
+  const bool is_osw_cursor = s_last_setcursor_oswnd && swell_oswindow_from_hwnd(hwnd) == s_last_setcursor_oswnd;
   dropSourceInfo info;
   info.srclist = srclist;
   info.srccount = srccount;
@@ -2979,6 +2987,12 @@ void SWELL_InitiateDragDropOfFileList(HWND hwnd, RECT *srcrect, const char **src
   
   swell_dragsrc_hwnd=NULL;
   DestroyWindow(h);
+
+  if (is_osw_cursor && hwnd && GetFocus() != hwnd)
+  {
+    SWELL_OSWINDOW osw = swell_oswindow_from_hwnd(hwnd);
+    gdk_window_set_cursor(osw,NULL);
+  }
 }
 
 void SWELL_FinishDragDrop() { }
