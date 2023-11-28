@@ -1350,6 +1350,10 @@ HFONT SWELL_GetDefaultFont(void);
 
 #endif
 
+extern void (*SWELL_DDrop_onDragLeave)();
+extern void (*SWELL_DDrop_onDragOver)(POINT pt);
+extern void (*SWELL_DDrop_onDragEnter)(void *hGlobal, POINT pt);
+extern const char* (*SWELL_DDrop_getDroppedFileTargetPath)(const char* extension);
 
 static WDL_STATICFUNC_UNUSED int ext_valid_for_extlist(const char *thisext, const char *extlist)
 {
