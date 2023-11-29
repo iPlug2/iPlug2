@@ -1913,6 +1913,44 @@ bool IGraphicsWin::SetTextInClipboard(const char* str)
   return len > 0;
 }
 
+bool IGraphicsWin::SetFilePathInClipboard(const char *path)
+{
+  if (!OpenClipboard(mMainWnd))
+    return false;
+
+  EmptyClipboard();
+
+  const size_t pathLength = strlen(path);
+  HGLOBAL hGlobal = GlobalAlloc(GHND, sizeof(DROPFILES) + pathLength + 2);
+
+  if (!hGlobal)
+    return false;
+
+  DROPFILES* dropfiles = (DROPFILES*)GlobalLock(hGlobal);
+
+  if (!dropfiles) {
+    GlobalFree(hGlobal);
+    return false;
+  }
+
+  dropfiles->pFiles = sizeof(DROPFILES);
+  dropfiles->fNC = true;
+  dropfiles->fWide = false;
+
+  memcpy(&dropfiles[1], path, pathLength);
+
+  GlobalUnlock(hGlobal);
+
+  if (!SetClipboardData(CF_HDROP, hGlobal)) {
+    GlobalFree(hGlobal);
+    return false;
+  }
+
+  GlobalFree(hGlobal);
+  CloseClipboard();
+  return true;
+}
+
 static HFONT GetHFont(const char* fontName, int weight, bool italic, bool underline, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
 {
   HDC hdc = GetDC(NULL);

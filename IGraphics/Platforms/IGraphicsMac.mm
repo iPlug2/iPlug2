@@ -648,6 +648,18 @@ bool IGraphicsMac::SetTextInClipboard(const char* str)
   return [[NSPasteboard generalPasteboard] setString:pTextForClipboard forType:NSStringPboardType];
 }
 
+bool IGraphicsMac::SetFilePathInClipboard(const char* path)
+{
+  NSURL *fileURL = [NSURL fileURLWithPath: [NSString stringWithUTF8String: path]];
+  NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+  if (!pasteboard) {
+    return false;
+  }
+  [pasteboard clearContents]; // clear pasteboard to take ownership
+  BOOL success = [pasteboard writeObjects: [NSArray arrayWithObject:fileURL]];
+  return (bool)success;
+}
+
 EUIAppearance IGraphicsMac::GetUIAppearance() const
 {
   if (@available(macOS 10.14, *)) {

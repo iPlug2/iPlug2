@@ -846,6 +846,11 @@ public:
    * @return /c true on success */
   virtual bool SetTextInClipboard(const char* str) = 0;
 
+  /** Set a file path in the clipboard. Returns false on unsupported platforms
+   * @param str A CString that containing a path to a file on disk
+   * @return /c true on success */
+  virtual bool SetFilePathInClipboard(const char* path) { return false; }
+
   /** Call this if you modify control tool tips at runtime. \todo explain */
   virtual void UpdateTooltips() = 0;
 
