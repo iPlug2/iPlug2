@@ -81,6 +81,7 @@ public:
 
   bool GetTextFromClipboard(WDL_String& str) override;
   bool SetTextInClipboard(const char* str) override;
+  bool SetFilePathInClipboard(const char* path) override;
 
   bool PlatformSupportsMultiTouch() const override;
 
