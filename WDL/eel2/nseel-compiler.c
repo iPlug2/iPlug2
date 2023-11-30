@@ -2140,7 +2140,7 @@ start_over: // when an opcode changed substantially in optimization, goto here t
                 }
                 break;
               }
-              // fall through, if dv1 we can remove +0.0
+              WDL_FALLTHROUGH; // fall through, if dv1 we can remove +0.0
 
             case FN_ADD:
               if (dvalue == 0.0) 
@@ -2153,7 +2153,7 @@ start_over: // when an opcode changed substantially in optimization, goto here t
               if ((WDL_INT64)dvalue) break;
               dvalue = 0.0; // treat x&0 as x*0, which optimizes to 0
             
-              // fall through
+              WDL_FALLTHROUGH; // fall through
             case FN_MULTIPLY:
               if (dvalue == 0.0) // remove multiply by 0.0 (using 0.0 direct value as replacement), unless the nonzero side did something
               {
@@ -2437,7 +2437,7 @@ start_over: // when an opcode changed substantially in optimization, goto here t
               {
                 case OPCODETYPE_VALUE_FROM_NAMESPACENAME:
                   if (first_parm->namespaceidx != second_parm->namespaceidx) break;
-                  // fall through
+                  WDL_FALLTHROUGH; // fall through
                 case OPCODETYPE_VARPTR:
                   if (first_parm->relname && second_parm->relname && !stricmp(second_parm->relname,first_parm->relname)) second_parm=NULL;
                 break;
@@ -4166,7 +4166,7 @@ doNonInlineIf_:
           }
 #endif
         }
-        // fall through
+        WDL_FALLTHROUGH; // fall through
     case OPCODETYPE_DIRECTVALUE_TEMPSTRING:
     case OPCODETYPE_VALUE_FROM_NAMESPACENAME:
     case OPCODETYPE_VARPTR:

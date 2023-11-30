@@ -1804,6 +1804,7 @@ int EEL_Editor::onChar(int c)
   {
   case KEY_F1:
     if (CTRL_KEY_DOWN) break;
+    WDL_FALLTHROUGH;
   case 'K'-'A'+1:
     doWatchInfo(c);
   return 0;

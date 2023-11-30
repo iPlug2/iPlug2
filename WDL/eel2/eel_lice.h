@@ -1589,6 +1589,7 @@ static int __drawTextWithFont(LICE_IBitmap *dest, const RECT *rect, LICE_IFont *
       {
         case '\n': 
           ypos += 8; 
+          WDL_FALLTHROUGH;
         case '\r': 
           xpos = sxpos; 
         break;
