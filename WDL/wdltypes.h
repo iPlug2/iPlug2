@@ -190,7 +190,7 @@ typedef bool WDL_bool;
   #define WDL_NOT_NORMALLY(x) WDL_unlikely(x)
 #endif
 
-#if __GNUC__ >= 7
+#if __GNUC__ >= 7 || __clang_major__ > 9
   #if __has_attribute(__fallthrough__)
     #define WDL_FALLTHROUGH __attribute__((__fallthrough__))
   #endif
