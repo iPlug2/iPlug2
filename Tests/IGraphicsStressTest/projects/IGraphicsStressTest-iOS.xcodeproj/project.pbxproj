@@ -144,7 +144,6 @@
 		4F977D3E20CC9DD800D19F46 /* PolyphaseIIR2Designer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolyphaseIIR2Designer.h; sourceTree = "<group>"; };
 		4F977D3F20CC9DD800D19F46 /* FPUUpsampler2x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUUpsampler2x.h; sourceTree = "<group>"; };
 		4F977D4020CC9DD800D19F46 /* PolyphaseIIR2Designer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PolyphaseIIR2Designer.cpp; sourceTree = "<group>"; };
-		4F977D4120CC9DD800D19F46 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Array.h; sourceTree = "<group>"; };
 		4F977D4220CC9DD800D19F46 /* FPUStageProc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUStageProc.h; sourceTree = "<group>"; };
 		4F977D4320CC9DD800D19F46 /* readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
 		4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUDownsampler2x.h; sourceTree = "<group>"; };
@@ -427,13 +426,12 @@
 		4F977D3D20CC9DD800D19F46 /* HIIR */ = {
 			isa = PBXGroup;
 			children = (
-				4F977D3E20CC9DD800D19F46 /* PolyphaseIIR2Designer.h */,
-				4F977D3F20CC9DD800D19F46 /* FPUUpsampler2x.h */,
-				4F977D4020CC9DD800D19F46 /* PolyphaseIIR2Designer.cpp */,
-				4F977D4120CC9DD800D19F46 /* Array.h */,
-				4F977D4220CC9DD800D19F46 /* FPUStageProc.h */,
-				4F977D4320CC9DD800D19F46 /* readme.txt */,
 				4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */,
+				4F977D4220CC9DD800D19F46 /* FPUStageProc.h */,
+				4F977D3F20CC9DD800D19F46 /* FPUUpsampler2x.h */,
+				4F977D3E20CC9DD800D19F46 /* PolyphaseIIR2Designer.h */,
+				4F977D4020CC9DD800D19F46 /* PolyphaseIIR2Designer.cpp */,
+				4F977D4320CC9DD800D19F46 /* readme.txt */,
 				4F977D4520CC9DD800D19F46 /* license.txt */,
 			);
 			path = HIIR;
@@ -541,7 +539,10 @@
 				4F3E0F9B20A0C64100A9C2BE /* Frameworks */,
 				91D3DA171B023C1E008FFFBB /* Products */,
 			);
+			indentWidth = 2;
 			sourceTree = "<group>";
+			tabWidth = 2;
+			usesTabs = 0;
 		};
 		91D3DA171B023C1E008FFFBB /* Products */ = {
 			isa = PBXGroup;

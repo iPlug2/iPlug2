@@ -144,7 +144,6 @@
 		4F977D3E20CC9DD800D19F46 /* PolyphaseIIR2Designer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolyphaseIIR2Designer.h; sourceTree = "<group>"; };
 		4F977D3F20CC9DD800D19F46 /* FPUUpsampler2x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUUpsampler2x.h; sourceTree = "<group>"; };
 		4F977D4020CC9DD800D19F46 /* PolyphaseIIR2Designer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PolyphaseIIR2Designer.cpp; sourceTree = "<group>"; };
-		4F977D4120CC9DD800D19F46 /* Array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Array.h; sourceTree = "<group>"; };
 		4F977D4220CC9DD800D19F46 /* FPUStageProc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUStageProc.h; sourceTree = "<group>"; };
 		4F977D4320CC9DD800D19F46 /* readme.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = readme.txt; sourceTree = "<group>"; };
 		4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUDownsampler2x.h; sourceTree = "<group>"; };
@@ -327,7 +326,6 @@
 				4F63698F20A463AF0022C370 /* IGraphicsWin.cpp */,
 				4F63699020A463AF0022C370 /* IGraphicsIOS.h */,
 				4F63698E20A463AF0022C370 /* IGraphicsIOS.mm */,
-				4F0BA48D24699A7400DB93AC /*  */,
 				4F63698420A463AF0022C370 /* IGraphicsIOS_view.h */,
 				4F63699120A463AF0022C370 /* IGraphicsIOS_view.mm */,
 			);
@@ -399,7 +397,6 @@
 		4F977D3120CC9DD800D19F46 /* Extras */ = {
 			isa = PBXGroup;
 			children = (
-				4F800153252F0AAF00432412 /* LFO.h */,
 				4F6E673521C5613A005991A9 /* Synth */,
 				4F977D3520CC9DD800D19F46 /* Easing.h */,
 				4F977D3620CC9DD800D19F46 /* NChanDelay.h */,
@@ -429,13 +426,12 @@
 		4F977D3D20CC9DD800D19F46 /* HIIR */ = {
 			isa = PBXGroup;
 			children = (
-				4F977D3E20CC9DD800D19F46 /* PolyphaseIIR2Designer.h */,
-				4F977D3F20CC9DD800D19F46 /* FPUUpsampler2x.h */,
-				4F977D4020CC9DD800D19F46 /* PolyphaseIIR2Designer.cpp */,
-				4F977D4120CC9DD800D19F46 /* Array.h */,
-				4F977D4220CC9DD800D19F46 /* FPUStageProc.h */,
-				4F977D4320CC9DD800D19F46 /* readme.txt */,
 				4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */,
+				4F977D4220CC9DD800D19F46 /* FPUStageProc.h */,
+				4F977D3F20CC9DD800D19F46 /* FPUUpsampler2x.h */,
+				4F977D3E20CC9DD800D19F46 /* PolyphaseIIR2Designer.h */,
+				4F977D4020CC9DD800D19F46 /* PolyphaseIIR2Designer.cpp */,
+				4F977D4320CC9DD800D19F46 /* readme.txt */,
 				4F977D4520CC9DD800D19F46 /* license.txt */,
 			);
 			path = HIIR;
@@ -543,7 +539,10 @@
 				4F3E0F9B20A0C64100A9C2BE /* Frameworks */,
 				91D3DA171B023C1E008FFFBB /* Products */,
 			);
+			indentWidth = 2;
 			sourceTree = "<group>";
+			tabWidth = 2;
+			usesTabs = 0;
 		};
 		91D3DA171B023C1E008FFFBB /* Products */ = {
 			isa = PBXGroup;
@@ -636,12 +635,12 @@
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
 					4FA61F6D22E899B500A92C58 = {
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						ProvisioningStyle = Automatic;
 					};
 					91236D0C1B08F42B00734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						LastSwiftMigration = 1010;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.iOS = {
@@ -657,7 +656,7 @@
 					};
 					91236D761B08F59300734C5E = {
 						CreatedOnToolsVersion = 7.0;
-						DevelopmentTeam = "$(DEVELOPMENT_TEAM)";
+						DevelopmentTeam = 686EDA2T8T;
 						LastSwiftMigration = 1010;
 					};
 				};
