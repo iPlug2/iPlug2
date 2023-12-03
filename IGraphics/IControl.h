@@ -143,6 +143,9 @@ public:
   /** Implement to do something when something was drag 'n dropped onto this control */
   virtual void OnDrop(const char* str) {};
 
+  /** Implement to handle multiple items drag 'n dropped onto this control */
+  virtual void OnDropMultiple(const std::vector<const char*>& paths) { OnDrop(paths[0]); }
+
   /** Implement to do something when graphics is scaled globally (e.g. moves to different DPI screen) */
   virtual void OnRescale() {}
 
