@@ -804,6 +804,7 @@ END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
 // These meta controls depend on the other controls
+#include "IAboutBoxControl.h"
 #include "IVPresetManagerControl.h"
 #include "IVNumberBoxControl.h"
 #include "IVTabbedPagesControl.h"
