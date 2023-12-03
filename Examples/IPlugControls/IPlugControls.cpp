@@ -211,6 +211,20 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 
                                                             }, 32, "IVPlotControl", style), kNoTag, "vcontrols");
 
+    
+    pGraphics->AttachControl(new IVTabbedPagesControl(nextCell(),
+    {
+      {"1", new IVTabPage([](IVTabPage* pPage, const IRECT& r) {
+        pPage->AddChildControl(new IPanelControl(IRECT(), COLOR_RED));
+      })},
+      {"2", new IVTabPage([](IVTabPage* pPage, const IRECT& r) {
+        pPage->AddChildControl(new IPanelControl(IRECT(), COLOR_GREEN));
+      })},
+      {"3", new IVTabPage([](IVTabPage* pPage, const IRECT& r) {
+        pPage->AddChildControl(new IPanelControl(IRECT(), COLOR_BLUE));
+      })}
+    }, "IVTabbedPagesControl", style), kNoTag, "vcontrols");
+    
     IRECT wideCell;
     wideCell = nextCell().Union(nextCell()).Union(nextCell()).Union(nextCell());
     pGraphics->AttachControl(new ITextControl(wideCell.GetFromTop(20.f), "IVKeyboardControl", style.labelText));

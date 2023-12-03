@@ -773,6 +773,9 @@ public:
     mControl = pControl;
     mLabelStr.Set(label);
   }
+  
+  /** Implement if extra changes are required in response to style changing */
+  virtual void OnStyleChanged() { /* NO-OP */ }
 
   /** Set one of the IVColors that style the IVControl
    * @param colorIdx The index of the color to set
@@ -796,21 +799,22 @@ public:
     return mStyle.colorSpec.GetColor(color);
   }
   
-  void SetLabelStr(const char* label) { mLabelStr.Set(label); mControl->SetDirty(false); }
-  void SetValueStr(const char* value) { mValueStr.Set(value); mControl->SetDirty(false); }
-  void SetWidgetFrac(float frac) { mStyle.widgetFrac = Clip(frac, 0.f, 1.f);  mControl->OnResize(); mControl->SetDirty(false); }
-  void SetAngle(float angle) { mStyle.angle = Clip(angle, 0.f, 360.f);  mControl->SetDirty(false); }
-  void SetShowLabel(bool show) { mStyle.showLabel = show;  mControl->OnResize(); mControl->SetDirty(false); }
-  void SetShowValue(bool show) { mStyle.showValue = show;  mControl->OnResize(); mControl->SetDirty(false); }
-  void SetRoundness(float roundness) { mStyle.roundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); }
-  void SetDrawFrame(bool draw) { mStyle.drawFrame = draw; mControl->SetDirty(false); }
-  void SetDrawShadows(bool draw) { mStyle.drawShadows = draw; mControl->SetDirty(false); }
-  void SetEmboss(bool draw) { mStyle.emboss = draw; mControl->SetDirty(false); }
-  void SetShadowOffset(float offset) { mStyle.shadowOffset = offset; mControl->SetDirty(false); }
-  void SetFrameThickness(float thickness) { mStyle.frameThickness = thickness; mControl->SetDirty(false); }
-  void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; }
-  void SetSplashPoint(float x, float y) { mSplashPoint.x = x; mSplashPoint.y = y; }
-  void SetShape(EVShape shape) { mShape = shape; mControl->SetDirty(false); }
+  void SetLabelStr(const char* label) { mLabelStr.Set(label); mControl->SetDirty(false); OnStyleChanged(); }
+  const char* GetLabelStr() const { return mLabelStr.Get(); }
+  void SetValueStr(const char* value) { mValueStr.Set(value); mControl->SetDirty(false); OnStyleChanged(); }
+  void SetWidgetFrac(float frac) { mStyle.widgetFrac = Clip(frac, 0.f, 1.f);  mControl->OnResize(); mControl->SetDirty(false); OnStyleChanged(); }
+  void SetAngle(float angle) { mStyle.angle = Clip(angle, 0.f, 360.f);  mControl->SetDirty(false); OnStyleChanged(); }
+  void SetShowLabel(bool show) { mStyle.showLabel = show;  mControl->OnResize(); mControl->SetDirty(false); OnStyleChanged(); }
+  void SetShowValue(bool show) { mStyle.showValue = show;  mControl->OnResize(); mControl->SetDirty(false); OnStyleChanged(); }
+  void SetRoundness(float roundness) { mStyle.roundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); OnStyleChanged(); }
+  void SetDrawFrame(bool draw) { mStyle.drawFrame = draw; mControl->SetDirty(false); OnStyleChanged(); }
+  void SetDrawShadows(bool draw) { mStyle.drawShadows = draw; mControl->SetDirty(false); OnStyleChanged(); }
+  void SetEmboss(bool draw) { mStyle.emboss = draw; mControl->SetDirty(false); OnStyleChanged(); }
+  void SetShadowOffset(float offset) { mStyle.shadowOffset = offset; mControl->SetDirty(false); OnStyleChanged(); }
+  void SetFrameThickness(float thickness) { mStyle.frameThickness = thickness; mControl->SetDirty(false); OnStyleChanged(); }
+  void SetSplashRadius(float radius) { mSplashRadius = radius * mMaxSplashRadius; OnStyleChanged(); }
+  void SetSplashPoint(float x, float y) { mSplashPoint.x = x; mSplashPoint.y = y; OnStyleChanged(); }
+  void SetShape(EVShape shape) { mShape = shape; mControl->SetDirty(false); OnStyleChanged(); }
 
   /** Set the Style of this IVControl
    * @param style */
@@ -818,6 +822,7 @@ public:
   {
     mStyle = style;
     SetColors(style.colorSpec);
+    OnStyleChanged();
   }
 
   /** Get the style of this IVControl
