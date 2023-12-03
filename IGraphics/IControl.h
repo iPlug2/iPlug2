@@ -797,6 +797,7 @@ public:
   }
   
   void SetLabelStr(const char* label) { mLabelStr.Set(label); mControl->SetDirty(false); }
+  const char* GetLabelStr() const { return mLabelStr.Get(); }
   void SetValueStr(const char* value) { mValueStr.Set(value); mControl->SetDirty(false); }
   void SetWidgetFrac(float frac) { mStyle.widgetFrac = Clip(frac, 0.f, 1.f);  mControl->OnResize(); mControl->SetDirty(false); }
   void SetAngle(float angle) { mStyle.angle = Clip(angle, 0.f, 360.f);  mControl->SetDirty(false); }
