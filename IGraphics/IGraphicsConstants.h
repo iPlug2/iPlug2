@@ -77,19 +77,19 @@ enum class EBlend
   Default = SrcOver
 };
 
-/** \todo */
+/** Constants that determine if a file dialog is for opening or saving */
 enum class EFileAction { Open, Save };
 
-/** \todo */
+/** Constants used for layout direction */
 enum class EDirection { Vertical, Horizontal };
 
-/** Used to specify text styles when loading fonts. */
+/** Constants to specify text styles when loading fonts. */
 enum class ETextStyle { Normal, Bold, Italic };
 
-/** \todo */
+/** Constants to specify horizontal alignment */
 enum class EAlign { Near, Center, Far };
 
-/** \todo */
+/** Constants to specify vertical alignment */
 enum class EVAlign { Top, Middle, Bottom };
 
 /** Constants for layout orientation e.g. location of labels in a IVControl */
