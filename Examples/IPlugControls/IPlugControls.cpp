@@ -38,7 +38,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
 #endif
     pGraphics->AttachBubbleControl();
     
-    IRECT b = pGraphics->GetBounds().GetPadded(-5);
+    IRECT b = pGraphics->GetBounds();
     
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     pGraphics->LoadFont("ForkAwesome", FORK_AWESOME_FN);
@@ -84,11 +84,11 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     int cellIdx = -1;
     
     auto nextCell = [&](){
-      return b.GetGridCell(++cellIdx, nRows, nCols).GetPadded(-5.);
+      return b.GetPadded(-5.).GetGridCell(++cellIdx, nRows, nCols).GetPadded(-5.);
     };
 
     auto sameCell = [&](){
-      return b.GetGridCell(cellIdx, nRows, nCols).GetPadded(-5.);
+      return b.GetPadded(-5.).GetGridCell(cellIdx, nRows, nCols).GetPadded(-5.);
     };
     
     auto AddLabel = [&](const char* label){
@@ -506,6 +506,35 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     };
     
     pGraphics->AttachControl(new IVButtonControl(sameCell().SubRectVertical(5, 4).FracRectHorizontal(0.5f, true), SplashClickActionFunc, "font...", style.WithDrawShadows(false)))->SetAnimationEndActionFunction(promptValueFont);
+    
+#pragma mark - About Box
+    pGraphics->AttachControl(new IVButtonControl(b.GetPadded(-5).GetFromBRHC(50, 50), SplashClickActionFunc, ICON_FK_INFO_CIRCLE, style.WithLabelText(forkAwesomeText.WithSize(40.f)).WithDrawFrame(false).WithDrawShadows(false), true))
+    ->SetAnimationEndActionFunction([pGraphics](IControl* pCaller){
+      pGraphics->GetControlWithTag(kCtrlTagAboutBox)->As<IAboutBoxControl>()->Show();
+    });
+    
+    pGraphics->AttachControl(new IAboutBoxControl(b,
+            COLOR_BLACK.WithOpacity(0.95),
+            // AttachFunc
+            [](IContainerBase* pParent, const IRECT& r) {
+              pParent->AddChildControl(new ITextControl(IRECT(), "IPlugControls Example", {DEFAULT_TEXT_SIZE * 5, COLOR_WHITE}));
+              WDL_String versionStr {"Version "};
+              versionStr.Append(PLUG_VERSION_STR);
+              pParent->AddChildControl(new IVLabelControl(IRECT(), versionStr.Get()));
+              pParent->AddChildControl(new IVLabelControl(IRECT(), "IAboutBoxControl"));
+              pParent->AddChildControl(new IURLControl(IRECT(),
+                                                        "https://iplug2.github.io",
+                                                        "https://iplug2.github.io", {DEFAULT_TEXT_SIZE, COLOR_WHITE}));
+            },
+            // ResizeFunc
+            [](IContainerBase* pParent, const IRECT& r) {
+              const auto logo = r.GetFromTop(300).GetCentredInside(r.W(), 100);
+              const auto links = logo.GetVShifted(100);
+              pParent->GetChild(0)->SetTargetAndDrawRECTs(logo);
+              pParent->GetChild(1)->SetTargetAndDrawRECTs(links.SubRectVertical(4, 0));
+              pParent->GetChild(2)->SetTargetAndDrawRECTs(links.SubRectVertical(4, 2));
+              pParent->GetChild(3)->SetTargetAndDrawRECTs(links.SubRectVertical(4, 3));
+            }), kCtrlTagAboutBox)->Hide(true);
   };
 #endif
 }
