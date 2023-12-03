@@ -276,6 +276,9 @@ public:
   void SetOuterPointerFrac(float frac) { mOuterPointerFrac = frac; }
   void SetPointerThickness(float thickness) { mPointerThickness = thickness; }
 
+  float GetRadius() const;
+  IRECT GetTrackBounds() const;
+  
 protected:
   virtual IRECT GetKnobDragBounds() override;
 
