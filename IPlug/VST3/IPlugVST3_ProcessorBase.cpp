@@ -57,11 +57,7 @@ IPlugVST3ProcessorBase::IPlugVST3ProcessorBase(Config c, IPlugAPIBase& plug)
   
   mMaxNChansForMainInputBus = MaxNChannelsForBus(ERoute::kInput, 0);
 
-  if (MaxNChannels(ERoute::kInput))
-  {
-    mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
-    mLatencyDelay->SetDelayTime(GetLatency());
-  }
+  InitLatencyDelay();
   
   // Make sure the process context is predictably initialised in case it is used before process is called
   memset(&mProcessContext, 0, sizeof(ProcessContext));
