@@ -203,8 +203,8 @@ private:
 
     f0 = _mm_add_ps(f0, _mm_mul_ps(df0, fl));
 
-    auto f1 = _mm_load_ps(&sTable[tidx][4]);
-    auto df1 = _mm_load_ps(&sDeltaTable[tidx][4]);
+    auto f1 = _mm_load_ps(&sTable[tidx][A]);
+    auto df1 = _mm_load_ps(&sDeltaTable[tidx][A]);
     f1 = _mm_add_ps(f1, _mm_mul_ps(df1, fl));
 
     for (auto c=0; c<NCHANS;c++)
@@ -216,15 +216,15 @@ private:
     }
 #else
     
-    for (auto i=0; i<4; i++)
+    for (auto i=0; i<A; i++)
     {
       const auto fl = fidx;
       auto f0 = sTable[tidx][i];
       const auto df0 = sDeltaTable[tidx][i];
       f0 += df0 * fl;
       
-      auto f1 = sTable[tidx][4+i];
-      const auto df1 = sDeltaTable[tidx][4+i];
+      auto f1 = sTable[tidx][A+i];
+      const auto df1 = sDeltaTable[tidx][A+i];
       f1 += df1 * fl;
       
       for (auto c=0; c<NCHANS;c++)
