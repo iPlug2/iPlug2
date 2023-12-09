@@ -1934,7 +1934,7 @@ public:
   /** Get the full path to the file if something has been selected in the menu */
   void GetSelectedFile(WDL_String& path) const;
   
-  /** Check the currently selected menu item. Does nothing if mSelectedIndex == -1 */
+  /** Check the currently selected menu item. Does nothing if mSelectedItemIndex == -1 */
   void CheckSelectedItem();
 
 private:
@@ -1945,7 +1945,7 @@ protected:
   const bool mScanRecursively;
   const bool mShowFileExtensions;
   const bool mShowEmptySubmenus;
-  int mSelectedIndex = -1;
+  int mSelectedItemIndex = -1; // index into mItems
   IPopupMenu mMainMenu;
   WDL_PtrList<WDL_String> mPaths;
   WDL_PtrList<WDL_String> mPathLabels;

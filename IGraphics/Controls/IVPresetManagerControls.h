@@ -188,7 +188,7 @@ public:
 
       if (pItem)
       {
-        mSelectedIndex = mItems.Find(pItem);
+        mSelectedItemIndex = mItems.Find(pItem);
         LoadPresetAtCurrentIndex();
       }
     }
@@ -199,19 +199,19 @@ public:
     IRECT sections = mRECT.GetPadded(-5.f);
 
     auto prevPresetFunc = [&](IControl* pCaller) {
-      mSelectedIndex--;
+      mSelectedItemIndex--;
 
-      if (mSelectedIndex < 0)
-        mSelectedIndex = NItems() - 1;
+      if (mSelectedItemIndex < 0)
+        mSelectedItemIndex = NItems() - 1;
 
       LoadPresetAtCurrentIndex();
     };
 
     auto nextPresetFunc = [&](IControl* pCaller) {
-      mSelectedIndex++;
+      mSelectedItemIndex++;
 
-      if (mSelectedIndex >= NItems())
-        mSelectedIndex = 0;
+      if (mSelectedItemIndex >= NItems())
+        mSelectedItemIndex = 0;
 
       LoadPresetAtCurrentIndex();
     };
@@ -230,7 +230,7 @@ public:
 
     auto choosePresetFunc = [&](IControl* pCaller) {
       CheckSelectedItem();
-      mMainMenu.SetChosenItemIdx(mSelectedIndex);
+      mMainMenu.SetChosenItemIdx(mSelectedItemIndex);
       pCaller->GetUI()->CreatePopupMenu(*this, mMainMenu, pCaller->GetRECT());
     };
 
@@ -251,7 +251,8 @@ public:
 
   void LoadPresetAtCurrentIndex()
   {
-    if (mSelectedIndex > -1 && mSelectedIndex < mItems.GetSize())
+    if (mSelectedItemIndex > -1 && 
+        mSelectedItemIndex < mItems.GetSize())
     {
       WDL_String fileName;
       GetSelectedFile(fileName);
