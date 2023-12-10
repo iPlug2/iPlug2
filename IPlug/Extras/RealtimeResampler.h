@@ -76,28 +76,22 @@ public:
   
   void Reset(double inputSampleRate, int blockSize = DEFAULT_BLOCK_SIZE)
   {
-    if (mInputSampleRate == inputSampleRate)
+    if (mInputSampleRate == inputSampleRate && mMaxBlockSize == blockSize)
     {
       ClearBuffers();
-
-      if (mResamplingMode == ESRCMode::kLancsoz)
-      {
-        mResamplerUp->Reset();
-        mResamplerDown->Reset();
-      }
       return;
     }
 
+    mMaxBlockSize = blockSize * 2;
     mInputSampleRate = inputSampleRate;
     mUpRatio = mInputSampleRate / mRenderingSampleRate;
     mDownRatio = mRenderingSampleRate / mInputSampleRate;
-    mResampledData.Resize(DEFAULT_BLOCK_SIZE * NCHANS);
-    ClearBuffers();
+    mResampledData.Resize(mMaxBlockSize * NCHANS);
     mScratchPtrs.Empty();
     
     for (auto chan=0; chan<NCHANS; chan++)
     {
-      mScratchPtrs.Add(mResampledData.Get() + (chan * DEFAULT_BLOCK_SIZE));
+      mScratchPtrs.Add(mResampledData.Get() + (chan * mMaxBlockSize));
     }
 
     if (mResamplingMode == ESRCMode::kLancsoz)
@@ -106,8 +100,8 @@ public:
       mResamplerDown = std::make_unique<LanczosResampler>(mRenderingSampleRate, mInputSampleRate);
         
       /* Prepopulate the upsampler with silence so it can run ahead */
-      mLatency = int(mResamplerUp->inputsRequiredToGenerateOutputs(1) * 2);
-      mResamplerUp->pushBlock(mScratchPtrs.GetList(), mLatency);
+      mLatency = int(mResamplerUp->GetNumSamplesRequiredFor(1) * 2);
+      mResamplerUp->PushBlock(mScratchPtrs.GetList(), mLatency);
     }
     else
     {
@@ -115,6 +109,8 @@ public:
       mResamplerDown = nullptr;
       mLatency = 0;
     }
+    
+    ClearBuffers();
   }
 
   /** Resample an input block with a per-block function (up sample input -> process with function -> down sample)
@@ -128,35 +124,35 @@ public:
     {
       case ESRCMode::kLinearInterpolation:
       {
-        const auto nNewFrames = LinearInterpolate(inputs, mScratchPtrs.GetList(), nFrames, mUpRatio, DEFAULT_BLOCK_SIZE);
+        const auto nNewFrames = LinearInterpolate(inputs, mScratchPtrs.GetList(), nFrames, mUpRatio, mMaxBlockSize);
         func(mScratchPtrs.GetList(), mScratchPtrs.GetList(), nNewFrames);
         LinearInterpolate(mScratchPtrs.GetList(), outputs, nNewFrames, mDownRatio, nFrames);
         break;
       }
       case ESRCMode::kCubicInterpolation:
       {
-        const auto nNewFrames = CubicInterpolate(inputs, mScratchPtrs.GetList(), nFrames, mUpRatio, DEFAULT_BLOCK_SIZE);
+        const auto nNewFrames = CubicInterpolate(inputs, mScratchPtrs.GetList(), nFrames, mUpRatio, mMaxBlockSize);
         func(mScratchPtrs.GetList(), mScratchPtrs.GetList(), nNewFrames);
         CubicInterpolate(mScratchPtrs.GetList(), outputs, nNewFrames, mDownRatio, nFrames);
         break;
       }
       case ESRCMode::kLancsoz:
       {
-        mResamplerUp->pushBlock(inputs, nFrames);
+        mResamplerUp->PushBlock(inputs, nFrames);
         
         const auto outputLen = static_cast<int>(std::ceil(static_cast<double>(nFrames) / mUpRatio));
 
-        while (mResamplerUp->inputsRequiredToGenerateOutputs(outputLen) == 0)
+        while (mResamplerUp->GetNumSamplesRequiredFor(outputLen) == 0)
         {
-          mResamplerUp->popBlock(mScratchPtrs.GetList(), outputLen);
+          mResamplerUp->PopBlock(mScratchPtrs.GetList(), outputLen);
           func(mScratchPtrs.GetList(), mScratchPtrs.GetList(), outputLen);
           
-          mResamplerDown->pushBlock(mScratchPtrs.GetList(), outputLen);
+          mResamplerDown->PushBlock(mScratchPtrs.GetList(), outputLen);
         }
         
-        mResamplerDown->popBlock(outputs, nFrames);
-        mResamplerUp->renormalizePhases();
-        mResamplerDown->renormalizePhases();
+        mResamplerDown->PopBlock(outputs, nFrames);
+        mResamplerUp->RenormalizePhases();
+        mResamplerDown->RenormalizePhases();
         break;
       }
       default:
@@ -232,13 +228,20 @@ private:
   
   void ClearBuffers()
   {
-    memset(mResampledData.Get(), 0.0f, DEFAULT_BLOCK_SIZE * NCHANS * sizeof(T));
+    memset(mResampledData.Get(), 0.0f, mMaxBlockSize * NCHANS * sizeof(T));
+    
+    if (mResamplingMode == ESRCMode::kLancsoz)
+    {
+      mResamplerUp->ClearBuffer();
+      mResamplerDown->ClearBuffer();
+    }
   }
 
   WDL_TypedBuf<T> mResampledData;
   WDL_PtrList<T> mScratchPtrs;
   double mUpRatio = 0.0, mDownRatio = 0.0;
   double mInputSampleRate = 0.0;
+  int mMaxBlockSize = 0;
   int mLatency = 0;
   const double mRenderingSampleRate;
   ESRCMode mResamplingMode;

@@ -69,6 +69,8 @@
   #endif
 #endif
 
+#include "IPlugConstants.h"
+
 namespace iplug
 {
 /* LanczosResampler
@@ -97,12 +99,9 @@ private:
   // The buffer size. This needs to be at least as large as the largest block of samples
   // that the input side will see.
   static constexpr size_t kBufferSize = 4096;
-  // The filter width. 2x because the filter goes from -A to A (part of the mathematical
-  // definition; don't touch this).
+  // The filter width. 2x because the filter goes from -A to A
   static constexpr size_t kFilterWidth = A * 2;
   // The discretization resolution for the filter table.
-  // We precompute the filter and use that in the RT calculations; higher here should
-  // give better accuracy.
   static constexpr size_t kTablePoints = 8192;
   static constexpr double kDeltaX = 1.0 / (kTablePoints);
 
@@ -121,7 +120,9 @@ public:
     auto kernel = [](double x) {
       if (std::fabs(x) < 1e-7)
         return T(1.0);
-      return T(A * std::sin(M_PI * x) * std::sin(M_PI * x / A) / (M_PI * M_PI * x * x));
+      
+      const auto pi = iplug::PI;
+      return T(A * std::sin(pi * x) * std::sin(pi * x / A) / (pi * pi * x * x));
     };
     
     if (!sTablesInitialized)
@@ -154,20 +155,20 @@ public:
     }
   }
   
-  inline size_t inputsRequiredToGenerateOutputs(size_t desiredOutputs) const
+  inline size_t GetNumSamplesRequiredFor(size_t nOutputSamples) const
   {
     /*
-     * So (mPhaseIn + mPhaseInIncr * res - mPhaseOut - mPhaseOutIncr * desiredOutputs) * sri > A + 1
+     * So (mPhaseIn + mPhaseInIncr * res - mPhaseOut - mPhaseOutIncr * nOutputSamples) * sri > A + 1
      *
      * Use the fact that mPhaseInIncr = mInputSampleRate and find
      * res > (A+1) - (mPhaseIn - mPhaseOut + mPhaseOutIncr * desiredOutputs) * sri
      */
-    auto res = A + 1.0 - (mPhaseIn - mPhaseOut - mPhaseOutIncr * desiredOutputs);
+    auto res = A + 1.0 - (mPhaseIn - mPhaseOut - mPhaseOutIncr * nOutputSamples);
     
     return static_cast<size_t>(std::max(res + 1.0, 0.0));
   }
   
-  inline void pushBlock(T** inputs, size_t nFrames)
+  inline void PushBlock(T** inputs, size_t nFrames)
   {
     for (auto s=0; s<nFrames; s++)
     {
@@ -182,19 +183,19 @@ public:
     }
   }
   
-  size_t popBlock(T** outputs, size_t max)
+  size_t PopBlock(T** outputs, size_t max)
   {
     int populated = 0;
     while (populated < max && (mPhaseIn - mPhaseOut) > A + 1)
     {
-      read((mPhaseIn - mPhaseOut), outputs, populated);
+      ReadSamples((mPhaseIn - mPhaseOut), outputs, populated);
       mPhaseOut += mPhaseOutIncr;
       populated++;
     }
     return populated;
   }
   
-  inline void renormalizePhases()
+  inline void RenormalizePhases()
   {
     mPhaseIn -= mPhaseOut;
     mPhaseOut = 0;
@@ -205,9 +206,14 @@ public:
     ClearBuffer();
   }
   
+  void ClearBuffer()
+  {
+    memset(mInputBuffer, 0, NCHANS * kBufferSize * 2 * sizeof(T));
+  }
+  
 private:
 #ifdef IPLUG_SIMDE
-  inline void read(double xBack, T** outputs, int s) const
+  inline void ReadSamples(double xBack, T** outputs, int s) const
   {
     float bufferReadPosition = static_cast<float>(mWritePos - xBack);
     int bufferReadIndex = static_cast<int>(std::floor(bufferReadPosition));
@@ -266,7 +272,7 @@ private:
     }
   }
 #else // scalar
-  inline void read(double xBack, T** outputs, int s) const
+  inline void ReadSamples(double xBack, T** outputs, int s) const
   {
     double bufferReadPosition = mWritePos - xBack;
     int bufferReadIndex = std::floor(bufferReadPosition);
@@ -306,11 +312,7 @@ private:
     }
   }
 #endif
-  void ClearBuffer()
-  {
-    memset(mInputBuffer, 0, NCHANS * kBufferSize * 2 * sizeof(T));
-  }
-
+  
   static T sTable alignas(16)[kTablePoints + 1][kFilterWidth];
   static T sDeltaTable alignas(16)[kTablePoints + 1][kFilterWidth];
   static bool sTablesInitialized;
