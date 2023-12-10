@@ -1,7 +1,18 @@
+/*
+ ==============================================================================
+ 
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers. 
+ 
+ See LICENSE.txt for  more info.
+ 
+ ==============================================================================
+*/
 
 /*
- LanczosResampler derived from
+ This code is derived from
  https://github.com/surge-synthesizer/sst-basic-blocks/blob/main/include/sst/basic-blocks/dsp/LanczosResampler.h
+ 
+ The following license info is copied from the above file:
  
  * sst-basic-blocks - an open source library of core audio utilities
  * built by Surge Synth Team.
@@ -20,9 +31,7 @@
  *
  * All source in sst-basic-blocks available at
  * https://github.com/surge-synthesizer/sst-basic-blocks
- */
 
-/*
  * A special note on licensing: This file (and only this file)
  * has Paul Walker (baconpaul) as the sole author to date.
  *
@@ -62,37 +71,62 @@
 
 namespace iplug
 {
-/*
+/* LanczosResampler
+ *
+ * A class that implement Lanczos resampling, optionally using SIMD instructions.
+ * Define IPLUG_SIMDE at project level in order to use SIMD and if on non-x86_64
+ * include the SIMDE library in your search paths in order to translate intel
+ * intrinsics to e.g. arm64
+ *
  * See https://en.wikipedia.org/wiki/Lanczos_resampling
+ *
+ * @tparam T the sampletype
+ * @tparam NCHANS the number of channels
+ * @tparam A The Lanczos filter size. A higher value makes the filter closer to an 
+   ideal stop-band that rejects high-frequency content (anti-aliasing), 
+   but at the expense of higher latency
  */
-
-template<typename T = double, int NCHANS=2>
+template<typename T = double, int NCHANS=2, size_t A=12>
 class LanczosResampler
 {
 private:
-  static constexpr size_t A = 4;
+#if IPLUG_SIMDE
+  static_assert(std::is_same<T, float>::value, "LanczosResampler requires T to be float when using SIMD instructions");
+#endif
+
+  // The buffer size. This needs to be at least as large as the largest block of samples
+  // that the input side will see.
   static constexpr size_t kBufferSize = 4096;
+  // The filter width. 2x because the filter goes from -A to A (part of the mathematical
+  // definition; don't touch this).
   static constexpr size_t kFilterWidth = A * 2;
-  static constexpr size_t kTableObs = 8192;
-  static constexpr double kDeltaX = 1.0 / (kTableObs);
+  // The discretization resolution for the filter table.
+  // We precompute the filter and use that in the RT calculations; higher here should
+  // give better accuracy.
+  static constexpr size_t kTablePoints = 8192;
+  static constexpr double kDeltaX = 1.0 / (kTablePoints);
 
 public:
+  /** Constructor
+    * @param inputRate The input sample rate
+    * @param outputRate The output sample rate
+    */
   LanczosResampler(float inputRate, float outputRate)
   : mInputSampleRate(inputRate)
   , mOutputSamplerate(outputRate)
   , mPhaseOutIncr(mInputSampleRate / mOutputSamplerate)
   {
-    memset(mInputBuffer, 0, NCHANS * kBufferSize * sizeof(T));
-
+    ClearBuffer();
+    
     auto kernel = [](double x) {
       if (std::fabs(x) < 1e-7)
         return T(1.0);
       return T(A * std::sin(M_PI * x) * std::sin(M_PI * x / A) / (M_PI * M_PI * x * x));
     };
-  
+    
     if (!sTablesInitialized)
     {
-      for (auto t = 0; t < kTableObs + 1; ++t)
+      for (auto t = 0; t < kTablePoints + 1; ++t)
       {
         const double x0 = kDeltaX * t;
         
@@ -103,7 +137,7 @@ public:
         }
       }
       
-      for (auto t=0; t<kTableObs; ++t)
+      for (auto t=0; t<kTablePoints; ++t)
       {
         for (auto i=0; i<kFilterWidth; ++i)
         {
@@ -113,13 +147,13 @@ public:
       
       for (auto i=0; i<kFilterWidth; ++i)
       {
-        // Wrap at the end - deriv is the same
-        sDeltaTable[kTableObs][i] = sDeltaTable[0][i];
+        // Wrap at the end - delta is the same
+        sDeltaTable[kTablePoints][i] = sDeltaTable[0][i];
       }
       sTablesInitialized = true;
     }
   }
-
+  
   inline size_t inputsRequiredToGenerateOutputs(size_t desiredOutputs) const
   {
     /*
@@ -129,10 +163,10 @@ public:
      * res > (A+1) - (mPhaseIn - mPhaseOut + mPhaseOutIncr * desiredOutputs) * sri
      */
     auto res = A + 1.0 - (mPhaseIn - mPhaseOut - mPhaseOutIncr * desiredOutputs);
-
-    return static_cast<size_t>(std::max(res + 1.0, 0.0)); // Check this calculation
+    
+    return static_cast<size_t>(std::max(res + 1.0, 0.0));
   }
-
+  
   inline void pushBlock(T** inputs, size_t nFrames)
   {
     for (auto s=0; s<nFrames; s++)
@@ -147,7 +181,7 @@ public:
       mPhaseIn += mPhaseInIncr;
     }
   }
-
+  
   size_t popBlock(T** outputs, size_t max)
   {
     int populated = 0;
@@ -159,95 +193,128 @@ public:
     }
     return populated;
   }
-
+  
   inline void renormalizePhases()
   {
     mPhaseIn -= mPhaseOut;
     mPhaseOut = 0;
   }
 
+  void Reset()
+  {
+    ClearBuffer();
+  }
+  
 private:
+#ifdef IPLUG_SIMDE
   inline void read(double xBack, T** outputs, int s) const
   {
-    double p0 = mWritePos - xBack;
-    int idx0 = std::floor(p0);
-    double off0 = 1.0 - (p0 - idx0);
-
-    idx0 = (idx0 + kBufferSize) & (kBufferSize - 1);
-    idx0 += (idx0 <= (int)A) * kBufferSize;
-
-    double off0byto = off0 * kTableObs;
-    int tidx = (int)(off0byto);
-    double fidx = (off0byto - tidx);
+    float bufferReadPosition = static_cast<float>(mWritePos - xBack);
+    int bufferReadIndex = static_cast<int>(std::floor(bufferReadPosition));
+    float bufferFracPosition = 1.0f - (bufferReadPosition - static_cast<float>(bufferReadIndex));
     
-    T temp[NCHANS] = {0.0};
-
-#if defined IPLUG_SIMDE && SAMPLE_TYPE_FLOAT
-    auto sum_ps_to_float = [](__m128 x) {
-
-      auto sum_ps_to_ss = [](__m128 x) {
-        // FIXME: With SSE 3 this can be a dual hadd
-        __m128 a = _mm_add_ps(x, _mm_movehl_ps(x, x));
-        return _mm_add_ss(a, _mm_shuffle_ps(a, a, _MM_SHUFFLE(0, 0, 0, 1)));
-      };
-      
-      __m128 r = sum_ps_to_ss(x);
-      float f;
-      _mm_store_ss(&f, r);
-      return f;
-    };
+    bufferReadIndex = (bufferReadIndex + kBufferSize) & (kBufferSize - 1);
+    bufferReadIndex += (bufferReadIndex <= static_cast<int>(A)) * kBufferSize;
     
-    auto fl = _mm_set1_ps((float)fidx);
-    auto f0 = _mm_load_ps(&sTable[tidx][0]);
-    auto df0 = _mm_load_ps(&sDeltaTable[tidx][0]);
-
-    f0 = _mm_add_ps(f0, _mm_mul_ps(df0, fl));
-
-    auto f1 = _mm_load_ps(&sTable[tidx][4]);
-    auto df1 = _mm_load_ps(&sDeltaTable[tidx][4]);
-    f1 = _mm_add_ps(f1, _mm_mul_ps(df1, fl));
-
-    for (auto c=0; c<NCHANS;c++)
-    {
-      auto d0 = _mm_loadu_ps(&mInputBuffer[c][idx0 - A]);
-      auto d1 = _mm_loadu_ps(&mInputBuffer[c][idx0]);
-      auto rv = _mm_add_ps(_mm_mul_ps(f0, d0), _mm_mul_ps(f1, d1));
-      temp[c] = sum_ps_to_float(rv);
+    float tablePosition = bufferFracPosition * kTablePoints;
+    int tableIndex = static_cast<int>(tablePosition);
+    float tableFracPosition = (tablePosition - tableIndex);
+    
+    __m128 sum[NCHANS];
+    for (auto & v : sum) {
+      v = _mm_setzero_ps(); // Initialize sum vectors to zero
     }
-#else
     
-    for (auto i=0; i<4; i++)
+    for (int i = 0; i < A; i += 4) // Process four samples at a time
     {
-      const auto fl = fidx;
-      auto f0 = sTable[tidx][i];
-      const auto df0 = sDeltaTable[tidx][i];
-      f0 += df0 * fl;
+      // Load filter coefficients and input samples into SSE registers
+      __m128 f0 = _mm_load_ps(&sTable[tableIndex][i]);
+      __m128 df0 = _mm_load_ps(&sDeltaTable[tableIndex][i]);
+      __m128 f1 = _mm_load_ps(&sTable[tableIndex][A + i]);
+      __m128 df1 = _mm_load_ps(&sDeltaTable[tableIndex][A + i]);
       
-      auto f1 = sTable[tidx][4+i];
-      const auto df1 = sDeltaTable[tidx][4+i];
-      f1 += df1 * fl;
+      // Interpolate filter coefficients
+      __m128 tfp = _mm_set1_ps(tableFracPosition);
+      f0 = _mm_add_ps(f0, _mm_mul_ps(df0, tfp));
+      f1 = _mm_add_ps(f1, _mm_mul_ps(df1, tfp));
       
-      for (auto c=0; c<NCHANS;c++)
+      for (int c = 0; c < NCHANS; c++)
       {
-        const auto d0 = mInputBuffer[c][idx0 - A + i];
-        const auto d1 = mInputBuffer[c][idx0 + i];
-        const auto rv = (f0 * d0) + (f1 * d1);
-        temp[c] += rv;
+        // Load input data
+        __m128 d0 = _mm_set_ps(mInputBuffer[c][bufferReadIndex - A + i + 3],
+                               mInputBuffer[c][bufferReadIndex - A + i + 2],
+                               mInputBuffer[c][bufferReadIndex - A + i + 1],
+                               mInputBuffer[c][bufferReadIndex - A + i]);
+        __m128 d1 = _mm_set_ps(mInputBuffer[c][bufferReadIndex + i + 3],
+                               mInputBuffer[c][bufferReadIndex + i + 2],
+                               mInputBuffer[c][bufferReadIndex + i + 1],
+                               mInputBuffer[c][bufferReadIndex + i]);
+        
+        // Perform multiplication and accumulate
+        __m128 result0 = _mm_mul_ps(f0, d0);
+        __m128 result1 = _mm_mul_ps(f1, d1);
+        sum[c] = _mm_add_ps(sum[c], _mm_add_ps(result0, result1));
       }
     }
-#endif
     
-    for (auto c=0; c<NCHANS;c++)
+    // Extract the final sums and store them in the output
+    for (int c = 0; c < NCHANS; c++)
     {
-      outputs[c][s] = temp[c];
+      float sumArray[4];
+      _mm_store_ps(sumArray, sum[c]);
+      outputs[c][s] = sumArray[0] + sumArray[1] + sumArray[2] + sumArray[3];
     }
   }
+#else // scalar
+  inline void read(double xBack, T** outputs, int s) const
+  {
+    double bufferReadPosition = mWritePos - xBack;
+    int bufferReadIndex = std::floor(bufferReadPosition);
+    double bufferFracPosition = 1.0 - (bufferReadPosition - bufferReadIndex);
 
-  
-  static T sTable alignas(16)[kTableObs + 1][kFilterWidth];
-  static T sDeltaTable alignas(16)[kTableObs + 1][kFilterWidth];
+    bufferReadIndex = (bufferReadIndex + kBufferSize) & (kBufferSize - 1);
+    bufferReadIndex += (bufferReadIndex <= static_cast<int>(A)) * kBufferSize;
+
+    double tablePosition = bufferFracPosition * kTablePoints;
+    int tableIndex = static_cast<int>(tablePosition);
+    double tableFracPosition = (tablePosition - tableIndex);
+
+    T sum[NCHANS] = {0.0};
+
+    for (auto i=0; i<A; i++)
+    {
+      auto f0 = sTable[tableIndex][i];
+      const auto df0 = sDeltaTable[tableIndex][i];
+      f0 += df0 * tableFracPosition;
+
+      auto f1 = sTable[tableIndex][A+i];
+      const auto df1 = sDeltaTable[tableIndex][A+i];
+      f1 += df1 * tableFracPosition;
+
+      for (auto c=0; c<NCHANS;c++)
+      {
+        const auto d0 = mInputBuffer[c][bufferReadIndex - A + i];
+        const auto d1 = mInputBuffer[c][bufferReadIndex + i];
+        const auto rv = (f0 * d0) + (f1 * d1);
+        sum[c] += rv;
+      }
+    }
+
+    for (auto c=0; c<NCHANS;c++)
+    {
+      outputs[c][s] = sum[c];
+    }
+  }
+#endif
+  void ClearBuffer()
+  {
+    memset(mInputBuffer, 0, NCHANS * kBufferSize * 2 * sizeof(T));
+  }
+
+  static T sTable alignas(16)[kTablePoints + 1][kFilterWidth];
+  static T sDeltaTable alignas(16)[kTablePoints + 1][kFilterWidth];
   static bool sTablesInitialized;
-
+  
   T mInputBuffer[NCHANS][kBufferSize * 2];
   int mWritePos = 0;
   const float mInputSampleRate;
@@ -258,14 +325,14 @@ private:
   double mPhaseOutIncr = 0.0;
 };
 
-template<typename T, int NCHANS>
-T LanczosResampler<T, NCHANS>::sTable alignas(16) [LanczosResampler<T, NCHANS>::kTableObs + 1][LanczosResampler::kFilterWidth];
+template<typename T, int NCHANS, size_t A>
+T LanczosResampler<T, NCHANS, A>::sTable alignas(16) [LanczosResampler<T, NCHANS, A>::kTablePoints + 1][LanczosResampler::kFilterWidth];
 
-template<typename T, int NCHANS>
-T LanczosResampler<T, NCHANS>::sDeltaTable alignas(16) [LanczosResampler<T, NCHANS>::kTableObs + 1][LanczosResampler::kFilterWidth];
+template<typename T, int NCHANS, size_t A>
+T LanczosResampler<T, NCHANS, A>::sDeltaTable alignas(16) [LanczosResampler<T, NCHANS, A>::kTablePoints + 1][LanczosResampler::kFilterWidth];
 
-template<typename T, int NCHANS>
-bool LanczosResampler<T, NCHANS>::sTablesInitialized{false};
+template<typename T, int NCHANS, size_t A>
+bool LanczosResampler<T, NCHANS, A>::sTablesInitialized{false};
 
 } // namespace iplug
 

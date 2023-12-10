@@ -30,24 +30,43 @@ enum ESRCMode
   kNumResamplingModes
 };
 
-template<typename T = double, int NCHANS=2>
-class NonIntegerResampler
+/** A multichannel realtime-resampler that can be used to resample audio processing
+ * to a specified sample rate for the situation where you have some arbitary DSP
+ * code that requires a specific sample rate.
+
+ * Three modes are supported:
+ * - Linear interpolation: simple linear interpolation between samples
+ * - Cubic interpolation: cubic interpolation between samples
+ * - Lanczos: Lanczos resampling uses an approximation of the sinc function to
+ *   interpolate between samples. This is the highest quality resampling mode.
+ * 
+ * The Lanczos resampler has a configurable filter size (A) that affects the 
+ * latency of the resampler. It can also optionally use SIMD instructions to
+ * when T==float.
+ *
+ *
+ * @tparam T the sampletype
+ * @tparam NCHANS the number of channels
+ * @tparam A The Lanczos filter size for the LanczosResampler resampler mode
+   A higher value makes the filter closer to an 
+   ideal stop-band that rejects high-frequency content (anti-aliasing), 
+   but at the expense of higher latency
+ */
+template<typename T = double, int NCHANS=2, size_t A=12>
+class RealtimeResampler
 {
 public:
   using BlockProcessFunc = std::function<void(T**, T**, int)>;
-  
-  NonIntegerResampler(double renderingSampleRate, ESRCMode mode = ESRCMode::kLinearInterpolation)
+  using LanczosResampler = LanczosResampler<T, NCHANS, A>;
+
+  RealtimeResampler(double renderingSampleRate, ESRCMode mode = ESRCMode::kLinearInterpolation)
   : mResamplingMode(mode)
   , mRenderingSampleRate(renderingSampleRate)
   {
   }
   
-  ~NonIntegerResampler()
-  {
-  }
-
-  NonIntegerResampler(const NonIntegerResampler&) = delete;
-  NonIntegerResampler& operator=(const NonIntegerResampler&) = delete;
+  RealtimeResampler(const RealtimeResampler&) = delete;
+  RealtimeResampler& operator=(const RealtimeResampler&) = delete;
 
   void SetResamplingMode(ESRCMode mode)
   {
@@ -57,11 +76,23 @@ public:
   
   void Reset(double inputSampleRate, int blockSize = DEFAULT_BLOCK_SIZE)
   {
+    if (mInputSampleRate == inputSampleRate)
+    {
+      ClearBuffers();
+
+      if (mResamplingMode == ESRCMode::kLancsoz)
+      {
+        mResamplerUp->Reset();
+        mResamplerDown->Reset();
+      }
+      return;
+    }
+
     mInputSampleRate = inputSampleRate;
     mUpRatio = mInputSampleRate / mRenderingSampleRate;
     mDownRatio = mRenderingSampleRate / mInputSampleRate;
     mResampledData.Resize(DEFAULT_BLOCK_SIZE * NCHANS);
-    memset(mResampledData.Get(), 0.0f, DEFAULT_BLOCK_SIZE * NCHANS * sizeof(T));
+    ClearBuffers();
     mScratchPtrs.Empty();
     
     for (auto chan=0; chan<NCHANS; chan++)
@@ -71,12 +102,18 @@ public:
 
     if (mResamplingMode == ESRCMode::kLancsoz)
     {
-      mResamplerUp = std::make_unique<LanczosResampler<T, NCHANS>>(mInputSampleRate, mRenderingSampleRate);
-      mResamplerDown = std::make_unique<LanczosResampler<T, NCHANS>>(mRenderingSampleRate, mInputSampleRate);
+      mResamplerUp = std::make_unique<LanczosResampler>(mInputSampleRate, mRenderingSampleRate);
+      mResamplerDown = std::make_unique<LanczosResampler>(mRenderingSampleRate, mInputSampleRate);
         
       /* Prepopulate the upsampler with silence so it can run ahead */
-      auto numSamplesToAdvance = mResamplerUp->inputsRequiredToGenerateOutputs(1) * 2;
-      mResamplerUp->pushBlock(mScratchPtrs.GetList(), numSamplesToAdvance);
+      mLatency = int(mResamplerUp->inputsRequiredToGenerateOutputs(1) * 2);
+      mResamplerUp->pushBlock(mScratchPtrs.GetList(), mLatency);
+    }
+    else
+    {
+      mResamplerUp = nullptr;
+      mResamplerDown = nullptr;
+      mLatency = 0;
     }
   }
 
@@ -126,6 +163,8 @@ public:
         break;
     }
   }
+  
+  int GetLatency() const { return mLatency; }
 
 private:
   static inline int LinearInterpolate(T** inputs, T** outputs, int inputLen, double ratio, int maxOutputLen)
@@ -191,14 +230,20 @@ private:
     return outputLen;
   }
   
+  void ClearBuffers()
+  {
+    memset(mResampledData.Get(), 0.0f, DEFAULT_BLOCK_SIZE * NCHANS * sizeof(T));
+  }
+
   WDL_TypedBuf<T> mResampledData;
   WDL_PtrList<T> mScratchPtrs;
   double mUpRatio = 0.0, mDownRatio = 0.0;
   double mInputSampleRate = 0.0;
+  int mLatency = 0;
   const double mRenderingSampleRate;
   ESRCMode mResamplingMode;
   
-  std::unique_ptr<LanczosResampler<T, NCHANS>> mResamplerUp, mResamplerDown;
+  std::unique_ptr<LanczosResampler> mResamplerUp, mResamplerDown;
 };
 
 END_IPLUG_NAMESPACE
