@@ -76,7 +76,8 @@ public:
   
   void Reset(double inputSampleRate, int blockSize = DEFAULT_BLOCK_SIZE)
   {
-    if (mInputSampleRate == inputSampleRate && mMaxBlockSize == blockSize)
+    if (mInputSampleRate == inputSampleRate 
+        && mMaxBlockSize == (2 * blockSize))
     {
       ClearBuffers();
       return;
@@ -88,7 +89,7 @@ public:
     mDownRatio = mRenderingSampleRate / mInputSampleRate;
     mResampledData.Resize(mMaxBlockSize * NCHANS);
     mScratchPtrs.Empty();
-    
+
     for (auto chan=0; chan<NCHANS; chan++)
     {
       mScratchPtrs.Add(mResampledData.Get() + (chan * mMaxBlockSize));
@@ -98,7 +99,7 @@ public:
     {
       mResamplerUp = std::make_unique<LanczosResampler>(mInputSampleRate, mRenderingSampleRate);
       mResamplerDown = std::make_unique<LanczosResampler>(mRenderingSampleRate, mInputSampleRate);
-        
+
       /* Prepopulate the upsampler with silence so it can run ahead */
       mLatency = int(mResamplerUp->GetNumSamplesRequiredFor(1) * 2);
       mResamplerUp->PushBlock(mScratchPtrs.GetList(), mLatency);
@@ -109,7 +110,7 @@ public:
       mResamplerDown = nullptr;
       mLatency = 0;
     }
-    
+
     ClearBuffers();
   }
 
