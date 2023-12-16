@@ -33,10 +33,18 @@ public:
   static constexpr double kDefaultPadding = 10.0;
   
   static void DefaultResizeFunc(IContainerBase* pTab, const IRECT& r) {
-    if (pTab->NChildren() == 1)
+    auto innerBounds = r.GetPadded(- pTab->As<IVTabPage>()->GetPadding());
+    const auto nChildren = pTab->NChildren();
+    if (nChildren == 1)
     {
       auto innerBounds = r.GetPadded(float(- pTab->As<IVTabPage>()->GetPadding()));
       pTab->GetChild(0)->SetTargetAndDrawRECTs(innerBounds);
+    }
+    else
+    {
+      pTab->ForAllChildrenFunc([=](int idx, IControl* pControl){
+        pControl->SetTargetAndDrawRECTs(innerBounds.SubRectHorizontal(nChildren, idx));
+      });
     }
   }
 
