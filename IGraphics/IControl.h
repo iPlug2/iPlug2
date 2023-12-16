@@ -2320,6 +2320,73 @@ protected:
   static constexpr float mInset = 10.f;
 };
 
+/** A meta control that stacks IControls on top of each other and let's you swap between child controls based on the state of a parameter */
+class IControlZStack : public IContainerBase
+{
+public:
+  static void DefaultResizeFunc(IContainerBase* pParent, const IRECT& r) {
+    pParent->ForAllChildrenFunc([=](int idx, IControl* pControl){
+      pControl->SetTargetAndDrawRECTs(r);
+    });
+  }
+  
+  IControlZStack(const IRECT& bounds, int paramIdx,
+                     IContainerBase::AttachFunc attachFunc,
+                     IContainerBase::ResizeFunc resizeFunc = DefaultResizeFunc)
+  : IContainerBase(bounds, attachFunc, resizeFunc)
+  {
+    SetParamIdx(paramIdx);
+  }
+  
+  void SetValueFromDelegate(double value, int valIdx = 0) override
+  {
+    IControl::SetValueFromDelegate(value, valIdx);
+    ShowSubcontrol(GetParam()->Int());
+  }
+
+  void Hide(bool hide) override
+  {
+    IControl::Hide(hide);
+    ShowSubcontrol(GetParam()->Int());
+  }
+
+private:
+  void ShowSubcontrol(int indexToShow)
+  {
+    auto parentIsHidden = IsHidden();
+    ForAllChildrenFunc([=](int index, IControl* pControl){
+      auto shouldHide = parentIsHidden ? true : index != indexToShow;
+      pControl->Hide(shouldHide);
+    });
+  }
+};
+
+/** A meta control that stacks IControls on top of each other and let's you swap between child controls based on the state of a parameter */
+class IControlVStack : public IContainerBase
+{
+public:
+  static void DefaultResizeFunc(IContainerBase* pParent, const IRECT& r) {
+    const auto nChildren = pParent->NChildren();
+    if (nChildren == 1)
+    {
+      pParent->GetChild(0)->SetTargetAndDrawRECTs(r);
+    }
+    else
+    {
+      pParent->ForAllChildrenFunc([=](int idx, IControl* pControl){
+        pControl->SetTargetAndDrawRECTs(r.SubRectVertical(nChildren, idx));
+      });
+    }
+  }
+  
+  IControlVStack(const IRECT& bounds,
+                     IContainerBase::AttachFunc attachFunc,
+                     IContainerBase::ResizeFunc resizeFunc = DefaultResizeFunc)
+  : IContainerBase(bounds, attachFunc, resizeFunc)
+  {
+  }
+};
+
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
