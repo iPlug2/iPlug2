@@ -613,6 +613,20 @@ public:
   using AttachFunc = std::function<void(IContainerBase* pContainer, const IRECT& bounds)>;
   using ResizeFunc = std::function<void(IContainerBase* pContainer, const IRECT& bounds)>;
   
+  static void DefaultResizeFunc(IContainerBase* pParent, const IRECT& r) {
+    const auto nChildren = pParent->NChildren();
+    if (nChildren == 1)
+    {
+      pParent->GetChild(0)->SetTargetAndDrawRECTs(r);
+    }
+    else
+    {
+      pParent->ForAllChildrenFunc([=](int idx, IControl* pControl){
+        pControl->SetTargetAndDrawRECTs(r.SubRectHorizontal(nChildren, idx));
+      });
+    }
+  }
+  
   IContainerBase(const IRECT& bounds, int paramIdx = kNoParameter, IActionFunction actionFunc = nullptr)
   : IControl(bounds, paramIdx, actionFunc)
   {}
@@ -625,7 +639,7 @@ public:
   : IControl(bounds, actionFunc)
   {}
   
-  IContainerBase(const IRECT& bounds, AttachFunc attachFunc, ResizeFunc resizeFunc)
+  IContainerBase(const IRECT& bounds, AttachFunc attachFunc, ResizeFunc resizeFunc = DefaultResizeFunc)
   : IControl(bounds)
   , mAttachFunc(attachFunc)
   , mResizeFunc(resizeFunc)
