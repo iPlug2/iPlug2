@@ -75,7 +75,7 @@ namespace iplug
 {
 /* LanczosResampler
  *
- * A class that implement Lanczos resampling, optionally using SIMD instructions.
+ * A class that implements Lanczos resampling, optionally using SIMD instructions.
  * Define IPLUG_SIMDE at project level in order to use SIMD and if on non-x86_64
  * include the SIMDE library in your search paths in order to translate intel
  * intrinsics to e.g. arm64
@@ -127,7 +127,7 @@ public:
     
     if (!sTablesInitialized)
     {
-      for (auto t = 0; t < kTablePoints + 1; ++t)
+      for (auto t=0; t<kTablePoints+1; ++t)
       {
         const double x0 = kDeltaX * t;
         
@@ -231,7 +231,7 @@ private:
       v = _mm_setzero_ps(); // Initialize sum vectors to zero
     }
     
-    for (int i = 0; i < A; i += 4) // Process four samples at a time
+    for (int i=0; i<A; i+=4) // Process four samples at a time
     {
       // Load filter coefficients and input samples into SSE registers
       __m128 f0 = _mm_load_ps(&sTable[tableIndex][i]);
@@ -244,7 +244,7 @@ private:
       f0 = _mm_add_ps(f0, _mm_mul_ps(df0, tfp));
       f1 = _mm_add_ps(f1, _mm_mul_ps(df1, tfp));
       
-      for (int c = 0; c < NCHANS; c++)
+      for (int c=0; c<NCHANS; c++)
       {
         // Load input data
         __m128 d0 = _mm_set_ps(mInputBuffer[c][bufferReadIndex - A + i + 3],
@@ -264,7 +264,7 @@ private:
     }
     
     // Extract the final sums and store them in the output
-    for (int c = 0; c < NCHANS; c++)
+    for (int c=0; c<NCHANS; c++)
     {
       float sumArray[4];
       _mm_store_ps(sumArray, sum[c]);
