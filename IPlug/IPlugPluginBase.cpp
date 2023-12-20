@@ -381,7 +381,7 @@ static void MakeDefaultUserPresetName(WDL_PtrList<IPreset>* pPresets, char* str)
       ++nDefaultNames;
     }
   }
-  sprintf(str, "%s %d", DEFAULT_USER_PRESET_NAME, nDefaultNames + 1);
+  snprintf(str, MAX_PRESET_NAME_LEN, "%s %d", DEFAULT_USER_PRESET_NAME, nDefaultNames + 1);
 }
 
 void IPluginBase::EnsureDefaultPreset()
@@ -547,21 +547,23 @@ void IPluginBase::DumpMakePresetSrc(const char* filename) const
     for (i = 0; i < n; ++i)
     {
       const IParam* pParam = GetParam(i);
-      char paramVal[32];
+      constexpr int maxLen = 32;
+      char paramVal[maxLen];
+      
       switch (pParam->Type())
       {
         case IParam::kTypeBool:
-          sprintf(paramVal, "%s", (pParam->Bool() ? "true" : "false"));
+          snprintf(paramVal, maxLen, "%s", (pParam->Bool() ? "true" : "false"));
           break;
         case IParam::kTypeInt:
-          sprintf(paramVal, "%d", pParam->Int());
+          snprintf(paramVal, maxLen, "%d", pParam->Int());
           break;
         case IParam::kTypeEnum:
-          sprintf(paramVal, "%d", pParam->Int());
+          snprintf(paramVal, maxLen, "%d", pParam->Int());
           break;
         case IParam::kTypeDouble:
         default:
-          sprintf(paramVal, "%.6f", pParam->Value());
+          snprintf(paramVal, maxLen, "%.6f", pParam->Value());
           break;
       }
       fprintf(fp, ", %s", paramVal);
@@ -589,21 +591,22 @@ void IPluginBase::DumpMakePresetFromNamedParamsSrc(const char* filename, const c
     for (i = 0; i < n; ++i)
     {
       const IParam* pParam = GetParam(i);
-      char paramVal[32];
+      constexpr int maxLen = 32;
+      char paramVal[maxLen];
       switch (pParam->Type())
       {
         case IParam::kTypeBool:
-          sprintf(paramVal, "%s", (pParam->Bool() ? "true" : "false"));
+          snprintf(paramVal, maxLen, "%s", (pParam->Bool() ? "true" : "false"));
           break;
         case IParam::kTypeInt:
-          sprintf(paramVal, "%d", pParam->Int());
+          snprintf(paramVal, maxLen, "%d", pParam->Int());
           break;
         case IParam::kTypeEnum:
-          sprintf(paramVal, "%d", pParam->Int());
+          snprintf(paramVal, maxLen, "%d", pParam->Int());
           break;
         case IParam::kTypeDouble:
         default:
-          sprintf(paramVal, "%.6f", pParam->Value());
+          snprintf(paramVal, maxLen, "%.6f", pParam->Value());
           break;
       }
       fprintf(fp, ",\n    %s, %s", paramEnumNames[i], paramVal);

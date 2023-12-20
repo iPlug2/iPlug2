@@ -21,7 +21,7 @@
 	<key>CFBundleVersion</key>
 	<string>1.0.0</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.12.0</string>
+	<string>10.14.0</string>
 	<key>NSExtension</key>
 	<dict>
 		<key>NSExtensionAttributes</key>
@@ -55,7 +55,7 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.AudioUnit-UI</string>
 		<key>NSExtensionPrincipalClass</key>
-		<string>IPlugAUViewController</string>
+		<string>IPlugAUViewController_vIPlugEffect</string>
 	</dict>
 </dict>
 </plist>

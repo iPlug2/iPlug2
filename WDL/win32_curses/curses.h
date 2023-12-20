@@ -122,6 +122,7 @@ typedef struct win32CursesCtx
 
 extern win32CursesCtx g_curses_context; // declare this if you need it
 extern int *curses_win32_global_user_colortab;
+extern const char *curses_win32_global_font_face_name;
 void init_user_colortab(win32CursesCtx *ctx); // if you're in a hurry, otherwise blinking cursor detects
 
 void curses_setWindowContext(HWND hwnd, win32CursesCtx *ctx);

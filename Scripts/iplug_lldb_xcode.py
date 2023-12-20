@@ -35,7 +35,7 @@ def string_summary(valueObject, dictionary):
   s = valueObject.GetChildMemberWithName('m_hb').GetChildMemberWithName('m_buf').Cast(char_ptr).GetSummary()
   return s
 
-# Reports synthetic chlider for WDL_TypedBuf
+# Reports synthetic children for WDL_TypedBuf
 
 class WDL_TypedBufChildrenProvider:
   def __init__(self, valobj, internal_dict):
@@ -90,7 +90,7 @@ class WDL_TypedBufChildrenProvider:
   def has_children(self):
     return True
 
-# Reports synthetic chlider for WDL_PtrList
+# Reports synthetic children for WDL_PtrList
 
 class WDL_PtrListChildrenProvider:
   def __init__(self, valobj, internal_dict):

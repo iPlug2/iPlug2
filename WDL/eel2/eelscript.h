@@ -10,6 +10,7 @@
 #include "../wdlstring.h"
 #include "../assocarray.h"
 #include "../queue.h"
+#include "../mutex.h"
 #include "../win32_utf8.h"
 #include "ns-eel.h"
 
@@ -59,6 +60,10 @@ class eel_net_state;
 #endif
 #ifndef EELSCRIPT_NO_LICE
 class eel_lice_state;
+#endif
+
+#ifndef EELSCRIPT_NO_PREPROC
+#include "eel_pproc.h"
 #endif
 
 class eelScriptInst {
@@ -159,6 +164,10 @@ class eelScriptInst {
 
 
     WDL_StringKeyedArray<bool> m_loaded_fnlist; // imported file list (to avoid repeats)
+
+#ifndef EELSCRIPT_NO_PREPROC
+    EEL2_PreProcessor m_preproc;
+#endif
 };
 
 //#define EEL_STRINGS_MUTABLE_LITERALS
@@ -357,6 +366,23 @@ NSEEL_CODEHANDLE eelScriptInst::compile_code(const char *code, const char **err)
     *err = "EEL VM not initialized";
     return NULL;
   }
+
+#ifndef EELSCRIPT_NO_PREPROC
+  WDL_FastString str;
+  if (strstr(code,EEL2_PREPROCESS_OPEN_TOKEN))
+  {
+    const char *pperr = m_preproc.preprocess(code,&str);
+    if (pperr)
+    {
+      *err = pperr;
+      return NULL;
+    }
+    code = str.Get();
+  }
+  else
+    m_preproc.clear_line_info();
+#endif
+
   NSEEL_CODEHANDLE ch = NSEEL_code_compile_ex(m_vm, code, 0, NSEEL_CODE_COMPILE_FLAG_COMMONFUNCS);
   if (ch)
   {
@@ -365,6 +391,9 @@ NSEEL_CODEHANDLE eelScriptInst::compile_code(const char *code, const char **err)
     return ch;
   }
   *err = NSEEL_code_getcodeerror(m_vm);
+#ifndef EELSCRIPT_NO_PREPROC
+  if (*err) *err = m_preproc.translate_error_line(*err);
+#endif
   return NULL;
 }
 
@@ -372,13 +401,30 @@ int eelScriptInst::runcode(const char *codeptr, int showerr, const char *showerr
 {
   if (m_vm) 
   {
-    NSEEL_CODEHANDLE code = NSEEL_code_compile_ex(m_vm,codeptr,0,canfree ? 0 : NSEEL_CODE_COMPILE_FLAG_COMMONFUNCS);
+    const char *err = NULL;
+    NSEEL_CODEHANDLE code = NULL;
+#ifndef EELSCRIPT_NO_PREPROC
+    WDL_FastString str;
+    if (strstr(codeptr,EEL2_PREPROCESS_OPEN_TOKEN))
+    {
+      err = m_preproc.preprocess(codeptr,&str);
+      if (err) goto on_preproc_error;
+      codeptr = str.Get();
+    }
+    else
+      m_preproc.clear_line_info();
+#endif
+
+    code = NSEEL_code_compile_ex(m_vm,codeptr,0,canfree ? 0 : NSEEL_CODE_COMPILE_FLAG_COMMONFUNCS);
     if (code) m_string_context->update_named_vars(m_vm);
 
-    char *err;
     if (!code && (err=NSEEL_code_getcodeerror(m_vm)))
     {
       if (!ignoreEndOfInputChk && (NSEEL_code_geterror_flag(m_vm)&1)) return 1;
+#ifndef EELSCRIPT_NO_PREPROC
+      err = m_preproc.translate_error_line(err);
+on_preproc_error:
+#endif
       if (showerr) 
       {
 #ifdef EEL_STRING_DEBUGOUT
@@ -565,6 +611,12 @@ int eelScriptInst::loadfile(const char *fn, const char *callerfn, bool allowstdi
     return -1;
   }
 
+#ifndef EELSCRIPT_NO_PREPROC
+  WDL_FastString incpath(fn);
+  incpath.remove_filepart();
+  m_preproc.m_include_paths.Add(incpath.Get());
+#endif
+
   WDL_FastString code;
   char line[4096];
   for (;;)
@@ -572,14 +624,14 @@ int eelScriptInst::loadfile(const char *fn, const char *callerfn, bool allowstdi
     line[0]=0;
     fgets(line,sizeof(line),fp);
     if (!line[0]) break;
-    if (!strnicmp(line,"@import",7) && isspace(line[7]))
+    if (!strnicmp(line,"@import",7) && isspace((unsigned char)line[7]))
     {
       char *p=line+7;
-      while (isspace(*p)) p++;
+      while (isspace((unsigned char)*p)) p++;
 
       char *ep=p;
       while (*ep) ep++;
-      while (ep>p && isspace(ep[-1])) ep--;
+      while (ep>p && isspace((unsigned char)ep[-1])) ep--;
       *ep=0;
 
       if (*p) loadfile(p,fn,false);
@@ -591,7 +643,13 @@ int eelScriptInst::loadfile(const char *fn, const char *callerfn, bool allowstdi
   }
   if (fp != stdin) fclose(fp);
 
-  return runcode(code.Get(),callerfn ? 2 : 1, fn,false,true,!callerfn);
+  int rv = runcode(code.Get(),callerfn ? 2 : 1, fn,false,true,!callerfn);
+
+#ifndef EELSCRIPT_NO_PREPROC
+  m_preproc.m_include_paths.Delete(m_preproc.m_include_paths.GetSize()-1);
+#endif
+
+  return rv;
 }
 
 char *eelScriptInst::evalCacheGet(const char *str, NSEEL_CODEHANDLE *ch)

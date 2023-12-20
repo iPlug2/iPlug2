@@ -488,6 +488,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h" />
+    <ClInclude Include="..\..\..\IPlug\ISender.h" />
     <ClInclude Include="..\config.h" />
     <ClInclude Include="..\MetaParamTest.h" />
     <ClInclude Include="..\resources\resource.h" />

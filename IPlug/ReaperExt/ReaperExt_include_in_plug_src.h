@@ -110,6 +110,10 @@ extern "C"
 #undef END
 #include "swell-menugen.h"
 #include "main.rc_mac_menu"
+float iplug::GetScaleForHWND(HWND hWnd)
+{
+  return 1.f;
+}
 #else
 
 UINT(WINAPI* __GetDpiForWindow)(HWND);

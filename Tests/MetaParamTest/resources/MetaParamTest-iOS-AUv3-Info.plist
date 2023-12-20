@@ -32,7 +32,7 @@
 					<key>description</key>
 					<string>MetaParamTest</string>
 					<key>factoryFunction</key>
-					<string>IPlugAUViewController</string>
+					<string>IPlugAUViewController_vMetaParamTest</string>
 					<key>manufacturer</key>
 					<string>Acme</string>
 					<key>name</key>

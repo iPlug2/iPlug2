@@ -32,7 +32,7 @@
 					<key>description</key>
 					<string>IPlugDrumSynth</string>
 					<key>factoryFunction</key>
-					<string>IPlugAUViewController</string>
+					<string>IPlugAUViewController_vIPlugDrumSynth</string>
 					<key>manufacturer</key>
 					<string>Acme</string>
 					<key>name</key>

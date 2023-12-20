@@ -329,7 +329,6 @@ DGifGetImageDesc(GifFileType * GifFile) {
     int i, BitsPerPixel;
     GifByteType Buf[3];
     GifFilePrivateType *Private = (GifFilePrivateType *)GifFile->Private;
-    SavedImage *sp;
 
     if (!IS_READABLE(Private)) {
         /* This file was NOT open for reading: */
@@ -350,9 +349,7 @@ DGifGetImageDesc(GifFileType * GifFile) {
     GifFile->Image.Interlace = (Buf[0] & 0x40);
     if (Buf[0] & 0x80) {    /* Does this image have local color map? */
 
-        /*** FIXME: Why do we check both of these in order to do this? 
-         * Why do we have both Image and SavedImages? */
-        if (GifFile->Image.ColorMap && GifFile->SavedImages == NULL)
+        if (GifFile->Image.ColorMap)
             FreeMapObject(GifFile->Image.ColorMap);
 
         GifFile->Image.ColorMap = MakeMapObject(1 << BitsPerPixel, NULL);
@@ -377,36 +374,6 @@ DGifGetImageDesc(GifFileType * GifFile) {
         FreeMapObject(GifFile->Image.ColorMap);
         GifFile->Image.ColorMap = NULL;
     }
-
-    if (GifFile->SavedImages) {
-        if ((GifFile->SavedImages = (SavedImage *)realloc(GifFile->SavedImages,
-                                      sizeof(SavedImage) *
-                                      (GifFile->ImageCount + 1))) == NULL) {
-            _GifError = D_GIF_ERR_NOT_ENOUGH_MEM;
-            return GIF_ERROR;
-        }
-    } else {
-        if ((GifFile->SavedImages =
-             (SavedImage *) malloc(sizeof(SavedImage))) == NULL) {
-            _GifError = D_GIF_ERR_NOT_ENOUGH_MEM;
-            return GIF_ERROR;
-        }
-    }
-
-    sp = &GifFile->SavedImages[GifFile->ImageCount];
-    memcpy(&sp->ImageDesc, &GifFile->Image, sizeof(GifImageDesc));
-    if (GifFile->Image.ColorMap != NULL) {
-        sp->ImageDesc.ColorMap = MakeMapObject(
-                                 GifFile->Image.ColorMap->ColorCount,
-                                 GifFile->Image.ColorMap->Colors);
-        if (sp->ImageDesc.ColorMap == NULL) {
-            _GifError = D_GIF_ERR_NOT_ENOUGH_MEM;
-            return GIF_ERROR;
-        }
-    }
-    sp->RasterBits = (unsigned char *)NULL;
-    sp->ExtensionBlockCount = 0;
-    sp->ExtensionBlocks = (ExtensionBlock *) NULL;
 
     GifFile->ImageCount++;
 
@@ -596,11 +563,6 @@ DGifCloseFile(GifFileType * GifFile) {
     if (Private) {
         free((char *)Private);
         Private = NULL;
-    }
-
-    if (GifFile->SavedImages) {
-        FreeSavedImages(GifFile);
-        GifFile->SavedImages = NULL;
     }
 
     free(GifFile);
@@ -998,91 +960,3 @@ DGifBufferedInput(GifFileType * GifFile,
 
     return GIF_OK;
 }
-#ifndef _GBA_NO_FILEIO
-
-/******************************************************************************
- * This routine reads an entire GIF into core, hanging all its state info off
- * the GifFileType pointer.  Call DGifOpenFileName() or DGifOpenFileHandle()
- * first to initialize I/O.  Its inverse is EGifSpew().
- ******************************************************************************/
-int
-DGifSlurp(GifFileType * GifFile) {
-
-    int ImageSize;
-    GifRecordType RecordType;
-    SavedImage *sp;
-    GifByteType *ExtData;
-    SavedImage temp_save;
-
-    temp_save.ExtensionBlocks = NULL;
-    temp_save.ExtensionBlockCount = 0;
-
-    do {
-        if (DGifGetRecordType(GifFile, &RecordType) == GIF_ERROR)
-            return (GIF_ERROR);
-
-        switch (RecordType) {
-          case IMAGE_DESC_RECORD_TYPE:
-              if (DGifGetImageDesc(GifFile) == GIF_ERROR)
-                  return (GIF_ERROR);
-
-              sp = &GifFile->SavedImages[GifFile->ImageCount - 1];
-              ImageSize = sp->ImageDesc.Width * sp->ImageDesc.Height;
-
-              sp->RasterBits = (unsigned char *)malloc(ImageSize *
-                                                       sizeof(GifPixelType));
-              if (sp->RasterBits == NULL) {
-                  return GIF_ERROR;
-              }
-              if (DGifGetLine(GifFile, sp->RasterBits, ImageSize) ==
-                  GIF_ERROR)
-                  return (GIF_ERROR);
-              if (temp_save.ExtensionBlocks) {
-                  sp->ExtensionBlocks = temp_save.ExtensionBlocks;
-                  sp->ExtensionBlockCount = temp_save.ExtensionBlockCount;
-
-                  temp_save.ExtensionBlocks = NULL;
-                  temp_save.ExtensionBlockCount = 0;
-
-                  /* FIXME: The following is wrong.  It is left in only for
-                   * backwards compatibility.  Someday it should go away. Use 
-                   * the sp->ExtensionBlocks->Function variable instead. */
-                  sp->Function = sp->ExtensionBlocks[0].Function;
-              }
-              break;
-
-          case EXTENSION_RECORD_TYPE:
-              if (DGifGetExtension(GifFile, &temp_save.Function, &ExtData) ==
-                  GIF_ERROR)
-                  return (GIF_ERROR);
-              while (ExtData != NULL) {
-
-                  /* Create an extension block with our data */
-                  if (AddExtensionBlock(&temp_save, ExtData[0], &ExtData[1])
-                      == GIF_ERROR)
-                      return (GIF_ERROR);
-
-                  if (DGifGetExtensionNext(GifFile, &ExtData) == GIF_ERROR)
-                      return (GIF_ERROR);
-                  temp_save.Function = 0;
-              }
-              break;
-
-          case TERMINATE_RECORD_TYPE:
-              break;
-
-          default:    /* Should be trapped by DGifGetRecordType */
-              break;
-        }
-    } while (RecordType != TERMINATE_RECORD_TYPE);
-
-    /* Just in case the Gif has an extension block without an associated
-     * image... (Should we save this into a savefile structure with no image
-     * instead? Have to check if the present writing code can handle that as
-     * well.... */
-    if (temp_save.ExtensionBlocks)
-        FreeExtension(&temp_save);
-
-    return (GIF_OK);
-}
-#endif /* _GBA_NO_FILEIO */

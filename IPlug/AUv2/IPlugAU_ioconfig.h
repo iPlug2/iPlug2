@@ -59,6 +59,16 @@ static uint64_t GetAPIBusTypeForChannelIOConfig(int configIdx, ERoute dir, int b
       APIBusTypes->Add(kAudioChannelLayoutTag_AudioUnit_7_1);
       APIBusTypes->Add(kAudioChannelLayoutTag_AudioUnit_7_1_Front);
       break;
+#if defined (MAC_OS_VERSION_11_0)
+    case 10:
+      // Atmos 7.1.2
+      APIBusTypes->Add(kAudioChannelLayoutTag_Atmos_7_1_2);
+      break;
+    case 12:
+      // Atmos 7.1.4
+      APIBusTypes->Add(kAudioChannelLayoutTag_Atmos_7_1_4);
+      break;
+#endif //MAC_OS_VERSION_11_0
     case 9:
     case 16: // 2nd and 3rd order ambisonics
       APIBusTypes->Add(kAudioChannelLayoutTag_HOA_ACN_SN3D | numChans);

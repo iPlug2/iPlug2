@@ -29,6 +29,7 @@ static WDL_STATICFUNC_UNUSED char WDL_filename_filterchar(char p, char repl='_',
 {
   if (p == '?'  || 
       p == '*'  ||
+      (p > 0 && p <= 0x1f) ||
       p == ':'  ||
       p == '\"' ||
       p == '|'  ||
@@ -67,6 +68,9 @@ static WDL_STATICFUNC_UNUSED void WDL_filename_filterstr(char *rd, char repl='_'
   {
     char r=WDL_filename_filterchar(*rd++,repl,path_filter_mode>0);
     if (!r || (WDL_IS_DIRCHAR(r) && WDL_IS_DIRCHAR(lc))) continue; // filter multiple slashes in a row, or leading slash
+#ifdef _WIN32
+    if (r == ' ' && WDL_IS_DIRCHAR(lc)) continue; // filter space after slash (problematic on win32, allowed on macOS/linux)
+#endif
     *wr++ = lc = r;
   }
   *wr=0;

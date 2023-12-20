@@ -14,12 +14,6 @@
 #import <Metal/Metal.h>
 #endif
 
-#if defined IGRAPHICS_IMGUI
-#import <Metal/Metal.h>
-#include "imgui.h"
-#import "imgui_impl_metal.h"
-#endif
-
 #include "wdlutf8.h"
 
 #import "IGraphicsMac_view.h"
@@ -274,8 +268,14 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
     // Center that in the proposed rect
     float heightDelta = outRect.size.height - textSize.height;
     
-    outRect.size.height -= heightDelta;
-    outRect.origin.y += (heightDelta / 2);
+    outRect.origin.x += 3;
+    outRect.size.width -= 6;
+    
+    if (heightDelta > 0) 
+    {
+      outRect.size.height -= heightDelta;
+      outRect.origin.y += (heightDelta / 2);
+    }
   }
   
   return outRect;
@@ -717,7 +717,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     [mTrackingArea release];
   }
     
-  int opts = (NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways);
+  int opts = (NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways | NSTrackingEnabledDuringMouseDrag);
   mTrackingArea = [ [NSTrackingArea alloc] initWithRect:[self bounds] options:opts owner:self userInfo:nil];
   [self addTrackingArea:mTrackingArea];
 }
@@ -800,8 +800,15 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   IMouseInfo info = [self getMouseRight:pEvent];
   if (mGraphics)
   {
-    std::vector<IMouseInfo> list {info};
-    mGraphics->OnMouseDown(list);
+    if (([pEvent clickCount] - 1) % 2)
+    {
+      mGraphics->OnMouseDblClick(info.x, info.y, info.ms);
+    }
+    else
+    {
+      std::vector<IMouseInfo> list {info};
+      mGraphics->OnMouseDown(list);
+    }
   }
 }
 
@@ -1078,7 +1085,21 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   NSMenu* pNSMenu = [[[IGRAPHICS_MENU alloc] initWithIPopupMenuAndReceiver:&menu : pDummyView] autorelease];
   NSPoint wp = {bounds.origin.x, bounds.origin.y + bounds.size.height + 4};
 
-  [pNSMenu popUpMenuPositioningItem:nil atLocation:wp inView:self];
+  NSMenuItem* pSelectedItem = nil;
+  
+  auto selectedItemIdx = menu.GetChosenItemIdx();
+
+  if (selectedItemIdx > -1)
+  {
+    pSelectedItem = [pNSMenu itemAtIndex:selectedItemIdx];
+  }
+  
+  if (pSelectedItem != nil)
+  {
+    wp = {bounds.origin.x, bounds.origin.y};
+  }
+  
+  [pNSMenu popUpMenuPositioningItem:pSelectedItem atLocation:wp inView:self];
   
   NSMenuItem* pChosenItem = [pDummyView menuItem];
   NSMenu* pChosenMenu = [pChosenItem menu];
@@ -1187,6 +1208,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [pWindow makeFirstResponder: self];
 
   mTextFieldView = nullptr;
+  mGraphics->ClearInTextEntryControl();
 }
 
 - (BOOL) promptForColor: (IColor&) color : (IColorPickerHandlerFunc) func;
@@ -1234,20 +1256,32 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender
 {
-  NSPasteboard *pPasteBoard = [sender draggingPasteboard];
+  NSPasteboard* pPasteBoard = [sender draggingPasteboard];
 
   if ([[pPasteBoard types] containsObject:NSFilenamesPboardType])
   {
-    NSArray *pFiles = [pPasteBoard propertyListForType:NSFilenamesPboardType];
-    NSString *pFirstFile = [pFiles firstObject];
+    NSArray* pFiles = [pPasteBoard propertyListForType:NSFilenamesPboardType];
     NSPoint point = [sender draggingLocation];
     NSPoint relativePoint = [self convertPoint: point fromView:nil];
     // TODO - fix or remove these values
     float x = relativePoint.x;// - 2.f;
     float y = relativePoint.y;// - 3.f;
-    mGraphics->OnDrop([pFirstFile UTF8String], x, y);
+    if ([pFiles count] == 1)
+    {
+      NSString* pFirstFile = [pFiles firstObject];
+      mGraphics->OnDrop([pFirstFile UTF8String], x, y);
+    }
+    else if ([pFiles count] > 1)
+    {
+      std::vector<const char*> paths([pFiles count]);
+      for (auto i = 0; i < [pFiles count]; i++)
+      {
+        NSString* pFile = [pFiles objectAtIndex: i];
+        paths[i] = [pFile UTF8String];
+      }
+      mGraphics->OnDropMultiple(paths, x, y);
+    }
   }
-
   return YES;
 }
 
@@ -1299,52 +1333,3 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 //}
 
 @end
-
-#if defined IGRAPHICS_IMGUI
-
-@implementation IGRAPHICS_IMGUIVIEW
-{
-}
-
-- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
-{
-  mView = pView;
-  self = [super initWithFrame:[pView frame] device: MTLCreateSystemDefaultDevice()];
-  if(self) {
-    _commandQueue = [self.device newCommandQueue];
-    self.layer.opaque = NO;
-  }
-  
-  return self;
-}
-
-- (void) drawRect: (NSRect) dirtyRect
-{
-  id<MTLCommandBuffer> commandBuffer = [self.commandQueue commandBuffer];
-  
-  MTLRenderPassDescriptor *renderPassDescriptor = self.currentRenderPassDescriptor;
-  if (renderPassDescriptor != nil)
-  {
-    renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0,0,0,0);
-    
-    id <MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-    [renderEncoder pushDebugGroup:@"ImGui IGraphics"];
-    
-    ImGui_ImplMetal_NewFrame(renderPassDescriptor);
-    
-    mView->mGraphics->mImGuiRenderer->DoFrame();
-
-    ImDrawData *drawData = ImGui::GetDrawData();
-    ImGui_ImplMetal_RenderDrawData(drawData, commandBuffer, renderEncoder);
-    
-    [renderEncoder popDebugGroup];
-    [renderEncoder endEncoding];
-    
-    [commandBuffer presentDrawable:self.currentDrawable];
-  }
-  [commandBuffer commit];
-}
-
-@end
-
-#endif

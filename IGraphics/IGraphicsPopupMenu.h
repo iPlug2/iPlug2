@@ -219,6 +219,24 @@ public:
   void SetNItemsPerColumn(int nItemsPerColumn) { mNItemsPerColumn = nItemsPerColumn; }
   int GetPrefix() const { return mPrefix; }
   bool GetCanMultiCheck() const { return mCanMultiCheck; }
+  
+  bool HasSubMenus()
+  {
+    int n = mMenuItems.GetSize();
+    
+    for (int i = 0; i < n; i++)
+    {
+      IPopupMenu::Item* pItem = GetItem(i);
+      IPopupMenu* pSubmenu = pItem->GetSubmenu();
+
+      if (pSubmenu)
+      {
+        return true;
+      }
+    }
+    
+    return false;
+  }
 
   Item* GetItem(int index)
   {
@@ -260,8 +278,9 @@ public:
 
   void Clear(bool resetEverything = true)
   {
-    if(resetEverything)
+    if (resetEverything)
     {
+      SetChosenItemIdx(-1);
       SetPrefix(0);
       mCanMultiCheck = false;
     }
@@ -286,6 +305,39 @@ public:
     for (int i = 0; i < mMenuItems.GetSize(); i++)
     {
       mMenuItems.Get(i)->SetChecked(i == index);
+    }
+  }
+
+  void CheckItemWithText(const char* str, bool state = true)
+  {
+    for (int i = 0; i < mMenuItems.GetSize(); i++)
+    {
+      if (strcmp(mMenuItems.Get(i)->GetText(), str) == 0)
+      {
+        mMenuItems.Get(i)->SetChecked(state);
+        break;
+      }
+    }
+  }
+  
+  void CheckItemAlone(Item* pItemToCheck)
+  {
+    int n = mMenuItems.GetSize();
+    
+    for (int i = 0; i < n; i++)
+    {
+      IPopupMenu::Item* pItem = GetItem(i);
+      pItem->SetChecked(false);
+      IPopupMenu* pSubmenu = pItem->GetSubmenu();
+      
+      if (pSubmenu)
+      {
+        pSubmenu->CheckItemAlone(pItemToCheck);
+      }
+      else if (pItem == pItemToCheck)
+      {
+        pItem->SetChecked(true);
+      }
     }
   }
   

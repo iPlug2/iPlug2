@@ -280,6 +280,7 @@
     <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVMultiSliderControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVScopeControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestDragNDropControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestFlexBoxControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestGLControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestAnimationControl.h" />
@@ -342,6 +343,7 @@
     <ClInclude Include="..\..\..\IPlug\IPlugUtilities.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_hdr.h" />
     <ClInclude Include="..\..\..\IPlug\IPlug_include_in_plug_src.h" />
+    <ClInclude Include="..\..\..\IPlug\ISender.h" />
     <ClInclude Include="..\IGraphicsTest.h" />
     <ClInclude Include="..\resources\resource.h" />
   </ItemGroup>

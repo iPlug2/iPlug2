@@ -22,6 +22,11 @@
 #include <wininet.h>
 #include <VersionHelpers.h>
 
+#if defined __clang__
+#undef CCSIZEOF_STRUCT
+#define CCSIZEOF_STRUCT(structname, member) (__builtin_offsetof(structname, member) + sizeof(((structname*)0)->member))
+#endif
+
 using namespace iplug;
 using namespace igraphics;
 
@@ -233,6 +238,7 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
       }
       case kCancel:
         DestroyEditWindow();
+        ClearInTextEntryControl();
         break;
     }
 
@@ -464,6 +470,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       return 0;
     }
     case WM_LBUTTONDBLCLK:
+    case WM_RBUTTONDBLCLK:
     {
       if (IsTouchEvent())
         return 0;
@@ -690,14 +697,28 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     case WM_DROPFILES:
     {
       HDROP hdrop = (HDROP)wParam;
-      
-      char pathToFile[1025];
-      DragQueryFile(hdrop, 0, pathToFile, 1024);
-      
-      POINT point;
-      DragQueryPoint(hdrop, &point);
-      
-      pGraphics->OnDrop(pathToFile, point.x, point.y);
+
+      int numDroppedFiles = DragQueryFile(hdrop, -1, nullptr, 0);
+
+      std::vector<std::vector<char>> pathBuffers(numDroppedFiles, std::vector<char>(1025, 0));
+      std::vector<const char*> pathPtrs(numDroppedFiles);
+      for (int i = 0; i < numDroppedFiles; i++) 
+      {
+        DragQueryFile(hdrop, i, &pathBuffers[i][0], 1024);
+        pathPtrs[i] = &pathBuffers[i][0];
+      }
+      POINT p;
+      DragQueryPoint(hdrop, &p);
+
+      const float scale = pGraphics->GetTotalScale();
+
+      if (numDroppedFiles==1) 
+      {
+        pGraphics->OnDrop(&pathPtrs[0][0], p.x / scale, p.y / scale);
+      } else 
+      {
+        pGraphics->OnDropMultiple(pathPtrs, p.x / scale, p.y / scale);
+      }
       
       return 0;
     }
@@ -1096,7 +1117,7 @@ void IGraphicsWin::DeactivateGLContext()
 }
 #endif
 
-EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
+EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
   
@@ -1423,7 +1444,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
   return hMenu;
 }
 
-IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
+IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync)
 {
   long offsetIdx = 0;
   HMENU hMenu = CreateMenu(menu, &offsetIdx);
@@ -1569,7 +1590,7 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   return success;
 }
 
-void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* extensions)
+void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler)
 {
   if (!WindowIsOpen())
   {
@@ -1602,11 +1623,11 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   ofn.lpstrInitialDir = dirCStr;
   ofn.Flags = OFN_PATHMUSTEXIST;
     
-  if (CStringHasContents(extensions))
+  if (CStringHasContents(ext))
   {
     wchar_t extStr[256];
     wchar_t defExtStr[16];
-    int i, p, n = strlen(extensions);
+    int i, p, n = strlen(ext);
     bool seperator = true;
         
     for (i = 0, p = 0; i < n; ++i)
@@ -1621,10 +1642,10 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
         extStr[p++] = '.';
       }
 
-      if (extensions[i] == ' ')
+      if (ext[i] == ' ')
         seperator = true;
       else
-        extStr[p++] = extensions[i];
+        extStr[p++] = ext[i];
     }
     extStr[p++] = '\0';
         
@@ -1632,8 +1653,8 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     extStr[p + p] = '\0';
     ofn.lpstrFilter = extStr;
         
-    for (i = 0, p = 0; i < n && extensions[i] != ' '; ++i)
-      defExtStr[p++] = extensions[i];
+    for (i = 0, p = 0; i < n && ext[i] != ' '; ++i)
+      defExtStr[p++] = ext[i];
     
     defExtStr[p++] = '\0';
     ofn.lpstrDefExt = defExtStr;
@@ -1675,10 +1696,16 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     fileName.Set("");
   }
 
+  // Async is not required on windows, but call the completion handler anyway
+  if (completionHandler)
+  {
+    completionHandler(fileName, path);
+  }
+
   ReleaseMouseCapture();
 }
 
-void IGraphicsWin::PromptForDirectory(WDL_String& dir)
+void IGraphicsWin::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler)
 {
   BROWSEINFO bi;
   memset(&bi, 0, sizeof(bi));
@@ -1691,11 +1718,11 @@ void IGraphicsWin::PromptForDirectory(WDL_String& dir)
   ::OleInitialize(NULL);
   LPITEMIDLIST pIDL = ::SHBrowseForFolder(&bi);
   
-  if(pIDL != NULL)
+  if (pIDL != NULL)
   {
     char buffer[_MAX_PATH] = {'\0'};
     
-    if(::SHGetPathFromIDList(pIDL, buffer) != 0)
+    if (::SHGetPathFromIDList(pIDL, buffer) != 0)
     {
       dir.Set(buffer);
       dir.Append("\\");
@@ -1707,6 +1734,12 @@ void IGraphicsWin::PromptForDirectory(WDL_String& dir)
   else
   {
     dir.Set("");
+  }
+  
+  if (completionHandler)
+  {
+    WDL_String fileName; // not used
+    completionHandler(fileName, dir);
   }
 
   ReleaseMouseCapture();
@@ -1892,6 +1925,48 @@ bool IGraphicsWin::SetTextInClipboard(const char* str)
   CloseClipboard();
 
   return len > 0;
+}
+
+bool IGraphicsWin::SetFilePathInClipboard(const char* path)
+{
+  if (!OpenClipboard(mMainWnd))
+  {
+    return false;
+  }
+
+  EmptyClipboard();
+
+  const size_t pathLength = strlen(path);
+  HGLOBAL hGlobal = GlobalAlloc(GHND, sizeof(DROPFILES) + pathLength + 2);
+
+  if (!hGlobal)
+    return false;
+
+  DROPFILES* pDropFiles = (DROPFILES*)GlobalLock(hGlobal);
+
+  if (!pDropFiles) 
+  {
+    GlobalFree(hGlobal);
+    return false;
+  }
+
+  pDropFiles->pFiles = sizeof(DROPFILES);
+  pDropFiles->fNC = true;
+  pDropFiles->fWide = false;
+
+  memcpy(&pDropFiles[1], path, pathLength);
+
+  GlobalUnlock(hGlobal);
+
+  if (!SetClipboardData(CF_HDROP, hGlobal)) 
+  {
+    GlobalFree(hGlobal);
+    return false;
+  }
+
+  GlobalFree(hGlobal);
+  CloseClipboard();
+  return true;
 }
 
 static HFONT GetHFont(const char* fontName, int weight, bool italic, bool underline, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)

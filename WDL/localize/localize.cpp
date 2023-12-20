@@ -21,6 +21,7 @@
 #include "../chunkalloc.h"
 #include "../fnv64.h"
 #include "../win32_utf8.h"
+#include "../wdlcstring.h"
 
 
 #define LANGPACK_SCALE_CONSTANT WDL_UINT64_CONST(0x5CA1E00000000000)
@@ -180,9 +181,7 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
         sumtimes[1]+=startTime;
         if (!(stats[1]%100))
         {
-          char buf[512];
-          sprintf(buf,"cached, avg was %fuS\n",sumtimes[1]*10000.0);
-          OutputDebugString(buf);
+          wdl_log("cached, avg was %fuS\n",sumtimes[1]*10000.0);
           sumtimes[1]=0;
         }
 #endif
@@ -196,14 +195,14 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
   char *newptr = NULL;
 
   int trycnt;
-  int len = strlen(str)+1;
+  size_t len = strlen(str)+1;
 
   if (flags & LOCALIZE_FLAG_DOUBLENULL)
   {
     // need to test this
     for (;;)
     {
-      int a = strlen(str+len);
+      size_t a = strlen(str+len);
       if (!a) break;
       len += a+1;
     }
@@ -213,7 +212,13 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
   {
     len += strlen(str + len) + 1;
   }
-  WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)str,len);
+
+  WDL_UINT64 hash;
+  if ((flags & LOCALIZE_FLAG_PAIR) && len == 18 && !memcmp(str,"__LOCALIZE_SCALE\0",18))
+    hash = WDL_UINT64_CONST(0x5CA1E00000000000);
+  else
+    hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)str,(int)len);
+
   for (trycnt=0;trycnt<2 && !newptr;trycnt++)
   {
     WDL_AssocArray<WDL_UINT64, char *> *section = trycnt == 1 ? g_translations_commonsec : g_translations.Get(subctx);
@@ -245,9 +250,7 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
   sumtimes[0]+=startTime;
   if (!(stats[0]%100))
   {
-    char buf[512];
-    sprintf(buf,"uncached , avg was %f\n",sumtimes[0]*10000.0);
-    OutputDebugString(buf);
+    wdl_log("uncached , avg was %f\n",sumtimes[0]*10000.0);
     sumtimes[0]=0;
   }
 #endif
@@ -275,7 +278,7 @@ static void __localProcMenu(HMENU menu, WDL_AssocArray<WDL_UINT64, char *> *s)
         mod[0]=0;
         tryagain:
   #endif
-        WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)buf,strlen(buf)+1);
+        WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)buf,(int)strlen(buf)+1);
         const char *newptr = s ? s->Get(hash,0) : NULL;
         if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
 
@@ -304,6 +307,9 @@ static void __localProcMenu(HMENU menu, WDL_AssocArray<WDL_UINT64, char *> *s)
           }
   #endif
           mii.fMask = MIIM_TYPE;
+#ifdef __APPLE__
+          mii.fMask |= MIIM_SWELL_DO_NOT_CALC_MODIFIERS;
+#endif
           mii.dwTypeData = (char*)newptr;
           SetMenuItemInfo(menu,x,TRUE,&mii);
         }
@@ -348,13 +354,14 @@ struct windowReorgEnt
     WRET_MISC, // dont analyze for size changes, but move around
 
   };
-  windowReorgEnt(HWND _hwnd, RECT _r)
+  windowReorgEnt(HWND _hwnd, RECT _r, int wc)
   {
     hwnd=_hwnd;
     orig_r=r=_r;
     mode=WRET_MISC;
     move_amt=0;
     wantsizeincrease=0;
+    scaled_width_change = wc;
   }
   ~windowReorgEnt() { }
 
@@ -363,6 +370,7 @@ struct windowReorgEnt
   windowReorgEntType mode;
   int move_amt;
   int wantsizeincrease;
+  int scaled_width_change;
 
   static int Sort(const void *_a, const void *_b)
   {
@@ -417,18 +425,51 @@ public:
   bool has_sc;
 };
 
-static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s, char *buf, int bufsz)
+static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s, char *buf, int bufsz, bool prefix_handling)
 {
   buf[0]=0;
   GetWindowText(hwnd,buf,bufsz);
   if (buf[0])
   {
     buf[bufsz-1]=0;
-    WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)buf,strlen(buf)+1);
+    WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)buf,(int)strlen(buf)+1);
     const char *newptr = s ? s->Get(hash,0) : NULL;
     if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
+
+#ifdef __APPLE__
+    bool filter_prefix = false;
+    if (!newptr && prefix_handling)
+    {
+      extern const char *SWELL_GetRecentPrefixRemoval(const char *p);
+      const char *p = SWELL_GetRecentPrefixRemoval(buf);
+      if (p)
+      {
+        hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)p,(int)strlen(p)+1);
+        newptr = s ? s->Get(hash,0) : NULL;
+        if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
+        filter_prefix = true;
+      }
+    }
+#endif
+
     if (newptr && strcmp(newptr,buf))
     {
+#ifdef __APPLE__
+      if (filter_prefix)
+      {
+        const char *rd=newptr;
+        int widx=0;
+        while (widx < bufsz-1)
+        {
+          if (*rd == '&') rd++;
+          if (!*rd) break;
+          buf[widx++]=*rd++;
+        }
+        buf[widx]=0;
+        SetWindowText(hwnd,buf);
+        return newptr;
+      }
+#endif
       SetWindowText(hwnd,newptr);
       return newptr;
     }
@@ -446,19 +487,22 @@ static BOOL CALLBACK xlateGetRects(HWND hwnd, LPARAM lParam)
   GetWindowRect(hwnd,&r);
   ScreenToClient(s->par,(LPPOINT)&r);
   ScreenToClient(s->par,((LPPOINT)&r)+1);
+  int width_change = 0;
 
   if (s->has_sc) // scaling happens before all of the ripple-code
   {
     if (r.top > r.bottom) { const int t = r.top; r.top = r.bottom; r.bottom = t; }
 
+    width_change = r.right-r.left;
     r.left = (int) (r.left * s->scx + 0.5);
     r.top = (int) (r.top * s->scy + 0.5);
     r.right = (int) (r.right * s->scx + 0.5);
     r.bottom = (int) (r.bottom * s->scy + 0.5);
     SetWindowPos(hwnd,NULL, r.left,r.top, r.right-r.left, r.bottom-r.top, SWP_NOACTIVATE|SWP_NOZORDER);
+    width_change = (r.right-r.left) - width_change;
   }
 
-  windowReorgEnt t(hwnd,r);
+  windowReorgEnt t(hwnd,r,width_change);
 
 #ifdef _WIN32
   char buf[128];
@@ -578,7 +622,7 @@ static void localize_dialog(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *sec)
   windowReorgState s(hwnd,scx,scy);
 
   char buf[8192];
-  xlateWindow(hwnd,sec,buf,sizeof(buf)); // translate window title
+  xlateWindow(hwnd,sec,buf,sizeof(buf),false); // translate window title
   EnumChildWindows(hwnd,xlateGetRects,(LPARAM)&s);
 
 #ifdef _WIN32
@@ -595,13 +639,14 @@ static void localize_dialog(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *sec)
     windowReorgEnt *rec=s.cws.Get()+x;
     if (rec->hwnd)
     {
-      const char *newText=xlateWindow(rec->hwnd,sec,buf,sizeof(buf));
+      const char *newText=xlateWindow(rec->hwnd,sec,buf,sizeof(buf), rec->mode != windowReorgEnt::WRET_MISC);
       if (newText && rec->mode == windowReorgEnt::WRET_SIZEADJ)
       {
         RECT r1={0},r2={0};
 #ifdef _WIN32
         DrawText(hdc,buf,-1,&r1,DT_CALCRECT);
         DrawText(hdc,newText,-1,&r2,DT_CALCRECT);
+        r1.right += rec->scaled_width_change;
 #else
         GetClientRect(rec->hwnd,&r1);
         SWELL_GetDesiredControlSize(rec->hwnd,&r2);
@@ -709,6 +754,8 @@ void __localizeInitializeDialog(HWND hwnd, const char *desc)
   if (s) localize_dialog(hwnd,s);
 }
 
+void (*localizePreInitDialogHook)(HWND hwndDlg);
+
 static WDL_DLGRET __localDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   switch (uMsg)
@@ -716,6 +763,9 @@ static WDL_DLGRET __localDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     case WM_INITDIALOG:
       {
         void **l = (void **)lParam;
+
+        if (localizePreInitDialogHook)
+          localizePreInitDialogHook(hwnd);
 
         if (l[2])
           localize_dialog(hwnd,(WDL_AssocArray<WDL_UINT64, char *> *)l[2]);
@@ -767,12 +817,14 @@ static WORD __getMenuIdFromDlgResource(HINSTANCE hInstance, const char * lpTempl
 DLGPROC __localizePrepareDialog(const char *rescat, HINSTANCE hInstance, const char *lpTemplate, DLGPROC dlgProc, LPARAM lParam, void **ptrs, int nptrs)
 {
   INT_PTR a = (INT_PTR) lpTemplate;
-  if (nptrs>=4 && a>0&&a<65536)
+  if (WDL_NOT_NORMALLY(nptrs<4)) return NULL;
+
+  WDL_AssocArray<WDL_UINT64, char *> *s = NULL, *s2 = NULL;
+  if (a>0&&a<65536)
   {
     char buf[128];
     snprintf(buf,sizeof(buf),"%sDLG_%d",rescat?rescat:"",(int)a);
-    WDL_AssocArray<WDL_UINT64, char *> *s = g_translations.Get(buf);
-    WDL_AssocArray<WDL_UINT64, char *> *s2 = NULL;
+    s = g_translations.Get(buf);
 #ifdef _WIN32
     int menuid = __getMenuIdFromDlgResource(hInstance,lpTemplate);
     if (menuid)
@@ -781,16 +833,16 @@ DLGPROC __localizePrepareDialog(const char *rescat, HINSTANCE hInstance, const c
       s2=g_translations.Get(buf);
     }
 #endif
-    ptrs[0] = (void*)dlgProc;
-    ptrs[1] = (void*)(INT_PTR)lParam;
-    ptrs[2] = s;
-    ptrs[3] = s2;
-#ifdef WDL_LOCALIZE_HOOK_DLGPROC
-    WDL_LOCALIZE_HOOK_DLGPROC
-#endif
-    if (s||s2) return __localDlgProc;
   }
-  return 0;
+
+  ptrs[0] = (void*)dlgProc;
+  ptrs[1] = (void*)(INT_PTR)lParam;
+  ptrs[2] = s;
+  ptrs[3] = s2;
+#ifdef WDL_LOCALIZE_HOOK_DLGPROC
+  WDL_LOCALIZE_HOOK_DLGPROC
+#endif
+  return (s||s2||(a>0 && localizePreInitDialogHook)) ? __localDlgProc : NULL;
 }
 
 HWND __localizeDialog(HINSTANCE hInstance, const char *lpTemplate, HWND hwndParent, DLGPROC dlgProc, LPARAM lParam, int mode)
@@ -946,8 +998,22 @@ void WDL_fgets_as_utf8(char *linebuf, int linebuf_size, FILE *fp, int *format_fl
   }
 }
 
-WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const char *onlySec_name)
+WDL_AssocArray<WDL_UINT64, char *> *WDL_GetLangpackSection(const char *sec)
 {
+  return g_translations.Get(sec);
+}
+
+WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *fn,
+    WDL_StringKeyedArray< WDL_AssocArray<WDL_UINT64, char *> * > *dest,
+    const char *onlySec_name,
+    bool include_commented_lines,
+    bool no_escape_strings,
+    WDL_StringKeyedArray<char *> *extra_metadata
+    )
+{
+#ifdef _DEBUG
+  g_debug_langpack_has_loaded = true;
+#endif
   WDL_AssocArray<WDL_UINT64, char *> *rv=NULL;
   FILE *fp = fopenUTF8(fn,"r");
   if (!fp) return rv;
@@ -958,6 +1024,7 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const c
 
   WDL_TypedBuf<char> procbuf;
   char linebuf[16384];
+  int ic_lines = 0;
   for (;;)
   {
     WDL_fgets_as_utf8(linebuf,sizeof(linebuf),fp,&format_flag);
@@ -971,17 +1038,50 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const c
     while (p >= lbstart && (*p == '\t' || *p == '\n' || *p == '\r')) p--;
     p++;
     *p=0;
-    if (!*lbstart || *lbstart == ';' || *lbstart == '#') continue;
+
+    if (include_commented_lines)
+    {
+      if (*lbstart == ';')
+      {
+        int x, offs = (lbstart[1] == '^') ? 2 : 1;
+        for (x = 0; x < 16; x ++)
+        {
+          char c = lbstart[offs+x];
+          if (c >= 'A' && c <= 'F') { }
+          else if (c >= '0' && c <= '9') { }
+          else break;
+        }
+        if (x == 16 && lbstart[offs+16] == '=')
+          lbstart += offs;
+      }
+    }
+    if (!*lbstart || *lbstart == ';' || *lbstart == '#')
+    {
+      if (ic_lines >= 0 && extra_metadata)
+      {
+        char tmp[128];
+        snprintf(tmp,sizeof(tmp),"_initial_comment_%d",ic_lines++);
+        extra_metadata->Insert(tmp,strdup(linebuf));
+      }
+      continue;
+    }
 
     if (*lbstart == '[')
     {
+      ic_lines = -1;
       if (cursec) cursec->Resort();
 
       lbstart++;
       {
         char *tmp = lbstart;
         while (*tmp && *tmp != ']') tmp++;
-        *tmp=0;
+        *tmp++=0;
+        if (extra_metadata)
+        {
+          while (*tmp == ' ') tmp++;
+          if (*tmp)
+            extra_metadata->Insert(lbstart,strdup(tmp));
+        }
       }
 
       if (onlySec_name)
@@ -995,11 +1095,11 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const c
       }
       else
       {
-        cursec = g_translations.Get(lbstart);
+        cursec = dest->Get(lbstart);
         if (!cursec)
         {
           cursec = new WDL_AssocArray<WDL_UINT64, char *>(uint64cmpfunc);
-          g_translations.Insert(lbstart,cursec);
+          dest->Insert(lbstart,cursec);
         }
       }
     }
@@ -1025,7 +1125,7 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const c
           }
           if (x==16)
           {
-            if (strstr(eq,"\\"))
+            if (strstr(eq,"\\") && !no_escape_strings)
             {
               procbuf.Resize(0,false);
               while (*eq)
@@ -1055,7 +1155,7 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const c
             }
             else
             {
-              int eqlen = strlen(eq);
+              int eqlen = (int)strlen(eq);
               char *pc = (char *)ChunkAlloc(eqlen+2);
               if (pc)
               {
@@ -1074,12 +1174,31 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const c
 
   fclose(fp);
 
-  if (!onlySec_name)
-  {
-    g_translations_commonsec = g_translations.Get("common");
-  }
-
   return rv;
+}
+
+WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const char *onlySec_name)
+{
+  WDL_AssocArray<WDL_UINT64, char *> *rv = WDL_LoadLanguagePackInternal(fn,&g_translations, onlySec_name,false,false, NULL);
+  if (!onlySec_name)
+    g_translations_commonsec = g_translations.Get("common");
+  return rv;
+}
+
+void WDL_SetLangpackFallbackEntry(const char *src_sec, WDL_UINT64 src_v, const char *dest_sec, WDL_UINT64 dest_v)
+{
+  WDL_AssocArray<WDL_UINT64, char *> *sec = g_translations.Get(src_sec);
+  char *v = sec ? sec->Get(src_v) : NULL;
+  if (!v) return;
+  sec = g_translations.Get(dest_sec);
+  if (!sec)
+  {
+    sec = new WDL_AssocArray<WDL_UINT64, char *>(uint64cmpfunc);
+    g_translations.Insert(dest_sec,sec);
+  }
+  else if (sec->Get(dest_v)) return;
+
+  sec->Insert(dest_v,v);
 }
 
 

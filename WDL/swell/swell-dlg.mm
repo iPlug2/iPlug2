@@ -55,62 +55,6 @@ static id __class_CAMetalLayer, __class_MTLRenderPassDescriptor, __class_MTLText
 static id<MTLDevice> (*__MTLCreateSystemDefaultDevice)(void);
 static id<MTLDevice> (*__CGDirectDisplayCopyCurrentMetalDevice)(CGDirectDisplayID);
 
-struct mtl_dev_rec {
-  id<MTLFunction> vertexFunction,fragmentFunction;
-};
-
-static void get_dev_shaders(id<MTLDevice> dev, id<MTLFunction> *vertex, id<MTLFunction> *frag)
-{
-  static WDL_PtrKeyedArray<mtl_dev_rec> s_mtl_device_recs;
-  mtl_dev_rec *p = s_mtl_device_recs.GetPtr((INT_PTR)dev);
-  if (p)
-  {
-    *vertex = p->vertexFunction;
-    *frag = p->fragmentFunction;
-    return;
-  }
-
-  mtl_dev_rec rec={NULL, };
-  // open device, compiler shaders
-  id opt = (id)[[__class_MTLCompileOptions alloc] init];
-  NSError *err=NULL;
-  NSString *code = 
-@"#include <metal_stdlib>\n"
-@"#include <simd/simd.h>\n"
-@"using namespace metal;\n"
-@"typedef struct { float4 position [[position]]; float2 textureCoordinate; } RasterizerData;\n"
-@"vertex RasterizerData\n"
-@"vertexShader(uint vertexID [[ vertex_id ]], constant vector_float2 *vertexArray [[ buffer(0) ]]) {\n"
-@"    RasterizerData out;\n"
-@"    out.position = vector_float4(0.0, 0.0, 0.0, 1.0);\n"
-@"    out.position.xy = vertexArray[vertexID*2].xy;\n"
-@"    out.textureCoordinate = vertexArray[vertexID*2+1].xy;\n"
-@"    return out;\n"
-@"}\n"
-@"fragment float4\n"
-@"samplingShader(RasterizerData in [[stage_in]], texture2d<half> colorTexture [[ texture(0) ]]) { \n"
-@"   constexpr sampler textureSampler (mag_filter::linear, min_filter::linear);\n"
-@"   const half4 colorSample = colorTexture.sample(textureSampler, in.textureCoordinate);\n"
-@"   return float4(colorSample);\n"
-@"}\n";
-
-  id<MTLLibrary> mtl_lib = [dev newLibraryWithSource:code options:opt error:&err];
-  if (err) NSLog(@"swell-cocoa: error compiling metal shaders for device %p %@: %@\n",dev,dev.name,err);
-  [opt release];
-
-  if (mtl_lib &&
-      (*vertex = rec.vertexFunction = [mtl_lib newFunctionWithName:@"vertexShader"]) &&
-      (*frag = rec.fragmentFunction = [mtl_lib newFunctionWithName:@"samplingShader"]))
-  {
-    NSLog(@"swell-cocoa: mtl ok for device %p %@!\n", dev, dev.name);
-  }
-  else
-  {
-    NSLog(@"swell-cocoa: mtl failed functions for device %p %@!\n", dev, dev.name);
-  }
-  s_mtl_device_recs.Insert((INT_PTR)dev, rec);
-}
-
 #endif
 
 @interface NSRectSet : NSObject
@@ -254,21 +198,18 @@ static LRESULT SWELL_SendMouseMessageImpl(SWELL_hwndChild *slf, int msg, NSEvent
   if (msg == WM_MOUSEWHEEL || msg == WM_MOUSEHWHEEL)
   {
     float dw = (msg == WM_MOUSEWHEEL ? [theEvent deltaY] : [theEvent deltaX]);
-    //if (!dy) dy=[theEvent deltaX]; // shift+mousewheel sends deltaX instead of deltaY
-    l = (int)(dw*60.0);
-    l <<= 16;
-    
+    l = MAKELONG(0, (int)(dw*60.0));
     // put todo: modifiers into low word of l?
     
     POINT p;
     GetCursorPos(&p);
-    return slf->m_wndproc((HWND)slf,msg,l,(p.x&0xffff) + (p.y<<16));
+    return slf->m_wndproc((HWND)slf,msg,l,MAKELONG(p.x&0xffff,p.y));
   }
 
-  LRESULT ret=slf->m_wndproc((HWND)slf,msg,l,(xpos&0xffff) + (ypos<<16));
+  LRESULT ret=slf->m_wndproc((HWND)slf,msg,l,MAKELONG(xpos&0xffff,ypos));
   
   if (msg==WM_LBUTTONUP || msg==WM_RBUTTONUP || msg==WM_MOUSEMOVE || msg==WM_MBUTTONUP) {
-    if (!GetCapture() && (slf->m_hashaddestroy || !slf->m_wndproc || !slf->m_wndproc((HWND)slf,WM_SETCURSOR,(WPARAM)slf,htc | (msg<<16)))) {
+    if (!GetCapture() && (slf->m_hashaddestroy || !slf->m_wndproc || !slf->m_wndproc((HWND)slf,WM_SETCURSOR,(WPARAM)slf,MAKELONG(htc,msg)))) {
       NSCursor *arr= [NSCursor arrowCursor];
       if (GetCursor() != (HCURSOR)arr) SetCursor((HCURSOR)arr);
     }
@@ -385,6 +326,7 @@ void SWELL_DoDialogColorUpdates(HWND hwnd, DLGPROC d, bool isUpdate)
             {
               [[(NSBox*)ch titleCell] setTextColor:staticFg];
               //[(NSBox*)ch setBorderColor:staticFg]; // see comment at SWELL_MakeGroupBox
+              [ch setNeedsDisplay:YES];
             }
             else
             {
@@ -474,6 +416,10 @@ static SWELL_DialogResourceIndex *resById(SWELL_DialogResourceIndex *reshead, co
 
 static void DoPaintStuff(WNDPROC wndproc, HWND hwnd, HDC hdc, NSRect *modrect, bool isMetal)
 {
+#ifdef _DEBUG
+  extern int g_swell_in_paint;
+  g_swell_in_paint++;
+#endif
   RECT r;
   GetWindowRect(hwnd,&r);
   if (r.top>r.bottom) { int tmp=r.top; r.top=r.bottom; r.bottom=tmp; }
@@ -501,6 +447,9 @@ static void DoPaintStuff(WNDPROC wndproc, HWND hwnd, HDC hdc, NSRect *modrect, b
     if (a) SWELL_PopClipRegion(hdc);
   }
   if (isMetal) wndproc(hwnd,WM_NCPAINT,(WPARAM)1,0);
+#ifdef _DEBUG
+  g_swell_in_paint--;
+#endif
 }
 
 
@@ -607,6 +556,42 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
   }
 }
 
+#ifndef SWELL_NO_METAL
+struct swell_metal_device_ctx {
+  swell_metal_device_ctx()
+  {
+    m_commandQueue = NULL;
+    m_commandBuffer = NULL;
+  }
+
+  id<MTLCommandQueue> m_commandQueue;
+  id<MTLCommandBuffer> m_commandBuffer;
+
+  void present()
+  {
+    if (m_commandBuffer)
+    {
+      [m_commandBuffer commit];
+      [m_commandBuffer release];
+      m_commandBuffer = NULL;
+    }
+  }
+};
+static WDL_PtrKeyedArray<swell_metal_device_ctx *> s_metal_devices; // indexed by id<MTLDevice>
+static int s_metal_devicelist_updcnt;
+static bool s_mtl_in_update;
+
+@interface SWELL_MetalNotificationHandler : NSObject
+- (void)handleDisplayChanges:(NSNotification *)notification;
+@end
+
+@implementation SWELL_MetalNotificationHandler : NSObject
+- (void)handleDisplayChanges:(NSNotification *)notification
+{
+  s_metal_devicelist_updcnt++;
+}
+@end
+#endif
 
 @implementation SWELL_hwndChild : NSView 
 
@@ -631,6 +616,7 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
 #ifndef SWELL_NO_METAL
   if (m_use_metal>0) 
   {
+    SWELL_AutoReleaseHelper arparp;
     [self swellDrawMetal:NULL];
     swell_removeMetalDirty(self);
   }
@@ -781,7 +767,7 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
 {
   id sender=[notification object];
   int code=CBN_DROPDOWN;
-  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
+  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],code),(LPARAM)sender);
 }
 
 - (void)comboBoxSelectionDidChange:(NSNotification *)notification
@@ -793,11 +779,11 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
     if ([sender isKindOfClass:[SWELL_ComboBox class]])
     {
       SWELL_ComboBox *p = (SWELL_ComboBox *)sender;
-      const int sel = [p indexOfSelectedItem];
+      const int sel = (int)[p indexOfSelectedItem];
       if (sel == p->m_ignore_selchg) return;
       p->m_ignore_selchg = sel;
     }
-    m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
+    m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],code),(LPARAM)sender);
   }
 }
 
@@ -805,20 +791,26 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
 {
   id sender=[notification object];
   int code=CBN_CLOSEUP;
-  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
+  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],code),(LPARAM)sender);
 }
 
 - (void)textDidEndEditing:(NSNotification *)aNotification
 {
   id sender=[aNotification object];
-  int code=EN_CHANGE;
   if ([sender isKindOfClass:[NSComboBox class]]) return;
   if (m_wndproc&&!m_hashaddestroy)
   {
-    m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
-    code=EN_KILLFOCUS;
-    m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
+    int code=EN_KILLFOCUS;
+    m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],code),(LPARAM)sender);
   }
+}
+
+- (void)textDidChange:(NSNotification *)aNotification
+{
+  id sender=[aNotification object];
+  int code=EN_CHANGE;
+  if ([sender isKindOfClass:[NSComboBox class]]) return;
+  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],code),(LPARAM)sender);
 }
 
 - (void)controlTextDidChange:(NSNotification *)aNotification
@@ -826,14 +818,14 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
   id sender=[aNotification object];
   int code=EN_CHANGE;
   if ([sender isKindOfClass:[NSComboBox class]]) code=CBN_EDITCHANGE;
-  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
+  if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],code),(LPARAM)sender);
 }
 
 - (void)controlTextDidEndEditing:(NSNotification *)aNotification
 {
   id sender=[aNotification object];
   int code=EN_KILLFOCUS;
-  if (m_wndproc && !m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,([(NSControl*)sender tag])|(code<<16),(LPARAM)sender);
+  if (m_wndproc && !m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],code),(LPARAM)sender);
 }
 
 - (void)menuNeedsUpdate:(NSMenu *)menu
@@ -849,7 +841,7 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
       [sender respondsToSelector:@selector(getSwellNotificationMode)])
   {
     if ([(SWELL_ListView*)sender getSwellNotificationMode])
-      m_wndproc((HWND)self,WM_COMMAND,(LBN_DBLCLK<<16)|[(NSControl*)sender tag],(LPARAM)sender);
+      m_wndproc((HWND)self,WM_COMMAND,MAKELONG([(NSControl*)sender tag],LBN_DBLCLK),(LPARAM)sender);
     else
     {
       SWELL_ListView *lv = (SWELL_ListView*)sender;
@@ -909,7 +901,7 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
       NSTableView *sender=[aNotification object];
       if ([sender respondsToSelector:@selector(getSwellNotificationMode)] && [(SWELL_ListView*)sender getSwellNotificationMode])
       {
-        if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,(int)[sender tag] | (LBN_SELCHANGE<<16),(LPARAM)sender);
+        if (m_wndproc&&!m_hashaddestroy) m_wndproc((HWND)self,WM_COMMAND,MAKELONG((int)[sender tag],LBN_SELCHANGE),(LPARAM)sender);
       }
       else
       {
@@ -988,7 +980,7 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
     else if ([sender isKindOfClass:[SWELL_Button class]])
     {
       int rf;
-      if ((rf=(int)[(SWELL_Button*)sender swellGetRadioFlags]))
+      if ((rf=(int)[(SWELL_Button*)sender swellGetRadioFlags]) & ~4096)
       {
         NSView *par=(NSView *)GetParent((HWND)sender);
         if (par && [par isKindOfClass:[NSWindow class]]) par=[(NSWindow *)par contentView];
@@ -1032,10 +1024,10 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
     }
     else if ([sender isKindOfClass:[NSMenuItem class]])
     {
-//      [[sender menu] update];
-      // wish we could force the top level menu to update here, meh
+      m_wndproc((HWND)self,WM_COMMAND,[sender tag],0);
+      return;
     }
-    m_wndproc((HWND)self,WM_COMMAND,[sender tag]|(cw<<16),(LPARAM)sender);
+    m_wndproc((HWND)self,WM_COMMAND,MAKELONG([sender tag],cw),(LPARAM)sender);
   }
 
 }
@@ -1059,13 +1051,9 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
   if (m_use_metal == 2)
   {
     [m_metal_texture release];
-    [m_metal_pipelineState release];
-    [m_metal_commandQueue release];
   }
   m_metal_drawable=NULL;
   m_metal_texture=NULL;
-  m_metal_pipelineState=NULL;
-  m_metal_commandQueue=NULL;
   if (m_use_metal>0) swell_removeMetalDirty(self);
 #endif
   SWELL_MessageQueue_Clear((HWND)self);
@@ -1233,11 +1221,9 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
   m_metal_dc_dirty=0;
   m_metal_retina=false;
   m_metal_device=NULL;
-  m_metal_device_lastchkt=0;
+  m_metal_devicelist_updcnt=0;
   m_metal_texture=NULL;
   m_metal_drawable=NULL;
-  m_metal_pipelineState=NULL;
-  m_metal_commandQueue=NULL;
   m_metal_in_needref_list=false;
   m_metal_gravity=0;
   memset(&m_metal_lastframe,0,sizeof(m_metal_lastframe));
@@ -1501,7 +1487,6 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
 -(void) swellDrawMetal:(const RECT *)forRect
 {
 #ifndef SWELL_NO_METAL
-  SWELL_AutoReleaseHelper arparp;
 
 #define swell_metal_set_layer_gravity(layer, g) do { \
   const int grav = (g); \
@@ -1512,23 +1497,35 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
   const bool direct_mode = m_use_metal == 1;
 
   CAMetalLayer *layer = (CAMetalLayer *)[self layer];
+  layer.framebufferOnly = NO;
 
   id<MTLDevice> device = m_metal_device;
 
-#if 1
-  // support multiple devices. only check every second for device changes (it will use the old device and be slower in that duration)
-  // (checking the device takes about 20uS, which isn't a lot but also isn't nothing)
-
-  // this seems to work correclty, *except* - if you're using the high-performance card, the system will never go back to integrated,
-  // presumably because our metal devices are open. Maybe we can flag them as "non-essential" ?
-  const DWORD now = GetTickCount();
-  if (__CGDirectDisplayCopyCurrentMetalDevice && (!device || (now-m_metal_device_lastchkt)>1000))
+  static bool reg;
+  if (!reg)
   {
-    m_metal_device_lastchkt = now;
+    reg = true;
+    id s = [[SWELL_MetalNotificationHandler alloc] init];
+    [[NSNotificationCenter defaultCenter] addObserver:s
+                                             selector:@selector(handleDisplayChanges:)
+                                                 name:NSWindowDidChangeScreenNotification
+                                               object:nil];
+
+    [[NSNotificationCenter defaultCenter] addObserver:s
+                                             selector:@selector(handleDisplayChanges:)
+                                                 name:NSApplicationDidChangeScreenParametersNotification
+                                               object:nil];
+  }
+
+  if (__CGDirectDisplayCopyCurrentMetalDevice && (!device || m_metal_devicelist_updcnt != s_metal_devicelist_updcnt))
+  {
+    m_metal_devicelist_updcnt = s_metal_devicelist_updcnt;
     CGDirectDisplayID viewDisplayID = (CGDirectDisplayID) [self.window.screen.deviceDescription[@"NSScreenNumber"] unsignedIntegerValue];
     device = __CGDirectDisplayCopyCurrentMetalDevice(viewDisplayID);
+    if (device == m_metal_device)
+      [device release];
   }
-#endif
+
   if (!device)
   {
     static id<MTLDevice> def;
@@ -1547,36 +1544,23 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
       layer.framebufferOnly = NO;
     [layer setPixelFormat:MTLPixelFormatBGRA8Unorm];
 
-    [m_metal_pipelineState release];
-    [m_metal_commandQueue release];
     if (!direct_mode) [m_metal_texture release];
 
-    m_metal_commandQueue = NULL;
-    m_metal_pipelineState = NULL;
     m_metal_texture = NULL;
     m_metal_drawable = NULL;
   }
 
-  if (!device) return;
-
-  if (!direct_mode)
+  if (!device)
   {
-    if (!m_metal_pipelineState)
-    {
-      id<MTLFunction> vertex = NULL, frag = NULL;
-      get_dev_shaders(device, &vertex, &frag);
-      if (!vertex || !frag) return; // fail
+    NSLog(@"swell-cocoa: no metal device\n");
+    return;
+  }
 
-      MTLRenderPipelineDescriptor *pipelineStateDescriptor = [[__class_MTLRenderPipelineDescriptor alloc] init];
-
-      pipelineStateDescriptor.vertexFunction = vertex;
-      pipelineStateDescriptor.fragmentFunction = frag;
-      pipelineStateDescriptor.colorAttachments[0].pixelFormat = MTLPixelFormatBGRA8Unorm;
-
-      NSError *error = NULL;
-      m_metal_pipelineState = [device newRenderPipelineStateWithDescriptor:pipelineStateDescriptor error:&error];
-      [pipelineStateDescriptor release];
-    }
+  swell_metal_device_ctx *ctx = s_metal_devices.Get((INT_PTR)device);
+  if (!ctx)
+  {
+    ctx = new swell_metal_device_ctx;
+    s_metal_devices.Insert((INT_PTR)device, ctx);
   }
 
   RECT cr;
@@ -1645,7 +1629,11 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
   if (!tex) return; // this can happen if GetDC()/ReleaseDC() are called before the first WM_PAINT
 
   NSRect bounds = [self bounds];
-  if (bounds.size.width < 1 || bounds.size.height < 1) return;
+  if (bounds.size.width < 1 || bounds.size.height < 1)
+  {
+    NSLog(@"swell-cocoa: metal with empty bounds\n");
+    return;
+  }
 
   if (m_metal_retina)
   {
@@ -1664,6 +1652,8 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
     layer.drawableSize = ns;
     layer.contentsScale = m_metal_retina ? 2.0 : 1.0;
   }
+  else if (layer.contentsScale != (m_metal_retina ? 2.0 : 1.0))
+    layer.contentsScale = m_metal_retina ? 2.0 : 1.0;
   id<CAMetalDrawable> drawable = [layer nextDrawable];
   if (!drawable)
   {
@@ -1672,45 +1662,29 @@ static void SendTreeViewExpandNotification(SWELL_hwndChild *par, NSNotification 
   }
 
 
-  RECT r = {0,0, (int)bounds.size.width, (int)bounds.size.height };
+  if (!ctx->m_commandQueue)
+    ctx->m_commandQueue = [device newCommandQueue];
 
-  const float x_sc = (float) (r.right / (double)tex.width);
-  const float y_sc = (float) (r.bottom / (double)tex.height);
-
-  vector_float2 quads[] =
+  if (!ctx->m_commandBuffer)
   {
-    {  1,  -1 }, {x_sc, y_sc}, 
-    { -1,  -1 }, {0, y_sc},
-    { -1,   1 }, {0, 0},
+    ctx->m_commandBuffer = [ctx->m_commandQueue commandBuffer];
+    [ctx->m_commandBuffer retain];
+  }
 
-    {  1,  -1 }, {x_sc, y_sc},
-    { -1,   1 }, {0, 0},
-    {  1,   1 }, {x_sc, 0},
-  };
+  id<MTLBlitCommandEncoder> encoder = [ctx->m_commandBuffer blitCommandEncoder];
 
-  if (!m_metal_commandQueue)
-    m_metal_commandQueue = [device newCommandQueue];
+  [encoder copyFromTexture:m_metal_texture
+    sourceSlice:0 sourceLevel:0 sourceOrigin:MTLOriginMake(0,0,0)
+      sourceSize:MTLSizeMake(bounds.size.width,bounds.size.height,1.0)
+      toTexture:drawable.texture
+      destinationSlice:0 destinationLevel:0 destinationOrigin:MTLOriginMake(0,0,0)];
 
-  id<MTLCommandBuffer> commandBuffer = [m_metal_commandQueue commandBuffer];
+  [encoder endEncoding];
 
-  MTLRenderPassDescriptor *renderPassDescriptor = [__class_MTLRenderPassDescriptor renderPassDescriptor];
-  renderPassDescriptor.colorAttachments[0].texture = drawable.texture;
+  [ctx->m_commandBuffer presentDrawable:drawable];
 
-  id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
-
-  // Set the region of the drawable to draw into.
-  [renderEncoder setViewport:(MTLViewport){0.0, 0.0, (double)r.right,(double)r.bottom, -1.0, 1.0 }];
-
-  [renderEncoder setRenderPipelineState:m_metal_pipelineState];
-  [renderEncoder setVertexBytes:quads length:sizeof(quads) atIndex:0];
-  [renderEncoder setFragmentTexture:m_metal_texture atIndex:0];
-
-  [renderEncoder drawPrimitives:MTLPrimitiveTypeTriangle vertexStart:0 vertexCount:6];
-
-  [renderEncoder endEncoding];
-
-  [commandBuffer presentDrawable:drawable];
-  [commandBuffer commit];
+  if (!s_mtl_in_update)
+    ctx->present();
 #endif
 }
 
@@ -1907,7 +1881,10 @@ static void MakeGestureInfo(NSEvent* evt, GESTUREINFO* gi, HWND hwnd, int type)
   NSArray* SWELL_DoDragDrop(NSURL*);
   return SWELL_DoDragDrop(dropdestination); 
 }
-
+- (BOOL)ignoreModifierKeysWhileDragging
+{
+  return GetProp((HWND)self,"SWELL_IgnoreModifierKeysWhileDragging") != NULL ? YES : NO;
+}
 
 - (BOOL)becomeFirstResponder 
 {
@@ -1917,19 +1894,16 @@ static void MakeGestureInfo(NSEvent* evt, GESTUREINFO* gi, HWND hwnd, int type)
     if ([[self window] contentView]==self) en = 1; // accept focus if we're enabled-without-focus and the contentview
   }
   if (en <= 0 || ![super becomeFirstResponder]) return NO;
+  SendMessage((HWND)self, WM_SETFOCUS, 0, 0);
   SendMessage((HWND)self, WM_MOUSEACTIVATE, 0, 0);
   return YES;
 }
 
-/*
 - (BOOL)resignFirstResponder
 {
-  HWND foc=GetFocus();
-  if (![super resignFirstResponder]) return NO;
-  [self onSwellMessage:WM_ACTIVATE p1:WA_INACTIVE p2:(LPARAM)foc];
-  return YES;
+  SendMessage((HWND)self, WM_KILLFOCUS, 0, 0);
+  return [super resignFirstResponder];
 }
-*/
 
 - (BOOL)acceptsFirstResponder 
 {
@@ -2013,8 +1987,6 @@ static void MakeGestureInfo(NSEvent* evt, GESTUREINFO* gi, HWND hwnd, int type)
   if (!m_supports_ddrop) return 0;
   
   NSPasteboard *pboard;
-  NSDragOperation sourceDragMask;
-  sourceDragMask = [sender draggingSourceOperationMask];
   pboard = [sender draggingPasteboard];
  
   enum { PB_FILEREF=1, PB_FILEPROMISE };
@@ -2301,9 +2273,13 @@ static HMENU swell_getEffectiveMenuForWindow(NSView *cv, NSWindow *window, bool 
 - (void)setFrame:(NSRect)frameRect display:(BOOL)displayFlag \
 { \
   [super setFrame:frameRect display:displayFlag]; \
-  if((int)frameRect.size.width != (int)lastFrameSize.width || (int)frameRect.size.height != (int)lastFrameSize.height) { \
+  bool z = !![self isZoomed]; \
+  if((int)frameRect.size.width != (int)lastFrameSize.width || \
+     (int)frameRect.size.height != (int)lastFrameSize.height || \
+      z != m_lastZoom) { \
     SWELL_hwndChild *hc = (SWELL_hwndChild*)[self contentView]; \
-    sendSwellMessage(hc,WM_SIZE,0,0); \
+    sendSwellMessage(hc,WM_SIZE,z!=m_lastZoom ? z ? SIZE_MAXIMIZED : SIZE_RESTORED : 0,0); \
+    m_lastZoom=z; \
     if ([hc isOpaque]) InvalidateRect((HWND)hc,NULL,FALSE); \
     lastFrameSize=frameRect.size; \
    } \
@@ -2457,7 +2433,8 @@ static HMENU swell_getEffectiveMenuForWindow(NSView *cv, NSWindow *window, bool 
 #define INIT_COMMON_VARS \
   m_enabled=TRUE; \
   m_owner=0; \
-  m_ownedwnds=0; 
+  m_ownedwnds=0; \
+  m_lastZoom=false; \
 
 
 #if 0
@@ -3913,7 +3890,7 @@ static bool mtl_init()
       if (cnt>0)
       {
         state=1;
-        SetTimer(NULL,1,1,metalUpdateProc);
+        SetTimer(NULL,0,1,metalUpdateProc);
       }
     }
   }
@@ -4125,6 +4102,8 @@ static void SWELL_Metal_WriteTex(SWELL_hwndChild *wnd, const unsigned int *srcbu
           layer.drawableSize = ns;
           layer.contentsScale = retina_hint ? 2.0 : 1.0;
         }
+        else if (layer.contentsScale != (retina_hint ? 2.0 : 1.0))
+          layer.contentsScale = retina_hint ? 2.0 : 1.0;
         tex = [(wnd->m_metal_drawable = [layer nextDrawable]) texture];
         wnd->m_metal_texture = tex;
       }
@@ -4349,15 +4328,29 @@ int SWELL_EnableMetal(HWND hwnd, int mode)
 void swell_updateAllMetalDirty() // run from a timer, or called by UpdateWindow()
 {
 #ifndef SWELL_NO_METAL
-  static bool r;
-  if (r) return;
-  r=true;
+  if (s_mtl_in_update || !s_mtl_dirty_list.GetSize()) return;
+  SWELL_AutoReleaseHelper arparp;
+
+  s_mtl_in_update = true;
+
+  NSWindow *lw = NULL;
+  bool lw_occluded = false;
 
   int x = s_mtl_dirty_list.GetSize();
   while (--x>=0)
   {
     SWELL_hwndChild *slf = s_mtl_dirty_list.Get(x);
     if (!slf) break; // deleted out from under us?!
+
+    NSWindow *w = [slf window];
+    if (lw != w)
+    {
+      // this might only be needed on macOS12+ and/or M1 (could not duplicate on high sierra)
+      lw = w;
+      NSUInteger (*send_msg)(id, SEL) = (NSUInteger (*)(id, SEL))objc_msgSend;
+      lw_occluded = w && !(send_msg(w, @selector(occlusionState))&2);
+    }
+    if (lw_occluded) continue;
 
     const RECT tr = slf->m_metal_in_needref_rect;
     s_mtl_dirty_list.Delete(x);
@@ -4367,7 +4360,14 @@ void swell_updateAllMetalDirty() // run from a timer, or called by UpdateWindow(
     [slf swellDrawMetal:&tr];
   }
 
-  r=false;
+  for (int i = 0; ; i ++)
+  {
+    swell_metal_device_ctx *c = s_metal_devices.Enumerate(i);
+    if (!c) break;
+    c->present();
+  }
+
+  s_mtl_in_update = false;
 #endif
 }
 

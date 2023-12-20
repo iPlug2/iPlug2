@@ -9,6 +9,7 @@
 */
 
 #pragma once
+#include "base/source/fstring.h"
 #include "pluginterfaces/gui/iplugviewcontentscalesupport.h"
 #include "pluginterfaces/base/keycodes.h"
 

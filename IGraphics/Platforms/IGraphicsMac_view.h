@@ -178,15 +178,3 @@ using namespace igraphics;
 - (void) setMouseCursor: (ECursor) cursorType;
 @end
 
-#if defined IGRAPHICS_IMGUI
-#import <MetalKit/MetalKit.h>
-
-@interface IGRAPHICS_IMGUIVIEW : MTKView
-{
-  IGRAPHICS_VIEW* mView;
-}
-@property (nonatomic, strong) id <MTLCommandQueue> commandQueue;
-- (id) initWithIGraphicsView: (IGRAPHICS_VIEW*) pView;
-@end
-#endif
-

@@ -6,6 +6,8 @@
 #include "Test/TestControls.h"
 #endif
 
+#include <filesystem>
+
 enum EParam
 {
   kParamDummy = 0,
@@ -95,14 +97,27 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     "TextOrientation",
     "TextSize",
     "MPS (NanoVG MTL only)",
-    "OpenGL (NanoVG GL only)",
+    "Custom Shader (NanoVG only)",
     "Gesture Recognizers (iOS only)",
     "MultiTouch (iOS/Win/Web only)",
     "FlexBox",
-    "Mask"
+    "Mask",
+    "DirBrowse",
+    "DragNDrop",
     };
     
-    auto chooseTestControl = [&, pGraphics, testRect](int idx) {
+    WDL_String resourcePath;
+
+    #ifdef OS_MAC
+    BundleResourcePath(resourcePath, BUNDLE_ID);
+    #else
+    namespace fs = std::filesystem;
+    fs::path mainPath(__FILE__);
+    fs::path imgResourcesPath = mainPath.parent_path() / "Resources" / "img";
+    resourcePath.Set(imgResourcesPath.string().c_str());
+    #endif
+
+    auto chooseTestControl = [&, pGraphics, testRect, resourcePath](int idx) {
       
       IControl* pNewControl = nullptr;
       
@@ -128,12 +143,13 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
         case 18: pNewControl = new TestTextOrientationControl(testRect, kParamDummy); break;
         case 19: pNewControl = new TestTextSizeControl(testRect, kParamDummy); break;
         case 20: pNewControl = new TestMPSControl(testRect, pGraphics->LoadBitmap(SMILEY_FN), kParamDummy); break;
-        case 21: pNewControl = new TestGLControl(testRect); break;
+        case 21: pNewControl = new TestCustomShaderControl(testRect, kParamDummy); break;
         case 22: pNewControl = new TestGesturesControl(testRect); break;
         case 23: pNewControl = new TestMTControl(testRect); pNewControl->SetWantsMultiTouch(true); break;
         case 24: pNewControl = new TestFlexBoxControl(testRect); break;
         case 25: pNewControl = new TestMaskControl(testRect, pGraphics->LoadBitmap(SMILEY_FN)); break;
-
+        case 26: pNewControl = new TestDirBrowseControl(testRect, "png", resourcePath.Get()); break;
+        case 27: pNewControl = new TestDragAndDropControl(testRect); break;
       }
       
       if(pNewControl)

@@ -37,13 +37,18 @@ static constexpr int MAX_IMG_SCALE = 3;
 static constexpr int DEFAULT_TEXT_ENTRY_LEN = 7;
 static constexpr double DEFAULT_GEARING = 4.0;
 
+static constexpr double DEFAULT_MIN_DRAW_SCALE = 0.5;
+static constexpr double DEFAULT_MAX_DRAW_SCALE = 4.0;
+
 //what is this stuff
 #define TOOLWIN_BORDER_W 6
 #define TOOLWIN_BORDER_H 23
 #define MAX_CLASSNAME_LEN 128
 //
 
+#ifndef GRAYED_ALPHA
 static constexpr float GRAYED_ALPHA = 0.25f;
+#endif
 
 #ifndef DEFAULT_PATH
 static const char* DEFAULT_PATH = "~/Desktop";
@@ -72,20 +77,23 @@ enum class EBlend
   Default = SrcOver
 };
 
-/** \todo */
+/** Constants that determine if a file dialog is for opening or saving */
 enum class EFileAction { Open, Save };
 
-/** \todo */
+/** Constants used for layout direction */
 enum class EDirection { Vertical, Horizontal };
 
-/** Used to specify text styles when loading fonts. */
+/** Constants to specify text styles when loading fonts. */
 enum class ETextStyle { Normal, Bold, Italic };
 
-/** \todo */
+/** Constants to specify horizontal alignment */
 enum class EAlign { Near, Center, Far };
 
-/** \todo */
+/** Constants to specify vertical alignment */
 enum class EVAlign { Top, Middle, Bottom };
+
+/** Constants for layout orientation e.g. location of labels in a IVControl */
+enum class EOrientation { North, East, South, West };
 
 /** CStrings for EAlign options  */
 static const char* kEAlignStrs[3] = { "Near", "Center", "Far" };
@@ -154,6 +162,9 @@ enum class EPatternType { Solid, Linear, Radial, Sweep };
 
 /** \todo */
 enum class EPatternExtend { None, Pad, Reflect, Repeat };
+
+/** \todo */
+enum class EColorReplacement { None, Fill, Stroke };
 
 /** \todo */
 enum class EUIResizerMode { Scale, Size };

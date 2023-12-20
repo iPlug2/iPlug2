@@ -415,29 +415,29 @@ struct Config
   const char* bundleID;
   
   Config(int nParams,
-              int nPresets,
-              const char* channelIOStr,
-              const char* pluginName,
-              const char* productName,
-              const char* mfrName,
-              int vendorVersion,
-              int uniqueID,
-              int mfrID,
-              int latency,
-              bool plugDoesMidiIn,
-              bool plugDoesMidiOut,
-              bool plugDoesMPE,
-              bool plugDoesChunks,
-              int plugType,
-              bool plugHasUI,
-              int plugWidth,
-              int plugHeight,
-              bool plugHostResize,
-              int plugMinWidth,
-              int plugMaxWidth,
-              int plugMinHeight,
-              int plugMaxHeight,
-              const char* bundleID)
+         int nPresets,
+         const char* channelIOStr,
+         const char* pluginName,
+         const char* productName,
+         const char* mfrName,
+         int vendorVersion,
+         int uniqueID,
+         int mfrID,
+         int latency,
+         bool plugDoesMidiIn,
+         bool plugDoesMidiOut,
+         bool plugDoesMPE,
+         bool plugDoesChunks,
+         int plugType,
+         bool plugHasUI,
+         int plugWidth,
+         int plugHeight,
+         bool plugHostResize,
+         int plugMinWidth,
+         int plugMaxWidth,
+         int plugMinHeight,
+         int plugMaxHeight,
+         const char* bundleID)
               
   : nParams(nParams)
   , nPresets(nPresets)
@@ -604,7 +604,7 @@ struct IPreset
 
   IPreset()
   {
-    sprintf(mName, "%s", UNUSED_PRESET_NAME);
+    snprintf(mName, MAX_PRESET_NAME_LEN, "%s", UNUSED_PRESET_NAME);
   }
 };
 

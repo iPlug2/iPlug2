@@ -51,15 +51,14 @@ public:
 
   void OnMouseDown(float x, float y, const IMouseMod& mod) override
   {
-    WDL_String file;
-    WDL_String path;
+    WDL_String fileName, path;
 
-    GetUI()->PromptForFile(file, path, EFileAction::Open, "svg");
-
-    if(file.GetLength())
-      SetSVG(GetUI()->LoadSVG(file.Get()));
-
-    SetDirty(false);
+    GetUI()->PromptForFile(fileName, path, EFileAction::Open, "svg", 
+    [this](const WDL_String& fileName, const WDL_String& path) {
+      if (fileName.GetLength())
+        SetSVG(GetUI()->LoadSVG(fileName.Get()));
+        SetDirty(false);
+    });
   }
 
   void OnDrop(const char* str) override

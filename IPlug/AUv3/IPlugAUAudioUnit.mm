@@ -22,7 +22,7 @@
 
 using namespace iplug;
 
-@interface IPlugAUAudioUnit ()
+@interface IPLUG_AUAUDIOUNIT ()
 
 @property AUAudioUnitBusArray* mInputBusArray;
 @property AUAudioUnitBusArray* mOutputBusArray;
@@ -36,7 +36,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return pPreset;
 }
 
-@implementation IPlugAUAudioUnit
+@implementation IPLUG_AUAUDIOUNIT
 {
   IPlugAUv3* mPlug;
   WDL_PtrList<BufferedInputBus> mBufferedInputBuses;
@@ -450,6 +450,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     
   self.currentPreset = mPresets.firstObject;
   
+  mPlug->OnParamReset(kReset);
+  
   return self;
 }
 
@@ -613,15 +615,15 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
       if (_transportStateCapture)
       {
-        double samplePos; double cycleStart; double cycleEnd; AUHostTransportStateFlags transportStateFlags;
+        double samplePos; double cycleStart; double cycleEnd; AUHostTransportStateFlags flags;
 
-        _transportStateCapture(&transportStateFlags, &samplePos, &cycleStart, &cycleEnd);
+        _transportStateCapture(&flags, &samplePos, &cycleStart, &cycleEnd);
 
         timeInfo.mSamplePos = samplePos;
         timeInfo.mCycleStart = cycleStart;
         timeInfo.mCycleEnd = cycleEnd;
-        timeInfo.mTransportIsRunning = transportStateFlags == AUHostTransportStateMoving || transportStateFlags == AUHostTransportStateRecording;
-        timeInfo.mTransportLoopEnabled = transportStateFlags == AUHostTransportStateCycling;
+        timeInfo.mTransportIsRunning = ((flags & AUHostTransportStateMoving) != 0);
+        timeInfo.mTransportLoopEnabled = ((flags & AUHostTransportStateCycling) != 0);
       }
 
       pPlug->ProcessWithEvents(timestamp, frameCount, realtimeEventListHead, timeInfo);
@@ -660,7 +662,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
           self->mPlug->RestorePreset(int(pFactoryPreset.number));
           self->mCurrentPreset = pFactoryPreset;
           
-          for (int paramIdx = 0; paramIdx < self->mPlug->NParams(); paramIdx++) {
+          for (int paramIdx = 0; paramIdx < self->mPlug->NParams(); paramIdx++)
+          {
             AUParameter* parameterToChange = [self->mParameterTree parameterWithAddress:self->mPlug->GetParamAddress(paramIdx)];
             parameterToChange.value = self->mPlug->GetParam(paramIdx)->Value();
           }
@@ -772,8 +775,10 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
   NSMutableIndexSet* pSet = [[NSMutableIndexSet alloc] init];
   
-  for (AUAudioUnitViewConfiguration* viewConfig in availableViewConfigurations) {
-    if (mPlug->OnHostRequestingSupportedViewConfiguration((int) [viewConfig width], (int) [viewConfig height])) {
+  for (AUAudioUnitViewConfiguration* viewConfig in availableViewConfigurations)
+  {
+    if (mPlug->OnHostRequestingSupportedViewConfiguration((int) [viewConfig width], (int) [viewConfig height]))
+    {
       [pSet addIndex:[availableViewConfigurations indexOfObject:viewConfig]];
     }
   }
@@ -784,7 +789,9 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 - (void) selectViewConfiguration:(AUAudioUnitViewConfiguration*) viewConfiguration API_AVAILABLE(macos(10.13), ios(11))
 {
   TRACE
-  mPlug->OnHostSelectedViewConfiguration((int) [viewConfiguration width], (int) [viewConfiguration height]);
+  dispatch_async(dispatch_get_main_queue(), ^{
+    self->mPlug->OnHostSelectedViewConfiguration((int) [viewConfiguration width], (int) [viewConfiguration height]);
+  });
 }
 
 #pragma mark - IPlugAUAudioUnit
@@ -859,6 +866,14 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 - (BOOL) supportsMPE
 {
   return mPlug->DoesMPE() ? YES : NO;
+}
+
+- (NSData*) getDataFromExternal
+{
+  int dataSize = 0;
+  void* pData = mPlug->GetDataFromExternal(dataSize);
+  
+  return [NSData dataWithBytes:pData length:dataSize];
 }
 
 @end

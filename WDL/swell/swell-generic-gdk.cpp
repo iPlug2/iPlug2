@@ -47,10 +47,14 @@ extern "C" {
 
 #if !defined(SWELL_TARGET_GDK_NO_CURSOR_HACK)
   #define SWELL_TARGET_GDK_CURSORHACK
-  #include <X11/extensions/XInput2.h>
 #endif
 
+#include <X11/extensions/XInput2.h>
+
 #include <X11/Xatom.h>
+
+#include <GL/gl.h>
+#include <GL/glx.h>
 
 static void (*_gdk_drag_drop_done)(GdkDragContext *, gboolean); // may not always be available
 
@@ -115,6 +119,9 @@ static int gdk_options;
 #define OPTION_OWNED_TASKLIST 2
 #define OPTION_BORDERLESS_OVERRIDEREDIRECT 4
 #define OPTION_BORDERLESS_DIALOG 8
+#define OPTION_ALLOW_MAYBE_INACTIVE 16
+#define OPTION_FULLSCREEN_FOR_OWNER_WINDOWS 32
+#define OPTION_FULLSCREEN_DYNAMIC 64
 
 static HWND s_ddrop_hwnd;
 static POINT s_ddrop_pt;
@@ -146,6 +153,28 @@ static void swell_gdkEventHandler(GdkEvent *event, gpointer data);
 static int s_last_desktop;
 static UINT_PTR s_deactivate_timer;
 static guint32 s_force_window_time;
+static bool swell_app_is_inactive;
+
+int swell_is_app_inactive()
+{
+  return swell_app_is_inactive ? 1 : (gdk_options&OPTION_ALLOW_MAYBE_INACTIVE) && s_deactivate_timer!=0 ? -1 : 0;
+}
+
+static void update_menubar_activations()
+{
+  if (g_swell_ctheme.menubar_bg == g_swell_ctheme.menubar_bg_inactive &&
+      g_swell_ctheme.menubar_text == g_swell_ctheme.menubar_text_inactive) return;
+
+  HWND h = SWELL_topwindows;
+  while (h)
+  {
+    if (h->m_oswindow && h->m_menu)
+    {
+      DrawMenuBar(h);
+    }
+    h=h->m_next;
+  }
+}
 
 static void on_activate(guint32 ftime)
 {
@@ -168,6 +197,8 @@ static void on_activate(guint32 ftime)
   }
   s_last_desktop=0;
   s_force_window_time = 0;
+
+  update_menubar_activations();
 }
 
 void swell_gdk_reactivate_app(void)
@@ -198,6 +229,7 @@ static void on_deactivate()
     PostMessage(h,WM_ACTIVATEAPP,0,0);
     h=h->m_next;
   }
+  swell_on_toplevel_raise(NULL);
   DestroyPopupMenus();
 }
 
@@ -240,6 +272,7 @@ void swell_oswindow_focus(HWND hwnd)
   if (!hwnd)
   {
     SWELL_focused_oswindow = NULL;
+    update_menubar_activations();
     return;
   }
 
@@ -251,6 +284,7 @@ void swell_oswindow_focus(HWND hwnd)
     {
       SWELL_focused_oswindow = hwnd->m_oswindow;
       gdk_window_focus(hwnd->m_oswindow,GDK_CURRENT_TIME);
+      update_menubar_activations();
     }
   }
 }
@@ -282,7 +316,7 @@ void swell_recalcMinMaxInfo(HWND hwnd)
   h.max_height= mmi.ptMaxSize.y;
   h.min_width= mmi.ptMinTrackSize.x;
   h.min_height= mmi.ptMinTrackSize.y;
-  gdk_window_set_geometry_hints(hwnd->m_oswindow,&h,(GdkWindowHints) (GDK_HINT_POS | GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
+  gdk_window_set_geometry_hints(hwnd->m_oswindow,&h,(GdkWindowHints) ((hwnd->m_has_had_position ? GDK_HINT_POS : 0) | GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
 }
 
 void SWELL_initargs(int *argc, char ***argv) 
@@ -432,8 +466,6 @@ static void init_options()
 {
   if (!gdk_options)
   {
-    //const char *wmname = gdk_x11_screen_get_window_manager_name(gdk_screen_get_default ());
-
     gdk_options = 0x40000000;
 
     if (swell_gdk_option("gdk_owned_windows_keep_above", "auto (default is 1)",1))
@@ -442,15 +474,86 @@ static void init_options()
     if (swell_gdk_option("gdk_owned_windows_in_tasklist", "auto (default is 0)",0))
       gdk_options|=OPTION_OWNED_TASKLIST;
 
+    switch (swell_gdk_option("gdk_instant_menubar_inactivation", "auto (default is 1 if on Wayland, otherwise 0)",-1))
+    {
+      case -1:
+        if (getenv("WAYLAND_DISPLAY") == NULL) break;
+        // fall through
+      case 1:
+        gdk_options|=OPTION_ALLOW_MAYBE_INACTIVE;
+      break;
+    }
+
     switch (swell_gdk_option("gdk_borderless_window_mode", "auto (default is 1=dialog hint. 2=override redirect. 0=normal hint)", 1))
     {
       case 1: gdk_options|=OPTION_BORDERLESS_DIALOG; break;
       case 2: gdk_options|=OPTION_BORDERLESS_OVERRIDEREDIRECT; break;
       default: break;
     }
+
+    const char *wmname = gdk_x11_screen_get_window_manager_name(gdk_screen_get_default());
+    switch (swell_gdk_option("gdk_fullscreen_for_owner_windows", "auto (default is 1 on kwin, otherwise 0)",-1))
+    {
+      case -1:
+        if (!wmname || strnicmp(wmname,"KWin",4)) break;
+        // fall through
+      case 1:
+        gdk_options |= OPTION_FULLSCREEN_FOR_OWNER_WINDOWS;
+      break;
+    }
+    switch (swell_gdk_option("gdk_fullscreen_dynamic","auto (default is 1 on kwin, otherwise 0)",-1))
+    {
+      case -1:
+        if (!wmname || strnicmp(wmname,"KWin",4)) break;
+        // fall through
+      case 1:
+        gdk_options |= OPTION_FULLSCREEN_DYNAMIC;
+      break;
+
+    }
   }
   
 }
+
+static void swell_hide_owned_windows_transient(HWND hwnd)
+{
+  if ((gdk_options&OPTION_KEEP_OWNED_ABOVE) && hwnd->m_owned_list)
+  {
+    HWND l = SWELL_topwindows;
+    while (l)
+    {
+      if (l->m_oswindow && l->m_owner == hwnd && l->m_visible)
+        gdk_window_hide(l->m_oswindow);
+      l = l->m_next;
+    }
+  }
+}
+
+static void swell_set_owned_windows_transient(HWND hwnd, bool do_create)
+{
+  if ((gdk_options&OPTION_KEEP_OWNED_ABOVE) && hwnd->m_owned_list)
+  {
+    WDL_PtrList<void> raiselist;
+    HWND l = SWELL_topwindows;
+    while (l)
+    {
+      if (l->m_owner == hwnd && l->m_visible)
+      {
+        if (l->m_oswindow) raiselist.Add(l->m_oswindow);
+        else if (do_create) swell_oswindow_manage(l,false);
+      }
+      l = l->m_next;
+    }
+    for (int x = raiselist.GetSize()-1; x>=0; x--)
+    {
+      SWELL_OSWINDOW r = (SWELL_OSWINDOW)raiselist.Get(x);
+      gdk_window_set_transient_for(r,hwnd->m_oswindow);
+      gdk_window_show_unraised(r);
+    }
+  }
+}
+
+
 
 bool IsModalDialogBox(HWND);
 
@@ -467,6 +570,7 @@ void swell_oswindow_manage(HWND hwnd, bool wantfocus)
     {
       RECT r;
       GetWindowRect(hwnd,&r);
+      swell_hide_owned_windows_transient(hwnd);
       swell_oswindow_destroy(hwnd);
       hwnd->m_position = r;
     }
@@ -509,7 +613,9 @@ void swell_oswindow_manage(HWND hwnd, bool wantfocus)
         attr.wmclass_name = (gchar*)appname;
         attr.wmclass_class = (gchar*)appname;
         attr.window_type = GDK_WINDOW_TOPLEVEL;
-        hwnd->m_oswindow = gdk_window_new(NULL,&attr,GDK_WA_X|GDK_WA_Y|(appname?GDK_WA_WMCLASS:0));
+        if (GetProp(hwnd,"SWELLGdkAlphaChannel"))
+          attr.visual = gdk_screen_get_rgba_visual(gdk_screen_get_default());
+        hwnd->m_oswindow = gdk_window_new(NULL,&attr,GDK_WA_X|GDK_WA_Y|(appname?GDK_WA_WMCLASS:0)|(attr.visual ? GDK_WA_VISUAL : 0));
  
         if (hwnd->m_oswindow) 
         {
@@ -598,23 +704,26 @@ void swell_oswindow_manage(HWND hwnd, bool wantfocus)
           if (!hwnd->m_oswindow_fullscreen)
           {
             swell_oswindow_resize(hwnd->m_oswindow,hwnd->m_has_had_position?3:2,r);
+            swell_oswindow_postresize(hwnd,r);
           }
 
-          if ((gdk_options&OPTION_KEEP_OWNED_ABOVE) && hwnd->m_owned_list)
-          {
-            HWND l = SWELL_topwindows;
-            while (l)  
-            {
-              if (!l->m_oswindow && l->m_owner == hwnd && l->m_visible)
-                swell_oswindow_manage(l,false);
-              l = l->m_next;
-            }
-          }
+          swell_set_owned_windows_transient(hwnd, true);
         }
       }
     }
   }
   if (wantVis) swell_oswindow_update_text(hwnd);
+}
+
+void swell_oswindow_maximize(HWND hwnd, bool wantmax) // false=restore
+{
+  if (WDL_NORMALLY(hwnd && hwnd->m_oswindow))
+  {
+    if (wantmax)
+      gdk_window_maximize(hwnd->m_oswindow);
+    else
+      gdk_window_unmaximize(hwnd->m_oswindow);
+  }
 }
 
 void swell_oswindow_updatetoscreen(HWND hwnd, RECT *rect)
@@ -648,125 +757,68 @@ void swell_oswindow_updatetoscreen(HWND hwnd, RECT *rect)
   #define DEF_GKY(x) GDK_KEY_##x
 #endif
 
-static guint swell_gdkConvertKey(guint key)
+static guint swell_gdkConvertKey(guint key, bool *extended)
 {
-  //gdk key to VK_ conversion
   switch(key)
   {
-  case DEF_GKY(KP_Home):
-  case DEF_GKY(Home): return VK_HOME;
-  case DEF_GKY(KP_End):
-  case DEF_GKY(End): return VK_END;
-  case DEF_GKY(KP_Up):
-  case DEF_GKY(Up): return VK_UP;
-  case DEF_GKY(KP_Down):
-  case DEF_GKY(Down): return VK_DOWN;
-  case DEF_GKY(KP_Left):
-  case DEF_GKY(Left): return VK_LEFT;
-  case DEF_GKY(KP_Right):
-  case DEF_GKY(Right): return VK_RIGHT;
-  case DEF_GKY(KP_Page_Up):
-  case DEF_GKY(Page_Up): return VK_PRIOR;
-  case DEF_GKY(KP_Page_Down):
-  case DEF_GKY(Page_Down): return VK_NEXT;
-  case DEF_GKY(KP_Insert):
-  case DEF_GKY(Insert): return VK_INSERT;
-  case DEF_GKY(KP_Delete):
-  case DEF_GKY(Delete): return VK_DELETE;
-  case DEF_GKY(Escape): return VK_ESCAPE;
-  case DEF_GKY(BackSpace): return VK_BACK;
-  case DEF_GKY(KP_Enter):
-  case DEF_GKY(Return): return VK_RETURN;
-  case DEF_GKY(ISO_Left_Tab):
-  case DEF_GKY(Tab): return VK_TAB;
-  case DEF_GKY(F1): return VK_F1;
-  case DEF_GKY(F2): return VK_F2;
-  case DEF_GKY(F3): return VK_F3;
-  case DEF_GKY(F4): return VK_F4;
-  case DEF_GKY(F5): return VK_F5;
-  case DEF_GKY(F6): return VK_F6;
-  case DEF_GKY(F7): return VK_F7;
-  case DEF_GKY(F8): return VK_F8;
-  case DEF_GKY(F9): return VK_F9;
-  case DEF_GKY(F10): return VK_F10;
-  case DEF_GKY(F11): return VK_F11;
-  case DEF_GKY(F12): return VK_F12;
-  case DEF_GKY(KP_0): return VK_NUMPAD0;
-  case DEF_GKY(KP_1): return VK_NUMPAD1;
-  case DEF_GKY(KP_2): return VK_NUMPAD2;
-  case DEF_GKY(KP_3): return VK_NUMPAD3;
-  case DEF_GKY(KP_4): return VK_NUMPAD4;
-  case DEF_GKY(KP_5): return VK_NUMPAD5;
-  case DEF_GKY(KP_6): return VK_NUMPAD6;
-  case DEF_GKY(KP_7): return VK_NUMPAD7;
-  case DEF_GKY(KP_8): return VK_NUMPAD8;
-  case DEF_GKY(KP_9): return VK_NUMPAD9;
-  case DEF_GKY(KP_Multiply): return VK_MULTIPLY;
-  case DEF_GKY(KP_Add): return VK_ADD;
-  case DEF_GKY(KP_Separator): return VK_SEPARATOR;
-  case DEF_GKY(KP_Subtract): return VK_SUBTRACT;
-  case DEF_GKY(KP_Decimal): return VK_DECIMAL;
-  case DEF_GKY(KP_Divide): return VK_DIVIDE;
-  case DEF_GKY(Num_Lock): return VK_NUMLOCK;
+#define DEF_GK2(h, v)  \
+    case DEF_GKY(h): *extended = true; return (v);  \
+    case DEF_GKY(KP_##h): return (v);
+
+    DEF_GK2(Home,VK_HOME)
+    DEF_GK2(End,VK_END)
+    DEF_GK2(Up, VK_UP)
+    DEF_GK2(Down, VK_DOWN)
+    DEF_GK2(Left, VK_LEFT)
+    DEF_GK2(Right, VK_RIGHT)
+    DEF_GK2(Page_Up, VK_PRIOR)
+    DEF_GK2(Page_Down, VK_NEXT)
+    DEF_GK2(Insert,VK_INSERT)
+    DEF_GK2(Delete, VK_DELETE)
+
+#undef DEF_GK2
+    case DEF_GKY(KP_Enter): *extended = true; return VK_RETURN;
+    case DEF_GKY(Return): return VK_RETURN;
+
+    case DEF_GKY(Escape): return VK_ESCAPE;
+    case DEF_GKY(BackSpace): return VK_BACK;
+    case DEF_GKY(ISO_Left_Tab):
+    case DEF_GKY(Tab): return VK_TAB;
+    case DEF_GKY(F1): return VK_F1;
+    case DEF_GKY(F2): return VK_F2;
+    case DEF_GKY(F3): return VK_F3;
+    case DEF_GKY(F4): return VK_F4;
+    case DEF_GKY(F5): return VK_F5;
+    case DEF_GKY(F6): return VK_F6;
+    case DEF_GKY(F7): return VK_F7;
+    case DEF_GKY(F8): return VK_F8;
+    case DEF_GKY(F9): return VK_F9;
+    case DEF_GKY(F10): return VK_F10;
+    case DEF_GKY(F11): return VK_F11;
+    case DEF_GKY(F12): return VK_F12;
+    case DEF_GKY(KP_0): return VK_NUMPAD0;
+    case DEF_GKY(KP_1): return VK_NUMPAD1;
+    case DEF_GKY(KP_2): return VK_NUMPAD2;
+    case DEF_GKY(KP_3): return VK_NUMPAD3;
+    case DEF_GKY(KP_4): return VK_NUMPAD4;
+    case DEF_GKY(KP_5): return VK_NUMPAD5;
+    case DEF_GKY(KP_6): return VK_NUMPAD6;
+    case DEF_GKY(KP_7): return VK_NUMPAD7;
+    case DEF_GKY(KP_8): return VK_NUMPAD8;
+    case DEF_GKY(KP_9): return VK_NUMPAD9;
+    case DEF_GKY(KP_Multiply): return VK_MULTIPLY;
+    case DEF_GKY(KP_Add): return VK_ADD;
+    case DEF_GKY(KP_Separator): return VK_SEPARATOR;
+    case DEF_GKY(KP_Subtract): return VK_SUBTRACT;
+    case DEF_GKY(KP_Decimal): return VK_DECIMAL;
+    case DEF_GKY(KP_Divide): return VK_DIVIDE;
+    case DEF_GKY(Num_Lock): return VK_NUMLOCK;
+    case DEF_GKY(KP_Begin): return VK_SELECT;
   }
   return 0;
 }
 
-static LRESULT SendMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-  if (!hwnd || !hwnd->m_wndproc) return -1;
-  if (!IsWindowEnabled(hwnd)) 
-  {
-    if (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN ||
-        msg == WM_LBUTTONDBLCLK || msg == WM_RBUTTONDBLCLK || msg == WM_MBUTTONDBLCLK)
-    {
-      HWND h = DialogBoxIsActive();
-      if (h) SetForegroundWindow(h);
-    }
-    return -1;
-  }
-
-  LRESULT htc=0;
-  if (msg != WM_MOUSEWHEEL && !GetCapture())
-  {
-    DWORD p=GetMessagePos(); 
-
-    htc=hwnd->m_wndproc(hwnd,WM_NCHITTEST,0,p); 
-    if (hwnd->m_hashaddestroy||!hwnd->m_wndproc) 
-    {
-      return -1; // if somehow WM_NCHITTEST destroyed us, bail
-    }
-     
-    if (htc!=HTCLIENT || swell_window_wants_all_input() == hwnd)
-    { 
-      if (msg==WM_MOUSEMOVE) return hwnd->m_wndproc(hwnd,WM_NCMOUSEMOVE,htc,p); 
-//      if (msg==WM_MOUSEWHEEL) return hwnd->m_wndproc(hwnd,WM_NCMOUSEWHEEL,htc,p); 
-//      if (msg==WM_MOUSEHWHEEL) return hwnd->m_wndproc(hwnd,WM_NCMOUSEHWHEEL,htc,p); 
-      if (msg==WM_LBUTTONUP) return hwnd->m_wndproc(hwnd,WM_NCLBUTTONUP,htc,p); 
-      if (msg==WM_LBUTTONDOWN) return hwnd->m_wndproc(hwnd,WM_NCLBUTTONDOWN,htc,p); 
-      if (msg==WM_LBUTTONDBLCLK) return hwnd->m_wndproc(hwnd,WM_NCLBUTTONDBLCLK,htc,p); 
-      if (msg==WM_RBUTTONUP) return hwnd->m_wndproc(hwnd,WM_NCRBUTTONUP,htc,p); 
-      if (msg==WM_RBUTTONDOWN) return hwnd->m_wndproc(hwnd,WM_NCRBUTTONDOWN,htc,p); 
-      if (msg==WM_RBUTTONDBLCLK) return hwnd->m_wndproc(hwnd,WM_NCRBUTTONDBLCLK,htc,p); 
-      if (msg==WM_MBUTTONUP) return hwnd->m_wndproc(hwnd,WM_NCMBUTTONUP,htc,p); 
-      if (msg==WM_MBUTTONDOWN) return hwnd->m_wndproc(hwnd,WM_NCMBUTTONDOWN,htc,p); 
-      if (msg==WM_MBUTTONDBLCLK) return hwnd->m_wndproc(hwnd,WM_NCMBUTTONDBLCLK,htc,p); 
-    } 
-  }
-
-
-  LRESULT ret=hwnd->m_wndproc(hwnd,msg,wParam,lParam);
-
-  if (msg==WM_LBUTTONUP || msg==WM_RBUTTONUP || msg==WM_MOUSEMOVE || msg==WM_MBUTTONUP) 
-  {
-    if (!GetCapture() && (hwnd->m_hashaddestroy || !hwnd->m_wndproc || !hwnd->m_wndproc(hwnd,WM_SETCURSOR,(WPARAM)hwnd,htc | (msg<<16))))    
-    {
-      SetCursor(SWELL_LoadCursor(IDC_ARROW));
-    }
-  }
-
-  return ret;
-}
+LRESULT SWELL_SendMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 static int hex_parse(char c)
 {
@@ -979,9 +1031,218 @@ static void OnConfigureEvent(GdkEventConfigure *cfg)
   hwnd->m_position.right = cfg->x + cfg->width;
   hwnd->m_position.bottom = cfg->y + cfg->height;
   if (flag&1) SendMessage(hwnd,WM_MOVE,0,0);
-  if (flag&2) SendMessage(hwnd,WM_SIZE,0,0);
+  if (flag&2) SendMessage(hwnd,WM_SIZE,hwnd->m_is_maximized ? SIZE_MAXIMIZED : SIZE_RESTORED,0);
   if (!hwnd->m_hashaddestroy && hwnd->m_oswindow) swell_recalcMinMaxInfo(hwnd);
 }
+
+static void OnWindowStateEvent(GdkEventWindowState *evt)
+{
+  HWND hwnd = swell_oswindow_to_hwnd(evt->window);
+  if (!hwnd) return;
+
+  if (evt->changed_mask & GDK_WINDOW_STATE_MAXIMIZED)
+  {
+    hwnd->m_is_maximized = (evt->new_window_state & GDK_WINDOW_STATE_MAXIMIZED)!=0;
+    SendMessage(hwnd,WM_SIZE,
+        (evt->new_window_state & GDK_WINDOW_STATE_MAXIMIZED) ? SIZE_MAXIMIZED : SIZE_RESTORED, 0);
+  }
+}
+
+#define IS_DEAD_KEY(x) ((x) >= DEF_GKY(dead_grave) && (x) <= DEF_GKY(dead_greek))
+
+#include "gtkimcontextsimpleseqs.h"
+
+static guint find_compose_sequence_compact(const guint16 *state, int state_size) // returns 0 if sequence not found, 1 if partial match, otherwise unicode character
+{
+  WDL_ASSERT(state_size > 0);
+
+  const int max_seq_len = 5;
+  if (WDL_NOT_NORMALLY(state_size > max_seq_len)) return 0;
+
+  const int index_size = 30, index_stride = 6;
+  const guint16 fc = state[0];
+  const guint16 *index = gtk_compose_seqs_compact;
+
+  int x;
+  for (x = 0; x < index_size && index[0] != fc; x ++, index += index_stride);
+  if (x == index_size) return 0;
+  if (!--state_size) return 1;
+  state++;
+
+  x = index[1];
+  for (int l = 2; l < index_stride; l ++)
+  {
+    const int mv = index[l];
+    const int sl = l-1;
+    while (x < mv)
+    {
+      WDL_ASSERT(x >= index_stride * index_size);
+      WDL_ASSERT(x < (int) (sizeof(gtk_compose_seqs_compact) / sizeof(gtk_compose_seqs_compact[0])));
+      // gtk_compose_seqs_compact+x is the remaining sequence
+      if (state_size <= sl && !memcmp(state,gtk_compose_seqs_compact+x,state_size*sizeof(state[0])))
+      {
+        return state_size == sl ? gtk_compose_seqs_compact[x + sl] : 1;
+      }
+      x += l;
+    }
+  }
+
+  return 0;
+}
+
+static guint find_compose_sequence_alg(const guint16 *state, int state_size) // returns 0 if sequence not found, 1 if partial match, otherwise unicode character
+{
+  if (state_size < 2) return state_size==1 && IS_DEAD_KEY(state[0]) ? 1 : 0;
+  int i;
+  for (i = 0; i < state_size && IS_DEAD_KEY(state[i]); i++);
+  if (i != state_size-1) return 0; // must be all dead keys + one non-dead
+
+  gunichar uc = gdk_keyval_to_unicode(state[state_size-1]);
+  if (!g_unichar_isalpha(uc)) return 0;
+
+  // this is borrowed from GTK+'s impl
+  GString *input = g_string_sized_new(4 * state_size);
+  g_string_append_unichar(input, uc);
+  while (--i >= 0)
+  {
+    switch (state[i])
+    {
+#define CASE(keysym, unicode) case DEF_GKY(dead_##keysym): g_string_append_unichar(input, unicode); break
+      CASE (grave, 0x0300);
+      CASE (acute, 0x0301);
+      CASE (circumflex, 0x0302);
+      case GDK_KEY_dead_tilde:
+        if (g_unichar_get_script (uc) == G_UNICODE_SCRIPT_GREEK)
+          g_string_append_unichar (input, 0x342); /* combining perispomeni */
+        else
+          g_string_append_unichar (input, 0x303); /* combining tilde */
+        break;
+      CASE (macron, 0x0304);
+      CASE (breve, 0x0306);
+      CASE (abovedot, 0x0307);
+      CASE (diaeresis, 0x0308);
+      CASE (abovering, 0x30A);
+      CASE (hook, 0x0309);
+      CASE (doubleacute, 0x030B);
+      CASE (caron, 0x030C);
+      CASE (cedilla, 0x0327);
+      CASE (ogonek, 0x0328);      /* Legacy use for dasia, 0x314.*/
+      CASE (iota, 0x0345);
+      CASE (voiced_sound, 0x3099);        /* Per Markus Kuhn keysyms.txt file. */
+      CASE (semivoiced_sound, 0x309A);    /* Per Markus Kuhn keysyms.txt file. */
+      CASE (belowdot, 0x0323);
+      CASE (horn, 0x031B);        /* Legacy use for psili, 0x313 (or 0x343). */
+      CASE (stroke, 0x335);
+      CASE (abovecomma, 0x0313);  /* Equivalent to psili */
+      CASE (abovereversedcomma, 0x0314);   /* Equivalent to dasia */
+      CASE (doublegrave, 0x30F);
+      CASE (belowring, 0x325);
+      CASE (belowmacron, 0x331);
+      CASE (belowcircumflex, 0x32D);
+      CASE (belowtilde, 0x330);
+      CASE (belowbreve, 0x32e);
+      CASE (belowdiaeresis, 0x324);
+      CASE (invertedbreve, 0x32f);
+      CASE (belowcomma, 0x326);
+#ifdef GDK_KEY_dead_longsolidusoverlay // requires a particularly recent GTK+3, I guess
+      CASE (lowline, 0x332);
+      CASE (aboveverticalline, 0x30D);
+      CASE (belowverticalline, 0x329);
+      CASE (longsolidusoverlay, 0x338);
+#endif
+      CASE (a, 0x363);
+      CASE (A, 0x363);
+      CASE (e, 0x364);
+      CASE (E, 0x364);
+      CASE (i, 0x365);
+      CASE (I, 0x365);
+      CASE (o, 0x366);
+      CASE (O, 0x366);
+      CASE (u, 0x367);
+      CASE (U, 0x367);
+      CASE (small_schwa, 0x1DEA);
+      CASE (capital_schwa, 0x1DEA);
+#undef CASE
+      default:
+        g_string_append_unichar (input, gdk_keyval_to_unicode(state[i]));
+      break;
+    }
+  }
+  char *nfc = g_utf8_normalize(input->str, input->len, G_NORMALIZE_NFC);
+
+  int rv = 0;
+  if (nfc) wdl_utf8_parsechar(nfc,&rv);
+
+  g_string_free(input, TRUE);
+  g_free(nfc);
+
+  return rv;
+}
+
+static guint swell_gdkComposeKeys(GdkEventKey *k) // return 0 if not in composition, 1 if mid-composition, >1 if composed
+{
+  const int state_max = 16;
+  static guint16 state[state_max], state_pos;
+  static GdkWindow *lw;
+  if (k->window != lw)
+  {
+    state_pos=0;
+    lw = k->window;
+  }
+
+  if (!IS_DEAD_KEY(k->keyval) && !state_pos) return 0;
+
+  static const guint16 mods[] = {
+    DEF_GKY(Overlay1_Enable),
+    DEF_GKY(Overlay2_Enable),
+    DEF_GKY(Shift_L),
+    DEF_GKY(Shift_R),
+    DEF_GKY(Control_L),
+    DEF_GKY(Control_R),
+    DEF_GKY(Caps_Lock),
+    DEF_GKY(Shift_Lock),
+    DEF_GKY(Meta_L),
+    DEF_GKY(Meta_R),
+    DEF_GKY(Alt_L),
+    DEF_GKY(Alt_R),
+    DEF_GKY(Super_L),
+    DEF_GKY(Super_R),
+    DEF_GKY(Hyper_L),
+    DEF_GKY(Hyper_R),
+    DEF_GKY(Mode_switch),
+    DEF_GKY(ISO_Level3_Shift),
+    DEF_GKY(ISO_Level3_Latch),
+    DEF_GKY(ISO_Level5_Shift),
+    DEF_GKY(ISO_Level5_Latch),
+  };
+
+  if (!k->keyval) return 1;
+  for (size_t x = 0; x < sizeof(mods)/sizeof(mods[0]);x++)
+    if (mods[x] == k->keyval) return 1;
+
+  if (k->type == GDK_KEY_PRESS)
+  {
+    if (k->keyval == DEF_GKY(BackSpace) || k->keyval == DEF_GKY(Escape))
+      return 1;
+
+    state[state_pos++] = k->keyval;
+  }
+  else
+  {
+    if (k->keyval == DEF_GKY(Escape))
+      state_pos = 0;
+    else if (k->keyval == DEF_GKY(BackSpace))
+      state_pos--;
+  }
+
+  if (!state_pos) return 1;
+
+  guint rv = find_compose_sequence_compact(state,state_pos);
+  if (rv == 0) rv = find_compose_sequence_alg(state,state_pos);
+  if (rv!=1 || WDL_NOT_NORMALLY(state_pos >= state_max)) state_pos = 0;
+  return rv ? rv : 1;
+}
+
 
 static void OnKeyEvent(GdkEventKey *k)
 {
@@ -996,10 +1257,34 @@ static void OnKeyEvent(GdkEventKey *k)
 
   UINT msgtype = k->type == GDK_KEY_PRESS ? WM_KEYDOWN : WM_KEYUP;
 
-  guint kv = swell_gdkConvertKey(k->keyval);
-  if (kv) 
+  bool is_extended = false;
+  guint kv;
+
+  if ((kv = swell_gdkComposeKeys(k)))
+  {
+    if (kv==1) return;
+    modifiers = 0;
+  }
+  else if ((kv = swell_gdkConvertKey(k->keyval, &is_extended)))
   {
     modifiers |= FVIRTKEY;
+
+    if (modifiers & FSHIFT)
+    {
+      if (k->state&GDK_MOD2_MASK) // numlock on
+      {
+        // if shift+numpad home/end is sent while numlock is on, that means it should be treated
+        // as unmodified home/end
+        if (!is_extended && kv >= VK_PRIOR && kv <= VK_SELECT)
+          modifiers &= ~FSHIFT;
+      }
+      else
+      {
+        // if numpadX is sent while numlock is off, then it should be treated as unmodified
+        if (kv >= VK_NUMPAD0 && kv <= VK_NUMPAD9)
+          modifiers &= ~FSHIFT;
+      }
+    }
   }
   else 
   {
@@ -1014,6 +1299,10 @@ static void OnKeyEvent(GdkEventKey *k)
     {
       swell_is_likely_capslock = (modifiers&FSHIFT)==0;
       modifiers |= FVIRTKEY;
+    }
+    else if (kv == ' ')
+    {
+      kv = VK_SPACE;
     }
     else if (kv >= '0' && kv <= '9')
     {
@@ -1052,6 +1341,8 @@ static void OnKeyEvent(GdkEventKey *k)
   if (foc && IsChild(hwnd,foc)) hwnd=foc;
   else if (foc && foc->m_oswindow && !(foc->m_style&WS_CAPTION)) hwnd=foc; // for menus, event sent to other window due to gdk_window_set_override_redirect()
 
+  if (is_extended) modifiers |= 1<<24;
+
   MSG msg = { hwnd, msgtype, kv, modifiers, };
   INT_PTR extra_flags = 0;
   if (DialogBoxIsActive()) extra_flags |= 1;
@@ -1079,7 +1370,7 @@ static void OnMotionEvent(GdkEventMotion *m)
     POINT p2={(int)m->x_root, (int)m->y_root};
     ScreenToClient(hwnd, &p2);
     if (hwnd) hwnd->Retain();
-    SendMouseMessage(hwnd, WM_MOUSEMOVE, 0, MAKELPARAM(p2.x, p2.y));
+    SWELL_SendMouseMessage(hwnd, WM_MOUSEMOVE, 0, MAKELPARAM(p2.x, p2.y));
     if (hwnd) hwnd->Release();
   }
 }
@@ -1103,7 +1394,7 @@ static void OnScrollEvent(GdkEventScroll *b)
       int v = (b->direction == GDK_SCROLL_UP || b->direction == GDK_SCROLL_LEFT) ? 120 : -120;
 
       if (hwnd) hwnd->Retain();
-      SendMouseMessage(hwnd, msg, (v<<16), MAKELPARAM(p2.x, p2.y));
+      SWELL_SendMouseMessage(hwnd, msg, (v<<16), MAKELPARAM(p2.x, p2.y));
       if (hwnd) hwnd->Release();
     }
   }
@@ -1140,12 +1431,14 @@ static void OnButtonEvent(GdkEventButton *b)
     }
   }
 
-  if (hwnd && hwnd->m_oswindow && SWELL_focused_oswindow != hwnd->m_oswindow)
+  if (hwnd && hwnd->m_oswindow && SWELL_focused_oswindow != hwnd->m_oswindow &&
+      (b->type != GDK_BUTTON_RELEASE || PopupMenuIsActive()))
   {
-    // this should not be necessary, focus is sent via separate events
-    // (the only time I've ever seen this is when launching a popup menu via the mousedown handler, on the mouseup
-    // the menu has not yet been focused but the mouse event goes to the popup menu)
+    // 'b->type != GDK_BUTTON_RELEASE ||' might not be necessary, the only time this
+    // appears to matter is when popup menus are active (focus events aren't sent
+    // probably due to the override redirect menu windows)
     SWELL_focused_oswindow = hwnd->m_oswindow;
+    update_menubar_activations();
   }
 
 
@@ -1167,11 +1460,24 @@ static void OnButtonEvent(GdkEventButton *b)
   else if(b->type == GDK_2BUTTON_PRESS) 
   {
     msg++; // convert WM_xBUTTONDOWN to WM_xBUTTONUP
-    SendMouseMessage(hwnd2, msg, 0, MAKELPARAM(p2.x, p2.y));
+    SWELL_SendMouseMessage(hwnd2, msg, 0, MAKELPARAM(p2.x, p2.y));
+
+    // if capture was released by WM_LBUTTONUP, allow the DBLCLICK to go to the correct window
+    HWND hwnd3 = getMouseTarget(b->window,p,&hwnd);
+    if (hwnd3 != hwnd2)
+    {
+      if (hwnd2) hwnd2->Release();
+      hwnd2 = hwnd3;
+      if (hwnd2) hwnd2->Retain();
+      p2.x = (int)b->x_root;
+      p2.y = (int)b->y_root;
+      ScreenToClient(hwnd2, &p2);
+    }
+
     msg++; // convert WM_xBUTTONUP to WM_xBUTTONDBLCLK
   }
 
-  SendMouseMessage(hwnd2, msg, 0, MAKELPARAM(p2.x, p2.y));
+  SWELL_SendMouseMessage(hwnd2, msg, 0, MAKELPARAM(p2.x, p2.y));
   if (hwnd2) hwnd2->Release();
 }
 
@@ -1369,6 +1675,8 @@ static void deactivateTimer(HWND hwnd, UINT uMsg, UINT_PTR tm, DWORD dwt)
   GdkWindow *window = gdk_screen_get_active_window(gdk_screen_get_default());
   if (!is_our_oswindow(window))
     on_deactivate();
+
+  update_menubar_activations();
 }
 
 extern SWELL_OSWINDOW swell_ignore_focus_oswindow;
@@ -1383,11 +1691,13 @@ static void swell_gdkEventHandler(GdkEvent *evt, gpointer data)
   {
     case GDK_FOCUS_CHANGE:
         {
+          bool do_menus = false;
           GdkEventFocus *fc = (GdkEventFocus *)evt;
           if (s_deactivate_timer) 
           {
             KillTimer(NULL,s_deactivate_timer);
             s_deactivate_timer=0;
+            do_menus = true;
           }
           if (fc->in && is_our_oswindow(fc->window))
           {
@@ -1397,6 +1707,7 @@ static void swell_gdkEventHandler(GdkEvent *evt, gpointer data)
                 (GetTickCount()-swell_ignore_focus_oswindow_until) < 0x10000000)
             {
               SWELL_focused_oswindow = fc->window;
+              update_menubar_activations();
             }
             if (swell_app_is_inactive)
             {
@@ -1406,7 +1717,11 @@ static void swell_gdkEventHandler(GdkEvent *evt, gpointer data)
           else if (!swell_app_is_inactive)
           {
             s_deactivate_timer = SetTimer(NULL,0,200,deactivateTimer);
+            if (gdk_options & OPTION_ALLOW_MAYBE_INACTIVE)
+              do_menus = true;
           }
+          if (do_menus)
+            update_menubar_activations();
         }
     break;
     case GDK_SELECTION_REQUEST:
@@ -1416,7 +1731,9 @@ static void swell_gdkEventHandler(GdkEvent *evt, gpointer data)
     case GDK_DELETE:
      {
        HWND hwnd = swell_oswindow_to_hwnd(((GdkEventAny*)evt)->window);
-       if (hwnd && IsWindowEnabled(hwnd) && !SendMessage(hwnd,WM_CLOSE,0,0))
+       if (hwnd && IsWindowEnabled(hwnd) &&
+           !DestroyPopupMenus() && // ignore if a menu is open, instead just close the menu
+           !SendMessage(hwnd,WM_CLOSE,0,0))
         SendMessage(hwnd,WM_COMMAND,IDCANCEL,0);
      }
     break;
@@ -1427,7 +1744,7 @@ static void swell_gdkEventHandler(GdkEvent *evt, gpointer data)
       OnConfigureEvent((GdkEventConfigure*)evt);
     break;
     case GDK_WINDOW_STATE: /// GdkEventWindowState for min/max
-          //printf("minmax\n");
+      OnWindowStateEvent((GdkEventWindowState*)evt);
     break;
     case GDK_GRAB_BROKEN:
       if (swell_oswindow_to_hwnd(((GdkEventAny*)evt)->window))
@@ -1589,11 +1906,41 @@ void SWELL_RunEvents()
   }
 }
 
+bool swell_gdk_set_fullscreen(HWND hwnd, int fs) // fs=2 if window might have owned children
+{
+  if (!hwnd) return false;
+  if (fs==2 && (gdk_options & OPTION_FULLSCREEN_FOR_OWNER_WINDOWS)!=OPTION_FULLSCREEN_FOR_OWNER_WINDOWS) return false;
+
+  const int stylemask = WS_BORDER|WS_CAPTION|WS_THICKFRAME;
+  if (!hwnd->m_oswindow || !(gdk_options & OPTION_FULLSCREEN_DYNAMIC))
+  {
+    hwnd->m_oswindow_fullscreen = fs ? WS_VISIBLE | (hwnd->m_style & stylemask) : 0;
+    return true; // request caller hide/show
+  }
+
+  // OPTION_FULLSCREEN_DYNAMIC and window exists, modify state
+  if (fs)
+  {
+    hwnd->m_oswindow_fullscreen = WS_VISIBLE | (hwnd->m_style & stylemask);
+    hwnd->m_style &= ~stylemask;
+    gdk_window_fullscreen(hwnd->m_oswindow);
+  }
+  else
+  {
+    hwnd->m_style |= (hwnd->m_oswindow_fullscreen & stylemask);
+    hwnd->m_oswindow_fullscreen = 0;
+    gdk_window_unfullscreen(hwnd->m_oswindow);
+  }
+  return false;
+}
+
 void swell_oswindow_update_style(HWND hwnd, LONG oldstyle)
 {
   const LONG val = hwnd->m_style, ret = oldstyle;
   if (hwnd->m_oswindow && ((ret^val)& WS_CAPTION))
   {
+    swell_hide_owned_windows_transient(hwnd);
+
     gdk_window_hide(hwnd->m_oswindow);
     if (val & WS_CAPTION)
     {
@@ -1630,23 +1977,65 @@ int SWELL_SetWindowLevel(HWND hwnd, int newlevel)
 
 void SWELL_GetViewPort(RECT *r, const RECT *sourcerect, bool wantWork)
 {
-  if (swell_initwindowsys())
-  {
-    GdkScreen *defscr = gdk_screen_get_default();
-    if (!defscr) { r->left=r->top=0; r->right=r->bottom=1024; return; }
-    gint idx = sourcerect ? gdk_screen_get_monitor_at_point(defscr,
-           (sourcerect->left+sourcerect->right)/2,
-           (sourcerect->top+sourcerect->bottom)/2) : 0;
-    GdkRectangle rc={0,0,1024,1024};
-    gdk_screen_get_monitor_geometry(defscr,idx,&rc);
-    r->left=rc.x; r->top = rc.y;
-    r->right=rc.x+rc.width;
-    r->bottom=rc.y+rc.height;
-    return;
-  }
   r->left=r->top=0;
   r->right=1024;
   r->bottom=768;
+  if (!swell_initwindowsys()) return;
+  GdkScreen *defscr = gdk_screen_get_default();
+  if (!defscr) return;
+  const gint n = gdk_screen_get_n_monitors(defscr);
+  if (n < 1) return;
+
+  const gint prim = gdk_screen_get_primary_monitor(defscr);
+  double best_score = -1e20;
+  RECT sr;
+  if (sourcerect) sr = *sourcerect;
+
+  for (gint idx = 0; idx < n; idx ++)
+  {
+    GdkRectangle rc={0,0,1024,1024};
+    if (!sourcerect && prim>0) idx = prim;
+
+#if SWELL_TARGET_GDK != 2
+    if (wantWork)
+      gdk_screen_get_monitor_workarea(defscr,idx,&rc);
+    else
+#endif
+      gdk_screen_get_monitor_geometry(defscr,idx,&rc);
+
+    RECT tmp;
+    tmp.left=rc.x;
+    tmp.top = rc.y;
+    tmp.right=rc.x+rc.width;
+    tmp.bottom=rc.y+rc.height;
+    if (!sourcerect || n < 2)
+    {
+      *r = tmp;
+      break;
+    }
+
+    double score;
+    RECT res;
+    if (IntersectRect(&res, &tmp, &sr))
+    {
+      score = wdl_abs((res.right-res.left) * (res.bottom-res.top));
+    }
+    else
+    {
+      int dx = 0, dy = 0;
+      if (tmp.left > sr.right) dx = tmp.left - sr.right;
+      else if (tmp.right < sr.left) dx = sr.left - tmp.right;
+      if (tmp.bottom < sr.top) dy = tmp.bottom - sr.top;
+      else if (tmp.top > sr.bottom) dy = tmp.top - sr.bottom;
+      score = - (dx*dx + dy*dy);
+    }
+
+    if (!idx || score > best_score)
+    {
+      best_score = score;
+      *r = tmp;
+    }
+  }
 }
 
 
@@ -1717,6 +2106,17 @@ void swell_oswindow_postresize(HWND hwnd, RECT f)
     if (hwnd->m_style & WS_CAPTION) gdk_window_unmaximize(hwnd->m_oswindow); // fixes Kwin
     swell_oswindow_resize(hwnd->m_oswindow,3,f); // fixes xfce
     hwnd->m_oswindow_private &= ~PRIVATE_NEEDSHOW;
+
+    swell_set_owned_windows_transient(hwnd,false);
+  }
+  if (hwnd->m_oswindow && !(hwnd->m_style&WS_THICKFRAME))
+  {
+    // kwin requires this for non-sizeable windows (doing it in the configure event is too late, apparently)
+    GdkGeometry h;
+    memset(&h,0,sizeof(h));
+    h.max_width = h.min_width = f.right - f.left;
+    h.max_height = h.min_height = f.bottom - f.top;
+    gdk_window_set_geometry_hints(hwnd->m_oswindow,&h,(GdkWindowHints) ((hwnd->m_has_had_position ? GDK_HINT_POS : 0) | GDK_HINT_MIN_SIZE | GDK_HINT_MAX_SIZE));
   }
 }
 
@@ -1949,36 +2349,61 @@ DWORD GetMessagePos()
 }
 
 struct bridgeState {
-  bridgeState(bool needrep, GdkWindow *_w, Window _nw, Display *_disp);
+  bridgeState(bool needrep, GdkWindow *_w, Window _nw, Display *_disp, GdkWindow *_curpar, HWND _hwnd_child);
   ~bridgeState();
-
 
   GdkWindow *w;
   Window native_w;
   Display *native_disp;
+  GdkWindow *cur_parent;
+  HWND hwnd_child;
 
   bool lastvis;
   bool need_reparent;
   RECT lastrect;
+
+  GLXContext gl_ctx;
 };
+
+static bridgeState *s_last_gl_ctx;
 
 static WDL_PtrList<bridgeState> filter_windows;
 bridgeState::~bridgeState() 
 { 
+  if (gl_ctx)
+  {
+    if (s_last_gl_ctx == this)
+    {
+      glXMakeCurrent(native_disp,None, NULL);
+      s_last_gl_ctx = NULL;
+    }
+
+    glXDestroyContext(native_disp,gl_ctx);
+    gl_ctx = NULL;
+  }
   filter_windows.DeletePtr(this); 
   if (w) 
   {
+    if (!need_reparent)
+    {
+      // if this window is a child of another window, it will get destroyed by the hierarchy unless it is fully
+      // released (we could do g_object_unref() again here, but reparenting feels safer in this context)
+      gdk_window_reparent(w,NULL,0,0);
+    }
     g_object_unref(G_OBJECT(w));
     XDestroyWindow(native_disp,native_w);
   }
 }
-bridgeState::bridgeState(bool needrep, GdkWindow *_w, Window _nw, Display *_disp)
+bridgeState::bridgeState(bool needrep, GdkWindow *_w, Window _nw, Display *_disp, GdkWindow *_curpar, HWND _hwnd_child)
 {
+  hwnd_child = _hwnd_child;
+  gl_ctx = NULL;
   w=_w;
   native_w=_nw;
   native_disp=_disp;
   lastvis=false;
   need_reparent=needrep;
+  cur_parent = _curpar;
   memset(&lastrect,0,sizeof(lastrect));
   filter_windows.Add(this);
 }
@@ -2108,6 +2533,9 @@ static LRESULT xbridgeProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
           }
 
+          if (h && h->m_oswindow != bs->cur_parent)
+            bs->need_reparent = true;
+
           if (h && (bs->need_reparent || (vis != bs->lastvis) || (vis&&memcmp(&tr,&bs->lastrect,sizeof(RECT))))) 
           {
             if (bs->lastvis && !vis)
@@ -2122,7 +2550,9 @@ static LRESULT xbridgeProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
               gdk_window_resize(bs->w, tr.right-tr.left,tr.bottom-tr.top);
               bs->lastrect=tr;
 
+              bs->cur_parent = h->m_oswindow;
               bs->need_reparent=false;
+              if (vis && bs->lastvis) gdk_window_show(bs->w);
             }
             else if (memcmp(&tr,&bs->lastrect,sizeof(RECT)))
             {
@@ -2143,23 +2573,166 @@ static LRESULT xbridgeProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
   return DefWindowProc(hwnd,uMsg,wParam,lParam);
 }
 
+static const char * const bridge_class_name = "__swell_xbridgewndclass";
+
+static bool want_key_embed_redirect(Display *disp, Window scan_id, Window *new_dest, int keycode, int modstate)
+{
+  for (int x=0;x<filter_windows.GetSize(); x++)
+  {
+    bridgeState *bs = filter_windows.Get(x);
+    if (bs && bs->cur_parent &&
+        GDK_WINDOW_XID(bs->cur_parent) == scan_id &&
+        bs->native_disp == disp)
+    {
+      HWND foc = GetFocus();
+      if (foc &&
+          foc->m_classname &&
+          !strcmp(foc->m_classname,bridge_class_name) &&
+          foc->m_private_data == (INT_PTR)bs
+          )
+      {
+        void *p = GetProp(foc,"SWELL_XBRIDGE_KBHOOK_CHECK");
+        if (p && SendMessage(GetParent(foc),(int)(INT_PTR)p,keycode,modstate))
+          return false;
+
+        Window root, par, *list=NULL;
+        unsigned int nlist=0;
+        if (XQueryTree(bs->native_disp,bs->native_w,&root,&par,&list, &nlist) && list)
+        {
+          if (nlist) *new_dest = list[0];
+          XFree(list);
+          if (nlist) return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
 static GdkFilterReturn filterCreateShowProc(GdkXEvent *xev, GdkEvent *event, gpointer data)
 {
   const XEvent *xevent = (XEvent *)xev;
-  if (xevent && xevent->type == CreateNotify)
+  if (WDL_NOT_NORMALLY(!xev)) return GDK_FILTER_CONTINUE;
+
+  switch (xevent->type)
   {
-    for (int x=0;x<filter_windows.GetSize(); x++)
-    {
-      bridgeState *bs = filter_windows.Get(x);
-      if (bs && bs->native_w == xevent->xany.window && bs->native_disp == xevent->xany.display)
+    case KeyPress:
+    case KeyRelease:
       {
-        //gint w=0,hh=0;
-        //gdk_window_get_geometry(bs->w,NULL,NULL,&w,&hh);
-        XMapWindow(bs->native_disp, xevent->xcreatewindow.window);
-        //XResizeWindow(bs->native_disp, xevent->xcreatewindow.window,w,hh);
-        return GDK_FILTER_REMOVE;
+        // only used if gdk_disable_multidevice() was called prior to gdk_init_ (maybe some env var too?)
+        Window dest;
+        Display *disp = xevent->xany.display;
+        if (!xevent->xany.send_event &&
+            want_key_embed_redirect(disp,xevent->xkey.window - 1, &dest, xevent->xkey.keycode, xevent->xkey.state))
+        {
+          XEvent k;
+          memset(&k,0,sizeof(k));
+          k.xkey = xevent->xkey;
+          k.xkey.window = dest;
+          XSendEvent(disp, dest, False, NoEventMask, &k);
+          return GDK_FILTER_REMOVE;
+        }
       }
-    }
+    break;
+    case FocusIn:
+      {
+        // only used if gdk_disable_multidevice() was called prior to gdk_init_ (maybe some env var too?)
+        Display *disp = xevent->xany.display;
+        Window scan_id = xevent->xfocus.window - 1;
+        for (int x=0;x<filter_windows.GetSize(); x++)
+        {
+          bridgeState *bs = filter_windows.Get(x);
+          if (bs && bs->cur_parent &&
+              GDK_WINDOW_XID(bs->cur_parent) == scan_id &&
+              bs->native_disp == disp)
+          {
+            POINT pt;
+            GetCursorPos(&pt);
+            RECT r;
+            GetWindowRect(bs->hwnd_child,&r);
+            if (PtInRect(&r,pt))
+            {
+              SetFocus(bs->hwnd_child);
+              return GDK_FILTER_REMOVE;
+            }
+          }
+        }
+      }
+    break;
+    case GenericEvent:
+      // XInput2
+      {
+        XIDeviceEvent *xievent = (XIDeviceEvent*)xevent->xcookie.data;
+        if (!xevent->xany.send_event &&
+            xievent &&
+            (xievent->evtype == XI_KeyPress || xievent->evtype == XI_KeyRelease))
+        {
+          Window dest;
+          Display *disp = xevent->xany.display;
+          if (want_key_embed_redirect(disp,xievent->event-1, &dest, xievent->detail, xievent->mods.effective))
+          {
+            XEvent k;
+            if (xievent->evtype == XI_KeyPress) k.xkey.type = KeyPress;
+            else k.xkey.type = KeyRelease;
+            k.xkey.serial = xievent->serial;
+            k.xkey.send_event = xievent->send_event;
+            k.xkey.display = disp;
+            k.xkey.window = dest;
+            k.xkey.root = xievent->root;
+            k.xkey.subwindow = xievent->child;
+            k.xkey.time = xievent->time;
+            k.xkey.x = xievent->event_x;
+            k.xkey.y = xievent->event_y;
+            k.xkey.x_root = xievent->root_x;
+            k.xkey.y_root = xievent->root_y;
+            k.xkey.state = xievent->mods.effective;
+            k.xkey.keycode = xievent->detail;
+            k.xkey.same_screen = 1;
+            XSendEvent(disp, dest, False, NoEventMask, &k);
+            return GDK_FILTER_REMOVE;
+          }
+        }
+        else if (xievent && xievent->evtype == XI_FocusIn)
+        {
+          Display *disp = xevent->xany.display;
+          XIFocusInEvent *foc = (XIFocusInEvent *)xievent;
+          Window scan_id = foc->event - 1;
+          for (int x=0;x<filter_windows.GetSize(); x++)
+          {
+            bridgeState *bs = filter_windows.Get(x);
+            if (bs && bs->cur_parent &&
+                GDK_WINDOW_XID(bs->cur_parent) == scan_id &&
+                bs->native_disp == disp)
+            {
+              POINT pt = { (int) foc->root_x, (int) foc->root_y };
+              RECT r;
+              GetWindowRect(bs->hwnd_child,&r);
+              if (PtInRect(&r,pt))
+              {
+                SetFocus(bs->hwnd_child);
+                return GDK_FILTER_REMOVE;
+              }
+            }
+          }
+        }
+      }
+    break;
+    case CreateNotify:
+      {
+        for (int x=0;x<filter_windows.GetSize(); x++)
+        {
+          bridgeState *bs = filter_windows.Get(x);
+          if (bs && bs->native_w == xevent->xany.window && bs->native_disp == xevent->xany.display)
+          {
+            //gint w=0,hh=0;
+            //gdk_window_get_geometry(bs->w,NULL,NULL,&w,&hh);
+            XMapWindow(bs->native_disp, xevent->xcreatewindow.window);
+            //XResizeWindow(bs->native_disp, xevent->xcreatewindow.window,w,hh);
+            return GDK_FILTER_REMOVE;
+          }
+        }
+      }
+    break;
   }
   return GDK_FILTER_CONTINUE;
 }
@@ -2187,11 +2760,15 @@ HWND SWELL_CreateXBridgeWindow(HWND viewpar, void **wref, const RECT *r)
   }
 
   Display *disp = gdk_x11_display_get_xdisplay(gdk_window_get_display(ospar));
-  Window w = XCreateWindow(disp,GDK_WINDOW_XID(ospar),0,0,r->right-r->left,r->bottom-r->top,0,CopyFromParent, InputOutput, CopyFromParent, 0, NULL);
+  Window w = XCreateWindow(disp,GDK_WINDOW_XID(ospar),0,0,
+      wdl_max(r->right-r->left,1),
+      wdl_max(r->bottom-r->top,1),
+      0,CopyFromParent, InputOutput, CopyFromParent, 0, NULL);
   GdkWindow *gdkw = w ? gdk_x11_window_foreign_new_for_display(gdk_display_get_default(),w) : NULL;
 
   hwnd = new HWND__(viewpar,0,r,NULL, true, xbridgeProc);
-  bridgeState *bs = gdkw ? new bridgeState(need_reparent,gdkw,w,disp) : NULL;
+  bridgeState *bs = gdkw ? new bridgeState(need_reparent,gdkw,w,disp, ospar, hwnd) : NULL;
+  hwnd->m_classname = bridge_class_name;
   hwnd->m_private_data = (INT_PTR) bs;
   if (gdkw)
   {
@@ -2206,7 +2783,7 @@ HWND SWELL_CreateXBridgeWindow(HWND viewpar, void **wref, const RECT *r)
       gdk_window_add_filter(NULL, filterCreateShowProc, NULL);
     }
     SetTimer(hwnd,1,100,NULL);
-    if (!need_reparent) SendMessage(hwnd,WM_SIZE,0,0);
+    if (!need_reparent) SendMessage(hwnd,WM_SIZE,SIZE_RESTORED,0);
   }
   return hwnd;
 }
@@ -2695,6 +3272,77 @@ BOOL GetMonitorInfo(HMONITOR hmon, void *inf)
 
   return TRUE;
 }
+
+
+
+void SWELL_SetViewGL(HWND h, char wantGL)
+{
+  // only works for X bridge windows
+  if (h && h->m_classname == bridge_class_name && h->m_private_data)
+  {
+    bridgeState *bs = (bridgeState*)h->m_private_data;
+    if (wantGL && !bs->gl_ctx)
+    {
+      static GLint att[] = { GLX_RGBA, None };
+      XVisualInfo* vi = glXChooseVisual(bs->native_disp, 0, att);
+      bs->gl_ctx = glXCreateContext(bs->native_disp,vi,NULL,1);
+    }
+    else if (!wantGL && bs->gl_ctx)
+    {
+      if (s_last_gl_ctx == bs)
+      {
+        glXMakeCurrent(bs->native_disp,None, NULL);
+        s_last_gl_ctx = NULL;
+      }
+
+      glXDestroyContext(bs->native_disp,bs->gl_ctx);
+      bs->gl_ctx = NULL;
+    }
+  }
+}
+
+bool SWELL_GetViewGL(HWND h)
+{
+  return h && h->m_classname == bridge_class_name && h->m_private_data &&
+    ((bridgeState*)h->m_private_data)->gl_ctx != NULL;
+}
+
+bool SWELL_SetGLContextToView(HWND h)
+{
+  if (h)
+  {
+    if (h->m_classname == bridge_class_name && h->m_private_data)
+    {
+      bridgeState *bs = (bridgeState*)h->m_private_data;
+      if (bs->gl_ctx)
+      {
+        glXMakeCurrent(bs->native_disp, bs->native_w, bs->gl_ctx);
+        s_last_gl_ctx = bs;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  if (s_last_gl_ctx)
+  {
+    glXMakeCurrent(s_last_gl_ctx->native_disp,None, NULL);
+    s_last_gl_ctx = NULL;
+  }
+  return true;
+}
+
+void *SWELL_GetOSWindow(HWND hwnd, const char *type)
+{
+  if (hwnd && !strcmp(type,"GdkWindow")) return hwnd->m_oswindow;
+  return NULL;
+}
+
+void *SWELL_GetOSEvent(const char *type)
+{
+  return !strcmp(type,"GdkEvent") ? s_cur_evt : NULL;
+}
+
 
 #endif
 #endif

@@ -528,7 +528,7 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         pInfo->flags = kAudioUnitParameterFlag_CFNameRelease |
                        kAudioUnitParameterFlag_HasCFNameString |
                        kAudioUnitParameterFlag_IsWritable |
-                       kAudioUnitParameterFlag_IsReadable ;
+                       kAudioUnitParameterFlag_IsReadable;
         
         #ifndef IPLUG1_COMPATIBILITY
         pInfo->flags |= kAudioUnitParameterFlag_IsHighResolution;
@@ -781,7 +781,6 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
     case kAudioUnitProperty_TailTime:                    // 20,   // listenable
     {
       ASSERT_SCOPE(kAudioUnitScope_Global);
-      *pWriteable = GetTailSize() > 0;
       *pDataSize = sizeof(Float64);
       
       if (pData)
@@ -891,7 +890,6 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
           {
             if (element < nOut)
             {
-              //TODO: live 5.1 crash?
               WDL_String busName;
               GetBusName(ERoute::kOutput, (int) element, nOut, busName);
               *(CFStringRef*) pData = MakeCFString(busName.Get());
@@ -1203,6 +1201,10 @@ OSStatus IPlugAU::SetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
         {
           SetSampleRate(pASBD->mSampleRate);
         }
+      }
+      else
+      {
+        pBus->mNHostChannels = pBus->mNPlugChannels;
       }
       AssessInputConnections();
       return (connectionOK ? noErr : (int) kAudioUnitErr_InvalidProperty); // casting to int avoids gcc error
@@ -1749,9 +1751,9 @@ OSStatus IPlugAU::RenderProc(void* pPlug, AudioUnitRenderActionFlags* pFlags, co
       }
       
       _this->PreProcess();
-      ENTER_PARAMS_MUTEX
+      ENTER_PARAMS_MUTEX_STATIC
       _this->ProcessBuffers((AudioSampleType) 0, nFrames);
-      LEAVE_PARAMS_MUTEX
+      LEAVE_PARAMS_MUTEX_STATIC
     }
   }
 
@@ -1867,7 +1869,8 @@ IPlugAU::IPlugAU(const InstanceInfo& info, const Config& config)
 
   SetBlockSize(DEFAULT_BLOCK_SIZE);
   ResizeScratchBuffers();
-  
+  InitLatencyDelay();
+
   CreateTimer();
 }
 
@@ -2004,17 +2007,7 @@ void IPlugAU::InformListeners(AudioUnitPropertyID propID, AudioUnitScope scope)
 void IPlugAU::SetLatency(int samples)
 {
   TRACE
-  int i, n = mPropertyListeners.GetSize();
-  
-  for (i = 0; i < n; ++i)
-  {
-    PropertyListener* pListener = mPropertyListeners.Get(i);
-    if (pListener->mPropID == kAudioUnitProperty_Latency)
-    {
-      pListener->mListenerProc(pListener->mProcArgs, mCI, kAudioUnitProperty_Latency, kAudioUnitScope_Global, 0);
-    }
-  }
-  
+  InformListeners(kAudioUnitProperty_Latency, kAudioUnitScope_Global);
   IPlugProcessor::SetLatency(samples);
 }
 

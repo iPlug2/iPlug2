@@ -127,17 +127,7 @@ void IGraphicsMac::RemovePlatformView(void* pView)
 void IGraphicsMac::CloseWindow()
 {
   if (mView)
-  {
-#if defined IGRAPHICS_IMGUI
-    if(mImGuiView)
-    {
-      IGRAPHICS_IMGUIVIEW* pImGuiView = (IGRAPHICS_IMGUIVIEW*) mImGuiView;
-      [pImGuiView removeFromSuperview];
-      [pImGuiView release];
-      mImGuiView = nullptr;
-    }
-#endif
-    
+  {    
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
       
 #ifdef IGRAPHICS_GL
@@ -168,11 +158,6 @@ void IGraphicsMac::PlatformResize(bool parentHasResized)
     [NSAnimationContext beginGrouping]; // Prevent animated resizing
     [[NSAnimationContext currentContext] setDuration:0.0];
     [(IGRAPHICS_VIEW*) mView setFrameSize: size ];
-    
-#if defined IGRAPHICS_IMGUI && !defined IGRAPHICS_SKIA && !defined IGRAPHICS_GL
-    if(mImGuiView)
-      [(IGRAPHICS_IMGUIVIEW*) mImGuiView setFrameSize: size ];
-#endif
     
     [NSAnimationContext endGrouping];
   }
@@ -292,7 +277,7 @@ void IGraphicsMac::GetMouseLocation(float& x, float&y) const
   ScreenToPoint(x, y);
 }
 
-EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler)
+EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
 
@@ -419,7 +404,7 @@ bool IGraphicsMac::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
   return (bool) success;
 }
 
-void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext)
+void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler)
 {
   if (!WindowIsOpen())
   {
@@ -433,68 +418,79 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
 
   if (fileName.GetLength())
     pDefaultFileName = [NSString stringWithCString:fileName.Get() encoding:NSUTF8StringEncoding];
-
-  if(path.GetLength())
+  else
+    pDefaultFileName = @"";
+  
+  if (path.GetLength())
     pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+  else
+    pDefaultPath = @"";
 
   fileName.Set(""); // reset it
 
   if (CStringHasContents(ext))
     pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
-
-  if (action == EFileAction::Save)
-  {
-    NSSavePanel* pSavePanel = [NSSavePanel savePanel];
-
-    //[panelOpen setTitle:title];
-    [pSavePanel setAllowedFileTypes: pFileTypes];
-    [pSavePanel setAllowsOtherFileTypes: NO];
-
-    long result = [pSavePanel runModalForDirectory:pDefaultPath file:pDefaultFileName];
-
-    if (result == NSOKButton)
+  
+  auto doHandleResponse = [](NSPanel* pPanel, NSModalResponse response, WDL_String& fileName, WDL_String& path, IFileDialogCompletionHandlerFunc completionHandler){
+    if (response == NSOKButton)
     {
-      NSString* pFullPath = [pSavePanel filename] ;
+      NSString* pFullPath = [(NSSavePanel*) pPanel filename] ;
       fileName.Set([pFullPath UTF8String]);
-
+      
       NSString* pTruncatedPath = [pFullPath stringByDeletingLastPathComponent];
-
+      
       if (pTruncatedPath)
       {
         path.Set([pTruncatedPath UTF8String]);
         path.Append("/");
       }
     }
+  
+    if (completionHandler)
+      completionHandler(fileName, path);
+  };
+
+
+  NSPanel* pPanel = nullptr;
+  
+  if (action == EFileAction::Save)
+  {
+    pPanel = [NSSavePanel savePanel];
+    
+    [(NSSavePanel*) pPanel setAllowedFileTypes: pFileTypes];
+    [(NSSavePanel*) pPanel setDirectoryURL: [NSURL fileURLWithPath: pDefaultPath]];
+    [(NSSavePanel*) pPanel setNameFieldStringValue: pDefaultFileName];
+    [(NSSavePanel*) pPanel setAllowsOtherFileTypes: NO];
   }
   else
   {
-    NSOpenPanel* pOpenPanel = [NSOpenPanel openPanel];
+    pPanel = [NSOpenPanel openPanel];
+    
+    [(NSOpenPanel*) pPanel setAllowedFileTypes: pFileTypes];
+    [(NSOpenPanel*) pPanel setDirectoryURL: [NSURL fileURLWithPath: pDefaultPath]];
+    [(NSOpenPanel*) pPanel setCanChooseFiles:YES];
+    [(NSOpenPanel*) pPanel setCanChooseDirectories:NO];
+    [(NSOpenPanel*) pPanel setResolvesAliases:YES];
+  }
+  [pPanel setFloatingPanel: YES];
+  
+  if (completionHandler)
+  {
+    NSWindow* pWindow = [(IGRAPHICS_VIEW*) mView window];
 
-    //[pOpenPanel setTitle:title];
-    //[pOpenPanel setAllowsMultipleSelection:(allowmul?YES:NO)];
-    [pOpenPanel setCanChooseFiles:YES];
-    [pOpenPanel setCanChooseDirectories:NO];
-    [pOpenPanel setResolvesAliases:YES];
-
-    long result = [pOpenPanel runModalForDirectory:pDefaultPath file:pDefaultFileName types:pFileTypes];
-
-    if (result == NSOKButton)
-    {
-      NSString* pFullPath = [pOpenPanel filename] ;
-      fileName.Set([pFullPath UTF8String]);
-
-      NSString* pTruncatedPath = [pFullPath stringByDeletingLastPathComponent];
-
-      if (pTruncatedPath)
-      {
-        path.Set([pTruncatedPath UTF8String]);
-        path.Append("/");
-      }
-    }
+    [(NSSavePanel*) pPanel beginSheetModalForWindow:pWindow completionHandler:^(NSModalResponse response) {
+      WDL_String fileNameAsync, pathAsync;
+      doHandleResponse(pPanel, response, fileNameAsync, pathAsync, completionHandler);
+    }];
+  }
+  else
+  {
+    NSModalResponse response = [(NSSavePanel*) pPanel runModal];
+    doHandleResponse(pPanel, response, fileName, path, nullptr);
   }
 }
 
-void IGraphicsMac::PromptForDirectory(WDL_String& dir)
+void IGraphicsMac::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler)
 {
   NSString* defaultPath;
 
@@ -515,18 +511,41 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir)
   [panelOpen setCanChooseDirectories:YES];
   [panelOpen setResolvesAliases:YES];
   [panelOpen setCanCreateDirectories:YES];
-
+  [panelOpen setFloatingPanel: YES];
   [panelOpen setDirectoryURL: [NSURL fileURLWithPath: defaultPath]];
+  
+  auto doHandleResponse = [](NSOpenPanel* pPanel, NSModalResponse response, WDL_String& pathAsync, IFileDialogCompletionHandlerFunc completionHandler){
+    if (response == NSOKButton)
+    {
+      NSString* fullPath = [pPanel filename] ;
+      pathAsync.Set([fullPath UTF8String]);
+      pathAsync.Append("/");
+    }
+    else
+    {
+      pathAsync.Set("");
+    }
+    
+    if (completionHandler)
+    {
+      WDL_String fileNameAsync; // not used
+      completionHandler(fileNameAsync, pathAsync);
+    }
+  };
 
-  if ([panelOpen runModal] == NSOKButton)
+  if (completionHandler)
   {
-    NSString* fullPath = [ panelOpen filename ] ;
-    dir.Set( [fullPath UTF8String] );
-    dir.Append("/");
+    NSWindow* pWindow = [(IGRAPHICS_VIEW*) mView window];
+
+    [panelOpen beginSheetModalForWindow:pWindow completionHandler:^(NSModalResponse response) {
+      WDL_String pathAsync;
+      doHandleResponse(panelOpen, response, pathAsync, completionHandler);
+    }];
   }
   else
   {
-    dir.Set("");
+    NSModalResponse response = [panelOpen runModal];
+    doHandleResponse(panelOpen, response, dir, nullptr);
   }
 }
 
@@ -538,21 +557,26 @@ bool IGraphicsMac::PromptForColor(IColor& color, const char* str, IColorPickerHa
   return false;
 }
 
-IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync)
+IPopupMenu* IGraphicsMac::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync)
 {
-  IPopupMenu* pReturnMenu = nullptr;
+  isAsync = true;
+  
+  dispatch_async(dispatch_get_main_queue(), ^{
+    IPopupMenu* pReturnMenu = nullptr;
 
-  if (mView)
-  {
-    NSRect areaRect = ToNSRect(this, bounds);
-    pReturnMenu = [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
-  }
+    if (mView)
+    {
+      NSRect areaRect = ToNSRect(this, bounds);
+      pReturnMenu = [(IGRAPHICS_VIEW*) mView createPopupMenu: menu: areaRect];
+    }
 
-  //synchronous
-  if(pReturnMenu && pReturnMenu->GetFunction())
-    pReturnMenu->ExecFunction();
+    if (pReturnMenu && pReturnMenu->GetFunction())
+      pReturnMenu->ExecFunction();
+    
+    this->SetControlValueAfterPopupMenu(pReturnMenu);
+  });
 
-  return pReturnMenu;
+  return nullptr;
 }
 
 void IGraphicsMac::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
@@ -624,6 +648,15 @@ bool IGraphicsMac::SetTextInClipboard(const char* str)
   return [[NSPasteboard generalPasteboard] setString:pTextForClipboard forType:NSStringPboardType];
 }
 
+bool IGraphicsMac::SetFilePathInClipboard(const char* path)
+{
+  NSPasteboard* pPasteboard = [NSPasteboard generalPasteboard];
+  [pPasteboard clearContents]; // clear pasteboard to take ownership
+  NSURL* pFileURL = [NSURL fileURLWithPath: [NSString stringWithUTF8String: path]];
+  BOOL success = [pPasteboard writeObjects: [NSArray arrayWithObject:pFileURL]];
+  return (bool)success;
+}
+
 EUIAppearance IGraphicsMac::GetUIAppearance() const
 {
   if (@available(macOS 10.14, *)) {
@@ -636,30 +669,6 @@ EUIAppearance IGraphicsMac::GetUIAppearance() const
   }
   
   return EUIAppearance::Light;
-}
-
-void IGraphicsMac::CreatePlatformImGui()
-{
-#if defined IGRAPHICS_IMGUI
-  #if defined IGRAPHICS_SKIA && IGRAPHICS_CPU
-    #define USE_IGRAPHICS_IMGUIVIEW 1
-  #elif defined IGRAPHICS_NANOVG && IGRAPHICS_METAL
-    #define USE_IGRAPHICS_IMGUIVIEW 1
-#else
-  #define USE_IGRAPHICS_IMGUIVIEW 0
-#endif
-
-#if USE_IGRAPHICS_IMGUIVIEW
-  if(mView)
-  {
-    IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
-    
-    IGRAPHICS_IMGUIVIEW* pImGuiView = [[IGRAPHICS_IMGUIVIEW alloc] initWithIGraphicsView:pView];
-    [pView addSubview: pImGuiView];
-    mImGuiView = pImGuiView;
-  }
-#endif
-#endif // IGRAPHICS_IMGUI
 }
 
 #if defined IGRAPHICS_NANOVG

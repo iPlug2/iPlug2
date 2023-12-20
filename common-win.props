@@ -24,9 +24,8 @@
     <STB_PATH>$(IGRAPHICS_DEPS_PATH)\STB</STB_PATH>
     <FAUST_INC_PATHS>$(DEPS_PATH)\Build\win\Faust\include</FAUST_INC_PATHS>
     <STATIC_LIBS_PATH>$(DEPS_PATH)\Build\win\$(Platform)\$(Configuration)</STATIC_LIBS_PATH>
-    <IMGUI_INC_PATHS>$(IGRAPHICS_DEPS_PATH)\imgui;$(IGRAPHICS_DEPS_PATH)\imgui\backends</IMGUI_INC_PATHS>
     <YOGA_INC_PATHS>$(IGRAPHICS_DEPS_PATH)\yoga;$(IGRAPHICS_DEPS_PATH)\yoga\yoga</YOGA_INC_PATHS>
-    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(IGRAPHICS_PATH)\Controls;$(IGRAPHICS_PATH)\Drawing;$(IGRAPHICS_PATH)\Platforms;$(IGRAPHICS_PATH)\Extras;$(NANOSVG_PATH);$(NANOVG_PATH);$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH);$(IMGUI_INC_PATHS);$(SKIA_INC_PATHS);$(YOGA_INC_PATHS)</IGRAPHICS_INC_PATHS>
+    <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(IGRAPHICS_PATH)\Controls;$(IGRAPHICS_PATH)\Drawing;$(IGRAPHICS_PATH)\Platforms;$(IGRAPHICS_PATH)\Extras;$(NANOSVG_PATH);$(NANOVG_PATH);$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH);$(SKIA_INC_PATHS);$(YOGA_INC_PATHS)</IGRAPHICS_INC_PATHS>
     <VST2_SDK Condition="'$(VST2_SDK)'==''">$(IPLUG_DEPS_PATH)\VST2_SDK</VST2_SDK>
     <VST3_SDK Condition="'$(VST3_SDK)'==''">$(IPLUG_DEPS_PATH)\VST3_SDK</VST3_SDK>
     <ASIO_SDK Condition="'$(ASIO_SDK)'==''">$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
@@ -63,9 +62,9 @@
     <VST3_64_COMMAND_ARGS>$(SolutionDir)$(SolutionName).RPP</VST3_64_COMMAND_ARGS>
     <VST3_32_COMMAND_ARGS>$(SolutionDir)$(SolutionName).RPP</VST3_32_COMMAND_ARGS>
     <COPY_VST2>1</COPY_VST2>
-    <REAPER_INC_PATHS>$(IPLUG_DEPS_PATH)/Reaper;$(IPLUG_PATH)\ReaperExt;</REAPER_INC_PATHS>
+    <REAPER_INC_PATHS>$(IPLUG_DEPS_PATH)\REAPER_SDK;$(IPLUG_PATH)\ReaperExt;</REAPER_INC_PATHS>
     <AAX_ICON>$(AAX_SDK)\Utilities\PlugIn.ico</AAX_ICON>
-    <VST_ICON>$(VST3_SDK)\doc\artwork\VST_Logo_Steinberg.ico</VST_ICON>
+    <VST_ICON>$(IPLUG2_ROOT)\Scripts\icons\VST_Logo_Steinberg.ico</VST_ICON>
     <FAUST_LIB_PATH>$(DEPS_PATH)\Build\win\Faust\lib</FAUST_LIB_PATH>
   </PropertyGroup>
   <PropertyGroup>
@@ -75,7 +74,7 @@
     <ClCompile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PreprocessorDefinitions>$(ALL_DEFS);%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4996;4250;4018;4267;4068;</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4996;4250;4018;4267;4068;26451;26812</DisableSpecificWarnings>
       <AdditionalIncludeDirectories>$(WDL_PATH);$(IPLUG_PATH);$(SolutionDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -161,9 +160,6 @@
     </BuildMacro>
     <BuildMacro Include="STATIC_LIBS_PATH">
       <Value>$(STATIC_LIBS_PATH)</Value>
-    </BuildMacro>
-    <BuildMacro Include="IMGUI_INC_PATHS">
-      <Value>$(IMGUI_INC_PATHS)</Value>
     </BuildMacro>
     <BuildMacro Include="YOGA_INC_PATHS">
       <Value>$(YOGA_INC_PATHS)</Value>

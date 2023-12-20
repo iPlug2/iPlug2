@@ -1,7 +1,7 @@
 #ifndef __WDL_EEL_EDITOR_H_
 #define __WDL_EEL_EDITOR_H_
 
-#define STATE_BEFORE_CODE -1
+#define STATE_BEFORE_CODE 255
 
 #include "curses_editor.h"
 #include "../assocarray.h"
@@ -76,6 +76,8 @@ class suggested_matchlist {
 
 
 extern int g_eel_editor_max_vis_suggestions;
+extern int g_eel_editor_flags; // &1=doubleclick function name defaults to jump
+
 // add EEL syntax highlighting and paren matching, hooks for watch/etc
 class EEL_Editor : public WDL_CursesEditor
 {
@@ -138,6 +140,8 @@ public:
 
   virtual void open_import_line();
 
+  virtual void get_extra_filepos_names(WDL_LogicalSortStringKeyedArray<int> * list, int pass) { }
+
   // static helpers
   static WDL_TypedBuf<char> s_draw_parentokenstack;
   static int parse_format_specifier(const char *fmt_in, int *var_offs, int *var_len);
@@ -147,6 +151,7 @@ public:
   HWND m_suggestion_hwnd;
   suggested_matchlist m_suggestion_list;
   int m_suggestion_hwnd_sel;
+  POINT m_suggestion_hwnd_initmousepos;
   int m_suggestion_tokpos, m_suggestion_toklen; // bytepos/len
   int m_suggestion_curline_comment_state;
 

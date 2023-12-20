@@ -23,6 +23,9 @@
 
 #ifndef SWELL_PROVIDED_BY_APP
 
+#ifndef WDL_NO_DEFINE_MINMAX
+#define WDL_NO_DEFINE_MINMAX
+#endif
 #include "swell.h"
 
 #define SWELL_INTERNAL_MERGESORT_IMPL
@@ -39,6 +42,9 @@
 
 #include "swell-dlggen.h"
 
+#define EDIT_CURSOR_BLINK_LEN 500
+#define EDIT_CURSOR_CYCLE_INTERVAL 3
+
 bool swell_is_likely_capslock; // only used when processing dit events for a-zA-Z
 SWELL_OSWINDOW SWELL_focused_oswindow; // top level window which has focus (might not map to a HWND__!)
 HWND swell_captured_window;
@@ -50,7 +56,6 @@ static bool swell_is_virtkey_char(int c)
   return (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
 }
 
-bool swell_app_is_inactive;
 HWND__ *SWELL_topwindows;
 HWND swell_oswindow_to_hwnd(SWELL_OSWINDOW w)
 {
@@ -60,9 +65,16 @@ HWND swell_oswindow_to_hwnd(SWELL_OSWINDOW w)
   return a;
 }
 
+HWND SWELL_GetFocusedChild(HWND h);
+
 void swell_on_toplevel_raise(SWELL_OSWINDOW wnd) // called by swell-generic-gdk when a window is focused
 {
   HWND hwnd = swell_oswindow_to_hwnd(wnd);
+  if (SWELL_topwindows && hwnd != SWELL_topwindows)
+  {
+    HWND c = SWELL_GetFocusedChild(SWELL_topwindows);
+    if (c) SendMessage(c,WM_KILLFOCUS,0,0);
+  }
   if (hwnd && hwnd != SWELL_topwindows)
   {
     // implies hwnd->m_prev
@@ -80,6 +92,11 @@ void swell_on_toplevel_raise(SWELL_OSWINDOW wnd) // called by swell-generic-gdk 
     SWELL_topwindows = hwnd;
     VALIDATE_HWND_LIST(SWELL_topwindows,NULL);
   }
+  if (hwnd)
+  {
+    HWND c = SWELL_GetFocusedChild(hwnd);
+    if (c) SendMessage(c,WM_SETFOCUS,0,0);
+  }
 }
 
 HWND__::HWND__(HWND par, int wID, const RECT *wndr, const char *label, bool visible, WNDPROC wndproc, DLGPROC dlgproc, HWND ownerWindow)
@@ -88,8 +105,9 @@ HWND__::HWND__(HWND par, int wID, const RECT *wndr, const char *label, bool visi
   m_private_data=0;
   m_israised=false;
   m_has_had_position=false;
+  m_is_maximized = false;
   m_oswindow_private=0;
-  m_oswindow_fullscreen=false;
+  m_oswindow_fullscreen=0;
 
      m_classname = "unknown";
      m_wndproc=wndproc?wndproc:dlgproc?(WNDPROC)SwellDialogDefaultWindowProc:(WNDPROC)DefWindowProc;
@@ -131,10 +149,14 @@ HWND__::HWND__(HWND par, int wID, const RECT *wndr, const char *label, bool visi
      }
 }
 
+static HWND s_last_rbuttondown;
+
 HWND__::~HWND__()
 {
   if (m_wndproc)
     m_wndproc(this,WM_NCDESTROY,0,0);
+
+  if (this == s_last_rbuttondown) s_last_rbuttondown = NULL;
 }
 
 
@@ -488,6 +510,7 @@ void SetForegroundWindow(HWND hwnd)
 {
   if (WDL_NOT_NORMALLY(!hwnd)) return;
 
+  HWND oldFoc = GetFocus();
   // if a child window has focus, preserve that focus
   while (hwnd->m_parent && !hwnd->m_oswindow)
   {
@@ -495,28 +518,42 @@ void SetForegroundWindow(HWND hwnd)
     hwnd = hwnd->m_parent;
   }
   if (hwnd) swell_oswindow_focus(hwnd);
-}
-
-void SetFocusInternal(HWND hwnd)
-{
-  hwnd->m_focused_child=NULL; // make sure this window has focus, not a child
-  SetForegroundWindow(hwnd);
+  HWND foc = GetFocus();
+  if (foc && foc != oldFoc)
+    SendMessage(foc,WM_SETFOCUS,(WPARAM)oldFoc,0);
 }
 
 void SetFocus(HWND hwnd)
 {
-  if (!hwnd) return; // windows allows SetFocus(NULL) to defocus...
-  HWND oldfoc = GetFocus();
-  SetFocusInternal(hwnd);
+  if (!hwnd) return; // windows allows SetFocus(NULL) to defocus, but we do not support that yet
+  HWND oldFoc = GetFocus();
+  if (oldFoc && oldFoc != hwnd)
+    SendMessage(oldFoc,WM_KILLFOCUS,(WPARAM)hwnd,0);
+  hwnd->m_focused_child=NULL; // make sure this window has focus, not a child
 
-  if (hwnd->m_classname && oldfoc != hwnd)
+  HWND p = hwnd;
+  while (p->m_parent && !p->m_oswindow)
   {
-    if (!strcmp(hwnd->m_classname,"Edit") ||
-        !strcmp(hwnd->m_classname,"combobox"))
-      SendMessage(hwnd,EM_SETSEL,0,-1);
+    p->m_parent->m_focused_child = p;
+    p = p->m_parent;
   }
+  if (p) swell_oswindow_focus(p);
+
+  if (hwnd != oldFoc)
+    SendMessage(hwnd,WM_SETFOCUS,(WPARAM)oldFoc,0);
 }
 
+void SWELL_OnNavigationFocus(HWND ch)
+{
+  if (ch && ch->m_classname && (
+       (!strcmp(ch->m_classname,"Edit") && !(ch->m_style & ES_READONLY)) ||
+       !strcmp(ch->m_classname,"combobox")
+     ))
+  {
+    SendMessage(ch,EM_SETSEL,0,-1);
+  }
+
+}
 
 int IsChild(HWND hwndParent, HWND hwndChild)
 {
@@ -527,11 +564,9 @@ int IsChild(HWND hwndParent, HWND hwndChild)
   return hwndChild == hwndParent;
 }
 
-
-HWND GetFocusIncludeMenus()
+HWND SWELL_GetFocusedChild(HWND h)
 {
-  HWND h = swell_app_is_inactive ? NULL : swell_oswindow_to_hwnd(SWELL_focused_oswindow);
-  while (h) 
+  while (h)
   {
     HWND fc = h->m_focused_child;
     if (!fc) break;
@@ -541,6 +576,12 @@ HWND GetFocusIncludeMenus()
     h = s; // descend to focused child
   }
   return h;
+}
+
+HWND GetFocusIncludeMenus()
+{
+  HWND h = swell_is_app_inactive()>0 ? NULL : swell_oswindow_to_hwnd(SWELL_focused_oswindow);
+  return SWELL_GetFocusedChild(h);
 }
 
 HWND GetForegroundWindow()
@@ -689,11 +730,11 @@ void SetWindowPos(HWND hwnd, HWND zorder, int x, int y, int cx, int cy, int flag
     if (hwnd->m_oswindow && !hwnd->m_oswindow_fullscreen)
     {
       swell_oswindow_resize(hwnd->m_oswindow,reposflag,f);
-      if (reposflag&2) SendMessage(hwnd,WM_SIZE,0,0);
+      if (reposflag&2) SendMessage(hwnd,WM_SIZE,SIZE_RESTORED,0);
     }
     else
     {
-      if (reposflag&2) SendMessage(hwnd,WM_SIZE,0,0);
+      if (reposflag&2) SendMessage(hwnd,WM_SIZE,SIZE_RESTORED,0);
       InvalidateRect(hwnd->m_parent ? hwnd->m_parent : hwnd,NULL,FALSE);
     }
   }
@@ -1019,6 +1060,10 @@ void ShowWindow(HWND hwnd, int cmd)
     if (hwnd->m_visible) cmd = SW_SHOWNA; // do not take focus if already visible
     hwnd->m_visible=true;
   }
+  else if (cmd == SW_RESTORE || cmd == SW_SHOWMAXIMIZED)
+  {
+    hwnd->m_visible=true;
+  }
   else if (cmd==SW_HIDE) 
   {
     if (hwnd->m_visible)
@@ -1030,10 +1075,13 @@ void ShowWindow(HWND hwnd, int cmd)
   }
 
   swell_oswindow_manage(hwnd,cmd==SW_SHOW);
+
   if (cmd == SW_SHOW) 
   {
     SetForegroundWindow(hwnd);
   }
+  else if (cmd == SW_RESTORE || cmd == SW_SHOWMAXIMIZED)
+    swell_oswindow_maximize(hwnd,cmd == SW_SHOWMAXIMIZED);
 
   InvalidateRect(hwnd,NULL,FALSE);
 
@@ -1077,6 +1125,8 @@ static void Draw3DBox(HDC hdc, const RECT *r, int bgc, int topc, int botc, bool 
     tr.left--;
     tr.top--;
   }
+
+  if (topc == -1 && botc == -1) return;
 
   HPEN pen = CreatePen(PS_SOLID,0,swap?botc:topc);
   HPEN pen2 = CreatePen(PS_SOLID,0,swap?topc:botc);
@@ -1185,7 +1235,7 @@ static void paintDialogBackground(HWND hwnd, const RECT *r, HDC hdc)
 
 static bool fast_has_focus(HWND hwnd)
 {
-  if (!hwnd || !SWELL_focused_oswindow || swell_app_is_inactive) return false;
+  if (!hwnd || !SWELL_focused_oswindow || swell_is_app_inactive()>0) return false;
   HWND par;
   while ((par=hwnd->m_parent)!=NULL && par->m_focused_child==hwnd)
   {
@@ -1235,7 +1285,7 @@ static LRESULT WINAPI buttonWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
       hwnd->m_private_data=0;
     break;
     case WM_LBUTTONDOWN:
-      SetFocusInternal(hwnd);
+      SetFocus(hwnd);
       SetCapture(hwnd);
       SendMessage(hwnd,WM_USER+100,0,0); // invalidate
     return 0;
@@ -1515,6 +1565,8 @@ fakeButtonClick:
     case WM_USER+100:
     case WM_CAPTURECHANGED:
     case WM_SETTEXT:
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
       InvalidateRect(hwnd,NULL,FALSE);
     break;
   }
@@ -2540,7 +2592,7 @@ static LRESULT WINAPI editWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
         ReleaseDC(hwnd,hdc);
 
       }
-      SetFocusInternal(hwnd);
+      SetFocus(hwnd);
       if (msg == WM_LBUTTONDOWN) SetCapture(hwnd);
 
       InvalidateRect(hwnd,NULL,FALSE);
@@ -2670,7 +2722,7 @@ forceMouseMove:
     case WM_TIMER:
       if (es && wParam == 100)
       {
-        if (++es->cursor_state >= 8) es->cursor_state=0;
+        if (++es->cursor_state >= EDIT_CURSOR_CYCLE_INTERVAL) es->cursor_state=0;
         if (GetFocusIncludeMenus()!=hwnd || es->cursor_state<2) InvalidateRect(hwnd,NULL,FALSE);
       }
     return 0;
@@ -2725,7 +2777,7 @@ forceMouseMove:
         {
           if (focused)
           {
-            if (!es->cursor_timer) { SetTimer(hwnd,100,100,NULL); es->cursor_timer=1; }
+            if (!es->cursor_timer) { SetTimer(hwnd,100,EDIT_CURSOR_BLINK_LEN,NULL); es->cursor_timer=1; }
           }
           else
           {
@@ -2737,17 +2789,14 @@ forceMouseMove:
         {
           RECT r; 
           GetClientRect(hwnd,&r); 
+          const RECT orig_r2 = r;
           RECT orig_r = r;
           WDL_FastString *title = &hwnd->m_title;
           if (hwnd->m_style & ES_PASSWORD) passwordify(&title);
 
-          Draw3DBox(ps.hdc,&r,
-            hwnd->m_enabled ? 
-              //(hwnd->m_style & ES_READONLY) ? g_swell_ctheme._3dface :
-                g_swell_ctheme.edit_bg :
-                g_swell_ctheme.edit_bg_disabled,
-            g_swell_ctheme.edit_shadow,
-            g_swell_ctheme.edit_hilight);
+          bool is_secpass = false;
+again:
+          Draw3DBox(ps.hdc,&orig_r, hwnd->m_enabled ?  g_swell_ctheme.edit_bg : g_swell_ctheme.edit_bg_disabled,-1,-1);
 
           SetTextColor(ps.hdc,
             hwnd->m_enabled ? 
@@ -2756,6 +2805,8 @@ forceMouseMove:
                       g_swell_ctheme.edit_text_disabled
           );
           SetBkMode(ps.hdc,TRANSPARENT);
+          if (!focused && es->scroll_x > 0 && es->scroll_x < 4)
+            es->scroll_x=0;
           r.left+=2 - es->scroll_x; r.right-=2;
 
           const bool do_cursor = es->cursor_state!=0;
@@ -2824,7 +2875,7 @@ forceMouseMove:
               if (vis)
               {
                 int wid = editControlPaintLine(ps.hdc,buf,lb,
-                   (do_cursor && cursor_pos >= bytepos && cursor_pos <= bytepos + lb) ? cursor_pos - bytepos : -1, 
+                   (do_cursor && cursor_pos >= bytepos && cursor_pos <= bytepos + lb) ? cursor_pos - bytepos : -1,
                    sel1 >= 0 ? (sel1 - bytepos) : -1,
                    sel2 >= 0 ? (sel2 - bytepos) : -1, 
                    &r, DT_TOP);
@@ -2855,9 +2906,24 @@ forceMouseMove:
           }
           else
           {
-            es->max_width = editControlPaintLine(ps.hdc, title->Get(), title->GetLength(), cursor_pos, sel1, sel2, &r, DT_VCENTER);
+            es->max_width = editControlPaintLine(ps.hdc, title->Get(), title->GetLength(),
+                do_cursor ? cursor_pos : -1, sel1, sel2, &r, DT_VCENTER);
+
+            if (es->scroll_x > 0 && !is_secpass)
+            {
+              int max_x = es->max_width - (r.right-2 - (orig_r2.bottom-orig_r2.top)/2);
+              if (max_x < 0) max_x = 0;
+              if (es->scroll_x > max_x)
+              {
+                es->scroll_x = max_x;
+                r = orig_r = orig_r2;
+                is_secpass = true;
+                goto again;
+              }
+            }
           }
 
+          Draw3DBox(ps.hdc,&orig_r2,-1, g_swell_ctheme.edit_shadow, g_swell_ctheme.edit_hilight);
           EndPaint(hwnd,&ps);
         }
       }
@@ -2865,7 +2931,10 @@ forceMouseMove:
     case WM_SETTEXT:
       if (es) 
       {
-        es->cursor_pos = WDL_utf8_get_charlen(hwnd->m_title.Get());
+        es->cursor_pos =
+          (hwnd->m_style & (ES_READONLY|ES_MULTILINE)) == (ES_READONLY|ES_MULTILINE) ? 0 :
+            WDL_utf8_get_charlen(hwnd->m_title.Get());
+
         es->sel1=es->sel2=-1;
         es->cache_linelen_w=es->cache_linelen_strlen=0;
         if ((hwnd->m_style & (ES_MULTILINE|ES_AUTOHSCROLL))==ES_AUTOHSCROLL &&
@@ -2933,6 +3002,11 @@ forceMouseMove:
         }
       }
     return 0;
+    case WM_KILLFOCUS:
+      SendMessage(GetParent(hwnd),WM_COMMAND,(EN_KILLFOCUS<<16) | (hwnd->m_id&0xffff),(LPARAM)hwnd);
+    case WM_SETFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
+    break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
 }
@@ -3042,7 +3116,7 @@ static LRESULT WINAPI trackbarWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
       }
     return 1;
     case WM_LBUTTONDOWN:
-      SetFocusInternal(hwnd);
+      SetFocus(hwnd);
       SetCapture(hwnd);
 
       if (hwnd->m_private_data)
@@ -3165,6 +3239,10 @@ static LRESULT WINAPI trackbarWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
           EndPaint(hwnd,&ps);
         }
       }
+    break;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
     break;
   }
 
@@ -3438,7 +3516,7 @@ static LRESULT WINAPI comboWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
     case WM_TIMER:
       if (wParam == 100)
       {
-        if (++s->editstate.cursor_state >= 8) s->editstate.cursor_state=0;
+        if (++s->editstate.cursor_state >= EDIT_CURSOR_CYCLE_INTERVAL) s->editstate.cursor_state=0;
         if (GetFocusIncludeMenus()!=hwnd || s->editstate.cursor_state<2) InvalidateRect(hwnd,NULL,FALSE);
       }
       else if (wParam==1)
@@ -3476,7 +3554,7 @@ static LRESULT WINAPI comboWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
           ReleaseDC(hwnd,hdc);
 
-          SetFocusInternal(hwnd);
+          SetFocus(hwnd);
         }
         SetCapture(hwnd);
       }
@@ -3590,7 +3668,7 @@ popupMenu:
             focused = GetFocusIncludeMenus()==hwnd;
             if (focused)
             {
-              if (!s->editstate.cursor_timer) { SetTimer(hwnd,100,100,NULL); s->editstate.cursor_timer=1; }
+              if (!s->editstate.cursor_timer) { SetTimer(hwnd,100,EDIT_CURSOR_BLINK_LEN,NULL); s->editstate.cursor_timer=1; }
             }
             else
             {
@@ -3615,7 +3693,7 @@ popupMenu:
           HGDIOBJ oldpen=SelectObject(ps.hdc,GetStockObject(NULL_PEN));
           const int dw = SWELL_UI_SCALE(8);
           const int dh = SWELL_UI_SCALE(4);
-          const int cx = r.right-dw/2-SWELL_UI_SCALE(4);
+          const int cx = r.right-dw/2-SWELL_UI_SCALE(5);
           const int cy = (r.bottom+r.top)/2;
 
           POINT pts[3] = {
@@ -3642,7 +3720,8 @@ popupMenu:
           if ((hwnd->m_style & CBS_DROPDOWNLIST) != CBS_DROPDOWNLIST)
           {
             r.right -= SWELL_UI_SCALE(buttonwid+2);
-            editControlPaintLine(ps.hdc, hwnd->m_title.Get(), hwnd->m_title.GetLength(), cursor_pos, 
+            editControlPaintLine(ps.hdc, hwnd->m_title.Get(), hwnd->m_title.GetLength(),
+                s->editstate.cursor_state!=0 ? cursor_pos : -1,
                 focused ? s->editstate.sel1 : -1, focused ? s->editstate.sel2 : -1, &r, DT_VCENTER);
           }
           else
@@ -3690,6 +3769,41 @@ popupMenu:
         InvalidateRect(hwnd,NULL,FALSE);
       }
     return 0;
+    case WM_MOUSEWHEEL:
+      // pass modified mousewheel to parent (not sure if we need to do this but other controls do...)
+      if ((GetAsyncKeyState(VK_CONTROL)&0x8000) || (GetAsyncKeyState(VK_MENU)&0x8000)) break;
+
+      if (s)
+      {
+        int amt = ((short)HIWORD(wParam));
+        if (GetAsyncKeyState(VK_SHIFT)&0x8000)
+        {
+          if (amt<0) amt=-1;
+          else if (amt>0) amt=1;
+        }
+        else
+          amt /= 120;
+
+        if (amt)
+        {
+          int nv = s->selidx + amt;
+          if (nv>=s->items.GetSize()) nv=s->items.GetSize()-1;
+          if (nv < 0) nv=0;
+          if (nv != s->selidx && s->items.Get(nv))
+          {
+            s->selidx=nv;
+            SetWindowText(hwnd,s->items.Get(nv)->desc);
+            InvalidateRect(hwnd,NULL,FALSE);
+            SendMessage(GetParent(hwnd),WM_COMMAND,(GetWindowLong(hwnd,GWL_ID)&0xffff) | (CBN_SELCHANGE<<16),(LPARAM)hwnd);
+          }
+        }
+      }
+
+    return 0;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
+    break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
 }
@@ -3747,6 +3861,7 @@ struct SWELL_ListView_Col
   int xwid;
   int sortindicator;
   int col_index;
+  int fmt;  // LVCFMT_
 };
 
 enum { LISTVIEW_HDR_YMARGIN = 2 };
@@ -3781,10 +3896,13 @@ struct listViewState
 
     m_color_bg = g_swell_ctheme.listview_bg;
     m_color_bg_sel = g_swell_ctheme.listview_bg_sel;
+    m_color_bg_sel_inactive = g_swell_ctheme.listview_bg_sel_inactive;
     m_color_text = g_swell_ctheme.listview_text;
     m_color_text_sel = g_swell_ctheme.listview_text_sel;
+    m_color_text_sel_inactive = g_swell_ctheme.listview_text_sel_inactive;
     m_color_grid = g_swell_ctheme.listview_grid;
     memset(m_color_extras,0xff,sizeof(m_color_extras)); // if !=-1, overrides bg/fg for (focus?0:2)
+    m_fastclick_mask = 0;
   } 
   ~listViewState()
   { 
@@ -3836,7 +3954,9 @@ struct listViewState
   int m_scroll_x,m_scroll_y, m_capmode_data1,m_capmode_data2;
   int m_extended_style;
 
-  int m_color_bg, m_color_bg_sel, m_color_text, m_color_text_sel, m_color_grid;
+  int m_fastclick_mask;
+
+  int m_color_bg, m_color_bg_sel, m_color_bg_sel_inactive, m_color_text, m_color_text_sel, m_color_text_sel_inactive, m_color_grid;
   int m_color_extras[4];
 
   int getTotalWidth() const
@@ -3975,8 +4095,8 @@ struct listViewState
   static int compareRows(const SWELL_ListView_Row **_a, const SWELL_ListView_Row **_b)
   {
     const char *a, *b;
-    if (!_a || !(a=(*_a)->m_vals.Get(0))) a="";
-    if (!_b || !(b=(*_b)->m_vals.Get(0))) b="";
+    if (!_a || !(a=(*_a)->get_col_txt(0))) a="";
+    if (!_b || !(b=(*_b)->get_col_txt(0))) b="";
     return strcmp(a,b);
   }
 };
@@ -4072,11 +4192,22 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
             ListView_SetItemState(hwnd,x,(x==row)?(LVIS_SELECTED|LVIS_FOCUSED):0,LVIS_SELECTED|LVIS_FOCUSED);
           }
         }
-
-        NMLISTVIEW nm={{hwnd,hwnd->m_id,NM_RCLICK},row,inf.iSubItem,0,0,0, {inf.pt.x,inf.pt.y}};
-        SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
       }
     return 1;
+    case WM_RBUTTONUP:
+      if (lvs && lvs->m_last_row_height>0 && !lvs->m_is_listbox)
+      {
+        const int hdr_size = lvs->GetColumnHeaderHeight(hwnd);
+        if (hdr_size > 0 && GET_Y_LPARAM(lParam) < hdr_size) break; // let it get converted to WM_CONTEXTMENU
+
+        LVHITTESTINFO inf = { { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) }, };
+
+        const int row = ListView_SubItemHitTest(hwnd, &inf);
+        NMLISTVIEW nm={{hwnd,hwnd->m_id,NM_RCLICK},row,inf.iSubItem,0,0,0, {inf.pt.x,inf.pt.y}};
+        if (SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm))
+          return 1;
+      }
+    break;
     case WM_SETCURSOR:
       if (lvs)
       {
@@ -4105,7 +4236,7 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
     break;
     case WM_LBUTTONDBLCLK:
     case WM_LBUTTONDOWN:
-      SetFocusInternal(hwnd);
+      SetFocus(hwnd);
       if (msg == WM_LBUTTONDOWN) SetCapture(hwnd);
       else ReleaseCapture();
 
@@ -4195,6 +4326,7 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         const int hit = ypos >= 0 ? ((ypos+lvs->m_scroll_y) / row_height) : -1;
         if (hit < 0) return 1;
 
+        int subitem_col = 0;
         int subitem = 0; // display index
 
         {
@@ -4205,11 +4337,24 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
           for (int x=0;x<ncol;x++)
           {
             const int xwid = lvs->m_cols.Get()[x].xwid;
-            if (xpt >= xpos && xpt < xpos+xwid) { subitem = x; break; }
+            if (xpt >= xpos && xpt < xpos+xwid)
+            {
+              subitem_col = lvs->m_cols.Get()[x].col_index;
+              subitem = x;
+              break;
+            }
             xpos += xwid;
           }
         }
 
+        if ((subitem_col >= 0 && subitem_col < 32 && (lvs->m_fastclick_mask & (1u<<subitem_col))) || // fastclick mode
+            (lvs->m_status_imagelist && GET_X_LPARAM(lParam) + lvs->m_scroll_x < lvs->m_last_row_height) // image click
+            )
+        {
+          NMLISTVIEW nm={{hwnd,hwnd->m_id,msg == WM_LBUTTONDBLCLK ? NM_DBLCLK : NM_CLICK},hit,lvs->GetColumnIndex(subitem),0,0,0, {s_clickpt.x, s_clickpt.y }};
+          SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
+          return 0;
+        }
 
         if (!lvs->m_is_multisel)
         {
@@ -4492,14 +4637,14 @@ forceMouseMove:
             if (!lvs->IsOwnerData())
             {
               SWELL_ListView_Row *row = lvs->m_data.Get(offs);
-              if (row) v = row->m_vals.Get(col);
+              if (row) v = row->get_col_txt(col);
             }
             else
             {
               buf[0]=0;
               NMLVDISPINFO nm={{hwnd,hwnd->m_id,LVN_GETDISPINFO},{LVIF_TEXT, offs,col, 0,0, buf, sizeof(buf), -1 }};
               SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
-              v = buf;
+              v = nm.item.pszText;
             }
 
             if (v && !strnicmp(v,s,strlen(s))) 
@@ -4659,12 +4804,13 @@ forceMouseMove:
         {
           RECT cr; 
           GetClientRect(hwnd,&cr); 
+          RECT rr = cr;
           HBRUSH bgbr = CreateSolidBrush(lvs->m_color_bg);
           FillRect(ps.hdc,&cr,bgbr);
           DeleteObject(bgbr);
           const bool focused = GetFocus() == hwnd;
           const int bgsel = lvs->m_color_extras[focused ? 0 : 2 ];
-          bgbr=CreateSolidBrush(bgsel == -1 ? lvs->m_color_bg_sel : bgsel);
+          bgbr=CreateSolidBrush(bgsel == -1 ? focused ? lvs->m_color_bg_sel : lvs->m_color_bg_sel_inactive : bgsel);
           if (lvs) 
           {
             TEXTMETRIC tm; 
@@ -4686,6 +4832,7 @@ forceMouseMove:
 
             const bool has_image = lvs->hasAnyImage();
             const bool has_status_image = lvs->hasStatusImage();
+            const bool has_subitem_image = (lvs->m_extended_style & LVS_EX_SUBITEMIMAGES)!=0;
             const int xo = lvs->m_scroll_x;
 
             const int totalw = lvs->getTotalWidth();
@@ -4730,7 +4877,7 @@ forceMouseMove:
               if (sel)
               {
                 int c = lvs->m_color_extras[focused ? 1 : 3 ];
-                text_c = c == -1 ? lvs->m_color_text_sel : c;
+                text_c = c == -1 ? focused ? lvs->m_color_text_sel : lvs->m_color_text_sel_inactive : c;
               }
               else
                 text_c = lvs->m_color_text;
@@ -4751,16 +4898,15 @@ forceMouseMove:
                 if (owner_data)
                 {
                   NMLVDISPINFO nm={{hwnd,hwnd->m_id,LVN_GETDISPINFO},{LVIF_TEXT, rowidx,col_idx, 0,0, buf, sizeof(buf), -1 }};
-                  if (!col && has_image)
+                  if ((!col || has_subitem_image) && has_image)
                   {
                     if (lvs->m_status_imagelist_type == LVSIL_STATE) nm.item.mask |= LVIF_STATE;
                     else if (lvs->m_status_imagelist_type == LVSIL_SMALL) nm.item.mask |= LVIF_IMAGE;
-
                   }
                   buf[0]=0;
                   SendMessage(par,WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
-                  str=buf;
-                  if (!col && has_image)
+                  str=nm.item.pszText;
+                  if ((!col || has_subitem_image) && has_image)
                   {
                     if (lvs->m_status_imagelist_type == LVSIL_STATE) image_idx=STATEIMAGEMASKTOINDEX(nm.item.state);
                     else if (lvs->m_status_imagelist_type == LVSIL_SMALL) image_idx = nm.item.iImage + 1;
@@ -4768,16 +4914,16 @@ forceMouseMove:
                 }
                 else
                 {
-                  if (!col && has_image) image_idx = row->m_imageidx;
-                  if (row) str = row->m_vals.Get(col_idx);
+                  if (!col && has_image) image_idx = row->get_img_idx(0);
+                  if (row) str = row->get_col_txt(col_idx);
                 }
 
                 RECT ar = { xpos,ypos, cr.right, ypos + row_height };
-                if (!col && has_image)
+                if ((!col || has_subitem_image) && has_image)
                 {
-                  if (image_idx>0) 
+                  if (image_idx>0)
                   {
-                    HICON icon = lvs->m_status_imagelist->Get(image_idx-1);      
+                    HICON icon = lvs->m_status_imagelist->Get(image_idx-1);
                     if (icon)
                     {
                       if (has_status_image || col >= ncols)
@@ -4787,14 +4933,17 @@ forceMouseMove:
                       DrawImageInRect(ps.hdc,icon,&ar);
                     }
                   }
-
-                  if (has_status_image) 
+                  if (has_status_image)
                   {
                     xpos += row_height;
+                    ar.left += row_height;
                   }
-                  ar.left += row_height;
+                  else if (image_idx > 0)
+                  {
+                    ar.left += row_height;
+                  }
                 }
-  
+
                 if (lvs->m_is_listbox && (hwnd->m_style & LBS_OWNERDRAWFIXED))
                 {
                   if (hwnd->m_parent)
@@ -4816,14 +4965,34 @@ forceMouseMove:
                   }
                   else ar.right = cr.right;
 
-                  if (ar.right > ar.left)
+                  if (ar.right > ar.left && str)
                   {
                     const int adj = (ar.right-ar.left)/16;
                     const int maxadj = SWELL_UI_SCALE(4);
-                    ar.left += wdl_min(adj,maxadj);
+                    int fmt = ncols > 0 ? cols[col].fmt & 3 : LVCFMT_LEFT;
+                    if (fmt != LVCFMT_LEFT)
+                    {
+                      RECT mr={0,};
+                      DrawText(ps.hdc,str,-1,&mr,DT_CALCRECT|DT_SINGLELINE|DT_NOPREFIX);
+                      if (mr.right-mr.left > ar.right-ar.left-maxadj) fmt = LVCFMT_LEFT;
+                    }
 
-                    if(str)
+                    if (fmt == LVCFMT_CENTER)
+                    {
+                      ar.left += maxadj/2;
+                      ar.right -= maxadj/2;
+                      DrawText(ps.hdc,str,-1,&ar,DT_CENTER|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+                    }
+                    else if (fmt == LVCFMT_RIGHT)
+                    {
+                      ar.right -= wdl_min(adj,maxadj);
+                      DrawText(ps.hdc,str,-1,&ar,DT_RIGHT|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+                    }
+                    else
+                    {
+                      ar.left += wdl_min(adj,maxadj);
                       DrawText(ps.hdc,str,-1,&ar,DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+                    }
                   }
                 }
               }
@@ -4906,8 +5075,30 @@ forceMouseMove:
 
                   if (cols[col].name) 
                   {
-                    tr.left += wdl_min((tr.right-tr.left)/4,4);
-                    DrawText(ps.hdc,cols[col].name,-1,&tr,DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+                    const int maxadj = SWELL_UI_SCALE(4);
+                    int fmt = cols[col].fmt & 3;
+                    if (fmt != LVCFMT_LEFT)
+                    {
+                      RECT mr={0,};
+                      DrawText(ps.hdc,cols[col].name,-1,&mr,DT_SINGLELINE|DT_NOPREFIX|DT_CALCRECT);
+                      if (mr.right - mr.left > tr.right-tr.left-maxadj) fmt = LVCFMT_LEFT;
+                    }
+                    if (fmt == LVCFMT_CENTER)
+                    {
+                      tr.left += maxadj/2;
+                      tr.right -= maxadj/2;
+                      DrawText(ps.hdc,cols[col].name,-1,&tr,DT_CENTER|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+                    }
+                    else if (fmt == LVCFMT_RIGHT)
+                    {
+                      tr.right -= wdl_min((tr.right-tr.left)/4,maxadj);
+                      DrawText(ps.hdc,cols[col].name,-1,&tr,DT_RIGHT|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+                    }
+                    else
+                    {
+                      tr.left += wdl_min((tr.right-tr.left)/4,maxadj);
+                      DrawText(ps.hdc,cols[col].name,-1,&tr,DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_NOPREFIX);
+                    }
                   }
                 }
                 if (xpos >= cr.right) break;
@@ -4967,6 +5158,9 @@ forceMouseMove:
                   totalw,lvs->m_scroll_x);
             }
           }
+          Draw3DBox(ps.hdc,&rr,-1,
+            g_swell_ctheme.listview_hilight,
+            g_swell_ctheme.listview_shadow);
           DeleteObject(bgbr);
 
           EndPaint(hwnd,&ps);
@@ -4982,7 +5176,7 @@ forceMouseMove:
       if (lvs && !lvs->IsOwnerData())
       {
         SWELL_ListView_Row *row=new SWELL_ListView_Row;
-        row->m_vals.Add(strdup((const char *)lParam));
+        row->add_col((const char *)lParam);
         int idx;
         if (msg == LB_ADDSTRING && hwnd->m_style & LBS_SORT)
         {
@@ -5017,10 +5211,11 @@ forceMouseMove:
       if (lvs && !lvs->IsOwnerData())
       {
         SWELL_ListView_Row *row = lvs->m_data.Get(wParam);
-        if (row && row->m_vals.Get(0))
+        const char *p;
+        if (row && (p=row->get_col_txt(0)))
         {
-          strcpy((char *)lParam, row->m_vals.Get(0));
-          return (LRESULT)strlen(row->m_vals.Get(0));
+          strcpy((char *)lParam, p);
+          return (LRESULT)strlen(p);
         }
       }
     return LB_ERR;
@@ -5029,7 +5224,7 @@ forceMouseMove:
           SWELL_ListView_Row *row=lvs->m_data.Get(wParam);
           if (row) 
           {
-            const char *p=row->m_vals.Get(0);
+            const char *p=row->get_col_txt(0);
             return p?strlen(p):0;
           }
         }
@@ -5045,7 +5240,7 @@ forceMouseMove:
           SWELL_ListView_Row *row=lvs->m_data.Get(x);
           if (row)
           {
-            const char *p = row->m_vals.Get(0);
+            const char *p = row->get_col_txt(0);
             if (p && !stricmp(p,(const char *)lParam)) return x;
           }
           if (++x >= n) x=0;
@@ -5155,6 +5350,10 @@ forceMouseMove:
         return row ? 0 : LB_ERR;
       }
     return LB_ERR;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
+    break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
 }
@@ -5297,7 +5496,7 @@ next_item_in_parent:
     return 0;
   }
 
-  void doDrawItem(HTREEITEM item, HDC hdc, RECT *rect) // draws any subitems too, updates rect->top
+  void doDrawItem(HTREEITEM item, HDC hdc, RECT *rect, bool focus) // draws any subitems too, updates rect->top
   {
 #ifdef SWELL_LICE_GDI
     if (!item) return;
@@ -5312,9 +5511,9 @@ next_item_in_parent:
         if (item == m_sel) 
         {
           SetBkMode(hdc,OPAQUE);
-          SetBkColor(hdc,g_swell_ctheme.treeview_bg_sel);
+          SetBkColor(hdc,focus ? g_swell_ctheme.treeview_bg_sel : g_swell_ctheme.treeview_bg_sel_inactive);
           oc = GetTextColor(hdc);
-          SetTextColor(hdc,g_swell_ctheme.treeview_text_sel);
+          SetTextColor(hdc,focus ? g_swell_ctheme.treeview_text_sel : g_swell_ctheme.treeview_text_sel_inactive);
         }
        
         RECT dr = *rect;
@@ -5358,7 +5557,7 @@ next_item_in_parent:
       rect->left += m_last_row_height;
       for (int x=0;x<n && rect->top < rect->bottom;x++)
       {
-        doDrawItem(item->m_children.Get(x),hdc,rect);
+        doDrawItem(item->m_children.Get(x),hdc,rect,focus);
       }
       rect->left -= m_last_row_height;
     } 
@@ -5489,7 +5688,7 @@ static LRESULT treeViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
       }
     break;
     case WM_LBUTTONDOWN:
-      SetFocusInternal(hwnd);
+      SetFocus(hwnd);
       SetCapture(hwnd);
       if (tvs)
       {
@@ -5607,13 +5806,14 @@ forceMouseMove:
         ReleaseCapture();
       }
     return 1;
-    case WM_RBUTTONDOWN:
+    case WM_RBUTTONUP:
       if (tvs && tvs->m_last_row_height>0)
       {
         NMLISTVIEW nm={{hwnd,hwnd->m_id,NM_RCLICK},0,0,0,};
-        SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
+        if (SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm))
+          return 1;
       }
-    return 1;
+    break;
     case WM_PAINT:
       { 
         PAINTSTRUCT ps;
@@ -5649,13 +5849,16 @@ forceMouseMove:
             HGDIOBJ oldbr = SelectObject(ps.hdc,br);
 
             r.left -= tvs->m_last_row_height;
-            tvs->doDrawItem(&tvs->m_root,ps.hdc,&r);
+            tvs->doDrawItem(&tvs->m_root,ps.hdc,&r, GetFocus()==hwnd);
 
             SelectObject(ps.hdc,oldbr);
             SelectObject(ps.hdc,oldpen);
             DeleteObject(br);
 
             drawVerticalScrollbar(ps.hdc,cr,total_h,tvs->m_scroll_y);
+            Draw3DBox(ps.hdc,&cr,-1,
+              g_swell_ctheme.treeview_hilight,
+              g_swell_ctheme.treeview_shadow);
           }
 
           EndPaint(hwnd,&ps);
@@ -5665,6 +5868,10 @@ forceMouseMove:
     case WM_NCDESTROY:
       hwnd->m_private_data = 0;
       delete tvs;
+    break;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
     break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
@@ -5708,7 +5915,7 @@ static LRESULT tabControlWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
       }
     break;
     case WM_KEYDOWN:
-      if (lParam==FVIRTKEY && 
+      if ((lParam&0xff)==FVIRTKEY &&
            (wParam==VK_LEFT || 
             wParam==VK_RIGHT || 
             wParam==VK_HOME || 
@@ -5733,7 +5940,7 @@ static LRESULT tabControlWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
     case WM_LBUTTONDOWN:
       if (GET_Y_LPARAM(lParam) < TABCONTROL_HEIGHT)
       {
-        SetFocusInternal(hwnd);
+        SetFocus(hwnd);
         int xp=GET_X_LPARAM(lParam),tab;
         HDC dc = GetDC(hwnd);
         int tabchg = -1;
@@ -5848,6 +6055,10 @@ static LRESULT tabControlWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM l
         }
       }
       return 0;
+    case WM_SETFOCUS:
+    case WM_KILLFOCUS:
+      InvalidateRect(hwnd,NULL,FALSE);
+    break;
   }
   return DefWindowProc(hwnd,msg,wParam,lParam);
 }
@@ -5880,19 +6091,20 @@ void SWELL_RegisterCustomControlCreator(SWELL_ControlCreatorProc proc)
   if (WDL_NOT_NORMALLY(!proc)) return;
   
   ccprocrec *p=m_ccprocs;
-  while (p && p->next)
+  if (p) for (;;)
   {
     if (p->proc == proc)
     {
       p->cnt++;
       return;
     }
+    if (!p->next) break;
     p=p->next;
   }
   ccprocrec *ent = (ccprocrec*)malloc(sizeof(ccprocrec));
   ent->proc=proc;
   ent->cnt=1;
-  ent->next=0;
+  ent->next=NULL;
   
   if (p) p->next=ent;
   else m_ccprocs=ent;
@@ -6124,6 +6336,9 @@ void ListView_SetExtendedListViewStyleEx(HWND h, int flag, int mask)
 
 void SWELL_SetListViewFastClickMask(HWND hList, int mask)
 {
+  listViewState *lvs = hList ? (listViewState *)hList->m_private_data : NULL;
+  if (WDL_NOT_NORMALLY(!lvs)) return;
+  lvs->m_fastclick_mask = mask;
 }
 
 void ListView_SetImageList(HWND h, HIMAGELIST imagelist, int which)
@@ -6149,6 +6364,7 @@ void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
   SWELL_ListView_Col col = { 0, 100 };
   if (lvc->mask & LVCF_WIDTH) col.xwid = lvc->cx;
   if (lvc->mask & LVCF_TEXT) col.name = lvc->pszText ? strdup(lvc->pszText) : NULL;
+  if (lvc->mask & LVCF_FMT) col.fmt = lvc->fmt;
 
   for (int x = 0; x < lvs->m_cols.GetSize(); x++)
     if (lvs->m_cols.Get()[x].col_index>=pos)
@@ -6173,6 +6389,7 @@ void ListView_SetColumn(HWND h, int pos, const LVCOLUMN *lvc)
     free(col->name);
     col->name = lvc->pszText ? strdup(lvc->pszText) : NULL;
   }
+  if (lvc->mask & LVCF_FMT) col->fmt = lvc->fmt;
 }
 
 void ListView_GetItemText(HWND hwnd, int item, int subitem, char *text, int textmax)
@@ -6189,13 +6406,13 @@ int ListView_InsertItem(HWND h, const LVITEM *item)
   int idx =  (int) item->iItem;
   if (idx<0 || idx>lvs->m_data.GetSize()) idx=lvs->m_data.GetSize();
   SWELL_ListView_Row *row=new SWELL_ListView_Row;
-  row->m_vals.Add((item->mask&LVIF_TEXT) && item->pszText ? strdup(item->pszText) : NULL);
+  row->add_col((item->mask&LVIF_TEXT) ? item->pszText : NULL);
   row->m_param = (item->mask&LVIF_PARAM) ? item->lParam : 0;
   row->m_tmp = ((item->mask & LVIF_STATE) && (item->state & LVIS_SELECTED)) ? 1:0;
   lvs->m_data.Insert(idx,row); 
   if (item->mask&LVIF_STATE)
   {
-    if (item->stateMask & LVIS_STATEIMAGEMASK) row->m_imageidx=STATEIMAGEMASKTOINDEX(item->state);
+    if (item->stateMask & LVIS_STATEIMAGEMASK) row->set_img_idx(0,STATEIMAGEMASKTOINDEX(item->state));
     if (item->stateMask & LVIS_SELECTED) lvs->set_sel(idx,!!(item->state&LVIS_SELECTED));
   }
   InvalidateRect(h,NULL,FALSE);
@@ -6211,9 +6428,8 @@ void ListView_SetItemText(HWND h, int ipos, int cpos, const char *txt)
 
   SWELL_ListView_Row *row=lvs->m_data.Get(ipos);
   if (!row) return;
-  while (row->m_vals.GetSize()<=cpos) row->m_vals.Add(NULL);
-  free(row->m_vals.Get(cpos));
-  row->m_vals.Set(cpos,txt?strdup(txt):NULL);
+  while (row->get_num_cols()<=cpos) row->add_col(NULL);
+  row->set_col_txt(cpos,txt);
   InvalidateRect(h,NULL,FALSE);
 }
 
@@ -6244,11 +6460,10 @@ bool ListView_SetItem(HWND h, LVITEM *item)
     const int ncol = wdl_max(lvs->m_cols.GetSize(),1);
     if (item->iSubItem >= 0 && item->iSubItem < ncol)
     {
-      while (row->m_vals.GetSize()<=item->iSubItem) row->m_vals.Add(NULL);
+      while (row->get_num_cols()<=item->iSubItem) row->add_col(NULL);
       if (item->mask&LVIF_TEXT) 
       {
-        free(row->m_vals.Get(item->iSubItem));
-        row->m_vals.Set(item->iSubItem,item->pszText?strdup(item->pszText):NULL);
+        row->set_col_txt(item->iSubItem,item->pszText);
       }
     }
     if (item->mask & LVIF_PARAM) 
@@ -6257,7 +6472,7 @@ bool ListView_SetItem(HWND h, LVITEM *item)
     }
     if (item->mask&LVIF_IMAGE)
     {
-      row->m_imageidx=item->iImage+1;
+      row->set_img_idx(item->iSubItem,item->iImage+1);
     }
   }
   else 
@@ -6284,7 +6499,7 @@ bool ListView_GetItem(HWND h, LVITEM *item)
     if (!row) return false;
     if ((item->mask&LVIF_TEXT)&&item->pszText && item->cchTextMax > 0) 
     {
-      const char *v=row->m_vals.Get(item->iSubItem);
+      const char *v=row->get_col_txt(item->iSubItem);
       lstrcpyn_safe(item->pszText, v?v:"",item->cchTextMax);
     }
     if (item->mask & LVIF_PARAM) item->lParam = row->m_param;
@@ -6321,7 +6536,7 @@ bool ListView_GetItem(HWND h, LVITEM *item)
     {
       SWELL_ListView_Row *row = lvs->m_data.Get(item->iItem);
       if (row)
-        item->state |= INDEXTOSTATEIMAGEMASK(row->m_imageidx);
+        item->state |= INDEXTOSTATEIMAGEMASK(row->get_img_idx(0));
     }
   }
 
@@ -6338,7 +6553,7 @@ int ListView_GetItemState(HWND h, int ipos, UINT mask)
   {
     SWELL_ListView_Row *row = lvs->m_data.Get(ipos);
     if (row)
-      ret |= INDEXTOSTATEIMAGEMASK(row->m_imageidx);
+      ret |= INDEXTOSTATEIMAGEMASK(row->get_img_idx(0));
   }
   return ret;
 }
@@ -6382,9 +6597,9 @@ bool ListView_SetItemState(HWND h, int ipos, UINT state, UINT statemask)
     SWELL_ListView_Row *row = lvs->m_data.Get(ipos);
     if (row)
     {
-      const int idx= row->m_imageidx;
-      row->m_imageidx=STATEIMAGEMASKTOINDEX(state);
-      if (!changed && idx != row->m_imageidx) ListView_RedrawItems(h,ipos,ipos);
+      const int idx= row->get_img_idx(0);
+      row->set_img_idx(0,STATEIMAGEMASKTOINDEX(state));
+      if (!changed && idx != row->get_img_idx(0)) ListView_RedrawItems(h,ipos,ipos);
     }
   }
 
@@ -6713,6 +6928,11 @@ HWND ChildWindowFromPoint(HWND h, POINT p)
   return h;
 }
 
+static bool isHitTestOpaque(HWND h, const POINT p)
+{
+  return h->m_visible && HTTRANSPARENT != SendMessage(h, WM_NCHITTEST, 0, MAKELPARAM(p.x, p.y));
+}
+
 static HWND recurseOwnedWindowHitTest(HWND h, POINT p, int maxdepth)
 {
   RECT r;
@@ -6725,7 +6945,7 @@ static HWND recurseOwnedWindowHitTest(HWND h, POINT p, int maxdepth)
     HWND owned = h->m_owned_list;
     while (owned)
     {
-      if (owned->m_visible)
+      if (isHitTestOpaque(owned, p))
       {
         HWND hit = recurseOwnedWindowHitTest(owned,p,maxdepth-1);
         if (hit) return hit;
@@ -6743,7 +6963,7 @@ HWND WindowFromPoint(POINT p)
   HWND h = SWELL_topwindows;
   while (h)
   {
-    if (h->m_visible)
+    if (isHitTestOpaque(h, p))
     {
       HWND hit = recurseOwnedWindowHitTest(h,p,20);
       if (hit) return hit;
@@ -6753,8 +6973,20 @@ HWND WindowFromPoint(POINT p)
   return NULL;
 }
 
+#ifdef _DEBUG
+int g_swell_in_paint;
+#endif
+
 BOOL InvalidateRect(HWND hwnd, const RECT *r, int eraseBk)
 { 
+#ifdef _DEBUG
+  if (g_swell_in_paint)
+  {
+    printf("swell-generic: calling InvalidateRect() from within paint, this is allowed but bad form.\n");
+    // WDL_ASSERT(false);
+  }
+#endif
+
   if (WDL_NOT_NORMALLY(!hwnd) || hwnd->m_hashaddestroy) return FALSE;
 
 #ifdef SWELL_LICE_GDI
@@ -6956,7 +7188,7 @@ LRESULT SwellDialogDefaultWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
       int navdir = 0;
 
       if (wParam == VK_TAB && (lParam&~FSHIFT) == FVIRTKEY) navdir = (lParam & FSHIFT) ? -1 : 1;
-      else if (lParam == FVIRTKEY)
+      else if ((lParam&0xff) == FVIRTKEY)
       {
         if (wParam == VK_LEFT || wParam == VK_UP) navdir = -1;
         else if (wParam == VK_RIGHT || wParam == VK_DOWN) navdir = 1;
@@ -6967,8 +7199,9 @@ LRESULT SwellDialogDefaultWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
         HWND ch = getNextFocusWindow(hwnd,navdir<0,hwnd->m_focused_child);
         if (ch)
         {
+          HWND oldfoc = GetFocus();
           SetFocus(ch);
-
+          if (oldfoc != ch) SWELL_OnNavigationFocus(ch);
           InvalidateRect(ch,NULL,FALSE);
           return 0;
         }
@@ -6993,7 +7226,10 @@ static bool wantRightAlignedMenuBarItem(const char *p)
   return c > 0 && c != '&' && !isalnum(c);
 }
 
-static int menuBarHitTest(HWND hwnd, int mousex, int mousey, RECT *rOut, int forceItem)
+#define MENUBAR_SELECTED_ITEM_XPAD \
+   wdl_min(g_swell_ctheme.menubar_spacing_width,g_swell_ctheme.menubar_margin_width)
+
+static int menuBarHitTest(HWND hwnd, int mousex, int mousey, RECT *rOut, int forceItem, int expandedItem)
 {
   int rv=-1;
   RECT r;
@@ -7002,6 +7238,7 @@ static int menuBarHitTest(HWND hwnd, int mousex, int mousey, RECT *rOut, int for
   {
     HDC dc = GetWindowDC(hwnd);
 
+    const int xselpad = MENUBAR_SELECTED_ITEM_XPAD, xpad=g_swell_ctheme.menubar_spacing_width;
     int x,xpos=r.left + g_swell_ctheme.menubar_margin_width;
     HMENU__ *menu = (HMENU__*)hwnd->m_menu;
     HGDIOBJ oldfont = dc ? SelectObject(dc,menubar_font) : NULL;
@@ -7020,11 +7257,15 @@ static int menuBarHitTest(HWND hwnd, int mousex, int mousey, RECT *rOut, int for
           cr.right = r.right - g_swell_ctheme.menubar_margin_width - xpos;
         }
 
-        if (forceItem>=0 ? forceItem == x : (mousex >=xpos && mousex< xpos + cr.right + g_swell_ctheme.menubar_spacing_width))
+        if (forceItem >=0 ? forceItem == x :
+            expandedItem < 0 ? (mousex >= xpos - xpad && mousex < xpos + cr.right + (xpad+1)*3/4) :
+            x == expandedItem ? (mousex >= xpos - xselpad && mousex < xpos + cr.right + xselpad) :
+            mousex >= xpos && mousex < xpos + cr.right + xpad - (x == expandedItem-1 ? xselpad : 0)
+           )
         {
           if (!dis) 
           {
-            rOut->left = xpos;
+            rOut->left = xpos - xselpad;
             rOut->right = xpos + cr.right;
             rOut->top = r.top;
             rOut->bottom = r.top + g_swell_ctheme.menubar_height;
@@ -7033,7 +7274,7 @@ static int menuBarHitTest(HWND hwnd, int mousex, int mousey, RECT *rOut, int for
           break;
         }
 
-        xpos+=cr.right+g_swell_ctheme.menubar_spacing_width;
+        xpos+=cr.right+xpad;
       }
     }
     
@@ -7048,7 +7289,6 @@ static int menuBarHitTest(HWND hwnd, int mousex, int mousey, RECT *rOut, int for
 
 static RECT g_menubar_lastrect;
 static HWND g_menubar_active;
-static POINT g_menubar_startpt;
 static bool g_menubar_active_drag;
 
 HWND swell_window_wants_all_input()
@@ -7061,7 +7301,7 @@ int menuBarNavigate(int dir) // -1 if no menu bar active, 0 if did nothing, 1 if
   if (!g_menubar_active || !g_menubar_active->m_menu) return -1;
   HMENU__ *menu = (HMENU__*)g_menubar_active->m_menu;
   RECT r;
-  const int x = menuBarHitTest(g_menubar_active,0,0,&r,menu->sel_vis + dir);
+  const int x = menuBarHitTest(g_menubar_active,0,0,&r,menu->sel_vis + dir, -1);
   if (x>=0)
   {
     MENUITEMINFO *inf = menu->items.Get(x);
@@ -7078,7 +7318,7 @@ int menuBarNavigate(int dir) // -1 if no menu bar active, 0 if did nothing, 1 if
 }
 
 RECT g_trackpopup_yroot;
-static void runMenuBar(HWND hwnd, HMENU__ *menu, int x, const RECT *use_r)
+static void runMenuBar(HWND hwnd, HMENU__ *menu, int x, const RECT *use_r, int flag)
 {
   menu->Retain();
   MENUITEMINFO *inf = menu->items.Get(x);
@@ -7092,13 +7332,12 @@ static void runMenuBar(HWND hwnd, HMENU__ *menu, int x, const RECT *use_r)
   mbr.bottom = 0;
   mbr.top = -g_swell_ctheme.menubar_height;
   menu->sel_vis = x;
-  GetCursorPos(&g_menubar_startpt);
   g_menubar_active = hwnd;
   g_menubar_active_drag=true;
   for (;;)
   {
     InvalidateRect(hwnd,&mbr,FALSE);
-    if (TrackPopupMenu(inf->hSubMenu,0,r.left,r.bottom,0xbeef,hwnd,NULL) || menu->sel_vis == x) break;
+    if (TrackPopupMenu(inf->hSubMenu,0,r.left,r.bottom,flag,hwnd,NULL) || menu->sel_vis == x) break;
 
     x = menu->sel_vis;
     inf = menu->items.Get(x);
@@ -7127,7 +7366,7 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
         HMENU__ *menu = (HMENU__*)hwnd->m_menu;
         RECT r;
-        const int x = menuBarHitTest(hwnd,GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam),&r,-1);
+        const int x = menuBarHitTest(hwnd,GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam),&r,-1, menu->sel_vis);
         if (x>=0 && x != menu->sel_vis)
         {
           MENUITEMINFO *inf = menu->items.Get(x);
@@ -7164,8 +7403,15 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
           r.bottom -= r.top; r.top=0;
           if (r.bottom>g_swell_ctheme.menubar_height) r.bottom=g_swell_ctheme.menubar_height;
 
+          bool isactive = false;
+          if (swell_is_app_inactive() == 0) // draw as inactive if maybe inactive
           {
-            HBRUSH br=CreateSolidBrush(g_swell_ctheme.menubar_bg);
+            HWND foc = GetFocus();
+            if (foc && (foc == hwnd || IsChild(hwnd,foc))) isactive = true;
+          }
+
+          {
+            HBRUSH br=CreateSolidBrush(isactive ? g_swell_ctheme.menubar_bg : g_swell_ctheme.menubar_bg_inactive);
             FillRect(dc,&r,br);
             DeleteObject(br);
           }
@@ -7199,12 +7445,16 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
               cr.bottom = r.bottom;
               if (!dis && menu->sel_vis == x)
               {
+                RECT crb = cr;
+                crb.left -= MENUBAR_SELECTED_ITEM_XPAD;
+                crb.right += MENUBAR_SELECTED_ITEM_XPAD;
                 HBRUSH br = CreateSolidBrush(g_swell_ctheme.menubar_bg_sel);
-                FillRect(dc,&cr,br);
+                FillRect(dc,&crb,br);
                 DeleteObject(br);
                 SetTextColor(dc,g_swell_ctheme.menubar_text_sel);
               }
               else SetTextColor(dc,
+                 !isactive ? g_swell_ctheme.menubar_text_inactive :
                  dis ? g_swell_ctheme.menubar_text_disabled :
                    g_swell_ctheme.menubar_text);
 
@@ -7229,7 +7479,8 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
           HWND h=WindowFromPoint(p);
           if (h && IsChild(hwnd,h)) hwndDest=h;
         }
-        SendMessage(hwnd,WM_CONTEXTMENU,(WPARAM)hwndDest,(p.x&0xffff)|(p.y<<16));
+        if (hwnd == s_last_rbuttondown)
+          SendMessage(hwnd,WM_CONTEXTMENU,(WPARAM)hwndDest,(p.x&0xffff)|(p.y<<16));
       }
     return 1;
     case WM_NCLBUTTONDOWN:
@@ -7243,16 +7494,19 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
           POINT pt;
           GetCursorPos(&pt);
-          pt.x -= g_menubar_startpt.x;
-          pt.y -= g_menubar_startpt.y;
-          if (pt.x*pt.x+ pt.y*pt.y > 4*4) 
+
+          RECT r;
+          GetWindowContentViewRect(hwnd,&r);
+          r.bottom = r.top + g_swell_ctheme.menubar_height;
+
+          if (!PtInRect(&r,pt))
           {
             DestroyPopupMenus();
             return 0;
           }
         }
         RECT r;
-        const int x = menuBarHitTest(hwnd,GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam),&r,-1);
+        const int x = menuBarHitTest(hwnd,GET_X_LPARAM(lParam),GET_Y_LPARAM(lParam),&r,-1,-1);
         if (x>=0)
         {
           HMENU__ *menu = (HMENU__*)hwnd->m_menu;
@@ -7263,7 +7517,7 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             { 
               if (msg == WM_NCLBUTTONDOWN) 
               {
-                runMenuBar(hwnd,menu,x,&r);
+                runMenuBar(hwnd,menu,x,&r,0xbeef);
               }
             }
             else if (msg == WM_NCLBUTTONUP)
@@ -7317,9 +7571,9 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 if (inf->hSubMenu)
                 {
                   RECT r;
-                  if (menuBarHitTest(hwnd,0,0,&r,x)>=0)
+                  if (menuBarHitTest(hwnd,0,0,&r,x,-1)>=0)
                   {
-                    runMenuBar(hwnd,menu,x,&r);
+                    runMenuBar(hwnd,menu,x,&r,0xbeee);
                   }
                 }
                 else
@@ -8297,16 +8551,6 @@ void SWELL_GenerateDialogFromList(const void *_list, int listsz)
   }
 }
 
-int swell_fullscreenWindow(HWND hwnd, BOOL fs)
-{
-  if (WDL_NORMALLY(hwnd))
-  {
-    hwnd->m_oswindow_fullscreen = fs;
-    return 1;
-  }
-  return 0;
-}
-
 void SWELL_SetClassName(HWND hwnd, const char *p)
 {
   if (WDL_NORMALLY(hwnd))
@@ -8352,5 +8596,62 @@ void VALIDATE_HWND_LIST(HWND listHead, HWND par)
 #endif
 
 
+LRESULT SWELL_SendMouseMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+  if (!hwnd || !hwnd->m_wndproc) return -1;
+  if (!IsWindowEnabled(hwnd))
+  {
+    if (msg == WM_LBUTTONDOWN || msg == WM_RBUTTONDOWN || msg == WM_MBUTTONDOWN ||
+        msg == WM_LBUTTONDBLCLK || msg == WM_RBUTTONDBLCLK || msg == WM_MBUTTONDBLCLK)
+    {
+      HWND h = DialogBoxIsActive();
+      if (h) SetForegroundWindow(h);
+    }
+    return -1;
+  }
+
+  if (msg == WM_RBUTTONDOWN) s_last_rbuttondown = hwnd;
+
+  LRESULT htc=0;
+  if (msg != WM_MOUSEWHEEL && !GetCapture())
+  {
+    DWORD p=GetMessagePos();
+
+    htc=hwnd->m_wndproc(hwnd,WM_NCHITTEST,0,p);
+    if (hwnd->m_hashaddestroy||!hwnd->m_wndproc)
+    {
+      return -1; // if somehow WM_NCHITTEST destroyed us, bail
+    }
+
+    if (htc!=HTCLIENT || swell_window_wants_all_input() == hwnd)
+    {
+      if (msg==WM_MOUSEMOVE) return hwnd->m_wndproc(hwnd,WM_NCMOUSEMOVE,htc,p);
+//      if (msg==WM_MOUSEWHEEL) return hwnd->m_wndproc(hwnd,WM_NCMOUSEWHEEL,htc,p);
+//      if (msg==WM_MOUSEHWHEEL) return hwnd->m_wndproc(hwnd,WM_NCMOUSEHWHEEL,htc,p);
+      if (msg==WM_LBUTTONUP) return hwnd->m_wndproc(hwnd,WM_NCLBUTTONUP,htc,p);
+      if (msg==WM_LBUTTONDOWN) return hwnd->m_wndproc(hwnd,WM_NCLBUTTONDOWN,htc,p);
+      if (msg==WM_LBUTTONDBLCLK) return hwnd->m_wndproc(hwnd,WM_NCLBUTTONDBLCLK,htc,p);
+      if (msg==WM_RBUTTONUP) return hwnd->m_wndproc(hwnd,WM_NCRBUTTONUP,htc,p);
+      if (msg==WM_RBUTTONDOWN) return hwnd->m_wndproc(hwnd,WM_NCRBUTTONDOWN,htc,p);
+      if (msg==WM_RBUTTONDBLCLK) return hwnd->m_wndproc(hwnd,WM_NCRBUTTONDBLCLK,htc,p);
+      if (msg==WM_MBUTTONUP) return hwnd->m_wndproc(hwnd,WM_NCMBUTTONUP,htc,p);
+      if (msg==WM_MBUTTONDOWN) return hwnd->m_wndproc(hwnd,WM_NCMBUTTONDOWN,htc,p);
+      if (msg==WM_MBUTTONDBLCLK) return hwnd->m_wndproc(hwnd,WM_NCMBUTTONDBLCLK,htc,p);
+    }
+  }
+
+
+  LRESULT ret=hwnd->m_wndproc(hwnd,msg,wParam,lParam);
+
+  if (msg==WM_LBUTTONUP || msg==WM_RBUTTONUP || msg==WM_MOUSEMOVE || msg==WM_MBUTTONUP)
+  {
+    if (!GetCapture() && (hwnd->m_hashaddestroy || !hwnd->m_wndproc || !hwnd->m_wndproc(hwnd,WM_SETCURSOR,(WPARAM)hwnd,htc | (msg<<16))))
+    {
+      SetCursor(SWELL_LoadCursor(IDC_ARROW));
+    }
+  }
+
+  return ret;
+}
 
 #endif

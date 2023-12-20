@@ -102,8 +102,9 @@ public:
         g.PathLineTo(vx, vy);
       }
     }
-        
-    g.PathStroke(IPattern::CreateLinearGradient(mPlotBounds, mDirection, {{COLOR_TRANSPARENT, 0.f}, {GetColor(kX1), 1.f}}), mStrokeThickness, IStrokeOptions(), &mBlend);
+    IStrokeOptions strokeOptions;
+    strokeOptions.mJoinOption = ELineJoin::Bevel;
+    g.PathStroke(IPattern::CreateLinearGradient(mPlotBounds, mDirection, {{COLOR_TRANSPARENT, 0.f}, {GetColor(kX1), 1.f}}), mStrokeThickness, strokeOptions, &mBlend);
   }
   
   void OnMsgFromDelegate(int msgTag, int dataSize, const void* pData) override

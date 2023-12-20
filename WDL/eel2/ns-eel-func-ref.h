@@ -41,19 +41,21 @@ const char *nseel_builtin_function_reference=
     "memset\toffset,value,length\tSets length items of memory at offset to value.\0"
     "mem_get_values\toffset, ...\tReads values from memory starting at offset into variables specified. Slower than regular memory reads for less than a few variables, faster for more than a few. Undefined behavior if used with more than 32767 variables.\0"
     "mem_set_values\toffset, ...\tWrites values to memory starting at offset from variables specified. Slower than regular memory writes for less than a few variables, faster for more than a few. Undefined behavior if used with more than 32767 variables.\0"
+    "mem_multiply_sum\tsrc1,src2,length\tCalculates the sum of the products of values pointed to by src1 and src2. If src2 is -1, then calculates the sum of squares of src1, if -2, the sum of the absolute values of src, if -3, calculates the sum of the values of src1. Other negative values are undefined.\0"
+    "mem_insert_shuffle\tbuf,len,value\tShuffles contents of buf right by 1, inserts value at buf[0], returns previous buf[len-1].\0"
     "stack_push\t&value\tPushes value onto the user stack, returns a reference to the parameter.\0"
     "stack_pop\t&value\tPops a value from the user stack into value, or into a temporary buffer if value is not specified, and returns a reference to where the stack was popped. Note that no checking is done to determine if the stack is empty, and as such stack_pop() will never fail.\0"
     "stack_peek\tindex\tReturns a reference to the item on the top of the stack (if index is 0), or to the Nth item on the stack if index is greater than 0. \0"
     "stack_exch\t&value\tExchanges a value with the top of the stack, and returns a reference to the parameter (with the new value).\0"
 #ifdef NSEEL_EEL1_COMPAT_MODE
-    "rand\tmax\tReturns a psuedorandom non-negative integer number less than the parameter.\0"
+    "rand\tmax\tReturns a pseudorandom non-negative integer number less than the parameter.\0"
     "sigmoid\tvalue,constraint\tReturns 1.0/(1+exp(-x * (constraint))), or 0 if a divide by 0 would occur.\0"
     "band\tx,y\tReturns 1 if both x and y evaluate to nonzero, 0 if otherwise. Both parameters are always evaluated.\0"
     "bor\tx,y\tReturns 1 if either x or y evaluate to nonzero, 0 if otherwise. Both parameters are always evaluated.\0"
     "exec2\tx,y\tEvaluates x, then evaluates and returns y.\0"
     "exec3\tx,y,z\tEvaluates x, evaluates y, then evaluates and returns z.\0"
 #else
-    "rand\t[max]\tReturns a psuedorandom real number between 0 and the parameter, inclusive. If the parameter is omitted or less than 1.0, 1.0 is used as a maximum instead.\0"
+    "rand\t[max]\tReturns a pseudorandom real number between 0 and the parameter, inclusive. If the parameter is omitted or less than 1.0, 1.0 is used as a maximum instead.\0"
 
 #endif
 ;

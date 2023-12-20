@@ -51,12 +51,13 @@ public:
   void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnReset() override;
   void OnParamChange(int paramIdx) override;
+  void OnParamChangeUI(int paramIdx, EParamSource source) override;
   void OnIdle() override;
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
 
 private:
   IPlugInstrumentDSP<sample> mDSP {16};
-  IPeakSender<2> mMeterSender;
+  IPeakAvgSender<2> mMeterSender;
   ISender<1> mLFOVisSender;
 #endif
 };

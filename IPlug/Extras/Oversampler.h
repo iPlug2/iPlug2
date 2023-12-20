@@ -110,7 +110,7 @@ public:
   {
     int numBufSamples = 1;
     
-    if(mBlockProcessing)
+    if (mBlockProcessing)
       numBufSamples = blockSize;
     else
     {
@@ -179,7 +179,7 @@ public:
     assert(nInChans <= mNInChannels);
     assert(nOutChans <= mNOutChannels);
     
-    if(mRate != mPrevRate)
+    if (mRate != mPrevRate)
     {
       switch (mRate) {
         case 2:
@@ -205,7 +205,7 @@ public:
       mPrevRate = mRate;
     }
 
-    for(auto c = 0; c < nInChans; c++) {
+    for (auto c = 0; c < nInChans; c++) {
       if (mRate >= 2) {
         mUpsampler2x.Get(c)->process_block(mUp2BufferPtrs.Get(c), inputs[c], nFrames);
       }
@@ -224,7 +224,7 @@ public:
       func(inputs, outputs, nFrames);
     } else {
       for (auto i = 0; i < mRate; i++) {
-        for(auto c = 0; c < nInChans; c++) {
+        for (auto c = 0; c < nInChans; c++) {
           mNextInputPtrs.Set(c, mInPtrLoopSrc->Get(c) + (i * nFrames));
           mNextOutputPtrs.Set(c, mOutPtrLoopSrc->Get(c) + (i * nFrames));
         }
@@ -232,7 +232,7 @@ public:
       }
     }
     
-    for(auto c = 0; c < nOutChans; c++) {
+    for (auto c = 0; c < nOutChans; c++) {
       if (mRate == 16) {
         mDownsampler16x.Get(c)->process_block(mDown8BufferPtrs.Get(c), mDown16BufferPtrs.Get(c), nFrames * 8);
       }
@@ -256,7 +256,7 @@ public:
   {
     T output;
 
-    if(mRate == 16)
+    if (mRate == 16)
     {
       mUpsampler2x.Get(0)->process_sample(mUp2x.Get()[0], mUp2x.Get()[1], input);
       mUpsampler4x.Get(0)->process_block(mUp4x.Get(), mUp2x.Get(), 2);
@@ -329,7 +329,7 @@ public:
       mWritePos++;
       mWritePos &= 15;
 
-      if(mWritePos == 0)
+      if (mWritePos == 0)
       {
         mDownsampler16x.Get(0)->process_block(mDown8x.Get(), mDown16x.Get(), 8);
         mDownsampler8x.Get(0)->process_block(mDown4x.Get(), mDown8x.Get(), 4);
@@ -345,7 +345,7 @@ public:
       mWritePos++;
       mWritePos &= 7;
 
-      if(mWritePos == 0)
+      if (mWritePos == 0)
       {
         mDownsampler8x.Get(0)->process_block(mDown4x.Get(), mDown8x.Get(), 4);
         mDownsampler4x.Get(0)->process_block(mDown2x.Get(), mDown4x.Get(), 2);
@@ -360,7 +360,7 @@ public:
       mWritePos++;
       mWritePos &= 3;
 
-      if(mWritePos == 0)
+      if (mWritePos == 0)
       {
         mDownsampler4x.Get(0)->process_block(mDown2x.Get(), mDown4x.Get(), 2);
         mDownSamplerOutput = mDownsampler2x.Get(0)->process_sample(mDown2x.Get());
@@ -373,7 +373,7 @@ public:
 
       mWritePos = !mWritePos;
 
-      if(mWritePos == 0)
+      if (mWritePos == 0)
       {
         mDownSamplerOutput = mDownsampler2x.Get(0)->process_sample(mDown2x.Get());
       }
@@ -395,7 +395,7 @@ public:
       }
     }
 
-    if(mRate > 1)
+    if (mRate > 1)
       output = mDownSamplerOutput;
 
     return output;
@@ -403,7 +403,7 @@ public:
 
   void SetOverSampling(EFactor factor)
   {
-    if(factor != mFactor)
+    if (factor != mFactor)
     {
       mFactor = factor;
       mRate = std::pow(2, (int) factor);
@@ -425,7 +425,7 @@ public:
     }
   }
   
-  int GetRate()
+  int GetRate() const
   {
     return mRate;
   }

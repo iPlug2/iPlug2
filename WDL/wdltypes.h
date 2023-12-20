@@ -38,11 +38,13 @@ typedef unsigned long long WDL_UINT64;
 
 #ifdef _WIN32
 #include <windows.h>
+#include <stdio.h>
 #else
 #include <stdint.h>
 typedef intptr_t INT_PTR;
 typedef uintptr_t UINT_PTR;
 #endif
+#include <string.h>
 
 #if defined(__ppc__) || !defined(__cplusplus)
 typedef char WDL_bool;
@@ -70,6 +72,18 @@ typedef bool WDL_bool;
 #define GCLP_HICONSM GCL_HICONSM
 #define SetClassLongPtr(a,b,c) SetClassLong(a,b,c)
 #define GetClassLongPtr(a,b) GetClassLong(a,b)
+#endif
+
+#if !defined(WDL_BIG_ENDIAN) && !defined(WDL_LITTLE_ENDIAN)
+  #ifdef __ppc__
+    #define WDL_BIG_ENDIAN
+  #else
+    #define WDL_LITTLE_ENDIAN
+  #endif
+#endif
+
+#if defined(WDL_BIG_ENDIAN) && defined(WDL_LITTLE_ENDIAN)
+#error WDL_BIG_ENDIAN and WDL_LITTLE_ENDIAN both defined
 #endif
 
 
@@ -105,7 +119,7 @@ typedef bool WDL_bool;
 #define wdl_max(x,y) ((x)<(y)?(y):(x))
 #define wdl_min(x,y) ((x)<(y)?(x):(y))
 #define wdl_abs(x) ((x)<0 ? -(x) : (x))
-#define wdl_clamp(x,minv,maxv) ((x) < (minv) ? (minv) : ((x) > (maxv) ? (maxv) : (x)))
+#define wdl_clamp(x,minv,maxv) (WDL_NOT_NORMALLY((maxv) < (minv)) || (x) < (minv) ? (minv) : ((x) > (maxv) ? (maxv) : (x)))
 #endif
 
 #ifndef _WIN32
@@ -156,13 +170,24 @@ typedef bool WDL_bool;
 
 #if defined(_DEBUG) || defined(DEBUG)
 #include <assert.h>
-#define WDL_ASSERT(x) assert(x)
-#define WDL_NORMALLY(x) (assert(x),1)
-#define WDL_NOT_NORMALLY(x) (assert(!(x)),0)
+
+  #ifdef _MSC_VER
+    // msvc assert failure allows message loop to run, potentially resulting in recursive asserts
+    static LONG WDL_ASSERT_INTERNALCNT;
+    static int WDL_ASSERT_END() { WDL_ASSERT_INTERNALCNT=0; return 0; }
+    static int WDL_ASSERT_BEGIN() { return InterlockedCompareExchange(&WDL_ASSERT_INTERNALCNT,1,0) == 0; }
+    #define WDL_ASSERT(x) do { if (WDL_ASSERT_BEGIN()) { assert(x); WDL_ASSERT_END(); } } while(0)
+  #else
+    #define WDL_ASSERT_BEGIN() (1)
+    #define WDL_ASSERT_END() (0)
+    #define WDL_ASSERT(x) assert(x)
+  #endif
+  #define WDL_NORMALLY(x)     ((x) ? 1 : (WDL_ASSERT_BEGIN() && (assert(0/*ignorethis*/ && (x)),WDL_ASSERT_END())))
+  #define WDL_NOT_NORMALLY(x) ((x) ? !WDL_ASSERT_BEGIN() || (assert(0/*ignorethis*/ && !(x)),!WDL_ASSERT_END()) : 0)
 #else
-#define WDL_ASSERT(x)
-#define WDL_NORMALLY(x) WDL_likely(x)
-#define WDL_NOT_NORMALLY(x) WDL_unlikely(x)
+  #define WDL_ASSERT(x)
+  #define WDL_NORMALLY(x) WDL_likely(x)
+  #define WDL_NOT_NORMALLY(x) WDL_unlikely(x)
 #endif
 
 
@@ -201,5 +226,104 @@ static WDL_bool WDL_STATICFUNC_UNUSED WDL_TICKS_IN_RANGE_ENDING_AT(WDL_TICKTYPE 
 #ifndef WDL_ALLOW_UNSIGNED_DEFAULT_CHAR
 typedef char wdl_assert_failed_unsigned_char[((char)-1) > 0 ? -1 : 1];
 #endif
+
+// wdl_log() / printf() wrapper. no-op on release builds
+#if !defined(_DEBUG) && !defined(WDL_LOG_ON_RELEASE)
+  static void WDL_STATICFUNC_UNUSED WDL_VARARG_WARN(printf,1,2) wdl_log(const char *format, ...) { }
+#elif defined(_WIN32)
+  static void WDL_STATICFUNC_UNUSED WDL_VARARG_WARN(printf,1,2) wdl_log(const char *format, ...)
+  {
+    int rv;
+    va_list va;
+
+    char tmp[3800];
+    va_start(va,format);
+    tmp[0]=0;
+    rv=_vsnprintf(tmp,sizeof(tmp),format,va); // returns -1  if over, and does not null terminate, ugh
+    va_end(va);
+
+    if (rv < 0 || rv>=(int)sizeof(tmp)-1) tmp[sizeof(tmp)-1]=0;
+    OutputDebugStringA(tmp);
+  }
+#else
+  #define wdl_log printf
+#endif
+
+static void WDL_STATICFUNC_UNUSED wdl_bswap_copy(void *bout, const void *bin, size_t nelem, size_t elemsz)
+{
+  char p[8], po[8];
+  WDL_ASSERT(elemsz > 0);
+  if (elemsz > 1 && WDL_NORMALLY(elemsz <= sizeof(p)))
+  {
+    size_t i,x;
+    for (i = 0; i < nelem; i ++)
+    {
+      memcpy(p,bin,elemsz);
+      for (x = 0; x < elemsz; x ++) po[x]=p[elemsz-1-x];
+      memcpy(bout,po,elemsz);
+      bin = (const char *)bin + elemsz;
+      bout = (char *)bout + elemsz;
+    }
+  }
+  else if (bout != bin)
+    memmove(bout,bin,elemsz * nelem);
+}
+
+static void WDL_STATICFUNC_UNUSED wdl_memcpy_le(void *bout, const void *bin, size_t nelem, size_t elemsz)
+{
+  WDL_ASSERT(elemsz > 0 && elemsz <= 8);
+#ifdef WDL_BIG_ENDIAN
+  if (elemsz > 1) wdl_bswap_copy(bout,bin,nelem,elemsz);
+  else
+#endif
+  if (bout != bin) memmove(bout,bin,elemsz * nelem);
+}
+
+static void WDL_STATICFUNC_UNUSED wdl_memcpy_be(void *bout, const void *bin, size_t nelem, size_t elemsz)
+{
+  WDL_ASSERT(elemsz > 0 && elemsz <= 8);
+#ifdef WDL_LITTLE_ENDIAN
+  if (elemsz > 1) wdl_bswap_copy(bout,bin,nelem,elemsz);
+  else
+#endif
+  if (bout != bin) memmove(bout,bin,elemsz * nelem);
+}
+
+static void WDL_STATICFUNC_UNUSED wdl_mem_store_int(void *bout, int v)
+{
+  memcpy(bout,&v,sizeof(v));
+}
+
+static void WDL_STATICFUNC_UNUSED wdl_mem_store_int_le(void *bout, int v)
+{
+  wdl_memcpy_le(bout,&v,1,sizeof(v));
+}
+
+static void WDL_STATICFUNC_UNUSED wdl_mem_store_int_be(void *bout, int v)
+{
+  wdl_memcpy_be(bout,&v,1,sizeof(v));
+}
+
+static int WDL_STATICFUNC_UNUSED wdl_mem_load_int(const void *rd)
+{
+  int v;
+  memcpy(&v,rd,sizeof(v));
+  return v;
+}
+
+static int WDL_STATICFUNC_UNUSED wdl_mem_load_int_le(const void *rd)
+{
+  int v;
+  wdl_memcpy_le(&v,rd,1,sizeof(v));
+  return v;
+}
+
+static int WDL_STATICFUNC_UNUSED wdl_mem_load_int_be(const void *rd)
+{
+  int v;
+  wdl_memcpy_be(&v,rd,1,sizeof(v));
+  return v;
+}
+
 
 #endif

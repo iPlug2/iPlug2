@@ -88,15 +88,11 @@ class WDL_HeapBuf
       ) : m_buf(NULL), m_alloc(0), m_size(0), m_granul(granul)
     {
       m_tracetype = tracetype;
-      char tmp[512];
-      wsprintf(tmp,"WDL_HeapBuf: created type: %s granul=%d\n",tracetype,granul);
-      OutputDebugString(tmp);
+      wdl_log("WDL_HeapBuf: created type: %s granul=%d\n",tracetype,granul);
     }
     ~WDL_HeapBuf()
     {
-      char tmp[512];
-      wsprintf(tmp,"WDL_HeapBuf: destroying type: %s (alloc=%d, size=%d)\n",m_tracetype,m_alloc,m_size);
-      OutputDebugString(tmp);
+      wdl_log("WDL_HeapBuf: destroying type: %s (alloc=%d, size=%d)\n",m_tracetype,m_alloc,m_size);
       free(m_buf);
     }
   #endif
@@ -162,9 +158,7 @@ class WDL_HeapBuf
               {
 
                 #ifdef WDL_HEAPBUF_TRACE
-                  char tmp[512];
-                  wsprintf(tmp,"WDL_HeapBuf: type %s realloc(%d) from %d\n",m_tracetype,newalloc,m_alloc);
-                  OutputDebugString(tmp);
+                  wdl_log("WDL_HeapBuf: type %s realloc(%d) from %d\n",m_tracetype,newalloc,m_alloc);
                 #endif
                 if (newalloc <= 0)
                 {
@@ -261,9 +255,12 @@ template<class PTRTYPE> class WDL_TypedBuf
     PTRTYPE *Get() const { return (PTRTYPE *) m_hb.Get(); }
     PTRTYPE *GetFast() const { return (PTRTYPE *) m_hb.GetFast(); }
     int GetSize() const { return m_hb.GetSize()/(unsigned int)sizeof(PTRTYPE); }
+    int GetSizeBytes() const { return m_hb.GetSize(); }
 
     PTRTYPE *Resize(int newsize, bool resizedown = true) { return (PTRTYPE *)m_hb.Resize(newsize*sizeof(PTRTYPE),resizedown); }
     PTRTYPE *ResizeOK(int newsize, bool resizedown = true) { return (PTRTYPE *)m_hb.ResizeOK(newsize*sizeof(PTRTYPE), resizedown);  }
+
+    void SetToZero() { memset(m_hb.Get(), 0, m_hb.GetSize()); }
 
     PTRTYPE *GetAligned(int align) const  { return (PTRTYPE *) m_hb.GetAligned(align); }
 

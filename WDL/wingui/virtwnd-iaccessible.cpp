@@ -329,7 +329,10 @@ public:
       if (p && *p && txt && *txt)
       {
         char buf[1024];
-        snprintf(buf,sizeof(buf),"%.500s %.500s",p,txt);
+        if (!strcmp(ctltype,"vwnd_iconbutton"))
+          snprintf(buf,sizeof(buf),"%.500s %.500s",txt,p);
+        else
+          snprintf(buf,sizeof(buf),"%.500s %.500s",p,txt);
         *pszOut= SysAllocStringUTF8(buf);
         if (!*pszOut) return E_OUTOFMEMORY;
       }
@@ -545,7 +548,11 @@ public:
     if (!vw->IsVisible()) pvarState->lVal |= STATE_SYSTEM_INVISIBLE;
     else
     {
-      if (!vw->GetParent() && vw->GetRealParent() && GetFocus() == vw->GetRealParent())
+      WDL_VWnd *par = vw->GetParent();
+      if (!par || par->m_focused_child != -2)
+        pvarState->lVal |= STATE_SYSTEM_FOCUSABLE;
+
+      if (vw->GetRealParent() && GetFocus() == vw->GetRealParent() && (!par || par->EnumChildren(par->m_focused_child) == vw))
         pvarState->lVal |= STATE_SYSTEM_FOCUSED;
     }
 
@@ -609,7 +616,10 @@ public:
         GetFocus()==m_br.vwnd->GetRealParent())
     {
       pvarFocusChild->vt=VT_I4;
-      pvarFocusChild->lVal = CHILDID_SELF;
+      if (m_br.vwnd->m_focused_child >= 0)
+        pvarFocusChild->lVal = 1+m_br.vwnd->m_focused_child;
+      else
+        pvarFocusChild->lVal = CHILDID_SELF;
     }
     return S_OK;
   }

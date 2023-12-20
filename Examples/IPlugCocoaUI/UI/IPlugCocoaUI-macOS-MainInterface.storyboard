@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="20037" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="20037"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--Plug CocoaUI View Controller-->
+        <scene sceneID="PEd-7d-5j0">
+            <objects>
+                <viewController storyboardIdentifier="main" showSeguePresentationStyle="single" id="bU7-R8-ocO" customClass="IPlugCocoaUIViewController" customModule="IPlugCocoaUI" sceneMemberID="viewController">
+                    <view key="view" id="tOy-S4-hL0">
+                        <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <box boxType="custom" borderWidth="0.0" title="Box" translatesAutoresizingMaskIntoConstraints="NO" id="YaF-CS-Cdi">
+                                <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                                <view key="contentView" id="1xf-cP-PXp">
+                                    <rect key="frame" x="0.0" y="0.0" width="450" height="300"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <slider verticalHuggingPriority="750" fixedFrame="YES" tag="1" translatesAutoresizingMaskIntoConstraints="NO" id="Y11-YL-hCg">
+                                            <rect key="frame" x="31" y="211" width="96" height="28"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <sliderCell key="cell" continuous="YES" state="on" alignment="left" maxValue="1" doubleValue="1" tickMarkPosition="above" sliderType="linear" id="CJy-ph-Ob5"/>
+                                            <connections>
+                                                <action selector="sliderChanged:" target="bU7-R8-ocO" id="ZUm-wA-Z8d"/>
+                                            </connections>
+                                        </slider>
+                                        <button verticalHuggingPriority="750" fixedFrame="YES" tag="2" translatesAutoresizingMaskIntoConstraints="NO" id="CTo-1x-14C">
+                                            <rect key="frame" x="26" y="170" width="75" height="32"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <buttonCell key="cell" type="push" title="Button" bezelStyle="rounded" alignment="center" borderStyle="border" tag="2" imageScaling="proportionallyDown" inset="2" id="en3-3K-Wmr">
+                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                <font key="font" metaFont="system"/>
+                                                <connections>
+                                                    <action selector="buttonClicked:" target="bU7-R8-ocO" id="yYE-d7-L2J"/>
+                                                </connections>
+                                            </buttonCell>
+                                        </button>
+                                        <progressIndicator fixedFrame="YES" maxValue="1" doubleValue="1" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="tPM-1x-797">
+                                            <rect key="frame" x="33" y="130" width="100" height="20"/>
+                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                        </progressIndicator>
+                                    </subviews>
+                                </view>
+                                <color key="fillColor" name="systemOrangeColor" catalog="System" colorSpace="catalog"/>
+                            </box>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RDq-7c-vDw">
+                                <rect key="frame" x="31" y="252" width="158" height="28"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <textFieldCell key="cell" lineBreakMode="clipping" title="IPlugCocoaUI" id="sLd-Ey-Qh4">
+                                    <font key="font" metaFont="system" size="24"/>
+                                    <color key="textColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                        </subviews>
+                        <constraints>
+                            <constraint firstAttribute="bottom" secondItem="YaF-CS-Cdi" secondAttribute="bottom" id="0l2-EW-oDO"/>
+                            <constraint firstItem="YaF-CS-Cdi" firstAttribute="leading" secondItem="tOy-S4-hL0" secondAttribute="leading" id="JKl-pG-1Rq"/>
+                            <constraint firstItem="YaF-CS-Cdi" firstAttribute="top" secondItem="tOy-S4-hL0" secondAttribute="top" id="dul-WS-cBu"/>
+                            <constraint firstAttribute="trailing" secondItem="YaF-CS-Cdi" secondAttribute="trailing" id="vkd-IH-sdj"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="MeterView" destination="tPM-1x-797" id="lNt-EW-3AY"/>
+                        <outlet property="Slider" destination="Y11-YL-hCg" id="dr9-IJ-flW"/>
+                    </connections>
+                </viewController>
+                <customObject id="9uD-mB-xHs" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="21" y="125"/>
+        </scene>
+    </scenes>
+</document>

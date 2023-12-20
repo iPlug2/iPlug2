@@ -7,14 +7,9 @@ IPlugWebUI::IPlugWebUI(const InstanceInfo& info)
   GetParam(kGain)->InitGain("Gain", -70., -70, 0.);
 
   // Hard-coded paths must be modified!
-#ifdef OS_WIN
-  SetWebViewPaths("C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\packages\\Microsoft.Web.WebView2.1.0.824-prerelease\\runtimes\\win-x64\\native\\WebView2Loader.dll", "C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\");
-#endif
-
-
   mEditorInitFunc = [&]() {
 #ifdef OS_WIN
-    LoadFile("C:\\Users\\oli\\Dev\\iPlug2\\Examples\\IPlugWebUI\\resources\\web\\index.html", nullptr);
+    LoadFile(R"(C:\Users\oli\Dev\iPlug2\Examples\IPlugWebUI\resources\web\index.html)", nullptr);
 #else
     LoadFile("index.html", GetBundleID());
 #endif
@@ -55,7 +50,7 @@ void IPlugWebUI::OnReset()
 
 bool IPlugWebUI::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
-  if(msgTag == kMsgTagButton1)
+  if (msgTag == kMsgTagButton1)
     Resize(512, 335);
   else if(msgTag == kMsgTagButton2)
     Resize(1024, 335);
@@ -73,11 +68,19 @@ bool IPlugWebUI::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pD
 
 void IPlugWebUI::OnIdle()
 {
-  if(mLastPeak > 0.01)
+  if (mLastPeak > 0.01)
     SendControlValueFromDelegate(kCtrlTagMeter, mLastPeak);
 }
 
 void IPlugWebUI::OnParamChange(int paramIdx)
 {
   DBGMSG("gain %f\n", GetParam(paramIdx)->Value());
+}
+
+void IPlugWebUI::ProcessMidiMsg(const IMidiMsg& msg)
+{
+  TRACE;
+  
+  msg.PrintMsg();
+  SendMidiMsg(msg);
 }

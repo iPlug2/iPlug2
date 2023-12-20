@@ -94,11 +94,12 @@ BEGIN_IPLUG_NAMESPACE
     
     LogFile()
     {
-      char logFilePath[100];
   #ifdef OS_WIN
-      sprintf(logFilePath, "%s/%s", "C:\\", LOGFILE); // TODO: check windows logFilePath
+      char logFilePath[MAX_WIN32_PATH_LEN];
+      snprintf(logFilePath, MAX_WIN32_PATH_LEN,"%s/%s", "C:\\", LOGFILE);
   #else
-      sprintf(logFilePath, "%s/%s", getenv("HOME"), LOGFILE);
+      char logFilePath[MAX_MACOS_PATH_LEN];
+      snprintf(logFilePath, MAX_MACOS_PATH_LEN, "%s/%s", getenv("HOME"), LOGFILE);
   #endif
       mFP = fopen(logFilePath, "w");
       assert(mFP);
@@ -144,7 +145,7 @@ BEGIN_IPLUG_NAMESPACE
     int i = (int) strlen(cStr);
     cStr[i++] = tz >= 0 ? '+' : '-';
     if (tz < 0) tz = -tz;
-    sprintf(&cStr[i], "%02d%02d", tz / 60, tz % 60);
+    snprintf(&cStr[i], 32, "%02d%02d", tz / 60, tz % 60);
     
     static char sTimeStr[32];
     strcpy(sTimeStr, cStr);

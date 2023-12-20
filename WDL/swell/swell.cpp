@@ -188,8 +188,6 @@ BOOL CloseHandle(HANDLE hand)
       case INTERNAL_OBJECT_THREAD:
         {
           SWELL_InternalObjectHeader_Thread *thr = (SWELL_InternalObjectHeader_Thread*)hdr;
-          void *tmp;
-          pthread_join(thr->pt,&tmp);
           pthread_detach(thr->pt);
         }
       break;
@@ -350,19 +348,16 @@ DWORD WaitForSingleObject(HANDLE hand, DWORD msTO)
     case INTERNAL_OBJECT_THREAD:
       {
         SWELL_InternalObjectHeader_Thread *thr = (SWELL_InternalObjectHeader_Thread*)hdr;
-        void *tmp;
-        if (!thr->done) 
+        if (thr->done) return WAIT_OBJECT_0;
+        if (!msTO) return WAIT_TIMEOUT;
+
+        const DWORD d=GetTickCount();
+        for (;;)
         {
-          if (!msTO) return WAIT_TIMEOUT;
-          if (msTO != INFINITE)
-          {
-            const DWORD d=GetTickCount();
-            while ((GetTickCount()-d)<msTO && !thr->done) Sleep(1);
-            if (!thr->done) return WAIT_TIMEOUT;
-          }
+          Sleep(1);
+          if (thr->done) return WAIT_OBJECT_0;
+          if (msTO != INFINITE && (GetTickCount()-d)>=msTO) return WAIT_TIMEOUT;
         }
-    
-        if (!pthread_join(thr->pt,&tmp)) return WAIT_OBJECT_0;      
       }
     break;
     case INTERNAL_OBJECT_EXTERNALSOCKET:
@@ -578,6 +573,8 @@ BOOL SetThreadPriority(HANDLE hand, int prio)
   {
     // this is for darwin, but might work elsewhere
     param.sched_priority = 31 + prio;
+    if (prio >= THREAD_PRIORITY_TIME_CRITICAL) // this could be _HIGHEST eventually
+      pol = SCHED_FIFO;
 
     int mt=sched_get_priority_min(pol);
     if (param.sched_priority<mt||param.sched_priority > (mt=sched_get_priority_max(pol)))param.sched_priority=mt;
@@ -806,9 +803,9 @@ HINSTANCE LoadLibraryGlobals(const char *fn, bool symbolsAsGlobals)
   
   void *inst = NULL, *bundleinst=NULL;
 
-#ifdef SWELL_TARGET_OSX
   struct stat ss;
-  if (stat(fn,&ss) || (ss.st_mode&S_IFDIR))
+#ifdef SWELL_TARGET_OSX
+  if (stat(fn,&ss) || (ss.st_mode&S_IFMT) == S_IFDIR)
   {
     CFStringRef str=(CFStringRef)SWELL_CStringToCFString(fn); 
     CFURLRef r=CFURLCreateWithFileSystemPath(NULL,str,kCFURLPOSIXPathStyle,true);
@@ -835,14 +832,11 @@ HINSTANCE LoadLibraryGlobals(const char *fn, bool symbolsAsGlobals)
     inst=dlopen(fn,RTLD_NOW|(symbolsAsGlobals?RTLD_GLOBAL:RTLD_LOCAL));
     if (!inst) 
     {
-#ifndef SWELL_TARGET_OSX
-      struct stat ss;
-      if (fn[0] == '/' && !stat(fn,&ss) && !(ss.st_mode&S_IFDIR))
+      if (fn[0] == '/' && !stat(fn,&ss) && (ss.st_mode&S_IFMT) != S_IFDIR)
       {
         const char *err = dlerror();
-        printf("swell: dlopen() failed: %s\n",err ? err : fn);
+        fprintf(stderr,"swell: dlopen() failed: %s\n",err ? err : fn);
       }
-#endif
       return 0;
     }
   }
@@ -1087,6 +1081,9 @@ void GetTempPath(int bufsz, char *buf)
 const char *g_swell_appname;
 char *g_swell_defini;
 const char *g_swell_fontpangram;
+#ifdef SWELL_TARGET_GDK
+bool swell_gdk_set_fullscreen(HWND, int);
+#endif
 
 void *SWELL_ExtendedAPI(const char *key, void *v)
 {
@@ -1180,16 +1177,13 @@ void *SWELL_ExtendedAPI(const char *key, void *v)
   {
     g_swell_fontpangram = (const char *)v;
   }
-#ifndef SWELL_TARGET_OSX
-#ifndef SWELL_EXTRA_MINIMAL
-  else if (!strcmp(key,"FULLSCREEN") || !strcmp(key,"-FULLSCREEN"))
-  {
-    int swell_fullscreenWindow(HWND, BOOL);
-    return (void*)(INT_PTR)swell_fullscreenWindow((HWND)v, key[0] != '-');
-  }
-#endif
-#endif
 #ifdef SWELL_TARGET_GDK
+  else if (!strcmp(key,"-FULLSCREEN"))
+    return v && swell_gdk_set_fullscreen((HWND)v,0) ? v : NULL;
+  else if (!strcmp(key,"FULLSCREEN"))
+    return v && swell_gdk_set_fullscreen((HWND)v,1) ? v : NULL;
+  else if (!strcmp(key,"oFULLSCREEN"))
+    return v && swell_gdk_set_fullscreen((HWND)v,2) ? v : NULL;
   else if (!strcmp(key,"activate_app"))
   {
     void swell_gdk_reactivate_app(void);

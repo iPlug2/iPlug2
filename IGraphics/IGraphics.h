@@ -49,10 +49,6 @@
 #include "IGraphicsPopupMenu.h"
 #include "IGraphicsEditorDelegate.h"
 
-#ifdef IGRAPHICS_IMGUI
-#include "IGraphicsImGui.h"
-#endif
-
 #include "nanosvg.h"
 
 #include <stack>
@@ -106,8 +102,10 @@ public:
   /** Draw an SVG image to the graphics context
    * @param svg The SVG image to the graphics context
    * @param bounds The rectangular region to draw the image in
-   * @param pBlend Optional blend method */
-  virtual void DrawSVG(const ISVG& svg, const IRECT& bounds, const IBlend* pBlend = 0);
+   * @param pBlend Optional blend method
+   * @param pStrokeColor Optional color to override all SVG stroke commands
+   * @param pFillColor Optional color to override all SVG fill commands */
+  virtual void DrawSVG(const ISVG& svg, const IRECT& bounds, const IBlend* pBlend = 0, const IColor* pStrokeColor = nullptr, const IColor* pFillColor = nullptr);
 
   /** Draw an SVG image to the graphics context with rotation
    * @param svg The SVG image to draw to the graphics context
@@ -417,6 +415,15 @@ public:
    * @param charHeight how high is a character in the bitmap
    * @param charOffset what is the offset between characters drawn */
   void DrawBitmapedText(const IBitmap& bitmap, const IRECT& bounds, IText& text, IBlend* pBlend, const char* str, bool vCenter = true, bool multiline = false, int charWidth = 6, int charHeight = 12, int charOffset = 0);
+  
+  /** Draw a horzional or vertical line, within a rectangular region of the graphics context
+   * @param color The color to draw the line with
+   * @param bounds The rectangular region to draw the line in
+   * @param dir The direction of the line
+   * @param pos The normalized position of the line on the horizontal or vertical axis, within bounds
+   * @param pBlend Optional blend method
+   * @param thickness Optional line thickness */
+  void DrawLineAcross(const IColor& color, const IRECT& bounds, EDirection dir, float pos, const IBlend* pBlend = 0, float thickness = 1.f);
 
   /** Draw a vertical line, within a rectangular region of the graphics context
    * @param color The color to draw the line with
@@ -479,8 +486,9 @@ public:
    * @param nPoints The number of points in the normYPoints / normXPoints
    * @param normXPoints Optional normailzed X positions of the points
    * @param pBlend Optional blend method
-   * @param thickness Optional line thickness */
-  virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f);
+   * @param thickness Optional line thickness
+   * @param pFillColor Optional color for the fill area */
+  virtual void DrawData(const IColor& color, const IRECT& bounds, float* normYPoints, int nPoints, float* normXPoints = nullptr, const IBlend* pBlend = 0, float thickness = 1.f, const IColor* pFillColor = nullptr);
   
   /** Load a font to be used by the graphics context
    * @param fontID A CString that will be used to reference the font
@@ -544,12 +552,13 @@ public:
   * @param shadow - the shadow to add */
   void ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow);
 
-protected:
-  /** Get the contents of a layers pixels as bitmap data
+  /** Get the contents of a layer as Raw RGBA bitmap data
+   * NOTE: you should only call this within IControl::Draw()
    * @param layer The layer to get the data from
    * @param data The pixel data extracted from the layer */
   virtual void GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data) = 0;
   
+protected:
   /** Implemented by a graphics backend to apply a calculated shadow mask to a layer, according to the shadow settings specified
    * @param layer The layer to apply the shadow to
    * @param mask The mask of the shadow as raw bitmap data
@@ -754,7 +763,7 @@ public:
 private:
   IPattern GetSVGPattern(const NSVGpaint& paint, float opacity);
 
-  void DoDrawSVG(const ISVG& svg, const IBlend* pBlend = nullptr);
+  void DoDrawSVG(const ISVG& svg, const IBlend* pBlend = nullptr, const IColor* pStrokeColor = nullptr, const IColor* pFillColor = nullptr);
   
   /** Prepare a particular area of the display for drawing, normally resulting in clipping of the region.
    * @param bounds The rectangular region to prepare  */
@@ -837,26 +846,34 @@ public:
    * @return /c true on success */
   virtual bool SetTextInClipboard(const char* str) = 0;
 
+  /** Set a file path in the clipboard. Returns false on unsupported platforms
+   * @param str A CString that contains a path to a file on disk
+   * @return /c true on success */
+  virtual bool SetFilePathInClipboard(const char* path) { return false; }
+
   /** Call this if you modify control tool tips at runtime. \todo explain */
   virtual void UpdateTooltips() = 0;
 
-  /** Pop up a modal platform message box dialog. NOTE: this method will block the main thread
+  /** Pop up a modal platform message box dialog.
    * @param str The text message to display in the dialogue
-   * @param caption The title of the message box window \todo check
+   * @param caption The title of the message box window
    * @param type EMsgBoxType describing the button options available \see EMsgBoxType
-   * @return \todo check */
-  virtual EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler = nullptr) = 0;
+   * @param completionHanlder an IMsgBoxCompletionHandlerFunc that will be called when a button is pressed
+   * @return EMsgBoxResult signifying which button was pressed */
+  virtual EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler = nullptr) = 0;
 
-  /** Create a platform file prompt dialog to choose a file/directory path for opening/saving a file/directory. NOTE: this method will block the main thread
-   * @param fileName Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For load dialogs, on successful selection of a file this will get set to the file’s name.
+  /** Create a platform file prompt dialog to choose a path for opening/saving a single file. NOTE: this method will block the main thread on macOS, unless you speficy the completionHander, which will be called asynchronously when the dialog button is pressed. On iOS, you must supply a completionHander.
+   * @param fileName Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For file-open dialogs, on successful selection of a file this will get set to the file’s name.
    * @param path WDL_String reference where the path will be put on success or empty string on failure/user cancelled
-   * @param action Determines whether this is an open dialog or a save dialog
-   * @param extensions A comma separated CString list of file extensions to filter in the dialog (e.g. “.wav, .aif” \todo check */
-  virtual void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action = EFileAction::Open, const char* extensions = 0) = 0;
+   * @param action Determines whether this is an file-open dialog or a file-save dialog
+   * @param ext A space separated CString list of file extensions to filter in the dialog (e.g. “.wav .aif”
+   * @param completionHandler an IFileDialogCompletionHandlerFunc that will be called when a file is selected or the dialog is cancelled */
+  virtual void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action = EFileAction::Open, const char* ext = "", IFileDialogCompletionHandlerFunc completionHandler = nullptr) = 0;
 
   /** Create a platform file prompt dialog to choose a directory path for opening/saving a directory. NOTE: this method will block the main thread
-   * @param dir Non const WDL_String reference specifying the directory path. Set this prior to calling the method for save dialogs, to provide a default path. For load dialogs, on successful selection of a directory this will get set to the full path. */
-  virtual void PromptForDirectory(WDL_String& dir) = 0;
+   * @param dir Non const WDL_String reference specifying the directory path. Set this prior to calling the method for save dialogs, to provide a default path. For load dialogs, on successful selection of a directory this will get set to the full path.
+   * @param completionHandler an IFileDialogCompletionHandlerFunc that will be called when a file is selected or the dialog is cancelled. Only the path argument will be populated. */
+  virtual void PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler = nullptr) = 0;
 
   /** Create a platform color chooser dialog. NOTE: this method will block the main thread
    * @param color When a color is chosen the IColor referenced will be updated with the new color
@@ -937,19 +954,20 @@ protected:
   /* Implemented on Windows to restore previous GL context calls ReleaseDC */
   virtual void DeactivateGLContext() {};
 
-  /** \todo
-   * @param control \todo
-   * @param text \todo
-   * @param bounds \todo
-   * @param str \todo */
+  /** Creates a platform native text entry field.
+  * @param paramIdx The index of the parameter associated with the text entry field.
+  * @param text The text to be displayed in the text entry field.
+  * @param bounds The rectangle that defines the size and position of the text entry field.
+  * @param length The maximum allowed length of the text in the text entry field.
+  * @param str The initial string to be displayed in the text entry field. */
   virtual void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) = 0;
   
   /** Calls the platform backend to create the platform popup menu
    * @param menu The source IPopupMenu
-   * @param bounds \todo
+   * @param bounds The rectangular area in which to create the menu
    * @param isAsync This gets set true on platforms where popupmenu creation is asyncronous
    * @return A ptr to the chosen IPopupMenu or nullptr in the case of async or dismissed menu */
-  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) = 0;
+  virtual IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) = 0;
 
 #pragma mark - Base implementation
 public:
@@ -1015,14 +1033,10 @@ public:
    * @param pMenu The menu that was clicked */
   void SetControlValueAfterPopupMenu(IPopupMenu* pMenu);
     
-  /** \todo 
-   * @param lo \todo
-   * @param hi \todo */
-  void SetScaleConstraints(float lo, float hi)
-  {
-    mMinScale = std::min(lo, hi);
-    mMaxScale = std::max(lo, hi);
-  }
+  /** Sets the minimum and maximum (draw) scaling values
+   * @param lo The minimum scalar that the IGraphics context can be scaled down to
+   * @param hi The maxiumum scalar that the IGraphics context can be scaled up to */
+  void SetScaleConstraints(float lo, float hi);
   
   /** \todo detailed description of how this works
    * @param w New width in pixels
@@ -1092,6 +1106,9 @@ public:
   
   /** @return Ptr to the control that launched the text entry */
   IControl* GetControlInTextEntry() { return mInTextEntry; }
+  
+  /** Called when the text entry is dismissed, to reset mInTextEntry */
+  void ClearInTextEntryControl() { mInTextEntry = nullptr; }
   
   /** @return \c true if tool tips are enabled */
   inline bool TooltipsEnabled() const { return mEnableTooltips; }
@@ -1169,11 +1186,6 @@ public:
    * @param func A function to do something when a MIDI message is triggered */
   void SetQwertyMidiKeyHandlerFunc(std::function<void(const IMidiMsg& msg)> func = nullptr);
   
-  /** Set functions to draw DearImGui widgets on top of the IGraphics context (only relevant when IGRAPHICS_IMGUI is defined) 
-   * @param drawFunc Called at the framerate, where you do the main ImGui
-   * @param setupFunc Called once after ImGui context is created */
-  void AttachImGui(std::function<void(IGraphics*)> drawFunc, std::function<void()> setupFunc = nullptr);
-  
   /** Called by platform class to see if the point at x, y is linked to a gesture recognizer */
   bool RespondsToGesture(float x, float y);
   
@@ -1185,8 +1197,6 @@ public:
   virtual float GetPlatformWindowScale() const { return 1.f; }
 
 private:
-  /* NO-OP to create ImGui when IGRAPHICS_IMGUI is defined */
-  virtual void CreatePlatformImGui() {}
   
   /** \todo */
   virtual void PlatformResize(bool parentHasResized) {}
@@ -1310,11 +1320,13 @@ public:
    * @return The index of the control (and the number of controls in the stack) */
   IControl* AttachControl(IControl* pControl, int ctrlTag = kNoTag, const char* group = "");
 
-  /** @param idx The index of the control to get
+  /** Get the control at a certain index in the control stack
+   * @param idx The index of the control to get
    * @return A pointer to the IControl object at idx or nullptr if not found */
   IControl* GetControl(int idx) { return mControls.Get(idx); }
 
-  /** @param pControl Pointer to the control to get
+  /** Get the index of a particular IControl in the control stack
+   * @param pControl Pointer to the control to get
    * @return integer index of the control in mControls array or -1 if not found */
   int GetControlIdx(IControl* pControl) const { return mControls.Find(pControl); }
   
@@ -1327,7 +1339,8 @@ public:
     return pControl ? GetControlIdx(pControl) : -1;
   }
   
-  /** @param ctrlTag The tag to look for
+  /** Get the control with a particular tag
+   * @param ctrlTag The tag to look for
    * @return A pointer to the IControl object with the tag of nullptr if not found */
   IControl* GetControlWithTag(int ctrlTag) const;
   
@@ -1344,6 +1357,11 @@ public:
     
     return kNoTag;
   }
+  
+  /** Get the first control with a parameter index that matches paramIdx
+   * @param idx The paramater index of the control to get
+   * @return A pointer to the IControl object at idx or nullptr if not found */
+  IControl* GetControlWithParamIdx(int paramIdx);
   
   /** Check to see if any control is captured */
   bool ControlIsCaptured() const { return mCapturedMap.size() > 0; }
@@ -1422,21 +1440,21 @@ public:
   void SetAllControlsClean();
     
   /** Reposition a control, redrawing the interface correctly
-   @param idx The index of the control
-   @param x The new x position
-   @param y The new y position */
-  void SetControlPosition(int idx, float x, float y);
+   * @param pControl The control
+   * @param x The new x position
+   * @param y The new y position */
+  void SetControlPosition(IControl* pControl, float x, float y);
   
   /** Resize a control, redrawing the interface correctly
-   @param idx The index of the control
-   @param w The new width
-   @param h The new height */
-  void SetControlSize(int idx, float w, float h);
+   * @param pControl The control
+   * @param w The new width
+   * @param h The new height */
+  void SetControlSize(IControl* pControl, float w, float h);
   
   /** Set a controls target and draw rect to r, redrawing the interface correctly
-   @param idx The index of the control 
-   @param r The new bounds for the control's target and draw rect */
-  void SetControlBounds(int idx, const IRECT& r);
+   * @param idx The index of the control
+   * @param r The new bounds for the control's target and draw rect */
+  void SetControlBounds(IControl* pControl, const IRECT& r);
   
 private:
   /** Get the index of the control at x and y coordinates on mouse event
@@ -1509,6 +1527,11 @@ public:
    * @param x The X coordinate where the drag and drop occurred
    * @param y The Y coordinate where the drag and drop occurred */
   void OnDrop(const char* str, float x, float y);
+
+  /** @param paths A vector with the absolute paths of the dropped items
+   * @param x The X coordinate where the drag and drop occurred
+   * @param y The Y coordinate where the drag and drop occurred */
+  void OnDropMultiple(const std::vector<const char*>& paths, float x, float y);
 
   /** This is an idle timer tick call on the GUI thread, only active if USE_IDLE_CALLS is defined */
   void OnGUIIdle();
@@ -1627,7 +1650,7 @@ public:
 
   /** Registers a gesture recognizer with the graphics context
    * @param type The type of gesture recognizer */
-  virtual void AttachGestureRecognizer(EGestureType type); //TODO: should be protected?
+  virtual void AttachGestureRecognizer(EGestureType type);
   
   /** Attach a gesture recognizer to a rectangular region of the GUI, i.e. not linked to an IControl
    * @param bounds The area that should recognize the gesture
@@ -1678,11 +1701,6 @@ protected:
 
   /** @return bool \c true if the drawing backend flips images (e.g. OpenGL) */
   virtual bool FlippedBitmap() const = 0;
-
-  /** Utility used by SearchImageResource/SearchBitmapInCache
-   * @param sourceScale \todo
-   * @param targetScale \todo */
-  inline void SearchNextScale(int& sourceScale, int targetScale);
 
   /** Search for a bitmap image resource matching the target scale 
    * @param fileName \todo
@@ -1815,11 +1833,6 @@ protected:
   IRECT mClipRECT;
   IMatrix mTransform;
   std::stack<IMatrix> mTransformStates;
-  
-#ifdef IGRAPHICS_IMGUI
-public:
-  std::unique_ptr<ImGuiRenderer> mImGuiRenderer;
-#endif
 };
 
 END_IGRAPHICS_NAMESPACE

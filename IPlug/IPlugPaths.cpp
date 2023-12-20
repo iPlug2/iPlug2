@@ -143,6 +143,12 @@ void INIPath(WDL_String& path, const char * pluginName)
   path.AppendFormatted(MAX_WIN32_PATH_LEN, "\\%s", pluginName);
 }
 
+void WebViewCachePath(WDL_String& path)
+{
+  GetKnownFolder(path, CSIDL_APPDATA);
+  path.Append("\\iPlug2\\WebViewCache"); // tmp
+}
+
 static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR param)
 {
   if (IS_INTRESOURCE(name)) return true; // integer resources not wanted
@@ -257,7 +263,7 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
     
     if(strcmp(type, "png") == 0) { //TODO: lowercase/uppercase png
       plusSlash.SetFormatted(strlen("/resources/img/") + strlen(file) + 1, "/resources/img/%s", file);
-      foundResource = emscripten::val::global("Module")["preloadedImages"].call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
+      foundResource = emscripten::val::global("preloadedImages").call<bool>("hasOwnProperty", std::string(plusSlash.Get()));
     }
     else if(strcmp(type, "ttf") == 0) { //TODO: lowercase/uppercase ttf
       plusSlash.SetFormatted(strlen("/resources/fonts/") + strlen(file) + 1, "/resources/fonts/%s", file);

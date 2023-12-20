@@ -1,0 +1,406 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		338536692957A46300048720 /* myapp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 338536682957A46300048720 /* myapp.cpp */; };
+		3385366B2957A4D300048720 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3385366A2957A4D300048720 /* main.m */; };
+		338536702957A62F00048720 /* MyApp.icns in Resources */ = {isa = PBXBuildFile; fileRef = 3385366E2957A62F00048720 /* MyApp.icns */; };
+		338536732957A6EB00048720 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 338536712957A6EB00048720 /* MainMenu.xib */; };
+		3385932D185B555500FDFFEA /* wndsize.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3385932C185B555500FDFFEA /* wndsize.cpp */; };
+		33AA3116185A7E8D001D767E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 33AA3115185A7E8D001D767E /* Cocoa.framework */; };
+		33AA3126185A7E8D001D767E /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 33AA3124185A7E8D001D767E /* Credits.rtf */; };
+		33F96581185A7F79004C7070 /* swell-appstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33F96576185A7F79004C7070 /* swell-appstub.mm */; };
+		33F96582185A7F79004C7070 /* swell-dlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33F96577185A7F79004C7070 /* swell-dlg.mm */; };
+		33F96583185A7F79004C7070 /* swell-gdi.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33F96578185A7F79004C7070 /* swell-gdi.mm */; };
+		33F96584185A7F79004C7070 /* swell-ini.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 33F96579185A7F79004C7070 /* swell-ini.cpp */; };
+		33F96585185A7F79004C7070 /* swell-kb.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33F9657A185A7F79004C7070 /* swell-kb.mm */; };
+		33F96586185A7F79004C7070 /* swell-menu.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33F9657B185A7F79004C7070 /* swell-menu.mm */; };
+		33F96587185A7F79004C7070 /* swell-misc.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33F9657C185A7F79004C7070 /* swell-misc.mm */; };
+		33F96588185A7F79004C7070 /* swell-miscdlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33F9657D185A7F79004C7070 /* swell-miscdlg.mm */; };
+		33F96589185A7F79004C7070 /* swell-wnd.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33F9657E185A7F79004C7070 /* swell-wnd.mm */; };
+		33F9658A185A7F79004C7070 /* swell.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 33F9657F185A7F79004C7070 /* swell.cpp */; };
+		33F9658B185A7F79004C7070 /* swellappmain.mm in Sources */ = {isa = PBXBuildFile; fileRef = 33F96580185A7F79004C7070 /* swellappmain.mm */; };
+		33F9658D185A8228004C7070 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 33F9658C185A8228004C7070 /* Carbon.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		338536682957A46300048720 /* myapp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = myapp.cpp; sourceTree = SOURCE_ROOT; };
+		3385366A2957A4D300048720 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = SOURCE_ROOT; };
+		3385366C2957A62F00048720 /* MyApp-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MyApp-Info.plist"; sourceTree = SOURCE_ROOT; };
+		3385366D2957A62F00048720 /* MyApp-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "MyApp-Prefix.pch"; sourceTree = SOURCE_ROOT; };
+		3385366E2957A62F00048720 /* MyApp.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = MyApp.icns; sourceTree = SOURCE_ROOT; };
+		338536722957A6EB00048720 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = SOURCE_ROOT; };
+		3385932C185B555500FDFFEA /* wndsize.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = wndsize.cpp; path = ../WDL/wingui/wndsize.cpp; sourceTree = "<group>"; };
+		33AA3112185A7E8D001D767E /* MyApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MyApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		33AA3115185A7E8D001D767E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		33AA3118185A7E8D001D767E /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		33AA3119185A7E8D001D767E /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		33AA311A185A7E8D001D767E /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		33AA311F185A7E8D001D767E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		33AA3125185A7E8D001D767E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		33F96576185A7F79004C7070 /* swell-appstub.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-appstub.mm"; path = "../WDL/swell/swell-appstub.mm"; sourceTree = "<group>"; };
+		33F96577185A7F79004C7070 /* swell-dlg.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-dlg.mm"; path = "../WDL/swell/swell-dlg.mm"; sourceTree = "<group>"; };
+		33F96578185A7F79004C7070 /* swell-gdi.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-gdi.mm"; path = "../WDL/swell/swell-gdi.mm"; sourceTree = "<group>"; };
+		33F96579185A7F79004C7070 /* swell-ini.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "swell-ini.cpp"; path = "../WDL/swell/swell-ini.cpp"; sourceTree = "<group>"; };
+		33F9657A185A7F79004C7070 /* swell-kb.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-kb.mm"; path = "../WDL/swell/swell-kb.mm"; sourceTree = "<group>"; };
+		33F9657B185A7F79004C7070 /* swell-menu.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-menu.mm"; path = "../WDL/swell/swell-menu.mm"; sourceTree = "<group>"; };
+		33F9657C185A7F79004C7070 /* swell-misc.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-misc.mm"; path = "../WDL/swell/swell-misc.mm"; sourceTree = "<group>"; };
+		33F9657D185A7F79004C7070 /* swell-miscdlg.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-miscdlg.mm"; path = "../WDL/swell/swell-miscdlg.mm"; sourceTree = "<group>"; };
+		33F9657E185A7F79004C7070 /* swell-wnd.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-wnd.mm"; path = "../WDL/swell/swell-wnd.mm"; sourceTree = "<group>"; };
+		33F9657F185A7F79004C7070 /* swell.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = swell.cpp; path = ../WDL/swell/swell.cpp; sourceTree = "<group>"; };
+		33F96580185A7F79004C7070 /* swellappmain.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = swellappmain.mm; path = ../WDL/swell/swellappmain.mm; sourceTree = "<group>"; };
+		33F9658C185A8228004C7070 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		33AA310F185A7E8D001D767E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				33F9658D185A8228004C7070 /* Carbon.framework in Frameworks */,
+				33AA3116185A7E8D001D767E /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		33AA3109185A7E8D001D767E = {
+			isa = PBXGroup;
+			children = (
+				338536712957A6EB00048720 /* MainMenu.xib */,
+				338536682957A46300048720 /* myapp.cpp */,
+				3385366C2957A62F00048720 /* MyApp-Info.plist */,
+				3385366D2957A62F00048720 /* MyApp-Prefix.pch */,
+				3385366E2957A62F00048720 /* MyApp.icns */,
+				3385366A2957A4D300048720 /* main.m */,
+				33AA3149185A7EEC001D767E /* WDL */,
+				33AA311E185A7E8D001D767E /* InfoPlist.strings */,
+				33AA3124185A7E8D001D767E /* Credits.rtf */,
+				33AA3114185A7E8D001D767E /* Frameworks */,
+				33AA3113185A7E8D001D767E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		33AA3113185A7E8D001D767E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				33AA3112185A7E8D001D767E /* MyApp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		33AA3114185A7E8D001D767E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				33F9658C185A8228004C7070 /* Carbon.framework */,
+				33AA3115185A7E8D001D767E /* Cocoa.framework */,
+				33AA3117185A7E8D001D767E /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		33AA3117185A7E8D001D767E /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				33AA3118185A7E8D001D767E /* AppKit.framework */,
+				33AA3119185A7E8D001D767E /* CoreData.framework */,
+				33AA311A185A7E8D001D767E /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		33AA3149185A7EEC001D767E /* WDL */ = {
+			isa = PBXGroup;
+			children = (
+				3385932C185B555500FDFFEA /* wndsize.cpp */,
+				33AA314A185A7EF4001D767E /* swell */,
+			);
+			name = WDL;
+			path = ../WDL;
+			sourceTree = "<group>";
+		};
+		33AA314A185A7EF4001D767E /* swell */ = {
+			isa = PBXGroup;
+			children = (
+				33F96576185A7F79004C7070 /* swell-appstub.mm */,
+				33F96577185A7F79004C7070 /* swell-dlg.mm */,
+				33F96578185A7F79004C7070 /* swell-gdi.mm */,
+				33F96579185A7F79004C7070 /* swell-ini.cpp */,
+				33F9657A185A7F79004C7070 /* swell-kb.mm */,
+				33F9657B185A7F79004C7070 /* swell-menu.mm */,
+				33F9657C185A7F79004C7070 /* swell-misc.mm */,
+				33F9657D185A7F79004C7070 /* swell-miscdlg.mm */,
+				33F9657E185A7F79004C7070 /* swell-wnd.mm */,
+				33F9657F185A7F79004C7070 /* swell.cpp */,
+				33F96580185A7F79004C7070 /* swellappmain.mm */,
+			);
+			name = swell;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		33AA3111185A7E8D001D767E /* MyApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 33AA3143185A7E8D001D767E /* Build configuration list for PBXNativeTarget "MyApp" */;
+			buildPhases = (
+				3304E16F1FC2253B00290319 /* ShellScript */,
+				33AA310E185A7E8D001D767E /* Sources */,
+				33AA310F185A7E8D001D767E /* Frameworks */,
+				33AA3110185A7E8D001D767E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MyApp;
+			productName = myapp;
+			productReference = 33AA3112185A7E8D001D767E /* MyApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		33AA310A185A7E8D001D767E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = cockos;
+			};
+			buildConfigurationList = 33AA310D185A7E8D001D767E /* Build configuration list for PBXProject "MyApp" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 33AA3109185A7E8D001D767E;
+			productRefGroup = 33AA3113185A7E8D001D767E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				33AA3111185A7E8D001D767E /* MyApp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		33AA3110185A7E8D001D767E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				338536732957A6EB00048720 /* MainMenu.xib in Resources */,
+				33AA3126185A7E8D001D767E /* Credits.rtf in Resources */,
+				338536702957A62F00048720 /* MyApp.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3304E16F1FC2253B00290319 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/usr/bin/perl ../WDL/swell/swell_resgen.sh res.rc";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		33AA310E185A7E8D001D767E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				33F96581185A7F79004C7070 /* swell-appstub.mm in Sources */,
+				33F9658B185A7F79004C7070 /* swellappmain.mm in Sources */,
+				33F9658A185A7F79004C7070 /* swell.cpp in Sources */,
+				33F96584185A7F79004C7070 /* swell-ini.cpp in Sources */,
+				3385932D185B555500FDFFEA /* wndsize.cpp in Sources */,
+				33F96589185A7F79004C7070 /* swell-wnd.mm in Sources */,
+				33F96582185A7F79004C7070 /* swell-dlg.mm in Sources */,
+				33F96585185A7F79004C7070 /* swell-kb.mm in Sources */,
+				33F96586185A7F79004C7070 /* swell-menu.mm in Sources */,
+				33F96583185A7F79004C7070 /* swell-gdi.mm in Sources */,
+				338536692957A46300048720 /* myapp.cpp in Sources */,
+				33F96587185A7F79004C7070 /* swell-misc.mm in Sources */,
+				3385366B2957A4D300048720 /* main.m in Sources */,
+				33F96588185A7F79004C7070 /* swell-miscdlg.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		338536712957A6EB00048720 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				338536722957A6EB00048720 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		33AA311E185A7E8D001D767E /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				33AA311F185A7E8D001D767E /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		33AA3124185A7E8D001D767E /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				33AA3125185A7E8D001D767E /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		33AA3141185A7E8D001D767E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
+				CLANG_CXX_LIBRARY = "libstdc++";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_STRICT_ALIASING = NO;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		33AA3142185A7E8D001D767E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++98";
+				CLANG_CXX_LIBRARY = "libstdc++";
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_STRICT_ALIASING = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		33AA3144185A7E8D001D767E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LIBRARY = "libc++";
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "MyApp-Prefix.pch";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				INFOPLIST_FILE = "MyApp-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_BUNDLE_IDENTIFIER = nobody.swell.myapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		33AA3145185A7E8D001D767E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_CXX_LIBRARY = "libc++";
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "MyApp-Prefix.pch";
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				INFOPLIST_FILE = "MyApp-Info.plist";
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				PRODUCT_BUNDLE_IDENTIFIER = nobody.swell.myapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		33AA310D185A7E8D001D767E /* Build configuration list for PBXProject "MyApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				33AA3141185A7E8D001D767E /* Debug */,
+				33AA3142185A7E8D001D767E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		33AA3143185A7E8D001D767E /* Build configuration list for PBXNativeTarget "MyApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				33AA3144185A7E8D001D767E /* Debug */,
+				33AA3145185A7E8D001D767E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 33AA310A185A7E8D001D767E /* Project object */;
+}

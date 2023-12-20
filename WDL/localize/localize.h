@@ -7,6 +7,18 @@
 // if onlySec_name is set, only loads/returns section in question and does not update global state.
 WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *buf, const char *onlySec_name);
 
+WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *buf,
+    WDL_StringKeyedArray< WDL_AssocArray<WDL_UINT64, char *> * > *dest,
+    const char *onlySec_name, // if set, will not touch dest
+    bool include_commented_lines,
+    bool no_escape_strings,
+    WDL_StringKeyedArray<char *> *extra_metadata
+    );
+
+WDL_AssocArray<WDL_UINT64, char *> *WDL_GetLangpackSection(const char *sec);
+
+void WDL_SetLangpackFallbackEntry(const char *src_sec, WDL_UINT64 src_v, const char *dest_sec, WDL_UINT64 dest_v);
+
 #define LOCALIZE_FLAG_VERIFY_FMTS 1 // verifies translated format-string (%d should match %d, etc)
 #define LOCALIZE_FLAG_NOCACHE 2     // must use this if the string passed is not a persistent static string, or if in another thread
 #define LOCALIZE_FLAG_PAIR 4        // one \0 in string needed -- this is not doublenull terminated but just a special case
@@ -21,6 +33,7 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *buf, const 
 #define __LOCALIZE_VERFMT_NOCACHE(str, ctx) str
 #define __LOCALIZE_LCACHE(str, ctx, pp) const char *pp = str
 #define __LOCALIZE_VERFMT_LCACHE(str, ctx, pp) const char *pp = str
+#define LOCALIZE_GET_SCALE_STRING(ctx) ("")
 #else
 #define __LOCALIZE(str, ctx) __localizeFunc("" str "" , "" ctx "",0)
 #define __LOCALIZE_2N(str,ctx) __localizeFunc("" str "" , "" ctx "",LOCALIZE_FLAG_PAIR)
@@ -29,9 +42,11 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *buf, const 
 #define __LOCALIZE_VERFMT_NOCACHE(str, ctx) __localizeFunc("" str "", "" ctx "",LOCALIZE_FLAG_VERIFY_FMTS|LOCALIZE_FLAG_NOCACHE)
 #define __LOCALIZE_LCACHE(str, ctx, pp) static const char *pp; if (!pp) pp = __localizeFunc("" str "", "" ctx "",LOCALIZE_FLAG_NOCACHE)
 #define __LOCALIZE_VERFMT_LCACHE(str, ctx, pp) static const char *pp; if (!pp) pp = __localizeFunc("" str "", "" ctx "",LOCALIZE_FLAG_VERIFY_FMTS|LOCALIZE_FLAG_NOCACHE)
+#define LOCALIZE_GET_SCALE_STRING(ctx) __localizeFunc("__LOCALIZE_SCALE\0",ctx,LOCALIZE_FLAG_PAIR|LOCALIZE_FLAG_NOCACHE)
 #endif
 
 #define __LOCALIZE_REG_ONLY(str, ctx) str
+
 
 // localize a string
 const char *__localizeFunc(const char *str, const char *subctx, int flags);
@@ -66,7 +81,7 @@ DLGPROC __localizePrepareDialog(const char *rescat, HINSTANCE hInstance, const c
 
 
 #undef LoadMenu
-#define LoadMenu(a,b) __localizeLoadMenu(a,b)
+#define LoadMenu __localizeLoadMenu
 #endif
 
 HMENU __localizeLoadMenu(HINSTANCE hInstance, const char *lpMenuName);
@@ -74,5 +89,7 @@ HWND __localizeDialog(HINSTANCE hInstance, const char * lpTemplate, HWND hwndPar
 
 #define __localizeDialogBoxParam(a,b,c,d,e) ((INT_PTR)__localizeDialog(a,b,c,d,e,1))
 #define __localizeCreateDialogParam(a,b,c,d,e) __localizeDialog(a,b,c,d,e,0)
+
+extern void (*localizePreInitDialogHook)(HWND hwndDlg);
 
 #endif

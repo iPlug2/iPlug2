@@ -59,7 +59,7 @@ tresult PLUGIN_API IPlugVST3Controller::initialize(FUnknown* context)
 
 IPlugView* PLUGIN_API IPlugVST3Controller::createView(const char* name)
 {
-  if (name && strcmp(name, "editor") == 0)
+  if (HasUI() && name && strcmp(name, "editor") == 0)
   {
     mView = new ViewType(*this);
     return mView;

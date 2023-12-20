@@ -106,7 +106,13 @@ public:
   bool SetBusArrangements(T* pPlug, Steinberg::Vst::SpeakerArrangement* pInputBusArrangements, Steinberg::int32 numInBuses, Steinberg::Vst::SpeakerArrangement* pOutputBusArrangements, Steinberg::int32 numOutBuses)
   {
     using namespace Steinberg::Vst;
-
+    
+    // This would seem to be a bug in Ardour
+    if ((pPlug->GetHost() == kHostMixbus32C) || (pPlug->GetHost() == kHostArdour))
+    {
+      return true;
+    }
+    
     // disconnect all io pins, they will be reconnected in process
     SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), false);
     SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), false);

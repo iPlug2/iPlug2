@@ -283,7 +283,7 @@ int IPlugProcessor::ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& 
   bool foundAWildcard = false;
   int IOConfigIndex = 0;
 
-  DBGMSG("BEGIN IPLUG CHANNEL IO PARSER --------------------------------------------------\n");
+  DBGMSG("\nBEGIN IPLUG CHANNEL IO PARSER --------------------------------------------------\n");
   // lamda function to iterate through the period separated buses and check that none have 0 channel count
   auto ParseBusToken = [&foundAWildcard, &IOConfigIndex](ERoute busDir, char* pBusStr, char* pBusStrEnd, int& NBuses, int& NChans, IOConfig* pConfig)
   {
@@ -436,6 +436,15 @@ void IPlugProcessor::SetChannelConnections(ERoute direction, int idx, int n, boo
 
     if (!connected)
       *(pChannel->mData) = pChannel->mScratchBuf.Get();
+  }
+}
+
+void IPlugProcessor::InitLatencyDelay()
+{
+  if (MaxNChannels(ERoute::kInput))
+  {
+    mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
+    mLatencyDelay->SetDelayTime(GetLatency());
   }
 }
 

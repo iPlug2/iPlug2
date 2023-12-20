@@ -81,7 +81,8 @@ WDL_BASE64_FUNCDECL int wdl_base64decode(const char *src, unsigned char *dest, i
     "\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff";
 
 
-  int accum=0, nbits=0, wpos=0;
+  unsigned int accum=0;
+  int nbits=0, wpos=0;
 
   if (destsize <= 0) return 0;
 

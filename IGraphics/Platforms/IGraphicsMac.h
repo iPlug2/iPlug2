@@ -43,7 +43,7 @@ public:
 
   void DoCursorLock(float x, float y, float& prevX, float& prevY);
     
-  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHanderFunc completionHandler) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
@@ -51,8 +51,8 @@ public:
   void UpdateTooltips() override;
 
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
-  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext) override;
-  void PromptForDirectory(WDL_String& dir) override;
+  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler) override;
+  void PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler) override;
   bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
     
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
@@ -64,14 +64,14 @@ public:
 
   bool GetTextFromClipboard(WDL_String& str) override;
   bool SetTextInClipboard(const char* str) override;
+  bool SetFilePathInClipboard(const char* path) override;
 
   float MeasureText(const IText& text, const char* str, IRECT& bounds) const override;
 
   EUIAppearance GetUIAppearance() const override;
 protected:
-  void CreatePlatformImGui() override;
 
-  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT& bounds, bool& isAsync) override;
+  IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
 private:
   void PointToScreen(float& x, float& y) const;
@@ -86,7 +86,6 @@ private:
   void StoreCursorPosition();
   
   void* mView = nullptr;
-  void* mImGuiView = nullptr;
   CGPoint mCursorLockPosition;
   WDL_String mBundleID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);

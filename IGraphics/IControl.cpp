@@ -56,6 +56,7 @@ void ShowBubbleHorizontalActionFunc(IControl* pCaller)
 {
   IGraphics* pGraphics = pCaller->GetUI();
   const IParam* pParam = pCaller->GetParam();
+  assert(pParam && "ShowBubbleHorizontalActionFunc requires a parameter");
   IRECT bounds = pCaller->GetRECT();
   WDL_String display;
   pParam->GetDisplayWithLabel(display);
@@ -66,6 +67,7 @@ void ShowBubbleVerticalActionFunc(IControl* pCaller)
 {
   IGraphics* pGraphics = pCaller->GetUI();
   const IParam* pParam = pCaller->GetParam();
+  assert(pParam && "ShowBubbleVerticalActionFunc requires a parameter");
   IRECT bounds = pCaller->GetRECT();
   WDL_String display;
   pParam->GetDisplayWithLabel(display);
@@ -388,7 +390,7 @@ void IControl::DrawPTHighlight(IGraphics& g)
 {
   if (mPTisHighlighted)
   {
-    g.FillCircle(mPTHighlightColor, mRECT.R-5, mRECT.T+5, 2);
+    g.FillCircle(mPTHighlightColor, mTargetRECT.R-5, mTargetRECT.T+5, 2);
   }
 }
 
@@ -763,11 +765,11 @@ void ISwitchControlBase::OnMouseDown(float x, float y, const IMouseMod& mod)
     SetValue(!GetValue());
   else
   {
-    const double step = 1. / (double(mNumStates) - 1.);
+    const double step = 1.0 / (double(mNumStates-1));
     double val = GetValue();
     val += step;
-    if(val > 1.)
-      val = 0.;
+    if (val > (1.0 + std::numeric_limits<double>::epsilon()))
+      val = 0.0;
     SetValue(val);
   }
   
@@ -852,6 +854,10 @@ void IKnobControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, floa
       double v = pParam->FromNormalized(oldValue);
       v += d > 0 ? step : -step;
       newValue = pParam->ToNormalized(v);
+    }
+    else
+    {
+      newValue = oldValue;
     }
   }
   else
@@ -971,6 +977,10 @@ void ISliderControlBase::OnMouseWheel(float x, float y, const IMouseMod& mod, fl
       v += d > 0 ? step : -step;
       newValue = pParam->ToNormalized(v);
     }
+    else
+    {
+      newValue = oldValue;
+    }
   }
   else
   {
@@ -997,13 +1007,10 @@ bool ISliderControlBase::IsFineControl(const IMouseMod& mod, bool wheel) const
 
 IDirBrowseControlBase::~IDirBrowseControlBase()
 {
-  mFiles.Empty(true);
-  mPaths.Empty(true);
-  mPathLabels.Empty(true);
-  mItems.Empty(false);
+  ClearPathList();
 }
 
-int IDirBrowseControlBase::NItems()
+int IDirBrowseControlBase::NItems() const
 {
   return mItems.GetSize();
 }
@@ -1024,7 +1031,7 @@ void IDirBrowseControlBase::CollectSortedItems(IPopupMenu* pMenu)
   {
     IPopupMenu::Item* pItem = pMenu->GetItem(i);
     
-    if(pItem->GetSubmenu())
+    if (pItem->GetSubmenu())
       CollectSortedItems(pItem->GetSubmenu());
     else
       mItems.Add(pItem);
@@ -1037,7 +1044,7 @@ void IDirBrowseControlBase::SetupMenu()
   mItems.Empty(false);
   
   mMainMenu.Clear();
-  mSelectedIndex = -1;
+  mSelectedItemIndex = -1;
 
   int idx = 0;
 
@@ -1058,28 +1065,57 @@ void IDirBrowseControlBase::SetupMenu()
   CollectSortedItems(&mMainMenu);
 }
 
-//void IDirBrowseControlBase::GetSelectedItemLabel(WDL_String& label)
-//{
-//  if (mSelectedMenu != nullptr) {
-//    if(mSelectedIndex > -1)
-//      label.Set(mSelectedMenu->GetItem(mSelectedIndex)->GetText());
-//  }
-//  else
-//    label.Set("");
-//}
-//
-//void IDirBrowseControlBase::GetSelectedItemPath(WDL_String& path)
-//{
-//  if (mSelectedMenu != nullptr) {
-//    if(mSelectedIndex > -1) {
-//      path.Set(mPaths.Get(0)->Get()); //TODO: what about multiple paths
-//      path.AppendFormatted(1024, "/%s", mSelectedMenu->GetItem(mSelectedIndex)->GetText());
-//      path.Append(mExtension.Get());
-//    }
-//  }
-//  else
-//    path.Set("");
-//}
+void IDirBrowseControlBase::ClearPathList()
+{
+  mPaths.Empty(true);
+  mPathLabels.Empty(true);
+  mFiles.Empty(true);
+  mItems.Empty(false);
+}
+
+void IDirBrowseControlBase::SetSelectedFile(const char* filePath)
+{
+  for (auto fileIdx = 0; fileIdx < mFiles.GetSize(); fileIdx ++)
+  {
+    if (strcmp(mFiles.Get(fileIdx)->Get(), filePath) == 0)
+    {
+      for (auto itemIdx = 0; itemIdx < mItems.GetSize(); itemIdx++)
+      {
+        IPopupMenu::Item* pItem = mItems.Get(itemIdx);
+
+        if (pItem->GetTag() == fileIdx)
+        {
+          mSelectedItemIndex = itemIdx;
+          return;
+        }
+      }
+    }
+  }
+  
+  mSelectedItemIndex = -1;
+}
+
+void IDirBrowseControlBase::GetSelectedFile(WDL_String& path) const
+{
+  if (mSelectedItemIndex > -1)
+  {
+    IPopupMenu::Item* pItem = mItems.Get(mSelectedItemIndex);
+    path.Set(mFiles.Get(pItem->GetTag()));
+  }
+  else
+  {
+    path.Set("");
+  }
+}
+
+void IDirBrowseControlBase::CheckSelectedItem()
+{
+  if (mSelectedItemIndex > -1)
+  {
+    IPopupMenu::Item* pItem = mItems.Get(mSelectedItemIndex);
+    mMainMenu.CheckItemAlone(pItem);
+  }
+}
 
 void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAddTo)
 {
@@ -1092,7 +1128,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
       const char* f = d.GetCurrentFN();
       if (f && f[0] != '.')
       {
-        if (d.GetCurrentIsDirectory())
+        if (mScanRecursively && d.GetCurrentIsDirectory())
         {
           WDL_String subdir;
           d.GetCurrentFullFN(&subdir);
@@ -1102,12 +1138,32 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
         }
         else
         {
-          const char* a = strstr(f, mExtension.Get());
+          // Find the last occurrence of str2 in str1.
+          // Return a pointer to the first character of the match.
+          // Return a pointer to the start of str1 if str2 is empty.
+          // Return a nullptr if str2 isn't found in str1.
+          auto strrstr = [](const char* str1, const char* str2) -> const char* {
+            if (*str2 == '\0')
+              return str1;
+
+            const char* result = nullptr;
+
+            while (*str1 != '\0') {
+              if (std::strncmp(str1, str2, std::strlen(str2)) == 0)
+                result = str1;
+
+              str1++;
+            }
+
+            return result;
+          };
+
+          const char* a = strrstr(f, mExtension.Get());
           if (a && a > f && strlen(a) == strlen(mExtension.Get()))
           {
             WDL_String menuEntry {f};
             
-            if(!mShowFileExtensions)
+            if (!mShowFileExtensions)
               menuEntry.Set(f, (int) (a - f) - 1);
             
             IPopupMenu::Item* pItem = new IPopupMenu::Item(menuEntry.Get(), IPopupMenu::Item::kNoFlags, mFiles.GetSize());
@@ -1120,7 +1176,7 @@ void IDirBrowseControlBase::ScanDirectory(const char* path, IPopupMenu& menuToAd
       }
     } while (!d.Next());
   }
-  
-  if(!mShowEmptySubmenus)
+
+  if (!mShowEmptySubmenus)
     menuToAddTo.RemoveEmptySubmenus();
 }

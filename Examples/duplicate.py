@@ -1,7 +1,7 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
-# Python shell script for Duplicating WDL-OL IPlug Projects
-# Oli Larkin 2012-2019 http://www.olilarkin.co.uk
+# Python shell script for Duplicating iPlug2 Projects
+# Oli Larkin 2012-2022 http://www.olilarkin.co.uk
 # License: WTFPL http://sam.zoy.org/wtfpl/COPYING
 # Modified from this script by Bibha Tripathi http://code.activestate.com/recipes/435904-sedawk-python-script-to-rename-subdirectories-of-a/
 # Author accepts no responsibilty for wiping your hd
@@ -34,7 +34,7 @@ sys.path.insert(0, scriptpath + '/../Scripts/')
 
 from parse_config import parse_config, parse_xcconfig, set_uniqueid
 
-VERSION = "0.95"
+VERSION = "0.96"
 
 # binary files that we don't want to do find and replace inside
 FILTERED_FILE_EXTENSIONS = [".ico",".icns", ".pdf", ".png", ".zip", ".exe", ".wav", ".aif"]
@@ -242,7 +242,7 @@ def main():
   pp = pprint.PrettyPrinter(indent=4)
   pp.pprint(config)
 
-  print("\ndone - don't forget to change PLUG_MFR_UID in config.h")
+  print("\ndone - don't forget to change PLUG_UNIQUE_ID and PLUG_MFR_ID in config.h")
 
 if __name__ == '__main__':
   main()

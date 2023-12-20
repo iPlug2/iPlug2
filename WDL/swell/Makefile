@@ -17,7 +17,7 @@ PKG_CONFIG = pkg-config
 
 COMPILER=GCC
 
-CFLAGS = -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar
+CFLAGS = -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar -Wtype-limits
 
 CFLAGS += -DSWELL_MAKING_DYLIB
 
@@ -139,6 +139,7 @@ ifndef NOGDK
       LINKEXTRA += -lfontconfig
     endif
   endif
+  LINKEXTRA += -lGL
 endif
 
 CXXFLAGS = $(CFLAGS)
@@ -173,4 +174,4 @@ libSwell.colortheme: swell-gdi-generic.cpp $(SWELL_HEADERS)
 	./make-theme > libSwell.colortheme
 
 clean: 
-	-rm $(OBJS) libSwell$(DLL_EXT) make-theme libSwell.colortheme
+	-rm -f -- $(OBJS) libSwell$(DLL_EXT) make-theme libSwell.colortheme

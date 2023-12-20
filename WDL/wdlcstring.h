@@ -70,6 +70,10 @@ C string manipulation utilities -- [v]snprintf for Win32, also snprintf_append, 
 extern "C" {
 #endif
 
+#ifndef WDL_STRCMP_LOGICAL_EX_FLAG_OLDSORT
+#define WDL_STRCMP_LOGICAL_EX_FLAG_OLDSORT 1
+#endif
+
 #ifdef _WDL_CSTRING_IF_ONLY_
 
   void lstrcpyn_safe(char *o, const char *in, INT_PTR count);
@@ -85,6 +89,7 @@ extern "C" {
   size_t WDL_remove_trailing_crlf(char *str); // returns new length
   size_t WDL_remove_trailing_whitespace(char *str); // returns new length, removes crlf space tab
   const char *WDL_sanitize_ini_key_start(const char *p); // used for sanitizing the start of the "key" parameter to Write/GetPrivateProfile*. note does not fully santiize
+  char *WDL_sanitize_ini_key_full(const char *p, char *buf, int bufsz, int extra_filters); // converts = and leading [ to _. removes leading/trailing whitespace. if extra_filters&1, converts all [] to _.
 
   char *WDL_remove_trailing_decimal_zeros(char *str, unsigned int keep); // returns pointer to decimal point or end of string. removes final zeros after final decimal point only, keep=0 makes min length X, keep=1 X., keep=2 X.0, keep=3 X.00 etc, and also treats commas as decimal points
 
@@ -94,6 +99,7 @@ extern "C" {
   #endif
 
   int WDL_strcmp_logical(const char *s1, const char *s2, int case_sensitive);
+  int WDL_strcmp_logical_ex(const char *s1, const char *s2, int case_sensitive, int flags); // flags: WDL_STRCMP_LOGICAL_EX_FLAG_OLDSORT
   const char *WDL_stristr(const char* a, const char* b);
 #else
 
@@ -260,6 +266,21 @@ extern "C" {
     return p;
   }
 
+  _WDL_CSTRING_PREFIX char *WDL_sanitize_ini_key_full(const char *p, char *buf, int bufsz, int extra_filters)
+  {
+    // converts = and leading [ to _. removes leading/trailing whitespace. if extra_filters&1, converts all [] to _.
+    char *w=buf;
+    lstrcpyn_safe(buf,WDL_sanitize_ini_key_start(p),bufsz);
+    while (*w)
+    {
+      if (*w == '=' || ((extra_filters&1) && (*w=='[' || *w == ']'))) *w = '_';
+      w++;
+    }
+    while (w > buf && (w[-1] == ' ' || w[-1] == '\t' || w[-1] == '\r' || w[-1] == '\n')) *--w = 0;
+    while (--w >= buf) if (*w == '\r' || *w == '\n' || *w == '\t') *w = '_';
+    return buf;
+  }
+
   _WDL_CSTRING_PREFIX void WDL_VARARG_WARN(printf,3,4) snprintf_append(char *o, INT_PTR count, const char *format, ...)
   {
     if (count>0)
@@ -281,69 +302,69 @@ extern "C" {
     }
   }
 
-  _WDL_CSTRING_PREFIX int WDL_strcmp_logical(const char *s1, const char *s2, int case_sensitive)
+  static WDL_STATICFUNC_UNUSED int logical_char_order(int ch, int case_sensitive)
   {
-    // also exists as WDL_LogicalSortStringKeyedArray::_cmpstr()
+    // _-<>etc, numbers, utf-8 chars, alpha chars
+    if (ch<0) return ch + 384; // utf-8 maps to 256..383
+    if (ch >= '0' && ch <= '9') return ch + 128; // numbers map to 128+'0' etc
+    if (ch >= 'A' && ch <= 'Z') return ch + 384; // alpha goes to 384+'A' or 384+'a' if not ignoring case
+    if (ch >= 'a' && ch <= 'z') return case_sensitive ? (ch + 384) : (ch + 'A' - 'a' + 384);
+    return ch;
+  }
 
-    char lastNonZeroChar=0;
-    // last matching character, updated if not 0. this allows us to track whether
-    // we are inside of a number with the same leading digits
-
+   // flags: WDL_STRCMP_LOGICAL_EX_FLAG_OLDSORT
+  _WDL_CSTRING_PREFIX int WDL_strcmp_logical_ex(const char *s1, const char *s2, int case_sensitive, int flags)
+  {
     for (;;)
     {
-      char c1=*s1++, c2=*s2++;
-      if (!c1) return c1-c2;
-      
-      if (c1!=c2)
+      if (*s1 >= '0' && *s1 <= '9' && *s2 >= '0' && *s2 <= '9')
       {
-        if (c1 >= '0' && c1 <= '9' && c2 >= '0' && c2 <= '9')
+        int lzdiff=0, len1=0, len2=0;
+
+        while (*s1 == '0') { s1++; lzdiff--; }
+        while (*s2 == '0') { s2++; lzdiff++; }
+
+        while (s1[len1] >= '0' && s1[len1] <= '9') len1++;
+        while (s2[len2] >= '0' && s2[len2] <= '9') len2++;
+
+        if (len1 != len2) return len1-len2;
+
+        while (len1--)
         {
-          int lzdiff=0, cnt=0;
-          if (lastNonZeroChar < '1' || lastNonZeroChar > '9')
-          {
-            while (c1 == '0') { c1=*s1++; lzdiff--; }
-            while (c2 == '0') { c2=*s2++; lzdiff++; } // lzdiff = lz2-lz1, more leading 0s = earlier in list
-          }
-
-          for (;;)
-          {
-            if (c1 >= '0' && c1 <= '9')
-            {
-              if (c2 < '0' || c2 > '9') return 1;
-
-              c1=s1[cnt];
-              c2=s2[cnt++];
-            }
-            else
-            {
-              if (c2 >= '0' && c2 <= '9') return -1;
-              break;
-            }
-          }
-
-          s1--;
-          s2--;
-        
-          while (cnt--)
-          {
-            const int d = *s1++ - *s2++;
-            if (d) return d;
-          }
-
-          if (lzdiff) return lzdiff;
+          const int d = *s1++ - *s2++;
+          if (d) return d;
         }
-        else
+
+        if (lzdiff) return lzdiff;
+      }
+      else
+      {
+        int c1 = *s1++, c2 = *s2++;
+        if (c1 != c2)
         {
-          if (!case_sensitive)
+          if (flags & WDL_STRCMP_LOGICAL_EX_FLAG_OLDSORT)
           {
-            if (c1>='a' && c1<='z') c1+='A'-'a';
-            if (c2>='a' && c2<='z') c2+='A'-'a';
+            if (!case_sensitive)
+            {
+              if (c1>='a' && c1<='z') c1+='A'-'a';
+              if (c2>='a' && c2<='z') c2+='A'-'a';
+            }
+          }
+          else
+          {
+            c1 = logical_char_order(c1, case_sensitive);
+            c2 = logical_char_order(c2, case_sensitive);
           }
           if (c1 != c2) return c1-c2;
         }
+        else if (!c1) return 0;
       }
-      else if (c1 != '0') lastNonZeroChar=c1;
     }
+  }
+
+  _WDL_CSTRING_PREFIX int WDL_strcmp_logical(const char *s1, const char *s2, int case_sensitive)
+  {
+    return WDL_strcmp_logical_ex(s1,s2,case_sensitive,0);
   }
   _WDL_CSTRING_PREFIX const char *WDL_stristr(const char* a, const char* b)
   {

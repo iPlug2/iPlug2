@@ -620,6 +620,7 @@ WDL_VWnd::WDL_VWnd()
   m_lastmouseidx=-1;
   m_userdata=0;
   m_curPainter=0;
+  m_focused_child = -2;
 }
 
 WDL_VWnd::~WDL_VWnd() 
@@ -807,7 +808,7 @@ void WDL_VWnd::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_y, RECT *c
   if (m_children) for (x = m_children->GetSize()-1; x >=0; x --)
   {
     WDL_VWnd *ch=m_children->Get(x);
-    if (ch->IsVisible())
+    if (PrepareToDrawChild(ch,0) && ch->IsVisible())
     {
       RECT re;
       ch->GetPosition(&re);
@@ -844,7 +845,7 @@ void WDL_VWnd::OnPaintOver(LICE_IBitmap *drawbm, int origin_x, int origin_y, REC
   if (m_children) for (x = m_children->GetSize()-1; x >=0; x --)
   {
     WDL_VWnd *ch=m_children->Get(x);
-    if (ch->IsVisible() && ch->WantsPaintOver())
+    if (PrepareToDrawChild(ch,1) && ch->IsVisible() && ch->WantsPaintOver())
     {
       RECT re;
       ch->GetPosition(&re);
@@ -911,7 +912,7 @@ WDL_VWnd *WDL_VWnd::VirtWndFromPoint(int xpos, int ypos, int maxdepth)
   if (m_children) for (x = 0; x < m_children->GetSize(); x++)
   {
     WDL_VWnd *wnd=m_children->Get(x);
-    if (wnd->IsVisible())
+    if (wnd->IsVisible() && !wnd->DoNotHitTest())
     {
       RECT r;
       wnd->GetPosition(&r);
@@ -1524,11 +1525,6 @@ void WDL_VirtualWnd_ScaledBlitBG(LICE_IBitmap *dest,
   int right_margin=src->bgimage_rb[0];
   int bottom_margin=src->bgimage_rb[1];
 
-  int left_margin_out=src->bgimage_lt_out[0];
-  int top_margin_out=src->bgimage_lt_out[1];
-  int right_margin_out=src->bgimage_rb_out[0];
-  int bottom_margin_out=src->bgimage_rb_out[1];
-
   int sw=src->bgimage->getWidth();
   int sh=src->bgimage->getHeight();
 
@@ -1565,9 +1561,18 @@ void WDL_VirtualWnd_ScaledBlitBG(LICE_IBitmap *dest,
     return;
   }
 
+  WDL_ASSERT(src->bgimage_lt_out[0]>0); // if pinklines are nonzero, yellowlines must be too (they are all 1-based)
+  WDL_ASSERT(src->bgimage_lt_out[1]>0); // if these fire, check for uninitialized bgimage_lt_out etc
+  WDL_ASSERT(src->bgimage_rb_out[0]>0);
+  WDL_ASSERT(src->bgimage_rb_out[1]>0);
+
+  const int left_margin_out   = src->bgimage_lt_out[0]-1;
+  const int top_margin_out    = src->bgimage_lt_out[1]-1;
+  const int right_margin_out  = src->bgimage_rb_out[0]-1;
+  const int bottom_margin_out = src->bgimage_rb_out[1]-1;
+
   // remove 1px additional margins from calculations
   left_margin--; top_margin--; right_margin--; bottom_margin--;
-  left_margin_out--; top_margin_out--; right_margin_out--; bottom_margin_out--;
 
   if (left_margin+right_margin>destw) 
   { 
@@ -1771,7 +1776,9 @@ static WNDPROC vwndDlgHost_oldProc;
 static LRESULT CALLBACK vwndDlgHost_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   if (msg==WM_ERASEBKGND) return 1;
-  if (msg==WM_PAINT)
+  if (msg==WM_PAINT ||
+      (msg == WM_SETFOCUS && (GetWindowLong(hwnd,GWL_STYLE)&(WS_CHILD|WS_TABSTOP))==(WS_CHILD|WS_TABSTOP))
+      )
   {
     WNDPROC pc=(WNDPROC)GetWindowLongPtr(hwnd,DWLP_DLGPROC);
     if (pc)

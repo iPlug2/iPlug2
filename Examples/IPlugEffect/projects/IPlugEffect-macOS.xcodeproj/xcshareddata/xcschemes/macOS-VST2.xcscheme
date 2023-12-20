@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1250"
+   LastUpgradeVersion = "1320"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -58,7 +58,7 @@
       </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "$(SRCROOT)/../$(PRODUCT_NAME).RPP"
+            argument = "&quot;$(SRCROOT)/../$(PRODUCT_NAME).RPP&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

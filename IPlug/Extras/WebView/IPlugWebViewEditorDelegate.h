@@ -47,7 +47,7 @@ public:
   {
     WDL_String str;
     std::vector<char> base64;
-    base64.resize(GetBase64Length(dataSize));
+    base64.resize(GetBase64Length(dataSize) + 1);
     wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.data(), dataSize);
     str.SetFormatted(mMaxJSStringLength, "SCMFD(%i, %i, %i, '%s')", ctrlTag, msgTag, dataSize, base64.data());
     EvaluateJavaScript(str.Get());
@@ -64,9 +64,19 @@ public:
   {
     WDL_String str;
     std::vector<char> base64;
-    base64.resize(GetBase64Length(dataSize));
-    wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.data(), dataSize);
-    str.SetFormatted(mMaxJSStringLength, "SAMFD(%i, %i, %s)", msgTag, dataSize, base64.data());
+    if (dataSize)
+    {
+      base64.resize(GetBase64Length(dataSize) + 1);
+      wdl_base64encode(reinterpret_cast<const unsigned char*>(pData), base64.data(), dataSize);
+    }
+    str.SetFormatted(mMaxJSStringLength, "SAMFD(%i, %i, '%s')", msgTag, static_cast<int>(base64.size()), base64.data());
+    EvaluateJavaScript(str.Get());
+  }
+  
+  void SendMidiMsgFromDelegate(const IMidiMsg& msg) override
+  {
+    WDL_String str;
+    str.SetFormatted(mMaxJSStringLength, "SMMFD(%i, %i, %i)", msg.mStatus, msg.mData1, msg.mData2);
     EvaluateJavaScript(str.Get());
   }
 
@@ -109,6 +119,13 @@ public:
       }
 
       SendArbitraryMsgFromUI(json["msgTag"], json["ctrlTag"], static_cast<int>(base64.size()), base64.data());
+    }
+    else if(json["msg"] == "SMMFUI")
+    {
+      IMidiMsg msg {0, json["statusByte"].get<uint8_t>(),
+                       json["dataByte1"].get<uint8_t>(),
+                       json["dataByte2"].get<uint8_t>()};
+      SendMidiMsgFromUI(msg);
     }
   }
 

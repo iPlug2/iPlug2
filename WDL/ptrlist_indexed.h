@@ -23,11 +23,19 @@ template<class T> class WDL_IndexedPtrList {
       return ret ? *ret : -1;
     }
     void Empty() { _checkState(); m_list.Empty(); m_index.DeleteAll(); }
-    void Delete(int idx)
+    void Empty(bool wantDelete, void (*delfunc)(void*)=NULL) { _checkState(); m_list.Empty(wantDelete,delfunc); m_index.DeleteAll(); }
+    void EmptySafe(bool wantDelete=false,void (*delfunc)(void *)=NULL)
+    {
+      _checkState();
+      m_index.DeleteAll();
+      m_list.EmptySafe(wantDelete,delfunc);
+      m_index.DeleteAll();
+    }
+    void Delete(int idx, bool wantDelete=false, void (*delfunc)(void *)=NULL)
     {
       _checkState();
       T *item = m_list.Get(idx);
-      m_list.Delete(idx);
+      m_list.Delete(idx,wantDelete,delfunc);
       if (item)
       {
         m_index.Delete((INT_PTR)item);
@@ -57,6 +65,16 @@ template<class T> class WDL_IndexedPtrList {
         m_list.Add(p);
         m_index.Insert((INT_PTR)p,sz);
       }
+    }
+    void RebuildIndex()
+    {
+      m_index.DeleteAll();
+      for (int x = 0; x < m_list.GetSize(); x ++)
+      {
+        m_index.AddUnsorted((INT_PTR)m_list.Get(x),x);
+      }
+      m_index.Resort();
+      _checkState();
     }
     void Swap(int index1, int index2)
     {
@@ -102,6 +120,13 @@ template<class T> class WDL_IndexedPtrList {
 
     WDL_PtrList<T> m_list;
     WDL_PtrKeyedArray<int> m_index;
+
+    WDL_IndexedPtrList<T> &operator=(const WDL_IndexedPtrList<T> &cp)
+    {
+      m_list = cp.m_list;
+      RebuildIndex();
+      return *this;
+    }
 
     void _checkState() const
     {

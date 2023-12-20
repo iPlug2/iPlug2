@@ -220,8 +220,8 @@ void WebServerBaseClass::url_decode(const char *in, char *out, int maxlen)
 		  {
 			  int r=in[1+b];
 			  if (r>='0'&&r<='9') r-='0';
-			  else if (r>='a'&&r<='z') r-='a'-10;
-			  else if (r>='A'&&r<='Z') r-='A'-10;
+			  else if (r>='a'&&r<='f') r-='a'-10;
+			  else if (r>='A'&&r<='F') r-='A'-10;
 			  else break;
 			  a*=16;
 			  a+=r;

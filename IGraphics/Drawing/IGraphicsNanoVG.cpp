@@ -101,6 +101,7 @@ IGraphicsNanoVG::Bitmap::Bitmap(NVGcontext* pContext, const char* path, double s
 
 IGraphicsNanoVG::Bitmap::Bitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, float scale, float drawScale)
 {
+  assert(width > 0 && height > 0);
   mGraphics = pGraphics;
   mVG = pContext;
   mFBO = nvgCreateFramebuffer(pContext, width, height, 0);
@@ -398,7 +399,7 @@ void IGraphicsNanoVG::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& 
   {
     PushLayer(layer.get());
     nvgReadPixels(mVG, pBitmap->GetBitmap(), 0, 0, pBitmap->GetWidth(), pBitmap->GetHeight(), data.Get());
-    PopLayer();    
+    PopLayer();
   }
 }
 
@@ -531,11 +532,6 @@ void IGraphicsNanoVG::EndFrame()
 #endif
 
   nvgEndFrame(mVG);
-
-#if defined IGRAPHICS_IMGUI && defined IGRAPHICS_GL
-  if(mImGuiRenderer)
-    mImGuiRenderer->NewFrame();
-#endif
   
   mInDraw = false;
   ClearFBOStack();

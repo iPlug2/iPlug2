@@ -70,13 +70,25 @@ PlatformFontPtr CoreTextHelpers::LoadPlatformFont(const char* fontID, const char
   
   CFLocal<CFDictionaryRef> dictionary(CFDictionaryCreate(NULL, (const void**)&keys, (const void**)&values, 2, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
   CFLocal<CTFontDescriptorRef> descriptor(CTFontDescriptorCreateWithAttributes(dictionary.Get()));
-  CFLocal<CFURLRef> url((CFURLRef) CTFontDescriptorCopyAttribute(descriptor.Get(), kCTFontURLAttribute));
-  CFLocal<CGDataProviderRef> provider(url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr);
+  CFLocal<CFSetRef> keysAsSet(CFSetCreate(NULL, (const void**)&keys, 2, &kCFTypeSetCallBacks));
+  CFLocal<CFArrayRef> matched(CTFontDescriptorCreateMatchingFontDescriptors(descriptor.Get(), keysAsSet.Get()));
   
-  if (!provider.Get())
-    return nullptr;
-  
-  return PlatformFontPtr(new CoreTextFont(descriptor.Release(), provider.Release(), TextStyleString(style), true));
+  for (int i = 0; i < CFArrayGetCount(matched.Get()); i++)
+  {
+    // Loop until we get a font which provides data
+    
+    CTFontDescriptorRef testDescriptor = (CTFontDescriptorRef) CFArrayGetValueAtIndex(matched.Get(), i);
+    CFLocal<CFURLRef> url((CFURLRef) CTFontDescriptorCopyAttribute(testDescriptor, kCTFontURLAttribute));
+    CFLocal<CGDataProviderRef> provider(url.Get() ? CGDataProviderCreateWithURL(url.Get()) : nullptr);
+    
+    if (provider.Get())
+    {
+      CFRetain(testDescriptor);
+      return PlatformFontPtr(new CoreTextFont(testDescriptor, provider.Release(), TextStyleString(style), true));
+    }
+  }
+        
+  return nullptr;
 }
 
 void releaseFontData(void* info, const void* data, size_t size)

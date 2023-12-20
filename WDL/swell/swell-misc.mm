@@ -117,7 +117,11 @@ void SWELL_MakeProcessFront(HANDLE h)
 void SWELL_ReleaseNSTask(void *p)
 {
   NSTask *a =(NSTask*)p;
-  [a release];
+  if (a)
+  {
+    if (![a isRunning]) [a waitUntilExit]; // workaround for the system keeping a reference held on macOS 12+ at least
+    [a release];
+  }
 }
 DWORD SWELL_WaitForNSTask(void *p, DWORD msTO)
 {
@@ -167,7 +171,6 @@ HANDLE SWELL_CreateProcessIO(const char *exe, int nparams, const char **params, 
   @catch (id ex) {
   }
 
-  if (tsk) [tsk retain];
   [ex release];
   [ar release];
   if (!tsk) return NULL;
@@ -261,7 +264,7 @@ int SWELL_ReadWriteProcessIO(HANDLE hand, int w/*stdin,stdout,stderr*/, char *bu
         struct pollfd pl = { handle, POLLIN };
         if (poll(&pl,1,0)<1) return 0;
 
-        return read(handle,buf,bufsz);
+        return (int)read(handle,buf,bufsz);
       }
     }
     NSData *d = NULL;
@@ -811,8 +814,8 @@ BOOL EnumDisplayMonitors(HDC hdc, const LPRECT r, MONITORENUMPROC proc,LPARAM lP
 {
   // ignores hdc
   NSArray *screens = [NSScreen screens];
-  const int ns = [screens count];
-  for (int x = 0; x < ns; x ++)
+  const unsigned int ns = (unsigned int) [screens count];
+  for (unsigned int x = 0; x < ns; x ++)
   {
     NSScreen *mon = [screens objectAtIndex:x];
     if (mon)

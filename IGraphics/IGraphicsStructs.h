@@ -45,7 +45,8 @@ using IActionFunction = std::function<void(IControl*)>;
 using IAnimationFunction = std::function<void(IControl*)>;
 using ILambdaDrawFunction = std::function<void(ILambdaControl*, IGraphics&, IRECT&)>;
 using IKeyHandlerFunc = std::function<bool(const IKeyPress& key, bool isUp)>;
-using IMsgBoxCompletionHanderFunc = std::function<void(EMsgBoxResult result)>;
+using IMsgBoxCompletionHandlerFunc = std::function<void(EMsgBoxResult result)>;
+using IFileDialogCompletionHandlerFunc = std::function<void(const WDL_String& fileName, const WDL_String& path)>;
 using IColorPickerHandlerFunc = std::function<void(const IColor& result)>;
 using IGestureFunc = std::function<void(IControl*, const IGestureInfo&)>;
 using IPopupFunction = std::function<void(IPopupMenu* pMenu)>;
@@ -160,7 +161,7 @@ private:
 /** User-facing SVG abstraction that you use to manage SVG data
  * ISVG doesn't actually own the image data */
 
-#ifdef IGRAPHICS_SKIA
+#ifdef SVG_USE_SKIA
 struct ISVG
 {
   ISVG(sk_sp<SkSVGDOM> svgDom)
@@ -171,19 +172,15 @@ struct ISVG
   /** The width of the SVG */
   float W() const
   {
-    if (mSVGDom)
-      return mSVGDom->containerSize().width();
-    else
-      return 0;
+    assert(mSVGDom);
+    return mSVGDom->containerSize().width();
   }
   
   /** The height of the SVG */
   float H() const
   {
-    if (mSVGDom)
-      return mSVGDom->containerSize().height();
-    else
-      return 0;
+    assert(mSVGDom);
+    return mSVGDom->containerSize().height();
   }
   
   /** @return \true if the SVG has valid data */
@@ -202,19 +199,15 @@ struct ISVG
   /** @return The width of the SVG */
   float W() const
   {
-    if (mImage)
-      return mImage->width;
-    else
-      return 0;
+    assert(mImage);
+    return mImage->width;
   }
 
   /** @return The height of the SVG */
   float H() const
   {
-    if (mImage)
-      return mImage->height;
-    else
-      return 0;
+    assert(mImage);
+    return mImage->height;
   }
   
   /** @return \true if the SVG has valid data */
@@ -229,7 +222,7 @@ struct IColor
 {
   int A, R, G, B;
   
-    /** Create an IColor 
+  /** Create an IColor from ARGB values
    * @param a Alpha value (valid range 0-255)
    * @param r Red value (valid range 0-255)
    * @param g Green value (valid range 0-255)
@@ -419,7 +412,7 @@ struct IColor
   {
     WDL_String str(hexStr);
     
-    if(str.GetLength() == 7 && str.Get()[0] == '#')
+    if ((str.GetLength() == 7 || str.GetLength() == 9) && str.Get()[0] == '#')
     {
       str.DeleteSub(0, 1);
 
@@ -439,9 +432,12 @@ struct IColor
   }
   
   /** Convert the IColor to a hex string e.g. "#ffffffff" */
-  void ToColorCodeStr(WDL_String& str) const
+  void ToColorCodeStr(WDL_String& str, bool withAlpha = true) const
   {
-    str.SetFormatted(32, "#%02x%02x%02x%02x", R, G, B, A);
+    if (withAlpha)
+      str.SetFormatted(32, "#%02x%02x%02x%02x", R, G, B, A);
+    else
+      str.SetFormatted(32, "#%02x%02x%02x", R, G, B);
   }
   
   /** Create an IColor from Hue Saturation and Luminance values
@@ -574,7 +570,7 @@ const IBlend BLEND_01 = IBlend(EBlend::Default, 0.01f);
 const IBlend BLEND_DST_IN = IBlend(EBlend::DstIn, 1.f);
 const IBlend BLEND_DST_OVER = IBlend(EBlend::DstOver, 1.f);
 
-/** Used to manage fill behaviour for path based drawing back ends */
+/** Used to manage fill behaviour */
 struct IFillOptions
 {
   EFillRule mFillRule { EFillRule::Winding };
@@ -750,14 +746,7 @@ const IText DEFAULT_TEXT = IText();
  * In IGraphics 0,0 is top left. */
 struct IRECT
 {
-  /** Left side of the rectangle (X) */
-  float L;
-  /** Top of the rectangle (Y) */
-  float T;
-  /** Right side of the rectangle (X + W) */
-  float R;
-  /** Bottom of the rectangle (Y + H) */
-  float B;
+  float L, T, R, B;
 
   /** Construct an empty IRECT  */
   IRECT()
@@ -1411,8 +1400,8 @@ struct IRECT
       return IRECT(L, T, R, T + h);
   }
   
-  /** \todo 
-   * @param rhs \todo */
+  /** Clank will limit this IRECT's bounds based on the boundaries of the IRECT passed in as an argument
+   * @param rhs The rectangle to limit with  */
   void Clank(const IRECT& rhs)
   {
     if (L < rhs.L)
@@ -1686,7 +1675,7 @@ struct IRECT
     return result;
   }
   
-  /** Print the IRECT's detailes to the console in Debug builds */
+  /** Print the IRECT's details to the console in Debug builds */
   void DBGPrint() { DBGMSG("L: %f, T: %f, R: %f, B: %f,: W: %f, H: %f\n", L, T, R, B, W(), H()); }
 };
 
@@ -1718,8 +1707,8 @@ struct IMouseMod
 /** Used to group mouse coordinates with mouse modifier information */
 struct IMouseInfo
 {
-  float x, y;
-  float dX, dY;
+  float x = 0.0, y = 0.0;
+  float dX = 0.0, dY = 0.0;
   IMouseMod ms;
 };
 
@@ -2177,8 +2166,8 @@ struct IPattern
     IPattern pattern(EPatternType::Linear);
     
     // Calculate the affine transform from one line segment to another!
-    const double xd = x2 - x1;
-    const double yd = y2 - y1;
+    const double xd = double(x2 - x1);
+    const double yd = double(y2 - y1);
     const double d = sqrt(xd * xd + yd * yd);
     const double a = atan2(xd, yd);
     const double s = std::sin(a) / d;
@@ -2475,6 +2464,7 @@ static constexpr float DEFAULT_FRAME_THICKNESS = 1.f;
 static constexpr float DEFAULT_SHADOW_OFFSET = 3.f;
 static constexpr float DEFAULT_WIDGET_FRAC = 1.f;
 static constexpr float DEFAULT_WIDGET_ANGLE = 0.f;
+static constexpr EOrientation DEFAULT_LABEL_ORIENTATION = EOrientation::North;
 const IText DEFAULT_LABEL_TEXT {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Top};
 const IText DEFAULT_VALUE_TEXT {DEFAULT_TEXT_SIZE, EVAlign::Bottom};
 
@@ -2495,6 +2485,7 @@ struct IVStyle
   IVColorSpec colorSpec = DEFAULT_COLOR_SPEC;
   IText labelText = DEFAULT_LABEL_TEXT;
   IText valueText = DEFAULT_VALUE_TEXT;
+  EOrientation labelOrientation = DEFAULT_LABEL_ORIENTATION;
   
   /** Create a new IVStyle to configure common styling for IVControls
    * @param showLabel Show the label
@@ -2524,7 +2515,8 @@ struct IVStyle
           float frameThickness = DEFAULT_FRAME_THICKNESS,
           float shadowOffset = DEFAULT_SHADOW_OFFSET,
           float widgetFrac = DEFAULT_WIDGET_FRAC,
-          float angle = DEFAULT_WIDGET_ANGLE)
+          float angle = DEFAULT_WIDGET_ANGLE,
+          EOrientation labelOrientation = DEFAULT_LABEL_ORIENTATION)
   : hideCursor(hideCursor)
   , showLabel(showLabel)
   , showValue(showValue)
@@ -2564,6 +2556,7 @@ struct IVStyle
   IVStyle WithWidgetFrac(float v) const { IVStyle newStyle = *this; newStyle.widgetFrac = Clip(v, 0.f, 1.f); return newStyle; }
   IVStyle WithAngle(float v) const { IVStyle newStyle = *this; newStyle.angle = Clip(v, 0.f, 360.f); return newStyle; }
   IVStyle WithEmboss(bool v = true) const { IVStyle newStyle = *this; newStyle.emboss = v; return newStyle; }
+  IVStyle WithLabelOrientation(EOrientation v) const { IVStyle newStyle = *this; newStyle.labelOrientation = v; return newStyle; }
 };
 
 const IVStyle DEFAULT_STYLE = IVStyle();

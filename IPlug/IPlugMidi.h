@@ -323,7 +323,7 @@ struct IMidiMsg
     if (StatusMsg() == kPitchWheel)
     {
       int iVal = (mData2 << 7) + mData1;
-      return (double) (iVal - 8192) / 8192.0;
+      return static_cast<double>(iVal - 8192) / 8192.0;
     }
     return 0.0;
   }
@@ -559,13 +559,13 @@ struct ISysEx
   
   /** Get the bytes of a sysex message as a CString
    * @param str Buffer for CString
-   * @param maxlen size of the CString buffer
+   * @param maxLen size of the CString buffer
    * @param pData Ptr to the bytes of the sysex message
    * @param size Size of the data in bytes
    * @return The CString result */
-  char* SysExStr(char* str, int maxlen, const uint8_t* pData, int size)
+  char* SysExStr(char* str, int maxLen, const uint8_t* pData, int size)
   {
-    assert(str != NULL && maxlen >= 3);
+    assert(str != NULL && maxLen >= 3);
     
     if (!pData || !size) {
       *str = '\0';
@@ -573,10 +573,10 @@ struct ISysEx
     }
     
     char* pStr = str;
-    int n = maxlen / 3;
+    int n = maxLen / 3;
     if (n > size) n = size;
     for (int i = 0; i < n; ++i, ++pData) {
-      sprintf(pStr, "%02X", (int)*pData);
+      snprintf(pStr, maxLen, "%02X", (int)*pData);
       pStr += 2;
       *pStr++ = ' ';
     }

@@ -137,13 +137,13 @@ tresult PLUGIN_API IPlugVST3::setParamNormalized(ParamID tag, ParamValue value)
 
 IPlugView* PLUGIN_API IPlugVST3::createView(const char* name)
 {
-  if (name && strcmp(name, "editor") == 0)
+  if (HasUI() && name && strcmp(name, "editor") == 0)
   {
     mView = new ViewType(*this);
     return mView;
   }
   
-  return 0;
+  return nullptr;
 }
 
 tresult PLUGIN_API IPlugVST3::setEditorState(IBStream* pState)
@@ -243,13 +243,16 @@ void IPlugVST3::SendParameterValueFromUI(int paramIdx, double normalisedValue)
 
 void IPlugVST3::SetLatency(int latency)
 {
+  // N.B. set the latency even if the handler is not yet set
+  
+  IPlugProcessor::SetLatency(latency);
+
   if (componentHandler)
   {
     FUnknownPtr<IComponentHandler> handler(componentHandler);
 
     if (handler)
     {
-      IPlugProcessor::SetLatency(latency);
       handler->restartComponent(kLatencyChanged);
     }
   }

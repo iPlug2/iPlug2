@@ -57,11 +57,27 @@ typedef uintptr_t UINT_PTR, *PUINT_PTR, ULONG_PTR, *PULONG_PTR, DWORD_PTR, *PDWO
 #endif
 
 
+#ifdef SWELL_USE_WIN32_RGB
+
+// define SWELL_USE_WIN32_RGB project-wide if you want the RGB byte ordering
+// of RGB(), GetRValue(), etc, to match win32
+
+#define RGB(r,g,b) ((((BYTE)(b))<<16)|(((BYTE)(g))<<8)|((BYTE)(r)))
+#define GetBValue(x) (((x)>>16)&0xff)
+#define GetGValue(x) (((x)>>8)&0xff)
+#define GetRValue(x) ((x)&0xff)
+
+#else
+
 // the byte ordering of RGB() etc is different than on win32 
-#define RGB(r,g,b) (((r)<<16)|((g)<<8)|(b))
+#define RGB(r,g,b) ((((BYTE)(r))<<16)|(((BYTE)(g))<<8)|((BYTE)(b)))
 #define GetRValue(x) (((x)>>16)&0xff)
 #define GetGValue(x) (((x)>>8)&0xff)
 #define GetBValue(x) ((x)&0xff)
+
+#define SWELL_BROKEN_RGB_ORDER
+
+#endif
 
 // basic platform compat defines
 #ifndef stricmp
@@ -122,21 +138,6 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2); // to be implemente
 #ifdef __cplusplus
 };
 #endif
-
-#define SWELLAPP_ONLOAD 0x0001 // initialization of app vars etc
-#define SWELLAPP_LOADED 0x0002 // create dialogs etc
-#define SWELLAPP_DESTROY 0x0003 // about to destroy (cleanup etc)
-#define SWELLAPP_SHOULDDESTROY 0x0004 // return 0 to allow app to terminate, >0 to prevent
-
-#define SWELLAPP_OPENFILE 0x0050 // parm1= (const char *)string, return >0 if allowed
-#define SWELLAPP_NEWFILE 0x0051 // new file, return >0 if allowed
-#define SWELLAPP_SHOULDOPENNEWFILE 0x0052 // allow opening new file? >0 if allowed
-
-#define SWELLAPP_ONCOMMAND 0x0099 // parm1 = (int) command ID, parm2 = (id) sender 
-#define SWELLAPP_PROCESSMESSAGE 0x0100 // parm1=(MSG *)msg (loosely), parm2= (NSEvent *) the event . return >0 to eat
-
-#define SWELLAPP_ACTIVATE 0x1000  // parm1 = (bool) isactive. return nonzero to prevent WM_ACTIVATEAPP from being broadcasted
-//
 
 
 #if defined(__APPLE__) && !defined(SWELL_USE_OBJC_BOOL)
@@ -830,6 +831,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define LVN_GETDISPINFO         (LVN_FIRST-50)
 
 #define LVS_EX_GRIDLINES 0x01
+#define LVS_EX_SUBITEMIMAGES 0x02
 #define LVS_EX_HEADERDRAGDROP 0x10
 #define LVS_EX_FULLROWSELECT 0x20 // ignored for now (enabled by default on OSX)
 
@@ -862,21 +864,21 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define BST_INDETERMINATE 2
 
 // note: these differ in values from their win32 counterparts, because we got them
-// wrong to begin with, and we'd like to keep backwards compatability for things compiled
+// wrong to begin with, and we'd like to keep backwards compatibility for things compiled
 // against an old swell.h (and using the SWELL API via an exported mechanism, i.e. third party
 // plug-ins). 
 #define SW_HIDE 0
 #define SW_SHOWNA 1        // 8 on win32
 #define SW_SHOW 2          // 1 on win32
 #define SW_SHOWMINIMIZED 3 // 2 on win32
+#define SW_SHOWMAXIMIZED 4
+#define SW_RESTORE 5
 
 // aliases (todo implement these as needed)
 #define SW_SHOWNOACTIVATE SW_SHOWNA 
 #define SW_NORMAL SW_SHOW 
 #define SW_SHOWNORMAL SW_SHOW
-#define SW_SHOWMAXIMIZED SW_SHOW
 #define SW_SHOWDEFAULT SW_SHOWNORMAL
-#define SW_RESTORE SW_SHOWNA
 
 #define SWP_NOMOVE 1
 #define SWP_NOSIZE 2
@@ -910,6 +912,9 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define MIIM_SUBMENU 8
 #define MIIM_DATA 16
 #define MIIM_BITMAP 0x80
+#ifdef __APPLE__
+#define MIIM_SWELL_DO_NOT_CALC_MODIFIERS (1<<30)
+#endif
 
 #define MF_ENABLED 0
 #define MF_GRAYED 1
@@ -922,6 +927,9 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define MF_BYCOMMAND 0
 #define MF_BYPOSITION 0x400
 #define MF_SEPARATOR 0x800
+#ifdef __APPLE__
+#define MF_SWELL_DO_NOT_CALC_MODIFIERS (1<<30)
+#endif
 
 #define MFT_STRING MF_STRING
 #define MFT_BITMAP MF_BITMAP
@@ -944,6 +952,8 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 #define WM_MOVE                         0x0003
 #define WM_SIZE                         0x0005
 #define WM_ACTIVATE                     0x0006
+#define WM_SETFOCUS                     0x0007
+#define WM_KILLFOCUS                    0x0008
 #define WM_SETREDRAW                    0x000B // implemented on macOS NSTableViews, maybe elsewhere?
 #define WM_SETTEXT			0x000C // not implemented on OSX, used internally on Linux
 #define WM_PAINT                        0x000F
@@ -1016,6 +1026,7 @@ __attribute__ ((visibility ("default"))) BOOL WINAPI DllMain(HINSTANCE hInstDLL,
 
 #define SC_CLOSE        0xF060
 
+#define HTTRANSPARENT (-1)
 #define HTCAPTION 2
 #define HTBOTTOMRIGHT 17
 

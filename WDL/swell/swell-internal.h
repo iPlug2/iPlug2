@@ -23,15 +23,44 @@
 
 #include "../ptrlist.h"
 
+struct SWELL_ListView_Rec
+{
+  char *txt;
+  int image_idx;
+};
+
 class SWELL_ListView_Row
 {
 public:
-  SWELL_ListView_Row() : m_param(0), m_imageidx(0), m_tmp(0) { }
-  ~SWELL_ListView_Row() { m_vals.Empty(true,free); }
-  WDL_PtrList<char> m_vals;
+  SWELL_ListView_Row() : m_param(0), m_tmp(0) { }
+  ~SWELL_ListView_Row()
+  {
+    for (int x = 0; x < m_cols.GetSize(); x ++)
+    {
+      free(m_cols.Get()[x].txt);
+    }
+    m_cols.Resize(0);
+  }
+  int get_num_cols() const { return m_cols.GetSize(); }
+  char *get_col_txt(int x) const { return x >= 0 && x < m_cols.GetSize() ? m_cols.Get()[x].txt : NULL; }
+  void add_col(const char *p) { SWELL_ListView_Rec r = { p ? strdup(p) : NULL }; m_cols.Add(r); }
+  void set_col_txt(int x, const char *p)
+  {
+    if (WDL_NORMALLY(x >= 0 && x < m_cols.GetSize()))
+    {
+      free(m_cols.Get()[x].txt);
+      m_cols.Get()[x].txt = p ? strdup(p) : NULL;
+    }
+  }
+  int get_img_idx(int x) const { return x >= 0 && x < m_cols.GetSize() ? m_cols.Get()[x].image_idx : 0; }
+  void set_img_idx(int x, int index)
+  {
+    if (WDL_NORMALLY(x >= 0 && x < m_cols.GetSize()))
+      m_cols.Get()[x].image_idx = index;
+  }
+  WDL_TypedBuf<SWELL_ListView_Rec> m_cols;
 
   LPARAM m_param;
-  int m_imageidx;
   int m_tmp; // Cocoa uses this temporarily, generic uses it as a mask (1= selected)
 };
 
@@ -83,7 +112,7 @@ struct HTREEITEM__;
 #define SWELL_PopupMenuRecv __SWELL_PREFIX_CLASSNAME(_trackpopupmenurecv)
 
 #define SWELL_TimerFuncTarget __SWELL_PREFIX_CLASSNAME(_tft)
-
+#define SWELL_MetalNotificationHandler __SWELL_PREFIX_CLASSNAME(_mnfh)
 
 #define SWELL_Menu __SWELL_PREFIX_CLASSNAME(_menu)
 
@@ -145,6 +174,7 @@ typedef struct WindowPropRec
   bool m_last_dark_mode;
   bool m_ctlcolor_set;
   bool m_disable_menu;
+  LONG_PTR m_userdata;
 }
 - (id) init;
 - (void)setNeedsDisplay:(BOOL)flag;
@@ -153,6 +183,8 @@ typedef struct WindowPropRec
 - (void)initColors:(int)darkmode; // -1 to not update darkmode but trigger update of colors
 - (void)swellDisableContextMenu:(bool)dis;
 - (NSMenu *)textView:(NSTextView *)view menu:(NSMenu *)menu forEvent:(NSEvent *)event atIndex:(NSUInteger)charIndex;
+-(LONG_PTR)getSwellUserData;
+-(void)setSwellUserData:(LONG_PTR)val;
 @end
 
 @interface SWELL_TabView : NSTabView
@@ -178,8 +210,9 @@ typedef struct WindowPropRec
 @interface SWELL_StatusCell : SWELL_ListViewCell
 {
   NSImage *status;
+  bool m_always_indent;
 }
--(id)initNewCell;
+-(id)initNewCell:(bool)always_indent;
 -(void)setStatusImage:(NSImage *)img;
 - (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView;
 @end
@@ -259,6 +292,7 @@ typedef struct WindowPropRec
   // these are for the new yosemite mouse handling code
   int m_last_plainly_clicked_item, m_last_shift_clicked_item;
 
+  bool m_subitem_images;
 }
 -(LONG)getSwellStyle;
 -(void)setSwellStyle:(LONG)st;
@@ -295,7 +329,7 @@ typedef struct WindowPropRec
 {
   void *m_swellGDIimage;
   LONG_PTR m_userdata;
-  int m_radioflags;
+  int m_radioflags; // =4096 if not a checkbox/radiobox. &2=new group, &1=radio
 }
 -(int)swellGetRadioFlags;
 -(void)swellSetRadioFlags:(int)f;
@@ -385,11 +419,9 @@ typedef struct WindowPropRec
   NSRect m_metal_lastframe;
 
   id m_metal_texture; // id<MTLTexture> -- owned if in full pipeline mode, otherwise reference to m_metal_drawable
-  id m_metal_pipelineState; // id<MTLRenderPipelineState> -- only used in full pipeline mode
-  id m_metal_commandQueue; // id<MTLCommandQueue> -- only used in full pipeline mode
   id m_metal_drawable; // id<CAMetalDrawable> -- only used in normal mode
   id m_metal_device; // id<MTLDevice> -- set to last-used-device
-  DWORD m_metal_device_lastchkt;
+  int m_metal_devicelist_updcnt;
 
 }
 - (id)initChild:(SWELL_DialogResourceIndex *)resstate Parent:(NSView *)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par;
@@ -478,6 +510,7 @@ typedef struct WindowPropRec
   BOOL m_enabled;
   int m_wantraiseamt;
   bool  m_wantInitialKeyWindowOnShow;
+  bool m_lastZoom;
 }
 - (id)initModeless:(SWELL_DialogResourceIndex *)resstate Parent:(HWND)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par outputHwnd:(HWND *)hwndOut forceStyles:(unsigned int)smask;
 - (id)initModelessForChild:(HWND)child owner:(HWND)owner styleMask:(unsigned int)smask;
@@ -503,6 +536,7 @@ typedef struct WindowPropRec
   int m_rv;
   bool m_hasrv;
   BOOL m_enabled;
+  bool m_lastZoom;
 }
 - (id)initDialogBox:(SWELL_DialogResourceIndex *)resstate Parent:(HWND)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par;
 - (void)swellDestroyAllOwnedWindows;
@@ -733,7 +767,11 @@ SWELL_IMPLEMENT_GETOSXVERSION int SWELL_GetOSXVersion()
   {
     if (NSAppKitVersionNumber >= 1266.0)
     {
-      if (NSAppKitVersionNumber >= 2022.0)
+      if (NSAppKitVersionNumber >= 2299.0)
+        v = 0x1300;
+      else if (NSAppKitVersionNumber >= 2100.0)
+        v = 0x1200;
+      else if (NSAppKitVersionNumber >= 2022.0)
         v = 0x1100;
       else if (NSAppKitVersionNumber >= 1894.0)
         v = 0x10e0;
@@ -848,7 +886,8 @@ struct HWND__
 
   bool m_israised;
   bool m_has_had_position;
-  bool m_oswindow_fullscreen;
+  bool m_is_maximized; // only valid if m_oswindow is set
+  int m_oswindow_fullscreen; // may contain preserved style flags
 
   int m_refcnt; 
   int m_oswindow_private; // private state for generic-gtk or whatever
@@ -929,7 +968,8 @@ struct HDC__ {
 };
 
 HWND DialogBoxIsActive(void);
-void DestroyPopupMenus(void);
+bool DestroyPopupMenus(void);
+bool PopupMenuIsActive(void);
 HWND ChildWindowFromPoint(HWND h, POINT p);
 HWND GetFocusIncludeMenus();
 
@@ -950,6 +990,7 @@ void swell_oswindow_postresize(HWND hwnd, RECT f);
 void swell_oswindow_invalidate(HWND hwnd, const RECT *r);
 void swell_oswindow_destroy(HWND hwnd);
 void swell_oswindow_manage(HWND hwnd, bool wantfocus);
+void swell_oswindow_maximize(HWND, bool wantmax); // false=restore
 void swell_oswindow_updatetoscreen(HWND hwnd, RECT *rect);
 HWND swell_window_wants_all_input(); // window with an active drag of menubar will have this set, to route all mouse events to nonclient area of window
 int swell_delegate_menu_message(HWND src, LPARAM lParam, int msg, bool screencoords); // menubar/menus delegate to submenus during drag.
@@ -961,7 +1002,8 @@ extern const char *g_swell_appname;
 extern SWELL_OSWINDOW SWELL_focused_oswindow; // top level window which has focus (might not map to a HWND__!)
 extern HWND swell_captured_window;
 extern HWND SWELL_topwindows; // front of list = most recently active
-extern bool swell_app_is_inactive;
+
+int swell_is_app_inactive(); // returns >0 if definitely inactive, -1 if maybe
 
 #ifdef _DEBUG
 void VALIDATE_HWND_LIST(HWND list, HWND par);
@@ -1227,9 +1269,12 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   fd(menu_text_sel, RGB(224,224,224), menu_bg) \
   f(menu_scroll, RGB(64,64,64)) \
   fd(menu_scroll_arrow, RGB(96,96,96), _3dshadow) \
-  fd(menu_submenu_arrow, RGB(96,96,96), _3dshadow) \
+  fd(menu_submenu_arrow, RGB(96,96,96), menu_text) \
+  fd(menu_submenu_arrow_sel, RGB(96,96,96), menu_bg) \
   fd(menubar_bg, RGB(192,192,192), menu_bg) \
+  fd(menubar_bg_inactive, RGB(192,192,192), menubar_bg) \
   fd(menubar_text, RGB(0,0,0), menu_text) \
+  fd(menubar_text_inactive, RGB(0,0,0), menubar_text) \
   fd(menubar_text_disabled, RGB(224,224,224), menu_text_disabled) \
   fd(menubar_bg_sel, RGB(0,0,0), menu_bg_sel) \
   fd(menubar_text_sel, RGB(224,224,224), menu_text_sel) \
@@ -1250,9 +1295,13 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   f(listview_bg, RGB(255,255,255)) \
   f(listview_bg_sel, RGB(128,128, 255)) \
   f(listview_text, RGB(0,0,0)) \
-  fd(listview_text_sel, RGB(0,0,0), listview_text) \
+  fd(listview_text_sel, RGB(255,255,255), listview_text) \
+  fd(listview_bg_sel_inactive, RGB(200,200,200), listview_bg_sel) \
+  fd(listview_text_sel_inactive, RGB(0,0,0), listview_text_sel) \
   fd(listview_grid, RGB(224,224,224), _3dhilight) \
   f(listview_hdr_arrow,RGB(96,96,96)) \
+  fd(listview_shadow, RGB(96,96,96), _3dshadow) \
+  fd(listview_hilight, RGB(224,224,224), _3dhilight) \
   fd(listview_hdr_shadow, RGB(96,96,96), _3dshadow) \
   fd(listview_hdr_hilight, RGB(224,224,224), _3dhilight) \
   fd(listview_hdr_bg, RGB(192,192,192), _3dface) \
@@ -1260,8 +1309,12 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   f(treeview_text,RGB( 0,0,0)) \
   f(treeview_bg, RGB(255,255,255)) \
   f(treeview_bg_sel, RGB(128,128,255)) \
-  f(treeview_text_sel, RGB(0,0,0)) \
+  f(treeview_text_sel, RGB(255,255,255)) \
+  fd(treeview_bg_sel_inactive, RGB(200,200,200), treeview_bg_sel) \
+  fd(treeview_text_sel_inactive, RGB(0,0,0), treeview_text_sel) \
   f(treeview_arrow, RGB(96,96,96)) \
+  fd(treeview_shadow, RGB(96,96,96), _3dshadow) \
+  fd(treeview_hilight, RGB(224,224,224), _3dhilight) \
   fd(tab_shadow, RGB(96,96,96), _3dshadow) \
   fd(tab_hilight, RGB(224,224,224), _3dhilight) \
   fd(tab_text, RGB(0,0,0), button_text) \
@@ -1270,8 +1323,8 @@ static void __listview_mergesort_internal(void *base, size_t nmemb, size_t size,
   fd(group_shadow, RGB(96,96,96), _3dshadow) \
   fd(group_hilight, RGB(224,224,224), _3dhilight) \
   f(focus_hilight, RGB(140,190,233)) \
-
   
+
 
 struct swell_colortheme {
 #define __def_theme_ent(x,c) int x;
@@ -1289,5 +1342,35 @@ extern const char *g_swell_deffont_face;
 HFONT SWELL_GetDefaultFont(void);
 
 #endif
+
+
+static WDL_STATICFUNC_UNUSED int ext_valid_for_extlist(const char *thisext, const char *extlist)
+{
+  if (!thisext || *thisext != '.' || !extlist) return -1;
+  int txlen = (int)strlen(thisext), witem = 0;
+  while (*extlist)
+  {
+    while (*extlist) extlist++; // description
+    extlist++;
+
+    while (*extlist)
+    {
+      while (*extlist == ' ' || *extlist == ';') extlist++;
+      if (*extlist == '*')
+      {
+        if (!strnicmp(extlist+1,thisext,txlen) &&
+            (extlist[1+txlen] == ';' ||extlist[1+txlen] == 0))
+          return witem;
+      }
+      while (*extlist && *extlist != ';') extlist++;
+      if (*extlist) extlist++;
+    }
+
+    while (*extlist) extlist++;
+    extlist++;
+    witem++;
+  }
+  return -1;
+}
 
 #endif

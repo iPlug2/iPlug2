@@ -7,9 +7,6 @@ BASEDIR=$(dirname $0)
 
 cd $BASEDIR
 
-x86_ARGS="-32"
-x64_ARGS=""
-
 PUID=`echo | grep PLUG_UNIQUE_ID $1`
 PUID=${PUID//\#define PLUG_UNIQUE_ID }
 PUID=${PUID//\'}
@@ -28,17 +25,17 @@ TYPE=aufx
 
 if [ "$PTYPE" == "0" ] # fx or midi controlled fx
 then
-	if [ "$PDMI" == "0" ] # fx
-	then
-	  TYPE=aufx
-	else # midi controlled fx
-		TYPE=aumf
-	fi
+  if [ "$PDMI" == "0" ] # fx
+  then
+    TYPE=aufx
+  else # midi controlled fx
+    TYPE=aumf
+  fi
 fi
 
 if [ "$PTYPE" == "1" ] # instrument
 then
-	TYPE=aumu
+  TYPE=aumu
 fi
 
 if [ "$PTYPE" == "2" ] # midi processor
@@ -48,47 +45,20 @@ fi
 
 if [ "$2" == "leaks" ]
 then
-	echo "testing for leaks (i386 64 bit)"
-	echo 'launch a new shell and type: ps axc|awk "{if (\$5==\"auvaltool\") print \$1}" to get the pid';
-	echo "then leaks PID"
-
-	export MallocStackLogging=1
-	set env MallocStackLoggingNoCompact=1
-
-	auval $x64_ARGS -v $TYPE $PUID $PMID -w -q
-
-	unset MallocStackLogging
-
+  echo "testing for leaks"
+  echo 'launch a new shell and type: ps axc|awk "{if (\$5==\"auvaltool\") print \$1}" to get the pid';
+  echo "then leaks PID"
+  export MallocStackLogging=1
+  set env MallocStackLoggingNoCompact=1
+  auval -v $TYPE $PUID $PMID -w -q
+  unset MallocStackLogging
+elif [ "$2" == "rtsafe" ]
+then
+  echo "testing for real time safety"
+  sudo auval -v $TYPE $PUID $PMID -real-time-safety
 else
-
-	# echo "\nvalidating i386 32 bit... ------------------------"
-	# echo "--------------------------------------------------"
-	# echo "--------------------------------------------------"
-	# echo "--------------------------------------------------"
-	# echo "--------------------------------------------------"
-	# echo "--------------------------------------------------"
-
-	# auval $x86_ARGS -v $TYPE $PUID $PMID
-
-	echo "\nvalidating i386 64 bit... ------------------------"
-	echo "--------------------------------------------------"
-	echo "--------------------------------------------------"
-	echo "--------------------------------------------------"
-	echo "--------------------------------------------------"
-	echo "--------------------------------------------------"
-
-	auval $x64_ARGS -stress -v $TYPE $PUID $PMID
-
-	echo "\nvalidating i386 64 bit Component.. -------------"
-	echo "--------------------------------------------------"
-	echo "--------------------------------------------------"
-	echo "--------------------------------------------------"
-	echo "--------------------------------------------------"
-	echo "--------------------------------------------------"
-
-	auval $x64_ARGS -comp -de -v $TYPE $PUID $PMID
-
+  echo "regular tests"
+  auval -stress -v $TYPE $PUID $PMID
 fi
 
 exit
-

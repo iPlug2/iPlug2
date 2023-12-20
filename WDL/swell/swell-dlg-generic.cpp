@@ -133,12 +133,12 @@ void EndDialog(HWND wnd, int ret)
       if (wnd->m_oswindow && wnd->m_visible)
       {
         swell_dlg_destroyspare();
-        GetWindowRect(wnd,&s_spare_rect);
+        s_spare_rect = wnd->m_position;
         s_spare_style = wnd->m_style;
         s_spare = wnd->m_oswindow;
         wnd->m_oswindow = NULL;
         s_spare_timer = SetTimer(NULL,0,
-                             swell_app_is_inactive ? 500 : 100,
+                             swell_is_app_inactive()>0 ? 500 : 100,
                              spareTimer);
       }
     #endif
@@ -167,6 +167,11 @@ int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND 
   if (hwnd)
   {
     hwnd->Retain();
+
+    void SWELL_OnNavigationFocus(HWND ch);
+    HWND SWELL_GetFocusedChild(HWND h);
+    SWELL_OnNavigationFocus(SWELL_GetFocusedChild(hwnd));
+
     ReleaseCapture(); // force end of any captures
 
     WDL_PtrKeyedArray<int> restwnds;
@@ -226,7 +231,21 @@ int SWELL_DialogBox(SWELL_DialogResourceIndex *reshead, const char *resid, HWND 
         swell_oswindow_resize(w, flags, hwnd->m_position);
       }
       hwnd->m_oswindow = w;
+
+      if (!flags)
+      {
+        hwnd->m_has_had_position = true;
+        hwnd->m_position = s_spare_rect;
+        if (!hwnd->m_hashaddestroy)
+        {
+          void swell_recalcMinMaxInfo(HWND hwnd);
+          swell_recalcMinMaxInfo(hwnd);
+        }
+      }
+      swell_oswindow_focus(hwnd);
+
       ShowWindow(hwnd,SW_SHOWNA);
+      InvalidateRect(hwnd,NULL,FALSE);
     }
     else  
     {

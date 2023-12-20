@@ -1,0 +1,37 @@
+
+
+name: Build Doxygen Docs
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+    paths:
+      - 'IPlug/**'
+      - 'IGraphics/**'
+      - 'Documentation/**'
+      - '.github/**'
+
+jobs:
+  build-docs:
+    name: Build Doxygen Docs
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Doxygen Action
+      uses: mattnotmitt/doxygen-action@1.9.5
+      with:
+        working-directory: 'Documentation/'
+        doxyfile-path: './Doxyfile'
+
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        personal_token: ${{secrets.ACTIONS_PERSONAL_TOKEN}}
+        external_repository: iPlug2/docs
+        publish_branch: master
+        publish_dir: './Documentation/html'
