@@ -91,6 +91,5 @@ HWND __localizeDialog(HINSTANCE hInstance, const char * lpTemplate, HWND hwndPar
 #define __localizeCreateDialogParam(a,b,c,d,e) __localizeDialog(a,b,c,d,e,0)
 
 extern void (*localizePreInitDialogHook)(HWND hwndDlg);
-extern int localize_dev_debug_flags; // &1: prefix untranslated items with hash:sec (leaky)
 
 #endif
