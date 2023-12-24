@@ -23,6 +23,7 @@
 #include "../win32_utf8.h"
 #include "../wdlcstring.h"
 
+int localize_dev_debug_flags;
 
 #define LANGPACK_SCALE_CONSTANT WDL_UINT64_CONST(0x5CA1E00000000000)
 static WDL_StringKeyedArray< WDL_AssocArray<WDL_UINT64, char *> * > g_translations;
@@ -228,6 +229,20 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
     {
       newptr = section->Get(hash,0);
       if (newptr && !validateStrs(str,newptr,flags)) newptr=NULL;
+    }
+  }
+
+  if (!newptr && (localize_dev_debug_flags&1) && hash != WDL_UINT64_CONST(0x5CA1E00000000000))
+  {
+    char prefix[128];
+    snprintf(prefix,sizeof(prefix),"%08X%08X:%s ",(int)(hash>>32),(int)(hash&0xffffffff),subctx?subctx:"");
+    const int prefix_len = (int)strlen(prefix);
+    newptr = ChunkAlloc(prefix_len + len + 1);
+    if (WDL_NORMALLY(newptr))
+    {
+      memcpy(newptr,prefix,prefix_len);
+      memcpy(newptr + prefix_len, str, len);
+      // developer mode leaks, but hopefully caching will keep it in control
     }
   }
 
