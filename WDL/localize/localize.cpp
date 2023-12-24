@@ -138,6 +138,69 @@ static char *ChunkAlloc(int len)
   #define LANGPACK_DEBUG_SAVE_POINTERS_FOR_VALIDATION(subctx,str,ctx)
 #endif
 
+
+static int uint64cmpfunc(WDL_UINT64 *a, WDL_UINT64 *b)
+{
+  if (*a < *b) return -1;
+  if (*a > *b) return 1;
+  return 0;
+}
+
+
+struct localize_debug_sec_rec {
+  localize_debug_sec_rec() : rec(uint64cmpfunc) { }
+
+  WDL_FastString name;
+  WDL_AssocArray<WDL_UINT64, char *> rec;
+};
+static localize_debug_sec_rec *s_dbg_ref[2];
+
+static WDL_AssocArray<WDL_UINT64, char *> *get_translation_sec(const char *n)
+{
+  WDL_AssocArray<WDL_UINT64, char *> *ret = g_translations.Get(n);
+  if (ret || !(localize_dev_debug_flags&1)) return ret;
+#ifdef WDL_LOCALIZE_HOOK_ALLOW_CACHE
+  if (!WDL_LOCALIZE_HOOK_ALLOW_CACHE) return NULL;
+#endif
+
+  // debug mode, keep two recent pointers
+  localize_debug_sec_rec *r = s_dbg_ref[0];
+  s_dbg_ref[0] = s_dbg_ref[1] ? s_dbg_ref[1] : new localize_debug_sec_rec;
+  s_dbg_ref[1] = r;
+  s_dbg_ref[0]->name.Set(n);
+  return &s_dbg_ref[0]->rec;
+}
+
+static char *localize_debug_prefix_str(WDL_UINT64 hash, const char *subctx, const char *str, int str_len, WDL_AssocArray<WDL_UINT64, char *> *sec)
+{
+  if(hash == WDL_UINT64_CONST(0x5CA1E00000000000)) return NULL;
+  if (!subctx && sec)
+  {
+    if (sec == &s_dbg_ref[0]->rec) subctx = s_dbg_ref[0]->name.Get();
+    else if (sec == &s_dbg_ref[1]->rec) subctx = s_dbg_ref[1]->name.Get();
+    else for (int x = 0; x < g_translations.GetSize(); x ++)
+    {
+      const char *k=NULL;
+      WDL_AssocArray<WDL_UINT64, char *> *r = g_translations.Enumerate(x,&k);
+      if (r == sec)
+      {
+        subctx = k;
+        break;
+      }
+    }
+  }
+  char prefix[128];
+  snprintf(prefix,sizeof(prefix),"%08X%08X:%s ",(int)(hash>>32),(int)(hash&0xffffffff),subctx?subctx:"?");
+  const int prefix_len = (int)strlen(prefix);
+  char *newptr = ChunkAlloc(prefix_len + str_len + 1);
+  if (WDL_NOT_NORMALLY(!newptr)) return NULL;
+
+  memcpy(newptr,prefix,prefix_len);
+  memcpy(newptr + prefix_len, str, str_len);
+  // developer mode leaks, but hopefully caching will keep it in control
+  return newptr;
+}
+
 const char *__localizeFunc(const char *str, const char *subctx, int flags)
 {
 #ifdef _DEBUG
@@ -232,19 +295,8 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
     }
   }
 
-  if (!newptr && (localize_dev_debug_flags&1) && hash != WDL_UINT64_CONST(0x5CA1E00000000000))
-  {
-    char prefix[128];
-    snprintf(prefix,sizeof(prefix),"%08X%08X:%s ",(int)(hash>>32),(int)(hash&0xffffffff),subctx?subctx:"");
-    const int prefix_len = (int)strlen(prefix);
-    newptr = ChunkAlloc(prefix_len + len + 1);
-    if (WDL_NORMALLY(newptr))
-    {
-      memcpy(newptr,prefix,prefix_len);
-      memcpy(newptr + prefix_len, str, len);
-      // developer mode leaks, but hopefully caching will keep it in control
-    }
-  }
+  if (!newptr && (localize_dev_debug_flags&1))
+    newptr = localize_debug_prefix_str(hash,subctx,str,len,NULL);
 
   #ifdef WDL_LOCALIZE_HOOK_XLATE
   WDL_LOCALIZE_HOOK_XLATE(str,subctx,flags,newptr)
@@ -297,6 +349,8 @@ static void __localProcMenu(HMENU menu, WDL_AssocArray<WDL_UINT64, char *> *s)
         WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)buf,(int)strlen(buf)+1);
         const char *newptr = s ? s->Get(hash,0) : NULL;
         if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
+        if (!newptr && (localize_dev_debug_flags&1))
+          newptr = localize_debug_prefix_str(hash,NULL,buf,(int)strlen(buf)+1,s);
 
         if (!newptr)
         {
@@ -346,7 +400,7 @@ void __localizeMenu(const char *rescat, HMENU hMenu, LPCSTR lpMenuName)
   {
     char buf[128];
     sprintf(buf,"%sMENU_%d",rescat?rescat:"",(int)a);
-    WDL_AssocArray<WDL_UINT64, char *> *s = g_translations.Get(buf);
+    WDL_AssocArray<WDL_UINT64, char *> *s = get_translation_sec(buf);
     if (s)
     {
       __localProcMenu(hMenu,s);
@@ -451,6 +505,8 @@ static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s,
     WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)buf,(int)strlen(buf)+1);
     const char *newptr = s ? s->Get(hash,0) : NULL;
     if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
+    if (!newptr && (localize_dev_debug_flags&1))
+      newptr = localize_debug_prefix_str(hash,NULL,buf,(int)strlen(buf)+1,s);
 
 #ifdef __APPLE__
     bool filter_prefix = false;
@@ -463,6 +519,8 @@ static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s,
         hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)p,(int)strlen(p)+1);
         newptr = s ? s->Get(hash,0) : NULL;
         if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
+        if (!newptr && (localize_dev_debug_flags&1))
+          newptr = localize_debug_prefix_str(hash,NULL,buf,(int)strlen(buf)+1,s);
         filter_prefix = true;
       }
     }
@@ -766,7 +824,7 @@ static void localize_dialog(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *sec)
 void __localizeInitializeDialog(HWND hwnd, const char *desc)
 {
   if (!desc || !hwnd || !*desc) return;
-  WDL_AssocArray<WDL_UINT64, char *> *s = g_translations.Get(desc);
+  WDL_AssocArray<WDL_UINT64, char *> *s = get_translation_sec(desc);
   if (s) localize_dialog(hwnd,s);
 }
 
@@ -840,13 +898,13 @@ DLGPROC __localizePrepareDialog(const char *rescat, HINSTANCE hInstance, const c
   {
     char buf[128];
     snprintf(buf,sizeof(buf),"%sDLG_%d",rescat?rescat:"",(int)a);
-    s = g_translations.Get(buf);
+    s = get_translation_sec(buf);
 #ifdef _WIN32
     int menuid = __getMenuIdFromDlgResource(hInstance,lpTemplate);
     if (menuid)
     {
       snprintf(buf,sizeof(buf),"%sMENU_%d",rescat?rescat:"",menuid);
-      s2=g_translations.Get(buf);
+      s2=get_translation_sec(buf);
     }
 #endif
   }
@@ -883,13 +941,6 @@ HWND __localizeDialog(HINSTANCE hInstance, const char *lpTemplate, HWND hwndPare
     case 0: return CreateDialogParam(hInstance,lpTemplate,hwndParent,dlgProc,lParam);
     case 1: return (HWND) (INT_PTR)DialogBoxParam(hInstance,lpTemplate,hwndParent,dlgProc,lParam);
   }
-  return 0;
-}
-
-static int uint64cmpfunc(WDL_UINT64 *a, WDL_UINT64 *b)
-{
-  if (*a < *b) return -1;
-  if (*a > *b) return 1;
   return 0;
 }
 
