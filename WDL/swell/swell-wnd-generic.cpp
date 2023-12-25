@@ -3348,10 +3348,24 @@ static LRESULT WINAPI labelWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
           if (text[0])
           {
-            DrawText(ps.hdc,text,-1,&r,
+            if (strstr(text,"\n"))
+            {
+              RECT mr={0,};
+              DrawText(ps.hdc,text,-1,&mr,DT_CALCRECT);
+              const int dsz = r.right-r.left - mr.right;
+              if (dsz > 0)
+              {
+                if (hwnd->m_style & SS_CENTER) r.left += dsz/2;
+                else if (hwnd->m_style & SS_RIGHT) r.left += dsz;
+              }
+              if (r.bottom-r.top > mr.bottom) r.top += (r.bottom-r.top-mr.bottom)/2;
+              DrawText(ps.hdc,text,-1,&r,0);
+            }
+            else
+              DrawText(ps.hdc,text,-1,&r,
                 ((hwnd->m_style & SS_CENTER) ? DT_CENTER :
                  (hwnd->m_style & SS_RIGHT) ? DT_RIGHT : 0)|
-                (strstr(text,"\n") ? 0 : (DT_SINGLELINE|DT_VCENTER)));
+                 (DT_SINGLELINE|DT_VCENTER));
           }
           EndPaint(hwnd,&ps);
         }
