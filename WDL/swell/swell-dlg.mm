@@ -707,7 +707,7 @@ static bool s_mtl_in_update;
       (COLORREF)-1,
       f->m_cols ? f->m_cols->Find(aTableColumn) : 0
     };
-    if (m_wndproc) m_wndproc((HWND)self,WM_NOTIFY,tag,(LPARAM)&nmlv);
+    if (m_wndproc && !m_hashaddestroy) m_wndproc((HWND)self,WM_NOTIFY,tag,(LPARAM)&nmlv);
     // todo clrTextBk too
     if (nmlv.clrText != (COLORREF)-1)
     {
