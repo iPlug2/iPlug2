@@ -3276,6 +3276,7 @@ static LRESULT WINAPI labelWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
           paintDialogBackground(hwnd,&r,ps.hdc);
 
           const char *text = hwnd->m_title.Get();
+          const int f = (hwnd->m_style & SS_NOPREFIX) ? DT_NOPREFIX : 0;
           switch (hwnd->m_style & SS_TYPEMASK)
           {
             case SS_ETCHEDHORZ:
@@ -3328,7 +3329,7 @@ static LRESULT WINAPI labelWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
               if (text[0])
               {
                 RECT tmp={0,};
-                const int line_h = DrawText(ps.hdc," ",1,&tmp,DT_SINGLELINE|DT_NOPREFIX|DT_CALCRECT);
+                const int line_h = DrawText(ps.hdc," ",1,&tmp,DT_SINGLELINE|DT_NOPREFIX|DT_CALCRECT|f);
                 if (r.bottom > line_h*5/3)
                 {
                   int loffs=0;
@@ -3336,7 +3337,7 @@ static LRESULT WINAPI labelWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                   {
                     int post=0, lb=swell_getLineLength(text+loffs, &post, r.right, ps.hdc);
                     if (lb>0)
-                      DrawText(ps.hdc,text+loffs,lb,&r,DT_TOP|DT_SINGLELINE|DT_LEFT);
+                      DrawText(ps.hdc,text+loffs,lb,&r,DT_TOP|DT_SINGLELINE|DT_LEFT|f);
                     r.top += line_h;
                     loffs+=lb+post;
                   }
@@ -3351,7 +3352,7 @@ static LRESULT WINAPI labelWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
             if (strstr(text,"\n"))
             {
               RECT mr={0,};
-              DrawText(ps.hdc,text,-1,&mr,DT_CALCRECT);
+              DrawText(ps.hdc,text,-1,&mr,DT_CALCRECT|f);
               const int dsz = r.right-r.left - mr.right;
               if (dsz > 0)
               {
@@ -3359,13 +3360,13 @@ static LRESULT WINAPI labelWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                 else if (hwnd->m_style & SS_RIGHT) r.left += dsz;
               }
               if (r.bottom-r.top > mr.bottom) r.top += (r.bottom-r.top-mr.bottom)/2;
-              DrawText(ps.hdc,text,-1,&r,0);
+              DrawText(ps.hdc,text,-1,&r,f);
             }
             else
               DrawText(ps.hdc,text,-1,&r,
                 ((hwnd->m_style & SS_CENTER) ? DT_CENTER :
                  (hwnd->m_style & SS_RIGHT) ? DT_RIGHT : 0)|
-                 (DT_SINGLELINE|DT_VCENTER));
+                 (DT_SINGLELINE|DT_VCENTER)|f);
           }
           EndPaint(hwnd,&ps);
         }

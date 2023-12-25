@@ -1166,7 +1166,7 @@ static LRESULT WINAPI swellMessageBoxProc(HWND hwnd, UINT uMsg, WPARAM wParam, L
 
         SWELL_MakeSetCurParms(1,1,0,0,hwnd,false,false);
         RECT labsize = {0,0,300,20};
-        HWND lab = SWELL_MakeLabel(-1,parms[0] ? (const char *)parms[0] : "", IDC_LABEL, 0,0,10,10,SS_CENTER); //we'll resize this manually
+        HWND lab = SWELL_MakeLabel(-1,parms[0] ? (const char *)parms[0] : "", IDC_LABEL, 0,0,10,10,SS_CENTER|SS_NOPREFIX); //we'll resize this manually
         HDC dc=GetDC(lab); 
         if (lab && parms[0])
         {
