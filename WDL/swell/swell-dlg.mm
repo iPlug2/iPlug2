@@ -651,6 +651,7 @@ static bool s_mtl_in_update;
     if ([[self window] contentView] == self && [[self window] respondsToSelector:@selector(swellDestroyAllOwnedWindows)])
       [(SWELL_ModelessWindow*)[self window] swellDestroyAllOwnedWindows];
 
+    if (m_wndproc) m_wndproc((HWND)self,WM_NCDESTROY,0,0);
     if (GetCapture()==(HWND)self) ReleaseCapture(); 
     SWELL_MessageQueue_Clear((HWND)self); 
     
