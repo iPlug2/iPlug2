@@ -21,10 +21,11 @@ private:
   // one pole IIR
   // y[n] = x[n] + a[n] * y[n-1]
   class rpole {
-    T y_m1;
-  public:  
+    T y_m1 = 0;
+  public:
     inline T process(T x, T a) { 
       const T y = y_m1 = x + a * y_m1;
+      denormal_fix(&y_m1);
       return y;
     }
   };
@@ -32,11 +33,12 @@ private:
   // one zero FIR
   // y[n] = x[n] - b[n] * x[n-1]
   class rzero {
-    T x_m1;
+    T x_m1 = 0;
   public:
     inline T process(T x, T b) {
       const T y = x - b * x_m1;
       x_m1 = x;
+      denormal_fix(&x_m1);
       return y;
     }
   };
