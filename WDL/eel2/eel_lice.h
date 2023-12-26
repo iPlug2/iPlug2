@@ -2121,16 +2121,30 @@ static EEL_F NSEEL_CGEN_CALL _gfx_getchar(void *opaque, INT_PTR np, EEL_F **plis
     ctx->m_has_had_getch=true;
     if (*p >= 2.0)
     {
-      if (*p == 65536.0)
+      if (*p == 65536.0 || *p == 65537.0)
       {
         int rv = 1;
         if (ctx->hwnd_standalone)
         {
           if (ctx->hwnd_standalone==GetFocus()) rv|=2;
-          if (IsWindowVisible(ctx->hwnd_standalone)) rv|=4;
-          POINT p;
-          GetCursorPos(&p);
-          if (WindowFromPoint(p) == ctx->hwnd_standalone) rv|=8;
+          if (IsWindowVisible(ctx->hwnd_standalone))
+          {
+            rv|=4;
+            if (*p != 65537.0)
+            {
+              POINT p;
+              GetCursorPos(&p);
+              RECT r;
+              GetWindowRect(ctx->hwnd_standalone,&r);
+              if (r.top > r.bottom)
+              {
+                const int a = r.top;
+                r.top = r.bottom;
+                r.bottom = a;
+              }
+              if (PtInRect(&r,p) && WindowFromPoint(p) == ctx->hwnd_standalone) rv|=8;
+            }
+          }
         }
         return rv;
       }
@@ -3126,7 +3140,7 @@ static const char *eel_lice_function_reference =
      "\4" "27 for ESC\n"
      "\4" "13 for Enter\n"
      "\4' ' for space\n"
-     "\4" "65536 for query of special flags, returns: &1 (supported), &2=window has focus, &4=window is visible, &8=mouse click would hit window\n"
+     "\4" "65536 for query of special flags, returns: &1 (supported), &2=window has focus, &4=window is visible, &8=mouse click would hit window. 65537 queries special flags but does not do the mouse click hit testing (faster).\n"
      "\4If unichar is specified, it will be set to the unicode value of the key if available (and the return value may be the unicode value or a raw key value as described above, depending). If unichar is not specified, unicode codepoints greater than 255 will be returned as 'u'<<24 + value\n"
      "\2\0"
     
