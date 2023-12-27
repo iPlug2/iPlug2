@@ -23,6 +23,12 @@
 #include "../win32_utf8.h"
 #include "../wdlcstring.h"
 
+#ifndef WDL_LOCALIZE_REC_HEADER_SIZE
+#define WDL_LOCALIZE_REC_HEADER_SIZE 0
+#endif
+#ifndef WDL_LOCALIZE_UPDATE_HEADER(hdr,v)
+#define WDL_LOCALIZE_UPDATE_HEADER do { } while(0)
+#endif
 
 #define LANGPACK_SCALE_CONSTANT WDL_UINT64_CONST(0x5CA1E00000000000)
 static WDL_StringKeyedArray< WDL_AssocArray<WDL_UINT64, char *> * > g_translations;
@@ -230,6 +236,11 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
     {
       newptr = section->Get(hash,0);
       if (newptr && !validateStrs(str,newptr,flags)) newptr=NULL;
+
+      if (hash != WDL_UINT64_CONST(0x5CA1E00000000000))
+      {
+        WDL_LOCALIZE_UPDATE_HEADER((char*)newptr,str);
+      }
     }
   }
 
@@ -284,6 +295,7 @@ static void __localProcMenu(HMENU menu, WDL_AssocArray<WDL_UINT64, char *> *s)
         WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)buf,(int)strlen(buf)+1);
         const char *newptr = s ? s->Get(hash,0) : NULL;
         if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
+        WDL_LOCALIZE_UPDATE_HEADER((char*)newptr,buf);
 
         if (!newptr)
         {
@@ -451,6 +463,7 @@ static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s,
     WDL_UINT64 hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)buf,(int)strlen(buf)+1);
     const char *newptr = s ? s->Get(hash,0) : NULL;
     if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
+    WDL_LOCALIZE_UPDATE_HEADER((char*)newptr,buf);
 
 #ifdef __APPLE__
     bool filter_prefix = false;
@@ -463,6 +476,7 @@ static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s,
         hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)p,(int)strlen(p)+1);
         newptr = s ? s->Get(hash,0) : NULL;
         if (!newptr && g_translations_commonsec) newptr = g_translations_commonsec->Get(hash,0);
+        WDL_LOCALIZE_UPDATE_HEADER((char*)newptr,buf);
         filter_prefix = true;
       }
     }
@@ -1162,9 +1176,11 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *fn,
               }
               procbuf.Add(0);
               procbuf.Add(0);
-              char *pc = (char *)ChunkAlloc(procbuf.GetSize());
+              char *pc = (char *)ChunkAlloc(procbuf.GetSize() + WDL_LOCALIZE_REC_HEADER_SIZE);
               if (pc)
               {
+                memset(pc,0,WDL_LOCALIZE_REC_HEADER_SIZE);
+                pc += WDL_LOCALIZE_REC_HEADER_SIZE;
                 memcpy(pc,procbuf.Get(),procbuf.GetSize());
                 cursec->AddUnsorted(v,pc);
               }
@@ -1172,9 +1188,11 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *fn,
             else
             {
               int eqlen = (int)strlen(eq);
-              char *pc = (char *)ChunkAlloc(eqlen+2);
+              char *pc = (char *)ChunkAlloc(eqlen+2 + WDL_LOCALIZE_REC_HEADER_SIZE);
               if (pc)
               {
+                memset(pc,0,WDL_LOCALIZE_REC_HEADER_SIZE);
+                pc += WDL_LOCALIZE_REC_HEADER_SIZE;
                 memcpy(pc,eq,eqlen+1);
                 pc[eqlen+1]=0; // doublenull terminate to be safe, in case the caller requested LOCALIZE_FLAG_NULLPAIR
                 cursec->AddUnsorted(v,pc);
