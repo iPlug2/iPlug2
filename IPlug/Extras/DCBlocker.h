@@ -48,11 +48,13 @@ private:
 
 public:
 
-  void ProcessBlock(T** inputs, T** outputs, int nFrames)
+  void ProcessBlock(T** inputs, T** outputs, int nChans, int nFrames)
   {
+    assert(nChans <= NC);
+
     for (auto s=0; s<nFrames; s++)
     {
-      for (auto c=0; c<NC; c++)
+      for (auto c = 0; c < nChans; c++)
       {
         const auto x = inputs[c][s];
         outputs[c][s] = mPole[c].process(mZero[c].process(x, T(1.0)), T(0.995));
