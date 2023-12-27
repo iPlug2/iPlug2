@@ -895,8 +895,14 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
       char str[2];
       str[0] = static_cast<char>(idx);
       str[1] = '\0';
+      
+      // Workaround for Reaper's funky behaviour
+      if (_this->GetHost() == iplug::EHost::kHostReaper && value != VKEY_SPACE)
+      {
+        return 0;
+      }
 
-      int vk = VSTKeyCodeToVK(value, idx);
+      int vk = VSTKeyCodeToVK(static_cast<int>(value), idx);
       int modifiers = (int)opt;
 
       IKeyPress keyPress{ str, static_cast<int>(vk),
