@@ -6399,6 +6399,21 @@ void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
   lvs->m_cols.Insert(col,pos);
 }
 
+void ListView_GetColumn(HWND h, int pos, LVCOLUMN *lvc)
+{
+  listViewState *lvs = h ? (listViewState *)h->m_private_data : NULL;
+  if (WDL_NOT_NORMALLY(!lvs || !lvc)) return;
+  SWELL_ListView_Col *col = lvs->GetColumnByIndex(pos);
+  if (WDL_NOT_NORMALLY(!col)) return;
+  if (lvc->mask & LVCF_WIDTH) lvc->cx = col->xwid;
+  if (lvc->mask & LVCF_TEXT)
+  {
+    if (WDL_NORMALLY(lvc->pszText && lvc->cchTextMax>0))
+      lstrcpyn_safe(lvc->pszText, col->name?col->name:"", lvc->cchTextMax);
+  }
+  if (lvc->mask & LVCF_FMT) lvc->fmt = col->fmt;
+}
+
 void ListView_SetColumn(HWND h, int pos, const LVCOLUMN *lvc)
 {
   listViewState *lvs = h ? (listViewState *)h->m_private_data : NULL;

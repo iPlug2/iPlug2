@@ -400,6 +400,7 @@ SWELL_API_DEFINE(void, ListView_SetExtendedListViewStyleEx,(HWND h, int mask, in
 SWELL_API_DEFINE(void, ListView_InsertColumn,(HWND h, int pos, const LVCOLUMN *lvc))
 SWELL_API_DEFINE(bool, ListView_DeleteColumn,(HWND h, int pos))
 SWELL_API_DEFINE(void, ListView_SetColumn,(HWND h, int pos, const LVCOLUMN *lvc))
+SWELL_API_DEFINE(void, ListView_GetColumn,(HWND h, int pos, LVCOLUMN *lvc))
 SWELL_API_DEFINE(int, ListView_GetColumnWidth,(HWND h, int pos))
 SWELL_API_DEFINE(int, ListView_InsertItem,(HWND h, const LVITEM *item))
 SWELL_API_DEFINE(void, ListView_SetItemText,(HWND h, int ipos, int cpos, const char *txt))

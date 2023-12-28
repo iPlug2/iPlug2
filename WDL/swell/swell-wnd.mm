@@ -4529,6 +4529,47 @@ void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
   SWELL_END_TRY(;)
 }
 
+void ListView_GetColumn(HWND h, int pos, LVCOLUMN *lvc)
+{
+  if (WDL_NOT_NORMALLY(!h || !lvc || ![(id)h isKindOfClass:[SWELL_ListView class]])) return;
+  SWELL_ListView *v=(SWELL_ListView *)h;
+  if (!v->m_cols || pos < 0 || pos >= v->m_cols->GetSize()) return;
+
+  NSTableColumn *col=v->m_cols->Get(pos);
+  if (!col) return;
+
+  if (lvc->mask&LVCF_FMT)
+  {
+    NSTextAlignment align = [[col headerCell] alignment];
+
+    if (align == NSCenterTextAlignment) lvc->fmt = LVCFMT_CENTER;
+    else if (align == NSRightTextAlignment) lvc->fmt = LVCFMT_RIGHT;
+    else lvc->fmt = LVCFMT_LEFT;
+  }
+  if (lvc->mask&LVCF_WIDTH)
+  {
+    if ([col respondsToSelector:@selector(isHidden)] && [(SWELL_TableColumnExtensions*)col isHidden])
+    {
+      lvc->cx=0;
+    }
+    else
+    {
+      lvc->cx = [col width];
+    }
+  }
+  if (lvc->mask&LVCF_TEXT)
+  {
+    if (!v->m_lbMode && !(v->style&LVS_NOCOLUMNHEADER))
+    {
+      if (WDL_NORMALLY(lvc->cchTextMax>0 && lvc->pszText))
+      {
+        NSString *lbl = [[col headerCell] stringValue];
+        SWELL_CFStringToCString(lbl,lvc->pszText,lvc->cchTextMax);
+      }
+    }
+  }
+}
+
 void ListView_SetColumn(HWND h, int pos, const LVCOLUMN *lvc)
 {
   if (WDL_NOT_NORMALLY(!h || !lvc || ![(id)h isKindOfClass:[SWELL_ListView class]])) return;
