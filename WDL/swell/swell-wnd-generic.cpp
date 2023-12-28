@@ -6560,6 +6560,8 @@ bool ListView_GetItem(HWND h, LVITEM *item)
       nm.item.pszText = item->pszText;
       nm.item.cchTextMax = item->cchTextMax;
       SendMessage(GetParent(h),WM_NOTIFY,nm.hdr.idFrom,(LPARAM)&nm);
+      if ((mask & LVIF_TEXT) && nm.item.pszText != item->pszText)
+        lstrcpyn_safe(item->pszText, nm.item.pszText ? nm.item.pszText : "", item->cchTextMax);
       if (mask & LVIF_PARAM) item->lParam = nm.item.lParam;
     }
   }
