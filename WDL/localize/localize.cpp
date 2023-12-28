@@ -109,6 +109,8 @@ static char *ChunkAlloc(int len)
 #endif
 }
 
+int wdl_localize_options; // &1=show untranslated in menus
+
 #ifdef _DEBUG
   bool g_debug_langpack_has_loaded;
 
@@ -215,7 +217,7 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
   }
 
   WDL_UINT64 hash;
-  if ((flags & LOCALIZE_FLAG_PAIR) && len == 18 && !memcmp(str,"__LOCALIZE_SCALE\0",18))
+  if ((flags & LOCALIZE_FLAG_PAIR) && len == 18 && !memcmp(str,"__LOCALIZE_SCALE\0",18) && !(wdl_localize_options&2))
     hash = WDL_UINT64_CONST(0x5CA1E00000000000);
   else
     hash = WDL_FNV64(WDL_FNV64_IV,(const unsigned char *)str,(int)len);
@@ -299,14 +301,27 @@ static void __localProcMenu(HMENU menu, WDL_AssocArray<WDL_UINT64, char *> *s)
         }
         if (newptr)
         {
-  #ifdef _WIN32
-          if (mod[0])
+#ifndef _WIN32
+          const char mod[2]={0,};
+#endif
+          if (mod[0] || (wdl_localize_options&1))
           {
-            lstrcpyn(buf,newptr,3500);
-            strcat(buf,mod);
+            const int maxl = mod[0] ? 3500 : 4000;
+            if (wdl_localize_options&1)
+            {
+              int l = (int)strlen(newptr);
+              int l2 = (int)strlen(buf);
+              if (l2 > 500) l2=500;
+              if (l > maxl-l2) l = maxl-l2;
+              memmove(buf+l+3, buf, l2+1);
+              memcpy(buf,newptr,l);
+              memcpy(buf+l," | ",3);
+            }
+            else
+              lstrcpyn(buf,newptr,maxl);
+            if (mod[0]) strcat(buf,mod);
             newptr=buf;
           }
-  #endif
           mii.fMask = MIIM_TYPE;
 #ifdef __APPLE__
           mii.fMask |= MIIM_SWELL_DO_NOT_CALC_MODIFIERS;
@@ -586,7 +601,7 @@ static void localize_dialog(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *sec)
 #ifdef _DEBUG
   WDL_ASSERT(g_debug_langpack_has_loaded != false);
 #endif
-  const char *sc_str = sec->Get(LANGPACK_SCALE_CONSTANT);
+  const char *sc_str = (wdl_localize_options&2) ? NULL : sec->Get(LANGPACK_SCALE_CONSTANT);
 /* commented [common] scaling fallback: the langpack author has to set it for each dialog that needs it
           if (!sc_str && g_translations_commonsec)
           {
