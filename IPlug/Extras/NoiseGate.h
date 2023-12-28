@@ -62,13 +62,15 @@ public:
     mMinRate = std::min(mAttackTime, mReleaseTime);
   }
 
-  void ProcessBlock(T** inputs, T** outputs, T* sidechain, int nFrames)
+  void ProcessBlock(T** inputs, T** outputs, T* sidechain, int nChans, int nFrames)
   {
+    assert(nChans <= NC);
+
     for (auto s=0; s <nFrames; s++)
     {
       auto trigger = sidechain[s];
       auto gain = processSample(trigger);
-      for (auto c=0; c<NC; c++)
+      for (auto c=0; c<nChans; c++)
       {
         outputs[c][s] = inputs[c][s] * gain;
       }
