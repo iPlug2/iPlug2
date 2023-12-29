@@ -83,11 +83,15 @@
   NSLog(@"Mic Input Chans: %i", micInputFormat.channelCount);
   NSLog(@"Plugin Input SR: %i", int(pluginInputFormat.sampleRate));
   NSLog(@"Plugin Input Chans: %i", pluginInputFormat.channelCount);
-#endif
   
-#if PLUG_TYPE != 1
-  if (pluginInputFormat != nil)
-    [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: micInputFormat];
+  @autoreleasepool {
+    @try {
+      [audioEngine connect:audioEngine.inputNode to:avAudioUnit format: micInputFormat];
+    }
+    @catch (NSException *exception) {
+      NSLog(@"NSException when trying to connect input node: %@, Reason: %@", exception.name, exception.reason);
+    }
+  }
 #endif
   
   auto numOutputBuses = [avAudioUnit numberOfOutputs];
