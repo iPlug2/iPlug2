@@ -1407,20 +1407,47 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
 
     if (pVST3ContextMenu)
     {
-      Steinberg::Vst::IContextMenu::Item item = {0};
+      std::function<void(IPopupMenu* pCurrentMenu)> populateFunc;
+      Steinberg::int32 tag = 0;
+      
+      populateFunc = [&populateFunc, &tag, pVST3ContextMenu, pControl](IPopupMenu* pCurrentMenu) {
+        Steinberg::Vst::IContextMenu::Item item = {0};
 
-      for (int i = 0; i < contextMenu.NItems(); i++)
-      {
-        Steinberg::UString128 (contextMenu.GetItemText(i)).copyTo (item.name, 128);
-        item.tag = i;
-
-        if (!contextMenu.GetItem(i)->GetEnabled())
-          item.flags = Steinberg::Vst::IContextMenu::Item::kIsDisabled;
-        else
+        for (int i = 0; i < pCurrentMenu->NItems(); i++)
+        {
+          Steinberg::UString128 (pCurrentMenu->GetItemText(i)).copyTo (item.name, 128);
+          item.tag = tag++;
           item.flags = 0;
-
-        pVST3ContextMenu->addItem(item, pControl);
-      }
+          
+          if (pCurrentMenu->GetItem(i)->GetIsSeparator())
+          {
+            item.flags = Steinberg::Vst::IContextMenu::Item::kIsSeparator;
+          }
+          else if (auto pSubMenu = pCurrentMenu->GetItem(i)->GetSubmenu())
+          {
+            item.flags = Steinberg::Vst::IContextMenu::Item::kIsGroupStart;
+            pVST3ContextMenu->addItem(item, pControl);
+            populateFunc(pSubMenu);
+            item.tag = tag++;
+            item.flags = Steinberg::Vst::IContextMenu::Item::kIsGroupEnd;
+            pVST3ContextMenu->addItem(item, pControl);
+            continue;
+          }
+          else
+          {
+            if (!pCurrentMenu->GetItem(i)->GetEnabled())
+              item.flags |= Steinberg::Vst::IContextMenu::Item::kIsDisabled;
+            
+            if (pCurrentMenu->GetItem(i)->GetChecked())
+              item.flags |= Steinberg::Vst::IContextMenu::Item::kIsChecked;
+          }
+          
+          pVST3ContextMenu->addItem(item, pControl);
+        }
+      };
+      
+      populateFunc(&contextMenu);
+     
 #ifdef OS_WIN
       x *= GetTotalScale();
       y *= GetTotalScale();
