@@ -208,7 +208,9 @@ int IPlugAPPHost::GetAudioDeviceIdx(const char* deviceNameToTest) const
 {
   for (int i = 0; i < mAudioIDDevNames.size(); i++)
   {
-    if (!strcmp(deviceNameToTest, mAudioIDDevNames.at(i).c_str() ))
+    auto name = GetAudioDeviceName(i);
+
+    if (std::string_view(deviceNameToTest) == name)
       return i;
   }
   
@@ -218,33 +220,36 @@ int IPlugAPPHost::GetAudioDeviceIdx(const char* deviceNameToTest) const
 int IPlugAPPHost::GetMIDIPortNumber(ERoute direction, const char* nameToTest) const
 {
   int start = 1;
+  
+  auto nameStrView = std::string_view(nameToTest);
+  
   if (direction == ERoute::kInput)
   {
-    if (!strcmp(nameToTest, OFF_TEXT)) return 0;
+    if (nameStrView == OFF_TEXT) return 0;
     
   #ifdef OS_MAC
     start = 2;
-    if (!strcmp(nameToTest, "virtual input")) return 1;
+    if (nameStrView == "virtual input") return 1;
   #endif
     
     for (int i = 0; i < mMidiIn->getPortCount(); i++)
     {
-      if (!strcmp(nameToTest, mMidiIn->getPortName(i).c_str()))
+      if (nameStrView == mMidiIn->getPortName(i).c_str())
         return (i + start);
     }
   }
   else
   {
-    if (!strcmp(nameToTest, OFF_TEXT)) return 0;
+    if (nameStrView == OFF_TEXT) return 0;
   
   #ifdef OS_MAC
     start = 2;
-    if (!strcmp(nameToTest, "virtual output")) return 1;
+    if (nameStrView == "virtual output") return 1;
   #endif
   
     for (int i = 0; i < mMidiOut->getPortCount(); i++)
     {
-      if (!strcmp(nameToTest, mMidiOut->getPortName(i).c_str()))
+      if (nameStrView == mMidiOut->getPortName(i).c_str())
         return (i + start);
     }
   }
@@ -338,8 +343,8 @@ void IPlugAPPHost::ProbeMidiIO()
 bool IPlugAPPHost::AudioSettingsInStateAreEqual(AppState& os, AppState& ns)
 {
   if (os.mAudioDriverType != ns.mAudioDriverType) return false;
-  if (strcmp(os.mAudioInDev.Get(), ns.mAudioInDev.Get())) return false;
-  if (strcmp(os.mAudioOutDev.Get(), ns.mAudioOutDev.Get())) return false;
+  if (!(std::string_view(os.mAudioInDev.Get()) == ns.mAudioInDev.Get())) return false;
+  if (!(std::string_view(os.mAudioOutDev.Get()) == ns.mAudioOutDev.Get())) return false;
   if (os.mAudioSR != ns.mAudioSR) return false;
   if (os.mBufferSize != ns.mBufferSize) return false;
   if (os.mAudioInChanL != ns.mAudioInChanL) return false;
@@ -353,8 +358,8 @@ bool IPlugAPPHost::AudioSettingsInStateAreEqual(AppState& os, AppState& ns)
 
 bool IPlugAPPHost::MIDISettingsInStateAreEqual(AppState& os, AppState& ns)
 {
-  if (strcmp(os.mMidiInDev.Get(), ns.mMidiInDev.Get())) return false;
-  if (strcmp(os.mMidiOutDev.Get(), ns.mMidiOutDev.Get())) return false;
+  if (!(std::string_view(os.mMidiInDev.Get()) == ns.mMidiInDev.Get())) return false;
+  if (!(std::string_view(os.mMidiOutDev.Get()) == ns.mMidiOutDev.Get())) return false;
   if (os.mMidiInChan != ns.mMidiInChan) return false;
   if (os.mMidiOutChan != ns.mMidiOutChan) return false;
 
