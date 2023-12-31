@@ -142,16 +142,14 @@ public:
               rhs.mAudioSR == mAudioSR &&
               rhs.mMidiInChan == mMidiInChan &&
               rhs.mMidiOutChan == mMidiOutChan &&
-              (strcmp(rhs.mAudioInDev.Get(), mAudioInDev.Get()) == 0) &&
-              (strcmp(rhs.mAudioOutDev.Get(), mAudioOutDev.Get()) == 0) &&
-              (strcmp(rhs.mMidiInDev.Get(), mMidiInDev.Get()) == 0) &&
-              (strcmp(rhs.mMidiOutDev.Get(), mMidiOutDev.Get()) == 0) &&
-
+              (std::string_view(rhs.mAudioInDev.Get()) == mAudioInDev.Get()) &&
+              (std::string_view(rhs.mAudioOutDev.Get()) == mAudioOutDev.Get()) &&
+              (std::string_view(rhs.mMidiInDev.Get()) == mMidiInDev.Get()) &&
+              (std::string_view(rhs.mMidiOutDev.Get()) == mMidiOutDev.Get()) &&
               rhs.mAudioInChanL == mAudioInChanL &&
               rhs.mAudioInChanR == mAudioInChanR &&
               rhs.mAudioOutChanL == mAudioOutChanL &&
               rhs.mAudioOutChanR == mAudioOutChanR
-
       );
     }
     bool operator!=(const AppState& rhs) const { return !operator==(rhs); }
