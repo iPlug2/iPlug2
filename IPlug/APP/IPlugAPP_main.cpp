@@ -80,7 +80,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     DrawMenuBar(gHWND);
 #endif
 
-    for(;;)
+    for (;;)
     {
       MSG msg= {0,};
       int vvv = GetMessage(&msg, NULL, 0, 0);
@@ -153,18 +153,18 @@ int main(int argc, char *argv[])
 {
 #if APP_COPY_AUV3
   //if invoked with an argument registerauv3 use plug-in kit to explicitly register auv3 app extension (doesn't happen from debugger)
-  if(strcmp(argv[2], "registerauv3"))
+  if (strcmp(argv[2], "registerauv3"))
   {
     WDL_String appexPath;
     appexPath.SetFormatted(1024, "pluginkit -a %s%s%s.appex", argv[0], "/../../Plugins/", appexPath.get_filepart());
-    if(system(appexPath.Get()) > -1)
+    if (system(appexPath.Get()) > -1)
       NSLog(@"Registered audiounit app extension\n");
     else
       NSLog(@"Failed to register audiounit app extension\n");
   }
 #endif
   
-  if(AppIsSandboxed())
+  if (AppIsSandboxed())
     DBGMSG("App is sandboxed, file system access etc restricted!\n");
   
   return NSApplicationMain(argc,  (const char **) argv);
@@ -177,16 +177,18 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
   switch (msg)
   {
     case SWELLAPP_ONLOAD:
+    {
       pAppHost = IPlugAPPHost::Create();
       pAppHost->Init();
       pAppHost->TryToChangeAudio();
       break;
+    }
     case SWELLAPP_LOADED:
     {
       pAppHost = IPlugAPPHost::sInstance.get();
-
+      
       HMENU menu = SWELL_GetCurrentMenu();
-
+      
       if (menu)
       {
         // work on a new menu
@@ -210,19 +212,19 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
           }
         }
       }
-
+      
       if (menu)
       {
         HMENU sm = GetSubMenu(menu, 1);
         DeleteMenu(sm, ID_QUIT, MF_BYCOMMAND); // remove QUIT from our file menu, since it is in the system menu on OSX
         DeleteMenu(sm, ID_PREFERENCES, MF_BYCOMMAND); // remove PREFERENCES from the file menu, since it is in the system menu on OSX
-
+        
         // remove any trailing separators
         int a = GetMenuItemCount(sm);
-
+        
         while (a > 0 && GetMenuItemID(sm, a-1) == 0)
           DeleteMenu(sm, --a, MF_BYPOSITION);
-
+        
         DeleteMenu(menu, 1, MF_BYPOSITION); // delete file menu
       }
 #if !defined _DEBUG || defined NO_IGRAPHICS
@@ -232,13 +234,13 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
         DeleteMenu(sm, ID_LIVE_EDIT, MF_BYCOMMAND);
         DeleteMenu(sm, ID_SHOW_DRAWN, MF_BYCOMMAND);
         DeleteMenu(sm, ID_SHOW_FPS, MF_BYCOMMAND);
-
+        
         // remove any trailing separators
         int a = GetMenuItemCount(sm);
-
+        
         while (a > 0 && GetMenuItemID(sm, a-1) == 0)
           DeleteMenu(sm, --a, MF_BYPOSITION);
-
+        
         DeleteMenu(menu, 1, MF_BYPOSITION); // delete debug menu
       }
 #else
@@ -249,13 +251,13 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
 #endif
 
       HWND hwnd = CreateDialog(gHINST, MAKEINTRESOURCE(IDD_DIALOG_MAIN), NULL, IPlugAPPHost::MainDlgProc);
-
+      
       if (menu)
       {
         SetMenu(hwnd, menu); // set the menu for the dialog to our menu (on Windows that menu is set from the .rc, but on SWELL
         SWELL_SetDefaultModalWindowMenu(menu); // other windows will get the stock (bundle) menus
       }
-
+      
       break;
     }
     case SWELLAPP_ONCOMMAND:
@@ -272,9 +274,9 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
       NSView* pContentView = (NSView*) pMSG->hwnd;
       NSEvent* pEvent = (NSEvent*) parm2;
       int etype = (int) [pEvent type];
-          
+      
       bool textField = [pContentView isKindOfClass:[NSText class]];
-          
+      
       if (!textField && etype == NSKeyDown)
       {
         int flag, code = SWELL_MacKeyToWindowsKey(pEvent, &flag);

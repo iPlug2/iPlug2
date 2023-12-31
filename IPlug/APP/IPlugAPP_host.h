@@ -182,7 +182,6 @@ public:
    * @param idx The index RTAudio has given the audio device
    * @return The device name. Core Audio device names are truncated. */
   std::string GetAudioDeviceName(int idx) const;
-  // returns the rtaudio device ID, based on the (truncated) device name
   
   /** Returns the audio device index linked to a particular name
   * @param name The name of the audio device to test
@@ -222,8 +221,7 @@ private:
   std::unique_ptr<RtMidiOut> mMidiOut = nullptr;
   int mMidiOutChannel = -1;
   int mMidiInChannel = -1;
-  
-  /**  */
+
   AppState mState;
   /** When the preferences dialog is opened the existing state is cached here, and restored if cancel is pressed */
   AppState mTempState;
@@ -254,7 +252,7 @@ private:
   
   WDL_PtrList<double> mInputBufPtrs;
   WDL_PtrList<double> mOutputBufPtrs;
-
+  
   friend class IPlugAPP;
 };
 
