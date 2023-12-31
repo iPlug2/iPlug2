@@ -325,7 +325,7 @@ private:
   double mPhaseOut = 0.0;
   double mPhaseInIncr = 1.0;
   double mPhaseOutIncr = 0.0;
-};
+} WDL_FIXALIGN;
 
 template<typename T, int NCHANS, size_t A>
 T LanczosResampler<T, NCHANS, A>::sTable alignas(16) [LanczosResampler<T, NCHANS, A>::kTablePoints + 1][LanczosResampler::kFilterWidth];

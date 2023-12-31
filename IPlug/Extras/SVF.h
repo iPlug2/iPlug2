@@ -269,9 +269,9 @@ private:
     {
       return !(mode == other.mode && freq == other.freq && Q == other.Q && gain == other.gain && sampleRate == other.sampleRate);
     }
-  };
+  } WDL_FIXALIGN;
 
   Settings mState, mNewState;
-};
+} WDL_FIXALIGN;
 
 END_IPLUG_NAMESPACE

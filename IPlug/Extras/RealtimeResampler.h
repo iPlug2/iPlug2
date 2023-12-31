@@ -225,6 +225,6 @@ private:
   int mLatency = 0;
   const ESRCMode mResamplingMode;
   std::unique_ptr<LanczosResampler> mInResampler, mOutResampler;
-};
+} WDL_FIXALIGN;
 
 END_IPLUG_NAMESPACE

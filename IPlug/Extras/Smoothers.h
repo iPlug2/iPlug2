@@ -117,6 +117,6 @@ public:
 private:
   const double mSmoothingTime;
   LogParamSmooth<double, 1> mSmoother;
-};
+} WDL_FIXALIGN;
 
 END_IPLUG_NAMESPACE
