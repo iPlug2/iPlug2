@@ -53,8 +53,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     gScrollMessage = RegisterWindowMessage("MSWHEEL_ROLLMSG");
 
     IPlugAPPHost* pAppHost = IPlugAPPHost::Create();
-    pAppHost->Init();
-    pAppHost->TryToChangeAudio();
 
     HACCEL hAccel = LoadAccelerators(gHINSTANCE, MAKEINTRESOURCE(IDR_ACCELERATOR1));
 
@@ -180,8 +178,6 @@ INT_PTR SWELLAppMain(int msg, INT_PTR parm1, INT_PTR parm2)
     case SWELLAPP_ONLOAD:
     {
       pAppHost = IPlugAPPHost::Create();
-      pAppHost->Init();
-      pAppHost->TryToChangeAudio();
       break;
     }
     case SWELLAPP_LOADED:
