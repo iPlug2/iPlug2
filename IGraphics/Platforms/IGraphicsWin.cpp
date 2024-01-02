@@ -2301,7 +2301,7 @@ DWORD IGraphicsWin::OnVBlankRun()
 void IGraphicsWin::VBlankNotify()
 {
   mVBlankCount++;
-  ::PostMessage(mVBlankWindow, WM_VBLANK, mVBlankCount, 0);
+  ::PostMessageW(mVBlankWindow, WM_VBLANK, mVBlankCount, 0);
 }
 
 #ifndef NO_IGRAPHICS
