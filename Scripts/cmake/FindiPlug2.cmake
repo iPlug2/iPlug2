@@ -237,7 +237,7 @@ set(BUILD_DEPS ${IPLUG2_DIR}/Dependencies/Build)
 add_library(iPlug2_Core INTERFACE)
 
 # Make sure we define DEBUG for debug builds
-set(_def "NOMINMAX" "$<$<CONFIG:Debug>:DEBUG>")
+set(_def "NOMINMAX" "$<$<CONFIG:Debug>:DEBUG>" "$<$<CONFIG:Debug>:_DEBUG>")
 set(_opts "")
 set(_lib "")
 set(_inc
@@ -272,6 +272,14 @@ set(_src
   ${sdk}/IPlugTimer.cpp
   ${sdk}/IPlugUtilities.h
 )
+
+if (NOT PLUG_RESOURCES_DIR)
+  set(PLUG_RESOURCES_DIR ${CMAKE_SOURCE_DIR}/resources)
+  message("Setting PLUG_RESOURCES_DIR to ${PLUG_RESOURCES_DIR}")
+endif()
+
+set(plugin_build_dir "${CMAKE_BINARY_DIR}/out")
+file(MAKE_DIRECTORY ${plugin_build_dir})
 
 # Platform Settings
 if (CMAKE_SYSTEM_NAME MATCHES "Windows")
@@ -387,7 +395,7 @@ function(iplug_configure_target target target_type)
   if (WIN32)
     # On Windows ours fonts are included in the RC file, meaning we need to include main.rc
     # in ALL our builds. Yay for platform-specific bundling!
-    set(_res "${CMAKE_SOURCE_DIR}/resources/main.rc")
+    set(_res "${PLUG_RESOURCES_DIR}/main.rc")
     iplug_target_add(${target} PUBLIC RESOURCE ${_res})
     source_group("Resources" FILES ${_res})
     target_compile_options(${TARGET} PRIVATE /Zi)

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.11)
 
 set(VST2_SDK "${IPLUG2_DIR}/Dependencies/IPlug/VST2_SDK" CACHE PATH "VST2 SDK directory.")
 
-if (OS_WIN)
+if (WIN32)
   set(fn "VstPlugins")
   if (PROCESSOR_ARCH STREQUAL "Win32")
     set(_paths "$ENV{ProgramFiles(x86)}/${fn}" "$ENV{ProgramFiles(x86)}/Steinberg/${fn}")
@@ -64,7 +64,7 @@ function(iplug_configure_vst2 target)
     set_target_properties(${target} PROPERTIES
       BUNDLE TRUE
       MACOSX_BUNDLE TRUE
-      MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}-VST2-Info.plist
+      MACOSX_BUNDLE_INFO_PLIST ${PLUG_RESOURCES_DIR}/${PLUG_NAME}-VST2-Info.plist
       BUNDLE_EXTENSION "vst"
       PREFIX ""
       SUFFIX "")

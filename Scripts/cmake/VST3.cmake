@@ -187,7 +187,7 @@ function(iplug_configure_vst3 target)
     set_target_properties(${target} PROPERTIES 
       BUNDLE TRUE
       MACOSX_BUNDLE TRUE
-      MACOSX_BUNDLE_INFO_PLIST ${CMAKE_SOURCE_DIR}/resources/${PLUG_NAME}-VST3-Info.plist
+      MACOSX_BUNDLE_INFO_PLIST ${PLUG_RESOURCES_DIR}/${PLUG_NAME}-VST3-Info.plist
       BUNDLE_EXTENSION "vst3"
       PREFIX ""
       SUFFIX ""
