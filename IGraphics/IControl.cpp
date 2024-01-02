@@ -10,7 +10,6 @@
 
 #include <cmath>
 #include <cstring>
-#define WDL_NO_SUPPORT_UTF8
 #include "dirscan.h"
 
 #include "IControl.h"
