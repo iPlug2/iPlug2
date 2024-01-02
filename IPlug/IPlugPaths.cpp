@@ -41,7 +41,7 @@ void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
 
 static void GetModulePath(HMODULE hModule, WDL_String& path)
 {
-  wchar_t pathCStrW[MAX_WIN32_PATH_LEN] = { '\0' };
+  wchar_t pathCStrW[MAX_WIN32_PATH_LEN] = {'\0'};
 
   path.Set("");
 

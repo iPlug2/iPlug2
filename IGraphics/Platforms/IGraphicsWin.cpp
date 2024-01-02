@@ -704,7 +704,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       std::vector<const char*> pathPtrs(numDroppedFiles);
       for (int i = 0; i < numDroppedFiles; i++) 
       {
-        wchar_t pathBufferW[1025];
+        wchar_t pathBufferW[1025] = {'\0'};
         DragQueryFileW(hdrop, i, pathBufferW, 1024);
         strncpy(pathBuffers[i].data(), UTF16AsUTF8(pathBufferW).Get(), 1024);
         pathPtrs[i] = pathBuffers[i].data();
@@ -1220,7 +1220,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
 static void GetWndClassName(HWND hWnd, WDL_String* pStr)
 {
-  wchar_t cStrW[MAX_CLASSNAME_LEN] = { '\0' };
+  wchar_t cStrW[MAX_CLASSNAME_LEN] = {'\0'};
   GetClassNameW(hWnd, cStrW, MAX_CLASSNAME_LEN);
   pStr->Set(UTF16AsUTF8(cStrW).Get());
 }
