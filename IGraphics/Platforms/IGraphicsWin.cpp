@@ -1759,7 +1759,7 @@ static UINT_PTR CALLBACK CCHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM
       char* str = (char*) cc->lCustData;
       SetWindowTextW(hdlg, UTF8AsUTF16(str).Get());
       UINT uiSetRGB;
-      uiSetRGB = RegisterWindowMessage(SETRGBSTRING);
+      uiSetRGB = RegisterWindowMessageW(SETRGBSTRINGW);
       SendMessageW(hdlg, uiSetRGB, 0, (LPARAM) cc->rgbResult);
     }
   }
