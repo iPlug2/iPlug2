@@ -25,6 +25,7 @@
 #include <cstring>
 #include <cctype>
 
+#include "heapbuf.h"
 #include "wdlstring.h"
 
 #include "IPlugConstants.h"
@@ -341,6 +342,42 @@ static void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
   utf8Str.Set("");
 }
 
+class UTF8AsUTF16
+{
+public:
+
+  UTF8AsUTF16(const char* utf8Str)
+  {
+    mUTF16Str.Resize(MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0));
+    UTF8ToUTF16(mUTF16Str.Get(), utf8Str, mUTF16Str.GetSize());
+  }
+
+  UTF8AsUTF16(WDL_String utf8Str) : UTF8AsUTF16(utf8Str.Get())
+  {
+  }
+
+  const wchar_t* Get() { return mUTF16Str.Get(); }
+
+private:
+
+  WDL_TypedBuf<wchar_t> mUTF16Str;
+};
+
+class UTF16AsUTF8
+{
+public:
+
+  UTF16AsUTF8(const wchar_t* utf16Str)
+  {
+    UTF16ToUTF8(mUTF8Str, utf16Str);
+  }
+
+  const char* Get() { return mUTF8Str.Get(); }
+
+private:
+
+  WDL_String mUTF8Str;
+};
 #endif
 
 END_IPLUG_NAMESPACE
