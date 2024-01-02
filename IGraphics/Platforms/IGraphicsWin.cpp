@@ -698,14 +698,16 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     {
       HDROP hdrop = (HDROP)wParam;
 
-      int numDroppedFiles = DragQueryFile(hdrop, -1, nullptr, 0);
+      int numDroppedFiles = DragQueryFileW(hdrop, -1, nullptr, 0);
 
       std::vector<std::vector<char>> pathBuffers(numDroppedFiles, std::vector<char>(1025, 0));
       std::vector<const char*> pathPtrs(numDroppedFiles);
       for (int i = 0; i < numDroppedFiles; i++) 
       {
-        DragQueryFile(hdrop, i, &pathBuffers[i][0], 1024);
-        pathPtrs[i] = &pathBuffers[i][0];
+        wchar_t pathBufferW[1025];
+        DragQueryFileW(hdrop, i, pathBufferW, 1024);
+        strncpy(pathBuffers[i].data(), UTF16AsUTF8(pathBufferW).Get(), 1024);
+        pathPtrs[i] = pathBuffers[i].data();
       }
       POINT p;
       DragQueryPoint(hdrop, &p);
