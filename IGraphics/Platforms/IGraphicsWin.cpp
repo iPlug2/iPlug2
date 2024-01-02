@@ -2192,7 +2192,7 @@ DWORD IGraphicsWin::OnVBlankRun()
   D3DKMTOpenAdapterFromHdc pOpen = nullptr;
   D3DKMTCloseAdapter pClose = nullptr;
   D3DKMTWaitForVerticalBlankEvent pWait = nullptr;
-  HINSTANCE hInst = LoadLibrary("gdi32.dll");
+  HINSTANCE hInst = LoadLibraryW(L"gdi32.dll");
   if (hInst != nullptr)
   {
     pOpen  = (D3DKMTOpenAdapterFromHdc)GetProcAddress((HMODULE)hInst, "D3DKMTOpenAdapterFromHdc");
