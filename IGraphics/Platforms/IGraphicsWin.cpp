@@ -35,7 +35,7 @@ using namespace igraphics;
 #pragma warning(disable:4311) // Pointer size cast mismatch.
 
 static int nWndClassReg = 0;
-static const char* wndClassName = "IPlugWndClass";
+static wchar_t* wndClassName = L"IPlugWndClass";
 static double sFPS = 0.0;
 
 #define PARAM_EDIT_ID 99
@@ -1150,11 +1150,11 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   if (nWndClassReg++ == 0)
   {
-    WNDCLASS wndClass = { CS_DBLCLKS | CS_OWNDC, WndProc, 0, 0, mHInstance, 0, 0, 0, 0, wndClassName };
-    RegisterClass(&wndClass);
+    WNDCLASSW wndClass = { CS_DBLCLKS | CS_OWNDC, WndProc, 0, 0, mHInstance, 0, 0, 0, 0, wndClassName };
+    RegisterClassW(&wndClass);
   }
 
-  mPlugWnd = CreateWindow(wndClassName, "IPlug", WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, x, y, w, h, mParentWnd, 0, mHInstance, this);
+  mPlugWnd = CreateWindowW(wndClassName, L"IPlug", WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS, x, y, w, h, mParentWnd, 0, mHInstance, this);
 
   HDC dc = GetDC(mPlugWnd);
   SetPlatformContext(dc);
@@ -1177,7 +1177,7 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   if (!mPlugWnd && --nWndClassReg == 0)
   {
-    UnregisterClass(wndClassName, mHInstance);
+    UnregisterClassW(wndClassName, mHInstance);
   }
   else
   {
@@ -1218,10 +1218,9 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
 static void GetWndClassName(HWND hWnd, WDL_String* pStr)
 {
-  char cStr[MAX_CLASSNAME_LEN];
-  cStr[0] = '\0';
-  GetClassName(hWnd, cStr, MAX_CLASSNAME_LEN);
-  pStr->Set(cStr);
+  wchar_t cStrW[MAX_CLASSNAME_LEN] = { '\0' };
+  GetClassNameW(hWnd, cStrW, MAX_CLASSNAME_LEN);
+  pStr->Set(UTF16AsUTF8(cStrW).Get());
 }
 
 BOOL CALLBACK IGraphicsWin::FindMainWindow(HWND hWnd, LPARAM lParam)
@@ -1319,7 +1318,7 @@ void IGraphicsWin::CloseWindow()
 
     if (--nWndClassReg == 0)
     {
-      UnregisterClass(wndClassName, mHInstance);
+      UnregisterClassW(wndClassName, mHInstance);
     }
   }
 }
