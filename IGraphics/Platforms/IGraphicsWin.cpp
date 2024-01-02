@@ -1375,7 +1375,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
 
     if (pMenuItem->GetIsSeparator())
     {
-      AppendMenu(hMenu, MF_SEPARATOR, 0, 0);
+      AppendMenuW(hMenu, MF_SEPARATOR, 0, 0);
     }
     else
     {
@@ -1431,12 +1431,12 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
         HMENU submenu = CreateMenu(*pMenuItem->GetSubmenu(), pOffsetIdx);
         if (submenu)
         {
-          AppendMenu(hMenu, flags|MF_POPUP, (UINT_PTR)submenu, (const TCHAR*)entryText.Get());
+          AppendMenuW(hMenu, flags|MF_POPUP, (UINT_PTR)submenu, UTF8AsUTF16(entryText).Get());
         }
       }
       else
       {
-        AppendMenu(hMenu, flags, offset + inc, entryText.Get());
+        AppendMenuW(hMenu, flags, offset + inc, UTF8AsUTF16(entryText).Get());
       }
     }
     inc++;
