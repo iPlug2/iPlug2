@@ -204,7 +204,7 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
   DWORD msgCount = vBlankCount;
   DWORD curCount = mVBlankCount;
 
-  if(mVSYNCEnabled)
+  if (mVSYNCEnabled)
   {
     // skip until the actual vblank is at a certain number.
     if (mVBlankSkipUntil != 0 && mVBlankSkipUntil > mVBlankCount)
@@ -287,7 +287,7 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
       // Force a redraw right now
       UpdateWindow(mPlugWnd);
 
-      if(mVSYNCEnabled)
+      if (mVSYNCEnabled)
       {
         // Check and see if we are still in this frame.
         curCount = mVBlankCount;
@@ -312,7 +312,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM)(lpcs->lpCreateParams));
     IGraphicsWin* pGraphics = (IGraphicsWin*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 
-    if(pGraphics->mVSYNCEnabled) // use VBLANK thread
+    if (pGraphics->mVSYNCEnabled) // use VBLANK thread
     {
       assert((pGraphics->FPS() == 60) && "If you want to run at frame rates other than 60FPS");
       pGraphics->StartVBlankThread(hWnd);
@@ -603,7 +603,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
         const float scale = pGraphics->GetTotalScale();
 
-        if(msg == WM_KEYDOWN)
+        if (msg == WM_KEYDOWN)
           handle = pGraphics->OnKeyDown(p.x / scale, p.y / scale, keyPress);
         else
           handle = pGraphics->OnKeyUp(p.x / scale, p.y / scale, keyPress);
@@ -683,7 +683,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
     case WM_CTLCOLOREDIT:
     {
-      if(!pGraphics->mParamEditWnd)
+      if (!pGraphics->mParamEditWnd)
         return 0;
 
       const IText& text = pGraphics->mEditText;
@@ -715,7 +715,8 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       if (numDroppedFiles==1) 
       {
         pGraphics->OnDrop(&pathPtrs[0][0], p.x / scale, p.y / scale);
-      } else 
+      }
+      else 
       {
         pGraphics->OnDropMultiple(pathPtrs, p.x / scale, p.y / scale);
       }
@@ -753,11 +754,11 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
       case WM_CHAR:
       {
         // limit to numbers for text entry on appropriate parameters
-        if(pGraphics->mEditParam)
+        if (pGraphics->mEditParam)
         {
           char c = wParam;
 
-          if(c == 0x08) break; // backspace
+          if (c == 0x08) break; // backspace
 
           switch (pGraphics->mEditParam->Type())
           {
@@ -922,12 +923,12 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
 
     SetWindowPos(mPlugWnd, 0, 0, 0, dlgW + dw, dlgH + dh, SETPOS_FLAGS);
 
-    if(pParent && !parentHasResized)
+    if (pParent && !parentHasResized)
     {
       SetWindowPos(pParent, 0, 0, 0, parentW + dw, parentH + dh, SETPOS_FLAGS);
     }
 
-    if(pGrandparent && !parentHasResized)
+    if (pGrandparent && !parentHasResized)
     {
       SetWindowPos(pGrandparent, 0, 0, 0, grandparentW + dw, grandparentH + dh, SETPOS_FLAGS);
     }
@@ -1123,7 +1124,7 @@ EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption
   
   EMsgBoxResult result = static_cast<EMsgBoxResult>(MessageBox(GetMainWnd(), text, caption, static_cast<int>(type)));
   
-  if(completionHandler)
+  if (completionHandler)
     completionHandler(result);
   
   return result;
@@ -1287,7 +1288,7 @@ void IGraphicsWin::CloseWindow()
 {
   if (mPlugWnd)
   {
-    if(mVSYNCEnabled)
+    if (mVSYNCEnabled)
       StopVBlankThread();
     else
       KillTimer(mPlugWnd, IPLUG_TIMER_ID);
@@ -1341,14 +1342,14 @@ IPopupMenu* IGraphicsWin::GetItemMenu(long idx, long& idxInMenu, long& offsetIdx
 
   IPopupMenu* pMenu = nullptr;
 
-  for(int i = 0; i< baseMenu.NItems(); i++)
+  for (int i = 0; i< baseMenu.NItems(); i++)
   {
     IPopupMenu::Item* pMenuItem = baseMenu.GetItem(i);
-    if(pMenuItem->GetSubmenu())
+    if (pMenuItem->GetSubmenu())
     {
       pMenu = GetItemMenu(idx, idxInMenu, offsetIdx, *pMenuItem->GetSubmenu());
 
-      if(pMenu)
+      if (pMenu)
         break;
     }
   }
@@ -1368,7 +1369,7 @@ HMENU IGraphicsWin::CreateMenu(IPopupMenu& menu, long* pOffsetIdx)
   *pOffsetIdx += nItems;
   long inc = 0;
 
-  for(int i = 0; i < nItems; i++)
+  for (int i = 0; i < nItems; i++)
   {
     IPopupMenu::Item* pMenuItem = menu.GetItem(i);
 
@@ -1449,7 +1450,7 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT 
   long offsetIdx = 0;
   HMENU hMenu = CreateMenu(menu, &offsetIdx);
 
-  if(hMenu)
+  if (hMenu)
   {
     IPopupMenu* result = nullptr;
 
@@ -1480,7 +1481,7 @@ IPopupMenu* IGraphicsWin::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT 
               result->SetChosenItemIdx(idx);
                 
               //synchronous
-              if(pReturnMenu && pReturnMenu->GetFunction())
+              if (pReturnMenu && pReturnMenu->GetFunction())
                 pReturnMenu->ExecFunction();
             }
           }
@@ -1572,7 +1573,7 @@ bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
       
       WDL_String explorerParams;
       
-      if(select)
+      if (select)
         explorerParams.Append("/select,");
       
       explorerParams.Append("\"");
@@ -1790,7 +1791,7 @@ bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt, IColorPicke
     color.G = GetGValue(cc.rgbResult);
     color.B = GetBValue(cc.rgbResult);
     
-    if(func)
+    if (func)
       func(color);
     
     return true;
@@ -1856,7 +1857,7 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
   
   if (IsClipboardFormatAvailable(CF_UNICODETEXT))
   {
-    if(OpenClipboard(0))
+    if (OpenClipboard(0))
     {
       HGLOBAL hglb = GetClipboardData(CF_UNICODETEXT);
       

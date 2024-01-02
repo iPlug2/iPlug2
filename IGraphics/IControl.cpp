@@ -15,6 +15,7 @@
 #include "IControl.h"
 #include "IPlugParameter.h"
 
+
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 void DefaultAnimationFunc(IControl* pCaller)
