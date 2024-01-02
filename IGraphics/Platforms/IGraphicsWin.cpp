@@ -2035,11 +2035,11 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
   {
     case kAbsolutePath:
     {
-      HANDLE file = CreateFile(fullPath.Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+      HANDLE file = CreateFileW(UTF8AsUTF16(fullPath).Get(), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
       PlatformFontPtr ret = nullptr;
       if (file)
       {
-        HANDLE mapping = CreateFileMapping(file, NULL, PAGE_READONLY, 0, 0, NULL);
+        HANDLE mapping = CreateFileMappingW(file, NULL, PAGE_READONLY, 0, 0, NULL);
         if (mapping)
         {
           resSize = (int)GetFileSize(file, nullptr);
