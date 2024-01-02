@@ -612,7 +612,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       if (!handle)
       {
         HWND rootHWnd = GetAncestor( hWnd, GA_ROOT);
-        SendMessage(rootHWnd, msg, wParam, lParam);
+        SendMessageW(rootHWnd, msg, wParam, lParam);
         return DefWindowProc(hWnd, msg, wParam, lParam);
       }
       else
@@ -1191,15 +1191,15 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
     if (InitCommonControlsEx(&iccex))
     {
-      mTooltipWnd = CreateWindowEx(0, TOOLTIPS_CLASS, NULL, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TTS_NOPREFIX | TTS_ALWAYSTIP,
+      mTooltipWnd = CreateWindowExW(0, TOOLTIPS_CLASSW, NULL, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | TTS_NOPREFIX | TTS_ALWAYSTIP,
                                    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, mPlugWnd, NULL, mHInstance, NULL);
       if (mTooltipWnd)
       {
         SetWindowPos(mTooltipWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-        TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, TTF_IDISHWND | TTF_SUBCLASS, mPlugWnd, (UINT_PTR)mPlugWnd };
-        ti.lpszText = (LPTSTR)NULL;
-        SendMessage(mTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
-        SendMessage(mTooltipWnd, TTM_SETMAXTIPWIDTH, 0, TOOLTIPWND_MAXWIDTH);
+        TOOLINFOW ti = { TTTOOLINFOA_V2_SIZE, TTF_IDISHWND | TTF_SUBCLASS, mPlugWnd, (UINT_PTR)mPlugWnd };
+        ti.lpszText = NULL;
+        SendMessageW(mTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
+        SendMessageW(mTooltipWnd, TTM_SETMAXTIPWIDTH, 0, TOOLTIPWND_MAXWIDTH);
         ok = true;
       }
     }
@@ -1537,16 +1537,16 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   mEditText = text;
   mEditRECT = bounds;
 
-  SendMessage(mParamEditWnd, EM_LIMITTEXT, (WPARAM) length, 0);
-  SendMessage(mParamEditWnd, WM_SETFONT, (WPARAM)mEditFont, 0);
-  SendMessage(mParamEditWnd, EM_SETSEL, 0, -1);
+  SendMessageW(mParamEditWnd, EM_LIMITTEXT, (WPARAM) length, 0);
+  SendMessageW(mParamEditWnd, WM_SETFONT, (WPARAM)mEditFont, 0);
+  SendMessageW(mParamEditWnd, EM_SETSEL, 0, -1);
 
   if (text.mVAlign == EVAlign::Middle)
   {
     double size = text.mSize * scale;
     double offset = (scaledBounds.H() - size) / 2.0;
     RECT formatRect{0, (LONG) offset, (LONG) scaledBounds.W() + 1, (LONG) scaledBounds.H() + 1};
-    SendMessage(mParamEditWnd, EM_SETRECT, 0, (LPARAM)&formatRect);
+    SendMessageW(mParamEditWnd, EM_SETRECT, 0, (LPARAM)&formatRect);
   }
 
   SetFocus(mParamEditWnd);
@@ -1758,7 +1758,7 @@ static UINT_PTR CALLBACK CCHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM
       SetWindowTextW(hdlg, UTF8AsUTF16(str).Get());
       UINT uiSetRGB;
       uiSetRGB = RegisterWindowMessage(SETRGBSTRING);
-      SendMessage(hdlg, uiSetRGB, 0, (LPARAM) cc->rgbResult);
+      SendMessageW(hdlg, uiSetRGB, 0, (LPARAM) cc->rgbResult);
     }
   }
   return 0;
@@ -1823,9 +1823,10 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
 
 void IGraphicsWin::SetTooltip(const char* tooltip)
 {
-  TOOLINFO ti = { TTTOOLINFOA_V2_SIZE, 0, mPlugWnd, (UINT_PTR)mPlugWnd };
-  ti.lpszText = (LPTSTR)tooltip;
-  SendMessage(mTooltipWnd, TTM_UPDATETIPTEXT, 0, (LPARAM)&ti);
+  UTF8AsUTF16 utf16Tip(tooltip);
+  TOOLINFOW ti = { TTTOOLINFOA_V2_SIZE, 0, mPlugWnd, (UINT_PTR)mPlugWnd };
+  ti.lpszText = const_cast<wchar_t*>(utf16Tip.Get());
+  SendMessageW(mTooltipWnd, TTM_UPDATETIPTEXT, 0, (LPARAM)&ti);
 }
 
 void IGraphicsWin::ShowTooltip()
