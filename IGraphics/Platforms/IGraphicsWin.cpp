@@ -310,7 +310,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   {
     LPCREATESTRUCT lpcs = (LPCREATESTRUCT)lParam;
     SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM)(lpcs->lpCreateParams));
-    IGraphicsWin* pGraphics = (IGraphicsWin*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
+    IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtrW(hWnd, GWLP_USERDATA);
 
     if (pGraphics->mVSYNCEnabled) // use VBLANK thread
     {
@@ -329,7 +329,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     return 0;
   }
 
-  IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(hWnd, GWLP_USERDATA);
+  IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtrW(hWnd, GWLP_USERDATA);
 
   if (!pGraphics || hWnd != pGraphics->mPlugWnd)
   {
@@ -745,7 +745,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 // static
 LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-  IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtr(GetParent(hWnd), GWLP_USERDATA);
+  IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtrW(GetParent(hWnd), GWLP_USERDATA);
 
   if (pGraphics && pGraphics->mParamEditWnd && pGraphics->mParamEditWnd == hWnd)
   {
@@ -885,8 +885,8 @@ static bool IsChildWindow(HWND pWnd)
 {
   if (pWnd)
   {
-    int style = GetWindowLong(pWnd, GWL_STYLE);
-    int exStyle = GetWindowLong(pWnd, GWL_EXSTYLE);
+    int style = GetWindowLongW(pWnd, GWL_STYLE);
+    int exStyle = GetWindowLongW(pWnd, GWL_EXSTYLE);
     return ((style & WS_CHILD) && !(exStyle & WS_EX_MDICHILD));
   }
   return false;
