@@ -1753,11 +1753,11 @@ static UINT_PTR CALLBACK CCHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM
 {
   if (uiMsg == WM_INITDIALOG && lParam)
   {
-    CHOOSECOLOR* cc = (CHOOSECOLOR*) lParam;
+    CHOOSECOLORW* cc = (CHOOSECOLORW*) lParam;
     if (cc && cc->lCustData)
     {
-      char* str = (char*) cc->lCustData;
-      SetWindowTextW(hdlg, UTF8AsUTF16(str).Get());
+      const wchar_t* strWide = (const wchar_t*) cc->lCustData;
+      SetWindowTextW(hdlg, strWide);
       UINT uiSetRGB;
       uiSetRGB = RegisterWindowMessageW(SETRGBSTRINGW);
       SendMessageW(hdlg, uiSetRGB, 0, (LPARAM) cc->rgbResult);
@@ -1773,20 +1773,22 @@ bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt, IColorPicke
   if (!mPlugWnd)
     return false;
 
+  UTF8AsUTF16 promptWide(prompt);
+
   const COLORREF w = RGB(255, 255, 255);
   static COLORREF customColorStorage[16] = { w, w, w, w, w, w, w, w, w, w, w, w, w, w, w, w };
   
-  CHOOSECOLOR cc;
-  memset(&cc, 0, sizeof(CHOOSECOLOR));
-  cc.lStructSize = sizeof(CHOOSECOLOR);
+  CHOOSECOLORW cc;
+  memset(&cc, 0, sizeof(CHOOSECOLORW));
+  cc.lStructSize = sizeof(CHOOSECOLORW);
   cc.hwndOwner = mPlugWnd;
   cc.rgbResult = RGB(color.R, color.G, color.B);
   cc.lpCustColors = customColorStorage;
-  cc.lCustData = (LPARAM) prompt;
+  cc.lCustData = (LPARAM) promptWide.Get();
   cc.lpfnHook = CCHookProc;
   cc.Flags = CC_RGBINIT | CC_ANYCOLOR | CC_FULLOPEN | CC_SOLIDCOLOR | CC_ENABLEHOOK;
 
-  if (ChooseColor(&cc))
+  if (ChooseColorW(&cc))
   {
     color.R = GetRValue(cc.rgbResult);
     color.G = GetGValue(cc.rgbResult);
