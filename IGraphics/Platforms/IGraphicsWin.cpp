@@ -333,7 +333,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
   if (!pGraphics || hWnd != pGraphics->mPlugWnd)
   {
-    return DefWindowProc(hWnd, msg, wParam, lParam);
+    return DefWindowProcW(hWnd, msg, wParam, lParam);
   }
 
   if (pGraphics->mParamEditWnd && pGraphics->mParamEditMsg == kEditing)
@@ -343,7 +343,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       pGraphics->mParamEditMsg = kCancel;
       return 0;
     }
-    return DefWindowProc(hWnd, msg, wParam, lParam);
+    return DefWindowProcW(hWnd, msg, wParam, lParam);
   }
   
   auto IsTouchEvent = []() {
@@ -613,7 +613,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       {
         HWND rootHWnd = GetAncestor( hWnd, GA_ROOT);
         SendMessageW(rootHWnd, msg, wParam, lParam);
-        return DefWindowProc(hWnd, msg, wParam, lParam);
+        return DefWindowProcW(hWnd, msg, wParam, lParam);
       }
       else
         return 0;
@@ -739,7 +739,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       return 0;
     }
   }
-  return DefWindowProc(hWnd, msg, wParam, lParam);
+  return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
 // static
@@ -813,7 +813,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
       {
         LPARAM lres;
         // find out if the original control wants it
-        lres = CallWindowProc(pGraphics->mDefEditProc, hWnd, WM_GETDLGCODE, wParam, lParam);
+        lres = CallWindowProcW(pGraphics->mDefEditProc, hWnd, WM_GETDLGCODE, wParam, lParam);
         // add in that we want it if it is a return keydown
         if (lParam && ((MSG*)lParam)->message == WM_KEYDOWN  &&  wParam == VK_RETURN)
         {
@@ -838,9 +838,9 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
         break;  // Else let the default proc handle it.
       }
     }
-    return CallWindowProc(pGraphics->mDefEditProc, hWnd, msg, wParam, lParam);
+    return CallWindowProcW(pGraphics->mDefEditProc, hWnd, msg, wParam, lParam);
   }
-  return DefWindowProc(hWnd, msg, wParam, lParam);
+  return DefWindowProcW(hWnd, msg, wParam, lParam);
 }
 
 IGraphicsWin::IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
