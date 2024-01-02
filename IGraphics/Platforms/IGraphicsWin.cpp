@@ -1709,24 +1709,24 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
 
 void IGraphicsWin::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler)
 {
-  BROWSEINFO bi;
+  BROWSEINFOW bi;
   memset(&bi, 0, sizeof(bi));
   
   bi.ulFlags   = BIF_USENEWUI;
   bi.hwndOwner = mPlugWnd;
-  bi.lpszTitle = "Choose a Directory";
+  bi.lpszTitle = L"Choose a Directory";
   
   // must call this if using BIF_USENEWUI
   ::OleInitialize(NULL);
-  LPITEMIDLIST pIDL = ::SHBrowseForFolder(&bi);
+  LPITEMIDLIST pIDL = ::SHBrowseForFolderW(&bi);
   
   if (pIDL != NULL)
   {
-    char buffer[_MAX_PATH] = {'\0'};
+    wchar_t buffer[_MAX_PATH] = {'\0'};
     
-    if (::SHGetPathFromIDList(pIDL, buffer) != 0)
+    if (::SHGetPathFromIDListW(pIDL, buffer) != 0)
     {
-      dir.Set(buffer);
+      dir.Set(UTF16AsUTF8(buffer).Get());
       dir.Append("\\");
     }
     
