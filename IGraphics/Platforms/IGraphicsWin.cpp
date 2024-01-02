@@ -309,7 +309,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   if (msg == WM_CREATE)
   {
     LPCREATESTRUCT lpcs = (LPCREATESTRUCT)lParam;
-    SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM)(lpcs->lpCreateParams));
+    SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM) lpcs->lpCreateParams);
     IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtrW(hWnd, GWLP_USERDATA);
 
     if (pGraphics->mVSYNCEnabled) // use VBLANK thread
@@ -696,12 +696,13 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
     }
     case WM_DROPFILES:
     {
-      HDROP hdrop = (HDROP)wParam;
+      HDROP hdrop = (HDROP) wParam;
 
       int numDroppedFiles = DragQueryFileW(hdrop, -1, nullptr, 0);
 
       std::vector<std::vector<char>> pathBuffers(numDroppedFiles, std::vector<char>(1025, 0));
       std::vector<const char*> pathPtrs(numDroppedFiles);
+
       for (int i = 0; i < numDroppedFiles; i++) 
       {
         wchar_t pathBufferW[1025] = {'\0'};
@@ -1200,13 +1201,14 @@ void* IGraphicsWin::OpenWindow(void* pParent)
         SetWindowPos(mTooltipWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
         TOOLINFOW ti = { TTTOOLINFOA_V2_SIZE, TTF_IDISHWND | TTF_SUBCLASS, mPlugWnd, (UINT_PTR)mPlugWnd };
         ti.lpszText = NULL;
-        SendMessageW(mTooltipWnd, TTM_ADDTOOL, 0, (LPARAM)&ti);
+        SendMessageW(mTooltipWnd, TTM_ADDTOOL, 0, (LPARAM) &ti);
         SendMessageW(mTooltipWnd, TTM_SETMAXTIPWIDTH, 0, TOOLTIPWND_MAXWIDTH);
         ok = true;
       }
     }
 
-    if (!ok) EnableTooltips(ok);
+    if (!ok)
+      EnableTooltips(ok);
 
 #ifdef IGRAPHICS_GL
     wglMakeCurrent(NULL, NULL);
@@ -1540,7 +1542,7 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   mEditRECT = bounds;
 
   SendMessageW(mParamEditWnd, EM_LIMITTEXT, (WPARAM) length, 0);
-  SendMessageW(mParamEditWnd, WM_SETFONT, (WPARAM)mEditFont, 0);
+  SendMessageW(mParamEditWnd, WM_SETFONT, (WPARAM) mEditFont, 0);
   SendMessageW(mParamEditWnd, EM_SETSEL, 0, -1);
 
   if (text.mVAlign == EVAlign::Middle)
@@ -1548,7 +1550,7 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
     double size = text.mSize * scale;
     double offset = (scaledBounds.H() - size) / 2.0;
     RECT formatRect{0, (LONG) offset, (LONG) scaledBounds.W() + 1, (LONG) scaledBounds.H() + 1};
-    SendMessageW(mParamEditWnd, EM_SETRECT, 0, (LPARAM)&formatRect);
+    SendMessageW(mParamEditWnd, EM_SETRECT, 0, (LPARAM) &formatRect);
   }
 
   SetFocus(mParamEditWnd);
@@ -1828,9 +1830,9 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
 void IGraphicsWin::SetTooltip(const char* tooltip)
 {
   UTF8AsUTF16 utf16Tip(tooltip);
-  TOOLINFOW ti = { TTTOOLINFOA_V2_SIZE, 0, mPlugWnd, (UINT_PTR)mPlugWnd };
+  TOOLINFOW ti = { TTTOOLINFOA_V2_SIZE, 0, mPlugWnd, (UINT_PTR) mPlugWnd };
   ti.lpszText = const_cast<wchar_t*>(utf16Tip.Get());
-  SendMessageW(mTooltipWnd, TTM_UPDATETIPTEXT, 0, (LPARAM)&ti);
+  SendMessageW(mTooltipWnd, TTM_UPDATETIPTEXT, 0, (LPARAM) &ti);
 }
 
 void IGraphicsWin::ShowTooltip()
@@ -1935,9 +1937,7 @@ bool IGraphicsWin::SetTextInClipboard(const char* str)
 bool IGraphicsWin::SetFilePathInClipboard(const char* path)
 {
   if (!OpenClipboard(mMainWnd))
-  {
     return false;
-  }
 
   EmptyClipboard();
 
@@ -1947,7 +1947,7 @@ bool IGraphicsWin::SetFilePathInClipboard(const char* path)
   if (!hGlobal)
     return false;
 
-  DROPFILES* pDropFiles = (DROPFILES*)GlobalLock(hGlobal);
+  DROPFILES* pDropFiles = (DROPFILES*) GlobalLock(hGlobal);
 
   if (!pDropFiles) 
   {
@@ -2046,7 +2046,7 @@ PlatformFontPtr IGraphicsWin::LoadPlatformFont(const char* fontID, const char* f
         HANDLE mapping = CreateFileMappingW(file, NULL, PAGE_READONLY, 0, 0, NULL);
         if (mapping)
         {
-          resSize = (int)GetFileSize(file, nullptr);
+          resSize = (int) GetFileSize(file, nullptr);
           pFontMem = MapViewOfFile(mapping, FILE_MAP_READ, 0, 0, 0);
           ret = LoadPlatformFont(fontID, pFontMem, resSize);
           UnmapViewOfFile(pFontMem);
@@ -2122,7 +2122,7 @@ void IGraphicsWin::CachePlatformFont(const char* fontID, const PlatformFontPtr& 
 
 DWORD WINAPI VBlankRun(LPVOID lpParam)
 {
-  IGraphicsWin* pGraphics = (IGraphicsWin*)lpParam;
+  IGraphicsWin* pGraphics = (IGraphicsWin*) lpParam;
   return pGraphics->OnVBlankRun();
 }
 
@@ -2158,16 +2158,22 @@ void IGraphicsWin::StopVBlankThread()
 // structs to use
 typedef UINT32 D3DKMT_HANDLE;
 typedef UINT D3DDDI_VIDEO_PRESENT_SOURCE_ID;
-typedef struct _D3DKMT_OPENADAPTERFROMHDC {
+
+typedef struct _D3DKMT_OPENADAPTERFROMHDC
+{
   HDC                            hDc;
   D3DKMT_HANDLE                  hAdapter;
   LUID                           AdapterLuid;
   D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
 } D3DKMT_OPENADAPTERFROMHDC;
-typedef struct _D3DKMT_CLOSEADAPTER {
+
+typedef struct _D3DKMT_CLOSEADAPTER
+{
   D3DKMT_HANDLE hAdapter;
 } D3DKMT_CLOSEADAPTER;
-typedef struct _D3DKMT_WAITFORVERTICALBLANKEVENT {
+
+typedef struct _D3DKMT_WAITFORVERTICALBLANKEVENT
+{
   D3DKMT_HANDLE                  hAdapter;
   D3DKMT_HANDLE                  hDevice;
   D3DDDI_VIDEO_PRESENT_SOURCE_ID VidPnSourceId;
@@ -2197,11 +2203,12 @@ DWORD IGraphicsWin::OnVBlankRun()
   D3DKMTCloseAdapter pClose = nullptr;
   D3DKMTWaitForVerticalBlankEvent pWait = nullptr;
   HINSTANCE hInst = LoadLibraryW(L"gdi32.dll");
+
   if (hInst != nullptr)
   {
-    pOpen  = (D3DKMTOpenAdapterFromHdc)GetProcAddress((HMODULE)hInst, "D3DKMTOpenAdapterFromHdc");
-    pClose = (D3DKMTCloseAdapter)GetProcAddress((HMODULE)hInst, "D3DKMTCloseAdapter");
-    pWait  = (D3DKMTWaitForVerticalBlankEvent)GetProcAddress((HMODULE)hInst, "D3DKMTWaitForVerticalBlankEvent");
+    pOpen  = (D3DKMTOpenAdapterFromHdc) GetProcAddress((HMODULE) hInst, "D3DKMTOpenAdapterFromHdc");
+    pClose = (D3DKMTCloseAdapter) GetProcAddress((HMODULE) hInst, "D3DKMTCloseAdapter");
+    pWait  = (D3DKMTWaitForVerticalBlankEvent) GetProcAddress((HMODULE) hInst, "D3DKMTWaitForVerticalBlankEvent");
   }
 
   // if we don't get bindings to the methods we will fallback
