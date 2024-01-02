@@ -41,11 +41,6 @@ BEGIN_IPLUG_NAMESPACE
   #if defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB) || defined(OS_IOS)
     #define DBGMSG(...) printf(__VA_ARGS__)
   #elif defined OS_WIN
-    #ifdef OutputDebugString
-    #undef OutputDebugString
-    #define OutputDebugString OutputDebugStringA
-    #endif
-
     static void DBGMSG(const char* format, ...)
     {
       char buf[4096], * p = buf;
@@ -65,7 +60,7 @@ BEGIN_IPLUG_NAMESPACE
       *p++ = '\n';
       *p = '\0';
 
-      OutputDebugString(buf);
+      OutputDebugStringW(UTF8AsUTF16(buf).Get());
     }
   #endif
 #endif
