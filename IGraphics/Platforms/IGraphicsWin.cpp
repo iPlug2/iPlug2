@@ -1281,7 +1281,7 @@ IRECT IGraphicsWin::GetWindowRECT()
 
 void IGraphicsWin::SetWindowTitle(const char* str)
 {
-  SetWindowText(mPlugWnd, str);
+  SetWindowTextW(mPlugWnd, UTF8AsUTF16(str).Get());
 }
 
 void IGraphicsWin::CloseWindow()
@@ -1756,7 +1756,7 @@ static UINT_PTR CALLBACK CCHookProc(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM
     if (cc && cc->lCustData)
     {
       char* str = (char*) cc->lCustData;
-      SetWindowText(hdlg, str);
+      SetWindowTextW(hdlg, UTF8AsUTF16(str).Get());
       UINT uiSetRGB;
       uiSetRGB = RegisterWindowMessage(SETRGBSTRING);
       SendMessage(hdlg, uiSetRGB, 0, (LPARAM) cc->rgbResult);
