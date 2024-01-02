@@ -1124,7 +1124,7 @@ EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* text, const char* caption
 {
   ReleaseMouseCapture();
   
-  EMsgBoxResult result = static_cast<EMsgBoxResult>(MessageBox(GetMainWnd(), text, caption, static_cast<int>(type)));
+  EMsgBoxResult result = static_cast<EMsgBoxResult>(MessageBoxW(GetMainWnd(), UTF8AsUTF16(text).Get(), UTF8AsUTF16(caption).Get(), static_cast<int>(type)));
   
   if (completionHandler)
     completionHandler(result);
@@ -1802,7 +1802,7 @@ bool IGraphicsWin::PromptForColor(IColor& color, const char* prompt, IColorPicke
 
 bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
 {
-  if (confirmMsg && MessageBox(mPlugWnd, confirmMsg, msgWindowTitle, MB_YESNO) != IDYES)
+  if (confirmMsg && MessageBoxW(mPlugWnd, UTF8AsUTF16(confirmMsg).Get(), UTF8AsUTF16(msgWindowTitle).Get(), MB_YESNO) != IDYES)
   {
     return false;
   }
@@ -1818,7 +1818,7 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
   }
   if (errMsgOnFailure)
   {
-    MessageBox(mPlugWnd, errMsgOnFailure, msgWindowTitle, MB_OK);
+    MessageBoxW(mPlugWnd, UTF8AsUTF16(errMsgOnFailure).Get(), UTF8AsUTF16(msgWindowTitle).Get(), MB_OK);
   }
   return false;
 }
