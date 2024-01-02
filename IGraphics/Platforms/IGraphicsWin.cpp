@@ -89,9 +89,9 @@ struct IGraphicsWin::HFontHolder
 {
   HFontHolder(HFONT hfont) : mHFont(nullptr)
   {
-    LOGFONT lFont = { 0 };
-    GetObject(hfont, sizeof(LOGFONT), &lFont);
-    mHFont = CreateFontIndirect(&lFont);
+    LOGFONTW lFont = { 0 };
+    GetObjectW(hfont, sizeof(LOGFONTW), &lFont);
+    mHFont = CreateFontIndirectW(&lFont);
   }
   
   HFONT mHFont;
@@ -1527,11 +1527,11 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
 
   StaticStorage<HFontHolder>::Accessor hfontStorage(sHFontCache);
 
-  LOGFONT lFont = { 0 };
+  LOGFONTW lFont = { 0 };
   HFontHolder* hfontHolder = hfontStorage.Find(text.mFont);
-  GetObject(hfontHolder->mHFont, sizeof(LOGFONT), &lFont);
+  GetObjectW(hfontHolder->mHFont, sizeof(LOGFONTW), &lFont);
   lFont.lfHeight = text.mSize * scale;
-  mEditFont = CreateFontIndirect(&lFont);
+  mEditFont = CreateFontIndirectW(&lFont);
 
   assert(hfontHolder && "font not found - did you forget to load it?");
 
@@ -1976,7 +1976,7 @@ static HFONT GetHFont(const char* fontName, int weight, bool italic, bool underl
 {
   HDC hdc = GetDC(NULL);
   HFONT font = nullptr;
-  LOGFONT lFont;
+  LOGFONTW lFont;
 
   lFont.lfHeight = 0;
   lFont.lfWidth = 0;
@@ -1992,23 +1992,23 @@ static HFONT GetHFont(const char* fontName, int weight, bool italic, bool underl
   lFont.lfQuality = quality;
   lFont.lfPitchAndFamily = DEFAULT_PITCH;
 
-  strncpy(lFont.lfFaceName, fontName, LF_FACESIZE);
+  wcsncpy(lFont.lfFaceName, UTF8AsUTF16(fontName).Get(), LF_FACESIZE);
 
-  auto enumProc = [](const LOGFONT* pLFont, const TEXTMETRIC* pTextMetric, DWORD FontType, LPARAM lParam)
+  auto enumProc = [](const LOGFONTW* pLFont, const TEXTMETRICW* pTextMetric, DWORD FontType, LPARAM lParam)
   {
     return -1;
   };
-
-  if ((!enumerate || EnumFontFamiliesEx(hdc, &lFont, enumProc, NULL, 0) == -1))
-    font = CreateFontIndirect(&lFont);
+  
+  if ((!enumerate || EnumFontFamiliesExW(hdc, &lFont, enumProc, NULL, 0) == -1))
+    font = CreateFontIndirectW(&lFont);
 
   if (font)
   {
-    char selectedFontName[64];
+    wchar_t selectedFontName[64] = {'\0'};
 
     SelectFont(hdc, font);
-    GetTextFace(hdc, 64, selectedFontName);
-    if (strcmp(selectedFontName, fontName))
+    GetTextFaceW(hdc, 64, selectedFontName);
+    if (strcmp(UTF16AsUTF8(selectedFontName).Get(), fontName))
     {
       DeleteObject(font);
       return nullptr;
