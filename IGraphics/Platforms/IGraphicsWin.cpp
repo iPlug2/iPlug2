@@ -228,11 +228,9 @@ void IGraphicsWin::OnDisplayTimer(int vBlankCount)
     {
       case kCommit:
       {
-        WCHAR wtxt[MAX_WIN32_PARAM_LEN];
-        WDL_String tempUTF8;
-        SendMessageW(mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM)wtxt);
-        UTF16ToUTF8(tempUTF8, wtxt);
-        SetControlValueAfterTextEdit(tempUTF8.Get());
+        WCHAR strWide[MAX_WIN32_PARAM_LEN];
+        SendMessageW(mParamEditWnd, WM_GETTEXT, MAX_WIN32_PARAM_LEN, (LPARAM) strWide);
+        SetControlValueAfterTextEdit(UTF16AsUTF8(strWide).Get());
         DestroyEditWindow();
         break;
       }
