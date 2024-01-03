@@ -1808,9 +1808,7 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
   DWORD inetStatus = 0;
   if (InternetGetConnectedState(&inetStatus, 0))
   {
-    WCHAR urlWide[IPLUG_WIN_MAX_WIDE_PATH];
-    UTF8ToUTF16(urlWide, url, IPLUG_WIN_MAX_WIDE_PATH);
-    if (ShellExecuteW(mPlugWnd, L"open", urlWide, 0, 0, SW_SHOWNORMAL) > HINSTANCE(32))
+    if (ShellExecuteW(mPlugWnd, L"open", UTF8AsUTF16(url).Get(), 0, 0, SW_SHOWNORMAL) > HINSTANCE(32))
     {
       return true;
     }
