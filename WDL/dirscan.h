@@ -136,7 +136,7 @@ class WDL_DirScan
       
       if (m_h==INVALID_HANDLE_VALUE)
     #endif
-        m_h=FindFirstFile(scanstr.Get(),(WIN32_FIND_DATA*)&m_fd);
+        m_h=FindFirstFileA(scanstr.Get(),(WIN32_FIND_DATAA*)&m_fd);
       return (m_h == INVALID_HANDLE_VALUE);
 #else
       m_ent=0;
@@ -151,7 +151,7 @@ class WDL_DirScan
   #ifndef WDL_NO_SUPPORT_UTF8
       if (m_wcmode) return !FindNextFileW(m_h,&m_fd);
   #endif
-      return !FindNextFile(m_h,(WIN32_FIND_DATA*)&m_fd);
+      return !FindNextFileA(m_h,(WIN32_FIND_DATAA*)&m_fd);
 #else
       if (!m_h) return -1;
       return !(m_ent=readdir(m_h));
@@ -179,7 +179,7 @@ class WDL_DirScan
         return m_tmpbuf;
       }
 #endif
-      return ((WIN32_FIND_DATA *)&m_fd)->cFileName; 
+      return ((WIN32_FIND_DATAA *)&m_fd)->cFileName; 
     }
 #else
     const char *GetCurrentFN() const { return m_ent?m_ent->d_name : ""; }
@@ -294,7 +294,7 @@ class WDL_DirScan
     WIN32_FIND_DATAW m_fd;
     char m_tmpbuf[MAX_PATH*5]; // even if each byte gets encoded as 4 utf-8 bytes this should be plenty ;)
 #else
-    WIN32_FIND_DATA m_fd;
+    WIN32_FIND_DATAA m_fd;
 #endif
     HANDLE m_h;
 #else
