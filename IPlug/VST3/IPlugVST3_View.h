@@ -44,7 +44,7 @@ public:
         return Steinberg::kResultTrue;
       
 #elif defined OS_MAC
-      if (strcmp (type, Steinberg::kPlatformTypeNSView) == 0)
+      if (strcmp(type, Steinberg::kPlatformTypeNSView) == 0)
         return Steinberg::kResultTrue;
 #endif
     }
@@ -114,7 +114,7 @@ public:
       if (strcmp(type, Steinberg::kPlatformTypeHWND) == 0)
         pView = mOwner.OpenWindow(pParent);
 #elif defined OS_MAC
-      if (strcmp (type, Steinberg::kPlatformTypeNSView) == 0)
+      if (strcmp(type, Steinberg::kPlatformTypeNSView) == 0)
         pView = mOwner.OpenWindow(pParent);
       else // Carbon
         return Steinberg::kResultFalse;
