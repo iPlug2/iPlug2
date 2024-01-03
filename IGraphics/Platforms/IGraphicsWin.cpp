@@ -1851,24 +1851,13 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
     {
       HGLOBAL hglb = GetClipboardData(CF_UNICODETEXT);
       
-      if (hglb != NULL)
+      if (hglb)
       {
-        WCHAR *origStr = (WCHAR*)GlobalLock(hglb);
-        
-        if (origStr != NULL)
-        {
-          // Find out how much space is needed
+        WCHAR *origStr = (WCHAR*) GlobalLock(hglb);
 
-          int newLen = WideCharToMultiByte(CP_UTF8, 0, origStr, -1, 0, 0, NULL, NULL);
-          
-          if (newLen > 0)
-          {
-            WDL_TypedBuf<char> utf8;
-            utf8.Resize(newLen);
-            numChars = WideCharToMultiByte(CP_UTF8, 0, origStr, -1, utf8.Get(), utf8.GetSize(), NULL, NULL);
-            str.Set(utf8.Get());
-          }
-          
+        if (origStr)
+        {
+          UTF16ToUTF8(str, origStr);
           GlobalUnlock(hglb);
         }
       }
