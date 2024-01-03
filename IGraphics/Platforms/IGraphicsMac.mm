@@ -449,8 +449,7 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     if (completionHandler)
       completionHandler(fileName, path);
   };
-
-
+  
   NSPanel* pPanel = nullptr;
   
   if (action == EFileAction::Save)
