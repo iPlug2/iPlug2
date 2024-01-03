@@ -1597,29 +1597,23 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     return;
   }
     
-  wchar_t fnCStr[_MAX_PATH];
-  wchar_t dirCStr[_MAX_PATH];
+  wchar_t fileNameWide[_MAX_PATH];
     
-  if (fileName.GetLength())
-    UTF8ToUTF16(fnCStr, fileName.Get(), _MAX_PATH);
-  else
-    fnCStr[0] = '\0';
-    
-  dirCStr[0] = '\0';
-    
+  UTF8ToUTF16(fileNameWide, fileName.Get(), _MAX_PATH);
+
   //if (!path.GetLength())
   //  DesktopPath(path);
-    
-  UTF8ToUTF16(dirCStr, path.Get(), _MAX_PATH);
-    
+
+  UTF8AsUTF16 directoryWide(path);
+
   OPENFILENAMEW ofn;
   memset(&ofn, 0, sizeof(OPENFILENAMEW));
     
   ofn.lStructSize = sizeof(OPENFILENAMEW);
   ofn.hwndOwner = (HWND) GetWindow();
-  ofn.lpstrFile = fnCStr;
+  ofn.lpstrFile = fileNameWide;
   ofn.nMaxFile = _MAX_PATH - 1;
-  ofn.lpstrInitialDir = dirCStr;
+  ofn.lpstrInitialDir = directoryWide.Get();
   ofn.Flags = OFN_PATHMUSTEXIST;
     
   if (CStringHasContents(ext))
@@ -1679,8 +1673,7 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     char drive[_MAX_DRIVE];
     char directoryOutCStr[_MAX_PATH];
     
-    WDL_String tempUTF8;
-    UTF16ToUTF8(tempUTF8, ofn.lpstrFile);
+    UTF16AsUTF8 tempUTF8(ofn.lpstrFile);
     
     if (_splitpath_s(tempUTF8.Get(), drive, sizeof(drive), directoryOutCStr, sizeof(directoryOutCStr), NULL, 0, NULL, 0) == 0)
     {
