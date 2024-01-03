@@ -1914,37 +1914,38 @@ bool IGraphicsWin::SetFilePathInClipboard(const char* path)
 
   EmptyClipboard();
 
-  const size_t pathLength = strlen(path);
-  HGLOBAL hGlobal = GlobalAlloc(GHND, sizeof(DROPFILES) + pathLength + 2);
+  UTF8AsUTF16 pathWide(path);
+
+  HGLOBAL hGlobal = GlobalAlloc(GHND, sizeof(DROPFILES) + pathWide.GetLength());
 
   if (!hGlobal)
     return false;
 
   DROPFILES* pDropFiles = (DROPFILES*) GlobalLock(hGlobal);
+  bool result = false;
 
-  if (!pDropFiles) 
+  if (pDropFiles)
   {
-    GlobalFree(hGlobal);
-    return false;
+    // Populate the dropfile structure and copy the file path
+
+    pDropFiles->pFiles = sizeof(DROPFILES);
+    pDropFiles->pt = { 0, 0 };
+    pDropFiles->fNC = true;
+    pDropFiles->fWide = true;
+
+    memcpy(pDropFiles + 1, pathWide.Get(), pathWide.GetLength());
+
+    GlobalUnlock(hGlobal);
+
+    result = !SetClipboardData(CF_HDROP, hGlobal);
   }
 
-  pDropFiles->pFiles = sizeof(DROPFILES);
-  pDropFiles->fNC = true;
-  pDropFiles->fWide = false;
-
-  memcpy(&pDropFiles[1], path, pathLength);
-
-  GlobalUnlock(hGlobal);
-
-  if (!SetClipboardData(CF_HDROP, hGlobal)) 
-  {
+  // free the handle if unsuccessful
+  if (!result)
     GlobalFree(hGlobal);
-    return false;
-  }
 
-  GlobalFree(hGlobal);
   CloseClipboard();
-  return true;
+  return result;
 }
 
 static HFONT GetHFont(const char* fontName, int weight, bool italic, bool underline, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
