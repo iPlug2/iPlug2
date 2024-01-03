@@ -1879,32 +1879,42 @@ bool IGraphicsWin::SetTextInClipboard(const char* str)
 
   EmptyClipboard();
 
-  const int len = strlen(str);
-  if (len > 0)
+  bool result = true;
+
+  if (strlen(str))
   {
-    // figure out how much memory we need for the wide version of this string
-    int wchar_len = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+    // figure out how many characters we need for the wide version of this string
+    const int lenWide = UTF8ToUTF16Len(str);
 
     // allocate global memory object for the text
-    HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, wchar_len*sizeof(WCHAR));
-    if (hglbCopy == NULL)
+    HGLOBAL hglbCopy = GlobalAlloc(GMEM_MOVEABLE, lenWide*sizeof(WCHAR));
+    if (!hglbCopy)
     {
       CloseClipboard();
       return false;
     }
 
-    // lock the handle and copy the string into the buffer
-    LPWSTR lpstrCopy = (LPWSTR)GlobalLock(hglbCopy);
-    MultiByteToWideChar(CP_UTF8, 0, str, -1, lpstrCopy, wchar_len);
-    GlobalUnlock(hglbCopy);
+    // lock the handle
+    LPWSTR lpstrCopy = (LPWSTR) GlobalLock(hglbCopy);
 
-    // place the handle on the clipboard
-    SetClipboardData(CF_UNICODETEXT, hglbCopy);
+    if (lpstrCopy)
+    {
+      // copy the string into the buffer
+      UTF8ToUTF16(lpstrCopy, str, lenWide);
+      GlobalUnlock(hglbCopy);
+
+      // place the handle on the clipboard
+      result = !SetClipboardData(CF_UNICODETEXT, hglbCopy);
+
+      // free the handle if unsuccessful
+      if (!result)
+        GlobalFree(hglbCopy);
+    }
   }
 
   CloseClipboard();
 
-  return len > 0;
+  return result;
 }
 
 bool IGraphicsWin::SetFilePathInClipboard(const char* path)
