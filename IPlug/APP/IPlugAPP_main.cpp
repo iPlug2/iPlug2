@@ -36,13 +36,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
   try
   {
 #ifndef APP_ALLOW_MULTIPLE_INSTANCES
-    HANDLE hMutex = OpenMutex(MUTEX_ALL_ACCESS, 0, BUNDLE_NAME); // BUNDLE_NAME used because it won't have spaces in it
+
+    UTF8AsUTF16 bundleNameWide(BUNDLE_NAME);
+
+    HANDLE hMutex = OpenMutexW(MUTEX_ALL_ACCESS, 0, bundleNameWide.Get()); // BUNDLE_NAME used because it won't have spaces in it
     
     if (!hMutex)
-      hMutex = CreateMutex(0, 0, BUNDLE_NAME);
+      hMutex = CreateMutexW(0, 0, bundleNameWide.Get());
     else
     {
-      HWND hWnd = FindWindow(0, BUNDLE_NAME);
+      HWND hWnd = FindWindowW(0, bundleNameWide.Get());
       SetForegroundWindow(hWnd);
       return 0;
     }
@@ -50,19 +53,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     gHINSTANCE = hInstance;
     
     InitCommonControls();
-    gScrollMessage = RegisterWindowMessage("MSWHEEL_ROLLMSG");
+    gScrollMessage = RegisterWindowMessageW(L"MSWHEEL_ROLLMSG");
 
     IPlugAPPHost* pAppHost = IPlugAPPHost::Create();
     pAppHost->Init();
     pAppHost->TryToChangeAudio();
 
-    HACCEL hAccel = LoadAccelerators(gHINSTANCE, MAKEINTRESOURCE(IDR_ACCELERATOR1));
+    HACCEL hAccel = LoadAcceleratorsW(gHINSTANCE, MAKEINTRESOURCEW(IDR_ACCELERATOR1));
 
     static UINT(WINAPI *__SetProcessDpiAwarenessContext)(DPI_AWARENESS_CONTEXT);
 
     if (!__SetProcessDpiAwarenessContext)
     {
-      HINSTANCE h = LoadLibrary("user32.dll");
+      HINSTANCE h = LoadLibraryW(L"user32.dll");
       if (h) *(void **)&__SetProcessDpiAwarenessContext = GetProcAddress(h, "SetProcessDpiAwarenessContext");
       if (!__SetProcessDpiAwarenessContext)
         *(void **)&__SetProcessDpiAwarenessContext = (void*)(INT_PTR)1;
@@ -72,7 +75,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       __SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
     }
 
-    CreateDialog(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_MAIN), GetDesktopWindow(), IPlugAPPHost::MainDlgProc);
+    CreateDialogW(gHINSTANCE, MAKEINTRESOURCEW(IDD_DIALOG_MAIN), GetDesktopWindow(), IPlugAPPHost::MainDlgProc);
 
 #if !defined _DEBUG || defined NO_IGRAPHICS
     HMENU menu = GetMenu(gHWND);
@@ -83,7 +86,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
     for(;;)
     {
       MSG msg= {0,};
-      int vvv = GetMessage(&msg, NULL, 0, 0);
+      int vvv = GetMessageW(&msg, NULL, 0, 0);
       
       if (!vvv)
         break;
@@ -96,11 +99,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       
       if (!msg.hwnd)
       {
-        DispatchMessage(&msg);
+        DispatchMessageW(&msg);
         continue;
       }
       
-      if (gHWND && (TranslateAccelerator(gHWND, hAccel, &msg) || IsDialogMessage(gHWND, &msg)))
+      if (gHWND && (TranslateAcceleratorW(gHWND, hAccel, &msg) || IsDialogMessageW(gHWND, &msg)))
         continue;
       
       // default processing for other dialogs
@@ -109,20 +112,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       
       do
       {
-        if (GetClassLong(temphwnd, GCW_ATOM) == (INT)32770)
+        if (GetClassLongW(temphwnd, GCW_ATOM) == (INT)32770)
         {
           hWndParent = temphwnd;
-          if (!(GetWindowLong(temphwnd, GWL_STYLE) & WS_CHILD))
+          if (!(GetWindowLongW(temphwnd, GWL_STYLE) & WS_CHILD))
             break; // not a child, exit
         }
       }
       while (temphwnd = GetParent(temphwnd));
       
-      if (hWndParent && IsDialogMessage(hWndParent,&msg))
+      if (hWndParent && IsDialogMessageW(hWndParent,&msg))
         continue;
 
       TranslateMessage(&msg);
-      DispatchMessage(&msg);
+      DispatchMessageW(&msg);
     }
     
     // in case gHWND didnt get destroyed -- this corresponds to SWELLAPP_DESTROY roughly
