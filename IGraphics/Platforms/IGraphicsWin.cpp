@@ -1518,10 +1518,7 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   const float scale = GetTotalScale();
   IRECT scaledBounds = bounds.GetScaled(scale);
 
-  WCHAR strWide[MAX_PARAM_DISPLAY_LEN];
-  UTF8ToUTF16(strWide, str, MAX_PARAM_DISPLAY_LEN);
-
-  mParamEditWnd = CreateWindowW(L"EDIT", strWide, ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE | ES_MULTILINE | editStyle,
+  mParamEditWnd = CreateWindowW(L"EDIT", UTF8AsUTF16(str).Get(), ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE | ES_MULTILINE | editStyle,
     scaledBounds.L, scaledBounds.T, scaledBounds.W()+1, scaledBounds.H()+1,
     mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
 
