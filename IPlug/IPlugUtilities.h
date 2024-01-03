@@ -316,9 +316,14 @@ static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = fa
 
 #if defined OS_WIN
 
+static int UTF8ToUTF16Len(const char* utf8Str)
+{
+  return MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+}
+
 static void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
 {
-  int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+  int requiredSize = UTF8ToUTF16Len(utf8Str);
 
   if (requiredSize > 0 && requiredSize <= maxLen)
   {
@@ -326,7 +331,7 @@ static void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
     return;
   }
 
-  utf16Str[0] = 0;
+  utf16Str[0] = '\0';
 }
 
 static void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
@@ -348,7 +353,7 @@ public:
 
   UTF8AsUTF16(const char* utf8Str)
   {
-    mUTF16Str.Resize(MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0));
+    mUTF16Str.Resize(UTF8ToUTF16Len(utf8Str));
     UTF8ToUTF16(mUTF16Str.Get(), utf8Str, mUTF16Str.GetSize());
   }
 
@@ -356,7 +361,8 @@ public:
   {
   }
 
-  const wchar_t* Get() { return mUTF16Str.Get(); }
+  const wchar_t* Get() const { return mUTF16Str.Get(); }
+  int GetLength() const { return mUTF16Str.GetSize(); }
 
 private:
 
@@ -372,7 +378,8 @@ public:
     UTF16ToUTF8(mUTF8Str, utf16Str);
   }
 
-  const char* Get() { return mUTF8Str.Get(); }
+  const char* Get() const { return mUTF8Str.Get(); }
+  int GetLength() const { return mUTF8Str.GetLength(); }
 
 private:
 
