@@ -1,7 +1,7 @@
 /*
     WDL - dirscan.h
     Copyright (C) 2005 and later Cockos Incorporated
-  
+
     This software is provided 'as-is', without any express or implied
     warranty.  In no event will the authors be held liable for any damages
     arising from the use of this software.
@@ -17,17 +17,17 @@
     2. Altered source versions must be plainly marked as such, and must not be
        misrepresented as being the original software.
     3. This notice may not be removed or altered from any source distribution.
-      
+
 */
 
 /*
 
-  This file provides the interface and implementation for WDL_DirScan, a simple 
+  This file provides the interface and implementation for WDL_DirScan, a simple
   (and somewhat portable) directory reading class. On non-Win32 systems it wraps
-  opendir()/readdir()/etc. On Win32, it uses FindFirst*, and supports wildcards as 
+  opendir()/readdir()/etc. On Win32, it uses FindFirst*, and supports wildcards as
   well.
 
- 
+
 */
 
 
@@ -48,7 +48,7 @@ typedef char wdl_dirscan_assert_failed_stat_not_64[sizeof(wdl_stat_chk.st_size)!
 class WDL_DirScan
 {
   public:
-    WDL_DirScan() : 
+    WDL_DirScan() :
 #ifdef _WIN32
        m_h(INVALID_HANDLE_VALUE)
   #ifndef WDL_NO_SUPPORT_UTF8
@@ -76,7 +76,7 @@ class WDL_DirScan
       if (l < 1) return -1;
 
 #ifdef _WIN32
-      if (!isExactSpec) 
+      if (!isExactSpec)
       {
         if (dirname[l-1] == '\\' || dirname[l-1] == '/') scanstr.SetLen(l-1);
         m_leading_path = scanstr;
@@ -93,7 +93,7 @@ class WDL_DirScan
         if (idx > 0) m_leading_path.SetLen(idx);
       }
 #else
-    	 if (dirname[l-1] == '\\' || dirname[l-1] == '/') scanstr.SetLen(l-1);
+      if (dirname[l-1] == '\\' || dirname[l-1] == '/') scanstr.SetLen(l-1);
       m_leading_path = scanstr;
       if (!scanstr.GetLength()) scanstr.Set("/"); // fix for scanning /
 #endif
@@ -131,9 +131,9 @@ class WDL_DirScan
           }
         }
       }
-      
+
       if (m_h==INVALID_HANDLE_VALUE) m_wcmode=false;
-      
+
       if (m_h==INVALID_HANDLE_VALUE)
     #endif
         m_h=FindFirstFileA(scanstr.Get(),(WIN32_FIND_DATAA*)&m_fd);
@@ -169,8 +169,8 @@ class WDL_DirScan
     }
 
 #ifdef _WIN32
-    const char *GetCurrentFN() 
-    { 
+    const char *GetCurrentFN()
+    {
 #ifndef WDL_NO_SUPPORT_UTF8
       if (m_wcmode)
       {
@@ -179,25 +179,25 @@ class WDL_DirScan
         return m_tmpbuf;
       }
 #endif
-      return ((WIN32_FIND_DATAA *)&m_fd)->cFileName; 
+      return ((WIN32_FIND_DATAA *)&m_fd)->cFileName;
     }
 #else
     const char *GetCurrentFN() const { return m_ent?m_ent->d_name : ""; }
 #endif
     template<class T> void GetCurrentFullFN(T *str)
-    { 
-      str->Set(m_leading_path.Get()); 
+    {
+      str->Set(m_leading_path.Get());
 #ifdef _WIN32
-      str->Append("\\"); 
+      str->Append("\\");
 #else
-      str->Append("/"); 
+      str->Append("/");
 #endif
-      str->Append(GetCurrentFN()); 
+      str->Append(GetCurrentFN());
     }
     int GetCurrentIsDirectory() const // returns 1 if dir, 2 if symlink to dir, 4 if possibly-recursive symlink to dir
-    { 
+    {
 #ifdef _WIN32
-       return !!(m_fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY); 
+       return !!(m_fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 #else
        char tmp[2048];
        if (m_ent) switch (m_ent->d_type)
@@ -262,7 +262,7 @@ class WDL_DirScan
   }
 
   void GetCurrentLastWriteTime(FILETIME *ft)
-  { 
+  {
     char tmp[2048];
     snprintf(tmp,sizeof(tmp),"%s/%s",m_leading_path.Get(),GetCurrentFN());
     struct stat st={0,};
@@ -274,16 +274,16 @@ class WDL_DirScan
     ft->dwHighDateTime=a>>32;
   }
   DWORD GetCurrentFileSize(DWORD *HighWord=NULL)
-  { 
+  {
     char tmp[2048];
     snprintf(tmp,sizeof(tmp),"%s/%s",m_leading_path.Get(),GetCurrentFN());
     struct stat st={0,};
     stat(tmp,&st);
-    
-    if (HighWord) *HighWord = (DWORD)(st.st_size>>32); 
-    return (DWORD)(st.st_size&0xffffffff); 
+
+    if (HighWord) *HighWord = (DWORD)(st.st_size>>32);
+    return (DWORD)(st.st_size&0xffffffff);
   }
-  
+
 #endif
 
   private:
