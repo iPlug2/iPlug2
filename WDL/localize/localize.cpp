@@ -62,6 +62,7 @@ static const char *next_format(const char *p)
       case '%':
         if (p[1] != '%') return p;
         p++;
+        WDL_FALLTHROUGH;
       default:
         p++;
       break;

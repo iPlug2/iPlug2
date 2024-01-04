@@ -593,15 +593,20 @@ HDC SWELL_CreateMetalDC(SWELL_hwndChild *);
 @interface SWELL_PopUpButton : NSPopUpButton
 {
   LONG m_style;
+  LONG_PTR m_userdata;
 }
+-(id)init;
 -(void)setSwellStyle:(LONG)style;
 -(LONG)getSwellStyle;
+-(LONG_PTR)getSwellUserData;
+-(void)setSwellUserData:(LONG_PTR)val;
 @end
 
 @interface SWELL_ComboBox : NSComboBox
 {
 @public
   LONG m_style;
+  LONG_PTR m_userdata;
   WDL_PtrList<char> *m_ids;
   int m_ignore_selchg; // used to track the last set selection state, to avoid getting feedback notifications
   bool m_disable_menu;
@@ -612,6 +617,8 @@ HDC SWELL_CreateMetalDC(SWELL_hwndChild *);
 -(LONG)getSwellStyle;
 - (void)swellDisableContextMenu:(bool)dis;
 - (NSMenu *)textView:(NSTextView *)view menu:(NSMenu *)menu forEvent:(NSEvent *)event atIndex:(NSUInteger)charIndex;
+-(LONG_PTR)getSwellUserData;
+-(void)setSwellUserData:(LONG_PTR)val;
 @end
 
 
@@ -980,6 +987,7 @@ bool swell_isOSwindowmenu(SWELL_OSWINDOW osw);
 void swell_on_toplevel_raise(SWELL_OSWINDOW wnd); // called by swell-generic-gdk when a window is focused
 
 HWND swell_oswindow_to_hwnd(SWELL_OSWINDOW w);
+SWELL_OSWINDOW swell_oswindow_from_hwnd(HWND hwnd);
 void swell_oswindow_focus(HWND hwnd);
 void swell_oswindow_update_style(HWND hwnd, LONG oldstyle);
 void swell_oswindow_update_enable(HWND hwnd);
@@ -1343,6 +1351,10 @@ HFONT SWELL_GetDefaultFont(void);
 
 #endif
 
+extern void (*SWELL_DDrop_onDragLeave)();
+extern void (*SWELL_DDrop_onDragOver)(POINT pt);
+extern void (*SWELL_DDrop_onDragEnter)(void *hGlobal, POINT pt);
+extern const char* (*SWELL_DDrop_getDroppedFileTargetPath)(const char* extension);
 
 static WDL_STATICFUNC_UNUSED int ext_valid_for_extlist(const char *thisext, const char *extlist)
 {

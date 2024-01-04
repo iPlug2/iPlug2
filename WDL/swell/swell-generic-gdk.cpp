@@ -114,6 +114,8 @@ static SWELL_OSWINDOW swell_dragsrc_osw;
 static DWORD swell_dragsrc_timeout_start;
 static HWND swell_dragsrc_hwnd;
 static DWORD swell_lastMessagePos;
+static const char *swell_dragsrc_fn;
+
 static int gdk_options;
 #define OPTION_KEEP_OWNED_ABOVE 1
 #define OPTION_OWNED_TASKLIST 2
@@ -1855,17 +1857,51 @@ static void swell_gdkEventHandler(GdkEvent *evt, gpointer data)
         GdkEventDND *e = (GdkEventDND *)evt;
         if (e->context)
         {
+          POINT pt = { (int)e->x_root, (int)e->y_root };
           gdk_drag_status(e->context,GDK_ACTION_COPY,e->time);
-          //? gdk_drop_reply(e->context,TRUE,e->time);
+
+          if (e->type == GDK_DRAG_ENTER)
+          {
+            if (SWELL_DDrop_onDragEnter)
+            {
+              const char *fn = swell_dragsrc_fn ? swell_dragsrc_fn : "/tmp/<<<<<unknown>>>>>>>";
+              HGLOBAL h=GlobalAlloc(0,sizeof(DROPFILES) + strlen(fn) + 2);
+              if (WDL_NORMALLY(h))
+              {
+                DROPFILES *hdr = (DROPFILES *)GlobalLock(h);
+                if (WDL_NORMALLY(hdr))
+                {
+                  memset(hdr,0,sizeof(*hdr));
+                  hdr->pFiles = sizeof(DROPFILES);
+                  hdr->pt = pt;
+                  char *ep = ((char *)hdr) + sizeof(*hdr);
+                  memcpy(ep, fn, strlen(fn)+1);
+                  ep[strlen(fn)+1] = 0;
+                  GlobalUnlock(h);
+                }
+                SWELL_DDrop_onDragEnter(h,pt);
+                GlobalFree(h);
+              }
+            }
+          }
+          else if (SWELL_DDrop_onDragOver)
+          {
+            SWELL_DDrop_onDragOver(pt);
+          }
         }
       }
     break;
     case GDK_DRAG_LEAVE:
+      if (SWELL_DDrop_onDragLeave) SWELL_DDrop_onDragLeave();
+    break;
     case GDK_DRAG_STATUS:
+    break;
     case GDK_DROP_FINISHED:
+      if (SWELL_DDrop_onDragLeave) SWELL_DDrop_onDragLeave();
     break;
     case GDK_DROP_START:
       OnDropStartEvent((GdkEventDND *)evt);
+      if (SWELL_DDrop_onDragLeave) SWELL_DDrop_onDragLeave();
     break;
 
     default:
@@ -2938,6 +2974,8 @@ static LRESULT WINAPI dropSourceWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
 
 void SWELL_InitiateDragDrop(HWND hwnd, RECT* srcrect, const char* srcfn, void (*callback)(const char* dropfn))
 {
+  const bool is_osw_cursor = s_last_setcursor_oswnd && swell_oswindow_from_hwnd(hwnd) == s_last_setcursor_oswnd;
+  swell_dragsrc_fn = srcfn;
   dropSourceInfo info;
   info.srcfn = strdup(srcfn);
   info.callback = callback;
@@ -2956,11 +2994,20 @@ void SWELL_InitiateDragDrop(HWND hwnd, RECT* srcrect, const char* srcfn, void (*
   
   swell_dragsrc_hwnd=NULL;
   DestroyWindow(h);
+
+  if (is_osw_cursor && hwnd && GetFocus() != hwnd)
+  {
+    SWELL_OSWINDOW osw = swell_oswindow_from_hwnd(hwnd);
+    gdk_window_set_cursor(osw,NULL);
+  }
+  swell_dragsrc_fn = NULL;
 }
 
 // owner owns srclist, make copies here etc
 void SWELL_InitiateDragDropOfFileList(HWND hwnd, RECT *srcrect, const char **srclist, int srccount, HICON icon)
 {
+  swell_dragsrc_fn = srccount>0 ? srclist[0] : NULL;
+  const bool is_osw_cursor = s_last_setcursor_oswnd && swell_oswindow_from_hwnd(hwnd) == s_last_setcursor_oswnd;
   dropSourceInfo info;
   info.srclist = srclist;
   info.srccount = srccount;
@@ -2979,6 +3026,13 @@ void SWELL_InitiateDragDropOfFileList(HWND hwnd, RECT *srcrect, const char **src
   
   swell_dragsrc_hwnd=NULL;
   DestroyWindow(h);
+
+  if (is_osw_cursor && hwnd && GetFocus() != hwnd)
+  {
+    SWELL_OSWINDOW osw = swell_oswindow_from_hwnd(hwnd);
+    gdk_window_set_cursor(osw,NULL);
+  }
+  swell_dragsrc_fn = NULL;
 }
 
 void SWELL_FinishDragDrop() { }

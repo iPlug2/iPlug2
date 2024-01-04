@@ -419,9 +419,16 @@ public:
   
   ~WDL_LogicalSortStringKeyedArray() { }
 
-  static int cmpstr(const char **a, const char **b) { return WDL_strcmp_logical(*a, *b, 1); }
-  static int cmpistr(const char **a, const char **b) { return WDL_strcmp_logical(*a, *b, 0); }
-
+  static int cmpstr(const char **a, const char **b)
+  {
+    int r=WDL_strcmp_logical_ex(*a, *b, 1, WDL_STRCMP_LOGICAL_EX_FLAG_UTF8CONVERT);
+    return r?r:strcmp(*a,*b);
+  }
+  static int cmpistr(const char **a, const char **b)
+  {
+    int r=WDL_strcmp_logical_ex(*a, *b, 0, WDL_STRCMP_LOGICAL_EX_FLAG_UTF8CONVERT);
+    return r?r:stricmp(*a,*b);
+  }
 };
 
 

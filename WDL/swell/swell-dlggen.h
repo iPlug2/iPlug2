@@ -113,6 +113,7 @@ struct SWELL_DlgResourceEntry
 #define SS_ETCHEDVERT 0x11L
 #define SS_ETCHEDFRAME 0x12L
 #define SS_TYPEMASK 0x1FL
+#define SS_NOPREFIX 0x80L
 #define SS_NOTIFY 0x0100L
 
 #define BS_LEFTTEXT 0x0020L
@@ -169,7 +170,6 @@ struct SWELL_DlgResourceEntry
 #define WS_EX_STATICEDGE 0
 #define WS_EX_RIGHT 0
 #define SS_CENTERIMAGE 0                                       
-#define SS_NOPREFIX 0
 #define WS_CLIPCHILDREN 0
 
 // more ignore flags for vc11+

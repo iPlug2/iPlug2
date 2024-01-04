@@ -71,6 +71,19 @@ static time_t getfileupdtimesize(const char *fn, int *szOut)
   struct stat st;
   *szOut = 0;
   if (!fn || !fn[0] || stat(fn,&st)) return 0;
+
+  if (S_ISLNK(st.st_mode))
+  {
+    char *linkpath = realpath(fn,NULL);
+    if (linkpath)
+    {
+      const bool ok = !stat(linkpath,&st);
+      free(linkpath);
+
+      if (!ok) return 0;
+    }
+  }
+
   *szOut = (int)st.st_size;
   return st.st_mtime;
 }
@@ -218,6 +231,8 @@ static iniFileContext *GetFileContext(const char *name)
         if (t)
         {
           *t++=0;
+          // for maximum win32 compat, we should skip leading whitespace on t, and also trim quotes if any
+          WDL_remove_trailing_whitespace(p);
           if (*p) 
             cursec->AddUnsorted(p,strdup(t));
         }
@@ -236,7 +251,18 @@ static void WriteBackFile(iniFileContext *ctx)
 {
   if (!ctx||!ctx->m_curfn) return;
   char newfn[1024];
-  lstrcpyn_safe(newfn,ctx->m_curfn,sizeof(newfn)-8);
+
+  const char *curfn = ctx->m_curfn;
+
+  struct stat st;
+  char *needfree = NULL;
+  if (!stat(curfn,&st) && S_ISLNK(st.st_mode))
+  {
+    needfree = realpath(curfn,NULL);
+    if (needfree) curfn = needfree;
+  }
+
+  lstrcpyn_safe(newfn,curfn,sizeof(newfn)-8);
   {
     char *p=newfn;
     while (*p) p++;
@@ -253,7 +279,11 @@ static void WriteBackFile(iniFileContext *ctx)
   }
 
   FILE *fp = WDL_fopenA(newfn,"w");
-  if (!fp) return;
+  if (!fp)
+  {
+    free(needfree);
+    return;
+  }
   
   flock(fileno(fp),LOCK_EX);
   
@@ -280,14 +310,15 @@ static void WriteBackFile(iniFileContext *ctx)
   flock(fileno(fp),LOCK_UN);
   fclose(fp);
 
-  if (!rename(newfn,ctx->m_curfn))
+  if (!rename(newfn,curfn))
   {
-    ctx->m_curfn_time = getfileupdtimesize(ctx->m_curfn,&ctx->m_curfn_sz);
+    ctx->m_curfn_time = getfileupdtimesize(curfn,&ctx->m_curfn_sz);
   }
   else
   {
     // error updating, hmm how to handle this?
   }
+  free(needfree);
 }
 
 BOOL WritePrivateProfileSection(const char *appname, const char *strings, const char *fn)

@@ -55,6 +55,8 @@ template<class T> class WDL_IndexedPtrList {
         }
       }
     }
+    void DeletePtr(const T *p) { Delete(Find(p)); }
+    void DeletePtr(const T *p, bool wantDelete, void (*delfunc)(void *)=NULL) { Delete(Find(p),wantDelete,delfunc); }
     void Add(T *p)
     {
       _checkState();

@@ -315,7 +315,8 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
   case WM_DESTROY:
     ctx->m_hwnd=0;
   return 0;
-  case WM_CHAR: case WM_KEYDOWN:
+  case WM_CHAR:
+  case WM_KEYDOWN:
 
 #ifdef __APPLE__
         {
@@ -339,6 +340,7 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
         ctx->m_kb_queue[(ctx->m_kb_queue_pos + ctx->m_kb_queue_valid++) & (qsize-1)] = a;
       }
     }
+  return 0;
   case WM_KEYUP:
   return 0;
   case WM_GETMINMAXINFO:
@@ -359,6 +361,7 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
   case WM_RBUTTONDOWN:
   case WM_LBUTTONDOWN:
     SetFocus(hwnd);
+    WDL_FALLTHROUGH;
   case WM_LBUTTONUP:
   case WM_RBUTTONUP:
   case WM_CAPTURECHANGED:
@@ -410,8 +413,9 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
       else if (p.y >= paney[0] && p.y < paney[0]+paneh[0] && p.x >= scrollw[0]) SetCursor(LoadCursor(NULL, IDC_ARROW));
       else if (p.y >= paney[1] && p.y < paney[1]+paneh[1] && p.x >= scrollw[1]) SetCursor(LoadCursor(NULL, IDC_ARROW));
       else SetCursor(LoadCursor(NULL, IDC_IBEAM));
-    return TRUE;
-  }
+      return TRUE;
+    }
+  return FALSE;
 
 #ifdef _WIN32
   case WM_GETDLGCODE:

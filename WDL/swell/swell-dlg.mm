@@ -110,11 +110,6 @@ static id<MTLDevice> (*__CGDirectDisplayCopyCurrentMetalDevice)(CGDirectDisplayI
 
 static HMENU g_swell_defaultmenu,g_swell_defaultmenumodal;
 
-void (*SWELL_DDrop_onDragLeave)();
-void (*SWELL_DDrop_onDragOver)(POINT pt);
-void (*SWELL_DDrop_onDragEnter)(void *hGlobal, POINT pt);
-const char* (*SWELL_DDrop_getDroppedFileTargetPath)(const char* extension);
-
 bool SWELL_owned_windows_levelincrease=false;
 
 #include "../wdlstring.h"
@@ -712,7 +707,7 @@ static bool s_mtl_in_update;
       (COLORREF)-1,
       f->m_cols ? f->m_cols->Find(aTableColumn) : 0
     };
-    if (m_wndproc) m_wndproc((HWND)self,WM_NOTIFY,tag,(LPARAM)&nmlv);
+    if (m_wndproc && !m_hashaddestroy) m_wndproc((HWND)self,WM_NOTIFY,tag,(LPARAM)&nmlv);
     // todo clrTextBk too
     if (nmlv.clrText != (COLORREF)-1)
     {
@@ -1065,8 +1060,17 @@ static bool s_mtl_in_update;
 -(void)setTag:(NSInteger)t { m_tag=t; }
 -(LONG_PTR)getSwellUserData { return m_userdata; }
 -(void)setSwellUserData:(LONG_PTR)val {   m_userdata=val; }
--(LPARAM)getSwellExtraData:(int)idx { idx/=sizeof(INT_PTR); if (idx>=0&&idx<sizeof(m_extradata)/sizeof(m_extradata[0])) return m_extradata[idx]; return 0; }
--(void)setSwellExtraData:(int)idx value:(LPARAM)val { idx/=sizeof(INT_PTR); if (idx>=0&&idx<sizeof(m_extradata)/sizeof(m_extradata[0])) m_extradata[idx] = val; }
+-(LPARAM)getSwellExtraData:(int)idx {
+  idx/=sizeof(INT_PTR);
+  if (WDL_NORMALLY(idx>=0&&idx<sizeof(m_extradata)/sizeof(m_extradata[0])))
+    return m_extradata[idx];
+  return 0;
+}
+-(void)setSwellExtraData:(int)idx value:(LPARAM)val {
+  idx/=sizeof(INT_PTR);
+  if (WDL_NORMALLY(idx>=0&&idx<sizeof(m_extradata)/sizeof(m_extradata[0])))
+    m_extradata[idx] = val;
+}
 -(void)setSwellWindowProc:(WNDPROC)val { m_wndproc=val; }
 -(WNDPROC)getSwellWindowProc { return m_wndproc; }
 -(void)setSwellDialogProc:(DLGPROC)val { m_dlgproc=val; }

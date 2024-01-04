@@ -1589,6 +1589,7 @@ static int __drawTextWithFont(LICE_IBitmap *dest, const RECT *rect, LICE_IFont *
       {
         case '\n': 
           ypos += 8; 
+          WDL_FALLTHROUGH;
         case '\r': 
           xpos = sxpos; 
         break;
@@ -1746,13 +1747,10 @@ EEL_F eel_lice_state::gfx_setcursor(void* opaque, EEL_F** parms, int nparms)
   if (chg)
   {
     m_cursor = NULL;
-    if (m_cursor_resid > 0)
-    {
-      if (!p || !*p) m_cursor = LoadCursor(NULL, MAKEINTRESOURCE(m_cursor_resid));
+    if (!p || !*p) m_cursor = m_cursor_resid > 0 ? LoadCursor(NULL, MAKEINTRESOURCE(m_cursor_resid)) : NULL;
 #ifdef EEL_LICE_LOADTHEMECURSOR
-      else m_cursor = EEL_LICE_LOADTHEMECURSOR(m_cursor_resid, p);
+    else m_cursor = EEL_LICE_LOADTHEMECURSOR(m_cursor_resid, p);
 #endif
-    }
 
     bool do_set = GetCapture() == hwnd_standalone;
     if (!do_set && GetFocus() == hwnd_standalone)
@@ -1828,7 +1826,6 @@ void eel_lice_state::gfx_drawstr(void *opaque, EEL_F **parms, int nparms, int fo
 
   if (s_len)
   {
-    SetImageDirty(dest);
     if (formatmode>=2)
     {
       if (nfmtparms==2)
@@ -1849,6 +1846,7 @@ void eel_lice_state::gfx_drawstr(void *opaque, EEL_F **parms, int nparms, int fo
         r.right=(int)*parms[2];
         r.bottom=(int)*parms[3];
       }
+      SetImageDirty(dest);
       *m_gfx_x=__drawTextWithFont(dest,&r,GetActiveFont(),s,s_len,
         getCurColor(),getCurMode(),(float)*m_gfx_a,flags,m_gfx_y,NULL);
     }
@@ -2123,13 +2121,30 @@ static EEL_F NSEEL_CGEN_CALL _gfx_getchar(void *opaque, INT_PTR np, EEL_F **plis
     ctx->m_has_had_getch=true;
     if (*p >= 2.0)
     {
-      if (*p == 65536.0)
+      if (*p == 65536.0 || *p == 65537.0)
       {
         int rv = 1;
         if (ctx->hwnd_standalone)
         {
           if (ctx->hwnd_standalone==GetFocus()) rv|=2;
-          if (IsWindowVisible(ctx->hwnd_standalone)) rv|=4;
+          if (IsWindowVisible(ctx->hwnd_standalone))
+          {
+            rv|=4;
+            if (*p != 65537.0)
+            {
+              POINT p;
+              GetCursorPos(&p);
+              RECT r;
+              GetWindowRect(ctx->hwnd_standalone,&r);
+              if (r.top > r.bottom)
+              {
+                const int a = r.top;
+                r.top = r.bottom;
+                r.bottom = a;
+              }
+              if (PtInRect(&r,p) && WindowFromPoint(p) == ctx->hwnd_standalone) rv|=8;
+            }
+          }
         }
         return rv;
       }
@@ -3125,7 +3140,7 @@ static const char *eel_lice_function_reference =
      "\4" "27 for ESC\n"
      "\4" "13 for Enter\n"
      "\4' ' for space\n"
-     "\4" "65536 for query of special flags, returns: &1 (supported), &2=window has focus, &4=window is visible\n"
+     "\4" "65536 for query of special flags, returns: &1 (supported), &2=window has focus, &4=window is visible, &8=mouse click would hit window. 65537 queries special flags but does not do the mouse click hit testing (faster).\n"
      "\4If unichar is specified, it will be set to the unicode value of the key if available (and the return value may be the unicode value or a raw key value as described above, depending). If unichar is not specified, unicode codepoints greater than 255 will be returned as 'u'<<24 + value\n"
      "\2\0"
     
@@ -3140,7 +3155,7 @@ static const char *eel_lice_function_reference =
     "gfx_showmenu(\"first item, followed by separator||!second item, checked|>third item which spawns a submenu|#first item in submenu, grayed out|<second and last item in submenu|fourth item in top menu\")\0"  
   
 #ifdef EEL_LICE_LOADTHEMECURSOR
-  "gfx_setcursor\tresource_id,custom_cursor_name\tSets the mouse cursor. resource_id is a value like 32512 (for an arrow cursor), custom_cursor_name is a string description (such as \"arrow\") that will be override the resource_id, if available. In either case resource_id should be nonzero.\0"
+  "gfx_setcursor\tresource_id,custom_cursor_name\tSets the mouse cursor to resource_id and/or custom_cursor_name. \0" // REAPER has extended help elsewhere
 #else
   "gfx_setcursor\tresource_id\tSets the mouse cursor. resource_id is a value like 32512 (for an arrow cursor).\0"
 #endif

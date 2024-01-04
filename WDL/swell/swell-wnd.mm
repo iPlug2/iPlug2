@@ -1520,6 +1520,7 @@ LONG_PTR SetWindowLong(HWND hwnd, int idx, LONG_PTR val)
   
   if ([pid respondsToSelector:@selector(setSwellExtraData:value:)])
   {
+    WDL_ASSERT(idx>=0); // caller may be using a GWLP_* which is not yet implemented
     LONG_PTR ov=0;
     if ([pid respondsToSelector:@selector(getSwellExtraData:)]) ov=(LONG_PTR)[pid getSwellExtraData:idx];
 
@@ -1528,6 +1529,7 @@ LONG_PTR SetWindowLong(HWND hwnd, int idx, LONG_PTR val)
     return ov;
   }
    
+  WDL_ASSERT(false); // caller may be using a GWLP_* which is not yet implemented, or an extra index on a non-hwndchild
   SWELL_END_TRY(;)
   return 0;
 }
@@ -1570,10 +1572,14 @@ LONG_PTR GetWindowLong(HWND hwnd, int idx)
   {
     return (LONG_PTR)[pid getSwellWindowProc];
   }
-  if (idx==DWL_DLGPROC && [pid respondsToSelector:@selector(getSwellDialogProc)])
+  if (idx==DWL_DLGPROC)
   {
-    return (LONG_PTR)[pid getSwellDialogProc];
-  }  
+    if ([pid respondsToSelector:@selector(getSwellDialogProc)])
+    {
+      return (LONG_PTR)[pid getSwellDialogProc];
+    }
+    return 0; // do not assert if GetWindowLongPtr DWLP_DLGPROC, used to query if something is a particular dialog
+  }
   if (idx==GWL_STYLE)
   {
     int ret=0;
@@ -1625,9 +1631,11 @@ LONG_PTR GetWindowLong(HWND hwnd, int idx)
 
   if ([pid respondsToSelector:@selector(getSwellExtraData:)])
   {
+    WDL_ASSERT(idx>=0); // caller may be using a GWLP_* which is not yet implemented
     return (LONG_PTR)[pid getSwellExtraData:idx];
   }
   
+  WDL_ASSERT(false); // caller may be using a GWLP_* which is not yet implemented, or an extra index on a non-hwndchild
   SWELL_END_TRY(;)
   return 0;
 }
@@ -4521,6 +4529,47 @@ void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
   SWELL_END_TRY(;)
 }
 
+void ListView_GetColumn(HWND h, int pos, LVCOLUMN *lvc)
+{
+  if (WDL_NOT_NORMALLY(!h || !lvc || ![(id)h isKindOfClass:[SWELL_ListView class]])) return;
+  SWELL_ListView *v=(SWELL_ListView *)h;
+  if (!v->m_cols || pos < 0 || pos >= v->m_cols->GetSize()) return;
+
+  NSTableColumn *col=v->m_cols->Get(pos);
+  if (!col) return;
+
+  if (lvc->mask&LVCF_FMT)
+  {
+    NSTextAlignment align = [[col headerCell] alignment];
+
+    if (align == NSCenterTextAlignment) lvc->fmt = LVCFMT_CENTER;
+    else if (align == NSRightTextAlignment) lvc->fmt = LVCFMT_RIGHT;
+    else lvc->fmt = LVCFMT_LEFT;
+  }
+  if (lvc->mask&LVCF_WIDTH)
+  {
+    if ([col respondsToSelector:@selector(isHidden)] && [(SWELL_TableColumnExtensions*)col isHidden])
+    {
+      lvc->cx=0;
+    }
+    else
+    {
+      lvc->cx = [col width];
+    }
+  }
+  if (lvc->mask&LVCF_TEXT)
+  {
+    if (!v->m_lbMode && !(v->style&LVS_NOCOLUMNHEADER))
+    {
+      if (WDL_NORMALLY(lvc->cchTextMax>0 && lvc->pszText))
+      {
+        NSString *lbl = [[col headerCell] stringValue];
+        SWELL_CFStringToCString(lbl,lvc->pszText,lvc->cchTextMax);
+      }
+    }
+  }
+}
+
 void ListView_SetColumn(HWND h, int pos, const LVCOLUMN *lvc)
 {
   if (WDL_NOT_NORMALLY(!h || !lvc || ![(id)h isKindOfClass:[SWELL_ListView class]])) return;
@@ -4775,6 +4824,8 @@ bool ListView_GetItem(HWND h, LVITEM *item)
       nm.item.pszText = item->pszText;
       nm.item.cchTextMax = item->cchTextMax;
       SendMessage(GetParent(h),WM_NOTIFY,nm.hdr.idFrom,(LPARAM)&nm);
+      if ((mask & LVIF_TEXT) && nm.item.pszText != item->pszText)
+        lstrcpyn_safe(item->pszText, nm.item.pszText ? nm.item.pszText : "", item->cchTextMax);
       if (mask & LVIF_PARAM) item->lParam = nm.item.lParam;
     }
   }
@@ -5195,7 +5246,7 @@ int ListView_HitTest(HWND h, LVHITTESTINFO *pinf)
     }
     else 
     {
-      pinf->flags=LVHT_NOWHERE;
+      pinf->flags = y < 10 && ListView_GetItemCount(h)>0 ? LVHT_ABOVE : LVHT_NOWHERE;
     }
   }
   
@@ -6873,8 +6924,20 @@ void SWELL_DrawFocusRect(HWND hwndPar, RECT *rct, void **handle)
 @implementation SWELL_PopUpButton
 STANDARD_CONTROL_NEEDSDISPLAY_IMPL("combobox")
 
+
+-(id) init {
+  self = [super init];
+  if (self != nil) {
+    m_userdata=0;
+    m_style=0;
+  }
+  return self;
+}
+
 -(void)setSwellStyle:(LONG)style { m_style=style; }
 -(LONG)getSwellStyle { return m_style; }
+-(LONG_PTR)getSwellUserData { return m_userdata; }
+-(void)setSwellUserData:(LONG_PTR)val {   m_userdata=val; }
 @end
 
 @implementation SWELL_ComboBox
@@ -6889,6 +6952,8 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("combobox")
     m_ids=new WDL_PtrList<char>;
     m_ignore_selchg = -1;
     m_disable_menu = false;
+    m_userdata=0;
+    m_style=0;
   }
   return self;
 }
@@ -6912,6 +6977,8 @@ STANDARD_CONTROL_NEEDSDISPLAY_IMPL("combobox")
 {
   m_disable_menu=dis;
 }
+-(LONG_PTR)getSwellUserData { return m_userdata; }
+-(void)setSwellUserData:(LONG_PTR)val {   m_userdata=val; }
 
 @end
 

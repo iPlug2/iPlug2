@@ -327,6 +327,7 @@ class WDL_VirtualListBox : public WDL_VWnd
 
     void SetFont(LICE_IFont *font, int lsadj=-1000) { m_font=font; m_lsadj=lsadj; }
     LICE_IFont *GetFont() { return m_font; }
+    int GetLineSpacingAdjust() const { return m_lsadj; }
     void SetAlign(int align) { m_align=align; } // -1=left,0=center,1=right
     void SetRowHeight(int rh) { m_rh=rh; }
     void SetMaxColWidth(int cw) { m_maxcolwidth=cw; } // 0 = default = allow any sized columns
