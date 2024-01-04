@@ -189,7 +189,7 @@ void IGraphicsWin::DestroyEditWindow()
 {
  if (mParamEditWnd)
  {
-   SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LPARAM) mDefEditProc);
+   SetWindowLongPtrW(mParamEditWnd, GWLP_WNDPROC, (LPARAM) mDefEditProc);
    DestroyWindow(mParamEditWnd);
    mParamEditWnd = nullptr;
    mDefEditProc = nullptr;
@@ -307,7 +307,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
   if (msg == WM_CREATE)
   {
     LPCREATESTRUCT lpcs = (LPCREATESTRUCT)lParam;
-    SetWindowLongPtr(hWnd, GWLP_USERDATA, (LPARAM) lpcs->lpCreateParams);
+    SetWindowLongPtrW(hWnd, GWLP_USERDATA, (LPARAM) lpcs->lpCreateParams);
     IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtrW(hWnd, GWLP_USERDATA);
 
     if (pGraphics->mVSYNCEnabled) // use VBLANK thread
@@ -1550,8 +1550,8 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
 
   SetFocus(mParamEditWnd);
 
-  mDefEditProc = (WNDPROC) SetWindowLongPtr(mParamEditWnd, GWLP_WNDPROC, (LONG_PTR) ParamEditProc);
-  SetWindowLongPtr(mParamEditWnd, GWLP_USERDATA, 0xdeadf00b);
+  mDefEditProc = (WNDPROC) SetWindowLongPtrW(mParamEditWnd, GWLP_WNDPROC, (LONG_PTR) ParamEditProc);
+  SetWindowLongPtrW(mParamEditWnd, GWLP_USERDATA, 0xdeadf00b);
 }
 
 bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
