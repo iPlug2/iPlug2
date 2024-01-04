@@ -814,7 +814,7 @@ LRESULT CALLBACK IGraphicsWin::ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam,
         // find out if the original control wants it
         lres = CallWindowProcW(pGraphics->mDefEditProc, hWnd, WM_GETDLGCODE, wParam, lParam);
         // add in that we want it if it is a return keydown
-        if (lParam && ((MSG*)lParam)->message == WM_KEYDOWN  &&  wParam == VK_RETURN)
+        if (lParam && ((MSG*)lParam)->message == WM_KEYDOWN && wParam == VK_RETURN)
         {
           lres |= DLGC_WANTMESSAGE;
         }
@@ -1507,7 +1507,7 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
 
   DWORD editStyle;
 
-  switch ( text.mAlign )
+  switch (text.mAlign)
   {
     case EAlign::Near:    editStyle = ES_LEFT;   break;
     case EAlign::Far:     editStyle = ES_RIGHT;  break;
