@@ -318,7 +318,7 @@ public:
    * @param w the incoming width value to test/set if clipping needed
    * @param h the incoming height value to test/set if clipping needed
    * @return \c true if the parameters fell withing the permitted range */
-  bool ConstrainEditorResize(int& w, int& h) const
+  virtual bool ConstrainEditorResize(int& w, int& h) const
   {
     if(w >= mMinWidth && w <= mMaxWidth && h >= mMinHeight && h <= mMaxHeight)
     {
