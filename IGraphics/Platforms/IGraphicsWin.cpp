@@ -1843,8 +1843,8 @@ void IGraphicsWin::HideTooltip()
 
 bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
 {
-  int numChars = 0;
-  
+  bool result = false;
+
   if (IsClipboardFormatAvailable(CF_UNICODETEXT))
   {
     if (OpenClipboard(0))
@@ -1859,6 +1859,7 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
         {
           UTF16ToUTF8(str, origStr);
           GlobalUnlock(hglb);
+          result = true;
         }
       }
     }
@@ -1866,10 +1867,10 @@ bool IGraphicsWin::GetTextFromClipboard(WDL_String& str)
     CloseClipboard();
   }
   
-  if (!numChars)
+  if (!result)
     str.Set("");
   
-  return numChars;
+  return result;
 }
 
 bool IGraphicsWin::SetTextInClipboard(const char* str)
