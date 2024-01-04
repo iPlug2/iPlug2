@@ -1328,8 +1328,7 @@ void DumpMetadata(WDL_FastString *str, WDL_StringKeyedArray<char*> *metadata)
     }
   }
 
-  int i;
-  for (i=0; i < metadata->GetSize(); ++i)
+  for (int i=0; i < metadata->GetSize(); ++i)
   {
     const char *key;
     const char *val=metadata->Enumerate(i, &key);
@@ -1351,7 +1350,7 @@ void DumpMetadata(WDL_FastString *str, WDL_StringKeyedArray<char*> *metadata)
   }
 
   int unk_cnt=0;
-  for (i=0; i < metadata->GetSize(); ++i)
+  for (int i=0; i < metadata->GetSize(); ++i)
   {
     const char *key;
     const char *val=metadata->Enumerate(i, &key);
