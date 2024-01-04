@@ -1905,7 +1905,7 @@ bool IGraphicsWin::SetTextInClipboard(const char* str)
       GlobalUnlock(hglbCopy);
 
       // place the handle on the clipboard
-      result = !SetClipboardData(CF_UNICODETEXT, hglbCopy);
+      result = SetClipboardData(CF_UNICODETEXT, hglbCopy);
 
       // free the handle if unsuccessful
       if (!result)
