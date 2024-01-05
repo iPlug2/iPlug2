@@ -43,22 +43,13 @@ BEGIN_IPLUG_NAMESPACE
   #elif defined OS_WIN
     static void DBGMSG(const char* format, ...)
     {
-      char buf[4096], * p = buf;
+      char buf[4096];
       va_list args;
-      int     n;
+      int n;
 
       va_start(args, format);
-      n = _vsnprintf(p, sizeof buf - 3, format, args); // buf-3 is room for CR/LF/NUL
+      n = vsnprintf_s(buf, sizeof buf, sizeof buf - 1, format, args);
       va_end(args);
-
-      p += (n < 0) ? sizeof buf - 3 : n;
-
-      while (p > buf&& isspace(p[-1]))
-        *--p = '\0';
-
-      *p++ = '\r';
-      *p++ = '\n';
-      *p = '\0';
 
       OutputDebugStringW(UTF8AsUTF16(buf).Get());
     }
