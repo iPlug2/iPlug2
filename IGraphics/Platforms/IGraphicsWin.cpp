@@ -306,7 +306,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 {
   if (msg == WM_CREATE)
   {
-    LPCREATESTRUCT lpcs = (LPCREATESTRUCT)lParam;
+    CREATESTRUCTW* lpcs = (CREATESTRUCTW *) lParam;
     SetWindowLongPtrW(hWnd, GWLP_USERDATA, (LPARAM) lpcs->lpCreateParams);
     IGraphicsWin* pGraphics = (IGraphicsWin*) GetWindowLongPtrW(hWnd, GWLP_USERDATA);
 
