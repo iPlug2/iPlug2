@@ -85,7 +85,6 @@ public:
 
   bool PlatformSupportsMultiTouch() const override;
 
-  
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static LRESULT CALLBACK ParamEditProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
   static BOOL CALLBACK FindMainWindow(HWND hWnd, LPARAM lParam);
@@ -147,6 +146,7 @@ private:
   void StartVBlankThread(HWND hWnd);
   void StopVBlankThread();
   void VBlankNotify();
+    
   HWND mVBlankWindow = 0; // Window to post messages to for every vsync
   volatile bool mVBlankShutdown = false; // Flag to indiciate that the vsync thread should shutdown
   HANDLE mVBlankThread = INVALID_HANDLE_VALUE; //ID of thread.
