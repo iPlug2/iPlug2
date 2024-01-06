@@ -70,8 +70,6 @@ public:
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
   void* GetWindow() override { return mPlugWnd; }
-  HWND GetMainWnd();
-  IRECT GetWindowRECT();
 
   const char* GetPlatformAPIStr() override { return "win32"; };
 
@@ -94,6 +92,9 @@ protected:
   void SetTooltip(const char* tooltip);
   void ShowTooltip();
   void HideTooltip();
+    
+  HWND GetMainWnd();
+  IRECT GetWindowRECT();
 
 private:
 
