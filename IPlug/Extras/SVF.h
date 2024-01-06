@@ -55,7 +55,7 @@ public:
 
     const double g = freqCPS;
     const double k = 1.0 / Q;
-    const double A = std::pow(10., gain / 40.);
+//    const double A = std::pow(10., gain / 40.);
 
     static double minLogHz = std::log10(minHz);
     static double maxLogHz = std::log10(maxHz);
