@@ -1196,11 +1196,9 @@ void* IGraphicsWin::OpenWindow(void* pParent)
       if (mTooltipWnd)
       {
         SetWindowPos(mTooltipWnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-        TOOLINFOW ti = { TTTOOLINFOA_V2_SIZE, TTF_IDISHWND | TTF_SUBCLASS, mPlugWnd, (UINT_PTR)mPlugWnd };
-        ti.lpszText = NULL;
-        SendMessageW(mTooltipWnd, TTM_ADDTOOL, 0, (LPARAM) &ti);
+        TOOLINFOW ti = { TTTOOLINFOW_V2_SIZE, TTF_IDISHWND | TTF_SUBCLASS, mPlugWnd, (UINT_PTR) mPlugWnd, {0, 0, 0, 0}, NULL, NULL, 0, NULL };
+        SendMessageW(mTooltipWnd, TTM_ADDTOOLW, 0, (LPARAM) &ti);
         SendMessageW(mTooltipWnd, TTM_SETMAXTIPWIDTH, 0, TOOLTIPWND_MAXWIDTH);
-        ok = true;
       }
     }
 
@@ -1808,9 +1806,9 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
 void IGraphicsWin::SetTooltip(const char* tooltip)
 {
   UTF8AsUTF16 utf16Tip(tooltip);
-  TOOLINFOW ti = { TTTOOLINFOA_V2_SIZE, 0, mPlugWnd, (UINT_PTR) mPlugWnd };
+  TOOLINFOW ti = { TTTOOLINFOW_V2_SIZE, 0, mPlugWnd, (UINT_PTR) mPlugWnd, {0, 0, 0, 0}, NULL, NULL, 0, NULL };
   ti.lpszText = const_cast<wchar_t*>(utf16Tip.Get());
-  SendMessageW(mTooltipWnd, TTM_UPDATETIPTEXT, 0, (LPARAM) &ti);
+  SendMessageW(mTooltipWnd, TTM_UPDATETIPTEXTW, 0, (LPARAM) &ti);
 }
 
 void IGraphicsWin::ShowTooltip()
