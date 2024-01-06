@@ -1921,7 +1921,7 @@ bool IGraphicsWin::SetFilePathInClipboard(const char* path)
 
   // N.B. GHND ensures that the memory is zeroed
 
-  HGLOBAL hGlobal = GlobalAlloc(GHND, sizeof(DROPFILES) + pathWide.GetLength() + 1);
+  HGLOBAL hGlobal = GlobalAlloc(GHND, sizeof(DROPFILES) + (sizeof(wchar_t) * (pathWide.GetLength() + 1)));
 
   if (!hGlobal)
     return false;
@@ -1938,7 +1938,7 @@ bool IGraphicsWin::SetFilePathInClipboard(const char* path)
     pDropFiles->fNC = true;
     pDropFiles->fWide = true;
 
-    memcpy(&pDropFiles[1], pathWide.Get(), pathWide.GetLength());
+    std::copy_n(pathWide.Get(), pathWide.GetLength(), reinterpret_cast<wchar_t*>(&pDropFiles[1]));
 
     GlobalUnlock(hGlobal);
 
