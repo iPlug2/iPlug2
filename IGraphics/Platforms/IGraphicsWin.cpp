@@ -1926,7 +1926,9 @@ bool IGraphicsWin::SetFilePathInClipboard(const char* path)
 
   UTF8AsUTF16 pathWide(path);
 
-  HGLOBAL hGlobal = GlobalAlloc(GHND, sizeof(DROPFILES) + pathWide.GetLength());
+  // N.B. GHND ensures that the memory is zeroed
+
+  HGLOBAL hGlobal = GlobalAlloc(GHND, sizeof(DROPFILES) + pathWide.GetLength() + 1);
 
   if (!hGlobal)
     return false;
@@ -1943,11 +1945,11 @@ bool IGraphicsWin::SetFilePathInClipboard(const char* path)
     pDropFiles->fNC = true;
     pDropFiles->fWide = true;
 
-    memcpy(pDropFiles + 1, pathWide.Get(), pathWide.GetLength());
+    memcpy(&pDropFiles[1], pathWide.Get(), pathWide.GetLength());
 
     GlobalUnlock(hGlobal);
 
-    result = !SetClipboardData(CF_HDROP, hGlobal);
+    result = SetClipboardData(CF_HDROP, hGlobal);
   }
 
   // free the handle if unsuccessful
