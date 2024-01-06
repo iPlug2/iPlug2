@@ -325,10 +325,10 @@ static void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
 {
   int requiredSize = UTF8ToUTF16Len(utf8Str);
 
-  if (requiredSize > 0 && requiredSize <= maxLen)
+  if (requiredSize <= maxLen)
   {
-    MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize);
-    return;
+    if (MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize))
+      return;
   }
 
   utf16Str[0] = '\0';
