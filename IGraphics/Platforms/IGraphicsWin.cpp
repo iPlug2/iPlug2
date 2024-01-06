@@ -1618,22 +1618,22 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     wchar_t extStr[256];
     wchar_t defExtStr[16];
     int i, p, n = strlen(ext);
-    bool seperator = true;
+    bool separator = true;
         
     for (i = 0, p = 0; i < n; ++i)
     {
-      if (seperator)
+      if (separator)
       {
         if (p)
           extStr[p++] = ';';
                 
-        seperator = false;
+        separator = false;
         extStr[p++] = '*';
         extStr[p++] = '.';
       }
 
       if (ext[i] == ' ')
-        seperator = true;
+        separator = true;
       else
         extStr[p++] = ext[i];
     }
