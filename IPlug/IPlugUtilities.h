@@ -318,7 +318,7 @@ static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = fa
 
 static int UTF8ToUTF16Len(const char* utf8Str)
 {
-  return MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
+  return std::max(MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0), 1);
 }
 
 static void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
