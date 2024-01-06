@@ -1187,7 +1187,6 @@ void* IGraphicsWin::OpenWindow(void* pParent)
 
   if (mPlugWnd && TooltipsEnabled())
   {
-    bool ok = false;
     static const INITCOMMONCONTROLSEX iccex = { sizeof(INITCOMMONCONTROLSEX), ICC_TAB_CLASSES };
 
     if (InitCommonControlsEx(&iccex))
@@ -1205,8 +1204,8 @@ void* IGraphicsWin::OpenWindow(void* pParent)
       }
     }
 
-    if (!ok)
-      EnableTooltips(ok);
+    if (!mTooltipWnd)
+      EnableTooltips(false);
 
 #ifdef IGRAPHICS_GL
     wglMakeCurrent(NULL, NULL);
