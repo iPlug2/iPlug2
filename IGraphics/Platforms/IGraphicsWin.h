@@ -70,12 +70,8 @@ public:
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
 
   void* GetWindow() override { return mPlugWnd; }
-  HWND GetParentWindow() const { return mParentWnd; }
   HWND GetMainWnd();
-  void SetMainWndClassName(const char* name) { mMainWndClassName.Set(name); }
-//  void GetMainWndClassName(char* name) { strcpy(name, mMainWndClassName.Get()); }
   IRECT GetWindowRECT();
-  void SetWindowTitle(const char* str);
 
   const char* GetPlatformAPIStr() override { return "win32"; };
 

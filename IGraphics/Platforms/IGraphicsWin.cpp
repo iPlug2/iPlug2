@@ -1279,11 +1279,6 @@ IRECT IGraphicsWin::GetWindowRECT()
   return IRECT();
 }
 
-void IGraphicsWin::SetWindowTitle(const char* str)
-{
-  SetWindowTextW(mPlugWnd, UTF8AsUTF16(str).Get());
-}
-
 void IGraphicsWin::CloseWindow()
 {
   if (mPlugWnd)
