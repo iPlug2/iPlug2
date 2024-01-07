@@ -157,6 +157,7 @@ static BOOL CALLBACK EnumResNameProc(HMODULE module, LPCWSTR type, LPWSTR name, 
 
       if (strcmp(searchName.Get(), strippedName.Get()) == 0) // if we are looking for a resource with this name
       {
+        UTF16ToUTF8(search->mName, name);
         search->mFound = true;
         return false;
       }
@@ -184,7 +185,7 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 
     if (search.mFound)
     {
-      result.SetFormatted(MAX_PATH, "\"%s\"", search.mName.Get());
+      result.Set(search.mName.Get());
       return EResourceLocation::kWinBinary;
     }
     else
