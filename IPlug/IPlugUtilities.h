@@ -364,6 +364,18 @@ public:
   const wchar_t* Get() const { return mUTF16Str.Get(); }
   int GetLength() const { return mUTF16Str.GetSize(); }
 
+  UTF8AsUTF16& ToUpperCase()
+  {
+    _wcsupr(mUTF16Str.Get());
+    return *this;
+  }
+
+  UTF8AsUTF16& ToLowerCase()
+  {
+    _wcslwr(mUTF16Str.Get());
+    return *this;
+  }
+
 private:
 
   WDL_TypedBuf<wchar_t> mUTF16Str;
