@@ -357,7 +357,7 @@ public:
     UTF8ToUTF16(mUTF16Str.Get(), utf8Str, mUTF16Str.GetSize());
   }
 
-  UTF8AsUTF16(WDL_String utf8Str) : UTF8AsUTF16(utf8Str.Get())
+  UTF8AsUTF16(const WDL_String& utf8Str) : UTF8AsUTF16(utf8Str.Get())
   {
   }
 
