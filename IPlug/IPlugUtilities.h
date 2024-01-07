@@ -321,26 +321,26 @@ static int UTF8ToUTF16Len(const char* utf8Str)
   return std::max(MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0), 1);
 }
 
-static void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
+static void UTF8ToUTF16(wchar_t* wideStr, const char* utf8Str, int maxLen)
 {
   int requiredSize = UTF8ToUTF16Len(utf8Str);
 
   if (requiredSize <= maxLen)
   {
-    if (MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize))
+    if (MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, wideStr, requiredSize))
       return;
   }
 
-  utf16Str[0] = '\0';
+  wideStr[0] = '\0';
 }
 
-static void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
+static void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* wideStr)
 {
-  int requiredSize = WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, NULL, 0, NULL, NULL);
+  int requiredSize = WideCharToMultiByte(CP_UTF8, 0, wideStr, -1, NULL, 0, NULL, NULL);
 
   if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
   {
-    WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, utf8Str.Get(), requiredSize, NULL, NULL);
+    WideCharToMultiByte(CP_UTF8, 0, wideStr, -1, utf8Str.Get(), requiredSize, NULL, NULL);
     return;
   }
 
@@ -385,9 +385,9 @@ class UTF16AsUTF8
 {
 public:
 
-  UTF16AsUTF8(const wchar_t* utf16Str)
+  UTF16AsUTF8(const wchar_t* wideStr)
   {
-    UTF16ToUTF8(mUTF8Str, utf16Str);
+    UTF16ToUTF8(mUTF8Str, wideStr);
   }
 
   const char* Get() const { return mUTF8Str.Get(); }

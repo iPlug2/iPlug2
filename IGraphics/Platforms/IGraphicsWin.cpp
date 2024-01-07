@@ -1805,9 +1805,9 @@ bool IGraphicsWin::OpenURL(const char* url, const char* msgWindowTitle, const ch
 
 void IGraphicsWin::SetTooltip(const char* tooltip)
 {
-  UTF8AsUTF16 utf16Tip(tooltip);
+  UTF8AsUTF16 tipWide(tooltip);
   TOOLINFOW ti = { TTTOOLINFOW_V2_SIZE, 0, mPlugWnd, (UINT_PTR) mPlugWnd, {0, 0, 0, 0}, NULL, NULL, 0, NULL };
-  ti.lpszText = const_cast<wchar_t*>(utf16Tip.Get());
+  ti.lpszText = const_cast<wchar_t*>(tipWide.Get());
   SendMessageW(mTooltipWnd, TTM_UPDATETIPTEXTW, 0, (LPARAM) &ti);
 }
 
