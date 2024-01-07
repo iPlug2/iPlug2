@@ -2548,7 +2548,7 @@ struct IVStyle
   IVStyle WithValueText(const IText& text) const { IVStyle newStyle = *this; newStyle.valueText = text; return newStyle; }
   IVStyle WithHideCursor(bool hide = true) const { IVStyle newStyle = *this; newStyle.hideCursor = hide; return newStyle; }
   IVStyle WithColor(EVColor idx, IColor color) const { IVStyle newStyle = *this; newStyle.colorSpec.mColors[idx] = color; return newStyle; }
-  IVStyle WithColors(IVColorSpec spec) const { IVStyle newStyle = *this; newStyle.colorSpec = spec; return newStyle; }
+  IVStyle WithColors(const IVColorSpec& spec) const { IVStyle newStyle = *this; newStyle.colorSpec = spec; return newStyle; }
   IVStyle WithRoundness(float v) const { IVStyle newStyle = *this; newStyle.roundness = Clip(v, 0.f, 1.f); return newStyle; }
   IVStyle WithFrameThickness(float v) const { IVStyle newStyle = *this; newStyle.frameThickness = v; return newStyle; }
   IVStyle WithShadowOffset(float v) const { IVStyle newStyle = *this; newStyle.shadowOffset = v; return newStyle; }
