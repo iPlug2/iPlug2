@@ -485,7 +485,7 @@ void IGraphics::DisableControl(int paramIdx, bool disable)
   ForMatchingControls(&IControl::SetDisabled, paramIdx, disable);
 }
 
-void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl* pControl)> func)
+void IGraphics::ForControlWithParam(int paramIdx, IControlFunction func)
 {
   for (auto c = 0; c < NControls(); c++)
   {
@@ -514,13 +514,13 @@ void IGraphics::ForControlInGroup(const char* group, std::function<void(IControl
   }
 }
 
-void IGraphics::ForStandardControlsFunc(std::function<void(IControl* pControl)> func)
+void IGraphics::ForStandardControlsFunc(IControlFunction func)
 {
   for (auto c = 0; c < NControls(); c++)
     func(GetControl(c));
 }
 
-void IGraphics::ForAllControlsFunc(std::function<void(IControl* pControl)> func)
+void IGraphics::ForAllControlsFunc(IControlFunction func)
 {
   ForStandardControlsFunc(func);
   

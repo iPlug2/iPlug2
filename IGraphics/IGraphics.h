@@ -1233,7 +1233,7 @@ private:
 public:
   /** For all controls, including the "special controls" call a method
    * @param func A std::function to perform on each control */
-  void ForAllControlsFunc(std::function<void(IControl* pControl)> func);
+  void ForAllControlsFunc(IControlFunction func);
   
   /** For all controls, including the "special controls" call a method
    * @param method The method to call
@@ -1243,7 +1243,7 @@ public:
   
   /** For all standard controls in the main control stack perform a function
    * @param func A std::function to perform on each control */
-  void ForStandardControlsFunc(std::function<void(IControl* pControl)> func);
+  void ForStandardControlsFunc(IControlFunction func);
   
   /** For all standard controls in the main control stack that are linked to a specific parameter, call a method
    * @param method The method to call
@@ -1255,12 +1255,12 @@ public:
   /** For all standard controls in the main control stack that are linked to a specific parameter, execute a function
    * @param paramIdx The parameter index to match
    * @param func A std::function to perform on each control */
-  void ForControlWithParam(int paramIdx, std::function<void(IControl* pControl)> func);
+  void ForControlWithParam(int paramIdx, IControlFunction func);
   
   /** For all standard controls in the main control stack that are linked to a group, execute a function
    * @param group CString specificying the goupd name
    * @param func A std::function to perform on each control */
-  void ForControlInGroup(const char* group, std::function<void(IControl* pControl)> func);
+  void ForControlInGroup(const char* group, IControlFunction func);
   
   /** Attach an IBitmapControl as the lowest IControl in the control stack to be the background for the graphics context
    * @param fileName CString fileName resource id for the bitmap image */
