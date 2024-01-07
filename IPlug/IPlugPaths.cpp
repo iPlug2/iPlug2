@@ -181,7 +181,7 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 
     HMODULE hInstance = static_cast<HMODULE>(pHInstance);
 
-    EnumResourceNamesW(hInstance, typeUpper.Get(), EnumResNameProc, (LONG_PTR)&search);
+    EnumResourceNamesW(hInstance, typeUpper.Get(), EnumResNameProc, (LONG_PTR) &search);
 
     if (search.mFound)
     {
