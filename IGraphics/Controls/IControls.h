@@ -426,12 +426,28 @@ protected:
 };
 
 /** A control to draw a rectangle around a named IControl group */
-class IVGroupControl : public IControl
+class IVGroupControl : public IContainerBase
                      , public IVectorBase
 {
 public:
-  IVGroupControl(const IRECT& bounds, const char* label = "", float labelOffset = 10.f, const IVStyle& style = DEFAULT_STYLE);
+  /** Construct the group control
+   * @param bounds The control's bounds
+   * @param label The label for the vector control, leave empty for no label
+   * @param labelOffset The offset of the label from the top left corner
+   * @param style The styling of this vector control \see IVStyle
+   * @param attachFunc A function to execute when the group control is attached
+   * @param resizeFunc A function to execute when the group control is resized */
+  IVGroupControl(const IRECT& bounds, const char* label = "", float labelOffset = 10.f, const IVStyle& style = DEFAULT_STYLE, IContainerBase::AttachFunc attachFunc = nullptr, IContainerBase::ResizeFunc resizeFunc = nullptr);
   
+  /** Construct the group control, with its bounds based on an IControl group
+   * Note: the group control needs to be attached after the group members
+   * @param label The label for the vector control, leave empty for no label
+   * @param groupName The name of the group to base the bounds on
+   * @param padL The left padding
+   * @param padT The top padding
+   * @param padR The right padding
+   * @param padB The bottom padding
+   * @param style The styling of this vector control \see IVStyle */
   IVGroupControl(const char* label, const char* groupName, float padL = 0.f, float padT = 0.f, float padR = 0.f, float padB = 0.f, const IVStyle& style = DEFAULT_STYLE);
   
   void Draw(IGraphics& g) override;
@@ -439,6 +455,12 @@ public:
   void OnResize() override;
   void OnInit() override;
   
+  /** Set the bounds of the group control based on the area occupied by the controls in a particular group 
+   * @param groupName The name of the group to base the bounds on
+   * @param padL The left padding
+   * @param padT The top padding
+   * @param padR The right padding
+   * @param padB The bottom padding */
   void SetBoundsBasedOnGroup(const char* groupName, float padL, float padT, float padR, float padB);
 protected:
   WDL_String mGroupName;

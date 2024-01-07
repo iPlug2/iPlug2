@@ -1198,8 +1198,8 @@ void IVPlotControl::AddPlotFunc(const IColor& color, const IPlotFunc& func)
   SetDirty(false);
 }
 
-IVGroupControl::IVGroupControl(const IRECT& bounds, const char* label, float labelOffset, const IVStyle& style)
-: IControl(bounds)
+IVGroupControl::IVGroupControl(const IRECT& bounds, const char* label, float labelOffset, const IVStyle& style, IContainerBase::AttachFunc attachFunc, IContainerBase::ResizeFunc resizeFunc)
+: IContainerBase(bounds, attachFunc, resizeFunc)
 , IVectorBase(style)
 , mLabelOffset(labelOffset)
 {
@@ -1208,7 +1208,7 @@ IVGroupControl::IVGroupControl(const IRECT& bounds, const char* label, float lab
 }
 
 IVGroupControl::IVGroupControl(const char* label, const char* groupName, float padL, float padT, float padR, float padB, const IVStyle& style)
-: IControl(IRECT())
+: IContainerBase(IRECT())
 , IVectorBase(style)
 , mGroupName(groupName)
 , mPadL(padL)
