@@ -399,6 +399,23 @@ private:
 };
 #endif
 
+
+#if defined OS_WIN
+
+static FILE* fopenUTF8(const char* path, const char* mode)
+{
+  return _wfopen(UTF8AsUTF16(path).Get(), UTF8AsUTF16(mode).Get());
+}
+
+#else
+
+static FILE* fopenUTF8(const char* path, const char* mode)
+{
+  return fopen(path, mode);
+}
+
+#endif
+
 END_IPLUG_NAMESPACE
 
 /**@}*/

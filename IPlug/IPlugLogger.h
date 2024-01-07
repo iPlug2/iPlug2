@@ -87,7 +87,7 @@ BEGIN_IPLUG_NAMESPACE
       char logFilePath[MAX_MACOS_PATH_LEN];
       snprintf(logFilePath, MAX_MACOS_PATH_LEN, "%s/%s", getenv("HOME"), LOGFILE);
   #endif
-      mFP = fopen(logFilePath, "w");
+      mFP = fopenUTF8(logFilePath, "w");
       assert(mFP);
       
       DBGMSG("Logging to %s\n", logFilePath);
