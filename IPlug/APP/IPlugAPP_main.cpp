@@ -112,7 +112,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       
       do
       {
-        if (GetClassLongW(temphwnd, GCW_ATOM) == (INT)32770)
+        if (GetClassLongW(temphwnd, GCW_ATOM) == (INT) 32770)
         {
           hWndParent = temphwnd;
           if (!(GetWindowLongW(temphwnd, GWL_STYLE) & WS_CHILD))
@@ -121,7 +121,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
       }
       while (temphwnd = GetParent(temphwnd));
       
-      if (hWndParent && IsDialogMessageW(hWndParent,&msg))
+      if (hWndParent && IsDialogMessageW(hWndParent, &msg))
         continue;
 
       TranslateMessage(&msg);
