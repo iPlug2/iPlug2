@@ -1258,7 +1258,7 @@ public:
   void ForControlWithParam(int paramIdx, IControlFunction func);
   
   /** For all standard controls in the main control stack that are linked to a group, execute a function
-   * @param group CString specificying the goupd name
+   * @param group CString specifying the group name
    * @param func A std::function to perform on each control */
   void ForControlInGroup(const char* group, IControlFunction func);
   
