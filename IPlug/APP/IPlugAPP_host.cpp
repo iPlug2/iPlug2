@@ -95,15 +95,15 @@ bool IPlugAPPHost::InitState()
   #error NOT IMPLEMENTED
 #endif
 
-  struct stat st;
+  StatType st;
 
-  if(stat(mINIPath.Get(), &st) == 0) // if directory exists
+  if(statUTF8(mINIPath.Get(), &st) == 0) // if directory exists
   {
     mINIPath.Append("settings.ini"); // add file name to path
 
     char buf[STRBUFSZ];
     
-    if(stat(mINIPath.Get(), &st) == 0) // if settings file exists read values into state
+    if(statUTF8(mINIPath.Get(), &st) == 0) // if settings file exists read values into state
     {
       DBGMSG("Reading ini file from %s\n", mINIPath.Get());
       
