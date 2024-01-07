@@ -128,8 +128,8 @@ void WebViewCachePath(WDL_String& path)
 struct WinResourceSearch
 {
   WinResourceSearch(const char* name)
-  : mName(name)
   {
+    UTF16ToUTF8(mName, UTF8AsUTF16(name).ToLowerCase().Get());
   }
 
   WDL_String mName;
@@ -152,9 +152,8 @@ static BOOL CALLBACK EnumResNameProc(HMODULE module, LPCWSTR type, LPWSTR name, 
       WDL_String strippedName((UTF16AsUTF8(name).Get() + 1));
       strippedName.SetLen(strippedName.GetLength() - 1);
 
-      // convert both to lower case
-      _strlwr(strippedName.Get());
-      _strlwr(searchName.Get());
+      // convert the stripped name to lower case (the search is already lower case)
+      UTF16ToUTF8(strippedName, UTF8AsUTF16(strippedName).ToLowerCase().Get());
 
       if (strcmp(searchName.Get(), strippedName.Get()) == 0) // if we are looking for a resource with this name
       {
@@ -169,10 +168,7 @@ static BOOL CALLBACK EnumResNameProc(HMODULE module, LPCWSTR type, LPWSTR name, 
 
 static UTF8AsUTF16 TypeToUpper(const char* type)
 {
-  WDL_String typeUpper(type);
-  _strupr(typeUpper.Get());
-
-  return type;
+  return UTF8AsUTF16(type).ToUpperCase();
 }
 
 EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance, const char*)
