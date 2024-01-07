@@ -499,7 +499,24 @@ void IGraphics::ForControlWithParam(int paramIdx, IControlFunction func)
   }
 }
 
-void IGraphics::ForControlInGroup(const char* group, std::function<void(IControl* pControl)> func)
+void IGraphics::ForControlWithParam(const std::initializer_list<int>& params, IControlFunction func)
+{
+  for (auto c = 0; c < NControls(); c++)
+  {
+    IControl* pControl = GetControl(c);
+
+    for (auto param : params)
+    {
+      if (pControl->LinkedToParam(param) > kNoValIdx)
+      {
+        func(pControl);
+        // Could be more than one, don't break until we check them all.
+      }
+    }
+  }
+}
+
+void IGraphics::ForControlInGroup(const char* group, IControlFunction func)
 {
   for (auto c = 0; c < NControls(); c++)
   {

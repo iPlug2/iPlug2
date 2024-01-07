@@ -1257,6 +1257,11 @@ public:
    * @param func A std::function to perform on each control */
   void ForControlWithParam(int paramIdx, IControlFunction func);
   
+  /** For all standard controls in the main control stack that are linked to one of several parameters, execute a function
+   * @param params The parameter indexes to match
+   * @param func A std::function to perform on each control */
+  void ForControlWithParam(const std::initializer_list<int>& params, IControlFunction func);
+
   /** For all standard controls in the main control stack that are linked to a group, execute a function
    * @param group CString specifying the group name
    * @param func A std::function to perform on each control */
