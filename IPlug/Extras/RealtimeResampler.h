@@ -102,10 +102,10 @@ public:
       // Warm up the resamplers with enough silence that the first real buffer can yield the required number of output samples.
       const auto outSamplesRequired = mOutResampler->GetNumSamplesRequiredFor(1);
       const auto inSamplesRequired = mInResampler->GetNumSamplesRequiredFor(outSamplesRequired);
-      mInResampler->PushBlock(mInputPtrs.GetList(), inSamplesRequired);
-      const auto populated = mInResampler->PopBlock(mInputPtrs.GetList(), outSamplesRequired);
+      mInResampler->PushBlock(mInputPtrs.GetList(), inSamplesRequired, NCHANS);
+      const auto populated = mInResampler->PopBlock(mInputPtrs.GetList(), outSamplesRequired, NCHANS);
       assert(populated >= outSamplesRequired && "Didn't get enough samples required for warm up!");
-      mOutResampler->PushBlock(mOutputPtrs.GetList(), populated);
+      mOutResampler->PushBlock(mOutputPtrs.GetList(), populated, NCHANS);
       
       // magic number that we seem to need to align when compensating for latency
       constexpr auto addedLatency = 2;
@@ -123,7 +123,7 @@ public:
    * @param nFrames The block size for this block: number of samples per channel.
    * @param func The function that processes the audio sample at the higher sampling rate. 
    * NOTE: std::function can call malloc if you pass in captures */
-  void ProcessBlock(T** inputs, T** outputs, int nFrames, BlockProcessFunc func)
+  void ProcessBlock(T** inputs, T** outputs, int nFrames, int nChans, BlockProcessFunc func)
   {
     if (mInnerSampleRate == mOuterSampleRate) // nothing to do!
     {
@@ -135,28 +135,28 @@ public:
     {
       case ESRCMode::kLinearInterpolation:
       {
-        const auto nNewFrames = LinearInterpolate(inputs, mInputPtrs.GetList(), nFrames, mInRatio, mMaxInnerLength);
+        const auto nNewFrames = LinearInterpolate(inputs, mInputPtrs.GetList(), nFrames, nChans, mInRatio, mMaxInnerLength);
         func(mInputPtrs.GetList(), mOutputPtrs.GetList(), nNewFrames);
-        LinearInterpolate(mOutputPtrs.GetList(), outputs, nNewFrames, mOutRatio, nFrames);
+        LinearInterpolate(mOutputPtrs.GetList(), outputs, nNewFrames, nChans, mOutRatio, nFrames);
         break;
       }
       case ESRCMode::kLancsoz:
       {
-        mInResampler->PushBlock(inputs, nFrames);
+        mInResampler->PushBlock(inputs, nFrames, nChans);
         const auto maxInnerLength = CalculateMaxInnerLength(nFrames);
 
         while (mInResampler->GetNumSamplesRequiredFor(1) == 0) // i.e. there's signal still available to pop
         {
-          const auto populated = mInResampler->PopBlock(mInputPtrs.GetList(), maxInnerLength);
+          const auto populated = mInResampler->PopBlock(mInputPtrs.GetList(), maxInnerLength, nChans);
           assert(populated <= maxInnerLength && "Received more samples than the encapsulated DSP is able to handle!");
           func(mInputPtrs.GetList(), mOutputPtrs.GetList(), static_cast<int>(populated));
-          mOutResampler->PushBlock(mOutputPtrs.GetList(), populated);
+          mOutResampler->PushBlock(mOutputPtrs.GetList(), populated, nChans);
         }
         
 #ifdef _DEBUG
         const auto populated =
 #endif
-        mOutResampler->PopBlock(outputs, nFrames);
+        mOutResampler->PopBlock(outputs, nFrames, nChans);
         assert(populated >= nFrames && "Did not yield enough samples to provide the required output buffer!");
         
         mInResampler->RenormalizePhases();
@@ -173,7 +173,7 @@ public:
 
 private:
   /** Interpolate the signal across the block with a specific resampling ratio */
-  static inline int LinearInterpolate(T** inputs, T** outputs, int inputLength, double ratio, int maxOutputLength)
+  static inline int LinearInterpolate(T** inputs, T** outputs, int inputLength, int nChans, double ratio, int maxOutputLength)
   {
     const auto outputLength =
       std::min(static_cast<int>(std::ceil(static_cast<double>(inputLength) / ratio)), maxOutputLength);
@@ -188,7 +188,7 @@ private:
       {
         const auto y = readPos - readPostionTrunc;
 
-        for (auto chan=0; chan<NCHANS; chan++)
+        for (auto chan=0; chan<nChans; chan++)
         {
           const auto x0 = inputs[chan][readPosInt];
           const auto x1 = ((readPosInt + 1) < inputLength) ? inputs[chan][readPosInt + 1] 

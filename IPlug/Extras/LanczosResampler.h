@@ -168,11 +168,11 @@ public:
     return static_cast<size_t>(std::max(res + 1.0, 0.0));
   }
   
-  inline void PushBlock(T** inputs, size_t nFrames)
+  inline void PushBlock(T** inputs, int nFrames, int nChans)
   {
     for (auto s=0; s<nFrames; s++)
     {
-      for (auto c=0; c<NCHANS; c++)
+      for (auto c=0; c<nChans; c++)
       {
         mInputBuffer[c][mWritePos] = inputs[c][s];
         mInputBuffer[c][mWritePos + kBufferSize] = inputs[c][s]; // this way we can always wrap
@@ -183,12 +183,12 @@ public:
     }
   }
   
-  size_t PopBlock(T** outputs, size_t max)
+  size_t PopBlock(T** outputs, size_t max, int nChans)
   {
     int populated = 0;
     while (populated < max && (mPhaseIn - mPhaseOut) > A + 1)
     {
-      ReadSamples((mPhaseIn - mPhaseOut), outputs, populated);
+      ReadSamples((mPhaseIn - mPhaseOut), outputs, populated, nChans);
       mPhaseOut += mPhaseOutIncr;
       populated++;
     }
@@ -213,7 +213,7 @@ public:
   
 private:
 #ifdef IPLUG_SIMDE
-  inline void ReadSamples(double xBack, T** outputs, int s) const
+  inline void ReadSamples(double xBack, T** outputs, int s, int nChans) const
   {
     float bufferReadPosition = static_cast<float>(mWritePos - xBack);
     int bufferReadIndex = static_cast<int>(std::floor(bufferReadPosition));
@@ -244,7 +244,7 @@ private:
       f0 = _mm_add_ps(f0, _mm_mul_ps(df0, tfp));
       f1 = _mm_add_ps(f1, _mm_mul_ps(df1, tfp));
       
-      for (int c=0; c<NCHANS; c++)
+      for (int c=0; c<nChans; c++)
       {
         // Load input data
         __m128 d0 = _mm_set_ps(mInputBuffer[c][bufferReadIndex - A + i + 3],
@@ -264,7 +264,7 @@ private:
     }
     
     // Extract the final sums and store them in the output
-    for (int c=0; c<NCHANS; c++)
+    for (int c=0; c<nChans; c++)
     {
       float sumArray[4];
       _mm_store_ps(sumArray, sum[c]);
@@ -272,7 +272,7 @@ private:
     }
   }
 #else // scalar
-  inline void ReadSamples(double xBack, T** outputs, int s) const
+  inline void ReadSamples(double xBack, T** outputs, int s, int nChans) const
   {
     double bufferReadPosition = mWritePos - xBack;
     int bufferReadIndex = std::floor(bufferReadPosition);
@@ -297,7 +297,7 @@ private:
       const auto df1 = sDeltaTable[tableIndex][A+i];
       f1 += df1 * tableFracPosition;
 
-      for (auto c=0; c<NCHANS;c++)
+      for (auto c=0; c<nChans;c++)
       {
         const auto d0 = mInputBuffer[c][bufferReadIndex - A + i];
         const auto d1 = mInputBuffer[c][bufferReadIndex + i];
@@ -306,7 +306,7 @@ private:
       }
     }
 
-    for (auto c=0; c<NCHANS;c++)
+    for (auto c=0; c<nChans;c++)
     {
       outputs[c][s] = sum[c];
     }
