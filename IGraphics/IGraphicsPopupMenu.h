@@ -252,6 +252,11 @@ public:
     }
   }
   
+  int GetIndexOfItem(Item* pItem) const
+  {
+    return mMenuItems.Find(pItem);
+  }
+  
   Item* GetChosenItem()
   {
     return GetItem(mChosenItemIdx);
