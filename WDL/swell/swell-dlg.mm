@@ -654,6 +654,10 @@ static bool s_mtl_in_update;
     if (m_wndproc) m_wndproc((HWND)self,WM_NCDESTROY,0,0);
     if (GetCapture()==(HWND)self) ReleaseCapture(); 
     SWELL_MessageQueue_Clear((HWND)self); 
+
+#ifndef SWELL_NO_METAL
+    if (m_use_metal>0) swell_removeMetalDirty(self);
+#endif
     
     if (m_menu) 
     {
