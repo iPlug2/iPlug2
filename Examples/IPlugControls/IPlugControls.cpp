@@ -32,6 +32,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, true);
     pGraphics->AttachPanelBackground(mBGControlPattern);
     pGraphics->AttachTextEntryControl();
+    pGraphics->AttachColorPickerControl();
     
 #ifndef OS_IOS
     pGraphics->AttachPopupMenuControl(DEFAULT_LABEL_TEXT);
@@ -348,7 +349,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     toggle = 0;
     toggleRects = sameCell().FracRectHorizontal(0.49f, true);
 
-    for(auto label : {"Disable", "Show Bubble", "OS Text Entry", "OS Menu"})
+    for(auto label : {"Disable", "Show Bubble", "OS Text Entry", "OS Menu", "OS ColorPicker"})
     {
       pGraphics->AttachControl(new IVToggleControl(toggleRects.GetGridCell(toggle, 0, 5, 1), [pGraphics, toggle](IControl* pCaller){
         SplashClickActionFunc(pCaller);
@@ -377,6 +378,12 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
               pGraphics->RemovePopupMenuControl();
             else
               pGraphics->AttachPopupMenuControl();
+            break;
+          case 4:
+            if(state)
+              pGraphics->RemoveColorPickerControl();
+            else
+              pGraphics->AttachColorPickerControl();
             break;
           default:
             break;
