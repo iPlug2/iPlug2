@@ -521,10 +521,9 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
 
 - (void) dealloc
 {
-  if([NSColorPanel sharedColorPanelExists])
+  if ([NSColorPanel sharedColorPanelExists])
     [[NSColorPanel sharedColorPanel] close];
   
-  mColorPickerFunc = nullptr;
   [mMoveCursor release];
   [mTrackingArea release];
   [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -1213,21 +1212,32 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
 - (BOOL) promptForColor: (IColor&) color : (IColorPickerHandlerFunc) func;
 {
-  NSColorPanel* colorPanel = [NSColorPanel sharedColorPanel];
-  mColorPickerFunc = func;
+  NSWindow* pKeyWindow = [[NSApplication sharedApplication] keyWindow];
 
-  [colorPanel setTarget:self];
-  [colorPanel setShowsAlpha: TRUE];
-  [colorPanel setAction:@selector(onColorPicked:)];
-  [colorPanel setColor:ToNSColor(color)];
-  [colorPanel orderFront:nil];
+  NSColorPanel* pPanel = [NSColorPanel sharedColorPanel];
 
-  return colorPanel != nil;
-}
+  [pPanel setTarget:self];
+  [pPanel setShowsAlpha: TRUE];
+  [pPanel setColor:ToNSColor(color)];
+  [pPanel orderFront:nil];
 
-- (void) onColorPicked: (NSColorPanel*) pColorPanel
-{
-  mColorPickerFunc(FromNSColor([pColorPanel color]));
+  NSModalSession modal = [NSApp beginModalSessionForWindow:pPanel];
+
+  for (;;) {
+    [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]];
+    if ([NSApp runModalSession:modal] != NSModalResponseContinue)
+      break;
+    if (![pPanel isVisible])
+      break;
+  }
+
+  [NSApp endModalSession:modal];
+  
+  func(FromNSColor([pPanel color]));
+  
+  [pKeyWindow makeKeyAndOrderFront:nil];
+  
+  return pPanel != nil;
 }
 
 - (NSString*) view: (NSView*) pView stringForToolTip: (NSToolTipTag) tag point: (NSPoint) point userData: (void*) pData

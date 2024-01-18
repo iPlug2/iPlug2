@@ -125,7 +125,6 @@ using namespace igraphics;
   float mPrevX, mPrevY;
   bool mMouseOutDuringDrag;
   IRECTList mDirtyRects;
-  IColorPickerHandlerFunc mColorPickerFunc;
 @public
   IGraphicsMac* mGraphics; // OBJC instance variables have to be pointers
 }
