@@ -115,19 +115,19 @@ public:
   Steinberg::tresult PLUGIN_API setChannelContextInfos(Steinberg::Vst::IAttributeList* list) override;
 
   /** Get the color of the track that the plug-in is inserted on */
-  virtual void GetTrackColor(int& r, int& g, int& b) override { r = (mChannelColor>>16)&0xff; g = (mChannelColor>>8)&0xff; b = mChannelColor&0xff; };
+  void GetTrackColor(int& r, int& g, int& b) override { r = (mChannelColor>>16)&0xff; g = (mChannelColor>>8)&0xff; b = mChannelColor&0xff; };
 
   /** Get the name of the track that the plug-in is inserted on */
-  virtual void GetTrackName(WDL_String& str) override { str = mChannelName; };
+  void GetTrackName(WDL_String& str) override { str = mChannelName; };
 
   /** Get the index of the track that the plug-in is inserted on */
-  virtual int GetTrackIndex() override { return mChannelIndex; };
+  int GetTrackIndex() override { return mChannelIndex; };
 
   /** Get the namespace of the track that the plug-in is inserted on */
-  virtual void GetTrackNamespace(WDL_String& str) override { str = mChannelNamespace; };
+  void GetTrackNamespace(WDL_String& str) override { str = mChannelNamespace; };
 
   /** Get the namespace index of the track that the plug-in is inserted on */
-  virtual int GetTrackNamespaceIndex() override { return mChannelNamespaceIndex; };
+  int GetTrackNamespaceIndex() override { return mChannelNamespaceIndex; };
 
   Steinberg::Vst::IComponentHandler* GetComponentHandler() { return componentHandler; }
   ViewType* GetView() { return mView; }
