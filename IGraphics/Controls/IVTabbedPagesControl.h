@@ -35,7 +35,7 @@ public:
   static void DefaultResizeFunc(IContainerBase* pTab, const IRECT& r) {
     if (pTab->NChildren() == 1)
     {
-      auto innerBounds = r.GetPadded(- pTab->As<IVTabPage>()->GetPadding());
+      auto innerBounds = r.GetPadded(float(- pTab->As<IVTabPage>()->GetPadding()));
       pTab->GetChild(0)->SetTargetAndDrawRECTs(innerBounds);
     }
   }
