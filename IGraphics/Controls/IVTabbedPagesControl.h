@@ -85,7 +85,7 @@ using PageMap = std::map<const char*, IVTabPage*>;
 /** A control to manage tabbed pages of sub controls
  * Basic usage example:
  * \code{.cpp}
- * pGraphics->AttachControl(new IVTabbedPagesControl(nextCell(),
+ * pGraphics->AttachControl(new IVTabbedPagesControl(bounds,
  * {
  *   {"1", new IVTabPage([](IVTabPage* pPage, const IRECT& r) {
  *     pPage->AddChildControl(new IPanelControl(IRECT(), COLOR_RED));
