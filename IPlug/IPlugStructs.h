@@ -413,7 +413,8 @@ struct Config
   int plugMaxHeight;
   bool plugHostResize;
   const char* bundleID;
-  
+  const char* pluginShortName;
+
   Config(int nParams,
          int nPresets,
          const char* channelIOStr,
@@ -437,7 +438,8 @@ struct Config
          int plugMaxWidth,
          int plugMinHeight,
          int plugMaxHeight,
-         const char* bundleID)
+         const char* bundleID,
+         const char* pluginShortName)
               
   : nParams(nParams)
   , nPresets(nPresets)
@@ -463,6 +465,7 @@ struct Config
   , plugMaxHeight(plugMaxHeight)
   , plugHostResize(plugHostResize)
   , bundleID(bundleID)
+  , pluginShortName(pluginShortName)
   {};
 };
 

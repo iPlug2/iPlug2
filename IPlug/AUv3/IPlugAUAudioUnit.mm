@@ -868,4 +868,16 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   return mPlug->DoesMPE() ? YES : NO;
 }
 
+- (NSString*) audioUnitShortName
+{
+  if (CStringHasContents(mPlug->GetPluginShortName()))
+  {
+    return [NSString stringWithUTF8String:mPlug->GetPluginShortName()];
+  }
+  else
+  {
+    return nil;
+  }
+}
+
 @end

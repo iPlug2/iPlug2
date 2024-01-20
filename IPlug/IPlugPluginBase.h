@@ -54,6 +54,9 @@ public:
   /** Get the product name as a CString. A shipping product may contain multiple plug-ins, hence this. Not used in all APIs */
   const char* GetProductName() const { return mProductName.Get(); }
   
+  /** Get the short name as a CString. Maps to audioUnitShortName available in macos10.13 / ios11 (16 chars max) */
+  const char* GetPluginShortName() const { return mPluginShortName.Get(); }
+  
   /** @return The plug-in's unique four character ID as an integer */
   int GetUniqueID() const { return mUniqueID; }
   
@@ -397,6 +400,8 @@ private:
   WDL_String mPluginName;
   /** Product name: if the plug-in is part of collection of plug-ins it might be one product */
   WDL_String mProductName;
+  /** Short name, maps to audioUnitShortName available in macos10.13 / ios11 (16 chars max)( */
+  WDL_String mPluginShortName;
   /** Plug-in Manufacturer name */
   WDL_String mMfrName;
   /* Plug-in unique four char ID as an int */

@@ -130,6 +130,10 @@ END_IPLUG_NAMESPACE
   #error You need to define PLUG_NAME in config.h - The name of your plug-in, with no spaces
 #endif
 
+#ifndef PLUG_SHORT_NAME
+  #define PLUG_SHORT_NAME ""
+#endif
+
 #ifndef PLUG_MFR
   #error You need to define PLUG_MFR in config.h - The manufacturer name
 #endif
