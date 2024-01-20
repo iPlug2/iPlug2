@@ -633,13 +633,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
   UIColorPickerViewController* colorSelectionController = [[UIColorPickerViewController alloc] init];
   
-  UIUserInterfaceIdiom idiom = [[UIDevice currentDevice] userInterfaceIdiom];
-  
-  if(idiom == UIUserInterfaceIdiomPad)
-    colorSelectionController.modalPresentationStyle = UIModalPresentationPopover;
-  else
-    colorSelectionController.modalPresentationStyle = UIModalPresentationPageSheet;
-  
+  colorSelectionController.modalPresentationStyle = UIModalPresentationPopover;
   colorSelectionController.popoverPresentationController.delegate = self;
   colorSelectionController.popoverPresentationController.sourceView = self;
   
