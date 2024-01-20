@@ -80,11 +80,6 @@ public:
 
   void SetOffline(bool renderingOffline) { IPlugProcessor::SetRenderingOffline(renderingOffline); }
 
-  /** Override this method, in special cases, to request data from the iOS app wrapper
-   * the data must exist!
-   */
-  virtual void* GetDataFromExternal(int& dataSize) { return nullptr; }
-
 private:
   // void HandleOneEvent(AURenderEvent const* event, int64_t startTime);
   // void PerformAllSimultaneousEvents(int64_t now, AURenderEvent const*& event);
