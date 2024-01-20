@@ -53,7 +53,7 @@ public:
     kNumResamplingModes
   };
 
-  using BlockProcessFunc = std::function<void(T**, T**, int)>;
+  using BlockProcessFunc = std::function<void(T**, T**, int, int)>;
   using LanczosResampler = LanczosResampler<T, NCHANS, A>;
 
   /** Constructor
@@ -127,7 +127,7 @@ public:
   {
     if (mInnerSampleRate == mOuterSampleRate) // nothing to do!
     {
-      func(inputs, outputs, nFrames);
+      func(inputs, outputs, nFrames, nChans);
       return;
     }
 
@@ -136,7 +136,7 @@ public:
       case ESRCMode::kLinearInterpolation:
       {
         const auto nNewFrames = LinearInterpolate(inputs, mInputPtrs.GetList(), nFrames, nChans, mInRatio, mMaxInnerLength);
-        func(mInputPtrs.GetList(), mOutputPtrs.GetList(), nNewFrames);
+        func(mInputPtrs.GetList(), mOutputPtrs.GetList(), nNewFrames, nChans);
         LinearInterpolate(mOutputPtrs.GetList(), outputs, nNewFrames, nChans, mOutRatio, nFrames);
         break;
       }
@@ -149,7 +149,7 @@ public:
         {
           const auto populated = mInResampler->PopBlock(mInputPtrs.GetList(), maxInnerLength, nChans);
           assert(populated <= maxInnerLength && "Received more samples than the encapsulated DSP is able to handle!");
-          func(mInputPtrs.GetList(), mOutputPtrs.GetList(), static_cast<int>(populated));
+          func(mInputPtrs.GetList(), mOutputPtrs.GetList(), static_cast<int>(populated), nChans);
           mOutResampler->PushBlock(mOutputPtrs.GetList(), populated, nChans);
         }
         
