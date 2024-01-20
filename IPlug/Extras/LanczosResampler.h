@@ -168,7 +168,7 @@ public:
     return static_cast<size_t>(std::max(res + 1.0, 0.0));
   }
   
-  inline void PushBlock(T** inputs, int nFrames, int nChans)
+  inline void PushBlock(T** inputs, size_t nFrames, int nChans)
   {
     for (auto s=0; s<nFrames; s++)
     {
