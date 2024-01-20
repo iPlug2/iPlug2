@@ -134,6 +134,10 @@ END_IPLUG_NAMESPACE
   #error You need to define PLUG_MFR in config.h - The manufacturer name
 #endif
 
+#ifndef PRODUCT_NAME
+  #define PRODUCT_NAME PLUG_NAME
+#endif
+
 #ifndef PLUG_TYPE
   #error You need to define PLUG_TYPE in config.h. 0 = Effect, 1 = Instrument, 2 = MIDI Effect
 #endif
