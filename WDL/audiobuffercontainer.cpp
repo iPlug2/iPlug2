@@ -7,9 +7,11 @@ void ChannelPinMapper::SetNPins(int nPins)
   if (nPins<0) nPins=0;
   else if (nPins>CHANNELPINMAPPER_MAXPINS) nPins=CHANNELPINMAPPER_MAXPINS;
   int i;
-  for (i = m_nPins; i < nPins; ++i) {
+  for (i = m_nPins; i < nPins; ++i)
+  {
     ClearPin(i);
-    if (i < m_nCh) {
+    if (i < m_nCh)
+    {
       SetPin(i, i, true);
     }
   }
