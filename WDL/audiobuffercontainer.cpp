@@ -2,6 +2,15 @@
 #include "queue.h"
 #include <assert.h>
 
+void ChannelPinMapper::Reset()
+{
+  for (int i=0; i < CHANNELPINMAPPER_MAXPINS; ++i)
+  {
+    ClearPin(i);
+    SetPin(i, i, true);
+  }
+}
+
 void ChannelPinMapper::SetNPins(int nPins)
 {
   if (nPins<0) nPins=0;
