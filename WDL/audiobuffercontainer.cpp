@@ -5,10 +5,7 @@
 void ChannelPinMapper::Reset()
 {
   for (int i=0; i < CHANNELPINMAPPER_MAXPINS; ++i)
-  {
-    ClearPin(i);
-    SetPin(i, i, true);
-  }
+    m_mapping[i].set_excl(i);
 }
 
 void ChannelPinMapper::SetNPins(int nPins)
