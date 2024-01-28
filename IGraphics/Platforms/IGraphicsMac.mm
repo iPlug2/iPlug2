@@ -335,13 +335,14 @@ void IGraphicsMac::ForceEndUserEdit()
 
 void IGraphicsMac::UpdateTooltips()
 {
-  if (!(mView && TooltipsEnabled()))
-    return;
-
+  if (!mView) return;
+  
   @autoreleasepool {
 
   [(IGRAPHICS_VIEW*) mView removeAllToolTips];
 
+  if(!TooltipsEnabled()) return;
+    
   if (GetPopupMenuControl() && GetPopupMenuControl()->GetState() > IPopupMenuControl::kCollapsed)
   {
     return;
