@@ -91,7 +91,7 @@ public:
   virtual bool CanDownloadMIMEType(const char* mimeType) { return false; }
   
   /** Override to download the file to a specific location other than e.g. NSTemporaryDirectory */
-  virtual void GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath) {}
+  virtual void GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath);
 
   /** Override to handle file download success */
   virtual void DidDownloadFile(const char* path) {};
