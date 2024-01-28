@@ -42,12 +42,13 @@ public:
    * @param readyFunc A function conforming to onReadyFunc, that will be called asyncronously when the webview has been initialized
    * @param msgFunc A function conforming to onMessageFunc, that will be called when messages are posted from the webview
    * @param enableDevTools Should the webview developer tools be available via context menu */
-  IWebViewControl(const IRECT& bounds, bool opaque, OnReadyFunc readyFunc, OnMessageFunc msgFunc = nullptr, bool enableDevTools = false)
+  IWebViewControl(const IRECT& bounds, bool opaque, OnReadyFunc readyFunc = nullptr, OnMessageFunc msgFunc = nullptr, bool enableDevTools = false, bool enableScroll = false)
   : IControl(bounds)
   , IWebView(opaque)
   , mOnReadyFunc(readyFunc)
   , mOnMessageFunc(msgFunc)
   , mEnableDevTools(enableDevTools)
+  , mEnableScroll(enableScroll)
   {
     // The IControl itself should never receive mouse messages
     // they need to go to the webview
@@ -65,8 +66,7 @@ public:
     IGraphics* pGraphics = GetUI();
     mPlatformView = OpenWebView(pGraphics->GetWindow(), mRECT.L, mRECT.T, mRECT.W(), mRECT.H(), pGraphics->GetDrawScale(), mEnableDevTools);
     pGraphics->AttachPlatformView(mRECT, mPlatformView);
-    
-    EnableScroll(false);
+    EnableScroll(mEnableScroll);
   }
   
   void Draw(IGraphics& g) override
@@ -131,6 +131,7 @@ private:
   OnMessageFunc mOnMessageFunc;
   bool mEnableDevTools = false;
   bool mEnableInteraction = true;
+  bool mEnableScroll = false;
 };
 
 END_IGRAPHICS_NAMESPACE
