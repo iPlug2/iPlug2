@@ -214,6 +214,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
   WKUserContentController* controller = [[WKUserContentController alloc] init];
   webConfig.userContentController = controller;
 
+  [webConfig setValue:@YES forKey:@"allowUniversalAccessFromFileURLs"];
   IPLUG_WKSCRIPTHANDLER* scriptHandler = [[IPLUG_WKSCRIPTHANDLER alloc] initWithIWebView: this];
   [controller addScriptMessageHandler: scriptHandler name:@"callback"];
   
