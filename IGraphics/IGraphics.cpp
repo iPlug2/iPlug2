@@ -1684,7 +1684,8 @@ WDL_TypedBuf<uint8_t> IGraphics::LoadResource(const char* fileNameOrResID, const
 #endif
   if (resourceFound == EResourceLocation::kAbsolutePath)
   {
-    FILE* fd = fopen(path.Get(), "rb");
+    FILE* fd = fopenUTF8(path.Get(), "rb");
+
     if (!fd)
       return result;
     

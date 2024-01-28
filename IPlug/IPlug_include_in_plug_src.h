@@ -41,7 +41,7 @@
   {
     if (!__GetDpiForWindow)
     {
-      HINSTANCE h = LoadLibraryA("user32.dll");
+      HINSTANCE h = LoadLibraryW(L"user32.dll");
       if (h) *(void **)&__GetDpiForWindow = GetProcAddress(h, "GetDpiForWindow");
 
       if (!__GetDpiForWindow)

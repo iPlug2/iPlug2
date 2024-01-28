@@ -30,33 +30,6 @@ BEGIN_IPLUG_NAMESPACE
 #if defined OS_WIN
 #pragma mark - OS_WIN
 
-// Unicode helpers
-void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen)
-{
-  int requiredSize = MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0);
-
-  if (requiredSize > 0 && requiredSize <= maxLen)
-  {
-    MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, utf16Str, requiredSize);
-    return;
-  }
-
-  utf16Str[0] = 0;
-}
-
-void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str)
-{
-  int requiredSize = WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, NULL, 0, NULL, NULL);
-
-  if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
-  {
-    WideCharToMultiByte(CP_UTF8, 0, utf16Str, -1, utf8Str.Get(), requiredSize, NULL, NULL);
-    return;
-  }
-
-  utf8Str.Set("");
-}
-
  // Helper for getting a known folder in UTF8
 void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
 {
@@ -68,22 +41,25 @@ void GetKnownFolder(WDL_String &path, int identifier, int flags = 0)
 
 static void GetModulePath(HMODULE hModule, WDL_String& path)
 {
+  wchar_t pathCStrW[MAX_WIN32_PATH_LEN] = {'\0'};
+
   path.Set("");
-  char pathCStr[MAX_WIN32_PATH_LEN];
-  pathCStr[0] = '\0';
-  if (GetModuleFileName(hModule, pathCStr, MAX_WIN32_PATH_LEN))
+
+  if (GetModuleFileNameW(hModule, pathCStrW, MAX_WIN32_PATH_LEN))
   {
+    UTF16AsUTF8 pathTemp(pathCStrW);
+
     int s = -1;
-    for (int i = 0; i < strlen(pathCStr); ++i)
+    for (int i = 0; i < strlen(pathTemp.Get()); ++i)
     {
-      if (pathCStr[i] == '\\')
+      if (pathTemp.Get()[i] == '\\')
       {
         s = i;
       }
     }
-    if (s >= 0 && s + 1 < strlen(pathCStr))
+    if (s >= 0 && s + 1 < strlen(pathTemp.Get()))
     {
-      path.Set(pathCStr, s + 1);
+      path.Set(pathTemp.Get(), s + 1);
     }
   }
 }
@@ -149,20 +125,40 @@ void WebViewCachePath(WDL_String& path)
   path.Append("\\iPlug2\\WebViewCache"); // tmp
 }
 
-static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR param)
+struct WinResourceSearch
 {
-  if (IS_INTRESOURCE(name)) return true; // integer resources not wanted
-  else {
-    WDL_String* search = (WDL_String*)param;
-    if (search != 0 && name != 0)
+  WinResourceSearch(const char* name)
+  {
+    UTF16ToUTF8(mName, UTF8AsUTF16(name).ToLowerCase().Get());
+  }
+
+  WDL_String mName;
+  bool mFound = false;
+};
+
+static BOOL CALLBACK EnumResNameProc(HMODULE module, LPCWSTR type, LPWSTR name, LONG_PTR param)
+{
+  if (IS_INTRESOURCE(name))
+    return true; // integer resources not wanted
+  else
+  {
+    WinResourceSearch* search = reinterpret_cast<WinResourceSearch*>(param);
+   
+    if (search != nullptr && name != nullptr)
     {
+      WDL_String searchName(search->mName);
+
       //strip off extra quotes
-      WDL_String strippedName(strlwr(name + 1));
+      WDL_String strippedName((UTF16AsUTF8(name).Get() + 1));
       strippedName.SetLen(strippedName.GetLength() - 1);
 
-      if (strcmp(strlwr(search->Get()), strippedName.Get()) == 0) // if we are looking for a resource with this name
+      // convert the stripped name to lower case (the search is already lower case)
+      UTF16ToUTF8(strippedName, UTF8AsUTF16(strippedName).ToLowerCase().Get());
+
+      if (strcmp(searchName.Get(), strippedName.Get()) == 0) // if we are looking for a resource with this name
       {
-        search->SetFormatted(strippedName.GetLength() + 7, "found: %s", strippedName.Get());
+        UTF16ToUTF8(search->mName, name);
+        search->mFound = true;
         return false;
       }
     }
@@ -171,25 +167,30 @@ static BOOL EnumResNameProc(HANDLE module, LPCTSTR type, LPTSTR name, LONG_PTR p
   return true; // keep enumerating
 }
 
+static UTF8AsUTF16 TypeToUpper(const char* type)
+{
+  return UTF8AsUTF16(type).ToUpperCase();
+}
+
 EResourceLocation LocateResource(const char* name, const char* type, WDL_String& result, const char*, void* pHInstance, const char*)
 {
   if (CStringHasContents(name))
   {
-    WDL_String search(name);
-    WDL_String typeUpper(type);
+    WinResourceSearch search(name);
+    auto typeUpper = TypeToUpper(type);
 
     HMODULE hInstance = static_cast<HMODULE>(pHInstance);
 
-    EnumResourceNames(hInstance, _strupr(typeUpper.Get()), (ENUMRESNAMEPROC)EnumResNameProc, (LONG_PTR)&search);
+    EnumResourceNamesW(hInstance, typeUpper.Get(), EnumResNameProc, (LONG_PTR) &search);
 
-    if (strstr(search.Get(), "found: ") != 0)
+    if (search.mFound)
     {
-      result.SetFormatted(MAX_PATH, "\"%s\"", search.Get() + 7, search.GetLength() - 7); // 7 = strlen("found: ")
+      result.Set(search.mName.Get());
       return EResourceLocation::kWinBinary;
     }
     else
     {
-      if (PathFileExists(name))
+      if (PathFileExistsW(UTF8AsUTF16(name).Get()))
       {
         result.Set(name);
         return EResourceLocation::kAbsolutePath;
@@ -201,11 +202,11 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
 
 const void* LoadWinResource(const char* resid, const char* type, int& sizeInBytes, void* pHInstance)
 {
-  WDL_String typeUpper(type);
+  auto typeUpper = TypeToUpper(type);
 
   HMODULE hInstance = static_cast<HMODULE>(pHInstance);
 
-  HRSRC hResource = FindResource(hInstance, resid, _strupr(typeUpper.Get()));
+  HRSRC hResource = FindResourceW(hInstance, UTF8AsUTF16(resid).Get(), typeUpper.Get());
 
   if (!hResource)
     return NULL;
