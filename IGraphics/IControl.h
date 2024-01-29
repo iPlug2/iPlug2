@@ -2200,6 +2200,23 @@ public:
   }
 };
 
+/** A basic control to display some text  that needs to span multiple lines */
+class IMultiLineTextControl : public ITextControl
+{
+public:
+  IMultiLineTextControl(const IRECT& bounds, const char* str, const IText& text = DEFAULT_TEXT, const IColor& BGColor = DEFAULT_BGCOLOR)
+  : ITextControl(bounds, str, text, BGColor)
+  {
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    g.FillRect(mBGColor, mRECT, &mBlend);
+    g.DrawMultiLineText(mText, mStr.Get(), mRECT, &mBlend);
+  }
+};
+
+
 /** A control to show a clickable URL, that changes color after clicking */
 class IURLControl : public ITextControl
 {
