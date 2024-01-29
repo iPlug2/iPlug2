@@ -354,6 +354,13 @@ public:
    * @param str The text string to draw
    * @param bounds after calling the method this IRECT will be updated with the rectangular region the text will occupy */
   virtual float MeasureText(const IText& text, const char* str, IRECT& bounds) const;
+  
+  /** Draw some  multi-line text to the graphics context in a specific rectangle (NanoVG only)
+   * @param text An IText struct containing font and text properties and layout info
+   * @param str The text string to draw
+   * @param bounds The rectangular region in the graphics where you would like to draw the text
+   * @param pBlend Optional blend method */
+  virtual void DrawMultiLineText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0) { DrawText(text, "Unsupported", bounds, pBlend); }
 
   /** Get the color at an X, Y location in the graphics context
    * @param x The X coordinate of the pixel
