@@ -73,6 +73,8 @@ bool isInstrument()
 #endif
   
   [self makeEngineConnections];
+  [self addNotifications];
+  
   AVAudioSession* session = [AVAudioSession sharedInstance];
 
   if (![session setActive:TRUE error: &error])
@@ -84,9 +86,29 @@ bool isInstrument()
   {
     NSLog(@"engine failed to start: %@", error);
   }
-  
 
   completionBlock();
+}
+
+- (void) dealloc
+{
+  [[NSNotificationCenter defaultCenter] removeObserver: self];
+}
+
+- (void) restartAudioEngine
+{
+  [engine stop];
+
+  NSError *error = nil;
+  
+  if (![engine startAndReturnError:&error])
+  {
+    NSLog(@"Error re-starting audio engine: %@", error);
+  }
+  else
+  {
+    [self printSessionInfo];
+  }
 }
 
 - (void) setupSession
@@ -195,6 +217,19 @@ bool isInstrument()
   {
     NSLog(@"Output Port Name: %@", output.portName);
   }
+}
+
+- (void) addNotifications
+{
+  NSNotificationCenter* notifCtr = [NSNotificationCenter defaultCenter];
+
+  [notifCtr addObserver: self selector: @selector (onEngineConfigurationChange:) name:AVAudioEngineConfigurationChangeNotification object: engine];
+}
+
+#pragma mark Notifications
+- (void) onEngineConfigurationChange: (NSNotification*) notification
+{
+  [self restartAudioEngine];
 }
 
 @end
