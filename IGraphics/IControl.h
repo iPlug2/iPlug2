@@ -436,8 +436,8 @@ public:
    * @param func the function to trigger */
   IControl* AttachGestureRecognizer(EGestureType type, IGestureFunc func);
   
-  /** @return /c true if this control supports multiple gestures */
-  bool GetWantsGestures() const { return mGestureFuncs.size() > 0 && !mAnimationFunc; }
+  /** @return /c true if this control supports gestures (override if you are not calling IControl::AttachGestureRecognizer but are overriding OnGesture()) */
+  virtual bool GetWantsGestures() const { return mGestureFuncs.size() > 0 && !mAnimationFunc; }
   
   /** @return the last recognized gesture */
   EGestureType GetLastGesture() const { return mLastGesture; }
