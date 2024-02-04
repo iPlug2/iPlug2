@@ -395,6 +395,11 @@ bool IsOOPAuv3AppExtension()
   return ([[[NSBundle mainBundle] bundleIdentifier] containsString:@"AUv3"]);
 }
 
+void LaunchSettings()
+{
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"LaunchSettings" object:nil];
+}
+
 #endif
 
 END_IPLUG_NAMESPACE

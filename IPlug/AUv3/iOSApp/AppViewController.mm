@@ -76,27 +76,18 @@
     [self embedPlugInView];
   }];
   
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveNotification:) name:@"LaunchBTMidiDialog" object:nil];
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveNotification:) name:@"LaunchSettings" object:nil];
 }
 
 - (void) receiveNotification:(NSNotification*) notification
 {
-  if ([notification.name isEqualToString:@"LaunchBTMidiDialog"])
+  if ([notification.name isEqualToString:@"LaunchSettings"])
   {
-    NSDictionary* dict = notification.userInfo;
-    NSNumber* x = (NSNumber*) dict[@"x"];
-    NSNumber* y = (NSNumber*) dict[@"y"];
-   
-    CABTMIDICentralViewController* vc = [[CABTMIDICentralViewController alloc] init];
-    UINavigationController* nc = [[UINavigationController alloc] initWithRootViewController:vc];
-    nc.modalPresentationStyle = UIModalPresentationPopover;
-    
-    UIPopoverPresentationController* ppc = nc.popoverPresentationController;
-    ppc.permittedArrowDirections = UIPopoverArrowDirectionAny;
-    ppc.sourceView = self.view;
-    ppc.sourceRect = CGRectMake([x floatValue], [y floatValue], 1., 1.);
-    
-    [self presentViewController:nc animated:YES completion:nil];
+    UIStoryboard* storyboard = [UIStoryboard storyboardWithName:[NSString stringWithFormat:@"%s-iOS", PLUG_NAME] bundle: nil];
+    UIViewController* settingsViewController = [storyboard instantiateViewControllerWithIdentifier:@"settings"];
+
+    settingsViewController.modalPresentationStyle = UIModalPresentationFormSheet;
+    [self presentViewController:settingsViewController animated:YES completion:nil];
   }
 }
 

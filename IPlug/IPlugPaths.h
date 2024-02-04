@@ -104,6 +104,8 @@ extern bool IsXPCAuHost();
 /** @return \c true if in an out-of-process AUv3  */
 extern bool IsOOPAuv3AppExtension();
 
+/** @return \c Launch the Audio/Midi settings view controller  */
+extern void LaunchSettings();
 #endif
 
 END_IPLUG_NAMESPACE

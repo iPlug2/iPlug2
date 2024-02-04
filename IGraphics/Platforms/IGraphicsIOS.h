@@ -65,8 +65,6 @@ public:
   
   bool GetTextFromClipboard(WDL_String& str) override;
   bool SetTextInClipboard(const char* str) override;
-
-  void LaunchBluetoothMidiDialog(float x, float y);
   
   void AttachGestureRecognizer(EGestureType type) override;
   

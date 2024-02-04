@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14810.11" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22505" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="ipad9_7" orientation="landscape" layout="fullscreen" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14766.13"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="UIMenu" message="Requires Xcode 11 or later." minToolsVersion="11.0" requiredIntegratedClassName="UICommandDiff"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -21,8 +22,8 @@
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             </containerView>
                         </subviews>
-                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <viewLayoutGuide key="safeArea" id="SMR-0T-dF7"/>
+                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
                     <connections>
                         <outlet property="auView" destination="oZU-Ig-hQr" id="gcv-qk-sqY"/>
@@ -32,5 +33,190 @@
             </objects>
             <point key="canvasLocation" x="300.5859375" y="269.53125"/>
         </scene>
+        <!--Settings View Controller-->
+        <scene sceneID="evZ-rG-HYd">
+            <objects>
+                <viewController storyboardIdentifier="settings" id="SSJ-vy-kh9" customClass="SettingsViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="C8q-k3-par">
+                        <rect key="frame" x="0.0" y="0.0" width="1024" height="768"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Audio Settings" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="f84-nu-hXn">
+                                <rect key="frame" x="20" y="40" width="200" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="189" id="8CZ-gc-u5R"/>
+                                    <constraint firstAttribute="height" constant="40" id="ITL-tG-BwJ"/>
+                                    <constraint firstAttribute="width" constant="200" id="Q63-J9-SZS"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="30"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Input Device:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cCc-bG-f0a">
+                                <rect key="frame" x="20" y="110" width="200" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="200" id="IGu-PA-9Vb"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="NWw-Ky-GUI"/>
+                                    <constraint firstAttribute="height" constant="30" id="jdi-M8-JHd"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="xaY-Lv-cyt"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Output Device:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Nx7-o1-Ryq">
+                                <rect key="frame" x="20" y="210" width="200" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="lessThanOrEqual" constant="30" id="9FT-GO-YGy"/>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="200" id="AjT-ia-cJJ"/>
+                                    <constraint firstAttribute="height" constant="30" id="bhK-z0-11m"/>
+                                    <constraint firstAttribute="width" constant="200" id="fBr-cE-Nlq"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="jIe-J5-KGY"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="nUH-Zk-IN8"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MIDI Settings" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ubt-cK-AmE">
+                                <rect key="frame" x="20" y="270" width="200" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="200" id="4Yl-sB-RVG"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="8gz-Jz-1rq"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="40" id="TGQ-cP-Jep"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="30"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Input Device:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3EC-x4-sbo">
+                                <rect key="frame" x="20" y="330" width="200" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="2e4-Fd-ZNK"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="3lc-8p-2LR"/>
+                                    <constraint firstAttribute="width" constant="200" id="7K4-2V-t4q"/>
+                                    <constraint firstAttribute="height" constant="30" id="ZB4-Yy-q4c"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Output Device:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0m7-vK-15m">
+                                <rect key="frame" x="20" y="380" width="200" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="0FK-qm-2q3"/>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="200" id="DoX-96-SyZ"/>
+                                    <constraint firstAttribute="height" constant="30" id="Jly-9B-rND"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="L14-3K-4GN"/>
+                                    <constraint firstAttribute="height" relation="lessThanOrEqual" constant="30" id="OkX-PE-Ak7"/>
+                                    <constraint firstAttribute="width" constant="200" id="vAa-76-GAK"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" showsMenuAsPrimaryAction="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" changesSelectionAsPrimaryAction="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XSR-DH-1lk">
+                                <rect key="frame" x="300" y="110" width="200" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="Q2Z-3C-3Xd"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="R0H-sm-KtK"/>
+                                </constraints>
+                                <menu key="menu" id="JL7-Yy-UyZ">
+                                    <children>
+                                        <command title="Item 1" id="8PY-Yp-uGe"/>
+                                        <command title="Item 2" id="U2a-sE-JBN"/>
+                                    </children>
+                                </menu>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="gray" title="Button"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mp5-Ao-c57" userLabel="Audio Output Device Button">
+                                <rect key="frame" x="300" y="210" width="200" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="30" id="V7K-wt-dWj"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="eeE-Ex-Ofg"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="gray" title="Button"/>
+                                <connections>
+                                    <action selector="audioOutputDeviceButtonPressed:" destination="SSJ-vy-kh9" eventType="touchUpInside" id="ZR1-gO-Ewt"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Microphone Muted:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="M5o-yp-0Jc">
+                                <rect key="frame" x="20" y="160" width="200" height="30"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="QVL-qy-Lya"/>
+                                    <constraint firstAttribute="height" constant="30" id="YEp-5Z-IsL"/>
+                                    <constraint firstAttribute="width" relation="lessThanOrEqual" constant="200" id="bsF-jF-MWF"/>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="200" id="gM6-ZL-sG7"/>
+                                    <constraint firstAttribute="height" relation="lessThanOrEqual" constant="30" id="iqC-rM-qfV"/>
+                                    <constraint firstAttribute="width" constant="200" id="sd7-0q-5h5"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pRr-qB-AQd">
+                                <rect key="frame" x="300" y="159.5" width="51" height="31"/>
+                                <connections>
+                                    <action selector="micMuteSwitchChanged:" destination="SSJ-vy-kh9" eventType="valueChanged" id="cs1-8A-Nvm"/>
+                                </connections>
+                            </switch>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rbd-P4-B4N">
+                                <rect key="frame" x="20" y="440" width="163" height="35"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="163" id="2Ut-5u-WIr"/>
+                                    <constraint firstAttribute="height" constant="35" id="dOs-8Q-Dpp"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Bluetooth Devices"/>
+                                <connections>
+                                    <action selector="bluetoothButtonPressed:" destination="SSJ-vy-kh9" eventType="touchUpInside" id="0kP-B6-e5u"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="zrD-o7-6fG"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="Ubt-cK-AmE" firstAttribute="top" secondItem="Nx7-o1-Ryq" secondAttribute="bottom" constant="30" id="05c-2A-F3B"/>
+                            <constraint firstItem="0m7-vK-15m" firstAttribute="leading" secondItem="f84-nu-hXn" secondAttribute="leading" id="2TF-SH-RMz"/>
+                            <constraint firstItem="Rbd-P4-B4N" firstAttribute="leading" secondItem="zrD-o7-6fG" secondAttribute="leading" constant="20" id="5PZ-i3-z9a"/>
+                            <constraint firstItem="Nx7-o1-Ryq" firstAttribute="top" secondItem="M5o-yp-0Jc" secondAttribute="bottom" constant="20" id="6KG-QB-KwL"/>
+                            <constraint firstItem="Rbd-P4-B4N" firstAttribute="top" secondItem="0m7-vK-15m" secondAttribute="bottom" constant="30" id="9am-ja-5HK"/>
+                            <constraint firstItem="3EC-x4-sbo" firstAttribute="top" secondItem="Ubt-cK-AmE" secondAttribute="bottom" constant="20" id="BEW-fY-tAY"/>
+                            <constraint firstItem="pRr-qB-AQd" firstAttribute="leading" secondItem="XSR-DH-1lk" secondAttribute="leading" id="CNZ-Ft-xAv"/>
+                            <constraint firstItem="zrD-o7-6fG" firstAttribute="leading" secondItem="XSR-DH-1lk" secondAttribute="leading" constant="-300" id="FjM-HK-RWc"/>
+                            <constraint firstItem="cCc-bG-f0a" firstAttribute="top" secondItem="f84-nu-hXn" secondAttribute="bottom" constant="30" id="I1x-KL-kh8"/>
+                            <constraint firstItem="Ubt-cK-AmE" firstAttribute="leading" secondItem="f84-nu-hXn" secondAttribute="leading" id="IJi-NZ-A5R"/>
+                            <constraint firstItem="M5o-yp-0Jc" firstAttribute="leading" secondItem="f84-nu-hXn" secondAttribute="leading" id="JnE-CC-ltm"/>
+                            <constraint firstItem="M5o-yp-0Jc" firstAttribute="top" secondItem="cCc-bG-f0a" secondAttribute="bottom" constant="20" id="LiQ-I5-seD"/>
+                            <constraint firstItem="cCc-bG-f0a" firstAttribute="leading" secondItem="f84-nu-hXn" secondAttribute="leading" id="MxH-3k-F4Q"/>
+                            <constraint firstItem="0m7-vK-15m" firstAttribute="top" secondItem="3EC-x4-sbo" secondAttribute="bottom" constant="20" id="PWf-yX-AdV"/>
+                            <constraint firstItem="mp5-Ao-c57" firstAttribute="leading" secondItem="XSR-DH-1lk" secondAttribute="leading" id="SR7-QE-yeU"/>
+                            <constraint firstItem="f84-nu-hXn" firstAttribute="leading" secondItem="zrD-o7-6fG" secondAttribute="leading" constant="20" id="TOl-Cb-AVy"/>
+                            <constraint firstItem="pRr-qB-AQd" firstAttribute="centerY" secondItem="M5o-yp-0Jc" secondAttribute="centerY" id="UEW-Jl-nj0"/>
+                            <constraint firstItem="f84-nu-hXn" firstAttribute="top" secondItem="zrD-o7-6fG" secondAttribute="top" constant="20" id="bf1-5F-Oq4"/>
+                            <constraint firstItem="pRr-qB-AQd" firstAttribute="leading" secondItem="XSR-DH-1lk" secondAttribute="leading" id="iZA-Wp-9g1"/>
+                            <constraint firstItem="mp5-Ao-c57" firstAttribute="centerY" secondItem="Nx7-o1-Ryq" secondAttribute="centerY" id="iv1-yF-nQG"/>
+                            <constraint firstItem="XSR-DH-1lk" firstAttribute="centerY" secondItem="cCc-bG-f0a" secondAttribute="centerY" id="lZL-32-mfl"/>
+                            <constraint firstItem="Nx7-o1-Ryq" firstAttribute="leading" secondItem="f84-nu-hXn" secondAttribute="leading" id="xMb-08-SIB"/>
+                            <constraint firstItem="3EC-x4-sbo" firstAttribute="leading" secondItem="f84-nu-hXn" secondAttribute="leading" id="yJw-wf-2Tm"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="audioInputDeviceButton" destination="XSR-DH-1lk" id="ko7-ys-guM"/>
+                        <outlet property="audioOutputDeviceButton" destination="mp5-Ao-c57" id="UIQ-6Y-6Je"/>
+                        <outlet property="micMuteSwitch" destination="pRr-qB-AQd" id="yMi-2w-Ddc"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="9jR-Q6-2hz" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="300.5859375" y="971.875"/>
+        </scene>
     </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
 </document>

@@ -19,6 +19,15 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
     const IRECT b = pGraphics->GetBounds();
     pGraphics->AttachControl(new ITextControl(b.GetMidVPadded(50), "Hello iPlug 2!", IText(50)));
     pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-100), kGain));
+#ifdef OS_IOS
+    if(!IsOOPAuv3AppExtension())
+    {
+      pGraphics->AttachControl(new IVButtonControl(b.GetFromTRHC(100, 100), [pGraphics](IControl* pCaller) {
+                               LaunchSettings();
+                               SplashClickActionFunc(pCaller);
+                             }, "iOS Audio Settings"));
+    }
+#endif
   };
 #endif
 }
