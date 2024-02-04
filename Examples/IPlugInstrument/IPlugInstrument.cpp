@@ -2,6 +2,82 @@
 #include "IPlug_include_in_plug_src.h"
 #include "LFO.h"
 
+#ifdef OS_IOS
+#include "IPlugIOSMIDI.h"
+
+class MIDISelector : public IControl
+{
+public:
+  
+  MIDISelector(IRECT bounds, ERoute route)
+  : mRoute(route)
+  , IControl(bounds.GetPadded(-0.5f))
+  {}
+  
+  void OnMouseDown(float x, float y, const IMouseMod &mod) override
+  {
+    WDL_String lastChoice;
+    
+    IPlugIOSMIDI::GetMidiPort(lastChoice, mRoute);
+    
+    mMenu.Clear();
+    if (mRoute == kInput)
+      mMenu.SetRootTitle("MIDI Input");
+    else
+      mMenu.SetRootTitle("MIDI Output");
+    
+    int items = static_cast<int>(IPlugIOSMIDI::GetNumSourcesOrDestinations(mRoute));
+    bool matched = false;
+    
+    for (int i = 0; i < items; i++)
+    {
+      WDL_String name;
+      IPlugIOSMIDI::GetNameFromIndex(name, i, mRoute);
+      
+      if (!strcmp(lastChoice.Get(), name.Get()))
+      {
+        mMenu.AddItem(name.Get(), -1, iplug::igraphics::IPopupMenu::Item::kChecked);
+        matched = true;
+      }
+      else
+        mMenu.AddItem(name.Get());
+    }
+    
+    if (!matched)
+      mMenu.AddItem(lastChoice.Get(), -1, iplug::igraphics::IPopupMenu::Item::kDisabled | iplug::igraphics::IPopupMenu::Item::kChecked);
+    
+    
+    GetUI()->CreatePopupMenu(*this, mMenu, mRECT);
+  }
+  
+  void Draw(IGraphics &g) override
+  {
+    WDL_String lastChoice;
+    
+    IPlugIOSMIDI::GetMidiPort(lastChoice, mRoute);
+    
+    g.FillRect(COLOR_LIGHT_GRAY, mRECT);
+    g.DrawRect(COLOR_BLACK, mRECT);
+    g.DrawText(mText, lastChoice.Get(), mRECT);
+  }
+  
+  void OnPopupMenuSelection(IPopupMenu *pSelectedMenu, int valIdx) override
+  {
+    if (!pSelectedMenu)
+      return;
+    
+    if (pSelectedMenu->GetChosenItemIdx() >= 0)
+    {
+      IPlugIOSMIDI::SetMidiPort(pSelectedMenu->GetChosenItem()->GetText(), mRoute);
+      SetDirty();
+    }
+  }
+  
+  ERoute mRoute;
+  IPopupMenu mMenu;
+};
+#endif
+
 IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
@@ -68,15 +144,24 @@ IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
         pGraphics->GetControlWithTag(kCtrlTagKeyboard)->Hide(hide = !hide);
         pGraphics->Resize(PLUG_WIDTH, hide ? PLUG_HEIGHT / 2 : PLUG_HEIGHT, pGraphics->GetDrawScale());
     });
-//#ifdef OS_IOS
-//    if(!IsOOPAuv3AppExtension())
-//    {
-//      pGraphics->AttachControl(new IVButtonControl(b.GetFromTRHC(100, 100), [pGraphics](IControl* pCaller) {
-//                               dynamic_cast<IGraphicsIOS*>(pGraphics)->LaunchBluetoothMidiDialog(pCaller->GetRECT().L, pCaller->GetRECT().MH());
-//                               SplashClickActionFunc(pCaller);
-//                             }, "BTMIDI"));
-//    }
-//#endif
+#ifdef OS_IOS
+    if(!IsOOPAuv3AppExtension())
+    {
+      const IText text {DEFAULT_TEXT_SIZE + 5.f, EVAlign::Middle};
+      
+      auto style = IVStyle().WithDrawShadows(false).WithLabelText(text).WithShadowOffset(0.0);
+      
+      pGraphics->AttachControl(new IVButtonControl(IRECT(40, 300, 120, 330),
+                                                   [pGraphics](IControl* pCaller)
+                                                   {
+        dynamic_cast<IGraphicsIOS*>(pGraphics)->LaunchBluetoothMidiDialog(pCaller->GetRECT().L, pCaller->GetRECT().MH());
+        SplashClickActionFunc(pCaller);
+      }, "BTMIDI", style));
+      
+      pGraphics->AttachControl(new MIDISelector(IRECT(140, 300, 280, 330), kInput));
+      pGraphics->AttachControl(new MIDISelector(IRECT(300, 300, 440, 330), kOutput));
+    }
+#endif
     
     pGraphics->SetQwertyMidiKeyHandlerFunc([pGraphics](const IMidiMsg& msg) {
                                               pGraphics->GetControlWithTag(kCtrlTagKeyboard)->As<IVKeyboardControl>()->SetNoteFromMidi(msg.NoteNumber(), msg.StatusMsg() == IMidiMsg::kNoteOn);

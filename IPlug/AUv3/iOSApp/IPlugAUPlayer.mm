@@ -9,6 +9,7 @@
 */
 
 #import "IPlugAUPlayer.h"
+#import "IPlugIOSMIDI.h"
 #include "IPlugConstants.h"
 #include "config.h"
 
@@ -21,6 +22,7 @@
   AVAudioEngine* audioEngine;
   AVAudioUnit* avAudioUnit;
   UInt32 componentType;
+  IPlugIOSMIDIHost* midiHost;
 }
 
 - (instancetype) initWithComponentType: (UInt32) unitComponentType
@@ -31,6 +33,7 @@
   {
     audioEngine = [[AVAudioEngine alloc] init];
     componentType = unitComponentType;
+    midiHost = [[IPlugIOSMIDIHost alloc] init];
   }
 
   return self;
@@ -61,7 +64,9 @@
 #else
   [session setCategory: AVAudioSessionCategoryPlayAndRecord error:&error];
 #endif
-  
+
+  [midiHost setAUAudioUnit:avAudioUnit.AUAudioUnit];
+    
   [session setPreferredSampleRate:iplug::DEFAULT_SAMPLE_RATE error:nil];
   [session setPreferredIOBufferDuration:128.0/iplug::DEFAULT_SAMPLE_RATE error:nil];
   AVAudioMixerNode* mainMixer = [audioEngine mainMixerNode];
