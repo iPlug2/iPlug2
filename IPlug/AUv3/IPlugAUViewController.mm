@@ -13,6 +13,7 @@
 #import "IPlugAUViewController.h"
 #include "IPlugPlatform.h"
 #include "IPlugLogger.h"
+#include "IPlugAUv3InstanceInfo.h"
 
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
@@ -22,6 +23,19 @@
 @end
 
 @implementation IPLUG_AUVIEWCONTROLLER
+
+- (AUAudioUnit*)createAudioUnitWithComponentDescription:(AudioComponentDescription)desc
+                                           instanceInfo:(iplug::InstanceInfo*)instanceInfo
+                                                  error:(NSError **)error {
+
+  self.audioUnit = [[IPLUG_AUAUDIOUNIT alloc] initWithComponentDescription:desc
+                                                              instanceInfo:instanceInfo
+                                                                     error:error];
+
+  [self audioUnitInitialized];
+
+  return self.audioUnit;
+}
 
 - (AUAudioUnit*) createAudioUnitWithComponentDescription:(AudioComponentDescription) desc error:(NSError **)error
 {

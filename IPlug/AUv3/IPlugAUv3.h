@@ -28,15 +28,12 @@
 #include "IPlugAPIBase.h"
 #include "IPlugProcessor.h"
 
+#include "IPlugAUv3InstanceInfo.h"
+
 union AURenderEvent;
 struct AUMIDIEvent;
 
 BEGIN_IPLUG_NAMESPACE
-
-/** Used to pass various instance info to the API class */
-struct InstanceInfo
-{
-};
 
 /**  AudioUnit v3 API base class for an IPlug plug-in
  *   @ingroup APIClasses */

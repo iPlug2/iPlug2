@@ -22,7 +22,12 @@
   #endif
 #endif
 
+#include "IPlugAUv3InstanceInfo.h"
+
 @interface IPLUG_AUAUDIOUNIT : AUAudioUnit
+- (instancetype)initWithComponentDescription:(AudioComponentDescription)componentDescription
+                                instanceInfo:(iplug::InstanceInfo*)instanceInfo
+                                       error:(NSError **)ppOutError;
 - (void) beginInformHostOfParamChange: (uint64_t) address;
 - (void) informHostOfParamChange: (uint64_t) address : (float) realValue;
 - (void) endInformHostOfParamChange: (uint64_t) address;

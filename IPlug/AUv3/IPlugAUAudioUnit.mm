@@ -112,6 +112,16 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
                                      options:(AudioComponentInstantiationOptions)options
                                        error:(NSError **)ppOutError {
   
+  self = [self initWithComponentDescription:componentDescription options: options instanceInfo:nil error:ppOutError];
+
+  return self;
+}
+
+- (instancetype)initWithComponentDescription:(AudioComponentDescription)componentDescription
+                                     options:(AudioComponentInstantiationOptions)options
+                                instanceInfo:(iplug::InstanceInfo*) instanceInfo
+                                       error:(NSError **)ppOutError {
+
   self = [super initWithComponentDescription:componentDescription
                                      options:options
                                        error:ppOutError];
@@ -119,7 +129,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   if (self == nil) { return nil; }
   
   // Create a DSP kernel to handle the signal processing.
-  mPlug = MakePlug(InstanceInfo());
+  mPlug = MakePlug(instanceInfo ? *instanceInfo : InstanceInfo());
   
   assert(mPlug);
   
