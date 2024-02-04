@@ -217,13 +217,21 @@ bool isInstrument()
   {
     NSLog(@"Output Port Name: %@", output.portName);
   }
+  
+  if ([self hasHeadphonesInRouteDescription: currentRoute])
+  {
+    NSLog(@"Headphones Connected");
+  }
 }
 
 - (void) addNotifications
 {
+  AVAudioSession* session = [AVAudioSession sharedInstance];
   NSNotificationCenter* notifCtr = [NSNotificationCenter defaultCenter];
 
   [notifCtr addObserver: self selector: @selector (onEngineConfigurationChange:) name:AVAudioEngineConfigurationChangeNotification object: engine];
+  
+  [notifCtr addObserver: self selector: @selector (onSessionRouteChange:) name: AVAudioSessionRouteChangeNotification object: session];
 }
 
 #pragma mark Notifications
@@ -231,5 +239,55 @@ bool isInstrument()
 {
   [self restartAudioEngine];
 }
+
+- (BOOL) hasHeadphonesInRouteDescription: (AVAudioSessionRouteDescription*) routeDescription
+{
+  for (AVAudioSessionPortDescription* output in routeDescription.outputs)
+  {
+    if ([output.portType isEqualToString:AVAudioSessionPortHeadphones] ||
+        [output.portName containsString:@"AirPods"])
+    {
+      return YES;
+    }
+  }
+  return NO;
+}
+
+- (void) onSessionRouteChange: (NSNotification*) notification
+{
+  AVAudioSession* session = [AVAudioSession sharedInstance];
+  NSDictionary* userInfo = [notification userInfo];
+  switch ([[userInfo objectForKey: AVAudioSessionRouteChangeReasonKey] unsignedIntegerValue])
+  {
+//    case AVAudioSessionRouteChangeReasonCategoryChange:
+//    case AVAudioSessionRouteChangeReasonRouteConfigurationChange:
+//      break;
+//    case AVAudioSessionRouteChangeReasonOverride:
+//    case AVAudioSessionRouteChangeReasonUnknown:
+    case AVAudioSessionRouteChangeReasonNewDeviceAvailable:
+    {
+      BOOL headphonesConnected = [self hasHeadphonesInRouteDescription: [session currentRoute]];
+      NSLog(@"Headphones Connected %i", headphonesConnected);
+      [self printSessionInfo];
+      break;
+    }
+    case AVAudioSessionRouteChangeReasonOldDeviceUnavailable:
+    {
+      AVAudioSessionRouteDescription* desc = [userInfo objectForKey: AVAudioSessionRouteChangePreviousRouteKey];
+      BOOL headphonesConnected = [self hasHeadphonesInRouteDescription: desc];
+      NSLog(@"Headphones Connected %i", headphonesConnected);
+      [self printSessionInfo];
+      break;
+    }
+    default:
+      break;
+//    case AVAudioSessionRouteChangeReasonWakeFromSleep:
+//    case AVAudioSessionRouteChangeReasonNoSuitableRouteForCategory:
+//    {
+//      break;
+//    }
+  }
+}
+
 
 @end
