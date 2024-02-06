@@ -139,6 +139,20 @@ bool isInstrument()
   {
     NSLog(@"Error setting io buffer duration: %@", error);
   }
+  
+  if (!isInstrument())
+  {
+    if (@available(iOS 17.0, *)) {
+      AVAudioApplication* audioApplication = [AVAudioApplication sharedInstance];
+      [audioApplication setInputMuted:YES error:&error];
+      if (error)
+      {
+        NSLog(@"Error muting microphone: %@", error);
+      }
+    } else {
+      // TODO: fallback on earlier versions
+    }
+  }
 }
 
 - (void) makeEngineConnections
