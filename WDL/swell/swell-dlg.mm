@@ -567,6 +567,7 @@ struct swell_metal_device_ctx {
     if (m_commandBuffer)
     {
       [m_commandBuffer commit];
+      [m_commandBuffer waitUntilCompleted];
       [m_commandBuffer release];
       m_commandBuffer = NULL;
     }
