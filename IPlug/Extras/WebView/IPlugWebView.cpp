@@ -58,6 +58,10 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
               mWebViewCtrlr = controller;
               mWebViewCtrlr->get_CoreWebView2(&mWebViewWnd);
             }
+            
+            if (mWebViewWnd == nullptr) {
+              return S_OK;
+            }
 
             ICoreWebView2Settings* Settings;
             mWebViewWnd->get_Settings(&Settings);
