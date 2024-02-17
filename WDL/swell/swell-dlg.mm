@@ -1686,6 +1686,10 @@ static bool s_mtl_in_update;
   }
 
   id<MTLBlitCommandEncoder> encoder = [ctx->m_commandBuffer blitCommandEncoder];
+  if (WDL_NOT_NORMALLY(encoder == NULL))
+  {
+    NSLog(@"swell-cocoa: metal blitCommandEncoder failure\n");
+  }
 
   [encoder copyFromTexture:m_metal_texture
     sourceSlice:0 sourceLevel:0 sourceOrigin:MTLOriginMake(0,0,0)
@@ -4116,6 +4120,10 @@ static void SWELL_Metal_WriteTex(SWELL_hwndChild *wnd, const unsigned int *srcbu
         else if (layer.contentsScale != (retina_hint ? 2.0 : 1.0))
           layer.contentsScale = retina_hint ? 2.0 : 1.0;
         tex = [(wnd->m_metal_drawable = [layer nextDrawable]) texture];
+        if (WDL_NOT_NORMALLY(!tex))
+        {
+          NSLog(@"swell-cocoa: error creating metal texture for direct mode\n");
+        }
         wnd->m_metal_texture = tex;
       }
     }
@@ -4132,6 +4140,10 @@ static void SWELL_Metal_WriteTex(SWELL_hwndChild *wnd, const unsigned int *srcbu
         textureDescriptor.height = want_h;
         tex = [wnd->m_metal_device newTextureWithDescriptor:textureDescriptor];
         wnd->m_metal_texture = tex;
+        if (WDL_NOT_NORMALLY(!tex))
+        {
+          NSLog(@"swell-cocoa: error creating metal texture for full mode\n");
+        }
 
         [textureDescriptor release];
       }
