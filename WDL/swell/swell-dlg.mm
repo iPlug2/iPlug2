@@ -1507,6 +1507,10 @@ static bool s_mtl_in_update;
   const bool direct_mode = m_use_metal == 1;
 
   CAMetalLayer *layer = (CAMetalLayer *)[self layer];
+
+  // this might happen if a caller calls SWELL_SetMetal too late after drawing has already occurred (and the backing layer was already created)
+  if (WDL_NOT_NORMALLY(![layer respondsToSelector:@selector(setFramebufferOnly:)])) return;
+
   layer.framebufferOnly = NO;
 
   id<MTLDevice> device = m_metal_device;
