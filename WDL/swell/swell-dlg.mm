@@ -560,7 +560,7 @@ struct swell_metal_device_ctx {
   }
 
   id<MTLCommandQueue> m_commandQueue;
-  id<MTLCommandBuffer> m_commandBuffer;
+  id<MTLCommandBuffer> m_commandBuffer; // only used for presentation
 
   void present()
   {
@@ -1682,7 +1682,11 @@ static bool s_mtl_in_update;
     [ctx->m_commandBuffer retain];
   }
 
-  id<MTLBlitCommandEncoder> encoder = [ctx->m_commandBuffer blitCommandEncoder];
+  id<MTLCommandBuffer> cb = [ctx->m_commandQueue commandBuffer];
+  if (WDL_NOT_NORMALLY(cb == NULL))
+    cb = ctx->m_commandBuffer; // backup, run commands in the presentation buffer
+
+  id<MTLBlitCommandEncoder> encoder = [cb blitCommandEncoder];
   if (WDL_NOT_NORMALLY(encoder == NULL))
   {
     NSLog(@"swell-cocoa: metal blitCommandEncoder failure\n");
@@ -1695,6 +1699,9 @@ static bool s_mtl_in_update;
       destinationSlice:0 destinationLevel:0 destinationOrigin:MTLOriginMake(0,0,0)];
 
   [encoder endEncoding];
+
+  if (cb != ctx->m_commandBuffer)
+    [cb commit];
 
   [ctx->m_commandBuffer presentDrawable:drawable];
 
