@@ -51,7 +51,7 @@
     if ((sz).width > 16384.0) (sz).width = 16384.0; \
     if ((sz).height > 16384.0) (sz).height = 16384.0;
 
-static id __class_CAMetalLayer, __class_MTLRenderPassDescriptor, __class_MTLTextureDescriptor, __class_MTLRenderPipelineDescriptor, __class_MTLCompileOptions;
+static id __class_CAMetalLayer, __class_MTLTextureDescriptor;
 static id<MTLDevice> (*__MTLCreateSystemDefaultDevice)(void);
 static id<MTLDevice> (*__CGDirectDisplayCopyCurrentMetalDevice)(CGDirectDisplayID);
 
@@ -3892,10 +3892,7 @@ static bool mtl_init()
     if (__MTLCreateSystemDefaultDevice &&
         __MTLCopyAllDevices &&
         (__class_CAMetalLayer = objc_getClass("CAMetalLayer")) &&
-        (__class_MTLRenderPassDescriptor = objc_getClass("MTLRenderPassDescriptor")) &&
-        (__class_MTLRenderPipelineDescriptor = objc_getClass("MTLRenderPipelineDescriptor")) &&
-        (__class_MTLTextureDescriptor = objc_getClass("MTLTextureDescriptor")) &&
-        (__class_MTLCompileOptions = objc_getClass("MTLCompileOptions"))
+        (__class_MTLTextureDescriptor = objc_getClass("MTLTextureDescriptor"))
         )
     {
       NSArray *ar = __MTLCopyAllDevices();
