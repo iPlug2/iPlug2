@@ -1506,13 +1506,6 @@ static bool s_mtl_in_update;
   if (m_use_metal != 1 && m_use_metal != 2) return;
   const bool direct_mode = m_use_metal == 1;
 
-  CAMetalLayer *layer = (CAMetalLayer *)[self layer];
-
-  // this might happen if a caller calls SWELL_SetMetal too late after drawing has already occurred (and the backing layer was already created)
-  if (WDL_NOT_NORMALLY(![layer respondsToSelector:@selector(setFramebufferOnly:)])) return;
-
-  layer.framebufferOnly = NO;
-
   id<MTLDevice> device = m_metal_device;
 
   static bool reg;
@@ -1547,6 +1540,11 @@ static bool s_mtl_in_update;
     device = def;
   }
 
+  CAMetalLayer *layer = (CAMetalLayer *)[self layer];
+
+  // this might happen if a caller calls SWELL_SetMetal too late after drawing has already occurred (and the backing layer was already created)
+  if (WDL_NOT_NORMALLY(![layer respondsToSelector:@selector(setFramebufferOnly:)])) return;
+
   if (device != m_metal_device)
   {
     id<MTLDevice> olddev = (id<MTLDevice>)m_metal_device;
@@ -1554,8 +1552,7 @@ static bool s_mtl_in_update;
     m_metal_device = device;
     [layer setDevice:device];
     swell_metal_set_layer_gravity(layer,m_metal_gravity ^ ([self isFlipped] ? 2 : 0));
-    if (m_use_metal==1)
-      layer.framebufferOnly = NO;
+    layer.framebufferOnly = NO;
     [layer setPixelFormat:MTLPixelFormatBGRA8Unorm];
 
     if (!direct_mode) [m_metal_texture release];
