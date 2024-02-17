@@ -4243,7 +4243,7 @@ void SWELL_Metal_Blit(void *_tex, const unsigned int *srcbuf, int x, int y, int 
       }
     }
 
-    if (use_alpha && WDL_NORMALLY(wnd->m_metal_texture))
+    if (use_alpha && wnd->m_metal_texture)
     {
       id<MTLTexture> tex = (id<MTLTexture>) wnd->m_metal_texture;
       const int texw = (int)tex.width, texh = (int)tex.height;
