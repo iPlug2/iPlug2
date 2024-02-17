@@ -582,7 +582,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     [alertController addAction:cancelAction];
   }
   
-  [self.window.rootViewController presentViewController:alertController animated:YES completion:nil];
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    [self.window.rootViewController presentViewController:alertController animated:YES completion:nil];
+  }];
 }
 
 - (void) promptForFile: (NSString*) fileName : (NSString*) path : (EFileAction) action : (NSArray*) contentTypes : (IFileDialogCompletionHandlerFunc) completionHandler
