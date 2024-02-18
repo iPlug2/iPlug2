@@ -211,8 +211,9 @@ public:
   inline IControl* SetAnimationEndActionFunction(IActionFunction actionFunc) { mAnimationEndActionFunc = actionFunc; return this; }
   
   /** Set a tooltip for the control
-   * @param str CString tooltip to be displayed */
-  inline void SetTooltip(const char* str) { mTooltip.Set(str); }
+   * @param str CString tooltip to be displayed
+   * @return Ptr to this control, for chaining */
+  inline IControl* SetTooltip(const char* str) { mTooltip.Set(str); return this; }
   
   /** @return Currently set tooltip text */
   inline const char* GetTooltip() const { return mTooltip.Get(); }
