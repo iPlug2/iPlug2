@@ -657,6 +657,28 @@ bool IGraphicsMac::SetFilePathInClipboard(const char* path)
   return (bool)success;
 }
 
+bool IGraphicsMac::InitiateExternalFileDragDrop(const char *path, IRECT dragIconBounds) {
+    NSPasteboardItem *pasteboardItem = [[NSPasteboardItem alloc] init];
+    NSString *path_ns = [NSString stringWithUTF8String: path];
+    //NSString *path_esc = [path_ns stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSURL* fileURL = [NSURL fileURLWithPath: path_ns];
+    [pasteboardItem setString:fileURL.absoluteString forType:NSPasteboardTypeFileURL];
+
+    IGRAPHICS_VIEW *view = (IGRAPHICS_VIEW*) mView;
+    NSDraggingItem *draggingItem = [[NSDraggingItem alloc] initWithPasteboardWriter:pasteboardItem];
+    NSRect draggingFrame = ToNSRect(this, dragIconBounds); // Customize this frame as needed
+    NSImage *iconImage = [[NSWorkspace sharedWorkspace] iconForFile:fileURL.path];
+    [iconImage setSize:NSMakeSize(64, 64)]; // Customize the size as needed
+    [draggingItem setDraggingFrame:draggingFrame contents: iconImage];
+
+    NSDraggingSession *draggingSession = [view beginDraggingSessionWithItems:@[draggingItem] event:[NSApp currentEvent] source: view];
+    draggingSession.animatesToStartingPositionsOnCancelOrFail = YES;
+    draggingSession.draggingFormation = NSDraggingFormationNone;
+
+    ReleaseMouseCapture(); // needed to not get stuck in mousedown, since drag-n-drop takes over the mouse
+    return true;
+}
+
 EUIAppearance IGraphicsMac::GetUIAppearance() const
 {
   if (@available(macOS 10.14, *)) {

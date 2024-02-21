@@ -66,6 +66,8 @@ public:
   bool SetTextInClipboard(const char* str) override;
   bool SetFilePathInClipboard(const char* path) override;
 
+  bool InitiateExternalFileDragDrop(const char *path, IRECT dragIconBounds) override;
+
   float MeasureText(const IText& text, const char* str, IRECT& bounds) const override;
 
   EUIAppearance GetUIAppearance() const override;

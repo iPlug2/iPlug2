@@ -1953,6 +1953,32 @@ bool IGraphicsWin::SetFilePathInClipboard(const char* path)
   return result;
 }
 
+#include "WinDragAndDropHelpers.h"
+
+bool IGraphicsWin::InitiateExternalFileDragDrop(const char *filePathIn, IRECT dragIconBounds) {
+
+    using namespace DragAndDropHelpers;
+    OleInitialize(nullptr);
+
+    FORMATETC format = { CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+
+    DataObject* dataObj = new DataObject(&format, filePathIn);
+    DropSource* dropSource = new DropSource();
+
+    DWORD dropEffect;
+    HRESULT ret = DoDragDrop(dataObj, dropSource, DROPEFFECT_COPY, &dropEffect);
+    bool success = SUCCEEDED(ret);
+
+    dataObj->Release();
+    dropSource->Release();
+
+    OleUninitialize();
+
+    ReleaseMouseCapture(); // needed to not get stuck in mousedown, since drag-n-drop takes over the mouse
+
+    return success;
+}
+
 static HFONT GetHFont(const char* fontName, int weight, bool italic, bool underline, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)
 {
   HDC hdc = GetDC(NULL);
