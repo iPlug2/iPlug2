@@ -1285,6 +1285,11 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   return YES;
 }
 
+- (NSDragOperation)draggingSession:(NSDraggingSession*) session sourceOperationMaskForDraggingContext:(NSDraggingContext)context
+{
+  return NSDragOperationCopy;
+}
+
 #ifdef IGRAPHICS_METAL
 - (void) frameDidChange:(NSNotification*) pNotification
 {

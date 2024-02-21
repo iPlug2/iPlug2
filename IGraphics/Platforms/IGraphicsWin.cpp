@@ -16,6 +16,7 @@
 
 #include "IPlugParameter.h"
 #include "IGraphicsWin.h"
+#include "IGraphicsWin_dnd.h"
 #include "IPopupMenuControl.h"
 #include "IPlugPaths.h"
 
@@ -1951,6 +1952,30 @@ bool IGraphicsWin::SetFilePathInClipboard(const char* path)
 
   CloseClipboard();
   return result;
+}
+
+bool IGraphicsWin::InitiateExternalFileDragDrop(const char* path, const IRECT& /*iconBounds*/)
+{
+  using namespace DragAndDropHelpers;
+  OleInitialize(nullptr);
+  
+  FORMATETC format = { CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+  
+  DataObject* dataObj = new DataObject(&format, path);
+  DropSource* dropSource = new DropSource();
+  
+  DWORD dropEffect;
+  HRESULT ret = DoDragDrop(dataObj, dropSource, DROPEFFECT_COPY, &dropEffect);
+  bool success = SUCCEEDED(ret);
+  
+  dataObj->Release();
+  dropSource->Release();
+  
+  OleUninitialize();
+  
+  ReleaseMouseCapture();
+
+  return success;
 }
 
 static HFONT GetHFont(const char* fontName, int weight, bool italic, bool underline, DWORD quality = DEFAULT_QUALITY, bool enumerate = false)

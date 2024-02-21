@@ -860,6 +860,12 @@ public:
    * @return /c true on success */
   virtual bool SetFilePathInClipboard(const char* path) { return false; }
 
+  /** Initiate an drag-n-drop operation of an existing file, to be dropped outside of the current window
+   * @param path A CString that contains a path to a file on disk
+   * @param iconBounds The area where the icon should appear
+   * @return /c true on success */
+  virtual bool InitiateExternalFileDragDrop(const char* path, const IRECT& iconBounds) { return false; };
+
   /** Call this if you modify control tool tips at runtime. \todo explain */
   virtual void UpdateTooltips() = 0;
 
