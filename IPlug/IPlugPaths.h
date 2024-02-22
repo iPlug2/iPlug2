@@ -16,6 +16,7 @@
  */
 
 #include "IPlugUtilities.h"
+#include <functional>
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -87,6 +88,13 @@ extern EResourceLocation LocateResource(const char* fileNameOrResID, const char*
  * @return const void pointer to the data if successfull on windows. Returns nullptr if unsuccessfull or on platforms other than windows */
 extern const void* LoadWinResource(const char* resID, const char* type, int& sizeInBytes, void* pHInstance);
 
+/** When you want to access a file that is outside of the application's sandbox, you can use this method to retrieve
+ * a previous bookmark (obtained when browsing for a folder) and execute a block of code in between security scope
+ * start/end calls. This is only relevant on iOS and macOS, but windows no-op exists for cross-platform compatibility.
+ * @param bookmarkData the key where where the bookmark was stored
+ * @param func this callable will be executed between security scope start/end calls */
+extern bool AccessBookmarkedPath(const WDL_TypedBuf<uint8_t>& bookmarkData, std::function<void()> func);
+
 #if defined OS_MAC || defined OS_IOS
 
 /** @return \c true if the app is sandboxed (and therefore file access etc is restricted) */
@@ -107,4 +115,3 @@ extern bool IsOOPAuv3AppExtension();
 #endif
 
 END_IPLUG_NAMESPACE
-
