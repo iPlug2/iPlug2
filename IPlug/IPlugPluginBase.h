@@ -99,7 +99,10 @@ public:
   
   /*** @return a CString with the bundle identifier (macOS/IOS only) */
   const char* GetBundleID() const { return mBundleID.Get(); }
-    
+
+  /*** @return a CString with the app group identifier (macOS/IOS only) */
+  const char* GetAppGroupID() const { return mAppGroupID.Get(); }
+
 #pragma mark - Parameters
   
   /** @return The number of unique parameter groups identified */
@@ -413,6 +416,8 @@ private:
   EAPI mAPI;
   /** macOS/iOS bundle ID */
   WDL_String mBundleID;
+  /** macOS/iOS app group ID */
+  WDL_String mAppGroupID;
   /** \c true if the plug-in has a user interface. If false the host will provide a default interface */
   bool mHasUI = false;
   /** \c true if the host window chrome should be able to resize the plug-in UI, only applicable in certain formats/hosts */
