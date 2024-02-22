@@ -1682,7 +1682,7 @@ void IGraphicsWin::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   // Async is not required on windows, but call the completion handler anyway
   if (completionHandler)
   {
-    completionHandler(fileName, path);
+    completionHandler(fileName, path, nullptr, 0);
   }
 
   ReleaseMouseCapture();
@@ -1722,7 +1722,7 @@ void IGraphicsWin::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHand
   if (completionHandler)
   {
     WDL_String fileName; // not used
-    completionHandler(fileName, dir);
+    completionHandler(fileName, dir, nullptr, 0);
   }
 
   ReleaseMouseCapture();
