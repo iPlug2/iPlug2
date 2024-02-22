@@ -27,6 +27,7 @@ public:
   virtual ~IGraphicsMac();
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
+  void SetAppGroupID(const char* appGroupID) { mAppGroupID.Set(appGroupID); }
 
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
@@ -59,7 +60,8 @@ public:
 
   void* GetWindow() override;
 
-  const char* GetBundleID() override { return mBundleID.Get(); }
+  const char* GetBundleID() const override { return mBundleID.Get(); }
+  const char* GetAppGroupID() const override { return mAppGroupID.Get(); }
   static int GetUserOSVersion();
 
   bool GetTextFromClipboard(WDL_String& str) override;
@@ -87,7 +89,7 @@ private:
   
   void* mView = nullptr;
   CGPoint mCursorLockPosition;
-  WDL_String mBundleID;
+  WDL_String mBundleID, mAppGroupID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };
 

@@ -38,6 +38,7 @@ IPlugAPIBase::IPlugAPIBase(Config c, EAPI plugAPI)
   mStateChunks = c.plugDoesChunks;
   mAPI = plugAPI;
   mBundleID.Set(c.bundleID);
+  mAppGroupID.Set(c.appGroupID);
 
   Trace(TRACELOC, "%s:%s", c.pluginName, CurrentTime());
   

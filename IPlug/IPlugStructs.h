@@ -413,6 +413,7 @@ struct Config
   int plugMaxHeight;
   bool plugHostResize;
   const char* bundleID;
+  const char* appGroupID;
   
   Config(int nParams,
          int nPresets,
@@ -437,7 +438,8 @@ struct Config
          int plugMaxWidth,
          int plugMinHeight,
          int plugMaxHeight,
-         const char* bundleID)
+         const char* bundleID,
+         const char* appGroupID)
               
   : nParams(nParams)
   , nPresets(nPresets)
@@ -463,6 +465,7 @@ struct Config
   , plugMaxHeight(plugMaxHeight)
   , plugHostResize(plugHostResize)
   , bundleID(bundleID)
+  , appGroupID(appGroupID)
   {};
 };
 

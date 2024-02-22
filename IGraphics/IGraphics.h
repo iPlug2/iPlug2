@@ -954,7 +954,10 @@ public:
   virtual void CachePlatformFont(const char* fontID, const PlatformFontPtr& font) = 0;
 
   /** Get the bundle ID on macOS and iOS, returns emtpy string on other OSs */
-  virtual const char* GetBundleID() { return ""; }
+  virtual const char* GetBundleID() const { return ""; }
+
+  /** Get the app group ID on macOS and iOS, returns emtpy string on other OSs */
+  virtual const char* GetAppGroupID() const { return ""; }
 
 protected:
   /* Implemented on Windows to store previously active GLContext and HDC for restoring, calls GetDC */
