@@ -61,13 +61,15 @@ UIPopoverPresentationControllerDelegate,
 UIGestureRecognizerDelegate,
 UITraitEnvironment,
 UIDocumentPickerDelegate,
-UIColorPickerViewControllerDelegate
+UIColorPickerViewControllerDelegate,
+UIDocumentInteractionControllerDelegate
 >
 {
 @public
   IGraphicsIOS* mGraphics;
   IGRAPHICS_UITABLEVC* mMenuTableController;
   UINavigationController* mMenuNavigationController;
+  UIDocumentInteractionController* mDocumentInteractionController;
   UITextField* mTextField;
   UIAlertController* mAlertController;
   CAMetalLayer* mMTLLayer;
@@ -89,6 +91,7 @@ UIColorPickerViewControllerDelegate
 - (void) promptForDirectory: (NSString*) path : (IFileDialogCompletionHandlerFunc) completionHandler;
 - (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func;
 - (void) presentationControllerDidDismiss: (UIPresentationController*) presentationController;
+- (void) revealPathInFilesApp: (WDL_String&) path : (bool) select;
 
 //UIDocumentPickerDelegate,
 - (void) documentPicker:(UIDocumentPickerViewController*) controller didPickDocumentsAtURLs:(NSArray <NSURL *>*)urls;
@@ -97,6 +100,9 @@ UIColorPickerViewControllerDelegate
 //UIColorPickerViewControllerDelegate
 - (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
 - (void) colorPickerViewControllerDidFinish:(UIColorPickerViewController*) viewController;
+
+//UIDocumentInteractionControllerDelegate
+- (UIViewController *)documentInteractionControllerViewControllerForPreview:(UIDocumentInteractionController *)controller;
 
 //gestures
 - (void) attachGestureRecognizer: (EGestureType) type;

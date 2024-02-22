@@ -53,7 +53,8 @@ public:
   void MoveMouseCursor(float x, float y) override {}; // NOOP
   
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
-  
+  bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
+
   void* GetWindow() override;
   
   const char* GetBundleID() override { return mBundleID.Get(); }

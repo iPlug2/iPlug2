@@ -296,6 +296,13 @@ bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const ch
   return false;
 }
 
+bool IGraphicsIOS::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
+{
+  [(IGRAPHICS_VIEW*) mView revealPathInFilesApp:path : select];
+  
+  return true;
+}
+
 void* IGraphicsIOS::GetWindow()
 {
   if (mView)

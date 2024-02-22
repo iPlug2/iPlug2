@@ -923,5 +923,17 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   y = mPrevY * scale;
 }
 
+- (void) revealPathInFilesApp: (WDL_String&) path : (bool) select
+{
+  NSURL* pFileURL = [NSURL fileURLWithPath:[NSString stringWithUTF8String:path.Get()]];
+  mDocumentInteractionController = [UIDocumentInteractionController interactionControllerWithURL:pFileURL];
+  mDocumentInteractionController.delegate = self;
+  [mDocumentInteractionController presentPreviewAnimated:YES];
+}
+
+- (UIViewController *)documentInteractionControllerViewControllerForPreview:(UIDocumentInteractionController *)controller {
+  return self.window.rootViewController;
+}
+
 @end
 
