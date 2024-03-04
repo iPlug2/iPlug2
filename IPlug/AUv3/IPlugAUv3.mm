@@ -14,6 +14,8 @@
 #include "IPlugAUv3.h"
 #import "IPlugAUAudioUnit.h"
 
+#include <string>
+
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
@@ -315,4 +317,14 @@ void IPlugAUv3::Prepare(double sampleRate, uint32_t blockSize)
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), false);
   SetBlockSize(blockSize);
   SetSampleRate(sampleRate);
+}
+
+void IPlugAUv3::GetListOfAUv3UserPresets(std::vector<std::string>& presetNames)
+{
+  auto userPresets = [(__bridge IPLUG_AUAUDIOUNIT*) mAUAudioUnit userPresets];
+  
+  for (AUAudioUnitPreset* userPreset in userPresets)
+  {
+    presetNames.push_back(std::string([userPreset.name UTF8String]));
+  }
 }

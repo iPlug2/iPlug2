@@ -674,7 +674,18 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     }
     else if (currentPreset.name != nil)
     {
-      self->mCurrentPreset = currentPreset;
+      // Set the currentPreset after successfully restoring the state.
+      NSError* error = nil;
+      NSDictionary<NSString*, id>* restoredState = [self presetStateFor: currentPreset error: &error];
+      if (error == nil)
+      {
+        self.fullState = restoredState;
+        self->mCurrentPreset = currentPreset;
+        self->mPlug->OnRestoreState();
+      }
+      else{
+        NSLog(@"Could not restore user preset: %@", error);
+      }
     }
   });
 }
@@ -768,6 +779,172 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   
 //  [super setFullState: newFullState]; // this hangs auval
 }
+
+- (BOOL) supportsUserPresets
+{
+  return YES;
+}
+
+- (NSArray<AUAudioUnitPreset *> *)userPresets 
+{
+  // Get the URL for the iCloud container directory
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  NSURL *containerURL = [fileManager URLForUbiquityContainerIdentifier:nil]; // Use your container identifier if needed
+  NSURL *presetsDirectoryURL = [containerURL URLByAppendingPathComponent:@"Documents/Presets"]; // Adjust path as needed
+  
+  // Enumerate .aupreset files in the directory
+  NSDirectoryEnumerator<NSURL *> *enumerator = [fileManager enumeratorAtURL:presetsDirectoryURL
+                                                includingPropertiesForKeys:@[NSURLNameKey, NSURLIsDirectoryKey]
+                                                options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                errorHandler:nil];
+  
+  NSMutableArray<AUAudioUnitPreset *> *presets = [NSMutableArray array];
+  for (NSURL *fileURL in enumerator) 
+  {
+    NSString *fileName;
+    [fileURL getResourceValue:&fileName forKey:NSURLNameKey error:nil];
+    
+    NSNumber *isDirectory;
+    [fileURL getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:nil];
+    
+    // Check if the file is a .aupreset file and not a directory
+    if ([fileName.pathExtension isEqualToString:@"aupreset"] && ![isDirectory boolValue]) 
+    {
+      AUAudioUnitPreset *preset = [[AUAudioUnitPreset alloc] init];
+      preset.number = presets.count * -1; // Assign a unique (negative) number
+      preset.name = [fileName stringByDeletingPathExtension]; // Use the file name without extension as the preset name
+      
+      [presets addObject:preset];
+    }
+  }
+  
+  return presets;
+}
+
+- (BOOL)saveUserPreset:(AUAudioUnitPreset *)userPreset error:(NSError **)outError
+{
+  NSDictionary *fullState = self.fullState;
+
+  NSData *presetData = [NSKeyedArchiver archivedDataWithRootObject:fullState requiringSecureCoding:NO error:outError];
+  // TODO: check outError?
+  
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  NSURL *containerURL = [fileManager URLForUbiquityContainerIdentifier:nil]; // TODO!
+  NSURL *presetsDirectoryURL = [containerURL URLByAppendingPathComponent:@"Documents/Presets"];
+  
+  [fileManager createDirectoryAtURL:presetsDirectoryURL withIntermediateDirectories:YES attributes:nil error:nil];
+  
+  NSString *presetFileName = [[userPreset name] stringByAppendingPathExtension:@"aupreset"];
+  NSURL *presetFileURL = [presetsDirectoryURL URLByAppendingPathComponent:presetFileName];
+  
+  BOOL success = [presetData writeToURL:presetFileURL options:NSDataWritingAtomic error:outError];
+  
+  return success;
+}
+
+- (BOOL)deleteUserPreset:(AUAudioUnitPreset *)userPreset error:(NSError **)outError
+{
+  // Validate the input
+  if (!userPreset || userPreset.name.length == 0) {
+    if (outError) {
+      *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:kAudioUnitErr_InvalidFilePath userInfo:@{NSLocalizedDescriptionKey: @"Invalid preset name."}];
+    }
+    return NO;
+  }
+  
+  // Get the URL for the iCloud container directory
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  NSURL *containerURL = [fileManager URLForUbiquityContainerIdentifier:nil]; // Use your specific container identifier if needed
+  if (!containerURL) 
+  {
+    if (outError) 
+    {
+      *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:kAudioUnitErr_NoConnection userInfo:@{NSLocalizedDescriptionKey: @"Unable to access iCloud container."}];
+    }
+    return NO;
+  }
+  
+  // Construct the full path to the preset file
+  NSURL *presetsDirectoryURL = [containerURL URLByAppendingPathComponent:@"Documents/Presets"];
+  NSString *presetFileName = [userPreset.name stringByAppendingPathExtension:@"aupreset"];
+  NSURL *presetFileURL = [presetsDirectoryURL URLByAppendingPathComponent:presetFileName];
+  
+  // Check if the file exists before attempting to delete
+  if (![fileManager fileExistsAtPath:presetFileURL.path]) {
+    if (outError) {
+      *outError = [NSError errorWithDomain:NSPOSIXErrorDomain code:ENOENT userInfo:@{NSLocalizedDescriptionKey: @"Preset file does not exist."}];
+    }
+    return NO;
+  }
+  
+  // Attempt to delete the file
+  NSError *deleteError = nil;
+  BOOL success = [fileManager removeItemAtURL:presetFileURL error:&deleteError];
+  if (!success && outError) {
+    // Provide more specific error information if possible
+    if (deleteError) {
+      *outError = deleteError;
+    } else {
+      *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:kAudioUnitErr_InvalidFilePath userInfo:@{NSLocalizedDescriptionKey: @"Failed to delete preset file."}];
+    }
+  }
+  
+  return success;
+}
+
+- (nullable NSDictionary<NSString *, id> *)presetStateFor:(AUAudioUnitPreset *)userPreset error:(NSError **)outError 
+{
+  // Validate the input
+  if (!userPreset || userPreset.name.length == 0) {
+    if (outError) {
+      *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:kAudioUnitErr_InvalidFilePath userInfo:@{NSLocalizedDescriptionKey: @"Invalid preset name."}];
+    }
+    return nil;
+  }
+  
+  // Get the URL for the iCloud container directory
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  NSURL *containerURL = [fileManager URLForUbiquityContainerIdentifier:nil]; // Use your specific container identifier if needed
+  if (!containerURL) {
+    if (outError) {
+      *outError = [NSError errorWithDomain:NSOSStatusErrorDomain code:kAudioUnitErr_NoConnection userInfo:@{NSLocalizedDescriptionKey: @"Unable to access iCloud container."}];
+    }
+    return nil;
+  }
+  
+  // Construct the full path to the preset file
+  NSURL *presetsDirectoryURL = [containerURL URLByAppendingPathComponent:@"Documents/Presets"];
+  NSString *presetFileName = [userPreset.name stringByAppendingPathExtension:@"aupreset"];
+  NSURL *presetFileURL = [presetsDirectoryURL URLByAppendingPathComponent:presetFileName];
+  
+  // Attempt to read the file
+  NSData *presetData = [NSData dataWithContentsOfURL:presetFileURL];
+  if (!presetData) {
+    if (outError) {
+      *outError = [NSError errorWithDomain:NSPOSIXErrorDomain code:ENOENT userInfo:@{NSLocalizedDescriptionKey: @"Preset file does not exist."}];
+    }
+    return nil;
+  }
+  
+  // Deserialize the NSData into a dictionary using NSKeyedUnarchiver
+  NSError *deserializationError = nil;
+  NSDictionary<NSString *, id> *presetState = nil;
+  @try {
+    presetState = [NSKeyedUnarchiver unarchivedObjectOfClass:[NSDictionary class] fromData:presetData error:&deserializationError];
+  } @catch (NSException *exception) {
+    deserializationError = [NSError errorWithDomain:NSCocoaErrorDomain code:NSCoderReadCorruptError userInfo:@{NSLocalizedDescriptionKey: @"Failed to deserialize preset data."}];
+  }
+  
+  if (!presetState || deserializationError) {
+    if (outError) {
+      *outError = deserializationError;
+    }
+    return nil;
+  }
+  
+  return presetState;
+}
+
 
 - (NSIndexSet*) supportedViewConfigurations:(NSArray<AUAudioUnitViewConfiguration*>*) availableViewConfigurations API_AVAILABLE(macos(10.13), ios(11))
 {
