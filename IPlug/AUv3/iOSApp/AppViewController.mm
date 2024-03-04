@@ -74,6 +74,11 @@
     self->pluginVC.audioUnit = (IPLUG_AUAUDIOUNIT*) self->player.currentAudioUnit;
 
     [self embedPlugInView];
+    
+    if ([self->player getMuted])
+    {
+      [self showMutedDialog];
+    }
   }];
   
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveNotification:) name:@"LaunchBTMidiDialog" object:nil];
@@ -115,6 +120,26 @@
   constraints = [NSLayoutConstraint constraintsWithVisualFormat: @"V:|[view]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(view)];
   [auView addConstraints: constraints];
 #endif
+}
+
+- (void) showMutedDialog
+{
+  UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Potential feedback loop detected"
+                                                                 message:@"Audio is muted"
+                                                          preferredStyle:UIAlertControllerStyleAlert];
+  
+  UIAlertAction *unmuteAction = [UIAlertAction actionWithTitle:@"Unmute" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+      [self->player muteOutput: false];
+  }];
+  
+  UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil];
+  
+  [alert addAction:unmuteAction];
+  [alert addAction:cancelAction];
+  
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    [self presentViewController:alert animated:YES completion:nil];
+  }];
 }
 
 - (UIRectEdge) preferredScreenEdgesDeferringSystemGestures
