@@ -87,6 +87,8 @@ bool isInstrument()
     NSLog(@"engine failed to start: %@", error);
   }
 
+  [self muteFeedbackIfNessecary];
+
   completionBlock();
 }
 
@@ -161,7 +163,7 @@ bool isInstrument()
   auto numOutputBuses = [avAudioUnit numberOfOutputs];
   AVAudioMixerNode* mainMixer = [engine mainMixerNode];
   AVAudioFormat* pluginOutputFormat = [avAudioUnit outputFormatForBus:0];
-  AVAudioNode* outputNode = [engine outputNode];
+  mainMixer.outputVolume = 0;
 
   if (numOutputBuses > 1)
   {
@@ -173,7 +175,7 @@ bool isInstrument()
   }
   else
   {
-    [engine connect:avAudioUnit to:outputNode format: pluginOutputFormat];
+    [engine connect:avAudioUnit to:mainMixer format: pluginOutputFormat];
   }
 }
 
@@ -224,6 +226,35 @@ bool isInstrument()
   NSNotificationCenter* notifCtr = [NSNotificationCenter defaultCenter];
 
   [notifCtr addObserver: self selector: @selector (onEngineConfigurationChange:) name:AVAudioEngineConfigurationChangeNotification object: engine];
+}
+
+- (void) muteFeedbackIfNessecary
+{
+  if (!isInstrument())
+  {
+    AVAudioSession* session = [AVAudioSession sharedInstance];
+    AVAudioSessionRouteDescription* currentRoute = [session currentRoute];
+    for (AVAudioSessionPortDescription* input in currentRoute.inputs)
+    {
+      if ([input.portName containsString:@"Microphone"])
+      {
+        [self muteOutput:YES];
+        return;
+      }
+    }
+  }
+
+  [self muteOutput:NO];
+}
+
+- (void) muteOutput:(BOOL)mute
+{
+  engine.mainMixerNode.outputVolume = mute ? 0.0 : 1.0;
+}
+
+- (BOOL) getMuted
+{
+  return engine.mainMixerNode.outputVolume == 0.0;
 }
 
 #pragma mark Notifications
