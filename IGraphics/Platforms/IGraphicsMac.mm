@@ -296,23 +296,23 @@ EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption,
   switch (type)
   {
     case kMB_OK:
-      NSRunAlertPanel(msg, @"%@", @"OK", @"", @"", cap);
+      NSRunAlertPanel(cap, @"%@", @"OK", @"", @"", msg);
       result = kOK;
       break;
     case kMB_OKCANCEL:
-      result = NSRunAlertPanel(msg, @"%@", @"OK", @"Cancel", @"", cap);
+      result = NSRunAlertPanel(cap, @"%@", @"OK", @"Cancel", @"", msg);
       result = result ? kOK : kCANCEL;
       break;
     case kMB_YESNO:
-      result = NSRunAlertPanel(msg, @"%@", @"Yes", @"No", @"", cap);
+      result = NSRunAlertPanel(cap, @"%@", @"Yes", @"No", @"", msg);
       result = result ? kYES : kNO;
       break;
     case kMB_RETRYCANCEL:
-      result = NSRunAlertPanel(msg, @"%@", @"Retry", @"Cancel", @"", cap);
+      result = NSRunAlertPanel(cap, @"%@", @"Retry", @"Cancel", @"", msg);
       result = result ? kRETRY : kCANCEL;
       break;
     case kMB_YESNOCANCEL:
-      result = NSRunAlertPanel(msg, @"%@", @"Yes", @"Cancel", @"No", cap);
+      result = NSRunAlertPanel(cap, @"%@", @"Yes", @"Cancel", @"No", msg);
       result = (result == 1) ? kYES : (result == -1) ? kNO : kCANCEL;
       break;
   }
