@@ -801,6 +801,11 @@ public:
   /** Remove a previously attached platform view from the IGraphics view
    * @param pView the platform view to remove, which would be a HWND on Windows, NSView* on macOS or UIView* on iOS */
   virtual void RemovePlatformView(void* pView) {};
+  
+  /** Hide a previously attached platform view from the IGraphics view
+   * @param pView the platform view to remove, which would be a HWND on Windows, NSView* on macOS or UIView* on iOS
+   * @param hide should it be hidden or not */
+  virtual void HidePlatformView(void* pView, bool hide) {};
 
   /** Get the x, y position of the mouse cursor
    * @param x Where the X position will be stored
