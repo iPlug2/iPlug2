@@ -69,6 +69,8 @@ public:
   bool SetTextInClipboard(const char* str) override;
   bool SetFilePathInClipboard(const char* path) override;
 
+  bool InitiateExternalFileDragDrop(const char* path, const IRECT& iconBounds) override API_AVAILABLE(macos(10.13));
+
   float MeasureText(const IText& text, const char* str, IRECT& bounds) const override;
 
   EUIAppearance GetUIAppearance() const override;

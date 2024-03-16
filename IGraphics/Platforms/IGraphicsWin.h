@@ -77,6 +77,8 @@ public:
   bool SetTextInClipboard(const char* str) override;
   bool SetFilePathInClipboard(const char* path) override;
 
+  bool InitiateExternalFileDragDrop(const char* path, const IRECT& iconBounds) override;
+
   bool PlatformSupportsMultiTouch() const override;
 
   static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
