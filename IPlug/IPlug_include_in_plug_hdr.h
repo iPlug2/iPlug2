@@ -114,6 +114,7 @@ END_IPLUG_NAMESPACE
   //TODO:
 #elif defined OS_WEB
   #define BUNDLE_ID ""
+  #define APP_GROUP_ID ""
 #else
   #error "No OS defined!"
 #endif
