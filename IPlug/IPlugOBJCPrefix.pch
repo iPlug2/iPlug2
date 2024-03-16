@@ -56,7 +56,8 @@
   #define MNVGtexture CONCAT(MNVGtexture_)
   #define MNVGbuffers CONCAT(MNVGbuffers_)
   #define MNVGcontext CONCAT(MNVGcontext_)
-
+  #define IPLUG_WKWEBVIEW CONCAT(IPlugWkWebView_)
+  #define IPLUG_WKSCRIPTHANDLER CONCAT(IPlugScriptHandler_)
   // these only exist in AUv3 plug-ins, so don't need the API on the end
   #define IPLUG_AUAUDIOUNIT CONCATAU(IPlugAUAudioUnit_)
   #define IPLUG_AUVIEWCONTROLLER CONCATAU(IPlugAUViewController_)
