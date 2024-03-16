@@ -283,20 +283,20 @@ void IGraphicsMac::GetMouseLocation(float& x, float&y) const
   ScreenToPoint(x, y);
 }
 
-EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
+EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
 
   long result = (long) kCANCEL;
   
   if (!str) str= "";
-  if (!caption) caption= "";
+  if (!title) title= "";
   
   NSString* msg = (NSString*) CFStringCreateWithCString(NULL,str,kCFStringEncodingUTF8);
-  NSString* cap = (NSString*) CFStringCreateWithCString(NULL,caption,kCFStringEncodingUTF8);
+  NSString* cap = (NSString*) CFStringCreateWithCString(NULL,title,kCFStringEncodingUTF8);
  
   msg = msg ? msg : (NSString*) CFStringCreateWithCString(NULL, str, kCFStringEncodingASCII);
-  cap = cap ? cap : (NSString*) CFStringCreateWithCString(NULL, caption, kCFStringEncodingASCII);
+  cap = cap ? cap : (NSString*) CFStringCreateWithCString(NULL, title, kCFStringEncodingASCII);
   
   switch (type)
   {

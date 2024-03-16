@@ -869,12 +869,12 @@ public:
   virtual void UpdateTooltips() = 0;
 
   /** Pop up a modal platform message box dialog.
-   * @param str The text message to display in the dialogue
-   * @param caption The title of the message box window
+   * @param str The text message to display in the dialog
+   * @param title The title of the message box window
    * @param type EMsgBoxType describing the button options available \see EMsgBoxType
    * @param completionHanlder an IMsgBoxCompletionHandlerFunc that will be called when a button is pressed
    * @return EMsgBoxResult signifying which button was pressed */
-  virtual EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler = nullptr) = 0;
+  virtual EMsgBoxResult ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler = nullptr) = 0;
 
   /** Create a platform file prompt dialog to choose a path for opening/saving a single file. NOTE: this method will block the main thread on macOS, unless you speficy the completionHander, which will be called asynchronously when the dialog button is pressed. On iOS, you must supply a completionHander.
    * @param fileName Non const WDL_String reference specifying the file name. Set this prior to calling the method for save dialogs, to provide a default file name. For file-open dialogs, on successful selection of a file this will get set to the file’s name.

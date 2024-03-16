@@ -66,7 +66,7 @@ public:
   bool GetTextFromClipboard(WDL_String& str) override { str.Set(mClipboardText.Get()); return true; }
   bool SetTextInClipboard(const char* str) override { mClipboardText.Set(str); return true; }
   void UpdateTooltips() override {} // TODO:
-  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
   
   void PromptForFile(WDL_String& filename, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler) override;
   void PromptForDirectory(WDL_String& path, IFileDialogCompletionHandlerFunc completionHandler) override;

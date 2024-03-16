@@ -166,10 +166,10 @@ void IGraphicsIOS::HidePlatformView(void* pView, bool hide)
   [(UIView*) pView setHidden:hide];
 }
 
-EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
+EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
-  [(IGRAPHICS_VIEW*) mView showMessageBox:str :caption :type :completionHandler];
+  [(IGRAPHICS_VIEW*) mView showMessageBox:str : title : type : completionHandler];
   return EMsgBoxResult::kNoResult; // we need to rely on completionHandler
 }
 

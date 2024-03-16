@@ -523,12 +523,12 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics->ClearInTextEntryControl();
 }
 
-- (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHandlerFunc) completionHandler
+- (void) showMessageBox: (const char*) str : (const char*) title : (EMsgBoxType) type : (IMsgBoxCompletionHandlerFunc) completionHandler
 {
   [self endUserInput];
 
   NSString* titleNString = [NSString stringWithUTF8String:str];
-  NSString* captionNString = [NSString stringWithUTF8String:caption];
+  NSString* captionNString = [NSString stringWithUTF8String:title];
   
   UIAlertController* alertController = [UIAlertController alertControllerWithTitle:titleNString message:captionNString preferredStyle:UIAlertControllerStyleAlert];
   
