@@ -312,9 +312,11 @@ void IWebView::SetWebViewBounds(float x, float y, float w, float h, float scale)
 //  [[NSAnimationContext currentContext] setDuration:0.0];
   [(__bridge IPLUG_WKWEBVIEW*) mWKWebView setFrame: MAKERECT(x, y, w, h) ];
 
+#ifdef OS_MAC
   if (@available(macOS 11.0, *)) {
     [(__bridge IPLUG_WKWEBVIEW*) mWKWebView setPageZoom:scale ];
   }
+#endif
 
 //  [NSAnimationContext endGrouping];
 }
