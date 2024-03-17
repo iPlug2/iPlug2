@@ -114,9 +114,10 @@ using namespace iplug;
 
 @end
 
-@interface IPLUG_WKSCRIPTHANDLER : NSObject <WKScriptMessageHandler, WKNavigationDelegate>
+@interface IPLUG_WKSCRIPTHANDLER : NSObject <WKScriptMessageHandler, WKNavigationDelegate, WKURLSchemeHandler, WKDownloadDelegate>
 {
   IWebView* mWebView;
+  NSURL* downloadDestinationURL;
 }
 @end
 
@@ -148,6 +149,129 @@ using namespace iplug;
   mWebView->OnWebContentLoaded();
 }
 
+- (NSURL*) changeURLScheme:(NSURL*) url toScheme:(NSString*) newScheme
+{
+  NSURLComponents* components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+  components.scheme = newScheme;
+  return components.URL;
+}
+
+- (void) webView:(nonnull WKWebView *)webView startURLSchemeTask:(nonnull id<WKURLSchemeTask>)urlSchemeTask  API_AVAILABLE(macos(10.13)){
+
+  if ([urlSchemeTask.request.URL.absoluteString containsString:@"iplug2:"])
+  {
+    NSURL* customFileURL = urlSchemeTask.request.URL;
+    NSURL* fileURL = [self changeURLScheme:customFileURL toScheme:@"file"];
+    NSHTTPURLResponse* response = NULL;
+    
+    if ([[NSFileManager defaultManager] fileExistsAtPath:fileURL.path])
+    {
+      NSData* data = [[NSData alloc] initWithContentsOfURL:fileURL];
+      NSString* contentLengthStr = [[NSString alloc] initWithFormat:@"%lu", [data length]];
+      NSString* contentTypeStr = @"text/plain";
+      NSString* extStr = [[fileURL path] pathExtension];
+      if ([extStr isEqualToString:@"html"]) contentTypeStr = @"text/html";
+      else if ([extStr isEqualToString:@"css"]) contentTypeStr = @"text/css";
+      else if ([extStr isEqualToString:@"js"]) contentTypeStr = @"text/javascript";
+      else if ([extStr isEqualToString:@"jpg"]) contentTypeStr = @"image/jpeg";
+      else if ([extStr isEqualToString:@"jpeg"]) contentTypeStr = @"image/jpeg";
+      else if ([extStr isEqualToString:@"svg"]) contentTypeStr = @"image/svg+xml";
+
+      NSDictionary* headerFields = [NSDictionary dictionaryWithObjects:@[contentLengthStr, contentTypeStr] forKeys:@[@"Content-Length", @"Content-Type"]];
+      response = [[NSHTTPURLResponse alloc] initWithURL:customFileURL statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:headerFields];
+      [urlSchemeTask didReceiveResponse:response];
+      [urlSchemeTask didReceiveData:data];
+    }
+    else
+    {
+      response = [[NSHTTPURLResponse alloc] initWithURL:customFileURL statusCode:404 HTTPVersion:@"HTTP/1.1" headerFields:nil];
+      [urlSchemeTask didReceiveResponse:response];
+    }
+    [urlSchemeTask didFinish];
+  }
+}
+
+- (void) webView:(nonnull WKWebView *)webView stopURLSchemeTask:(nonnull id<WKURLSchemeTask>)urlSchemeTask  API_AVAILABLE(macos(10.13)){
+  
+}
+
+#pragma mark - WKNavigationDelegate
+
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+{
+  bool allow = mWebView->CanNavigateToURL([[[[navigationAction request] URL] absoluteString] UTF8String]);
+  
+  if (allow)
+  {
+    decisionHandler(WKNavigationActionPolicyAllow);
+  }
+  else
+  {
+    decisionHandler(WKNavigationActionPolicyCancel);
+  }
+}
+
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
+{
+  bool allow = mWebView->CanNavigateToURL([[[[navigationResponse response] URL] absoluteString] UTF8String]);
+  
+  if (!allow)
+  {
+    decisionHandler(WKNavigationResponsePolicyCancel);
+  }
+  
+  if (@available(macOS 11.3, iOS 14.5, *))
+  {
+    bool allowMimeType = mWebView->CanDownloadMIMEType([navigationResponse.response.MIMEType UTF8String]);
+
+    if (allowMimeType)
+    {
+      decisionHandler(WKNavigationResponsePolicyDownload);
+    }
+    else
+    {
+      decisionHandler(WKNavigationResponsePolicyAllow);
+    }
+  }
+  else
+  {
+    decisionHandler(WKNavigationResponsePolicyAllow);
+  }
+}
+
+- (void)webView:(WKWebView *)webView navigationResponse:(WKNavigationResponse *)navigationResponse didBecomeDownload:(WKDownload *)download API_AVAILABLE(macos(11.3), ios(14.5));
+{
+  download.delegate = self;
+}
+
+#pragma mark - WKDownloadDelegate
+
+
+- (void)download:(WKDownload *)download decideDestinationUsingResponse:(NSURLResponse *)response suggestedFilename:(NSString *)filename completionHandler:(void (^)(NSURL * _Nullable))completionHandler API_AVAILABLE(macos(11.3), ios(14.5))
+{
+  WDL_String localPath;
+  mWebView->GetLocalDownloadPathForFile([filename UTF8String], localPath);
+  downloadDestinationURL = [NSURL URLWithString:[NSString stringWithUTF8String:localPath.Get()]];
+  completionHandler(downloadDestinationURL);
+}
+
+- (void)download:(WKDownload *)download didReceiveData:(int64_t)length API_AVAILABLE(macos(11.3), ios(14.5))
+{
+  mWebView->DidReceiveBytes(length, 0);
+}
+
+- (void)download:(WKDownload *)download didFailWithError:(NSError *)error API_AVAILABLE(macos(11.3), ios(14.5))
+{
+  mWebView->FailedToDownloadFile([[downloadDestinationURL absoluteString] UTF8String]);
+  downloadDestinationURL = nil;
+}
+
+- (void)downloadDidFinish:(WKDownload *)download  API_AVAILABLE(macos(11.3), ios(14.5))
+{
+  mWebView->DidDownloadFile([[downloadDestinationURL path] UTF8String]);
+  downloadDestinationURL = nil;
+}
+
 @end
 
 IWebView::IWebView(bool opaque)
@@ -168,6 +292,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
   WKUserContentController* controller = [[WKUserContentController alloc] init];
   webConfig.userContentController = controller;
 
+  [webConfig setValue:@YES forKey:@"allowUniversalAccessFromFileURLs"];
   IPLUG_WKSCRIPTHANDLER* scriptHandler = [[IPLUG_WKSCRIPTHANDLER alloc] initWithIWebView: this];
   [controller addScriptMessageHandler: scriptHandler name:@"callback"];
   
@@ -180,6 +305,11 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
   [preferences setValue:@YES forKey:@"javaScriptCanAccessClipboard"];
   
   webConfig.preferences = preferences;
+  if (@available(macOS 10.13, *)) {
+    [webConfig setURLSchemeHandler:scriptHandler forURLScheme:@"iplug2"];
+  } else {
+    // Fallback on earlier versions
+  }
   
   // this script adds a function IPlugSendMsg that is used to call the platform webview messaging function in JS
   WKUserScript* script1 = [[WKUserScript alloc] initWithSource:
@@ -250,29 +380,59 @@ void IWebView::LoadURL(const char* url)
 {
   IPLUG_WKWEBVIEW* webView = (__bridge IPLUG_WKWEBVIEW*) mWKWebView;
   
-  NSURL* nsurl = [NSURL URLWithString:[NSString stringWithUTF8String:url] relativeToURL:nil];
-  NSURLRequest* req = [[NSURLRequest alloc] initWithURL:nsurl];
+  NSURL* nsURL = [NSURL URLWithString:[NSString stringWithUTF8String:url] relativeToURL:nil];
+  NSURLRequest* req = [[NSURLRequest alloc] initWithURL:nsURL];
   [webView loadRequest:req];
 }
 
-void IWebView::LoadFile(const char* fileName, const char* bundleID)
+void IWebView::LoadFile(const char* fileName, const char* bundleID, bool useCustomScheme)
 {
   IPLUG_WKWEBVIEW* webView = (__bridge IPLUG_WKWEBVIEW*) mWKWebView;
 
   WDL_String fullPath;
-  WDL_String fileNameWeb("web/");
-  fileNameWeb.Append(fileName);
-
-  GetResourcePathFromBundle(fileNameWeb.Get(), fileNameWeb.get_fileext() + 1 /* remove . */, fullPath, bundleID);
+  
+  if (bundleID != nullptr && strlen(bundleID) != 0)
+  {
+    WDL_String fileNameWeb("web/");
+    fileNameWeb.Append(fileName);
+    
+    GetResourcePathFromBundle(fileNameWeb.Get(), fileNameWeb.get_fileext() + 1 /* remove . */, fullPath, bundleID);
+  }
+  else
+  {
+    fullPath.Set(fileName);
+  }
   
   NSString* pPath = [NSString stringWithUTF8String:fullPath.Get()];
+  
+  fullPath.remove_filepart();
+  mWebRoot.Set(fullPath.Get());
 
-  NSString* str = @"file:";
-  NSString* webroot = [str stringByAppendingString:[pPath stringByReplacingOccurrencesOfString:[NSString stringWithUTF8String:fileName] withString:@""]];
+  NSString* urlScheme = useCustomScheme ? @"iplug2:" : @"file:";
+  NSString* webroot = [urlScheme stringByAppendingString:[pPath stringByReplacingOccurrencesOfString:[NSString stringWithUTF8String:fileName] withString:@""]];
+
   NSURL* pageUrl = [NSURL URLWithString:[webroot stringByAppendingString:[NSString stringWithUTF8String:fileName]] relativeToURL:nil];
-  NSURL* rootUrl = [NSURL URLWithString:webroot relativeToURL:nil];
 
-  [webView loadFileURL:pageUrl allowingReadAccessToURL:rootUrl];
+  if (useCustomScheme)
+  {
+    NSURLRequest* req = [[NSURLRequest alloc] initWithURL:pageUrl];
+    [webView loadRequest:req];
+  }
+  else
+  {
+    NSURL* rootUrl = [NSURL URLWithString:webroot relativeToURL:nil];
+    [webView loadFileURL:pageUrl allowingReadAccessToURL:rootUrl];
+  }
+}
+
+void IWebView::ReloadPageContent()
+{
+  IPLUG_WKWEBVIEW* webView = (__bridge IPLUG_WKWEBVIEW*) mWKWebView;
+  
+  if (webView)
+  {
+    [webView reload];
+  }
 }
 
 void IWebView::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc func)
@@ -321,3 +481,16 @@ void IWebView::SetWebViewBounds(float x, float y, float w, float h, float scale)
 //  [NSAnimationContext endGrouping];
 }
 
+void IWebView::GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath)
+{
+  NSURL* url = [[NSURL fileURLWithPath:NSTemporaryDirectory()] URLByAppendingPathComponent:[[NSUUID UUID] UUIDString] isDirectory:YES];
+  NSError *error = nil;
+  @try {
+    [[NSFileManager defaultManager] createDirectoryAtURL:url withIntermediateDirectories:YES attributes:nil error:&error];
+    url = [url URLByAppendingPathComponent:[NSString stringWithUTF8String:fileName]];
+    localPath.Set([[url absoluteString] UTF8String]);
+  } @catch (NSException *exception)
+  {
+    NSLog(@"Error %@",error);
+  }
+}
