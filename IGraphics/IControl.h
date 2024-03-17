@@ -1662,7 +1662,7 @@ public:
 protected:
   virtual void DrawBackground(IGraphics& g, const IRECT& r) override
   {
-    g.FillRect(kBG, r, &mBlend);
+    g.FillRect(GetColor(kBG), r, &mBlend);
 
     if(mBaseValue > 0.)
     {
