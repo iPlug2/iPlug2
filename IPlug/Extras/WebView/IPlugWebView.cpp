@@ -78,7 +78,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
             Settings->put_AreDevToolsEnabled(enableDevTools);
 
             // this script adds a function IPlugSendMsg that is used to call the platform webview messaging function in JS
-            mCoreWebView->AddScriptToExecuteOnDocumentCreated(
+            mWebViewWnd->AddScriptToExecuteOnDocumentCreated(
               L"function IPlugSendMsg(m) {window.chrome.webview.postMessage(m)};",
               Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>([this](HRESULT error,
                                                                                                 PCWSTR id) -> HRESULT {
