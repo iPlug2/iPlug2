@@ -84,6 +84,24 @@ public:
   /** When a script in the web view posts a message, it will arrive as a UTF8 json string here */
   virtual void OnMessageFromWebView(const char* json) {}
   
+  /** Override to filter URLs */
+  virtual bool CanNavigateToURL(const char* url) { return true; }
+  
+  /** Override to filter MIME types that should be downloaded */
+  virtual bool CanDownloadMIMEType(const char* mimeType) { return false; }
+  
+  /** Override to download the file to a specific location other than e.g. NSTemporaryDirectory */
+  virtual void GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath) {}
+
+  /** Override to handle file download success */
+  virtual void DidDownloadFile(const char* path) {};
+  
+  /** Override to handle file download failure */
+  virtual void FailedToDownloadFile(const char* path) {};
+
+  /** Override to handle file download progress */
+  virtual void DidReceiveBytes(size_t numBytesReceived, size_t totalNumBytes) {};
+
   /** Fills the path where web content is being served from, when LoadFile() is used */
   void GetWebRoot(WDL_String& path) const { path.Set(mWebRoot.Get()); }
   
