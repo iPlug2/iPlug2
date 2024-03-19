@@ -164,7 +164,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     
     auto button1action = [pGraphics](IControl* pCaller) {
       SplashClickActionFunc(pCaller);
-      pGraphics->ShowMessageBox("Message Title", "Message", kMB_YESNO, [&](EMsgBoxResult result) {
+      pGraphics->ShowMessageBox("Message", "Title", kMB_YESNO, [&](EMsgBoxResult result) {
                                                       WDL_String str;
                                                       str.SetFormatted(32, "%s pressed", kMessageResultStrs[result]);
                                                       pGraphics->GetControlWithTag(kCtrlTagDialogResult)->As<ITextControl>()->SetStr(str.Get());

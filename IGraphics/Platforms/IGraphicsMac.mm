@@ -283,52 +283,79 @@ void IGraphicsMac::GetMouseLocation(float& x, float&y) const
   ScreenToPoint(x, y);
 }
 
-EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
+EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
 
-  long result = (long) kCANCEL;
+  NSString* messageContent = @(str ? str : "");
+  NSString* alertTitle = @(title ? title : "");
   
-  if (!str) str= "";
-  if (!caption) caption= "";
+  NSAlert* alert = [[NSAlert alloc] init];
+  [alert setMessageText:alertTitle];
+  [alert setInformativeText:messageContent];
   
-  NSString* msg = (NSString*) CFStringCreateWithCString(NULL,str,kCFStringEncodingUTF8);
-  NSString* cap = (NSString*) CFStringCreateWithCString(NULL,caption,kCFStringEncodingUTF8);
- 
-  msg = msg ? msg : (NSString*) CFStringCreateWithCString(NULL, str, kCFStringEncodingASCII);
-  cap = cap ? cap : (NSString*) CFStringCreateWithCString(NULL, caption, kCFStringEncodingASCII);
+  EMsgBoxResult result = kCANCEL;
   
   switch (type)
   {
     case kMB_OK:
-      NSRunAlertPanel(msg, @"%@", @"OK", @"", @"", cap);
+      [alert addButtonWithTitle:@"OK"];
       result = kOK;
       break;
     case kMB_OKCANCEL:
-      result = NSRunAlertPanel(msg, @"%@", @"OK", @"Cancel", @"", cap);
-      result = result ? kOK : kCANCEL;
+      [alert addButtonWithTitle:@"OK"];
+      [alert addButtonWithTitle:@"Cancel"];
+      result = kCANCEL;
       break;
     case kMB_YESNO:
-      result = NSRunAlertPanel(msg, @"%@", @"Yes", @"No", @"", cap);
-      result = result ? kYES : kNO;
+      [alert addButtonWithTitle:@"Yes"];
+      [alert addButtonWithTitle:@"No"];
+      result = kNO;
       break;
     case kMB_RETRYCANCEL:
-      result = NSRunAlertPanel(msg, @"%@", @"Retry", @"Cancel", @"", cap);
-      result = result ? kRETRY : kCANCEL;
+      [alert addButtonWithTitle:@"Retry"];
+      [alert addButtonWithTitle:@"Cancel"];
+      result = kCANCEL;
       break;
     case kMB_YESNOCANCEL:
-      result = NSRunAlertPanel(msg, @"%@", @"Yes", @"Cancel", @"No", cap);
-      result = (result == 1) ? kYES : (result == -1) ? kNO : kCANCEL;
+      [alert addButtonWithTitle:@"Yes"];
+      [alert addButtonWithTitle:@"No"];
+      [alert addButtonWithTitle:@"Cancel"];
+      result = kCANCEL;
       break;
   }
   
-  [msg release];
-  [cap release];
+  NSModalResponse response = [alert runModal];
   
-  if(completionHandler)
-    completionHandler(static_cast<EMsgBoxResult>(result));
+  switch (type)
+  {
+    case kMB_OK:
+      result = kOK;
+      break;
+    case kMB_OKCANCEL:
+      result = (response == NSAlertFirstButtonReturn) ? kOK : kCANCEL;
+      break;
+    case kMB_YESNO:
+      result = (response == NSAlertFirstButtonReturn) ? kYES : kNO;
+      break;
+    case kMB_RETRYCANCEL:
+      result = (response == NSAlertFirstButtonReturn) ? kRETRY : kCANCEL;
+      break;
+    case kMB_YESNOCANCEL:
+      if (response == NSAlertFirstButtonReturn) result = kYES;
+      else if (response == NSAlertSecondButtonReturn) result = kNO;
+      else result = kCANCEL;
+      break;
+  }
   
-  return static_cast<EMsgBoxResult>(result);
+  if (completionHandler)
+  {
+    completionHandler(result);
+  }
+  
+  [alert release];
+  
+  return result;
 }
 
 void IGraphicsMac::ForceEndUserEdit()
