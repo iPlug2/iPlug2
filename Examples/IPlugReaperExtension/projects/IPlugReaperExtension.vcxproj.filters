@@ -41,6 +41,7 @@
     <ClCompile Include="..\..\..\IPlug\ReaperExt\ReaperExtBase.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
+    <ClCompile Include="..\resources\roboto.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\config.h" />
@@ -135,9 +136,6 @@
     <ClInclude Include="..\..\..\IPlug\IPlugTimer.h">
       <Filter>IPlug</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\IGraphics\ISender.h">
-      <Filter>IPlug</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\IGraphics\Controls\ITextEntryControl.h">
       <Filter>IGraphics</Filter>
     </ClInclude>
@@ -154,6 +152,7 @@
     <ClInclude Include="..\..\..\IPlug\ReaperExt\ReaperExt_include_in_plug_src.h">
       <Filter>IPlug</Filter>
     </ClInclude>
+    <ClInclude Include="..\resources\roboto.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc" />

@@ -51,7 +51,6 @@ END
 3 TEXTINCLUDE
 BEGIN
     "#include ""..\\config.h""\r\n"
-    "ROBOTO_FN TTF ROBOTO_FN\0"
 END
 
 #endif    // APSTUDIO_INVOKED
@@ -82,7 +81,6 @@ END
 // Generated from the TEXTINCLUDE 3 resource.
 //
 #include "..\config.h"
-ROBOTO_FN TTF ROBOTO_FN
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 
