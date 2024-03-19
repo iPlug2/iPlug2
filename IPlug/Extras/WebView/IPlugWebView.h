@@ -120,6 +120,9 @@ private:
   EventRegistrationToken mWebMessageReceivedToken;
   EventRegistrationToken mNavigationCompletedToken;
   EventRegistrationToken mContextMenuRequestedToken;
+  EventRegistrationToken mDownloadStartingToken;
+  EventRegistrationToken mBytesReceivedChangedToken;
+  EventRegistrationToken mStateChangedToken;
   bool mShowOnLoad = true;
 #endif
 };
