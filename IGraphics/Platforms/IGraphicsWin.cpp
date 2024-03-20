@@ -367,7 +367,7 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
       return 0;
 
     case WM_ERASEBKGND:
-      return 0;
+      return 1;
 
     case WM_RBUTTONDOWN:
     case WM_LBUTTONDOWN:
@@ -679,7 +679,12 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
 
       return 0;
     }
-
+    case WM_WINDOWPOSCHANGED:
+    {
+      if (!pGraphics->mIsResizingToSmallerSize)
+        Sleep(1000 / pGraphics->FPS());
+      return 0;
+    }
     case WM_CTLCOLOREDIT:
     {
       if (!pGraphics->mParamEditWnd)
@@ -908,6 +913,8 @@ void IGraphicsWin::PlatformResize(bool parentHasResized)
     GetWindowSize(mPlugWnd, &dlgW, &dlgH);
     int dw = (WindowWidth() * GetScreenScale()) - dlgW, dh = (WindowHeight()* GetScreenScale()) - dlgH;
       
+    mIsResizingToSmallerSize = (dw < 0 && dh < 0);
+    
     if (IsChildWindow(mPlugWnd))
     {
       pParent = GetParent(mPlugWnd);
