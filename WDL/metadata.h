@@ -1304,6 +1304,8 @@ void AddMexMetadata(WDL_StringKeyedArray<char*> *mex_metadata,
 {
   if (!mex_metadata || !metadata) return;
 
+  bool added_img_metadata=false;
+
   for (int idx=0; idx < mex_metadata->GetSize(); ++idx)
   {
     const char *mexkey;
@@ -1315,6 +1317,17 @@ void AddMexMetadata(WDL_StringKeyedArray<char*> *mex_metadata,
       WriteMetadataPrefPos((double)ms/1000.0, srate, metadata);
       // caller may still have to do stuff if prefpos is represented
       // in some other way outside the metadata we handle, like wavpack
+      continue;
+    }
+
+    if (IsImageMetadata(mexkey))
+    {
+      if (!added_img_metadata)
+      {
+        added_img_metadata=true;
+        DeleteAllImageMetadata(metadata);
+      }
+      metadata->Insert(mexkey, strdup(val));
       continue;
     }
 
@@ -1561,7 +1574,7 @@ void DeleteID3Raw(WDL_PtrList<ID3RawTag> *rawtags, const char *key)
   key += 4;
   const char *subkey=NULL;
   int suboffs=0, sublen=0;
-  if (key[4])
+  if (key[4] && strncmp(key, "APIC", 4))
   {
     if (!strncmp(key, "TXXX:", 5)) suboffs=3;
     else if (!strncmp(key, "PRIV:", 5)) suboffs=2;
