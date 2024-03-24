@@ -397,4 +397,39 @@ bool IsOOPAuv3AppExtension()
 
 #endif
 
+bool AccessBookmarkedPath(const WDL_TypedBuf<uint8_t>& bookmarkBytes, std::function<void()> func)
+{
+  NSData* bookmarkData = [NSData dataWithBytes:bookmarkBytes.Get() length:bookmarkBytes.GetSize()];
+  
+#ifdef OS_IOS
+  NSURLBookmarkResolutionOptions options = 0;
+#else
+  NSURLBookmarkResolutionOptions options = NSURLBookmarkResolutionWithSecurityScope;
+#endif
+  
+  if (bookmarkData)
+  {
+    BOOL isStale = NO;
+    NSError* error = nil;
+    NSURL* bookmarkedURL = [NSURL URLByResolvingBookmarkData:bookmarkData
+                                                     options:options
+                                               relativeToURL:nil
+                                         bookmarkDataIsStale:&isStale
+                                                       error:&error];
+    if (bookmarkedURL && !isStale) 
+    {
+      BOOL accessGranted = [bookmarkedURL startAccessingSecurityScopedResource];
+      if (accessGranted)
+      {
+        func();
+        [bookmarkedURL stopAccessingSecurityScopedResource];
+        return true;
+      }
+    }
+  }
+  
+  return false;
+}
+
+
 END_IPLUG_NAMESPACE
