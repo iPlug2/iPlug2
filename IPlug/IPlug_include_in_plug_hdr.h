@@ -82,10 +82,14 @@ END_IPLUG_NAMESPACE
 
 #ifdef OS_WIN
   #define EXPORT __declspec(dllexport)
+  #undef BUNDLE_ID
   #define BUNDLE_ID ""
+  #undef APP_GROUP_ID
   #define APP_GROUP_ID ""
 #elif defined OS_MAC
+  #if !defined BUNDLE_ID
   #define BUNDLE_ID BUNDLE_DOMAIN "." BUNDLE_MFR "." API_EXT "." BUNDLE_NAME API_EXT2
+  #endif
   #if !defined APP_GROUP_ID
   #define APP_GROUP_ID "group." BUNDLE_DOMAIN "." BUNDLE_MFR "." BUNDLE_NAME
   #endif
