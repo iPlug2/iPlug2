@@ -480,7 +480,10 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
     }
   
     if (completionHandler)
-      completionHandler(fileName, path);
+    {
+      WDL_TypedBuf<uint8_t> bookmarkData;
+      completionHandler(fileName, path, nullptr, 0);
+    }
   };
   
   NSPanel* pPanel = nullptr;
@@ -545,10 +548,19 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHand
   [panelOpen setCanCreateDirectories:YES];
   [panelOpen setFloatingPanel: YES];
   [panelOpen setDirectoryURL: [NSURL fileURLWithPath: defaultPath]];
-  
-  auto doHandleResponse = [](NSOpenPanel* pPanel, NSModalResponse response, WDL_String& pathAsync, IFileDialogCompletionHandlerFunc completionHandler){
+    
+  auto doHandleResponse = [this](NSOpenPanel* pPanel, NSModalResponse response, WDL_String& pathAsync, IFileDialogCompletionHandlerFunc completionHandler){
+    
+    NSData* bookmark = nil;
+    
     if (response == NSOKButton)
     {
+      NSURL* url = [[pPanel URLs] objectAtIndex:0];
+      NSError* error = nil;
+      bookmark = [url bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
+                           includingResourceValuesForKeys:nil
+                                            relativeToURL:nil
+                                                    error:&error];
       NSString* fullPath = [pPanel filename] ;
       pathAsync.Set([fullPath UTF8String]);
       pathAsync.Append("/");
@@ -561,7 +573,7 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHand
     if (completionHandler)
     {
       WDL_String fileNameAsync; // not used
-      completionHandler(fileNameAsync, pathAsync);
+      completionHandler(fileNameAsync, pathAsync, [bookmark bytes], (int)[bookmark length]);
     }
   };
 
