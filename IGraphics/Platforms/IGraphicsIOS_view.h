@@ -109,6 +109,11 @@ UIColorPickerViewControllerDelegate
 
 - (void) getLastTouchLocation: (float&) x : (float&) y;
 
+//keyboard
+- (void) pressesBegan:(NSSet<UIPress*>*) presses withEvent:(UIPressesEvent*) event;
+- (void) pressesCancelled:(NSSet<UIPress*>*) presses withEvent:(UIPressesEvent*) event;
+- (void) pressesEnded:(NSSet<UIPress*>*) presses withEvent:(UIPressesEvent*) event;
+
 - (void) traitCollectionDidChange: (UITraitCollection*) previousTraitCollection;
 
 @property (readonly) CAMetalLayer* metalLayer;
