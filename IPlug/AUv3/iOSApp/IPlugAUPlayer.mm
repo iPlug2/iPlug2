@@ -9,6 +9,7 @@
 */
 
 #import "IPlugAUPlayer.h"
+#import "IPlugIOSMIDI.h"
 #include "IPlugConstants.h"
 #include "config.h"
 
@@ -30,6 +31,7 @@ bool isInstrument()
   AVAudioEngine* engine;
   AVAudioUnit* avAudioUnit;
   UInt32 componentType;
+  IPlugIOSMIDIHost* midiHost;
 }
 
 - (instancetype) initWithComponentType: (UInt32) unitComponentType
@@ -40,6 +42,7 @@ bool isInstrument()
   {
     engine = [[AVAudioEngine alloc] init];
     componentType = unitComponentType;
+    midiHost = [[IPlugIOSMIDIHost alloc] init];
   }
 
   return self;
@@ -66,6 +69,7 @@ bool isInstrument()
   self.currentAudioUnit = avAudioUnit.AUAudioUnit;
   
   [self setupSession];
+  [midiHost setAUAudioUnit:self.currentAudioUnit];
     
 #ifdef _DEBUG
   [self printEngineInfo];
