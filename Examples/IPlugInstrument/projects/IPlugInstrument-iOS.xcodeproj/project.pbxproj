@@ -46,6 +46,9 @@
 		4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D752267CE540007B686 /* AppDelegate.m */; };
 		4FDF6D7F2267CEBA0007B686 /* IPlugAUPlayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D7D2267CEBA0007B686 /* IPlugAUPlayer.mm */; };
 		91236D811B08F59300734C5E /* IPlugInstrumentAppExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 91236D771B08F59300734C5E /* IPlugInstrumentAppExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		B8B536492ADB0EF800DFB260 /* IPlugIOSMIDI.h in Headers */ = {isa = PBXBuildFile; fileRef = B8B536472ADB0EF800DFB260 /* IPlugIOSMIDI.h */; };
+		B8B5364A2ADB0EF800DFB260 /* IPlugIOSMIDI.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8B536482ADB0EF800DFB260 /* IPlugIOSMIDI.mm */; };
+		B8B5364B2ADB0EF800DFB260 /* IPlugIOSMIDI.mm in Sources */ = {isa = PBXBuildFile; fileRef = B8B536482ADB0EF800DFB260 /* IPlugIOSMIDI.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -233,6 +236,8 @@
 		4FFF108820A1036200D3092F /* IPlugInstrument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IPlugInstrument.h; path = ../IPlugInstrument.h; sourceTree = "<group>"; };
 		91236D0D1B08F42B00734C5E /* IPlugInstrument.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugInstrument.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		91236D771B08F59300734C5E /* IPlugInstrumentAppExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = IPlugInstrumentAppExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		B8B536472ADB0EF800DFB260 /* IPlugIOSMIDI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugIOSMIDI.h; sourceTree = "<group>"; };
+		B8B536482ADB0EF800DFB260 /* IPlugIOSMIDI.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugIOSMIDI.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -447,6 +452,8 @@
 				4FDF6D732267CE540007B686 /* AppViewController.mm */,
 				4FDF6D7E2267CEBA0007B686 /* IPlugAUPlayer.h */,
 				4FDF6D7D2267CEBA0007B686 /* IPlugAUPlayer.mm */,
+				B8B536472ADB0EF800DFB260 /* IPlugIOSMIDI.h */,
+				B8B536482ADB0EF800DFB260 /* IPlugIOSMIDI.mm */,
 			);
 			name = iOSApp;
 			path = ../../../IPlug/AUv3/iOSApp;
@@ -549,6 +556,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FA61F7C22E89A5900A92C58 /* AUv3Framework.h in Headers */,
+				B8B536492ADB0EF800DFB260 /* IPlugIOSMIDI.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -737,6 +745,7 @@
 				4F11D41D232014AD003E1647 /* MidiSynth.cpp in Sources */,
 				4FA61F8922E89B3700A92C58 /* IControls.cpp in Sources */,
 				4FA61F8222E89AFF00A92C58 /* IPlugTimer.cpp in Sources */,
+				B8B5364B2ADB0EF800DFB260 /* IPlugIOSMIDI.mm in Sources */,
 				4FA61F8822E89B3700A92C58 /* ITextEntryControl.cpp in Sources */,
 				4FA61F8B22E89B3700A92C58 /* IGraphicsEditorDelegate.cpp in Sources */,
 				4FA61F8322E89AFF00A92C58 /* IPlugPaths.mm in Sources */,
@@ -756,6 +765,7 @@
 				4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */,
 				4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */,
 				4FA61F9422E8A71D00A92C58 /* IPlugAUViewController.mm in Sources */,
+				B8B5364A2ADB0EF800DFB260 /* IPlugIOSMIDI.mm in Sources */,
 				4FDF6D792267CE540007B686 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
