@@ -51,28 +51,32 @@ public:
         if (mEndpoint != endpoint)
         {
           // Disconnect input ports if needed
-
           if (Route == iplug::kInput && mEndpoint)
+          {
             MIDIPortDisconnectSource(mPort, mEndpoint);
+          }
           
           // Flush outputs if needed
-          
           if (Route == iplug::kOutput)
+          {
             MIDIFlushOutput(endpoint);
+          }
           
           // Update endpoint
-          
           mEndpoint = endpoint;
           
           if (mLastName)
+          {
             CFRelease(mLastName);
+          }
           
           mLastName = CreateNameFromMIDEndpoint(mEndpoint);
           
           // Connect input ports if needed
-          
           if (Route == iplug::kInput)
+          {
             MIDIPortConnectSource(mPort, endpoint, NULL);
+          }
         }
       }
       else
@@ -93,7 +97,6 @@ public:
     void GetName(WDL_String& name)
     {
       char cString[2048];
-
       CFStringGetCString(mLastName, cString, sizeof(cString), kCFStringEncodingUTF8);
       name.Set(cString);
     }
@@ -109,7 +112,6 @@ public:
     }
     
   private:
-  
     MIDIEndpointRef mEndpoint;
     CFStringRef mLastName;
     MIDIPortRef mPort;

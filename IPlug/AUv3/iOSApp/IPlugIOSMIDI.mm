@@ -4,24 +4,31 @@
 #include "IPlugIOSMIDI.h"
 #include "config.h"
 
-// Static Helpers
 
 // static
 ItemCount IPlugIOSMIDI::GetNumSourcesOrDestinations(ERoute route)
 {
   if (route == iplug::kInput)
+  {
     return MIDIGetNumberOfSources();
+  }
   else
+  {
     return MIDIGetNumberOfDestinations();
+  }
 }
 
 // static
 MIDIEndpointRef IPlugIOSMIDI::GetEndpoint(ItemCount idx, ERoute route)
 {
   if (route == iplug::kInput)
+  {
     return MIDIGetSource(idx);
+  }
   else
+  {
     return MIDIGetDestination(idx);
+  }
 }
 
 // static
@@ -67,7 +74,6 @@ CFStringRef IPlugIOSMIDI::CreateNameFromIndex(ItemCount idx, ERoute route)
 void IPlugIOSMIDI::GetNameFromIndex(WDL_String &string, int idx, ERoute route)
 {
   char cString[2048];
-  
   CFStringRef str = CreateNameFromIndex(idx, route);
   CFStringGetCString(str, cString, sizeof(cString), kCFStringEncodingUTF8);
   CFRelease(str);
@@ -84,7 +90,9 @@ long IPlugIOSMIDI::GetIndexFromName(CFStringRef name, ERoute route)
   {
     auto str = CreateNameFromMIDEndpoint(GetEndpoint(i, route));
     if (CFStringCompare(name, str, 0) == kCFCompareEqualTo)
+    {
       idx = i;
+    }
     CFRelease(str);
   }
   
@@ -102,20 +110,18 @@ long IPlugIOSMIDI::GetIndexFromName(WDL_String name, ERoute route)
 }
 
 // static
-void IPlugIOSMIDI::SetMidiPort(const char *name, ERoute route)
+void IPlugIOSMIDI::SetMidiPort(const char* name, ERoute route)
 {
-  NSDictionary* dic = @{@"name": @(name), @"direction": @(route == iplug::kInput ? "source" : "destination")};
-  [[NSNotificationCenter defaultCenter] postNotificationName:@"SetMIDIPort" object:nil userInfo:dic];
+  NSDictionary* dict = @{@"name": @(name), @"direction": @(route == iplug::kInput ? "source" : "destination")};
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"SetMIDIPort" object:nil userInfo:dict];
 }
 
 // static
 void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ERoute route)
 {
-  NSDictionary* dic = @{@"name": [NSValue valueWithPointer:&name], @"direction": @(route == iplug::kInput ? "source" : "destination")};
-  [[NSNotificationCenter defaultCenter] postNotificationName:@"GetMIDIPort" object:nil userInfo:dic];
+  NSDictionary* dict = @{@"name": [NSValue valueWithPointer:&name], @"direction": @(route == iplug::kInput ? "source" : "destination")};
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"GetMIDIPort" object:nil userInfo:dict];
 }
-
-// Class
 
 @implementation IPlugIOSMIDIHost
 {
@@ -130,19 +136,21 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ERoute route)
 {
   CFStringRef midiClientName = CFStringCreateWithCString(NULL, "MIDI Client", kCFStringEncodingUTF8);
   
-  MIDIClientCreateWithBlock(midiClientName, &mClient, ^(const MIDINotification* message) {
-    if (message->messageID == kMIDIMsgSetupChanged)
-      [self updateConnections];
-  });
+  MIDIClientCreateWithBlock(midiClientName, &mClient,
+                            ^(const MIDINotification* message) {
+                              if (message->messageID == kMIDIMsgSetupChanged)
+                                [self updateConnections];
+                            });
   
   CFRelease(midiClientName);
   
 #if PLUG_DOES_MIDI_IN
   MIDIPortRef inPort;
   CFStringRef inPortName = CFStringCreateWithCString(NULL, "MIDI Input", kCFStringEncodingUTF8);
-  MIDIInputPortCreateWithProtocol(mClient, inPortName, kMIDIProtocol_1_0, &inPort, ^(const MIDIEventList *list, void * __nullable refCon) {
-    [self receiveMIDI:list];
-  });
+  MIDIInputPortCreateWithProtocol(mClient, inPortName, kMIDIProtocol_1_0, &inPort,
+                                  ^(const MIDIEventList *list, void * __nullable refCon) {
+                                    [self receiveMIDI:list];
+                                  });
   CFRelease(inPortName);
   mSource.SetPort(inPort);
 #endif
@@ -184,15 +192,20 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ERoute route)
 #endif
     
 #if PLUG_DOES_MIDI_OUT
-    audiounit.MIDIOutputEventListBlock = ^(AUEventSampleTime eventSampleTime, uint8_t cable, const struct MIDIEventList* list) {
-      return [self sendMIDI:list];
-    };
+    audiounit.MIDIOutputEventListBlock = ^(AUEventSampleTime eventSampleTime,
+                                           uint8_t cable, const struct
+                                           MIDIEventList* list) {
+                                            return [self sendMIDI:list];
+                                          };
 #endif
   }
   
-  [audiounit tokenByAddingRenderObserver:^(AudioUnitRenderActionFlags actionFlags, const AudioTimeStamp * _Nonnull timestamp, AUAudioFrameCount frameCount, NSInteger outputBusNumber) {
-    self->mTime = timestamp->mSampleTime;
-  }];
+  [audiounit tokenByAddingRenderObserver:^(AudioUnitRenderActionFlags actionFlags,
+                                           const AudioTimeStamp * _Nonnull timestamp,
+                                           AUAudioFrameCount frameCount,
+                                           NSInteger outputBusNumber) {
+                                            self->mTime = timestamp->mSampleTime;
+                                          }];
 }
 
 - (void) updateConnections
@@ -210,9 +223,13 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ERoute route)
     NSString* direction = (NSString*) dict[@"direction"];
     
     if ([direction compare:[[NSString alloc] initWithUTF8String:"source"]] == NSOrderedSame)
+    {
       mSource.SetName([name cStringUsingEncoding:NSUTF8StringEncoding]);
+    }
     else
+    {
       mDestination.SetName([name cStringUsingEncoding:NSUTF8StringEncoding]);
+    }
   }
   else if ([notification.name isEqualToString:@"GetMIDIPort"])
   {
@@ -221,9 +238,13 @@ void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ERoute route)
     NSString* direction = (NSString*) dict[@"direction"];
     
     if ([direction compare:[[NSString alloc] initWithUTF8String:"source"]] == NSOrderedSame)
+    {
       mSource.GetName(*name);
+    }
     else
+    {
       mDestination.GetName(*name);
+    }
   }
 }
 
