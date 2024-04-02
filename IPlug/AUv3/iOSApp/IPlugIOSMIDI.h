@@ -98,9 +98,16 @@ public:
     
     void GetName(WDL_String& name)
     {
-      char cString[2048];
-      CFStringGetCString(mLastName, cString, sizeof(cString), kCFStringEncodingUTF8);
-      name.Set(cString);
+      if (mLastName != NULL)
+      {
+        char cString[2048];
+        CFStringGetCString(mLastName, cString, sizeof(cString), kCFStringEncodingUTF8);
+        name.Set(cString);
+      }
+      else
+      {
+        name.Set("");
+      }
     }
     
     void SetPort(MIDIPortRef port)
