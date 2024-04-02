@@ -71,7 +71,7 @@ CFStringRef IPlugIOSMIDI::CreateNameFromIndex(ItemCount idx, ERoute route)
 }
 
 // static
-void IPlugIOSMIDI::GetNameFromIndex(WDL_String &string, int idx, ERoute route)
+void IPlugIOSMIDI::GetNameFromIndex(WDL_String& string, int idx, ERoute route)
 {
   char cString[2048];
   CFStringRef str = CreateNameFromIndex(idx, route);

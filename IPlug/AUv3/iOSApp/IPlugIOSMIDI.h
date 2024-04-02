@@ -80,7 +80,9 @@ public:
         }
       }
       else
+      {
         mEndpoint = NULL;
+      }
     }
     
     MIDIEndpointRef GetEndpoint()
