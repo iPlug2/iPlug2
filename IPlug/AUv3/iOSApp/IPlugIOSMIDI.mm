@@ -6,7 +6,7 @@
 
 // Static Helpers
 
-//static
+// static
 ItemCount IPlugIOSMIDI::GetNumSourcesOrDestinations(ERoute route)
 {
   if (route == iplug::kInput)
@@ -15,7 +15,7 @@ ItemCount IPlugIOSMIDI::GetNumSourcesOrDestinations(ERoute route)
     return MIDIGetNumberOfDestinations();
 }
 
-//static
+// static
 MIDIEndpointRef IPlugIOSMIDI::GetEndpoint(ItemCount idx, ERoute route)
 {
   if (route == iplug::kInput)
@@ -24,7 +24,7 @@ MIDIEndpointRef IPlugIOSMIDI::GetEndpoint(ItemCount idx, ERoute route)
     return MIDIGetDestination(idx);
 }
 
-//static
+// static
 CFStringRef IPlugIOSMIDI::CreateNameFromMIDEndpoint(MIDIEndpointRef endpoint)
 {
   CFStringRef names[2];
@@ -57,13 +57,13 @@ CFStringRef IPlugIOSMIDI::CreateNameFromMIDEndpoint(MIDIEndpointRef endpoint)
   return name;
 }
 
-//static
+// static
 CFStringRef IPlugIOSMIDI::CreateNameFromIndex(ItemCount idx, ERoute route)
 {
   return CreateNameFromMIDEndpoint(GetEndpoint(idx, route));
 }
 
-//static
+// static
 void IPlugIOSMIDI::GetNameFromIndex(WDL_String &string, int idx, ERoute route)
 {
   char cString[2048];
@@ -74,7 +74,7 @@ void IPlugIOSMIDI::GetNameFromIndex(WDL_String &string, int idx, ERoute route)
   string.Set(cString);
 }
 
-//static
+// static
 long IPlugIOSMIDI::GetIndexFromName(CFStringRef name, ERoute route)
 {
   auto numEndPoints = GetNumSourcesOrDestinations(route);
@@ -91,7 +91,7 @@ long IPlugIOSMIDI::GetIndexFromName(CFStringRef name, ERoute route)
   return idx;
 }
 
-//static
+// static
 long IPlugIOSMIDI::GetIndexFromName(WDL_String name, ERoute route)
 {
   CFStringRef str = CFStringCreateWithCString(NULL, name.Get(), kCFStringEncodingUTF8);
@@ -101,14 +101,14 @@ long IPlugIOSMIDI::GetIndexFromName(WDL_String name, ERoute route)
   return idx;
 }
 
-//static
+// static
 void IPlugIOSMIDI::SetMidiPort(const char *name, ERoute route)
 {
   NSDictionary* dic = @{@"name": @(name), @"direction": @(route == iplug::kInput ? "source" : "destination")};
   [[NSNotificationCenter defaultCenter] postNotificationName:@"SetMIDIPort" object:nil userInfo:dic];
 }
 
-//static
+// static
 void IPlugIOSMIDI::GetMidiPort(WDL_String& name, ERoute route)
 {
   NSDictionary* dic = @{@"name": [NSValue valueWithPointer:&name], @"direction": @(route == iplug::kInput ? "source" : "destination")};
