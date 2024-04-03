@@ -580,6 +580,12 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
                                                  name:NSViewFrameDidChangeNotification
                                                object:self];
     #endif
+    #ifdef IGRAPHICS_GL
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(frameDidChange:)
+                                                 name:NSViewGlobalFrameDidChangeNotification
+                                               object:self];
+    #endif
     
 //    [[NSNotificationCenter defaultCenter] addObserver:self
 //                                             selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
@@ -670,6 +676,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     #endif
     #ifdef IGRAPHICS_GL
     [[self openGLContext] flushBuffer];
+    [NSOpenGLContext clearCurrentContext];
     #endif
   }
 }
@@ -1297,6 +1304,12 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
   [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * scale,
                                                           self.frame.size.height * scale)];
+}
+#endif
+#ifdef IGRAPHICS_GL
+- (void) frameDidChange:(NSNotification*) pNotification
+{
+  [[self openGLContext] makeCurrentContext];
 }
 #endif
 
