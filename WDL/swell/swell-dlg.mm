@@ -2488,10 +2488,27 @@ NSView **g_swell_mac_foreign_key_event_sink;
 
 SWELLDIALOGCOMMONIMPLEMENTS_WND(0)
 
+-(id)_setFrame:(NSRect)r fromAdjustmentToScreen:(NSScreen *)scr anchorIfNeeded:(void *)anch animate:(int)anim
+{
+  if (m_disableMonitorAutosize)
+    return nil;
+
+  SEL sel = @selector(_setFrame:fromAdjustmentToScreen:anchorIfNeeded:animate:);
+  if (WDL_NOT_NORMALLY(![super respondsToSelector:sel])) return nil;
+
+  id (*send_msg)(struct objc_super *, SEL, NSRect, NSScreen*, void*, int) = (id (*)(struct objc_super *, SEL, NSRect, NSScreen*, void*, int)) &objc_msgSendSuper;
+  struct objc_super sup = {
+    self,
+    [self superclass]
+  };
+  return send_msg(&sup, sel, r, scr, anch, anim);
+}
+
 
 - (id)initModelessForChild:(HWND)child owner:(HWND)owner styleMask:(unsigned int)smask
 {
   INIT_COMMON_VARS
+  m_disableMonitorAutosize = false;
   m_wantInitialKeyWindowOnShow=0;
   m_wantraiseamt=0;
   lastFrameSize.width=lastFrameSize.height=0.0f;
@@ -2533,6 +2550,7 @@ SWELLDIALOGCOMMONIMPLEMENTS_WND(0)
 - (id)initModeless:(SWELL_DialogResourceIndex *)resstate Parent:(HWND)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par outputHwnd:(HWND *)hwndOut forceStyles:(unsigned int)smask
 {
   INIT_COMMON_VARS
+  m_disableMonitorAutosize = false;
   m_wantInitialKeyWindowOnShow=0;
   m_wantraiseamt=0;
 

@@ -7123,6 +7123,16 @@ void SetTransparent(HWND h)
   }  
 }
 
+void SWELL_SetNoMultiMonitorAutoSize(HWND h, bool noauto)
+{
+  if (WDL_NOT_NORMALLY(!h)) return;
+  NSWindow* wnd=0;
+  if ([(id)h isKindOfClass:[NSWindow class]]) wnd=(NSWindow*)h;
+  else if ([(id)h isKindOfClass:[NSView class]]) wnd=[(NSView*)h window];
+  if (WDL_NORMALLY(wnd && [wnd isKindOfClass:[SWELL_ModelessWindow class]]))
+    ((SWELL_ModelessWindow *)wnd)->m_disableMonitorAutosize = noauto;
+}
+
 int SWELL_GetDefaultButtonID(HWND hwndDlg, bool onlyIfEnabled)
 {
   if (WDL_NOT_NORMALLY(![(id)hwndDlg isKindOfClass:[NSView class]])) return 0;
