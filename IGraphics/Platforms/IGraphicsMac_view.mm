@@ -611,6 +611,9 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   CGFloat newScale = [pWindow backingScaleFactor];
   
   mGraphics->SetPlatformContext(nullptr);
+#ifdef IGRAPHICS_GL
+  [[self openGLContext] makeCurrentContext];
+#endif
   
   if (newScale != mGraphics->GetScreenScale())
     mGraphics->SetScreenScale(newScale);
