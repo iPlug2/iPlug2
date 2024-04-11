@@ -454,7 +454,16 @@ public:
     if ([value isKindOfClass:[NSNumber class]])
     {
       NSNumber *p = (NSNumber *)value;
-      if ([p boolValue]) __focus = m_br->vwnd;
+      if ([p boolValue])
+      {
+        __focus = m_br->vwnd;
+        // if vwnd maps perfectly to a HWND, set that HWND focus
+        if (m_br->vwnd && !m_br->vwnd->GetParent() && !m_br->vwnd->GetNumChildren())
+        {
+          HWND h = m_br->vwnd->GetRealParent();
+          if (h) SetFocus(h);
+        }
+      }
       else if (__focus == m_br->vwnd) __focus=NULL;
     }
   }
