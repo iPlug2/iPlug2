@@ -51,7 +51,7 @@
     if ((sz).width > 16384.0) (sz).width = 16384.0; \
     if ((sz).height > 16384.0) (sz).height = 16384.0;
 
-static id __class_CAMetalLayer, __class_MTLRenderPassDescriptor, __class_MTLTextureDescriptor, __class_MTLRenderPipelineDescriptor, __class_MTLCompileOptions;
+static id __class_CAMetalLayer, __class_MTLTextureDescriptor;
 static id<MTLDevice> (*__MTLCreateSystemDefaultDevice)(void);
 static id<MTLDevice> (*__CGDirectDisplayCopyCurrentMetalDevice)(CGDirectDisplayID);
 
@@ -560,13 +560,14 @@ struct swell_metal_device_ctx {
   }
 
   id<MTLCommandQueue> m_commandQueue;
-  id<MTLCommandBuffer> m_commandBuffer;
+  id<MTLCommandBuffer> m_commandBuffer; // only used for presentation
 
   void present()
   {
     if (m_commandBuffer)
     {
       [m_commandBuffer commit];
+      [m_commandBuffer waitUntilCompleted];
       [m_commandBuffer release];
       m_commandBuffer = NULL;
     }
@@ -651,8 +652,13 @@ static bool s_mtl_in_update;
     if ([[self window] contentView] == self && [[self window] respondsToSelector:@selector(swellDestroyAllOwnedWindows)])
       [(SWELL_ModelessWindow*)[self window] swellDestroyAllOwnedWindows];
 
+    if (m_wndproc) m_wndproc((HWND)self,WM_NCDESTROY,0,0);
     if (GetCapture()==(HWND)self) ReleaseCapture(); 
     SWELL_MessageQueue_Clear((HWND)self); 
+
+#ifndef SWELL_NO_METAL
+    if (m_use_metal>0) swell_removeMetalDirty(self);
+#endif
     
     if (m_menu) 
     {
@@ -1500,9 +1506,6 @@ static bool s_mtl_in_update;
   if (m_use_metal != 1 && m_use_metal != 2) return;
   const bool direct_mode = m_use_metal == 1;
 
-  CAMetalLayer *layer = (CAMetalLayer *)[self layer];
-  layer.framebufferOnly = NO;
-
   id<MTLDevice> device = m_metal_device;
 
   static bool reg;
@@ -1537,6 +1540,11 @@ static bool s_mtl_in_update;
     device = def;
   }
 
+  CAMetalLayer *layer = (CAMetalLayer *)[self layer];
+
+  // this might happen if a caller calls SWELL_SetMetal too late after drawing has already occurred (and the backing layer was already created)
+  if (WDL_NOT_NORMALLY(![layer respondsToSelector:@selector(setFramebufferOnly:)])) return;
+
   if (device != m_metal_device)
   {
     id<MTLDevice> olddev = (id<MTLDevice>)m_metal_device;
@@ -1544,8 +1552,7 @@ static bool s_mtl_in_update;
     m_metal_device = device;
     [layer setDevice:device];
     swell_metal_set_layer_gravity(layer,m_metal_gravity ^ ([self isFlipped] ? 2 : 0));
-    if (m_use_metal==1)
-      layer.framebufferOnly = NO;
+    layer.framebufferOnly = NO;
     [layer setPixelFormat:MTLPixelFormatBGRA8Unorm];
 
     if (!direct_mode) [m_metal_texture release];
@@ -1675,7 +1682,15 @@ static bool s_mtl_in_update;
     [ctx->m_commandBuffer retain];
   }
 
-  id<MTLBlitCommandEncoder> encoder = [ctx->m_commandBuffer blitCommandEncoder];
+  id<MTLCommandBuffer> cb = [ctx->m_commandQueue commandBuffer];
+  if (WDL_NOT_NORMALLY(cb == NULL))
+    cb = ctx->m_commandBuffer; // backup, run commands in the presentation buffer
+
+  id<MTLBlitCommandEncoder> encoder = [cb blitCommandEncoder];
+  if (WDL_NOT_NORMALLY(encoder == NULL))
+  {
+    NSLog(@"swell-cocoa: metal blitCommandEncoder failure\n");
+  }
 
   [encoder copyFromTexture:m_metal_texture
     sourceSlice:0 sourceLevel:0 sourceOrigin:MTLOriginMake(0,0,0)
@@ -1684,6 +1699,9 @@ static bool s_mtl_in_update;
       destinationSlice:0 destinationLevel:0 destinationOrigin:MTLOriginMake(0,0,0)];
 
   [encoder endEncoding];
+
+  if (cb != ctx->m_commandBuffer)
+    [cb commit];
 
   [ctx->m_commandBuffer presentDrawable:drawable];
 
@@ -2470,10 +2488,27 @@ NSView **g_swell_mac_foreign_key_event_sink;
 
 SWELLDIALOGCOMMONIMPLEMENTS_WND(0)
 
+-(id)_setFrame:(NSRect)r fromAdjustmentToScreen:(NSScreen *)scr anchorIfNeeded:(void *)anch animate:(int)anim
+{
+  if (m_disableMonitorAutosize)
+    return nil;
+
+  SEL sel = @selector(_setFrame:fromAdjustmentToScreen:anchorIfNeeded:animate:);
+  if (WDL_NOT_NORMALLY(![super respondsToSelector:sel])) return nil;
+
+  id (*send_msg)(struct objc_super *, SEL, NSRect, NSScreen*, void*, int) = (id (*)(struct objc_super *, SEL, NSRect, NSScreen*, void*, int)) &objc_msgSendSuper;
+  struct objc_super sup = {
+    self,
+    [self superclass]
+  };
+  return send_msg(&sup, sel, r, scr, anch, anim);
+}
+
 
 - (id)initModelessForChild:(HWND)child owner:(HWND)owner styleMask:(unsigned int)smask
 {
   INIT_COMMON_VARS
+  m_disableMonitorAutosize = false;
   m_wantInitialKeyWindowOnShow=0;
   m_wantraiseamt=0;
   lastFrameSize.width=lastFrameSize.height=0.0f;
@@ -2515,6 +2550,7 @@ SWELLDIALOGCOMMONIMPLEMENTS_WND(0)
 - (id)initModeless:(SWELL_DialogResourceIndex *)resstate Parent:(HWND)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par outputHwnd:(HWND *)hwndOut forceStyles:(unsigned int)smask
 {
   INIT_COMMON_VARS
+  m_disableMonitorAutosize = false;
   m_wantInitialKeyWindowOnShow=0;
   m_wantraiseamt=0;
 
@@ -3882,10 +3918,7 @@ static bool mtl_init()
     if (__MTLCreateSystemDefaultDevice &&
         __MTLCopyAllDevices &&
         (__class_CAMetalLayer = objc_getClass("CAMetalLayer")) &&
-        (__class_MTLRenderPassDescriptor = objc_getClass("MTLRenderPassDescriptor")) &&
-        (__class_MTLRenderPipelineDescriptor = objc_getClass("MTLRenderPipelineDescriptor")) &&
-        (__class_MTLTextureDescriptor = objc_getClass("MTLTextureDescriptor")) &&
-        (__class_MTLCompileOptions = objc_getClass("MTLCompileOptions"))
+        (__class_MTLTextureDescriptor = objc_getClass("MTLTextureDescriptor"))
         )
     {
       NSArray *ar = __MTLCopyAllDevices();
@@ -4109,6 +4142,10 @@ static void SWELL_Metal_WriteTex(SWELL_hwndChild *wnd, const unsigned int *srcbu
         else if (layer.contentsScale != (retina_hint ? 2.0 : 1.0))
           layer.contentsScale = retina_hint ? 2.0 : 1.0;
         tex = [(wnd->m_metal_drawable = [layer nextDrawable]) texture];
+        if (WDL_NOT_NORMALLY(!tex))
+        {
+          NSLog(@"swell-cocoa: error creating metal texture for direct mode\n");
+        }
         wnd->m_metal_texture = tex;
       }
     }
@@ -4125,6 +4162,10 @@ static void SWELL_Metal_WriteTex(SWELL_hwndChild *wnd, const unsigned int *srcbu
         textureDescriptor.height = want_h;
         tex = [wnd->m_metal_device newTextureWithDescriptor:textureDescriptor];
         wnd->m_metal_texture = tex;
+        if (WDL_NOT_NORMALLY(!tex))
+        {
+          NSLog(@"swell-cocoa: error creating metal texture for full mode\n");
+        }
 
         [textureDescriptor release];
       }
@@ -4237,7 +4278,7 @@ void SWELL_Metal_Blit(void *_tex, const unsigned int *srcbuf, int x, int y, int 
       }
     }
 
-    if (use_alpha && WDL_NORMALLY(wnd->m_metal_texture))
+    if (use_alpha && wnd->m_metal_texture)
     {
       id<MTLTexture> tex = (id<MTLTexture>) wnd->m_metal_texture;
       const int texw = (int)tex.width, texh = (int)tex.height;

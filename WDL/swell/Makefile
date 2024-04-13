@@ -140,6 +140,9 @@ ifndef NOGDK
     endif
   endif
   LINKEXTRA += -lGL
+  ifdef PRELOAD_GDK
+    CFLAGS += -Wl,-z,lazy
+  endif
 endif
 
 CXXFLAGS = $(CFLAGS)

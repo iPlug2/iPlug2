@@ -889,7 +889,7 @@ int PackApeChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata)
     const char *val=metadata->Enumerate(i, &key);
     if (strlen(key) < 5 || strncmp(key, "APE:", 4) || !val || !val[0]) continue;
     key += 4;
-    if (!apelen) apelen += 64;
+    if (!apelen) apelen=64; // includes header and footer
     if (!strncmp(key, "User Defined", 12))
     {
       const char *k, *v;
@@ -912,7 +912,7 @@ int PackApeChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata)
     memcpy(p, "APETAGEX", 8);
     p += 8;
     _AddInt32LE(2000); // version
-    _AddInt32LE(apelen-32);
+    _AddInt32LE(apelen-32); // includes footer but not header
     _AddInt32LE(cnt);
     _AddInt32LE((1<<31)|(1<<30)|(1<<29)); // tag contains header and footer, this is the header
     _AddInt32LE(0);
@@ -951,7 +951,7 @@ int PackApeChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata)
     memcpy(p, "APETAGEX", 8);
     p += 8;
     _AddInt32LE(2000); // version
-    _AddInt32LE(apelen-32);
+    _AddInt32LE(apelen-32); // includes footer but not header
     _AddInt32LE(cnt);
     _AddInt32LE((1<<31)|(1<<30)|(1<<28)); // tag contains header and footer, this is the footer
     _AddInt32LE(0);
@@ -1328,8 +1328,7 @@ void DumpMetadata(WDL_FastString *str, WDL_StringKeyedArray<char*> *metadata)
     }
   }
 
-  int i;
-  for (i=0; i < metadata->GetSize(); ++i)
+  for (int i=0; i < metadata->GetSize(); ++i)
   {
     const char *key;
     const char *val=metadata->Enumerate(i, &key);
@@ -1351,7 +1350,7 @@ void DumpMetadata(WDL_FastString *str, WDL_StringKeyedArray<char*> *metadata)
   }
 
   int unk_cnt=0;
-  for (i=0; i < metadata->GetSize(); ++i)
+  for (int i=0; i < metadata->GetSize(); ++i)
   {
     const char *key;
     const char *val=metadata->Enumerate(i, &key);

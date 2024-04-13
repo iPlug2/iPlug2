@@ -684,6 +684,10 @@ void LICE_FillCircle(LICE_IBitmap* dest, float cx, float cy, float r, LICE_pixel
 void LICE_RoundRect(LICE_IBitmap *drawbm, float xpos, float ypos, float w, float h, int cornerradius,
                     LICE_pixel col, float alpha, int mode, bool aa)
 {
+  xpos = floor(xpos+0.5);
+  ypos = floor(ypos+0.5);
+  w = floor(w+0.5);
+  h = floor(h+0.5);
   if (cornerradius>0)
   {
     float cr=cornerradius;
@@ -722,6 +726,6 @@ void LICE_RoundRect(LICE_IBitmap *drawbm, float xpos, float ypos, float w, float
     }
   }
 
-  LICE_DrawRect(drawbm, xpos, ypos, w, h, col, alpha, mode);
+  LICE_DrawRect(drawbm, (int)xpos, (int)ypos, (int)w, (int)h, col, alpha, mode);
 }
 

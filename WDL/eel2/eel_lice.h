@@ -2132,8 +2132,8 @@ static EEL_F NSEEL_CGEN_CALL _gfx_getchar(void *opaque, INT_PTR np, EEL_F **plis
             rv|=4;
             if (*p != 65537.0)
             {
-              POINT p;
-              GetCursorPos(&p);
+              POINT pt;
+              GetCursorPos(&pt);
               RECT r;
               GetWindowRect(ctx->hwnd_standalone,&r);
               if (r.top > r.bottom)
@@ -2142,7 +2142,7 @@ static EEL_F NSEEL_CGEN_CALL _gfx_getchar(void *opaque, INT_PTR np, EEL_F **plis
                 r.top = r.bottom;
                 r.bottom = a;
               }
-              if (PtInRect(&r,p) && WindowFromPoint(p) == ctx->hwnd_standalone) rv|=8;
+              if (PtInRect(&r,pt) && WindowFromPoint(pt) == ctx->hwnd_standalone) rv|=8;
             }
           }
         }

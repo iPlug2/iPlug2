@@ -238,8 +238,10 @@ class WDL_VirtualSlider : public WDL_VWnd
     virtual void OnMouseMove(int xpos, int ypos);
     virtual void OnMouseUp(int xpos, int ypos);
     virtual bool OnMouseDblClick(int xpos, int ypos);
-    virtual bool OnMouseWheel(int xpos, int ypos, int amt);
+    virtual bool OnMouseWheel(int xpos, int ypos, int amt) { return OnMouseWheelInternal(xpos,ypos,amt,0); }
     virtual void GetPositionPaintExtent(RECT *r, int rscale);
+
+    bool OnMouseWheelInternal(int xpos, int ypos, int amt, int sc);
 
     virtual void OnCaptureLost();
 

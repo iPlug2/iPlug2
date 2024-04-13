@@ -1940,6 +1940,8 @@ LRESULT SendMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
   return 0;
 }
 
+static NSView *NavigateUpScrollClipViews(NSView *ch);
+
 void DestroyWindow(HWND hwnd)
 {
   if (WDL_NOT_NORMALLY(!hwnd)) return;
@@ -1950,6 +1952,7 @@ void DestroyWindow(HWND hwnd)
     KillTimer(hwnd,~(UINT_PTR)0);
     sendSwellMessage((id)pid,WM_DESTROY,0,0);
 
+    pid = NavigateUpScrollClipViews(pid);
     NSWindow *pw = [(NSView *)pid window];
     if (pw && [pw contentView] == pid) // destroying contentview should destroy top level window
     {
@@ -7118,6 +7121,16 @@ void SetTransparent(HWND h)
     [wnd setBackgroundColor:[NSColor clearColor]];
     [wnd setOpaque:NO];
   }  
+}
+
+void SWELL_SetNoMultiMonitorAutoSize(HWND h, bool noauto)
+{
+  if (WDL_NOT_NORMALLY(!h)) return;
+  NSWindow* wnd=0;
+  if ([(id)h isKindOfClass:[NSWindow class]]) wnd=(NSWindow*)h;
+  else if ([(id)h isKindOfClass:[NSView class]]) wnd=[(NSView*)h window];
+  if (WDL_NORMALLY(wnd && [wnd isKindOfClass:[SWELL_ModelessWindow class]]))
+    ((SWELL_ModelessWindow *)wnd)->m_disableMonitorAutosize = noauto;
 }
 
 int SWELL_GetDefaultButtonID(HWND hwndDlg, bool onlyIfEnabled)
