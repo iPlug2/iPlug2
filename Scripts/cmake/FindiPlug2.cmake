@@ -398,7 +398,17 @@ function(iplug_configure_target target target_type)
     set(_res "${PLUG_RESOURCES_DIR}/main.rc")
     iplug_target_add(${target} PUBLIC RESOURCE ${_res})
     source_group("Resources" FILES ${_res})
-    target_compile_options(${TARGET} PRIVATE /Zi)
+    # This assumes msvc-like cli interface (msvc or clang-cl) which breaks clang on windows.
+    #target_compile_options(${TARGET} PRIVATE /Zi)
+    if(${CMAKE_CXX_COMPILER_FRONTEND_VARIANT} STREQUAL MSVC) 
+      # message(STATUS "Using MSVC-Like frontend")
+      # /Zi tells the compiler to generate pdb files
+      target_compile_options(${TARGET} PRIVATE /Zi)
+    else() # Assumes GNU-Like - but I haven't checked this with g++
+      # message(STATUS "Using GNU-Like frontend")
+      # credit to rovingeye from tap
+      target_compile_options(${TARGET} PRIVATE -DEBUG)
+    endif()
     set_target_properties(${TARGET} PROPERTIES
       COMPILE_PDB_NAME "${TARGET}_${PROCESSOR_ARCH}"
     )
