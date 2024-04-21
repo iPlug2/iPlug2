@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.26 FATAL_ERROR) # What CMAKE version am I even *on* on this thing
+cmake_minimum_required(VERSION 3.26 FATAL_ERROR)
 cmake_policy(SET CMP0091 NEW)
 
 #########
@@ -67,11 +67,10 @@ elseif(APPLE)
 
   # Very possible we don't need some of these - not super familiar with mac frameworks
   set(EXTRA_LINK_LIBRARIES 
-    "-framework Carbon -framework AppKit -framework Metal -framework MetalKit -framework WebKit -framework CoreFoundation"
+    "-framework Carbon -framework AppKit -framework Metal -framework MetalKit -framework WebKit"
   )
 
   set(IWEBVIEW_SOURCE 
-    ${IPLUG2_DIR}/IPlug/IPlugPaths.mm # is this necessary? 
     ${IPLUG2_DIR}/IPlug/Extras/WebView/IPlugWebView.mm 
     ${IPLUG2_DIR}/IPlug/Extras/WebView/IPlugWebViewEditorDelegate.mm
   )
@@ -118,8 +117,6 @@ set(TARGET app)
 add_executable(${TARGET} WIN32 MACOSX_BUNDLE ${SRC_FILES} )
 iplug_target_add(${TARGET} PUBLIC LINK iPlug2_APP _base RESOURCE ${RESOURCES})
 iplug_configure_target(${TARGET} app)
-# target_link_libraries(${TARGET} PRIVATE ${EXTRA_LINK_LIBRARIES})
-# target_compile_options(${TARGET} PRIVATE)
 
 #set(TARGET vst2)
 #add_library(${TARGET} MODULE ${SRC_FILES})
