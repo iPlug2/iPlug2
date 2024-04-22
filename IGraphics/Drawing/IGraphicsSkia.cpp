@@ -17,6 +17,7 @@
 #include "include/core/SkPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkGradientShader.h"
+#include "include/effects/SkImageFilters.h"
 
 #if !defined IGRAPHICS_NO_SKIA_SKPARAGRAPH
 #include "modules/skparagraph/include/FontCollection.h"
@@ -976,6 +977,54 @@ static size_t CalcRowBytes(int width)
 {
   width = ((width + 7) & (-8));
   return width * sizeof(uint32_t);
+}
+
+void IGraphicsSkia::ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow)
+{
+#ifdef IGRAPHICS_CPU
+  bool useFilter = false;
+#else
+  bool useFilter = shadow.mPattern.mNStops <= 1;;
+#endif
+  
+  if (useFilter)
+  {
+    auto makeFilter = [&shadow](float scale)
+    {
+      // The constant of 3.f matches the IGraphics scaling of blur
+      const auto dx = shadow.mXOffset * scale;
+      const auto dy = shadow.mYOffset * scale;
+      const auto r = shadow.mBlurSize * scale / 3.f;
+      const IBlend blend(EBlend::Default, shadow.mOpacity);
+      const auto color = SkiaColor(shadow.mPattern.GetStop(0).mColor, &blend);
+      
+      if (shadow.mDrawForeground)
+        return SkImageFilters::DropShadow(dx, dy, r, r, color, nullptr);
+      else
+        return SkImageFilters::DropShadowOnly(dx, dy, r, r, color, nullptr);
+    };
+    
+    auto shadowFilter = makeFilter(layer->GetAPIBitmap()->GetScale());
+    
+    SkPaint p;
+    SkMatrix m;
+    m.reset();
+    
+    p.setAntiAlias(true);
+    p.setImageFilter(shadowFilter);
+    
+    sk_sp<SkSurface> surface = layer->GetAPIBitmap()->GetBitmap()->mSurface;
+    SkCanvas* pCanvas = surface->getCanvas();
+    sk_sp<SkImage> contents = surface->makeImageSnapshot();
+    
+    pCanvas->setMatrix(m);
+    pCanvas->clear(SK_ColorTRANSPARENT);
+    pCanvas->drawImage(contents.get(), 0.0, 0.0, SkSamplingOptions(), &p);
+  }
+  else
+  {
+    IGraphics::ApplyLayerDropShadow(layer, shadow);
+  }
 }
 
 void IGraphicsSkia::GetLayerBitmapData(const ILayerPtr& layer, RawBitmapData& data)

@@ -559,7 +559,7 @@ public:
   /** Applies a drop shadow directly onto a layer
   * @param layer - the layer to add the shadow to 
   * @param shadow - the shadow to add */
-  void ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow);
+  virtual void ApplyLayerDropShadow(ILayerPtr& layer, const IShadow& shadow);
 
   /** Get the contents of a layer as Raw RGBA bitmap data
    * NOTE: you should only call this within IControl::Draw()
