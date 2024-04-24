@@ -1570,6 +1570,7 @@ static bool s_mtl_in_update;
   swell_metal_device_ctx *ctx = s_metal_devices.Get((INT_PTR)device);
   if (!ctx)
   {
+    NSLog(@"swell-cocoa: creating metal device context for %p %@\n",device,device.name);
     ctx = new swell_metal_device_ctx;
     s_metal_devices.Insert((INT_PTR)device, ctx);
   }
