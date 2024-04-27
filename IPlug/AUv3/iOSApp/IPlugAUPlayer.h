@@ -14,9 +14,14 @@
 
 @interface IPlugAUPlayer : NSObject
 
-@property (assign) AUAudioUnit* currentAudioUnit;
+@property (assign) AUAudioUnit* audioUnit;
+@property (nonatomic, assign) AudioComponentDescription componentDescription;
 
-- (instancetype) initWithComponentType:(UInt32) unitComponentType;
++ (instancetype) sharedInstance;
+- (instancetype) init;
 
-- (void) loadAudioUnitWithComponentDescription:(AudioComponentDescription) desc completion:(void (^) (void)) completionBlock;
+- (void) loadAudioUnit:(void (^) (void)) completionBlock;
+
+- (void) unmuteOutput;
+
 @end

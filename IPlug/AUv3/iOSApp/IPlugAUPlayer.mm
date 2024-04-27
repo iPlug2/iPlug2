@@ -9,6 +9,8 @@
 */
 
 #import "IPlugAUPlayer.h"
+#import "IPlugAUAudioUnit.h"
+
 #include "IPlugConstants.h"
 #include "config.h"
 
@@ -29,42 +31,71 @@ bool isInstrument()
 {
   AVAudioEngine* engine;
   AVAudioUnit* avAudioUnit;
-  UInt32 componentType;
 }
 
-- (instancetype) initWithComponentType: (UInt32) unitComponentType
++ (instancetype) sharedInstance
+{
+  static IPlugAUPlayer *sharedInstance = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    sharedInstance = [[self alloc] init];
+  });
+  return sharedInstance;
+}
+
+- (instancetype) init
 {
   self = [super init];
   
   if (self)
   {
     engine = [[AVAudioEngine alloc] init];
-    componentType = unitComponentType;
+    
+    AudioComponentDescription desc;
+
+   #if PLUG_TYPE==0
+   #if PLUG_DOES_MIDI_IN
+    desc.componentType = kAudioUnitType_MusicEffect;
+   #else
+    desc.componentType = kAudioUnitType_Effect;
+   #endif
+   #elif PLUG_TYPE==1
+    desc.componentType = kAudioUnitType_MusicDevice;
+   #elif PLUG_TYPE==2
+    desc.componentType = 'aumi';
+   #endif
+
+    desc.componentSubType = PLUG_UNIQUE_ID;
+    desc.componentManufacturer = PLUG_MFR_ID;
+    desc.componentFlags = 0;
+    desc.componentFlagsMask = 0;
+
+    [AUAudioUnit registerSubclass: IPLUG_AUAUDIOUNIT.class asComponentDescription:desc name:@"Local AUv3" version: UINT32_MAX];
+
+    self.componentDescription = desc;
   }
 
   return self;
 }
 
-- (void) loadAudioUnitWithComponentDescription:(AudioComponentDescription)desc
-                                   completion:(void (^) (void))completionBlock
+- (void) loadAudioUnit:(void (^) (void))completionBlock
 {
-  [AVAudioUnit instantiateWithComponentDescription:desc options:0
+  [AVAudioUnit instantiateWithComponentDescription:self.componentDescription options:0
                                  completionHandler:^(AVAudioUnit* __nullable audioUnit, NSError* __nullable error) {
                                    [self onAudioUnitInstantiated:audioUnit error:error completion:completionBlock];
                                  }];
 }
 
-- (void) onAudioUnitInstantiated:(AVAudioUnit* __nullable) audioUnit error:(NSError* __nullable) error completion:(void (^) (void))completionBlock
+- (void) onAudioUnitInstantiated:(AVAudioUnit* __nullable) avAudioUnitInstantiated error:(NSError* __nullable) error completion:(void (^) (void))completionBlock
 {
-  if (audioUnit == nil)
+  if (avAudioUnitInstantiated == nil)
     return;
   
-  avAudioUnit = audioUnit;
-  
+  avAudioUnit = avAudioUnitInstantiated;
+
   [engine attachNode:avAudioUnit];
 
-  self.currentAudioUnit = avAudioUnit.AUAudioUnit;
-  
+  self.audioUnit = avAudioUnit.AUAudioUnit;
   [self setupSession];
     
 #ifdef _DEBUG
@@ -87,6 +118,8 @@ bool isInstrument()
     NSLog(@"engine failed to start: %@", error);
   }
 
+  [self muteFeedbackIfNeeded:YES];
+
   completionBlock();
 }
 
@@ -108,6 +141,7 @@ bool isInstrument()
   else
   {
     [self printSessionInfo];
+    [self muteFeedbackIfNeeded:NO];
   }
 }
 
@@ -161,7 +195,7 @@ bool isInstrument()
   auto numOutputBuses = [avAudioUnit numberOfOutputs];
   AVAudioMixerNode* mainMixer = [engine mainMixerNode];
   AVAudioFormat* pluginOutputFormat = [avAudioUnit outputFormatForBus:0];
-  AVAudioNode* outputNode = [engine outputNode];
+  mainMixer.outputVolume = 0;
 
   if (numOutputBuses > 1)
   {
@@ -173,7 +207,7 @@ bool isInstrument()
   }
   else
   {
-    [engine connect:avAudioUnit to:outputNode format: pluginOutputFormat];
+    [engine connect:avAudioUnit to:mainMixer format: pluginOutputFormat];
   }
 }
 
@@ -207,7 +241,7 @@ bool isInstrument()
   NSLog(@"Session Output Chans: %i", int(session.outputNumberOfChannels));
   if (!isInstrument()) NSLog(@"Session Input Latency: %f ms", session.inputLatency * 1000.0f);
   NSLog(@"Session Output Latency: %f ms", session.outputLatency * 1000.0f);
-  AVAudioSessionRouteDescription *currentRoute = [session currentRoute];
+  AVAudioSessionRouteDescription* currentRoute = [session currentRoute];
   for (AVAudioSessionPortDescription* input in currentRoute.inputs)
   {
     NSLog(@"Input Port Name: %@", input.portName);
@@ -224,12 +258,100 @@ bool isInstrument()
   NSNotificationCenter* notifCtr = [NSNotificationCenter defaultCenter];
 
   [notifCtr addObserver: self selector: @selector (onEngineConfigurationChange:) name:AVAudioEngineConfigurationChangeNotification object: engine];
+  [notifCtr addObserver: self selector: @selector (onAudioRouteChange:) name:AVAudioSessionRouteChangeNotification object: nil];
+}
+
+- (void) muteFeedbackIfNeeded : (BOOL) allowUnmute
+{
+  NSString* str = @"Routing changed";
+  BOOL isMuted = allowUnmute ? NO : [self getMuted];
+
+  if (!isInstrument())
+  {
+    BOOL hasMic = NO;
+    BOOL hasSpeaker = NO;
+    AVAudioSession* session = [AVAudioSession sharedInstance];
+    AVAudioSessionRouteDescription* currentRoute = [session currentRoute];
+    
+    for (AVAudioSessionPortDescription* input in currentRoute.inputs)
+    {
+      if ([input.portName containsString:@"Microphone"])
+      {
+        hasMic = YES;
+      }
+    }
+    
+    for (AVAudioSessionPortDescription* output in currentRoute.outputs)
+    {
+      if ([output.portName containsString:@"Speaker"])
+      {
+        hasSpeaker = YES;
+      }
+    }
+    
+    BOOL shouldMute = hasMic && hasSpeaker;
+    
+    if (shouldMute)
+    {
+      isMuted = YES;
+      str = @"Potential feedback loop detected";
+    }
+  }
+  
+  if (isMuted)
+  {
+    [self muteOutput:str];
+  }
+  else
+  {
+    [self unmuteOutput];
+  }
+}
+
+- (void) muteOutput: (NSString*) str
+{
+  engine.mainMixerNode.outputVolume = 0.0;
+    
+  NSDictionary* dict = @{@"reason": str};
+  [[NSNotificationCenter defaultCenter] postNotificationName:@"AppMuted" object:self userInfo:dict];
+}
+
+- (void) unmuteOutput
+{
+  engine.mainMixerNode.outputVolume = 1.0;
+}
+
+- (BOOL) getMuted
+{
+  return engine.mainMixerNode.outputVolume == 0.0;
 }
 
 #pragma mark Notifications
 - (void) onEngineConfigurationChange: (NSNotification*) notification
 {
   [self restartAudioEngine];
+}
+
+- (void) onAudioRouteChange: (NSNotification*) notification
+{
+  [self printSessionInfo];
+  [self muteFeedbackIfNeeded:NO];
+  
+  // If we are not muted at this point xheck for unplugging of headphones
+  
+  if (![self getMuted]  && [[notification.userInfo valueForKey:AVAudioSessionRouteChangeReasonKey] integerValue] == AVAudioSessionRouteChangeReasonOldDeviceUnavailable)
+  {
+    AVAudioSessionRouteDescription* desc = [notification.userInfo valueForKey: AVAudioSessionRouteChangePreviousRouteKey];
+
+    for (AVAudioSessionPortDescription* output in desc.outputs)
+    {
+      if ([output.portName containsString:@"Headphones"])
+      {
+        [self muteOutput:@"Headphones disconnected"];
+        return;
+      }
+    }
+  } 
 }
 
 @end

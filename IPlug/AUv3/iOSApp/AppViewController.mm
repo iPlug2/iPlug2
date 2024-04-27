@@ -25,7 +25,7 @@
 {
   IPlugAUPlayer* player;
   IPLUG_AUVIEWCONTROLLER* pluginVC;
-  IBOutlet UIView* auView;
+  __weak IBOutlet UIView *auView;
 }
 @end
 
@@ -46,58 +46,16 @@
   pluginVC = [storyboard instantiateViewControllerWithIdentifier:@"main"];
   [self addChildViewController:pluginVC];
 #endif
+
+  self->player = [IPlugAUPlayer sharedInstance];
   
-  AudioComponentDescription desc;
+ [ self->player loadAudioUnit:^{
+   self->pluginVC.audioUnit = (IPLUG_AUAUDIOUNIT*) self->player.audioUnit;
 
-#if PLUG_TYPE==0
-#if PLUG_DOES_MIDI_IN
-  desc.componentType = kAudioUnitType_MusicEffect;
-#else
-  desc.componentType = kAudioUnitType_Effect;
-#endif
-#elif PLUG_TYPE==1
-  desc.componentType = kAudioUnitType_MusicDevice;
-#elif PLUG_TYPE==2
-  desc.componentType = 'aumi';
-#endif
-
-  desc.componentSubType = PLUG_UNIQUE_ID;
-  desc.componentManufacturer = PLUG_MFR_ID;
-  desc.componentFlags = 0;
-  desc.componentFlagsMask = 0;
-
-  [AUAudioUnit registerSubclass: IPLUG_AUAUDIOUNIT.class asComponentDescription:desc name:@"Local AUv3" version: UINT32_MAX];
-
-  player = [[IPlugAUPlayer alloc] initWithComponentType:desc.componentType];
-
-  [player loadAudioUnitWithComponentDescription:desc completion:^{
-    self->pluginVC.audioUnit = (IPLUG_AUAUDIOUNIT*) self->player.currentAudioUnit;
-
-    [self embedPlugInView];
-  }];
-  
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveNotification:) name:@"LaunchBTMidiDialog" object:nil];
-}
-
-- (void) receiveNotification:(NSNotification*) notification
-{
-  if ([notification.name isEqualToString:@"LaunchBTMidiDialog"])
-  {
-    NSDictionary* dict = notification.userInfo;
-    NSNumber* x = (NSNumber*) dict[@"x"];
-    NSNumber* y = (NSNumber*) dict[@"y"];
-   
-    CABTMIDICentralViewController* vc = [[CABTMIDICentralViewController alloc] init];
-    UINavigationController* nc = [[UINavigationController alloc] initWithRootViewController:vc];
-    nc.modalPresentationStyle = UIModalPresentationPopover;
-    
-    UIPopoverPresentationController* ppc = nc.popoverPresentationController;
-    ppc.permittedArrowDirections = UIPopoverArrowDirectionAny;
-    ppc.sourceView = self.view;
-    ppc.sourceRect = CGRectMake([x floatValue], [y floatValue], 1., 1.);
-    
-    [self presentViewController:nc animated:YES completion:nil];
-  }
+   [self embedPlugInView];
+ }];
+ 
+  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(receiveNotification:) name:@"AppMuted" object:nil];
 }
 
 - (void) embedPlugInView
@@ -106,20 +64,43 @@
   UIView* view = pluginVC.view;
   view.frame = auView.bounds;
   [auView addSubview: view];
-
-  view.translatesAutoresizingMaskIntoConstraints = NO;
-
-  NSArray* constraints = [NSLayoutConstraint constraintsWithVisualFormat: @"H:|[view]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(view)];
-  [auView addConstraints: constraints];
-
-  constraints = [NSLayoutConstraint constraintsWithVisualFormat: @"V:|[view]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(view)];
-  [auView addConstraints: constraints];
 #endif
+}
+
+- (void) showMutedDialog: (NSString*) reason
+{
+  UIAlertController* alert = [UIAlertController alertControllerWithTitle:reason
+                                                                 message:@"Audio is muted"
+                                                          preferredStyle:UIAlertControllerStyleAlert];
+
+  UIAlertAction* unmuteAction = [UIAlertAction actionWithTitle:@"Unmute" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+     [self->player unmuteOutput];
+  }];
+
+  UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:@"Leave muted" style:UIAlertActionStyleCancel handler:nil];
+
+  [alert addAction:unmuteAction];
+  [alert addAction:cancelAction];
+
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+   if (self.presentedViewController)
+   {
+     [[self presentedViewController] dismissViewControllerAnimated:YES completion:nil];
+   }
+   [self presentViewController:alert animated:YES completion:nil];
+  }];
 }
 
 - (UIRectEdge) preferredScreenEdgesDeferringSystemGestures
 {
   return UIRectEdgeAll;
 }
-@end
 
+- (void) receiveNotification: (NSNotification*) notification
+{
+  if ([notification.name isEqualToString:@"AppMuted"])
+  {
+    [self showMutedDialog:[notification.userInfo valueForKey: @"reason"]];
+  }
+}
+@end
