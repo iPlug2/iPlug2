@@ -140,7 +140,7 @@ public:
     return ver;
   }
   
-  /** Copies data into the chunk, placing it at the end, resizing if nessecary
+  /** Copies data into the chunk, placing it at the end, resizing if necessary
    * @param pSrc Pointer to the data to copy
    * @param nBytesToCopy Number of bytes to copy
    * @return int The size of the chunk after insertion  */

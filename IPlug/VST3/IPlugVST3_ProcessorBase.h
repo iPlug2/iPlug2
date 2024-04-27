@@ -50,7 +50,7 @@ public:
     /*int maxNInBuses =*/ MaxNBuses(ERoute::kInput, &configWithMostInputBuses);
     int maxNOutBuses = MaxNBuses(ERoute::kOutput, &configWithMostOutputBuses);
 
-    // Add the maximum number of input buses in any ioconfig. channel count/API Bus type will be changed later if nessecary
+    // Add the maximum number of input buses in any ioconfig. channel count/API Bus type will be changed later if necessary
     {
       const IOConfig* pConfig = GetIOConfig(configWithMostInputBuses);
 
@@ -67,7 +67,7 @@ public:
       }
     }
     
-    // Add the maximum number of output buses in any ioconfig. channel count/API Bus type will be changed later if nessecary
+    // Add the maximum number of output buses in any ioconfig. channel count/API Bus type will be changed later if necessary
     {
       const IOConfig* pConfig = GetIOConfig(configWithMostOutputBuses);
       int nOut = pConfig->NBuses(ERoute::kOutput);
