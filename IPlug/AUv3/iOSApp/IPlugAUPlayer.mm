@@ -275,7 +275,7 @@ bool isInstrument()
     
     for (AVAudioSessionPortDescription* input in currentRoute.inputs)
     {
-      if ([input.portName containsString:@"Microphone"])
+      if (input.portType == AVAudioSessionPortBuiltInMic)
       {
         hasMic = YES;
       }
@@ -283,7 +283,7 @@ bool isInstrument()
     
     for (AVAudioSessionPortDescription* output in currentRoute.outputs)
     {
-      if ([output.portName containsString:@"Speaker"])
+      if (output.portType == AVAudioSessionPortBuiltInSpeaker)
       {
         hasSpeaker = YES;
       }
@@ -345,7 +345,7 @@ bool isInstrument()
 
     for (AVAudioSessionPortDescription* output in desc.outputs)
     {
-      if ([output.portName containsString:@"Headphones"])
+      if (output.portType == AVAudioSessionPortHeadphones)
       {
         [self muteOutput:@"Headphones disconnected"];
         return;
