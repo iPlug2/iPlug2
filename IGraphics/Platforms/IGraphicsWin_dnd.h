@@ -116,7 +116,7 @@ struct EnumFORMATETC final : public IEnumFORMATETC
     return E_NOINTERFACE;
   }
 
-  HRESULT Clone (IEnumFORMATETC** resultHandle) override 
+  HRESULT STDMETHODCALLTYPE Clone (IEnumFORMATETC** resultHandle) override
   {
     if (resultHandle == nullptr) 
     {
@@ -128,7 +128,7 @@ struct EnumFORMATETC final : public IEnumFORMATETC
     return S_OK;
   }
 
-  HRESULT Next (ULONG celt, FORMATETC *pFormat, ULONG* pceltFetched) override 
+  HRESULT STDMETHODCALLTYPE Next (ULONG celt, FORMATETC *pFormat, ULONG* pceltFetched) override
   {
     if (pceltFetched != nullptr) 
     {
@@ -152,7 +152,7 @@ struct EnumFORMATETC final : public IEnumFORMATETC
     return S_FALSE;
   }
 
-  HRESULT Skip (ULONG celt) override 
+  HRESULT STDMETHODCALLTYPE Skip (ULONG celt) override
   {
     if (mCounter + (int) celt >= 1) 
     {
@@ -162,7 +162,7 @@ struct EnumFORMATETC final : public IEnumFORMATETC
     return S_OK;
   }
 
-  HRESULT Reset() override 
+  HRESULT STDMETHODCALLTYPE Reset() override
   {
     mCounter = 0;
     return S_OK;
@@ -275,13 +275,13 @@ public:
     return S_OK;
   }
 
-  HRESULT GetCanonicalFormatEtc(FORMATETC*, FORMATETC* pFormatOut) override 
+  HRESULT STDMETHODCALLTYPE GetCanonicalFormatEtc(FORMATETC*, FORMATETC* pFormatOut) override
   {
     pFormatOut->ptd = nullptr;
     return E_NOTIMPL;
   }
 
-  HRESULT EnumFormatEtc(DWORD direction, IEnumFORMATETC** resultHandle) override 
+  HRESULT STDMETHODCALLTYPE EnumFormatEtc(DWORD direction, IEnumFORMATETC** resultHandle) override 
   {
     if (!resultHandle) 
     {
