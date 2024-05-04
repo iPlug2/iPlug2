@@ -11,6 +11,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugEffect-vst3", "project
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugEffect-aax", "projects\IPlugEffect-aax.vcxproj", "{DC4B5920-933D-4C82-B842-F34431D55A93}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "IPlugEffect-clap", "projects\IPlugEffect-clap.vcxproj", "{6D05871E-274A-48CA-A39A-AB1C9D7DC78C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -69,6 +71,18 @@ Global
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|Win32.Build.0 = Tracer|Win32
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.ActiveCfg = Tracer|x64
 		{DC4B5920-933D-4C82-B842-F34431D55A93}.Tracer|x64.Build.0 = Tracer|x64
+		{6D05871E-274A-48CA-A39A-AB1C9D7DC78C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6D05871E-274A-48CA-A39A-AB1C9D7DC78C}.Debug|Win32.Build.0 = Debug|Win32
+		{6D05871E-274A-48CA-A39A-AB1C9D7DC78C}.Debug|x64.ActiveCfg = Debug|x64
+		{6D05871E-274A-48CA-A39A-AB1C9D7DC78C}.Debug|x64.Build.0 = Debug|x64
+		{6D05871E-274A-48CA-A39A-AB1C9D7DC78C}.Release|Win32.ActiveCfg = Release|Win32
+		{6D05871E-274A-48CA-A39A-AB1C9D7DC78C}.Release|Win32.Build.0 = Release|Win32
+		{6D05871E-274A-48CA-A39A-AB1C9D7DC78C}.Release|x64.ActiveCfg = Release|x64
+		{6D05871E-274A-48CA-A39A-AB1C9D7DC78C}.Release|x64.Build.0 = Release|x64
+		{6D05871E-274A-48CA-A39A-AB1C9D7DC78C}.Tracer|Win32.ActiveCfg = Tracer|Win32
+		{6D05871E-274A-48CA-A39A-AB1C9D7DC78C}.Tracer|Win32.Build.0 = Tracer|Win32
+		{6D05871E-274A-48CA-A39A-AB1C9D7DC78C}.Tracer|x64.ActiveCfg = Tracer|x64
+		{6D05871E-274A-48CA-A39A-AB1C9D7DC78C}.Tracer|x64.Build.0 = Tracer|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
