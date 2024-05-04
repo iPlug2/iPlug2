@@ -133,6 +133,17 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Quit\tCtrl+Q",               ID_QUIT
     END
+    POPUP "&View"
+    BEGIN
+        POPUP "Search columns"
+        BEGIN
+            MENUITEM "State", ID_COL_STATE
+            MENUITEM "ID", ID_COL_ID
+            MENUITEM "Template", ID_COL_TEMPLATE
+            MENUITEM "Localized", ID_COL_LOCALIZED
+            MENUITEM "Common Localized", ID_COL_COMMONLOCALIZED
+        END
+    END
     POPUP "&Edit"
     BEGIN
         MENUITEM "Edit localization\tEnter",    IDC_LOCALIZED_STRING

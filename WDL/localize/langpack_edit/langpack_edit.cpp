@@ -47,7 +47,7 @@ HINSTANCE g_hInstance;
 WDL_FastString g_ini_file;
 
 enum {
-  COL_STATE=0,
+  COL_STATE=0, // if we edit these need to edit the IDs of ID_COL_* in resource.h
   COL_ID,
   COL_ROW_IDX,
   COL_TEMPLATE,
@@ -80,6 +80,7 @@ struct editor_instance {
 
   WDL_StringKeyedArray2<pack_rec> m_recs;
   WDL_TypedBuf<int> m_display_order;
+  int m_column_no_searchflags; // bits for exclude from search per column
 
   HWND m_hwnd;
   bool m_dirty;
@@ -414,6 +415,7 @@ void editor_instance::refresh_list(bool refilter)
         {
           for (int c =0; c < COL_MAX; c ++)
           {
+            if (m_column_no_searchflags & (1<<c)) continue;
             const char *v = get_rec_value(r,k,c);
             if (v) strs[nc++] = v;
           }
@@ -726,6 +728,8 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         GetPrivateProfileString("LangPackEdit","lastpack","",buf,sizeof(buf),g_ini_file.Get());
         g_editor.load_file(buf,false);
+
+        g_editor.m_column_no_searchflags = GetPrivateProfileInt("LangPackEdit","nosearchcols",0,g_ini_file.Get());
         g_editor.m_pack_fn.Set(buf);
         g_editor.set_caption();
       }
@@ -860,6 +864,19 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
           }
         break;
+        case ID_COL_STATE:
+        case ID_COL_ID:
+        case ID_COL_TEMPLATE:
+        case ID_COL_LOCALIZED:
+        case ID_COL_COMMONLOCALIZED:
+          g_editor.m_column_no_searchflags ^= (1<<(LOWORD(wParam) - ID_COL_STATE));
+          {
+            char tmp[64];
+            snprintf(tmp,sizeof(tmp),"%d",g_editor.m_column_no_searchflags);
+            WritePrivateProfileString("LangPackEdit","nosearchcols",tmp,g_ini_file.Get());
+          }
+          SetTimer(hwndDlg,TIMER_FILTER,100,NULL);
+        break;
       }
     break;
     case WM_INITMENUPOPUP:
@@ -877,6 +894,8 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         bool en = ListView_GetSelectedCount(GetDlgItem(hwndDlg,IDC_LIST))>0;
         for (size_t x = 0; x < sizeof(tab)/sizeof(tab[0]); x ++)
           EnableMenuItem(menu,tab[x],MF_BYCOMMAND|(en ? 0 : MF_GRAYED));
+        for (int x = 0; x < COL_MAX; x ++)
+          CheckMenuItem(menu,ID_COL_STATE+x, MF_BYCOMMAND | ((g_editor.m_column_no_searchflags&(1<<x)) ? MF_UNCHECKED:MF_CHECKED));
       }
     break;
     case WM_NOTIFY:
