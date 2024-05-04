@@ -419,7 +419,7 @@ void editor_instance::refresh_list(bool refilter)
           }
         }
 
-        if (!do_filt || WDL_hasStringsEx2(strs,nc,&lp,NULL))
+        if (!do_filt || WDL_hasStringsEx2(strs,nc,&lp))
           p[cnt++] = x;
       }
     }
