@@ -213,14 +213,15 @@ private:
 
   friend class IPlugAPP;
   friend class IPlugAAX;
+  friend class IPlugAU;
+  friend class IPlugAUv3;
+  friend class IPlugCLAP;
   friend class IPlugVST2;
   friend class IPlugVST3;
   friend class IPlugVST3Controller;
   friend class IPlugVST3Processor;
-  friend class IPlugAU;
-  friend class IPlugAUv3;
-  friend class IPlugWEB;
   friend class IPlugWAM;
+  friend class IPlugWEB;
 
 private:
   WDL_String mParamDisplayStr;

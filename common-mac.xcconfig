@@ -41,6 +41,7 @@ AU_DEFS = AU_API $PLUGIN_DEFS IPLUG_EDITOR=1 IPLUG_DSP=1
 AUv3_DEFS = AUv3_API $PLUGIN_DEFS IPLUG_EDITOR=1 IPLUG_DSP=1
 AAX_DEFS = AAX_API $PLUGIN_DEFS IPLUG_EDITOR=1 IPLUG_DSP=1
 APP_DEFS = APP_API __MACOSX_CORE__ IPLUG_EDITOR=1 IPLUG_DSP=1 SWELL_COMPILED// __UNIX_JACK__
+CLAP_DEFS = CLAP_API $PLUGIN_DEFS IPLUG_EDITOR=1 IPLUG_DSP=1
 
 // ***** HEADER INCLUDE PATHS
 // Where the SDKs etc. are located in relation to the plug-in Xcode project (which is in the projects subfolder of an IPlug project)
@@ -86,9 +87,13 @@ VST2_SDK = $(DEPS_PATH)/IPlug/VST2_SDK
 VST3_SDK = $(DEPS_PATH)/IPlug/VST3_SDK
 AAX_SDK = $(DEPS_PATH)/IPlug/AAX_SDK
 REAPER_SDK = $(DEPS_PATH)/IPlug/REAPER_SDK
+CLAP_SDK = $(DEPS_PATH)/IPlug/CLAP_SDK
+CLAP_HELPERS = $(DEPS_PATH)/IPlug/CLAP_HELPERS
 
 // this build setting is included at the xcode project level, since we need all these include paths
 IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(SWELL_PATH) $(SWELL_FOR_IPLUG_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS)
+
+CLAP_INC_PATHS = $(CLAP_SDK)/include $(CLAP_HELPERS)/include/clap/helpers
 
 IGRAPHICS_PATH = $(IPLUG2_ROOT)/IGraphics
 
@@ -148,6 +153,7 @@ AUv3_FRAMEWORKS = -framework AudioToolbox -framework AVFoundation -framework Cor
 
 VST2_PATH = $(HOME)/Library/Audio/Plug-Ins/VST
 VST3_PATH = $(HOME)/Library/Audio/Plug-Ins/VST3
+CLAP_PATH = $(HOME)/Library/Audio/Plug-Ins/CLAP
 AU_PATH = $(HOME)/Library/Audio/Plug-Ins/Components
 AAX_PATH = /Library/Application Support/Avid/Audio/Plug-Ins
 APP_PATH = $(HOME)/Applications
