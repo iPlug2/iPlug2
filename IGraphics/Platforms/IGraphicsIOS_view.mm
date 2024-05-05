@@ -824,7 +824,8 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     
   gestureRecognizer.delegate = self;
   gestureRecognizer.cancelsTouchesInView = YES;
-  gestureRecognizer.delaysTouchesBegan = YES;
+  gestureRecognizer.delaysTouchesBegan = NO;
+  gestureRecognizer.delaysTouchesEnded = NO;
   [self addGestureRecognizer:gestureRecognizer];
 }
 
