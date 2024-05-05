@@ -31,6 +31,15 @@ void* IPlatformView::CreatePlatformView(void* pParent, float x, float y, float w
 {
   @autoreleasepool {
     PLATFORM_VIEW* platformView = [[PLATFORM_VIEW alloc] initWithFrame:MAKERECT(x,y,w,h)];
+    
+#if defined OS_IOS
+  if (!mOpaque)
+  {
+    platformView.backgroundColor = [UIColor clearColor];
+    platformView.opaque = NO;
+  }
+#endif
+    
     mPlatformView = (__bridge_retained void*) platformView;
   }
 
