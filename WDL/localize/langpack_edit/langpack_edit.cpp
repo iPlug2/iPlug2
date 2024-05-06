@@ -491,7 +491,11 @@ static int sort_func(const void *a, const void *b)
         const pack_rec *br = sort_inst->m_recs.EnumeratePtr(idx_b,&bk);
         const char *av = ar ? sort_inst->get_rec_value(ar,ak,col) : NULL;
         const char *bv = br ? sort_inst->get_rec_value(br,bk,col) : NULL;
-        if (av || bv) ret = WDL_strcmp_logical_ex(av?av:"",bv?bv:"",0,WDL_STRCMP_LOGICAL_EX_FLAG_UTF8CONVERT);
+        if (av || bv)
+        {
+          int diff = WDL_strcmp_logical_ex(av?av:"",bv?bv:"",0,WDL_STRCMP_LOGICAL_EX_FLAG_UTF8CONVERT);
+          if (diff) ret = diff;
+        }
       }
     break;
   }
