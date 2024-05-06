@@ -127,6 +127,7 @@ struct editor_instance {
   void cull_recs();
   void refresh_list(bool refilter=true);
   void sort_display_order();
+  void on_sort_change();
 
   const char *get_rec_value(const pack_rec *r, const char *k, int w) const
   {
@@ -500,6 +501,25 @@ static int sort_func(const void *a, const void *b)
     break;
   }
   return sort_inst->m_sort_rev ? -ret : ret;
+}
+
+
+void editor_instance::on_sort_change()
+{
+  char tmp[64];
+  snprintf(tmp, sizeof(tmp), "%d", m_sort_col);
+  WritePrivateProfileString("LangPackEdit", "sortcol", tmp, g_ini_file.Get());
+  WritePrivateProfileString("LangPackEdit", "sortrev", m_sort_rev ? "1" : "0", g_ini_file.Get());
+
+  sort_display_order();
+
+  if (!m_hwnd) return;
+  HWND list = GetDlgItem(m_hwnd,IDC_LIST);
+
+  if (!list) return;
+  ListView_SetHeaderSortArrow(list, m_sort_col, (m_sort_rev ? -1 : 1));
+  ListView_SetItemCount(list, m_display_order.GetSize());
+  ListView_RedrawItems(list, 0, m_display_order.GetSize());
 }
 
 void editor_instance::sort_display_order()
@@ -956,6 +976,19 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           }
           SetTimer(hwndDlg,TIMER_FILTER,100,NULL);
         break;
+        case ID_SORTCOL_STATE:
+        case ID_SORTCOL_ID:
+        case ID_SORTCOL_TEMPLATE:
+        case ID_SORTCOL_LOCALIZED:
+        case ID_SORTCOL_COMMONLOCALIZED:
+          g_editor.m_sort_rev = false;
+          g_editor.m_sort_col = LOWORD(wParam) - ID_SORTCOL_STATE;
+          g_editor.on_sort_change();
+        break;
+        case ID_SORTCOL_REVERSE:
+          g_editor.m_sort_rev = !g_editor.m_sort_rev;
+          g_editor.on_sort_change();
+        break;
       }
     break;
     case WM_INITMENUPOPUP:
@@ -975,6 +1008,9 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           EnableMenuItem(menu,tab[x],MF_BYCOMMAND|(en ? 0 : MF_GRAYED));
         for (int x = 0; x < COL_MAX; x ++)
           CheckMenuItem(menu,ID_COL_STATE+x, MF_BYCOMMAND | ((g_editor.m_column_no_searchflags&(1<<x)) ? MF_UNCHECKED:MF_CHECKED));
+        for (int x = 0; x < COL_MAX; x ++)
+          CheckMenuItem(menu,ID_SORTCOL_STATE+x, MF_BYCOMMAND | ((g_editor.m_sort_col == x) ? MF_CHECKED:MF_UNCHECKED));
+        CheckMenuItem(menu,ID_SORTCOL_REVERSE, MF_BYCOMMAND | (g_editor.m_sort_rev ? MF_CHECKED:MF_UNCHECKED));
       }
     break;
     case WM_NOTIFY:
@@ -1004,15 +1040,7 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 g_editor.m_sort_rev = false;
                 g_editor.m_sort_col = col;
               }
-              char tmp[64];
-              snprintf(tmp, sizeof(tmp), "%d", g_editor.m_sort_col);
-              WritePrivateProfileString("LangPackEdit", "sortcol", tmp, g_ini_file.Get());
-              WritePrivateProfileString("LangPackEdit", "sortrev", g_editor.m_sort_rev ? "1" : "0", g_ini_file.Get());
-
-              g_editor.sort_display_order();
-              ListView_SetHeaderSortArrow(lv->hdr.hwndFrom, g_editor.m_sort_col, (g_editor.m_sort_rev ? -1 : 1));
-              ListView_SetItemCount(lv->hdr.hwndFrom, g_editor.m_display_order.GetSize());
-              ListView_RedrawItems(lv->hdr.hwndFrom,0, g_editor.m_display_order.GetSize());
+              g_editor.on_sort_change();
             }
           return 0;
           case LVN_GETDISPINFO:

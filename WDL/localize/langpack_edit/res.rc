@@ -143,6 +143,16 @@ BEGIN
             MENUITEM "Localized", ID_COL_LOCALIZED
             MENUITEM "Common Localized", ID_COL_COMMONLOCALIZED
         END
+        POPUP "Sorting column"
+        BEGIN
+            MENUITEM "State", ID_SORTCOL_STATE
+            MENUITEM "ID", ID_SORTCOL_ID
+            MENUITEM "Template", ID_SORTCOL_TEMPLATE
+            MENUITEM "Localized", ID_SORTCOL_LOCALIZED
+            MENUITEM "Common Localized", ID_SORTCOL_COMMONLOCALIZED
+            MENUITEM SEPARATOR
+            MENUITEM "Reverse", ID_SORTCOL_REVERSE
+        END
     END
     POPUP "&Edit"
     BEGIN
