@@ -7,6 +7,9 @@
 
 WDL_HASSTRINGS_EXPORT const char *hasStrings_rewutf8(const char *str, const char *base)
 {
+#ifdef WDL_HASSTRINGS_REWUTF8_HOOK
+  WDL_HASSTRINGS_REWUTF8_HOOK(str, base)
+#endif
   while (str > base && (*(unsigned char *)str & 0xC0) == 0x80) str--;
   return str;
 }
