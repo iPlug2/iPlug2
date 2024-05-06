@@ -35,6 +35,12 @@
 
 #include "../../localize/localize.h"
 #include "../../lineparse.h"
+
+#define WDL_HASSTRINGS_REWUTF8_HOOK(str, base) \
+ if ((str) > (base)) switch ((str)[0]) { \
+   case 'r': case 'n': case 't': case '0': if ((str)[-1] == '\\') (str)--; break; \
+   case 'd': case 's': case 'f': case 'g': case 'c': case 'u': if ((str)[-1] == '%') (str)--; break; \
+ }
 #include "../../has_strings.h"
 
 #include "resource.h"
