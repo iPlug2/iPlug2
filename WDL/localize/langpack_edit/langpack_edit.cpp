@@ -40,7 +40,28 @@
 #include "resource.h"
 
 
-void ListView_SetHeaderSortArrow(HWND hlist, int col, int dir); // -666 to clear
+#ifndef HDF_SORTUP
+#define HDF_SORTUP 0x0400
+#endif
+#ifndef HDF_SORTDOWN
+#define HDF_SORTDOWN 0x0200
+#endif
+
+void ListView_SetHeaderSortArrow(HWND hlist, int col, int dir)
+{
+  HWND hhdr=ListView_GetHeader(hlist);
+  if (!hhdr) return;
+  for (int i=0; i < Header_GetItemCount(hhdr); ++i)
+  {
+    HDITEM hi = { HDI_FORMAT, 0, };
+    Header_GetItem(hhdr, i, &hi);
+    hi.fmt &= ~(HDF_SORTUP|HDF_SORTDOWN);
+    if (i == col) hi.fmt |= (dir > 0 ? HDF_SORTUP : HDF_SORTDOWN);
+    Header_SetItem(hhdr, i, &hi);
+  }
+}
+
+
 
 #if !defined(_WIN32) && !defined(__APPLE__)
 bool g_quit;
@@ -1185,27 +1206,6 @@ int main(int argc, const char **argv)
 }
 
 #endif
-
-#ifndef HDF_SORTUP
-#define HDF_SORTUP 0x0400
-#endif
-#ifndef HDF_SORTDOWN
-#define HDF_SORTDOWN 0x0200
-#endif
-
-void ListView_SetHeaderSortArrow(HWND hlist, int col, int dir) // -666 to clear
-{
-  HWND hhdr=ListView_GetHeader(hlist);
-  if (!hhdr) return;
-  for (int i=0; i < Header_GetItemCount(hhdr); ++i)
-  {
-    HDITEM hi = { HDI_FORMAT, 0, };
-    Header_GetItem(hhdr, i, &hi);
-    hi.fmt &= ~(HDF_SORTUP|HDF_SORTDOWN);
-    if (i == col && dir != -666) hi.fmt |= (dir > 0 ? HDF_SORTUP : HDF_SORTDOWN);
-    Header_SetItem(hhdr, i, &hi);
-  }
-}
 
 
 #include "../../swell/swell-dlggen.h"
