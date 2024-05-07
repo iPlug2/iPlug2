@@ -74,6 +74,9 @@ public:
   float MeasureText(const IText& text, const char* str, IRECT& bounds) const override;
 
   EUIAppearance GetUIAppearance() const override;
+  
+  RawBitmapData DrawAttributedText(const char* str, const IText& text, float& width, float& height) override;
+
 protected:
 
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) override;
