@@ -494,6 +494,8 @@ static int sort_func(const void *a, const void *b)
         const char *bv = br ? sort_inst->get_rec_value(br,bk,col) : NULL;
         if (av || bv)
         {
+          if (av) while (*av == ' ') av++;
+          if (bv) while (*bv == ' ') bv++;
           int diff = WDL_strcmp_logical_ex(av?av:"",bv?bv:"",0,WDL_STRCMP_LOGICAL_EX_FLAG_UTF8CONVERT);
           if (diff) ret = diff;
         }
