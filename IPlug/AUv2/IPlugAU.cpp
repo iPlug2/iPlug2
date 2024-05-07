@@ -1937,8 +1937,7 @@ void IPlugAU::PreProcess()
     if (tempo > 0.0)
       timeInfo.mTempo = tempo;
     
-    if (currentBeat >= 0.0)
-      timeInfo.mPPQPos = currentBeat;
+    timeInfo.mPPQPos = currentBeat;
   }
 
   if (mHostCallbacks.transportStateProc)
