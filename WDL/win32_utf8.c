@@ -700,6 +700,77 @@ DWORD GetModuleFileNameUTF8(HMODULE hModule, LPTSTR lpBuffer, DWORD nBufferLengt
   return GetModuleFileNameA(hModule,lpBuffer,nBufferLength);
 }
 
+DWORD GetLongPathNameUTF8(LPCTSTR lpszShortPath, LPSTR lpszLongPath, DWORD cchBuffer)
+{
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!lpszShortPath || !lpszLongPath || !cchBuffer)) return 0;
+#endif
+  if (lpszShortPath && lpszLongPath && cchBuffer > 1 AND_IS_NOT_WIN9X)
+  {
+    MBTOWIDE(sbuf,lpszShortPath);
+    if (sbuf_ok)
+    {
+      WCHAR wbuf[WDL_UTF8_MAXFNLEN];
+      wbuf[0]=0;
+      if (GetLongPathNameW(sbuf,wbuf,WDL_UTF8_MAXFNLEN) && wbuf[0])
+      {
+        int rv=WideCharToMultiByte(CP_UTF8,0,wbuf,-1,lpszLongPath,cchBuffer,NULL,NULL);
+        if (rv)
+        {
+          MBTOWIDE_FREE(sbuf);
+          return rv;
+        }
+      }
+      MBTOWIDE_FREE(sbuf);
+    }
+  }
+  return GetLongPathNameA(lpszShortPath, lpszLongPath, cchBuffer);
+}
+
+UINT GetTempFileNameUTF8(LPCTSTR lpPathName, LPCTSTR lpPrefixString, UINT uUnique, LPSTR lpTempFileName)
+{
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!lpPathName || !lpPrefixString || !lpTempFileName)) return 0;
+#endif
+  if (lpPathName && lpPrefixString && lpTempFileName AND_IS_NOT_WIN9X
+      && (WDL_HasUTF8(lpPathName) || WDL_HasUTF8(lpPrefixString)))
+  {
+    MBTOWIDE(sbuf1,lpPathName);
+    if (sbuf1_ok)
+    {
+      MBTOWIDE(sbuf2,lpPrefixString);
+      if (sbuf2_ok)
+      {
+        int rv;
+        WCHAR wbuf[WDL_UTF8_MAXFNLEN];
+        wbuf[0]=0;
+        rv=GetTempFileNameW(sbuf1,sbuf2,uUnique,wbuf);
+        WideCharToMultiByte(CP_UTF8,0,wbuf,-1,lpTempFileName,MAX_PATH,NULL,NULL);
+        MBTOWIDE_FREE(sbuf1);
+        MBTOWIDE_FREE(sbuf2);
+        return rv;
+      }
+      MBTOWIDE_FREE(sbuf1);
+    }
+  }
+  return GetTempFileNameA(lpPathName, lpPrefixString, uUnique, lpTempFileName);
+}
+
+DWORD GetTempPathUTF8(DWORD nBufferLength, LPTSTR lpBuffer)
+{
+  if (lpBuffer && nBufferLength > 1 AND_IS_NOT_WIN9X)
+  {
+
+    WCHAR wbuf[WDL_UTF8_MAXFNLEN];
+    wbuf[0]=0;
+    if (GetTempPathW(WDL_UTF8_MAXFNLEN,wbuf) && wbuf[0])
+    {
+      int rv=WideCharToMultiByte(CP_UTF8,0,wbuf,-1,lpBuffer,nBufferLength,NULL,NULL);
+      if (rv) return rv;
+    }
+  }
+  return GetTempPathA(nBufferLength,lpBuffer);
+}
 
 DWORD GetCurrentDirectoryUTF8(DWORD nBufferLength, LPTSTR lpBuffer)
 {
