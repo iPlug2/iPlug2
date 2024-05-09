@@ -17,7 +17,9 @@ extern "C" {
 
 
 #ifndef WDL_UTF8_MAXFNLEN
-#define WDL_UTF8_MAXFNLEN 2048
+  // only affects calls to GetCurrentDirectoryUTF8() and a few others
+  // could make them all dynamic using WIDETOMB_ALLOC() but meh the callers probably never pass more than 4k anyway
+#define WDL_UTF8_MAXFNLEN 4096
 #endif
 
 #define MBTOWIDE(symbase, src) \
