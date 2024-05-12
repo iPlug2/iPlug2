@@ -33,7 +33,7 @@
   #pragma warning( push )
   #pragma warning( disable : 4244 )
   #pragma warning( disable : 5030 )
-  #include "SkSVGDOM.h"
+  #include "modules/svg/include/SkSVGDOM.h"
   #include "include/core/SkCanvas.h"
   #include "include/core/SkStream.h"
   #include "src/xml/SkDOM.h"
@@ -49,8 +49,8 @@
 #elif defined IGRAPHICS_SKIA
   #pragma warning( push )
   #pragma warning( disable : 4244 )
-  #include "SkImage.h"
-  #include "SkSurface.h"
+  #include "include/core/SkImage.h"
+  #include "include/core/SkSurface.h"
   #pragma warning( pop )
   struct SkiaDrawable
   {
