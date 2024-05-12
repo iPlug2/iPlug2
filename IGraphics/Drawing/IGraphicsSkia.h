@@ -14,11 +14,11 @@
 
 #pragma warning( push )
 #pragma warning( disable : 4244 )
-#include "SkSurface.h"
-#include "SkPath.h"
-#include "SkCanvas.h"
-#include "SkImage.h"
-#include "GrDirectContext.h"
+#include "include/core/SkSurface.h"
+#include "include/core/SkPath.h"
+#include "include/core/SkCanvas.h"
+#include "include/core/SkImage.h"
+#include "include/gpu/GrDirectContext.h"
 #pragma warning( pop )
 
 BEGIN_IPLUG_NAMESPACE
