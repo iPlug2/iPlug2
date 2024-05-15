@@ -1697,6 +1697,22 @@ static bool s_mtl_in_update;
     NSLog(@"swell-cocoa: metal blitCommandEncoder failure\n");
   }
 
+  const int texw = [(id<MTLTexture>) m_metal_texture width];
+  const int texh = [(id<MTLTexture>) m_metal_texture height];
+  if (texw < bounds.size.width)
+  {
+#ifdef _DEBUG
+    NSLog(@"swell-cocoa: texture width mismatch %d vs %.0f\n",texw,bounds.size.width);
+#endif
+    bounds.size.width = texw;
+  }
+  if (texh < bounds.size.height)
+  {
+#ifdef _DEBUG
+    NSLog(@"swell-cocoa: texture height mismatch %d vs %.0f\n",texh,bounds.size.height);
+#endif
+    bounds.size.height = texh;
+  }
   [encoder copyFromTexture:m_metal_texture
     sourceSlice:0 sourceLevel:0 sourceOrigin:MTLOriginMake(0,0,0)
       sourceSize:MTLSizeMake(bounds.size.width,bounds.size.height,1.0)
