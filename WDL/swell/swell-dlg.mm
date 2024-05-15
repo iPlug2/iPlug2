@@ -1636,6 +1636,10 @@ static bool s_mtl_in_update;
     return;
   }
 
+#ifdef _DEBUG
+  if (!IsWindowVisible((HWND)self))
+    NSLog(@"swell-cocoa: drawing to hidden window %@, fix caller\n",self);
+#endif
 
   id<MTLTexture> tex = (id<MTLTexture>) m_metal_texture;
   if (!tex) return; // this can happen if GetDC()/ReleaseDC() are called before the first WM_PAINT
