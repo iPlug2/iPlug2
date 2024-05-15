@@ -5,7 +5,7 @@
 
 iPlug 2 is a simple-to-use C++ framework for developing cross-platform audio plug-ins/apps and targeting multiple plug-in APIs with the same minimalistic code. It abstracts an audio plug-in (IPlug) and its drawing engine/GUI toolkit (IGraphics). IGraphics is a simple UI toolkit with good performance which contains a collection of common controls well suited for audio plug-ins, either using bitmap or vector graphics. Alternatively [examples](https://github.com/iPlug2/iPlug2/tree/master/Examples) are included showing how you can use technologies such as HTML/CSS or SwiftUI on top of a C++ DSP layer.
 
-The recommended starting point for an iPlug2 project in 2023 can be found in a separate repo, [iPlug2OOS (out-of-source)](https://github.com/iPlug2/iPlug2OOS)
+The recommended starting point for an iPlug2 project in 2024 can be found in a separate repo, [iPlug2OOS (out-of-source)](https://github.com/iPlug2/iPlug2OOS)
 
 [iPlug2GPT](https://chat.openai.com/g/g-doomto3Ff-iplug2gpt) is a customized GPT that you can use to learn how to use iPlug2.
 
@@ -13,7 +13,7 @@ iPlug2 API Documentation is published [here](https://iplug2.github.io/docs) and 
 
 The original version of iPlug was released in 2008 as part of Cockos' WDL library. iPlug 2 (2018) is a substantial reworking that brings multiple vector graphics backends to IGraphics (including GPU accelerated options and HiDPI/scaling), a better approach to concurrency, support for distributed plug-in formats and compiling to WebAssembly via [emscripten](https://github.com/kripken/emscripten), amongst many other things.
 
-iPlug 2 targets the VST2, VST3, AUv2, AUv3, AAX (Native) and the [Web Audio Module](https://webaudiomodules.org) (WAM) plug-in APIs. It can also produce standalone win32/macOS apps with audio and MIDI I/O, as well as [Reaper extensions](https://www.reaper.fm/sdk/plugin/plugin.php). Windows 8, macOS 10.11, and iOS 14 are the official minimum target platforms, but depending on the graphics backend used, you may be able to make it work on earlier operating systems.
+iPlug 2 targets the [CLAP](https://github.com/free-audio/clap), VST2, VST3, AUv2, AUv3, AAX (Native) and the [Web Audio Module](https://webaudiomodules.org) (WAM) plug-in APIs. It can also produce standalone win32/macOS apps with audio and MIDI I/O, as well as [Reaper extensions](https://www.reaper.fm/sdk/plugin/plugin.php). Windows 8, macOS 10.11, and iOS 14 are the official minimum target platforms, but depending on the graphics backend used, you may be able to make it work on earlier operating systems.
 
 iPlug 2 includes support for [the FAUST programming language](http://faust.grame.fr), and the libfaust JIT compiler. It was the winner of the 2018 FAUST award.
 
