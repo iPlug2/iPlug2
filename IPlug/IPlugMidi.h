@@ -596,8 +596,11 @@ struct ISysEx
 
 /*
 
-IMidiQueue
-(c) Theo Niessink 2009-2011
+IMidiQueueBase is a template adapted by Alex Harker from the following source
+It has been adapted to allow different types (e.g. IMidiMsg or ISysEx)
+It is then mapped to IMidiQueue as an alias
+ 
+ (c) Theo Niessink 2009-2011
 <http://www.taletn.com/>
 
 
@@ -674,23 +677,24 @@ void MyPlug::ProcessBlock(double** inputs, double** outputs, int nFrames)
 
 /** A class to help with queuing timestamped MIDI messages
   * @ingroup IPlugUtilities */
-class IMidiQueue
+template <class T>
+class IMidiQueueBase
 {
 public:
-  IMidiQueue(int size = DEFAULT_BLOCK_SIZE)
+  IMidiQueueBase(int size = DEFAULT_BLOCK_SIZE)
   : mBuf(NULL), mSize(0), mGrow(Granulize(size)), mFront(0), mBack(0)
   {
     Expand();
   }
   
-  ~IMidiQueue()
+  ~IMidiQueueBase()
   {
     free(mBuf);
   }
 
   // Adds a MIDI message at the back of the queue. If the queue is full,
   // it will automatically expand itself.
-  void Add(const IMidiMsg& msg)
+  void Add(const T& msg)
   {
     if (mBack >= mSize)
     {
@@ -706,7 +710,7 @@ public:
       int i = mBack - 2;
       while (i >= mFront && msg.mOffset < mBuf[i].mOffset) --i;
       i++;
-      memmove(&mBuf[i + 1], &mBuf[i], (mBack - i) * sizeof(IMidiMsg));
+      memmove(&mBuf[i + 1], &mBuf[i], (mBack - i) * sizeof(T));
       mBuf[i] = msg;
     }
     else
@@ -731,7 +735,7 @@ public:
 
   // Returns the "next" MIDI message (all the way in the front of the
   // queue), but does *not* remove it from the queue.
-  inline IMidiMsg& Peek() const { return mBuf[mFront]; }
+  inline T& Peek() const { return mBuf[mFront]; }
 
   // Moves back MIDI messages all the way to the front of the queue, thus
   // freeing up space at the back, and updates the sample offset of the
@@ -757,10 +761,10 @@ public:
     if (size < mBack) size = Granulize(mBack);
     if (size == mSize) return mSize;
 
-    void* buf = realloc(mBuf, size * sizeof(IMidiMsg));
+    void* buf = realloc(mBuf, size * sizeof(T));
     if (!buf) return mSize;
 
-    mBuf = (IMidiMsg*)buf;
+    mBuf = (T*)buf;
     mSize = size;
     return size;
   }
@@ -772,10 +776,10 @@ protected:
     if (!mGrow) return false;
     int size = (mSize / mGrow + 1) * mGrow;
 
-    void* buf = realloc(mBuf, size * sizeof(IMidiMsg));
+    void* buf = realloc(mBuf, size * sizeof(T));
     if (!buf) return false;
 
-    mBuf = (IMidiMsg*)buf;
+    mBuf = (T*)buf;
     mSize = size;
     return true;
   }
@@ -784,23 +788,25 @@ protected:
   inline void Compact()
   {
     mBack -= mFront;
-    if (mBack > 0) memmove(&mBuf[0], &mBuf[mFront], mBack * sizeof(IMidiMsg));
+    if (mBack > 0) memmove(&mBuf[0], &mBuf[mFront], mBack * sizeof(T));
     mFront = 0;
   }
 
   // Rounds the MIDI queue size up to the next 4 kB memory page size.
   inline int Granulize(int size) const
   {
-    int bytes = size * sizeof(IMidiMsg);
+    int bytes = size * sizeof(T);
     int rest = bytes % 4096;
-    if (rest) size = (bytes - rest + 4096) / sizeof(IMidiMsg);
+    if (rest) size = (bytes - rest + 4096) / sizeof(T);
     return size;
   }
 
-  IMidiMsg* mBuf;
+  T* mBuf;
 
   int mSize, mGrow;
   int mFront, mBack;
 };
+
+using IMidiQueue = IMidiQueueBase<IMidiMsg>;
 
 END_IPLUG_NAMESPACE

@@ -763,7 +763,8 @@ VstIntPtr VSTCALLBACK IPlugVST2::VSTDispatcher(AEffect *pEffect, VstInt32 opCode
     }
     case effGetTailSize:
     {
-      return _this->GetTailSize();
+      int tailSize = _this->GetTailSize();
+      return _this->GetTailIsInfinite() ? std::numeric_limits<int>::max() : (tailSize ? std::min(2, tailSize) : 1);
     }
     case effVendorSpecific:
     {

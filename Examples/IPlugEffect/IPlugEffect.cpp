@@ -3,7 +3,7 @@
 #include "IControls.h"
 
 IPlugEffect::IPlugEffect(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPresets))
+: iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
 

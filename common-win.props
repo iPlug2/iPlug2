@@ -26,10 +26,13 @@
     <STATIC_LIBS_PATH>$(DEPS_PATH)\Build\win\$(Platform)\$(Configuration)</STATIC_LIBS_PATH>
     <YOGA_INC_PATHS>$(IGRAPHICS_DEPS_PATH)\yoga;$(IGRAPHICS_DEPS_PATH)\yoga\yoga</YOGA_INC_PATHS>
     <IGRAPHICS_INC_PATHS>$(IGRAPHICS_PATH);$(IGRAPHICS_PATH)\Controls;$(IGRAPHICS_PATH)\Drawing;$(IGRAPHICS_PATH)\Platforms;$(IGRAPHICS_PATH)\Extras;$(NANOSVG_PATH);$(NANOVG_PATH);$(PNG_PATH);$(ZLIB_PATH);$(FREETYPE_PATH);$(STB_PATH);$(SKIA_INC_PATHS);$(YOGA_INC_PATHS)</IGRAPHICS_INC_PATHS>
+    <CLAP_SDK Condition="'$(CLAP_SDK)'==''">$(IPLUG_DEPS_PATH)\CLAP_SDK\include</CLAP_SDK>
+    <CLAP_HELPERS Condition="'$(CLAP_HELPERS)'==''">$(IPLUG_DEPS_PATH)\CLAP_HELPERS\include\clap\helpers</CLAP_HELPERS>
     <VST2_SDK Condition="'$(VST2_SDK)'==''">$(IPLUG_DEPS_PATH)\VST2_SDK</VST2_SDK>
     <VST3_SDK Condition="'$(VST3_SDK)'==''">$(IPLUG_DEPS_PATH)\VST3_SDK</VST3_SDK>
     <ASIO_SDK Condition="'$(ASIO_SDK)'==''">$(IPLUG_DEPS_PATH)\RTAudio\include</ASIO_SDK>
     <AAX_SDK Condition="'$(AAX_SDK)'==''">$(IPLUG_DEPS_PATH)\AAX_SDK</AAX_SDK>
+    <CLAP_64_HOST_PATH Condition="'$(CLAP_64_HOST_PATH)'==''">$(ProgramW6432)\REAPER (x64)\reaper.exe</CLAP_64_HOST_PATH>
     <VST2_32_HOST_PATH Condition="'$(VST2_32_HOST_PATH)'==''">$(ProgramFiles)\REAPER\reaper.exe</VST2_32_HOST_PATH>
     <VST2_64_HOST_PATH Condition="'$(VST2_64_HOST_PATH)'==''">$(ProgramW6432)\REAPER (x64)\reaper.exe</VST2_64_HOST_PATH>
     <VST3_32_HOST_PATH Condition="'$(VST3_32_HOST_PATH)'==''">$(ProgramFiles)\REAPER\reaper.exe</VST3_32_HOST_PATH>
@@ -40,8 +43,10 @@
     <VST2_64_PATH Condition="'$(VST2_64_PATH)'==''">$(ProgramW6432)\VstPlugins</VST2_64_PATH>
     <AAX_32_PATH Condition="'$(AAX_32_PATH)'==''">$(CommonProgramFiles)\Avid\Audio\Plug-Ins</AAX_32_PATH>
     <AAX_64_PATH Condition="'$(AAX_64_PATH)'==''">$(CommonProgramW6432)\Avid\Audio\Plug-Ins</AAX_64_PATH>
+    <CLAP_PATH>$(CommonProgramW6432)\CLAP</CLAP_PATH>
     <REAPER_EXT_PATH>$(APPDATA)\REAPER\UserPlugins</REAPER_EXT_PATH>
     <APP_DEFS>APP_API;__WINDOWS_DS__;__WINDOWS_MM__;__WINDOWS_ASIO__;IPLUG_EDITOR=1;IPLUG_DSP=1</APP_DEFS>
+    <CLAP_DEFS>CLAP_API;IPLUG_EDITOR=1;IPLUG_DSP=1</CLAP_DEFS>
     <VST2_DEFS>VST2_API;VST_FORCE_DEPRECATED;IPLUG_EDITOR=1;IPLUG_DSP=1</VST2_DEFS>
     <VST3_DEFS>VST3_API;IPLUG_EDITOR=1;IPLUG_DSP=1</VST3_DEFS>
     <VST3P_DEFS>VST3P_API;IPLUG_EDITOR=0;IPLUG_DSP=1</VST3P_DEFS>
@@ -50,6 +55,7 @@
     <RELEASE_DEFS>NDEBUG;</RELEASE_DEFS>
     <TRACER_DEFS>TRACER_BUILD;NDEBUG;</TRACER_DEFS>
     <APP_INC_PATHS>$(IPLUG_PATH)\APP;$(IPLUG_DEPS_PATH)\RTAudio\include;$(IPLUG_DEPS_PATH)\RTAudio;$(IPLUG_DEPS_PATH)\RTMidi</APP_INC_PATHS>
+    <CLAP_INC_PATHS>$(IPLUG_PATH)\CLAP;$(CLAP_SDK);$(CLAP_HELPERS)</CLAP_INC_PATHS>
     <VST2_INC_PATHS>$(IPLUG_PATH)\VST2;$(VST2_SDK)</VST2_INC_PATHS>
     <VST3_INC_PATHS>$(IPLUG_PATH)\VST3;$(VST3_SDK)</VST3_INC_PATHS>
     <AAX_INC_PATHS>$(IPLUG_PATH)\AAX;$(AAX_SDK)\Interfaces;$(AAX_SDK)\Interfaces\ACF;</AAX_INC_PATHS>
@@ -57,6 +63,7 @@
     <ALL_DEFS>WIN32;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;NOMINMAX</ALL_DEFS>
     <AAX_LIBS>wininet.lib;odbc32.lib;odbccp32.lib;psapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comctl32.lib;</AAX_LIBS>
     <APP_LIBS>dsound.lib;winmm.lib;</APP_LIBS>
+    <CLAP_64_COMMAND_ARGS>$(SolutionDir)$(SolutionName).RPP</CLAP_64_COMMAND_ARGS>
     <VST2_32_COMMAND_ARGS>$(SolutionDir)$(SolutionName).RPP</VST2_32_COMMAND_ARGS>
     <VST2_64_COMMAND_ARGS>$(SolutionDir)$(SolutionName).RPP</VST2_64_COMMAND_ARGS>
     <VST3_64_COMMAND_ARGS>$(SolutionDir)$(SolutionName).RPP</VST3_64_COMMAND_ARGS>
@@ -179,6 +186,9 @@
     <BuildMacro Include="AAX_SDK">
       <Value>$(AAX_SDK)</Value>
     </BuildMacro>
+    <BuildMacro Include="CLAP_64_HOST_PATH">
+      <Value>$(CLAP_64_HOST_PATH)</Value>
+    </BuildMacro>
     <BuildMacro Include="VST2_32_HOST_PATH">
       <Value>$(VST2_32_HOST_PATH)</Value>
     </BuildMacro>
@@ -260,6 +270,9 @@
     <BuildMacro Include="APP_LIBS">
       <Value>$(APP_LIBS)</Value>
     </BuildMacro>
+    <BuildMacro Include="CLAP_64_COMMAND_ARGS">
+      <Value>$(CLAP_64_COMMAND_ARGS)</Value>
+    </BuildMacro>
     <BuildMacro Include="VST2_32_COMMAND_ARGS">
       <Value>$(VST2_32_COMMAND_ARGS)</Value>
     </BuildMacro>
@@ -286,6 +299,9 @@
     </BuildMacro>
     <BuildMacro Include="FAUST_LIB_PATH">
       <Value>$(FAUST_LIB_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="CLAP_PATH">
+      <Value>$(CLAP_PATH)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>

@@ -16,6 +16,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cassert>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -40,6 +41,13 @@ struct Config;
 class IPlugProcessor
 {
 public:
+    
+  enum TailSize
+  {
+      kTailNone = 0,
+      kTailInfinite = std::numeric_limits<int>::max()
+  };
+    
   /** IPlugProcessor constructor
    * @param config \todo
    * @param plugAPI \todo */
@@ -69,7 +77,7 @@ public:
 
   /** Override this method to handle incoming MIDI System Exclusive (SysEx) messages. The method is called prior to ProcessBlock().
    * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts */
-  virtual void ProcessSysEx(ISysEx& msg) {}
+  virtual void ProcessSysEx(const ISysEx& msg) {}
 
   /** Override this method in your plug-in class to do something prior to playback etc. (e.g.clear buffers, update internal DSP with the latest sample rate) */
   virtual void OnReset() { TRACE }
@@ -107,8 +115,11 @@ public:
   int GetLatency() const { return mLatency; }
 
   /** @return The tail size in samples (useful for reverberation plug-ins, that may need to decay after the transport stops or an audio item ends) */
-  int GetTailSize() { return mTailSize; }
+  int GetTailSize() const { return mTailSize; }
 
+  /** @return \c true if the plugin has an infinite tail */
+  bool GetTailIsInfinite() const { return GetTailSize() == kTailInfinite; }
+    
   /** @return \c true if the plugin is currently bypassed */
   bool GetBypassed() const { return mBypassed; }
 
@@ -235,10 +246,10 @@ public:
   virtual void SetLatency(int latency);
 
   /** Call this method if you need to update the tail size at runtime, for example if the decay time of your reverb effect changes
-   * Some apis have special interpretations of certain numbers. For VST3 set to 0xffffffff for infinite tail, or 0 for none (default)
-   * For VST2 setting to 1 means no tail
+   * Use kTailInfinite for an infinite tail
+   * You may also use kTailNone for no tail (but this is default in any case)
    * @param tailSize the new tailsize in samples*/
-  void SetTailSize(int tailSize) { mTailSize = tailSize; }
+  virtual void SetTailSize(int tailSize) { mTailSize = tailSize; }
 
   /** A static method to parse the config.h channel I/O string.
    * @param IOStr Space separated cstring list of I/O configurations for this plug-in in the format ninchans-noutchans.
