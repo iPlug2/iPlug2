@@ -160,6 +160,10 @@ void LICE_CachedFont::SetFromHFont(HFONT font, int flags)
   }
 }
 
+#define COMBINING_THRESHOLD (1<<20)
+#define DECODE_COMBINING(x) ((x)>>20) // we may want to make these make more efficient use of space
+#define ENCODE_COMBINING(x) ((x)<<20)
+
 bool LICE_CachedFont::RenderGlyph(unsigned int idx) // return TRUE if ok
 {
   if (m_line_height >= ABSOLUTELY_NO_GLYPHS_HIGHER_THAN) return false;
@@ -213,7 +217,10 @@ bool LICE_CachedFont::RenderGlyph(unsigned int idx) // return TRUE if ok
   if (__1ifNT2if98==1) 
 #endif
   {
-    WCHAR tmpstr[2]={(WCHAR)idx,0};
+    WCHAR tmpstr[3]={(WCHAR)(idx&0xffff),0};
+    if (idx >= COMBINING_THRESHOLD && (idx & (COMBINING_THRESHOLD-1)) < 128) // include any combining character
+      tmpstr[1] = (WCHAR) DECODE_COMBINING(idx);
+
     ::DrawTextW(s_tempbitmap->getDC(),tmpstr,1,&r,DT_CALCRECT|DT_SINGLELINE|DT_NOPREFIX);
     advance=r.right;
     r.right += right_extra_pad+left_extra_pad;
@@ -228,10 +235,11 @@ bool LICE_CachedFont::RenderGlyph(unsigned int idx) // return TRUE if ok
 
 #if !defined(_WIN32) || defined(WDL_SUPPORT_WIN9X)
   {
-    
-    char tmpstr[6]={(char)idx,0};
+    char tmpstr[8]={(char)(idx&127),0};
 #ifndef _WIN32
-    if (idx>=128) utf8makechar(tmpstr,idx);
+    if (idx >= COMBINING_THRESHOLD && (idx & (COMBINING_THRESHOLD-1)) < 128)
+      utf8makechar(tmpstr + 1, DECODE_COMBINING(idx));
+    else if (idx>=128) utf8makechar(tmpstr,idx);
 #endif
     ::DrawText(s_tempbitmap->getDC(),tmpstr,-1,&r,DT_CALCRECT|DT_SINGLELINE|DT_NOPREFIX);
     advance=r.right;
@@ -736,6 +744,19 @@ static BOOL LICE_Text_HasUTF8(const char *_str)
 static const char *adv_str(const char *str, int *strcnt, unsigned int *c)
 {
   int charlen=utf8char(str, c);
+  if (charlen == 1 && ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <= 'Z')))
+  {
+    if (!strcnt || *strcnt < 0 || *strcnt >= 3)
+    {
+      unsigned int c2 = 0;
+      const int len2 = utf8char(str + charlen, &c2);
+      if (c2 >= 0x300 && c2 <= 0x36F) // we could add other characters here (and on the renderglyph side)
+      {
+        charlen += len2;
+        *c |= ENCODE_COMBINING(c2);
+      }
+    }
+  }
   if (strcnt && *strcnt > 0) *strcnt=wdl_max(*strcnt-charlen, 0);
   return str+charlen;
 }
