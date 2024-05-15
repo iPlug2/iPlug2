@@ -1637,8 +1637,8 @@ static bool s_mtl_in_update;
   }
 
 #ifdef _DEBUG
-  if (!IsWindowVisible((HWND)self))
-    NSLog(@"swell-cocoa: drawing to hidden window %@, fix caller\n",self);
+  if (forRect && !IsWindowVisible((HWND)self))
+    NSLog(@"swell-metal: drawing to hidden window %@, fix caller\n",self);
 #endif
 
   id<MTLTexture> tex = (id<MTLTexture>) m_metal_texture;
@@ -4443,6 +4443,11 @@ void swell_updateAllMetalDirty() // run from a timer, or called by UpdateWindow(
 void swell_addMetalDirty(SWELL_hwndChild *slf, const RECT *r, bool isReleaseDC)
 {
   if (!slf) return;
+  #ifdef _DEBUG
+  if (!IsWindowVisible((HWND)slf))
+    NSLog(@"swell-metal: addMetalDirty %@, fix caller\n",slf);
+  #endif
+
   if (isReleaseDC)
   {
     // just tag it dirty
