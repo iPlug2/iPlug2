@@ -799,7 +799,7 @@ HANDLE CreateFileUTF8(LPCTSTR lpFileName,DWORD dwDesiredAccess,DWORD dwShareMode
     if (wstr_ok) h = CreateFileW(wstr,dwDesiredAccess,dwShareMode,lpSecurityAttributes,dwCreationDisposition,dwFlagsAndAttributes,hTemplateFile);
     MBTOWIDE_FREE(wstr);
 
-    if (h != INVALID_HANDLE_VALUE) return h;
+    if (h != INVALID_HANDLE_VALUE || (wstr_ok && (dwDesiredAccess & GENERIC_WRITE))) return h;
   }
   return CreateFileA(lpFileName,dwDesiredAccess,dwShareMode,lpSecurityAttributes,dwCreationDisposition,dwFlagsAndAttributes,hTemplateFile);
 }
@@ -935,6 +935,7 @@ FILE *fopenUTF8(const char *filename, const char *mode)
     if (wbuf_ok) wdl_utf8_correctlongpath(wbuf);
     if (wbuf_ok)
     {
+      const char *p = mode;
       FILE *rv;
       WCHAR tb[32];      
       tb[0]=0;
@@ -942,6 +943,12 @@ FILE *fopenUTF8(const char *filename, const char *mode)
       rv=tb[0] ? _wfopen(wbuf,tb) : NULL;
       MBTOWIDE_FREE(wbuf);
       if (rv) return rv;
+
+      while (*p)
+      {
+        if (*p == '+' || *p == 'a' || *p == 'w') return NULL;
+        p++;
+      }
     }
   }
 #ifdef fopen
