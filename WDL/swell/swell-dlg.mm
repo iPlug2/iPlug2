@@ -587,6 +587,14 @@ static bool s_mtl_in_update;
   s_metal_devicelist_updcnt++;
 }
 @end
+
+static id<MTLDevice> mtl_def_device()
+{
+  static id<MTLDevice> def;
+  if (!def && __MTLCreateSystemDefaultDevice) def = __MTLCreateSystemDefaultDevice();
+  return def;
+}
+
 #endif
 
 @implementation SWELL_hwndChild : NSView 
@@ -1533,12 +1541,7 @@ static bool s_mtl_in_update;
       [device release];
   }
 
-  if (!device)
-  {
-    static id<MTLDevice> def;
-    if (!def) def = __MTLCreateSystemDefaultDevice();
-    device = def;
-  }
+  if (!device) device=mtl_def_device();
 
   CAMetalLayer *layer = (CAMetalLayer *)[self layer];
 
@@ -3954,6 +3957,16 @@ static bool mtl_init()
   }
 
   return state>0;
+}
+
+bool swell_get_default_metal_devicename(char *buf, int bufsz)
+{
+  if (!mtl_init()) return false;
+  id<MTLDevice> dev = mtl_def_device();
+  if (!dev) return false;
+  buf[0]=0;
+  SWELL_CFStringToCString(dev.name,buf,bufsz);
+  return buf[0]!=0;
 }
 
 
