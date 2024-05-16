@@ -3445,7 +3445,12 @@ static LRESULT WINAPI comboWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
           s->items.Delete(wParam,true);
 
-          if (wParam == (WPARAM)s->selidx || s->selidx >= s->items.GetSize()) { s->selidx=-1; InvalidateRect(hwnd,NULL,FALSE); }
+          if (wParam == (WPARAM)s->selidx || s->selidx >= s->items.GetSize())
+          {
+            s->selidx=-1;
+            SetWindowText(hwnd,"");
+            InvalidateRect(hwnd,NULL,FALSE);
+          }
           else if ((int)wParam < s->selidx) s->selidx--;
 
         return s->items.GetSize();
@@ -3468,6 +3473,7 @@ static LRESULT WINAPI comboWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
         case CB_RESETCONTENT:
           s->selidx=-1;
           s->items.Empty(true);
+          SetWindowText(hwnd,"");
         return 0;
         case CB_SETCURSEL:
           if (wParam >= (WPARAM)s->items.GetSize())
