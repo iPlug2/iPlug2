@@ -173,6 +173,12 @@
     <BuildMacro Include="IGRAPHICS_INC_PATHS">
       <Value>$(IGRAPHICS_INC_PATHS)</Value>
     </BuildMacro>
+    <BuildMacro Include="CLAP_SDK">
+      <Value>$(CLAP_SDK)</Value>
+    </BuildMacro>
+    <BuildMacro Include="CLAP_HELPERS">
+      <Value>$(CLAP_HELPERS)</Value>
+    </BuildMacro>
     <BuildMacro Include="VST2_SDK">
       <Value>$(VST2_SDK)</Value>
     </BuildMacro>
@@ -224,6 +230,9 @@
     <BuildMacro Include="APP_DEFS">
       <Value>$(APP_DEFS)</Value>
     </BuildMacro>
+    <BuildMacro Include="CLAP_DEFS">
+      <Value>$(CLAP_DEFS)</Value>
+    </BuildMacro>
     <BuildMacro Include="VST2_DEFS">
       <Value>$(VST2_DEFS)</Value>
     </BuildMacro>
@@ -247,6 +256,9 @@
     </BuildMacro>
     <BuildMacro Include="APP_INC_PATHS">
       <Value>$(APP_INC_PATHS)</Value>
+    </BuildMacro>
+    <BuildMacro Include="CLAP_INC_PATHS">
+      <Value>$(CLAP_INC_PATHS)</Value>
     </BuildMacro>
     <BuildMacro Include="VST2_INC_PATHS">
       <Value>$(VST2_INC_PATHS)</Value>
