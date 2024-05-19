@@ -90,6 +90,26 @@ def main():
 
   with open(plistpath, 'wb') as fp:
     plistlib.dump(vst2, fp)
+
+# CLAP
+
+  plistpath = projectpath + "/resources/" + config['BUNDLE_NAME'] + "-CLAP-Info.plist"
+  with open(plistpath, 'rb') as fp:
+      clap = plistlib.load(fp)
+  clap['CFBundleExecutable'] = config['BUNDLE_NAME']
+  clap['CFBundleGetInfoString'] = CFBundleGetInfoString
+  clap['CFBundleIdentifier'] = config['BUNDLE_DOMAIN'] + "." + config['BUNDLE_MFR'] + ".clap." + config['BUNDLE_NAME'] + ""
+  clap['CFBundleName'] = config['BUNDLE_NAME']
+  clap['CFBundleVersion'] = CFBundleVersion
+  clap['CFBundleShortVersionString'] = CFBundleVersion
+  clap['LSMinimumSystemVersion'] = LSMinimumSystemVersion
+  clap['CFBundlePackageType'] = CFBundlePackageType
+  clap['CFBundleSignature'] = config['PLUG_UNIQUE_ID']
+  clap['CSResourcesFileMapped'] = CSResourcesFileMapped
+
+  with open(plistpath, 'wb') as fp:
+    plistlib.dump(clap, fp)
+
 # AUDIOUNIT v2
 
   plistpath = projectpath + "/resources/" + config['BUNDLE_NAME'] + "-AU-Info.plist"
