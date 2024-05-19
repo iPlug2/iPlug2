@@ -725,6 +725,21 @@ EUIAppearance IGraphicsMac::GetUIAppearance() const
   return EUIAppearance::Light;
 }
 
+void IGraphicsMac::ActivateGLContext()
+{
+#ifdef IGRAPHICS_GL
+  IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
+  [[pView openGLContext] makeCurrentContext];
+#endif
+}
+
+void IGraphicsMac::DeactivateGLContext()
+{
+#ifdef IGRAPHICS_GL
+  [NSOpenGLContext clearCurrentContext];
+#endif
+}
+
 #if defined IGRAPHICS_NANOVG
   #include "IGraphicsNanoVG.cpp"
 #elif defined IGRAPHICS_SKIA

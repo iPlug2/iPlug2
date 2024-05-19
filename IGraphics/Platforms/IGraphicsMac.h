@@ -78,6 +78,10 @@ protected:
 
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
+  
+  void ActivateGLContext() override;
+  void DeactivateGLContext() override;
+
 private:
   void PointToScreen(float& x, float& y) const;
   void ScreenToPoint(float& x, float& y) const;
