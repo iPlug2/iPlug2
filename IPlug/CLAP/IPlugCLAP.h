@@ -172,7 +172,7 @@ private:
   bool guiSetParent(const clap_window* pWindow) noexcept override;
   
   // Helper to attach GUI Windows
-  bool GUIWindowAttach(void* parent) noexcept;
+  bool GUIWindowAttach(void* pParent) noexcept;
   
   // Parameter Helpers
   void ProcessInputEvents(const clap_input_events* pInputEvents) noexcept;
