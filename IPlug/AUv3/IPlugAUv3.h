@@ -79,6 +79,7 @@ public:
   void SetAUAudioUnit(void* pAUAudioUnit);
 
   void SetOffline(bool renderingOffline) { IPlugProcessor::SetRenderingOffline(renderingOffline); }
+  void GetListOfAUv3UserPresets(std::vector<std::string>& presetNames);
 
 private:
   // void HandleOneEvent(AURenderEvent const* event, int64_t startTime);
