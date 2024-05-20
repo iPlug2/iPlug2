@@ -971,10 +971,10 @@ public:
   virtual const char* GetAppGroupID() const { return ""; }
 
 protected:
-  /* Implemented on Windows to store previously active GLContext and HDC for restoring, calls GetDC */
-  virtual void ActivateGLContext() {}; 
+  /* Activate the context for the view (GL only) */
+  virtual void ActivateGLContext() {};
 
-  /* Implemented on Windows to restore previous GL context calls ReleaseDC */
+  /* Deactivate the context for the view (GL only) */
   virtual void DeactivateGLContext() {};
 
   /** Creates a platform native text entry field.
