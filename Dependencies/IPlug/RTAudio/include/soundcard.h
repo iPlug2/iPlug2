@@ -160,7 +160,7 @@ struct snd_size {
 #define AFMT_MU_LAW	0x00000001	/* Logarithmic mu-law */
 #define AFMT_A_LAW	0x00000002	/* Logarithmic A-law */
 #define AFMT_IMA_ADPCM	0x00000004	/* A 4:1 compressed format where 16-bit
-					 * squence represented using the
+					 * sequence represented using the
 					 * the average 4 bits per sample */
 #define AFMT_U8		0x00000008	/* Unsigned 8-bit */
 #define AFMT_S16_LE	0x00000010	/* Little endian signed 16-bit */
@@ -210,7 +210,7 @@ struct snd_size {
 /*
  * The following structure is used to get/set format and sampling rate.
  * While it would be better to have things such as stereo, bits per
- * sample, endiannes, etc split in different variables, it turns out
+ * sample, endianness, etc split in different variables, it turns out
  * that formats are not that many, and not all combinations are possible.
  * So we followed the Voxware approach of associating one bit to each
  * format.
@@ -459,7 +459,7 @@ struct sysex_info {
  * This structure is also used with ioctl(SNDCTL_PGMR_IFACE) which allows
  * a patch manager daemon to read and write device parameters. This
  * ioctl available through /dev/sequencer also. Avoid using it since it's
- * extremely hardware dependent. In addition access trough /dev/sequencer
+ * extremely hardware dependent. In addition access through /dev/sequencer
  * may confuse the patch manager daemon.
  */
 
@@ -552,7 +552,7 @@ struct patmgr_info {	/* Note! size must be < 4k since kmalloc() is used */
 #define SEQ_MIDIPUTC		5
 #define SEQ_DRUMON		6	/*** OBSOLETE ***/
 #define SEQ_DRUMOFF		7	/*** OBSOLETE ***/
-#define SEQ_ECHO		TMR_ECHO	/* For synching programs with output */
+#define SEQ_ECHO		TMR_ECHO	/* For syncing programs with output */
 #define SEQ_AFTERTOUCH		9
 #define SEQ_CONTROLLER		10
 
@@ -932,7 +932,7 @@ typedef struct copr_msg {
 /*
  * The AD1848 codec and compatibles have three line level inputs
  * (line, aux1 and aux2). Since each card manufacturer have assigned
- * different meanings to these inputs, it's inpractical to assign
+ * different meanings to these inputs, it's impractical to assign
  * specific meanings (line, cd, synth etc.) to them.
  */
 #define SOUND_MIXER_LINE1	14	/* Input source 1  (aux1) */
@@ -1350,7 +1350,7 @@ void seqbuf_dump(void);	/* This function must be provided by programs */
 	SEQ_CONTROL(dev, voice, CTL_PAN, (pos+128) / 2)
 
 /*
- * Timing and syncronization macros
+ * Timing and synchronization macros
  */
 
 #define _TIMER_EVENT(ev, parm)		{ \
@@ -1631,7 +1631,7 @@ typedef struct oss_sysinfo
 	int	openedaudio[8];	/* Bit mask telling which audio devices
 				   are busy */
 
-	int	numsynths;	/* # of availavle synth devices */
+	int	numsynths;	/* # of available synth devices */
 	int	nummidis;	/* # of available MIDI ports */
 	int	numtimers;	/* # of available timer devices */
 	int	nummixers;	/* # of mixer devices */
