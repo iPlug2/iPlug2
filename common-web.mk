@@ -94,7 +94,8 @@ LDFLAGS = -s ALLOW_MEMORY_GROWTH=1 --bind
 # The following settings mean the WASM is delivered as BASE64 and included in the MyPluginName-wam.js file.
 WAM_LDFLAGS = -s EXPORTED_RUNTIME_METHODS="['ccall', 'cwrap', 'setValue', 'UTF8ToString']" \
 -s BINARYEN_ASYNC_COMPILATION=0 \
--s SINGLE_FILE=1
+-s SINGLE_FILE=1 \
+--pre-js=$(IPLUG2_ROOT)/IPlug/WEB/Template/scripts/atob-polyfill.js
 #-s ENVIRONMENT=worker
 
 WEB_LDFLAGS = -s EXPORTED_FUNCTIONS=$(WEB_EXPORTS) \
