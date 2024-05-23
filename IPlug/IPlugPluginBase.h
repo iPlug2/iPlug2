@@ -63,9 +63,13 @@ public:
   /** @return The host if it has been identified, see EHost enum for a list of possible hosts */
   EHost GetHost() const { return mHost; }
   
-  /** Get the host name as a CString
-   * @param str string into which to write the host name */
+  /** Get the host name (name is normalized)
+   * @param str WDL_String into which to write the host name */
   void GetHostStr(WDL_String& str) const { GetHostNameStr(GetHost(), str); }
+
+  /** Get raw host name (as it is reported from the host)
+   * @param str WDL_String into which to write the host name */
+  void GetRawHostStr(WDL_String& str) const { str.Set(mRawHostNameStr.Get()); }
   
   /** Get the host version number as an integer
    * @param decimal \c true indicates decimal format = VVVVRRMM, otherwise hexadecimal 0xVVVVRRMM.
@@ -412,6 +416,8 @@ private:
   int mHostVersion = 0;
   /** Host that has been identified, see EHost enum */
   EHost mHost = kHostUninit;
+  /** Host name as it is reported from the plug-in host */
+  WDL_String mRawHostNameStr;
   /** API of this instance */
   EAPI mAPI;
   /** macOS/iOS bundle ID */
