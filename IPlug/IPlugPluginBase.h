@@ -66,6 +66,10 @@ public:
   /** Get the host name as a CString
    * @param str string into which to write the host name */
   void GetHostStr(WDL_String& str) const { GetHostNameStr(GetHost(), str); }
+
+  /** Get raw host name as a CString
+   * @param str string into which to write the host name */
+  void GetRawHostStr(WDL_String& str) const { str.Set(mHostName.Get()); }
   
   /** Get the host version number as an integer
    * @param decimal \c true indicates decimal format = VVVVRRMM, otherwise hexadecimal 0xVVVVRRMM.
@@ -412,6 +416,8 @@ private:
   int mHostVersion = 0;
   /** Host that has been identified, see EHost enum */
   EHost mHost = kHostUninit;
+  /** Host name raw WDl_String **/
+  WDL_String mHostName{""};
   /** API of this instance */
   EAPI mAPI;
   /** macOS/iOS bundle ID */

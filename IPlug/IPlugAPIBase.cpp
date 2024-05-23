@@ -101,7 +101,8 @@ bool IPlugAPIBase::EditorResizeFromUI(int viewWidth, int viewHeight, bool needsP
 void IPlugAPIBase::SetHost(const char* host, int version)
 {
   assert(mHost == kHostUninit);
-    
+
+  mHostName = WDL_String(host);
   mHost = LookUpHost(host);
   mHostVersion = version;
   
