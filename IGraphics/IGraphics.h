@@ -1056,6 +1056,11 @@ public:
    * @param pMenu The menu that was clicked */
   void SetControlValueAfterPopupMenu(IPopupMenu* pMenu);
     
+  /** Called by IOS platform (or other supported platforms) in order to update a control with a deletion interaction on a popup menu.
+   * @param pMenu The menu that an item was deleted in 
+   * @param itemIdx The index of the deleted item */
+  void DeleteFromPopupMenu(IPopupMenu* pMenu, int itemIdx);
+
   /** Sets the minimum and maximum (draw) scaling values
    * @param lo The minimum scalar that the IGraphics context can be scaled down to
    * @param hi The maxiumum scalar that the IGraphics context can be scaled up to */
