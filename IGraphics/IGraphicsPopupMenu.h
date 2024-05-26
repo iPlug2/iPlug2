@@ -50,7 +50,8 @@ public:
       kDisabled = 1 << 0,     // item is gray and not selectable
       kTitle    = 1 << 1,     // item indicates a title and is not selectable
       kChecked  = 1 << 2,     // item has a checkmark
-      kSeparator  = 1 << 3    // item is a separator
+      kSeparator  = 1 << 3,   // item is a separator
+      kDeletable  = 1 << 4    // item is deletable on IOS
     };
     
     Item(const char* str, int flags = kNoFlags, int tag = -1)
@@ -81,6 +82,7 @@ public:
     bool GetChecked() const { return (mFlags & kChecked) != 0; }
     bool GetIsTitle() const { return (mFlags & kTitle) != 0; }
     bool GetIsSeparator() const { return (mFlags & kSeparator) != 0; }
+    bool GetIsDeletable() const { return (mFlags & kDeletable) != 0; }
     int GetTag() const { return mTag; }
     IPopupMenu* GetSubmenu() const { return mSubmenu.get(); }
     bool GetIsChoosable() const
@@ -95,6 +97,7 @@ public:
     
     void SetEnabled(bool state) { SetFlag(kDisabled, !state); }
     void SetChecked(bool state) { SetFlag(kChecked, state); }
+    void SetDeletable(bool state) { SetFlag(kDeletable, state); }
     void SetTitle(bool state) {SetFlag(kTitle, state); }
     void SetSubmenu(IPopupMenu* pSubmenu) { mSubmenu.reset(pSubmenu); }
 

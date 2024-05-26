@@ -277,6 +277,14 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
   mInPopupMenu = nullptr;
 }
 
+void IGraphics::DeleteFromPopupMenu(IPopupMenu* pMenu, int itemIdx)
+{
+  if (!mInPopupMenu)
+    return;
+  
+  mInPopupMenu->OnDeleteFromPopupMenu(pMenu, itemIdx);
+}
+
 void IGraphics::AttachBackground(const char* fileName)
 {
   IControl* pBG = new IBitmapControl(0, 0, LoadBitmap(fileName, 1, false), kNoParameter, EBlend::Default);

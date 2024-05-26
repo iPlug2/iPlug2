@@ -26,6 +26,11 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 @implementation IGRAPHICS_UITABLEVC
 
+- (int) menuIndexFromIndexPath: (NSIndexPath*) indexPath
+{
+  return [self.items[indexPath.row][1] intValue];
+}
+
 - (void) viewDidLoad
 {
   [super viewDidLoad];
@@ -63,13 +68,13 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
       [elementTitle insertString:prefixString atIndex:0];
     }
 
-    [self.items addObject:elementTitle];
+    [self.items addObject: @[elementTitle, [NSNumber numberWithInt:i]]];
   }
   
   [self.view addSubview:self.tableView];
 }
 
-- (id) initWithIPopupMenuAndIGraphics:(IPopupMenu*) pMenu :(IGraphicsIOS*) pGraphics
+- (id) initWithIPopupMenuAndIGraphics: (IPopupMenu*) pMenu : (IGraphicsIOS*) pGraphics
 {
   self = [super init];
   
@@ -79,17 +84,17 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return self;
 }
 
-- (NSInteger) tableView:(UITableView*) tableView numberOfRowsInSection:(NSInteger) section
+- (NSInteger) tableView: (UITableView*) tableView numberOfRowsInSection : (NSInteger) section
 {
   return self.items.count;
 }
 
-- (NSInteger) numberOfSectionsInTableView:(UITableView*) tableView
+- (NSInteger) numberOfSectionsInTableView: (UITableView*) tableView
 {
   return 1;
 }
 
-- (UITableViewCell*) tableView:(UITableView*) tableView cellForRowAtIndexPath:(NSIndexPath*) indexPath
+- (UITableViewCell*) tableView: (UITableView*) tableView cellForRowAtIndexPath: (NSIndexPath*) indexPath
 {
   static NSString *identifer = @"cell";
   UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:identifer];
@@ -98,12 +103,10 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   {
     cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:identifer];
   }
+    
+  cell.textLabel.text = [NSString stringWithFormat:@"%@", self.items[indexPath.row][0]];
   
-  int cellIndex = static_cast<int>(indexPath.row);
-  
-  cell.textLabel.text = [NSString stringWithFormat:@"%@", self.items[indexPath.row]];
-  
-  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+  IPopupMenu::Item* pItem = mMenu->GetItem([self menuIndexFromIndexPath:indexPath]);
   
   if (pItem->GetChecked())
     cell.accessoryType = UITableViewCellAccessoryCheckmark;
@@ -115,11 +118,10 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   return cell;
 }
 
-- (CGFloat) tableView:(UITableView*) tableView heightForRowAtIndexPath:(NSIndexPath*) indexPath
+- (CGFloat) tableView:(UITableView*) tableView heightForRowAtIndexPath: (NSIndexPath*) indexPath
 {
-  int cellIndex = static_cast<int>(indexPath.row);
-
-  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+  
+  IPopupMenu::Item* pItem = mMenu->GetItem([self menuIndexFromIndexPath:indexPath]);
 
   if (pItem->GetIsSeparator())
     return 0.5;
@@ -127,11 +129,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     return self.tableView.rowHeight;
 }
 
-- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
+- (CGFloat) tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-  int cellIndex = static_cast<int>(indexPath.row);
-
-  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+  IPopupMenu::Item* pItem = mMenu->GetItem([self menuIndexFromIndexPath:indexPath]);
 
   if (pItem->GetIsSeparator())
     return 0.5;
@@ -141,9 +141,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
 - (void) tableView:(UITableView*) tableView didSelectRowAtIndexPath:(NSIndexPath*) indexPath
 {
-  int cellIndex = static_cast<int>(indexPath.row);
+  int menuIdx = [self menuIndexFromIndexPath:indexPath];
 
-  IPopupMenu::Item* pItem = mMenu->GetItem(cellIndex);
+  IPopupMenu::Item* pItem = mMenu->GetItem(menuIdx);
   IPopupMenu* pSubMenu = pItem->GetSubmenu();
   
   if (pSubMenu)
@@ -159,7 +159,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   {
     [self dismissViewControllerAnimated:YES completion:nil];
 
-    mMenu->SetChosenItemIdx(cellIndex);
+    mMenu->SetChosenItemIdx(menuIdx);
     
     if (mMenu->GetFunction())
       mMenu->ExecFunction();
@@ -184,6 +184,21 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 - (void) setPreferredContentSize:(CGSize)preferredContentSize
 {
   super.preferredContentSize = preferredContentSize;
+}
+
+- (void) tableView: (UITableView *) tableView commitEditingStyle: (UITableViewCellEditingStyle) editingStyle forRowAtIndexPath: (NSIndexPath*) indexPath
+{
+  if (editingStyle == UITableViewCellEditingStyleDelete)
+  {
+    mGraphics->DeleteFromPopupMenu(mMenu, [self menuIndexFromIndexPath:indexPath]);
+    [self.items removeObjectAtIndex:indexPath.row];
+    [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
+  }
+}
+
+- (BOOL) tableView: (UITableView *) tableView canEditRowAtIndexPath: (NSIndexPath*) indexPath
+{
+  return mMenu->GetItem([self menuIndexFromIndexPath:indexPath])->GetIsDeletable();
 }
 
 @end
