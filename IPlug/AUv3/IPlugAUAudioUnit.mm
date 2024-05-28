@@ -652,7 +652,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
   }
 
   dispatch_async(dispatch_get_main_queue(), ^{
-    if (currentPreset.number >= 0)
+    if (currentPreset.number > 0)
     {
       // factory preset
       for (AUAudioUnitPreset* pFactoryPreset in self->mPresets)
@@ -683,7 +683,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
         self->mCurrentPreset = currentPreset;
         self->mPlug->OnRestoreState();
       }
-      else{
+      else
+      {
         NSLog(@"Could not restore user preset: %@", error);
       }
     }
