@@ -1099,11 +1099,11 @@ public:
 
   /** Gets the width of the graphics context including draw scaling
    * @return A whole number representing the width of the graphics context with scaling in pixels on a 1:1 screen */
-  int WindowWidth() const { return static_cast<int>(static_cast<float>(mWidth) * mDrawScale); }
+  int WindowWidth() const { return static_cast<int>(std::ceil(static_cast<float>(mWidth) * mDrawScale)); }
 
   /** Gets the height of the graphics context including draw scaling
    * @return A whole number representing the height of the graphics context with scaling in pixels on a 1:1 screen */
-  int WindowHeight() const { return static_cast<int>(static_cast<float>(mHeight) * mDrawScale); }
+  int WindowHeight() const { return static_cast<int>(std::ceil(static_cast<float>(mHeight) * mDrawScale)); }
 
   /** Gets the drawing frame rate
    * @return A whole number representing the desired frame rate at which the graphics context is redrawn. NOTE: the actual frame rate might be different */
