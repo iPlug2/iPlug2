@@ -784,7 +784,8 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
 
 - (BOOL) supportsUserPresets
 {
-  return YES;
+  return NO
+  ;
 }
 
 - (NSURL*) userPresetsDirectory
