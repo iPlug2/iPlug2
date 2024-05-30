@@ -593,8 +593,8 @@ int PackIXMLChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata, int pa
     int len=ixmllen+1+junklen;
     if (len < padtolen) len=padtolen;
     if (len&1) ++len;
-    unsigned char *p=(unsigned char*)hb->Resize(olen+len);
-    if (p)
+    unsigned char *p=(unsigned char*)hb->ResizeOK(olen+len);
+    if (WDL_NORMALLY(p != NULL))
     {
       memcpy(p+olen, ixml.Get(), ixmllen);
       memset(p+olen+ixmllen, 0, len-ixmllen);
@@ -731,8 +731,8 @@ int PackXMPChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata)
   int xmplen=xmp.GetLength();
   int len=xmplen+1;
   if (len&1) ++len;
-  unsigned char *p=(unsigned char*)hb->Resize(olen+len);
-  if (p)
+  unsigned char *p=(unsigned char*)hb->ResizeOK(olen+len);
+  if (WDL_NORMALLY(p != NULL))
   {
     memcpy(p+olen, xmp.Get(), xmplen);
     memset(p+olen+xmplen, 0, len-xmplen);
@@ -777,9 +777,10 @@ int PackVorbisFrame(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata, bool
     }
   }
 
-  unsigned char *buf=(unsigned char*)hb->Resize(olen+framelen)+olen;
-  if (buf)
+  unsigned char *buf=(unsigned char*)hb->ResizeOK(olen+framelen);
+  if (WDL_NORMALLY(buf != NULL))
   {
+    buf += olen;
     unsigned char *p=buf;
     memcpy(p, &vendorlen, 4);
     p += 4;
@@ -905,9 +906,10 @@ int PackApeChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata)
   }
   if (!apelen) return false;
 
-  unsigned char *buf=(unsigned char*)hb->Resize(olen+apelen)+olen;
-  if (buf)
+  unsigned char *buf=(unsigned char*)hb->ResizeOK(olen+apelen);
+  if (WDL_NORMALLY(buf != NULL))
   {
+    buf += olen;
     unsigned char *p=buf;
     memcpy(p, "APETAGEX", 8);
     p += 8;
@@ -1691,7 +1693,7 @@ int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata,
       int desclen=wdl_min(strlen(desc), 63);
 
       int apic_hdrlen=1+strlen(mime)+1+1+desclen+1;
-      char *p=(char*)apic_hdr.Resize(apic_hdrlen);
+      char *p=(char*)apic_hdr.ResizeOK(apic_hdrlen);
       if (p)
       {
         *p++=3; // UTF-8
@@ -1739,9 +1741,10 @@ int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata,
   if (id3len)
   {
     id3len += 10;
-    unsigned char *buf=(unsigned char*)hb->Resize(olen+id3len)+olen;
-    if (buf)
+    unsigned char *buf=(unsigned char*)hb->ResizeOK(olen+id3len);
+    if (WDL_NORMALLY(buf != NULL))
     {
+      buf += olen;
       chapcnt=0;
       unsigned char *p=buf;
       memcpy(p,"ID3\x04\x00\x00", 6);
