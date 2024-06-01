@@ -73,6 +73,7 @@ const char* IPluginBase::GetAPIStr() const
     case kAPIAUv3: return "AUv3";
     case kAPIAAX: return "AAX";
     case kAPIAPP: return "APP";
+    case kAPICLAP: return "CLAP";
     case kAPIWAM: return "WAM";
     case kAPIWEB: return "WEB";
     default: return "";
@@ -537,7 +538,7 @@ void IPluginBase::DumpMakePresetSrc(const char* filename) const
   {
     sDumped = true;
     int i, n = NParams();
-    FILE* fp = fopen(filename, "a");
+    FILE* fp = fopenUTF8(filename, "a");
     
     if (!fp)
       return;
@@ -581,7 +582,7 @@ void IPluginBase::DumpMakePresetFromNamedParamsSrc(const char* filename, const c
   {
     sDumped = true;
     int i, n = NParams();
-    FILE* fp = fopen(filename, "a");
+    FILE* fp = fopenUTF8(filename, "a");
     
     if (!fp)
       return;
@@ -618,7 +619,7 @@ void IPluginBase::DumpMakePresetFromNamedParamsSrc(const char* filename, const c
 
 void IPluginBase::DumpPresetBlob(const char* filename) const
 {
-  FILE* fp = fopen(filename, "a");
+  FILE* fp = fopenUTF8(filename, "a");
   
   if (!fp)
     return;
@@ -645,7 +646,7 @@ bool IPluginBase::SavePresetAsFXP(const char* file) const
 {
   if (CStringHasContents(file))
   {
-    FILE* fp = fopen(file, "wb");
+    FILE* fp = fopenUTF8(file, "wb");
     
     IByteChunk pgm;
     
@@ -718,7 +719,7 @@ bool IPluginBase::SaveBankAsFXB(const char* file) const
 {
   if (CStringHasContents(file))
   {
-    FILE* fp = fopen(file, "wb");
+    FILE* fp = fopenUTF8(file, "wb");
     
     IByteChunk bnk;
     
@@ -823,7 +824,7 @@ bool IPluginBase::LoadPresetFromFXP(const char* file)
 {
   if (CStringHasContents(file))
   {
-    FILE* fp = fopen(file, "rb");
+    FILE* fp = fopenUTF8(file, "rb");
     
     if (fp)
     {
@@ -914,7 +915,7 @@ bool IPluginBase::LoadBankFromFXB(const char* file)
 {
   if (CStringHasContents(file))
   {
-    FILE* fp = fopen(file, "rb");
+    FILE* fp = fopenUTF8(file, "rb");
     
     if (fp)
     {

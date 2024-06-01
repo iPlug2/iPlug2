@@ -480,6 +480,8 @@ void IGraphicsNanoVG::OnViewDestroyed()
 
 void IGraphicsNanoVG::DrawResize()
 {
+  ActivateGLContext();
+  
   if (mMainFrameBuffer != nullptr)
     nvgDeleteFramebuffer(mMainFrameBuffer);
   
@@ -490,6 +492,8 @@ void IGraphicsNanoVG::DrawResize()
     if (mMainFrameBuffer == nullptr)
       DBGMSG("Could not init FBO.\n");
   }
+  
+  DeactivateGLContext();
 }
 
 void IGraphicsNanoVG::BeginFrame()
@@ -911,4 +915,82 @@ void IGraphicsNanoVG::DrawFastDropShadow(const IRECT& innerBounds, const IRECT& 
   nvgGlobalCompositeOperation(mVG, NVG_SOURCE_OVER);
   nvgFill(mVG);
   nvgBeginPath(mVG);
+}
+
+void IGraphicsNanoVG::DrawMultiLineText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend)
+{
+  nvgSave(mVG);
+  nvgFontSize(mVG, text.mSize);
+  nvgFontFace(mVG, text.mFont);
+ 
+  float x = 0.0, y = 0.0;
+  const float width = bounds.W();
+  int align = 0;
+  float yOffsetScale = 0.0;
+  
+  switch (text.mAlign)
+  {
+    case EAlign::Near:     align = NVG_ALIGN_LEFT;     x = bounds.L;        break;
+    case EAlign::Center:   align = NVG_ALIGN_CENTER;   x = bounds.MW();     break;
+    case EAlign::Far:      align = NVG_ALIGN_RIGHT;    x = bounds.R;        break;
+  }
+    
+  switch (text.mVAlign)
+  {
+    case EVAlign::Top:
+    {
+      align |= NVG_ALIGN_TOP;
+      y = bounds.T;
+      yOffsetScale = 0.0;
+      break;
+    }
+    case EVAlign::Middle:
+    {
+      align |= NVG_ALIGN_MIDDLE;
+      y = bounds.MH();
+      yOffsetScale = 0.5;
+      break;
+    }
+    case EVAlign::Bottom:
+    {
+      align |= NVG_ALIGN_BOTTOM;
+      y = bounds.B;
+      yOffsetScale = 1.0;
+      break;
+    }
+  }
+  
+  nvgTextAlign(mVG, align);
+  
+  NVGtextRow rows[3];
+  const char* start;
+  const char* end;
+  int nRows = 0;
+  int lines = 0;
+  float lineHeight;
+  nvgTextMetrics(mVG, NULL, NULL, &lineHeight);
+  nvgFillColor(mVG, NanoVGColor(text.mFGColor, pBlend));
+
+  for (auto run : {0, 1})
+  {
+    start = str;
+    end = str + strlen(str);
+    while ((nRows = nvgTextBreakLines(mVG, start, end, width, rows, 3))) {
+      for (int i = 0; i < nRows; i++) {
+        if (run == 0)
+        {
+          lines++;
+        }
+        else
+        {
+          NVGtextRow* row = &rows[i];
+          nvgText(mVG, x, y - ((lines*lineHeight)*yOffsetScale), row->start, row->end);
+          y += lineHeight;
+        }
+      }
+      start = rows[nRows-1].next;
+    }
+  }
+  
+  nvgRestore(mVG);
 }

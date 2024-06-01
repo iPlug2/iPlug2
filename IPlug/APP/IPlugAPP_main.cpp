@@ -60,8 +60,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 
     static UINT(WINAPI *__SetProcessDpiAwarenessContext)(DPI_AWARENESS_CONTEXT);
 
-    double scale = 1.;
-
     if (!__SetProcessDpiAwarenessContext)
     {
       HINSTANCE h = LoadLibrary("user32.dll");

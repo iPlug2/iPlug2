@@ -17,15 +17,16 @@
  */
 
 #include "IControl.h"
+
 #include "IColorPickerControl.h"
+#include "ILEDControl.h"
+#include "IPopupMenuControl.h"
+#include "IRTTextControl.h"
 #include "IVKeyboardControl.h"
 #include "IVMeterControl.h"
 #include "IVScopeControl.h"
 #include "IVMultiSliderControl.h"
-#include "IRTTextControl.h"
 #include "IVDisplayControl.h"
-#include "ILEDControl.h"
-#include "IPopupMenuControl.h"
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -139,7 +140,7 @@ public:
    * @param style The styling of this vector control \see IVStyle
    * @param shape The buttons shape \see IVShape
    * @param direction The direction of the buttons */
-  IVTabSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const std::initializer_list<const char*>& options = {}, const char* label = "", const IVStyle & style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
+  IVTabSwitchControl(const IRECT& bounds, int paramIdx = kNoParameter, const std::vector<const char*>& options = {}, const char* label = "", const IVStyle & style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
 
   /** Constructs a vector tab switch control, with an action function (no parameter)
    * @param bounds The control's bounds
@@ -149,7 +150,7 @@ public:
    * @param style The styling of this vector control \see IVStyle
    * @param shape The buttons shape \see IVShape
    * @param direction The direction of the buttons */
-  IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
+  IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::vector<const char*>& options, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle, EDirection direction = EDirection::Horizontal);
   
   virtual ~IVTabSwitchControl() { mTabLabels.Empty(true); }
   void Draw(IGraphics& g) override;
@@ -157,6 +158,8 @@ public:
 
   virtual void DrawWidget(IGraphics& g) override;
   virtual void DrawButton(IGraphics& g, const IRECT& bounds, bool pressed, bool mouseOver, ETabSegment segment, bool disabled);
+  virtual void DrawButtonText(IGraphics& g, const IRECT& bounds, bool pressed, bool mouseOver, ETabSegment segment, bool disabled, const char* textStr);
+
   void OnMouseDown(float x, float y, const IMouseMod& mod) override;
   void OnMouseOver(float x, float y, const IMouseMod& mod) override;
   void OnMouseOut() override { mMouseOverButton = -1; ISwitchControlBase::OnMouseOut(); SetDirty(false); }
@@ -211,6 +214,29 @@ protected:
   bool mOnlyButtonsRespondToMouse = false;
 };
 
+/** A vector button that pops up a menu. */
+class IVMenuButtonControl : public IContainerBase
+                          , public IVectorBase
+{
+public:
+  /** Constructs a vector button control, with an action function
+   * @param bounds The control's bounds
+   * @param paramIdx The parameter index to link this control to
+   * @param label The label for the vector control, leave empty for no label
+   * @param style The styling of this vector control \see IVStyle
+   * @param shape The shape of the button */
+  IVMenuButtonControl(const IRECT& bounds, int paramIdx, const char* label = "", const IVStyle& style = DEFAULT_STYLE, EVShape shape = EVShape::Rectangle);
+  
+  void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override;
+  void SetValueFromUserInput(double value, int valIdx) override;
+
+  void SetValueFromDelegate(double value, int valIdx = 0) override;
+  void SetStyle(const IVStyle& style) override;
+
+private:
+  IVButtonControl* mButtonControl = nullptr;
+};
+
 /** A vector knob control drawn using graphics primitives */
 class IVKnobControl : public IKnobControlBase
                     , public IVectorBase
@@ -252,6 +278,9 @@ public:
   void SetOuterPointerFrac(float frac) { mOuterPointerFrac = frac; }
   void SetPointerThickness(float thickness) { mPointerThickness = thickness; }
 
+  float GetRadius() const;
+  IRECT GetTrackBounds() const;
+  
 protected:
   virtual IRECT GetKnobDragBounds() override;
 
@@ -399,12 +428,28 @@ protected:
 };
 
 /** A control to draw a rectangle around a named IControl group */
-class IVGroupControl : public IControl
+class IVGroupControl : public IContainerBase
                      , public IVectorBase
 {
 public:
-  IVGroupControl(const IRECT& bounds, const char* label = "", float labelOffset = 10.f, const IVStyle& style = DEFAULT_STYLE);
+  /** Construct the group control
+   * @param bounds The control's bounds
+   * @param label The label for the vector control, leave empty for no label
+   * @param labelOffset The offset of the label from the top left corner
+   * @param style The styling of this vector control \see IVStyle
+   * @param attachFunc A function to execute when the group control is attached
+   * @param resizeFunc A function to execute when the group control is resized */
+  IVGroupControl(const IRECT& bounds, const char* label = "", float labelOffset = 10.f, const IVStyle& style = DEFAULT_STYLE, IContainerBase::AttachFunc attachFunc = nullptr, IContainerBase::ResizeFunc resizeFunc = nullptr);
   
+  /** Construct the group control, with its bounds based on an IControl group
+   * Note: the group control needs to be attached after the group members
+   * @param label The label for the vector control, leave empty for no label
+   * @param groupName The name of the group to base the bounds on
+   * @param padL The left padding
+   * @param padT The top padding
+   * @param padR The right padding
+   * @param padB The bottom padding
+   * @param style The styling of this vector control \see IVStyle */
   IVGroupControl(const char* label, const char* groupName, float padL = 0.f, float padT = 0.f, float padR = 0.f, float padB = 0.f, const IVStyle& style = DEFAULT_STYLE);
   
   void Draw(IGraphics& g) override;
@@ -412,6 +457,12 @@ public:
   void OnResize() override;
   void OnInit() override;
   
+  /** Set the bounds of the group control based on the area occupied by the controls in a particular group 
+   * @param groupName The name of the group to base the bounds on
+   * @param padL The left padding
+   * @param padT The top padding
+   * @param padR The right padding
+   * @param padB The bottom padding */
   void SetBoundsBasedOnGroup(const char* groupName, float padL, float padT, float padR, float padB);
 protected:
   WDL_String mGroupName;
@@ -779,8 +830,11 @@ protected:
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
 
-#include "IVPresetManagerControl.h"
+// These meta controls depend on the other controls
+#include "IAboutBoxControl.h"
+#include "IVPresetManagerControls.h"
 #include "IVNumberBoxControl.h"
+#include "IVTabbedPagesControl.h"
 
 /**@}*/
 

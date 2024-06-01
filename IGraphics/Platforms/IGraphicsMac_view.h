@@ -113,7 +113,7 @@ using namespace igraphics;
 #define VIEW_BASE NSView
 #endif
 
-@interface IGRAPHICS_VIEW : VIEW_BASE <NSTextFieldDelegate/*, WKScriptMessageHandler*/>
+@interface IGRAPHICS_VIEW : VIEW_BASE <NSTextFieldDelegate, NSDraggingSource/*, WKScriptMessageHandler*/>
 {
   CVDisplayLinkRef mDisplayLink;
   dispatch_source_t mDisplaySource;
@@ -174,6 +174,7 @@ using namespace igraphics;
 //drag-and-drop
 - (NSDragOperation) draggingEntered: (id <NSDraggingInfo>) sender;
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender;
+- (NSDragOperation)draggingSession:(NSDraggingSession*) session sourceOperationMaskForDraggingContext:(NSDraggingContext)context;
 //
 - (void) setMouseCursor: (ECursor) cursorType;
 @end

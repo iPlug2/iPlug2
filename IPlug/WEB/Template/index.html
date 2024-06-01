@@ -227,6 +227,7 @@
       var progressElement = document.getElementById('progress');
 
       var Module = {
+        printErr: function(text) { alert('stderr: ' + text) },
         preRun: [],
         postRun: function() {
           document.getElementById('startWebAudioButton').removeAttribute("disabled");

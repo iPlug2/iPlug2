@@ -889,7 +889,7 @@ int PackApeChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata)
     const char *val=metadata->Enumerate(i, &key);
     if (strlen(key) < 5 || strncmp(key, "APE:", 4) || !val || !val[0]) continue;
     key += 4;
-    if (!apelen) apelen += 64;
+    if (!apelen) apelen=64; // includes header and footer
     if (!strncmp(key, "User Defined", 12))
     {
       const char *k, *v;
@@ -912,7 +912,7 @@ int PackApeChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata)
     memcpy(p, "APETAGEX", 8);
     p += 8;
     _AddInt32LE(2000); // version
-    _AddInt32LE(apelen-32);
+    _AddInt32LE(apelen-32); // includes footer but not header
     _AddInt32LE(cnt);
     _AddInt32LE((1<<31)|(1<<30)|(1<<29)); // tag contains header and footer, this is the header
     _AddInt32LE(0);
@@ -951,7 +951,7 @@ int PackApeChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata)
     memcpy(p, "APETAGEX", 8);
     p += 8;
     _AddInt32LE(2000); // version
-    _AddInt32LE(apelen-32);
+    _AddInt32LE(apelen-32); // includes footer but not header
     _AddInt32LE(cnt);
     _AddInt32LE((1<<31)|(1<<30)|(1<<28)); // tag contains header and footer, this is the footer
     _AddInt32LE(0);
@@ -1245,7 +1245,7 @@ bool HandleMexMetadataRequest(const char *mexkey, char *buf, int buflen,
 }
 
 
-void WriteMetadataPrefPos(double prefpos, int srate,
+void WriteMetadataPrefPos(double prefpos, int srate,  // prefpos <= 0.0 to clear
   WDL_StringKeyedArray<char*> *metadata)
 {
   if (!metadata) return;
@@ -1328,8 +1328,7 @@ void DumpMetadata(WDL_FastString *str, WDL_StringKeyedArray<char*> *metadata)
     }
   }
 
-  int i;
-  for (i=0; i < metadata->GetSize(); ++i)
+  for (int i=0; i < metadata->GetSize(); ++i)
   {
     const char *key;
     const char *val=metadata->Enumerate(i, &key);
@@ -1351,7 +1350,7 @@ void DumpMetadata(WDL_FastString *str, WDL_StringKeyedArray<char*> *metadata)
   }
 
   int unk_cnt=0;
-  for (i=0; i < metadata->GetSize(); ++i)
+  for (int i=0; i < metadata->GetSize(); ++i)
   {
     const char *key;
     const char *val=metadata->Enumerate(i, &key);
@@ -1964,6 +1963,9 @@ double ReadMetadataPrefPos(WDL_StringKeyedArray<char*> *metadata, double srate)
 struct ChanLayout { const char *fmts; int nch; const char *desc; int chan_layout, chan_mask; };
 static const ChanLayout CHAN_LAYOUTS[]=
 {
+  // using Ls/Rs for left side/right side
+  // using Lb/Rb for left back/right back
+
   { "cw", 2, "L R",
     kAudioChannelLayoutTag_UseChannelBitmap,
     kAudioChannelBit_Left | kAudioChannelBit_Right },
@@ -1972,29 +1974,29 @@ static const ChanLayout CHAN_LAYOUTS[]=
     kAudioChannelLayoutTag_UseChannelBitmap,
     kAudioChannelBit_Left | kAudioChannelBit_Right | kAudioChannelBit_Center },
 
-  { "cw", 4, "L R Ls Rs",
+  { "cw", 4, "L R Lb Rb",
     kAudioChannelLayoutTag_UseChannelBitmap,
     kAudioChannelBit_Left | kAudioChannelBit_Right |
     kAudioChannelBit_LeftSurround | kAudioChannelBit_RightSurround },
 
-  { "cw", 5, "L R C Ls Rs",
+  { "cw", 5, "L R C Lb Rb",
     kAudioChannelLayoutTag_UseChannelBitmap,
     kAudioChannelBit_Left | kAudioChannelBit_Right | kAudioChannelBit_Center |
     kAudioChannelBit_LeftSurround | kAudioChannelBit_RightSurround },
 
-  { "cw", 6, "L R C LFE Ls Rs",
+  { "cw", 6, "L R C LFE Lb Rb",
     kAudioChannelLayoutTag_UseChannelBitmap,
     kAudioChannelBit_Left | kAudioChannelBit_Right | kAudioChannelBit_Center |
     kAudioChannelBit_LFEScreen |
     kAudioChannelBit_LeftSurround | kAudioChannelBit_RightSurround },
 
-  { "cw", 6, "L R Ls Rs Lsd Rsd",
+  { "cw", 6, "L R Lb Rb Ls Rs",
     kAudioChannelLayoutTag_UseChannelBitmap,
     kAudioChannelBit_Left | kAudioChannelBit_Right |
     kAudioChannelBit_LeftSurround | kAudioChannelBit_RightSurround |
     kAudioChannelBit_LeftSurroundDirect | kAudioChannelBit_RightSurroundDirect },
 
-  { "cw", 8, "L R C LFE Ls Rs Lsd Rsd",
+  { "cw", 8, "L R C LFE Lb Rb Ls Rs",
     kAudioChannelLayoutTag_UseChannelBitmap,
     kAudioChannelBit_Left | kAudioChannelBit_Right | kAudioChannelBit_Center |
     kAudioChannelBit_LFEScreen |
@@ -2005,23 +2007,24 @@ static const ChanLayout CHAN_LAYOUTS[]=
   { "c", 2, "Binaural", kAudioChannelLayoutTag_Binaural, 0 },
   { "c", 4, "Ambisonic B-Format - W X Y Z", kAudioChannelLayoutTag_Ambisonic_B_Format, 0 },
 
-  { "c", 6, "MPEG 5.1A - L R C LFE Ls Rs", kAudioChannelLayoutTag_MPEG_5_1_A, 0 },
-  { "c", 6, "MPEG 5.1B - L R Ls Rs C LFE", kAudioChannelLayoutTag_MPEG_5_1_B, 0 },
-  { "c", 6, "MPEG 5.1C - L C R Ls Rs LFE", kAudioChannelLayoutTag_MPEG_5_1_C, 0 },
-  { "c", 6, "MPEG 5.1D - C L R Ls Rs LFE", kAudioChannelLayoutTag_MPEG_5_1_D, 0 },
-  { "c", 8, "MPEG 5.1A - L R C LFE Ls Rs Lc Rc", kAudioChannelLayoutTag_MPEG_7_1_A, 0 },
-  { "c", 8, "MPEG 5.1B - C Lc Rc L R Ls Rs LFE", kAudioChannelLayoutTag_MPEG_7_1_B, 0 },
-  { "c", 8, "MPEG 5.1C - L R C LFE Ls Rs Rls Rrs", kAudioChannelLayoutTag_MPEG_7_1_C, 0 },
+  { "c", 6, "MPEG 5.1A - L R C LFE Lb Rb", kAudioChannelLayoutTag_MPEG_5_1_A, 0 },
+  { "c", 6, "MPEG 5.1B - L R Lb Rb C LFE", kAudioChannelLayoutTag_MPEG_5_1_B, 0 },
+  { "c", 6, "MPEG 5.1C - L C R Lb Rb LFE", kAudioChannelLayoutTag_MPEG_5_1_C, 0 },
+  { "c", 6, "MPEG 5.1D - C L R Lb Rb LFE", kAudioChannelLayoutTag_MPEG_5_1_D, 0 },
 
-  { "c", 6, "ITU 3.2.1 - L R C LFE Ls Rs", kAudioChannelLayoutTag_ITU_3_2_1, 0 },
-  { "c", 8, "ITU 3.4.1 - L R C LFE Ls Rs Rls Rrs", kAudioChannelLayoutTag_ITU_3_4_1, 0 },
+  { "c", 8, "MPEG 7.1A - L R C LFE Lb Rb Lc Rc", kAudioChannelLayoutTag_MPEG_7_1_A, 0 },
+  { "c", 8, "MPEG 7.1B - C Lc Rc L R Lb Rb LFE", kAudioChannelLayoutTag_MPEG_7_1_B, 0 },
+  { "c", 8, "MPEG 7.1C (SMPTE 7.1) - L R C LFE Ls Rs Lb Rb", kAudioChannelLayoutTag_MPEG_7_1_C, 0 },
+
+  { "c", 6, "ITU 3.2.1 - L R C LFE Lb Rb", kAudioChannelLayoutTag_ITU_3_2_1, 0 },
+  { "c", 8, "ITU 3.4.1 - L R C LFE Lb Rb Rls Rrs", kAudioChannelLayoutTag_ITU_3_4_1, 0 },
 
   { "c", -1, "HO Ambisonic SN3D", kAudioChannelLayoutTag_HOA_ACN_SN3D, 0 },
   { "c", -1, "HO Ambisonic N3D", kAudioChannelLayoutTag_HOA_ACN_N3D, 0 },
 
-  { "c", 8, "Atmos 5.1.2 - L R C LFE Ls Rs Ltm Rtm", kAudioChannelLayoutTag_Atmos_5_1_2, 0 },
-  { "c", 12, "Atmos 7.1.4 - L R C LFE Ls Rs Rls Rrs Ltf Rtf Ltr Rtr", kAudioChannelLayoutTag_Atmos_7_1_4, 0 },
-  { "c", 16, "Atmos 9.1.6 - L R C LFE Ls Rs Rls Rrs Lw Rw Ltf Rtf Ltm Rtm Ltr Rtr", kAudioChannelLayoutTag_Atmos_9_1_6, 0 },
+  { "c", 8, "Atmos 5.1.2 - L R C LFE Lb Rb Ltm Rtm", kAudioChannelLayoutTag_Atmos_5_1_2, 0 },
+  { "c", 12, "Atmos 7.1.4 - L R C LFE Lb Rb Rls Rrs Ltf Rtf Ltr Rtr", kAudioChannelLayoutTag_Atmos_7_1_4, 0 },
+  { "c", 16, "Atmos 9.1.6 - L R C LFE Lb Rb Rls Rrs Lw Rw Ltf Rtf Ltm Rtm Ltr Rtr", kAudioChannelLayoutTag_Atmos_9_1_6, 0 },
 };
 
 #define LAYOUT_MASK_VALID(layout, mask) \

@@ -91,6 +91,11 @@ template<typename T>
 class SmoothedGain
 {
 public:
+  SmoothedGain(double smoothingTime = 5.0)
+  : mSmoothingTime(smoothingTime)
+  {
+  }
+  
   void ProcessBlock(T** inputs, T** outputs, int nChans, int nFrames, double gainValue)
   {
     for (auto s = 0; s < nFrames; ++s)
@@ -104,8 +109,14 @@ public:
     }
   }
   
+  void SetSampleRate(double sampleRate)
+  {
+    mSmoother.SetSmoothTime(mSmoothingTime, sampleRate);
+  }
+  
 private:
+  const double mSmoothingTime;
   LogParamSmooth<double, 1> mSmoother;
-};
+} WDL_FIXALIGN;
 
 END_IPLUG_NAMESPACE

@@ -268,8 +268,14 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
     // Center that in the proposed rect
     float heightDelta = outRect.size.height - textSize.height;
     
-    outRect.size.height -= heightDelta;
-    outRect.origin.y += (heightDelta / 2);
+    outRect.origin.x += 3;
+    outRect.size.width -= 6;
+    
+    if (heightDelta > 0) 
+    {
+      outRect.size.height -= heightDelta;
+      outRect.origin.y += (heightDelta / 2);
+    }
   }
   
   return outRect;
@@ -574,6 +580,12 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
                                                  name:NSViewFrameDidChangeNotification
                                                object:self];
     #endif
+    #ifdef IGRAPHICS_GL
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(frameDidChange:)
+                                                 name:NSViewGlobalFrameDidChangeNotification
+                                               object:self];
+    #endif
     
 //    [[NSNotificationCenter defaultCenter] addObserver:self
 //                                             selector:@selector(windowResized:) name:NSWindowDidEndLiveResizeNotification
@@ -664,6 +676,7 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
     #endif
     #ifdef IGRAPHICS_GL
     [[self openGLContext] flushBuffer];
+    [NSOpenGLContext clearCurrentContext];
     #endif
   }
 }
@@ -1254,21 +1267,38 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender
 {
-  NSPasteboard *pPasteBoard = [sender draggingPasteboard];
+  NSPasteboard* pPasteBoard = [sender draggingPasteboard];
 
   if ([[pPasteBoard types] containsObject:NSFilenamesPboardType])
   {
-    NSArray *pFiles = [pPasteBoard propertyListForType:NSFilenamesPboardType];
-    NSString *pFirstFile = [pFiles firstObject];
+    NSArray* pFiles = [pPasteBoard propertyListForType:NSFilenamesPboardType];
     NSPoint point = [sender draggingLocation];
     NSPoint relativePoint = [self convertPoint: point fromView:nil];
     // TODO - fix or remove these values
     float x = relativePoint.x;// - 2.f;
     float y = relativePoint.y;// - 3.f;
-    mGraphics->OnDrop([pFirstFile UTF8String], x, y);
+    if ([pFiles count] == 1)
+    {
+      NSString* pFirstFile = [pFiles firstObject];
+      mGraphics->OnDrop([pFirstFile UTF8String], x, y);
+    }
+    else if ([pFiles count] > 1)
+    {
+      std::vector<const char*> paths([pFiles count]);
+      for (auto i = 0; i < [pFiles count]; i++)
+      {
+        NSString* pFile = [pFiles objectAtIndex: i];
+        paths[i] = [pFile UTF8String];
+      }
+      mGraphics->OnDropMultiple(paths, x, y);
+    }
   }
-
   return YES;
+}
+
+- (NSDragOperation)draggingSession:(NSDraggingSession*) session sourceOperationMaskForDraggingContext:(NSDraggingContext)context
+{
+  return NSDragOperationCopy;
 }
 
 #ifdef IGRAPHICS_METAL
@@ -1278,6 +1308,12 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
   [(CAMetalLayer*)[self layer] setDrawableSize:CGSizeMake(self.frame.size.width * scale,
                                                           self.frame.size.height * scale)];
+}
+#endif
+#ifdef IGRAPHICS_GL
+- (void) frameDidChange:(NSNotification*) pNotification
+{
+  [[self openGLContext] makeCurrentContext];
 }
 #endif
 

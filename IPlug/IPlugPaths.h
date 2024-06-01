@@ -27,13 +27,6 @@ using PluginIDType = HMODULE;
 using PluginIDType = void *;
 #endif
 
-#if defined OS_WIN
-#include <windows.h>
- // Unicode helpers
-void UTF8ToUTF16(wchar_t* utf16Str, const char* utf8Str, int maxLen);
-void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* utf16Str);
-#endif
-
 /** Get the path to the host binary 
 * @param path WDL_String reference where the path will be put on success or empty string on failure */
 extern void HostPath(WDL_String& path, const char* bundleID = 0);

@@ -172,7 +172,10 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   if (self.presentingViewController && self.tableView != nil)
   {
-    return [self.tableView sizeThatFits:self.presentingViewController.view.bounds.size];
+    CGSize tempSize = self.presentingViewController.view.bounds.size;
+    tempSize.width = 300;
+    CGSize size = [self.tableView sizeThatFits:tempSize];
+    return size;
   } else {
     return [super preferredContentSize];
   }
@@ -520,31 +523,31 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics->ClearInTextEntryControl();
 }
 
-- (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHandlerFunc) completionHandler
+- (void) showMessageBox: (const char*) str : (const char*) title : (EMsgBoxType) type : (IMsgBoxCompletionHandlerFunc) completionHandler
 {
   [self endUserInput];
 
-  NSString* titleNString = [NSString stringWithUTF8String:str];
-  NSString* captionNString = [NSString stringWithUTF8String:caption];
+  NSString* message = [NSString stringWithUTF8String:str];
+  NSString* titleNs = [NSString stringWithUTF8String:title];
   
-  UIAlertController* alertController = [UIAlertController alertControllerWithTitle:titleNString message:captionNString preferredStyle:UIAlertControllerStyleAlert];
+  UIAlertController* alertController = [UIAlertController alertControllerWithTitle:titleNs message:message preferredStyle:UIAlertControllerStyleAlert];
   
   void (^handlerBlock)(UIAlertAction*) =
   ^(UIAlertAction* action) {
     
-    if(completionHandler != nullptr)
+    if (completionHandler != nullptr)
     {
       EMsgBoxResult result = EMsgBoxResult::kCANCEL;
       
-      if([action.title isEqualToString:@"OK"])
+      if ([action.title isEqualToString:@"OK"])
         result = EMsgBoxResult::kOK;
-      if([action.title isEqualToString:@"Cancel"])
+      if ([action.title isEqualToString:@"Cancel"])
         result = EMsgBoxResult::kCANCEL;
-      if([action.title isEqualToString:@"Yes"])
+      if ([action.title isEqualToString:@"Yes"])
         result = EMsgBoxResult::kYES;
-      if([action.title isEqualToString:@"No"])
+      if ([action.title isEqualToString:@"No"])
         result = EMsgBoxResult::kNO;
-      if([action.title isEqualToString:@"Retry"])
+      if ([action.title isEqualToString:@"Retry"])
         result = EMsgBoxResult::kRETRY;
       
       completionHandler(result);
@@ -552,13 +555,13 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     
   };
   
-  if(type == kMB_OK || type == kMB_OKCANCEL)
+  if (type == kMB_OK || type == kMB_OKCANCEL)
   {
     UIAlertAction* okAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:handlerBlock];
     [alertController addAction:okAction];
   }
   
-  if(type == kMB_YESNO || type == kMB_YESNOCANCEL)
+  if (type == kMB_YESNO || type == kMB_YESNOCANCEL)
   {
     UIAlertAction* yesAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:handlerBlock];
     [alertController addAction:yesAction];
@@ -567,19 +570,21 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     [alertController addAction:noAction];
   }
   
-  if(type == kMB_RETRYCANCEL)
+  if (type == kMB_RETRYCANCEL)
   {
     UIAlertAction* retryAction = [UIAlertAction actionWithTitle:@"Retry" style:UIAlertActionStyleDefault handler:handlerBlock];
     [alertController addAction:retryAction];
   }
   
-  if(type == kMB_OKCANCEL || type == kMB_YESNOCANCEL || type == kMB_RETRYCANCEL)
+  if (type == kMB_OKCANCEL || type == kMB_YESNOCANCEL || type == kMB_RETRYCANCEL)
   {
     UIAlertAction* cancelAction = [UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:handlerBlock];
     [alertController addAction:cancelAction];
   }
   
-  [self.window.rootViewController presentViewController:alertController animated:YES completion:nil];
+  [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+    [self.window.rootViewController presentViewController:alertController animated:YES completion:nil];
+  }];
 }
 
 - (void) promptForFile: (NSString*) fileName : (NSString*) path : (EFileAction) action : (NSArray*) contentTypes : (IFileDialogCompletionHandlerFunc) completionHandler
@@ -633,13 +638,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 
   UIColorPickerViewController* colorSelectionController = [[UIColorPickerViewController alloc] init];
   
-  UIUserInterfaceIdiom idiom = [[UIDevice currentDevice] userInterfaceIdiom];
-  
-  if(idiom == UIUserInterfaceIdiomPad)
-    colorSelectionController.modalPresentationStyle = UIModalPresentationPopover;
-  else
-    colorSelectionController.modalPresentationStyle = UIModalPresentationPageSheet;
-  
+  colorSelectionController.modalPresentationStyle = UIModalPresentationPopover;
   colorSelectionController.popoverPresentationController.delegate = self;
   colorSelectionController.popoverPresentationController.sourceView = self;
   

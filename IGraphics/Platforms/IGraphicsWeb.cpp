@@ -735,7 +735,7 @@ void IGraphicsWeb::OnMainLoopTimer()
   }
 }
 
-EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
+EMsgBoxResult IGraphicsWeb::ShowMessageBox(const char* str, const char* /*title*/, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
   

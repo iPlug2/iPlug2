@@ -60,6 +60,12 @@
 #include "../assocarray.h"
 #include "../wdlcstring.h"
 
+void (*SWELL_DDrop_onDragLeave)();
+void (*SWELL_DDrop_onDragOver)(POINT pt);
+void (*SWELL_DDrop_onDragEnter)(void *hGlobal, POINT pt);
+const char* (*SWELL_DDrop_getDroppedFileTargetPath)(const char* extension);
+
+
 void Sleep(int ms)
 {
   usleep(ms?ms*1000:100);
@@ -1190,6 +1196,10 @@ void *SWELL_ExtendedAPI(const char *key, void *v)
     swell_gdk_reactivate_app();
   }
 #endif
+  else if (!strcmp(key,"SWELL_DDrop_onDragLeave")) { *(void **)&SWELL_DDrop_onDragLeave = v; return v; }
+  else if (!strcmp(key,"SWELL_DDrop_onDragOver")) { *(void **)&SWELL_DDrop_onDragOver = v; return v; }
+  else if (!strcmp(key,"SWELL_DDrop_onDragEnter")) { *(void **)&SWELL_DDrop_onDragEnter = v; return v; }
+  else if (!strcmp(key,"SWELL_DDrop_getDroppedFileTargetPath")) { *(void **)&SWELL_DDrop_getDroppedFileTargetPath = v; return v; }
   return NULL;
 }
 

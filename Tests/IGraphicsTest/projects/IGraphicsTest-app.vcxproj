@@ -280,6 +280,7 @@
     <ClInclude Include="..\..\..\IGraphics\Controls\IVMeterControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVMultiSliderControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\IVScopeControl.h" />
+    <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestDragNDropControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestFlexBoxControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestGLControl.h" />
     <ClInclude Include="..\..\..\IGraphics\Controls\Test\TestAnimationControl.h" />

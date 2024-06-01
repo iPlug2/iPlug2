@@ -238,8 +238,10 @@ class WDL_VirtualSlider : public WDL_VWnd
     virtual void OnMouseMove(int xpos, int ypos);
     virtual void OnMouseUp(int xpos, int ypos);
     virtual bool OnMouseDblClick(int xpos, int ypos);
-    virtual bool OnMouseWheel(int xpos, int ypos, int amt);
+    virtual bool OnMouseWheel(int xpos, int ypos, int amt) { return OnMouseWheelInternal(xpos,ypos,amt,0); }
     virtual void GetPositionPaintExtent(RECT *r, int rscale);
+
+    bool OnMouseWheelInternal(int xpos, int ypos, int amt, int sc);
 
     virtual void OnCaptureLost();
 
@@ -327,6 +329,7 @@ class WDL_VirtualListBox : public WDL_VWnd
 
     void SetFont(LICE_IFont *font, int lsadj=-1000) { m_font=font; m_lsadj=lsadj; }
     LICE_IFont *GetFont() { return m_font; }
+    int GetLineSpacingAdjust() const { return m_lsadj; }
     void SetAlign(int align) { m_align=align; } // -1=left,0=center,1=right
     void SetRowHeight(int rh) { m_rh=rh; }
     void SetMaxColWidth(int cw) { m_maxcolwidth=cw; } // 0 = default = allow any sized columns

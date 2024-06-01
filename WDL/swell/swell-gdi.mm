@@ -984,6 +984,8 @@ static int DrawTextATSUI(HDC ctx, CFStringRef strin, RECT *r, int align, bool *e
 
 int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
 {
+  WDL_ASSERT((align & DT_SINGLELINE) || !(align & (DT_VCENTER | DT_BOTTOM)));
+
   HDC__ *ct=(HDC__ *)ctx;
   if (!HDC_VALID(ct)) return 0;
   if (!(align & DT_CALCRECT) && !ct->ctx) return 0;

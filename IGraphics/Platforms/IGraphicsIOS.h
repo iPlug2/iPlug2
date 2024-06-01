@@ -28,6 +28,7 @@ public:
   virtual ~IGraphicsIOS();
   
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
+  void SetAppGroupID(const char* appGroupID) { mAppGroupID.Set(appGroupID); }
 
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
@@ -35,10 +36,11 @@ public:
   void PlatformResize(bool parentHasResized) override;
   void AttachPlatformView(const IRECT& r, void* pView) override;
   void RemovePlatformView(void* pView) override;
+  void HidePlatformView(void* pView, bool hide) override;
 
   void GetMouseLocation(float& x, float&y) const override;
 
-  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
@@ -56,7 +58,9 @@ public:
   
   void* GetWindow() override;
   
-  const char* GetBundleID() override { return mBundleID.Get(); }
+  const char* GetBundleID() const override { return mBundleID.Get(); }
+  const char* GetAppGroupID() const override { return mAppGroupID.Get(); }
+
   static int GetUserOSVersion();
   
   bool GetTextFromClipboard(WDL_String& str) override;
@@ -82,6 +86,7 @@ protected:
 private:
   void* mView = nullptr;
   WDL_String mBundleID;
+  WDL_String mAppGroupID;
 };
 
 END_IGRAPHICS_NAMESPACE

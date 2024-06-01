@@ -322,6 +322,7 @@ LRESULT WDL_CursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
           }
         }
       }
+      WDL_FALLTHROUGH;
 
     case WM_LBUTTONDOWN:
       if (CURSES_INSTANCE && CURSES_INSTANCE->m_font_w && CURSES_INSTANCE->m_font_h)
@@ -341,7 +342,7 @@ LRESULT WDL_CursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
         }
       }
 
-      // passthrough
+      WDL_FALLTHROUGH;
     case WM_RBUTTONDOWN:
 
     if (CURSES_INSTANCE->m_font_w && CURSES_INSTANCE->m_font_h)
@@ -400,6 +401,7 @@ LRESULT WDL_CursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
         {
           m_paneoffs_y[pane] += paneh[pane];
           int maxscroll=m_text.GetSize()-paneh[pane]+4;
+          if (maxscroll < 0) maxscroll = 0;
           if (m_paneoffs_y[pane] > maxscroll) m_paneoffs_y[pane]=maxscroll;
         }
         
@@ -1622,6 +1624,7 @@ void WDL_CursesEditor::run_line_editor(int c, WDL_FastString *fs)
     break;
     case KEY_IC:
       if (!SHIFT_KEY_DOWN && !ALT_KEY_DOWN) return;
+      WDL_FALLTHROUGH;
     case 'V'-'A'+1:
       {
         WDL_PtrList<const char> lines;
@@ -1842,7 +1845,25 @@ int WDL_CursesEditor::onChar(int c)
         m_selecting=1;
       }
     }
-    else if (m_selecting) { m_selecting=0; draw(); }
+    else if (m_selecting)
+    {
+      m_selecting=0;
+      if (c == KEY_LEFT || c == KEY_RIGHT || c == KEY_UP || c == KEY_DOWN)
+      {
+        int miny,maxy,minx,maxx;
+        getselectregion(minx,miny,maxx,maxy);
+        if ((m_curs_y > miny || (m_curs_y == miny && m_curs_x >= minx)) &&
+            (m_curs_y < maxy || (m_curs_y == maxy && m_curs_x <= maxx)))
+        {
+          m_curs_x = c == KEY_LEFT || c == KEY_UP ? minx : maxx;
+          m_curs_y = c == KEY_LEFT || c == KEY_UP ? miny : maxy;
+          draw();
+          setCursor();
+          return 0;
+        }
+      }
+      draw();
+    }
   }
 
   switch(c)
@@ -2019,6 +2040,7 @@ int WDL_CursesEditor::onChar(int c)
       }
       break;
     }
+    WDL_FALLTHROUGH;
   case 'C'-'A'+1:
   case 'X'-'A'+1:
     if (!SHIFT_KEY_DOWN && !ALT_KEY_DOWN && m_selecting)
@@ -2264,7 +2286,7 @@ int WDL_CursesEditor::onChar(int c)
       runSearch(SHIFT_KEY_DOWN != 0, false);
       return 0;
     }
-  // fall through
+  WDL_FALLTHROUGH; // fall through
   case 'R'-'A'+1:
   case 'F'-'A'+1:
     if (!SHIFT_KEY_DOWN && !ALT_KEY_DOWN)
@@ -2697,6 +2719,7 @@ int WDL_CursesEditor::onChar(int c)
       }
       break;
     }
+    WDL_FALLTHROUGH;
   default:
     //insert char
     if(VALIDATE_TEXT_CHAR(c))

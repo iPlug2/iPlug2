@@ -178,8 +178,7 @@ public:
   
   void DeferSysexMsg(const ISysEx& msg) override
   {
-    SysExData data(msg.mOffset, msg.mSize, msg.mData); // copies data
-    mSysExDataFromEditor.Push(data);
+    mSysExDataFromEditor.PushFromArgs(msg.mOffset, msg.mSize, msg.mData); // copies data
   }
 
   /** Called by the API class to create the timer that pumps the parameter/message queues */
@@ -214,14 +213,15 @@ private:
 
   friend class IPlugAPP;
   friend class IPlugAAX;
+  friend class IPlugAU;
+  friend class IPlugAUv3;
+  friend class IPlugCLAP;
   friend class IPlugVST2;
   friend class IPlugVST3;
   friend class IPlugVST3Controller;
   friend class IPlugVST3Processor;
-  friend class IPlugAU;
-  friend class IPlugAUv3;
-  friend class IPlugWEB;
   friend class IPlugWAM;
+  friend class IPlugWEB;
 
 private:
   WDL_String mParamDisplayStr;

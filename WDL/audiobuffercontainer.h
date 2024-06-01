@@ -129,13 +129,15 @@ class ChannelPinMapper
 {
 public: 
 
-  ChannelPinMapper() : m_nCh(0), m_nPins(0) {}
+  ChannelPinMapper() : m_nCh(0), m_nPins(0) { Reset(); }
   ~ChannelPinMapper() {}
 
   void SetNPins(int nPins);
   void SetNChannels(int nCh, bool auto_passthru=true);
   // or ...
   void Init(const PinMapPin * pMapping, int nPins);
+  // or ...
+  void Reset(); // set to full passthrough
 
   int GetNPins() const { return m_nPins; }
   int GetNChannels() const { return m_nCh; }

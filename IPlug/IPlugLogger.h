@@ -41,31 +41,17 @@ BEGIN_IPLUG_NAMESPACE
   #if defined(OS_MAC) || defined(OS_LINUX) || defined(OS_WEB) || defined(OS_IOS)
     #define DBGMSG(...) printf(__VA_ARGS__)
   #elif defined OS_WIN
-    #ifdef OutputDebugString
-    #undef OutputDebugString
-    #define OutputDebugString OutputDebugStringA
-    #endif
-
     static void DBGMSG(const char* format, ...)
     {
-      char buf[4096], * p = buf;
+      char buf[4096];
       va_list args;
-      int     n;
+      int n;
 
       va_start(args, format);
-      n = _vsnprintf(p, sizeof buf - 3, format, args); // buf-3 is room for CR/LF/NUL
+      n = vsnprintf_s(buf, sizeof buf, sizeof buf - 1, format, args);
       va_end(args);
 
-      p += (n < 0) ? sizeof buf - 3 : n;
-
-      while (p > buf&& isspace(p[-1]))
-        *--p = '\0';
-
-      *p++ = '\r';
-      *p++ = '\n';
-      *p = '\0';
-
-      OutputDebugString(buf);
+      OutputDebugStringW(UTF8AsUTF16(buf).Get());
     }
   #endif
 #endif
@@ -101,7 +87,7 @@ BEGIN_IPLUG_NAMESPACE
       char logFilePath[MAX_MACOS_PATH_LEN];
       snprintf(logFilePath, MAX_MACOS_PATH_LEN, "%s/%s", getenv("HOME"), LOGFILE);
   #endif
-      mFP = fopen(logFilePath, "w");
+      mFP = fopenUTF8(logFilePath, "w");
       assert(mFP);
       
       DBGMSG("Logging to %s\n", logFilePath);

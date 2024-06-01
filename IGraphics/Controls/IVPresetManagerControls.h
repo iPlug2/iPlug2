@@ -12,7 +12,8 @@
 
 /**
  * @file
- * @copydoc IVDiskPresetManagerControl
+ * @ingroup IControls
+ * Includes meta controls for basic preset managers
  */
 
 #include "IControl.h"
@@ -33,19 +34,22 @@ public:
   {
     LeftButton = 0,
     RightButton,
-    PresetMenu,
-    LoadButton
+    PresetMenu
   };
   
-  IVBakedPresetManagerControl(const IRECT& bounds, const IVStyle& style = DEFAULT_STYLE)
+  IVBakedPresetManagerControl(const IRECT& bounds, const char* label = "", 
+                              const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false).WithLabelText(DEFAULT_LABEL_TEXT.WithVAlign(EVAlign::Middle)))
   : IContainerBase(bounds)
   , IVectorBase(style)
   {
-    AttachIControl(this, "");
+    AttachIControl(this, label);
     mIgnoreMouse = true;
   }
   
-  void Draw(IGraphics& g) override { /* NO-OP */ }
+  void Draw(IGraphics& g) override 
+  {
+    DrawLabel(g);
+  }
   
   void RestorePreset(IPluginBase* pluginBase, int presetIdx)
   {
@@ -108,7 +112,8 @@ public:
       int currentPresetIdx = pluginBase->GetCurrentPresetIdx();
       int nPresets = pluginBase->NPresets();
       
-      for (int i = 0; i < nPresets; i++) {
+      for (int i = 0; i < nPresets; i++) 
+      {
         const char* str = pluginBase->GetPresetName(i);
         if (i == currentPresetIdx)
           mMenu.AddItem(str, -1, IPopupMenu::Item::kChecked);
@@ -119,16 +124,19 @@ public:
       pCaller->GetUI()->CreatePopupMenu(*this, mMenu, pCaller->GetRECT());
     };
 
-    AddChildControl(new IVButtonControl(GetSubControlBounds(ESubControl::LeftButton), SplashClickActionFunc, "<", mStyle))
+    AddChildControl(new IVButtonControl(IRECT(), SplashClickActionFunc, "<", mStyle))
     ->SetAnimationEndActionFunction(prevPresetFunc);
-    AddChildControl(new IVButtonControl(GetSubControlBounds(ESubControl::RightButton), SplashClickActionFunc, ">", mStyle))
+    AddChildControl(new IVButtonControl(IRECT(), SplashClickActionFunc, ">", mStyle))
     ->SetAnimationEndActionFunction(nextPresetFunc);
-//   AddChildControl(new IVButtonControl(IRECT(), SplashClickActionFunc, "Load", mStyle))->SetAnimationEndActionFunction(loadPresetFunc);
-    AddChildControl(mPresetNameButton = new IVButtonControl(GetSubControlBounds(ESubControl::PresetMenu), SplashClickActionFunc, "Choose Preset...", mStyle))->SetAnimationEndActionFunction(choosePresetFunc);
+    AddChildControl(mPresetNameButton = new IVButtonControl(IRECT(), SplashClickActionFunc, "Choose Preset...", mStyle))->SetAnimationEndActionFunction(choosePresetFunc);
+    
+    OnResize();
   }
   
   void OnResize() override
   {
+    MakeRects(mRECT);
+    
     ForAllChildrenFunc([&](int childIdx, IControl* pChild){
       pChild->SetTargetAndDrawRECTs(GetSubControlBounds((ESubControl) childIdx));
     });
@@ -137,12 +145,11 @@ public:
 private:
   IRECT GetSubControlBounds(ESubControl control)
   {
-    auto sections = mRECT;
+    auto sections = mWidgetBounds;
     
-    std::array<IRECT, 4> rects = {
+    std::array<IRECT, 3> rects = {
       sections.ReduceFromLeft(50),
       sections.ReduceFromLeft(50),
-//      sections.ReduceFromRight(50),
       sections
     };
     
@@ -158,18 +165,31 @@ private:
  * It adds several child buttons 
  * @ingroup IControls */
 class IVDiskPresetManagerControl : public IDirBrowseControlBase
+                                 , public IVectorBase
 {
 public:
-  IVDiskPresetManagerControl(const IRECT& bounds, const char* presetPath, const char* fileExtension, bool showFileExtensions = true, const IVStyle& style = DEFAULT_STYLE)
-  : IDirBrowseControlBase(bounds, fileExtension, showFileExtensions)
-  , mStyle(style)
+  enum class ESubControl
   {
+    LeftButton = 0,
+    RightButton,
+    PresetMenu,
+    LoadButton
+  };
+
+  IVDiskPresetManagerControl(const IRECT& bounds, const char* presetPath, const char* fileExtension, bool showFileExtensions = true, const char* label = "", const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false).WithLabelText(DEFAULT_LABEL_TEXT.WithVAlign(EVAlign::Middle)))
+  : IDirBrowseControlBase(bounds, fileExtension, showFileExtensions)
+  , IVectorBase(style)
+  {
+    AttachIControl(this, label);
     mIgnoreMouse = true;
     AddPath(presetPath, "");
     SetupMenu();
   }
   
-  void Draw(IGraphics& g) override { /* NO-OP */ }
+  void Draw(IGraphics& g) override 
+  {
+    DrawLabel(g);
+  }
 
   void OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx) override
   {
@@ -179,7 +199,7 @@ public:
 
       if (pItem)
       {
-        mSelectedIndex = mItems.Find(pItem);
+        mSelectedItemIndex = mItems.Find(pItem);
         LoadPresetAtCurrentIndex();
       }
     }
@@ -187,66 +207,112 @@ public:
 
   void OnAttached() override
   {
-    IRECT sections = mRECT.GetPadded(-5.f);
-
     auto prevPresetFunc = [&](IControl* pCaller) {
-      mSelectedIndex--;
-
-      if (mSelectedIndex < 0)
-        mSelectedIndex = NItems() - 1;
-
-      LoadPresetAtCurrentIndex();
+      if (NItems())
+      {
+        mSelectedItemIndex--;
+        
+        if (mSelectedItemIndex < 0)
+          mSelectedItemIndex = NItems() - 1;
+        
+        LoadPresetAtCurrentIndex();
+      }
     };
 
     auto nextPresetFunc = [&](IControl* pCaller) {
-      mSelectedIndex++;
-
-      if (mSelectedIndex >= NItems())
-        mSelectedIndex = 0;
-
-      LoadPresetAtCurrentIndex();
+      if (NItems())
+      {
+        mSelectedItemIndex++;
+        
+        if (mSelectedItemIndex >= NItems())
+          mSelectedItemIndex = 0;
+        
+        LoadPresetAtCurrentIndex();
+      }
     };
 
     auto loadPresetFunc = [&](IControl* pCaller) {
-      WDL_String fileName;
-      WDL_String path;
+      WDL_String fileName, path;
       pCaller->GetUI()->PromptForFile(fileName, path, EFileAction::Open, mExtension.Get());
 
+      if (path.GetLength())
+      {
+        ClearPathList();
+        AddPath(path.Get(), "");
+        SetupMenu();
+      }
+
       if (fileName.GetLength())
-        mPresetNameButton->SetLabelStr(fileName.Get());
-      
-      SetSelectedFile(fileName.Get());
-      LoadPresetAtCurrentIndex();
+      {
+        SetSelectedFile(fileName.Get());
+        LoadPresetAtCurrentIndex();
+      }
     };
 
     auto choosePresetFunc = [&](IControl* pCaller) {
       CheckSelectedItem();
-      mMainMenu.SetChosenItemIdx(mSelectedIndex);
       pCaller->GetUI()->CreatePopupMenu(*this, mMainMenu, pCaller->GetRECT());
     };
 
-    AddChildControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, "<", mStyle))->SetAnimationEndActionFunction(prevPresetFunc);
-    AddChildControl(new IVButtonControl(sections.ReduceFromLeft(50), SplashClickActionFunc, ">", mStyle))->SetAnimationEndActionFunction(nextPresetFunc);
-    AddChildControl(new IVButtonControl(sections.ReduceFromRight(100), SplashClickActionFunc, "Load", mStyle))->SetAnimationEndActionFunction(loadPresetFunc);
-    AddChildControl(mPresetNameButton = new IVButtonControl(sections, SplashClickActionFunc, "Choose Preset...", mStyle))->SetAnimationEndActionFunction(choosePresetFunc);  
+    AddChildControl(new IVButtonControl(IRECT(), SplashClickActionFunc, "<", mStyle))->SetAnimationEndActionFunction(prevPresetFunc);
+    AddChildControl(new IVButtonControl(IRECT(), SplashClickActionFunc, ">", mStyle))->SetAnimationEndActionFunction(nextPresetFunc);
+    AddChildControl(new IVButtonControl(IRECT(), SplashClickActionFunc, "Load", mStyle))->SetAnimationEndActionFunction(loadPresetFunc);
+    AddChildControl(mPresetNameButton = new IVButtonControl(IRECT(), SplashClickActionFunc, "Choose Preset...", mStyle))->SetAnimationEndActionFunction(choosePresetFunc);
+
+    OnResize();
+  }
+  
+  void OnResize() override
+  {
+    MakeRects(mRECT);
+
+    ForAllChildrenFunc([&](int childIdx, IControl* pChild){
+      pChild->SetTargetAndDrawRECTs(GetSubControlBounds((ESubControl) childIdx));
+    });
   }
 
   void LoadPresetAtCurrentIndex()
   {
-    if (mSelectedIndex > -1 && mSelectedIndex < mItems.GetSize())
+    if (mSelectedItemIndex > -1 && 
+        mSelectedItemIndex < mItems.GetSize())
     {
-      WDL_String fileName, path;
+      WDL_String fileName;
       GetSelectedFile(fileName);
-      mPresetNameButton->SetLabelStr(fileName.Get());
+      if (!mShowFileExtensions)
+      {
+        fileName.remove_fileext();
+      }
+      mPresetNameButton->SetLabelStr(fileName.get_filepart());
+
+      // If it's just a single folder, we can set the
+      // chosen item index to mSelectedItemIndex
+      // in order to pop up the menu at the
+      // correct location
+      if (!mMainMenu.HasSubMenus())
+      {
+        mMainMenu.SetChosenItemIdx(mSelectedItemIndex);
+      }
     }
   }
 
 private:
+  IRECT GetSubControlBounds(ESubControl control)
+  {
+    auto sections = mWidgetBounds;
+    
+    std::array<IRECT, 4> rects = {
+      sections.ReduceFromLeft(50),
+      sections.ReduceFromLeft(50),
+      sections.ReduceFromRight(50),
+      sections,
+    };
+    
+    return rects[(int) control];
+  }
+
   IVButtonControl* mPresetNameButton = nullptr;
-  IVStyle mStyle;
 };
 
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
-
 

@@ -10,11 +10,11 @@
 
 #include <cmath>
 #include <cstring>
-#define WDL_NO_SUPPORT_UTF8
 #include "dirscan.h"
 
 #include "IControl.h"
 #include "IPlugParameter.h"
+
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -1044,7 +1044,7 @@ void IDirBrowseControlBase::SetupMenu()
   mItems.Empty(false);
   
   mMainMenu.Clear();
-  mSelectedIndex = -1;
+  mSelectedItemIndex = -1;
 
   int idx = 0;
 
@@ -1085,21 +1085,21 @@ void IDirBrowseControlBase::SetSelectedFile(const char* filePath)
 
         if (pItem->GetTag() == fileIdx)
         {
-          mSelectedIndex = itemIdx;
+          mSelectedItemIndex = itemIdx;
           return;
         }
       }
     }
   }
   
-  mSelectedIndex = -1;
+  mSelectedItemIndex = -1;
 }
 
 void IDirBrowseControlBase::GetSelectedFile(WDL_String& path) const
 {
-  if (mSelectedIndex > -1)
+  if (mSelectedItemIndex > -1)
   {
-    IPopupMenu::Item* pItem = mItems.Get(mSelectedIndex);
+    IPopupMenu::Item* pItem = mItems.Get(mSelectedItemIndex);
     path.Set(mFiles.Get(pItem->GetTag()));
   }
   else
@@ -1110,9 +1110,9 @@ void IDirBrowseControlBase::GetSelectedFile(WDL_String& path) const
 
 void IDirBrowseControlBase::CheckSelectedItem()
 {
-  if (mSelectedIndex > -1)
+  if (mSelectedItemIndex > -1)
   {
-    IPopupMenu::Item* pItem = mItems.Get(mSelectedIndex);
+    IPopupMenu::Item* pItem = mItems.Get(mSelectedItemIndex);
     mMainMenu.CheckItemAlone(pItem);
   }
 }

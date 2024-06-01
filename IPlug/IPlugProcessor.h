@@ -16,6 +16,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cassert>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -40,6 +41,13 @@ struct Config;
 class IPlugProcessor
 {
 public:
+    
+  enum TailSize
+  {
+      kTailNone = 0,
+      kTailInfinite = std::numeric_limits<int>::max()
+  };
+    
   /** IPlugProcessor constructor
    * @param config \todo
    * @param plugAPI \todo */
@@ -69,7 +77,7 @@ public:
 
   /** Override this method to handle incoming MIDI System Exclusive (SysEx) messages. The method is called prior to ProcessBlock().
    * THIS METHOD IS CALLED BY THE HIGH PRIORITY AUDIO THREAD - You should be careful not to do any unbounded, blocking operations such as file I/O which could cause audio dropouts */
-  virtual void ProcessSysEx(ISysEx& msg) {}
+  virtual void ProcessSysEx(const ISysEx& msg) {}
 
   /** Override this method in your plug-in class to do something prior to playback etc. (e.g.clear buffers, update internal DSP with the latest sample rate) */
   virtual void OnReset() { TRACE }
@@ -107,8 +115,11 @@ public:
   int GetLatency() const { return mLatency; }
 
   /** @return The tail size in samples (useful for reverberation plug-ins, that may need to decay after the transport stops or an audio item ends) */
-  int GetTailSize() { return mTailSize; }
+  int GetTailSize() const { return mTailSize; }
 
+  /** @return \c true if the plugin has an infinite tail */
+  bool GetTailIsInfinite() const { return GetTailSize() == kTailInfinite; }
+    
   /** @return \c true if the plugin is currently bypassed */
   bool GetBypassed() const { return mBypassed; }
 
@@ -235,10 +246,10 @@ public:
   virtual void SetLatency(int latency);
 
   /** Call this method if you need to update the tail size at runtime, for example if the decay time of your reverb effect changes
-   * Some apis have special interpretations of certain numbers. For VST3 set to 0xffffffff for infinite tail, or 0 for none (default)
-   * For VST2 setting to 1 means no tail
+   * Use kTailInfinite for an infinite tail
+   * You may also use kTailNone for no tail (but this is default in any case)
    * @param tailSize the new tailsize in samples*/
-  void SetTailSize(int tailSize) { mTailSize = tailSize; }
+  virtual void SetTailSize(int tailSize) { mTailSize = tailSize; }
 
   /** A static method to parse the config.h channel I/O string.
    * @param IOStr Space separated cstring list of I/O configurations for this plug-in in the format ninchans-noutchans.
@@ -256,7 +267,8 @@ public:
 protected:
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
   void SetChannelConnections(ERoute direction, int idx, int n, bool connected);
-
+  void InitLatencyDelay();
+  
   //The following methods are duplicated, in order to deal with either single or double precision processing,
   //depending on the value of arguments passed in
   void AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_DST** ppData, int nFrames);
@@ -301,9 +313,9 @@ private:
   WDL_TypedBuf<sample*> mScratchData[2];
   /* A list of IChannelData structures corresponding to every input/output channel */
   WDL_PtrList<IChannelData<>> mChannelData[2];
-protected: // these members are protected because they need to be access by the API classes, and don't want a setter/getter
   /** A multi-channel delay line used to delay the bypassed signal when a plug-in with latency is bypassed. */
   std::unique_ptr<NChanDelayLine<sample>> mLatencyDelay = nullptr;
+protected: // protected because it needs to be access by the API classes, and don't want a setter/getter
   /** Contains detailed information about the transport state */
   ITimeInfo mTimeInfo;
 };

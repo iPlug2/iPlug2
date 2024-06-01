@@ -219,6 +219,24 @@ public:
   void SetNItemsPerColumn(int nItemsPerColumn) { mNItemsPerColumn = nItemsPerColumn; }
   int GetPrefix() const { return mPrefix; }
   bool GetCanMultiCheck() const { return mCanMultiCheck; }
+  
+  bool HasSubMenus()
+  {
+    int n = mMenuItems.GetSize();
+    
+    for (int i = 0; i < n; i++)
+    {
+      IPopupMenu::Item* pItem = GetItem(i);
+      IPopupMenu* pSubmenu = pItem->GetSubmenu();
+
+      if (pSubmenu)
+      {
+        return true;
+      }
+    }
+    
+    return false;
+  }
 
   Item* GetItem(int index)
   {
@@ -232,6 +250,11 @@ public:
     {
       return nullptr;
     }
+  }
+  
+  int GetIndexOfItem(Item* pItem) const
+  {
+    return mMenuItems.Find(pItem);
   }
   
   Item* GetChosenItem()

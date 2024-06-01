@@ -25,12 +25,14 @@
 #include <cstring>
 #include <cctype>
 
+#include "heapbuf.h"
 #include "wdlstring.h"
 
 #include "IPlugConstants.h"
 #include "IPlugPlatform.h"
 
 #ifdef OS_WIN
+#include <windows.h>
 #pragma warning(disable:4018 4267)	// size_t/signed/unsigned mismatch..
 #pragma warning(disable:4800)		// if (pointer) ...
 #pragma warning(disable:4805)		// Compare bool and BOOL.
@@ -311,6 +313,108 @@ static void MidiNoteName(double midiPitch, WDL_String& noteName, bool cents = fa
     noteName.SetFormatted(32, "%s%i", noteNames[pitchClass], octave);
   }
 }
+
+#if defined OS_WIN
+
+static int UTF8ToUTF16Len(const char* utf8Str)
+{
+  return std::max(MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, NULL, 0), 1);
+}
+
+static void UTF8ToUTF16(wchar_t* wideStr, const char* utf8Str, int maxLen)
+{
+  int requiredSize = UTF8ToUTF16Len(utf8Str);
+
+  if (requiredSize <= maxLen)
+  {
+    if (MultiByteToWideChar(CP_UTF8, 0, utf8Str, -1, wideStr, requiredSize))
+      return;
+  }
+
+  wideStr[0] = '\0';
+}
+
+static void UTF16ToUTF8(WDL_String& utf8Str, const wchar_t* wideStr)
+{
+  int requiredSize = WideCharToMultiByte(CP_UTF8, 0, wideStr, -1, NULL, 0, NULL, NULL);
+
+  if (requiredSize > 0 && utf8Str.SetLen(requiredSize))
+  {
+    WideCharToMultiByte(CP_UTF8, 0, wideStr, -1, utf8Str.Get(), requiredSize, NULL, NULL);
+    return;
+  }
+
+  utf8Str.Set("");
+}
+
+class UTF8AsUTF16
+{
+public:
+
+  UTF8AsUTF16(const char* utf8Str)
+  {
+    mUTF16Str.Resize(UTF8ToUTF16Len(utf8Str));
+    UTF8ToUTF16(mUTF16Str.Get(), utf8Str, mUTF16Str.GetSize());
+  }
+
+  UTF8AsUTF16(const WDL_String& utf8Str) : UTF8AsUTF16(utf8Str.Get())
+  {
+  }
+
+  const wchar_t* Get() const { return mUTF16Str.Get(); }
+  int GetLength() const { return mUTF16Str.GetSize(); }
+
+  UTF8AsUTF16& ToUpperCase()
+  {
+    _wcsupr(mUTF16Str.Get());
+    return *this;
+  }
+
+  UTF8AsUTF16& ToLowerCase()
+  {
+    _wcslwr(mUTF16Str.Get());
+    return *this;
+  }
+
+private:
+
+  WDL_TypedBuf<wchar_t> mUTF16Str;
+};
+
+class UTF16AsUTF8
+{
+public:
+
+  UTF16AsUTF8(const wchar_t* wideStr)
+  {
+    UTF16ToUTF8(mUTF8Str, wideStr);
+  }
+
+  const char* Get() const { return mUTF8Str.Get(); }
+  int GetLength() const { return mUTF8Str.GetLength(); }
+
+private:
+
+  WDL_String mUTF8Str;
+};
+#endif
+
+
+#if defined OS_WIN
+
+static FILE* fopenUTF8(const char* path, const char* mode)
+{
+  return _wfopen(UTF8AsUTF16(path).Get(), UTF8AsUTF16(mode).Get());
+}
+
+#else
+
+static FILE* fopenUTF8(const char* path, const char* mode)
+{
+  return fopen(path, mode);
+}
+
+#endif
 
 END_IPLUG_NAMESPACE
 

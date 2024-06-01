@@ -65,6 +65,13 @@ HWND swell_oswindow_to_hwnd(SWELL_OSWINDOW w)
   return a;
 }
 
+SWELL_OSWINDOW swell_oswindow_from_hwnd(HWND hwnd)
+{
+  while (hwnd && !hwnd->m_oswindow)
+    hwnd = hwnd->m_parent;
+  return hwnd ? hwnd->m_oswindow : NULL;
+}
+
 HWND SWELL_GetFocusedChild(HWND h);
 
 void swell_on_toplevel_raise(SWELL_OSWINDOW wnd) // called by swell-generic-gdk when a window is focused
@@ -1386,7 +1393,7 @@ fakeButtonClick:
           if (!hwnd->m_enabled) 
             SetTextColor(ps.hdc, g_swell_ctheme.button_text_disabled);
 
-          int f=DT_VCENTER;
+          int f=DT_VCENTER|DT_SINGLELINE;
           int sf = (hwnd->m_style & 0xf);
           if (sf == BS_OWNERDRAW)
           {
@@ -3269,6 +3276,7 @@ static LRESULT WINAPI labelWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
           paintDialogBackground(hwnd,&r,ps.hdc);
 
           const char *text = hwnd->m_title.Get();
+          const int f = (hwnd->m_style & SS_NOPREFIX) ? DT_NOPREFIX : 0;
           switch (hwnd->m_style & SS_TYPEMASK)
           {
             case SS_ETCHEDHORZ:
@@ -3321,7 +3329,7 @@ static LRESULT WINAPI labelWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
               if (text[0])
               {
                 RECT tmp={0,};
-                const int line_h = DrawText(ps.hdc," ",1,&tmp,DT_SINGLELINE|DT_NOPREFIX|DT_CALCRECT);
+                const int line_h = DrawText(ps.hdc," ",1,&tmp,DT_SINGLELINE|DT_NOPREFIX|DT_CALCRECT|f);
                 if (r.bottom > line_h*5/3)
                 {
                   int loffs=0;
@@ -3329,7 +3337,7 @@ static LRESULT WINAPI labelWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
                   {
                     int post=0, lb=swell_getLineLength(text+loffs, &post, r.right, ps.hdc);
                     if (lb>0)
-                      DrawText(ps.hdc,text+loffs,lb,&r,DT_TOP|DT_SINGLELINE|DT_LEFT);
+                      DrawText(ps.hdc,text+loffs,lb,&r,DT_TOP|DT_SINGLELINE|DT_LEFT|f);
                     r.top += line_h;
                     loffs+=lb+post;
                   }
@@ -3341,10 +3349,24 @@ static LRESULT WINAPI labelWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
           if (text[0])
           {
-            DrawText(ps.hdc,text,-1,&r,
+            if (strstr(text,"\n"))
+            {
+              RECT mr={0,};
+              DrawText(ps.hdc,text,-1,&mr,DT_CALCRECT|f);
+              const int dsz = r.right-r.left - mr.right;
+              if (dsz > 0)
+              {
+                if (hwnd->m_style & SS_CENTER) r.left += dsz/2;
+                else if (hwnd->m_style & SS_RIGHT) r.left += dsz;
+              }
+              if (r.bottom-r.top > mr.bottom) r.top += (r.bottom-r.top-mr.bottom)/2;
+              DrawText(ps.hdc,text,-1,&r,f);
+            }
+            else
+              DrawText(ps.hdc,text,-1,&r,
                 ((hwnd->m_style & SS_CENTER) ? DT_CENTER :
                  (hwnd->m_style & SS_RIGHT) ? DT_RIGHT : 0)|
-                DT_VCENTER);
+                 (DT_SINGLELINE|DT_VCENTER)|f);
           }
           EndPaint(hwnd,&ps);
         }
@@ -3729,7 +3751,7 @@ popupMenu:
             char buf[512];
             buf[0]=0;
             GetWindowText(hwnd,buf,sizeof(buf));
-            if (buf[0]) DrawText(ps.hdc,buf,-1,&r,DT_VCENTER);
+            if (buf[0]) DrawText(ps.hdc,buf,-1,&r,DT_VCENTER|DT_SINGLELINE);
           }
 
           if (draw_focus_indicator(hwnd,ps.hdc,NULL))
@@ -6377,6 +6399,21 @@ void ListView_InsertColumn(HWND h, int pos, const LVCOLUMN *lvc)
   lvs->m_cols.Insert(col,pos);
 }
 
+void ListView_GetColumn(HWND h, int pos, LVCOLUMN *lvc)
+{
+  listViewState *lvs = h ? (listViewState *)h->m_private_data : NULL;
+  if (WDL_NOT_NORMALLY(!lvs || !lvc)) return;
+  SWELL_ListView_Col *col = lvs->GetColumnByIndex(pos);
+  if (WDL_NOT_NORMALLY(!col)) return;
+  if (lvc->mask & LVCF_WIDTH) lvc->cx = col->xwid;
+  if (lvc->mask & LVCF_TEXT)
+  {
+    if (WDL_NORMALLY(lvc->pszText && lvc->cchTextMax>0))
+      lstrcpyn_safe(lvc->pszText, col->name?col->name:"", lvc->cchTextMax);
+  }
+  if (lvc->mask & LVCF_FMT) lvc->fmt = col->fmt;
+}
+
 void ListView_SetColumn(HWND h, int pos, const LVCOLUMN *lvc)
 {
   listViewState *lvs = h ? (listViewState *)h->m_private_data : NULL;
@@ -6523,6 +6560,8 @@ bool ListView_GetItem(HWND h, LVITEM *item)
       nm.item.pszText = item->pszText;
       nm.item.cchTextMax = item->cchTextMax;
       SendMessage(GetParent(h),WM_NOTIFY,nm.hdr.idFrom,(LPARAM)&nm);
+      if ((mask & LVIF_TEXT) && nm.item.pszText != item->pszText)
+        lstrcpyn_safe(item->pszText, nm.item.pszText ? nm.item.pszText : "", item->cchTextMax);
       if (mask & LVIF_PARAM) item->lParam = nm.item.lParam;
     }
   }
@@ -7429,7 +7468,7 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
             {
               bool dis = !!(inf->fState & MF_GRAYED);
               RECT cr={0};
-              DrawText(dc,inf->dwTypeData,-1,&cr,DT_CALCRECT);
+              DrawText(dc,inf->dwTypeData,-1,&cr,DT_CALCRECT|DT_SINGLELINE);
 
               if (x == n-1 && wantRightAlignedMenuBarItem(inf->dwTypeData))
               {
@@ -7458,7 +7497,7 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                  dis ? g_swell_ctheme.menubar_text_disabled :
                    g_swell_ctheme.menubar_text);
 
-              DrawText(dc,inf->dwTypeData,-1,&cr,DT_VCENTER|DT_LEFT);
+              DrawText(dc,inf->dwTypeData,-1,&cr,DT_VCENTER|DT_LEFT|DT_SINGLELINE);
               xpos=cr.right+g_swell_ctheme.menubar_spacing_width;
             }
           }

@@ -958,6 +958,7 @@ BOOL GetTextMetrics(HDC ctx, TEXTMETRIC *tm)
 
 int DrawText(HDC ctx, const char *buf, int buflen, RECT *r, int align)
 {
+  WDL_ASSERT((align & DT_SINGLELINE) || !(align & (DT_VCENTER | DT_BOTTOM)));
   HDC__ *ct=(HDC__ *)ctx;
   if (WDL_NOT_NORMALLY(!r)) return 0;
 

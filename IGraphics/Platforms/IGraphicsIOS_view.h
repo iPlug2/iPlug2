@@ -84,7 +84,7 @@ UIColorPickerViewControllerDelegate
 - (IPopupMenu*) createPopupMenu: (IPopupMenu&) menu : (CGRect) bounds;
 - (void) createTextEntry: (int) paramIdx : (const IText&) text : (const char*) str : (int) length : (CGRect) areaRect;
 - (void) endUserInput;
-- (void) showMessageBox: (const char*) str : (const char*) caption : (EMsgBoxType) type : (IMsgBoxCompletionHandlerFunc) completionHandler;
+- (void) showMessageBox: (const char*) str : (const char*) title : (EMsgBoxType) type : (IMsgBoxCompletionHandlerFunc) completionHandler;
 - (void) promptForFile: (NSString*) fileName : (NSString*) path : (EFileAction) action : (NSArray*) contentTypes : (IFileDialogCompletionHandlerFunc) completionHandler;
 - (void) promptForDirectory: (NSString*) path : (IFileDialogCompletionHandlerFunc) completionHandler;
 - (BOOL) promptForColor: (IColor&) color : (const char*) str : (IColorPickerHandlerFunc) func;

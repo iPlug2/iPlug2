@@ -160,6 +160,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\IPlugReaperExtension.cpp" />
+    <ClCompile Include="..\resources\roboto.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc" />
@@ -203,6 +204,7 @@
     <ClInclude Include="..\config.h" />
     <ClInclude Include="..\IPlugReaperExtension.h" />
     <ClInclude Include="..\resources\resource.h" />
+    <ClInclude Include="..\resources\roboto.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

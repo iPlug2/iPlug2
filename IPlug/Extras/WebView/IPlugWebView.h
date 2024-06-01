@@ -39,8 +39,9 @@ public:
   IWebView(bool opaque = true);
   virtual ~IWebView();
   
-  void* OpenWebView(void* pParent, float x, float y, float w, float h, float scale = 1.);
+  void* OpenWebView(void* pParent, float x, float y, float w, float h, float scale = 1.0f, bool enableDevTools = true);
   void CloseWebView();
+  void HideWebView(bool hide);
   
   /** Load an HTML string into the webview */
   void LoadHTML(const char* html);
@@ -61,8 +62,11 @@ public:
   /** Enable scrolling on the webview. NOTE: currently only implemented for iOS */
   void EnableScroll(bool enable);
   
-  /** Set the bounds of the webview in the parent window. xywh are specifed in relation to a 1:1 non retina screen. On Windows the screen scale is passed in. */
-  void SetWebViewBounds(float x, float y, float w, float h, float scale = 1.); //TODO: get screen scale in impl?
+  /** Sets whether the webview is interactive */
+  void EnableInteraction(bool enable);
+  
+  /** Set the bounds of the webview in the parent window. xywh are specifed in relation to a 1:1 non retina screen */
+  void SetWebViewBounds(float x, float y, float w, float h, float scale = 1.);
 
   /** Called when the web view is ready to receive navigation instructions*/
   virtual void OnWebViewReady() {}
@@ -80,11 +84,13 @@ private:
   void* mWebConfig = nullptr;
   void* mScriptHandler = nullptr;
 #elif defined OS_WIN
+  HWND mParentWnd = NULL;
   wil::com_ptr<ICoreWebView2Controller> mWebViewCtrlr;
   wil::com_ptr<ICoreWebView2> mWebViewWnd;
   EventRegistrationToken mWebMessageReceivedToken;
   EventRegistrationToken mNavigationCompletedToken;
-  HMODULE mDLLHandle = nullptr;
+  EventRegistrationToken mContextMenuRequestedToken;
+  bool mShowOnLoad = true;
 #endif
 };
 

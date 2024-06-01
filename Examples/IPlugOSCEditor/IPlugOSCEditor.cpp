@@ -6,14 +6,14 @@
 IPlugOSCEditor::IPlugOSCEditor(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 , OSCReceiver(8000)
-, OSCSender("127.0.0.1", 8001)
+, OSCSender("127.0.0.1", 8000)
 {
   GetParam(kGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
 
   auto logFunc = [&](WDL_String& log) {
     IGraphics* pGraphics = GetUI();
     
-    if(pGraphics)
+    if (pGraphics)
       pGraphics->GetControlWithTag(kCtrlTagWebView)->As<IWebViewControl>()->LoadHTML(log.Get());
     
     DBGMSG("%s\n", log.Get());
@@ -45,7 +45,7 @@ IPlugOSCEditor::IPlugOSCEditor(const InstanceInfo& info)
     pGraphics->AttachControl(new IVLabelControl(topRow.SubRectHorizontal(3, 0).GetPadded(-10.f), "Send IP", DEFAULT_STYLE.WithValueText(DEFAULT_LABEL_TEXT).WithDrawShadows(false)));
     pGraphics->AttachControl(new IEditableTextControl(topRow.SubRectHorizontal(3, 0).GetPadded(-10.f).GetFromBottom(44.f), "127.0.0.1"), kCtrlTagSendIP)->SetActionFunction(setSendIPAndPort)->SetTextEntryLength(32);
     
-    pGraphics->AttachControl(new IVNumberBoxControl(topRow.SubRectHorizontal(3, 1).GetPadded(-10.f), kNoParameter, setSendIPAndPort, "Send Port", DEFAULT_STYLE, true, 8001, 4000, 10000, "%0.0f", false), kCtrlTagSendPort);
+    pGraphics->AttachControl(new IVNumberBoxControl(topRow.SubRectHorizontal(3, 1).GetPadded(-10.f), kNoParameter, setSendIPAndPort, "Send Port", DEFAULT_STYLE, true, 8000, 4000, 10000, "%0.0f", false), kCtrlTagSendPort);
     
     pGraphics->AttachControl(new IVNumberBoxControl(topRow.SubRectHorizontal(3, 2).GetPadded(-10.f), kNoParameter, [&](IControl* pCaller){
       SetReceivePort(static_cast<int>(pCaller->As<IVNumberBoxControl>()->GetRealValue()));
@@ -58,9 +58,22 @@ IPlugOSCEditor::IPlugOSCEditor(const InstanceInfo& info)
                                                 SendOSCMessage(msg);}
                                                , "Gain"), kCtrlTagGain);
     
-    pGraphics->AttachControl(new IWebViewControl(bottomRow, true, [](IWebViewControl* pWebView){
-      pWebView->LoadHTML("OSC Console");
-      }, nullptr), kCtrlTagWebView);
+    bool showDevTools = false;
+    
+#if DEBUG
+    showDevTools = true;
+#endif
+
+    pGraphics->AttachControl(new IWebViewControl(bottomRow, true, [](IWebViewControl* pControl){
+      pControl->LoadHTML("...");
+      }, nullptr, showDevTools), kCtrlTagWebView)->Hide(true);
+    
+    pGraphics->AttachControl(new IVButtonControl(bottomRow.GetFromTop(20).GetFromLeft(200).GetVShifted(-20),
+    [](IControl* pControl){
+      SplashClickActionFunc(pControl);
+    }, "Show OSC Console", DEFAULT_STYLE.WithDrawShadows(false).WithDrawFrame(false)))->SetAnimationEndActionFunction([](IControl* pControl){
+      pControl->GetUI()->GetControlWithTag(kCtrlTagWebView)->Hide(!pControl->GetUI()->GetControlWithTag(kCtrlTagWebView)->IsHidden());
+    });
     
   };
 #endif
