@@ -7252,6 +7252,11 @@ LRESULT SwellDialogDefaultWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
         }
       }
     }
+    if (uMsg == WM_CTLCOLORSTATIC)
+    {
+      SetTextColor((HDC)wParam, g_swell_ctheme.label_text);
+      return (LRESULT)GetStockObject(NULL_BRUSH);
+    }
   }
   return DefWindowProc(hwnd,uMsg,wParam,lParam);
 }
