@@ -7254,8 +7254,11 @@ LRESULT SwellDialogDefaultWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
     }
     if (uMsg == WM_CTLCOLORSTATIC)
     {
+      // some calling code (not in swell) may expect to be able to query the text color/brush
       SetTextColor((HDC)wParam, g_swell_ctheme.label_text);
-      return (LRESULT)GetStockObject(NULL_BRUSH);
+      static HBRUSH br;
+      if (!br) br = CreateSolidBrush(g_swell_ctheme._3dface);
+      return (LRESULT)br;
     }
   }
   return DefWindowProc(hwnd,uMsg,wParam,lParam);
