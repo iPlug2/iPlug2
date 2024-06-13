@@ -1635,7 +1635,7 @@ LONG_PTR GetWindowLong(HWND hwnd, int idx)
     return (LONG_PTR)[pid getSwellExtraData:idx];
   }
   
-  WDL_ASSERT(false); // caller may be using a GWLP_* which is not yet implemented, or an extra index on a non-hwndchild
+  WDL_ASSERT(idx == GWLP_USERDATA); // assert if unknown control, unless GWLP_USERDATA
   SWELL_END_TRY(;)
   return 0;
 }
