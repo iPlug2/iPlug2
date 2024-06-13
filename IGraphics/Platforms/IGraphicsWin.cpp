@@ -36,7 +36,7 @@ using namespace igraphics;
 #pragma warning(disable:4311) // Pointer size cast mismatch.
 
 static int nWndClassReg = 0;
-static wchar_t* wndClassName = L"IPlugWndClass";
+static const wchar_t* wndClassName = L"IPlugWndClass";
 static double sFPS = 0.0;
 
 #define PARAM_EDIT_ID 99
