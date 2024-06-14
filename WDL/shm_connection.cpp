@@ -284,7 +284,9 @@ WDL_SHM_Connection::WDL_SHM_Connection(bool whichChan, // first created must be 
   const char *pfn = getenv("XDG_RUNTIME_DIR");
 #endif
   if (pfn && *pfn) m_tempfn.Set(pfn);
-  else m_tempfn.Set("/tmp");
+  m_tempfn.remove_trailing_dirchars();
+  if (!m_tempfn.GetLength())
+    m_tempfn.Set("/tmp");
 
   m_tempfn.Append("/WDL_SHM.");
   m_tempfn.Append(uniquestring);
