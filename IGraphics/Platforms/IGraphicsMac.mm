@@ -283,7 +283,7 @@ void IGraphicsMac::GetMouseLocation(float& x, float&y) const
   ScreenToPoint(x, y);
 }
 
-EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
+EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler, bool /*withTextEntry*/)
 {
   ReleaseMouseCapture();
 
@@ -350,7 +350,7 @@ EMsgBoxResult IGraphicsMac::ShowMessageBox(const char* str, const char* title, E
   
   if (completionHandler)
   {
-    completionHandler(result);
+    completionHandler(result, nullptr);
   }
   
   [alert release];

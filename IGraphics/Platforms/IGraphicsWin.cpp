@@ -1120,14 +1120,14 @@ void IGraphicsWin::DeactivateGLContext()
 }
 #endif
 
-EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
+EMsgBoxResult IGraphicsWin::ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler, bool)
 {
   ReleaseMouseCapture();
   
   EMsgBoxResult result = static_cast<EMsgBoxResult>(MessageBoxW(GetMainWnd(), UTF8AsUTF16(str).Get(), UTF8AsUTF16(title).Get(), static_cast<int>(type)));
   
   if (completionHandler)
-    completionHandler(result);
+    completionHandler(result, "");
   
   return result;
 }
