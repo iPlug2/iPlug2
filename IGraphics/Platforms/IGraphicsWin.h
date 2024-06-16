@@ -51,7 +51,7 @@ public:
   
   void GetMouseLocation(float& x, float&y) const override;
 
-  EMsgBoxResult ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler, bool withTextEntry = false) override;
 
   void* OpenWindow(void* pParent) override;
   void CloseWindow() override;
