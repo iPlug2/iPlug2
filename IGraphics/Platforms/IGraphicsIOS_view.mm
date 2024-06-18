@@ -985,9 +985,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   NSString* pFullPath = [pURL path];
   fileName.Set([pFullPath UTF8String]);
 
-  BOOL accessGranted = [pURL startAccessingSecurityScopedResource];
-  
-  if (accessGranted)
+//  BOOL accessGranted = [pURL startAccessingSecurityScopedResource];
+//
+//  if (accessGranted)
   {
     NSError* error = nil;
     NSData* bookmarkData = [pURL bookmarkDataWithOptions:0
@@ -1000,15 +1000,16 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
       
       bool isFile = ![pURL hasDirectoryPath];
       
-      NSString* pTruncatedPath = pFullPath;
+      NSString* pTruncatedPath = nil;
       
       if (!isFile)
       {
         fileName.Set("");
+        pTruncatedPath = pFullPath;
       }
-      
-      if (pTruncatedPath)
+      else
       {
+        pTruncatedPath = [[pURL URLByDeletingLastPathComponent] path];
         path.Set([pTruncatedPath UTF8String]);
         path.Append("/");
       }
@@ -1016,7 +1017,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
       if (mFileDialogFunc)
         mFileDialogFunc(fileName, path, [bookmarkData bytes], (int) [bookmarkData length]);
       
-      [pURL stopAccessingSecurityScopedResource];
+//      [pURL stopAccessingSecurityScopedResource];
       
     } else {
       NSLog(@"Failed to create bookmark: %@", error);
