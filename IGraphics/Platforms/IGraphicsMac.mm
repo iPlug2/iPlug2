@@ -408,7 +408,7 @@ bool IGraphicsMac::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
 
   @autoreleasepool {
     
-  if(path.GetLength())
+  if (path.GetLength())
   {
     NSString* pPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
 
@@ -463,8 +463,11 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
 
   if (CStringHasContents(ext))
     pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
-  
-  auto doHandleResponse = [](NSPanel* pPanel, NSModalResponse response, WDL_String& fileName, WDL_String& path, IFileDialogCompletionHandlerFunc completionHandler){
+    
+  auto doHandleResponse = [this, action](NSPanel* pPanel, NSModalResponse response, WDL_String& fileName, WDL_String& path, IFileDialogCompletionHandlerFunc completionHandler){
+    
+    NSData* bookmark = nil;
+
     if (response == NSOKButton)
     {
       NSString* pFullPath = [(NSSavePanel*) pPanel filename] ;
@@ -477,12 +480,21 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
         path.Set([pTruncatedPath UTF8String]);
         path.Append("/");
       }
+            
+      if (action == EFileAction::Open) // TODO save?
+      {
+        NSURL* url = [[(NSOpenPanel*) pPanel URLs] objectAtIndex:0];
+        NSError* error = nil;
+        bookmark = [url bookmarkDataWithOptions:NSURLBookmarkCreationWithSecurityScope
+                 includingResourceValuesForKeys:nil
+                                  relativeToURL:nil
+                                          error:&error];
+      }
     }
   
     if (completionHandler)
     {
-      WDL_TypedBuf<uint8_t> bookmarkData;
-      completionHandler(fileName, path, nullptr, 0);
+      completionHandler(fileName, path, bookmark ? [bookmark bytes] : 0, bookmark ? (int)[bookmark length] : 0);
     }
   };
   
@@ -573,7 +585,7 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHand
     if (completionHandler)
     {
       WDL_String fileNameAsync; // not used
-      completionHandler(fileNameAsync, pathAsync, [bookmark bytes], (int)[bookmark length]);
+      completionHandler(fileNameAsync, pathAsync, bookmark ? [bookmark bytes] : 0, bookmark ? (int)[bookmark length] : 0);
     }
   };
 

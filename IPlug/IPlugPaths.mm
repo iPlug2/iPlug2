@@ -399,6 +399,9 @@ bool IsOOPAuv3AppExtension()
 
 bool AccessBookmarkedPath(const WDL_TypedBuf<uint8_t>& bookmarkBytes, std::function<void()> func)
 {
+  if (bookmarkBytes.GetSize() == 0)
+    return false;
+  
   NSData* bookmarkData = [NSData dataWithBytes:bookmarkBytes.Get() length:bookmarkBytes.GetSize()];
   
 #ifdef OS_IOS
