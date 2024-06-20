@@ -119,6 +119,8 @@ public:
       else // Carbon
         return Steinberg::kResultFalse;
 #endif
+      if(pView == nullptr) return Steinberg::kResultFalse;
+      
       return Steinberg::kResultTrue;
     }
     
