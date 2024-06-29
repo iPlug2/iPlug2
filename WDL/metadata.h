@@ -1280,17 +1280,6 @@ bool IsImageMetadata(const char *key)
   return !strncmp(key, "ID3:APIC", 8) || !strncmp(key, "FLACPIC:APIC", 12);
 }
 
-bool HasAnyImageMetadata(WDL_StringKeyedArray<char*> *metadata)
-{
-  for (int i=0; i < metadata->GetSize(); ++i)
-  {
-    const char *key;
-    metadata->Enumerate(i, &key);
-    if (IsImageMetadata(key)) return true;
-  }
-  return false;
-}
-
 void DeleteAllImageMetadata(WDL_StringKeyedArray<char*> *metadata)
 {
   for (int i=0; i < metadata->GetSize(); ++i)
