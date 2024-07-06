@@ -4381,6 +4381,12 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         {
           NMLISTVIEW nm={{hwnd,hwnd->m_id,msg == WM_LBUTTONDBLCLK ? NM_DBLCLK : NM_CLICK},hit,lvs->GetColumnIndex(subitem),0,0,0, {s_clickpt.x, s_clickpt.y }};
           SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
+          if (hit >= 0 && hit < n)
+          {
+            lvs->m_capmode_state = LISTVIEW_CAP_DRAG;
+            lvs->m_capmode_data1 = hit;
+            lvs->m_capmode_data2 = subitem;
+          }
           return 0;
         }
 
