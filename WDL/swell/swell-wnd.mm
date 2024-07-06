@@ -5228,7 +5228,7 @@ int ListView_HitTest(HWND h, LVHITTESTINFO *pinf)
 
   if (x < 0) pinf->flags |= LVHT_TOLEFT;
   if (x >= r.size.width) pinf->flags |= LVHT_TORIGHT;
-  if (y < 0) pinf->flags |= LVHT_ABOVE;
+  if (y < SWELL_GetListViewHeaderHeight(h)) pinf->flags |= LVHT_ABOVE;
   if (y >= r.size.height) pinf->flags |= LVHT_BELOW;
   
   if (!pinf->flags)
