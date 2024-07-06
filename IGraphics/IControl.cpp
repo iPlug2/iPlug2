@@ -648,7 +648,11 @@ void ICaptionControl::OnResize()
   const IParam* pParam = GetParam();
   if(pParam && pParam->Type() == IParam::kTypeEnum)
   {
-    mTri = mRECT.FracRectHorizontal(0.2f, true).GetCentredInside(IRECT(0, 0, 8, 5)); //TODO: This seems rubbish
+    const float boundsHeight = mRECT.H();
+    const float rectW = boundsHeight * 0.8f;
+    const float triSizeX = rectW * 0.5f;
+    const float triSizeY = rectW * 0.33f;
+    mTri = mRECT.GetFromRight(rectW).GetCentredInside(IRECT(0.f, 0.f, triSizeX, triSizeY));
   }
 }
 
