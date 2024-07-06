@@ -624,7 +624,7 @@ void ICaptionControl::Draw(IGraphics& g)
 {
   const IParam* pParam = GetParam();
 
-  if(pParam)
+  if (pParam)
   {
     pParam->GetDisplay(mStr);
 
@@ -637,18 +637,29 @@ void ICaptionControl::Draw(IGraphics& g)
 
   ITextControl::Draw(g);
   
-  if(mTri.W() > 0.f)
+  if (mTriangleRect.W() > 0.f)
   {
-    g.FillTriangle(mMouseIsOver ? mTriangleMouseOverColor : mTriangleColor, mTri.L, mTri.T, mTri.R, mTri.T, mTri.MW(), mTri.B, GetMouseIsOver() ? 0 : &BLEND_50);
+    g.FillTriangle(mMouseIsOver ? mTriangleMouseOverColor : mTriangleColor, 
+                   mTriangleRect.L, mTriangleRect.T, mTriangleRect.R, mTriangleRect.T, mTriangleRect.MW(), mTriangleRect.B,
+                   GetMouseIsOver() ? 0 : &BLEND_50);
   }
 }
 
 void ICaptionControl::OnResize()
 {
   const IParam* pParam = GetParam();
-  if(pParam && pParam->Type() == IParam::kTypeEnum)
+  
+  if (pParam && pParam->Type() == IParam::kTypeEnum)
   {
-    mTri = mRECT.FracRectHorizontal(0.2f, true).GetCentredInside(IRECT(0, 0, 8, 5)); //TODO: This seems rubbish
+    const auto textHeight = mText.mSize;
+    const auto dropDownAreaWidth = textHeight;
+    const auto triangleWidth = dropDownAreaWidth * 0.5f;
+    const auto triangleHeight = dropDownAreaWidth * 0.33f;
+    
+    auto dropDownAreaRect = mText.mAlign == EAlign::Far ? mRECT.GetFromLeft(dropDownAreaWidth)
+                                                        : mRECT.GetFromRight(dropDownAreaWidth);
+
+    mTriangleRect = dropDownAreaRect.GetCentredInside(IRECT(0.f, 0.f, triangleWidth, triangleHeight));
   }
 }
 

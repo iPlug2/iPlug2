@@ -2276,7 +2276,7 @@ protected:
   bool mShowParamLabel;
   IColor mTriangleColor = COLOR_BLACK;
   IColor mTriangleMouseOverColor = COLOR_WHITE;
-  IRECT mTri;
+  IRECT mTriangleRect;
 };
 
 /** A control to use as a placeholder during development */
