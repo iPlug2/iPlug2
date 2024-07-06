@@ -6751,7 +6751,7 @@ int ListView_HitTest(HWND h, LVHITTESTINFO *pinf)
 
   if (x < 0) pinf->flags |= LVHT_TOLEFT;
   if (x >= r.right) pinf->flags |= LVHT_TORIGHT;
-  if (y < 0) pinf->flags |= LVHT_ABOVE;
+  if (y < lvs->GetColumnHeaderHeight(h)) pinf->flags |= LVHT_ABOVE;
   if (y >= r.bottom) pinf->flags |= LVHT_BELOW;
 
   if (!pinf->flags && lvs->m_last_row_height)
