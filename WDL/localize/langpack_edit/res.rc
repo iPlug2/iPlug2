@@ -77,7 +77,7 @@ BEGIN
     LTEXT           "Filter:",IDC_FILTERLBL,3,83,35,8,SS_NOTIFY
     EDITTEXT        IDC_FILTER,41,80,556,14,ES_AUTOHSCROLL
     CONTROL         "List1",IDC_LIST,"SysListView32",LVS_REPORT | 
-                    LVS_SHOWSELALWAYS | LVS_OWNERDATA | LVS_NOSORTHEADER | 
+                    LVS_SHOWSELALWAYS | LVS_OWNERDATA | 
                     WS_BORDER | WS_TABSTOP,3,97,594,300
 END
 
@@ -133,6 +133,27 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Quit\tCtrl+Q",               ID_QUIT
     END
+    POPUP "&View"
+    BEGIN
+        POPUP "Search columns"
+        BEGIN
+            MENUITEM "State", ID_COL_STATE
+            MENUITEM "ID", ID_COL_ID
+            MENUITEM "Template", ID_COL_TEMPLATE
+            MENUITEM "Localized", ID_COL_LOCALIZED
+            MENUITEM "Common Localized", ID_COL_COMMONLOCALIZED
+        END
+        POPUP "Sorting column"
+        BEGIN
+            MENUITEM "State", ID_SORTCOL_STATE
+            MENUITEM "ID", ID_SORTCOL_ID
+            MENUITEM "Template", ID_SORTCOL_TEMPLATE
+            MENUITEM "Localized", ID_SORTCOL_LOCALIZED
+            MENUITEM "Common Localized", ID_SORTCOL_COMMONLOCALIZED
+            MENUITEM SEPARATOR
+            MENUITEM "Reverse", ID_SORTCOL_REVERSE
+        END
+    END
     POPUP "&Edit"
     BEGIN
         MENUITEM "Edit localization\tEnter",    IDC_LOCALIZED_STRING
@@ -173,8 +194,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,0,1
- PRODUCTVERSION 0,0,0,1
+ FILEVERSION 0,0,0,9
+ PRODUCTVERSION 0,0,0,9
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -190,16 +211,16 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "Comments", "\0"
-            VALUE "CompanyName", "unknown\0"
+            VALUE "CompanyName", "Cockos Inc\0"
             VALUE "FileDescription", "LangPackEdit\0"
-            VALUE "FileVersion", "0, 0, 0, 5\0"
+            VALUE "FileVersion", "0, 0, 0, 9\0"
             VALUE "InternalName", "LangPackEdit\0"
             VALUE "LegalCopyright", "Copyright � 2022 and onwards Cockos Inc\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "LangPackEdit.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "LangPackEdit\0"
-            VALUE "ProductVersion", "0, 0, 0, 5\0"
+            VALUE "ProductVersion", "0, 0, 0, 9\0"
             VALUE "SpecialBuild", "\0"
         END
     END

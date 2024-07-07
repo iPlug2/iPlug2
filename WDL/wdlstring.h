@@ -368,7 +368,7 @@ class WDL_String
         #ifdef WDL_STRING_FREE_ON_CLEAR
           m_hb.Resize(0,true);
         #else
-          char *p = (char *)m_hb.Resize(1,false);
+          char *p = (char *)m_hb.ResizeOK(1,false);
           if (p) *p=0;
         #endif
       }
@@ -380,7 +380,7 @@ class WDL_String
         if (growamt > 0)
         {
           const char *oldb = (const char *)m_hb.Get();
-          const char *newb = (const char *)m_hb.Resize(newsz,false); // resize up if necessary
+          const char *newb = (const char *)m_hb.ResizeOK(newsz,false); // resize up if necessary
 
           // in case str overlaps with input, keep it valid
           if (str && newb != oldb && str >= oldb && str < oldb+oldsz) str = newb + (str - oldb);

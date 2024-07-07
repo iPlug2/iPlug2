@@ -3445,7 +3445,12 @@ static LRESULT WINAPI comboWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 
           s->items.Delete(wParam,true);
 
-          if (wParam == (WPARAM)s->selidx || s->selidx >= s->items.GetSize()) { s->selidx=-1; InvalidateRect(hwnd,NULL,FALSE); }
+          if (wParam == (WPARAM)s->selidx || s->selidx >= s->items.GetSize())
+          {
+            s->selidx=-1;
+            SetWindowText(hwnd,"");
+            InvalidateRect(hwnd,NULL,FALSE);
+          }
           else if ((int)wParam < s->selidx) s->selidx--;
 
         return s->items.GetSize();
@@ -3468,6 +3473,7 @@ static LRESULT WINAPI comboWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
         case CB_RESETCONTENT:
           s->selidx=-1;
           s->items.Empty(true);
+          SetWindowText(hwnd,"");
         return 0;
         case CB_SETCURSEL:
           if (wParam >= (WPARAM)s->items.GetSize())
@@ -4375,6 +4381,12 @@ static LRESULT listViewWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
         {
           NMLISTVIEW nm={{hwnd,hwnd->m_id,msg == WM_LBUTTONDBLCLK ? NM_DBLCLK : NM_CLICK},hit,lvs->GetColumnIndex(subitem),0,0,0, {s_clickpt.x, s_clickpt.y }};
           SendMessage(GetParent(hwnd),WM_NOTIFY,hwnd->m_id,(LPARAM)&nm);
+          if (hit >= 0 && hit < n)
+          {
+            lvs->m_capmode_state = LISTVIEW_CAP_DRAG;
+            lvs->m_capmode_data1 = hit;
+            lvs->m_capmode_data2 = subitem;
+          }
           return 0;
         }
 
@@ -6739,7 +6751,7 @@ int ListView_HitTest(HWND h, LVHITTESTINFO *pinf)
 
   if (x < 0) pinf->flags |= LVHT_TOLEFT;
   if (x >= r.right) pinf->flags |= LVHT_TORIGHT;
-  if (y < 0) pinf->flags |= LVHT_ABOVE;
+  if (y < lvs->GetColumnHeaderHeight(h)) pinf->flags |= LVHT_ABOVE;
   if (y >= r.bottom) pinf->flags |= LVHT_BELOW;
 
   if (!pinf->flags && lvs->m_last_row_height)
@@ -7245,6 +7257,14 @@ LRESULT SwellDialogDefaultWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
           return 0;
         }
       }
+    }
+    if (uMsg == WM_CTLCOLORSTATIC)
+    {
+      // some calling code (not in swell) may expect to be able to query the text color/brush
+      SetTextColor((HDC)wParam, g_swell_ctheme.label_text);
+      static HBRUSH br;
+      if (!br) br = CreateSolidBrush(g_swell_ctheme._3dface);
+      return (LRESULT)br;
     }
   }
   return DefWindowProc(hwnd,uMsg,wParam,lParam);

@@ -46,7 +46,7 @@
 		33AA311F185A7E8D001D767E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		33AA3125185A7E8D001D767E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
 		33B8832A2958A0C300A9EBFF /* filebrowse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ../../filebrowse.cpp; sourceTree = "<group>"; };
-		33B8832C2958A3BD00A9EBFF /* localize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = localize.h; path = localize/localize.h; sourceTree = "<group>"; };
+		33B8832C2958A3BD00A9EBFF /* localize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = localize.h; path = ../localize.h; sourceTree = "<group>"; };
 		33B8832D2958A3BD00A9EBFF /* localize.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = localize.cpp; path = ../localize.cpp; sourceTree = "<group>"; };
 		33F96576185A7F79004C7070 /* swell-appstub.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-appstub.mm"; path = "../../swell/swell-appstub.mm"; sourceTree = "<group>"; };
 		33F96577185A7F79004C7070 /* swell-dlg.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-dlg.mm"; path = "../../swell/swell-dlg.mm"; sourceTree = "<group>"; };

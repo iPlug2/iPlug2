@@ -587,6 +587,14 @@ static bool s_mtl_in_update;
   s_metal_devicelist_updcnt++;
 }
 @end
+
+static id<MTLDevice> mtl_def_device()
+{
+  static id<MTLDevice> def;
+  if (!def && __MTLCreateSystemDefaultDevice) def = __MTLCreateSystemDefaultDevice();
+  return def;
+}
+
 #endif
 
 @implementation SWELL_hwndChild : NSView 
@@ -1533,12 +1541,7 @@ static bool s_mtl_in_update;
       [device release];
   }
 
-  if (!device)
-  {
-    static id<MTLDevice> def;
-    if (!def) def = __MTLCreateSystemDefaultDevice();
-    device = def;
-  }
+  if (!device) device=mtl_def_device();
 
   CAMetalLayer *layer = (CAMetalLayer *)[self layer];
 
@@ -1570,6 +1573,7 @@ static bool s_mtl_in_update;
   swell_metal_device_ctx *ctx = s_metal_devices.Get((INT_PTR)device);
   if (!ctx)
   {
+    NSLog(@"swell-cocoa: creating metal device context for %p %@\n",device,device.name);
     ctx = new swell_metal_device_ctx;
     s_metal_devices.Insert((INT_PTR)device, ctx);
   }
@@ -1635,6 +1639,10 @@ static bool s_mtl_in_update;
     return;
   }
 
+#ifdef _DEBUG
+  if (forRect && !IsWindowVisible((HWND)self))
+    NSLog(@"swell-metal: drawing to hidden window %@, fix caller\n",self);
+#endif
 
   id<MTLTexture> tex = (id<MTLTexture>) m_metal_texture;
   if (!tex) return; // this can happen if GetDC()/ReleaseDC() are called before the first WM_PAINT
@@ -1692,6 +1700,22 @@ static bool s_mtl_in_update;
     NSLog(@"swell-cocoa: metal blitCommandEncoder failure\n");
   }
 
+  const int texw = [(id<MTLTexture>) m_metal_texture width];
+  const int texh = [(id<MTLTexture>) m_metal_texture height];
+  if (texw < bounds.size.width)
+  {
+#ifdef _DEBUG
+    NSLog(@"swell-cocoa: texture width mismatch %d vs %.0f\n",texw,bounds.size.width);
+#endif
+    bounds.size.width = texw;
+  }
+  if (texh < bounds.size.height)
+  {
+#ifdef _DEBUG
+    NSLog(@"swell-cocoa: texture height mismatch %d vs %.0f\n",texh,bounds.size.height);
+#endif
+    bounds.size.height = texh;
+  }
   [encoder copyFromTexture:m_metal_texture
     sourceSlice:0 sourceLevel:0 sourceOrigin:MTLOriginMake(0,0,0)
       sourceSize:MTLSizeMake(bounds.size.width,bounds.size.height,1.0)
@@ -3935,6 +3959,16 @@ static bool mtl_init()
   return state>0;
 }
 
+bool swell_get_default_metal_devicename(char *buf, int bufsz)
+{
+  if (!mtl_init()) return false;
+  id<MTLDevice> dev = mtl_def_device();
+  if (!dev) return false;
+  buf[0]=0;
+  SWELL_CFStringToCString(dev.name,buf,bufsz);
+  return buf[0]!=0;
+}
+
 
 #ifndef __ppc__
 static void SWELL_fastDoubleUpImage(unsigned int *op, const unsigned int *ip, int w, int h, int sw, int newspan)
@@ -4422,6 +4456,11 @@ void swell_updateAllMetalDirty() // run from a timer, or called by UpdateWindow(
 void swell_addMetalDirty(SWELL_hwndChild *slf, const RECT *r, bool isReleaseDC)
 {
   if (!slf) return;
+  #ifdef _DEBUG
+  if (!IsWindowVisible((HWND)slf))
+    NSLog(@"swell-metal: addMetalDirty %@, fix caller\n",slf);
+  #endif
+
   if (isReleaseDC)
   {
     // just tag it dirty

@@ -973,7 +973,13 @@ void WDL_VirtualSlider::OnMoveOrUp(int xpos, int ypos, int isup)
 #endif
       }
     }
-    do m_last_precmode++; while (ShowCursor(FALSE)>=0);
+    int v;
+    do m_last_precmode++; while ((v=ShowCursor(FALSE))>=0);
+    if (v < -3 && m_last_precmode>1)
+    {
+      m_last_precmode--;
+      ShowCursor(TRUE);
+    }
   }
   else
   {

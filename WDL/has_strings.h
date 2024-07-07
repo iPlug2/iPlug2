@@ -7,6 +7,9 @@
 
 WDL_HASSTRINGS_EXPORT const char *hasStrings_rewutf8(const char *str, const char *base)
 {
+#ifdef WDL_HASSTRINGS_REWUTF8_HOOK
+  WDL_HASSTRINGS_REWUTF8_HOOK(str, base)
+#endif
   while (str > base && (*(unsigned char *)str & 0xC0) == 0x80) str--;
   return str;
 }
@@ -27,10 +30,41 @@ WDL_HASSTRINGS_EXPORT int hasStrings_isNonWordChar(const char *cptr)
   }
 
   // most UTF-8 characters are word characters
-  if (c == 0xE2)
+  if (c == 0xC2)
   {
-    // except UTF-8 apostrophes
-    if (((unsigned char*)cptr)[1] == 0x80 && (((unsigned char*)cptr)[2]&~1) == 0x98) return 3;
+    // except UTF-8 U+A1 to U+B1, U+B4, U+B6, U+B7, U+BB, U+BF
+    const unsigned char c2 = ((unsigned char*)cptr)[1];
+    if (c2 >= 0xa1)
+    {
+      switch (c2)
+      {
+        case 0xB4: case 0xB6: case 0xB7: case 0xBB: case 0xBF:
+          return 1;
+        default:
+          if (c2 <= 0xB1) return 1;
+        break;
+      }
+    }
+  }
+  else if (c == 0xE2)
+  {
+    unsigned char c2;
+    // except UTF-8 U+2000-U+206F and U+20A0-U+20BF
+    switch (((unsigned char*)cptr)[1])
+    {
+      case 0x80:
+        c2 = ((unsigned char*)cptr)[2];
+        if (c2 >= 0x80 && c2 <= 0xBF) return 1;
+      break;
+      case 0x81:
+        c2 = ((unsigned char*)cptr)[2];
+        if (c2 >= 0x80 && c2 <= 0xAF) return 1;
+      break;
+      case 0x82: // U+20A0-U+20BF (currency signs)
+        c2 = ((unsigned char*)cptr)[2];
+        if (c2 >= 0xa0 && c2 <= 0xBF) return 1;
+      break;
+    }
   }
 
   return 0;

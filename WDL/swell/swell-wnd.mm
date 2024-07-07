@@ -1635,7 +1635,7 @@ LONG_PTR GetWindowLong(HWND hwnd, int idx)
     return (LONG_PTR)[pid getSwellExtraData:idx];
   }
   
-  WDL_ASSERT(false); // caller may be using a GWLP_* which is not yet implemented, or an extra index on a non-hwndchild
+  WDL_ASSERT(idx == GWLP_USERDATA); // assert if unknown control, unless GWLP_USERDATA
   SWELL_END_TRY(;)
   return 0;
 }
@@ -5228,7 +5228,8 @@ int ListView_HitTest(HWND h, LVHITTESTINFO *pinf)
 
   if (x < 0) pinf->flags |= LVHT_TOLEFT;
   if (x >= r.size.width) pinf->flags |= LVHT_TORIGHT;
-  if (y < 0) pinf->flags |= LVHT_ABOVE;
+  const int hdrh = SWELL_GetListViewHeaderHeight(h);
+  if (y < hdrh) pinf->flags |= LVHT_ABOVE;
   if (y >= r.size.height) pinf->flags |= LVHT_BELOW;
   
   if (!pinf->flags)
@@ -5249,7 +5250,7 @@ int ListView_HitTest(HWND h, LVHITTESTINFO *pinf)
     }
     else 
     {
-      pinf->flags = y < 10 && ListView_GetItemCount(h)>0 ? LVHT_ABOVE : LVHT_NOWHERE;
+      pinf->flags = y < hdrh+10 && ListView_GetItemCount(h)>0 ? LVHT_ABOVE : LVHT_NOWHERE;
     }
   }
   

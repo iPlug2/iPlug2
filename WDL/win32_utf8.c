@@ -17,7 +17,9 @@ extern "C" {
 
 
 #ifndef WDL_UTF8_MAXFNLEN
-#define WDL_UTF8_MAXFNLEN 2048
+  // only affects calls to GetCurrentDirectoryUTF8() and a few others
+  // could make them all dynamic using WIDETOMB_ALLOC() but meh the callers probably never pass more than 4k anyway
+#define WDL_UTF8_MAXFNLEN 4096
 #endif
 
 #define MBTOWIDE(symbase, src) \
@@ -698,6 +700,77 @@ DWORD GetModuleFileNameUTF8(HMODULE hModule, LPTSTR lpBuffer, DWORD nBufferLengt
   return GetModuleFileNameA(hModule,lpBuffer,nBufferLength);
 }
 
+DWORD GetLongPathNameUTF8(LPCTSTR lpszShortPath, LPSTR lpszLongPath, DWORD cchBuffer)
+{
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!lpszShortPath || !lpszLongPath || !cchBuffer)) return 0;
+#endif
+  if (lpszShortPath && lpszLongPath && cchBuffer > 1 AND_IS_NOT_WIN9X)
+  {
+    MBTOWIDE(sbuf,lpszShortPath);
+    if (sbuf_ok)
+    {
+      WCHAR wbuf[WDL_UTF8_MAXFNLEN];
+      wbuf[0]=0;
+      if (GetLongPathNameW(sbuf,wbuf,WDL_UTF8_MAXFNLEN) && wbuf[0])
+      {
+        int rv=WideCharToMultiByte(CP_UTF8,0,wbuf,-1,lpszLongPath,cchBuffer,NULL,NULL);
+        if (rv)
+        {
+          MBTOWIDE_FREE(sbuf);
+          return rv;
+        }
+      }
+      MBTOWIDE_FREE(sbuf);
+    }
+  }
+  return GetLongPathNameA(lpszShortPath, lpszLongPath, cchBuffer);
+}
+
+UINT GetTempFileNameUTF8(LPCTSTR lpPathName, LPCTSTR lpPrefixString, UINT uUnique, LPSTR lpTempFileName)
+{
+#ifdef _DEBUG
+  if (WDL_NOT_NORMALLY(!lpPathName || !lpPrefixString || !lpTempFileName)) return 0;
+#endif
+  if (lpPathName && lpPrefixString && lpTempFileName AND_IS_NOT_WIN9X
+      && (WDL_HasUTF8(lpPathName) || WDL_HasUTF8(lpPrefixString)))
+  {
+    MBTOWIDE(sbuf1,lpPathName);
+    if (sbuf1_ok)
+    {
+      MBTOWIDE(sbuf2,lpPrefixString);
+      if (sbuf2_ok)
+      {
+        int rv;
+        WCHAR wbuf[WDL_UTF8_MAXFNLEN];
+        wbuf[0]=0;
+        rv=GetTempFileNameW(sbuf1,sbuf2,uUnique,wbuf);
+        WideCharToMultiByte(CP_UTF8,0,wbuf,-1,lpTempFileName,MAX_PATH,NULL,NULL);
+        MBTOWIDE_FREE(sbuf1);
+        MBTOWIDE_FREE(sbuf2);
+        return rv;
+      }
+      MBTOWIDE_FREE(sbuf1);
+    }
+  }
+  return GetTempFileNameA(lpPathName, lpPrefixString, uUnique, lpTempFileName);
+}
+
+DWORD GetTempPathUTF8(DWORD nBufferLength, LPTSTR lpBuffer)
+{
+  if (lpBuffer && nBufferLength > 1 AND_IS_NOT_WIN9X)
+  {
+
+    WCHAR wbuf[WDL_UTF8_MAXFNLEN];
+    wbuf[0]=0;
+    if (GetTempPathW(WDL_UTF8_MAXFNLEN,wbuf) && wbuf[0])
+    {
+      int rv=WideCharToMultiByte(CP_UTF8,0,wbuf,-1,lpBuffer,nBufferLength,NULL,NULL);
+      if (rv) return rv;
+    }
+  }
+  return GetTempPathA(nBufferLength,lpBuffer);
+}
 
 DWORD GetCurrentDirectoryUTF8(DWORD nBufferLength, LPTSTR lpBuffer)
 {
@@ -726,7 +799,7 @@ HANDLE CreateFileUTF8(LPCTSTR lpFileName,DWORD dwDesiredAccess,DWORD dwShareMode
     if (wstr_ok) h = CreateFileW(wstr,dwDesiredAccess,dwShareMode,lpSecurityAttributes,dwCreationDisposition,dwFlagsAndAttributes,hTemplateFile);
     MBTOWIDE_FREE(wstr);
 
-    if (h != INVALID_HANDLE_VALUE) return h;
+    if (h != INVALID_HANDLE_VALUE || (wstr_ok && (dwDesiredAccess & GENERIC_WRITE))) return h;
   }
   return CreateFileA(lpFileName,dwDesiredAccess,dwShareMode,lpSecurityAttributes,dwCreationDisposition,dwFlagsAndAttributes,hTemplateFile);
 }
@@ -862,6 +935,7 @@ FILE *fopenUTF8(const char *filename, const char *mode)
     if (wbuf_ok) wdl_utf8_correctlongpath(wbuf);
     if (wbuf_ok)
     {
+      const char *p = mode;
       FILE *rv;
       WCHAR tb[32];      
       tb[0]=0;
@@ -869,6 +943,12 @@ FILE *fopenUTF8(const char *filename, const char *mode)
       rv=tb[0] ? _wfopen(wbuf,tb) : NULL;
       MBTOWIDE_FREE(wbuf);
       if (rv) return rv;
+
+      while (*p)
+      {
+        if (*p == '+' || *p == 'a' || *p == 'w') return NULL;
+        p++;
+      }
     }
   }
 #ifdef fopen

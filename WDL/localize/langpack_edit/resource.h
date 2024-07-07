@@ -28,6 +28,18 @@
 #define IDC_COPY_TEMPLATE               1018
 #define ID_SCALING_ADD                  1019
 #define IDC_REMOVE_NONLOCALIZATION      1020
+#define ID_COL_STATE                    2000
+#define ID_COL_ID                       2001
+#define ID_COL_TEMPLATE                 2003
+#define ID_COL_LOCALIZED                2004
+#define ID_COL_COMMONLOCALIZED          2005
+#define ID_SORTCOL_REVERSE              2019
+#define ID_SORTCOL_STATE                2020
+#define ID_SORTCOL_ID                   2021
+#define ID_SORTCOL_TEMPLATE             2023
+#define ID_SORTCOL_LOCALIZED            2024
+#define ID_SORTCOL_COMMONLOCALIZED      2025
+
 #define ID_QUIT                         40000
 
 // Next default values for new objects
