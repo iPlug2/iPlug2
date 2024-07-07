@@ -406,9 +406,9 @@ private:
   WDL_String mProductName;
   /** Plug-in Manufacturer name */
   WDL_String mMfrName;
-  /* Plug-in unique four char ID as an int */
+  /** Plug-in unique four char ID as an int */
   int mUniqueID;
-  /* Manufacturer unique four char ID as an int */
+  /** Manufacturer unique four char ID as an int */
   int mMfrID;
   /** Plug-in version number stored as 0xVVVVRRMM: V = version, R = revision, M = minor revision */
   int mVersion;
