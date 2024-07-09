@@ -456,6 +456,8 @@ typedef struct WindowPropRec
 -(int)swellSetProp:(const char *)name value:(void *)val ;
 -(NSOpenGLContext *)swellGetGLContext;
 - (void) setEnabledSwellNoFocus;
+- (void) setEnabled:(BOOL)en;
+- (BOOL) isEnabled;
 -(const char *)getSwellClass;
 
 // NSAccessibility
