@@ -82,6 +82,9 @@ class WDL_HeapBuf
     }
     ~WDL_HeapBuf()
     {
+#ifdef WDL_HEAPBUF__TRACE_ACTION
+      if (m_buf) WDL_HEAPBUF__TRACE_ACTION(heapbuf_delete_free);
+#endif
       free(m_buf);
     }
   #else
@@ -94,6 +97,9 @@ class WDL_HeapBuf
     ~WDL_HeapBuf()
     {
       wdl_log("WDL_HeapBuf: destroying type: %s (alloc=%d, size=%d)\n",m_tracetype,m_alloc,m_size);
+#ifdef WDL_HEAPBUF__TRACE_ACTION
+      if (m_buf) WDL_HEAPBUF__TRACE_ACTION(heapbuf_delete_free);
+#endif
       free(m_buf);
     }
   #endif
@@ -163,15 +169,25 @@ class WDL_HeapBuf
                 #endif
                 if (newalloc <= 0)
                 {
+#ifdef WDL_HEAPBUF__TRACE_ACTION
+                 if (m_buf) WDL_HEAPBUF__TRACE_ACTION(heapbuf_free);
+#endif
                   free(m_buf);
                   m_buf=0;
                   m_alloc=0;
                   m_size=0;
                   return 0;
                 }
+#ifdef WDL_HEAPBUF__TRACE_ACTION
+                if (m_buf) WDL_HEAPBUF__TRACE_ACTION(heapbuf_realloc);
+                else WDL_HEAPBUF__TRACE_ACTION(heapbuf_malloc);
+#endif
                 void *nbuf=realloc(m_buf,newalloc);
                 if (!nbuf)
                 {
+#ifdef WDL_HEAPBUF__TRACE_ACTION
+                  WDL_HEAPBUF__TRACE_ACTION(heapbuf_mallocfree);
+#endif
                   if (!(nbuf=malloc(newalloc))) 
                   {
                     #ifdef WDL_HEAPBUF_ONMALLOCFAIL
