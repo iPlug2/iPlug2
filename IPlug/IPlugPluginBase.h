@@ -240,7 +240,7 @@ public:
    * @param ... The list of parameter index and value pairs */
   void MakePresetFromNamedParams(const char* name, int nParamsNamed, ...);
   
-  /** Creates a preset from an IByteChunk containging serialized data. This can be used when your plugin state includes arbitary data, other than just parameters.
+  /** Creates a preset from an IByteChunk containing serialized data. This can be used when your plugin state includes arbitary data, other than just parameters.
    * @param name The preset name
    * @param chunk An IByteChunk where the preset data has been serialized */
   void MakePresetFromChunk(const char* name, IByteChunk& chunk);
