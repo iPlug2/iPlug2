@@ -84,7 +84,7 @@ public:
   
   /** Unserializes the size and scale of the IGraphics.
    * @param chunk The incoming chunk where data is stored to unserialize
-   * @param startPos The start position in the chunk where parameter values are stored
+   * @param startPos The start position in the chunk where editor size data is stored
    * @return The new chunk position (endPos) */
   int UnserializeEditorSize(const IByteChunk& chunk, int startPos);
     
