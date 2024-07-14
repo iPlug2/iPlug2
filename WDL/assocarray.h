@@ -34,6 +34,8 @@ public:
     DeleteAll();
   }
 
+  void Prealloc(int sz) { m_data.Prealloc(sz*sizeof(KeyVal)); }
+
   VAL* GetPtr(KEY key, KEY *keyPtrOut=NULL) const
   {
     bool ismatch = false;

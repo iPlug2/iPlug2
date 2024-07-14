@@ -47,6 +47,8 @@ template<class PTRTYPE> class WDL_PtrList
     {
     }
 
+    void Prealloc(int sz) { m_hb.Prealloc(sz*sizeof(PTRTYPE *)); }
+
     PTRTYPE **GetList() const { return (PTRTYPE**)m_hb.Get(); }
     PTRTYPE *Get(INT_PTR index) const 
     { 

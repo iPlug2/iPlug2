@@ -59,6 +59,7 @@ class WDL_HeapBuf
 
     void SetGranul(int granul) { m_granul = granul; }
     int GetGranul() const { return m_granul; }
+    void Prealloc(int sz) { if (m_alloc < sz && WDL_NORMALLY(m_size < sz)) { const int oldsz = m_size; Resize(sz,false); m_size=oldsz; } }
 
     void *ResizeOK(int newsize, bool resizedown = true) { void *p=Resize(newsize, resizedown); return GetSize() == newsize ? p : NULL; }
     
@@ -259,6 +260,8 @@ template<class PTRTYPE> class WDL_TypedBuf
 
     PTRTYPE *Resize(int newsize, bool resizedown = true) { return (PTRTYPE *)m_hb.Resize(newsize*sizeof(PTRTYPE),resizedown); }
     PTRTYPE *ResizeOK(int newsize, bool resizedown = true) { return (PTRTYPE *)m_hb.ResizeOK(newsize*sizeof(PTRTYPE), resizedown);  }
+
+    void Prealloc(int sz) { return m_hb.Prealloc(sz*sizeof(PTRTYPE)); }
 
     void SetToZero() { memset(m_hb.Get(), 0, m_hb.GetSize()); }
 
