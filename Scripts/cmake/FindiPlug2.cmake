@@ -409,3 +409,26 @@ iplug_target_add(iPlug2_Synth INTERFACE
     "${IPLUG_SRC}/Extras/Synth/VoiceAllocator.cpp"
 )
 iplug_source_tree(iPlug2_Synth)
+
+# Function to set up debug properties for macOS xcode targets
+function(iplug_target_debug_xcode target_name application_path application_arguments)
+  if(CMAKE_GENERATOR STREQUAL "Xcode")
+    set_target_properties(${target_name} PROPERTIES
+      XCODE_GENERATE_SCHEME TRUE
+      XCODE_SCHEME_EXECUTABLE "${application_path}"
+      XCODE_SCHEME_ARGUMENTS "${application_arguments}"
+      XCODE_SCHEME_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/out"
+    )
+  endif()
+endfunction()
+
+# Function to set up debug properties for Windows MSVS targets
+function(iplug_target_debug_vs target_name application_path application_arguments)
+  if(MSVC)
+    set_target_properties(${target_name} PROPERTIES
+      VS_DEBUGGER_COMMAND "${application_path}"
+      VS_DEBUGGER_COMMAND_ARGUMENTS "${application_arguments}"
+      VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/out"
+    )
+  endif()
+endfunction()
