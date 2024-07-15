@@ -102,3 +102,8 @@ endif()
 if(WIN32)
   set(CMAKE_RC_FLAGS "/I${PROJECT_DIR}/resources /I${PROJECT_DIR}/resources/fonts /I${PROJECT_DIR}/resources/img ${CMAKE_RC_FLAGS}")
 endif()
+
+iplug_target_debug_xcode(vst3 "/Applications/REAPER.app" "")
+iplug_target_debug_xcode(vst2 "/Applications/REAPER.app" "")
+iplug_target_debug_xcode(clap "/Applications/REAPER.app" "")
+iplug_target_debug_xcode(auv2 "/Applications/REAPER.app" "")
