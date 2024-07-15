@@ -35,13 +35,6 @@
 
 #ifndef WDL_HEAPBUF_IMPL_ONLY
 
-#ifdef WDL_HEAPBUF_TRACE
-#include <windows.h>
-#define WDL_HEAPBUF_TRACEPARM(x) ,(x)
-#else
-#define WDL_HEAPBUF_TRACEPARM(x)
-#endif
-
 #include "wdltypes.h"
 
 class WDL_HeapBuf
@@ -76,7 +69,6 @@ class WDL_HeapBuf
 
 
 
-  #ifndef WDL_HEAPBUF_TRACE
     explicit WDL_HeapBuf(int granul=4096) : m_buf(NULL), m_alloc(0), m_size(0), m_granul(granul)
     {
     }
@@ -87,22 +79,6 @@ class WDL_HeapBuf
 #endif
       free(m_buf);
     }
-  #else
-    explicit WDL_HeapBuf(int granul=4096, const char *tracetype="WDL_HeapBuf"
-      ) : m_buf(NULL), m_alloc(0), m_size(0), m_granul(granul)
-    {
-      m_tracetype = tracetype;
-      wdl_log("WDL_HeapBuf: created type: %s granul=%d\n",tracetype,granul);
-    }
-    ~WDL_HeapBuf()
-    {
-      wdl_log("WDL_HeapBuf: destroying type: %s (alloc=%d, size=%d)\n",m_tracetype,m_alloc,m_size);
-#ifdef WDL_HEAPBUF__TRACE_ACTION
-      if (m_buf) WDL_HEAPBUF__TRACE_ACTION(heapbuf_delete_free);
-#endif
-      free(m_buf);
-    }
-  #endif
 
 #endif // !WDL_HEAPBUF_IMPL_ONLY
 
@@ -164,9 +140,6 @@ class WDL_HeapBuf
               if (newalloc != m_alloc)
               {
 
-                #ifdef WDL_HEAPBUF_TRACE
-                  wdl_log("WDL_HeapBuf: type %s realloc(%d) from %d\n",m_tracetype,newalloc,m_alloc);
-                #endif
                 if (newalloc <= 0)
                 {
 #ifdef WDL_HEAPBUF__TRACE_ACTION
@@ -223,9 +196,6 @@ class WDL_HeapBuf
         {
           free(m_buf);
 
-          #ifdef WDL_HEAPBUF_TRACE
-            m_tracetype = hb->m_tracetype;
-          #endif
           m_granul = hb->m_granul;
 
           m_size=m_alloc=0;
@@ -258,10 +228,6 @@ class WDL_HeapBuf
   #if defined(_WIN64) || defined(__LP64__)
   public:
     int ___pad; // keep size 8 byte aligned
-  #endif
-
-  #ifdef WDL_HEAPBUF_TRACE
-    const char *m_tracetype;
   #endif
 
 };
@@ -362,14 +328,8 @@ template<class PTRTYPE> class WDL_TypedBuf
       return -1;
     }
 
-#ifndef WDL_HEAPBUF_TRACE
     explicit WDL_TypedBuf(int granul=4096) : m_hb(granul) { }
-#else
-    explicit WDL_TypedBuf(int granul=4096, const char *tracetype="WDL_TypedBuf") : m_hb(granul WDL_HEAPBUF_TRACEPARM(tracetype)) { }
-#endif
-    ~WDL_TypedBuf()
-    {
-    }
+    ~WDL_TypedBuf() { }
 
     WDL_HeapBuf *GetHeapBuf() { return &m_hb; }
     const WDL_HeapBuf *GetHeapBuf() const { return &m_hb; }
