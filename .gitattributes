@@ -25,6 +25,7 @@
 *.rc                text eol=crlf
 
 *.command           text eol=lf
+*.cmake             text eol=lf
 *.sh                text eol=lf
 *.pbxproj           text eol=lf
 *.xcconfig          text eol=lf
