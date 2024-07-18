@@ -95,11 +95,11 @@ public:
 
   const char *m_error_ptr, *m_error_msg;
 
-  void parse(const char *str, const char *str_end)
+  void parse(const char *str, const char *str_end, const char *use_base="")
   {
     // note: specifically does not clear objects, so you can parse multiple files and get the union of them.
     m_prefixes.DeleteAll();
-    m_base.Set("");
+    m_base.Set(use_base);
     m_error_ptr = m_error_msg = NULL;
     WDL_FastString fs1,fs2;
     for (;;)
