@@ -1525,6 +1525,22 @@ void IGraphics::OnAppearanceChanged(EUIAppearance appearance)
     mAppearanceChangedFunc(appearance);
 }
 
+void IGraphics::OnLostFocus()
+{
+  ClearMouseOver();
+  ReleaseMouseCapture();
+  
+  if (mPopupControl && mPopupControl->GetExpanded())
+  {
+    mPopupControl->Hide(true);
+  }
+  
+  if (mTextEntryControl && mTextEntryControl->EditInProgress())
+  {
+    mTextEntryControl->Hide(true);
+  }
+}
+
 IBitmap IGraphics::GetScaledBitmap(IBitmap& src)
 {
   //TODO: bug with # frames!
