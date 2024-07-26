@@ -375,6 +375,13 @@ iplug_target_add(iPlug2_REAPER INTERFACE
 )
 
 # Additional configuration targets
+add_library(iPlug2_WebView INTERFACE)
+iplug_target_add(iPlug2_WebView INTERFACE
+  INCLUDE "${IPLUG2_DIR}/IPlug/Extras/WebView"
+  SOURCE "${IPLUG_SRC}/Extras/WebView/IPlugWebView.cpp"
+  SOURCE "${IPLUG_SRC}/Extras/WebView/IPlugWebView.mm"
+)
+
 add_library(iPlug2_Faust INTERFACE)
 iplug_target_add(iPlug2_Faust INTERFACE
   INCLUDE "${IPLUG2_DIR}/IPlug/Extras/Faust" "${FAUST_INCLUDE_DIR}"
