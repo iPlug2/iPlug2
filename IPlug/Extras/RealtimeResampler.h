@@ -159,8 +159,9 @@ public:
         const auto populated =
 #endif
         mOutResampler->PopBlock(outputs, nFrames, nChans);
+#ifdef _DEBUG
         assert(populated >= nFrames && "Did not yield enough samples to provide the required output buffer!");
-        
+#endif
         mInResampler->RenormalizePhases();
         mOutResampler->RenormalizePhases();
         break;
