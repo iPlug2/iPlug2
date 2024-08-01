@@ -167,7 +167,7 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
       
       if (pPath && [[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
       {
-        fullPath.Set([pPath cStringUsingEncoding:NSUTF8StringEncoding]);
+        fullPath.Set([pPath UTF8String]);
         return true;
       }
     }
@@ -203,7 +203,7 @@ bool GetResourcePathFromSharedLocation(const char* fileName, const char* searchE
 
         if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
         {
-          fullPath.Set([pPath cString]);
+          fullPath.Set([pPath UTF8String]);
           return true;
         }
       }
@@ -348,7 +348,7 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
       
       if (pPath && [[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
       {
-        fullPath.Set([pPath cStringUsingEncoding:NSUTF8StringEncoding]);
+        fullPath.Set([pPath UTF8String]);
         return true;
       }
     }
