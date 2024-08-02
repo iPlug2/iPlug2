@@ -163,7 +163,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
   {
     IPopupMenu::Item* pMenuItem = pMenu->GetItem(i);
 
-    nsMenuItemTitle = [[[NSMutableString alloc] initWithCString:pMenuItem->GetText() encoding:NSUTF8StringEncoding] autorelease];
+    nsMenuItemTitle = [[[NSMutableString alloc] initWithCString:pMenuItem->GetText()] autorelease];
 
     if (pMenu->GetPrefix())
     {
@@ -1185,7 +1185,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   [mTextFieldView setTextColor:ToNSColor(text.mTextEntryFGColor)];
   [mTextFieldView setBackgroundColor:ToNSColor(text.mTextEntryBGColor)];
 
-  [mTextFieldView setStringValue: [NSString stringWithCString:str encoding:NSUTF8StringEncoding]];
+  [mTextFieldView setStringValue: [NSString stringWithUTF8String:str]];
 
 #ifndef COCOA_TEXTENTRY_BORDERED
   [mTextFieldView setBordered: NO];
@@ -1237,7 +1237,7 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
   if (c < 0) return @"";
 
   const char* tooltip = mGraphics->GetControl(c)->GetTooltip();
-  return CStringHasContents(tooltip) ? [NSString stringWithCString:tooltip encoding:NSUTF8StringEncoding] : @"";
+  return CStringHasContents(tooltip) ? [NSString stringWithUTF8String:tooltip] : @"";
 }
 
 - (void) registerToolTip: (IRECT&) bounds
