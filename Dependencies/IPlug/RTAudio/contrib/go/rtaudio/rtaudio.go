@@ -174,7 +174,7 @@ const (
 type StreamOptions struct {
 	Flags      StreamFlags
 	NumBuffers uint
-	Priotity   int
+	Priority   int
 	Name       string
 }
 
@@ -468,7 +468,7 @@ func (audio *rtaudio) Open(out, in *StreamParams, format Format, sampleRate uint
 	if opts != nil {
 		cOpts.flags = C.rtaudio_stream_flags_t(opts.Flags)
 		cOpts.num_buffers = C.uint(opts.NumBuffers)
-		cOpts.priority = C.int(opts.Priotity)
+		cOpts.priority = C.int(opts.Priority)
 		cOptsPtr = &cOpts
 	}
 	framesCount := C.uint(frames)
