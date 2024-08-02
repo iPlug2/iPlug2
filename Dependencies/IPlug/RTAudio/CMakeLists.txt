@@ -4,6 +4,11 @@ cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 # Define a C++ project.
 project(RtAudio LANGUAGES CXX)
 
+# standards version
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # Check for Jack (any OS)
 find_library(JACK_LIB jack)
 find_package(PkgConfig)
@@ -26,6 +31,7 @@ endif()
 # Necessary for Windows
 if(MINGW)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+  set(NEED_PTHREAD ON)
 endif()
 
 # Standard CMake options
@@ -34,7 +40,7 @@ option(BUILD_SHARED_LIBS "Build as shared library" ON)
 if (NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug;Release;RelWithDebInfo;MinSizeRel")
 endif()
-if(WINDOWS)
+if(WIN32)
   set(CMAKE_DEBUG_POSTFIX d CACHE STRING "Postfix for debug version of library")
 endif()
 
@@ -83,18 +89,19 @@ foreach(_S ${CONFIGAC})
 endforeach()
 math(EXPR SO_current_minus_age "${SO_current} - ${SO_age}")
 set(SO_VER "${SO_current_minus_age}")
-set(FULL_VER "${SO_current_minus_age}.${SO_revision}.${SO_age}")
+set(FULL_VER "${SO_current_minus_age}.${SO_age}.${SO_revision}")
 
 # Read package version info from configure.ac
 set(R "AC_INIT\\(RtAudio, ([0-9\\.]+),.*\\)")
 file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/configure.ac" CONFIGAC
-  REGEX ${R})
-string(REGEX REPLACE ${R} "\\1" PACKAGE_VERSION ${CONFIGAC})
+  REGEX "${R}")
+string(REGEX REPLACE "${R}" "\\1" PACKAGE_VERSION "${CONFIGAC}")
 
 # Init variables
 set(rtaudio_SOURCES RtAudio.cpp RtAudio.h rtaudio_c.cpp rtaudio_c.h)
 set(LINKLIBS)
 set(PKGCONFIG_REQUIRES)
+set(LIBS_REQUIRES)
 set(API_DEFS)
 set(API_LIST)
 
@@ -122,14 +129,14 @@ if (RTAUDIO_API_ALSA)
     message(FATAL_ERROR "ALSA API requested but no ALSA dev libraries found")
   endif()
   list(APPEND INCDIRS ${ALSA_INCLUDE_DIR})
-  list(APPEND LINKLIBS ${ALSA_LIBRARY})
+  list(APPEND LINKLIBS ${ALSA_LIBRARIES})
   list(APPEND PKGCONFIG_REQUIRES "alsa")
   list(APPEND API_DEFS "-D__LINUX_ALSA__")
   list(APPEND API_LIST "alsa")
 endif()
 
 # OSS
-if (RTAUDIO_OSS)
+if (RTAUDIO_API_OSS)
   set(NEED_PTHREAD ON)
   find_library(OSSAUDIO_LIB ossaudio)
   if (OSSAUDIO_LIB)
@@ -156,6 +163,7 @@ if (RTAUDIO_API_CORE)
   find_library(COREAUDIO_LIB CoreAudio)
   find_library(COREFOUNDATION_LIB CoreFoundation)
   list(APPEND LINKLIBS ${COREAUDIO_LIB} ${COREFOUNDATION_LIB})
+  list(APPEND LIBS_REQUIRES "-framework CoreAudio -framework CoreFoundation")
   list(APPEND API_DEFS "-D__MACOSX_CORE__")
   list(APPEND API_LIST "core")
 endif()
@@ -204,7 +212,6 @@ if (NEED_PTHREAD)
 endif()
 
 # Create library targets.
-cmake_policy(SET CMP0042 OLD)
 set(LIB_TARGETS)
 
 # Use RTAUDIO_BUILD_SHARED_LIBS / RTAUDIO_BUILD_STATIC_LIBS if they
@@ -214,37 +221,63 @@ if (DEFINED RTAUDIO_BUILD_SHARED_LIBS)
     add_library(rtaudio SHARED ${rtaudio_SOURCES})
   else()
     add_library(rtaudio STATIC ${rtaudio_SOURCES})
+    set(RTAUDIO_IS_STATIC TRUE)
   endif()
 elseif (DEFINED RTAUDIO_BUILD_STATIC_LIBS)
   if (RTAUDIO_BUILD_STATIC_LIBS)
     add_library(rtaudio STATIC ${rtaudio_SOURCES})
+    set(RTAUDIO_IS_STATIC TRUE)
   else()
     add_library(rtaudio SHARED ${rtaudio_SOURCES})
   endif()
 else()
   add_library(rtaudio ${rtaudio_SOURCES})
+  if(NOT BUILD_SHARED_LIBS)
+    set(RTAUDIO_IS_STATIC TRUE)
+  endif()
 endif()
 list(APPEND LIB_TARGETS rtaudio)
 
-# Add headers destination for install rule.
-set_target_properties(rtaudio PROPERTIES PUBLIC_HEADER RtAudio.h
+# Windows: If RTAUDIO_STATIC_MSVCRT is not set, it defaults to ON when building as a
+# static library and OFF when building as a DLL.  If you want to have more control, you
+# can explicitly override RTAUDIO_STATIC_MSVCRT to turn it off/on.  It controls the flags
+# related to MSVC runtime linkage in the next clause, below.
+if (NOT DEFINED RTAUDIO_STATIC_MSVCRT)
+  set(RTAUDIO_STATIC_MSVCRT ${RTAUDIO_IS_STATIC})
+endif()
+
+# In MSVC, set MD/MT appropriately for a static library
+# (From https://github.com/protocolbuffers/protobuf/blob/master/cmake/CMakeLists.txt)
+if(MSVC AND RTAUDIO_STATIC_MSVCRT)
+  foreach(flag_var
+      CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+      CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+    if(${flag_var} MATCHES "/MD")
+      string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+    endif(${flag_var} MATCHES "/MD")
+  endforeach(flag_var)
+endif()
+
+set_target_properties(rtaudio PROPERTIES
   SOVERSION ${SO_VER}
   VERSION ${FULL_VER})
 
+# Set standard installation directories.
+include(GNUInstallDirs)
+
 # Set include paths, populate target interface.
-target_include_directories(rtaudio PRIVATE
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-  $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-  ${INCDIRS})
+target_include_directories(rtaudio
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  PRIVATE
+    ${INCDIRS}
+)
 
 # Set compile-time definitions
 target_compile_definitions(rtaudio PRIVATE ${API_DEFS})
 target_compile_definitions(rtaudio PRIVATE RTAUDIO_EXPORT)
 target_link_libraries(rtaudio ${LINKLIBS})
-
-
-# Set standard installation directories.
-include(GNUInstallDirs)
 
 # Subdirs
 include(CTest)
@@ -262,6 +295,7 @@ message(STATUS "Compiling with support for: ${apilist}")
 
 # PkgConfig file
 string(REPLACE ";" " " req "${PKGCONFIG_REQUIRES}")
+string(REPLACE ";" " " req_libs "${LIBS_REQUIRES}")
 string(REPLACE ";" " " api "${API_DEFS}")
 set(prefix ${CMAKE_INSTALL_PREFIX})
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/rtaudio.pc.in" "rtaudio.pc" @ONLY)
@@ -272,7 +306,11 @@ install(TARGETS ${LIB_TARGETS}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+        INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rtaudio)
+
+# Install public header files
+install(FILES RtAudio.h rtaudio_c.h
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/rtaudio)
 
 # Store the package in the user registry.
 export(PACKAGE RtAudio)
@@ -281,15 +319,35 @@ export(PACKAGE RtAudio)
 set(RTAUDIO_CMAKE_DESTINATION share/rtaudio)
 
 # Create CMake configuration export file.
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/RtAudioConfig.cmake.in "@PACKAGE_INIT@\n")
+
 if(NEED_PTHREAD)
-  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/RtAudioConfig.cmake "find_package(Threads REQUIRED)\n")
+  file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/RtAudioConfig.cmake.in "find_package(Threads REQUIRED)\n")
 endif()
 
-file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/RtAudioConfig.cmake "include(\${CMAKE_CURRENT_LIST_DIR}/RtAudioTargets.cmake)")
+file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/RtAudioConfig.cmake.in "include(\${CMAKE_CURRENT_LIST_DIR}/RtAudioTargets.cmake)")
 
 # Install CMake configuration export file.
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/RtAudioConfig.cmake
-        DESTINATION ${RTAUDIO_CMAKE_DESTINATION})
+include(CMakePackageConfigHelpers)
+configure_package_config_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/RtAudioConfig.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/RtAudioConfig.cmake
+  INSTALL_DESTINATION ${RTAUDIO_CMAKE_DESTINATION}
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/RtAudioConfig-version.cmake
+    VERSION ${FULL_VER}
+    COMPATIBILITY AnyNewerVersion
+)
+
+install(
+  FILES
+    ${CMAKE_BINARY_DIR}/RtAudioConfig.cmake
+    ${CMAKE_BINARY_DIR}/RtAudioConfig-version.cmake
+  DESTINATION
+    ${RTAUDIO_CMAKE_DESTINATION}
+)
 
 # Export library target (build-tree).
 export(EXPORT RtAudioTargets
