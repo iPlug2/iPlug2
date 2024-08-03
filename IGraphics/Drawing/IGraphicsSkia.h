@@ -122,7 +122,9 @@ public:
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
   void UpdateLayer() override;
-    
+  
+  void DrawMultiLineText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend) override;
+
 protected:
     
   float DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
