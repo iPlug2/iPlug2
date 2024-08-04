@@ -45,6 +45,11 @@
 
 #define VST3_SUBCATEGORY "Fx"
 
+#define CLAP_MANUAL_URL "https://iplug2.github.io/manuals/example_manual.pdf"
+#define CLAP_SUPPORT_URL "https://github.com/iPlug2/iPlug2/wiki"
+#define CLAP_DESCRIPTION "A simple audio effect for modifying gain"
+#define CLAP_FEATURES "audio-effect"//, "utility"
+
 #define APP_NUM_CHANNELS 2
 #define APP_N_VECTOR_WAIT 0
 #define APP_MULT 1

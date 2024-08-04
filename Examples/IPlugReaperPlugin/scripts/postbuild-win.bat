@@ -1,6 +1,6 @@
 @echo off
 
-REM - CALL "$(SolutionDir)scripts\postbuild-win.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(COPY_VST2)" "$(TargetPath)" "$(VST2_32_PATH)" "$(VST2_64_PATH)" "$(VST3_32_PATH)" "$(VST3_64_PATH)" "$(AAX_32_PATH)" "$(AAX_64_PATH)" "$(BUILD_DIR)" "$(VST_ICON)" "$(AAX_ICON)" "
+REM - CALL "$(SolutionDir)scripts\postbuild-win.bat" "$(TargetExt)" "$(BINARY_NAME)" "$(Platform)" "$(COPY_VST2)" "$(TargetPath)" "$(VST2_32_PATH)" "$(VST2_64_PATH)" "$(VST3_32_PATH)" "$(VST3_64_PATH)" "$(AAX_32_PATH)" "$(AAX_64_PATH)" "$(CLAP_PATH)" "$(BUILD_DIR)" "$(VST_ICON)" "$(AAX_ICON)" "
 REM $(CREATE_BUNDLE_SCRIPT)"
 
 set FORMAT=%1
@@ -18,8 +18,10 @@ shift
 shift
 shift 
 shift
-set AAX_32_PATH=%4
-set AAX_64_PATH=%5
+shift
+set AAX_32_PATH=%3
+set AAX_64_PATH=%4
+set CLAP_PATH=%5
 set BUILD_DIR=%6
 set VST_ICON=%7
 set AAX_ICON=%8
@@ -35,6 +37,7 @@ echo VST2_32_PATH %VST2_32_PATH%
 echo VST2_64_PATH %VST2_64_PATH% 
 echo VST3_32_PATH %VST3_32_PATH% 
 echo VST3_64_PATH %VST3_64_PATH% 
+echo CLAP_PATH %CLAP_PATH% 
 echo BUILD_DIR %BUILD_DIR%
 echo VST_ICON %VST_ICON% 
 echo AAX_ICON %AAX_ICON% 
@@ -120,5 +123,10 @@ if %PLATFORM% == "x64" (
     echo copying 64bit bundle to 64bit AAX Plugins folder ... 
     call %CREATE_BUNDLE_SCRIPT% %BUILD_DIR%\%NAME%.aaxplugin %AAX_ICON% %FORMAT%
     xcopy /E /H /Y %BUILD_DIR%\%NAME%.aaxplugin\Contents\* %AAX_64_PATH%\%NAME%.aaxplugin\Contents\
+  )
+  
+  if %FORMAT% == ".clap" (
+    echo copying binary to CLAP Plugins folder ... 
+    copy /y %BUILT_BINARY% %CLAP_PATH%
   )
 )

@@ -94,9 +94,7 @@ protected:
   audioMasterCallback mHostCallback;
 };
 
-#ifndef REAPER_PLUGIN
 IPlugVST2* MakePlug(const InstanceInfo& info);
-#endif
 
 END_IPLUG_NAMESPACE
 
