@@ -371,6 +371,9 @@ template<class PTRTYPE> class WDL_TypedBuf
       return sz - cnt;
     }
 
+    const PTRTYPE *begin() const { return Get(); }
+    const PTRTYPE *end() const { return Get() + GetSize(); }
+
   private:
     WDL_HeapBuf m_hb;
 };
