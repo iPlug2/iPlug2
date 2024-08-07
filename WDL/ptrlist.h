@@ -92,17 +92,7 @@ template<class PTRTYPE> class WDL_PtrList
       return -1;
     }
 
-    PTRTYPE *Add(PTRTYPE *item)
-    {
-      const int s=GetSize();
-      PTRTYPE **list=m_buf.ResizeOK(s+1,false);
-      if (list)
-      {
-        list[s]=item;
-        return item;
-      }
-      return NULL;
-    }
+    PTRTYPE *Add(PTRTYPE *item) { return m_buf.Add(item) ? item : NULL; }
     void Add(PTRTYPE **items, int numitems) { m_buf.Add(items, numitems); }
 
     PTRTYPE *Set(int index, PTRTYPE *item)
@@ -114,16 +104,10 @@ template<class PTRTYPE> class WDL_PtrList
 
     PTRTYPE *Insert(int index, PTRTYPE *item)
     {
-      int s=GetSize();
-      PTRTYPE **list = m_buf.ResizeOK(s+1,false);
+      const int s=GetSize();
+      m_buf.Insert(item, wdl_clamp(index,0,s));
+      return item;
 
-      if (!list) return item;
-
-      if (index<0) index=0;
-
-      int x;
-      for (x = s; x > index; x --) list[x]=list[x-1];
-      return (list[x] = item);
     }
     int FindSorted(const PTRTYPE *p, int (*compar)(const PTRTYPE **a, const PTRTYPE **b)) const
     {
@@ -137,16 +121,7 @@ template<class PTRTYPE> class WDL_PtrList
       return Insert(LowerBound(item,&m,compar),item);
     }
 
-    void Delete(int index)
-    {
-      PTRTYPE **list=GetList();
-      int size=GetSize();
-      if (list && index >= 0 && index < size)
-      {
-        if (index < --size) memmove(list+index,list+index+1,(unsigned int)sizeof(PTRTYPE *)*(size-index));
-        m_buf.Resize(size,false);
-      }
-    }
+    void Delete(int index) { m_buf.Delete(index);  }
     void Delete(int index, bool wantDelete, void (*delfunc)(void *)=NULL)
     {
       PTRTYPE **list=GetList();
