@@ -61,7 +61,8 @@ UIPopoverPresentationControllerDelegate,
 UIGestureRecognizerDelegate,
 UITraitEnvironment,
 UIDocumentPickerDelegate,
-UIColorPickerViewControllerDelegate
+UIColorPickerViewControllerDelegate,
+UIDropInteractionDelegate
 >
 {
 @public
