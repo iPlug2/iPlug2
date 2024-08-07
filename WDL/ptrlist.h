@@ -103,6 +103,7 @@ template<class PTRTYPE> class WDL_PtrList
       }
       return NULL;
     }
+    void Add(PTRTYPE **items, int numitems) { m_buf.Add(items, numitems); }
 
     PTRTYPE *Set(int index, PTRTYPE *item)
     {
@@ -180,6 +181,8 @@ template<class PTRTYPE> class WDL_PtrList
     void DeletePtr(const PTRTYPE *p) { Delete(Find(p)); }
     void DeletePtr(const PTRTYPE *p, bool wantDelete, void (*delfunc)(void *)=NULL) { Delete(Find(p),wantDelete,delfunc); }
     void DeletePtr(const PTRTYPE *p, void (*delfunc)(PTRTYPE *)) { Delete(Find(p),delfunc); }
+
+    void DeleteRange(int index, int count) { m_buf.DeleteRange(index,count); }
 
     void Empty()
     {
