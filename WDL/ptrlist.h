@@ -48,6 +48,7 @@ template<class PTRTYPE> class WDL_PtrList
     }
 
     void Prealloc(int sz) { m_buf.Prealloc(sz); }
+    void ResizeToCurrent() { m_buf.ResizeToCurrent(); }
 
     PTRTYPE **GetList() const { return m_buf.Get(); }
     PTRTYPE *Get(INT_PTR index) const
@@ -249,9 +250,6 @@ template<class PTRTYPE> class WDL_PtrList
       *ismatch = false;
       return a;
     }
-
-    void Compact() { m_buf.Resize(m_buf.GetSize(),true); }
-
 
     int DeleteBatch(bool (*proc)(PTRTYPE *p, void *ctx), void *ctx=NULL) // proc returns true to remove item. returns number removed
     {
