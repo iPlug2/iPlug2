@@ -335,6 +335,20 @@ template<class PTRTYPE> class WDL_TypedBuf
       }
     }
 
+    void DeleteRange(int index, int count)
+    {
+      PTRTYPE *list=Get();
+      int size=GetSize();
+      if (list && count > 0 && index >= 0 && index < size)
+      {
+        if (count > size - index) count = size - index;
+        size -= count;
+        if (index < size)
+          memmove(list+index,list+index+count,(unsigned int)sizeof(PTRTYPE)*(size-index));
+        Resize(size,false);
+      }
+    }
+
     void SetGranul(int gran) { m_hb.SetGranul(gran); }
 
     int Find(PTRTYPE val) const
