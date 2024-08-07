@@ -67,6 +67,7 @@ template<class PTRTYPE> class WDL_PtrList
       m_hb.Resize(l * (unsigned int)sizeof(PTRTYPE*),false);
       return ret;
     }
+    PTRTYPE *GetLast() const { return Get(GetSize()-1); }
 
     int Find(const PTRTYPE *p) const
     {
