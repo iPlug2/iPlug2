@@ -236,11 +236,8 @@ static WDL_bool WDL_STATICFUNC_UNUSED WDL_TICKS_IN_RANGE_ENDING_AT(WDL_TICKTYPE 
 typedef char wdl_assert_failed_unsigned_char[((char)-1) > 0 ? -1 : 1];
 #endif
 
-// wdl_log() / printf() wrapper. no-op on release builds
-#if !defined(_DEBUG) && !defined(WDL_LOG_ON_RELEASE)
-  static void WDL_STATICFUNC_UNUSED WDL_VARARG_WARN(printf,1,2) wdl_log(const char *format, ...) { }
-#elif defined(_WIN32)
-  static void WDL_STATICFUNC_UNUSED WDL_VARARG_WARN(printf,1,2) wdl_log(const char *format, ...)
+#ifdef _WIN32
+  static void WDL_STATICFUNC_UNUSED WDL_VARARG_WARN(printf,1,2) wdl_log_force(const char *format, ...)
   {
     int rv;
     va_list va;
@@ -255,7 +252,14 @@ typedef char wdl_assert_failed_unsigned_char[((char)-1) > 0 ? -1 : 1];
     OutputDebugStringA(tmp);
   }
 #else
-  #define wdl_log printf
+  #define wdl_log_force printf
+#endif
+
+// wdl_log() / printf() wrapper. no-op on release builds, otherwise maps to wdl_log_force
+#if !defined(_DEBUG) && !defined(WDL_LOG_ON_RELEASE)
+  static void WDL_STATICFUNC_UNUSED WDL_VARARG_WARN(printf,1,2) wdl_log(const char *format, ...) { }
+#else
+  #define wdl_log wdl_log_force
 #endif
 
 static void WDL_STATICFUNC_UNUSED wdl_bswap_copy(void *bout, const void *bin, size_t nelem, size_t elemsz)
