@@ -1316,12 +1316,27 @@ static void MakeCursorFromName(NSCursor*& cursor, const char *name)
 
 - (NSDragOperation) draggingEntered: (id<NSDraggingInfo>) sender
 {
-  NSPasteboard *pPasteBoard = [sender draggingPasteboard];
+  NSPasteboard* pPasteBoard = [sender draggingPasteboard];
 
   if ([[pPasteBoard types] containsObject:NSFilenamesPboardType])
     return NSDragOperationGeneric;
   else
     return NSDragOperationNone;
+}
+
+- (NSDragOperation) draggingUpdated: (id<NSDraggingInfo>) sender
+{
+  NSPasteboard* pPasteBoard = [sender draggingPasteboard];
+  NSArray* pFiles = [pPasteBoard propertyListForType:NSFilenamesPboardType];
+  NSString* pFirstFile = [pFiles firstObject];
+  NSString* pExt = [pFirstFile pathExtension];
+  NSPoint point = [sender draggingLocation];
+  NSPoint relativePoint = [self convertPoint: point fromView:nil];
+  float x = relativePoint.x / mGraphics->GetDrawScale();
+  float y = relativePoint.y / mGraphics->GetDrawScale();
+  mGraphics->OnDropOver([pExt UTF8String], x, y);
+  
+  return NSDragOperationGeneric;
 }
 
 - (BOOL) performDragOperation: (id<NSDraggingInfo>) sender
