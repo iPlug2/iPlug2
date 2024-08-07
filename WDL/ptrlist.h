@@ -156,6 +156,8 @@ template<class PTRTYPE> class WDL_PtrList
           if (delfunc) delfunc(Get(index));
           else delete Get(index);
         }
+        // if delfunc modified the list this could be unpredictable
+        WDL_ASSERT(size == GetSize());
         if (index < --size) memmove(list+index,list+index+1,(unsigned int)sizeof(PTRTYPE *)*(size-index));
         m_hb.Resize(size * (unsigned int)sizeof(PTRTYPE*),false);
       }
@@ -167,6 +169,9 @@ template<class PTRTYPE> class WDL_PtrList
       if (list && index >= 0 && index < size)
       {
         if (delfunc) delfunc(Get(index));
+        // if delfunc modified the list this could be unpredictable
+        WDL_ASSERT(size == GetSize());
+
         if (index < --size) memmove(list+index,list+index+1,(unsigned int)sizeof(PTRTYPE *)*(size-index));
         m_hb.Resize(size * (unsigned int)sizeof(PTRTYPE*),false);
       }
@@ -192,6 +197,8 @@ template<class PTRTYPE> class WDL_PtrList
             if (delfunc) delfunc(p);
             else delete p;
           }
+          // if delfunc modified the list this could be unpredictable
+          WDL_ASSERT(x == GetSize()-1);
           m_hb.Resize(x*(unsigned int)sizeof(PTRTYPE *),false);
         }
       }
@@ -204,6 +211,8 @@ template<class PTRTYPE> class WDL_PtrList
       {
         PTRTYPE* p = Get(x);
         if (delfunc && p) delfunc(p);
+        // if delfunc modified the list this could be unpredictable
+        WDL_ASSERT(x == GetSize()-1);
         m_hb.Resize(x*(unsigned int)sizeof(PTRTYPE *),false);
       }
     }
