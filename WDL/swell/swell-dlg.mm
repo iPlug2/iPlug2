@@ -695,6 +695,10 @@ static id<MTLDevice> mtl_def_device()
   return m_wndproc ? m_wndproc((HWND)self,msg,wParam,lParam) : 0;
 }
 
+- (BOOL) isEnabled
+{
+  return m_enabled;
+}
 - (void) setEnabled:(BOOL)en
 { 
   m_enabled=en?1:0; 

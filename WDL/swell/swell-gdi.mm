@@ -101,7 +101,11 @@ static NSString *CStringToNSString(const char *str)
 CGColorSpaceRef __GetBitmapColorSpace()
 {
   static CGColorSpaceRef cs;
-  if (!cs) cs = CGColorSpaceCreateDeviceRGB();
+  if (!cs)
+  {
+    cs = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
+    if (!cs) cs = CGColorSpaceCreateDeviceRGB();
+  }
   return cs;
 }
 

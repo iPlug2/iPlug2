@@ -1586,6 +1586,28 @@ static LRESULT WINAPI lv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 
     }
   }
+  else if (msg == LVM_GETCOLUMNA)
+  {
+    LPLVCOLUMNA pCol = (LPLVCOLUMNA) lParam;
+    char *str;
+    if (pCol && (str=pCol->pszText) && pCol->cchTextMax>0 &&
+        (pCol->mask & LVCF_TEXT))
+    {
+      WIDETOMB_ALLOC(wbuf, pCol->cchTextMax);
+      if (wbuf)
+      {
+        LRESULT rv;
+        pCol->pszText=(char*)wbuf; // set new buffer
+        rv=CallWindowProc(oldproc,hwnd,LVM_GETCOLUMNW,wParam,lParam);
+        if (!WideCharToMultiByte(CP_UTF8,0,wbuf,-1,str,pCol->cchTextMax,NULL,NULL))
+          str[pCol->cchTextMax-1]=0;
+
+        pCol->pszText = str; // restore old pointer
+        WIDETOMB_FREE(wbuf);
+        return rv;
+      }
+    }
+  }
   else if (msg == LVM_INSERTITEMA || msg == LVM_SETITEMA || msg == LVM_SETITEMTEXTA) 
   {
     LPLVITEMA pItem = (LPLVITEMA) lParam;

@@ -94,13 +94,13 @@ class WDL_String
     int GetLength() const { return m_hb.GetSize()?(int)strlen((const char*)m_hb.Get()):0; }
   #endif
 
-    explicit WDL_String(int hbgran) : m_hb(hbgran WDL_HEAPBUF_TRACEPARM("WDL_String(4)")) { }
-    explicit WDL_String(const char *initial=NULL, int initial_len=0) : m_hb(128 WDL_HEAPBUF_TRACEPARM("WDL_String"))
+    explicit WDL_String(int hbgran) : m_hb(hbgran) { }
+    explicit WDL_String(const char *initial=NULL, int initial_len=0) : m_hb(128)
     {
       if (initial) Set(initial,initial_len);
     }
-    WDL_String(const WDL_String &s) : m_hb(128 WDL_HEAPBUF_TRACEPARM("WDL_String(2)")) { Set(&s); }
-    WDL_String(const WDL_String *s) : m_hb(128 WDL_HEAPBUF_TRACEPARM("WDL_String(3)")) { if (s && s != this) Set(s); }
+    WDL_String(const WDL_String &s) : m_hb(128) { Set(&s); }
+    WDL_String(const WDL_String *s) : m_hb(128) { if (s && s != this) Set(s); }
     ~WDL_String() { }
 #endif // ! WDL_STRING_IMPL_ONLY
 

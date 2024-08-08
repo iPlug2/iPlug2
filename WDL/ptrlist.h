@@ -1,7 +1,7 @@
 /*
     WDL - ptrlist.h
     Copyright (C) 2005 and later, Cockos Incorporated
-  
+
     This software is provided 'as-is', without any express or implied
     warranty.  In no event will the authors be held liable for any damages
     arising from the use of this software.
@@ -17,7 +17,7 @@
     2. Altered source versions must be plainly marked as such, and must not be
        misrepresented as being the original software.
     3. This notice may not be removed or altered from any source distribution.
-      
+
 */
 
 /*
@@ -28,7 +28,7 @@
 
   Note: on certain compilers, instantiating with WDL_PtrList<void> bla; will give a warning, since
   the template will create code for "delete (void *)x;" which isn't technically valid. Oh well.
- 
+
 */
 
 #ifndef _WDL_PTRLIST_H_
@@ -36,10 +36,10 @@
 
 #include "heapbuf.h"
 
-template<class PTRTYPE> class WDL_PtrList 
+template<class PTRTYPE> class WDL_PtrList
 {
   public:
-    explicit WDL_PtrList(int defgran=4096) : m_hb(defgran WDL_HEAPBUF_TRACEPARM("WDL_PtrList"))
+    explicit WDL_PtrList(int defgran=4096) : m_hb(defgran)
     {
     }
 
@@ -47,22 +47,34 @@ template<class PTRTYPE> class WDL_PtrList
     {
     }
 
+    void Prealloc(int sz) { m_hb.Prealloc(sz*sizeof(PTRTYPE *)); }
+
     PTRTYPE **GetList() const { return (PTRTYPE**)m_hb.Get(); }
-    PTRTYPE *Get(INT_PTR index) const 
-    { 
-      PTRTYPE **list = (PTRTYPE**)m_hb.Get(); 
-      if (list && (UINT_PTR)index < (UINT_PTR)(m_hb.GetSize()/sizeof(PTRTYPE *))) return list[index]; 
-      return NULL; 
+    PTRTYPE *Get(INT_PTR index) const
+    {
+      PTRTYPE **list = (PTRTYPE**)m_hb.Get();
+      if (list && (UINT_PTR)index < (UINT_PTR)(m_hb.GetSize()/sizeof(PTRTYPE *))) return list[index];
+      return NULL;
     }
 
-    int GetSize(void) const { return m_hb.GetSize()/(unsigned int)sizeof(PTRTYPE *); }  
+    int GetSize(void) const { return m_hb.GetSize()/(unsigned int)sizeof(PTRTYPE *); }
+
+    PTRTYPE *Pop()
+    {
+      const int l = GetSize()-1;
+      if (l<0) return NULL;
+      PTRTYPE *ret = ((PTRTYPE**)m_hb.Get())[l];
+      m_hb.Resize(l * (unsigned int)sizeof(PTRTYPE*),false);
+      return ret;
+    }
+    PTRTYPE *GetLast() const { return Get(GetSize()-1); }
 
     int Find(const PTRTYPE *p) const
     {
       if (p)
       {
         PTRTYPE **list=(PTRTYPE **)m_hb.Get();
-        int x;     
+        int x;
         const int n = GetSize();
         for (x = 0; x < n; x ++) if (list[x] == p) return x;
       }
@@ -91,8 +103,8 @@ template<class PTRTYPE> class WDL_PtrList
       return NULL;
     }
 
-    PTRTYPE *Set(int index, PTRTYPE *item) 
-    { 
+    PTRTYPE *Set(int index, PTRTYPE *item)
+    {
       PTRTYPE **list=(PTRTYPE **)m_hb.Get();
       if (list && index >= 0 && index < GetSize()) return list[index]=item;
       return NULL;
@@ -106,7 +118,7 @@ template<class PTRTYPE> class WDL_PtrList
       if (!list) return item;
 
       if (index<0) index=0;
-    
+
       int x;
       for (x = s; x > index; x --) list[x]=list[x-1];
       return (list[x] = item);
@@ -144,6 +156,8 @@ template<class PTRTYPE> class WDL_PtrList
           if (delfunc) delfunc(Get(index));
           else delete Get(index);
         }
+        // if delfunc modified the list this could be unpredictable
+        WDL_ASSERT(size == GetSize());
         if (index < --size) memmove(list+index,list+index+1,(unsigned int)sizeof(PTRTYPE *)*(size-index));
         m_hb.Resize(size * (unsigned int)sizeof(PTRTYPE*),false);
       }
@@ -155,6 +169,9 @@ template<class PTRTYPE> class WDL_PtrList
       if (list && index >= 0 && index < size)
       {
         if (delfunc) delfunc(Get(index));
+        // if delfunc modified the list this could be unpredictable
+        WDL_ASSERT(size == GetSize());
+
         if (index < --size) memmove(list+index,list+index+1,(unsigned int)sizeof(PTRTYPE *)*(size-index));
         m_hb.Resize(size * (unsigned int)sizeof(PTRTYPE*),false);
       }
@@ -180,6 +197,8 @@ template<class PTRTYPE> class WDL_PtrList
             if (delfunc) delfunc(p);
             else delete p;
           }
+          // if delfunc modified the list this could be unpredictable
+          WDL_ASSERT(x == GetSize()-1);
           m_hb.Resize(x*(unsigned int)sizeof(PTRTYPE *),false);
         }
       }
@@ -192,6 +211,8 @@ template<class PTRTYPE> class WDL_PtrList
       {
         PTRTYPE* p = Get(x);
         if (delfunc && p) delfunc(p);
+        // if delfunc modified the list this could be unpredictable
+        WDL_ASSERT(x == GetSize()-1);
         m_hb.Resize(x*(unsigned int)sizeof(PTRTYPE *),false);
       }
     }
@@ -251,6 +272,9 @@ template<class PTRTYPE> class WDL_PtrList
       return sz - cnt;
     }
 
+    const PTRTYPE **begin() const { return GetList(); }
+    const PTRTYPE **end() const { return GetList() + GetSize(); }
+
   private:
     WDL_HeapBuf m_hb;
 
@@ -260,7 +284,7 @@ template<class PTRTYPE> class WDL_PtrList
 template<class PTRTYPE> class WDL_PtrList_DeleteOnDestroy : public WDL_PtrList<PTRTYPE>
 {
 public:
-  explicit WDL_PtrList_DeleteOnDestroy(void (*delfunc)(void *)=NULL, int defgran=4096) : WDL_PtrList<PTRTYPE>(defgran), m_delfunc(delfunc) {  } 
+  explicit WDL_PtrList_DeleteOnDestroy(void (*delfunc)(void *)=NULL, int defgran=4096) : WDL_PtrList<PTRTYPE>(defgran), m_delfunc(delfunc) {  }
   ~WDL_PtrList_DeleteOnDestroy()
   {
     WDL_PtrList<PTRTYPE>::EmptySafe(true,m_delfunc);
