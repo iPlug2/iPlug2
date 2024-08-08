@@ -1,6 +1,6 @@
 /*! \page probe Probing Device Capabilities
 
-A programmer may wish to query the available audio device capabilities before deciding which to use.  The following example outlines how this can be done.
+A programmer may wish to query the available audio device capabilities before deciding which to use.  The following example outlines how this can be done. RtAudio creates its own device IDs for each device and these values will remain valid for a given instance of the class, no matter whether new devices are plugged in or previously available devices are removed. 
 
 \code
 
@@ -13,19 +13,22 @@ int main()
 {
   RtAudio audio;
 
-  // Determine the number of devices available
-  unsigned int devices = audio.getDeviceCount();
+  // Get the list of device IDs
+  std::vector< unsigned int > ids = audio.getDeviceIds();
+  if ( ids.size() == 0 ) {
+    std::cout << "No devices found." << std::endl;
+    return 0;
+  }
 
   // Scan through devices for various capabilities
   RtAudio::DeviceInfo info;
-  for ( unsigned int i=0; i<devices; i++ ) {
+  for ( unsigned int n=0; n<ids.size(); n++ ) {
 
-    info = audio.getDeviceInfo( i );
+    info = audio.getDeviceInfo( ids[n] );
 
-    if ( info.probed == true ) {
-      // Print, for example, the maximum number of output channels for each device
-      std::cout << "device = " << i;
-      std::cout << ": maximum output channels = " << info.outputChannels << "\n";
+    // Print, for example, the name and maximum number of output channels for each device
+      std::cout << "device name = " << info.name << std::endl;
+      std::cout << ": maximum output channels = " << info.outputChannels << std::endl;
     }
   }
 
@@ -37,8 +40,8 @@ The RtAudio::DeviceInfo structure is defined in RtAudio.h and provides a variety
 
 \code
   typedef struct RtAudio::DeviceInfo {
-    bool probed;                           // true if the device capabilities were successfully probed.
-    std::string name;                      // Character string device identifier.
+    unsigned int ID;                       // Device ID used to specify a device to RtAudio.
+    std::string name;                      // Character string device name.
     unsigned int outputChannels;           // Maximum output channels supported by device.
     unsigned int inputChannels;            // Maximum input channels supported by device.
     unsigned int duplexChannels;           // Maximum simultaneous input/output channels supported by device.
@@ -66,8 +69,10 @@ The \c nativeFormats member of the RtAudio::DeviceInfo structure is a bit mask o
 
 Some audio devices may require a minimum channel value greater than one.  RtAudio will provide automatic channel number compensation when the number of channels set by the user is less than that required by the device.  Channel compensation is <I>NOT</I> possible when the number of channels set by the user is greater than that supported by the device.
 
-Note that the device enumeration is system specific and will change if any devices are plugged or unplugged by the user. Thus, the device numbers should be verified immediately before opening a stream. As well, if a user unplugs a device while an open stream is using that device, the resulting stream behaviour will be undefined (a system error will likely be generated).
+Note that the device enumeration is system specific. As stated above, the device IDs should remain valid for a given device for the duration of a given RtAudio instance, as long as that device remains connected. If a device is removed and then reconnected, it will have a different ID. The user must requery the system when devices are plugged or unplugged in order to determine the updated information. As well, if a user unplugs a device while an open stream is using that device, the resulting stream behaviour will potentially vary among the different APIs. Ideally, the stream will automatically be closed in such an event.
 
 Also, the capabilities reported by a device driver or underlying audio API are not always accurate and/or may be dependent on a combination of device settings.  For this reason, RtAudio does not rely on the queried values when attempting to open a stream.
+
+Device names are not guaranteed to be unique. Systems often report the same device multiple times, sometimes splitting those devices according to input and output functionality. As well, systems do not necessarily provide unique names for multiple devices of the same type. However, the IDs provided by RtAudio are unique per device, as reported by the corresponding API.
 
 */
