@@ -274,6 +274,8 @@ template<class PTRTYPE> class WDL_PtrList
 
     const PTRTYPE **begin() const { return GetList(); }
     const PTRTYPE **end() const { return GetList() + GetSize(); }
+    PTRTYPE **begin() { return GetList(); }
+    PTRTYPE **end() { return GetList() + GetSize(); }
 
   private:
     WDL_HeapBuf m_hb;

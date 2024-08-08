@@ -297,6 +297,10 @@ public:
   const KeyVal *begin() const { return m_data.begin(); }
   const KeyVal *end() const { return m_data.end(); }
 
+  // should be careful if modifying keys, and Resort() after
+  KeyVal *begin() { return m_data.begin(); }
+  KeyVal *end() { return m_data.end(); }
+
 protected:
 
   int (*m_keycmp)(KEY *k1, KEY *k2);
