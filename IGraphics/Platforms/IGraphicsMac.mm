@@ -410,7 +410,7 @@ bool IGraphicsMac::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
     
   if(path.GetLength())
   {
-    NSString* pPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+    NSString* pPath = [NSString stringWithUTF8String:path.Get()];
 
     if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
     {
@@ -450,12 +450,12 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   NSArray* pFileTypes = nil;
 
   if (fileName.GetLength())
-    pDefaultFileName = [NSString stringWithCString:fileName.Get() encoding:NSUTF8StringEncoding];
+    pDefaultFileName = [NSString stringWithUTF8String:fileName.Get()];
   else
     pDefaultFileName = @"";
   
   if (path.GetLength())
-    pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+    pDefaultPath = [NSString stringWithUTF8String:path.Get()];
   else
     pDefaultPath = @"";
 
@@ -528,11 +528,11 @@ void IGraphicsMac::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHand
 
   if (dir.GetLength())
   {
-    defaultPath = [NSString stringWithCString:dir.Get() encoding:NSUTF8StringEncoding];
+    defaultPath = [NSString stringWithUTF8String:dir.Get()];
   }
   else
   {
-    defaultPath = [NSString stringWithCString:DEFAULT_PATH encoding:NSUTF8StringEncoding];
+    defaultPath = [NSString stringWithUTF8String:DEFAULT_PATH];
     dir.Set(DEFAULT_PATH);
   }
 
@@ -633,9 +633,9 @@ bool IGraphicsMac::OpenURL(const char* url, const char* msgWindowTitle, const ch
   #pragma REMINDER("Warning and error messages for OpenURL not implemented")
   NSURL* pNSURL = nullptr;
   if (strstr(url, "http"))
-    pNSURL = [NSURL URLWithString:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
+    pNSURL = [NSURL URLWithString:[NSString stringWithUTF8String:url]];
   else
-    pNSURL = [NSURL fileURLWithPath:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
+    pNSURL = [NSURL fileURLWithPath:[NSString stringWithUTF8String:url]];
 
   if (pNSURL)
   {
@@ -684,7 +684,7 @@ bool IGraphicsMac::SetFilePathInClipboard(const char* path)
 {
   NSPasteboard* pPasteboard = [NSPasteboard generalPasteboard];
   [pPasteboard clearContents]; // clear pasteboard to take ownership
-  NSURL* pFileURL = [NSURL fileURLWithPath: [NSString stringWithUTF8String: path]];
+  NSURL* pFileURL = [NSURL fileURLWithPath: [NSString stringWithUTF8String:path]];
   BOOL success = [pPasteboard writeObjects: [NSArray arrayWithObject:pFileURL]];
   return (bool)success;
 }
@@ -692,7 +692,7 @@ bool IGraphicsMac::SetFilePathInClipboard(const char* path)
 bool IGraphicsMac::InitiateExternalFileDragDrop(const char* path, const IRECT& iconBounds)
 {
   NSPasteboardItem* pasteboardItem = [[NSPasteboardItem alloc] init];
-  NSURL* fileURL = [NSURL fileURLWithPath: [NSString stringWithUTF8String: path]];
+  NSURL* fileURL = [NSURL fileURLWithPath: [NSString stringWithUTF8String:path]];
   [pasteboardItem setString:fileURL.absoluteString forType:NSPasteboardTypeFileURL];
   
   NSDraggingItem* draggingItem = [[NSDraggingItem alloc] initWithPasteboardWriter:pasteboardItem];
