@@ -27,7 +27,7 @@
 #define PLUG_HEIGHT 768
 #define PLUG_FPS 60
 #define PLUG_SHARED_RESOURCES 0
-#define PLUG_HOST_RESIZE 0
+#define PLUG_HOST_RESIZE 1
 
 #define AUV2_ENTRY IGraphicsTest_Entry
 #define AUV2_ENTRY_STR "IGraphicsTest_Entry"
