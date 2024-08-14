@@ -391,12 +391,11 @@ protected:
       else
         fs->Append(tok++,1);
     }
-    if (mode == '<' &&
-        !strstr(fs->Get(),"://") &&
-        strnicmp(fs->Get(),"urn:",4) &&
-        m_base.GetLength())
+    if (mode == '<' && m_base.GetLength())
     {
-      fs->Insert(m_base.Get(),0);
+      const char *p = fs->Get();
+      while (*p && *p != ':' && *p != '#') p++; // relative path if no : found, or if # found before first :
+      if (*p != ':') fs->Insert(m_base.Get(),0);
     }
     if (rv == '\'') rv = '"';
     return rv;
