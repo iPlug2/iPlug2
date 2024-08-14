@@ -1151,8 +1151,11 @@ void WDL_Resampler::SetRates(double rate_in, double rate_out)
   }
 }
 
-const WDL_SincFilterSample *WDL_Resampler::BuildLowPass(double filtpos, bool *isIdeal) // only called in sinc modes
+const WDL_SincFilterSample *WDL_Resampler::BuildLowPass(bool *isIdeal) // only called in sinc modes
 {
+  double filtpos = 1.0;
+  if (m_ratio > 1.0) filtpos = 1.0 / (m_ratio * 1.03);
+
   const int wantsize=m_sincsize;
   int wantinterp=m_sincoversize;
 
@@ -1434,9 +1437,7 @@ int WDL_Resampler::ResampleOut(WDL_ResampleSample *out, int nsamples_in, int nsa
   bool isideal = false;
   if (m_sincsize) // sinc interpolating
   {
-    const WDL_SincFilterSample *filter;
-    if (m_ratio > 1.0) filter=BuildLowPass(1.0 / (m_ratio*1.03), &isideal);
-    else filter=BuildLowPass(1.0, &isideal);
+    const WDL_SincFilterSample *filter = BuildLowPass(&isideal);
 
     const int oversize = m_lp_oversize;
     int filtsz=m_filter_coeffs_size;

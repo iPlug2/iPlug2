@@ -75,7 +75,7 @@ public:
 
 
 private:
-  const WDL_SincFilterSample *BuildLowPass(double filtpos, bool *isIdeal);
+  const WDL_SincFilterSample *BuildLowPass(bool *isIdeal);
 
   double m_sratein WDL_FIXALIGN;
   double m_srateout;
