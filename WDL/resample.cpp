@@ -1669,3 +1669,16 @@ int WDL_Resampler::ResampleOut(WDL_ResampleSample *out, int nsamples_in, int nsa
 
   return ret;
 }
+
+void WDL_Resampler::Prealloc(int nch, int inputsize, int outputsize)
+{
+  const int in2 = (int)(m_ratio * outputsize) + 4 + m_sincsize;
+  const int l = wdl_max(inputsize, in2);
+  if (l > 0) m_rsinbuf.Prealloc(nch * l);
+
+  if (m_sincsize)
+  {
+    bool isideal = false;
+    BuildLowPass(&isideal);
+  }
+}
