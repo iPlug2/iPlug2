@@ -393,7 +393,13 @@ protected:
       else
         fs->Append(tok++,1);
     }
-    if (mode == '<' && !strstr(fs->Get(),"://") && m_base.GetLength()) fs->Insert(m_base.Get(),0);
+    if (mode == '<' &&
+        !strstr(fs->Get(),"://") &&
+        strnicmp(fs->Get(),"urn:",4) &&
+        m_base.GetLength())
+    {
+      fs->Insert(m_base.Get(),0);
+    }
     if (rv == '\'') rv = '"';
     return rv;
   }
