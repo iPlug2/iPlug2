@@ -354,18 +354,16 @@ protected:
         for (l = 0; l < toklen && tok[l] != ':'; l++);
         if (l < toklen)
         {
-          WDL_FastString tmp;
-          tmp.Set(tok,l+1);
-          const char *pf = m_prefixes.Get(tmp.Get());
-          if (!pf)
+          char tmp[1024];
+          lstrcpyn_safe(tmp, tok, wdl_min(sizeof(tmp), l+2));
+          const char *pf = m_prefixes.Get(tmp);
+          if (pf)
           {
-            on_err("prefix not found for token",tok);
-            return 0;
+            fs->Set(pf);
+            toklen -= l+1;
+            tok += l+1;
+            rv = '<';
           }
-          fs->Set(pf);
-          toklen -= l+1;
-          tok += l+1;
-          rv = '<';
         }
       }
     }
