@@ -8,15 +8,15 @@ jobs:
 
   strategy:
     matrix:
-      x86_RELEASE:
-        buildPlatform: 'Win32'
-        buildConfiguration: 'Release'
+      # x86_RELEASE:
+      #   buildPlatform: 'Win32'
+      #   buildConfiguration: 'Release'
       x64_RELEASE:
         buildPlatform: 'x64'
         buildConfiguration: 'Release'
-      x86_DEBUG:
-        buildPlatform: 'Win32'
-        buildConfiguration: 'Debug'
+      # x86_DEBUG:
+      #   buildPlatform: 'Win32'
+      #   buildConfiguration: 'Debug'
       x64_DEBUG:
         buildPlatform: 'x64'
         buildConfiguration: 'Debug'
@@ -65,17 +65,17 @@ jobs:
   steps:
   - checkout: none
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_BUILD_WIN_Win32_Release'
-      targetPath: 'Dependencies/Build/'
-    displayName: Download Win32_Release Artifact
+  # - task: DownloadPipelineArtifact@0
+  #   inputs:
+  #     artifactName: 'DEPS_BUILD_WIN_Win32_Release'
+  #     targetPath: 'Dependencies/Build/'
+  #   displayName: Download Win32_Release Artifact
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_BUILD_WIN_Win32_Debug'
-      targetPath: 'Dependencies/Build/'
-    displayName: Download Win32_Debug Artifact
+  # - task: DownloadPipelineArtifact@0
+  #   inputs:
+  #     artifactName: 'DEPS_BUILD_WIN_Win32_Debug'
+  #     targetPath: 'Dependencies/Build/'
+  #   displayName: Download Win32_Debug Artifact
 
   - task: DownloadPipelineArtifact@0
     inputs:
