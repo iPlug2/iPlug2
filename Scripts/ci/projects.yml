@@ -36,14 +36,6 @@ steps:
     artifactName: IPlugControls_${{parameters.graphics}}
     platformStr: ${{parameters.platformStr}}
 
-# - template: ${{parameters.platform}}
-#   parameters:
-#     name: IPlugFaustDSP
-#     path: 'Examples'
-#     graphics: ${{parameters.graphics}}
-#     artifactName: IPlugFaustDSP_${{parameters.graphics}}
-#     platformStr: ${{parameters.platformStr}}
-
 - template: ${{parameters.platform}}
   parameters:
     name: IPlugResponsiveUI
