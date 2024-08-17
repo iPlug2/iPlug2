@@ -50,7 +50,7 @@ jobs:
 
   - task: UsePythonVersion@0
     inputs:
-      versionSpec: '2.7'
+      versionSpec: '3.8'
 
   - bash: |
       cd ./Dependencies/IGraphics
