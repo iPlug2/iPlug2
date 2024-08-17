@@ -22,7 +22,7 @@ jobs:
         buildConfiguration: 'Debug'
 
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-2022'
 
   steps:
   - checkout: none
@@ -38,7 +38,7 @@ jobs:
 
   - task: UsePythonVersion@0
     inputs:
-      versionSpec: '2.7'
+      versionSpec: '3.8'
 
   - bash: |
       cd ./Dependencies/IGraphics
@@ -124,21 +124,21 @@ jobs:
       ./build-skia-mac.sh
     displayName: Build Skia
 
-  - bash: |
-      cd $BUILD_SOURCESDIRECTORY
-      wget https://github.com/llvm/llvm-project/releases/download/llvmorg-9.0.1/clang+llvm-9.0.1-x86_64-apple-darwin.tar.xz
-      tar -xf clang+llvm-9.0.1-x86_64-apple-darwin.tar.xz -C $HOME
-      export PATH=$HOME/clang+llvm-9.0.1-x86_64-apple-darwin/bin:$PATH
-      echo "##vso[task.setvariable variable=PATH]$PATH"
+  # - bash: |
+  #     cd $BUILD_SOURCESDIRECTORY
+  #     wget https://github.com/llvm/llvm-project/releases/download/llvmorg-9.0.1/clang+llvm-9.0.1-x86_64-apple-darwin.tar.xz
+  #     tar -xf clang+llvm-9.0.1-x86_64-apple-darwin.tar.xz -C $HOME
+  #     export PATH=$HOME/clang+llvm-9.0.1-x86_64-apple-darwin/bin:$PATH
+  #     echo "##vso[task.setvariable variable=PATH]$PATH"
 
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
-      ./build-faust-mac.sh
-    displayName: Build FAUST
+  #     cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
+  #     ./build-faust-mac.sh
+  #   displayName: Build FAUST
 
-  - bash: |
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
-      ./build-civetweb-mac.sh
-    displayName: Build CivetWeb
+  # - bash: |
+  #     cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
+  #     ./build-civetweb-mac.sh
+  #   displayName: Build CivetWeb
 
   - bash: |
       cd ./Dependencies/Build

@@ -21,6 +21,10 @@
 #include "GrDirectContext.h"
 #pragma warning( pop )
 
+namespace skia::textlayout {
+class FontCollection;
+}
+
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
@@ -122,7 +126,9 @@ public:
   void ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const IShadow& shadow) override;
 
   void UpdateLayer() override;
-    
+  
+  void DrawMultiLineText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
+
 protected:
     
   float DoMeasureText(const IText& text, const char* str, IRECT& bounds) const override;
@@ -154,6 +160,10 @@ private:
 #ifndef IGRAPHICS_CPU
   sk_sp<GrDirectContext> mGrContext;
   sk_sp<SkSurface> mScreenSurface;
+#endif
+  
+#if !defined IGRAPHICS_NO_SKIA_SKPARAGRAPH
+  sk_sp<skia::textlayout::FontCollection> mFontCollection;
 #endif
   
 #ifdef IGRAPHICS_METAL
