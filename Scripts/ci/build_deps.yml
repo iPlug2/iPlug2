@@ -36,6 +36,18 @@ jobs:
       configuration: '$(buildConfiguration)'
     displayName: Build Windows Dependencies (except SKIA)
 
+  - task: Bash@3
+    inputs:
+      targetType: inline
+      script: |
+        installDir="C:/ninja"
+        curl -LO https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip
+        mkdir -p $installDir
+        unzip -q ninja-win.zip -d $installDir
+        echo "##vso[task.setvariable variable=PATH]$installDir;$(PATH)"
+        echo "##vso[task.setvariable variable=CMAKE_MAKE_PROGRAM]$installDir/ninja.exe"
+    displayName: 'Install Ninja'
+
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '2.7'
@@ -120,6 +132,10 @@ jobs:
     displayName: Build Graphics Dependencies
 
   - bash: |
+      brew install ninja
+    displayName: Install Ninja
+
+  - bash: |
       cd ./Dependencies/IGraphics
       ./build-skia-mac.sh
     displayName: Build Skia
@@ -146,6 +162,10 @@ jobs:
   - checkout: none
 
   - template: get_src_artifact.yml
+
+  - bash: |
+      brew install ninja
+    displayName: Install Ninja
 
   - bash: |
       cd ./Dependencies/IGraphics
