@@ -394,8 +394,27 @@ protected:
     if (mode == '<' && m_base.GetLength())
     {
       const char *p = fs->Get();
-      while (*p && *p != ':' && *p != '#') p++; // relative path if no : found, or if # found before first :
-      if (*p != ':') fs->Insert(m_base.Get(),0);
+      if (*p == '#' || *p == 0)
+      {
+        // <#foo> or <> are relative to base exactly
+        fs->Insert(m_base.Get(),0);
+      }
+      else
+      {
+        while (*p && *p != ':' && *p != '#') p++;
+        if (*p != ':') // relative path if no : found prior to any #
+        {
+          int baselen = m_base.GetLength();
+          // <bar> is resolved relative to base minus base's filepart
+          while (baselen > 0 && m_base.Get()[baselen-1] != '/') baselen--;
+          if (WDL_NOT_NORMALLY(!baselen))
+          {
+            // base has no /, this is probably malformed
+            fs->Insert("/",0);
+          }
+          fs->Insert(m_base.Get(),0,baselen);
+        }
+      }
     }
     if (rv == '\'') rv = '"';
     return rv;
