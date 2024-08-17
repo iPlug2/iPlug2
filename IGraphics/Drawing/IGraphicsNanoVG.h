@@ -102,7 +102,7 @@ public:
 
   void DrawFastDropShadow(const IRECT& innerBounds, const IRECT& outerBounds, float xyDrop = 5.f, float roundness = 0.f, float blur = 10.f, IBlend* pBlend = nullptr) override;
   
-  void DrawMultiLineText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend) override;
+  void DrawMultiLineText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend) override;
   
   void PathClear() override;
   void PathClose() override;

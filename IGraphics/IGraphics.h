@@ -360,7 +360,7 @@ public:
    * @param str The text string to draw
    * @param bounds The rectangular region in the graphics where you would like to draw the text
    * @param pBlend Optional blend method */
-  virtual void DrawMultiLineText(const IText& text, const char* str, IRECT& bounds, const IBlend* pBlend = 0) { DrawText(text, "Unsupported", bounds, pBlend); }
+  virtual void DrawMultiLineText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend = 0) { DrawText(text, "Unsupported", bounds, pBlend); }
 
   /** Get the color at an X, Y location in the graphics context
    * @param x The X coordinate of the pixel
