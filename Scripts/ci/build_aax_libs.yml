@@ -2,7 +2,7 @@
 # - job: BUILD_WIN_AAX_LIBS
 #   condition: and(eq(variables.build_deps, false), eq(variables.build_win, true), eq(variables.build_aax, true))
 #   pool:
-#     vmImage: 'windows-2019'
+#     vmImage: 'windows-2022'
 
 #   steps:
 #   - checkout: none
