@@ -101,7 +101,7 @@ EEL_F * NSEEL_CGEN_CALL __NSEEL_RAMAllocGMEM(EEL_F ***blocks, unsigned int w)
   {
     EEL_F **pblocks=*blocks;
 
-    if (w < NSEEL_RAM_BLOCKS*NSEEL_RAM_ITEMSPERBLOCK)
+    if (w < NSEEL_RAM_BLOCKS_GMEM_NAMED*NSEEL_RAM_ITEMSPERBLOCK)
     {
       const unsigned int whichblock = w/NSEEL_RAM_ITEMSPERBLOCK;
       EEL_F *p=NULL;
@@ -110,7 +110,7 @@ EEL_F * NSEEL_CGEN_CALL __NSEEL_RAMAllocGMEM(EEL_F ***blocks, unsigned int w)
         NSEEL_HOSTSTUB_EnterMutex();
         if (!nseel_gmem_calloc) nseel_gmem_calloc=calloc;
 
-        if (!(pblocks=*blocks)) pblocks = *blocks = (EEL_F **)nseel_gmem_calloc(sizeof(EEL_F *),NSEEL_RAM_BLOCKS);
+        if (!(pblocks=*blocks)) pblocks = *blocks = (EEL_F **)nseel_gmem_calloc(sizeof(EEL_F *),NSEEL_RAM_BLOCKS_GMEM_NAMED);
         else p = pblocks[whichblock];
 
         if (!p && pblocks)
@@ -535,7 +535,7 @@ void NSEEL_VM_FreeGRAM(void **ufd)
   {
     EEL_F **blocks = (EEL_F **)ufd[0];
     int x;
-    for (x = 0; x < NSEEL_RAM_BLOCKS; x ++)
+    for (x = 0; x < NSEEL_RAM_BLOCKS_GMEM_NAMED; x ++)
     {
       if (blocks[x])
       {
