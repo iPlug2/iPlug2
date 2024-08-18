@@ -514,7 +514,7 @@ IPlugControls::IPlugControls(const InstanceInfo& info)
     });
     
     pGraphics->AttachControl(new IAboutBoxControl(b,
-            COLOR_BLACK.WithOpacity(0.95),
+            COLOR_BLACK.WithOpacity(0.95f),
             // AttachFunc
             [](IContainerBase* pParent, const IRECT& r) {
               pParent->AddChildControl(new ITextControl(IRECT(), "IPlugControls Example", {DEFAULT_TEXT_SIZE * 5, COLOR_WHITE}));
