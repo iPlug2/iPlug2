@@ -49,7 +49,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   {
     IPopupMenu::Item* pMenuItem = mMenu->GetItem(i);
 
-    elementTitle = [[NSMutableString alloc] initWithCString:pMenuItem->GetText() encoding:NSUTF8StringEncoding];
+    elementTitle = [[NSMutableString alloc] initWithCString:pMenuItem->GetText()];
 
     if (mMenu->GetPrefix())
     {

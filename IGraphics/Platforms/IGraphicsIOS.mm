@@ -78,7 +78,7 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
     
       for(int i=0; i < gTextures.count; i++)
       {
-        gTextureMap.insert(std::make_pair([[[pTextureFiles[i] lastPathComponent] stringByDeletingPathExtension] cStringUsingEncoding:NSUTF8StringEncoding], (MTLTexturePtr) gTextures[i]));
+        gTextureMap.insert(std::make_pair([[[pTextureFiles[i] lastPathComponent] stringByDeletingPathExtension] UTF8String], (MTLTexturePtr) gTextures[i]));
       }
     
       DBGMSG("Preloaded %i textures\n", (int) [pTextureFiles count]);
@@ -206,12 +206,12 @@ void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   NSMutableArray* pFileTypes = [[NSMutableArray alloc] init];
 
   if (fileName.GetLength())
-    pDefaultFileName = [NSString stringWithCString:fileName.Get() encoding:NSUTF8StringEncoding];
+    pDefaultFileName = [NSString stringWithUTF8String:fileName.Get()];
   else
     pDefaultFileName = @"";
   
   if (path.GetLength())
-    pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+    pDefaultPath = [NSString stringWithUTF8String:path.Get()];
   else
     pDefaultPath = @"";
 
@@ -240,7 +240,7 @@ void IGraphicsIOS::PromptForDirectory(WDL_String& path, IFileDialogCompletionHan
   NSMutableArray* pFileTypes = [[NSMutableArray alloc] init];
 
   if (path.GetLength())
-    pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+    pDefaultPath = [NSString stringWithUTF8String:path.Get()];
   else
     pDefaultPath = @"";
 
@@ -283,9 +283,9 @@ bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const ch
 {
   NSURL* pNSURL = nullptr;
   if (strstr(url, "http"))
-    pNSURL = [NSURL URLWithString:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
+    pNSURL = [NSURL URLWithString:[NSString stringWithUTF8String:url]];
   else
-    pNSURL = [NSURL fileURLWithPath:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
+    pNSURL = [NSURL fileURLWithPath:[NSString stringWithUTF8String:url]];
 
   if (pNSURL)
   {
