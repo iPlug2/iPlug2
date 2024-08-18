@@ -649,32 +649,22 @@ LRESULT CALLBACK IGraphicsWin::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
           addDrawRect(rects, r);
         }
 
-#if defined IGRAPHICS_GL //|| IGRAPHICS_D2D
+#ifdef IGRAPHICS_GL
         PAINTSTRUCT ps;
         BeginPaint(hWnd, &ps);
-#endif
-
-#ifdef IGRAPHICS_GL
         pGraphics->ActivateGLContext();
 #endif
 
         pGraphics->Draw(rects);
 
-        #ifdef IGRAPHICS_GL
+#ifdef IGRAPHICS_GL
         SwapBuffers((HDC) pGraphics->GetPlatformContext());
         pGraphics->DeactivateGLContext();
-        #endif
-
-#if defined IGRAPHICS_GL || IGRAPHICS_D2D
         EndPaint(hWnd, &ps);
 #endif
       }
 
-      // For the D2D if we don't call endpaint, then you really need to call ValidateRect otherwise
-      // we are just going to get another WM_PAINT to handle.  Bad!  It also exibits the odd property
-      // that windows will be popped under the window.
       ValidateRect(hWnd, 0);
-
       DeleteObject(region);
 
       return 0;
