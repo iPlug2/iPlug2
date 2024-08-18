@@ -15,8 +15,6 @@ The original version of iPlug was released in 2008 as part of Cockos' WDL librar
 
 iPlug 2 targets the [CLAP](https://github.com/free-audio/clap), VST2, VST3, AUv2, AUv3, AAX (Native) and the [Web Audio Module](https://webaudiomodules.org) (WAM) plug-in APIs. It can also produce standalone win32/macOS apps with audio and MIDI I/O, as well as [Reaper extensions](https://www.reaper.fm/sdk/plugin/plugin.php). Windows 8, macOS 10.11, and iOS 14 are the official minimum target platforms, but depending on the graphics backend used, you may be able to make it work on earlier operating systems.
 
-iPlug 2 includes support for [the FAUST programming language](http://faust.grame.fr), and the libfaust JIT compiler. It was the winner of the 2018 FAUST award.
-
 iPlug 2 is licensed with a liberal zlib-like [license](https://github.com/iPlug2/iPlug2/blob/master/LICENSE.txt), which means that it is free to use in closed source projects and is free from corporate interference.
 
 iPlug2 discussions happen at the [iPlug2 forum](https://iplug2.discourse.group) and on the [iPlug2 discord server](https://discord.gg/7h9HW8N9Ke) - see you there!

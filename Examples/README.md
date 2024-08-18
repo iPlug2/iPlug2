@@ -14,7 +14,6 @@ The following examples are more specialized:
 * **IPlugSurroundEffect** : A  multichannel volume control effect plug-in that should work on different surround buses.
 * **IPlugDrumSynth** : A drum synthesiser example with multiple output buses.
 * **IPlugResponsiveUI** : An example of how to make a responsive UI that adapts to the platform window that can be maximized and resized using the OS window chrome. 
-* **IPlugFaustDSP** : A plug-in that uses FAUST to implement its DSP and JIT-compile FAUST code in debug builds.
 * **IPlugOSCEditor** : Demonstrates how to use the Open Sound Control classes in iPlug2, as well as the IWebViewControl
 * **IPlugReaperExtension** : This is a template project for making a [Reaper Extension](http://reaper.fm/sdk/plugin/plugin.php). No realtime audio processing code, obviously. Making a reaper extension can be painful since it is all based around the Win32 APIs. This abstracts away some of the nastyness.
 * **IPlugReaperPlugin** : This is a plugin that calls Reaper API functions [Reaper Extension](http://reaper.fm/sdk/plugin/plugin.php). Supports VST2, VST3 and CLAP formats.

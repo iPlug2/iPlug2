@@ -155,7 +155,7 @@ enum EParamSource
   kPresetRecall,
   kUI,
   kDelegate,
-  kRecompile, // for FAUST JIT
+  kRecompile, // for JIT
   kUnknown,
   kNumParamSources
 };
