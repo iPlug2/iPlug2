@@ -136,11 +136,6 @@ jobs:
     displayName: Build FAUST
 
   - bash: |
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
-      ./build-civetweb-mac.sh
-    displayName: Build CivetWeb
-
-  - bash: |
       cd ./Dependencies/Build
       ./../IGraphics/package-deps-src.sh
     displayName: slim SKIA src
