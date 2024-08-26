@@ -476,9 +476,7 @@ int WDL_ConvolutionEngine::Avail(int want)
   // clear combining buffer
   WDL_FFT_REAL *workbuf2 = m_combinebuf.Resize(m_fft_size*4); // temp space
 
-  int ch;
-
-  for (ch = 0; ch < m_proc_nch; ch ++)
+  for (int ch = 0; ch < m_proc_nch; ch ++)
   {
     ProcChannelInfo *pinf = m_proc.Get(ch);
     ProcChannelInfo *pinf2 = (!(ch&1) && ch+1 < m_proc_nch) ? m_proc.Get(ch+1) : NULL;
@@ -525,8 +523,7 @@ int WDL_ConvolutionEngine::Avail(int want)
         if (++pinf2->hist_pos >= nblocks) pinf2->hist_pos=0;
         pinf2->samplesin.GetToBuf(0,workbuf2,sz*sizeof(WDL_FFT_REAL));
         pinf2->samplesin.Advance(sz*sizeof(WDL_FFT_REAL));
-        int i;
-        for (i = 0; i < sz; i ++) // unpack samples
+        for (int i = 0; i < sz; i ++) // unpack samples
         {
           WDL_FFT_REAL f = optr[i*2]=denormal_filter_aggressive(optr[sz+i]);
           if (!nonzflag && (f<-CONVOENGINE_SILENCE_THRESH || f>CONVOENGINE_SILENCE_THRESH)) nonzflag=true;
@@ -549,8 +546,7 @@ int WDL_ConvolutionEngine::Avail(int want)
           allow_mono_input_mode=false;
         }
 
-        int i;
-        for (i = 0; i < sz; i ++) // unpack samples
+        for (int i = 0; i < sz; i ++) // unpack samples
         {
           WDL_FFT_REAL f=optr[i*2]=denormal_filter_aggressive(optr[sz+i]);
           optr[i*2+1]=0.0;
@@ -558,8 +554,7 @@ int WDL_ConvolutionEngine::Avail(int want)
         }
       }
 
-      int i;
-      for (i = 1; mono_input_mode && i < nblocks; i ++) // start @ 1, since hist[histpos] is no longer used for here
+      for (int i = 1; mono_input_mode && i < nblocks; i ++) // start @ 1, since hist[histpos] is no longer used for here
       {
         int srchistpos = histpos-i;
         if (srchistpos < 0) srchistpos += nblocks;
@@ -605,7 +600,7 @@ int WDL_ConvolutionEngine::Avail(int want)
       char *useImpSilentList=m_impdata.Get(srcc)->zflag.GetSize() == nblocks ? m_impdata.Get(srcc)->zflag.Get() : NULL;
 
       WDL_CONVO_IMPULSEBUFf *impulseptr=m_impdata.Get(srcc)->imp.Get();
-      for (i = 0; i < nblocks; i ++, impulseptr+=m_fft_size*2)
+      for (int i = 0; i < nblocks; i ++, impulseptr+=m_fft_size*2)
       {
         int srchistpos = histpos-i;
         if (srchistpos < 0) srchistpos += nblocks;
@@ -682,7 +677,7 @@ int WDL_ConvolutionEngine::Avail(int want)
   }
 
   int mv = want;
-  for (ch=0;ch<m_proc_nch;ch++)
+  for (int ch=0;ch<m_proc_nch;ch++)
   {
     const ProcChannelInfo *pinf = m_proc.Get(ch);
     int v = pinf ? pinf->samplesout.Available()/sizeof(WDL_FFT_REAL) : 0;
