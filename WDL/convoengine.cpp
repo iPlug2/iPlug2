@@ -564,6 +564,14 @@ int WDL_ConvolutionEngine::Avail(int want)
         int srchistpos = histpos-i;
         if (srchistpos < 0) srchistpos += nblocks;
         if (!useSilentList || useSilentList[srchistpos]==2) mono_input_mode=false;
+        else if (useSilentList[srchistpos]==0)
+        {
+          // left channel was marked as being silent, disable mono if right channel is non-silent
+          int srchistpos2 = pinf2->hist_pos + 1 - i; // +1 is because hist_pos has not yet been updated (happens below)
+          if (srchistpos2 < 0) srchistpos2 += nblocks;
+          if (WDL_NOT_NORMALLY(pinf2->samplehist_zflag.GetSize() != nblocks) ||
+                pinf2->samplehist_zflag.Get()[srchistpos2]) mono_input_mode = false;
+        }
       }
 
       if (nonzflag||!useSilentList) memset(optr+sz*2,0,sz*2*sizeof(WDL_FFT_REAL));
