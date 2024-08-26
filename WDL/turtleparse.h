@@ -406,7 +406,11 @@ protected:
         {
           int baselen = m_base.GetLength();
           // <bar> is resolved relative to base minus base's filepart
+#ifdef _WIN32
+          while (baselen > 0 && !WDL_IS_DIRCHAR(m_base.Get()[baselen-1])) baselen--;
+#else
           while (baselen > 0 && m_base.Get()[baselen-1] != '/') baselen--;
+#endif
           if (WDL_NOT_NORMALLY(!baselen))
           {
             // base has no /, this is probably malformed
