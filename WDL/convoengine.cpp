@@ -481,7 +481,7 @@ int WDL_ConvolutionEngine::Avail(int want)
   for (ch = 0; ch < m_proc_nch; ch ++)
   {
     ProcChannelInfo *pinf = m_proc.Get(ch);
-    ProcChannelInfo *pinf2 = ch+1 < m_proc_nch ? m_proc.Get(ch+1) : NULL;
+    ProcChannelInfo *pinf2 = (!(ch&1) && ch+1 < m_proc_nch) ? m_proc.Get(ch+1) : NULL;
 
     if (!pinf->samplehist.GetSize()||!pinf->overlaphist.GetSize()) continue;
     int srcc=ch % m_impdata.GetSize();
