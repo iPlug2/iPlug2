@@ -183,7 +183,7 @@ template<class PTRTYPE> class WDL_PtrList
       }
       m_buf.Resize(0,false);
     }
-    template<class PT> void Empty(void (*delfunc)(PT))
+    template<class PT> void Empty(PT delfunc)
     {
       int x;
       for (x = GetSize()-1; x >= 0; x --)
