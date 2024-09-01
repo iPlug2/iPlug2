@@ -56,7 +56,7 @@ template<class T> static void double_TO_INT16(T &out, double in)
 
 template<class T> static void i32_to_double(int i32, T *p)
 {
-  *p = i32 * (1.0 / 2147483648.0);
+  *p = (T) (i32 * (1.0 / 2147483648.0));
 }
 
 template<class T> static void i24_to_double(const unsigned char *i24, T *p)
