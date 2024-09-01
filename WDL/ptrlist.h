@@ -195,18 +195,6 @@ template<class PTRTYPE> class WDL_PtrList
         m_buf.Resize(x,false);
       }
     }
-    void EmptySafe(bool wantDelete=false,void (*delfunc)(void *)=NULL)
-    {
-      if (!wantDelete) Empty();
-      else
-      {
-        WDL_PtrList<PTRTYPE> tmp;
-        int x;
-        for(x=0;x<GetSize();x++)tmp.Add(Get(x));
-        Empty();
-        tmp.Empty(true,delfunc);
-      }
-    }
 
     int LowerBound(const PTRTYPE *key, bool* ismatch, int (*compar)(const PTRTYPE **a, const PTRTYPE **b)) const
     {
@@ -265,7 +253,7 @@ public:
   explicit WDL_PtrList_DeleteOnDestroy(void (*delfunc)(void *)=NULL, int defgran=4096) : WDL_PtrList<PTRTYPE>(defgran), m_delfunc(delfunc) {  }
   ~WDL_PtrList_DeleteOnDestroy()
   {
-    WDL_PtrList<PTRTYPE>::EmptySafe(true,m_delfunc);
+    WDL_PtrList<PTRTYPE>::Empty(true,m_delfunc);
   }
 private:
   void (*m_delfunc)(void *);
