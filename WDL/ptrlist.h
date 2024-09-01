@@ -185,8 +185,8 @@ template<class PTRTYPE> class WDL_PtrList
     }
     template<class PT> void Empty(PT delfunc)
     {
-      int x;
-      for (x = GetSize()-1; x >= 0; x --)
+      WDL_ASSERT(delfunc != NULL);
+      for (int x = GetSize()-1; x >= 0; x --)
       {
         PTRTYPE* p = Get(x);
         if (delfunc && p) delfunc(p);
