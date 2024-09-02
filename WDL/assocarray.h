@@ -7,6 +7,8 @@
 
 template<class T> static int WDL_assocarray_cmp(T *a, T *b) { return *a > *b ? 1 : *a < *b ? -1 : 0; }
 template<class T> static int WDL_assocarray_cmpmem(T *a, T *b) { return memcmp(a,b,sizeof(*a)); }
+template<class T> static int WDL_assocarray_cmpstr(T **a, T **b) { return strcmp(*a,*b); }
+template<class T> static int WDL_assocarray_cmpistr(T **a, T **b) { return stricmp(*a,*b); }
 
 // on all of these, if valdispose is set, the array will dispose of values as needed.
 // if keydup/keydispose are set, copies of (any) key data will be made/destroyed as necessary
@@ -427,12 +429,10 @@ template <class VAL> class WDL_StringKeyedArray : public WDL_AssocArray<const ch
 {
 public:
 
-  explicit WDL_StringKeyedArray(bool caseSensitive=true, void (*valdispose)(VAL)=NULL)
-    : WDL_AssocArray<const char*, VAL>(caseSensitive?cmpstr:cmpistr, dupstr, freestr, valdispose) {}
+  explicit WDL_StringKeyedArray(bool caseSensitive=true, void (*valdispose)(VAL)=NULL, bool copyKeys=true)
+    : WDL_AssocArray<const char*, VAL>(caseSensitive?WDL_assocarray_cmpstr<const char>:WDL_assocarray_cmpistr<const char>, copyKeys?dupstr:NULL, copyKeys?freestr:NULL, valdispose) {}
 
   static const char *dupstr(const char *s) { return strdup(s);  } // these might not be necessary but depending on the libc maybe...
-  static int cmpstr(const char **s1, const char **s2) { return strcmp(*s1, *s2); }
-  static int cmpistr(const char **a, const char **b) { return stricmp(*a,*b); }
   static void freestr(const char* s) { free((void*)s); }
   static void freecharptr(char *p) { free(p); }
 };
@@ -442,14 +442,12 @@ template <class VAL> class WDL_StringKeyedArray2 : public WDL_AssocArrayImpl<con
 {
 public:
 
-  explicit WDL_StringKeyedArray2(bool caseSensitive=true, void (*valdispose)(VAL)=NULL)
-    : WDL_AssocArrayImpl<const char*, VAL>(caseSensitive?cmpstr:cmpistr, dupstr, freestr, valdispose) {}
+  explicit WDL_StringKeyedArray2(bool caseSensitive=true, void (*valdispose)(VAL)=NULL, bool copyKeys=true)
+    : WDL_AssocArrayImpl<const char*, VAL>(caseSensitive?WDL_assocarray_cmpstr<const char>:WDL_assocarray_cmpistr<const char>, copyKeys?dupstr:NULL, copyKeys?freestr:NULL, valdispose) {}
   
   ~WDL_StringKeyedArray2() { }
 
   static const char *dupstr(const char *s) { return strdup(s);  } // these might not be necessary but depending on the libc maybe...
-  static int cmpstr(const char **s1, const char **s2) { return strcmp(*s1, *s2); }
-  static int cmpistr(const char **a, const char **b) { return stricmp(*a,*b); }
   static void freestr(const char* s) { free((void*)s); }
   static void freecharptr(char *p) { free(p); }
 };
@@ -459,8 +457,8 @@ template <class VAL> class WDL_LogicalSortStringKeyedArray : public WDL_StringKe
 {
 public:
 
-  explicit WDL_LogicalSortStringKeyedArray(bool caseSensitive=true, void (*valdispose)(VAL)=NULL)
-    : WDL_StringKeyedArray<VAL>(caseSensitive, valdispose)
+  explicit WDL_LogicalSortStringKeyedArray(bool caseSensitive=true, void (*valdispose)(VAL)=NULL, bool copyKeys=true)
+    : WDL_StringKeyedArray<VAL>(caseSensitive, valdispose, copyKeys)
   {
     WDL_StringKeyedArray<VAL>::m_keycmp = caseSensitive?cmpstr:cmpistr; // override
   }
