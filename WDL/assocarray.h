@@ -296,8 +296,6 @@ public:
   };
   WDL_TypedBuf<KeyVal> m_data;
 
-  static int keycmp_ptr(KEY *a, KEY *b) { return (INT_PTR)*a > (INT_PTR)*b ? 1 : (INT_PTR)*a < (INT_PTR)*b ? -1 : 0; }
-
   // for (const auto &a : list) { a.key, a.val }
   const KeyVal *begin() const { return m_data.begin(); }
   const KeyVal *end() const { return m_data.end(); }
