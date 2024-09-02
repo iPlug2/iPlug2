@@ -5,10 +5,10 @@
 #include "mergesort.h"
 #include "wdlcstring.h"
 
-template<class T> static int WDL_assocarray_cmp(T *a, T *b) { return *a > *b ? 1 : *a < *b ? -1 : 0; }
-template<class T> static int WDL_assocarray_cmpmem(T *a, T *b) { return memcmp(a,b,sizeof(*a)); }
-template<class T> static int WDL_assocarray_cmpstr(T **a, T **b) { return strcmp(*a,*b); }
-template<class T> static int WDL_assocarray_cmpistr(T **a, T **b) { return stricmp(*a,*b); }
+template<class T> static int WDL_assocarray_cmp(const T *a, const T *b) { return *a > *b ? 1 : *a < *b ? -1 : 0; }
+template<class T> static int WDL_assocarray_cmpmem(const T *a, const T *b) { return memcmp(a,b,sizeof(*a)); }
+template<class T> static int WDL_assocarray_cmpstr(T * const *a, T * const *b) { return strcmp(*a,*b); }
+template<class T> static int WDL_assocarray_cmpistr(T * const *a, T * const *b) { return stricmp(*a,*b); }
 
 // on all of these, if valdispose is set, the array will dispose of values as needed.
 // if keydup/keydispose are set, copies of (any) key data will be made/destroyed as necessary
@@ -23,7 +23,7 @@ template <class KEY, class VAL> class WDL_AssocArrayImpl
 
 public:
 
-  explicit WDL_AssocArrayImpl(int (*keycmp)(KEY *k1, KEY *k2),
+  explicit WDL_AssocArrayImpl(int (*keycmp)(const KEY *k1, const KEY *k2),
                               KEY (*keydup)(KEY)=NULL,
                               void (*keydispose)(KEY)=NULL,
                               void (*valdispose)(VAL)=NULL)
@@ -191,7 +191,7 @@ public:
     }
   }
 
-  void Resort(int (*new_keycmp)(KEY *k1, KEY *k2)=NULL)
+  void Resort(int (*new_keycmp)(const KEY *k1, const KEY *k2)=NULL)
   {
     if (new_keycmp) m_keycmp = new_keycmp;
     if (m_data.GetSize() > 1 && m_keycmp)
@@ -306,7 +306,7 @@ public:
 
 protected:
 
-  int (*m_keycmp)(KEY *k1, KEY *k2);
+  int (*m_keycmp)(const KEY *k1, const KEY *k2);
   KEY (*m_keydup)(KEY);
   void (*m_keydispose)(KEY);
   void (*m_valdispose)(VAL);
@@ -344,7 +344,7 @@ template <class KEY, class VAL> class WDL_AssocArray : public WDL_AssocArrayImpl
 {
 public:
 
-  explicit WDL_AssocArray(int (*keycmp)(KEY *k1, KEY *k2),
+  explicit WDL_AssocArray(int (*keycmp)(const KEY *k1, const KEY *k2),
                           KEY (*keydup)(KEY)=NULL,
                           void (*keydispose)(KEY)=NULL, void (*valdispose)(VAL)=NULL)
     : WDL_AssocArrayImpl<KEY, VAL>(keycmp, keydup, keydispose, valdispose)
@@ -463,12 +463,12 @@ public:
   
   ~WDL_LogicalSortStringKeyedArray() { }
 
-  static int cmpstr(const char **a, const char **b)
+  static int cmpstr(const char * const *a, const char * const *b)
   {
     int r=WDL_strcmp_logical_ex(*a, *b, 1, WDL_STRCMP_LOGICAL_EX_FLAG_UTF8CONVERT);
     return r?r:strcmp(*a,*b);
   }
-  static int cmpistr(const char **a, const char **b)
+  static int cmpistr(const char * const *a, const char * const *b)
   {
     int r=WDL_strcmp_logical_ex(*a, *b, 0, WDL_STRCMP_LOGICAL_EX_FLAG_UTF8CONVERT);
     return r?r:stricmp(*a,*b);
@@ -492,7 +492,7 @@ struct WDL_Set_DummyRec { };
 template <class KEY> class WDL_Set : public WDL_AssocArrayImpl<KEY,WDL_Set_DummyRec>
 {
   public:
-  explicit WDL_Set(int (*keycmp)(KEY *k1, KEY *k2),
+  explicit WDL_Set(int (*keycmp)(const KEY *k1, const KEY *k2),
                             KEY (*keydup)(KEY)=NULL,
                             void (*keydispose)(KEY)=NULL
       )
