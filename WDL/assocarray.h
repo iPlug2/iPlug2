@@ -5,6 +5,9 @@
 #include "mergesort.h"
 #include "wdlcstring.h"
 
+template<class T> static int WDL_assocarray_cmp(T *a, T *b) { return *a > *b ? 1 : *a < *b ? -1 : 0; }
+template<class T> static int WDL_assocarray_cmpmem(T *a, T *b) { return memcmp(a,b,sizeof(*a)); }
+
 // on all of these, if valdispose is set, the array will dispose of values as needed.
 // if keydup/keydispose are set, copies of (any) key data will be made/destroyed as necessary
 
@@ -370,25 +373,54 @@ public:
   }
 };
 
-
-template <class VAL> class WDL_IntKeyedArray : public WDL_AssocArray<int, VAL>
+template <class KEY, class VAL> class WDL_KeyedArray : public WDL_AssocArray<KEY, VAL>
 {
 public:
-
-  explicit WDL_IntKeyedArray(void (*valdispose)(VAL)=NULL)
-    : WDL_AssocArray<int, VAL>(cmpint, NULL, NULL, valdispose) {}
-
-  static int cmpint(int *a, int *b) { return *a > *b ? 1 : *a < *b ? -1 : 0; }
+  explicit WDL_KeyedArray(void (*valdispose)(VAL)=NULL)
+    : WDL_AssocArray<KEY, VAL>(WDL_assocarray_cmp<KEY>, NULL, NULL, valdispose)
+  {
+  }
 };
 
-template <class VAL> class WDL_IntKeyedArray2 : public WDL_AssocArrayImpl<int, VAL>
+template <class KEY, class VAL> class WDL_KeyedArrayImpl : public WDL_AssocArrayImpl<KEY, VAL>
+{
+public:
+  explicit WDL_KeyedArrayImpl(void (*valdispose)(VAL)=NULL)
+    : WDL_AssocArrayImpl<KEY, VAL>(WDL_assocarray_cmp<KEY>, NULL, NULL, valdispose)
+  {
+  }
+};
+
+template <class KEY, class VAL> class WDL_MemKeyedArray : public WDL_AssocArray<KEY, VAL>
+{
+public:
+  explicit WDL_MemKeyedArray(void (*valdispose)(VAL)=NULL)
+    : WDL_AssocArray<KEY, VAL>(WDL_assocarray_cmpmem<KEY>, NULL, NULL, valdispose)
+  {
+  }
+};
+
+template <class KEY, class VAL> class WDL_MemKeyedArrayImpl : public WDL_AssocArrayImpl<KEY, VAL>
+{
+public:
+  explicit WDL_MemKeyedArrayImpl(void (*valdispose)(VAL)=NULL)
+    : WDL_AssocArrayImpl<KEY, VAL>(WDL_assocarray_cmpmem<KEY>, NULL, NULL, valdispose)
+  {
+  }
+};
+
+
+template <class VAL> class WDL_IntKeyedArray : public WDL_KeyedArray<int, VAL>
+{
+public:
+  explicit WDL_IntKeyedArray(void (*valdispose)(VAL)=NULL) : WDL_KeyedArray<int, VAL>(valdispose) {}
+};
+
+template <class VAL> class WDL_IntKeyedArray2 : public WDL_KeyedArrayImpl<int, VAL>
 {
 public:
 
-  explicit WDL_IntKeyedArray2(void (*valdispose)(VAL)=NULL)
-    : WDL_AssocArrayImpl<int, VAL>(cmpint, NULL, NULL, valdispose) {}
-
-  static int cmpint(int *a, int *b) { return *a > *b ? 1 : *a < *b ? -1 : 0; }
+  explicit WDL_IntKeyedArray2(void (*valdispose)(VAL)=NULL) : WDL_KeyedArrayImpl<int, VAL>(valdispose) {}
 };
 
 template <class VAL> class WDL_StringKeyedArray : public WDL_AssocArray<const char *, VAL>
@@ -448,18 +480,16 @@ public:
 };
 
 
-template <class VAL> class WDL_PtrKeyedArray : public WDL_AssocArray<INT_PTR, VAL>
+template <class VAL> class WDL_PtrKeyedArray : public WDL_KeyedArray<INT_PTR, VAL>
 {
 public:
-  explicit WDL_PtrKeyedArray(void (*valdispose)(VAL)=NULL)
-    : WDL_AssocArray<INT_PTR, VAL>(WDL_AssocArray<INT_PTR, VAL>::keycmp_ptr, NULL, NULL, valdispose) {}
+  explicit WDL_PtrKeyedArray(void (*valdispose)(VAL)=NULL) : WDL_KeyedArray<INT_PTR, VAL>(valdispose) {}
 };
 
-template <class KEY, class VAL> class WDL_PointerKeyedArray : public WDL_AssocArray<KEY, VAL>
+template <class KEY, class VAL> class WDL_PointerKeyedArray : public WDL_KeyedArray<KEY, VAL>
 {
 public:
-  explicit WDL_PointerKeyedArray(void (*valdispose)(VAL)=NULL)
-    : WDL_AssocArray<KEY, VAL>(WDL_AssocArray<KEY, VAL>::keycmp_ptr, NULL, NULL, valdispose) {}
+  explicit WDL_PointerKeyedArray(void (*valdispose)(VAL)=NULL) : WDL_KeyedArray<KEY, VAL>(valdispose) {}
 };
 
 struct WDL_Set_DummyRec { };
@@ -498,7 +528,7 @@ template <class KEY> class WDL_Set : public WDL_AssocArrayImpl<KEY,WDL_Set_Dummy
 template <class KEY> class WDL_PtrSet : public WDL_Set<KEY>
 {
 public:
-  explicit WDL_PtrSet() : WDL_Set<KEY>( WDL_AssocArray<KEY, WDL_Set_DummyRec>::keycmp_ptr ) { }
+  explicit WDL_PtrSet() : WDL_Set<KEY>( WDL_assocarray_cmp<KEY> ) { }
 };
 
 
