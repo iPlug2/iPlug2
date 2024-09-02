@@ -115,12 +115,6 @@ int length_of_quoted_string(char *p, bool convertRCquotesToSlash)
   return -1;
 }
 
-static int uint64cmpfunc(WDL_UINT64 *a, WDL_UINT64 *b)
-{
-  if (*a < *b) return -1;
-  if (*a > *b) return 1;
-  return 0;
-}
 #define HACK_WILDCARD_ENTRY 2
 static int isLocalizeCall(const char *p)
 {
@@ -592,7 +586,7 @@ int main(int argc, char **argv)
     int pos[4096]={0,};
     printf("[common]\n");
     WDL_FastString matchlist;
-    WDL_AssocArray<WDL_UINT64, bool> ids(uint64cmpfunc);
+    WDL_KeyedArray<WDL_UINT64, bool> ids;
     int minpos = 0;
     for (;;)
     {
@@ -665,7 +659,7 @@ int main(int argc, char **argv)
     printf("[%s]%s%s\n",nm,secinfo?" ; ":"", secinfo?secinfo:"");
     int a;
     int y;
-    WDL_AssocArray<WDL_UINT64, bool> ids(uint64cmpfunc);
+    WDL_KeyedArray<WDL_UINT64, bool> ids;
     for (a=0;a<2;a++)
     {
       for (y=0;y<p->GetSize();y++)

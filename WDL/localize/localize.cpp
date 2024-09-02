@@ -31,8 +31,8 @@
 #endif
 
 #define LANGPACK_SCALE_CONSTANT WDL_UINT64_CONST(0x5CA1E00000000000)
-static WDL_StringKeyedArray< WDL_AssocArray<WDL_UINT64, char *> * > g_translations;
-static WDL_AssocArray<WDL_UINT64, char *> *g_translations_commonsec;
+static WDL_StringKeyedArray< WDL_KeyedArray<WDL_UINT64, char *> * > g_translations;
+static WDL_KeyedArray<WDL_UINT64, char *> *g_translations_commonsec;
 
 static bool isPrintfModifier(char c)
 {
@@ -230,7 +230,7 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
 
   for (trycnt=0;trycnt<2 && !newptr;trycnt++)
   {
-    WDL_AssocArray<WDL_UINT64, char *> *section = trycnt == 1 ? g_translations_commonsec : g_translations.Get(subctx);
+    WDL_KeyedArray<WDL_UINT64, char *> *section = trycnt == 1 ? g_translations_commonsec : g_translations.Get(subctx);
 
     if (section)
     {
@@ -272,7 +272,7 @@ const char *__localizeFunc(const char *str, const char *subctx, int flags)
   return newptr?newptr:str;
 }
 
-static void __localProcMenu(HMENU menu, WDL_AssocArray<WDL_UINT64, char *> *s)
+static void __localProcMenu(HMENU menu, WDL_KeyedArray<WDL_UINT64, char *> *s)
 {
   int n = GetMenuItemCount(menu);
   int x;
@@ -358,7 +358,7 @@ void __localizeMenu(const char *rescat, HMENU hMenu, LPCSTR lpMenuName)
   {
     char buf[128];
     sprintf(buf,"%sMENU_%d",rescat?rescat:"",(int)a);
-    WDL_AssocArray<WDL_UINT64, char *> *s = g_translations.Get(buf);
+    WDL_KeyedArray<WDL_UINT64, char *> *s = g_translations.Get(buf);
     if (s)
     {
       __localProcMenu(hMenu,s);
@@ -453,7 +453,7 @@ public:
   bool has_sc;
 };
 
-static const char *xlateWindow(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *s, char *buf, int bufsz, bool prefix_handling)
+static const char *xlateWindow(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *s, char *buf, int bufsz, bool prefix_handling)
 {
   buf[0]=0;
   GetWindowText(hwnd,buf,bufsz);
@@ -610,7 +610,7 @@ static int rippleControlsRight(HWND hwnd, const RECT *srcR, windowReorgEnt *ent,
   return dSize;
 }
 
-static void localize_dialog(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *sec)
+static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
 {
 #ifdef _DEBUG
   WDL_ASSERT(g_debug_langpack_has_loaded != false);
@@ -780,7 +780,7 @@ static void localize_dialog(HWND hwnd, WDL_AssocArray<WDL_UINT64, char *> *sec)
 void __localizeInitializeDialog(HWND hwnd, const char *desc)
 {
   if (!desc || !hwnd || !*desc) return;
-  WDL_AssocArray<WDL_UINT64, char *> *s = g_translations.Get(desc);
+  WDL_KeyedArray<WDL_UINT64, char *> *s = g_translations.Get(desc);
   if (s) localize_dialog(hwnd,s);
 }
 
@@ -798,12 +798,12 @@ static WDL_DLGRET __localDlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPa
           localizePreInitDialogHook(hwnd);
 
         if (l[2])
-          localize_dialog(hwnd,(WDL_AssocArray<WDL_UINT64, char *> *)l[2]);
+          localize_dialog(hwnd,(WDL_KeyedArray<WDL_UINT64, char *> *)l[2]);
 
 #ifdef _WIN32
         {
           // if not a child window and has a menu set, localize our menu
-          WDL_AssocArray<WDL_UINT64, char *> *s = (WDL_AssocArray<WDL_UINT64, char *> *)l[3];
+          WDL_KeyedArray<WDL_UINT64, char *> *s = (WDL_KeyedArray<WDL_UINT64, char *> *)l[3];
           if (s && !(GetWindowLong(hwnd,GWL_STYLE)&WS_CHILD))
           {
             HMENU hmenu = GetMenu(hwnd);
@@ -849,7 +849,7 @@ DLGPROC __localizePrepareDialog(const char *rescat, HINSTANCE hInstance, const c
   INT_PTR a = (INT_PTR) lpTemplate;
   if (WDL_NOT_NORMALLY(nptrs<4)) return NULL;
 
-  WDL_AssocArray<WDL_UINT64, char *> *s = NULL, *s2 = NULL;
+  WDL_KeyedArray<WDL_UINT64, char *> *s = NULL, *s2 = NULL;
   if (a>0&&a<65536)
   {
     char buf[128];
@@ -897,13 +897,6 @@ HWND __localizeDialog(HINSTANCE hInstance, const char *lpTemplate, HWND hwndPare
     case 0: return CreateDialogParam(hInstance,lpTemplate,hwndParent,dlgProc,lParam);
     case 1: return (HWND) (INT_PTR)DialogBoxParam(hInstance,lpTemplate,hwndParent,dlgProc,lParam);
   }
-  return 0;
-}
-
-static int uint64cmpfunc(WDL_UINT64 *a, WDL_UINT64 *b)
-{
-  if (*a < *b) return -1;
-  if (*a > *b) return 1;
   return 0;
 }
 
@@ -1028,13 +1021,13 @@ void WDL_fgets_as_utf8(char *linebuf, int linebuf_size, FILE *fp, int *format_fl
   }
 }
 
-WDL_AssocArray<WDL_UINT64, char *> *WDL_GetLangpackSection(const char *sec)
+WDL_KeyedArray<WDL_UINT64, char *> *WDL_GetLangpackSection(const char *sec)
 {
   return g_translations.Get(sec);
 }
 
-WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *fn,
-    WDL_StringKeyedArray< WDL_AssocArray<WDL_UINT64, char *> * > *dest,
+WDL_KeyedArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *fn,
+    WDL_StringKeyedArray< WDL_KeyedArray<WDL_UINT64, char *> * > *dest,
     const char *onlySec_name,
     bool include_commented_lines,
     bool no_escape_strings,
@@ -1044,11 +1037,11 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *fn,
 #ifdef _DEBUG
   g_debug_langpack_has_loaded = true;
 #endif
-  WDL_AssocArray<WDL_UINT64, char *> *rv=NULL;
+  WDL_KeyedArray<WDL_UINT64, char *> *rv=NULL;
   FILE *fp = fopenUTF8(fn,"r");
   if (!fp) return rv;
 
-  WDL_AssocArray<WDL_UINT64, char *> *cursec=NULL;
+  WDL_KeyedArray<WDL_UINT64, char *> *cursec=NULL;
 
   int format_flag=-1;
 
@@ -1119,7 +1112,7 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *fn,
         cursec=NULL;
         if (!strcmp(lbstart,onlySec_name))
         {
-          if (!rv) rv=new WDL_AssocArray<WDL_UINT64, char *>(uint64cmpfunc);
+          if (!rv) rv=new WDL_KeyedArray<WDL_UINT64, char *>;
           cursec=rv;
         }
       }
@@ -1128,7 +1121,7 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *fn,
         cursec = dest->Get(lbstart);
         if (!cursec)
         {
-          cursec = new WDL_AssocArray<WDL_UINT64, char *>(uint64cmpfunc);
+          cursec = new WDL_KeyedArray<WDL_UINT64, char *>;
           dest->Insert(lbstart,cursec);
         }
       }
@@ -1211,9 +1204,9 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePackInternal(const char *fn,
   return rv;
 }
 
-WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const char *onlySec_name)
+WDL_KeyedArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const char *onlySec_name)
 {
-  WDL_AssocArray<WDL_UINT64, char *> *rv = WDL_LoadLanguagePackInternal(fn,&g_translations, onlySec_name,false,false, NULL);
+  WDL_KeyedArray<WDL_UINT64, char *> *rv = WDL_LoadLanguagePackInternal(fn,&g_translations, onlySec_name,false,false, NULL);
   if (!onlySec_name)
     g_translations_commonsec = g_translations.Get("common");
   return rv;
@@ -1221,13 +1214,13 @@ WDL_AssocArray<WDL_UINT64, char *> *WDL_LoadLanguagePack(const char *fn, const c
 
 void WDL_SetLangpackFallbackEntry(const char *src_sec, WDL_UINT64 src_v, const char *dest_sec, WDL_UINT64 dest_v)
 {
-  WDL_AssocArray<WDL_UINT64, char *> *sec = g_translations.Get(src_sec);
+  WDL_KeyedArray<WDL_UINT64, char *> *sec = g_translations.Get(src_sec);
   char *v = sec ? sec->Get(src_v) : NULL;
   if (!v) return;
   sec = g_translations.Get(dest_sec);
   if (!sec)
   {
-    sec = new WDL_AssocArray<WDL_UINT64, char *>(uint64cmpfunc);
+    sec = new WDL_KeyedArray<WDL_UINT64, char *>;
     g_translations.Insert(dest_sec,sec);
   }
   else if (sec->Get(dest_v)) return;

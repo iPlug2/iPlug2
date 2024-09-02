@@ -121,9 +121,7 @@
 class eel_string_context_state
 {
   public:
-    static int cmpistr(const char **a, const char **b) { return stricmp(*a,*b); }
-
-    eel_string_context_state()  : m_named_strings_names(false), m_varname_cache(cmpistr)
+    eel_string_context_state()  : m_named_strings_names(false), m_varname_cache(false, NULL, false)
     {
       m_vm=0;
       memset(m_user_strings,0,sizeof(m_user_strings));
@@ -234,7 +232,7 @@ class eel_string_context_state
     WDL_StringKeyedArray<int> m_named_strings_names; // #xyz->index
 
     EEL_STRING_STORAGECLASS *m_user_strings[EEL_STRING_MAX_USER_STRINGS]; // indices 0-1023 (etc)
-    WDL_AssocArray<const char *, EEL_F_PTR> m_varname_cache; // cached pointers when using %{xyz}s, %{#xyz}s bypasses
+    WDL_StringKeyedArray<EEL_F_PTR> m_varname_cache; // cached pointers when using %{xyz}s, %{#xyz}s bypasses
 
     NSEEL_VMCTX m_vm;
 #ifdef EEL_STRING_WANT_MUTEX

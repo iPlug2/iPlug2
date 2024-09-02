@@ -782,14 +782,7 @@ char *lstrcpyn(char *dest, const char *src, int l)
 }
 
 static WDL_Mutex s_libraryMutex;
-static int libkeycomp(void **p1, void **p2)
-{
-  INT_PTR a=(INT_PTR)(*p1) - (INT_PTR)(*p2);
-  if (a<0)return -1;
-  if (a>0) return 1;
-  return 0;
-}
-static WDL_AssocArray<void *, SWELL_HINSTANCE *> s_loadedLibs(libkeycomp); // index by OS-provided handle (rather than filename since filenames could be relative etc)
+static WDL_KeyedArray<void *, SWELL_HINSTANCE *> s_loadedLibs; // index by OS-provided handle (rather than filename since filenames could be relative etc)
 
 HINSTANCE LoadLibrary(const char *fn)
 {

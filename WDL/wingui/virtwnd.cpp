@@ -1113,23 +1113,16 @@ public:
 class WDL_VirtualWnd_BGCfgCache_ar
 {
 public:
-  WDL_VirtualWnd_BGCfgCache_ar() : m_cachelist(compar, NULL, NULL, destrval) { }
+  WDL_VirtualWnd_BGCfgCache_ar() : m_cachelist(destrval) { }
   ~WDL_VirtualWnd_BGCfgCache_ar() {  }
 
-  WDL_AssocArray<const LICE_IBitmap *,  WDL_PtrList<WDL_VirtualWnd_BGCfgCache_img> * > m_cachelist;
+  WDL_KeyedArray<const LICE_IBitmap *,  WDL_PtrList<WDL_VirtualWnd_BGCfgCache_img> * > m_cachelist;
 
   static void destrval(WDL_PtrList<WDL_VirtualWnd_BGCfgCache_img> *list)
   {
     if (list) list->Empty(true);
     delete list;
   }
-  static int compar(const LICE_IBitmap **a, const LICE_IBitmap ** b)
-  {
-    if ((*a) < (*b)) return -1;
-    if ((*a) > (*b)) return 1;
-    return 0;
-  }
-
 };
 
 
