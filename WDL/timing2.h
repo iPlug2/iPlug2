@@ -54,6 +54,7 @@ private:
 
   wdl_timing_accumulator(const char *name=NULL) {}
   ~wdl_timing_accumulator() {}
+  void Report(const char *caption=NULL) {}
   void Begin() {}
   void End() {}
 
