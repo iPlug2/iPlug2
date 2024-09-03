@@ -19,11 +19,17 @@ public:
   }
   ~wdl_timing_accumulator()
   {
+    Report("final");
+  }
+
+  void Report(const char *caption=NULL) const
+  {
     if (m_cnt)
     {
       const double usec=1000000.0;
-      wdl_log_force("timing %s: %.0f calls, %.0f usec/call, %.0f usec total\n",
-        m_name, (double)m_cnt, m_tot*usec/(double)m_cnt, m_tot*usec);
+      wdl_log_force("timing %s%s%s%s: %.0f calls, %.0f usec/call, %.0f usec total\n",
+        m_name, caption ? " (" : "", caption ? caption : "", caption ? ")" : "",
+        (double)m_cnt, m_tot*usec/(double)m_cnt, m_tot*usec);
     }
   }
 
