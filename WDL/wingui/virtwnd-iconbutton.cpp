@@ -915,7 +915,7 @@ void WDL_VirtualStaticText::OnPaint(LICE_IBitmap *drawbm, int origin_x, int orig
 
       if (m_wantabbr)
       {
-        if (len && txt[len-1] > 0 && isdigit(txt[len-1]))
+        if (len && txt[len-1] > 0 && isdigit_safe(txt[len-1]))
         {
           RECT tr = { 0, 0, 0, 0 };
           font->DrawText(drawbm, txt, -1, &tr, DT_SINGLELINE|DT_NOPREFIX|DT_CALCRECT);
@@ -925,7 +925,7 @@ void WDL_VirtualStaticText::OnPaint(LICE_IBitmap *drawbm, int origin_x, int orig
             int i;
             for (i=len-1; i >= 0; --i)
             {
-              if (txt[i] < 0 || !isdigit(txt[i]) || len-i > 4) break;
+              if (txt[i] < 0 || !isdigit_safe(txt[i]) || len-i > 4) break;
             }
             strcat(abbrbuf, txt+i+1);
 

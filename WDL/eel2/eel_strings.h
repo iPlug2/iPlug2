@@ -767,7 +767,7 @@ static int eel_string_match(void *opaque, const char *fmt, const char *msg, int 
         }
       break;
       default:
-        if (ignorecase ? (toupper(*fmt) != toupper(*msg)) : (*fmt!= *msg)) return 0;
+        if (ignorecase ? (toupper_safe(*fmt) != toupper_safe(*msg)) : (*fmt!= *msg)) return 0;
         fmt++;
         msg++;
       break;
@@ -996,8 +996,8 @@ static EEL_F _eel_strcmp_int(const char *a, int a_len, const char *b, int b_len,
     char bv = b[pos];
     if (ignorecase) 
     {
-      av=toupper(av);
-      bv=toupper(bv);
+      av=toupper_safe(av);
+      bv=toupper_safe(bv);
     }
     if (bv > av) return -1.0;
     if (av > bv) return 1.0;
@@ -1113,11 +1113,11 @@ static int eel_getchar_flag(int type)
   int ret=0;
 #endif
 
-  if (toupper((type>>8)&0xff) == 'U') ret|=EEL_GETCHAR_FLAG_UNSIGNED;
-  else if (type>255 && toupper(type&0xff) == 'U') { ret|=EEL_GETCHAR_FLAG_UNSIGNED; type>>=8; }
+  if (toupper_safe((type>>8)&0xff) == 'U') ret|=EEL_GETCHAR_FLAG_UNSIGNED;
+  else if (type>255 && toupper_safe(type&0xff) == 'U') { ret|=EEL_GETCHAR_FLAG_UNSIGNED; type>>=8; }
   type&=0xff;
 
-  if (isupper(type)) ret^=EEL_GETCHAR_FLAG_ENDIANSWAP;
+  if (isupper_safe(type)) ret^=EEL_GETCHAR_FLAG_ENDIANSWAP;
   else type += 'A'-'a';
 
   switch (type)

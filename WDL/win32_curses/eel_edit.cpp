@@ -78,7 +78,7 @@ int EEL_Editor::parse_format_specifier(const char *fmt_in, int *var_offs, int *v
   {
     const char c = *fmt++;
 
-    if (c>0 && isalpha(c)) 
+    if (c>0 && isalpha_safe(c)) 
     {
       return (int) (fmt - fmt_in);
     }
@@ -195,7 +195,7 @@ void EEL_Editor::draw_string_urlchk(int *skipcnt, const char *str, int amt, int 
         str_scan += l;
         l=0;
         while (*str_scan &&
-               (strncmp(str_scan,"http://",7) || (sstr != str_scan && str_scan[-1] > 0 && isalnum(str_scan[-1]))) &&
+               (strncmp(str_scan,"http://",7) || (sstr != str_scan && str_scan[-1] > 0 && isalnum_safe(str_scan[-1]))) &&
                str_scan < str+amt) str_scan++;
         if (!*str_scan || str_scan >= str+amt) break;
         while (str_scan[l] && str_scan[l] != ')' && str_scan[l] != '\"' && str_scan[l] != ')' && str_scan[l] != ' ' && str_scan[l] != '\t') l++;
@@ -415,7 +415,7 @@ int EEL_Editor::do_draw_line(const char *p, int *c_comment_state, int last_attr)
     {
       attr = SYNTAX_COMMENT;
     }
-    else if (tok[0] > 0 && (isalpha(tok[0]) || tok[0] == '_' || tok[0] == '#'))
+    else if (tok[0] > 0 && (isalpha_safe(tok[0]) || tok[0] == '_' || tok[0] == '#'))
     {
       int def_attr = A_NORMAL;
       bool isf=true;
@@ -1488,7 +1488,7 @@ void EEL_Editor::doWatchInfo(int c)
             bool lb=true;
             for (x=0;x<code.GetLength();x++)
             {
-              if (code.Get()[x]>0 && isspace(code.Get()[x]))
+              if (code.Get()[x]>0 && isspace_safe(code.Get()[x]))
               {
                 if (lb) code.DeleteSub(x--,1);
                 lb=true;
@@ -1515,14 +1515,14 @@ void EEL_Editor::doWatchInfo(int c)
       // compile+execute code within () as debug_watch_value = ( code )
       // show value (or err msg)
     }
-    else if (curChar>0 && (isalnum(curChar) || curChar == '_' || curChar == '.' || curChar == '#')) 
+    else if (curChar>0 && (isalnum_safe(curChar) || curChar == '_' || curChar == '.' || curChar == '#')) 
     {
       const int bytex = WDL_utf8_charpos_to_bytepos(p,m_curs_x);
       const char *lp=p+bytex;
       const char *rp=lp + WDL_utf8_charpos_to_bytepos(lp,1);
-      while (lp >= p && *lp > 0 && (isalnum(*lp) || *lp == '_' || (*lp == '.' && (lp==p || lp[-1]!='.')))) lp--;
+      while (lp >= p && *lp > 0 && (isalnum_safe(*lp) || *lp == '_' || (*lp == '.' && (lp==p || lp[-1]!='.')))) lp--;
       if (lp < p || *lp != '#') lp++;
-      while (*rp && *rp > 0 && (isalnum(*rp) || *rp == '_' || (*rp == '.' && rp[1] != '.'))) rp++;
+      while (*rp && *rp > 0 && (isalnum_safe(*rp) || *rp == '_' || (*rp == '.' && rp[1] != '.'))) rp++;
 
       if (*lp == '#' && rp > lp+1)
       {
@@ -1536,7 +1536,7 @@ void EEL_Editor::doWatchInfo(int c)
           lp="";
         }
       }
-      if (*lp > 0 && (isalpha(*lp) || *lp == '_') && rp > lp)
+      if (*lp > 0 && (isalpha_safe(*lp) || *lp == '_') && rp > lp)
       {
         WDL_FastString n;
         n.Set(lp,(int)(rp-lp));
@@ -1562,7 +1562,7 @@ help_from_sug:
     {
       const char *p = m_suggestion.Get();
       int l;
-      for (l = 0; isalnum(p[l]) || p[l] == '_' || p[l] == '.'; l ++);
+      for (l = 0; isalnum_safe(p[l]) || p[l] == '_' || p[l] == '.'; l ++);
       if (l>0) t.Set(m_suggestion.Get(),l);
     }
     on_help(t.GetLength() > 2 ? t.Get() : NULL,(int)curChar);
@@ -1960,7 +1960,7 @@ run_suggest:
         int state = m_suggestion_curline_comment_state, toklen = 0, bcnt = 0, pcnt = 0;
         const char *tok;
                                        // if no parens/brackets are open, use a peekable token that starts at cursor
-        while ((tok=sh_tokenize(&p,endp,&toklen,&state)) && cursor > tok-(!pcnt && !bcnt && (tok[0] < 0 || tok[0] == '_' || isalpha(tok[0]) || tok[0] == '#')))
+        while ((tok=sh_tokenize(&p,endp,&toklen,&state)) && cursor > tok-(!pcnt && !bcnt && (tok[0] < 0 || tok[0] == '_' || isalpha_safe(tok[0]) || tok[0] == '#')))
         {
           if (!state)
           {
@@ -2009,7 +2009,7 @@ run_suggest:
         if (t<0) break;
 
         if (tok[0] == ',') comma_cnt++;
-        else if ((tok[0] < 0 || tok[0] == '_' || isalpha(tok[0]) || tok[0] == '#') &&
+        else if ((tok[0] < 0 || tok[0] == '_' || isalpha_safe(tok[0]) || tok[0] == '#') &&
             (cursor <= tok + toklen || (t < ntok-1 && token_list[t+1].tok[0] == '(')))
         {
           // if cursor is within or at end of token, or is a function (followed by open-paren)
@@ -2348,7 +2348,7 @@ LRESULT EEL_Editor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
         WDL_FastString *fs=m_text.Get(y + m_paneoffs_y[m_curpane]);
         if (fs && y >= 0)
         {
-          if (!strncmp(fs->Get(),"import",6) && fs->Get()[6]>0 && isspace(fs->Get()[6]))
+          if (!strncmp(fs->Get(),"import",6) && fs->Get()[6]>0 && isspace_safe(fs->Get()[6]))
           {
             open_import_line();
             return 1;

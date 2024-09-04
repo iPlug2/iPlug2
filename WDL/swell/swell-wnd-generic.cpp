@@ -1777,8 +1777,8 @@ int swell_getLineLength(const char *buf, int *post_skip, int wrap_maxwid, HDC hd
     int x=0,best_len=0,sumw=0;
     for (;;)
     {
-      while (x < lb && buf[x] > 0 && isspace(buf[x])) x++;
-      while (x < lb && (buf[x]<0 || !isspace(buf[x]))) x++;
+      while (x < lb && buf[x] > 0 && isspace_safe(buf[x])) x++;
+      while (x < lb && (buf[x]<0 || !isspace_safe(buf[x]))) x++;
       const int thisw = editMeasureLineLength(hdc,buf+best_len,x-best_len);
       if (thisw+sumw > wrap_maxwid) break;
       sumw+=thisw;
@@ -2130,7 +2130,7 @@ void __SWELL_editControlState::autoScrollToOffset(HWND hwnd, int charpos, bool i
 
 static bool is_word_char(char c)
 {
-  return c<0/*all utf-8 chars are word chars*/ || isalnum(c) || c == '_';
+  return c<0/*all utf-8 chars are word chars*/ || isalnum_safe(c) || c == '_';
 }
 
 static int scanWord(const char *buf, int bytepos, int dir)
@@ -7282,7 +7282,7 @@ static HFONT menubar_font;
 static bool wantRightAlignedMenuBarItem(const char *p)
 {
   char c = *p;
-  return c > 0 && c != '&' && !isalnum(c);
+  return c > 0 && c != '&' && !isalnum_safe(c);
 }
 
 #define MENUBAR_SELECTED_ITEM_XPAD \
@@ -7625,7 +7625,7 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                   p++;
                 }
               }
-              if (*p > 0 && (WPARAM)toupper(*p) == wParam)
+              if (*p > 0 && (WPARAM)toupper_safe(*p) == wParam)
               {
                 if (inf->hSubMenu)
                 {

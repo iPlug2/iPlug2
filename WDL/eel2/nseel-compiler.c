@@ -970,7 +970,7 @@ opcodeRec *nseel_resolve_named_symbol(compileContext *ctx, opcodeRec *rec, int p
 
   if (rec->opcodeType != OPCODETYPE_VARPTR || !sname || !sname[0]) return NULL;
 
-  if (!isFunctionMode && !is_string_prefix && !strnicmp(sname,"reg",3) && isdigit(sname[3]) && isdigit(sname[4]) && !sname[5])
+  if (!isFunctionMode && !is_string_prefix && !strnicmp(sname,"reg",3) && isdigit_safe(sname[3]) && isdigit_safe(sname[4]) && !sname[5])
   {
     EEL_F *a=get_global_var(ctx,sname,1);
     if (a) 
@@ -4686,7 +4686,7 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *_expression
       const char *p = expr;
       const char *tok1 = nseel_simple_tokenizer(&p,endptr,&tmplen,NULL);
       const char *funcname = nseel_simple_tokenizer(&p,endptr,&funcname_len,NULL);
-      if (tok1 && funcname && tmplen == 8 && !strnicmp(tok1,"function",8) && (isalpha((unsigned char)funcname[0]) || funcname[0] == '_'))
+      if (tok1 && funcname && tmplen == 8 && !strnicmp(tok1,"function",8) && (isalpha_safe(funcname[0]) || funcname[0] == '_'))
       {
         int had_parms_locals=0;
         if (funcname_len > sizeof(is_fname)-1) funcname_len=sizeof(is_fname)-1;
@@ -4740,7 +4740,7 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *_expression
               goto had_error;
             }
 
-            if (isalpha((unsigned char)*tok1) || *tok1 == '_' || *tok1 == '#')
+            if (isalpha_safe(*tok1) || *tok1 == '_' || *tok1 == '#')
             {
               maxcnt++;
               if (p < endptr && *p == '*')
@@ -4780,7 +4780,7 @@ NSEEL_CODEHANDLE NSEEL_code_compile_ex(NSEEL_VMCTX _ctx, const char *_expression
               while (NULL != (tok1 = nseel_simple_tokenizer(&p,endptr,&tmplen,NULL)))
               {
                 if (tok1[0] == ')') break;
-                if (isalpha((unsigned char)*tok1) || *tok1 == '_' || *tok1 == '#')
+                if (isalpha_safe(*tok1) || *tok1 == '_' || *tok1 == '#')
                 {
                   char *newstr;
                   int l = tmplen;
@@ -5000,13 +5000,13 @@ had_error:
           int x=1, right_amt_nospace=0, left_amt_nospace=0;
           while (x < 32 && p-x >= _expression && p[-x] != '\r' && p[-x] != '\n')
           {
-            if (!isspace((unsigned char)p[-x])) left_amt_nospace=x;
+            if (!isspace_safe(p[-x])) left_amt_nospace=x;
             x++;
           }
           x=0;
           while (x < 60 && p[x] && p[x] != '\r' && p[x] != '\n')
           {
-            if (!isspace((unsigned char)p[x])) right_amt_nospace=x+1;
+            if (!isspace_safe(p[x])) right_amt_nospace=x+1;
             x++;
           }
 
@@ -5647,7 +5647,7 @@ EEL_F *NSEEL_VM_regvar(NSEEL_VMCTX _ctx, const char *var)
   compileContext *ctx = (compileContext *)_ctx;
   if (!ctx) return 0;
   
-  if (!strnicmp(var,"reg",3) && strlen(var) == 5 && isdigit(var[3]) && isdigit(var[4]))
+  if (!strnicmp(var,"reg",3) && strlen(var) == 5 && isdigit_safe(var[3]) && isdigit_safe(var[4]))
   {
     EEL_F *a=get_global_var(ctx,var,1);
     if (a) return a;
@@ -5661,7 +5661,7 @@ EEL_F *NSEEL_VM_getvar(NSEEL_VMCTX _ctx, const char *var)
   compileContext *ctx = (compileContext *)_ctx;
   if (!ctx) return 0;
   
-  if (!strnicmp(var,"reg",3) && strlen(var) == 5 && isdigit(var[3]) && isdigit(var[4]))
+  if (!strnicmp(var,"reg",3) && strlen(var) == 5 && isdigit_safe(var[3]) && isdigit_safe(var[4]))
   {
     EEL_F *a=get_global_var(ctx,var,0);
     if (a) return a;
@@ -5714,7 +5714,7 @@ opcodeRec *nseel_createFunctionByName(compileContext *ctx, const char *name, int
 opcodeRec *nseel_translate(compileContext *ctx, const char *tmp, size_t tmplen) // tmplen 0 = null term
 {
   // this depends on the string being nul terminated eventually, tmplen is used more as a hint than anything else
-  if ((tmp[0] == '0' || tmp[0] == '$') && toupper(tmp[1])=='X')
+  if ((tmp[0] == '0' || tmp[0] == '$') && toupper_safe(tmp[1])=='X')
   {
     char *p;
     return nseel_createCompiledValue(ctx,(EEL_F)strtoul(tmp+2,&p,16));

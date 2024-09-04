@@ -938,7 +938,7 @@ static void OnSelectionRequestEvent(GdkEventSelection *b)
                 str.Append("file://");
                 while (*fn)
                 {
-                  if (isalnum(*fn) || *fn == '.' || *fn == '_' || *fn == '-' || *fn == '/' || *fn == '#')
+                  if (isalnum_safe(*fn) || *fn == '.' || *fn == '_' || *fn == '-' || *fn == '/' || *fn == '#')
                     str.Append(fn,1);
                   else
                     str.AppendFormatted(8,"%%%02x",*(unsigned char *)fn);
@@ -1501,14 +1501,14 @@ static HANDLE urilistToDropFiles(const POINT *pt, const guchar *gptr, gint sz)
   const guchar *rd_end = rd + sz;
   for (;;)
   {
-    while (rd < rd_end && *rd && isspace(*rd)) rd++;
+    while (rd < rd_end && *rd && isspace_safe(*rd)) rd++;
     if (rd >= rd_end) break;
 
     if (rd+7 < rd_end && !strnicmp((const char *)rd,"file://",7))
     {
       rd += 7;
       int c=0;
-      while (rd < rd_end && *rd && !isspace(*rd))
+      while (rd < rd_end && *rd && !isspace_safe(*rd))
       {
         int v1,v2;
         if (*rd == '%' && rd+2 < rd_end && (v1=hex_parse(rd[1]))>=0 && (v2=hex_parse(rd[2]))>=0)
@@ -1526,7 +1526,7 @@ static HANDLE urilistToDropFiles(const POINT *pt, const guchar *gptr, gint sz)
     }
     else
     {
-      while (rd < rd_end && *rd && !isspace(*rd)) rd++;
+      while (rd < rd_end && *rd && !isspace_safe(*rd)) rd++;
     }
   }
   *pout++=0;
@@ -2857,7 +2857,7 @@ static void encode_uri(WDL_FastString *s, const char *rd)
   while (*rd)
   {
     // unsure if UTF-8 chars should be urlencoded or allowed?
-    if (*rd < 0 || (!isalnum(*rd) && *rd != '-' && *rd != '_' && *rd != '.' && *rd != '/'))
+    if (*rd < 0 || (!isalnum_safe(*rd) && *rd != '-' && *rd != '_' && *rd != '.' && *rd != '/'))
     {
       char buf[8];
       snprintf(buf,sizeof(buf),"%%%02x",(int)(unsigned char)*rd);

@@ -1241,7 +1241,7 @@ EEL_F eel_lice_state::gfx_setfont(void *opaque, int np, EEL_F **parms)
           unsigned int c = np > 3 ? (unsigned int) parms[3][0] : 0;
           while (c)
           {
-            switch (toupper(c&0xff))
+            switch (toupper_safe(c&0xff))
             {
               case 'B': fontflag|=EELFONT_FLAG_BOLD; break;
               case 'I': fontflag|=EELFONT_FLAG_ITALIC; break;

@@ -15,7 +15,7 @@
 #include "../wdlcstring.h"
 
 #ifndef VALIDATE_TEXT_CHAR
-#define VALIDATE_TEXT_CHAR(thischar) ((thischar) >= 0 && (thischar >= 128 || isspace(thischar) || isgraph(thischar)) && !(thischar >= KEY_DOWN && thischar <= KEY_F12))
+#define VALIDATE_TEXT_CHAR(thischar) ((thischar) >= 0 && (thischar >= 128 || isspace_safe(thischar) || isgraph_safe(thischar)) && !(thischar >= KEY_DOWN && thischar <= KEY_F12))
 #endif
 
 
@@ -298,7 +298,7 @@ LRESULT WDL_CursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
           
           while (NULL != (url = strstr(url,"http://")))
           {
-            if (url != fs->Get() && url[-1] > 0 && isalnum(url[-1]))
+            if (url != fs->Get() && url[-1] > 0 && isalnum_safe(url[-1]))
             {
               url+=7;
             }
@@ -456,8 +456,8 @@ LRESULT WDL_CursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
           int x1=WDL_utf8_charpos_to_bytepos(s->Get(),m_curs_x);
           int x2=x1+1;
           const char* p=s->Get();
-          while (x1 > 0 && p[x1-1] > 0 && (isalnum(p[x1-1]) || p[x1-1] == '_')) --x1;
-          while (x2 < s->GetLength() && p[x2] > 0 && (isalnum(p[x2]) || p[x2] == '_')) ++x2;
+          while (x1 > 0 && p[x1-1] > 0 && (isalnum_safe(p[x1-1]) || p[x1-1] == '_')) --x1;
+          while (x2 < s->GetLength() && p[x2] > 0 && (isalnum_safe(p[x2]) || p[x2] == '_')) ++x2;
           if (x2 > x1)
           {
             m_select_x1=WDL_utf8_bytepos_to_charpos(s->Get(),x1);
@@ -1375,8 +1375,8 @@ int WDL_CursesEditor::search_line(const char *str, const WDL_FastString *line, i
     if ((s_search_mode&1) ? !strncmp(p+startx,str,srchlen) : !strnicmp(p+startx,str,srchlen))
     {
       if (!(s_search_mode&2)) return startx;
-      if ((startx==0 || p[startx-1]<0 || !isalnum(p[startx-1])) &&
-          (p[startx+srchlen]<=0 || !isalnum(p[startx+srchlen]))) return startx;
+      if ((startx==0 || p[startx-1]<0 || !isalnum_safe(p[startx-1])) &&
+          (p[startx+srchlen]<=0 || !isalnum_safe(p[startx+srchlen]))) return startx;
     }
   return -1;
 }
@@ -1507,8 +1507,8 @@ static int categorizeCharForWordNess(int c)
 {
   if (c >= 0 && c < 256)
   {
-    if (isspace(c)) return 0;
-    if (isalnum(c) || c == '_') return 1;
+    if (isspace_safe(c)) return 0;
+    if (isalnum_safe(c) || c == '_') return 1;
     if (c == ';') return 2; // I prefer this, since semicolons are somewhat special
   }
   return 3;
@@ -1699,7 +1699,7 @@ int WDL_CursesEditor::onChar(int c)
       setCursor();
     break;
     case UI_STATE_SAVE_ON_CLOSE:
-      if (c>=0 && (isalnum(c) || isprint(c) || c==27))
+      if (c>=0 && (isalnum_safe(c) || isprint_safe(c) || c==27))
       {
         if (c == 27)
         {
@@ -1709,9 +1709,9 @@ int WDL_CursesEditor::onChar(int c)
           setCursor();
           return 0;
         }
-        if (toupper(c) == 'N' || toupper(c) == 'Y')
+        if (toupper_safe(c) == 'N' || toupper_safe(c) == 'Y')
         {
-          if (toupper(c) == 'Y')
+          if (toupper_safe(c) == 'Y')
           {
             if(updateFile())
             {
@@ -1732,10 +1732,10 @@ int WDL_CursesEditor::onChar(int c)
       }
     return 0;
     case UI_STATE_SAVE_AS_NEW:
-      if (c>=0 && (isalnum(c) || isprint(c) || c==27 || c == '\r' || c=='\n'))
+      if (c>=0 && (isalnum_safe(c) || isprint_safe(c) || c==27 || c == '\r' || c=='\n'))
       {
         m_ui_state=UI_STATE_NORMAL;
-        if (toupper(c) == 'N' || c == 27)
+        if (toupper_safe(c) == 'N' || c == 27)
         {
           draw();
           draw_message("Cancelled create new file.");

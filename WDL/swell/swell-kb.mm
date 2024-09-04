@@ -187,7 +187,7 @@ int SWELL_MacKeyToWindowsKeyEx(void *nsevent, int *flags, int mode)
       {
         if (code >= 'a' && code <= 'z') code+='A'-'a';
         if (code == 25 && (flag&FSHIFT)) code=VK_TAB;
-        if (isalnum(code)||code==' ' || code == '\r' || code == '\n' || code ==27 || code == VK_TAB) flag|=FVIRTKEY;
+        if (isalnum_safe(code)||code==' ' || code == '\r' || code == '\n' || code ==27 || code == VK_TAB) flag|=FVIRTKEY;
       }
     }
   }

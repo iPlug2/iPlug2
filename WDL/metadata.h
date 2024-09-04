@@ -1804,11 +1804,11 @@ int PackID3Chunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata,
           memcpy(p, "\x00\x00\x03", 3); // UTF-8
           p += 3;
           if (lang && strlen(lang) >= 3 &&
-              tolower(*lang) >= 'a' && tolower(*lang) <= 'z')
+              tolower_safe(*lang) >= 'a' && tolower_safe(*lang) <= 'z')
           {
-            *p++=tolower(*lang++);
-            *p++=tolower(*lang++);
-            *p++=tolower(*lang++);
+            *p++=tolower_safe(*lang++);
+            *p++=tolower_safe(*lang++);
+            *p++=tolower_safe(*lang++);
             *p++=0;
           }
           else

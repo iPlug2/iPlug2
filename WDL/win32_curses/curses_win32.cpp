@@ -567,7 +567,7 @@ LRESULT CALLBACK cursesWindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lP
                 }
 
                 const bool isCursor = cstate && y == ctx->m_cursor_y && x == ctx->m_cursor_x;
-                const bool isNotBlank = c>=128 || (isprint(c) && !isspace(c));
+                const bool isNotBlank = c>=128 || (isprint_safe(c) && !isspace_safe(c));
 
                 if (defer_blanks > 0 && (isNotBlank || isCursor || attr != lattr || x>=right))
                 {
