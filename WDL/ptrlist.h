@@ -109,13 +109,13 @@ template<class PTRTYPE> class WDL_PtrList
       return item;
 
     }
-    int FindSorted(const PTRTYPE *p, int (*compar)(const PTRTYPE **a, const PTRTYPE **b)) const
+    int FindSorted(const PTRTYPE *p, int (*compar)(const PTRTYPE *a, const PTRTYPE *b)) const
     {
       bool m;
       int i = LowerBound(p,&m,compar);
       return m ? i : -1;
     }
-    PTRTYPE *InsertSorted(PTRTYPE *item, int (*compar)(const PTRTYPE **a, const PTRTYPE **b))
+    PTRTYPE *InsertSorted(PTRTYPE *item, int (*compar)(const PTRTYPE *a, const PTRTYPE *b))
     {
       bool m;
       return Insert(LowerBound(item,&m,compar),item);
@@ -196,7 +196,7 @@ template<class PTRTYPE> class WDL_PtrList
       }
     }
 
-    int LowerBound(const PTRTYPE *key, bool* ismatch, int (*compar)(const PTRTYPE **a, const PTRTYPE **b)) const
+    int LowerBound(const PTRTYPE *key, bool* ismatch, int (*compar)(const PTRTYPE *a, const PTRTYPE *b)) const
     {
       int a = 0;
       int c = GetSize();
@@ -204,7 +204,7 @@ template<class PTRTYPE> class WDL_PtrList
       while (a != c)
       {
         int b = (a+c)/2;
-        int cmp = compar((const PTRTYPE **)&key, (const PTRTYPE **)(list+b));
+        int cmp = compar(key, list[b]);
         if (cmp > 0) a = b+1;
         else if (cmp < 0) c = b;
         else

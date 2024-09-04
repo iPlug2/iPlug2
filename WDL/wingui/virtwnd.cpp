@@ -1100,11 +1100,13 @@ public:
   unsigned int lastused; // last used time
   void *lastowner;
 
-  static int compar(const WDL_VirtualWnd_BGCfgCache_img **a, const WDL_VirtualWnd_BGCfgCache_img ** b)
+  static int comparfunc(const WDL_VirtualWnd_BGCfgCache_img *a, const WDL_VirtualWnd_BGCfgCache_img *b)
   {
-    const int v = (*a)->scalinginfo - (*b)->scalinginfo;
-    if (v) return v;
-    return (*a)->sizeinfo - (*b)->sizeinfo;
+    if (a->scalinginfo < b->scalinginfo) return -1;
+    if (a->scalinginfo > b->scalinginfo) return 1;
+    if (a->sizeinfo < b->sizeinfo) return -1;
+    if (a->sizeinfo > b->sizeinfo) return 1;
+    return 0;
     
   }
 };
@@ -1150,7 +1152,7 @@ LICE_IBitmap *WDL_VirtualWnd_BGCfgCache::GetCachedBG(int w, int h, int sinfo2, v
   if (!cache) return NULL;
 
   WDL_VirtualWnd_BGCfgCache_img tmp((h<<16)+w,sinfo2,NULL,0);
-  WDL_VirtualWnd_BGCfgCache_img *r  = cache->Get(cache->FindSorted(&tmp,WDL_VirtualWnd_BGCfgCache_img::compar));
+  WDL_VirtualWnd_BGCfgCache_img *r  = cache->Get(cache->FindSorted(&tmp,WDL_VirtualWnd_BGCfgCache_img::comparfunc));
   if (r)
   {
     r->lastused = GetTickCount();
@@ -1249,7 +1251,7 @@ LICE_IBitmap *WDL_VirtualWnd_BGCfgCache::SetCachedBG(int w, int h, int sinfo2, L
     img->lastowner = owner_hint;
     if (bmCopy) LICE_Copy(img->bgimage, bmCopy);
 
-    cache->InsertSorted(img, WDL_VirtualWnd_BGCfgCache_img::compar);
+    cache->InsertSorted(img, WDL_VirtualWnd_BGCfgCache_img::comparfunc);
     return img->bgimage;
   }
   return NULL;
