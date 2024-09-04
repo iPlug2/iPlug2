@@ -341,39 +341,15 @@ static int WDL_STATICFUNC_UNUSED wdl_mem_load_int_be(const void *rd)
 
 // avoid UB when these functions are passed signed char, etc
 static int WDL_STATICFUNC_UNUSED toupper_safe(int v) { return v >= 0 && v < 256 ? toupper(v) : v; }
-#ifdef toupper
-#undef toupper
-#endif
-#define toupper(x) toupper_safe(x)
-
 static int WDL_STATICFUNC_UNUSED tolower_safe(int v) { return v >= 0 && v < 256 ? tolower(v) : v; }
-#ifdef tolower
-#undef tolower
-#endif
-#define tolower(x) tolower_safe(x)
-
 static int WDL_STATICFUNC_UNUSED isalpha_safe(int v) { return v >= 0 && v < 256 && isalpha(v); }
-#ifdef isalpha
-#undef isalpha
-#endif
-#define isalpha(x) isalpha_safe(x)
-
 static int WDL_STATICFUNC_UNUSED isalnum_safe(int v) { return v >= 0 && v < 256 && isalnum(v); }
-#ifdef isalnum
-#undef isalnum
-#endif
-#define isalnum(x) isalnum_safe(x)
-
 static int WDL_STATICFUNC_UNUSED isupper_safe(int v) { return v >= 0 && v < 256 && isupper(v); }
-#ifdef isupper
-#undef isupper
-#endif
-#define isupper(x) isupper_safe(x)
-
 static int WDL_STATICFUNC_UNUSED islower_safe(int v) { return v >= 0 && v < 256 && islower(v); }
-#ifdef islower
-#undef islower
-#endif
-#define islower(x) islower_safe(x)
+static int WDL_STATICFUNC_UNUSED isspace_safe(int v) { return v >= 0 && v < 256 && isspace(v); }
+static int WDL_STATICFUNC_UNUSED isgraph_safe(int v) { return v >= 0 && v < 256 && isgraph(v); }
+static int WDL_STATICFUNC_UNUSED isdigit_safe(int v) { return v >= 0 && v < 256 && isdigit(v); }
+static int WDL_STATICFUNC_UNUSED isprint_safe(int v) { return v >= 0 && v < 256 && isprint(v); }
 
 #endif
+
