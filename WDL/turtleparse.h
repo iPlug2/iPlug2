@@ -369,27 +369,33 @@ protected:
     }
 
     const char *endp = tok+toklen;
-    while (tok < endp)
+    if (mode <= 1 && tok < endp)
+      fs->Append(tok,(int)(endp-tok));
+    else while (tok < endp)
     {
-      if (mode > 1 && *tok == '\\')
+      int l = 0;
+      while (tok+l < endp && tok[l] != '\\') l++;
+      if (l > 0)
       {
-        const int cv = decode_escape(&tok,endp, mode!='<');
-        if (cv < 0)
-        {
-          on_err(mode == '<' ? "invalid escape sequence in IRI" : "invalid escape sequence in quote", tok);
-          return 0;
-        }
-        char tmp[8];
-        const int tmpl = wdl_utf8_makechar(cv,tmp,sizeof(tmp));
-        if (tmpl <= 0)
-        {
-          on_err(mode == '<' ? "invalid unicode codepoint in IRI" : "invalid unicode codepoint in quote", tok);
-          return 0;
-        }
-        fs->Append(tmp,tmpl);
+        fs->Append(tok, l);
+        tok+=l;
+        if (tok >= endp) break;
       }
-      else
-        fs->Append(tok++,1);
+
+      const int cv = decode_escape(&tok,endp, mode!='<');
+      if (cv < 0)
+      {
+        on_err(mode == '<' ? "invalid escape sequence in IRI" : "invalid escape sequence in quote", tok);
+        return 0;
+      }
+      char tmp[8];
+      const int tmpl = wdl_utf8_makechar(cv,tmp,sizeof(tmp));
+      if (tmpl <= 0)
+      {
+        on_err(mode == '<' ? "invalid unicode codepoint in IRI" : "invalid unicode codepoint in quote", tok);
+        return 0;
+      }
+      fs->Append(tmp,tmpl);
     }
     if (mode == '<' && m_base.GetLength())
     {
