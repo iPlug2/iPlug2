@@ -70,14 +70,14 @@ template<class OBJ> class WDL_SharedPool
     void AddRef(OBJ *obj)
     {
       Ent *ent = m_listobjk.Get(m_listobjk.FindSorted((Ent *)&obj,sortfunc_obj));
-      if (ent) ent->refcnt++;
+      if (WDL_NORMALLY(ent)) ent->refcnt++;
     }
 
     void Release(OBJ *obj)
     {
-      int x = m_listobjk.FindSorted((Ent *)obj,sortfunc_obj);
+      int x = m_listobjk.FindSorted((Ent *)&obj,sortfunc_obj);
       Ent *ent = m_listobjk.Get(x);
-      if (ent && !--ent->refcnt) 
+      if (WDL_NORMALLY(ent) && !--ent->refcnt)
       {
         m_list.Delete(m_list.FindSorted(ent,sortfunc_name));
         m_listobjk.Delete(x,true);
