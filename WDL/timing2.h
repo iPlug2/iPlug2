@@ -61,4 +61,16 @@ private:
 #endif
 };
 
+class wdl_timing_accumulator_hold
+{
+  public:
+#if defined(_DEBUG) || defined(WDL_TIMING_ENABLE_FOR_RELEASE)
+    wdl_timing_accumulator_hold(wdl_timing_accumulator *p) : m_p(p) { if (p) p->Begin(); }
+    ~wdl_timing_accumulator_hold() { if (m_p) m_p->End(); }
+    wdl_timing_accumulator *m_p;
+#else
+    wdl_timing_accumulator_hold(wdl_timing_accumulator *p) {}
+#endif
+};
+
 #endif
