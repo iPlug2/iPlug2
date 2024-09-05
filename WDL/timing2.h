@@ -16,6 +16,7 @@ public:
     m_cnt=0;
     m_tot=m_cur=0.0;
     m_name = name ? name : "[unnamed]";
+    m_depth = 0;
   }
   ~wdl_timing_accumulator()
   {
@@ -35,21 +36,26 @@ public:
 
   void Begin()
   {
-    m_cur = time_precise();
+    if (!m_depth++)
+      m_cur = time_precise();
   }
   void End()
   {
-    WDL_ASSERT(m_cur != 0.0);
-    m_tot += time_precise()-m_cur;
-    m_cur=0.0;
-    m_cnt++;
+    WDL_ASSERT(m_depth > 0);
+    if (!--m_depth)
+    {
+      WDL_ASSERT(m_cur != 0.0);
+      m_tot += time_precise()-m_cur;
+      m_cur=0.0;
+      m_cnt++;
+    }
   }
 
 private:
   WDL_INT64 m_cnt;
   double m_tot, m_cur;
   const char *m_name;
-
+  int m_depth;
 #else
 
   wdl_timing_accumulator(const char *name=NULL) {}
