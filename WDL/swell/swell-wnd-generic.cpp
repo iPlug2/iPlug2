@@ -3391,7 +3391,7 @@ struct __SWELL_ComboBoxInternalState_rec
   ~__SWELL_ComboBoxInternalState_rec() { free(desc); } 
   char *desc; 
   LPARAM parm; 
-  static int cmp(const __SWELL_ComboBoxInternalState_rec **a, const __SWELL_ComboBoxInternalState_rec **b) { return strcmp((*a)->desc, (*b)->desc); }
+  static int cmpfunc(const __SWELL_ComboBoxInternalState_rec *a, const __SWELL_ComboBoxInternalState_rec *b) { return strcmp(a->desc, b->desc); }
 };
 
 class __SWELL_ComboBoxInternalState
@@ -3428,7 +3428,7 @@ static LRESULT WINAPI comboWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
             __SWELL_ComboBoxInternalState_rec *r=new __SWELL_ComboBoxInternalState_rec((const char *)lParam);
             // find position of insert for wParam
             bool m;
-            int idx = s->items.LowerBound(r,&m,__SWELL_ComboBoxInternalState_rec::cmp);
+            int idx = s->items.LowerBound(r,&m,__SWELL_ComboBoxInternalState_rec::cmpfunc);
             if (s->selidx >= idx) s->selidx++;
             s->items.Insert(idx,r);
             return idx;
@@ -4120,11 +4120,11 @@ struct listViewState
   WDL_PtrList<HGDIOBJ__> *m_status_imagelist;
   int m_status_imagelist_type;
 
-  static int compareRows(const SWELL_ListView_Row **_a, const SWELL_ListView_Row **_b)
+  static int compareRows(const SWELL_ListView_Row *_a, const SWELL_ListView_Row *_b)
   {
     const char *a, *b;
-    if (!_a || !(a=(*_a)->get_col_txt(0))) a="";
-    if (!_b || !(b=(*_b)->get_col_txt(0))) b="";
+    if (!(a=_a->get_col_txt(0))) a="";
+    if (!(b=_b->get_col_txt(0))) b="";
     return strcmp(a,b);
   }
 };
