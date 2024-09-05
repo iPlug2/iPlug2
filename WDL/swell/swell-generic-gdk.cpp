@@ -2605,6 +2605,34 @@ static LRESULT xbridgeProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
       }
     break;
+    case WM_USER+1000: // allow parent to query size of child window
+      if (hwnd && hwnd->m_private_data && wParam && lParam)
+      {
+        bridgeState *bs = (bridgeState*)hwnd->m_private_data;
+        if (bs->native_disp && bs->native_w)
+        {
+          Window root, par, *list=NULL;
+          unsigned int nlist=0;
+          // if a plug-in created a window on a separate X11 connection, it might not be valid yet.
+          if (XQueryTree(bs->native_disp,bs->native_w,&root,&par,&list, &nlist))
+          {
+            if (!list || !nlist)
+            {
+              if (list) XFree(list);
+              return 0;
+            }
+            XWindowAttributes attr;
+            memset(&attr,0,sizeof(attr));
+            if (XGetWindowAttributes(bs->native_disp, list[0], &attr) && attr.width && attr.height)
+            {
+              *((int *)(INT_PTR)wParam) = attr.width;
+              *((int *)(INT_PTR)lParam) = attr.height;
+            }
+            XFree(list);
+          }
+        }
+      }
+    break;
   }
   return DefWindowProc(hwnd,uMsg,wParam,lParam);
 }
