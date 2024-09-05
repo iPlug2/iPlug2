@@ -109,7 +109,7 @@ template<class PTRTYPE> class WDL_PtrList
       return item;
 
     }
-    int FindSorted(const PTRTYPE *p, int (*compar)(const PTRTYPE *a, const PTRTYPE *b)) const
+    template<class SB, class SB2> int FindSorted(SB p, int (*compar)(SB2 a, const PTRTYPE *b)) const
     {
       bool m;
       int i = LowerBound(p,&m,compar);
@@ -119,6 +119,11 @@ template<class PTRTYPE> class WDL_PtrList
     {
       bool m;
       return Insert(LowerBound(item,&m,compar),item);
+    }
+    template<class SB, class SB2> PTRTYPE *InsertSorted(PTRTYPE *item, SB ref, int (*compar)(SB2 a, const PTRTYPE *b))
+    {
+      bool m;
+      return Insert(LowerBound(ref,&m,compar),item);
     }
 
     void Delete(int index) { m_buf.Delete(index);  }
@@ -196,7 +201,7 @@ template<class PTRTYPE> class WDL_PtrList
       }
     }
 
-    int LowerBound(const PTRTYPE *key, bool* ismatch, int (*compar)(const PTRTYPE *a, const PTRTYPE *b)) const
+    template<class SB, class SB2> int LowerBound(SB key, bool* ismatch, int (*compar)(SB2 a, const PTRTYPE *b)) const
     {
       int a = 0;
       int c = GetSize();
