@@ -519,6 +519,12 @@ int PackIXMLChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata, int pa
     if (!sec) continue;
 
     key += strlen(sec)+1;
+
+    // metadata can get recursively re-encoded in ixml
+    if (!strncmp(key, "ASWG:", 5)) continue;
+    if (!strncmp(key, "BWF:", 4)) continue;
+    if (!strncmp(key, "IXML:", 5)) continue;
+
     if (!strcmp(sec, "BWF"))
     {
       if (!strcmp(key, "Description")) key="BWF_DESCRIPTION";
