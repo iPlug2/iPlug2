@@ -124,6 +124,7 @@ void XMLCompliantAppend(WDL_FastString *str, const char *txt, bool is_value)
       case '>': str->Append("&gt;"); break;
       case '&': str->Append("&amp;"); break;
       case ' ': str->Append(is_value ? " " : "_"); break;
+      case ':': if (!is_value) { str->Append("_"); break; } // else fall through
       default: str->Append(&c,1); break;
     }
   }
