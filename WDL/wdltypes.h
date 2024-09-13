@@ -339,6 +339,15 @@ static int WDL_STATICFUNC_UNUSED wdl_mem_load_int_be(const void *rd)
   return v;
 }
 
+#ifdef __cplusplus
+template<class T> static void wdl_mem_store(void *bout, T v) { memcpy(bout, &v, sizeof(v)); }
+template<class T> static void wdl_mem_store_le(void *bout, T v) { wdl_memcpy_le(bout, &v, 1, sizeof(v)); }
+template<class T> static void wdl_mem_store_be(void *bout, T v) { wdl_memcpy_be(bout, &v, 1, sizeof(v)); }
+template<class T> static T wdl_mem_load(const void *bin) { T v; memcpy(&v, bin, sizeof(v)); return v; }
+template<class T> static T wdl_mem_load_le(const void *bin) { T v; wdl_memcpy_le(&v, bin, 1, sizeof(v)); return v; }
+template<class T> static T wdl_mem_load_be(const void *bin) { T v; wdl_memcpy_be(&v, bin, 1, sizeof(v)); return v; }
+#endif
+
 // avoid UB when these functions are passed signed char, etc
 static int WDL_STATICFUNC_UNUSED toupper_safe(int v) { return v >= 0 && v < 256 ? toupper(v) : v; }
 static int WDL_STATICFUNC_UNUSED tolower_safe(int v) { return v >= 0 && v < 256 ? tolower(v) : v; }
