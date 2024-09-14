@@ -39,8 +39,9 @@
 template<class PTRTYPE> class WDL_PtrList
 {
   public:
-    explicit WDL_PtrList(int defgran=4096) : m_buf(defgran)
+    explicit WDL_PtrList(int defgran=4096, int prealloc=0) : m_buf(defgran)
     {
+      if (prealloc>0) m_buf.Prealloc(prealloc);
     }
 
     ~WDL_PtrList()
