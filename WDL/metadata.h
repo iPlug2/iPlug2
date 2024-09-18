@@ -1307,7 +1307,7 @@ void WriteMetadataPrefPos(double prefpos, int srate,  // prefpos <= 0.0 to clear
     metadata->Insert("ID3:TXXX:TIME_REFERENCE", strdup(buf));
     metadata->Insert("VORBIS:TIME_REFERENCE", strdup(buf));
 
-    snprintf(buf, sizeof(buf), "%.0f", floor(prefpos*1000.0));
+    snprintf(buf, sizeof(buf), "%09.0f", floor(prefpos*1000.0));
     metadata->Insert("XMP:dm/relativeTimestamp", strdup(buf));
   }
 }
