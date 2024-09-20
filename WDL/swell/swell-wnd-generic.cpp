@@ -115,6 +115,7 @@ HWND__::HWND__(HWND par, int wID, const RECT *wndr, const char *label, bool visi
   m_is_maximized = false;
   m_oswindow_private=0;
   m_oswindow_fullscreen=0;
+  memset(&m_oswindow_lastcfgpos,0,sizeof(m_oswindow_lastcfgpos));
 
      m_classname = "unknown";
      m_wndproc=wndproc?wndproc:dlgproc?(WNDPROC)SwellDialogDefaultWindowProc:(WNDPROC)DefWindowProc;

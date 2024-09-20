@@ -903,6 +903,7 @@ struct HWND__
 
   int m_refcnt; 
   int m_oswindow_private; // private state for generic-gtk or whatever
+  RECT m_oswindow_lastcfgpos; // gdk will check for duplicate configure events and ignore
 
   HMENU m_menu;
   HFONT m_font;
