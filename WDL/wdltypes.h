@@ -45,6 +45,7 @@ typedef intptr_t INT_PTR;
 typedef uintptr_t UINT_PTR;
 #endif
 #include <string.h>
+#include <ctype.h>
 
 #if defined(__ppc__) || !defined(__cplusplus)
 typedef char WDL_bool;
@@ -338,5 +339,26 @@ static int WDL_STATICFUNC_UNUSED wdl_mem_load_int_be(const void *rd)
   return v;
 }
 
+#ifdef __cplusplus
+template<class T> static void wdl_mem_store(void *bout, T v) { memcpy(bout, &v, sizeof(v)); }
+template<class T> static void wdl_mem_store_le(void *bout, T v) { wdl_memcpy_le(bout, &v, 1, sizeof(v)); }
+template<class T> static void wdl_mem_store_be(void *bout, T v) { wdl_memcpy_be(bout, &v, 1, sizeof(v)); }
+template<class T> static T wdl_mem_load(const void *bin) { T v; memcpy(&v, bin, sizeof(v)); return v; }
+template<class T> static T wdl_mem_load_le(const void *bin) { T v; wdl_memcpy_le(&v, bin, 1, sizeof(v)); return v; }
+template<class T> static T wdl_mem_load_be(const void *bin) { T v; wdl_memcpy_be(&v, bin, 1, sizeof(v)); return v; }
+#endif
+
+// avoid UB when these functions are passed signed char, etc
+static int WDL_STATICFUNC_UNUSED toupper_safe(int v) { return v >= 0 && v < 256 ? toupper(v) : v; }
+static int WDL_STATICFUNC_UNUSED tolower_safe(int v) { return v >= 0 && v < 256 ? tolower(v) : v; }
+static int WDL_STATICFUNC_UNUSED isalpha_safe(int v) { return v >= 0 && v < 256 && isalpha(v); }
+static int WDL_STATICFUNC_UNUSED isalnum_safe(int v) { return v >= 0 && v < 256 && isalnum(v); }
+static int WDL_STATICFUNC_UNUSED isupper_safe(int v) { return v >= 0 && v < 256 && isupper(v); }
+static int WDL_STATICFUNC_UNUSED islower_safe(int v) { return v >= 0 && v < 256 && islower(v); }
+static int WDL_STATICFUNC_UNUSED isspace_safe(int v) { return v >= 0 && v < 256 && isspace(v); }
+static int WDL_STATICFUNC_UNUSED isgraph_safe(int v) { return v >= 0 && v < 256 && isgraph(v); }
+static int WDL_STATICFUNC_UNUSED isdigit_safe(int v) { return v >= 0 && v < 256 && isdigit(v); }
+static int WDL_STATICFUNC_UNUSED isprint_safe(int v) { return v >= 0 && v < 256 && isprint(v); }
 
 #endif
+

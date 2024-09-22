@@ -234,7 +234,7 @@ class SWELL_DialogRegHelper {
   class SWELL_DialogRegValidator 
   {
     public:
-      SWELL_DialogRegValidator(const SWELL_DlgResourceEntry *recs, size_t recs_sz)
+      SWELL_DialogRegValidator(const SWELL_DlgResourceEntry *recs, size_t recs_sz, int dlg_w, int dlg_h)
       {
         if (recs_sz>1)
         {
@@ -244,6 +244,17 @@ class SWELL_DialogRegHelper {
           {
             const SWELL_DlgResourceEntry *list = recs + x;
             const int idx = strncmp(list->str1,"__SWELL_",8) ? list->flag1 : list->p1;
+            int parms[6] = { list->p1, list->p2, list->p3, list->p4, list->p5, list->p6 };
+            const int coord_offs = 1; // all, I guess?
+            const int xpos = parms[coord_offs], ypos = parms[coord_offs+1];
+            const int w = parms[coord_offs+2];
+            const int h = strcmp(list->str1,"__SWELL_COMBO") ? parms[coord_offs+3] : 0;
+
+            WDL_ASSERT(xpos >= -1);
+            WDL_ASSERT(ypos >= -1);
+            WDL_ASSERT(xpos + w <= dlg_w);
+            WDL_ASSERT(ypos + h <= dlg_h);
+
             if (idx != 0 && idx != -1)
             {
               WDL_ASSERT(!tmp.Get(idx));
@@ -253,9 +264,9 @@ class SWELL_DialogRegHelper {
         }
       }
   };
-  #define SWELL_VALIDATE_DIALOG_RESOURCE(v,r) static SWELL_DialogRegValidator v(r+1, sizeof(r)/sizeof(r[0])-1); 
+  #define SWELL_VALIDATE_DIALOG_RESOURCE(v,r,w,h) static SWELL_DialogRegValidator v(r+1, sizeof(r)/sizeof(r[0])-1,w,h);
 #else
-  #define SWELL_VALIDATE_DIALOG_RESOURCE(v,r)
+  #define SWELL_VALIDATE_DIALOG_RESOURCE(v,r,w,h)
 #endif
 
 
@@ -267,7 +278,7 @@ class SWELL_DialogRegHelper {
 
                                             
 #define SWELL_DEFINE_DIALOG_RESOURCE_END(recid ) }; \
-                              SWELL_VALIDATE_DIALOG_RESOURCE( __swell_dlg_validator__##recid, __swell_dlg_list__##recid) \
+                              SWELL_VALIDATE_DIALOG_RESOURCE( __swell_dlg_validator__##recid, __swell_dlg_list__##recid, __swell_dlg_helper_##recid.m_rec.width, __swell_dlg_helper_##recid.m_rec.height) \
                               static void SWELL__dlg_cf__##recid(HWND view, int wflags) { \
                                 SWELL_MakeSetCurParms(__swell_dlg_scale__##recid,__swell_dlg_scale__##recid * (SWELL_DLG_SCALE_AUTOGEN_YADJ),0,0,view,false,!(wflags&SWELL_DLG_WS_NOAUTOSIZE));  \
                                 SWELL_GenerateDialogFromList(__swell_dlg_list__##recid+1,sizeof(__swell_dlg_list__##recid)/sizeof(__swell_dlg_list__##recid[0])-1); \

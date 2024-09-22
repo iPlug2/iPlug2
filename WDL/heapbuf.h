@@ -389,6 +389,8 @@ template<class PTRTYPE> class WDL_TypedBuf
 
     const PTRTYPE *begin() const { return Get(); }
     const PTRTYPE *end() const { return Get() + GetSize(); }
+    PTRTYPE *begin() { return Get(); }
+    PTRTYPE *end() { return Get() + GetSize(); }
 
   private:
     WDL_HeapBuf m_hb;

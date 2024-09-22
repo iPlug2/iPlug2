@@ -219,8 +219,8 @@ static FT_Face MatchFont(const char *lfFaceName, int weight, int italic, int exa
         else if (ext > residual && ext <= residual+2)
         {
           char c1 = residual[0],c2=residual[1];
-          if (c1>0) c1=toupper(c1);
-          if (c2>0) c2=toupper(c2);
+          if (c1>0) c1=toupper_safe(c1);
+          if (c2>0) c2=toupper_safe(c2);
           if ((c1 == 'B' || c1 == 'I' || c1 == 'L') &&
               (c2 == 'B' || c2 == 'I' || c2 == 'L' || c2 == '.'))
             dash=residual;
@@ -246,7 +246,7 @@ static FT_Face MatchFont(const char *lfFaceName, int weight, int italic, int exa
 
       while (*dash && *dash != '.')
       {
-        if (*dash > 0 && isalnum(*dash)) s.score2++;
+        if (*dash > 0 && isalnum_safe(*dash)) s.score2++;
         dash++;
       }
 
@@ -259,8 +259,8 @@ static FT_Face MatchFont(const char *lfFaceName, int weight, int italic, int exa
       if (ext > residual && ext <= residual+2)
       {
         char c1 = residual[0],c2=residual[1];
-        if (c1>0) c1=toupper(c1);
-        if (c2>0) c2=toupper(c2);
+        if (c1>0) c1=toupper_safe(c1);
+        if (c2>0) c2=toupper_safe(c2);
 
         if (weight >= FW_BOLD && (c1 == 'B' || c2 == 'B')) s.score2 -= 2;
         else if (weight <= FW_LIGHT && (c1 == 'L' || c2 == 'L')) s.score2 -= 2;
@@ -1647,7 +1647,7 @@ void SWELL_internalLICEpaint(HWND hwnd, LICE_IBitmap *bmout, int bmout_xpos, int
         hwnd->m_wndproc(hwnd,WM_PAINT,(WPARAM)&ctx,0);
       }
 
-       hwnd->m_paintctx = oldpaintctx;
+      hwnd->m_paintctx = oldpaintctx;
    
       // it might be good to blit here on some OSes, rather than from the top level caller...
       hwnd->m_invalidated=false;

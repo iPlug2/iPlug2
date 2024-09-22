@@ -293,7 +293,7 @@ public:
 
       if (m_fsize < mmap_maxsize)
       {
-        if (m_fsize >= mmap_minsize)
+        if (m_fsize >= mmap_minsize && m_fsize>0)
         {
           m_mmap_view = mmap(NULL,(size_t)m_fsize,PROT_READ,MAP_SHARED,m_filedes,0);
           if (m_mmap_view == MAP_FAILED) m_mmap_view = 0;
@@ -302,7 +302,7 @@ public:
         else
         {
           m_mmap_totalbufmode = malloc((size_t)m_fsize);
-          if (m_mmap_totalbufmode)
+          if (m_mmap_totalbufmode && m_fsize>0)
             m_fsize = pread(m_filedes,m_mmap_totalbufmode,(size_t)m_fsize,0);
           m_fsize_maychange=false;
         }

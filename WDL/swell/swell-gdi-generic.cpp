@@ -722,19 +722,19 @@ void swell_load_color_theme(const char *fn)
       char *p = buf;
       while (*p == ' ' || *p == '\t') p++;
       char *np = p;
-      while (*np > 0 && (*np == '_' || isalnum(*np))) np++;
+      while (*np > 0 && (*np == '_' || isalnum_safe(*np))) np++;
       if (!*np || np == p) continue;
       *np++ = 0;
       while (*np == ' ' || *np == '\t') np++;
 
       if(!stricmp(p,"default_font_face"))
       {
-        if (*np > 0 && !isspace(*np))
+        if (*np > 0 && !isspace_safe(*np))
         {
           char *b = strdup(np);
           g_swell_deffont_face = b;
           while (*b && *b != ';' && *b != '#') b++;
-          while (b>g_swell_deffont_face && b[-1] > 0 && isspace(b[-1])) b--;
+          while (b>g_swell_deffont_face && b[-1] > 0 && isspace_safe(b[-1])) b--;
           *b=0;
         }
         continue;

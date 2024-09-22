@@ -6,6 +6,7 @@
 #include <sys/time.h>
 #endif
 #include <time.h>
+#include "../time_precise.h"
 // some generic EEL functions for things like time
 
 #ifndef EEL_MISC_NO_SLEEP
@@ -33,17 +34,7 @@ static EEL_F * NSEEL_CGEN_CALL _eel_time(void *opaque, EEL_F *v)
 
 static EEL_F * NSEEL_CGEN_CALL _eel_time_precise(void *opaque, EEL_F *v)
 {
-#ifdef _WIN32
-  LARGE_INTEGER freq,now;
-  QueryPerformanceFrequency(&freq);
-  QueryPerformanceCounter(&now);
-  *v = (double)now.QuadPart / (double)freq.QuadPart;
-  // *v = (EEL_F)timeGetTime() * 0.001;
-#else
-  struct timeval tm={0,};
-  gettimeofday(&tm,NULL);
-  *v = tm.tv_sec + tm.tv_usec*0.000001;
-#endif
+  *v = time_precise();
   return v;
 }
 

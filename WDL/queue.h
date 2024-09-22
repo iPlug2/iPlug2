@@ -129,6 +129,7 @@ public:
 
   void SetGranul(int granul) { m_hb.SetGranul(granul); }
 
+  void Prealloc(int sz) { m_hb.Prealloc(sz); }
 
 
 
@@ -258,6 +259,7 @@ public:
   }
 
   void SetGranul(int granul) { m_hb.SetGranul(granul); }
+  void Prealloc(int sz) { m_hb.Prealloc(sz * sizeof(T)); }
 
 private:
   WDL_HeapBuf m_hb;

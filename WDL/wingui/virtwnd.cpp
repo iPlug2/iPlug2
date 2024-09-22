@@ -1100,11 +1100,13 @@ public:
   unsigned int lastused; // last used time
   void *lastowner;
 
-  static int compar(const WDL_VirtualWnd_BGCfgCache_img **a, const WDL_VirtualWnd_BGCfgCache_img ** b)
+  static int comparfunc(const WDL_VirtualWnd_BGCfgCache_img *a, const WDL_VirtualWnd_BGCfgCache_img *b)
   {
-    const int v = (*a)->scalinginfo - (*b)->scalinginfo;
-    if (v) return v;
-    return (*a)->sizeinfo - (*b)->sizeinfo;
+    if (a->scalinginfo < b->scalinginfo) return -1;
+    if (a->scalinginfo > b->scalinginfo) return 1;
+    if (a->sizeinfo < b->sizeinfo) return -1;
+    if (a->sizeinfo > b->sizeinfo) return 1;
+    return 0;
     
   }
 };
@@ -1113,23 +1115,16 @@ public:
 class WDL_VirtualWnd_BGCfgCache_ar
 {
 public:
-  WDL_VirtualWnd_BGCfgCache_ar() : m_cachelist(compar, NULL, NULL, destrval) { }
+  WDL_VirtualWnd_BGCfgCache_ar() : m_cachelist(destrval) { }
   ~WDL_VirtualWnd_BGCfgCache_ar() {  }
 
-  WDL_AssocArray<const LICE_IBitmap *,  WDL_PtrList<WDL_VirtualWnd_BGCfgCache_img> * > m_cachelist;
+  WDL_KeyedArray<const LICE_IBitmap *,  WDL_PtrList<WDL_VirtualWnd_BGCfgCache_img> * > m_cachelist;
 
   static void destrval(WDL_PtrList<WDL_VirtualWnd_BGCfgCache_img> *list)
   {
     if (list) list->Empty(true);
     delete list;
   }
-  static int compar(const LICE_IBitmap **a, const LICE_IBitmap ** b)
-  {
-    if ((*a) < (*b)) return -1;
-    if ((*a) > (*b)) return 1;
-    return 0;
-  }
-
 };
 
 
@@ -1157,7 +1152,7 @@ LICE_IBitmap *WDL_VirtualWnd_BGCfgCache::GetCachedBG(int w, int h, int sinfo2, v
   if (!cache) return NULL;
 
   WDL_VirtualWnd_BGCfgCache_img tmp((h<<16)+w,sinfo2,NULL,0);
-  WDL_VirtualWnd_BGCfgCache_img *r  = cache->Get(cache->FindSorted(&tmp,WDL_VirtualWnd_BGCfgCache_img::compar));
+  WDL_VirtualWnd_BGCfgCache_img *r  = cache->Get(cache->FindSorted(&tmp,WDL_VirtualWnd_BGCfgCache_img::comparfunc));
   if (r)
   {
     r->lastused = GetTickCount();
@@ -1256,7 +1251,7 @@ LICE_IBitmap *WDL_VirtualWnd_BGCfgCache::SetCachedBG(int w, int h, int sinfo2, L
     img->lastowner = owner_hint;
     if (bmCopy) LICE_Copy(img->bgimage, bmCopy);
 
-    cache->InsertSorted(img, WDL_VirtualWnd_BGCfgCache_img::compar);
+    cache->InsertSorted(img, WDL_VirtualWnd_BGCfgCache_img::comparfunc);
     return img->bgimage;
   }
   return NULL;

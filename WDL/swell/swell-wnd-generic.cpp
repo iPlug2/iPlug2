@@ -115,6 +115,7 @@ HWND__::HWND__(HWND par, int wID, const RECT *wndr, const char *label, bool visi
   m_is_maximized = false;
   m_oswindow_private=0;
   m_oswindow_fullscreen=0;
+  memset(&m_oswindow_lastcfgpos,0,sizeof(m_oswindow_lastcfgpos));
 
      m_classname = "unknown";
      m_wndproc=wndproc?wndproc:dlgproc?(WNDPROC)SwellDialogDefaultWindowProc:(WNDPROC)DefWindowProc;
@@ -1777,8 +1778,8 @@ int swell_getLineLength(const char *buf, int *post_skip, int wrap_maxwid, HDC hd
     int x=0,best_len=0,sumw=0;
     for (;;)
     {
-      while (x < lb && buf[x] > 0 && isspace(buf[x])) x++;
-      while (x < lb && (buf[x]<0 || !isspace(buf[x]))) x++;
+      while (x < lb && buf[x] > 0 && isspace_safe(buf[x])) x++;
+      while (x < lb && (buf[x]<0 || !isspace_safe(buf[x]))) x++;
       const int thisw = editMeasureLineLength(hdc,buf+best_len,x-best_len);
       if (thisw+sumw > wrap_maxwid) break;
       sumw+=thisw;
@@ -2130,7 +2131,7 @@ void __SWELL_editControlState::autoScrollToOffset(HWND hwnd, int charpos, bool i
 
 static bool is_word_char(char c)
 {
-  return c<0/*all utf-8 chars are word chars*/ || isalnum(c) || c == '_';
+  return c<0/*all utf-8 chars are word chars*/ || isalnum_safe(c) || c == '_';
 }
 
 static int scanWord(const char *buf, int bytepos, int dir)
@@ -3391,7 +3392,7 @@ struct __SWELL_ComboBoxInternalState_rec
   ~__SWELL_ComboBoxInternalState_rec() { free(desc); } 
   char *desc; 
   LPARAM parm; 
-  static int cmp(const __SWELL_ComboBoxInternalState_rec **a, const __SWELL_ComboBoxInternalState_rec **b) { return strcmp((*a)->desc, (*b)->desc); }
+  static int cmpfunc(const __SWELL_ComboBoxInternalState_rec *a, const __SWELL_ComboBoxInternalState_rec *b) { return strcmp(a->desc, b->desc); }
 };
 
 class __SWELL_ComboBoxInternalState
@@ -3428,7 +3429,7 @@ static LRESULT WINAPI comboWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM
             __SWELL_ComboBoxInternalState_rec *r=new __SWELL_ComboBoxInternalState_rec((const char *)lParam);
             // find position of insert for wParam
             bool m;
-            int idx = s->items.LowerBound(r,&m,__SWELL_ComboBoxInternalState_rec::cmp);
+            int idx = s->items.LowerBound(r,&m,__SWELL_ComboBoxInternalState_rec::cmpfunc);
             if (s->selidx >= idx) s->selidx++;
             s->items.Insert(idx,r);
             return idx;
@@ -4120,11 +4121,11 @@ struct listViewState
   WDL_PtrList<HGDIOBJ__> *m_status_imagelist;
   int m_status_imagelist_type;
 
-  static int compareRows(const SWELL_ListView_Row **_a, const SWELL_ListView_Row **_b)
+  static int compareRows(const SWELL_ListView_Row *_a, const SWELL_ListView_Row *_b)
   {
     const char *a, *b;
-    if (!_a || !(a=(*_a)->get_col_txt(0))) a="";
-    if (!_b || !(b=(*_b)->get_col_txt(0))) b="";
+    if (!(a=_a->get_col_txt(0))) a="";
+    if (!(b=_b->get_col_txt(0))) b="";
     return strcmp(a,b);
   }
 };
@@ -7282,7 +7283,7 @@ static HFONT menubar_font;
 static bool wantRightAlignedMenuBarItem(const char *p)
 {
   char c = *p;
-  return c > 0 && c != '&' && !isalnum(c);
+  return c > 0 && c != '&' && !isalnum_safe(c);
 }
 
 #define MENUBAR_SELECTED_ITEM_XPAD \
@@ -7625,7 +7626,7 @@ LRESULT DefWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
                   p++;
                 }
               }
-              if (*p > 0 && (WPARAM)toupper(*p) == wParam)
+              if (*p > 0 && (WPARAM)toupper_safe(*p) == wParam)
               {
                 if (inf->hSubMenu)
                 {

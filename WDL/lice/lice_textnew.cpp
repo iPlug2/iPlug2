@@ -34,14 +34,14 @@ static int utf8makechar(char *ptrout, unsigned short charIn)
   return 3;
 }
 
-static int utf8char(const char *ptr, unsigned short *charOut) // returns char length
+static int utf8char(const char *ptr, unsigned int *charOut) // returns char length
 {
   const unsigned char *p = (const unsigned char *)ptr;
   unsigned char tc = *p;
 
   if (tc < 128) 
   {
-    if (charOut) *charOut = (unsigned short) tc;
+    if (charOut) *charOut = tc;
     return 1;
   }
   else if (tc < 0xC2) // invalid chars (subsequent in sequence, or overlong which we disable for)
@@ -67,11 +67,11 @@ static int utf8char(const char *ptr, unsigned short *charOut) // returns char le
   {
     if (p[1] >= 0x80 && p[1] <= 0xC0 && p[2] >= 0x80 && p[2] <= 0xC0 && p[3] >= 0x80 && p[3] <= 0xC0)
     {
-      if (charOut) *charOut = (unsigned short)' '; // dont support 4 byte sequences yet(ever?)
+      if (charOut) *charOut = ' '; // dont support 4 byte sequences yet(ever?)
       return 4;
     }
   }  
-  if (charOut) *charOut = (unsigned short) tc;
+  if (charOut) *charOut = tc;
   return 1;  
 }
 
@@ -160,7 +160,11 @@ void LICE_CachedFont::SetFromHFont(HFONT font, int flags)
   }
 }
 
-bool LICE_CachedFont::RenderGlyph(unsigned short idx) // return TRUE if ok
+#define COMBINING_THRESHOLD (1<<20)
+#define DECODE_COMBINING(x) ((x)>>20) // we may want to make these make more efficient use of space
+#define ENCODE_COMBINING(x) ((x)<<20)
+
+bool LICE_CachedFont::RenderGlyph(unsigned int idx) // return TRUE if ok
 {
   if (m_line_height >= ABSOLUTELY_NO_GLYPHS_HIGHER_THAN) return false;
 
@@ -213,7 +217,10 @@ bool LICE_CachedFont::RenderGlyph(unsigned short idx) // return TRUE if ok
   if (__1ifNT2if98==1) 
 #endif
   {
-    WCHAR tmpstr[2]={(WCHAR)idx,0};
+    WCHAR tmpstr[3]={(WCHAR)(idx&0xffff),0};
+    if (idx >= COMBINING_THRESHOLD && (idx & (COMBINING_THRESHOLD-1)) < 128) // include any combining character
+      tmpstr[1] = (WCHAR) DECODE_COMBINING(idx);
+
     ::DrawTextW(s_tempbitmap->getDC(),tmpstr,1,&r,DT_CALCRECT|DT_SINGLELINE|DT_NOPREFIX);
     advance=r.right;
     r.right += right_extra_pad+left_extra_pad;
@@ -228,10 +235,11 @@ bool LICE_CachedFont::RenderGlyph(unsigned short idx) // return TRUE if ok
 
 #if !defined(_WIN32) || defined(WDL_SUPPORT_WIN9X)
   {
-    
-    char tmpstr[6]={(char)idx,0};
+    char tmpstr[8]={(char)(idx&127),0};
 #ifndef _WIN32
-    if (idx>=128) utf8makechar(tmpstr,idx);
+    if (idx >= COMBINING_THRESHOLD && (idx & (COMBINING_THRESHOLD-1)) < 128)
+      utf8makechar(tmpstr + 1, DECODE_COMBINING(idx));
+    else if (idx>=128) utf8makechar(tmpstr,idx);
 #endif
     ::DrawText(s_tempbitmap->getDC(),tmpstr,-1,&r,DT_CALCRECT|DT_SINGLELINE|DT_NOPREFIX);
     advance=r.right;
@@ -522,7 +530,7 @@ public:
   }
 };
 
-LICE_CachedFont::charEnt *LICE_CachedFont::findChar(unsigned short c)
+LICE_CachedFont::charEnt *LICE_CachedFont::findChar(unsigned int c)
 {
   if (c<128) return m_lowchars+c;
   if (!m_extracharlist.GetSize()) return 0;
@@ -531,7 +539,7 @@ LICE_CachedFont::charEnt *LICE_CachedFont::findChar(unsigned short c)
   return (charEnt *)bsearch(&a,m_extracharlist.Get(),m_extracharlist.GetSize(),sizeof(charEnt),_charSortFunc);
 }
 
-bool LICE_CachedFont::DrawGlyph(LICE_IBitmap *bm, unsigned short c, 
+bool LICE_CachedFont::DrawGlyph(LICE_IBitmap *bm, unsigned int c, 
                                 int xpos, int ypos, const RECT *clipR)
 {
   charEnt *ch = findChar(c);
@@ -733,9 +741,22 @@ static BOOL LICE_Text_HasUTF8(const char *_str)
       }
 
 
-static const char *adv_str(const char *str, int *strcnt, unsigned short *c)
+static const char *adv_str(const char *str, int *strcnt, unsigned int *c)
 {
   int charlen=utf8char(str, c);
+  if (charlen == 1 && ((*c >= 'a' && *c <= 'z') || (*c >= 'A' && *c <= 'Z')))
+  {
+    if (!strcnt || *strcnt < 0 || *strcnt >= 3)
+    {
+      unsigned int c2 = 0;
+      const int len2 = utf8char(str + charlen, &c2);
+      if (c2 >= 0x300 && c2 <= 0x36F) // we could add other characters here (and on the renderglyph side)
+      {
+        charlen += len2;
+        *c |= ENCODE_COMBINING(c2);
+      }
+    }
+  }
   if (strcnt && *strcnt > 0) *strcnt=wdl_max(*strcnt-charlen, 0);
   return str+charlen;
 }
@@ -746,7 +767,7 @@ const char *LICE_CachedFont::NextWordBreak(const char *str, int strcnt, int w)
   const char *next_break=NULL;
   while (*str && strcnt)
   {
-    unsigned short c;
+    unsigned int c;
     str=adv_str(str, &strcnt, &c);
     if (c == '\n') return str;
     if (c != '\r')
@@ -1056,7 +1077,7 @@ finish_up_native_render:
   int tcnt=strcnt;
   while (*tstr && tcnt)
   {
-    unsigned short c;
+    unsigned int c;
     tstr=adv_str(tstr, &tcnt, &c);
 
     if (c == '\r') continue;
@@ -1085,7 +1106,7 @@ finish_up_native_render:
     const char *next_break=NULL;
     while (*str && strcnt)
     {
-      unsigned short c;
+      unsigned int c;
       str=adv_str(str, &strcnt, &c);
 
       if (c == '\r') continue;
@@ -1267,7 +1288,7 @@ finish_up_native_render:
   const char *next_break=NULL;
   while (*str && strcnt)
   {
-    unsigned short c;
+    unsigned int c;
     str=adv_str(str, &strcnt, &c);
 
     if (c == '\r') continue;

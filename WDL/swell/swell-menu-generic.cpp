@@ -1031,7 +1031,7 @@ static LRESULT WINAPI submenuWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
               }
             }
 
-            if (*p > 0 && (WPARAM)toupper(*p) == wParam)
+            if (*p > 0 && (WPARAM)toupper_safe(*p) == wParam)
             {
               if (!matchcnt++)
               {

@@ -1817,7 +1817,7 @@ static LRESULT WINAPI swellFontChooserProc(HWND hwnd, UINT uMsg, WPARAM wParam, 
                 for (int y=0;y<2;y++)
                 {
                   char c = *trail;
-                  if (c>0) c=toupper(c);
+                  if (c>0) c=toupper_safe(c);
                   if (c == 'B' || c == 'I' || c == 'L') trail++;
                 }
               }

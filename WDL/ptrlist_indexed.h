@@ -24,13 +24,6 @@ template<class T> class WDL_IndexedPtrList {
     }
     void Empty() { _checkState(); m_list.Empty(); m_index.DeleteAll(); }
     void Empty(bool wantDelete, void (*delfunc)(void*)=NULL) { _checkState(); m_list.Empty(wantDelete,delfunc); m_index.DeleteAll(); }
-    void EmptySafe(bool wantDelete=false,void (*delfunc)(void *)=NULL)
-    {
-      _checkState();
-      m_index.DeleteAll();
-      m_list.EmptySafe(wantDelete,delfunc);
-      m_index.DeleteAll();
-    }
     void Delete(int idx, bool wantDelete=false, void (*delfunc)(void *)=NULL)
     {
       _checkState();

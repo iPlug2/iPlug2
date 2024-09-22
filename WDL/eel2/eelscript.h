@@ -624,14 +624,14 @@ int eelScriptInst::loadfile(const char *fn, const char *callerfn, bool allowstdi
     line[0]=0;
     fgets(line,sizeof(line),fp);
     if (!line[0]) break;
-    if (!strnicmp(line,"@import",7) && isspace((unsigned char)line[7]))
+    if (!strnicmp(line,"@import",7) && isspace_safe(line[7]))
     {
       char *p=line+7;
-      while (isspace((unsigned char)*p)) p++;
+      while (isspace_safe(*p)) p++;
 
       char *ep=p;
       while (*ep) ep++;
-      while (ep>p && isspace((unsigned char)ep[-1])) ep--;
+      while (ep>p && isspace_safe(ep[-1])) ep--;
       *ep=0;
 
       if (*p) loadfile(p,fn,false);
