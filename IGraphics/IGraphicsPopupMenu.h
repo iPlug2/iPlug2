@@ -146,9 +146,9 @@ public:
     mMenuItems.Empty(true);
   }
 
-  static int Sortfunc(const Item **a, const Item **b)
+  static int Sortfunc(const Item* a, const Item* b)
   {
-    return stricmp((*a)->GetText(),(*b)->GetText());
+    return stricmp(a->GetText(), b->GetText());
   }
   
   Item* AddItem(Item* pItem, int index = -1)
