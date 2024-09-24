@@ -3115,17 +3115,10 @@ static const char *eel_lice_function_reference =
   "\4mouse_cap - a bitfield of mouse and keyboard modifier state. Note that a script must call gfx_getchar() at least once in order to get modifier state when the mouse is not captured by the window. Bitfield bits:\3"
     "\4" "1: left mouse button\n"
     "\4" "2: right mouse button\n"
-#ifdef __APPLE__
-    "\4" "4: Command key\n"
+    "\4" "4: Control (Windows) or Command (macOS) key\n"
     "\4" "8: Shift key\n"
-    "\4" "16: Option key\n"
-    "\4" "32: Control key\n"
-#else
-    "\4" "4: Control key\n"
-    "\4" "8: Shift key\n"
-    "\4" "16: Alt key\n"
-    "\4" "32: Windows key\n"
-#endif
+    "\4" "16: Alt (Windows) or Option (macOS) key\n"
+    "\4" "32: Windows (Windows) or Control (macOS) key\n"
     "\4" "64: middle mouse button\n"
   "\2"
   "\2\0"
