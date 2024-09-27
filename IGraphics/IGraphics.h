@@ -1560,6 +1560,11 @@ public:
    * @param x The X coordinate where the drag and drop occurred
    * @param y The Y coordinate where the drag and drop occurred */
   void OnDrop(const char* str, float x, float y);
+  
+  /** @param ext A CString with the extension of the about to be dropped item
+   * @param x The X coordinate where the drag and drop occurred
+   * @param y The Y coordinate where the drag and drop occurred */
+  void OnDropOver(const char* ext, float x, float y);
 
   /** @param paths A vector with the absolute paths of the dropped items
    * @param x The X coordinate where the drag and drop occurred
