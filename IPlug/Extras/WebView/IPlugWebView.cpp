@@ -49,11 +49,12 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
 
   WDL_String cachePath;
   WebViewCachePath(cachePath);
-  WCHAR cachePathWide[IPLUG_WIN_MAX_WIDE_PATH];
-  UTF8ToUTF16(cachePathWide, cachePath.Get(), IPLUG_WIN_MAX_WIDE_PATH);
+  int bufSize = UTF8ToUTF16Len(cachePath.Get());
+  std::vector<WCHAR> cachePathWide(bufSize);
+  UTF8ToUTF16(cachePathWide.data(), cachePath.Get(), IPLUG_WIN_MAX_WIDE_PATH);
 
   CreateCoreWebView2EnvironmentWithOptions(
-    nullptr, cachePathWide, nullptr,
+    nullptr, cachePathWide.data(), nullptr,
   Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>(
     [&, x, y, w, h](HRESULT result, ICoreWebView2Environment* env) -> HRESULT {
       env
@@ -160,20 +161,21 @@ void IWebView::LoadHTML(const char* html)
 {
   if (mWebViewWnd)
   {
-    WCHAR htmlWide[IPLUG_WIN_MAX_WIDE_PATH]; // TODO: error check/size
-    UTF8ToUTF16(htmlWide, html, IPLUG_WIN_MAX_WIDE_PATH); // TODO: error check/size
-    mWebViewWnd->NavigateToString(htmlWide);
+    int bufSize = UTF8ToUTF16Len(html);
+    std::vector<WCHAR> htmlWide(bufSize);
+    UTF8ToUTF16(htmlWide.data(), html, bufSize);
+    mWebViewWnd->NavigateToString(htmlWide.data());
   }
 }
 
 void IWebView::LoadURL(const char* url)
 {
-  //TODO: error check url?
   if (mWebViewWnd)
   {
-    WCHAR urlWide[IPLUG_WIN_MAX_WIDE_PATH]; // TODO: error check/size
-    UTF8ToUTF16(urlWide, url, IPLUG_WIN_MAX_WIDE_PATH); // TODO: error check/size
-    mWebViewWnd->Navigate(urlWide);
+    int bufSize = UTF8ToUTF16Len(url);
+    std::vector<WCHAR> urlWide(bufSize);
+    UTF8ToUTF16(urlWide.data(), url, bufSize);
+    mWebViewWnd->Navigate(urlWide.data());
   }
 }
 
@@ -182,10 +184,15 @@ void IWebView::LoadFile(const char* fileName, const char* bundleID)
   if (mWebViewWnd)
   {
     WDL_String fullStr;
+#ifdef OS_WIN
     fullStr.SetFormatted(MAX_WIN32_PATH_LEN, "file://%s", fileName);
-    WCHAR fileUrlWide[IPLUG_WIN_MAX_WIDE_PATH]; // TODO: error check/size
-    UTF8ToUTF16(fileUrlWide, fullStr.Get(), IPLUG_WIN_MAX_WIDE_PATH); // TODO: error check/size
-    mWebViewWnd->Navigate(fileUrlWide);
+#else
+    fullStr.SetFormatted(MAX_MACOS_PATH_LEN, "file://%s", fileName);
+#endif
+    int bufSize = UTF8ToUTF16Len(fullStr.Get());
+    std::vector<WCHAR> fileUrlWide(bufSize);
+    UTF8ToUTF16(fileUrlWide.data(), fullStr.Get(), bufSize);
+    mWebViewWnd->Navigate(fileUrlWide.data());
   }
 }
 
@@ -193,10 +200,11 @@ void IWebView::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc f
 {
   if (mWebViewWnd)
   {
-    WCHAR scriptWide[IPLUG_WIN_MAX_WIDE_PATH]; // TODO: error check/size
-    UTF8ToUTF16(scriptWide, scriptStr, IPLUG_WIN_MAX_WIDE_PATH); // TODO: error check/size
+    int bufSize = UTF8ToUTF16Len(scriptStr);
+    std::vector<WCHAR> scriptWide(bufSize);
+    UTF8ToUTF16(scriptWide.data(), scriptStr, bufSize);
 
-    mWebViewWnd->ExecuteScript(scriptWide, Callback<ICoreWebView2ExecuteScriptCompletedHandler>(
+    mWebViewWnd->ExecuteScript(scriptWide.data(), Callback<ICoreWebView2ExecuteScriptCompletedHandler>(
       [func](HRESULT errorCode, LPCWSTR resultObjectAsJson) -> HRESULT {
         if (func && resultObjectAsJson) {
           WDL_String str;
