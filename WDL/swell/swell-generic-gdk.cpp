@@ -1018,19 +1018,6 @@ static void OnConfigureEvent(GdkEventConfigure *cfg)
 {
   HWND hwnd = swell_oswindow_to_hwnd(cfg->window);
   if (!hwnd) return;
-
-  if (hwnd->m_oswindow_lastcfgpos.left == cfg->x &&
-      hwnd->m_oswindow_lastcfgpos.top == cfg->y &&
-      hwnd->m_oswindow_lastcfgpos.right == cfg->width &&
-      hwnd->m_oswindow_lastcfgpos.bottom == cfg->height)
-  {
-    return;
-  }
-  hwnd->m_oswindow_lastcfgpos.left = cfg->x;
-  hwnd->m_oswindow_lastcfgpos.top = cfg->y;
-  hwnd->m_oswindow_lastcfgpos.right = cfg->width;
-  hwnd->m_oswindow_lastcfgpos.bottom = cfg->height;
-
   int flag=0;
   if (cfg->x != hwnd->m_position.left || 
       cfg->y != hwnd->m_position.top || 
