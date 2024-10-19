@@ -13,25 +13,13 @@
 #include "IPlugPlatform.h"
 #include "wdlstring.h"
 #include <functional>
-
-#if defined OS_MAC
-  #define PLATFORM_VIEW NSView
-  #define PLATFORM_RECT NSRect
-  #define MAKERECT NSMakeRect
-#elif defined OS_IOS
-  #define PLATFORM_VIEW UIView
-  #define PLATFORM_RECT CGRect
-  #define MAKERECT CGRectMake
-#elif defined OS_WIN
-  #include <wrl.h>
-  #include <wil/com.h>
-  #include "WebView2.h"
-  #include "WebView2EnvironmentOptions.h"
-#endif
+#include <memory>
 
 BEGIN_IPLUG_NAMESPACE
 
 using completionHandlerFunc = std::function<void(const char* result)>;
+
+class IWebViewImpl;
 
 /** IWebView is a base interface for hosting a platform web view inside an IPlug plug-in's UI */
 class IWebView
@@ -103,28 +91,11 @@ public:
   virtual void DidReceiveBytes(size_t numBytesReceived, size_t totalNumBytes) {};
 
   /** Fills the path where web content is being served from, when LoadFile() is used */
-  void GetWebRoot(WDL_String& path) const { path.Set(mWebRoot.Get()); }
+  void GetWebRoot(WDL_String& path) const;
   
 private:
-  WDL_String mWebRoot;
-  bool mOpaque = true;
-#if defined OS_MAC || defined OS_IOS
-  void* mWKWebView = nullptr;
-  void* mWebConfig = nullptr;
-  void* mScriptHandler = nullptr;
-#elif defined OS_WIN
-  HWND mParentWnd = NULL;
-  wil::com_ptr<ICoreWebView2Controller> mWebViewCtrlr;
-  wil::com_ptr<ICoreWebView2> mCoreWebView;
-  wil::com_ptr<ICoreWebView2Environment> mWebViewEnvironment;
-  EventRegistrationToken mWebMessageReceivedToken;
-  EventRegistrationToken mNavigationCompletedToken;
-  EventRegistrationToken mContextMenuRequestedToken;
-  EventRegistrationToken mDownloadStartingToken;
-  EventRegistrationToken mBytesReceivedChangedToken;
-  EventRegistrationToken mStateChangedToken;
-  bool mShowOnLoad = true;
-#endif
+  std::unique_ptr<IWebViewImpl> mImpl;
+  bool mOpaque;
 };
 
 END_IPLUG_NAMESPACE
