@@ -13,29 +13,66 @@ See LICENSE.txt for  more info.
 #include <string>
 #include <windows.h>
 #include <shlobj.h>
-//#include <shlwapi.h>
 #include <cassert>
+#include <wil/com.h>
+#include "WebView2.h"
 
 using namespace iplug;
 using namespace Microsoft::WRL;
 
 extern float GetScaleForHWND(HWND hWnd);
 
-IWebView::IWebView(bool opaque)
-: mOpaque(opaque)
+class IWebViewImpl
+{
+public:
+  IWebViewImpl(IWebView* owner, bool opaque);
+  ~IWebViewImpl();
+
+  void* OpenWebView(void* pParent, float x, float y, float w, float h, float scale, bool enableDevTools);
+  void CloseWebView();
+  void HideWebView(bool hide);
+  void LoadHTML(const char* html);
+  void LoadURL(const char* url);
+  void LoadFile(const char* fileName, const char* bundleID, bool useCustomScheme);
+  void ReloadPageContent();
+  void EvaluateJavaScript(const char* scriptStr, completionHandlerFunc func);
+  void EnableScroll(bool enable);
+  void EnableInteraction(bool enable);
+  void SetWebViewBounds(float x, float y, float w, float h, float scale);
+  void GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath);
+  void GetWebRoot(WDL_String& path) const;
+
+private:
+  IWebView* mOwner;
+  bool mOpaque;
+  HWND mParentWnd = NULL;
+  wil::com_ptr<ICoreWebView2Controller> mWebViewCtrlr;
+  wil::com_ptr<ICoreWebView2> mCoreWebView;
+  wil::com_ptr<ICoreWebView2Environment> mWebViewEnvironment;
+  EventRegistrationToken mWebMessageReceivedToken;
+  EventRegistrationToken mNavigationCompletedToken;
+  EventRegistrationToken mContextMenuRequestedToken;
+  EventRegistrationToken mDownloadStartingToken;
+  EventRegistrationToken mBytesReceivedChangedToken;
+  EventRegistrationToken mStateChangedToken;
+  bool mShowOnLoad = true;
+  WDL_String mWebRoot;
+};
+
+IWebViewImpl::IWebViewImpl(IWebView* owner, bool opaque)
+  : mOwner(owner), mOpaque(opaque)
 {
 }
 
-IWebView::~IWebView()
+IWebViewImpl::~IWebViewImpl()
 {
   CloseWebView();
 }
 
-typedef HRESULT (*TCCWebView2EnvWithOptions)(
-  PCWSTR browserExecutableFolder, PCWSTR userDataFolder, PCWSTR additionalBrowserArguments,
-  ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler* environment_created_handler);
+// Implement all the methods of IWebViewImpl here...
+// For example:
 
-void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, float scale, bool enableDevTools)
+void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float h, float scale, bool enableDevTools)
 {
   mParentWnd = (HWND)pParent;
 
@@ -251,7 +288,7 @@ void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, f
   return mParentWnd;
 }
 
-void IWebView::CloseWebView()
+void IWebViewImpl::CloseWebView()
 {
   if (mWebViewCtrlr.get() != nullptr)
   {
@@ -262,7 +299,7 @@ void IWebView::CloseWebView()
   }
 }
 
-void IWebView::HideWebView(bool hide)
+void IWebViewImpl::HideWebView(bool hide)
 {
   if (mWebViewCtrlr.get() != nullptr)
   {
@@ -276,7 +313,7 @@ void IWebView::HideWebView(bool hide)
   }
 }
 
-void IWebView::LoadHTML(const char* html)
+void IWebViewImpl::LoadHTML(const char* html)
 {
   if (mWebViewWnd)
   {
@@ -287,7 +324,7 @@ void IWebView::LoadHTML(const char* html)
   }
 }
 
-void IWebView::LoadURL(const char* url)
+void IWebViewImpl::LoadURL(const char* url)
 {
   if (mWebViewWnd)
   {
@@ -298,7 +335,7 @@ void IWebView::LoadURL(const char* url)
   }
 }
 
-void IWebView::LoadFile(const char* fileName, const char* bundleID, bool /*useCustomScheme*/)
+void IWebViewImpl::LoadFile(const char* fileName, const char* bundleID, bool /*useCustomScheme*/)
 {
   if (mCoreWebView)
   {
@@ -331,7 +368,7 @@ void IWebView::LoadFile(const char* fileName, const char* bundleID, bool /*useCu
 }
 
 
-void IWebView::ReloadPageContent()
+void IWebViewImpl::ReloadPageContent()
 {
   if (mCoreWebView)
   {
@@ -339,7 +376,7 @@ void IWebView::ReloadPageContent()
   }
 }
 
-void IWebView::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc func)
+void IWebViewImpl::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc func)
 {
   if (mCoreWebView)
   {
@@ -361,17 +398,17 @@ void IWebView::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc f
   }
 }
 
-void IWebView::EnableScroll(bool enable)
+void IWebViewImpl::EnableScroll(bool enable)
 {
   /* NO-OP */
 }
 
-void IWebView::EnableInteraction(bool enable)
+void IWebViewImpl::EnableInteraction(bool enable)
 {
   /* NO-OP */
 }
 
-void IWebView::SetWebViewBounds(float x, float y, float w, float h, float scale)
+void IWebViewImpl::SetWebViewBounds(float x, float y, float w, float h, float scale)
 {
   if (mWebViewCtrlr)
   {
@@ -386,7 +423,86 @@ void IWebView::SetWebViewBounds(float x, float y, float w, float h, float scale)
   }
 }
 
-void IWebView::GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath)
+void IWebViewImpl::GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath)
 {
   localPath.Set(fileName);
+}
+
+void IWebViewImpl::GetWebRoot(WDL_String& path) const
+{
+  path.Set(mWebRoot.Get());
+}
+
+// IWebView implementation
+
+IWebView::IWebView(bool opaque)
+  : mImpl(std::make_unique<IWebViewImpl>(this, opaque)), mOpaque(opaque)
+{
+}
+
+IWebView::~IWebView() = default;
+
+void* IWebView::OpenWebView(void* pParent, float x, float y, float w, float h, float scale, bool enableDevTools)
+{
+  return mImpl->OpenWebView(pParent, x, y, w, h, scale, enableDevTools);
+}
+
+void IWebView::CloseWebView()
+{
+  mImpl->CloseWebView();
+}
+
+void IWebView::HideWebView(bool hide)
+{
+  mImpl->HideWebView(hide);
+}
+
+void IWebView::LoadHTML(const char* html)
+{
+  mImpl->LoadHTML(html);
+}
+
+void IWebView::LoadURL(const char* url)
+{
+  mImpl->LoadURL(url);
+}
+
+void IWebView::LoadFile(const char* fileName, const char* bundleID, bool useCustomScheme)
+{
+  mImpl->LoadFile(fileName, bundleID, useCustomScheme);
+}
+
+void IWebView::ReloadPageContent()
+{
+  mImpl->ReloadPageContent();
+}
+
+void IWebView::EvaluateJavaScript(const char* scriptStr, completionHandlerFunc func)
+{
+  mImpl->EvaluateJavaScript(scriptStr, func);
+}
+
+void IWebView::EnableScroll(bool enable)
+{
+  mImpl->EnableScroll(enable);
+}
+
+void IWebView::EnableInteraction(bool enable)
+{
+  mImpl->EnableInteraction(enable);
+}
+
+void IWebView::SetWebViewBounds(float x, float y, float w, float h, float scale)
+{
+  mImpl->SetWebViewBounds(x, y, w, h, scale);
+}
+
+void IWebView::GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath)
+{
+  mImpl->GetLocalDownloadPathForFile(fileName, localPath);
+}
+
+void IWebView::GetWebRoot(WDL_String& path) const
+{
+  mImpl->GetWebRoot(path);
 }
