@@ -14,13 +14,15 @@ See LICENSE.txt for  more info.
 #include <windows.h>
 #include <shlobj.h>
 #include <cassert>
+
+#include <wrl.h>
 #include <wil/com.h>
 #include "WebView2.h"
-
-using namespace iplug;
-using namespace Microsoft::WRL;
+#include "WebView2EnvironmentOptions.h"
 
 extern float GetScaleForHWND(HWND hWnd);
+
+BEGIN_IPLUG_NAMESPACE
 
 class IWebViewImpl
 {
@@ -39,8 +41,17 @@ public:
   void EnableScroll(bool enable);
   void EnableInteraction(bool enable);
   void SetWebViewBounds(float x, float y, float w, float h, float scale);
-  void GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath);
-  void GetWebRoot(WDL_String& path) const;
+  void GetWebRoot(WDL_String& path) const { path.Set(mWebRoot.Get()); }
+  
+  void OnWebViewReady() { mOwner->OnWebViewReady(); }
+  void OnWebContentLoaded() { mOwner->OnWebContentLoaded(); }
+  void OnMessageFromWebView(const char* json) { mOwner->OnMessageFromWebView(json); }
+  bool CanNavigateToURL(const char* url) { return mOwner->CanNavigateToURL(url); }
+  bool CanDownloadMIMEType(const char* mimeType) { return mOwner->CanDownloadMIMEType(mimeType); }
+  void GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath) { mOwner->GetLocalDownloadPathForFile(fileName, localPath); }
+  void DidDownloadFile(const char* path) { mOwner->DidDownloadFile(path); }
+  void FailedToDownloadFile(const char* path) { mOwner->FailedToDownloadFile(path); }
+  void DidReceiveBytes(size_t numBytesReceived, size_t totalNumBytes) {mOwner->DidReceiveBytes(numBytesReceived, totalNumBytes); }
 
 private:
   IWebView* mOwner;
@@ -50,6 +61,7 @@ private:
   wil::com_ptr<ICoreWebView2> mCoreWebView;
   wil::com_ptr<ICoreWebView2Environment> mWebViewEnvironment;
   EventRegistrationToken mWebMessageReceivedToken;
+  EventRegistrationToken mNavigationStartingToken;
   EventRegistrationToken mNavigationCompletedToken;
   EventRegistrationToken mContextMenuRequestedToken;
   EventRegistrationToken mDownloadStartingToken;
@@ -58,6 +70,11 @@ private:
   bool mShowOnLoad = true;
   WDL_String mWebRoot;
 };
+
+END_IPLUG_NAMESPACE
+
+using namespace iplug;
+using namespace Microsoft::WRL;
 
 IWebViewImpl::IWebViewImpl(IWebView* owner, bool opaque)
   : mOwner(owner), mOpaque(opaque)
@@ -68,9 +85,6 @@ IWebViewImpl::~IWebViewImpl()
 {
   CloseWebView();
 }
-
-// Implement all the methods of IWebViewImpl here...
-// For example:
 
 void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float h, float scale, bool enableDevTools)
 {
@@ -89,7 +103,7 @@ void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float 
   std::vector<WCHAR> cachePathWide(bufSize);
   UTF8ToUTF16(cachePathWide.data(), cachePath.Get(), IPLUG_WIN_MAX_WIDE_PATH);
 
-  auto options = Microsoft::WRL::Make<CoreWebView2EnvironmentOptions>();
+  auto options = Make<CoreWebView2EnvironmentOptions>();
   options->put_AllowSingleSignOnUsingOSPrimaryAccount(FALSE);
   options->put_ExclusiveUserDataFolderAccess(FALSE);
   // options->put_Language(m_language.c_str());
@@ -123,7 +137,8 @@ void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float 
               mWebViewCtrlr->get_CoreWebView2(&mCoreWebView);
             }
             
-            if (mWebViewWnd == nullptr) {
+            if (mCoreWebView == nullptr)
+            {
               return S_OK;
             }
 
@@ -159,6 +174,26 @@ void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float 
               }).Get(),
               &mWebMessageReceivedToken);
 
+
+            mCoreWebView->add_NavigationStarting(
+              Callback<ICoreWebView2NavigationStartingEventHandler>(
+                [this](ICoreWebView2* sender, ICoreWebView2NavigationStartingEventArgs* args) -> HRESULT {
+                  
+                  wil::unique_cotaskmem_string uri;
+                  args->get_Uri(&uri);
+                  std::wstring uriUTF16 = uri.get();
+                  WDL_String uriUTF8;
+                  UTF16ToUTF8(uriUTF8, uriUTF16.c_str());
+                  
+                  if (this->CanNavigateToURL(uriUTF8.Get()) == false)
+                  {
+                    args->put_Cancel(TRUE);
+                  }
+
+                  return S_OK;
+                }).Get(),
+              &mNavigationStartingToken);
+
             mCoreWebView->add_NavigationCompleted(
               Callback<ICoreWebView2NavigationCompletedEventHandler>(
                 [this](ICoreWebView2* sender, ICoreWebView2NavigationCompletedEventArgs* args) -> HRESULT {
@@ -191,9 +226,6 @@ void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float 
                     INT64 totalBytesToReceive = 0;
                     download->get_TotalBytesToReceive(&totalBytesToReceive);
 
-                    wil::unique_cotaskmem_string uri;
-                    download->get_Uri(&uri);
-
                     // validate MIME type
                     wil::unique_cotaskmem_string mimeType;
                     download->get_MimeType(&mimeType);
@@ -217,10 +249,11 @@ void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float 
                     UTF16ToUTF8(initialPathUTF8, initialPathUTF16.c_str());
                     this->GetLocalDownloadPathForFile(initialPathUTF8.Get(), downloadPathUTF8);
 
-                    WCHAR downloadPathUTF16[IPLUG_WIN_MAX_WIDE_PATH];
-                    UTF8ToUTF16(downloadPathUTF16, downloadPathUTF8.Get(), IPLUG_WIN_MAX_WIDE_PATH);
+                    int bufSize = UTF8ToUTF16Len(downloadPathUTF8.Get());
+                    std::vector<WCHAR>  downloadPathWide(bufSize);
+                    UTF8ToUTF16(downloadPathWide.data(), downloadPathUTF8.Get(), bufSize);
 
-                    args->put_ResultFilePath(downloadPathUTF16);
+                    args->put_ResultFilePath(downloadPathWide.data());
                     
                     download->add_BytesReceivedChanged(Callback<ICoreWebView2BytesReceivedChangedEventHandler>([this](ICoreWebView2DownloadOperation* download, IUnknown* args) -> HRESULT {
                                                          INT64 bytesReceived, totalNumBytes;
@@ -315,23 +348,23 @@ void IWebViewImpl::HideWebView(bool hide)
 
 void IWebViewImpl::LoadHTML(const char* html)
 {
-  if (mWebViewWnd)
+  if (mCoreWebView)
   {
     int bufSize = UTF8ToUTF16Len(html);
     std::vector<WCHAR> htmlWide(bufSize);
     UTF8ToUTF16(htmlWide.data(), html, bufSize);
-    mWebViewWnd->NavigateToString(htmlWide.data());
+    mCoreWebView->NavigateToString(htmlWide.data());
   }
 }
 
 void IWebViewImpl::LoadURL(const char* url)
 {
-  if (mWebViewWnd)
+  if (mCoreWebView)
   {
     int bufSize = UTF8ToUTF16Len(url);
     std::vector<WCHAR> urlWide(bufSize);
     UTF8ToUTF16(urlWide.data(), url, bufSize);
-    mWebViewWnd->Navigate(urlWide.data());
+    mCoreWebView->Navigate(urlWide.data());
   }
 }
 
@@ -344,12 +377,12 @@ void IWebViewImpl::LoadFile(const char* fileName, const char* bundleID, bool /*u
     {
       WDL_String webFolder{fileName};
       webFolder.remove_filepart();
-      int bufSize = UTF8ToUTF16Len(fullStr.Get());
+      int bufSize = UTF8ToUTF16Len(webFolder.Get());
       std::vector<WCHAR> webFolderWide(bufSize);
-      UTF8ToUTF16(webFolderWide(), fullStr.Get(), IPLUG_WIN_MAX_WIDE_PATH);
+      UTF8ToUTF16(webFolderWide.data(), webFolder.Get(), bufSize);
 
       webView3->SetVirtualHostNameToFolderMapping(
-        L"iplug.example", webFolderWide, COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND_DENY_CORS);
+        L"iplug.example", webFolderWide.data(), COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND_DENY_CORS);
     }
 
     WDL_String baseName{fileName};
@@ -358,12 +391,12 @@ void IWebViewImpl::LoadFile(const char* fileName, const char* bundleID, bool /*u
     mWebRoot.Set(root.Get());
 
     WDL_String fullStr;
-    fullStr.SetFormatted(MAX_WIN32_PATH_LEN, "https://iplug.example/%s", baseName.get_filepart());
-    // fullStr.SetFormatted(MAX_WIN32_PATH_LEN, useCustomScheme ? "iplug://%s" : "file://%s", fileName);
+    fullStr.SetFormatted(2048, "https://iplug.example/%s", baseName.get_filepart());
+    // fullStr.SetFormatted(2048, useCustomScheme ? "iplug://%s" : "file://%s", fileName);
     int bufSize = UTF8ToUTF16Len(fullStr.Get());
     std::vector<WCHAR> fileUrlWide(bufSize);
     UTF8ToUTF16(fileUrlWide.data(), fullStr.Get(), bufSize);
-    mWebViewWnd->Navigate(fileUrlWide.data());
+    mCoreWebView->Navigate(fileUrlWide.data());
   }
 }
 
@@ -422,17 +455,6 @@ void IWebViewImpl::SetWebViewBounds(float x, float y, float w, float h, float sc
     mWebViewCtrlr->SetBoundsAndZoomFactor({(LONG)x, (LONG)y, (LONG)(x + w), (LONG)(y + h)}, scale);
   }
 }
-
-void IWebViewImpl::GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath)
-{
-  localPath.Set(fileName);
-}
-
-void IWebViewImpl::GetWebRoot(WDL_String& path) const
-{
-  path.Set(mWebRoot.Get());
-}
-
 // IWebView implementation
 
 IWebView::IWebView(bool opaque)
