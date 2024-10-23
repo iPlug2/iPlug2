@@ -46,12 +46,12 @@ public:
   void OnWebViewReady() { mOwner->OnWebViewReady(); }
   void OnWebContentLoaded() { mOwner->OnWebContentLoaded(); }
   void OnMessageFromWebView(const char* json) { mOwner->OnMessageFromWebView(json); }
-  bool CanNavigateToURL(const char* url) { return mOwner->CanNavigateToURL(url); }
-  bool CanDownloadMIMEType(const char* mimeType) { return mOwner->CanDownloadMIMEType(mimeType); }
-  void GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath) { mOwner->GetLocalDownloadPathForFile(fileName, localPath); }
-  void DidDownloadFile(const char* path) { mOwner->DidDownloadFile(path); }
-  void FailedToDownloadFile(const char* path) { mOwner->FailedToDownloadFile(path); }
-  void DidReceiveBytes(size_t numBytesReceived, size_t totalNumBytes) {mOwner->DidReceiveBytes(numBytesReceived, totalNumBytes); }
+  bool OnCanNavigateToURL(const char* url) { return mOwner->OnCanNavigateToURL(url); }
+  bool OnCanDownloadMIMEType(const char* mimeType) { return mOwner->OnCanDownloadMIMEType(mimeType); }
+  void OnGetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath) { mOwner->OnGetLocalDownloadPathForFile(fileName, localPath); }
+  void OnDownloadedFile(const char* path) { mOwner->OnDownloadedFile(path); }
+  void OnFailedToDownloadFile(const char* path) { mOwner->OnFailedToDownloadFile(path); }
+  void OnReceivedData(size_t numBytesReceived, size_t totalNumBytes) {mOwner->OnReceivedData(numBytesReceived, totalNumBytes); }
 
 private:
   IWebView* mOwner;
@@ -185,7 +185,7 @@ void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float 
                   WDL_String uriUTF8;
                   UTF16ToUTF8(uriUTF8, uriUTF16.c_str());
                   
-                  if (this->CanNavigateToURL(uriUTF8.Get()) == false)
+                  if (this->OnCanNavigateToURL(uriUTF8.Get()) == false)
                   {
                     args->put_Cancel(TRUE);
                   }
@@ -232,7 +232,7 @@ void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float 
                     std::wstring mimeTypeUTF16 = mimeType.get();
                     WDL_String mimeTypeUTF8;
                     UTF16ToUTF8(mimeTypeUTF8, mimeTypeUTF16.c_str());
-                    if (!this->CanDownloadMIMEType(mimeTypeUTF8.Get()))
+                    if (!this->OnCanDownloadMIMEType(mimeTypeUTF8.Get()))
                     {
                       args->put_Cancel(TRUE);
                     }
@@ -247,7 +247,7 @@ void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float 
                     std::wstring initialPathUTF16 = resultFilePath.get();
                     WDL_String initialPathUTF8, downloadPathUTF8;
                     UTF16ToUTF8(initialPathUTF8, initialPathUTF16.c_str());
-                    this->GetLocalDownloadPathForFile(initialPathUTF8.Get(), downloadPathUTF8);
+                    this->OnGetLocalDownloadPathForFile(initialPathUTF8.Get(), downloadPathUTF8);
 
                     int bufSize = UTF8ToUTF16Len(downloadPathUTF8.Get());
                     std::vector<WCHAR>  downloadPathWide(bufSize);
@@ -259,7 +259,7 @@ void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float 
                                                          INT64 bytesReceived, totalNumBytes;
                                                          download->get_BytesReceived(&bytesReceived);
                                                          download->get_TotalBytesToReceive(&totalNumBytes);
-                                                         this->DidReceiveBytes(bytesReceived, totalNumBytes);
+                                                         this->OnReceivedData(bytesReceived, totalNumBytes);
                           return S_OK;
                         }).Get(),
                         &mBytesReceivedChangedToken);
@@ -268,7 +268,7 @@ void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float 
                                                                COREWEBVIEW2_DOWNLOAD_STATE downloadState;
                                                                download->get_State(&downloadState);
 
-                                                               auto onDownloadCompleted = [&](ICoreWebView2DownloadOperation* download) {
+                                                               auto onDownloadEnded = [&](ICoreWebView2DownloadOperation* download, bool success) {
                                                                  download->remove_BytesReceivedChanged(mBytesReceivedChangedToken);
                                                                  download->remove_StateChanged(mStateChangedToken);
                                                                  wil::unique_cotaskmem_string resultFilePath;
@@ -276,7 +276,11 @@ void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float 
                                                                  std::wstring downloadPathUTF16 = resultFilePath.get();
                                                                  WDL_String downloadPathUTF8;
                                                                  UTF16ToUTF8(downloadPathUTF8, downloadPathUTF16.c_str());
-                                                                 this->DidDownloadFile(downloadPathUTF8.Get());
+
+                                                                 if (success)
+                                                                  this->OnDownloadedFile(downloadPathUTF8.Get());
+                                                                 else
+                                                                  this->OnFailedToDownloadFile(downloadPathUTF8.Get());
                                                                };
 
                                                                switch (downloadState)
@@ -284,11 +288,10 @@ void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float 
                                                                case COREWEBVIEW2_DOWNLOAD_STATE_IN_PROGRESS:
                                                                  break;
                                                                case COREWEBVIEW2_DOWNLOAD_STATE_INTERRUPTED:
-      
-                                                                 onDownloadCompleted(download);
+                                                                 onDownloadEnded(download, false);
                                                                  break;
                                                                case COREWEBVIEW2_DOWNLOAD_STATE_COMPLETED:
-                                                                 onDownloadCompleted(download);
+                                                                 onDownloadEnded(download, true);
                                                                  break;
                                                                }
                                                                return S_OK;
@@ -517,14 +520,4 @@ void IWebView::EnableInteraction(bool enable)
 void IWebView::SetWebViewBounds(float x, float y, float w, float h, float scale)
 {
   mImpl->SetWebViewBounds(x, y, w, h, scale);
-}
-
-void IWebView::GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath)
-{
-  mImpl->GetLocalDownloadPathForFile(fileName, localPath);
-}
-
-void IWebView::GetWebRoot(WDL_String& path) const
-{
-  mImpl->GetWebRoot(path);
 }

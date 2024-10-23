@@ -57,7 +57,7 @@ using namespace iplug;
   
   if (@available(macOS 11.3, iOS 14.5, *))
   {
-    bool allowMimeType = mWebView->CanDownloadMIMEType([navigationResponse.response.MIMEType UTF8String]);
+    bool allowMimeType = mWebView->OnCanDownloadMIMEType([navigationResponse.response.MIMEType UTF8String]);
 
     if (allowMimeType)
     {
@@ -84,7 +84,7 @@ using namespace iplug;
 
 - (void)download:(WKDownload *)download didReceiveData:(int64_t)length API_AVAILABLE(macos(11.3), ios(14.5))
 {
-  mWebView->DidReceiveBytes(length, 0);
+  mWebView->OnReceivedData(length, 0);
 }
 
 - (void)download:(WKDownload *)download didFailWithError:(NSError *)error API_AVAILABLE(macos(11.3), ios(14.5))
@@ -95,7 +95,7 @@ using namespace iplug;
 
 - (void)downloadDidFinish:(WKDownload *)download  API_AVAILABLE(macos(11.3), ios(14.5))
 {
-  mWebView->DidDownloadFile([[downloadDestinationURL path] UTF8String]);
+  mWebView->OnDownloadedFile([[downloadDestinationURL path] UTF8String]);
   downloadDestinationURL = nil;
 }
 

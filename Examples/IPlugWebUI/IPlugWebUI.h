@@ -38,8 +38,9 @@ public:
   void OnIdle() override;
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
   void OnParamChange(int paramIdx) override;
-  bool CanDownloadMIMEType(const char* mimeType) override { return std::string_view(mimeType) != "text/html"; }
-  void DidDownloadFile(const char* path) override;
+  bool CanNavigateToURL(const char* url);
+  bool OnCanDownloadMIMEType(const char* mimeType) override;
+  void OnDownloadedFile(const char* path) override;
 
 private:
   float mLastPeak = 0.;

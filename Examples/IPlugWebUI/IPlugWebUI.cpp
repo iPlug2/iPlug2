@@ -89,7 +89,18 @@ void IPlugWebUI::ProcessMidiMsg(const IMidiMsg& msg)
   SendMidiMsg(msg);
 }
 
-void IPlugWebUI::DidDownloadFile(const char* path)
+inline bool IPlugWebUI::CanNavigateToURL(const char* url)
 {
+  DBGMSG("Navigating to URL %s\n", url);
+
+  return true;
+}
+
+inline bool IPlugWebUI::OnCanDownloadMIMEType(const char* mimeType)
+{
+  return std::string_view(mimeType) != "text/html";
+}
+
+void IPlugWebUI::OnDownloadedFile(const char* path) {
   DBGMSG("Downloaded file to %s\n", path);
 }
