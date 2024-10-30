@@ -667,6 +667,8 @@ void SetWindowPos(HWND hwnd, HWND zorder, int x, int y, int cx, int cy, int flag
  // todo: handle SWP_SHOWWINDOW
   RECT f = hwnd->m_position;
   int reposflag = 0;
+  WDL_ASSERT((flags & SWP_NOSIZE) || cx>=0);
+  WDL_ASSERT((flags & SWP_NOSIZE) || cy>=0);
   if (!(flags&SWP_NOZORDER))
   {
     if (hwnd->m_parent && zorder != hwnd)

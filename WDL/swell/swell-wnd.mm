@@ -2245,6 +2245,8 @@ void GetClientRect(HWND hwnd, RECT *r)
 void SetWindowPos(HWND hwnd, HWND hwndAfter, int x, int y, int cx, int cy, int flags)
 {
   if (WDL_NOT_NORMALLY(!hwnd)) return;
+  WDL_ASSERT((flags & SWP_NOSIZE) || cx>=0);
+  // cy is allowed to be negative on swell-cocoa
  
   SWELL_BEGIN_TRY
   NSWindow *nswnd; // content views = move window
