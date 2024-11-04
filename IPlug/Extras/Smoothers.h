@@ -100,7 +100,7 @@ public:
   {
     for (auto s = 0; s < nFrames; ++s)
     {
-      const double smoothedGain = mSmoother.Process(gainValue);
+      const T smoothedGain = static_cast<T>(mSmoother.Process(gainValue));
       
       for (auto c = 0; c < nChans; c++)
       {
