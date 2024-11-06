@@ -81,7 +81,7 @@ generate_build_files() {
     skia_use_expat = true
     skia_use_icu = true
     skia_use_gl = true
-    skia_use_dawn = true
+    skia_use_dawn = false
     skia_use_direct3d = true
     skia_enable_svg = true
     skia_enable_skottie = true

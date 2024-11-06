@@ -69,7 +69,7 @@ generate_build_files() {
     skia_use_dng_sdk = false
     skia_use_expat = true
     skia_use_icu = true
-    skia_use_dawn = true
+    skia_use_dawn = false
     skia_enable_skottie = true
     skia_enable_svg = true
     skia_enable_pdf = false
