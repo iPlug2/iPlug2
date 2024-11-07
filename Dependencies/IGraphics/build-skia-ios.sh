@@ -11,8 +11,14 @@ DEPOT_TOOLS_PATH="$BASE_DIR/tmp/depot_tools"
 SKIA_SRC_DIR="$BASE_DIR/src/skia"
 TMP_DIR="$BASE_DIR/tmp/skia"
 IOS_LIB_DIR="$BASE_DIR/ios/lib"
+IOS_SIM_LIB_DIR="$BASE_DIR/ios_sim/lib"
+MIN_IOS_VERSION="14"
 
-ERROR_MSG="Error: Please provide either 'arm64' or 'x86_64' as a single argument."
+ERROR_MSG="Usage: $0 [-simulator] <arm64|x86_64>
+Options:
+  -simulator    Build for iOS simulator
+Arguments:
+  Architecture: arm64 or x86_64"
 
 LIBS=(
   "libskia.a"
@@ -41,7 +47,16 @@ sync_deps() {
 generate_build_files() {
   local arch=$1
   local cpu_type=$2
+  local is_simulator=$3
   local output_dir="$TMP_DIR/$arch"
+
+  local simulator_arg=""
+  local min_version_flag="-miphoneos-version-min=$MIN_IOS_VERSION"
+  
+  if [ "$is_simulator" = true ]; then
+    simulator_arg="ios_use_simulator = true"
+    min_version_flag="-mios-simulator-version-min=$MIN_IOS_VERSION"
+  fi
 
   ./bin/gn gen "$output_dir" --args="
     is_official_build = true
@@ -68,9 +83,10 @@ generate_build_files() {
     cxx = \"clang++\"
     target_os = \"ios\"
     target_cpu = \"$cpu_type\"
-    extra_cflags = [\"-miphoneos-version-min=13\", \"-I../../../src/skia/third_party/externals/expat/lib\"]
+    extra_cflags = [\"$min_version_flag\", \"-I../../../src/skia/third_party/externals/expat/lib\"]
     extra_cflags_c = [\"-Wno-error\"]
     extra_asmflags = [\"-fembed-bitcode\"]
+    $simulator_arg
   "
 }
 
@@ -88,8 +104,15 @@ build_skia() {
 
 move_libs() {
   local arch=$1
+  local is_simulator=$2
   local src_dir="$TMP_DIR/$arch"
-  local dest_dir="$IOS_LIB_DIR/$arch"
+  local dest_dir
+  
+  if [ "$is_simulator" = true ]; then
+    dest_dir="$IOS_SIM_LIB_DIR/$arch"
+  else
+    dest_dir="$IOS_LIB_DIR/$arch"
+  fi
   
   mkdir -p "$dest_dir"
   
@@ -104,33 +127,47 @@ move_libs() {
 }
 
 main() {
-  if [ "$#" -ne 1 ]; then
+  local is_simulator=false
+  
+  # Parse command line options
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -simulator)
+        is_simulator=true
+        shift
+        ;;
+      arm64|x86_64)
+        ARCH="$1"
+        case "$1" in
+          "x86_64") CPU_TYPE="x64" ;;
+          "arm64") CPU_TYPE="arm64" ;;
+        esac
+        shift
+        ;;
+      *)
+        echo "$ERROR_MSG"
+        exit 1
+        ;;
+    esac
+  done
+
+  # Verify we got an architecture
+  if [ -z "$ARCH" ]; then
     echo "$ERROR_MSG"
     exit 1
   fi
 
-  case "$1" in
-    "x86_64")
-      ARCH="x86_64"
-      CPU_TYPE="x64"
-      ;;
-    "arm64")
-      ARCH="arm64"
-      CPU_TYPE="arm64"
-      ;;
-    *)
-      echo "$ERROR_MSG"
-      exit 1
-      ;;
-  esac
-
   setup_depot_tools
   sync_deps
-  generate_build_files "$ARCH" "$CPU_TYPE"
+  generate_build_files "$ARCH" "$CPU_TYPE" "$is_simulator"
   build_skia "$ARCH"
-  move_libs "$ARCH"
+  move_libs "$ARCH" "$is_simulator"
 
-  echo "Build completed successfully for $ARCH"
+  if [ "$is_simulator" = true ]; then
+    echo "Build completed successfully for $ARCH (iOS Simulator)"
+  else
+    echo "Build completed successfully for $ARCH (iOS Device)"
+  fi
 }
 
 main "$@"

@@ -180,6 +180,16 @@ jobs:
     displayName: Build Skia (arm64)
 
   - bash: |
+      cd ./Dependencies/IGraphics
+      ./build-skia-ios.sh x86_64 -simulator
+    displayName: Build Skia (x86_64 simulator)
+
+  - bash: |
+      cd ./Dependencies/IGraphics
+      ./build-skia-ios.sh arm64 -simulator
+    displayName: Build Skia (arm64 simulator)
+
+  - bash: |
       cd ./Dependencies/Build
       ./../IGraphics/package-deps-src.sh
     displayName: slim SKIA src
