@@ -116,6 +116,7 @@ jobs:
     displayName: Publish Windows Dependencies Artifacts
 
 - job: BUILD_MAC_DEPS
+  timeoutInMinutes: 120
   dependsOn: GET_SRC_TREE
   condition: and(eq(variables.build_deps, true), eq(variables.build_mac, true))
 
@@ -153,6 +154,7 @@ jobs:
     displayName: Publish Mac Dependencies Artifacts
 
 - job: BUILD_IOS_DEPS
+  timeoutInMinutes: 120
   dependsOn: GET_SRC_TREE
   condition: and(eq(variables.build_deps, true), eq(variables.build_ios, true))
 
