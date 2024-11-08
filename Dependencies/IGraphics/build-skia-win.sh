@@ -11,6 +11,7 @@ DEPOT_TOOLS_PATH="$BASE_DIR/tmp/depot_tools"
 SKIA_SRC_DIR="$BASE_DIR/src/skia"
 TMP_DIR="$BASE_DIR/tmp/skia"
 WIN_LIB_DIR="$BASE_DIR/win"
+WIN_BIN_DIR="$BASE_DIR/win/bin"
 
 ERROR_MSG="Error: Please provide 'Debug' or 'Release' as the first argument, and 'x64' or 'Win32' as the second argument."
 
@@ -24,6 +25,8 @@ LIBS=(
   "skunicode_core.lib"
   "svg.lib"
 )
+
+ICU_DATA="icudtl.dat"
 
 setup_depot_tools() {
   if [ ! -d "$DEPOT_TOOLS_PATH" ]; then
@@ -125,6 +128,16 @@ move_libs() {
       echo "Warning: $lib not found in $src_dir"
     fi
   done
+
+  if [ "$config" = "Release" ] && [ "$arch" = "x64" ]; then
+    if [ -f "$src_dir/$ICU_DATA" ]; then
+      mkdir -p "$WIN_BIN_DIR"
+      cp "$src_dir/$ICU_DATA" "$WIN_BIN_DIR"
+      echo "Copied $ICU_DATA to $WIN_BIN_DIR"
+    else
+      echo "Warning: $ICU_DATA not found in $src_dir"
+    fi
+  fi
 }
 
 main() {
