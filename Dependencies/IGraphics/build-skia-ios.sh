@@ -85,7 +85,6 @@ generate_build_files() {
     target_cpu = \"$cpu_type\"
     extra_cflags = [\"$min_version_flag\", \"-I../../../src/skia/third_party/externals/expat/lib\"]
     extra_cflags_c = [\"-Wno-error\"]
-    extra_asmflags = [\"-fembed-bitcode\"]
     $simulator_arg
   "
 }
