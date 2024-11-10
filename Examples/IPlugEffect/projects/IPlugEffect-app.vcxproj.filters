@@ -77,6 +77,9 @@
     <ClCompile Include="..\..\..\IGraphics\Drawing\IGraphicsSkia.cpp">
       <Filter>IGraphics\Drawing</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.cpp">
+      <Filter>IPlug\WebView</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugEffect.h" />
@@ -258,6 +261,9 @@
     <ClInclude Include="..\..\..\IPlug\ISender.h">
       <Filter>IPlug</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.h">
+      <Filter>IPlug\WebView</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
@@ -290,6 +296,9 @@
     <Filter Include="IPlug\APP\RTAudioMidi\include">
       <UniqueIdentifier>{649c5de3-b4c2-4de9-8d57-3b1762646259}</UniqueIdentifier>
     </Filter>
+    <Filter Include="IPlug\WebView">
+      <UniqueIdentifier>{5a9c8a15-6cf8-4321-b1c9-c6987fa9a929}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc">
@@ -309,6 +318,7 @@
     <None Include="..\config\IPlugEffect-win.props">
       <Filter>config</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\resources\IPlugEffect.ico">

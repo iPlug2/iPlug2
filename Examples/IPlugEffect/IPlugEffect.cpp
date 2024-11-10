@@ -1,6 +1,7 @@
 #include "IPlugEffect.h"
 #include "IPlug_include_in_plug_src.h"
 #include "IControls.h"
+#include "IWebViewControl.h"
 
 IPlugEffect::IPlugEffect(const InstanceInfo& info)
 : iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
@@ -17,8 +18,32 @@ IPlugEffect::IPlugEffect(const InstanceInfo& info)
     pGraphics->AttachPanelBackground(COLOR_GRAY);
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     const IRECT b = pGraphics->GetBounds();
-    pGraphics->AttachControl(new ITextControl(b.GetMidVPadded(50), "Hello iPlug 2!", IText(50)));
-    pGraphics->AttachControl(new IVKnobControl(b.GetCentredInside(100).GetVShifted(-100), kGain));
+    pGraphics->AttachControl(new ILambdaControl(b,
+    [](ILambdaControl* pCaller, IGraphics& g, IRECT& r) {
+      const float radius = r.W();
+      const float x = r.MW();
+      const float y = r.MH();
+      const float rotate = float(pCaller->GetAnimationProgress() * PI);
+      
+      for(int index = 0, limit = 40; index < limit; ++index)
+      {
+        float firstAngle = float ((index * 2 * PI) / limit);
+        float secondAngle = float (((index + 1) * 2 * PI) / limit);
+        
+        g.PathTriangle(x, y,
+                       x + std::sin(firstAngle + rotate) * radius, y + std::cos(firstAngle + rotate) * radius,
+                       x + std::sin(secondAngle + rotate) * radius, y + std::cos(secondAngle + rotate) * radius);
+        
+        if(index % 2)
+          g.PathFill(COLOR_RED);
+        else
+          g.PathFill(pCaller->mMouseInfo.ms.L ? COLOR_VIOLET : COLOR_BLUE);
+      }
+      
+    }, 1000, false));
+    pGraphics->AttachControl(new IWebViewControl(b.GetCentredInside(300), false, [](IWebViewControl* pControl){
+      pControl->LoadHTML("<body style='<background-color: rgba(0,0,0,0)'><h1 style='color: white'>Hello WebView</h1></body>");
+    }))->SetIgnoreMouse(true);
   };
 #endif
 }
