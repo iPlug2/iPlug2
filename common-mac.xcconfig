@@ -99,7 +99,7 @@ FT_PATH = $(BUILT_LIBS_INC_PATH)/freetype2
 SKIA_PATH = $(DEPS_PATH)/Build/src/skia
 YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga
 
-SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu $(SKIA_PATH)/third_party/externals/icu/source/common $(SKIA_PATH)/modules/svg/include
+SKIA_INC_PATHS = $(SKIA_PATH)
 
 YOGA_INC_PATHS = $(YOGA_PATH) $(YOGA_PATH)/yoga
 
@@ -117,7 +117,7 @@ LIB_SKOTTIE = $(BUILT_LIBS_LIB_PATH)/libskottie.a
 LIB_SKSG = $(BUILT_LIBS_LIB_PATH)/libsksg.a
 LIB_SKSHAPER = $(BUILT_LIBS_LIB_PATH)/libskshaper.a
 LIB_SKPARAGRAPH = $(BUILT_LIBS_LIB_PATH)/libskparagraph.a
-LIB_SKUNICODE = $(BUILT_LIBS_LIB_PATH)/libskunicode.a
+LIB_SKUNICODE = $(BUILT_LIBS_LIB_PATH)/libskunicode_core.a $(BUILT_LIBS_LIB_PATH)/libskunicode_icu.a
 LIB_SVG = $(BUILT_LIBS_LIB_PATH)/libsvg.a
 //LIB_YOGA = $(BUILT_LIBS_LIB_PATH)/libyoga.a
 

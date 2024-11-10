@@ -55,7 +55,10 @@ JSON_INC_PATH = $(DEPS_PATH)/Extras/nlohmann
 // this build setting is included at the xcode project level, since we need all these include paths
 IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS) $(AUv3_PATH) $(JSON_INC_PATH)
 
-BUILT_LIBS_PATH = $(DEPS_PATH)/Build/ios
+BUILT_LIBS_PATH_iphoneos = $(DEPS_PATH)/Build/ios
+BUILT_LIBS_PATH_iphonesimulator = $(DEPS_PATH)/Build/ios_sim
+BUILT_LIBS_PATH = $(BUILT_LIBS_PATH_$(PLATFORM_NAME))
+
 BUILT_LIBS_INC_PATH = $(BUILT_LIBS_PATH)/include
 BUILT_LIBS_LIB_PATH = $(BUILT_LIBS_PATH)/lib/$CURRENT_ARCH
 
@@ -74,7 +77,7 @@ YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga
 
 SKIA_PATH = $(DEPS_PATH)/Build/src/skia
 
-SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu $(SKIA_PATH)/third_party/externals/icu/source/common $(SKIA_PATH)/modules/svg/include
+SKIA_INC_PATHS = $(SKIA_PATH)
 
 YOGA_INC_PATHS = $(YOGA_PATH) $(YOGA_PATH)/yoga
 
@@ -86,7 +89,7 @@ LIB_SKOTTIE = $(BUILT_LIBS_LIB_PATH)/libskottie.a
 LIB_SKSG = $(BUILT_LIBS_LIB_PATH)/libsksg.a
 LIB_SKSHAPER = $(BUILT_LIBS_LIB_PATH)/libskshaper.a
 LIB_SKPARAGRAPH = $(BUILT_LIBS_LIB_PATH)/libskparagraph.a
-LIB_SKUNICODE = $(BUILT_LIBS_LIB_PATH)/libskunicode.a
+LIB_SKUNICODE = $(BUILT_LIBS_LIB_PATH)/libskunicode_core.a $(BUILT_LIBS_LIB_PATH)/libskunicode_icu.a
 LIB_SVG = $(BUILT_LIBS_LIB_PATH)/libsvg.a
 
 SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH) $(LIB_SKUNICODE) $(LIB_SVG)
