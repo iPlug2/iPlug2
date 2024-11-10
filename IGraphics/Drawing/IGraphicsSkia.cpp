@@ -17,6 +17,16 @@
 #include "include/core/SkPathEffect.h"
 #include "include/effects/SkDashPathEffect.h"
 #include "include/effects/SkGradientShader.h"
+
+#if !defined IGRAPHICS_NO_SKIA_SKPARAGRAPH
+#include "modules/skparagraph/include/FontCollection.h"
+#include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skparagraph/include/ParagraphBuilder.h"
+#include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skshaper/include/SkShaper.h"
+#include "modules/skunicode/include/SkUnicode_icu.h"
+#endif
 #pragma warning( pop )
 #include "include/gpu/ganesh/SkSurfaceGanesh.h"
 #include "include/gpu/GrBackendSurface.h"
@@ -46,6 +56,7 @@
   #pragma comment(lib, "skia.lib")
 
   #ifndef IGRAPHICS_NO_SKIA_SKPARAGRAPH
+    #pragma comment(lib, "skparagraph.lib")
     #pragma comment(lib, "skshaper.lib")
     #pragma comment(lib, "skunicode_core.lib")
     #pragma comment(lib, "skunicode_icu.lib")
@@ -283,6 +294,53 @@ END_IPLUG_NAMESPACE
 
 #pragma mark -
 
+static sk_sp<SkFontMgr> SFontMgrFactory()
+{
+#if defined OS_MAC || defined OS_IOS
+  return SkFontMgr_New_CoreText(nullptr);
+#elif defined OS_WIN
+  return SkFontMgr_New_DirectWrite();
+#else
+  #error "Not supported"
+#endif
+}
+
+bool gFontMgrFactoryCreated = false;
+
+sk_sp<SkFontMgr> SkFontMgrRefDefault()
+{
+  static std::once_flag flag;
+  static sk_sp<SkFontMgr> mgr;
+  std::call_once(flag, [] {
+    mgr = SFontMgrFactory();
+    gFontMgrFactoryCreated = true;
+  });
+  return mgr;
+}
+
+#if !defined IGRAPHICS_NO_SKIA_SKPARAGRAPH
+
+bool gSkUnicodeCreated = false;
+
+sk_sp<SkUnicode> GetUnicode()
+{
+  static std::once_flag flag;
+  static sk_sp<SkUnicode> unicode;
+  std::call_once(flag, [] {
+    unicode = SkUnicodes::ICU::Make();
+    gSkUnicodeCreated = true;
+  });
+
+  if (!unicode)
+  {
+    DBGMSG("Could not load unicode data\n");
+    return nullptr;
+  }
+
+  return unicode;
+}
+#endif
+
 IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphics(dlg, w, h, fps, scale)
 {
@@ -297,6 +355,12 @@ IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float
 #endif
   StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Retain();
+  
+#if !defined IGRAPHICS_NO_SKIA_SKPARAGRAPH
+  mFontCollection = sk_make_sp<skia::textlayout::FontCollection>();
+  mFontCollection->enableFontFallback();
+  mFontCollection->setDefaultFontManager(SkFontMgrRefDefault());
+#endif
 }
 
 IGraphicsSkia::~IGraphicsSkia()
@@ -594,19 +658,6 @@ IColor IGraphicsSkia::GetPoint(int x, int y)
   return IColor(SkColorGetA(color), SkColorGetR(color), SkColorGetG(color), SkColorGetB(color));
 }
 
-extern "C" SkFontMgr* C_SkFontMgr_NewSystem() {
-    sk_sp<SkFontMgr> mgr;
-
-#ifdef OS_WIN
-    mgr = SkFontMgr_New_DirectWrite();
-#else
-    mgr = SkFontMgr_New_CoreText(nullptr);
-#endif
-
-  return mgr.release();
-}
-
-
 bool IGraphicsSkia::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
 {
   StaticStorage<Font>::Accessor storage(sFontCache);
@@ -620,8 +671,7 @@ bool IGraphicsSkia::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
   if (data->IsValid())
   {
     auto wrappedData = SkData::MakeWithoutCopy(data->Get(), data->GetSize());
-    sk_sp<SkFontMgr> fontManager = sk_sp<SkFontMgr>(C_SkFontMgr_NewSystem());
-    auto typeFace = fontManager->makeFromData(wrappedData);
+    auto typeFace = SkFontMgrRefDefault()->makeFromData(wrappedData);
     if (typeFace)
     {
       storage.Add(new Font(std::move(data), typeFace), fontID);
@@ -995,6 +1045,76 @@ void IGraphicsSkia::DrawFastDropShadow(const IRECT& innerBounds, const IRECT& ou
   
   paint.setMaskFilter(SkMaskFilter::MakeBlur(kSolid_SkBlurStyle, blur * 0.5)); // 0.5 seems to match nanovg
   mCanvas->drawRoundRect(r, roundness, roundness, paint);
+}
+
+void IGraphicsSkia::DrawMultiLineText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
+{
+#if !defined IGRAPHICS_NO_SKIA_SKPARAGRAPH
+  using namespace skia::textlayout;
+  
+  auto ConvertTextAlign = [](EAlign align) {
+    switch (align)
+    {
+      case EAlign::Near: return TextAlign::kLeft;
+      case EAlign::Center: return TextAlign::kCenter;
+      case EAlign::Far: return TextAlign::kRight;
+      default: return TextAlign::kLeft;
+    }
+  };
+
+  ParagraphStyle paragraphStyle;
+  paragraphStyle.setTextAlign(ConvertTextAlign(text.mAlign));
+
+  auto builder = ParagraphBuilder::make(paragraphStyle, mFontCollection, GetUnicode());
+
+  assert(builder && "Paragraph Builder couldn't be created");
+  
+  TextStyle textStyle;
+  textStyle.setColor(SkiaColor(text.mFGColor, pBlend));
+  
+  std::string fontFamily = text.mFont;
+      
+  size_t pos = fontFamily.find('-');
+  if (pos != std::string::npos)
+  {
+    fontFamily = fontFamily.substr(0, pos);
+  }
+  
+  textStyle.setFontFamilies({SkString(fontFamily)});
+  textStyle.setFontSize(text.mSize * 0.9);
+  textStyle.setFontStyle(SkFontStyle(SkFontStyle::kNormal_Weight,
+                                     SkFontStyle::kNormal_Width,
+                                     SkFontStyle::kUpright_Slant));
+  
+  builder->pushStyle(textStyle);
+  builder->addText(str);
+  builder->pop();
+  
+  auto paragraph = builder->Build();
+  
+  paragraph->layout(bounds.W());
+  
+  float yOffset = 0;
+  switch (text.mVAlign)
+  {
+    case EVAlign::Top:
+      yOffset = 0;
+      break;
+    case EVAlign::Middle:
+      yOffset = (bounds.H() - paragraph->getHeight()) / 2;
+      break;
+    case EVAlign::Bottom:
+      yOffset = bounds.H() - paragraph->getHeight();
+      break;
+  }
+    
+  mCanvas->save();
+  mCanvas->translate(bounds.L, bounds.T + yOffset);
+  paragraph->paint(mCanvas, 0, 0);
+  mCanvas->restore();
+#else
+  DrawText(text, str, bounds, pBlend);
+#endif
 }
 
 const char* IGraphicsSkia::GetDrawingAPIStr()
