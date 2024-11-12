@@ -52,7 +52,7 @@ ifeq ($(COMPILER),GCC)
   endif
 endif
 
-ifndef ALLOW_WARNINGS
+ifdef DISALLOW_WARNINGS
   CFLAGS += -Werror
 endif
 ifndef DEPRECATED_WARNINGS
