@@ -60,6 +60,7 @@
   #define IPLUG_WKSCRIPTMESSAGEHANDLER CONCAT(IPlugScriptMessageHandler_)
   #define IPLUG_WKWEBVIEW_DELEGATE CONCAT(IPlugWkWebViewDelegate_)
   #define IPLUG_WKWEBVIEW_UI_DELEGATE CONCAT(IPlugWkWebViewUIDelegate_)
+  #define IPLUG_WKWEBVIEW_EDITOR_HELPER CONCAT(IPlugWkWebViewEditorDelegateHelper_)
   // these only exist in AUv3 plug-ins, so don't need the API on the end
   #define IPLUG_AUAUDIOUNIT CONCATAU(IPlugAUAudioUnit_)
   #define IPLUG_AUVIEWCONTROLLER CONCATAU(IPlugAUViewController_)

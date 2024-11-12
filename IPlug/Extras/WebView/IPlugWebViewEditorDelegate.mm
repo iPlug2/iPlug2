@@ -20,9 +20,15 @@
 #import <UIKit/UIKit.h>
 #endif
 
+#if defined OS_MAC
+  #define PLATFORM_VIEW NSView
+#elif defined OS_IOS
+  #define PLATFORM_VIEW UIView
+#endif
+
 using namespace iplug;
 
-@interface HELPER_VIEW : PLATFORM_VIEW
+@interface IPLUG_WKWEBVIEW_EDITOR_HELPER : PLATFORM_VIEW
 {
   WebViewEditorDelegate* mDelegate;
 }
@@ -30,7 +36,7 @@ using namespace iplug;
 - (id) initWithEditorDelegate: (WebViewEditorDelegate*) pDelegate;
 @end
 
-@implementation HELPER_VIEW
+@implementation IPLUG_WKWEBVIEW_EDITOR_HELPER
 {
 }
 
@@ -42,7 +48,7 @@ using namespace iplug;
   CGRect r = CGRectMake(0, 0, w, h);
   self = [super initWithFrame:r];
   
-  void* pWebView = pDelegate->OpenWebView(self, 0, 0, w, h, 1.0f, pDelegate->GetEnableDevTools());
+  void* pWebView = pDelegate->OpenWebView(self, 0, 0, w, h, 1.0f);
 
   [self addSubview: (PLATFORM_VIEW*) pWebView];
 
@@ -79,25 +85,39 @@ void* WebViewEditorDelegate::OpenWindow(void* pParent)
 {
   PLATFORM_VIEW* pParentView = (PLATFORM_VIEW*) pParent;
     
-  HELPER_VIEW* pHelperView = [[HELPER_VIEW alloc] initWithEditorDelegate: this];
+  IPLUG_WKWEBVIEW_EDITOR_HELPER* pHelperView = [[IPLUG_WKWEBVIEW_EDITOR_HELPER alloc] initWithEditorDelegate: this];
   mHelperView = (void*) pHelperView;
 
-  if (pParentView) {
+  if (pParentView)
+  {
     [pParentView addSubview: pHelperView];
   }
   
   if (mEditorInitFunc)
+  {
     mEditorInitFunc();
-
+  }
+  
   return mHelperView;
 }
 
 void WebViewEditorDelegate::Resize(int width, int height)
 {
+  ResizeWebViewAndHelper(width, height);
+  EditorResizeFromUI(width, height, true);
+}
+
+void WebViewEditorDelegate::OnParentWindowResize(int width, int height)
+{
+  ResizeWebViewAndHelper(width, height);
+  EditorResizeFromUI(width, height, false);
+}
+
+void WebViewEditorDelegate::ResizeWebViewAndHelper(float width, float height)
+{
   CGFloat w = static_cast<float>(width);
   CGFloat h = static_cast<float>(height);
-  HELPER_VIEW* pHelperView = (HELPER_VIEW*) mHelperView;
+  IPLUG_WKWEBVIEW_EDITOR_HELPER* pHelperView = (IPLUG_WKWEBVIEW_EDITOR_HELPER*) mHelperView;
   [pHelperView setFrame:CGRectMake(0, 0, w, h)];
   SetWebViewBounds(0, 0, w, h);
-  EditorResizeFromUI(width, height, true);
 }
