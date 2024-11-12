@@ -64,7 +64,7 @@ public:
   void OnAttached() override
   {
     IGraphics* pGraphics = GetUI();
-    mPlatformView = OpenWebView(pGraphics->GetWindow(), mRECT.L, mRECT.T, mRECT.W(), mRECT.H(), pGraphics->GetDrawScale(), mEnableDevTools);
+    mPlatformView = OpenWebView(pGraphics->GetWindow(), mRECT.L, mRECT.T, mRECT.W(), mRECT.H(), pGraphics->GetDrawScale());
     pGraphics->AttachPlatformView(mRECT, mPlatformView);
     EnableScroll(mEnableScroll);
   }
