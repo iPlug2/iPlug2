@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style type="text/css">
     * {
       -webkit-touch-callout: none;
@@ -10,6 +11,12 @@
   
     p, h1 {
       pointer-events: none;
+    }
+    
+    body {
+      overflow: hidden;
+      -webkit-overflow-scrolling: touch;
+      background-color: #ffffff;
     }
   
     .left {
@@ -46,7 +53,7 @@
   </style>
   
   <script src="script.js"></script>
-  <script src="webaudio-controls.js"></script>
+  <script type="module" src="knob-control.js"></script>
   <script>
     function SendTestBinaryData() {
       let uint8 = new Uint8Array([0, 0, 0, 0]);
@@ -63,40 +70,80 @@
     }
     
     function OnParamChange(param, value) {
-      if(param == 0) {
-        document.getElementById("gain_knob").value = value * 100.;
-      }
+      const allElements = document.querySelectorAll('*');
+
+      allElements.forEach(element => {
+        if (element.tagName == "KNOB-CONTROL") {
+          // TODO
+        }
+      });
     }
   
     function OnControlChange(ctrlTag, value) {
-      if(ctrlTag == 0) {
-        document.getElementById("meter").value = value;
-      }
     }
-  
-    function onLoad() {
-      document.getElementById("gain_knob").addEventListener('input', function(e) {
-                                                          SPVFUI(0, e.target.value/100.)
-                                                          });
+
+    // This fires when the C++ side sends a message to the UI.
+    function OnMessage(msgTag, dataSize, data) {
+      if (msgTag == -1 && dataSize > 0) {
+
+      let json = JSON.parse(window.atob(data));
+
+      switch (json["id"])
+      {
+        case "params":
+          window["parameters"] = json["params"];
+
+          const allElements = document.querySelectorAll('*');
+
+          allElements.forEach(element => {
+            if (element.tagName == "KNOB-CONTROL") {
+              const paramInfo = json["params"][element.paramId];
+              element.setAttribute("min", paramInfo["min"]);
+              element.setAttribute("max", paramInfo["max"]);
+              element.setAttribute("label", paramInfo["name"]);
+              element.setAttribute("default-value", paramInfo["default"]);
+            }
+          });
+          
+          break;
+        }
+      }
     }
   </script>
 </head>
-<body onload="onLoad()">
-<!--<h1>IPlugWebView</h1>-->
-<div>
-  <div class="left">
-    <p>Gain</p>
-    <!-- <input id="slider" type="range" onmousedown="BPCFUI(0)" oninput="SPVFUI(0, this.value/100.)" onmouseup="EPCFUI(0)"> -->
-    <webaudio-knob id="gain_knob" min="0" max="100"></webaudio-knob>
-    <button onclick="SendTestBinaryData()">Binary Test</button>
-    <button onclick="SendTestMIDIData()">MIDI Test</button>
-    <progress id="meter">
-  </div>
-  <div class="right">
-    <button onclick="SAMFUI(0)">Small GUI</button>
-    <button onclick="SAMFUI(1)">Medium GUI</button>
-    <button onclick="SAMFUI(2)">Large GUI</button>
-  </div>
-</div>
+<body>
+<h1>IPlugWebView - testing UI</h1>
+<table>
+  <tr>
+    <td>
+      <button onclick="SendTestBinaryData()">Binary Test</button>
+    </td>
+    <td>
+      <button onclick="SendTestMIDIData()">MIDI Test</button>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <button onclick="SAMFUI(0)">Small GUI</button>
+    </td>
+    <td>
+      <button onclick="SAMFUI(1)">Medium GUI</button>
+    </td>
+    <td>
+      <button onclick="SAMFUI(2)">Large GUI</button>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <button onclick="window.location.href='https://github.com/iPlug2/iPlug2/raw/refs/heads/master/Examples/IPlugWebUI/README.md'">Download A File</button>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <input type="file" id="textfile" name="textfile" accept="text/*" />
+    </td>
+  </tr>
+</table>
+<knob-control label="Gain" param-id=0></knob-control>
 </body>
 </html>

@@ -80,6 +80,9 @@
     <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.cpp">
       <Filter>IPlug\Extras\WebView</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView_win.cpp">
+      <Filter>IPlug\Extras\WebView</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugOSCEditor.h" />
@@ -322,5 +325,8 @@
       <Filter>config</Filter>
     </None>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>

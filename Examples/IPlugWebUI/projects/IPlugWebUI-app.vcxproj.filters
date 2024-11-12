@@ -50,10 +50,10 @@
     <ClCompile Include="..\..\..\IPlug\IPlugPaths.cpp">
       <Filter>IPlug</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.cpp">
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebViewEditorDelegate.cpp">
       <Filter>IPlug\Extras\WebView</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebViewEditorDelegate.cpp">
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView_win.cpp">
       <Filter>IPlug\Extras\WebView</Filter>
     </ClCompile>
   </ItemGroup>
@@ -159,6 +159,7 @@
     <ClInclude Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.h">
       <Filter>IPlug\Extras\WebView</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\ISender.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
@@ -210,5 +211,8 @@
     <Image Include="..\resources\IPlugWebUI.ico">
       <Filter>resources</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>
