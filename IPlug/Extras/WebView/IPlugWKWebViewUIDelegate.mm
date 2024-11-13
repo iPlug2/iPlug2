@@ -1,3 +1,13 @@
+ /*
+ ==============================================================================
+ 
+ This file is part of the iPlug 2 library. Copyright (C) the iPlug 2 developers.
+ 
+ See LICENSE.txt for  more info.
+ 
+ ==============================================================================
+*/
+
 #import "IPlugWKWebViewUIDelegate.h"
 #include "IPlugWebView.h"
 
@@ -37,40 +47,7 @@ using namespace iplug;
       completionHandler(nil);
     }
   }];
-#else
-  UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Not Implemented" 
-                                                                message:@"File picking is not implemented on iOS" 
-                                                         preferredStyle:UIAlertControllerStyleAlert];
-  
-  UIAlertAction* okAction = [UIAlertAction actionWithTitle:@"OK" 
-                                                    style:UIAlertActionStyleDefault
-                                                  handler:^(UIAlertAction * action) {
-    completionHandler(nil);
-  }];
-  
-  [alert addAction:okAction];
-  [webView.window.rootViewController presentViewController:alert animated:YES completion:nil];
-
-
 #endif
 }
-
-#ifdef OS_IOS
-- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls
-{
-  if (self.filePickerCompletionHandler) {
-    self.filePickerCompletionHandler(urls);
-    self.filePickerCompletionHandler = nil;
-  }
-}
-
-- (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller
-{
-  if (self.filePickerCompletionHandler) {
-    self.filePickerCompletionHandler(nil);
-    self.filePickerCompletionHandler = nil;
-  }
-}
-#endif
 
 @end

@@ -154,9 +154,13 @@ void* IWebViewImpl::OpenWebView(void* _Nonnull pParent, float x, float y, float 
   auto* navigationDelegate = [[IPLUG_WKWEBVIEW_DELEGATE alloc] initWithIWebView: mIWebView];
   [wkWebView setNavigationDelegate:navigationDelegate];
 
+#ifndef OS_IOS
   auto* uiDelegate = [[IPLUG_WKWEBVIEW_UI_DELEGATE alloc] initWithIWebView: mIWebView];
   [wkWebView setUIDelegate:uiDelegate];
-
+#else
+  auto uiDelegate = nullptr;
+#endif
+  
   mWebConfig = webConfig;
   mWKWebView = wkWebView;
   mScriptMessageHandler = scriptMessageHandler;
@@ -300,3 +304,8 @@ void IWebViewImpl::GetLocalDownloadPathForFile(const char* _Nonnull fileName, WD
 }
 
 #include "IPlugWebView.cpp"
+
+#include "IPlugWKWebView.mm"
+#include "IPlugWKWebViewScriptMessageHandler.mm"
+#include "IPlugWKWebViewDelegate.mm"
+#include "IPlugWKWebViewUIDelegate.mm"

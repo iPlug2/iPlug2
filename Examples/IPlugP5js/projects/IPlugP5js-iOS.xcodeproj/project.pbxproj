@@ -32,15 +32,7 @@
 		4FA61F9422E8A71D00A92C58 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4FA61F9722E8A7E900A92C58 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4FB2269720A0D3A800614769 /* IPlugP5js-iOS-LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugP5js-iOS-LaunchScreen.storyboard */; };
-		4FCFA9352CE4243B00635FA7 /* IPlugWKWebViewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCFA92F2CE4243B00635FA7 /* IPlugWKWebViewDelegate.h */; };
-		4FCFA9362CE4243B00635FA7 /* IPlugWKWebViewScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCFA9312CE4243B00635FA7 /* IPlugWKWebViewScriptMessageHandler.h */; };
-		4FCFA9372CE4243B00635FA7 /* IPlugWKWebViewUIDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCFA9332CE4243B00635FA7 /* IPlugWKWebViewUIDelegate.h */; };
-		4FCFA9382CE4243B00635FA7 /* IPlugWKWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCFA92D2CE4243B00635FA7 /* IPlugWKWebView.h */; };
-		4FCFA9392CE4243B00635FA7 /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9322CE4243B00635FA7 /* IPlugWKWebViewScriptMessageHandler.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA93A2CE4243B00635FA7 /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9302CE4243B00635FA7 /* IPlugWKWebViewDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FCFA93B2CE4243B00635FA7 /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA92C2CE4243B00635FA7 /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA93C2CE4243B00635FA7 /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA92E2CE4243B00635FA7 /* IPlugWKWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA93D2CE4243B00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9342CE4243B00635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D732267CE540007B686 /* AppViewController.mm */; };
 		4FDF6D792267CE540007B686 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D742267CE540007B686 /* main.m */; };
 		4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D752267CE540007B686 /* AppDelegate.m */; };
@@ -141,14 +133,6 @@
 		4FC82B4720BD524700722133 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../resources/img; sourceTree = "<group>"; };
 		4FC82B4820BD524700722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
 		4FCFA92C2CE4243B00635FA7 /* IPlugWebView_mac.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWebView_mac.mm; sourceTree = "<group>"; };
-		4FCFA92D2CE4243B00635FA7 /* IPlugWKWebView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebView.h; sourceTree = "<group>"; };
-		4FCFA92E2CE4243B00635FA7 /* IPlugWKWebView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebView.mm; sourceTree = "<group>"; };
-		4FCFA92F2CE4243B00635FA7 /* IPlugWKWebViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebViewDelegate.h; sourceTree = "<group>"; };
-		4FCFA9302CE4243B00635FA7 /* IPlugWKWebViewDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewDelegate.mm; sourceTree = "<group>"; };
-		4FCFA9312CE4243B00635FA7 /* IPlugWKWebViewScriptMessageHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebViewScriptMessageHandler.h; sourceTree = "<group>"; };
-		4FCFA9322CE4243B00635FA7 /* IPlugWKWebViewScriptMessageHandler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewScriptMessageHandler.mm; sourceTree = "<group>"; };
-		4FCFA9332CE4243B00635FA7 /* IPlugWKWebViewUIDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebViewUIDelegate.h; sourceTree = "<group>"; };
-		4FCFA9342CE4243B00635FA7 /* IPlugWKWebViewUIDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewUIDelegate.mm; sourceTree = "<group>"; };
 		4FDA600520B5868D00C49ABA /* IPlugP5js-ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "IPlugP5js-ios.xcconfig"; path = "../config/IPlugP5js-ios.xcconfig"; sourceTree = "<group>"; };
 		4FDF6D722267CE540007B686 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		4FDF6D732267CE540007B686 /* AppViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppViewController.mm; sourceTree = "<group>"; };
@@ -265,14 +249,6 @@
 			isa = PBXGroup;
 			children = (
 				4FCFA92C2CE4243B00635FA7 /* IPlugWebView_mac.mm */,
-				4FCFA92D2CE4243B00635FA7 /* IPlugWKWebView.h */,
-				4FCFA92E2CE4243B00635FA7 /* IPlugWKWebView.mm */,
-				4FCFA92F2CE4243B00635FA7 /* IPlugWKWebViewDelegate.h */,
-				4FCFA9302CE4243B00635FA7 /* IPlugWKWebViewDelegate.mm */,
-				4FCFA9312CE4243B00635FA7 /* IPlugWKWebViewScriptMessageHandler.h */,
-				4FCFA9322CE4243B00635FA7 /* IPlugWKWebViewScriptMessageHandler.mm */,
-				4FCFA9332CE4243B00635FA7 /* IPlugWKWebViewUIDelegate.h */,
-				4FCFA9342CE4243B00635FA7 /* IPlugWKWebViewUIDelegate.mm */,
 				4F7DB9CE247895C200ACF64B /* IPlugWebViewEditorDelegate.mm */,
 				4F7DB9D0247895C200ACF64B /* IPlugWebViewEditorDelegate.h */,
 				4F7DB9CF247895C200ACF64B /* IPlugWebView.h */,
@@ -456,10 +432,6 @@
 			files = (
 				4F7DB9D3247895C200ACF64B /* IPlugWebView.h in Headers */,
 				4FA61F7C22E89A5900A92C58 /* AUv3Framework.h in Headers */,
-				4FCFA9352CE4243B00635FA7 /* IPlugWKWebViewDelegate.h in Headers */,
-				4FCFA9362CE4243B00635FA7 /* IPlugWKWebViewScriptMessageHandler.h in Headers */,
-				4FCFA9372CE4243B00635FA7 /* IPlugWKWebViewUIDelegate.h in Headers */,
-				4FCFA9382CE4243B00635FA7 /* IPlugWKWebView.h in Headers */,
 				4F7DB9D4247895C200ACF64B /* IPlugWebViewEditorDelegate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -648,11 +620,7 @@
 				4FA61F7E22E89AFF00A92C58 /* IPlugPluginBase.cpp in Sources */,
 				4FA61F8222E89AFF00A92C58 /* IPlugTimer.cpp in Sources */,
 				4FA61F8322E89AFF00A92C58 /* IPlugPaths.mm in Sources */,
-				4FCFA9392CE4243B00635FA7 /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
-				4FCFA93A2CE4243B00635FA7 /* IPlugWKWebViewDelegate.mm in Sources */,
 				4FCFA93B2CE4243B00635FA7 /* IPlugWebView_mac.mm in Sources */,
-				4FCFA93C2CE4243B00635FA7 /* IPlugWKWebView.mm in Sources */,
-				4FCFA93D2CE4243B00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4FA61F8122E89AFF00A92C58 /* IPlugParameter.cpp in Sources */,
 				4FA0FB22247D4E5600E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
 				4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */,
