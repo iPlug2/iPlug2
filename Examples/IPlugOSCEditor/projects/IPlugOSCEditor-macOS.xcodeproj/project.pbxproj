@@ -149,39 +149,6 @@
 		4F6369F120A466470022C370 /* IControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F6369E920A466470022C370 /* IControl.cpp */; };
 		4F690C9B203A345100A4A13E /* IPlugAPP_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F690C9A203A345100A4A13E /* IPlugAPP_main.cpp */; };
 		4F690CA3203A45C700A4A13E /* IPlugAPP_host.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F690CA2203A45C700A4A13E /* IPlugAPP_host.cpp */; };
-		4F6F63E12CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DB2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F6F63E22CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DB2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm */; };
-		4F6F63E32CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DB2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F6F63E42CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DB2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm */; };
-		4F6F63E52CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DB2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm */; };
-		4F6F63E62CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DB2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm */; };
-		4F6F63E72CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DB2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm */; };
-		4F6F63E82CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DB2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm */; };
-		4F6F63E92CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DB2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm */; };
-		4F6F63EA2CD7B7E8006B737B /* IPlugWKWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6F63DC2CD7B7E8006B737B /* IPlugWKWebView.h */; };
-		4F6F63EB2CD7B7E8006B737B /* IPlugWKWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6F63DC2CD7B7E8006B737B /* IPlugWKWebView.h */; };
-		4F6F63EC2CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DD2CD7B7E8006B737B /* IPlugWKWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F6F63ED2CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DD2CD7B7E8006B737B /* IPlugWKWebView.mm */; };
-		4F6F63EE2CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DD2CD7B7E8006B737B /* IPlugWKWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F6F63EF2CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DD2CD7B7E8006B737B /* IPlugWKWebView.mm */; };
-		4F6F63F02CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DD2CD7B7E8006B737B /* IPlugWKWebView.mm */; };
-		4F6F63F12CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DD2CD7B7E8006B737B /* IPlugWKWebView.mm */; };
-		4F6F63F22CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DD2CD7B7E8006B737B /* IPlugWKWebView.mm */; };
-		4F6F63F32CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DD2CD7B7E8006B737B /* IPlugWKWebView.mm */; };
-		4F6F63F42CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63DD2CD7B7E8006B737B /* IPlugWKWebView.mm */; };
-		4F6F63F52CD7B7E8006B737B /* IPlugWKWebViewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6F63DE2CD7B7E8006B737B /* IPlugWKWebViewDelegate.h */; };
-		4F6F63F62CD7B7E8006B737B /* IPlugWKWebViewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6F63DE2CD7B7E8006B737B /* IPlugWKWebViewDelegate.h */; };
-		4F6F63F72CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6F63DF2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.h */; };
-		4F6F63F82CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6F63DF2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.h */; };
-		4F6F63F92CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63E02CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F6F63FA2CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63E02CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm */; };
-		4F6F63FB2CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63E02CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F6F63FC2CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63E02CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm */; };
-		4F6F63FD2CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63E02CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm */; };
-		4F6F63FE2CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63E02CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm */; };
-		4F6F63FF2CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63E02CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm */; };
-		4F6F64002CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63E02CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm */; };
-		4F6F64012CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F63E02CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm */; };
 		4F6FD2B022675B6300FC59E6 /* IGraphicsCoreText.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F6FD2AD22675B6300FC59E6 /* IGraphicsCoreText.h */; };
 		4F6FD2B122675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6FD2AF22675B6300FC59E6 /* IGraphicsCoreText.mm */; };
 		4F6FD2B222675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6FD2AF22675B6300FC59E6 /* IGraphicsCoreText.mm */; };
@@ -357,17 +324,6 @@
 		4FCEAB8E24BF02C00016EF6C /* asyncdns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB8724BF02C00016EF6C /* asyncdns.cpp */; };
 		4FCEAB9024BF02C00016EF6C /* asyncdns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB8724BF02C00016EF6C /* asyncdns.cpp */; };
 		4FCEAB9124BF02C00016EF6C /* asyncdns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FCEAB8724BF02C00016EF6C /* asyncdns.cpp */; };
-		4FCFA90A2CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9092CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA90B2CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9092CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA90C2CE4229400635FA7 /* IPlugWKWebViewUIDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCFA9082CE4229400635FA7 /* IPlugWKWebViewUIDelegate.h */; };
-		4FCFA90D2CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9092CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA90E2CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9092CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA90F2CE4229400635FA7 /* IPlugWKWebViewUIDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCFA9082CE4229400635FA7 /* IPlugWKWebViewUIDelegate.h */; };
-		4FCFA9102CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9092CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA9112CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9092CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA9122CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9092CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA9132CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9092CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA9142CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9092CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0413B634AA001D0217 /* swell-dlg.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code -Wno-shorten-64-to-32 -Wno-deprecated-implementations"; }; };
 		4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D1513B634D2001D0217 /* swell-ini.cpp */; };
 		4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3913B63582001D0217 /* swell-kb.mm */; };
@@ -632,12 +588,6 @@
 		4F6E674021C5614C005991A9 /* MidiSynth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MidiSynth.h; sourceTree = "<group>"; };
 		4F6E674121C5614C005991A9 /* ControlRamp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ControlRamp.h; sourceTree = "<group>"; };
 		4F6E674221C5614C005991A9 /* MidiSynth.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MidiSynth.cpp; sourceTree = "<group>"; };
-		4F6F63DB2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewScriptMessageHandler.mm; sourceTree = "<group>"; };
-		4F6F63DC2CD7B7E8006B737B /* IPlugWKWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebView.h; sourceTree = "<group>"; };
-		4F6F63DD2CD7B7E8006B737B /* IPlugWKWebView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebView.mm; sourceTree = "<group>"; };
-		4F6F63DE2CD7B7E8006B737B /* IPlugWKWebViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebViewDelegate.h; sourceTree = "<group>"; };
-		4F6F63DF2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebViewScriptMessageHandler.h; sourceTree = "<group>"; };
-		4F6F63E02CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewDelegate.mm; sourceTree = "<group>"; };
 		4F6FD2AD22675B6300FC59E6 /* IGraphicsCoreText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IGraphicsCoreText.h; path = ../../../IGraphics/Platforms/IGraphicsCoreText.h; sourceTree = "<group>"; };
 		4F6FD2AF22675B6300FC59E6 /* IGraphicsCoreText.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = IGraphicsCoreText.mm; path = ../../../IGraphics/Platforms/IGraphicsCoreText.mm; sourceTree = "<group>"; };
 		4F72201E225C1EB100FF0E7C /* commoniids.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = commoniids.cpp; sourceTree = "<group>"; };
@@ -847,8 +797,6 @@
 		4FCEAB0324BEFF460016EF6C /* connection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = connection.cpp; sourceTree = "<group>"; };
 		4FCEAB8624BF02C00016EF6C /* asyncdns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = asyncdns.h; sourceTree = "<group>"; };
 		4FCEAB8724BF02C00016EF6C /* asyncdns.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = asyncdns.cpp; sourceTree = "<group>"; };
-		4FCFA9082CE4229400635FA7 /* IPlugWKWebViewUIDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebViewUIDelegate.h; sourceTree = "<group>"; };
-		4FCFA9092CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewUIDelegate.mm; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* IPlugOSCEditor.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugOSCEditor.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD16D0213B63489001D0217 /* swell-menugen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-menugen.h"; path = "../../../WDL/swell/swell-menugen.h"; sourceTree = SOURCE_ROOT; };
 		4FD16D0313B63494001D0217 /* swell-dlggen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-dlggen.h"; path = "../../../WDL/swell/swell-dlggen.h"; sourceTree = SOURCE_ROOT; };
@@ -1107,14 +1055,6 @@
 		4F06B2BB24BF65E300C7EDDA /* WebView */ = {
 			isa = PBXGroup;
 			children = (
-				4F6F63DC2CD7B7E8006B737B /* IPlugWKWebView.h */,
-				4FCFA9082CE4229400635FA7 /* IPlugWKWebViewUIDelegate.h */,
-				4FCFA9092CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm */,
-				4F6F63DD2CD7B7E8006B737B /* IPlugWKWebView.mm */,
-				4F6F63DE2CD7B7E8006B737B /* IPlugWKWebViewDelegate.h */,
-				4F6F63E02CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm */,
-				4F6F63DF2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.h */,
-				4F6F63DB2CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm */,
 				4F06B2BE24BF65E300C7EDDA /* IPlugWebView.h */,
 				4F06B2C124BF65E300C7EDDA /* IPlugWebView_mac.mm */,
 			);
@@ -1760,15 +1700,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FCEAB0624BEFF470016EF6C /* jnetlib.h in Headers */,
-				4F6F63EB2CD7B7E8006B737B /* IPlugWKWebView.h in Headers */,
 				4FCEAB6524BEFF470016EF6C /* util.h in Headers */,
 				4FCEAB0524BEFF470016EF6C /* connection.h in Headers */,
 				4FCEAB6424BEFF470016EF6C /* netinc.h in Headers */,
-				4F6F63F82CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.h in Headers */,
 				4FCEAB6624BEFF470016EF6C /* listen.h in Headers */,
 				4FCEAB8824BF02C00016EF6C /* asyncdns.h in Headers */,
-				4F6F63F62CD7B7E8006B737B /* IPlugWKWebViewDelegate.h in Headers */,
-				4FCFA90C2CE4229400635FA7 /* IPlugWKWebViewUIDelegate.h in Headers */,
 				4F06B2D424BF65E300C7EDDA /* IPlugWebView.h in Headers */,
 				4F78BE1222E73DD900AD537E /* AUv3Framework.h in Headers */,
 			);
@@ -1783,8 +1719,6 @@
 				4F03A58C20A4621100EBDFFB /* IGraphicsNanoVG.h in Headers */,
 				4F63695A20A463090022C370 /* IControls.h in Headers */,
 				4F03A5D320A4621100EBDFFB /* IGraphicsStructs.h in Headers */,
-				4FCFA90F2CE4229400635FA7 /* IPlugWKWebViewUIDelegate.h in Headers */,
-				4F6F63EA2CD7B7E8006B737B /* IPlugWKWebView.h in Headers */,
 				4FC3EFF82086CE5700BD11FA /* optional.h in Headers */,
 				4FC3F0012086CE5700BD11FA /* uid.h in Headers */,
 				4F03A5B620A4621100EBDFFB /* IGraphics_select.h in Headers */,
@@ -1801,13 +1735,11 @@
 				4F6FD2B022675B6300FC59E6 /* IGraphicsCoreText.h in Headers */,
 				4F03A5D220A4621100EBDFFB /* IGraphicsPopupMenu.h in Headers */,
 				4FC3EFFE2086CE5700BD11FA /* processdata.h in Headers */,
-				4F6F63F72CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.h in Headers */,
 				4FC3F0002086CE5700BD11FA /* stringconvert.h in Headers */,
 				4F8C10E720BA2796006320CD /* IGraphicsEditorDelegate.h in Headers */,
 				4FC3EFFA2086CE5700BD11FA /* parameterchanges.h in Headers */,
 				4F9A82F6213DE80400BE63A4 /* IPopupMenuControl.h in Headers */,
 				4F03A5B320A4621100EBDFFB /* IGraphics_include_in_plug_src.h in Headers */,
-				4F6F63F52CD7B7E8006B737B /* IPlugWKWebViewDelegate.h in Headers */,
 				4FC3EFFC2086CE5700BD11FA /* plugprovider.h in Headers */,
 				4F63696320A463090022C370 /* IVMeterControl.h in Headers */,
 			);
@@ -2374,11 +2306,9 @@
 				4FCEAB1A24BEFF470016EF6C /* util.cpp in Sources */,
 				4F03A5AD20A4621100EBDFFB /* IGraphics.cpp in Sources */,
 				4F5F344220C0226200487201 /* IPlugPaths.mm in Sources */,
-				4FCFA9142CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4F6369EC20A466470022C370 /* IControl.cpp in Sources */,
 				4FB1F58A20E4B005004157C8 /* IGraphicsMac.mm in Sources */,
 				4FCEAB7224BEFF470016EF6C /* connection.cpp in Sources */,
-				4F6F63FA2CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */,
 				4FCE29D821D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F9A82F8213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */,
@@ -2388,7 +2318,6 @@
 				4FCEAB4824BEFF470016EF6C /* listen.cpp in Sources */,
 				4F6369DE20A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
 				4F8D9707209EF5AC006E2A11 /* IPlugOSCEditor.cpp in Sources */,
-				4F6F63E22CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4F06B2B224BF64A300C7EDDA /* IPlugOSC.cpp in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FB1F59020E4B010004157C8 /* IGraphicsMac_view.mm in Sources */,
@@ -2397,7 +2326,6 @@
 				4F6FD2B222675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
 				4F78D9C813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
 				4FCEAB8A24BF02C00016EF6C /* asyncdns.cpp in Sources */,
-				4F6F63ED2CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2415,7 +2343,6 @@
 			files = (
 				4F03A5AF20A4621100EBDFFB /* IGraphics.cpp in Sources */,
 				4F6369E020A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
-				4F6F63EF2CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */,
 				4F6369EE20A466470022C370 /* IControl.cpp in Sources */,
 				4F1A528C205D916F00CF2908 /* IPlugAU.cpp in Sources */,
 				4F63697020A463090022C370 /* IControls.cpp in Sources */,
@@ -2432,7 +2359,6 @@
 				4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				4F78D94513B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FB1F59320E4B013004157C8 /* IGraphicsMac_view.mm in Sources */,
-				4FCFA90A2CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4FD52136202A5BD000A4D22A /* dfx-au-utilities.c in Sources */,
 				4FCE29DA21D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4FCEAB4A24BEFF470016EF6C /* listen.cpp in Sources */,
@@ -2440,8 +2366,6 @@
 				4FCEAB8C24BF02C00016EF6C /* asyncdns.cpp in Sources */,
 				4F35DEB0207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F78D95C13B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
-				4F6F63FC2CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */,
-				4F6F63E42CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4FB1F58C20E4B006004157C8 /* IGraphicsMac.mm in Sources */,
 				4F3862F22014BBEC0009F402 /* IPlugOSCEditor.cpp in Sources */,
 			);
@@ -2453,7 +2377,6 @@
 			files = (
 				4F3EE1C2231438D000004786 /* IPlugProcessor.cpp in Sources */,
 				4F3EE1C3231438D000004786 /* RtMidi.cpp in Sources */,
-				4FCFA9132CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4F3EE1C5231438D000004786 /* IGraphicsNanoVG_src.m in Sources */,
 				4FCEAB2124BEFF470016EF6C /* util.cpp in Sources */,
 				4FCEAB8524BEFFF20016EF6C /* IPlugOSC_msg.cpp in Sources */,
@@ -2468,7 +2391,6 @@
 				4F3EE1CF231438D000004786 /* swell-menu.mm in Sources */,
 				4F3EE1D0231438D000004786 /* IGraphicsMac_view.mm in Sources */,
 				4F3EE1D1231438D000004786 /* swell-appstub.mm in Sources */,
-				4F6F63F42CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */,
 				4F3EE1D2231438D000004786 /* swell-misc.mm in Sources */,
 				4F3EE1D3231438D000004786 /* swell-wnd.mm in Sources */,
 				4F3EE1D4231438D000004786 /* swell.cpp in Sources */,
@@ -2476,7 +2398,6 @@
 				4F3EE1D5231438D000004786 /* IPlugAPP_host.cpp in Sources */,
 				4F3EE1D6231438D000004786 /* IPlugAPP.cpp in Sources */,
 				4F3EE1D7231438D000004786 /* IGraphics.cpp in Sources */,
-				4F6F64012CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */,
 				4F3EE1D8231438D000004786 /* IPlugAPP_dialog.cpp in Sources */,
 				4F3EE1D9231438D000004786 /* RtAudio.cpp in Sources */,
 				4F3EE1DA231438D000004786 /* IGraphicsCoreText.mm in Sources */,
@@ -2493,7 +2414,6 @@
 				4F3EE1E3231438D000004786 /* swell-gdi.mm in Sources */,
 				4FCEAB9124BF02C00016EF6C /* asyncdns.cpp in Sources */,
 				4F3EE1E4231438D000004786 /* IPlugParameter.cpp in Sources */,
-				4F6F63E92CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4F3EE1E5231438D000004786 /* IPlugTimer.cpp in Sources */,
 				4FCEAB7924BEFF470016EF6C /* connection.cpp in Sources */,
 			);
@@ -2504,7 +2424,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F78BE1422E7406D00AD537E /* IPlugOSCEditor.h in Sources */,
-				4F6F63E82CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4F0D965C23099F6900BFDED0 /* IPlugProcessor.cpp in Sources */,
 				4F78BE1522E7406D00AD537E /* IPlugOSCEditor.cpp in Sources */,
 				4F78BE1622E7406D00AD537E /* IGraphicsMac_view.mm in Sources */,
@@ -2526,15 +2445,12 @@
 				4F78BE2322E7406D00AD537E /* IPlugAUv3.mm in Sources */,
 				4F78BE2422E7406D00AD537E /* IPlugAUViewController.mm in Sources */,
 				4F78BE2522E7406D00AD537E /* IPlugPluginBase.cpp in Sources */,
-				4F6F63F32CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */,
-				4FCFA90B2CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4F78BE2622E7406D00AD537E /* IPlugAPIBase.cpp in Sources */,
 				4FCEAB8424BEFFF10016EF6C /* IPlugOSC_msg.cpp in Sources */,
 				4F78BE2822E7406D00AD537E /* IPlugParameter.cpp in Sources */,
 				4F78BE2922E7406D00AD537E /* IPlugTimer.cpp in Sources */,
 				4F78BE2A22E7406D00AD537E /* IPlugPaths.mm in Sources */,
 				4FCEAB2024BEFF470016EF6C /* util.cpp in Sources */,
-				4F6F64002CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2545,7 +2461,6 @@
 				4F81597C205D50EB00393585 /* baseiids.cpp in Sources */,
 				4FDAC0EC207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				B8E22A0C220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */,
-				4F6F63E32CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4F3862F12014BBEC0009F402 /* IPlugOSCEditor.cpp in Sources */,
 				4F81591F205D50EB00393585 /* pluginfactory.cpp in Sources */,
 				4F63696F20A463090022C370 /* IControls.cpp in Sources */,
@@ -2573,14 +2488,11 @@
 				4FCEAB7F24BEFFEE0016EF6C /* IPlugOSC_msg.cpp in Sources */,
 				4F993F7323055C96000313AF /* IPlugProcessor.cpp in Sources */,
 				4F815986205D50EB00393585 /* flock.cpp in Sources */,
-				4F6F63EE2CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */,
-				4FCFA90E2CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4FCE29D921D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F5F344320C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F81598A205D50EB00393585 /* ustring.cpp in Sources */,
 				4F815980205D50EB00393585 /* fobject.cpp in Sources */,
 				4F815994205D51F000393585 /* vstparameters.cpp in Sources */,
-				4F6F63FB2CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */,
 				4F6369DF20A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
 				4F815991205D51F000393585 /* vstcomponentbase.cpp in Sources */,
 				4F03A5AE20A4621100EBDFFB /* IGraphics.cpp in Sources */,
@@ -2610,7 +2522,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F9A82FB213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
-				4F6F63E52CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4F993F7523055C97000313AF /* IPlugProcessor.cpp in Sources */,
 				4FDAC0EE207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				4F8C10E420BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
@@ -2632,15 +2543,12 @@
 				4F3862F32014BBEC0009F402 /* IPlugOSCEditor.cpp in Sources */,
 				4FCE29DB21D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4FB600231567CB0A0020189A /* IPlugParameter.cpp in Sources */,
-				4F6F63F02CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */,
-				4FCFA9112CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4FB600261567CB0A0020189A /* AAX_Exports.cpp in Sources */,
 				4FCEAB8024BEFFEE0016EF6C /* IPlugOSC_msg.cpp in Sources */,
 				4F6FD2B522675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
 				4FB600281567CB0A0020189A /* IPlugAAX_Describe.cpp in Sources */,
 				4FB1F58D20E4B007004157C8 /* IGraphicsMac.mm in Sources */,
 				4FCEAB1D24BEFF470016EF6C /* util.cpp in Sources */,
-				4F6F63FD2CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2649,14 +2557,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F03A5B220A4621100EBDFFB /* IGraphics.cpp in Sources */,
-				4F6F63E72CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4FB1F58F20E4B009004157C8 /* IGraphicsMac.mm in Sources */,
 				4F6369F120A466470022C370 /* IControl.cpp in Sources */,
 				4F6FD2B722675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
-				4F6F63F22CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */,
 				4F8C10E620BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
 				4FC3EFF92086CE5700BD11FA /* parameterchanges.cpp in Sources */,
-				4F6F63FF2CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */,
 				4FC3EFCE2086C35D00BD11FA /* IPlugPluginBase.cpp in Sources */,
 				4F722021225C1EB100FF0E7C /* commoniids.cpp in Sources */,
 				4F63697320A463090022C370 /* IControls.cpp in Sources */,
@@ -2665,7 +2570,6 @@
 				4F9A82FD213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4F472103209B294400A0A0A8 /* IPlugVST3_Controller.cpp in Sources */,
 				4F78BE2D22E7412300AD537E /* IGraphicsNanoVG_src.m in Sources */,
-				4FCFA9102CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4FC3EFCB2086C27800BD11FA /* IPlugOSCEditor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2676,7 +2580,6 @@
 			files = (
 				B885CBC52304AE7300D73128 /* IPlugProcessor.cpp in Sources */,
 				4F10D3D9203A6719003EF82A /* RtMidi.cpp in Sources */,
-				4FCFA90D2CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4F6369DD20A464BB0022C370 /* IGraphicsNanoVG_src.m in Sources */,
 				4FCEAB1924BEFF470016EF6C /* util.cpp in Sources */,
 				4FCEAB7B24BEFFEB0016EF6C /* IPlugOSC_msg.cpp in Sources */,
@@ -2691,7 +2594,6 @@
 				4FD16D3E13B63595001D0217 /* swell-menu.mm in Sources */,
 				4FB1F59120E4B011004157C8 /* IGraphicsMac_view.mm in Sources */,
 				4F5C5F6B21BED08700E024A7 /* swell-appstub.mm in Sources */,
-				4F6F63EC2CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */,
 				4FD16D4013B635A0001D0217 /* swell-misc.mm in Sources */,
 				4FD16D4213B635AB001D0217 /* swell-wnd.mm in Sources */,
 				4FD16D4413B635B2001D0217 /* swell.cpp in Sources */,
@@ -2699,7 +2601,6 @@
 				4F690CA3203A45C700A4A13E /* IPlugAPP_host.cpp in Sources */,
 				4F1A5282205D913300CF2908 /* IPlugAPP.cpp in Sources */,
 				4F03A5AC20A4621100EBDFFB /* IGraphics.cpp in Sources */,
-				4F6F63F92CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */,
 				4F2EA978203A50EA008E4850 /* IPlugAPP_dialog.cpp in Sources */,
 				4FAFFE5821495A4800A6E72D /* RtAudio.cpp in Sources */,
 				4F6FD2B122675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
@@ -2716,7 +2617,6 @@
 				4FF0A83221BE708700B2C9D1 /* swell-gdi.mm in Sources */,
 				4FCEAB8924BF02C00016EF6C /* asyncdns.cpp in Sources */,
 				4F78D91813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
-				4F6F63E12CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4FDAC0EA207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				4FCEAB7124BEFF470016EF6C /* connection.cpp in Sources */,
 			);
@@ -2728,13 +2628,11 @@
 			files = (
 				4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */,
 				4F06B2E424BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */,
-				4F6F63F12CD7B7E8006B737B /* IPlugWKWebView.mm in Sources */,
 				4FFBB90620863B0E00DDD0E7 /* IPlugTimer.cpp in Sources */,
 				4FFBB90720863B0E00DDD0E7 /* IPlugOSCEditor.cpp in Sources */,
 				4FFBB90820863B0E00DDD0E7 /* pluginfactory.cpp in Sources */,
 				4FFBB90920863B0E00DDD0E7 /* vstinitiids.cpp in Sources */,
 				4FFBB90A20863B0E00DDD0E7 /* fdebug.cpp in Sources */,
-				4F6F63FE2CD7B7E8006B737B /* IPlugWKWebViewDelegate.mm in Sources */,
 				4FFBB90C20863B0E00DDD0E7 /* IPlugAPIBase.cpp in Sources */,
 				B8E22A0D220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */,
 				4FFBB90D20863B0E00DDD0E7 /* fdynlib.cpp in Sources */,
@@ -2743,7 +2641,6 @@
 				4FFBB91020863B0E00DDD0E7 /* pluginview.cpp in Sources */,
 				4FFBB91120863B0E00DDD0E7 /* fstring.cpp in Sources */,
 				4FCEAB8124BEFFEF0016EF6C /* IPlugOSC_msg.cpp in Sources */,
-				4FCFA9122CE4229400635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4FFBB91320863B0E00DDD0E7 /* vstpresetfile.cpp in Sources */,
 				4FFBB91520863B0E00DDD0E7 /* timer.cpp in Sources */,
 				4FCEAB8E24BF02C00016EF6C /* asyncdns.cpp in Sources */,
@@ -2760,7 +2657,6 @@
 				4FFBB92220863B0E00DDD0E7 /* IPlugVST3_Processor.cpp in Sources */,
 				4F993F7623055C98000313AF /* IPlugProcessor.cpp in Sources */,
 				4FFBB92320863B0E00DDD0E7 /* conststringtable.cpp in Sources */,
-				4F6F63E62CD7B7E8006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4FFBB92420863B0E00DDD0E7 /* vstaudioeffect.cpp in Sources */,
 				4FFBB92520863B0E00DDD0E7 /* vstsinglecomponenteffect.cpp in Sources */,
 				4FFBB92620863B0E00DDD0E7 /* updatehandler.cpp in Sources */,

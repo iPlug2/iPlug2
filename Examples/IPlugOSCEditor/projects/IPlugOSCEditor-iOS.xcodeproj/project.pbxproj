@@ -27,9 +27,6 @@
 		4F32AE7D231431BD00710734 /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA61F6E22E899B500A92C58 /* AUv3Framework.framework */; };
 		4F3E0F6A20A0BCD900A9C2BE /* IPlugOSCEditor-iOS.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6720A0BC5B00A9C2BE /* IPlugOSCEditor-iOS.storyboard */; };
 		4F3E0F6B20A0BCE300A9C2BE /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */; };
-		4F6F64052CD7BC56006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F64022CD7BC56006B737B /* IPlugWKWebViewScriptMessageHandler.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F6F64062CD7BC56006B737B /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F64032CD7BC56006B737B /* IPlugWKWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F6F64072CD7BC56006B737B /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F6F64042CD7BC56006B737B /* IPlugWKWebViewDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FA61F6822E8996C00A92C58 /* IPlugAUv3Appex.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FA61F6722E8996C00A92C58 /* IPlugAUv3Appex.m */; };
 		4FA61F7522E899B500A92C58 /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA61F6E22E899B500A92C58 /* AUv3Framework.framework */; };
 		4FA61F7622E899B500A92C58 /* AUv3Framework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4FA61F6E22E899B500A92C58 /* AUv3Framework.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -56,10 +53,6 @@
 		4FA61F9422E8A71D00A92C58 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4FA61F9722E8A7E900A92C58 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4FB2269720A0D3A800614769 /* IPlugOSCEditor-iOS-LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugOSCEditor-iOS-LaunchScreen.storyboard */; };
-		4FCFA9192CE422CE00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9182CE422CE00635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA91A2CE422CE00635FA7 /* IPlugWKWebViewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCFA9152CE422CE00635FA7 /* IPlugWKWebViewDelegate.h */; };
-		4FCFA91B2CE422CE00635FA7 /* IPlugWKWebViewScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCFA9162CE422CE00635FA7 /* IPlugWKWebViewScriptMessageHandler.h */; };
-		4FCFA91C2CE422CE00635FA7 /* IPlugWKWebViewUIDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCFA9172CE422CE00635FA7 /* IPlugWKWebViewUIDelegate.h */; };
 		4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D732267CE540007B686 /* AppViewController.mm */; };
 		4FDF6D792267CE540007B686 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D742267CE540007B686 /* main.m */; };
 		4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D752267CE540007B686 /* AppDelegate.m */; };
@@ -167,9 +160,6 @@
 		4F6E673921C5613A005991A9 /* MidiSynth.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MidiSynth.h; sourceTree = "<group>"; };
 		4F6E673A21C5613A005991A9 /* ControlRamp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ControlRamp.h; sourceTree = "<group>"; };
 		4F6E673B21C5613A005991A9 /* MidiSynth.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MidiSynth.cpp; sourceTree = "<group>"; };
-		4F6F64022CD7BC56006B737B /* IPlugWKWebViewScriptMessageHandler.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewScriptMessageHandler.mm; sourceTree = "<group>"; };
-		4F6F64032CD7BC56006B737B /* IPlugWKWebView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebView.mm; sourceTree = "<group>"; };
-		4F6F64042CD7BC56006B737B /* IPlugWKWebViewDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewDelegate.mm; sourceTree = "<group>"; };
 		4F8D7DCB224AE821002A1A2A /* IGraphicsNanoVG_src.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IGraphicsNanoVG_src.m; sourceTree = "<group>"; };
 		4F8D8BD82316701900EFA1FB /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		4F977D3520CC9DD800D19F46 /* Easing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Easing.h; sourceTree = "<group>"; };
@@ -213,10 +203,6 @@
 		4FC82B4820BD524700722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
 		4FCE29DE21D6ED81004BCBA1 /* ITextEntryControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ITextEntryControl.h; sourceTree = "<group>"; };
 		4FCE29DF21D6ED81004BCBA1 /* ITextEntryControl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ITextEntryControl.cpp; sourceTree = "<group>"; };
-		4FCFA9152CE422CE00635FA7 /* IPlugWKWebViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebViewDelegate.h; sourceTree = "<group>"; };
-		4FCFA9162CE422CE00635FA7 /* IPlugWKWebViewScriptMessageHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebViewScriptMessageHandler.h; sourceTree = "<group>"; };
-		4FCFA9172CE422CE00635FA7 /* IPlugWKWebViewUIDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebViewUIDelegate.h; sourceTree = "<group>"; };
-		4FCFA9182CE422CE00635FA7 /* IPlugWKWebViewUIDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewUIDelegate.mm; sourceTree = "<group>"; };
 		4FDA600520B5868D00C49ABA /* IPlugOSCEditor-ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "IPlugOSCEditor-ios.xcconfig"; path = "../config/IPlugOSCEditor-ios.xcconfig"; sourceTree = "<group>"; };
 		4FDF6D692267CDBE0007B686 /* IGraphicsCoreText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsCoreText.h; sourceTree = "<group>"; };
 		4FDF6D6A2267CDBE0007B686 /* IGraphicsCoreText.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsCoreText.mm; sourceTree = "<group>"; };
@@ -321,14 +307,7 @@
 			isa = PBXGroup;
 			children = (
 				4F06B30424BF72FF00C7EDDA /* IPlugWebView.h */,
-				4FCFA9152CE422CE00635FA7 /* IPlugWKWebViewDelegate.h */,
-				4FCFA9162CE422CE00635FA7 /* IPlugWKWebViewScriptMessageHandler.h */,
-				4FCFA9172CE422CE00635FA7 /* IPlugWKWebViewUIDelegate.h */,
-				4FCFA9182CE422CE00635FA7 /* IPlugWKWebViewUIDelegate.mm */,
 				4F06B30724BF72FF00C7EDDA /* IPlugWebView_mac.mm */,
-				4F6F64032CD7BC56006B737B /* IPlugWKWebView.mm */,
-				4F6F64042CD7BC56006B737B /* IPlugWKWebViewDelegate.mm */,
-				4F6F64022CD7BC56006B737B /* IPlugWKWebViewScriptMessageHandler.mm */,
 			);
 			path = WebView;
 			sourceTree = "<group>";
@@ -629,9 +608,6 @@
 				4F06B2FE24BF72D400C7EDDA /* asyncdns.h in Headers */,
 				4F06B30A24BF72FF00C7EDDA /* IPlugWebView.h in Headers */,
 				4F06B2F824BF72D400C7EDDA /* jnetlib.h in Headers */,
-				4FCFA91A2CE422CE00635FA7 /* IPlugWKWebViewDelegate.h in Headers */,
-				4FCFA91B2CE422CE00635FA7 /* IPlugWKWebViewScriptMessageHandler.h in Headers */,
-				4FCFA91C2CE422CE00635FA7 /* IPlugWKWebViewUIDelegate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -813,7 +789,6 @@
 			files = (
 				4FA61F9122E8A2A700A92C58 /* IGraphicsNanoVG_src.m in Sources */,
 				4FA61F8422E89B2000A92C58 /* GenericUI.mm in Sources */,
-				4F6F64062CD7BC56006B737B /* IPlugWKWebView.mm in Sources */,
 				4FA61F8622E89B2000A92C58 /* IPlugAUv3.mm in Sources */,
 				4FA61F8522E89B2000A92C58 /* IPlugAUAudioUnit.mm in Sources */,
 				4F06B2F724BF72D400C7EDDA /* asyncdns.cpp in Sources */,
@@ -830,7 +805,6 @@
 				4F06B2E924BF720200C7EDDA /* IPlugOSC.cpp in Sources */,
 				4FA61F8822E89B3700A92C58 /* ITextEntryControl.cpp in Sources */,
 				4FA61F8B22E89B3700A92C58 /* IGraphicsEditorDelegate.cpp in Sources */,
-				4FCFA9192CE422CE00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4FA61F8322E89AFF00A92C58 /* IPlugPaths.mm in Sources */,
 				4F06B2F924BF72D400C7EDDA /* listen.cpp in Sources */,
 				4F06B2FC24BF72D400C7EDDA /* connection.cpp in Sources */,
@@ -838,8 +812,6 @@
 				4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */,
 				4FA61F7F22E89AFF00A92C58 /* IPlugAPIBase.cpp in Sources */,
 				4FA61F9222E8A2B500A92C58 /* IPlugOSCEditor.cpp in Sources */,
-				4F6F64072CD7BC56006B737B /* IPlugWKWebViewDelegate.mm in Sources */,
-				4F6F64052CD7BC56006B737B /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4F06B2FA24BF72D400C7EDDA /* util.cpp in Sources */,
 				4FA61F8A22E89B3700A92C58 /* IPopupMenuControl.cpp in Sources */,
 			);

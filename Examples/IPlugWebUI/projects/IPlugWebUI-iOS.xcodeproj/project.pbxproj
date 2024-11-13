@@ -33,13 +33,6 @@
 		4FA61F9422E8A71D00A92C58 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4FA61F9722E8A7E900A92C58 /* IPlugAUViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF105A20A0E57100D3092F /* IPlugAUViewController.mm */; };
 		4FB2269720A0D3A800614769 /* IPlugWebUI-iOS-LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4FB2269620A0D3A800614769 /* IPlugWebUI-iOS-LaunchScreen.storyboard */; };
-		4FDD82292CC46F46003A636A /* IPlugWKWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDD82212CC46F46003A636A /* IPlugWKWebView.h */; };
-		4FDD822A2CC46F46003A636A /* IPlugWKWebViewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDD82232CC46F46003A636A /* IPlugWKWebViewDelegate.h */; };
-		4FDD822B2CC46F46003A636A /* IPlugWKWebViewScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDD82252CC46F46003A636A /* IPlugWKWebViewScriptMessageHandler.h */; };
-		4FDD822C2CC46F46003A636A /* IPlugWKWebViewUIDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FDD82272CC46F46003A636A /* IPlugWKWebViewUIDelegate.h */; };
-		4FDD822E2CC46F46003A636A /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD82262CC46F46003A636A /* IPlugWKWebViewScriptMessageHandler.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FDD822F2CC46F46003A636A /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD82222CC46F46003A636A /* IPlugWKWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FDD82302CC46F46003A636A /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDD82242CC46F46003A636A /* IPlugWKWebViewDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FDF6D772267CE540007B686 /* AppViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D732267CE540007B686 /* AppViewController.mm */; };
 		4FDF6D792267CE540007B686 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D742267CE540007B686 /* main.m */; };
 		4FDF6D7B2267CE540007B686 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDF6D752267CE540007B686 /* AppDelegate.m */; };
@@ -99,7 +92,6 @@
 		4F3E0F6520A0BC4000A9C2BE /* IPlugWebUI-iOS-AUv3-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = "IPlugWebUI-iOS-AUv3-Info.plist"; path = "../resources/IPlugWebUI-iOS-AUv3-Info.plist"; sourceTree = "<group>"; };
 		4F3E0F6720A0BC5B00A9C2BE /* IPlugWebUI-iOS.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = "IPlugWebUI-iOS.storyboard"; path = "../resources/IPlugWebUI-iOS.storyboard"; sourceTree = "<group>"; };
 		4F3E0F6820A0BCAF00A9C2BE /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ../resources/Images.xcassets; sourceTree = "<group>"; };
-		4F3F6E572CCBE44D00C41C6D /* IPlugWebView.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugWebView.cpp; sourceTree = "<group>"; };
 		4F6E673621C5613A005991A9 /* VoiceAllocator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VoiceAllocator.h; sourceTree = "<group>"; };
 		4F6E673721C5613A005991A9 /* SynthVoice.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SynthVoice.h; sourceTree = "<group>"; };
 		4F6E673821C5613A005991A9 /* VoiceAllocator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceAllocator.cpp; sourceTree = "<group>"; };
@@ -142,14 +134,6 @@
 		4FC82B4720BD524700722133 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../resources/img; sourceTree = "<group>"; };
 		4FC82B4820BD524700722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
 		4FDA600520B5868D00C49ABA /* IPlugWebUI-ios.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = "IPlugWebUI-ios.xcconfig"; path = "../config/IPlugWebUI-ios.xcconfig"; sourceTree = "<group>"; };
-		4FDD82212CC46F46003A636A /* IPlugWKWebView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebView.h; sourceTree = "<group>"; };
-		4FDD82222CC46F46003A636A /* IPlugWKWebView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebView.mm; sourceTree = "<group>"; };
-		4FDD82232CC46F46003A636A /* IPlugWKWebViewDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebViewDelegate.h; sourceTree = "<group>"; };
-		4FDD82242CC46F46003A636A /* IPlugWKWebViewDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewDelegate.mm; sourceTree = "<group>"; };
-		4FDD82252CC46F46003A636A /* IPlugWKWebViewScriptMessageHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebViewScriptMessageHandler.h; sourceTree = "<group>"; };
-		4FDD82262CC46F46003A636A /* IPlugWKWebViewScriptMessageHandler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewScriptMessageHandler.mm; sourceTree = "<group>"; };
-		4FDD82272CC46F46003A636A /* IPlugWKWebViewUIDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebViewUIDelegate.h; sourceTree = "<group>"; };
-		4FDD82282CC46F46003A636A /* IPlugWKWebViewUIDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewUIDelegate.mm; sourceTree = "<group>"; };
 		4FDF6D722267CE540007B686 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		4FDF6D732267CE540007B686 /* AppViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppViewController.mm; sourceTree = "<group>"; };
 		4FDF6D742267CE540007B686 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -264,18 +248,9 @@
 		4F7DB9CD247895C200ACF64B /* WebView */ = {
 			isa = PBXGroup;
 			children = (
-				4FDD82212CC46F46003A636A /* IPlugWKWebView.h */,
-				4FDD82222CC46F46003A636A /* IPlugWKWebView.mm */,
-				4FDD82232CC46F46003A636A /* IPlugWKWebViewDelegate.h */,
-				4FDD82242CC46F46003A636A /* IPlugWKWebViewDelegate.mm */,
-				4FDD82252CC46F46003A636A /* IPlugWKWebViewScriptMessageHandler.h */,
-				4FDD82262CC46F46003A636A /* IPlugWKWebViewScriptMessageHandler.mm */,
-				4FDD82272CC46F46003A636A /* IPlugWKWebViewUIDelegate.h */,
-				4FDD82282CC46F46003A636A /* IPlugWKWebViewUIDelegate.mm */,
 				4F7DB9CE247895C200ACF64B /* IPlugWebViewEditorDelegate.mm */,
 				4F7DB9D0247895C200ACF64B /* IPlugWebViewEditorDelegate.h */,
 				4F7DB9CF247895C200ACF64B /* IPlugWebView.h */,
-				4F3F6E572CCBE44D00C41C6D /* IPlugWebView.cpp */,
 				4F7DB9D1247895C200ACF64B /* IPlugWebView_mac.mm */,
 			);
 			path = WebView;
@@ -457,10 +432,6 @@
 			files = (
 				4F7DB9D3247895C200ACF64B /* IPlugWebView.h in Headers */,
 				4FA61F7C22E89A5900A92C58 /* AUv3Framework.h in Headers */,
-				4FDD82292CC46F46003A636A /* IPlugWKWebView.h in Headers */,
-				4FDD822A2CC46F46003A636A /* IPlugWKWebViewDelegate.h in Headers */,
-				4FDD822B2CC46F46003A636A /* IPlugWKWebViewScriptMessageHandler.h in Headers */,
-				4FDD822C2CC46F46003A636A /* IPlugWKWebViewUIDelegate.h in Headers */,
 				4F7DB9D4247895C200ACF64B /* IPlugWebViewEditorDelegate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -651,9 +622,6 @@
 				4FA61F8222E89AFF00A92C58 /* IPlugTimer.cpp in Sources */,
 				4FA61F8322E89AFF00A92C58 /* IPlugPaths.mm in Sources */,
 				4FA61F8122E89AFF00A92C58 /* IPlugParameter.cpp in Sources */,
-				4FDD822E2CC46F46003A636A /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
-				4FDD822F2CC46F46003A636A /* IPlugWKWebView.mm in Sources */,
-				4FDD82302CC46F46003A636A /* IPlugWKWebViewDelegate.mm in Sources */,
 				4FA0FB22247D4E5600E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
 				4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */,
 				4FA61F7F22E89AFF00A92C58 /* IPlugAPIBase.cpp in Sources */,

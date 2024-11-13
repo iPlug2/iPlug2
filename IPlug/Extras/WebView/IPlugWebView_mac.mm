@@ -304,3 +304,8 @@ void IWebViewImpl::GetLocalDownloadPathForFile(const char* _Nonnull fileName, WD
 }
 
 #include "IPlugWebView.cpp"
+
+#include "IPlugWKWebView.mm"
+#include "IPlugWKWebViewScriptMessageHandler.mm"
+#include "IPlugWKWebViewDelegate.mm"
+#include "IPlugWKWebViewUIDelegate.mm"
