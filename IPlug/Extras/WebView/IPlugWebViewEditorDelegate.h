@@ -15,6 +15,7 @@
 #include "wdl_base64.h"
 #include "json.hpp"
 #include <functional>
+#include <filesystem>
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -22,7 +23,7 @@ BEGIN_IPLUG_NAMESPACE
 class WebViewEditorDelegate : public IEditorDelegate
                             , public IWebView
 {
-  static constexpr int kDefaultMaxJSStringLength = 1024;
+  static constexpr int kDefaultMaxJSStringLength = 8192;
   
 public:
   WebViewEditorDelegate(int nParams);
@@ -79,21 +80,29 @@ public:
     str.SetFormatted(mMaxJSStringLength, "SMMFD(%i, %i, %i)", msg.mStatus, msg.mData1, msg.mData2);
     EvaluateJavaScript(str.Get());
   }
+  
+  void SendJSONFromDelegate(const nlohmann::json& jsonMessage)
+  {
+    SendArbitraryMsgFromDelegate(-1, static_cast<int>(jsonMessage.dump().size()), jsonMessage.dump().c_str());
+  }
 
   void OnMessageFromWebView(const char* jsonStr) override
   {
     auto json = nlohmann::json::parse(jsonStr, nullptr, false);
     
-    if(json["msg"] == "SPVFUI")
+    if (json["msg"] == "SPVFUI")
     {
+      assert(json["paramIdx"] > -1);
       SendParameterValueFromUI(json["paramIdx"], json["value"]);
     }
     else if (json["msg"] == "BPCFUI")
     {
+      assert(json["paramIdx"] > -1);
       BeginInformHostOfParamChangeFromUI(json["paramIdx"]);
     }
     else if (json["msg"] == "EPCFUI")
     {
+      assert(json["paramIdx"] > -1);
       EndInformHostOfParamChangeFromUI(json["paramIdx"]);
     }
     else if (json["msg"] == "SAMFUI")
@@ -113,7 +122,6 @@ public:
         else if(dSize >= 1 && dStr[dSize-1] == '=')
           numPaddingBytes = 1;
         
-
         base64.resize((dSize * 3) / 4 - numPaddingBytes);
         wdl_base64decode(dStr.c_str(), base64.data(), static_cast<int>(base64.size()));
       }
@@ -130,15 +138,35 @@ public:
   }
 
   void Resize(int width, int height);
+  
+  void OnParentWindowResize(int width, int height) override;
 
   void OnWebViewReady() override
   {
     if (mEditorInitFunc)
+    {
       mEditorInitFunc();
+    }
   }
   
   void OnWebContentLoaded() override
   {
+    nlohmann::json msg;
+    
+    msg["id"] = "params";
+    std::vector<nlohmann::json> params;
+    for (int idx = 0; idx < NParams(); idx++)
+    {
+      WDL_String jsonStr;
+      IParam* pParam = GetParam(idx);
+      pParam->GetJSON(jsonStr, idx);
+      nlohmann::json paramMsg = nlohmann::json::parse(jsonStr.Get(), nullptr, true);
+      params.push_back(paramMsg);
+    }
+    msg["params"] = params;
+
+    SendJSONFromDelegate(msg);
+    
     OnUIOpen();
   }
   
@@ -147,26 +175,34 @@ public:
     mMaxJSStringLength = length;
   }
 
-  void SetEnableDevTools(bool enable)
+  void LoadIndexHtml(const char* pathOfPluginSrc, const char* bundleid)
   {
-    mEnableDevTools = enable;
+#if !defined OS_IOS && defined _DEBUG
+    namespace fs = std::filesystem;
+    
+    fs::path mainPath(pathOfPluginSrc);
+    fs::path indexRelativePath = mainPath.parent_path() / "Resources" / "web" / "index.html";
+
+    LoadFile(indexRelativePath.string().c_str(), nullptr);
+#else
+    LoadFile("index.html", bundleid); // TODO: make this work for windows
+#endif
   }
-  
-  bool GetEnableDevTools() const { return mEnableDevTools; }
 
 protected:
-  
-  int GetBase64Length(int dataSize)
-  {
-    return static_cast<int>(4. * std::ceil((static_cast<double>(dataSize) / 3.)));
-  }
-  
   int mMaxJSStringLength = kDefaultMaxJSStringLength;
   std::function<void()> mEditorInitFunc = nullptr;
   void* mHelperView = nullptr;
   
 private:
-  bool mEnableDevTools = false;
+  static int GetBase64Length(int dataSize)
+  {
+    return static_cast<int>(4. * std::ceil((static_cast<double>(dataSize) / 3.)));
+  }
+
+#if defined OS_MAC || defined OS_IOS
+  void ResizeWebViewAndHelper(float width, float height);
+#endif
 };
 
 END_IPLUG_NAMESPACE

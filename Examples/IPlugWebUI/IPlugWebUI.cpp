@@ -1,5 +1,6 @@
 #include "IPlugWebUI.h"
 #include "IPlug_include_in_plug_src.h"
+#include "IPlugPaths.h"
 
 IPlugWebUI::IPlugWebUI(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
@@ -10,14 +11,9 @@ IPlugWebUI::IPlugWebUI(const InstanceInfo& info)
   SetEnableDevTools(true);
 #endif
   
-  // Hard-coded paths must be modified!
-  mEditorInitFunc = [&]() {
-#ifdef OS_WIN
-    LoadFile(R"(C:\Users\oli\Dev\iPlug2\Examples\IPlugWebUI\resources\web\index.html)", nullptr);
-#else
-    LoadFile("index.html", GetBundleID());
-#endif
-    
+  mEditorInitFunc = [&]()
+  {
+    LoadIndexHtml(__FILE__, GetBundleID());
     EnableScroll(false);
   };
   
@@ -87,4 +83,36 @@ void IPlugWebUI::ProcessMidiMsg(const IMidiMsg& msg)
   
   msg.PrintMsg();
   SendMidiMsg(msg);
+}
+
+bool IPlugWebUI::CanNavigateToURL(const char* url)
+{
+  DBGMSG("Navigating to URL %s\n", url);
+
+  return true;
+}
+
+bool IPlugWebUI::OnCanDownloadMIMEType(const char* mimeType)
+{
+  return std::string_view(mimeType) != "text/html";
+}
+
+void IPlugWebUI::OnDownloadedFile(const char* path)
+{
+  WDL_String str;
+  str.SetFormatted(64, "Downloaded file to %s\n", path);
+  LoadHTML(str.Get());
+}
+
+void IPlugWebUI::OnFailedToDownloadFile(const char* path)
+{
+  WDL_String str;
+  str.SetFormatted(64, "Faild to download file to %s\n", path);
+  LoadHTML(str.Get());
+}
+
+void IPlugWebUI::OnGetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath)
+{
+  DesktopPath(localPath);
+  localPath.AppendFormatted(MAX_WIN32_PATH_LEN, "/%s", fileName);
 }

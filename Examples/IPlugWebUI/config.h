@@ -28,7 +28,7 @@
 #define PLUG_HEIGHT 600
 #define PLUG_FPS 60
 #define PLUG_SHARED_RESOURCES 0
-#define PLUG_HOST_RESIZE 0
+#define PLUG_HOST_RESIZE 1
 
 #define AUV2_ENTRY IPlugWebUI_Entry
 #define AUV2_ENTRY_STR "IPlugWebUI_Entry"

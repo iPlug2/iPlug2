@@ -38,6 +38,11 @@ public:
   void OnIdle() override;
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
   void OnParamChange(int paramIdx) override;
+  bool CanNavigateToURL(const char* url);
+  bool OnCanDownloadMIMEType(const char* mimeType) override;
+  void OnFailedToDownloadFile(const char* path) override;
+  void OnDownloadedFile(const char* path) override;
+  void OnGetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath) override;
 
 private:
   float mLastPeak = 0.;
