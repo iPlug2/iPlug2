@@ -42,30 +42,6 @@
 		4F1B4AE42014D33600BC64D4 /* IPlugP5js-macOS-MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4F1B4AE32014D33600BC64D4 /* IPlugP5js-macOS-MainMenu.xib */; };
 		4F2EA978203A50EA008E4850 /* IPlugAPP_dialog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */; };
 		4F32AE7C231427EC00710734 /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78BE0222E73D0800AD537E /* AUv3Framework.framework */; };
-		4F33344E2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344C2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm */; };
-		4F33344F2CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344B2CCEC4CD0018D93F /* IPlugWKWebView.mm */; };
-		4F3334502CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344D2CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F3334512CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344C2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F3334522CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344B2CCEC4CD0018D93F /* IPlugWKWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F3334532CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344D2CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F3334542CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344C2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm */; };
-		4F3334552CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344B2CCEC4CD0018D93F /* IPlugWKWebView.mm */; };
-		4F3334562CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344D2CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F3334572CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344C2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm */; };
-		4F3334582CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344B2CCEC4CD0018D93F /* IPlugWKWebView.mm */; };
-		4F3334592CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344D2CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F33345A2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344C2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F33345B2CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344B2CCEC4CD0018D93F /* IPlugWKWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F33345C2CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344D2CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F33345D2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344C2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm */; };
-		4F33345E2CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344B2CCEC4CD0018D93F /* IPlugWKWebView.mm */; };
-		4F33345F2CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344D2CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F3334602CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344C2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm */; };
-		4F3334612CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344B2CCEC4CD0018D93F /* IPlugWKWebView.mm */; };
-		4F3334622CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344D2CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F3334632CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344C2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F3334642CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344B2CCEC4CD0018D93F /* IPlugWKWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F3334652CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F33344D2CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F35DEAD207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
 		4F35DEAE207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
 		4F35DEAF207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */; };
@@ -211,15 +187,6 @@
 		4FC3EFFE2086CE5700BD11FA /* processdata.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFEB2086CE5600BD11FA /* processdata.h */; };
 		4FC3F0002086CE5700BD11FA /* stringconvert.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFED2086CE5600BD11FA /* stringconvert.h */; };
 		4FC3F0012086CE5700BD11FA /* uid.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FC3EFEE2086CE5600BD11FA /* uid.h */; };
-		4FCFA9232CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9222CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA9242CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 4FCFA9212CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.h */; };
-		4FCFA9252CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9222CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA9262CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9222CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA9272CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9222CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA9282CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9222CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA9292CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9222CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA92A2CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9222CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4FCFA92B2CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FCFA9222CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D0413B634AA001D0217 /* swell-dlg.mm */; settings = {COMPILER_FLAGS = "-Wno-unreachable-code -Wno-shorten-64-to-32 -Wno-deprecated-implementations"; }; };
 		4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D1513B634D2001D0217 /* swell-ini.cpp */; };
 		4FD16D3A13B63582001D0217 /* swell-kb.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D3913B63582001D0217 /* swell-kb.mm */; };
@@ -406,10 +373,6 @@
 		4F23BA1413B647E50097A67E /* IPlugP5js-macOS-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugP5js-macOS-Info.plist"; path = "../resources/IPlugP5js-macOS-Info.plist"; sourceTree = "<group>"; };
 		4F23BA1513B647E50097A67E /* IPlugP5js-VST2-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "IPlugP5js-VST2-Info.plist"; path = "../resources/IPlugP5js-VST2-Info.plist"; sourceTree = "<group>"; };
 		4F2EA977203A50E9008E4850 /* IPlugAPP_dialog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAPP_dialog.cpp; path = ../../../IPlug/APP/IPlugAPP_dialog.cpp; sourceTree = "<group>"; tabWidth = 2; };
-		4F33344B2CCEC4CD0018D93F /* IPlugWKWebView.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebView.mm; sourceTree = "<group>"; };
-		4F33344C2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewDelegate.mm; sourceTree = "<group>"; };
-		4F33344D2CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewScriptMessageHandler.mm; sourceTree = "<group>"; };
-		4F3334662CCEC64B0018D93F /* IPlugWebView.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugWebView.cpp; sourceTree = "<group>"; };
 		4F35DEAB207E5C5A00867D8F /* IPlugPluginBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugPluginBase.cpp; path = ../../../IPlug/IPlugPluginBase.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		4F35DEAC207E5C5A00867D8F /* IPlugPluginBase.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugPluginBase.h; path = ../../../IPlug/IPlugPluginBase.h; sourceTree = "<group>"; tabWidth = 2; };
 		4F3862ED2014BBEC0009F402 /* IPlugP5js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugP5js.cpp; path = ../IPlugP5js.cpp; sourceTree = "<group>"; };
@@ -639,8 +602,6 @@
 		4FC46E57231440B4000045E7 /* web */ = {isa = PBXFileReference; lastKnownFileType = folder; name = web; path = ../resources/web; sourceTree = "<group>"; };
 		4FC82B4520BD522B00722133 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../resources/img; sourceTree = "<group>"; };
 		4FC82B4620BD522B00722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
-		4FCFA9212CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugWKWebViewUIDelegate.h; sourceTree = "<group>"; };
-		4FCFA9222CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWKWebViewUIDelegate.mm; sourceTree = "<group>"; };
 		4FD16A0913B63081001D0217 /* IPlugP5js.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IPlugP5js.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FD16D0213B63489001D0217 /* swell-menugen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-menugen.h"; path = "../../../WDL/swell/swell-menugen.h"; sourceTree = SOURCE_ROOT; };
 		4FD16D0313B63494001D0217 /* swell-dlggen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "swell-dlggen.h"; path = "../../../WDL/swell/swell-dlggen.h"; sourceTree = SOURCE_ROOT; };
@@ -1084,16 +1045,10 @@
 		4F7DB9C624788FF700ACF64B /* WebView */ = {
 			isa = PBXGroup;
 			children = (
-				4FCFA9212CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.h */,
-				4FCFA9222CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm */,
-				4F3334662CCEC64B0018D93F /* IPlugWebView.cpp */,
 				4FA0FB15247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.h */,
 				4FA0FB16247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm */,
 				4F7DB9C824788FF700ACF64B /* IPlugWebView.h */,
 				4F7DB9CB247890B700ACF64B /* IPlugWebView_mac.mm */,
-				4F33344B2CCEC4CD0018D93F /* IPlugWKWebView.mm */,
-				4F33344C2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm */,
-				4F33344D2CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm */,
 			);
 			path = WebView;
 			sourceTree = "<group>";
@@ -1446,7 +1401,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FCFA9242CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.h in Headers */,
 				4FA0FB17247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.h in Headers */,
 				4F78BE1222E73DD900AD537E /* AUv3Framework.h in Headers */,
 			);
@@ -2030,15 +1984,11 @@
 			files = (
 				4FDAC0EB207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				4F5F344220C0226200487201 /* IPlugPaths.mm in Sources */,
-				4F33344E2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */,
-				4F33344F2CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */,
-				4F3334502CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */,
 				4F8D9707209EF5AC006E2A11 /* IPlugP5js.cpp in Sources */,
 				4F78D9BB13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FB64D06247956AA006B3013 /* IPlugWebView_mac.mm in Sources */,
 				4FA0FB19247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
-				4FCFA92B2CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4F993F7223055C96000313AF /* IPlugProcessor.cpp in Sources */,
 				4F35DEAE207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F78D9C813B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
@@ -2065,11 +2015,7 @@
 				4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				4F78D94513B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
 				4FD52136202A5BD000A4D22A /* dfx-au-utilities.c in Sources */,
-				4FCFA9232CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4F5F344420C0226200487201 /* IPlugPaths.mm in Sources */,
-				4F3334512CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */,
-				4F3334522CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */,
-				4F3334532CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4F35DEB0207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F78D95C13B63BA50032E0F3 /* IPlugParameter.cpp in Sources */,
 				4F3862F22014BBEC0009F402 /* IPlugP5js.cpp in Sources */,
@@ -2082,7 +2028,6 @@
 			files = (
 				4F3EE1C2231438D000004786 /* IPlugProcessor.cpp in Sources */,
 				4FB64D0C247956B3006B3013 /* IPlugWebView_mac.mm in Sources */,
-				4FCFA9282CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4F3EE1C3231438D000004786 /* RtMidi.cpp in Sources */,
 				4F3EE1C7231438D000004786 /* swell-dlg.mm in Sources */,
 				4F3EE1C8231438D000004786 /* swell-ini.cpp in Sources */,
@@ -2098,9 +2043,6 @@
 				4F3EE1D4231438D000004786 /* swell.cpp in Sources */,
 				4F3EE1D5231438D000004786 /* IPlugAPP_host.cpp in Sources */,
 				4F3EE1D6231438D000004786 /* IPlugAPP.cpp in Sources */,
-				4F3334602CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */,
-				4F3334612CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */,
-				4F3334622CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4F3EE1D8231438D000004786 /* IPlugAPP_dialog.cpp in Sources */,
 				4F3EE1D9231438D000004786 /* RtAudio.cpp in Sources */,
 				4F3EE1DB231438D000004786 /* IPlugAPP_main.cpp in Sources */,
@@ -2118,15 +2060,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F78BE1422E7406D00AD537E /* IPlugP5js.h in Sources */,
-				4FCFA9252CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4FB64D0B247956AF006B3013 /* IPlugWebView_mac.mm in Sources */,
 				4F0D965C23099F6900BFDED0 /* IPlugProcessor.cpp in Sources */,
 				4F78BE1522E7406D00AD537E /* IPlugP5js.cpp in Sources */,
 				4F78BE2222E7406D00AD537E /* IPlugAUAudioUnit.mm in Sources */,
 				4F78BE2322E7406D00AD537E /* IPlugAUv3.mm in Sources */,
-				4F3334542CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */,
-				4F3334552CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */,
-				4F3334562CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4F78BE2422E7406D00AD537E /* IPlugAUViewController.mm in Sources */,
 				4FA0FB1F247D4D2B00E25C73 /* IPlugWebViewEditorDelegate.mm in Sources */,
 				4F78BE2522E7406D00AD537E /* IPlugPluginBase.cpp in Sources */,
@@ -2143,7 +2081,6 @@
 			files = (
 				4F81597C205D50EB00393585 /* baseiids.cpp in Sources */,
 				4FDAC0EC207D76C600299363 /* IPlugTimer.cpp in Sources */,
-				4FCFA9262CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				B8E22A0C220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */,
 				4F3862F12014BBEC0009F402 /* IPlugP5js.cpp in Sources */,
 				4F81591F205D50EB00393585 /* pluginfactory.cpp in Sources */,
@@ -2162,9 +2099,6 @@
 				4F35DEAF207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F81591E205D50EB00393585 /* macmain.cpp in Sources */,
 				4F993F7323055C96000313AF /* IPlugProcessor.cpp in Sources */,
-				4F3334632CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */,
-				4F3334642CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */,
-				4F3334652CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4F815986205D50EB00393585 /* flock.cpp in Sources */,
 				4F5F344320C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F81598A205D50EB00393585 /* ustring.cpp in Sources */,
@@ -2194,15 +2128,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FB64D0A247956AC006B3013 /* IPlugWebView_mac.mm in Sources */,
-				4FCFA9292CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4F993F7523055C97000313AF /* IPlugProcessor.cpp in Sources */,
 				4FDAC0EE207D76C600299363 /* IPlugTimer.cpp in Sources */,
 				4FB6001A1567CB0A0020189A /* IPlugAPIBase.cpp in Sources */,
 				4F35DEB1207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4F5F344520C0226200487201 /* IPlugPaths.mm in Sources */,
-				4F33345D2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */,
-				4F33345E2CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */,
-				4F33345F2CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4F1A5285205D914A00CF2908 /* IPlugAAX.cpp in Sources */,
 				4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */,
 				4F3862F32014BBEC0009F402 /* IPlugP5js.cpp in Sources */,
@@ -2231,7 +2161,6 @@
 			files = (
 				B885CBC52304AE7300D73128 /* IPlugProcessor.cpp in Sources */,
 				4F10D3D9203A6719003EF82A /* RtMidi.cpp in Sources */,
-				4FCFA92A2CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4FD16D0513B634AA001D0217 /* swell-dlg.mm in Sources */,
 				4FD16D1613B634D2001D0217 /* swell-ini.cpp in Sources */,
 				4F5C5F6921BED05B00E024A7 /* swellappmain.mm in Sources */,
@@ -2247,9 +2176,6 @@
 				4F690CA3203A45C700A4A13E /* IPlugAPP_host.cpp in Sources */,
 				4F1A5282205D913300CF2908 /* IPlugAPP.cpp in Sources */,
 				4F2EA978203A50EA008E4850 /* IPlugAPP_dialog.cpp in Sources */,
-				4F33345A2CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */,
-				4F33345B2CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */,
-				4F33345C2CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4FAFFE5821495A4800A6E72D /* RtAudio.cpp in Sources */,
 				4F7DB9CC247890B700ACF64B /* IPlugWebView_mac.mm in Sources */,
 				4F690C9B203A345100A4A13E /* IPlugAPP_main.cpp in Sources */,
@@ -2269,12 +2195,8 @@
 				4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */,
 				4FFBB90620863B0E00DDD0E7 /* IPlugTimer.cpp in Sources */,
 				4FFBB90720863B0E00DDD0E7 /* IPlugP5js.cpp in Sources */,
-				4F3334572CCEC4CD0018D93F /* IPlugWKWebViewDelegate.mm in Sources */,
-				4F3334582CCEC4CD0018D93F /* IPlugWKWebView.mm in Sources */,
-				4F3334592CCEC4CD0018D93F /* IPlugWKWebViewScriptMessageHandler.mm in Sources */,
 				4FFBB90820863B0E00DDD0E7 /* pluginfactory.cpp in Sources */,
 				4FFBB90920863B0E00DDD0E7 /* vstinitiids.cpp in Sources */,
-				4FCFA9272CE4240E00635FA7 /* IPlugWKWebViewUIDelegate.mm in Sources */,
 				4FFBB90A20863B0E00DDD0E7 /* fdebug.cpp in Sources */,
 				4FFBB90C20863B0E00DDD0E7 /* IPlugAPIBase.cpp in Sources */,
 				B8E22A0D220268C4007CBF4C /* IPlugVST3_ProcessorBase.cpp in Sources */,
