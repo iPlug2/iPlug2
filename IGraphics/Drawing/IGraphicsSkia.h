@@ -19,6 +19,7 @@
 #include "include/core/SkCanvas.h"
 #include "include/core/SkImage.h"
 #include "include/gpu/GrDirectContext.h"
+#include "include/gpu/graphite/Context.h"
 #pragma warning( pop )
 
 namespace skia::textlayout {
@@ -158,7 +159,12 @@ private:
 #endif
   
 #ifndef IGRAPHICS_CPU
+#ifdef SKIA_GRAPHITE
+  std::unique_ptr<skgpu::graphite::Context> mGraphiteContext;
+  std::unique_ptr<skgpu::graphite::Recorder> mRecorder;
+#else // GANESH
   sk_sp<GrDirectContext> mGrContext;
+#endif
   sk_sp<SkSurface> mScreenSurface;
 #endif
   
