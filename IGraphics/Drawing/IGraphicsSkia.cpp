@@ -41,9 +41,20 @@
     // even though this is a .cpp we are in an objc(pp) compilation unit
     #import <Metal/Metal.h>
     #import <QuartzCore/CAMetalLayer.h>
-    #include "include/gpu/ganesh/mtl/GrMtlBackendContext.h"
-    #include "include/gpu/ganesh/mtl/GrMtlDirectContext.h"
-    #include "include/gpu/ganesh/mtl/GrMtlBackendSurface.h"
+  #ifdef SKIA_GANESH
+      #include "include/gpu/ganesh/mtl/GrMtlBackendContext.h"
+      #include "include/gpu/ganesh/mtl/GrMtlDirectContext.h"
+      #include "include/gpu/ganesh/mtl/GrMtlBackendSurface.h"
+  #else
+      #include "include/gpu/graphite/Context.h"
+      #include "include/gpu/graphite/ContextOptions.h"
+      #include "include/gpu/graphite/GraphiteTypes.h"
+      #include "include/gpu/graphite/Recorder.h"
+      #include "include/gpu/graphite/Surface.h"
+      #include "include/gpu/graphite/mtl/MtlBackendContext.h"
+      #include "include/gpu/graphite/mtl/MtlGraphiteUtils.h"
+      #include "include/gpu/graphite/mtl/MtlGraphiteTypes.h"
+  #endif
   #elif !defined IGRAPHICS_CPU
     #error Define either IGRAPHICS_GL2, IGRAPHICS_GL3, IGRAPHICS_METAL, or IGRAPHICS_CPU for IGRAPHICS_SKIA with OS_MAC
   #endif
@@ -425,10 +436,25 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
   CAMetalLayer* pMTLLayer = (CAMetalLayer*) pContext;
   id<MTLDevice> device = pMTLLayer.device;
   id<MTLCommandQueue> commandQueue = [device newCommandQueue];
+  
+#ifdef SKIA_GANESH
   GrMtlBackendContext backendContext = {};
   backendContext.fDevice.retain((__bridge GrMTLHandle) device);
   backendContext.fQueue.retain((__bridge GrMTLHandle) commandQueue);
   mGrContext = GrDirectContexts::MakeMetal(backendContext);
+#else
+  skgpu::graphite::MtlBackendContext backendContext = {};
+  backendContext.fDevice.retain((__bridge CFTypeRef) device);
+  backendContext.fQueue.retain((__bridge CFTypeRef) commandQueue);
+  
+  skgpu::graphite::ContextOptions options;
+
+  mGraphiteContext =
+      skgpu::graphite::ContextFactory::MakeMetal(backendContext, options);
+  if (!mGraphiteContext) {
+      DBGMSG("Could not make Graphite Native Metal context\n");
+  }
+#endif
   mMTLDevice = (void*) device;
   mMTLCommandQueue = (void*) commandQueue;
   mMTLLayer = pContext;
@@ -459,11 +485,26 @@ void IGraphicsSkia::DrawResize()
   auto h = static_cast<int>(std::ceil(static_cast<float>(WindowHeight()) * GetScreenScale()));
   
 #if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
+#if defined SKIA_GANESH
   if (mGrContext.get())
   {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
     mSurface = SkSurfaces::RenderTarget(mGrContext.get(), skgpu::Budgeted::kYes, info);
   }
+#else  // GRAPHITE
+  SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
+  mRecorder = mGraphiteContext->makeRecorder();
+  if (!mRecorder)
+  {
+    DBGMSG("Could not make recorder\n");
+  }
+  mSurface = SkSurfaces::RenderTarget(mRecorder.get(), info);
+  if (!mSurface)
+  {
+    DBGMSG("Could not make surface from Metal Recorder\n");
+  }
+
+#endif
 #else
   #ifdef OS_WIN
     mSurface.reset();
@@ -522,6 +563,7 @@ void IGraphicsSkia::BeginFrame()
     assert(mScreenSurface);
   }
 #elif defined IGRAPHICS_METAL
+#if defined SKIA_GANESH
   if (mGrContext.get())
   {
     int width = WindowWidth() * GetScreenScale();
@@ -537,6 +579,19 @@ void IGraphicsSkia::BeginFrame()
     mMTLDrawable = (void*) drawable;
     assert(mScreenSurface);
   }
+#else // GRAPHITE
+  int width = WindowWidth() * GetScreenScale();
+  int height = WindowHeight() * GetScreenScale();
+  
+  id<CAMetalDrawable> drawable = [(CAMetalLayer*) mMTLLayer nextDrawable];
+  
+  auto backendTex = skgpu::graphite::BackendTextures::MakeMetal(
+          {width, height}, (CFTypeRef)drawable.texture);
+
+  mScreenSurface = SkSurfaces::WrapBackendTexture(mRecorder.get(), backendTex, kBGRA_8888_SkColorType, SkColorSpace::MakeSRGB(), nullptr);
+  mMTLDrawable = (void*) drawable;
+
+#endif
 #endif
 
   IGraphics::BeginFrame();
@@ -570,11 +625,22 @@ void IGraphicsSkia::EndFrame()
   #endif
 #else // GPU
   mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, nullptr);
-
-  if (auto dContext = GrAsDirectContext(mScreenSurface->getCanvas()->recordingContext())) {
+  
+#ifdef SKIA_GANESH
+  if (auto dContext = GrAsDirectContext(mScreenSurface->getCanvas()->recordingContext()))
+  {
     dContext->flushAndSubmit();
   }
-
+#else
+  if (auto recording = mRecorder->snap())
+  {
+    skgpu::graphite::InsertRecordingInfo info;
+    info.fRecording = recording.get();
+    mGraphiteContext->insertRecording(info);
+    mGraphiteContext->submit(skgpu::graphite::SyncToCpu::kNo);
+  }
+#endif
+  
   #ifdef IGRAPHICS_METAL
     id<MTLCommandBuffer> commandBuffer = [(id<MTLCommandQueue>) mMTLCommandQueue commandBuffer];
     commandBuffer.label = @"Present";
@@ -592,7 +658,9 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
   p.setAntiAlias(true);
   p.setBlendMode(SkiaBlendMode(pBlend));
   if (pBlend)
+  {
     p.setAlpha(Clip(static_cast<int>(pBlend->mWeight * 255), 0, 255));
+  }
     
   SkiaDrawable* image = bitmap.GetAPIBitmap()->GetBitmap();
 
@@ -612,9 +680,13 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
 #endif
     
   if (image->mIsSurface)
+  {
     image->mSurface->draw(mCanvas, 0.0, 0.0, samplingOptions, &p);
+  }
   else
+  {
     mCanvas->drawImage(image->mImage, 0.0, 0.0, samplingOptions, &p);
+  }
     
   mCanvas->restore();
 }
@@ -956,7 +1028,11 @@ APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, float scale, do
   }
   else
   {
+#ifdef SKIA_GANESH
     surface = SkSurfaces::RenderTarget(mGrContext.get(), skgpu::Budgeted::kYes, info);
+#else
+    surface = SkSurfaces::RenderTarget(mRecorder.get(), info, skgpu::Mipmapped::kNo);
+#endif
   }
   #else
   surface = SkSurfaces::Raster(info);
