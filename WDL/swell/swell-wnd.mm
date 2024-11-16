@@ -2246,8 +2246,6 @@ void SetWindowPos(HWND hwnd, HWND hwndAfter, int x, int y, int cx, int cy, int f
 {
   if (WDL_NOT_NORMALLY(!hwnd)) return;
   WDL_ASSERT((flags & SWP_NOSIZE) || cx>=0);
-  WDL_ASSERT((flags & SWP_NOSIZE) || cy>=0); // if this fires, maybe look at caller? historically it has not strictly disallowed, though
- 
   SWELL_BEGIN_TRY
   NSWindow *nswnd; // content views = move window
   if (hwnd && [(id)hwnd isKindOfClass:[NSView class]] && (nswnd=[(NSView *)hwnd window]) && [nswnd contentView]==(id)hwnd)
