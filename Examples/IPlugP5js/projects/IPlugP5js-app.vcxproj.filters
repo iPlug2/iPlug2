@@ -210,7 +210,6 @@
     <None Include="..\config\IPlugP5js-win.props">
       <Filter>config</Filter>
     </None>
-    <None Include="packages.config" />
     <None Include="..\resources\web\index.html">
       <Filter>resources\web</Filter>
     </None>
@@ -229,13 +228,11 @@
     <None Include="..\resources\web\uniforms.vert">
       <Filter>resources\web</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\resources\IPlugP5js.ico">
       <Filter>resources</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>
