@@ -1182,6 +1182,8 @@ enum MNVGTarget mnvgTarget(void) {
 #if TARGET_OS_SIMULATOR
   textureDescriptor.storageMode = MTLStorageModePrivate;
 #endif  // TARGET_OS_SIMULATOR
+  textureDescriptor.storageMode = MTLStorageModeShared;
+
   tex->tex = [_metalLayer.device newTextureWithDescriptor:textureDescriptor];
 
   if (data != NULL) {
@@ -1828,7 +1830,8 @@ error:
         height:size->y
         mipmapped:NO];
     stencilTextureDescriptor.usage = MTLTextureUsageRenderTarget;
-#if TARGET_OS_OSX || TARGET_OS_SIMULATOR || TARGET_OS_MACCATALYST
+    stencilTextureDescriptor.storageMode = MTLStorageModeMemoryless;
+#if 0//TARGET_OS_OSX || TARGET_OS_SIMULATOR || TARGET_OS_MACCATALYST
     stencilTextureDescriptor.storageMode = MTLStorageModePrivate;
 #endif  // TARGET_OS_OSX || TARGET_OS_SIMULATOR || TARGET_OS_MACCATALYST
     _buffers->stencilTexture = [_metalLayer.device
