@@ -3392,7 +3392,8 @@ static void RedrawNonClient(HWND hwnd, BOOL fFrameChanged)
 {
   if(fFrameChanged == FALSE)
   {
-    SendMessage(hwnd, WM_NCPAINT, (WPARAM)1, 0);
+    if (IsWindowVisible(hwnd))
+      SendMessage(hwnd, WM_NCPAINT, (WPARAM)1, 0);
   }
   else
   {
