@@ -1498,53 +1498,67 @@ void IGraphicsWin::CreatePlatformTextEntry(int paramIdx, const IText& text, cons
   if (mParamEditWnd)
     return;
 
-  DWORD editStyle;
-
-  switch (text.mAlign)
-  {
-    case EAlign::Near:    editStyle = ES_LEFT;   break;
-    case EAlign::Far:     editStyle = ES_RIGHT;  break;
-    case EAlign::Center:
-    default:              editStyle = ES_CENTER; break;
-  }
+  // Initially set the style to ES_LEFT to enable ES_AUTOHSCROLL
+  DWORD editStyle = ES_LEFT | ES_AUTOHSCROLL;
 
   const float scale = GetTotalScale();
   IRECT scaledBounds = bounds.GetScaled(scale);
 
-  mParamEditWnd = CreateWindowW(L"EDIT", UTF8AsUTF16(str).Get(), ES_AUTOHSCROLL /*only works for left aligned text*/ | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE | ES_MULTILINE | editStyle,
-    scaledBounds.L, scaledBounds.T, scaledBounds.W()+1, scaledBounds.H()+1,
-    mPlugWnd, (HMENU) PARAM_EDIT_ID, mHInstance, 0);
+  mParamEditWnd = CreateWindowW(L"EDIT", UTF8AsUTF16(str).Get(), editStyle | WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VISIBLE, scaledBounds.L, scaledBounds.T, scaledBounds.W() + 1,
+                                scaledBounds.H() + 1, mPlugWnd, (HMENU)PARAM_EDIT_ID, mHInstance, 0);
 
   StaticStorage<HFontHolder>::Accessor hfontStorage(sHFontCache);
 
-  LOGFONTW lFont = { 0 };
+  LOGFONTW lFont = {0};
   HFontHolder* hfontHolder = hfontStorage.Find(text.mFont);
+  assert(hfontHolder && "font not found - did you forget to load it?");
   GetObjectW(hfontHolder->mHFont, sizeof(LOGFONTW), &lFont);
   lFont.lfHeight = text.mSize * scale;
   mEditFont = CreateFontIndirectW(&lFont);
-
-  assert(hfontHolder && "font not found - did you forget to load it?");
 
   mEditParam = paramIdx > kNoParameter ? GetDelegate()->GetParam(paramIdx) : nullptr;
   mEditText = text;
   mEditRECT = bounds;
 
-  SendMessageW(mParamEditWnd, EM_LIMITTEXT, (WPARAM) length, 0);
-  SendMessageW(mParamEditWnd, WM_SETFONT, (WPARAM) mEditFont, 0);
+  SendMessageW(mParamEditWnd, EM_LIMITTEXT, (WPARAM)length, 0);
+  SendMessageW(mParamEditWnd, WM_SETFONT, (WPARAM)mEditFont, TRUE);
   SendMessageW(mParamEditWnd, EM_SETSEL, 0, -1);
 
   if (text.mVAlign == EVAlign::Middle)
   {
     double size = text.mSize * scale;
     double offset = (scaledBounds.H() - size) / 2.0;
-    RECT formatRect{0, (LONG) offset, (LONG) scaledBounds.W() + 1, (LONG) scaledBounds.H() + 1};
-    SendMessageW(mParamEditWnd, EM_SETRECT, 0, (LPARAM) &formatRect);
+    RECT formatRect{0, (LONG)offset, (LONG)scaledBounds.W() + 1, (LONG)scaledBounds.H() + 1};
+    SendMessageW(mParamEditWnd, EM_SETRECT, 0, (LPARAM)&formatRect);
   }
 
   SetFocus(mParamEditWnd);
 
-  mDefEditProc = (WNDPROC) SetWindowLongPtrW(mParamEditWnd, GWLP_WNDPROC, (LONG_PTR) ParamEditProc);
+  mDefEditProc = (WNDPROC)SetWindowLongPtrW(mParamEditWnd, GWLP_WNDPROC, (LONG_PTR)ParamEditProc);
   SetWindowLongPtrW(mParamEditWnd, GWLP_USERDATA, 0xdeadf00b);
+
+  // Adjust the alignment after creation
+  DWORD dwStyle = GetWindowLong(mParamEditWnd, GWL_STYLE);
+  dwStyle &= ~(ES_LEFT | ES_CENTER | ES_RIGHT); // Clear existing alignment bits
+
+  switch (text.mAlign)
+  {
+  case EAlign::Near:
+    dwStyle |= ES_LEFT;
+    break;
+  case EAlign::Far:
+    dwStyle |= ES_RIGHT;
+    break;
+  case EAlign::Center:
+  default:
+    dwStyle |= ES_CENTER;
+    break;
+  }
+
+  SetWindowLong(mParamEditWnd, GWL_STYLE, dwStyle);
+
+  // Refresh the control to apply the new style
+  SetWindowPos(mParamEditWnd, NULL, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_FRAMECHANGED | SWP_NOACTIVATE);
 }
 
 bool IGraphicsWin::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
