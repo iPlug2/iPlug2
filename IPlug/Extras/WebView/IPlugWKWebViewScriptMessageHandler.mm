@@ -87,6 +87,7 @@ using namespace iplug;
       else if ([extStr isEqualToString:@"jpg"]) contentTypeStr = @"image/jpeg";
       else if ([extStr isEqualToString:@"jpeg"]) contentTypeStr = @"image/jpeg";
       else if ([extStr isEqualToString:@"svg"]) contentTypeStr = @"image/svg+xml";
+      else if ([extStr isEqualToString:@"json"]) contentTypeStr = @"text/json";
 
       NSDictionary* headerFields = [NSDictionary dictionaryWithObjects:@[contentLengthStr, contentTypeStr] forKeys:@[@"Content-Length", @"Content-Type"]];
       response = [[NSHTTPURLResponse alloc] initWithURL:customFileURL statusCode:200 HTTPVersion:@"HTTP/1.1" headerFields:headerFields];
