@@ -50,4 +50,12 @@ using namespace iplug;
 #endif
 }
 
+- (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
+{
+  // Open URLs in the browser
+  [[NSWorkspace sharedWorkspace] openURL:[navigationAction.request URL]];
+
+  return nil;
+}
+
 @end
