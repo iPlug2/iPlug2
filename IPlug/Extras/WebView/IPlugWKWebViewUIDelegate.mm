@@ -72,8 +72,19 @@ using namespace iplug;
 - (WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
 {
   // Open URLs in the browser
+#if defined OS_MAC
   [[NSWorkspace sharedWorkspace] openURL:[navigationAction.request URL]];
-
+#elif defined OS_IOS
+  UIResponder* pResponder = (UIResponder*) webView;
+  while(pResponder) {
+    if ([pResponder respondsToSelector: @selector(openURL:)])
+    {
+      [pResponder performSelector: @selector(openURL:) withObject: [navigationAction.request URL]];
+    }
+    
+    pResponder = [pResponder nextResponder];
+  }
+#endif
   return nil;
 }
 
