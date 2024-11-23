@@ -20,6 +20,7 @@ class KnobControl extends HTMLElement {
     const pointerWidth = parseFloat(this.getAttribute('pointer-width')) || 4;
     const valueArcColor = this.getAttribute('value-arc-color') || '#f00';
     const valueArcWidth = parseFloat(this.getAttribute('value-arc-width')) || 3;
+    const trackBgColor = this.getAttribute('track-bg-color') || '#999';
     
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.innerHTML = `
@@ -55,6 +56,7 @@ class KnobControl extends HTMLElement {
     <div class="label">${this.label}</div>
     <svg viewBox="0 0 100 100" width="80" height="80">
     <circle cx="50" cy="50" r="42" fill=${circleFillColor} stroke=${circleStrokeColor} stroke-width=${circleStrokeWidth} @mousedown="startDrag"></circle>
+    <path class="track-bg" fill="none" stroke=${trackBgColor} stroke-width=${valueArcWidth} d=""></path>
     <path class="value-arc" fill="none" stroke=${valueArcColor} stroke-width=${valueArcWidth} d=""></path>
     <line class="pointer" x1="50" y1="10" x2="50" y2="50" stroke=${pointerColor} stroke-width=${pointerWidth} transform="rotate(0, 50, 50)"></line>
     </svg>
@@ -67,6 +69,7 @@ class KnobControl extends HTMLElement {
     let currentValue = this.defaultValue;
     
     const valueArc = this.shadowRoot.querySelector('.value-arc');
+    const trackBg = this.shadowRoot.querySelector('.track-bg');
 
     const polarToCartesian = (centerX, centerY, radius, angleInDegrees) => {
       const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
@@ -75,6 +78,23 @@ class KnobControl extends HTMLElement {
         y: centerY + (radius * Math.sin(angleInRadians))
       };
     };
+    
+    const createTrackBg = () => {
+      const arcRadius = 48;
+      const start = polarToCartesian(50, 50, arcRadius, minAngle);
+      const end = polarToCartesian(50, 50, arcRadius, maxAngle);
+      
+      const largeArcFlag = maxAngle - minAngle <= 180 ? 0 : 1;
+      
+      const d = [
+        'M', start.x, start.y,
+        'A', arcRadius, arcRadius, 0, largeArcFlag, 1, end.x, end.y
+      ].join(' ');
+      
+      trackBg.setAttribute('d', d);
+    };
+    
+    createTrackBg();
     
     const updateValueArc = (angle) => {
       const startAngle = minAngle;
@@ -94,10 +114,18 @@ class KnobControl extends HTMLElement {
       valueArc.setAttribute('d', d);
     };
     
-    const updateValue = (value) => {
-      currentValue = value;
-      valueElement.textContent = `${value.toFixed(1)} ${units}`;
-      const normValue = ((value - this.minValue) / (this.maxValue - this.minValue));
+    const updateValue = (value, normalized = false) => {
+      let finalValue;
+      if (normalized) {
+        // If we receive a normalized value (0-1), convert it to our range
+        finalValue = this.minValue + (value * (this.maxValue - this.minValue));
+      } else {
+        finalValue = value;
+      }
+      
+      currentValue = finalValue;
+      valueElement.textContent = `${finalValue.toFixed(1)} ${units}`;
+      const normValue = ((finalValue - this.minValue) / (this.maxValue - this.minValue));
       const angle = minAngle + normValue * (maxAngle - minAngle);
       pointer.setAttribute('transform', `rotate(${angle}, 50, 50)`);
       updateValueArc(angle);
@@ -162,7 +190,12 @@ class KnobControl extends HTMLElement {
     this.shadowRoot.querySelector('circle').addEventListener('touchstart', startDrag, { passive: false });
     this.shadowRoot.querySelector('circle').addEventListener('wheel', onWheel);
     
-    updateValue(currentValue);
+//    updateValue(currentValue);
+    
+    this.shadowRoot.querySelector('.container').__updateValue = updateValue;
+    
+    // Expose updateValue method with a different name to avoid conflicts
+    this.updateValueFromHost = (normalizedValue) => updateValue(normalizedValue, true);
   }
   
   connectedCallback() {
@@ -199,7 +232,6 @@ class KnobControl extends HTMLElement {
 
   set value(newValue) {
     this.setAttribute('value', newValue);
-//    this.updateValue(); // Function to update the knob's visual appearance
   }
 }
 

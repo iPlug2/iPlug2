@@ -70,13 +70,12 @@
     }
     
     function OnParamChange(param, value) {
-      const allElements = document.querySelectorAll('*');
-
-      allElements.forEach(element => {
-        if (element.tagName == "KNOB-CONTROL") {
-          // TODO
-        }
-      });
+      // Find the knob control with matching param-id
+      const knob = document.querySelector(`knob-control[param-id="${param}"]`);
+      if (knob) {
+        // Pass the normalized value directly to the knob
+        knob.updateValueFromHost(value);
+      }
     }
   
     function OnControlChange(ctrlTag, value) {
@@ -134,6 +133,9 @@
     </td>
   </tr>
   <tr>
+    <td colspan="3">
+      <a href="https://iplug2.github.io" target="_blank">Open the iPlug2 Website</a>
+    </td>
     <td colspan="3">
       <button onclick="window.location.href='https://github.com/iPlug2/iPlug2/raw/refs/heads/master/Examples/IPlugWebUI/README.md'">Download A File</button>
     </td>
