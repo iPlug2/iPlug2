@@ -111,4 +111,9 @@
 #endif
 }
 
+- (BOOL) allowsLinkPreview
+{
+  return false;
+}
+
 @end
