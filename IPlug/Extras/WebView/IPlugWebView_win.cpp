@@ -12,6 +12,7 @@ See LICENSE.txt for  more info.
 #include "IPlugPaths.h"
 #include <string>
 #include <windows.h>
+#include <wininet.h>
 #include <shlobj.h>
 #include <cassert>
 
@@ -65,7 +66,7 @@ private:
   EventRegistrationToken mWebMessageReceivedToken;
   EventRegistrationToken mNavigationStartingToken;
   EventRegistrationToken mNavigationCompletedToken;
-  EventRegistrationToken mContextMenuRequestedToken;
+  EventRegistrationToken mNewWindowRequestedToken;
   EventRegistrationToken mDownloadStartingToken;
   EventRegistrationToken mBytesReceivedChangedToken;
   EventRegistrationToken mStateChangedToken;
@@ -193,6 +194,32 @@ void* IWebViewImpl::OpenWebView(void* pParent, float,float,float,float,float)
                 })
                 .Get(),
               &mNavigationCompletedToken);
+
+              mCoreWebView->add_NewWindowRequested(
+              Callback<ICoreWebView2NewWindowRequestedEventHandler>(
+                  [this](ICoreWebView2* sender, ICoreWebView2NewWindowRequestedEventArgs* args)
+                    -> HRESULT 
+              {
+                wil::com_ptr<ICoreWebView2NewWindowRequestedEventArgs2> args2;
+
+                if (SUCCEEDED(args->QueryInterface(IID_PPV_ARGS(&args2))))
+                {
+                  DWORD inetStatus = 0;
+                  if (InternetGetConnectedState(&inetStatus, 0))
+                  {
+                    wil::unique_cotaskmem_string uri;
+
+                    args2->get_Uri(&uri);
+
+                    if (ShellExecuteW(mParentWnd, L"open", uri.get(), 0, 0, SW_SHOWNORMAL) > HINSTANCE(32))
+                    {
+                      args->put_Handled(true);
+                    }
+                  }
+                }
+                return S_OK;
+              }).Get(),
+                &mNewWindowRequestedToken);
 
               auto webView2_4 = mCoreWebView.try_query<ICoreWebView2_4>();
               if (webView2_4)
