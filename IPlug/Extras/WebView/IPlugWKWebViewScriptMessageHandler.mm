@@ -38,7 +38,7 @@ using namespace iplug;
 
 @implementation IPLUG_WKSCRIPTMESSAGEHANDLER
 
--(id) initWithIWebView:(IWebView*) webView
+-(id _Nonnull) initWithIWebView:(IWebView* _Nonnull) webView
 {
   self = [super init];
   
@@ -64,7 +64,7 @@ using namespace iplug;
   }
 }
 
-- (NSURL*) changeURLScheme:(NSURL*) url toScheme:(NSString*) newScheme
+- (NSURL* _Nullable) changeURLScheme:(NSURL* _Nonnull) url toScheme:(NSString* _Nonnull) newScheme
 {
   NSURLComponents* components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
   components.scheme = newScheme;
