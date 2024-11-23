@@ -14,11 +14,24 @@ Permission is granted to anyone to use this software for any purpose, including 
 1. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 1. This notice may not be removed or altered from any source distribution.
 
+--------------------------------------------------------------------------------
+
 iPlug 2 includes the following 3rd party libraries (see each license info):
 
-* Cockos WDL https://www.cockos.com/wdl
-* NanoVG https://github.com/memononen/nanovg
-* NanoSVG https://github.com/memononen/nanosvg  
-* MetalNanoVG https://github.com/ollix/MetalNanoVG
-* RTAudio https://www.music.mcgill.ca/~gary/rtaudio
-* RTMidi https://www.music.mcgill.ca/~gary/rtmidi
+* Cockos WDL https://www.cockos.com/wdl (Zlib-like license)
+* NanoVG https://github.com/memononen/nanovg (Zlib)
+* NanoSVG https://github.com/memononen/nanosvg (Zlib)
+* MetalNanoVG https://github.com/ollix/MetalNanoVG (MIT)
+* RTAudio https://www.music.mcgill.ca/~gary/rtaudio (MIT)
+* RTMidi https://www.music.mcgill.ca/~gary/rtmidi (MIT)
+
+It can optionally use the Skia library for graphics rendering (BSD)
+
+Check the individual source files for more information. It is up to you to comply with the licenses of every source file you use, so please the dependencies for any more information, especially regarding sub dependencies.
+
+--------------------------------------------------------------------------------
+
+iPlug2 WebView Library
+
+NOTE: iPlug2 WebView Library is licensed under the MIT License. See LICENSE.txt in the IPlug/Extras/WebView folder for more information. 
+You must include the original copyright notice in any redistribution.
