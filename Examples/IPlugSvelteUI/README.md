@@ -1,16 +1,13 @@
 # IPlugSvelteUI
-A basic volume control effect plug-in which uses a platform web view to host an Svelte UI.
-
-## Svelte UI
-
+A basic volume control effect plug-in which uses a platform web view to host a Svelte UI.
 Svelte is a modern JavaScript framework for building user interfaces. Svelte files have a `.svelte` extension and must be compiled to JavaScript before they can be used.
 
 ### Setup Instructions
 
 1. Install Node Version Manager (nvm)
-   - On macOS/Linux:
+   - On macOS:
      ```bash
-     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+     brew install nvm
      ```
    - On Windows:
      Download and install [nvm-windows](https://github.com/coreybutler/nvm-windows/releases)
@@ -45,9 +42,9 @@ The built assets will be generated in the `resources/web` folder.
 
 ### Development
 
-7. Start the local server:
+During development you may find it more convenient to work with the Svelte files directly, and have the platform web view automatically update as you make changes aka. **hot reloading**. To do this, you can run `npm run dev` in the `web-ui` directory, which will start a local server. If you point the iPlug2 WebView to this address (e.g. `http://localhost:5173`), it will automatically reload as you make changes. See `IPlugSvelteUI.cpp` for how this is done. You need to switch back to the static pages when you are done developing and you want to package the plug-in.
+
+Start the local server:
    ```bash
    npm run dev
    ```
-
-During development you may find it more convenient to work with the Svelte files directly, and have the platform web view automatically update as you make changes aka. **hot reloading**. To do this, you can run `npm run dev` in the `web-ui` directory, which will start a local server. If you point the iPlug2 WebView to this address (e.g. `http://localhost:5173`), it will automatically reload as you make changes. See `IPlugSvelteUI.cpp` for how this is done. You need to switch back to the static pages when you are done developing and you want to package the plug-in.

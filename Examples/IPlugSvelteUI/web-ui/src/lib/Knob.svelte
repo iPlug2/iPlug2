@@ -160,7 +160,7 @@
 
   .label {
     margin-bottom: 8px;
-    color: black;
+    color: white;
     font-size: 14px;
     pointer-events: none;
   }
