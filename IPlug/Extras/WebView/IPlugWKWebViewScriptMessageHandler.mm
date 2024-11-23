@@ -64,11 +64,6 @@ using namespace iplug;
   }
 }
 
-- (void) webView:(IPLUG_WKWEBVIEW*) webView didFinishNavigation:(WKNavigation*) navigation
-{
-  mIWebView->OnWebContentLoaded();
-}
-
 - (NSURL*) changeURLScheme:(NSURL*) url toScheme:(NSString*) newScheme
 {
   NSURLComponents* components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];

@@ -107,6 +107,11 @@ decisionHandler:(void (^ _Nonnull)(WKNavigationResponsePolicy))decisionHandler
   }
 }
 
+- (void) webView:(IPLUG_WKWEBVIEW* _Nonnull) webView didFinishNavigation:(null_unspecified WKNavigation*) navigation
+{
+  mIWebView->OnWebContentLoaded();
+}
+
 - (void)download:(WKDownload * _Nonnull)download 
 decideDestinationUsingResponse:(NSURLResponse * _Nonnull)response 
 suggestedFilename:(NSString * _Nonnull)filename 
