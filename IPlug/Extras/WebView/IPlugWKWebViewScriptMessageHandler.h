@@ -52,8 +52,6 @@ class IWebView;
 
 #pragma mark - WKURLSchemeHandler
 
-- (void)webView:(IPLUG_WKWEBVIEW* _Nonnull)webView didFinishNavigation:(WKNavigation* _Nullable)navigation;
-
 - (NSURL* _Nullable)changeURLScheme:(NSURL* _Nonnull)url toScheme:(NSString* _Nonnull)newScheme;
 
 - (void)webView:(nonnull WKWebView *)webView 
