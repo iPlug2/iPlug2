@@ -4,14 +4,13 @@
   import iPlugLogo from './assets/iplug.png'
   import Knob from './lib/Knob.svelte'
 
-  let knobComponent: any;
+  let gainKnob: any;
 
   // Handle parameter value changes from the plugin
   window.SPVFD = (paramIdx: number, val: number) => {
-    // If this is the parameter for our knob, update it
-    if (paramIdx === 0) { // Assuming paramId=1 for the volume knob
-      const actualValue = 0 + (val * (100 - 0)); // Convert normalized value using min/max
-      knobComponent?.setValueFromPlugin(actualValue);
+    if (paramIdx === 0) {
+      const realValue = 0 + (val * (100 - 0)); // Convert normalized value using min/max
+      gainKnob?.setValueFromPlugin(realValue);
     }
   };
 </script>
@@ -31,14 +30,15 @@
   <h1>Vite + Svelte + iPlug2</h1>
 
   <Knob 
-    bind:this={knobComponent}
+    bind:this={gainKnob}
     paramId={0}
     label="Volume"
-    minValue={0}
-    maxValue={100}
+    minValue={-70}
+    maxValue={0}
     units="dB"
-    defaultValue={50}
+    defaultValue={-70}
   />
+
 </main>
 
 <style>
