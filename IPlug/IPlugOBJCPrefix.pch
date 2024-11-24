@@ -22,7 +22,9 @@
     #define OBJC_PREFIX vIPLUG2
   #endif
 
-  #if defined(VST2_API)
+  #if defined(CLAP_API)
+    #define API _clap
+  #elif defined(VST2_API)
     #define API _vst
   #elif defined(AU_API)
     #define API _au
