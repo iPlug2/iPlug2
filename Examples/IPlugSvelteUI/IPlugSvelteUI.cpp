@@ -13,8 +13,8 @@ IPlugSvelteUI::IPlugSvelteUI(const InstanceInfo& info)
 //#endif
   
   mEditorInitFunc = [&]() {
-    LoadIndexHtml(__FILE__, GetBundleID());
-    // LoadURL("http://localhost:5173/");
+     LoadIndexHtml(__FILE__, GetBundleID());
+//    LoadURL("http://localhost:5173/");
     EnableScroll(false);
   };
   
@@ -39,7 +39,7 @@ void IPlugSvelteUI::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     maxVal += std::fabs(outputs[0][s]);
   }
   
-  mLastPeak = static_cast<float>(maxVal / (sample) nFrames);
+  mSender.ProcessBlock(outputs, nFrames, kCtrlTagMeter);
 }
 
 void IPlugSvelteUI::OnReset()
@@ -51,26 +51,12 @@ void IPlugSvelteUI::OnReset()
 
 bool IPlugSvelteUI::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
-  if (msgTag == kMsgTagButton1)
-    Resize(512, 335);
-  else if(msgTag == kMsgTagButton2)
-    Resize(1024, 335);
-  else if(msgTag == kMsgTagButton3)
-    Resize(1024, 768);
-  else if (msgTag == kMsgTagBinaryTest)
-  {
-    auto uint8Data = reinterpret_cast<const uint8_t*>(pData);
-    DBGMSG("Data Size %i bytes\n",  dataSize);
-    DBGMSG("Byte values: %i, %i, %i, %i\n", uint8Data[0], uint8Data[1], uint8Data[2], uint8Data[3]);
-  }
-
   return false;
 }
 
 void IPlugSvelteUI::OnIdle()
 {
-  if (mLastPeak > 0.01)
-    SendControlValueFromDelegate(kCtrlTagMeter, mLastPeak);
+  mSender.TransmitData(*this);
 }
 
 void IPlugSvelteUI::OnParamChange(int paramIdx)

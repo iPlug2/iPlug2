@@ -1680,9 +1680,6 @@
 					4F78DAF113B643600032E0F3 = {
 						DevelopmentTeam = 686EDA2T8T;
 					};
-					4F9828AA140A9EB700F3FCC1 = {
-						DevelopmentTeam = 686EDA2T8T;
-					};
 					4FB600121567CB0A0020189A = {
 						DevelopmentTeam = 686EDA2T8T;
 					};
@@ -3015,6 +3012,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
@@ -3037,6 +3036,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",
@@ -3059,6 +3060,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"DEVELOPMENT_TEAM[sdk=macosx*]" = "";
 				DSTROOT = "$(VST3_PATH)";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(EXTRA_PLUGIN_DEFS)",

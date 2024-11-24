@@ -3,6 +3,7 @@
 #include "IPlug_include_in_plug_hdr.h"
 #include "Oscillator.h"
 #include "Smoothers.h"
+#include "ISender.h"
 
 using namespace iplug;
 
@@ -40,7 +41,7 @@ public:
   void OnParamChange(int paramIdx) override;
 
 private:
-  float mLastPeak = 0.;
+  iplug::IPeakSender<2> mSender;
   FastSinOscillator<sample> mOscillator {0., 440.};
   LogParamSmooth<sample, 1> mGainSmoother;
 };

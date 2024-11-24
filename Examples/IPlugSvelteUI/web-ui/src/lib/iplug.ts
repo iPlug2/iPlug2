@@ -48,6 +48,20 @@ export function SPVFD(paramIdx: number, val: number) {
   OnParamChange(paramIdx, val);
 }
 
+export function SAMFD(msgTag: number, dataSize: number, msg: string) {
+  //  var decodedData = window.atob(msg);
+  console.log("SAMFD msgTag:" + msgTag + " msg:" + msg);
+}
+
+export function SCVFD(ctrlTag: number, val: number) {
+  console.log("SCVFD ctrlTag: " + ctrlTag + " value:" + val);
+}
+
+export function SCMFD(ctrlTag: number, msgTag: number, dataSize: number, msg: string) {
+  console.log("SCMFD ctrlTag: " + ctrlTag + " msgTag:" + msgTag + " dataSize:" + dataSize + " msg:" + msg);
+}
+
+// Handle parameter changes from the plugin
 export function OnParamChange(paramIdx: number, value: number) {
   if (SPVFD) {
     SPVFD(paramIdx, value);
@@ -58,5 +72,8 @@ export function OnParamChange(paramIdx: number, value: number) {
 globalThis.SPVFUI = SPVFUI;
 globalThis.BPCFUI = BPCFUI;
 globalThis.EPCFUI = EPCFUI;
+globalThis.SAMFD = SAMFD;
 globalThis.SPVFD = SPVFD;
+globalThis.SCVFD = SCVFD;
+globalThis.SCMFD = SCMFD;
 globalThis.OnParamChange = OnParamChange; 

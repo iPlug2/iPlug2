@@ -11,7 +11,7 @@ declare global {
     // From Plugin to UI
     SPVFD: (paramIdx: number, value: number) => void;
     SCVFD: (ctrlTag: number, value: number) => void;
-    SCMFD: (ctrlTag: number, msgTag: number, msg: string) => void;
+    SCMFD: (ctrlTag: number, msgTag: number, dataSize: number, msg: string) => void;
     SAMFD: (msgTag: number, dataSize: number, msg: string) => void;
     
     OnParamChange: (paramIdx: number, value: number) => void;

@@ -1,6 +1,6 @@
 # IPlugSvelteUI
-A basic volume control effect plug-in which uses a platform web view to host a Svelte UI.
-Svelte is a modern JavaScript framework for building user interfaces. Svelte files have a `.svelte` extension and must be compiled to JavaScript before they can be used.
+A basic volume control effect plug-in which uses a platform web view to host a Svelte UI, written using Svelte and typescript.
+Svelte is a modern framework for building user interfaces. Svelte files have a `.svelte` extension and must be compiled to JavaScript before they can be used, this can be done using Vite which also allows for hot reloading during development.
 
 ### Setup Instructions
 

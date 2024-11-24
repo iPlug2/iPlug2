@@ -3,15 +3,35 @@
   import viteLogo from './assets/vite.svg'
   import iPlugLogo from './assets/iplug.png'
   import Knob from './lib/Knob.svelte'
+  import VUMeter from './lib/VUMeter.svelte'
 
   let gainKnob: any;
+  let vuMeter: any;
 
   // Handle parameter value changes from the plugin
-  window.SPVFD = (paramIdx: number, val: number) => {
+  globalThis.SPVFD = (paramIdx: number, val: number) => {
     if (paramIdx === 0) {
-      // val is already normalized (0-1), just pass it directly to the knob
-      // the knob component will handle converting to real value based on its min/max props
       gainKnob?.setValueFromPlugin(val);
+    }
+  };
+
+  globalThis.SCMFD = (ctrlTag: number, msgTag: number, dataSize: number, msg: string) => {
+    if (ctrlTag === 0) {
+      // Decode base64 to binary string
+      const msgData = atob(msg);
+      
+      // Convert binary string to Uint8Array
+      const bytes = new Uint8Array(msgData.length);
+      for (let i = 0; i < msgData.length; i++) {
+        bytes[i] = msgData.charCodeAt(i);
+      }
+      
+      // Create a single Int32Array view for all three integers
+      const intView = new Int32Array(bytes.buffer, 0, 3);
+      const [controlTag, nChans, chanOffset] = intView;
+      const data = new Float32Array(bytes.buffer, 12);
+
+      vuMeter?.setLevel(data[0]);
     }
   };
 </script>
@@ -30,16 +50,21 @@
   </div>
   <h1>Vite + Svelte + iPlug2</h1>
 
-  <Knob 
-    bind:this={gainKnob}
-    paramId={0}
-    label="Volume"
-    minValue={-70}
-    maxValue={0}
-    units="dB"
-    defaultValue={-70}
-  />
-
+  <div class="controls">
+    <Knob 
+      bind:this={gainKnob}
+      paramId={0}
+      label="Volume"
+      minValue={-70}
+      maxValue={0}
+      units="dB"
+      defaultValue={-70}
+    />
+    <VUMeter
+    bind:this={vuMeter}
+    label="Level"
+    />
+  </div>
 </main>
 
 <style>
@@ -61,4 +86,17 @@
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* IE10+/Edge */
   }
+
+  h1 {
+    cursor: default;
+  }
+
+  .controls {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+  }
+
 </style>

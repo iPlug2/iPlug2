@@ -13,10 +13,10 @@
   export let circleStrokeColor = '#fff';
   export let circleStrokeWidth = 2;
   export let circleFillColor = '#000';
-  export let pointerColor = '#f00';
+  export let pointerColor = '#fff';
   export let pointerWidth = 4;
-  export let valueArcColor = '#f00';
-  export let valueArcWidth = 3;
+  export let valueArcColor = '#333';
+  export let valueArcWidth = 4;
 
   let currentValue = defaultValue;
 
