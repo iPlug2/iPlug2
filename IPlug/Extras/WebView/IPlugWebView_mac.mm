@@ -50,27 +50,27 @@ BEGIN_IPLUG_NAMESPACE
 class IWebViewImpl
 {
 public:
-  IWebViewImpl(IWebView* _Nonnull owner);
+  IWebViewImpl(IWebView* owner);
   ~IWebViewImpl();
   
-  void* OpenWebView(void* _Nonnull pParent, float x, float y, float w, float h, float scale);
+  void* OpenWebView(void* pParent, float x, float y, float w, float h, float scale);
   void CloseWebView();
   void HideWebView(bool hide);
   
-  void LoadHTML(const char* _Nonnull html);
-  void LoadURL(const char* _Nonnull url);
-  void LoadFile(const char* _Nonnull fileName, const char* _Nullable bundleID);
+  void LoadHTML(const char* html);
+  void LoadURL(const char* url);
+  void LoadFile(const char* fileName, const char* _Nullable bundleID);
   void ReloadPageContent();
-  void EvaluateJavaScript(const char* _Nonnull scriptStr, IWebView::completionHandlerFunc func);
+  void EvaluateJavaScript(const char* scriptStr, IWebView::completionHandlerFunc func);
   void EnableScroll(bool enable);
   void EnableInteraction(bool enable);
   void SetWebViewBounds(float x, float y, float w, float h, float scale);
   void GetWebRoot(WDL_String& path) const { path.Set(mWebRoot.Get()); }
 
-  void GetLocalDownloadPathForFile(const char* _Nonnull fileName, WDL_String& localPath);
+  void GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath);
 
 private:
-  IWebView* _Nonnull mIWebView;
+  IWebView* mIWebView;
   WDL_String mWebRoot;
   WKWebViewConfiguration* _Nullable mWebConfig;
   IPLUG_WKWEBVIEW* _Nullable mWKWebView;
@@ -85,7 +85,7 @@ using namespace iplug;
 
 #pragma mark - Impl
 
-IWebViewImpl::IWebViewImpl(IWebView* _Nonnull owner)
+IWebViewImpl::IWebViewImpl(IWebView* owner)
 : mIWebView(owner)
 , mWebConfig(nil)
 , mWKWebView(nil)
@@ -99,7 +99,7 @@ IWebViewImpl::~IWebViewImpl()
   CloseWebView();
 }
 
-void* IWebViewImpl::OpenWebView(void* _Nonnull pParent, float x, float y, float w, float h, float scale)
+void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float h, float scale)
 {
   WKWebViewConfiguration* webConfig = [[WKWebViewConfiguration alloc] init];
   WKPreferences* preferences = [[WKPreferences alloc] init];
@@ -202,19 +202,19 @@ void IWebViewImpl::HideWebView(bool hide)
   mWKWebView.hidden = hide;
 }
 
-void IWebViewImpl::LoadHTML(const char* _Nonnull html)
+void IWebViewImpl::LoadHTML(const char* html)
 {
   [mWKWebView loadHTMLString:[NSString stringWithUTF8String:html] baseURL:nil];
 }
 
-void IWebViewImpl::LoadURL(const char* _Nonnull url)
+void IWebViewImpl::LoadURL(const char* url)
 {
   NSURL* nsURL = [NSURL URLWithString:[NSString stringWithUTF8String:url] relativeToURL:nil];
   NSURLRequest* req = [[NSURLRequest alloc] initWithURL:nsURL];
   [mWKWebView loadRequest:req];
 }
 
-void IWebViewImpl::LoadFile(const char* _Nonnull fileName, const char* _Nullable bundleID)
+void IWebViewImpl::LoadFile(const char* fileName, const char* _Nullable bundleID)
 {
   WDL_String fullPath;
   
@@ -266,7 +266,7 @@ void IWebViewImpl::ReloadPageContent()
   [mWKWebView reload];
 }
 
-void IWebViewImpl::EvaluateJavaScript(const char* _Nonnull scriptStr, IWebView::completionHandlerFunc func)
+void IWebViewImpl::EvaluateJavaScript(const char* scriptStr, IWebView::completionHandlerFunc func)
 {
   if (mWKWebView && ![mWKWebView isLoading])
   {
@@ -304,7 +304,7 @@ void IWebViewImpl::SetWebViewBounds(float x, float y, float w, float h, float sc
 #endif
 }
 
-void IWebViewImpl::GetLocalDownloadPathForFile(const char* _Nonnull fileName, WDL_String& localPath)
+void IWebViewImpl::GetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath)
 {
   NSURL* url = [[NSURL fileURLWithPath:NSTemporaryDirectory()] URLByAppendingPathComponent:[[NSUUID UUID] UUIDString] isDirectory:YES];
   NSError *error = nil;

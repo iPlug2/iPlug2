@@ -39,7 +39,9 @@ using namespace iplug;
 
 @implementation IPLUG_WKWEBVIEW_DELEGATE
 
-- (id _Nonnull)initWithIWebView:(iplug::IWebView* _Nonnull)webView;
+NS_ASSUME_NONNULL_BEGIN
+
+- (id)initWithIWebView:(iplug::IWebView*)webView;
 {
   self = [super init];
   if (self)
@@ -54,16 +56,12 @@ using namespace iplug;
   mIWebView = nullptr;
 }
 
-- (void)webView:(WKWebView * _Nonnull)webView 
-navigationResponse:(WKNavigationResponse * _Nonnull)navigationResponse 
-didBecomeDownload:(WKDownload * _Nonnull)download API_AVAILABLE(macos(11.3), ios(14.5))
+- (void)webView:(WKWebView*)webView navigationResponse:(WKNavigationResponse*)navigationResponse didBecomeDownload:(WKDownload*)download API_AVAILABLE(macos(11.3), ios(14.5))
 {
   download.delegate = self;
 }
 
-- (void)webView:(WKWebView * _Nonnull)webView 
-decidePolicyForNavigationAction:(WKNavigationAction * _Nonnull)navigationAction 
-decisionHandler:(void (^ _Nonnull)(WKNavigationActionPolicy))decisionHandler
+- (void)webView:(WKWebView*)webView decidePolicyForNavigationAction:(WKNavigationAction*)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
   bool allow = mIWebView->OnCanNavigateToURL([[[[navigationAction request] URL] absoluteString] UTF8String]);
   
@@ -77,9 +75,7 @@ decisionHandler:(void (^ _Nonnull)(WKNavigationActionPolicy))decisionHandler
   }
 }
 
-- (void)webView:(WKWebView * _Nonnull)webView 
-decidePolicyForNavigationResponse:(WKNavigationResponse * _Nonnull)navigationResponse 
-decisionHandler:(void (^ _Nonnull)(WKNavigationResponsePolicy))decisionHandler
+- (void)webView:(WKWebView*)webView decidePolicyForNavigationResponse:(WKNavigationResponse*)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
 {
   bool allow = mIWebView->OnCanNavigateToURL([[[[navigationResponse response] URL] absoluteString] UTF8String]);
   
@@ -107,15 +103,12 @@ decisionHandler:(void (^ _Nonnull)(WKNavigationResponsePolicy))decisionHandler
   }
 }
 
-- (void) webView:(IPLUG_WKWEBVIEW* _Nonnull) webView didFinishNavigation:(null_unspecified WKNavigation*) navigation
+- (void) webView:(IPLUG_WKWEBVIEW*) webView didFinishNavigation:(WKNavigation*) navigation
 {
   mIWebView->OnWebContentLoaded();
 }
 
-- (void)download:(WKDownload * _Nonnull)download 
-decideDestinationUsingResponse:(NSURLResponse * _Nonnull)response 
-suggestedFilename:(NSString * _Nonnull)filename 
-completionHandler:(void (^ _Nonnull)(NSURL * _Nullable))completionHandler API_AVAILABLE(macos(11.3), ios(14.5))
+- (void)download:(WKDownload*)download decideDestinationUsingResponse:(NSURLResponse*)response suggestedFilename:(NSString*)filename completionHandler:(void (^_Nonnull)(NSURL* _Nullable))completionHandler API_AVAILABLE(macos(11.3), ios(14.5))
 {
   WDL_String localPath;
   mIWebView->OnGetLocalDownloadPathForFile([filename UTF8String], localPath);
@@ -123,23 +116,23 @@ completionHandler:(void (^ _Nonnull)(NSURL * _Nullable))completionHandler API_AV
   completionHandler(downloadDestinationURL);
 }
 
-- (void)download:(WKDownload * _Nonnull)download 
-didReceiveData:(int64_t)length API_AVAILABLE(macos(11.3), ios(14.5))
+- (void)download:(WKDownload*)download didReceiveData:(int64_t)length API_AVAILABLE(macos(11.3), ios(14.5))
 {
   mIWebView->OnReceivedData(length, 0);
 }
 
-- (void)download:(WKDownload * _Nonnull)download 
-didFailWithError:(NSError * _Nonnull)error API_AVAILABLE(macos(11.3), ios(14.5))
+- (void)download:(WKDownload*)download didFailWithError:(NSError*)error API_AVAILABLE(macos(11.3), ios(14.5))
 {
   mIWebView->OnFailedToDownloadFile([[downloadDestinationURL absoluteString] UTF8String]);
   downloadDestinationURL = nil;
 }
 
-- (void)downloadDidFinish:(WKDownload * _Nonnull)download API_AVAILABLE(macos(11.3), ios(14.5))
+- (void)downloadDidFinish:(WKDownload*)download API_AVAILABLE(macos(11.3), ios(14.5))
 {
   mIWebView->OnDownloadedFile([[downloadDestinationURL path] UTF8String]);
   downloadDestinationURL = nil;
 }
+
+NS_ASSUME_NONNULL_END
 
 @end

@@ -36,31 +36,39 @@ class IWebView;
 }
 
 @interface IPLUG_WKWEBVIEW_DELEGATE : NSObject <WKNavigationDelegate, WKDownloadDelegate>
+NS_ASSUME_NONNULL_BEGIN
 {
-  iplug::IWebView* _Nonnull mIWebView;
+  iplug::IWebView* mIWebView;
   NSURL* _Nullable downloadDestinationURL;
 }
 
-- (id _Nonnull)initWithIWebView:(iplug::IWebView* _Nonnull)webView;
+- (id)initWithIWebView:(iplug::IWebView*)webView;
 
 - (void)dealloc;
 
-- (void)webView:(WKWebView * _Nonnull)webView decidePolicyForNavigationAction:(WKNavigationAction * _Nonnull)navigationAction decisionHandler:(void (^ _Nonnull)(WKNavigationActionPolicy))decisionHandler;
+- (void)webView:(WKWebView*)webView decidePolicyForNavigationAction:(WKNavigationAction*)navigationAction 
+                                                    decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler;
 
-- (void)webView:(WKWebView * _Nonnull)webView decidePolicyForNavigationResponse:(WKNavigationResponse * _Nonnull)navigationResponse decisionHandler:(void (^ _Nonnull)(WKNavigationResponsePolicy))decisionHandler;
+- (void)webView:(WKWebView*)webView decidePolicyForNavigationResponse:(WKNavigationResponse*)navigationResponse 
+                                                      decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler;
 
-- (void)webView:(IPLUG_WKWEBVIEW* _Nonnull)webView didFinishNavigation:(null_unspecified WKNavigation*)navigation;
+- (void)webView:(IPLUG_WKWEBVIEW*)webView didFinishNavigation:(WKNavigation*)navigation;
 
 #pragma mark WKDownloadDelegate
 
-- (void)webView:(WKWebView * _Nonnull)webView navigationResponse:(WKNavigationResponse * _Nonnull)navigationResponse didBecomeDownload:(WKDownload * _Nonnull)download API_AVAILABLE(macos(11.3), ios(14.5));
+- (void)webView:(WKWebView*)webView navigationResponse:(WKNavigationResponse*)navigationResponse 
+                                     didBecomeDownload:(WKDownload*)download API_AVAILABLE(macos(11.3), ios(14.5));
 
-- (void)download:(WKDownload * _Nonnull)download decideDestinationUsingResponse:(NSURLResponse * _Nonnull)response suggestedFilename:(NSString * _Nonnull)filename completionHandler:(void (^ _Nonnull)(NSURL * _Nullable))completionHandler API_AVAILABLE(macos(11.3), ios(14.5));
+- (void)download:(WKDownload*)download decideDestinationUsingResponse:(NSURLResponse*)response 
+                                                    suggestedFilename:(NSString*)filename 
+                                                    completionHandler:(void (^)(NSURL* _Nullable))completionHandler API_AVAILABLE(macos(11.3), ios(14.5));
 
-- (void)download:(WKDownload * _Nonnull)download didReceiveData:(int64_t)length API_AVAILABLE(macos(11.3), ios(14.5));
+- (void)download:(WKDownload*)download didReceiveData:(int64_t)length API_AVAILABLE(macos(11.3), ios(14.5));
 
-- (void)download:(WKDownload * _Nonnull)download didFailWithError:(NSError * _Nonnull)error API_AVAILABLE(macos(11.3), ios(14.5));
+- (void)download:(WKDownload*)download didFailWithError:(NSError*)error API_AVAILABLE(macos(11.3), ios(14.5));
 
-- (void)downloadDidFinish:(WKDownload * _Nonnull)download API_AVAILABLE(macos(11.3), ios(14.5));
+- (void)downloadDidFinish:(WKDownload*)download API_AVAILABLE(macos(11.3), ios(14.5));
+
+NS_ASSUME_NONNULL_END
 
 @end

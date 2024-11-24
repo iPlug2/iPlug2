@@ -37,6 +37,7 @@
 }
 
 - (instancetype)initWithFrame:(CGRect)frame configuration:(WKWebViewConfiguration *)configuration;
+
 - (void)setEnableInteraction:(bool)enable;
 
 #ifdef OS_MAC
@@ -45,4 +46,3 @@
 #endif
 
 @end
-

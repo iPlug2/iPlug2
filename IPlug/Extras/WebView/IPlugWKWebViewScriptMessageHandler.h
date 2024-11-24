@@ -38,27 +38,28 @@ class IWebView;
 @class IPLUG_WKWEBVIEW;
 
 @interface IPLUG_WKSCRIPTMESSAGEHANDLER : NSObject <WKScriptMessageHandler, WKURLSchemeHandler>
+NS_ASSUME_NONNULL_BEGIN
 {
-  iplug::IWebView* _Nonnull mIWebView;
+  iplug::IWebView* mIWebView;
   NSURL* _Nullable downloadDestinationURL;
 }
 
 - (void)dealloc;
 
-- (id _Nonnull)initWithIWebView:(iplug::IWebView* _Nonnull)webView;
+- (id)initWithIWebView:(iplug::IWebView*)webView;
 
-- (void)userContentController:(nonnull WKUserContentController*)userContentController 
-      didReceiveScriptMessage:(nonnull WKScriptMessage*)message;
+- (void)userContentController:(WKUserContentController*)userContentController 
+      didReceiveScriptMessage:(WKScriptMessage*)message;
 
 #pragma mark - WKURLSchemeHandler
 
-- (NSURL* _Nullable)changeURLScheme:(NSURL* _Nonnull)url toScheme:(NSString* _Nonnull)newScheme;
+- (NSURL* _Nullable)changeURLScheme:(NSURL*)url toScheme:(NSString*)newScheme;
 
-- (void)webView:(nonnull WKWebView *)webView 
-startURLSchemeTask:(nonnull id<WKURLSchemeTask>)urlSchemeTask API_AVAILABLE(macos(10.13));
+- (void)webView:(WKWebView*)webView 
+startURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask API_AVAILABLE(macos(10.13));
 
-- (void)webView:(nonnull WKWebView *)webView 
-stopURLSchemeTask:(nonnull id<WKURLSchemeTask>)urlSchemeTask API_AVAILABLE(macos(10.13));
+- (void)webView:(WKWebView*)webView 
+stopURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask API_AVAILABLE(macos(10.13));
 
+NS_ASSUME_NONNULL_END
 @end
-

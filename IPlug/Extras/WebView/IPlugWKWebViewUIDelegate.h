@@ -36,13 +36,16 @@ class IWebView;
 }
 
 @interface IPLUG_WKWEBVIEW_UI_DELEGATE : NSObject <WKUIDelegate>
+NS_ASSUME_NONNULL_BEGIN
 {
-  iplug::IWebView* _Nonnull mIWebView;
+  iplug::IWebView* mIWebView;
 }
 
-- (id _Nonnull)initWithIWebView:(iplug::IWebView* _Nonnull)webView;
+- (id)initWithIWebView:(iplug::IWebView*)webView;
 
-- (void)webView:(WKWebView *_Nonnull)webView runOpenPanelWithParameters:(WKOpenPanelParameters *_Nullable)parameters 
-  initiatedByFrame:(WKFrameInfo *_Nonnull)frame completionHandler:(void (^_Nullable)(NSArray<NSURL *> * _Nullable URLs))completionHandler;
+- (void)webView:(WKWebView*)webView runOpenPanelWithParameters:(WKOpenPanelParameters*)parameters 
+                                              initiatedByFrame:(WKFrameInfo*)frame 
+                                             completionHandler:(void (^)(NSArray<NSURL*>* _Nullable URLs))completionHandler;
 
+NS_ASSUME_NONNULL_END
 @end

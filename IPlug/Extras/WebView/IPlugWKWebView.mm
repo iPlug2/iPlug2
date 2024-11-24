@@ -111,7 +111,7 @@
 #endif
 }
 
-- (BOOL) allowsLinkPreview
+- (BOOL)allowsLinkPreview
 {
   return false;
 }

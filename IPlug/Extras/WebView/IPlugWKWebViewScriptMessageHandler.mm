@@ -38,7 +38,7 @@ using namespace iplug;
 
 @implementation IPLUG_WKSCRIPTMESSAGEHANDLER
 
--(id _Nonnull) initWithIWebView:(IWebView* _Nonnull) webView
+-(id) initWithIWebView:(IWebView*) webView
 {
   self = [super init];
   
@@ -53,7 +53,7 @@ using namespace iplug;
   mIWebView = nullptr;
 }
 
-- (void) userContentController:(nonnull WKUserContentController*) userContentController didReceiveScriptMessage:(nonnull WKScriptMessage*) message
+- (void) userContentController:(WKUserContentController*) userContentController didReceiveScriptMessage:(WKScriptMessage*) message
 {
   if ([[message name] isEqualToString:@"callback"])
   {
@@ -64,14 +64,14 @@ using namespace iplug;
   }
 }
 
-- (NSURL* _Nullable) changeURLScheme:(NSURL* _Nonnull) url toScheme:(NSString* _Nonnull) newScheme
+- (NSURL*) changeURLScheme:(NSURL*) url toScheme:(NSString*) newScheme
 {
   NSURLComponents* components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
   components.scheme = newScheme;
   return components.URL;
 }
 
-- (void) webView:(nonnull WKWebView *)webView startURLSchemeTask:(nonnull id<WKURLSchemeTask>)urlSchemeTask  API_AVAILABLE(macos(10.13)){
+- (void) webView:(WKWebView *)webView startURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask  API_AVAILABLE(macos(10.13)){
 
   NSString* customUrlScheme = [NSString stringWithUTF8String:mIWebView->GetCustomUrlScheme()];
   const BOOL useCustomUrlScheme = [customUrlScheme length];
@@ -117,7 +117,7 @@ using namespace iplug;
   }
 }
 
-- (void) webView:(nonnull WKWebView *)webView stopURLSchemeTask:(nonnull id<WKURLSchemeTask>)urlSchemeTask  API_AVAILABLE(macos(10.13)){
+- (void) webView:(WKWebView *)webView stopURLSchemeTask:(id<WKURLSchemeTask>)urlSchemeTask  API_AVAILABLE(macos(10.13)){
   
 }
 
