@@ -85,7 +85,7 @@ public:
     }
   }
   
-  /** This variation can be used if you need to supply multiple controls with the same ISenderData, overrideing the tags in the data packet
+  /** This variation can be used if you need to supply multiple controls with the same ISenderData, overriding the tags in the data packet
    @param dlg The editor delegate
    @param ctrlTags A list of control tags that should receive the updates from this sender */
   void TransmitDataToControlsWithTags(IEditorDelegate& dlg, const std::initializer_list<int>& ctrlTags)
