@@ -1329,12 +1329,14 @@ void LICE_ScaledBlit(LICE_IBitmap *dest, LICE_IBitmap *src,
   {
     if (ficurx < 0) // increase dstx, decrease dstw
     {
-      int n = (int)((fidx-1-ficurx)/fidx);
-      dstw-=n;
-      dstx+=n;
-      ficurx+=fidx*n;
+      double n = ceil( - (ficurx/(double)fidx));
+      if (WDL_NOT_NORMALLY(n<0)) return;
+      if (n >= dstw) return;
+      dstw-=(int)n;
+      dstx+=(int)n;
+      ficurx+=fidx*(int)n;
     }
-    if ((ficurx + fidx*(dstw-1)) >= srcbm_w*65536.0)
+    if ((ficurx + fidx*(double)(dstw-1)) >= srcbm_w*65536.0)
     {
       int neww = (int)(((srcbm_w-1)*65536.0 - ficurx)/fidx);
       if (neww < dstw) dstw=neww;
@@ -1349,12 +1351,14 @@ void LICE_ScaledBlit(LICE_IBitmap *dest, LICE_IBitmap *src,
   {
     if (ficury < 0) // increase dsty, decrease dsth
     {
-      int n = (int) ((fidy-1-ficury)/fidy);
-      dsth-=n;
-      dsty+=n;
-      ficury+=fidy*n;
+      double n = ceil( - (ficury / (double) fidy));
+      if (WDL_NOT_NORMALLY(n<0)) return;
+      if (n >= dsth) return;
+      dsth-=(int)n;
+      dsty+=(int)n;
+      ficury+=fidy*(int)n;
     }
-    if ((ficury + fidy*(dsth-1)) >= srcbm_h*65536.0)
+    if ((ficury + fidy*(double)(dsth-1)) >= srcbm_h*65536.0)
     {
       int newh = (int)(((srcbm_h-1)*65536.0 - ficury)/fidy);
       if (newh < dsth) dsth=newh;
@@ -1375,6 +1379,8 @@ void LICE_ScaledBlit(LICE_IBitmap *dest, LICE_IBitmap *src,
 
   const int srcoffs_x = (int)((ficurx + (fidx<0 ? fidx*dstw : 0))*(1.0/65536.0));
   const int srcoffs_y = (int)((ficury + (fidy<0 ? fidy*dsth : 0))*(1.0/65536.0));
+
+  if (srcoffs_y < 0 || srcoffs_x < 0) return;
 
   if (src->isFlipped())
   {
