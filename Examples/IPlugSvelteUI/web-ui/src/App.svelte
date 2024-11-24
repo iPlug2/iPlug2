@@ -9,8 +9,9 @@
   // Handle parameter value changes from the plugin
   window.SPVFD = (paramIdx: number, val: number) => {
     if (paramIdx === 0) {
-      const realValue = 0 + (val * (100 - 0)); // Convert normalized value using min/max
-      gainKnob?.setValueFromPlugin(realValue);
+      // val is already normalized (0-1), just pass it directly to the knob
+      // the knob component will handle converting to real value based on its min/max props
+      gainKnob?.setValueFromPlugin(val);
     }
   };
 </script>

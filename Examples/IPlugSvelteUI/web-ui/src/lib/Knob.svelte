@@ -21,7 +21,8 @@
   let currentValue = defaultValue;
 
   export function setValueFromPlugin(newValue) {
-    currentValue = newValue;
+    // convert normalized value (0-1) to real value based on min/max
+    currentValue = minValue + newValue * (maxValue - minValue);
   }
 
   function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
