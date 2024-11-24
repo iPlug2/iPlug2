@@ -80,14 +80,14 @@
 		4F3EE1E7231438D000004786 /* AUv3Framework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78BE0222E73D0800AD537E /* AUv3Framework.framework */; };
 		4F3EE1E9231438D000004786 /* AUv3Framework.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4F78BE0222E73D0800AD537E /* AUv3Framework.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4F3EE1EB231438D000004786 /* IPlugSvelteUI.appex in Embed AUv3 App Extension */ = {isa = PBXBuildFile; fileRef = 4F3907602013EBA300DDA490 /* IPlugSvelteUI.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		4F3F6E472CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; };
-		4F3F6E492CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; };
-		4F3F6E4B2CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; };
-		4F3F6E4D2CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; };
+		4F3F6E472CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F3F6E492CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F3F6E4B2CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F3F6E4D2CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F3F6E4F2CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; };
 		4F3F6E512CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F3F6E532CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F3F6E552CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; };
+		4F3F6E552CCBDFF700C41C6D /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F3F6E462CCBDFF700C41C6D /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F472103209B294400A0A0A8 /* IPlugVST3_Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFBB8F220863B0900DDD0E7 /* IPlugVST3_Controller.cpp */; };
 		4F5C5F6921BED05B00E024A7 /* swellappmain.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4FD16D4613B635C8001D0217 /* swellappmain.mm */; };
 		4F5C5F6B21BED08700E024A7 /* swell-appstub.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F5C5F6A21BED08700E024A7 /* swell-appstub.mm */; };
@@ -1691,8 +1691,6 @@
 						DevelopmentTeam = 686EDA2T8T;
 					};
 					4FD16A0813B63081001D0217 = {
-						DevelopmentTeam = 686EDA2T8T;
-						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.Mac = {
 								enabled = 0;
@@ -2338,6 +2336,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
@@ -2416,6 +2415,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEPLOYMENT_LOCATION = YES;
@@ -3402,7 +3402,6 @@
 					"$(inherited)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.app.${BINARY_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
 			};
@@ -3430,7 +3429,6 @@
 					"$(inherited)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.app.${BINARY_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
 			};
@@ -3458,7 +3456,6 @@
 					"$(inherited)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.AcmeInc.app.${BINARY_NAME}";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = NO;
 				WRAPPER_EXTENSION = app;
 			};
@@ -3552,6 +3549,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)";
 				DEPLOYMENT_LOCATION = YES;
 				DEVELOPMENT_TEAM = "$(DEVELOPMENT_TEAM)";
