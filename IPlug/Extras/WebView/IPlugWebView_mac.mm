@@ -251,6 +251,18 @@ void IWebViewImpl::LoadFile(const char* fileName, const char* _Nullable bundleID
 
   if (useCustomUrlScheme)
   {
+#if defined OS_MAC && defined _DEBUG
+    NSString* homeDir = NSHomeDirectory();
+    
+    if ([homeDir containsString:@"Library/Containers/"])
+    {
+      NSString* absolutePath = [[pageUrl path] stringByStandardizingPath];
+      if (![absolutePath hasPrefix:homeDir]) {
+        NSLog(@"Warning: Attempting to load URL outside container directory in sandboxed app: %@", absolutePath);
+      }
+    }
+#endif
+    
     NSURLRequest* req = [[NSURLRequest alloc] initWithURL:pageUrl];
     [mWKWebView loadRequest:req];
   }

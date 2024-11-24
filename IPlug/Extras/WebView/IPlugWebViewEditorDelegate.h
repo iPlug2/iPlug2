@@ -194,6 +194,13 @@ public:
     mMaxJSStringLength = length;
   }
 
+  /** Load index.html (from plugin src dir in debug builds, and from bundle in release builds) on desktop
+   * Note: if your debug build is code-signed with the hardened runtime It won't be able to load the file outside it's sandbox, and this
+   * will fail.
+   * On iOS, this will load index.html from the bundle
+   * @param pathOfPluginSrc - path to the plugin src directory
+   * @param bundleid - the bundle id, used to load the correct index.html from the bundle
+   */
   void LoadIndexHtml(const char* pathOfPluginSrc, const char* bundleid)
   {
 #if !defined OS_IOS && defined _DEBUG
