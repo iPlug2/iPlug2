@@ -76,6 +76,12 @@ public:
   void SendParameterValueFromDelegate(int paramIdx, double value, bool normalized) override
   {
     WDL_String str;
+    
+    if (!normalized)
+    {
+      value = GetParam(paramIdx)->ToNormalized(value);
+    }
+    
     str.SetFormatted(mMaxJSStringLength, "SPVFD(%i, %f)", paramIdx, value);
     EvaluateJavaScript(str.Get());
   }
