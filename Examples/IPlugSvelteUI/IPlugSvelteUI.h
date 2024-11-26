@@ -34,11 +34,8 @@ public:
   IPlugSvelteUI(const InstanceInfo& info);
   
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
-  void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnReset() override;
   void OnIdle() override;
-  bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
-  void OnParamChange(int paramIdx) override;
 
 private:
   iplug::IPeakSender<2> mSender;

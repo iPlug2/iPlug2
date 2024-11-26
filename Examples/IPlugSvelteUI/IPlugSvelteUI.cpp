@@ -26,17 +26,13 @@ IPlugSvelteUI::IPlugSvelteUI(const InstanceInfo& info)
 void IPlugSvelteUI::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   const double gain = GetParam(kGain)->DBToAmp();
-  
-  sample maxVal = 0.;
-  
+    
   mOscillator.ProcessBlock(inputs[0], nFrames); // comment for audio in
 
   for (int s = 0; s < nFrames; s++)
   {
     outputs[0][s] = inputs[0][s] * mGainSmoother.Process(gain);
-    outputs[1][s] = outputs[0][s]; // copy left
-    
-    maxVal += std::fabs(outputs[0][s]);
+    outputs[1][s] = outputs[0][s]; // copy left    
   }
   
   mSender.ProcessBlock(outputs, nFrames, kCtrlTagMeter);
@@ -49,25 +45,7 @@ void IPlugSvelteUI::OnReset()
   mGainSmoother.SetSmoothTime(20., sr);
 }
 
-bool IPlugSvelteUI::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
-{
-  return false;
-}
-
 void IPlugSvelteUI::OnIdle()
 {
   mSender.TransmitData(*this);
-}
-
-void IPlugSvelteUI::OnParamChange(int paramIdx)
-{
-  DBGMSG("gain %f\n", GetParam(paramIdx)->Value());
-}
-
-void IPlugSvelteUI::ProcessMidiMsg(const IMidiMsg& msg)
-{
-  TRACE;
-  
-  msg.PrintMsg();
-  SendMidiMsg(msg);
 }
