@@ -51,11 +51,17 @@ void IPlugWebUI::OnReset()
 bool IPlugWebUI::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
   if (msgTag == kMsgTagButton1)
-    Resize(512, 335);
-  else if(msgTag == kMsgTagButton2)
-    Resize(1024, 335);
-  else if(msgTag == kMsgTagButton3)
-    Resize(1024, 768);
+  {
+    EditorResize(300, 300);
+  }
+  else if (msgTag == kMsgTagButton2)
+  {
+    EditorResize(600, 600);
+  }
+  else if (msgTag == kMsgTagButton3)
+  {
+    EditorResize(1024, 768);
+  }
   else if (msgTag == kMsgTagBinaryTest)
   {
     auto uint8Data = reinterpret_cast<const uint8_t*>(pData);
