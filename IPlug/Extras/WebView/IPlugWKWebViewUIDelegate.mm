@@ -58,7 +58,7 @@ using namespace iplug;
   [openPanel setCanChooseDirectories:NO];
   [openPanel setAllowsMultipleSelection:parameters.allowsMultipleSelection];
   
-  [openPanel beginWithCompletionHandler:^(NSInteger result) {
+  [openPanel beginSheetModalForWindow:webView.window completionHandler:^(NSInteger result) {
     if (result == NSModalResponseOK) {
       completionHandler(openPanel.URLs);
     } else {
