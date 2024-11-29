@@ -69,10 +69,10 @@ private:
   RECT GetScaledRect(float x, float y, float w, float h, float scale)
   {
     RECT r;
-    r.left = static_cast<LONG>(x * scale);
-    r.top = static_cast<LONG>(y * scale);
-    r.right = static_cast<LONG>((x + w) * scale);
-    r.bottom = static_cast<LONG>((y + h) * scale);
+    r.left = static_cast<LONG>(std::ceil(x * scale));
+    r.top = static_cast<LONG>(std::ceil(y * scale));
+    r.right = static_cast<LONG>(std::ceil((x + w) * scale)) + 1;
+    r.bottom = static_cast<LONG>(std::ceil((y + h) * scale)) + 1;
     return r;
   }
 
