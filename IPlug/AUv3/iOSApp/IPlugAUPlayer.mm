@@ -121,6 +121,8 @@ bool isInstrument()
                                        : AVAudioSessionCategoryPlayAndRecord
                   withOptions:options error: &error];
   
+  [session setAllowHapticsAndSystemSoundsDuringRecording: YES error:nil];
+
   if (error)
   {
     NSLog(@"Error setting category: %@", error);
