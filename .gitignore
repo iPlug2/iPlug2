@@ -47,3 +47,4 @@ PodFile.lock
 Examples/*/EBWebView
 Examples/*/packages
 Examples/IPlugConvoEngine/r8brain
+**/node_modules
