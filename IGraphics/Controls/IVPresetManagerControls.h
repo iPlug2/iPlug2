@@ -168,6 +168,8 @@ class IVDiskPresetManagerControl : public IDirBrowseControlBase
                                  , public IVectorBase
 {
 public:
+  using OnLoadFunc = std::function<void(const WDL_String& path)>;
+
   enum class ESubControl
   {
     LeftButton = 0,
@@ -176,9 +178,16 @@ public:
     LoadButton
   };
 
-  IVDiskPresetManagerControl(const IRECT& bounds, const char* presetPath, const char* fileExtension, bool showFileExtensions = true, const char* label = "", const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false).WithLabelText(DEFAULT_LABEL_TEXT.WithVAlign(EVAlign::Middle)))
+  IVDiskPresetManagerControl(const IRECT& bounds,
+                             const char* presetPath,
+                             const char* fileExtension,
+                             bool showFileExtensions = true,
+                             const char* label = "",
+                             const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false).WithLabelText(DEFAULT_LABEL_TEXT.WithVAlign(EVAlign::Middle)),
+                             OnLoadFunc onLoadFunc = nullptr)
   : IDirBrowseControlBase(bounds, fileExtension, showFileExtensions)
   , IVectorBase(style)
+  , mOnLoadFunc(onLoadFunc)
   {
     AttachIControl(this, label);
     mIgnoreMouse = true;
@@ -284,6 +293,12 @@ public:
       }
       mPresetNameButton->SetLabelStr(fileName.get_filepart());
 
+
+      if (mOnLoadFunc)
+      {
+        mOnLoadFunc(fileName);
+      }
+
       // If it's just a single folder, we can set the
       // chosen item index to mSelectedItemIndex
       // in order to pop up the menu at the
@@ -311,6 +326,7 @@ private:
   }
 
   IVButtonControl* mPresetNameButton = nullptr;
+  OnLoadFunc mOnLoadFunc;
 };
 
 END_IGRAPHICS_NAMESPACE
