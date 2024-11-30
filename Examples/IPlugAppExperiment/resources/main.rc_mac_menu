@@ -1,0 +1,17 @@
+SWELL_DEFINE_MENU_RESOURCE_BEGIN(IDR_MENU1)
+    POPUP "&File"
+    BEGIN
+        MENUITEM "&Preferences...\tCtrl+,",     ID_PREFERENCES
+        MENUITEM "&Quit",                       ID_QUIT
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About",                      ID_ABOUT
+        MENUITEM "&Read Manual",                ID_HELP
+    END
+SWELL_DEFINE_MENU_RESOURCE_END(IDR_MENU1)
+
+
+
+//EOF
+
