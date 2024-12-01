@@ -129,7 +129,6 @@ EXCLUDE                = ../IGraphics/NanoVG \
                          ../IPlug/AAX/IPlugAAX_Parameters.h \
                          ../IPlug/AAX/IPlugAAX_TaperDelegate.h \
                          ../IPlug/AAX/IPlugAAX_view_interface.h \
-                         ../IPlug/Extras \
                          ../IPlug/AUv3/BufferedAudioBus.hpp \
                          ../IPlug/AUv3/GenericUI.h \
                          ../IPlug/AUv3/GenericUI.mm \
