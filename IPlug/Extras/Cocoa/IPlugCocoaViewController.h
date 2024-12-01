@@ -27,7 +27,7 @@
 #endif
 
 /** An objc view controller base which reproduces some functionality from EditorDelegate in objc */
-@interface IPlugCocoaViewController : PLATFORM_VC
+@interface IPLUG_COCOAVIEWCONTROLLER : PLATFORM_VC
 {
   void* editorDelegate;
 }

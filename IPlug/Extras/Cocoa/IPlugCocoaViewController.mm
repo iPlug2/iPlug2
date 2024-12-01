@@ -14,7 +14,7 @@
 
 using namespace iplug;
 
-@implementation IPlugCocoaViewController
+@implementation IPLUG_COCOAVIEWCONTROLLER
 
 - (void) setEditorDelegate: (void*) _editorDelegate
 {
