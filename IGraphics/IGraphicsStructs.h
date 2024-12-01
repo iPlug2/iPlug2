@@ -787,6 +787,17 @@ struct IRECT
     return IRECT(l, t, l+w, t+h);
   }
   
+  /** Create a new IRECT of size (y,h) centred at the given position (x,y)
+   * @param x Mid horizontal point of new IRECT
+   * @param y Mid vertical point of new IRECT
+   * @param w Width of new IRECT
+   * @param h Height of new IRECT
+   * @return the new IRECT */
+  static IRECT MakeMidXYWH(float x, float y, float w, float h)
+  {
+    return IRECT(x-(w/2.0), y-(h/2.0), x+(w/2.0), y+(h/2.0));
+  }
+  
   /** @return bool true if all the fields of this IRECT are 0 */
   bool Empty() const
   {
