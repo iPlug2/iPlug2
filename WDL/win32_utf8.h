@@ -300,11 +300,11 @@ typedef char wdl_utf8_chk_stat_types_assert_failed[sizeof(struct stat) == sizeof
 #define DrawTextUTF8 DrawText
 #define statUTF8 stat
 #define fopenUTF8 fopen
-#define WDL_UTF8_HookComboBox(x)
-#define WDL_UTF8_HookListView(x)
-#define WDL_UTF8_HookListBox(x)
-#define WDL_UTF8_HookTreeView(x)
-#define WDL_UTF8_HookTabCtrl(x)
+#define WDL_UTF8_HookComboBox(x) do { if (WDL_NORMALLY(x)) { } } while(0)
+#define WDL_UTF8_HookListView(x) do { if (WDL_NORMALLY(x)) { } } while(0)
+#define WDL_UTF8_HookListBox(x) do { if (WDL_NORMALLY(x)) { } } while(0)
+#define WDL_UTF8_HookTreeView(x) do { if (WDL_NORMALLY(x)) { } } while(0)
+#define WDL_UTF8_HookTabCtrl(x) do { if (WDL_NORMALLY(x)) { } } while(0)
 #define WDL_UTF8_ListViewConvertDispInfoToW(x)
 
 #define LB_GETTEXTUTF8 LB_GETTEXT

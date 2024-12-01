@@ -1421,7 +1421,7 @@ static LRESULT WINAPI cbedit_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 
 void WDL_UTF8_HookListBox(HWND h)
 {
-  if (!h||
+  if (WDL_NOT_NORMALLY(!h) ||
     #ifdef WDL_SUPPORT_WIN9X
       GetVersion()>=0x80000000||
     #endif
@@ -1666,7 +1666,7 @@ static LRESULT WINAPI lv_newProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 
 void WDL_UTF8_HookListView(HWND h)
 {
-  if (!h||
+  if (WDL_NOT_NORMALLY(!h) ||
     #ifdef WDL_SUPPORT_WIN9X
       GetVersion()>=0x80000000||
     #endif
@@ -1678,7 +1678,7 @@ void WDL_UTF8_HookListView(HWND h)
 
 void WDL_UTF8_HookTreeView(HWND h)
 {
-  if (!h||
+  if (WDL_NOT_NORMALLY(!h) ||
     #ifdef WDL_SUPPORT_WIN9X
       GetVersion()>=0x80000000||
     #endif
@@ -1689,7 +1689,7 @@ void WDL_UTF8_HookTreeView(HWND h)
 
 void WDL_UTF8_HookTabCtrl(HWND h)
 {
-  if (!h||
+  if (WDL_NOT_NORMALLY(!h) ||
     #ifdef WDL_SUPPORT_WIN9X
       GetVersion()>=0x80000000||
     #endif
