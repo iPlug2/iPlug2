@@ -43,7 +43,8 @@ BEGIN_IPLUG_NAMESPACE
  *  NOTES:
  *  A parameter VALUE is a floating point number linked to an integer parameter index. TODO: Normalised ?
  *  A parameter OBJECT (IParam) is an instance of the IParam class as defined in IPlugParameter.h
- *  A parameter OBJECT is also referred to as a "param", in method names such as IEditorDelegate::GetParam(int paramIdx) and IControl::GetParam(). */
+ *  A parameter OBJECT is also referred to as a "param", in method names such as IEditorDelegate::GetParam(int paramIdx) and IControl::GetParam().
+ * @ingroup EditorDelegates */
 class IEditorDelegate
 {
 public:
