@@ -230,6 +230,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationWillEnterForegroundNotification:) name:UIApplicationWillEnterForegroundNotification object:nil];
   mColorPickerHandlerFunc = nullptr;
   
+  UIDropInteraction *dropInteraction = [[UIDropInteraction alloc] initWithDelegate:self];
+  [self addInteraction:dropInteraction];
+
   return self;
 }
 
@@ -929,6 +932,27 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
     mGraphics->OnAppearanceChanged([self.traitCollection userInterfaceStyle] == UIUserInterfaceStyleDark ? EUIAppearance::Dark
                                                                                                          : EUIAppearance::Light);
   }
+}
+
+#pragma mark - UIDropInteractionDelegate
+
+- (BOOL) dropInteraction:(UIDropInteraction*) interaction canHandleSession:(id<UIDropSession>)session
+{
+    return [session canLoadObjectsOfClass:[NSURL class]];
+}
+
+- (void) dropInteraction:(UIDropInteraction*) interaction sessionDidEnter:(id<UIDropSession>)session
+{
+    // Update UI to indicate that the view can accept the drop.
+}
+
+- (void) dropInteraction:(UIDropInteraction*) interaction performDrop:(id<UIDropSession>)session
+{
+  [session loadObjectsOfClass:[NSURL class] completion:^(NSArray<__kindof id<NSItemProviderReading>> * _Nonnull objects) {
+    for (NSURL *url in objects) {
+      
+    }
+  }];
 }
 
 - (void) getLastTouchLocation: (float&) x : (float&) y
