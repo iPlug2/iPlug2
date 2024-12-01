@@ -12,22 +12,22 @@ TODO: explain
 | installer/license.rtf                     | License text for macOS and Windows installer                                                                            |
 | installer/readmemacOS.rtf                 | macOS installer readme page                                                                                             |
 | installer/readmewin.rtf                   | Windows installer readme page                                                                                           |
-| IPlugEffect-app.props                     | Visual Studio 2019 property sheet to provide settings that are shared between standalone x86/x64                        |
-| IPlugEffect-app.vcxproj                   | VS2019 project for standalone                                                                                           |
-| IPlugEffect-app.vcxproj.filters           | VS2019 settings file (don't edit manually)                                                                              |
-| IPlugEffect-app.vcxproj.user              | VS2019 settings file (don't edit manually)                                                                              |
-| IPlugEffect-vst2.props                    | VS2019 property sheet to provide settings that are shared between VST2 x86/x64                                          |
-| IPlugEffect-vst2.vcxproj                  | VS2019 project for VST2                                                                                                 |
-| IPlugEffect-vst2.vcxproj.user             | VS2019 settings file (don't edit manually)                                                                              |
-| IPlugEffect-vst3.props                    | VS2019 property sheet to provide settings that are shared between VST3 x86/x64                                          |
-| IPlugEffect-vst3.vcxproj                  | VS2019 project for VST3                                                                                                 |
-| IPlugEffect-vst3.vcxproj.filters          | VS2019 settings file (don't edit manually)                                                                              |
-| IPlugEffect-vst3.vcxproj.user             | VS2019 settings file (don't edit manually)                                                                              |
+| IPlugEffect-app.props                     | Visual Studio 2022 property sheet to provide settings that are shared between standalone x86/x64                        |
+| IPlugEffect-app.vcxproj                   | VS2022 project for standalone                                                                                           |
+| IPlugEffect-app.vcxproj.filters           | VS2022 settings file (don't edit manually)                                                                              |
+| IPlugEffect-app.vcxproj.user              | VS2022 settings file (don't edit manually)                                                                              |
+| IPlugEffect-vst2.props                    | VS2022 property sheet to provide settings that are shared between VST2 x86/x64                                          |
+| IPlugEffect-vst2.vcxproj                  | VS2022 project for VST2                                                                                                 |
+| IPlugEffect-vst2.vcxproj.user             | VS2022 settings file (don't edit manually)                                                                              |
+| IPlugEffect-vst3.props                    | VS2022 property sheet to provide settings that are shared between VST3 x86/x64                                          |
+| IPlugEffect-vst3.vcxproj                  | VS2022 project for VST3                                                                                                 |
+| IPlugEffect-vst3.vcxproj.filters          | VS2022 settings file (don't edit manually)                                                                              |
+| IPlugEffect-vst3.vcxproj.user             | VS2022 settings file (don't edit manually)                                                                              |
 | IPlugEffect.cpp                           | Source code - plugin's implementation                                                                                   |
 | IPlugEffect.exp                           | macOS auv2 symbol exports file                                                                                          |
 | IPlugEffect.h                             | Source code - plugin's interface                                                                                        |
 | IPlugEffect.rc                            | Windows .rc resource file                                                                                               |
-| IPlugEffect.sln                           | VS2019 solution for Windows VST2, VST3 and standalone builds                                                            |
+| IPlugEffect.sln                           | VS2022 solution for Windows VST2, VST3 and standalone builds                                                            |
 | IPlugEffect.xcconfig                      | Xcode xcconfig file to provide settings that span various targets (includes ../../common-mac.xcconfig)                  |
 | IPlugEffect.xcodeproj                     | Main xcode project (3.2) for all macOS builds                                                                           |
 | makedist-mac.command                      | macOS script to build all binaries and package them in an installer with accompanying files                             |
