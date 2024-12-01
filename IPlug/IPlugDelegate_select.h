@@ -12,6 +12,7 @@
  * @file
  * @brief Used for choosing an editor delegate @see IEditorDelegate
  * @defgroup EditorDelegates IPlug::EditorDelegates
+ * EditorDelegates are base classes that handle communication between the plug-in and the user interface
  */
 
 #if defined COCOA_EDITOR_DELEGATE
