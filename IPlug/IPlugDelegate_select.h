@@ -11,6 +11,7 @@
 /**
  * @file
  * @brief Used for choosing an editor delegate @see IEditorDelegate
+ * @defgroup EditorDelegates IPlug::EditorDelegates
  */
 
 #if defined COCOA_EDITOR_DELEGATE
