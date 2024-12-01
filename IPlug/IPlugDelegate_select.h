@@ -24,11 +24,6 @@
   #include "IPlugEditorDelegate.h"
   using EDITOR_DELEGATE_CLASS = iplug::IEditorDelegate;
 #else
-  #if defined WEBSOCKET_SERVER
-    #include "IWebsocketEditorDelegate.h"
-    using EDITOR_DELEGATE_CLASS = iplug::IWebsocketEditorDelegate;
-  #else
-    #include "IGraphicsEditorDelegate.h"
-    using EDITOR_DELEGATE_CLASS = iplug::igraphics::IGEditorDelegate;
-  #endif
+  #include "IGraphicsEditorDelegate.h"
+  using EDITOR_DELEGATE_CLASS = iplug::igraphics::IGEditorDelegate;
 #endif
