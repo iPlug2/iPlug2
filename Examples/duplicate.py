@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # Python shell script for Duplicating iPlug2 Projects
-# Oli Larkin 2012-2022 http://www.olilarkin.co.uk
+# Oli Larkin 2012-2024 http://www.olilarkin.co.uk
 # License: WTFPL http://sam.zoy.org/wtfpl/COPYING
 # Modified from this script by Bibha Tripathi http://code.activestate.com/recipes/435904-sedawk-python-script-to-rename-subdirectories-of-a/
 # Author accepts no responsibilty for wiping your hd
@@ -39,7 +39,7 @@ VERSION = "0.96"
 # binary files that we don't want to do find and replace inside
 FILTERED_FILE_EXTENSIONS = [".ico",".icns", ".pdf", ".png", ".zip", ".exe", ".wav", ".aif"]
 # files that we don't want to duplicate
-DONT_COPY = (".vs", "*.exe", "*.dmg", "*.pkg", "*.mpkg", "*.svn", "*.ncb", "*.suo", "*sdf", "ipch", "build-*", "*.layout", "*.depend", ".DS_Store", "xcuserdata", "*.aps")
+DONT_COPY = ("node_modules", ".vs", "*.exe", "*.dmg", "*.pkg", "*.mpkg", "*.svn", "*.ncb", "*.suo", "*sdf", "ipch", "build-*", "*.layout", "*.depend", ".DS_Store", "xcuserdata", "*.aps", ".reapeaks")
 
 SUBFOLDERS_TO_SEARCH = [
 "projects",
@@ -53,7 +53,11 @@ SUBFOLDERS_TO_SEARCH = [
 "xcuserdata",
 "en-osx.lproj",
 "project.xcworkspace",
-"Images.xcassets"
+"Images.xcassets",
+"web-ui",
+"ui",
+"UI",
+"DSP"
 ]
 
 def randomFourChar(chars=string.ascii_letters + string.digits):
