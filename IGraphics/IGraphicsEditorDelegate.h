@@ -25,7 +25,8 @@ BEGIN_IGRAPHICS_NAMESPACE
 class IGraphics;
 class IControl;
 
-/** An editor delegate base class for a SOMETHING that uses IGraphics for it's UI */
+/** An editor delegate base class that uses IGraphics for the UI
+* @ingroup EditorDelegates */
 class IGEditorDelegate : public IEditorDelegate
 {
   friend class IGraphics;

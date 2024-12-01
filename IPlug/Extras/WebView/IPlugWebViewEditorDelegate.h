@@ -36,9 +36,15 @@
 #include <functional>
 #include <filesystem>
 
+/**
+ * @file
+ * @copydoc WebViewEditorDelegate
+ */
+
 BEGIN_IPLUG_NAMESPACE
 
-/** This Editor Delegate allows using a platform native web view as the UI for an iPlug plugin */
+/** An editor delegate base class that uses a platform native webview for the UI
+* @ingroup EditorDelegates */
 class WebViewEditorDelegate : public IEditorDelegate
                             , public IWebView
 {

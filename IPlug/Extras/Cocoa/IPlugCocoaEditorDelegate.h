@@ -12,10 +12,15 @@
 
 #include "IPlugEditorDelegate.h"
 
-/** This EditorDelegate communicates... */
+/**
+ * @file
+ * @copydoc CocoaEditorDelegate
+ */
 
 BEGIN_IPLUG_NAMESPACE
 
+/** An editor delegate base class that uses Apple frameworks for the UI, either in Objective C, or Swift
+* @ingroup EditorDelegates */
 class CocoaEditorDelegate : public IEditorDelegate
 {
 public:
