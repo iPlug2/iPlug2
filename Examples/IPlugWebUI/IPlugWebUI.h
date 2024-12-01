@@ -22,11 +22,6 @@ enum EMsgTags
   kMsgTagBinaryTest = 3
 };
 
-enum EControlTags
-{
-  kCtrlTagMeter = 0,
-};
-
 class IPlugWebUI final : public Plugin
 {
 public:
@@ -35,7 +30,6 @@ public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnReset() override;
-  void OnIdle() override;
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
   void OnParamChange(int paramIdx) override;
   bool CanNavigateToURL(const char* url);
