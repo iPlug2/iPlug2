@@ -1021,11 +1021,12 @@ BOOL GetDlgItemText(HWND hwnd, int idx, char *text, int textlen)
   return true;
 }
 
-void CheckDlgButton(HWND hwnd, int idx, int check)
+BOOL CheckDlgButton(HWND hwnd, int idx, int check)
 {
   hwnd = GetDlgItem(hwnd,idx);
-  if (WDL_NOT_NORMALLY(!hwnd)) return;
+  if (WDL_NOT_NORMALLY(!hwnd)) return FALSE;
   SendMessage(hwnd,BM_SETCHECK,check,0);
+  return TRUE;
 }
 
 

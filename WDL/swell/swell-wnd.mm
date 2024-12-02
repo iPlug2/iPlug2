@@ -2802,12 +2802,16 @@ BOOL GetDlgItemText(HWND hwnd, int idx, char *text, int textlen)
   return FALSE;
 }
 
-void CheckDlgButton(HWND hwnd, int idx, int check)
+BOOL CheckDlgButton(HWND hwnd, int idx, int check)
 {
   NSView *pvw=(NSView *)GetDlgItem(hwnd,idx);
-  if (WDL_NOT_NORMALLY(!pvw)) return;
+  if (WDL_NOT_NORMALLY(!pvw)) return FALSE;
   if ([pvw isKindOfClass:[NSButton class]]) 
+  {
     [(NSButton*)pvw setState:(check&BST_INDETERMINATE)?NSMixedState:((check&BST_CHECKED)?NSOnState:NSOffState)];
+    return TRUE;
+  }
+  return FALSE;
 }
 
 

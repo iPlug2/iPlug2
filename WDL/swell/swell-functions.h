@@ -211,7 +211,7 @@ SWELL_API_DEFINE(int, GetWindowTextLength,(HWND))
 #endif
 
 
-SWELL_API_DEFINE(void, CheckDlgButton,(HWND hwnd, int idx, int check))
+SWELL_API_DEFINE(BOOL, CheckDlgButton,(HWND hwnd, int idx, int check))
 SWELL_API_DEFINE(int, IsDlgButtonChecked,(HWND hwnd, int idx))
 SWELL_API_DEFINE(void, EnableWindow,(HWND hwnd, int enable))
 SWELL_API_DEFINE(void, SetFocus,(HWND hwnd))
