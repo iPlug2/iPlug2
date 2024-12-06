@@ -51,7 +51,7 @@ public:
     });
   }
 
-  void OnDrop(const char* str) override
+  void OnDrop(const char* str, float x, float y) override
   {
     SetBitmap(str);
   }
