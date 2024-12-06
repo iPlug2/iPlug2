@@ -1576,6 +1576,9 @@ public:
    * @param appearance Light/Dark mode */
   void OnAppearanceChanged(EUIAppearance appearance);
   
+  /** Called by the platform class when the mouse focus moves to another window */
+  void OnLostFocus();
+  
   /** Get the UI Appearance (Light/Dark mode)
    * @return Light/Dark mode */
   virtual EUIAppearance GetUIAppearance() const { return EUIAppearance::Light; }
