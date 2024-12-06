@@ -14,7 +14,7 @@
  
  IPlug plug-in -> Standalone app wrapper, using Cockos' SWELL
  
- Oli Larkin 2014-2018
+ Oli Larkin 2014-2023
  
  Notes:
  
@@ -42,8 +42,6 @@
 
 #include "IPlugAPP.h"
 
-#include "config.h"
-
 #ifdef OS_WIN
   #include <WindowsX.h>
   #include <commctrl.h>
@@ -64,6 +62,12 @@
 
 #define OFF_TEXT "off"
 
+#ifdef OS_WIN
+#define GET_MENU() GetMenu(gHWND)
+#elif defined OS_MAC
+#define GET_MENU() SWELL_GetCurrentMenu()
+#endif
+
 extern HWND gHWND;
 extern HINSTANCE gHINSTANCE;
 
@@ -82,8 +86,30 @@ class IPlugAPPHost
 {
 public:
   
-  /** Used to manage changes to app i/o */
-  struct AppState
+  /** Used to store an audio device ID with a flag to indicate that there is no valid ID */
+  class ValidatedID
+  {
+  public:
+    
+    ValidatedID() : mID(0), mEmpty(true) {}
+    ValidatedID(uint32_t deviceID) : mID(deviceID), mEmpty(false) {}
+
+    /** Returns the device ID used by RTAudio to represent the device
+     * @return The device ID used by RTAudio to represent the device. */
+    uint32_t ID() const { return mID; }
+    
+    /** Returns a boolean indicating if the ID is empty (non-valid)
+     * @return A boolean indicating if the ID is empty (non-valid). */
+    bool IsEmpty() const  { return mEmpty; }
+    
+  private:
+    
+    uint32_t mID;
+    bool mEmpty;
+  };
+  
+  /** Used to manage changes to app I/O */
+  struct AppSettings
   {
     WDL_String mAudioInDev;
     WDL_String mAudioOutDev;
@@ -100,7 +126,7 @@ public:
     uint32_t mAudioOutChanL;
     uint32_t mAudioOutChanR;
     
-    AppState()
+    AppSettings()
     : mAudioInDev(DEFAULT_INPUT_DEV)
     , mAudioOutDev(DEFAULT_OUTPUT_DEV)
     , mMidiInDev(OFF_TEXT)
@@ -118,7 +144,7 @@ public:
     {
     }
     
-    AppState (const AppState& obj)
+    AppSettings (const AppSettings& obj)
     : mAudioInDev(obj.mAudioInDev.Get())
     , mAudioOutDev(obj.mAudioOutDev.Get())
     , mMidiInDev(obj.mMidiInDev.Get())
@@ -136,99 +162,144 @@ public:
     {
     }
     
-    bool operator==(const AppState& rhs) const {
+    bool operator==(const AppSettings& rhs) const {
       return (rhs.mAudioDriverType == mAudioDriverType &&
               rhs.mBufferSize == mBufferSize &&
               rhs.mAudioSR == mAudioSR &&
               rhs.mMidiInChan == mMidiInChan &&
               rhs.mMidiOutChan == mMidiOutChan &&
-              (strcmp(rhs.mAudioInDev.Get(), mAudioInDev.Get()) == 0) &&
-              (strcmp(rhs.mAudioOutDev.Get(), mAudioOutDev.Get()) == 0) &&
-              (strcmp(rhs.mMidiInDev.Get(), mMidiInDev.Get()) == 0) &&
-              (strcmp(rhs.mMidiOutDev.Get(), mMidiOutDev.Get()) == 0) &&
-
+              (std::string_view(rhs.mAudioInDev.Get()) == mAudioInDev.Get()) &&
+              (std::string_view(rhs.mAudioOutDev.Get()) == mAudioOutDev.Get()) &&
+              (std::string_view(rhs.mMidiInDev.Get()) == mMidiInDev.Get()) &&
+              (std::string_view(rhs.mMidiOutDev.Get()) == mMidiOutDev.Get()) &&
               rhs.mAudioInChanL == mAudioInChanL &&
               rhs.mAudioInChanR == mAudioInChanR &&
               rhs.mAudioOutChanL == mAudioOutChanL &&
               rhs.mAudioOutChanR == mAudioOutChanR
-
       );
     }
-    bool operator!=(const AppState& rhs) const { return !operator==(rhs); }
+    
+    bool operator!=(const AppSettings& rhs) const { return !operator==(rhs); }
+  };
+  
+  /** An abstract class that is used to provide a settings dialog */
+  class IPlugAPPSettingsDialog
+  {
+  public:
+    
+    /** Construct a settings dialog from a host
+     * @param host A reference to a host object */
+    IPlugAPPSettingsDialog(IPlugAPPHost& host)
+    : mHost(host)
+    , mSettings(host.mSettings)
+    , mAudioInputDevIDs(host.mAudioInputDevIDs)
+    , mAudioOutputDevIDs(host.mAudioOutputDevIDs)
+    , mMidiInputDevNames(host.mMidiInputDevNames)
+    , mMidiOutputDevNames(host.mMidiInputDevNames)
+    {}
+    
+    virtual ~IPlugAPPSettingsDialog() {}
+    
+    /** Return the DLGPROC for the settings dialog
+     * @return The DLGPROC for the settings dialog */
+    virtual DLGPROC GetDlgProc() = 0;
+    
+  protected:
+    
+    /** A reference to the host object */
+    IPlugAPPHost& mHost;
+    
+    /** A reference to the host's current settings */
+    AppSettings& mSettings;
+    
+    /** A const reference to the host's std::vector of IDs representing audio input devices */
+    const std::vector<uint32_t>& mAudioInputDevIDs;
+    /** A const reference to the host's std::vector of IDs representing audio input devices */
+    const std::vector<uint32_t>& mAudioOutputDevIDs;
+    /** A const reference to the host's std::vector of MIDI input device names */
+    const std::vector<std::string>& mMidiInputDevNames;
+    /** A const reference to the host's std::vector of MIDI output device names*/
+    const std::vector<std::string>& mMidiOutputDevNames;
   };
   
   static IPlugAPPHost* Create();
+  static IPlugAPPSettingsDialog* GetSettingsDialog();
   static std::unique_ptr<IPlugAPPHost> sInstance;
-  
-  void PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* pInputDevInfo, RtAudio::DeviceInfo* pOutputDevInfo);
-  void PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* pInfo);
-  void PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* pInfo);
-  void PopulateDriverSpecificControls(HWND hwndDlg);
-  void PopulateAudioDialogs(HWND hwndDlg);
-  bool PopulateMidiDialogs(HWND hwndDlg);
-  void PopulatePreferencesDialog(HWND hwndDlg);
-  
+
   IPlugAPPHost();
   ~IPlugAPPHost();
   
   bool OpenWindow(HWND pParent);
   void CloseWindow();
 
-  bool Init();
-  bool InitState();
   void UpdateINI();
   
-  /** Returns the name of the audio device at idx
-   * @param idx The index RTAudio has given the audio device
+  /** Returns the name of the audio device with a given RTAudio device ID
+   * @param deviceID The ID RTAudio has given the audio device
    * @return The device name. Core Audio device names are truncated. */
-  std::string GetAudioDeviceName(int idx) const;
-  // returns the rtaudio device ID, based on the (truncated) device name
+  std::string GetAudioDeviceName(uint32_t deviceID) const;
   
-  /** Returns the audio device index linked to a particular name
+  /** Returns the name of the audio device with a given RTAudio device ID
+   * @param deviceID The ID RTAudio has given the audio device
+   * @return The device info as returned by RTAudio. */
+  RtAudio::DeviceInfo GetDeviceInfo(uint32_t deviceID) const;
+  
+  /** Returns the a validated audio device ID linked to a particular name
   * @param name The name of the audio device to test
-  * @return The integer index RTAudio has given the audio device */
-  int GetAudioDeviceIdx(const char* name) const;
-  
-  /** @param direction Either kInput or kOutput
+  * @return The ID RTAudio has given the audio device along with a flag for validity */
+  ValidatedID GetAudioDeviceID(const char* name) const;
+
+  /** Get the MIDI port number given a MIDI device name
+   * @param direction Either kInput or kOutput
    * @param name The name of the midi device
    * @return An integer specifying the output port number, where 0 means any */
   int GetMIDIPortNumber(ERoute direction, const char* name) const;
   
-  /** find out which devices have input channels & which have output channels, add their ids to the lists */
+  /** Determine is MIDI has been correctly initialised
+   * @return true if MIDI initialisation has been successfully completed otherwise false */
+  bool IsMidiInitialised() const;
+  
+  /** Determine is audio is running
+   * @return true if the audio stream is running otherwise false */
+  bool IsAudioRunning() const;
+
   void ProbeAudioIO();
   void ProbeMidiIO();
-  bool InitMidi();
-  void CloseAudio();
-  bool InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_t iovs);
-  bool AudioSettingsInStateAreEqual(AppState& os, AppState& ns);
-  bool MIDISettingsInStateAreEqual(AppState& os, AppState& ns);
-
+  
   bool TryToChangeAudioDriverType();
-  bool TryToChangeAudio();
+  bool TryToChangeAudio(bool start);
   bool SelectMIDIDevice(ERoute direction, const char* portName);
   
+  //RTAudio and RTMidi Callbacks
   static int AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_t nFrames, double streamTime, RtAudioStreamStatus status, void* pUserData);
   static void MIDICallback(double deltatime, std::vector<uint8_t>* pMsg, void* pUserData);
-  static void ErrorCallback(RtAudioError::Type type, const std::string& errorText);
+  static void ErrorCallback(RtAudioErrorType type, const std::string& errorText);
 
-  static WDL_DLGRET PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
+  //Main DLG Process
   static WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-  IPlugAPP* GetPlug() { return mIPlug.get(); }
+  
 private:
+  
+  IPlugAPP* GetPlug() { return mIPlug.get(); }
+
+  bool Init();
+  bool InitSettings();
+  bool InitMidi();
+  bool InitAudio(uint32_t inId, uint32_t outId, uint32_t sr, uint32_t iovs);
+
+  void CloseAudio();
+
   std::unique_ptr<IPlugAPP> mIPlug = nullptr;
+  std::unique_ptr<IPlugAPPSettingsDialog> mSettingsDialog = nullptr;
   std::unique_ptr<RtAudio> mDAC = nullptr;
   std::unique_ptr<RtMidiIn> mMidiIn = nullptr;
   std::unique_ptr<RtMidiOut> mMidiOut = nullptr;
   int mMidiOutChannel = -1;
   int mMidiInChannel = -1;
-  
-  /**  */
-  AppState mState;
-  /** When the preferences dialog is opened the existing state is cached here, and restored if cancel is pressed */
-  AppState mTempState;
-  /** When the audio driver is started the current state is copied here so that if OK is pressed after APPLY nothing is changed */
-  AppState mActiveState;
+
+  AppSettings mSettings;
+  /** When the audio driver is started the current settings are copied here so that if OK is pressed after APPLY nothing is changed */
+  AppSettings mActiveSettings;
   
   double mSampleRate = 44100.;
   uint32_t mSamplesElapsed = 0;
@@ -239,22 +310,25 @@ private:
   bool mAudioEnding = false;
   bool mAudioDone = false;
 
-  /** The index of the operating systems default input device, -1 if not detected */
-  int32_t mDefaultInputDev = -1;
-  /** The index of the operating systems default output device, -1 if not detected */
-  int32_t mDefaultOutputDev = -1;
+  /** The ID of the operating system's default input device if detected */
+  ValidatedID mDefaultInputDev;
+  /** The ID of the operating system's default output device if detected */
+  ValidatedID mDefaultOutputDev;
     
-  WDL_String mINIPath;
-  
-  std::vector<uint32_t> mAudioInputDevs;
-  std::vector<uint32_t> mAudioOutputDevs;
-  std::vector<std::string> mAudioIDDevNames;
+  /** A std::vector of IDs representing audio input devices */
+  std::vector<uint32_t> mAudioInputDevIDs;
+  /** A std::vector of IDs representing audio input devices */
+  std::vector<uint32_t> mAudioOutputDevIDs;
+  /** A std::vector of std::strings that are names for MIDI input devices */
   std::vector<std::string> mMidiInputDevNames;
+  /** A std::vector of std::strings that are names for MIDI output devices */
   std::vector<std::string> mMidiOutputDevNames;
   
+  WDL_String mINIPath;
+
   WDL_PtrList<double> mInputBufPtrs;
   WDL_PtrList<double> mOutputBufPtrs;
-
+  
   friend class IPlugAPP;
 };
 
