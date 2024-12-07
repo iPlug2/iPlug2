@@ -212,3 +212,19 @@ void IPlugAPIBase::SendArbitraryMsgFromUI(int msgTag, int ctrlTag, int dataSize,
   
   EDITOR_DELEGATE_CLASS::SendArbitraryMsgFromUI(msgTag, ctrlTag, dataSize, pData);
 }
+
+WDL_String IPlugAPIBase::isRunningAs()
+{
+  WDL_String str;
+#if defined (AU_API)
+  str.Set("au2");
+#elif defined(VST3_API)
+  rstr.Set("vst3");
+#elif defined(APP_API)
+  str.Set("standalone");
+#else
+  str.Set("unkown");
+#endif
+
+  return str;
+}

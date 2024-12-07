@@ -95,7 +95,7 @@ class iPlug2_IPC {
   on(event_id, cb, once) {
     if (!event_id) throw "[iPlug2 IPC.on] Event ID cannot be empty"
 
-    if (this.listeners[event_id]) console.warning(`[iPlug IPC.on] And event ID named "${event_id}" has already previously been `)
+    if (this.listeners[event_id]) console.warning(`[iPlug IPC.on] An event ID named "${event_id}" already exists`)
 
     var opts = {
       callback: cb

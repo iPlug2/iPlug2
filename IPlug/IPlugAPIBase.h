@@ -26,6 +26,16 @@
 #include "IPlugQueue.h"
 #include "IPlugTimer.h"
 
+#if defined(AU_API)
+  #define RUNNING_AS "au2"
+#elif defined(VST3_API)
+  #define RUNNING_AS "vst3"
+#elif defined(APP_API)
+  #define RUNNING_AS "standalone"
+#else
+  #define RUNNING_AS "unknown"
+#endif
+
 /**
  * @file
  * @copydoc IPlugAPIBase
@@ -183,7 +193,10 @@ public:
 
   /** Called by the API class to create the timer that pumps the parameter/message queues */
   void CreateTimer();
-  
+
+
+  static WDL_String isRunningAs();
+
 private:
   /** Implementations call into the APIs resize hooks
    * returns a bool to indicate whether the DAW or plugin class has resized the host window */
