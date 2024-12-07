@@ -56,6 +56,12 @@
     <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView_win.cpp">
       <Filter>IPlug\Extras\WebView</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\core\backend\IPlugWebView_core.cpp">
+      <Filter>IPlug\Extras\WebView\core\backend</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\core\backend\IPlugWebView_ipc.cpp">
+      <Filter>IPlug\Extras\WebView\core\backend</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\IPlugWebUI.h" />
@@ -160,6 +166,12 @@
       <Filter>IPlug\Extras\WebView</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\IPlug\ISender.h" />
+    <ClInclude Include="..\..\..\IPlug\Extras\WebView\core\backend\IPlugWebView_core.h">
+      <Filter>IPlug\Extras\WebView\core\backend</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\IPlug\Extras\WebView\core\backend\IPlugWebView_ipc.h">
+      <Filter>IPlug\Extras\WebView\core\backend</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="resources">
@@ -186,6 +198,15 @@
     <Filter Include="IPlug\Extras\WebView">
       <UniqueIdentifier>{e6e2b8b9-5c3a-49f8-9588-0e9f32686cbe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="IPlug\Extras\WebView\core">
+      <UniqueIdentifier>{cd583fa7-5f31-42ac-b338-e792a97f60dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\Extras\WebView\core\backend">
+      <UniqueIdentifier>{6ea25770-cdfe-4b04-ac09-e244ccd74892}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="IPlug\Extras\WebView\core\frontend">
+      <UniqueIdentifier>{35a1bdf1-9b88-42bf-b893-383ddcbdb1e4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\resources\main.rc">
@@ -206,13 +227,13 @@
       <Filter>config</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="..\..\..\IPlug\Extras\WebView\core\frontend\README.md">
+      <Filter>IPlug\Extras\WebView\core\frontend</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\resources\IPlugWebUI.ico">
       <Filter>resources</Filter>
     </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <Natvis Include="$(MSBuildThisFileDirectory)..\..\natvis\wil.natvis" />
   </ItemGroup>
 </Project>
