@@ -8,19 +8,19 @@
       -webkit-touch-callout: none;
       -webkit-user-select: none;
     }
-  
+
     p, h1 {
       pointer-events: none;
     }
-    
+
     body {
-      overflow: hidden;
+      overflow: auto;
       padding: 0 20px;
       -webkit-overflow-scrolling: touch;
       background-color: #ffffff;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
-  
+
     .left {
       width: 50%;
       position: absolute;
@@ -28,11 +28,11 @@
       display: table-cell;
       vertical-align: middle;
     }
-  
-    .left span, .left input {
-      vertical-align: middle;
-    }
-  
+
+      .left span, .left input {
+        vertical-align: middle;
+      }
+
     .right {
       width: 50%;
       position: absolute;
@@ -40,86 +40,86 @@
       display: table-cell;
       vertical-align: middle;
     }
-  
-    .right span {
-      vertical-align: middle;
-    }
-  
-    .right input {
-      vertical-align: baseline;
-    }
-  
+
+      .right span {
+        vertical-align: middle;
+      }
+
+      .right input {
+        vertical-align: baseline;
+      }
+
     button {
       display: block;
     }
 
     .dropzone {
-        border: 4px dashed #d1d5db;
-        border-radius: 0.5rem;
-        text-align: center;
-        background-color: #f3f4f6;
-        transition: all 0.2s ease;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
+      border: 4px dashed #d1d5db;
+      border-radius: 0.5rem;
+      text-align: center;
+      background-color: #f3f4f6;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
 
-    .dropzone.dragover {
+      .dropzone.dragover {
         border-color: #3b82f6;
         background-color: #eff6ff;
-    }
+      }
 
-    .dropzone.has-file {
+      .dropzone.has-file {
         background-color: #f0fdf4;
-    }
+      }
 
     .icon {
-        width: 3rem;
-        height: 3rem;
-        margin-bottom: 0.5rem;
+      width: 3rem;
+      height: 3rem;
+      margin-bottom: 0.5rem;
     }
 
     .filename {
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #374151;
-        margin: 0.5rem 0;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #374151;
+      margin: 0.5rem 0;
     }
 
     .filesize {
-        font-size: 0.875rem;
-        color: #6b7280;
-        margin-bottom: 1rem;
+      font-size: 0.875rem;
+      color: #6b7280;
+      margin-bottom: 1rem;
     }
 
     .file-content {
-        cursor: move;
-        user-select: none;
+      cursor: move;
+      user-select: none;
     }
 
     .drag-instructions {
-        font-size: 0.875rem;
-        color: #4b5563;
-        margin-top: 1rem;
+      font-size: 0.875rem;
+      color: #4b5563;
+      margin-top: 1rem;
     }
 
     /* Drag image styles */
     .drag-image {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        max-width: 300px;
-        position: fixed;
-        left: -9999px;
-        top: -9999px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      max-width: 300px;
+      position: fixed;
+      left: -9999px;
+      top: -9999px;
     }
 
-    .drag-image .file-icon {
+      .drag-image .file-icon {
         width: 32px;
         height: 32px;
         display: flex;
@@ -128,31 +128,31 @@
         background: #4f46e5;
         border-radius: 6px;
         padding: 6px;
-    }
+      }
 
-    .drag-image .file-icon svg {
-        width: 20px;
-        height: 20px;
-        color: white;
-    }
+        .drag-image .file-icon svg {
+          width: 20px;
+          height: 20px;
+          color: white;
+        }
 
-    .drag-image .file-info {
+      .drag-image .file-info {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         gap: 2px;
-    }
+      }
 
-    .drag-image .file-name {
+      .drag-image .file-name {
         font-weight: 500;
         color: #1f2937;
         font-size: 14px;
-    }
+      }
 
-    .drag-image .file-type {
+      .drag-image .file-type {
         color: #6b7280;
         font-size: 12px;
-    }
+      }
 
     .controls-container {
       display: flex;
@@ -194,7 +194,8 @@
       font-family: inherit;
     }
   </style>
-  
+
+  <script src="iPlug2.js"></script>
   <script src="script.js"></script>
   <script type="module" src="knob-control.js"></script>
   <script type="module" src="button-control.js"></script>
@@ -205,14 +206,14 @@
       var bin = String.fromCharCode.apply(null, uint8);
       SAMFUI(3, -1, window.btoa(bin));
     }
-    
+
     function SendTestMIDIData() {
       SMMFUI(0x90, 60, 0x7f);
-      setTimeout(function(){
+      setTimeout(function () {
         SMMFUI(0x90, 60, 0x00);
       }, 1000);
     }
-    
+
     function OnParamChange(param, value) {
       // Find the knob control with matching param-id
       const knob = document.querySelector(`knob-control[param-id="${param}"]`);
@@ -221,7 +222,7 @@
         knob.updateValueFromHost(value);
       }
     }
-  
+
     function OnControlChange(ctrlTag, value) {
     }
 
@@ -229,26 +230,25 @@
     function OnMessage(msgTag, dataSize, data) {
       if (msgTag == -1 && dataSize > 0) {
 
-      let json = JSON.parse(window.atob(data));
+        let json = JSON.parse(window.atob(data));
 
-      switch (json["id"])
-      {
-        case "params":
-          window["parameters"] = json["params"];
+        switch (json["id"]) {
+          case "params":
+            window["parameters"] = json["params"];
 
-          const allElements = document.querySelectorAll('*');
+            const allElements = document.querySelectorAll('*');
 
-          allElements.forEach(element => {
-            if (element.tagName == "KNOB-CONTROL") {
-              const paramInfo = json["params"][element.paramId];
-              element.setAttribute("min", paramInfo["min"]);
-              element.setAttribute("max", paramInfo["max"]);
-              element.setAttribute("label", paramInfo["name"]);
-              element.setAttribute("default-value", paramInfo["default"]);
-            }
-          });
-          
-          break;
+            allElements.forEach(element => {
+              if (element.tagName == "KNOB-CONTROL") {
+                const paramInfo = json["params"][element.paramId];
+                element.setAttribute("min", paramInfo["min"]);
+                element.setAttribute("max", paramInfo["max"]);
+                element.setAttribute("label", paramInfo["name"]);
+                element.setAttribute("default-value", paramInfo["default"]);
+              }
+            });
+
+            break;
         }
       }
     }
@@ -261,13 +261,13 @@
     <button-control onclick="SendTestBinaryData()">Binary Test</button-control>
     <button-control onclick="SendTestMIDIData()">MIDI Test</button-control>
   </div>
-  
+
   <div class="button-group">
     <button-control onclick="SAMFUI(0)">Small GUI</button-control>
     <button-control onclick="SAMFUI(1)">Medium GUI</button-control>
     <button-control onclick="SAMFUI(2)">Large GUI</button-control>
   </div>
-  
+
   <div class="links-group">
     <a href="https://iplug2.github.io" target="_blank" class="link-button">
       <button-control>Open iPlug2 Website</button-control>
@@ -276,25 +276,44 @@
       Download A File
     </button-control>
   </div>
-  
+
   <div class="file-input-group">
     <input type="file" id="textfile" name="textfile" accept="text/*" />
   </div>
-  
+
   <div id="dropzone" class="dropzone">
-      <div id="initial-content">
-        <p class="instructions">Drag and drop a WAV file here</p>
+    <div id="initial-content">
+      <p class="instructions">Drag and drop a WAV file here</p>
     </div>
     <div id="file-content" class="file-content" style="display: none;" draggable="true">
-        <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
-        </svg>
-        <p class="drag-instructions">Drag this anywhere to save the file</p>
+      <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+      </svg>
+      <p class="drag-instructions">Drag this anywhere to save the file</p>
     </div>
   </div>
   <div class="knob-container">
     <knob-control label="Gain" param-id=0></knob-control>
   </div>
+
+
+  <h2 style="margin-bottom: 0px">IPC</h2>
+  <div>Open dev console to see the results</div>
+
+  <h3 style="margin-top: 0px; margin-bottom: 6px;">Frontend to backend</h3>
+  <div class="button-group">
+    <button-control onclick="ipc_request_valid()">Request</button-control>
+    <button-control onclick="ipc_request_valid_once()">Request Once</button-control>
+    <button-control onclick="ipc_request_invalid()">Request (invalid)</button-control>
+    <button-control onclick="ipc_message()">Message</button-control>
+  </div>
+
+  <h3 style="margin-top: 0px; margin-bottom: 6px;">Backend to frontend</h3>
+  <div class="button-group">
+    <button-control onclick="ipc_backendToFrontend_request()">Request</button-control>
+    <button-control onclick="ipc_backendToFrontend_message()">Message</button-control>
+  </div>
+
 </div>
 
 <script>
@@ -378,6 +397,60 @@
         // Set the drag image (existing code)
         e.dataTransfer.setDragImage(icon, 40, 35);
         e.dataTransfer.effectAllowed = 'copyMove';
+    }
+
+
+
+    async function ipc_request_valid() {
+      try {
+        var response = await iPlug2.ipc.request("valid_event_id", { key: "value" });
+        console.log(response)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    async function ipc_request_valid_once() {
+      try {
+        var response = await iPlug2.ipc.request("valid_event_id_once", { key: "value" });
+        console.log(response)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    async function ipc_request_invalid() {
+      try {
+        var response = await iPlug2.ipc.request("invalid_event_id", {});
+        console.log(response)
+      } catch (err) {
+        console.error(err)
+      }
+    }
+
+    async function ipc_message() {
+      await iPlug2.ipc.message({
+        action: "",
+        key: "value"
+      });
+    }
+
+    async function ipc_backendToFrontend_request() {
+      await iPlug2.ipc.message({ action: "reqFromBE" });
+    }
+
+    async function ipc_backendToFrontend_message() {
+      await iPlug2.ipc.message({ action: "msgFromBE" });
+    }
+
+    iPlug2.ipc.on('requestFromBackend', data => {
+      return {
+        key: 'value'
+      }
+    })
+
+    iPlug2.ipc.onMessage = data => {
+      console.log(data)
     }
 </script>
 </body>

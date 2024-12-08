@@ -3,8 +3,10 @@
  
   MIT License
 
-  iPlug2 WebView Library
-  Copyright (c) 2024 Oliver Larkin
+  iPlug2 WebView Core
+  Copyright (c) 2024 Aid Vllasaliu
+  GitHub(s): https://github.com/aidv, https://github.com/superkraft-io/
+  As a contribution by splitter.ai
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -27,40 +29,8 @@
  ==============================================================================
 */
 
-#pragma once
+#include "IPlugWebView.h"
 
-#include "IPlugWebViewEditorDelegate.h"
+#include <memory>
 
 using namespace iplug;
-
-WebViewEditorDelegate::WebViewEditorDelegate(int nParams)
-  : IEditorDelegate(nParams)
-  , IWebView()
-{
-  core.ipc.onSendToFrontend = [this](std::string data) {
-    std::string str = "iPlug2.ipc.handleIncoming(" + data + ")";
-    EvaluateJavaScript(str.c_str());
-  };
-}
-
-WebViewEditorDelegate::~WebViewEditorDelegate()
-{
-  CloseWindow();
-}
-
-void* WebViewEditorDelegate::OpenWindow(void* pParent)
-{
-  return OpenWebView(pParent, 0.0f, 0.0f, static_cast<float>(GetEditorWidth()), static_cast<float>(GetEditorHeight()), 1.0f);
-}
-
-void WebViewEditorDelegate::Resize(int width, int height)
-{
-  SetWebViewBounds(0, 0, static_cast<float>(width), static_cast<float>(height));
-  EditorResizeFromUI(width, height, true);
-}
-
-void WebViewEditorDelegate::OnParentWindowResize(int width, int height)
-{
-  SetWebViewBounds(0, 0, static_cast<float>(width), static_cast<float>(height));
-  EditorResizeFromUI(width, height, false);
-}

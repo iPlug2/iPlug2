@@ -20,6 +20,55 @@ IPlugWebUI::IPlugWebUI(const InstanceInfo& info)
   MakePreset("One", -70.);
   MakePreset("Two", -30.);
   MakePreset("Three", 0.);
+
+
+
+  /****  IPC ****/
+
+  core.ipc.on("valid_event_id", [](nlohmann::json data, std::string& responseData) {
+    nlohmann::json json;
+
+    std::string frontend_message = std::string(data["key"]);
+
+    json["backend_said"] = "hello frontend :)";
+    responseData = json.dump();
+  });
+
+  core.ipc.once("valid_event_id_once", [](nlohmann::json data, std::string& responseData) {
+    nlohmann::json json;
+
+    std::string frontend_message = std::string(data["key"]);
+
+    json["backend_said"] = "hello frontend :) deleting this event now";
+    responseData = json.dump();
+  });
+
+
+  core.ipc.onMessage = [this](nlohmann::json data) {
+    std::string action = data["action"];
+
+    if (action == "reqFromBE")
+    {
+      nlohmann::json be_data;
+      be_data["this_is"] = "a backend request :)";
+
+      core.ipc.request("requestFromBackend", be_data, [](nlohmann::json data) {
+        std::string key = std::string(data["key"]);
+        DBGMSG("key = %s\n", key.c_str());
+      });
+    }
+    else if (action == "msgFromBE")
+    {
+      nlohmann::json be_data;
+      be_data["this_is"] = "a message from backend :)";
+
+      core.ipc.message(be_data);
+    }
+    else
+    {
+      DBGMSG("data = %s\n", data.dump().c_str());
+    }
+  };
 }
 
 void IPlugWebUI::ProcessBlock(sample** inputs, sample** outputs, int nFrames)

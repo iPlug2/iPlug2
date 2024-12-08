@@ -41,6 +41,8 @@
  * @copydoc WebViewEditorDelegate
  */
 
+#include "./core/backend/IPlugWebView_core.h"
+
 BEGIN_IPLUG_NAMESPACE
 
 /** An editor delegate base class that uses a platform native webview for the UI
@@ -51,6 +53,8 @@ class WebViewEditorDelegate : public IEditorDelegate
   static constexpr int kDefaultMaxJSStringLength = 8192;
   
 public:
+  IPlugWebView_Core core;
+
   WebViewEditorDelegate(int nParams);
   virtual ~WebViewEditorDelegate();
   
@@ -120,7 +124,26 @@ public:
   void OnMessageFromWebView(const char* jsonStr) override
   {
     auto json = nlohmann::json::parse(jsonStr, nullptr, false);
-    
+
+
+    /*********************/
+
+    if (json["msg_type"] == "iPlug2_IPC")
+    {
+      auto payload = json["payload"];
+
+
+      nlohmann::json res = core.ipc.handle_IPC_Msg(payload);
+
+      std::string str = "iPlug2.ipc.handleIncoming(" + res.dump() + ")";
+      EvaluateJavaScript(str.c_str());
+
+      return;
+    }
+
+    /*********************/
+
+
     if (json["msg"] == "SPVFUI")
     {
       assert(json["paramIdx"] > -1);

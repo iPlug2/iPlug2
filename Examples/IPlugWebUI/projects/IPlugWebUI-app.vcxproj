@@ -272,6 +272,8 @@
     <ClInclude Include="..\..\..\Dependencies\IPlug\RTMidi\RtMidi.h" />
     <ClInclude Include="..\..\..\IPlug\APP\IPlugAPP.h" />
     <ClInclude Include="..\..\..\IPlug\APP\IPlugAPP_host.h" />
+    <ClInclude Include="..\..\..\IPlug\Extras\WebView\core\backend\IPlugWebView_core.h" />
+    <ClInclude Include="..\..\..\IPlug\Extras\WebView\core\backend\IPlugWebView_ipc.h" />
     <ClInclude Include="..\..\..\IPlug\Extras\WebView\IPlugWebView.h" />
     <ClInclude Include="..\..\..\IPlug\Extras\WebView\IPlugWebViewEditorDelegate.h" />
     <ClInclude Include="..\..\..\IPlug\IPlugAPIBase.h" />
@@ -304,6 +306,8 @@
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_dialog.cpp" />
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_host.cpp" />
     <ClCompile Include="..\..\..\IPlug\APP\IPlugAPP_main.cpp" />
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\core\backend\IPlugWebView_core.cpp" />
+    <ClCompile Include="..\..\..\IPlug\Extras\WebView\core\backend\IPlugWebView_ipc.cpp" />
     <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebViewEditorDelegate.cpp" />
     <ClCompile Include="..\..\..\IPlug\Extras\WebView\IPlugWebView_win.cpp" />
     <ClCompile Include="..\..\..\IPlug\IPlugAPIBase.cpp" />
@@ -321,6 +325,7 @@
     <Image Include="..\resources\IPlugWebUI.ico" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\IPlug\Extras\WebView\core\frontend\README.md" />
     <None Include="..\config\IPlugWebUI-ios.xcconfig" />
     <None Include="..\config\IPlugWebUI-web.mk" />
     <None Include="..\config\IPlugWebUI-win.props">
