@@ -12,7 +12,7 @@ SRC += $(PROJECT_ROOT)/IGraphicsStressTest.cpp
 
 WEB_CFLAGS += -DIGRAPHICS_NANOVG -DIGRAPHICS_GLES2
 
-WAM_LDFLAGS += -O3 -s EXPORT_NAME="'AudioWorkletGlobalScope.WAM.IGraphicsStressTest'" -s ASSERTIONS=0
+WAM_LDFLAGS += -O3 -s EXPORT_NAME="'ModuleFactory'" -s ASSERTIONS=0
 
 WEB_LDFLAGS += -O3 -s ASSERTIONS=0
 
