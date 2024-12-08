@@ -976,7 +976,24 @@ protected:
 
   /* Deactivate the context for the view (GL only) */
   virtual void DeactivateGLContext() {};
-
+  
+  class ScopedActivateGLContext
+  {
+  public:
+    ScopedActivateGLContext(IGraphics* pThis)
+    : mThis(pThis)
+    {
+      mThis->ActivateGLContext();
+    }
+    
+    ~ScopedActivateGLContext()
+    {
+      mThis->DeactivateGLContext();
+    }
+    
+    IGraphics* mThis;
+  };
+  
   /** Creates a platform native text entry field.
   * @param paramIdx The index of the parameter associated with the text entry field.
   * @param text The text to be displayed in the text entry field.
@@ -1786,6 +1803,7 @@ protected:
 #pragma mark -
 
 private:
+  
   void ClearMouseOver()
   {
     mMouseOver = nullptr;

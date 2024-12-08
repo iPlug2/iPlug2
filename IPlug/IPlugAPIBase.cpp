@@ -141,7 +141,7 @@ void IPlugAPIBase::SendParameterValueFromAPI(int paramIdx, double value, bool no
 
 void IPlugAPIBase::OnTimer(Timer& t)
 {
-  if(HasUI())
+//  if(HasUI())
   {
 // VST3 ********************************************************************************
 #if defined VST3P_API || defined VST3_API

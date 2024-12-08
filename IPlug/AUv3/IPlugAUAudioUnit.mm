@@ -435,7 +435,7 @@ static AUAudioUnitPreset* NewAUPreset(NSInteger number, NSString* pName)
     return (AUValue) pPlug->GetParamStringToValue(param.address, [string UTF8String]);
   };
   
-  if (mPlug->HasUI())
+//  if (mPlug->HasUI())
   {
     mUIUpdateParamObserverToken = [mParameterTree tokenByAddingParameterObserver:^(AUParameterAddress address, AUValue value) {
                               dispatch_async(dispatch_get_main_queue(), ^{
