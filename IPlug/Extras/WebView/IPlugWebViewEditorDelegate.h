@@ -31,10 +31,17 @@
 
 #include "IPlugEditorDelegate.h"
 #include "IPlugWebView.h"
+#include "IPlugTimer.h"
 #include "wdl_base64.h"
 #include "json.hpp"
+
+#if !defined OS_IOS
+#include "choc_FileWatcher.h"
+#endif
+
 #include <functional>
 #include <filesystem>
+#include <memory>
 
 /**
  * @file
@@ -60,6 +67,14 @@ public:
   void CloseWindow() override
   {
     CloseWebView();
+
+    #if defined _DEBUG
+    if (mTimer)
+    {
+      mTimer->Stop();
+      mTimer = nullptr;
+    }
+    #endif
   }
 
   void SendControlValueFromDelegate(int ctrlTag, double normalizedValue) override
@@ -177,6 +192,30 @@ public:
     if (mEditorInitFunc)
     {
       mEditorInitFunc();
+      
+      #if defined _DEBUG && !defined OS_IOS
+      using namespace choc::file;
+      WDL_String webRoot;
+      GetWebRoot(webRoot);
+      if (webRoot.GetLength())
+      {
+        mPFileWatcher = std::make_unique<Watcher>(webRoot.Get(), [&](const Watcher::Event& e) { mNeedsReload = true;
+        }, 500);
+      }
+  
+      mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&WebViewEditorDelegate::OnTimer, this, std::placeholders::_1), 500));
+      #endif
+    }
+  }
+
+  void OnTimer(Timer& t)
+  {
+    if (mNeedsReload)
+    {
+      DBGMSG("hot-reloading webview content\n");
+      ReloadPageContent();
+      OnUIOpen();
+      mNeedsReload = false;
     }
   }
   
@@ -231,6 +270,12 @@ protected:
   int mMaxJSStringLength = kDefaultMaxJSStringLength;
   std::function<void()> mEditorInitFunc = nullptr;
   void* mHelperView = nullptr;
+
+  #if defined _DEBUG && !defined OS_IOS
+  std::unique_ptr<choc::file::Watcher> mPFileWatcher;
+  std::unique_ptr<Timer> mTimer;
+  std::atomic<bool> mNeedsReload = false;
+  #endif
   
 private:
   static int GetBase64Length(int dataSize)
