@@ -119,4 +119,71 @@ private:
   LogParamSmooth<double, 1> mSmoother;
 } WDL_FIXALIGN;
 
+template<typename T>
+class LogDataSmooth
+{
+private:
+  double mA, mB;
+  double mTimeMs;
+  double mSampleRate = DEFAULT_SAMPLE_RATE;
+  T mInitialValue;
+  std::vector<T> mOutData;
+  
+public:
+  LogDataSmooth(double timeMs = 5., T initialValue = 0.)
+  {
+    mTimeMs = timeMs;
+    mInitialValue = initialValue;
+
+    SetSampleRate(DEFAULT_SAMPLE_RATE);
+    SetSmoothTime(timeMs);
+  }
+  
+  inline void Process(std::vector<T>& data)
+  {
+    if (mOutData.size() != data.size())
+    {
+      // (Re-)initialize
+      mOutData.resize(data.size());
+      Reset();
+    }
+    
+    for (int i = 0; i < data.size(); i++)
+    {
+      mOutData[i] = (data[i] * mB) + (mOutData[i] * mA);
+#ifndef OS_IOS
+      denormal_fix(&mOutData[i]);
+#endif
+    }
+    
+    std::copy(mOutData.begin(), mOutData.end(), data.begin());
+  }
+
+  inline void SetValue(const WDL_TypedBuf<T>& data)
+  {
+    mOutData = data;
+  }
+
+  inline void Reset()
+  {
+    std::fill(mOutData.begin(), mOutData.end(), mInitialValue);
+  }
+  
+  inline void SetSmoothTime(double timeMs)
+  {
+    mTimeMs = timeMs;
+    
+    static constexpr double TWO_PI = 6.283185307179586476925286766559;
+    
+    mA = std::exp(-TWO_PI / (timeMs * 0.001 * mSampleRate));
+    mB = 1.0 - mA;
+  }
+
+  inline void SetSampleRate(double sampleRate)
+  {
+    mSampleRate = sampleRate;
+    SetSmoothTime(mTimeMs);
+  }
+} WDL_FIXALIGN;
+
 END_IPLUG_NAMESPACE

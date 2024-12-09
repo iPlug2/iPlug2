@@ -107,6 +107,12 @@ static inline double AmpToDB(double amp)
   return AMP_DB * std::log(std::fabs(amp));
 }
 
+template<typename T=double>
+static inline T HzToMel(T freq) { return T(2595.0) * std::log10(T(1.0) + freq / T(700.0)); }
+
+template<typename T=double>
+static inline T MelToHz(T mel) { return T(700.0) * (std::pow(T(10.0), (mel/T(2595.0))) - T(1.0)); }
+
 /** Helper function to unpack the version number parts as individual integers
  * @param versionInteger The version number packed into an integer
  * @param maj The major version
