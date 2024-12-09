@@ -30,6 +30,7 @@
 #pragma once
 
 #import <WebKit/WebKit.h>
+#import "IPlugWKWebView.h"
 
 namespace iplug {
 class IWebView;
