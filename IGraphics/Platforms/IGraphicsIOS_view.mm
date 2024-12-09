@@ -622,6 +622,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
   
   [vc setDelegate:self];
+  [vc setAllowsMultipleSelection:NO];
   
   [self.window.rootViewController presentViewController:vc animated:YES completion:nil];
 }
@@ -873,28 +874,48 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
 {
   WDL_String fileName, path;
   
-  if (urls.count == 1)
-  {
-    NSURL* pSource = urls[0];
-    NSString* pFullPath = [pSource path];
-    fileName.Set([pFullPath UTF8String]);
-    
-    NSString* pTruncatedPath = [pFullPath stringByDeletingLastPathComponent];
+  assert(urls.count == 1 && "Multiple selection not supported yet");
 
-    if (pTruncatedPath)
+  NSURL* pURL = urls[0];
+  NSString* pFullPath = [pURL path];
+  fileName.Set([pFullPath UTF8String]);
+
+  BOOL accessGranted = [pURL startAccessingSecurityScopedResource];
+  
+  if (accessGranted)
+  {
+    NSError* error = nil;
+    NSData* bookmarkData = [pURL bookmarkDataWithOptions:0
+                         includingResourceValuesForKeys:nil
+                                          relativeToURL:nil
+                                                  error:&error];
+    if (bookmarkData)
     {
-      path.Set([pTruncatedPath UTF8String]);
-      path.Append("/");
+      NSFileManager* pFileManager = [NSFileManager defaultManager];
+      
+      bool isFile = ![pURL hasDirectoryPath];
+      
+      NSString* pTruncatedPath = pFullPath;
+      
+      if (!isFile)
+      {
+        fileName.Set("");
+      }
+      
+      if (pTruncatedPath)
+      {
+        path.Set([pTruncatedPath UTF8String]);
+        path.Append("/");
+      }
+      
+      if (mFileDialogFunc)
+        mFileDialogFunc(fileName, path, [bookmarkData bytes], (int) [bookmarkData length]);
+      
+      [pURL stopAccessingSecurityScopedResource];
+      
+    } else {
+      NSLog(@"Failed to create bookmark: %@", error);
     }
-
-    if (mFileDialogFunc)
-      mFileDialogFunc(fileName, path);
-  }
-  else
-  {
-    // call with empty values
-    if (mFileDialogFunc)
-      mFileDialogFunc(fileName, path);
   }
 }
 
@@ -903,7 +924,7 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   WDL_String fileName, path;
   
   if (mFileDialogFunc)
-    mFileDialogFunc(fileName, path);
+    mFileDialogFunc(fileName, path, nullptr, 0);
 }
 
 - (void) colorPickerViewControllerDidSelectColor:(UIColorPickerViewController*) viewController;
