@@ -449,8 +449,10 @@ void IGraphicsMac::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   NSString* pDefaultPath = nil;
   NSArray* pFileTypes = nil;
 
-  if (fileName.GetLength())
+  if (fileName.GetLength()){
     pDefaultFileName = [NSString stringWithUTF8String:fileName.Get()];
+    pDefaultFileName= [pDefaultFileName lastPathComponent];
+   }
   else
     pDefaultFileName = @"";
   
