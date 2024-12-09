@@ -191,3 +191,14 @@ bool IGraphicsTest::OnHostRequestingSupportedViewConfiguration(int width, int he
 {
   DBGMSG("SUPPORTED: W %i, H%i\n", width, height); return true;
 }
+
+#if IPLUG_EDITOR
+void IGraphicsTest::OnParentWindowResize(int width, int height)
+{
+  if (auto* pGraphics = GetUI())
+  {
+    auto scale = std::min((float) width / (float) PLUG_WIDTH, (float) height / (float) PLUG_HEIGHT);
+    pGraphics->Resize(PLUG_WIDTH, PLUG_HEIGHT, scale, true);
+  }
+}
+#endif
