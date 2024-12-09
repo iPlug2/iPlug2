@@ -74,6 +74,8 @@ public:
   
   EUIAppearance GetUIAppearance() const override;
 
+  RawBitmapData DrawAttributedText(const char* str, const IText& text, float& width, float& height) override;
+
   void ActivateGLContext() override;
   void DeactivateGLContext() override;
 protected:

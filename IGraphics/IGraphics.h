@@ -981,6 +981,14 @@ public:
     IGraphics& mIGraphics;
   };
   
+  /** Draw text to a bitmap. May be used to render colour emojis etc. using platform text rendering
+   * @param str UTF8 encoded string to render
+   * @param text The IText style for the text
+   * @param width The width of the drawn text in pixels, without any draw or screen scaling applied
+   * @param height The height of the drawn text in pixels, without any draw or screen scaling applied 
+   * @return Bitmap data containing the rendered text */
+  virtual RawBitmapData DrawAttributedText(const char* str, const IText& text, float& width, float& height) { return RawBitmapData(); }
+  
 protected:
   /* Activate the context for the view (GL only) */
   virtual void ActivateGLContext() {};
