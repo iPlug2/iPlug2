@@ -140,11 +140,20 @@ public:
    * @param mod A struct indicating which modifier keys are held for the event */
   virtual void OnTouchCancelled(float x, float y, const IMouseMod& mod) {}
 
-  /** Implement to do something when something was drag 'n dropped onto this control */
-  virtual void OnDrop(const char* str) {};
+  /** Implement to do something when something was drag 'n dropped onto this control
+   * @param str the string contains the path of the dropped file when the gesture ends
+   * @param x The X coordinate of the mouse event
+   * @param y The Y coordinate of the mouse event */
+  virtual void OnDrop(const char* str, float x, float y) {};
+  
+  /** Implement to do something when something is about to be dropped onto this control
+   * @param ext the extenstion of the soon-to-be dropped file
+   * @param x The X coordinate of the mouse event
+   * @param y The Y coordinate of the mouse event */
+  virtual void OnDropOver(const char* ext, float x, float y) {};
 
   /** Implement to handle multiple items drag 'n dropped onto this control */
-  virtual void OnDropMultiple(const std::vector<const char*>& paths) { OnDrop(paths[0]); }
+  virtual void OnDropMultiple(const std::vector<const char*>& paths, float x, float y) { OnDrop(paths[0], x, y); }
 
   /** Implement to do something when graphics is scaled globally (e.g. moves to different DPI screen) */
   virtual void OnRescale() {}
