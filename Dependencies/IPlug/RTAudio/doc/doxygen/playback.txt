@@ -34,7 +34,8 @@ int saw( void *outputBuffer, void *inputBuffer, unsigned int nBufferFrames,
 int main()
 {
   RtAudio dac;
-  if ( dac.getDeviceCount() < 1 ) {
+  std::vector<unsigned int> deviceIds = dac.getDeviceIds();
+  if ( deviceIds.size() < 1 ) {
     std::cout << "\nNo audio devices found!\n";
     exit( 0 );
   }
@@ -45,30 +46,29 @@ int main()
   parameters.firstChannel = 0;
   unsigned int sampleRate = 44100;
   unsigned int bufferFrames = 256; // 256 sample frames
-  double data[2];
+  double data[2] = {0, 0};
 
-  try {
-    dac.openStream( &parameters, NULL, RTAUDIO_FLOAT64,
-                    sampleRate, &bufferFrames, &saw, (void *)&data );
-    dac.startStream();
+  if ( dac.openStream( &parameters, NULL, RTAUDIO_FLOAT64, sampleRate,
+                       &bufferFrames, &saw, (void *)&data ) ) {
+    std::cout << '\n' << dac.getErrorText() << '\n' << std::endl;
+    exit( 0 ); // problem with device settings
   }
-  catch ( RtAudioError& e ) {
-    e.printMessage();
-    exit( 0 );
+
+  // Stream is open ... now start it.
+  if ( dac.startStream() ) {
+    std::cout << dac.getErrorText() << std::endl;
+    goto cleanup;
   }
   
   char input;
   std::cout << "\nPlaying ... press <enter> to quit.\n";
   std::cin.get( input );
 
-  try {
-    // Stop the stream
-    dac.stopStream();
-  }
-  catch (RtAudioError& e) {
-    e.printMessage();
-  }
+  // Block released ... stop the stream
+  if ( dac.isStreamRunning() )
+    dac.stopStream();  // or could call dac.abortStream();
 
+ cleanup:
   if ( dac.isStreamOpen() ) dac.closeStream();
 
   return 0;
@@ -77,6 +77,6 @@ int main()
 
 We open the stream in exactly the same way as the previous example (except with a data format change) and specify the address of our callback function \e "saw()". The callback function will automatically be invoked when the underlying audio system needs data for output.  Note that the callback function is called only when the stream is "running" (between calls to the RtAudio::startStream() and RtAudio::stopStream() functions).  We can also pass a pointer value to the RtAudio::openStream() function that is made available in the callback function.  In this way, it is possible to gain access to arbitrary data created in our \e main() function from within the globally defined callback function.
 
-In this example, we stop the stream with an explicit call to RtAudio::stopStream().  It is also possible to stop a stream by returning a non-zero value from the callback function.  A return value of 1 will cause the stream to finish draining its internal buffers and then halt (equivalent to calling the RtAudio::stopStream() function).   A return value of 2 will cause the stream to stop immediately (equivalent to calling the RtAudio::abortStream() function).
+In this example, we stop the stream with an explicit call to RtAudio::stopStream(). It is also possible to stop a stream by returning a non-zero value from the callback function.  A return value of 1 will cause the stream to finish draining its internal buffers and then halt (equivalent to calling the RtAudio::stopStream() function).   A return value of 2 will cause the stream to stop immediately (equivalent to calling the RtAudio::abortStream() function).
 
 */
