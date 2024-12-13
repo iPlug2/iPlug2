@@ -166,6 +166,12 @@ void* IWebViewImpl::OpenWebView(void* pParent, float,float,float,float,float)
                 return S_OK;
               }).Get());
 
+                        // this script captures the spacebar key press and forward it to the host app
+            mCoreWebView->AddScriptToExecuteOnDocumentCreated(
+              L"document.addEventListener('keydown', function(e) { if(e.keyCode == 32 && document.activeElement.type != \"text\") { IPlugSendMsg('kp32'); }});",
+              Callback<ICoreWebView2AddScriptToExecuteOnDocumentCreatedCompletedHandler>([this](HRESULT error, PCWSTR id) -> HRESULT { return S_OK; }).Get());
+
+
             mCoreWebView->add_WebMessageReceived(
               Callback<ICoreWebView2WebMessageReceivedEventHandler>([this](
                                                                       ICoreWebView2* sender,
@@ -175,7 +181,15 @@ void* IWebViewImpl::OpenWebView(void* pParent, float,float,float,float,float)
                 std::wstring jsonWString = jsonString.get();
                 WDL_String cStr;
                 UTF16ToUTF8(cStr, jsonWString.c_str());
-                mIWebView->OnMessageFromWebView(cStr.Get());
+                if (strcmp(cStr.Get(), "\"kp32\"") == 0)
+                {
+                   // spacebar
+                   PostMessage(mParentWnd, WM_KEYDOWN, VK_SPACE, 0);
+                }
+                else
+                {
+                  mIWebView->OnMessageFromWebView(cStr.Get());
+                }
                 return S_OK;
               }).Get(),
               &mWebMessageReceivedToken);
