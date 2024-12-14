@@ -814,10 +814,10 @@ public:
   const char* GetLabelStr() const { return mLabelStr.Get(); }
   void SetMaxValueLength(int maxValueLength) { mMaxValueLength = maxValueLength; mControl->SetDirty(false); OnStyleChanged(); }
   void SetValueStr(const char* value) { mValueStr.Set(value); mControl->SetDirty(false); OnStyleChanged(); }
-  void SetWidgetFrac(float frac) { mStyle.widgetFrac = Clip(frac, 0.f, 1.f);  mControl->OnResize(); mControl->SetDirty(false); OnStyleChanged(); }
-  void SetAngle(float angle) { mStyle.angle = Clip(angle, 0.f, 360.f);  mControl->SetDirty(false); OnStyleChanged(); }
-  void SetShowLabel(bool show) { mStyle.showLabel = show;  mControl->OnResize(); mControl->SetDirty(false); OnStyleChanged(); }
-  void SetShowValue(bool show) { mStyle.showValue = show;  mControl->OnResize(); mControl->SetDirty(false); OnStyleChanged(); }
+  void SetWidgetFrac(float frac) { mStyle.widgetFrac = Clip(frac, 0.f, 1.f); mControl->OnResize(); mControl->SetDirty(false); OnStyleChanged(); }
+  void SetAngle(float angle) { mStyle.angle = Clip(angle, 0.f, 360.f); mControl->SetDirty(false); OnStyleChanged(); }
+  void SetShowLabel(bool show) { mStyle.showLabel = show; mControl->OnResize(); mControl->SetDirty(false); OnStyleChanged(); }
+  void SetShowValue(bool show) { mStyle.showValue = show; mControl->OnResize(); mControl->SetDirty(false); OnStyleChanged(); }
   void SetRoundness(float roundness) { mStyle.roundness = Clip(roundness, 0.f, 1.f); mControl->SetDirty(false); OnStyleChanged(); }
   void SetDrawFrame(bool draw) { mStyle.drawFrame = draw; mControl->SetDirty(false); OnStyleChanged(); }
   void SetDrawShadows(bool draw) { mStyle.drawShadows = draw; mControl->SetDirty(false); OnStyleChanged(); }
@@ -1150,7 +1150,7 @@ public:
     if (mouseOver)
       g.FillTriangle(GetColor(kHL), x1, y1, x2, y2, x3, y3, &blend);
     
-    if(pressed && mControl->GetAnimationFunction())
+    if (pressed && mControl->GetAnimationFunction())
       DrawSplash(g);
     
     if (mStyle.drawFrame)
@@ -1167,9 +1167,9 @@ public:
   {
     IRECT clickableArea = parent;
     
-    if(!mLabelInWidget)
+    if (!mLabelInWidget)
     {
-      if(mStyle.showLabel && CStringHasContents(mLabelStr.Get()))
+      if (mStyle.showLabel && CStringHasContents(mLabelStr.Get()))
       {
         IRECT textRect;
         mControl->GetUI()->MeasureText(mStyle.labelText, mLabelStr.Get(), textRect);
