@@ -764,10 +764,12 @@ public:
   /** IVectorBase Constructor
   * @param style the IVStyle for this control
   * @param labelInWidget Set \c true If the label should be drawn inside the widget bounds
-  * @param valueInWidget  Set \c true If the value should be drawn inside the widget bounds */
-  IVectorBase(const IVStyle& style, bool labelInWidget = false, bool valueInWidget = false)
+  * @param valueInWidget  Set \c true If the value should be drawn inside the widget bounds
+  * @param maxValueLength the maximum number of chars expected in a value string */
+  IVectorBase(const IVStyle& style, bool labelInWidget = false, bool valueInWidget = false, int maxValueLength = 7)
   : mLabelInWidget(labelInWidget)
   , mValueInWidget(valueInWidget)
+  , mMaxValueLength(maxValueLength)
   {
     SetStyle(style);
   }
@@ -810,6 +812,7 @@ public:
   
   void SetLabelStr(const char* label) { mLabelStr.Set(label); mControl->SetDirty(false); OnStyleChanged(); }
   const char* GetLabelStr() const { return mLabelStr.Get(); }
+  void SetMaxValueLength(int maxValueLength) { mMaxValueLength = maxValueLength; mControl->SetDirty(false); OnStyleChanged(); }
   void SetValueStr(const char* value) { mValueStr.Set(value); mControl->SetDirty(false); OnStyleChanged(); }
   void SetWidgetFrac(float frac) { mStyle.widgetFrac = Clip(frac, 0.f, 1.f);  mControl->OnResize(); mControl->SetDirty(false); OnStyleChanged(); }
   void SetAngle(float angle) { mStyle.angle = Clip(angle, 0.f, 360.f);  mControl->SetDirty(false); OnStyleChanged(); }
@@ -1214,8 +1217,8 @@ public:
     {
       IRECT textRect;
       
-      if(CStringHasContents(mValueStr.Get()))
-        mControl->GetUI()->MeasureText(mStyle.valueText, mValueStr.Get(), textRect);
+      mControl->GetUI()->MeasureText(mStyle.valueText, " ", textRect);
+      textRect = textRect.GetMidHPadded(textRect.W() * mMaxValueLength);
 
       const float valueDisplayWidth = textRect.W() * mValueDisplayFrac;
 
@@ -1272,6 +1275,7 @@ protected:
   WDL_String mLabelStr;
   WDL_String mValueStr;
   EVShape mShape = EVShape::Rectangle;
+  int mMaxValueLength = DEFAULT_TEXT_ENTRY_LEN;
 };
 
 /** A base class for controls that can do do multitouch */
