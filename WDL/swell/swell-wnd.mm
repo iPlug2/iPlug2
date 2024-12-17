@@ -2627,7 +2627,7 @@ HWND GetForegroundWindow()
 //    if (ret == [window contentView]) return (HWND) window;
     return (HWND) ret;
   }
-  return (HWND)window;
+  return (HWND)[window contentView];
   SWELL_END_TRY(;)
   return NULL;
 }
@@ -2650,6 +2650,7 @@ HWND GetFocus()
 
     return (HWND) ret;
   }
+  return (HWND) [window contentView];
   SWELL_END_TRY(;)
   return 0;
 }
