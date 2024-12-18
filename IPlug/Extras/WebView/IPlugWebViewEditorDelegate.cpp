@@ -46,7 +46,8 @@ WebViewEditorDelegate::~WebViewEditorDelegate()
 
 void* WebViewEditorDelegate::OpenWindow(void* pParent)
 {
-  return OpenWebView(pParent, 0.0f, 0.0f, static_cast<float>(GetEditorWidth()), static_cast<float>(GetEditorHeight()), 1.0f);
+  mView = OpenWebView(pParent, 0.0f, 0.0f, static_cast<float>(GetEditorWidth()), static_cast<float>(GetEditorHeight()), 1.0f);
+  return mView;
 }
 
 void WebViewEditorDelegate::Resize(int width, int height)
@@ -59,4 +60,22 @@ void WebViewEditorDelegate::OnParentWindowResize(int width, int height)
 {
   SetWebViewBounds(0, 0, static_cast<float>(width), static_cast<float>(height));
   EditorResizeFromUI(width, height, false);
+}
+
+bool WebViewEditorDelegate::OnKeyDown(const IKeyPress& key)
+{
+  #ifdef OS_WIN
+  if (key.VK == VK_SPACE)
+  {
+    PostMessage((HWND)mView, WM_KEYDOWN, VK_SPACE, 0);
+    return true;
+  }
+  #endif
+  return false;
+}
+
+bool WebViewEditorDelegate::OnKeyUp(const IKeyPress& key)
+{
+
+  return true;
 }
