@@ -79,6 +79,8 @@ public:
   void SetAUAudioUnit(void* pAUAudioUnit);
 
   void SetOffline(bool renderingOffline) { IPlugProcessor::SetRenderingOffline(renderingOffline); }
+  void GetUserPresets(std::vector<std::string>& presetNames);
+  bool SupportsUserPresets() const { return mSupportsUserPresets; }
 
 private:
   // void HandleOneEvent(AURenderEvent const* event, int64_t startTime);
@@ -87,6 +89,7 @@ private:
   std::unordered_map<uint64_t, int> mAddressParamMap;
   void* mAUAudioUnit = nullptr;
   AudioTimeStamp mLastTimeStamp;
+  bool mSupportsUserPresets = false;
 };
 
 IPlugAUv3* MakePlug(const InstanceInfo& info);

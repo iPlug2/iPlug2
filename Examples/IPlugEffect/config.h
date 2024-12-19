@@ -36,6 +36,8 @@
 #define AUV2_VIEW_CLASS IPlugEffect_View
 #define AUV2_VIEW_CLASS_STR "IPlugEffect_View"
 
+#define AUV3_SUPPORTS_USER_PRESETS 1
+
 #define AAX_TYPE_IDS 'IEF1', 'IEF2'
 #define AAX_TYPE_IDS_AUDIOSUITE 'IEA1', 'IEA2'
 #define AAX_PLUG_MFR_STR "Acme"
