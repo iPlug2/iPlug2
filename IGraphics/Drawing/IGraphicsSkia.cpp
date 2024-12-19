@@ -114,9 +114,7 @@ IGraphicsSkia::Bitmap::Bitmap(const char* path, double sourceScale)
   
   auto image = SkImages::DeferredFromEncodedData(data);
   
-#ifdef IGRAPHICS_CPU
   image = image->makeRasterImage();
-#endif
   
   mDrawable.mImage = image;
   
@@ -129,9 +127,7 @@ IGraphicsSkia::Bitmap::Bitmap(const void* pData, int size, double sourceScale)
   auto data = SkData::MakeWithoutCopy(pData, size);
   auto image = SkImages::DeferredFromEncodedData(data);
   
-#ifdef IGRAPHICS_CPU
   image = image->makeRasterImage();
-#endif
   
   mDrawable.mImage = image;
 
@@ -141,11 +137,7 @@ IGraphicsSkia::Bitmap::Bitmap(const void* pData, int size, double sourceScale)
 
 IGraphicsSkia::Bitmap::Bitmap(sk_sp<SkImage> image, double sourceScale)
 {
-#ifdef IGRAPHICS_CPU
   mDrawable.mImage = image->makeRasterImage();
-#else
-  mDrawable.mImage = image;
-#endif
 
   SetBitmap(&mDrawable, mDrawable.mImage->width(), mDrawable.mImage->height(), sourceScale, 1.f);
 }
