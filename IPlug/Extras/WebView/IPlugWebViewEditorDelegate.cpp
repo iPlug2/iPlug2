@@ -30,6 +30,9 @@
 #pragma once
 
 #include "IPlugWebViewEditorDelegate.h"
+#include "winuser.h"
+
+extern float GetScaleForHWND(HWND hWnd);
 
 using namespace iplug;
 
@@ -46,13 +49,19 @@ WebViewEditorDelegate::~WebViewEditorDelegate()
 
 void* WebViewEditorDelegate::OpenWindow(void* pParent)
 {
-  return OpenWebView(pParent, 0.0f, 0.0f, static_cast<float>(GetEditorWidth()), static_cast<float>(GetEditorHeight()), 1.0f);
+  mParentWnd = (HWND)pParent;
+
+  float width = GetEditorWidth();
+  float height = GetEditorHeight();
+
+  return OpenWebView(pParent, 0., 0., static_cast<float>(width), static_cast<float>(height), 1.);
 }
 
 void WebViewEditorDelegate::Resize(int width, int height)
 {
-  SetWebViewBounds(0, 0, static_cast<float>(width), static_cast<float>(height));
-  EditorResizeFromUI(width, height, true);
+  auto scale = GetScaleForHWND((HWND)mParentWnd);
+  SetWebViewBounds(0, 0, static_cast<float>(width/scale), static_cast<float>(height/scale));
+  EditorResizeFromUI(width/scale, height/scale, true);
 }
 
 void WebViewEditorDelegate::OnParentWindowResize(int width, int height)

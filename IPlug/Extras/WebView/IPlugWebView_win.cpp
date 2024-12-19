@@ -108,10 +108,11 @@ IWebViewImpl::~IWebViewImpl()
 {
   CloseWebView();
 }
-
-void* IWebViewImpl::OpenWebView(void* pParent, float,float,float,float,float)
+ 
+void* IWebViewImpl::OpenWebView(void* pParent, float x, float y, float w, float h, float scale)
 {
   mParentWnd = (HWND)pParent;
+  SetWebViewBounds(x, y, w, h, 1.);
 
   WDL_String cachePath;
   WebViewCachePath(cachePath);
@@ -124,7 +125,6 @@ void* IWebViewImpl::OpenWebView(void* pParent, float,float,float,float,float)
   options->put_ExclusiveUserDataFolderAccess(FALSE);
   // options->put_Language(m_language.c_str());
   options->put_IsCustomCrashReportingEnabled(FALSE);
-
   CreateCoreWebView2EnvironmentWithOptions(
     nullptr, cachePathWide.data(), options.Get(),
     Callback<ICoreWebView2CreateCoreWebView2EnvironmentCompletedHandler>([&](
@@ -410,7 +410,7 @@ void IWebViewImpl::LoadFile(const char* fileName, const char* bundleID)
 {
   if (mCoreWebView)
   {
-    wil::com_ptr<ICoreWebView2_3> webView3 = mCoreWebView.try_query<ICoreWebView2_3>();
+    /*wil::com_ptr<ICoreWebView2_3> webView3 = mCoreWebView.try_query<ICoreWebView2_3>();
     if (webView3)
     {
       WDL_String webFolder{fileName};
@@ -421,7 +421,7 @@ void IWebViewImpl::LoadFile(const char* fileName, const char* bundleID)
 
       webView3->SetVirtualHostNameToFolderMapping(
         L"iplug.example", webFolderWide.data(), COREWEBVIEW2_HOST_RESOURCE_ACCESS_KIND_DENY_CORS);
-    }
+    }*/
 
     WDL_String baseName{fileName};
     WDL_String root{fileName};
@@ -429,12 +429,14 @@ void IWebViewImpl::LoadFile(const char* fileName, const char* bundleID)
     mWebRoot.Set(root.Get());
 
     WDL_String fullStr;
-    fullStr.SetFormatted(2048, "https://iplug.example/%s", baseName.get_filepart());
-    // fullStr.SetFormatted(2048, useCustomUrlScheme ? "iplug://%s" : "file://%s", fileName);
+    //fullStr.SetFormatted(2048, "https://iplug.example/%s", baseName.get_filepart());
+    //fullStr.SetFormatted(2048, useCustomUrlScheme ? "iplug://%s" : "file://%s", fileName);
+    fullStr.SetFormatted(2048, "file://%s", fileName);
     int bufSize = UTF8ToUTF16Len(fullStr.Get());
-    std::vector<WCHAR> fileUrlWide(bufSize);
-    UTF8ToUTF16(fileUrlWide.data(), fullStr.Get(), bufSize);
-    mCoreWebView->Navigate(fileUrlWide.data());
+   // std::vector<WCHAR> fileUrlWide(bufSize);
+    WCHAR fileUrlWide[2048];
+    UTF8ToUTF16(fileUrlWide, fullStr.Get(), bufSize);
+    mCoreWebView->Navigate(fileUrlWide);
   }
 }
 
