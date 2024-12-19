@@ -95,9 +95,9 @@ WebViewEditorDelegate::~WebViewEditorDelegate()
 {
   CloseWindow();
   
-  PLATFORM_VIEW* pHelperView = (PLATFORM_VIEW*) mHelperView;
+  PLATFORM_VIEW* pHelperView = (PLATFORM_VIEW*) mView;
   [pHelperView release];
-  mHelperView = nullptr;
+  mView = nullptr;
 }
 
 void* WebViewEditorDelegate::OpenWindow(void* pParent)
@@ -105,7 +105,7 @@ void* WebViewEditorDelegate::OpenWindow(void* pParent)
   PLATFORM_VIEW* pParentView = (PLATFORM_VIEW*) pParent;
     
   IPLUG_WKWEBVIEW_EDITOR_HELPER* pHelperView = [[IPLUG_WKWEBVIEW_EDITOR_HELPER alloc] initWithEditorDelegate: this];
-  mHelperView = (void*) pHelperView;
+  mView = (void*) pHelperView;
 
   if (pParentView)
   {
@@ -117,7 +117,7 @@ void* WebViewEditorDelegate::OpenWindow(void* pParent)
     mEditorInitFunc();
   }
   
-  return mHelperView;
+  return mView;
 }
 
 void WebViewEditorDelegate::Resize(int width, int height)
@@ -136,7 +136,17 @@ void WebViewEditorDelegate::ResizeWebViewAndHelper(float width, float height)
 {
   CGFloat w = static_cast<float>(width);
   CGFloat h = static_cast<float>(height);
-  IPLUG_WKWEBVIEW_EDITOR_HELPER* pHelperView = (IPLUG_WKWEBVIEW_EDITOR_HELPER*) mHelperView;
+  IPLUG_WKWEBVIEW_EDITOR_HELPER* pHelperView = (IPLUG_WKWEBVIEW_EDITOR_HELPER*) mView;
   [pHelperView setFrame:CGRectMake(0, 0, w, h)];
   SetWebViewBounds(0, 0, w, h);
+}
+
+bool WebViewEditorDelegate::OnKeyDown(const IKeyPress& key)
+{
+  return false;
+}
+
+bool WebViewEditorDelegate::OnKeyUp(const IKeyPress& key)
+{
+  return false;
 }

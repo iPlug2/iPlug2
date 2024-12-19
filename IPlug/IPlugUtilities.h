@@ -416,6 +416,147 @@ static FILE* fopenUTF8(const char* path, const char* mode)
 
 #endif
 
+/*
+ * DOM Virtual Key Code to iPlug2 Virtual Key Code converter
+ * 
+ * Virtual key code definitions adapted from Emscripten
+ * Copyright 2017 The Emscripten Authors. All rights reserved.
+ * Source: https://github.com/emscripten-core/emscripten/
+ * Licensed under MIT and University of Illinois/NCSA Open Source License
+ */
+
+// DOM Virtual Key codes (subset of most common keys)
+enum EDOMVirtualKey {
+  DOM_VK_BACK_SPACE = 0x08,
+  DOM_VK_TAB = 0x09,
+  DOM_VK_RETURN = 0x0D,
+  DOM_VK_SHIFT = 0x10,
+  DOM_VK_CONTROL = 0x11,
+  DOM_VK_ALT = 0x12,
+  DOM_VK_PAUSE = 0x13,
+  DOM_VK_CAPS_LOCK = 0x14,
+  DOM_VK_ESCAPE = 0x1B,
+  DOM_VK_SPACE = 0x20,
+  DOM_VK_PAGE_UP = 0x21,
+  DOM_VK_PAGE_DOWN = 0x22,
+  DOM_VK_END = 0x23,
+  DOM_VK_HOME = 0x24,
+  DOM_VK_LEFT = 0x25,
+  DOM_VK_UP = 0x26,
+  DOM_VK_RIGHT = 0x27,
+  DOM_VK_DOWN = 0x28,
+  DOM_VK_INSERT = 0x2D,
+  DOM_VK_DELETE = 0x2E,
+  DOM_VK_F1 = 0x70,
+  DOM_VK_F2 = 0x71,
+  DOM_VK_F3 = 0x72,
+  DOM_VK_F4 = 0x73,
+  DOM_VK_F5 = 0x74,
+  DOM_VK_F6 = 0x75,
+  DOM_VK_F7 = 0x76,
+  DOM_VK_F8 = 0x77,
+  DOM_VK_F9 = 0x78,
+  DOM_VK_F10 = 0x79,
+  DOM_VK_F11 = 0x7A,
+  DOM_VK_F12 = 0x7B,
+  DOM_VK_NUMPAD0 = 0x60,
+  DOM_VK_NUMPAD1 = 0x61,
+  DOM_VK_NUMPAD2 = 0x62,
+  DOM_VK_NUMPAD3 = 0x63,
+  DOM_VK_NUMPAD4 = 0x64,
+  DOM_VK_NUMPAD5 = 0x65,
+  DOM_VK_NUMPAD6 = 0x66,
+  DOM_VK_NUMPAD7 = 0x67,
+  DOM_VK_NUMPAD8 = 0x68,
+  DOM_VK_NUMPAD9 = 0x69
+};
+
+/**
+ * @brief Converts a DOM virtual key code to an iPlug2 virtual key code
+ * @param domKeyCode The DOM virtual key code to convert
+ * @return The corresponding iPlug2 virtual key code, or 0 if no mapping exists
+ */
+inline int DOMKeyToVirtualKey(uint32_t domKeyCode) {
+  switch(domKeyCode) {
+    case DOM_VK_BACK_SPACE:     return kVK_BACK;
+    case DOM_VK_TAB:            return kVK_TAB;
+    case DOM_VK_RETURN:         return kVK_RETURN;
+    case DOM_VK_SHIFT:          return kVK_SHIFT;
+    case DOM_VK_CONTROL:        return kVK_CONTROL;
+    case DOM_VK_ALT:            return kVK_MENU;
+    case DOM_VK_PAUSE:          return kVK_PAUSE;
+    case DOM_VK_CAPS_LOCK:      return kVK_CAPITAL;
+    case DOM_VK_ESCAPE:         return kVK_ESCAPE;
+    case DOM_VK_SPACE:          return kVK_SPACE;
+    case DOM_VK_PAGE_UP:        return kVK_PRIOR;
+    case DOM_VK_PAGE_DOWN:      return kVK_NEXT;
+    case DOM_VK_END:            return kVK_END;
+    case DOM_VK_HOME:           return kVK_HOME;
+    case DOM_VK_LEFT:           return kVK_LEFT;
+    case DOM_VK_UP:             return kVK_UP;
+    case DOM_VK_RIGHT:          return kVK_RIGHT;
+    case DOM_VK_DOWN:           return kVK_DOWN;
+    case DOM_VK_INSERT:         return kVK_INSERT;
+    case DOM_VK_DELETE:         return kVK_DELETE;
+    
+    // Numbers (both main keyboard and numpad)
+    case 0x30: case DOM_VK_NUMPAD0:  return kVK_0;
+    case 0x31: case DOM_VK_NUMPAD1:  return kVK_1;
+    case 0x32: case DOM_VK_NUMPAD2:  return kVK_2;
+    case 0x33: case DOM_VK_NUMPAD3:  return kVK_3;
+    case 0x34: case DOM_VK_NUMPAD4:  return kVK_4;
+    case 0x35: case DOM_VK_NUMPAD5:  return kVK_5;
+    case 0x36: case DOM_VK_NUMPAD6:  return kVK_6;
+    case 0x37: case DOM_VK_NUMPAD7:  return kVK_7;
+    case 0x38: case DOM_VK_NUMPAD8:  return kVK_8;
+    case 0x39: case DOM_VK_NUMPAD9:  return kVK_9;
+    
+    // Letters
+    case 0x41: return kVK_A;
+    case 0x42: return kVK_B;
+    case 0x43: return kVK_C;
+    case 0x44: return kVK_D;
+    case 0x45: return kVK_E;
+    case 0x46: return kVK_F;
+    case 0x47: return kVK_G;
+    case 0x48: return kVK_H;
+    case 0x49: return kVK_I;
+    case 0x4A: return kVK_J;
+    case 0x4B: return kVK_K;
+    case 0x4C: return kVK_L;
+    case 0x4D: return kVK_M;
+    case 0x4E: return kVK_N;
+    case 0x4F: return kVK_O;
+    case 0x50: return kVK_P;
+    case 0x51: return kVK_Q;
+    case 0x52: return kVK_R;
+    case 0x53: return kVK_S;
+    case 0x54: return kVK_T;
+    case 0x55: return kVK_U;
+    case 0x56: return kVK_V;
+    case 0x57: return kVK_W;
+    case 0x58: return kVK_X;
+    case 0x59: return kVK_Y;
+    case 0x5A: return kVK_Z;
+    
+    // Function keys
+    case DOM_VK_F1:  return kVK_F1;
+    case DOM_VK_F2:  return kVK_F2;
+    case DOM_VK_F3:  return kVK_F3;
+    case DOM_VK_F4:  return kVK_F4;
+    case DOM_VK_F5:  return kVK_F5;
+    case DOM_VK_F6:  return kVK_F6;
+    case DOM_VK_F7:  return kVK_F7;
+    case DOM_VK_F8:  return kVK_F8;
+    case DOM_VK_F9:  return kVK_F9;
+    case DOM_VK_F10: return kVK_F10;
+    case DOM_VK_F11: return kVK_F11;
+    case DOM_VK_F12: return kVK_F12;
+    
+    default: return 0; // No mapping available
+  }
+}
+
 END_IPLUG_NAMESPACE
 
 /**@}*/
