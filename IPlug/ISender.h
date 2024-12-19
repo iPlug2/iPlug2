@@ -38,16 +38,16 @@ struct ISenderData
   std::array<T, MAXNC> vals;
   
   ISenderData()
+  : vals{}
   {
-    memset(vals.data(), 0, sizeof(vals));
   }
   
   ISenderData(int ctrlTag, int nChans, int chanOffset)
   : ctrlTag(ctrlTag)
   , nChans(nChans)
   , chanOffset(chanOffset)
+  , vals{}
   {
-    memset(vals.data(), 0, sizeof(vals));
   }
   
   ISenderData(int ctrlTag, const std::array<T, MAXNC>& vals, int nChans = MAXNC, int chanOffset = 0)
