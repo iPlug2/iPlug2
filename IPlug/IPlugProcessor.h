@@ -264,6 +264,9 @@ public:
    * @return The number of space separated channel I/O configs that have been detected in IOStr */
   static int ParseChannelIOStr(const char* IOStr, WDL_PtrList<IOConfig>& channelIOList, int& totalNInChans, int& totalNOutChans, int& totalNInBuses, int& totalNOutBuses);
 
+  /** Return true if the DAW transport is currently playing */
+  bool IsTransportPlaying() const { return mTimeInfo.mTransportIsRunning; }
+  
 protected:
 #pragma mark - Methods called by the API class - you do not call these methods in your plug-in class
   void SetChannelConnections(ERoute direction, int idx, int n, bool connected);
