@@ -15,7 +15,11 @@
 
 #define SHARED_RESOURCES_SUBPATH "IPlugVisualizer"
 
+#ifdef APP_API
+#define PLUG_CHANNEL_IO "1-2"
+#else
 #define PLUG_CHANNEL_IO "1-1 2-2"
+#endif
 
 #define PLUG_LATENCY 0
 #define PLUG_TYPE 0
@@ -26,6 +30,10 @@
 #define PLUG_HAS_UI 1
 #define PLUG_WIDTH 600
 #define PLUG_HEIGHT 600
+#define PLUG_MIN_WIDTH 256
+#define PLUG_MIN_HEIGHT 256
+#define PLUG_MAX_WIDTH 8192
+#define PLUG_MAX_HEIGHT 8192
 #define PLUG_FPS 60
 #define PLUG_SHARED_RESOURCES 0
 #define PLUG_HOST_RESIZE 1

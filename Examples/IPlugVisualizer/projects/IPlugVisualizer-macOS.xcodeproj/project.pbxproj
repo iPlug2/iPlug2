@@ -531,8 +531,8 @@
 		4F5369DA20C446430089212E /* SVF.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SVF.h; sourceTree = "<group>"; };
 		4F5369DB20C446430089212E /* Oscillator_table.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Oscillator_table.h; sourceTree = "<group>"; };
 		4F5369DC20C446430089212E /* Oversampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Oversampler.h; sourceTree = "<group>"; };
-		4F5AE2912D1588B8009EF4AA /* fft.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fft.h; path = /Users/oli/Dev/iPlug2/WDL/fft.h; sourceTree = "<absolute>"; };
-		4F5AE2922D1588B8009EF4AA /* fft.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = fft.c; path = /Users/oli/Dev/iPlug2/WDL/fft.c; sourceTree = "<absolute>"; };
+		4F5AE2912D1588B8009EF4AA /* fft.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = fft.h; path = ../../../WDL/fft.h; sourceTree = "<group>"; };
+		4F5AE2922D1588B8009EF4AA /* fft.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = fft.c; path = ../../../WDL/fft.c; sourceTree = "<group>"; };
 		4F5C5F6A21BED08700E024A7 /* swell-appstub.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = "swell-appstub.mm"; path = "../../../WDL/swell/swell-appstub.mm"; sourceTree = "<group>"; };
 		4F5F344020C0226200487201 /* IPlugPaths.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.objcpp; name = IPlugPaths.mm; path = ../../../IPlug/IPlugPaths.mm; sourceTree = "<group>"; tabWidth = 2; };
 		4F63695220A463090022C370 /* IControls.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IControls.h; sourceTree = "<group>"; };
@@ -1731,12 +1731,12 @@
 		4FF01613134E0BCD001447BA /* WDL */ = {
 			isa = PBXGroup;
 			children = (
-				4F5AE2912D1588B8009EF4AA /* fft.h */,
-				4F5AE2922D1588B8009EF4AA /* fft.c */,
 				4FD16CF713B6343B001D0217 /* SWELL */,
 				4F1F1BE9135B1F60003A5BB2 /* wdlendian.h */,
 				4FF01719134E153A001447BA /* heapbuf.h */,
 				4FF016F4134E14E2001447BA /* mutex.h */,
+				4F5AE2912D1588B8009EF4AA /* fft.h */,
+				4F5AE2922D1588B8009EF4AA /* fft.c */,
 				4FF016F5134E14E2001447BA /* ptrlist.h */,
 				4FF016F6134E14E2001447BA /* wdlstring.h */,
 				4F78D8BD13B63A4E0032E0F3 /* wdltypes.h */,

@@ -30,7 +30,7 @@
 	<key>CFBundleExecutable</key>
 	<string>IPlugVisualizer</string>
 	<key>CFBundleGetInfoString</key>
-	<string>IPlugVisualizer v1.0.0 Copyright 2020 Acme Inc</string>
+	<string>IPlugVisualizer v1.0.0 Copyright 2024 Acme Inc</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.AcmeInc.audiounit.IPlugVisualizer</string>
 	<key>CFBundleInfoDictionaryVersion</key>
