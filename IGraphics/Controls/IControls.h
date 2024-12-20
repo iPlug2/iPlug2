@@ -533,6 +533,98 @@ public:
   }
 };
 
+/** A  control which accepts files dropped on it */
+class IVDropFileControl : public IControl
+                        , public IVectorBase
+{
+public:
+  IVDropFileControl(const IRECT& bounds, IActionFunction aF, const char* initialText = "Drop here", const char* fileExt = "", const char* label = "", const IVStyle& style = DEFAULT_STYLE.WithDrawShadows(false).WithValueText(DEFAULT_TEXT.WithVAlign(EVAlign::Middle)))
+  : IControl(bounds, aF)
+  , IVectorBase(style, false, true)
+  , mFileExt(fileExt)
+  {
+    AttachIControl(this, label);
+    SetValueStr(initialText);
+  }
+  
+  void Draw(IGraphics& g) override
+  {
+    DrawBackground(g, mRECT);
+    DrawWidget(g);
+    DrawLabel(g);
+    DrawValue(g, mMouseIsOver);
+  }
+  
+  void DrawWidget(IGraphics& g) override
+  {
+    DrawPressableRectangle(g, mWidgetBounds, false, mMouseIsOver, false);
+    
+    g.DrawDottedRect(GetColor(kX1), mWidgetBounds.GetPadded(-5.0f), &mBlend, mAboutToDrop ? 2.0f : 1.0f);
+  }
+  
+  void OnResize() override
+  {
+    SetTargetRECT(MakeRects(mRECT));
+  }
+  
+  void OnMouseDown(float x, float y, const IMouseMod& mod) override
+  {
+    WDL_String fileName;
+    GetUI()->PromptForFile(fileName, mPreviousPath, EFileAction::Open, mFileExt.Get());
+    
+    if (fileName.GetLength())
+      SetValueStr(fileName.Get());
+  }
+  
+  void OnDrop(const char* str, float x, float y) override
+  {
+    mLastDropStr.Set(str);
+    
+    if (mFileExt.GetLength() &&
+        strcmp(mLastDropStr.get_fileext() + 1, mFileExt.Get()) == 0)
+    {
+      mLastDropStr.Set("");
+      SetDirty(false);
+      return;
+    }
+    
+    SetValueStr(mLastDropStr.Get());
+    SetDirty(true);
+  }
+  
+  void OnDropOver(const char* ext, float x, float y) override
+  {
+    if (mFileExt.GetLength())
+    {
+      mAboutToDrop = strcmp(ext, mFileExt.Get()) == 0;
+    }
+    else
+    {
+      mAboutToDrop = true;
+    }
+    
+    SetDirty(false);
+  }
+  
+  void OnMouseOut() override
+  {
+    mAboutToDrop = false;
+    IControl::OnMouseOut();
+    SetDirty(false);
+  }
+  
+  const char* GetLastDroppedStr() const
+  {
+    return mLastDropStr.Get();
+  }
+  
+private:
+  WDL_String mFileExt;
+  WDL_String mPreviousPath;
+  WDL_String mLastDropStr;
+  bool mAboutToDrop = false;
+};
+
 /** A control to show a color swatch of up to 9 colors. */
 class IVColorSwatchControl : public IControl
                            , public IVectorBase
