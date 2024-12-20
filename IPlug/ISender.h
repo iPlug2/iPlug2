@@ -429,12 +429,16 @@ class IBufferSender : public ISender<MAXNC, QUEUE_SIZE, std::array<float, MAXBUF
 public:
   using TDataPacket = std::array<float, MAXBUF>;
   using TSender = ISender<MAXNC, QUEUE_SIZE, TDataPacket>;
-  const double NegativeInfinity = -std::numeric_limits<double>::infinity();
-  
+  const double kNoThresholdDb = -100;
+
   IBufferSender(double minThresholdDb = -90., int bufferSize = MAXBUF)
   : TSender()
-  , mThreshold(minThresholdDb == NegativeInfinity ? -1 : DBToAmp(minThresholdDb))
   {
+    if (minThresholdDb <= kNoThresholdDb)
+      mThreshold = -1.0f;
+    else
+      mThreshold = DBToAmp(minThresholdDb);
+    
     SetBufferSize(bufferSize);
   }
 
@@ -521,8 +525,8 @@ public:
     MagPhase,
   };
   
-  ISpectrumSender(int fftSize = 1024, int overlap = 2, EWindowType window = EWindowType::Hann, EOutputType outputType = EOutputType::MagPhase)
-  : TBufferSender(TBufferSender::NegativeInfinity, fftSize)
+  ISpectrumSender(int fftSize = 1024, int overlap = 2, EWindowType window = EWindowType::Hann, EOutputType outputType = EOutputType::MagPhase, double minThresholdDb = 90.0)
+  : TBufferSender(minThresholdDb, fftSize)
   , mWindowType(window)
   , mOutputType(outputType)
   {
