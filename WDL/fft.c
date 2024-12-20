@@ -1027,7 +1027,7 @@ int *WDL_fft_permute_tab(int fftsize)
 
 #endif
 
-void WDL_fft_init()
+void WDL_fft_init(void)
 {
   static int ffttabinit;
   if (!ffttabinit)
