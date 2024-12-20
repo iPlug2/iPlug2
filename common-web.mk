@@ -63,7 +63,6 @@ NANOVG_LDFLAGS = -s USE_WEBGL2=0 -s FULL_ES3=1
 
 # CFLAGS for both WAM and WEB targets
 CFLAGS = $(INCLUDE_PATHS) \
--std=c++17  \
 -Wno-bitwise-op-parentheses \
 -DWDL_NO_DEFINE_MINMAX \
 -DNDEBUG=1
