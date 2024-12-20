@@ -235,9 +235,7 @@ void IGraphicsIOS::PromptForDirectory(WDL_String& path, IFileDialogCompletionHan
 {
   assert(completionHandler != nullptr && "You must provide a completion handler on iOS");
   
-  NSString* pDefaultFileName = nil;
   NSString* pDefaultPath = nil;
-  NSMutableArray* pFileTypes = [[NSMutableArray alloc] init];
 
   if (path.GetLength())
     pDefaultPath = [NSString stringWithUTF8String:path.Get()];
