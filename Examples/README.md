@@ -18,6 +18,7 @@ The following examples are more specialized:
 * **IPlugReaperExtension** : This is a template project for making a [Reaper Extension](http://reaper.fm/sdk/plugin/plugin.php). No realtime audio processing code, obviously. Making a reaper extension can be painful since it is all based around the Win32 APIs. This abstracts away some of the nastyness.
 * **IPlugReaperPlugin** : This is a plugin that calls [Reaper Reascript API](https://www.reaper.fm/sdk/reascript/reascripthelp.html#c) functions. Supports VST2, VST3 and CLAP formats. Also allows embedded UIs.
 * **IPlugConvoEngine** : UI-less example of WDL_ConvoEngine that reports a delay to the host for plugin-delay-compensation (PDC)
+* **IPlugVisualizer** : Demonstrates visualizing audio signals.
 
 * **IPlugCocoaUI** : An iOS/macOS project using AppKit/UIKit for the user interface 
 * **IPlugSwiftUI** : An iOS/macOS only project using SwiftUI for the user interface 
