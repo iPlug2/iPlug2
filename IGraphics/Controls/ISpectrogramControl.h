@@ -163,7 +163,7 @@ public:
     
     APIBitmap tempAPIBitmap(mImgID, w, h, 1, 1);
     IBitmap tempBitmap(&tempAPIBitmap, 1, false);
-    g.DrawFittedBitmap(tempBitmap, mRECT);
+    g.DrawRotatedBitmap(tempBitmap, mRECT.MW(), mRECT.MH(), -90);
 #endif
     
     DrawCursorValues(g);
@@ -320,21 +320,19 @@ private:
     int w = NumBins();
     int h = NumRows();
     
-    auto contrastRange = [](float t, float a, float r) {
-      t *= r*2.0; // range
-      if (t < 0.0)
-        t = 0.0;
-      if (t > 1.0)
-        t = 1.0;
-      // contrast
-      float f0 = (1.0/(1.0 - a) - 2.0)*(1.0 - 2.0*t);
-      float ga;
-      if (t < 0.5)
-        ga = t/(f0 + 1.0);
+    auto contrastRange = [](float value, float contrast, float range) {
+      // Apply range
+      float scaled = std::clamp(value * (range * 2.0f), 0.0f, 1.0f);
+      float f0 = (1.0f / (1.0f - contrast) - 2.0f) * (1.0f - 2.0f * scaled);
+
+      // Apply contrast
+      float result;
+      if (scaled < 0.5f)
+        result = scaled / (f0 + 1.0f);
       else
-        ga = (f0 - t)/(f0 - 1.0);
-      t = ga;
-      return t;
+        result = (f0 - scaled) / (f0 - 1.0f);
+
+      return result;
     };
 
     for (int y = 0; y < h; y++)

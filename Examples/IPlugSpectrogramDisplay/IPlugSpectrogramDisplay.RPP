@@ -1,4 +1,4 @@
-<REAPER_PROJECT 0.1 "7.28/macOS-arm64" 1734735355
+<REAPER_PROJECT 0.1 "7.28/macOS-arm64" 1734774898
   RIPPLE 0
   GROUPOVERRIDE 0 0 0
   AUTOXFADE 129
@@ -69,7 +69,7 @@
   MASTERTRACKVIEW 0 0.6667 0.5 0.5 0 0 0 0 0 0 -1 -1 0 0
   MASTERHWOUT 0 0 1 0 0 0 0 -1
   MASTER_NCH 2 2
-  MASTER_VOLUME 1 0 -1 -1 1
+  MASTER_VOLUME 0.20224078858311 0 -1 -1 1
   MASTER_FX 1
   MASTER_SEL 0
   <MASTERPLAYSPEEDENV
@@ -127,7 +127,7 @@
       WAK 0 0
       BYPASS 0 0 0
       <JS synthesis/tonegenerator ""
-        -29 -6 7060 0 0 0 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        -29 -6 9521 0 0 0 0 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
       >
       FLOAT 29 500 554 223
       FXID {B69CDEA2-259D-034E-906F-A07322E28EF8}
@@ -139,15 +139,16 @@
         AUDIOCTLWT 1 1
         LFOSHAPE 0
         LFOSYNC 0 0 0
-        LFOSPEED 0.018271 0
+        LFOSPEED 0.541443 0
       >
       WAK 0 0
       BYPASS 0 0 0
       <VST "VST3: IPlugSpectrogramDisplay (AcmeInc)" IPlugSpectrogramDisplay.vst3 0 "" 715991724{F2AEE70D00DE4F4E41636D6535686667} ""
         rCqtKu5e7f4BAAAAAQAAAAAAAAACAAAAAQAAAAAAAAACAAAAAAAAACQAAAABAAAA//8QAA==
-        FAAAAAEAAAADAAAAgJ0+QKuqqqpKkFJAAAAAAAAAAAAAAAAA
+        FAAAAAEAAABWVVVVFaJJQAEAAACAjFFAAAAAAAAAAAAAAAAA
         AAAQAAAA
       >
+      WET 0.639963 0
       FLOATPOS 0 0 0 0
       FXID {287DADD4-470B-DA45-B99D-E2D783F4E52D}
       WAK 0 0
