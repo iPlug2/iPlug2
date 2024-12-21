@@ -196,7 +196,6 @@ public:
         if (c > 0)
           break;
 
-        ScaleSpectrogramData(c, d.vals[c]);
         UpdateSpectrogram(c, d.vals[c]);
       }
       
@@ -351,40 +350,33 @@ private:
       }
     }
   }
-  
-  void ScaleSpectrogramData(int ch, TDataPacket& powerSpectrum)
-  {
-    auto numBins = NumBins();
-    float xRecip = 1.0f / float(numBins-1);
-    
-    // Process bins from right to left to avoid overwriting values we still need
-    for (int i = numBins - 1; i > 0; i--)
-    {
-      float x = CalcXNorm(i * xRecip, mFreqScale) * float(numBins-1);
-
-      // Bilinear interpolation
-      int id0 = (int) x;
-      int id1 = (int) x + 1;
-      float t = x - (int) x;
-
-      float v0 = powerSpectrum[id0];
-      float v1 = powerSpectrum[id1 & (numBins-1)];
-      
-      powerSpectrum[i] = (1.0f - t) * v0 + t * v1;
-    }
-    
-    // Scale Y
-    for (auto i = 0; i < numBins; i++)
-    {
-      powerSpectrum[i] = CalcYNorm(powerSpectrum[i]);
-    }
-  }
     
   void UpdateSpectrogram(int ch, TDataPacket& powerSpectrum)
   {
-    int numRows = NumRows();
-    int rowIndex = mTextureBufWriteIndex++ % numRows;
-    std::copy(powerSpectrum.begin(), powerSpectrum.begin() + NumBins(), mTextureBuf.begin() + rowIndex * NumBins());
+    const auto numBins = NumBins();
+    
+    // Remap frequency bins using the selected scale
+    for (int i = numBins - 1; i > 0; i--)
+    {
+      const float normalizedFreq = float(i) / float(numBins-1);
+      const float mappedBin = CalcXNorm(normalizedFreq, mFreqScale) * float(numBins-1);
+      
+      // Linear interpolation between adjacent bins
+      const int bin0 = static_cast<int>(mappedBin);
+      const float t = mappedBin - bin0;
+      const float v0 = powerSpectrum[bin0];
+      const float v1 = powerSpectrum[(bin0 + 1) & (numBins-1)];
+      
+      powerSpectrum[i] = iplug::Lerp(v0, v1, t);
+    }
+    
+    // Apply amplitude scaling
+    std::transform(powerSpectrum.begin(), powerSpectrum.begin() + numBins,
+                  powerSpectrum.begin(), [this](float val) { return CalcYNorm(val); });
+    
+    // Copy to texture buffer
+    const int rowIndex = mTextureBufWriteIndex++ % NumRows();
+    std::copy_n(powerSpectrum.begin(), numBins, mTextureBuf.begin() + rowIndex * numBins);
   }
 
   void RezizeBuffers()
