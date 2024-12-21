@@ -525,7 +525,7 @@ public:
     MagPhase,
   };
   
-  ISpectrumSender(int fftSize = 1024, int overlap = 2, EWindowType window = EWindowType::Hann, EOutputType outputType = EOutputType::MagPhase, double minThresholdDb = -90.0)
+  ISpectrumSender(int fftSize = 1024, int overlap = 2, EWindowType window = EWindowType::Hann, EOutputType outputType = EOutputType::MagPhase, double minThresholdDb = -100.0)
   : TBufferSender(minThresholdDb, fftSize)
   , mWindowType(window)
   , mOutputType(outputType)
