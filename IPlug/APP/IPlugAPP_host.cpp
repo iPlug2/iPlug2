@@ -206,7 +206,7 @@ std::string IPlugAPPHost::GetAudioDeviceName(uint32_t deviceID) const
 
   if (pos != std::string::npos)
   {
-    std::string subStr = str.substr(pos + 1);
+    std::string subStr = str.substr(pos + 2);
     return subStr;
   }
   else
@@ -274,7 +274,7 @@ int IPlugAPPHost::GetMIDIPortNumber(ERoute direction, const char* nameToTest) co
 
 void IPlugAPPHost::ProbeAudioIO()
 {
-  DBGMSG("\nRtAudio Version %s", RtAudio::getVersion().c_str());
+  DBGMSG("\nRtAudio Version %s\n", RtAudio::getVersion().c_str());
 
   RtAudio::DeviceInfo info;
 
@@ -401,20 +401,28 @@ bool IPlugAPPHost::TryToChangeAudioDriverType()
 
 bool IPlugAPPHost::TryToChangeAudio()
 {
+  std::optional<uint32_t> inputID;
+  
 #if defined OS_WIN
   // ASIO has one device, use the output for the input ID
-  inputID = GetAudioDeviceID(mState.mAudioDriverType == kDeviceASIO ? mState.mAudioOutDev.Get() : mState.mAudioInDev.Get());
+  if (mState.mAudioDriverType == kDeviceASIO)
+    inputID = GetAudioDeviceID(mState.mAudioOutDev.Get());
+  else if (GetPlug()->MaxNChannels(ERoute::kInput) > 0) // Only get input device if plugin needs inputs
+    inputID = GetAudioDeviceID(mState.mAudioInDev.Get());
 #elif defined OS_MAC
-  auto inputID = GetAudioDeviceID(mState.mAudioInDev.Get());
+  if (GetPlug()->MaxNChannels(ERoute::kInput) > 0) // Only get input device if plugin needs inputs
+    inputID = GetAudioDeviceID(mState.mAudioInDev.Get());
 #else
   #error NOT IMPLEMENTED
 #endif
+
   auto outputID = GetAudioDeviceID(mState.mAudioOutDev.Get());
 
   bool failedToFindDevice = false;
   bool resetToDefault = false;
 
-  if (!inputID)
+  // Only check input device if we need one
+  if (inputID.has_value() && !inputID.value())
   {
     if (mDefaultInputDev)
     {
@@ -424,8 +432,10 @@ bool IPlugAPPHost::TryToChangeAudio()
       if (mAudioInputDevIDs.size())
         mState.mAudioInDev.Set(GetAudioDeviceName(inputID.value()).c_str());
     }
-    else
+    else if (mState.mAudioDriverType == kDeviceASIO) // Only fail if ASIO
       failedToFindDevice = true;
+    else
+      inputID = std::nullopt; // Clear the input ID if we don't need it
   }
 
   if (!outputID)
@@ -451,9 +461,10 @@ bool IPlugAPPHost::TryToChangeAudio()
   if (failedToFindDevice)
     MessageBox(gHWND, "Please check the audio settings", "Error", MB_OK);
 
-  if (inputID && outputID)
+  if (outputID && (!inputID.has_value() || inputID.value()))
   {
-    return InitAudio(inputID.value(), outputID.value(), mState.mAudioSR, mState.mBufferSize);
+    uint32_t inId = inputID.has_value() ? inputID.value() : 0;
+    return InitAudio(inId, outputID.value(), mState.mAudioSR, mState.mBufferSize);
   }
 
   return false;
@@ -573,22 +584,54 @@ bool IPlugAPPHost::InitAudio(uint32_t inID, uint32_t outID, uint32_t sr, uint32_
 
   RtAudio::StreamParameters iParams, oParams;
   iParams.deviceId = inID;
-  iParams.nChannels = GetPlug()->MaxNChannels(ERoute::kInput); // TODO: flexible channel count
-  iParams.firstChannel = 0; // TODO: flexible channel count
-
   oParams.deviceId = outID;
-  oParams.nChannels = GetPlug()->MaxNChannels(ERoute::kOutput); // TODO: flexible channel count
-  oParams.firstChannel = 0; // TODO: flexible channel count
 
-  mBufferSize = iovs; // mBufferSize may get changed by stream
+  // Store the actual available channel counts
+  bool hasInput = inID != 0 && GetPlug()->MaxNChannels(ERoute::kInput) > 0;
+  
+  mNumDeviceInputs = 0; // Default to 0 inputs
+  mNumDeviceOutputs = 0;
 
-  DBGMSG("trying to start audio stream @ %i sr, buffer size %i\nindev = %s\noutdev = %s\ninputs = %i\noutputs = %i\n",
-    sr, mBufferSize, GetAudioDeviceName(inID).c_str(), GetAudioDeviceName(outID).c_str(), iParams.nChannels, oParams.nChannels);
+  if (hasInput && inID != 0)
+  {
+    try {
+      RtAudio::DeviceInfo inputInfo = mDAC->getDeviceInfo(inID);
+      mNumDeviceInputs = inputInfo.inputChannels;
+    }
+    catch (const std::exception& e) {
+      DBGMSG("Failed to get input device info: %s\n", e.what());
+      return false;
+    }
+  }
+    
+  try {
+    RtAudio::DeviceInfo outputInfo = mDAC->getDeviceInfo(outID);
+    mNumDeviceOutputs = outputInfo.outputChannels;
+  }
+  catch (const std::exception& e) {
+    DBGMSG("Failed to get output device info: %s\n", e.what());
+    return false;
+  }
+
+  // Request max channels but allow less
+  iParams.nChannels = hasInput ? GetPlug()->MaxNChannels(ERoute::kInput) : 0;
+  oParams.nChannels = GetPlug()->MaxNChannels(ERoute::kOutput);
+  
+  iParams.firstChannel = 0;
+  oParams.firstChannel = 0;
+
+  mBufferSize = iovs;
+
+  DBGMSG("Trying to start audio stream @ %i sr, buffer size %i\nOutput Device = %s (%d ch)\n%s%s",
+         sr, mBufferSize,
+         GetAudioDeviceName(outID).c_str(), mNumDeviceOutputs,
+         hasInput ? "Input Device = " : "",
+         hasInput ? (GetAudioDeviceName(inID) + " (" + std::to_string(mNumDeviceInputs) + " ch)\n").c_str() : "");
 
   RtAudio::StreamOptions options;
   options.flags = RTAUDIO_NONINTERLEAVED;
-  // options.streamName = BUNDLE_NAME; // JACK stream name, not used on other streams
 
+  // Reset state variables
   mBufIndex = 0;
   mSamplesElapsed = 0;
   mSampleRate = static_cast<double>(sr);
@@ -600,26 +643,56 @@ bool IPlugAPPHost::InitAudio(uint32_t inID, uint32_t outID, uint32_t sr, uint32_
   mIPlug->SetSampleRate(mSampleRate);
   mIPlug->OnReset();
 
-  auto status = mDAC->openStream(&oParams, iParams.nChannels > 0 ? &iParams : nullptr, RTAUDIO_FLOAT64, sr, &mBufferSize, &AudioCallback, this, &options);
+  auto status = mDAC->openStream(
+    &oParams,
+    hasInput ? &iParams : nullptr,
+    RTAUDIO_FLOAT64,
+    sr,
+    &mBufferSize,
+    &AudioCallback,
+    this,
+    &options
+  );
 
-  if (status != RtAudioErrorType::RTAUDIO_NO_ERROR)
-  {
-    DBGMSG("%s", mDAC->getErrorText().c_str());
-    return false;
+  // If we fail with requested channels, try with available channels
+  if (status != RtAudioErrorType::RTAUDIO_NO_ERROR) {
+    
+    mDAC->closeStream();
+    iParams.nChannels = std::min(iParams.nChannels, (unsigned int)mNumDeviceInputs);
+    oParams.nChannels = std::min(oParams.nChannels, (unsigned int)mNumDeviceOutputs);
+
+    auto status = mDAC->openStream(
+      &oParams,
+      iParams.nChannels > 0 ? &iParams : nullptr,
+      RTAUDIO_FLOAT64,
+      sr,
+      &mBufferSize,
+      &AudioCallback,
+      this,
+      &options
+    );
+
+    if (status != RtAudioErrorType::RTAUDIO_NO_ERROR) {
+      DBGMSG("%s", mDAC->getErrorText().c_str());
+      return false;
+    }
   }
 
-  for (int i = 0; i < iParams.nChannels; i++)
+  // Allocate buffer pointers
+  mInputBufPtrs.Empty();
+  mOutputBufPtrs.Empty();
+
+  for (int i = 0; i < GetPlug()->MaxNChannels(ERoute::kInput); i++)
   {
-    mInputBufPtrs.Add(nullptr); //will be set in callback
+    mInputBufPtrs.Add(nullptr);
   }
     
-  for (int i = 0; i < oParams.nChannels; i++)
+  for (int i = 0; i < GetPlug()->MaxNChannels(ERoute::kOutput); i++)
   {
-    mOutputBufPtrs.Add(nullptr); //will be set in callback
+    mOutputBufPtrs.Add(nullptr);
   }
     
   mDAC->startStream();
-
   mActiveState = mState;
   
   return true;
@@ -679,8 +752,8 @@ int IPlugAPPHost::AudioCallback(void* pOutputBuffer, void* pInputBuffer, uint32_
 {
   IPlugAPPHost* _this = (IPlugAPPHost*) pUserData;
 
-  int nins = _this->GetPlug()->MaxNChannels(ERoute::kInput);
-  int nouts = _this->GetPlug()->MaxNChannels(ERoute::kOutput);
+  int nins = _this->mNumDeviceInputs;
+  int nouts = _this->mNumDeviceOutputs;
   
   double* pInputBufferD = static_cast<double*>(pInputBuffer);
   double* pOutputBufferD = static_cast<double*>(pOutputBuffer);

@@ -212,6 +212,10 @@ public:
   static WDL_DLGRET MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
   IPlugAPP* GetPlug() { return mIPlug.get(); }
+
+  int GetNumDeviceInputChannels() const { return mNumDeviceInputs; }
+  int GetNumDeviceOutputChannels() const { return mNumDeviceOutputs; }
+
 private:
   std::unique_ptr<IPlugAPP> mIPlug = nullptr;
   std::unique_ptr<RtAudio> mDAC = nullptr;
@@ -249,6 +253,9 @@ private:
   
   WDL_PtrList<double> mInputBufPtrs;
   WDL_PtrList<double> mOutputBufPtrs;
+  
+  int mNumDeviceInputs = 0;
+  int mNumDeviceOutputs = 0;
   
   friend class IPlugAPP;
 };
