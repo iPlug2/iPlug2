@@ -215,7 +215,7 @@ std::string IPlugAPPHost::GetAudioDeviceName(uint32_t deviceID) const
   }
 }
 
-IPlugAPPHost::ValidatedID IPlugAPPHost::GetAudioDeviceID(const char* deviceNameToTest) const
+std::optional<uint32_t> IPlugAPPHost::GetAudioDeviceID(const char* deviceNameToTest) const
 {
   auto deviceIDs = mDAC->getDeviceIds();
 
@@ -225,11 +225,11 @@ IPlugAPPHost::ValidatedID IPlugAPPHost::GetAudioDeviceID(const char* deviceNameT
 
     if (std::string_view(deviceNameToTest) == name)
     {
-      return ValidatedID(deviceID);
+      return deviceID;
     }
   }
   
-  return ValidatedID();
+  return std::nullopt;
 }
 
 int IPlugAPPHost::GetMIDIPortNumber(ERoute direction, const char* nameToTest) const
@@ -401,49 +401,42 @@ bool IPlugAPPHost::TryToChangeAudioDriverType()
 
 bool IPlugAPPHost::TryToChangeAudio()
 {
-  ValidatedID inputID;
-  ValidatedID outputID;
-
 #if defined OS_WIN
-  // ASIO has one device
-  if (mState.mAudioDriverType == kDeviceASIO)
-    inputID = GetAudioDeviceID(mState.mAudioOutDev.Get());
-  else
-    inputID = GetAudioDeviceID(mState.mAudioInDev.Get());
+  // ASIO has one device, use the output for the input ID
+  inputID = GetAudioDeviceID(mState.mAudioDriverType == kDeviceASIO ? mState.mAudioOutDev.Get() : mState.mAudioInDev.Get());
 #elif defined OS_MAC
-  inputID = GetAudioDeviceID(mState.mAudioInDev.Get());
+  auto inputID = GetAudioDeviceID(mState.mAudioInDev.Get());
 #else
   #error NOT IMPLEMENTED
 #endif
-  outputID = GetAudioDeviceID(mState.mAudioOutDev.Get());
+  auto outputID = GetAudioDeviceID(mState.mAudioOutDev.Get());
 
   bool failedToFindDevice = false;
   bool resetToDefault = false;
 
-  if (!inputID.mValid)
+  if (!inputID)
   {
-    if (mDefaultInputDev.mValid)
+    if (mDefaultInputDev)
     {
       resetToDefault = true;
       inputID = mDefaultInputDev;
 
       if (mAudioInputDevIDs.size())
-        mState.mAudioInDev.Set(GetAudioDeviceName(inputID.mDeviceID).c_str());
+        mState.mAudioInDev.Set(GetAudioDeviceName(inputID.value()).c_str());
     }
     else
       failedToFindDevice = true;
   }
 
-  if (!outputID.mValid)
+  if (!outputID)
   {
-    if (mDefaultOutputDev.mValid)
+    if (mDefaultOutputDev)
     {
       resetToDefault = true;
-
       outputID = mDefaultOutputDev;
 
       if (mAudioOutputDevIDs.size())
-        mState.mAudioOutDev.Set(GetAudioDeviceName(outputID.mDeviceID).c_str());
+        mState.mAudioOutDev.Set(GetAudioDeviceName(outputID.value()).c_str());
     }
     else
       failedToFindDevice = true;
@@ -458,9 +451,9 @@ bool IPlugAPPHost::TryToChangeAudio()
   if (failedToFindDevice)
     MessageBox(gHWND, "Please check the audio settings", "Error", MB_OK);
 
-  if (inputID.mValid && outputID.mValid)
+  if (inputID && outputID)
   {
-    return InitAudio(inputID.mDeviceID, outputID.mDeviceID, mState.mAudioSR, mState.mBufferSize);
+    return InitAudio(inputID.value(), outputID.value(), mState.mAudioSR, mState.mBufferSize);
   }
 
   return false;

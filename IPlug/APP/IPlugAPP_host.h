@@ -33,6 +33,7 @@
 #include <vector>
 #include <limits>
 #include <memory>
+#include <optional>
 
 #include "wdltypes.h"
 #include "wdlstring.h"
@@ -81,18 +82,6 @@ class IPlugAPP;
 class IPlugAPPHost
 {
 public:
-  
-  /** Used to store an audio device ID and a flag to validate it */
-  struct ValidatedID
-  {
-    ValidatedID() : mDeviceID(0), mValid(false) {}
-    ValidatedID(uint32_t deviceID) : mDeviceID(deviceID), mValid(true) {}
-
-    /** The device ID used by RTAudio to represent the device */
-    uint32_t mDeviceID;
-    /** A valid indicating if this object contains a valid ID */
-    bool mValid;
-  };
   
   /** Used to manage changes to app I/O */
   struct AppState
@@ -195,8 +184,8 @@ public:
   
   /** Returns the a validated audio device ID linked to a particular name
   * @param name The name of the audio device to test
-  * @return The ID RTAudio has given the audio device along with a flag for validity */
-  ValidatedID GetAudioDeviceID(const char* name) const;
+  * @return The ID RTAudio has given the audio device if found */
+  std::optional<uint32_t> GetAudioDeviceID(const char* name) const;
   
   /** @param direction Either kInput or kOutput
    * @param name The name of the midi device
@@ -247,9 +236,9 @@ private:
   bool mAudioDone = false;
 
   /** The ID of the operating system's default input device if detected */
-  ValidatedID mDefaultInputDev;
+  std::optional<uint32_t> mDefaultInputDev;
   /** The ID of the operating system's default output device if detected */
-  ValidatedID mDefaultOutputDev;
+  std::optional<uint32_t> mDefaultOutputDev;
     
   WDL_String mINIPath;
 
