@@ -27,6 +27,8 @@ using namespace iplug;
 using namespace igraphics;
 #endif
 
+extern HWND gPrefsHWND;
+
 
 // check the input and output devices, find matching srs
 void IPlugAPPHost::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inputDevInfo, RtAudio::DeviceInfo* outputDevInfo)
@@ -319,6 +321,7 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
   switch(uMsg)
   {
     case WM_INITDIALOG:
+      gPrefsHWND = hwndDlg;
       _this->PopulatePreferencesDialog(hwndDlg);
       mTempState = mState;
       
@@ -332,6 +335,7 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
             _this->TryToChangeAudio();
 
           EndDialog(hwndDlg, IDOK); // INI file will be changed see MainDialogProc
+          gPrefsHWND = 0;
           break;
         case IDAPPLY:
           _this->TryToChangeAudio();
@@ -349,6 +353,7 @@ WDL_DLGRET IPlugAPPHost::PreferencesDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
             _this->ProbeAudioIO();
             _this->TryToChangeAudio();
           }
+          gPrefsHWND = 0;
 
           break;
 

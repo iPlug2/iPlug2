@@ -147,6 +147,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmdPa
 #include "IPlugPaths.h"
 
 HWND gHWND;
+HWND gPrefsHWND;
 extern HMENU SWELL_app_stocksysmenu;
 
 int main(int argc, char *argv[])

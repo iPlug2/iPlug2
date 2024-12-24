@@ -63,6 +63,11 @@
 #include "RtAudio.h"
 #include "RtMidi.h"
 
+#ifdef OS_MAC
+#include <CoreAudio/CoreAudio.h>
+#include <CoreMIDI/CoreMIDI.h>
+#endif
+
 #define OFF_TEXT "off"
 
 extern HWND gHWND;
@@ -258,6 +263,15 @@ private:
   int mNumDeviceOutputs = 0;
   
   friend class IPlugAPP;
+
+#ifdef OS_MAC
+  static OSStatus AudioDeviceListChanged(AudioObjectID inObjectID, UInt32 inNumberAddresses, const AudioObjectPropertyAddress* inAddresses, void* inClientData);
+  static void MIDIDeviceListChanged(const MIDINotification *message, void* refCon);
+  
+  void RegisterDeviceNotifications();
+  void UnregisterDeviceNotifications();
+  void OnDeviceListChanged();
+#endif
 };
 
 END_IPLUG_NAMESPACE
