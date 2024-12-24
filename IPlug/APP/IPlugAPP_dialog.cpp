@@ -67,21 +67,35 @@ void IPlugAPPHost::PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* inf
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_L,CB_RESETCONTENT,0,0);
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_RESETCONTENT,0,0);
 
+  // If mono input, change left channel label to "Input Channel"
+  if (info->inputChannels == 1)
+  {
+    SetDlgItemText(hwndDlg, IDC_STATIC_IN_L, "Input");
+    ShowWindow(GetDlgItem(hwndDlg, IDC_COMBO_AUDIO_IN_R), SW_HIDE);
+    ShowWindow(GetDlgItem(hwndDlg, IDC_STATIC_IN_R), SW_HIDE);
+  }
+  else
+  {
+    SetDlgItemText(hwndDlg, IDC_STATIC_IN_L, "Input 1 (L)");
+    ShowWindow(GetDlgItem(hwndDlg, IDC_COMBO_AUDIO_IN_R), SW_SHOW); 
+    ShowWindow(GetDlgItem(hwndDlg, IDC_STATIC_IN_R), SW_SHOW);
+  }
+
   int i;
 
-  for (i=0; i<info->inputChannels -1; i++)
+  for (i=0; i<info->inputChannels; i++)
   {
     buf.SetFormatted(20, "%i", i+1);
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_L,CB_ADDSTRING,0,(LPARAM)buf.Get());
-    SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_ADDSTRING,0,(LPARAM)buf.Get());
+    
+    if (info->inputChannels > 1)
+      SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_ADDSTRING,0,(LPARAM)buf.Get());
   }
 
-  // TEMP
-  buf.SetFormatted(20, "%i", i+1);
-  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_ADDSTRING,0,(LPARAM)buf.Get());
-
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_L,CB_SETCURSEL, mState.mAudioInChanL - 1, 0);
-  SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_SETCURSEL, mState.mAudioInChanR - 1, 0);
+  
+  if (info->inputChannels > 1)
+    SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_SETCURSEL, mState.mAudioInChanR - 1, 0);
 }
 
 void IPlugAPPHost::PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
