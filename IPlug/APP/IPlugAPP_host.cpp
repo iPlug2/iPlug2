@@ -26,6 +26,7 @@ using namespace iplug;
 
 std::unique_ptr<IPlugAPPHost> IPlugAPPHost::sInstance;
 UINT gSCROLLMSG;
+extern HWND gPrefsHWND;
 
 IPlugAPPHost::IPlugAPPHost()
 : mIPlug(MakePlug(InstanceInfo{this}))
@@ -35,6 +36,10 @@ IPlugAPPHost::IPlugAPPHost()
 IPlugAPPHost::~IPlugAPPHost()
 {
   mExiting = true;
+  
+#ifdef OS_MAC
+  UnregisterDeviceNotifications();
+#endif
   
   CloseAudio();
   
@@ -59,12 +64,16 @@ bool IPlugAPPHost::Init()
   if (!InitState())
     return false;
   
-  TryToChangeAudioDriverType(); // will init RTAudio with an API type based on gState->mAudioDriverType
-  ProbeAudioIO(); // find out what audio IO devs are available and put their IDs in the global variables gAudioInputDevs / gAudioOutputDevs
-  InitMidi(); // creates RTMidiIn and RTMidiOut objects
-  ProbeMidiIO(); // find out what midi IO devs are available and put their names in the global variables gMidiInputDevs / gMidiOutputDevs
+  TryToChangeAudioDriverType();
+  ProbeAudioIO();
+  InitMidi();
+  ProbeMidiIO();
   SelectMIDIDevice(ERoute::kInput, mState.mMidiInDev.Get());
   SelectMIDIDevice(ERoute::kOutput, mState.mMidiOutDev.Get());
+  
+#ifdef OS_MAC
+  RegisterDeviceNotifications();
+#endif
   
   mIPlug->OnParamReset(kReset);
   mIPlug->OnActivate(true);
@@ -856,4 +865,73 @@ void IPlugAPPHost::ErrorCallback(RtAudioErrorType type, const std::string &error
 {
   std::cerr << "\nerrorCallback: " << errorText << "\n\n";
 }
+
+#ifdef OS_MAC
+void IPlugAPPHost::RegisterDeviceNotifications()
+{
+  // Register for audio device notifications
+  AudioObjectPropertyAddress propertyAddress = {
+    kAudioHardwarePropertyDevices,
+    kAudioObjectPropertyScopeGlobal,
+    kAudioObjectPropertyElementMain
+  };
+  
+  AudioObjectAddPropertyListener(kAudioObjectSystemObject, 
+                               &propertyAddress,
+                               AudioDeviceListChanged,
+                               this);
+
+  // Register for MIDI device notifications
+  MIDIClientRef client;
+  MIDIClientCreate(CFSTR("IPlugAPPHost"), MIDIDeviceListChanged, this, &client);
+}
+
+void IPlugAPPHost::UnregisterDeviceNotifications()
+{
+  AudioObjectPropertyAddress propertyAddress = {
+    kAudioHardwarePropertyDevices,
+    kAudioObjectPropertyScopeGlobal,
+    kAudioObjectPropertyElementMain
+  };
+  
+  AudioObjectRemovePropertyListener(kAudioObjectSystemObject,
+                                  &propertyAddress,
+                                  AudioDeviceListChanged,
+                                  this);
+}
+
+OSStatus IPlugAPPHost::AudioDeviceListChanged(AudioObjectID inObjectID, 
+                                            UInt32 inNumberAddresses, 
+                                            const AudioObjectPropertyAddress* inAddresses, 
+                                            void* inClientData)
+{
+  IPlugAPPHost* _this = (IPlugAPPHost*)inClientData;
+  _this->OnDeviceListChanged();
+  return noErr;
+}
+
+void IPlugAPPHost::MIDIDeviceListChanged(const MIDINotification *message, void* refCon)
+{
+  IPlugAPPHost* _this = (IPlugAPPHost*)refCon;
+  if (message->messageID == kMIDIMsgObjectAdded || 
+      message->messageID == kMIDIMsgObjectRemoved)
+  {
+    _this->OnDeviceListChanged();
+  }
+}
+
+#include "resource.h"
+
+void IPlugAPPHost::OnDeviceListChanged()
+{
+  // Re-probe audio and MIDI devices
+  ProbeAudioIO();
+  ProbeMidiIO();
+  
+  if (gPrefsHWND)
+  {
+    PopulatePreferencesDialog(gPrefsHWND);
+  }
+}
+#endif
 
