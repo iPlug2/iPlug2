@@ -31,6 +31,9 @@
 #define ID_SHOW_DRAWN                   40026
 #define ID_SHOW_FPS                     40027
 #define ID_SHOW_BOUNDS                  40028
+#define IDC_STATIC_IN_L                 40029
+#define IDC_STATIC_IN_R                 40030
+
 
 // Next default values for new objects
 //
