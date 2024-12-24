@@ -4661,12 +4661,14 @@ int ListView_InsertItem(HWND h, const LVITEM *item)
   nr->add_col((item->mask & LVIF_TEXT) ? item->pszText : "");
   if (item->mask & LVIF_PARAM) nr->m_param = item->lParam;
   tv->m_items->Insert(a,nr);
-  
 
-  
   if ((item->mask&LVIF_STATE) && (item->stateMask & (0xff<<16)))
   {
     nr->set_img_idx(0,(item->state>>16)&0xff);
+  }
+  if ((item->mask&LVIF_IMAGE) && item->iImage >= 0)
+  {
+    nr->set_img_idx(0, item->iImage+1);
   }
   
   [tv reloadData];
