@@ -929,7 +929,7 @@ void IPlugAPPHost::OnDeviceListChanged()
   
   if (gPrefsHWND)
   {
-    //PopulatePreferencesDialog(gPrefsHWND);
+    GetSettingsDialog()->Refresh();
   }
 }
 #endif

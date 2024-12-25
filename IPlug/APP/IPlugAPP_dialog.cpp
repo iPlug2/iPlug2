@@ -520,3 +520,8 @@ WDL_DLGRET IPlugAPPDialog::SettingsProcess(HWND hwndDlg, UINT uMsg, WPARAM wPara
   }
   return TRUE;
 }
+
+void IPlugAPPDialog::Refresh()
+{
+  PopulatePreferencesDialog(gPrefsHWND);
+}

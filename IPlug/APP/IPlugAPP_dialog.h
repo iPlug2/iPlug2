@@ -26,6 +26,8 @@ public:
   
   DLGPROC GetDlgProc() override { return SettingsDlgProc; }
   
+  void Refresh() override;
+  
 private:
   
   void PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* pInputDevInfo, RtAudio::DeviceInfo* pOutputDevInfo);

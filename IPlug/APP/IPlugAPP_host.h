@@ -188,8 +188,10 @@ public:
      * @return The DLGPROC for the settings dialog */
     virtual DLGPROC GetDlgProc() = 0;
     
+    /** If devices are hot-plugged, refresh is called */
+    virtual void Refresh() = 0;
+
   protected:
-    
     /** A reference to the host object */
     IPlugAPPHost& mHost;
     
