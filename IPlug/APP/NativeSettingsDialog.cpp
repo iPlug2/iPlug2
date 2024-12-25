@@ -8,7 +8,7 @@
  ==============================================================================
 */
 
-#include "IPlugAPP_dialog.h"
+#include "NativeSettingsDialog.h"
 #include "config.h"
 #include "resource.h"
 

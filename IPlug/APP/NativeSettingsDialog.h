@@ -17,7 +17,6 @@ BEGIN_IPLUG_NAMESPACE
 class NativeSettingsDialog final : public IPlugAPPHost::ISettingsDialog
 {
 public:
-    
   NativeSettingsDialog(IPlugAPPHost& host)
   : IPlugAPPHost::ISettingsDialog(host)
   {}

@@ -9,7 +9,7 @@
 */
 
 #include "IPlugAPP_host.h"
-#include "IPlugAPP_dialog.h"
+#include "NativeSettingsDialog.h"
 #include "config.h"
 #include "resource.h"
 
@@ -26,6 +26,10 @@ using namespace iplug;
 using namespace igraphics;
 #endif
 
+#ifndef SETTINGS_DIALOG
+#define SETTINGS_DIALOG NativeSettingsDialog
+#endif
+
 #ifndef MAX_PATH_LEN
 #define MAX_PATH_LEN 2048
 #endif
@@ -38,7 +42,7 @@ extern HWND gPrefsHWND;
 
 IPlugAPPHost::IPlugAPPHost()
 : mIPlug(MakePlug(InstanceInfo{this}))
-, mSettingsDialog(std::make_unique<NativeSettingsDialog>(*this))
+, mSettingsDialog(std::make_unique<SETTINGS_DIALOG>(*this))
 {
   Init();
   TryToChangeAudio(true);

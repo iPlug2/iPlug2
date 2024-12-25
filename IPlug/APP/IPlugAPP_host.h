@@ -170,7 +170,6 @@ public:
   class ISettingsDialog
   {
   public:
-    
     /** Construct a settings dialog from a host
      * @param host A reference to a host object */
     ISettingsDialog(IPlugAPPHost& host)
@@ -188,6 +187,7 @@ public:
      * @return The DLGPROC for the settings dialog */
     virtual DLGPROC GetDlgProc() = 0;
     
+    /** If devices are hot-plugged, refresh is called */
     virtual void Refresh() = 0;
 
   protected:
