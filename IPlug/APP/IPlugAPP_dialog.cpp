@@ -22,7 +22,7 @@ extern HWND gPrefsHWND;
 
 
 // check the input and output devices, find matching srs
-void IPlugAPPDialog::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inputDevInfo, RtAudio::DeviceInfo* outputDevInfo)
+void NativeSettingsDialog::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* inputDevInfo, RtAudio::DeviceInfo* outputDevInfo)
 {
   WDL_String buf;
 
@@ -53,7 +53,7 @@ void IPlugAPPDialog::PopulateSampleRateList(HWND hwndDlg, RtAudio::DeviceInfo* i
   SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_SR, CB_SETCURSEL, sridx, 0);
 }
 
-void IPlugAPPDialog::PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
+void NativeSettingsDialog::PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
 {
   WDL_String buf;
 
@@ -91,7 +91,7 @@ void IPlugAPPDialog::PopulateAudioInputList(HWND hwndDlg, RtAudio::DeviceInfo* i
     SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_IN_R,CB_SETCURSEL, mSettings.mAudioInChanR - 1, 0);
 }
 
-void IPlugAPPDialog::PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
+void NativeSettingsDialog::PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* info)
 {
   WDL_String buf;
 
@@ -116,7 +116,7 @@ void IPlugAPPDialog::PopulateAudioOutputList(HWND hwndDlg, RtAudio::DeviceInfo* 
 }
 
 // This has to get called after any change to audio driver/in dev/out dev
-void IPlugAPPDialog::PopulateDriverSpecificControls(HWND hwndDlg)
+void NativeSettingsDialog::PopulateDriverSpecificControls(HWND hwndDlg)
 {
 #ifdef OS_WIN
   int driverType = (int) SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_DRIVER, CB_GETCURSEL, 0, 0);
@@ -181,7 +181,7 @@ void IPlugAPPDialog::PopulateDriverSpecificControls(HWND hwndDlg)
   PopulateSampleRateList(hwndDlg, &inputDevInfo, &outputDevInfo);
 }
 
-void IPlugAPPDialog::PopulateAudioDialogs(HWND hwndDlg)
+void NativeSettingsDialog::PopulateAudioDialogs(HWND hwndDlg)
 {
   PopulateDriverSpecificControls(hwndDlg);
 
@@ -207,7 +207,7 @@ void IPlugAPPDialog::PopulateAudioDialogs(HWND hwndDlg)
   SendDlgItemMessage(hwndDlg, IDC_COMBO_AUDIO_BUF_SIZE, CB_SETCURSEL, iovsidx, 0);
 }
 
-bool IPlugAPPDialog::PopulateMidiDialogs(HWND hwndDlg)
+bool NativeSettingsDialog::PopulateMidiDialogs(HWND hwndDlg)
 {
   if (!mHost.IsMidiInitialised())
     return false;
@@ -269,7 +269,7 @@ bool IPlugAPPDialog::PopulateMidiDialogs(HWND hwndDlg)
 }
 
 #ifdef OS_WIN
-void IPlugAPPDialog::PopulatePreferencesDialog(HWND hwndDlg)
+void NativeSettingsDialog::PopulatePreferencesDialog(HWND hwndDlg)
 {
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"DirectSound");
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"ASIO");
@@ -280,7 +280,7 @@ void IPlugAPPDialog::PopulatePreferencesDialog(HWND hwndDlg)
 }
 
 #elif defined OS_MAC
-void IPlugAPPDialog::PopulatePreferencesDialog(HWND hwndDlg)
+void NativeSettingsDialog::PopulatePreferencesDialog(HWND hwndDlg)
 {
   SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"CoreAudio");
   //SendDlgItemMessage(hwndDlg,IDC_COMBO_AUDIO_DRIVER,CB_ADDSTRING,0,(LPARAM)"Jack");
@@ -293,14 +293,14 @@ void IPlugAPPDialog::PopulatePreferencesDialog(HWND hwndDlg)
   #error NOT IMPLEMENTED
 #endif
 
-WDL_DLGRET IPlugAPPDialog::SettingsDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+WDL_DLGRET NativeSettingsDialog::SettingsDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-  IPlugAPPDialog* pAppDialog = static_cast<IPlugAPPDialog *>(IPlugAPPHost::GetSettingsDialog());
+  NativeSettingsDialog* pAppDialog = static_cast<NativeSettingsDialog *>(IPlugAPPHost::GetSettingsDialog());
   
   return pAppDialog->SettingsProcess(hwndDlg, uMsg, wParam, lParam);
 }
 
-WDL_DLGRET IPlugAPPDialog::SettingsProcess(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+WDL_DLGRET NativeSettingsDialog::SettingsProcess(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   auto getComboString = [&](WDL_String& str, int item, WPARAM idx) {
     std::string tempString;
@@ -521,7 +521,7 @@ WDL_DLGRET IPlugAPPDialog::SettingsProcess(HWND hwndDlg, UINT uMsg, WPARAM wPara
   return TRUE;
 }
 
-void IPlugAPPDialog::Refresh()
+void NativeSettingsDialog::Refresh()
 {
   PopulatePreferencesDialog(gPrefsHWND);
 }

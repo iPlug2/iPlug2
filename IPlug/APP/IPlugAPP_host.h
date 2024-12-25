@@ -167,13 +167,13 @@ public:
   };
   
   /** An abstract class that is used to provide a settings dialog */
-  class IPlugAPPSettingsDialog
+  class ISettingsDialog
   {
   public:
     
     /** Construct a settings dialog from a host
      * @param host A reference to a host object */
-    IPlugAPPSettingsDialog(IPlugAPPHost& host)
+    ISettingsDialog(IPlugAPPHost& host)
     : mHost(host)
     , mSettings(host.mSettings)
     , mAudioInputDevIDs(host.mAudioInputDevIDs)
@@ -182,7 +182,7 @@ public:
     , mMidiOutputDevNames(host.mMidiInputDevNames)
     {}
     
-    virtual ~IPlugAPPSettingsDialog() {}
+    virtual ~ISettingsDialog() {}
     
     /** Return the DLGPROC for the settings dialog
      * @return The DLGPROC for the settings dialog */
@@ -208,7 +208,7 @@ public:
   };
   
   static IPlugAPPHost* Create();
-  static IPlugAPPSettingsDialog* GetSettingsDialog();
+  static ISettingsDialog* GetSettingsDialog();
   static std::unique_ptr<IPlugAPPHost> sInstance;
 
   IPlugAPPHost();
@@ -278,7 +278,7 @@ private:
   void CloseAudio();
 
   std::unique_ptr<IPlugAPP> mIPlug = nullptr;
-  std::unique_ptr<IPlugAPPSettingsDialog> mSettingsDialog = nullptr;
+  std::unique_ptr<ISettingsDialog> mSettingsDialog = nullptr;
   std::unique_ptr<RtAudio> mDAC = nullptr;
   std::unique_ptr<RtMidiIn> mMidiIn = nullptr;
   std::unique_ptr<RtMidiOut> mMidiOut = nullptr;

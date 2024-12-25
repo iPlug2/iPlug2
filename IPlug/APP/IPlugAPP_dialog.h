@@ -14,12 +14,12 @@
 
 BEGIN_IPLUG_NAMESPACE
 
-class IPlugAPPDialog final : public IPlugAPPHost::IPlugAPPSettingsDialog
+class NativeSettingsDialog final : public IPlugAPPHost::ISettingsDialog
 {
 public:
     
-  IPlugAPPDialog(IPlugAPPHost& host)
-  : IPlugAPPHost::IPlugAPPSettingsDialog(host)
+  NativeSettingsDialog(IPlugAPPHost& host)
+  : IPlugAPPHost::ISettingsDialog(host)
   {}
   
   static WDL_DLGRET SettingsDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);

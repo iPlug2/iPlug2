@@ -38,7 +38,7 @@ extern HWND gPrefsHWND;
 
 IPlugAPPHost::IPlugAPPHost()
 : mIPlug(MakePlug(InstanceInfo{this}))
-, mSettingsDialog(std::make_unique<IPlugAPPDialog>(*this))
+, mSettingsDialog(std::make_unique<NativeSettingsDialog>(*this))
 {
   Init();
   TryToChangeAudio(true);
@@ -69,7 +69,7 @@ IPlugAPPHost* IPlugAPPHost::Create()
 }
 
 //static
-IPlugAPPHost::IPlugAPPSettingsDialog* IPlugAPPHost::GetSettingsDialog()
+IPlugAPPHost::ISettingsDialog* IPlugAPPHost::GetSettingsDialog()
 {
   return sInstance->mSettingsDialog.get();
 }
