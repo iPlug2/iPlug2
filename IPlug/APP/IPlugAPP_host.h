@@ -188,8 +188,9 @@ public:
      * @return The DLGPROC for the settings dialog */
     virtual DLGPROC GetDlgProc() = 0;
     
+    virtual void Refresh() = 0;
+
   protected:
-    
     /** A reference to the host object */
     IPlugAPPHost& mHost;
     
