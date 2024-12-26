@@ -48,14 +48,17 @@ AUv3_PATH = $(IPLUG_PATH)/AUv3
 SWELL_PATH = $(WDL_PATH)/swell
 
 EXTRAS_PATH = $(IPLUG_PATH)/Extras
-EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/Faust $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR $(EXTRAS_PATH)/WebSocket
+EXTRAS_INC_PATHS = $(EXTRAS_PATH) $(EXTRAS_PATH)/OSC $(EXTRAS_PATH)/HIIR
 
 JSON_INC_PATH = $(DEPS_PATH)/Extras/nlohmann
 
 // this build setting is included at the xcode project level, since we need all these include paths
 IPLUG_INC_PATHS = $(PROJECT_ROOT) $(WDL_PATH) $(IPLUG_PATH) $(EXTRAS_INC_PATHS) $(AUv3_PATH) $(JSON_INC_PATH)
 
-BUILT_LIBS_PATH = $(DEPS_PATH)/Build/ios
+BUILT_LIBS_PATH_iphoneos = $(DEPS_PATH)/Build/ios
+BUILT_LIBS_PATH_iphonesimulator = $(DEPS_PATH)/Build/ios_sim
+BUILT_LIBS_PATH = $(BUILT_LIBS_PATH_$(PLATFORM_NAME))
+
 BUILT_LIBS_INC_PATH = $(BUILT_LIBS_PATH)/include
 BUILT_LIBS_LIB_PATH = $(BUILT_LIBS_PATH)/lib/$CURRENT_ARCH
 
@@ -74,22 +77,19 @@ YOGA_PATH = $(DEPS_PATH)/IGraphics/yoga
 
 SKIA_PATH = $(DEPS_PATH)/Build/src/skia
 
-SKIA_INC_PATHS = $(SKIA_PATH) $(SKIA_PATH)/include/core $(SKIA_PATH)/include/effects $(SKIA_PATH)/include/config $(SKIA_PATH)/include/utils $(SKIA_PATH)/include/utils/mac $(SKIA_PATH)/include/gpu $(SKIA_PATH)/third_party/externals/icu/source/common $(SKIA_PATH)/modules/svg/include
+SKIA_INC_PATHS = $(SKIA_PATH)
 
 YOGA_INC_PATHS = $(YOGA_PATH) $(YOGA_PATH)/yoga
 
 // you can optionally include this build setting, by adding it to EXTRA_INC_PATHS in MyProject.xcconfig in order to get all varieties of IGraphics suppor
 IGRAPHICS_INC_PATHS = $(IGRAPHICS_PATH) $(CONTROLS_PATH) $(PLATFORMS_PATH) $(DRAWING_PATH) $(NSVG_PATH) $(NVG_PATH) $(NVGMTL_PATH) $(SKIA_INC_PATHS) $(FT_PATH) $(STB_PATH) $(YOGA_INC_PATHS)
 
-//FAUST_INC_PATHS = /usr/local/include /usr/local/opt/include
-FAUST_INC_PATHS = $(DEPS_PATH)/Build/mac/include
-
 LIB_SKIA = $(BUILT_LIBS_LIB_PATH)/libskia.a
 LIB_SKOTTIE = $(BUILT_LIBS_LIB_PATH)/libskottie.a
 LIB_SKSG = $(BUILT_LIBS_LIB_PATH)/libsksg.a
 LIB_SKSHAPER = $(BUILT_LIBS_LIB_PATH)/libskshaper.a
 LIB_SKPARAGRAPH = $(BUILT_LIBS_LIB_PATH)/libskparagraph.a
-LIB_SKUNICODE = $(BUILT_LIBS_LIB_PATH)/libskunicode.a
+LIB_SKUNICODE = $(BUILT_LIBS_LIB_PATH)/libskunicode_core.a $(BUILT_LIBS_LIB_PATH)/libskunicode_icu.a
 LIB_SVG = $(BUILT_LIBS_LIB_PATH)/libsvg.a
 
 SKIA_LNK_FLAGS = $(LIB_SKIA) $(LIB_SKOTTIE) $(LIB_SKSG) $(LIB_SKSHAPER) $(LIB_SKPARAGRAPH) $(LIB_SKUNICODE) $(LIB_SVG)

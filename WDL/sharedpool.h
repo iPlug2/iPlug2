@@ -22,7 +22,7 @@
 
   This file defines a template for a simple object pool. 
 
-  Objects are keyed by string (filename, or otherwise). The caller can add or get an object,
+  Objects are keyed by string (filename, or otherwise, but case insensitive). The caller can add or get an object,
   increase or decrease its reference count (if it reaches zero the object is deleted).
   
 
@@ -47,15 +47,14 @@ template<class OBJ> class WDL_SharedPool
       if (obj && n)
       {
         Ent *p = new Ent(obj,n);
-        m_list.InsertSorted(p,_sortfunc_name);
-        m_listobjk.InsertSorted(p,_sortfunc_obj);
+        m_list.InsertSorted(p,n,sortfunc_name);
+        m_listobjk.InsertSorted(p,obj,sortfunc_obj);
       }
     }
 
     OBJ *Get(const char *s)
     {
-      struct { void *obj; const char *name; } tmp = { NULL, s };
-      Ent *t = m_list.Get(m_list.FindSorted((Ent *)&tmp,_sortfunc_name));
+      Ent *t = m_list.Get(m_list.FindSorted(s,sortfunc_name));
       
       if (t && t->obj)
       {
@@ -69,17 +68,17 @@ template<class OBJ> class WDL_SharedPool
 
     void AddRef(OBJ *obj)
     {
-      Ent *ent = m_listobjk.Get(m_listobjk.FindSorted((Ent *)&obj,_sortfunc_obj));
-      if (ent) ent->refcnt++;
+      Ent *ent = m_listobjk.Get(m_listobjk.FindSorted(obj,sortfunc_obj));
+      if (WDL_NORMALLY(ent)) ent->refcnt++;
     }
 
     void Release(OBJ *obj)
     {
-      int x = m_listobjk.FindSorted((Ent *)&obj,_sortfunc_obj);
+      int x = m_listobjk.FindSorted(obj,sortfunc_obj);
       Ent *ent = m_listobjk.Get(x);
-      if (ent && !--ent->refcnt) 
+      if (WDL_NORMALLY(ent) && !--ent->refcnt)
       {
-        m_list.Delete(m_list.FindSorted(ent,_sortfunc_name));
+        m_list.Delete(m_list.FindSorted(ent->name,sortfunc_name));
         m_listobjk.Delete(x,true);
       }
     }
@@ -95,7 +94,7 @@ template<class OBJ> class WDL_SharedPool
     class Ent
     {
       public:
-        OBJ *obj; // this order is used elsewhere for its own advantage
+        OBJ *obj;
         char *name; 
 
         int refcnt;
@@ -107,14 +106,14 @@ template<class OBJ> class WDL_SharedPool
 
 
 
-    static int _sortfunc_name(const Ent **a, const Ent **b)
+    static int sortfunc_name(const char *a, const Ent *b)
     {
-      return stricmp((*a)->name,(*b)->name);
+      return stricmp(a,b->name);
     }
-    static int _sortfunc_obj(const Ent **a, const Ent **b)
+    static int sortfunc_obj(const OBJ *a, const Ent *b)
     {
-      if ((INT_PTR)(*a)->obj < (INT_PTR)(*b)->obj) return -1;
-      if ((INT_PTR)(*a)->obj > (INT_PTR)(*b)->obj) return 1;
+      if (a < b->obj) return -1;
+      if (a > b->obj) return 1;
       return 0;
     }
     

@@ -37,7 +37,7 @@ steps:
   - task: VSBuild@1
     inputs:
       solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
-      vsVersion: '16.0'
+      vsVersion: '17.0'
       platform: x64
       msbuildArgs: /t:${{parameters.name}}-vst2
       configuration: '${{parameters.configuration}}'
@@ -47,7 +47,7 @@ steps:
   - task: VSBuild@1
     inputs:
       solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
-      vsVersion: '16.0'
+      vsVersion: '17.0'
       platform: x64
       msbuildArgs: /t:${{parameters.name}}-vst3
       configuration: '${{parameters.configuration}}'
@@ -57,7 +57,7 @@ steps:
   - task: VSBuild@1
     inputs:
       solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
-      vsVersion: '16.0'
+      vsVersion: '17.0'
       platform: x64
       msbuildArgs: /t:${{parameters.name}}-aax
       configuration: '${{parameters.configuration}}'
@@ -67,7 +67,7 @@ steps:
   - task: VSBuild@1
     inputs:
       solution: '${{parameters.path}}/${{parameters.name}}/${{parameters.name}}.sln'
-      vsVersion: '16.0'
+      vsVersion: '17.0'
       platform: x64
       msbuildArgs: /t:${{parameters.name}}-app
       configuration: '${{parameters.configuration}}'

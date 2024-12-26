@@ -27,6 +27,7 @@ public:
   virtual ~IGraphicsMac();
 
   void SetBundleID(const char* bundleID) { mBundleID.Set(bundleID); }
+  void SetAppGroupID(const char* appGroupID) { mAppGroupID.Set(appGroupID); }
 
   void* OpenWindow(void* pWindow) override;
   void CloseWindow() override;
@@ -34,6 +35,7 @@ public:
   void PlatformResize(bool parentHasResized) override;
   void AttachPlatformView(const IRECT& r, void* pView) override;
   void RemovePlatformView(void* pView) override;
+  void HidePlatformView(void* pView, bool hide) override;
 
   void HideMouseCursor(bool hide, bool lock) override;
   void MoveMouseCursor(float x, float y) override;
@@ -43,7 +45,7 @@ public:
 
   void DoCursorLock(float x, float y, float& prevX, float& prevY);
     
-  EMsgBoxResult ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
+  EMsgBoxResult ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
   void ForceEndUserEdit() override;
 
   const char* GetPlatformAPIStr() override;
@@ -59,11 +61,15 @@ public:
 
   void* GetWindow() override;
 
-  const char* GetBundleID() override { return mBundleID.Get(); }
+  const char* GetBundleID() const override { return mBundleID.Get(); }
+  const char* GetAppGroupID() const override { return mAppGroupID.Get(); }
   static int GetUserOSVersion();
 
   bool GetTextFromClipboard(WDL_String& str) override;
   bool SetTextInClipboard(const char* str) override;
+  bool SetFilePathInClipboard(const char* path) override;
+
+  bool InitiateExternalFileDragDrop(const char* path, const IRECT& iconBounds) override API_AVAILABLE(macos(10.13));
 
   float MeasureText(const IText& text, const char* str, IRECT& bounds) const override;
 
@@ -72,6 +78,10 @@ protected:
 
   IPopupMenu* CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync) override;
   void CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str) override;
+  
+  void ActivateGLContext() override;
+  void DeactivateGLContext() override;
+
 private:
   void PointToScreen(float& x, float& y) const;
   void ScreenToPoint(float& x, float& y) const;
@@ -86,7 +96,7 @@ private:
   
   void* mView = nullptr;
   CGPoint mCursorLockPosition;
-  WDL_String mBundleID;
+  WDL_String mBundleID, mAppGroupID;
   friend int GetMouseOver(IGraphicsMac* pGraphics);
 };
 

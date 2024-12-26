@@ -17,7 +17,7 @@ PKG_CONFIG = pkg-config
 
 COMPILER=GCC
 
-CFLAGS = -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar -Wtype-limits
+CFLAGS = -pipe -fvisibility=hidden -fno-math-errno -fPIC -DPIC -Wall -Wshadow -Wno-unused-function -Wno-multichar -Wtype-limits -Wno-unused-value -fstrict-aliasing
 
 CFLAGS += -DSWELL_MAKING_DYLIB
 
@@ -41,6 +41,15 @@ ifeq ($(COMPILER),ICC)
   CFLAGS += -D__PURE_SYS_C99_HEADERS__
 else
   CFLAGS +=  -Wno-unused-result
+endif
+
+ifeq ($(COMPILER),GCC)
+  GCC_VER := $(shell $(CXX) --version|head -n 1| sed 's/.* \([0-9][0-9]*\)[.].*/\1/' )
+  GCC_GT_11 := $(shell [ "$(GCC_VER)" -gt 11 ] && echo true )
+  ifeq ($(GCC_GT_11),true)
+    # false positive in gcc 12/13
+    CFLAGS += -Wno-dangling-pointer
+  endif
 endif
 
 ifndef ALLOW_WARNINGS
@@ -140,6 +149,9 @@ ifndef NOGDK
     endif
   endif
   LINKEXTRA += -lGL
+  ifdef PRELOAD_GDK
+    CFLAGS += -Wl,-z,lazy
+  endif
 endif
 
 CXXFLAGS = $(CFLAGS)

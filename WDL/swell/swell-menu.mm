@@ -555,7 +555,7 @@ BOOL SetMenuItemInfo(HMENU hMenu, int pos, BOOL byPos, MENUITEMINFO *mi)
   
   if (mi->fMask & MIIM_TYPE)
   {
-    if (mi->fType == MFT_STRING && mi->dwTypeData)
+    if ((mi->fType &~ MFT_RADIOCHECK) == MFT_STRING && mi->dwTypeData)
     {
       char buf[1024];
       NSString *eq=NULL;
@@ -726,7 +726,7 @@ void InsertMenuItem(HMENU hMenu, int pos, BOOL byPos, MENUITEMINFO *mi)
   if (pos < 0 || pos > ni) pos=ni; 
   
   NSString *label=0;
-  if (mi->fType == MFT_STRING)
+  if ((mi->fType & ~MFT_RADIOCHECK) == MFT_STRING)
   {
     char buf[1024];
     NSString *eq=NULL;

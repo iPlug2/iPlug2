@@ -36,7 +36,7 @@ void HostPath(WDL_String& path, const char* bundleID)
 {
   @autoreleasepool
   {
-    NSBundle* pBundle = [NSBundle bundleWithIdentifier: [NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
+    NSBundle* pBundle = [NSBundle bundleWithIdentifier: [NSString stringWithUTF8String:bundleID]];
     
     if (pBundle)
     {
@@ -53,7 +53,7 @@ void PluginPath(WDL_String& path, PluginIDType bundleID)
 {
   @autoreleasepool
   {
-    NSBundle* pBundle = [NSBundle bundleWithIdentifier: [NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
+    NSBundle* pBundle = [NSBundle bundleWithIdentifier: [NSString stringWithUTF8String:bundleID]];
     
     if (pBundle)
     {
@@ -72,7 +72,7 @@ void BundleResourcePath(WDL_String& path, PluginIDType bundleID)
 {
   @autoreleasepool
   {
-    NSBundle* pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
+    NSBundle* pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithUTF8String:bundleID]];
     NSString* pResPath = [pBundle resourcePath];
     
     path.Set([pResPath UTF8String]);
@@ -149,10 +149,10 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
     
     bool isAppExtension = IsOOPAuv3AppExtension();
     
-    NSBundle* pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
+    NSBundle* pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithUTF8String:bundleID]];
     
-    NSString* pFile = [[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] stringByDeletingPathExtension];
-    NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
+    NSString* pFile = [[NSString stringWithUTF8String:fileName] stringByDeletingPathExtension];
+    NSString* pExt = [NSString stringWithUTF8String:searchExt];
     
     if (isCorrectType && pBundle && pFile)
     {
@@ -167,7 +167,7 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
       
       if (pPath && [[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
       {
-        fullPath.Set([pPath cStringUsingEncoding:NSUTF8StringEncoding]);
+        fullPath.Set([pPath UTF8String]);
         return true;
       }
     }
@@ -187,23 +187,23 @@ bool GetResourcePathFromSharedLocation(const char* fileName, const char* searchE
 
     bool isCorrectType = !strcasecmp(ext, searchExt);
 
-    NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
-    NSString* pFile = [[[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] lastPathComponent] stringByDeletingPathExtension];
+    NSString* pExt = [NSString stringWithUTF8String:searchExt];
+    NSString* pFile = [[[NSString stringWithUTF8String:fileName] lastPathComponent] stringByDeletingPathExtension];
       
     if (isCorrectType && pFile)
     {
       WDL_String musicPath;
       SharedMusicPath(musicPath);
 
-      if(subfolder)
+      if (subfolder)
       {
-        NSString* pPluginName = [NSString stringWithCString: subfolder encoding:NSUTF8StringEncoding];
-        NSString* pMusicLocation = [NSString stringWithCString: musicPath.Get() encoding:NSUTF8StringEncoding];
-        NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent:pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
+        NSString* pPluginName = [NSString stringWithUTF8String:subfolder];
+        NSString* pMusicLocation = [NSString stringWithUTF8String:musicPath.Get()];
+        NSString* pPath = [[[[pMusicLocation stringByAppendingPathComponent: pPluginName] stringByAppendingPathComponent:@"Resources"] stringByAppendingPathComponent: pFile] stringByAppendingPathExtension:pExt];
 
-        if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
+        if ([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
         {
-          fullPath.Set([pPath cString]);
+          fullPath.Set([pPath UTF8String]);
           return true;
         }
       }
@@ -229,7 +229,7 @@ EResourceLocation LocateResource(const char* name, const char* type, WDL_String&
       return EResourceLocation::kAbsolutePath;
     
     // finally check name, which might be a full path - if the plug-in is trying to load a resource at runtime (e.g. skin-able UI)
-    NSString* pPath = [NSString stringWithCString:name encoding:NSUTF8StringEncoding];
+    NSString* pPath = [NSString stringWithUTF8String:name];
     
     if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
     {
@@ -321,12 +321,12 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
     NSBundle* pBundle;
     
     if(isAppExtension)
-      pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithCString:bundleID encoding:NSUTF8StringEncoding]];
+      pBundle = [NSBundle bundleWithIdentifier:[NSString stringWithUTF8String:bundleID]];
     else
       pBundle = [NSBundle mainBundle];
 
-    NSString* pFile = [[NSString stringWithCString:fileName encoding:NSUTF8StringEncoding] stringByDeletingPathExtension];
-    NSString* pExt = [NSString stringWithCString:searchExt encoding:NSUTF8StringEncoding];
+    NSString* pFile = [[NSString stringWithUTF8String:fileName] stringByDeletingPathExtension];
+    NSString* pExt = [NSString stringWithUTF8String:searchExt];
     
     if (isCorrectType && pBundle && pFile)
     {
@@ -348,7 +348,7 @@ bool GetResourcePathFromBundle(const char* fileName, const char* searchExt, WDL_
       
       if (pPath && [[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
       {
-        fullPath.Set([pPath cStringUsingEncoding:NSUTF8StringEncoding]);
+        fullPath.Set([pPath UTF8String]);
         return true;
       }
     }

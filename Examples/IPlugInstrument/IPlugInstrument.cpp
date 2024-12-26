@@ -3,7 +3,7 @@
 #include "LFO.h"
 
 IPlugInstrument::IPlugInstrument(const InstanceInfo& info)
-: Plugin(info, MakeConfig(kNumParams, kNumPresets))
+: iplug::Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
   GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   GetParam(kParamNoteGlideTime)->InitMilliseconds("Note Glide Time", 0., 0.0, 30.);
@@ -139,6 +139,7 @@ void IPlugInstrument::OnParamChange(int paramIdx)
 
 void IPlugInstrument::OnParamChangeUI(int paramIdx, EParamSource source)
 {
+  #if IPLUG_EDITOR
   if (auto pGraphics = GetUI())
   {
     if (paramIdx == kParamLFORateMode)
@@ -148,6 +149,7 @@ void IPlugInstrument::OnParamChangeUI(int paramIdx, EParamSource source)
       pGraphics->HideControl(kParamLFORateTempo, !sync);
     }
   }
+  #endif
 }
 
 bool IPlugInstrument::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)

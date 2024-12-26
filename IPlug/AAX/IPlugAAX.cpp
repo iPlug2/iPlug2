@@ -106,14 +106,9 @@ IPlugAAX::IPlugAAX(const InstanceInfo& info, const Config& config)
   SetChannelConnections(ERoute::kInput, 0, MaxNChannels(ERoute::kInput), true);
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), true);
   
-  if (MaxNChannels(ERoute::kInput)) 
-  {
-    mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
-    mLatencyDelay->SetDelayTime(config.latency);
-  }
-  
   SetBlockSize(DEFAULT_BLOCK_SIZE);
-  
+  InitLatencyDelay();
+
   mMaxNChansForMainInputBus = MaxNChannelsForBus(kInput, 0);
   
   CreateTimer();

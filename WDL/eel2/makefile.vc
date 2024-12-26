@@ -29,6 +29,12 @@ EEL_SOURCE = $(EEL_SOURCE) asm-nseel-aarch64-msvc.obj
 !endif
 !endif
 
+!ifdef arm64ec
+!ifndef PORTABLE
+EEL_SOURCE = $(EEL_SOURCE) asm-nseel-arm64ec.obj
+!endif
+!endif
+
 
 default: loose_eel.exe
 
@@ -49,6 +55,9 @@ eel_disasm.exe: eel_disasm.cpp $(EEL_SOURCE)
 
 asm-nseel-aarch64-msvc.obj: asm-nseel-aarch64-msvc.asm
 	armasm64 asm-nseel-aarch64-msvc.asm
+
+asm-nseel-arm64ec.obj: asm-nseel-arm64ec.asm
+	armasm64 /machine arm64EC asm-nseel-arm64ec.asm
 
 test: eel_disasm.exe
 	eel_disasm "buf[a] = x*y"

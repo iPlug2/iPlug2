@@ -439,6 +439,15 @@ void IPlugProcessor::SetChannelConnections(ERoute direction, int idx, int n, boo
   }
 }
 
+void IPlugProcessor::InitLatencyDelay()
+{
+  if (MaxNChannels(ERoute::kInput))
+  {
+    mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
+    mLatencyDelay->SetDelayTime(GetLatency());
+  }
+}
+
 void IPlugProcessor::AttachBuffers(ERoute direction, int idx, int n, PLUG_SAMPLE_DST** ppData, int)
 {
   WDL_PtrList<IChannelData<>>& channelData = mChannelData[direction];

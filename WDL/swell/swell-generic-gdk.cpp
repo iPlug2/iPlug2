@@ -114,6 +114,8 @@ static SWELL_OSWINDOW swell_dragsrc_osw;
 static DWORD swell_dragsrc_timeout_start;
 static HWND swell_dragsrc_hwnd;
 static DWORD swell_lastMessagePos;
+static const char *swell_dragsrc_fn;
+
 static int gdk_options;
 #define OPTION_KEEP_OWNED_ABOVE 1
 #define OPTION_OWNED_TASKLIST 2
@@ -615,6 +617,8 @@ void swell_oswindow_manage(HWND hwnd, bool wantfocus)
         attr.window_type = GDK_WINDOW_TOPLEVEL;
         if (GetProp(hwnd,"SWELLGdkAlphaChannel"))
           attr.visual = gdk_screen_get_rgba_visual(gdk_screen_get_default());
+
+        memset(&hwnd->m_oswindow_lastcfgpos,0,sizeof(hwnd->m_oswindow_lastcfgpos));
         hwnd->m_oswindow = gdk_window_new(NULL,&attr,GDK_WA_X|GDK_WA_Y|(appname?GDK_WA_WMCLASS:0)|(attr.visual ? GDK_WA_VISUAL : 0));
  
         if (hwnd->m_oswindow) 
@@ -936,7 +940,7 @@ static void OnSelectionRequestEvent(GdkEventSelection *b)
                 str.Append("file://");
                 while (*fn)
                 {
-                  if (isalnum(*fn) || *fn == '.' || *fn == '_' || *fn == '-' || *fn == '/' || *fn == '#')
+                  if (isalnum_safe(*fn) || *fn == '.' || *fn == '_' || *fn == '-' || *fn == '/' || *fn == '#')
                     str.Append(fn,1);
                   else
                     str.AppendFormatted(8,"%%%02x",*(unsigned char *)fn);
@@ -1016,6 +1020,19 @@ static void OnConfigureEvent(GdkEventConfigure *cfg)
 {
   HWND hwnd = swell_oswindow_to_hwnd(cfg->window);
   if (!hwnd) return;
+
+  if (hwnd->m_oswindow_lastcfgpos.left == cfg->x &&
+      hwnd->m_oswindow_lastcfgpos.top == cfg->y &&
+      hwnd->m_oswindow_lastcfgpos.right == cfg->width &&
+      hwnd->m_oswindow_lastcfgpos.bottom == cfg->height)
+  {
+    return;
+  }
+  hwnd->m_oswindow_lastcfgpos.left = cfg->x;
+  hwnd->m_oswindow_lastcfgpos.top = cfg->y;
+  hwnd->m_oswindow_lastcfgpos.right = cfg->width;
+  hwnd->m_oswindow_lastcfgpos.bottom = cfg->height;
+
   int flag=0;
   if (cfg->x != hwnd->m_position.left || 
       cfg->y != hwnd->m_position.top || 
@@ -1032,7 +1049,8 @@ static void OnConfigureEvent(GdkEventConfigure *cfg)
   hwnd->m_position.bottom = cfg->y + cfg->height;
   if (flag&1) SendMessage(hwnd,WM_MOVE,0,0);
   if (flag&2) SendMessage(hwnd,WM_SIZE,hwnd->m_is_maximized ? SIZE_MAXIMIZED : SIZE_RESTORED,0);
-  if (!hwnd->m_hashaddestroy && hwnd->m_oswindow) swell_recalcMinMaxInfo(hwnd);
+  if (!hwnd->m_hashaddestroy && hwnd->m_oswindow && (hwnd->m_style & WS_THICKFRAME))
+    swell_recalcMinMaxInfo(hwnd);
 }
 
 static void OnWindowStateEvent(GdkEventWindowState *evt)
@@ -1499,14 +1517,14 @@ static HANDLE urilistToDropFiles(const POINT *pt, const guchar *gptr, gint sz)
   const guchar *rd_end = rd + sz;
   for (;;)
   {
-    while (rd < rd_end && *rd && isspace(*rd)) rd++;
+    while (rd < rd_end && *rd && isspace_safe(*rd)) rd++;
     if (rd >= rd_end) break;
 
     if (rd+7 < rd_end && !strnicmp((const char *)rd,"file://",7))
     {
       rd += 7;
       int c=0;
-      while (rd < rd_end && *rd && !isspace(*rd))
+      while (rd < rd_end && *rd && !isspace_safe(*rd))
       {
         int v1,v2;
         if (*rd == '%' && rd+2 < rd_end && (v1=hex_parse(rd[1]))>=0 && (v2=hex_parse(rd[2]))>=0)
@@ -1524,7 +1542,7 @@ static HANDLE urilistToDropFiles(const POINT *pt, const guchar *gptr, gint sz)
     }
     else
     {
-      while (rd < rd_end && *rd && !isspace(*rd)) rd++;
+      while (rd < rd_end && *rd && !isspace_safe(*rd)) rd++;
     }
   }
   *pout++=0;
@@ -1855,17 +1873,51 @@ static void swell_gdkEventHandler(GdkEvent *evt, gpointer data)
         GdkEventDND *e = (GdkEventDND *)evt;
         if (e->context)
         {
+          POINT pt = { (int)e->x_root, (int)e->y_root };
           gdk_drag_status(e->context,GDK_ACTION_COPY,e->time);
-          //? gdk_drop_reply(e->context,TRUE,e->time);
+
+          if (e->type == GDK_DRAG_ENTER)
+          {
+            if (SWELL_DDrop_onDragEnter)
+            {
+              const char *fn = swell_dragsrc_fn ? swell_dragsrc_fn : "/tmp/<<<<<unknown>>>>>>>";
+              HGLOBAL h=GlobalAlloc(0,sizeof(DROPFILES) + strlen(fn) + 2);
+              if (WDL_NORMALLY(h))
+              {
+                DROPFILES *hdr = (DROPFILES *)GlobalLock(h);
+                if (WDL_NORMALLY(hdr))
+                {
+                  memset(hdr,0,sizeof(*hdr));
+                  hdr->pFiles = sizeof(DROPFILES);
+                  hdr->pt = pt;
+                  char *ep = ((char *)hdr) + sizeof(*hdr);
+                  memcpy(ep, fn, strlen(fn)+1);
+                  ep[strlen(fn)+1] = 0;
+                  GlobalUnlock(h);
+                }
+                SWELL_DDrop_onDragEnter(h,pt);
+                GlobalFree(h);
+              }
+            }
+          }
+          else if (SWELL_DDrop_onDragOver)
+          {
+            SWELL_DDrop_onDragOver(pt);
+          }
         }
       }
     break;
     case GDK_DRAG_LEAVE:
+      if (SWELL_DDrop_onDragLeave) SWELL_DDrop_onDragLeave();
+    break;
     case GDK_DRAG_STATUS:
+    break;
     case GDK_DROP_FINISHED:
+      if (SWELL_DDrop_onDragLeave) SWELL_DDrop_onDragLeave();
     break;
     case GDK_DROP_START:
       OnDropStartEvent((GdkEventDND *)evt);
+      if (SWELL_DDrop_onDragLeave) SWELL_DDrop_onDragLeave();
     break;
 
     default:
@@ -2569,6 +2621,34 @@ static LRESULT xbridgeProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
       }
     break;
+    case WM_USER+1000: // allow parent to query size of child window
+      if (hwnd && hwnd->m_private_data && wParam && lParam)
+      {
+        bridgeState *bs = (bridgeState*)hwnd->m_private_data;
+        if (bs->native_disp && bs->native_w)
+        {
+          Window root, par, *list=NULL;
+          unsigned int nlist=0;
+          // if a plug-in created a window on a separate X11 connection, it might not be valid yet.
+          if (XQueryTree(bs->native_disp,bs->native_w,&root,&par,&list, &nlist))
+          {
+            if (!list || !nlist)
+            {
+              if (list) XFree(list);
+              return 0;
+            }
+            XWindowAttributes attr;
+            memset(&attr,0,sizeof(attr));
+            if (XGetWindowAttributes(bs->native_disp, list[0], &attr) && attr.width && attr.height)
+            {
+              *((int *)(INT_PTR)wParam) = attr.width;
+              *((int *)(INT_PTR)lParam) = attr.height;
+            }
+            XFree(list);
+          }
+        }
+      }
+    break;
   }
   return DefWindowProc(hwnd,uMsg,wParam,lParam);
 }
@@ -2821,7 +2901,7 @@ static void encode_uri(WDL_FastString *s, const char *rd)
   while (*rd)
   {
     // unsure if UTF-8 chars should be urlencoded or allowed?
-    if (*rd < 0 || (!isalnum(*rd) && *rd != '-' && *rd != '_' && *rd != '.' && *rd != '/'))
+    if (*rd < 0 || (!isalnum_safe(*rd) && *rd != '-' && *rd != '_' && *rd != '.' && *rd != '/'))
     {
       char buf[8];
       snprintf(buf,sizeof(buf),"%%%02x",(int)(unsigned char)*rd);
@@ -2938,6 +3018,8 @@ static LRESULT WINAPI dropSourceWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPAR
 
 void SWELL_InitiateDragDrop(HWND hwnd, RECT* srcrect, const char* srcfn, void (*callback)(const char* dropfn))
 {
+  const bool is_osw_cursor = s_last_setcursor_oswnd && swell_oswindow_from_hwnd(hwnd) == s_last_setcursor_oswnd;
+  swell_dragsrc_fn = srcfn;
   dropSourceInfo info;
   info.srcfn = strdup(srcfn);
   info.callback = callback;
@@ -2956,11 +3038,20 @@ void SWELL_InitiateDragDrop(HWND hwnd, RECT* srcrect, const char* srcfn, void (*
   
   swell_dragsrc_hwnd=NULL;
   DestroyWindow(h);
+
+  if (is_osw_cursor && hwnd && GetFocus() != hwnd)
+  {
+    SWELL_OSWINDOW osw = swell_oswindow_from_hwnd(hwnd);
+    gdk_window_set_cursor(osw,NULL);
+  }
+  swell_dragsrc_fn = NULL;
 }
 
 // owner owns srclist, make copies here etc
 void SWELL_InitiateDragDropOfFileList(HWND hwnd, RECT *srcrect, const char **srclist, int srccount, HICON icon)
 {
+  swell_dragsrc_fn = srccount>0 ? srclist[0] : NULL;
+  const bool is_osw_cursor = s_last_setcursor_oswnd && swell_oswindow_from_hwnd(hwnd) == s_last_setcursor_oswnd;
   dropSourceInfo info;
   info.srclist = srclist;
   info.srccount = srccount;
@@ -2979,6 +3070,13 @@ void SWELL_InitiateDragDropOfFileList(HWND hwnd, RECT *srcrect, const char **src
   
   swell_dragsrc_hwnd=NULL;
   DestroyWindow(h);
+
+  if (is_osw_cursor && hwnd && GetFocus() != hwnd)
+  {
+    SWELL_OSWINDOW osw = swell_oswindow_from_hwnd(hwnd);
+    gdk_window_set_cursor(osw,NULL);
+  }
+  swell_dragsrc_fn = NULL;
 }
 
 void SWELL_FinishDragDrop() { }

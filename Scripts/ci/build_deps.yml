@@ -8,21 +8,21 @@ jobs:
 
   strategy:
     matrix:
-      x86_RELEASE:
-        buildPlatform: 'Win32'
-        buildConfiguration: 'Release'
+      # x86_RELEASE:
+      #   buildPlatform: 'Win32'
+      #   buildConfiguration: 'Release'
       x64_RELEASE:
         buildPlatform: 'x64'
         buildConfiguration: 'Release'
-      x86_DEBUG:
-        buildPlatform: 'Win32'
-        buildConfiguration: 'Debug'
+      # x86_DEBUG:
+      #   buildPlatform: 'Win32'
+      #   buildConfiguration: 'Debug'
       x64_DEBUG:
         buildPlatform: 'x64'
         buildConfiguration: 'Debug'
 
   pool:
-    vmImage: 'windows-2019'
+    vmImage: 'windows-2022'
 
   steps:
   - checkout: none
@@ -36,9 +36,21 @@ jobs:
       configuration: '$(buildConfiguration)'
     displayName: Build Windows Dependencies (except SKIA)
 
+  - task: Bash@3
+    inputs:
+      targetType: inline
+      script: |
+        installDir="C:/ninja"
+        curl -LO https://github.com/ninja-build/ninja/releases/download/v1.10.2/ninja-win.zip
+        mkdir -p $installDir
+        unzip -q ninja-win.zip -d $installDir
+        echo "##vso[task.setvariable variable=PATH]$installDir;$(PATH)"
+        echo "##vso[task.setvariable variable=CMAKE_MAKE_PROGRAM]$installDir/ninja.exe"
+    displayName: 'Install Ninja'
+
   - task: UsePythonVersion@0
     inputs:
-      versionSpec: '2.7'
+      versionSpec: '3.8'
 
   - bash: |
       cd ./Dependencies/IGraphics
@@ -65,17 +77,17 @@ jobs:
   steps:
   - checkout: none
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_BUILD_WIN_Win32_Release'
-      targetPath: 'Dependencies/Build/'
-    displayName: Download Win32_Release Artifact
+  # - task: DownloadPipelineArtifact@0
+  #   inputs:
+  #     artifactName: 'DEPS_BUILD_WIN_Win32_Release'
+  #     targetPath: 'Dependencies/Build/'
+  #   displayName: Download Win32_Release Artifact
 
-  - task: DownloadPipelineArtifact@0
-    inputs:
-      artifactName: 'DEPS_BUILD_WIN_Win32_Debug'
-      targetPath: 'Dependencies/Build/'
-    displayName: Download Win32_Debug Artifact
+  # - task: DownloadPipelineArtifact@0
+  #   inputs:
+  #     artifactName: 'DEPS_BUILD_WIN_Win32_Debug'
+  #     targetPath: 'Dependencies/Build/'
+  #   displayName: Download Win32_Debug Artifact
 
   - task: DownloadPipelineArtifact@0
     inputs:
@@ -104,6 +116,7 @@ jobs:
     displayName: Publish Windows Dependencies Artifacts
 
 - job: BUILD_MAC_DEPS
+  timeoutInMinutes: 120
   dependsOn: GET_SRC_TREE
   condition: and(eq(variables.build_deps, true), eq(variables.build_mac, true))
 
@@ -120,25 +133,14 @@ jobs:
     displayName: Build Graphics Dependencies
 
   - bash: |
+      brew install ninja
+    displayName: Install Ninja
+
+  - bash: |
       cd ./Dependencies/IGraphics
       ./build-skia-mac.sh
     displayName: Build Skia
 
-  - bash: |
-      cd $BUILD_SOURCESDIRECTORY
-      wget https://github.com/llvm/llvm-project/releases/download/llvmorg-9.0.1/clang+llvm-9.0.1-x86_64-apple-darwin.tar.xz
-      tar -xf clang+llvm-9.0.1-x86_64-apple-darwin.tar.xz -C $HOME
-      export PATH=$HOME/clang+llvm-9.0.1-x86_64-apple-darwin/bin:$PATH
-      echo "##vso[task.setvariable variable=PATH]$PATH"
-
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/faust
-      ./build-faust-mac.sh
-    displayName: Build FAUST
-
-  - bash: |
-      cd $BUILD_SOURCESDIRECTORY/Dependencies/Extras/civetweb
-      ./build-civetweb-mac.sh
-    displayName: Build CivetWeb
 
   - bash: |
       cd ./Dependencies/Build
@@ -152,6 +154,7 @@ jobs:
     displayName: Publish Mac Dependencies Artifacts
 
 - job: BUILD_IOS_DEPS
+  timeoutInMinutes: 120
   dependsOn: GET_SRC_TREE
   condition: and(eq(variables.build_deps, true), eq(variables.build_ios, true))
 
@@ -163,14 +166,28 @@ jobs:
   - template: get_src_artifact.yml
 
   - bash: |
+      brew install ninja
+    displayName: Install Ninja
+
+  - bash: |
       cd ./Dependencies/IGraphics
-      ./build-skia-ios.sh x64
-    displayName: Build Skia (x64)
+      ./build-skia-ios.sh x86_64
+    displayName: Build Skia (x86_64)
 
   - bash: |
       cd ./Dependencies/IGraphics
       ./build-skia-ios.sh arm64
-    displayName: Build Skia (ARM64)
+    displayName: Build Skia (arm64)
+
+  - bash: |
+      cd ./Dependencies/IGraphics
+      ./build-skia-ios.sh x86_64 -simulator
+    displayName: Build Skia (x86_64 simulator)
+
+  - bash: |
+      cd ./Dependencies/IGraphics
+      ./build-skia-ios.sh arm64 -simulator
+    displayName: Build Skia (arm64 simulator)
 
   - bash: |
       cd ./Dependencies/Build

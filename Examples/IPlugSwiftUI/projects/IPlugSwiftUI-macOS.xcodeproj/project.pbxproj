@@ -455,10 +455,6 @@
 		4F5369CB20C446430089212E /* FPUDownsampler2x.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FPUDownsampler2x.h; sourceTree = "<group>"; };
 		4F5369CC20C446430089212E /* license.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
 		4F5369CF20C446430089212E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4F5369D120C446430089212E /* IPlugFaust.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugFaust.h; sourceTree = "<group>"; };
-		4F5369D320C446430089212E /* IPlugFaustGen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaustGen.cpp; sourceTree = "<group>"; };
-		4F5369D420C446430089212E /* IPlugFaust_arch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_arch.cpp; sourceTree = "<group>"; };
-		4F5369D520C446430089212E /* IPlugFaustGen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugFaustGen.h; sourceTree = "<group>"; };
 		4F5369DA20C446430089212E /* SVF.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SVF.h; sourceTree = "<group>"; };
 		4F5369DB20C446430089212E /* Oscillator_table.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Oscillator_table.h; sourceTree = "<group>"; };
 		4F5369DC20C446430089212E /* Oversampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Oversampler.h; sourceTree = "<group>"; };
@@ -646,10 +642,6 @@
 		4FC3EFEC2086CE5600BD11FA /* stringconvert.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stringconvert.cpp; sourceTree = "<group>"; };
 		4FC3EFED2086CE5600BD11FA /* stringconvert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stringconvert.h; sourceTree = "<group>"; };
 		4FC3EFEE2086CE5600BD11FA /* uid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uid.h; sourceTree = "<group>"; };
-		4FC44B9920F151B90062F870 /* IWebsocketServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IWebsocketServer.h; sourceTree = "<group>"; };
-		4FC44B9A20F151B90062F870 /* IWebsocketEditorDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IWebsocketEditorDelegate.h; sourceTree = "<group>"; };
-		4FC44B9C20F151B90062F870 /* IWebsocketEditorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IWebsocketEditorDelegate.cpp; sourceTree = "<group>"; };
-		4FC44B9E20F16B200062F870 /* IWebsocketServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IWebsocketServer.cpp; sourceTree = "<group>"; };
 		4FC46E57231440B4000045E7 /* web */ = {isa = PBXFileReference; lastKnownFileType = folder; name = web; path = ../resources/web; sourceTree = "<group>"; };
 		4FC82B4520BD522B00722133 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../resources/img; sourceTree = "<group>"; };
 		4FC82B4620BD522B00722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
@@ -961,7 +953,6 @@
 			children = (
 				6F7CCF16267A32C500EBB12A /* Cocoa */,
 				4F6E673C21C5614C005991A9 /* Synth */,
-				4FC44B9820F151B90062F870 /* WebSocket */,
 				4F5369BC20C446430089212E /* Easing.h */,
 				4F5369BD20C446430089212E /* NChanDelay.h */,
 				4F800152252F0A9F00432412 /* LFO.h */,
@@ -969,7 +960,6 @@
 				4F5369C320C446430089212E /* Oscillator.h */,
 				4F5369C420C446430089212E /* HIIR */,
 				4F5369CF20C446430089212E /* README.md */,
-				4F5369D020C446430089212E /* Faust */,
 				4F5369DA20C446430089212E /* SVF.h */,
 				4F5369DB20C446430089212E /* Oscillator_table.h */,
 				4F5369DC20C446430089212E /* Oversampler.h */,
@@ -1001,17 +991,6 @@
 				4F5369CC20C446430089212E /* license.txt */,
 			);
 			path = HIIR;
-			sourceTree = "<group>";
-		};
-		4F5369D020C446430089212E /* Faust */ = {
-			isa = PBXGroup;
-			children = (
-				4F5369D120C446430089212E /* IPlugFaust.h */,
-				4F5369D320C446430089212E /* IPlugFaustGen.cpp */,
-				4F5369D420C446430089212E /* IPlugFaust_arch.cpp */,
-				4F5369D520C446430089212E /* IPlugFaustGen.h */,
-			);
-			path = Faust;
 			sourceTree = "<group>";
 		};
 		4F6E673C21C5614C005991A9 /* Synth */ = {
@@ -1412,17 +1391,6 @@
 				4FC3EFEE2086CE5600BD11FA /* uid.h */,
 			);
 			path = hosting;
-			sourceTree = "<group>";
-		};
-		4FC44B9820F151B90062F870 /* WebSocket */ = {
-			isa = PBXGroup;
-			children = (
-				4FC44B9920F151B90062F870 /* IWebsocketServer.h */,
-				4FC44B9E20F16B200062F870 /* IWebsocketServer.cpp */,
-				4FC44B9A20F151B90062F870 /* IWebsocketEditorDelegate.h */,
-				4FC44B9C20F151B90062F870 /* IWebsocketEditorDelegate.cpp */,
-			);
-			path = WebSocket;
 			sourceTree = "<group>";
 		};
 		4FD16CF713B6343B001D0217 /* SWELL */ = {

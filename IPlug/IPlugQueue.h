@@ -83,6 +83,24 @@ public:
     return true;
   }
 
+  /** \todo
+   * @param args... \todo
+   * @return true \todo
+   * @return false \todo */
+  template <typename... Args>
+  bool PushFromArgs(Args ...args)
+  {
+    const auto currentWriteIndex = mWriteIndex.load(std::memory_order_relaxed);
+    const auto nextWriteIndex = Increment(currentWriteIndex);
+    if(nextWriteIndex != mReadIndex.load(std::memory_order_acquire))
+    {
+      mData.Get()[currentWriteIndex] = T(args...);
+      mWriteIndex.store(nextWriteIndex, std::memory_order_release);
+      return true;
+    }
+    return false;
+  }
+  
   /** \todo 
    * @return size_t \todo */
   size_t ElementsAvailable() const

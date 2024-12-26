@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 47;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -50,14 +50,14 @@
 		4F06B2B824BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
 		4F06B2B924BF64A300C7EDDA /* IPlugOSC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */; };
 		4F06B2D424BF65E300C7EDDA /* IPlugWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B2BE24BF65E300C7EDDA /* IPlugWebView.h */; };
-		4F06B2DF24BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F06B2E024BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F06B2E124BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F06B2E224BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F06B2E324BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F06B2E424BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F06B2E624BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
-		4F06B2E724BF65E300C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2DF24BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2E024BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2E124BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2E224BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2E324BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2E424BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2E624BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B2E724BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B2C124BF65E300C7EDDA /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F0848252015129300F9E881 /* IPlugAAX_Parameters.cpp */; };
 		4F0D965C23099F6900BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F8F61A8202807B9003F2573 /* IPlugProcessor.cpp */; };
 		4F10D3D9203A6719003EF82A /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F10D3D7203A6719003EF82A /* RtMidi.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
@@ -498,7 +498,7 @@
 		4F06B2B024BF64A300C7EDDA /* IPlugOSC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugOSC.cpp; sourceTree = "<group>"; };
 		4F06B2BA24BF65BA00C7EDDA /* IWebViewControl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IWebViewControl.h; sourceTree = "<group>"; };
 		4F06B2BE24BF65E300C7EDDA /* IPlugWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugWebView.h; sourceTree = "<group>"; };
-		4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWebView.mm; sourceTree = "<group>"; };
+		4F06B2C124BF65E300C7EDDA /* IPlugWebView_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWebView_mac.mm; sourceTree = "<group>"; };
 		4F0848252015129300F9E881 /* IPlugAAX_Parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; name = IPlugAAX_Parameters.cpp; path = ../../../IPlug/AAX/IPlugAAX_Parameters.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		4F0848262015129400F9E881 /* IPlugAAX_Parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_Parameters.h; path = ../../../IPlug/AAX/IPlugAAX_Parameters.h; sourceTree = "<group>"; tabWidth = 2; };
 		4F0848272015129400F9E881 /* IPlugAAX_view_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.c.h; name = IPlugAAX_view_interface.h; path = ../../../IPlug/AAX/IPlugAAX_view_interface.h; sourceTree = "<group>"; tabWidth = 2; };
@@ -566,10 +566,6 @@
 		4F5369CB20C446430089212E /* FPUDownsampler2x.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FPUDownsampler2x.h; sourceTree = "<group>"; };
 		4F5369CC20C446430089212E /* license.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
 		4F5369CF20C446430089212E /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4F5369D120C446430089212E /* IPlugFaust.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugFaust.h; sourceTree = "<group>"; };
-		4F5369D320C446430089212E /* IPlugFaustGen.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaustGen.cpp; sourceTree = "<group>"; };
-		4F5369D420C446430089212E /* IPlugFaust_arch.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_arch.cpp; sourceTree = "<group>"; };
-		4F5369D520C446430089212E /* IPlugFaustGen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IPlugFaustGen.h; sourceTree = "<group>"; };
 		4F5369DA20C446430089212E /* SVF.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SVF.h; sourceTree = "<group>"; };
 		4F5369DB20C446430089212E /* Oscillator_table.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Oscillator_table.h; sourceTree = "<group>"; };
 		4F5369DC20C446430089212E /* Oversampler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Oversampler.h; sourceTree = "<group>"; };
@@ -784,10 +780,6 @@
 		4FC3EFEC2086CE5600BD11FA /* stringconvert.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stringconvert.cpp; sourceTree = "<group>"; };
 		4FC3EFED2086CE5600BD11FA /* stringconvert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stringconvert.h; sourceTree = "<group>"; };
 		4FC3EFEE2086CE5600BD11FA /* uid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = uid.h; sourceTree = "<group>"; };
-		4FC44B9920F151B90062F870 /* IWebsocketServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IWebsocketServer.h; sourceTree = "<group>"; };
-		4FC44B9A20F151B90062F870 /* IWebsocketEditorDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IWebsocketEditorDelegate.h; sourceTree = "<group>"; };
-		4FC44B9C20F151B90062F870 /* IWebsocketEditorDelegate.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = IWebsocketEditorDelegate.cpp; sourceTree = "<group>"; };
-		4FC44B9E20F16B200062F870 /* IWebsocketServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IWebsocketServer.cpp; sourceTree = "<group>"; };
 		4FC46E57231440B4000045E7 /* web */ = {isa = PBXFileReference; lastKnownFileType = folder; name = web; path = ../resources/web; sourceTree = "<group>"; };
 		4FC82B4520BD522B00722133 /* img */ = {isa = PBXFileReference; lastKnownFileType = folder; name = img; path = ../resources/img; sourceTree = "<group>"; };
 		4FC82B4620BD522B00722133 /* fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = fonts; path = ../resources/fonts; sourceTree = "<group>"; };
@@ -1064,7 +1056,7 @@
 			isa = PBXGroup;
 			children = (
 				4F06B2BE24BF65E300C7EDDA /* IPlugWebView.h */,
-				4F06B2C124BF65E300C7EDDA /* IPlugWebView.mm */,
+				4F06B2C124BF65E300C7EDDA /* IPlugWebView_mac.mm */,
 			);
 			path = WebView;
 			sourceTree = "<group>";
@@ -1159,7 +1151,6 @@
 			children = (
 				4F06B2BB24BF65E300C7EDDA /* WebView */,
 				4F6E673C21C5614C005991A9 /* Synth */,
-				4FC44B9820F151B90062F870 /* WebSocket */,
 				4F5369BC20C446430089212E /* Easing.h */,
 				4F5369BD20C446430089212E /* NChanDelay.h */,
 				4F800152252F0A9F00432412 /* LFO.h */,
@@ -1167,7 +1158,6 @@
 				4F5369C320C446430089212E /* Oscillator.h */,
 				4F5369C420C446430089212E /* HIIR */,
 				4F5369CF20C446430089212E /* README.md */,
-				4F5369D020C446430089212E /* Faust */,
 				4F5369DA20C446430089212E /* SVF.h */,
 				4F5369DB20C446430089212E /* Oscillator_table.h */,
 				4F5369DC20C446430089212E /* Oversampler.h */,
@@ -1200,17 +1190,6 @@
 				4F5369CC20C446430089212E /* license.txt */,
 			);
 			path = HIIR;
-			sourceTree = "<group>";
-		};
-		4F5369D020C446430089212E /* Faust */ = {
-			isa = PBXGroup;
-			children = (
-				4F5369D120C446430089212E /* IPlugFaust.h */,
-				4F5369D320C446430089212E /* IPlugFaustGen.cpp */,
-				4F5369D420C446430089212E /* IPlugFaust_arch.cpp */,
-				4F5369D520C446430089212E /* IPlugFaustGen.h */,
-			);
-			path = Faust;
 			sourceTree = "<group>";
 		};
 		4F63695120A463090022C370 /* Controls */ = {
@@ -1654,17 +1633,6 @@
 			path = hosting;
 			sourceTree = "<group>";
 		};
-		4FC44B9820F151B90062F870 /* WebSocket */ = {
-			isa = PBXGroup;
-			children = (
-				4FC44B9920F151B90062F870 /* IWebsocketServer.h */,
-				4FC44B9E20F16B200062F870 /* IWebsocketServer.cpp */,
-				4FC44B9A20F151B90062F870 /* IWebsocketEditorDelegate.h */,
-				4FC44B9C20F151B90062F870 /* IWebsocketEditorDelegate.cpp */,
-			);
-			path = WebSocket;
-			sourceTree = "<group>";
-		};
 		4FCEAAEE24BEFF460016EF6C /* jnetlib */ = {
 			isa = PBXGroup;
 			children = (
@@ -1977,7 +1945,6 @@
 		089C1669FE841209C02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1250;
 				TargetAttributes = {
 					4F20EEC8132C69FE0030E34C = {
@@ -2023,8 +1990,6 @@
 						DevelopmentTeam = 686EDA2T8T;
 					};
 					4FD16A0813B63081001D0217 = {
-						DevelopmentTeam = 686EDA2T8T;
-						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.ApplicationGroups.Mac = {
 								enabled = 0;
@@ -2347,7 +2312,7 @@
 				4FCE29D821D6ED70004BCBA1 /* ITextEntryControl.cpp in Sources */,
 				4F9A82F8213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4F1A527B205D910000CF2908 /* IPlugVST2.cpp in Sources */,
-				4F06B2E024BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
+				4F06B2E024BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */,
 				4F8C10E120BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
 				4FCEAB7C24BEFFEC0016EF6C /* IPlugOSC_msg.cpp in Sources */,
 				4FCEAB4824BEFF470016EF6C /* listen.cpp in Sources */,
@@ -2388,7 +2353,7 @@
 				4F993F7423055C96000313AF /* IPlugProcessor.cpp in Sources */,
 				4F8C10E320BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
 				4FCEAB7424BEFF470016EF6C /* connection.cpp in Sources */,
-				4F06B2E224BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
+				4F06B2E224BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */,
 				4F6FD2B422675B6300FC59E6 /* IGraphicsCoreText.mm in Sources */,
 				4F9A82FA213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4FDAC0ED207D76C600299363 /* IPlugTimer.cpp in Sources */,
@@ -2442,7 +2407,7 @@
 				4F3EE1DE231438D000004786 /* IPlugOSCEditor.cpp in Sources */,
 				4F3EE1DF231438D000004786 /* IPopupMenuControl.cpp in Sources */,
 				4F3EE1E0231438D000004786 /* IPlugAPIBase.cpp in Sources */,
-				4F06B2E724BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
+				4F06B2E724BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */,
 				4F3EE1E1231438D000004786 /* IPlugPluginBase.cpp in Sources */,
 				4FCEAB4F24BEFF470016EF6C /* listen.cpp in Sources */,
 				4F3EE1E2231438D000004786 /* IGraphicsEditorDelegate.cpp in Sources */,
@@ -2472,7 +2437,7 @@
 				4F06B2B824BF64A300C7EDDA /* IPlugOSC.cpp in Sources */,
 				4F78BE1E22E7406D00AD537E /* IGraphicsNanoVG_src.m in Sources */,
 				4F78BE1F22E7406D00AD537E /* IGraphics.cpp in Sources */,
-				4F06B2E624BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
+				4F06B2E624BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */,
 				4F78BE2022E7406D00AD537E /* IGraphicsEditorDelegate.cpp in Sources */,
 				4FCEAB9024BF02C00016EF6C /* asyncdns.cpp in Sources */,
 				4F78BE2122E7406D00AD537E /* IControl.cpp in Sources */,
@@ -2503,7 +2468,7 @@
 				4F815973205D50EB00393585 /* vstinitiids.cpp in Sources */,
 				4F81597E205D50EB00393585 /* fdebug.cpp in Sources */,
 				4FCEAB4924BEFF470016EF6C /* listen.cpp in Sources */,
-				4F06B2E124BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
+				4F06B2E124BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */,
 				4F9828B8140A9EB700F3FCC1 /* IPlugAPIBase.cpp in Sources */,
 				4F81597F205D50EB00393585 /* fdynlib.cpp in Sources */,
 				4F815919205D50EB00393585 /* memorystream.cpp in Sources */,
@@ -2571,7 +2536,7 @@
 				4F06B2B524BF64A300C7EDDA /* IPlugOSC.cpp in Sources */,
 				4F5F344520C0226200487201 /* IPlugPaths.mm in Sources */,
 				4F1A5285205D914A00CF2908 /* IPlugAAX.cpp in Sources */,
-				4F06B2E324BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
+				4F06B2E324BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */,
 				4F0848292015129A00F9E881 /* IPlugAAX_Parameters.cpp in Sources */,
 				4FCEAB8D24BF02C00016EF6C /* asyncdns.cpp in Sources */,
 				4FB1F59420E4B014004157C8 /* IGraphicsMac_view.mm in Sources */,
@@ -2645,7 +2610,7 @@
 				4F3862EF2014BBEC0009F402 /* IPlugOSCEditor.cpp in Sources */,
 				4F9A82F7213DE80400BE63A4 /* IPopupMenuControl.cpp in Sources */,
 				4F78D90B13B63BA50032E0F3 /* IPlugAPIBase.cpp in Sources */,
-				4F06B2DF24BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
+				4F06B2DF24BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */,
 				4F35DEAD207E5C5A00867D8F /* IPlugPluginBase.cpp in Sources */,
 				4FCEAB4724BEFF470016EF6C /* listen.cpp in Sources */,
 				4F8C10E020BA2796006320CD /* IGraphicsEditorDelegate.cpp in Sources */,
@@ -2662,7 +2627,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4FFBB90520863B0E00DDD0E7 /* baseiids.cpp in Sources */,
-				4F06B2E424BF65E300C7EDDA /* IPlugWebView.mm in Sources */,
+				4F06B2E424BF65E300C7EDDA /* IPlugWebView_mac.mm in Sources */,
 				4FFBB90620863B0E00DDD0E7 /* IPlugTimer.cpp in Sources */,
 				4FFBB90720863B0E00DDD0E7 /* IPlugOSCEditor.cpp in Sources */,
 				4FFBB90820863B0E00DDD0E7 /* pluginfactory.cpp in Sources */,
@@ -2996,7 +2961,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBC_FLATTEN_NIBS = NO;
 				INFOPLIST_FILE = "../resources/IPlugOSCEditor-macOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = "$(inherited)";
@@ -3033,7 +3002,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBC_FLATTEN_NIBS = NO;
 				INFOPLIST_FILE = "../resources/IPlugOSCEditor-macOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
@@ -3070,7 +3043,11 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				IBC_FLATTEN_NIBS = NO;
 				INFOPLIST_FILE = "../resources/IPlugOSCEditor-macOS-AUv3-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @executable_path/../../../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = "$(inherited)";
@@ -3180,7 +3157,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugOSCEditor-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -3206,7 +3186,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugOSCEditor-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -3232,7 +3215,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugOSCEditor-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -3280,7 +3266,10 @@
 				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugOSCEditor-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -3338,7 +3327,10 @@
 				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugOSCEditor-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -3396,7 +3388,10 @@
 				GENERATE_PKGINFO_FILE = NO;
 				INFOPLIST_FILE = "$(SRCROOT)/../resources/IPlugOSCEditor-macOS-AUv3Framework-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/Frameworks",
+				);
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -3816,6 +3811,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugOSCEditor-macOS.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3825,7 +3822,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugOSCEditor-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -3841,6 +3841,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugOSCEditor-macOS.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3850,7 +3852,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugOSCEditor-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",
@@ -3866,6 +3871,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "IPlugOSCEditor-macOS.entitlements";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
 				DSTROOT = "$(APP_PATH)";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -3875,7 +3882,10 @@
 				);
 				HEADER_SEARCH_PATHS = "$(inherited)";
 				INFOPLIST_FILE = "../resources/IPlugOSCEditor-macOS-Info.plist";
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
 				OTHER_LDFLAGS = (
 					"$(APP_FRAMEWORKS)",
 					"$(inherited)",

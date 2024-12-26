@@ -19,7 +19,7 @@
 		4F06B2FD24BF72D400C7EDDA /* listen.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B2F324BF72D400C7EDDA /* listen.h */; };
 		4F06B2FE24BF72D400C7EDDA /* asyncdns.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B2F424BF72D400C7EDDA /* asyncdns.h */; };
 		4F06B30A24BF72FF00C7EDDA /* IPlugWebView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4F06B30424BF72FF00C7EDDA /* IPlugWebView.h */; };
-		4F06B30D24BF72FF00C7EDDA /* IPlugWebView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B30724BF72FF00C7EDDA /* IPlugWebView.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
+		4F06B30D24BF72FF00C7EDDA /* IPlugWebView_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4F06B30724BF72FF00C7EDDA /* IPlugWebView_mac.mm */; settings = {COMPILER_FLAGS = "-fobjc-arc"; }; };
 		4F06B30E24BF732B00C7EDDA /* IPlugOSC_msg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4F977D3A20CC9DD800D19F46 /* IPlugOSC_msg.cpp */; };
 		4F0D965B23099F5A00BFDED0 /* IPlugProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4FFF103420A0E55900D3092F /* IPlugProcessor.cpp */; };
 		4F10E7C020B17EDB00F5B09B /* IPlugOSCEditor-iOS-MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F10E7BF20B17EDB00F5B09B /* IPlugOSCEditor-iOS-MainInterface.storyboard */; };
@@ -115,7 +115,7 @@
 		4F06B2F324BF72D400C7EDDA /* listen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = listen.h; path = ../../../../WDL/jnetlib/listen.h; sourceTree = "<group>"; };
 		4F06B2F424BF72D400C7EDDA /* asyncdns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = asyncdns.h; path = ../../../../WDL/jnetlib/asyncdns.h; sourceTree = "<group>"; };
 		4F06B30424BF72FF00C7EDDA /* IPlugWebView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugWebView.h; sourceTree = "<group>"; };
-		4F06B30724BF72FF00C7EDDA /* IPlugWebView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWebView.mm; sourceTree = "<group>"; };
+		4F06B30724BF72FF00C7EDDA /* IPlugWebView_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IPlugWebView_mac.mm; sourceTree = "<group>"; };
 		4F10E7BF20B17EDB00F5B09B /* IPlugOSCEditor-iOS-MainInterface.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = "IPlugOSCEditor-iOS-MainInterface.storyboard"; path = "../resources/IPlugOSCEditor-iOS-MainInterface.storyboard"; sourceTree = "<group>"; };
 		4F10E7C520B189DD00F5B09B /* IPlugOSCEditor-iOS.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = "IPlugOSCEditor-iOS.entitlements"; sourceTree = "<group>"; };
 		4F2020F620A1B2B500F22200 /* scripts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = scripts; path = ../scripts; sourceTree = "<group>"; };
@@ -144,7 +144,8 @@
 		4F63699120A463AF0022C370 /* IGraphicsIOS_view.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IGraphicsIOS_view.mm; sourceTree = "<group>"; };
 		4F63699220A463AF0022C370 /* IGraphicsPopupMenu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsPopupMenu.h; sourceTree = "<group>"; };
 		4F63699320A463AF0022C370 /* IGraphicsUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsUtilities.h; sourceTree = "<group>"; };
-		4F63699420A463AF0022C370 /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };		4F63699F20A463AF0022C370 /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsStructs.h; sourceTree = "<group>"; };
+		4F63699420A463AF0022C370 /* IGraphics.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IGraphics.cpp; sourceTree = "<group>"; };
+		4F63699F20A463AF0022C370 /* IGraphicsStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsStructs.h; sourceTree = "<group>"; };
 		4F6369A020A463AF0022C370 /* IGraphicsConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsConstants.h; sourceTree = "<group>"; };
 		4F6369A120A463AF0022C370 /* IGraphicsLiveEdit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphicsLiveEdit.h; sourceTree = "<group>"; };
 		4F6369A220A463AF0022C370 /* IGraphics_select.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IGraphics_select.h; sourceTree = "<group>"; };
@@ -176,10 +177,6 @@
 		4F977D4420CC9DD800D19F46 /* FPUDownsampler2x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FPUDownsampler2x.h; sourceTree = "<group>"; };
 		4F977D4520CC9DD800D19F46 /* license.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = license.txt; sourceTree = "<group>"; };
 		4F977D4820CC9DD800D19F46 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4F977D4A20CC9DD800D19F46 /* IPlugFaust.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaust.h; sourceTree = "<group>"; };
-		4F977D4C20CC9DD800D19F46 /* IPlugFaustGen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaustGen.cpp; sourceTree = "<group>"; };
-		4F977D4D20CC9DD800D19F46 /* IPlugFaust_arch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IPlugFaust_arch.cpp; sourceTree = "<group>"; };
-		4F977D4E20CC9DD800D19F46 /* IPlugFaustGen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IPlugFaustGen.h; sourceTree = "<group>"; };
 		4F977D5320CC9DD800D19F46 /* SVF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SVF.h; sourceTree = "<group>"; };
 		4F977D5420CC9DD800D19F46 /* Oscillator_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Oscillator_table.h; sourceTree = "<group>"; };
 		4F977D5520CC9DD800D19F46 /* Oversampler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Oversampler.h; sourceTree = "<group>"; };
@@ -310,7 +307,7 @@
 			isa = PBXGroup;
 			children = (
 				4F06B30424BF72FF00C7EDDA /* IPlugWebView.h */,
-				4F06B30724BF72FF00C7EDDA /* IPlugWebView.mm */,
+				4F06B30724BF72FF00C7EDDA /* IPlugWebView_mac.mm */,
 			);
 			path = WebView;
 			sourceTree = "<group>";
@@ -458,7 +455,6 @@
 				4F977D3C20CC9DD800D19F46 /* Oscillator.h */,
 				4F977D3D20CC9DD800D19F46 /* HIIR */,
 				4F977D4820CC9DD800D19F46 /* README.md */,
-				4F977D4920CC9DD800D19F46 /* Faust */,
 				4F977D5320CC9DD800D19F46 /* SVF.h */,
 				4F977D5420CC9DD800D19F46 /* Oscillator_table.h */,
 				4F977D5520CC9DD800D19F46 /* Oversampler.h */,
@@ -491,17 +487,6 @@
 				4F977D4520CC9DD800D19F46 /* license.txt */,
 			);
 			path = HIIR;
-			sourceTree = "<group>";
-		};
-		4F977D4920CC9DD800D19F46 /* Faust */ = {
-			isa = PBXGroup;
-			children = (
-				4F977D4A20CC9DD800D19F46 /* IPlugFaust.h */,
-				4F977D4C20CC9DD800D19F46 /* IPlugFaustGen.cpp */,
-				4F977D4D20CC9DD800D19F46 /* IPlugFaust_arch.cpp */,
-				4F977D4E20CC9DD800D19F46 /* IPlugFaustGen.h */,
-			);
-			path = Faust;
 			sourceTree = "<group>";
 		};
 		4FDF6D712267CE540007B686 /* iOSApp */ = {
@@ -813,7 +798,7 @@
 				4FA61F7E22E89AFF00A92C58 /* IPlugPluginBase.cpp in Sources */,
 				4FA61F8C22E89B3700A92C58 /* IControl.cpp in Sources */,
 				4FA61F8D22E89B4300A92C58 /* IGraphicsCoreText.mm in Sources */,
-				4F06B30D24BF72FF00C7EDDA /* IPlugWebView.mm in Sources */,
+				4F06B30D24BF72FF00C7EDDA /* IPlugWebView_mac.mm in Sources */,
 				4F06B30E24BF732B00C7EDDA /* IPlugOSC_msg.cpp in Sources */,
 				4FA61F8922E89B3700A92C58 /* IControls.cpp in Sources */,
 				4FA61F8222E89AFF00A92C58 /* IPlugTimer.cpp in Sources */,

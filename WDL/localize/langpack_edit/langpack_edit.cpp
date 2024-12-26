@@ -35,9 +35,72 @@
 
 #include "../../localize/localize.h"
 #include "../../lineparse.h"
+
+#define WDL_HASSTRINGS_REWUTF8_HOOK(str, base) \
+ if ((str) > (base)) switch ((str)[0]) { \
+   case 'r': case 'n': case 't': case '0': if ((str)[-1] == '\\') (str)--; break; \
+   case 'd': case 's': case 'f': case 'g': case 'c': case 'u': if ((str)[-1] == '%') (str)--; break; \
+ }
 #include "../../has_strings.h"
 
 #include "resource.h"
+
+
+#ifndef HDF_SORTUP
+#define HDF_SORTUP 0x0400
+#endif
+#ifndef HDF_SORTDOWN
+#define HDF_SORTDOWN 0x0200
+#endif
+
+void ListView_SetHeaderSortArrow(HWND hlist, int col, int dir)
+{
+  HWND hhdr=ListView_GetHeader(hlist);
+  if (!hhdr) return;
+  for (int i=0; i < Header_GetItemCount(hhdr); ++i)
+  {
+    HDITEM hi = { HDI_FORMAT, 0, };
+    Header_GetItem(hhdr, i, &hi);
+    hi.fmt &= ~(HDF_SORTUP|HDF_SORTDOWN);
+    if (i == col) hi.fmt |= (dir > 0 ? HDF_SORTUP : HDF_SORTDOWN);
+    Header_SetItem(hhdr, i, &hi);
+  }
+}
+
+
+template<class A, class B> static void Restore_ListSelState(HWND hlist, const WDL_TypedBuf<A> *order, const B *st)
+{
+#ifdef __APPLE__
+   SendMessage(hlist,WM_SETREDRAW,FALSE,0);
+#endif
+  int x;
+  const int n = order->GetSize();
+  int frow = -1;
+  for (x = 0; x < n; x ++)
+  {
+    bool sel = st->Get(order->Get()[x]);
+    if (frow < 0 && sel) frow = x;
+    ListView_SetItemState(hlist, x, sel ? LVIS_SELECTED : 0, LVIS_SELECTED);
+  }
+  if (frow >= 0)
+    ListView_EnsureVisible(hlist, frow, FALSE);
+#ifdef __APPLE__
+   SendMessage(hlist,WM_SETREDRAW,TRUE,0);
+#endif
+}
+
+template<class A, class B> static void Save_ListSelState(HWND hlist, const WDL_TypedBuf<A> *order, B *st)
+{
+  int x;
+  const int n = order->GetSize();
+  for (x = 0; x < n; x ++)
+  {
+    if (ListView_GetItemState(hlist,x,LVIS_SELECTED)) st->AddUnsorted(order->Get()[x], true);
+  }
+  st->Resort();
+}
+
+
 
 #if !defined(_WIN32) && !defined(__APPLE__)
 bool g_quit;
@@ -47,7 +110,7 @@ HINSTANCE g_hInstance;
 WDL_FastString g_ini_file;
 
 enum {
-  COL_STATE=0,
+  COL_STATE=0, // if we edit these need to edit the IDs of ID_COL_* in resource.h
   COL_ID,
   COL_ROW_IDX,
   COL_TEMPLATE,
@@ -73,13 +136,18 @@ struct pack_rec {
 };
 
 struct editor_instance {
-  editor_instance() : m_recs(false, pack_rec::freeptrs), m_hwnd(NULL), m_dirty(false) { }
+  editor_instance() : m_recs(false, pack_rec::freeptrs),
+                      m_column_no_searchflags(0), m_sort_col(COL_ID), m_sort_rev(false),
+                      m_hwnd(NULL), m_dirty(false) { }
   ~editor_instance() { }
 
   WDL_FastString m_pack_fn;
 
   WDL_StringKeyedArray2<pack_rec> m_recs;
   WDL_TypedBuf<int> m_display_order;
+  int m_column_no_searchflags; // bits for exclude from search per column
+  int m_sort_col;
+  bool m_sort_rev;
 
   HWND m_hwnd;
   bool m_dirty;
@@ -90,7 +158,9 @@ struct editor_instance {
   void save_file(const char *filename);
 
   void cull_recs();
-  void refresh_list(bool refilter=true);
+  void refresh_list();
+  void sort_display_order();
+  void on_sort_change();
 
   const char *get_rec_value(const pack_rec *r, const char *k, int w) const
   {
@@ -363,74 +433,131 @@ void editor_instance::cull_recs()
   }
 }
 
-void editor_instance::refresh_list(bool refilter)
+void editor_instance::refresh_list()
 {
-  int *p, cnt;
-  if (refilter)
-  {
-    p = m_display_order.Resize(m_recs.GetSize());
-    cnt = 0;
-  }
-  else
-  {
-    p = m_display_order.Get();
-    cnt = m_display_order.GetSize();
-  }
+  HWND list = WDL_NORMALLY(m_hwnd) ? GetDlgItem(m_hwnd,IDC_LIST) : NULL;
+  WDL_IntKeyedArray<bool> selState;
+  if (list)
+    Save_ListSelState(list, &m_display_order, &selState);
 
-  if (m_recs.GetSize() && WDL_NORMALLY(p))
-  {
-    LineParser lp;
-    if (refilter && m_hwnd)
-    {
-      char filter[512];
-      GetDlgItemText(m_hwnd,IDC_FILTER,filter,sizeof(filter));
-      WDL_makeSearchFilter(filter, &lp);
-    }
-    const bool do_filt = lp.getnumtokens()>0;
-    for (int x = 0; x < m_recs.GetSize(); x ++)
-    {
-      const char *k = NULL;
-      pack_rec *r = m_recs.EnumeratePtr(x,&k);
-      if (WDL_NOT_NORMALLY(!r)) break;
+  m_display_order.Resize(0,false);
 
-      if (strnicmp(k,"common:",7))
-      {
-        const char *sid = parse_section_id(k,NULL,0);
-        if (WDL_NORMALLY(sid))
-        {
-          char tmp[256];
-          snprintf(tmp,sizeof(tmp),"common:%s",sid);
-          r->common_idx = m_recs.GetIdx(tmp);
-        }
-      }
-      else
-        r->common_idx = -1;
-
-      if (refilter)
-      {
-        const char *strs[COL_MAX];
-        int nc = 0;
-        if (do_filt)
-        {
-          for (int c =0; c < COL_MAX; c ++)
-          {
-            const char *v = get_rec_value(r,k,c);
-            if (v) strs[nc++] = v;
-          }
-        }
-
-        if (!do_filt || WDL_hasStringsEx2(strs,nc,&lp,NULL))
-          p[cnt++] = x;
-      }
-    }
-  }
-
-  m_display_order.Resize(cnt,false);
+  LineParser lp;
   if (m_hwnd)
   {
-    HWND list = GetDlgItem(m_hwnd,IDC_LIST);
-    ListView_SetItemCount(list,cnt);
-    ListView_RedrawItems(list,0,cnt);
+    char filter[512];
+    GetDlgItemText(m_hwnd,IDC_FILTER,filter,sizeof(filter));
+    WDL_makeSearchFilter(filter, &lp);
+  }
+  const bool do_filt = lp.getnumtokens()>0;
+  for (int x = 0; x < m_recs.GetSize(); x ++)
+  {
+    const char *k = NULL;
+    pack_rec *r = m_recs.EnumeratePtr(x,&k);
+    if (WDL_NOT_NORMALLY(!r)) break;
+
+    if (strnicmp(k,"common:",7))
+    {
+      const char *sid = parse_section_id(k,NULL,0);
+      if (WDL_NORMALLY(sid))
+      {
+        char tmp[256];
+        snprintf(tmp,sizeof(tmp),"common:%s",sid);
+        r->common_idx = m_recs.GetIdx(tmp);
+      }
+    }
+    else
+      r->common_idx = -1;
+
+    const char *strs[COL_MAX];
+    int nc = 0;
+    if (do_filt)
+    {
+      for (int c =0; c < COL_MAX; c ++)
+      {
+        if (m_column_no_searchflags & (1<<c)) continue;
+        const char *v = get_rec_value(r,k,c);
+        if (v) strs[nc++] = v;
+      }
+    }
+
+    if (!do_filt || WDL_hasStringsEx2(strs,nc,&lp))
+      m_display_order.Add(&x,1);
+  }
+
+  sort_display_order();
+
+  if (list)
+  {
+    ListView_SetItemCount(list, m_display_order.GetSize());
+    Restore_ListSelState(list, &m_display_order, &selState);
+    ListView_RedrawItems(list, 0, m_display_order.GetSize());
+  }
+}
+
+static editor_instance *sort_inst;
+static int sort_func(const void *a, const void *b)
+{
+  const int idx_a = *(const int *)a, idx_b = *(const int *)b;
+  int ret = idx_a < idx_b ? -1 : idx_a > idx_b ? 1 : 0;
+
+  const int col = sort_inst->m_sort_col;
+  switch (col)
+  {
+    case COL_STATE:
+    case COL_TEMPLATE:
+    case COL_LOCALIZED:
+    case COL_COMMON_LOCALIZED:
+      {
+        const char *ak, *bk;
+        const pack_rec *ar = sort_inst->m_recs.EnumeratePtr(idx_a,&ak);
+        const pack_rec *br = sort_inst->m_recs.EnumeratePtr(idx_b,&bk);
+        const char *av = ar ? sort_inst->get_rec_value(ar,ak,col) : NULL;
+        const char *bv = br ? sort_inst->get_rec_value(br,bk,col) : NULL;
+        if (av || bv)
+        {
+          if (av) while (*av == ' ') av++;
+          if (bv) while (*bv == ' ') bv++;
+          int diff = WDL_strcmp_logical_ex(av?av:"",bv?bv:"",0,WDL_STRCMP_LOGICAL_EX_FLAG_UTF8CONVERT);
+          if (diff) ret = diff;
+        }
+      }
+    break;
+  }
+  return sort_inst->m_sort_rev ? -ret : ret;
+}
+
+
+void editor_instance::on_sort_change()
+{
+  char tmp[64];
+  snprintf(tmp, sizeof(tmp), "%d", m_sort_col);
+  WritePrivateProfileString("LangPackEdit", "sortcol", tmp, g_ini_file.Get());
+  WritePrivateProfileString("LangPackEdit", "sortrev", m_sort_rev ? "1" : "0", g_ini_file.Get());
+
+  if (!m_hwnd) return;
+  HWND list = GetDlgItem(m_hwnd,IDC_LIST);
+
+  if (!list) return;
+  WDL_IntKeyedArray<bool> selState;
+  Save_ListSelState(list, &m_display_order, &selState);
+
+  sort_display_order();
+
+  ListView_SetHeaderSortArrow(list, m_sort_col, (m_sort_rev ? -1 : 1));
+  ListView_SetItemCount(list, m_display_order.GetSize());
+  Restore_ListSelState(list, &m_display_order, &selState);
+
+  ListView_RedrawItems(list, 0, m_display_order.GetSize());
+}
+
+void editor_instance::sort_display_order()
+{
+  if (m_display_order.GetSize() > 1)
+  {
+    sort_inst = this;
+    qsort(m_display_order.Get(), m_display_order.GetSize(), sizeof(m_display_order.Get()[0]), sort_func);
+    sort_inst = NULL;
   }
 }
 
@@ -588,7 +715,7 @@ bool editor_instance::edit_row(int row, int other_action)
   void *p[2] = { this, (void *)(INT_PTR) rec_idx };
   if (DialogBoxParam(g_hInstance, MAKEINTRESOURCE(IDD_RENAME), m_hwnd, editorProc, (LPARAM)p))
   {
-    refresh_list(false);
+    refresh_list();
     set_dirty();
     return true;
   }
@@ -726,6 +853,11 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         GetPrivateProfileString("LangPackEdit","lastpack","",buf,sizeof(buf),g_ini_file.Get());
         g_editor.load_file(buf,false);
+
+        g_editor.m_column_no_searchflags = GetPrivateProfileInt("LangPackEdit","nosearchcols",0,g_ini_file.Get());
+        g_editor.m_sort_col = GetPrivateProfileInt("LangPackEdit","sortcol",COL_ID,g_ini_file.Get());
+        g_editor.m_sort_rev = GetPrivateProfileInt("LangPackEdit","sortrev",0,g_ini_file.Get()) > 0;
+        ListView_SetHeaderSortArrow(GetDlgItem(hwndDlg,IDC_LIST), g_editor.m_sort_col, (g_editor.m_sort_rev ? -1 : 1));
         g_editor.m_pack_fn.Set(buf);
         g_editor.set_caption();
       }
@@ -845,7 +977,7 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
             if (cnt && wParam != IDC_LOCALIZED_STRING)
             {
-              g_editor.refresh_list(false);
+              g_editor.refresh_list();
               g_editor.set_dirty();
             }
             if (wParam == ID_SCALING_ADD)
@@ -859,6 +991,32 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
               }
             }
           }
+        break;
+        case ID_COL_STATE:
+        case ID_COL_ID:
+        case ID_COL_TEMPLATE:
+        case ID_COL_LOCALIZED:
+        case ID_COL_COMMONLOCALIZED:
+          g_editor.m_column_no_searchflags ^= (1<<(LOWORD(wParam) - ID_COL_STATE));
+          {
+            char tmp[64];
+            snprintf(tmp,sizeof(tmp),"%d",g_editor.m_column_no_searchflags);
+            WritePrivateProfileString("LangPackEdit","nosearchcols",tmp,g_ini_file.Get());
+          }
+          SetTimer(hwndDlg,TIMER_FILTER,100,NULL);
+        break;
+        case ID_SORTCOL_STATE:
+        case ID_SORTCOL_ID:
+        case ID_SORTCOL_TEMPLATE:
+        case ID_SORTCOL_LOCALIZED:
+        case ID_SORTCOL_COMMONLOCALIZED:
+          g_editor.m_sort_rev = false;
+          g_editor.m_sort_col = LOWORD(wParam) - ID_SORTCOL_STATE;
+          g_editor.on_sort_change();
+        break;
+        case ID_SORTCOL_REVERSE:
+          g_editor.m_sort_rev = !g_editor.m_sort_rev;
+          g_editor.on_sort_change();
         break;
       }
     break;
@@ -877,6 +1035,11 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         bool en = ListView_GetSelectedCount(GetDlgItem(hwndDlg,IDC_LIST))>0;
         for (size_t x = 0; x < sizeof(tab)/sizeof(tab[0]); x ++)
           EnableMenuItem(menu,tab[x],MF_BYCOMMAND|(en ? 0 : MF_GRAYED));
+        for (int x = 0; x < COL_MAX; x ++)
+          CheckMenuItem(menu,ID_COL_STATE+x, MF_BYCOMMAND | ((g_editor.m_column_no_searchflags&(1<<x)) ? MF_UNCHECKED:MF_CHECKED));
+        for (int x = 0; x < COL_MAX; x ++)
+          CheckMenuItem(menu,ID_SORTCOL_STATE+x, MF_BYCOMMAND | ((g_editor.m_sort_col == x) ? MF_CHECKED:MF_UNCHECKED));
+        CheckMenuItem(menu,ID_SORTCOL_REVERSE, MF_BYCOMMAND | (g_editor.m_sort_rev ? MF_CHECKED:MF_UNCHECKED));
       }
     break;
     case WM_NOTIFY:
@@ -891,6 +1054,22 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (ListView_GetSelectedCount(lv->hdr.hwndFrom)>0)
             {
               g_editor.item_context_menu();
+            }
+          return 0;
+          case LVN_COLUMNCLICK:
+            {
+              int col = lv->iSubItem;
+              if (col == COL_ROW_IDX) col = COL_ID;
+              if (g_editor.m_sort_col == col)
+              {
+                g_editor.m_sort_rev = !g_editor.m_sort_rev;
+              }
+              else
+              {
+                g_editor.m_sort_rev = false;
+                g_editor.m_sort_col = col;
+              }
+              g_editor.on_sort_change();
             }
           return 0;
           case LVN_GETDISPINFO:

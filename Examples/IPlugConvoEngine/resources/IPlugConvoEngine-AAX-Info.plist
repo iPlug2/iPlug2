@@ -25,7 +25,7 @@
 	<key>CSResourcesFileMapped</key>
 	<true/>
 	<key>LSMinimumSystemVersion</key>
-	<string>10.11.0</string>
+	<string>10.13.0</string>
 	<key>LSMultipleInstancesProhibited</key>
 	<string>true</string>
 	<key>LSPrefersCarbon</key>

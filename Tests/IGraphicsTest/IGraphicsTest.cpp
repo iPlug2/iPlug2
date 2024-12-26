@@ -103,6 +103,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
     "FlexBox",
     "Mask",
     "DirBrowse",
+    "DragNDrop",
     };
     
     WDL_String resourcePath;
@@ -148,6 +149,7 @@ IGraphicsTest::IGraphicsTest(const InstanceInfo& info)
         case 24: pNewControl = new TestFlexBoxControl(testRect); break;
         case 25: pNewControl = new TestMaskControl(testRect, pGraphics->LoadBitmap(SMILEY_FN)); break;
         case 26: pNewControl = new TestDirBrowseControl(testRect, "png", resourcePath.Get()); break;
+        case 27: pNewControl = new TestDragAndDropControl(testRect); break;
       }
       
       if(pNewControl)

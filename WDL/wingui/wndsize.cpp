@@ -63,7 +63,7 @@ void WDL_WndSizer::init_itemvirt(WDL_VirtualWnd *vwnd,
                                  float left_scale, float top_scale, float right_scale, float bottom_scale)
 {
   RECT this_r={0,};
-  if (vwnd) vwnd->GetPosition(&this_r);
+  if (WDL_NORMALLY(vwnd)) vwnd->GetPosition(&this_r);
   
   const int osize=m_list.GetSize();
   m_list.Resize(osize+1);
@@ -99,7 +99,7 @@ void WDL_WndSizer::init_itemhwnd(HWND h, float left_scale, float top_scale, floa
   else if (h)
   {
     GetWindowRect(h,&this_r);
-    if (m_hwnd)
+    if (WDL_NORMALLY(m_hwnd))
     {
       ScreenToClient(m_hwnd,(LPPOINT) &this_r);
       ScreenToClient(m_hwnd,((LPPOINT) &this_r)+1);
@@ -112,6 +112,10 @@ void WDL_WndSizer::init_itemhwnd(HWND h, float left_scale, float top_scale, floa
       this_r.top -= oh;
     }
   #endif
+  }
+  else
+  {
+    WDL_ASSERT(false);
   }
   const int osize=m_list.GetSize();
   m_list.Resize(osize+1);
@@ -131,10 +135,11 @@ void WDL_WndSizer::init_itemhwnd(HWND h, float left_scale, float top_scale, floa
 
 void WDL_WndSizer::init_item(int dlg_id, float left_scale, float top_scale, float right_scale, float bottom_scale, RECT *initr)
 {
-  if (m_hwnd)
+  if (WDL_NORMALLY(m_hwnd))
   {
     HWND h = GetDlgItem(m_hwnd, dlg_id);
-    if (h) init_itemhwnd(h, left_scale, top_scale, right_scale, bottom_scale, initr);
+    if (WDL_NORMALLY(h))
+      init_itemhwnd(h, left_scale, top_scale, right_scale, bottom_scale, initr);
   }
 }
 

@@ -94,13 +94,13 @@ class WDL_String
     int GetLength() const { return m_hb.GetSize()?(int)strlen((const char*)m_hb.Get()):0; }
   #endif
 
-    explicit WDL_String(int hbgran) : m_hb(hbgran WDL_HEAPBUF_TRACEPARM("WDL_String(4)")) { }
-    explicit WDL_String(const char *initial=NULL, int initial_len=0) : m_hb(128 WDL_HEAPBUF_TRACEPARM("WDL_String"))
+    explicit WDL_String(int hbgran) : m_hb(hbgran) { }
+    explicit WDL_String(const char *initial=NULL, int initial_len=0) : m_hb(128)
     {
       if (initial) Set(initial,initial_len);
     }
-    WDL_String(const WDL_String &s) : m_hb(128 WDL_HEAPBUF_TRACEPARM("WDL_String(2)")) { Set(&s); }
-    WDL_String(const WDL_String *s) : m_hb(128 WDL_HEAPBUF_TRACEPARM("WDL_String(3)")) { if (s && s != this) Set(s); }
+    WDL_String(const WDL_String &s) : m_hb(128) { Set(&s); }
+    WDL_String(const WDL_String *s) : m_hb(128) { if (s && s != this) Set(s); }
     ~WDL_String() { }
 #endif // ! WDL_STRING_IMPL_ONLY
 
@@ -368,7 +368,7 @@ class WDL_String
         #ifdef WDL_STRING_FREE_ON_CLEAR
           m_hb.Resize(0,true);
         #else
-          char *p = (char *)m_hb.Resize(1,false);
+          char *p = (char *)m_hb.ResizeOK(1,false);
           if (p) *p=0;
         #endif
       }
@@ -380,7 +380,7 @@ class WDL_String
         if (growamt > 0)
         {
           const char *oldb = (const char *)m_hb.Get();
-          const char *newb = (const char *)m_hb.Resize(newsz,false); // resize up if necessary
+          const char *newb = (const char *)m_hb.ResizeOK(newsz,false); // resize up if necessary
 
           // in case str overlaps with input, keep it valid
           if (str && newb != oldb && str >= oldb && str < oldb+oldsz) str = newb + (str - oldb);

@@ -973,7 +973,13 @@ void WDL_VirtualSlider::OnMoveOrUp(int xpos, int ypos, int isup)
 #endif
       }
     }
-    do m_last_precmode++; while (ShowCursor(FALSE)>=0);
+    int v;
+    do m_last_precmode++; while ((v=ShowCursor(FALSE))>=0);
+    if (v < -3 && m_last_precmode>1)
+    {
+      m_last_precmode--;
+      ShowCursor(TRUE);
+    }
   }
   else
   {
@@ -1047,7 +1053,7 @@ bool WDL_VirtualSlider::OnMouseDblClick(int xpos, int ypos)
   return true;
 }
 
-bool WDL_VirtualSlider::OnMouseWheel(int xpos, int ypos, int amt)
+bool WDL_VirtualSlider::OnMouseWheelInternal(int xpos, int ypos, int amt, int sc)
 {
   if (m_grayed) return false;
 
@@ -1057,15 +1063,20 @@ bool WDL_VirtualSlider::OnMouseWheel(int xpos, int ypos, int amt)
   }
 
   bool isVert = GetIsVert();
-	int l=amt;
+  int l=amt;
   if (!(GetAsyncKeyState(VK_CONTROL)&0x8000)) l *= 16;
   l *= (m_maxr-m_minr);
   l/=120000;
   if (!l) { if (amt<0)l=-1; else if (amt>0) l=1; }
 
+  if (sc==10000)
+    l = amt<0 ? -m_pos : m_maxr - m_pos;
+  else if (sc>0)
+    l *= sc;
+
   int pos=m_pos+l;
-  if (pos < m_minr)pos=m_minr;
-  else if (pos > m_maxr)pos=m_maxr;
+  if (pos < m_minr) pos=m_minr;
+  else if (pos > m_maxr) pos=m_maxr;
 
   m_pos=pos;
 

@@ -60,6 +60,12 @@
 #include "../assocarray.h"
 #include "../wdlcstring.h"
 
+void (*SWELL_DDrop_onDragLeave)();
+void (*SWELL_DDrop_onDragOver)(POINT pt);
+void (*SWELL_DDrop_onDragEnter)(void *hGlobal, POINT pt);
+const char* (*SWELL_DDrop_getDroppedFileTargetPath)(const char* extension);
+
+
 void Sleep(int ms)
 {
   usleep(ms?ms*1000:100);
@@ -776,14 +782,7 @@ char *lstrcpyn(char *dest, const char *src, int l)
 }
 
 static WDL_Mutex s_libraryMutex;
-static int libkeycomp(void **p1, void **p2)
-{
-  INT_PTR a=(INT_PTR)(*p1) - (INT_PTR)(*p2);
-  if (a<0)return -1;
-  if (a>0) return 1;
-  return 0;
-}
-static WDL_AssocArray<void *, SWELL_HINSTANCE *> s_loadedLibs(libkeycomp); // index by OS-provided handle (rather than filename since filenames could be relative etc)
+static WDL_KeyedArray<void *, SWELL_HINSTANCE *> s_loadedLibs; // index by OS-provided handle (rather than filename since filenames could be relative etc)
 
 HINSTANCE LoadLibrary(const char *fn)
 {
@@ -1190,6 +1189,10 @@ void *SWELL_ExtendedAPI(const char *key, void *v)
     swell_gdk_reactivate_app();
   }
 #endif
+  else if (!strcmp(key,"SWELL_DDrop_onDragLeave")) { *(void **)&SWELL_DDrop_onDragLeave = v; return v; }
+  else if (!strcmp(key,"SWELL_DDrop_onDragOver")) { *(void **)&SWELL_DDrop_onDragOver = v; return v; }
+  else if (!strcmp(key,"SWELL_DDrop_onDragEnter")) { *(void **)&SWELL_DDrop_onDragEnter = v; return v; }
+  else if (!strcmp(key,"SWELL_DDrop_getDroppedFileTargetPath")) { *(void **)&SWELL_DDrop_getDroppedFileTargetPath = v; return v; }
   return NULL;
 }
 

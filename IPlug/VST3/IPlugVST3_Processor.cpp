@@ -28,6 +28,11 @@ IPlugVST3Processor::~IPlugVST3Processor() {}
 
 #pragma mark AudioEffect overrides
 
+uint32 PLUGIN_API IPlugVST3Processor::getTailSamples()
+{
+  return GetTailIsInfinite() ? kInfiniteTail : GetTailSize();
+}
+
 tresult PLUGIN_API IPlugVST3Processor::initialize(FUnknown* context)
 {
   TRACE

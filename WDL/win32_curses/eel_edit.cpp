@@ -28,6 +28,8 @@ EEL_Editor::EEL_Editor(void *cursesCtx) : WDL_CursesEditor(cursesCtx)
   m_function_prefix = "function ";
 
   m_suggestion_hwnd=NULL;
+  m_suggestion_hwnd_scroll=0;
+  m_suggestion_hwnd_sel=-1;
   m_code_func_cache_lines=0;
   m_code_func_cache_time=0;
 }
@@ -76,7 +78,7 @@ int EEL_Editor::parse_format_specifier(const char *fmt_in, int *var_offs, int *v
   {
     const char c = *fmt++;
 
-    if (c>0 && isalpha(c)) 
+    if (c>0 && isalpha_safe(c)) 
     {
       return (int) (fmt - fmt_in);
     }
@@ -193,7 +195,7 @@ void EEL_Editor::draw_string_urlchk(int *skipcnt, const char *str, int amt, int 
         str_scan += l;
         l=0;
         while (*str_scan &&
-               (strncmp(str_scan,"http://",7) || (sstr != str_scan && str_scan[-1] > 0 && isalnum(str_scan[-1]))) &&
+               (strncmp(str_scan,"http://",7) || (sstr != str_scan && str_scan[-1] > 0 && isalnum_safe(str_scan[-1]))) &&
                str_scan < str+amt) str_scan++;
         if (!*str_scan || str_scan >= str+amt) break;
         while (str_scan[l] && str_scan[l] != ')' && str_scan[l] != '\"' && str_scan[l] != ')' && str_scan[l] != ' ' && str_scan[l] != '\t') l++;
@@ -413,7 +415,7 @@ int EEL_Editor::do_draw_line(const char *p, int *c_comment_state, int last_attr)
     {
       attr = SYNTAX_COMMENT;
     }
-    else if (tok[0] > 0 && (isalpha(tok[0]) || tok[0] == '_' || tok[0] == '#'))
+    else if (tok[0] > 0 && (isalpha_safe(tok[0]) || tok[0] == '_' || tok[0] == '#'))
     {
       int def_attr = A_NORMAL;
       bool isf=true;
@@ -1486,7 +1488,7 @@ void EEL_Editor::doWatchInfo(int c)
             bool lb=true;
             for (x=0;x<code.GetLength();x++)
             {
-              if (code.Get()[x]>0 && isspace(code.Get()[x]))
+              if (code.Get()[x]>0 && isspace_safe(code.Get()[x]))
               {
                 if (lb) code.DeleteSub(x--,1);
                 lb=true;
@@ -1513,14 +1515,14 @@ void EEL_Editor::doWatchInfo(int c)
       // compile+execute code within () as debug_watch_value = ( code )
       // show value (or err msg)
     }
-    else if (curChar>0 && (isalnum(curChar) || curChar == '_' || curChar == '.' || curChar == '#')) 
+    else if (curChar>0 && (isalnum_safe(curChar) || curChar == '_' || curChar == '.' || curChar == '#')) 
     {
       const int bytex = WDL_utf8_charpos_to_bytepos(p,m_curs_x);
       const char *lp=p+bytex;
       const char *rp=lp + WDL_utf8_charpos_to_bytepos(lp,1);
-      while (lp >= p && *lp > 0 && (isalnum(*lp) || *lp == '_' || (*lp == '.' && (lp==p || lp[-1]!='.')))) lp--;
+      while (lp >= p && *lp > 0 && (isalnum_safe(*lp) || *lp == '_' || (*lp == '.' && (lp==p || lp[-1]!='.')))) lp--;
       if (lp < p || *lp != '#') lp++;
-      while (*rp && *rp > 0 && (isalnum(*rp) || *rp == '_' || (*rp == '.' && rp[1] != '.'))) rp++;
+      while (*rp && *rp > 0 && (isalnum_safe(*rp) || *rp == '_' || (*rp == '.' && rp[1] != '.'))) rp++;
 
       if (*lp == '#' && rp > lp+1)
       {
@@ -1534,7 +1536,7 @@ void EEL_Editor::doWatchInfo(int c)
           lp="";
         }
       }
-      if (*lp > 0 && (isalpha(*lp) || *lp == '_') && rp > lp)
+      if (*lp > 0 && (isalpha_safe(*lp) || *lp == '_') && rp > lp)
       {
         WDL_FastString n;
         n.Set(lp,(int)(rp-lp));
@@ -1560,7 +1562,7 @@ help_from_sug:
     {
       const char *p = m_suggestion.Get();
       int l;
-      for (l = 0; isalnum(p[l]) || p[l] == '_' || p[l] == '.'; l ++);
+      for (l = 0; isalnum_safe(p[l]) || p[l] == '_' || p[l] == '.'; l ++);
       if (l>0) t.Set(m_suggestion.Get(),l);
     }
     on_help(t.GetLength() > 2 ? t.Get() : NULL,(int)curChar);
@@ -1594,10 +1596,29 @@ void EEL_Editor::draw_bottom_line()
 #define SHIFT_KEY_DOWN (GetAsyncKeyState(VK_SHIFT)&0x8000)
 #define ALT_KEY_DOWN (GetAsyncKeyState(VK_MENU)&0x8000)
 
+#ifndef WM_MOUSEWHEEL
+#define WM_MOUSEWHEEL 0x20A
+#endif
+
 static const char *suggestion_help_text = "(up/down to select, tab to insert)";
 static const char *suggestion_help_text2 = "(tab or return to insert)";
 static LRESULT WINAPI suggestionProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+#ifdef _WIN32
+
+  static int Scroll_Message;
+  if (!Scroll_Message)
+  {
+    Scroll_Message = (int)RegisterWindowMessage("MSWHEEL_ROLLMSG");
+    if (!Scroll_Message) Scroll_Message=-1;
+  }
+  if (Scroll_Message > 0 && uMsg == (UINT)Scroll_Message)
+  {
+    uMsg=WM_MOUSEWHEEL;
+    wParam<<=16;
+  }
+#endif
+
   EEL_Editor *editor;
   switch (uMsg)
   {
@@ -1605,6 +1626,35 @@ static LRESULT WINAPI suggestionProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
       editor = (EEL_Editor *)GetWindowLongPtr(hwnd,GWLP_USERDATA);
       if (editor) editor->m_suggestion_hwnd = NULL;
     break;
+    case WM_MOUSEWHEEL:
+    {
+      editor = (EEL_Editor *)GetWindowLongPtr(hwnd,GWLP_USERDATA);
+      if (editor && editor->m_cursesCtx)
+      {
+        win32CursesCtx *ctx = (win32CursesCtx *)editor->m_cursesCtx;
+        int a = (int)(short)HIWORD(wParam);
+        if (a < 0) { a /= 120; if (a==0) a--; }
+        else if (a>0) { a /= 120; if (a==0) a++; }
+        else return 1;
+
+        RECT r;
+        GetClientRect(hwnd,&r);
+        const int fonth = wdl_max(ctx->m_font_h,1);
+        const int maxv = wdl_max(r.bottom / fonth - 1,1);
+        const int ni = editor->m_suggestion_list.get_size();
+        if (ni > maxv)
+        {
+          const int nv = wdl_clamp(editor->m_suggestion_hwnd_scroll - a, 0, ni - maxv);
+          if (nv != editor->m_suggestion_hwnd_scroll)
+          {
+            editor->m_suggestion_hwnd_scroll = nv;
+            editor->m_suggestion_hwnd_sel = wdl_clamp(editor->m_suggestion_hwnd_sel,nv,nv+maxv-1);
+            InvalidateRect(hwnd,NULL,FALSE);
+          }
+        }
+      }
+    }
+    return 1;
     case WM_LBUTTONDOWN:
     case WM_MOUSEMOVE:
       editor = (EEL_Editor *)GetWindowLongPtr(hwnd,GWLP_USERDATA);
@@ -1628,7 +1678,7 @@ static LRESULT WINAPI suggestionProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
           const int max_vis = r.bottom / ctx->m_font_h - 1, sel = editor->m_suggestion_hwnd_sel;
           int hit = GET_Y_LPARAM(lParam) / ctx->m_font_h;
           if (hit >= max_vis) return 0;
-          if (sel >= max_vis) hit += 1 + sel - max_vis;
+          hit += editor->m_suggestion_hwnd_scroll;
 
           if (uMsg == WM_LBUTTONDOWN && !SHIFT_KEY_DOWN && !ALT_KEY_DOWN && !CTRL_KEY_DOWN)
           {
@@ -1683,13 +1733,17 @@ static LRESULT WINAPI suggestionProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
           SetBkMode(ps.hdc,TRANSPARENT);
 
           const int fonth = wdl_max(ctx->m_font_h,1);
-          const int maxv = r.bottom / fonth - 1;
+          const int maxv = wdl_max(r.bottom / fonth - 1,1);
           const int selpos = wdl_max(editor->m_suggestion_hwnd_sel,0);
           int ypos = 0;
 
+          editor->m_suggestion_hwnd_scroll = wdl_clamp(editor->m_suggestion_hwnd_scroll, selpos-maxv + 1,selpos);
+          if (editor->m_suggestion_hwnd_scroll < 0)
+            editor->m_suggestion_hwnd_scroll = 0;
+
           const bool show_scores = (GetAsyncKeyState(VK_SHIFT)&0x8000) && (GetAsyncKeyState(VK_CONTROL)&0x8000) && (GetAsyncKeyState(VK_MENU)&0x8000);
 
-          for (int x = (selpos >= maxv ? 1+selpos-maxv : 0); x < ml->get_size() && ypos <= r.bottom-fonth*2; x ++)
+          for (int x = editor->m_suggestion_hwnd_scroll; x < ml->get_size() && ypos <= r.bottom-fonth*2; x ++)
           {
             int mode, score;
             const char *p = ml->get(x,&mode,&score);
@@ -1750,6 +1804,7 @@ int EEL_Editor::onChar(int c)
   {
   case KEY_F1:
     if (CTRL_KEY_DOWN) break;
+    WDL_FALLTHROUGH;
   case 'K'-'A'+1:
     doWatchInfo(c);
   return 0;
@@ -1762,7 +1817,7 @@ int EEL_Editor::onChar(int c)
          draw_message("Error writing file, changes not saved!");
      }
      if (chk.isOK())
-       setCursor();
+       setCursorIfVisible();
    }
   return 0;
 
@@ -1905,7 +1960,7 @@ run_suggest:
         int state = m_suggestion_curline_comment_state, toklen = 0, bcnt = 0, pcnt = 0;
         const char *tok;
                                        // if no parens/brackets are open, use a peekable token that starts at cursor
-        while ((tok=sh_tokenize(&p,endp,&toklen,&state)) && cursor > tok-(!pcnt && !bcnt && (tok[0] < 0 || tok[0] == '_' || isalpha(tok[0]) || tok[0] == '#')))
+        while ((tok=sh_tokenize(&p,endp,&toklen,&state)) && cursor > tok-(!pcnt && !bcnt && (tok[0] < 0 || tok[0] == '_' || isalpha_safe(tok[0]) || tok[0] == '#')))
         {
           if (!state)
           {
@@ -1954,7 +2009,7 @@ run_suggest:
         if (t<0) break;
 
         if (tok[0] == ',') comma_cnt++;
-        else if ((tok[0] < 0 || tok[0] == '_' || isalpha(tok[0]) || tok[0] == '#') &&
+        else if ((tok[0] < 0 || tok[0] == '_' || isalpha_safe(tok[0]) || tok[0] == '#') &&
             (cursor <= tok + toklen || (t < ntok-1 && token_list[t+1].tok[0] == '(')))
         {
           // if cursor is within or at end of token, or is a function (followed by open-paren)
@@ -2293,7 +2348,7 @@ LRESULT EEL_Editor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
         WDL_FastString *fs=m_text.Get(y + m_paneoffs_y[m_curpane]);
         if (fs && y >= 0)
         {
-          if (!strncmp(fs->Get(),"import",6) && fs->Get()[6]>0 && isspace(fs->Get()[6]))
+          if (!strncmp(fs->Get(),"import",6) && fs->Get()[6]>0 && isspace_safe(fs->Get()[6]))
           {
             open_import_line();
             return 1;

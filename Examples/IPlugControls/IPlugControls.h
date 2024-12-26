@@ -31,6 +31,7 @@ enum EControlTags
   kCtrlTagRedLED,
   kCtrlTagGreenLED,
   kCtrlTagBlueLED,
+  kCtrlTagAboutBox,
   kCtrlTags
 };
 

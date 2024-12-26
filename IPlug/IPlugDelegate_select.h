@@ -11,6 +11,8 @@
 /**
  * @file
  * @brief Used for choosing an editor delegate @see IEditorDelegate
+ * @defgroup EditorDelegates IPlug::EditorDelegates
+ * EditorDelegates are base classes that handle communication between the plug-in and the user interface
  */
 
 #if defined COCOA_EDITOR_DELEGATE
@@ -23,11 +25,6 @@
   #include "IPlugEditorDelegate.h"
   using EDITOR_DELEGATE_CLASS = iplug::IEditorDelegate;
 #else
-  #if defined WEBSOCKET_SERVER
-    #include "IWebsocketEditorDelegate.h"
-    using EDITOR_DELEGATE_CLASS = iplug::IWebsocketEditorDelegate;
-  #else
-    #include "IGraphicsEditorDelegate.h"
-    using EDITOR_DELEGATE_CLASS = iplug::igraphics::IGEditorDelegate;
-  #endif
+  #include "IGraphicsEditorDelegate.h"
+  using EDITOR_DELEGATE_CLASS = iplug::igraphics::IGEditorDelegate;
 #endif

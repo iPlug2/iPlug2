@@ -1377,7 +1377,9 @@ void LICE_MeasureText(const char *string, int *w, int *h)
     {
       case '\n': y += LICE_FONT_HEIGHT; x = 0;  break;
       case '\r': break;
-      case '\t': x += 8*4; 
+      case '\t':
+        x += 8*4;
+	WDL_FALLTHROUGH;
       default:
         x += 8;
         if (w && x > *w) *w=x;

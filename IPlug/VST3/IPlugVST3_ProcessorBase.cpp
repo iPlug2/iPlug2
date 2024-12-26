@@ -57,11 +57,9 @@ IPlugVST3ProcessorBase::IPlugVST3ProcessorBase(Config c, IPlugAPIBase& plug)
   
   mMaxNChansForMainInputBus = MaxNChannelsForBus(ERoute::kInput, 0);
 
-  if (MaxNChannels(ERoute::kInput))
-  {
-    mLatencyDelay = std::unique_ptr<NChanDelayLine<PLUG_SAMPLE_DST>>(new NChanDelayLine<PLUG_SAMPLE_DST>(MaxNChannels(ERoute::kInput), MaxNChannels(ERoute::kOutput)));
-    mLatencyDelay->SetDelayTime(GetLatency());
-  }
+  InitLatencyDelay();
+
+  IPlugProcessor::SetBlockSize(DEFAULT_BLOCK_SIZE);
   
   // Make sure the process context is predictably initialised in case it is used before process is called
   memset(&mProcessContext, 0, sizeof(ProcessContext));
@@ -225,7 +223,7 @@ bool IPlugVST3ProcessorBase::SetupProcessing(const ProcessSetup& setup, ProcessS
   storedSetup = setup;
   
   SetSampleRate(setup.sampleRate);
-  IPlugProcessor::SetBlockSize(setup.maxSamplesPerBlock); // TODO: should IPlugVST3Processor call SetBlockSize in construct unlike other APIs?
+  IPlugProcessor::SetBlockSize(setup.maxSamplesPerBlock);
   mMidiOutputQueue.Resize(setup.maxSamplesPerBlock);
   OnReset();
     

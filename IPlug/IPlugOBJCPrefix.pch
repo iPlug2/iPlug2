@@ -10,7 +10,7 @@
 
 #ifdef __OBJC__
   #include <TargetConditionals.h>
-  #if TARGET_OS_IOS == 1
+  #if TARGET_OS_IOS == 1 || TARGET_OS_VISION == 1
   #import <UIKit/UIKit.h>
   #else
   #import <Cocoa/Cocoa.h>
@@ -22,7 +22,9 @@
     #define OBJC_PREFIX vIPLUG2
   #endif
 
-  #if defined(VST2_API)
+  #if defined(CLAP_API)
+    #define API _clap
+  #elif defined(VST2_API)
     #define API _vst
   #elif defined(AU_API)
     #define API _au
@@ -56,7 +58,11 @@
   #define MNVGtexture CONCAT(MNVGtexture_)
   #define MNVGbuffers CONCAT(MNVGbuffers_)
   #define MNVGcontext CONCAT(MNVGcontext_)
-
+  #define IPLUG_WKWEBVIEW CONCAT(IPlugWkWebView_)
+  #define IPLUG_WKSCRIPTMESSAGEHANDLER CONCAT(IPlugScriptMessageHandler_)
+  #define IPLUG_WKWEBVIEW_DELEGATE CONCAT(IPlugWkWebViewDelegate_)
+  #define IPLUG_WKWEBVIEW_UI_DELEGATE CONCAT(IPlugWkWebViewUIDelegate_)
+  #define IPLUG_WKWEBVIEW_EDITOR_HELPER CONCAT(IPlugWkWebViewEditorDelegateHelper_)
   // these only exist in AUv3 plug-ins, so don't need the API on the end
   #define IPLUG_AUAUDIOUNIT CONCATAU(IPlugAUAudioUnit_)
   #define IPLUG_AUVIEWCONTROLLER CONCATAU(IPlugAUViewController_)

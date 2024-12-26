@@ -27,11 +27,6 @@
 
 static HMENU g_swell_defaultmenu,g_swell_defaultmenumodal;
 
-void (*SWELL_DDrop_onDragLeave)();
-void (*SWELL_DDrop_onDragOver)(POINT pt);
-void (*SWELL_DDrop_onDragEnter)(void *hGlobal, POINT pt);
-const char* (*SWELL_DDrop_getDroppedFileTargetPath)(const char* extension);
-
 bool SWELL_owned_windows_levelincrease=false;
 
 #include "swell-internal.h"

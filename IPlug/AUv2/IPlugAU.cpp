@@ -785,7 +785,10 @@ OSStatus IPlugAU::GetProperty(AudioUnitPropertyID propID, AudioUnitScope scope, 
       
       if (pData)
       {
-        *((Float64*) pData) = (double) GetTailSize() / GetSampleRate();
+        if (GetTailIsInfinite())
+          *((Float64*) pData) = std::numeric_limits<double>::infinity();
+        else
+          *((Float64*) pData) = static_cast<double>(GetTailSize()) / GetSampleRate();
       }
       return noErr;
     }
@@ -1869,7 +1872,8 @@ IPlugAU::IPlugAU(const InstanceInfo& info, const Config& config)
 
   SetBlockSize(DEFAULT_BLOCK_SIZE);
   ResizeScratchBuffers();
-  
+  InitLatencyDelay();
+
   CreateTimer();
 }
 
@@ -1936,8 +1940,7 @@ void IPlugAU::PreProcess()
     if (tempo > 0.0)
       timeInfo.mTempo = tempo;
     
-    if (currentBeat >= 0.0)
-      timeInfo.mPPQPos = currentBeat;
+    timeInfo.mPPQPos = currentBeat;
   }
 
   if (mHostCallbacks.transportStateProc)

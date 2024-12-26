@@ -155,6 +155,7 @@ EEL_F *NSEEL_VM_getramptr_noalloc(NSEEL_VMCTX ctx, unsigned int offs, int *valid
 
 // set 0 to query. returns actual value used (limits, granularity apply -- see NSEEL_RAM_BLOCKS)
 int NSEEL_VM_setramsize(NSEEL_VMCTX ctx, int maxent);
+void NSEEL_VM_preallocram(NSEEL_VMCTX ctx, int maxent); // maxent=-1 for all allocated
 
 
 struct eelStringSegmentRec {
@@ -233,6 +234,8 @@ extern int NSEEL_RAM_memused_errors;
 
 #define NSEEL_RAM_BLOCKS (1 << NSEEL_RAM_BLOCKS_LOG2)
 #define NSEEL_RAM_ITEMSPERBLOCK (1<<NSEEL_RAM_ITEMSPERBLOCK_LOG2)
+
+#define NSEEL_RAM_BLOCKS_GMEM_NAMED 512 // maximum named-gmem size is 512*65536 which is 32 megaslots
 
 #define NSEEL_STACK_SIZE 4096 // about 64k overhead if the stack functions are used in a given code handle
 

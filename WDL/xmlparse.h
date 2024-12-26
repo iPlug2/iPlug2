@@ -35,11 +35,10 @@ relatively strict. for overflow safety, enforces a token length limit of 512MB
 #include "wdlcstring.h"
 
 class wdl_xml_element {
-    static int attr_cmp(char **a, char **b) { return strcmp(*a,*b); }
     static void attr_free(char *a) { free(a); }
   public:
     wdl_xml_element(const char *_name, int _line, int _col, bool _sort_attr=true) : 
-      attributes(attr_cmp,NULL,attr_free,attr_free), name(strdup(_name)), line(_line), col(_col), 
+      attributes(WDL_assocarray_cmpstr<char>,NULL,attr_free,attr_free), name(strdup(_name)), line(_line), col(_col),
       m_sort_attributes(_sort_attr), m_has_discrete_close(false) { }
     ~wdl_xml_element() { free(name); elements.Empty(true); }
 

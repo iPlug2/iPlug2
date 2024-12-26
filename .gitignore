@@ -29,6 +29,8 @@ _*
 Icon?
 .DS_Stor*
 build-*
+Dependencies/IPlug/CLAP_HELPERS/*
+Dependencies/IPlug/CLAP_SDK/*
 Dependencies/IPlug/VST3_SDK/*
 Dependencies/IPlug/VST2_SDK/*
 Dependencies/IPlug/AAX_SDK/*
@@ -45,3 +47,4 @@ PodFile.lock
 Examples/*/EBWebView
 Examples/*/packages
 Examples/IPlugConvoEngine/r8brain
+**/node_modules

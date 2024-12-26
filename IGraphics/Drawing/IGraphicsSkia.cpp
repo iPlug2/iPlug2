@@ -5,42 +5,78 @@
 
 #pragma warning( push )
 #pragma warning( disable : 4244 )
-#include "SkDashPathEffect.h"
-#include "SkGradientShader.h"
-#include "SkMaskFilter.h"
-#include "SkFont.h"
-#include "SkFontMetrics.h"
-#include "SkTypeface.h"
-#include "SkVertices.h"
-#include "SkSwizzle.h"
+#include "include/core/SkMaskFilter.h"
+#include "include/core/SkBlurTypes.h"
+#include "include/core/SkFont.h"
+#include "include/core/SkFontMetrics.h"
+#include "include/core/SkTypeface.h"
+#include "include/core/SkVertices.h"
+#include "include/core/SkSwizzle.h"
+#include "include/core/SkBitmap.h"
+#include "include/core/SkFontMgr.h"
+#include "include/core/SkPathEffect.h"
+#include "include/effects/SkDashPathEffect.h"
+#include "include/effects/SkGradientShader.h"
+
+#if !defined IGRAPHICS_NO_SKIA_SKPARAGRAPH
+#include "modules/skparagraph/include/FontCollection.h"
+#include "modules/skparagraph/include/Paragraph.h"
+#include "modules/skparagraph/include/ParagraphBuilder.h"
+#include "modules/skparagraph/include/ParagraphStyle.h"
+#include "modules/skparagraph/include/TextStyle.h"
+#include "modules/skshaper/include/SkShaper.h"
+#include "modules/skunicode/include/SkUnicode_icu.h"
+#endif
 #pragma warning( pop )
+#include "include/gpu/ganesh/SkSurfaceGanesh.h"
+#include "include/gpu/GrBackendSurface.h"
 
 #if defined OS_MAC || defined OS_IOS
-  #include "SkCGUtils.h"
+  #include "include/utils/mac/SkCGUtils.h"
   #if defined IGRAPHICS_GL2
-    #include <OpenGL/gl.h>
+    #error SKIA doesn't work correctly with IGRAPHICS_GL2
   #elif defined IGRAPHICS_GL3
     #include <OpenGL/gl3.h>
   #elif defined IGRAPHICS_METAL
-  //even though this is a .cpp we are in an objc(pp) compilation unit
+    // even though this is a .cpp we are in an objc(pp) compilation unit
     #import <Metal/Metal.h>
     #import <QuartzCore/CAMetalLayer.h>
-    #include "include/gpu/mtl/GrMtlBackendContext.h"
+    #include "include/gpu/ganesh/mtl/GrMtlBackendContext.h"
+    #include "include/gpu/ganesh/mtl/GrMtlDirectContext.h"
+    #include "include/gpu/ganesh/mtl/GrMtlBackendSurface.h"
   #elif !defined IGRAPHICS_CPU
     #error Define either IGRAPHICS_GL2, IGRAPHICS_GL3, IGRAPHICS_METAL, or IGRAPHICS_CPU for IGRAPHICS_SKIA with OS_MAC
   #endif
+
+  #include "include/ports/SkFontMgr_mac_ct.h"
+
 #elif defined OS_WIN
-  #pragma comment(lib, "libpng.lib")
-  #pragma comment(lib, "zlib.lib")
+  #include "include/ports/SkTypeface_win.h"
+
   #pragma comment(lib, "skia.lib")
-  #pragma comment(lib, "svg.lib")
-  #pragma comment(lib, "skshaper.lib")
-  #pragma comment(lib, "skunicode.lib")
-  #pragma comment(lib, "opengl32.lib")
+
+  #ifndef IGRAPHICS_NO_SKIA_SKPARAGRAPH
+    #pragma comment(lib, "skparagraph.lib")
+    #pragma comment(lib, "skshaper.lib")
+    #pragma comment(lib, "skunicode_core.lib")
+    #pragma comment(lib, "skunicode_icu.lib")
+  #endif
+
+
 #endif
 
 #if defined IGRAPHICS_GL
-  #include "gl/GrGLInterface.h"
+  #include "include/gpu/gl/GrGLInterface.h"
+  #include "include/gpu/ganesh/gl/GrGLDirectContext.h"
+  #include "include/gpu/ganesh/gl/GrGLBackendSurface.h"
+
+  #if defined OS_MAC
+    #include "include/gpu/ganesh/gl/mac/GrGLMakeMacInterface.h"
+  #elif defined OS_WIN
+    #include "include/gpu/ganesh/gl/win/GrGLMakeWinInterface.h"
+    #pragma comment(lib, "opengl32.lib")
+  #endif
+
 #endif
 
 using namespace iplug;
@@ -76,7 +112,7 @@ IGraphicsSkia::Bitmap::Bitmap(const char* path, double sourceScale)
   
   assert(data && "Unable to load file at path");
   
-  auto image = SkImage::MakeFromEncoded(data);
+  auto image = SkImages::DeferredFromEncodedData(data);
   
 #ifdef IGRAPHICS_CPU
   image = image->makeRasterImage();
@@ -91,7 +127,7 @@ IGraphicsSkia::Bitmap::Bitmap(const char* path, double sourceScale)
 IGraphicsSkia::Bitmap::Bitmap(const void* pData, int size, double sourceScale)
 {
   auto data = SkData::MakeWithoutCopy(pData, size);
-  auto image = SkImage::MakeFromEncoded(data);
+  auto image = SkImages::DeferredFromEncodedData(data);
   
 #ifdef IGRAPHICS_CPU
   image = image->makeRasterImage();
@@ -258,6 +294,53 @@ END_IPLUG_NAMESPACE
 
 #pragma mark -
 
+static sk_sp<SkFontMgr> SFontMgrFactory()
+{
+#if defined OS_MAC || defined OS_IOS
+  return SkFontMgr_New_CoreText(nullptr);
+#elif defined OS_WIN
+  return SkFontMgr_New_DirectWrite();
+#else
+  #error "Not supported"
+#endif
+}
+
+bool gFontMgrFactoryCreated = false;
+
+sk_sp<SkFontMgr> SkFontMgrRefDefault()
+{
+  static std::once_flag flag;
+  static sk_sp<SkFontMgr> mgr;
+  std::call_once(flag, [] {
+    mgr = SFontMgrFactory();
+    gFontMgrFactoryCreated = true;
+  });
+  return mgr;
+}
+
+#if !defined IGRAPHICS_NO_SKIA_SKPARAGRAPH
+
+bool gSkUnicodeCreated = false;
+
+sk_sp<SkUnicode> GetUnicode()
+{
+  static std::once_flag flag;
+  static sk_sp<SkUnicode> unicode;
+  std::call_once(flag, [] {
+    unicode = SkUnicodes::ICU::Make();
+    gSkUnicodeCreated = true;
+  });
+
+  if (!unicode)
+  {
+    DBGMSG("Could not load unicode data\n");
+    return nullptr;
+  }
+
+  return unicode;
+}
+#endif
+
 IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphics(dlg, w, h, fps, scale)
 {
@@ -272,6 +355,12 @@ IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float
 #endif
   StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Retain();
+  
+#if !defined IGRAPHICS_NO_SKIA_SKPARAGRAPH
+  mFontCollection = sk_make_sp<skia::textlayout::FontCollection>();
+  mFontCollection->enableFontFallback();
+  mFontCollection->setDefaultFontManager(SkFontMgrRefDefault());
+#endif
 }
 
 IGraphicsSkia::~IGraphicsSkia()
@@ -326,8 +415,12 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* name, const void* pData, int
 void IGraphicsSkia::OnViewInitialized(void* pContext)
 {
 #if defined IGRAPHICS_GL
-  auto glInterface = GrGLMakeNativeInterface();
-  mGrContext = GrDirectContext::MakeGL(glInterface);
+#if defined OS_MAC
+  auto glInterface = GrGLInterfaces::MakeMac();
+#elif defined OS_WIN
+  auto glInterface = GrGLInterfaces::MakeWin();
+#endif
+  mGrContext = GrDirectContexts::MakeGL(glInterface);
 #elif defined IGRAPHICS_METAL
   CAMetalLayer* pMTLLayer = (CAMetalLayer*) pContext;
   id<MTLDevice> device = pMTLLayer.device;
@@ -335,7 +428,7 @@ void IGraphicsSkia::OnViewInitialized(void* pContext)
   GrMtlBackendContext backendContext = {};
   backendContext.fDevice.retain((__bridge GrMTLHandle) device);
   backendContext.fQueue.retain((__bridge GrMTLHandle) commandQueue);
-  mGrContext = GrDirectContext::MakeMetal(backendContext);
+  mGrContext = GrDirectContexts::MakeMetal(backendContext);
   mMTLDevice = (void*) device;
   mMTLCommandQueue = (void*) commandQueue;
   mMTLLayer = pContext;
@@ -369,7 +462,7 @@ void IGraphicsSkia::DrawResize()
   if (mGrContext.get())
   {
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
-    mSurface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
+    mSurface = SkSurfaces::RenderTarget(mGrContext.get(), skgpu::Budgeted::kYes, info);
   }
 #else
   #ifdef OS_WIN
@@ -388,9 +481,10 @@ void IGraphicsSkia::DrawResize()
     void* pixels = bmpInfo->bmiColors;
 
     SkImageInfo info = SkImageInfo::Make(w, h, kN32_SkColorType, kPremul_SkAlphaType, nullptr);
-    mSurface = SkSurface::MakeRasterDirect(info, pixels, sizeof(uint32_t) * w);
+    mSurface = SkSurfaces::WrapPixels(info, pixels, sizeof(uint32_t) * w);
   #else
-    mSurface = SkSurface::MakeRasterN32Premul(w, h);
+    SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
+    mSurface = SkSurfaces::Raster(info);
   #endif
 #endif
   if (mSurface)
@@ -418,13 +512,13 @@ void IGraphicsSkia::BeginFrame()
     glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
 #endif
     
-    GrGLFramebufferInfo fbinfo;
-    fbinfo.fFBOID = fbo;
-    fbinfo.fFormat = 0x8058;
+    GrGLFramebufferInfo fbInfo;
+    fbInfo.fFBOID = fbo;
+    fbInfo.fFormat = 0x8058;
 
-    GrBackendRenderTarget backendRT(width, height, samples, stencilBits, fbinfo);
-    
-    mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRT, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
+    auto backendRT = GrBackendRenderTargets::MakeGL(width, height, samples, stencilBits, fbInfo);
+
+    mScreenSurface = SkSurfaces::WrapBackendRenderTarget(mGrContext.get(), backendRT, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
     assert(mScreenSurface);
   }
 #elif defined IGRAPHICS_METAL
@@ -437,9 +531,8 @@ void IGraphicsSkia::BeginFrame()
     
     GrMtlTextureInfo fbInfo;
     fbInfo.fTexture.retain((const void*)(drawable.texture));
-    GrBackendRenderTarget backendRT(width, height, 1 /* sample count/MSAA */, fbInfo);
-    
-    mScreenSurface = SkSurface::MakeFromBackendRenderTarget(mGrContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, nullptr, nullptr);
+    auto backendRT = GrBackendRenderTargets::MakeMtl(width, height, fbInfo);
+    mScreenSurface = SkSurfaces::WrapBackendRenderTarget(mGrContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, nullptr, nullptr);
     
     mMTLDrawable = (void*) drawable;
     assert(mScreenSurface);
@@ -477,9 +570,11 @@ void IGraphicsSkia::EndFrame()
   #endif
 #else // GPU
   mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, nullptr);
-    
-  mScreenSurface->getCanvas()->flush();
-  
+
+  if (auto dContext = GrAsDirectContext(mScreenSurface->getCanvas()->recordingContext())) {
+    dContext->flushAndSubmit();
+  }
+
   #ifdef IGRAPHICS_METAL
     id<MTLCommandBuffer> commandBuffer = [(id<MTLCommandQueue>) mMTLCommandQueue commandBuffer];
     commandBuffer.label = @"Present";
@@ -576,12 +671,10 @@ bool IGraphicsSkia::LoadAPIFont(const char* fontID, const PlatformFontPtr& font)
   if (data->IsValid())
   {
     auto wrappedData = SkData::MakeWithoutCopy(data->Get(), data->GetSize());
-    int index = data->GetFaceIdx();
-    auto typeface = SkTypeface::MakeFromData(wrappedData, index);
-    
-    if (typeface)
+    auto typeFace = SkFontMgrRefDefault()->makeFromData(wrappedData);
+    if (typeFace)
     {
-      storage.Add(new Font(std::move(data), typeface), fontID);
+      storage.Add(new Font(std::move(data), typeFace), fontID);
       return true;
     }
   }
@@ -854,19 +947,19 @@ void IGraphicsSkia::SetClipRegion(const IRECT& r)
 APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, float scale, double drawScale, bool cacheable)
 {
   sk_sp<SkSurface> surface;
-  
-  #ifndef IGRAPHICS_CPU
   SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
+
+  #ifndef IGRAPHICS_CPU
   if (cacheable)
   {
-    surface = SkSurface::MakeRasterN32Premul(width, height);
+    surface = SkSurfaces::Raster(info);
   }
   else
   {
-    surface = SkSurface::MakeRenderTarget(mGrContext.get(), SkBudgeted::kYes, info);
+    surface = SkSurfaces::RenderTarget(mGrContext.get(), skgpu::Budgeted::kYes, info);
   }
   #else
-  surface = SkSurface::MakeRasterN32Premul(width, height);
+  surface = SkSurfaces::Raster(info);
   #endif
 
   surface->getCanvas()->save();
@@ -915,7 +1008,7 @@ void IGraphicsSkia::ApplyShadowMask(ILayerPtr& layer, RawBitmapData& mask, const
     
   SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
   SkPixmap pixMap(info, mask.Get(), rowBytes);
-  sk_sp<SkImage> image = SkImage::MakeFromRaster(pixMap, nullptr, nullptr);
+  sk_sp<SkImage> image = SkImages::RasterFromPixmap(pixMap, nullptr, nullptr);
   sk_sp<SkImage> foreground;
     
   // Copy the foreground if needed
@@ -952,6 +1045,76 @@ void IGraphicsSkia::DrawFastDropShadow(const IRECT& innerBounds, const IRECT& ou
   
   paint.setMaskFilter(SkMaskFilter::MakeBlur(kSolid_SkBlurStyle, blur * 0.5)); // 0.5 seems to match nanovg
   mCanvas->drawRoundRect(r, roundness, roundness, paint);
+}
+
+void IGraphicsSkia::DrawMultiLineText(const IText& text, const char* str, const IRECT& bounds, const IBlend* pBlend)
+{
+#if !defined IGRAPHICS_NO_SKIA_SKPARAGRAPH
+  using namespace skia::textlayout;
+  
+  auto ConvertTextAlign = [](EAlign align) {
+    switch (align)
+    {
+      case EAlign::Near: return TextAlign::kLeft;
+      case EAlign::Center: return TextAlign::kCenter;
+      case EAlign::Far: return TextAlign::kRight;
+      default: return TextAlign::kLeft;
+    }
+  };
+
+  ParagraphStyle paragraphStyle;
+  paragraphStyle.setTextAlign(ConvertTextAlign(text.mAlign));
+
+  auto builder = ParagraphBuilder::make(paragraphStyle, mFontCollection, GetUnicode());
+
+  assert(builder && "Paragraph Builder couldn't be created");
+  
+  TextStyle textStyle;
+  textStyle.setColor(SkiaColor(text.mFGColor, pBlend));
+  
+  std::string fontFamily = text.mFont;
+      
+  size_t pos = fontFamily.find('-');
+  if (pos != std::string::npos)
+  {
+    fontFamily = fontFamily.substr(0, pos);
+  }
+  
+  textStyle.setFontFamilies({SkString(fontFamily)});
+  textStyle.setFontSize(text.mSize * 0.9);
+  textStyle.setFontStyle(SkFontStyle(SkFontStyle::kNormal_Weight,
+                                     SkFontStyle::kNormal_Width,
+                                     SkFontStyle::kUpright_Slant));
+  
+  builder->pushStyle(textStyle);
+  builder->addText(str);
+  builder->pop();
+  
+  auto paragraph = builder->Build();
+  
+  paragraph->layout(bounds.W());
+  
+  float yOffset = 0;
+  switch (text.mVAlign)
+  {
+    case EVAlign::Top:
+      yOffset = 0;
+      break;
+    case EVAlign::Middle:
+      yOffset = (bounds.H() - paragraph->getHeight()) / 2;
+      break;
+    case EVAlign::Bottom:
+      yOffset = bounds.H() - paragraph->getHeight();
+      break;
+  }
+    
+  mCanvas->save();
+  mCanvas->translate(bounds.L, bounds.T + yOffset);
+  paragraph->paint(mCanvas, 0, 0);
+  mCanvas->restore();
+#else
+  DrawText(text, str, bounds, pBlend);
+#endif
 }
 
 const char* IGraphicsSkia::GetDrawingAPIStr()

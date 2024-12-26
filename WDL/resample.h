@@ -72,10 +72,10 @@ public:
   // returns number of samples successfully outputted to out
   int ResampleOut(WDL_ResampleSample *out, int nsamples_in, int nsamples_out, int nch);
 
-
+  void Prealloc(int nch, int inputsize, int outputsize);
 
 private:
-  const WDL_SincFilterSample *BuildLowPass(double filtpos, bool *isIdeal);
+  const WDL_SincFilterSample *BuildLowPass(bool *isIdeal);
 
   double m_sratein WDL_FIXALIGN;
   double m_srateout;

@@ -43,7 +43,8 @@ BEGIN_IPLUG_NAMESPACE
  *  NOTES:
  *  A parameter VALUE is a floating point number linked to an integer parameter index. TODO: Normalised ?
  *  A parameter OBJECT (IParam) is an instance of the IParam class as defined in IPlugParameter.h
- *  A parameter OBJECT is also referred to as a "param", in method names such as IEditorDelegate::GetParam(int paramIdx) and IControl::GetParam(). */
+ *  A parameter OBJECT is also referred to as a "param", in method names such as IEditorDelegate::GetParam(int paramIdx) and IControl::GetParam().
+ * @ingroup EditorDelegates */
 class IEditorDelegate
 {
 public:
@@ -318,7 +319,7 @@ public:
    * @param w the incoming width value to test/set if clipping needed
    * @param h the incoming height value to test/set if clipping needed
    * @return \c true if the parameters fell withing the permitted range */
-  bool ConstrainEditorResize(int& w, int& h) const
+  virtual bool ConstrainEditorResize(int& w, int& h) const
   {
     if(w >= mMinWidth && w <= mMaxWidth && h >= mMinHeight && h <= mMaxHeight)
     {

@@ -1,6 +1,7 @@
 
 #ifndef NO_IGRAPHICS
 #define BUNDLE_ID ""
+#define APP_GROUP_ID ""
 #include "IGraphics_include_in_plug_src.h"
 #endif
 

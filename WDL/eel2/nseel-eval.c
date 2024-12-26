@@ -32,7 +32,7 @@ static const char *nseel_skip_space_and_comments(const char *p, const char *endp
 {
   for (;;)
   {
-    while (p < endptr && isspace((unsigned char)p[0])) p++;
+    while (p < endptr && isspace_safe(p[0])) p++;
     if (p >= endptr-1 || *p != '/') return p;
 
     if (p[1]=='/')
@@ -163,7 +163,7 @@ const char *nseel_simple_tokenizer(const char **ptr, const char *endptr, int *le
     #endif
 
     // skip any whitespace
-    while (p < endptr && isspace((unsigned char)p[0])) p++;
+    while (p < endptr && isspace_safe(p[0])) p++;
   }
   else
   {
@@ -208,11 +208,11 @@ in_comment:
 
     }
   }
-  else if (isalnum((unsigned char)*p) || *p == '_' || *p == '#' || *p == '$' || (*p == '.' && p < endptr-1 && p[1] >= '0' && p[1] <= '9'))
+  else if (isalnum_safe(*p) || *p == '_' || *p == '#' || *p == '$' || (*p == '.' && p < endptr-1 && p[1] >= '0' && p[1] <= '9'))
   {
     if (*p == '$' && p < endptr-1 && p[1] == '~') p++;
     p++;
-    while (p < endptr && (isalnum((unsigned char)*p) || *p == '_' || *p == '.')) p++;
+    while (p < endptr && (isalnum_safe(*p) || *p == '_' || *p == '.')) p++;
   }
 #ifndef NSEEL_EEL1_COMPAT_MODE
   else if (*p == '\'' || *p == '\"')
@@ -296,7 +296,7 @@ in_string:
         else scctx->gotEndOfInput|=16;
       }
 #endif
-      else if (isalpha((unsigned char)rv) || rv == '_')
+      else if (isalpha_safe(rv) || rv == '_')
       {
         char buf[NSEEL_MAX_VARIABLE_NAMELEN*2];
         if (toklen > sizeof(buf) - 1) toklen=sizeof(buf) - 1;

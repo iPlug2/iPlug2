@@ -78,7 +78,7 @@ IGraphicsIOS::IGraphicsIOS(IGEditorDelegate& dlg, int w, int h, int fps, float s
     
       for(int i=0; i < gTextures.count; i++)
       {
-        gTextureMap.insert(std::make_pair([[[pTextureFiles[i] lastPathComponent] stringByDeletingPathExtension] cStringUsingEncoding:NSUTF8StringEncoding], (MTLTexturePtr) gTextures[i]));
+        gTextureMap.insert(std::make_pair([[[pTextureFiles[i] lastPathComponent] stringByDeletingPathExtension] UTF8String], (MTLTexturePtr) gTextures[i]));
       }
     
       DBGMSG("Preloaded %i textures\n", (int) [pTextureFiles count]);
@@ -161,10 +161,15 @@ void IGraphicsIOS::RemovePlatformView(void* pView)
   [(UIView*) pView removeFromSuperview];
 }
 
-EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* caption, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
+void IGraphicsIOS::HidePlatformView(void* pView, bool hide)
+{
+  [(UIView*) pView setHidden:hide];
+}
+
+EMsgBoxResult IGraphicsIOS::ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
-  [(IGRAPHICS_VIEW*) mView showMessageBox:str :caption :type :completionHandler];
+  [(IGRAPHICS_VIEW*) mView showMessageBox:str : title : type : completionHandler];
   return EMsgBoxResult::kNoResult; // we need to rely on completionHandler
 }
 
@@ -201,12 +206,12 @@ void IGraphicsIOS::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAc
   NSMutableArray* pFileTypes = [[NSMutableArray alloc] init];
 
   if (fileName.GetLength())
-    pDefaultFileName = [NSString stringWithCString:fileName.Get() encoding:NSUTF8StringEncoding];
+    pDefaultFileName = [NSString stringWithUTF8String:fileName.Get()];
   else
     pDefaultFileName = @"";
   
   if (path.GetLength())
-    pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+    pDefaultPath = [NSString stringWithUTF8String:path.Get()];
   else
     pDefaultPath = @"";
 
@@ -230,12 +235,10 @@ void IGraphicsIOS::PromptForDirectory(WDL_String& path, IFileDialogCompletionHan
 {
   assert(completionHandler != nullptr && "You must provide a completion handler on iOS");
   
-  NSString* pDefaultFileName = nil;
   NSString* pDefaultPath = nil;
-  NSMutableArray* pFileTypes = [[NSMutableArray alloc] init];
 
   if (path.GetLength())
-    pDefaultPath = [NSString stringWithCString:path.Get() encoding:NSUTF8StringEncoding];
+    pDefaultPath = [NSString stringWithUTF8String:path.Get()];
   else
     pDefaultPath = @"";
 
@@ -278,9 +281,9 @@ bool IGraphicsIOS::OpenURL(const char* url, const char* msgWindowTitle, const ch
 {
   NSURL* pNSURL = nullptr;
   if (strstr(url, "http"))
-    pNSURL = [NSURL URLWithString:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
+    pNSURL = [NSURL URLWithString:[NSString stringWithUTF8String:url]];
   else
-    pNSURL = [NSURL fileURLWithPath:[NSString stringWithCString:url encoding:NSUTF8StringEncoding]];
+    pNSURL = [NSURL fileURLWithPath:[NSString stringWithUTF8String:url]];
 
   if (pNSURL)
   {

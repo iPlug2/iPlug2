@@ -295,7 +295,7 @@ void IVSlideSwitchControl::SetDirty(bool push, int valIdx)
     UpdateRects();
 }
 
-IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
+IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const std::vector<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
 : ISwitchControlBase(bounds, paramIdx, SplashClickActionFunc, (int) options.size())
 , IVectorBase(style)
 , mDirection(direction)
@@ -312,7 +312,7 @@ IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, int paramIdx, const 
   }
 }
 
-IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::initializer_list<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
+IVTabSwitchControl::IVTabSwitchControl(const IRECT& bounds, IActionFunction aF, const std::vector<const char*>& options, const char* label, const IVStyle& style, EVShape shape, EDirection direction)
 : ISwitchControlBase(bounds, kNoParameter, aF, static_cast<int>(options.size()))
 , IVectorBase(style)
 , mDirection(direction)
@@ -376,6 +376,14 @@ void IVTabSwitchControl::DrawButton(IGraphics& g, const IRECT& r, bool pressed, 
   }
 }
 
+void IVTabSwitchControl::DrawButtonText(IGraphics& g, const IRECT& r, bool pressed, bool mouseOver, ETabSegment segment, bool disabled, const char* textStr)
+{
+  if (CStringHasContents(textStr))
+  {
+    g.DrawText(mStyle.valueText, textStr, r, &mBlend);
+  }
+}
+
 void IVTabSwitchControl::DrawWidget(IGraphics& g)
 {
   int selected = GetSelectedIdx();
@@ -385,17 +393,21 @@ void IVTabSwitchControl::DrawWidget(IGraphics& g)
   {
     IRECT r = mButtons.Get()[i];
     
-    if(i > 0)
+    if (i > 0)
       segment = ETabSegment::Mid;
     
-    if(i == mNumStates-1)
+    if (i == mNumStates-1)
       segment = ETabSegment::End;
+    
+    const bool isSelected = i == selected;
+    const bool isMouseOver = mMouseOverButton == i;
+    const bool isDisabled = IsDisabled() || GetStateDisabled(i);
 
-    DrawButton(g, r, i == selected, mMouseOverButton == i, segment, IsDisabled() || GetStateDisabled(i));
-        
-    if(mTabLabels.Get(i))
+    DrawButton(g, r, isSelected, isMouseOver, segment, isDisabled);
+    
+    if (mTabLabels.Get(i))
     {
-      g.DrawText(mStyle.valueText, mTabLabels.Get(i)->Get(), r, &mBlend);
+      DrawButtonText(g, r, isSelected, isMouseOver, segment, isDisabled, mTabLabels.Get(i)->Get());
     }
   }
 }
@@ -505,6 +517,68 @@ int IVRadioButtonControl::GetButtonForPoint(float x, float y) const
     return IVTabSwitchControl::GetButtonForPoint(x, y);
 }
 
+IVMenuButtonControl::IVMenuButtonControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, EVShape shape)
+: IContainerBase(bounds, paramIdx)
+, IVectorBase(style)
+{
+  AttachIControl(this, "");
+  
+  mText = style.valueText;
+  mDisablePrompt = false;
+  
+  SetAttachFunc([&, label, style, shape](IContainerBase* pContainer, const IRECT& bounds) {
+    AddChildControl(mButtonControl = new IVButtonControl(bounds, SplashClickActionFunc, label, style.WithValueText(style.valueText.WithVAlign(EVAlign::Middle)), false, true, shape), kNoTag, GetGroup());
+    
+    WDL_String str;
+    GetParam()->GetDisplayWithLabel(str);
+    mButtonControl->SetValueStr(str.Get());
+    
+    mButtonControl->SetAnimationEndActionFunction([&](IControl* pCaller){
+      PromptUserInput(mButtonControl->GetWidgetBounds());
+    });
+  });
+  
+  SetResizeFunc([&](IContainerBase* pContainer, const IRECT& bounds) {
+    mButtonControl->SetTargetAndDrawRECTs(bounds);
+  });
+}
+
+void IVMenuButtonControl::SetStyle(const IVStyle& style)
+{
+  IVectorBase::SetStyle(style);
+  mButtonControl->SetStyle(style.WithValueText(style.valueText.WithVAlign(EVAlign::Middle)));
+}
+
+void IVMenuButtonControl::SetValueFromDelegate(double value, int valIdx)
+{
+  IContainerBase::SetValueFromDelegate(value, valIdx);
+  WDL_String str;
+  GetParam()->GetDisplayWithLabel(str);
+  mButtonControl->SetValueStr(str.Get());
+}
+
+void IVMenuButtonControl::OnPopupMenuSelection(IPopupMenu* pSelectedMenu, int valIdx)
+{
+  if (pSelectedMenu)
+  {
+    mButtonControl->SetValueStr(pSelectedMenu->GetChosenItem()->GetText());
+  }
+  IControl::OnPopupMenuSelection(pSelectedMenu, valIdx);
+}
+
+void IVMenuButtonControl::SetValueFromUserInput(double value, int valIdx)
+{
+  if (GetValue(valIdx) != value)
+  {
+    SetValue(value, valIdx);
+    SetDirty(true, valIdx);
+    
+    WDL_String val;
+    GetParam()->GetDisplayWithLabel(val);
+    mButtonControl->SetValueStr(val.Get());
+  }
+}
+
 IVKnobControl::IVKnobControl(const IRECT& bounds, int paramIdx, const char* label, const IVStyle& style, bool valueIsEditable, bool valueInWidget, float a1, float a2, float aAnchor,  EDirection direction, double gearing, float trackSize)
 : IKnobControlBase(bounds, paramIdx, direction, gearing)
 , IVectorBase(style, false, valueInWidget)
@@ -548,7 +622,7 @@ IRECT IVKnobControl::GetKnobDragBounds()
 {
   IRECT r;
   
-  if(mWidgetBounds.W() > mWidgetBounds.H())
+  if (mWidgetBounds.W() > mWidgetBounds.H())
     r = mWidgetBounds.GetCentredInside(mWidgetBounds.H()/2.f, mWidgetBounds.H());
   else
     r = mWidgetBounds.GetCentredInside(mWidgetBounds.W(), mWidgetBounds.W()/2.f);
@@ -556,24 +630,39 @@ IRECT IVKnobControl::GetKnobDragBounds()
   return r;
 }
 
-void IVKnobControl::DrawWidget(IGraphics& g)
+float IVKnobControl::GetRadius() const
 {
-  float widgetRadius; // The radius out to the indicator track arc
+  float widgetRadius;
   
-  if(mWidgetBounds.W() > mWidgetBounds.H())
+  if (mWidgetBounds.W() > mWidgetBounds.H())
     widgetRadius = (mWidgetBounds.H()/2.f);
   else
     widgetRadius = (mWidgetBounds.W()/2.f);
-  
-  const float cx = mWidgetBounds.MW(), cy = mWidgetBounds.MH();
-  
+    
   widgetRadius -= (mTrackSize/2.f);
 
+  return widgetRadius;
+}
+
+IRECT IVKnobControl::GetTrackBounds() const
+{
+  return mWidgetBounds.GetCentredInside((GetRadius() + mTrackSize) * 2.f );
+}
+
+void IVKnobControl::DrawWidget(IGraphics& g)
+{
+  float widgetRadius = GetRadius();// The radius out to the indicator track arc
+  const float cx = mWidgetBounds.MW(), cy = mWidgetBounds.MH();
   IRECT knobHandleBounds = mWidgetBounds.GetCentredInside((widgetRadius - mTrackToHandleDistance) * 2.f );
   const float angle = mAngle1 + (static_cast<float>(GetValue()) * (mAngle2 - mAngle1));
   DrawIndicatorTrack(g, angle, cx, cy, widgetRadius);
-  DrawPressableShape(g, /*mShape*/ EVShape::Ellipse, knobHandleBounds, mMouseDown, mMouseIsOver, IsDisabled());
+  DrawHandle(g, knobHandleBounds);
   DrawPointer(g, angle, cx, cy, knobHandleBounds.W() / 2.f);
+}
+
+void IVKnobControl::DrawHandle(IGraphics& g, const IRECT& bounds)
+{
+  DrawPressableShape(g, /*mShape*/ EVShape::Ellipse, bounds, mMouseDown, mMouseIsOver, IsDisabled());
 }
 
 void IVKnobControl::DrawIndicatorTrack(IGraphics& g, float angle, float cx, float cy, float radius)
@@ -1126,8 +1215,8 @@ void IVPlotControl::AddPlotFunc(const IColor& color, const IPlotFunc& func)
   SetDirty(false);
 }
 
-IVGroupControl::IVGroupControl(const IRECT& bounds, const char* label, float labelOffset, const IVStyle& style)
-: IControl(bounds)
+IVGroupControl::IVGroupControl(const IRECT& bounds, const char* label, float labelOffset, const IVStyle& style, IContainerBase::AttachFunc attachFunc, IContainerBase::ResizeFunc resizeFunc)
+: IContainerBase(bounds, attachFunc, resizeFunc)
 , IVectorBase(style)
 , mLabelOffset(labelOffset)
 {
@@ -1136,7 +1225,7 @@ IVGroupControl::IVGroupControl(const IRECT& bounds, const char* label, float lab
 }
 
 IVGroupControl::IVGroupControl(const char* label, const char* groupName, float padL, float padT, float padR, float padB, const IVStyle& style)
-: IControl(IRECT())
+: IContainerBase(IRECT())
 , IVectorBase(style)
 , mGroupName(groupName)
 , mPadL(padL)

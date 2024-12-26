@@ -15,6 +15,8 @@
 
 #if !defined DOXYGEN_SHOULD_SKIP_THIS
 
+  #include "IPlugPlatform.h"
+
   #if defined IGRAPHICS_GLES2
     #define IGRAPHICS_GL
     #if defined OS_IOS

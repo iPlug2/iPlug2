@@ -278,7 +278,17 @@ WDL_SHM_Connection::WDL_SHM_Connection(bool whichChan, // first created must be 
   m_last_recvt=time(NULL)+3; // grace period
   m_next_keepalive = time(NULL)+1;
   
-  m_tempfn.Set("/tmp/WDL_SHM.");
+#ifdef __APPLE__
+  const char *pfn = getenv("TMPDIR");
+#else
+  const char *pfn = getenv("XDG_RUNTIME_DIR");
+#endif
+  if (pfn && *pfn) m_tempfn.Set(pfn);
+  m_tempfn.remove_trailing_dirchars();
+  if (!m_tempfn.GetLength())
+    m_tempfn.Set("/tmp");
+
+  m_tempfn.Append("/WDL_SHM.");
   m_tempfn.Append(uniquestring);
   m_tempfn.Append(".tmp");
   

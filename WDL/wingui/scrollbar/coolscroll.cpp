@@ -2478,6 +2478,7 @@ static LRESULT LButtonUp(SCROLLWND *sw, HWND hwnd, WPARAM wParam, LPARAM lParam)
     case HTSCROLL_ZOOMOUT:
 
       KillTimer(hwnd, sw->uScrollTimerId);
+      WDL_FALLTHROUGH;
 
     case HTSCROLL_THUMB:
 

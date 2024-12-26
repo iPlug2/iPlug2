@@ -123,23 +123,38 @@ EXCLUDE                = ../IGraphics/NanoVG \
                          ../IGraphics/NanoSVG \
                          ../IGraphics/freetype \
                          ../IGraphics/MetalNanoVG \
+                         ../IGraphics/Platforms/IGraphicsWin_dnd.h \
                          ../IGraphics/stb \
                          ../IPlug/AAX/IPlugAAX_Describe.cpp \
                          ../IPlug/AAX/IPlugAAX_Parameters.cpp \
                          ../IPlug/AAX/IPlugAAX_Parameters.h \
                          ../IPlug/AAX/IPlugAAX_TaperDelegate.h \
                          ../IPlug/AAX/IPlugAAX_view_interface.h \
-                         ../IPlug/Extras \
                          ../IPlug/AUv3/BufferedAudioBus.hpp \
                          ../IPlug/AUv3/GenericUI.h \
                          ../IPlug/AUv3/GenericUI.mm \
                          ../IPlug/AUv3/IPlugAUAudioUnit.h \
                          ../IPlug/AUv3/IPlugAUAudioUnit.mm \
+                         ../IPlug/AUv3/IPlugAUViewController.h \
                          ../IPlug/AUv3/IPlugAUViewController.mm \
                          ../IPlug/AUv2/dfx-au-utilities.h \
                          ../IPlug/AUv2/dfx-au-utilities.c \
                          ../IPlug/AUv2/IPlugAU_view_factory.mm \
-                         ../IPlug/WEB/Template
+                         ../IPlug/WEB/Template \
+                         ../IPlug/Extras/HIIR \
+                         ../IPlug/Extras/WebView/IPlugWKWebView.h \
+                         ../IPlug/Extras/WebView/IPlugWKWebView.mm \
+                         ../IPlug/Extras/WebView/IPlugWKWebViewDelegate.mm \
+                         ../IPlug/Extras/WebView/IPlugWKWebViewDelegate.h \
+                         ../IPlug/Extras/WebView/IPlugWKWebViewUIDelegate.mm \
+                         ../IPlug/Extras/WebView/IPlugWKWebViewUIDelegate.h \
+                         ../IPlug/Extras/WebView/IPlugWKWebViewScriptMessageHandler.h \
+                         ../IPlug/Extras/WebView/IPlugWKWebViewScriptMessageHandler.mm \
+                         ../IPlug/Extras/WebView/IPlugWebView_win.cpp \
+                         ../IPlug/Extras/WebView/IPlugWebView_mac.mm \
+                         ../IPlug/Extras/WebView/IPlugWebView.cpp \
+                         ../IPlug/Extras/WebView/IPlugWebViewEditorDelegate.mm \
+                         ../IPlug/Extras/WebView/IPlugWebViewEditorDelegate.cpp \
 
 
 EXCLUDE_SYMLINKS       = NO

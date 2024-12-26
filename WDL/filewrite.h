@@ -176,6 +176,7 @@ public:
 
     {
 #ifndef WDL_NO_SUPPORT_UTF8
+      bool allow_ansi = true;
       m_fh=INVALID_HANDLE_VALUE;
       if (isNT && HasUTF8(filename))
       {
@@ -187,6 +188,7 @@ public:
           if (MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,filename,-1,wfilename.Get(),wfilename.GetSize()-10))
           {
             correctlongpath(wfilename.Get());
+            allow_ansi = false;
             m_fh = CreateFileW(wfilename.Get(),rwflag,shareFlag,NULL,createFlag,flag,NULL);
           }
         }
@@ -196,12 +198,13 @@ public:
           if (MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,filename,-1,wfilename,1024-10))
           {
             correctlongpath(wfilename);
+            allow_ansi = false;
             m_fh = CreateFileW(wfilename,rwflag,shareFlag,NULL,createFlag,flag,NULL);
           }
         }
       }
       
-      if (m_fh == INVALID_HANDLE_VALUE)
+      if (m_fh == INVALID_HANDLE_VALUE && allow_ansi)
 #endif
         m_fh = CreateFileA(filename,rwflag,shareFlag,NULL,createFlag,flag,NULL);
     }

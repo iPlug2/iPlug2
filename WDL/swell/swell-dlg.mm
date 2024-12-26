@@ -51,7 +51,7 @@
     if ((sz).width > 16384.0) (sz).width = 16384.0; \
     if ((sz).height > 16384.0) (sz).height = 16384.0;
 
-static id __class_CAMetalLayer, __class_MTLRenderPassDescriptor, __class_MTLTextureDescriptor, __class_MTLRenderPipelineDescriptor, __class_MTLCompileOptions;
+static id __class_CAMetalLayer, __class_MTLTextureDescriptor;
 static id<MTLDevice> (*__MTLCreateSystemDefaultDevice)(void);
 static id<MTLDevice> (*__CGDirectDisplayCopyCurrentMetalDevice)(CGDirectDisplayID);
 
@@ -109,11 +109,6 @@ static id<MTLDevice> (*__CGDirectDisplayCopyCurrentMetalDevice)(CGDirectDisplayI
 #endif
 
 static HMENU g_swell_defaultmenu,g_swell_defaultmenumodal;
-
-void (*SWELL_DDrop_onDragLeave)();
-void (*SWELL_DDrop_onDragOver)(POINT pt);
-void (*SWELL_DDrop_onDragEnter)(void *hGlobal, POINT pt);
-const char* (*SWELL_DDrop_getDroppedFileTargetPath)(const char* extension);
 
 bool SWELL_owned_windows_levelincrease=false;
 
@@ -565,13 +560,14 @@ struct swell_metal_device_ctx {
   }
 
   id<MTLCommandQueue> m_commandQueue;
-  id<MTLCommandBuffer> m_commandBuffer;
+  id<MTLCommandBuffer> m_commandBuffer; // only used for presentation
 
   void present()
   {
     if (m_commandBuffer)
     {
       [m_commandBuffer commit];
+      [m_commandBuffer waitUntilCompleted];
       [m_commandBuffer release];
       m_commandBuffer = NULL;
     }
@@ -591,6 +587,14 @@ static bool s_mtl_in_update;
   s_metal_devicelist_updcnt++;
 }
 @end
+
+static id<MTLDevice> mtl_def_device()
+{
+  static id<MTLDevice> def;
+  if (!def && __MTLCreateSystemDefaultDevice) def = __MTLCreateSystemDefaultDevice();
+  return def;
+}
+
 #endif
 
 @implementation SWELL_hwndChild : NSView 
@@ -656,8 +660,13 @@ static bool s_mtl_in_update;
     if ([[self window] contentView] == self && [[self window] respondsToSelector:@selector(swellDestroyAllOwnedWindows)])
       [(SWELL_ModelessWindow*)[self window] swellDestroyAllOwnedWindows];
 
+    if (m_wndproc) m_wndproc((HWND)self,WM_NCDESTROY,0,0);
     if (GetCapture()==(HWND)self) ReleaseCapture(); 
     SWELL_MessageQueue_Clear((HWND)self); 
+
+#ifndef SWELL_NO_METAL
+    if (m_use_metal>0) swell_removeMetalDirty(self);
+#endif
     
     if (m_menu) 
     {
@@ -686,6 +695,10 @@ static bool s_mtl_in_update;
   return m_wndproc ? m_wndproc((HWND)self,msg,wParam,lParam) : 0;
 }
 
+- (BOOL) isEnabled
+{
+  return m_enabled;
+}
 - (void) setEnabled:(BOOL)en
 { 
   m_enabled=en?1:0; 
@@ -712,7 +725,7 @@ static bool s_mtl_in_update;
       (COLORREF)-1,
       f->m_cols ? f->m_cols->Find(aTableColumn) : 0
     };
-    if (m_wndproc) m_wndproc((HWND)self,WM_NOTIFY,tag,(LPARAM)&nmlv);
+    if (m_wndproc && !m_hashaddestroy) m_wndproc((HWND)self,WM_NOTIFY,tag,(LPARAM)&nmlv);
     // todo clrTextBk too
     if (nmlv.clrText != (COLORREF)-1)
     {
@@ -1065,8 +1078,17 @@ static bool s_mtl_in_update;
 -(void)setTag:(NSInteger)t { m_tag=t; }
 -(LONG_PTR)getSwellUserData { return m_userdata; }
 -(void)setSwellUserData:(LONG_PTR)val {   m_userdata=val; }
--(LPARAM)getSwellExtraData:(int)idx { idx/=sizeof(INT_PTR); if (idx>=0&&idx<sizeof(m_extradata)/sizeof(m_extradata[0])) return m_extradata[idx]; return 0; }
--(void)setSwellExtraData:(int)idx value:(LPARAM)val { idx/=sizeof(INT_PTR); if (idx>=0&&idx<sizeof(m_extradata)/sizeof(m_extradata[0])) m_extradata[idx] = val; }
+-(LPARAM)getSwellExtraData:(int)idx {
+  idx/=sizeof(INT_PTR);
+  if (WDL_NORMALLY(idx>=0&&idx<sizeof(m_extradata)/sizeof(m_extradata[0])))
+    return m_extradata[idx];
+  return 0;
+}
+-(void)setSwellExtraData:(int)idx value:(LPARAM)val {
+  idx/=sizeof(INT_PTR);
+  if (WDL_NORMALLY(idx>=0&&idx<sizeof(m_extradata)/sizeof(m_extradata[0])))
+    m_extradata[idx] = val;
+}
 -(void)setSwellWindowProc:(WNDPROC)val { m_wndproc=val; }
 -(WNDPROC)getSwellWindowProc { return m_wndproc; }
 -(void)setSwellDialogProc:(DLGPROC)val { m_dlgproc=val; }
@@ -1496,9 +1518,6 @@ static bool s_mtl_in_update;
   if (m_use_metal != 1 && m_use_metal != 2) return;
   const bool direct_mode = m_use_metal == 1;
 
-  CAMetalLayer *layer = (CAMetalLayer *)[self layer];
-  layer.framebufferOnly = NO;
-
   id<MTLDevice> device = m_metal_device;
 
   static bool reg;
@@ -1526,12 +1545,12 @@ static bool s_mtl_in_update;
       [device release];
   }
 
-  if (!device)
-  {
-    static id<MTLDevice> def;
-    if (!def) def = __MTLCreateSystemDefaultDevice();
-    device = def;
-  }
+  if (!device) device=mtl_def_device();
+
+  CAMetalLayer *layer = (CAMetalLayer *)[self layer];
+
+  // this might happen if a caller calls SWELL_SetMetal too late after drawing has already occurred (and the backing layer was already created)
+  if (WDL_NOT_NORMALLY(![layer respondsToSelector:@selector(setFramebufferOnly:)])) return;
 
   if (device != m_metal_device)
   {
@@ -1540,8 +1559,7 @@ static bool s_mtl_in_update;
     m_metal_device = device;
     [layer setDevice:device];
     swell_metal_set_layer_gravity(layer,m_metal_gravity ^ ([self isFlipped] ? 2 : 0));
-    if (m_use_metal==1)
-      layer.framebufferOnly = NO;
+    layer.framebufferOnly = NO;
     [layer setPixelFormat:MTLPixelFormatBGRA8Unorm];
 
     if (!direct_mode) [m_metal_texture release];
@@ -1559,6 +1577,7 @@ static bool s_mtl_in_update;
   swell_metal_device_ctx *ctx = s_metal_devices.Get((INT_PTR)device);
   if (!ctx)
   {
+    NSLog(@"swell-cocoa: creating metal device context for %p %@\n",device,device.name);
     ctx = new swell_metal_device_ctx;
     s_metal_devices.Insert((INT_PTR)device, ctx);
   }
@@ -1624,6 +1643,10 @@ static bool s_mtl_in_update;
     return;
   }
 
+#ifdef _DEBUG
+  if (forRect && !IsWindowVisible((HWND)self))
+    NSLog(@"swell-metal: drawing to hidden window %@, fix caller\n",self);
+#endif
 
   id<MTLTexture> tex = (id<MTLTexture>) m_metal_texture;
   if (!tex) return; // this can happen if GetDC()/ReleaseDC() are called before the first WM_PAINT
@@ -1671,8 +1694,32 @@ static bool s_mtl_in_update;
     [ctx->m_commandBuffer retain];
   }
 
-  id<MTLBlitCommandEncoder> encoder = [ctx->m_commandBuffer blitCommandEncoder];
+  id<MTLCommandBuffer> cb = [ctx->m_commandQueue commandBuffer];
+  if (WDL_NOT_NORMALLY(cb == NULL))
+    cb = ctx->m_commandBuffer; // backup, run commands in the presentation buffer
 
+  id<MTLBlitCommandEncoder> encoder = [cb blitCommandEncoder];
+  if (WDL_NOT_NORMALLY(encoder == NULL))
+  {
+    NSLog(@"swell-cocoa: metal blitCommandEncoder failure\n");
+  }
+
+  const int texw = [(id<MTLTexture>) m_metal_texture width];
+  const int texh = [(id<MTLTexture>) m_metal_texture height];
+  if (texw < bounds.size.width)
+  {
+#ifdef _DEBUG
+    NSLog(@"swell-cocoa: texture width mismatch %d vs %.0f\n",texw,bounds.size.width);
+#endif
+    bounds.size.width = texw;
+  }
+  if (texh < bounds.size.height)
+  {
+#ifdef _DEBUG
+    NSLog(@"swell-cocoa: texture height mismatch %d vs %.0f\n",texh,bounds.size.height);
+#endif
+    bounds.size.height = texh;
+  }
   [encoder copyFromTexture:m_metal_texture
     sourceSlice:0 sourceLevel:0 sourceOrigin:MTLOriginMake(0,0,0)
       sourceSize:MTLSizeMake(bounds.size.width,bounds.size.height,1.0)
@@ -1680,6 +1727,9 @@ static bool s_mtl_in_update;
       destinationSlice:0 destinationLevel:0 destinationOrigin:MTLOriginMake(0,0,0)];
 
   [encoder endEncoding];
+
+  if (cb != ctx->m_commandBuffer)
+    [cb commit];
 
   [ctx->m_commandBuffer presentDrawable:drawable];
 
@@ -2466,10 +2516,27 @@ NSView **g_swell_mac_foreign_key_event_sink;
 
 SWELLDIALOGCOMMONIMPLEMENTS_WND(0)
 
+-(id)_setFrame:(NSRect)r fromAdjustmentToScreen:(NSScreen *)scr anchorIfNeeded:(void *)anch animate:(int)anim
+{
+  if (m_disableMonitorAutosize)
+    return nil;
+
+  SEL sel = @selector(_setFrame:fromAdjustmentToScreen:anchorIfNeeded:animate:);
+  if (WDL_NOT_NORMALLY(![super respondsToSelector:sel])) return nil;
+
+  id (*send_msg)(struct objc_super *, SEL, NSRect, NSScreen*, void*, int) = (id (*)(struct objc_super *, SEL, NSRect, NSScreen*, void*, int)) &objc_msgSendSuper;
+  struct objc_super sup = {
+    self,
+    [self superclass]
+  };
+  return send_msg(&sup, sel, r, scr, anch, anim);
+}
+
 
 - (id)initModelessForChild:(HWND)child owner:(HWND)owner styleMask:(unsigned int)smask
 {
   INIT_COMMON_VARS
+  m_disableMonitorAutosize = false;
   m_wantInitialKeyWindowOnShow=0;
   m_wantraiseamt=0;
   lastFrameSize.width=lastFrameSize.height=0.0f;
@@ -2511,6 +2578,7 @@ SWELLDIALOGCOMMONIMPLEMENTS_WND(0)
 - (id)initModeless:(SWELL_DialogResourceIndex *)resstate Parent:(HWND)parent dlgProc:(DLGPROC)dlgproc Param:(LPARAM)par outputHwnd:(HWND *)hwndOut forceStyles:(unsigned int)smask
 {
   INIT_COMMON_VARS
+  m_disableMonitorAutosize = false;
   m_wantInitialKeyWindowOnShow=0;
   m_wantraiseamt=0;
 
@@ -3539,7 +3607,7 @@ NSArray* SWELL_DoDragDrop(NSURL* droplocation)
         
         int digits=0;
         int i;
-        for (i=0; i < 3 && len > i+1 && isdigit(p[len-i-1]); ++i) ++digits;
+        for (i=0; i < 3 && len > i+1 && isdigit_safe(p[len-i-1]); ++i) ++digits;
         if (len > digits+1 && (p[len-digits-1] == ' ' || p[len-digits-1] == '-' || p[len-digits-1] == '_'))         
         {
           incr=atoi(p+len-digits);
@@ -3878,10 +3946,7 @@ static bool mtl_init()
     if (__MTLCreateSystemDefaultDevice &&
         __MTLCopyAllDevices &&
         (__class_CAMetalLayer = objc_getClass("CAMetalLayer")) &&
-        (__class_MTLRenderPassDescriptor = objc_getClass("MTLRenderPassDescriptor")) &&
-        (__class_MTLRenderPipelineDescriptor = objc_getClass("MTLRenderPipelineDescriptor")) &&
-        (__class_MTLTextureDescriptor = objc_getClass("MTLTextureDescriptor")) &&
-        (__class_MTLCompileOptions = objc_getClass("MTLCompileOptions"))
+        (__class_MTLTextureDescriptor = objc_getClass("MTLTextureDescriptor"))
         )
     {
       NSArray *ar = __MTLCopyAllDevices();
@@ -3896,6 +3961,16 @@ static bool mtl_init()
   }
 
   return state>0;
+}
+
+bool swell_get_default_metal_devicename(char *buf, int bufsz)
+{
+  if (!mtl_init()) return false;
+  id<MTLDevice> dev = mtl_def_device();
+  if (!dev) return false;
+  buf[0]=0;
+  SWELL_CFStringToCString(dev.name,buf,bufsz);
+  return buf[0]!=0;
 }
 
 
@@ -4105,6 +4180,10 @@ static void SWELL_Metal_WriteTex(SWELL_hwndChild *wnd, const unsigned int *srcbu
         else if (layer.contentsScale != (retina_hint ? 2.0 : 1.0))
           layer.contentsScale = retina_hint ? 2.0 : 1.0;
         tex = [(wnd->m_metal_drawable = [layer nextDrawable]) texture];
+        if (WDL_NOT_NORMALLY(!tex))
+        {
+          NSLog(@"swell-cocoa: error creating metal texture for direct mode\n");
+        }
         wnd->m_metal_texture = tex;
       }
     }
@@ -4121,6 +4200,10 @@ static void SWELL_Metal_WriteTex(SWELL_hwndChild *wnd, const unsigned int *srcbu
         textureDescriptor.height = want_h;
         tex = [wnd->m_metal_device newTextureWithDescriptor:textureDescriptor];
         wnd->m_metal_texture = tex;
+        if (WDL_NOT_NORMALLY(!tex))
+        {
+          NSLog(@"swell-cocoa: error creating metal texture for full mode\n");
+        }
 
         [textureDescriptor release];
       }
@@ -4233,7 +4316,7 @@ void SWELL_Metal_Blit(void *_tex, const unsigned int *srcbuf, int x, int y, int 
       }
     }
 
-    if (use_alpha && WDL_NORMALLY(wnd->m_metal_texture))
+    if (use_alpha && wnd->m_metal_texture)
     {
       id<MTLTexture> tex = (id<MTLTexture>) wnd->m_metal_texture;
       const int texw = (int)tex.width, texh = (int)tex.height;
@@ -4377,6 +4460,11 @@ void swell_updateAllMetalDirty() // run from a timer, or called by UpdateWindow(
 void swell_addMetalDirty(SWELL_hwndChild *slf, const RECT *r, bool isReleaseDC)
 {
   if (!slf) return;
+  #ifdef _DEBUG
+  if (!IsWindowVisible((HWND)slf))
+    NSLog(@"swell-metal: addMetalDirty %@, fix caller\n",slf);
+  #endif
+
   if (isReleaseDC)
   {
     // just tag it dirty

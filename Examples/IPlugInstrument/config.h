@@ -42,6 +42,10 @@
 #define AAX_PLUG_CATEGORY_STR "Synth"
 
 #define VST3_SUBCATEGORY "Instrument|Synth"
+#define CLAP_MANUAL_URL "https://iplug2.github.io/manuals/example_manual.pdf"
+#define CLAP_SUPPORT_URL "https://github.com/iPlug2/iPlug2/wiki"
+#define CLAP_DESCRIPTION "iPlug2 instrument example"
+#define CLAP_FEATURES "instrument"//, "synth"
 
 #define APP_NUM_CHANNELS 2
 #define APP_N_VECTOR_WAIT 0

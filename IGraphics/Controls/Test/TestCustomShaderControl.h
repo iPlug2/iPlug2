@@ -109,48 +109,84 @@ public:
     
     printf("Supported GLSL version is %s.\n", (char *)glGetString(GL_SHADING_LANGUAGE_VERSION));
 
+    #ifdef IGRAPHICS_GL2
     static const char vs_str[] =
-    "attribute vec4 apos;"
-    "attribute vec4 acolor;"
-    "varying vec4 color;"
-    "void main() {"
-    "color = acolor;"
-    "gl_Position = apos;"
-    "}";
+        "attribute vec4 apos;\n"
+        "attribute vec4 acolor;\n"
+        "varying vec4 color;\n"
+        "void main() {\n"
+        "    color = acolor;\n"
+        "    gl_Position = apos;\n"
+        "}";
+    #else
+    static const char vs_str[] =
+        "#version 330 core\n"
+        "in vec4 apos;\n"
+        "in vec4 acolor;\n"
+        "out vec4 color;\n"
+        "void main() {\n"
+        "    color = acolor;\n"
+        "    gl_Position = apos;\n"
+        "}";
+    #endif
     GLuint vs = compileShader(GL_VERTEX_SHADER, vs_str);
-    
+
+    #ifdef IGRAPHICS_GL2
     static const char fs_str[] =
-#ifdef OS_WEB
-    "precision lowp float;"
-#endif
-    "varying vec4 color;"
-    "uniform vec4 color2;"
-    "void main() {"
-    "gl_FragColor = color;"
-    "}";
+        "varying vec4 color;\n"
+        "uniform vec4 color2;\n"
+        "void main() {\n"
+        "    gl_FragColor = color;\n"
+        "}";
+    #else
+    static const char fs_str[] =
+        "#version 330 core\n"
+        "in vec4 color;\n"
+        "out vec4 FragColor;\n"
+        "uniform vec4 color2;\n"
+        "void main() {\n"
+        "    FragColor = color;\n"
+        "}";
+    #endif
     GLuint fs = compileShader(GL_FRAGMENT_SHADER, fs_str);
-    
+
     GLuint program = createProgram(vs, fs);
     glUseProgram(program);
-    
+
     static const float posAndColor[] = {
     //     x,     y,    r,     g,  b
-          -0.6f, -0.6f, 1.0, 0.0, 0.0,
-           0.6f, -0.6f, 0.0, 1.0, 0.0,
-           0.f,   0.6f, 0.0, 0.0, 1.0,
+         -0.6f, -0.6f, 1.0f, 0.0f, 0.0f,
+          0.6f, -0.6f, 0.0f, 1.0f, 0.0f,
+          0.f,   0.6f, 0.0f, 0.0f, 1.0f,
     };
-    
+
+    #ifndef IGRAPHICS_GL2
+    GLuint vao;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    #endif
+
     GLuint vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(posAndColor), posAndColor, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 20, 0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 20, (void*)8);
+
+    #ifdef IGRAPHICS_GL2
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-    
+    #else
+    GLint posAttrib = glGetAttribLocation(program, "apos");
+    GLint colorAttrib = glGetAttribLocation(program, "acolor");
+    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+    glVertexAttribPointer(colorAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+    glEnableVertexAttribArray(posAttrib);
+    glEnableVertexAttribArray(colorAttrib);
+    #endif
+
     glDrawArrays(GL_TRIANGLES, 0, 3);
-    
+
     glViewport(vp[0], vp[1], vp[2], vp[3]);
     
     nvgEndFrame(vg);

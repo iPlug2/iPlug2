@@ -43,3 +43,4 @@
 #include "TestFlexBoxControl.h"
 #include "TestMaskControl.h"
 #include "TestDirBrowseControl.h"
+#include "TestDragNDropControl.h"

@@ -19,7 +19,7 @@ IPlugChunks::IPlugChunks(const InstanceInfo& info)
     pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
     IRECT b = pGraphics->GetBounds().GetPadded(-10.f);
     const IVStyle style = DEFAULT_STYLE.WithDrawShadows(false);
-    pGraphics->AttachControl(new IVBakedPresetManagerControl(b.ReduceFromTop(30.f), style));
+    pGraphics->AttachControl(new IVBakedPresetManagerControl(b.ReduceFromTop(30.f), "", style));
     pGraphics->AttachControl(new IVMultiSliderControl<kNumSteps>(b, "", style), kCtrlMultiSlider)->SetActionFunction([pGraphics](IControl* pCaller) {
 
       double vals[kNumSteps];

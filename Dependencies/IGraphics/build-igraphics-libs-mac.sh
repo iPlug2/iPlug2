@@ -11,8 +11,8 @@ LIB_DIR="$INSTALL_DIR/lib"
 BIN_DIR="$INSTALL_DIR/bin"
 LOG_DIR="$BUILD_DIR"
 LOG_NAME="build-mac.log"
-FREETYPE_OPTIONS="--disable-shared --without-zlib --without-png --without-bzip2 --without-harfbuzz"
-DEPLOYMENT_TARGET=10.9
+FREETYPE_OPTIONS="--disable-shared --without-zlib --without-png --without-bzip2 --without-harfbuzz --without-brotli"
+DEPLOYMENT_TARGET=10.13
 
 [[ -e "$PWD/build-igraphics-libs-mac.sh" ]] ||
 {

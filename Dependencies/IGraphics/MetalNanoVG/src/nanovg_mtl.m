@@ -624,7 +624,7 @@ void mnvgReadPixels(NVGcontext* ctx, int image, int x, int y, int width,
 #endif  // TARGET_OS_SIMULATOR
 }
 
-enum MNVGTarget mnvgTarget() {
+enum MNVGTarget mnvgTarget(void) {
 #if TARGET_OS_SIMULATOR
   return MNVG_SIMULATOR;
 #elif TARGET_OS_IOS

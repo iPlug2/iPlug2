@@ -6,24 +6,24 @@
 enum
 {
   // these are identical to the WAVEFORMATEXTENSIBLE bitmask
-  kAudioChannelBit_Left                       = (1U<<0),
-  kAudioChannelBit_Right                      = (1U<<1),
-  kAudioChannelBit_Center                     = (1U<<2),
-  kAudioChannelBit_LFEScreen                  = (1U<<3),
-  kAudioChannelBit_LeftSurround               = (1U<<4),
-  kAudioChannelBit_RightSurround              = (1U<<5),
-  kAudioChannelBit_LeftCenter                 = (1U<<6),
-  kAudioChannelBit_RightCenter                = (1U<<7),
-  kAudioChannelBit_CenterSurround             = (1U<<8),      // WAVE: "Back Center"
-  kAudioChannelBit_LeftSurroundDirect         = (1U<<9),
-  kAudioChannelBit_RightSurroundDirect        = (1U<<10),
-  kAudioChannelBit_TopCenterSurround          = (1U<<11),
-  kAudioChannelBit_VerticalHeightLeft         = (1U<<12),     // WAVE: "Top Front Left"
-  kAudioChannelBit_VerticalHeightCenter       = (1U<<13),     // WAVE: "Top Front Center"
-  kAudioChannelBit_VerticalHeightRight        = (1U<<14),     // WAVE: "Top Front Right"
-  kAudioChannelBit_TopBackLeft                = (1U<<15),
-  kAudioChannelBit_TopBackCenter              = (1U<<16),
-  kAudioChannelBit_TopBackRight               = (1U<<17),
+  kAudioChannelBit_Left                       = (1U<<0),      // WAVEXT: SPEAKER_FRONT_LEFT
+  kAudioChannelBit_Right                      = (1U<<1),      // WAVEXT: SPEAKER_FRONT_RIGHT
+  kAudioChannelBit_Center                     = (1U<<2),      // WAVEXT: SPEAKER_FRONT_CENTER
+  kAudioChannelBit_LFEScreen                  = (1U<<3),      // WAVEXT: SPEAKER_LOW_FREQUENCY
+  kAudioChannelBit_LeftSurround               = (1U<<4),      // WAVEXT: SPEAKER_BACK_LEFT
+  kAudioChannelBit_RightSurround              = (1U<<5),      // WAVEXT: SPEAKER_BACK_RIGHT
+  kAudioChannelBit_LeftCenter                 = (1U<<6),      // WAVEXT: SPEAKER_FRONT_LEFT_OF_CENTER
+  kAudioChannelBit_RightCenter                = (1U<<7),      // WAVEXT: SPEAKER_FROM_RIGHT_OF_CENTER
+  kAudioChannelBit_CenterSurround             = (1U<<8),      // WAVEXT: SPEAKER_BACK_CENTER
+  kAudioChannelBit_LeftSurroundDirect         = (1U<<9),      // WAVEXT: SPEAKER_SIDE_LEFT
+  kAudioChannelBit_RightSurroundDirect        = (1U<<10),     // WAVEXT: SPEAKER_SIDE_RIGHT
+  kAudioChannelBit_TopCenterSurround          = (1U<<11),     // WAVEXT: SPEAKER_TOP_CENTER
+  kAudioChannelBit_VerticalHeightLeft         = (1U<<12),     // WAVEXT: SPEAKER_TOP_FRONT_LEFT
+  kAudioChannelBit_VerticalHeightCenter       = (1U<<13),     // WAVEXT: SPEAKER_TOP_FRONT_CENTER
+  kAudioChannelBit_VerticalHeightRight        = (1U<<14),     // WAVEXT: SPEAKER_TOP_FRONT_RIGHT
+  kAudioChannelBit_TopBackLeft                = (1U<<15),     // WAVEXT: SPEAKER_TOP_BACK_LEFT
+  kAudioChannelBit_TopBackCenter              = (1U<<16),     // WAVEXT: SPEAKER_TOP_BACK_CENTER
+  kAudioChannelBit_TopBackRight               = (1U<<17),     // WAVEXT: SPEAKER_TOP_BACK_RIGHT
   kAudioChannelBit_LeftTopFront             	= (1U<<18),
   kAudioChannelBit_CenterTopFront           	= (1U<<19),
   kAudioChannelBit_RightTopFront            	= (1U<<20),

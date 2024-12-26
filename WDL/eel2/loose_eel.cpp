@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include "../mutex.h"
 
 int g_verbose, g_interactive;
 

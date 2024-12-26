@@ -400,6 +400,7 @@ SWELL_API_DEFINE(void, ListView_SetExtendedListViewStyleEx,(HWND h, int mask, in
 SWELL_API_DEFINE(void, ListView_InsertColumn,(HWND h, int pos, const LVCOLUMN *lvc))
 SWELL_API_DEFINE(bool, ListView_DeleteColumn,(HWND h, int pos))
 SWELL_API_DEFINE(void, ListView_SetColumn,(HWND h, int pos, const LVCOLUMN *lvc))
+SWELL_API_DEFINE(void, ListView_GetColumn,(HWND h, int pos, LVCOLUMN *lvc))
 SWELL_API_DEFINE(int, ListView_GetColumnWidth,(HWND h, int pos))
 SWELL_API_DEFINE(int, ListView_InsertItem,(HWND h, const LVITEM *item))
 SWELL_API_DEFINE(void, ListView_SetItemText,(HWND h, int ipos, int cpos, const char *txt))
@@ -964,6 +965,7 @@ SWELL_API_DEFINE(void, SetAllowNoMiddleManRendering, (HWND h, bool allow)) // de
 #ifdef SWELL_TARGET_OSX
 SWELL_API_DEFINE(int, SWELL_IsRetinaDC, (HDC hdc)) // returns 1 if DC is a retina DC (2x res possible)
 SWELL_API_DEFINE(int, SWELL_IsRetinaHWND, (HWND h)) // returns 1 if HWND is a retina HWND
+SWELL_API_DEFINE(void, SWELL_SetNoMultiMonitorAutoSize, (HWND h, bool noauto))
 #endif
 
 SWELL_API_DEFINE(void, SWELL_SetViewGL, (HWND h, char wantGL)) // wantGL=2 to enable wantsBestResolutionOpenGLSurface

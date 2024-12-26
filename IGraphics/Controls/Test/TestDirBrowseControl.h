@@ -61,7 +61,7 @@ public:
       
       if (pItem)
       {
-        mSelectedIndex = mItems.Find(pItem);
+        mSelectedItemIndex = mItems.Find(pItem);
         mLabel.Set(pItem->GetText());
         CheckSelectedItem();
       }

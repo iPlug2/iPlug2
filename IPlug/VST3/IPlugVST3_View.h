@@ -44,7 +44,7 @@ public:
         return Steinberg::kResultTrue;
       
 #elif defined OS_MAC
-      if (strcmp (type, Steinberg::kPlatformTypeNSView) == 0)
+      if (strcmp(type, Steinberg::kPlatformTypeNSView) == 0)
         return Steinberg::kResultTrue;
 #endif
     }
@@ -59,7 +59,8 @@ public:
     if (pSize)
     {
       rect = *pSize;
-      mOwner.OnParentWindowResize(rect.getWidth(), rect.getHeight());
+      mOwner.OnParentWindowResize(rect.getWidth() / mScaleFactor, 
+                                  rect.getHeight() / mScaleFactor);
     }
     
     return Steinberg::kResultTrue;
@@ -71,7 +72,7 @@ public:
     
     if (mOwner.HasUI())
     {
-      *pSize = Steinberg::ViewRect(0, 0, mOwner.GetEditorWidth(), mOwner.GetEditorHeight());
+      *pSize = Steinberg::ViewRect(0, 0, mOwner.GetEditorWidth() * mScaleFactor, mOwner.GetEditorHeight() * mScaleFactor);
       
       return Steinberg::kResultTrue;
     }
@@ -93,13 +94,13 @@ public:
   
   Steinberg::tresult PLUGIN_API checkSizeConstraint(Steinberg::ViewRect* pRect) override
   {
-    int w = pRect->getWidth();
-    int h = pRect->getHeight();
+    int w = pRect->getWidth() / mScaleFactor;
+    int h = pRect->getHeight() / mScaleFactor;
     
-    if(!mOwner.ConstrainEditorResize(w, h))
+    if (!mOwner.ConstrainEditorResize(w, h))
     {
-      pRect->right = pRect->left + w;
-      pRect->bottom = pRect->top + h;
+      pRect->right = pRect->left + (w * mScaleFactor);
+      pRect->bottom = pRect->top + (h * mScaleFactor);
     }
     
     return Steinberg::kResultTrue;
@@ -114,7 +115,7 @@ public:
       if (strcmp(type, Steinberg::kPlatformTypeHWND) == 0)
         pView = mOwner.OpenWindow(pParent);
 #elif defined OS_MAC
-      if (strcmp (type, Steinberg::kPlatformTypeNSView) == 0)
+      if (strcmp(type, Steinberg::kPlatformTypeNSView) == 0)
         pView = mOwner.OpenWindow(pParent);
       else // Carbon
         return Steinberg::kResultFalse;
@@ -136,7 +137,7 @@ public:
   Steinberg::tresult PLUGIN_API setContentScaleFactor(ScaleFactor factor) override
   {
     mOwner.SetScreenScale(factor);
-
+    mScaleFactor = factor;
     return Steinberg::kResultOk;
   }
 
@@ -146,7 +147,62 @@ public:
     *obj = 0;
     return CPluginView::queryInterface(_iid, obj);
   }
-
+  
+  Steinberg::tresult PLUGIN_API onKeyDown (Steinberg::char16 key, Steinberg::int16 keyMsg, Steinberg::int16 modifiers) override
+  {
+    // Workaround for Reaper's funky key/keyMsg
+    if (mOwner.GetHost() == iplug::EHost::kHostReaper)
+    {
+      if (keyMsg == Steinberg::VirtualKeyCodes::KEY_SPACE)
+      {
+        iplug::IKeyPress keyPress { " ", 
+          iplug::kVK_SPACE,
+          static_cast<bool>(modifiers & Steinberg::kShiftKey),
+          static_cast<bool>(modifiers & Steinberg::kCommandKey),
+          static_cast<bool>(modifiers & Steinberg::kAlternateKey)};
+        
+        return mOwner.OnKeyDown(keyPress) ? Steinberg::kResultTrue : Steinberg::kResultFalse;
+      }
+      else
+      {
+        return Steinberg::kResultFalse;
+      }
+    }
+    else
+    {
+      return mOwner.OnKeyDown(TranslateKeyMessage(key, keyMsg, modifiers)) ? Steinberg::kResultTrue : Steinberg::kResultFalse;
+    }
+  }
+  
+  Steinberg::tresult PLUGIN_API onKeyUp (Steinberg::char16 key, Steinberg::int16 keyMsg, Steinberg::int16 modifiers) override
+  {
+    // Workaround for Reaper's funky key/keyMsg
+    if (mOwner.GetHost() == iplug::EHost::kHostReaper)
+    {
+      if (keyMsg == Steinberg::VirtualKeyCodes::KEY_SPACE)
+      {
+        iplug::IKeyPress keyPress { " ", iplug::kVK_SPACE,
+          static_cast<bool>(modifiers & Steinberg::kShiftKey),
+          static_cast<bool>(modifiers & Steinberg::kCommandKey),
+          static_cast<bool>(modifiers & Steinberg::kAlternateKey)};
+        
+        return mOwner.OnKeyUp(keyPress) ? Steinberg::kResultTrue : Steinberg::kResultFalse;
+      }
+      else
+      {
+        return Steinberg::kResultFalse;
+      }
+    }
+    else
+    {
+      return mOwner.OnKeyUp(TranslateKeyMessage(key, keyMsg, modifiers)) ? Steinberg::kResultTrue : Steinberg::kResultFalse;
+    }
+  }
+  
+  DELEGATE_REFCOUNT(Steinberg::CPluginView)
+  
+#pragma mark -
+  
   static int AsciiToVK(int ascii)
   {
   #ifdef OS_WIN
@@ -248,7 +304,7 @@ public:
     return kVK_NONE;
   };
   
-  static iplug::IKeyPress translateKeyMessage (Steinberg::char16 key, Steinberg::int16 keyMsg, Steinberg::int16 modifiers)
+  static iplug::IKeyPress TranslateKeyMessage (Steinberg::char16 key, Steinberg::int16 keyMsg, Steinberg::int16 modifiers)
   {
     WDL_String str;
 
@@ -275,26 +331,15 @@ public:
     
     return keyPress;
   }
-  
-  Steinberg::tresult PLUGIN_API onKeyDown (Steinberg::char16 key, Steinberg::int16 keyMsg, Steinberg::int16 modifiers) override
-  {
-    return mOwner.OnKeyDown(translateKeyMessage(key, keyMsg, modifiers)) ? Steinberg::kResultTrue : Steinberg::kResultFalse;
-  }
-  
-  Steinberg::tresult PLUGIN_API onKeyUp (Steinberg::char16 key, Steinberg::int16 keyMsg, Steinberg::int16 modifiers) override
-  {
-    return mOwner.OnKeyUp(translateKeyMessage(key, keyMsg, modifiers)) ? Steinberg::kResultTrue : Steinberg::kResultFalse;
-  }
-  
-  DELEGATE_REFCOUNT(Steinberg::CPluginView)
 
   void Resize(int w, int h)
   {
     TRACE
     
-    Steinberg::ViewRect newSize = Steinberg::ViewRect(0, 0, w, h);
+    Steinberg::ViewRect newSize = Steinberg::ViewRect(0, 0, w * mScaleFactor, h * mScaleFactor);
     plugFrame->resizeView(this, &newSize);
   }
 
   T& mOwner;
+  float mScaleFactor = 1.f;
 };

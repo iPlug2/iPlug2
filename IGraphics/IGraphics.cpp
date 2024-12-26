@@ -80,7 +80,8 @@ void IGraphics::SetScreenScale(float scale)
   
   assert(windowWidth > 0 && windowHeight > 0 && "Window dimensions invalid");
 
-  PlatformResize(GetDelegate()->EditorResizeFromUI(windowWidth, windowHeight, true));
+  bool parentResized = GetDelegate()->EditorResizeFromUI(windowWidth, windowHeight, true);
+  PlatformResize(parentResized);
   ForAllControls(&IControl::OnRescale);
   SetAllControlsDirty();
   DrawResize();
@@ -106,8 +107,9 @@ void IGraphics::Resize(int w, int h, float scale, bool needsPlatformResize)
 
   int windowWidth = WindowWidth() * GetPlatformWindowScale();
   int windowHeight = WindowHeight() * GetPlatformWindowScale();
-    
-  PlatformResize(GetDelegate()->EditorResizeFromUI(windowWidth, windowHeight, needsPlatformResize));
+
+  bool parentResized = GetDelegate()->EditorResizeFromUI(windowWidth, windowHeight, needsPlatformResize);
+  PlatformResize(parentResized);
   ForAllControls(&IControl::OnResize);
   SetAllControlsDirty();
   DrawResize();
@@ -273,6 +275,14 @@ void IGraphics::SetControlValueAfterPopupMenu(IPopupMenu* pMenu)
   }
   
   mInPopupMenu = nullptr;
+}
+
+void IGraphics::DeleteFromPopupMenu(IPopupMenu* pMenu, int itemIdx)
+{
+  if (!mInPopupMenu)
+    return;
+  
+  mInPopupMenu->OnDeleteFromPopupMenu(pMenu, itemIdx);
 }
 
 void IGraphics::AttachBackground(const char* fileName)
@@ -483,7 +493,7 @@ void IGraphics::DisableControl(int paramIdx, bool disable)
   ForMatchingControls(&IControl::SetDisabled, paramIdx, disable);
 }
 
-void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl* pControl)> func)
+void IGraphics::ForControlWithParam(int paramIdx, IControlFunction func)
 {
   for (auto c = 0; c < NControls(); c++)
   {
@@ -497,7 +507,24 @@ void IGraphics::ForControlWithParam(int paramIdx, std::function<void(IControl* p
   }
 }
 
-void IGraphics::ForControlInGroup(const char* group, std::function<void(IControl* pControl)> func)
+void IGraphics::ForControlWithParam(const std::initializer_list<int>& params, IControlFunction func)
+{
+  for (auto c = 0; c < NControls(); c++)
+  {
+    IControl* pControl = GetControl(c);
+
+    for (auto param : params)
+    {
+      if (pControl->LinkedToParam(param) > kNoValIdx)
+      {
+        func(pControl);
+        // Could be more than one, don't break until we check them all.
+      }
+    }
+  }
+}
+
+void IGraphics::ForControlInGroup(const char* group, IControlFunction func)
 {
   for (auto c = 0; c < NControls(); c++)
   {
@@ -512,13 +539,13 @@ void IGraphics::ForControlInGroup(const char* group, std::function<void(IControl
   }
 }
 
-void IGraphics::ForStandardControlsFunc(std::function<void(IControl* pControl)> func)
+void IGraphics::ForStandardControlsFunc(IControlFunction func)
 {
   for (auto c = 0; c < NControls(); c++)
     func(GetControl(c));
 }
 
-void IGraphics::ForAllControlsFunc(std::function<void(IControl* pControl)> func)
+void IGraphics::ForAllControlsFunc(IControlFunction func)
 {
   ForStandardControlsFunc(func);
   
@@ -1250,6 +1277,12 @@ void IGraphics::OnDrop(const char* str, float x, float y)
   if (pControl) pControl->OnDrop(str);
 }
 
+void IGraphics::OnDropMultiple(const std::vector<const char*>& paths, float x, float y)
+{
+  IControl* pControl = GetMouseControl(x, y, false);
+  if (pControl) pControl->OnDropMultiple(paths);
+}
+
 void IGraphics::ReleaseMouseCapture()
 {
   mCapturedMap.clear();
@@ -1399,20 +1432,47 @@ void IGraphics::PopupHostContextMenuForParam(IControl* pControl, int paramIdx, f
 
     if (pVST3ContextMenu)
     {
-      Steinberg::Vst::IContextMenu::Item item = {0};
+      std::function<void(IPopupMenu* pCurrentMenu)> populateFunc;
+      Steinberg::int32 tag = 0;
+      
+      populateFunc = [&populateFunc, &tag, pVST3ContextMenu, pControl](IPopupMenu* pCurrentMenu) {
+        Steinberg::Vst::IContextMenu::Item item = {0};
 
-      for (int i = 0; i < contextMenu.NItems(); i++)
-      {
-        Steinberg::UString128 (contextMenu.GetItemText(i)).copyTo (item.name, 128);
-        item.tag = i;
-
-        if (!contextMenu.GetItem(i)->GetEnabled())
-          item.flags = Steinberg::Vst::IContextMenu::Item::kIsDisabled;
-        else
+        for (int i = 0; i < pCurrentMenu->NItems(); i++)
+        {
+          Steinberg::UString128 (pCurrentMenu->GetItemText(i)).copyTo (item.name, 128);
+          item.tag = tag++;
           item.flags = 0;
-
-        pVST3ContextMenu->addItem(item, pControl);
-      }
+          
+          if (pCurrentMenu->GetItem(i)->GetIsSeparator())
+          {
+            item.flags = Steinberg::Vst::IContextMenu::Item::kIsSeparator;
+          }
+          else if (auto pSubMenu = pCurrentMenu->GetItem(i)->GetSubmenu())
+          {
+            item.flags = Steinberg::Vst::IContextMenu::Item::kIsGroupStart;
+            pVST3ContextMenu->addItem(item, pControl);
+            populateFunc(pSubMenu);
+            item.tag = tag++;
+            item.flags = Steinberg::Vst::IContextMenu::Item::kIsGroupEnd;
+            pVST3ContextMenu->addItem(item, pControl);
+            continue;
+          }
+          else
+          {
+            if (!pCurrentMenu->GetItem(i)->GetEnabled())
+              item.flags |= Steinberg::Vst::IContextMenu::Item::kIsDisabled;
+            
+            if (pCurrentMenu->GetItem(i)->GetChecked())
+              item.flags |= Steinberg::Vst::IContextMenu::Item::kIsChecked;
+          }
+          
+          pVST3ContextMenu->addItem(item, pControl);
+        }
+      };
+      
+      populateFunc(&contextMenu);
+     
 #ifdef OS_WIN
       x *= GetTotalScale();
       y *= GetTotalScale();
@@ -1595,9 +1655,8 @@ ISVG IGraphics::LoadSVG(const char* name, const void* pData, int dataSize, const
   {
     NSVGimage* pImage = nullptr;
 
-    // Because we're taking a const void* pData, but NanoSVG takes a void*, 
     WDL_String svgStr;
-    svgStr.Set((const char*)pData, dataSize);
+    svgStr.Set(reinterpret_cast<const char*>(pData), dataSize);
     pImage = nsvgParse(svgStr.Get(), units, dpi);
 
     if (!pImage)
@@ -1633,7 +1692,8 @@ WDL_TypedBuf<uint8_t> IGraphics::LoadResource(const char* fileNameOrResID, const
 #endif
   if (resourceFound == EResourceLocation::kAbsolutePath)
   {
-    FILE* fd = fopen(path.Get(), "rb");
+    FILE* fd = fopenUTF8(path.Get(), "rb");
+
     if (!fd)
       return result;
     

@@ -10,11 +10,11 @@
 
 #include <cmath>
 #include <cstring>
-#define WDL_NO_SUPPORT_UTF8
 #include "dirscan.h"
 
 #include "IControl.h"
 #include "IPlugParameter.h"
+
 
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
@@ -624,7 +624,7 @@ void ICaptionControl::Draw(IGraphics& g)
 {
   const IParam* pParam = GetParam();
 
-  if(pParam)
+  if (pParam)
   {
     pParam->GetDisplay(mStr);
 
@@ -637,18 +637,29 @@ void ICaptionControl::Draw(IGraphics& g)
 
   ITextControl::Draw(g);
   
-  if(mTri.W() > 0.f)
+  if (mTriangleRect.W() > 0.f)
   {
-    g.FillTriangle(mMouseIsOver ? mTriangleMouseOverColor : mTriangleColor, mTri.L, mTri.T, mTri.R, mTri.T, mTri.MW(), mTri.B, GetMouseIsOver() ? 0 : &BLEND_50);
+    g.FillTriangle(mMouseIsOver ? mTriangleMouseOverColor : mTriangleColor, 
+                   mTriangleRect.L, mTriangleRect.T, mTriangleRect.R, mTriangleRect.T, mTriangleRect.MW(), mTriangleRect.B,
+                   GetMouseIsOver() ? 0 : &BLEND_50);
   }
 }
 
 void ICaptionControl::OnResize()
 {
   const IParam* pParam = GetParam();
-  if(pParam && pParam->Type() == IParam::kTypeEnum)
+  
+  if (pParam && pParam->Type() == IParam::kTypeEnum)
   {
-    mTri = mRECT.FracRectHorizontal(0.2f, true).GetCentredInside(IRECT(0, 0, 8, 5)); //TODO: This seems rubbish
+    const auto textHeight = mText.mSize;
+    const auto dropDownAreaWidth = textHeight;
+    const auto triangleWidth = dropDownAreaWidth * 0.5f;
+    const auto triangleHeight = dropDownAreaWidth * 0.33f;
+    
+    auto dropDownAreaRect = mText.mAlign == EAlign::Far ? mRECT.GetFromLeft(dropDownAreaWidth)
+                                                        : mRECT.GetFromRight(dropDownAreaWidth);
+
+    mTriangleRect = dropDownAreaRect.GetCentredInside(IRECT(0.f, 0.f, triangleWidth, triangleHeight));
   }
 }
 
@@ -1044,7 +1055,7 @@ void IDirBrowseControlBase::SetupMenu()
   mItems.Empty(false);
   
   mMainMenu.Clear();
-  mSelectedIndex = -1;
+  mSelectedItemIndex = -1;
 
   int idx = 0;
 
@@ -1085,21 +1096,21 @@ void IDirBrowseControlBase::SetSelectedFile(const char* filePath)
 
         if (pItem->GetTag() == fileIdx)
         {
-          mSelectedIndex = itemIdx;
+          mSelectedItemIndex = itemIdx;
           return;
         }
       }
     }
   }
   
-  mSelectedIndex = -1;
+  mSelectedItemIndex = -1;
 }
 
 void IDirBrowseControlBase::GetSelectedFile(WDL_String& path) const
 {
-  if (mSelectedIndex > -1)
+  if (mSelectedItemIndex > -1)
   {
-    IPopupMenu::Item* pItem = mItems.Get(mSelectedIndex);
+    IPopupMenu::Item* pItem = mItems.Get(mSelectedItemIndex);
     path.Set(mFiles.Get(pItem->GetTag()));
   }
   else
@@ -1110,9 +1121,9 @@ void IDirBrowseControlBase::GetSelectedFile(WDL_String& path) const
 
 void IDirBrowseControlBase::CheckSelectedItem()
 {
-  if (mSelectedIndex > -1)
+  if (mSelectedItemIndex > -1)
   {
-    IPopupMenu::Item* pItem = mItems.Get(mSelectedIndex);
+    IPopupMenu::Item* pItem = mItems.Get(mSelectedItemIndex);
     mMainMenu.CheckItemAlone(pItem);
   }
 }

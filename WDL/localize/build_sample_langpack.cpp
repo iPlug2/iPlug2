@@ -115,12 +115,6 @@ int length_of_quoted_string(char *p, bool convertRCquotesToSlash)
   return -1;
 }
 
-static int uint64cmpfunc(WDL_UINT64 *a, WDL_UINT64 *b)
-{
-  if (*a < *b) return -1;
-  if (*a > *b) return 1;
-  return 0;
-}
 #define HACK_WILDCARD_ENTRY 2
 static int isLocalizeCall(const char *p)
 {
@@ -177,7 +171,7 @@ WDL_UINT64 outputLine(const char *strv, int casemode)
     }
     else if (casemode == 2)
     {
-      switch (tolower(c))
+      switch (tolower_safe(c))
       {
         case 'o': c='0'; break;
         case 'i': c='1'; break;
@@ -186,8 +180,8 @@ WDL_UINT64 outputLine(const char *strv, int casemode)
         case 's': c='5'; break;
       }
     }
-    else if (casemode==-1) c=tolower(c);
-    else if (casemode==1) c=toupper(c);
+    else if (casemode==-1) c=tolower_safe(c);
+    else if (casemode==1) c=toupper_safe(c);
     else if (casemode==4)
     {
       switch (c)
@@ -403,7 +397,7 @@ void processCPPfile(FILE *fp, const char *filename)
         }
         p += l+2;
       }
-      else if ((p==(char*)fs.Get() || (!isalnum(p[-1]) && p[-1] != '_')) && (hm=isLocalizeCall(p)))
+      else if ((p==(char*)fs.Get() || (!isalnum_safe(p[-1]) && p[-1] != '_')) && (hm=isLocalizeCall(p)))
       {
         while (*p != '(') p++;
         p++;
@@ -592,7 +586,7 @@ int main(int argc, char **argv)
     int pos[4096]={0,};
     printf("[common]\n");
     WDL_FastString matchlist;
-    WDL_AssocArray<WDL_UINT64, bool> ids(uint64cmpfunc);
+    WDL_KeyedArray<WDL_UINT64, bool> ids;
     int minpos = 0;
     for (;;)
     {
@@ -665,7 +659,7 @@ int main(int argc, char **argv)
     printf("[%s]%s%s\n",nm,secinfo?" ; ":"", secinfo?secinfo:"");
     int a;
     int y;
-    WDL_AssocArray<WDL_UINT64, bool> ids(uint64cmpfunc);
+    WDL_KeyedArray<WDL_UINT64, bool> ids;
     for (a=0;a<2;a++)
     {
       for (y=0;y<p->GetSize();y++)

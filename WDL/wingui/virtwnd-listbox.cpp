@@ -98,6 +98,7 @@ void WDL_VirtualListBox::CalcLayout(int num_items, layout_info *layout)
     if (min_cols < 1) min_cols = 1;
   }
   if (max_cols < min_cols) max_cols = min_cols;
+  if (max_cols2 < min_cols) max_cols2 = min_cols;
 
   static WDL_TypedBuf<int> s_heights;
 
@@ -122,7 +123,7 @@ again:
     int rh = GetItemHeight(item, &flag);
     if (y > 0 && y + rh > h) 
     {
-      if (max_cols == 1 && !(flag&ITEMH_FLAG_NOSQUISH) && y + rh_base <= h) s_heights.Add(rh | flag); // allow partial of larger item in single column mode
+      if (cols == max_cols && !(flag&ITEMH_FLAG_NOSQUISH) && y + rh_base <= h) s_heights.Add(rh | flag); // allow partial of larger item in single column mode
       if (cols >= max_cols) break;
       cols++;
       y=0;
@@ -160,7 +161,7 @@ again:
   }
   const bool has_scroll = item < num_items || startitem > 0;
 
-  if (has_scroll && cols > 1 && max_cols > max_cols2)
+  if (has_scroll && cols > wdl_max(min_cols,1) && max_cols > max_cols2)
   {
     max_cols = max_cols2;
     goto again;
@@ -394,8 +395,11 @@ void WDL_VirtualListBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_
         y += rh;
         if (y > r.top+endpos) 
         {
-          if (y+ ((flag&ITEMH_FLAG_NOSQUISH) ? 0 : -rh + rh_base) > r.top+endpos) break;
-          if (colpos < num_cols-1) break;
+          if (ly != r.top)
+          {
+            if (y+ ((flag&ITEMH_FLAG_NOSQUISH) ? 0 : -rh + rh_base) > r.top+endpos) break;
+            if (colpos < num_cols-1) break;
+          }
           y = r.top+endpos; // size expanded-sized item to fit
         }
       }
@@ -419,7 +423,7 @@ void WDL_VirtualListBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_
         buf[0]=0;
         int color=tcol;
 
-        if (m_GetItemInfo(this,itempos++,buf,sizeof(buf),&color,&bkbm))
+        if (m_GetItemInfo(this,itempos,buf,sizeof(buf),&color,&bkbm))
         {
           color=LICE_RGBA_FROMNATIVE(color,0);
           RECT thisr;
@@ -429,12 +433,12 @@ void WDL_VirtualListBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_
           thisr.bottom = y-1;
           int rev=0;
           int bkbmstate=0;
-          if (m_cap_state==1 && m_cap_startitem==itempos-1)
+          if (m_cap_state==1 && m_cap_startitem==itempos)
           {
             if (bkbm) bkbmstate=1;
             else color = ((color>>1)&0x7f7f7f7f)+LICE_RGBA(0x7f,0x7f,0x7f,0);
           }
-          if (m_cap_state>=0x1000 && m_cap_startitem==itempos-1)
+          if (m_cap_state>=0x1000 && m_cap_startitem==itempos)
           {
             if (bkbm) bkbmstate=2;
             else
@@ -453,7 +457,7 @@ void WDL_VirtualListBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_
           }
           if (m_CustomDraw)
           {
-            m_CustomDraw(this,itempos-1,&thisr,drawbm,rscale);
+            m_CustomDraw(this,itempos,&thisr,drawbm,rscale);
           }
 
           if (buf[0])
@@ -464,18 +468,33 @@ void WDL_VirtualListBox::OnPaint(LICE_IBitmap *drawbm, int origin_x, int origin_
             {
               m_font->SetTextColor(rev?bgc:color);
               m_font->SetCombineMode(LICE_BLIT_MODE_COPY, alpha); // maybe gray text only if !bkbm->bgimage
-              if (m_align == 0)
-              {
-                RECT r2={0,};
+              RECT dr=thisr;
+#ifdef __APPLE__
+              OffsetRect(&dr,0,2);
+#endif
+              const bool has_nl = strchr(buf,'\n') != NULL;
+              RECT r2 = { 0, };
+              if (has_nl || m_align == 0)
                 m_font->DrawText(drawbm,buf,-1,&r2,DT_CALCRECT|DT_NOPREFIX);
-                m_font->DrawText(drawbm,buf,-1,&thisr,DT_VCENTER|((r2.right <= thisr.right-thisr.left) ? DT_CENTER : DT_LEFT)|DT_NOPREFIX);
+
+              int f = (m_align > 0 ? DT_RIGHT : ((m_align == 0 && r2.right <= thisr.right-thisr.left) ? DT_CENTER : DT_LEFT));
+
+              if (has_nl)
+              {
+                // can't use DT_VCENTER
+                OffsetRect(&dr,0,((dr.bottom-dr.top) - (r2.bottom-r2.top))/2);
               }
               else
-                m_font->DrawText(drawbm,buf,-1,&thisr,DT_VCENTER|(m_align<0?DT_LEFT:DT_RIGHT)|DT_NOPREFIX);
+              {
+                f |= DT_SINGLELINE | DT_VCENTER;
+              }
+
+              m_font->DrawText(drawbm,buf,-1,&dr,f | DT_NOPREFIX);
             }
           }
         }
       }
+      itempos++;
 
       if (!bkbm)
       {
@@ -924,16 +943,22 @@ int WDL_VirtualListBox::IndexFromPtInt(int x, int y, const layout_info &layout)
   {
     if (x < xpos) return -1;
     int ypos = 0;
-    const int nx = (++col * usewid) / layout.columns;
+    const int nx = ((col+1) * usewid) / layout.columns;
     for (;;)
     {
       int flag = 0;
       const int rh = idx < layout.heights->GetSize() ? layout.GetHeight(idx,&flag) : rh_base;
-      if (ypos > 0 && ypos + rh > layout.item_area_h && (col < layout.columns-1 || (flag & ITEMH_FLAG_NOSQUISH) || ypos+rh_base > layout.item_area_h)) break;
+      if (ypos > 0 && ypos + rh > layout.item_area_h && (col < layout.columns-1 || (flag & ITEMH_FLAG_NOSQUISH) || ypos+rh_base > layout.item_area_h))
+      {
+        // item doesn't fit in this column
+        if (x < nx) return -1; // stop looking we didn't hit anything
+        break;
+      }
       if (x < nx && y >= ypos && y < ypos+rh) return layout.startpos + idx;
       ypos += rh;
       idx++;
     }
+    if (++col >= layout.columns) return -1;
     if (x < nx && y >= ypos) return -1; // empty space at bottom of column
     xpos = nx;
   }

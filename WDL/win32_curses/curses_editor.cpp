@@ -15,7 +15,7 @@
 #include "../wdlcstring.h"
 
 #ifndef VALIDATE_TEXT_CHAR
-#define VALIDATE_TEXT_CHAR(thischar) ((thischar) >= 0 && (thischar >= 128 || isspace(thischar) || isgraph(thischar)) && !(thischar >= KEY_DOWN && thischar <= KEY_F12))
+#define VALIDATE_TEXT_CHAR(thischar) ((thischar) >= 0 && (thischar >= 128 || isspace_safe(thischar) || isgraph_safe(thischar)) && !(thischar >= KEY_DOWN && thischar <= KEY_F12))
 #endif
 
 
@@ -298,7 +298,7 @@ LRESULT WDL_CursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
           
           while (NULL != (url = strstr(url,"http://")))
           {
-            if (url != fs->Get() && url[-1] > 0 && isalnum(url[-1]))
+            if (url != fs->Get() && url[-1] > 0 && isalnum_safe(url[-1]))
             {
               url+=7;
             }
@@ -322,6 +322,7 @@ LRESULT WDL_CursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
           }
         }
       }
+      WDL_FALLTHROUGH;
 
     case WM_LBUTTONDOWN:
       if (CURSES_INSTANCE && CURSES_INSTANCE->m_font_w && CURSES_INSTANCE->m_font_h)
@@ -341,7 +342,7 @@ LRESULT WDL_CursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
         }
       }
 
-      // passthrough
+      WDL_FALLTHROUGH;
     case WM_RBUTTONDOWN:
 
     if (CURSES_INSTANCE->m_font_w && CURSES_INSTANCE->m_font_h)
@@ -400,6 +401,7 @@ LRESULT WDL_CursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
         {
           m_paneoffs_y[pane] += paneh[pane];
           int maxscroll=m_text.GetSize()-paneh[pane]+4;
+          if (maxscroll < 0) maxscroll = 0;
           if (m_paneoffs_y[pane] > maxscroll) m_paneoffs_y[pane]=maxscroll;
         }
         
@@ -454,8 +456,8 @@ LRESULT WDL_CursesEditor::onMouseMessage(HWND hwnd, UINT uMsg, WPARAM wParam, LP
           int x1=WDL_utf8_charpos_to_bytepos(s->Get(),m_curs_x);
           int x2=x1+1;
           const char* p=s->Get();
-          while (x1 > 0 && p[x1-1] > 0 && (isalnum(p[x1-1]) || p[x1-1] == '_')) --x1;
-          while (x2 < s->GetLength() && p[x2] > 0 && (isalnum(p[x2]) || p[x2] == '_')) ++x2;
+          while (x1 > 0 && p[x1-1] > 0 && (isalnum_safe(p[x1-1]) || p[x1-1] == '_')) --x1;
+          while (x2 < s->GetLength() && p[x2] > 0 && (isalnum_safe(p[x2]) || p[x2] == '_')) ++x2;
           if (x2 > x1)
           {
             m_select_x1=WDL_utf8_bytepos_to_charpos(s->Get(),x1);
@@ -1373,8 +1375,8 @@ int WDL_CursesEditor::search_line(const char *str, const WDL_FastString *line, i
     if ((s_search_mode&1) ? !strncmp(p+startx,str,srchlen) : !strnicmp(p+startx,str,srchlen))
     {
       if (!(s_search_mode&2)) return startx;
-      if ((startx==0 || p[startx-1]<0 || !isalnum(p[startx-1])) &&
-          (p[startx+srchlen]<=0 || !isalnum(p[startx+srchlen]))) return startx;
+      if ((startx==0 || p[startx-1]<0 || !isalnum_safe(p[startx-1])) &&
+          (p[startx+srchlen]<=0 || !isalnum_safe(p[startx+srchlen]))) return startx;
     }
   return -1;
 }
@@ -1505,8 +1507,8 @@ static int categorizeCharForWordNess(int c)
 {
   if (c >= 0 && c < 256)
   {
-    if (isspace(c)) return 0;
-    if (isalnum(c) || c == '_') return 1;
+    if (isspace_safe(c)) return 0;
+    if (isalnum_safe(c) || c == '_') return 1;
     if (c == ';') return 2; // I prefer this, since semicolons are somewhat special
   }
   return 3;
@@ -1622,6 +1624,7 @@ void WDL_CursesEditor::run_line_editor(int c, WDL_FastString *fs)
     break;
     case KEY_IC:
       if (!SHIFT_KEY_DOWN && !ALT_KEY_DOWN) return;
+      WDL_FALLTHROUGH;
     case 'V'-'A'+1:
       {
         WDL_PtrList<const char> lines;
@@ -1696,7 +1699,7 @@ int WDL_CursesEditor::onChar(int c)
       setCursor();
     break;
     case UI_STATE_SAVE_ON_CLOSE:
-      if (c>=0 && (isalnum(c) || isprint(c) || c==27))
+      if (c>=0 && (isalnum_safe(c) || isprint_safe(c) || c==27))
       {
         if (c == 27)
         {
@@ -1706,9 +1709,9 @@ int WDL_CursesEditor::onChar(int c)
           setCursor();
           return 0;
         }
-        if (toupper(c) == 'N' || toupper(c) == 'Y')
+        if (toupper_safe(c) == 'N' || toupper_safe(c) == 'Y')
         {
-          if (toupper(c) == 'Y')
+          if (toupper_safe(c) == 'Y')
           {
             if(updateFile())
             {
@@ -1729,10 +1732,10 @@ int WDL_CursesEditor::onChar(int c)
       }
     return 0;
     case UI_STATE_SAVE_AS_NEW:
-      if (c>=0 && (isalnum(c) || isprint(c) || c==27 || c == '\r' || c=='\n'))
+      if (c>=0 && (isalnum_safe(c) || isprint_safe(c) || c==27 || c == '\r' || c=='\n'))
       {
         m_ui_state=UI_STATE_NORMAL;
-        if (toupper(c) == 'N' || c == 27)
+        if (toupper_safe(c) == 'N' || c == 27)
         {
           draw();
           draw_message("Cancelled create new file.");
@@ -1842,7 +1845,25 @@ int WDL_CursesEditor::onChar(int c)
         m_selecting=1;
       }
     }
-    else if (m_selecting) { m_selecting=0; draw(); }
+    else if (m_selecting)
+    {
+      m_selecting=0;
+      if (c == KEY_LEFT || c == KEY_RIGHT || c == KEY_UP || c == KEY_DOWN)
+      {
+        int miny,maxy,minx,maxx;
+        getselectregion(minx,miny,maxx,maxy);
+        if ((m_curs_y > miny || (m_curs_y == miny && m_curs_x >= minx)) &&
+            (m_curs_y < maxy || (m_curs_y == maxy && m_curs_x <= maxx)))
+        {
+          m_curs_x = c == KEY_LEFT || c == KEY_UP ? minx : maxx;
+          m_curs_y = c == KEY_LEFT || c == KEY_UP ? miny : maxy;
+          draw();
+          setCursor();
+          return 0;
+        }
+      }
+      draw();
+    }
   }
 
   switch(c)
@@ -2019,6 +2040,7 @@ int WDL_CursesEditor::onChar(int c)
       }
       break;
     }
+    WDL_FALLTHROUGH;
   case 'C'-'A'+1:
   case 'X'-'A'+1:
     if (!SHIFT_KEY_DOWN && !ALT_KEY_DOWN && m_selecting)
@@ -2264,7 +2286,7 @@ int WDL_CursesEditor::onChar(int c)
       runSearch(SHIFT_KEY_DOWN != 0, false);
       return 0;
     }
-  // fall through
+  WDL_FALLTHROUGH; // fall through
   case 'R'-'A'+1:
   case 'F'-'A'+1:
     if (!SHIFT_KEY_DOWN && !ALT_KEY_DOWN)
@@ -2697,6 +2719,7 @@ int WDL_CursesEditor::onChar(int c)
       }
       break;
     }
+    WDL_FALLTHROUGH;
   default:
     //insert char
     if(VALIDATE_TEXT_CHAR(c))

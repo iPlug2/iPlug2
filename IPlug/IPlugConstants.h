@@ -155,7 +155,7 @@ enum EParamSource
   kPresetRecall,
   kUI,
   kDelegate,
-  kRecompile, // for FAUST JIT
+  kRecompile, // for JIT
   kUnknown,
   kNumParamSources
 };
@@ -182,7 +182,8 @@ enum EAPI
   kAPIAAX = 4,
   kAPIAPP = 5,
   kAPIWAM = 6,
-  kAPIWEB = 7
+  kAPIWEB = 7,
+  kAPICLAP = 8
 };
 
 /** @enum EHost

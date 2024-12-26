@@ -22,11 +22,6 @@ enum EMsgTags
   kMsgTagBinaryTest = 3
 };
 
-enum EControlTags
-{
-  kCtrlTagMeter = 0,
-};
-
 class IPlugWebUI final : public Plugin
 {
 public:
@@ -35,9 +30,13 @@ public:
   void ProcessBlock(sample** inputs, sample** outputs, int nFrames) override;
   void ProcessMidiMsg(const IMidiMsg& msg) override;
   void OnReset() override;
-  void OnIdle() override;
   bool OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData) override;
   void OnParamChange(int paramIdx) override;
+  bool CanNavigateToURL(const char* url);
+  bool OnCanDownloadMIMEType(const char* mimeType) override;
+  void OnFailedToDownloadFile(const char* path) override;
+  void OnDownloadedFile(const char* path) override;
+  void OnGetLocalDownloadPathForFile(const char* fileName, WDL_String& localPath) override;
 
 private:
   float mLastPeak = 0.;

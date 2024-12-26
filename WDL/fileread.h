@@ -124,7 +124,7 @@ public:
 public:
   // allow_async=1 for unbuffered async, 2 for buffered async, =-1 for unbuffered sync
   // async aspect is unused on OS X, but the buffered mode affects F_NOCACHE
-  WDL_FileRead(const char *filename, int allow_async=1, int bufsize=8192, int nbufs=4, unsigned int mmap_minsize=0, unsigned int mmap_maxsize=0) : m_bufspace(4096 WDL_HEAPBUF_TRACEPARM("WDL_FileRead"))
+  WDL_FileRead(const char *filename, int allow_async=1, int bufsize=8192, int nbufs=4, unsigned int mmap_minsize=0, unsigned int mmap_maxsize=0) : m_bufspace(4096)
   {
     m_async_hashaderr=false;
     m_sync_bufmode_used=m_sync_bufmode_pos=0;
@@ -293,7 +293,7 @@ public:
 
       if (m_fsize < mmap_maxsize)
       {
-        if (m_fsize >= mmap_minsize)
+        if (m_fsize >= mmap_minsize && m_fsize>0)
         {
           m_mmap_view = mmap(NULL,(size_t)m_fsize,PROT_READ,MAP_SHARED,m_filedes,0);
           if (m_mmap_view == MAP_FAILED) m_mmap_view = 0;
@@ -302,7 +302,7 @@ public:
         else
         {
           m_mmap_totalbufmode = malloc((size_t)m_fsize);
-          if (m_mmap_totalbufmode)
+          if (m_mmap_totalbufmode && m_fsize>0)
             m_fsize = pread(m_filedes,m_mmap_totalbufmode,(size_t)m_fsize,0);
           m_fsize_maychange=false;
         }
@@ -453,7 +453,6 @@ public:
 
   int AsyncRead(char *buf, int maxlen)
   {
-    char *obuf=buf;
     int lenout=0;
     if (m_file_position+maxlen > m_fsize)
     {
