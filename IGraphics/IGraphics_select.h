@@ -46,8 +46,11 @@
     #endif
   #endif
 
-  #if defined IGRAPHICS_NANOVG
-    #include "IGraphicsNanoVG.h"
+  #if defined IGRAPHICS_CUSTOM_DRAW_CLASS_TYPE
+    #include IGRAPHICS_CUSTOM_DRAW_CLASS_H
+    #define IGRAPHICS_DRAW_CLASS_TYPE IGRAPHICS_CUSTOM_DRAW_CLASS_TYPE
+  #elif defined IGRAPHICS_NANOVG
+  #include "IGraphicsNanoVG.h"
     #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsNanoVG
   #elif defined IGRAPHICS_SKIA
     #include "IGraphicsSkia.h"
