@@ -136,7 +136,7 @@ struct pack_rec {
 };
 
 struct editor_instance {
-  editor_instance() : m_recs(false, pack_rec::freeptrs),
+  editor_instance() : m_recs(true, pack_rec::freeptrs),
                       m_column_no_searchflags(0), m_sort_col(COL_ID), m_sort_rev(false),
                       m_hwnd(NULL), m_dirty(false) { }
   ~editor_instance() { }
@@ -339,7 +339,7 @@ void editor_instance::load_file(const char *filename, bool is_template)
     }
   }
 
-  WDL_StringKeyedArray<char *> extra(false, WDL_StringKeyedArray<char>::freecharptr);
+  WDL_StringKeyedArray<char *> extra(true, WDL_StringKeyedArray<char>::freecharptr);
   if (*filename)
   {
     WDL_StringKeyedArray< WDL_AssocArray<WDL_UINT64, char *> * > r(false,del_array);
