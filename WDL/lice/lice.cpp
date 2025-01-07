@@ -1377,10 +1377,11 @@ void LICE_ScaledBlit(LICE_IBitmap *dest, LICE_IBitmap *src,
   LICE_pixel_chan *pdest = (LICE_pixel_chan *)dest->getBits();
   if (!psrc || !pdest) return;
 
-  const int srcoffs_x = (int)((ficurx + (fidx<0 ? fidx*dstw : 0))*(1.0/65536.0));
-  const int srcoffs_y = (int)((ficury + (fidy<0 ? fidy*dsth : 0))*(1.0/65536.0));
+  int srcoffs_x = (int)((ficurx + (fidx<0 ? fidx*dstw : 0))*(1.0/65536.0));
+  int srcoffs_y = (int)((ficury + (fidy<0 ? fidy*dsth : 0))*(1.0/65536.0));
 
-  if (srcoffs_y < 0 || srcoffs_x < 0) return;
+  if (srcoffs_x < 0) { if (fidx>=0) return; srcoffs_x=0; }
+  if (srcoffs_y < 0) { if (fidy>=0) return; srcoffs_y=0; }
 
   if (src->isFlipped())
   {
