@@ -257,7 +257,7 @@ struct editor_instance {
   }
 };
 
-static void del_array(WDL_AssocArray<WDL_UINT64, char *> *d) { delete d; }
+static void del_array(WDL_KeyedArray<WDL_UINT64, char *> *d) { delete d; }
 
 static void format_section_id(char *buf, size_t bufsz, const char *section, WDL_UINT64 id)
 {
@@ -342,13 +342,13 @@ void editor_instance::load_file(const char *filename, bool is_template)
   WDL_StringKeyedArray<char *> extra(true, WDL_StringKeyedArray<char>::freecharptr);
   if (*filename)
   {
-    WDL_StringKeyedArray< WDL_AssocArray<WDL_UINT64, char *> * > r(false,del_array);
+    WDL_StringKeyedArray< WDL_KeyedArray<WDL_UINT64, char *> * > r(false,del_array);
     WDL_LoadLanguagePackInternal(filename,&r,NULL, is_template, true, &extra);
 
     for (int si = 0; si < r.GetSize(); si ++)
     {
       const char *sec_name;
-      WDL_AssocArray<WDL_UINT64, char *> *sec = r.Enumerate(si,&sec_name);
+      WDL_KeyedArray<WDL_UINT64, char *> *sec = r.Enumerate(si,&sec_name);
       for (int i = 0; i < sec->GetSize(); i ++)
       {
         WDL_UINT64 id;
