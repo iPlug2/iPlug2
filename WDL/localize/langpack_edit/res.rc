@@ -194,8 +194,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,0,9
- PRODUCTVERSION 0,0,0,9
+ FILEVERSION 0,0,0,10
+ PRODUCTVERSION 0,0,0,10
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -213,14 +213,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Cockos Inc\0"
             VALUE "FileDescription", "LangPackEdit\0"
-            VALUE "FileVersion", "0, 0, 0, 9\0"
+            VALUE "FileVersion", "0, 0, 0, 10\0"
             VALUE "InternalName", "LangPackEdit\0"
             VALUE "LegalCopyright", "Copyright � 2022 and onwards Cockos Inc\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "LangPackEdit.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "LangPackEdit\0"
-            VALUE "ProductVersion", "0, 0, 0, 9\0"
+            VALUE "ProductVersion", "0, 0, 0, 10\0"
             VALUE "SpecialBuild", "\0"
         END
     END
