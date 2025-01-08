@@ -829,7 +829,7 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       {
         HWND hlist = GetDlgItem(hwndDlg, IDC_LIST);
 
-        int s=LVS_EX_FULLROWSELECT|LVS_EX_GRIDLINES;
+        int s=LVS_EX_FULLROWSELECT|LVS_EX_GRIDLINES|LVS_EX_HEADERDRAGDROP;
 #ifdef _WIN32
         s|=LVS_EX_DOUBLEBUFFER;
 #endif
@@ -839,19 +839,19 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         WDL_UTF8_HookListView(hlist);
         SendMessage(hlist,LVM_SETUNICODEFORMAT,1,0);
 #endif
+        int colorder[COL_MAX];
         for (int x = 0; x < COL_MAX; x ++)
         {
-          LVCOLUMN lvc = { LVCF_TEXT|LVCF_WIDTH, 0, COL_SIZES[x], (char*)__localizeFunc(COL_DESCS[x],"langpackedit",LOCALIZE_FLAG_NOCACHE) };
+          char buf[64];
+          sprintf(buf, "colwid_%d", x);
+          int colw=GetPrivateProfileInt("LangPackEdit", buf, COL_SIZES[x], g_ini_file.Get());
+          sprintf(buf, "colorder_%d", x);
+          colorder[x]=GetPrivateProfileInt("LangPackEdit", buf, x, g_ini_file.Get());
+
+          LVCOLUMN lvc = { LVCF_TEXT|LVCF_WIDTH, 0, colw, (char*)__localizeFunc(COL_DESCS[x],"langpackedit",LOCALIZE_FLAG_NOCACHE) };
           ListView_InsertColumn(hlist, x, &lvc);
         }
-        int arr[COL_MAX], pos=0;
-        arr[COL_STATE] = pos++;
-        arr[COL_ROW_IDX] = pos++;
-        arr[COL_TEMPLATE] = pos++;
-        arr[COL_LOCALIZED] = pos++;
-        arr[COL_COMMON_LOCALIZED] = pos++;
-        arr[COL_ID] = pos++;
-        ListView_SetColumnOrderArray(hlist, pos, arr);
+        ListView_SetColumnOrderArray(hlist, COL_MAX, colorder);
       }
 
       {
@@ -871,6 +871,29 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       }
     return 1;
     case WM_DESTROY:
+
+      {
+        HWND hlist = GetDlgItem(hwndDlg,IDC_LIST);
+        int colorder[COL_MAX];
+        for (int i=0; i < COL_MAX; ++i) colorder[i]=i;
+        ListView_GetColumnOrderArray(hlist, COL_MAX, colorder);
+
+        for (int i=0; i < COL_MAX; ++i)
+        {
+          int colw = ListView_GetColumnWidth(hlist, i);
+          char buf[256], buf2[256];
+          sprintf(buf2, "colwid_%d", i);
+          sprintf(buf, "%d", colw);
+          char* p = colw == (int)COL_SIZES[i] ? NULL : buf;
+          WritePrivateProfileString("LangPackEdit", buf2, p, g_ini_file.Get());
+
+          sprintf(buf2, "colorder_%d", i);
+          sprintf(buf, "%d", colorder[i]);
+          p = colorder[i] == i ? NULL : buf;
+          WritePrivateProfileString("LangPackEdit", buf2, p, g_ini_file.Get());
+        }
+      }
+
       g_editor.m_hwnd = NULL;
 #ifdef __APPLE__
       SWELL_PostQuitMessage(0);
