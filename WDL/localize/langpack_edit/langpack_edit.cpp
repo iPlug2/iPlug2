@@ -844,6 +844,14 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           LVCOLUMN lvc = { LVCF_TEXT|LVCF_WIDTH, 0, COL_SIZES[x], (char*)__localizeFunc(COL_DESCS[x],"langpackedit",LOCALIZE_FLAG_NOCACHE) };
           ListView_InsertColumn(hlist, x, &lvc);
         }
+        int arr[COL_MAX], pos=0;
+        arr[COL_STATE] = pos++;
+        arr[COL_ROW_IDX] = pos++;
+        arr[COL_TEMPLATE] = pos++;
+        arr[COL_LOCALIZED] = pos++;
+        arr[COL_COMMON_LOCALIZED] = pos++;
+        arr[COL_ID] = pos++;
+        ListView_SetColumnOrderArray(hlist, pos, arr);
       }
 
       {
