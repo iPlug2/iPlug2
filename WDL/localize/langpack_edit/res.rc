@@ -68,17 +68,17 @@ CAPTION "LangPackEdit"
 MENU IDR_MENU1
 FONT 8, "MS Sans Serif"
 BEGIN
+    LTEXT           "Filter:",IDC_FILTERLBL,3,83,35,8,SS_NOTIFY
+    EDITTEXT        IDC_FILTER,41,80,556,14,ES_AUTOHSCROLL
+    CONTROL         "List1",IDC_LIST,"SysListView32",LVS_REPORT | 
+                    LVS_SHOWSELALWAYS | LVS_OWNERDATA | 
+                    WS_BORDER | WS_TABSTOP,3,97,594,300
     LTEXT           "Template:",IDC_TEMPLATE_LABEL,3,10,35,8
     EDITTEXT        IDC_TEMPLATE,41,8,556,12,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "Pack:",IDC_PACK_LABEL,3,26,35,8
     EDITTEXT        IDC_PACK,41,24,556,12,ES_AUTOHSCROLL | ES_READONLY
     LTEXT           "Comments:",IDC_COMMENTS_LABEL,3,40,35,8
     EDITTEXT        IDC_COMMENTS,41,40,556,37,ES_MULTILINE | ES_AUTOHSCROLL
-    LTEXT           "Filter:",IDC_FILTERLBL,3,83,35,8,SS_NOTIFY
-    EDITTEXT        IDC_FILTER,41,80,556,14,ES_AUTOHSCROLL
-    CONTROL         "List1",IDC_LIST,"SysListView32",LVS_REPORT | 
-                    LVS_SHOWSELALWAYS | LVS_OWNERDATA | 
-                    WS_BORDER | WS_TABSTOP,3,97,594,300
 END
 
 IDD_RENAME DIALOG DISCARDABLE  0, 0, 400, 81
@@ -194,8 +194,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,0,9
- PRODUCTVERSION 0,0,0,9
+ FILEVERSION 0,0,0,12
+ PRODUCTVERSION 0,0,0,12
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -213,14 +213,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Cockos Inc\0"
             VALUE "FileDescription", "LangPackEdit\0"
-            VALUE "FileVersion", "0, 0, 0, 9\0"
+            VALUE "FileVersion", "0, 0, 0, 12\0"
             VALUE "InternalName", "LangPackEdit\0"
             VALUE "LegalCopyright", "Copyright � 2022 and onwards Cockos Inc\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "LangPackEdit.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "LangPackEdit\0"
-            VALUE "ProductVersion", "0, 0, 0, 9\0"
+            VALUE "ProductVersion", "0, 0, 0, 12\0"
             VALUE "SpecialBuild", "\0"
         END
     END

@@ -275,7 +275,24 @@ public:
 
     if (cbr > 0)
     {
-      m_err=vorbis_encode_init(&vi,nch,srate,maxbr*1000,cbr*1000,minbr*1000);
+      const int brlimit = (srate < 11025 ? 32 :
+                           srate < 16000 ? 44 :
+                           srate < 32000 ? 86 :
+                           srate < 44100 ? 190:
+                                           240) * nch;
+      for (;;)
+      {
+        m_err=vorbis_encode_init(&vi,nch,srate,maxbr*1000,cbr*1000,minbr*1000);
+        if (!m_err) break;
+
+        if (minbr > brlimit) minbr = brlimit;
+        else if (cbr > brlimit) cbr = brlimit;
+        else if (maxbr > brlimit) maxbr = brlimit;
+        else break;
+
+        // try again with reduced rate
+        vorbis_info_init(&vi);
+      }
     }
     else
       m_err=vorbis_encode_init_vbr(&vi,nch,srate,qv);

@@ -1,10 +1,13 @@
 ; these must be synced with any changes in ns-eel-int.h
 %define NSEEL_RAM_BLOCKS_DEFAULTMAX 128
-%define NSEEL_RAM_BLOCKS_LOG2 9
+%define NSEEL_RAM_BLOCKS_LOG2 11
 %define NSEEL_RAM_ITEMSPERBLOCK_LOG2 16
 %define NSEEL_RAM_BLOCKS (1 << NSEEL_RAM_BLOCKS_LOG2)
 %define NSEEL_RAM_ITEMSPERBLOCK (1<<NSEEL_RAM_ITEMSPERBLOCK_LOG2)
 %define EEL_F_SIZE 8
+
+; FTZ + all exception masks
+%define CSR_MASK (32768+4096+2048+1024+512+256+128)
 
 ; todo: also determine FTZ?
 ; also: do FP flags rounding mode affect SSE ops? other things? tbd
@@ -1222,7 +1225,7 @@ eel_callcode64:
 %endif
 		stmxcsr [rsp+8]
 		mov eax, [rsp+8]
-		or ah, 136 ; 128|8, bits 15 and 11
+		or ax, CSR_MASK
 		mov [rsp+12], eax
 		ldmxcsr [rsp+12]
 
@@ -1322,7 +1325,7 @@ eel_enterfp:
 		sub rsp, 16
 		stmxcsr [rdi+4]
 		mov eax, [rdi+4]
-		or ah, 136 ; 128|8, bits 15 and 11
+		or ax, CSR_MASK
 		mov [rsp], eax
 		ldmxcsr [rsp]
 		add rsp, 16
@@ -1336,7 +1339,7 @@ eel_enterfp:
 		sub rsp, 16
 		stmxcsr [rcx+4]
 		mov eax, [rcx+4]
-		or ah, 136 ; 128|8, bits 15 and 11
+		or ax, CSR_MASK
 		mov [rsp], eax
 		ldmxcsr [rsp]
 		add rsp, 16

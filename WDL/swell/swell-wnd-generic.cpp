@@ -115,7 +115,6 @@ HWND__::HWND__(HWND par, int wID, const RECT *wndr, const char *label, bool visi
   m_is_maximized = false;
   m_oswindow_private=0;
   m_oswindow_fullscreen=0;
-  memset(&m_oswindow_lastcfgpos,0,sizeof(m_oswindow_lastcfgpos));
 
      m_classname = "unknown";
      m_wndproc=wndproc?wndproc:dlgproc?(WNDPROC)SwellDialogDefaultWindowProc:(WNDPROC)DefWindowProc;
@@ -668,6 +667,8 @@ void SetWindowPos(HWND hwnd, HWND zorder, int x, int y, int cx, int cy, int flag
  // todo: handle SWP_SHOWWINDOW
   RECT f = hwnd->m_position;
   int reposflag = 0;
+  WDL_ASSERT((flags & SWP_NOSIZE) || cx>=0);
+  WDL_ASSERT((flags & SWP_NOSIZE) || cy>=0);
   if (!(flags&SWP_NOZORDER))
   {
     if (hwnd->m_parent && zorder != hwnd)
@@ -1020,11 +1021,12 @@ BOOL GetDlgItemText(HWND hwnd, int idx, char *text, int textlen)
   return true;
 }
 
-void CheckDlgButton(HWND hwnd, int idx, int check)
+BOOL CheckDlgButton(HWND hwnd, int idx, int check)
 {
   hwnd = GetDlgItem(hwnd,idx);
-  if (WDL_NOT_NORMALLY(!hwnd)) return;
+  if (WDL_NOT_NORMALLY(!hwnd)) return FALSE;
   SendMessage(hwnd,BM_SETCHECK,check,0);
+  return TRUE;
 }
 
 

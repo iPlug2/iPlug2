@@ -145,6 +145,7 @@ struct SWELL_DlgResourceEntry
 #define ES_RIGHT 2
 #define ES_MULTILINE 4
 #define ES_AUTOHSCROLL 0x80
+#define ES_NOHIDESEL 0x100
                                     
 // flags we ignore
 #define LVS_SHOWSELALWAYS 0

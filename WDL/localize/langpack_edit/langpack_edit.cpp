@@ -136,7 +136,7 @@ struct pack_rec {
 };
 
 struct editor_instance {
-  editor_instance() : m_recs(false, pack_rec::freeptrs),
+  editor_instance() : m_recs(true, pack_rec::freeptrs),
                       m_column_no_searchflags(0), m_sort_col(COL_ID), m_sort_rev(false),
                       m_hwnd(NULL), m_dirty(false) { }
   ~editor_instance() { }
@@ -257,7 +257,7 @@ struct editor_instance {
   }
 };
 
-static void del_array(WDL_AssocArray<WDL_UINT64, char *> *d) { delete d; }
+static void del_array(WDL_KeyedArray<WDL_UINT64, char *> *d) { delete d; }
 
 static void format_section_id(char *buf, size_t bufsz, const char *section, WDL_UINT64 id)
 {
@@ -339,16 +339,16 @@ void editor_instance::load_file(const char *filename, bool is_template)
     }
   }
 
-  WDL_StringKeyedArray<char *> extra(false, WDL_StringKeyedArray<char>::freecharptr);
+  WDL_StringKeyedArray<char *> extra(true, WDL_StringKeyedArray<char>::freecharptr);
   if (*filename)
   {
-    WDL_StringKeyedArray< WDL_AssocArray<WDL_UINT64, char *> * > r(false,del_array);
+    WDL_StringKeyedArray< WDL_KeyedArray<WDL_UINT64, char *> * > r(false,del_array);
     WDL_LoadLanguagePackInternal(filename,&r,NULL, is_template, true, &extra);
 
     for (int si = 0; si < r.GetSize(); si ++)
     {
       const char *sec_name;
-      WDL_AssocArray<WDL_UINT64, char *> *sec = r.Enumerate(si,&sec_name);
+      WDL_KeyedArray<WDL_UINT64, char *> *sec = r.Enumerate(si,&sec_name);
       for (int i = 0; i < sec->GetSize(); i ++)
       {
         WDL_UINT64 id;
@@ -508,6 +508,7 @@ static int sort_func(const void *a, const void *b)
     case COL_TEMPLATE:
     case COL_LOCALIZED:
     case COL_COMMON_LOCALIZED:
+    case COL_ID:
       {
         const char *ak, *bk;
         const pack_rec *ar = sort_inst->m_recs.EnumeratePtr(idx_a,&ak);
@@ -829,7 +830,7 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       {
         HWND hlist = GetDlgItem(hwndDlg, IDC_LIST);
 
-        int s=LVS_EX_FULLROWSELECT|LVS_EX_GRIDLINES;
+        int s=LVS_EX_FULLROWSELECT|LVS_EX_GRIDLINES|LVS_EX_HEADERDRAGDROP;
 #ifdef _WIN32
         s|=LVS_EX_DOUBLEBUFFER;
 #endif
@@ -839,11 +840,19 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
         WDL_UTF8_HookListView(hlist);
         SendMessage(hlist,LVM_SETUNICODEFORMAT,1,0);
 #endif
+        int colorder[COL_MAX];
         for (int x = 0; x < COL_MAX; x ++)
         {
-          LVCOLUMN lvc = { LVCF_TEXT|LVCF_WIDTH, 0, COL_SIZES[x], (char*)__localizeFunc(COL_DESCS[x],"langpackedit",LOCALIZE_FLAG_NOCACHE) };
+          char buf[64];
+          sprintf(buf, "colwid_%d", x);
+          int colw=GetPrivateProfileInt("LangPackEdit", buf, COL_SIZES[x], g_ini_file.Get());
+          sprintf(buf, "colorder_%d", x);
+          colorder[x]=GetPrivateProfileInt("LangPackEdit", buf, x, g_ini_file.Get());
+
+          LVCOLUMN lvc = { LVCF_TEXT|LVCF_WIDTH, 0, colw, (char*)__localizeFunc(COL_DESCS[x],"langpackedit",LOCALIZE_FLAG_NOCACHE) };
           ListView_InsertColumn(hlist, x, &lvc);
         }
+        ListView_SetColumnOrderArray(hlist, COL_MAX, colorder);
       }
 
       {
@@ -863,6 +872,29 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
       }
     return 1;
     case WM_DESTROY:
+
+      {
+        HWND hlist = GetDlgItem(hwndDlg,IDC_LIST);
+        int colorder[COL_MAX];
+        for (int i=0; i < COL_MAX; ++i) colorder[i]=i;
+        ListView_GetColumnOrderArray(hlist, COL_MAX, colorder);
+
+        for (int i=0; i < COL_MAX; ++i)
+        {
+          int colw = ListView_GetColumnWidth(hlist, i);
+          char buf[256], buf2[256];
+          sprintf(buf2, "colwid_%d", i);
+          sprintf(buf, "%d", colw);
+          char* p = colw == (int)COL_SIZES[i] ? NULL : buf;
+          WritePrivateProfileString("LangPackEdit", buf2, p, g_ini_file.Get());
+
+          sprintf(buf2, "colorder_%d", i);
+          sprintf(buf, "%d", colorder[i]);
+          p = colorder[i] == i ? NULL : buf;
+          WritePrivateProfileString("LangPackEdit", buf2, p, g_ini_file.Get());
+        }
+      }
+
       g_editor.m_hwnd = NULL;
 #ifdef __APPLE__
       SWELL_PostQuitMessage(0);

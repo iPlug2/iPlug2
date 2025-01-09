@@ -617,8 +617,6 @@ void swell_oswindow_manage(HWND hwnd, bool wantfocus)
         attr.window_type = GDK_WINDOW_TOPLEVEL;
         if (GetProp(hwnd,"SWELLGdkAlphaChannel"))
           attr.visual = gdk_screen_get_rgba_visual(gdk_screen_get_default());
-
-        memset(&hwnd->m_oswindow_lastcfgpos,0,sizeof(hwnd->m_oswindow_lastcfgpos));
         hwnd->m_oswindow = gdk_window_new(NULL,&attr,GDK_WA_X|GDK_WA_Y|(appname?GDK_WA_WMCLASS:0)|(attr.visual ? GDK_WA_VISUAL : 0));
  
         if (hwnd->m_oswindow) 
@@ -1020,19 +1018,6 @@ static void OnConfigureEvent(GdkEventConfigure *cfg)
 {
   HWND hwnd = swell_oswindow_to_hwnd(cfg->window);
   if (!hwnd) return;
-
-  if (hwnd->m_oswindow_lastcfgpos.left == cfg->x &&
-      hwnd->m_oswindow_lastcfgpos.top == cfg->y &&
-      hwnd->m_oswindow_lastcfgpos.right == cfg->width &&
-      hwnd->m_oswindow_lastcfgpos.bottom == cfg->height)
-  {
-    return;
-  }
-  hwnd->m_oswindow_lastcfgpos.left = cfg->x;
-  hwnd->m_oswindow_lastcfgpos.top = cfg->y;
-  hwnd->m_oswindow_lastcfgpos.right = cfg->width;
-  hwnd->m_oswindow_lastcfgpos.bottom = cfg->height;
-
   int flag=0;
   if (cfg->x != hwnd->m_position.left || 
       cfg->y != hwnd->m_position.top || 

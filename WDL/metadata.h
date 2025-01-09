@@ -1254,30 +1254,60 @@ bool HandleMexMetadataRequest(const char *mexkey, char *buf, int buflen,
 }
 
 
+const char *prefpos_keys[] = // value is samples unless noted
+{
+  "BWF:TimeReference",
+  "ID3:TXXX:TIME_REFERENCE",
+  "IXML:BEXT:BWF_TIME_REFERENCE_HIGH",
+  "IXML:BEXT:BWF_TIME_REFERENCE_LOW",
+  "VORBIS:TIME_REFERENCE",
+  "XMP:dm/relativeTimestamp", // value is ms
+};
+
+bool GetMetadataPrefPos(WDL_StringKeyedArray<char*> *metadata, int srate, double *prefpos)
+{
+  if (!metadata) return false;
+  if (WDL_NOT_NORMALLY(srate <= 1)) return false;
+
+  for (int i=0; i < sizeof(prefpos_keys)/sizeof(prefpos_keys[0]); ++i)
+  {
+    const char *val=metadata->Get(prefpos_keys[i]);
+    if (val && val[0])
+    {
+      if (prefpos)
+      {
+        *prefpos = atof(val);
+        if (!strcmp(prefpos_keys[i], "XMP:dm/relativeTimestamp")) *prefpos *= 0.001;
+        else *prefpos /= (double)srate;
+      }
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void WriteMetadataPrefPos(double prefpos, int srate,  // prefpos <= 0.0 to clear
   WDL_StringKeyedArray<char*> *metadata)
 {
   if (!metadata) return;
 
-  metadata->Delete("BWF:TimeReference");
-  metadata->Delete("ID3:TXXX:TIME_REFERENCE");
-  metadata->Delete("IXML:BEXT:BWF_TIME_REFERENCE_HIGH");
-  metadata->Delete("IXML:BEXT:BWF_TIME_REFERENCE_LOW");
-  metadata->Delete("XMP:dm/relativeTimestamp");
-  metadata->Delete("VORBIS:TIME_REFERENCE");
+  for (int i=0; i < sizeof(prefpos_keys)/sizeof(prefpos_keys[0]); ++i)
+  {
+    metadata->Delete(prefpos_keys[i]);
+  }
 
-  if (prefpos > 0.0 && srate > 1)
+  if (prefpos > 0.0 && WDL_NORMALLY(srate > 1))
   {
     char buf[128];
-    if (srate > 0.0)
-    {
-      snprintf(buf, sizeof(buf), "%.0f", floor(prefpos*(double)srate));
-      metadata->Insert("BWF:TimeReference", strdup(buf));
-      // BWF:TimeReference causes IXML:BEXT element to be written as well
-      metadata->Insert("ID3:TXXX:TIME_REFERENCE", strdup(buf));
-      metadata->Insert("VORBIS:TIME_REFERENCE", strdup(buf));
-    }
-    snprintf(buf, sizeof(buf), "%.0f", floor(prefpos*1000.0));
+
+    snprintf(buf, sizeof(buf), "%.0f", floor(prefpos*(double)srate));
+    metadata->Insert("BWF:TimeReference", strdup(buf));
+    // BWF:TimeReference causes IXML:BEXT element to be written as well
+    metadata->Insert("ID3:TXXX:TIME_REFERENCE", strdup(buf));
+    metadata->Insert("VORBIS:TIME_REFERENCE", strdup(buf));
+
+    snprintf(buf, sizeof(buf), "%09.0f", floor(prefpos*1000.0));
     metadata->Insert("XMP:dm/relativeTimestamp", strdup(buf));
   }
 }

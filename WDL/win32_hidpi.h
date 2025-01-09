@@ -27,6 +27,8 @@ WDL_WIN32_HIDPI_IMPL void WDL_mmSetWindowPos(HWND hwnd, HWND hwndAfter, int x, i
 #undef SetWindowPos
 #endif
   static char init;
+  WDL_ASSERT((f & SWP_NOSIZE) || w>=0);
+  WDL_ASSERT((f & SWP_NOSIZE) || h>=0);
 
   if (!init)
   {
