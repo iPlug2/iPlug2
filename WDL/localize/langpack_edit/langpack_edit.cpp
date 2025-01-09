@@ -508,6 +508,7 @@ static int sort_func(const void *a, const void *b)
     case COL_TEMPLATE:
     case COL_LOCALIZED:
     case COL_COMMON_LOCALIZED:
+    case COL_ID:
       {
         const char *ak, *bk;
         const pack_rec *ar = sort_inst->m_recs.EnumeratePtr(idx_a,&ak);
