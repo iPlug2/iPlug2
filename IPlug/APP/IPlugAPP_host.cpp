@@ -959,6 +959,159 @@ static void ClientResize(HWND hWnd, int nWidth, int nHeight)
 extern float GetScaleForHWND(HWND hWnd);
 #endif
 
+namespace iplug {
+namespace igraphics {
+extern IGraphics* MakeGraphics(IGEditorDelegate& dlg, int w, int h, int fps = 0, float scale = 1.);
+}
+}
+
+#include "IControls.h"
+
+static IColor sColor = COLOR_RED;
+
+/** Reaper extension base class interface */
+class IGraphicsSettings : public IGEditorDelegate
+{
+public:
+  IGraphicsSettings()
+  : IGEditorDelegate(1)
+  {
+    mTimer = std::unique_ptr<Timer>(Timer::Create(std::bind(&IGraphicsSettings::OnTimer, this, std::placeholders::_1), IDLE_TIMER_RATE));
+    
+    mMakeGraphicsFunc = [&]() {
+      return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS);
+    };
+    
+    mLayoutFunc = [&](IGraphics* pGraphics) {
+      auto bounds = pGraphics->GetBounds();
+      if (pGraphics->NControls())
+      {
+        pGraphics->GetControl(0)->SetTargetAndDrawRECTs(bounds);
+        pGraphics->GetControl(1)->SetRECT(bounds.GetReducedFromBottom(30));
+        mpOKButton->SetRECT(bounds.GetFromBottom(30).SubRectHorizontal(3, 0));
+        mpApplyButton->SetRECT(bounds.GetFromBottom(30).SubRectHorizontal(3, 1));
+        mpCancelButton->SetRECT(bounds.GetFromBottom(30).SubRectHorizontal(3, 2));
+        return;
+      }
+      
+      pGraphics->SetLayoutOnResize(true);
+      pGraphics->AttachPanelBackground(COLOR_GRAY);
+      pGraphics->LoadFont("Roboto-Regular", ROBOTO_FN);
+      pGraphics->AttachControl(new IVTabbedPagesControl(IRECT(),
+      {
+        {"Audio", new IVTabPage([](IVTabPage* pPage, const IRECT& r) {
+//          pPage->AddChildControl(new IPanelControl(IRECT(), COLOR_GRAY));
+          pPage->AddChildControl(new IVNumberBoxControl(r.SubRectVertical(3, 2), 0, nullptr, "IVNumberBoxControl", DEFAULT_STYLE, true, 50.f, 1.f, 100.f, "%0.0f", false), kNoTag, "");
+        })},
+        {"MIDI", new IVTabPage([](IVTabPage* pPage, const IRECT& r) {
+//          pPage->AddChildControl(new IPanelControl(IRECT(), COLOR_GRAY));
+        })},
+      }, "", DEFAULT_STYLE), kNoTag, "");
+      mpOKButton = pGraphics->AttachControl(new IVButtonControl(IRECT(), SplashClickActionFunc, "OK"))
+      ->SetAnimationEndActionFunction([](IControl* pControl){
+        PostMessage(gPrefsHWND, WM_COMMAND, IDOK, NULL);
+      });
+      mpApplyButton = pGraphics->AttachControl(new IVButtonControl(IRECT(), SplashClickActionFunc, "Apply"))
+      ->SetAnimationEndActionFunction([](IControl* pControl){
+        PostMessage(gPrefsHWND, WM_COMMAND, IDAPPLY, NULL);
+      });
+      mpCancelButton = pGraphics->AttachControl(new IVButtonControl(IRECT(), SplashClickActionFunc, "Cancel"))
+      ->SetAnimationEndActionFunction([](IControl* pControl){
+        PostMessage(gPrefsHWND, WM_COMMAND, IDCANCEL, NULL);
+      });
+
+//      pGraphics->AttachControl(new IVButtonControl(bounds.GetPadded(-20), SplashClickActionFunc, "Hello"))
+//      ->SetAnimationEndActionFunction([](IControl* pCaller){
+//        pCaller->GetUI()->PromptForColor(sColor, "color", [](const IColor& result){
+//          
+//        });
+//      });
+    };
+  }
+  
+  virtual ~IGraphicsSettings()
+  {
+  }
+
+  //IEditorDelegate
+  void BeginInformHostOfParamChangeFromUI(int paramIdx) override {}; // NO-OP
+  void EndInformHostOfParamChangeFromUI(int paramIdx) override {}; // NO-OP
+  void OnParentWindowResize(int width, int height) override {
+    if (GetUI())
+    {
+      GetUI()->Resize(width, height, 1.f, false);
+    }
+  }
+
+  virtual void OnIdle() {}; // NO-OP
+
+private:
+  void OnTimer(Timer& t)
+  {
+    OnIdle();
+  }
+  
+  std::unique_ptr<Timer> mTimer;
+  IControl* mpOKButton;
+  IControl* mpApplyButton;
+  IControl* mpCancelButton;
+};
+
+std::unique_ptr<IGraphicsSettings> gIGraphicsSettings;
+
+LRESULT WINAPI dlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+  switch (uMsg)
+  {
+    case WM_CREATE:
+    {
+      gIGraphicsSettings = std::make_unique<IGraphicsSettings>();
+      gIGraphicsSettings->OpenWindow(hwndDlg);
+      return 0;
+    }
+    case WM_CLOSE:
+      gPrefsHWND = 0;
+      DestroyWindow(hwndDlg);
+      gIGraphicsSettings->CloseWindow();
+      return TRUE;
+    case WM_SIZE:
+    {
+      switch (LOWORD(wParam))
+      {
+        case SIZE_RESTORED:
+        case SIZE_MAXIMIZED:
+        {
+          RECT r;
+          GetClientRect(hwndDlg, &r);
+          float scale = 1.f;
+#ifdef OS_WIN
+          scale = GetScaleForHWND(hwndDlg);
+#endif
+          gIGraphicsSettings->OnParentWindowResize(static_cast<int>(r.right / scale), static_cast<int>(r.bottom / scale));
+          return 1;
+        }
+        default:
+          return 0;
+      }
+    }
+  }
+
+  return DefWindowProc(hwndDlg,uMsg,wParam,lParam);
+}
+
+static HWND ccontrolCreator(HWND parent, const char *cname, int idx, const char *classname, int style, int x, int y, int w, int h)
+{
+  if (std::string_view(classname) == "SubView")
+  {
+    HWND hwnd = CreateDialog(gHINSTANCE, 0, parent, dlgProc);
+    SetWindowLong(hwnd,GWL_ID,idx);
+    SetWindowPos(hwnd,HWND_TOP,x,y,w,h,SWP_NOZORDER|SWP_NOACTIVATE);
+    ShowWindow(hwnd,SW_SHOWNA);
+    return hwnd;
+  }
+  return 0;
+}
+
 //static
 WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -972,11 +1125,11 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
     case WM_INITDIALOG:
     {
       gHWND = hwndDlg;
-      IPlugAPP* pPlug = pAppHost->GetPlug();
       
       if (!pAppHost->OpenWindow(gHWND))
         DBGMSG("couldn't attach gui\n");
       
+      IPlugAPP* pPlug = pAppHost->GetPlug();
       width = pPlug->GetEditorWidth();
       height = pPlug->GetEditorHeight();
       
@@ -1037,6 +1190,8 @@ WDL_DLGRET IPlugAPPHost::MainDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPA
         }
         case ID_PREFERENCES:
         {
+          SWELL_RegisterCustomControlCreator(ccontrolCreator);
+
           INT_PTR ret = DialogBox(gHINSTANCE, MAKEINTRESOURCE(IDD_DIALOG_PREF), hwndDlg, pAppHost->mSettingsDialog->GetDlgProc());
           
           if (ret == IDOK)

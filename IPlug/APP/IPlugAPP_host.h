@@ -170,7 +170,6 @@ public:
   class IPlugAPPSettingsDialog
   {
   public:
-    
     /** Construct a settings dialog from a host
      * @param host A reference to a host object */
     IPlugAPPSettingsDialog(IPlugAPPHost& host)

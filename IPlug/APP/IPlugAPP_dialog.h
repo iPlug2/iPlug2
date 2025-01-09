@@ -17,7 +17,6 @@ BEGIN_IPLUG_NAMESPACE
 class IPlugAPPDialog final : public IPlugAPPHost::IPlugAPPSettingsDialog
 {
 public:
-    
   IPlugAPPDialog(IPlugAPPHost& host)
   : IPlugAPPHost::IPlugAPPSettingsDialog(host)
   {}

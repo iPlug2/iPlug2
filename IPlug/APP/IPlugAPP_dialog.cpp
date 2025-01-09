@@ -315,7 +315,7 @@ WDL_DLGRET IPlugAPPDialog::SettingsProcess(HWND hwndDlg, UINT uMsg, WPARAM wPara
   {
     case WM_INITDIALOG:
       gPrefsHWND = hwndDlg;
-      PopulatePreferencesDialog(hwndDlg);
+//      PopulatePreferencesDialog(hwndDlg);
       mPreviousSettings = mSettings;
       
       return TRUE;
