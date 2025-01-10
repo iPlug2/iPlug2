@@ -666,7 +666,11 @@ functionType *nseel_getFunctionByName(compileContext *ctx, const char *name, int
     NSEEL_HOSTSTUB_LeaveMutex();
   }
   idx=functable_lowerbound(fnTable1,fn1size,name,&match);
-  if (match) return fnTable1+idx;
+  if (match)
+  {
+    if (mchk) *mchk = 0;
+    return fnTable1+idx;
+  }
 
   if ((!ctx || !(ctx->current_compile_flags&NSEEL_CODE_COMPILE_FLAG_ONLY_BUILTIN_FUNCTIONS)) && tab->list)
   {
@@ -1341,7 +1345,7 @@ opcodeRec *nseel_resolve_named_symbol(compileContext *ctx, opcodeRec *rec, int p
       }
       if (match_parmcnt_pos < 3) match_parmcnt[match_parmcnt_pos++] = (f->nParams&FUNCTIONTYPE_PARAMETERCOUNTMASK);
       f++;
-      if (stricmp(f->name,sname)) break;
+      if (chkamt < 0 || stricmp(f->name,sname)) break;
     }
   }
   if (ctx->last_error_string[0]) lstrcatn(ctx->last_error_string, ", ", sizeof(ctx->last_error_string));
@@ -5702,7 +5706,7 @@ opcodeRec *nseel_createFunctionByName(compileContext *ctx, const char *name, int
       return o;
     }
     f++;
-    if (stricmp(f->name,name)) break;
+    if (chkamt < 0 || stricmp(f->name,name)) break;
   }
   return NULL;
 }
