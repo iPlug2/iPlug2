@@ -795,7 +795,7 @@ struct IRECT
    * @return the new IRECT */
   static IRECT MakeMidXYWH(float x, float y, float w, float h)
   {
-    return IRECT(x-(w/2.0), y-(h/2.0), x+(w/2.0), y+(h/2.0));
+    return IRECT(x-(w/2.0f), y-(h/2.0f), x+(w/2.0f), y+(h/2.0f));
   }
   
   /** @return bool true if all the fields of this IRECT are 0 */
