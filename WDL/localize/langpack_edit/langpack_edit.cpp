@@ -276,6 +276,21 @@ static const char *parse_section_id(const char *k, char *buf, int bufsz) // retu
   return p+1;
 }
 
+static int sort_section_id(const char * const *aa, const char * const *bb)
+{
+  const char *a = *aa ? *aa : "", *b = *bb ? *bb : "";
+  const char *da = strchr(a,':'), *db = strchr(b,':');
+
+  if (da && db && (da-a)==(db-b)) // both sections same length
+  {
+    int r = strnicmp(a,b,(da-a)+1);
+    if (r) return r;
+    r = strncmp(a,b,(da-a)+1);
+    if (r) return r;
+  }
+  return stricmp(a,b);
+}
+
 void editor_instance::save_file(const char *filename)
 {
   FILE *fp = fopen(filename,"wb");
@@ -295,6 +310,8 @@ void editor_instance::save_file(const char *filename)
   char last_sec[1024];
   last_sec[0]=0;
 
+  m_recs.Resort(sort_section_id);
+
   for (int x = 0; x < m_recs.GetSize(); x ++)
   {
     const char *k;
@@ -305,7 +322,7 @@ void editor_instance::save_file(const char *filename)
     const char *id = parse_section_id(k,sec,sizeof(sec));
     if (WDL_NORMALLY(id))
     {
-      if (stricmp(last_sec,sec))
+      if (strcmp(last_sec,sec))
       {
         lstrcpyn_safe(last_sec,sec,sizeof(last_sec));
         const char *trail = "";
@@ -320,6 +337,7 @@ void editor_instance::save_file(const char *filename)
     }
   }
   fclose(fp);
+  m_recs.Resort(NULL); // restore sorting
 }
 
 void editor_instance::load_file(const char *filename, bool is_template)
@@ -342,7 +360,7 @@ void editor_instance::load_file(const char *filename, bool is_template)
   WDL_StringKeyedArray<char *> extra(true, WDL_StringKeyedArray<char>::freecharptr);
   if (*filename)
   {
-    WDL_StringKeyedArray< WDL_KeyedArray<WDL_UINT64, char *> * > r(false,del_array);
+    WDL_StringKeyedArray< WDL_KeyedArray<WDL_UINT64, char *> * > r(true,del_array);
     WDL_LoadLanguagePackInternal(filename,&r,NULL, is_template, true, &extra);
 
     for (int si = 0; si < r.GetSize(); si ++)
@@ -461,7 +479,7 @@ void editor_instance::refresh_list(bool refilter)
     pack_rec *r = m_recs.EnumeratePtr(x,&k);
     if (WDL_NOT_NORMALLY(!r)) break;
 
-    if (strnicmp(k,"common:",7))
+    if (strncmp(k,"common:",7))
     {
       const char *sid = parse_section_id(k,NULL,0);
       if (WDL_NORMALLY(sid))
@@ -524,7 +542,7 @@ static int sort_func(const void *a, const void *b)
         {
           if (av) while (*av == ' ') av++;
           if (bv) while (*bv == ' ') bv++;
-          if (col == COL_ID) ret = stricmp(av?av:"",bv?bv:"");
+          if (col == COL_ID) ret = sort_section_id(&av,&bv);
           else ret = WDL_strcmp_logical_ex(av?av:"",bv?bv:"",0,WDL_STRCMP_LOGICAL_EX_FLAG_UTF8CONVERT);
         }
       }
@@ -600,7 +618,7 @@ WDL_DLGRET editorProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
               common_str = r2->pack_str;
             }
           }
-          else if (!strnicmp(k,"common:",7))
+          else if (!strncmp(k,"common:",7))
           {
             ShowWindow(GetDlgItem(hwndDlg,IDC_COMMON_LABEL),SW_HIDE);
             ShowWindow(GetDlgItem(hwndDlg,IDC_COMMON_STRING),SW_HIDE);
