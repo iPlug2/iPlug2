@@ -31,7 +31,7 @@
  */
 
 #ifndef NO_IGRAPHICS
-#if defined(IGRAPHICS_NANOVG) + defined(IGRAPHICS_SKIA) != 1
+#if defined(IGRAPHICS_NANOVG) + defined(IGRAPHICS_SKIA) + defined(IGRAPHICS_VISAGE) != 1
 #error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
 #endif
 #endif

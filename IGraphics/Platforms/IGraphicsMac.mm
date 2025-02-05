@@ -129,7 +129,7 @@ void IGraphicsMac::HidePlatformView(void* pView, bool hide)
 void IGraphicsMac::CloseWindow()
 {
   if (mView)
-  {    
+  {
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
       
 #ifdef IGRAPHICS_GL
@@ -738,6 +738,8 @@ void IGraphicsMac::DeactivateGLContext()
   #include "IGraphicsNanoVG.cpp"
 #elif defined IGRAPHICS_SKIA
   #include "IGraphicsSkia.cpp"
+#elif defined IGRAPHICS_VISAGE
+  #include "IGraphicsVisage.cpp"
 #else
   #error Either NO_IGRAPHICS or one and only one choice of graphics library must be defined!
 #endif

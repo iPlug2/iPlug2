@@ -52,6 +52,9 @@
   #elif defined IGRAPHICS_SKIA
     #include "IGraphicsSkia.h"
     #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsSkia
+  #elif defined IGRAPHICS_VISAGE
+    #include "IGraphicsVisage.h"
+    #define IGRAPHICS_DRAW_CLASS_TYPE IGraphicsVisage
   #else
     #error NO IGRAPHICS_MODE defined
   #endif

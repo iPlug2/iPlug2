@@ -658,8 +658,8 @@ static CVReturn displayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeSt
   if (mGraphics->IsDirty(mDirtyRects))
   {
     mGraphics->SetAllControlsClean();
-      
-    #if defined IGRAPHICS_CPU
+    
+    #if !defined IGRAPHICS_GL && !defined IGRAPHICS_METAL && !defined IGRAPHICS_VISAGE // for layer-backed views setNeedsDisplayInRect/drawRect is not called
       for (int i = 0; i < mDirtyRects.Size(); i++)
         [self setNeedsDisplayInRect:ToNSRect(mGraphics, mDirtyRects.Get(i))];
     #else
