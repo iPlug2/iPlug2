@@ -158,7 +158,7 @@ struct editor_instance {
   void save_file(const char *filename);
 
   void cull_recs();
-  void refresh_list();
+  void refresh_list(bool refilter=true);
   void sort_display_order();
   void on_sort_change();
 
@@ -433,9 +433,14 @@ void editor_instance::cull_recs()
   }
 }
 
-void editor_instance::refresh_list()
+void editor_instance::refresh_list(bool refilter)
 {
   HWND list = WDL_NORMALLY(m_hwnd) ? GetDlgItem(m_hwnd,IDC_LIST) : NULL;
+  if (!refilter)
+  {
+    if (list) ListView_RedrawItems(list, 0, m_display_order.GetSize());
+    return;
+  }
   WDL_IntKeyedArray<bool> selState;
   if (list)
     Save_ListSelState(list, &m_display_order, &selState);
@@ -716,7 +721,7 @@ bool editor_instance::edit_row(int row, int other_action)
   void *p[2] = { this, (void *)(INT_PTR) rec_idx };
   if (DialogBoxParam(g_hInstance, MAKEINTRESOURCE(IDD_RENAME), m_hwnd, editorProc, (LPARAM)p))
   {
-    refresh_list();
+    refresh_list(false);
     set_dirty();
     return true;
   }
@@ -1009,7 +1014,7 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             }
             if (cnt && wParam != IDC_LOCALIZED_STRING)
             {
-              g_editor.refresh_list();
+              g_editor.refresh_list(false);
               g_editor.set_dirty();
             }
             if (wParam == ID_SCALING_ADD)
