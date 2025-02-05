@@ -135,10 +135,31 @@ struct pack_rec {
   }
 };
 
+static int sort_section_id(const char * const *aa, const char * const *bb)
+{
+  const char *a = *aa ? *aa : "", *b = *bb ? *bb : "";
+  int pl=0;
+  while (a[pl] && b[pl] && a[pl] != ':' && b[pl] != ':') pl++;
+
+  if (pl && a[pl]==b[pl]) // both sections same length
+  {
+    int r = strnicmp(a,b,pl); // if differ by more than just case
+    if (r) return r;
+    r = strncmp(a,b,pl); // same but potentially different case
+    if (r) return r;
+    // exact same section, compare rest of string
+    return a[pl] ? strcmp(a+pl,b+pl) : 0;
+  }
+  return stricmp(a,b);
+}
+
 struct editor_instance {
   editor_instance() : m_recs(true, pack_rec::freeptrs),
                       m_column_no_searchflags(0), m_sort_col(COL_ID), m_sort_rev(false),
-                      m_hwnd(NULL), m_dirty(false) { }
+                      m_hwnd(NULL), m_dirty(false)
+  {
+    m_recs.Resort(sort_section_id);
+  }
   ~editor_instance() { }
 
   WDL_FastString m_pack_fn;
@@ -276,21 +297,6 @@ static const char *parse_section_id(const char *k, char *buf, int bufsz) // retu
   return p+1;
 }
 
-static int sort_section_id(const char * const *aa, const char * const *bb)
-{
-  const char *a = *aa ? *aa : "", *b = *bb ? *bb : "";
-  const char *da = strchr(a,':'), *db = strchr(b,':');
-
-  if (da && db && (da-a)==(db-b)) // both sections same length
-  {
-    int r = strnicmp(a,b,(da-a)+1);
-    if (r) return r;
-    r = strncmp(a,b,(da-a)+1);
-    if (r) return r;
-  }
-  return stricmp(a,b);
-}
-
 void editor_instance::save_file(const char *filename)
 {
   FILE *fp = fopen(filename,"wb");
@@ -309,8 +315,6 @@ void editor_instance::save_file(const char *filename)
 
   char last_sec[1024];
   last_sec[0]=0;
-
-  m_recs.Resort(sort_section_id);
 
   for (int x = 0; x < m_recs.GetSize(); x ++)
   {
@@ -337,7 +341,6 @@ void editor_instance::save_file(const char *filename)
     }
   }
   fclose(fp);
-  m_recs.Resort(NULL); // restore sorting
 }
 
 void editor_instance::load_file(const char *filename, bool is_template)
