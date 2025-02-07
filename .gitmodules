@@ -1,0 +1,3 @@
+[submodule "Examples/IPlugMetalCPP/metal-cpp-extensions"]
+	path = Examples/IPlugMetalCPP/metal-cpp-extensions
+	url = git@github.com:olilarkin/metal-cpp-extensions.git

@@ -1,2 +1,2 @@
 # IPlugMetalCPP
-A basic volume control effect plug-in with IGraphics GUI
+This example shows how to make an iPlug2 UI using Apple's Metal API in C++
