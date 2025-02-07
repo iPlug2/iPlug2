@@ -2,12 +2,24 @@
 #include "IPlug_include_in_plug_src.h"
 
 #define NS_PRIVATE_IMPLEMENTATION
+#define UI_PRIVATE_IMPLEMENTATION
 #define MTL_PRIVATE_IMPLEMENTATION
 #define MTK_PRIVATE_IMPLEMENTATION
 #define CA_PRIVATE_IMPLEMENTATION
+
+#if defined OS_MAC
+#include <AppKit/AppKit.hpp>
+#define PLATFORM_VIEW NS::View
+#elif defined OS_IOS
+#include <UIKit/UIKit.hpp>
+#define PLATFORM_VIEW UI::View
+#else
+#error "macOS or iOS only!"
+#endif
+
 #include <Metal/Metal.hpp>
 #include <MetalKit/MetalKit.hpp>
-#include <AppKit/AppKit.hpp>
+
 #include <simd/simd.h>
 
 class Renderer
@@ -49,16 +61,16 @@ void* IPlugMetalCPP::OpenWindow(void* pParent)
 {
   mpAutoreleasePool = NS::AutoreleasePool::alloc()->init();
   mpDevice = MTL::CreateSystemDefaultDevice();
-  NS::View* pParentNsView = (NS::View*) pParent;
+  PLATFORM_VIEW* pParentView = (PLATFORM_VIEW*) pParent;
 
-  mpMtkView = MTK::View::alloc()->init( pParentNsView->frame(), mpDevice );
+  mpMtkView = MTK::View::alloc()->init( pParentView->frame(), mpDevice );
   mpMtkView->setColorPixelFormat( MTL::PixelFormat::PixelFormatBGRA8Unorm_sRGB );
   mpMtkView->setClearColor( MTL::ClearColor::Make( 1.0, 0.0, 0.0, 1.0 ) );
 
   mpViewDelegate = new MyMTKViewDelegate( mpDevice );
   mpMtkView->setDelegate( mpViewDelegate );
 
-  pParentNsView->addSubview(mpMtkView);
+  pParentView->addSubview(mpMtkView);
   
   return mpMtkView;
 }
