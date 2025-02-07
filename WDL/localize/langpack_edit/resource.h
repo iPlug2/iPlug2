@@ -28,6 +28,7 @@
 #define IDC_COPY_TEMPLATE               1018
 #define ID_SCALING_ADD                  1019
 #define IDC_REMOVE_NONLOCALIZATION      1020
+#define IDC_PACK_SAVE_AS_VERBOSE        1021
 #define ID_COL_STATE                    2000
 #define ID_COL_ID                       2001
 #define ID_COL_TEMPLATE                 2003

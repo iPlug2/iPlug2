@@ -176,7 +176,7 @@ struct editor_instance {
   WDL_WndSizer m_resize;
 
   void load_file(const char *filename, bool is_template);
-  void save_file(const char *filename);
+  void save_file(const char *filename, bool verbose=false);
 
   void cull_recs();
   void refresh_list(bool refilter=true);
@@ -297,7 +297,7 @@ static const char *parse_section_id(const char *k, char *buf, int bufsz) // retu
   return p+1;
 }
 
-void editor_instance::save_file(const char *filename)
+void editor_instance::save_file(const char *filename, bool verbose)
 {
   FILE *fp = fopen(filename,"wb");
   if (!fp)
@@ -337,6 +337,8 @@ void editor_instance::save_file(const char *filename)
         }
         fprintf(fp,"\r\n[%s]%s\r\n",sec,trail);
       }
+      if (verbose && rec->template_str)
+        fprintf(fp,";%s=%s\r\n",id,rec->template_str);
       fprintf(fp,"%s=%s\r\n",id,rec->pack_str);
     }
   }
@@ -960,20 +962,36 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             SetTimer(hwndDlg,TIMER_FILTER,100,NULL);
           }
         break;
+        case IDC_PACK_SAVE_AS_VERBOSE:
         case IDC_PACK_SAVE_AS:
         case IDC_PACK_SAVE:
 
-          if (!g_editor.m_pack_fn.GetLength() || LOWORD(wParam) == IDC_PACK_SAVE_AS)
+          if (!g_editor.m_pack_fn.GetLength() || LOWORD(wParam) == IDC_PACK_SAVE_AS || LOWORD(wParam) == IDC_PACK_SAVE_AS_VERBOSE)
           {
             char newfn[2048];
+            char vbuf[2048];
+            if (LOWORD(wParam) == IDC_PACK_SAVE_AS_VERBOSE)
+              GetPrivateProfileString("LangPackEdit","lastpackv","",vbuf,sizeof(vbuf),g_ini_file.Get());
+            else vbuf[0]=0;
             if (!WDL_ChooseFileForSave(hwndDlg, __LOCALIZE("Save LangPack as...","langpackedit"),
                   NULL,
-                  g_editor.m_pack_fn.Get(),
+                  vbuf[0] ? vbuf : g_editor.m_pack_fn.Get(),
                   "All files (*.*)\0*.*\0",
                   "",
                   false,
                   newfn,sizeof(newfn)) || !newfn[0]) return 0;
 
+            if (LOWORD(wParam) == IDC_PACK_SAVE_AS_VERBOSE)
+            {
+              g_editor.save_file(newfn, true);
+              WritePrivateProfileString("LangPackEdit","lastpackv",newfn,g_ini_file.Get());
+              if (!strcmp(newfn, g_editor.m_pack_fn.Get()))
+              {
+                g_editor.m_dirty=false;
+                g_editor.set_caption();
+              }
+              break;
+            }
             g_editor.m_pack_fn.Set(newfn);
             WritePrivateProfileString("LangPackEdit","lastpack",newfn,g_ini_file.Get());
             SetDlgItemText(hwndDlg,IDC_PACK,newfn);
