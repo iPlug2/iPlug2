@@ -61,7 +61,7 @@ IPlugOSCEditor::IPlugOSCEditor(const InstanceInfo& info)
     
     bool showDevTools = false;
     
-#if DEBUG
+#if _DEBUG
     showDevTools = true;
 #endif
 
