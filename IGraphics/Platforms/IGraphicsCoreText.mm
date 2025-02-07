@@ -125,7 +125,7 @@ void CoreTextHelpers::CachePlatformFont(const char* fontID, const PlatformFontPt
   IFontDataPtr data = font->GetFontData();
     
   if (!storage.Find(fontID))
-    storage.Add(new CoreTextFontDescriptor(descriptor, data->GetHeightEMRatio()), fontID);
+    storage.Add(new CoreTextFontDescriptor(descriptor), fontID);
 }
 
 CoreTextFontDescriptor* CoreTextHelpers::GetCTFontDescriptor(const IText& text, StaticStorage<CoreTextFontDescriptor>& cache)
