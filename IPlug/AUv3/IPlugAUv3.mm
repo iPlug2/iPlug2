@@ -14,6 +14,8 @@
 #include "IPlugAUv3.h"
 #import "IPlugAUAudioUnit.h"
 
+#include <string>
+
 #if !__has_feature(objc_arc)
 #error This file must be compiled with Arc. Use -fobjc-arc flag
 #endif
@@ -23,6 +25,7 @@ using namespace iplug;
 IPlugAUv3::IPlugAUv3(const InstanceInfo& instanceInfo, const Config& config)
 : IPlugAPIBase(config, kAPIAUv3)
 , IPlugProcessor(config, kAPIAUv3)
+, mSupportsUserPresets(config.supportsAUv3UserPresets)
 {
   Trace(TRACELOC, "%s", config.pluginName);
 }
@@ -315,4 +318,18 @@ void IPlugAUv3::Prepare(double sampleRate, uint32_t blockSize)
   SetChannelConnections(ERoute::kOutput, 0, MaxNChannels(ERoute::kOutput), false);
   SetBlockSize(blockSize);
   SetSampleRate(sampleRate);
+}
+
+void IPlugAUv3::GetUserPresets(std::vector<std::string>& presetNames)
+{
+  if (@available(macOS 10.15, *)) {
+    auto userPresets = [(__bridge IPLUG_AUAUDIOUNIT*) mAUAudioUnit userPresets];
+    
+    for (AUAudioUnitPreset* userPreset in userPresets)
+    {
+      presetNames.push_back(std::string([userPreset.name UTF8String]));
+    }
+  } else {
+    return;
+  }
 }
