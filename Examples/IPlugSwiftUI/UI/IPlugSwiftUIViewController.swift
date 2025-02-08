@@ -25,6 +25,10 @@ func floatValue(data: Data) -> Float {
     
   }
   
+  override init!(editorDelegateAndBundleID editorDelegate: UnsafeMutableRawPointer!, _ bundleID: UnsafePointer<CChar>!) {
+    super.init(editorDelegateAndBundleID: editorDelegate, bundleID)
+  }
+  
   deinit {
   }
   
@@ -50,6 +54,8 @@ func floatValue(data: Data) -> Float {
     
     let contentView = ContentView().environmentObject(state)
     let hostingController = PlatformHostingController(rootView: contentView)
+    
+    print("Bundle ID: " + getBundleID());
 
     view.addSubview(hostingController.view)
     hostingController.view.pinToSuperviewEdges()

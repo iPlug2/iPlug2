@@ -16,6 +16,15 @@ using namespace iplug;
 
 @implementation IPlugCocoaViewController
 
+- (id) initWithEditorDelegateAndBundleID: (void*) _editorDelegate : (const char*) _bundleID
+{
+  if (self = [super init]) {
+    editorDelegate = _editorDelegate;
+    bundleID = [NSString stringWithUTF8String:_bundleID];
+  }
+  return self;
+}
+
 - (void) setEditorDelegate: (void*) _editorDelegate
 {
   editorDelegate = _editorDelegate;
@@ -129,6 +138,16 @@ using namespace iplug;
 {
   NSString* group = [NSString stringWithUTF8String:((CocoaEditorDelegate*) editorDelegate)->GetParam(static_cast<int>(paramIdx))->GetGroup()];
   return group;
+}
+
+- (void) setBundleID: (const char *) _bundleID
+{
+  bundleID = [NSString stringWithUTF8String:_bundleID];
+}
+
+- (NSString*) getBundleID
+{
+  return bundleID;
 }
 
 @end

@@ -25,8 +25,7 @@ void IPlugSwiftUI::OnIdle()
 void* IPlugSwiftUI::OpenWindow(void* pParent)
 {
   PLATFORM_VIEW* platformParent = (PLATFORM_VIEW*) pParent;
-  IPlugSwiftUIViewController* vc = [[IPlugSwiftUIViewController alloc] init];
-  [vc setEditorDelegate: this];
+  auto* vc = [[IPlugSwiftUIViewController alloc] initWithEditorDelegateAndBundleID: this : GetBundleID()];
   mViewController = vc;
   vc.view.frame = MAKERECT(0.f, 0.f, (float) PLUG_WIDTH, (float) PLUG_HEIGHT);
   [platformParent addSubview:vc.view];

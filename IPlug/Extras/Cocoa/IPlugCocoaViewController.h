@@ -30,7 +30,10 @@
 @interface IPlugCocoaViewController : PLATFORM_VC
 {
   void* editorDelegate;
+  NSString* bundleID;
 }
+
+- (id) initWithEditorDelegateAndBundleID: (void*) editorDelegate : (const char*) bundleID;
 
 - (void) setEditorDelegate: (void*) editorDelegate;
 
@@ -59,5 +62,8 @@
 - (double) getParameterStep: (NSInteger) paramIdx ;//NS_SWIFT_NAME(getParameterStep(paramIdx:));
 - (NSString*) getParameterLabel: (NSInteger) paramIdx ;//NS_SWIFT_NAME(getParameterLabel(paramIdx:));
 - (NSString*) getParameterGroup: (NSInteger) paramIdx ;//NS_SWIFT_NAME(getParameterGroup(paramIdx:));
+
+- (void) setBundleID: (const char*) bundleID;
+- (NSString*) getBundleID;
 
 @end
