@@ -299,7 +299,7 @@ static const char *parse_section_id(const char *k, char *buf, int bufsz) // retu
 
 void editor_instance::save_file(const char *filename, bool verbose)
 {
-  FILE *fp = fopen(filename,"wb");
+  FILE *fp = fopenUTF8(filename,"wb");
   if (!fp)
   {
     MessageBox(m_hwnd,__LOCALIZE("Error opening file for writing","langpackedit"),
