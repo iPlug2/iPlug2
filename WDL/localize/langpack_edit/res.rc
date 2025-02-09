@@ -134,6 +134,17 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Quit\tCtrl+Q",               ID_QUIT
     END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "Edit localization\tEnter",    IDC_LOCALIZED_STRING
+        MENUITEM "Edit [common] localization",  IDC_COMMON_STRING
+        MENUITEM "Add dialog scaling item for context", ID_SCALING_ADD
+        MENUITEM "Set localization to template value if not set (mark as localized)", 
+                                                IDC_COPY_TEMPLATE
+        MENUITEM "Remove localization\tDelete", IDC_REMOVE_LOCALIZATION
+        MENUITEM "Remove localization from items that match template", 
+                                                IDC_REMOVE_NONLOCALIZATION
+    END
     POPUP "&View"
     BEGIN
         POPUP "Search columns"
@@ -154,17 +165,6 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "Reverse", ID_SORTCOL_REVERSE
         END
-    END
-    POPUP "&Edit"
-    BEGIN
-        MENUITEM "Edit localization\tEnter",    IDC_LOCALIZED_STRING
-        MENUITEM "Edit [common] localization",  IDC_COMMON_STRING
-        MENUITEM "Add dialog scaling item for context", ID_SCALING_ADD
-        MENUITEM "Set localization to template value if not set (mark as localized)", 
-                                                IDC_COPY_TEMPLATE
-        MENUITEM "Remove localization\tDelete", IDC_REMOVE_LOCALIZATION
-        MENUITEM "Remove localization from items that match template", 
-                                                IDC_REMOVE_NONLOCALIZATION
     END
 END
 
