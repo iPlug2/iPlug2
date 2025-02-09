@@ -109,6 +109,7 @@ bool g_quit;
 
 HINSTANCE g_hInstance;
 WDL_FastString g_ini_file;
+static bool s_comment_reent;
 
 enum {
   COL_STATE=0, // if we edit these need to edit the IDs of ID_COL_* in resource.h
@@ -448,7 +449,9 @@ void editor_instance::load_file(const char *filename, bool is_template)
       }
       if (fs.GetLength())
         WDL_remove_trailing_whitespace((char *)fs.Get());
+      s_comment_reent=true;
       SetDlgItemText(m_hwnd,IDC_COMMENTS,fs.Get());
+      s_comment_reent=false;
     }
   }
 }
@@ -498,7 +501,7 @@ bool editor_instance::import_for_view(FILE *fp)
   }
 
   refresh_list(false);
-
+  set_dirty();
   if (errcnt)
   {
     snprintf(linebuf,sizeof(linebuf),__LOCALIZE_VERFMT("Warning: %d lines could not be imported (this should not happen!)","langpackedit"),
@@ -1022,6 +1025,12 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
           if (HIWORD(wParam) == EN_CHANGE)
           {
             SetTimer(hwndDlg,TIMER_FILTER,100,NULL);
+          }
+        break;
+        case IDC_COMMENTS:
+          if (HIWORD(wParam) == EN_CHANGE && !s_comment_reent)
+          {
+            g_editor.set_dirty();
           }
         break;
         case IDC_PACK_IMPORT_CURVIEW:
