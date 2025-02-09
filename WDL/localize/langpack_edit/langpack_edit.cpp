@@ -35,6 +35,7 @@
 
 #include "../../localize/localize.h"
 #include "../../lineparse.h"
+void WDL_fgets_as_utf8(char *linebuf, int linebuf_size, FILE *fp, int *format_flag); // defined in localize.cpp
 
 #define WDL_HASSTRINGS_REWUTF8_HOOK(str, base) \
  if ((str) > (base)) switch ((str)[0]) { \
@@ -177,6 +178,12 @@ struct editor_instance {
 
   void load_file(const char *filename, bool is_template);
   void save_file(const char *filename, bool verbose=false);
+  bool import_for_view(FILE *fp);
+  void export_for_view(FILE *fp, int col)
+  {
+    for (int i = 0; i < m_display_order.GetSize(); i ++)
+      fprintf(fp,"%s\n", get_row_value(i, col));
+  }
 
   void cull_recs();
   void refresh_list(bool refilter=true);
@@ -444,6 +451,61 @@ void editor_instance::load_file(const char *filename, bool is_template)
       SetDlgItemText(m_hwnd,IDC_COMMENTS,fs.Get());
     }
   }
+}
+
+bool editor_instance::import_for_view(FILE *fp)
+{
+  char linebuf[16384];
+  int utf8flag = -1, lcnt=0;
+  for (;;)
+  {
+    WDL_fgets_as_utf8(linebuf,sizeof(linebuf),fp,&utf8flag);
+    if (!linebuf[0]) break;
+    lcnt++;
+  }
+  if (lcnt != m_display_order.GetSize())
+  {
+    snprintf(linebuf,sizeof(linebuf),__LOCALIZE_VERFMT("Text file has %d lines, editor view %d lines. Import anyway?","langpackedit"),
+        lcnt, m_display_order.GetSize());
+    if (MessageBox(m_hwnd,linebuf, __LOCALIZE("Error","langpackedit"),MB_YESNO) == IDNO)
+    {
+      return false;
+    }
+  }
+
+  fseek(fp,0,SEEK_SET);
+  utf8flag = -1;
+  lcnt=0;
+  int errcnt=0;
+  for (;;)
+  {
+    WDL_fgets_as_utf8(linebuf,sizeof(linebuf),fp,&utf8flag);
+    if (!linebuf[0]) break;
+    if (lcnt < m_display_order.GetSize())
+    {
+      int rec_idx = m_display_order.Get()[lcnt];
+      const char *k;
+      pack_rec *r = m_recs.EnumeratePtr(rec_idx,&k);
+      if (WDL_NORMALLY(k && r))
+      {
+        free(r->pack_str);
+        r->pack_str = strdup(linebuf);
+      }
+      else
+        errcnt++;
+    }
+    lcnt++;
+  }
+
+  refresh_list(false);
+
+  if (errcnt)
+  {
+    snprintf(linebuf,sizeof(linebuf),__LOCALIZE_VERFMT("Warning: %d lines could not be imported (this should not happen!)","langpackedit"),
+        errcnt);
+    MessageBox(m_hwnd,linebuf, __LOCALIZE("Warning","langpackedit"),MB_OK);
+  }
+  return true;
 }
 
 void editor_instance::cull_recs()
@@ -962,10 +1024,73 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             SetTimer(hwndDlg,TIMER_FILTER,100,NULL);
           }
         break;
+        case IDC_PACK_IMPORT_CURVIEW:
+          {
+            char vbuf[2048];
+            GetPrivateProfileString("LangPackEdit","lastexpl","",vbuf,sizeof(vbuf),g_ini_file.Get());
+
+            char *f = WDL_ChooseFileForOpen(hwndDlg,
+                __LOCALIZE("Choose text file to import localized lines","langpackedit"),
+                NULL,
+                vbuf,
+                "Text files (*.txt)\0*.*\0All files (*.*)\0*.*\0",
+                "txt",
+                false, false);
+            if (f)
+            {
+              FILE *fp = fopenUTF8(f,"rb");
+
+              if (fp)
+              {
+                if (g_editor.import_for_view(fp))
+                  WritePrivateProfileString("LangPackEdit","lastexpl",f,g_ini_file.Get());
+                fclose(fp);
+              }
+              else
+              {
+                MessageBox(hwndDlg,__LOCALIZE("Error opening file for writing","langpackedit"),
+                  __LOCALIZE("Error","langpackedit"),MB_OK);
+              }
+              free(f);
+            }
+          }
+
+        break;
+
+        case IDC_PACK_EXPORT_CURVIEW_TEMPLATE:
+        case IDC_PACK_EXPORT_CURVIEW_LOCALIZED:
+          {
+            char newfn[2048], vbuf[2048];
+            const char *inikey = LOWORD(wParam)==IDC_PACK_EXPORT_CURVIEW_TEMPLATE ? "lastexpt" : "lastexpl";
+            GetPrivateProfileString("LangPackEdit",inikey,"",vbuf,sizeof(vbuf),g_ini_file.Get());
+            if (!WDL_ChooseFileForSave(hwndDlg,
+                  LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW_TEMPLATE ?  __LOCALIZE("Export current view template lines as text","langpackedit") :
+                     __LOCALIZE("Export current view localized lines as text","langpackedit"),
+                  NULL,
+                  vbuf,
+                  "Text files (*.txt)\0*.*\0All files (*.*)\0*.*\0",
+                  "txt",
+                  false,
+                  newfn,sizeof(newfn)) || !newfn[0]) return 0;
+
+            FILE *fp = fopenUTF8(newfn,"wb");
+            if (fp)
+            {
+              g_editor.export_for_view(fp,LOWORD(wParam) == IDC_PACK_EXPORT_CURVIEW_TEMPLATE ? COL_TEMPLATE : COL_LOCALIZED);
+              fclose(fp);
+              WritePrivateProfileString("LangPackEdit",inikey,newfn,g_ini_file.Get());
+            }
+            else
+            {
+              MessageBox(hwndDlg,__LOCALIZE("Error opening file for writing","langpackedit"),
+                __LOCALIZE("Error","langpackedit"),MB_OK);
+            }
+          }
+        break;
+
         case IDC_PACK_SAVE_AS_VERBOSE:
         case IDC_PACK_SAVE_AS:
         case IDC_PACK_SAVE:
-
           if (!g_editor.m_pack_fn.GetLength() || LOWORD(wParam) == IDC_PACK_SAVE_AS || LOWORD(wParam) == IDC_PACK_SAVE_AS_VERBOSE)
           {
             char newfn[2048];
@@ -973,7 +1098,9 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (LOWORD(wParam) == IDC_PACK_SAVE_AS_VERBOSE)
               GetPrivateProfileString("LangPackEdit","lastpackv","",vbuf,sizeof(vbuf),g_ini_file.Get());
             else vbuf[0]=0;
-            if (!WDL_ChooseFileForSave(hwndDlg, __LOCALIZE("Save LangPack as...","langpackedit"),
+            if (!WDL_ChooseFileForSave(hwndDlg,
+                  LOWORD(wParam) == IDC_PACK_SAVE_AS_VERBOSE ?  __LOCALIZE("Export Verbose LangPack","langpackedit") :
+                     __LOCALIZE("Save LangPack","langpackedit"),
                   NULL,
                   vbuf[0] ? vbuf : g_editor.m_pack_fn.Get(),
                   "All files (*.*)\0*.*\0",
