@@ -19,6 +19,7 @@
   //objective-c has a flat namespace, we need to customise the class name for all of our objective-c classes
   //so that binaries using different versions don't conflict
   #ifndef OBJC_PREFIX
+    #warning OBJC_PREFIX not defined, setting it to "vIPLUG2". To avoid conflict, define it specifically for each product.
     #define OBJC_PREFIX vIPLUG2
   #endif
 
