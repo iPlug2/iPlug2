@@ -1341,7 +1341,7 @@ public:
 
   /** Shows a control to display the frame rate of drawing
    * @param enable \c true to show */
-  void ShowFPSDisplay(bool enable);
+  void ShowFPSDisplay(bool enable, const IRECT& bounds = IRECT());
   
   /** @return \c true if performance display is shown */
   bool ShowingFPSDisplay() { return mPerfDisplay != nullptr; }
