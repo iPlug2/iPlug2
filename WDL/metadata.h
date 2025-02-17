@@ -472,6 +472,23 @@ bool HasScheme(const char *scheme, WDL_StringKeyedArray<char*> *metadata)
   return false;
 }
 
+bool DeleteScheme(const char *scheme, WDL_StringKeyedArray<char*> *metadata)
+{
+  if (!scheme || !scheme[0] || !metadata) return false;
+
+  bool ismatch=false, did_del=false;
+  int idx=metadata->LowerBound(scheme, &ismatch);
+  for (int i=idx; i < metadata->GetSize(); ++i)
+  {
+    const char *key=NULL;
+    metadata->Enumerate(idx, &key);
+    if (!key || strnicmp(key, scheme, strlen(scheme))) break;
+    metadata->DeleteByIndex(i--);
+    did_del=true;
+  }
+  return did_del;
+}
+
 
 WDL_INT64 _ATOI64(const char *str)
 {
