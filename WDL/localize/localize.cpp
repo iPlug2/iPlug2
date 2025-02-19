@@ -390,6 +390,7 @@ struct windowReorgEnt
     move_amt=0;
     wantsizeincrease=0;
     scaled_width_change = wc;
+    wnd_id = GetWindowLong(hwnd,GWL_ID);
   }
   ~windowReorgEnt() { }
 
@@ -399,6 +400,7 @@ struct windowReorgEnt
   int move_amt;
   int wantsizeincrease;
   int scaled_width_change;
+  int wnd_id;
 
   static int Sort(const void *_a, const void *_b)
   {
@@ -623,6 +625,7 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
           }
 */
   float scx = 1.0, scy = 1.0;
+  WDL_IntKeyedArray<float> ctl_scales;
   if (sc_str)
   {
     while (*sc_str && (*sc_str == ' ' || *sc_str == '\t')) sc_str++;
@@ -636,6 +639,7 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
     {
       scx=v;
       while (*sc_str && *sc_str != ' ' && *sc_str != '\t') sc_str++;
+      while (*sc_str && (*sc_str == ' ' || *sc_str == '\t')) sc_str++;
       if (*sc_str)
       {
 #ifdef WDL_HOOK_LOCALIZE_ATOF
@@ -644,7 +648,32 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
         v = (float)atof(sc_str);
 #endif
         if (v > 0.1 && v < 8.0)
+        {
           scy = v;
+          while (*sc_str)
+          {
+            while (*sc_str && *sc_str != ' ' && *sc_str != '\t') sc_str++;
+            while (*sc_str && (*sc_str == ' ' || *sc_str == '\t')) sc_str++;
+            if (*sc_str == '@')
+            {
+              int id = atoi(sc_str+1);
+              while (*sc_str && *sc_str != ' ' && *sc_str != '\t' && *sc_str != '=') sc_str++;
+              if (*sc_str == '=')
+              {
+#ifdef WDL_HOOK_LOCALIZE_ATOF
+                v = (float)WDL_HOOK_LOCALIZE_ATOF(sc_str+1);
+#else
+                v = (float)atof(sc_str+1);
+#endif
+                if (id > 0 && v > 0.1 && v < 8.0)
+                {
+                  ctl_scales.AddUnsorted(id,v);
+                }
+              }
+            }
+          }
+          ctl_scales.Resort();
+        }
       }
     }
   }
@@ -669,30 +698,47 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
     windowReorgEnt *rec=s.cws.Get()+x;
     if (rec->hwnd)
     {
-      const char *newText=xlateWindow(rec->hwnd,sec,buf,sizeof(buf), rec->mode != windowReorgEnt::WRET_MISC);
-      if (newText && rec->mode == windowReorgEnt::WRET_SIZEADJ)
+      const float *this_sc_ptr = ctl_scales.GetPtr(rec->wnd_id);
+      int dSize = 0;
+      if (this_sc_ptr)
       {
-        RECT r1={0},r2={0};
-#ifdef _WIN32
-        DrawText(hdc,buf,-1,&r1,DT_CALCRECT);
-        DrawText(hdc,newText,-1,&r2,DT_CALCRECT);
-        r1.right += rec->scaled_width_change;
-#else
-        GetClientRect(rec->hwnd,&r1);
-        SWELL_GetDesiredControlSize(rec->hwnd,&r2);
-#endif
-        int dSize=r2.right-r1.right;
-        if (dSize>0)
+        if (*this_sc_ptr > 1.0)
         {
-          rec->wantsizeincrease = ++dSize;
+          RECT r1;
+          GetClientRect(rec->hwnd,&r1);
+          dSize = (int) floor(r1.right * *this_sc_ptr + 0.5) - r1.right;
+          if (dSize>0)
+            rec->mode = windowReorgEnt::WRET_SIZEADJ;
+        }
+      }
+      else
+      {
+        const char *newText=xlateWindow(rec->hwnd,sec,buf,sizeof(buf), rec->mode != windowReorgEnt::WRET_MISC);
+        if (newText && rec->mode == windowReorgEnt::WRET_SIZEADJ)
+        {
+          RECT r1={0},r2={0};
+#ifdef _WIN32
+          DrawText(hdc,buf,-1,&r1,DT_CALCRECT);
+          DrawText(hdc,newText,-1,&r2,DT_CALCRECT);
+          r1.right += rec->scaled_width_change;
+#else
+          GetClientRect(rec->hwnd,&r1);
+          SWELL_GetDesiredControlSize(rec->hwnd,&r2);
+#endif
+          dSize=r2.right-r1.right;
+        }
+      }
 
-          if (do_columns)
-          {
-            const int v = (rec->r.right<<16) | (rec->r.left&0xffff);
-            int *diff = s.columns.GetPtr(v);
-            if (!diff) s.columns.Insert(v,dSize);
-            else if (dSize > *diff) *diff = dSize;
-          }
+      if (dSize>0)
+      {
+        rec->wantsizeincrease = ++dSize;
+
+        if (do_columns)
+        {
+          const int v = (rec->r.right<<16) | (rec->r.left&0xffff);
+          int *diff = s.columns.GetPtr(v);
+          if (!diff) s.columns.Insert(v,dSize);
+          else if (dSize > *diff) *diff = dSize;
         }
       }
     }
