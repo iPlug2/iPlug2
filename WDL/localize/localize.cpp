@@ -755,9 +755,7 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
     }
   }
 
-  int swSizeInc=0;
-  bool finalpass = false;
-  do
+  for (int pass = 0; pass < 2; pass ++)
   {
     qsort(s.cws.Get(),s.cws.GetSize(),sizeof(*s.cws.Get()),windowReorgEnt::Sort);
     int maxwant = 0;
@@ -785,40 +783,19 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
           rec->move_amt=0;
         }
         maxwant = wdl_max(maxwant, trec->wantsizeincrease);
-        if (!swSizeInc && trec->wantsizeincrease>0) swSizeInc=1;
       }
     }
+    if (maxwant < 1 || pass) break;
 
-    if (swSizeInc++ && !finalpass)
-    {
-      // flip everything
-      int w=s.par_cr.right;
-      for(x=0;x<s.cws.GetSize();x++)
-      {
-        windowReorgEnt *rec=s.cws.Get()+x;
-        int a = w-1-rec->r.left;
-        int b = w-1-rec->r.right;
-        rec->r.left = b;
-        rec->r.right = a;
-      }
-    }
-    if (swSizeInc > 2 && maxwant > 0)
-    {
-      if (finalpass) break;
-      finalpass = true;
-      swSizeInc = 2;
-
-      RECT wr;
-      if (GetWindowLong(hwnd,GWL_STYLE)&WS_CHILD) wr=s.par_cr;
-      else GetWindowRect(hwnd,&wr);
-      // expand window up
-      s.par_cr.right += maxwant;
-      SetWindowPos(hwnd,NULL,0,0,
-                            maxwant + (wr.right-wr.left),
+    RECT wr;
+    if (GetWindowLong(hwnd,GWL_STYLE)&WS_CHILD) wr=s.par_cr;
+    else GetWindowRect(hwnd,&wr);
+    // expand window up
+    s.par_cr.right += maxwant;
+    SetWindowPos(hwnd,NULL,0,0, maxwant + (wr.right-wr.left),
                             (wr.bottom-wr.top),
                             SWP_NOMOVE|SWP_NOACTIVATE|SWP_NOZORDER);
-    }
-  } while (swSizeInc == 2);
+  }
 
 
   for(x=0;x<s.cws.GetSize();x++)
