@@ -755,38 +755,36 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
     }
   }
 
-  for (int pass = 0; pass < 2; pass ++)
+  qsort(s.cws.Get(),s.cws.GetSize(),sizeof(*s.cws.Get()),windowReorgEnt::Sort);
+  int maxwant = 0;
+  for(x=0;x<s.cws.GetSize();x++)
   {
-    qsort(s.cws.Get(),s.cws.GetSize(),sizeof(*s.cws.Get()),windowReorgEnt::Sort);
-    int maxwant = 0;
-    for(x=0;x<s.cws.GetSize();x++)
+    windowReorgEnt *trec=s.cws.Get()+x;
+    if (trec->wantsizeincrease>0)
     {
-      windowReorgEnt *trec=s.cws.Get()+x;
-      if (trec->wantsizeincrease>0)
+      int amt = rippleControlsRight(trec->hwnd,&trec->r,trec+1,s.cws.GetSize() - (x+1),trec->wantsizeincrease,2000+s.par_cr.right);
+      if (amt>0)
       {
-        int amt = rippleControlsRight(trec->hwnd,&trec->r,trec+1,s.cws.GetSize() - (x+1),trec->wantsizeincrease,s.par_cr.right);
-        if (amt>0)
+        trec->wantsizeincrease -= amt;
+        trec->r.right += amt;
+      }
+      int y;
+      for(y=x+1;y<s.cws.GetSize();y++)
+      {
+        windowReorgEnt *rec=s.cws.Get()+y;
+        int a = min(amt,rec->move_amt);
+        if (a>0)
         {
-          trec->wantsizeincrease -= amt;
-          trec->r.right += amt;
+          rec->r.left += a;
+          rec->r.right += a;
         }
-        int y;
-        for(y=x+1;y<s.cws.GetSize();y++)
-        {
-          windowReorgEnt *rec=s.cws.Get()+y;
-          int a = min(amt,rec->move_amt);
-          if (a>0)
-          {
-            rec->r.left += a;
-            rec->r.right += a;
-          }
-          rec->move_amt=0;
-        }
-        maxwant = wdl_max(maxwant, trec->wantsizeincrease);
+        rec->move_amt=0;
       }
     }
-    if (maxwant < 1 || pass) break;
-
+    maxwant = wdl_max(maxwant,trec->r.right - s.par_cr.right);
+  }
+  if (maxwant > 0)
+  {
     RECT wr;
     if (GetWindowLong(hwnd,GWL_STYLE)&WS_CHILD) wr=s.par_cr;
     else GetWindowRect(hwnd,&wr);
@@ -796,7 +794,6 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
                             (wr.bottom-wr.top),
                             SWP_NOMOVE|SWP_NOACTIVATE|SWP_NOZORDER);
   }
-
 
   for(x=0;x<s.cws.GetSize();x++)
   {
