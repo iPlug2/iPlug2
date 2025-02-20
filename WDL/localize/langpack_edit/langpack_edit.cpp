@@ -521,6 +521,23 @@ void editor_instance::cull_recs()
   }
 }
 
+static bool filt_amper_str(const char *v, WDL_FastString *s)
+{
+  const char *nv = v;
+  while (*nv && *nv != '&') nv++;
+  if (!*nv) return false;
+  s->Set("");
+  // v=leading string, nv=next ampersand
+  for (;;)
+  {
+    if (nv > v) s->Append(v, (int) (nv-v));
+    if (!*nv) return true;
+    v = ++nv; // skip ampersand
+    if (*nv) nv++; // allow any trailing ampersand
+    while (*nv && *nv != '&') nv++;
+  }
+}
+
 void editor_instance::refresh_list(bool refilter)
 {
   HWND list = WDL_NORMALLY(m_hwnd) ? GetDlgItem(m_hwnd,IDC_LIST) : NULL;
@@ -562,15 +579,20 @@ void editor_instance::refresh_list(bool refilter)
     else
       r->common_idx = -1;
 
-    const char *strs[COL_MAX];
+    const char *strs[COL_MAX*2];
     int nc = 0;
     if (do_filt)
     {
-      for (int c =0; c < COL_MAX; c ++)
+      static WDL_FastString amp_filt[COL_MAX];
+      for (int c = 0; c < COL_MAX; c ++)
       {
         if (m_column_no_searchflags & (1<<c)) continue;
         const char *v = get_rec_value(r,k,c);
-        if (v) strs[nc++] = v;
+        if (v)
+        {
+          strs[nc++] = v;
+          if (filt_amper_str(v, &amp_filt[c])) strs[nc++] = amp_filt[c].Get();
+        }
       }
     }
 
