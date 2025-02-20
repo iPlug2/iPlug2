@@ -698,6 +698,7 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
     windowReorgEnt *rec=s.cws.Get()+x;
     if (rec->hwnd)
     {
+      const char *newText=xlateWindow(rec->hwnd,sec,buf,sizeof(buf), rec->mode != windowReorgEnt::WRET_MISC);
       const float *this_sc_ptr = ctl_scales.GetPtr(rec->wnd_id);
       int dSize = 0;
       if (this_sc_ptr)
@@ -713,7 +714,6 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
       }
       else
       {
-        const char *newText=xlateWindow(rec->hwnd,sec,buf,sizeof(buf), rec->mode != windowReorgEnt::WRET_MISC);
         if (newText && rec->mode == windowReorgEnt::WRET_SIZEADJ)
         {
           RECT r1={0},r2={0};
