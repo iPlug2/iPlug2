@@ -62,6 +62,16 @@
 - (double) getParameterStep: (NSInteger) paramIdx ;//NS_SWIFT_NAME(getParameterStep(paramIdx:));
 - (NSString*) getParameterLabel: (NSInteger) paramIdx ;//NS_SWIFT_NAME(getParameterLabel(paramIdx:));
 - (NSString*) getParameterGroup: (NSInteger) paramIdx ;//NS_SWIFT_NAME(getParameterGroup(paramIdx:));
+- (NSInteger) getParameterNumDisplayTexts:(NSInteger)paramIdx;
+- (NSString*) getParameterDisplayText:(NSInteger)paramIdx
+                               index:(NSInteger)displayIndex;
+- (double) getParameterDisplayTextValue:(NSInteger)paramIdx
+                                 index:(NSInteger)displayIndex;
+- (int) getParameterFlags:(NSInteger) paramIdx;
+- (int) getParameterShapeID:(NSInteger) paramIdx;
+- (double) getParameterShapeValue:(NSInteger) paramIdx;
+
+
 
 - (void) setBundleID: (const char*) bundleID;
 - (NSString*) getBundleID;
