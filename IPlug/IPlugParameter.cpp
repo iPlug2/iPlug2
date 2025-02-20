@@ -419,3 +419,24 @@ void IParam::PrintDetails() const
 {
   DBGMSG("%s %f", GetName(), Value());
 }
+
+IParam::EShapeIDs IParam::GetShapeID() const
+{
+  if (dynamic_cast<IParam::ShapeLinear*>(mShape.get()))
+    return IParam::EShapeIDs::kShapeLinear;
+  else if (dynamic_cast<IParam::ShapePowCurve*>(mShape.get()))
+    return IParam::EShapeIDs::kShapePowCurve;
+  else if (dynamic_cast<IParam::ShapeExp*>(mShape.get()))
+    return IParam::EShapeIDs::kShapeExponential;
+  else
+    return IParam::EShapeIDs::kShapeUnknown;
+}
+
+double IParam::GetShapeValue() const
+{
+  if (auto* pShapePowCurve = dynamic_cast<IParam::ShapePowCurve*>(mShape.get()))
+    return pShapePowCurve->mShape;
+  else
+    return 0.0;
+}
+
