@@ -691,9 +691,8 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
   if (font) oldFont=SelectObject(hdc,font);
 #endif
 
-  int x;
   const bool do_columns = true;
-  for(x=0;x<s.cws.GetSize();x++)
+  for (int x=0;x<s.cws.GetSize();x++)
   {
     windowReorgEnt *rec=s.cws.Get()+x;
     if (rec->hwnd)
@@ -744,7 +743,7 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
     }
   }
 
-  if (do_columns) for(x=0;x<s.cws.GetSize();x++)
+  if (do_columns) for (int x=0;x<s.cws.GetSize();x++)
   {
     windowReorgEnt *rec=s.cws.Get()+x;
     if (rec->hwnd && rec->mode == windowReorgEnt::WRET_SIZEADJ)
@@ -757,7 +756,7 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
 
   qsort(s.cws.Get(),s.cws.GetSize(),sizeof(*s.cws.Get()),windowReorgEnt::Sort);
   int maxwant = 0;
-  for(x=0;x<s.cws.GetSize();x++)
+  for (int x=0;x<s.cws.GetSize();x++)
   {
     windowReorgEnt *trec=s.cws.Get()+x;
     if (trec->wantsizeincrease>0)
@@ -768,8 +767,7 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
         trec->wantsizeincrease -= amt;
         trec->r.right += amt;
       }
-      int y;
-      for(y=x+1;y<s.cws.GetSize();y++)
+      for (int y=x+1;y<s.cws.GetSize();y++)
       {
         windowReorgEnt *rec=s.cws.Get()+y;
         int a = min(amt,rec->move_amt);
@@ -795,7 +793,7 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
                             SWP_NOMOVE|SWP_NOACTIVATE|SWP_NOZORDER);
   }
 
-  for(x=0;x<s.cws.GetSize();x++)
+  for (int x=0;x<s.cws.GetSize();x++)
   {
     windowReorgEnt *rec=s.cws.Get()+x;
     if (rec->hwnd)
