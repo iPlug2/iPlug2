@@ -19,6 +19,8 @@
 #include "denormal.h"
 #include "fft.h"
 
+#include "IPlugConstants.h"
+#include "IPlugEditorDelegate.h"
 #include "IPlugPlatform.h"
 #include "IPlugQueue.h"
 #include <array>
@@ -78,7 +80,7 @@ public:
   
   /** Pops elements off the queue and sends messages to controls.
    *  This must be called on the main thread - typically in MyPlugin::OnIdle() */
-  void TransmitData(IEditorDelegate& dlg)
+  virtual void TransmitData(IEditorDelegate& dlg)
   {
     while (mQueue.ElementsAvailable())
     {
