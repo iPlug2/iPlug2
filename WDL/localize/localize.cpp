@@ -641,43 +641,41 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
       scx=v;
       while (*sc_str && *sc_str != ' ' && *sc_str != '\t') sc_str++;
       while (*sc_str && (*sc_str == ' ' || *sc_str == '\t')) sc_str++;
-      if (*sc_str)
+#ifdef WDL_HOOK_LOCALIZE_ATOF
+      v = (float)WDL_HOOK_LOCALIZE_ATOF(sc_str);
+#else
+      v = (float)atof(sc_str);
+#endif
+      if (v > 0.1 && v < 8.0)
       {
-#ifdef WDL_HOOK_LOCALIZE_ATOF
-        v = (float)WDL_HOOK_LOCALIZE_ATOF(sc_str);
-#else
-        v = (float)atof(sc_str);
-#endif
-        if (v > 0.1 && v < 8.0)
-        {
-          scy = v;
-          while (*sc_str)
-          {
-            while (*sc_str && *sc_str != ' ' && *sc_str != '\t') sc_str++;
-            while (*sc_str && (*sc_str == ' ' || *sc_str == '\t')) sc_str++;
-            if (*sc_str == '@')
-            {
-              int id = atoi(sc_str+1);
-              while (*sc_str && *sc_str != ' ' && *sc_str != '\t' && *sc_str != '=') sc_str++;
-              if (*sc_str == '=')
-              {
-#ifdef WDL_HOOK_LOCALIZE_ATOF
-                v = (float)WDL_HOOK_LOCALIZE_ATOF(sc_str+1);
-#else
-                v = (float)atof(sc_str+1);
-#endif
-                if (id > 0 && v > 0.1 && v < 8.0)
-                {
-                  ctl_scales.AddUnsorted(id,v);
-                }
-              }
-            }
-            else if (!strnicmp(sc_str,"auto_expand",11)) auto_expand = true;
-          }
-          ctl_scales.Resort();
-        }
+        scy = v;
+        while (*sc_str && *sc_str != ' ' && *sc_str != '\t') sc_str++;
       }
     }
+    while (*sc_str)
+    {
+      while (*sc_str && (*sc_str == ' ' || *sc_str == '\t')) sc_str++;
+      if (*sc_str == '@')
+      {
+        int id = atoi(sc_str+1);
+        while (*sc_str && *sc_str != ' ' && *sc_str != '\t' && *sc_str != '=') sc_str++;
+        if (*sc_str == '=')
+        {
+#ifdef WDL_HOOK_LOCALIZE_ATOF
+          v = (float)WDL_HOOK_LOCALIZE_ATOF(sc_str+1);
+#else
+          v = (float)atof(sc_str+1);
+#endif
+          if (id > 0 && v > 0.1 && v < 8.0)
+          {
+            ctl_scales.AddUnsorted(id,v);
+          }
+        }
+      }
+      else if (!strnicmp(sc_str,"auto_expand",11)) auto_expand = true;
+      while (*sc_str && *sc_str != ' ' && *sc_str != '\t') sc_str++;
+    }
+    ctl_scales.Resort();
   }
 
   windowReorgState s(hwnd,scx,scy);
