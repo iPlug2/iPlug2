@@ -624,6 +624,7 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
             sc_str = g_translations_commonsec->Get(LANGPACK_SCALE_CONSTANT);
           }
 */
+  bool auto_expand = false;
   float scx = 1.0, scy = 1.0;
   WDL_IntKeyedArray<float> ctl_scales;
   if (sc_str)
@@ -671,6 +672,7 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
                 }
               }
             }
+            else if (!strnicmp(sc_str,"auto_expand",11)) auto_expand = true;
           }
           ctl_scales.Resort();
         }
@@ -754,44 +756,64 @@ static void localize_dialog(HWND hwnd, WDL_KeyedArray<WDL_UINT64, char *> *sec)
     }
   }
 
-  qsort(s.cws.Get(),s.cws.GetSize(),sizeof(*s.cws.Get()),windowReorgEnt::Sort);
-  int maxwant = 0;
-  for (int x=0;x<s.cws.GetSize();x++)
+  int swSizeInc=0;
+
+  do
   {
-    windowReorgEnt *trec=s.cws.Get()+x;
-    if (trec->wantsizeincrease>0)
+    qsort(s.cws.Get(),s.cws.GetSize(),sizeof(*s.cws.Get()),windowReorgEnt::Sort);
+    int maxwant = 0;
+    for (int x=0;x<s.cws.GetSize();x++)
     {
-      int amt = rippleControlsRight(trec->hwnd,&trec->r,trec+1,s.cws.GetSize() - (x+1),trec->wantsizeincrease,2000+s.par_cr.right);
-      if (amt>0)
+      windowReorgEnt *trec=s.cws.Get()+x;
+      if (trec->wantsizeincrease>0)
       {
-        trec->wantsizeincrease -= amt;
-        trec->r.right += amt;
-      }
-      for (int y=x+1;y<s.cws.GetSize();y++)
-      {
-        windowReorgEnt *rec=s.cws.Get()+y;
-        int a = min(amt,rec->move_amt);
-        if (a>0)
+        int amt = rippleControlsRight(trec->hwnd,&trec->r,trec+1,s.cws.GetSize() - (x+1),trec->wantsizeincrease,
+            (auto_expand?2000:0)+s.par_cr.right);
+        if (amt>0)
         {
-          rec->r.left += a;
-          rec->r.right += a;
+          trec->wantsizeincrease -= amt;
+          trec->r.right += amt;
         }
-        rec->move_amt=0;
+        for (int y=x+1;y<s.cws.GetSize();y++)
+        {
+          windowReorgEnt *rec=s.cws.Get()+y;
+          int a = min(amt,rec->move_amt);
+          if (a>0)
+          {
+            rec->r.left += a;
+            rec->r.right += a;
+          }
+          rec->move_amt=0;
+        }
+        if (!swSizeInc && trec->wantsizeincrease>0) swSizeInc=1;
+      }
+      maxwant = wdl_max(maxwant,trec->r.right - s.par_cr.right);
+    }
+    if (!auto_expand && swSizeInc++)
+    {
+      // langpack did not specify auto_expand, everything didn't fit, flip and try again (and flip back)
+      int w=s.par_cr.right;
+      for (int x=0;x<s.cws.GetSize();x++)
+      {
+        windowReorgEnt *rec=s.cws.Get()+x;
+        int a = w-1-rec->r.left;
+        int b = w-1-rec->r.right;
+        rec->r.left = b;
+        rec->r.right = a;
       }
     }
-    maxwant = wdl_max(maxwant,trec->r.right - s.par_cr.right);
-  }
-  if (maxwant > 0)
-  {
-    RECT wr;
-    if (GetWindowLong(hwnd,GWL_STYLE)&WS_CHILD) wr=s.par_cr;
-    else GetWindowRect(hwnd,&wr);
-    // expand window up
-    s.par_cr.right += maxwant;
-    SetWindowPos(hwnd,NULL,0,0, maxwant + (wr.right-wr.left),
-                            (wr.bottom-wr.top),
-                            SWP_NOMOVE|SWP_NOACTIVATE|SWP_NOZORDER);
-  }
+    if (maxwant > 0 && auto_expand)
+    {
+      // langpack specified auto_expand: expand window up
+      RECT wr;
+      if (GetWindowLong(hwnd,GWL_STYLE)&WS_CHILD) wr=s.par_cr;
+      else GetWindowRect(hwnd,&wr);
+      s.par_cr.right += maxwant;
+      SetWindowPos(hwnd,NULL,0,0, maxwant + (wr.right-wr.left),
+                              (wr.bottom-wr.top),
+                              SWP_NOMOVE|SWP_NOACTIVATE|SWP_NOZORDER);
+    }
+  } while (swSizeInc == 2);
 
   for (int x=0;x<s.cws.GetSize();x++)
   {
