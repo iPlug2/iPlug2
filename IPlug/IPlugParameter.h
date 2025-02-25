@@ -214,7 +214,18 @@ public:
    * @param flags The parameter's flags \see IParam::EFlags
    * @param group The parameter's group */
   void InitFrequency(const char* name, double defaultVal = 1000., double minVal = 0.1, double maxVal = 10000., double step = 0.1, int flags = 0, const char* group = "");
-  
+
+  /** Initialize the parameter as frequency
+   * Where the units switch between Hz for value < 1000. or kHz for value >= 1000.
+   * @param name The parameter's name
+   * @param defaultVal The default value of the parameter
+   * @param minVal The minimum value of the parameter
+   * @param maxVal The maximum value of the parameter
+   * @param step The step size of the parameter
+   * @param flags The parameter's flags \see IParam::EFlags
+   * @param group The parameter's group */
+  void InitFrequencyAutoRange(const char* name, double defaultVal = 1000., double minVal = 0.1, double maxVal = 10000., double step = 0.1, int flags = 0, const char* group = "");
+
   /** Initialize the parameter as pitch
    * @param name The parameter's name
    * @param defaultVal The default value of the parameter
