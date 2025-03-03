@@ -484,6 +484,7 @@ bool editor_instance::import_for_view(FILE *fp)
   {
     WDL_fgets_as_utf8(linebuf,sizeof(linebuf),fp,&utf8flag);
     if (!linebuf[0]) break;
+    WDL_remove_trailing_crlf(linebuf);
     if (lcnt < m_display_order.GetSize())
     {
       int rec_idx = m_display_order.Get()[lcnt];
