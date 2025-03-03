@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "../assocarray.h"
 #include "../ptrlist.h"
 #include "../chunkalloc.h"
