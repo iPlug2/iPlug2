@@ -84,8 +84,12 @@ const char* IPluginBase::GetArchStr() const
 {
 #if defined OS_WEB
   return "WASM";
-#elif defined __aarch64__
-  return "arm64";
+#elif defined _M_ARM64EC
+  return "arm64ec"; // Windows ARM64 Emulation Compatible
+#elif defined _M_ARM64 || defined __aarch64__
+  return "arm64"; // Native ARM64 (Windows or macOS)
+#elif defined _M_ARM
+  return "arm32"; // 32-bit ARM (Windows)
 #elif defined ARCH_64BIT
   return "x86-64";
 #else
