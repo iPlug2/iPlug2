@@ -8,18 +8,19 @@
 #import <IPlugSwiftUI-Swift.h>
 #endif
 
+const NSInteger kScopeBufferSize = SCOPE_BUFFER_SIZE;
+
 IPlugSwiftUI::IPlugSwiftUI(const InstanceInfo& info)
 : Plugin(info, MakeConfig(kNumParams, kNumPresets))
 {
-  GetParam(kParamGain)->InitDouble("Gain", 0., 0., 100.0, 0.01, "%");
-  GetParam(kParamFreq)->InitDouble("Freq", 0., 0., 100.0, 0.01, "%");
+  GetParam(kParamGain)->InitDouble("Gain", 100., 0., 100.0, 0.01, "%");
   
   MakeDefaultPreset();
 }
 
 void IPlugSwiftUI::OnIdle()
 {
-  mSender.TransmitData(*this);
+  mScopeSender.TransmitData(*this);
 }
 
 void* IPlugSwiftUI::OpenWindow(void* pParent)
@@ -63,12 +64,12 @@ void IPlugSwiftUI::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
     }
   }
   
-  mSender.ProcessBlock(outputs, nFrames, kCtrlTagVUMeter);
+  mScopeSender.ProcessBlock(outputs, nFrames, kCtrlTagScope);
 }
 
 bool IPlugSwiftUI::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pData)
 {
-  if(msgTag == kMsgTagHello)
+  if (msgTag == kMsgTagHello)
   {
     DBGMSG("MsgTagHello received on C++ side\n");
     return true;

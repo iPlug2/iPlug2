@@ -17,7 +17,8 @@ BINARY_NAME = IPlugSwiftUI
 // HEADER AND LIBRARY SEARCH PATHS
 //EXTRA_INC_PATHS = $(IGRAPHICS_INC_PATHS)
 //EXTRA_LIB_PATHS = $(IGRAPHICS_LIB_PATHS)
-EXTRA_LNK_FLAGS = -framework Metal -framework MetalKit
+EXTRA_LNK_FLAGS = -framework Metal -framework MetalKit -framework Accelerate
+
 
 // EXTRA_APP_DEFS =
 // EXTRA_PLUGIN_DEFS =
@@ -60,4 +61,4 @@ GCC_CFLAGS[arch=x86_64] = -Wno-write-strings -mfpmath=sse -msse -msse2 -msse3 //
 // uncomment this to enable codesigning - necessary for AUv3 delivery
 CODE_SIGN_IDENTITY=//Mac Developer
 
-MACOSX_DEPLOYMENT_TARGET = 11.0
+MACOSX_DEPLOYMENT_TARGET = 15.0
