@@ -52,3 +52,4 @@ GCC_INCREASE_PRECOMPILED_HEADER_SHARING = NO
 // Flags to pass to compiler for all builds
 GCC_CFLAGS = -Wno-write-strings
 
+IPHONEOS_DEPLOYMENT_TARGET = 18
