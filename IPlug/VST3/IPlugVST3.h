@@ -61,7 +61,6 @@ public:
   void EndInformHostOfParamChange(int idx) override;
   void InformHostOfPresetChange() override {}
   void InformHostOfParameterDetailsChange() override;
-  bool EditorResize(int viewWidth, int viewHeight) override;
 
   // IEditorDelegate
   void DirtyParametersFromUI() override;
@@ -167,6 +166,8 @@ public:
   REFCOUNT_METHODS(SingleComponentEffect)
 
 private:
+  bool EditorResize(int viewWidth, int viewHeight) override;
+
   ViewType* mView;
 };
 

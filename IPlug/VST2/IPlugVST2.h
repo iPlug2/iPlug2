@@ -43,7 +43,6 @@ public:
   void EndInformHostOfParamChange(int idx) override;
   void InformHostOfPresetChange() override;
   void HostSpecificInit() override;
-  bool EditorResize(int viewWidth, int viewHeight) override;
 
   //IPlugProcessor
   void SetLatency(int samples) override;
@@ -56,6 +55,8 @@ public:
   void OutputSysexFromEditor();
 
 private:
+  bool EditorResize(int viewWidth, int viewHeight) override;
+
   virtual VstIntPtr VSTVendorSpecific(VstInt32 idx, VstIntPtr value, void* ptr, float opt) { return 0; }
   virtual VstIntPtr VSTCanDo(const char* hostString) { return 0; }
     

@@ -46,15 +46,15 @@ bool IPlugWebUI::OnMessage(int msgTag, int ctrlTag, int dataSize, const void* pD
 {
   if (msgTag == kMsgTagButton1)
   {
-    EditorResize(300, 300);
+    Resize(300, 300);
   }
   else if (msgTag == kMsgTagButton2)
   {
-    EditorResize(600, 600);
+    Resize(600, 600);
   }
   else if (msgTag == kMsgTagButton3)
   {
-    EditorResize(1024, 768);
+    Resize(1024, 768);
   }
   else if (msgTag == kMsgTagBinaryTest)
   {

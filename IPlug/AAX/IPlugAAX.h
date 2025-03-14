@@ -88,9 +88,7 @@ public:
   void EndInformHostOfParamChange(int idx) override;
   
   void InformHostOfPresetChange() override { }; //NA
-  
-  bool EditorResize(int viewWidth, int viewHeight) override;
-  
+    
   /** Get the name of the track that the plug-in is inserted on */
   virtual void GetTrackName(WDL_String& str) override { str = mTrackName; };
   
@@ -119,6 +117,8 @@ public:
   void DirtyPTCompareState() { mNumPlugInChanges++; }
 
 private:
+  bool EditorResize(int viewWidth, int viewHeight) override;
+
   AAX_CParameter<bool>* mBypassParameter = nullptr;
   AAX_ITransport* mTransport = nullptr;
   WDL_PtrList<WDL_String> mParamIDs;

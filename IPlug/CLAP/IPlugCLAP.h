@@ -89,7 +89,6 @@ public:
   void BeginInformHostOfParamChange(int idx) override;
   void InformHostOfParamChange(int idx, double normalizedValue) override;
   void EndInformHostOfParamChange(int idx) override;
-  bool EditorResize(int viewWidth, int viewHeight) override;
   
   // IPlugProcessor
   void SetTailSize(int tailSize) override;
@@ -98,6 +97,8 @@ public:
   bool SendSysEx(const ISysEx& msg) override;
 
 private:
+  bool EditorResize(int viewWidth, int viewHeight) override;
+
   // clap_plugin
   bool init() noexcept override;
   bool activate(double sampleRate, uint32_t minFrameCount, uint32_t maxFrameCount) noexcept override;

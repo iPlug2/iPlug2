@@ -110,7 +110,6 @@ public:
   void InformHostOfParamChange(int idx, double normalizedValue) override  { performEdit(idx, normalizedValue); }
   void EndInformHostOfParamChange(int idx) override  { endEdit(idx); }
   void InformHostOfPresetChange() override  { /* TODO: */}
-  bool EditorResize(int viewWidth, int viewHeight) override;
   void DirtyParametersFromUI() override;
   
   // IEditorDelegate
@@ -123,6 +122,8 @@ public:
   ViewType* GetView() const { return mView; }
 
 private:
+  bool EditorResize(int viewWidth, int viewHeight) override;
+
   ViewType* mView = nullptr;
   bool mPlugIsInstrument;
   bool mDoesMidiIn;
