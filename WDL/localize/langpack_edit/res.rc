@@ -126,12 +126,30 @@ IDR_MENU1 MENU DISCARDABLE
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "Load &Template...\tCtrl+T",   IDC_TEMPLATE_LOAD
-        MENUITEM "&Load Pack...\tCtrl+O",       IDC_PACK_LOAD
-        MENUITEM "&Save Pack\tCtrl+S",          IDC_PACK_SAVE
-        MENUITEM "Save Pack &As...\tCtrl+Alt+S", IDC_PACK_SAVE_AS
+        MENUITEM "Load &template...\tCtrl+T",   IDC_TEMPLATE_LOAD
+        MENUITEM "&Load pack...\tCtrl+O",       IDC_PACK_LOAD
+        MENUITEM "&Save pack\tCtrl+S",          IDC_PACK_SAVE
+        MENUITEM "Save pack &as...\tCtrl+Alt+S", IDC_PACK_SAVE_AS
+        POPUP "Import/Export"
+        BEGIN
+            MENUITEM "Export pack verbosely...", IDC_PACK_SAVE_AS_VERBOSE
+            MENUITEM "Export template lines for current view as text", IDC_PACK_EXPORT_CURVIEW_TEMPLATE
+            MENUITEM "Export localized lines for current view as text", IDC_PACK_EXPORT_CURVIEW_LOCALIZED
+            MENUITEM "Import localized lines to current view from text", IDC_PACK_IMPORT_CURVIEW
+        END
         MENUITEM SEPARATOR
         MENUITEM "&Quit\tCtrl+Q",               ID_QUIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "Edit localization\tEnter",    IDC_LOCALIZED_STRING
+        MENUITEM "Edit [common] localization",  IDC_COMMON_STRING
+        MENUITEM "Add dialog scaling item for context", ID_SCALING_ADD
+        MENUITEM "Set localization to template value if not set (mark as localized)", 
+                                                IDC_COPY_TEMPLATE
+        MENUITEM "Remove localization\tDelete", IDC_REMOVE_LOCALIZATION
+        MENUITEM "Remove localization from items that match template", 
+                                                IDC_REMOVE_NONLOCALIZATION
     END
     POPUP "&View"
     BEGIN
@@ -153,17 +171,6 @@ BEGIN
             MENUITEM SEPARATOR
             MENUITEM "Reverse", ID_SORTCOL_REVERSE
         END
-    END
-    POPUP "&Edit"
-    BEGIN
-        MENUITEM "Edit localization\tEnter",    IDC_LOCALIZED_STRING
-        MENUITEM "Edit [common] localization",  IDC_COMMON_STRING
-        MENUITEM "Add dialog scaling item for context", ID_SCALING_ADD
-        MENUITEM "Set localization to template value if not set (mark as localized)", 
-                                                IDC_COPY_TEMPLATE
-        MENUITEM "Remove localization\tDelete", IDC_REMOVE_LOCALIZATION
-        MENUITEM "Remove localization from items that match template", 
-                                                IDC_REMOVE_NONLOCALIZATION
     END
 END
 
@@ -194,8 +201,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,0,0,12
- PRODUCTVERSION 0,0,0,12
+ FILEVERSION 0,0,0,18
+ PRODUCTVERSION 0,0,0,18
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -213,14 +220,14 @@ BEGIN
             VALUE "Comments", "\0"
             VALUE "CompanyName", "Cockos Inc\0"
             VALUE "FileDescription", "LangPackEdit\0"
-            VALUE "FileVersion", "0, 0, 0, 12\0"
+            VALUE "FileVersion", "0, 0, 0, 18\0"
             VALUE "InternalName", "LangPackEdit\0"
             VALUE "LegalCopyright", "Copyright � 2022 and onwards Cockos Inc\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "LangPackEdit.exe\0"
             VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "LangPackEdit\0"
-            VALUE "ProductVersion", "0, 0, 0, 12\0"
+            VALUE "ProductVersion", "0, 0, 0, 18\0"
             VALUE "SpecialBuild", "\0"
         END
     END

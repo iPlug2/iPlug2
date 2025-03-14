@@ -293,7 +293,7 @@ class eel_string_context_state
      for (x=0;x<sz;x++)
      {
        EEL_STRING_STORAGECLASS *s = m_literal_strings.Get(x);
-       if (ns->GetLength() == l && !strcmp(s->Get(),ns->Get())) break;
+       if (s->GetLength() == l && !memcmp(s->Get(),ns->Get(),l+1)) break;
      }
      if (x<sz) delete ns;
      else m_literal_strings.Add(ns);

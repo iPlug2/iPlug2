@@ -693,6 +693,7 @@ void DrawAdHocVScrollbarEx(LICE_IBitmap* dest, RECT* r, int pos, int page, int m
   // mode 1: want zoom buttons
 
   const wdlscrollbar_themestate *theme = &s_scrollbar_theme[wtheme < 0 || wtheme >= MAX_SCROLLBAR_THEMES ? 0 : wtheme];
+  if (!theme->bmp) return;
   LICE_IBitmap* src=*theme->bmp;
   if (!src) return;
 
