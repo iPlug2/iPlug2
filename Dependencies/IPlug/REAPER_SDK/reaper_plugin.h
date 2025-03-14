@@ -251,6 +251,8 @@ typedef struct reaper_plugin_info_t
   hwnd_info:  (6.29+)
     query information about a hwnd
       int (*callback)(HWND hwnd, INT_PTR info_type);
+     -- note, for v7.23+ ( -- check with GetAppVersion() -- ), you may also use a function with this prototype:
+      int (*callback)(HWND hwnd, INT_PTR info_type, const MSG *msg); // if msg is non-NULL, it will have information about the currently-processing event.
 
     return 0 if hwnd is not a known window, or if info_type is unknown
 
@@ -281,6 +283,10 @@ typedef struct reaper_plugin_info_t
           // rename notification, parm is (const char *)new filename
        }
        if (msg == 0x100) return (INT_PTR)"samples"; // subdirectory name, if desired (return 0 if not desired)
+
+       if (msg == 0x101) return (INT_PTR)fxdspparentcontext_if_any; // if fx, optional
+       if (msg == 0x102) return (INT_PTR)takecontext_if_any; // if pcmsrc, optional
+       if (msg == 0x103) return (INT_PTR)"context/plug-in name"; // optional
        return 0;
      }
 
@@ -288,6 +294,16 @@ typedef struct reaper_plugin_info_t
      plugin_register("file_in_project_ex2",p);
      plugin_register("-file_in_project_ex2",p);
 
+  toolbar_icon_map:
+     Allows a plugin to override default toolbar images for its registered commands.
+
+     const char *GetToolbarIconName(const char *toolbar_name, int cmd, int state)
+     {
+       if (!strcmp(toolbarid,"Main toolbar") || !strncmp(toolbarid,"Floating toolbar",16))
+         if (cmd == g_registered_command_id) return "toolbar_whatever";
+       return NULL;
+     }
+     plugin_register("toolbar_icon_map", (void *)GetToolbarIconName);
 
   accel_section:
   action_help:
@@ -303,7 +319,6 @@ typedef struct reaper_plugin_info_t
   csurf_inst:
   toggleaction:
   on_update_hooks:
-  toolbar_icon_map:
   open_file_reduce:
 
   */
@@ -476,6 +491,10 @@ typedef struct _PCM_source_peaktransfer_t
 #define PEAKINFO_EXTRADATA_SPECTRAL1 ((int)'s')
 #define PEAKINFO_EXTRADATA_SPECTROGRAM1 ((int)'g')
 #define PEAKINFO_EXTRADATA_MIDITEXT ((int)'m')
+#define PEAKINFO_EXTRADATA_LOUDNESS_DEPRECATED ((int)'l') // use PEAKINFO_EXTRADATA_LOUDNESS_RAW instead
+#define PEAKINFO_EXTRADATA_LOUDNESS_RAW ((int)'r')
+#define PEAKINFO_EXTRADATA_LOUDNESS_INTERNAL ((int)'!')
+
   int extra_requested_data_type; // PEAKINFO_EXTRADATA_* for spectral information
   int extra_requested_data_out; // output: number of samples returned (== peaks_out if successful)
   void *extra_requested_data;
@@ -491,13 +510,28 @@ typedef struct _PCM_source_peaktransfer_t
   {
     switch (extra_requested_data_type) 
     {
-      case PEAKINFO_EXTRADATA_SPECTRAL1: return sizeof(int); // one int per channel per sample spectral info: low 15 bits frequency, next 14 bits density (16383=tonal, 0=noise, 12288 = a bit noisy)
+      case PEAKINFO_EXTRADATA_SPECTRAL1: return SPECTRAL1_BYTES;
       case PEAKINFO_EXTRADATA_SPECTROGRAM1: return SPECTROGRAM1_BLOCKSIZE_BYTES;
-      case PEAKINFO_EXTRADATA_MIDITEXT: return 1; // at most one character per pixel
+      case PEAKINFO_EXTRADATA_MIDITEXT: return MIDITEXT_BYTES;
+      case PEAKINFO_EXTRADATA_LOUDNESS_DEPRECATED: return LOUDNESS_DEPRECATED_BYTES;
+      case PEAKINFO_EXTRADATA_LOUDNESS_RAW: return LOUDNESS_RAW_BYTES;
+      case PEAKINFO_EXTRADATA_LOUDNESS_INTERNAL: return LOUDNESS_INTERNAL_BYTES;
     }
     return 0;
   }
-  enum { SPECTROGRAM1_BLOCKSIZE_BYTES=128 * 3 / 2 }; // 128 bins, 12 bits each (MSB1, (LSN1<<4)|LSN2, MSB2)
+
+  enum {
+    SPECTROGRAM1_BLOCKSIZE_BYTES=128 * 3 / 2, // 128 bins, 12 bits each (MSB1, (LSN1<<4)|LSN2, MSB2)
+    SPECTRAL1_BYTES=4, // one LE int per channel per sample spectral info: low 15 bits frequency, next 14 bits density (16383=tonal, 0=noise, 12288 = a bit noisy)
+    MIDITEXT_BYTES=1, // at most one character per pixel
+    LOUDNESS_DEPRECATED_BYTES=4, // 4 byte LE integer: LUFS-M low 12 bits, LUFS-S next 12 bits, 0-3000 valid: ex: 0 means -150.0 LU (consider this -inf), 1500 means +0 LU - loudness values returned for each channel even if the calculation is for all channels combined
+    LOUDNESS_RAW_BYTES=8, // 4 byte LE float LUFS-M low 32 bits, 4 byte LE float LUFS-S high 32 bits:
+         // stored values are a windowed, weighted mean square of samples for each channel,
+         // which must be combined to calculate total loudness. specifically,
+         // the stored values are z(i) in formula 2 in this document:
+         // https://www.itu.int/dms_pubrec/itu-r/rec/bs/R-REC-BS.1770-0-200607-S!!PDF-E.pdf
+    LOUDNESS_INTERNAL_BYTES=4, // REAPER internal use only
+  };
 
 } PCM_source_peaktransfer_t;
 
@@ -510,7 +544,7 @@ typedef struct _REAPER_midi_realtime_write_struct_t
   double srate;
   int length; // length in samples
   int overwritemode; // 0=overdub, 1=replace, 
-                     // -1 = literal (do nothing just add)
+                     // -1 = literal (do nothing just add), -2 = literal, do not apply default curves
                      // 65536+(16 bit mask) = replace notes on just these channels (touch-replace)
   MIDI_eventlist *events;
   double item_playrate;
@@ -664,7 +698,7 @@ typedef struct _REAPER_tempochg
 #define PCM_SOURCE_EXT_SETITEMCONTEXT 0x10004 // parm1=MediaItem*,  parm2=MediaItem_Take*
 #define PCM_SOURCE_EXT_ADDMIDIEVENTS 0x10005 // parm1=pointer to midi_realtime_write_struct_t, nch=1 for replace, =0 for overdub, parm2=midi_quantize_mode_t* (optional)
 #define PCM_SOURCE_EXT_GETASSOCIATED_RPP 0x10006 // parm1=pointer to char* that will receive a pointer to the string
-#define PCM_SOURCE_EXT_GETMETADATA 0x10007 // parm1=pointer to name string, parm2=pointer to buffer, parm3=(int)buffersizemax. returns length used. defined strings are "TITLE", "ARTIST", "ALBUM", "YEAR", "GENRE", "COMMENT", "DESC", "BPM", "KEY", "DB_CUSTOM"
+#define PCM_SOURCE_EXT_GETMETADATA 0x10007 // parm1=pointer to name string, parm2=pointer to buffer, parm3=(int)buffersizemax. returns length used. defined strings are "TITLE", "ARTIST", "ALBUM", "TRACKNUMBER", "YEAR", "GENRE", "COMMENT", "DESC", "BPM", "KEY", "DB_CUSTOM"
 #define PCM_SOURCE_EXT_SETASSECONDARYSOURCE 0x10008  // parm1=optional pointer to src (same subtype as receiver), if supplied, set the receiver as secondary src for parm1's editor, if not supplied, receiver has to figure out if there is an appropriate editor open to attach to, parm2/3 impl defined
 #define PCM_SOURCE_EXT_SHOWMIDIPREVIEW 0x10009  // parm1=(MIDI_eventlist*), can be NULL for all-notes-off (also to check if this source supports showing preview at this moment)
 #define PCM_SOURCE_EXT_SEND_EDITOR_MSG 0x1000A  // impl defined parameters
@@ -680,7 +714,7 @@ typedef struct _REAPER_tempochg
 #define PCM_SOURCE_EXT_WRITEMETADATA_DEPRECATED 0x20007 // no longer supported
 #define PCM_SOURCE_EXT_WRITE_METADATA 0x20008 // parm1=char* new file name, parm2=(char**)NULL-terminated array of key,value,key2,value2,... pointers, parm3=flags (&1=merge, &2=do not allow update in-place). returns 1 if successfully generated a new file, 2 if original file was updated
 #define PCM_SOURCE_EXT_GETBPMANDINFO 0x40000 // parm1=pointer to double for bpm. parm2=pointer to double for snap/downbeat offset (seconds).
-#define PCM_SOURCE_EXT_GETNTRACKS 0x80000 // for midi data, returns number of tracks that would have been available
+#define PCM_SOURCE_EXT_GETNTRACKS 0x80000 // for midi data, returns number of tracks that would have been available. optional parm1=(int*)mask of channels available, mask&(1<<16)=metadata
 #define PCM_SOURCE_EXT_GETTITLE   0x80001 // parm1=(char**)title (string persists in plugin)
 #define PCM_SOURCE_EXT_ENUMTEMPOMAP 0x80002 // parm1=index, parm2=pointer to REAPER_tempochg, returns 0 if no tempo map or enumeration complete
 #define PCM_SOURCE_EXT_WANTOLDBEATSTYLE 0x80003
@@ -695,9 +729,9 @@ typedef struct _REAPER_tempochg
 // a PCM_source may be the parent of a number of beat-based slices, if so the parent should report length and nchannels only, handle ENUMSLICES, and be deleted after the slices are retrieved
 #define PCM_SOURCE_EXT_ENUMSLICES 0x90006 // parm1=(int*) index of slice to get, parm2=REAPER_slice* (pointing to caller's existing slice struct), parm3=(double*)bpm. if parm2 passed in zero, returns the number of slices. returns 0 if no slices or out of slices.
 #define PCM_SOURCE_EXT_ENDPLAYNOTIFY 0x90007 // notify a source that it can release any pooled resources
-#define PCM_SOURCE_EXT_SETPREVIEWTEMPO 0x90008 // parm1=(double*)bpm, only meaningful for MIDI or slice-based source media
+#define PCM_SOURCE_EXT_SETPREVIEWTEMPO 0x90008 // parm1=(double*)bpm, only meaningful for MIDI or slice-based source media; bpm==0 to follow project tempo changes
 
-enum { RAWMIDI_NOTESONLY=1, RAWMIDI_UNFILTERED=2 };
+enum { RAWMIDI_NOTESONLY=1, RAWMIDI_UNFILTERED=2, RAWMIDI_CHANNELFILTER=3 }; // if RAWMIDI_CHANNELFILTER, flags>>4 is a mask of which channels to play
 #define PCM_SOURCE_EXT_GETRAWMIDIEVENTS 0x90009 // parm1 = (PCM_source_transfer_t *), parm2 = RAWMIDI flags
 
 #define PCM_SOURCE_EXT_SETRESAMPLEMODE 0x9000A // parm1= mode to pass to resampler->Extended(RESAMPLE_EXT_SETRSMODE,mode,0,0)
@@ -727,8 +761,14 @@ enum { RAWMIDI_NOTESONLY=1, RAWMIDI_UNFILTERED=2 };
 #define PCM_SOURCE_EXT_GETSETALLMIDI 0x90029 // parm1=(unsigned char*)data buffer, parm2=(int*)buffer length in bytes, parm2=(1:set, 0:get). Buffer is a list of { int offset, char flag, int msglen, unsigned char msg[] }. offset: MIDI ticks from previous event, flag: &1=selected &2=muted, msglen: byte length of msg (usually 3), msg: the MIDI message.
 #define PCM_SOURCE_EXT_DISABLESORTMIDIEVTS 0x90030 // disable sorting for PCM_SOURCE_EXT_GETSETMIDIEVT until PCM_SOURCE_EXT_SORTMIDIEVTS is called
 #define PCM_SOURCE_EXT_GETPOOLEDMIDIID2 0x90031 // parm1=(GUID*)id, parm2=(int*)pool user count, parm3=(MediaItem_Take**)firstuser
+#define PCM_SOURCE_EXT_GETSETMIDICHANFILTER 0x90032 // parm1=(int*)filter: filter&(1<<n) to play channel n, parm2=(int)set: 0 to get, 1 to set
+#define PCM_SOURCE_EXT_REFRESH_EDITORS 0x90033 // synchronously refresh any open editors
+#define PCM_SOURCE_EXT_GET_LYRICS      0x90040 // parm1=buffer, parm2= &len, parm3=(INT_PTR)flag - see GetTrackMIDILyrics
+#define PCM_SOURCE_EXT_SET_LYRICS      0x90041 // parm1=nul term buffer
 #define PCM_SOURCE_EXT_GETLAPPING 0xC0100 // parm1 = ReaSample buffer, parm2=(INT_PTR)maxlap, returns size of lapping returned. usually not supported. special purpose.
 #define PCM_SOURCE_EXT_SET_PREVIEW_POS_OVERRIDE 0xC0101 // parm1 = (double *)&tickpos, tickpos<0 for no override
+#define PCM_SOURCE_EXT_SET_PREVIEW_LOOPCNT 0xC0102 // parm1 = (INT64*)&decoding_loopcnt, valid only for the immediately following GetSamples(), only in track preview contexts, when not using buffering source
+
 
 // register with Register("pcmsrc",&struct ... and unregister with "-pcmsrc"
 typedef struct _REAPER_pcmsrc_register_t {
@@ -892,6 +932,7 @@ public:
 };
 #define RESAMPLE_EXT_SETRSMODE 0x1000 // parm1 == (int)resamplemode, or -1 for project default
 #define RESAMPLE_EXT_SETFEEDMODE 0x1001 // parm1 = nonzero to set ResamplePrepare's out_samples to refer to request a specific number of input samples
+#define RESAMPLE_EXT_PREALLOC 0x1002 // parm1 = nch, parm2=input blocksize, parm3=output blocksize
 #define RESAMPLE_EXT_RESETWITHFRACPOS 0x6000 // parm1 = (double*)&fracpos
 
 
@@ -1019,6 +1060,7 @@ typedef struct _REAPER_custom_action_register_t
 ** gaccel_register_t allows you to register ("gaccel") an action into the main keyboard section action list, and at the same time
 ** a default binding for it (accel.cmd is the command ID, desc is the description, and accel's other parameters are the
 ** key to bind. 
+** 7.07+ - can use "gaccel_global" or "gaccel_globaltext" to make the accel registered as a global by default
 */
 
 typedef struct _REAPER_gaccel_register_t
@@ -1297,13 +1339,14 @@ typedef struct _REAPER_preview_register_t
 */
 enum
 {
-  SCREENSET_ACTION_GETHWND = 0,
+  SCREENSET_ACTION_GETHWND = 0, // returns HWND of screenset window. If searching for a specific window, it will be passed in actionParm
 
   SCREENSET_ACTION_IS_DOCKED = 1, // returns 1 if docked
   SCREENSET_ACTION_SWITCH_DOCK = 4, //dock if undocked and vice-versa
 
   SCREENSET_ACTION_LOAD_STATE=0x100, // load state from actionParm (of actionParmSize). if both are NULL, hide.
-  SCREENSET_ACTION_SAVE_STATE,  // save state to actionParm, max length actionParmSize (will usually be 4k or greater), return length
+  SCREENSET_ACTION_SAVE_STATE,  // save state to actionParm, max length actionParmSize (will usually be max(4096, value_returned by SCREENSET_ACTION_WANT_STATE_SIZE)), return length actually used
+  SCREENSET_ACTION_WANT_STATE_SIZE, // returns desired size for SCREENSET_ACTION_SAVE_STATE, may or may not be fulfilled!
 };
 typedef LRESULT (*screensetNewCallbackFunc)(int action, const char *id, void *param, void *actionParm, int actionParmSize);
 
