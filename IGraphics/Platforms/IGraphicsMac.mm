@@ -132,7 +132,7 @@ void IGraphicsMac::CloseWindow()
   {    
     IGRAPHICS_VIEW* pView = (IGRAPHICS_VIEW*) mView;
       
-#ifdef IGRAPHICS_GL
+#if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
     [[pView pixelFormat] release];
     [[pView openGLContext] release];
 #endif
