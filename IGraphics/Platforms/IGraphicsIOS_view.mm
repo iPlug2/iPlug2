@@ -212,24 +212,79 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics = pGraphics;
   CGRect r = CGRectMake(0.f, 0.f, (float) pGraphics->WindowWidth(), (float) pGraphics->WindowHeight());
   self = [super initWithFrame:r];
+
+  #if TARGET_OS_VISION
+    CGFloat scale = 2.0;
+  #else
+    CGFloat scale = [UIScreen mainScreen].scale;
+  #endif
     
-#ifdef IGRAPHICS_METAL
-
-  mMTLLayer = [[CAMetalLayer alloc] init];
-  mMTLLayer.device = MTLCreateSystemDefaultDevice();
-  mMTLLayer.framebufferOnly = YES;
-  mMTLLayer.frame = self.layer.frame;
-  mMTLLayer.opaque = YES;
-
-#if TARGET_OS_VISION
-  CGFloat scale = 2.0;
-#else
-  CGFloat scale = [UIScreen mainScreen].scale;
-#endif
-
-  mMTLLayer.contentsScale = scale;
+  self.layer.frame = self.frame;
+  self.layer.opaque = YES;
+  self.layer.contentsScale = scale;
+  self.contentScaleFactor = scale;
   
-  [self.layer addSublayer: mMTLLayer];
+  CAMetalLayer* mtlLayer = (CAMetalLayer*) self.layer;
+  mtlLayer.framebufferOnly = YES;
+  mtlLayer.device = MTLCreateSystemDefaultDevice();
+
+#if defined IGRAPHICS_GL
+  EGLDisplay display = eglGetPlatformDisplay(EGLenum(EGL_PLATFORM_ANGLE_ANGLE), 0, 0);
+  
+  if (!display) {
+    DBGMSG("eglGetPlatformDisplay() returned error %i", eglGetError());
+  }
+  
+  if (eglInitialize(display, nil, nil) == 0) {
+    DBGMSG("eglInitialize() returned error %i", eglGetError());
+  }
+  
+  const EGLint configAttribs[9] = {
+    EGL_BLUE_SIZE, 8,
+    EGL_GREEN_SIZE, 8,
+    EGL_RED_SIZE, 8,
+    EGL_DEPTH_SIZE, 24,
+    EGL_NONE};
+  EGLint numConfigs = 0;
+  EGLConfig configs[1];
+  
+  if (eglChooseConfig(display, configAttribs, configs, 1, &numConfigs) == 0) {
+    DBGMSG("eglChooseConfig() returned error %i", eglGetError());
+  }
+  
+  if (!configs[0]) {
+    DBGMSG("Empty config returned in eglChooseConfig()");
+  }
+  
+#if defined IGRAPHICS_GLES2
+  const EGLint contextAttribs [5] = {
+    EGL_CONTEXT_MAJOR_VERSION, 2,
+    EGL_CONTEXT_MINOR_VERSION, 0,
+    EGL_NONE,
+  };
+#elif defined IGRAPHICS_GLES3
+  const EGLint contextAttribs [5] = {
+    EGL_CONTEXT_MAJOR_VERSION, 3,
+    EGL_CONTEXT_MINOR_VERSION, 0,
+    EGL_NONE,
+  };
+#endif
+  
+  EGLContext context = eglCreateContext(display, configs[0], nullptr, contextAttribs);
+  
+  if (!context) {
+    DBGMSG("eglCreateContext() returned error %d", eglGetError());
+  }
+  
+  EGLSurface surface = eglCreateWindowSurface(display, configs[0], (__bridge EGLNativeWindowType) [self layer], nullptr);
+  
+  if (!surface) {
+    DBGMSG("eglCreateWindowSurface() returned error %d", eglGetError());
+  }
+
+  mEGLSurface = surface;
+  mEGLDisplay = display;
+  mEGLContext = context;
 #endif
 
   self.multipleTouchEnabled = NO;
@@ -258,20 +313,18 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   }
 #endif
   
-  #ifdef IGRAPHICS_METAL
   [CATransaction begin];
   [CATransaction setValue:(id)kCFBooleanTrue forKey:kCATransactionDisableActions];
-  CGSize drawableSize = self.bounds.size;
   [self.layer setFrame:frame];
-  mMTLLayer.frame = self.layer.frame;
-
+  
+  // CAMetalLayer is correct for both Metal and GLES - ANGLE uses Metal backend on iOS
+  CAMetalLayer* mtlLayer = (CAMetalLayer*) self.layer;
+  CGSize drawableSize = self.bounds.size;
   drawableSize.width *= scale;
   drawableSize.height *= scale;
-
-  mMTLLayer.drawableSize = drawableSize;
+  mtlLayer.drawableSize = drawableSize;
   
   [CATransaction commit];
-  #endif
 }
 
 - (void) onTouchEvent:(ETouchEvent) eventType withTouches:(NSSet*) touches withEvent:(UIEvent*) event
@@ -345,9 +398,9 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   [self onTouchEvent:ETouchEvent::Cancelled withTouches:touches withEvent:event];
 }
 
-- (CAMetalLayer*) metalLayer
++ (Class) layerClass
 {
-  return mMTLLayer;
+  return CAMetalLayer.class;
 }
 
 - (void) didMoveToSuperview
@@ -373,12 +426,14 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   if(mGraphics)
   {
     mGraphics->SetPlatformContext(UIGraphicsGetCurrentContext());
-    
+    IGraphics::ScopedGLContext scopedGLContext{mGraphics};
+
     if (mGraphics->IsDirty(rects))
     {
       mGraphics->SetAllControlsClean();
       mGraphics->Draw(rects);
     }
+    [self swapBuffers];
   }
 }
 
@@ -414,8 +469,21 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   mGraphics = nil;
   mMenuTableController = nil;
   mMenuNavigationController = nil;
-  [mMTLLayer removeFromSuperlayer];
-  mMTLLayer = nil;
+
+#if defined IGRAPHICS_GL
+  if (mEGLDisplay != EGL_NO_DISPLAY)
+  {
+    eglMakeCurrent(mEGLDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    if (mEGLSurface != EGL_NO_SURFACE)
+      eglDestroySurface(mEGLDisplay, mEGLSurface);
+    if (mEGLContext != EGL_NO_CONTEXT)
+      eglDestroyContext(mEGLDisplay, mEGLContext);
+    eglTerminate(mEGLDisplay);
+  }
+  mEGLDisplay = EGL_NO_DISPLAY;
+  mEGLSurface = EGL_NO_SURFACE;
+  mEGLContext = EGL_NO_CONTEXT;
+#endif
 }
 
 - (BOOL) textFieldShouldReturn:(UITextField*) textField
@@ -966,5 +1034,28 @@ extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
   y = mPrevY * scale;
 }
 
+- (void) activateGLContext
+{
+#ifdef IGRAPHICS_GL
+  if (mEGLDisplay != EGL_NO_DISPLAY && mEGLContext != EGL_NO_CONTEXT)
+    eglMakeCurrent(mEGLDisplay, mEGLSurface, mEGLSurface, mEGLContext);
+#endif
+}
+
+- (void) deactivateGLContext
+{
+#ifdef IGRAPHICS_GL
+  if (mEGLDisplay != EGL_NO_DISPLAY)
+    eglMakeCurrent(mEGLDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+#endif
+}
+
+- (void) swapBuffers
+{
+#ifdef IGRAPHICS_GL
+  if (mEGLDisplay != EGL_NO_DISPLAY && mEGLSurface != EGL_NO_SURFACE)
+    eglSwapBuffers(mEGLDisplay, mEGLSurface);
+#endif
+}
 @end
 
