@@ -14,6 +14,11 @@
 #import <QuartzCore/QuartzCore.h>
 #endif
 
+#if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+#import <libEGL/libEGL.h>
+#import <libGLESv2/angle_gl.h>
+#endif
+
 #include "IGraphicsMac.h"
 #include "IGraphicsStructs.h"
 
@@ -107,7 +112,7 @@ using namespace igraphics;
 - (bool) becomeFirstResponder;
 @end
 
-#ifdef IGRAPHICS_GL
+#if defined IGRAPHICS_GL2 || defined IGRAPHICS_GL3
 #define VIEW_BASE NSOpenGLView
 #else
 #define VIEW_BASE NSView
@@ -126,6 +131,13 @@ using namespace igraphics;
   bool mMouseOutDuringDrag;
   IRECTList mDirtyRects;
   IColorPickerHandlerFunc mColorPickerFunc;
+
+#if defined IGRAPHICS_GLES2 || defined IGRAPHICS_GLES3
+  EGLDisplay mEGLDisplay;
+  EGLSurface mEGLSurface;
+  EGLContext mEGLContext;
+#endif
+  
 @public
   IGraphicsMac* mGraphics; // OBJC instance variables have to be pointers
 }
@@ -177,5 +189,9 @@ using namespace igraphics;
 - (NSDragOperation)draggingSession:(NSDraggingSession*) session sourceOperationMaskForDraggingContext:(NSDraggingContext)context;
 //
 - (void) setMouseCursor: (ECursor) cursorType;
+
+- (void) activateGLContext;
+- (void) deactivateGLContext;
+- (void) swapBuffers;
 @end
 
