@@ -544,7 +544,11 @@ void editor_instance::refresh_list(bool refilter)
   HWND list = WDL_NORMALLY(m_hwnd) ? GetDlgItem(m_hwnd,IDC_LIST) : NULL;
   if (!refilter)
   {
-    if (list) ListView_RedrawItems(list, 0, m_display_order.GetSize());
+    if (list)
+    {
+      ListView_SetItemCount(list, m_display_order.GetSize());
+      ListView_RedrawItems(list, 0, m_display_order.GetSize());
+    }
     return;
   }
   WDL_IntKeyedArray<bool> selState;
