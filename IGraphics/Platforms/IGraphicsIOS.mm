@@ -26,6 +26,7 @@
 BEGIN_IPLUG_NAMESPACE
 BEGIN_IGRAPHICS_NAMESPACE
 
+#if !TARGET_OS_VISION
 void GetScreenDimensions(int& width, int& height)
 {
   CGRect bounds = [[UIScreen mainScreen] bounds];
@@ -39,6 +40,12 @@ float GetScaleForScreen(int plugWidth, int plugHeight)
   GetScreenDimensions(width, height);
   return std::min((float) width / (float) plugWidth, (float) height / (float) plugHeight);
 }
+#else
+float GetScaleForScreen(int plugWidth, int plugHeight)
+{
+  return 1.0;
+}
+#endif
 
 END_IGRAPHICS_NAMESPACE
 END_IPLUG_NAMESPACE
@@ -102,9 +109,16 @@ void* IGraphicsIOS::OpenWindow(void* pParent)
   IGRAPHICS_VIEW* view = [[IGRAPHICS_VIEW alloc] initWithIGraphics: this];
   mView = (void*) view;
   
-  OnViewInitialized((void*) [view metalLayer]);
+  IGraphics::ScopedGLContext scopedGLContext{this};
+  OnViewInitialized((void*) [view layer]);
+
+#if !TARGET_OS_VISION
+  CGFloat  scale = [UIScreen mainScreen].scale;
+#else
+  CGFloat scale = 2.0;
+#endif
   
-  SetScreenScale([UIScreen mainScreen].scale);
+  SetScreenScale(scale);
   
   GetDelegate()->LayoutUI(this);
   GetDelegate()->OnUIOpen();
