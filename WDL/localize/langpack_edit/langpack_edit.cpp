@@ -811,6 +811,7 @@ bool editor_instance::edit_row(int row, int other_action)
               if (!m_recs.GetPtr(sec))
               {
                 pack_rec newr = { 0 };
+                newr.common_idx = -1;
                 m_recs.Insert(sec,newr);
                 int idx = m_recs.GetIdx(sec);
                 if (WDL_NORMALLY(idx>=0))
