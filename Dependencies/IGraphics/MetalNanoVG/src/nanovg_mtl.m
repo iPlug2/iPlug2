@@ -1162,8 +1162,11 @@ enum MNVGTarget mnvgTarget(void) {
   MNVGtexture* tex = [self allocTexture];
 
   if (tex == nil) return 0;
-
-  MTLPixelFormat pixelFormat = MTLPixelFormatRGBA8Unorm;
+  bool useFloats = imageFlags & NVG_IMAGE_FLOAT32;
+  int numComponents = (type == NVG_TEXTURE_RGBA) ? 4 : 1;
+  int bytesPerComponent = (useFloats) ? 4 : 1;
+  int bytesPerPixel = bytesPerComponent * numComponents;
+  MTLPixelFormat pixelFormat = (useFloats) ? MTLPixelFormatRGBA32Float : MTLPixelFormatRGBA8Unorm;
   if (type == NVG_TEXTURE_ALPHA) {
     pixelFormat = MTLPixelFormatR8Unorm;
   }
@@ -1187,7 +1190,7 @@ enum MNVGTarget mnvgTarget(void) {
   if (data != NULL) {
     NSUInteger bytesPerRow;
     if (tex->type == NVG_TEXTURE_RGBA) {
-      bytesPerRow = width * 4;
+      bytesPerRow = width * bytesPerPixel;
     } else {
       bytesPerRow = width;
     }

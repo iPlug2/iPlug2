@@ -76,7 +76,7 @@ class IGraphicsNanoVG::Bitmap : public APIBitmap
 {
 public:
   Bitmap(NVGcontext* pContext, const char* path, double sourceScale, int nvgImageID, bool shared = false);
-  Bitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, float scale, float drawScale);
+  Bitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, float scale, float drawScale, bool useFloat32 = false);
   Bitmap(NVGcontext* pContext, int width, int height, const uint8_t* pData, float scale, float drawScale);
   virtual ~Bitmap();
   NVGframebuffer* GetFBO() const { return mFBO; }
@@ -99,12 +99,12 @@ IGraphicsNanoVG::Bitmap::Bitmap(NVGcontext* pContext, const char* path, double s
   SetBitmap(nvgImageID, w, h, sourceScale, 1.f);
 }
 
-IGraphicsNanoVG::Bitmap::Bitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, float scale, float drawScale)
+IGraphicsNanoVG::Bitmap::Bitmap(IGraphicsNanoVG* pGraphics, NVGcontext* pContext, int width, int height, float scale, float drawScale, bool useFloat32)
 {
   assert(width > 0 && height > 0);
   mGraphics = pGraphics;
   mVG = pContext;
-  mFBO = nvgCreateFramebuffer(pContext, width, height, 0);
+  mFBO = nvgCreateFramebuffer(pContext, width, height, (useFloat32) ? NVG_IMAGE_FLOAT32 : 0);
   
   nvgBindFramebuffer(mFBO);
   
@@ -370,14 +370,14 @@ APIBitmap* IGraphicsNanoVG::LoadAPIBitmap(const char* name, const void* pData, i
   return pBitmap;
 }
 
-APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, float scale, double drawScale, bool cacheable)
+APIBitmap* IGraphicsNanoVG::CreateAPIBitmap(int width, int height, float scale, double drawScale, bool cacheable, bool useFloat32)
 {
   if (mInDraw)
   {
     nvgEndFrame(mVG);
   }
   
-  APIBitmap* pAPIBitmap = new Bitmap(this, mVG, width, height, scale, drawScale);
+  APIBitmap* pAPIBitmap = new Bitmap(this, mVG, width, height, scale, drawScale, useFloat32);
 
   if (mInDraw)
   {

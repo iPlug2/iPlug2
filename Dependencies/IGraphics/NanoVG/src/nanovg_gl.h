@@ -759,9 +759,14 @@ static int glnvg__renderCreateTexture(void* uptr, int type, int w, int h, int im
 	}
 #endif
 
-	if (type == NVG_TEXTURE_RGBA)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	else
+  if (type == NVG_TEXTURE_RGBA) {
+	  int pixelformat = GL_RGBA;
+#if defined (NANOVG_GL3)
+	if (imageFlags & NVG_IMAGE_FLOAT32) { pixelformat = GL_RGBA32F; }
+#endif
+    int compformat  = (imageFlags & NVG_IMAGE_FLOAT32) ? GL_FLOAT   : GL_BYTE;
+    glTexImage2D(GL_TEXTURE_2D, 0, pixelformat, w, h, 0, GL_RGBA, compformat, data);
+  } else
 #if defined(NANOVG_GLES2) || defined (NANOVG_GL2)
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, w, h, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, data);
 #elif defined(NANOVG_GLES3)
