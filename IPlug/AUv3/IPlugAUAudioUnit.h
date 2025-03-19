@@ -13,11 +13,11 @@
 
 #if defined __APPLE__
   #include <TargetConditionals.h>
-  #if TARGET_OS_IPHONE
-    #define OS_IOS
+  #if TARGET_OS_IOS == 1 || TARGET_OS_VISION == 1
     #import <UIKit/UIKit.h>
     #define PLATFORM_VIEW UIView
   #else
+    #import <AppKit/AppKit.h>
     #define PLATFORM_VIEW NSView
   #endif
 #endif
