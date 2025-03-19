@@ -1225,9 +1225,9 @@ WDL_DLGRET mainProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam)
               const int nn = ListView_GetItemCount(list);
               if (n < nn)
               {
-                ListView_EnsureVisible(list,n,false);
                 for (int i = n; i < nn; i ++)
                   ListView_SetItemState(list,i,LVIS_SELECTED,LVIS_SELECTED);
+                ListView_EnsureVisible(list,nn-1,false);
               }
             }
           }
