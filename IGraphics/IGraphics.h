@@ -1720,6 +1720,7 @@ protected:
    * @param scale The scale in relation to 1:1 pixels
    * @param drawScale \todo
    * @param cacheable Used to make sure the underlying bitmap can be shared between plug-in instances
+   * @param useFloat32 Use 32-bit floats as the pixel format for the bitmap. Default is uint8.
    * @return APIBitmap* The new API Bitmap */
   virtual APIBitmap* CreateAPIBitmap(int width, int height, float scale, double drawScale, bool cacheable = false, bool useFloat32 = false) = 0;
 
