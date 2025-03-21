@@ -51,7 +51,11 @@ private:
   class Bitmap;
   struct Font;
 public:
-  IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
+  IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float scale, bool useCPU);
+  IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
+  : IGraphicsSkia(dlg, w, h, fps, scale, false)
+  {}
+  
   ~IGraphicsSkia();
 
   const char* GetDrawingAPIStr() override ;
@@ -153,7 +157,7 @@ private:
   SkMatrix mClipMatrix;
   SkMatrix mFinalMatrix;
 
-#if defined OS_WIN && defined IGRAPHICS_CPU
+#if defined OS_WIN
   WDL_TypedBuf<uint8_t> mSurfaceMemory;
 #endif
   
@@ -173,6 +177,7 @@ private:
   void* mMTLLayer;
 #endif
 
+  bool mUseCPU;  
   static StaticStorage<Font> sFontCache;
 };
 
