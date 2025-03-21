@@ -90,9 +90,9 @@ class IGraphicsSkia::Bitmap : public APIBitmap
 {
 public:
   Bitmap(sk_sp<SkSurface> surface, int width, int height, float scale, float drawScale);
-  Bitmap(const char* path, double sourceScale);
-  Bitmap(const void* pData, int size, double sourceScale);
-  Bitmap(sk_sp<SkImage>, double sourceScale);
+  Bitmap(const char* path, double sourceScale, bool useRaster);
+  Bitmap(const void* pData, int size, double sourceScale, bool useRaster);
+  Bitmap(sk_sp<SkImage>, double sourceScale, bool useRaster);
 
 private:
   SkiaDrawable mDrawable;
@@ -106,7 +106,7 @@ IGraphicsSkia::Bitmap::Bitmap(sk_sp<SkSurface> surface, int width, int height, f
   SetBitmap(&mDrawable, width, height, scale, drawScale);
 }
 
-IGraphicsSkia::Bitmap::Bitmap(const char* path, double sourceScale)
+IGraphicsSkia::Bitmap::Bitmap(const char* path, double sourceScale, bool useRaster)
 {
   sk_sp<SkData> data = SkData::MakeFromFileName(path);
   
@@ -114,9 +114,10 @@ IGraphicsSkia::Bitmap::Bitmap(const char* path, double sourceScale)
   
   auto image = SkImages::DeferredFromEncodedData(data);
   
-#ifdef IGRAPHICS_CPU
-  image = image->makeRasterImage();
-#endif
+  if (useRaster)
+  {
+    image = image->makeRasterImage();
+  }
   
   mDrawable.mImage = image;
   
@@ -124,14 +125,15 @@ IGraphicsSkia::Bitmap::Bitmap(const char* path, double sourceScale)
   SetBitmap(&mDrawable, mDrawable.mImage->width(), mDrawable.mImage->height(), sourceScale, 1.f);
 }
 
-IGraphicsSkia::Bitmap::Bitmap(const void* pData, int size, double sourceScale)
+IGraphicsSkia::Bitmap::Bitmap(const void* pData, int size, double sourceScale, bool useRaster)
 {
   auto data = SkData::MakeWithoutCopy(pData, size);
   auto image = SkImages::DeferredFromEncodedData(data);
   
-#ifdef IGRAPHICS_CPU
-  image = image->makeRasterImage();
-#endif
+  if (useRaster)
+  {
+    image = image->makeRasterImage();
+  }
   
   mDrawable.mImage = image;
 
@@ -139,13 +141,16 @@ IGraphicsSkia::Bitmap::Bitmap(const void* pData, int size, double sourceScale)
   SetBitmap(&mDrawable, mDrawable.mImage->width(), mDrawable.mImage->height(), sourceScale, 1.f);
 }
 
-IGraphicsSkia::Bitmap::Bitmap(sk_sp<SkImage> image, double sourceScale)
+IGraphicsSkia::Bitmap::Bitmap(sk_sp<SkImage> image, double sourceScale, bool useRaster)
 {
-#ifdef IGRAPHICS_CPU
-  mDrawable.mImage = image->makeRasterImage();
-#else
-  mDrawable.mImage = image;
-#endif
+  if (useRaster)
+  {
+    mDrawable.mImage = image->makeRasterImage();
+  }
+  else
+  {
+    mDrawable.mImage = image;
+  }
 
   SetBitmap(&mDrawable, mDrawable.mImage->width(), mDrawable.mImage->height(), sourceScale, 1.f);
 }
@@ -341,18 +346,28 @@ sk_sp<SkUnicode> GetUnicode()
 }
 #endif
 
-IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
+IGraphicsSkia::IGraphicsSkia(IGEditorDelegate& dlg, int w, int h, int fps, float scale, bool useCPU)
 : IGraphics(dlg, w, h, fps, scale)
+, mUseCPU(useCPU)
 {
   mMainPath.setIsVolatile(true);
   
 #if defined IGRAPHICS_CPU
-  DBGMSG("IGraphics Skia CPU @ %i FPS\n", fps);
-#elif defined IGRAPHICS_METAL
-  DBGMSG("IGraphics Skia METAL @ %i FPS\n", fps);
-#elif defined IGRAPHICS_GL
-  DBGMSG("IGraphics Skia GL @ %i FPS\n", fps);
+  mUseCPU = true;
 #endif
+  
+  if (mUseCPU)
+  {
+    DBGMSG("IGraphics Skia CPU @ %i FPS\n", fps);
+  }
+  else
+  {
+#if defined IGRAPHICS_METAL
+    DBGMSG("IGraphics Skia METAL @ %i FPS\n", fps);
+#elif defined IGRAPHICS_GL
+    DBGMSG("IGraphics Skia GL @ %i FPS\n", fps);
+#endif
+  }
   StaticStorage<Font>::Accessor storage(sFontCache);
   storage.Retain();
   
@@ -400,39 +415,42 @@ APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* fileNameOrResID, int scale, 
   {
     int size = 0;
     const void* pData = LoadWinResource(fileNameOrResID, ext, size, GetWinModuleHandle());
-    return new Bitmap(pData, size, scale);
+    return new Bitmap(pData, size, scale, mUseCPU);
   }
   else
 #endif
-  return new Bitmap(fileNameOrResID, scale);
+    return new Bitmap(fileNameOrResID, scale, mUseCPU);
 }
 
 APIBitmap* IGraphicsSkia::LoadAPIBitmap(const char* name, const void* pData, int dataSize, int scale)
 {
-  return new Bitmap(pData, dataSize, scale);
+  return new Bitmap(pData, dataSize, scale, mUseCPU);
 }
 
 void IGraphicsSkia::OnViewInitialized(void* pContext)
-{
+{  
+  if (!mUseCPU)
+  {
 #if defined IGRAPHICS_GL
 #if defined OS_MAC
-  auto glInterface = GrGLInterfaces::MakeMac();
+    auto glInterface = GrGLInterfaces::MakeMac();
 #elif defined OS_WIN
-  auto glInterface = GrGLInterfaces::MakeWin();
+    auto glInterface = GrGLInterfaces::MakeWin();
 #endif
-  mGrContext = GrDirectContexts::MakeGL(glInterface);
+    mGrContext = GrDirectContexts::MakeGL(glInterface);
 #elif defined IGRAPHICS_METAL
-  CAMetalLayer* pMTLLayer = (CAMetalLayer*) pContext;
-  id<MTLDevice> device = pMTLLayer.device;
-  id<MTLCommandQueue> commandQueue = [device newCommandQueue];
-  GrMtlBackendContext backendContext = {};
-  backendContext.fDevice.retain((__bridge GrMTLHandle) device);
-  backendContext.fQueue.retain((__bridge GrMTLHandle) commandQueue);
-  mGrContext = GrDirectContexts::MakeMetal(backendContext);
-  mMTLDevice = (void*) device;
-  mMTLCommandQueue = (void*) commandQueue;
-  mMTLLayer = pContext;
+    CAMetalLayer* pMTLLayer = (CAMetalLayer*) pContext;
+    id<MTLDevice> device = pMTLLayer.device;
+    id<MTLCommandQueue> commandQueue = [device newCommandQueue];
+    GrMtlBackendContext backendContext = {};
+    backendContext.fDevice.retain((__bridge GrMTLHandle) device);
+    backendContext.fQueue.retain((__bridge GrMTLHandle) commandQueue);
+    mGrContext = GrDirectContexts::MakeMetal(backendContext);
+    mMTLDevice = (void*) device;
+    mMTLCommandQueue = (void*) commandQueue;
+    mMTLLayer = pContext;
 #endif
+  }
 
   DrawResize();
 }
@@ -458,16 +476,21 @@ void IGraphicsSkia::DrawResize()
   auto w = static_cast<int>(std::ceil(static_cast<float>(WindowWidth()) * GetScreenScale()));
   auto h = static_cast<int>(std::ceil(static_cast<float>(WindowHeight()) * GetScreenScale()));
   
-#if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
-  if (mGrContext.get())
+  if (!mUseCPU)
   {
-    SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
-    mSurface = SkSurfaces::RenderTarget(mGrContext.get(), skgpu::Budgeted::kYes, info);
+#if defined IGRAPHICS_GL || defined IGRAPHICS_METAL
+    if (mGrContext.get())
+    {
+      SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
+      mSurface = SkSurfaces::RenderTarget(mGrContext.get(), skgpu::Budgeted::kYes, info);
+    }
+#endif
   }
-#else
-  #ifdef OS_WIN
+  else
+  {
+#ifdef OS_WIN
     mSurface.reset();
-   
+    
     const size_t bmpSize = sizeof(BITMAPINFOHEADER) + (w * h * sizeof(uint32_t));
     mSurfaceMemory.Resize(bmpSize);
     BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.Get());
@@ -479,14 +502,15 @@ void IGraphicsSkia::DrawResize()
     bmpInfo->bmiHeader.biBitCount = 32;
     bmpInfo->bmiHeader.biCompression = BI_RGB;
     void* pixels = bmpInfo->bmiColors;
-
+    
     SkImageInfo info = SkImageInfo::Make(w, h, kN32_SkColorType, kPremul_SkAlphaType, nullptr);
     mSurface = SkSurfaces::WrapPixels(info, pixels, sizeof(uint32_t) * w);
-  #else
+#else
     SkImageInfo info = SkImageInfo::MakeN32Premul(w, h);
     mSurface = SkSurfaces::Raster(info);
-  #endif
 #endif
+  }
+  
   if (mSurface)
   {
     mCanvas = mSurface->getCanvas();
@@ -496,66 +520,70 @@ void IGraphicsSkia::DrawResize()
 
 void IGraphicsSkia::BeginFrame()
 {
+  if (!mUseCPU)
+  {
 #if defined IGRAPHICS_GL
-  if (mGrContext.get())
-  {
-    int width = WindowWidth() * GetScreenScale();
-    int height = WindowHeight() * GetScreenScale();
-    
-    // Bind to the current main framebuffer
-    int fbo = 0, samples = 0, stencilBits = 0;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
-    glGetIntegerv(GL_SAMPLES, &samples);
+    if (mGrContext.get())
+    {
+      int width = WindowWidth() * GetScreenScale();
+      int height = WindowHeight() * GetScreenScale();
+      
+      // Bind to the current main framebuffer
+      int fbo = 0, samples = 0, stencilBits = 0;
+      glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fbo);
+      glGetIntegerv(GL_SAMPLES, &samples);
 #ifdef IGRAPHICS_GL3
-    glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_STENCIL, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencilBits);
+      glGetFramebufferAttachmentParameteriv(GL_DRAW_FRAMEBUFFER, GL_STENCIL, GL_FRAMEBUFFER_ATTACHMENT_STENCIL_SIZE, &stencilBits);
 #else
-    glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
+      glGetIntegerv(GL_STENCIL_BITS, &stencilBits);
 #endif
-    
-    GrGLFramebufferInfo fbInfo;
-    fbInfo.fFBOID = fbo;
-    fbInfo.fFormat = 0x8058;
-
-    auto backendRT = GrBackendRenderTargets::MakeGL(width, height, samples, stencilBits, fbInfo);
-
-    mScreenSurface = SkSurfaces::WrapBackendRenderTarget(mGrContext.get(), backendRT, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
-    assert(mScreenSurface);
-  }
+      
+      GrGLFramebufferInfo fbInfo;
+      fbInfo.fFBOID = fbo;
+      fbInfo.fFormat = 0x8058;
+      
+      auto backendRT = GrBackendRenderTargets::MakeGL(width, height, samples, stencilBits, fbInfo);
+      
+      mScreenSurface = SkSurfaces::WrapBackendRenderTarget(mGrContext.get(), backendRT, kBottomLeft_GrSurfaceOrigin, kRGBA_8888_SkColorType, nullptr, nullptr);
+      assert(mScreenSurface);
+    }
 #elif defined IGRAPHICS_METAL
-  if (mGrContext.get())
-  {
-    int width = WindowWidth() * GetScreenScale();
-    int height = WindowHeight() * GetScreenScale();
-    
-    id<CAMetalDrawable> drawable = [(CAMetalLayer*) mMTLLayer nextDrawable];
-    
-    GrMtlTextureInfo fbInfo;
-    fbInfo.fTexture.retain((const void*)(drawable.texture));
-    auto backendRT = GrBackendRenderTargets::MakeMtl(width, height, fbInfo);
-    mScreenSurface = SkSurfaces::WrapBackendRenderTarget(mGrContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, nullptr, nullptr);
-    
-    mMTLDrawable = (void*) drawable;
-    assert(mScreenSurface);
-  }
+    if (mGrContext.get())
+    {
+      int width = WindowWidth() * GetScreenScale();
+      int height = WindowHeight() * GetScreenScale();
+      
+      id<CAMetalDrawable> drawable = [(CAMetalLayer*) mMTLLayer nextDrawable];
+      
+      GrMtlTextureInfo fbInfo;
+      fbInfo.fTexture.retain((const void*)(drawable.texture));
+      auto backendRT = GrBackendRenderTargets::MakeMtl(width, height, fbInfo);
+      mScreenSurface = SkSurfaces::WrapBackendRenderTarget(mGrContext.get(), backendRT, kTopLeft_GrSurfaceOrigin, kBGRA_8888_SkColorType, nullptr, nullptr);
+      
+      mMTLDrawable = (void*) drawable;
+      assert(mScreenSurface);
+    }
 #endif
+  }
 
   IGraphics::BeginFrame();
 }
 
 void IGraphicsSkia::EndFrame()
 {
-#ifdef IGRAPHICS_CPU
-  #if defined OS_MAC || defined OS_IOS
+  if (mUseCPU)
+  {
+#if defined OS_MAC || defined OS_IOS
     SkPixmap pixmap;
     mSurface->peekPixels(&pixmap);
     SkBitmap bmp;
-    bmp.installPixels(pixmap);  
+    bmp.installPixels(pixmap);
     CGContext* pCGContext = (CGContextRef) GetPlatformContext();
     CGContextSaveGState(pCGContext);
     CGContextScaleCTM(pCGContext, 1.0 / GetScreenScale(), 1.0 / GetScreenScale());
     SkCGDrawBitmap(pCGContext, bmp, 0, 0);
     CGContextRestoreGState(pCGContext);
-  #elif defined OS_WIN
+#elif defined OS_WIN
     auto w = WindowWidth() * GetScreenScale();
     auto h = WindowHeight() * GetScreenScale();
     BITMAPINFO* bmpInfo = reinterpret_cast<BITMAPINFO*>(mSurfaceMemory.Get());
@@ -565,24 +593,28 @@ void IGraphicsSkia::EndFrame()
     StretchDIBits(hdc, 0, 0, w, h, 0, 0, w, h, bmpInfo->bmiColors, bmpInfo, DIB_RGB_COLORS, SRCCOPY);
     ReleaseDC(hWnd, hdc);
     EndPaint(hWnd, &ps);
-  #else
-    #error NOT IMPLEMENTED
-  #endif
-#else // GPU
-  mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, nullptr);
-
-  if (auto dContext = GrAsDirectContext(mScreenSurface->getCanvas()->recordingContext())) {
-    dContext->flushAndSubmit();
+#else
+#error NOT IMPLEMENTED
+#endif
   }
-
-  #ifdef IGRAPHICS_METAL
+  else
+  {
+#ifndef IGRAPHICS_CPU // GPU
+    mSurface->draw(mScreenSurface->getCanvas(), 0.0, 0.0, nullptr);
+    
+    if (auto dContext = GrAsDirectContext(mScreenSurface->getCanvas()->recordingContext())) {
+      dContext->flushAndSubmit();
+    }
+    
+#ifdef IGRAPHICS_METAL
     id<MTLCommandBuffer> commandBuffer = [(id<MTLCommandQueue>) mMTLCommandQueue commandBuffer];
     commandBuffer.label = @"Present";
-  
+    
     [commandBuffer presentDrawable:(id<CAMetalDrawable>) mMTLDrawable];
     [commandBuffer commit];
-  #endif
 #endif
+#endif
+  }
 }
 
 void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
@@ -605,12 +637,11 @@ void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int src
   mCanvas->scale(scale1, scale1);
   mCanvas->translate(-srcX * scale2, -srcY * scale2);
   
-#ifdef IGRAPHICS_CPU
-  auto samplingOptions = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
-#else
   auto samplingOptions = SkSamplingOptions(SkCubicResampler::Mitchell());
-#endif
-    
+
+  if (mUseCPU)
+    samplingOptions = SkSamplingOptions(SkFilterMode::kLinear, SkMipmapMode::kNone);
+
   if (image->mIsSurface)
     image->mSurface->draw(mCanvas, 0.0, 0.0, samplingOptions, &p);
   else
@@ -950,7 +981,7 @@ APIBitmap* IGraphicsSkia::CreateAPIBitmap(int width, int height, float scale, do
   SkImageInfo info = SkImageInfo::MakeN32Premul(width, height);
 
   #ifndef IGRAPHICS_CPU
-  if (cacheable)
+  if (cacheable || mUseCPU)
   {
     surface = SkSurfaces::Raster(info);
   }
@@ -1119,13 +1150,18 @@ void IGraphicsSkia::DrawMultiLineText(const IText& text, const char* str, const 
 
 const char* IGraphicsSkia::GetDrawingAPIStr()
 {
-#ifdef IGRAPHICS_CPU
-  return "SKIA | CPU";
-#elif defined IGRAPHICS_GL2
-  return "SKIA | GL2";
+  if (mUseCPU)
+  {
+    return "SKIA | CPU";
+  }
+  else
+  {
+#if defined IGRAPHICS_GL2
+    return "SKIA | GL2";
 #elif defined IGRAPHICS_GL3
-  return "SKIA | GL3";
+    return "SKIA | GL3";
 #elif defined IGRAPHICS_METAL
-  return "SKIA | Metal";
+    return "SKIA | Metal";
 #endif
+  }
 }
