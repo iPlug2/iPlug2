@@ -43,10 +43,14 @@ SkTileMode SkiaTileMode(const IPattern& pattern);
 /** Converts IPattern to SkPaint */
 SkPaint SkiaPaint(const IPattern& pattern, const IBlend* pBlend);
 
+class IGraphicsReaper;
+
 /** IGraphics draw class using Skia
 *   @ingroup DrawClasses */
 class IGraphicsSkia : public IGraphics
 {
+  friend IGraphicsReaper;
+  
 private:
   class Bitmap;
   struct Font;

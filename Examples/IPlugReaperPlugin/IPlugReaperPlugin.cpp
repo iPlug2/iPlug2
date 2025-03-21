@@ -5,8 +5,6 @@
 #define REAPERAPI_IMPLEMENT
 #include "reaper_plugin_functions.h"
 #include "reaper_plugin_fx_embed.h"
-#define LICE_PROVIDED_BY_APP
-#include "lice.h"
 
 #ifdef FillRect
 #undef FillRect
@@ -55,6 +53,18 @@ IPlugReaperPlugin::IPlugReaperPlugin(const InstanceInfo& info)
   mMakeGraphicsFunc = [&]() {
     return MakeGraphics(*this, PLUG_WIDTH, PLUG_HEIGHT, PLUG_FPS, GetScaleForScreen(PLUG_WIDTH, PLUG_HEIGHT));
   };
+  
+  auto embeddedLayoutFunc = [&](IGraphics* pGraphics) {
+    pGraphics->AttachPanelBackground(COLOR_ORANGE);
+    pGraphics->AttachControl(new IVKnobControl(IRECT(10, 10, 120, 120), kNoParameter));
+  };
+  
+  mEmbeddedGraphicsDelegate.SetLayoutFunc(embeddedLayoutFunc);
+  
+  mEmbeddedGraphicsDelegate.SetPreferredAspect(1, 1);
+  mEmbeddedGraphicsDelegate.SetMinimumAspect(1, 4);
+  mEmbeddedGraphicsDelegate.SetMinSize(40, 40);
+  mEmbeddedGraphicsDelegate.SetMaxSize(180, 300);
   
   mLayoutFunc = [&](IGraphics* pGraphics) {
     pGraphics->AttachCornerResizer(EUIResizerMode::Scale, false);
@@ -123,6 +133,8 @@ void IPlugReaperPlugin::OnHostIdentified()
       return (void*) mpReaperHostApplication->getReaperApi(str);
 #elif defined CLAP_API
       return (void*) reinterpret_cast<const reaper_plugin_info_t*>(mpClapHost->get_extension(mpClapHost, "cockos.reaper_extension"))->GetFunc(str);
+#else
+      return nullptr;
 #endif
     });
     
@@ -193,79 +205,12 @@ void IPlugReaperPlugin::LogToReaperConsole(const char* str)
   }
 }
 
-int IPlugReaperPlugin::EmbeddedUIProc(int message, void* pMsg1, void* pMsg2)
-{
-  switch (message) {
-    case 0: return 1;
-    case WM_CREATE: OnCreateEmbeddedUI(); return 1;
-    case WM_DESTROY: OnDestroyEmbeddedUI(); return 1;
-    //case WM_SETCURSOR: return HCURSOR;
-    case WM_MOUSEMOVE:
-    {
-      auto* pInfo = reinterpret_cast<REAPER_inline_positioninfo*>(pMsg2);
-      OnEmbeddedUIMouseOver(pInfo->mouse_x, pInfo->mouse_y);
-      return 0;
-    }
-    case WM_LBUTTONDOWN:
-    case WM_LBUTTONUP:
-    {
-      auto* pInfo = reinterpret_cast<REAPER_inline_positioninfo*>(pMsg2);
-      OnEmbeddedUIMouseLeft(pInfo->mouse_x, pInfo->mouse_y, message == WM_LBUTTONDOWN);
-      return 0;
-    }
-    case WM_RBUTTONDOWN:
-    case WM_RBUTTONUP:
-    {
-      auto* pInfo = reinterpret_cast<REAPER_inline_positioninfo*>(pMsg2);
-      OnEmbeddedUIMouseRight(pInfo->mouse_x, pInfo->mouse_y, message == WM_RBUTTONDOWN);
-      return 0;
-    }
-    case WM_GETMINMAXINFO:
-    {
-      auto* pInfo = reinterpret_cast<MINMAXINFO*>(pMsg2);
-      int aspectNumerator;
-      int aspectDenominator;
-      GetEmbeddedUIPrefferedAspectRatio(aspectNumerator, aspectDenominator);
-      pInfo->ptReserved.x = (aspectNumerator<<16)/aspectDenominator;
-      GetEmbeddedUIMinimumAspectRatio(aspectNumerator, aspectDenominator);
-      pInfo->ptReserved.y = (aspectNumerator<<16)/aspectDenominator;
-      return 1;
-    }
-    case WM_PAINT:
-    {
-      auto* pBitmap = reinterpret_cast<REAPER_FXEMBED_IBitmap*>(pMsg1);
-      auto* pInfo = reinterpret_cast<REAPER_inline_positioninfo*>(pMsg2);
-
-      static int oldWidth = 0;
-      static int oldHeight = 0;
-
-      if (pInfo->width != oldWidth || pInfo->height != oldHeight)
-      {
-        OnEmbeddedUIResize(pInfo->width, pInfo->height);
-        oldWidth = pInfo->width;
-        oldHeight = pInfo->height;
-      }
-
-      int extraFlag = 0;
-      if (pInfo->extraParms[0])
-        extraFlag = (int)(INT_PTR) pInfo->extraParms[0];
-
-      DrawEmbeddedUI(pBitmap, pInfo->mouse_x, pInfo->mouse_y, extraFlag & 0x10000, extraFlag & 0x20000);
-
-      return 1;
-    }
-    default:
-      return 0;
-  }
-
-}
-
 #if defined VST2_API
 VstIntPtr IPlugReaperPlugin::VSTVendorSpecific(VstInt32 idx, VstIntPtr value, void* ptr, float opt)
 {
   if (idx == AEffectOpcodes::__effEditDrawDeprecated)
   {
-    return EmbeddedUIProc((int) opt, FromVstPtr<void*>(value), ptr);
+    return mEmbeddedGraphicsDelegate.EmbeddedUIProc((int) opt, FromVstPtr<void*>(value), ptr);
   }
   return 0;
 }
@@ -290,16 +235,6 @@ template <class T> inline T* FromVstPtr (Steinberg::TPtrInt& arg)
 
 Steinberg::TPtrInt IPlugReaperPlugin::embed_message(int msg, Steinberg::TPtrInt parm2, Steinberg::TPtrInt parm3)
 {
-  return EmbeddedUIProc(msg, FromVstPtr<void*>(parm2), FromVstPtr<void*>(parm3));
+  return mEmbeddedGraphicsDelegate.EmbeddedUIProc(msg, FromVstPtr<void*>(parm2), FromVstPtr<void*>(parm3));
 }
 #endif
-
-void IPlugReaperPlugin::DrawEmbeddedUI(REAPER_FXEMBED_IBitmap* pBitmap, int mouseX, int mouseY, bool leftMouseDown, bool rightMouseDown)
-{
-  LICE_FillRect((LICE_IBitmap*) pBitmap, 0, 0, pBitmap->getWidth(), pBitmap->getHeight(), LICE_RGBA(255, 255, 255, 255), 1.f, 0);
-  
-  if (leftMouseDown || rightMouseDown)
-  {
-    LICE_FillCircle((LICE_IBitmap*) pBitmap, mouseX, mouseY, 20.f, leftMouseDown ? LICE_RGBA(255, 0, 0, 255) : LICE_RGBA(0, 255, 0, 255), 1.f, 0, true);
-  }
-}

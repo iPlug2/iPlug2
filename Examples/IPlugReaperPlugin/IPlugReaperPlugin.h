@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IPlug_include_in_plug_hdr.h"
+#include "IGraphicsReaper.h"
 
 #if defined VST3_API
 using namespace Steinberg;
@@ -46,14 +47,6 @@ public:
   void GetEmbeddedUIPrefferedAspectRatio(int& numerator, int& denominator) { numerator = 1; denominator = 1; };
   void GetEmbeddedUIMinimumAspectRatio(int& numerator, int& denominator) { numerator = 1; denominator = 1; };
   
-  void OnCreateEmbeddedUI() { /* No Op */ };
-  void OnDestroyEmbeddedUI() { /* No Op */ };
-  void OnEmbeddedUIMouseOver(int mouseX, int mouseY) { /* No Op */ }
-  void OnEmbeddedUIMouseLeft(int mouseX, int mouseY, bool down) { /* No Op */ }
-  void OnEmbeddedUIMouseRight(int mouseX, int mouseY, bool down) { /* No Op */ }
-  void OnEmbeddedUIResize(int w, int h) { /* No Op */ };
-  void DrawEmbeddedUI(REAPER_FXEMBED_IBitmap* pBitmap, int mouseX, int mouseY, bool leftMouseDown, bool rightMouseDown);
-  
 #if defined VST3_API
   tresult PLUGIN_API initialize(FUnknown* context) override;
   
@@ -86,7 +79,8 @@ private:
   int GetReaperTrackChannelCount();
   int GetReaperIndexInChain();
   void LogToReaperConsole(const char* str);
-  int EmbeddedUIProc(int message, void* pMsg1, void* pMsg2);
+  
+  IGReaperEditorDelegate mEmbeddedGraphicsDelegate;
 };
 
 template<typename T>
