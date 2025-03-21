@@ -613,8 +613,8 @@ void IGraphicsSkia::EndFrame()
     [commandBuffer presentDrawable:(id<CAMetalDrawable>) mMTLDrawable];
     [commandBuffer commit];
 #endif
-  }
 #endif
+  }
 }
 
 void IGraphicsSkia::DrawBitmap(const IBitmap& bitmap, const IRECT& dest, int srcX, int srcY, const IBlend* pBlend)
