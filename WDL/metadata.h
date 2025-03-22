@@ -2267,8 +2267,7 @@ bool PackFlacPicBase64(WDL_StringKeyedArray<char*> *metadata,
   return false;
 }
 
-bool ExportMetadataImageToTmpFile(const char *srcfn, const char *infostr,
-  WDL_FastString *imgdesc, WDL_FastString *imgtype, WDL_FastString *imgfn)
+bool ExportMetadataImageToTmpFile(const char *srcfn, const char *infostr, WDL_FastString *imgfn)
 {
   if (!srcfn || !srcfn[0] || !infostr || !infostr[0] || !imgfn) return false;
 
@@ -2277,14 +2276,12 @@ bool ExportMetadataImageToTmpFile(const char *srcfn, const char *infostr,
   if (!tmp.ResizeOK(tmplen+1)) return false;
   memcpy(tmp.Get(), infostr, tmplen+1);
 
-  const char *ext=NULL, *mime=NULL, *desc=NULL, *type=NULL, *offs=NULL, *len=NULL;
+  const char *ext=NULL, *mime=NULL, *offs=NULL, *len=NULL;
   char *p=(char*)tmp.Get();
   for (int i=0; i < tmplen; ++i)
   {
     if (!strncmp(p+i, "ext:", 4)) { if (i) p[i-1]=0; i += 4; ext=p+i; }
     else if (!strncmp(p+i, "mime:", 5)) { if (i) p[i-1]=0; i += 5; mime=p+i; }
-    else if (!strncmp(p+i, "desc:", 5)) { if (i) p[i-1]=0; i += 5; desc=p+i; }
-    else if (!strncmp(p+i, "type:", 5)) { if (i) p[i-1]=0; i += 5; type=p+i; }
     else if (!strncmp(p+i, "offset:", 7)) { if (i) p[i-1]=0; i += 7; offs=p+i; }
     else if (!strncmp(p+i, "length:", 7)) { if (i) p[i-1]=0; i += 7; len=p+i; }
   }
@@ -2312,8 +2309,6 @@ bool ExportMetadataImageToTmpFile(const char *srcfn, const char *infostr,
       WDL_FileWrite fw(imgfn->Get());
       if (fw.IsOpen() && CopyFileData(&fr, &fw, ilen))
       {
-        if (desc && imgdesc) imgdesc->Set(desc);
-        if (type && imgtype) imgtype->Set(type);
         ok=true;
       }
     }
