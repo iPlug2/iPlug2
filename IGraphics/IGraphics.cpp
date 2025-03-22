@@ -434,13 +434,13 @@ void IGraphics::ShowBubbleControl(IControl* pCaller, float x, float y, const cha
     mBubbleControls.Get(0)->ShowBubble(pCaller, x, y, str, dir, minimumContentBounds);
 }
 
-void IGraphics::ShowFPSDisplay(bool enable)
+void IGraphics::ShowFPSDisplay(bool enable, const IRECT& bounds)
 {
   if (enable)
   {
     if (!mPerfDisplay)
     {
-      mPerfDisplay = std::make_unique<IFPSDisplayControl>(GetBounds().GetPadded(-10).GetFromTLHC(200, 50));
+      mPerfDisplay = std::make_unique<IFPSDisplayControl>(bounds.Empty()? GetBounds().GetPadded(-10).GetFromTLHC(200, 50) : bounds);
       mPerfDisplay->SetDelegate(*GetDelegate());
     }
   }
