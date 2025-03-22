@@ -308,6 +308,8 @@ bool ITextEntryControl::OnKeyDown(float x, float y, const IKeyPress& key)
               break;
             if (stbKey == '+' || stbKey == '-' || stbKey == '.')
               break;
+            if (strchr(pParam->GetLabel(), stbKey) != NULL)
+              break;
             stbKey = 0;
             break;
           }
