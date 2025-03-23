@@ -576,6 +576,7 @@ int PackIXMLChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata, int pa
     if (!strcmp(key, "BWF_TIME_REFERENCE"))
     {
       WDL_UINT64 pos=_ATOI64(val);
+      if (!pos) continue;
       int hi=pos>>32, lo=(pos&0xFFFFFFFF);
       ixml.AppendFormatted(4096, "<%s_HIGH>%d</%s_HIGH>", key, hi, key);
       ixml.AppendFormatted(4096, "<%s_LOW>%d</%s_LOW>", key, lo, key);
