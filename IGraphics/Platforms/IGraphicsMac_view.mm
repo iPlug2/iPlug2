@@ -167,7 +167,7 @@ static int MacKeyEventToVK(NSEvent* pEvent, int& flag)
   {
     IPopupMenu::Item* pMenuItem = pMenu->GetItem(i);
 
-    nsMenuItemTitle = [[[NSMutableString alloc] initWithCString:pMenuItem->GetText()] autorelease];
+    nsMenuItemTitle = [[[NSMutableString alloc] initWithUTF8String:pMenuItem->GetText()] autorelease];
 
     if (pMenu->GetPrefix())
     {
