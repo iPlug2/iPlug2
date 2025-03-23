@@ -601,6 +601,7 @@ int PackIXMLChunk(WDL_HeapBuf *hb, WDL_StringKeyedArray<char*> *metadata, int pa
     XMLCompliantAppend(&ixml, key, false);
     ixml.Append(">");
     XMLCompliantAppend(&ixml, val, true);
+    if (!strcmp(key,"BWF_ORIGINATION_TIME") && strlen(val) == 5) ixml.Append(":00");
     ixml.Append("</");
     XMLCompliantAppend(&ixml, key, false);
     ixml.Append(">");
