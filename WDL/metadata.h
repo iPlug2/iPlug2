@@ -2317,6 +2317,30 @@ bool ExportMetadataImageToTmpFile(const char *srcfn, const char *infostr, WDL_Fa
   return ok;
 }
 
+struct MetadataFilesToDelete
+{
+  WDL_PtrList<char> list;
+  ~MetadataFilesToDelete() {
+    for (int x = 0; x < list.GetSize(); x ++)
+    {
+      DeleteFile(list.Get(x));
+      free(list.Get(x));
+    }
+  }
+};
 
+void ImportMetadataPictureBlobs(const char *fn, WDL_StringKeyedArray<char*> *metadata, WDL_PtrList<char> *filelist)
+{
+  WDL_FastString fs;
+  int v = 0;
+  const char *apic = metadata->Get("ID3:APIC");
+  if (!apic) { v++; apic = metadata->Get("FLACPIC:APIC"); }
+  if (!apic) return;
+  if (!ExportMetadataImageToTmpFile(fn,apic,&fs)) return;
+  metadata->Delete("ID3:APIC");
+  metadata->Delete("FLACPIC:APIC");
+  metadata->Insert(v ? "FLACPIC:APIC_FILE" : "ID3:APIC_FILE", strdup(fs.Get()));
+  filelist->Add(strdup(fs.Get()));
+}
 
 #endif // _METADATA_H_
