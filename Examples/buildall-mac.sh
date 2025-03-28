@@ -25,6 +25,10 @@ fi
 
 for file in * 
 do
+  if [ "$file" == "IPlugFaustDSP" ]; then
+    continue
+  fi
+
   if [ "$file" == "IPlugReaperExtension" ]; then
     continue
   fi
