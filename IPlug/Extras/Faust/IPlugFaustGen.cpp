@@ -55,31 +55,31 @@ void FaustGen::Factory::FreeDSPFactory()
     inst->FreeDSP();
   }
 
-  if(mLLVMFactory)
+  if (mInterpreterFactory)
   {
-    deleteDSPFactory(mLLVMFactory); // this is commented in faustgen~
-    mLLVMFactory = nullptr;
+    deleteInterpreterDSPFactory(mInterpreterFactory);
+    mInterpreterFactory = nullptr;
   }
 }
 
-llvm_dsp_factory* FaustGen::Factory::CreateFactoryFromBitCode()
-{
-  //return readDSPFactoryFromBitCodeStr(mBitCodeStr.Get(), getTarget(), mOptimizationLevel);
-  std::string err;
-  
-  // Alternate model using machine code
-  llvm_dsp_factory* pFactory = readDSPFactoryFromMachine(mBitCodeStr.Get(), GetLLVMArchStr(), err);
-  
-  // TODO: Print error
-  return pFactory;
-  
-  /*
-  // Alternate model using LLVM IR
-  return readDSPFactoryFromIR(mBitCodeStr.Get(), getTarget(), mOptimizationLevel);
-  */
-}
+//interpreter_dsp_factory* FaustGen::Factory::CreateFactoryFromBitCode()
+//{
+//  //return readDSPFactoryFromBitCodeStr(mBitCodeStr.Get(), getTarget(), mOptimizationLevel);
+//  std::string err;
+//  
+//  // Alternate model using machine code
+//  interpreter_dsp_factory* pFactory = readDSPFactoryFromMachine(mBitCodeStr.Get(), GetLLVMArchStr(), err);
+//  
+//  // TODO: Print error
+//  return pFactory;
+//  
+//  /*
+//  // Alternate model using LLVM IR
+//  return readDSPFactoryFromIR(mBitCodeStr.Get(), getTarget(), mOptimizationLevel);
+//  */
+//}
 
-llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
+interpreter_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 {
   WDL_String name;
   name.SetFormatted(64, "FaustGen-%d", mInstanceIdx);
@@ -108,7 +108,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 
   argv[N] = 0; // NULL terminated argv
 
-  llvm_dsp_factory* pFactory = createDSPFactoryFromString(name.Get(), mSourceCodeStr.Get(), N, argv, GetLLVMArchStr(), error, mOptimizationLevel);
+  interpreter_dsp_factory* pFactory = createInterpreterDSPFactoryFromString(name.Get(), mSourceCodeStr.Get(), N, argv, error);
 
   if(error.length())
     DBGMSG("%s\n", error.c_str());
@@ -145,11 +145,11 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 
 ::dsp *FaustGen::Factory::CreateDSPInstance(const MidiHandlerPtr& handler, int nVoices)
 {
-  ::dsp* pMonoDSP = mLLVMFactory->createDSPInstance();
+  ::dsp* pMonoDSP = mInterpreterFactory->createDSPInstance();
 
   // Polyphony handling
-  bool midiSync = false;
-  MidiMeta::analyse(pMonoDSP, midiSync, nVoices);
+  bool midi, midiSync = false;
+  MidiMeta::analyse(pMonoDSP, midi, midiSync, nVoices);
 
   if (nVoices > 0)
   {
@@ -170,31 +170,31 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
   std::string error;
 
   // Factory already allocated
-  if (mLLVMFactory)
+  if (mInterpreterFactory)
   {
     pDSP = CreateDSPInstance(handler);
     DBGMSG("FaustGen-%s: Factory already allocated, %i input(s), %i output(s)\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
     goto end;
   }
 
-  // Tries to create from bitcode
-  if (mBitCodeStr.GetLength())
-  {
-    mLLVMFactory = CreateFactoryFromBitCode();
-    if (mLLVMFactory)
-    {
-      pDSP = CreateDSPInstance(handler);
-      pDSP->metadata(&meta);
-      DBGMSG("FaustGen-%s: Compilation from bitcode succeeded, %i input(s), %i output(s)\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
-      goto end;
-    }
-  }
+//  // Tries to create from bitcode
+//  if (mBitCodeStr.GetLength())
+//  {
+//    mInterpreterFactory = CreateFactoryFromBitCode();
+//    if (mInterpreterFactory)
+//    {
+//      pDSP = CreateDSPInstance(handler);
+//      pDSP->metadata(&meta);
+//      DBGMSG("FaustGen-%s: Compilation from bitcode succeeded, %i input(s), %i output(s)\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
+//      goto end;
+//    }
+//  }
 
   // Otherwise tries to create from source code
   if (mSourceCodeStr.GetLength())
   {
-    mLLVMFactory = CreateFactoryFromSourceCode();
-    if (mLLVMFactory)
+    mInterpreterFactory = CreateFactoryFromSourceCode();
+    if (mInterpreterFactory)
     {
       pDSP = CreateDSPInstance(handler);
       pDSP->metadata(&meta);
@@ -205,7 +205,7 @@ llvm_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 
     // Otherwise creates default DSP keeping the same input/output number
   mSourceCodeStr.SetFormatted(256, maxInputs == 0 ? DEFAULT_SOURCE_CODE_FMT_STR_INSTRUMENT : DEFAULT_SOURCE_CODE_FMT_STR_FX, maxOutputs);
-  mLLVMFactory = createDSPFactoryFromString("default", mSourceCodeStr.Get(), 0, 0, GetLLVMArchStr(), error, 0);
+  mInterpreterFactory = createInterpreterDSPFactoryFromString("default", mSourceCodeStr.Get(), 0, 0, error);
 
   pDSP = CreateDSPInstance(handler);
   DBGMSG("FaustGen-%s: Allocation of default DSP succeeded, %i input(s), %i output(s)\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
@@ -278,15 +278,7 @@ void FaustGen::Factory::SetDefaultCompileOptions()
   // All options set in the 'compileoptions' message
   for (auto c : mOptions)
   {
-    // '-opt v' : parsed for LLVM optimization level
-    if (c == "-opt")
-    {
-      mOptimizationLevel = atoi(c.c_str());
-    }
-    else
-    {
-      AddCompileOption(c.c_str());
-    }
+    AddCompileOption(c.c_str());
   }
 
   // Vector mode by default

@@ -62,7 +62,7 @@ static inline bool Equal(StatTime a, StatTime b) { return a == b; }
 static inline StatTime TimeZero() { return (StatTime) 0; }
 #endif
 
-#include "faust/dsp/llvm-dsp.h"
+#include "faust/dsp/interpreter-dsp.h"
 #include "IPlugFaust.h"
 #include "IPlugTimer.h"
 
@@ -136,8 +136,8 @@ class FaustGen : public IPlugFaust
     Factory(const Factory&) = delete;
     Factory& operator=(const Factory&) = delete;
       
-    llvm_dsp_factory* CreateFactoryFromBitCode();
-    llvm_dsp_factory* CreateFactoryFromSourceCode();
+//    interpreter_dsp_factory* CreateFactoryFromBitCode();
+    interpreter_dsp_factory* CreateFactoryFromSourceCode();
     
     /** If DSP already exists will return it, otherwise create it
      * @return pointer to the DSP instance */
@@ -191,7 +191,7 @@ class FaustGen : public IPlugFaust
     WDL_Mutex mDSPMutex;
     std::set<FaustGen*> mInstances;
 
-    llvm_dsp_factory* mLLVMFactory = nullptr;
+    interpreter_dsp_factory* mInterpreterFactory = nullptr;
     WDL_FastString mSourceCodeStr;
     WDL_FastString mBitCodeStr;
     WDL_String mDrawPath;
@@ -203,7 +203,6 @@ class FaustGen : public IPlugFaust
 
     int mNInputs = 0;
     int mNOutputs = 0;
-    int mOptimizationLevel = LLVM_OPTIMIZATION;
     static int sFactoryCounter;
     static std::map<std::string, Factory*> sFactoryMap;
     WDL_String mInputDSPFile;
