@@ -9,7 +9,7 @@
     <IGRAPHICS_PATH>$(IPLUG2_ROOT)\IGraphics</IGRAPHICS_PATH>
     <DEPS_PATH>$(IPLUG2_ROOT)\Dependencies</DEPS_PATH>
     <JSON_PATH>$(DEPS_PATH)\Extras\nlohmann</JSON_PATH>
-    <IPLUG_INC_PATHS>$(WDL_PATH);$(IPLUG_PATH);$(EXTRAS_PATH);$(EXTRAS_PATH)\OSC;$(EXTRAS_PATH)\Synth;$(EXTRAS_PATH)\WebView;$(JSON_PATH);$(SolutionDir)\resources</IPLUG_INC_PATHS>
+    <IPLUG_INC_PATHS>$(WDL_PATH);$(IPLUG_PATH);$(EXTRAS_PATH);$(EXTRAS_PATH)\OSC;$(EXTRAS_PATH)\Synth;$(EXTRAS_PATH)\Faust;$(EXTRAS_PATH)\WebView;$(JSON_PATH);$(SolutionDir)\resources</IPLUG_INC_PATHS>
     <IPLUG_DEPS_PATH>$(DEPS_PATH)\IPlug</IPLUG_DEPS_PATH>
     <IGRAPHICS_DEPS_PATH>$(DEPS_PATH)\IGraphics</IGRAPHICS_DEPS_PATH>
     <NANOVG_PATH>$(IGRAPHICS_DEPS_PATH)\NanoVG\src</NANOVG_PATH>
@@ -22,6 +22,7 @@
     <PNG_PATH>$(WDL_PATH)\libpng</PNG_PATH>
     <ZLIB_PATH>$(WDL_PATH)\zlib</ZLIB_PATH>
     <STB_PATH>$(IGRAPHICS_DEPS_PATH)\STB</STB_PATH>
+    <FAUST_INC_PATHS>$(DEPS_PATH)\Build\win\Faust\include</FAUST_INC_PATHS>
     <STATIC_LIBS_PATH>$(DEPS_PATH)\Build\win\$(Platform)\$(Configuration)</STATIC_LIBS_PATH>
     <ICUDAT_PATH>$(DEPS_PATH)\Build\win\bin\icudtl.dat</ICUDAT_PATH>
     <YOGA_INC_PATHS>$(IGRAPHICS_DEPS_PATH)\yoga;$(IGRAPHICS_DEPS_PATH)\yoga\yoga</YOGA_INC_PATHS>
@@ -72,6 +73,7 @@
     <REAPER_INC_PATHS>$(IPLUG_DEPS_PATH)\REAPER_SDK;$(IPLUG_PATH)\ReaperExt;</REAPER_INC_PATHS>
     <AAX_ICON>$(AAX_SDK)\Utilities\PlugIn.ico</AAX_ICON>
     <VST_ICON>$(IPLUG2_ROOT)\Scripts\icons\VST_Logo_Steinberg.ico</VST_ICON>
+    <FAUST_LIB_PATH>$(DEPS_PATH)\Build\win\Faust\lib</FAUST_LIB_PATH>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
@@ -90,7 +92,7 @@
     </ItemDefinitionGroup>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(STATIC_LIBS_PATH);$(AAX_SDK)\Libs\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(STATIC_LIBS_PATH);$(AAX_SDK)\Libs\$(Configuration);$(FAUST_LIB_PATH);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
     </Link>
     <Lib>
@@ -160,6 +162,9 @@
     </BuildMacro>
     <BuildMacro Include="STB_PATH">
       <Value>$(STB_PATH)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FAUST_INC_PATHS">
+      <Value>$(FAUST_INC_PATHS)</Value>
     </BuildMacro>
     <BuildMacro Include="STATIC_LIBS_PATH">
       <Value>$(STATIC_LIBS_PATH)</Value>
@@ -295,6 +300,9 @@
     </BuildMacro>
     <BuildMacro Include="VST_ICON">
       <Value>$(VST_ICON)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FAUST_LIB_PATH">
+      <Value>$(FAUST_LIB_PATH)</Value>
     </BuildMacro>
     <BuildMacro Include="CLAP_PATH">
       <Value>$(CLAP_PATH)</Value>
