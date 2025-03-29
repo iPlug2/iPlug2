@@ -23,10 +23,12 @@ BEGIN_IGRAPHICS_NAMESPACE
 * @ingroup PlatformClasses */
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
+public:
+
   class Font;
   class InstalledFont;
   struct HFontHolder;
-public:
+
   IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
   ~IGraphicsWin();
 
