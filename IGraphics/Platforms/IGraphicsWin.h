@@ -24,7 +24,7 @@ BEGIN_IGRAPHICS_NAMESPACE
 class IGraphicsWin final : public IGRAPHICS_DRAW_CLASS
 {
   using InstalledFont = InstalledWinFont;
-  using Font = WinfFont;
+  using Font = WinFont;
   
 public:
   IGraphicsWin(IGEditorDelegate& dlg, int w, int h, int fps, float scale);
