@@ -14,8 +14,6 @@ using namespace igraphics;
 
 namespace PlatformUtilities = IGraphicsMacUtilities;
 
-int IGraphicsReaper::GetUserOSVersion() { return PlatformUtilities::GetSystemVersion(); }
-
 // Cursor
 
 void IGraphicsReaper::GetMouseLocation(float& x, float&y) const
@@ -89,17 +87,6 @@ ECursor IGraphicsReaper::SetMouseCursor(ECursor cursorType)
 
 void IGraphicsReaper::PointToScreen(float& x, float& y) const
 {
-  if (GetWindow())
-  {
-    x *= GetDrawScale();
-    y *= GetDrawScale();
-    NSWindow* pWindow = [(NSView*) GetWindow() window];
-    NSPoint wndpt = [(NSView*) GetWindow() convertPoint:NSMakePoint(x, y) toView:nil];
-    NSPoint pt = [pWindow convertRectToScreen: NSMakeRect(wndpt.x, wndpt.y, 0.0, 0.0)].origin;
-      
-    x = pt.x;
-    y = pt.y;
-  }
 }
 
 // Clipboard
@@ -129,241 +116,6 @@ bool IGraphicsReaper::RevealPathInExplorerOrFinder(WDL_String& path, bool select
 bool IGraphicsReaper::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
 {
   return PlatformUtilities::OpenURL(url, msgWindowTitle, confirmMsg, errMsgOnFailure);
-}
-
-// Prompts
-
-void IGraphicsReaper::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler)
-{
-  if (!WindowIsOpen())
-  {
-    fileName.Set("");
-    return;
-  }
-
-  NSString* pDefaultFileName = nil;
-  NSString* pDefaultPath = nil;
-  NSArray* pFileTypes = nil;
-
-  if (fileName.GetLength())
-    pDefaultFileName = [NSString stringWithUTF8String:fileName.Get()];
-  else
-    pDefaultFileName = @"";
-  
-  if (path.GetLength())
-    pDefaultPath = [NSString stringWithUTF8String:path.Get()];
-  else
-    pDefaultPath = @"";
-
-  fileName.Set(""); // reset it
-
-  if (CStringHasContents(ext))
-    pFileTypes = [[NSString stringWithUTF8String:ext] componentsSeparatedByString: @" "];
-  
-  auto doHandleResponse = [](NSPanel* pPanel, NSModalResponse response, WDL_String& fileName, WDL_String& path, IFileDialogCompletionHandlerFunc completionHandler){
-    if (response == NSOKButton)
-    {
-      NSString* pFullPath = [(NSSavePanel*) pPanel filename] ;
-      fileName.Set([pFullPath UTF8String]);
-      
-      NSString* pTruncatedPath = [pFullPath stringByDeletingLastPathComponent];
-      
-      if (pTruncatedPath)
-      {
-        path.Set([pTruncatedPath UTF8String]);
-        path.Append("/");
-      }
-    }
-  
-    if (completionHandler)
-      completionHandler(fileName, path);
-  };
-  
-  NSPanel* pPanel = nullptr;
-  
-  if (action == EFileAction::Save)
-  {
-    pPanel = [NSSavePanel savePanel];
-    
-    [(NSSavePanel*) pPanel setAllowedFileTypes: pFileTypes];
-    [(NSSavePanel*) pPanel setDirectoryURL: [NSURL fileURLWithPath: pDefaultPath]];
-    [(NSSavePanel*) pPanel setNameFieldStringValue: pDefaultFileName];
-    [(NSSavePanel*) pPanel setAllowsOtherFileTypes: NO];
-  }
-  else
-  {
-    pPanel = [NSOpenPanel openPanel];
-    
-    [(NSOpenPanel*) pPanel setAllowedFileTypes: pFileTypes];
-    [(NSOpenPanel*) pPanel setDirectoryURL: [NSURL fileURLWithPath: pDefaultPath]];
-    [(NSOpenPanel*) pPanel setCanChooseFiles:YES];
-    [(NSOpenPanel*) pPanel setCanChooseDirectories:NO];
-    [(NSOpenPanel*) pPanel setResolvesAliases:YES];
-  }
-  [pPanel setFloatingPanel: YES];
-  
-  if (completionHandler)
-  {
-    // FIX - is this useful?
-    
-    NSWindow* pWindow = [(NSView*) GetWindow() window];
-
-    [(NSSavePanel*) pPanel beginSheetModalForWindow:pWindow completionHandler:^(NSModalResponse response) {
-      WDL_String fileNameAsync, pathAsync;
-      doHandleResponse(pPanel, response, fileNameAsync, pathAsync, completionHandler);
-    }];
-  }
-  else
-  {
-    NSModalResponse response = [(NSSavePanel*) pPanel runModal];
-    doHandleResponse(pPanel, response, fileName, path, nullptr);
-  }
-}
-
-void IGraphicsReaper::PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler)
-{
-  NSString* defaultPath;
-
-  if (dir.GetLength())
-  {
-    defaultPath = [NSString stringWithUTF8String:dir.Get()];
-  }
-  else
-  {
-    defaultPath = [NSString stringWithUTF8String:DEFAULT_PATH];
-    dir.Set(DEFAULT_PATH);
-  }
-
-  NSOpenPanel* panelOpen = [NSOpenPanel openPanel];
-
-  [panelOpen setTitle:@"Choose a Directory"];
-  [panelOpen setCanChooseFiles:NO];
-  [panelOpen setCanChooseDirectories:YES];
-  [panelOpen setResolvesAliases:YES];
-  [panelOpen setCanCreateDirectories:YES];
-  [panelOpen setFloatingPanel: YES];
-  [panelOpen setDirectoryURL: [NSURL fileURLWithPath: defaultPath]];
-  
-  auto doHandleResponse = [](NSOpenPanel* pPanel, NSModalResponse response, WDL_String& pathAsync, IFileDialogCompletionHandlerFunc completionHandler){
-    if (response == NSOKButton)
-    {
-      NSString* fullPath = [pPanel filename] ;
-      pathAsync.Set([fullPath UTF8String]);
-      pathAsync.Append("/");
-    }
-    else
-    {
-      pathAsync.Set("");
-    }
-    
-    if (completionHandler)
-    {
-      WDL_String fileNameAsync; // not used
-      completionHandler(fileNameAsync, pathAsync);
-    }
-  };
-
-  if (completionHandler)
-  {
-    // FIX - is this useful?
-    
-    NSWindow* pWindow = [(NSView*) GetWindow() window];
-
-    [panelOpen beginSheetModalForWindow:pWindow completionHandler:^(NSModalResponse response) {
-      WDL_String pathAsync;
-      doHandleResponse(panelOpen, response, pathAsync, completionHandler);
-    }];
-  }
-  else
-  {
-    NSModalResponse response = [panelOpen runModal];
-    doHandleResponse(panelOpen, response, dir, nullptr);
-  }
-}
-
-// FIX - no view
-
-bool IGraphicsReaper::PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func)
-{
-  //if (mView)
-  //  return [(IGRAPHICS_VIEW*) mView promptForColor:color : func];
-
-  return false;
-}
-
-EMsgBoxResult IGraphicsReaper::ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
-{
-  ReleaseMouseCapture();
-
-  NSString* messageContent = @(str ? str : "");
-  NSString* alertTitle = @(title ? title : "");
-  
-  NSAlert* alert = [[NSAlert alloc] init];
-  [alert setMessageText:alertTitle];
-  [alert setInformativeText:messageContent];
-  
-  EMsgBoxResult result = kCANCEL;
-  
-  switch (type)
-  {
-    case kMB_OK:
-      [alert addButtonWithTitle:@"OK"];
-      result = kOK;
-      break;
-    case kMB_OKCANCEL:
-      [alert addButtonWithTitle:@"OK"];
-      [alert addButtonWithTitle:@"Cancel"];
-      result = kCANCEL;
-      break;
-    case kMB_YESNO:
-      [alert addButtonWithTitle:@"Yes"];
-      [alert addButtonWithTitle:@"No"];
-      result = kNO;
-      break;
-    case kMB_RETRYCANCEL:
-      [alert addButtonWithTitle:@"Retry"];
-      [alert addButtonWithTitle:@"Cancel"];
-      result = kCANCEL;
-      break;
-    case kMB_YESNOCANCEL:
-      [alert addButtonWithTitle:@"Yes"];
-      [alert addButtonWithTitle:@"No"];
-      [alert addButtonWithTitle:@"Cancel"];
-      result = kCANCEL;
-      break;
-  }
-  
-  NSModalResponse response = [alert runModal];
-  
-  switch (type)
-  {
-    case kMB_OK:
-      result = kOK;
-      break;
-    case kMB_OKCANCEL:
-      result = (response == NSAlertFirstButtonReturn) ? kOK : kCANCEL;
-      break;
-    case kMB_YESNO:
-      result = (response == NSAlertFirstButtonReturn) ? kYES : kNO;
-      break;
-    case kMB_RETRYCANCEL:
-      result = (response == NSAlertFirstButtonReturn) ? kRETRY : kCANCEL;
-      break;
-    case kMB_YESNOCANCEL:
-      if (response == NSAlertFirstButtonReturn) result = kYES;
-      else if (response == NSAlertSecondButtonReturn) result = kNO;
-      else result = kCANCEL;
-      break;
-  }
-  
-  if (completionHandler)
-  {
-    completionHandler(result);
-  }
-  
-  [alert release];
-  
-  return result;
 }
 
 // Font Loading
@@ -407,7 +159,6 @@ IGraphicsReaper::~IGraphicsReaper()
   
   CloseWindow();
 }
-
 
 // Open Window
 

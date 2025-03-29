@@ -49,22 +49,23 @@ public:
 
   bool RevealPathInExplorerOrFinder(WDL_String& path, bool select) override;
   bool OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure) override;
-
-  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler) override;
-  void PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler) override;
-  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override;
-    
-  EMsgBoxResult ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override;
   
   const char* GetBundleID() const override { return mBundleID.Get(); }
   const char* GetAppGroupID() const override { return mAppGroupID.Get(); }
-  static int GetUserOSVersion();
  
-  // Platform - not supported (no user edits of tooltips)
+  // Platform - not supported (no user edits or tooltips)
   
   void ForceEndUserEdit() override {}
   void UpdateTooltips() override {};
 
+  // Currently not supported
+  
+  void PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler) override {}
+  void PromptForDirectory(WDL_String& dir, IFileDialogCompletionHandlerFunc completionHandler) override {}
+  bool PromptForColor(IColor& color, const char* str, IColorPickerHandlerFunc func) override { return false; }
+    
+  EMsgBoxResult ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler) override { return EMsgBoxResult::kNoResult; }
+  
   // Drawing - NO-OPs
   
   void OnViewInitialized(void* pContext) override {}

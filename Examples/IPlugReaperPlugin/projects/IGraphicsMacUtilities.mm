@@ -15,32 +15,6 @@ namespace IGraphicsMacUtilities
     NSApplicationLoad();
   }
   
-  // System Version
-  
-  int GetSystemVersion()
-  {
-    static int32_t v = 0;
-    
-    if (!v)
-    {
-      if (NSAppKitVersionNumber >= 1266.0)
-      {
-        if (NSAppKitVersionNumber >= 1404.0)
-          v = 0x10b0;
-        else
-          v = 0x10a0; // 10.10+ Gestalt(gsv) return 0x109x, so we bump this to 0x10a0
-      }
-      else
-      {
-        SInt32 a = 0x1040;
-        Gestalt(gestaltSystemVersion, &a);
-        v = a;
-      }
-    }
-    
-    return static_cast<int>(v);
-  }
-  
   // Cursor Utilities
   
   void HideCursor(bool hide)
@@ -61,12 +35,14 @@ namespace IGraphicsMacUtilities
     y = point.y;
   }
   
-  void RepositionCursor(float x, float y)
-  {
+  bool RepositionCursor(float x, float y)
+  {    
     CGPoint point{x, y};
     CGAssociateMouseAndMouseCursorPosition(false);
-    CGDisplayMoveCursorToPoint(CGMainDisplayID(), point);
+    auto err = CGDisplayMoveCursorToPoint(CGMainDisplayID(), point);
     CGAssociateMouseAndMouseCursorPosition(true);
+    
+    return err == kCGErrorSuccess;
   }
 
   // Mouse Modifiers
