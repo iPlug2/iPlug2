@@ -121,27 +121,6 @@ class FaustGen : public IPlugFaust
   private:
     void AddLibraryPath(const char* libraryPath);
     void AddCompileOption(const char* key, const char* value = "");
-  private:
-    struct FMeta : public Meta
-    {
-      void declare(const char* key, const char* value) override
-      {
-        DBGMSG("FaustGen: metadata:\n");
-
-        if ((strcmp("name", key) == 0) || (strcmp("author", key) == 0))
-        {
-          DBGMSG("\t\tkey:%s : %s\n", key, value);
-        }
-        items.AddUnsorted(key, value);
-      }
-
-      const std::string get(const char* key, const char* value)
-      {
-        return items.Get(key, value);
-      }
-
-      WDL_StringKeyedArray<const char*> items;
-    };
 
   private:
     int mInstanceIdx;

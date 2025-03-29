@@ -49,6 +49,11 @@ public:
     mDSP->buildUserInterface(mMidiUI.get());
     mDSP->buildUserInterface(this);
     
+    JSONUI builder(mDSP->getNumInputs(), mDSP->getNumOutputs());
+    mDSP->buildUserInterface(&builder);
+    mDSP->metadata(&builder);
+    mJSONStr.Set(builder.JSON().c_str());
+
     BuildParameterMap();
     
     mInitialized = true;
