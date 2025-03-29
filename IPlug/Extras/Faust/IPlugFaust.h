@@ -25,6 +25,8 @@
 #include "faust/gui/MetaDataUI.h"
 #include "faust/gui/MidiUI.h"
 #include "faust/gui/GUI.h"
+#include "faust/gui/JSONUI.h"
+
 #include "faust/midi/iplug2-midi.h"
 #include "assocarray.h"
 
@@ -46,7 +48,7 @@ using MidiHandlerPtr = std::unique_ptr<iplug2_midi_handler>;
 using ffloat = FAUSTFLOAT;
 
 /** This abstract interface is used by the IPlug FAUST architecture file and the IPlug libfaust JIT compiling class FaustGen
- * In order to provide a consistent interface to FAUST DSP whether using the JIT compiler or a compiled C++ class */
+ * In order to provide a consistent interface to FAUST DSP whether using the faust interpreter or a compiled C++ class */
 class IPlugFaust : public GUI, public MetaDataUI
 {
 public:
@@ -76,6 +78,7 @@ public:
   void FreeDSP();
   
   void SetOverSamplingRate(int rate);
+  
   // Unique methods
   void SetSampleRate(double sampleRate);
 
@@ -128,10 +131,12 @@ protected:
   
   std::unique_ptr<OverSampler<sample>> mOverSampler;
   WDL_String mName;
+  WDL_String mJSONStr;
   int mNVoices;
   std::unique_ptr<::dsp> mDSP;
   MidiHandlerPtr mMidiHandler;
   std::unique_ptr<MidiUI> mMidiUI;
+  std::unique_ptr<JSONUI> mJSONUI;
   WDL_PtrList<IParam> mParams;
   WDL_PtrList<ffloat> mZones;
   static Timer* sUITimer;

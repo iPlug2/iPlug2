@@ -149,7 +149,6 @@ interpreter_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 ::dsp *FaustGen::Factory::GetDSP(int maxInputs, int maxOutputs, const MidiHandlerPtr& handler)
 {
   ::dsp* pDSP = nullptr;
-  FMeta meta;
   std::string error;
 
   // Factory already allocated
@@ -166,7 +165,6 @@ interpreter_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
     if (mInterpreterFactory)
     {
       pDSP = CreateDSPInstance(handler);
-      pDSP->metadata(&meta);
       DBGMSG("FaustGen-%s: Compilation from source code succeeded, %i input(s), %i output(s)\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
       goto end;
     }
@@ -388,6 +386,7 @@ void FaustGen::Init()
     
   mMidiHandler = std::make_unique<iplug2_midi_handler>();
   mMidiUI = std::make_unique<MidiUI>(mMidiHandler.get());
+  mJSONUI = std::make_unique<JSONUI>();
     
   mDSP = std::unique_ptr<::dsp>(mFactory->GetDSP(mMaxNInputs, mMaxNOutputs, mMidiHandler));
   assert(mDSP);
@@ -403,6 +402,11 @@ void FaustGen::Init()
     //TODO: do something when I/O is wrong
   }
   
+  JSONUI builder(mDSP->getNumInputs(), mDSP->getNumOutputs());
+  mDSP->buildUserInterface(&builder);
+  mDSP->metadata(&builder);
+  mJSONStr.Set(builder.JSON().c_str());
+  
   BuildParameterMap(); // build a new map based on updated code
   mInitialized = true;
   
@@ -412,7 +416,7 @@ void FaustGen::Init()
   if (mOnCompileFunc)
     mOnCompileFunc();
     
-    mMidiHandler->startMidi();
+  mMidiHandler->startMidi();
 }
 
 void FaustGen::GetDrawPath(WDL_String& path)

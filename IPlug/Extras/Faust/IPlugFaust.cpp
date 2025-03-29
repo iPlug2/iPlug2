@@ -96,6 +96,7 @@ void IPlugFaust::FreeDSP()
 {
   mMidiHandler->stopMidi();
   mMidiUI = nullptr;
+  mJSONUI = nullptr;
   mDSP = nullptr;
   mMidiHandler = nullptr;
 }
@@ -218,9 +219,9 @@ void IPlugFaust::AddOrUpdateParam(IParam::EParamType type, const char* name, ffl
     std::vector<double> values;
     const char* menuDesc = fMenuDescription[zone].c_str();
     if (parseMenuList(menuDesc, names, values)) {
-      for (auto name : names)
+      for (auto i=0; i<names.size(); i++)
       {
-        
+        pParam->SetDisplayText(values[i], names[i].c_str());
       }
     }
   }
