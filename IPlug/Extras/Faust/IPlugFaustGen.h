@@ -77,27 +77,8 @@ static inline StatTime TimeZero() { return (StatTime) 0; }
 #define DEFAULT_SOURCE_CODE_FMT_STR_FX "import(\"stdfaust.lib\");\nprocess=par(i,%i,_);"
 #define DEFAULT_SOURCE_CODE_FMT_STR_INSTRUMENT "import(\"stdfaust.lib\");\nprocess=par(i,%i,0);"
 
-#define FAUSTGEN_VERSION "1.19"
-#define LLVM_OPTIMIZATION -1  // means 'maximum'
-
 #define FAUST_CLASS_PREFIX "F"
 #define FAUST_RECOMPILE_INTERVAL 5000 //ms
-
-#ifndef FAUST_EXE
-  #if defined OS_MAC || defined OS_LINUX
-    #define FAUST_EXE "/usr/local/bin/faust"
-  #else
-    #define FAUST_EXE "C:\\\"Program Files\"\\Faust\\bin\\faust.exe"//Double quotes around "Program Files" because of whitespace
-  #endif
-#endif
-
-#ifndef FAUST_DLL_PATH
-  #if defined OS_MAC || defined OS_LINUX
-    #define FAUST_DLL_PATH "/usr/local/lib/"
-  #else
-    #define FAUST_DLL_PATH "C:\\Program Files\\Faust\\lib"
-  #endif
-#endif
 
 BEGIN_IPLUG_NAMESPACE
 
@@ -105,28 +86,6 @@ class FaustGen : public IPlugFaust
 {
   class Factory
   {
-#ifdef OS_MAC
-    static std::string GetLLVMArchStr()
-    {
-      int tmp;
-      return (sizeof(&tmp) == 8) ? "" : "i386-apple-darwin10.6.0";
-    }
-#else
-    static std::string GetLLVMArchStr()
-    {
-      return "";
-    }
-
-    static std::string getTarget() { return ""; }
-
-#endif
-
-    //static const char *getCodeSize()
-    //{
-    //  int tmp;
-    //  return (sizeof(&tmp) == 8) ? "64 bits" : "32 bits";
-    //}
-
     friend class FaustGen;
 
   public:
@@ -136,7 +95,6 @@ class FaustGen : public IPlugFaust
     Factory(const Factory&) = delete;
     Factory& operator=(const Factory&) = delete;
       
-//    interpreter_dsp_factory* CreateFactoryFromBitCode();
     interpreter_dsp_factory* CreateFactoryFromSourceCode();
     
     /** If DSP already exists will return it, otherwise create it
@@ -159,7 +117,6 @@ class FaustGen : public IPlugFaust
 
     bool LoadFile(const char* file);
     bool WriteToFile(const char* file);
-    void SetCompileOptions(std::initializer_list<const char*> options);
 
   private:
     void AddLibraryPath(const char* libraryPath);
@@ -236,8 +193,6 @@ public:
   /** This is a static method that can be called to compile all .dsp files used to a single .hpp file, using the commandline FAUST compiler
    * @return \c true on success */
   static bool CompileCPP();
-
-  //bool CompileObjectFile(const char* fileName);
 
   void SetAutoRecompile(bool enable);
   

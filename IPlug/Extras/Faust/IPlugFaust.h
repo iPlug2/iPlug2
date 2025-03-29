@@ -42,6 +42,8 @@
 BEGIN_IPLUG_NAMESPACE
 using MidiHandlerPtr = std::unique_ptr<iplug2_midi_handler>;
 
+using ffloat = FAUSTFLOAT;
+
 /** This abstract interface is used by the IPlug FAUST architecture file and the IPlug libfaust JIT compiling class FaustGen
  * In order to provide a consistent interface to FAUST DSP whether using the JIT compiler or a compiled C++ class */
 class IPlugFaust : public UI, public Meta
@@ -49,12 +51,7 @@ class IPlugFaust : public UI, public Meta
 public:
   
   IPlugFaust(const char* name, int nVoices = 1, int rate = 1);
-
-  virtual ~IPlugFaust()
-  {
-    mParams.Empty(true);
-  }
-
+  virtual ~IPlugFaust();
   IPlugFaust(const IPlugFaust&) = delete;
   IPlugFaust& operator=(const IPlugFaust&) = delete;
     
@@ -75,38 +72,13 @@ public:
 
   static void SetAutoRecompile(bool enable) {}
   
-  void FreeDSP()
-  {
-    mMidiHandler->stopMidi();
-    mMidiUI = nullptr;
-    mDSP = nullptr;
-    mMidiHandler = nullptr;
-  }
+  void FreeDSP();
   
-  void SetOverSamplingRate(int rate)
-  {
-    if(mOverSampler)
-      mOverSampler->SetOverSampling(OverSampler<sample>::RateToFactor(rate));
-  }
-
+  void SetOverSamplingRate(int rate);
   // Unique methods
-  void SetSampleRate(double sampleRate)
-  {
-    int multiplier = 1;
-    
-    if(mOverSampler)
-      multiplier = mOverSampler->GetRate();
-    
-    if (mDSP) {
-      mDSP->init(((int) sampleRate) * multiplier);
-      SyncFaustParams();
-    }
-  }
+  void SetSampleRate(double sampleRate);
 
-  void ProcessMidiMsg(const IMidiMsg& msg)
-  {
-    mMidiHandler->decodeMessage(msg);
-  }
+  void ProcessMidiMsg(const IMidiMsg& msg);
 
   virtual void ProcessBlock(sample** inputs, sample** outputs, int nFrames);
 
@@ -118,18 +90,11 @@ public:
 
   int CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx = 0, int endIdx = -1, bool setToDefault = true);
 
-  int NParams() const
-  {
-    return mParams.GetSize();
-  }
+  int NParams() const;
   
   void SyncFaustParams();
-
   // Meta
-  void declare(const char *key, const char *value) override
-  {
-    // TODO:
-  }
+  void declare(const char *key, const char *value) override;
 
   // UI
 
@@ -139,47 +104,22 @@ public:
   void openVerticalBox(const char *label) override {}
   void closeBox() override {}
   
-  void addButton(const char *label, FAUSTFLOAT *zone) override
-  {
-    AddOrUpdateParam(IParam::kTypeBool, label, zone);
-  }
-
-  void addCheckButton(const char *label, FAUSTFLOAT *zone) override
-  {
-    AddOrUpdateParam(IParam::kTypeBool, label, zone);
-  }
-
-  void addVerticalSlider(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) override
-  {
-    AddOrUpdateParam(IParam::kTypeDouble, label, zone, init, min, max, step);
-  }
-
-  void addHorizontalSlider(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) override
-  {
-    AddOrUpdateParam(IParam::kTypeDouble, label, zone, init, min, max, step);
-  }
-
-  void addNumEntry(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step) override
-  {
-    AddOrUpdateParam(IParam::kTypeEnum, label, zone, init, min, max, step);
-  }
+  void addButton(const char *label, ffloat *zone) override;
+  void addCheckButton(const char *label, ffloat *zone) override;
+  void addVerticalSlider(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step) override;
+  void addHorizontalSlider(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step) override;
+  void addNumEntry(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step) override;
 
   // TODO:
-  void addHorizontalBargraph(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT min, FAUSTFLOAT max) override {}
-  void addVerticalBargraph(const char *label, FAUSTFLOAT *zone, FAUSTFLOAT min, FAUSTFLOAT max) override {}
+  void addHorizontalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max) override {}
+  void addVerticalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max) override {}
   void addSoundfile(const char *label, const char *filename, Soundfile **sf_zone) override {}
 
 protected:
-  void AddOrUpdateParam(IParam::EParamType type, const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init = 0., FAUSTFLOAT min = 0., FAUSTFLOAT max = 0., FAUSTFLOAT step = 1.);
-  
+  void AddOrUpdateParam(IParam::EParamType type, const char* label, ffloat* zone, ffloat init = 0., ffloat min = 0., ffloat max = 0., ffloat step = 1.);
   void BuildParameterMap();
-
   int FindExistingParameterWithName(const char* name);
-    
-  void OnUITimer(Timer& timer)
-  {
-    GUI::updateAllGuis();
-  }
+  void OnUITimer(Timer& timer);
   
   std::unique_ptr<OverSampler<sample>> mOverSampler;
   WDL_String mName;
@@ -188,11 +128,11 @@ protected:
   MidiHandlerPtr mMidiHandler;
   std::unique_ptr<MidiUI> mMidiUI;
   WDL_PtrList<IParam> mParams;
-  WDL_PtrList<FAUSTFLOAT> mZones;
+  WDL_PtrList<ffloat> mZones;
   static Timer* sUITimer;
-  WDL_StringKeyedArray<FAUSTFLOAT*> mMap; // map is used for setting FAUST parameters by name, also used to reconnect existing parameters
+  WDL_StringKeyedArray<ffloat*> mMap; // map is used for setting FAUST parameters by name, also used to reconnect existing parameters
   int mIPlugParamStartIdx = -1; // if this is negative, it means there is no linking
-  
+
   IPlugAPIBase* mPlug = nullptr;
   bool mInitialized = false;
 };
