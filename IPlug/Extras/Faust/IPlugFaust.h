@@ -19,17 +19,21 @@
 
 #define FAUSTCLASS_POLY mydsp_poly
 
-#define FAUST_UI_INTERVAL 100 //ms
+#define FAUST_UI_INTERVAL 50 //ms
 
 #include "faust/dsp/poly-dsp.h"
-#include "faust/gui/UI.h"
+#include "faust/gui/MetaDataUI.h"
 #include "faust/gui/MidiUI.h"
+#include "faust/gui/GUI.h"
+#include "faust/gui/JSONUI.h"
+
 #include "faust/midi/iplug2-midi.h"
 #include "assocarray.h"
 
 #include "IPlugAPIBase.h"
 
 #include "Oversampler.h"
+#include "ISender.h"
 
 #ifndef FAUST_SHARE_PATH
   #if defined OS_MAC || defined OS_LINUX
@@ -45,12 +49,11 @@ using MidiHandlerPtr = std::unique_ptr<iplug2_midi_handler>;
 using ffloat = FAUSTFLOAT;
 
 /** This abstract interface is used by the IPlug FAUST architecture file and the IPlug libfaust JIT compiling class FaustGen
- * In order to provide a consistent interface to FAUST DSP whether using the JIT compiler or a compiled C++ class */
-class IPlugFaust : public UI, public Meta
+ * In order to provide a consistent interface to FAUST DSP whether using the faust interpreter or a compiled C++ class */
+class IPlugFaust : public GUI, public MetaDataUI
 {
 public:
-  
-  IPlugFaust(const char* name, int nVoices = 1, int rate = 1);
+  IPlugFaust(const char* name, int nVoices = 1, int rate = 1, int ctrlTagStart = 1000);
   virtual ~IPlugFaust();
   IPlugFaust(const IPlugFaust&) = delete;
   IPlugFaust& operator=(const IPlugFaust&) = delete;
@@ -75,6 +78,7 @@ public:
   void FreeDSP();
   
   void SetOverSamplingRate(int rate);
+  
   // Unique methods
   void SetSampleRate(double sampleRate);
 
@@ -93,27 +97,35 @@ public:
   int NParams() const;
   
   void SyncFaustParams();
-  // Meta
-  void declare(const char *key, const char *value) override;
 
-  // UI
-
-  // TODO:
-  void openTabBox(const char *label) override {}
-  void openHorizontalBox(const char *label) override {}
-  void openVerticalBox(const char *label) override {}
-  void closeBox() override {}
+  void BuildUI(UI* pFaustUIToBuild);
   
+  // MetaData
+  virtual void declare(FAUSTFLOAT* zone, const char* key, const char* value) override;
+  
+  // UI
+  void openTabBox(const char *label) override;
+  void openHorizontalBox(const char *label) override;
+  void openVerticalBox(const char *label) override;
+  void closeBox() override;
+  
+  // Mapped to parameters
   void addButton(const char *label, ffloat *zone) override;
   void addCheckButton(const char *label, ffloat *zone) override;
   void addVerticalSlider(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step) override;
   void addHorizontalSlider(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step) override;
   void addNumEntry(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step) override;
 
+  // Mapped to senders
+  void addHorizontalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max) override;
+  void addVerticalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max) override;
+  
   // TODO:
-  void addHorizontalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max) override {}
-  void addVerticalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max) override {}
   void addSoundfile(const char *label, const char *filename, Soundfile **sf_zone) override {}
+
+  int GetParamIdxForZone(ffloat* zone);
+  
+  const char* GetJSONUIStr() const { return mJSONStr.Get(); }
 
 protected:
   void AddOrUpdateParam(IParam::EParamType type, const char* label, ffloat* zone, ffloat init = 0., ffloat min = 0., ffloat max = 0., ffloat step = 1.);
@@ -123,18 +135,26 @@ protected:
   
   std::unique_ptr<OverSampler<sample>> mOverSampler;
   WDL_String mName;
+  WDL_String mJSONStr;
   int mNVoices;
   std::unique_ptr<::dsp> mDSP;
   MidiHandlerPtr mMidiHandler;
   std::unique_ptr<MidiUI> mMidiUI;
+  std::unique_ptr<JSONUI> mJSONUI;
   WDL_PtrList<IParam> mParams;
-  WDL_PtrList<ffloat> mZones;
+  WDL_PtrList<ffloat> mParamZones;
   static Timer* sUITimer;
   WDL_StringKeyedArray<ffloat*> mMap; // map is used for setting FAUST parameters by name, also used to reconnect existing parameters
   int mIPlugParamStartIdx = -1; // if this is negative, it means there is no linking
 
   IPlugAPIBase* mPlug = nullptr;
   bool mInitialized = false;
+  
+  WDL_PtrList<IPeakAvgSender<>> mSenders;
+  WDL_PtrList<ffloat> mSenderZones;
+  int mCtrlTagStart;
+  
+  std::stack<const char*> mGroupStack;
 };
 
 END_IPLUG_NAMESPACE
