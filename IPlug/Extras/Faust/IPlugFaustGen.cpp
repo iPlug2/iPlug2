@@ -35,7 +35,7 @@ FaustGen::Factory::Factory(const char* name, const char* libraryPath, const char
   AddLibraryPath(libraryPath);
   mDrawPath.Set(drawPath);
   
-  if(inputDSP)
+  if (inputDSP)
     LoadFile(inputDSP);
 }
 
@@ -61,23 +61,6 @@ void FaustGen::Factory::FreeDSPFactory()
     mInterpreterFactory = nullptr;
   }
 }
-
-//interpreter_dsp_factory* FaustGen::Factory::CreateFactoryFromBitCode()
-//{
-//  //return readDSPFactoryFromBitCodeStr(mBitCodeStr.Get(), getTarget(), mOptimizationLevel);
-//  std::string err;
-//  
-//  // Alternate model using machine code
-//  interpreter_dsp_factory* pFactory = readDSPFactoryFromMachine(mBitCodeStr.Get(), GetLLVMArchStr(), err);
-//  
-//  // TODO: Print error
-//  return pFactory;
-//  
-//  /*
-//  // Alternate model using LLVM IR
-//  return readDSPFactoryFromIR(mBitCodeStr.Get(), getTarget(), mOptimizationLevel);
-//  */
-//}
 
 interpreter_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 {
@@ -110,7 +93,7 @@ interpreter_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 
   interpreter_dsp_factory* pFactory = createInterpreterDSPFactoryFromString(name.Get(), mSourceCodeStr.Get(), N, argv, error);
 
-  if(error.length())
+  if (error.length())
     DBGMSG("%s\n", error.c_str());
   
   assert(pFactory != nullptr);
@@ -177,20 +160,6 @@ interpreter_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
     goto end;
   }
 
-//  // Tries to create from bitcode
-//  if (mBitCodeStr.GetLength())
-//  {
-//    mInterpreterFactory = CreateFactoryFromBitCode();
-//    if (mInterpreterFactory)
-//    {
-//      pDSP = CreateDSPInstance(handler);
-//      pDSP->metadata(&meta);
-//      DBGMSG("FaustGen-%s: Compilation from bitcode succeeded, %i input(s), %i output(s)\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
-//      goto end;
-//    }
-//  }
-
-  // Otherwise tries to create from source code
   if (mSourceCodeStr.GetLength())
   {
     mInterpreterFactory = CreateFactoryFromSourceCode();
@@ -221,7 +190,7 @@ void FaustGen::Factory::AddLibraryPath(const char* libraryPath)
 {
   if (CStringHasContents(libraryPath))
   {
-    if(std::find(mLibraryPaths.begin(), mLibraryPaths.end(), libraryPath) == mLibraryPaths.end())
+    if (std::find(mLibraryPaths.begin(), mLibraryPaths.end(), libraryPath) == mLibraryPaths.end())
       mLibraryPaths.push_back(libraryPath);
   }
 }
@@ -269,7 +238,7 @@ void FaustGen::Factory::SetDefaultCompileOptions()
   }
 
   // Draw path
-  if(mDrawPath.GetLength())
+  if (mDrawPath.GetLength())
   {
     AddCompileOption("-svg");
     AddCompileOption("-O", mDrawPath.Get());
@@ -280,17 +249,6 @@ void FaustGen::Factory::SetDefaultCompileOptions()
   {
     AddCompileOption(c.c_str());
   }
-
-  // Vector mode by default
-  /*
-  AddCompileOption("-vec");
-  AddCompileOption("-lv");
-  AddCompileOption("1");
-  */
-  /*
-  Seems not necessary...
-  AddCompileOption("-vs", TOSTRING(GetBlockSize()));
-  */
 }
 
 void FaustGen::Factory::UpdateSourceCode(const char* str)
@@ -384,42 +342,6 @@ bool FaustGen::Factory::WriteToFile(const char* file)
   return false;
 }
 
-void FaustGen::Factory::SetCompileOptions(std::initializer_list<const char*> options)
-{
-  DBGMSG("FaustGen-%s: Compiler options modified for FaustGen\n", mName.Get());
-
-  if (options.size() == 0)
-    DBGMSG("FaustGen-%s: No argument entered, no additional compilation option will be used", mName.Get());
-
-  //TODO
-//  mOptions = options;
-//
-//  /*
-//  if (optimize) {
-//
-//    DBGMSG("FaustGen-%s: Start looking for optimal compilation options...\n");
-//
-//  #ifdef OS_MAC
-//    double best;
-//    dsp_optimizer optimizer(string(mSourceCodeStr.Get()), (*mLibraryPaths.begin()).c_str(), getTarget(), sys_getblksize());
-//    mOptions = optimizer.findOptimizedParameters(best);
-//  #endif
-//
-//    DBGMSG("FaustGen-%s: Optimal compilation options found\n");
-//  }
-//  */
-//
-//  // Delete the existing Faust module
-//  FreeDSPFactory();
-//  mBitCodeStr.Set("");
-//
-//  // Update all instances
-//  for (auto i : fInstances) {
-//    i->UpdateSourceCode();
-//  }
-
-}
-
 #pragma mark -
 
 FaustGen::FaustGen(const char* name, const char* inputDSPFile, int nVoices, int rate,
@@ -456,7 +378,7 @@ FaustGen::~FaustGen()
 
   FreeDSP();
 
-  if(mFactory)
+  if (mFactory)
     mFactory->RemoveInstance(this);
 }
 
@@ -484,10 +406,10 @@ void FaustGen::Init()
   BuildParameterMap(); // build a new map based on updated code
   mInitialized = true;
   
-  if(mPlug)
+  if (mPlug)
     mPlug->OnParamReset(EParamSource::kRecompile);
   
-  if(mOnCompileFunc)
+  if (mOnCompileFunc)
     mOnCompileFunc();
     
     mMidiHandler->startMidi();
@@ -502,74 +424,63 @@ void FaustGen::GetDrawPath(WDL_String& path)
 
 bool FaustGen::CompileCPP()
 {
-//#ifndef OS_WIN
   WDL_String archFile;
   archFile.Set(__FILE__);
   archFile.remove_filepart(true);
   archFile.Append("IPlugFaust_arch.cpp");
 
-  WDL_String command;
-  WDL_String inputFile;
-  WDL_String outputFile;
-
-  for (auto f : Factory::sFactoryMap)
-  {
-    inputFile = f.second->mInputDSPFile;
-    outputFile = inputFile;
-    outputFile.remove_fileext();
-    outputFile.AppendFormatted(1024, ".tmp");
-    //-double
-    command.SetFormatted(1024, "%s -cn %s -i -a %s -o %s %s", FAUST_EXE, f.second->mName.Get(), archFile.Get(), outputFile.Get(), inputFile.Get());
-
-    DBGMSG("exec: %s\n", command.Get());
-
-    if(system(command.Get()) == -1)
-      return false;
-  }
-
-  WDL_String folder = inputFile;
-  folder.remove_filepart(true);
-  WDL_String finalOutput = folder;
-  finalOutput.AppendFormatted(1024, "FaustCode.hpp");
-#ifndef OS_WIN
-  command.SetFormatted(1024, "cat %s*.tmp > %s", folder.Get(), finalOutput.Get());
-#else
-  command.SetFormatted(1024, "copy %s*.tmp %s", folder.Get(), finalOutput.Get());
-#endif
-
-  if(system(command.Get()) == -1)
-  {
-    DBGMSG("Error concatanating files %s %i\n", __FILE__, __LINE__);
-
-    return false;
-  }
-
-#ifndef OS_WIN
-  command.SetFormatted(1024, "rm %s*.tmp", folder.Get());
-#else
-  command.SetFormatted(1024, "del %s*.tmp", folder.Get());
-#endif
-
-  if(system(command.Get()) == -1)
-  {
-    DBGMSG("Error removing output files %s %i\n", __FILE__, __LINE__);
-
-    return false;
-  }
-
+//  WDL_String command;
+//  WDL_String inputFile;
+//  WDL_String outputFile;
+//
+//  for (auto f : Factory::sFactoryMap)
+//  {
+//    inputFile = f.second->mInputDSPFile;
+//    outputFile = inputFile;
+//    outputFile.remove_fileext();
+//    outputFile.AppendFormatted(1024, ".tmp");
+//    //-double
+//    command.SetFormatted(1024, "%s -cn %s -i -a %s -o %s %s", FAUST_EXE, f.second->mName.Get(), archFile.Get(), outputFile.Get(), inputFile.Get());
+//
+//    DBGMSG("exec: %s\n", command.Get());
+//
+//    if (system(command.Get()) == -1)
+//      return false;
+//  }
+//
+//  WDL_String folder = inputFile;
+//  folder.remove_filepart(true);
+//  WDL_String finalOutput = folder;
+//  finalOutput.AppendFormatted(1024, "FaustCode.hpp");
+//#ifndef OS_WIN
+//  command.SetFormatted(1024, "cat %s*.tmp > %s", folder.Get(), finalOutput.Get());
+//#else
+//  command.SetFormatted(1024, "copy %s*.tmp %s", folder.Get(), finalOutput.Get());
 //#endif
-
-  return true;
-}
-
-//bool FaustGen::CompileObjectFile(const char* fileName)
-//{
-//  if (!writeDSPFactoryToObjectcodeFile(mFactory, fileName, "")) {
+//
+//  if (system(command.Get()) == -1)
+//  {
+//    DBGMSG("Error concatanating files %s %i\n", __FILE__, __LINE__);
+//
+//    return false;
+//  }
+//
+//#ifndef OS_WIN
+//  command.SetFormatted(1024, "rm %s*.tmp", folder.Get());
+//#else
+//  command.SetFormatted(1024, "del %s*.tmp", folder.Get());
+//#endif
+//
+//  if (system(command.Get()) == -1)
+//  {
+//    DBGMSG("Error removing output files %s %i\n", __FILE__, __LINE__);
+//
 //    return false;
 //  }
 //
 //  return true;
-//}
+  return false;
+}
 
 void FaustGen::OnTimer(Timer& timer)
 {
@@ -584,7 +495,7 @@ void FaustGen::OnTimer(Timer& timer)
     StatTime oldTime = f.second->mPreviousTime;
     StatTime newTime = GetModifiedTime(buf);
 
-    if(!Equal(newTime, oldTime))
+    if (!Equal(newTime, oldTime))
     {
       WDL_MutexLock lock(&mMutex);
 
@@ -598,36 +509,25 @@ void FaustGen::OnTimer(Timer& timer)
     f.second->mPreviousTime = newTime;
   }
 
-  if(recompile)
+  if (recompile)
   {
     // TODO: should check for successfull JIT
     DBGMSG("FaustGen-%s: Statically compiling all FAUST blocks\n", mName.Get());
     CompileCPP();
-    //WDL_String objFile;
-    //objFile.Set(pInputFile);
-    //objFile.remove_fileext();
-
-//#ifdef OS_WIN
-//    objFile.Append(".obj");
-//#else
-//    objFile.Append(".o");
-//#endif
-//
-//    CompileObjectFile(objFile.Get());
   }
 }
 
 //static
 void FaustGen::SetAutoRecompile(bool enable)
 {
-  if(enable)
+  if (enable)
   {
-    if(sTimer == nullptr)
+    if (sTimer == nullptr)
       sTimer = Timer::Create(std::bind(&FaustGen::OnTimer, this, std::placeholders::_1), FAUST_RECOMPILE_INTERVAL);
   }
   else
   {
-    if(sTimer != nullptr)
+    if (sTimer != nullptr)
     {
       sTimer->Stop();
       sTimer = nullptr;
@@ -640,7 +540,7 @@ void FaustGen::SetAutoRecompile(bool enable)
 void FaustGen::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
 {
   WDL_MutexLock lock(&mMutex);
-  if(!mErrored)
+  if (!mErrored)
     IPlugFaust::ProcessBlock(inputs, outputs, nFrames);
   else
     memset(outputs[0], 0, nFrames * mMaxNOutputs * sizeof(sample));
