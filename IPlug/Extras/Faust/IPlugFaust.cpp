@@ -56,10 +56,6 @@ IPlugFaust::~IPlugFaust()
   mParams.Empty(true);
 }
 
-void IPlugFaust::declare(const char* key, const char* value)
-{
-}
-
 void IPlugFaust:: SetSampleRate(double sampleRate)
 {
   int multiplier = 1;
@@ -188,36 +184,61 @@ int IPlugFaust::CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx, int end
   return plugParamIdx;
 }
 
-void IPlugFaust::AddOrUpdateParam(IParam::EParamType type, const char* label, ffloat* zone, ffloat init, ffloat min, ffloat max, ffloat step)
+void IPlugFaust::AddOrUpdateParam(IParam::EParamType type, const char* name, ffloat* zone, ffloat init, ffloat min, ffloat max, ffloat step)
 {
   IParam* pParam = nullptr;
 
-  const int paramIdx = FindExistingParameterWithName(label);
+  const int paramIdx = FindExistingParameterWithName(name);
 
   if (paramIdx > -1)
     pParam = mParams.Get(paramIdx);
   else
     pParam = new IParam();
 
+  auto flags = IParam::kFlagsNone;
+  auto group = fGroupTooltip.c_str();
+  auto unit = fUnit[zone].c_str();
+  auto scale = getScale(zone);
+  
+  DBGMSG("unit: %s\n", unit);
+
   switch (type)
   {
   case IParam::EParamType::kTypeBool:
-    pParam->InitBool(label, 0);
+    pParam->InitBool(name, 0);
     break;
   case IParam::EParamType::kTypeInt:
-    pParam->InitInt(label, static_cast<int>(init), static_cast<int>(min), static_cast<int>(max));
+    pParam->InitInt(name, static_cast<int>(init), static_cast<int>(min), static_cast<int>(max), unit, flags, group);
     break;
   case IParam::EParamType::kTypeEnum:
-    pParam->InitEnum(label, static_cast<int>(init), static_cast<int>(max - min));
-    //TODO: metadata
+  {
+    pParam->InitEnum(name, static_cast<int>(init), static_cast<int>(max - min), unit, flags, group);
+
+    std::vector<std::string> names;
+    std::vector<double> values;
+    const char* menuDesc = fMenuDescription[zone].c_str();
+    if (parseMenuList(menuDesc, names, values)) {
+      for (auto name : names)
+      {
+        
+      }
+    }
+  }
     break;
   case IParam::EParamType::kTypeDouble:
-    pParam->InitDouble(label, init, min, max, step);
+      switch (scale) {
+        case MetaDataUI::kLin:
+          pParam->InitDouble(name, init, min, max, step, unit, flags, group, IParam::ShapeLinear());
+        case MetaDataUI::kLog:
+          pParam->InitDouble(name, init, min, max, step, unit, flags, group, IParam::ShapePowCurve(2.0));
+        case MetaDataUI::kExp:
+          pParam->InitDouble(name, init, min, max, step, unit, flags, group, IParam::ShapeExp());
+      }
     break;
   default:
     break;
   }
-
+  
   if (paramIdx == -1)
   {
     mParams.Add(pParam);
@@ -287,7 +308,15 @@ void IPlugFaust::addHorizontalSlider(const char *label, ffloat *zone, ffloat ini
 
 void IPlugFaust::addNumEntry(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step)
 {
-  AddOrUpdateParam(IParam::kTypeEnum, label, zone, init, min, max, step);
+  if (isRadio(zone)) {
+    AddOrUpdateParam(IParam::kTypeInt, label, zone, init, min, max, step);
+  }
+  else if (isMenu(zone)) {
+    AddOrUpdateParam(IParam::kTypeEnum, label, zone, init, min, max, step);
+  }
+  else if (isNumerical(zone)) {
+    AddOrUpdateParam(IParam::kTypeEnum, label, zone, init, min, max, step);
+  }
 }
 
 void IPlugFaust::OnUITimer(Timer& timer)

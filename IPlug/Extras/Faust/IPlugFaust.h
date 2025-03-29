@@ -22,8 +22,9 @@
 #define FAUST_UI_INTERVAL 100 //ms
 
 #include "faust/dsp/poly-dsp.h"
-#include "faust/gui/UI.h"
+#include "faust/gui/MetaDataUI.h"
 #include "faust/gui/MidiUI.h"
+#include "faust/gui/GUI.h"
 #include "faust/midi/iplug2-midi.h"
 #include "assocarray.h"
 
@@ -46,7 +47,7 @@ using ffloat = FAUSTFLOAT;
 
 /** This abstract interface is used by the IPlug FAUST architecture file and the IPlug libfaust JIT compiling class FaustGen
  * In order to provide a consistent interface to FAUST DSP whether using the JIT compiler or a compiled C++ class */
-class IPlugFaust : public UI, public Meta
+class IPlugFaust : public GUI, public MetaDataUI
 {
 public:
   
@@ -93,9 +94,13 @@ public:
   int NParams() const;
   
   void SyncFaustParams();
-  // Meta
-  void declare(const char *key, const char *value) override;
 
+  // MetaData
+  virtual void declare(FAUSTFLOAT* zone, const char* key, const char* value) override
+  {
+    MetaDataUI::declare(zone, key, value);
+  }
+  
   // UI
 
   // TODO:
