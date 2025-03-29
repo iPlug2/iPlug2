@@ -5,49 +5,87 @@
 #pragma warning( disable : 4244 )
 #include "include/core/SkBitmap.h"
 
+#include "IGraphicsMacUtilities.mm"
+
 using namespace iplug;
 using namespace igraphics;
 
-// NSRect
+// Platform Utilities
 
-inline NSRect ToNSRect(IGraphics* pGraphics, const IRECT& bounds)
+namespace PlatformUtilities = IGraphicsMacUtilities;
+
+int IGraphicsReaper::GetUserOSVersion() { return PlatformUtilities::GetSystemVersion(); }
+
+// Cursor
+
+void IGraphicsReaper::GetMouseLocation(float& x, float&y) const
 {
-  const float scale = pGraphics->GetDrawScale();
-  const float x = floor(bounds.L * scale);
-  const float y = floor(bounds.T * scale);
-  const float x2 = ceil(bounds.R * scale);
-  const float y2 = ceil(bounds.B * scale);
-    
-  return NSMakeRect(x, y, x2 - x, y2 - y);
+  x = mCursorX;
+  y = mCursorY;
 }
 
-// System Version
-
-static int GetSystemVersion()
+void IGraphicsReaper::HideMouseCursor(bool hide, bool lock)
 {
-  static int32_t v;
-  if (!v)
+  if (mCursorHidden == hide)
+    return;
+  
+  mCursorHidden = hide;
+  
+  if (hide)
   {
-    if (NSAppKitVersionNumber >= 1266.0)
-    {
-      if (NSAppKitVersionNumber >= 1404.0)
-        v = 0x10b0;
-      else
-        v = 0x10a0; // 10.10+ Gestalt(gsv) return 0x109x, so we bump this to 0x10a0
-    }
-    else
-    {
-      SInt32 a = 0x1040;
-      Gestalt(gestaltSystemVersion,&a);
-      v=a;
-    }
+    StoreCursorPosition(mCursorX, mCursorY);
+    PlatformUtilities::HideCursor(hide);
+    mCursorLock = lock;
   }
-  return v;
+  else
+  {
+    DoCursorLock(mCursorX, mCursorY, mCursorX, mCursorY);
+    PlatformUtilities::HideCursor(hide);
+    mCursorLock = false;
+  }
 }
 
-int IGraphicsReaper::GetUserOSVersion() { return (int) GetSystemVersion(); }
+void IGraphicsReaper::MoveMouseCursor(float x, float y)
+{
+  if (mTabletInput)
+    return;
+    
+  StoreCursorPosition(x, y);
+  PointToScreen(x, y);
+  PlatformUtilities::RepositionCursor(x, y);
+}
 
-// Position
+void IGraphicsReaper::DoCursorLock(float x, float y, float& prevX, float& prevY)
+{
+  if (mCursorHidden && mCursorLock && !mTabletInput)
+  {
+    PlatformUtilities::RepositionCursor(mCursorLockPositionX, mCursorLockPositionY);
+    prevX = mCursorX;
+    prevY = mCursorY;
+  }
+  else
+  {
+    mCursorX = prevX = x;
+    mCursorY = prevY = y;
+  }
+}
+
+void IGraphicsReaper::StoreCursorPosition(float x, float y)
+{
+  PlatformUtilities::GetCursorPosition(mCursorLockPositionX, mCursorLockPositionY);
+  
+  mCursorX = x;
+  mCursorY = y;
+}
+
+// FIX - not implemented
+
+ECursor IGraphicsReaper::SetMouseCursor(ECursor cursorType)
+{
+  return IGraphics::SetMouseCursor(cursorType);
+}
+
+// FIX - this currently won't work (although the logic is correct)
 
 void IGraphicsReaper::PointToScreen(float& x, float& y) const
 {
@@ -64,207 +102,36 @@ void IGraphicsReaper::PointToScreen(float& x, float& y) const
   }
 }
 
-void IGraphicsReaper::ScreenToPoint(float& x, float& y) const
-{
-  if (GetWindow())
-  {
-    NSWindow* pWindow = [(NSView*) GetWindow() window];
-    NSPoint wndpt = [pWindow convertRectFromScreen: NSMakeRect(x, y, 0.0, 0.0)].origin;
-    NSPoint pt = [(NSView*) GetWindow() convertPoint:NSMakePoint(wndpt.x, wndpt.y) fromView:nil];
-
-    x = pt.x / GetDrawScale();
-    y = pt.y / GetDrawScale();
-  }
-}
-
-// Mouse
-
-void IGraphicsReaper::HideMouseCursor(bool hide, bool lock)
-{
-#if defined AU_API
-  if (!IsXPCAuHost())
-#elif defined AUv3_API
-  if (!IsOOPAuv3AppExtension())
-#endif
-  {
-    if (mCursorHidden == hide)
-      return;
-    
-    mCursorHidden = hide;
-    
-    if (hide)
-    {
-      StoreCursorPosition();
-      CGDisplayHideCursor(kCGDirectMainDisplay);
-      mCursorLock = lock;
-    }
-    else
-    {
-      DoCursorLock(mCursorX, mCursorY, mCursorX, mCursorY);
-      CGDisplayShowCursor(kCGDirectMainDisplay);
-      mCursorLock = false;
-    }
-  }
-}
-
-void IGraphicsReaper::MoveMouseCursor(float x, float y)
-{
-  if (mTabletInput)
-    return;
-    
-  PointToScreen(x, y);
-  RepositionCursor(CGPoint{x, y});
-  StoreCursorPosition();
-}
-
-ECursor IGraphicsReaper::SetMouseCursor(ECursor cursorType)
-{
-  return IGraphics::SetMouseCursor(cursorType);
-}
-
-void IGraphicsReaper::DoCursorLock(float x, float y, float& prevX, float& prevY)
-{
-  if (mCursorHidden && mCursorLock && !mTabletInput)
-  {
-    RepositionCursor(mCursorLockPosition);
-    prevX = mCursorX;
-    prevY = mCursorY;
-  }
-  else
-  {
-    mCursorX = prevX = x;
-    mCursorY = prevY = y;
-  }
-}
-
-void IGraphicsReaper::RepositionCursor(CGPoint point)
-{
-  point = CGPoint{point.x, CGDisplayPixelsHigh(CGMainDisplayID()) - point.y};
-  CGAssociateMouseAndMouseCursorPosition(false);
-  CGDisplayMoveCursorToPoint(CGMainDisplayID(), point);
-  CGAssociateMouseAndMouseCursorPosition(true);
-}
-
-void IGraphicsReaper::StoreCursorPosition()
-{
-  // Get position in screen coordinates
-  NSPoint mouse = [NSEvent mouseLocation];
-  mCursorX = mouse.x = std::round(mouse.x);
-  mCursorY = mouse.y = std::round(mouse.y);
-  mCursorLockPosition = CGPoint{mouse.x, mouse.y};
-  
-  // Convert to IGraphics coordinates
-  ScreenToPoint(mCursorX, mCursorY);
-}
-
-void IGraphicsReaper::GetMouseLocation(float& x, float&y) const
-{
-  // Get position in screen coordinates
-  NSPoint mouse = [NSEvent mouseLocation];
-  x = mouse.x;
-  y = mouse.y;
-  
-  // Convert to IGraphics coordinates
-  ScreenToPoint(x, y);
-}
-
-// CLIPBOARD
+// Clipboard
 
 bool IGraphicsReaper::GetTextFromClipboard(WDL_String& str)
 {
-  NSString* pTextOnClipboard = [[NSPasteboard generalPasteboard] stringForType: NSStringPboardType];
-
-  if (pTextOnClipboard == nil)
-  {
-    str.Set("");
-    return false;
-  }
-  else
-  {
-    str.Set([pTextOnClipboard UTF8String]);
-    return true;
-  }
+  return PlatformUtilities::GetTextFromClipboard(str);
 }
 
 bool IGraphicsReaper::SetTextInClipboard(const char* str)
 {
-  NSString* pTextForClipboard = [NSString stringWithUTF8String:str];
-  [[NSPasteboard generalPasteboard] clearContents];
-  return [[NSPasteboard generalPasteboard] setString:pTextForClipboard forType:NSStringPboardType];
+  return PlatformUtilities::SetTextInClipboard(str);
 }
 
 bool IGraphicsReaper::SetFilePathInClipboard(const char* path)
 {
-  NSPasteboard* pPasteboard = [NSPasteboard generalPasteboard];
-  [pPasteboard clearContents]; // clear pasteboard to take ownership
-  NSURL* pFileURL = [NSURL fileURLWithPath: [NSString stringWithUTF8String:path]];
-  BOOL success = [pPasteboard writeObjects: [NSArray arrayWithObject:pFileURL]];
-  return (bool)success;
+  return PlatformUtilities::SetFilePathInClipboard(path);
 }
 
-// FIX - no draga and drop
-
-bool IGraphicsReaper::InitiateExternalFileDragDrop(const char* path, const IRECT& iconBounds)
-{
-  /*
-  NSPasteboardItem* pasteboardItem = [[NSPasteboardItem alloc] init];
-  NSURL* fileURL = [NSURL fileURLWithPath: [NSString stringWithUTF8String:path]];
-  [pasteboardItem setString:fileURL.absoluteString forType:NSPasteboardTypeFileURL];
-  
-  NSDraggingItem* draggingItem = [[NSDraggingItem alloc] initWithPasteboardWriter:pasteboardItem];
-  NSRect draggingFrame = ToNSRect(this, iconBounds);
-  NSImage* iconImage = [[NSWorkspace sharedWorkspace] iconForFile:fileURL.path];
-  [iconImage setSize:NSMakeSize(64, 64)];
-  [draggingItem setDraggingFrame:draggingFrame contents: iconImage];
-  
-  IGRAPHICS_VIEW* view = (IGRAPHICS_VIEW*) mView;
-  NSDraggingSession* draggingSession = [view beginDraggingSessionWithItems:@[draggingItem] event:[NSApp currentEvent] source: view];
-  draggingSession.animatesToStartingPositionsOnCancelOrFail = YES;
-  draggingSession.draggingFormation = NSDraggingFormationNone;
-  
-  ReleaseMouseCapture();
-  
-  return true;*/
-  
-  return false;
-}
-
-// Reveal / Prompts
+// Reveal
 
 bool IGraphicsReaper::RevealPathInExplorerOrFinder(WDL_String& path, bool select)
 {
-  BOOL success = FALSE;
-
-  @autoreleasepool {
-    
-  if(path.GetLength())
-  {
-    NSString* pPath = [NSString stringWithUTF8String:path.Get()];
-
-    if([[NSFileManager defaultManager] fileExistsAtPath : pPath] == YES)
-    {
-      if (select)
-      {
-        NSString* pParentDirectoryPath = [pPath stringByDeletingLastPathComponent];
-
-        if (pParentDirectoryPath)
-        {
-          success = [[NSWorkspace sharedWorkspace] openFile:pParentDirectoryPath];
-
-          if (success)
-            success = [[NSWorkspace sharedWorkspace] selectFile: pPath inFileViewerRootedAtPath:pParentDirectoryPath];
-        }
-      }
-      else {
-        success = [[NSWorkspace sharedWorkspace] openFile:pPath];
-      }
-
-    }
-  }
-
-  }
-  return (bool) success;
+  return PlatformUtilities::RevealPathInExplorerOrFinder(path, select);
 }
+
+bool IGraphicsReaper::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
+{
+  return PlatformUtilities::OpenURL(url, msgWindowTitle, confirmMsg, errMsgOnFailure);
+}
+
+// Prompts
 
 void IGraphicsReaper::PromptForFile(WDL_String& fileName, WDL_String& path, EFileAction action, const char* ext, IFileDialogCompletionHandlerFunc completionHandler)
 {
@@ -424,23 +291,6 @@ bool IGraphicsReaper::PromptForColor(IColor& color, const char* str, IColorPicke
   return false;
 }
 
-bool IGraphicsReaper::OpenURL(const char* url, const char* msgWindowTitle, const char* confirmMsg, const char* errMsgOnFailure)
-{
-  #pragma REMINDER("Warning and error messages for OpenURL not implemented")
-  NSURL* pNSURL = nullptr;
-  if (strstr(url, "http"))
-    pNSURL = [NSURL URLWithString:[NSString stringWithUTF8String:url]];
-  else
-    pNSURL = [NSURL fileURLWithPath:[NSString stringWithUTF8String:url]];
-
-  if (pNSURL)
-  {
-    bool ok = ([[NSWorkspace sharedWorkspace] openURL:pNSURL]);
-    return ok;
-  }
-  return true;
-}
-
 EMsgBoxResult IGraphicsReaper::ShowMessageBox(const char* str, const char* title, EMsgBoxType type, IMsgBoxCompletionHandlerFunc completionHandler)
 {
   ReleaseMouseCapture();
@@ -516,63 +366,28 @@ EMsgBoxResult IGraphicsReaper::ShowMessageBox(const char* str, const char* title
   return result;
 }
 
-// Platform Entry etc.
-
-// FIX - these require a view
-
-IPopupMenu* IGraphicsReaper::CreatePlatformPopupMenu(IPopupMenu& menu, const IRECT bounds, bool& isAsync)
-{
-  isAsync = true;
-  
-  dispatch_async(dispatch_get_main_queue(), ^{
-    IPopupMenu* pReturnMenu = nullptr;
-
-    if (GetWindow())
-    {
-      NSRect areaRect = ToNSRect(this, bounds);
-      //pReturnMenu = [(IGRAPHICS_VIEW*) GetWindow() createPopupMenu: menu: areaRect];
-    }
-
-    if (pReturnMenu && pReturnMenu->GetFunction())
-      pReturnMenu->ExecFunction();
-    
-    this->SetControlValueAfterPopupMenu(pReturnMenu);
-  });
-
-  return nullptr;
-}
-
-void IGraphicsReaper::CreatePlatformTextEntry(int paramIdx, const IText& text, const IRECT& bounds, int length, const char* str)
-{
-  if (GetWindow())
-  {
-    NSRect areaRect = ToNSRect(this, bounds);
-    //[(IGRAPHICS_VIEW*) GetWindow() createTextEntry: paramIdx : text: str: length: areaRect];
-  }
-}
-
 // Font Loading
 
-extern StaticStorage<CoreTextFontDescriptor> sFontDescriptorCache;
+extern StaticStorage<PlatformUtilities::FontType> sFontDescriptorCache;
 
 PlatformFontPtr IGraphicsReaper::LoadPlatformFont(const char* fontID, const char* fileNameOrResID)
 {
-  return CoreTextHelpers::LoadPlatformFont(fontID, fileNameOrResID, GetBundleID(), GetSharedResourcesSubPath());
+  return PlatformUtilities::LoadPlatformFont(fontID, fileNameOrResID, GetBundleID(), GetSharedResourcesSubPath());
 }
 
 PlatformFontPtr IGraphicsReaper::LoadPlatformFont(const char* fontID, const char* fontName, ETextStyle style)
 {
-  return CoreTextHelpers::LoadPlatformFont(fontID, fontName, style);
+  return PlatformUtilities::LoadPlatformFont(fontID, fontName, style);
 }
 
 PlatformFontPtr IGraphicsReaper::LoadPlatformFont(const char* fontID, void* pData, int dataSize)
 {
-  return CoreTextHelpers::LoadPlatformFont(fontID, pData, dataSize);
+  return PlatformUtilities::LoadPlatformFont(fontID, pData, dataSize);
 }
 
 void IGraphicsReaper::CachePlatformFont(const char* fontID, const PlatformFontPtr& font)
 {
-  CoreTextHelpers::CachePlatformFont(fontID, font, sFontDescriptorCache);
+  PlatformUtilities::CachePlatformFont(fontID, font, sFontDescriptorCache);
 }
 
 // Constructor / Destructor
@@ -580,29 +395,57 @@ void IGraphicsReaper::CachePlatformFont(const char* fontID, const PlatformFontPt
 IGraphicsReaper::IGraphicsReaper(IGEditorDelegate& dlg, int w, int h, int fps, float scale)
 : IGraphicsSkia(dlg, w, h, fps, scale, true)
 {
-  NSApplicationLoad();
-  StaticStorage<CoreTextFontDescriptor>::Accessor storage(sFontDescriptorCache);
+  PlatformUtilities::GUILoad();
+  StaticStorage<PlatformUtilities::FontType>::Accessor storage(sFontDescriptorCache);
   storage.Retain();
 }
 
 IGraphicsReaper::~IGraphicsReaper()
 {
-  StaticStorage<CoreTextFontDescriptor>::Accessor storage(sFontDescriptorCache);
+  StaticStorage<PlatformUtilities::FontType>::Accessor storage(sFontDescriptorCache);
   storage.Release();
   
   CloseWindow();
+}
+
+
+// Open Window
+
+void* IGraphicsReaper::OpenWindow(void* pWindow)
+{
+  mOpen = true;
+  GetDelegate()->LayoutUI(this);
+  return nullptr;
 }
 
 // Draw Loop
 
 int IGraphicsReaper::DrawEmbedded(REAPER_FXEMBED_IBitmap* pBitmap, REAPER_FXEMBED_DrawInfo* pInfo)
 {
+  auto GetContext = [](REAPER_FXEMBED_DrawInfo* pInfo)
+  {
+    switch (pInfo->context)
+    {
+      case 1:   return EmbeddedContext::TCP;
+      case 2:   return EmbeddedContext::MCP;
+      default:  return EmbeddedContext::Unknown;
+    }
+  };
+
   // Resize or rescale if required
   
   const float screenScale = pInfo->dpi / 256.f;
   const int width = pInfo->width / screenScale;
   const int height = pInfo->height / screenScale;
 
+  const EmbeddedContext context = GetContext(pInfo);
+  
+  if (context != mEmbeddedContext)
+  {
+    mEmbeddedContext = context;
+    GetDelegate()->LayoutUI(this);
+  }
+  
   if (screenScale != GetScreenScale())
     SetScreenScale(screenScale);
   
@@ -660,34 +503,6 @@ void IGraphicsReaper::DrawResize()
   }
 }
 
-// UI Proc
-
-IMouseInfo IGraphicsReaper::GetMouseInfo(void* pMsg)
-{
-  // FIX - deltas
-  // FIX - modifiers
-  
-  auto* pInfo = reinterpret_cast<REAPER_FXEMBED_DrawInfo*>(pMsg);
-  
-  const float scale = GetTotalScale();
-
-  float x = pInfo->mouse_x / scale;
-  float y = pInfo->mouse_y / scale;
-  float dX = mLastX >= 0.f ? x - mLastX : 0.f;
-  float dY = mLastY >= 0.f ? y - mLastY : 0.f;
-  bool l = pInfo->flags & REAPER_FXEMBED_DRAWINFO_FLAG_LBUTTON_CAPTURED;
-  bool r = pInfo->flags & REAPER_FXEMBED_DRAWINFO_FLAG_RBUTTON_CAPTURED;
-  
-  int mods = (int) [NSEvent modifierFlags];
-  
-  mLastX = x;
-  mLastY = y;
-  
-  IMouseMod mod(l, r, (mods & NSShiftKeyMask), (mods & NSControlKeyMask), (mods & NSAlternateKeyMask));
-  
-  return IMouseInfo{x, y, dX, dY, mod};
-}
-
 void DebugMouse(const char *str, int msg, int msgL, int msgR, const IMouseInfo& info)
 {
   const char* tag = "";
@@ -700,15 +515,59 @@ void DebugMouse(const char *str, int msg, int msgL, int msgR, const IMouseInfo& 
   DBGMSG("%s%s %f %f %f %F %d %d %d %d %d\n", tag, str, info.x, info.y, info.dX, info.dY, info.ms.L, info.ms.R, info.ms.A, info.ms.C, info.ms.S);
 }
 
+// UI Proc
+
+IMouseInfo IGraphicsReaper::GetMouseInfo(int message, void* pMsg)
+{
+  auto* pInfo = reinterpret_cast<REAPER_FXEMBED_DrawInfo*>(pMsg);
+  
+  const float scale = GetTotalScale();
+
+  const float x = pInfo->mouse_x / scale;
+  const float y = pInfo->mouse_y / scale;
+  const float dX = mCursorX >= 0.f ? x - mCursorX : 0.f;
+  const float dY = mCursorY >= 0.f ? y - mCursorY : 0.f;
+  
+  bool l = pInfo->flags & REAPER_FXEMBED_DRAWINFO_FLAG_LBUTTON_CAPTURED;
+  bool r = pInfo->flags & REAPER_FXEMBED_DRAWINFO_FLAG_RBUTTON_CAPTURED;
+
+  switch (message)
+  {
+    case REAPER_FXEMBED_WM_LBUTTONDOWN:
+      l = true;
+      break;
+      
+    case REAPER_FXEMBED_WM_RBUTTONDOWN:
+      r = true;
+      break;
+      
+    default:
+      break;
+  }
+  
+  DoCursorLock(x, y, mCursorX, mCursorY);
+  
+  return IMouseInfo{x, y, dX, dY, PlatformUtilities::GetMouseModifiers(l, r)};
+}
+
+void IGReaperEditorDelegate::LayoutUI(IGraphics* pGraphics)
+{
+  if (mLayoutFunc)
+  {
+    pGraphics->RemoveAllControls();
+    mLayoutFunc(pGraphics);
+  }
+}
+
 int IGReaperEditorDelegate::EmbeddedUIProc(int message, void* pMsg1, void* pMsg2)
 {
   auto GetGraphics = [&, this]() { return static_cast<IGraphicsReaper*>(GetUI()); };
   
   switch (message)
   {
-    case 0:
+    case REAPER_FXEMBED_WM_IS_SUPPORTED:
       return 1;
-      
+            
     case REAPER_FXEMBED_WM_CREATE:
       OpenWindow(nullptr);
       GetUI()->SetLayoutOnResize(true);
@@ -722,25 +581,27 @@ int IGReaperEditorDelegate::EmbeddedUIProc(int message, void* pMsg1, void* pMsg2
       
     case REAPER_FXEMBED_WM_MOUSEMOVE:
     {
-      auto info = GetGraphics()->GetMouseInfo(pMsg2);
+      auto info = GetGraphics()->GetMouseInfo(message, pMsg2);
       std::vector<IMouseInfo> list {info};
       
       if (info.ms.L || info.ms.R)
       {
-        DebugMouse("Drag", message, 0, 0, GetGraphics()->GetMouseInfo(pMsg2));
+        DebugMouse("Drag", message, 0, 0, info);
         GetUI()->OnMouseDrag(list);
+        return REAPER_FXEMBED_RETNOTIFY_INVALIDATE;
       }
-      else
-        GetUI()->OnMouseOver(info.x, info.y, info.ms);
       
-      return 0;
+      if (GetUI()->OnMouseOver(info.x, info.y, info.ms))
+        return REAPER_FXEMBED_RETNOTIFY_INVALIDATE;
+      else
+        return 0;
     }
       
     case REAPER_FXEMBED_WM_LBUTTONDOWN:
     case REAPER_FXEMBED_WM_RBUTTONDOWN:
     {
-      std::vector<IMouseInfo> list { GetGraphics()->GetMouseInfo(pMsg2) };
-      DebugMouse("Down", message, REAPER_FXEMBED_WM_LBUTTONDOWN, REAPER_FXEMBED_WM_RBUTTONDOWN, GetGraphics()->GetMouseInfo(pMsg2));
+      std::vector<IMouseInfo> list { GetGraphics()->GetMouseInfo(message, pMsg2) };
+      DebugMouse("Down", message, REAPER_FXEMBED_WM_LBUTTONDOWN, REAPER_FXEMBED_WM_RBUTTONDOWN, list[0]);
       GetUI()->OnMouseDown(list);
       return 0;
     }
@@ -748,8 +609,8 @@ int IGReaperEditorDelegate::EmbeddedUIProc(int message, void* pMsg1, void* pMsg2
     case REAPER_FXEMBED_WM_LBUTTONUP:
     case REAPER_FXEMBED_WM_RBUTTONUP:
     {
-      std::vector<IMouseInfo> list { GetGraphics()->GetMouseInfo(pMsg2) };
-      DebugMouse("Up", message, REAPER_FXEMBED_WM_LBUTTONUP, REAPER_FXEMBED_WM_RBUTTONUP, GetGraphics()->GetMouseInfo(pMsg2));
+      std::vector<IMouseInfo> list { GetGraphics()->GetMouseInfo(message, pMsg2) };
+      DebugMouse("Up", message, REAPER_FXEMBED_WM_LBUTTONUP, REAPER_FXEMBED_WM_RBUTTONUP, list[0]);
       GetUI()->OnMouseUp(list);
       return 0;
     }
@@ -757,21 +618,28 @@ int IGReaperEditorDelegate::EmbeddedUIProc(int message, void* pMsg1, void* pMsg2
     case REAPER_FXEMBED_WM_LBUTTONDBLCLK:
     case REAPER_FXEMBED_WM_RBUTTONDBLCLK:
     {
-      auto info = GetGraphics()->GetMouseInfo(pMsg2);
+      auto info = GetGraphics()->GetMouseInfo(message, pMsg2);
+     
       DebugMouse("Double Click", message, REAPER_FXEMBED_WM_LBUTTONDBLCLK, REAPER_FXEMBED_WM_RBUTTONDBLCLK, info);
-      GetUI()->OnMouseDblClick(info.x, info.y, info.ms);
-      return 0;
+      
+      if (GetUI()->OnMouseDblClick(info.x, info.y, info.ms))
+        return REAPER_FXEMBED_RETNOTIFY_INVALIDATE;
+      else
+        return 0;
     }
       
     case REAPER_FXEMBED_WM_MOUSEWHEEL:
     {
-      // FIX - check
-
       static const float wheelStep = 120.f;
-      auto info = GetGraphics()->GetMouseInfo(pMsg2);
+      auto info = GetGraphics()->GetMouseInfo(message, pMsg2);
       auto* pInfo = reinterpret_cast<REAPER_FXEMBED_DrawInfo*>(pMsg2);
-      GetUI()->OnMouseWheel(info.x, info.y, info.ms, pInfo->mousewheel_amt / wheelStep);
-      return 0;
+     
+      DebugMouse("Mouse Wheel", message, 0L, 0, info);
+
+      if (GetUI()->OnMouseWheel(info.x, info.y, info.ms, pInfo->mousewheel_amt / wheelStep))
+        return REAPER_FXEMBED_RETNOTIFY_INVALIDATE;
+      else
+        return 0;
     }
       
     case REAPER_FXEMBED_WM_GETMINMAXINFO:
@@ -790,6 +658,8 @@ int IGReaperEditorDelegate::EmbeddedUIProc(int message, void* pMsg1, void* pMsg2
       
     case REAPER_FXEMBED_WM_PAINT:
     {
+      //REAPER_FXEMBED_EXT_GET_ADVISORY_SCALING
+      
       auto* pBitmap = reinterpret_cast<REAPER_FXEMBED_IBitmap*>(pMsg1);
       auto* pInfo = reinterpret_cast<REAPER_FXEMBED_DrawInfo*>(pMsg2);
 
