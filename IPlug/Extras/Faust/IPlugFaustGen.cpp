@@ -149,7 +149,6 @@ interpreter_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
 ::dsp *FaustGen::Factory::GetDSP(int maxInputs, int maxOutputs, const MidiHandlerPtr& handler)
 {
   ::dsp* pDSP = nullptr;
-  FMeta meta;
   std::string error;
 
   // Factory already allocated
@@ -166,7 +165,6 @@ interpreter_dsp_factory *FaustGen::Factory::CreateFactoryFromSourceCode()
     if (mInterpreterFactory)
     {
       pDSP = CreateDSPInstance(handler);
-      pDSP->metadata(&meta);
       DBGMSG("FaustGen-%s: Compilation from source code succeeded, %i input(s), %i output(s)\n", mName.Get(), pDSP->getNumInputs(), pDSP->getNumOutputs());
       goto end;
     }
@@ -361,7 +359,7 @@ FaustGen::FaustGen(const char* name, const char* inputDSPFile, int nVoices, int 
   }
   else
   {
-    DBGMSG("FaustGen: attempting to load %s\n", inputDSPFile);
+    DBGMSG("FaustGen: loading %s\n", inputDSPFile);
     mFactory = new Factory(name, libraryPath, drawPath, inputDSPFile);
     FaustGen::Factory::sFactoryMap[name] = mFactory;
   }
@@ -384,16 +382,29 @@ FaustGen::~FaustGen()
 
 void FaustGen::Init()
 {
-  mZones.Empty(); // remove existing pointers to zones
-    
+  mParamZones.Empty(); // remove existing pointers to zones
+
   mMidiHandler = std::make_unique<iplug2_midi_handler>();
   mMidiUI = std::make_unique<MidiUI>(mMidiHandler.get());
+  mJSONUI = std::make_unique<JSONUI>();
     
   mDSP = std::unique_ptr<::dsp>(mFactory->GetDSP(mMaxNInputs, mMaxNOutputs, mMidiHandler));
   assert(mDSP);
  
-  mDSP->buildUserInterface(mMidiUI.get());
+  // build Param UI
   mDSP->buildUserInterface(this);
+  
+  DBGMSG("%i Parameters\n", NParams());
+  
+  // build MIDI UI
+  mDSP->buildUserInterface(mMidiUI.get());
+
+  // build JSON UI
+  JSONUI builder(mDSP->getNumInputs(), mDSP->getNumOutputs());
+  mDSP->buildUserInterface(&builder);
+  mDSP->metadata(&builder);
+  mJSONStr.Set(builder.JSON().c_str());
+  
   mDSP->init(DEFAULT_SAMPLE_RATE);
   
   assert((mDSP->getNumInputs() <= mMaxNInputs) && (mDSP->getNumOutputs() <= mMaxNOutputs)); // don't have enough buffers to process the DSP
@@ -412,7 +423,7 @@ void FaustGen::Init()
   if (mOnCompileFunc)
     mOnCompileFunc();
     
-    mMidiHandler->startMidi();
+  mMidiHandler->startMidi();
 }
 
 void FaustGen::GetDrawPath(WDL_String& path)
