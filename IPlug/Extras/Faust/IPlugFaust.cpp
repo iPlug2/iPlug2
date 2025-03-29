@@ -19,6 +19,20 @@ std::list<GUI*> GUI::fGuiList;
 ztimedmap GUI::gTimedZoneMap;
 iplug::Timer* iplug::IPlugFaust::sUITimer = nullptr;
 
+//struct Meta : std::map<const char*, const char*>
+//{
+//    void declare(const char* key, const char* value) { (*this)[key] = value; }
+//    
+//    const char* get(const char* key, const char* defaultString)
+//    {
+//        if (this->find(key) != this->end()) {
+//            return (*this)[key];
+//        } else {
+//            return defaultString;
+//        }
+//    }
+//};
+
 using namespace iplug;
 
 IPlugFaust::IPlugFaust(const char* name, int nVoices, int rate)
@@ -35,6 +49,33 @@ IPlugFaust::IPlugFaust(const char* name, int nVoices, int rate)
   {
     sUITimer = Timer::Create(std::bind(&IPlugFaust::OnUITimer, this, std::placeholders::_1), FAUST_UI_INTERVAL);
   }
+}
+
+IPlugFaust::~IPlugFaust()
+{
+  mParams.Empty(true);
+}
+
+void IPlugFaust::declare(const char* key, const char* value)
+{
+}
+
+void IPlugFaust:: SetSampleRate(double sampleRate)
+{
+  int multiplier = 1;
+  
+  if (mOverSampler)
+    multiplier = mOverSampler->GetRate();
+  
+  if (mDSP) {
+    mDSP->init(((int) sampleRate) * multiplier);
+    SyncFaustParams();
+  }
+}
+
+void IPlugFaust::ProcessMidiMsg(const IMidiMsg& msg)
+{
+  mMidiHandler->decodeMessage(msg);
 }
 
 void IPlugFaust::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
@@ -55,6 +96,21 @@ void IPlugFaust::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
   //    else silence?
 }
 
+void IPlugFaust::FreeDSP()
+{
+  mMidiHandler->stopMidi();
+  mMidiUI = nullptr;
+  mDSP = nullptr;
+  mMidiHandler = nullptr;
+}
+
+void IPlugFaust::SetOverSamplingRate(int rate)
+{
+  if (mOverSampler)
+    mOverSampler->SetOverSampling(OverSampler<sample>::RateToFactor(rate));
+}
+
+
 void IPlugFaust::SetParameterValueNormalised(int paramIdx, double normalizedValue)
 {
   if (paramIdx > kNoParameter && paramIdx >= NParams())
@@ -74,8 +130,8 @@ void IPlugFaust::SetParameterValueNormalised(int paramIdx, double normalizedValu
 
 void IPlugFaust::SetParameterValue(int paramIdx, double nonNormalizedValue)
 {
-  if (NParams()) {
-
+  if (NParams())
+  {
     assert(paramIdx < NParams()); // Seems like we don't have enough parameters!
 
     mParams.Get(paramIdx)->Set(nonNormalizedValue);
@@ -91,7 +147,7 @@ void IPlugFaust::SetParameterValue(int paramIdx, double nonNormalizedValue)
 
 void IPlugFaust::SetParameterValue(const char* labelToLookup, double nonNormalizedValue)
 {
-  FAUSTFLOAT* dest = nullptr;
+  ffloat* dest = nullptr;
   dest = mMap.Get(labelToLookup, nullptr);
   //    mParams.Get(paramIdx)->Set(nonNormalizedValue); // TODO: we are not updating the IPlug parameter
 
@@ -122,6 +178,7 @@ int IPlugFaust::CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx, int end
     IParam* pPlugParam = pPlug->GetParam(plugParamIdx + p);
     const double currentValueNormalised = pPlugParam->GetNormalized();
     pPlugParam->Init(*mParams.Get(p));
+    pPlugParam->SetDisplayPrecision(2);
     if (setToDefault)
       pPlugParam->SetToDefault();
     else
@@ -131,14 +188,14 @@ int IPlugFaust::CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx, int end
   return plugParamIdx;
 }
 
-void IPlugFaust::AddOrUpdateParam(IParam::EParamType type, const char* label, FAUSTFLOAT* zone, FAUSTFLOAT init, FAUSTFLOAT min, FAUSTFLOAT max, FAUSTFLOAT step)
+void IPlugFaust::AddOrUpdateParam(IParam::EParamType type, const char* label, ffloat* zone, ffloat init, ffloat min, ffloat max, ffloat step)
 {
   IParam* pParam = nullptr;
 
-  const int idx = FindExistingParameterWithName(label);
+  const int paramIdx = FindExistingParameterWithName(label);
 
-  if (idx > -1)
-    pParam = mParams.Get(idx);
+  if (paramIdx > -1)
+    pParam = mParams.Get(paramIdx);
   else
     pParam = new IParam();
 
@@ -161,9 +218,11 @@ void IPlugFaust::AddOrUpdateParam(IParam::EParamType type, const char* label, FA
     break;
   }
 
-  if (idx == -1)
+  if (paramIdx == -1)
+  {
     mParams.Add(pParam);
-
+  }
+  
   mZones.Add(zone);
 }
 
@@ -204,4 +263,39 @@ void IPlugFaust::SyncFaustParams()
   {
     *mZones.Get(p) = mParams.Get(p)->Value();
   }
+}
+
+void IPlugFaust::addButton(const char *label, ffloat *zone)
+{
+  AddOrUpdateParam(IParam::kTypeBool, label, zone);
+}
+
+void IPlugFaust::addCheckButton(const char *label, ffloat *zone)
+{
+  AddOrUpdateParam(IParam::kTypeBool, label, zone);
+}
+
+void IPlugFaust::addVerticalSlider(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step)
+{
+  AddOrUpdateParam(IParam::kTypeDouble, label, zone, init, min, max, step);
+}
+
+void IPlugFaust::addHorizontalSlider(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step)
+{
+  AddOrUpdateParam(IParam::kTypeDouble, label, zone, init, min, max, step);
+}
+
+void IPlugFaust::addNumEntry(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step)
+{
+  AddOrUpdateParam(IParam::kTypeEnum, label, zone, init, min, max, step);
+}
+
+void IPlugFaust::OnUITimer(Timer& timer)
+{
+  GUI::updateAllGuis();
+}
+
+int IPlugFaust::NParams() const
+{
+  return mParams.GetSize();
 }
