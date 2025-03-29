@@ -19,7 +19,7 @@
 
 #define FAUSTCLASS_POLY mydsp_poly
 
-#define FAUST_UI_INTERVAL 100 //ms
+#define FAUST_UI_INTERVAL 50 //ms
 
 #include "faust/dsp/poly-dsp.h"
 #include "faust/gui/MetaDataUI.h"
@@ -33,6 +33,7 @@
 #include "IPlugAPIBase.h"
 
 #include "Oversampler.h"
+#include "ISender.h"
 
 #ifndef FAUST_SHARE_PATH
   #if defined OS_MAC || defined OS_LINUX
@@ -52,8 +53,7 @@ using ffloat = FAUSTFLOAT;
 class IPlugFaust : public GUI, public MetaDataUI
 {
 public:
-  
-  IPlugFaust(const char* name, int nVoices = 1, int rate = 1);
+  IPlugFaust(const char* name, int nVoices = 1, int rate = 1, int ctrlTagStart = 1000);
   virtual ~IPlugFaust();
   IPlugFaust(const IPlugFaust&) = delete;
   IPlugFaust& operator=(const IPlugFaust&) = delete;
@@ -98,15 +98,14 @@ public:
   
   void SyncFaustParams();
 
+  void BuildUI(UI* pFaustUIToBuild);
+  
   // MetaData
-  virtual void declare(FAUSTFLOAT* zone, const char* key, const char* value) override
-  {
-    MetaDataUI::declare(zone, key, value);
-  }
+  virtual void declare(FAUSTFLOAT* zone, const char* key, const char* value) override;
   
   // UI
 
-  // TODO:
+  // Not used here:
   void openTabBox(const char *label) override {}
   void openHorizontalBox(const char *label) override {}
   void openVerticalBox(const char *label) override {}
@@ -119,9 +118,11 @@ public:
   void addNumEntry(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step) override;
 
   // TODO:
-  void addHorizontalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max) override {}
-  void addVerticalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max) override {}
+  void addHorizontalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max) override;
+  void addVerticalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max) override;
   void addSoundfile(const char *label, const char *filename, Soundfile **sf_zone) override {}
+
+  int GetParamIdxForZone(ffloat* zone);
 
 protected:
   void AddOrUpdateParam(IParam::EParamType type, const char* label, ffloat* zone, ffloat init = 0., ffloat min = 0., ffloat max = 0., ffloat step = 1.);
@@ -138,13 +139,17 @@ protected:
   std::unique_ptr<MidiUI> mMidiUI;
   std::unique_ptr<JSONUI> mJSONUI;
   WDL_PtrList<IParam> mParams;
-  WDL_PtrList<ffloat> mZones;
+  WDL_PtrList<ffloat> mParamZones;
   static Timer* sUITimer;
   WDL_StringKeyedArray<ffloat*> mMap; // map is used for setting FAUST parameters by name, also used to reconnect existing parameters
   int mIPlugParamStartIdx = -1; // if this is negative, it means there is no linking
 
   IPlugAPIBase* mPlug = nullptr;
   bool mInitialized = false;
+  
+  WDL_PtrList<IPeakAvgSender<>> mSenders;
+  WDL_PtrList<ffloat> mSenderZones;
+  int mCtrlTagStart;
 };
 
 END_IPLUG_NAMESPACE

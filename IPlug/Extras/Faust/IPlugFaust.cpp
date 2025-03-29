@@ -35,8 +35,9 @@ iplug::Timer* iplug::IPlugFaust::sUITimer = nullptr;
 
 using namespace iplug;
 
-IPlugFaust::IPlugFaust(const char* name, int nVoices, int rate)
+IPlugFaust::IPlugFaust(const char* name, int nVoices, int rate, int ctrlTagStart)
 : mNVoices(nVoices)
+, mCtrlTagStart(ctrlTagStart)
 {
   if (rate > 1)
   {
@@ -67,6 +68,17 @@ void IPlugFaust:: SetSampleRate(double sampleRate)
     mDSP->init(((int) sampleRate) * multiplier);
     SyncFaustParams();
   }
+  
+  if (int nSenders = mSenders.GetSize())
+  {
+    IPeakAvgSender<>** ppSender = mSenders.GetList();
+
+    for (int i = 0; i < nSenders; ++i, ++ppSender)
+    {
+      IPeakAvgSender<>* pSender = *ppSender;
+      pSender->Reset(sampleRate);
+    }
+  }
 }
 
 void IPlugFaust::ProcessMidiMsg(const IMidiMsg& msg)
@@ -88,6 +100,24 @@ void IPlugFaust::ProcessBlock(sample** inputs, sample** outputs, int nFrames)
         });
     else
       mDSP->compute(nFrames, inputs, outputs);
+    
+    if (int nSenders = mSenders.GetSize())
+    {
+      IPeakAvgSender<>** ppSender = mSenders.GetList();
+
+      for (int i = 0; i < nSenders; ++i, ++ppSender)
+      {
+        IPeakAvgSender<>* pSender = *ppSender;
+        auto* pZone = mSenderZones.Get(i);
+        sample val = (sample) *pZone;
+        sample** tmp = new sample*[1];
+        tmp[0] = &val;
+        
+        for (auto s=0;s<nFrames;s++) {
+          pSender->ProcessBlock(tmp, 1, mCtrlTagStart + i);
+        }
+      }
+    }
   }
   //    else silence?
 }
@@ -99,6 +129,7 @@ void IPlugFaust::FreeDSP()
   mJSONUI = nullptr;
   mDSP = nullptr;
   mMidiHandler = nullptr;
+  mSenders.Empty(true);
 }
 
 void IPlugFaust::SetOverSamplingRate(int rate)
@@ -118,8 +149,8 @@ void IPlugFaust::SetParameterValueNormalised(int paramIdx, double normalizedValu
   {
     mParams.Get(paramIdx)->SetNormalized(normalizedValue);
 
-    if (mZones.GetSize() == NParams())
-      *(mZones.Get(paramIdx)) = mParams.Get(paramIdx)->Value();
+    if (mParamZones.GetSize() == NParams())
+      *(mParamZones.Get(paramIdx)) = mParams.Get(paramIdx)->Value();
     else
       DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetName());
   }
@@ -133,8 +164,8 @@ void IPlugFaust::SetParameterValue(int paramIdx, double nonNormalizedValue)
 
     mParams.Get(paramIdx)->Set(nonNormalizedValue);
 
-    if (mZones.GetSize() == NParams())
-      *(mZones.Get(paramIdx)) = nonNormalizedValue;
+    if (mParamZones.GetSize() == NParams())
+      *(mParamZones.Get(paramIdx)) = nonNormalizedValue;
     else
       DBGMSG("IPlugFaust-%s:: Missing zone for parameter %s\n", mName.Get(), mParams.Get(paramIdx)->GetName());
   }
@@ -175,7 +206,7 @@ int IPlugFaust::CreateIPlugParameters(IPlugAPIBase* pPlug, int startIdx, int end
     IParam* pPlugParam = pPlug->GetParam(plugParamIdx + p);
     const double currentValueNormalised = pPlugParam->GetNormalized();
     pPlugParam->Init(*mParams.Get(p));
-    pPlugParam->SetDisplayPrecision(2);
+
     if (setToDefault)
       pPlugParam->SetToDefault();
     else
@@ -199,43 +230,46 @@ void IPlugFaust::AddOrUpdateParam(IParam::EParamType type, const char* name, ffl
   auto flags = IParam::kFlagsNone;
   auto group = fGroupTooltip.c_str();
   auto unit = fUnit[zone].c_str();
-  auto scale = getScale(zone);
   
-  DBGMSG("unit: %s\n", unit);
-
   switch (type)
   {
   case IParam::EParamType::kTypeBool:
-    pParam->InitBool(name, 0);
+    pParam->InitBool(name, static_cast<bool>(init), unit, flags, group);
     break;
   case IParam::EParamType::kTypeInt:
     pParam->InitInt(name, static_cast<int>(init), static_cast<int>(min), static_cast<int>(max), unit, flags, group);
     break;
   case IParam::EParamType::kTypeEnum:
-  {
-    pParam->InitEnum(name, static_cast<int>(init), static_cast<int>(max - min), unit, flags, group);
+    {
+      pParam->InitEnum(name, static_cast<int>(init), static_cast<int>(max - min), unit, flags, group);
 
-    std::vector<std::string> names;
-    std::vector<double> values;
-    const char* menuDesc = fMenuDescription[zone].c_str();
-    if (parseMenuList(menuDesc, names, values)) {
-      for (auto i=0; i<names.size(); i++)
-      {
-        pParam->SetDisplayText(values[i], names[i].c_str());
+      std::vector<std::string> names;
+      std::vector<double> values;
+      const char* menuDesc = fMenuDescription[zone].c_str();
+      if (parseMenuList(menuDesc, names, values)) {
+        for (auto i=0; i<names.size(); i++)
+        {
+          pParam->SetDisplayText(values[i], names[i].c_str());
+        }
       }
     }
-  }
     break;
   case IParam::EParamType::kTypeDouble:
+    {
+      auto scale = getScale(zone);
       switch (scale) {
         case MetaDataUI::kLin:
           pParam->InitDouble(name, init, min, max, step, unit, flags, group, IParam::ShapeLinear());
+          break;
         case MetaDataUI::kLog:
           pParam->InitDouble(name, init, min, max, step, unit, flags, group, IParam::ShapePowCurve(2.0));
+          break;
         case MetaDataUI::kExp:
           pParam->InitDouble(name, init, min, max, step, unit, flags, group, IParam::ShapeExp());
+          break;
       }
-    break;
+      break;
+    }
   default:
     break;
   }
@@ -245,24 +279,19 @@ void IPlugFaust::AddOrUpdateParam(IParam::EParamType type, const char* name, ffl
     mParams.Add(pParam);
   }
   
-  mZones.Add(zone);
+  mParamZones.Add(zone);
 }
 
 void IPlugFaust::BuildParameterMap()
 {
   for (auto p = 0; p < NParams(); p++)
   {
-    mMap.Insert(mParams.Get(p)->GetName(), mZones.Get(p)); // insert will overwrite keys with the same name
+    mMap.Insert(mParams.Get(p)->GetName(), mParamZones.Get(p)); // insert will overwrite keys with the same name
   }
 
   if (mIPlugParamStartIdx > -1 && mPlug != nullptr) // if we've already linked parameters
   {
     CreateIPlugParameters(mPlug, mIPlugParamStartIdx);
-  }
-
-  for (auto p = 0; p < NParams(); p++)
-  {
-    DBGMSG("%i %s\n", p, mParams.Get(p)->GetName());
   }
 }
 
@@ -283,18 +312,18 @@ void IPlugFaust::SyncFaustParams()
 {
   for (auto p = 0; p < NParams(); p++)
   {
-    *mZones.Get(p) = mParams.Get(p)->Value();
+    *mParamZones.Get(p) = mParams.Get(p)->Value();
   }
 }
 
 void IPlugFaust::addButton(const char *label, ffloat *zone)
 {
-  AddOrUpdateParam(IParam::kTypeBool, label, zone);
+  AddOrUpdateParam(IParam::kTypeBool, label, zone, 0, 0, 1);
 }
 
 void IPlugFaust::addCheckButton(const char *label, ffloat *zone)
 {
-  AddOrUpdateParam(IParam::kTypeBool, label, zone);
+  AddOrUpdateParam(IParam::kTypeBool, label, zone, 0, 0, 1);
 }
 
 void IPlugFaust::addVerticalSlider(const char *label, ffloat *zone, ffloat init, ffloat min, ffloat max, ffloat step)
@@ -320,12 +349,52 @@ void IPlugFaust::addNumEntry(const char *label, ffloat *zone, ffloat init, ffloa
   }
 }
 
+void IPlugFaust::addHorizontalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max)
+{
+  //double minThresholdDb = -90.0, bool rmsMode = true, float windowSizeMs = 5.0f, float attackTimeMs = 1.0f, float decayTimeMs = 100.0f, float peakHoldTimeMs = 500.0f
+  mSenders.Add(new IPeakAvgSender<>());
+  mSenderZones.Add(zone);
+}
+
+void IPlugFaust::addVerticalBargraph(const char *label, ffloat *zone, ffloat min, ffloat max)
+{
+  mSenders.Add(new IPeakAvgSender<>());
+  mSenderZones.Add(zone);
+}
+
 void IPlugFaust::OnUITimer(Timer& timer)
 {
   GUI::updateAllGuis();
+  
+  if (int nSenders = mSenders.GetSize())
+  {
+    IPeakAvgSender<>** ppSender = mSenders.GetList();
+
+    for (int i = 0; i < nSenders; ++i, ++ppSender)
+    {
+      IPeakAvgSender<>* pSender = *ppSender;
+      pSender->TransmitData(*mPlug);
+    }
+  }
 }
 
 int IPlugFaust::NParams() const
 {
   return mParams.GetSize();
+}
+
+void IPlugFaust::declare(FAUSTFLOAT* zone, const char* key, const char* value)
+{
+  MetaDataUI::declare(zone, key, value);
+}
+
+void IPlugFaust::BuildUI(UI* pFaustUIToBuild)
+{
+  mDSP->buildUserInterface(pFaustUIToBuild);
+  mDSP->metadata(dynamic_cast<Meta*>(pFaustUIToBuild));
+}
+
+int IPlugFaust::GetParamIdxForZone(ffloat* zone)
+{
+  return mParamZones.Find(zone);
 }

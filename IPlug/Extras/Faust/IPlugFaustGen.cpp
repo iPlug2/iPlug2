@@ -382,8 +382,8 @@ FaustGen::~FaustGen()
 
 void FaustGen::Init()
 {
-  mZones.Empty(); // remove existing pointers to zones
-    
+  mParamZones.Empty(); // remove existing pointers to zones
+
   mMidiHandler = std::make_unique<iplug2_midi_handler>();
   mMidiUI = std::make_unique<MidiUI>(mMidiHandler.get());
   mJSONUI = std::make_unique<JSONUI>();
@@ -391,8 +391,18 @@ void FaustGen::Init()
   mDSP = std::unique_ptr<::dsp>(mFactory->GetDSP(mMaxNInputs, mMaxNOutputs, mMidiHandler));
   assert(mDSP);
  
-  mDSP->buildUserInterface(mMidiUI.get());
+  // build Param UI
   mDSP->buildUserInterface(this);
+  
+  // build MIDI UI
+  mDSP->buildUserInterface(mMidiUI.get());
+
+  // build JSON UI
+  JSONUI builder(mDSP->getNumInputs(), mDSP->getNumOutputs());
+  mDSP->buildUserInterface(&builder);
+  mDSP->metadata(&builder);
+  mJSONStr.Set(builder.JSON().c_str());
+  
   mDSP->init(DEFAULT_SAMPLE_RATE);
   
   assert((mDSP->getNumInputs() <= mMaxNInputs) && (mDSP->getNumOutputs() <= mMaxNOutputs)); // don't have enough buffers to process the DSP
@@ -401,11 +411,6 @@ void FaustGen::Init()
   {
     //TODO: do something when I/O is wrong
   }
-  
-  JSONUI builder(mDSP->getNumInputs(), mDSP->getNumOutputs());
-  mDSP->buildUserInterface(&builder);
-  mDSP->metadata(&builder);
-  mJSONStr.Set(builder.JSON().c_str());
   
   BuildParameterMap(); // build a new map based on updated code
   mInitialized = true;
